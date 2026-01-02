@@ -77,24 +77,11 @@ export async function updateStudent(stdNo: number, student: Student) {
 	return service.update(stdNo, student);
 }
 
-export async function deleteStudent(stdNo: number) {
-	return service.delete(stdNo);
-}
-
 export async function updateStudentUserId(
 	stdNo: number,
 	userId: string | null
 ) {
 	const res = service.updateUserId(stdNo, userId);
-	revalidatePath(`/dashboard/students/${stdNo}`);
-	return res;
-}
-
-export async function updateStudentProgramStructure(
-	stdNo: number,
-	structureId: number
-) {
-	const res = await service.updateProgramStructure(stdNo, structureId);
 	revalidatePath(`/dashboard/students/${stdNo}`);
 	return res;
 }

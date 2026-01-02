@@ -46,10 +46,6 @@ export async function updateUser(id: string, user: UserWithSchools) {
 	return service.update(id, user);
 }
 
-export async function updateUserSchools(userId: string, schoolIds: number[]) {
-	return service.updateUserSchools(userId, schoolIds);
-}
-
 export async function deleteUser(id: string) {
 	return service.delete(id);
 }

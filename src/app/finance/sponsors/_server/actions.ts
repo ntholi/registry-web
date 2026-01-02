@@ -116,14 +116,6 @@ export async function getStudentCurrentSponsorship(stdNo: number) {
 	return service.getStudentCurrentSponsorship(stdNo);
 }
 
-export async function updateAccountDetails(data: {
-	stdNoOrName: string;
-	bankName: string;
-	accountNumber: string;
-}) {
-	return service.updateAccountDetails(data);
-}
-
 export async function bulkUpdateAccountDetails(
 	items: Array<{
 		stdNoOrName: string;

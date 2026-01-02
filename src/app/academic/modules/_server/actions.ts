@@ -24,7 +24,3 @@ export async function createModule(module: Module) {
 export async function updateModule(id: number, module: Module) {
 	return service.update(id, module);
 }
-
-export async function deleteModule(id: number) {
-	return service.delete(id);
-}

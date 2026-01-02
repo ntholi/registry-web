@@ -3,25 +3,6 @@
 import type { AttendanceReportFilter } from './repository';
 import { attendanceReportService } from './service';
 
-export async function getModulesForAttendanceReport(
-	programId?: number,
-	semesterNumber?: string
-) {
-	try {
-		const modules = await attendanceReportService.getSemesterModulesForFilter(
-			programId,
-			semesterNumber
-		);
-		return { success: true, data: modules };
-	} catch (error) {
-		console.error('Error fetching modules:', error);
-		return {
-			success: false,
-			error: error instanceof Error ? error.message : 'Unknown error',
-		};
-	}
-}
-
 export async function getAttendanceReportData(filter: AttendanceReportFilter) {
 	try {
 		const data = await attendanceReportService.getAttendanceReportData(filter);

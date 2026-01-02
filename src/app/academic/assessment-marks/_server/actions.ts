@@ -8,21 +8,9 @@ import { assessmentMarksService as service } from './service';
 
 type AssessmentMark = typeof assessmentMarks.$inferInsert;
 
-export async function getAssessmentMark(id: number) {
-	return service.get(id);
-}
-
-export async function getAssessmentMarks(page: number = 1, search = '') {
-	return service.getAll({ page, search });
-}
-
 export async function getAssessmentMarksByModuleId(moduleId: number) {
 	const term = await getActiveTerm();
 	return service.getByModuleId(moduleId, term.id);
-}
-
-export async function getAssessmentMarksAuditHistory(assessmentMarkId: number) {
-	return service.getAuditHistory(assessmentMarkId);
 }
 
 export async function createAssessmentMark(
@@ -32,13 +20,6 @@ export async function createAssessmentMark(
 	const result = await service.create(assessmentMark);
 	await calculateAndSaveModuleGrade(moduleId, assessmentMark.studentModuleId);
 	return result;
-}
-
-export async function createOrUpdateMarks(assessmentMark: AssessmentMark) {
-	if (Number.isNaN(assessmentMark.marks)) {
-		throw new Error('Mark is required');
-	}
-	return service.createOrUpdateMarks(assessmentMark);
 }
 
 export async function createOrUpdateMarksInBulk(
@@ -79,10 +60,6 @@ export async function updateAssessmentMark(
 	const result = await service.update(id, assessmentMark);
 	await calculateAndSaveModuleGrade(moduleId, assessmentMark.studentModuleId);
 	return result;
-}
-
-export async function deleteAssessmentMark(id: number) {
-	return service.delete(id);
 }
 
 export async function calculateAndSaveModuleGrade(

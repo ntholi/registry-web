@@ -5,10 +5,6 @@ import { termsService as service } from './service';
 
 type Term = typeof terms.$inferInsert;
 
-export async function getTerm(id: number) {
-	return service.get(id);
-}
-
 export async function getTermByCode(code: string) {
 	return service.getByCode(code);
 }

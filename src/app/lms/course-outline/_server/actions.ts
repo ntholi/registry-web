@@ -4,7 +4,6 @@ import { getCourseSections, getOrReuseSection } from '@lms/_shared/utils';
 import { auth } from '@/core/auth';
 import { moodlePost } from '@/core/integrations/moodle';
 import type {
-	BookChapter,
 	CourseOutlineBook,
 	CourseSection,
 	CourseTopic,
@@ -230,20 +229,4 @@ export async function createTopic(
 	});
 
 	return result as MoodleChapterResponse;
-}
-
-export async function getBookChapter(
-	bookId: number,
-	chapterId: number
-): Promise<BookChapter | null> {
-	const session = await auth();
-	if (!session?.user?.id) {
-		throw new Error('Unauthorized');
-	}
-
-	const bookDetails = (await moodlePost('local_activity_utils_get_book', {
-		bookid: bookId,
-	})) as CourseOutlineBook;
-
-	return bookDetails.chapters.find((ch) => ch.id === chapterId) || null;
 }

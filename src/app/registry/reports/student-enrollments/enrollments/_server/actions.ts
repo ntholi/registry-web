@@ -4,27 +4,6 @@ import { getAllSponsors } from '@finance/sponsors/_server/actions';
 import type { RegistrationReportFilter } from './repository';
 import { registrationReportService } from './service';
 
-export async function generateFullRegistrationReport(
-	termId: number,
-	filter?: RegistrationReportFilter
-) {
-	try {
-		const buffer =
-			await registrationReportService.generateFullRegistrationReport(
-				termId,
-				filter
-			);
-		const base64Data = Buffer.from(buffer).toString('base64');
-		return { success: true, data: base64Data };
-	} catch (error) {
-		console.error('Error generating full registration report:', error);
-		return {
-			success: false,
-			error: error instanceof Error ? error.message : 'Unknown error',
-		};
-	}
-}
-
 export async function generateSummaryRegistrationReport(
 	termIds: number[],
 	filter?: RegistrationReportFilter

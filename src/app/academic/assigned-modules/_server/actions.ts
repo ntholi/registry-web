@@ -1,18 +1,7 @@
 'use server';
 
 import { auth } from '@/core/auth';
-import type { assignedModules } from '@/core/database';
 import { assignedModulesService as service } from './service';
-
-type AssignedModule = typeof assignedModules.$inferInsert;
-
-export async function getAssignedModule(id: number) {
-	return service.get(id);
-}
-
-export async function getAssignedModules(page: number = 1, search = '') {
-	return service.getAll({ page, search });
-}
 
 export async function getAssignedModuleByUserAndModule(moduleId: number) {
 	const session = await auth();
@@ -20,17 +9,6 @@ export async function getAssignedModuleByUserAndModule(moduleId: number) {
 		return [];
 	}
 	return service.getByUserAndModule(session.user.id, moduleId);
-}
-
-export async function createAssignedModule(assignedModule: AssignedModule) {
-	return service.create(assignedModule);
-}
-
-export async function updateAssignedModule(
-	id: number,
-	assignedModule: AssignedModule
-) {
-	return service.update(id, assignedModule);
 }
 
 export async function deleteAssignedModule(id: number) {
@@ -58,13 +36,6 @@ export async function getAssignedModulesByCurrentUser() {
 		return [];
 	}
 	return service.getByUserGroupedByModule(session.user.id);
-}
-
-export async function checkModuleAssignment(
-	userId: string,
-	semesterModuleId: number
-) {
-	return service.checkAssignment(userId, semesterModuleId);
 }
 
 export async function getAssignedModuleByLmsCourseId(lmsCourseId: string) {

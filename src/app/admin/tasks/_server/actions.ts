@@ -54,10 +54,6 @@ export async function updateTaskStatus(
 	return service.updateStatus(id, status) as Promise<typeof tasks.$inferSelect>;
 }
 
-export async function getTaskCounts() {
-	return service.getTaskCounts();
-}
-
 export async function countUncompletedTasks() {
 	return service.countUncompleted();
 }

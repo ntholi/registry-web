@@ -8,10 +8,6 @@ export async function getWeeksForTerm(termId: number) {
 	return attendanceService.getWeeksForTerm(termId);
 }
 
-export async function getStudentsForModule(semesterModuleId: number) {
-	return attendanceService.getStudentsForModule(semesterModuleId);
-}
-
 export async function getAttendanceForWeek(
 	semesterModuleId: number,
 	termId: number,

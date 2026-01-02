@@ -14,14 +14,3 @@ export async function createStatementOfResultsPrint(
 export async function getStatementOfResultsPrint(id: string) {
 	return service.get(id);
 }
-
-export async function findAllStatementOfResultsPrints(
-	page: number = 1,
-	search = ''
-) {
-	return service.findAll({ page, search });
-}
-
-export async function findStatementOfResultsPrintsByStudent(stdNo: number) {
-	return service.findByStudent(stdNo);
-}

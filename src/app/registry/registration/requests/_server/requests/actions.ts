@@ -1,15 +1,8 @@
 'use server';
 
 import type { AcademicRemarks, Student } from '@registry/students';
-import type {
-	registrationRequests,
-	requestedModules,
-	StudentModuleStatus,
-} from '@/core/database';
+import type { StudentModuleStatus } from '@/core/database';
 import { registrationRequestsService as service } from './service';
-
-type RegistrationRequest = typeof registrationRequests.$inferInsert;
-type RequestedModule = typeof requestedModules.$inferInsert;
 
 type ModuleWithStatus = {
 	semesterModuleId: number;
@@ -24,17 +17,6 @@ type ModuleWithStatus = {
 
 export async function getRegistrationRequest(id: number) {
 	return service.get(id);
-}
-
-export async function getRegistrationRequestByStdNo(
-	stdNo: number,
-	termId: number
-) {
-	return service.getByStdNo(stdNo, termId);
-}
-
-export async function getRequestedModules(registrationRequestId: number) {
-	return service.getRequestedModules(registrationRequestId);
 }
 
 export async function countByStatus(
@@ -88,31 +70,8 @@ export async function determineSemesterStatus(
 	};
 }
 
-export async function createRegistrationRequest(value: RegistrationRequest) {
-	return service.create(value);
-}
-
-export async function updateRegistrationRequest({
-	id,
-	status,
-	message,
-}: {
-	id: number;
-	status: RegistrationRequest['status'];
-	message?: string;
-}) {
-	return service.update(id, { status, message });
-}
-
 export async function deleteRegistrationRequest(id: number) {
 	return service.delete(id);
-}
-
-export async function createRequestedModules(
-	stdNo: number,
-	modules: RequestedModule[]
-) {
-	return service.createRequestedModules(stdNo, modules);
 }
 
 export async function createRegistrationWithModules(data: {
@@ -170,10 +129,6 @@ export async function updateRegistrationWithModulesAndSponsorship(
 
 export async function getStudentRegistrationHistory(stdNo: number) {
 	return service.getHistory(stdNo);
-}
-
-export async function getStudentForProofOfRegistration(registrationId: number) {
-	return service.getForProofOfRegistration(registrationId);
 }
 
 function commonSemesterNo(modules: ModuleWithStatus[]): string {

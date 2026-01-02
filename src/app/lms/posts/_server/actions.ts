@@ -142,19 +142,6 @@ export async function getDiscussionsForum(
 	);
 }
 
-export async function getMainForum(
-	courseId: number
-): Promise<MoodleForum | null> {
-	const forums = await getCourseForums(courseId);
-
-	const newsForums = forums.filter((f) => f.type === 'news');
-	if (newsForums.length > 0) {
-		return newsForums[0];
-	}
-
-	return forums.length > 0 ? forums[0] : null;
-}
-
 export async function getAllPosts(courseId: number): Promise<{
 	announcements: MoodleDiscussion[];
 	discussions: MoodleDiscussion[];

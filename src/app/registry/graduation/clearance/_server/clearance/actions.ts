@@ -47,18 +47,6 @@ export async function updateGraduationClearance(id: number, data: Clearance) {
 	return service.update(id, data);
 }
 
-export async function respondToGraduationClearance(data: Clearance) {
-	return service.respond(data);
-}
-
-export async function deleteGraduationClearance(id: number) {
-	return service.delete(id);
-}
-
-export async function getGraduationClearanceHistory(clearanceId: number) {
-	return service.getHistory(clearanceId);
-}
-
 export async function getGraduationClearanceHistoryByStudentNo(stdNo: number) {
 	return service.getHistoryByStudentNo(stdNo);
 }

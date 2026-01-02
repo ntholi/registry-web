@@ -5,10 +5,6 @@ import { timetableAllocationService as service } from './service';
 
 type TimetableAllocation = typeof timetableAllocations.$inferInsert;
 
-export async function getTimetableAllocation(id: number) {
-	return service.getWithRelations(id);
-}
-
 export async function getTimetableAllocationsByUserId(userId: string) {
 	return service.getByUserIdWithRelations(userId);
 }
@@ -18,12 +14,6 @@ export async function createTimetableAllocationsWithVenueTypes(
 	venueTypeIds: number[]
 ) {
 	return service.createManyWithVenueTypes(allocations, venueTypeIds);
-}
-
-export async function createTimetableAllocation(
-	allocation: TimetableAllocation
-) {
-	return service.create(allocation);
 }
 
 export async function createTimetableAllocationWithVenueTypes(

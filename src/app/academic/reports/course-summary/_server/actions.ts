@@ -21,17 +21,3 @@ export async function generateCourseSummaryReport(
 		};
 	}
 }
-
-export async function getAvailableModulesForProgram(programId: number) {
-	try {
-		const modules =
-			await courseSummaryService.getAvailableModulesForProgram(programId);
-		return { success: true, data: modules };
-	} catch (error) {
-		console.error('Error fetching available modules:', error);
-		return {
-			success: false,
-			error: error instanceof Error ? error.message : 'Unknown error',
-		};
-	}
-}

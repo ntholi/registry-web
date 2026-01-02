@@ -10,15 +10,6 @@ export async function getAssessment(id: number) {
 	return service.get(id);
 }
 
-export async function getAssessments(page: number = 1, search = '') {
-	return service.findAll({
-		page,
-		search,
-		searchColumns: ['assessmentNumber', 'assessmentType'],
-		sort: [{ column: 'assessmentNumber', order: 'asc' }],
-	});
-}
-
 export async function getAssessmentByModuleId(moduleId: number) {
 	const term = await getActiveTerm();
 	return service.getByModuleId(moduleId, term.id);

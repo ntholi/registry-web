@@ -37,28 +37,6 @@ async function enrollUserInMoodleCourse(
 	}
 }
 
-export async function getEnrolledStudents(
-	courseId: number
-): Promise<MoodleEnrolledUser[]> {
-	const session = await auth();
-	if (!session?.user) {
-		throw new Error('Unauthorized');
-	}
-
-	const result = await moodleGet(
-		'core_enrol_get_enrolled_users',
-		{
-			courseid: courseId,
-		},
-		process.env.MOODLE_TOKEN
-	);
-
-	const enrolledUsers = result as MoodleEnrolledUser[];
-	return enrolledUsers.filter((user) =>
-		user.roles.some((role) => role.shortname === 'student')
-	);
-}
-
 export async function getEnrolledStudentsFromDB(courseId: number) {
 	const session = await auth();
 	if (!session?.user) {

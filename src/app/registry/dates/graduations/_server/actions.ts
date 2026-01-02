@@ -5,10 +5,6 @@ import { graduationsService as service } from './service';
 
 type Graduation = typeof graduations.$inferInsert;
 
-export async function getGraduation(id: number) {
-	return service.getWithTerm(id);
-}
-
 export async function getGraduationByDate(date: string) {
 	return service.getByDateWithTerm(date);
 }
@@ -19,10 +15,6 @@ export async function findAllGraduations(page: number = 1, search = '') {
 		search,
 		sort: [{ column: 'graduationDate', order: 'desc' }],
 	});
-}
-
-export async function getAllGraduations() {
-	return service.getAll();
 }
 
 export async function createGraduation(graduation: Graduation) {

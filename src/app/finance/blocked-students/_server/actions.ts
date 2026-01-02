@@ -16,10 +16,6 @@ export async function getBlockedStudentByStdNo(stdNo: number) {
 	return blockedStudent;
 }
 
-export async function getBlockedStudents(page: number = 1, search = '') {
-	return service.getAll({ page, search });
-}
-
 export async function createBlockedStudent(blockedStudent: BlockedStudent) {
 	return service.create(blockedStudent);
 }

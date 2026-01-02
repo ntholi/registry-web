@@ -23,22 +23,8 @@ export async function getGraduationRequestByStudentNo(stdNo: number) {
 	return result.length > 0 ? result[0] : null;
 }
 
-export async function getGraduationRequestByStudentProgramId(
-	studentProgramId: number
-) {
-	return service.getByStudentProgramId(studentProgramId);
-}
-
 export async function getEligiblePrograms(stdNo: number) {
 	return service.getEligiblePrograms(stdNo);
-}
-
-export async function selectStudentProgramForGraduation(stdNo: number) {
-	return service.selectStudentProgramForGraduation(stdNo);
-}
-
-export async function getGraduationRequests(page: number = 1, search = '') {
-	return service.getAll({ page, search });
 }
 
 export async function createGraduationRequest(

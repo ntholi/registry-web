@@ -42,23 +42,6 @@ export async function getCourseSections(
 	return getCourseSectionsShared(courseId) as Promise<MoodleSection[]>;
 }
 
-export async function getCoursePages(courseId: number): Promise<MoodlePage[]> {
-	const session = await auth();
-	if (!session?.user?.id) {
-		throw new Error('Unauthorized');
-	}
-
-	const result = await moodleGet('mod_page_get_pages_by_courses', {
-		'courseids[0]': courseId,
-	});
-
-	if (!result || !result.pages) {
-		return [];
-	}
-
-	return result.pages as MoodlePage[];
-}
-
 async function findOrCreateMaterialSection(courseId: number): Promise<number> {
 	return getOrReuseSection({
 		courseId,

@@ -6,10 +6,6 @@ import { venueService as service } from './service';
 
 type Venue = typeof venues.$inferInsert;
 
-export async function getVenue(id: number) {
-	return service.get(id);
-}
-
 export async function getVenueWithRelations(id: number) {
 	return service.getWithRelations(id);
 }
