@@ -4,7 +4,6 @@ import {
 	getProgramsBySchoolIds,
 } from '@academic/schools/_server/actions';
 import {
-	ActionIcon,
 	Grid,
 	Group,
 	Loader,
@@ -14,7 +13,7 @@ import {
 	Text,
 } from '@mantine/core';
 import { getAllTerms } from '@registry/dates/terms/_server/actions';
-import { IconFilter, IconPlayerPlayFilled } from '@tabler/icons-react';
+import { IconFilter } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import {
 	parseAsArrayOf,
@@ -111,12 +110,6 @@ export default function BoeFilter({ onFilterChange }: Props) {
 		setLocalFilter(updates);
 	}
 
-	const canGenerate = Boolean(
-		localFilter.termId &&
-			localFilter.schoolIds &&
-			localFilter.schoolIds.length > 0
-	);
-
 	return (
 		<Paper withBorder p='lg'>
 			<Group mb='md'>
@@ -145,7 +138,7 @@ export default function BoeFilter({ onFilterChange }: Props) {
 						/>
 					</Grid.Col>
 
-					<Grid.Col span={{ base: 12, sm: 6, md: 3 }}>
+					<Grid.Col span={{ base: 12, sm: 6, md: 4 }}>
 						<MultiSelect
 							label='Schools'
 							placeholder='Select schools'
@@ -162,7 +155,7 @@ export default function BoeFilter({ onFilterChange }: Props) {
 						/>
 					</Grid.Col>
 
-					<Grid.Col span={{ base: 12, sm: 6, md: 4 }}>
+					<Grid.Col span={{ base: 12, sm: 6, md: 3 }}>
 						<Select
 							label='Program'
 							placeholder='All programs'
@@ -211,10 +204,6 @@ export default function BoeFilter({ onFilterChange }: Props) {
 						/>
 					</Grid.Col>
 				</Grid>
-
-				<ActionIcon disabled={!canGenerate} variant='light' size={35}>
-					<IconPlayerPlayFilled size={16} />
-				</ActionIcon>
 			</Group>
 		</Paper>
 	);

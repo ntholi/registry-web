@@ -4,7 +4,6 @@ import {
 	getProgramsBySchoolIds,
 } from '@academic/schools/_server/actions';
 import {
-	ActionIcon,
 	Badge,
 	Button,
 	Flex,
@@ -27,11 +26,7 @@ import {
 	studentStatus,
 } from '@registry/_database/schema/enums';
 import { getAllTerms } from '@registry/dates/terms/_server/actions';
-import {
-	IconAdjustments,
-	IconFilter,
-	IconPlayerPlayFilled,
-} from '@tabler/icons-react';
+import { IconAdjustments, IconFilter } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import {
 	parseAsArrayOf,
@@ -317,15 +312,6 @@ export default function EnrollmentFilter({ onFilterChange }: Props) {
 								</Badge>
 							)}
 						</Button>
-
-						<ActionIcon
-							onClick={close}
-							disabled={!localFilter.termId}
-							variant='light'
-							size={35}
-						>
-							<IconPlayerPlayFilled size={16} />
-						</ActionIcon>
 					</Group>
 				</Flex>
 			</Paper>

@@ -4,7 +4,6 @@ import {
 	getProgramsBySchoolIds,
 } from '@academic/schools/_server/actions';
 import {
-	ActionIcon,
 	Flex,
 	Grid,
 	Group,
@@ -15,7 +14,7 @@ import {
 	Text,
 } from '@mantine/core';
 import { getAllTerms } from '@registry/dates/terms/_server/actions';
-import { IconFilter, IconPlayerPlayFilled } from '@tabler/icons-react';
+import { IconFilter } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import {
 	parseAsArrayOf,
@@ -129,10 +128,6 @@ export default function DistributionFilter({ onFilterChange }: Props) {
 		setLocalFilter(updates);
 	}
 
-	const canGenerate = Boolean(
-		localFilter.termId && localFilter.distributionType
-	);
-
 	return (
 		<Paper withBorder p='lg'>
 			<Group mb='md'>
@@ -237,10 +232,6 @@ export default function DistributionFilter({ onFilterChange }: Props) {
 						/>
 					</Grid.Col>
 				</Grid>
-
-				<ActionIcon disabled={!canGenerate} variant='light' size={35}>
-					<IconPlayerPlayFilled size={16} />
-				</ActionIcon>
 			</Flex>
 		</Paper>
 	);
