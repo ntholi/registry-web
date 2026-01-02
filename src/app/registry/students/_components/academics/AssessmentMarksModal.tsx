@@ -1,6 +1,6 @@
 'use client';
 
-import { getAllAssessmentsWithMarksByStudentModuleId } from '@academic/assessment-marks';
+import { getStudentMarks } from '@academic/assessment-marks';
 import {
 	Box,
 	Group,
@@ -25,17 +25,17 @@ type Props = {
 };
 
 export default function AssessmentMarksModal({
-	studentModuleId,
-	moduleCode,
-	moduleName,
+	studentModuleId: smId,
+	moduleCode: code,
+	moduleName: name,
 	totalMarks,
 	isDroppedOrDeleted,
 }: Props) {
 	const [opened, { open, close }] = useDisclosure(false);
 
 	const { data, isLoading } = useQuery({
-		queryKey: ['all-assessments-with-marks', studentModuleId],
-		queryFn: () => getAllAssessmentsWithMarksByStudentModuleId(studentModuleId),
+		queryKey: ['student-marks', smId],
+		queryFn: () => getStudentMarks(smId),
 		enabled: opened,
 	});
 
@@ -56,9 +56,9 @@ export default function AssessmentMarksModal({
 				onClose={close}
 				title={
 					<Stack gap={2}>
-						<Text fw={600}>{moduleName}</Text>
+						<Text fw={600}>{name}</Text>
 						<Text size='sm' c='dimmed'>
-							{moduleCode}
+							{code}
 						</Text>
 					</Stack>
 				}

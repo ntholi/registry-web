@@ -124,14 +124,6 @@ export async function getMarksAudit(studentModuleId: number) {
 	return service.getStudentAuditHistory(studentModuleId);
 }
 
-export async function getAssessmentMarksByStudentModuleId(
-	studentModuleId: number
-) {
-	return service.getByStudentModuleIdWithDetails(studentModuleId);
-}
-
-export async function getAllAssessmentsWithMarksByStudentModuleId(
-	studentModuleId: number
-) {
-	return service.getAllAssessmentsWithMarksByStudentModuleId(studentModuleId);
+export async function getStudentMarks(smId: number) {
+	return service.getStudentMarks(smId);
 }

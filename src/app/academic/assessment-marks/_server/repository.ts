@@ -86,8 +86,8 @@ export default class AssessmentMarkRepository extends BaseRepository<
 		});
 	}
 
-	async findAllAssessmentsWithMarksByStudentModuleId(studentModuleId: number) {
-		const studentModule = await db.query.studentModules.findFirst({
+	async getStudentMarks(studentModuleId: number) {
+		const sm = await db.query.studentModules.findFirst({
 			where: eq(studentModules.id, studentModuleId),
 			with: {
 				semesterModule: {
@@ -99,12 +99,12 @@ export default class AssessmentMarkRepository extends BaseRepository<
 			},
 		});
 
-		if (!studentModule?.semesterModule?.moduleId) {
+		if (!sm?.semesterModule?.moduleId) {
 			return [];
 		}
 
 		const term = await db.query.terms.findFirst({
-			where: eq(terms.code, studentModule.studentSemester.termCode),
+			where: eq(terms.code, sm.studentSemester.termCode),
 			columns: { id: true },
 		});
 
@@ -112,35 +112,32 @@ export default class AssessmentMarkRepository extends BaseRepository<
 			return [];
 		}
 
-		const moduleId = studentModule.semesterModule.moduleId;
-		const termId = term.id;
+		const mid = sm.semesterModule.moduleId;
+		const tid = term.id;
 
-		const allAssessments = await db.query.assessments.findMany({
-			where: and(
-				eq(assessments.moduleId, moduleId),
-				eq(assessments.termId, termId)
-			),
-			orderBy: (assessments, { asc }) => [asc(assessments.assessmentNumber)],
+		const list = await db.query.assessments.findMany({
+			where: and(eq(assessments.moduleId, mid), eq(assessments.termId, tid)),
+			orderBy: (a, { asc }) => [asc(a.assessmentNumber)],
 		});
 
 		const marks = await db.query.assessmentMarks.findMany({
 			where: eq(assessmentMarks.studentModuleId, studentModuleId),
 		});
 
-		const marksMap = new Map(marks.map((m) => [m.assessmentId, m]));
+		const map = new Map(marks.map((m) => [m.assessmentId, m]));
 
-		return allAssessments.map((assessment) => {
-			const mark = marksMap.get(assessment.id);
+		return list.map((a) => {
+			const m = map.get(a.id);
 			return {
 				assessment: {
-					id: assessment.id,
-					assessmentNumber: assessment.assessmentNumber,
-					assessmentType: assessment.assessmentType,
-					totalMarks: assessment.totalMarks,
-					weight: assessment.weight,
+					id: a.id,
+					assessmentNumber: a.assessmentNumber,
+					assessmentType: a.assessmentType,
+					totalMarks: a.totalMarks,
+					weight: a.weight,
 				},
-				marks: mark?.marks ?? null,
-				id: mark?.id ?? null,
+				marks: m?.marks ?? null,
+				id: m?.id ?? null,
 			};
 		});
 	}
