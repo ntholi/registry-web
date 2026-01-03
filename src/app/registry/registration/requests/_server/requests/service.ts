@@ -138,7 +138,7 @@ class RegistrationRequestService {
 		return withAuth(async () => this.repository.count(), []);
 	}
 
-	async createRegistrationWithModules(data: {
+	async createWithModules(data: {
 		stdNo: number;
 		termId: number;
 		modules: { moduleId: number; moduleStatus: StudentModuleStatus }[];
@@ -151,35 +151,17 @@ class RegistrationRequestService {
 	}) {
 		return withAuth(
 			async () => {
-				return this.repository.createRegistrationWithModules(data);
+				return this.repository.createWithModules(data);
 			},
 			async (session) =>
 				session.user?.stdNo === data.stdNo || session.user?.role === 'registry'
 		);
 	}
 
-	async updateRegistrationWithModules(
+	async updateWithModules(
 		registrationRequestId: number,
 		modules: { id: number; status: StudentModuleStatus }[],
-		semesterNumber?: string,
-		semesterStatus?: 'Active' | 'Repeat',
-		termId?: number
-	) {
-		return withAuth(async () => {
-			return this.repository.updateRegistrationWithModules(
-				registrationRequestId,
-				modules,
-				semesterNumber,
-				semesterStatus,
-				termId
-			);
-		}, ['student', 'registry']);
-	}
-
-	async updateRegistrationWithModulesAndSponsorship(
-		registrationRequestId: number,
-		modules: { id: number; status: StudentModuleStatus }[],
-		sponsorshipData: {
+		sponsorshipData?: {
 			sponsorId: number;
 			borrowerNo?: string;
 			bankName?: string;
@@ -190,7 +172,7 @@ class RegistrationRequestService {
 		termId?: number
 	) {
 		return withAuth(async () => {
-			return this.repository.updateRegistrationWithModulesAndSponsorship(
+			return this.repository.updateWithModules(
 				registrationRequestId,
 				modules,
 				sponsorshipData,

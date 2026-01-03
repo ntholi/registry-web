@@ -21,7 +21,7 @@ import {
 	determineSemesterStatus,
 	getRegistrationRequest,
 	getStudentSemesterModules,
-	updateRegistrationWithModulesAndSponsorship,
+	updateRegistration,
 } from '@registry/registration/requests';
 import {
 	IconArrowLeft,
@@ -143,7 +143,7 @@ export default function EditRegistrationPage() {
 				throw new Error('Missing required data for registration update');
 			}
 
-			return updateRegistrationWithModulesAndSponsorship(
+			return updateRegistration(
 				registrationId,
 				selectedModules.map((module) => ({
 					id: module.moduleId,

@@ -17,7 +17,7 @@ import {
 import { notifications } from '@mantine/notifications';
 import type { StudentModuleStatus } from '@registry/_database';
 import {
-	createRegistrationWithModules,
+	createRegistration,
 	determineSemesterStatus,
 	getStudentSemesterModules,
 } from '@registry/registration/requests';
@@ -143,7 +143,7 @@ export default function NewRegistrationPage() {
 				throw new Error('Missing required data for registration');
 			}
 
-			return createRegistrationWithModules({
+			return createRegistration({
 				stdNo: student.stdNo,
 				modules: selectedModules,
 				sponsorId: sponsorshipData.sponsorId,

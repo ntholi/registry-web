@@ -3,7 +3,7 @@ import { getSponsoredStudent } from '@finance/sponsors';
 import { Box } from '@mantine/core';
 import {
 	getRegistrationRequest,
-	updateRegistrationWithModulesAndSponsorship,
+	updateRegistration,
 } from '@registry/registration';
 import { Form } from '@registry/registration/requests';
 import { notFound } from 'next/navigation';
@@ -67,7 +67,7 @@ export default async function RegistrationRequestEdit({ params }: Props) {
 		if (!values.id) {
 			throw new Error('Registration request ID is required');
 		}
-		const res = await updateRegistrationWithModulesAndSponsorship(
+		const res = await updateRegistration(
 			values.id,
 			selectedModules?.map((module) => ({
 				id: module.id,

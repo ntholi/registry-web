@@ -367,7 +367,7 @@ export default class RegistrationRequestRepository extends BaseRepository<
 		return tx.insert(requestedModules).values(modulesToCreate).returning();
 	}
 
-	async createRegistrationWithModules(data: {
+	async createWithModules(data: {
 		stdNo: number;
 		termId: number;
 		modules: { moduleId: number; moduleStatus: StudentModuleStatus }[];
@@ -471,79 +471,10 @@ export default class RegistrationRequestRepository extends BaseRepository<
 		});
 	}
 
-	async updateRegistrationWithModules(
+	async updateWithModules(
 		registrationRequestId: number,
 		modules: { id: number; status: StudentModuleStatus }[],
-		semesterNumber?: string,
-		semesterStatus?: 'Active' | 'Repeat',
-		termId?: number
-	) {
-		return db.transaction(async (tx) => {
-			const updatePayload: Partial<RegistrationRequestInsert> = {
-				status: 'pending',
-				updatedAt: new Date(),
-				semesterNumber,
-				semesterStatus,
-			};
-			if (typeof termId === 'number') {
-				updatePayload.termId = termId;
-			}
-
-			await tx
-				.update(registrationRequests)
-				.set({ count: sql`${registrationRequests.count} + 1` })
-				.where(eq(registrationRequests.id, registrationRequestId));
-
-			const [updated] = await tx
-				.update(registrationRequests)
-				.set(updatePayload)
-				.where(eq(registrationRequests.id, registrationRequestId))
-				.returning();
-
-			const financeClearances = await tx
-				.select({ clearanceId: registrationClearance.clearanceId })
-				.from(registrationClearance)
-				.innerJoin(
-					clearance,
-					eq(registrationClearance.clearanceId, clearance.id)
-				)
-				.where(
-					and(
-						eq(
-							registrationClearance.registrationRequestId,
-							registrationRequestId
-						),
-						eq(clearance.department, 'finance')
-					)
-				);
-
-			if (financeClearances.length > 0) {
-				await tx
-					.update(clearance)
-					.set({
-						status: 'pending',
-					})
-					.where(eq(clearance.id, financeClearances[0].clearanceId));
-			}
-
-			const convertedModules = modules.map((module) => ({
-				moduleId: module.id,
-				moduleStatus: module.status,
-			}));
-
-			const updatedModules = await this.handleRegistrationModules(
-				tx,
-				registrationRequestId,
-				convertedModules
-			);
-			return { request: updated, modules: updatedModules };
-		});
-	}
-
-	async updateRegistrationWithModulesAndSponsorship(
-		registrationRequestId: number,
-		modules: { id: number; status: StudentModuleStatus }[],
-		sponsorshipData: {
+		sponsorshipData?: {
 			sponsorId: number;
 			borrowerNo?: string;
 			bankName?: string;
@@ -562,44 +493,48 @@ export default class RegistrationRequestRepository extends BaseRepository<
 				throw new Error('Registration request not found');
 			}
 
-			let sponsoredStudent = await tx.query.sponsoredStudents.findFirst({
-				where: and(
-					eq(sponsoredStudents.sponsorId, sponsorshipData.sponsorId),
-					eq(sponsoredStudents.stdNo, registration.stdNo)
-				),
-			});
+			let sponsoredStudent: typeof sponsoredStudents.$inferSelect | undefined;
 
-			if (!sponsoredStudent) {
+			if (sponsorshipData) {
 				sponsoredStudent = await tx.query.sponsoredStudents.findFirst({
-					where: eq(sponsoredStudents.stdNo, registration.stdNo),
+					where: and(
+						eq(sponsoredStudents.sponsorId, sponsorshipData.sponsorId),
+						eq(sponsoredStudents.stdNo, registration.stdNo)
+					),
 				});
-			}
 
-			if (sponsoredStudent) {
-				const [updated] = await tx
-					.update(sponsoredStudents)
-					.set({
-						sponsorId: sponsorshipData.sponsorId,
-						borrowerNo: sponsorshipData.borrowerNo,
-						bankName: sponsorshipData.bankName,
-						accountNumber: sponsorshipData.accountNumber,
-						updatedAt: new Date(),
-					})
-					.where(eq(sponsoredStudents.id, sponsoredStudent.id))
-					.returning();
-				sponsoredStudent = updated;
-			} else {
-				const [created] = await tx
-					.insert(sponsoredStudents)
-					.values({
-						sponsorId: sponsorshipData.sponsorId,
-						stdNo: registration.stdNo,
-						borrowerNo: sponsorshipData.borrowerNo,
-						bankName: sponsorshipData.bankName,
-						accountNumber: sponsorshipData.accountNumber,
-					})
-					.returning();
-				sponsoredStudent = created;
+				if (!sponsoredStudent) {
+					sponsoredStudent = await tx.query.sponsoredStudents.findFirst({
+						where: eq(sponsoredStudents.stdNo, registration.stdNo),
+					});
+				}
+
+				if (sponsoredStudent) {
+					const [updated] = await tx
+						.update(sponsoredStudents)
+						.set({
+							sponsorId: sponsorshipData.sponsorId,
+							borrowerNo: sponsorshipData.borrowerNo,
+							bankName: sponsorshipData.bankName,
+							accountNumber: sponsorshipData.accountNumber,
+							updatedAt: new Date(),
+						})
+						.where(eq(sponsoredStudents.id, sponsoredStudent.id))
+						.returning();
+					sponsoredStudent = updated;
+				} else {
+					const [created] = await tx
+						.insert(sponsoredStudents)
+						.values({
+							sponsorId: sponsorshipData.sponsorId,
+							stdNo: registration.stdNo,
+							borrowerNo: sponsorshipData.borrowerNo,
+							bankName: sponsorshipData.bankName,
+							accountNumber: sponsorshipData.accountNumber,
+						})
+						.returning();
+					sponsoredStudent = created;
+				}
 			}
 
 			const updatePayload: Partial<RegistrationRequestInsert> = {
@@ -607,7 +542,7 @@ export default class RegistrationRequestRepository extends BaseRepository<
 				updatedAt: new Date(),
 				semesterNumber,
 				semesterStatus,
-				sponsoredStudentId: sponsoredStudent.id,
+				sponsoredStudentId: sponsoredStudent?.id,
 			};
 			if (typeof termId === 'number') {
 				updatePayload.termId = termId;
@@ -673,13 +608,15 @@ export default class RegistrationRequestRepository extends BaseRepository<
 				}
 			}
 
-			await tx
-				.insert(sponsoredTerms)
-				.values({
-					sponsoredStudentId: sponsoredStudent.id,
-					termId: termId ?? registration.termId,
-				})
-				.onConflictDoNothing();
+			if (sponsoredStudent) {
+				await tx
+					.insert(sponsoredTerms)
+					.values({
+						sponsoredStudentId: sponsoredStudent.id,
+						termId: termId ?? registration.termId,
+					})
+					.onConflictDoNothing();
+			}
 
 			const convertedModules = modules.map((module) => ({
 				moduleId: module.id,

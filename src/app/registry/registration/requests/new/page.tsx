@@ -3,7 +3,7 @@ import { getStudentCurrentSponsorship } from '@finance/sponsors';
 import { Box } from '@mantine/core';
 import { getActiveTerm } from '@registry/dates/terms';
 import {
-	createRegistrationWithModules,
+	createRegistration,
 	determineSemesterStatus,
 	Form,
 	getStudentSemesterModules,
@@ -138,7 +138,7 @@ export default async function NewRegistrationRequestPage({
 		'use server';
 		const { selectedModules } = values;
 
-		const result = await createRegistrationWithModules({
+		const result = await createRegistration({
 			stdNo: values.stdNo,
 			modules:
 				selectedModules?.map((module) => ({

@@ -76,7 +76,7 @@ export async function deleteRegistrationRequest(id: number) {
 	return service.delete(id);
 }
 
-export async function createRegistrationWithModules(data: {
+export async function createRegistration(data: {
 	stdNo: number;
 	modules: { moduleId: number; moduleStatus: StudentModuleStatus }[];
 	sponsorId: number;
@@ -87,29 +87,13 @@ export async function createRegistrationWithModules(data: {
 	bankName?: string;
 	accountNumber?: string;
 }) {
-	return service.createRegistrationWithModules(data);
+	return service.createWithModules(data);
 }
 
-export async function updateRegistrationWithModules(
+export async function updateRegistration(
 	registrationRequestId: number,
 	modules: { id: number; status: StudentModuleStatus }[],
-	semesterNumber?: string,
-	semesterStatus?: 'Active' | 'Repeat',
-	termId?: number
-) {
-	return service.updateRegistrationWithModules(
-		registrationRequestId,
-		modules,
-		semesterNumber,
-		semesterStatus,
-		termId
-	);
-}
-
-export async function updateRegistrationWithModulesAndSponsorship(
-	registrationRequestId: number,
-	modules: { id: number; status: StudentModuleStatus }[],
-	sponsorshipData: {
+	sponsorshipData?: {
 		sponsorId: number;
 		borrowerNo?: string;
 		bankName?: string;
@@ -119,7 +103,7 @@ export async function updateRegistrationWithModulesAndSponsorship(
 	semesterStatus?: 'Active' | 'Repeat',
 	termId?: number
 ) {
-	return service.updateRegistrationWithModulesAndSponsorship(
+	return service.updateWithModules(
 		registrationRequestId,
 		modules,
 		sponsorshipData,
