@@ -27,7 +27,6 @@ import BaseRepository, {
 	type QueryOptions,
 } from '@/core/platform/BaseRepository';
 
-type RequestedModule = typeof requestedModules.$inferInsert;
 type RegistrationRequestInsert = typeof registrationRequests.$inferInsert;
 
 export default class RegistrationRequestRepository extends BaseRepository<
@@ -102,26 +101,6 @@ export default class RegistrationRequestRepository extends BaseRepository<
 						clearance: {
 							with: {
 								respondedBy: true,
-							},
-						},
-					},
-				},
-			},
-		});
-	}
-
-	async findByStdNo(stdNo: number, termId: number) {
-		return db.query.registrationRequests.findFirst({
-			where: and(
-				eq(registrationRequests.stdNo, stdNo),
-				eq(registrationRequests.termId, termId)
-			),
-			with: {
-				requestedModules: {
-					with: {
-						semesterModule: {
-							with: {
-								module: true,
 							},
 						},
 					},
@@ -324,23 +303,6 @@ export default class RegistrationRequestRepository extends BaseRepository<
 				);
 			return result.value;
 		}
-	}
-
-	async getRequestedModules(registrationRequestId: number) {
-		return db.query.requestedModules.findMany({
-			where: eq(requestedModules.registrationRequestId, registrationRequestId),
-			with: {
-				semesterModule: {
-					with: {
-						module: true,
-					},
-				},
-			},
-		});
-	}
-
-	async createRequestedModules(modules: RequestedModule[]) {
-		return db.insert(requestedModules).values(modules).returning();
 	}
 
 	private async handleRegistrationModules(

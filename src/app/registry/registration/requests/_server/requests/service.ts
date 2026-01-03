@@ -3,7 +3,6 @@ import type { AcademicRemarks, Student } from '@registry/students';
 import {
 	dashboardUsers,
 	type registrationRequests,
-	type requestedModules,
 	type StudentModuleStatus,
 } from '@/core/database';
 import type { QueryOptions } from '@/core/platform/BaseRepository';
@@ -11,31 +10,10 @@ import { serviceWrapper } from '@/core/platform/serviceWrapper';
 import withAuth from '@/core/platform/withAuth';
 import RegistrationRequestRepository from './repository';
 
-type RegistrationRequest = typeof registrationRequests.$inferInsert;
-type RequestedModule = typeof requestedModules.$inferInsert;
-
 class RegistrationRequestService {
 	constructor(
 		private readonly repository = new RegistrationRequestRepository()
 	) {}
-
-	async first() {
-		return withAuth(async () => this.repository.findFirst(), ['registry']);
-	}
-
-	async getByStdNo(stdNo: number, termId: number) {
-		return withAuth(
-			async () => this.repository.findByStdNo(stdNo, termId),
-			async (session) => session.user?.stdNo === stdNo
-		);
-	}
-
-	async getRequestedModules(registrationRequestId: number) {
-		return withAuth(
-			async () => this.repository.getRequestedModules(registrationRequestId),
-			['student']
-		);
-	}
 
 	async getHistory(stdNo: number) {
 		return withAuth(
@@ -103,39 +81,8 @@ class RegistrationRequestService {
 		);
 	}
 
-	async findAll(params: QueryOptions<typeof registrationRequests>) {
-		return withAuth(async () => this.repository.query(params), ['registry']);
-	}
-
-	async create(data: RegistrationRequest) {
-		return withAuth(
-			async () => {
-				return this.repository.create(data);
-			},
-			async (session) => session.user?.stdNo === data.stdNo
-		);
-	}
-
-	async createRequestedModules(stdNo: number, modules: RequestedModule[]) {
-		return withAuth(
-			async () => this.repository.createRequestedModules(modules),
-			async (session) => session.user?.stdNo === stdNo
-		);
-	}
-
-	async update(id: number, data: Partial<RegistrationRequest>) {
-		return withAuth(
-			async () => this.repository.update(id, data),
-			['student', 'registry']
-		);
-	}
-
 	async delete(id: number) {
 		return withAuth(async () => this.repository.delete(id), []);
-	}
-
-	async count() {
-		return withAuth(async () => this.repository.count(), []);
 	}
 
 	async createWithModules(data: {
