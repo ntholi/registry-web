@@ -256,7 +256,7 @@ export function getOptionalColor(condition: boolean) {
 	return condition ? semantic.dimmed : undefined;
 }
 
-function getThresholdColor(
+export function getThresholdColor(
 	value: number | null | undefined,
 	thresholds: { good: number; moderate?: number },
 	colors: { good?: string; moderate?: string; bad?: string; none?: string } = {}

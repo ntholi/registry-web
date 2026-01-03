@@ -14,7 +14,7 @@ import {
 import { useDisclosure } from '@mantine/hooks';
 import { useQuery } from '@tanstack/react-query';
 import { getAssessmentTypeLabel } from '@/app/academic/assessments';
-import { getPercentageColor } from '@/shared/lib/utils/colors';
+import { getThresholdColor } from '@/shared/lib/utils/colors';
 
 type Props = {
 	studentModuleId: number;
@@ -60,7 +60,7 @@ export default function AssessmentMarksModal({
 						</Text>
 					</Stack>
 				}
-				size='md'
+				size='lg'
 			>
 				{isLoading ? (
 					<Stack gap='sm'>
@@ -78,10 +78,10 @@ export default function AssessmentMarksModal({
 							<Table.Thead>
 								<Table.Tr>
 									<Table.Th>No.</Table.Th>
-									<Table.Th>Assessment</Table.Th>
-									<Table.Th ta='center'>Marks</Table.Th>
-									<Table.Th ta='center'>Out of</Table.Th>
+									<Table.Th miw={130}>Assessment</Table.Th>
 									<Table.Th ta='center'>Weight</Table.Th>
+									<Table.Th ta='center'>Marks</Table.Th>
+									<Table.Th ta='center'>Total</Table.Th>
 								</Table.Tr>
 							</Table.Thead>
 							<Table.Tbody>
@@ -92,28 +92,74 @@ export default function AssessmentMarksModal({
 											{getAssessmentTypeLabel(item.assessment.assessmentType)}
 										</Table.Td>
 										<Table.Td ta='center'>
+											<Text size='sm' c='dimmed'>
+												{item.assessment.weight}%
+											</Text>
+										</Table.Td>
+										<Table.Td ta='center'>
 											{item.marks !== null ? (
-												<Text size='sm' fw={500}>
-													{item.marks.toFixed(1)}
-												</Text>
+												<Group gap={4} justify='center' align='baseline'>
+													<Text size='sm' fw={500}>
+														{item.marks.toFixed(1)}
+													</Text>
+													<Text size='xs' c='dimmed'>
+														/{item.assessment.totalMarks}
+													</Text>
+												</Group>
+											) : (
+												<Group gap={4} justify='center' align='baseline'>
+													<Text size='sm' c='dimmed'>
+														—
+													</Text>
+													<Text size='xs' c='dimmed'>
+														/{item.assessment.totalMarks}
+													</Text>
+												</Group>
+											)}
+										</Table.Td>
+										<Table.Td ta='center'>
+											{item.marks !== null ? (
+												(
+													(item.marks / item.assessment.totalMarks) *
+													item.assessment.weight
+												).toFixed(1)
 											) : (
 												<Text size='sm' c='dimmed'>
 													—
 												</Text>
 											)}
 										</Table.Td>
-										<Table.Td ta='center'>
-											<Text size='sm' c='dimmed'>
-												{item.assessment.totalMarks}
-											</Text>
-										</Table.Td>
-										<Table.Td ta='center'>
-											<Text size='sm' c='dimmed'>
-												{item.assessment.weight}%
-											</Text>
-										</Table.Td>
 									</Table.Tr>
 								))}
+								<Table.Tr>
+									<Table.Td colSpan={2} />
+									<Table.Td ta='center'>
+										<Text size='sm' fw={600}>
+											{data.reduce(
+												(sum, item) => sum + item.assessment.weight,
+												0
+											)}
+											%
+										</Text>
+									</Table.Td>
+									<Table.Td />
+									<Table.Td ta='center'>
+										<Text size='sm' fw={600}>
+											{data
+												.reduce((sum, item) => {
+													if (item.marks !== null) {
+														return (
+															sum +
+															(item.marks / item.assessment.totalMarks) *
+																item.assessment.weight
+														);
+													}
+													return sum;
+												}, 0)
+												.toFixed(1)}
+										</Text>
+									</Table.Td>
+								</Table.Tr>
 							</Table.Tbody>
 						</Table>
 
@@ -124,7 +170,10 @@ export default function AssessmentMarksModal({
 							<Badge
 								size='lg'
 								variant='light'
-								color={getPercentageColor(Number.parseFloat(totalMarks) || 0)}
+								color={getThresholdColor(Number.parseFloat(totalMarks) || 0, {
+									moderate: 45,
+									good: 50,
+								})}
 							>
 								{totalMarks}
 							</Badge>
