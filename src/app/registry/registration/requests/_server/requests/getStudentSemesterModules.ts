@@ -171,7 +171,9 @@ async function getRepeatModules(
 	const failedPrerequisites = await getFailedPrerequisites(failedModules);
 	const nextSemNum = Number.parseInt(nextSemester, 10);
 	const targetSemesters =
-		nextSemNum % 2 === 0 ? ['2', '4', '6', '8'] : ['1', '3', '5', '7'];
+		nextSemNum % 2 === 0
+			? ['02', '04', '06', '08', '2', '4', '6', '8']
+			: ['01', '03', '05', '07', '1', '3', '5', '7'];
 
 	const allRepeatModules: ModuleWithStatus[] = [];
 	const allSemesterModules = await getSemesterModulesMultiple(
@@ -181,7 +183,9 @@ async function getRepeatModules(
 
 	targetSemesters.forEach((semesterNumber) => {
 		const semesterModules = allSemesterModules.filter(
-			(sm) => sm.semester.semesterNumber === semesterNumber
+			(sm) =>
+				sm.semester.semesterNumber === semesterNumber ||
+				sm.semester.semesterNumber === semesterNumber.padStart(2, '0')
 		);
 		const repeatModulesForSemester = semesterModules.filter(
 			(sm) => sm.module && failedModuleNames.includes(sm.module.name)
@@ -214,7 +218,10 @@ async function getSemesterModules(semesterNumber: string, structureId: number) {
 	const semesters = await db.query.structureSemesters.findMany({
 		where: and(
 			eq(structureSemesters.structureId, structureId),
-			inArray(structureSemesters.semesterNumber, semesterNos.map(String))
+			inArray(structureSemesters.semesterNumber, [
+				...semesterNos.map(String),
+				...semesterNos.map((s) => s.toString().padStart(2, '0')),
+			])
 		),
 	});
 

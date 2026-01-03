@@ -42,15 +42,17 @@ export function getCurrentSemester(student: Student | null | undefined) {
 }
 
 export function getNextSemesterNo(student: Student | null) {
-	if (!student) return '1';
+	if (!student) return '01';
 
 	const currentSemester =
 		getCurrentSemester(student)?.structureSemester?.semesterNumber;
-	if (!currentSemester) return '1';
+	if (!currentSemester) return '01';
 
 	const currentNum = Number.parseInt(currentSemester, 10);
 	const semesterNos =
-		currentNum % 2 === 0 ? ['2', '4', '6', '8'] : ['1', '3', '5', '7'];
+		currentNum % 2 === 0
+			? ['02', '04', '06', '08', '2', '4', '6', '8']
+			: ['01', '03', '05', '07', '1', '3', '5', '7'];
 
 	const allSemesters = student.programs
 		.flatMap((program) => program.semesters)
@@ -64,5 +66,5 @@ export function getNextSemesterNo(student: Student | null) {
 			return semNo ? Number.parseInt(semNo, 10) : 0;
 		})
 	);
-	return String(maxSemesterNo + 1);
+	return String(maxSemesterNo + 1).padStart(2, '0');
 }

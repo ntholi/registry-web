@@ -62,7 +62,9 @@ export async function determineSemesterStatus(
 					semesterNo !== null && semesterNo !== undefined
 			) ?? [];
 
-	const hasCompletedSemester = completedSemesters.includes(semesterNo);
+	const hasCompletedSemester = completedSemesters.some(
+		(s) => Number.parseInt(s, 10) === Number.parseInt(semesterNo, 10)
+	);
 
 	return {
 		semesterNo: semesterNo,
@@ -135,11 +137,12 @@ function commonSemesterNo(modules: ModuleWithStatus[]): string {
 	const semesterCounts = new Map<string, number>();
 
 	for (const m of modules) {
-		const count = semesterCounts.get(m.semesterNo) || 0;
-		semesterCounts.set(m.semesterNo, count + 1);
+		const normalized = m.semesterNo.padStart(2, '0');
+		const count = semesterCounts.get(normalized) || 0;
+		semesterCounts.set(normalized, count + 1);
 	}
 
-	let mostCommonSemester = modules[0]?.semesterNo || '1';
+	let mostCommonSemester = modules[0]?.semesterNo.padStart(2, '0') || '01';
 	let maxCount = 0;
 
 	for (const [semesterNo, count] of semesterCounts) {

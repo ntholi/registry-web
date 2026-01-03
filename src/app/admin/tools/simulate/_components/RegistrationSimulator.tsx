@@ -49,7 +49,7 @@ type ModuleData = ModuleDataResponse['modules'];
 type Student = {
 	name: string;
 	stdNo: number;
-	semester: number | string;
+	semester: string;
 	program: {
 		structureCode: string;
 		structureId: number;
@@ -367,7 +367,11 @@ export default function RegistrationSimulator() {
 								<Text size='xs' c='dimmed' mb={4}>
 									Current Semester
 								</Text>
-								<Text fw={500} size='sm'></Text>
+								<Text fw={500} size='sm'>
+									{student.semester
+										? formatSemester(student.semester, 'short')
+										: '-'}
+								</Text>
 							</Paper>
 							<Paper withBorder p='sm' radius='sm'>
 								<Text size='xs' c='dimmed' mb={4}>
