@@ -38,8 +38,6 @@ export { default as StudentView } from './_components/info/StudentView';
 export { ModuleSearchInput } from './_components/registration/form/ModuleSearchInput';
 export { default as ModuleSection } from './_components/registration/form/ModuleSection';
 export { default as ModulesTable } from './_components/registration/form/ModulesTable';
-export { default as RegistrationModal } from './_components/registration/form/RegistrationModal';
-export { default as RegistrationRequestForm } from './_components/registration/form/RegistrationRequestForm';
 export { default as SemesterInfoCard } from './_components/registration/form/SemesterInfoCard';
 export { default as SponsorSelector } from './_components/registration/form/SponsorSelector';
 export { default as StructureView } from './_components/registration/form/StructureView';

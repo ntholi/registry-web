@@ -262,6 +262,7 @@ export default function RegistrationRequestForm({
 				selectedModules: defaultValues?.selectedModules || [],
 				semesterNumber: defaultValues?.semesterNumber?.toString(),
 				termId: defaultValues?.termId || activeTerm?.id || '',
+				'semester-status': defaultValues?.semesterStatus,
 			}}
 			onSuccess={({ id }) => {
 				router.push(`/registry/registration/requests/pending/${id}`);

@@ -2,6 +2,7 @@
 
 import {
 	Badge,
+	Button,
 	Card,
 	Group,
 	Skeleton,
@@ -12,12 +13,13 @@ import {
 	TabsTab,
 	Text,
 } from '@mantine/core';
+import { IconPlus } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
+import Link from 'next/link';
 import { useSession } from 'next-auth/react';
 import { useState } from 'react';
 import { useActiveTerm } from '@/shared/lib/hooks/use-active-term';
 import { getStudentRegistrationData } from '../../_server/actions';
-import RegistrationModal from './form/RegistrationModal';
 import ProofOfRegistrationPrinter from './proof/ProofOfRegistrationPrinter';
 import RequestsView from './RequestsView';
 import SemestersView from './SemestersView';
@@ -83,7 +85,16 @@ export default function RegistrationTabs({ stdNo, isActive = true }: Props) {
 								<ProofOfRegistrationPrinter stdNo={stdNo} />
 							) : (
 								['registry', 'admin'].includes(session?.user?.role ?? '') && (
-									<RegistrationModal stdNo={stdNo} />
+									<Button
+										component={Link}
+										href={`/registry/registration/requests/new?stdNo=${stdNo}`}
+										leftSection={<IconPlus size={14} />}
+										variant='filled'
+										size='sm'
+										color='blue'
+									>
+										Create
+									</Button>
 								)
 							)}
 						</Group>
