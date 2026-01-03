@@ -9,10 +9,6 @@ type BlockedStudent = typeof blockedStudents.$inferInsert;
 class BlockedStudentService {
 	constructor(private readonly repository = new BlockedStudentRepository()) {}
 
-	async first() {
-		return withAuth(async () => this.repository.findFirst(), []);
-	}
-
 	async get(id: number) {
 		return withAuth(async () => this.repository.findById(id), ['finance']);
 	}
@@ -54,11 +50,7 @@ class BlockedStudentService {
 	}
 
 	async delete(id: number) {
-		return withAuth(async () => this.repository.delete(id), []);
-	}
-
-	async count() {
-		return withAuth(async () => this.repository.count(), []);
+		return withAuth(async () => this.repository.delete(id), ['finance']);
 	}
 }
 

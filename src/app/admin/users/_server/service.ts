@@ -13,10 +13,6 @@ type UserWithSchools = User & { schoolIds?: number[] };
 class UserService {
 	constructor(private readonly repository = new UserRepository()) {}
 
-	async first() {
-		return withAuth(async () => this.repository.findFirst(), []);
-	}
-
 	async get(id: string) {
 		return withAuth(async () => this.repository.findById(id), ['dashboard']);
 	}
@@ -84,10 +80,6 @@ class UserService {
 			await db.delete(userSchools).where(eq(userSchools.userId, id));
 			return this.repository.delete(id);
 		}, []);
-	}
-
-	async count() {
-		return withAuth(async () => this.repository.count(), []);
 	}
 
 	async findAllByRoles(roles: NonNullable<UserSelect['role']>[]) {

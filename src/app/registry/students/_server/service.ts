@@ -16,10 +16,6 @@ class StudentService {
 		this.repository = new StudentRepository();
 	}
 
-	async first() {
-		return withAuth(async () => this.repository.findFirst(), []);
-	}
-
 	async get(stdNo: number) {
 		return withAuth(async () => {
 			return this.repository.findById(stdNo);
@@ -113,10 +109,6 @@ class StudentService {
 		return withAuth(async () => this.repository.update(stdNo, data), []);
 	}
 
-	async delete(stdNo: number) {
-		return withAuth(async () => this.repository.delete(stdNo), []);
-	}
-
 	async updateUserId(stdNo: number, userId: string | null) {
 		return withAuth(
 			async () => this.repository.updateUserId(stdNo, userId),
@@ -129,10 +121,6 @@ class StudentService {
 			async () => this.repository.updateProgramStructure(stdNo, structureId),
 			['admin', 'registry']
 		);
-	}
-
-	async count() {
-		return withAuth(async () => this.repository.count(), []);
 	}
 
 	async getStudentPrograms(stdNo: number): Promise<Program[]> {

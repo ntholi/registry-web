@@ -1,41 +1,13 @@
 import { getActiveTerm } from '@registry/dates/terms';
-import type { assignedModules } from '@/core/database';
-import type { QueryOptions } from '@/core/platform/BaseRepository';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
 import withAuth from '@/core/platform/withAuth';
 import AssignedModuleRepository from './repository';
 
-type AssignedModule = typeof assignedModules.$inferInsert;
-
 class AssignedModuleService {
 	constructor(private readonly repository = new AssignedModuleRepository()) {}
 
-	async first() {
-		return withAuth(async () => this.repository.findFirst(), []);
-	}
-
-	async get(id: number) {
-		return withAuth(async () => this.repository.findById(id), []);
-	}
-
-	async getAll(params: QueryOptions<typeof assignedModules>) {
-		return withAuth(async () => this.repository.query(params), []);
-	}
-
-	async create(data: AssignedModule) {
-		return withAuth(async () => this.repository.create(data), []);
-	}
-
-	async update(id: number, data: AssignedModule) {
-		return withAuth(async () => this.repository.update(id, data), []);
-	}
-
 	async delete(id: number) {
 		return withAuth(async () => this.repository.delete(id), ['academic']);
-	}
-
-	async count() {
-		return withAuth(async () => this.repository.count(), []);
 	}
 
 	async assignModulesToLecturer(userId: string, semesterModuleIds: number[]) {

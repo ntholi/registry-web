@@ -9,10 +9,6 @@ type Sponsor = typeof sponsors.$inferInsert;
 class SponsorService {
 	constructor(private readonly repository = new SponsorRepository()) {}
 
-	async first() {
-		return withAuth(async () => this.repository.findFirst(), ['all']);
-	}
-
 	async get(id: number) {
 		return withAuth(async () => this.repository.findById(id), ['all']);
 	}
@@ -112,10 +108,6 @@ class SponsorService {
 			async () => this.repository.findAllSponsoredStudents(params),
 			['all']
 		);
-	}
-
-	async count() {
-		return withAuth(async () => this.repository.count(), ['all']);
 	}
 
 	async updateAccountDetails(data: {

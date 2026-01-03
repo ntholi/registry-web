@@ -1,5 +1,4 @@
 import type { assessmentMarks } from '@/core/database';
-import type { QueryOptions } from '@/core/platform/BaseRepository';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
 import withAuth from '@/core/platform/withAuth';
 import AssessmentMarkRepository from './repository';
@@ -9,32 +8,12 @@ type AssessmentMark = typeof assessmentMarks.$inferInsert;
 class AssessmentMarkService {
 	constructor(private readonly repository = new AssessmentMarkRepository()) {}
 
-	async first() {
-		return withAuth(async () => this.repository.findFirst(), []);
-	}
-
-	async get(id: number) {
-		return withAuth(async () => this.repository.findById(id), ['academic']);
-	}
-
-	async getAll(params: QueryOptions<typeof assessmentMarks>) {
-		return withAuth(async () => this.repository.query(params), ['academic']);
-	}
-
 	async create(data: AssessmentMark) {
 		return withAuth(async () => this.repository.create(data), ['academic']);
 	}
 
 	async update(id: number, data: AssessmentMark) {
 		return withAuth(async () => this.repository.update(id, data), ['academic']);
-	}
-
-	async delete(id: number) {
-		return withAuth(async () => this.repository.delete(id), ['academic']);
-	}
-
-	async count() {
-		return withAuth(async () => this.repository.count(), []);
 	}
 
 	async getByModuleId(moduleId: number, termId: number) {
