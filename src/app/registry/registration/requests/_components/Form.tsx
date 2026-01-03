@@ -111,10 +111,6 @@ export default function RegistrationRequestForm({
 	const { data: allTerms = [] } = useQuery({
 		queryKey: ['terms'],
 		queryFn: async () => await getAllTerms(),
-		select: (terms) => {
-			console.log('Terms fetched:', terms);
-			return terms;
-		},
 	});
 
 	const { data: structureModules, isLoading } = useQuery({
@@ -251,6 +247,12 @@ export default function RegistrationRequestForm({
 		handleStudentSelect,
 	]);
 
+	useEffect(() => {
+		if (activeTerm && formInstance && !formInstance.values.termId) {
+			formInstance.setFieldValue('termId', activeTerm.id);
+		}
+	}, [activeTerm, formInstance]);
+
 	return (
 		<Form
 			title={title}
@@ -361,10 +363,11 @@ export default function RegistrationRequestForm({
 								value: term.id.toString(),
 								label: term.code,
 							}))}
-							{...form.getInputProps('termId')}
+							value={form.values.termId ? String(form.values.termId) : null}
 							onChange={(value: string | null) => {
-								form.setFieldValue('termId', Number(value));
+								if (value) form.setFieldValue('termId', Number(value));
 							}}
+							error={form.errors.termId}
 							required
 						/>
 
