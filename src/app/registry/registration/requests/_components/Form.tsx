@@ -4,6 +4,7 @@ import type { modules, semesterModules } from '@academic/_database';
 import { getModulesForStructure } from '@academic/semester-modules';
 import {
 	ActionIcon,
+	Box,
 	Divider,
 	Group,
 	Paper,
@@ -16,8 +17,9 @@ import type { StudentModuleStatus } from '@registry/_database';
 import { studentModuleStatus } from '@registry/_database';
 import { getAllTerms } from '@registry/dates/terms';
 import { getStudentRegistrationData } from '@registry/students';
-import { IconTrash } from '@tabler/icons-react';
+import { IconExternalLink, IconTrash } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
+import Link from 'next/link';
 import { useRouter } from 'nextjs-toploader/app';
 import { useCallback, useEffect, useState } from 'react';
 import StdNoInput from '@/app/dashboard/base/StdNoInput';
@@ -345,16 +347,31 @@ export default function RegistrationRequestForm({
 				};
 
 				return (
-					<Stack gap='xs'>
+					<Stack gap='xs' justify='stretch'>
 						<FormBinder form={form} onReady={handleFormReady} />
-						<StdNoInput
-							{...form.getInputProps('stdNo')}
-							disabled={!!defaultValues || !!initialStdNo}
-							onChange={(value: string | number) => {
-								form.getInputProps('stdNo').onChange(value);
-								if (value) handleStudentSelect(Number(value));
-							}}
-						/>
+						<Group w='100%' align='flex-start' wrap='nowrap'>
+							<Box style={{ flex: 1 }}>
+								<StdNoInput
+									{...form.getInputProps('stdNo')}
+									disabled={!!defaultValues || !!initialStdNo}
+									onChange={(value: string | number) => {
+										form.getInputProps('stdNo').onChange(value);
+										if (value) handleStudentSelect(Number(value));
+									}}
+								/>
+							</Box>
+							<ActionIcon
+								component={Link}
+								href={`/registry/students/${form.values.stdNo}`}
+								target='_blank'
+								mt={25}
+								size='lg'
+								variant='default'
+								disabled={!form.values.stdNo}
+							>
+								<IconExternalLink size={'1rem'} />
+							</ActionIcon>
+						</Group>
 
 						<Select
 							label='Term'
