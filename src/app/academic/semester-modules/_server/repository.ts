@@ -1,4 +1,13 @@
-import { and, count, desc, eq, inArray, like, or, type SQL } from 'drizzle-orm';
+import {
+	and,
+	count,
+	desc,
+	eq,
+	ilike,
+	inArray,
+	or,
+	type SQL,
+} from 'drizzle-orm';
 import {
 	db,
 	type Grade,
@@ -72,8 +81,8 @@ export default class SemesterModuleRepository extends BaseRepository<
 				.from(modules)
 				.where(
 					or(
-						like(modules.code, `%${trimmed}%`),
-						like(modules.name, `%${trimmed}%`)
+						ilike(modules.code, `%${trimmed}%`),
+						ilike(modules.name, `%${trimmed}%`)
 					)
 				)
 		);
@@ -298,8 +307,8 @@ export default class SemesterModuleRepository extends BaseRepository<
 			.where(
 				search
 					? or(
-							like(modules.code, `%${search}%`),
-							like(modules.name, `%${search}%`)
+							ilike(modules.code, `%${search}%`),
+							ilike(modules.name, `%${search}%`)
 						)
 					: undefined
 			)

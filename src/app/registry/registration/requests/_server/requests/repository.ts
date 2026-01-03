@@ -4,8 +4,8 @@ import {
 	desc,
 	eq,
 	exists,
+	ilike,
 	inArray,
-	like,
 	ne,
 	not,
 	sql,
@@ -41,7 +41,7 @@ export default class RegistrationRequestRepository extends BaseRepository<
 	override async query(params: QueryOptions<typeof registrationRequests>) {
 		const { orderBy, offset, limit } = this.buildQueryCriteria(params);
 
-		const whereCondition = like(
+		const whereCondition = ilike(
 			registrationRequests.stdNo,
 			`%${params.search}%`
 		);

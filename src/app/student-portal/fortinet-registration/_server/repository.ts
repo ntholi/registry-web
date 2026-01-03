@@ -1,4 +1,4 @@
-import { and, desc, eq, like, or, type SQL } from 'drizzle-orm';
+import { and, desc, eq, ilike, or, type SQL } from 'drizzle-orm';
 import {
 	db,
 	type fortinetLevel,
@@ -95,7 +95,7 @@ export default class FortinetRegistrationRepository extends BaseRepository<
 						conditions.push(eq(fortinetRegistrations.stdNo, Number(term)));
 					}
 
-					conditions.push(like(students.name, `%${term}%`));
+					conditions.push(ilike(students.name, `%${term}%`));
 					return or(...conditions);
 				});
 

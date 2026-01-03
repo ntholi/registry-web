@@ -1,4 +1,4 @@
-import { and, desc, eq, inArray, like, or, type SQL, sql } from 'drizzle-orm';
+import { and, desc, eq, ilike, inArray, or, type SQL, sql } from 'drizzle-orm';
 import {
 	db,
 	programs,
@@ -291,12 +291,12 @@ export class RegistrationReportRepository {
 			const searchTerm = `%${filter.searchQuery.trim()}%`;
 			conditions.push(
 				or(
-					like(sql`CAST(${students.stdNo} AS TEXT)`, searchTerm),
-					like(students.name, searchTerm),
-					like(programs.name, searchTerm),
-					like(schools.name, searchTerm),
-					like(schools.code, searchTerm),
-					like(students.phone1, searchTerm)
+					ilike(sql`CAST(${students.stdNo} AS TEXT)`, searchTerm),
+					ilike(students.name, searchTerm),
+					ilike(programs.name, searchTerm),
+					ilike(schools.name, searchTerm),
+					ilike(schools.code, searchTerm),
+					ilike(students.phone1, searchTerm)
 				)!
 			);
 		}

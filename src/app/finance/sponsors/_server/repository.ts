@@ -1,4 +1,4 @@
-import { and, desc, eq, inArray, like, or, sql } from 'drizzle-orm';
+import { and, desc, eq, ilike, inArray, or, sql } from 'drizzle-orm';
 import {
 	db,
 	sponsoredStudents,
@@ -108,11 +108,11 @@ export default class SponsorRepository extends BaseRepository<
 
 		if (params?.search) {
 			const searchCondition = or(
-				like(students.name, `%${params.search}%`),
-				like(sql`CAST(${students.stdNo} AS TEXT)`, `%${params.search}%`),
-				like(sponsoredStudents.borrowerNo, `%${params.search}%`),
-				like(sponsoredStudents.bankName, `%${params.search}%`),
-				like(sponsoredStudents.accountNumber, `%${params.search}%`)
+				ilike(students.name, `%${params.search}%`),
+				ilike(sql`CAST(${students.stdNo} AS TEXT)`, `%${params.search}%`),
+				ilike(sponsoredStudents.borrowerNo, `%${params.search}%`),
+				ilike(sponsoredStudents.bankName, `%${params.search}%`),
+				ilike(sponsoredStudents.accountNumber, `%${params.search}%`)
 			);
 			whereCondition = and(baseCondition, searchCondition)!;
 		}
@@ -204,12 +204,12 @@ export default class SponsorRepository extends BaseRepository<
 		if (params?.search) {
 			whereConditions.push(
 				or(
-					like(students.name, `%${params.search}%`),
-					like(sql`CAST(${students.stdNo} AS TEXT)`, `%${params.search}%`),
-					like(sponsoredStudents.borrowerNo, `%${params.search}%`),
-					like(sponsoredStudents.bankName, `%${params.search}%`),
-					like(sponsoredStudents.accountNumber, `%${params.search}%`),
-					like(sponsors.name, `%${params.search}%`)
+					ilike(students.name, `%${params.search}%`),
+					ilike(sql`CAST(${students.stdNo} AS TEXT)`, `%${params.search}%`),
+					ilike(sponsoredStudents.borrowerNo, `%${params.search}%`),
+					ilike(sponsoredStudents.bankName, `%${params.search}%`),
+					ilike(sponsoredStudents.accountNumber, `%${params.search}%`),
+					ilike(sponsors.name, `%${params.search}%`)
 				)
 			);
 		}
@@ -425,7 +425,7 @@ export default class SponsorRepository extends BaseRepository<
 				.returning();
 		} else {
 			const student = await db.query.students.findFirst({
-				where: like(students.name, `%${data.stdNoOrName}%`),
+				where: ilike(students.name, `%${data.stdNoOrName}%`),
 			});
 
 			if (!student) {
@@ -540,7 +540,7 @@ export default class SponsorRepository extends BaseRepository<
 						}
 					} else {
 						const student = await tx.query.students.findFirst({
-							where: like(students.name, `%${item.stdNoOrName}%`),
+							where: ilike(students.name, `%${item.stdNoOrName}%`),
 						});
 
 						if (!student) {
