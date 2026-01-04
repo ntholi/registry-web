@@ -1,26 +1,23 @@
 'use client';
 
+import { getStudentSponsors } from '@finance/sponsors';
 import {
 	Alert,
+	Badge,
+	Group,
 	Paper,
 	Skeleton,
 	Stack,
 	Text,
-	Group,
-	Badge,
 } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
-import { getStudentSponsors } from '@finance/sponsors';
 
 type Props = {
 	stdNo: number;
 	isActive?: boolean;
 };
 
-export default function StudentSponsorsView({
-	stdNo,
-	isActive = true,
-}: Props) {
+export default function StudentSponsorsView({ stdNo, isActive = true }: Props) {
 	const { data, isLoading, error } = useQuery({
 		queryKey: ['student-sponsors', stdNo],
 		queryFn: () => getStudentSponsors(stdNo),

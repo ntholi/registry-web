@@ -44,9 +44,12 @@ export default function StudentTabs({
 			session?.user?.position ?? ''
 		);
 
-	const showSponsors = ['admin', 'registry', 'finance', 'student_services'].includes(
-		session?.user?.role ?? ''
-	);
+	const showSponsors = [
+		'admin',
+		'registry',
+		'finance',
+		'student_services',
+	].includes(session?.user?.role ?? '');
 
 	const showStatementOfResults =
 		['admin', 'registry'].includes(session?.user?.role ?? '') ||

@@ -59,9 +59,7 @@ export default function NewSponsorModal({ stdNo, opened, onClose }: Props) {
 			notifications.show({
 				title: 'Error',
 				message:
-					error instanceof Error
-						? error.message
-						: 'Failed to assign sponsor',
+					error instanceof Error ? error.message : 'Failed to assign sponsor',
 				color: 'red',
 			});
 		},

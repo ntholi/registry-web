@@ -1,18 +1,18 @@
 'use client';
 
+import { getSponsor } from '@finance/sponsors';
 import {
 	Alert,
+	Badge,
+	Group,
 	Paper,
 	Skeleton,
 	Stack,
 	Text,
-	Group,
-	Badge,
 } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
 import { formatSemester } from '@/shared/lib/utils/utils';
 import { getStudentRegistrationData } from '../../_server/actions';
-import { getSponsor } from '@finance/sponsors';
 
 type Props = {
 	stdNo: number;
