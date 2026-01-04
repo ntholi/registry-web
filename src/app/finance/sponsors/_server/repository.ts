@@ -605,6 +605,23 @@ export default class SponsorRepository extends BaseRepository<
 
 		return result[0];
 	}
+
+	async findStudentSponsors(stdNo: number) {
+		const result = await db.query.sponsoredStudents.findMany({
+			where: eq(sponsoredStudents.stdNo, stdNo),
+			with: {
+				sponsor: true,
+				sponsoredTerms: {
+					with: {
+						term: true,
+					},
+				},
+			},
+			orderBy: desc(sponsoredStudents.createdAt),
+		});
+
+		return result;
+	}
 }
 
 export const sponsorsRepository = new SponsorRepository();

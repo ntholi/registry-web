@@ -153,6 +153,13 @@ class SponsorService {
 			}
 		);
 	}
+
+	async getStudentSponsors(stdNo: number) {
+		return withAuth(
+			async () => this.repository.findStudentSponsors(stdNo),
+			['registry', 'finance', 'admin', 'student_services']
+		);
+	}
 }
 
 export const sponsorsService = serviceWrapper(

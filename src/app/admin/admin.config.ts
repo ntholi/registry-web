@@ -13,7 +13,6 @@ import {
 	IconSchool,
 	IconSettings,
 	IconUserShield,
-	IconUsersPlus,
 } from '@tabler/icons-react';
 import type {
 	ModuleConfig,
@@ -70,12 +69,6 @@ export const adminConfig: ModuleConfig = {
 				href: '/finance/sponsors',
 				icon: IconBuildingBank,
 				roles: ['admin', 'finance'],
-			},
-			{
-				label: 'Sponsored Students',
-				href: '/finance/sponsored-students',
-				icon: IconUsersPlus,
-				roles: ['admin', 'finance', 'registry'],
 			},
 			{
 				label: 'Schools',

@@ -130,3 +130,7 @@ export async function bulkUpdateAccountDetails(
 export async function confirmAccountDetails(stdNo: number, termId: number) {
 	return service.confirmAccountDetails(stdNo, termId);
 }
+
+export async function getStudentSponsors(stdNo: number) {
+	return service.getStudentSponsors(stdNo);
+}
