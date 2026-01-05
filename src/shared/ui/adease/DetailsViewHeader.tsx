@@ -17,6 +17,7 @@ export interface DetailsViewHeaderProps {
 	onDeleteSuccess?: () => Promise<void>;
 	deleteRoles?: UserRole[];
 	editRoles?: UserRole[];
+	hideEdit?: boolean;
 }
 
 export function DetailsViewHeader({
@@ -26,6 +27,7 @@ export function DetailsViewHeader({
 	onDeleteSuccess,
 	deleteRoles,
 	editRoles,
+	hideEdit,
 }: DetailsViewHeaderProps) {
 	const { data: session } = useSession();
 	const pathname = usePathname();
@@ -63,17 +65,18 @@ export function DetailsViewHeader({
 								queryKey={queryKey}
 							/>
 						)}
-					{[...(editRoles ?? []), 'admin'].includes(
-						session?.user?.role ?? ''
-					) && (
-						<ActionIcon
-							component={Link}
-							href={`${pathname}/edit?${newSearchParams.toString()}`}
-							variant='outline'
-						>
-							<IconEdit size={'1rem'} />
-						</ActionIcon>
-					)}
+					{!hideEdit &&
+						[...(editRoles ?? []), 'admin'].includes(
+							session?.user?.role ?? ''
+						) && (
+							<ActionIcon
+								component={Link}
+								href={`${pathname}/edit?${newSearchParams.toString()}`}
+								variant='outline'
+							>
+								<IconEdit size={'1rem'} />
+							</ActionIcon>
+						)}
 				</Group>
 			</Flex>
 			<Divider my={15} />
