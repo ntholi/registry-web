@@ -375,7 +375,11 @@ export function getAcademicRemarks(programs: Program[]) {
 		return !hasPassedLater;
 	});
 
-	const remainInSemester = latestFailedModules.length >= 3;
+	const latestCgpa = points[points.length - 1]?.cgpa ?? 0;
+	const hasLowCgpaWithFailures =
+		latestCgpa < 2.0 && latestFailedModules.length >= 1;
+	const remainInSemester =
+		latestFailedModules.length >= 3 || hasLowCgpaWithFailures;
 	const status = remainInSemester ? 'Remain in Semester' : 'Proceed';
 
 	const messageParts: string[] = [status];
@@ -397,7 +401,11 @@ export function getAcademicRemarks(programs: Program[]) {
 
 	let details = '';
 	if (remainInSemester) {
-		details = `Failed ${latestFailedModules.length} modules in latest semester`;
+		if (latestFailedModules.length >= 3) {
+			details = `Failed ${latestFailedModules.length} modules in latest semester`;
+		} else if (hasLowCgpaWithFailures) {
+			details = `CGPA ${latestCgpa.toFixed(2)} below 2.0 with ${latestFailedModules.length} failed module(s)`;
+		}
 	} else {
 		details = 'Student is eligible to proceed';
 	}
