@@ -4,6 +4,7 @@ import { getStudentMarks } from '@academic/assessment-marks';
 import {
 	Anchor,
 	Badge,
+	Card,
 	Group,
 	Modal,
 	Skeleton,
@@ -162,22 +163,24 @@ export default function AssessmentMarksModal({
 								</Table.Tr>
 							</Table.Tbody>
 						</Table>
-
-						<Group justify='space-between' pt='sm'>
-							<Text size='sm' fw={500}>
-								Total Marks
-							</Text>
-							<Badge
-								size='lg'
-								variant='light'
-								color={getThresholdColor(Number.parseFloat(totalMarks) || 0, {
-									moderate: 45,
-									good: 50,
-								})}
-							>
-								{totalMarks}
-							</Badge>
-						</Group>
+						<Card>
+							<Group justify='space-between'>
+								<Text size='sm' fw={500}>
+									Total Marks
+								</Text>
+								<Badge
+									size='lg'
+									radius={'xs'}
+									variant='light'
+									color={getThresholdColor(Number.parseFloat(totalMarks) || 0, {
+										moderate: 45,
+										good: 50,
+									})}
+								>
+									{totalMarks}
+								</Badge>
+							</Group>
+						</Card>
 					</Stack>
 				)}
 			</Modal>
