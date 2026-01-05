@@ -13,7 +13,6 @@ import {
 	Text,
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
-import { modals } from '@mantine/modals';
 import { notifications } from '@mantine/notifications';
 import { IconAlertCircle, IconEdit } from '@tabler/icons-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -34,6 +33,7 @@ export function EditSemesterSponsorModal({
 	const [selectedSponsorId, setSelectedSponsorId] = useState<string | null>(
 		null
 	);
+	const [showConfirm, setShowConfirm] = useState(false);
 	const queryClient = useQueryClient();
 
 	const { data: studentSponsors, isLoading: isLoadingSponsors } = useQuery({
@@ -80,24 +80,25 @@ export function EditSemesterSponsorModal({
 			label: ss.sponsor?.name || 'Unknown',
 		})) || [];
 
+	const selectedSponsorName = selectedSponsorId
+		? sponsorOptions.find((opt) => opt.value === selectedSponsorId)?.label ||
+			'Unknown'
+		: 'No Sponsor';
+
 	const handleSubmit = () => {
 		const sponsorId = selectedSponsorId ? Number(selectedSponsorId) : null;
 
-		modals.openConfirmModal({
-			title: 'Confirm Change',
-			children: (
-				<Text size='sm'>
-					Are you sure you want to change the sponsor for this semester? This
-					action may affect financial records.
-				</Text>
-			),
-			labels: { confirm: 'Confirm', cancel: 'Cancel' },
-			onConfirm: () => updateMutation.mutate(sponsorId),
-		});
+		if (!showConfirm) {
+			setShowConfirm(true);
+			return;
+		}
+
+		updateMutation.mutate(sponsorId);
 	};
 
 	const handleClose = () => {
 		setSelectedSponsorId(currentSponsorId?.toString() || null);
+		setShowConfirm(false);
 		close();
 	};
 
@@ -141,12 +142,24 @@ export function EditSemesterSponsorModal({
 							placeholder='Select a sponsor'
 							data={sponsorOptions}
 							value={selectedSponsorId}
-							onChange={setSelectedSponsorId}
+							onChange={(val) => {
+								setSelectedSponsorId(val);
+								setShowConfirm(false);
+							}}
 							disabled={isLoadingSponsors}
 							searchable
 							clearable
 							comboboxProps={{ withinPortal: true }}
 						/>
+					)}
+
+					{showConfirm && (
+						<Alert color='orange' title='Confirm Change'>
+							<Text size='sm'>
+								Are you sure you want to change the sponsor for this semester to{' '}
+								<strong>{selectedSponsorName}</strong>?
+							</Text>
+						</Alert>
 					)}
 
 					<Group justify='flex-end' gap='sm'>
@@ -161,8 +174,9 @@ export function EditSemesterSponsorModal({
 							onClick={handleSubmit}
 							loading={updateMutation.isPending}
 							disabled={studentSponsors?.length === 0}
+							color={showConfirm ? 'orange' : 'blue'}
 						>
-							Update
+							{showConfirm ? 'Confirm Update' : 'Update'}
 						</Button>
 					</Group>
 				</Stack>
