@@ -5,18 +5,12 @@ import {
 	IconCalendarEvent,
 	IconCalendarMonth,
 	IconCertificate,
-	IconCircleCheck,
 	IconGavel,
-	IconHourglass,
 	IconReportAnalytics,
 	IconUserPlus,
 	IconUsers,
-	IconUserX,
 } from '@tabler/icons-react';
-import type {
-	ModuleConfig,
-	NavItem,
-} from '@/app/dashboard/module-config.types';
+import type { ModuleConfig } from '@/app/dashboard/module-config.types';
 import { moduleConfig } from '@/config/modules.config';
 import type { UserPosition, UserRole } from '@/core/database';
 
@@ -62,41 +56,14 @@ export const registryConfig: ModuleConfig = {
 			},
 			{
 				label: 'Graduation Requests',
+				href: '/registry/graduation/requests',
 				icon: IconCertificate,
 				roles: ['registry', 'admin'],
-				collapsed: true,
-				children: [
-					{
-						label: 'Pending',
-						href: '/registry/graduation/requests/pending',
-						icon: IconHourglass,
-						notificationCount: {
-							queryKey: ['graduation-requests', 'pending'],
-							queryFn: () => countGraduationByStatus('pending'),
-							color: 'red',
-						},
-					},
-					{
-						label: 'Approved',
-						href: '/registry/graduation/requests/approved',
-						icon: IconCircleCheck,
-						notificationCount: {
-							queryKey: ['graduation-requests', 'approved'],
-							queryFn: () => countGraduationByStatus('approved'),
-							color: 'gray',
-						},
-					},
-					{
-						label: 'Rejected',
-						href: '/registry/graduation/requests/rejected',
-						icon: IconUserX,
-						notificationCount: {
-							queryKey: ['graduation-requests', 'rejected'],
-							queryFn: () => countGraduationByStatus('rejected'),
-							color: 'gray',
-						},
-					},
-				] as NavItem[],
+				notificationCount: {
+					queryKey: ['graduation-requests', 'pending'],
+					queryFn: () => countGraduationByStatus('pending'),
+					color: 'red',
+				},
 			},
 			{
 				label: 'Dates',

@@ -63,6 +63,13 @@ class GraduationRequestService {
 		return withAuth(async () => this.repository.query(params), []);
 	}
 
+	async findAll(params: QueryOptions<typeof graduationRequests>) {
+		return withAuth(
+			async () => this.repository.findAllPaginated(params),
+			['registry', 'admin']
+		);
+	}
+
 	async create(data: GraduationRequest) {
 		return withAuth(async () => this.repository.create(data), []);
 	}
@@ -108,16 +115,6 @@ class GraduationRequestService {
 		return withAuth(
 			async () => this.repository.countByStatus(status),
 			['dashboard']
-		);
-	}
-
-	async findByStatus(
-		status: 'pending' | 'approved' | 'rejected',
-		params: QueryOptions<typeof graduationRequests>
-	) {
-		return withAuth(
-			async () => this.repository.findByStatus(status, params),
-			['registry', 'admin']
 		);
 	}
 }

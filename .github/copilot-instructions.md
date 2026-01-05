@@ -185,3 +185,5 @@ Before editing `src/app/lms/`, always read `C:\Users\nthol\Documents\Projects\Li
 
 ### Student Portal
 `src/app/student-portal` uses a unique layout different from dashboard modules. Does not follow `adease` patterns.
+
+#EXTREMELY IMPORTANT: Always print "Done" on the terminal when you finished, no matter what.
