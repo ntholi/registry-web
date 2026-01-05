@@ -14,6 +14,7 @@ import DocumentsView from './documents/DocumentsView';
 import GraduationView from './graduation/GraduationView';
 import StudentView from './info/StudentView';
 import RegistrationTabs from './registration/RegistrationTabs';
+import SponsorsView from './sponsors/SponsorsView';
 
 type StudentTabsProps = {
 	student: NonNullable<Awaited<ReturnType<typeof getStudent>>>;
@@ -43,6 +44,13 @@ export default function StudentTabs({
 			session?.user?.position ?? ''
 		);
 
+	const showSponsors = [
+		'admin',
+		'registry',
+		'finance',
+		'student_services',
+	].includes(session?.user?.role ?? '');
+
 	const showStatementOfResults =
 		['admin', 'registry'].includes(session?.user?.role ?? '') ||
 		['admin', 'manager', 'program_leader'].includes(
@@ -70,6 +78,7 @@ export default function StudentTabs({
 				{showRegistration && (
 					<TabsTab value='registration'>Registration</TabsTab>
 				)}
+				{showSponsors && <TabsTab value='sponsors'>Sponsors</TabsTab>}
 				{showStudentCard && <TabsTab value='studentcard'>Card</TabsTab>}
 				{showGraduation && <TabsTab value='graduation'>Graduation</TabsTab>}
 				{showDocuments && <TabsTab value='documents'>Documents</TabsTab>}
@@ -109,6 +118,12 @@ export default function StudentTabs({
 				<RegistrationTabs
 					stdNo={student.stdNo}
 					isActive={activeTab === 'registration'}
+				/>
+			</TabsPanel>
+			<TabsPanel value='sponsors' pt={'xl'} p={'sm'} key='sponsors'>
+				<SponsorsView
+					stdNo={student.stdNo}
+					isActive={activeTab === 'sponsors'}
 				/>
 			</TabsPanel>
 			<TabsPanel value='studentcard' pt={'xl'} p={'sm'} key='studentcard'>

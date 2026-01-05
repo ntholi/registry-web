@@ -605,6 +605,93 @@ export default class SponsorRepository extends BaseRepository<
 
 		return result[0];
 	}
+
+	async findStudentSponsors(stdNo: number) {
+		const result = await db.query.sponsoredStudents.findMany({
+			where: eq(sponsoredStudents.stdNo, stdNo),
+			with: {
+				sponsor: true,
+				sponsoredTerms: {
+					with: {
+						term: true,
+					},
+				},
+			},
+			orderBy: desc(sponsoredStudents.createdAt),
+		});
+
+		return result;
+	}
+
+	async createSponsoredStudent(data: {
+		stdNo: number;
+		sponsorId: number;
+		borrowerNo?: string;
+		bankName?: string;
+		accountNumber?: string;
+	}) {
+		const existing = await db.query.sponsoredStudents.findFirst({
+			where: and(
+				eq(sponsoredStudents.stdNo, data.stdNo),
+				eq(sponsoredStudents.sponsorId, data.sponsorId)
+			),
+		});
+
+		if (existing) {
+			throw new Error(
+				'Student already has a sponsorship record for this sponsor'
+			);
+		}
+
+		const [result] = await db
+			.insert(sponsoredStudents)
+			.values({
+				stdNo: data.stdNo,
+				sponsorId: data.sponsorId,
+				borrowerNo: data.borrowerNo,
+				bankName: data.bankName,
+				accountNumber: data.accountNumber,
+			})
+			.returning();
+
+		return result;
+	}
+
+	async updateSponsoredStudent(
+		id: number,
+		data: {
+			sponsorId?: number;
+			borrowerNo?: string | null;
+			bankName?: string | null;
+			accountNumber?: string | null;
+			confirmed?: boolean;
+		}
+	) {
+		const [result] = await db
+			.update(sponsoredStudents)
+			.set({
+				...data,
+				updatedAt: new Date(),
+			})
+			.where(eq(sponsoredStudents.id, id))
+			.returning();
+
+		return result;
+	}
+
+	async findSponsoredStudentById(id: number) {
+		return db.query.sponsoredStudents.findFirst({
+			where: eq(sponsoredStudents.id, id),
+			with: {
+				sponsor: true,
+				sponsoredTerms: {
+					with: {
+						term: true,
+					},
+				},
+			},
+		});
+	}
 }
 
 export const sponsorsRepository = new SponsorRepository();

@@ -130,3 +130,34 @@ export async function bulkUpdateAccountDetails(
 export async function confirmAccountDetails(stdNo: number, termId: number) {
 	return service.confirmAccountDetails(stdNo, termId);
 }
+
+export async function getStudentSponsors(stdNo: number) {
+	return service.getStudentSponsors(stdNo);
+}
+
+export async function createSponsoredStudent(data: {
+	stdNo: number;
+	sponsorId: number;
+	borrowerNo?: string;
+	bankName?: string;
+	accountNumber?: string;
+}) {
+	return service.createSponsoredStudent(data);
+}
+
+export async function updateSponsoredStudent(
+	id: number,
+	data: {
+		sponsorId?: number;
+		borrowerNo?: string | null;
+		bankName?: string | null;
+		accountNumber?: string | null;
+		confirmed?: boolean;
+	}
+) {
+	return service.updateSponsoredStudent(id, data);
+}
+
+export async function getSponsoredStudentById(id: number) {
+	return service.getSponsoredStudentById(id);
+}
