@@ -239,12 +239,28 @@ export default function EnrollmentFilter({ onFilterChange }: Props) {
 								data={schools.map((school) => ({
 									value: school.id?.toString() || '',
 									label: school.code,
+									description: school.name,
 								}))}
 								rightSection={schoolsLoading && <Loader size='xs' />}
 								value={localFilter.schoolIds?.map(String) ?? []}
 								onChange={(value) => handleChange('schoolIds', value)}
 								searchable
 								clearable
+								renderOption={({ option }) => {
+									const customOption = option as {
+										value: string;
+										label: string;
+										description: string;
+									};
+									return (
+										<div>
+											<Text>{customOption.label}</Text>
+											<Text size='xs' c='dimmed'>
+												{customOption.description}
+											</Text>
+										</div>
+									);
+								}}
 							/>
 						</Grid.Col>
 

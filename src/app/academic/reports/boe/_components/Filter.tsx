@@ -145,6 +145,7 @@ export default function BoeFilter({ onFilterChange }: Props) {
 							data={schoolsData?.map((school) => ({
 								value: school.id?.toString() || '',
 								label: school.code,
+								description: school.name,
 							}))}
 							rightSection={schoolsLoading && <Loader size='xs' />}
 							value={localFilter.schoolIds?.map(String) ?? []}
@@ -152,6 +153,21 @@ export default function BoeFilter({ onFilterChange }: Props) {
 							searchable
 							clearable
 							withAsterisk
+							renderOption={({ option }) => {
+								const customOption = option as {
+									value: string;
+									label: string;
+									description: string;
+								};
+								return (
+									<div>
+										<Text size='sm'>{customOption.label}</Text>
+										<Text size='xs' c='dimmed'>
+											{customOption.description}
+										</Text>
+									</div>
+								);
+							}}
 						/>
 					</Grid.Col>
 

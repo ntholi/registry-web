@@ -4,7 +4,7 @@ import {
 	getProgramsBySchoolIds,
 } from '@academic/schools/_server/actions';
 import { getAllSponsors } from '@finance/sponsors/_server/actions';
-import { Button, Grid, Paper, Select, Stack } from '@mantine/core';
+import { Button, Grid, Paper, Select, Stack, Text } from '@mantine/core';
 import { getAllTerms } from '@registry/dates/terms/_server/actions';
 import { IconX } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
@@ -138,6 +138,7 @@ export default function Filter({ onFilterChange }: Props) {
 							data={schools.map((school) => ({
 								value: school.id.toString(),
 								label: school.code,
+								description: school.name,
 							}))}
 							value={localFilter.schoolId?.toString() ?? null}
 							onChange={(value) =>
@@ -146,6 +147,21 @@ export default function Filter({ onFilterChange }: Props) {
 							searchable
 							clearable
 							disabled={schoolsLoading}
+							renderOption={({ option }) => {
+								const customOption = option as {
+									value: string;
+									label: string;
+									description: string;
+								};
+								return (
+									<div>
+										<Text>{customOption.label}</Text>
+										<Text size='xs' c='dimmed'>
+											{customOption.description}
+										</Text>
+									</div>
+								);
+							}}
 						/>
 					</Grid.Col>
 
