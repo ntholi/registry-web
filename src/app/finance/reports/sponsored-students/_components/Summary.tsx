@@ -3,7 +3,6 @@ import {
 	Grid,
 	Group,
 	Paper,
-	SimpleGrid,
 	Skeleton,
 	Stack,
 	Table,
@@ -57,15 +56,22 @@ export default function Summary({ data, isLoading }: Props) {
 	if (isLoading) {
 		return (
 			<Stack gap='lg'>
-				<SimpleGrid cols={{ base: 1, sm: 2, md: 4 }}>
-					{Array.from({ length: 4 }, (_, i) => `stat-skeleton-${i}`).map(
-						(key) => (
-							<Skeleton key={key} height={120} radius='md' />
-						)
-					)}
-				</SimpleGrid>
-				<Skeleton height={300} radius='md' />
-				<Skeleton height={200} radius='md' />
+				<Grid>
+					<Grid.Col span={{ base: 12, md: 6 }}>
+						<Skeleton height={300} radius='md' />
+					</Grid.Col>
+					<Grid.Col span={{ base: 12, md: 6 }}>
+						<Skeleton height={300} radius='md' />
+					</Grid.Col>
+				</Grid>
+				<Grid>
+					<Grid.Col span={{ base: 12, md: 8 }}>
+						<Skeleton height={400} radius='md' />
+					</Grid.Col>
+					<Grid.Col span={{ base: 12, md: 4 }}>
+						<Skeleton height={400} radius='md' />
+					</Grid.Col>
+				</Grid>
 			</Stack>
 		);
 	}
@@ -138,10 +144,7 @@ export default function Summary({ data, isLoading }: Props) {
 									<Table.Tr key={school.schoolCode}>
 										<Table.Td>
 											<Group gap='xs'>
-												<IconSchool
-													size={16}
-													color='var(--mantine-color-blue-6)'
-												/>
+												<IconSchool size={16} />
 												<Text size='sm' fw={500}>
 													{school.schoolCode}
 												</Text>
