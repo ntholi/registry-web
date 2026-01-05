@@ -168,15 +168,14 @@ export default function Summary({ data, isLoading }: Props) {
 				<Grid.Col span={{ base: 12, md: 6 }}>
 					<Paper withBorder p='md'>
 						<Title order={4} mb='md'>
-							By Sponsor
+							Sponsors
 						</Title>
 						<Table>
 							<Table.Thead>
 								<Table.Tr>
 									<Table.Th>Sponsor</Table.Th>
 									<Table.Th ta='center'>Students</Table.Th>
-									<Table.Th ta='center'>Confirmed</Table.Th>
-									<Table.Th ta='center'>Unconfirmed</Table.Th>
+									<Table.Th ta='center'>%</Table.Th>
 								</Table.Tr>
 							</Table.Thead>
 							<Table.Tbody>
@@ -191,14 +190,15 @@ export default function Summary({ data, isLoading }: Props) {
 											<Badge variant='light'>{sponsor.studentCount}</Badge>
 										</Table.Td>
 										<Table.Td ta='center'>
-											<Badge variant='light' color='green'>
-												{sponsor.confirmedCount}
-											</Badge>
-										</Table.Td>
-										<Table.Td ta='center'>
-											<Badge variant='light' color='yellow'>
-												{sponsor.unconfirmedCount}
-											</Badge>
+											<Text size='sm' fw={500}>
+												{data.totalStudents > 0
+													? (
+															(sponsor.studentCount / data.totalStudents) *
+															100
+														).toFixed(1)
+													: 0}
+												%
+											</Text>
 										</Table.Td>
 									</Table.Tr>
 								))}

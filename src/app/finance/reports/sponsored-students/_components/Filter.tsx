@@ -4,9 +4,8 @@ import {
 	getProgramsBySchoolIds,
 } from '@academic/schools/_server/actions';
 import { getAllSponsors } from '@finance/sponsors/_server/actions';
-import { Button, Grid, Paper, Select, Stack, Text } from '@mantine/core';
+import { Grid, Paper, Select, Stack, Text } from '@mantine/core';
 import { getAllTerms } from '@registry/dates/terms/_server/actions';
-import { IconX } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { parseAsInteger, parseAsString, useQueryStates } from 'nuqs';
 import { useEffect } from 'react';
@@ -93,26 +92,11 @@ export default function Filter({ onFilterChange }: Props) {
 		setLocalFilter(updates);
 	}
 
-	function handleClearFilters() {
-		setLocalFilter({
-			schoolId: null,
-			programId: null,
-			semesterNumber: null,
-			sponsorId: null,
-		});
-	}
-
-	const hasOptionalFilters =
-		localFilter.schoolId ||
-		localFilter.programId ||
-		localFilter.semesterNumber ||
-		localFilter.sponsorId;
-
 	return (
 		<Paper withBorder p='md'>
 			<Stack gap='md'>
 				<Grid>
-					<Grid.Col span={{ base: 12, sm: 6, md: 3 }}>
+					<Grid.Col span={{ base: 12, sm: 6, md: 2 }}>
 						<Select
 							label='Term'
 							placeholder='Select term'
@@ -183,7 +167,7 @@ export default function Filter({ onFilterChange }: Props) {
 						/>
 					</Grid.Col>
 
-					<Grid.Col span={{ base: 12, sm: 6, md: 3 }}>
+					<Grid.Col span={{ base: 12, sm: 6, md: 2 }}>
 						<Select
 							label='Semester'
 							placeholder='All semesters'
@@ -194,7 +178,7 @@ export default function Filter({ onFilterChange }: Props) {
 						/>
 					</Grid.Col>
 
-					<Grid.Col span={{ base: 12, sm: 6, md: 3 }}>
+					<Grid.Col span={{ base: 12, sm: 6, md: 2 }}>
 						<Select
 							label='Sponsor'
 							placeholder='All sponsors'
@@ -210,21 +194,6 @@ export default function Filter({ onFilterChange }: Props) {
 							clearable
 							disabled={sponsorsLoading}
 						/>
-					</Grid.Col>
-
-					<Grid.Col
-						span={{ base: 12, sm: 6, md: 3 }}
-						style={{ display: 'flex', alignItems: 'flex-end' }}
-					>
-						<Button
-							variant='light'
-							color='gray'
-							leftSection={<IconX size={16} />}
-							onClick={handleClearFilters}
-							disabled={!hasOptionalFilters}
-						>
-							Clear Filters
-						</Button>
 					</Grid.Col>
 				</Grid>
 			</Stack>
