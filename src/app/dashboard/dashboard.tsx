@@ -65,6 +65,7 @@ function getNavigation(
 	const reportLabels = [
 		'Course Summary',
 		'Clearance',
+		'Sponsored Students',
 		'Board of Examination',
 		'Student Enrollments',
 		'Attendance Report',
