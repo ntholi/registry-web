@@ -66,7 +66,7 @@ export async function createSponsoredStudentsExcel(
 		cell.fill = {
 			type: 'pattern',
 			pattern: 'solid',
-			fgColor: { argb: 'FF4472C4' },
+			fgColor: { argb: 'FF000000' },
 		};
 		cell.font = { color: { argb: 'FFFFFFFF' }, bold: true };
 		cell.alignment = { horizontal: 'center', vertical: 'middle' };

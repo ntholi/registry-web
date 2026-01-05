@@ -1,10 +1,8 @@
 'use client';
 import {
-	Card,
 	Grid,
 	Group,
 	Paper,
-	RingProgress,
 	SimpleGrid,
 	Skeleton,
 	Stack,
@@ -12,7 +10,7 @@ import {
 	Text,
 	Title,
 } from '@mantine/core';
-import { IconCheck, IconSchool, IconUsers, IconX } from '@tabler/icons-react';
+import { IconSchool } from '@tabler/icons-react';
 import { formatSemester } from '@/shared/lib/utils/utils';
 
 interface SponsorSummary {
@@ -76,93 +74,8 @@ export default function Summary({ data, isLoading }: Props) {
 		return null;
 	}
 
-	const confirmedPercent =
-		data.totalStudents > 0
-			? Math.round((data.confirmedCount / data.totalStudents) * 100)
-			: 0;
-
 	return (
 		<Stack gap='lg'>
-			<SimpleGrid cols={{ base: 1, sm: 2, md: 4 }}>
-				<Card withBorder padding='lg'>
-					<Group justify='space-between'>
-						<div>
-							<Text size='xs' c='dimmed' tt='uppercase' fw={700}>
-								Total Students
-							</Text>
-							<Text fw={700} size='xl'>
-								{data.totalStudents.toLocaleString()}
-							</Text>
-						</div>
-						<IconUsers
-							size={32}
-							stroke={1.5}
-							color='var(--mantine-color-blue-6)'
-						/>
-					</Group>
-				</Card>
-
-				<Card withBorder padding='lg'>
-					<Group justify='space-between'>
-						<div>
-							<Text size='xs' c='dimmed' tt='uppercase' fw={700}>
-								Confirmed
-							</Text>
-							<Text fw={700} size='xl' c='green'>
-								{data.confirmedCount.toLocaleString()}
-							</Text>
-						</div>
-						<IconCheck
-							size={32}
-							stroke={1.5}
-							color='var(--mantine-color-green-6)'
-						/>
-					</Group>
-				</Card>
-
-				<Card withBorder padding='lg'>
-					<Group justify='space-between'>
-						<div>
-							<Text size='xs' c='dimmed' tt='uppercase' fw={700}>
-								Unconfirmed
-							</Text>
-							<Text fw={700} size='xl' c='yellow'>
-								{data.unconfirmedCount.toLocaleString()}
-							</Text>
-						</div>
-						<IconX
-							size={32}
-							stroke={1.5}
-							color='var(--mantine-color-yellow-6)'
-						/>
-					</Group>
-				</Card>
-
-				<Card withBorder padding='lg'>
-					<Group justify='space-between'>
-						<div>
-							<Text size='xs' c='dimmed' tt='uppercase' fw={700}>
-								Sponsors
-							</Text>
-							<Text fw={700} size='xl'>
-								{data.bySponsor.length}
-							</Text>
-						</div>
-						<RingProgress
-							size={60}
-							thickness={6}
-							roundCaps
-							sections={[{ value: confirmedPercent, color: 'green' }]}
-							label={
-								<Text size='xs' ta='center' fw={700}>
-									{confirmedPercent}%
-								</Text>
-							}
-						/>
-					</Group>
-				</Card>
-			</SimpleGrid>
-
 			<Grid>
 				<Grid.Col span={{ base: 12, md: 6 }}>
 					<Paper withBorder p='md'>
