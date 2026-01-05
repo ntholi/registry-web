@@ -1,5 +1,3 @@
-import { countByStatus as countGraduationByStatus } from '@registry/graduation/clearance';
-import { countByStatus } from '@registry/registration';
 import {
 	IconCalendarDue,
 	IconCalendarEvent,
@@ -48,22 +46,12 @@ export const registryConfig: ModuleConfig = {
 				href: '/registry/registration/requests',
 				icon: IconUserPlus,
 				roles: ['registry', 'admin'],
-				notificationCount: {
-					queryKey: ['registration-requests', 'pending'],
-					queryFn: () => countByStatus('pending'),
-					color: 'red',
-				},
 			},
 			{
 				label: 'Graduation Requests',
 				href: '/registry/graduation/requests',
 				icon: IconCertificate,
 				roles: ['registry', 'admin'],
-				notificationCount: {
-					queryKey: ['graduation-requests', 'pending'],
-					queryFn: () => countGraduationByStatus('pending'),
-					color: 'red',
-				},
 			},
 			{
 				label: 'Dates',
