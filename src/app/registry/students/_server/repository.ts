@@ -47,6 +47,11 @@ export default class StudentRepository extends BaseRepository<
 			where: eq(students.stdNo, stdNo),
 			with: {
 				user: true,
+				registrationRequests: {
+					with: {
+						term: true,
+					},
+				},
 				programs: {
 					columns: {
 						id: true,
@@ -138,6 +143,11 @@ export default class StudentRepository extends BaseRepository<
 			where: eq(students.stdNo, stdNo),
 			with: {
 				user: true,
+				registrationRequests: {
+					with: {
+						term: true,
+					},
+				},
 				programs: {
 					columns: {
 						id: true,

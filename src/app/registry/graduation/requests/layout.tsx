@@ -29,7 +29,9 @@ export default function Layout({ children }: PropsWithChildren) {
 					id={it.id}
 					label={it.studentProgram.stdNo.toString()}
 					description={it.studentProgram.student.name}
-					rightSection={getStatusIcon(it.status as StatusType, { withColor: true })}
+					rightSection={getStatusIcon(it.status as StatusType, {
+						withColor: true,
+					})}
 				/>
 			)}
 		>

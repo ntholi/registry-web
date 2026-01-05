@@ -48,6 +48,11 @@ export default function RegistrationTabs({ stdNo, isActive = true }: Props) {
 			semester.termCode === activeTerm?.code && semester.status === 'Active'
 	);
 
+	const pendingRegistrationRequest = studentData?.registrationRequests?.find(
+		(request) =>
+			request.term?.code === activeTerm?.code && request.status === 'pending'
+	);
+
 	return (
 		<Stack>
 			{isLoading ? (
@@ -74,16 +79,24 @@ export default function RegistrationTabs({ stdNo, isActive = true }: Props) {
 											Registered
 										</Badge>
 									)}
+									{pendingRegistrationRequest && (
+										<Badge size='xs' variant='light' color='yellow'>
+											Pending
+										</Badge>
+									)}
 								</Group>
 								<Text size='xs' c='dimmed'>
 									{hasActiveTermRegistration
 										? 'Student is registered for the current term'
-										: 'Create a registration request for this student'}
+										: pendingRegistrationRequest
+											? 'Student has a pending registration request'
+											: 'Create a registration request for this student'}
 								</Text>
 							</Stack>
 							{hasActiveTermRegistration ? (
 								<ProofOfRegistrationPrinter stdNo={stdNo} />
 							) : (
+								!pendingRegistrationRequest &&
 								['registry', 'admin'].includes(session?.user?.role ?? '') && (
 									<Button
 										component={Link}
