@@ -273,8 +273,7 @@ export default function RegistrationReportPage() {
 						color='blue'
 						variant='light'
 					>
-						Select an academic term and click the play button to generate the
-						report.
+						Select an academic term and click to generate the report.
 					</Alert>
 				)}
 

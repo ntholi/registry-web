@@ -167,8 +167,8 @@ export default function BoeReportPage() {
 						color='blue'
 						variant='light'
 					>
-						Select an academic term and at least one school, then click the play
-						button to generate the report.
+						Select an academic term and at least one school to generate the
+						report.
 					</Alert>
 				)}
 
