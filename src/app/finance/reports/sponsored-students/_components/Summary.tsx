@@ -1,6 +1,5 @@
 'use client';
 import {
-	Badge,
 	Card,
 	Grid,
 	Group,
@@ -187,7 +186,9 @@ export default function Summary({ data, isLoading }: Props) {
 											</Text>
 										</Table.Td>
 										<Table.Td ta='center'>
-											<Badge variant='light'>{sponsor.studentCount}</Badge>
+											<Text size='sm' fw={500}>
+												{sponsor.studentCount}
+											</Text>
 										</Table.Td>
 										<Table.Td ta='center'>
 											<Text size='sm' fw={500}>
@@ -210,7 +211,7 @@ export default function Summary({ data, isLoading }: Props) {
 				<Grid.Col span={{ base: 12, md: 6 }}>
 					<Paper withBorder p='md'>
 						<Title order={4} mb='md'>
-							By School
+							Schools
 						</Title>
 						<Table>
 							<Table.Thead>
@@ -234,7 +235,9 @@ export default function Summary({ data, isLoading }: Props) {
 											</Group>
 										</Table.Td>
 										<Table.Td ta='center'>
-											<Badge variant='light'>{school.studentCount}</Badge>
+											<Text size='sm' fw={500}>
+												{school.studentCount}
+											</Text>
 										</Table.Td>
 									</Table.Tr>
 								))}
@@ -248,7 +251,7 @@ export default function Summary({ data, isLoading }: Props) {
 				<Grid.Col span={{ base: 12, md: 8 }}>
 					<Paper withBorder p='md'>
 						<Title order={4} mb='md'>
-							By Program
+							Programs
 						</Title>
 						<Table>
 							<Table.Thead>
@@ -272,7 +275,9 @@ export default function Summary({ data, isLoading }: Props) {
 											</Text>
 										</Table.Td>
 										<Table.Td ta='center'>
-											<Badge variant='light'>{program.studentCount}</Badge>
+											<Text size='sm' fw={500}>
+												{program.studentCount}
+											</Text>
 										</Table.Td>
 									</Table.Tr>
 								))}
@@ -293,7 +298,7 @@ export default function Summary({ data, isLoading }: Props) {
 				<Grid.Col span={{ base: 12, md: 4 }}>
 					<Paper withBorder p='md'>
 						<Title order={4} mb='md'>
-							By Semester
+							Semesters
 						</Title>
 						<Table>
 							<Table.Thead>
@@ -306,9 +311,9 @@ export default function Summary({ data, isLoading }: Props) {
 								{data.bySemester.map((semester) => (
 									<Table.Tr key={semester.semester}>
 										<Table.Td>
-											<Badge variant='light' size='sm'>
+											<Text size='sm' fw={500}>
 												{formatSemester(semester.semester, 'mini')}
-											</Badge>
+											</Text>
 										</Table.Td>
 										<Table.Td ta='center'>
 											<Text size='sm' fw={500}>
