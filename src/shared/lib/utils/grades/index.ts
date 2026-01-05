@@ -348,7 +348,7 @@ export function getAcademicRemarks(programs: Program[]) {
 				)
 			: [];
 	const failedModules = studentModules.filter((m) => {
-		if (!isFailingOrSupGrade(m.grade)) return false;
+		if (!isFailingGrade(m.grade)) return false;
 
 		const hasPassedLater = studentModules.some(
 			(otherModule) =>
@@ -361,23 +361,35 @@ export function getAcademicRemarks(programs: Program[]) {
 		return !hasPassedLater;
 	});
 
-	const supplementary = studentModules.filter((m) =>
-		isSupplementaryGrade(m.grade)
-	);
+	const supplementary = studentModules.filter((m) => {
+		if (!isSupplementaryGrade(m.grade)) return false;
+
+		const hasPassedLater = studentModules.some(
+			(otherModule) =>
+				otherModule.semesterModule.module?.name ===
+					m.semesterModule.module?.name &&
+				otherModule.id !== m.id &&
+				isPassingGrade(otherModule.grade)
+		);
+
+		return !hasPassedLater;
+	});
 
 	const remainInSemester = latestFailedModules.length >= 3;
 	const status = remainInSemester ? 'Remain in Semester' : 'Proceed';
 
 	const messageParts: string[] = [status];
+	const uniqueSupplementaryModules = getUniqueModules(supplementary);
+	const uniqueFailedModules = getUniqueModules(failedModules);
 
-	if (supplementary.length > 0) {
+	if (uniqueSupplementaryModules.length > 0) {
 		messageParts.push(
-			`must supplement ${supplementary.map((m) => m.semesterModule.module?.name).join(', ')}`
+			`must supplement ${uniqueSupplementaryModules.map((m) => m.name).join(', ')}`
 		);
 	}
-	if (failedModules.length > 0) {
+	if (uniqueFailedModules.length > 0) {
 		messageParts.push(
-			`must repeat ${failedModules.map((m) => m.semesterModule.module?.name).join(', ')}`
+			`must repeat ${uniqueFailedModules.map((m) => m.name).join(', ')}`
 		);
 	}
 
@@ -392,8 +404,8 @@ export function getAcademicRemarks(programs: Program[]) {
 
 	return {
 		status,
-		failedModules: getUniqueModules(failedModules),
-		supplementaryModules: getUniqueModules(supplementary),
+		failedModules: uniqueFailedModules,
+		supplementaryModules: uniqueSupplementaryModules,
 		message,
 		details,
 		totalModules: studentModules.length,
