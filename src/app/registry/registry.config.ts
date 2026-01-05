@@ -42,13 +42,15 @@ export const registryConfig: ModuleConfig = {
 				},
 			},
 			{
-				label: 'Registration Requests',
+				label: 'Registration',
+				description: 'Registration Requests',
 				href: '/registry/registration/requests',
 				icon: IconUserPlus,
 				roles: ['registry', 'admin'],
 			},
 			{
-				label: 'Graduation Requests',
+				label: 'Graduation',
+				description: 'Graduation Requests',
 				href: '/registry/graduation/requests',
 				icon: IconCertificate,
 				roles: ['registry', 'admin'],

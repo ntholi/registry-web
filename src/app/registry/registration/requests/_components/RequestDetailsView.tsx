@@ -13,7 +13,7 @@ import {
 import { notifications } from '@mantine/notifications';
 import { IconCopy } from '@tabler/icons-react';
 import { getStatusColor } from '@/shared/lib/utils/colors';
-import { formatSemester } from '@/shared/lib/utils/utils';
+import { formatDateTime, formatSemester } from '@/shared/lib/utils/utils';
 import { FieldView } from '@/shared/ui/adease';
 import Link from '@/shared/ui/Link';
 import type { getRegistrationRequest } from '../_server/requests/actions';
@@ -30,6 +30,10 @@ export default function RequestDetailsView({ value, sponsorship }: Props) {
 
 			<FieldView label='Term' underline={false}>
 				{value.term.code}
+			</FieldView>
+
+			<FieldView label='Date' underline={false}>
+				{formatDateTime(value.createdAt)}
 			</FieldView>
 
 			<Flex justify={'space-between'} w='100%'>
