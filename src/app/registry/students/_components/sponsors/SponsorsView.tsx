@@ -2,7 +2,6 @@
 
 import { getSponsor } from '@finance/sponsors';
 import {
-	Button,
 	Card,
 	Group,
 	Skeleton,
@@ -13,7 +12,6 @@ import {
 	TabsTab,
 	Text,
 } from '@mantine/core';
-import { IconPlus } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 import { getStudentRegistrationData } from '../../_server/actions';
@@ -28,7 +26,6 @@ type Props = {
 
 export default function SponsorsView({ stdNo, isActive = true }: Props) {
 	const [activeTab, setActiveTab] = useState<string | null>('semesters');
-	const [isModalOpen, setIsModalOpen] = useState(false);
 
 	const { data: registrationData, isLoading: isLoadingReg } = useQuery({
 		queryKey: ['student-registration-data', stdNo],
@@ -70,15 +67,7 @@ export default function SponsorsView({ stdNo, isActive = true }: Props) {
 							Manage student sponsorships and view sponsorship history
 						</Text>
 					</Stack>
-					<Button
-						leftSection={<IconPlus size={14} />}
-						variant='filled'
-						size='sm'
-						color='blue'
-						onClick={() => setIsModalOpen(true)}
-					>
-						New Sponsor
-					</Button>
+					<NewSponsorModal stdNo={stdNo} />
 				</Group>
 			</Card>
 
@@ -100,12 +89,6 @@ export default function SponsorsView({ stdNo, isActive = true }: Props) {
 					/>
 				</TabsPanel>
 			</Tabs>
-
-			<NewSponsorModal
-				stdNo={stdNo}
-				opened={isModalOpen}
-				onClose={() => setIsModalOpen(false)}
-			/>
 		</Stack>
 	);
 }

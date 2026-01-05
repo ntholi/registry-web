@@ -13,19 +13,19 @@ import {
 	Stack,
 	Text,
 } from '@mantine/core';
+import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
-import { IconAlertCircle } from '@tabler/icons-react';
+import { IconAlertCircle, IconPlus } from '@tabler/icons-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { useActiveTerm } from '@/shared/lib/hooks/use-active-term';
 
 type Props = {
 	stdNo: number;
-	opened: boolean;
-	onClose: () => void;
 };
 
-export default function NewSponsorModal({ stdNo, opened, onClose }: Props) {
+export default function NewSponsorModal({ stdNo }: Props) {
+	const [opened, { open, close }] = useDisclosure(false);
 	const [selectedSponsor, setSelectedSponsor] = useState<string | null>(null);
 	const queryClient = useQueryClient();
 	const { activeTerm } = useActiveTerm();
@@ -85,62 +85,73 @@ export default function NewSponsorModal({ stdNo, opened, onClose }: Props) {
 
 	const handleClose = () => {
 		setSelectedSponsor(null);
-		onClose();
+		close();
 	};
 
 	return (
-		<Modal
-			opened={opened}
-			onClose={handleClose}
-			title='Assign New Sponsor'
-			size='md'
-			centered
-		>
-			<Stack gap='md'>
-				<Alert icon={<IconAlertCircle size='1rem' />} color='blue'>
-					Assign a sponsor to this student for the current active term.
-				</Alert>
-
-				<Select
-					label='Sponsor'
-					placeholder='Select a sponsor'
-					data={sponsorOptions}
-					value={selectedSponsor}
-					onChange={setSelectedSponsor}
-					required
-					disabled={isLoadingSponsors}
-					searchable
-					comboboxProps={{
-						withinPortal: true,
-					}}
-				/>
-
-				{!activeTerm && (
-					<Alert color='red'>
-						<Text size='sm'>
-							No active term found. Please ensure there is an active term to
-							assign sponsorships.
-						</Text>
+		<>
+			<Button
+				leftSection={<IconPlus size={14} />}
+				variant='filled'
+				size='sm'
+				color='blue'
+				onClick={open}
+			>
+				New
+			</Button>
+			<Modal
+				opened={opened}
+				onClose={handleClose}
+				title='Assign New Sponsor'
+				size='md'
+				centered
+			>
+				<Stack gap='md'>
+					<Alert icon={<IconAlertCircle size='1rem' />} color='blue'>
+						Assign a sponsor to this student for the current active term.
 					</Alert>
-				)}
 
-				<Group justify='flex-end' gap='sm'>
-					<Button
-						variant='light'
-						onClick={handleClose}
-						disabled={createMutation.isPending}
-					>
-						Cancel
-					</Button>
-					<Button
-						onClick={handleSubmit}
-						disabled={!canSubmit}
-						loading={createMutation.isPending}
-					>
-						Assign Sponsor
-					</Button>
-				</Group>
-			</Stack>
-		</Modal>
+					<Select
+						label='Sponsor'
+						placeholder='Select a sponsor'
+						data={sponsorOptions}
+						value={selectedSponsor}
+						onChange={setSelectedSponsor}
+						required
+						disabled={isLoadingSponsors}
+						searchable
+						comboboxProps={{
+							withinPortal: true,
+						}}
+					/>
+
+					{!activeTerm && (
+						<Alert color='red'>
+							<Text size='sm'>
+								No active term found. Please ensure there is an active term to
+								assign sponsorships.
+							</Text>
+						</Alert>
+					)}
+
+					<Group justify='flex-end' gap='sm'>
+						<Button
+							variant='light'
+							onClick={handleClose}
+							disabled={createMutation.isPending}
+						>
+							Cancel
+						</Button>
+						<Button
+							onClick={handleSubmit}
+							disabled={!canSubmit}
+							loading={createMutation.isPending}
+						>
+							Assign Sponsor
+						</Button>
+					</Group>
+				</Stack>
+			</Modal>
+		</>
 	);
 }
