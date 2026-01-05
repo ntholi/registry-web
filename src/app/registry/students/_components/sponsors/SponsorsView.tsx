@@ -15,9 +15,9 @@ import {
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 import { getStudentRegistrationData } from '../../_server/actions';
-import NewSponsorModal from './NewSponsorModal';
 import SemesterSponsorsView from './SemesterSponsorsView';
 import StudentSponsorsView from './StudentSponsorsView';
+import NewSponsorModal from './sponsor-modals/NewSponsorModal';
 
 type Props = {
 	stdNo: number;
