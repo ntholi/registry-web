@@ -1,52 +1,57 @@
 'use client';
 
-import {
-	findAllSponsors,
-	updateStudentSponsorshipById,
-} from '@finance/sponsors';
-import {
-	Alert,
-	Button,
-	Group,
-	Modal,
-	Select,
-	Stack,
-	Text,
-} from '@mantine/core';
+import { createSponsoredStudent, findAllSponsors } from '@finance/sponsors';
+import { Button, Group, Modal, Select, Stack, TextInput } from '@mantine/core';
+import { useForm } from '@mantine/form';
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
-import { IconAlertCircle, IconPlus } from '@tabler/icons-react';
+import { IconPlus } from '@tabler/icons-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useState } from 'react';
-import { useActiveTerm } from '@/shared/lib/hooks/use-active-term';
+import { useSession } from 'next-auth/react';
 
 type Props = {
 	stdNo: number;
 };
 
+const ALLOWED_ROLES = ['registry', 'admin', 'finance'];
+
 export default function NewSponsorModal({ stdNo }: Props) {
+	const { data: session } = useSession();
 	const [opened, { open, close }] = useDisclosure(false);
-	const [selectedSponsor, setSelectedSponsor] = useState<string | null>(null);
 	const queryClient = useQueryClient();
-	const { activeTerm } = useActiveTerm();
+
+	const canEdit = ALLOWED_ROLES.includes(session?.user?.role || '');
+
+	const form = useForm({
+		initialValues: {
+			sponsorId: '',
+			borrowerNo: '',
+			bankName: '',
+			accountNumber: '',
+		},
+		validate: {
+			sponsorId: (value) => (!value ? 'Sponsor is required' : null),
+		},
+	});
 
 	const { data: sponsors, isLoading: isLoadingSponsors } = useQuery({
 		queryKey: ['sponsors'],
 		queryFn: () => findAllSponsors(1, '').then((response) => response.items),
+		enabled: opened,
 	});
 
 	const createMutation = useMutation({
 		mutationFn: async (data: {
 			stdNo: number;
-			termId: number;
 			sponsorId: number;
-		}) => {
-			return updateStudentSponsorshipById(data);
-		},
+			borrowerNo?: string;
+			bankName?: string;
+			accountNumber?: string;
+		}) => createSponsoredStudent(data),
 		onSuccess: () => {
 			notifications.show({
 				title: 'Success',
-				message: 'Sponsor assigned successfully',
+				message: 'Sponsorship record created successfully',
 				color: 'green',
 			});
 			queryClient.invalidateQueries({ queryKey: ['student-sponsors'] });
@@ -59,7 +64,9 @@ export default function NewSponsorModal({ stdNo }: Props) {
 			notifications.show({
 				title: 'Error',
 				message:
-					error instanceof Error ? error.message : 'Failed to assign sponsor',
+					error instanceof Error
+						? error.message
+						: 'Failed to create sponsorship record',
 				color: 'red',
 			});
 		},
@@ -71,22 +78,22 @@ export default function NewSponsorModal({ stdNo }: Props) {
 			label: sponsor.name,
 		})) || [];
 
-	const canSubmit = selectedSponsor && activeTerm;
-
-	const handleSubmit = () => {
-		if (!canSubmit) return;
-
+	const handleSubmit = form.onSubmit((values) => {
 		createMutation.mutate({
 			stdNo,
-			termId: activeTerm.id,
-			sponsorId: Number(selectedSponsor),
+			sponsorId: Number(values.sponsorId),
+			borrowerNo: values.borrowerNo || undefined,
+			bankName: values.bankName || undefined,
+			accountNumber: values.accountNumber || undefined,
 		});
-	};
+	});
 
 	const handleClose = () => {
-		setSelectedSponsor(null);
+		form.reset();
 		close();
 	};
+
+	if (!canEdit) return null;
 
 	return (
 		<>
@@ -97,60 +104,60 @@ export default function NewSponsorModal({ stdNo }: Props) {
 				color='blue'
 				onClick={open}
 			>
-				New
+				New Sponsor
 			</Button>
 			<Modal
 				opened={opened}
 				onClose={handleClose}
-				title='Assign New Sponsor'
+				title='Create Sponsorship Record'
 				size='md'
 				centered
 			>
-				<Stack gap='md'>
-					<Alert icon={<IconAlertCircle size='1rem' />} color='blue'>
-						Assign a sponsor to this student for the current active term.
-					</Alert>
+				<form onSubmit={handleSubmit}>
+					<Stack gap='md'>
+						<Select
+							label='Sponsor'
+							placeholder='Select a sponsor'
+							data={sponsorOptions}
+							required
+							disabled={isLoadingSponsors}
+							searchable
+							comboboxProps={{ withinPortal: true }}
+							{...form.getInputProps('sponsorId')}
+						/>
 
-					<Select
-						label='Sponsor'
-						placeholder='Select a sponsor'
-						data={sponsorOptions}
-						value={selectedSponsor}
-						onChange={setSelectedSponsor}
-						required
-						disabled={isLoadingSponsors}
-						searchable
-						comboboxProps={{
-							withinPortal: true,
-						}}
-					/>
+						<TextInput
+							label='Borrower Number'
+							placeholder='(Optional)'
+							{...form.getInputProps('borrowerNo')}
+						/>
 
-					{!activeTerm && (
-						<Alert color='red'>
-							<Text size='sm'>
-								No active term found. Please ensure there is an active term to
-								assign sponsorships.
-							</Text>
-						</Alert>
-					)}
+						<TextInput
+							label='Bank Name'
+							placeholder='(Optional)'
+							{...form.getInputProps('bankName')}
+						/>
 
-					<Group justify='flex-end' gap='sm'>
-						<Button
-							variant='light'
-							onClick={handleClose}
-							disabled={createMutation.isPending}
-						>
-							Cancel
-						</Button>
-						<Button
-							onClick={handleSubmit}
-							disabled={!canSubmit}
-							loading={createMutation.isPending}
-						>
-							Assign Sponsor
-						</Button>
-					</Group>
-				</Stack>
+						<TextInput
+							label='Account Number'
+							placeholder='(Optional)'
+							{...form.getInputProps('accountNumber')}
+						/>
+
+						<Group justify='flex-end' gap='sm'>
+							<Button
+								variant='light'
+								onClick={handleClose}
+								disabled={createMutation.isPending}
+							>
+								Cancel
+							</Button>
+							<Button type='submit' loading={createMutation.isPending}>
+								Create
+							</Button>
+						</Group>
+					</Stack>
+				</form>
 			</Modal>
 		</>
 	);

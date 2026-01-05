@@ -1,23 +1,44 @@
 'use client';
 
-import { getStudentSponsors } from '@finance/sponsors';
 import {
+	getAllSponsors,
+	getStudentSponsors,
+	updateSponsoredStudent,
+} from '@finance/sponsors';
+import {
+	ActionIcon,
 	Alert,
 	Badge,
+	Button,
 	Group,
+	Modal,
 	Paper,
+	Select,
 	Skeleton,
 	Stack,
+	Switch,
 	Text,
+	TextInput,
 } from '@mantine/core';
-import { useQuery } from '@tanstack/react-query';
+import { useForm } from '@mantine/form';
+import { useDisclosure } from '@mantine/hooks';
+import { notifications } from '@mantine/notifications';
+import { IconEdit } from '@tabler/icons-react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useSession } from 'next-auth/react';
+import { useEffect } from 'react';
 
 type Props = {
 	stdNo: number;
 	isActive?: boolean;
 };
 
+const ALLOWED_ROLES = ['registry', 'admin', 'finance'];
+
 export default function StudentSponsorsView({ stdNo, isActive = true }: Props) {
+	const { data: session } = useSession();
+	const canEdit = ALLOWED_ROLES.includes(session?.user?.role || '');
+
 	const { data, isLoading, error } = useQuery({
 		queryKey: ['student-sponsors', stdNo],
 		queryFn: () => getStudentSponsors(stdNo),
@@ -55,17 +76,23 @@ export default function StudentSponsorsView({ stdNo, isActive = true }: Props) {
 				<SponsorCard
 					key={sponsoredStudent.id}
 					sponsoredStudent={sponsoredStudent}
+					canEdit={canEdit}
 				/>
 			))}
 		</Stack>
 	);
 }
 
+type SponsoredStudentType = Awaited<
+	ReturnType<typeof getStudentSponsors>
+>[number];
+
 type SponsorCardProps = {
-	sponsoredStudent: Awaited<ReturnType<typeof getStudentSponsors>>[number];
+	sponsoredStudent: SponsoredStudentType;
+	canEdit: boolean;
 };
 
-function SponsorCard({ sponsoredStudent }: SponsorCardProps) {
+function SponsorCard({ sponsoredStudent, canEdit }: SponsorCardProps) {
 	const termCodes = sponsoredStudent.sponsoredTerms
 		.map((st) => st.term?.code)
 		.filter(Boolean)
@@ -93,6 +120,9 @@ function SponsorCard({ sponsoredStudent }: SponsorCardProps) {
 							</Text>
 						)}
 					</Stack>
+					{canEdit && (
+						<EditSponsoredStudentModal sponsoredStudent={sponsoredStudent} />
+					)}
 				</Group>
 
 				{(sponsoredStudent.bankName || sponsoredStudent.accountNumber) && (
@@ -132,6 +162,170 @@ function SponsorCard({ sponsoredStudent }: SponsorCardProps) {
 				)}
 			</Stack>
 		</Paper>
+	);
+}
+
+type EditSponsoredStudentModalProps = {
+	sponsoredStudent: SponsoredStudentType;
+};
+
+function EditSponsoredStudentModal({
+	sponsoredStudent,
+}: EditSponsoredStudentModalProps) {
+	const [opened, { open, close }] = useDisclosure(false);
+	const queryClient = useQueryClient();
+
+	const form = useForm({
+		initialValues: {
+			sponsorId: sponsoredStudent.sponsor?.id.toString() || '',
+			borrowerNo: sponsoredStudent.borrowerNo || '',
+			bankName: sponsoredStudent.bankName || '',
+			accountNumber: sponsoredStudent.accountNumber || '',
+			confirmed: sponsoredStudent.confirmed || false,
+		},
+	});
+
+	const { data: sponsors, isLoading: isLoadingSponsors } = useQuery({
+		queryKey: ['all-sponsors'],
+		queryFn: getAllSponsors,
+		enabled: opened,
+	});
+
+	useEffect(() => {
+		if (opened) {
+			form.setValues({
+				sponsorId: sponsoredStudent.sponsor?.id.toString() || '',
+				borrowerNo: sponsoredStudent.borrowerNo || '',
+				bankName: sponsoredStudent.bankName || '',
+				accountNumber: sponsoredStudent.accountNumber || '',
+				confirmed: sponsoredStudent.confirmed || false,
+			});
+		}
+	}, [opened, sponsoredStudent, form.setValues]);
+
+	const updateMutation = useMutation({
+		mutationFn: async (data: {
+			sponsorId?: number;
+			borrowerNo?: string | null;
+			bankName?: string | null;
+			accountNumber?: string | null;
+			confirmed?: boolean;
+		}) => updateSponsoredStudent(sponsoredStudent.id, data),
+		onSuccess: () => {
+			notifications.show({
+				title: 'Success',
+				message: 'Sponsorship record updated successfully',
+				color: 'green',
+			});
+			queryClient.invalidateQueries({ queryKey: ['student-sponsors'] });
+			queryClient.invalidateQueries({
+				queryKey: ['student-registration-data'],
+			});
+			handleClose();
+		},
+		onError: (error) => {
+			notifications.show({
+				title: 'Error',
+				message:
+					error instanceof Error
+						? error.message
+						: 'Failed to update sponsorship record',
+				color: 'red',
+			});
+		},
+	});
+
+	const sponsorOptions =
+		sponsors?.map((sponsor) => ({
+			value: sponsor.id.toString(),
+			label: sponsor.name,
+		})) || [];
+
+	const handleSubmit = form.onSubmit((values) => {
+		updateMutation.mutate({
+			sponsorId: values.sponsorId ? Number(values.sponsorId) : undefined,
+			borrowerNo: values.borrowerNo || null,
+			bankName: values.bankName || null,
+			accountNumber: values.accountNumber || null,
+			confirmed: values.confirmed,
+		});
+	});
+
+	const handleClose = () => {
+		form.reset();
+		close();
+	};
+
+	return (
+		<>
+			<ActionIcon
+				variant='subtle'
+				color='gray'
+				size='sm'
+				onClick={open}
+				title='Edit sponsorship record'
+			>
+				<IconEdit size='1rem' />
+			</ActionIcon>
+			<Modal
+				opened={opened}
+				onClose={handleClose}
+				title='Edit Sponsorship Record'
+				size='md'
+				centered
+			>
+				<form onSubmit={handleSubmit}>
+					<Stack gap='md'>
+						<Select
+							label='Sponsor'
+							placeholder='Select a sponsor'
+							data={sponsorOptions}
+							disabled={isLoadingSponsors}
+							searchable
+							comboboxProps={{ withinPortal: true }}
+							{...form.getInputProps('sponsorId')}
+						/>
+
+						<TextInput
+							label='Borrower Number'
+							placeholder='Enter borrower number (optional)'
+							{...form.getInputProps('borrowerNo')}
+						/>
+
+						<TextInput
+							label='Bank Name'
+							placeholder='Enter bank name (optional)'
+							{...form.getInputProps('bankName')}
+						/>
+
+						<TextInput
+							label='Account Number'
+							placeholder='Enter account number (optional)'
+							{...form.getInputProps('accountNumber')}
+						/>
+
+						<Switch
+							label='Confirmed'
+							description='Mark this sponsorship as confirmed'
+							{...form.getInputProps('confirmed', { type: 'checkbox' })}
+						/>
+
+						<Group justify='flex-end' gap='sm'>
+							<Button
+								variant='light'
+								onClick={handleClose}
+								disabled={updateMutation.isPending}
+							>
+								Cancel
+							</Button>
+							<Button type='submit' loading={updateMutation.isPending}>
+								Update
+							</Button>
+						</Group>
+					</Stack>
+				</form>
+			</Modal>
+		</>
 	);
 }
 

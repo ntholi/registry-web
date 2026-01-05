@@ -160,6 +160,42 @@ class SponsorService {
 			['registry', 'finance', 'admin', 'student_services']
 		);
 	}
+
+	async createSponsoredStudent(data: {
+		stdNo: number;
+		sponsorId: number;
+		borrowerNo?: string;
+		bankName?: string;
+		accountNumber?: string;
+	}) {
+		return withAuth(
+			async () => this.repository.createSponsoredStudent(data),
+			['registry', 'finance', 'admin']
+		);
+	}
+
+	async updateSponsoredStudent(
+		id: number,
+		data: {
+			sponsorId?: number;
+			borrowerNo?: string | null;
+			bankName?: string | null;
+			accountNumber?: string | null;
+			confirmed?: boolean;
+		}
+	) {
+		return withAuth(
+			async () => this.repository.updateSponsoredStudent(id, data),
+			['registry', 'finance', 'admin']
+		);
+	}
+
+	async getSponsoredStudentById(id: number) {
+		return withAuth(
+			async () => this.repository.findSponsoredStudentById(id),
+			['registry', 'finance', 'admin', 'student_services']
+		);
+	}
 }
 
 export const sponsorsService = serviceWrapper(
