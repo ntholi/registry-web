@@ -53,7 +53,7 @@ export default function Layout({ children }: PropsWithChildren) {
 					id={it.id}
 					label={it.stdNo.toString()}
 					description={it.student.name}
-					rightSection={getStatusIcon(it.status)}
+					rightSection={getStatusIcon(it.status, { withColor: true })}
 				/>
 			)}
 		>

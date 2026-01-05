@@ -61,7 +61,7 @@ export const statusColors = {
 	},
 	enrollment: {
 		enrolled: semantic.neutral,
-		registered: semantic.info,
+		registered: semantic.success,
 		graduated: semantic.info,
 		suspended: semantic.error,
 		terminated: semantic.error,
