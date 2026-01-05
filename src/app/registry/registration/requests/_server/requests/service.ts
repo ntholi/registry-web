@@ -22,13 +22,12 @@ class RegistrationRequestService {
 		);
 	}
 
-	async findByStatus(
-		status: 'pending' | 'registered' | 'rejected' | 'approved',
+	async findAll(
 		params: QueryOptions<typeof registrationRequests>,
 		termId?: number
 	) {
 		return withAuth(
-			async () => this.repository.findByStatus(status, params, termId),
+			async () => this.repository.findAllPaginated(params, termId),
 			['registry', 'finance', 'library']
 		);
 	}

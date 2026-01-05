@@ -28,17 +28,9 @@ export async function countByStatus(
 export async function findAllRegistrationRequests(
 	page = 1,
 	search = '',
-	status?: 'pending' | 'registered' | 'rejected' | 'approved',
 	termId?: number
 ) {
-	return service.findByStatus(
-		status ?? 'pending',
-		{
-			page,
-			search,
-		},
-		termId
-	);
+	return service.findAll({ page, search }, termId);
 }
 
 export async function getStudentSemesterModules(

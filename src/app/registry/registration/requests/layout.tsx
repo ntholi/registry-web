@@ -4,7 +4,6 @@ import { getActiveTerm } from '@registry/dates/terms';
 import { findAllRegistrationRequests } from '@registry/registration/requests';
 import { useQuery } from '@tanstack/react-query';
 import { useAtom } from 'jotai';
-import { useParams } from 'next/navigation';
 import type { PropsWithChildren } from 'react';
 import { getStatusIcon } from '@/shared/lib/utils/status';
 import { ListItem, ListLayout } from '@/shared/ui/adease';
@@ -13,45 +12,27 @@ import TermFilter from '@/shared/ui/TermFilter';
 
 type Status = 'pending' | 'registered' | 'rejected' | 'approved';
 
-const statusTitles = {
-	pending: 'Pending Registration Requests',
-	registered: 'Registered Students',
-	rejected: 'Rejected Requests',
-	approved: 'Approved Requests',
-};
-
 export default function Layout({ children }: PropsWithChildren) {
-	const params = useParams();
-	const status = params.status as Status;
 	const [selectedTerm, setSelectedTerm] = useAtom(selectedTermAtom);
 
 	const { data: activeTerm } = useQuery({
 		queryKey: ['active-term'],
 		queryFn: getActiveTerm,
-		staleTime: 5 * 60 * 1000, // 5 minutes
+		staleTime: 5 * 60 * 1000,
 	});
 
 	if (activeTerm?.id && selectedTerm === null) {
 		setSelectedTerm(activeTerm.id);
 	}
 
-	if (!statusTitles[status]) {
-		return <div>Invalid status: {status}</div>;
-	}
-
 	return (
 		<ListLayout
-			path={`/registry/registration/requests/${status}`}
-			queryKey={[
-				'registration-requests',
-				status,
-				selectedTerm?.toString() || 'all',
-			]}
+			path='/registry/registration/requests'
+			queryKey={['registration-requests', selectedTerm?.toString() || 'all']}
 			getData={async (page, search) => {
 				const response = await findAllRegistrationRequests(
 					page,
 					search,
-					status,
 					selectedTerm || undefined
 				);
 				return {

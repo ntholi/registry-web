@@ -9,7 +9,6 @@ import {
 	IconGavel,
 	IconHourglass,
 	IconReportAnalytics,
-	IconUserCheck,
 	IconUserPlus,
 	IconUsers,
 	IconUserX,
@@ -52,51 +51,14 @@ export const registryConfig: ModuleConfig = {
 			},
 			{
 				label: 'Registration Requests',
+				href: '/registry/registration/requests',
 				icon: IconUserPlus,
 				roles: ['registry', 'admin'],
-				collapsed: true,
-				children: [
-					{
-						label: 'Pending',
-						href: '/registry/registration/requests/pending',
-						icon: IconHourglass,
-						notificationCount: {
-							queryKey: ['registration-requests', 'pending'],
-							queryFn: () => countByStatus('pending'),
-							color: 'red',
-						},
-					},
-					{
-						label: 'Registered',
-						href: '/registry/registration/requests/registered',
-						icon: IconUserCheck,
-						notificationCount: {
-							queryKey: ['registration-requests', 'registered'],
-							queryFn: () => countByStatus('registered'),
-							color: 'gray',
-						},
-					},
-					{
-						label: 'Rejected',
-						href: '/registry/registration/requests/rejected',
-						icon: IconUserX,
-						notificationCount: {
-							queryKey: ['registration-requests', 'rejected'],
-							queryFn: () => countByStatus('rejected'),
-							color: 'gray',
-						},
-					},
-					{
-						label: 'Approved',
-						href: '/registry/registration/requests/approved',
-						icon: IconCircleCheck,
-						notificationCount: {
-							queryKey: ['registration-requests', 'approved'],
-							queryFn: () => countByStatus('approved'),
-							color: 'gray',
-						},
-					},
-				] as NavItem[],
+				notificationCount: {
+					queryKey: ['registration-requests', 'pending'],
+					queryFn: () => countByStatus('pending'),
+					color: 'red',
+				},
 			},
 			{
 				label: 'Graduation Requests',

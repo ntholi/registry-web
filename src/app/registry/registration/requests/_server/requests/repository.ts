@@ -1,16 +1,4 @@
-import {
-	and,
-	count,
-	desc,
-	eq,
-	exists,
-	ilike,
-	inArray,
-	ne,
-	not,
-	sql,
-} from 'drizzle-orm';
-import type { SQL } from 'drizzle-orm/sql';
+import { and, count, desc, eq, exists, ilike, ne, not, sql } from 'drizzle-orm';
 import { config } from '@/config';
 import {
 	clearance,
@@ -109,98 +97,18 @@ export default class RegistrationRequestRepository extends BaseRepository<
 		});
 	}
 
-	async findByStatus(
-		status: 'pending' | 'registered' | 'rejected' | 'approved',
+	async findAllPaginated(
 		params: QueryOptions<typeof registrationRequests>,
 		termId?: number
 	) {
 		const { offset, limit } = this.buildQueryCriteria(params);
 
-		let whereCondition: SQL<unknown> | undefined;
-		if (status === 'registered') {
-			whereCondition = and(
-				eq(registrationRequests.status, status),
-				params.search
-					? sql`${registrationRequests.stdNo}::text LIKE ${`%${params.search}%`}`
-					: undefined,
-				termId ? eq(registrationRequests.termId, termId) : undefined
-			);
-		} else if (status === 'approved') {
-			const approvedRequestIds = db
-				.select({ id: registrationRequests.id })
-				.from(registrationRequests)
-				.where(
-					and(
-						not(
-							exists(
-								db
-									.select()
-									.from(clearance)
-									.innerJoin(
-										registrationClearance,
-										eq(clearance.id, registrationClearance.clearanceId)
-									)
-									.where(
-										and(
-											eq(
-												registrationClearance.registrationRequestId,
-												registrationRequests.id
-											),
-											ne(clearance.status, 'approved')
-										)
-									)
-							)
-						),
-						exists(
-							db
-								.select()
-								.from(registrationClearance)
-								.where(
-									eq(
-										registrationClearance.registrationRequestId,
-										registrationRequests.id
-									)
-								)
-						),
-						ne(registrationRequests.status, 'registered'),
-						termId ? eq(registrationRequests.termId, termId) : undefined
-					)
-				);
-
-			whereCondition = and(
-				inArray(registrationRequests.id, approvedRequestIds),
-				params.search
-					? sql`${registrationRequests.stdNo}::text LIKE ${`%${params.search}%`}`
-					: undefined
-			);
-		} else {
-			whereCondition = and(
-				inArray(
-					registrationRequests.id,
-					db
-						.select({ id: registrationClearance.registrationRequestId })
-						.from(registrationClearance)
-						.innerJoin(
-							clearance,
-							eq(registrationClearance.clearanceId, clearance.id)
-						)
-						.where(eq(clearance.status, status))
-				),
-				params.search
-					? sql`${registrationRequests.stdNo}::text LIKE ${`%${params.search}%`}`
-					: undefined,
-				termId ? eq(registrationRequests.termId, termId) : undefined
-			);
-		}
-
-		const query = db.query.registrationRequests.findMany({
-			where: whereCondition,
-			with: {
-				student: true,
-			},
-			limit,
-			offset,
-		});
+		const whereCondition = and(
+			params.search
+				? sql`${registrationRequests.stdNo}::text LIKE ${`%${params.search}%`}`
+				: undefined,
+			termId ? eq(registrationRequests.termId, termId) : undefined
+		);
 
 		const [total, items] = await Promise.all([
 			db
@@ -208,7 +116,20 @@ export default class RegistrationRequestRepository extends BaseRepository<
 				.from(registrationRequests)
 				.where(whereCondition)
 				.then((res) => res[0].value),
-			query,
+			db.query.registrationRequests.findMany({
+				where: whereCondition,
+				with: {
+					student: true,
+					clearances: {
+						with: {
+							clearance: true,
+						},
+					},
+				},
+				limit,
+				offset,
+				orderBy: [desc(registrationRequests.createdAt)],
+			}),
 		]);
 
 		return {
