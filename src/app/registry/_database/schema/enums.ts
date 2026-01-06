@@ -133,12 +133,6 @@ export const clearanceRequestStatus = pgEnum('clearance_request_status', [
 	'rejected',
 ]);
 
-export const paymentType = pgEnum('payment_type', [
-	'graduation_gown',
-	'graduation_fee',
-]);
-export type PaymentType = (typeof paymentType.enumValues)[number];
-
 export const blockedStudentStatusEnum = pgEnum('blocked_student_status', [
 	'blocked',
 	'unblocked',
