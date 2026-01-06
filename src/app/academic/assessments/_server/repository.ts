@@ -92,69 +92,6 @@ export default class AssessmentRepository extends BaseRepository<
 		return inserted;
 	}
 
-	override async update(
-		id: number,
-		data: Partial<typeof assessments.$inferInsert>,
-		lmsData?: Partial<Omit<typeof lmsAssessments.$inferInsert, 'assessmentId'>>
-	) {
-		const session = await auth();
-
-		const updated = await db.transaction(async (tx) => {
-			if (!session?.user?.id) throw new Error('Unauthorized');
-
-			const current = await tx
-				.select()
-				.from(assessments)
-				.where(eq(assessments.id, id))
-				.limit(1)
-				.then(([result]) => result);
-
-			if (!current) throw new Error('Assessment not found');
-
-			const [assessment] = await tx
-				.update(assessments)
-				.set(data)
-				.where(eq(assessments.id, id))
-				.returning();
-
-			const hasChanges =
-				(data.assessmentNumber !== undefined &&
-					data.assessmentNumber !== current.assessmentNumber) ||
-				(data.assessmentType !== undefined &&
-					data.assessmentType !== current.assessmentType) ||
-				(data.totalMarks !== undefined &&
-					data.totalMarks !== current.totalMarks) ||
-				(data.weight !== undefined && data.weight !== current.weight);
-
-			if (hasChanges) {
-				await tx.insert(assessmentsAudit).values({
-					assessmentId: id,
-					action: 'update',
-					previousAssessmentNumber: current.assessmentNumber,
-					newAssessmentNumber: assessment.assessmentNumber,
-					previousAssessmentType: current.assessmentType,
-					newAssessmentType: assessment.assessmentType,
-					previousTotalMarks: current.totalMarks,
-					newTotalMarks: assessment.totalMarks,
-					previousWeight: current.weight,
-					newWeight: assessment.weight,
-					createdBy: session.user.id,
-				});
-			}
-
-			if (lmsData) {
-				await tx
-					.update(lmsAssessments)
-					.set(lmsData)
-					.where(eq(lmsAssessments.assessmentId, id));
-			}
-
-			return assessment;
-		});
-
-		return updated;
-	}
-
 	override async delete(id: number): Promise<void> {
 		const session = await auth();
 
@@ -202,17 +139,6 @@ export default class AssessmentRepository extends BaseRepository<
 			},
 			orderBy: (audit, { desc }) => [desc(audit.date)],
 		});
-	}
-
-	async getStudentModulesByAssessmentId(
-		assessmentId: number
-	): Promise<number[]> {
-		const marks = await db
-			.selectDistinct({ studentModuleId: assessmentMarks.studentModuleId })
-			.from(assessmentMarks)
-			.where(eq(assessmentMarks.assessmentId, assessmentId));
-
-		return marks.map((m) => m.studentModuleId);
 	}
 
 	async updateWithGradeRecalculation(

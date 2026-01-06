@@ -27,18 +27,6 @@ class AssessmentService extends BaseService<typeof assessments, 'id'> {
 		);
 	}
 
-	override async update(
-		id: number,
-		data: Partial<typeof assessments.$inferInsert>,
-		lmsData?: Partial<Omit<typeof lmsAssessments.$inferInsert, 'assessmentId'>>
-	) {
-		return withAuth(
-			async () =>
-				(this.repository as AssessmentRepository).update(id, data, lmsData),
-			['academic']
-		);
-	}
-
 	async getByModuleId(moduleId: number, termId: number) {
 		return withAuth(
 			async () =>
@@ -61,16 +49,6 @@ class AssessmentService extends BaseService<typeof assessments, 'id'> {
 		return withAuth(
 			async () =>
 				(this.repository as AssessmentRepository).getAuditHistory(assessmentId),
-			['academic']
-		);
-	}
-
-	async getStudentModulesByAssessmentId(assessmentId: number) {
-		return withAuth(
-			async () =>
-				(
-					this.repository as AssessmentRepository
-				).getStudentModulesByAssessmentId(assessmentId),
 			['academic']
 		);
 	}
