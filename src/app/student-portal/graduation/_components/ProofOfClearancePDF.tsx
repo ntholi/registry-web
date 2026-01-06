@@ -11,16 +11,16 @@ import type { getGraduationClearanceData } from '@registry/graduation/clearance'
 import { formatDate, toTitleCase } from '@/shared/lib/utils/utils';
 
 Font.register({
-	family: 'Arial',
+	family: 'Tahoma',
 	fonts: [
-		{ src: '/fonts/ARIAL.TTF' },
-		{ src: '/fonts/ARIALBD.TTF', fontWeight: 'bold' },
+		{ src: '/fonts/TAHOMA_NORMAL.TTF' },
+		{ src: '/fonts/TAHOMA_BOLD.TTF', fontWeight: 'bold' },
 	],
 });
 
 const styles = StyleSheet.create({
 	page: {
-		fontFamily: 'Arial',
+		fontFamily: 'Tahoma',
 		fontSize: 10,
 		paddingTop: 30,
 		paddingBottom: 30,

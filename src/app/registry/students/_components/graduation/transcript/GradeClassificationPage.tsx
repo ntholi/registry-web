@@ -5,8 +5,8 @@ import { grades } from '@/shared/lib/utils/grades';
 const tw = createTw({
 	theme: {
 		fontFamily: {
-			sans: ['Arial'],
-			bold: ['Arial-Bold'],
+			sans: ['Tahoma'],
+			bold: ['Tahoma'],
 		},
 		extend: {
 			colors: {

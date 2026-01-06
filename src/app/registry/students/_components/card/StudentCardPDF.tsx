@@ -10,16 +10,16 @@ import {
 import type { getStudent } from '../../_server/actions';
 
 Font.register({
-	family: 'Arial',
+	family: 'Tahoma',
 	fonts: [
-		{ src: '/fonts/ARIAL.TTF' },
-		{ src: '/fonts/ARIALBD.TTF', fontWeight: 'bold' },
+		{ src: '/fonts/TAHOMA_NORMAL.TTF' },
+		{ src: '/fonts/TAHOMA_BOLD.TTF', fontWeight: 'bold' },
 	],
 });
 
 const styles = StyleSheet.create({
 	page: {
-		fontFamily: 'Arial',
+		fontFamily: 'Tahoma',
 		padding: 0,
 	},
 	cardContainer: {
