@@ -1,7 +1,7 @@
 -- Migration: Redesign payment_receipts table for broader scope
 -- This migration:
 -- 1. Creates new receipt_type enum with extended values
--- 2. Transforms payment_receipts to use text IDs and adds stdNo
+-- 2. Transforms payment_receipts to use text IDs (nanoid-like) and adds stdNo
 -- 3. Creates graduation_request_receipts junction table
 -- 4. Migrates student_card_prints.receipt_no to reference payment_receipts.id
 -- 5. Migrates existing data while preserving integrity
@@ -26,16 +26,27 @@ CREATE TABLE "payment_receipts_new" (
     "created_at" timestamp DEFAULT now()
 );
 
+-- Step 2b: Create temporary ID mapping tables for consistent nanoid references
+-- Using md5 + random + clock_timestamp for fast pseudo-random IDs (no extensions needed)
+CREATE TEMP TABLE "_pr_id_map" AS
+SELECT id as old_id, substr(md5(random()::text || clock_timestamp()::text), 1, 21) as new_id
+FROM payment_receipts;
+
+CREATE TEMP TABLE "_sc_id_map" AS
+SELECT id as old_id, substr(md5(random()::text || clock_timestamp()::text), 1, 21) as new_id
+FROM student_card_prints;
+
 -- Step 3: Migrate existing payment_receipts data
--- Generate text IDs and get std_no from graduation_requests -> student_programs
+-- Generate nanoid-like IDs and get std_no from graduation_requests -> student_programs
 INSERT INTO "payment_receipts_new" ("id", "receipt_no", "receipt_type", "std_no", "created_at")
 SELECT
-    'pr_' || lpad(pr.id::text, 8, '0') as id,
+    m.new_id as id,
     pr.receipt_no,
     pr.payment_type::text::receipt_type,
     sp.std_no,
     pr.created_at
 FROM payment_receipts pr
+JOIN _pr_id_map m ON m.old_id = pr.id
 JOIN graduation_requests gr ON pr.graduation_request_id = gr.id
 JOIN student_programs sp ON gr.student_program_id = sp.id;
 
@@ -51,20 +62,22 @@ CREATE TABLE "graduation_request_receipts" (
 INSERT INTO "graduation_request_receipts" ("graduation_request_id", "receipt_id", "created_at")
 SELECT
     pr.graduation_request_id,
-    'pr_' || lpad(pr.id::text, 8, '0'),
+    m.new_id,
     pr.created_at
-FROM payment_receipts pr;
+FROM payment_receipts pr
+JOIN _pr_id_map m ON m.old_id = pr.id;
 
 -- Step 6: Create payment receipts for student_card_prints
 -- This creates new receipt entries for each student card print
 INSERT INTO "payment_receipts_new" ("id", "receipt_no", "receipt_type", "std_no", "created_at")
 SELECT
-    'sc_' || scp.id as id,
+    m.new_id as id,
     scp.receipt_no,
     'student_card'::receipt_type,
     scp.std_no,
     scp.created_at
-FROM student_card_prints scp;
+FROM student_card_prints scp
+JOIN _sc_id_map m ON m.old_id = scp.id;
 
 -- Step 7: Add foreign key reference to payment_receipts_new from graduation_request_receipts
 ALTER TABLE "graduation_request_receipts"
@@ -75,7 +88,7 @@ FOREIGN KEY ("receipt_id") REFERENCES "payment_receipts_new"("id") ON DELETE CAS
 ALTER TABLE "student_card_prints" ADD COLUMN "receipt_id_new" text;
 
 -- Step 9: Populate receipt_id_new in student_card_prints
-UPDATE "student_card_prints" SET "receipt_id_new" = 'sc_' || id;
+UPDATE "student_card_prints" scp SET "receipt_id_new" = m.new_id FROM _sc_id_map m WHERE m.old_id = scp.id;
 
 -- Step 10: Make receipt_id_new NOT NULL and add FK
 ALTER TABLE "student_card_prints"
