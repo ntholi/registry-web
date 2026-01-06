@@ -1,12 +1,13 @@
 'use client';
 
+import { getActiveTerm } from '@registry/dates/terms';
 import { clearanceByStatus } from '@registry/registration/requests';
-import { getCurrentTerm } from '@registry/terms';
 import { IconAlertCircle, IconCheck, IconClock } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useAtom } from 'jotai';
 import { useParams } from 'next/navigation';
 import type { PropsWithChildren } from 'react';
+import { getStatusColor } from '@/shared/lib/utils/colors';
 import { ListItem, ListLayout } from '@/shared/ui/adease';
 import { selectedTermAtom } from '@/shared/ui/atoms/termAtoms';
 import TermFilter from '@/shared/ui/TermFilter';
@@ -35,14 +36,14 @@ export default function Layout({ children }: PropsWithChildren) {
 	const status = params.status as Status;
 	const [selectedTerm, setSelectedTerm] = useAtom(selectedTermAtom);
 
-	const { data: currentTerm } = useQuery({
-		queryKey: ['current-term'],
-		queryFn: getCurrentTerm,
+	const { data: activeTerm } = useQuery({
+		queryKey: ['active-term'],
+		queryFn: getActiveTerm,
 		staleTime: 5 * 60 * 1000, // 5 minutes
 	});
 
-	if (currentTerm?.id && !selectedTerm) {
-		setSelectedTerm(currentTerm.id);
+	if (activeTerm?.id && !selectedTerm) {
+		setSelectedTerm(activeTerm.id);
 	}
 
 	if (!statusTitles[status]) {
@@ -51,14 +52,14 @@ export default function Layout({ children }: PropsWithChildren) {
 
 	return (
 		<ListLayout
-			path={`/registration/clearance/${status}`}
+			path={`/registry/registration/clearance/${status}`}
 			queryKey={[
 				'clearances',
 				status,
-				selectedTerm?.toString() || currentTerm?.id?.toString() || 'all',
+				selectedTerm?.toString() || activeTerm?.id?.toString() || 'all',
 			]}
 			getData={async (page, search) => {
-				const termToUse = selectedTerm || currentTerm?.id;
+				const termToUse = selectedTerm || activeTerm?.id;
 				const response = await clearanceByStatus(
 					status,
 					page,
@@ -95,12 +96,13 @@ export default function Layout({ children }: PropsWithChildren) {
 }
 
 function getStatusIcon(status: 'pending' | 'approved' | 'rejected') {
+	const color = getStatusColor(status);
 	switch (status) {
 		case 'pending':
-			return <IconClock size={'1rem'} color='orange' />;
+			return <IconClock size={'1rem'} color={color} />;
 		case 'approved':
-			return <IconCheck size={'1rem'} color='green' />;
+			return <IconCheck size={'1rem'} color={color} />;
 		case 'rejected':
-			return <IconAlertCircle size={'1rem'} color='red' />;
+			return <IconAlertCircle size={'1rem'} color={color} />;
 	}
 }

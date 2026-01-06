@@ -13,6 +13,7 @@ import {
 import { useDisclosure } from '@mantine/hooks';
 import { IconMoon, IconSun } from '@tabler/icons-react';
 import React, { type PropsWithChildren } from 'react';
+import NotificationBell from '../NotificationBell';
 
 type ShellComposition = {
 	Header: React.FC<PropsWithChildren>;
@@ -69,13 +70,16 @@ const Shell: React.FC<PropsWithChildren> & ShellComposition = ({
 						/>
 						{Header}
 					</Group>
-					<ActionIcon variant='default' size='lg'>
-						{colorScheme === 'dark' ? (
-							<IconSun onClick={() => setColorScheme('light')} />
-						) : (
-							<IconMoon onClick={() => setColorScheme('dark')} />
-						)}
-					</ActionIcon>
+					<Group gap='sm'>
+						<NotificationBell />
+						<ActionIcon variant='default' size='lg'>
+							{colorScheme === 'dark' ? (
+								<IconSun onClick={() => setColorScheme('light')} />
+							) : (
+								<IconMoon onClick={() => setColorScheme('dark')} />
+							)}
+						</ActionIcon>
+					</Group>
 				</Group>
 			</AppShell.Header>
 			<AppShell.Navbar>

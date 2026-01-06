@@ -1,0 +1,1 @@
+ALTER TABLE "registration_requests" RENAME COLUMN "date_approved" TO "date_registered";

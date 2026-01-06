@@ -2,6 +2,7 @@
 
 import { getAssignedModulesByCurrentUser } from '@academic/assigned-modules';
 import { getUserSchools } from '@admin/users';
+import type { DashboardUser, UserRole } from '@auth/_database';
 import {
 	ActionIcon,
 	Avatar,
@@ -30,7 +31,6 @@ import { financeConfig } from '@/app/finance/finance.config';
 import { lmsConfig } from '@/app/lms/lms.config';
 import { registryConfig } from '@/app/registry/registry.config';
 import type { ClientModuleConfig } from '@/config/modules.config';
-import type { DashboardUser, UserRole } from '@/modules/auth/database';
 import { toTitleCase } from '@/shared/lib/utils/utils';
 import { Shell } from '@/shared/ui/adease';
 import Logo from '@/shared/ui/Logo';
@@ -65,8 +65,10 @@ function getNavigation(
 	const reportLabels = [
 		'Course Summary',
 		'Clearance',
+		'Sponsored Students',
 		'Board of Examination',
-		'Student Registration',
+		'Student Enrollments',
+		'Attendance Report',
 	];
 
 	const getLabelKey = (label: React.ReactNode): string => {

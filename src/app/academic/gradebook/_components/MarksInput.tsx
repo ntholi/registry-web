@@ -1,0 +1,355 @@
+'use client';
+
+import type { assessmentMarks } from '@academic/_database';
+import {
+	createAssessmentMark,
+	updateAssessmentMark,
+} from '@academic/assessment-marks';
+import type { ModuleGradeData } from '@academic/semester-modules';
+import { Box, Group, Text, TextInput } from '@mantine/core';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useEffect, useRef, useState } from 'react';
+import { getMarksPercentageColor } from '@/shared/lib/utils/colors';
+import { calculateModuleGrade } from '@/shared/lib/utils/gradeCalculations';
+
+type AssessmentMark = typeof assessmentMarks.$inferSelect;
+type ModuleGrade = ModuleGradeData;
+
+type Props = {
+	assessment: { id: number; maxMarks: number; totalMarks: number };
+	studentModuleId: number;
+	existingMark?: number;
+	existingMarkId?: number;
+	moduleId: number;
+};
+
+export default function MarksInput({
+	assessment,
+	studentModuleId,
+	existingMark,
+	existingMarkId,
+	moduleId,
+}: Props) {
+	const [mark, setMark] = useState(existingMark?.toString() || '');
+	const [isEditing, setIsEditing] = useState(false);
+	const [error, setError] = useState('');
+	const [pendingMark, setPendingMark] = useState<number | null>(null);
+	const inputRef = useRef<HTMLInputElement>(null);
+	const queryClient = useQueryClient();
+	useEffect(() => {
+		if (isEditing && inputRef.current) {
+			inputRef.current.focus();
+			inputRef.current.select();
+		}
+	}, [isEditing]);
+	const markMutation = useMutation({
+		mutationFn: async (data: {
+			assessmentId: number;
+			studentModuleId: number;
+			marks: number;
+		}) => {
+			let result: AssessmentMark;
+			if (existingMarkId !== undefined) {
+				result = await updateAssessmentMark(existingMarkId, data, moduleId);
+			} else {
+				result = await createAssessmentMark(data, moduleId);
+			}
+			return result;
+		},
+		onMutate: async (newMark) => {
+			await queryClient.cancelQueries({
+				queryKey: ['assessment-marks', moduleId],
+			});
+			await queryClient.cancelQueries({
+				queryKey: ['module-grades', moduleId],
+			});
+			await queryClient.cancelQueries({
+				queryKey: ['module-grade', moduleId, studentModuleId],
+			});
+
+			const previousAssessmentMarks = queryClient.getQueryData([
+				'assessment-marks',
+				moduleId,
+			]);
+			const previousModuleGrades = queryClient.getQueryData([
+				'module-grades',
+				moduleId,
+			]);
+			const previousModuleGrade = queryClient.getQueryData([
+				'module-grade',
+				moduleId,
+				studentModuleId,
+			]);
+
+			queryClient.setQueryData(
+				['assessment-marks', moduleId],
+				(old: AssessmentMark[]) => {
+					if (!old) return old;
+
+					if (existingMarkId !== undefined) {
+						return old.map((mark) =>
+							mark.id === existingMarkId
+								? { ...mark, marks: newMark.marks }
+								: mark
+						);
+					}
+					return [
+						...old,
+						{
+							id: Date.now(),
+							assessmentId: newMark.assessmentId,
+							studentModuleId: newMark.studentModuleId,
+							marks: newMark.marks,
+							createdAt: new Date(),
+						},
+					];
+				}
+			);
+
+			const assessments = queryClient.getQueryData(['assessments', moduleId]) as
+				| Array<{
+						id: number;
+						weight: number;
+						totalMarks: number;
+				  }>
+				| undefined;
+
+			if (assessments) {
+				const updatedAssessmentMarks = queryClient.getQueryData([
+					'assessment-marks',
+					moduleId,
+				]) as AssessmentMark[];
+
+				const studentMarks =
+					updatedAssessmentMarks?.filter(
+						(mark) => mark.studentModuleId === studentModuleId
+					) || [];
+
+				const gradeCalculation = calculateModuleGrade(
+					assessments.map((a) => ({
+						id: a.id,
+						weight: a.weight,
+						totalMarks: a.totalMarks,
+					})),
+					studentMarks.map((m) => ({
+						assessment_id: m.assessmentId,
+						marks: m.marks,
+					}))
+				);
+
+				if (gradeCalculation.hasMarks) {
+					const newModuleGrade = {
+						id: studentModuleId,
+						moduleId,
+						stdNo: 0,
+						grade: gradeCalculation.grade,
+						weightedTotal: gradeCalculation.weightedTotal,
+						createdAt: new Date(),
+						updatedAt: new Date(),
+					};
+
+					queryClient.setQueryData(
+						['module-grade', moduleId, studentModuleId],
+						newModuleGrade
+					);
+
+					queryClient.setQueryData(
+						['module-grades', moduleId],
+						(old: ModuleGrade[]) => {
+							if (!old) return [newModuleGrade];
+
+							const existingIndex = old.findIndex(
+								(grade) => grade.id === studentModuleId
+							);
+
+							if (existingIndex >= 0) {
+								const updated = [...old];
+								updated[existingIndex] = {
+									...updated[existingIndex],
+									grade: gradeCalculation.grade,
+									weightedTotal: gradeCalculation.weightedTotal,
+								};
+								return updated;
+							}
+							return [...old, newModuleGrade];
+						}
+					);
+				}
+			}
+
+			return {
+				previousAssessmentMarks,
+				previousModuleGrades,
+				previousModuleGrade,
+			};
+		},
+		onSuccess: async () => {
+			setError('');
+			queryClient.invalidateQueries({
+				queryKey: ['assessment-marks', moduleId],
+			});
+
+			queryClient.invalidateQueries({
+				queryKey: ['module-grades', moduleId],
+			});
+
+			queryClient.invalidateQueries({
+				queryKey: ['module-grade', moduleId, studentModuleId],
+			});
+		},
+		onError: (_error, _newMark, context) => {
+			if (context?.previousAssessmentMarks) {
+				queryClient.setQueryData(
+					['assessment-marks', moduleId],
+					context.previousAssessmentMarks
+				);
+			}
+			if (context?.previousModuleGrades) {
+				queryClient.setQueryData(
+					['module-grades', moduleId],
+					context.previousModuleGrades
+				);
+			}
+			if (context?.previousModuleGrade) {
+				queryClient.setQueryData(
+					['module-grade', moduleId, studentModuleId],
+					context.previousModuleGrade
+				);
+			}
+
+			setPendingMark(null);
+			setMark(existingMark?.toString() || '');
+			setError('Failed to save mark. Please try again.');
+		},
+	});
+
+	useEffect(() => {
+		if (existingMark !== undefined && !markMutation.isPending) {
+			setMark(existingMark.toString());
+			if (pendingMark !== null && existingMark === pendingMark) {
+				setPendingMark(null);
+			}
+		}
+	}, [existingMark, pendingMark, markMutation.isPending]);
+
+	const handleMarkChange = (value: string) => {
+		setMark(value);
+		setError('');
+	};
+	const saveMarks = () => {
+		if (mark.trim() === '') {
+			setIsEditing(false);
+			setMark(existingMark?.toString() || '');
+			return;
+		}
+
+		const numericMark = parseFloat(mark);
+
+		if (Number.isNaN(numericMark)) {
+			setError('Invalid number');
+			return;
+		}
+
+		const maxPossible = assessment.maxMarks || 100;
+
+		if (numericMark < 0 || numericMark > maxPossible) {
+			setError(`Mark must be between 0-${maxPossible}`);
+			return;
+		}
+
+		markMutation.mutate({
+			assessmentId: assessment.id,
+			studentModuleId,
+			marks: numericMark,
+		});
+
+		setPendingMark(numericMark);
+		setIsEditing(false);
+	};
+
+	const handleBlur = () => {
+		saveMarks();
+	};
+
+	const handleKeyDown = (e: React.KeyboardEvent) => {
+		if (e.key === 'Enter') {
+			e.preventDefault();
+			inputRef.current?.blur();
+		} else if (e.key === 'Escape') {
+			cancelEdit();
+		}
+	};
+
+	const cancelEdit = () => {
+		setIsEditing(false);
+		setMark(existingMark?.toString() || '');
+		setError('');
+	};
+	const getMarkStatus = () => {
+		const currentMark = pendingMark ?? existingMark;
+		if (currentMark === undefined) return null;
+		const maxMarks = assessment.maxMarks || 100;
+		return getMarksPercentageColor(currentMark, maxMarks);
+	};
+
+	const markDisplay = pendingMark ?? existingMark ?? '-';
+	const maxMark = assessment.maxMarks || assessment.totalMarks;
+	const statusColor = getMarkStatus();
+
+	return (
+		<Box pos='relative'>
+			<Box
+				pos='relative'
+				style={{ cursor: 'pointer', display: isEditing ? 'none' : undefined }}
+				onClick={() => {
+					setIsEditing(true);
+					setError('');
+				}}
+			>
+				<Group gap={2} justify='center' align='end'>
+					<Text fw={600} c={statusColor || undefined} size='sm'>
+						{markDisplay}
+					</Text>
+					<Text size='xs' c='dimmed'>
+						/{maxMark}
+					</Text>
+				</Group>
+				{error && (
+					<Text size='xs' c='red' ta='center' mt={2}>
+						{error}
+					</Text>
+				)}
+			</Box>
+			<Box style={{ display: isEditing ? undefined : 'none' }}>
+				<Group align='center' gap={4} justify='center'>
+					<TextInput
+						ref={inputRef}
+						size='xs'
+						value={mark}
+						onChange={(e) => handleMarkChange(e.target.value)}
+						onBlur={handleBlur}
+						onKeyDown={handleKeyDown}
+						error={error}
+						placeholder='Marks'
+						styles={{
+							input: {
+								width: '90px',
+								textAlign: 'center',
+								fontWeight: 500,
+							},
+							error: {
+								position: 'absolute',
+								width: '100%',
+								textAlign: 'center',
+								top: '100%',
+								left: '0',
+								whiteSpace: 'nowrap',
+								zIndex: 10,
+							},
+						}}
+					/>
+				</Group>
+			</Box>
+		</Box>
+	);
+}

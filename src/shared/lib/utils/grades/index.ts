@@ -1,11 +1,7 @@
 import { getVisibleModulesForStructure } from '@academic/semester-modules';
-import type { Grade, grade } from '@/core/database';
-import type {
-	FacultyRemarksResult,
-	GradePoint,
-	Program,
-	StudentModule,
-} from './type';
+import type { grade } from '@/core/database';
+import { isActiveModule, isActiveSemester } from '../utils';
+import type { GradePoint, Program, StudentModule } from './type';
 
 export type GradeDefinition = {
 	grade: (typeof grade.enumValues)[number];
@@ -161,11 +157,11 @@ export const grades: GradeDefinition[] = [
 	},
 ];
 
-export function normalizeGradeSymbol(grade: string): string {
+export function normalizeGradeSymbol(grade: string) {
 	return grade.trim().toUpperCase();
 }
 
-export function normalizeModuleName(name: string): string {
+export function normalizeModuleName(name: string) {
 	return name
 		.trim()
 		.toLowerCase()
@@ -190,11 +186,11 @@ export function normalizeModuleName(name: string): string {
 		.trim();
 }
 
-export function getGradeBySymbol(grade: string): GradeDefinition | undefined {
+export function getGradeBySymbol(grade: string) {
 	return grades.find((g) => g.grade === normalizeGradeSymbol(grade));
 }
 
-export function getGradeByPoints(points: number): GradeDefinition | undefined {
+export function getGradeByPoints(points: number) {
 	const gradesWithPoints = grades.filter((g) => g.points !== null);
 	const sortedGrades = gradesWithPoints.sort(
 		(a, b) => (b.points as number) - (a.points as number)
@@ -207,41 +203,41 @@ export function getGradeByPoints(points: number): GradeDefinition | undefined {
 	return sortedGrades[sortedGrades.length - 1];
 }
 
-export function getGradeByMarks(marks: number): GradeDefinition | undefined {
+export function getGradeByMarks(marks: number) {
 	return grades.find(
 		(g) =>
 			g.marksRange && marks >= g.marksRange.min && marks <= g.marksRange.max
 	);
 }
 
-export function getLetterGrade(marks: number): Grade {
+export function getLetterGrade(marks: number) {
 	const gradeDefinition = getGradeByMarks(marks);
 	return gradeDefinition?.grade || 'F';
 }
 
-export function getGradePoints(grade: string): number {
+export function getGradePoints(grade: string) {
 	const gradeDefinition = getGradeBySymbol(grade);
 	return gradeDefinition?.points ?? 0;
 }
 
-export function isFailingGrade(grade: string): boolean {
+export function isFailingGrade(grade: string) {
 	return ['F', 'X', 'GNS', 'ANN', 'FIN', 'FX', 'DNC', 'DNA', 'DNS'].includes(
 		normalizeGradeSymbol(grade)
 	);
 }
 
-export function isPassingGrade(grade: string): boolean {
+export function isPassingGrade(grade: string) {
 	const passingGrades = grades
 		.filter((g) => g.points !== null && g.points > 0)
 		.map((g) => g.grade as string);
 	return passingGrades.includes(normalizeGradeSymbol(grade));
 }
 
-export function isSupplementaryGrade(grade: string): boolean {
+export function isSupplementaryGrade(grade: string) {
 	return normalizeGradeSymbol(grade) === 'PP';
 }
 
-export function isFailingOrSupGrade(grade: string): boolean {
+export function isFailingOrSupGrade(grade: string) {
 	return isFailingGrade(grade) || isSupplementaryGrade(grade);
 }
 
@@ -258,17 +254,17 @@ export function summarizeModules(modules: StudentModule[]) {
 			return sum;
 		}
 		const gradePoints = getGradePoints(m.grade);
-		return gradePoints > 0 ? sum + m.semesterModule.credits : sum;
+		return gradePoints > 0 ? sum + m.credits : sum;
 	}, 0);
 	relevant.forEach((m) => {
 		const normalizedGrade = normalizeGradeSymbol(m.grade);
 		const gradePoints = getGradePoints(m.grade);
 		const gradeDefinition = getGradeBySymbol(m.grade);
-		creditsAttempted += m.semesterModule.credits;
+		creditsAttempted += m.credits;
 		if (normalizedGrade !== 'NM' && normalizedGrade !== '') {
-			creditsForGPA += m.semesterModule.credits;
+			creditsForGPA += m.credits;
 			if (gradeDefinition && gradeDefinition.points !== null) {
-				points += gradePoints * m.semesterModule.credits;
+				points += gradePoints * m.credits;
 			}
 		}
 	});
@@ -285,7 +281,7 @@ function calculateGPA(points: number, creditsForGPA: number) {
 	return creditsForGPA > 0 ? points / creditsForGPA : 0;
 }
 
-export function getAcademicRemarks(programs: Program[]): FacultyRemarksResult {
+export function getAcademicRemarks(programs: Program[]) {
 	const { semesters, studentModules } = extractData(programs);
 
 	const points: GradePoint[] = [];
@@ -297,9 +293,9 @@ export function getAcademicRemarks(programs: Program[]): FacultyRemarksResult {
 		cumulativePoints += semesterSummary.points;
 
 		const semesterCreditsForGPA = semester.studentModules
-			.filter((sm) => !['Delete', 'Drop'].includes(sm.status || ''))
+			.filter((sm) => isActiveModule(sm.status))
 			.filter((sm) => sm.grade && sm.grade !== 'NM')
-			.reduce((sum, sm) => sum + Number(sm.semesterModule.credits), 0);
+			.reduce((sum, sm) => sum + Number(sm.credits), 0);
 
 		cumulativeCreditsForGPA += semesterCreditsForGPA;
 
@@ -352,7 +348,7 @@ export function getAcademicRemarks(programs: Program[]): FacultyRemarksResult {
 				)
 			: [];
 	const failedModules = studentModules.filter((m) => {
-		if (!isFailingOrSupGrade(m.grade)) return false;
+		if (!isFailingGrade(m.grade)) return false;
 
 		const hasPassedLater = studentModules.some(
 			(otherModule) =>
@@ -365,23 +361,39 @@ export function getAcademicRemarks(programs: Program[]): FacultyRemarksResult {
 		return !hasPassedLater;
 	});
 
-	const supplementary = studentModules.filter((m) =>
-		isSupplementaryGrade(m.grade)
-	);
+	const supplementary = studentModules.filter((m) => {
+		if (!isSupplementaryGrade(m.grade)) return false;
 
-	const remainInSemester = latestFailedModules.length >= 3;
+		const hasPassedLater = studentModules.some(
+			(otherModule) =>
+				otherModule.semesterModule.module?.name ===
+					m.semesterModule.module?.name &&
+				otherModule.id !== m.id &&
+				isPassingGrade(otherModule.grade)
+		);
+
+		return !hasPassedLater;
+	});
+
+	const latestCgpa = points[points.length - 1]?.cgpa ?? 0;
+	const hasLowCgpaWithFailures =
+		latestCgpa < 2.0 && latestFailedModules.length >= 1;
+	const remainInSemester =
+		latestFailedModules.length >= 3 || hasLowCgpaWithFailures;
 	const status = remainInSemester ? 'Remain in Semester' : 'Proceed';
 
 	const messageParts: string[] = [status];
+	const uniqueSupplementaryModules = getUniqueModules(supplementary);
+	const uniqueFailedModules = getUniqueModules(failedModules);
 
-	if (supplementary.length > 0) {
+	if (uniqueSupplementaryModules.length > 0) {
 		messageParts.push(
-			`must supplement ${supplementary.map((m) => m.semesterModule.module?.name).join(', ')}`
+			`must supplement ${uniqueSupplementaryModules.map((m) => m.name).join(', ')}`
 		);
 	}
-	if (failedModules.length > 0) {
+	if (uniqueFailedModules.length > 0) {
 		messageParts.push(
-			`must repeat ${failedModules.map((m) => m.semesterModule.module?.name).join(', ')}`
+			`must repeat ${uniqueFailedModules.map((m) => m.name).join(', ')}`
 		);
 	}
 
@@ -389,15 +401,19 @@ export function getAcademicRemarks(programs: Program[]): FacultyRemarksResult {
 
 	let details = '';
 	if (remainInSemester) {
-		details = `Failed ${latestFailedModules.length} modules in latest semester`;
+		if (latestFailedModules.length >= 3) {
+			details = `Failed ${latestFailedModules.length} modules in latest semester`;
+		} else if (hasLowCgpaWithFailures) {
+			details = `CGPA ${latestCgpa.toFixed(2)} below 2.0 with ${latestFailedModules.length} failed module(s)`;
+		}
 	} else {
 		details = 'Student is eligible to proceed';
 	}
 
 	return {
 		status,
-		failedModules: getUniqueModules(failedModules),
-		supplementaryModules: getUniqueModules(supplementary),
+		failedModules: uniqueFailedModules,
+		supplementaryModules: uniqueSupplementaryModules,
 		message,
 		details,
 		totalModules: studentModules.length,
@@ -445,15 +461,12 @@ function extractData(_programs: Program[]) {
 	}
 	const semesters = programs[0].semesters || [];
 	const filtered = [...semesters]
-		.filter(
-			(s) =>
-				!['Deleted', 'Deferred', 'DroppedOut', 'Withdrawn'].includes(s.status)
-		)
+		.filter((s) => isActiveSemester(s.status))
 		.sort((a, b) => a.id - b.id);
 
 	const studentModules = filtered
 		.flatMap((s) => s.studentModules)
-		.filter((m) => !['Delete', 'Drop'].includes(m.status));
+		.filter((m) => isActiveModule(m.status));
 
 	return {
 		semesters: filtered,

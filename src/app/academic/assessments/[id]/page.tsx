@@ -1,10 +1,11 @@
-import { AssessmentsTable, ModuleLecturers } from '@academic/assessments';
 import { getModule } from '@academic/modules';
 import { Button, Divider, Group, Paper, Title } from '@mantine/core';
 import { IconNotebook } from '@tabler/icons-react';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { DetailsView } from '@/shared/ui/adease';
+import AssessmentsTable from '../_components/AssessmentsTable';
+import ModuleLecturers from '../_components/ModuleLecturers';
 
 type Props = {
 	params: Promise<{ id: string }>;

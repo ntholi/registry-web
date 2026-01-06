@@ -1,4 +1,3 @@
-import { deleteVenueType, getVenueType } from '@timetable/venue-types';
 import { notFound } from 'next/navigation';
 import {
 	DetailsView,
@@ -6,6 +5,7 @@ import {
 	DetailsViewHeader,
 	FieldView,
 } from '@/shared/ui/adease';
+import { deleteVenueType, getVenueType } from '../_server/actions';
 
 type Props = {
 	params: Promise<{ id: string }>;

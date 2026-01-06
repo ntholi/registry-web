@@ -1,10 +1,5 @@
 'use client';
 
-import {
-	deleteBlockedStudent,
-	getBlockedStudent,
-	StudentStatusSwitch,
-} from '@finance/blocked-students';
 import { Center, Loader, Stack } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
 import { notFound, useParams } from 'next/navigation';
@@ -14,6 +9,8 @@ import {
 	DetailsViewHeader,
 	FieldView,
 } from '@/shared/ui/adease';
+import StudentStatusSwitch from '../_components/StudentStatusSwitch';
+import { deleteBlockedStudent, getBlockedStudent } from '../_server/actions';
 
 export default function BlockedStudentDetails() {
 	const params = useParams();

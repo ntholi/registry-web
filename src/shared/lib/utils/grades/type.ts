@@ -12,8 +12,8 @@ export type StudentModule = {
 	grade: Grade;
 	marks: string;
 	status: StudentModuleStatus;
+	credits: number;
 	semesterModule: {
-		credits: number;
 		type: ModuleType;
 		module: {
 			id: number;
@@ -32,7 +32,7 @@ export type Program = {
 	semesters: {
 		id: number;
 		status: SemesterStatus;
-		term: string;
+		termCode: string;
 		structureSemester?: {
 			semesterNumber: string;
 		} | null;

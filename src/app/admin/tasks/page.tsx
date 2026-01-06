@@ -1,12 +1,5 @@
-import { Box, Text, Title } from '@mantine/core';
+import { NothingSelected } from '@/shared/ui/adease';
 
 export default function Page() {
-	return (
-		<Box p='lg'>
-			<Title order={2} mb='md'>
-				Tasks
-			</Title>
-			<Text c='dimmed'>View and manage your tasks from the sidebar</Text>
-		</Box>
-	);
+	return <NothingSelected title='Tasks' />;
 }

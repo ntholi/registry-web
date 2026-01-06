@@ -3,7 +3,7 @@ export function generateAssessmentMarkAuditMessage(
 	previousMarks?: number | null,
 	newMarks?: number | null,
 	assessmentType?: string
-): string {
+) {
 	const typeLabel = assessmentType || 'Assessment';
 
 	switch (action) {
@@ -30,7 +30,7 @@ export function generateAssessmentAuditMessage(
 		previousWeight?: number | null;
 		newWeight?: number | null;
 	}
-): string {
+) {
 	const {
 		previousAssessmentNumber,
 		newAssessmentNumber,
@@ -81,15 +81,4 @@ export function generateAssessmentAuditMessage(
 		default:
 			return 'Assessment modified';
 	}
-}
-
-export function formatAuditDate(date: Date): string {
-	return new Intl.DateTimeFormat('en-US', {
-		year: 'numeric',
-		month: 'short',
-		day: 'numeric',
-		hour: '2-digit',
-		minute: '2-digit',
-		hour12: true,
-	}).format(date);
 }

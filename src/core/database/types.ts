@@ -1,20 +1,19 @@
 import type {
 	assessmentMarks,
 	assessments,
-	moduleGrades,
 	modules,
 	programs,
 	schools,
 	structures,
-	terms,
-} from '@/modules/academic/database';
-import type { accounts, users } from '@/modules/auth/database';
+} from '@academic/_database';
+import type { accounts, users } from '@auth/_database';
 import type {
 	nextOfKins,
 	studentEducation,
 	studentPrograms,
 	students,
-} from '@/modules/registry/database';
+	terms,
+} from '@registry/_database';
 
 export type User = typeof users.$inferSelect;
 export type Account = typeof accounts.$inferSelect;
@@ -32,4 +31,3 @@ export type Module = typeof modules.$inferSelect;
 
 export type Assessment = typeof assessments.$inferSelect;
 export type AssessmentMark = typeof assessmentMarks.$inferSelect;
-export type ModuleGrade = typeof moduleGrades.$inferSelect;

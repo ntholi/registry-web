@@ -1,3 +1,21 @@
+import type { SemesterStatus, StudentModuleStatus } from '@registry/_database';
+
+export const INACTIVE_SEMESTER_STATUSES: SemesterStatus[] = [
+	'Deleted',
+	'Deferred',
+	'DroppedOut',
+	'Withdrawn',
+	'Inactive',
+];
+
+export function isActiveSemester(status: SemesterStatus) {
+	return !INACTIVE_SEMESTER_STATUSES.includes(status);
+}
+
+export function isActiveModule(status: StudentModuleStatus) {
+	return !['Delete', 'Drop'].includes(status as StudentModuleStatus);
+}
+
 export function formatDate(
 	timestamp: number | Date | undefined | null,
 	type: 'long' | 'short' | 'numeric' = 'long'
@@ -130,6 +148,15 @@ export function toClassName(programCode: string, semesterName: string) {
 	return `${programCode}Y${year}S${semester}`;
 }
 
+export function getStudentClassName(structureSemester: {
+	semesterNumber: string;
+	structure: { program: { code: string } };
+}) {
+	const code = structureSemester.structure.program.code;
+	const num = structureSemester.semesterNumber;
+	return `${code}${formatSemester(num, 'mini')}`;
+}
+
 export function formatPhoneNumber(phone: string | null | undefined) {
 	if (!phone) return null;
 
@@ -199,10 +226,43 @@ export const convertUrlToBase64 = async (url: string): Promise<string> => {
 	}
 };
 
-
 export function truncateText(text: string, maxLength: number = 50) {
 	if (text.length <= maxLength) {
 		return text;
 	}
-	return text.slice(0, maxLength - 3) + '...';
+	return `${text.slice(0, maxLength - 3)}...`;
+}
+
+export function calculateAge(
+	birthDate: Date | number | string | null | undefined
+) {
+	if (!birthDate) return null;
+	const birth = new Date(birthDate);
+	const today = new Date();
+	let age = today.getFullYear() - birth.getFullYear();
+	const monthDiff = today.getMonth() - birth.getMonth();
+	if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+		age--;
+	}
+	return age;
+}
+
+export function formatTerm(
+	term: string | undefined | null,
+	type: 'long' | 'short' = 'short'
+) {
+	if (!term) return '';
+
+	const [year, month] = term.split('-');
+	if (!year || !month) return term;
+
+	const monthNum = Number.parseInt(month, 10);
+	if (Number.isNaN(monthNum) || monthNum < 1 || monthNum > 12) return term;
+
+	const date = new Date(Number.parseInt(year, 10), monthNum - 1);
+	const monthName = date.toLocaleDateString('en-US', {
+		month: type === 'long' ? 'long' : 'short',
+	});
+
+	return `${monthName} ${year}`;
 }

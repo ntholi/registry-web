@@ -14,6 +14,7 @@ import {
 	IconCircleCheck,
 	IconClipboardCheck,
 	IconHourglass,
+	IconReportAnalytics,
 	IconReportMoney,
 	IconUserOff,
 } from '@tabler/icons-react';
@@ -120,6 +121,12 @@ export const financeConfig: ModuleConfig = {
 				href: '/finance/blocked-students',
 				icon: IconUserOff,
 				roles: ['finance'],
+			},
+			{
+				label: 'Sponsored Students',
+				href: '/finance/reports/sponsored-students',
+				icon: IconReportAnalytics,
+				roles: ['finance', 'registry', 'admin'],
 			},
 			{
 				label: 'Clearance',

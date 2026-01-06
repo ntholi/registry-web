@@ -1,14 +1,14 @@
+import * as academic from '@academic/_database';
+import * as admin from '@admin/_database';
+import * as auditLogs from '@audit-logs/_database';
+import * as auth from '@auth/_database';
+import * as finance from '@finance/_database';
 import { Pool as NeonPool } from '@neondatabase/serverless';
+import * as registry from '@registry/_database';
+import * as timetable from '@timetable/_database';
 import { drizzle as drizzleNeon } from 'drizzle-orm/neon-serverless';
 import { drizzle as drizzleNode } from 'drizzle-orm/node-postgres';
 import { Pool as NodePool } from 'pg';
-import * as academic from '@/modules/academic/database';
-import * as admin from '@/modules/admin/database';
-import * as auditLogs from '@/modules/audit-logs/database';
-import * as auth from '@/modules/auth/database';
-import * as finance from '@/modules/finance/database';
-import * as registry from '@/modules/registry/database';
-import * as timetable from '@/modules/timetable/database';
 
 const schema = {
 	...academic,
@@ -40,11 +40,11 @@ const db = databaseEnv === 'remote' ? neonDb : nodeDb;
 
 export { db };
 
-export * from '@/modules/academic/database';
-export * from '@/modules/admin/database';
-export * from '@/modules/audit-logs/database';
-export * from '@/modules/auth/database';
-export * from '@/modules/finance/database';
-export * from '@/modules/registry/database';
-export * from '@/modules/timetable/database';
+export * from '@academic/_database';
+export * from '@admin/_database';
+export * from '@audit-logs/_database';
+export * from '@auth/_database';
+export * from '@finance/_database';
+export * from '@registry/_database';
+export * from '@timetable/_database';
 export * from './types';

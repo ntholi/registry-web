@@ -1,0 +1,76 @@
+import type { assessments, lmsAssessments } from '@/core/database';
+import BaseService from '@/core/platform/BaseService';
+import { serviceWrapper } from '@/core/platform/serviceWrapper';
+import withAuth from '@/core/platform/withAuth';
+import AssessmentRepository from './repository';
+
+class AssessmentService extends BaseService<typeof assessments, 'id'> {
+	constructor() {
+		super(new AssessmentRepository(), {
+			byIdRoles: ['academic'],
+			findAllRoles: ['academic'],
+			createRoles: ['academic'],
+			updateRoles: ['academic'],
+			deleteRoles: ['academic'],
+			countRoles: ['academic'],
+		});
+	}
+
+	override async create(
+		data: typeof assessments.$inferInsert,
+		lmsData?: Omit<typeof lmsAssessments.$inferInsert, 'assessmentId'>
+	) {
+		return withAuth(
+			async () =>
+				(this.repository as AssessmentRepository).create(data, lmsData),
+			['academic']
+		);
+	}
+
+	async getByModuleId(moduleId: number, termId: number) {
+		return withAuth(
+			async () =>
+				(this.repository as AssessmentRepository).getByModuleId(
+					moduleId,
+					termId
+				),
+			['academic']
+		);
+	}
+
+	async getByLmsId(lmsId: number) {
+		return withAuth(
+			async () => (this.repository as AssessmentRepository).findByLmsId(lmsId),
+			['academic']
+		);
+	}
+
+	async getAuditHistory(assessmentId: number) {
+		return withAuth(
+			async () =>
+				(this.repository as AssessmentRepository).getAuditHistory(assessmentId),
+			['academic']
+		);
+	}
+
+	async updateWithGradeRecalculation(
+		id: number,
+		data: Partial<typeof assessments.$inferInsert>,
+		lmsData?: Partial<Omit<typeof lmsAssessments.$inferInsert, 'assessmentId'>>
+	) {
+		return withAuth(
+			async () =>
+				(this.repository as AssessmentRepository).updateWithGradeRecalculation(
+					id,
+					data,
+					lmsData
+				),
+			['academic']
+		);
+	}
+}
+
+export const assessmentsService = serviceWrapper(
+	AssessmentService,
+	'AssessmentsService'
+);

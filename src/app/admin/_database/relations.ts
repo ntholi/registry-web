@@ -1,0 +1,96 @@
+import { schools } from '@academic/_database';
+import { users } from '@auth/_database';
+import { students } from '@registry/_database';
+import { relations } from 'drizzle-orm';
+import { fortinetRegistrations } from './schema/fortinet';
+import {
+	notificationDismissals,
+	notificationRecipients,
+	notifications,
+} from './schema/notifications';
+import { taskAssignees, taskStudents, tasks } from './schema/tasks';
+
+export const fortinetRegistrationsRelations = relations(
+	fortinetRegistrations,
+	({ one }) => ({
+		student: one(students, {
+			fields: [fortinetRegistrations.stdNo],
+			references: [students.stdNo],
+		}),
+		school: one(schools, {
+			fields: [fortinetRegistrations.schoolId],
+			references: [schools.id],
+		}),
+	})
+);
+
+export const notificationsRelations = relations(
+	notifications,
+	({ one, many }) => ({
+		creator: one(users, {
+			fields: [notifications.createdBy],
+			references: [users.id],
+		}),
+		recipients: many(notificationRecipients),
+		dismissals: many(notificationDismissals),
+	})
+);
+
+export const notificationRecipientsRelations = relations(
+	notificationRecipients,
+	({ one }) => ({
+		notification: one(notifications, {
+			fields: [notificationRecipients.notificationId],
+			references: [notifications.id],
+		}),
+		user: one(users, {
+			fields: [notificationRecipients.userId],
+			references: [users.id],
+		}),
+	})
+);
+
+export const notificationDismissalsRelations = relations(
+	notificationDismissals,
+	({ one }) => ({
+		notification: one(notifications, {
+			fields: [notificationDismissals.notificationId],
+			references: [notifications.id],
+		}),
+		user: one(users, {
+			fields: [notificationDismissals.userId],
+			references: [users.id],
+		}),
+	})
+);
+
+export const tasksRelations = relations(tasks, ({ one, many }) => ({
+	creator: one(users, {
+		fields: [tasks.createdBy],
+		references: [users.id],
+	}),
+	assignees: many(taskAssignees),
+	students: many(taskStudents),
+}));
+
+export const taskAssigneesRelations = relations(taskAssignees, ({ one }) => ({
+	task: one(tasks, {
+		fields: [taskAssignees.taskId],
+		references: [tasks.id],
+	}),
+	user: one(users, {
+		fields: [taskAssignees.userId],
+		references: [users.id],
+	}),
+}));
+
+export const taskStudentsRelations = relations(taskStudents, ({ one }) => ({
+	task: one(tasks, {
+		fields: [taskStudents.taskId],
+		references: [tasks.id],
+	}),
+	student: one(students, {
+		fields: [taskStudents.stdNo],
+		references: [students.stdNo],
+	}),
+}));

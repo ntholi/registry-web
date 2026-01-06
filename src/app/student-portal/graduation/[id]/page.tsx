@@ -16,21 +16,18 @@ import {
 	Title,
 } from '@mantine/core';
 import { getGraduationRequest } from '@registry/graduation/clearance';
+import { IconReceipt } from '@tabler/icons-react';
+import { forbidden, notFound } from 'next/navigation';
+import { auth } from '@/core/auth';
+import { getStatusColor } from '@/shared/lib/utils/colors';
+import { getStatusIcon } from '@/shared/lib/utils/status';
+import { formatDateTime } from '@/shared/lib/utils/utils';
 import {
 	GraduationClearanceView,
 	PaymentReceiptsView,
 	ProofOfClearanceDownload,
-} from '@student-portal/graduation';
-import {
-	getClearanceStatus,
-	getGraduationStatus,
-	getStatusColor,
-	getStatusIcon,
-} from '@student-portal/utils';
-import { IconReceipt } from '@tabler/icons-react';
-import { forbidden, notFound } from 'next/navigation';
-import { auth } from '@/core/auth';
-import { formatDateTime } from '@/shared/lib/utils/utils';
+} from '../_components';
+import { getClearanceStatus, getGraduationStatus } from '../_lib/status';
 
 type Props = {
 	params: Promise<{
@@ -60,6 +57,13 @@ export default async function GraduationDetailsPage({ params }: Props) {
 	const clearanceStatus = getClearanceStatus(
 		graduationRequest.graduationClearances
 	);
+
+	const paymentReceipts =
+		graduationRequest.graduationRequestReceipts?.map((r) => r.receipt) || [];
+	const graduationRequestWithReceipts = {
+		...graduationRequest,
+		paymentReceipts,
+	};
 
 	return (
 		<Container size='md' px='xs'>
@@ -126,8 +130,7 @@ export default async function GraduationDetailsPage({ params }: Props) {
 							Clearance Status
 						</TabsTab>
 						<TabsTab value='payments' leftSection={<IconReceipt size='1rem' />}>
-							Payment Receipts ({graduationRequest.paymentReceipts?.length || 0}
-							)
+							Payment Receipts ({paymentReceipts.length})
 						</TabsTab>
 					</TabsList>
 
@@ -139,7 +142,9 @@ export default async function GraduationDetailsPage({ params }: Props) {
 
 					<TabsPanel value='payments'>
 						<Box mt='md'>
-							<PaymentReceiptsView graduationRequest={graduationRequest} />
+							<PaymentReceiptsView
+								graduationRequest={graduationRequestWithReceipts}
+							/>
 						</Box>
 					</TabsPanel>
 				</Tabs>

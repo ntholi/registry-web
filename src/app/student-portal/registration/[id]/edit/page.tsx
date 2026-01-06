@@ -16,17 +16,13 @@ import {
 	Title,
 } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
+import type { StudentModuleStatus } from '@registry/_database';
 import {
 	determineSemesterStatus,
 	getRegistrationRequest,
 	getStudentSemesterModules,
-	updateRegistrationWithModulesAndSponsorship,
+	updateRegistration,
 } from '@registry/registration/requests';
-import {
-	ModuleSelection,
-	SemesterConfirmation,
-	SponsorshipDetailsEdit,
-} from '@student-portal/registration';
 import {
 	IconArrowLeft,
 	IconArrowRight,
@@ -35,10 +31,14 @@ import {
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import type { StudentModuleStatus } from '@/modules/registry/database';
-import { MAX_REG_MODULES } from '@/modules/registry/shared/constants';
-import { useCurrentTerm } from '@/shared/lib/hooks/use-current-term';
+import { config } from '@/config';
+import { useActiveTerm } from '@/shared/lib/hooks/use-active-term';
 import useUserStudent from '@/shared/lib/hooks/use-user-student';
+import {
+	ModuleSelection,
+	SemesterConfirmation,
+	SponsorshipDetailsEdit,
+} from '../../_components';
 
 type SelectedModule = {
 	moduleId: number;
@@ -82,7 +82,7 @@ export default function EditRegistrationPage() {
 	} | null>(null);
 	const [sponsorshipData, setSponsorshipData] =
 		useState<SponsorshipData | null>(null);
-	const { currentTerm } = useCurrentTerm();
+	const { activeTerm } = useActiveTerm();
 
 	const registrationId = Number(params.id);
 
@@ -116,9 +116,9 @@ export default function EditRegistrationPage() {
 	const availableModules = moduleResult?.modules || [];
 
 	const { data: previousSponsorshipData } = useQuery({
-		queryKey: ['previous-sponsorship', student?.stdNo, currentTerm?.id],
-		queryFn: () => getSponsoredStudent(student!.stdNo, currentTerm!.id),
-		enabled: !!student?.stdNo && !!currentTerm?.id,
+		queryKey: ['previous-sponsorship', student?.stdNo, activeTerm?.id],
+		queryFn: () => getSponsoredStudent(student!.stdNo, activeTerm!.id),
+		enabled: !!student?.stdNo && !!activeTerm?.id,
 	});
 
 	const { data: semesterStatus, isLoading: semesterStatusLoading } = useQuery({
@@ -143,7 +143,7 @@ export default function EditRegistrationPage() {
 				throw new Error('Missing required data for registration update');
 			}
 
-			return updateRegistrationWithModulesAndSponsorship(
+			return updateRegistration(
 				registrationId,
 				selectedModules.map((module) => ({
 					id: module.moduleId,
@@ -224,7 +224,8 @@ export default function EditRegistrationPage() {
 	};
 
 	const canProceedStep1 =
-		selectedModules.length > 0 && selectedModules.length <= MAX_REG_MODULES;
+		selectedModules.length > 0 &&
+		selectedModules.length <= config.registry.maxRegModules;
 	const canProceedStep2 = semesterData !== null;
 	const canSubmit = sponsorshipData !== null;
 
@@ -261,7 +262,7 @@ export default function EditRegistrationPage() {
 		);
 	}
 
-	if (!currentTerm) {
+	if (!activeTerm) {
 		return (
 			<Container size='lg' py='xl'>
 				<Alert
@@ -331,7 +332,7 @@ export default function EditRegistrationPage() {
 						Update Registration
 					</Title>
 					<Group justify='space-between'>
-						<Text c='dimmed'>Term: {currentTerm.name}</Text>
+						<Text c='dimmed'>Term: {activeTerm.code}</Text>
 						<Badge
 							color={
 								registrationRequest.status === 'pending' ? 'yellow' : 'blue'

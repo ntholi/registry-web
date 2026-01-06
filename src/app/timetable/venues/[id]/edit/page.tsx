@@ -1,6 +1,7 @@
 import { Box } from '@mantine/core';
-import { Form, getVenueWithRelations, updateVenue } from '@timetable/venues';
 import { notFound } from 'next/navigation';
+import Form from '../../_components/Form';
+import { getVenueWithRelations, updateVenue } from '../../_server/actions';
 
 type Props = {
 	params: Promise<{ id: string }>;

@@ -1,20 +1,14 @@
-import { countByStatus as countGraduationByStatus } from '@registry/graduation/clearance';
-import { countByStatus } from '@registry/registration';
 import {
-	IconBan,
-	IconCheck,
-	IconCircleCheck,
-	IconClipboardList,
-	IconFileDescription,
+	IconCalendarDue,
+	IconCalendarEvent,
+	IconCalendarMonth,
+	IconCertificate,
 	IconGavel,
-	IconHourglass,
-	IconSchoolBell,
+	IconReportAnalytics,
+	IconUserPlus,
 	IconUsers,
 } from '@tabler/icons-react';
-import type {
-	ModuleConfig,
-	NavItem,
-} from '@/app/dashboard/module-config.types';
+import type { ModuleConfig } from '@/app/dashboard/module-config.types';
 import { moduleConfig } from '@/config/modules.config';
 import type { UserPosition, UserRole } from '@/core/database';
 
@@ -48,90 +42,38 @@ export const registryConfig: ModuleConfig = {
 				},
 			},
 			{
-				label: 'Registration Requests',
-				icon: IconClipboardList,
+				label: 'Registration',
+				description: 'Registration Requests',
+				href: '/registry/registration/requests',
+				icon: IconUserPlus,
 				roles: ['registry', 'admin'],
-				collapsed: true,
-				children: [
-					{
-						label: 'Pending',
-						href: '/registry/registration/requests/pending',
-						icon: IconHourglass,
-						notificationCount: {
-							queryKey: ['registration-requests', 'pending'],
-							queryFn: () => countByStatus('pending'),
-							color: 'red',
-						},
-					},
-					{
-						label: 'Registered',
-						href: '/registry/registration/requests/registered',
-						icon: IconCheck,
-						notificationCount: {
-							queryKey: ['registration-requests', 'registered'],
-							queryFn: () => countByStatus('registered'),
-							color: 'gray',
-						},
-					},
-					{
-						label: 'Rejected',
-						href: '/registry/registration/requests/rejected',
-						icon: IconBan,
-						notificationCount: {
-							queryKey: ['registration-requests', 'rejected'],
-							queryFn: () => countByStatus('rejected'),
-							color: 'gray',
-						},
-					},
-					{
-						label: 'Approved',
-						href: '/registry/registration/requests/approved',
-						icon: IconCircleCheck,
-						notificationCount: {
-							queryKey: ['registration-requests', 'approved'],
-							queryFn: () => countByStatus('approved'),
-							color: 'gray',
-						},
-					},
-				] as NavItem[],
 			},
 			{
-				label: 'Graduation Requests',
-				icon: IconSchoolBell,
+				label: 'Graduation',
+				description: 'Graduation Requests',
+				href: '/registry/graduation/requests',
+				icon: IconCertificate,
+				roles: ['registry', 'admin'],
+			},
+			{
+				label: 'Dates',
+				icon: IconCalendarMonth,
 				roles: ['registry', 'admin'],
 				collapsed: true,
 				children: [
 					{
-						label: 'Pending',
-						href: '/registry/graduation/requests/pending',
-						icon: IconHourglass,
-						notificationCount: {
-							queryKey: ['graduation-requests', 'pending'],
-							queryFn: () => countGraduationByStatus('pending'),
-							color: 'red',
-						},
+						label: 'Terms',
+						href: '/registry/dates/terms',
+						icon: IconCalendarDue,
+						roles: ['admin', 'registry'],
 					},
 					{
-						label: 'Approved',
-						href: '/registry/graduation/requests/approved',
-						icon: IconCircleCheck,
-						notificationCount: {
-							queryKey: ['graduation-requests', 'approved'],
-							queryFn: () => countGraduationByStatus('approved'),
-							color: 'gray',
-						},
+						label: 'Graduations',
+						href: '/registry/dates/graduations',
+						icon: IconCalendarEvent,
+						roles: ['admin', 'registry'],
 					},
-					{
-						label: 'Rejected',
-						href: '/registry/graduation/requests/rejected',
-						icon: IconBan,
-						notificationCount: {
-							queryKey: ['graduation-requests', 'rejected'],
-							queryFn: () => countGraduationByStatus('rejected'),
-							color: 'gray',
-						},
-					},
-				] as NavItem[],
+				],
 			},
 			{
 				label: 'Board of Examination',
@@ -149,10 +91,9 @@ export const registryConfig: ModuleConfig = {
 				},
 			},
 			{
-				label: 'Student Registration',
-				href: '/registry/reports/registration',
-				icon: IconFileDescription,
-				roles: ['academic', 'registry', 'admin', 'finance'],
+				label: 'Student Enrollments',
+				href: '/registry/reports/student-enrollments',
+				icon: IconReportAnalytics,
 				isVisible: (session) => {
 					if (
 						['admin', 'registry', 'finance'].includes(

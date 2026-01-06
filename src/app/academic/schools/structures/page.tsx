@@ -1,11 +1,6 @@
 'use client';
 
 import {
-	getProgramsBySchoolId,
-	getSchool,
-	ProgramDisplay,
-} from '@academic/schools';
-import {
 	Accordion,
 	Card,
 	Group,
@@ -19,6 +14,8 @@ import { IconArrowLeft, IconBook, IconSchool } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from '@/shared/ui/Link';
+import ProgramDisplay from '../_components/ProgramDisplay';
+import { getProgramsBySchoolId, getSchool } from '../_server/actions';
 
 type Program = {
 	id: number;

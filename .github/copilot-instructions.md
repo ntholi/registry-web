@@ -1,178 +1,193 @@
-# Registry Web - LLM Developer Context
+# Registry Web
 
-**Stack**: Next.js 16 (App Router), Neon Postgres, Drizzle ORM, Mantine v8, Auth.js, TanStack Query.
-**Architecture**: Modular Monolith. Strict TypeScript. Biome Linting.
+University student registration portal managing academic records, course registrations, and administrative workflows.
 
-## 🚨 CRITICAL RULES (Do Not Ignore)
+> [!IMPORTANT]
+> Read this entire document before starting any task. Adhere to all guidelines strictly.
 
-1.  **Strict Layered Architecture**:
-    *   **UI** calls **Server Actions**.
-    *   **Server Actions** call **Services**.
-    *   **Services** call **Repositories**.
-    *   **Repositories** call **Database**.
-    *   *Constraint*: **Only** `repository.ts` files may import `db`. Never access the DB from actions or services directly.
+## Tech Stack
 
-2.  **Code Reuse First**:
-    *   Before creating a function (e.g., `getSchools`), check if it exists in another module (e.g., `@registry/schools`).
-    *   Import from existing features using path aliases (e.g., `import { getSchools } from '@registry/schools'`).
-    *   Do not duplicate logic.
+### Backend
+- **Next.js 16** (App Router, React 19, Server Components, Server Actions)
+- **Drizzle ORM** with PostgreSQL (Neon serverless or local)
+- **Auth.js** with Google OAuth
 
-3.  **Performance**:
-    *   Avoid multiple database calls
-    *   Use `db.transaction` for multi-step writes.
+### Frontend
+- **Mantine v8** for all UI components (no custom CSS)
+- **TanStack Query v5** for data fetching
+- **Tabler Icons** for iconography
 
-4.  **UI Design Principles**:
-    *   **Visual Quality**: Create beautiful, minimalistic, and highly professional interfaces.
-    *   **Mantine Native**: Use Mantine's native components and their built-in props exclusively. Avoid external CSS customization.
-    *   **Theme Awareness**: Design for both dark and light modes. Optimize for dark mode as it's the primary usage mode.
-    *   **Minimal Interactions**: Avoid hover effects and unnecessary animations unless absolutely essential for functionality.
-    *   **Pattern Consistency**: Strictly follow existing UI patterns (ListLayout, DetailsView). Do not invent new patterns; mimic existing screens.
-    *   **Native Styling**: Use only Mantine's component props (size, variant, color, radius, etc.) for styling. No custom CSS classes.
+### Tooling
+- **TypeScript** (strict mode)
+- **Biome** for linting and formatting
+- **pnpm** as package manager
 
-5.  **No Comments**:
-    *   Never generate comments in code. Keep code clean and self-explanatory.
+## Project Guidelines
 
----
+### Domain Concepts
+- **Class**: Students in a program semester. ID: `[ProgramCode][SemesterMini]` (e.g., `DITY1S1`). Use `getStudentClassName(structureSemester)` from `@/shared/lib/utils/utils`.
+- **Term Code**: Formatted as `YYYY-MM` (e.g., `2025-02`).
+- **School/Faculty**: Interchangeable. Codebase uses **School**. Always translate "Faculty" to "School".
+- **Dates**: Always format as `YYYY-MM-DD`.
 
-## Directory Structure
-```text
-src/modules/[module]/features/[feature]/
-├── database/schema/entity.ts      # DB Schema
-├── server/
-│   ├── actions.ts                 # 'use server' entry point
-│   ├── service.ts                 # Business logic + Auth
-│   └── repository.ts              # DB Access (The ONLY place db is imported)
-├── components/                    # Feature-specific UI
-└── index.ts                       # Public API (exports actions/types)
+### Architecture
+- **Flow**: UI → Server Actions → Services → Repositories → DB
+- Only `repository.ts` files import `db` directly
+- Use `db.transaction` for multi-step writes
+- Avoid N+1 queries
+- **Ownership rule**: Server Actions/Services/Repositories must live in the *same module/feature that owns the schema/table they operate on*. Cross-module features should import and call those actions via path aliases instead of re-implementing them elsewhere.
+	- Example: if you need `getSchools()` and it queries the Academic `schools`/`programs` schema (`src/app/academic/_database/schema/schools.ts`), the function must be implemented under `src/app/academic/schools/_server/` (actions → service → repository), even if the UI using it lives in a different module.
+
+### Code Style
+- Use `function name() {}` for exports, never arrow functions at top level
+- Derive types from Drizzle: `typeof table.$inferInsert`, `typeof table.$inferSelect`
+- No comments - code should be self-explanatory
+- Component order: Props type → constants → default export → private props type → private components
+- Use short  but meaningful names identifier (variables, functions, classes)
+- **File Naming**: Use `kebab-case` for all files and directories.
+- **Type Safety**: Avoid `any` at all costs. Use `interface` for object definitions and `type` for unions/intersections and props.
+
+### React & Next.js Patterns
+- **Server Components**: Favor React Server Components (RSC) by default. Use `'use client'` only for small leaf components requiring interactivity.
+- **Server Actions**: Use Server Actions for all mutations.
+- **Data Fetching**: Use async/await in RSC for initial data load. Use TanStack Query for client-side state and re-fetching.
+- **Forms**: Use the `Form` component from `@/shared/ui/adease/` which integrates with TanStack Query.
+
+### Error Handling & Validation
+- **Validation**: Use Zod for all input validation (schemas should live in `_lib/types.ts` or near the form).
+- **Early Returns**: Use guard clauses and early returns to reduce nesting.
+- **Action Results**: Return a consistent `{ data, error }` or `{ success, message }` object from Server Actions.
+
+### Negative Constraints
+- **Never** use `useEffect` for data fetching; use TanStack Query or RSC.
+- **Never** use `any` or `unknown` unless absolutely necessary; prefer strict typing.
+- **Never** use arrow functions for top-level exports.
+- **Never** use custom CSS or Tailwind; use Mantine v8 components only.
+- **Never** use the `pages` router; use the `app` router exclusively.
+- **Never** import `db` outside of `repository.ts` files.
+- **Never** create new .sql migration files manually; it corrupts the _journal. Always use pnpm db:generate (or --custom if schema hasn't changed). Once the CLI generates the file, you may then edit the .sql content to add custom migration logic.
+
+### UI Rules
+- Mantine-only styling (no custom CSS)
+- Mantine Date components use string values and mantine calendars must start on Sunday.
+- Modals must be self-contained (include their own trigger)
+- Optimize for dark mode
+- Provide very beautiful, professional, clean, minimalist design
+- Never hardcode colors - use `src/shared/lib/utils/colors.ts`
+- Never hardcode status icons - use `src/shared/lib/utils/status.tsx`
+- If there is *any* conditional/semantic color mapping (statuses, grades, module types, etc.), add/extend the mapping in `colors.ts` and consume it from features.
+- If there is *any* status icon mapping (status → icon, with optional color), add/extend it in `status.tsx` and consume it from features.
+
+
+### Validation (MANDATORY FINAL STEP):
+When you are done, it is extremely important crucial that you run `pnpm tsc --noEmit & pnpm lint:fix` then fix the issues, run the same commands again until there are no issues.
+
+## Communication Style
+- Be concise, technical, and professional.
+- Avoid conversational filler ("Sure", "I can help with that").
+- If a request violates project guidelines, explain why and suggest the correct approach.
+- Always provide the full file path when mentioning files.
+
+## Project Structure
+
+```
+src/
+├── app/
+│   ├── academic/              # Academic module (lecturers, modules, assessments)
+│   │   ├── semester-modules/  # Example feature
+│   │   │   ├── _server/       # repository.ts, service.ts, actions.ts
+│   │   │   ├── _components/   # Form.tsx, other components
+│   │   │   ├── _lib/          # types.ts, utilities
+│   │   │   ├── new/page.tsx
+│   │   │   ├── [id]/page.tsx
+│   │   │   ├── [id]/edit/page.tsx
+│   │   │   ├── layout.tsx
+│   │   │   ├── page.tsx
+│   │   │   └── index.ts       # Re-exports
+│   │   └── _database/         # Module-specific schemas
+│   │       ├── schema/
+│   │       ├── relations.ts
+│   │       └── index.ts
+│   ├── registry/              # Student records, registration
+│   ├── finance/               # Payments, sponsors
+│   ├── admin/                 # User management, tasks
+│   ├── lms/                   # Moodle integration
+│   ├── timetable/             # Class scheduling
+│   ├── auth/                  # Authentication
+│   ├── audit-logs/            # Activity logging
+│   ├── dashboard/             # Main dashboard shell
+│   └── student-portal/        # Student-facing portal (different layout)
+├── core/
+│   ├── database/              # Aggregated schemas, db instance
+│   ├── platform/              # BaseRepository, BaseService, withAuth
+│   └── auth.ts
+├── shared/
+│   ├── ui/adease/             # Reusable components (Form, ListLayout, DetailsView)
+│   └── lib/utils/             # colors.ts, status.tsx, utilities
+└── config/
 ```
 
-## Implementation Guide & Snippets
+## Path Aliases
 
-### 1. Database Schema
-**File**: `src/modules/[module]/database/schema/[entity].ts`
-*Rules*: `snake_case` tables, `camelCase` columns. Always include `createdAt`.
-```typescript
-import { boolean, pgTable, serial, text, timestamp } from 'drizzle-orm/pg-core';
+| Alias | Path |
+|-------|------|
+| `@/*` | `./src/*` |
+| `@academic/*` | `./src/app/academic/*` |
+| `@registry/*` | `./src/app/registry/*` |
+| `@finance/*` | `./src/app/finance/*` |
+| `@admin/*` | `./src/app/admin/*` |
+| `@lms/*` | `./src/app/lms/*` |
+| `@timetable/*` | `./src/app/timetable/*` |
+| `@auth/*` | `./src/app/auth/*` |
+| `@audit-logs/*` | `./src/app/audit-logs/*` |
 
-export const tableName = pgTable('table_name', {
-  id: serial().primaryKey(),
-  name: text().notNull(),
-  isActive: boolean().notNull().default(true),
-  createdAt: timestamp().defaultNow(),
-});
-```
+## Naming Conventions
 
-### 2. Repository (The ONLY DB Access)
-**File**: `src/modules/[module]/features/[feature]/server/repository.ts`
-*Rules*: Extend `BaseRepository`. Use `db.query` for reads.
-```typescript
-import { eq } from 'drizzle-orm';
-import { db } from '@/core/database'; // <--- ONLY ALLOWED HERE
-import { tableName } from '@/core/database';
-import BaseRepository from '@/core/platform/BaseRepository';
+| Layer | Pattern | Example |
+|-------|---------|---------|
+| Table | `snake_case` plural | `semester_modules` |
+| Column (TS) | `camelCase` | `moduleId`, `createdAt` |
+| Raw SQL | `snake_case` | `SELECT module_id FROM semester_modules` |
+| Schema export | `camelCase` plural | `export const semesterModules = pgTable(...)` |
+| Repository class | `PascalCase` + Repository | `SemesterModuleRepository` |
+| Service class | `PascalCase` + Service | `SemesterModuleService` |
+| Service export | `camelCase` + Service | `semesterModulesService` |
+| Actions | `verb` + `Entity` | `getSemesterModule`, `findAllModules`, `createModule` |
+| Form component | `PascalCase` + Form | `ModuleForm` |
+| Query keys | kebab-case array | `['semester-modules']` |
 
-export default class EntityRepository extends BaseRepository<typeof tableName, 'id'> {
-  constructor() { super(tableName, tableName.id); }
+## Key Resources
 
-  // Example: Optimized query with relations (Avoid N+1)
-  async findWithRelations(id: number) {
-    return db.query.tableName.findFirst({
-      where: eq(tableName.id, id),
-      with: { relatedTable: true }
-    });
-  }
-}
-export const entityRepository = new EntityRepository();
-```
+### Adease UI Components
+Located in `src/shared/ui/adease/`:
+- `Form` - Form wrapper with TanStack Query integration
+- `ListLayout` - Master-detail list view
+- `DetailsView`, `DetailsViewHeader`, `DetailsViewBody` - Detail page components
+- `FieldView` - Display field with label
+- `ListItem` - List item for ListLayout
+- `NewLink` - Add new item button
+- `NothingSelected` - Empty state component
 
-### 3. Service (Logic & Auth)
-**File**: `src/modules/[module]/features/[feature]/server/service.ts`
-*Rules*: Extend `BaseService`. Define roles.
-```typescript
-import BaseService from '@/core/platform/BaseService';
-import { serviceWrapper } from '@/core/platform/serviceWrapper';
-import { entityRepository } from './repository';
+### Platform Classes
+Located in `src/core/platform/`:
+- `BaseRepository` - CRUD operations with pagination
+- `BaseService` - Service layer with role-based auth
+- `withAuth` - Authentication wrapper
+- `serviceWrapper` - Service proxy with logging
 
-class EntityService extends BaseService<typeof entityRepository.table, 'id'> {
-  constructor() {
-    super(entityRepository, {
-      byIdRoles: ['dashboard'], // Roles allowed to view details
-      findAllRoles: ['dashboard'],
-    });
-  }
-}
-export const entityService = serviceWrapper(EntityService, 'EntityService');
-```
+### Color & Status Utilities
+- `src/shared/lib/utils/colors.ts` - Semantic colors, status colors
+- `src/shared/lib/utils/status.tsx` - Status icons
 
-### 4. Server Actions (Public API)
-**File**: `src/modules/[module]/features/[feature]/server/actions.ts`
-*Rules*: `'use server'`, pass-through to Service.
-```typescript
-'use server';
-import { entityService as service } from './service';
+## Special Modules
 
-export async function getAllEntities() { return service.getAll(); }
-export async function createEntity(data: any) { return service.create(data); }
-export async function updateEntity(id: number, data: any) { return service.update(id, data); }
-```
+### Moodle/LMS Integration
+Before editing `src/app/lms/`, always read `C:\Users\nthol\Documents\Projects\Limkokwing\Registry\moodle-plugins\moodle-local_activity_utils\README.md` first. You may edit the moodle-local_activity_utils if necessary, but always ask for approval first. Ask for approval before modifying.
 
-### 5. UI: List Page
-**File**: `src/app/(module)/[feature]/layout.tsx`
-*Rules*: Use `ListLayout` and `ListItem`.
-```typescript
-'use client';
-import { findAllEntities } from '@module/feature';
-import { ListLayout, ListItem, NewLink } from '@/shared/ui/adease';
+### Student Portal
+`src/app/student-portal` uses a unique layout different from dashboard modules. Does not follow `adease` patterns.
 
-export default function Layout({ children }: { children: React.ReactNode }) {
-  return (
-    <ListLayout
-      path='/feature'
-      queryKey={['entities']} // TanStack Query key
-      getData={findAllEntities}
-      actionIcons={[<NewLink key='new' href='/feature/new' />]}
-      renderItem={(it) => <ListItem id={it.id} label={it.name} />}
-    >
-      {children}
-    </ListLayout>
-  );
-}
-```
+## Database Access
+For schema/data inspection always use  psql `"postgresql://dev:111111@localhost:5432/registry" -P pager=off -c "<<query>>"`. Query via terminal to understand database structure and content.
 
-### 6. UI: Form
-**File**: `src/modules/[module]/features/[feature]/components/Form.tsx`
-*Rules*: Use `drizzle-zod`, `Form` from `@/shared/ui/adease`.
-```typescript
-'use client';
-import { TextInput } from '@mantine/core';
-import { createInsertSchema } from 'drizzle-zod';
-import { Form } from '@/shared/ui/adease';
-import { tableName } from '@/core/database';
-
-export default function EntityForm({ onSubmit, defaultValues, title }: any) {
-  return (
-    <Form
-      title={title}
-      action={onSubmit}
-      queryKey={['entities']}
-      schema={createInsertSchema(tableName)}
-      defaultValues={defaultValues}
-      onSuccess={({ id }) => { /* redirect */ }}
-    >
-      {(form) => (
-        <TextInput label='Name' {...form.getInputProps('name')} />
-      )}
-    </Form>
-  );
-}
-```
-
-## Coding Standards
-1.  **Functions**: Use `function name() {}`. **NO** arrow functions for top-level exports.
-2.  **Types**: Strict TS. No `any`. Infer from Drizzle (`typeof table.$inferSelect`).
-3.  **Imports**: Use aliases (`@registry/terms`, `@shared/ui/adease`).
-4.  **Always and every single time always do the following:**:
-    *   Run `pnpm tsc --noEmit` (run iteratively until no more issues).
-    *   Run `pnpm lint:fix` (Must pass).
-
-5.  **Data Fetching**: Never use useEffect for data fetching but always use TanStack Query. TanStack Query keys should use kebab-case.
+## EXTREMELY IMPORTANT: Always run this command on the terminal "pnpm exec echo 'Done'", no matter what! Don't combine it with other commands or outputs.

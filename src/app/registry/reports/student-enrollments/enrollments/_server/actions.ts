@@ -1,0 +1,131 @@
+'use server';
+
+import { getAllSponsors } from '@finance/sponsors/_server/actions';
+import type { RegistrationReportFilter } from './repository';
+import { registrationReportService } from './service';
+
+export async function generateSummaryRegistrationReport(
+	termIds: number[],
+	filter?: RegistrationReportFilter
+) {
+	try {
+		const buffer =
+			await registrationReportService.generateSummaryRegistrationReport(
+				termIds,
+				filter
+			);
+		const base64Data = Buffer.from(buffer).toString('base64');
+		return { success: true, data: base64Data };
+	} catch (error) {
+		console.error('Error generating summary registration report:', error);
+		return {
+			success: false,
+			error: error instanceof Error ? error.message : 'Unknown error',
+		};
+	}
+}
+
+export async function generateStudentsListReport(
+	termIds: number[],
+	filter?: RegistrationReportFilter
+) {
+	try {
+		const buffer = await registrationReportService.generateStudentsListReport(
+			termIds,
+			filter
+		);
+		const base64Data = Buffer.from(buffer).toString('base64');
+		return { success: true, data: base64Data };
+	} catch (error) {
+		console.error('Error generating students list report:', error);
+		return {
+			success: false,
+			error: error instanceof Error ? error.message : 'Unknown error',
+		};
+	}
+}
+
+export async function getRegistrationDataPreview(
+	termIds: number[],
+	filter?: RegistrationReportFilter
+) {
+	try {
+		const data = await registrationReportService.getRegistrationDataForTerms(
+			termIds,
+			filter
+		);
+		return { success: true, data };
+	} catch (error) {
+		console.error('Error fetching registration data preview:', error);
+		return {
+			success: false,
+			error: error instanceof Error ? error.message : 'Unknown error',
+		};
+	}
+}
+
+export async function getPaginatedRegistrationStudents(
+	termIds: number[],
+	page: number = 1,
+	pageSize: number = 20,
+	filter?: RegistrationReportFilter
+) {
+	try {
+		const data =
+			await registrationReportService.getPaginatedRegistrationStudents(
+				termIds,
+				page,
+				pageSize,
+				filter
+			);
+		return { success: true, data };
+	} catch (error) {
+		console.error('Error fetching paginated registration students:', error);
+		return {
+			success: false,
+			error: error instanceof Error ? error.message : 'Unknown error',
+		};
+	}
+}
+
+export async function getRegistrationChartData(
+	termIds: number[],
+	filter?: RegistrationReportFilter
+) {
+	try {
+		const data = await registrationReportService.getChartData(termIds, filter);
+		return { success: true, data };
+	} catch (error) {
+		console.error('Error fetching chart data:', error);
+		return {
+			success: false,
+			error: error instanceof Error ? error.message : 'Unknown error',
+		};
+	}
+}
+
+export async function getAvailableSponsorsForReports() {
+	try {
+		const sponsors = await getAllSponsors();
+		return { success: true, data: sponsors };
+	} catch (error) {
+		console.error('Error fetching available sponsors:', error);
+		return {
+			success: false,
+			error: error instanceof Error ? error.message : 'Unknown error',
+		};
+	}
+}
+
+export async function getAvailableCountriesForReports() {
+	try {
+		const countries = await registrationReportService.getAvailableCountries();
+		return { success: true, data: countries };
+	} catch (error) {
+		console.error('Error fetching available countries:', error);
+		return {
+			success: false,
+			error: error instanceof Error ? error.message : 'Unknown error',
+		};
+	}
+}

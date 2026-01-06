@@ -1,8 +1,8 @@
+import { LmsAuthGuard } from '@lms/auth';
 import type { Metadata } from 'next';
 import type { PropsWithChildren } from 'react';
 import { getModuleConfig } from '@/config/modules.config';
 import { auth } from '@/core/auth';
-import LmsAuthGuard from '@/modules/lms/features/auth/components/LmsAuthGuard';
 import { toTitleCase } from '@/shared/lib/utils/utils';
 import { DebugRibbon } from '@/shared/ui/DebugRibbon';
 import Dashboard from '../dashboard/dashboard';

@@ -1,4 +1,3 @@
-import { getModule } from '@academic/modules';
 import {
 	deleteModule,
 	getStructuresByModule,
@@ -23,6 +22,7 @@ import {
 	FieldView,
 } from '@/shared/ui/adease';
 import Link from '@/shared/ui/Link';
+import { getModule } from '../_server/actions';
 
 type Props = {
 	params: Promise<{ id: string }>;

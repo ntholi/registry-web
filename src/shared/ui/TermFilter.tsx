@@ -2,7 +2,7 @@
 
 import { ActionIcon, Modal, Paper, Select, Tooltip } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
-import { getAllTerms } from '@registry/terms';
+import { getAllTerms } from '@registry/dates/terms';
 import { IconFilter } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useAtom } from 'jotai';
@@ -53,17 +53,17 @@ export default function TermFilter({
 
 	const termOptions = terms?.map((term) => ({
 		value: term.id.toString(),
-		label: term.name + (term.isActive ? ' (Current)' : ''),
+		label: term.code + (term.isActive ? ' (Current)' : ''),
 	}));
 
-	const currentTerm = terms?.find((term) => term.isActive);
-	const isCurrentTermSelected = currentTerm && selectedTerm === currentTerm.id;
+	const activeTerm = terms?.find((term) => term.isActive);
+	const isActiveTermSelected = activeTerm && selectedTerm === activeTerm.id;
 
 	return (
 		<>
 			<Tooltip label={label}>
 				<ActionIcon
-					variant={isLoading || isCurrentTermSelected ? variant : 'white'}
+					variant={isLoading || isActiveTermSelected ? variant : 'white'}
 					color={color}
 					onClick={open}
 					size={'input-sm'}

@@ -16,23 +16,21 @@ import {
 	Title,
 } from '@mantine/core';
 import { getRegistrationRequest } from '@registry/registration/requests';
+import { IconBooks, IconEdit } from '@tabler/icons-react';
+import Link from 'next/link';
+import { forbidden, notFound } from 'next/navigation';
+import { config } from '@/config';
+import { auth } from '@/core/auth';
+import { getStatusColor } from '@/shared/lib/utils/colors';
+import { getStatusIcon } from '@/shared/lib/utils/status';
+import { formatSemester } from '@/shared/lib/utils/utils';
 import {
 	ClearanceStatusView,
 	DepartmentMessagesView,
 	ModulesView,
 	ProofOfRegistrationDownload,
-} from '@student-portal/registration';
-import {
-	getRegistrationOverallClearanceStatus as getOverallClearanceStatus,
-	getStatusColor,
-	getStatusIcon,
-} from '@student-portal/utils';
-import { IconBooks, IconEdit } from '@tabler/icons-react';
-import Link from 'next/link';
-import { forbidden, notFound } from 'next/navigation';
-import { auth } from '@/core/auth';
-import { MAX_REGISTRATION_ATTEMPTS } from '@/modules/registry/shared/constants';
-import { formatSemester } from '@/shared/lib/utils/utils';
+} from '../_components';
+import { getRegistrationOverallClearanceStatus as getOverallClearanceStatus } from '../_lib/status';
 
 type Props = {
 	params: Promise<{
@@ -80,11 +78,12 @@ export default async function page({ params }: Props) {
 
 						<Flex justify={'space-between'} align={'center'}>
 							<Text c='dimmed' size='sm'>
-								{registration.term.name} •{' '}
+								{registration.term.code} •{' '}
 								{formatSemester(registration.semesterNumber)}
 							</Text>
 							{registration.status === 'pending' &&
-								registration.count <= MAX_REGISTRATION_ATTEMPTS && (
+								registration.count <=
+									config.registry.maxRegistrationAttempts && (
 									<Button
 										component={Link}
 										href={`/student-portal/registration/${registration.id}/edit`}
@@ -99,7 +98,7 @@ export default async function page({ params }: Props) {
 							{registration.status === 'registered' && (
 								<ProofOfRegistrationDownload
 									stdNo={registration.stdNo}
-									termName={registration.term.name}
+									termCode={registration.term.code}
 									semesterNumber={registration.semesterNumber}
 								/>
 							)}

@@ -1,5 +1,6 @@
 import { Box } from '@mantine/core';
-import { createVenue, Form } from '@timetable/venues';
+import Form from '../_components/Form';
+import { createVenue } from '../_server/actions';
 
 export default async function NewPage() {
 	return (

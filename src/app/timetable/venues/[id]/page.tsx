@@ -1,5 +1,4 @@
 import { Badge, Group, SimpleGrid } from '@mantine/core';
-import { deleteVenue, getVenueWithRelations } from '@timetable/venues';
 import { notFound } from 'next/navigation';
 import {
 	DetailsView,
@@ -7,6 +6,7 @@ import {
 	DetailsViewHeader,
 	FieldView,
 } from '@/shared/ui/adease';
+import { deleteVenue, getVenueWithRelations } from '../_server/actions';
 
 type Props = {
 	params: Promise<{ id: string }>;

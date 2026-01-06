@@ -1,5 +1,6 @@
 'use client';
 
+import type { ReceiptType } from '@finance/_database';
 import {
 	Alert,
 	Box,
@@ -19,12 +20,6 @@ import {
 	getGraduationRequestByStudentNo,
 } from '@registry/graduation/clearance';
 import {
-	InformationConfirmation,
-	PaymentReceiptsInput,
-	ProgramSelection,
-	ReviewAndSubmit,
-} from '@student-portal/graduation';
-import {
 	IconArrowLeft,
 	IconArrowRight,
 	IconInfoCircle,
@@ -32,11 +27,16 @@ import {
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import type { paymentType } from '@/modules/registry/database';
 import useUserStudent from '@/shared/lib/hooks/use-user-student';
+import {
+	InformationConfirmation,
+	PaymentReceiptsInput,
+	ProgramSelection,
+	ReviewAndSubmit,
+} from '../_components';
 
 type PaymentReceiptData = {
-	paymentType: (typeof paymentType.enumValues)[number];
+	receiptType: ReceiptType;
 	receiptNo: string;
 };
 
@@ -101,7 +101,7 @@ export default function GraduationPage() {
 			}
 
 			const payloadReceipts = receipts.map((r) => ({
-				paymentType: r.paymentType!,
+				receiptType: r.receiptType,
 				receiptNo: r.receiptNo,
 			}));
 
@@ -109,6 +109,7 @@ export default function GraduationPage() {
 				studentProgramId: selectedProgramId,
 				informationConfirmed: true,
 				paymentReceipts: payloadReceipts,
+				stdNo: student.stdNo,
 			});
 		},
 		onSuccess: () => {

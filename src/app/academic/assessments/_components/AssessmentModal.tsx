@@ -1,0 +1,240 @@
+'use client';
+
+import type { assessmentNumber } from '@academic/_database';
+import { assessments } from '@academic/_database';
+import { Button, Group, Modal, NumberInput, Select } from '@mantine/core';
+import { useForm } from '@mantine/form';
+import { notifications } from '@mantine/notifications';
+import { useQueryClient } from '@tanstack/react-query';
+import { createInsertSchema } from 'drizzle-zod';
+import { zod4Resolver as zodResolver } from 'mantine-form-zod-resolver';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { ASSESSMENT_TYPES, COURSE_WORK_OPTIONS } from '../_lib/utils';
+import { createAssessment, updateAssessment } from '../_server/actions';
+
+type AssessmentNumberType = (typeof assessmentNumber.enumValues)[number];
+type Assessment = typeof assessments.$inferSelect;
+
+const schema = createInsertSchema(assessments);
+
+interface Props {
+	moduleId: number;
+	assessment?: Assessment;
+	opened: boolean;
+	onClose: () => void;
+}
+
+export default function AssessmentModal({
+	moduleId,
+	assessment,
+	opened,
+	onClose,
+}: Props) {
+	const queryClient = useQueryClient();
+	const isEditing = !!assessment;
+	const [isSubmitting, setIsSubmitting] = useState(false);
+
+	const form = useForm({
+		initialValues: {
+			assessmentNumber:
+				assessment?.assessmentNumber || ('' as AssessmentNumberType),
+			assessmentType: assessment?.assessmentType || '',
+			totalMarks: assessment?.totalMarks || 100,
+			weight: assessment?.weight || 0,
+		},
+		validate: zodResolver(
+			schema.pick({
+				assessmentNumber: true,
+				assessmentType: true,
+				totalMarks: true,
+				weight: true,
+			})
+		),
+	});
+
+	const formResetRef = useRef(form.reset);
+	const formSetValuesRef = useRef(form.setValues);
+	const formSetFieldValueRef = useRef(form.setFieldValue);
+
+	useEffect(() => {
+		formResetRef.current = form.reset;
+		formSetValuesRef.current = form.setValues;
+		formSetFieldValueRef.current = form.setFieldValue;
+	}, [form.reset, form.setValues, form.setFieldValue]);
+
+	useEffect(() => {
+		if (!opened) return;
+
+		if (isEditing && assessment) {
+			formSetValuesRef.current({
+				assessmentNumber: assessment.assessmentNumber,
+				assessmentType: assessment.assessmentType,
+				totalMarks: assessment.totalMarks,
+				weight: assessment.weight,
+			});
+		} else if (!isEditing) {
+			formResetRef.current();
+
+			const assessmentsList = queryClient.getQueryData<Assessment[]>([
+				'assessments',
+				moduleId,
+			]);
+
+			if (assessmentsList && assessmentsList.length > 0) {
+				const assessmentNumbers = assessmentsList.map((a) => {
+					const match = a.assessmentNumber.match(/CW(\d+)/);
+					return match ? parseInt(match[1], 10) : 0;
+				});
+
+				const highestNumber = Math.max(...assessmentNumbers);
+
+				const nextNumber = highestNumber + 1;
+				if (nextNumber <= 15) {
+					formSetFieldValueRef.current(
+						'assessmentNumber',
+						`CW${nextNumber}` as AssessmentNumberType
+					);
+				}
+
+				const currentTotalWeight = assessmentsList.reduce(
+					(sum, a) => sum + a.weight,
+					0
+				);
+
+				const remainingWeight = Math.max(0, 100 - currentTotalWeight);
+				formSetFieldValueRef.current('weight', remainingWeight);
+			}
+		}
+	}, [opened, isEditing, moduleId, queryClient, assessment]);
+
+	const handleSubmit = useCallback(
+		async (values: typeof form.values) => {
+			setIsSubmitting(true);
+			try {
+				const assessmentsList = queryClient.getQueryData<Assessment[]>([
+					'assessments',
+					moduleId,
+				]);
+
+				if (assessmentsList) {
+					const currentTotalWeight = assessmentsList.reduce((sum, a) => {
+						if (isEditing && assessment && a.id === assessment.id) {
+							return sum;
+						}
+						return sum + a.weight;
+					}, 0);
+
+					const newTotalWeight = currentTotalWeight + values.weight;
+
+					if (newTotalWeight > 100) {
+						notifications.show({
+							title: 'Validation Error',
+							message: `Total assessment weight cannot exceed 100%. Current total: ${currentTotalWeight}%, Attempting to add: ${values.weight}%`,
+							color: 'red',
+						});
+						return;
+					}
+				}
+
+				if (isEditing && assessment) {
+					await updateAssessment(assessment.id, {
+						...values,
+						assessmentNumber: values.assessmentNumber as AssessmentNumberType,
+						moduleId,
+						termId: assessment.termId,
+					});
+					notifications.show({
+						title: 'Success',
+						message: 'Assessment updated successfully',
+						color: 'green',
+					});
+				} else {
+					await createAssessment({
+						...values,
+						assessmentNumber: values.assessmentNumber as AssessmentNumberType,
+						moduleId,
+						termId: 0,
+					});
+					notifications.show({
+						title: 'Success',
+						message: 'Assessment created successfully',
+						color: 'green',
+					});
+				}
+
+				queryClient.invalidateQueries({
+					queryKey: ['assessments', moduleId],
+				});
+
+				form.reset();
+				onClose();
+			} catch (error) {
+				notifications.show({
+					title: 'Error',
+					message: `An error occurred while saving the assessment: ${error}`,
+					color: 'red',
+				});
+			} finally {
+				setIsSubmitting(false);
+			}
+		},
+		[assessment, form, isEditing, moduleId, onClose, queryClient]
+	);
+
+	return (
+		<Modal
+			opened={opened}
+			onClose={onClose}
+			title={isEditing ? 'Edit Assessment' : 'Add Assessment'}
+			size='md'
+		>
+			<form onSubmit={form.onSubmit(handleSubmit)}>
+				<Select
+					label='Assessment Number'
+					placeholder='Select assessment number'
+					searchable
+					clearable
+					data={COURSE_WORK_OPTIONS}
+					required
+					mb='md'
+					{...form.getInputProps('assessmentNumber')}
+				/>
+				<Select
+					label='Assessment Type'
+					placeholder='Search or select an assessment type'
+					searchable
+					clearable
+					data={ASSESSMENT_TYPES}
+					{...form.getInputProps('assessmentType')}
+					required
+					mb='md'
+				/>
+				<NumberInput
+					label='Total Marks'
+					placeholder='Total marks for this assessment'
+					required
+					mb='md'
+					min={1}
+					{...form.getInputProps('totalMarks')}
+				/>
+				<NumberInput
+					label='Weight (%)'
+					placeholder='Weight of this assessment'
+					required
+					mb='md'
+					min={0}
+					max={100}
+					{...form.getInputProps('weight')}
+				/>
+				<Group justify='flex-end' mt='md'>
+					<Button variant='outline' onClick={onClose} disabled={isSubmitting}>
+						Cancel
+					</Button>
+					<Button type='submit' loading={isSubmitting}>
+						{isEditing ? 'Update' : 'Create'}
+					</Button>
+				</Group>
+			</form>
+		</Modal>
+	);
+}

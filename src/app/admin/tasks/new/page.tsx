@@ -1,10 +1,10 @@
-import { createTask, Form } from '@admin/tasks';
+import { createTask, TaskForm } from '@admin/tasks';
 import { Box } from '@mantine/core';
 
-export default async function NewPage() {
+export default function NewTaskPage() {
 	return (
-		<Box p={'lg'}>
-			<Form title={'Create Task'} onSubmit={createTask} />
+		<Box p='lg'>
+			<TaskForm title='Create Task' onSubmit={createTask} />
 		</Box>
 	);
 }

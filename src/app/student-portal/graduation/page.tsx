@@ -7,15 +7,15 @@ import {
 	Text,
 	Title,
 } from '@mantine/core';
+import { forbidden } from 'next/navigation';
+import { Suspense } from 'react';
+import { auth } from '@/core/auth';
 import {
 	GraduationHistory,
 	GraduationHistorySkeleton,
 	NewGraduationCard,
 	NewGraduationCardSkeleton,
-} from '@student-portal/graduation';
-import { forbidden } from 'next/navigation';
-import { Suspense } from 'react';
-import { auth } from '@/core/auth';
+} from './_components';
 
 export default async function GraduationPage() {
 	const session = await auth();

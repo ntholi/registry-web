@@ -1,7 +1,7 @@
 'use client';
 
 import { Text } from '@mantine/core';
-import { getCurrentTerm } from '@registry/terms';
+import { getActiveTerm } from '@registry/dates/terms';
 import { useQuery } from '@tanstack/react-query';
 
 export default function ActiveTermDisplay() {
@@ -12,7 +12,7 @@ export default function ActiveTermDisplay() {
 	} = useQuery({
 		queryKey: ['active-term'],
 		queryFn: async () => {
-			const term = await getCurrentTerm();
+			const term = await getActiveTerm();
 			return term || null;
 		},
 	});
@@ -42,7 +42,7 @@ export default function ActiveTermDisplay() {
 		<Text size='sm'>
 			Active Term:
 			<Text component='span' c='green'>
-				{` ${activeTerm.name}`}
+				{` ${activeTerm.code}`}
 			</Text>
 		</Text>
 	);

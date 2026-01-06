@@ -7,11 +7,11 @@ import {
 	Title,
 } from '@mantine/core';
 import { getGraduationRequest } from '@registry/graduation/clearance';
-import { PaymentReceiptsEditor } from '@student-portal/graduation';
 import { IconArrowLeft } from '@tabler/icons-react';
 import Link from 'next/link';
 import { forbidden, notFound } from 'next/navigation';
 import { auth } from '@/core/auth';
+import { PaymentReceiptsEditor } from '../../_components';
 
 type Props = {
 	params: Promise<{
@@ -36,6 +36,9 @@ export default async function EditGraduationPage({ params }: Props) {
 	if (graduationRequest.studentProgram.stdNo !== session.user.stdNo) {
 		return forbidden();
 	}
+
+	const paymentReceipts =
+		graduationRequest.graduationRequestReceipts?.map((r) => r.receipt) || [];
 
 	return (
 		<Container size='md' px='xs'>
@@ -62,7 +65,7 @@ export default async function EditGraduationPage({ params }: Props) {
 
 				<PaymentReceiptsEditor
 					graduationRequestId={graduationRequest.id}
-					paymentReceipts={graduationRequest.paymentReceipts || []}
+					paymentReceipts={paymentReceipts}
 				/>
 			</Stack>
 		</Container>

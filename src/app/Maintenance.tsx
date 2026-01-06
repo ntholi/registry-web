@@ -4,10 +4,11 @@ import { Center, Container, Divider, Stack, Text, Title } from '@mantine/core';
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
 
-const TARGET_DATE = '2025-10-15T04:30:30';
+const TARGET_DATE = '2025-12-30T04:30:30';
 
 function useCountdown(targetDate: string) {
 	const [timeLeft, setTimeLeft] = useState({
+		days: 0,
 		hours: 0,
 		minutes: 0,
 		seconds: 0,
@@ -19,12 +20,13 @@ function useCountdown(targetDate: string) {
 
 			if (difference > 0) {
 				setTimeLeft({
-					hours: Math.floor(difference / (1000 * 60 * 60)),
+					days: Math.floor(difference / (1000 * 60 * 60 * 24)),
+					hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
 					minutes: Math.floor((difference / 1000 / 60) % 60),
 					seconds: Math.floor((difference / 1000) % 60),
 				});
 			} else {
-				setTimeLeft({ hours: 0, minutes: 0, seconds: 0 });
+				setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 });
 			}
 		}
 
@@ -75,7 +77,8 @@ export default function Maintenance() {
 								opacity: 0.9,
 							}}
 						>
-							Back in {timeLeft.hours > 0 && `${timeLeft.hours}h `}
+							Back in: {timeLeft.days > 1 && `${timeLeft.days} day `}
+							{timeLeft.hours > 0 && `${timeLeft.hours}h `}
 							{timeLeft.minutes}m {timeLeft.seconds}s
 						</Title>
 

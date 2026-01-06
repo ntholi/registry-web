@@ -3,6 +3,7 @@
 import { ActionIcon, Tooltip } from '@mantine/core';
 import { IconFilter, IconFilterOff } from '@tabler/icons-react';
 import { useState } from 'react';
+import { getStatusColor } from '@/shared/lib/utils/colors';
 
 export interface ModuleViewToggleProps {
 	onToggle: (showAssignedOnly: boolean) => void;
@@ -29,7 +30,7 @@ export function ModuleViewToggle({
 		<Tooltip label={showAssignedOnly ? allModulesTooltip : assignedOnlyTooltip}>
 			<ActionIcon
 				variant={showAssignedOnly ? 'filled' : 'outline'}
-				color={showAssignedOnly ? 'blue' : 'gray'}
+				color={getStatusColor(showAssignedOnly ? 'assigned' : 'unassigned')}
 				onClick={handleToggle}
 				size='lg'
 			>

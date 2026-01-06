@@ -15,17 +15,12 @@ import {
 	Title,
 } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
+import type { StudentModuleStatus } from '@registry/_database';
 import {
-	createRegistrationWithModules,
+	createRegistration,
 	determineSemesterStatus,
 	getStudentSemesterModules,
 } from '@registry/registration/requests';
-import {
-	AccountConfirmation,
-	ModuleSelection,
-	SemesterConfirmation,
-	SponsorshipDetails,
-} from '@student-portal/registration';
 import {
 	IconArrowLeft,
 	IconArrowRight,
@@ -34,10 +29,15 @@ import {
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import type { StudentModuleStatus } from '@/modules/registry/database';
-import { MAX_REG_MODULES } from '@/modules/registry/shared/constants';
-import { useCurrentTerm } from '@/shared/lib/hooks/use-current-term';
+import { config } from '@/config';
+import { useActiveTerm } from '@/shared/lib/hooks/use-active-term';
 import useUserStudent from '@/shared/lib/hooks/use-user-student';
+import {
+	AccountConfirmation,
+	ModuleSelection,
+	SemesterConfirmation,
+	SponsorshipDetails,
+} from '../_components';
 
 type SelectedModule = {
 	moduleId: number;
@@ -80,7 +80,7 @@ export default function NewRegistrationPage() {
 	const [sponsorshipData, setSponsorshipData] =
 		useState<SponsorshipData | null>(null);
 	const [accountConfirmed, setAccountConfirmed] = useState(false);
-	const { currentTerm } = useCurrentTerm();
+	const { activeTerm } = useActiveTerm();
 
 	const { data: sponsors } = useQuery({
 		queryKey: ['sponsors'],
@@ -138,12 +138,12 @@ export default function NewRegistrationPage() {
 				!selectedModules ||
 				!semesterData ||
 				!sponsorshipData ||
-				!currentTerm
+				!activeTerm
 			) {
 				throw new Error('Missing required data for registration');
 			}
 
-			return createRegistrationWithModules({
+			return createRegistration({
 				stdNo: student.stdNo,
 				modules: selectedModules,
 				sponsorId: sponsorshipData.sponsorId,
@@ -152,7 +152,7 @@ export default function NewRegistrationPage() {
 				borrowerNo: sponsorshipData.borrowerNo,
 				bankName: sponsorshipData.bankName,
 				accountNumber: sponsorshipData.accountNumber,
-				termId: currentTerm.id,
+				termId: activeTerm.id,
 			});
 		},
 		onSuccess: () => {
@@ -210,7 +210,8 @@ export default function NewRegistrationPage() {
 	};
 
 	const canProceedStep1 =
-		selectedModules.length > 0 && selectedModules.length <= MAX_REG_MODULES;
+		selectedModules.length > 0 &&
+		selectedModules.length <= config.registry.maxRegModules;
 	const canProceedStep2 = semesterData !== null;
 	const canProceedStep3 = sponsorshipData !== null;
 	const canSubmit =
@@ -249,7 +250,7 @@ export default function NewRegistrationPage() {
 		);
 	}
 
-	if (!currentTerm) {
+	if (!activeTerm) {
 		return (
 			<Container size='lg' py='xl'>
 				<Alert
@@ -311,7 +312,7 @@ export default function NewRegistrationPage() {
 					<Title order={2} mb='xs'>
 						New Registration
 					</Title>
-					<Text c='dimmed'>Term: {currentTerm.name}</Text>
+					<Text c='dimmed'>Term: {activeTerm.code}</Text>
 				</div>
 
 				<Box>

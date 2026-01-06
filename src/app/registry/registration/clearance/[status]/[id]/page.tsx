@@ -1,11 +1,11 @@
 import { Tabs, TabsList, TabsPanel, TabsTab } from '@mantine/core';
+import { getActiveTerm } from '@registry/dates/terms';
 import { ClearanceDetails, ClearanceHistory } from '@registry/registration';
 import {
 	AcademicsLoader,
 	ClearanceHeader,
 } from '@registry/registration/clearance';
 import { getClearance } from '@registry/registration/requests';
-import { getCurrentTerm } from '@registry/terms';
 import { notFound } from 'next/navigation';
 import { auth } from '@/core/auth';
 import { DetailsView } from '@/shared/ui/adease';
@@ -18,7 +18,7 @@ export default async function ClearanceRequestDetails({ params }: Props) {
 	const { id } = await params;
 	const request = await getClearance(Number(id));
 	const session = await auth();
-	const term = await getCurrentTerm();
+	const term = await getActiveTerm();
 
 	if (!request) {
 		return notFound();
@@ -28,7 +28,7 @@ export default async function ClearanceRequestDetails({ params }: Props) {
 		<DetailsView>
 			<ClearanceHeader
 				studentName={request.registrationRequest.student.name}
-				termName={request.registrationRequest.term.name}
+				termCode={request.registrationRequest.term.code}
 				versionCount={request.registrationRequest.count}
 			/>
 			<Tabs defaultValue='details' variant='outline'>

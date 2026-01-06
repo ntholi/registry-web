@@ -1,7 +1,5 @@
 'use client';
 
-import { EditButton, HideButton, PrerequisiteDisplay } from '@academic/schools';
-import { getStructure } from '@academic/structures';
 import {
 	Box,
 	Breadcrumbs,
@@ -26,8 +24,13 @@ import { useQuery } from '@tanstack/react-query';
 import { useParams } from 'next/navigation';
 import type { Session } from 'next-auth';
 import { useSession } from 'next-auth/react';
+import { getOptionalColor } from '@/shared/lib/utils/colors';
 import { formatSemester } from '@/shared/lib/utils/utils';
 import Link from '@/shared/ui/Link';
+import EditButton from '../../_components/EditButton';
+import HideButton from '../../_components/HideButton';
+import PrerequisiteDisplay from '../../_components/PrerequisiteDisplay';
+import { getStructure } from '../_server/actions';
 
 export default function StructureDetailsPage() {
 	const params = useParams();
@@ -168,7 +171,7 @@ export default function StructureDetailsPage() {
 														<Link
 															size='sm'
 															href={`/academic/semester-modules/${semModule.id}`}
-															c={semModule.hidden ? 'dark' : undefined}
+															c={getOptionalColor(semModule.hidden)}
 														>
 															{semModule.module?.code}
 														</Link>
@@ -176,7 +179,7 @@ export default function StructureDetailsPage() {
 													<Table.Td>
 														<Text
 															size='sm'
-															c={semModule.hidden ? 'dark' : undefined}
+															c={getOptionalColor(semModule.hidden)}
 														>
 															{semModule.module?.name}
 														</Text>
@@ -184,7 +187,7 @@ export default function StructureDetailsPage() {
 													<Table.Td>
 														<Text
 															size='sm'
-															c={semModule.hidden ? 'dark' : undefined}
+															c={getOptionalColor(semModule.hidden)}
 														>
 															{semModule.type}
 														</Text>
@@ -192,7 +195,7 @@ export default function StructureDetailsPage() {
 													<Table.Td>
 														<Text
 															size='sm'
-															c={semModule.hidden ? 'dark' : undefined}
+															c={getOptionalColor(semModule.hidden)}
 														>
 															{semModule.credits}
 														</Text>

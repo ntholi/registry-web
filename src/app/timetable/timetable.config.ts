@@ -1,7 +1,7 @@
 import {
+	IconCalendar,
 	IconCalendarTime,
 	IconDoor,
-	IconEye,
 	IconLayoutGrid,
 	IconTags,
 } from '@tabler/icons-react';
@@ -23,7 +23,7 @@ export const timetableConfig: ModuleConfig = {
 				children: [
 					{
 						label: 'Timetables',
-						icon: IconEye,
+						icon: IconCalendar,
 						href: '/timetable/viewer',
 					},
 					{

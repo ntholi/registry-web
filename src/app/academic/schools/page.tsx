@@ -1,6 +1,6 @@
 'use client';
 
-import { getAllSchools } from '@academic/schools';
+import type { schools } from '@academic/_database';
 import {
 	Box,
 	Card,
@@ -17,7 +17,7 @@ import { IconChevronRight, IconSchool } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
 import { useState } from 'react';
-import type { schools } from '@/modules/academic/database';
+import { getAllSchools } from './_server/actions';
 
 type School = typeof schools.$inferSelect;
 

@@ -14,21 +14,21 @@ import {
 } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
 import { getCleanedSemesters } from '@registry/students';
+import { IconAlertCircle, IconLock } from '@tabler/icons-react';
+import { useQuery } from '@tanstack/react-query';
+import { useActiveTerm } from '@/shared/lib/hooks/use-active-term';
+import useUserStudent from '@/shared/lib/hooks/use-user-student';
+import { formatSemester } from '@/shared/lib/utils/utils';
 import {
 	DesktopTable,
 	LoadingSkeleton,
 	MobileTable,
 	TranscriptDownloadButton,
-} from '@student-portal/transcripts';
-import { IconAlertCircle, IconLock } from '@tabler/icons-react';
-import { useQuery } from '@tanstack/react-query';
-import { useCurrentTerm } from '@/shared/lib/hooks/use-current-term';
-import useUserStudent from '@/shared/lib/hooks/use-user-student';
-import { formatSemester } from '@/shared/lib/utils/utils';
+} from './_components';
 
 export default function TranscriptsPage() {
 	const { student, program, isLoading } = useUserStudent();
-	const { currentTerm } = useCurrentTerm();
+	const { activeTerm } = useActiveTerm();
 	const isMobile = useMediaQuery('(max-width: 768px)');
 
 	const { data: blockedStudent, isLoading: blockedLoading } = useQuery({
@@ -89,7 +89,7 @@ export default function TranscriptsPage() {
 	}
 
 	const semesters = getCleanedSemesters(program).filter(
-		(it: { term: string }) => it.term !== currentTerm?.name
+		(it: { termCode: string }) => it.termCode !== activeTerm?.code
 	);
 
 	return (
@@ -153,7 +153,7 @@ export default function TranscriptsPage() {
 									<Accordion.Control>
 										<Box>
 											<Text size='sm' fw={600}>
-												{semester.term}
+												{semester.termCode}
 											</Text>
 											<Text size='sm' c='dimmed'>
 												{semester.structureSemester?.semesterNumber

@@ -1,4 +1,4 @@
-import { Form, getTask, updateTask } from '@admin/tasks';
+import { getTask, TaskForm, updateTask } from '@admin/tasks';
 import { Box } from '@mantine/core';
 import { notFound } from 'next/navigation';
 
@@ -6,33 +6,22 @@ type Props = {
 	params: Promise<{ id: string }>;
 };
 
-export default async function TaskEdit({ params }: Props) {
+export default async function EditTaskPage({ params }: Props) {
 	const { id } = await params;
-	const task = await getTask(id);
+	const task = await getTask(Number(id));
+
 	if (!task) {
 		return notFound();
 	}
 
-	const taskData = {
-		title: task.title,
-		description: task.description,
-		status: task.status,
-		priority: task.priority,
-		assignedUserIds: task.assignedUsers?.map((u) => u.userId) || [],
-		scheduledFor: task.scheduledFor
-			? new Date(task.scheduledFor).toISOString()
-			: undefined,
-		dueDate: task.dueDate ? new Date(task.dueDate).toISOString() : undefined,
-	};
-
 	return (
-		<Box p={'lg'}>
-			<Form
-				title={'Edit Task'}
-				defaultValues={taskData}
-				onSubmit={async (value) => {
+		<Box p='lg'>
+			<TaskForm
+				title='Edit Task'
+				defaultValues={task}
+				onSubmit={async (values) => {
 					'use server';
-					return await updateTask(id, value);
+					return await updateTask(Number(id), values);
 				}}
 			/>
 		</Box>

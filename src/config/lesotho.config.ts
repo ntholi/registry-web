@@ -1,6 +1,10 @@
 import type { AppConfig } from './index';
 
 const config: AppConfig = {
+	registry: {
+		maxRegModules: 8,
+		maxRegistrationAttempts: 2,
+	},
 	timetable: {
 		timetableAllocations: {
 			maxSlotsPerDay: 3,

@@ -1,11 +1,6 @@
 'use client';
 
 import {
-	getDistinctGraduationDates,
-	getProgramsByGraduationDate,
-	getStudentsByGraduationDate,
-} from '@admin/bulk/transcripts';
-import {
 	Box,
 	Button,
 	Center,
@@ -21,11 +16,15 @@ import {
 	Text,
 } from '@mantine/core';
 import { Document, pdf } from '@react-pdf/renderer';
-import { TranscriptPages } from '@registry/students';
-import type { getAcademicHistory } from '@registry/students/server/actions';
+import { type getAcademicHistory, TranscriptPages } from '@registry/students';
 import { IconDownload } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
+import {
+	getDistinctGraduationDates,
+	getProgramsByGraduationDate,
+	getStudentsByGraduationDate,
+} from './_server/actions';
 
 type Student = NonNullable<Awaited<ReturnType<typeof getAcademicHistory>>>;
 

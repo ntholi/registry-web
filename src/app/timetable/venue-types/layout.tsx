@@ -1,8 +1,8 @@
 'use client';
 
-import { findAllVenueTypes } from '@timetable/venue-types';
 import type { PropsWithChildren } from 'react';
 import { ListItem, ListLayout, NewLink } from '@/shared/ui/adease';
+import { findAllVenueTypes } from './_server/actions';
 
 export default function Layout({ children }: PropsWithChildren) {
 	return (

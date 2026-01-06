@@ -1,12 +1,12 @@
+import * as academic from '@academic/_database';
+import * as admin from '@admin/_database';
+import * as auth from '@auth/_database';
+import * as finance from '@finance/_database';
+import * as registry from '@registry/_database';
+import * as timetable from '@timetable/_database';
 import { drizzle } from 'drizzle-orm/node-postgres';
 import { migrate } from 'drizzle-orm/node-postgres/migrator';
 import { Pool } from 'pg';
-import * as academic from '@/modules/academic/database';
-import * as admin from '@/modules/admin/database';
-import * as auth from '@/modules/auth/database';
-import * as finance from '@/modules/finance/database';
-import * as registry from '@/modules/registry/database';
-import * as timetable from '@/modules/timetable/database';
 
 const schema = {
 	...academic,
@@ -52,8 +52,6 @@ async function cleanupTestDatabase() {
 	try {
 		await testPool.query(`
 			TRUNCATE TABLE
-				task_assignments,
-				tasks,
 				fortinet_registrations,
 				documents,
 				student_card_prints,

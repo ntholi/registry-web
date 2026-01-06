@@ -3,6 +3,7 @@
 import { ActionIcon, Tooltip } from '@mantine/core';
 import { IconLock, IconLockOpen } from '@tabler/icons-react';
 import { useState } from 'react';
+import { getStatusColor } from '@/shared/lib/utils/colors';
 
 export interface StatusToggleProps {
 	onToggle: (status: 'blocked' | 'unblocked') => void;
@@ -29,7 +30,7 @@ export function StatusToggle({
 		<Tooltip label={status === 'blocked' ? unblockedTooltip : blockedTooltip}>
 			<ActionIcon
 				variant={status === 'blocked' ? 'filled' : 'outline'}
-				color={status === 'blocked' ? 'red' : 'green'}
+				color={getStatusColor(status)}
 				onClick={handleToggle}
 				size='lg'
 			>

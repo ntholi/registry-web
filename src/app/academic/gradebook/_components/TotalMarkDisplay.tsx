@@ -1,0 +1,164 @@
+'use client';
+
+import { updateGradeByStudentModuleId } from '@academic/semester-modules';
+import {
+	Alert,
+	Badge,
+	Box,
+	Button,
+	Group,
+	Modal,
+	Stack,
+	Text,
+} from '@mantine/core';
+import { useDisclosure } from '@mantine/hooks';
+import {
+	IconAlertTriangle,
+	IconChevronLeft,
+	IconChevronRight,
+	IconExclamationMark,
+} from '@tabler/icons-react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { getBooleanColor } from '@/shared/lib/utils/colors';
+import { getLetterGrade } from '@/shared/lib/utils/grades';
+
+type Props = {
+	weightedTotal: number;
+	hasPassed: boolean;
+	studentModuleId: number;
+	moduleId: number;
+};
+
+export default function TotalMarkDisplay({
+	weightedTotal,
+	hasPassed,
+	studentModuleId,
+	moduleId,
+}: Props) {
+	const [opened, { open, close }] = useDisclosure(false);
+	const queryClient = useQueryClient();
+	const isBorderlineMark = (score: number): boolean => {
+		const borderlineMarks = [44, 48, 49, 54, 59, 64, 69, 74, 79, 84, 89];
+		return borderlineMarks.includes(Math.round(score));
+	};
+
+	const getBorderlineOptions = (
+		score: number
+	): { lower: number; higher: number } => {
+		const floorScore = Math.round(score);
+
+		if (floorScore === 48 || floorScore === 49) {
+			return {
+				lower: 47,
+				higher: 50,
+			};
+		}
+
+		return {
+			lower: floorScore - 1,
+			higher: floorScore + 1,
+		};
+	};
+	const adjustGradeMutation = useMutation({
+		mutationFn: async (newScore: number) => {
+			const grade = getLetterGrade(newScore);
+			return await updateGradeByStudentModuleId(
+				studentModuleId,
+				grade,
+				newScore
+			);
+		},
+		onSuccess: () => {
+			queryClient.invalidateQueries({
+				queryKey: ['module-grades', moduleId],
+			});
+			close();
+		},
+	});
+
+	const handleAdjustGrade = (newScore: number) => {
+		adjustGradeMutation.mutate(newScore);
+	};
+
+	const isBorderline = isBorderlineMark(weightedTotal);
+	const borderlineOptions = isBorderline
+		? getBorderlineOptions(weightedTotal)
+		: null;
+
+	return (
+		<>
+			<Badge
+				variant='light'
+				pos='relative'
+				color={getBooleanColor(hasPassed, 'positive')}
+				radius={'sm'}
+				w={40}
+				style={{
+					cursor: isBorderline ? 'pointer' : 'default',
+					border: isBorderline
+						? `2px solid var(--mantine-color-orange-6)`
+						: undefined,
+					zIndex: 2,
+				}}
+				onClick={isBorderline ? open : undefined}
+			>
+				{isBorderline && (
+					<Box pos='absolute' right={-2} top={1} style={{ zIndex: 10 }}>
+						<IconExclamationMark size={14} />
+					</Box>
+				)}
+				{Math.round(weightedTotal)}
+			</Badge>
+
+			<Modal
+				opened={opened}
+				onClose={close}
+				title='Borderline Mark Adjustment'
+				centered
+			>
+				<Stack gap='md'>
+					<Alert
+						icon={<IconAlertTriangle size={20} />}
+						title='Borderline Mark'
+						color='orange'
+						variant='light'
+					>
+						The current mark of{' '}
+						<Text c='orange.7' span fw='bold'>
+							{Math.round(weightedTotal)}
+						</Text>{' '}
+						is considered borderline. You may adjust it to one of the adjacent
+						values.
+					</Alert>
+
+					{borderlineOptions && (
+						<Stack align='center' gap={0} mt='xs' pb='lg'>
+							<Group justify='center' gap={'xl'} my='md'>
+								<Button
+									variant='outline'
+									color='red.7'
+									size='sm'
+									leftSection={<IconChevronLeft size={16} />}
+									onClick={() => handleAdjustGrade(borderlineOptions.lower)}
+									disabled={adjustGradeMutation.isPending}
+								>
+									{borderlineOptions.lower}%
+								</Button>
+								<Button
+									variant='outline'
+									color='green.7'
+									size='sm'
+									rightSection={<IconChevronRight size={16} />}
+									onClick={() => handleAdjustGrade(borderlineOptions.higher)}
+									disabled={adjustGradeMutation.isPending}
+								>
+									{borderlineOptions.higher}%
+								</Button>
+							</Group>
+						</Stack>
+					)}
+				</Stack>
+			</Modal>
+		</>
+	);
+}

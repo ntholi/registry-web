@@ -1,18 +1,18 @@
+import { countUncompletedTasks } from '@admin/tasks';
 import {
+	IconBell,
 	IconBook,
 	IconBooks,
 	IconBuildingBank,
 	IconCalculator,
-	IconCalendarMonth,
 	IconChartBar,
+	IconChecklist,
 	IconFileExport,
 	IconFlask,
 	IconPackage,
 	IconSchool,
 	IconSettings,
-	IconSubtask,
 	IconUserShield,
-	IconUsersPlus,
 } from '@tabler/icons-react';
 import type {
 	ModuleConfig,
@@ -29,15 +29,26 @@ export const adminConfig: ModuleConfig = {
 	navigation: {
 		dashboard: [
 			{
+				label: 'Tasks',
+				href: '/admin/tasks',
+				icon: IconChecklist,
+				roles: ['admin', 'registry', 'finance'],
+				notificationCount: {
+					queryKey: ['tasks', 'uncompleted'],
+					queryFn: () => countUncompletedTasks(),
+					color: 'red',
+				},
+			},
+			{
 				label: 'Users',
 				href: '/admin/users',
 				icon: IconUserShield,
 				roles: ['admin'],
 			},
 			{
-				label: 'Tasks',
-				href: '/admin/tasks',
-				icon: IconSubtask,
+				label: 'Notifications',
+				href: '/admin/notifications',
+				icon: IconBell,
 				roles: ['admin'],
 			},
 			{
@@ -52,23 +63,12 @@ export const adminConfig: ModuleConfig = {
 				icon: IconBooks,
 				roles: ['admin'],
 			},
-			{
-				label: 'Terms',
-				href: '/registry/terms',
-				icon: IconCalendarMonth,
-				roles: ['admin'],
-			},
+
 			{
 				label: 'Sponsors',
 				href: '/finance/sponsors',
 				icon: IconBuildingBank,
 				roles: ['admin', 'finance'],
-			},
-			{
-				label: 'Sponsored Students',
-				href: '/finance/sponsored-students',
-				icon: IconUsersPlus,
-				roles: ['admin', 'finance', 'registry'],
 			},
 			{
 				label: 'Schools',
