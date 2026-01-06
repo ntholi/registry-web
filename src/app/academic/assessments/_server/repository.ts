@@ -1,12 +1,15 @@
-import { and, eq } from 'drizzle-orm';
+import { and, eq, inArray } from 'drizzle-orm';
 import { auth } from '@/core/auth';
 import {
+	assessmentMarks,
 	assessments,
 	assessmentsAudit,
 	db,
 	lmsAssessments,
+	studentModules,
 } from '@/core/database';
 import BaseRepository from '@/core/platform/BaseRepository';
+import { calculateModuleGrade } from '@/shared/lib/utils/gradeCalculations';
 
 export default class AssessmentRepository extends BaseRepository<
 	typeof assessments,
@@ -199,6 +202,140 @@ export default class AssessmentRepository extends BaseRepository<
 			},
 			orderBy: (audit, { desc }) => [desc(audit.date)],
 		});
+	}
+
+	async getStudentModulesByAssessmentId(
+		assessmentId: number
+	): Promise<number[]> {
+		const marks = await db
+			.selectDistinct({ studentModuleId: assessmentMarks.studentModuleId })
+			.from(assessmentMarks)
+			.where(eq(assessmentMarks.assessmentId, assessmentId));
+
+		return marks.map((m) => m.studentModuleId);
+	}
+
+	async updateWithGradeRecalculation(
+		id: number,
+		data: Partial<typeof assessments.$inferInsert>,
+		lmsData?: Partial<Omit<typeof lmsAssessments.$inferInsert, 'assessmentId'>>
+	) {
+		const session = await auth();
+
+		const updated = await db.transaction(async (tx) => {
+			if (!session?.user?.id) throw new Error('Unauthorized');
+
+			const current = await tx
+				.select()
+				.from(assessments)
+				.where(eq(assessments.id, id))
+				.limit(1)
+				.then(([result]) => result);
+
+			if (!current) throw new Error('Assessment not found');
+
+			const [assessment] = await tx
+				.update(assessments)
+				.set(data)
+				.where(eq(assessments.id, id))
+				.returning();
+
+			const hasChanges =
+				(data.assessmentNumber !== undefined &&
+					data.assessmentNumber !== current.assessmentNumber) ||
+				(data.assessmentType !== undefined &&
+					data.assessmentType !== current.assessmentType) ||
+				(data.totalMarks !== undefined &&
+					data.totalMarks !== current.totalMarks) ||
+				(data.weight !== undefined && data.weight !== current.weight);
+
+			if (hasChanges) {
+				await tx.insert(assessmentsAudit).values({
+					assessmentId: id,
+					action: 'update',
+					previousAssessmentNumber: current.assessmentNumber,
+					newAssessmentNumber: assessment.assessmentNumber,
+					previousAssessmentType: current.assessmentType,
+					newAssessmentType: assessment.assessmentType,
+					previousTotalMarks: current.totalMarks,
+					newTotalMarks: assessment.totalMarks,
+					previousWeight: current.weight,
+					newWeight: assessment.weight,
+					createdBy: session.user.id,
+				});
+			}
+
+			if (lmsData) {
+				await tx
+					.update(lmsAssessments)
+					.set(lmsData)
+					.where(eq(lmsAssessments.assessmentId, id));
+			}
+
+			const needsGradeRecalculation =
+				(data.totalMarks !== undefined &&
+					data.totalMarks !== current.totalMarks) ||
+				(data.weight !== undefined && data.weight !== current.weight);
+
+			if (needsGradeRecalculation) {
+				const affectedMarks = await tx
+					.selectDistinct({ studentModuleId: assessmentMarks.studentModuleId })
+					.from(assessmentMarks)
+					.where(eq(assessmentMarks.assessmentId, id));
+
+				if (affectedMarks.length > 0) {
+					const studentModuleIds = affectedMarks.map((m) => m.studentModuleId);
+
+					const moduleAssessments = await tx.query.assessments.findMany({
+						where: and(
+							eq(assessments.moduleId, assessment.moduleId),
+							eq(assessments.termId, assessment.termId)
+						),
+					});
+
+					const allMarks = await tx.query.assessmentMarks.findMany({
+						where: inArray(assessmentMarks.studentModuleId, studentModuleIds),
+					});
+
+					const marksByStudent = new Map<number, typeof allMarks>();
+					for (const mark of allMarks) {
+						const existing = marksByStudent.get(mark.studentModuleId) || [];
+						existing.push(mark);
+						marksByStudent.set(mark.studentModuleId, existing);
+					}
+
+					for (const studentModuleId of studentModuleIds) {
+						const studentMarks = marksByStudent.get(studentModuleId) || [];
+
+						const gradeCalculation = calculateModuleGrade(
+							moduleAssessments.map((a) => ({
+								id: a.id,
+								weight: a.weight,
+								totalMarks: a.totalMarks,
+							})),
+							studentMarks.map((m) => ({
+								assessment_id: m.assessmentId,
+								marks: m.marks,
+							}))
+						);
+
+						if (gradeCalculation.hasMarks) {
+							await tx
+								.update(studentModules)
+								.set({
+									grade: gradeCalculation.grade,
+									marks: gradeCalculation.weightedTotal.toString(),
+								})
+								.where(eq(studentModules.id, studentModuleId));
+						}
+					}
+				}
+			}
+
+			return assessment;
+		});
+
+		return updated;
 	}
 }
 

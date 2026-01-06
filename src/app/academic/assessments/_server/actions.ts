@@ -32,7 +32,7 @@ export async function updateAssessment(
 	assessment: Assessment,
 	lmsData?: Partial<Omit<typeof lmsAssessments.$inferInsert, 'assessmentId'>>
 ) {
-	return service.update(id, assessment, lmsData);
+	return service.updateWithGradeRecalculation(id, assessment, lmsData);
 }
 
 export async function deleteAssessment(id: number) {

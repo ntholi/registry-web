@@ -64,6 +64,32 @@ class AssessmentService extends BaseService<typeof assessments, 'id'> {
 			['academic']
 		);
 	}
+
+	async getStudentModulesByAssessmentId(assessmentId: number) {
+		return withAuth(
+			async () =>
+				(
+					this.repository as AssessmentRepository
+				).getStudentModulesByAssessmentId(assessmentId),
+			['academic']
+		);
+	}
+
+	async updateWithGradeRecalculation(
+		id: number,
+		data: Partial<typeof assessments.$inferInsert>,
+		lmsData?: Partial<Omit<typeof lmsAssessments.$inferInsert, 'assessmentId'>>
+	) {
+		return withAuth(
+			async () =>
+				(this.repository as AssessmentRepository).updateWithGradeRecalculation(
+					id,
+					data,
+					lmsData
+				),
+			['academic']
+		);
+	}
 }
 
 export const assessmentsService = serviceWrapper(
