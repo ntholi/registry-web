@@ -9,6 +9,7 @@ import {
 	Card,
 	Group,
 	Modal,
+	ScrollArea,
 	Skeleton,
 	Stack,
 	Table,
@@ -20,7 +21,7 @@ import {
 import { useDisclosure } from '@mantine/hooks';
 import {
 	IconHistory,
-	IconInfoCircle,
+	IconInfoSquare,
 	IconListDetails,
 } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
@@ -72,7 +73,7 @@ export default function AssessmentMarksModal({
 			) : (
 				<Tooltip label='Assessment Details'>
 					<ActionIcon variant='subtle' color='gray' onClick={open}>
-						<IconInfoCircle size={16} />
+						<IconInfoSquare size={16} />
 					</ActionIcon>
 				</Tooltip>
 			)}
@@ -109,7 +110,9 @@ export default function AssessmentMarksModal({
 					</Tabs.Panel>
 
 					<Tabs.Panel value='audit'>
-						<AuditTabContent data={auditData} isLoading={isAuditLoading} />
+						<ScrollArea.Autosize mah={400} offsetScrollbars>
+							<AuditTabContent data={auditData} isLoading={isAuditLoading} />
+						</ScrollArea.Autosize>
 					</Tabs.Panel>
 				</Tabs>
 			</Modal>
