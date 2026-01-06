@@ -5,6 +5,7 @@ export const programLevelEnum = pgEnum('program_level', [
 	'diploma',
 	'degree',
 ]);
+export type ProgramLevel = (typeof programLevelEnum.enumValues)[number];
 
 export const moduleStatusEnum = pgEnum('module_status', ['Active', 'Defunct']);
 

@@ -1,5 +1,9 @@
 'use client';
 import {
+	type ProgramLevel,
+	programLevelEnum,
+} from '@academic/_database/schema/enums';
+import {
 	getActiveSchools,
 	getProgramsBySchoolIds,
 } from '@academic/schools/_server/actions';
@@ -53,6 +57,7 @@ export interface ReportFilter {
 	termIds?: number[];
 	schoolIds?: number[];
 	programId?: number;
+	programLevels?: ProgramLevel[];
 	semesterNumber?: string;
 	gender?: string;
 	sponsorId?: number;
@@ -75,6 +80,7 @@ export default function EnrollmentFilter({ onFilterChange }: Props) {
 			termId: parseAsInteger,
 			schoolIds: parseAsArrayOf(parseAsInteger),
 			programId: parseAsInteger,
+			programLevels: parseAsArrayOf(parseAsString),
 			semesterNumber: parseAsString,
 			gender: parseAsString,
 			sponsorId: parseAsInteger,
@@ -99,6 +105,10 @@ export default function EnrollmentFilter({ onFilterChange }: Props) {
 					? localFilter.schoolIds
 					: undefined,
 			programId: localFilter.programId ?? undefined,
+			programLevels:
+				localFilter.programLevels && localFilter.programLevels.length > 0
+					? (localFilter.programLevels as ProgramLevel[])
+					: undefined,
 			semesterNumber: localFilter.semesterNumber ?? undefined,
 			gender: localFilter.gender ?? undefined,
 			sponsorId: localFilter.sponsorId ?? undefined,
@@ -126,6 +136,7 @@ export default function EnrollmentFilter({ onFilterChange }: Props) {
 			localFilter.studentStatus,
 			localFilter.programStatus,
 			localFilter.semesterStatus,
+			localFilter.programLevels && localFilter.programLevels.length > 0,
 		].filter(Boolean).length || 0;
 
 	const { data: terms = [], isLoading: termsLoading } = useQuery({
@@ -190,8 +201,18 @@ export default function EnrollmentFilter({ onFilterChange }: Props) {
 			return;
 		}
 
-		const updates: Record<string, number | string | null> = {
-			[field]: value as number | string | null,
+		if (field === 'programLevels') {
+			setLocalFilter({
+				programLevels: Array.isArray(value) ? (value as string[]) : null,
+			});
+			return;
+		}
+
+		const updates: Record<
+			string,
+			string | number | string[] | number[] | null
+		> = {
+			[field]: value as string | number | string[] | number[] | null,
 		};
 
 		if (field === 'programId') {
@@ -200,7 +221,7 @@ export default function EnrollmentFilter({ onFilterChange }: Props) {
 			updates.semesterStatus = null;
 		}
 
-		setLocalFilter(updates);
+		setLocalFilter(updates as Partial<typeof localFilter>);
 	}
 
 	return (
@@ -339,6 +360,18 @@ export default function EnrollmentFilter({ onFilterChange }: Props) {
 				size='lg'
 			>
 				<Stack gap='md'>
+					<MultiSelect
+						label='Program Level'
+						placeholder='All levels'
+						data={programLevelEnum.enumValues.map((level) => ({
+							value: level,
+							label: level.charAt(0).toUpperCase() + level.slice(1),
+						}))}
+						value={localFilter.programLevels ?? []}
+						onChange={(value) => handleChange('programLevels', value)}
+						clearable
+					/>
+
 					<Select
 						label='Gender'
 						placeholder='All genders'

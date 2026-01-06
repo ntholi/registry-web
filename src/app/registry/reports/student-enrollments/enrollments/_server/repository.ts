@@ -1,3 +1,4 @@
+import type { ProgramLevel } from '@academic/_database/schema/enums';
 import { and, desc, eq, ilike, inArray, or, type SQL, sql } from 'drizzle-orm';
 import {
 	db,
@@ -16,6 +17,7 @@ export interface RegistrationReportFilter {
 	termIds?: number[];
 	schoolIds?: number[];
 	programId?: number;
+	programLevels?: ProgramLevel[];
 	semesterNumber?: string;
 	searchQuery?: string;
 	gender?: string;
@@ -241,6 +243,10 @@ export class RegistrationReportRepository {
 
 		if (filter?.schoolIds && filter.schoolIds.length > 0) {
 			conditions.push(inArray(schools.id, filter.schoolIds));
+		}
+
+		if (filter?.programLevels && filter.programLevels.length > 0) {
+			conditions.push(inArray(programs.level, filter.programLevels));
 		}
 
 		if (filter?.programId) {

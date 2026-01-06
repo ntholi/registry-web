@@ -1,4 +1,5 @@
 'use client';
+import type { ProgramLevel } from '@academic/_database/schema/enums';
 import {
 	Alert,
 	Box,
@@ -47,6 +48,7 @@ export default function RegistrationReportPage() {
 		termId: parseAsInteger,
 		schoolIds: parseAsArrayOf(parseAsInteger),
 		programId: parseAsInteger,
+		programLevels: parseAsArrayOf(parseAsString),
 		semesterNumber: parseAsString,
 		gender: parseAsString,
 		sponsorId: parseAsInteger,
@@ -73,6 +75,10 @@ export default function RegistrationReportPage() {
 					? urlParams.schoolIds
 					: undefined,
 			programId: urlParams.programId ?? undefined,
+			programLevels:
+				urlParams.programLevels && urlParams.programLevels.length > 0
+					? (urlParams.programLevels as ProgramLevel[])
+					: undefined,
 			semesterNumber: urlParams.semesterNumber ?? undefined,
 			gender: urlParams.gender ?? undefined,
 			sponsorId: urlParams.sponsorId ?? undefined,
