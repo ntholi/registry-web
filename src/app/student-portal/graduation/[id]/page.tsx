@@ -58,6 +58,13 @@ export default async function GraduationDetailsPage({ params }: Props) {
 		graduationRequest.graduationClearances
 	);
 
+	const paymentReceipts =
+		graduationRequest.graduationRequestReceipts?.map((r) => r.receipt) || [];
+	const graduationRequestWithReceipts = {
+		...graduationRequest,
+		paymentReceipts,
+	};
+
 	return (
 		<Container size='md' px='xs'>
 			<Stack gap='xl'>
@@ -123,8 +130,7 @@ export default async function GraduationDetailsPage({ params }: Props) {
 							Clearance Status
 						</TabsTab>
 						<TabsTab value='payments' leftSection={<IconReceipt size='1rem' />}>
-							Payment Receipts ({graduationRequest.paymentReceipts?.length || 0}
-							)
+							Payment Receipts ({paymentReceipts.length})
 						</TabsTab>
 					</TabsList>
 
@@ -136,7 +142,9 @@ export default async function GraduationDetailsPage({ params }: Props) {
 
 					<TabsPanel value='payments'>
 						<Box mt='md'>
-							<PaymentReceiptsView graduationRequest={graduationRequest} />
+							<PaymentReceiptsView
+								graduationRequest={graduationRequestWithReceipts}
+							/>
 						</Box>
 					</TabsPanel>
 				</Tabs>

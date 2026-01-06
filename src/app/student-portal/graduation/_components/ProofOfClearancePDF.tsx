@@ -11,16 +11,16 @@ import type { getGraduationClearanceData } from '@registry/graduation/clearance'
 import { formatDate, toTitleCase } from '@/shared/lib/utils/utils';
 
 Font.register({
-	family: 'Arial',
+	family: 'Tahoma',
 	fonts: [
-		{ src: '/fonts/ARIAL.TTF' },
-		{ src: '/fonts/ARIALBD.TTF', fontWeight: 'bold' },
+		{ src: '/fonts/TAHOMA_NORMAL.TTF' },
+		{ src: '/fonts/TAHOMA_BOLD.TTF', fontWeight: 'bold' },
 	],
 });
 
 const styles = StyleSheet.create({
 	page: {
-		fontFamily: 'Arial',
+		fontFamily: 'Tahoma',
 		fontSize: 10,
 		paddingTop: 30,
 		paddingBottom: 30,
@@ -235,8 +235,9 @@ export default function ProofOfClearancePDF({
 	const {
 		studentProgram,
 		graduationClearances: _graduationClearances,
-		paymentReceipts = [],
+		graduationRequestReceipts = [],
 	} = graduationData;
+	const paymentReceipts = graduationRequestReceipts.map((r) => r.receipt);
 	const student = studentProgram.student;
 	const program = studentProgram.structure.program;
 	const school = program.school;
@@ -362,7 +363,7 @@ export default function ProofOfClearancePDF({
 											]}
 										>
 											<Text style={styles.paymentTypeText}>
-												{toTitleCase(receipt.paymentType.replace(/_/g, ' '))}
+												{toTitleCase(receipt.receiptType.replace(/_/g, ' '))}
 											</Text>
 										</View>
 										<View

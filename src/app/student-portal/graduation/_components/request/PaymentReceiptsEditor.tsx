@@ -1,7 +1,7 @@
 'use client';
 
-import type { PaymentType } from '@finance/_database';
-import { paymentType } from '@finance/_database';
+import type { ReceiptType } from '@finance/_database';
+import { receiptType } from '@finance/_database';
 import {
 	addPaymentReceipt,
 	removePaymentReceipt,
@@ -34,14 +34,14 @@ import {
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 type PaymentReceipt = {
-	id: number;
-	paymentType: PaymentType;
+	id: string;
+	receiptType: ReceiptType;
 	receiptNo: string;
 	createdAt: Date | null;
 };
 
 type PaymentReceiptData = {
-	paymentType: PaymentType;
+	receiptType: ReceiptType;
 	receiptNo: string;
 };
 
@@ -60,11 +60,11 @@ export default function PaymentReceiptsEditor({
 	const form = useForm({
 		mode: 'uncontrolled',
 		initialValues: {
-			paymentType: '',
+			receiptType: '',
 			receiptNo: '',
 		},
 		validate: {
-			paymentType: (value) => (value ? null : 'Payment type is required'),
+			receiptType: (value) => (value ? null : 'Receipt type is required'),
 			receiptNo: (value) => {
 				if (!value?.trim()) {
 					return 'Receipt number is required';
@@ -78,15 +78,15 @@ export default function PaymentReceiptsEditor({
 		},
 	});
 
-	const paymentTypeOptions = paymentType.enumValues.map(
-		(type: (typeof paymentType.enumValues)[number]) => ({
+	const receiptTypeOptions = receiptType.enumValues
+		.filter((type) => type === 'graduation_gown' || type === 'graduation_fee')
+		.map((type: (typeof receiptType.enumValues)[number]) => ({
 			value: type,
 			label: type
 				.split('_')
 				.map((word: string) => word.charAt(0).toUpperCase() + word.slice(1))
 				.join(' '),
-		})
-	);
+		}));
 
 	const { mutate: addReceipt, isPending: isAdding } = useMutation({
 		mutationFn: async (receiptData: PaymentReceiptData) => {
@@ -113,7 +113,7 @@ export default function PaymentReceiptsEditor({
 	});
 
 	const { mutate: deleteReceipt, isPending: isDeleting } = useMutation({
-		mutationFn: async (receiptId: number) => {
+		mutationFn: async (receiptId: string) => {
 			return removePaymentReceipt(receiptId);
 		},
 		onSuccess: () => {
@@ -137,25 +137,25 @@ export default function PaymentReceiptsEditor({
 
 	const handleAddReceipt = (values: typeof form.values) => {
 		const existingReceipt = paymentReceipts.find(
-			(receipt) => receipt.paymentType === values.paymentType
+			(receipt) => receipt.receiptType === values.receiptType
 		);
 
 		if (existingReceipt) {
 			form.setFieldError(
-				'paymentType',
-				'A receipt for this payment type already exists'
+				'receiptType',
+				'A receipt for this type already exists'
 			);
 			return;
 		}
 
 		addReceipt({
-			paymentType:
-				values.paymentType as (typeof paymentType.enumValues)[number],
+			receiptType:
+				values.receiptType as (typeof receiptType.enumValues)[number],
 			receiptNo: values.receiptNo,
 		});
 	};
 
-	const handleDeleteReceipt = (receiptId: number) => {
+	const handleDeleteReceipt = (receiptId: string) => {
 		deleteReceipt(receiptId);
 	};
 
@@ -191,12 +191,12 @@ export default function PaymentReceiptsEditor({
 				<form onSubmit={form.onSubmit(handleAddReceipt)}>
 					<SimpleGrid cols={isMobile ? 1 : 2} spacing='md'>
 						<Select
-							label='Payment Type'
-							placeholder='Select payment type'
-							data={paymentTypeOptions}
+							label='Receipt Type'
+							placeholder='Select receipt type'
+							data={receiptTypeOptions}
 							required
 							leftSection={<IconCurrencyDollar size='1rem' />}
-							{...form.getInputProps('paymentType')}
+							{...form.getInputProps('receiptType')}
 						/>
 
 						<TextInput
@@ -255,11 +255,11 @@ export default function PaymentReceiptsEditor({
 									<Box style={{ flex: 1 }}>
 										<Group mb='xs'>
 											<Badge
-												color={getPaymentTypeColor(receipt.paymentType)}
+												color={getPaymentTypeColor(receipt.receiptType)}
 												variant='light'
 												leftSection={<IconReceipt size='0.8rem' />}
 											>
-												{getPaymentTypeLabel(receipt.paymentType)}
+												{getPaymentTypeLabel(receipt.receiptType)}
 											</Badge>
 										</Group>
 

@@ -1,10 +1,10 @@
 'use server';
 
-import type { paymentType } from '@/core/database';
+import type { receiptType } from '@/core/database';
 import { paymentReceiptService as service } from './service';
 
 type PaymentReceiptData = {
-	paymentType: (typeof paymentType.enumValues)[number];
+	receiptType: (typeof receiptType.enumValues)[number];
 	receiptNo: string;
 };
 
@@ -15,6 +15,6 @@ export async function addPaymentReceipt(
 	return service.addPaymentReceipt(graduationRequestId, receipt);
 }
 
-export async function removePaymentReceipt(receiptId: number) {
+export async function removePaymentReceipt(receiptId: string) {
 	return service.removePaymentReceipt(receiptId);
 }

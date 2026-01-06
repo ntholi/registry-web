@@ -4,9 +4,10 @@ import {
 	clearance,
 	db,
 	graduationClearance,
+	graduationRequestReceipts,
 	graduationRequests,
-	type PaymentType,
 	paymentReceipts,
+	type ReceiptType,
 	studentPrograms,
 } from '@/core/database';
 import BaseRepository, {
@@ -86,7 +87,11 @@ export default class GraduationRequestRepository extends BaseRepository<
 						},
 					},
 				},
-				paymentReceipts: true,
+				graduationRequestReceipts: {
+					with: {
+						receipt: true,
+					},
+				},
 				graduationClearances: {
 					with: {
 						clearance: {
@@ -114,7 +119,11 @@ export default class GraduationRequestRepository extends BaseRepository<
 						},
 					},
 				},
-				paymentReceipts: true,
+				graduationRequestReceipts: {
+					with: {
+						receipt: true,
+					},
+				},
 				graduationClearances: {
 					with: {
 						clearance: {
@@ -146,7 +155,11 @@ export default class GraduationRequestRepository extends BaseRepository<
 						},
 					},
 				},
-				paymentReceipts: true,
+				graduationRequestReceipts: {
+					with: {
+						receipt: true,
+					},
+				},
 				graduationClearances: {
 					with: {
 						clearance: {
@@ -234,12 +247,13 @@ export default class GraduationRequestRepository extends BaseRepository<
 	async createWithPaymentReceipts(data: {
 		graduationRequestData: typeof graduationRequests.$inferInsert;
 		paymentReceipts: Array<{
-			paymentType: PaymentType;
+			receiptType: ReceiptType;
 			receiptNo: string;
 		}>;
+		stdNo: number;
 	}) {
 		return db.transaction(async (tx) => {
-			const { graduationRequestData, paymentReceipts: receipts } = data;
+			const { graduationRequestData, paymentReceipts: receipts, stdNo } = data;
 
 			const [graduationRequest] = await tx
 				.insert(graduationRequests)
@@ -285,13 +299,20 @@ export default class GraduationRequestRepository extends BaseRepository<
 				});
 			}
 
-			if (receipts.length > 0) {
-				const receiptValues = receipts.map((receipt) => ({
-					...receipt,
-					graduationRequestId: graduationRequest.id,
-				}));
+			for (const receipt of receipts) {
+				const [newReceipt] = await tx
+					.insert(paymentReceipts)
+					.values({
+						receiptNo: receipt.receiptNo,
+						receiptType: receipt.receiptType,
+						stdNo: stdNo,
+					})
+					.returning();
 
-				await tx.insert(paymentReceipts).values(receiptValues);
+				await tx.insert(graduationRequestReceipts).values({
+					graduationRequestId: graduationRequest.id,
+					receiptId: newReceipt.id,
+				});
 			}
 
 			return graduationRequest;
@@ -390,7 +411,11 @@ export default class GraduationRequestRepository extends BaseRepository<
 						},
 					},
 				},
-				paymentReceipts: true,
+				graduationRequestReceipts: {
+					with: {
+						receipt: true,
+					},
+				},
 				graduationClearances: {
 					with: {
 						clearance: true,

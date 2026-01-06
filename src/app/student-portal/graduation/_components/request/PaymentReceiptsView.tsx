@@ -99,18 +99,18 @@ export default function PaymentReceiptsView({ graduationRequest }: Props) {
 						<Group justify='space-between' mb='xs'>
 							<Group>
 								<ThemeIcon
-									color={getPaymentTypeColor(receipt.paymentType)}
+									color={getPaymentTypeColor(receipt.receiptType)}
 									variant='light'
 									size='sm'
 								>
 									<IconReceipt size='1rem' />
 								</ThemeIcon>
 								<Text fw={500} size='sm'>
-									{getPaymentTypeLabel(receipt.paymentType)}
+									{getPaymentTypeLabel(receipt.receiptType)}
 								</Text>
 							</Group>
 							<Badge
-								color={getPaymentTypeColor(receipt.paymentType)}
+								color={getPaymentTypeColor(receipt.receiptType)}
 								variant='light'
 								size='sm'
 							>

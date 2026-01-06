@@ -1,6 +1,6 @@
 'use client';
 
-import type { PaymentType } from '@finance/_database';
+import type { ReceiptType } from '@finance/_database';
 import {
 	Alert,
 	Box,
@@ -36,7 +36,7 @@ import {
 } from '../_components';
 
 type PaymentReceiptData = {
-	paymentType: PaymentType;
+	receiptType: ReceiptType;
 	receiptNo: string;
 };
 
@@ -101,7 +101,7 @@ export default function GraduationPage() {
 			}
 
 			const payloadReceipts = receipts.map((r) => ({
-				paymentType: r.paymentType!,
+				receiptType: r.receiptType,
 				receiptNo: r.receiptNo,
 			}));
 
@@ -109,6 +109,7 @@ export default function GraduationPage() {
 				studentProgramId: selectedProgramId,
 				informationConfirmed: true,
 				paymentReceipts: payloadReceipts,
+				stdNo: student.stdNo,
 			});
 		},
 		onSuccess: () => {

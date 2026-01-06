@@ -5,19 +5,19 @@ import { createTw } from 'react-pdf-tailwind';
 import type { CourseTopic } from '../types';
 
 Font.register({
-	family: 'Arial',
+	family: 'Tahoma',
 	fonts: [
-		{ src: '/fonts/ARIAL.TTF' },
-		{ src: '/fonts/ARIALBD.TTF', fontWeight: 'bold' },
-		{ src: '/fonts/ARIALI.TTF', fontStyle: 'italic' },
-		{ src: '/fonts/ARIALBI.TTF', fontWeight: 'bold', fontStyle: 'italic' },
+		{ src: '/fonts/TAHOMA_NORMAL.TTF' },
+		{ src: '/fonts/TAHOMA_BOLD.TTF', fontWeight: 'bold' },
+		{ src: '/fonts/TAHOMA_NORMAL.TTF', fontStyle: 'italic' },
+		{ src: '/fonts/TAHOMA_BOLD.TTF', fontWeight: 'bold', fontStyle: 'italic' },
 	],
 });
 
 const tw = createTw({
 	theme: {
 		fontFamily: {
-			arial: ['Arial'],
+			tahoma: ['Tahoma'],
 		},
 	},
 });
@@ -291,7 +291,7 @@ export default function CourseOutlinePDF({ data }: CourseOutlinePDFProps) {
 		<Document>
 			<Page
 				size='A4'
-				style={tw('font-arial text-[9px] pt-8 pb-16 px-10 leading-normal')}
+				style={tw('font-tahoma text-[9px] pt-8 pb-16 px-10 leading-normal')}
 			>
 				<Header programmeName={data.programmeName} />
 				<View style={tw('w-full border-l border-r border-b border-black')}>
@@ -334,7 +334,7 @@ export default function CourseOutlinePDF({ data }: CourseOutlinePDFProps) {
 
 			<Page
 				size='A4'
-				style={tw('font-arial text-[9px] pt-8 pb-16 px-10 leading-normal')}
+				style={tw('font-tahoma text-[9px] pt-8 pb-16 px-10 leading-normal')}
 			>
 				<View style={tw('w-full border border-black')}>
 					<TableRowWrappable number='9' label='Objectives'>
@@ -376,7 +376,7 @@ export default function CourseOutlinePDF({ data }: CourseOutlinePDFProps) {
 
 			<Page
 				size='A4'
-				style={tw('font-arial text-[9px] pt-8 pb-16 px-10 leading-normal')}
+				style={tw('font-tahoma text-[9px] pt-8 pb-16 px-10 leading-normal')}
 			>
 				<View style={tw('w-full border border-black')}>
 					<TableRowWrappable number='13' label='Synopsis'>
@@ -394,7 +394,7 @@ export default function CourseOutlinePDF({ data }: CourseOutlinePDFProps) {
 			{data.topics.length > 0 && (
 				<Page
 					size='A4'
-					style={tw('font-arial text-[9px] pt-8 pb-16 px-10 leading-normal')}
+					style={tw('font-tahoma text-[9px] pt-8 pb-16 px-10 leading-normal')}
 				>
 					<View style={tw('w-full border border-black')}>
 						<View style={tw('flex-row')}>
@@ -425,7 +425,7 @@ export default function CourseOutlinePDF({ data }: CourseOutlinePDFProps) {
 
 			<Page
 				size='A4'
-				style={tw('font-arial text-[9px] pt-8 pb-16 px-10 leading-normal')}
+				style={tw('font-tahoma text-[9px] pt-8 pb-16 px-10 leading-normal')}
 			>
 				<View style={tw('w-full border border-black')}>
 					<TableRowWrappable number='19' label='References'>

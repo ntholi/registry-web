@@ -1,11 +1,19 @@
 import { Card, Group, SimpleGrid, Stack, Text, ThemeIcon } from '@mantine/core';
 import { IconFileText, IconReceipt } from '@tabler/icons-react';
-import type { graduationRequests, paymentReceipts } from '@/core/database';
+import type {
+	graduationRequestReceipts,
+	graduationRequests,
+	paymentReceipts,
+} from '@/core/database';
 import { formatDateTime } from '@/shared/lib/utils/utils';
 
 type PaymentReceipt = typeof paymentReceipts.$inferSelect;
+type GraduationRequestReceipt =
+	typeof graduationRequestReceipts.$inferSelect & {
+		receipt: PaymentReceipt;
+	};
 type GraduationRequest = typeof graduationRequests.$inferSelect & {
-	paymentReceipts: PaymentReceipt[];
+	graduationRequestReceipts: GraduationRequestReceipt[];
 };
 
 interface Props {
@@ -35,10 +43,11 @@ export default function PaymentReceipts({ graduationRequest }: Props) {
 		}
 	};
 
-	if (
-		!graduationRequest.paymentReceipts ||
-		graduationRequest.paymentReceipts.length === 0
-	) {
+	const receipts = graduationRequest.graduationRequestReceipts?.map(
+		(link) => link.receipt
+	);
+
+	if (!receipts || receipts.length === 0) {
 		return (
 			<Card shadow='sm' padding='xl' radius='md' withBorder>
 				<Stack align='center' gap='md'>
@@ -59,19 +68,19 @@ export default function PaymentReceipts({ graduationRequest }: Props) {
 
 	return (
 		<SimpleGrid cols={{ base: 1, sm: 2 }}>
-			{graduationRequest.paymentReceipts.map((receipt: PaymentReceipt) => (
+			{receipts.map((receipt: PaymentReceipt) => (
 				<Card withBorder key={receipt.id}>
 					<Group justify='space-between' mb='xs'>
 						<Group>
 							<ThemeIcon
-								color={getPaymentTypeColor(receipt.paymentType)}
+								color={getPaymentTypeColor(receipt.receiptType)}
 								variant='light'
 								size='sm'
 							>
 								<IconReceipt size='1rem' />
 							</ThemeIcon>
 							<Text fw={500} size='sm'>
-								{getPaymentTypeLabel(receipt.paymentType)}
+								{getPaymentTypeLabel(receipt.receiptType)}
 							</Text>
 						</Group>
 					</Group>
