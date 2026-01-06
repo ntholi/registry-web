@@ -18,6 +18,7 @@ export default async function GradebookModuleView({ params }: Props) {
 	}
 
 	const semesterModuleIds = modules.map((m) => m.semesterModuleId);
+	const moduleData = modules.at(0)?.semesterModule?.module;
 
 	return (
 		<Stack gap='lg' p='lg'>
@@ -25,6 +26,8 @@ export default async function GradebookModuleView({ params }: Props) {
 			<StudentTable
 				moduleId={Number(id)}
 				semesterModuleIds={semesterModuleIds}
+				moduleCode={moduleData?.code ?? ''}
+				moduleName={moduleData?.name ?? ''}
 			/>
 		</Stack>
 	);

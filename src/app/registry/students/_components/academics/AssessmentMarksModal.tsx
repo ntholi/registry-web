@@ -2,6 +2,7 @@
 
 import { getMarksAudit, getStudentMarks } from '@academic/assessment-marks';
 import {
+	ActionIcon,
 	Anchor,
 	Avatar,
 	Badge,
@@ -14,9 +15,14 @@ import {
 	Tabs,
 	Text,
 	Timeline,
+	Tooltip,
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
-import { IconHistory, IconListDetails } from '@tabler/icons-react';
+import {
+	IconHistory,
+	IconInfoCircle,
+	IconListDetails,
+} from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { getAssessmentTypeLabel } from '@/app/academic/assessments';
 import { getThresholdColor } from '@/shared/lib/utils/colors';
@@ -27,7 +33,8 @@ type Props = {
 	moduleCode: string;
 	moduleName: string;
 	totalMarks: string;
-	isDroppedOrDeleted: boolean;
+	isDroppedOrDeleted?: boolean;
+	trigger?: 'anchor' | 'icon';
 };
 
 export default function AssessmentMarksModal({
@@ -35,7 +42,8 @@ export default function AssessmentMarksModal({
 	moduleCode: code,
 	moduleName: name,
 	totalMarks,
-	isDroppedOrDeleted,
+	isDroppedOrDeleted = false,
+	trigger = 'anchor',
 }: Props) {
 	const [opened, { open, close }] = useDisclosure(false);
 
@@ -53,13 +61,21 @@ export default function AssessmentMarksModal({
 
 	return (
 		<>
-			<Anchor
-				size='sm'
-				c={isDroppedOrDeleted ? 'dimmed' : 'gray'}
-				onClick={open}
-			>
-				{totalMarks}
-			</Anchor>
+			{trigger === 'anchor' ? (
+				<Anchor
+					size='sm'
+					c={isDroppedOrDeleted ? 'dimmed' : 'gray'}
+					onClick={open}
+				>
+					{totalMarks}
+				</Anchor>
+			) : (
+				<Tooltip label='Assessment Details'>
+					<ActionIcon variant='subtle' color='gray' onClick={open}>
+						<IconInfoCircle size={16} />
+					</ActionIcon>
+				</Tooltip>
+			)}
 
 			<Modal
 				opened={opened}

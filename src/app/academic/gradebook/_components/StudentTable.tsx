@@ -12,6 +12,7 @@ import {
 	TextInput,
 	UnstyledButton,
 } from '@mantine/core';
+import AssessmentMarksModal from '@registry/students/_components/academics/AssessmentMarksModal';
 import {
 	IconChevronDown,
 	IconChevronUp,
@@ -28,12 +29,13 @@ import {
 import { type Student, useStudentsQuery } from '../_hooks/useStudentsQuery';
 import GradeDisplay from './GradeDisplay';
 import GradeSymbolModal from './GradeSymbolModal';
-import MarksAuditModal from './MarksAuditModal';
 import MarksInput from './MarksInput';
 
 type Props = {
 	moduleId: number;
 	semesterModuleIds: number[];
+	moduleCode: string;
+	moduleName: string;
 };
 
 interface ThProps {
@@ -107,7 +109,12 @@ function sortData(
 		});
 }
 
-export default function StudentTable({ moduleId, semesterModuleIds }: Props) {
+export default function StudentTable({
+	moduleId,
+	semesterModuleIds,
+	moduleCode,
+	moduleName,
+}: Props) {
 	const [searchQuery, setSearchQuery] = useState('');
 	const [sortBy, setSortBy] = useState<keyof Student | null>(null);
 	const [reverseSortDirection, setReverseSortDirection] = useState(false);
@@ -341,9 +348,16 @@ export default function StudentTable({ moduleId, semesterModuleIds }: Props) {
 							</Table.Td>
 							<Table.Td align='center'>
 								<Group gap={3} justify='center' wrap='nowrap'>
-									<MarksAuditModal
+									<AssessmentMarksModal
 										studentModuleId={student.studentModuleId}
-										studentName={student.name}
+										moduleCode={moduleCode}
+										moduleName={moduleName}
+										totalMarks={
+											getStudentGrade(
+												student.studentModuleId
+											)?.weightedTotal?.toFixed(1) ?? '—'
+										}
+										trigger='icon'
 									/>
 									<GradeSymbolModal
 										studentModuleId={student.studentModuleId}

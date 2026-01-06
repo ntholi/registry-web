@@ -3,7 +3,6 @@ import { getAssessmentTypeLabel } from '@academic/assessments';
 import GradeDisplay from '@academic/gradebook/_components/GradeDisplay';
 import GradeSymbolModal from '@academic/gradebook/_components/GradeSymbolModal';
 import ExcelImport from '@academic/gradebook/_components/import/ExcelImport';
-import MarksAuditModal from '@academic/gradebook/_components/MarksAuditModal';
 import MarksInput from '@academic/gradebook/_components/MarksInput';
 import {
 	useAssessmentMarksQuery,
@@ -21,6 +20,7 @@ import {
 	TextInput,
 	UnstyledButton,
 } from '@mantine/core';
+import AssessmentMarksModal from '@registry/students/_components/academics/AssessmentMarksModal';
 import {
 	IconChevronDown,
 	IconChevronUp,
@@ -38,6 +38,8 @@ type Props = {
 	courseId: number;
 	moduleId: number;
 	semesterModuleIds: number[];
+	moduleCode: string;
+	moduleName: string;
 };
 
 interface ThProps {
@@ -115,6 +117,8 @@ export default function LMSStudentTable({
 	courseId,
 	moduleId,
 	semesterModuleIds,
+	moduleCode,
+	moduleName,
 }: Props) {
 	const [searchQuery, setSearchQuery] = useState('');
 	const [sortBy, setSortBy] = useState<keyof Student | null>(null);
@@ -351,9 +355,16 @@ export default function LMSStudentTable({
 							</Table.Td>
 							<Table.Td align='center'>
 								<Group gap={3} justify='center' wrap='nowrap'>
-									<MarksAuditModal
+									<AssessmentMarksModal
 										studentModuleId={student.studentModuleId}
-										studentName={student.name}
+										moduleCode={moduleCode}
+										moduleName={moduleName}
+										totalMarks={
+											getStudentGrade(
+												student.studentModuleId
+											)?.weightedTotal?.toFixed(1) ?? '—'
+										}
+										trigger='icon'
 									/>
 									<GradeSymbolModal
 										studentModuleId={student.studentModuleId}

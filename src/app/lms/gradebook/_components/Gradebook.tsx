@@ -36,6 +36,7 @@ export default function Gradebook({ courseId }: GradebookProps) {
 
 	const moduleId = assignedModule.semesterModule?.moduleId;
 	const semesterModuleId = assignedModule.semesterModuleId;
+	const moduleData = assignedModule.semesterModule?.module;
 
 	if (!moduleId || !semesterModuleId) {
 		return (
@@ -53,6 +54,8 @@ export default function Gradebook({ courseId }: GradebookProps) {
 				courseId={courseId}
 				moduleId={moduleId}
 				semesterModuleIds={[semesterModuleId]}
+				moduleCode={moduleData?.code ?? ''}
+				moduleName={moduleData?.name ?? ''}
 			/>
 		</Paper>
 	);
