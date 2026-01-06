@@ -1,17 +1,18 @@
 'use server';
 
-import type { graduationRequests, PaymentType } from '@/core/database';
+import type { graduationRequests, ReceiptType } from '@/core/database';
 import { graduationRequestsService as service } from './service';
 
 type GraduationRequest = typeof graduationRequests.$inferInsert;
 
 type PaymentReceiptData = {
-	paymentType: PaymentType;
+	receiptType: ReceiptType;
 	receiptNo: string;
 };
 
 type CreateGraduationRequestData = GraduationRequest & {
 	paymentReceipts: PaymentReceiptData[];
+	stdNo: number;
 };
 
 export async function getGraduationRequest(id: number) {

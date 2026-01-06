@@ -1,3 +1,4 @@
+import { paymentReceipts } from '@finance/_database';
 import {
 	boolean,
 	index,
@@ -27,6 +28,28 @@ export const graduationRequests = pgTable(
 	(table) => ({
 		studentProgramIdIdx: index('fk_graduation_requests_student_program_id').on(
 			table.studentProgramId
+		),
+	})
+);
+
+export const graduationRequestReceipts = pgTable(
+	'graduation_request_receipts',
+	{
+		graduationRequestId: integer()
+			.references(() => graduationRequests.id, { onDelete: 'cascade' })
+			.notNull(),
+		receiptId: text()
+			.references(() => paymentReceipts.id, { onDelete: 'cascade' })
+			.notNull(),
+		createdAt: timestamp().defaultNow(),
+	},
+	(table) => ({
+		pk: unique().on(table.graduationRequestId, table.receiptId),
+		graduationRequestIdIdx: index(
+			'fk_graduation_request_receipts_graduation_request_id'
+		).on(table.graduationRequestId),
+		receiptIdIdx: index('fk_graduation_request_receipts_receipt_id').on(
+			table.receiptId
 		),
 	})
 );

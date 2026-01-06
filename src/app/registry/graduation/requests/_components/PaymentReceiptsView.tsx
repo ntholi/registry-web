@@ -8,9 +8,9 @@ interface Props {
 }
 
 export default function PaymentReceiptsView({ value }: Props) {
-	const { paymentReceipts } = value;
+	const receipts = value.graduationRequestReceipts?.map((link) => link.receipt);
 
-	if (!paymentReceipts || paymentReceipts.length === 0) {
+	if (!receipts || receipts.length === 0) {
 		return (
 			<Stack>
 				<Title order={4}>Payment Receipts</Title>
@@ -21,12 +21,12 @@ export default function PaymentReceiptsView({ value }: Props) {
 		);
 	}
 
-	const rows = paymentReceipts.map((receipt) => (
+	const rows = receipts.map((receipt) => (
 		<Table.Tr key={receipt.id}>
 			<Table.Td fw={500}>{receipt.receiptNo}</Table.Td>
 			<Table.Td>
 				<Badge variant='light' color='blue'>
-					{receipt.paymentType.replace('_', ' ').toUpperCase()}
+					{receipt.receiptType.replace('_', ' ').toUpperCase()}
 				</Badge>
 			</Table.Td>
 			<Table.Td>
@@ -42,8 +42,7 @@ export default function PaymentReceiptsView({ value }: Props) {
 			<Flex justify='space-between' align='center'>
 				<Title order={4}>Payment Receipts</Title>
 				<Text c='dimmed' size='sm'>
-					{paymentReceipts.length}{' '}
-					{paymentReceipts.length === 1 ? 'Receipt' : 'Receipts'}
+					{receipts.length} {receipts.length === 1 ? 'Receipt' : 'Receipts'}
 				</Text>
 			</Flex>
 

@@ -37,6 +37,9 @@ export default async function EditGraduationPage({ params }: Props) {
 		return forbidden();
 	}
 
+	const paymentReceipts =
+		graduationRequest.graduationRequestReceipts?.map((r) => r.receipt) || [];
+
 	return (
 		<Container size='md' px='xs'>
 			<Stack gap='lg'>
@@ -62,7 +65,7 @@ export default async function EditGraduationPage({ params }: Props) {
 
 				<PaymentReceiptsEditor
 					graduationRequestId={graduationRequest.id}
-					paymentReceipts={graduationRequest.paymentReceipts || []}
+					paymentReceipts={paymentReceipts}
 				/>
 			</Stack>
 		</Container>

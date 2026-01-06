@@ -1,7 +1,7 @@
 'use client';
 
-import type { PaymentType } from '@finance/_database';
-import { paymentType } from '@finance/_database';
+import type { ReceiptType } from '@finance/_database';
+import { receiptType } from '@finance/_database';
 import {
 	ActionIcon,
 	Badge,
@@ -27,7 +27,7 @@ import {
 } from '@tabler/icons-react';
 
 type PaymentReceiptData = {
-	paymentType: (typeof paymentType.enumValues)[number];
+	receiptType: (typeof receiptType.enumValues)[number];
 	receiptNo: string;
 };
 
@@ -45,11 +45,11 @@ export default function PaymentReceiptsInput({
 	const form = useForm({
 		mode: 'uncontrolled',
 		initialValues: {
-			paymentType: '',
+			receiptType: '',
 			receiptNo: '',
 		},
 		validate: {
-			paymentType: (value) => (value ? null : 'Payment type is required'),
+			receiptType: (value) => (value ? null : 'Receipt type is required'),
 			receiptNo: (value) => {
 				if (!value?.trim()) {
 					return 'Receipt number is required';
@@ -63,27 +63,27 @@ export default function PaymentReceiptsInput({
 		},
 	});
 
-	const paymentTypeOptions = paymentType.enumValues.map(
-		(type: (typeof paymentType.enumValues)[number]) => ({
+	const receiptTypeOptions = receiptType.enumValues
+		.filter((type) => type === 'graduation_gown' || type === 'graduation_fee')
+		.map((type: (typeof receiptType.enumValues)[number]) => ({
 			value: type,
 			label: type
 				.split('_')
 				.map((word: string) => word.charAt(0).toUpperCase() + word.slice(1))
 				.join(' '),
-		})
-	);
+		}));
 
 	const addPaymentReceipt = (values: typeof form.values) => {
 		onPaymentReceiptsChange([
 			...paymentReceipts,
 			{
-				paymentType:
-					values.paymentType as (typeof paymentType.enumValues)[number],
+				receiptType:
+					values.receiptType as (typeof receiptType.enumValues)[number],
 				receiptNo: values.receiptNo,
 			},
 		]);
 		form.setValues({
-			paymentType: '',
+			receiptType: '',
 			receiptNo: '',
 		});
 	};
@@ -108,12 +108,12 @@ export default function PaymentReceiptsInput({
 				<form onSubmit={form.onSubmit(addPaymentReceipt)}>
 					<SimpleGrid cols={isMobile ? 1 : 2} spacing='md'>
 						<Select
-							label='Payment Type'
-							placeholder='Select payment type'
-							data={paymentTypeOptions}
+							label='Receipt Type'
+							placeholder='Select receipt type'
+							data={receiptTypeOptions}
 							required
 							leftSection={<IconCurrencyDollar size='1rem' />}
-							{...form.getInputProps('paymentType')}
+							{...form.getInputProps('receiptType')}
 						/>
 
 						<TextInput
@@ -152,7 +152,7 @@ export default function PaymentReceiptsInput({
 					<Stack gap='md'>
 						{paymentReceipts.map((receipt, index) => (
 							<Paper
-								key={`${receipt.paymentType}-${receipt.receiptNo}`}
+								key={`${receipt.receiptType}-${receipt.receiptNo}`}
 								withBorder
 								p='md'
 							>
@@ -161,9 +161,9 @@ export default function PaymentReceiptsInput({
 										<Group justify='space-between' align='center'>
 											<Text size='sm' fw={500}>
 												{
-													paymentTypeOptions.find(
-														(option: { value: PaymentType }) =>
-															option.value === receipt.paymentType
+													receiptTypeOptions.find(
+														(option: { value: ReceiptType }) =>
+															option.value === receipt.receiptType
 													)?.label
 												}
 											</Text>
@@ -188,13 +188,13 @@ export default function PaymentReceiptsInput({
 										<Group gap='lg' style={{ flex: 1 }}>
 											<Box>
 												<Text size='xs' c='dimmed' mb={2}>
-													Payment Type
+													Receipt Type
 												</Text>
 												<Text size='sm' fw={500}>
 													{
-														paymentTypeOptions.find(
-															(option: { value: PaymentType }) =>
-																option.value === receipt.paymentType
+														receiptTypeOptions.find(
+															(option: { value: ReceiptType }) =>
+																option.value === receipt.receiptType
 														)?.label
 													}
 												</Text>

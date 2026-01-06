@@ -1,6 +1,11 @@
 import { eq } from 'drizzle-orm';
 import { auth } from '@/core/auth';
-import { db, type PaymentType, paymentReceipts } from '@/core/database';
+import {
+	db,
+	graduationRequestReceipts,
+	paymentReceipts,
+	type ReceiptType,
+} from '@/core/database';
 import BaseService from '@/core/platform/BaseService';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
 import withAuth from '@/core/platform/withAuth';
@@ -9,7 +14,7 @@ import PaymentReceiptRepository from './repository';
 type PaymentReceipt = typeof paymentReceipts.$inferInsert;
 
 type PaymentReceiptData = {
-	paymentType: PaymentType;
+	receiptType: ReceiptType;
 	receiptNo: string;
 };
 
@@ -27,9 +32,16 @@ class PaymentReceiptService extends BaseService<typeof paymentReceipts, 'id'> {
 
 	async getByGraduationRequest(graduationRequestId: number) {
 		return withAuth(async () => {
-			return db.query.paymentReceipts.findMany({
-				where: eq(paymentReceipts.graduationRequestId, graduationRequestId),
+			const links = await db.query.graduationRequestReceipts.findMany({
+				where: eq(
+					graduationRequestReceipts.graduationRequestId,
+					graduationRequestId
+				),
+				with: {
+					receipt: true,
+				},
 			});
+			return links.map((link) => link.receipt);
 		}, ['student']);
 	}
 
@@ -45,7 +57,8 @@ class PaymentReceiptService extends BaseService<typeof paymentReceipts, 'id'> {
 
 	async updateGraduationPaymentReceipts(
 		graduationRequestId: number,
-		receipts: PaymentReceiptData[]
+		receipts: PaymentReceiptData[],
+		stdNo: number
 	) {
 		return withAuth(async () => {
 			const session = await auth();
@@ -68,17 +81,39 @@ class PaymentReceiptService extends BaseService<typeof paymentReceipts, 'id'> {
 					throw new Error('Graduation request not found or access denied');
 				}
 
-				await tx
-					.delete(paymentReceipts)
-					.where(eq(paymentReceipts.graduationRequestId, graduationRequestId));
+				const existingLinks = await tx.query.graduationRequestReceipts.findMany(
+					{
+						where: eq(
+							graduationRequestReceipts.graduationRequestId,
+							graduationRequestId
+						),
+						with: { receipt: true },
+					}
+				);
 
-				if (receipts.length > 0) {
-					const receiptValues = receipts.map((receipt) => ({
-						...receipt,
+				for (const link of existingLinks) {
+					await tx
+						.delete(graduationRequestReceipts)
+						.where(eq(graduationRequestReceipts.receiptId, link.receipt.id));
+					await tx
+						.delete(paymentReceipts)
+						.where(eq(paymentReceipts.id, link.receipt.id));
+				}
+
+				for (const receipt of receipts) {
+					const [newReceipt] = await tx
+						.insert(paymentReceipts)
+						.values({
+							receiptNo: receipt.receiptNo,
+							receiptType: receipt.receiptType,
+							stdNo: stdNo,
+						})
+						.returning();
+
+					await tx.insert(graduationRequestReceipts).values({
 						graduationRequestId: graduationRequestId,
-					}));
-
-					await tx.insert(paymentReceipts).values(receiptValues);
+						receiptId: newReceipt.id,
+					});
 				}
 
 				return { success: true };
@@ -114,17 +149,23 @@ class PaymentReceiptService extends BaseService<typeof paymentReceipts, 'id'> {
 				const [newReceipt] = await tx
 					.insert(paymentReceipts)
 					.values({
-						...receipt,
-						graduationRequestId: graduationRequestId,
+						receiptNo: receipt.receiptNo,
+						receiptType: receipt.receiptType,
+						stdNo: session.user!.stdNo,
 					})
 					.returning();
+
+				await tx.insert(graduationRequestReceipts).values({
+					graduationRequestId: graduationRequestId,
+					receiptId: newReceipt.id,
+				});
 
 				return newReceipt;
 			});
 		}, ['student']);
 	}
 
-	async removePaymentReceipt(receiptId: number) {
+	async removePaymentReceipt(receiptId: string) {
 		return withAuth(async () => {
 			const session = await auth();
 			if (!session?.user?.stdNo) {
@@ -134,21 +175,15 @@ class PaymentReceiptService extends BaseService<typeof paymentReceipts, 'id'> {
 			return db.transaction(async (tx) => {
 				const receipt = await tx.query.paymentReceipts.findFirst({
 					where: eq(paymentReceipts.id, receiptId),
-					with: {
-						graduationRequest: {
-							with: {
-								studentProgram: true,
-							},
-						},
-					},
 				});
 
-				if (
-					!receipt ||
-					receipt.graduationRequest.studentProgram.stdNo !== session.user!.stdNo
-				) {
+				if (!receipt || receipt.stdNo !== session.user!.stdNo) {
 					throw new Error('Payment receipt not found or access denied');
 				}
+
+				await tx
+					.delete(graduationRequestReceipts)
+					.where(eq(graduationRequestReceipts.receiptId, receiptId));
 
 				await tx
 					.delete(paymentReceipts)

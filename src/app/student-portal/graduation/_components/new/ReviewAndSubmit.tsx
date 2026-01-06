@@ -1,6 +1,6 @@
 'use client';
 
-import type { PaymentType } from '@finance/_database';
+import type { ReceiptType } from '@finance/_database';
 import {
 	Badge,
 	Box,
@@ -28,7 +28,7 @@ type Student = typeof students.$inferSelect & {
 };
 
 type PaymentReceiptData = {
-	paymentType: PaymentType;
+	receiptType: ReceiptType;
 	receiptNo: string;
 };
 
@@ -81,7 +81,7 @@ export default function ReviewAndSubmit({
 	paymentReceipts,
 	loading = false,
 }: ReviewAndSubmitProps) {
-	const formatPaymentType = (type: string) => {
+	const formatReceiptType = (type: string) => {
 		return type
 			.split('_')
 			.map((word) => word.charAt(0).toUpperCase() + word.slice(1))
@@ -161,14 +161,14 @@ export default function ReviewAndSubmit({
 					<Stack gap='md'>
 						{paymentReceipts.map((receipt) => (
 							<Paper
-								key={`${receipt.paymentType}-${receipt.receiptNo}`}
+								key={`${receipt.receiptType}-${receipt.receiptNo}`}
 								p='sm'
 								withBorder
 							>
 								<Group justify='space-between' align='center'>
 									<Box>
 										<Text fw={500} size='sm'>
-											{formatPaymentType(receipt.paymentType)}
+											{formatReceiptType(receipt.receiptType)}
 										</Text>
 										<Text size='xs' c='dimmed'>
 											Receipt Number

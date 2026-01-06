@@ -1,4 +1,5 @@
 import { users } from '@auth/_database';
+import { paymentReceipts } from '@finance/_database';
 import {
 	bigint,
 	index,
@@ -71,7 +72,9 @@ export const studentCardPrints = pgTable(
 		id: text()
 			.primaryKey()
 			.$defaultFn(() => nanoid()),
-		receiptNo: text().notNull().unique(),
+		receiptId: text()
+			.references(() => paymentReceipts.id, { onDelete: 'cascade' })
+			.notNull(),
 		stdNo: bigint({ mode: 'number' })
 			.references(() => students.stdNo, { onDelete: 'cascade' })
 			.notNull(),
@@ -81,6 +84,9 @@ export const studentCardPrints = pgTable(
 		createdAt: timestamp().defaultNow(),
 	},
 	(table) => ({
+		receiptIdIdx: index('fk_student_card_prints_receipt_id').on(
+			table.receiptId
+		),
 		stdNoIdx: index('fk_student_card_prints_std_no').on(table.stdNo),
 		printedByIdx: index('fk_student_card_prints_printed_by').on(
 			table.printedBy

@@ -235,8 +235,9 @@ export default function ProofOfClearancePDF({
 	const {
 		studentProgram,
 		graduationClearances: _graduationClearances,
-		paymentReceipts = [],
+		graduationRequestReceipts = [],
 	} = graduationData;
+	const paymentReceipts = graduationRequestReceipts.map((r) => r.receipt);
 	const student = studentProgram.student;
 	const program = studentProgram.structure.program;
 	const school = program.school;
@@ -362,7 +363,7 @@ export default function ProofOfClearancePDF({
 											]}
 										>
 											<Text style={styles.paymentTypeText}>
-												{toTitleCase(receipt.paymentType.replace(/_/g, ' '))}
+												{toTitleCase(receipt.receiptType.replace(/_/g, ' '))}
 											</Text>
 										</View>
 										<View

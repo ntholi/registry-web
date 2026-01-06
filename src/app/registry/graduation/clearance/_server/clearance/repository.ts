@@ -119,7 +119,11 @@ export default class GraduationClearanceRepository extends BaseRepository<
 								},
 							},
 						},
-						paymentReceipts: true,
+						graduationRequestReceipts: {
+							with: {
+								receipt: true,
+							},
+						},
 					},
 				},
 			},
@@ -127,9 +131,17 @@ export default class GraduationClearanceRepository extends BaseRepository<
 
 		if (!gc) return null;
 
+		const paymentReceipts =
+			gc.graduationRequest.graduationRequestReceipts?.map((r) => r.receipt) ||
+			[];
+
 		return {
 			...gc.clearance,
-			graduationRequest: gc.graduationRequest,
+			graduationRequest: {
+				...gc.graduationRequest,
+				paymentReceipts,
+			},
+			graduationRequestReceipts: gc.graduationRequest.graduationRequestReceipts,
 		};
 	}
 

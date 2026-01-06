@@ -1,4 +1,4 @@
-import type { graduationRequests, PaymentType } from '@/core/database';
+import type { graduationRequests, ReceiptType } from '@/core/database';
 import type { QueryOptions } from '@/core/platform/BaseRepository';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
 import withAuth from '@/core/platform/withAuth';
@@ -7,12 +7,13 @@ import GraduationRequestRepository from './repository';
 type GraduationRequest = typeof graduationRequests.$inferInsert;
 
 type PaymentReceiptData = {
-	paymentType: PaymentType;
+	receiptType: ReceiptType;
 	receiptNo: string;
 };
 
 type CreateGraduationRequestData = GraduationRequest & {
 	paymentReceipts: PaymentReceiptData[];
+	stdNo: number;
 };
 
 class GraduationRequestService {
@@ -76,11 +77,12 @@ class GraduationRequestService {
 
 	async createWithPaymentReceipts(data: CreateGraduationRequestData) {
 		return withAuth(async () => {
-			const { paymentReceipts, ...graduationRequestData } = data;
+			const { paymentReceipts, stdNo, ...graduationRequestData } = data;
 
 			return this.repository.createWithPaymentReceipts({
 				graduationRequestData,
 				paymentReceipts,
+				stdNo,
 			});
 		}, ['student']);
 	}

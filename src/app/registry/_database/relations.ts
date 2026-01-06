@@ -9,7 +9,11 @@ import { users } from '@auth/_database';
 import { paymentReceipts, sponsoredStudents } from '@finance/_database';
 import { relations } from 'drizzle-orm';
 import { blockedStudents, documents } from './schema/documents';
-import { graduationClearance, graduationRequests } from './schema/graduation';
+import {
+	graduationClearance,
+	graduationRequestReceipts,
+	graduationRequests,
+} from './schema/graduation';
 import { graduations } from './schema/graduations';
 import {
 	statementOfResultsPrints,
@@ -212,18 +216,38 @@ export const graduationRequestsRelations = relations(
 			fields: [graduationRequests.studentProgramId],
 			references: [studentPrograms.id],
 		}),
-		paymentReceipts: many(paymentReceipts),
+		graduationRequestReceipts: many(graduationRequestReceipts),
 		graduationClearances: many(graduationClearance),
+	})
+);
+
+export const graduationRequestReceiptsRelations = relations(
+	graduationRequestReceipts,
+	({ one }) => ({
+		graduationRequest: one(graduationRequests, {
+			fields: [graduationRequestReceipts.graduationRequestId],
+			references: [graduationRequests.id],
+		}),
+		receipt: one(paymentReceipts, {
+			fields: [graduationRequestReceipts.receiptId],
+			references: [paymentReceipts.id],
+		}),
 	})
 );
 
 export const paymentReceiptsRelations = relations(
 	paymentReceipts,
-	({ one }) => ({
-		graduationRequest: one(graduationRequests, {
-			fields: [paymentReceipts.graduationRequestId],
-			references: [graduationRequests.id],
+	({ one, many }) => ({
+		student: one(students, {
+			fields: [paymentReceipts.stdNo],
+			references: [students.stdNo],
 		}),
+		createdByUser: one(users, {
+			fields: [paymentReceipts.createdBy],
+			references: [users.id],
+		}),
+		graduationRequestReceipts: many(graduationRequestReceipts),
+		studentCardPrints: many(studentCardPrints),
 	})
 );
 
@@ -269,6 +293,10 @@ export const transcriptPrintsRelations = relations(
 export const studentCardPrintsRelations = relations(
 	studentCardPrints,
 	({ one }) => ({
+		receipt: one(paymentReceipts, {
+			fields: [studentCardPrints.receiptId],
+			references: [paymentReceipts.id],
+		}),
 		student: one(students, {
 			fields: [studentCardPrints.stdNo],
 			references: [students.stdNo],
