@@ -1,5 +1,7 @@
 'use client';
 
+import type { PaymentType } from '@finance/_database';
+import { paymentType } from '@finance/_database';
 import {
 	addPaymentReceipt,
 	removePaymentReceipt,
@@ -23,8 +25,6 @@ import {
 import { useForm } from '@mantine/form';
 import { useMediaQuery } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
-import type { PaymentType } from '@registry/_database';
-import { paymentType } from '@registry/_database';
 import {
 	IconCurrencyDollar,
 	IconPlus,

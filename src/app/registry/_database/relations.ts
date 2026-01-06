@@ -6,14 +6,10 @@ import {
 	structures,
 } from '@academic/_database';
 import { users } from '@auth/_database';
-import { sponsoredStudents } from '@finance/_database';
+import { paymentReceipts, sponsoredStudents } from '@finance/_database';
 import { relations } from 'drizzle-orm';
 import { blockedStudents, documents } from './schema/documents';
-import {
-	graduationClearance,
-	graduationRequests,
-	paymentReceipts,
-} from './schema/graduation';
+import { graduationClearance, graduationRequests } from './schema/graduation';
 import { graduations } from './schema/graduations';
 import {
 	statementOfResultsPrints,

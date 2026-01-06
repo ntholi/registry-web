@@ -1,5 +1,7 @@
 'use client';
 
+import type { PaymentType } from '@finance/_database';
+import { paymentType } from '@finance/_database';
 import {
 	ActionIcon,
 	Badge,
@@ -17,8 +19,6 @@ import {
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { useMediaQuery } from '@mantine/hooks';
-import type { PaymentType } from '@registry/_database';
-import { paymentType } from '@registry/_database';
 import {
 	IconCurrencyDollar,
 	IconPlus,

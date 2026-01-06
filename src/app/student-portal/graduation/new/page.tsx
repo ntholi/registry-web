@@ -1,5 +1,6 @@
 'use client';
 
+import type { PaymentType } from '@finance/_database';
 import {
 	Alert,
 	Box,
@@ -13,7 +14,6 @@ import {
 	Title,
 } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
-import type { paymentType } from '@registry/_database';
 import {
 	createGraduationRequestWithPaymentReceipts,
 	getEligiblePrograms,
@@ -36,7 +36,7 @@ import {
 } from '../_components';
 
 type PaymentReceiptData = {
-	paymentType: (typeof paymentType.enumValues)[number];
+	paymentType: PaymentType;
 	receiptNo: string;
 };
 

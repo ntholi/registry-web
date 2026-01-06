@@ -1,12 +1,12 @@
 'use server';
 
-import type { graduationRequests, paymentType } from '@/core/database';
+import type { graduationRequests, PaymentType } from '@/core/database';
 import { graduationRequestsService as service } from './service';
 
 type GraduationRequest = typeof graduationRequests.$inferInsert;
 
 type PaymentReceiptData = {
-	paymentType: (typeof paymentType.enumValues)[number];
+	paymentType: PaymentType;
 	receiptNo: string;
 };
 

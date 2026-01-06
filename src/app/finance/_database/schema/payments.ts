@@ -1,3 +1,4 @@
+import { graduationRequests } from '@registry/_database';
 import {
 	index,
 	integer,
@@ -6,7 +7,7 @@ import {
 	text,
 	timestamp,
 } from 'drizzle-orm/pg-core';
-import { graduationRequests, paymentType } from '@/core/database';
+import { paymentType } from './enums';
 
 export const paymentReceipts = pgTable(
 	'payment_receipts',

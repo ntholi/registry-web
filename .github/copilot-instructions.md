@@ -65,6 +65,7 @@ University student registration portal managing academic records, course registr
 - **Never** use custom CSS or Tailwind; use Mantine v8 components only.
 - **Never** use the `pages` router; use the `app` router exclusively.
 - **Never** import `db` outside of `repository.ts` files.
+- **Never** create new .sql migration files manually; it corrupts the _journal. Always use pnpm db:generate (or --custom if schema hasn't changed). Once the CLI generates the file, you may then edit the .sql content to add custom migration logic.
 
 ### UI Rules
 - Mantine-only styling (no custom CSS)
@@ -186,4 +187,7 @@ Before editing `src/app/lms/`, always read `C:\Users\nthol\Documents\Projects\Li
 ### Student Portal
 `src/app/student-portal` uses a unique layout different from dashboard modules. Does not follow `adease` patterns.
 
-#EXTREMELY IMPORTANT: Always print "Done" on the terminal when you finished, no matter what. Don't combine it with other commands or outputs.
+## Database Access
+For schema/data inspection always use  psql `"postgresql://dev:111111@localhost:5432/registry" -P pager=off -c "<<query>>"`. Query via terminal to understand database structure and content.
+
+## EXTREMELY IMPORTANT: Always run this command on the terminal "pnpm exec echo 'Done'", no matter what! Don't combine it with other commands or outputs.

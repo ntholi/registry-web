@@ -1,5 +1,6 @@
 'use client';
 
+import type { PaymentType } from '@finance/_database';
 import {
 	Badge,
 	Box,
@@ -12,7 +13,7 @@ import {
 	Text,
 	Title,
 } from '@mantine/core';
-import type { PaymentType, students } from '@registry/_database';
+import type { students } from '@registry/_database';
 import {
 	IconGenderFemale,
 	IconGenderMale,

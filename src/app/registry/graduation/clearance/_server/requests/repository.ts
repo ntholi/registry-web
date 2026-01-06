@@ -5,8 +5,8 @@ import {
 	db,
 	graduationClearance,
 	graduationRequests,
+	type PaymentType,
 	paymentReceipts,
-	type paymentType,
 	studentPrograms,
 } from '@/core/database';
 import BaseRepository, {
@@ -234,7 +234,7 @@ export default class GraduationRequestRepository extends BaseRepository<
 	async createWithPaymentReceipts(data: {
 		graduationRequestData: typeof graduationRequests.$inferInsert;
 		paymentReceipts: Array<{
-			paymentType: (typeof paymentType.enumValues)[number];
+			paymentType: PaymentType;
 			receiptNo: string;
 		}>;
 	}) {
