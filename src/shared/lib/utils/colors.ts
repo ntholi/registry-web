@@ -67,7 +67,7 @@ export const statusColors = {
 		terminated: semantic.error,
 		droppedout: semantic.error,
 		dnr: semantic.error,
-		withdrawn: semantic.neutral,
+		withdrawn: semantic.error,
 		deceased: semantic.neutral,
 	},
 	academic: {
