@@ -4,7 +4,6 @@ import type { ReceiptType } from '@finance/_database';
 import {
 	ActionIcon,
 	Box,
-	Card,
 	Divider,
 	Group,
 	Paper,
@@ -19,7 +18,6 @@ import {
 	getAllGraduationDates,
 	getLatestGraduationDate,
 } from '@registry/dates/graduations';
-import { getStudentRegistrationData } from '@registry/students';
 import { IconExternalLink, IconPlus, IconTrash } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { createInsertSchema } from 'drizzle-zod';
@@ -129,16 +127,6 @@ export default function GraduationRequestForm({
 		enabled: !!stdNo && !Number.isNaN(Number(stdNo)),
 	});
 
-	const { data: studentData } = useQuery({
-		queryKey: ['student-registration-data', stdNo],
-		queryFn: async () => {
-			const stdNoNum = Number(stdNo);
-			if (Number.isNaN(stdNoNum)) return null;
-			return await getStudentRegistrationData(stdNoNum);
-		},
-		enabled: !!stdNo && !Number.isNaN(Number(stdNo)),
-	});
-
 	useEffect(() => {
 		if (
 			latestGraduationDate &&
@@ -184,14 +172,6 @@ export default function GraduationRequestForm({
 	const handleRemoveReceipt = useCallback((index: number) => {
 		setPaymentReceipts((prev) => prev.filter((_, i) => i !== index));
 	}, []);
-
-	const selectedProgram = eligiblePrograms.find(
-		(p) => p.id.toString() === selectedProgramId
-	);
-
-	const selectedGraduationDate = graduationDates.find(
-		(d) => d.id.toString() === selectedGraduationDateId
-	);
 
 	const programOptions = eligiblePrograms.map((program) => ({
 		value: program.id.toString(),
@@ -384,49 +364,6 @@ export default function GraduationRequestForm({
 								)}
 							</Stack>
 						</Paper>
-
-						{selectedProgram && selectedGraduationDate && (
-							<Card withBorder p='md' bg='var(--mantine-color-dark-6)'>
-								<Stack gap='xs'>
-									<Text size='sm' fw={600}>
-										Summary
-									</Text>
-									<Group gap='lg'>
-										<Stack gap={2}>
-											<Text size='xs' c='dimmed'>
-												Student
-											</Text>
-											<Text size='sm'>
-												{studentData?.name ?? `Student #${stdNo}`}
-											</Text>
-										</Stack>
-										<Stack gap={2}>
-											<Text size='xs' c='dimmed'>
-												Program
-											</Text>
-											<Text size='sm'>
-												{selectedProgram.structure.program.code} -{' '}
-												{selectedProgram.status}
-											</Text>
-										</Stack>
-										<Stack gap={2}>
-											<Text size='xs' c='dimmed'>
-												Graduation Date
-											</Text>
-											<Text size='sm'>{selectedGraduationDate.date}</Text>
-										</Stack>
-										<Stack gap={2}>
-											<Text size='xs' c='dimmed'>
-												Term
-											</Text>
-											<Text size='sm'>
-												{selectedGraduationDate.term?.code ?? 'N/A'}
-											</Text>
-										</Stack>
-									</Group>
-								</Stack>
-							</Card>
-						)}
 					</Stack>
 				);
 			}}
