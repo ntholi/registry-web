@@ -1,9 +1,10 @@
 'use client';
 
 import type { getBlockedStudentByStdNo } from '@finance/blocked-students';
-import { Box, Tabs, TabsList, TabsPanel, TabsTab } from '@mantine/core';
+import { Tabs, TabsPanel, TabsTab } from '@mantine/core';
 import type { Session } from 'next-auth';
 import { useLocalStorage } from '@/shared/lib/hooks/use-local-storage';
+import ScrollableTabsList from '@/shared/ui/ScrollableTabsList';
 import type { getStudent } from '../_server/actions';
 import AcademicsView from './academics/AcademicsView';
 import BlockedAcademicsView from './academics/BlockedAcademicsView';
@@ -70,9 +71,30 @@ export default function StudentTabs({
 			session?.user?.role ?? ''
 		) || session?.user?.position === 'manager';
 
+	const renderTabActions = () => {
+		if (showStatementOfResults && activeTab === 'academics') {
+			return (
+				<StatementOfResultsPrinter
+					stdNo={student.stdNo}
+					disabled={!!blockedStudent}
+				/>
+			);
+		}
+		if (showStudentCard && activeTab === 'studentcard') {
+			return (
+				<StudentCardPrinter
+					student={student}
+					isActive={activeTab === 'studentcard'}
+					disabled={!!blockedStudent}
+				/>
+			);
+		}
+		return null;
+	};
+
 	return (
 		<Tabs value={activeTab} onChange={setActiveTab} variant='outline' mt={'xl'}>
-			<TabsList>
+			<ScrollableTabsList actions={renderTabActions()}>
 				{showAcademics && <TabsTab value='academics'>Academics</TabsTab>}
 				<TabsTab value='info'>Student</TabsTab>
 				{showRegistration && (
@@ -82,24 +104,7 @@ export default function StudentTabs({
 				{showStudentCard && <TabsTab value='studentcard'>Card</TabsTab>}
 				{showGraduation && <TabsTab value='graduation'>Graduation</TabsTab>}
 				{showDocuments && <TabsTab value='documents'>Documents</TabsTab>}
-				{showStatementOfResults && activeTab === 'academics' && (
-					<Box ml='auto'>
-						<StatementOfResultsPrinter
-							stdNo={student.stdNo}
-							disabled={!!blockedStudent}
-						/>
-					</Box>
-				)}
-				{showStudentCard && activeTab === 'studentcard' && (
-					<Box ml='auto'>
-						<StudentCardPrinter
-							student={student}
-							isActive={activeTab === 'studentcard'}
-							disabled={!!blockedStudent}
-						/>
-					</Box>
-				)}
-			</TabsList>
+			</ScrollableTabsList>
 			<TabsPanel value='academics' pt={'xl'} p={'sm'} key='academics'>
 				{blockedStudent ? (
 					<BlockedAcademicsView

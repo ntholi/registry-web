@@ -1,6 +1,5 @@
 'use client';
 
-import { formatDateTime, formatSemester } from '@/shared/lib/utils/utils';
 import {
 	Accordion,
 	Alert,
@@ -21,6 +20,7 @@ import { getStudentRegistrationHistory } from '@registry/registration';
 import { IconChevronRight, IconClipboardList } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
+import { formatDateTime, formatSemester } from '@/shared/lib/utils/utils';
 
 export type StudentRegistrationHistory = {
 	id: number;
