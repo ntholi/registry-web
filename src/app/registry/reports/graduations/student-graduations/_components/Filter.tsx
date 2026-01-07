@@ -22,17 +22,10 @@ import {
 	Paper,
 	RangeSlider,
 	Select,
-	SimpleGrid,
 	Stack,
 	Text,
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
-import {
-	programStatus,
-	semesterStatus,
-	studentStatus,
-} from '@registry/_database/schema/enums';
-import { getAllTerms } from '@registry/dates/terms/_server/actions';
 import { IconAdjustments, IconFilter } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import {
@@ -42,65 +35,26 @@ import {
 	useQueryStates,
 } from 'nuqs';
 import { useEffect, useMemo, useRef } from 'react';
-import { formatSemester } from '@/shared/lib/utils/utils';
+import type { GraduationReportFilter } from '../_lib/types';
 import {
-	getAvailableCountriesForReports,
-	getAvailableSponsorsForReports,
+	getAvailableCountriesForGraduations,
+	getAvailableSponsorsForGraduations,
+	getGraduationDates,
 } from '../_server/actions';
-
-const semesterOptions = Array.from({ length: 8 }, (_, i) => {
-	const semesterNumber = (i + 1).toString().padStart(2, '0');
-	return {
-		value: semesterNumber,
-		label: formatSemester(semesterNumber, 'mini'),
-	};
-});
-
-export interface ReportFilter {
-	termIds?: number[];
-	schoolIds?: number[];
-	programId?: number;
-	programLevels?: ProgramLevel[];
-	semesterNumber?: string;
-	gender?: string;
-	sponsorId?: number;
-	ageRangeMin?: number;
-	ageRangeMax?: number;
-	country?: string;
-	studentStatus?: string;
-	programStatus?: string;
-	semesterStatuses?: string[];
-	visibleColumns?: string[];
-}
 
 const BASE_COLUMNS = [
 	{ value: 'stdNo', label: 'Student No.' },
 	{ value: 'name', label: 'Name' },
 	{ value: 'gender', label: 'Gender' },
 	{ value: 'program', label: 'Program' },
-	{ value: 'semester', label: 'Semester' },
 	{ value: 'school', label: 'School' },
+	{ value: 'graduationDate', label: 'Graduation Date' },
 	{ value: 'sponsor', label: 'Sponsor' },
 ];
 
 const FILTER_COLUMNS = [
 	{ value: 'programLevel', label: 'Program Level', filterKey: 'programLevels' },
 	{ value: 'country', label: 'Country', filterKey: 'country' },
-	{
-		value: 'studentStatus',
-		label: 'Student Status',
-		filterKey: 'studentStatus',
-	},
-	{
-		value: 'programStatus',
-		label: 'Program Status',
-		filterKey: 'programStatus',
-	},
-	{
-		value: 'semesterStatus',
-		label: 'Semester Status',
-		filterKey: 'semesterStatuses',
-	},
 	{ value: 'age', label: 'Age', filterKey: 'ageRange' },
 ];
 
@@ -109,26 +63,22 @@ export function getDefaultVisibleColumns(): string[] {
 }
 
 interface Props {
-	onFilterChange: (filter: ReportFilter) => void;
+	onFilterChange: (filter: GraduationReportFilter) => void;
 }
 
-export default function EnrollmentFilter({ onFilterChange }: Props) {
+export default function GraduationFilter({ onFilterChange }: Props) {
 	const [opened, { open, close }] = useDisclosure(false);
 	const [localFilter, setLocalFilter] = useQueryStates(
 		{
-			termId: parseAsInteger,
+			graduationMonth: parseAsString,
 			schoolIds: parseAsArrayOf(parseAsInteger),
 			programId: parseAsInteger,
 			programLevels: parseAsArrayOf(parseAsString),
-			semesterNumber: parseAsString,
 			gender: parseAsString,
 			sponsorId: parseAsInteger,
 			ageRangeMin: parseAsInteger.withDefault(12),
 			ageRangeMax: parseAsInteger.withDefault(75),
 			country: parseAsString,
-			studentStatus: parseAsString,
-			programStatus: parseAsString,
-			semesterStatuses: parseAsArrayOf(parseAsString),
 			visibleColumns: parseAsArrayOf(parseAsString),
 		},
 		{
@@ -148,30 +98,11 @@ export default function EnrollmentFilter({ onFilterChange }: Props) {
 		if (localFilter.country) {
 			activeColumns.push('country');
 		}
-		if (localFilter.studentStatus) {
-			activeColumns.push('studentStatus');
-		}
-		if (localFilter.programStatus) {
-			activeColumns.push('programStatus');
-		}
-		if (
-			localFilter.semesterStatuses &&
-			localFilter.semesterStatuses.length > 0
-		) {
-			activeColumns.push('semesterStatus');
-		}
 		if (hasAgeFilter) {
 			activeColumns.push('age');
 		}
 		return activeColumns;
-	}, [
-		localFilter.programLevels,
-		localFilter.country,
-		localFilter.studentStatus,
-		localFilter.programStatus,
-		localFilter.semesterStatuses,
-		hasAgeFilter,
-	]);
+	}, [localFilter.programLevels, localFilter.country, hasAgeFilter]);
 
 	const prevActiveFilterColumnsRef = useRef<string[]>([]);
 
@@ -200,8 +131,8 @@ export default function EnrollmentFilter({ onFilterChange }: Props) {
 	);
 
 	useEffect(() => {
-		const newFilter: ReportFilter = {
-			termIds: localFilter.termId ? [localFilter.termId] : undefined,
+		const newFilter: GraduationReportFilter = {
+			graduationMonth: localFilter.graduationMonth ?? undefined,
 			schoolIds:
 				localFilter.schoolIds && localFilter.schoolIds.length > 0
 					? localFilter.schoolIds
@@ -211,7 +142,6 @@ export default function EnrollmentFilter({ onFilterChange }: Props) {
 				localFilter.programLevels && localFilter.programLevels.length > 0
 					? (localFilter.programLevels as ProgramLevel[])
 					: undefined,
-			semesterNumber: localFilter.semesterNumber ?? undefined,
 			gender: localFilter.gender ?? undefined,
 			sponsorId: localFilter.sponsorId ?? undefined,
 			ageRangeMin:
@@ -219,16 +149,9 @@ export default function EnrollmentFilter({ onFilterChange }: Props) {
 			ageRangeMax:
 				localFilter.ageRangeMax !== 75 ? localFilter.ageRangeMax : undefined,
 			country: localFilter.country ?? undefined,
-			studentStatus: localFilter.studentStatus ?? undefined,
-			programStatus: localFilter.programStatus ?? undefined,
-			semesterStatuses:
-				localFilter.semesterStatuses && localFilter.semesterStatuses.length > 0
-					? localFilter.semesterStatuses
-					: undefined,
-			visibleColumns: userSelectedColumns,
 		};
 		onFilterChange(newFilter);
-	}, [localFilter, onFilterChange, userSelectedColumns]);
+	}, [localFilter, onFilterChange]);
 
 	const availableFilterColumns = FILTER_COLUMNS.filter((col) =>
 		activeFilterColumnKeys.includes(col.value)
@@ -240,16 +163,39 @@ export default function EnrollmentFilter({ onFilterChange }: Props) {
 			localFilter.sponsorId,
 			hasAgeFilter,
 			localFilter.country,
-			localFilter.studentStatus,
-			localFilter.programStatus,
-			localFilter.semesterStatuses && localFilter.semesterStatuses.length > 0,
 			localFilter.programLevels && localFilter.programLevels.length > 0,
 		].filter(Boolean).length || 0;
 
-	const { data: terms = [], isLoading: termsLoading } = useQuery({
-		queryKey: ['terms'],
-		queryFn: getAllTerms,
-	});
+	const { data: graduationDates = [], isLoading: graduationDatesLoading } =
+		useQuery({
+			queryKey: ['graduation-dates'],
+			queryFn: async () => {
+				const result = await getGraduationDates();
+				return result.success ? result.data : [];
+			},
+		});
+
+	const graduationMonthOptions = useMemo(() => {
+		const monthsSet = new Set<string>();
+		for (const gd of graduationDates) {
+			if (gd.date) {
+				const month = gd.date.substring(0, 7);
+				monthsSet.add(month);
+			}
+		}
+		return Array.from(monthsSet)
+			.sort()
+			.reverse()
+			.map((month) => {
+				const [year, monthNum] = month.split('-');
+				const date = new Date(Number(year), Number(monthNum) - 1);
+				const label = date.toLocaleDateString('en-US', {
+					year: 'numeric',
+					month: 'long',
+				});
+				return { value: month, label };
+			});
+	}, [graduationDates]);
 
 	const { data: schools = [], isLoading: schoolsLoading } = useQuery({
 		queryKey: ['active-schools'],
@@ -264,18 +210,18 @@ export default function EnrollmentFilter({ onFilterChange }: Props) {
 	});
 
 	const { data: sponsors = [], isLoading: sponsorsLoading } = useQuery({
-		queryKey: ['registration-report-sponsors'],
+		queryKey: ['graduation-report-sponsors'],
 		queryFn: async () => {
-			const result = await getAvailableSponsorsForReports();
+			const result = await getAvailableSponsorsForGraduations();
 			return result.success ? result.data : [];
 		},
 	});
 
 	const { data: countries = [], isLoading: countriesLoading } = useQuery({
-		queryKey: ['registration-report-countries'],
+		queryKey: ['graduation-report-countries'],
 		queryFn: async () => {
-			const result = await getAvailableCountriesForReports();
-			return result.success ? result.data : [];
+			const result = await getAvailableCountriesForGraduations();
+			return result.success && result.data ? result.data : [];
 		},
 	});
 
@@ -303,7 +249,6 @@ export default function EnrollmentFilter({ onFilterChange }: Props) {
 			setLocalFilter({
 				schoolIds,
 				programId: null,
-				programStatus: null,
 			});
 			return;
 		}
@@ -315,25 +260,12 @@ export default function EnrollmentFilter({ onFilterChange }: Props) {
 			return;
 		}
 
-		if (field === 'semesterStatuses') {
-			setLocalFilter({
-				semesterStatuses: Array.isArray(value) ? (value as string[]) : null,
-			});
-			return;
-		}
-
 		const updates: Record<
 			string,
 			string | number | string[] | number[] | null
 		> = {
 			[field]: value as string | number | string[] | number[] | null,
 		};
-
-		if (field === 'programId') {
-			updates.programStatus = null;
-		} else if (field === 'semesterNumber') {
-			updates.semesterStatuses = null;
-		}
 
 		setLocalFilter(updates as Partial<typeof localFilter>);
 	}
@@ -348,19 +280,14 @@ export default function EnrollmentFilter({ onFilterChange }: Props) {
 
 				<Flex align={'flex-end'} gap={'sm'}>
 					<Grid gutter='md' flex={1}>
-						<Grid.Col span={{ base: 12, sm: 6, md: 2 }}>
+						<Grid.Col span={{ base: 12, sm: 6, md: 3 }}>
 							<Select
-								label='Term'
-								placeholder='Select term'
-								data={terms.map((term) => ({
-									value: term.id?.toString() || '',
-									label: term.code,
-								}))}
-								rightSection={termsLoading && <Loader size='xs' />}
-								value={localFilter.termId?.toString() ?? null}
-								onChange={(value) =>
-									handleChange('termId', value ? Number(value) : null)
-								}
+								label='Graduation Month'
+								placeholder='Select month'
+								data={graduationMonthOptions}
+								rightSection={graduationDatesLoading && <Loader size='xs' />}
+								value={localFilter.graduationMonth ?? null}
+								onChange={(value) => handleChange('graduationMonth', value)}
 								searchable
 								clearable
 								withAsterisk
@@ -399,7 +326,7 @@ export default function EnrollmentFilter({ onFilterChange }: Props) {
 							/>
 						</Grid.Col>
 
-						<Grid.Col span={{ base: 12, sm: 6, md: 4 }}>
+						<Grid.Col span={{ base: 12, sm: 6, md: 5 }}>
 							<Select
 								label='Program'
 								placeholder='All programs'
@@ -433,18 +360,6 @@ export default function EnrollmentFilter({ onFilterChange }: Props) {
 										</div>
 									);
 								}}
-							/>
-						</Grid.Col>
-
-						<Grid.Col span={{ base: 12, sm: 6, md: 2 }}>
-							<Select
-								label='Semester'
-								placeholder='All semesters'
-								data={semesterOptions}
-								value={localFilter.semesterNumber ?? null}
-								onChange={(value) => handleChange('semesterNumber', value)}
-								searchable
-								clearable
 							/>
 						</Grid.Col>
 					</Grid>
@@ -552,47 +467,6 @@ export default function EnrollmentFilter({ onFilterChange }: Props) {
 						clearable
 					/>
 
-					<SimpleGrid cols={{ base: 1, sm: 2 }}>
-						<Select
-							label='Student Status'
-							placeholder='All statuses'
-							data={studentStatus.enumValues.map((status) => ({
-								value: status,
-								label: status,
-							}))}
-							value={localFilter.studentStatus ?? null}
-							onChange={(value) => handleChange('studentStatus', value)}
-							searchable
-							clearable
-						/>
-
-						<Select
-							label='Program Status'
-							placeholder='All statuses'
-							data={programStatus.enumValues.map((status) => ({
-								value: status,
-								label: status,
-							}))}
-							value={localFilter.programStatus ?? null}
-							onChange={(value) => handleChange('programStatus', value)}
-							searchable
-							clearable
-							disabled={!localFilter.programId}
-						/>
-					</SimpleGrid>
-					<MultiSelect
-						label='Semester Status'
-						placeholder='All statuses'
-						data={semesterStatus.enumValues.map((status) => ({
-							value: status,
-							label: status === 'DroppedOut' ? 'Dropped Out' : status,
-						}))}
-						value={localFilter.semesterStatuses ?? []}
-						onChange={(value) => handleChange('semesterStatuses', value)}
-						searchable
-						clearable
-					/>
-
 					<Divider my='sm' label='Visible Columns' labelPosition='center' />
 
 					<Box>
@@ -624,3 +498,6 @@ export default function EnrollmentFilter({ onFilterChange }: Props) {
 		</>
 	);
 }
+
+export { BASE_COLUMNS, FILTER_COLUMNS };
+export type { GraduationReportFilter };
