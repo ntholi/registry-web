@@ -110,6 +110,7 @@ export default class GraduationClearanceRepository extends BaseRepository<
 				clearance: { with: { respondedBy: true } },
 				graduationRequest: {
 					with: {
+						graduationDate: true,
 						studentProgram: {
 							with: {
 								student: true,
