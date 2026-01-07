@@ -7,6 +7,7 @@ import {
 	type DashboardUser,
 	db,
 	graduationClearance,
+	graduationRequestReceipts,
 	graduationRequests,
 	programs,
 	schools,
@@ -119,11 +120,6 @@ export default class GraduationClearanceRepository extends BaseRepository<
 								},
 							},
 						},
-						graduationRequestReceipts: {
-							with: {
-								receipt: true,
-							},
-						},
 					},
 				},
 			},
@@ -131,17 +127,25 @@ export default class GraduationClearanceRepository extends BaseRepository<
 
 		if (!gc) return null;
 
-		const paymentReceipts =
-			gc.graduationRequest.graduationRequestReceipts?.map((r) => r.receipt) ||
-			[];
+		const receipts = await db.query.graduationRequestReceipts.findMany({
+			where: eq(
+				graduationRequestReceipts.graduationRequestId,
+				gc.graduationRequest.id
+			),
+			with: {
+				receipt: true,
+			},
+		});
+
+		const paymentReceipts = receipts.map((r) => r.receipt);
 
 		return {
 			...gc.clearance,
 			graduationRequest: {
 				...gc.graduationRequest,
 				paymentReceipts,
+				graduationRequestReceipts: receipts,
 			},
-			graduationRequestReceipts: gc.graduationRequest.graduationRequestReceipts,
 		};
 	}
 
