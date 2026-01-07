@@ -153,7 +153,8 @@ export default class GraduationClearanceRepository extends BaseRepository<
 	async findByDepartment(
 		department: DashboardUser,
 		params: QueryOptions<typeof clearance>,
-		status?: 'pending' | 'approved' | 'rejected'
+		status?: 'pending' | 'approved' | 'rejected',
+		graduationDateId?: number
 	) {
 		const session = await auth();
 		const { offset, limit } = this.buildQueryCriteria(params);
@@ -169,6 +170,9 @@ export default class GraduationClearanceRepository extends BaseRepository<
 				: undefined,
 			eq(clearance.department, department),
 			status ? eq(clearance.status, status) : undefined,
+			graduationDateId
+				? eq(graduationRequests.graduationDateId, graduationDateId)
+				: undefined,
 		].filter(Boolean);
 
 		const schoolFilter =

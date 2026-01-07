@@ -28,14 +28,14 @@ class GraduationService extends BaseService<typeof graduationDates, 'id'> {
 	async getLatest() {
 		return withAuth(
 			async () => (this.repository as GraduationRepository).findLatest(),
-			['registry', 'admin']
+			['dashboard']
 		);
 	}
 
 	async getAllGraduationDates() {
 		return withAuth(
 			async () => (this.repository as GraduationRepository).findAll(),
-			['registry', 'admin']
+			['dashboard']
 		);
 	}
 

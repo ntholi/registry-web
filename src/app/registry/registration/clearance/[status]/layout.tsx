@@ -73,13 +73,6 @@ export default function Layout({ children }: PropsWithChildren) {
 			}}
 			actionIcons={[
 				<TermFilter key='term-filter' onTermChange={setSelectedTerm} />,
-				// <DownloadCSVButton
-				//   key='download-csv'
-				//   status={status}
-				//   onDownload={(status) =>
-				//     exportClearancesByStatus(status, selectedTerm || undefined)
-				//   }
-				// />,
 			]}
 			renderItem={(it: ClearanceItem) => (
 				<ListItem
