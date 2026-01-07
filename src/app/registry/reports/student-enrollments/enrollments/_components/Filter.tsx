@@ -41,7 +41,7 @@ import {
 	parseAsString,
 	useQueryStates,
 } from 'nuqs';
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { formatSemester } from '@/shared/lib/utils/utils';
 import {
 	getAvailableCountriesForReports,
@@ -173,17 +173,30 @@ export default function EnrollmentFilter({ onFilterChange }: Props) {
 		hasAgeFilter,
 	]);
 
+	const prevActiveFilterColumnsRef = useRef<string[]>([]);
+
+	useEffect(() => {
+		const prevKeys = prevActiveFilterColumnsRef.current;
+		const newKeys = activeFilterColumnKeys.filter(
+			(key) => !prevKeys.includes(key)
+		);
+
+		if (newKeys.length > 0) {
+			const currentCols =
+				localFilter.visibleColumns ?? getDefaultVisibleColumns();
+			const updatedCols = [...new Set([...currentCols, ...newKeys])];
+			setLocalFilter({ visibleColumns: updatedCols });
+		}
+
+		prevActiveFilterColumnsRef.current = activeFilterColumnKeys;
+	}, [activeFilterColumnKeys, setLocalFilter, localFilter.visibleColumns]);
+
 	const userSelectedColumns = useMemo(
 		() =>
 			localFilter.visibleColumns && localFilter.visibleColumns.length > 0
 				? localFilter.visibleColumns
 				: getDefaultVisibleColumns(),
 		[localFilter.visibleColumns]
-	);
-
-	const effectiveVisibleColumns = useMemo(
-		() => [...new Set([...userSelectedColumns, ...activeFilterColumnKeys])],
-		[userSelectedColumns, activeFilterColumnKeys]
 	);
 
 	useEffect(() => {
@@ -212,10 +225,10 @@ export default function EnrollmentFilter({ onFilterChange }: Props) {
 				localFilter.semesterStatuses && localFilter.semesterStatuses.length > 0
 					? localFilter.semesterStatuses
 					: undefined,
-			visibleColumns: effectiveVisibleColumns,
+			visibleColumns: userSelectedColumns,
 		};
 		onFilterChange(newFilter);
-	}, [localFilter, onFilterChange, effectiveVisibleColumns]);
+	}, [localFilter, onFilterChange, userSelectedColumns]);
 
 	const availableFilterColumns = FILTER_COLUMNS.filter((col) =>
 		activeFilterColumnKeys.includes(col.value)
@@ -580,12 +593,9 @@ export default function EnrollmentFilter({ onFilterChange }: Props) {
 						clearable
 					/>
 
-					<Divider my='md' label='Visible Columns' labelPosition='center' />
+					<Divider my='sm' label='Visible Columns' labelPosition='center' />
 
 					<Box>
-						<Text size='sm' fw={500} mb='xs'>
-							Select columns to display in table and export
-						</Text>
 						<Chip.Group
 							multiple
 							value={userSelectedColumns}
@@ -612,16 +622,10 @@ export default function EnrollmentFilter({ onFilterChange }: Props) {
 							<Text size='xs' c='dimmed' mt='xs'>
 								Filter columns (
 								{availableFilterColumns.map((c) => c.label).join(', ')}) are
-								always visible when their filter is active
+								auto-selected when their filter is applied
 							</Text>
 						)}
 					</Box>
-
-					<Group justify='flex-end' mt='md'>
-						<Button variant='default' onClick={close}>
-							Close
-						</Button>
-					</Group>
 				</Stack>
 			</Modal>
 		</>
