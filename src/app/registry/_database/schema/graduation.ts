@@ -21,9 +21,11 @@ export const graduationRequests = pgTable(
 			.references(() => studentPrograms.id, { onDelete: 'cascade' })
 			.unique()
 			.notNull(),
-		graduationDateId: integer().references(() => graduationDates.id, {
-			onDelete: 'set null',
-		}),
+		graduationDateId: integer()
+			.references(() => graduationDates.id, {
+				onDelete: 'restrict',
+			})
+			.notNull(),
 		informationConfirmed: boolean().notNull().default(false),
 		message: text(),
 		createdAt: timestamp().defaultNow(),
