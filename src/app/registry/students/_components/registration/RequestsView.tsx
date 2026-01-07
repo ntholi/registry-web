@@ -1,5 +1,6 @@
 'use client';
 
+import { formatDateTime, formatSemester } from '@/shared/lib/utils/utils';
 import {
 	Accordion,
 	Alert,
@@ -20,8 +21,6 @@ import { getStudentRegistrationHistory } from '@registry/registration';
 import { IconChevronRight, IconClipboardList } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
-import { useSession } from 'next-auth/react';
-import { formatDateTime, formatSemester } from '@/shared/lib/utils/utils';
 
 export type StudentRegistrationHistory = {
 	id: number;
@@ -39,8 +38,6 @@ type Props = {
 };
 
 export default function RequestsView({ stdNo, isActive = true }: Props) {
-	const { data: session } = useSession();
-
 	const {
 		data: registrationRequests,
 		isLoading,
@@ -134,11 +131,7 @@ export default function RequestsView({ stdNo, isActive = true }: Props) {
 								</Stack>
 								<Button
 									component={Link}
-									href={
-										['finance', 'library'].includes(session?.user?.role ?? '')
-											? `/registry/registration/requests/${request.status}/${request.id}?tab=clearance&dept=${session?.user?.role ?? ''}`
-											: `/registry/registration/requests/${request.status}/${request.id}`
-									}
+									href={`/registry/registration/requests/${request.id}`}
 									size='xs'
 									variant='subtle'
 									color='blue'

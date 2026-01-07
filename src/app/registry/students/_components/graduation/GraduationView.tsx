@@ -184,7 +184,7 @@ function RequestCard({ request, stdNo }: RequestCardProps) {
 							href={`/registry/graduation/requests/new?stdNo=${stdNo}`}
 							leftSection={<IconPlus size={14} />}
 							variant='filled'
-							size='sm'
+							size='xs'
 							color='blue'
 						>
 							Create
@@ -217,8 +217,8 @@ function RequestCard({ request, stdNo }: RequestCardProps) {
 				</Stack>
 				<Button
 					component={Link}
-					href={`/registry/graduation/requests/${status}/${request.id}`}
-					size='sm'
+					href={`/registry/graduation/requests/${request.id}`}
+					size='xs'
 					variant='light'
 					color='blue'
 				>

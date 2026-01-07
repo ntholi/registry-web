@@ -241,7 +241,7 @@ export default function GraduationRequestForm({
 			defaultValues={defaultValues}
 			onSuccess={(values) => {
 				const id = (values as unknown as SubmissionData).id;
-				router.push(`/registry/graduation/requests/pending/${id}`);
+				router.push(`/registry/graduation/requests/${id}`);
 			}}
 		>
 			{(form) => {

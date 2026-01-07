@@ -269,7 +269,7 @@ export default function RegistrationRequestForm({
 				'semester-status': defaultValues?.semesterStatus,
 			}}
 			onSuccess={({ id }) => {
-				router.push(`/registry/registration/requests/pending/${id}`);
+				router.push(`/registry/registration/requests/${id}`);
 			}}
 		>
 			{(form) => {
