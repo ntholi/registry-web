@@ -66,7 +66,7 @@ export interface ReportFilter {
 	country?: string;
 	studentStatus?: string;
 	programStatus?: string;
-	semesterStatus?: string;
+	semesterStatuses?: string[];
 }
 
 interface Props {
@@ -89,7 +89,7 @@ export default function EnrollmentFilter({ onFilterChange }: Props) {
 			country: parseAsString,
 			studentStatus: parseAsString,
 			programStatus: parseAsString,
-			semesterStatus: parseAsString,
+			semesterStatuses: parseAsArrayOf(parseAsString),
 		},
 		{
 			history: 'push',
@@ -119,7 +119,10 @@ export default function EnrollmentFilter({ onFilterChange }: Props) {
 			country: localFilter.country ?? undefined,
 			studentStatus: localFilter.studentStatus ?? undefined,
 			programStatus: localFilter.programStatus ?? undefined,
-			semesterStatus: localFilter.semesterStatus ?? undefined,
+			semesterStatuses:
+				localFilter.semesterStatuses && localFilter.semesterStatuses.length > 0
+					? localFilter.semesterStatuses
+					: undefined,
 		};
 		onFilterChange(newFilter);
 	}, [localFilter, onFilterChange]);
@@ -135,7 +138,7 @@ export default function EnrollmentFilter({ onFilterChange }: Props) {
 			localFilter.country,
 			localFilter.studentStatus,
 			localFilter.programStatus,
-			localFilter.semesterStatus,
+			localFilter.semesterStatuses && localFilter.semesterStatuses.length > 0,
 			localFilter.programLevels && localFilter.programLevels.length > 0,
 		].filter(Boolean).length || 0;
 
@@ -208,6 +211,13 @@ export default function EnrollmentFilter({ onFilterChange }: Props) {
 			return;
 		}
 
+		if (field === 'semesterStatuses') {
+			setLocalFilter({
+				semesterStatuses: Array.isArray(value) ? (value as string[]) : null,
+			});
+			return;
+		}
+
 		const updates: Record<
 			string,
 			string | number | string[] | number[] | null
@@ -218,7 +228,7 @@ export default function EnrollmentFilter({ onFilterChange }: Props) {
 		if (field === 'programId') {
 			updates.programStatus = null;
 		} else if (field === 'semesterNumber') {
-			updates.semesterStatus = null;
+			updates.semesterStatuses = null;
 		}
 
 		setLocalFilter(updates as Partial<typeof localFilter>);
@@ -466,15 +476,15 @@ export default function EnrollmentFilter({ onFilterChange }: Props) {
 							disabled={!localFilter.programId}
 						/>
 					</SimpleGrid>
-					<Select
+					<MultiSelect
 						label='Semester Status'
 						placeholder='All statuses'
 						data={semesterStatus.enumValues.map((status) => ({
 							value: status,
 							label: status === 'DroppedOut' ? 'Dropped Out' : status,
 						}))}
-						value={localFilter.semesterStatus ?? null}
-						onChange={(value) => handleChange('semesterStatus', value)}
+						value={localFilter.semesterStatuses ?? []}
+						onChange={(value) => handleChange('semesterStatuses', value)}
 						searchable
 						clearable
 					/>

@@ -17,6 +17,7 @@ import { useMediaQuery } from '@mantine/hooks';
 import { IconSearch } from '@tabler/icons-react';
 import { formatSemester } from '@/shared/lib/utils/utils';
 import Link from '@/shared/ui/Link';
+import type { ReportFilter } from './Filter';
 
 interface Student {
 	stdNo: number;
@@ -27,6 +28,12 @@ interface Student {
 	schoolCode: string;
 	sponsorName: string | null;
 	gender: string | null;
+	programLevel?: string | null;
+	country?: string | null;
+	studentStatus?: string | null;
+	programStatus?: string | null;
+	semesterStatus?: string | null;
+	age?: number | null;
 }
 
 interface StudentTableProps {
@@ -38,6 +45,107 @@ interface StudentTableProps {
 	onPageChange?: (page: number) => void;
 	searchQuery?: string;
 	onSearchChange?: (query: string) => void;
+	filter?: ReportFilter;
+}
+
+interface DynamicColumn {
+	key: string;
+	label: string;
+	minWidth: number;
+	align?: 'left' | 'center' | 'right';
+	render: (student: Student) => React.ReactNode;
+}
+
+function getActiveFilterColumns(filter?: ReportFilter): DynamicColumn[] {
+	const columns: DynamicColumn[] = [];
+
+	if (filter?.programLevels && filter.programLevels.length > 0) {
+		columns.push({
+			key: 'programLevel',
+			label: 'Level',
+			minWidth: 100,
+			align: 'center',
+			render: (student) => (
+				<Badge variant='outline' size='sm'>
+					{student.programLevel || '-'}
+				</Badge>
+			),
+		});
+	}
+
+	if (filter?.country) {
+		columns.push({
+			key: 'country',
+			label: 'Country',
+			minWidth: 100,
+			render: (student) => (
+				<Text size='sm' c='dimmed'>
+					{student.country || '-'}
+				</Text>
+			),
+		});
+	}
+
+	if (filter?.studentStatus) {
+		columns.push({
+			key: 'studentStatus',
+			label: 'Student Status',
+			minWidth: 120,
+			align: 'center',
+			render: (student) => (
+				<Badge variant='light' size='sm'>
+					{student.studentStatus || '-'}
+				</Badge>
+			),
+		});
+	}
+
+	if (filter?.programStatus) {
+		columns.push({
+			key: 'programStatus',
+			label: 'Program Status',
+			minWidth: 120,
+			align: 'center',
+			render: (student) => (
+				<Badge variant='light' size='sm'>
+					{student.programStatus || '-'}
+				</Badge>
+			),
+		});
+	}
+
+	if (filter?.semesterStatuses && filter.semesterStatuses.length > 0) {
+		columns.push({
+			key: 'semesterStatus',
+			label: 'Semester Status',
+			minWidth: 130,
+			align: 'center',
+			render: (student) => (
+				<Badge variant='light' size='sm'>
+					{student.semesterStatus === 'DroppedOut'
+						? 'Dropped Out'
+						: student.semesterStatus || '-'}
+				</Badge>
+			),
+		});
+	}
+
+	if (
+		(filter?.ageRangeMin && filter.ageRangeMin !== 12) ||
+		(filter?.ageRangeMax && filter.ageRangeMax !== 75)
+	) {
+		columns.push({
+			key: 'age',
+			label: 'Age',
+			minWidth: 60,
+			align: 'center',
+			render: (student) => (
+				<Text size='sm'>{student.age !== null ? student.age : '-'}</Text>
+			),
+		});
+	}
+
+	return columns;
 }
 
 export default function StudentTable({
@@ -49,9 +157,14 @@ export default function StudentTable({
 	onPageChange,
 	searchQuery = '',
 	onSearchChange,
+	filter,
 }: StudentTableProps) {
 	const isMobile = useMediaQuery('(max-width: 768px)');
 	const showInitialLoader = isLoading && !data;
+	const dynamicColumns = getActiveFilterColumns(filter);
+
+	const baseColumnCount = 7;
+	const skeletonColumnCount = baseColumnCount + dynamicColumns.length;
 
 	if (showInitialLoader) {
 		const rowCount = isMobile ? 5 : 10;
@@ -76,6 +189,11 @@ export default function StudentTable({
 									<Table.Th ta='center'>Semester</Table.Th>
 									<Table.Th>School</Table.Th>
 									<Table.Th>Sponsor</Table.Th>
+									{dynamicColumns.map((col) => (
+										<Table.Th key={col.key} ta={col.align}>
+											{col.label}
+										</Table.Th>
+									))}
 								</Table.Tr>
 							</Table.Thead>
 							<Table.Tbody>
@@ -84,27 +202,22 @@ export default function StudentTable({
 									(_, i) => `skeleton-row-${i}`
 								).map((key) => (
 									<Table.Tr key={key}>
-										<Table.Td>
-											<Skeleton height={14} width={70} />
-										</Table.Td>
-										<Table.Td>
-											<Skeleton height={14} width='60%' />
-										</Table.Td>
-										<Table.Td ta='center'>
-											<Skeleton height={14} width={20} />
-										</Table.Td>
-										<Table.Td>
-											<Skeleton height={14} width='70%' />
-										</Table.Td>
-										<Table.Td ta='center'>
-											<Skeleton height={18} width={50} radius='sm' />
-										</Table.Td>
-										<Table.Td>
-											<Skeleton height={14} width={60} />
-										</Table.Td>
-										<Table.Td>
-											<Skeleton height={14} width='70%' />
-										</Table.Td>
+										{Array.from(
+											{ length: skeletonColumnCount },
+											(_, i) => `skeleton-col-${i}`
+										).map((colKey, colIndex) => (
+											<Table.Td
+												key={colKey}
+												ta={colIndex === 2 ? 'center' : undefined}
+											>
+												<Skeleton
+													height={14}
+													width={
+														colIndex === 0 ? 70 : colIndex === 2 ? 20 : '60%'
+													}
+												/>
+											</Table.Td>
+										))}
 									</Table.Tr>
 								))}
 							</Table.Tbody>
@@ -167,6 +280,11 @@ export default function StudentTable({
 								</Table.Th>
 								<Table.Th miw={100}>School</Table.Th>
 								<Table.Th miw={150}>Sponsor</Table.Th>
+								{dynamicColumns.map((col) => (
+									<Table.Th key={col.key} ta={col.align} miw={col.minWidth}>
+										{col.label}
+									</Table.Th>
+								))}
 							</Table.Tr>
 						</Table.Thead>
 						<Table.Tbody>
@@ -213,6 +331,11 @@ export default function StudentTable({
 											{student.sponsorName || '-'}
 										</Text>
 									</Table.Td>
+									{dynamicColumns.map((col) => (
+										<Table.Td key={col.key} ta={col.align}>
+											{col.render(student)}
+										</Table.Td>
+									))}
 								</Table.Tr>
 							))}
 						</Table.Tbody>

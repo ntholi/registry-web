@@ -1,4 +1,5 @@
 import type { ProgramLevel } from '@academic/_database/schema/enums';
+import type { SemesterStatus } from '@registry/_database/schema/enums';
 import { and, desc, eq, ilike, inArray, or, type SQL, sql } from 'drizzle-orm';
 import {
 	db,
@@ -27,7 +28,7 @@ export interface RegistrationReportFilter {
 	country?: string;
 	studentStatus?: string;
 	programStatus?: string;
-	semesterStatus?: string;
+	semesterStatuses?: string[];
 }
 
 export interface FullRegistrationStudent {
@@ -41,6 +42,12 @@ export interface FullRegistrationStudent {
 	status: string;
 	sponsorName: string | null;
 	gender: string | null;
+	programLevel: string | null;
+	country: string | null;
+	studentStatus: string | null;
+	programStatus: string | null;
+	semesterStatus: string | null;
+	age: number | null;
 }
 
 export interface SummaryProgramData {
@@ -108,6 +115,10 @@ interface StudentQueryRow {
 	gender: string | null;
 	dateOfBirth: Date | null;
 	country: string | null;
+	programLevel: string | null;
+	studentStatus: string | null;
+	programStatus: string | null;
+	semesterStatus: string | null;
 }
 
 interface ChartQueryRow {
@@ -141,6 +152,10 @@ export class RegistrationReportRepository {
 				gender: students.gender,
 				dateOfBirth: students.dateOfBirth,
 				country: students.country,
+				programLevel: programs.level,
+				studentStatus: students.status,
+				programStatus: studentPrograms.status,
+				semesterStatus: studentSemesters.status,
 			})
 			.from(studentSemesters)
 			.innerJoin(
@@ -224,9 +239,12 @@ export class RegistrationReportRepository {
 			conditions.push(inArray(studentPrograms.status, ['Active', 'Completed']));
 		}
 
-		if (filter?.semesterStatus) {
+		if (filter?.semesterStatuses && filter.semesterStatuses.length > 0) {
 			conditions.push(
-				sql`${studentSemesters.status} = ${filter.semesterStatus}`
+				inArray(
+					studentSemesters.status,
+					filter.semesterStatuses as SemesterStatus[]
+				)
 			);
 		} else {
 			conditions.push(
@@ -311,6 +329,15 @@ export class RegistrationReportRepository {
 	}
 
 	private mapRowToStudent(row: StudentQueryRow): FullRegistrationStudent {
+		let age: number | null = null;
+		if (row.dateOfBirth) {
+			const birthDate = new Date(row.dateOfBirth);
+			const today = new Date();
+			age = Math.floor(
+				(today.getTime() - birthDate.getTime()) / (365.25 * 24 * 60 * 60 * 1000)
+			);
+		}
+
 		return {
 			stdNo: row.stdNo,
 			name: row.name,
@@ -322,6 +349,12 @@ export class RegistrationReportRepository {
 			status: row.status,
 			sponsorName: row.sponsorName || null,
 			gender: row.gender || null,
+			programLevel: row.programLevel || null,
+			country: row.country || null,
+			studentStatus: row.studentStatus || null,
+			programStatus: row.programStatus || null,
+			semesterStatus: row.semesterStatus || null,
+			age,
 		};
 	}
 

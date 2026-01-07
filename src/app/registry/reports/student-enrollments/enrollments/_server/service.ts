@@ -91,7 +91,11 @@ export class RegistrationReportService {
 				generatedAt: new Date(),
 			};
 
-			const buffer = await createFullRegistrationExcel(fullReport, summaryData);
+			const buffer = await createFullRegistrationExcel(
+				fullReport,
+				summaryData,
+				filter
+			);
 			return buffer;
 		}, ['registry', 'admin', 'finance', 'academic']);
 	}

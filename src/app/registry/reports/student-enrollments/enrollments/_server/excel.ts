@@ -5,12 +5,89 @@ import sharp from 'sharp';
 import { compareSemesters, formatSemester } from '@/shared/lib/utils/utils';
 import type {
 	FullRegistrationReport,
+	RegistrationReportFilter,
 	SummaryRegistrationReport,
 } from './repository';
 
+interface DynamicExcelColumn {
+	key: string;
+	header: string;
+	width: number;
+	getValue: (student: FullRegistrationReport['students'][0]) => string | number;
+}
+
+function getActiveFilterColumns(
+	filter?: RegistrationReportFilter
+): DynamicExcelColumn[] {
+	const columns: DynamicExcelColumn[] = [];
+
+	if (filter?.programLevels && filter.programLevels.length > 0) {
+		columns.push({
+			key: 'programLevel',
+			header: 'Program Level',
+			width: 15,
+			getValue: (student) => student.programLevel || '-',
+		});
+	}
+
+	if (filter?.country) {
+		columns.push({
+			key: 'country',
+			header: 'Country',
+			width: 15,
+			getValue: (student) => student.country || '-',
+		});
+	}
+
+	if (filter?.studentStatus) {
+		columns.push({
+			key: 'studentStatus',
+			header: 'Student Status',
+			width: 15,
+			getValue: (student) => student.studentStatus || '-',
+		});
+	}
+
+	if (filter?.programStatus) {
+		columns.push({
+			key: 'programStatus',
+			header: 'Program Status',
+			width: 15,
+			getValue: (student) => student.programStatus || '-',
+		});
+	}
+
+	if (filter?.semesterStatuses && filter.semesterStatuses.length > 0) {
+		columns.push({
+			key: 'semesterStatus',
+			header: 'Semester Status',
+			width: 15,
+			getValue: (student) =>
+				student.semesterStatus === 'DroppedOut'
+					? 'Dropped Out'
+					: student.semesterStatus || '-',
+		});
+	}
+
+	if (
+		(filter?.ageRangeMin && filter.ageRangeMin !== 12) ||
+		(filter?.ageRangeMax && filter.ageRangeMax !== 75)
+	) {
+		columns.push({
+			key: 'age',
+			header: 'Age',
+			width: 8,
+			getValue: (student) => (student.age !== null ? student.age : '-'),
+		});
+	}
+
+	return columns;
+}
+
 export async function createFullRegistrationExcel(
 	report: FullRegistrationReport,
-	summaryReport?: SummaryRegistrationReport
+	summaryReport?: SummaryRegistrationReport,
+	filter?: RegistrationReportFilter
 ): Promise<Buffer> {
 	const workbook = new ExcelJS.Workbook();
 
@@ -21,7 +98,9 @@ export async function createFullRegistrationExcel(
 
 	const worksheet = workbook.addWorksheet('Full Registration Report');
 
-	worksheet.columns = [
+	const dynamicColumns = getActiveFilterColumns(filter);
+
+	const baseColumns = [
 		{ header: 'No.', key: 'no', width: 6 },
 		{ header: 'Student Number', key: 'stdNo', width: 15 },
 		{ header: 'Student Name', key: 'name', width: 30 },
@@ -31,6 +110,20 @@ export async function createFullRegistrationExcel(
 		{ header: 'Sponsor', key: 'sponsor', width: 20 },
 		{ header: 'School', key: 'school', width: 46 },
 	];
+
+	const allColumns = [
+		...baseColumns,
+		...dynamicColumns.map((col) => ({
+			header: col.header,
+			key: col.key,
+			width: col.width,
+		})),
+	];
+
+	worksheet.columns = allColumns;
+
+	const totalColumnCount = allColumns.length;
+	const lastColLetter = String.fromCharCode(64 + totalColumnCount);
 
 	const logoPath = path.join(
 		process.cwd(),
@@ -67,37 +160,37 @@ export async function createFullRegistrationExcel(
 		editAs: 'oneCell',
 	});
 
-	worksheet.mergeCells('A1:H1');
+	worksheet.mergeCells(`A1:${lastColLetter}1`);
 	worksheet.getCell('A1').value = '';
 
-	worksheet.mergeCells('A2:H2');
+	worksheet.mergeCells(`A2:${lastColLetter}2`);
 	worksheet.getCell('A2').value = '';
 
-	worksheet.mergeCells('A3:H3');
+	worksheet.mergeCells(`A3:${lastColLetter}3`);
 	worksheet.getCell('A3').value = '';
 
-	worksheet.mergeCells('A4:H4');
+	worksheet.mergeCells(`A4:${lastColLetter}4`);
 	worksheet.getCell('A4').value = '';
 
-	worksheet.mergeCells('A5:H5');
+	worksheet.mergeCells(`A5:${lastColLetter}5`);
 	worksheet.getCell('A5').value = '';
 
-	worksheet.mergeCells('A6:H6');
+	worksheet.mergeCells(`A6:${lastColLetter}6`);
 	worksheet.getCell('A6').value = 'Registration Report';
 	worksheet.getCell('A6').font = { name: 'Arial', size: 16, bold: true };
 	worksheet.getCell('A6').alignment = { horizontal: 'center' };
 
-	worksheet.mergeCells('A7:H7');
+	worksheet.mergeCells(`A7:${lastColLetter}7`);
 	worksheet.getCell('A7').value = `Term: ${report.termCode}`;
 	worksheet.getCell('A7').font = { name: 'Arial', size: 12, bold: true };
 	worksheet.getCell('A7').alignment = { horizontal: 'center' };
 
-	worksheet.mergeCells('A8:H8');
+	worksheet.mergeCells(`A8:${lastColLetter}8`);
 	worksheet.getCell('A8').value = `Total Students: ${report.totalStudents}`;
 	worksheet.getCell('A8').font = { name: 'Arial', size: 12 };
 	worksheet.getCell('A8').alignment = { horizontal: 'center' };
 
-	worksheet.mergeCells('A9:H9');
+	worksheet.mergeCells(`A9:${lastColLetter}9`);
 	worksheet.getCell('A9').value =
 		`Generated: ${report.generatedAt.toLocaleDateString('en-LS', {
 			year: 'numeric',
@@ -111,7 +204,7 @@ export async function createFullRegistrationExcel(
 
 	worksheet.addRow([]);
 
-	const headerRow = worksheet.addRow([
+	const headerLabels = [
 		'No.',
 		'Student Number',
 		'Student Name',
@@ -120,7 +213,10 @@ export async function createFullRegistrationExcel(
 		'Semester',
 		'Sponsor',
 		'School',
-	]);
+		...dynamicColumns.map((col) => col.header),
+	];
+
+	const headerRow = worksheet.addRow(headerLabels);
 
 	headerRow.font = { name: 'Arial', size: 12, bold: true };
 	headerRow.alignment = { horizontal: 'center', vertical: 'middle' };
@@ -133,7 +229,7 @@ export async function createFullRegistrationExcel(
 			color: { argb: 'FF000000' },
 		};
 
-		if (colNumber >= 1 && colNumber <= 8) {
+		if (colNumber >= 1 && colNumber <= totalColumnCount) {
 			cell.fill = {
 				type: 'pattern',
 				pattern: 'solid',
@@ -156,7 +252,7 @@ export async function createFullRegistrationExcel(
 	});
 
 	report.students.forEach((student, index) => {
-		const row = worksheet.addRow([
+		const baseRowData = [
 			index + 1,
 			student.stdNo,
 			student.name,
@@ -165,7 +261,11 @@ export async function createFullRegistrationExcel(
 			formatSemester(student.semesterNumber, 'short'),
 			student.sponsorName || '-',
 			student.schoolName,
-		]);
+		];
+
+		const dynamicRowData = dynamicColumns.map((col) => col.getValue(student));
+
+		const row = worksheet.addRow([...baseRowData, ...dynamicRowData]);
 
 		row.font = { name: 'Arial', size: 11 };
 		row.alignment = { horizontal: 'left', vertical: 'middle' };
