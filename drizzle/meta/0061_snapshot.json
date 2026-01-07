@@ -3588,31 +3588,18 @@
 			"checkConstraints": {},
 			"isRLSEnabled": false
 		},
-		"public.payment_receipts": {
-			"name": "payment_receipts",
+		"public.graduation_request_receipts": {
+			"name": "graduation_request_receipts",
 			"schema": "",
 			"columns": {
-				"id": {
-					"name": "id",
-					"type": "serial",
-					"primaryKey": true,
-					"notNull": true
-				},
 				"graduation_request_id": {
 					"name": "graduation_request_id",
 					"type": "integer",
 					"primaryKey": false,
 					"notNull": true
 				},
-				"payment_type": {
-					"name": "payment_type",
-					"type": "payment_type",
-					"typeSchema": "public",
-					"primaryKey": false,
-					"notNull": true
-				},
-				"receipt_no": {
-					"name": "receipt_no",
+				"receipt_id": {
+					"name": "receipt_id",
 					"type": "text",
 					"primaryKey": false,
 					"notNull": true
@@ -3626,8 +3613,8 @@
 				}
 			},
 			"indexes": {
-				"fk_payment_receipts_graduation_request_id": {
-					"name": "fk_payment_receipts_graduation_request_id",
+				"fk_graduation_request_receipts_graduation_request_id": {
+					"name": "fk_graduation_request_receipts_graduation_request_id",
 					"columns": [
 						{
 							"expression": "graduation_request_id",
@@ -3640,17 +3627,148 @@
 					"with": {},
 					"method": "btree",
 					"concurrently": false
+				},
+				"fk_graduation_request_receipts_receipt_id": {
+					"name": "fk_graduation_request_receipts_receipt_id",
+					"columns": [
+						{
+							"expression": "receipt_id",
+							"isExpression": false,
+							"asc": true,
+							"nulls": "last"
+						}
+					],
+					"isUnique": false,
+					"with": {},
+					"method": "btree",
+					"concurrently": false
 				}
 			},
 			"foreignKeys": {
-				"payment_receipts_graduation_request_id_graduation_requests_id_fk": {
-					"name": "payment_receipts_graduation_request_id_graduation_requests_id_fk",
-					"tableFrom": "payment_receipts",
+				"graduation_request_receipts_graduation_request_id_graduation_requests_id_fk": {
+					"name": "graduation_request_receipts_graduation_request_id_graduation_requests_id_fk",
+					"tableFrom": "graduation_request_receipts",
 					"columnsFrom": ["graduation_request_id"],
 					"tableTo": "graduation_requests",
 					"columnsTo": ["id"],
 					"onUpdate": "no action",
 					"onDelete": "cascade"
+				},
+				"graduation_request_receipts_receipt_id_payment_receipts_id_fk": {
+					"name": "graduation_request_receipts_receipt_id_payment_receipts_id_fk",
+					"tableFrom": "graduation_request_receipts",
+					"columnsFrom": ["receipt_id"],
+					"tableTo": "payment_receipts",
+					"columnsTo": ["id"],
+					"onUpdate": "no action",
+					"onDelete": "cascade"
+				}
+			},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {
+				"graduation_request_receipts_graduationRequestId_receiptId_unique": {
+					"name": "graduation_request_receipts_graduationRequestId_receiptId_unique",
+					"columns": ["graduation_request_id", "receipt_id"],
+					"nullsNotDistinct": false
+				}
+			},
+			"policies": {},
+			"checkConstraints": {},
+			"isRLSEnabled": false
+		},
+		"public.payment_receipts": {
+			"name": "payment_receipts",
+			"schema": "",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "text",
+					"primaryKey": true,
+					"notNull": true
+				},
+				"receipt_no": {
+					"name": "receipt_no",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"receipt_type": {
+					"name": "receipt_type",
+					"type": "receipt_type",
+					"typeSchema": "public",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"std_no": {
+					"name": "std_no",
+					"type": "bigint",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"created_by": {
+					"name": "created_by",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"created_at": {
+					"name": "created_at",
+					"type": "timestamp",
+					"primaryKey": false,
+					"notNull": false,
+					"default": "now()"
+				}
+			},
+			"indexes": {
+				"fk_payment_receipts_std_no": {
+					"name": "fk_payment_receipts_std_no",
+					"columns": [
+						{
+							"expression": "std_no",
+							"isExpression": false,
+							"asc": true,
+							"nulls": "last"
+						}
+					],
+					"isUnique": false,
+					"with": {},
+					"method": "btree",
+					"concurrently": false
+				},
+				"idx_payment_receipts_receipt_type": {
+					"name": "idx_payment_receipts_receipt_type",
+					"columns": [
+						{
+							"expression": "receipt_type",
+							"isExpression": false,
+							"asc": true,
+							"nulls": "last"
+						}
+					],
+					"isUnique": false,
+					"with": {},
+					"method": "btree",
+					"concurrently": false
+				}
+			},
+			"foreignKeys": {
+				"payment_receipts_std_no_students_std_no_fk": {
+					"name": "payment_receipts_std_no_students_std_no_fk",
+					"tableFrom": "payment_receipts",
+					"columnsFrom": ["std_no"],
+					"tableTo": "students",
+					"columnsTo": ["std_no"],
+					"onUpdate": "no action",
+					"onDelete": "cascade"
+				},
+				"payment_receipts_created_by_users_id_fk": {
+					"name": "payment_receipts_created_by_users_id_fk",
+					"tableFrom": "payment_receipts",
+					"columnsFrom": ["created_by"],
+					"tableTo": "users",
+					"columnsTo": ["id"],
+					"onUpdate": "no action",
+					"onDelete": "set null"
 				}
 			},
 			"compositePrimaryKeys": {},
@@ -3859,8 +3977,8 @@
 					"primaryKey": true,
 					"notNull": true
 				},
-				"receipt_no": {
-					"name": "receipt_no",
+				"receipt_id": {
+					"name": "receipt_id",
 					"type": "text",
 					"primaryKey": false,
 					"notNull": true
@@ -3886,6 +4004,21 @@
 				}
 			},
 			"indexes": {
+				"fk_student_card_prints_receipt_id": {
+					"name": "fk_student_card_prints_receipt_id",
+					"columns": [
+						{
+							"expression": "receipt_id",
+							"isExpression": false,
+							"asc": true,
+							"nulls": "last"
+						}
+					],
+					"isUnique": false,
+					"with": {},
+					"method": "btree",
+					"concurrently": false
+				},
 				"fk_student_card_prints_std_no": {
 					"name": "fk_student_card_prints_std_no",
 					"columns": [
@@ -3918,6 +4051,15 @@
 				}
 			},
 			"foreignKeys": {
+				"student_card_prints_receipt_id_payment_receipts_id_fk": {
+					"name": "student_card_prints_receipt_id_payment_receipts_id_fk",
+					"tableFrom": "student_card_prints",
+					"columnsFrom": ["receipt_id"],
+					"tableTo": "payment_receipts",
+					"columnsTo": ["id"],
+					"onUpdate": "no action",
+					"onDelete": "cascade"
+				},
 				"student_card_prints_std_no_students_std_no_fk": {
 					"name": "student_card_prints_std_no_students_std_no_fk",
 					"tableFrom": "student_card_prints",
@@ -3938,13 +4080,7 @@
 				}
 			},
 			"compositePrimaryKeys": {},
-			"uniqueConstraints": {
-				"student_card_prints_receiptNo_unique": {
-					"name": "student_card_prints_receiptNo_unique",
-					"columns": ["receipt_no"],
-					"nullsNotDistinct": false
-				}
-			},
+			"uniqueConstraints": {},
 			"policies": {},
 			"checkConstraints": {},
 			"isRLSEnabled": false
@@ -6481,10 +6617,17 @@
 				"Other"
 			]
 		},
-		"public.payment_type": {
-			"name": "payment_type",
+		"public.receipt_type": {
+			"name": "receipt_type",
 			"schema": "public",
-			"values": ["graduation_gown", "graduation_fee"]
+			"values": [
+				"graduation_gown",
+				"graduation_fee",
+				"student_card",
+				"repeat_modules",
+				"late_registration",
+				"tuition_fee"
+			]
 		},
 		"public.program_status": {
 			"name": "program_status",

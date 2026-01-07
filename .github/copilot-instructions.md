@@ -65,7 +65,7 @@ University student registration portal managing academic records, course registr
 - **Never** use custom CSS or Tailwind; use Mantine v8 components only.
 - **Never** use the `pages` router; use the `app` router exclusively.
 - **Never** import `db` outside of `repository.ts` files.
-- **Never** create new .sql migration files manually; it corrupts the _journal. Always use pnpm db:generate (or --custom if schema hasn't changed). Once the CLI generates the file, you may then edit the .sql content to add custom migration logic.
+- **Never** create new .sql migration files manually; it corrupts the _journal. Always use pnpm db:generate (or --custom if schema hasn't changed, but remember to update *_snapshot.json after manually editing the .sql file). Once the CLI generates the file, you may then edit the .sql content to add custom migration logic.
 
 ### UI Rules
 - Mantine-only styling (no custom CSS)
