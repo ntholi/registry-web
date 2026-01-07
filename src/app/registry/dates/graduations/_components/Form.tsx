@@ -47,19 +47,17 @@ export default function GraduationForm({
 			queryKey={['graduations']}
 			schema={createInsertSchema(graduationDates)}
 			defaultValues={defaultValues}
-			onSuccess={({ graduationDate }) => {
-				router.push(`/registry/dates/graduations/${graduationDate}`);
+			onSuccess={({ date }) => {
+				router.push(`/registry/dates/graduations/${date}`);
 			}}
 		>
 			{(form) => (
 				<>
 					<DateInput
 						label='Graduation Date'
-						value={parseDate(form.values.graduationDate)}
-						onChange={(date) =>
-							form.setFieldValue('graduationDate', formatDate(date))
-						}
-						error={form.errors.graduationDate}
+						value={parseDate(form.values.date)}
+						onChange={(d) => form.setFieldValue('date', formatDate(d))}
+						error={form.errors.date}
 						required
 					/>
 					<Select

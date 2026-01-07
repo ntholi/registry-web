@@ -14,7 +14,7 @@ export default class GraduationRepository extends BaseRepository<
 
 	async findByDate(date: string) {
 		return db.query.graduationDates.findFirst({
-			where: eq(graduationDates.graduationDate, date),
+			where: eq(graduationDates.date, date),
 			with: { term: true },
 		});
 	}
@@ -23,21 +23,21 @@ export default class GraduationRepository extends BaseRepository<
 		return db
 			.select({
 				id: graduationDates.id,
-				graduationDate: graduationDates.graduationDate,
+				date: graduationDates.date,
 				termId: graduationDates.termId,
 				createdAt: graduationDates.createdAt,
 				term: terms,
 			})
 			.from(graduationDates)
 			.leftJoin(terms, eq(graduationDates.termId, terms.id))
-			.orderBy(desc(graduationDates.graduationDate));
+			.orderBy(desc(graduationDates.date));
 	}
 
 	async findById(id: number) {
 		const result = await db
 			.select({
 				id: graduationDates.id,
-				graduationDate: graduationDates.graduationDate,
+				date: graduationDates.date,
 				termId: graduationDates.termId,
 				createdAt: graduationDates.createdAt,
 				term: terms,

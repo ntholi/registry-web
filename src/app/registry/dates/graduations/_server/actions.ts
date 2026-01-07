@@ -13,7 +13,7 @@ export async function findAllGraduations(page: number = 1, search = '') {
 	return service.findAll({
 		page,
 		search,
-		sort: [{ column: 'graduationDate', order: 'desc' }],
+		sort: [{ column: 'date', order: 'desc' }],
 	});
 }
 

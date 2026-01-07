@@ -1,0 +1,1 @@
+ALTER TABLE "graduation_dates" RENAME COLUMN "graduation_date" TO "date";

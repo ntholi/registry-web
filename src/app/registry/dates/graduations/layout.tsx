@@ -13,9 +13,7 @@ export default function Layout({ children }: PropsWithChildren) {
 			actionIcons={[
 				<NewLink key={'new-link'} href='/registry/dates/graduations/new' />,
 			]}
-			renderItem={(it) => (
-				<ListItem id={it.graduationDate} label={it.graduationDate} />
-			)}
+			renderItem={(it) => <ListItem id={it.date} label={it.date} />}
 		>
 			{children}
 		</ListLayout>

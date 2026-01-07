@@ -33,9 +33,7 @@ export default async function GraduationDetails({ params }: Props) {
 				}}
 			/>
 			<DetailsViewBody>
-				<FieldView label='Graduation Date'>
-					{graduation.graduationDate}
-				</FieldView>
+				<FieldView label='Graduation Date'>{graduation.date}</FieldView>
 				<FieldView label='Term'>{graduation.term?.code}</FieldView>
 			</DetailsViewBody>
 		</DetailsView>

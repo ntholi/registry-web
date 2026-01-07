@@ -3,7 +3,7 @@ import { terms } from './terms';
 
 export const graduationDates = pgTable('graduation_dates', {
 	id: serial().primaryKey(),
-	graduationDate: text().notNull(),
+	date: text().notNull(),
 	termId: integer()
 		.references(() => terms.id, { onDelete: 'cascade' })
 		.notNull(),
