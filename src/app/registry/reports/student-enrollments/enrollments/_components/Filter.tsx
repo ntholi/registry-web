@@ -9,7 +9,10 @@ import {
 } from '@academic/schools/_server/actions';
 import {
 	Badge,
+	Box,
 	Button,
+	Chip,
+	Divider,
 	Flex,
 	Grid,
 	Group,
@@ -38,7 +41,7 @@ import {
 	parseAsString,
 	useQueryStates,
 } from 'nuqs';
-import { useEffect } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { formatSemester } from '@/shared/lib/utils/utils';
 import {
 	getAvailableCountriesForReports,
@@ -66,7 +69,43 @@ export interface ReportFilter {
 	country?: string;
 	studentStatus?: string;
 	programStatus?: string;
-	semesterStatus?: string;
+	semesterStatuses?: string[];
+	visibleColumns?: string[];
+}
+
+const BASE_COLUMNS = [
+	{ value: 'stdNo', label: 'Student No.' },
+	{ value: 'name', label: 'Name' },
+	{ value: 'gender', label: 'Gender' },
+	{ value: 'program', label: 'Program' },
+	{ value: 'semester', label: 'Semester' },
+	{ value: 'school', label: 'School' },
+	{ value: 'sponsor', label: 'Sponsor' },
+];
+
+const FILTER_COLUMNS = [
+	{ value: 'programLevel', label: 'Program Level', filterKey: 'programLevels' },
+	{ value: 'country', label: 'Country', filterKey: 'country' },
+	{
+		value: 'studentStatus',
+		label: 'Student Status',
+		filterKey: 'studentStatus',
+	},
+	{
+		value: 'programStatus',
+		label: 'Program Status',
+		filterKey: 'programStatus',
+	},
+	{
+		value: 'semesterStatus',
+		label: 'Semester Status',
+		filterKey: 'semesterStatuses',
+	},
+	{ value: 'age', label: 'Age', filterKey: 'ageRange' },
+];
+
+export function getDefaultVisibleColumns(): string[] {
+	return BASE_COLUMNS.map((col) => col.value);
 }
 
 interface Props {
@@ -89,12 +128,75 @@ export default function EnrollmentFilter({ onFilterChange }: Props) {
 			country: parseAsString,
 			studentStatus: parseAsString,
 			programStatus: parseAsString,
-			semesterStatus: parseAsString,
+			semesterStatuses: parseAsArrayOf(parseAsString),
+			visibleColumns: parseAsArrayOf(parseAsString),
 		},
 		{
 			history: 'push',
 			shallow: false,
 		}
+	);
+
+	const hasAgeFilter =
+		localFilter.ageRangeMin !== 12 || localFilter.ageRangeMax !== 75;
+
+	const activeFilterColumnKeys = useMemo(() => {
+		const activeColumns: string[] = [];
+		if (localFilter.programLevels && localFilter.programLevels.length > 0) {
+			activeColumns.push('programLevel');
+		}
+		if (localFilter.country) {
+			activeColumns.push('country');
+		}
+		if (localFilter.studentStatus) {
+			activeColumns.push('studentStatus');
+		}
+		if (localFilter.programStatus) {
+			activeColumns.push('programStatus');
+		}
+		if (
+			localFilter.semesterStatuses &&
+			localFilter.semesterStatuses.length > 0
+		) {
+			activeColumns.push('semesterStatus');
+		}
+		if (hasAgeFilter) {
+			activeColumns.push('age');
+		}
+		return activeColumns;
+	}, [
+		localFilter.programLevels,
+		localFilter.country,
+		localFilter.studentStatus,
+		localFilter.programStatus,
+		localFilter.semesterStatuses,
+		hasAgeFilter,
+	]);
+
+	const prevActiveFilterColumnsRef = useRef<string[]>([]);
+
+	useEffect(() => {
+		const prevKeys = prevActiveFilterColumnsRef.current;
+		const newKeys = activeFilterColumnKeys.filter(
+			(key) => !prevKeys.includes(key)
+		);
+
+		if (newKeys.length > 0) {
+			const currentCols =
+				localFilter.visibleColumns ?? getDefaultVisibleColumns();
+			const updatedCols = [...new Set([...currentCols, ...newKeys])];
+			setLocalFilter({ visibleColumns: updatedCols });
+		}
+
+		prevActiveFilterColumnsRef.current = activeFilterColumnKeys;
+	}, [activeFilterColumnKeys, setLocalFilter, localFilter.visibleColumns]);
+
+	const userSelectedColumns = useMemo(
+		() =>
+			localFilter.visibleColumns && localFilter.visibleColumns.length > 0
+				? localFilter.visibleColumns
+				: getDefaultVisibleColumns(),
+		[localFilter.visibleColumns]
 	);
 
 	useEffect(() => {
@@ -119,13 +221,18 @@ export default function EnrollmentFilter({ onFilterChange }: Props) {
 			country: localFilter.country ?? undefined,
 			studentStatus: localFilter.studentStatus ?? undefined,
 			programStatus: localFilter.programStatus ?? undefined,
-			semesterStatus: localFilter.semesterStatus ?? undefined,
+			semesterStatuses:
+				localFilter.semesterStatuses && localFilter.semesterStatuses.length > 0
+					? localFilter.semesterStatuses
+					: undefined,
+			visibleColumns: userSelectedColumns,
 		};
 		onFilterChange(newFilter);
-	}, [localFilter, onFilterChange]);
+	}, [localFilter, onFilterChange, userSelectedColumns]);
 
-	const hasAgeFilter =
-		localFilter.ageRangeMin !== 12 || localFilter.ageRangeMax !== 75;
+	const availableFilterColumns = FILTER_COLUMNS.filter((col) =>
+		activeFilterColumnKeys.includes(col.value)
+	);
 
 	const activeFiltersCount =
 		[
@@ -135,7 +242,7 @@ export default function EnrollmentFilter({ onFilterChange }: Props) {
 			localFilter.country,
 			localFilter.studentStatus,
 			localFilter.programStatus,
-			localFilter.semesterStatus,
+			localFilter.semesterStatuses && localFilter.semesterStatuses.length > 0,
 			localFilter.programLevels && localFilter.programLevels.length > 0,
 		].filter(Boolean).length || 0;
 
@@ -208,6 +315,13 @@ export default function EnrollmentFilter({ onFilterChange }: Props) {
 			return;
 		}
 
+		if (field === 'semesterStatuses') {
+			setLocalFilter({
+				semesterStatuses: Array.isArray(value) ? (value as string[]) : null,
+			});
+			return;
+		}
+
 		const updates: Record<
 			string,
 			string | number | string[] | number[] | null
@@ -218,7 +332,7 @@ export default function EnrollmentFilter({ onFilterChange }: Props) {
 		if (field === 'programId') {
 			updates.programStatus = null;
 		} else if (field === 'semesterNumber') {
-			updates.semesterStatus = null;
+			updates.semesterStatuses = null;
 		}
 
 		setLocalFilter(updates as Partial<typeof localFilter>);
@@ -466,23 +580,52 @@ export default function EnrollmentFilter({ onFilterChange }: Props) {
 							disabled={!localFilter.programId}
 						/>
 					</SimpleGrid>
-					<Select
+					<MultiSelect
 						label='Semester Status'
 						placeholder='All statuses'
 						data={semesterStatus.enumValues.map((status) => ({
 							value: status,
 							label: status === 'DroppedOut' ? 'Dropped Out' : status,
 						}))}
-						value={localFilter.semesterStatus ?? null}
-						onChange={(value) => handleChange('semesterStatus', value)}
+						value={localFilter.semesterStatuses ?? []}
+						onChange={(value) => handleChange('semesterStatuses', value)}
 						searchable
 						clearable
 					/>
-					<Group justify='flex-end' mt='md'>
-						<Button variant='default' onClick={close}>
-							Close
-						</Button>
-					</Group>
+
+					<Divider my='sm' label='Visible Columns' labelPosition='center' />
+
+					<Box>
+						<Chip.Group
+							multiple
+							value={userSelectedColumns}
+							onChange={(value) =>
+								setLocalFilter({
+									visibleColumns: value.length > 0 ? value : null,
+								})
+							}
+						>
+							<Group gap='xs'>
+								{BASE_COLUMNS.map((col) => (
+									<Chip key={col.value} value={col.value} size='xs'>
+										{col.label}
+									</Chip>
+								))}
+								{availableFilterColumns.map((col) => (
+									<Chip key={col.value} value={col.value} size='xs'>
+										{col.label}
+									</Chip>
+								))}
+							</Group>
+						</Chip.Group>
+						{availableFilterColumns.length > 0 && (
+							<Text size='xs' c='dimmed' mt='xs'>
+								Filter columns (
+								{availableFilterColumns.map((c) => c.label).join(', ')}) are
+								auto-selected when their filter is applied
+							</Text>
+						)}
+					</Box>
 				</Stack>
 			</Modal>
 		</>

@@ -57,7 +57,8 @@ export default function RegistrationReportPage() {
 		country: parseAsString,
 		studentStatus: parseAsString,
 		programStatus: parseAsString,
-		semesterStatus: parseAsString,
+		semesterStatuses: parseAsArrayOf(parseAsString),
+		visibleColumns: parseAsArrayOf(parseAsString),
 	});
 
 	const [filter, setFilter] = useState<ReportFilter>({});
@@ -87,7 +88,14 @@ export default function RegistrationReportPage() {
 			country: urlParams.country ?? undefined,
 			studentStatus: urlParams.studentStatus ?? undefined,
 			programStatus: urlParams.programStatus ?? undefined,
-			semesterStatus: urlParams.semesterStatus ?? undefined,
+			semesterStatuses:
+				urlParams.semesterStatuses && urlParams.semesterStatuses.length > 0
+					? urlParams.semesterStatuses
+					: undefined,
+			visibleColumns:
+				urlParams.visibleColumns && urlParams.visibleColumns.length > 0
+					? urlParams.visibleColumns
+					: undefined,
 		};
 		setFilter(newFilter);
 	}, [urlParams]);
@@ -398,6 +406,7 @@ export default function RegistrationReportPage() {
 									onPageChange={handlePageChange}
 									searchQuery={searchQuery}
 									onSearchChange={handleSearchChange}
+									filter={filter}
 								/>
 							</Stack>
 						</Tabs.Panel>
