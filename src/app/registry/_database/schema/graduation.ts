@@ -9,6 +9,7 @@ import {
 	timestamp,
 	unique,
 } from 'drizzle-orm/pg-core';
+import { graduationDates } from './graduations';
 import { clearance } from './registration';
 import { studentPrograms } from './students';
 
@@ -20,6 +21,9 @@ export const graduationRequests = pgTable(
 			.references(() => studentPrograms.id, { onDelete: 'cascade' })
 			.unique()
 			.notNull(),
+		graduationDateId: integer().references(() => graduationDates.id, {
+			onDelete: 'set null',
+		}),
 		informationConfirmed: boolean().notNull().default(false),
 		message: text(),
 		createdAt: timestamp().defaultNow(),
@@ -28,6 +32,9 @@ export const graduationRequests = pgTable(
 	(table) => ({
 		studentProgramIdIdx: index('fk_graduation_requests_student_program_id').on(
 			table.studentProgramId
+		),
+		graduationDateIdIdx: index('fk_graduation_requests_graduation_date_id').on(
+			table.graduationDateId
 		),
 	})
 );

@@ -84,7 +84,7 @@ class GraduationRequestService {
 				paymentReceipts,
 				stdNo,
 			});
-		}, ['student']);
+		}, ['student', 'registry', 'admin']);
 	}
 
 	async update(id: number, data: Partial<GraduationRequest>) {

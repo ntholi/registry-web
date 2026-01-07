@@ -31,10 +31,17 @@ class GraduationClearanceService {
 	async findByDepartment(
 		department: DashboardUser,
 		params: QueryOptions<typeof clearance>,
-		status?: 'pending' | 'approved' | 'rejected'
+		status?: 'pending' | 'approved' | 'rejected',
+		graduationDateId?: number
 	) {
 		return withAuth(
-			async () => this.repository.findByDepartment(department, params, status),
+			async () =>
+				this.repository.findByDepartment(
+					department,
+					params,
+					status,
+					graduationDateId
+				),
 			['dashboard']
 		);
 	}

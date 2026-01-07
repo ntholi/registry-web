@@ -1,7 +1,7 @@
 'use client';
 
-import { getActiveTerm } from '@registry/dates/terms';
-import { clearanceByStatus } from '@registry/registration/requests';
+import { getLatestGraduationDate } from '@registry/dates/graduations';
+import { graduationClearanceByStatus } from '@registry/graduation/clearance';
 import { IconAlertCircle, IconCheck, IconClock } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useAtom } from 'jotai';
@@ -9,41 +9,44 @@ import { useParams } from 'next/navigation';
 import type { PropsWithChildren } from 'react';
 import { getStatusColor } from '@/shared/lib/utils/colors';
 import { ListItem, ListLayout } from '@/shared/ui/adease';
-import { selectedTermAtom } from '@/shared/ui/atoms/termAtoms';
-import TermFilter from '@/shared/ui/TermFilter';
+import { selectedGraduationDateAtom } from '@/shared/ui/atoms/graduationAtoms';
+import GraduationDateFilter from '@/shared/ui/GraduationDateFilter';
 
 type Status = 'pending' | 'approved' | 'rejected';
 
-type ClearanceItem = {
+type GraduationClearanceItem = {
 	id: number;
 	status: Status;
-	registrationRequest: {
-		student: {
+	graduationRequest: {
+		studentProgram: {
 			stdNo: number;
-			name: string;
+			student: {
+				stdNo: number;
+				name: string;
+			};
 		};
 	} | null;
 };
 
 const statusTitles = {
-	pending: 'Pending Clearance Requests',
-	approved: 'Approved Clearances',
-	rejected: 'Rejected Clearances',
+	pending: 'Pending Graduation Clearance Requests',
+	approved: 'Approved Graduation Clearances',
+	rejected: 'Rejected Graduation Clearances',
 };
 
 export default function Layout({ children }: PropsWithChildren) {
 	const params = useParams();
 	const status = params.status as Status;
-	const [selectedTerm, setSelectedTerm] = useAtom(selectedTermAtom);
+	const [selectedDate, setSelectedDate] = useAtom(selectedGraduationDateAtom);
 
-	const { data: activeTerm } = useQuery({
-		queryKey: ['active-term'],
-		queryFn: getActiveTerm,
-		staleTime: 5 * 60 * 1000, // 5 minutes
+	const { data: latestDate } = useQuery({
+		queryKey: ['latest-graduation-date'],
+		queryFn: getLatestGraduationDate,
+		staleTime: 5 * 60 * 1000,
 	});
 
-	if (activeTerm?.id && !selectedTerm) {
-		setSelectedTerm(activeTerm.id);
+	if (latestDate?.id && !selectedDate) {
+		setSelectedDate(latestDate.id);
 	}
 
 	if (!statusTitles[status]) {
@@ -52,19 +55,19 @@ export default function Layout({ children }: PropsWithChildren) {
 
 	return (
 		<ListLayout
-			path={`/registry/registration/clearance/${status}`}
+			path={`/registry/graduation/clearance/${status}`}
 			queryKey={[
-				'clearances',
+				'graduation-clearances',
 				status,
-				selectedTerm?.toString() || activeTerm?.id?.toString() || 'all',
+				selectedDate?.toString() || latestDate?.id?.toString() || 'all',
 			]}
 			getData={async (page, search) => {
-				const termToUse = selectedTerm || activeTerm?.id;
-				const response = await clearanceByStatus(
+				const dateToUse = selectedDate || latestDate?.id;
+				const response = await graduationClearanceByStatus(
 					status,
 					page,
 					search,
-					termToUse || undefined
+					dateToUse || undefined
 				);
 				return {
 					items: response.items || [],
@@ -72,13 +75,18 @@ export default function Layout({ children }: PropsWithChildren) {
 				};
 			}}
 			actionIcons={[
-				<TermFilter key='term-filter' onTermChange={setSelectedTerm} />,
+				<GraduationDateFilter
+					key='graduation-date-filter'
+					onDateChange={setSelectedDate}
+				/>,
 			]}
-			renderItem={(it: ClearanceItem) => (
+			renderItem={(it: GraduationClearanceItem) => (
 				<ListItem
 					id={it.id}
-					label={it.registrationRequest?.student.stdNo || 'N/A'}
-					description={it.registrationRequest?.student.name || 'Unknown'}
+					label={
+						it.graduationRequest?.studentProgram.stdNo || 'Unknown Student'
+					}
+					description={it.graduationRequest?.studentProgram.student.name}
 					rightSection={getStatusIcon(it.status)}
 				/>
 			)}

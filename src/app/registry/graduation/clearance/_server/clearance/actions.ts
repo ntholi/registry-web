@@ -25,7 +25,8 @@ export async function countRejectedGraduationClearances() {
 export async function graduationClearanceByStatus(
 	status: 'pending' | 'approved' | 'rejected',
 	page: number = 1,
-	search = ''
+	search = '',
+	graduationDateId?: number
 ) {
 	const session = await auth();
 	if (!session?.user?.role) {
@@ -38,7 +39,8 @@ export async function graduationClearanceByStatus(
 	const res = await service.findByDepartment(
 		session.user.role as DashboardUser,
 		{ page, search },
-		status
+		status,
+		graduationDateId
 	);
 	return { items: res.items, totalPages: res.totalPages };
 }

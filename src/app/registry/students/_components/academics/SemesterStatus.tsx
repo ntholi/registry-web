@@ -19,6 +19,7 @@ export default function SemesterStatusView({ status }: Props) {
 			case 'Inactive':
 			case 'DNR':
 			case 'DroppedOut':
+			case 'Withdrawn':
 				return 'red';
 			case 'Deferred':
 				return 'yellow';

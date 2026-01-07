@@ -435,6 +435,41 @@
 			"when": 1767674850137,
 			"tag": "0061_aromatic_martin_li",
 			"breakpoints": true
+		},
+		{
+			"idx": 62,
+			"version": "7",
+			"when": 1767770442929,
+			"tag": "0062_military_mandroid",
+			"breakpoints": true
+		},
+		{
+			"idx": 63,
+			"version": "7",
+			"when": 1767771912965,
+			"tag": "0063_thankful_komodo",
+			"breakpoints": true
+		},
+		{
+			"idx": 64,
+			"version": "7",
+			"when": 1767774939246,
+			"tag": "0064_silly_spitfire",
+			"breakpoints": true
+		},
+		{
+			"idx": 65,
+			"version": "7",
+			"when": 1767778807371,
+			"tag": "0065_chunky_timeslip",
+			"breakpoints": true
+		},
+		{
+			"idx": 66,
+			"version": "7",
+			"when": 1767783401114,
+			"tag": "0066_eager_oracle",
+			"breakpoints": true
 		}
 	]
 }

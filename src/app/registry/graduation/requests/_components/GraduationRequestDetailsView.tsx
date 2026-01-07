@@ -4,6 +4,7 @@ import { ActionIcon, Flex, Paper, Stack, Text, Tooltip } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { IconCopy } from '@tabler/icons-react';
 import type { getGraduationRequest } from '@/app/registry/graduation/clearance/_server/requests/actions';
+import { formatDateTime } from '@/shared/lib/utils/utils';
 import { FieldView } from '@/shared/ui/adease';
 import Link from '@/shared/ui/Link';
 
@@ -23,17 +24,13 @@ export default function GraduationRequestDetailsView({ value }: Props) {
 					{value.studentProgram.structure.program.name}
 				</FieldView>
 			</Flex>
+			<FieldView label='Graduation Date' underline={false}>
+				{value.graduationDate?.date}
+			</FieldView>
 			<Flex justify='space-between' w='100%'>
-				<FieldView label='Created At' underline={false}>
-					{value.createdAt
-						? new Date(value.createdAt).toLocaleDateString()
-						: 'N/A'}
+				<FieldView label='Date Requested' underline={false}>
+					{formatDateTime(value.createdAt)}
 				</FieldView>
-				{value.updatedAt && (
-					<FieldView label='Updated At' underline={false}>
-						{new Date(value.updatedAt).toLocaleDateString()}
-					</FieldView>
-				)}
 			</Flex>
 			{value.message && (
 				<Paper withBorder p='md'>

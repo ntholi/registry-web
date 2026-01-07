@@ -25,7 +25,7 @@ export default async function GraduationDetails({ params }: Props) {
 	return (
 		<DetailsView>
 			<DetailsViewHeader
-				title={'Graduation'}
+				title={`Graduation #${graduation.id}`}
 				queryKey={['graduations']}
 				handleDelete={async () => {
 					'use server';
@@ -33,9 +33,7 @@ export default async function GraduationDetails({ params }: Props) {
 				}}
 			/>
 			<DetailsViewBody>
-				<FieldView label='Graduation Date'>
-					{graduation.graduationDate}
-				</FieldView>
+				<FieldView label='Graduation Date'>{graduation.date}</FieldView>
 				<FieldView label='Term'>{graduation.term?.code}</FieldView>
 			</DetailsViewBody>
 		</DetailsView>

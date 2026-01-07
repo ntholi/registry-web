@@ -1,19 +1,27 @@
 'use server';
 
-import type { graduations } from '@/core/database';
+import type { graduationDates } from '@/core/database';
 import { graduationsService as service } from './service';
 
-type Graduation = typeof graduations.$inferInsert;
+type Graduation = typeof graduationDates.$inferInsert;
 
 export async function getGraduationByDate(date: string) {
 	return service.getByDateWithTerm(date);
+}
+
+export async function getLatestGraduationDate() {
+	return service.getLatest();
+}
+
+export async function getAllGraduationDates() {
+	return service.getAllGraduationDates();
 }
 
 export async function findAllGraduations(page: number = 1, search = '') {
 	return service.findAll({
 		page,
 		search,
-		sort: [{ column: 'graduationDate', order: 'desc' }],
+		sort: [{ column: 'date', order: 'desc' }],
 	});
 }
 

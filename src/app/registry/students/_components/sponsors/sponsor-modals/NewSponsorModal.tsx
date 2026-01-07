@@ -71,7 +71,7 @@ export default function NewSponsorModal({ stdNo }: Props) {
 			<Button
 				leftSection={<IconPlus size={14} />}
 				variant='filled'
-				size='sm'
+				size='xs'
 				color='blue'
 				onClick={open}
 			>

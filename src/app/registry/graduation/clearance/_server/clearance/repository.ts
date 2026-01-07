@@ -7,6 +7,7 @@ import {
 	type DashboardUser,
 	db,
 	graduationClearance,
+	graduationRequestReceipts,
 	graduationRequests,
 	programs,
 	schools,
@@ -109,6 +110,7 @@ export default class GraduationClearanceRepository extends BaseRepository<
 				clearance: { with: { respondedBy: true } },
 				graduationRequest: {
 					with: {
+						graduationDate: true,
 						studentProgram: {
 							with: {
 								student: true,
@@ -119,11 +121,6 @@ export default class GraduationClearanceRepository extends BaseRepository<
 								},
 							},
 						},
-						graduationRequestReceipts: {
-							with: {
-								receipt: true,
-							},
-						},
 					},
 				},
 			},
@@ -131,24 +128,33 @@ export default class GraduationClearanceRepository extends BaseRepository<
 
 		if (!gc) return null;
 
-		const paymentReceipts =
-			gc.graduationRequest.graduationRequestReceipts?.map((r) => r.receipt) ||
-			[];
+		const receipts = await db.query.graduationRequestReceipts.findMany({
+			where: eq(
+				graduationRequestReceipts.graduationRequestId,
+				gc.graduationRequest.id
+			),
+			with: {
+				receipt: true,
+			},
+		});
+
+		const paymentReceipts = receipts.map((r) => r.receipt);
 
 		return {
 			...gc.clearance,
 			graduationRequest: {
 				...gc.graduationRequest,
 				paymentReceipts,
+				graduationRequestReceipts: receipts,
 			},
-			graduationRequestReceipts: gc.graduationRequest.graduationRequestReceipts,
 		};
 	}
 
 	async findByDepartment(
 		department: DashboardUser,
 		params: QueryOptions<typeof clearance>,
-		status?: 'pending' | 'approved' | 'rejected'
+		status?: 'pending' | 'approved' | 'rejected',
+		graduationDateId?: number
 	) {
 		const session = await auth();
 		const { offset, limit } = this.buildQueryCriteria(params);
@@ -164,6 +170,9 @@ export default class GraduationClearanceRepository extends BaseRepository<
 				: undefined,
 			eq(clearance.department, department),
 			status ? eq(clearance.status, status) : undefined,
+			graduationDateId
+				? eq(graduationRequests.graduationDateId, graduationDateId)
+				: undefined,
 		].filter(Boolean);
 
 		const schoolFilter =
