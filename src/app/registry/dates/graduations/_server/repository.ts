@@ -1,20 +1,20 @@
 import { desc, eq } from 'drizzle-orm';
-import { db, graduations, terms } from '@/core/database';
+import { db, graduationDates, terms } from '@/core/database';
 import BaseRepository from '@/core/platform/BaseRepository';
 
-export type GraduationInsert = typeof graduations.$inferInsert;
+export type GraduationInsert = typeof graduationDates.$inferInsert;
 
 export default class GraduationRepository extends BaseRepository<
-	typeof graduations,
+	typeof graduationDates,
 	'id'
 > {
 	constructor() {
-		super(graduations, graduations.id);
+		super(graduationDates, graduationDates.id);
 	}
 
 	async findByDate(date: string) {
-		return db.query.graduations.findFirst({
-			where: eq(graduations.graduationDate, date),
+		return db.query.graduationDates.findFirst({
+			where: eq(graduationDates.graduationDate, date),
 			with: { term: true },
 		});
 	}
@@ -22,29 +22,29 @@ export default class GraduationRepository extends BaseRepository<
 	async findAll() {
 		return db
 			.select({
-				id: graduations.id,
-				graduationDate: graduations.graduationDate,
-				termId: graduations.termId,
-				createdAt: graduations.createdAt,
+				id: graduationDates.id,
+				graduationDate: graduationDates.graduationDate,
+				termId: graduationDates.termId,
+				createdAt: graduationDates.createdAt,
 				term: terms,
 			})
-			.from(graduations)
-			.leftJoin(terms, eq(graduations.termId, terms.id))
-			.orderBy(desc(graduations.graduationDate));
+			.from(graduationDates)
+			.leftJoin(terms, eq(graduationDates.termId, terms.id))
+			.orderBy(desc(graduationDates.graduationDate));
 	}
 
 	async findById(id: number) {
 		const result = await db
 			.select({
-				id: graduations.id,
-				graduationDate: graduations.graduationDate,
-				termId: graduations.termId,
-				createdAt: graduations.createdAt,
+				id: graduationDates.id,
+				graduationDate: graduationDates.graduationDate,
+				termId: graduationDates.termId,
+				createdAt: graduationDates.createdAt,
 				term: terms,
 			})
-			.from(graduations)
-			.leftJoin(terms, eq(graduations.termId, terms.id))
-			.where(eq(graduations.id, id));
+			.from(graduationDates)
+			.leftJoin(terms, eq(graduationDates.termId, terms.id))
+			.where(eq(graduationDates.id, id));
 		return result[0];
 	}
 }

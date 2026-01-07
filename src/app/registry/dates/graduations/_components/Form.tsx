@@ -2,12 +2,12 @@
 
 import { Select } from '@mantine/core';
 import { DateInput } from '@mantine/dates';
-import { graduations } from '@registry/_database';
+import { graduationDates } from '@registry/_database';
 import { createInsertSchema } from 'drizzle-zod';
 import { useRouter } from 'nextjs-toploader/app';
 import { Form } from '@/shared/ui/adease';
 
-type Graduation = typeof graduations.$inferInsert;
+type Graduation = typeof graduationDates.$inferInsert;
 
 type TermOption = {
 	id: number;
@@ -45,7 +45,7 @@ export default function GraduationForm({
 			title={title}
 			action={onSubmit}
 			queryKey={['graduations']}
-			schema={createInsertSchema(graduations)}
+			schema={createInsertSchema(graduationDates)}
 			defaultValues={defaultValues}
 			onSuccess={({ graduationDate }) => {
 				router.push(`/registry/dates/graduations/${graduationDate}`);

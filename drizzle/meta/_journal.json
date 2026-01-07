@@ -435,6 +435,13 @@
 			"when": 1767674850137,
 			"tag": "0061_aromatic_martin_li",
 			"breakpoints": true
+		},
+		{
+			"idx": 62,
+			"version": "7",
+			"when": 1767770442929,
+			"tag": "0062_military_mandroid",
+			"breakpoints": true
 		}
 	]
 }
