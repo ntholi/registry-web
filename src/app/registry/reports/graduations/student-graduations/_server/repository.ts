@@ -405,14 +405,7 @@ export class GraduationReportRepository {
 	}> {
 		const fullData = await this.getFullGraduationData(filter);
 
-		const uniqueStudents = new Map<number, GraduatedStudent>();
-		fullData.forEach((student) => {
-			if (!uniqueStudents.has(student.stdNo)) {
-				uniqueStudents.set(student.stdNo, student);
-			}
-		});
-
-		let students = Array.from(uniqueStudents.values());
+		let students = fullData;
 
 		if (filter?.searchQuery?.trim()) {
 			const searchLower = filter.searchQuery.trim().toLowerCase();
