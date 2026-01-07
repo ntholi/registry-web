@@ -25,7 +25,7 @@ export default async function GraduationDetails({ params }: Props) {
 	return (
 		<DetailsView>
 			<DetailsViewHeader
-				title={'Graduation'}
+				title={`Graduation #${graduation.id}`}
 				queryKey={['graduations']}
 				handleDelete={async () => {
 					'use server';
