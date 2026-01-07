@@ -1,7 +1,11 @@
 'use client';
-import { Card, Grid, Group, Loader, Stack, Text } from '@mantine/core';
 import { BarChart, DonutChart, PieChart } from '@mantine/charts';
-import { IconChartBar, IconChartDonut, IconChartPie } from '@tabler/icons-react';
+import { Card, Grid, Group, Loader, Stack, Text } from '@mantine/core';
+import {
+	IconChartBar,
+	IconChartDonut,
+	IconChartPie,
+} from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { getGraduationChartData } from '../_server/actions';
 import type { GraduationReportFilter } from './Filter';
@@ -48,36 +52,40 @@ export default function GraduationCharts({ filter }: Props) {
 		graduates: item.count,
 	}));
 
-	const levelChartData = chartData.graduatesByLevel.map((item, index) => {
-		const colors = [
-			'blue',
-			'green',
-			'orange',
-			'violet',
-			'pink',
-			'teal',
-			'cyan',
-		];
-		return {
-			name: item.level,
-			value: item.count,
-			color: colors[index % colors.length],
-		};
-	});
+	const levelChartData = chartData.graduatesByLevel.map(
+		(item, index: number) => {
+			const colors = [
+				'blue',
+				'green',
+				'orange',
+				'violet',
+				'pink',
+				'teal',
+				'cyan',
+			];
+			return {
+				name: item.level,
+				value: item.count,
+				color: colors[index % colors.length],
+			};
+		}
+	);
 
-	const genderChartData = chartData.graduatesByGender.map((item) => {
-		const color =
-			item.gender === 'Male'
-				? 'blue'
-				: item.gender === 'Female'
-					? 'pink'
-					: 'gray';
-		return {
-			name: item.gender,
-			value: item.count,
-			color,
-		};
-	});
+	const genderChartData = chartData.graduatesByGender.map(
+		(item: { gender: string; count: number }) => {
+			const color =
+				item.gender === 'Male'
+					? 'blue'
+					: item.gender === 'Female'
+						? 'pink'
+						: 'gray';
+			return {
+				name: item.gender,
+				value: item.count,
+				color,
+			};
+		}
+	);
 
 	return (
 		<Grid gutter='md'>
@@ -95,7 +103,9 @@ export default function GraduationCharts({ filter }: Props) {
 								h={300}
 								data={schoolChartData}
 								dataKey='name'
-								series={[{ name: 'graduates', label: 'Graduates', color: 'blue' }]}
+								series={[
+									{ name: 'graduates', label: 'Graduates', color: 'blue' },
+								]}
 								tickLine='y'
 								gridAxis='y'
 							/>
@@ -172,13 +182,24 @@ export default function GraduationCharts({ filter }: Props) {
 						{chartData.graduatesByProgram.length > 0 ? (
 							<BarChart
 								h={300}
-								data={chartData.graduatesByProgram.slice(0, 10).map((item) => ({
-									name: item.code,
-									value: item.count,
-									graduates: item.count,
-								}))}
+								data={chartData.graduatesByProgram
+									.slice(0, 10)
+									.map(
+										(item: {
+											name: string;
+											code: string;
+											count: number;
+											school: string;
+										}) => ({
+											name: item.code,
+											value: item.count,
+											graduates: item.count,
+										})
+									)}
 								dataKey='name'
-								series={[{ name: 'graduates', label: 'Graduates', color: 'green' }]}
+								series={[
+									{ name: 'graduates', label: 'Graduates', color: 'green' },
+								]}
 								tickLine='y'
 								gridAxis='y'
 							/>

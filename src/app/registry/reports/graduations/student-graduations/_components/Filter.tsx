@@ -22,12 +22,14 @@ import {
 	Paper,
 	RangeSlider,
 	Select,
-	SimpleGrid,
 	Stack,
 	Text,
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
-import { getAvailableCountriesForReports } from '@registry/reports/student-enrollments/enrollments/_server/actions';
+import {
+	getAvailableCountriesForReports,
+	getAvailableSponsorsForReports,
+} from '@registry/reports/student-enrollments/enrollments/_server/actions';
 import { IconAdjustments, IconFilter } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import {
@@ -37,7 +39,6 @@ import {
 	useQueryStates,
 } from 'nuqs';
 import { useEffect, useMemo, useRef } from 'react';
-import { getAvailableSponsorsForReports } from '@registry/reports/student-enrollments/enrollments/_server/actions';
 
 const BASE_COLUMNS = [
 	{ value: 'stdNo', label: 'Student No.' },

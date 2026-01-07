@@ -1,9 +1,13 @@
-import { Card, Container, Grid, Group, Stack, Text, Title } from '@mantine/core';
 import {
-	IconCertificate,
-	IconFileText,
-	IconUsers,
-} from '@tabler/icons-react';
+	Card,
+	Container,
+	Grid,
+	Group,
+	Stack,
+	Text,
+	Title,
+} from '@mantine/core';
+import { IconCertificate } from '@tabler/icons-react';
 import Link from '@/shared/ui/Link';
 
 export default function GraduationReportsPage() {
@@ -40,8 +44,8 @@ export default function GraduationReportsPage() {
 											Student Graduations
 										</Text>
 										<Text size='sm' c='dimmed'>
-											View and export graduation data by graduation date, school,
-											and program
+											View and export graduation data by graduation date,
+											school, and program
 										</Text>
 									</Stack>
 								</Stack>

@@ -50,8 +50,7 @@ export class GraduationReportService {
 		filter?: GraduationsFilter
 	): Promise<Buffer> {
 		return withAuth(async () => {
-			const reportData =
-				await this.repository.getSummaryGraduationData(filter);
+			const reportData = await this.repository.getSummaryGraduationData(filter);
 
 			const document = createGraduationSummaryDocument(reportData);
 			const buffer = await Packer.toBuffer(document);
@@ -59,7 +58,9 @@ export class GraduationReportService {
 		}, ['registry', 'admin', 'finance', 'academic']);
 	}
 
-	async generateStudentsListReport(filter?: GraduationsFilter): Promise<Buffer> {
+	async generateStudentsListReport(
+		filter?: GraduationsFilter
+	): Promise<Buffer> {
 		return withAuth(async () => {
 			const summaryData =
 				await this.repository.getSummaryGraduationData(filter);

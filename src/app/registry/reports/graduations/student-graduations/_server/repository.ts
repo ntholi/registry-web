@@ -1,5 +1,13 @@
-import type { ProgramLevel } from '@academic/_database/schema/enums';
-import { and, eq, ilike, inArray, isNotNull, or, sql, type SQL } from 'drizzle-orm';
+import {
+	and,
+	eq,
+	ilike,
+	inArray,
+	isNotNull,
+	or,
+	type SQL,
+	sql,
+} from 'drizzle-orm';
 import {
 	db,
 	programs,
@@ -14,8 +22,8 @@ import {
 import type {
 	GraduatedStudent,
 	GraduationChartData,
-	GraduationsFilter,
 	GraduationSummaryStats,
+	GraduationsFilter,
 	SummaryProgramData,
 	SummarySchoolData,
 } from '../_lib/types';
@@ -186,7 +194,8 @@ export class GraduationReportRepository {
 			const birthDate = new Date(row.dateOfBirth);
 			const gradDate = new Date(row.graduationDate);
 			age = Math.floor(
-				(gradDate.getTime() - birthDate.getTime()) / (365.25 * 24 * 60 * 60 * 1000)
+				(gradDate.getTime() - birthDate.getTime()) /
+					(365.25 * 24 * 60 * 60 * 1000)
 			);
 		}
 
@@ -299,7 +308,8 @@ export class GraduationReportRepository {
 				.map(([level, count]) => ({ level, count }))
 				.sort((a, b) => b.count - a.count),
 			averageAge: ageCount > 0 ? Math.round(totalAge / ageCount) : null,
-			averageTimeToGraduate: timeCount > 0 ? Math.round(totalTime / timeCount) : null,
+			averageTimeToGraduate:
+				timeCount > 0 ? Math.round(totalTime / timeCount) : null,
 		};
 	}
 
@@ -372,7 +382,7 @@ export class GraduationReportRepository {
 			.orderBy(schools.name, programs.name);
 
 		const uniqueStudents = new Map<number, StudentQueryRow>();
-		result.forEach((row) => {
+		result.forEach((row: StudentQueryRow) => {
 			if (!uniqueStudents.has(row.stdNo)) {
 				uniqueStudents.set(row.stdNo, row);
 			}

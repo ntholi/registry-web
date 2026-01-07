@@ -2,8 +2,8 @@ import { Card, Group, Stack, Text } from '@mantine/core';
 import {
 	IconCertificate,
 	IconClock,
-	IconUsers,
 	IconUserCheck,
+	IconUsers,
 } from '@tabler/icons-react';
 
 interface Props {

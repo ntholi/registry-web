@@ -181,13 +181,14 @@ export async function createGraduationStudentsExcel(
 	worksheet.getCell('A7').alignment = { horizontal: 'center' };
 
 	worksheet.mergeCells(`A8:${lastColLetter}8`);
-	worksheet.getCell('A8').value = `Generated: ${report.generatedAt.toLocaleDateString('en-LS', {
-		year: 'numeric',
-		month: 'long',
-		day: 'numeric',
-		hour: '2-digit',
-		minute: '2-digit',
-	})}`;
+	worksheet.getCell('A8').value =
+		`Generated: ${report.generatedAt.toLocaleDateString('en-LS', {
+			year: 'numeric',
+			month: 'long',
+			day: 'numeric',
+			hour: '2-digit',
+			minute: '2-digit',
+		})}`;
 	worksheet.getCell('A8').font = { name: 'Arial', size: 10 };
 	worksheet.getCell('A8').alignment = { horizontal: 'center' };
 
@@ -233,9 +234,9 @@ export async function createGraduationStudentsExcel(
 		dataRow.font = { size: 10 };
 	});
 
-	worksheet.eachRow((row, rowNumber) => {
+	worksheet.eachRow((row: ExcelJS.Row, rowNumber: number) => {
 		if (rowNumber > 10) {
-			row.eachCell((cell) => {
+			row.eachCell((cell: ExcelJS.Cell) => {
 				cell.border = {
 					top: { style: 'thin', color: { argb: 'FFCCCCCC' } },
 					left: { style: 'thin', color: { argb: 'FFCCCCCC' } },
@@ -313,9 +314,9 @@ export async function createGraduationStudentsExcel(
 		summaryWorksheet.addRow([item.level, item.count]);
 	});
 
-	summaryWorksheet.eachRow((row, rowNumber) => {
+	summaryWorksheet.eachRow((row: ExcelJS.Row, rowNumber: number) => {
 		if (rowNumber > 5) {
-			row.eachCell((cell) => {
+			row.eachCell((cell: ExcelJS.Cell) => {
 				cell.border = {
 					top: { style: 'thin', color: { argb: 'FFCCCCCC' } },
 					left: { style: 'thin', color: { argb: 'FFCCCCCC' } },

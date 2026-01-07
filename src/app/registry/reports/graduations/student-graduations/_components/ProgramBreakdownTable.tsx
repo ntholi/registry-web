@@ -49,7 +49,8 @@ export default function ProgramBreakdownTable({ school, loading }: Props) {
 						{school.schoolCode}
 					</Text>
 					<Badge variant='light' color='blue' size='lg'>
-						{school.totalGraduates} Graduate{school.totalGraduates !== 1 ? 's' : ''}
+						{school.totalGraduates} Graduate
+						{school.totalGraduates !== 1 ? 's' : ''}
 					</Badge>
 				</Stack>
 

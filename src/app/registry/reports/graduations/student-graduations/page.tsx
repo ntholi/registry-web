@@ -13,6 +13,7 @@ import {
 } from '@mantine/core';
 import { useDebouncedValue } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
+import { getAllGraduationDates } from '@registry/dates/graduations/_server/actions';
 import {
 	IconChartBar,
 	IconChartPie,
@@ -20,14 +21,13 @@ import {
 	IconInfoCircle,
 	IconUsers,
 } from '@tabler/icons-react';
-import { getAllGraduationDates } from '@registry/dates/graduations/_server/actions';
 import { useQuery } from '@tanstack/react-query';
 import { parseAsString, useQueryState } from 'nuqs';
-import { useCallback, useEffect, useState } from 'react';
-import GraduationCharts from './_components/GraduationCharts';
+import { useCallback, useState } from 'react';
 import GraduationFilter, {
 	type GraduationReportFilter,
 } from './_components/Filter';
+import GraduationCharts from './_components/GraduationCharts';
 import GraduationStats from './_components/GraduationStats';
 import ProgramBreakdownTable from './_components/ProgramBreakdownTable';
 import StudentTable from './_components/StudentTable';
@@ -108,11 +108,14 @@ export default function GraduationReportPage() {
 		setCurrentPage(page);
 	};
 
-	const handleFilterChange = useCallback((newFilter: GraduationReportFilter) => {
-		setFilter(newFilter);
-		setCurrentPage(1);
-		setSearchQuery('');
-	}, []);
+	const handleFilterChange = useCallback(
+		(newFilter: GraduationReportFilter) => {
+			setFilter(newFilter);
+			setCurrentPage(1);
+			setSearchQuery('');
+		},
+		[]
+	);
 
 	const handleSearchChange = useCallback((query: string) => {
 		setSearchQuery(query);
@@ -259,9 +262,15 @@ export default function GraduationReportPage() {
 				)}
 
 				{isFilterApplied && canGenerateReport && (
-					<Tabs value={activeTab} onChange={(val) => setActiveTab(val)}>
+					<Tabs
+						value={activeTab}
+						onChange={(val: string | null) => setActiveTab(val)}
+					>
 						<Tabs.List>
-							<Tabs.Tab value='summary' leftSection={<IconChartBar size={16} />}>
+							<Tabs.Tab
+								value='summary'
+								leftSection={<IconChartBar size={16} />}
+							>
 								Summary
 							</Tabs.Tab>
 							<Tabs.Tab value='students' leftSection={<IconUsers size={16} />}>
@@ -311,7 +320,10 @@ export default function GraduationReportPage() {
 								) : reportData?.summaryData?.schools &&
 									reportData.summaryData.schools.length > 0 ? (
 									reportData.summaryData.schools.map((school) => (
-										<ProgramBreakdownTable key={school.schoolName} school={school} />
+										<ProgramBreakdownTable
+											key={school.schoolName}
+											school={school}
+										/>
 									))
 								) : (
 									<Alert color='blue' variant='light'>

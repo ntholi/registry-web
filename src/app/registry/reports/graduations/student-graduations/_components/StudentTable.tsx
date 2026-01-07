@@ -17,8 +17,8 @@ import { useMediaQuery } from '@mantine/hooks';
 import { IconSearch } from '@tabler/icons-react';
 import Link from '@/shared/ui/Link';
 import {
-	getDefaultVisibleColumns,
 	type GraduationReportFilter,
+	getDefaultVisibleColumns,
 } from './Filter';
 
 interface Student {
@@ -52,7 +52,7 @@ interface TableColumn {
 	label: string;
 	minWidth: number;
 	align?: 'left' | 'center' | 'right';
-	render: (student: Student) => React.ReactNode;
+	render: (student: Student) => JSX.Element | string | number;
 }
 
 const ALL_COLUMNS: TableColumn[] = [
@@ -155,7 +155,9 @@ const ALL_COLUMNS: TableColumn[] = [
 		minWidth: 60,
 		align: 'center',
 		render: (student) => (
-			<Text size='sm'>{student.age !== null && student.age !== undefined ? student.age : '-'}</Text>
+			<Text size='sm'>
+				{student.age !== null && student.age !== undefined ? student.age : '-'}
+			</Text>
 		),
 	},
 ];
