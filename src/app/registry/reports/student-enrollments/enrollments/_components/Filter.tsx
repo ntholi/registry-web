@@ -9,7 +9,10 @@ import {
 } from '@academic/schools/_server/actions';
 import {
 	Badge,
+	Box,
 	Button,
+	Chip,
+	Divider,
 	Flex,
 	Grid,
 	Group,
@@ -38,7 +41,7 @@ import {
 	parseAsString,
 	useQueryStates,
 } from 'nuqs';
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { formatSemester } from '@/shared/lib/utils/utils';
 import {
 	getAvailableCountriesForReports,
@@ -67,6 +70,42 @@ export interface ReportFilter {
 	studentStatus?: string;
 	programStatus?: string;
 	semesterStatuses?: string[];
+	visibleColumns?: string[];
+}
+
+const BASE_COLUMNS = [
+	{ value: 'stdNo', label: 'Student No.' },
+	{ value: 'name', label: 'Name' },
+	{ value: 'gender', label: 'Gender' },
+	{ value: 'program', label: 'Program' },
+	{ value: 'semester', label: 'Semester' },
+	{ value: 'school', label: 'School' },
+	{ value: 'sponsor', label: 'Sponsor' },
+];
+
+const FILTER_COLUMNS = [
+	{ value: 'programLevel', label: 'Program Level', filterKey: 'programLevels' },
+	{ value: 'country', label: 'Country', filterKey: 'country' },
+	{
+		value: 'studentStatus',
+		label: 'Student Status',
+		filterKey: 'studentStatus',
+	},
+	{
+		value: 'programStatus',
+		label: 'Program Status',
+		filterKey: 'programStatus',
+	},
+	{
+		value: 'semesterStatus',
+		label: 'Semester Status',
+		filterKey: 'semesterStatuses',
+	},
+	{ value: 'age', label: 'Age', filterKey: 'ageRange' },
+];
+
+export function getDefaultVisibleColumns(): string[] {
+	return BASE_COLUMNS.map((col) => col.value);
 }
 
 interface Props {
@@ -90,11 +129,61 @@ export default function EnrollmentFilter({ onFilterChange }: Props) {
 			studentStatus: parseAsString,
 			programStatus: parseAsString,
 			semesterStatuses: parseAsArrayOf(parseAsString),
+			visibleColumns: parseAsArrayOf(parseAsString),
 		},
 		{
 			history: 'push',
 			shallow: false,
 		}
+	);
+
+	const hasAgeFilter =
+		localFilter.ageRangeMin !== 12 || localFilter.ageRangeMax !== 75;
+
+	const activeFilterColumnKeys = useMemo(() => {
+		const activeColumns: string[] = [];
+		if (localFilter.programLevels && localFilter.programLevels.length > 0) {
+			activeColumns.push('programLevel');
+		}
+		if (localFilter.country) {
+			activeColumns.push('country');
+		}
+		if (localFilter.studentStatus) {
+			activeColumns.push('studentStatus');
+		}
+		if (localFilter.programStatus) {
+			activeColumns.push('programStatus');
+		}
+		if (
+			localFilter.semesterStatuses &&
+			localFilter.semesterStatuses.length > 0
+		) {
+			activeColumns.push('semesterStatus');
+		}
+		if (hasAgeFilter) {
+			activeColumns.push('age');
+		}
+		return activeColumns;
+	}, [
+		localFilter.programLevels,
+		localFilter.country,
+		localFilter.studentStatus,
+		localFilter.programStatus,
+		localFilter.semesterStatuses,
+		hasAgeFilter,
+	]);
+
+	const userSelectedColumns = useMemo(
+		() =>
+			localFilter.visibleColumns && localFilter.visibleColumns.length > 0
+				? localFilter.visibleColumns
+				: getDefaultVisibleColumns(),
+		[localFilter.visibleColumns]
+	);
+
+	const effectiveVisibleColumns = useMemo(
+		() => [...new Set([...userSelectedColumns, ...activeFilterColumnKeys])],
+		[userSelectedColumns, activeFilterColumnKeys]
 	);
 
 	useEffect(() => {
@@ -123,12 +212,14 @@ export default function EnrollmentFilter({ onFilterChange }: Props) {
 				localFilter.semesterStatuses && localFilter.semesterStatuses.length > 0
 					? localFilter.semesterStatuses
 					: undefined,
+			visibleColumns: effectiveVisibleColumns,
 		};
 		onFilterChange(newFilter);
-	}, [localFilter, onFilterChange]);
+	}, [localFilter, onFilterChange, effectiveVisibleColumns]);
 
-	const hasAgeFilter =
-		localFilter.ageRangeMin !== 12 || localFilter.ageRangeMax !== 75;
+	const availableFilterColumns = FILTER_COLUMNS.filter((col) =>
+		activeFilterColumnKeys.includes(col.value)
+	);
 
 	const activeFiltersCount =
 		[
@@ -488,6 +579,44 @@ export default function EnrollmentFilter({ onFilterChange }: Props) {
 						searchable
 						clearable
 					/>
+
+					<Divider my='md' label='Visible Columns' labelPosition='center' />
+
+					<Box>
+						<Text size='sm' fw={500} mb='xs'>
+							Select columns to display in table and export
+						</Text>
+						<Chip.Group
+							multiple
+							value={userSelectedColumns}
+							onChange={(value) =>
+								setLocalFilter({
+									visibleColumns: value.length > 0 ? value : null,
+								})
+							}
+						>
+							<Group gap='xs'>
+								{BASE_COLUMNS.map((col) => (
+									<Chip key={col.value} value={col.value} size='xs'>
+										{col.label}
+									</Chip>
+								))}
+								{availableFilterColumns.map((col) => (
+									<Chip key={col.value} value={col.value} size='xs'>
+										{col.label}
+									</Chip>
+								))}
+							</Group>
+						</Chip.Group>
+						{availableFilterColumns.length > 0 && (
+							<Text size='xs' c='dimmed' mt='xs'>
+								Filter columns (
+								{availableFilterColumns.map((c) => c.label).join(', ')}) are
+								always visible when their filter is active
+							</Text>
+						)}
+					</Box>
+
 					<Group justify='flex-end' mt='md'>
 						<Button variant='default' onClick={close}>
 							Close

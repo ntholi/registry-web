@@ -58,6 +58,7 @@ export default function RegistrationReportPage() {
 		studentStatus: parseAsString,
 		programStatus: parseAsString,
 		semesterStatuses: parseAsArrayOf(parseAsString),
+		visibleColumns: parseAsArrayOf(parseAsString),
 	});
 
 	const [filter, setFilter] = useState<ReportFilter>({});
@@ -90,6 +91,10 @@ export default function RegistrationReportPage() {
 			semesterStatuses:
 				urlParams.semesterStatuses && urlParams.semesterStatuses.length > 0
 					? urlParams.semesterStatuses
+					: undefined,
+			visibleColumns:
+				urlParams.visibleColumns && urlParams.visibleColumns.length > 0
+					? urlParams.visibleColumns
 					: undefined,
 		};
 		setFilter(newFilter);

@@ -17,7 +17,7 @@ import { useMediaQuery } from '@mantine/hooks';
 import { IconSearch } from '@tabler/icons-react';
 import { formatSemester } from '@/shared/lib/utils/utils';
 import Link from '@/shared/ui/Link';
-import type { ReportFilter } from './Filter';
+import { getDefaultVisibleColumns, type ReportFilter } from './Filter';
 
 interface Student {
 	stdNo: number;
@@ -48,7 +48,7 @@ interface StudentTableProps {
 	filter?: ReportFilter;
 }
 
-interface DynamicColumn {
+interface TableColumn {
 	key: string;
 	label: string;
 	minWidth: number;
@@ -56,96 +56,149 @@ interface DynamicColumn {
 	render: (student: Student) => React.ReactNode;
 }
 
-function getActiveFilterColumns(filter?: ReportFilter): DynamicColumn[] {
-	const columns: DynamicColumn[] = [];
+const ALL_COLUMNS: TableColumn[] = [
+	{
+		key: 'stdNo',
+		label: 'Student No.',
+		minWidth: 90,
+		render: (student) => (
+			<Link href={`/registry/students/${student.stdNo}`} size='sm' fw={500}>
+				{student.stdNo}
+			</Link>
+		),
+	},
+	{
+		key: 'name',
+		label: 'Name',
+		minWidth: 200,
+		render: (student) => <Text size='sm'>{student.name}</Text>,
+	},
+	{
+		key: 'gender',
+		label: 'Gender',
+		minWidth: 70,
+		align: 'center',
+		render: (student) => (
+			<Text size='sm'>
+				{student.gender === 'Male'
+					? 'M'
+					: student.gender === 'Female'
+						? 'F'
+						: '-'}
+			</Text>
+		),
+	},
+	{
+		key: 'program',
+		label: 'Program',
+		minWidth: 250,
+		render: (student) => (
+			<Text size='sm' c='dimmed'>
+				{student.programName}
+			</Text>
+		),
+	},
+	{
+		key: 'semester',
+		label: 'Semester',
+		minWidth: 90,
+		align: 'center',
+		render: (student) => (
+			<Badge variant='light' size='sm'>
+				{formatSemester(student.semesterNumber, 'mini')}
+			</Badge>
+		),
+	},
+	{
+		key: 'school',
+		label: 'School',
+		minWidth: 100,
+		render: (student) => (
+			<Text size='sm' fw={500}>
+				{student.schoolCode}
+			</Text>
+		),
+	},
+	{
+		key: 'sponsor',
+		label: 'Sponsor',
+		minWidth: 150,
+		render: (student) => (
+			<Text size='sm' c='dimmed'>
+				{student.sponsorName || '-'}
+			</Text>
+		),
+	},
+	{
+		key: 'programLevel',
+		label: 'Level',
+		minWidth: 100,
+		align: 'center',
+		render: (student) => (
+			<Badge variant='outline' size='sm'>
+				{student.programLevel || '-'}
+			</Badge>
+		),
+	},
+	{
+		key: 'country',
+		label: 'Country',
+		minWidth: 100,
+		render: (student) => (
+			<Text size='sm' c='dimmed'>
+				{student.country || '-'}
+			</Text>
+		),
+	},
+	{
+		key: 'studentStatus',
+		label: 'Student Status',
+		minWidth: 120,
+		align: 'center',
+		render: (student) => (
+			<Badge variant='light' size='sm'>
+				{student.studentStatus || '-'}
+			</Badge>
+		),
+	},
+	{
+		key: 'programStatus',
+		label: 'Program Status',
+		minWidth: 120,
+		align: 'center',
+		render: (student) => (
+			<Badge variant='light' size='sm'>
+				{student.programStatus || '-'}
+			</Badge>
+		),
+	},
+	{
+		key: 'semesterStatus',
+		label: 'Semester Status',
+		minWidth: 130,
+		align: 'center',
+		render: (student) => (
+			<Badge variant='light' size='sm'>
+				{student.semesterStatus === 'DroppedOut'
+					? 'Dropped Out'
+					: student.semesterStatus || '-'}
+			</Badge>
+		),
+	},
+	{
+		key: 'age',
+		label: 'Age',
+		minWidth: 60,
+		align: 'center',
+		render: (student) => (
+			<Text size='sm'>{student.age !== null ? student.age : '-'}</Text>
+		),
+	},
+];
 
-	if (filter?.programLevels && filter.programLevels.length > 0) {
-		columns.push({
-			key: 'programLevel',
-			label: 'Level',
-			minWidth: 100,
-			align: 'center',
-			render: (student) => (
-				<Badge variant='outline' size='sm'>
-					{student.programLevel || '-'}
-				</Badge>
-			),
-		});
-	}
-
-	if (filter?.country) {
-		columns.push({
-			key: 'country',
-			label: 'Country',
-			minWidth: 100,
-			render: (student) => (
-				<Text size='sm' c='dimmed'>
-					{student.country || '-'}
-				</Text>
-			),
-		});
-	}
-
-	if (filter?.studentStatus) {
-		columns.push({
-			key: 'studentStatus',
-			label: 'Student Status',
-			minWidth: 120,
-			align: 'center',
-			render: (student) => (
-				<Badge variant='light' size='sm'>
-					{student.studentStatus || '-'}
-				</Badge>
-			),
-		});
-	}
-
-	if (filter?.programStatus) {
-		columns.push({
-			key: 'programStatus',
-			label: 'Program Status',
-			minWidth: 120,
-			align: 'center',
-			render: (student) => (
-				<Badge variant='light' size='sm'>
-					{student.programStatus || '-'}
-				</Badge>
-			),
-		});
-	}
-
-	if (filter?.semesterStatuses && filter.semesterStatuses.length > 0) {
-		columns.push({
-			key: 'semesterStatus',
-			label: 'Semester Status',
-			minWidth: 130,
-			align: 'center',
-			render: (student) => (
-				<Badge variant='light' size='sm'>
-					{student.semesterStatus === 'DroppedOut'
-						? 'Dropped Out'
-						: student.semesterStatus || '-'}
-				</Badge>
-			),
-		});
-	}
-
-	if (
-		(filter?.ageRangeMin && filter.ageRangeMin !== 12) ||
-		(filter?.ageRangeMax && filter.ageRangeMax !== 75)
-	) {
-		columns.push({
-			key: 'age',
-			label: 'Age',
-			minWidth: 60,
-			align: 'center',
-			render: (student) => (
-				<Text size='sm'>{student.age !== null ? student.age : '-'}</Text>
-			),
-		});
-	}
-
-	return columns;
+function getVisibleColumns(filter?: ReportFilter): TableColumn[] {
+	const visibleKeys = filter?.visibleColumns ?? getDefaultVisibleColumns();
+	return ALL_COLUMNS.filter((col) => visibleKeys.includes(col.key));
 }
 
 export default function StudentTable({
@@ -161,10 +214,7 @@ export default function StudentTable({
 }: StudentTableProps) {
 	const isMobile = useMediaQuery('(max-width: 768px)');
 	const showInitialLoader = isLoading && !data;
-	const dynamicColumns = getActiveFilterColumns(filter);
-
-	const baseColumnCount = 7;
-	const skeletonColumnCount = baseColumnCount + dynamicColumns.length;
+	const visibleColumns = getVisibleColumns(filter);
 
 	if (showInitialLoader) {
 		const rowCount = isMobile ? 5 : 10;
@@ -182,14 +232,7 @@ export default function StudentTable({
 						<Table horizontalSpacing='md' verticalSpacing='sm'>
 							<Table.Thead>
 								<Table.Tr>
-									<Table.Th>Student No.</Table.Th>
-									<Table.Th>Name</Table.Th>
-									<Table.Th ta='center'>Gender</Table.Th>
-									<Table.Th>Program</Table.Th>
-									<Table.Th ta='center'>Semester</Table.Th>
-									<Table.Th>School</Table.Th>
-									<Table.Th>Sponsor</Table.Th>
-									{dynamicColumns.map((col) => (
+									{visibleColumns.map((col) => (
 										<Table.Th key={col.key} ta={col.align}>
 											{col.label}
 										</Table.Th>
@@ -202,18 +245,16 @@ export default function StudentTable({
 									(_, i) => `skeleton-row-${i}`
 								).map((key) => (
 									<Table.Tr key={key}>
-										{Array.from(
-											{ length: skeletonColumnCount },
-											(_, i) => `skeleton-col-${i}`
-										).map((colKey, colIndex) => (
-											<Table.Td
-												key={colKey}
-												ta={colIndex === 2 ? 'center' : undefined}
-											>
+										{visibleColumns.map((col) => (
+											<Table.Td key={col.key} ta={col.align}>
 												<Skeleton
 													height={14}
 													width={
-														colIndex === 0 ? 70 : colIndex === 2 ? 20 : '60%'
+														col.key === 'stdNo'
+															? 70
+															: col.key === 'gender'
+																? 20
+																: '60%'
 													}
 												/>
 											</Table.Td>
@@ -269,19 +310,12 @@ export default function StudentTable({
 					<Table>
 						<Table.Thead>
 							<Table.Tr>
-								<Table.Th miw={90}>Student No.</Table.Th>
-								<Table.Th miw={isMobile ? 140 : 200}>Name</Table.Th>
-								<Table.Th ta='center' miw={70}>
-									Gender
-								</Table.Th>
-								<Table.Th miw={isMobile ? 160 : 250}>Program</Table.Th>
-								<Table.Th ta='center' miw={90}>
-									Semester
-								</Table.Th>
-								<Table.Th miw={100}>School</Table.Th>
-								<Table.Th miw={150}>Sponsor</Table.Th>
-								{dynamicColumns.map((col) => (
-									<Table.Th key={col.key} ta={col.align} miw={col.minWidth}>
+								{visibleColumns.map((col) => (
+									<Table.Th
+										key={col.key}
+										ta={col.align}
+										miw={isMobile ? Math.min(col.minWidth, 140) : col.minWidth}
+									>
 										{col.label}
 									</Table.Th>
 								))}
@@ -290,48 +324,7 @@ export default function StudentTable({
 						<Table.Tbody>
 							{data.map((student, index) => (
 								<Table.Tr key={`${student.stdNo}-${index}`}>
-									<Table.Td>
-										<Link
-											href={`/registry/students/${student.stdNo}`}
-											size='sm'
-											fw={500}
-										>
-											{student.stdNo}
-										</Link>
-									</Table.Td>
-									<Table.Td>
-										<Text size='sm'>{student.name}</Text>
-									</Table.Td>
-									<Table.Td ta='center'>
-										<Text size='sm'>
-											{student.gender === 'Male'
-												? 'M'
-												: student.gender === 'Female'
-													? 'F'
-													: '-'}
-										</Text>
-									</Table.Td>
-									<Table.Td>
-										<Text size='sm' c='dimmed'>
-											{student.programName}
-										</Text>
-									</Table.Td>
-									<Table.Td ta='center'>
-										<Badge variant='light' size='sm'>
-											{formatSemester(student.semesterNumber, 'mini')}
-										</Badge>
-									</Table.Td>
-									<Table.Td>
-										<Text size='sm' fw={500}>
-											{student.schoolCode}
-										</Text>
-									</Table.Td>
-									<Table.Td>
-										<Text size='sm' c='dimmed'>
-											{student.sponsorName || '-'}
-										</Text>
-									</Table.Td>
-									{dynamicColumns.map((col) => (
+									{visibleColumns.map((col) => (
 										<Table.Td key={col.key} ta={col.align}>
 											{col.render(student)}
 										</Table.Td>
