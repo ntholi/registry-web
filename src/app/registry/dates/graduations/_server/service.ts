@@ -25,6 +25,20 @@ class GraduationService extends BaseService<typeof graduationDates, 'id'> {
 		);
 	}
 
+	async getLatest() {
+		return withAuth(
+			async () => (this.repository as GraduationRepository).findLatest(),
+			['registry', 'admin']
+		);
+	}
+
+	async getAllGraduationDates() {
+		return withAuth(
+			async () => (this.repository as GraduationRepository).findAll(),
+			['registry', 'admin']
+		);
+	}
+
 	async deleteGraduation(id: number) {
 		const graduation = await this.repository.findById(id);
 		await this.repository.delete(id);

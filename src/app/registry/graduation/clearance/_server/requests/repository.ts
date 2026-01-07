@@ -87,6 +87,11 @@ export default class GraduationRequestRepository extends BaseRepository<
 						},
 					},
 				},
+				graduationDate: {
+					with: {
+						term: true,
+					},
+				},
 				graduationRequestReceipts: {
 					with: {
 						receipt: true,
@@ -117,6 +122,11 @@ export default class GraduationRequestRepository extends BaseRepository<
 								program: true,
 							},
 						},
+					},
+				},
+				graduationDate: {
+					with: {
+						term: true,
 					},
 				},
 				graduationRequestReceipts: {
@@ -153,6 +163,11 @@ export default class GraduationRequestRepository extends BaseRepository<
 								program: true,
 							},
 						},
+					},
+				},
+				graduationDate: {
+					with: {
+						term: true,
 					},
 				},
 				graduationRequestReceipts: {

@@ -19,6 +19,22 @@ export default class GraduationRepository extends BaseRepository<
 		});
 	}
 
+	async findLatest() {
+		const result = await db
+			.select({
+				id: graduationDates.id,
+				date: graduationDates.date,
+				termId: graduationDates.termId,
+				createdAt: graduationDates.createdAt,
+				term: terms,
+			})
+			.from(graduationDates)
+			.leftJoin(terms, eq(graduationDates.termId, terms.id))
+			.orderBy(desc(graduationDates.date))
+			.limit(1);
+		return result[0] || null;
+	}
+
 	async findAll() {
 		return db
 			.select({

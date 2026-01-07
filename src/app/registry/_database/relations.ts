@@ -216,6 +216,10 @@ export const graduationRequestsRelations = relations(
 			fields: [graduationRequests.studentProgramId],
 			references: [studentPrograms.id],
 		}),
+		graduationDate: one(graduationDates, {
+			fields: [graduationRequests.graduationDateId],
+			references: [graduationDates.id],
+		}),
 		graduationRequestReceipts: many(graduationRequestReceipts),
 		graduationClearances: many(graduationClearance),
 	})

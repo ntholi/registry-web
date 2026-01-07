@@ -9,6 +9,14 @@ export async function getGraduationByDate(date: string) {
 	return service.getByDateWithTerm(date);
 }
 
+export async function getLatestGraduationDate() {
+	return service.getLatest();
+}
+
+export async function getAllGraduationDates() {
+	return service.getAllGraduationDates();
+}
+
 export async function findAllGraduations(page: number = 1, search = '') {
 	return service.findAll({
 		page,
