@@ -6,6 +6,7 @@ import { useQuery } from '@tanstack/react-query';
 import { createInsertSchema } from 'drizzle-zod';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import { getLatestGraduationDate } from '@/app/registry/dates/graduations/_server/actions';
 import { getEligiblePrograms } from '@/app/registry/graduation/clearance/_server/requests/actions';
 import { Form } from '@/shared/ui/adease';
 
@@ -39,6 +40,11 @@ export default function GraduationRequestForm({
 		enabled: !!studentNo && !Number.isNaN(Number(studentNo)),
 	});
 
+	const { data: latestGraduationDate } = useQuery({
+		queryKey: ['latest-graduation-date'],
+		queryFn: getLatestGraduationDate,
+	});
+
 	const programOptions =
 		eligiblePrograms?.map((program) => ({
 			value: program.id.toString(),
@@ -56,9 +62,14 @@ export default function GraduationRequestForm({
 			throw new Error('Please select a program');
 		}
 
+		if (!latestGraduationDate) {
+			throw new Error('No active graduation date found');
+		}
+
 		const submissionData: GraduationRequest = {
 			...values,
 			studentProgramId: Number(selectedProgramId),
+			graduationDateId: latestGraduationDate.id,
 		};
 		return onSubmit(submissionData);
 	};
