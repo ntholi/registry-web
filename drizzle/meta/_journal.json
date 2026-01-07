@@ -463,6 +463,13 @@
 			"when": 1767778807371,
 			"tag": "0065_chunky_timeslip",
 			"breakpoints": true
+		},
+		{
+			"idx": 66,
+			"version": "7",
+			"when": 1767783401114,
+			"tag": "0066_eager_oracle",
+			"breakpoints": true
 		}
 	]
 }
