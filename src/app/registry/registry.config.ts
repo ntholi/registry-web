@@ -5,6 +5,7 @@ import {
 	IconCertificate,
 	IconGavel,
 	IconReportAnalytics,
+	IconSchool,
 	IconUserPlus,
 	IconUsers,
 } from '@tabler/icons-react';
@@ -107,6 +108,12 @@ export const registryConfig: ModuleConfig = {
 						['manager', 'admin', 'program_leader'].includes(academicRole)
 					);
 				},
+			},
+			{
+				label: 'Graduation Reports',
+				href: '/registry/reports/graduations',
+				icon: IconSchool,
+				roles: ['registry', 'admin'],
 			},
 		],
 	},
