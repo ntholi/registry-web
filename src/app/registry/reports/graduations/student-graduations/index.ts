@@ -1,7 +1,6 @@
 export {
 	Filter as GraduationFilter,
 	GraduationCharts,
-	GraduationStats,
 	ProgramBreakdownTable as GraduationProgramBreakdownTable,
 	StudentTable as GraduationStudentTable,
 } from './_components';

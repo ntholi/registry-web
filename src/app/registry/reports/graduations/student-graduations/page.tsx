@@ -32,7 +32,6 @@ import { useCallback, useEffect, useState } from 'react';
 import {
 	Filter,
 	GraduationCharts,
-	GraduationStats,
 	ProgramBreakdownTable,
 	StudentTable,
 } from './_components';
@@ -296,135 +295,122 @@ export default function GraduationReportPage() {
 				)}
 
 				{isFilterApplied && canGenerateReport && (
-					<>
-						{reportData?.summaryData && (
-							<GraduationStats summary={reportData.summaryData} />
-						)}
+					<Tabs
+						value={urlParams.tab}
+						onChange={(value) => setUrlParams({ tab: value })}
+					>
+						<Tabs.List>
+							<Tabs.Tab
+								value='summary'
+								leftSection={<IconChartBar size={16} />}
+							>
+								Summary
+							</Tabs.Tab>
+							<Tabs.Tab value='students' leftSection={<IconUsers size={16} />}>
+								Students
+							</Tabs.Tab>
+							<Tabs.Tab value='charts' leftSection={<IconChartPie size={16} />}>
+								Charts
+							</Tabs.Tab>
+						</Tabs.List>
 
-						<Tabs
-							value={urlParams.tab}
-							onChange={(value) => setUrlParams({ tab: value })}
-						>
-							<Tabs.List>
-								<Tabs.Tab
-									value='summary'
-									leftSection={<IconChartBar size={16} />}
-								>
-									Summary
-								</Tabs.Tab>
-								<Tabs.Tab
-									value='students'
-									leftSection={<IconUsers size={16} />}
-								>
-									Students
-								</Tabs.Tab>
-								<Tabs.Tab
-									value='charts'
-									leftSection={<IconChartPie size={16} />}
-								>
-									Charts
-								</Tabs.Tab>
-							</Tabs.List>
+						<Tabs.Panel value='summary' pt='xl'>
+							<Stack gap='lg'>
+								<Card>
+									<Group justify='space-between' align='center'>
+										<Box>
+											<Text fw={600} size='lg'>
+												Program Graduation Summary
+											</Text>
+											<Text size='sm' c='dimmed'>
+												{reportData?.summaryData?.totalGraduates || 0} graduate
+												{reportData?.summaryData?.totalGraduates !== 1
+													? 's'
+													: ''}{' '}
+												found
+											</Text>
+										</Box>
+										{hasData && (
+											<Button
+												leftSection={<IconDownload size={16} />}
+												onClick={handleExportSummary}
+												variant='light'
+												loading={isExportingSummary}
+												disabled={isExportingSummary}
+											>
+												Export Summary
+											</Button>
+										)}
+									</Group>
+								</Card>
 
-							<Tabs.Panel value='summary' pt='xl'>
-								<Stack gap='lg'>
-									<Card>
-										<Group justify='space-between' align='center'>
-											<Box>
-												<Text fw={600} size='lg'>
-													Program Graduation Summary
-												</Text>
-												<Text size='sm' c='dimmed'>
-													{reportData?.summaryData?.totalGraduates || 0}{' '}
-													graduate
-													{reportData?.summaryData?.totalGraduates !== 1
-														? 's'
-														: ''}{' '}
-													found
-												</Text>
-											</Box>
-											{hasData && (
-												<Button
-													leftSection={<IconDownload size={16} />}
-													onClick={handleExportSummary}
-													variant='light'
-													loading={isExportingSummary}
-													disabled={isExportingSummary}
-												>
-													Export Summary
-												</Button>
-											)}
-										</Group>
-									</Card>
-
-									{isLoading ? (
-										Array.from({ length: 3 }, (_, i) => `skeleton-${i}`).map(
-											(key) => <ProgramBreakdownTable key={key} loading />
+								{isLoading ? (
+									Array.from({ length: 3 }, (_, i) => `skeleton-${i}`).map(
+										(key) => <ProgramBreakdownTable key={key} loading />
+									)
+								) : reportData?.summaryData?.schools &&
+									reportData.summaryData.schools.length > 0 ? (
+									reportData.summaryData.schools.map(
+										(school: GraduationSchoolData) => (
+											<ProgramBreakdownTable
+												key={school.schoolName}
+												school={school}
+											/>
 										)
-									) : reportData?.summaryData?.schools &&
-										reportData.summaryData.schools.length > 0 ? (
-										reportData.summaryData.schools.map(
-											(school: GraduationSchoolData) => (
-												<ProgramBreakdownTable
-													key={school.schoolName}
-													school={school}
-												/>
-											)
-										)
-									) : (
-										<Alert color='blue' variant='light'>
-											No program data available for the selected criteria.
-										</Alert>
-									)}
-								</Stack>
-							</Tabs.Panel>
+									)
+								) : (
+									<Alert color='blue' variant='light'>
+										No program data available for the selected criteria.
+									</Alert>
+								)}
+							</Stack>
+						</Tabs.Panel>
 
-							<Tabs.Panel value='students' pt='xl'>
-								<Stack gap='lg'>
-									<Card>
-										<Group justify='space-between' align='center'>
-											<Box>
-												<Text fw={600} size='lg'>
-													Graduates List
-												</Text>
-												<Text size='sm' c='dimmed'>
-													{studentsData?.totalCount || 0} graduate
-													{studentsData?.totalCount !== 1 ? 's' : ''} found
-												</Text>
-											</Box>
-											{hasData && (
-												<Button
-													leftSection={<IconDownload size={16} />}
-													onClick={handleExportStudents}
-													variant='light'
-													loading={isExportingStudents}
-													disabled={isExportingStudents}
-												>
-													Export List
-												</Button>
-											)}
-										</Group>
-									</Card>
+						<Tabs.Panel value='students' pt='xl'>
+							<Stack gap='lg'>
+								<Card>
+									<Group justify='space-between' align='center'>
+										<Box>
+											<Text fw={600} size='lg'>
+												Graduates List
+											</Text>
+											<Text size='sm' c='dimmed'>
+												{studentsData?.totalCount || 0} graduate
+												{studentsData?.totalCount !== 1 ? 's' : ''} found
+											</Text>
+										</Box>
+										{hasData && (
+											<Button
+												leftSection={<IconDownload size={16} />}
+												onClick={handleExportStudents}
+												variant='light'
+												loading={isExportingStudents}
+												disabled={isExportingStudents}
+											>
+												Export List
+											</Button>
+										)}
+									</Group>
+								</Card>
 
-									<StudentTable
-										data={studentsData?.students || []}
-										isLoading={isLoadingStudents}
-										totalCount={studentsData?.totalCount || 0}
-										currentPage={studentsData?.currentPage || 1}
-										totalPages={studentsData?.totalPages || 0}
-										onPageChange={handlePageChange}
-										searchQuery={searchQuery}
-										onSearchChange={handleSearchChange}
-										filter={filter}
-									/>
-								</Stack>
-							</Tabs.Panel>
+								<StudentTable
+									data={studentsData?.students || []}
+									isLoading={isLoadingStudents}
+									totalCount={studentsData?.totalCount || 0}
+									currentPage={studentsData?.currentPage || 1}
+									totalPages={studentsData?.totalPages || 0}
+									onPageChange={handlePageChange}
+									searchQuery={searchQuery}
+									onSearchChange={handleSearchChange}
+									filter={filter}
+								/>
+							</Stack>
+						</Tabs.Panel>
 
-							<Tabs.Panel value='charts' pt='xl'>
-								<GraduationCharts filter={filter} />
-							</Tabs.Panel>
-						</Tabs>
-					</>
+						<Tabs.Panel value='charts' pt='xl'>
+							<GraduationCharts filter={filter} />
+						</Tabs.Panel>
+					</Tabs>
 				)}
 
 				{error && (

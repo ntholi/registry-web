@@ -1,5 +1,4 @@
 export { default as RegistrationCharts } from './_components/EnrollmentCharts';
-export { default as EnrollmentStats } from './_components/EnrollmentStats';
 export {
 	default as RegistrationFilter,
 	type ReportFilter,
