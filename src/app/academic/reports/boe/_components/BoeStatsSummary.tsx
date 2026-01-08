@@ -67,9 +67,7 @@ export function BoeStatsSummary({ schools, loading }: BoeStatsSummaryProps) {
 				<Card key={school.schoolId} withBorder>
 					<Group justify='space-between' mb='md'>
 						<Title order={4}>{school.schoolName}</Title>
-						<Badge size='lg' variant='light'>
-							{school.totals.totalActive} active
-						</Badge>
+						<Badge variant='light'>{school.totals.totalActive} active</Badge>
 					</Group>
 
 					<ScrollArea>
@@ -142,19 +140,29 @@ export function BoeStatsSummary({ schools, loading }: BoeStatsSummaryProps) {
 											</Text>
 										</Table.Td>
 										<Table.Td style={{ textAlign: 'center' }}>
-											<Text c='orange'>{program.droppedOut || '-'}</Text>
+											<Text c='orange' size='sm'>
+												{program.droppedOut || '-'}
+											</Text>
 										</Table.Td>
 										<Table.Td style={{ textAlign: 'center' }}>
-											<Text c='yellow'>{program.withdrawn || '-'}</Text>
+											<Text c='yellow' size='sm'>
+												{program.withdrawn || '-'}
+											</Text>
 										</Table.Td>
 										<Table.Td style={{ textAlign: 'center' }}>
-											<Text c='blue'>{program.deferred || '-'}</Text>
+											<Text c='blue' size='sm'>
+												{program.deferred || '-'}
+											</Text>
 										</Table.Td>
 										<Table.Td style={{ textAlign: 'center' }}>
-											<Text c='teal'>{program.totalActive}</Text>
+											<Text fw={600} size='sm'>
+												{program.totalActive}
+											</Text>
 										</Table.Td>
 										<Table.Td style={{ textAlign: 'center' }}>
-											<Text fw={600}>{program.totalStudents}</Text>
+											<Text c='dimmed' size='sm'>
+												{program.totalStudents}
+											</Text>
 										</Table.Td>
 									</Table.Tr>
 								))}
@@ -163,37 +171,39 @@ export function BoeStatsSummary({ schools, loading }: BoeStatsSummaryProps) {
 										<Text fw={700}>School Total</Text>
 									</Table.Td>
 									<Table.Td style={{ textAlign: 'center' }}>
-										<Text c='green' fw={700}>
+										<Text c='green' fw={700} size='sm'>
 											{school.totals.passed}
 										</Text>
 									</Table.Td>
 									<Table.Td style={{ textAlign: 'center' }}>
-										<Text c='red' fw={700}>
+										<Text c='red' fw={700} size='sm'>
 											{school.totals.failed}
 										</Text>
 									</Table.Td>
 									<Table.Td style={{ textAlign: 'center' }}>
-										<Text c='orange' fw={700}>
+										<Text c='orange' fw={700} size='sm'>
 											{school.totals.droppedOut}
 										</Text>
 									</Table.Td>
 									<Table.Td style={{ textAlign: 'center' }}>
-										<Text c='yellow' fw={700}>
+										<Text c='yellow' fw={700} size='sm'>
 											{school.totals.withdrawn}
 										</Text>
 									</Table.Td>
 									<Table.Td style={{ textAlign: 'center' }}>
-										<Text c='blue' fw={700}>
+										<Text c='blue' fw={700} size='sm'>
 											{school.totals.deferred}
 										</Text>
 									</Table.Td>
 									<Table.Td style={{ textAlign: 'center' }}>
-										<Text c='teal' fw={700}>
+										<Text fw={700} size='sm'>
 											{school.totals.totalActive}
 										</Text>
 									</Table.Td>
 									<Table.Td style={{ textAlign: 'center' }}>
-										<Text fw={700}>{school.totals.totalStudents}</Text>
+										<Text c={'dimmed'} size='sm'>
+											{school.totals.totalStudents}
+										</Text>
 									</Table.Td>
 								</Table.Tr>
 							</Table.Tbody>
@@ -204,7 +214,7 @@ export function BoeStatsSummary({ schools, loading }: BoeStatsSummaryProps) {
 
 			{schools.length > 1 && (
 				<Card withBorder>
-					<Title order={4} mb='md'>
+					<Title order={5} mb='md'>
 						Grand Total
 					</Title>
 					<ScrollArea>
@@ -225,37 +235,35 @@ export function BoeStatsSummary({ schools, loading }: BoeStatsSummaryProps) {
 							<Table.Tbody>
 								<Table.Tr>
 									<Table.Td style={{ textAlign: 'center' }}>
-										<Text c='green' fw={700} size='lg'>
+										<Text c='green' fw={600}>
 											{grandTotals.passed}
 										</Text>
 									</Table.Td>
 									<Table.Td style={{ textAlign: 'center' }}>
-										<Text c='red' fw={700} size='lg'>
+										<Text c='red' fw={600}>
 											{grandTotals.failed}
 										</Text>
 									</Table.Td>
 									<Table.Td style={{ textAlign: 'center' }}>
-										<Text c='orange' fw={700} size='lg'>
+										<Text c='orange' fw={600}>
 											{grandTotals.droppedOut}
 										</Text>
 									</Table.Td>
 									<Table.Td style={{ textAlign: 'center' }}>
-										<Text c='yellow' fw={700} size='lg'>
+										<Text c='yellow' fw={600}>
 											{grandTotals.withdrawn}
 										</Text>
 									</Table.Td>
 									<Table.Td style={{ textAlign: 'center' }}>
-										<Text c='blue' fw={700} size='lg'>
+										<Text c='blue' fw={600}>
 											{grandTotals.deferred}
 										</Text>
 									</Table.Td>
 									<Table.Td style={{ textAlign: 'center' }}>
-										<Text c='teal' fw={700} size='lg'>
-											{grandTotals.totalActive}
-										</Text>
+										<Text fw={600}>{grandTotals.totalActive}</Text>
 									</Table.Td>
 									<Table.Td style={{ textAlign: 'center' }}>
-										<Text fw={700} size='lg'>
+										<Text c={'dimmed'} fw={600}>
 											{grandTotals.totalStudents}
 										</Text>
 									</Table.Td>
