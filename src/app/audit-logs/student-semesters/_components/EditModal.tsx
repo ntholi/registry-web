@@ -196,12 +196,6 @@ export default function EditStudentSemesterModal({
 					e.stopPropagation();
 					open();
 				}}
-				style={{
-					opacity: 0,
-					transition: 'opacity 0.2s',
-					cursor: 'pointer',
-				}}
-				className='edit-semester-icon'
 			>
 				<IconEdit size='1rem' />
 			</ActionIcon>
