@@ -69,6 +69,33 @@ export interface BoeSummarySchool {
 	totalStudents: number;
 }
 
+export interface BoeStatsProgramRow {
+	programId: number;
+	programCode: string;
+	programName: string;
+	passed: number;
+	failed: number;
+	droppedOut: number;
+	withdrawn: number;
+	deferred: number;
+	totalActive: number;
+}
+
+export interface BoeStatsSchool {
+	schoolId: number;
+	schoolName: string;
+	schoolCode: string;
+	programs: BoeStatsProgramRow[];
+	totals: {
+		passed: number;
+		failed: number;
+		droppedOut: number;
+		withdrawn: number;
+		deferred: number;
+		totalActive: number;
+	};
+}
+
 export default class BoeReportRepository extends BaseRepository<
 	typeof students,
 	'stdNo'
@@ -323,6 +350,197 @@ export default class BoeReportRepository extends BaseRepository<
 				b.structureSemester?.semesterNumber ?? ''
 			);
 		});
+	}
+
+	async getStatistics(filter: BoeFilter): Promise<BoeStatsSchool[]> {
+		const { termId, schoolIds, programId, semesterNumber } = filter;
+
+		const term = await db.query.terms.findFirst({
+			where: (t) => eq(t.id, termId),
+		});
+		if (!term) throw new Error('Term not found');
+
+		const conditions = [inArray(programs.schoolId, schoolIds)];
+		if (programId) {
+			conditions.push(eq(programs.id, programId));
+		}
+
+		const facultyPrograms = await db.query.programs.findMany({
+			where: and(...conditions),
+		});
+
+		const programIds = facultyPrograms.map((program) => program.id);
+		if (programIds.length === 0) return [];
+
+		const structureRows = await db
+			.select({ id: structures.id })
+			.from(structures)
+			.where(inArray(structures.programId, programIds));
+
+		const structureIds = structureRows.map((row) => row.id);
+		if (structureIds.length === 0) return [];
+
+		const studentProgramRows = await db
+			.select({ id: studentPrograms.id })
+			.from(studentPrograms)
+			.where(inArray(studentPrograms.structureId, structureIds));
+
+		const studentProgramIds = studentProgramRows.map((row) => row.id);
+		if (studentProgramIds.length === 0) return [];
+
+		const semesterConditions = [
+			eq(studentSemesters.termCode, term.code),
+			inArray(studentSemesters.studentProgramId, studentProgramIds),
+		];
+
+		if (semesterNumber) {
+			const structureSemesterIds = await db
+				.select({ id: structureSemesters.id })
+				.from(structureSemesters)
+				.where(eq(structureSemesters.semesterNumber, semesterNumber))
+				.then((rows) => rows.map((r) => r.id));
+
+			if (structureSemesterIds.length > 0) {
+				semesterConditions.push(
+					inArray(studentSemesters.structureSemesterId, structureSemesterIds)
+				);
+			}
+		}
+
+		const semesters = await db.query.studentSemesters.findMany({
+			where: and(...semesterConditions),
+			with: {
+				structureSemester: true,
+				studentProgram: {
+					with: {
+						structure: {
+							with: {
+								program: {
+									with: {
+										school: true,
+									},
+								},
+							},
+						},
+					},
+				},
+				studentModules: {
+					where: (modules) => notInArray(modules.status, ['Drop', 'Delete']),
+					with: {
+						semesterModule: {
+							with: {
+								module: true,
+							},
+						},
+					},
+				},
+			},
+		});
+
+		const schoolMap = new Map<number, BoeStatsSchool>();
+
+		for (const semester of semesters) {
+			const school = semester.studentProgram.structure.program.school;
+			const program = semester.studentProgram.structure.program;
+
+			if (!schoolMap.has(school.id)) {
+				schoolMap.set(school.id, {
+					schoolId: school.id,
+					schoolName: school.name,
+					schoolCode: school.code,
+					programs: [],
+					totals: {
+						passed: 0,
+						failed: 0,
+						droppedOut: 0,
+						withdrawn: 0,
+						deferred: 0,
+						totalActive: 0,
+					},
+				});
+			}
+
+			const schoolData = schoolMap.get(school.id)!;
+			let programData = schoolData.programs.find(
+				(p) => p.programId === program.id
+			);
+
+			if (!programData) {
+				programData = {
+					programId: program.id,
+					programCode: program.code,
+					programName: program.name,
+					passed: 0,
+					failed: 0,
+					droppedOut: 0,
+					withdrawn: 0,
+					deferred: 0,
+					totalActive: 0,
+				};
+				schoolData.programs.push(programData);
+			}
+
+			const status = semester.status;
+
+			if (status === 'DroppedOut') {
+				programData.droppedOut++;
+				schoolData.totals.droppedOut++;
+			} else if (status === 'Withdrawn') {
+				programData.withdrawn++;
+				schoolData.totals.withdrawn++;
+			} else if (status === 'Deferred') {
+				programData.deferred++;
+				schoolData.totals.deferred++;
+			} else if (!INACTIVE_SEMESTER_STATUSES.includes(status)) {
+				programData.totalActive++;
+				schoolData.totals.totalActive++;
+
+				let totalPoints = 0;
+				let totalCredits = 0;
+				for (const mod of semester.studentModules) {
+					const grade = mod.grade;
+					const credits = Number(mod.credits) || 0;
+					const gradePoint = this.getGradePoints(grade);
+					totalPoints += gradePoint * credits;
+					totalCredits += credits;
+				}
+				const gpa = totalCredits > 0 ? totalPoints / totalCredits : 0;
+
+				if (gpa >= 2) {
+					programData.passed++;
+					schoolData.totals.passed++;
+				} else {
+					programData.failed++;
+					schoolData.totals.failed++;
+				}
+			}
+		}
+
+		return Array.from(schoolMap.values()).sort((a, b) =>
+			a.schoolName.localeCompare(b.schoolName)
+		);
+	}
+
+	private getGradePoints(grade: string): number {
+		const gradeMap: Record<string, number> = {
+			'A+': 4.0,
+			A: 4.0,
+			'A-': 3.7,
+			'B+': 3.3,
+			B: 3.0,
+			'B-': 2.7,
+			'C+': 2.3,
+			C: 2.0,
+			'C-': 1.7,
+			'D+': 1.3,
+			D: 1.0,
+			'D-': 0.7,
+			F: 0.0,
+			FA: 0.0,
+			I: 0.0,
+			W: 0.0,
+		};
+		return gradeMap[grade?.toUpperCase()] ?? 0;
 	}
 }
 

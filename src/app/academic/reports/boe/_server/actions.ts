@@ -16,6 +16,19 @@ export async function getPreview(filter: BoeFilter) {
 	}
 }
 
+export async function getStatistics(filter: BoeFilter) {
+	try {
+		const data = await boeReportService.getStatistics(filter);
+		return { success: true, data };
+	} catch (error) {
+		console.error('Error getting BOE statistics:', error);
+		return {
+			success: false,
+			error: error instanceof Error ? error.message : 'Unknown error',
+		};
+	}
+}
+
 export async function getClassReports(filter: BoeFilter) {
 	try {
 		const data = await boeReportService.getClassReports(filter);
