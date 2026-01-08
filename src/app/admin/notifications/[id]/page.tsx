@@ -1,7 +1,7 @@
 import { Badge, Group, Stack, Text } from '@mantine/core';
 import { notFound } from 'next/navigation';
 import { getBooleanColor } from '@/shared/lib/utils/colors';
-import { formatFullDateTime } from '@/shared/lib/utils/dates';
+import { formatDateTime } from '@/shared/lib/utils/dates';
 import { toTitleCase } from '@/shared/lib/utils/utils';
 import {
 	DetailsView,
@@ -45,10 +45,10 @@ export default async function NotificationDetails({ params }: Props) {
 
 					<Group grow>
 						<FieldView label='Visible From'>
-							{formatFullDateTime(notification.visibleFrom)}
+							{formatDateTime(notification.visibleFrom)}
 						</FieldView>
 						<FieldView label='Visible Until'>
-							{formatFullDateTime(notification.visibleUntil)}
+							{formatDateTime(notification.visibleUntil)}
 						</FieldView>
 					</Group>
 
@@ -117,7 +117,7 @@ export default async function NotificationDetails({ params }: Props) {
 
 					{notification.createdAt && (
 						<FieldView label='Created At'>
-							{formatFullDateTime(notification.createdAt)}
+							{formatDateTime(notification.createdAt)}
 						</FieldView>
 					)}
 				</Stack>

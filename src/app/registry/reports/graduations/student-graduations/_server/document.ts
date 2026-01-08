@@ -14,7 +14,7 @@ import {
 	TextRun,
 	WidthType,
 } from 'docx';
-import { formatFullDateTime } from '@/shared/lib/utils/dates';
+import { formatDateTime } from '@/shared/lib/utils/dates';
 import type { GraduationSummaryReport } from '../_lib/types';
 
 function getLogoImage(): Buffer {
@@ -128,7 +128,7 @@ export function createGraduationSummaryDocument(
 							new Paragraph({
 								children: [
 									new TextRun({
-										text: `Generated: ${formatFullDateTime(report.generatedAt)}`,
+										text: `Generated: ${formatDateTime(report.generatedAt)}`,
 										font: 'Arial',
 										size: 16,
 										color: '333333',
