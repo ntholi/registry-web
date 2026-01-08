@@ -9,6 +9,7 @@ import {
 	Text,
 } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
+import type { ReportFocusArea } from './ReportFocusModal';
 
 interface ProgramBreakdownTableProps {
 	loading?: boolean;
@@ -18,21 +19,39 @@ interface ProgramBreakdownTableProps {
 		totalGraduates: number;
 		maleCount: number;
 		femaleCount: number;
+		averageAge?: number | null;
+		averageTimeToGraduate?: number | null;
 		programs: Array<{
 			programName: string;
 			programCode: string;
 			totalGraduates: number;
 			maleCount: number;
 			femaleCount: number;
+			averageAge?: number | null;
+			averageTimeToGraduate?: number | null;
 		}>;
 	};
+	focusAreas?: ReportFocusArea[];
 }
 
 export default function ProgramBreakdownTable({
 	school,
 	loading,
+	focusAreas = [],
 }: ProgramBreakdownTableProps) {
 	const isMobile = useMediaQuery('(max-width: 768px)');
+
+	const showAll = focusAreas.length === 0;
+	const showGender = showAll || focusAreas.includes('gender');
+	const showAge = showAll || focusAreas.includes('age');
+	const showTimeToGraduate = showAll || focusAreas.includes('timeToGraduate');
+
+	const columnCount =
+		1 +
+		(showGender ? 2 : 0) +
+		(showAge ? 1 : 0) +
+		(showTimeToGraduate ? 1 : 0) +
+		1;
 
 	if (loading) {
 		const rows = 4;
@@ -54,15 +73,11 @@ export default function ProgramBreakdownTable({
 								<Table.Th miw={isMobile ? 140 : 250}>
 									<Skeleton height={18} width={isMobile ? 100 : 160} />
 								</Table.Th>
-								<Table.Th ta='center' miw={70}>
-									<Skeleton height={16} width={40} />
-								</Table.Th>
-								<Table.Th ta='center' miw={70}>
-									<Skeleton height={16} width={40} />
-								</Table.Th>
-								<Table.Th ta='center' miw={70}>
-									<Skeleton height={16} width={40} />
-								</Table.Th>
+								{Array.from({ length: columnCount - 1 }, (_, i) => (
+									<Table.Th key={`header-skeleton-${i}`} ta='center' miw={70}>
+										<Skeleton height={16} width={40} />
+									</Table.Th>
+								))}
 							</Table.Tr>
 						</Table.Thead>
 
@@ -73,15 +88,11 @@ export default function ProgramBreakdownTable({
 										<Table.Td>
 											<Skeleton height={16} width={isMobile ? 120 : 220} />
 										</Table.Td>
-										<Table.Td ta='center'>
-											<Skeleton height={14} width={32} />
-										</Table.Td>
-										<Table.Td ta='center'>
-											<Skeleton height={14} width={32} />
-										</Table.Td>
-										<Table.Td ta='center'>
-											<Skeleton height={20} width={48} />
-										</Table.Td>
+										{Array.from({ length: columnCount - 1 }, (_, i) => (
+											<Table.Td key={`cell-skeleton-${i}`} ta='center'>
+												<Skeleton height={14} width={32} />
+											</Table.Td>
+										))}
 									</Table.Tr>
 								)
 							)}
@@ -111,12 +122,26 @@ export default function ProgramBreakdownTable({
 					<Table.Thead>
 						<Table.Tr>
 							<Table.Th miw={isMobile ? 140 : 250}>Program</Table.Th>
-							<Table.Th ta='center' miw={70}>
-								Male
-							</Table.Th>
-							<Table.Th ta='center' miw={70}>
-								Female
-							</Table.Th>
+							{showGender && (
+								<>
+									<Table.Th ta='center' miw={70}>
+										Male
+									</Table.Th>
+									<Table.Th ta='center' miw={70}>
+										Female
+									</Table.Th>
+								</>
+							)}
+							{showAge && (
+								<Table.Th ta='center' miw={80}>
+									Avg. Age
+								</Table.Th>
+							)}
+							{showTimeToGraduate && (
+								<Table.Th ta='center' miw={100}>
+									Avg. Time
+								</Table.Th>
+							)}
 							<Table.Th ta='center' miw={70}>
 								Total
 							</Table.Th>
@@ -128,21 +153,56 @@ export default function ProgramBreakdownTable({
 								<Table.Td>
 									<Text size='sm'>{program.programName}</Text>
 								</Table.Td>
+								{showGender && (
+									<>
+										<Table.Td ta='center'>
+											<Text
+												size='sm'
+												c={program.maleCount ? undefined : 'dimmed'}
+											>
+												{program.maleCount || '-'}
+											</Text>
+										</Table.Td>
+										<Table.Td ta='center'>
+											<Text
+												size='sm'
+												c={program.femaleCount ? undefined : 'dimmed'}
+											>
+												{program.femaleCount || '-'}
+											</Text>
+										</Table.Td>
+									</>
+								)}
+								{showAge && (
+									<Table.Td ta='center'>
+										<Text
+											size='sm'
+											c={program.averageAge != null ? undefined : 'dimmed'}
+										>
+											{program.averageAge != null
+												? `${program.averageAge.toFixed(1)}`
+												: '-'}
+										</Text>
+									</Table.Td>
+								)}
+								{showTimeToGraduate && (
+									<Table.Td ta='center'>
+										<Text
+											size='sm'
+											c={
+												program.averageTimeToGraduate != null
+													? undefined
+													: 'dimmed'
+											}
+										>
+											{program.averageTimeToGraduate != null
+												? `${program.averageTimeToGraduate.toFixed(1)} yrs`
+												: '-'}
+										</Text>
+									</Table.Td>
+								)}
 								<Table.Td ta='center'>
-									<Text size='sm' c={program.maleCount ? undefined : 'dimmed'}>
-										{program.maleCount || '-'}
-									</Text>
-								</Table.Td>
-								<Table.Td ta='center'>
-									<Text
-										size='sm'
-										c={program.femaleCount ? undefined : 'dimmed'}
-									>
-										{program.femaleCount || '-'}
-									</Text>
-								</Table.Td>
-								<Table.Td ta='center'>
-									<Badge radius={'xs'} variant='default' w={50} size='sm'>
+									<Badge radius='xs' variant='default' w={50} size='sm'>
 										{program.totalGraduates}
 									</Badge>
 								</Table.Td>
@@ -154,18 +214,40 @@ export default function ProgramBreakdownTable({
 									School Total
 								</Text>
 							</Table.Td>
+							{showGender && (
+								<>
+									<Table.Td ta='center'>
+										<Text size='sm' fw={600}>
+											{school.maleCount}
+										</Text>
+									</Table.Td>
+									<Table.Td ta='center'>
+										<Text size='sm' fw={600}>
+											{school.femaleCount}
+										</Text>
+									</Table.Td>
+								</>
+							)}
+							{showAge && (
+								<Table.Td ta='center'>
+									<Text size='sm' fw={600}>
+										{school.averageAge != null
+											? school.averageAge.toFixed(1)
+											: '-'}
+									</Text>
+								</Table.Td>
+							)}
+							{showTimeToGraduate && (
+								<Table.Td ta='center'>
+									<Text size='sm' fw={600}>
+										{school.averageTimeToGraduate != null
+											? `${school.averageTimeToGraduate.toFixed(1)} yrs`
+											: '-'}
+									</Text>
+								</Table.Td>
+							)}
 							<Table.Td ta='center'>
-								<Text size='sm' fw={600}>
-									{school.maleCount}
-								</Text>
-							</Table.Td>
-							<Table.Td ta='center'>
-								<Text size='sm' fw={600}>
-									{school.femaleCount}
-								</Text>
-							</Table.Td>
-							<Table.Td ta='center'>
-								<Badge radius={'xs'} variant='filled' w={50} size='sm'>
+								<Badge radius='xs' variant='filled' w={50} size='sm'>
 									{school.totalGraduates}
 								</Badge>
 							</Table.Td>

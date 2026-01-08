@@ -268,6 +268,11 @@ export class GraduationReportRepository {
 		const schoolsMap = new Map<string, GraduationSchoolData>();
 		const programsMap = new Map<string, GraduationProgramData>();
 
+		const schoolAges = new Map<string, number[]>();
+		const schoolTimes = new Map<string, number[]>();
+		const programAges = new Map<string, number[]>();
+		const programTimes = new Map<string, number[]>();
+
 		for (const student of fullData) {
 			const schoolKey = student.schoolName;
 			const programKey = `${student.programName}_${student.schoolName}`;
@@ -279,8 +284,12 @@ export class GraduationReportRepository {
 					totalGraduates: 0,
 					maleCount: 0,
 					femaleCount: 0,
+					averageAge: null,
+					averageTimeToGraduate: null,
 					programs: [],
 				});
+				schoolAges.set(schoolKey, []);
+				schoolTimes.set(schoolKey, []);
 			}
 
 			if (!programsMap.has(programKey)) {
@@ -293,7 +302,11 @@ export class GraduationReportRepository {
 					totalGraduates: 0,
 					maleCount: 0,
 					femaleCount: 0,
+					averageAge: null,
+					averageTimeToGraduate: null,
 				});
+				programAges.set(programKey, []);
+				programTimes.set(programKey, []);
 			}
 
 			const program = programsMap.get(programKey)!;
@@ -301,10 +314,54 @@ export class GraduationReportRepository {
 			if (student.gender === 'Male') program.maleCount++;
 			else if (student.gender === 'Female') program.femaleCount++;
 
+			if (student.age != null) {
+				programAges.get(programKey)!.push(student.age);
+			}
+			if (student.timeToGraduate != null && student.timeToGraduate > 0) {
+				programTimes.get(programKey)!.push(student.timeToGraduate);
+			}
+
 			const school = schoolsMap.get(schoolKey)!;
 			school.totalGraduates++;
 			if (student.gender === 'Male') school.maleCount++;
 			else if (student.gender === 'Female') school.femaleCount++;
+
+			if (student.age != null) {
+				schoolAges.get(schoolKey)!.push(student.age);
+			}
+			if (student.timeToGraduate != null && student.timeToGraduate > 0) {
+				schoolTimes.get(schoolKey)!.push(student.timeToGraduate);
+			}
+		}
+
+		for (const [key, school] of schoolsMap) {
+			const ages = schoolAges.get(key) || [];
+			const times = schoolTimes.get(key) || [];
+			school.averageAge =
+				ages.length > 0
+					? Math.round((ages.reduce((a, b) => a + b, 0) / ages.length) * 10) /
+						10
+					: null;
+			school.averageTimeToGraduate =
+				times.length > 0
+					? Math.round((times.reduce((a, b) => a + b, 0) / times.length) * 10) /
+						10
+					: null;
+		}
+
+		for (const [key, program] of programsMap) {
+			const ages = programAges.get(key) || [];
+			const times = programTimes.get(key) || [];
+			program.averageAge =
+				ages.length > 0
+					? Math.round((ages.reduce((a, b) => a + b, 0) / ages.length) * 10) /
+						10
+					: null;
+			program.averageTimeToGraduate =
+				times.length > 0
+					? Math.round((times.reduce((a, b) => a + b, 0) / times.length) * 10) /
+						10
+					: null;
 		}
 
 		return { schoolsMap, programsMap };

@@ -28,11 +28,14 @@ import {
 	parseAsString,
 	useQueryStates,
 } from 'nuqs';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
 	Filter,
 	GraduationCharts,
+	GrandTotalCard,
 	ProgramBreakdownTable,
+	type ReportFocusArea,
+	ReportFocusModal,
 	StudentTable,
 } from './_components';
 import type {
@@ -69,6 +72,7 @@ export default function GraduationReportPage() {
 	const [debouncedSearch] = useDebouncedValue(searchQuery, 500);
 	const [isExportingSummary, setIsExportingSummary] = useState(false);
 	const [isExportingStudents, setIsExportingStudents] = useState(false);
+	const [focusAreas, setFocusAreas] = useState<ReportFocusArea[]>([]);
 
 	useEffect(() => {
 		const newFilter: GraduationReportFilter = {
@@ -140,6 +144,56 @@ export default function GraduationReportPage() {
 				reportData.summaryData.schools.length > 0) ||
 				(studentsData?.students && studentsData.students.length > 0))
 	);
+
+	const grandTotals = useMemo(() => {
+		if (!reportData?.summaryData?.schools) {
+			return {
+				totalGraduates: 0,
+				maleCount: 0,
+				femaleCount: 0,
+				averageAge: null as number | null,
+				averageTimeToGraduate: null as number | null,
+				schoolCount: 0,
+				programCount: 0,
+			};
+		}
+
+		const schools = reportData.summaryData.schools;
+		let totalGraduates = 0;
+		let maleCount = 0;
+		let femaleCount = 0;
+		let totalAge = 0;
+		let ageCount = 0;
+		let totalTime = 0;
+		let timeCount = 0;
+		let programCount = 0;
+
+		for (const school of schools) {
+			totalGraduates += school.totalGraduates;
+			maleCount += school.maleCount;
+			femaleCount += school.femaleCount;
+			programCount += school.programs.length;
+
+			if (school.averageAge != null && school.totalGraduates > 0) {
+				totalAge += school.averageAge * school.totalGraduates;
+				ageCount += school.totalGraduates;
+			}
+			if (school.averageTimeToGraduate != null && school.totalGraduates > 0) {
+				totalTime += school.averageTimeToGraduate * school.totalGraduates;
+				timeCount += school.totalGraduates;
+			}
+		}
+
+		return {
+			totalGraduates,
+			maleCount,
+			femaleCount,
+			averageAge: ageCount > 0 ? totalAge / ageCount : null,
+			averageTimeToGraduate: timeCount > 0 ? totalTime / timeCount : null,
+			schoolCount: schools.length,
+			programCount,
+		};
+	}, [reportData?.summaryData?.schools]);
 
 	const handlePageChange = (page: number) => {
 		setCurrentPage(page);
@@ -330,34 +384,59 @@ export default function GraduationReportPage() {
 												found
 											</Text>
 										</Box>
-										{hasData && (
-											<Button
-												leftSection={<IconDownload size={16} />}
-												onClick={handleExportSummary}
-												variant='light'
-												loading={isExportingSummary}
-												disabled={isExportingSummary}
-											>
-												Export Summary
-											</Button>
-										)}
+										<Group gap='sm'>
+											<ReportFocusModal
+												selectedAreas={focusAreas}
+												onAreasChange={setFocusAreas}
+											/>
+											{hasData && (
+												<Button
+													leftSection={<IconDownload size={16} />}
+													onClick={handleExportSummary}
+													variant='light'
+													loading={isExportingSummary}
+													disabled={isExportingSummary}
+												>
+													Export Summary
+												</Button>
+											)}
+										</Group>
 									</Group>
 								</Card>
 
 								{isLoading ? (
 									Array.from({ length: 3 }, (_, i) => `skeleton-${i}`).map(
-										(key) => <ProgramBreakdownTable key={key} loading />
-									)
-								) : reportData?.summaryData?.schools &&
-									reportData.summaryData.schools.length > 0 ? (
-									reportData.summaryData.schools.map(
-										(school: GraduationSchoolData) => (
+										(key) => (
 											<ProgramBreakdownTable
-												key={school.schoolName}
-												school={school}
+												key={key}
+												loading
+												focusAreas={focusAreas}
 											/>
 										)
 									)
+								) : reportData?.summaryData?.schools &&
+									reportData.summaryData.schools.length > 0 ? (
+									<>
+										{reportData.summaryData.schools.map(
+											(school: GraduationSchoolData) => (
+												<ProgramBreakdownTable
+													key={school.schoolName}
+													school={school}
+													focusAreas={focusAreas}
+												/>
+											)
+										)}
+										<GrandTotalCard
+											totalGraduates={grandTotals.totalGraduates}
+											maleCount={grandTotals.maleCount}
+											femaleCount={grandTotals.femaleCount}
+											averageAge={grandTotals.averageAge}
+											averageTimeToGraduate={grandTotals.averageTimeToGraduate}
+											schoolCount={grandTotals.schoolCount}
+											programCount={grandTotals.programCount}
+											focusAreas={focusAreas}
+										/>
+									</>
 								) : (
 									<Alert color='blue' variant='light'>
 										No program data available for the selected criteria.

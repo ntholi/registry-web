@@ -47,6 +47,8 @@ export interface GraduationProgramData {
 	totalGraduates: number;
 	maleCount: number;
 	femaleCount: number;
+	averageAge: number | null;
+	averageTimeToGraduate: number | null;
 }
 
 export interface GraduationSchoolData {
@@ -55,6 +57,8 @@ export interface GraduationSchoolData {
 	totalGraduates: number;
 	maleCount: number;
 	femaleCount: number;
+	averageAge: number | null;
+	averageTimeToGraduate: number | null;
 	programs: GraduationProgramData[];
 }
 
