@@ -477,6 +477,13 @@
 			"when": 1767793449377,
 			"tag": "0067_flawless_guardsmen",
 			"breakpoints": true
+		},
+		{
+			"idx": 68,
+			"version": "7",
+			"when": 1767877475570,
+			"tag": "0068_tearful_vivisector",
+			"breakpoints": true
 		}
 	]
 }
