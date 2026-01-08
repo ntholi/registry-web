@@ -79,6 +79,7 @@ export interface BoeStatsProgramRow {
 	withdrawn: number;
 	deferred: number;
 	totalActive: number;
+	totalStudents: number;
 }
 
 export interface BoeStatsSchool {
@@ -93,6 +94,7 @@ export interface BoeStatsSchool {
 		withdrawn: number;
 		deferred: number;
 		totalActive: number;
+		totalStudents: number;
 	};
 }
 
@@ -456,6 +458,7 @@ export default class BoeReportRepository extends BaseRepository<
 						withdrawn: 0,
 						deferred: 0,
 						totalActive: 0,
+						totalStudents: 0,
 					},
 				});
 			}
@@ -476,9 +479,13 @@ export default class BoeReportRepository extends BaseRepository<
 					withdrawn: 0,
 					deferred: 0,
 					totalActive: 0,
+					totalStudents: 0,
 				};
 				schoolData.programs.push(programData);
 			}
+
+			programData.totalStudents++;
+			schoolData.totals.totalStudents++;
 
 			const status = semester.status;
 

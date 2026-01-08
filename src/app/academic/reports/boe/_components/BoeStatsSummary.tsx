@@ -48,6 +48,7 @@ export function BoeStatsSummary({ schools, loading }: BoeStatsSummaryProps) {
 			withdrawn: acc.withdrawn + school.totals.withdrawn,
 			deferred: acc.deferred + school.totals.deferred,
 			totalActive: acc.totalActive + school.totals.totalActive,
+			totalStudents: acc.totalStudents + school.totals.totalStudents,
 		}),
 		{
 			passed: 0,
@@ -56,6 +57,7 @@ export function BoeStatsSummary({ schools, loading }: BoeStatsSummaryProps) {
 			withdrawn: 0,
 			deferred: 0,
 			totalActive: 0,
+			totalStudents: 0,
 		}
 	);
 
@@ -107,8 +109,13 @@ export function BoeStatsSummary({ schools, loading }: BoeStatsSummaryProps) {
 										</Text>
 									</Table.Th>
 									<Table.Th style={{ textAlign: 'center' }}>
-										<Text fw={600} size='sm'>
+										<Text c='teal' fw={600} size='sm'>
 											Active
+										</Text>
+									</Table.Th>
+									<Table.Th style={{ textAlign: 'center' }}>
+										<Text fw={600} size='sm'>
+											Total
 										</Text>
 									</Table.Th>
 								</Table.Tr>
@@ -150,7 +157,12 @@ export function BoeStatsSummary({ schools, loading }: BoeStatsSummaryProps) {
 											</Text>
 										</Table.Td>
 										<Table.Td style={{ textAlign: 'center' }}>
-											<Text fw={600}>{program.totalActive}</Text>
+											<Text c='teal' fw={600}>
+												{program.totalActive}
+											</Text>
+										</Table.Td>
+										<Table.Td style={{ textAlign: 'center' }}>
+											<Text fw={600}>{program.totalStudents}</Text>
 										</Table.Td>
 									</Table.Tr>
 								))}
@@ -184,7 +196,12 @@ export function BoeStatsSummary({ schools, loading }: BoeStatsSummaryProps) {
 										</Text>
 									</Table.Td>
 									<Table.Td style={{ textAlign: 'center' }}>
-										<Text fw={700}>{school.totals.totalActive}</Text>
+										<Text c='teal' fw={700}>
+											{school.totals.totalActive}
+										</Text>
+									</Table.Td>
+									<Table.Td style={{ textAlign: 'center' }}>
+										<Text fw={700}>{school.totals.totalStudents}</Text>
 									</Table.Td>
 								</Table.Tr>
 							</Table.Tbody>
@@ -194,7 +211,7 @@ export function BoeStatsSummary({ schools, loading }: BoeStatsSummaryProps) {
 			))}
 
 			{schools.length > 1 && (
-				<Card withBorder bg='gray.0'>
+				<Card withBorder>
 					<Title order={4} mb='md'>
 						Grand Total
 					</Title>
@@ -209,9 +226,8 @@ export function BoeStatsSummary({ schools, loading }: BoeStatsSummaryProps) {
 									</Table.Th>
 									<Table.Th style={{ textAlign: 'center' }}>Withdrawn</Table.Th>
 									<Table.Th style={{ textAlign: 'center' }}>Deferred</Table.Th>
-									<Table.Th style={{ textAlign: 'center' }}>
-										Total Active
-									</Table.Th>
+									<Table.Th style={{ textAlign: 'center' }}>Active</Table.Th>
+									<Table.Th style={{ textAlign: 'center' }}>Total</Table.Th>
 								</Table.Tr>
 							</Table.Thead>
 							<Table.Tbody>
@@ -242,8 +258,13 @@ export function BoeStatsSummary({ schools, loading }: BoeStatsSummaryProps) {
 										</Text>
 									</Table.Td>
 									<Table.Td style={{ textAlign: 'center' }}>
-										<Text fw={700} size='lg'>
+										<Text c='teal' fw={700} size='lg'>
 											{grandTotals.totalActive}
+										</Text>
+									</Table.Td>
+									<Table.Td style={{ textAlign: 'center' }}>
+										<Text fw={700} size='lg'>
+											{grandTotals.totalStudents}
 										</Text>
 									</Table.Td>
 								</Table.Tr>
