@@ -11,6 +11,7 @@ import type {
 	NavItem,
 } from '@/app/dashboard/module-config.types';
 import { moduleConfig } from '@/config/modules.config';
+import { countPendingApplications } from './applications/_server/actions';
 
 export const admissionsConfig: ModuleConfig = {
 	id: 'admissions',
@@ -55,6 +56,11 @@ export const admissionsConfig: ModuleConfig = {
 				href: '/admissions/applications',
 				icon: IconClipboardList,
 				roles: ['registry', 'admin'],
+				notificationCount: {
+					queryKey: ['applications', 'pending-count'],
+					queryFn: countPendingApplications,
+					color: 'red',
+				},
 			},
 		] as NavItem[],
 	},
