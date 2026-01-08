@@ -36,6 +36,10 @@ type Props = {
 export default function AcademicsView({ student, showMarks, ...props }: Props) {
 	const { data: session } = useSession();
 	const [openPrograms, setOpenPrograms] = useState<string[]>();
+	const [hoveredProgramId, setHoveredProgramId] = useState<string | null>(null);
+	const [hoveredSemesterId, setHoveredSemesterId] = useState<string | null>(
+		null
+	);
 	const isMobile = useMediaQuery('(max-width: 768px)');
 
 	const canEdit =
@@ -218,38 +222,49 @@ export default function AcademicsView({ student, showMarks, ...props }: Props) {
 							value={program.id?.toString() ?? ''}
 						>
 							<Accordion.Control>
-								<Group>
-									<ThemeIcon variant='light' color='gray' size={'xl'}>
-										<IconSchool size='1.1rem' />
-									</ThemeIcon>
-									<Stack gap={5}>
-										<Text fw={500}>{program.structure.program.name}</Text>
-										<Group gap={'xs'} align='center'>
-											<Badge
-												color={getStatusColor(program.status)}
-												size='xs'
-												variant='transparent'
-											>
-												{program.status}
-											</Badge>
-											{canEdit && (
-												<EditStudentProgramModal
-													program={{
-														id: program.id,
-														stdNo: student.stdNo,
-														intakeDate: program.intakeDate,
-														regDate: program.regDate,
-														startTerm: program.startTerm,
-														structureId: program.structureId,
-														programId: program.structure.program.id,
-														graduationDate: program.graduationDate,
-														status: program.status,
-													}}
-												/>
-											)}
-										</Group>
-									</Stack>
-								</Group>
+								<Box
+									onMouseEnter={() =>
+										setHoveredProgramId(program.id?.toString() ?? null)
+									}
+									onMouseLeave={() => setHoveredProgramId(null)}
+								>
+									<Group>
+										<ThemeIcon variant='light' color='gray' size={'xl'}>
+											<IconSchool size='1.1rem' />
+										</ThemeIcon>
+										<Stack gap={5}>
+											<Text fw={500}>{program.structure.program.name}</Text>
+											<Group gap={'xs'} align='center'>
+												<Badge
+													color={getStatusColor(program.status)}
+													size='xs'
+													variant='transparent'
+												>
+													{program.status}
+												</Badge>
+												{canEdit && (
+													<EditStudentProgramModal
+														program={{
+															id: program.id,
+															stdNo: student.stdNo,
+															intakeDate: program.intakeDate,
+															regDate: program.regDate,
+															startTerm: program.startTerm,
+															structureId: program.structureId,
+															programId: program.structure.program.id,
+															graduationDate: program.graduationDate,
+															status: program.status,
+														}}
+														visible={
+															hoveredProgramId ===
+															(program.id?.toString() ?? null)
+														}
+													/>
+												)}
+											</Group>
+										</Stack>
+									</Group>
+								</Box>
 							</Accordion.Control>
 
 							<Accordion.Panel>
@@ -268,7 +283,16 @@ export default function AcademicsView({ student, showMarks, ...props }: Props) {
 												return (
 													<Paper key={semester.id} p='md' withBorder>
 														<Stack gap='md'>
-															<Flex align='flex-end' justify='space-between'>
+															<Flex
+																align='flex-end'
+																justify='space-between'
+																onMouseEnter={() =>
+																	setHoveredSemesterId(
+																		semester.id?.toString() ?? null
+																	)
+																}
+																onMouseLeave={() => setHoveredSemesterId(null)}
+															>
 																<Group
 																	gap={'xs'}
 																	align='flex-end'
@@ -286,6 +310,10 @@ export default function AcademicsView({ student, showMarks, ...props }: Props) {
 																		<EditStudentSemesterModal
 																			semester={semester as never}
 																			structureId={program.structure.id}
+																			visible={
+																				hoveredSemesterId ===
+																				(semester.id?.toString() ?? null)
+																			}
 																		/>
 																	)}
 																</Group>

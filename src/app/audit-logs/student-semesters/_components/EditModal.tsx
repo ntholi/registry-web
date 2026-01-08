@@ -42,6 +42,7 @@ interface StudentSemester {
 interface Props {
 	semester: StudentSemester;
 	structureId: number;
+	visible?: boolean;
 }
 
 const FIELD_LABELS = {
@@ -55,6 +56,7 @@ const FIELD_LABELS = {
 export default function EditStudentSemesterModal({
 	semester,
 	structureId,
+	visible = true,
 }: Props) {
 	const queryClient = useQueryClient();
 	const [opened, { open, close }] = useDisclosure(false);
@@ -195,6 +197,10 @@ export default function EditStudentSemesterModal({
 				onClick={(e) => {
 					e.stopPropagation();
 					open();
+				}}
+				style={{
+					opacity: visible ? 1 : 0,
+					transition: 'opacity 0.2s',
 				}}
 			>
 				<IconEdit size='1rem' />

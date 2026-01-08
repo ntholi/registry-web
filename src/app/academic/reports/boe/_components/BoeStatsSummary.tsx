@@ -4,6 +4,7 @@ import {
 	Badge,
 	Card,
 	Group,
+	Paper,
 	ScrollArea,
 	Skeleton,
 	Stack,
@@ -71,7 +72,7 @@ export function BoeStatsSummary({ schools, loading }: BoeStatsSummaryProps) {
 	return (
 		<Stack gap='lg'>
 			{schools.map((school) => (
-				<Card key={school.schoolId} withBorder>
+				<Paper p={'md'} key={school.schoolId} withBorder>
 					<Group justify='space-between' mb='md'>
 						<Title order={4}>{school.schoolName}</Title>
 						<Badge variant='light'>{school.totals.totalActive} active</Badge>
@@ -168,7 +169,7 @@ export function BoeStatsSummary({ schools, loading }: BoeStatsSummaryProps) {
 							</Table.Tbody>
 						</Table>
 					</ScrollArea>
-				</Card>
+				</Paper>
 			))}
 
 			{schools.length > 1 && (
@@ -303,10 +304,17 @@ interface ClassRowProps {
 
 function ClassRow({ cls }: ClassRowProps) {
 	return (
-		<Table.Tr style={{ backgroundColor: 'var(--mantine-color-dark-7)' }}>
+		<Table.Tr
+			style={{
+				backgroundColor:
+					'light-dark(var(--mantine-color-gray-0), var(--mantine-color-dark-8))',
+			}}
+		>
 			<Table.Td />
 			<Table.Td pl='xl'>
-				<Text size='sm'>{cls.className}</Text>
+				<Text size='sm' fw={500}>
+					{cls.className}
+				</Text>
 			</Table.Td>
 			<Table.Td style={{ textAlign: 'center' }}>
 				<Text c='green' size='sm'>
