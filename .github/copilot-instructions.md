@@ -28,6 +28,7 @@ University student registration portal managing academic records, course registr
 - **Class**: Students in a program semester. ID: `[ProgramCode][SemesterMini]` (e.g., `DITY1S1`). Use `getStudentClassName(structureSemester)` from `@/shared/lib/utils/utils`.
 - **Term Code**: Formatted as `YYYY-MM` (e.g., `2025-02`).
 - **School/Faculty**: Interchangeable. Codebase uses **School**. Always translate "Faculty" to "School".
+- **Dates**: Always format as `YYYY-MM-DD` for date inputs.
 
 ### Architecture
 - **Flow**: UI → Server Actions → Services → Repositories → DB

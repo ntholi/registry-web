@@ -13,7 +13,7 @@ import {
 	Timeline,
 } from '@mantine/core';
 import { IconArrowRight, IconHistory } from '@tabler/icons-react';
-import { formatDateTime } from '@/shared/lib/utils/dates';
+import { formatDate, formatDateTime } from '@/shared/lib/utils/dates';
 
 interface AuditEntry {
 	id: number;
@@ -45,11 +45,11 @@ const DEFAULT_EXCLUDE_FIELDS = ['createdAt', 'updatedAt', 'id', 'stdNo'];
 function formatValue(value: unknown): string {
 	if (value === null || value === undefined) return 'Empty';
 	if (typeof value === 'boolean') return value ? 'Yes' : 'No';
-	if (value instanceof Date) return value.toLocaleDateString();
+	if (value instanceof Date) return formatDate(value);
 	if (typeof value === 'string' && /^\d{4}-\d{2}-\d{2}/.test(value)) {
 		const date = new Date(value);
 		if (!Number.isNaN(date.getTime())) {
-			return date.toLocaleDateString();
+			return formatDate(date);
 		}
 	}
 	return String(value);

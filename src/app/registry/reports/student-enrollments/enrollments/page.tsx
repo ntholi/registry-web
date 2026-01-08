@@ -29,6 +29,7 @@ import {
 	useQueryStates,
 } from 'nuqs';
 import { useCallback, useEffect, useState } from 'react';
+import { formatDateToISO } from '@/shared/lib/utils/dates';
 import RegistrationCharts from './_components/EnrollmentCharts';
 import RegistrationFilter, { type ReportFilter } from './_components/Filter';
 import ProgramBreakdownTable from './_components/ProgramBreakdownTable';
@@ -188,7 +189,7 @@ export default function RegistrationReportPage() {
 				const url = window.URL.createObjectURL(blob);
 				const link = document.createElement('a');
 				link.href = url;
-				link.download = `program-enrollment-summary-${new Date().toISOString().split('T')[0]}.docx`;
+				link.download = `program-enrollment-summary-${formatDateToISO(new Date())}.docx`;
 				document.body.appendChild(link);
 				link.click();
 				document.body.removeChild(link);
@@ -238,7 +239,7 @@ export default function RegistrationReportPage() {
 				const url = window.URL.createObjectURL(blob);
 				const link = document.createElement('a');
 				link.href = url;
-				link.download = `registered-students-${new Date().toISOString().split('T')[0]}.xlsx`;
+				link.download = `registered-students-${formatDateToISO(new Date())}.xlsx`;
 				document.body.appendChild(link);
 				link.click();
 				document.body.removeChild(link);

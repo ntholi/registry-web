@@ -14,6 +14,7 @@ import {
 	TextRun,
 	WidthType,
 } from 'docx';
+import { formatFullDateTime } from '@/shared/lib/utils/dates';
 import type { GraduationSummaryReport } from '../_lib/types';
 
 function getLogoImage(): Buffer {
@@ -127,16 +128,7 @@ export function createGraduationSummaryDocument(
 							new Paragraph({
 								children: [
 									new TextRun({
-										text: `Generated: ${report.generatedAt.toLocaleDateString(
-											'en-LS',
-											{
-												year: 'numeric',
-												month: 'long',
-												day: 'numeric',
-												hour: '2-digit',
-												minute: '2-digit',
-											}
-										)}`,
+										text: `Generated: ${formatFullDateTime(report.generatedAt)}`,
 										font: 'Arial',
 										size: 16,
 										color: '333333',

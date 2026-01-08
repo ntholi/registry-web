@@ -29,6 +29,7 @@ import {
 	useQueryStates,
 } from 'nuqs';
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { formatDateToISO } from '@/shared/lib/utils/dates';
 import {
 	Filter,
 	GraduationCharts,
@@ -234,7 +235,7 @@ export default function GraduationReportPage() {
 				const url = window.URL.createObjectURL(blob);
 				const link = document.createElement('a');
 				link.href = url;
-				link.download = `graduation-summary-${filter.graduationMonth}-${new Date().toISOString().split('T')[0]}.docx`;
+				link.download = `graduation-summary-${filter.graduationMonth}-${formatDateToISO(new Date())}.docx`;
 				document.body.appendChild(link);
 				link.click();
 				document.body.removeChild(link);
@@ -284,7 +285,7 @@ export default function GraduationReportPage() {
 				const url = window.URL.createObjectURL(blob);
 				const link = document.createElement('a');
 				link.href = url;
-				link.download = `graduates-list-${filter.graduationMonth}-${new Date().toISOString().split('T')[0]}.xlsx`;
+				link.download = `graduates-list-${filter.graduationMonth}-${formatDateToISO(new Date())}.xlsx`;
 				document.body.appendChild(link);
 				link.click();
 				document.body.removeChild(link);

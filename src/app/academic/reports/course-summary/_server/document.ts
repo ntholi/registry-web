@@ -13,6 +13,7 @@ import {
 	TextRun,
 	WidthType,
 } from 'docx';
+import { formatDate } from '@/shared/lib/utils/dates';
 import type { CourseSummaryReport } from './repository';
 
 export function createCourseSummaryDocument(
@@ -48,14 +49,7 @@ export function createCourseSummaryDocument(
 							new Paragraph({
 								children: [
 									new TextRun({
-										text: `Date Created: ${new Date().toLocaleDateString(
-											'en-LS',
-											{
-												year: 'numeric',
-												month: 'long',
-												day: 'numeric',
-											}
-										)}`,
+										text: `Date Created: ${formatDate(new Date())}`,
 										font: 'Tahoma',
 										size: 16,
 									}),

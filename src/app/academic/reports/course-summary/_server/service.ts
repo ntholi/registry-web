@@ -3,6 +3,7 @@ import { Packer } from 'docx';
 import { termsRepository } from '@/app/registry/dates/terms/_server/repository';
 import { auth } from '@/core/auth';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
+import { formatDate } from '@/shared/lib/utils/dates';
 import { createCourseSummaryDocument } from './document';
 import {
 	type CourseSummaryReport,
@@ -146,11 +147,7 @@ export default class CourseSummaryService {
 			programName: data.programName,
 			programCode: data.programCode,
 			lecturer: user?.user?.name || '',
-			date: new Date().toLocaleDateString('en-GB', {
-				day: 'numeric',
-				month: 'long',
-				year: 'numeric',
-			}),
+			date: formatDate(new Date()),
 			termCode: data.termCode,
 			totalStudents: data.students.length,
 			totalPasses,

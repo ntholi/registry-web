@@ -1,7 +1,11 @@
 import { Document, Font, Page, Text, View } from '@react-pdf/renderer';
 import { Fragment } from 'react';
 import { createTw } from 'react-pdf-tailwind';
-import { formatMonthYear, formatTerm } from '@/shared/lib/utils/dates';
+import {
+	formatIssueDate,
+	formatMonthYear,
+	formatTerm,
+} from '@/shared/lib/utils/dates';
 import { getAcademicRemarks } from '@/shared/lib/utils/grades';
 import type { getAcademicHistory } from '../../../_server/actions';
 import { getCleanedSemesters } from '../../academics/statements/utils';
@@ -172,11 +176,7 @@ export function TranscriptPages({
 		return null;
 	}
 
-	const issueDate = new Date().toLocaleDateString('en-GB', {
-		day: 'numeric',
-		month: 'long',
-		year: 'numeric',
-	});
+	const issueDate = formatIssueDate(new Date());
 
 	return (
 		<>

@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import ExcelJS from 'exceljs';
 import sharp from 'sharp';
+import { formatFullDateTime } from '@/shared/lib/utils/dates';
 import { compareSemesters, formatSemester } from '@/shared/lib/utils/utils';
 import type {
 	FullRegistrationReport,
@@ -249,13 +250,7 @@ export async function createFullRegistrationExcel(
 
 	worksheet.mergeCells(`A9:${lastColLetter}9`);
 	worksheet.getCell('A9').value =
-		`Generated: ${report.generatedAt.toLocaleDateString('en-LS', {
-			year: 'numeric',
-			month: 'long',
-			day: 'numeric',
-			hour: '2-digit',
-			minute: '2-digit',
-		})}`;
+		`Generated: ${formatFullDateTime(report.generatedAt)}`;
 	worksheet.getCell('A9').font = { name: 'Arial', size: 10, italic: true };
 	worksheet.getCell('A9').alignment = { horizontal: 'center' };
 

@@ -1,4 +1,5 @@
 import type ExcelJS from 'exceljs';
+import { formatDate, formatTime } from '@/shared/lib/utils/dates';
 import { getGradePoints } from '@/shared/lib/utils/grades';
 import { formatSemester } from '@/shared/lib/utils/utils';
 import type {
@@ -44,17 +45,8 @@ export function createWorksheet(
 	termCode: string
 ): void {
 	const currentDate = new Date();
-	const dateStr = currentDate.toLocaleDateString('en-GB', {
-		day: '2-digit',
-		month: '2-digit',
-		year: 'numeric',
-	});
-	const timeStr = currentDate.toLocaleTimeString('en-GB', {
-		hour: '2-digit',
-		minute: '2-digit',
-		second: '2-digit',
-		hour12: false,
-	});
+	const dateStr = formatDate(currentDate, 'numeric');
+	const timeStr = formatTime(currentDate, true);
 
 	const moduleColumns = getUniqueModules(programReport.students);
 	const totalCols = 4 + moduleColumns.length * 3 + 7; // Base cols + modules (3 cols each) + summary cols

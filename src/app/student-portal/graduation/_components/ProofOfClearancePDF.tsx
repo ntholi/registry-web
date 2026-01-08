@@ -399,11 +399,11 @@ export default function ProofOfClearancePDF({
 				<View style={styles.footerSection}>
 					<Text style={styles.footerText}>
 						Document ID: clearance_{student.stdNo}_
-						{formatDate(new Date()).replace(/\//g, '')} | This document serves
-						as official proof that all departmental clearances have been
-						approved for graduation. All academic, financial, and library
-						obligations have been satisfied. Clearance processed through the
-						official university system on {formatDate(new Date())}. This
+						{formatDate(new Date(), 'numeric').replace(/\//g, '')} | This
+						document serves as official proof that all departmental clearances
+						have been approved for graduation. All academic, financial, and
+						library obligations have been satisfied. Clearance processed through
+						the official university system on {formatDate(new Date())}. This
 						certificate is invalid if any information is found to be incorrect.
 					</Text>
 				</View>

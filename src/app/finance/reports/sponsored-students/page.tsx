@@ -22,6 +22,7 @@ import {
 import { useQuery } from '@tanstack/react-query';
 import { parseAsInteger, parseAsString, useQueryStates } from 'nuqs';
 import { useCallback, useEffect, useState } from 'react';
+import { formatDateToISO } from '@/shared/lib/utils/dates';
 import Filter, { type SponsoredStudentsFilter } from './_components/Filter';
 import StudentTable from './_components/StudentTable';
 import Summary from './_components/Summary';
@@ -155,7 +156,7 @@ export default function SponsoredStudentsReportPage() {
 				const url = window.URL.createObjectURL(blob);
 				const link = document.createElement('a');
 				link.href = url;
-				link.download = `sponsored-students-${new Date().toISOString().split('T')[0]}.xlsx`;
+				link.download = `sponsored-students-${formatDateToISO(new Date())}.xlsx`;
 				document.body.appendChild(link);
 				link.click();
 				document.body.removeChild(link);

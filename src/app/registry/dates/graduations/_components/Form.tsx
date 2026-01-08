@@ -5,7 +5,7 @@ import { DateInput } from '@mantine/dates';
 import { graduationDates } from '@registry/_database';
 import { createInsertSchema } from 'drizzle-zod';
 import { useRouter } from 'nextjs-toploader/app';
-import { formatDateToISO } from '@/shared/lib/utils/dates';
+import { formatDateToISO, parseDate } from '@/shared/lib/utils/dates';
 import { Form } from '@/shared/ui/adease';
 
 type Graduation = typeof graduationDates.$inferInsert;
@@ -21,11 +21,6 @@ type Props = {
 	terms: TermOption[];
 	title?: string;
 };
-
-function parseDate(dateStr: string | undefined): Date | undefined {
-	if (!dateStr) return undefined;
-	return new Date(dateStr);
-}
 
 export default function GraduationForm({
 	onSubmit,

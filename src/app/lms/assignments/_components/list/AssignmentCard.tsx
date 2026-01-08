@@ -16,6 +16,7 @@ import {
 	getAssessmentByLmsId,
 } from '@/app/academic/assessments/_server/actions';
 import { getBooleanColor } from '@/shared/lib/utils/colors';
+import { formatMoodleDate } from '@/shared/lib/utils/dates';
 import { DeleteModal } from '@/shared/ui/adease';
 import { deleteAssignment } from '../../_server/actions';
 import type { MoodleAssignment } from '../../types';
@@ -138,15 +139,11 @@ export default function AssignmentCard({ assignment, courseId }: Props) {
 
 					<Card.Section withBorder inheritPadding py='xs'>
 						<Group gap='xl'>
-							{dueDate && (
+							{assignment.duedate && (
 								<Group gap='xs'>
 									<IconClock size={16} />
 									<Text size='xs' c={getBooleanColor(!!isOverdue, 'negative')}>
-										Due: {dueDate.toLocaleDateString()} at{' '}
-										{dueDate.toLocaleTimeString([], {
-											hour: '2-digit',
-											minute: '2-digit',
-										})}
+										Due: {formatMoodleDate(assignment.duedate)}
 									</Text>
 								</Group>
 							)}

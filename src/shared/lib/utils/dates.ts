@@ -1,3 +1,9 @@
+export function parseDate(date: string | Date | null | undefined): Date | null {
+	if (!date) return null;
+	const d = new Date(date);
+	return Number.isNaN(d.getTime()) ? null : d;
+}
+
 export function formatDate(
 	timestamp: number | Date | string | undefined | null,
 	type: 'long' | 'short' | 'numeric' = 'long'
@@ -7,6 +13,19 @@ export function formatDate(
 		year: 'numeric',
 		month: type,
 		day: 'numeric',
+	});
+}
+
+export function formatTime(
+	timestamp: number | Date | string | undefined | null,
+	includeSeconds = false
+) {
+	if (!timestamp) return '';
+	return new Date(timestamp).toLocaleTimeString('en-GB', {
+		hour: '2-digit',
+		minute: '2-digit',
+		second: includeSeconds ? '2-digit' : undefined,
+		hour12: false,
 	});
 }
 
@@ -20,6 +39,19 @@ export function formatDateTime(
 		day: 'numeric',
 		hour: 'numeric',
 		minute: 'numeric',
+	});
+}
+
+export function formatFullDateTime(
+	timestamp: number | Date | string | undefined | null
+) {
+	if (!timestamp) return '';
+	return new Date(timestamp).toLocaleString('en-GB', {
+		year: 'numeric',
+		month: 'long',
+		day: 'numeric',
+		hour: '2-digit',
+		minute: '2-digit',
 	});
 }
 
@@ -89,6 +121,24 @@ export function calculateAge(
 		age--;
 	}
 	return age;
+}
+
+export function formatRelativeTime(
+	date: Date | null | string | number | undefined
+) {
+	if (!date) return '';
+	const now = new Date();
+	const d = new Date(date);
+	const diff = now.getTime() - d.getTime();
+	const minutes = Math.floor(diff / 60000);
+	const hours = Math.floor(minutes / 60);
+	const days = Math.floor(hours / 24);
+
+	if (minutes < 1) return 'Just now';
+	if (minutes < 60) return `${minutes}m ago`;
+	if (hours < 24) return `${hours}h ago`;
+	if (days < 7) return `${days}d ago`;
+	return d.toLocaleDateString('en-GB', { dateStyle: 'short' });
 }
 
 export function formatTerm(
