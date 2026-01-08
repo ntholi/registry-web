@@ -189,6 +189,11 @@ export const statusColors = {
 		completed: semantic.success,
 		cancelled: semantic.error,
 	},
+	documentVerificationStatus: {
+		pending: semantic.warning,
+		verified: semantic.success,
+		rejected: semantic.error,
+	},
 } as const;
 
 const allStatuses = {
@@ -449,4 +454,13 @@ export function getSemesterResultColor(
 	if (normalized === 'active') return semantic.success;
 	if (normalized === 'repeat') return semantic.caution;
 	return getStatusColor(status as AllStatusType);
+}
+
+export type DocumentVerificationStatusType =
+	keyof typeof statusColors.documentVerificationStatus;
+
+export function getDocumentVerificationStatusColor(
+	status: DocumentVerificationStatusType
+) {
+	return getColorFromMap(status, statusColors.documentVerificationStatus);
 }

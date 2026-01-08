@@ -43,7 +43,7 @@ University student registration portal managing academic records, course registr
 - Derive types from Drizzle: `typeof table.$inferInsert`, `typeof table.$inferSelect`
 - No comments - code should be self-explanatory
 - Component order: Props type → constants → default export → private props type → private components
-- Use short  but meaningful names identifier (variables, functions, classes)
+- Use very short but meaningful names identifier (variables, functions, classes)
 - **File Naming**: Use `kebab-case` for all files and directories.
 - **Type Safety**: Avoid `any` at all costs. Use `interface` for object definitions and `type` for unions/intersections and props.
 

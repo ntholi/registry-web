@@ -1,0 +1,132 @@
+import type { StandardGrade } from '@admissions/_database';
+import { count, eq } from 'drizzle-orm';
+import { academicRecords, db, subjectGrades } from '@/core/database';
+import BaseRepository from '@/core/platform/BaseRepository';
+
+export default class AcademicRecordRepository extends BaseRepository<
+	typeof academicRecords,
+	'id'
+> {
+	constructor() {
+		super(academicRecords, academicRecords.id);
+	}
+
+	override async findById(id: number) {
+		return db.query.academicRecords.findFirst({
+			where: eq(academicRecords.id, id),
+			with: {
+				certificateType: true,
+				subjectGrades: { with: { subject: true } },
+			},
+		});
+	}
+
+	async findByApplicant(applicantId: string, page = 1) {
+		const pageSize = 15;
+		const offset = (page - 1) * pageSize;
+
+		const [items, [{ total }]] = await Promise.all([
+			db.query.academicRecords.findMany({
+				where: eq(academicRecords.applicantId, applicantId),
+				limit: pageSize,
+				offset,
+				orderBy: (r, { desc }) => [desc(r.examYear)],
+				with: {
+					certificateType: true,
+					subjectGrades: { with: { subject: true } },
+				},
+			}),
+			db
+				.select({ total: count() })
+				.from(academicRecords)
+				.where(eq(academicRecords.applicantId, applicantId)),
+		]);
+
+		return {
+			items,
+			totalPages: Math.ceil(total / pageSize),
+			totalItems: total,
+		};
+	}
+
+	async createWithGrades(
+		data: typeof academicRecords.$inferInsert,
+		grades?: {
+			subjectId: number;
+			originalGrade: string;
+			standardGrade: StandardGrade;
+		}[]
+	) {
+		return db.transaction(async (tx) => {
+			const [record] = await tx
+				.insert(academicRecords)
+				.values(data)
+				.returning();
+
+			if (grades && grades.length > 0) {
+				await tx.insert(subjectGrades).values(
+					grades.map((g) => ({
+						academicRecordId: record.id,
+						subjectId: g.subjectId,
+						originalGrade: g.originalGrade,
+						standardGrade: g.standardGrade,
+					}))
+				);
+			}
+
+			return tx.query.academicRecords.findFirst({
+				where: eq(academicRecords.id, record.id),
+				with: {
+					certificateType: true,
+					subjectGrades: { with: { subject: true } },
+				},
+			});
+		});
+	}
+
+	async updateWithGrades(
+		id: number,
+		data: Partial<typeof academicRecords.$inferInsert>,
+		grades?: {
+			subjectId: number;
+			originalGrade: string;
+			standardGrade: StandardGrade;
+		}[]
+	) {
+		return db.transaction(async (tx) => {
+			await tx
+				.update(academicRecords)
+				.set({ ...data, updatedAt: new Date() })
+				.where(eq(academicRecords.id, id));
+
+			if (grades !== undefined) {
+				await tx
+					.delete(subjectGrades)
+					.where(eq(subjectGrades.academicRecordId, id));
+
+				if (grades.length > 0) {
+					await tx.insert(subjectGrades).values(
+						grades.map((g) => ({
+							academicRecordId: id,
+							subjectId: g.subjectId,
+							originalGrade: g.originalGrade,
+							standardGrade: g.standardGrade,
+						}))
+					);
+				}
+			}
+
+			return tx.query.academicRecords.findFirst({
+				where: eq(academicRecords.id, id),
+				with: {
+					certificateType: true,
+					subjectGrades: { with: { subject: true } },
+				},
+			});
+		});
+	}
+
+	async removeById(id: number) {
+		await db.delete(academicRecords).where(eq(academicRecords.id, id));
+	}
+}
