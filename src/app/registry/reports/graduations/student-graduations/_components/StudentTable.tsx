@@ -32,6 +32,14 @@ interface Student {
 	programLevel?: string | null;
 	country?: string | null;
 	age?: number | null;
+	email?: string | null;
+	phone?: string | null;
+	birthDate?: string | null;
+	birthPlace?: string | null;
+	nationalId?: string | null;
+	passportNo?: string | null;
+	address?: string | null;
+	intake?: string | null;
 }
 
 interface StudentTableProps {
@@ -156,6 +164,72 @@ const ALL_COLUMNS: TableColumn[] = [
 		render: (student) => (
 			<Text size='sm'>{student.age !== null ? student.age : '-'}</Text>
 		),
+	},
+	{
+		key: 'email',
+		label: 'Email',
+		minWidth: 180,
+		render: (student) => (
+			<Text size='sm' c='dimmed'>
+				{student.email || '-'}
+			</Text>
+		),
+	},
+	{
+		key: 'phone',
+		label: 'Phone',
+		minWidth: 120,
+		render: (student) => (
+			<Text size='sm' c='dimmed'>
+				{student.phone || '-'}
+			</Text>
+		),
+	},
+	{
+		key: 'birthDate',
+		label: 'Birth Date',
+		minWidth: 110,
+		align: 'center',
+		render: (student) => <Text size='sm'>{student.birthDate || '-'}</Text>,
+	},
+	{
+		key: 'birthPlace',
+		label: 'Birth Place',
+		minWidth: 120,
+		render: (student) => (
+			<Text size='sm' c='dimmed'>
+				{student.birthPlace || '-'}
+			</Text>
+		),
+	},
+	{
+		key: 'nationalId',
+		label: 'National ID',
+		minWidth: 130,
+		render: (student) => <Text size='sm'>{student.nationalId || '-'}</Text>,
+	},
+	{
+		key: 'passportNo',
+		label: 'Passport No.',
+		minWidth: 130,
+		render: (student) => <Text size='sm'>{student.passportNo || '-'}</Text>,
+	},
+	{
+		key: 'address',
+		label: 'Address',
+		minWidth: 200,
+		render: (student) => (
+			<Text size='sm' c='dimmed'>
+				{student.address || '-'}
+			</Text>
+		),
+	},
+	{
+		key: 'intake',
+		label: 'Intake',
+		minWidth: 100,
+		align: 'center',
+		render: (student) => <Text size='sm'>{student.intake || '-'}</Text>,
 	},
 ];
 

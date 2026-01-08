@@ -104,6 +104,18 @@ const FILTER_COLUMNS = [
 	{ value: 'age', label: 'Age', filterKey: 'ageRange' },
 ];
 
+const EXTRA_COLUMNS = [
+	{ value: 'email', label: 'Email' },
+	{ value: 'phone', label: 'Phone Number' },
+	{ value: 'birthDate', label: 'Birth Date' },
+	{ value: 'birthPlace', label: 'Birth Place' },
+	{ value: 'nationalId', label: 'National ID' },
+	{ value: 'passportNo', label: 'Passport No.' },
+	{ value: 'address', label: 'Address' },
+	{ value: 'intake', label: 'Intake' },
+	{ value: 'registrationDate', label: 'Registration Date' },
+];
+
 export function getDefaultVisibleColumns(): string[] {
 	return BASE_COLUMNS.map((col) => col.value);
 }
@@ -233,6 +245,23 @@ export default function EnrollmentFilter({ onFilterChange }: Props) {
 	const availableFilterColumns = FILTER_COLUMNS.filter((col) =>
 		activeFilterColumnKeys.includes(col.value)
 	);
+
+	const selectedExtraColumns = EXTRA_COLUMNS.filter((col) =>
+		userSelectedColumns.includes(col.value)
+	);
+
+	const availableExtraColumns = EXTRA_COLUMNS.filter(
+		(col) => !userSelectedColumns.includes(col.value)
+	);
+
+	function handleAddColumn(value: string | null) {
+		if (!value) return;
+		const currentCols =
+			localFilter.visibleColumns ?? getDefaultVisibleColumns();
+		if (!currentCols.includes(value)) {
+			setLocalFilter({ visibleColumns: [...currentCols, value] });
+		}
+	}
 
 	const activeFiltersCount =
 		[
@@ -595,6 +624,16 @@ export default function EnrollmentFilter({ onFilterChange }: Props) {
 
 					<Divider my='sm' label='Visible Columns' labelPosition='center' />
 
+					<Select
+						placeholder='Add more columns...'
+						data={availableExtraColumns}
+						value={null}
+						onChange={handleAddColumn}
+						searchable
+						clearable
+						nothingFoundMessage='No columns available'
+					/>
+
 					<Box>
 						<Chip.Group
 							multiple
@@ -612,6 +651,11 @@ export default function EnrollmentFilter({ onFilterChange }: Props) {
 									</Chip>
 								))}
 								{availableFilterColumns.map((col) => (
+									<Chip key={col.value} value={col.value} size='xs'>
+										{col.label}
+									</Chip>
+								))}
+								{selectedExtraColumns.map((col) => (
 									<Chip key={col.value} value={col.value} size='xs'>
 										{col.label}
 									</Chip>

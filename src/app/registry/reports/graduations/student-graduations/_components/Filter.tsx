@@ -58,6 +58,17 @@ const FILTER_COLUMNS = [
 	{ value: 'age', label: 'Age', filterKey: 'ageRange' },
 ];
 
+const EXTRA_COLUMNS = [
+	{ value: 'email', label: 'Email' },
+	{ value: 'phone', label: 'Phone Number' },
+	{ value: 'birthDate', label: 'Birth Date' },
+	{ value: 'birthPlace', label: 'Birth Place' },
+	{ value: 'nationalId', label: 'National ID' },
+	{ value: 'passportNo', label: 'Passport No.' },
+	{ value: 'address', label: 'Address' },
+	{ value: 'intake', label: 'Intake' },
+];
+
 export function getDefaultVisibleColumns(): string[] {
 	return BASE_COLUMNS.map((col) => col.value);
 }
@@ -156,6 +167,23 @@ export default function GraduationFilter({ onFilterChange }: Props) {
 	const availableFilterColumns = FILTER_COLUMNS.filter((col) =>
 		activeFilterColumnKeys.includes(col.value)
 	);
+
+	const selectedExtraColumns = EXTRA_COLUMNS.filter((col) =>
+		userSelectedColumns.includes(col.value)
+	);
+
+	const availableExtraColumns = EXTRA_COLUMNS.filter(
+		(col) => !userSelectedColumns.includes(col.value)
+	);
+
+	function handleAddColumn(value: string | null) {
+		if (!value) return;
+		const currentCols =
+			localFilter.visibleColumns ?? getDefaultVisibleColumns();
+		if (!currentCols.includes(value)) {
+			setLocalFilter({ visibleColumns: [...currentCols, value] });
+		}
+	}
 
 	const activeFiltersCount =
 		[
@@ -282,8 +310,8 @@ export default function GraduationFilter({ onFilterChange }: Props) {
 					<Grid gutter='md' flex={1}>
 						<Grid.Col span={{ base: 12, sm: 6, md: 3 }}>
 							<Select
-								label='Graduation Month'
-								placeholder='Select month'
+								label='Date'
+								placeholder='Graduation date'
 								data={graduationMonthOptions}
 								rightSection={graduationDatesLoading && <Loader size='xs' />}
 								value={localFilter.graduationMonth ?? null}
@@ -469,6 +497,16 @@ export default function GraduationFilter({ onFilterChange }: Props) {
 
 					<Divider my='sm' label='Visible Columns' labelPosition='center' />
 
+					<Select
+						placeholder='Add more columns...'
+						data={availableExtraColumns}
+						value={null}
+						onChange={handleAddColumn}
+						searchable
+						clearable
+						nothingFoundMessage='No columns available'
+					/>
+
 					<Box>
 						<Chip.Group
 							multiple
@@ -490,6 +528,11 @@ export default function GraduationFilter({ onFilterChange }: Props) {
 										{col.label}
 									</Chip>
 								))}
+								{selectedExtraColumns.map((col) => (
+									<Chip key={col.value} value={col.value} size='xs'>
+										{col.label}
+									</Chip>
+								))}
 							</Group>
 						</Chip.Group>
 					</Box>
@@ -499,5 +542,5 @@ export default function GraduationFilter({ onFilterChange }: Props) {
 	);
 }
 
-export { BASE_COLUMNS, FILTER_COLUMNS };
+export { BASE_COLUMNS, FILTER_COLUMNS, EXTRA_COLUMNS };
 export type { GraduationReportFilter };

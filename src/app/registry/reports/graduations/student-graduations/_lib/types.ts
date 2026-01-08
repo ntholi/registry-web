@@ -29,6 +29,14 @@ export interface GraduationStudent {
 	country: string | null;
 	age: number | null;
 	timeToGraduate: number | null;
+	email: string | null;
+	phone: string | null;
+	birthDate: string | null;
+	birthPlace: string | null;
+	nationalId: string | null;
+	passportNo: string | null;
+	address: string | null;
+	intake: string | null;
 }
 
 export interface GraduationProgramData {

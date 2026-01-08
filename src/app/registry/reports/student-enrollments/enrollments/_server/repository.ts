@@ -29,6 +29,7 @@ export interface RegistrationReportFilter {
 	studentStatus?: string;
 	programStatus?: string;
 	semesterStatuses?: string[];
+	visibleColumns?: string[];
 }
 
 export interface FullRegistrationStudent {
@@ -48,6 +49,14 @@ export interface FullRegistrationStudent {
 	programStatus: string | null;
 	semesterStatus: string | null;
 	age: number | null;
+	email: string | null;
+	birthDate: string | null;
+	birthPlace: string | null;
+	nationalId: string | null;
+	passportNo: string | null;
+	address: string | null;
+	intake: string | null;
+	registrationDate: string | null;
 }
 
 export interface SummaryProgramData {
@@ -119,6 +128,10 @@ interface StudentQueryRow {
 	studentStatus: string | null;
 	programStatus: string | null;
 	semesterStatus: string | null;
+	birthPlace: string | null;
+	nationalId: string | null;
+	intakeDate: string | null;
+	regDate: string | null;
 }
 
 interface ChartQueryRow {
@@ -156,6 +169,10 @@ export class RegistrationReportRepository {
 				studentStatus: students.status,
 				programStatus: studentPrograms.status,
 				semesterStatus: studentSemesters.status,
+				birthPlace: students.birthPlace,
+				nationalId: students.nationalId,
+				intakeDate: studentPrograms.intakeDate,
+				regDate: studentPrograms.regDate,
 			})
 			.from(studentSemesters)
 			.innerJoin(
@@ -330,12 +347,14 @@ export class RegistrationReportRepository {
 
 	private mapRowToStudent(row: StudentQueryRow): FullRegistrationStudent {
 		let age: number | null = null;
+		let birthDateStr: string | null = null;
 		if (row.dateOfBirth) {
 			const birthDate = new Date(row.dateOfBirth);
 			const today = new Date();
 			age = Math.floor(
 				(today.getTime() - birthDate.getTime()) / (365.25 * 24 * 60 * 60 * 1000)
 			);
+			birthDateStr = birthDate.toISOString().split('T')[0];
 		}
 
 		return {
@@ -355,6 +374,14 @@ export class RegistrationReportRepository {
 			programStatus: row.programStatus || null,
 			semesterStatus: row.semesterStatus || null,
 			age,
+			email: null,
+			birthDate: birthDateStr,
+			birthPlace: row.birthPlace || null,
+			nationalId: row.nationalId || null,
+			passportNo: null,
+			address: null,
+			intake: row.intakeDate || null,
+			registrationDate: row.regDate || null,
 		};
 	}
 

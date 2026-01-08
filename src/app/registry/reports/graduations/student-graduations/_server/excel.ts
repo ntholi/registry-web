@@ -15,42 +15,113 @@ interface DynamicExcelColumn {
 	getValue: (student: GraduationFullReport['students'][0]) => string | number;
 }
 
-function getActiveFilterColumns(
+const ALL_EXCEL_COLUMNS: DynamicExcelColumn[] = [
+	{
+		key: 'stdNo',
+		header: 'Student Number',
+		width: 15,
+		getValue: (s) => s.stdNo,
+	},
+	{ key: 'name', header: 'Student Name', width: 30, getValue: (s) => s.name },
+	{
+		key: 'gender',
+		header: 'Gender',
+		width: 10,
+		getValue: (s) =>
+			s.gender === 'Male' ? 'M' : s.gender === 'Female' ? 'F' : '-',
+	},
+	{
+		key: 'program',
+		header: 'Program',
+		width: 42,
+		getValue: (s) => s.programName,
+	},
+	{ key: 'school', header: 'School', width: 46, getValue: (s) => s.schoolName },
+	{
+		key: 'graduationDate',
+		header: 'Graduation Date',
+		width: 18,
+		getValue: (s) => s.graduationDate,
+	},
+	{
+		key: 'sponsor',
+		header: 'Sponsor',
+		width: 20,
+		getValue: (s) => s.sponsorName || '-',
+	},
+	{
+		key: 'programLevel',
+		header: 'Program Level',
+		width: 15,
+		getValue: (s) => s.programLevel || '-',
+	},
+	{
+		key: 'country',
+		header: 'Country',
+		width: 15,
+		getValue: (s) => s.country || '-',
+	},
+	{
+		key: 'age',
+		header: 'Age',
+		width: 8,
+		getValue: (s) => (s.age !== null ? s.age : '-'),
+	},
+	{ key: 'email', header: 'Email', width: 25, getValue: (s) => s.email || '-' },
+	{ key: 'phone', header: 'Phone', width: 15, getValue: (s) => s.phone || '-' },
+	{
+		key: 'birthDate',
+		header: 'Birth Date',
+		width: 12,
+		getValue: (s) => s.birthDate || '-',
+	},
+	{
+		key: 'birthPlace',
+		header: 'Birth Place',
+		width: 15,
+		getValue: (s) => s.birthPlace || '-',
+	},
+	{
+		key: 'nationalId',
+		header: 'National ID',
+		width: 15,
+		getValue: (s) => s.nationalId || '-',
+	},
+	{
+		key: 'passportNo',
+		header: 'Passport No.',
+		width: 15,
+		getValue: (s) => s.passportNo || '-',
+	},
+	{
+		key: 'address',
+		header: 'Address',
+		width: 30,
+		getValue: (s) => s.address || '-',
+	},
+	{
+		key: 'intake',
+		header: 'Intake',
+		width: 12,
+		getValue: (s) => s.intake || '-',
+	},
+];
+
+const DEFAULT_VISIBLE = [
+	'stdNo',
+	'name',
+	'gender',
+	'program',
+	'school',
+	'graduationDate',
+	'sponsor',
+];
+
+function getVisibleExcelColumns(
 	filter?: GraduationReportFilter
 ): DynamicExcelColumn[] {
-	const columns: DynamicExcelColumn[] = [];
-
-	if (filter?.programLevels && filter.programLevels.length > 0) {
-		columns.push({
-			key: 'programLevel',
-			header: 'Program Level',
-			width: 15,
-			getValue: (student) => student.programLevel || '-',
-		});
-	}
-
-	if (filter?.country) {
-		columns.push({
-			key: 'country',
-			header: 'Country',
-			width: 15,
-			getValue: (student) => student.country || '-',
-		});
-	}
-
-	if (
-		(filter?.ageRangeMin && filter.ageRangeMin !== 12) ||
-		(filter?.ageRangeMax && filter.ageRangeMax !== 75)
-	) {
-		columns.push({
-			key: 'age',
-			header: 'Age',
-			width: 8,
-			getValue: (student) => (student.age !== null ? student.age : '-'),
-		});
-	}
-
-	return columns;
+	const visibleKeys = filter?.visibleColumns ?? DEFAULT_VISIBLE;
+	return ALL_EXCEL_COLUMNS.filter((col) => visibleKeys.includes(col.key));
 }
 
 export async function createGraduationExcel(
@@ -67,22 +138,11 @@ export async function createGraduationExcel(
 
 	const worksheet = workbook.addWorksheet('Graduates List');
 
-	const dynamicColumns = getActiveFilterColumns(filter);
-
-	const baseColumns = [
-		{ header: 'No.', key: 'no', width: 6 },
-		{ header: 'Student Number', key: 'stdNo', width: 15 },
-		{ header: 'Student Name', key: 'name', width: 30 },
-		{ header: 'Gender', key: 'gender', width: 10 },
-		{ header: 'Program', key: 'program', width: 42 },
-		{ header: 'School', key: 'school', width: 46 },
-		{ header: 'Graduation Date', key: 'graduationDate', width: 18 },
-		{ header: 'Sponsor', key: 'sponsor', width: 20 },
-	];
+	const visibleColumns = getVisibleExcelColumns(filter);
 
 	const allColumns = [
-		...baseColumns,
-		...dynamicColumns.map((col) => ({
+		{ header: 'No.', key: 'no', width: 6 },
+		...visibleColumns.map((col) => ({
 			header: col.header,
 			key: col.key,
 			width: col.width,
@@ -92,7 +152,13 @@ export async function createGraduationExcel(
 	worksheet.columns = allColumns;
 
 	const totalColumnCount = allColumns.length;
-	const lastColLetter = String.fromCharCode(64 + totalColumnCount);
+	const getLastColLetter = (count: number) => {
+		if (count <= 26) return String.fromCharCode(64 + count);
+		const first = Math.floor((count - 1) / 26);
+		const second = ((count - 1) % 26) + 1;
+		return String.fromCharCode(64 + first) + String.fromCharCode(64 + second);
+	};
+	const lastColLetter = getLastColLetter(totalColumnCount);
 
 	const logoPath = path.join(
 		process.cwd(),
@@ -173,17 +239,7 @@ export async function createGraduationExcel(
 
 	worksheet.addRow([]);
 
-	const headerLabels = [
-		'No.',
-		'Student Number',
-		'Student Name',
-		'Gender',
-		'Program',
-		'School',
-		'Graduation Date',
-		'Sponsor',
-		...dynamicColumns.map((col) => col.header),
-	];
+	const headerLabels = ['No.', ...visibleColumns.map((col) => col.header)];
 
 	const headerRow = worksheet.addRow(headerLabels);
 
@@ -221,20 +277,12 @@ export async function createGraduationExcel(
 	});
 
 	report.students.forEach((student, index) => {
-		const baseRowData = [
+		const rowData = [
 			index + 1,
-			student.stdNo,
-			student.name,
-			student.gender === 'Male' ? 'M' : student.gender === 'Female' ? 'F' : '-',
-			student.programName,
-			student.schoolName,
-			student.graduationDate,
-			student.sponsorName || '-',
+			...visibleColumns.map((col) => col.getValue(student)),
 		];
 
-		const dynamicRowData = dynamicColumns.map((col) => col.getValue(student));
-
-		const row = worksheet.addRow([...baseRowData, ...dynamicRowData]);
+		const row = worksheet.addRow(rowData);
 
 		row.font = { name: 'Arial', size: 11 };
 		row.alignment = { horizontal: 'left', vertical: 'middle' };
@@ -247,17 +295,13 @@ export async function createGraduationExcel(
 			};
 		}
 
-		row.eachCell((cell, colNumber) => {
+		row.eachCell((cell) => {
 			cell.border = {
 				top: { style: 'thin' },
 				left: { style: 'thin' },
 				bottom: { style: 'thin' },
 				right: { style: 'thin' },
 			};
-
-			if (colNumber === 2 || colNumber === 4 || colNumber === 7) {
-				cell.alignment = { horizontal: 'center', vertical: 'middle' };
-			}
 		});
 	});
 

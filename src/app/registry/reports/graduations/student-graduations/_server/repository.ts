@@ -34,6 +34,9 @@ interface StudentQueryRow {
 	country: string | null;
 	regDate: string | null;
 	intakeDate: string | null;
+	phone: string | null;
+	birthPlace: string | null;
+	nationalId: string | null;
 }
 
 interface ChartQueryRow {
@@ -68,6 +71,9 @@ export class GraduationReportRepository {
 				country: students.country,
 				regDate: studentPrograms.regDate,
 				intakeDate: studentPrograms.intakeDate,
+				phone: students.phone1,
+				birthPlace: students.birthPlace,
+				nationalId: students.nationalId,
 			})
 			.from(studentPrograms)
 			.innerJoin(students, eq(studentPrograms.stdNo, students.stdNo))
@@ -222,6 +228,11 @@ export class GraduationReportRepository {
 	}
 
 	private mapRowToStudent(row: StudentQueryRow): GraduationStudent {
+		let birthDateStr: string | null = null;
+		if (row.dateOfBirth) {
+			birthDateStr = new Date(row.dateOfBirth).toISOString().split('T')[0];
+		}
+
 		return {
 			stdNo: row.stdNo,
 			name: row.name,
@@ -240,6 +251,14 @@ export class GraduationReportRepository {
 				row.intakeDate,
 				row.graduationDate || ''
 			),
+			email: null,
+			phone: row.phone || null,
+			birthDate: birthDateStr,
+			birthPlace: row.birthPlace || null,
+			nationalId: row.nationalId || null,
+			passportNo: null,
+			address: null,
+			intake: row.intakeDate || null,
 		};
 	}
 
