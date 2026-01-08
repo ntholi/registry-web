@@ -576,12 +576,12 @@ export default class BoeReportRepository extends BaseRepository<
 					programData.failed++;
 					classData.failed++;
 					schoolData.totals.failed++;
+				}
 
-					if (failedModuleCount >= 3) {
-						programData.remain++;
-						classData.remain++;
-						schoolData.totals.remain++;
-					}
+				if (failedModuleCount >= 3) {
+					programData.remain++;
+					classData.remain++;
+					schoolData.totals.remain++;
 				}
 			}
 		}
