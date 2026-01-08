@@ -94,22 +94,22 @@ export function BoeStatsSummary({ schools, loading }: BoeStatsSummaryProps) {
 										</Text>
 									</Table.Th>
 									<Table.Th style={{ textAlign: 'center' }}>
-										<Text c='orange' fw={600} size='sm'>
+										<Text fw={600} size='sm'>
 											Dropped Out
 										</Text>
 									</Table.Th>
 									<Table.Th style={{ textAlign: 'center' }}>
-										<Text c='yellow' fw={600} size='sm'>
+										<Text fw={600} size='sm'>
 											Withdrawn
 										</Text>
 									</Table.Th>
 									<Table.Th style={{ textAlign: 'center' }}>
-										<Text c='blue' fw={600} size='sm'>
+										<Text fw={600} size='sm'>
 											Deferred
 										</Text>
 									</Table.Th>
 									<Table.Th style={{ textAlign: 'center' }}>
-										<Text c='teal' fw={600} size='sm'>
+										<Text fw={600} size='sm'>
 											Active
 										</Text>
 									</Table.Th>
@@ -142,24 +142,16 @@ export function BoeStatsSummary({ schools, loading }: BoeStatsSummaryProps) {
 											</Text>
 										</Table.Td>
 										<Table.Td style={{ textAlign: 'center' }}>
-											<Text c='orange' fw={500}>
-												{program.droppedOut || '-'}
-											</Text>
+											<Text c='orange'>{program.droppedOut || '-'}</Text>
 										</Table.Td>
 										<Table.Td style={{ textAlign: 'center' }}>
-											<Text c='yellow' fw={500}>
-												{program.withdrawn || '-'}
-											</Text>
+											<Text c='yellow'>{program.withdrawn || '-'}</Text>
 										</Table.Td>
 										<Table.Td style={{ textAlign: 'center' }}>
-											<Text c='blue' fw={500}>
-												{program.deferred || '-'}
-											</Text>
+											<Text c='blue'>{program.deferred || '-'}</Text>
 										</Table.Td>
 										<Table.Td style={{ textAlign: 'center' }}>
-											<Text c='teal' fw={600}>
-												{program.totalActive}
-											</Text>
+											<Text c='teal'>{program.totalActive}</Text>
 										</Table.Td>
 										<Table.Td style={{ textAlign: 'center' }}>
 											<Text fw={600}>{program.totalStudents}</Text>
