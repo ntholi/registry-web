@@ -281,8 +281,19 @@ function calculateGPA(points: number, creditsForGPA: number) {
 	return creditsForGPA > 0 ? points / creditsForGPA : 0;
 }
 
-export function getAcademicRemarks(programs: Program[]) {
-	const { semesters, studentModules } = extractData(programs);
+export function getAcademicRemarks(
+	programs: Program[],
+	excludeTermCode?: string
+) {
+	const { semesters: allSemesters } = extractData(programs);
+
+	const semesters = excludeTermCode
+		? allSemesters.filter((s) => s.termCode !== excludeTermCode)
+		: allSemesters;
+
+	const studentModules = semesters
+		.flatMap((s) => s.studentModules)
+		.filter((m) => isActiveModule(m.status));
 
 	const points: GradePoint[] = [];
 	let cumulativePoints = 0;
