@@ -68,16 +68,26 @@ export default function ScrollableTabsList({
 		return () => el.removeEventListener('scroll', checkScrollPosition);
 	}, [checkScrollPosition]);
 
-	const scroll = (direction: 'left' | 'right') => {
-		const el = scrollRef.current;
-		if (!el) return;
+	const scroll = useCallback(
+		(direction: 'left' | 'right') => {
+			const el = scrollRef.current;
+			if (!el) return;
 
-		const scrollAmount = el.clientWidth * 0.6;
-		el.scrollBy({
-			left: direction === 'left' ? -scrollAmount : scrollAmount,
-			behavior: 'smooth',
-		});
-	};
+			const scrollAmount = el.clientWidth * 0.6;
+			el.scrollBy({
+				left: direction === 'left' ? -scrollAmount : scrollAmount,
+				behavior: 'smooth',
+			});
+
+			requestAnimationFrame(() => {
+				checkScrollPosition();
+			});
+			window.setTimeout(() => {
+				checkScrollPosition();
+			}, 250);
+		},
+		[checkScrollPosition]
+	);
 
 	if (!shouldScroll) {
 		return (
