@@ -61,6 +61,7 @@ interface StudentProgram {
 
 interface Props {
 	program: StudentProgram;
+	visible?: boolean;
 }
 
 const FIELD_LABELS = {
@@ -73,7 +74,10 @@ const FIELD_LABELS = {
 	programId: 'Program',
 };
 
-export default function EditStudentProgramModal({ program }: Props) {
+export default function EditStudentProgramModal({
+	program,
+	visible = true,
+}: Props) {
 	const queryClient = useQueryClient();
 	const [opened, { open, close }] = useDisclosure(false);
 	const [isSubmitting, setIsSubmitting] = useState(false);
@@ -206,6 +210,10 @@ export default function EditStudentProgramModal({ program }: Props) {
 				onClick={(e) => {
 					e.stopPropagation();
 					open();
+				}}
+				style={{
+					opacity: visible ? 1 : 0,
+					transition: 'opacity 0.2s',
 				}}
 			>
 				<IconEdit size='1rem' />
