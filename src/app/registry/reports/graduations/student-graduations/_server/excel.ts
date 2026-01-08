@@ -88,12 +88,6 @@ const ALL_EXCEL_COLUMNS: DynamicExcelColumn[] = [
 		getValue: (s) => s.nationalId || '-',
 	},
 	{
-		key: 'passportNo',
-		header: 'Passport No.',
-		width: 15,
-		getValue: (s) => s.passportNo || '-',
-	},
-	{
 		key: 'address',
 		header: 'Address',
 		width: 30,

@@ -34,7 +34,6 @@ export interface GraduationStudent {
 	birthDate: string | null;
 	birthPlace: string | null;
 	nationalId: string | null;
-	passportNo: string | null;
 	address: string | null;
 	intake: string | null;
 }

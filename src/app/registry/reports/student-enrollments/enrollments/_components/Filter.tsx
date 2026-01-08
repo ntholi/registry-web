@@ -110,7 +110,6 @@ const EXTRA_COLUMNS = [
 	{ value: 'birthDate', label: 'Birth Date' },
 	{ value: 'birthPlace', label: 'Birth Place' },
 	{ value: 'nationalId', label: 'National ID' },
-	{ value: 'passportNo', label: 'Passport No.' },
 	{ value: 'address', label: 'Address' },
 	{ value: 'intake', label: 'Intake' },
 	{ value: 'registrationDate', label: 'Registration Date' },

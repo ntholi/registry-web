@@ -37,7 +37,6 @@ interface Student {
 	birthDate?: string | null;
 	birthPlace?: string | null;
 	nationalId?: string | null;
-	passportNo?: string | null;
 	address?: string | null;
 	intake?: string | null;
 }
@@ -207,12 +206,6 @@ const ALL_COLUMNS: TableColumn[] = [
 		label: 'National ID',
 		minWidth: 130,
 		render: (student) => <Text size='sm'>{student.nationalId || '-'}</Text>,
-	},
-	{
-		key: 'passportNo',
-		label: 'Passport No.',
-		minWidth: 130,
-		render: (student) => <Text size='sm'>{student.passportNo || '-'}</Text>,
 	},
 	{
 		key: 'address',

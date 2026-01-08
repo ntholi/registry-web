@@ -53,7 +53,6 @@ export interface FullRegistrationStudent {
 	birthDate: string | null;
 	birthPlace: string | null;
 	nationalId: string | null;
-	passportNo: string | null;
 	address: string | null;
 	intake: string | null;
 	registrationDate: string | null;
@@ -378,7 +377,6 @@ export class RegistrationReportRepository {
 			birthDate: birthDateStr,
 			birthPlace: row.birthPlace || null,
 			nationalId: row.nationalId || null,
-			passportNo: null,
 			address: null,
 			intake: row.intakeDate || null,
 			registrationDate: row.regDate || null,

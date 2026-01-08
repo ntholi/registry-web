@@ -256,7 +256,6 @@ export class GraduationReportRepository {
 			birthDate: birthDateStr,
 			birthPlace: row.birthPlace || null,
 			nationalId: row.nationalId || null,
-			passportNo: null,
 			address: null,
 			intake: row.intakeDate || null,
 		};
