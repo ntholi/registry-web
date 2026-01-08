@@ -1,10 +1,7 @@
 import { Document, Font, Image, Page, Text, View } from '@react-pdf/renderer';
 import { createTw } from 'react-pdf-tailwind';
-import {
-	formatDate,
-	formatSemester,
-	formatTerm,
-} from '@/shared/lib/utils/utils';
+import { formatDate, formatTerm } from '@/shared/lib/utils/dates';
+import { formatSemester } from '@/shared/lib/utils/utils';
 import type { getAcademicHistory } from '../../../_server/actions';
 
 type StatementOfResultsPDFProps = {

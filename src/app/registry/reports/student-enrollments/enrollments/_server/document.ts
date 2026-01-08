@@ -14,6 +14,7 @@ import {
 	TextRun,
 	WidthType,
 } from 'docx';
+import { formatDateTime } from '@/shared/lib/utils/dates';
 import { compareSemesters, formatSemester } from '@/shared/lib/utils/utils';
 import type {
 	FullRegistrationReport,
@@ -131,16 +132,7 @@ export function createFullRegistrationDocument(
 							new Paragraph({
 								children: [
 									new TextRun({
-										text: `Generated: ${report.generatedAt.toLocaleDateString(
-											'en-LS',
-											{
-												year: 'numeric',
-												month: 'long',
-												day: 'numeric',
-												hour: '2-digit',
-												minute: '2-digit',
-											}
-										)}`,
+										text: `Generated: ${formatDateTime(report.generatedAt)}`,
 										font: 'Arial',
 										size: 16,
 										color: '333333',
@@ -257,16 +249,7 @@ export function createSummaryRegistrationDocument(
 							new Paragraph({
 								children: [
 									new TextRun({
-										text: `Generated: ${report.generatedAt.toLocaleDateString(
-											'en-LS',
-											{
-												year: 'numeric',
-												month: 'long',
-												day: 'numeric',
-												hour: '2-digit',
-												minute: '2-digit',
-											}
-										)}`,
+										text: `Generated: ${formatDateTime(report.generatedAt)}`,
 										font: 'Arial',
 										size: 16,
 										color: '333333',

@@ -10,7 +10,7 @@ import {
 	students,
 } from '@/core/database';
 import BaseRepository from '@/core/platform/BaseRepository';
-import { getGradePoints } from '@/shared/lib/utils/grades';
+import { getGradePoints, isFailingGrade } from '@/shared/lib/utils/grades';
 import {
 	compareSemesters,
 	formatSemester,
@@ -76,6 +76,7 @@ export interface BoeStatsClassRow {
 	semesterNumber: string;
 	passed: number;
 	failed: number;
+	remain: number;
 	droppedOut: number;
 	withdrawn: number;
 	deferred: number;
@@ -89,6 +90,7 @@ export interface BoeStatsProgramRow {
 	programName: string;
 	passed: number;
 	failed: number;
+	remain: number;
 	droppedOut: number;
 	withdrawn: number;
 	deferred: number;
@@ -105,6 +107,7 @@ export interface BoeStatsSchool {
 	totals: {
 		passed: number;
 		failed: number;
+		remain: number;
 		droppedOut: number;
 		withdrawn: number;
 		deferred: number;
@@ -469,6 +472,7 @@ export default class BoeReportRepository extends BaseRepository<
 					totals: {
 						passed: 0,
 						failed: 0,
+						remain: 0,
 						droppedOut: 0,
 						withdrawn: 0,
 						deferred: 0,
@@ -490,6 +494,7 @@ export default class BoeReportRepository extends BaseRepository<
 					programName: program.name,
 					passed: 0,
 					failed: 0,
+					remain: 0,
 					droppedOut: 0,
 					withdrawn: 0,
 					deferred: 0,
@@ -512,6 +517,7 @@ export default class BoeReportRepository extends BaseRepository<
 					semesterNumber: semNum,
 					passed: 0,
 					failed: 0,
+					remain: 0,
 					droppedOut: 0,
 					withdrawn: 0,
 					deferred: 0,
@@ -547,6 +553,7 @@ export default class BoeReportRepository extends BaseRepository<
 				let totalPoints = 0;
 				let totalCredits = 0;
 				let hasGradedModules = false;
+				let failedModuleCount = 0;
 				for (const mod of semester.studentModules) {
 					const grade = mod.grade;
 					if (!grade || grade === 'NM') continue;
@@ -555,6 +562,9 @@ export default class BoeReportRepository extends BaseRepository<
 					totalPoints += gradePoint * credits;
 					totalCredits += credits;
 					hasGradedModules = true;
+					if (isFailingGrade(grade)) {
+						failedModuleCount++;
+					}
 				}
 				const gpa = totalCredits > 0 ? totalPoints / totalCredits : 0;
 
@@ -566,6 +576,12 @@ export default class BoeReportRepository extends BaseRepository<
 					programData.failed++;
 					classData.failed++;
 					schoolData.totals.failed++;
+				}
+
+				if (failedModuleCount >= 3) {
+					programData.remain++;
+					classData.remain++;
+					schoolData.totals.remain++;
 				}
 			}
 		}

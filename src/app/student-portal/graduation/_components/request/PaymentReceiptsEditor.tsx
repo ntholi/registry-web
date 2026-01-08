@@ -32,6 +32,7 @@ import {
 	IconTrash,
 } from '@tabler/icons-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { formatDate } from '@/shared/lib/utils/dates';
 
 type PaymentReceipt = {
 	id: string;
@@ -271,10 +272,7 @@ export default function PaymentReceiptsEditor({
 										</Text>
 
 										<Text size='xs' c='dimmed'>
-											Added:{' '}
-											{receipt.createdAt
-												? new Date(receipt.createdAt).toLocaleDateString()
-												: 'Unknown'}
+											Added: {formatDate(receipt.createdAt) || 'Unknown'}
 										</Text>
 									</Box>
 

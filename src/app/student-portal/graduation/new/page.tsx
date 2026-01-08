@@ -29,6 +29,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import useUserStudent from '@/shared/lib/hooks/use-user-student';
+import { formatDate } from '@/shared/lib/utils/dates';
 import {
 	InformationConfirmation,
 	PaymentReceiptsInput,
@@ -196,8 +197,7 @@ export default function GraduationPage() {
 					You have already submitted a graduation request. Please check with the
 					registry office for the status of your request.
 					<br />
-					<strong>Submitted on:</strong>{' '}
-					{new Date(existingRequest.createdAt || '').toLocaleDateString()}
+					<strong>Submitted on:</strong> {formatDate(existingRequest.createdAt)}
 				</Alert>
 			</Container>
 		);

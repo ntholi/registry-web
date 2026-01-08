@@ -19,7 +19,7 @@ import {
 	IconUser,
 } from '@tabler/icons-react';
 import { notFound } from 'next/navigation';
-import { formatDateTime } from '@/shared/lib/utils/utils';
+import { formatDateTime } from '@/shared/lib/utils/dates';
 import Logo from '@/shared/ui/Logo';
 
 type Props = {

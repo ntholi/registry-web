@@ -35,6 +35,7 @@ import {
 	useQueryStates,
 } from 'nuqs';
 import { useEffect, useMemo, useRef } from 'react';
+import { formatMonthYear } from '@/shared/lib/utils/dates';
 import type { GraduationReportFilter } from '../_lib/types';
 import {
 	getAvailableCountriesForGraduations,
@@ -216,10 +217,7 @@ export default function GraduationFilter({ onFilterChange }: Props) {
 			.map((month) => {
 				const [year, monthNum] = month.split('-');
 				const date = new Date(Number(year), Number(monthNum) - 1);
-				const label = date.toLocaleDateString('en-US', {
-					year: 'numeric',
-					month: 'long',
-				});
+				const label = formatMonthYear(date);
 				return { value: month, label };
 			});
 	}, [graduationDates]);

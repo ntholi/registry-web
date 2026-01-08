@@ -16,7 +16,7 @@ import {
 import { getDocumentUrl } from '@registry/documents';
 import { IconDownload, IconFile, IconTrash } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
-import { formatDate } from '@/shared/lib/utils/utils';
+import { formatDate } from '@/shared/lib/utils/dates';
 import documentTypes from './documentTypes';
 
 type DocumentCardProps = {

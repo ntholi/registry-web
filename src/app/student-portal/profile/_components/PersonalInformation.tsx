@@ -2,7 +2,7 @@
 import { Box, Grid, Paper, Text, Title } from '@mantine/core';
 import type { Student } from '@registry/students';
 import { getOptionalColor } from '@/shared/lib/utils/colors';
-import { formatDate } from '@/shared/lib/utils/utils';
+import { formatDate } from '@/shared/lib/utils/dates';
 
 type Props = {
 	student: NonNullable<Student>;

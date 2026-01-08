@@ -8,4 +8,4 @@ export {
 	TurnitinView,
 } from './components';
 export { getAssignmentSubmissions } from './server/actions';
-export { formatDate, formatFileSize, getSubmissionFiles } from './utils';
+export { formatFileSize, getSubmissionFiles } from './utils';

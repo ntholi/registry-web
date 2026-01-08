@@ -1,6 +1,7 @@
 'use client';
 
 import { Badge, Group, Select } from '@mantine/core';
+import { formatMoodleDate } from '@/shared/lib/utils/dates';
 import type { QuizAttempt } from '../../types';
 
 type Props = {
@@ -9,16 +10,6 @@ type Props = {
 	onSelectAttempt: (attemptId: number) => void;
 	maxGrade: number;
 };
-
-function formatDate(timestamp: number | null): string {
-	if (!timestamp) return 'N/A';
-	return new Date(timestamp * 1000).toLocaleString('en-US', {
-		month: 'short',
-		day: 'numeric',
-		hour: '2-digit',
-		minute: '2-digit',
-	});
-}
 
 function getStateColor(
 	state: string
@@ -73,7 +64,7 @@ export default function QuizAttemptSelector({
 
 	const options = attempts.map((attempt) => ({
 		value: attempt.id.toString(),
-		label: `Attempt ${attempt.attempt} - ${formatDate(attempt.timefinish)} (${
+		label: `Attempt ${attempt.attempt} - ${formatMoodleDate(attempt.timefinish)} (${
 			attempt.sumgrades !== null
 				? `${attempt.sumgrades.toFixed(1)}/${maxGrade}`
 				: 'Not graded'

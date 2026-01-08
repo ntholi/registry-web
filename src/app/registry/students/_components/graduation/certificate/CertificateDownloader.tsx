@@ -5,6 +5,7 @@ import { IconDownload } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
 import { useState } from 'react';
+import { formatDateToISO } from '@/shared/lib/utils/dates';
 import { getAcademicHistory } from '../../../_server/actions';
 import { generateCertificate } from './CertificatePDF';
 
@@ -78,7 +79,7 @@ export default function CertificateDownloader({
 			link.href = url;
 
 			const safeName = student.name.replace(/\s+/g, '_');
-			const timestamp = new Date().toISOString().split('T')[0];
+			const timestamp = formatDateToISO(new Date());
 			link.download = `certificate_${safeName}_${timestamp}.pdf`;
 
 			document.body.appendChild(link);

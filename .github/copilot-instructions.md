@@ -28,7 +28,7 @@ University student registration portal managing academic records, course registr
 - **Class**: Students in a program semester. ID: `[ProgramCode][SemesterMini]` (e.g., `DITY1S1`). Use `getStudentClassName(structureSemester)` from `@/shared/lib/utils/utils`.
 - **Term Code**: Formatted as `YYYY-MM` (e.g., `2025-02`).
 - **School/Faculty**: Interchangeable. Codebase uses **School**. Always translate "Faculty" to "School".
-- **Dates**: Always format as `YYYY-MM-DD`.
+- **Dates**: Always format as `YYYY-MM-DD` for date inputs.
 
 ### Architecture
 - **Flow**: UI → Server Actions → Services → Repositories → DB
@@ -67,6 +67,7 @@ University student registration portal managing academic records, course registr
 - **Never** import `db` outside of `repository.ts` files.
 - **Never** create new .sql migration files manually; it corrupts the _journal. Always use pnpm db:generate (or --custom if schema hasn't changed, but remember to update *_snapshot.json after manually editing the .sql file). Once the CLI generates the file, you may then edit the .sql content to add custom migration logic.
 - **Never** implement grade/marks/GPA/CGPA calculations locally; use `src/shared/lib/utils/grades/` and `gradeCalculations.ts`.
+- **Never** format dates/times/ages manually; use `src/shared/lib/utils/dates.ts` for all formatting.
 
 ### UI Rules
 - Mantine-only styling (no custom CSS)
@@ -76,6 +77,7 @@ University student registration portal managing academic records, course registr
 - Provide very beautiful, professional, clean, minimalist design
 - Never hardcode colors - use `src/shared/lib/utils/colors.ts`
 - Never hardcode status icons - use `src/shared/lib/utils/status.tsx`
+- Never format dates manually - use `src/shared/lib/utils/dates.ts`
 - If there is *any* conditional/semantic color mapping (statuses, grades, module types, etc.), add/extend the mapping in `colors.ts` and consume it from features.
 - If there is *any* status icon mapping (status → icon, with optional color), add/extend it in `status.tsx` and consume it from features.
 
@@ -176,7 +178,8 @@ Located in `src/core/platform/`:
 - `withAuth` - Authentication wrapper
 - `serviceWrapper` - Service proxy with logging
 
-### Color & Status Utilities
+### Utility Modules
+- `src/shared/lib/utils/dates.ts` - Date, time, age and term formatting
 - `src/shared/lib/utils/colors.ts` - Semantic colors, status colors
 - `src/shared/lib/utils/status.tsx` - Status icons
 

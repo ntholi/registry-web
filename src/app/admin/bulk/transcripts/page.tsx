@@ -20,6 +20,7 @@ import { type getAcademicHistory, TranscriptPages } from '@registry/students';
 import { IconDownload } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
+import { formatMonthYear } from '@/shared/lib/utils/dates';
 import {
 	getDistinctGraduationDates,
 	getProgramsByGraduationDate,
@@ -27,12 +28,6 @@ import {
 } from './_server/actions';
 
 type Student = NonNullable<Awaited<ReturnType<typeof getAcademicHistory>>>;
-
-function formatGraduationDate(date: string) {
-	const d = new Date(date);
-	if (Number.isNaN(d.getTime())) return date;
-	return d.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' });
-}
 
 function parseMonthYear(formattedDate: string) {
 	const parts = formattedDate.split(' ');
@@ -61,8 +56,8 @@ export default function ExportTranscriptPage() {
 	});
 
 	const groupedDates = graduationDates?.reduce(
-		(acc, date) => {
-			const formatted = formatGraduationDate(date);
+		(acc: Record<string, { label: string; dates: string[] }>, date: string) => {
+			const formatted = formatMonthYear(date);
 			const parsed = parseMonthYear(formatted);
 			if (!parsed) return acc;
 

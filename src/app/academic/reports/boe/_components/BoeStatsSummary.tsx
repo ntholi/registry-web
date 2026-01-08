@@ -52,6 +52,7 @@ export function BoeStatsSummary({ schools, loading }: BoeStatsSummaryProps) {
 		(acc, school) => ({
 			passed: acc.passed + school.totals.passed,
 			failed: acc.failed + school.totals.failed,
+			remain: acc.remain + school.totals.remain,
 			droppedOut: acc.droppedOut + school.totals.droppedOut,
 			withdrawn: acc.withdrawn + school.totals.withdrawn,
 			deferred: acc.deferred + school.totals.deferred,
@@ -61,6 +62,7 @@ export function BoeStatsSummary({ schools, loading }: BoeStatsSummaryProps) {
 		{
 			passed: 0,
 			failed: 0,
+			remain: 0,
 			droppedOut: 0,
 			withdrawn: 0,
 			deferred: 0,
@@ -92,6 +94,20 @@ export function BoeStatsSummary({ schools, loading }: BoeStatsSummaryProps) {
 									<Table.Th style={{ textAlign: 'center', width: 80 }}>
 										<Text c='red' fw={600} size='sm'>
 											Failed
+										</Text>
+									</Table.Th>
+									<Table.Th
+										style={{
+											textAlign: 'center',
+											width: 80,
+											borderLeft:
+												'2px dashed light-dark(var(--mantine-color-gray-4), var(--mantine-color-dark-4))',
+											borderRight:
+												'2px dashed light-dark(var(--mantine-color-gray-4), var(--mantine-color-dark-4))',
+										}}
+									>
+										<Text c='grape' fw={600} size='sm'>
+											Remain
 										</Text>
 									</Table.Th>
 									<Table.Th style={{ textAlign: 'center', width: 80 }}>
@@ -142,6 +158,19 @@ export function BoeStatsSummary({ schools, loading }: BoeStatsSummaryProps) {
 											{school.totals.failed}
 										</Text>
 									</Table.Td>
+									<Table.Td
+										style={{
+											textAlign: 'center',
+											borderLeft:
+												'2px dashed light-dark(var(--mantine-color-gray-4), var(--mantine-color-dark-4))',
+											borderRight:
+												'2px dashed light-dark(var(--mantine-color-gray-4), var(--mantine-color-dark-4))',
+										}}
+									>
+										<Text c='grape' fw={700}>
+											{school.totals.remain || '-'}
+										</Text>
+									</Table.Td>
 									<Table.Td style={{ textAlign: 'center' }}>
 										<Text c='orange' fw={700}>
 											{school.totals.droppedOut}
@@ -183,6 +212,17 @@ export function BoeStatsSummary({ schools, loading }: BoeStatsSummaryProps) {
 								<Table.Tr>
 									<Table.Th style={{ textAlign: 'center' }}>Passed</Table.Th>
 									<Table.Th style={{ textAlign: 'center' }}>Failed</Table.Th>
+									<Table.Th
+										style={{
+											textAlign: 'center',
+											borderLeft:
+												'2px dashed light-dark(var(--mantine-color-gray-4), var(--mantine-color-dark-4))',
+											borderRight:
+												'2px dashed light-dark(var(--mantine-color-gray-4), var(--mantine-color-dark-4))',
+										}}
+									>
+										Remain
+									</Table.Th>
 									<Table.Th style={{ textAlign: 'center' }}>
 										Dropped Out
 									</Table.Th>
@@ -202,6 +242,19 @@ export function BoeStatsSummary({ schools, loading }: BoeStatsSummaryProps) {
 									<Table.Td style={{ textAlign: 'center' }}>
 										<Text c='red' fw={600}>
 											{grandTotals.failed}
+										</Text>
+									</Table.Td>
+									<Table.Td
+										style={{
+											textAlign: 'center',
+											borderLeft:
+												'2px dashed light-dark(var(--mantine-color-gray-4), var(--mantine-color-dark-4))',
+											borderRight:
+												'2px dashed light-dark(var(--mantine-color-gray-4), var(--mantine-color-dark-4))',
+										}}
+									>
+										<Text c='grape' fw={600}>
+											{grandTotals.remain || '-'}
 										</Text>
 									</Table.Td>
 									<Table.Td style={{ textAlign: 'center' }}>
@@ -274,6 +327,17 @@ function ProgramRow({ program }: ProgramRowProps) {
 						{program.failed || '-'}
 					</Text>
 				</Table.Td>
+				<Table.Td
+					style={{
+						textAlign: 'center',
+						borderLeft:
+							'2px dashed light-dark(var(--mantine-color-gray-4), var(--mantine-color-dark-4))',
+						borderRight:
+							'2px dashed light-dark(var(--mantine-color-gray-4), var(--mantine-color-dark-4))',
+					}}
+				>
+					<Text c='grape'>{program.remain || '-'}</Text>
+				</Table.Td>
 				<Table.Td style={{ textAlign: 'center' }}>
 					<Text c='orange'>{program.droppedOut || '-'}</Text>
 				</Table.Td>
@@ -324,6 +388,19 @@ function ClassRow({ cls }: ClassRowProps) {
 			<Table.Td style={{ textAlign: 'center' }}>
 				<Text c='red' size='sm'>
 					{cls.failed || '-'}
+				</Text>
+			</Table.Td>
+			<Table.Td
+				style={{
+					textAlign: 'center',
+					borderLeft:
+						'2px dashed light-dark(var(--mantine-color-gray-4), var(--mantine-color-dark-4))',
+					borderRight:
+						'2px dashed light-dark(var(--mantine-color-gray-4), var(--mantine-color-dark-4))',
+				}}
+			>
+				<Text c='grape' size='sm'>
+					{cls.remain || '-'}
 				</Text>
 			</Table.Td>
 			<Table.Td style={{ textAlign: 'center' }}>

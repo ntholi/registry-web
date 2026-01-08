@@ -20,9 +20,9 @@ import {
 	IconUsers,
 } from '@tabler/icons-react';
 import { useState } from 'react';
+import { formatMoodleDate } from '@/shared/lib/utils/dates';
 import type { SubmissionFile, SubmissionUser } from '../../../types';
 import { GradeInput, RubricGrading } from '../../grading/components';
-import { formatDate } from '../utils';
 import CommentsView from './CommentsView';
 import FileList from './FileList';
 import TurnitinView from './TurnitinView';
@@ -83,7 +83,8 @@ export default function SubmissionDetails({
 						<Text fw={600}>{displayName}</Text>
 						{selectedUser.submission && (
 							<Text size='xs' c='dimmed'>
-								Submitted {formatDate(selectedUser.submission.timemodified)}
+								Submitted{' '}
+								{formatMoodleDate(selectedUser.submission.timemodified)}
 							</Text>
 						)}
 					</Box>

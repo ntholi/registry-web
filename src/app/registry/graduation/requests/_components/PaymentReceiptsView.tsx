@@ -2,6 +2,7 @@
 
 import { Badge, Flex, Stack, Table, Text, Title } from '@mantine/core';
 import type { getGraduationRequest } from '@/app/registry/graduation/clearance/_server/requests/actions';
+import { formatDate } from '@/shared/lib/utils/dates';
 
 interface Props {
 	value: NonNullable<Awaited<ReturnType<typeof getGraduationRequest>>>;
@@ -29,11 +30,7 @@ export default function PaymentReceiptsView({ value }: Props) {
 					{receipt.receiptType.replace('_', ' ').toUpperCase()}
 				</Badge>
 			</Table.Td>
-			<Table.Td>
-				{receipt.createdAt
-					? new Date(receipt.createdAt).toLocaleDateString()
-					: 'N/A'}
-			</Table.Td>
+			<Table.Td>{formatDate(receipt.createdAt) || 'N/A'}</Table.Td>
 		</Table.Tr>
 	));
 

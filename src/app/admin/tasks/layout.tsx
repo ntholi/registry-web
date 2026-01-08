@@ -8,6 +8,7 @@ import {
 	getTaskPriorityColor,
 	getTaskStatusColor,
 } from '@/shared/lib/utils/colors';
+import { formatDate } from '@/shared/lib/utils/dates';
 import { ListItem, ListLayout, NewLink } from '@/shared/ui/adease';
 
 const statusLabels: Record<string, string> = {
@@ -17,14 +18,6 @@ const statusLabels: Record<string, string> = {
 	completed: 'Completed',
 	cancelled: 'Cancelled',
 };
-
-function formatDate(date: Date | string | null | undefined) {
-	if (!date) return null;
-	return new Date(date).toLocaleDateString('en-US', {
-		month: 'short',
-		day: 'numeric',
-	});
-}
 
 export default function Layout({ children }: PropsWithChildren) {
 	return (
@@ -62,7 +55,7 @@ export default function Layout({ children }: PropsWithChildren) {
 									<Badge size='xs' variant='light' color='gray'>
 										<Group gap={4}>
 											<IconCalendar size={10} />
-											{formatDate(task.dueDate)}
+											{formatDate(task.dueDate, 'short')}
 										</Group>
 									</Badge>
 								)}

@@ -15,8 +15,9 @@ import {
 import type { getGraduationRequest } from '@registry/graduation/clearance';
 import { IconInfoCircle } from '@tabler/icons-react';
 import { getStatusColor } from '@/shared/lib/utils/colors';
+import { formatDateTime } from '@/shared/lib/utils/dates';
 import { getStatusIcon } from '@/shared/lib/utils/status';
-import { formatDateTime, toTitleCase } from '@/shared/lib/utils/utils';
+import { toTitleCase } from '@/shared/lib/utils/utils';
 import { getClearanceStatus } from '../../_lib/status';
 
 interface Props {

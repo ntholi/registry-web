@@ -16,6 +16,7 @@ import { IconCalendarWeek, IconTable } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { parseAsInteger, useQueryState } from 'nuqs';
 import { useEffect } from 'react';
+import { formatDate } from '@/shared/lib/utils/dates';
 import { toClassName } from '@/shared/lib/utils/utils';
 import {
 	getAssignedModulesForCurrentUser,
@@ -23,13 +24,6 @@ import {
 } from '../_server/actions';
 import AttendanceForm from './AttendanceForm';
 import AttendanceSummary from './AttendanceSummary';
-
-function formatDate(date: Date) {
-	return new Date(date).toLocaleDateString('en-US', {
-		month: 'short',
-		day: 'numeric',
-	});
-}
 
 export default function AttendanceView() {
 	const [selectedModuleId, setSelectedModuleId] = useQueryState(
@@ -113,7 +107,7 @@ export default function AttendanceView() {
 		weeks?.map((w) => ({
 			value: w.weekNumber.toString(),
 			label: `Week ${w.weekNumber}${w.isCurrent ? ' (Current)' : ''}`,
-			description: `${formatDate(w.startDate)} - ${formatDate(w.endDate)}`,
+			description: `${formatDate(w.startDate, 'short')} - ${formatDate(w.endDate, 'short')}`,
 		})) ?? [];
 
 	return (
@@ -153,8 +147,8 @@ export default function AttendanceView() {
 				{currentWeek && selectedModuleId && !selectedWeek && (
 					<Text size='xs' c='dimmed' mt='xs'>
 						Current week: Week {currentWeek.weekNumber} (
-						{formatDate(currentWeek.startDate)} -{' '}
-						{formatDate(currentWeek.endDate)})
+						{formatDate(currentWeek.startDate, 'short')} -{' '}
+						{formatDate(currentWeek.endDate, 'short')})
 					</Text>
 				)}
 			</Paper>

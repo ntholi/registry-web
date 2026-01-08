@@ -4,7 +4,7 @@ import { ActionIcon, Flex, Paper, Stack, Text, Tooltip } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { IconCopy } from '@tabler/icons-react';
 import type { getGraduationRequest } from '@/app/registry/graduation/clearance/_server/requests/actions';
-import { formatDateTime } from '@/shared/lib/utils/utils';
+import { formatDateTime } from '@/shared/lib/utils/dates';
 import { FieldView } from '@/shared/ui/adease';
 import Link from '@/shared/ui/Link';
 

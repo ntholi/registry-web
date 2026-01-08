@@ -14,6 +14,7 @@ import {
 } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
+import { formatIssueDate } from '@/shared/lib/utils/dates';
 import { getAcademicHistory } from '../../../_server/actions';
 
 type CertificatePreviewProps = {
@@ -117,17 +118,8 @@ function Certificate({
 	student: Student;
 	program: StudentProgram;
 }) {
-	const graduationDate = program.graduationDate
-		? new Date(program.graduationDate).toLocaleDateString('en-GB', {
-				day: '2-digit',
-				month: 'long',
-				year: 'numeric',
-			})
-		: new Date().toLocaleDateString('en-GB', {
-				day: '2-digit',
-				month: 'long',
-				year: 'numeric',
-			});
+	const graduationDate =
+		formatIssueDate(program.graduationDate) || formatIssueDate(new Date());
 
 	const programName = program.structure?.program?.name || 'Unknown Program';
 

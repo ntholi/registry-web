@@ -1,10 +1,7 @@
 import { Document, Font, Image, Page, Text, View } from '@react-pdf/renderer';
 import { createTw } from 'react-pdf-tailwind';
-import {
-	formatDate,
-	formatSemester,
-	isActiveModule,
-} from '@/shared/lib/utils/utils';
+import { formatDate } from '@/shared/lib/utils/dates';
+import { formatSemester, isActiveModule } from '@/shared/lib/utils/utils';
 import type { getStudentRegistrationData } from '../../../_server/actions';
 
 Font.register({

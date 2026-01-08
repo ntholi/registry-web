@@ -16,8 +16,9 @@ import {
 import type { getRegistrationRequest } from '@registry/registration';
 import { IconInfoCircle } from '@tabler/icons-react';
 import { getStatusColor } from '@/shared/lib/utils/colors';
+import { formatDateTime } from '@/shared/lib/utils/dates';
 import { getStatusIcon } from '@/shared/lib/utils/status';
-import { formatDateTime, toTitleCase } from '@/shared/lib/utils/utils';
+import { toTitleCase } from '@/shared/lib/utils/utils';
 import { getRegistrationOverallClearanceStatus as getOverallClearanceStatus } from '../../_lib/status';
 
 type Props = {

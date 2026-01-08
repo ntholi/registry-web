@@ -25,27 +25,12 @@ import { getAllTerms } from '@registry/dates/terms';
 import { IconAlertCircle, IconEdit } from '@tabler/icons-react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect, useState } from 'react';
+import { formatDateToISO, parseDate } from '@/shared/lib/utils/dates';
 import AuditHistoryTab from '../../_components/AuditHistoryTab';
 import {
 	getStudentProgramAuditHistory,
 	updateStudentProgram,
 } from '../_server/actions';
-
-function parseDate(dateString: string | null): Date | null {
-	if (!dateString) return null;
-	const date = new Date(dateString);
-	return Number.isNaN(date.getTime()) ? null : date;
-}
-
-function formatDate(date: Date | null | undefined): string | null {
-	if (!date) return null;
-	if (typeof date === 'string') return date;
-	if (!(date instanceof Date) || Number.isNaN(date.getTime())) return null;
-	const year = date.getFullYear();
-	const month = String(date.getMonth() + 1).padStart(2, '0');
-	const day = String(date.getDate()).padStart(2, '0');
-	return `${year}-${month}-${day}`;
-}
 
 interface StudentProgram {
 	id: number;
@@ -148,11 +133,11 @@ export default function EditStudentProgramModal({
 				await updateStudentProgram(
 					program.id,
 					{
-						intakeDate: formatDate(values.intakeDate),
-						regDate: formatDate(values.regDate),
+						intakeDate: formatDateToISO(values.intakeDate) || null,
+						regDate: formatDateToISO(values.regDate) || null,
 						startTerm: values.startTerm || null,
 						structureId: parseInt(values.structureId, 10),
-						graduationDate: formatDate(values.graduationDate),
+						graduationDate: formatDateToISO(values.graduationDate) || null,
 						status: values.status as StudentProgramStatus,
 					},
 					values.reasons
