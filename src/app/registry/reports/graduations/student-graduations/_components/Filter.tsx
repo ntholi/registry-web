@@ -86,7 +86,7 @@ export default function GraduationFilter({ onFilterChange }: Props) {
 			programLevels: parseAsArrayOf(parseAsString),
 			gender: parseAsString,
 			sponsorId: parseAsInteger,
-			ageRangeMin: parseAsInteger.withDefault(12),
+			ageRangeMin: parseAsInteger.withDefault(0),
 			ageRangeMax: parseAsInteger.withDefault(75),
 			country: parseAsString,
 			visibleColumns: parseAsArrayOf(parseAsString),
@@ -98,7 +98,7 @@ export default function GraduationFilter({ onFilterChange }: Props) {
 	);
 
 	const hasAgeFilter =
-		localFilter.ageRangeMin !== 12 || localFilter.ageRangeMax !== 75;
+		localFilter.ageRangeMin !== 0 || localFilter.ageRangeMax !== 75;
 
 	const activeFilterColumnKeys = useMemo(() => {
 		const activeColumns: string[] = [];
@@ -155,7 +155,7 @@ export default function GraduationFilter({ onFilterChange }: Props) {
 			gender: localFilter.gender ?? undefined,
 			sponsorId: localFilter.sponsorId ?? undefined,
 			ageRangeMin:
-				localFilter.ageRangeMin !== 12 ? localFilter.ageRangeMin : undefined,
+				localFilter.ageRangeMin !== 0 ? localFilter.ageRangeMin : undefined,
 			ageRangeMax:
 				localFilter.ageRangeMax !== 75 ? localFilter.ageRangeMax : undefined,
 			country: localFilter.country ?? undefined,
@@ -464,10 +464,11 @@ export default function GraduationFilter({ onFilterChange }: Props) {
 						<RangeSlider
 							value={[localFilter.ageRangeMin, localFilter.ageRangeMax]}
 							onChange={(value) => handleChange('ageRange', value)}
-							min={12}
+							min={0}
 							max={75}
 							step={1}
 							marks={[
+								{ value: 0, label: '0' },
 								{ value: 12, label: '12' },
 								{ value: 18, label: '18' },
 								{ value: 25, label: '25' },
