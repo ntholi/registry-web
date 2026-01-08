@@ -10,8 +10,15 @@ import {
 	Table,
 	Text,
 	Title,
+	UnstyledButton,
 } from '@mantine/core';
-import type { BoeStatsSchool } from '../_server/repository';
+import { useDisclosure } from '@mantine/hooks';
+import { IconChevronDown, IconChevronRight } from '@tabler/icons-react';
+import type {
+	BoeStatsClassRow,
+	BoeStatsProgramRow,
+	BoeStatsSchool,
+} from '../_server/repository';
 
 interface BoeStatsSummaryProps {
 	schools?: BoeStatsSchool[];
@@ -71,47 +78,42 @@ export function BoeStatsSummary({ schools, loading }: BoeStatsSummaryProps) {
 					</Group>
 
 					<ScrollArea>
-						<Table striped highlightOnHover withTableBorder>
+						<Table withTableBorder>
 							<Table.Thead>
 								<Table.Tr>
+									<Table.Th style={{ width: 40 }} />
 									<Table.Th>Program</Table.Th>
-									<Table.Th style={{ textAlign: 'center' }}>
+									<Table.Th style={{ textAlign: 'center', width: 80 }}>
 										<Text c='green' fw={600} size='sm'>
 											Passed
 										</Text>
-										<Text size='xs' c='dimmed'>
-											GPA ≥ 2.0
-										</Text>
 									</Table.Th>
-									<Table.Th style={{ textAlign: 'center' }}>
+									<Table.Th style={{ textAlign: 'center', width: 80 }}>
 										<Text c='red' fw={600} size='sm'>
 											Failed
 										</Text>
-										<Text size='xs' c='dimmed'>
-											GPA &lt; 2.0
-										</Text>
 									</Table.Th>
-									<Table.Th style={{ textAlign: 'center' }}>
+									<Table.Th style={{ textAlign: 'center', width: 80 }}>
 										<Text fw={600} size='sm'>
-											Dropped Out
+											Dropped
 										</Text>
 									</Table.Th>
-									<Table.Th style={{ textAlign: 'center' }}>
+									<Table.Th style={{ textAlign: 'center', width: 80 }}>
 										<Text fw={600} size='sm'>
 											Withdrawn
 										</Text>
 									</Table.Th>
-									<Table.Th style={{ textAlign: 'center' }}>
+									<Table.Th style={{ textAlign: 'center', width: 80 }}>
 										<Text fw={600} size='sm'>
 											Deferred
 										</Text>
 									</Table.Th>
-									<Table.Th style={{ textAlign: 'center' }}>
+									<Table.Th style={{ textAlign: 'center', width: 80 }}>
 										<Text fw={600} size='sm'>
 											Active
 										</Text>
 									</Table.Th>
-									<Table.Th style={{ textAlign: 'center' }}>
+									<Table.Th style={{ textAlign: 'center', width: 80 }}>
 										<Text fw={600} size='sm'>
 											Total
 										</Text>
@@ -120,88 +122,45 @@ export function BoeStatsSummary({ schools, loading }: BoeStatsSummaryProps) {
 							</Table.Thead>
 							<Table.Tbody>
 								{school.programs.map((program) => (
-									<Table.Tr key={program.programId}>
-										<Table.Td>
-											<Text size='sm' fw={500}>
-												{program.programCode}
-											</Text>
-											<Text size='xs' c='dimmed'>
-												{program.programName}
-											</Text>
-										</Table.Td>
-										<Table.Td style={{ textAlign: 'center' }}>
-											<Text c='green' fw={500}>
-												{program.passed || '-'}
-											</Text>
-										</Table.Td>
-										<Table.Td style={{ textAlign: 'center' }}>
-											<Text c='red' fw={500}>
-												{program.failed || '-'}
-											</Text>
-										</Table.Td>
-										<Table.Td style={{ textAlign: 'center' }}>
-											<Text c='orange' size='sm'>
-												{program.droppedOut || '-'}
-											</Text>
-										</Table.Td>
-										<Table.Td style={{ textAlign: 'center' }}>
-											<Text c='yellow' size='sm'>
-												{program.withdrawn || '-'}
-											</Text>
-										</Table.Td>
-										<Table.Td style={{ textAlign: 'center' }}>
-											<Text c='blue' size='sm'>
-												{program.deferred || '-'}
-											</Text>
-										</Table.Td>
-										<Table.Td style={{ textAlign: 'center' }}>
-											<Text fw={600} size='sm'>
-												{program.totalActive}
-											</Text>
-										</Table.Td>
-										<Table.Td style={{ textAlign: 'center' }}>
-											<Text c='dimmed' size='sm'>
-												{program.totalStudents}
-											</Text>
-										</Table.Td>
-									</Table.Tr>
+									<ProgramRow key={program.programId} program={program} />
 								))}
-								<Table.Tr style={{ fontWeight: 700 }}>
+								<Table.Tr
+									style={{ backgroundColor: 'var(--mantine-color-dark-6)' }}
+								>
+									<Table.Td />
 									<Table.Td>
 										<Text fw={700}>School Total</Text>
 									</Table.Td>
 									<Table.Td style={{ textAlign: 'center' }}>
-										<Text c='green' fw={700} size='sm'>
+										<Text c='green' fw={700}>
 											{school.totals.passed}
 										</Text>
 									</Table.Td>
 									<Table.Td style={{ textAlign: 'center' }}>
-										<Text c='red' fw={700} size='sm'>
+										<Text c='red' fw={700}>
 											{school.totals.failed}
 										</Text>
 									</Table.Td>
 									<Table.Td style={{ textAlign: 'center' }}>
-										<Text c='orange' fw={700} size='sm'>
+										<Text c='orange' fw={700}>
 											{school.totals.droppedOut}
 										</Text>
 									</Table.Td>
 									<Table.Td style={{ textAlign: 'center' }}>
-										<Text c='yellow' fw={700} size='sm'>
+										<Text c='yellow' fw={700}>
 											{school.totals.withdrawn}
 										</Text>
 									</Table.Td>
 									<Table.Td style={{ textAlign: 'center' }}>
-										<Text c='blue' fw={700} size='sm'>
+										<Text c='blue' fw={700}>
 											{school.totals.deferred}
 										</Text>
 									</Table.Td>
 									<Table.Td style={{ textAlign: 'center' }}>
-										<Text fw={700} size='sm'>
-											{school.totals.totalActive}
-										</Text>
+										<Text fw={700}>{school.totals.totalActive}</Text>
 									</Table.Td>
 									<Table.Td style={{ textAlign: 'center' }}>
-										<Text c={'dimmed'} size='sm'>
+										<Text c='dimmed' fw={700}>
 											{school.totals.totalStudents}
 										</Text>
 									</Table.Td>
@@ -274,5 +233,114 @@ export function BoeStatsSummary({ schools, loading }: BoeStatsSummaryProps) {
 				</Card>
 			)}
 		</Stack>
+	);
+}
+
+interface ProgramRowProps {
+	program: BoeStatsProgramRow;
+}
+
+function ProgramRow({ program }: ProgramRowProps) {
+	const [opened, { toggle }] = useDisclosure(false);
+
+	return (
+		<>
+			<Table.Tr onClick={toggle} style={{ cursor: 'pointer' }}>
+				<Table.Td>
+					<UnstyledButton onClick={toggle}>
+						{opened ? (
+							<IconChevronDown size={16} />
+						) : (
+							<IconChevronRight size={16} />
+						)}
+					</UnstyledButton>
+				</Table.Td>
+				<Table.Td>
+					<Text size='sm' fw={500}>
+						{program.programCode}
+					</Text>
+					<Text size='xs' c='dimmed'>
+						{program.programName}
+					</Text>
+				</Table.Td>
+				<Table.Td style={{ textAlign: 'center' }}>
+					<Text c='green' fw={500}>
+						{program.passed || '-'}
+					</Text>
+				</Table.Td>
+				<Table.Td style={{ textAlign: 'center' }}>
+					<Text c='red' fw={500}>
+						{program.failed || '-'}
+					</Text>
+				</Table.Td>
+				<Table.Td style={{ textAlign: 'center' }}>
+					<Text c='orange'>{program.droppedOut || '-'}</Text>
+				</Table.Td>
+				<Table.Td style={{ textAlign: 'center' }}>
+					<Text c='yellow'>{program.withdrawn || '-'}</Text>
+				</Table.Td>
+				<Table.Td style={{ textAlign: 'center' }}>
+					<Text c='blue'>{program.deferred || '-'}</Text>
+				</Table.Td>
+				<Table.Td style={{ textAlign: 'center' }}>
+					<Text fw={600}>{program.totalActive}</Text>
+				</Table.Td>
+				<Table.Td style={{ textAlign: 'center' }}>
+					<Text c='dimmed'>{program.totalStudents}</Text>
+				</Table.Td>
+			</Table.Tr>
+			{opened &&
+				program.classes.map((cls) => (
+					<ClassRow key={cls.className} cls={cls} />
+				))}
+		</>
+	);
+}
+
+interface ClassRowProps {
+	cls: BoeStatsClassRow;
+}
+
+function ClassRow({ cls }: ClassRowProps) {
+	return (
+		<Table.Tr style={{ backgroundColor: 'var(--mantine-color-dark-7)' }}>
+			<Table.Td />
+			<Table.Td pl='xl'>
+				<Text size='sm'>{cls.className}</Text>
+			</Table.Td>
+			<Table.Td style={{ textAlign: 'center' }}>
+				<Text c='green' size='sm'>
+					{cls.passed || '-'}
+				</Text>
+			</Table.Td>
+			<Table.Td style={{ textAlign: 'center' }}>
+				<Text c='red' size='sm'>
+					{cls.failed || '-'}
+				</Text>
+			</Table.Td>
+			<Table.Td style={{ textAlign: 'center' }}>
+				<Text c='orange' size='sm'>
+					{cls.droppedOut || '-'}
+				</Text>
+			</Table.Td>
+			<Table.Td style={{ textAlign: 'center' }}>
+				<Text c='yellow' size='sm'>
+					{cls.withdrawn || '-'}
+				</Text>
+			</Table.Td>
+			<Table.Td style={{ textAlign: 'center' }}>
+				<Text c='blue' size='sm'>
+					{cls.deferred || '-'}
+				</Text>
+			</Table.Td>
+			<Table.Td style={{ textAlign: 'center' }}>
+				<Text size='sm'>{cls.totalActive}</Text>
+			</Table.Td>
+			<Table.Td style={{ textAlign: 'center' }}>
+				<Text c='dimmed' size='sm'>
+					{cls.totalStudents}
+				</Text>
+			</Table.Td>
+		</Table.Tr>
 	);
 }
