@@ -10,6 +10,7 @@ import {
 	students,
 } from '@/core/database';
 import BaseRepository from '@/core/platform/BaseRepository';
+import { getGradePoints } from '@/shared/lib/utils/grades';
 import {
 	compareSemesters,
 	formatSemester,
@@ -545,16 +546,19 @@ export default class BoeReportRepository extends BaseRepository<
 
 				let totalPoints = 0;
 				let totalCredits = 0;
+				let hasGradedModules = false;
 				for (const mod of semester.studentModules) {
 					const grade = mod.grade;
+					if (!grade || grade === 'NM') continue;
 					const credits = Number(mod.credits) || 0;
-					const gradePoint = this.getGradePoints(grade);
+					const gradePoint = getGradePoints(grade);
 					totalPoints += gradePoint * credits;
 					totalCredits += credits;
+					hasGradedModules = true;
 				}
 				const gpa = totalCredits > 0 ? totalPoints / totalCredits : 0;
 
-				if (gpa >= 2) {
+				if (!hasGradedModules || gpa >= 2) {
 					programData.passed++;
 					classData.passed++;
 					schoolData.totals.passed++;
@@ -577,28 +581,6 @@ export default class BoeReportRepository extends BaseRepository<
 		return Array.from(schoolMap.values()).sort((a, b) =>
 			a.schoolName.localeCompare(b.schoolName)
 		);
-	}
-
-	private getGradePoints(grade: string): number {
-		const gradeMap: Record<string, number> = {
-			'A+': 4.0,
-			A: 4.0,
-			'A-': 3.7,
-			'B+': 3.3,
-			B: 3.0,
-			'B-': 2.7,
-			'C+': 2.3,
-			C: 2.0,
-			'C-': 1.7,
-			'D+': 1.3,
-			D: 1.0,
-			'D-': 0.7,
-			F: 0.0,
-			FA: 0.0,
-			I: 0.0,
-			W: 0.0,
-		};
-		return gradeMap[grade?.toUpperCase()] ?? 0;
 	}
 }
 

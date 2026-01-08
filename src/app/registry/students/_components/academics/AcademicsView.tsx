@@ -71,7 +71,7 @@ export default function AcademicsView({ student, showMarks, ...props }: Props) {
 							radius='md'
 							withBorder
 						>
-							<Stack gap='xl'>
+							<Stack gap={5}>
 								<Box p='md'>
 									<Group
 										justify='space-between'
