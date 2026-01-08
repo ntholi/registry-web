@@ -8,10 +8,12 @@ import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { getAcademicRemarks } from '@/shared/lib/utils/grades';
+import { useActiveTerm } from './use-active-term';
 
 export default function useUserStudent() {
 	const router = useRouter();
 	const { data: session, status } = useSession();
+	const { activeTerm } = useActiveTerm();
 	const { data: student, isLoading } = useQuery({
 		queryKey: ['student', session?.user?.id],
 		queryFn: () => getStudentByUserId(session?.user?.id),
@@ -28,7 +30,7 @@ export default function useUserStudent() {
 		user: session?.user,
 		student,
 		program: getActiveProgram(student),
-		remarks: getAcademicRemarks(student?.programs ?? []),
+		remarks: getAcademicRemarks(student?.programs ?? [], activeTerm?.code),
 		semester: getCurrentSemester(student),
 	};
 }
