@@ -15,24 +15,22 @@ import {
 } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
 import { IconSearch } from '@tabler/icons-react';
-import { formatSemester } from '@/shared/lib/utils/utils';
 import Link from '@/shared/ui/Link';
-import { getDefaultVisibleColumns, type ReportFilter } from './Filter';
+import type { GraduationReportFilter } from '../_lib/types';
+import { getDefaultVisibleColumns } from './Filter';
 
 interface Student {
 	stdNo: number;
 	name: string;
 	programName: string;
-	semesterNumber: string;
+	programCode: string;
 	schoolName: string;
 	schoolCode: string;
+	graduationDate: string;
 	sponsorName: string | null;
 	gender: string | null;
 	programLevel?: string | null;
 	country?: string | null;
-	studentStatus?: string | null;
-	programStatus?: string | null;
-	semesterStatus?: string | null;
 	age?: number | null;
 	email?: string | null;
 	phone?: string | null;
@@ -41,7 +39,6 @@ interface Student {
 	nationalId?: string | null;
 	address?: string | null;
 	intake?: string | null;
-	registrationDate?: string | null;
 }
 
 interface StudentTableProps {
@@ -53,7 +50,7 @@ interface StudentTableProps {
 	onPageChange?: (page: number) => void;
 	searchQuery?: string;
 	onSearchChange?: (query: string) => void;
-	filter?: ReportFilter;
+	filter?: GraduationReportFilter;
 }
 
 interface TableColumn {
@@ -107,17 +104,6 @@ const ALL_COLUMNS: TableColumn[] = [
 		),
 	},
 	{
-		key: 'semester',
-		label: 'Semester',
-		minWidth: 90,
-		align: 'center',
-		render: (student) => (
-			<Badge variant='light' size='sm'>
-				{formatSemester(student.semesterNumber, 'mini')}
-			</Badge>
-		),
-	},
-	{
 		key: 'school',
 		label: 'School',
 		minWidth: 100,
@@ -125,6 +111,17 @@ const ALL_COLUMNS: TableColumn[] = [
 			<Text size='sm' fw={500}>
 				{student.schoolCode}
 			</Text>
+		),
+	},
+	{
+		key: 'graduationDate',
+		label: 'Graduation Date',
+		minWidth: 130,
+		align: 'center',
+		render: (student) => (
+			<Badge variant='light' size='sm'>
+				{student.graduationDate}
+			</Badge>
 		),
 	},
 	{
@@ -156,41 +153,6 @@ const ALL_COLUMNS: TableColumn[] = [
 			<Text size='sm' c='dimmed'>
 				{student.country || '-'}
 			</Text>
-		),
-	},
-	{
-		key: 'studentStatus',
-		label: 'Student Status',
-		minWidth: 120,
-		align: 'center',
-		render: (student) => (
-			<Badge variant='light' size='sm'>
-				{student.studentStatus || '-'}
-			</Badge>
-		),
-	},
-	{
-		key: 'programStatus',
-		label: 'Program Status',
-		minWidth: 120,
-		align: 'center',
-		render: (student) => (
-			<Badge variant='light' size='sm'>
-				{student.programStatus || '-'}
-			</Badge>
-		),
-	},
-	{
-		key: 'semesterStatus',
-		label: 'Semester Status',
-		minWidth: 130,
-		align: 'center',
-		render: (student) => (
-			<Badge variant='light' size='sm'>
-				{student.semesterStatus === 'DroppedOut'
-					? 'Dropped Out'
-					: student.semesterStatus || '-'}
-			</Badge>
 		),
 	},
 	{
@@ -262,18 +224,9 @@ const ALL_COLUMNS: TableColumn[] = [
 		align: 'center',
 		render: (student) => <Text size='sm'>{student.intake || '-'}</Text>,
 	},
-	{
-		key: 'registrationDate',
-		label: 'Registration Date',
-		minWidth: 130,
-		align: 'center',
-		render: (student) => (
-			<Text size='sm'>{student.registrationDate || '-'}</Text>
-		),
-	},
 ];
 
-function getVisibleColumns(filter?: ReportFilter): TableColumn[] {
+function getVisibleColumns(filter?: GraduationReportFilter): TableColumn[] {
 	const visibleKeys = filter?.visibleColumns ?? getDefaultVisibleColumns();
 	return ALL_COLUMNS.filter((col) => visibleKeys.includes(col.key));
 }
@@ -299,7 +252,7 @@ export default function StudentTable({
 			<Paper withBorder p='md'>
 				<Stack gap='md'>
 					<TextInput
-						placeholder='Search students...'
+						placeholder='Search graduates...'
 						leftSection={<IconSearch size={16} />}
 						size='sm'
 						disabled
@@ -351,7 +304,7 @@ export default function StudentTable({
 			<Paper withBorder p='md'>
 				<Stack gap='md'>
 					<TextInput
-						placeholder='Search students...'
+						placeholder='Search graduates...'
 						leftSection={<IconSearch size={16} />}
 						rightSection={isLoading && <Loader size='xs' />}
 						value={searchQuery}
@@ -362,8 +315,8 @@ export default function StudentTable({
 					<Box py='xl' ta='center'>
 						<Text c='dimmed'>
 							{searchQuery
-								? 'No students match your search'
-								: 'No students found'}
+								? 'No graduates match your search'
+								: 'No graduates found'}
 						</Text>
 					</Box>
 				</Stack>
@@ -375,7 +328,7 @@ export default function StudentTable({
 		<Paper withBorder p='md'>
 			<Stack gap='md'>
 				<TextInput
-					placeholder='Search by student number, name, program, or school...'
+					placeholder='Search graduates...'
 					leftSection={<IconSearch size={16} />}
 					rightSection={isLoading && <Loader size='xs' />}
 					value={searchQuery}
@@ -384,23 +337,19 @@ export default function StudentTable({
 				/>
 
 				<ScrollArea>
-					<Table>
+					<Table horizontalSpacing='md' verticalSpacing='sm'>
 						<Table.Thead>
 							<Table.Tr>
 								{visibleColumns.map((col) => (
-									<Table.Th
-										key={col.key}
-										ta={col.align}
-										miw={isMobile ? Math.min(col.minWidth, 140) : col.minWidth}
-									>
+									<Table.Th key={col.key} ta={col.align} miw={col.minWidth}>
 										{col.label}
 									</Table.Th>
 								))}
 							</Table.Tr>
 						</Table.Thead>
 						<Table.Tbody>
-							{data.map((student, index) => (
-								<Table.Tr key={`${student.stdNo}-${index}`}>
+							{data.map((student) => (
+								<Table.Tr key={student.stdNo}>
 									{visibleColumns.map((col) => (
 										<Table.Td key={col.key} ta={col.align}>
 											{col.render(student)}
@@ -412,17 +361,15 @@ export default function StudentTable({
 					</Table>
 				</ScrollArea>
 
-				<Group justify='space-between' wrap='wrap'>
+				<Group justify='space-between' align='center'>
 					<Text size='sm' c='dimmed'>
-						Showing {data.length} of {totalCount} student
-						{totalCount !== 1 ? 's' : ''}
+						Showing {data.length} of {totalCount} graduates
 					</Text>
-
 					{totalPages > 1 && (
 						<Pagination
-							total={totalPages}
 							value={currentPage}
 							onChange={onPageChange}
+							total={totalPages}
 							size='sm'
 						/>
 					)}

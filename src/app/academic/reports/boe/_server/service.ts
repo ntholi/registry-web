@@ -9,6 +9,7 @@ import {
 import { formatSemester } from '@/shared/lib/utils/utils';
 import {
 	type BoeFilter,
+	type BoeStatsSchool,
 	type BoeSummarySchool,
 	boeReportRepository,
 	type ProgramSemesterReport,
@@ -86,6 +87,10 @@ export default class BoeReportService {
 			totalStudents,
 			termCode: term?.code || '',
 		};
+	}
+
+	async getStatistics(filter: BoeFilter): Promise<BoeStatsSchool[]> {
+		return this.repository.getStatistics(filter);
 	}
 
 	async getClassReports(filter: BoeFilter): Promise<BoeSchoolGroupedReports[]> {

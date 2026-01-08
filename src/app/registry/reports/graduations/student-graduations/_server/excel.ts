@@ -2,18 +2,17 @@ import fs from 'node:fs';
 import path from 'node:path';
 import ExcelJS from 'exceljs';
 import sharp from 'sharp';
-import { compareSemesters, formatSemester } from '@/shared/lib/utils/utils';
 import type {
-	FullRegistrationReport,
-	RegistrationReportFilter,
-	SummaryRegistrationReport,
-} from './repository';
+	GraduationFullReport,
+	GraduationReportFilter,
+	GraduationSummaryReport,
+} from '../_lib/types';
 
 interface DynamicExcelColumn {
 	key: string;
 	header: string;
 	width: number;
-	getValue: (student: FullRegistrationReport['students'][0]) => string | number;
+	getValue: (student: GraduationFullReport['students'][0]) => string | number;
 }
 
 const ALL_EXCEL_COLUMNS: DynamicExcelColumn[] = [
@@ -37,13 +36,13 @@ const ALL_EXCEL_COLUMNS: DynamicExcelColumn[] = [
 		width: 42,
 		getValue: (s) => s.programName,
 	},
-	{
-		key: 'semester',
-		header: 'Semester',
-		width: 15,
-		getValue: (s) => formatSemester(s.semesterNumber, 'short'),
-	},
 	{ key: 'school', header: 'School', width: 46, getValue: (s) => s.schoolName },
+	{
+		key: 'graduationDate',
+		header: 'Graduation Date',
+		width: 18,
+		getValue: (s) => s.graduationDate,
+	},
 	{
 		key: 'sponsor',
 		header: 'Sponsor',
@@ -61,27 +60,6 @@ const ALL_EXCEL_COLUMNS: DynamicExcelColumn[] = [
 		header: 'Country',
 		width: 15,
 		getValue: (s) => s.country || '-',
-	},
-	{
-		key: 'studentStatus',
-		header: 'Student Status',
-		width: 15,
-		getValue: (s) => s.studentStatus || '-',
-	},
-	{
-		key: 'programStatus',
-		header: 'Program Status',
-		width: 15,
-		getValue: (s) => s.programStatus || '-',
-	},
-	{
-		key: 'semesterStatus',
-		header: 'Semester Status',
-		width: 15,
-		getValue: (s) =>
-			s.semesterStatus === 'DroppedOut'
-				? 'Dropped Out'
-				: s.semesterStatus || '-',
 	},
 	{
 		key: 'age',
@@ -121,12 +99,6 @@ const ALL_EXCEL_COLUMNS: DynamicExcelColumn[] = [
 		width: 12,
 		getValue: (s) => s.intake || '-',
 	},
-	{
-		key: 'registrationDate',
-		header: 'Registration Date',
-		width: 15,
-		getValue: (s) => s.registrationDate || '-',
-	},
 ];
 
 const DEFAULT_VISIBLE = [
@@ -134,22 +106,22 @@ const DEFAULT_VISIBLE = [
 	'name',
 	'gender',
 	'program',
-	'semester',
 	'school',
+	'graduationDate',
 	'sponsor',
 ];
 
 function getVisibleExcelColumns(
-	filter?: RegistrationReportFilter
+	filter?: GraduationReportFilter
 ): DynamicExcelColumn[] {
 	const visibleKeys = filter?.visibleColumns ?? DEFAULT_VISIBLE;
 	return ALL_EXCEL_COLUMNS.filter((col) => visibleKeys.includes(col.key));
 }
 
-export async function createFullRegistrationExcel(
-	report: FullRegistrationReport,
-	summaryReport?: SummaryRegistrationReport,
-	filter?: RegistrationReportFilter
+export async function createGraduationExcel(
+	report: GraduationFullReport,
+	summaryReport?: GraduationSummaryReport,
+	filter?: GraduationReportFilter
 ): Promise<Buffer> {
 	const workbook = new ExcelJS.Workbook();
 
@@ -158,7 +130,7 @@ export async function createFullRegistrationExcel(
 	workbook.created = report.generatedAt;
 	workbook.modified = report.generatedAt;
 
-	const worksheet = workbook.addWorksheet('Full Registration Report');
+	const worksheet = workbook.addWorksheet('Graduates List');
 
 	const visibleColumns = getVisibleExcelColumns(filter);
 
@@ -233,17 +205,17 @@ export async function createFullRegistrationExcel(
 	worksheet.getCell('A5').value = '';
 
 	worksheet.mergeCells(`A6:${lastColLetter}6`);
-	worksheet.getCell('A6').value = 'Registration Report';
+	worksheet.getCell('A6').value = 'Graduation Report';
 	worksheet.getCell('A6').font = { name: 'Arial', size: 16, bold: true };
 	worksheet.getCell('A6').alignment = { horizontal: 'center' };
 
 	worksheet.mergeCells(`A7:${lastColLetter}7`);
-	worksheet.getCell('A7').value = `Term: ${report.termCode}`;
+	worksheet.getCell('A7').value = `Graduation Date: ${report.graduationDate}`;
 	worksheet.getCell('A7').font = { name: 'Arial', size: 12, bold: true };
 	worksheet.getCell('A7').alignment = { horizontal: 'center' };
 
 	worksheet.mergeCells(`A8:${lastColLetter}8`);
-	worksheet.getCell('A8').value = `Total Students: ${report.totalStudents}`;
+	worksheet.getCell('A8').value = `Total Graduates: ${report.totalGraduates}`;
 	worksheet.getCell('A8').font = { name: 'Arial', size: 12 };
 	worksheet.getCell('A8').alignment = { horizontal: 'center' };
 
@@ -337,35 +309,19 @@ export async function createFullRegistrationExcel(
 
 function createSummarySheet(
 	workbook: ExcelJS.Workbook,
-	summaryReport: SummaryRegistrationReport
+	summaryReport: GraduationSummaryReport
 ) {
 	const worksheet = workbook.addWorksheet('Summary');
-
-	const allSemesters = new Set<string>();
-	summaryReport.schools.forEach((school) => {
-		school.programs.forEach((program) => {
-			Object.keys(program.yearBreakdown).forEach((sem) => {
-				allSemesters.add(sem);
-			});
-		});
-	});
-
-	const sortedSemesters = Array.from(allSemesters).sort(compareSemesters);
 
 	const columns: Partial<ExcelJS.Column>[] = [
 		{ key: 'schoolFaculty', width: 50 },
 		{ key: 'program', width: 50 },
+		{ key: 'male', width: 10 },
+		{ key: 'female', width: 10 },
+		{ key: 'total', width: 12 },
 	];
 
-	const headerLabels = ['School/Faculty', 'Program'];
-
-	sortedSemesters.forEach((sem) => {
-		columns.push({ key: `sem${sem}`, width: 10 });
-		headerLabels.push(formatSemester(sem, 'mini'));
-	});
-
-	columns.push({ key: 'total', width: 12 });
-	headerLabels.push('Total');
+	const headerLabels = ['School/Faculty', 'Program', 'Male', 'Female', 'Total'];
 
 	worksheet.columns = columns;
 
@@ -380,7 +336,7 @@ function createSummarySheet(
 	headerRow.alignment = { horizontal: 'center', vertical: 'middle' };
 	headerRow.height = 25;
 
-	headerRow.eachCell((cell, colNumber) => {
+	headerRow.eachCell((cell) => {
 		cell.fill = {
 			type: 'pattern',
 			pattern: 'solid',
@@ -392,24 +348,16 @@ function createSummarySheet(
 			bottom: { style: 'thin' },
 			right: { style: 'thin' },
 		};
-
-		const semStart = 3;
-		const semEnd = 2 + sortedSemesters.length;
-		const isSemesterCol = colNumber >= semStart && colNumber <= semEnd;
-
-		cell.font = {
-			name: 'Arial',
-			size: isSemesterCol ? 11 : 12,
-			bold: true,
-			color: { argb: 'FFFFFFFF' },
-		};
 	});
 
-	summaryReport.schools.forEach((school) => {
-		const schoolRowData: (string | number)[] = [school.schoolName];
-		for (let i = 1; i < headerLabels.length; i++) {
-			schoolRowData.push('');
-		}
+	for (const school of summaryReport.schools) {
+		const schoolRowData: (string | number)[] = [
+			school.schoolName,
+			'',
+			'',
+			'',
+			'',
+		];
 
 		const schoolRow = worksheet.addRow(schoolRowData);
 
@@ -436,101 +384,79 @@ function createSummarySheet(
 			};
 		});
 
-		school.programs.forEach((program) => {
-			const programRowData: (string | number)[] = ['', program.programName];
-
-			sortedSemesters.forEach((sem) => {
-				const count = program.yearBreakdown[sem] || 0;
-				programRowData.push(count > 0 ? count : '');
-			});
-
-			programRowData.push(program.totalStudents);
+		for (const [index, program] of school.programs.entries()) {
+			const programRowData = [
+				'',
+				program.programName,
+				program.maleCount,
+				program.femaleCount,
+				program.totalGraduates,
+			];
 
 			const programRow = worksheet.addRow(programRowData);
 
 			programRow.font = { name: 'Arial', size: 11 };
 			programRow.alignment = { horizontal: 'left', vertical: 'middle' };
 
-			for (let i = 3; i <= programRowData.length; i++) {
-				programRow.getCell(i).alignment = {
-					horizontal: 'center',
-					vertical: 'middle',
+			if (index % 2 === 1) {
+				programRow.fill = {
+					type: 'pattern',
+					pattern: 'solid',
+					fgColor: { argb: 'FFF8F9FA' },
 				};
 			}
 
-			programRow.getCell(programRowData.length).font = {
-				name: 'Arial',
-				size: 11,
-				bold: true,
-			};
-
-			programRow.eachCell((cell) => {
+			programRow.eachCell((cell, colNumber) => {
 				cell.border = {
 					top: { style: 'thin' },
 					left: { style: 'thin' },
 					bottom: { style: 'thin' },
 					right: { style: 'thin' },
 				};
+
+				if (colNumber >= 3 && colNumber <= 5) {
+					cell.alignment = { horizontal: 'center', vertical: 'middle' };
+				}
 			});
-		});
-
-		const totalRowData: (string | number)[] = ['', 'Total'];
-		const schoolSemesterTotals: { [key: string]: number } = {};
-
-		school.programs.forEach((program) => {
-			Object.entries(program.yearBreakdown).forEach(([sem, count]) => {
-				schoolSemesterTotals[sem] = (schoolSemesterTotals[sem] || 0) + count;
-			});
-		});
-
-		sortedSemesters.forEach((sem) => {
-			totalRowData.push(schoolSemesterTotals[sem] || '');
-		});
-
-		totalRowData.push(school.totalStudents);
-
-		const totalRow = worksheet.addRow(totalRowData);
-
-		totalRow.font = { name: 'Arial', size: 11, bold: true };
-		totalRow.alignment = { horizontal: 'left', vertical: 'middle' };
-
-		for (let i = 3; i <= totalRowData.length; i++) {
-			totalRow.getCell(i).alignment = {
-				horizontal: 'center',
-				vertical: 'middle',
-			};
 		}
 
-		totalRow.eachCell((cell) => {
+		const schoolTotalRow = worksheet.addRow([
+			'',
+			'School Total',
+			school.maleCount,
+			school.femaleCount,
+			school.totalGraduates,
+		]);
+
+		schoolTotalRow.font = { name: 'Arial', size: 11, bold: true };
+		schoolTotalRow.alignment = { horizontal: 'left', vertical: 'middle' };
+
+		schoolTotalRow.eachCell((cell, colNumber) => {
+			cell.fill = {
+				type: 'pattern',
+				pattern: 'solid',
+				fgColor: { argb: 'FFE8E8E8' },
+			};
 			cell.border = {
 				top: { style: 'thin' },
 				left: { style: 'thin' },
 				bottom: { style: 'thin' },
 				right: { style: 'thin' },
 			};
+
+			if (colNumber >= 3 && colNumber <= 5) {
+				cell.alignment = { horizontal: 'center', vertical: 'middle' };
+			}
 		});
-	});
+	}
 
-	const grandTotalRowData: (string | number)[] = ['', 'GRAND TOTAL'];
-	const grandTotalSemesters: { [key: string]: number } = {};
-	let grandTotal = 0;
-
-	summaryReport.schools.forEach((school) => {
-		grandTotal += school.totalStudents;
-		school.programs.forEach((program) => {
-			Object.entries(program.yearBreakdown).forEach(([sem, count]) => {
-				grandTotalSemesters[sem] = (grandTotalSemesters[sem] || 0) + count;
-			});
-		});
-	});
-
-	sortedSemesters.forEach((sem) => {
-		grandTotalRowData.push(grandTotalSemesters[sem] || '');
-	});
-
-	grandTotalRowData.push(grandTotal);
-
-	const grandTotalRow = worksheet.addRow(grandTotalRowData);
+	const grandTotalRow = worksheet.addRow([
+		'Grand Total',
+		'',
+		summaryReport.maleCount,
+		summaryReport.femaleCount,
+		summaryReport.totalGraduates,
+	]);
 
 	grandTotalRow.font = {
 		name: 'Arial',
@@ -541,7 +467,7 @@ function createSummarySheet(
 	grandTotalRow.alignment = { horizontal: 'left', vertical: 'middle' };
 	grandTotalRow.height = 25;
 
-	grandTotalRow.eachCell((cell) => {
+	grandTotalRow.eachCell((cell, colNumber) => {
 		cell.fill = {
 			type: 'pattern',
 			pattern: 'solid',
@@ -553,12 +479,9 @@ function createSummarySheet(
 			bottom: { style: 'thin' },
 			right: { style: 'thin' },
 		};
-	});
 
-	for (let i = 3; i <= grandTotalRowData.length; i++) {
-		grandTotalRow.getCell(i).alignment = {
-			horizontal: 'center',
-			vertical: 'middle',
-		};
-	}
+		if (colNumber >= 3 && colNumber <= 5) {
+			cell.alignment = { horizontal: 'center', vertical: 'middle' };
+		}
+	});
 }

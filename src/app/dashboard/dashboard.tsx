@@ -69,6 +69,7 @@ function getNavigation(
 		'Board of Examination',
 		'Student Enrollments',
 		'Attendance Report',
+		'Graduation Reports',
 	];
 
 	const getLabelKey = (label: React.ReactNode): string => {

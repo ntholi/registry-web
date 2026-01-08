@@ -3,15 +3,21 @@ import {
 	Alert,
 	Box,
 	Button,
+	Card,
 	Container,
 	Group,
-	Paper,
 	Stack,
+	Tabs,
 	Text,
 	Title,
 } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
-import { IconDownload, IconInfoCircle } from '@tabler/icons-react';
+import {
+	IconChartBar,
+	IconDownload,
+	IconInfoCircle,
+	IconUsers,
+} from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import {
 	parseAsArrayOf,
@@ -20,13 +26,20 @@ import {
 	useQueryStates,
 } from 'nuqs';
 import { useCallback, useEffect, useState } from 'react';
+import { BoeStatsSummary } from './_components/BoeStatsSummary';
 import { ClassReportsList } from './_components/ClassReportTable';
 import BoeFilter, { type BoeReportFilter } from './_components/Filter';
-import { generateExcel, getClassReports, getPreview } from './_server/actions';
+import {
+	generateExcel,
+	getClassReports,
+	getPreview,
+	getStatistics,
+} from './_server/actions';
 import type { BoeFilter as BoeFilterType } from './_server/repository';
 
 export default function BoeReportPage() {
-	const [urlParams] = useQueryStates({
+	const [urlParams, setUrlParams] = useQueryStates({
+		tab: parseAsString.withDefault('summary'),
 		termId: parseAsInteger,
 		schoolIds: parseAsArrayOf(parseAsInteger),
 		programId: parseAsInteger,
@@ -84,7 +97,17 @@ export default function BoeReportPage() {
 			const result = await getClassReports(serverFilter);
 			return result.success ? result.data : null;
 		},
-		enabled: isFilterApplied,
+		enabled: isFilterApplied && urlParams.tab === 'students',
+	});
+
+	const { data: statsData, isLoading: isLoadingStats } = useQuery({
+		queryKey: ['boe-statistics', serverFilter],
+		queryFn: async () => {
+			if (!serverFilter) return null;
+			const result = await getStatistics(serverFilter);
+			return result.success ? result.data : null;
+		},
+		enabled: isFilterApplied && urlParams.tab === 'summary',
 	});
 
 	const hasData = Boolean(
@@ -184,39 +207,83 @@ export default function BoeReportPage() {
 				)}
 
 				{isFilterApplied && (
-					<Stack gap='lg'>
-						<Paper withBorder p='md'>
-							<Group justify='space-between' align='center'>
-								<Box>
-									<Text fw={600} size='lg'>
-										Class Reports
-									</Text>
-									<Text size='sm' c='dimmed'>
-										{previewData?.totalStudents || 0} student
-										{previewData?.totalStudents !== 1 ? 's' : ''} found
-										{previewData?.termCode &&
-											` • Term: ${previewData.termCode}`}
-									</Text>
-								</Box>
-								{hasData && (
-									<Button
-										leftSection={<IconDownload size={16} />}
-										onClick={handleExport}
-										variant='light'
-										loading={isExporting}
-										disabled={isExporting}
-									>
-										Export Report
-									</Button>
-								)}
-							</Group>
-						</Paper>
+					<Tabs
+						value={urlParams.tab}
+						onChange={(value) => setUrlParams({ tab: value })}
+					>
+						<Tabs.List>
+							<Tabs.Tab
+								value='summary'
+								leftSection={<IconChartBar size={16} />}
+							>
+								Summary
+							</Tabs.Tab>
+							<Tabs.Tab value='students' leftSection={<IconUsers size={16} />}>
+								Students
+							</Tabs.Tab>
+						</Tabs.List>
 
-						<ClassReportsList
-							reports={classReports ?? undefined}
-							loading={isLoadingClasses}
-						/>
-					</Stack>
+						<Tabs.Panel value='summary' pt='xl'>
+							<Stack gap='lg'>
+								<Card>
+									<Group justify='space-between' align='center'>
+										<Box>
+											<Text fw={600} size='lg'>
+												Examination Summary
+											</Text>
+											<Text size='sm' c='dimmed'>
+												{previewData?.totalStudents || 0} student
+												{previewData?.totalStudents !== 1 ? 's' : ''} found
+												{previewData?.termCode &&
+													` • Term: ${previewData.termCode}`}
+											</Text>
+										</Box>
+									</Group>
+								</Card>
+
+								<BoeStatsSummary
+									schools={statsData ?? undefined}
+									loading={isLoadingStats}
+								/>
+							</Stack>
+						</Tabs.Panel>
+
+						<Tabs.Panel value='students' pt='xl'>
+							<Stack gap='lg'>
+								<Card>
+									<Group justify='space-between' align='center'>
+										<Box>
+											<Text fw={600} size='lg'>
+												Class Reports
+											</Text>
+											<Text size='sm' c='dimmed'>
+												{previewData?.totalStudents || 0} student
+												{previewData?.totalStudents !== 1 ? 's' : ''} found
+												{previewData?.termCode &&
+													` • Term: ${previewData.termCode}`}
+											</Text>
+										</Box>
+										{hasData && (
+											<Button
+												leftSection={<IconDownload size={16} />}
+												onClick={handleExport}
+												variant='light'
+												loading={isExporting}
+												disabled={isExporting}
+											>
+												Export Report
+											</Button>
+										)}
+									</Group>
+								</Card>
+
+								<ClassReportsList
+									reports={classReports ?? undefined}
+									loading={isLoadingClasses}
+								/>
+							</Stack>
+						</Tabs.Panel>
+					</Tabs>
 				)}
 
 				{previewError && (

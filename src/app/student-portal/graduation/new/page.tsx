@@ -14,6 +14,7 @@ import {
 	Title,
 } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
+import { getLatestGraduationDate } from '@registry/dates/graduations';
 import {
 	createGraduationRequestWithPaymentReceipts,
 	getEligiblePrograms,
@@ -88,6 +89,11 @@ export default function GraduationPage() {
 		enabled: !!student?.stdNo && !existingRequest,
 	});
 
+	const { data: latestGraduationDate } = useQuery({
+		queryKey: ['latest-graduation-date'],
+		queryFn: getLatestGraduationDate,
+	});
+
 	const graduationMutation = useMutation({
 		mutationFn: async () => {
 			if (
@@ -95,7 +101,8 @@ export default function GraduationPage() {
 				!selectedProgramId ||
 				!informationConfirmed ||
 				receipts.length === 0 ||
-				!receipts.every((r) => r.receiptNo.trim() !== '')
+				!receipts.every((r) => r.receiptNo.trim() !== '') ||
+				!latestGraduationDate
 			) {
 				throw new Error('Missing required data for graduation request');
 			}
@@ -107,6 +114,7 @@ export default function GraduationPage() {
 
 			return createGraduationRequestWithPaymentReceipts({
 				studentProgramId: selectedProgramId,
+				graduationDateId: latestGraduationDate.id,
 				informationConfirmed: true,
 				paymentReceipts: payloadReceipts,
 				stdNo: student.stdNo,
