@@ -5,6 +5,7 @@ import NextLink, { type LinkProps } from 'next/link';
 type Props = AnchorProps &
 	LinkProps & {
 		children: React.ReactNode;
+		target?: '_self' | '_blank' | '_parent' | '_top';
 	};
 
 export default function Link(props: Props) {

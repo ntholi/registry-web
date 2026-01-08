@@ -14,6 +14,7 @@ import {
 } from '@mantine/core';
 import { Fragment } from 'react';
 import { getGradePoints } from '@/shared/lib/utils/grades';
+import Link from '@/shared/ui/Link';
 import type {
 	BoeClassReport,
 	BoeSchoolGroupedReports,
@@ -131,7 +132,13 @@ export function ClassReportTable({ report }: ClassReportTableProps) {
 								{student.studentName}
 							</Table.Td>
 							<Table.Td style={{ width: STUDENT_ID_WIDTH }}>
-								{student.studentId}
+								<Link
+									size='sm'
+									target='_blank'
+									href={`/registry/students/${student.studentId}?tab=academic`}
+								>
+									{student.studentId}
+								</Link>
 							</Table.Td>
 							{moduleColumns.map((mod) => {
 								const studentMod = student.modules.find(
