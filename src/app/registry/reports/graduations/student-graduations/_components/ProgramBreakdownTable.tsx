@@ -41,10 +41,9 @@ export default function ProgramBreakdownTable({
 }: ProgramBreakdownTableProps) {
 	const isMobile = useMediaQuery('(max-width: 768px)');
 
-	const showAll = focusAreas.length === 0;
-	const showGender = showAll || focusAreas.includes('gender');
-	const showAge = showAll || focusAreas.includes('age');
-	const showTimeToGraduate = showAll || focusAreas.includes('timeToGraduate');
+	const showGender = focusAreas.includes('gender');
+	const showAge = focusAreas.includes('age');
+	const showTimeToGraduate = focusAreas.includes('timeToGraduate');
 
 	const columnCount =
 		1 +

@@ -38,10 +38,13 @@ export default function GrandTotalCard({
 	programCount,
 	focusAreas,
 }: GrandTotalCardProps) {
-	const showAll = focusAreas.length === 0;
-	const showGender = showAll || focusAreas.includes('gender');
-	const showAge = showAll || focusAreas.includes('age');
-	const showTimeToGraduate = showAll || focusAreas.includes('timeToGraduate');
+	const showGender = focusAreas.includes('gender');
+	const showAge = focusAreas.includes('age');
+	const showTimeToGraduate = focusAreas.includes('timeToGraduate');
+	const hasAnyFocus = focusAreas.length > 0;
+
+	const statCount =
+		(showGender ? 3 : 0) + (showAge ? 1 : 0) + (showTimeToGraduate ? 1 : 0);
 
 	return (
 		<Paper withBorder p='lg' bg='var(--mantine-color-dark-7)'>
@@ -66,60 +69,64 @@ export default function GrandTotalCard({
 					</Badge>
 				</Group>
 
-				<SimpleGrid cols={{ base: 2, sm: 3, md: showAll ? 5 : 3 }} spacing='md'>
-					{showGender && (
-						<>
+				{hasAnyFocus && (
+					<SimpleGrid
+						cols={{ base: 2, sm: Math.min(statCount, 3), md: statCount }}
+						spacing='md'
+					>
+						{showGender && (
+							<>
+								<StatCard
+									icon={<IconGenderBigender size={18} />}
+									label='Male'
+									value={maleCount}
+									color='blue'
+								/>
+								<StatCard
+									icon={<IconGenderBigender size={18} />}
+									label='Female'
+									value={femaleCount}
+									color='pink'
+								/>
+								<StatCard
+									icon={<IconUsers size={18} />}
+									label='Gender Ratio'
+									value={
+										totalGraduates > 0
+											? `${((maleCount / totalGraduates) * 100).toFixed(0)}% / ${((femaleCount / totalGraduates) * 100).toFixed(0)}%`
+											: 'N/A'
+									}
+									color='grape'
+									subtitle='M / F'
+								/>
+							</>
+						)}
+
+						{showAge && (
 							<StatCard
-								icon={<IconGenderBigender size={18} />}
-								label='Male'
-								value={maleCount}
-								color='blue'
+								icon={<IconCalendarTime size={18} />}
+								label='Avg. Age'
+								value={
+									averageAge != null ? `${averageAge.toFixed(1)} yrs` : 'N/A'
+								}
+								color='teal'
 							/>
+						)}
+
+						{showTimeToGraduate && (
 							<StatCard
-								icon={<IconGenderBigender size={18} />}
-								label='Female'
-								value={femaleCount}
-								color='pink'
+								icon={<IconClock size={18} />}
+								label='Avg. Time to Graduate'
+								value={
+									averageTimeToGraduate != null
+										? `${averageTimeToGraduate.toFixed(1)} yrs`
+										: 'N/A'
+								}
+								color='orange'
 							/>
-						</>
-					)}
-
-					{showAge && (
-						<StatCard
-							icon={<IconCalendarTime size={18} />}
-							label='Avg. Age'
-							value={
-								averageAge != null ? `${averageAge.toFixed(1)} yrs` : 'N/A'
-							}
-							color='teal'
-						/>
-					)}
-
-					{showTimeToGraduate && (
-						<StatCard
-							icon={<IconClock size={18} />}
-							label='Avg. Time to Graduate'
-							value={
-								averageTimeToGraduate != null
-									? `${averageTimeToGraduate.toFixed(1)} yrs`
-									: 'N/A'
-							}
-							color='orange'
-						/>
-					)}
-
-					<StatCard
-						icon={<IconUsers size={18} />}
-						label='Gender Ratio'
-						value={
-							totalGraduates > 0
-								? `${((maleCount / totalGraduates) * 100).toFixed(0)}% / ${((femaleCount / totalGraduates) * 100).toFixed(0)}%`
-								: 'N/A'
-						}
-						color='grape'
-						subtitle='M / F'
-					/>
-				</SimpleGrid>
+						)}
+					</SimpleGrid>
+				)}
 			</Stack>
 		</Paper>
 	);
