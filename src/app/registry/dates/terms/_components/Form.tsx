@@ -5,6 +5,7 @@ import { DateInput } from '@mantine/dates';
 import { terms } from '@registry/_database';
 import { createInsertSchema } from 'drizzle-zod';
 import { useRouter } from 'nextjs-toploader/app';
+import { formatDateToISO } from '@/shared/lib/utils/dates';
 import { Form } from '@/shared/ui/adease';
 
 type Term = typeof terms.$inferInsert;
@@ -18,12 +19,6 @@ type Props = {
 	) => void;
 	title?: string;
 };
-
-function formatDate(date: Date | string | null): string {
-	if (!date) return '';
-	if (typeof date === 'string') return date;
-	return date.toISOString().split('T')[0];
-}
 
 export default function TermForm({ onSubmit, defaultValues, title }: Props) {
 	const router = useRouter();
@@ -53,14 +48,16 @@ export default function TermForm({ onSubmit, defaultValues, title }: Props) {
 						label='Start Date'
 						value={form.values.startDate}
 						onChange={(date) =>
-							form.setFieldValue('startDate', formatDate(date))
+							form.setFieldValue('startDate', formatDateToISO(date))
 						}
 						error={form.errors.startDate}
 					/>
 					<DateInput
 						label='End Date'
 						value={form.values.endDate}
-						onChange={(date) => form.setFieldValue('endDate', formatDate(date))}
+						onChange={(date) =>
+							form.setFieldValue('endDate', formatDateToISO(date))
+						}
 						error={form.errors.endDate}
 					/>
 					<NumberInput

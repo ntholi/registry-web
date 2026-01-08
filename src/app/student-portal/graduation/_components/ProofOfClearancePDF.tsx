@@ -8,7 +8,8 @@ import {
 	View,
 } from '@react-pdf/renderer';
 import type { getGraduationClearanceData } from '@registry/graduation/clearance';
-import { formatDate, toTitleCase } from '@/shared/lib/utils/utils';
+import { formatDate } from '@/shared/lib/utils/dates';
+import { toTitleCase } from '@/shared/lib/utils/utils';
 
 Font.register({
 	family: 'Tahoma',

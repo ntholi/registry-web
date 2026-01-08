@@ -27,7 +27,7 @@ import {
 import { useQuery } from '@tanstack/react-query';
 import { getAssessmentTypeLabel } from '@/app/academic/assessments';
 import { getThresholdColor } from '@/shared/lib/utils/colors';
-import { formatDateTime } from '@/shared/lib/utils/utils';
+import { formatDateTime } from '@/shared/lib/utils/dates';
 
 type Props = {
 	studentModuleId: number;

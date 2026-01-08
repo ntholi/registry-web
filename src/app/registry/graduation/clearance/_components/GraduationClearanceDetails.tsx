@@ -18,7 +18,7 @@ import { notifications } from '@mantine/notifications';
 import { IconCopy } from '@tabler/icons-react';
 import { useSession } from 'next-auth/react';
 import { useState } from 'react';
-import { formatDateTime } from '@/shared/lib/utils/utils';
+import { formatDateTime } from '@/shared/lib/utils/dates';
 import { FieldView } from '@/shared/ui/adease';
 import Link from '@/shared/ui/Link';
 import type { getGraduationClearance } from '../_server/clearance/actions';

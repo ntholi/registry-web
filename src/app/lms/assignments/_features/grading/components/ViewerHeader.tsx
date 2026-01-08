@@ -10,8 +10,8 @@ import {
 	IconExternalLink,
 } from '@tabler/icons-react';
 import Link from 'next/link';
+import { formatMoodleDate } from '@/shared/lib/utils/dates';
 import type { MoodleAssignment, SubmissionUser } from '../../../types';
-import { formatDate } from '../../submissions/utils';
 
 type Props = {
 	assignment: MoodleAssignment;
@@ -100,7 +100,7 @@ export default function ViewerHeader({
 							<Text size='xs' c='dimmed'>
 								{currentIndex + 1} of {submittedUsers.length} •{' '}
 								{currentUser.submission
-									? formatDate(currentUser.submission.timemodified)
+									? formatMoodleDate(currentUser.submission.timemodified)
 									: 'No submission'}
 							</Text>
 						</Box>

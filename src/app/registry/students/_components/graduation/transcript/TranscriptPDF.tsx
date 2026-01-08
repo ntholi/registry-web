@@ -1,6 +1,7 @@
 import { Document, Font, Page, Text, View } from '@react-pdf/renderer';
 import { Fragment } from 'react';
 import { createTw } from 'react-pdf-tailwind';
+import { formatMonthYear, formatTerm } from '@/shared/lib/utils/dates';
 import { getAcademicRemarks } from '@/shared/lib/utils/grades';
 import type { getAcademicHistory } from '../../../_server/actions';
 import { getCleanedSemesters } from '../../academics/statements/utils';
@@ -52,26 +53,6 @@ const TableHeader = () => (
 		<Text style={tw('w-[35pt] text-left')}>Grade</Text>
 	</View>
 );
-
-function formatMonthYear(date?: string | null) {
-	if (!date) return 'N/A';
-	const d = new Date(date);
-	if (Number.isNaN(d.getTime())) return 'N/A';
-	return d.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' });
-}
-
-function formatTerm(term: string) {
-	if (!term) return 'N/A';
-	const parts = term.split('-');
-	if (parts.length !== 2) return term;
-	const year = parseInt(parts[0], 10);
-	const month = parseInt(parts[1], 10) - 1;
-	if (Number.isNaN(year) || Number.isNaN(month) || month < 0 || month > 11) {
-		return term;
-	}
-	const date = new Date(year, month);
-	return date.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' });
-}
 
 const GradeRow = ({
 	courseCode,
@@ -208,12 +189,7 @@ export function TranscriptPages({
 					? formatMonthYear(program.intakeDate)
 					: programPrimarySemester?.termCode || 'Unknown';
 
-				const completionDate = program.graduationDate
-					? new Date(program.graduationDate).toLocaleDateString('en-GB', {
-							month: 'long',
-							year: 'numeric',
-						})
-					: 'N/A';
+				const completionDate = formatMonthYear(program.graduationDate) || 'N/A';
 
 				const allSemesters = programSemesters;
 				const leftTerms = allSemesters.slice(0, 6);

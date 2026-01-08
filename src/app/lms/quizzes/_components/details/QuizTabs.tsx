@@ -25,6 +25,7 @@ import {
 } from '@tabler/icons-react';
 import Link from 'next/link';
 import { useQueryState } from 'nuqs';
+import { formatMoodleDate } from '@/shared/lib/utils/dates';
 import type { MoodleQuiz } from '../../types';
 import { QuizSubmissionsView } from '../submission';
 import QuestionPreview from './QuestionPreview';
@@ -43,19 +44,6 @@ function formatDuration(seconds: number): string {
 	return remainingMinutes > 0
 		? `${hours} hour${hours > 1 ? 's' : ''} ${remainingMinutes} minutes`
 		: `${hours} hour${hours > 1 ? 's' : ''}`;
-}
-
-function formatDate(timestamp: number | null) {
-	if (!timestamp || timestamp === 0) return 'Not set';
-	const date = new Date(timestamp * 1000);
-	return date.toLocaleDateString('en-US', {
-		weekday: 'long',
-		year: 'numeric',
-		month: 'long',
-		day: 'numeric',
-		hour: '2-digit',
-		minute: '2-digit',
-	});
 }
 
 function getGradeMethodLabel(method: number): string {
@@ -133,7 +121,11 @@ export default function QuizTabs({ quiz, courseId }: Props) {
 													Opens
 												</Text>
 											</Group>
-											<Text size='sm'>{formatDate(quiz.timeopen)}</Text>
+											<Text size='sm'>
+												{quiz.timeopen
+													? formatMoodleDate(quiz.timeopen)
+													: 'Not set'}
+											</Text>
 										</Box>
 										<Box>
 											<Group gap='xs' mb={4}>
@@ -145,7 +137,11 @@ export default function QuizTabs({ quiz, courseId }: Props) {
 													Closes
 												</Text>
 											</Group>
-											<Text size='sm'>{formatDate(quiz.timeclose)}</Text>
+											<Text size='sm'>
+												{quiz.timeclose
+													? formatMoodleDate(quiz.timeclose)
+													: 'Not set'}
+											</Text>
 										</Box>
 										<Box>
 											<Group gap='xs' mb={4}>

@@ -16,29 +16,6 @@ export function isActiveModule(status: StudentModuleStatus) {
 	return !['Delete', 'Drop'].includes(status as StudentModuleStatus);
 }
 
-export function formatDate(
-	timestamp: number | Date | undefined | null,
-	type: 'long' | 'short' | 'numeric' = 'long'
-) {
-	if (!timestamp) return '';
-	return new Date(timestamp).toLocaleDateString('en-GB', {
-		year: 'numeric',
-		month: type,
-		day: 'numeric',
-	});
-}
-
-export function formatDateTime(timestamp: number | Date | undefined | null) {
-	if (!timestamp) return '';
-	return new Date(timestamp).toLocaleDateString('en-GB', {
-		year: 'numeric',
-		month: '2-digit',
-		day: 'numeric',
-		hour: 'numeric',
-		minute: 'numeric',
-	});
-}
-
 export function formatSemester(
 	sem: string | undefined | null,
 	type: 'full' | 'short' | 'mini' = 'full'
@@ -231,38 +208,4 @@ export function truncateText(text: string, maxLength: number = 50) {
 		return text;
 	}
 	return `${text.slice(0, maxLength - 3)}...`;
-}
-
-export function calculateAge(
-	birthDate: Date | number | string | null | undefined
-) {
-	if (!birthDate) return null;
-	const birth = new Date(birthDate);
-	const today = new Date();
-	let age = today.getFullYear() - birth.getFullYear();
-	const monthDiff = today.getMonth() - birth.getMonth();
-	if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
-		age--;
-	}
-	return age;
-}
-
-export function formatTerm(
-	term: string | undefined | null,
-	type: 'long' | 'short' = 'short'
-) {
-	if (!term) return '';
-
-	const [year, month] = term.split('-');
-	if (!year || !month) return term;
-
-	const monthNum = Number.parseInt(month, 10);
-	if (Number.isNaN(monthNum) || monthNum < 1 || monthNum > 12) return term;
-
-	const date = new Date(Number.parseInt(year, 10), monthNum - 1);
-	const monthName = date.toLocaleDateString('en-US', {
-		month: type === 'long' ? 'long' : 'short',
-	});
-
-	return `${monthName} ${year}`;
 }

@@ -12,6 +12,7 @@ import {
 } from '@mantine/core';
 import { IconCalendar, IconUser } from '@tabler/icons-react';
 import { notFound } from 'next/navigation';
+import { formatDate, formatDateTime } from '@/shared/lib/utils/dates';
 import {
 	DetailsView,
 	DetailsViewBody,
@@ -30,28 +31,6 @@ const priorityColors: Record<string, string> = {
 	high: 'orange',
 	urgent: 'red',
 };
-
-function formatDate(date: Date | string | null | undefined) {
-	if (!date) return null;
-	return new Date(date).toLocaleDateString('en-US', {
-		weekday: 'long',
-		year: 'numeric',
-		month: 'long',
-		day: 'numeric',
-	});
-}
-
-function formatDateTime(date: Date | string | null | undefined) {
-	if (!date) return null;
-	return new Date(date).toLocaleString('en-US', {
-		weekday: 'long',
-		year: 'numeric',
-		month: 'long',
-		day: 'numeric',
-		hour: '2-digit',
-		minute: '2-digit',
-	});
-}
 
 export default async function TaskDetails({ params }: Props) {
 	const { id } = await params;

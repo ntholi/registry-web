@@ -13,6 +13,7 @@ import {
 	Timeline,
 } from '@mantine/core';
 import { IconArrowRight, IconHistory } from '@tabler/icons-react';
+import { formatDateTime } from '@/shared/lib/utils/dates';
 
 interface AuditEntry {
 	id: number;
@@ -93,14 +94,6 @@ function getChangedFields(
 	}
 
 	return changes;
-}
-
-function formatDateTime(date: Date | string): string {
-	const d = typeof date === 'string' ? new Date(date) : date;
-	return d.toLocaleString(undefined, {
-		dateStyle: 'medium',
-		timeStyle: 'short',
-	});
 }
 
 function ChangeItem({

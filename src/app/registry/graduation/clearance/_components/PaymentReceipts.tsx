@@ -5,7 +5,7 @@ import type {
 	graduationRequests,
 	paymentReceipts,
 } from '@/core/database';
-import { formatDateTime } from '@/shared/lib/utils/utils';
+import { formatDateTime } from '@/shared/lib/utils/dates';
 
 type PaymentReceipt = typeof paymentReceipts.$inferSelect;
 type GraduationRequestReceipt =

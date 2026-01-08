@@ -17,7 +17,7 @@ import {
 } from '@tabler/icons-react';
 import Link from 'next/link';
 import { getStatusColor } from '@/shared/lib/utils/colors';
-import { formatDateTime } from '@/shared/lib/utils/utils';
+import { formatDateTime } from '@/shared/lib/utils/dates';
 import { getGraduationStatus } from '../_lib/status';
 
 interface GraduationHistoryProps {

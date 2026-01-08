@@ -22,6 +22,7 @@ import { useDisclosure } from '@mantine/hooks';
 import { IconBell, IconTrash } from '@tabler/icons-react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
+import { formatDateTime } from '@/shared/lib/utils/dates';
 import { truncateText } from '@/shared/lib/utils/utils';
 
 type Notification = {
@@ -60,14 +61,6 @@ export default function NotificationBell() {
 	};
 
 	const unreadCount = notifications.length;
-
-	const formatDate = (date: Date | null) => {
-		if (!date) return '';
-		return new Intl.DateTimeFormat('en-US', {
-			dateStyle: 'medium',
-			timeStyle: 'short',
-		}).format(new Date(date));
-	};
 
 	return (
 		<>
@@ -167,7 +160,7 @@ export default function NotificationBell() {
 								Date
 							</Text>
 							<Text size='xs'>
-								{formatDate(selectedNotification.createdAt)}
+								{formatDateTime(selectedNotification.createdAt)}
 							</Text>
 						</Box>
 					</Stack>

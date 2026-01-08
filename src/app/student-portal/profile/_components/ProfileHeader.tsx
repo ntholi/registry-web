@@ -25,7 +25,7 @@ import {
 import { useQuery } from '@tanstack/react-query';
 import { useMediaQuery } from '@/shared/lib/hooks/use-media-query';
 import { semantic } from '@/shared/lib/utils/colors';
-import { formatDate } from '@/shared/lib/utils/utils';
+import { formatDate } from '@/shared/lib/utils/dates';
 
 type Props = {
 	student: NonNullable<Student>;

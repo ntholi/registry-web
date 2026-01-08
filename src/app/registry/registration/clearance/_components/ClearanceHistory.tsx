@@ -12,7 +12,7 @@ import {
 } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
 import { getStatusColor } from '@/shared/lib/utils/colors';
-import { formatDateTime } from '@/shared/lib/utils/utils';
+import { formatDateTime } from '@/shared/lib/utils/dates';
 import Link from '@/shared/ui/Link';
 import { getClearanceHistoryByStudentNo } from '../../requests/_server/clearance/actions';
 

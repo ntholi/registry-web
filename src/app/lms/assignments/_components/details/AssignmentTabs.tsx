@@ -29,6 +29,7 @@ import {
 import { useQuery } from '@tanstack/react-query';
 import { useQueryState } from 'nuqs';
 import { useRef, useState } from 'react';
+import { formatMoodleDate } from '@/shared/lib/utils/dates';
 import { DeleteButton } from '@/shared/ui/adease';
 import { deleteRubric, getRubric, RubricView } from '../../_features/rubric';
 import { SubmissionsView } from '../../_features/submissions';
@@ -51,28 +52,6 @@ export default function AssignmentTabs({ assignment, courseId }: Props) {
 		queryFn: () => getRubric(assignment.cmid!),
 		enabled: !!assignment.cmid,
 	});
-
-	const dueDate = assignment.duedate
-		? new Date(assignment.duedate * 1000)
-		: null;
-	const availableFrom = assignment.allowsubmissionsfromdate
-		? new Date(assignment.allowsubmissionsfromdate * 1000)
-		: null;
-	const cutoffDate = assignment.cutoffdate
-		? new Date(assignment.cutoffdate * 1000)
-		: null;
-
-	function formatDate(date: Date | null) {
-		if (!date) return 'Not set';
-		return date.toLocaleDateString('en-US', {
-			weekday: 'long',
-			year: 'numeric',
-			month: 'long',
-			day: 'numeric',
-			hour: '2-digit',
-			minute: '2-digit',
-		});
-	}
 
 	return (
 		<Tabs value={activeTab} onChange={setActiveTab} variant='outline' mt='xl'>
@@ -205,7 +184,13 @@ export default function AssignmentTabs({ assignment, courseId }: Props) {
 													Opens
 												</Text>
 											</Group>
-											<Text size='sm'>{formatDate(availableFrom)}</Text>
+											<Text size='sm'>
+												{assignment.allowsubmissionsfromdate
+													? formatMoodleDate(
+															assignment.allowsubmissionsfromdate
+														)
+													: 'Not set'}
+											</Text>
 										</Box>
 										<Box>
 											<Group gap='xs' mb={4}>
@@ -217,9 +202,13 @@ export default function AssignmentTabs({ assignment, courseId }: Props) {
 													Due Date
 												</Text>
 											</Group>
-											<Text size='sm'>{formatDate(dueDate)}</Text>
+											<Text size='sm'>
+												{assignment.duedate
+													? formatMoodleDate(assignment.duedate)
+													: 'Not set'}
+											</Text>
 										</Box>
-										{cutoffDate && cutoffDate.getTime() > 0 && (
+										{assignment.cutoffdate && assignment.cutoffdate > 0 && (
 											<Box>
 												<Group gap='xs' mb={4}>
 													<IconClipboardCheck
@@ -230,7 +219,9 @@ export default function AssignmentTabs({ assignment, courseId }: Props) {
 														Cut-off Date
 													</Text>
 												</Group>
-												<Text size='sm'>{formatDate(cutoffDate)}</Text>
+												<Text size='sm'>
+													{formatMoodleDate(assignment.cutoffdate)}
+												</Text>
 											</Box>
 										)}
 									</Stack>

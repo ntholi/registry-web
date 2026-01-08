@@ -21,12 +21,8 @@ import { IconCheck, IconCopy } from '@tabler/icons-react';
 import { useSession } from 'next-auth/react';
 import type { UserRole } from '@/core/database';
 import { getBooleanColor, getStatusColor } from '@/shared/lib/utils/colors';
-import {
-	calculateAge,
-	formatDate,
-	formatPhoneNumber,
-	formatSemester,
-} from '@/shared/lib/utils/utils';
+import { calculateAge, formatDate } from '@/shared/lib/utils/dates';
+import { formatPhoneNumber, formatSemester } from '@/shared/lib/utils/utils';
 import Link from '@/shared/ui/Link';
 import type { getStudent } from '../../_server/actions';
 import EditStudentUserModal from '../academics/EditStudentUserModal';

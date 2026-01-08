@@ -6,16 +6,6 @@ export function formatFileSize(bytes: number): string {
 	return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
-export function formatDate(timestamp: number): string {
-	return new Date(timestamp * 1000).toLocaleDateString('en-US', {
-		month: 'short',
-		day: 'numeric',
-		year: 'numeric',
-		hour: '2-digit',
-		minute: '2-digit',
-	});
-}
-
 export function getSubmissionFiles(user: SubmissionUser): SubmissionFile[] {
 	if (!user.submission?.plugins) return [];
 

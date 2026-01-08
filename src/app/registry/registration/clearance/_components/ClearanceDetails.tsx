@@ -17,7 +17,7 @@ import {
 import { notifications } from '@mantine/notifications';
 import { IconCopy } from '@tabler/icons-react';
 import { useState } from 'react';
-import { formatDateTime } from '@/shared/lib/utils/utils';
+import { formatDateTime } from '@/shared/lib/utils/dates';
 import { FieldView } from '@/shared/ui/adease';
 import Link from '@/shared/ui/Link';
 import type { getClearance } from '../../requests/_server/clearance/actions';

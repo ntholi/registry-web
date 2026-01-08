@@ -12,6 +12,7 @@ import {
 } from '@mantine/core';
 import { IconCalendarTime, IconClock } from '@tabler/icons-react';
 import { getPercentageColor } from '@/shared/lib/utils/colors';
+import { formatMoodleDate } from '@/shared/lib/utils/dates';
 import type { QuizAttemptDetails } from '../../types';
 
 type Props = {
@@ -30,17 +31,6 @@ function formatDuration(startTime: number, endTime: number | null): string {
 		return `${hours}h ${remainingMinutes}m`;
 	}
 	return `${minutes}m`;
-}
-
-function formatDate(timestamp: number | null): string {
-	if (!timestamp) return 'N/A';
-	return new Date(timestamp * 1000).toLocaleString('en-US', {
-		weekday: 'short',
-		month: 'short',
-		day: 'numeric',
-		hour: '2-digit',
-		minute: '2-digit',
-	});
 }
 
 export default function QuizAttemptSummary({ attempt, maxGrade }: Props) {
@@ -108,7 +98,7 @@ export default function QuizAttemptSummary({ attempt, maxGrade }: Props) {
 							<Text size='xs' c='dimmed'>
 								Submitted
 							</Text>
-							<Text size='sm'>{formatDate(attempt.timefinish)}</Text>
+							<Text size='sm'>{formatMoodleDate(attempt.timefinish)}</Text>
 						</Box>
 					</Group>
 

@@ -10,6 +10,7 @@ import {
 	Textarea,
 } from '@mantine/core';
 import { useState } from 'react';
+import { formatDateTime } from '@/shared/lib/utils/dates';
 
 type Props = {
 	assignmentId: number;
@@ -70,7 +71,7 @@ export default function CommentsView({
 						<Paper key={c.id} p='md' withBorder>
 							<Text size='sm'>{c.text}</Text>
 							<Text size='xs' c='dimmed' mt='xs'>
-								{c.author} • {c.createdAt.toLocaleString()}
+								{c.author} • {formatDateTime(c.createdAt)}
 							</Text>
 						</Paper>
 					))}

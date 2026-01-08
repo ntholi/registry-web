@@ -66,10 +66,4 @@ export function buildCertificateReference(
 	return `LSO${normalizedCode}${stdNo}`;
 }
 
-export function formatIssueDate(date: Date): string {
-	return date.toLocaleDateString('en-GB', {
-		day: '2-digit',
-		month: 'long',
-		year: 'numeric',
-	});
-}
+export { formatIssueDate } from '@/shared/lib/utils/dates';

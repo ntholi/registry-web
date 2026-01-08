@@ -19,7 +19,8 @@ import {
 	IconFileText,
 } from '@tabler/icons-react';
 import Link from 'next/link';
-import { formatDateTime, formatSemester } from '@/shared/lib/utils/utils';
+import { formatDateTime } from '@/shared/lib/utils/dates';
+import { formatSemester } from '@/shared/lib/utils/utils';
 import ProofOfRegistrationDownload from './ProofOfRegistrationDownload';
 import StatusBadge from './StatusBadge';
 
