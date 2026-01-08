@@ -21,6 +21,41 @@ import type {
 	BoeStatsSchool,
 } from '../_server/repository';
 
+function pct(value: number, total: number): string {
+	if (total === 0 || value === 0) return '';
+	return `${((value / total) * 100).toFixed(1)}%`;
+}
+
+interface StatCellProps {
+	value: number;
+	total: number;
+	color?: string;
+	fw?: number;
+	size?: 'sm' | 'xs';
+}
+
+function StatCell({
+	value,
+	total,
+	color,
+	fw = 500,
+	size = 'sm',
+}: StatCellProps) {
+	const percentage = pct(value, total);
+	return (
+		<Stack gap={0} align='center'>
+			<Text c={color} fw={fw} size={size}>
+				{value || '-'}
+			</Text>
+			{percentage && (
+				<Text size='xs' c='dimmed' fw={400}>
+					{percentage}
+				</Text>
+			)}
+		</Stack>
+	);
+}
+
 interface BoeStatsSummaryProps {
 	schools?: BoeStatsSchool[];
 	loading?: boolean;
@@ -149,14 +184,20 @@ export function BoeStatsSummary({ schools, loading }: BoeStatsSummaryProps) {
 										<Text fw={700}>School Total</Text>
 									</Table.Td>
 									<Table.Td style={{ textAlign: 'center' }}>
-										<Text c='green' fw={700}>
-											{school.totals.passed}
-										</Text>
+										<StatCell
+											value={school.totals.passed}
+											total={school.totals.totalActive}
+											color='green'
+											fw={700}
+										/>
 									</Table.Td>
 									<Table.Td style={{ textAlign: 'center' }}>
-										<Text c='red' fw={700}>
-											{school.totals.failed}
-										</Text>
+										<StatCell
+											value={school.totals.failed}
+											total={school.totals.totalActive}
+											color='red'
+											fw={700}
+										/>
 									</Table.Td>
 									<Table.Td
 										style={{
@@ -167,24 +208,36 @@ export function BoeStatsSummary({ schools, loading }: BoeStatsSummaryProps) {
 												'2px dashed light-dark(var(--mantine-color-gray-4), var(--mantine-color-dark-4))',
 										}}
 									>
-										<Text c='grape' fw={700}>
-											{school.totals.remain || '-'}
-										</Text>
+										<StatCell
+											value={school.totals.remain}
+											total={school.totals.totalActive}
+											color='grape'
+											fw={700}
+										/>
 									</Table.Td>
 									<Table.Td style={{ textAlign: 'center' }}>
-										<Text c='orange' fw={700}>
-											{school.totals.droppedOut}
-										</Text>
+										<StatCell
+											value={school.totals.droppedOut}
+											total={school.totals.totalStudents}
+											color='orange'
+											fw={700}
+										/>
 									</Table.Td>
 									<Table.Td style={{ textAlign: 'center' }}>
-										<Text c='yellow' fw={700}>
-											{school.totals.withdrawn}
-										</Text>
+										<StatCell
+											value={school.totals.withdrawn}
+											total={school.totals.totalStudents}
+											color='yellow'
+											fw={700}
+										/>
 									</Table.Td>
 									<Table.Td style={{ textAlign: 'center' }}>
-										<Text c='blue' fw={700}>
-											{school.totals.deferred}
-										</Text>
+										<StatCell
+											value={school.totals.deferred}
+											total={school.totals.totalStudents}
+											color='blue'
+											fw={700}
+										/>
 									</Table.Td>
 									<Table.Td style={{ textAlign: 'center' }}>
 										<Text fw={700}>{school.totals.totalActive}</Text>
@@ -235,14 +288,20 @@ export function BoeStatsSummary({ schools, loading }: BoeStatsSummaryProps) {
 							<Table.Tbody>
 								<Table.Tr>
 									<Table.Td style={{ textAlign: 'center' }}>
-										<Text c='green' fw={600}>
-											{grandTotals.passed}
-										</Text>
+										<StatCell
+											value={grandTotals.passed}
+											total={grandTotals.totalActive}
+											color='green'
+											fw={600}
+										/>
 									</Table.Td>
 									<Table.Td style={{ textAlign: 'center' }}>
-										<Text c='red' fw={600}>
-											{grandTotals.failed}
-										</Text>
+										<StatCell
+											value={grandTotals.failed}
+											total={grandTotals.totalActive}
+											color='red'
+											fw={600}
+										/>
 									</Table.Td>
 									<Table.Td
 										style={{
@@ -253,24 +312,36 @@ export function BoeStatsSummary({ schools, loading }: BoeStatsSummaryProps) {
 												'2px dashed light-dark(var(--mantine-color-gray-4), var(--mantine-color-dark-4))',
 										}}
 									>
-										<Text c='grape' fw={600}>
-											{grandTotals.remain || '-'}
-										</Text>
+										<StatCell
+											value={grandTotals.remain}
+											total={grandTotals.totalActive}
+											color='grape'
+											fw={600}
+										/>
 									</Table.Td>
 									<Table.Td style={{ textAlign: 'center' }}>
-										<Text c='orange' fw={600}>
-											{grandTotals.droppedOut}
-										</Text>
+										<StatCell
+											value={grandTotals.droppedOut}
+											total={grandTotals.totalStudents}
+											color='orange'
+											fw={600}
+										/>
 									</Table.Td>
 									<Table.Td style={{ textAlign: 'center' }}>
-										<Text c='yellow' fw={600}>
-											{grandTotals.withdrawn}
-										</Text>
+										<StatCell
+											value={grandTotals.withdrawn}
+											total={grandTotals.totalStudents}
+											color='yellow'
+											fw={600}
+										/>
 									</Table.Td>
 									<Table.Td style={{ textAlign: 'center' }}>
-										<Text c='blue' fw={600}>
-											{grandTotals.deferred}
-										</Text>
+										<StatCell
+											value={grandTotals.deferred}
+											total={grandTotals.totalStudents}
+											color='blue'
+											fw={600}
+										/>
 									</Table.Td>
 									<Table.Td style={{ textAlign: 'center' }}>
 										<Text fw={600}>{grandTotals.totalActive}</Text>
@@ -318,14 +389,18 @@ function ProgramRow({ program }: ProgramRowProps) {
 					</Text>
 				</Table.Td>
 				<Table.Td style={{ textAlign: 'center' }}>
-					<Text c='green' fw={500}>
-						{program.passed || '-'}
-					</Text>
+					<StatCell
+						value={program.passed}
+						total={program.totalActive}
+						color='green'
+					/>
 				</Table.Td>
 				<Table.Td style={{ textAlign: 'center' }}>
-					<Text c='red' fw={500}>
-						{program.failed || '-'}
-					</Text>
+					<StatCell
+						value={program.failed}
+						total={program.totalActive}
+						color='red'
+					/>
 				</Table.Td>
 				<Table.Td
 					style={{
@@ -336,16 +411,32 @@ function ProgramRow({ program }: ProgramRowProps) {
 							'2px dashed light-dark(var(--mantine-color-gray-4), var(--mantine-color-dark-4))',
 					}}
 				>
-					<Text c='grape'>{program.remain || '-'}</Text>
+					<StatCell
+						value={program.remain}
+						total={program.totalActive}
+						color='grape'
+					/>
 				</Table.Td>
 				<Table.Td style={{ textAlign: 'center' }}>
-					<Text c='orange'>{program.droppedOut || '-'}</Text>
+					<StatCell
+						value={program.droppedOut}
+						total={program.totalStudents}
+						color='orange'
+					/>
 				</Table.Td>
 				<Table.Td style={{ textAlign: 'center' }}>
-					<Text c='yellow'>{program.withdrawn || '-'}</Text>
+					<StatCell
+						value={program.withdrawn}
+						total={program.totalStudents}
+						color='yellow'
+					/>
 				</Table.Td>
 				<Table.Td style={{ textAlign: 'center' }}>
-					<Text c='blue'>{program.deferred || '-'}</Text>
+					<StatCell
+						value={program.deferred}
+						total={program.totalStudents}
+						color='blue'
+					/>
 				</Table.Td>
 				<Table.Td style={{ textAlign: 'center' }}>
 					<Text fw={600}>{program.totalActive}</Text>
@@ -381,14 +472,20 @@ function ClassRow({ cls }: ClassRowProps) {
 				</Text>
 			</Table.Td>
 			<Table.Td style={{ textAlign: 'center' }}>
-				<Text c='green' size='sm'>
-					{cls.passed || '-'}
-				</Text>
+				<StatCell
+					value={cls.passed}
+					total={cls.totalActive}
+					color='green'
+					size='xs'
+				/>
 			</Table.Td>
 			<Table.Td style={{ textAlign: 'center' }}>
-				<Text c='red' size='sm'>
-					{cls.failed || '-'}
-				</Text>
+				<StatCell
+					value={cls.failed}
+					total={cls.totalActive}
+					color='red'
+					size='xs'
+				/>
 			</Table.Td>
 			<Table.Td
 				style={{
@@ -399,24 +496,36 @@ function ClassRow({ cls }: ClassRowProps) {
 						'2px dashed light-dark(var(--mantine-color-gray-4), var(--mantine-color-dark-4))',
 				}}
 			>
-				<Text c='grape' size='sm'>
-					{cls.remain || '-'}
-				</Text>
+				<StatCell
+					value={cls.remain}
+					total={cls.totalActive}
+					color='grape'
+					size='xs'
+				/>
 			</Table.Td>
 			<Table.Td style={{ textAlign: 'center' }}>
-				<Text c='orange' size='sm'>
-					{cls.droppedOut || '-'}
-				</Text>
+				<StatCell
+					value={cls.droppedOut}
+					total={cls.totalStudents}
+					color='orange'
+					size='xs'
+				/>
 			</Table.Td>
 			<Table.Td style={{ textAlign: 'center' }}>
-				<Text c='yellow' size='sm'>
-					{cls.withdrawn || '-'}
-				</Text>
+				<StatCell
+					value={cls.withdrawn}
+					total={cls.totalStudents}
+					color='yellow'
+					size='xs'
+				/>
 			</Table.Td>
 			<Table.Td style={{ textAlign: 'center' }}>
-				<Text c='blue' size='sm'>
-					{cls.deferred || '-'}
-				</Text>
+				<StatCell
+					value={cls.deferred}
+					total={cls.totalStudents}
+					color='blue'
+					size='xs'
+				/>
 			</Table.Td>
 			<Table.Td style={{ textAlign: 'center' }}>
 				<Text size='sm'>{cls.totalActive}</Text>
