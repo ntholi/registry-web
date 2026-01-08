@@ -10,8 +10,15 @@ import {
 	Table,
 	Text,
 	Title,
+	UnstyledButton,
 } from '@mantine/core';
-import type { BoeStatsSchool } from '../_server/repository';
+import { useDisclosure } from '@mantine/hooks';
+import { IconChevronDown, IconChevronRight } from '@tabler/icons-react';
+import type {
+	BoeStatsClassRow,
+	BoeStatsProgramRow,
+	BoeStatsSchool,
+} from '../_server/repository';
 
 interface BoeStatsSummaryProps {
 	schools?: BoeStatsSchool[];
@@ -67,53 +74,46 @@ export function BoeStatsSummary({ schools, loading }: BoeStatsSummaryProps) {
 				<Card key={school.schoolId} withBorder>
 					<Group justify='space-between' mb='md'>
 						<Title order={4}>{school.schoolName}</Title>
-						<Badge size='lg' variant='light'>
-							{school.totals.totalActive} active
-						</Badge>
+						<Badge variant='light'>{school.totals.totalActive} active</Badge>
 					</Group>
 
 					<ScrollArea>
-						<Table striped highlightOnHover withTableBorder>
+						<Table withTableBorder>
 							<Table.Thead>
 								<Table.Tr>
+									<Table.Th style={{ width: 40 }} />
 									<Table.Th>Program</Table.Th>
-									<Table.Th style={{ textAlign: 'center' }}>
+									<Table.Th style={{ textAlign: 'center', width: 80 }}>
 										<Text c='green' fw={600} size='sm'>
 											Passed
 										</Text>
-										<Text size='xs' c='dimmed'>
-											GPA ≥ 2.0
-										</Text>
 									</Table.Th>
-									<Table.Th style={{ textAlign: 'center' }}>
+									<Table.Th style={{ textAlign: 'center', width: 80 }}>
 										<Text c='red' fw={600} size='sm'>
 											Failed
 										</Text>
-										<Text size='xs' c='dimmed'>
-											GPA &lt; 2.0
-										</Text>
 									</Table.Th>
-									<Table.Th style={{ textAlign: 'center' }}>
+									<Table.Th style={{ textAlign: 'center', width: 80 }}>
 										<Text fw={600} size='sm'>
-											Dropped Out
+											Dropped
 										</Text>
 									</Table.Th>
-									<Table.Th style={{ textAlign: 'center' }}>
+									<Table.Th style={{ textAlign: 'center', width: 80 }}>
 										<Text fw={600} size='sm'>
 											Withdrawn
 										</Text>
 									</Table.Th>
-									<Table.Th style={{ textAlign: 'center' }}>
+									<Table.Th style={{ textAlign: 'center', width: 80 }}>
 										<Text fw={600} size='sm'>
 											Deferred
 										</Text>
 									</Table.Th>
-									<Table.Th style={{ textAlign: 'center' }}>
+									<Table.Th style={{ textAlign: 'center', width: 80 }}>
 										<Text fw={600} size='sm'>
 											Active
 										</Text>
 									</Table.Th>
-									<Table.Th style={{ textAlign: 'center' }}>
+									<Table.Th style={{ textAlign: 'center', width: 80 }}>
 										<Text fw={600} size='sm'>
 											Total
 										</Text>
@@ -122,43 +122,12 @@ export function BoeStatsSummary({ schools, loading }: BoeStatsSummaryProps) {
 							</Table.Thead>
 							<Table.Tbody>
 								{school.programs.map((program) => (
-									<Table.Tr key={program.programId}>
-										<Table.Td>
-											<Text size='sm' fw={500}>
-												{program.programCode}
-											</Text>
-											<Text size='xs' c='dimmed'>
-												{program.programName}
-											</Text>
-										</Table.Td>
-										<Table.Td style={{ textAlign: 'center' }}>
-											<Text c='green' fw={500}>
-												{program.passed || '-'}
-											</Text>
-										</Table.Td>
-										<Table.Td style={{ textAlign: 'center' }}>
-											<Text c='red' fw={500}>
-												{program.failed || '-'}
-											</Text>
-										</Table.Td>
-										<Table.Td style={{ textAlign: 'center' }}>
-											<Text c='orange'>{program.droppedOut || '-'}</Text>
-										</Table.Td>
-										<Table.Td style={{ textAlign: 'center' }}>
-											<Text c='yellow'>{program.withdrawn || '-'}</Text>
-										</Table.Td>
-										<Table.Td style={{ textAlign: 'center' }}>
-											<Text c='blue'>{program.deferred || '-'}</Text>
-										</Table.Td>
-										<Table.Td style={{ textAlign: 'center' }}>
-											<Text c='teal'>{program.totalActive}</Text>
-										</Table.Td>
-										<Table.Td style={{ textAlign: 'center' }}>
-											<Text fw={600}>{program.totalStudents}</Text>
-										</Table.Td>
-									</Table.Tr>
+									<ProgramRow key={program.programId} program={program} />
 								))}
-								<Table.Tr style={{ fontWeight: 700 }}>
+								<Table.Tr
+									style={{ backgroundColor: 'var(--mantine-color-dark-6)' }}
+								>
+									<Table.Td />
 									<Table.Td>
 										<Text fw={700}>School Total</Text>
 									</Table.Td>
@@ -188,12 +157,12 @@ export function BoeStatsSummary({ schools, loading }: BoeStatsSummaryProps) {
 										</Text>
 									</Table.Td>
 									<Table.Td style={{ textAlign: 'center' }}>
-										<Text c='teal' fw={700}>
-											{school.totals.totalActive}
-										</Text>
+										<Text fw={700}>{school.totals.totalActive}</Text>
 									</Table.Td>
 									<Table.Td style={{ textAlign: 'center' }}>
-										<Text fw={700}>{school.totals.totalStudents}</Text>
+										<Text c='dimmed' fw={700}>
+											{school.totals.totalStudents}
+										</Text>
 									</Table.Td>
 								</Table.Tr>
 							</Table.Tbody>
@@ -204,7 +173,7 @@ export function BoeStatsSummary({ schools, loading }: BoeStatsSummaryProps) {
 
 			{schools.length > 1 && (
 				<Card withBorder>
-					<Title order={4} mb='md'>
+					<Title order={5} mb='md'>
 						Grand Total
 					</Title>
 					<ScrollArea>
@@ -225,37 +194,35 @@ export function BoeStatsSummary({ schools, loading }: BoeStatsSummaryProps) {
 							<Table.Tbody>
 								<Table.Tr>
 									<Table.Td style={{ textAlign: 'center' }}>
-										<Text c='green' fw={700} size='lg'>
+										<Text c='green' fw={600}>
 											{grandTotals.passed}
 										</Text>
 									</Table.Td>
 									<Table.Td style={{ textAlign: 'center' }}>
-										<Text c='red' fw={700} size='lg'>
+										<Text c='red' fw={600}>
 											{grandTotals.failed}
 										</Text>
 									</Table.Td>
 									<Table.Td style={{ textAlign: 'center' }}>
-										<Text c='orange' fw={700} size='lg'>
+										<Text c='orange' fw={600}>
 											{grandTotals.droppedOut}
 										</Text>
 									</Table.Td>
 									<Table.Td style={{ textAlign: 'center' }}>
-										<Text c='yellow' fw={700} size='lg'>
+										<Text c='yellow' fw={600}>
 											{grandTotals.withdrawn}
 										</Text>
 									</Table.Td>
 									<Table.Td style={{ textAlign: 'center' }}>
-										<Text c='blue' fw={700} size='lg'>
+										<Text c='blue' fw={600}>
 											{grandTotals.deferred}
 										</Text>
 									</Table.Td>
 									<Table.Td style={{ textAlign: 'center' }}>
-										<Text c='teal' fw={700} size='lg'>
-											{grandTotals.totalActive}
-										</Text>
+										<Text fw={600}>{grandTotals.totalActive}</Text>
 									</Table.Td>
 									<Table.Td style={{ textAlign: 'center' }}>
-										<Text fw={700} size='lg'>
+										<Text c={'dimmed'} fw={600}>
 											{grandTotals.totalStudents}
 										</Text>
 									</Table.Td>
@@ -266,5 +233,114 @@ export function BoeStatsSummary({ schools, loading }: BoeStatsSummaryProps) {
 				</Card>
 			)}
 		</Stack>
+	);
+}
+
+interface ProgramRowProps {
+	program: BoeStatsProgramRow;
+}
+
+function ProgramRow({ program }: ProgramRowProps) {
+	const [opened, { toggle }] = useDisclosure(false);
+
+	return (
+		<>
+			<Table.Tr onClick={toggle} style={{ cursor: 'pointer' }}>
+				<Table.Td>
+					<UnstyledButton onClick={toggle}>
+						{opened ? (
+							<IconChevronDown size={16} />
+						) : (
+							<IconChevronRight size={16} />
+						)}
+					</UnstyledButton>
+				</Table.Td>
+				<Table.Td>
+					<Text size='sm' fw={500}>
+						{program.programCode}
+					</Text>
+					<Text size='xs' c='dimmed'>
+						{program.programName}
+					</Text>
+				</Table.Td>
+				<Table.Td style={{ textAlign: 'center' }}>
+					<Text c='green' fw={500}>
+						{program.passed || '-'}
+					</Text>
+				</Table.Td>
+				<Table.Td style={{ textAlign: 'center' }}>
+					<Text c='red' fw={500}>
+						{program.failed || '-'}
+					</Text>
+				</Table.Td>
+				<Table.Td style={{ textAlign: 'center' }}>
+					<Text c='orange'>{program.droppedOut || '-'}</Text>
+				</Table.Td>
+				<Table.Td style={{ textAlign: 'center' }}>
+					<Text c='yellow'>{program.withdrawn || '-'}</Text>
+				</Table.Td>
+				<Table.Td style={{ textAlign: 'center' }}>
+					<Text c='blue'>{program.deferred || '-'}</Text>
+				</Table.Td>
+				<Table.Td style={{ textAlign: 'center' }}>
+					<Text fw={600}>{program.totalActive}</Text>
+				</Table.Td>
+				<Table.Td style={{ textAlign: 'center' }}>
+					<Text c='dimmed'>{program.totalStudents}</Text>
+				</Table.Td>
+			</Table.Tr>
+			{opened &&
+				program.classes.map((cls) => (
+					<ClassRow key={cls.className} cls={cls} />
+				))}
+		</>
+	);
+}
+
+interface ClassRowProps {
+	cls: BoeStatsClassRow;
+}
+
+function ClassRow({ cls }: ClassRowProps) {
+	return (
+		<Table.Tr style={{ backgroundColor: 'var(--mantine-color-dark-7)' }}>
+			<Table.Td />
+			<Table.Td pl='xl'>
+				<Text size='sm'>{cls.className}</Text>
+			</Table.Td>
+			<Table.Td style={{ textAlign: 'center' }}>
+				<Text c='green' size='sm'>
+					{cls.passed || '-'}
+				</Text>
+			</Table.Td>
+			<Table.Td style={{ textAlign: 'center' }}>
+				<Text c='red' size='sm'>
+					{cls.failed || '-'}
+				</Text>
+			</Table.Td>
+			<Table.Td style={{ textAlign: 'center' }}>
+				<Text c='orange' size='sm'>
+					{cls.droppedOut || '-'}
+				</Text>
+			</Table.Td>
+			<Table.Td style={{ textAlign: 'center' }}>
+				<Text c='yellow' size='sm'>
+					{cls.withdrawn || '-'}
+				</Text>
+			</Table.Td>
+			<Table.Td style={{ textAlign: 'center' }}>
+				<Text c='blue' size='sm'>
+					{cls.deferred || '-'}
+				</Text>
+			</Table.Td>
+			<Table.Td style={{ textAlign: 'center' }}>
+				<Text size='sm'>{cls.totalActive}</Text>
+			</Table.Td>
+			<Table.Td style={{ textAlign: 'center' }}>
+				<Text c='dimmed' size='sm'>
+					{cls.totalStudents}
+				</Text>
+			</Table.Td>
+		</Table.Tr>
 	);
 }

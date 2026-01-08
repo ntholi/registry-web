@@ -10,8 +10,10 @@ import {
 	students,
 } from '@/core/database';
 import BaseRepository from '@/core/platform/BaseRepository';
+import { getGradePoints } from '@/shared/lib/utils/grades';
 import {
 	compareSemesters,
+	formatSemester,
 	INACTIVE_SEMESTER_STATUSES,
 } from '@/shared/lib/utils/utils';
 
@@ -69,6 +71,18 @@ export interface BoeSummarySchool {
 	totalStudents: number;
 }
 
+export interface BoeStatsClassRow {
+	className: string;
+	semesterNumber: string;
+	passed: number;
+	failed: number;
+	droppedOut: number;
+	withdrawn: number;
+	deferred: number;
+	totalActive: number;
+	totalStudents: number;
+}
+
 export interface BoeStatsProgramRow {
 	programId: number;
 	programCode: string;
@@ -80,6 +94,7 @@ export interface BoeStatsProgramRow {
 	deferred: number;
 	totalActive: number;
 	totalStudents: number;
+	classes: BoeStatsClassRow[];
 }
 
 export interface BoeStatsSchool {
@@ -480,74 +495,92 @@ export default class BoeReportRepository extends BaseRepository<
 					deferred: 0,
 					totalActive: 0,
 					totalStudents: 0,
+					classes: [],
 				};
 				schoolData.programs.push(programData);
 			}
 
+			const semNum = semester.structureSemester?.semesterNumber ?? 'Unknown';
+			const className = `${program.code}${formatSemester(semNum, 'mini')}`;
+
+			let classData = programData.classes.find(
+				(c) => c.className === className
+			);
+			if (!classData) {
+				classData = {
+					className,
+					semesterNumber: semNum,
+					passed: 0,
+					failed: 0,
+					droppedOut: 0,
+					withdrawn: 0,
+					deferred: 0,
+					totalActive: 0,
+					totalStudents: 0,
+				};
+				programData.classes.push(classData);
+			}
+
 			programData.totalStudents++;
+			classData.totalStudents++;
 			schoolData.totals.totalStudents++;
 
 			const status = semester.status;
 
 			if (status === 'DroppedOut') {
 				programData.droppedOut++;
+				classData.droppedOut++;
 				schoolData.totals.droppedOut++;
 			} else if (status === 'Withdrawn') {
 				programData.withdrawn++;
+				classData.withdrawn++;
 				schoolData.totals.withdrawn++;
 			} else if (status === 'Deferred') {
 				programData.deferred++;
+				classData.deferred++;
 				schoolData.totals.deferred++;
 			} else if (!INACTIVE_SEMESTER_STATUSES.includes(status)) {
 				programData.totalActive++;
+				classData.totalActive++;
 				schoolData.totals.totalActive++;
 
 				let totalPoints = 0;
 				let totalCredits = 0;
+				let hasGradedModules = false;
 				for (const mod of semester.studentModules) {
 					const grade = mod.grade;
+					if (!grade || grade === 'NM') continue;
 					const credits = Number(mod.credits) || 0;
-					const gradePoint = this.getGradePoints(grade);
+					const gradePoint = getGradePoints(grade);
 					totalPoints += gradePoint * credits;
 					totalCredits += credits;
+					hasGradedModules = true;
 				}
 				const gpa = totalCredits > 0 ? totalPoints / totalCredits : 0;
 
-				if (gpa >= 2) {
+				if (!hasGradedModules || gpa >= 2) {
 					programData.passed++;
+					classData.passed++;
 					schoolData.totals.passed++;
 				} else {
 					programData.failed++;
+					classData.failed++;
 					schoolData.totals.failed++;
 				}
+			}
+		}
+
+		for (const school of schoolMap.values()) {
+			for (const program of school.programs) {
+				program.classes.sort((a, b) =>
+					compareSemesters(a.semesterNumber, b.semesterNumber)
+				);
 			}
 		}
 
 		return Array.from(schoolMap.values()).sort((a, b) =>
 			a.schoolName.localeCompare(b.schoolName)
 		);
-	}
-
-	private getGradePoints(grade: string): number {
-		const gradeMap: Record<string, number> = {
-			'A+': 4.0,
-			A: 4.0,
-			'A-': 3.7,
-			'B+': 3.3,
-			B: 3.0,
-			'B-': 2.7,
-			'C+': 2.3,
-			C: 2.0,
-			'C-': 1.7,
-			'D+': 1.3,
-			D: 1.0,
-			'D-': 0.7,
-			F: 0.0,
-			FA: 0.0,
-			I: 0.0,
-			W: 0.0,
-		};
-		return gradeMap[grade?.toUpperCase()] ?? 0;
 	}
 }
 

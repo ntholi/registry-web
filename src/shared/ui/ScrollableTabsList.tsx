@@ -7,7 +7,7 @@ import {
 	TabsList,
 	type TabsListProps,
 } from '@mantine/core';
-import { useElementSize } from '@mantine/hooks';
+import { useElementSize, useMediaQuery } from '@mantine/hooks';
 import { IconChevronLeft, IconChevronRight } from '@tabler/icons-react';
 import {
 	Children,
@@ -31,12 +31,13 @@ export default function ScrollableTabsList({
 	...props
 }: ScrollableTabsListProps) {
 	const scrollRef = useRef<HTMLDivElement>(null);
+	const isMobile = useMediaQuery('(max-width: 768px)');
 	const { ref: containerRef, width: containerWidth } = useElementSize();
 	const [canScrollLeft, setCanScrollLeft] = useState(false);
 	const [canScrollRight, setCanScrollRight] = useState(false);
 
 	const tabCount = Children.toArray(children).filter(Boolean).length;
-	const shouldScroll = tabCount >= scrollThreshold;
+	const shouldScroll = isMobile || tabCount >= scrollThreshold;
 
 	const checkScrollPosition = useCallback(() => {
 		const el = scrollRef.current;
@@ -67,16 +68,26 @@ export default function ScrollableTabsList({
 		return () => el.removeEventListener('scroll', checkScrollPosition);
 	}, [checkScrollPosition]);
 
-	const scroll = (direction: 'left' | 'right') => {
-		const el = scrollRef.current;
-		if (!el) return;
+	const scroll = useCallback(
+		(direction: 'left' | 'right') => {
+			const el = scrollRef.current;
+			if (!el) return;
 
-		const scrollAmount = el.clientWidth * 0.6;
-		el.scrollBy({
-			left: direction === 'left' ? -scrollAmount : scrollAmount,
-			behavior: 'smooth',
-		});
-	};
+			const scrollAmount = el.clientWidth * 0.6;
+			el.scrollBy({
+				left: direction === 'left' ? -scrollAmount : scrollAmount,
+				behavior: 'smooth',
+			});
+
+			requestAnimationFrame(() => {
+				checkScrollPosition();
+			});
+			window.setTimeout(() => {
+				checkScrollPosition();
+			}, 250);
+		},
+		[checkScrollPosition]
+	);
 
 	if (!shouldScroll) {
 		return (

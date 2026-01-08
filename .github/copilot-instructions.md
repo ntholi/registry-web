@@ -66,6 +66,7 @@ University student registration portal managing academic records, course registr
 - **Never** use the `pages` router; use the `app` router exclusively.
 - **Never** import `db` outside of `repository.ts` files.
 - **Never** create new .sql migration files manually; it corrupts the _journal. Always use pnpm db:generate (or --custom if schema hasn't changed, but remember to update *_snapshot.json after manually editing the .sql file). Once the CLI generates the file, you may then edit the .sql content to add custom migration logic.
+- **Never** implement grade/marks/GPA/CGPA calculations locally; use `src/shared/lib/utils/grades/` and `gradeCalculations.ts`.
 
 ### UI Rules
 - Mantine-only styling (no custom CSS)

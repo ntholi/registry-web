@@ -19,6 +19,7 @@ import {
 } from '@mantine/core';
 import { IconLock, IconSchool } from '@tabler/icons-react';
 import { useState } from 'react';
+import { useMediaQuery } from '@/shared/lib/hooks/use-media-query';
 import { getStatusColor } from '@/shared/lib/utils/colors';
 import type { getStudent } from '../../_server/actions';
 import GpaDisplay from './GpaDisplay';
@@ -43,6 +44,7 @@ export default function BlockedAcademicsView({
 	);
 
 	const { colorScheme } = useMantineColorScheme();
+	const isMobile = useMediaQuery('(max-width: 768px)');
 
 	const isDark = colorScheme === 'dark';
 
@@ -124,17 +126,39 @@ export default function BlockedAcademicsView({
 												<Paper key={semester.id} p='md' withBorder>
 													<Stack gap='md'>
 														<Flex align='flex-end' justify='space-between'>
-															<Group gap={'xs'} align='flex-end'>
-																<Badge radius={'xs'} variant='default'>
-																	{semester.termCode}
-																</Badge>
-																<Text size='sm'>
-																	Semester {semester.semesterNumber}
-																</Text>
-															</Group>
-															<Group gap='md' align='flex-end'>
-																<GpaDisplay gpa={2.5} cgpa={2.8} />
-															</Group>
+															{isMobile ? (
+																<>
+																	<Stack gap={2} style={{ flex: 1 }}>
+																		<Badge radius='xs' variant='default'>
+																			{semester.termCode}
+																		</Badge>
+																		<Text size='sm'>
+																			Semester {semester.semesterNumber}
+																		</Text>
+																	</Stack>
+																	<Stack
+																		gap={2}
+																		align='flex-end'
+																		style={{ flexShrink: 0 }}
+																	>
+																		<GpaDisplay gpa={2.5} cgpa={2.8} />
+																	</Stack>
+																</>
+															) : (
+																<>
+																	<Group gap={'xs'} align='flex-end'>
+																		<Badge radius={'xs'} variant='default'>
+																			{semester.termCode}
+																		</Badge>
+																		<Text size='sm'>
+																			Semester {semester.semesterNumber}
+																		</Text>
+																	</Group>
+																	<Group gap='md' align='flex-end'>
+																		<GpaDisplay gpa={2.5} cgpa={2.8} />
+																	</Group>
+																</>
+															)}
 														</Flex>
 
 														<Divider />

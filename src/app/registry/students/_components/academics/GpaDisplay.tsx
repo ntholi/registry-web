@@ -1,4 +1,5 @@
 import { Divider, Flex, Group, rem, Text } from '@mantine/core';
+import { useMediaQuery } from '@mantine/hooks';
 
 type Props = {
 	gpa: number;
@@ -6,6 +7,7 @@ type Props = {
 };
 
 export default function GpaDisplay({ gpa, cgpa }: Props) {
+	const isMobile = useMediaQuery('(max-width: 768px)');
 	const gpaColor = gpa >= 3 ? 'green' : gpa >= 2 ? 'yellow' : 'red';
 	const cgpaColor = cgpa >= 3 ? 'blue' : cgpa >= 2 ? 'orange' : 'red';
 
@@ -25,23 +27,26 @@ export default function GpaDisplay({ gpa, cgpa }: Props) {
 					{gpa.toFixed(2)}
 				</Text>
 			</Group>
+			{!isMobile && (
+				<>
+					<Divider orientation='vertical' size='xs' />
 
-			<Divider orientation='vertical' size='xs' />
-
-			<Group gap={5} align='baseline'>
-				<Text
-					size={rem(10)}
-					c='dimmed'
-					fw={500}
-					tt='uppercase'
-					style={{ letterSpacing: '0.5px' }}
-				>
-					CGPA
-				</Text>
-				<Text size='sm' fw={600} c={cgpaColor}>
-					{cgpa.toFixed(2)}
-				</Text>
-			</Group>
+					<Group gap={5} align='baseline'>
+						<Text
+							size={rem(10)}
+							c='dimmed'
+							fw={500}
+							tt='uppercase'
+							style={{ letterSpacing: '0.5px' }}
+						>
+							CGPA
+						</Text>
+						<Text size='sm' fw={600} c={cgpaColor}>
+							{cgpa.toFixed(2)}
+						</Text>
+					</Group>
+				</>
+			)}
 		</Flex>
 	);
 }

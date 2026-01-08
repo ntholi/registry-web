@@ -207,12 +207,6 @@ export default function EditStudentProgramModal({ program }: Props) {
 					e.stopPropagation();
 					open();
 				}}
-				style={{
-					opacity: 0,
-					transition: 'opacity 0.2s',
-					cursor: 'pointer',
-				}}
-				className='edit-program-icon'
 			>
 				<IconEdit size='1rem' />
 			</ActionIcon>

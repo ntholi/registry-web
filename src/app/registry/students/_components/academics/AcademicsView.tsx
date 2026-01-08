@@ -5,6 +5,7 @@ import { EditStudentSemesterModal } from '@audit-logs/student-semesters';
 import {
 	Accordion,
 	Badge,
+	Box,
 	Card,
 	Divider,
 	Flex,
@@ -19,6 +20,7 @@ import { IconSchool } from '@tabler/icons-react';
 import { useSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
 import SemesterStatus from '@/app/registry/students/_components/academics/SemesterStatus';
+import { useMediaQuery } from '@/shared/lib/hooks/use-media-query';
 import { getStatusColor } from '@/shared/lib/utils/colors';
 import { getAcademicRemarks } from '@/shared/lib/utils/grades';
 import { formatSemester } from '@/shared/lib/utils/utils';
@@ -34,6 +36,7 @@ type Props = {
 export default function AcademicsView({ student, showMarks, ...props }: Props) {
 	const { data: session } = useSession();
 	const [openPrograms, setOpenPrograms] = useState<string[]>();
+	const isMobile = useMediaQuery('(max-width: 768px)');
 
 	const canEdit =
 		session?.user?.role === 'registry' || session?.user?.role === 'admin';
@@ -58,56 +61,36 @@ export default function AcademicsView({ student, showMarks, ...props }: Props) {
 
 	return (
 		<Stack gap='md' {...props}>
-			<Accordion
-				variant='separated'
-				radius='md'
-				multiple
-				value={openPrograms}
-				onChange={setOpenPrograms}
-			>
-				{student.programs.map((program) => (
-					<Accordion.Item key={program.id} value={program.id?.toString() ?? ''}>
-						<Accordion.Control>
-							<Group>
-								<ThemeIcon variant='light' color='gray' size={'xl'}>
-									<IconSchool size='1.1rem' />
-								</ThemeIcon>
-								<Stack gap={5}>
-									<Text fw={500}>{program.structure.program.name}</Text>
+			{isMobile ? (
+				<Stack gap='md'>
+					{student.programs.map((program) => (
+						<Card
+							key={program.id}
+							shadow='sm'
+							padding={0}
+							radius='md'
+							withBorder
+						>
+							<Stack gap={5}>
+								<Box p='md'>
 									<Group
-										gap={'xs'}
-										align='center'
-										style={{ position: 'relative' }}
+										justify='space-between'
+										align='flex-start'
+										wrap='nowrap'
 									>
+										<Text fw={500} style={{ flex: 1 }}>
+											{program.structure.program.name}
+										</Text>
 										<Badge
 											color={getStatusColor(program.status)}
 											size='xs'
-											variant='transparent'
+											variant='light'
+											style={{ flexShrink: 0 }}
 										>
 											{program.status}
 										</Badge>
-										{canEdit && (
-											<EditStudentProgramModal
-												program={{
-													id: program.id,
-													stdNo: student.stdNo,
-													intakeDate: program.intakeDate,
-													regDate: program.regDate,
-													startTerm: program.startTerm,
-													structureId: program.structureId,
-													programId: program.structure.program.id,
-													graduationDate: program.graduationDate,
-													status: program.status,
-												}}
-											/>
-										)}
 									</Group>
-								</Stack>
-							</Group>
-						</Accordion.Control>
-
-						<Accordion.Panel>
-							<Stack gap='xl'>
+								</Box>
 								{program.semesters?.length ? (
 									(() => {
 										const academicRemarks = getAcademicRemarks([program]);
@@ -120,41 +103,48 @@ export default function AcademicsView({ student, showMarks, ...props }: Props) {
 											const cumulativeGPA = semesterPoint?.cgpa || 0;
 
 											return (
-												<Paper key={semester.id} p='md' withBorder>
-													<Stack gap='md'>
-														<Flex
-															align='flex-end'
-															justify='space-between'
-															className='semester-header'
-														>
-															<Group
-																gap={'xs'}
-																align='flex-end'
-																style={{ position: 'relative' }}
-															>
-																<Badge radius={'xs'} variant='default'>
-																	{semester.termCode}
-																</Badge>
-																<Text size='sm'>
-																	{formatSemester(
-																		semester.structureSemester?.semesterNumber
-																	)}
-																</Text>
-																{canEdit && (
-																	<EditStudentSemesterModal
-																		semester={semester as never}
-																		structureId={program.structure.id}
+												<Paper key={semester.id} p={0} radius='md' withBorder>
+													<Stack gap={0}>
+														<Box p='md'>
+															<Flex align='flex-start' justify='space-between'>
+																<Stack gap={2} style={{ flex: 1 }}>
+																	<Group
+																		gap='xs'
+																		align='center'
+																		wrap='nowrap'
+																		style={{ position: 'relative' }}
+																	>
+																		<Badge radius='xs' variant='default'>
+																			{semester.termCode}
+																		</Badge>
+																		{canEdit && (
+																			<EditStudentSemesterModal
+																				semester={semester as never}
+																				structureId={program.structure.id}
+																			/>
+																		)}
+																	</Group>
+																	<Text size='sm' pl='md'>
+																		{formatSemester(
+																			semester.structureSemester
+																				?.semesterNumber,
+																			'mini'
+																		)}
+																	</Text>
+																</Stack>
+																<Stack
+																	gap={2}
+																	align='flex-end'
+																	style={{ flexShrink: 0 }}
+																>
+																	<GpaDisplay
+																		gpa={semesterPoint?.gpa || 0}
+																		cgpa={cumulativeGPA}
 																	/>
-																)}
-															</Group>
-															<Group gap='md' align='flex-end'>
-																<GpaDisplay
-																	gpa={semesterPoint?.gpa || 0}
-																	cgpa={cumulativeGPA}
-																/>
-																<SemesterStatus status={semester.status} />
-															</Group>
-														</Flex>
+																	<SemesterStatus status={semester.status} />
+																</Stack>
+															</Flex>
+														</Box>
 
 														<Divider />
 
@@ -194,9 +184,11 @@ export default function AcademicsView({ student, showMarks, ...props }: Props) {
 																}))}
 															/>
 														) : (
-															<Text c='dimmed'>
-																No modules found for this semester
-															</Text>
+															<Box p='md'>
+																<Text c='dimmed'>
+																	No modules found for this semester
+																</Text>
+															</Box>
 														)}
 													</Stack>
 												</Paper>
@@ -209,20 +201,166 @@ export default function AcademicsView({ student, showMarks, ...props }: Props) {
 									</Text>
 								)}
 							</Stack>
-						</Accordion.Panel>
-					</Accordion.Item>
-				))}
-			</Accordion>
-			<style>
-				{`
-					.semester-header:hover .edit-semester-icon {
-						opacity: 1 !important;
-					}
-					.mantine-Accordion-control:hover .edit-program-icon {
-						opacity: 1 !important;
-					}
-				`}
-			</style>
+						</Card>
+					))}
+				</Stack>
+			) : (
+				<Accordion
+					variant='separated'
+					radius='md'
+					multiple
+					value={openPrograms}
+					onChange={setOpenPrograms}
+				>
+					{student.programs.map((program) => (
+						<Accordion.Item
+							key={program.id}
+							value={program.id?.toString() ?? ''}
+						>
+							<Accordion.Control>
+								<Group>
+									<ThemeIcon variant='light' color='gray' size={'xl'}>
+										<IconSchool size='1.1rem' />
+									</ThemeIcon>
+									<Stack gap={5}>
+										<Text fw={500}>{program.structure.program.name}</Text>
+										<Group gap={'xs'} align='center'>
+											<Badge
+												color={getStatusColor(program.status)}
+												size='xs'
+												variant='transparent'
+											>
+												{program.status}
+											</Badge>
+											{canEdit && (
+												<EditStudentProgramModal
+													program={{
+														id: program.id,
+														stdNo: student.stdNo,
+														intakeDate: program.intakeDate,
+														regDate: program.regDate,
+														startTerm: program.startTerm,
+														structureId: program.structureId,
+														programId: program.structure.program.id,
+														graduationDate: program.graduationDate,
+														status: program.status,
+													}}
+												/>
+											)}
+										</Group>
+									</Stack>
+								</Group>
+							</Accordion.Control>
+
+							<Accordion.Panel>
+								<Stack gap='xl'>
+									{program.semesters?.length ? (
+										(() => {
+											const academicRemarks = getAcademicRemarks([program]);
+
+											return program.semesters.map((semester) => {
+												const semesterPoint = academicRemarks.points.find(
+													(point) => point.semesterId === semester.id
+												);
+
+												const cumulativeGPA = semesterPoint?.cgpa || 0;
+
+												return (
+													<Paper key={semester.id} p='md' withBorder>
+														<Stack gap='md'>
+															<Flex align='flex-end' justify='space-between'>
+																<Group
+																	gap={'xs'}
+																	align='flex-end'
+																	style={{ position: 'relative' }}
+																>
+																	<Badge radius={'xs'} variant='default'>
+																		{semester.termCode}
+																	</Badge>
+																	<Text size='sm'>
+																		{formatSemester(
+																			semester.structureSemester?.semesterNumber
+																		)}
+																	</Text>
+																	{canEdit && (
+																		<EditStudentSemesterModal
+																			semester={semester as never}
+																			structureId={program.structure.id}
+																		/>
+																	)}
+																</Group>
+																<Group gap='md' align='flex-end'>
+																	<GpaDisplay
+																		gpa={semesterPoint?.gpa || 0}
+																		cgpa={cumulativeGPA}
+																	/>
+																	<SemesterStatus status={semester.status} />
+																</Group>
+															</Flex>
+
+															<Divider />
+
+															{semester.studentModules?.length ? (
+																<SemesterTable
+																	modules={semester.studentModules.map(
+																		(sm) => ({
+																			id: sm.id,
+																			code:
+																				sm.semesterModule.module?.code ??
+																				`${sm.semesterModuleId}`,
+																			name:
+																				sm.semesterModule.module?.name ??
+																				`<<Semester Module ID: ${sm.semesterModuleId}>>`,
+																			type: sm.semesterModule.type,
+																			status: sm.status,
+																			marks: sm.marks,
+																			grade: sm.grade,
+																			credits: sm.credits,
+																		})
+																	)}
+																	showMarks={showMarks}
+																	allSemesters={program.semesters.map(
+																		(sem) => ({
+																			termCode: sem.termCode,
+																			semesterNumber:
+																				sem.structureSemester?.semesterNumber,
+																			studentModules: sem.studentModules.map(
+																				(m) => ({
+																					semesterModule: {
+																						module: {
+																							code:
+																								m.semesterModule.module?.code ??
+																								'',
+																						},
+																					},
+																					grade: m.grade,
+																					status: m.status,
+																				})
+																			),
+																		})
+																	)}
+																/>
+															) : (
+																<Text c='dimmed'>
+																	No modules found for this semester
+																</Text>
+															)}
+														</Stack>
+													</Paper>
+												);
+											});
+										})()
+									) : (
+										<Text c='dimmed'>
+											No semesters available for this program
+										</Text>
+									)}
+								</Stack>
+							</Accordion.Panel>
+						</Accordion.Item>
+					))}
+				</Accordion>
+			)}
 		</Stack>
 	);
 }
