@@ -16,7 +16,13 @@ async function main() {
 
 	try {
 		const { seedSubjects } = await import('./seeds/subjects');
+		const { seedCertificateTypes } = await import('./seeds/certificate-types');
+		const { seedGradeMappings } = await import('./seeds/grade-mappings');
+
 		await seedSubjects();
+		await seedCertificateTypes();
+		await seedGradeMappings();
+
 		console.log('🎉 Database seeding completed successfully.');
 	} catch (error) {
 		console.error('❌ Database seeding failed:', error);
