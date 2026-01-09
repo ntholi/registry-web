@@ -484,6 +484,13 @@
 			"when": 1767877475570,
 			"tag": "0068_tearful_vivisector",
 			"breakpoints": true
+		},
+		{
+			"idx": 69,
+			"version": "7",
+			"when": 1767932629415,
+			"tag": "0069_clammy_richard_fisk",
+			"breakpoints": true
 		}
 	]
 }

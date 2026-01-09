@@ -1,5 +1,11 @@
 import { pgEnum } from 'drizzle-orm/pg-core';
 
+export const gradingTypeEnum = pgEnum('grading_type', [
+	'subject-grades',
+	'classification',
+]);
+export type GradingType = (typeof gradingTypeEnum.enumValues)[number];
+
 export const standardGradeEnum = pgEnum('standard_grade', [
 	'A*',
 	'A',

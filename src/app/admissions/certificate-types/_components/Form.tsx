@@ -1,6 +1,10 @@
 'use client';
 
-import { certificateTypes, standardGradeEnum } from '@admissions/_database';
+import {
+	certificateTypes,
+	gradingTypeEnum,
+	standardGradeEnum,
+} from '@admissions/_database';
 import {
 	ActionIcon,
 	Alert,
@@ -40,6 +44,17 @@ const standardGradeOptions = standardGradeEnum.enumValues.map((grade) => ({
 	label: grade,
 }));
 
+const gradingTypeOptions = [
+	{
+		value: 'subject-grades',
+		label: 'Subject Grades (A*, A, B, C, D, E, F, U)',
+	},
+	{
+		value: 'classification',
+		label: 'Classification (Distinction, Merit, Credit, Pass)',
+	},
+];
+
 export default function CertificateTypeForm({
 	onSubmit,
 	defaultValues,
@@ -50,6 +65,7 @@ export default function CertificateTypeForm({
 	const schema = z.object({
 		...createInsertSchema(certificateTypes).shape,
 		lqfLevel: z.coerce.number().min(4, 'LQF level must be 4 or higher'),
+		gradingType: z.enum(gradingTypeEnum.enumValues),
 		gradeMappings: z
 			.array(
 				z.object({
@@ -75,7 +91,7 @@ export default function CertificateTypeForm({
 								standardGrade: m.standardGrade,
 							})),
 						}
-					: { lqfLevel: 4, gradeMappings: [] }
+					: { lqfLevel: 4, gradingType: 'subject-grades', gradeMappings: [] }
 			}
 			onSuccess={({ id }) => router.push(`/admissions/certificate-types/${id}`)}
 		>
@@ -100,19 +116,26 @@ export default function CertificateTypeForm({
 						required
 						{...form.getInputProps('lqfLevel')}
 					/>
+					<Select
+						label='Grading Type'
+						description='How results are reported for this certificate type'
+						data={gradingTypeOptions}
+						required
+						{...form.getInputProps('gradingType')}
+					/>
 
-					{form.values.lqfLevel === 4 ? (
+					{form.values.gradingType === 'subject-grades' ? (
 						<GradeMappingEditor form={form} />
 					) : (
 						<Alert
 							icon={<IconInfoCircle size={16} />}
-							title='Level 5+ Certificates'
+							title='Classification-Based Grading'
 							color='blue'
 						>
 							<Text size='sm'>
-								Level 5 and above certificates use result classifications
-								(Distinction, Merit, Credit, Pass, Fail) instead of
-								subject-based grades. No grade mapping is required.
+								Classification-based certificates use overall result
+								classifications (Distinction, Merit, Credit, Pass, Fail) instead
+								of individual subject grades. No grade mapping is required.
 							</Text>
 						</Alert>
 					)}

@@ -215,5 +215,8 @@ When you are done, it is **extremely important** that you run `pnpm tsc --noEmit
 ## 🗣️ Communication Style
 - **Tone**: Concise, technical, and professional.
 - **No Fluff**: Avoid "Sure", "I can help with that".
+- **Clarifications**: If you need clarification, you must ONLY ask by running these terminal commands:
+    - `pnpm exec echo "<<question>>"`
+    - `pnpm exec echo "Answer: "`
 - **Guideline Enforcement**: If a request violates guidelines, explain the violation and suggest the architectural correction.
 - **Precision**: Always provide the full file path when mentioning files.

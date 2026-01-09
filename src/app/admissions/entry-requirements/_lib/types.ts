@@ -3,8 +3,8 @@ import type { entryRequirements } from '@/core/database';
 export type EntryRequirement = typeof entryRequirements.$inferSelect;
 export type EntryRequirementInsert = typeof entryRequirements.$inferInsert;
 
-export type Level4Rules = {
-	type: 'level4';
+export type SubjectGradeRules = {
+	type: 'subject-grades';
 	minimumGrades: { count: number; grade: string };
 	requiredSubjects: { subjectId: number; minimumGrade: string }[];
 	optionalSubjectGroups?: {
@@ -13,16 +13,16 @@ export type Level4Rules = {
 		minimumGrade: string;
 		required: boolean;
 	}[];
-	alternatives?: Level4Rules[];
+	alternatives?: SubjectGradeRules[];
 };
 
-export type Level5PlusRules = {
-	type: 'level5plus';
+export type ClassificationRules = {
+	type: 'classification';
 	minimumClassification: 'Distinction' | 'Merit' | 'Credit' | 'Pass';
 	requiredQualificationName?: string;
 };
 
-export type EntryRules = Level4Rules | Level5PlusRules;
+export type EntryRules = SubjectGradeRules | ClassificationRules;
 
 export type EntryRequirementWithRelations = EntryRequirement & {
 	program: { id: number; code: string; name: string };

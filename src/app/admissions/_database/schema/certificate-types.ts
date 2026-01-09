@@ -7,13 +7,14 @@ import {
 	timestamp,
 	unique,
 } from 'drizzle-orm/pg-core';
-import { standardGradeEnum } from './enums';
+import { gradingTypeEnum, standardGradeEnum } from './enums';
 
 export const certificateTypes = pgTable('certificate_types', {
 	id: serial().primaryKey(),
 	name: text().notNull().unique(),
 	description: text(),
 	lqfLevel: integer().notNull(),
+	gradingType: gradingTypeEnum().notNull().default('subject-grades'),
 	createdAt: timestamp().defaultNow(),
 	updatedAt: timestamp().defaultNow(),
 });

@@ -1,6 +1,7 @@
 'use client';
 
 import { entryRequirements } from '@admissions/_database';
+import type { GradingType } from '@admissions/_database/schema/enums';
 import {
 	ActionIcon,
 	Group,
@@ -15,17 +16,22 @@ import {
 import { IconPlus, IconTrash } from '@tabler/icons-react';
 import { createInsertSchema } from 'drizzle-zod';
 import { useRouter } from 'nextjs-toploader/app';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { z } from 'zod';
 import { Form } from '@/shared/ui/adease';
 import type {
+	ClassificationRules,
 	EntryRequirement,
-	Level4Rules,
-	Level5PlusRules,
+	SubjectGradeRules,
 } from '../_lib/types';
 
 type Program = { id: number; code: string; name: string };
-type CertificateType = { id: number; name: string; lqfLevel: number };
+type CertificateType = {
+	id: number;
+	name: string;
+	lqfLevel: number;
+	gradingType: GradingType;
+};
 type Subject = { id: number; name: string };
 
 type Props = {
@@ -50,35 +56,44 @@ export default function EntryRequirementForm({
 }: Props) {
 	const router = useRouter();
 	const [selectedCertType, setSelectedCertType] =
-		useState<CertificateType | null>(null);
-
-	const [level4Rules, setLevel4Rules] = useState<Level4Rules>({
-		type: 'level4',
-		minimumGrades: { count: 5, grade: 'C' },
-		requiredSubjects: [],
-	});
-
-	const [level5Rules, setLevel5Rules] = useState<Level5PlusRules>({
-		type: 'level5plus',
-		minimumClassification: 'Credit',
-	});
-
-	useEffect(() => {
-		if (defaultValues?.certificateTypeId) {
-			const ct = certificateTypes.find(
-				(c) => c.id === defaultValues.certificateTypeId
-			);
-			setSelectedCertType(ct || null);
-			if (defaultValues.rules) {
-				const rules = defaultValues.rules as Level4Rules | Level5PlusRules;
-				if (rules.type === 'level4') {
-					setLevel4Rules(rules);
-				} else {
-					setLevel5Rules(rules);
-				}
+		useState<CertificateType | null>(() => {
+			if (defaultValues?.certificateTypeId) {
+				return (
+					certificateTypes.find(
+						(c) => c.id === defaultValues.certificateTypeId
+					) || null
+				);
 			}
+			return null;
+		});
+
+	const [subjectGradeRules, setSubjectGradeRules] = useState<SubjectGradeRules>(
+		() => {
+			const rules = defaultValues?.rules as
+				| SubjectGradeRules
+				| ClassificationRules
+				| undefined;
+			if (rules?.type === 'subject-grades') return rules;
+			return {
+				type: 'subject-grades',
+				minimumGrades: { count: 5, grade: 'C' },
+				requiredSubjects: [],
+			};
 		}
-	}, [defaultValues, certificateTypes]);
+	);
+
+	const [classificationRules, setClassificationRules] =
+		useState<ClassificationRules>(() => {
+			const rules = defaultValues?.rules as
+				| SubjectGradeRules
+				| ClassificationRules
+				| undefined;
+			if (rules?.type === 'classification') return rules;
+			return {
+				type: 'classification',
+				minimumClassification: 'Credit',
+			};
+		});
 
 	const schema = z.object({
 		...createInsertSchema(entryRequirements).shape,
@@ -86,15 +101,15 @@ export default function EntryRequirementForm({
 		certificateTypeId: z.coerce.number().min(1, 'Certificate type is required'),
 	});
 
-	const isLevel4 = selectedCertType?.lqfLevel === 4;
+	const isSubjectBased = selectedCertType?.gradingType === 'subject-grades';
 
 	const handleSubmit = async (values: EntryRequirement) => {
-		const rules = isLevel4 ? level4Rules : level5Rules;
+		const rules = isSubjectBased ? subjectGradeRules : classificationRules;
 		return onSubmit({ ...values, rules });
 	};
 
 	const addRequiredSubject = () => {
-		setLevel4Rules((prev) => ({
+		setSubjectGradeRules((prev) => ({
 			...prev,
 			requiredSubjects: [
 				...prev.requiredSubjects,
@@ -104,7 +119,7 @@ export default function EntryRequirementForm({
 	};
 
 	const removeRequiredSubject = (index: number) => {
-		setLevel4Rules((prev) => ({
+		setSubjectGradeRules((prev) => ({
 			...prev,
 			requiredSubjects: prev.requiredSubjects.filter((_, i) => i !== index),
 		}));
@@ -115,7 +130,7 @@ export default function EntryRequirementForm({
 		field: 'subjectId' | 'minimumGrade',
 		value: number | string
 	) => {
-		setLevel4Rules((prev) => ({
+		setSubjectGradeRules((prev) => ({
 			...prev,
 			requiredSubjects: prev.requiredSubjects.map((s, i) =>
 				i === index ? { ...s, [field]: value } : s
@@ -171,10 +186,11 @@ export default function EntryRequirementForm({
 						}}
 					/>
 
-					{selectedCertType && isLevel4 && (
+					{selectedCertType && isSubjectBased && (
 						<Paper withBorder p='md'>
-							<Title order={5} mb='md'>
-								Level 4 Requirements
+							<Title order={5} mb='sm'>
+								Subject-Based Requirements (LQF Level{' '}
+								{selectedCertType.lqfLevel})
 							</Title>
 
 							<Group grow mb='md'>
@@ -182,9 +198,9 @@ export default function EntryRequirementForm({
 									label='Minimum Passes Required'
 									min={1}
 									max={10}
-									value={level4Rules.minimumGrades.count}
+									value={subjectGradeRules.minimumGrades.count}
 									onChange={(val) =>
-										setLevel4Rules((prev) => ({
+										setSubjectGradeRules((prev) => ({
 											...prev,
 											minimumGrades: {
 												...prev.minimumGrades,
@@ -196,9 +212,9 @@ export default function EntryRequirementForm({
 								<Select
 									label='Minimum Grade'
 									data={standardGrades}
-									value={level4Rules.minimumGrades.grade}
+									value={subjectGradeRules.minimumGrades.grade}
 									onChange={(val) =>
-										setLevel4Rules((prev) => ({
+										setSubjectGradeRules((prev) => ({
 											...prev,
 											minimumGrades: {
 												...prev.minimumGrades,
@@ -223,7 +239,7 @@ export default function EntryRequirementForm({
 									</ActionIcon>
 								</Group>
 
-								{level4Rules.requiredSubjects.map((rs, idx) => (
+								{subjectGradeRules.requiredSubjects.map((rs, idx) => (
 									<Group key={idx} gap='xs'>
 										<Select
 											placeholder='Select subject'
@@ -264,18 +280,18 @@ export default function EntryRequirementForm({
 						</Paper>
 					)}
 
-					{selectedCertType && !isLevel4 && (
+					{selectedCertType && !isSubjectBased && (
 						<Paper withBorder p='md'>
-							<Title order={5} mb='md'>
-								Level {selectedCertType.lqfLevel} Requirements
+							<Title order={5} mb='sm'>
+								Classification-Based Requirements
 							</Title>
 
 							<Select
 								label='Minimum Classification'
 								data={classifications.map((c) => ({ value: c, label: c }))}
-								value={level5Rules.minimumClassification}
+								value={classificationRules.minimumClassification}
 								onChange={(val) =>
-									setLevel5Rules((prev) => ({
+									setClassificationRules((prev) => ({
 										...prev,
 										minimumClassification:
 											(val as (typeof classifications)[number]) || 'Credit',
@@ -287,9 +303,9 @@ export default function EntryRequirementForm({
 								label='Required Qualification Name (Optional)'
 								placeholder='e.g., Diploma in Information Technology'
 								mt='md'
-								value={level5Rules.requiredQualificationName || ''}
+								value={classificationRules.requiredQualificationName || ''}
 								onChange={(e) =>
-									setLevel5Rules((prev) => ({
+									setClassificationRules((prev) => ({
 										...prev,
 										requiredQualificationName: e.target.value || undefined,
 									}))

@@ -59,6 +59,32 @@ export async function seedGradeMappings() {
 	addMapping('NSC', '2', 'F');
 	addMapping('NSC', '1', 'U');
 
+	addMapping('GCE AS Level', 'a', 'A');
+	addMapping('GCE AS Level', 'A', 'A');
+	addMapping('GCE AS Level', 'b', 'B');
+	addMapping('GCE AS Level', 'B', 'B');
+	addMapping('GCE AS Level', 'c', 'C');
+	addMapping('GCE AS Level', 'C', 'C');
+	addMapping('GCE AS Level', 'd', 'D');
+	addMapping('GCE AS Level', 'D', 'D');
+	addMapping('GCE AS Level', 'e', 'E');
+	addMapping('GCE AS Level', 'E', 'E');
+	addMapping('GCE AS Level', 'U', 'U');
+
+	addMapping('GCE A-Level', 'A*', 'A*');
+	addMapping('GCE A-Level', 'a*', 'A*');
+	addMapping('GCE A-Level', 'A', 'A');
+	addMapping('GCE A-Level', 'a', 'A');
+	addMapping('GCE A-Level', 'B', 'B');
+	addMapping('GCE A-Level', 'b', 'B');
+	addMapping('GCE A-Level', 'C', 'C');
+	addMapping('GCE A-Level', 'c', 'C');
+	addMapping('GCE A-Level', 'D', 'D');
+	addMapping('GCE A-Level', 'd', 'D');
+	addMapping('GCE A-Level', 'E', 'E');
+	addMapping('GCE A-Level', 'e', 'E');
+	addMapping('GCE A-Level', 'U', 'U');
+
 	if (mappingsToInsert.length > 0) {
 		await db
 			.insert(gradeMappings)

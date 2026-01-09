@@ -6,7 +6,7 @@ import {
 	DetailsViewHeader,
 	FieldView,
 } from '@/shared/ui/adease';
-import type { Level4Rules, Level5PlusRules } from '../_lib/types';
+import type { ClassificationRules, SubjectGradeRules } from '../_lib/types';
 import {
 	deleteEntryRequirement,
 	getEntryRequirement,
@@ -24,8 +24,8 @@ export default async function EntryRequirementDetails({ params }: Props) {
 		return notFound();
 	}
 
-	const rules = item.rules as Level4Rules | Level5PlusRules;
-	const isLevel4 = rules?.type === 'level4';
+	const rules = item.rules as SubjectGradeRules | ClassificationRules;
+	const isSubjectBased = rules?.type === 'subject-grades';
 
 	return (
 		<DetailsView>
@@ -63,36 +63,39 @@ export default async function EntryRequirementDetails({ params }: Props) {
 						Requirements
 					</Title>
 
-					{isLevel4 && (
+					{isSubjectBased && (
 						<Stack gap='sm'>
 							<FieldView label='Minimum Passes'>
-								{(rules as Level4Rules).minimumGrades.count} subjects at grade{' '}
-								{(rules as Level4Rules).minimumGrades.grade} or better
+								{(rules as SubjectGradeRules).minimumGrades.count} subjects at
+								grade {(rules as SubjectGradeRules).minimumGrades.grade} or
+								better
 							</FieldView>
-							{(rules as Level4Rules).requiredSubjects.length > 0 && (
+							{(rules as SubjectGradeRules).requiredSubjects.length > 0 && (
 								<FieldView label='Required Subjects'>
 									<Stack gap='xs'>
-										{(rules as Level4Rules).requiredSubjects.map((rs, idx) => (
-											<Text key={idx} size='sm'>
-												Subject #{rs.subjectId} - Minimum: {rs.minimumGrade}
-											</Text>
-										))}
+										{(rules as SubjectGradeRules).requiredSubjects.map(
+											(rs, idx) => (
+												<Text key={idx} size='sm'>
+													Subject #{rs.subjectId} - Minimum: {rs.minimumGrade}
+												</Text>
+											)
+										)}
 									</Stack>
 								</FieldView>
 							)}
 						</Stack>
 					)}
 
-					{!isLevel4 && (
+					{!isSubjectBased && (
 						<Stack gap='sm'>
 							<FieldView label='Minimum Classification'>
 								<Badge color='blue'>
-									{(rules as Level5PlusRules).minimumClassification}
+									{(rules as ClassificationRules).minimumClassification}
 								</Badge>
 							</FieldView>
-							{(rules as Level5PlusRules).requiredQualificationName && (
+							{(rules as ClassificationRules).requiredQualificationName && (
 								<FieldView label='Required Qualification'>
-									{(rules as Level5PlusRules).requiredQualificationName}
+									{(rules as ClassificationRules).requiredQualificationName}
 								</FieldView>
 							)}
 						</Stack>
