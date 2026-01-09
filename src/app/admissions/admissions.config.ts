@@ -22,45 +22,52 @@ export const admissionsConfig: ModuleConfig = {
 	navigation: {
 		dashboard: [
 			{
-				label: 'Intake Periods',
-				href: '/admissions/intake-periods',
-				icon: IconCalendarEvent,
-				roles: ['registry', 'admin'],
-			},
-			{
-				label: 'Certificate Types',
-				href: '/admissions/certificate-types',
-				icon: IconCertificate,
-				roles: ['registry', 'admin'],
-			},
-			{
-				label: 'Subjects',
-				href: '/admissions/subjects',
-				icon: IconBook,
-				roles: ['registry', 'admin'],
-			},
-			{
-				label: 'Entry Requirements',
-				href: '/admissions/entry-requirements',
-				icon: IconChecklist,
-				roles: ['registry', 'admin'],
-			},
-			{
-				label: 'Applicants',
-				href: '/admissions/applicants',
+				label: 'Admissions',
 				icon: IconUsers,
 				roles: ['registry', 'admin'],
-			},
-			{
-				label: 'Applications',
-				href: '/admissions/applications',
-				icon: IconClipboardList,
-				roles: ['registry', 'admin'],
-				notificationCount: {
-					queryKey: ['applications', 'pending-count'],
-					queryFn: countPendingApplications,
-					color: 'red',
-				},
+				children: [
+					{
+						label: 'Intake Periods',
+						href: '/admissions/intake-periods',
+						icon: IconCalendarEvent,
+						roles: ['registry', 'admin'],
+					},
+					{
+						label: 'Certificate Types',
+						href: '/admissions/certificate-types',
+						icon: IconCertificate,
+						roles: ['registry', 'admin'],
+					},
+					{
+						label: 'Subjects',
+						href: '/admissions/subjects',
+						icon: IconBook,
+						roles: ['registry', 'admin'],
+					},
+					{
+						label: 'Entry Requirements',
+						href: '/admissions/entry-requirements',
+						icon: IconChecklist,
+						roles: ['registry', 'admin'],
+					},
+					{
+						label: 'Applicants',
+						href: '/admissions/applicants',
+						icon: IconUsers,
+						roles: ['registry', 'admin'],
+					},
+					{
+						label: 'Applications',
+						href: '/admissions/applications',
+						icon: IconClipboardList,
+						roles: ['registry', 'admin'],
+						notificationCount: {
+							queryKey: ['applications', 'pending-count'],
+							queryFn: countPendingApplications,
+							color: 'red',
+						},
+					},
+				],
 			},
 		] as NavItem[],
 	},
