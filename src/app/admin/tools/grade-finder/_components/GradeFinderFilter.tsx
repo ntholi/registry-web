@@ -8,17 +8,20 @@ import {
 } from '@academic/schools/_server/actions';
 import {
 	Autocomplete,
+	Badge,
 	Button,
+	Divider,
 	Group,
 	Loader,
+	Modal,
 	Paper,
 	Select,
 	Stack,
 	Text,
 } from '@mantine/core';
-import { useDebouncedValue } from '@mantine/hooks';
+import { useDebouncedValue, useDisclosure } from '@mantine/hooks';
 import { getAllTerms } from '@registry/dates/terms/_server/actions';
-import { IconSearch } from '@tabler/icons-react';
+import { IconFilter, IconSearch, IconX } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 import { formatSemester } from '@/shared/lib/utils/utils';
@@ -47,6 +50,7 @@ interface Props {
 }
 
 export function GradeFinderFilter({ onSearch, isLoading }: Props) {
+	const [opened, { open, close }] = useDisclosure(false);
 	const [grade, setGrade] = useState<Grade | null>(null);
 	const [schoolId, setSchoolId] = useState<number | null>(null);
 	const [programId, setProgramId] = useState<number | null>(null);
@@ -103,6 +107,14 @@ export function GradeFinderFilter({ onSearch, isLoading }: Props) {
 		label: `${m.code} - ${m.name}`,
 	}));
 
+	const activeFiltersCount = [
+		schoolId,
+		programId,
+		semesterNumber,
+		termCode,
+		moduleId,
+	].filter(Boolean).length;
+
 	function handleSearch() {
 		onSearch({
 			grade,
@@ -114,8 +126,7 @@ export function GradeFinderFilter({ onSearch, isLoading }: Props) {
 		});
 	}
 
-	function handleReset() {
-		setGrade(null);
+	function handleClearFilters() {
 		setSchoolId(null);
 		setProgramId(null);
 		setSemesterNumber(null);
@@ -137,24 +148,155 @@ export function GradeFinderFilter({ onSearch, isLoading }: Props) {
 		}
 	}
 
-	return (
-		<Paper withBorder p='md'>
-			<Stack gap='md'>
-				<Text fw={500} size='sm'>
-					Search Filters
-				</Text>
+	function handleApplyFilters() {
+		close();
+	}
 
-				<Group grow align='flex-end'>
-					<Select
-						label='Grade'
-						placeholder='Select grade'
-						data={gradeOptions}
-						value={grade}
-						onChange={(value) => setGrade(value as Grade | null)}
-						searchable
-						clearable
-						required
-					/>
+	const selectedSchool = schools.find((s) => s.id === schoolId);
+	const selectedProgram = programs.find((p) => p.id === programId);
+	const selectedModule = moduleOptions.find((m) => m.id === moduleId);
+
+	return (
+		<>
+			<Paper withBorder p='md'>
+				<Stack gap='md'>
+					<Group grow align='flex-end'>
+						<Select
+							label='Grade'
+							placeholder='Select grade to search'
+							data={gradeOptions}
+							value={grade}
+							onChange={(value) => setGrade(value as Grade | null)}
+							searchable
+							clearable
+							required
+						/>
+						<Button
+							variant='light'
+							leftSection={<IconFilter size={16} />}
+							onClick={open}
+							rightSection={
+								activeFiltersCount > 0 ? (
+									<Badge size='xs' circle>
+										{activeFiltersCount}
+									</Badge>
+								) : null
+							}
+						>
+							Filters
+						</Button>
+						<Button
+							leftSection={<IconSearch size={16} />}
+							onClick={handleSearch}
+							loading={isLoading}
+							disabled={!grade}
+						>
+							Search
+						</Button>
+					</Group>
+
+					{activeFiltersCount > 0 && (
+						<Group gap='xs'>
+							<Text size='sm' c='dimmed'>
+								Active filters:
+							</Text>
+							{selectedSchool && (
+								<Badge
+									variant='light'
+									rightSection={
+										<IconX
+											size={12}
+											style={{ cursor: 'pointer' }}
+											onClick={() => {
+												setSchoolId(null);
+												setProgramId(null);
+											}}
+										/>
+									}
+								>
+									{selectedSchool.code}
+								</Badge>
+							)}
+							{selectedProgram && (
+								<Badge
+									variant='light'
+									rightSection={
+										<IconX
+											size={12}
+											style={{ cursor: 'pointer' }}
+											onClick={() => setProgramId(null)}
+										/>
+									}
+								>
+									{selectedProgram.code}
+								</Badge>
+							)}
+							{semesterNumber && (
+								<Badge
+									variant='light'
+									rightSection={
+										<IconX
+											size={12}
+											style={{ cursor: 'pointer' }}
+											onClick={() => setSemesterNumber(null)}
+										/>
+									}
+								>
+									{formatSemester(semesterNumber, 'mini')}
+								</Badge>
+							)}
+							{termCode && (
+								<Badge
+									variant='light'
+									rightSection={
+										<IconX
+											size={12}
+											style={{ cursor: 'pointer' }}
+											onClick={() => setTermCode(null)}
+										/>
+									}
+								>
+									{termCode}
+								</Badge>
+							)}
+							{selectedModule && (
+								<Badge
+									variant='light'
+									rightSection={
+										<IconX
+											size={12}
+											style={{ cursor: 'pointer' }}
+											onClick={() => {
+												setModuleId(null);
+												setModuleSearch('');
+											}}
+										/>
+									}
+								>
+									{selectedModule.code}
+								</Badge>
+							)}
+							<Button
+								variant='subtle'
+								size='xs'
+								color='gray'
+								onClick={handleClearFilters}
+							>
+								Clear all
+							</Button>
+						</Group>
+					)}
+				</Stack>
+			</Paper>
+
+			<Modal
+				opened={opened}
+				onClose={close}
+				title='Additional Filters'
+				size='lg'
+			>
+				<Stack gap='md'>
+					<Divider label='Location' labelPosition='left' />
 
 					<Select
 						label='School'
@@ -178,28 +320,32 @@ export function GradeFinderFilter({ onSearch, isLoading }: Props) {
 						disabled={!schoolId}
 						rightSection={programsLoading ? <Loader size='xs' /> : null}
 					/>
-				</Group>
 
-				<Group grow align='flex-end'>
-					<Select
-						label='Semester'
-						placeholder='All semesters'
-						data={semesterOptions}
-						value={semesterNumber}
-						onChange={setSemesterNumber}
-						clearable
-					/>
+					<Divider label='Academic' labelPosition='left' />
 
-					<Select
-						label='Term'
-						placeholder='All terms'
-						data={termOptions}
-						value={termCode}
-						onChange={setTermCode}
-						searchable
-						clearable
-						rightSection={termsLoading ? <Loader size='xs' /> : null}
-					/>
+					<Group grow>
+						<Select
+							label='Semester'
+							placeholder='All semesters'
+							data={semesterOptions}
+							value={semesterNumber}
+							onChange={setSemesterNumber}
+							clearable
+						/>
+
+						<Select
+							label='Term'
+							placeholder='All terms'
+							data={termOptions}
+							value={termCode}
+							onChange={setTermCode}
+							searchable
+							clearable
+							rightSection={termsLoading ? <Loader size='xs' /> : null}
+						/>
+					</Group>
+
+					<Divider label='Module' labelPosition='left' />
 
 					<Autocomplete
 						label='Module'
@@ -213,22 +359,17 @@ export function GradeFinderFilter({ onSearch, isLoading }: Props) {
 						data={moduleAutocompleteOptions}
 						rightSection={modulesLoading ? <Loader size='xs' /> : null}
 					/>
-				</Group>
 
-				<Group justify='flex-end'>
-					<Button variant='subtle' onClick={handleReset}>
-						Reset
-					</Button>
-					<Button
-						leftSection={<IconSearch size={16} />}
-						onClick={handleSearch}
-						loading={isLoading}
-						disabled={!grade}
-					>
-						Search
-					</Button>
-				</Group>
-			</Stack>
-		</Paper>
+					<Divider />
+
+					<Group justify='flex-end'>
+						<Button variant='subtle' onClick={handleClearFilters}>
+							Clear Filters
+						</Button>
+						<Button onClick={handleApplyFilters}>Apply</Button>
+					</Group>
+				</Stack>
+			</Modal>
+		</>
 	);
 }
