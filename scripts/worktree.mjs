@@ -6,15 +6,28 @@ function toGitPath(value) {
 	return value.replaceAll('\\', '/');
 }
 
+function usage() {
+	return 'Usage: pnpm worktree add <name>';
+}
+
 function parseName(argv) {
-	const [name] = argv;
+	const [command, name, ...rest] = argv;
+	if (command === '-h' || command === '--help') {
+		return { help: true };
+	}
+	if (command !== 'add') {
+		throw new Error(usage());
+	}
 	if (!name) {
-		throw new Error('Missing worktree name. Usage: pnpm worktree <name>');
+		throw new Error(usage());
 	}
 	if (name.startsWith('-')) {
 		throw new Error('Invalid worktree name. Name cannot start with "-".');
 	}
-	return name;
+	if (rest.length > 0) {
+		throw new Error(usage());
+	}
+	return { help: false, name };
 }
 
 function runGit(args) {
@@ -26,7 +39,12 @@ function runGit(args) {
 }
 
 function main() {
-	const name = parseName(process.argv.slice(2));
+	const parsed = parseName(process.argv.slice(2));
+	if (parsed.help) {
+		process.stdout.write(`${usage()}\n`);
+		process.exit(0);
+	}
+	const name = parsed.name;
 	const worktreesRoot = path.resolve('..', 'worktrees', 'registry-web');
 	mkdirSync(worktreesRoot, { recursive: true });
 

@@ -189,6 +189,27 @@ export const statusColors = {
 		completed: semantic.success,
 		cancelled: semantic.error,
 	},
+	documentVerificationStatus: {
+		pending: semantic.warning,
+		verified: semantic.success,
+		rejected: semantic.error,
+	},
+	applicationStatus: {
+		draft: semantic.neutral,
+		submitted: semantic.info,
+		under_review: semantic.warning,
+		underreview: semantic.warning,
+		accepted_first_choice: semantic.success,
+		acceptedfirstchoice: semantic.success,
+		accepted_second_choice: semantic.success,
+		acceptedsecondchoice: semantic.success,
+		rejected: semantic.error,
+		waitlisted: semantic.caution,
+	},
+	paymentStatus: {
+		unpaid: semantic.error,
+		paid: semantic.success,
+	},
 } as const;
 
 const allStatuses = {
@@ -449,4 +470,25 @@ export function getSemesterResultColor(
 	if (normalized === 'active') return semantic.success;
 	if (normalized === 'repeat') return semantic.caution;
 	return getStatusColor(status as AllStatusType);
+}
+
+export type DocumentVerificationStatusType =
+	keyof typeof statusColors.documentVerificationStatus;
+
+export function getDocumentVerificationStatusColor(
+	status: DocumentVerificationStatusType
+) {
+	return getColorFromMap(status, statusColors.documentVerificationStatus);
+}
+
+export type ApplicationStatusType = keyof typeof statusColors.applicationStatus;
+
+export function getApplicationStatusColor(status: ApplicationStatusType) {
+	return getColorFromMap(status, statusColors.applicationStatus);
+}
+
+export type PaymentStatusType = keyof typeof statusColors.paymentStatus;
+
+export function getPaymentStatusColor(status: PaymentStatusType) {
+	return getColorFromMap(status, statusColors.paymentStatus);
 }
