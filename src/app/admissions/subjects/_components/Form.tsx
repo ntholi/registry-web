@@ -28,7 +28,7 @@ export default function SubjectForm({ onSubmit, defaultValues, title }: Props) {
 			action={onSubmit}
 			queryKey={['subjects']}
 			schema={schema}
-			defaultValues={defaultValues}
+			defaultValues={defaultValues ?? { isActive: true }}
 			onSuccess={({ id }) => router.push(`/admissions/subjects/${id}`)}
 		>
 			{(form) => (
