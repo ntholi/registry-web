@@ -1,0 +1,44 @@
+import type { subjects } from '@/core/database';
+import BaseService from '@/core/platform/BaseService';
+import { serviceWrapper } from '@/core/platform/serviceWrapper';
+import withAuth from '@/core/platform/withAuth';
+import SubjectRepository from './repository';
+
+class SubjectService extends BaseService<typeof subjects, 'id'> {
+	private repo: SubjectRepository;
+
+	constructor() {
+		const repo = new SubjectRepository();
+		super(repo, {
+			byIdRoles: ['registry', 'admin'],
+			findAllRoles: ['registry', 'admin'],
+			createRoles: ['registry', 'admin'],
+			updateRoles: ['registry', 'admin'],
+			deleteRoles: ['registry', 'admin'],
+		});
+		this.repo = repo;
+	}
+
+	async findActive() {
+		return withAuth(async () => this.repo.findActive(), ['registry', 'admin']);
+	}
+
+	async toggleActive(id: number) {
+		return withAuth(
+			async () => this.repo.toggleActive(id),
+			['registry', 'admin']
+		);
+	}
+
+	override async delete(id: number) {
+		return withAuth(async () => {
+			const isInUse = await this.repo.isInUse(id);
+			if (isInUse) {
+				throw new Error('SUBJECT_IN_USE: Cannot delete subject in use');
+			}
+			return this.repo.delete(id);
+		}, ['registry', 'admin']);
+	}
+}
+
+export const subjectsService = serviceWrapper(SubjectService, 'SubjectService');
