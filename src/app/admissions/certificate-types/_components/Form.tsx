@@ -1,6 +1,6 @@
 'use client';
 
-import { standardGradeEnum } from '@admissions/_database';
+import { certificateTypes, standardGradeEnum } from '@admissions/_database';
 import {
 	ActionIcon,
 	Alert,
@@ -17,7 +17,6 @@ import { IconInfoCircle, IconPlus, IconTrash } from '@tabler/icons-react';
 import { createInsertSchema } from 'drizzle-zod';
 import { useRouter } from 'nextjs-toploader/app';
 import { z } from 'zod';
-import { certificateTypes } from '@/core/database';
 import { Form } from '@/shared/ui/adease';
 import type { CertificateTypeWithMappings } from '../_lib/types';
 
