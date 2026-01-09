@@ -12,7 +12,8 @@
 		"pwsh -Command": true,
 		"pwsh -NoLogo -Command": true,
 		"pwsh -NoLogo -NoProfile -Command": true,
-		"del": true
+		"del": true,
+		"psql \"postgresql://dev:111111@localhost:5432/registry\" -P pager=off -c": true
 	},
 	"cSpell.words": [
 		"activityinstructions",
