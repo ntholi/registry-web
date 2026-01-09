@@ -176,68 +176,71 @@ export function GradeFinderFilter({ mode, onSearch, isLoading }: Props) {
 		<>
 			<Paper withBorder p='md'>
 				<Stack gap='md'>
-					<Group grow align='flex-end'>
-						{mode === 'grade' ? (
-							<Select
-								label='Grade'
-								placeholder='Select grade to search'
-								data={gradeOptions}
-								value={grade}
-								onChange={(value) => setGrade(value as Grade | null)}
-								searchable
-								clearable
-								required
-							/>
-						) : (
-							<>
-								<NumberInput
-									label='Min Points'
-									placeholder='0.0'
-									value={minPoints ?? ''}
-									onChange={(value) =>
-										setMinPoints(typeof value === 'number' ? value : null)
-									}
-									min={0}
-									max={4}
-									step={0.1}
-									decimalScale={2}
+					<Group justify='space-between' align='flex-end'>
+						<Group gap='sm'>
+							{mode === 'grade' ? (
+								<Select
+									placeholder='Select grade'
+									data={gradeOptions}
+									value={grade}
+									onChange={(value) => setGrade(value as Grade | null)}
+									searchable
+									clearable
+									w={300}
 								/>
-								<NumberInput
-									label='Max Points'
-									placeholder='4.0'
-									value={maxPoints ?? ''}
-									onChange={(value) =>
-										setMaxPoints(typeof value === 'number' ? value : null)
-									}
-									min={0}
-									max={4}
-									step={0.1}
-									decimalScale={2}
-								/>
-							</>
-						)}
-						<Button
-							variant='light'
-							leftSection={<IconFilter size={16} />}
-							onClick={open}
-							rightSection={
-								activeFiltersCount > 0 ? (
-									<Badge size='xs' circle>
-										{activeFiltersCount}
-									</Badge>
-								) : null
-							}
-						>
-							Filters
-						</Button>
-						<Button
-							leftSection={<IconSearch size={16} />}
-							onClick={handleSearch}
-							loading={isLoading}
-							disabled={!canSearch}
-						>
-							Search
-						</Button>
+							) : (
+								<>
+									<NumberInput
+										placeholder='Min'
+										value={minPoints ?? ''}
+										onChange={(value) =>
+											setMinPoints(typeof value === 'number' ? value : null)
+										}
+										min={0}
+										max={4}
+										step={0.1}
+										decimalScale={2}
+										w={200}
+									/>
+									<NumberInput
+										placeholder='Max'
+										value={maxPoints ?? ''}
+										onChange={(value) =>
+											setMaxPoints(typeof value === 'number' ? value : null)
+										}
+										min={0}
+										max={4}
+										step={0.1}
+										decimalScale={2}
+										w={200}
+									/>
+								</>
+							)}
+						</Group>
+						<Group gap='sm'>
+							<Button
+								variant='light'
+								leftSection={<IconFilter size={16} />}
+								onClick={open}
+								rightSection={
+									activeFiltersCount > 0 ? (
+										<Badge size='xs' circle>
+											{activeFiltersCount}
+										</Badge>
+									) : null
+								}
+							>
+								Filters
+							</Button>
+							<Button
+								leftSection={<IconSearch size={16} />}
+								onClick={handleSearch}
+								loading={isLoading}
+								disabled={!canSearch}
+							>
+								Search
+							</Button>
+						</Group>
 					</Group>
 
 					{activeFiltersCount > 0 && (

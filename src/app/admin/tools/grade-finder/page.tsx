@@ -103,8 +103,8 @@ export default function GradeFinderPage() {
 										Grade Finder
 									</Title>
 									<Text size='sm' c='dimmed'>
-										Find students with specific grades across all active
-										semesters
+										Find students with specific grades or CGPA (points) across
+										all active semesters
 									</Text>
 								</Box>
 							</Group>
