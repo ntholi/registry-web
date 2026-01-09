@@ -1,0 +1,2 @@
+CREATE TYPE "public"."grading_type" AS ENUM('subject-grades', 'classification');--> statement-breakpoint
+ALTER TABLE "certificate_types" ADD COLUMN "grading_type" "grading_type" DEFAULT 'subject-grades' NOT NULL;

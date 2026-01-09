@@ -147,3 +147,12 @@ export function formatTerm(
 
 	return `${monthName} ${year}`;
 }
+
+export function isIntakePeriodActive(
+	startDate: string | null | undefined,
+	endDate: string | null | undefined
+) {
+	if (!startDate || !endDate) return false;
+	const today = new Date().toISOString().split('T')[0];
+	return startDate <= today && endDate >= today;
+}
