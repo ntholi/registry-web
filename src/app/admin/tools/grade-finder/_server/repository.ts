@@ -6,6 +6,7 @@ import {
 	desc,
 	eq,
 	ilike,
+	inArray,
 	notInArray,
 	or,
 	type SQL,
@@ -23,10 +24,16 @@ import {
 	studentSemesters,
 	students,
 } from '@/core/database';
+import { grades as gradeDefinitions } from '@/shared/lib/utils/grades';
 import { INACTIVE_SEMESTER_STATUSES } from '@/shared/lib/utils/utils';
 
+export type SearchMode = 'grade' | 'points';
+
 export interface GradeFinderFilters {
-	grade: Grade;
+	mode: SearchMode;
+	grade?: Grade;
+	minPoints?: number;
+	maxPoints?: number;
 	schoolId?: number;
 	programId?: number;
 	semesterNumber?: string;
@@ -53,18 +60,42 @@ export interface GradeFinderResult {
 
 const PAGE_SIZE = 50;
 
+function getGradesInPointsRange(minPoints: number, maxPoints: number): Grade[] {
+	return gradeDefinitions
+		.filter((g) => {
+			if (g.points === null) return false;
+			return g.points >= minPoints && g.points <= maxPoints;
+		})
+		.map((g) => g.grade);
+}
+
 export async function findStudentsByGrade(
 	filters: GradeFinderFilters,
 	page = 1
 ): Promise<{ items: GradeFinderResult[]; total: number; pages: number }> {
 	const conditions: SQL[] = [
-		eq(studentModules.grade, filters.grade),
 		notInArray(
 			studentSemesters.status,
 			INACTIVE_SEMESTER_STATUSES as SemesterStatus[]
 		),
 		notInArray(studentModules.status, ['Delete', 'Drop']),
 	];
+
+	if (filters.mode === 'grade' && filters.grade) {
+		conditions.push(eq(studentModules.grade, filters.grade));
+	} else if (
+		filters.mode === 'points' &&
+		filters.minPoints !== undefined &&
+		filters.maxPoints !== undefined
+	) {
+		const matchingGrades = getGradesInPointsRange(
+			filters.minPoints,
+			filters.maxPoints
+		);
+		if (matchingGrades.length > 0) {
+			conditions.push(inArray(studentModules.grade, matchingGrades));
+		}
+	}
 
 	if (filters.schoolId) {
 		conditions.push(eq(schools.id, filters.schoolId));

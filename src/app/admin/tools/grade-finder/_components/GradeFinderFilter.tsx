@@ -14,6 +14,7 @@ import {
 	Group,
 	Loader,
 	Modal,
+	NumberInput,
 	Paper,
 	Select,
 	Stack,
@@ -26,6 +27,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 import { formatSemester } from '@/shared/lib/utils/utils';
 import { searchModulesForGradeFinder } from '../_server/actions';
+import type { SearchMode } from '../_server/repository';
 
 const semesterOptions = Array.from({ length: 8 }, (_, i) => {
 	const num = (i + 1).toString();
@@ -36,7 +38,10 @@ const semesterOptions = Array.from({ length: 8 }, (_, i) => {
 });
 
 export interface GradeFinderFilterValues {
+	mode: SearchMode;
 	grade: Grade | null;
+	minPoints: number | null;
+	maxPoints: number | null;
 	schoolId: number | null;
 	programId: number | null;
 	semesterNumber: string | null;
@@ -45,13 +50,16 @@ export interface GradeFinderFilterValues {
 }
 
 interface Props {
+	mode: SearchMode;
 	onSearch: (filters: GradeFinderFilterValues) => void;
 	isLoading?: boolean;
 }
 
-export function GradeFinderFilter({ onSearch, isLoading }: Props) {
+export function GradeFinderFilter({ mode, onSearch, isLoading }: Props) {
 	const [opened, { open, close }] = useDisclosure(false);
 	const [grade, setGrade] = useState<Grade | null>(null);
+	const [minPoints, setMinPoints] = useState<number | null>(null);
+	const [maxPoints, setMaxPoints] = useState<number | null>(null);
 	const [schoolId, setSchoolId] = useState<number | null>(null);
 	const [programId, setProgramId] = useState<number | null>(null);
 	const [semesterNumber, setSemesterNumber] = useState<string | null>(null);
@@ -115,9 +123,17 @@ export function GradeFinderFilter({ onSearch, isLoading }: Props) {
 		moduleId,
 	].filter(Boolean).length;
 
+	const canSearch =
+		mode === 'grade'
+			? !!grade
+			: minPoints !== null && maxPoints !== null && minPoints <= maxPoints;
+
 	function handleSearch() {
 		onSearch({
+			mode,
 			grade,
+			minPoints,
+			maxPoints,
 			schoolId,
 			programId,
 			semesterNumber,
@@ -161,16 +177,45 @@ export function GradeFinderFilter({ onSearch, isLoading }: Props) {
 			<Paper withBorder p='md'>
 				<Stack gap='md'>
 					<Group grow align='flex-end'>
-						<Select
-							label='Grade'
-							placeholder='Select grade to search'
-							data={gradeOptions}
-							value={grade}
-							onChange={(value) => setGrade(value as Grade | null)}
-							searchable
-							clearable
-							required
-						/>
+						{mode === 'grade' ? (
+							<Select
+								label='Grade'
+								placeholder='Select grade to search'
+								data={gradeOptions}
+								value={grade}
+								onChange={(value) => setGrade(value as Grade | null)}
+								searchable
+								clearable
+								required
+							/>
+						) : (
+							<>
+								<NumberInput
+									label='Min Points'
+									placeholder='0.0'
+									value={minPoints ?? ''}
+									onChange={(value) =>
+										setMinPoints(typeof value === 'number' ? value : null)
+									}
+									min={0}
+									max={4}
+									step={0.1}
+									decimalScale={2}
+								/>
+								<NumberInput
+									label='Max Points'
+									placeholder='4.0'
+									value={maxPoints ?? ''}
+									onChange={(value) =>
+										setMaxPoints(typeof value === 'number' ? value : null)
+									}
+									min={0}
+									max={4}
+									step={0.1}
+									decimalScale={2}
+								/>
+							</>
+						)}
 						<Button
 							variant='light'
 							leftSection={<IconFilter size={16} />}
@@ -189,7 +234,7 @@ export function GradeFinderFilter({ onSearch, isLoading }: Props) {
 							leftSection={<IconSearch size={16} />}
 							onClick={handleSearch}
 							loading={isLoading}
-							disabled={!grade}
+							disabled={!canSearch}
 						>
 							Search
 						</Button>
