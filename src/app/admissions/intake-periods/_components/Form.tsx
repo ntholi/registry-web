@@ -1,7 +1,7 @@
 'use client';
 
 import { intakePeriods } from '@admissions/_database';
-import { NumberInput, TextInput } from '@mantine/core';
+import { Group, NumberInput, TextInput } from '@mantine/core';
 import { DateInput } from '@mantine/dates';
 import { createInsertSchema } from 'drizzle-zod';
 import { useRouter } from 'nextjs-toploader/app';
@@ -47,23 +47,22 @@ export default function IntakePeriodForm({
 						required
 						{...form.getInputProps('name')}
 					/>
-					<DateInput
-						label='Start Date'
-						placeholder='Select start date'
-						required
-						firstDayOfWeek={0}
-						{...form.getInputProps('startDate')}
-					/>
-					<DateInput
-						label='End Date'
-						placeholder='Select end date'
-						required
-						firstDayOfWeek={0}
-						{...form.getInputProps('endDate')}
-					/>
+					<Group grow>
+						<DateInput
+							label='Start Date'
+							required
+							firstDayOfWeek={0}
+							{...form.getInputProps('startDate')}
+						/>
+						<DateInput
+							label='End Date'
+							required
+							firstDayOfWeek={0}
+							{...form.getInputProps('endDate')}
+						/>
+					</Group>
 					<NumberInput
 						label='Application Fee'
-						placeholder='e.g., 500.00'
 						required
 						min={0}
 						decimalScale={2}

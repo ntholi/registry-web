@@ -1,3 +1,4 @@
+import { Box } from '@mantine/core';
 import { notFound } from 'next/navigation';
 import IntakePeriodForm from '../../_components/Form';
 import { getIntakePeriod, updateIntakePeriod } from '../../_server/actions';
@@ -15,13 +16,15 @@ export default async function EditIntakePeriodPage({ params }: Props) {
 	}
 
 	return (
-		<IntakePeriodForm
-			title='Edit Intake Period'
-			defaultValues={item}
-			onSubmit={async (values) => {
-				'use server';
-				return updateIntakePeriod(Number(id), values);
-			}}
-		/>
+		<Box p={'lg'}>
+			<IntakePeriodForm
+				title='Edit Intake Period'
+				defaultValues={item}
+				onSubmit={async (values) => {
+					'use server';
+					return updateIntakePeriod(Number(id), values);
+				}}
+			/>
+		</Box>
 	);
 }

@@ -25,7 +25,7 @@ export default function Layout({ children }: PropsWithChildren) {
 							<Group gap='xs'>
 								{item.name}
 								{isActive && (
-									<Badge size='xs' color='green'>
+									<Badge size='xs' color='green' variant='light'>
 										Active
 									</Badge>
 								)}
