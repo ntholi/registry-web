@@ -124,8 +124,3 @@ export async function deleteResource(id: number) {
 	await deleteDocument(`library/resources/${resource.fileName}`);
 	await resourcesService.delete(id);
 }
-
-export function getResourceUrl(fileName: string) {
-	const baseUrl = process.env.R2_PUBLIC_URL || '';
-	return `${baseUrl}/library/resources/${fileName}`;
-}

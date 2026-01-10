@@ -3,7 +3,7 @@
 import { Button, Card, Group, Stack, Text } from '@mantine/core';
 import { IconDownload, IconExternalLink } from '@tabler/icons-react';
 import Image from 'next/image';
-import { getResourceUrl } from '../_server/actions';
+import { getResourceUrl } from '../_lib/url';
 
 type Props = {
 	fileName: string;
