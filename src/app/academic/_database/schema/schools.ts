@@ -11,6 +11,7 @@ import { programLevelEnum } from './enums';
 
 export const schools = pgTable('schools', {
 	id: serial().primaryKey(),
+	cmsId: integer().unique(),
 	code: text().notNull().unique(),
 	name: text().notNull(),
 	isActive: boolean().notNull().default(true),
@@ -21,6 +22,7 @@ export const programs = pgTable(
 	'programs',
 	{
 		id: serial().primaryKey(),
+		cmsId: integer().unique(),
 		code: text().notNull().unique(),
 		name: text().notNull(),
 		level: programLevelEnum().notNull(),

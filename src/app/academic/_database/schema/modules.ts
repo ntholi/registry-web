@@ -14,6 +14,7 @@ import { structureSemesters } from './structures';
 
 export const modules = pgTable('modules', {
 	id: serial().primaryKey(),
+	cmsId: integer().unique(),
 	code: text().notNull(),
 	name: text().notNull(),
 	status: moduleStatusEnum().notNull().default('Active'),
@@ -25,6 +26,7 @@ export const semesterModules = pgTable(
 	'semester_modules',
 	{
 		id: serial().primaryKey(),
+		cmsId: integer().unique(),
 		moduleId: integer()
 			.notNull()
 			.references(() => modules.id),
@@ -48,6 +50,7 @@ export const modulePrerequisites = pgTable(
 	'module_prerequisites',
 	{
 		id: serial().primaryKey(),
+		cmsId: integer().unique(),
 		semesterModuleId: integer()
 			.references(() => semesterModules.id, { onDelete: 'cascade' })
 			.notNull(),

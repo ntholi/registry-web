@@ -62,6 +62,7 @@ export const studentEducation = pgTable(
 	'student_education',
 	{
 		id: serial().primaryKey(),
+		cmsId: integer().unique(),
 		stdNo: bigint({ mode: 'number' })
 			.references(() => students.stdNo, { onDelete: 'cascade' })
 			.notNull(),
@@ -84,6 +85,7 @@ export const nextOfKins = pgTable(
 	'next_of_kins',
 	{
 		id: serial().primaryKey(),
+		cmsId: integer().unique(),
 		stdNo: bigint({ mode: 'number' })
 			.references(() => students.stdNo, { onDelete: 'cascade' })
 			.notNull(),
@@ -105,6 +107,7 @@ export const studentPrograms = pgTable(
 	'student_programs',
 	{
 		id: serial().primaryKey(),
+		cmsId: integer().unique(),
 		stdNo: bigint({ mode: 'number' })
 			.references(() => students.stdNo, { onDelete: 'cascade' })
 			.notNull(),
@@ -137,6 +140,7 @@ export const studentSemesters = pgTable(
 	'student_semesters',
 	{
 		id: serial().primaryKey(),
+		cmsId: integer().unique(),
 		termCode: text().notNull(),
 		structureSemesterId: integer()
 			.references(() => structureSemesters.id, { onDelete: 'cascade' })
@@ -172,6 +176,7 @@ export const studentModules = pgTable(
 	'student_modules',
 	{
 		id: serial().primaryKey(),
+		cmsId: integer().unique(),
 		semesterModuleId: integer()
 			.references(() => semesterModules.id, { onDelete: 'cascade' })
 			.notNull(),
