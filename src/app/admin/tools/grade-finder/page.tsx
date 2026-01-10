@@ -155,12 +155,7 @@ export default function GradeFinderPage() {
 					<Stack gap='md'>
 						<Group gap='xs' align='center' justify='space-between'>
 							<Group gap='xs' align='center'>
-								<ThemeIcon
-									size='xl'
-									radius='sm'
-									variant='light'
-									color={isGradeMode ? 'gray' : 'blue'}
-								>
+								<ThemeIcon size='xl' radius='sm' variant='light' color={'gray'}>
 									{isGradeMode ? (
 										<IconSearch size={24} />
 									) : (

@@ -155,9 +155,9 @@ export function GradeFinderResultsTable({
 												<Text size='sm'>{row.termCode}</Text>
 											</Table.Td>
 											<Table.Td>
-												<Badge variant='light' size='sm'>
+												<Text size='sm'>
 													{getClassName(row.programCode, row.semesterNumber)}
-												</Badge>
+												</Text>
 											</Table.Td>
 											<Table.Td>
 												<Text size='sm'>{row.schoolCode}</Text>

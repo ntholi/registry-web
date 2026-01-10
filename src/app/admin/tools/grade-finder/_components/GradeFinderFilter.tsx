@@ -24,6 +24,12 @@ import { useDebouncedValue, useDisclosure } from '@mantine/hooks';
 import { getAllTerms } from '@registry/dates/terms/_server/actions';
 import { IconFilter, IconSearch, IconX } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
+import {
+	parseAsFloat,
+	parseAsInteger,
+	parseAsString,
+	useQueryStates,
+} from 'nuqs';
 import { useState } from 'react';
 import { formatSemester } from '@/shared/lib/utils/utils';
 import { searchModulesForGradeFinder } from '../_server/actions';
@@ -57,14 +63,16 @@ interface Props {
 
 export function GradeFinderFilter({ mode, onSearch, isLoading }: Props) {
 	const [opened, { open, close }] = useDisclosure(false);
-	const [grade, setGrade] = useState<Grade | null>(null);
-	const [minPoints, setMinPoints] = useState<number | null>(null);
-	const [maxPoints, setMaxPoints] = useState<number | null>(null);
-	const [schoolId, setSchoolId] = useState<number | null>(null);
-	const [programId, setProgramId] = useState<number | null>(null);
-	const [semesterNumber, setSemesterNumber] = useState<string | null>(null);
-	const [termCode, setTermCode] = useState<string | null>(null);
-	const [moduleId, setModuleId] = useState<number | null>(null);
+	const [params, setParams] = useQueryStates({
+		grade: parseAsString,
+		minPoints: parseAsFloat,
+		maxPoints: parseAsFloat,
+		schoolId: parseAsInteger,
+		programId: parseAsInteger,
+		semesterNumber: parseAsString,
+		termCode: parseAsString,
+		moduleId: parseAsInteger,
+	});
 	const [moduleSearch, setModuleSearch] = useState('');
 	const [debouncedModuleSearch] = useDebouncedValue(moduleSearch, 300);
 
@@ -74,9 +82,9 @@ export function GradeFinderFilter({ mode, onSearch, isLoading }: Props) {
 	});
 
 	const { data: programs = [], isLoading: programsLoading } = useQuery({
-		queryKey: ['programs-by-school', schoolId],
-		queryFn: () => getProgramsBySchoolId(schoolId ?? undefined),
-		enabled: !!schoolId,
+		queryKey: ['programs-by-school', params.schoolId],
+		queryFn: () => getProgramsBySchoolId(params.schoolId ?? undefined),
+		enabled: !!params.schoolId,
 	});
 
 	const { data: terms = [], isLoading: termsLoading } = useQuery({
@@ -116,50 +124,56 @@ export function GradeFinderFilter({ mode, onSearch, isLoading }: Props) {
 	}));
 
 	const activeFiltersCount = [
-		schoolId,
-		programId,
-		semesterNumber,
-		termCode,
-		moduleId,
+		params.schoolId,
+		params.programId,
+		params.semesterNumber,
+		params.termCode,
+		params.moduleId,
 	].filter(Boolean).length;
 
 	const canSearch =
 		mode === 'grade'
-			? !!grade
-			: minPoints !== null && maxPoints !== null && minPoints <= maxPoints;
+			? !!params.grade
+			: params.minPoints !== null &&
+				params.maxPoints !== null &&
+				params.minPoints <= params.maxPoints;
 
 	function handleSearch() {
 		onSearch({
 			mode,
-			grade,
-			minPoints,
-			maxPoints,
-			schoolId,
-			programId,
-			semesterNumber,
-			termCode,
-			moduleId,
+			grade: params.grade as Grade | null,
+			minPoints: params.minPoints,
+			maxPoints: params.maxPoints,
+			schoolId: params.schoolId,
+			programId: params.programId,
+			semesterNumber: params.semesterNumber,
+			termCode: params.termCode,
+			moduleId: params.moduleId,
 		});
 	}
 
 	function handleClearFilters() {
-		setSchoolId(null);
-		setProgramId(null);
-		setSemesterNumber(null);
-		setTermCode(null);
-		setModuleId(null);
+		setParams({
+			schoolId: null,
+			programId: null,
+			semesterNumber: null,
+			termCode: null,
+			moduleId: null,
+		});
 		setModuleSearch('');
 	}
 
 	function handleSchoolChange(value: string | null) {
-		setSchoolId(value ? Number(value) : null);
-		setProgramId(null);
+		setParams({
+			schoolId: value ? Number(value) : null,
+			programId: null,
+		});
 	}
 
 	function handleModuleSelect(value: string) {
 		const selected = moduleOptions.find((m) => m.id.toString() === value);
 		if (selected) {
-			setModuleId(selected.id);
+			setParams({ moduleId: selected.id });
 			setModuleSearch(`${selected.code} - ${selected.name}`);
 		}
 	}
@@ -168,9 +182,9 @@ export function GradeFinderFilter({ mode, onSearch, isLoading }: Props) {
 		close();
 	}
 
-	const selectedSchool = schools.find((s) => s.id === schoolId);
-	const selectedProgram = programs.find((p) => p.id === programId);
-	const selectedModule = moduleOptions.find((m) => m.id === moduleId);
+	const selectedSchool = schools.find((s) => s.id === params.schoolId);
+	const selectedProgram = programs.find((p) => p.id === params.programId);
+	const selectedModule = moduleOptions.find((m) => m.id === params.moduleId);
 
 	return (
 		<>
@@ -182,8 +196,8 @@ export function GradeFinderFilter({ mode, onSearch, isLoading }: Props) {
 								<Select
 									placeholder='Select grade'
 									data={gradeOptions}
-									value={grade}
-									onChange={(value) => setGrade(value as Grade | null)}
+									value={params.grade}
+									onChange={(value) => setParams({ grade: value })}
 									searchable
 									clearable
 									w={300}
@@ -192,9 +206,11 @@ export function GradeFinderFilter({ mode, onSearch, isLoading }: Props) {
 								<>
 									<NumberInput
 										placeholder='Min'
-										value={minPoints ?? ''}
+										value={params.minPoints ?? ''}
 										onChange={(value) =>
-											setMinPoints(typeof value === 'number' ? value : null)
+											setParams({
+												minPoints: typeof value === 'number' ? value : null,
+											})
 										}
 										min={0}
 										max={4}
@@ -204,9 +220,11 @@ export function GradeFinderFilter({ mode, onSearch, isLoading }: Props) {
 									/>
 									<NumberInput
 										placeholder='Max'
-										value={maxPoints ?? ''}
+										value={params.maxPoints ?? ''}
 										onChange={(value) =>
-											setMaxPoints(typeof value === 'number' ? value : null)
+											setParams({
+												maxPoints: typeof value === 'number' ? value : null,
+											})
 										}
 										min={0}
 										max={4}
@@ -255,10 +273,9 @@ export function GradeFinderFilter({ mode, onSearch, isLoading }: Props) {
 										<IconX
 											size={12}
 											style={{ cursor: 'pointer' }}
-											onClick={() => {
-												setSchoolId(null);
-												setProgramId(null);
-											}}
+											onClick={() =>
+												setParams({ schoolId: null, programId: null })
+											}
 										/>
 									}
 								>
@@ -272,39 +289,39 @@ export function GradeFinderFilter({ mode, onSearch, isLoading }: Props) {
 										<IconX
 											size={12}
 											style={{ cursor: 'pointer' }}
-											onClick={() => setProgramId(null)}
+											onClick={() => setParams({ programId: null })}
 										/>
 									}
 								>
 									{selectedProgram.code}
 								</Badge>
 							)}
-							{semesterNumber && (
+							{params.semesterNumber && (
 								<Badge
 									variant='light'
 									rightSection={
 										<IconX
 											size={12}
 											style={{ cursor: 'pointer' }}
-											onClick={() => setSemesterNumber(null)}
+											onClick={() => setParams({ semesterNumber: null })}
 										/>
 									}
 								>
-									{formatSemester(semesterNumber, 'mini')}
+									{formatSemester(params.semesterNumber, 'mini')}
 								</Badge>
 							)}
-							{termCode && (
+							{params.termCode && (
 								<Badge
 									variant='light'
 									rightSection={
 										<IconX
 											size={12}
 											style={{ cursor: 'pointer' }}
-											onClick={() => setTermCode(null)}
+											onClick={() => setParams({ termCode: null })}
 										/>
 									}
 								>
-									{termCode}
+									{params.termCode}
 								</Badge>
 							)}
 							{selectedModule && (
@@ -315,7 +332,7 @@ export function GradeFinderFilter({ mode, onSearch, isLoading }: Props) {
 											size={12}
 											style={{ cursor: 'pointer' }}
 											onClick={() => {
-												setModuleId(null);
+												setParams({ moduleId: null });
 												setModuleSearch('');
 											}}
 										/>
@@ -350,7 +367,7 @@ export function GradeFinderFilter({ mode, onSearch, isLoading }: Props) {
 						label='School'
 						placeholder='All schools'
 						data={schoolOptions}
-						value={schoolId?.toString() ?? null}
+						value={params.schoolId?.toString() ?? null}
 						onChange={handleSchoolChange}
 						searchable
 						clearable
@@ -361,11 +378,13 @@ export function GradeFinderFilter({ mode, onSearch, isLoading }: Props) {
 						label='Program'
 						placeholder='All programs'
 						data={programOptions}
-						value={programId?.toString() ?? null}
-						onChange={(value) => setProgramId(value ? Number(value) : null)}
+						value={params.programId?.toString() ?? null}
+						onChange={(value) =>
+							setParams({ programId: value ? Number(value) : null })
+						}
 						searchable
 						clearable
-						disabled={!schoolId}
+						disabled={!params.schoolId}
 						rightSection={programsLoading ? <Loader size='xs' /> : null}
 					/>
 
@@ -376,8 +395,8 @@ export function GradeFinderFilter({ mode, onSearch, isLoading }: Props) {
 							label='Semester'
 							placeholder='All semesters'
 							data={semesterOptions}
-							value={semesterNumber}
-							onChange={setSemesterNumber}
+							value={params.semesterNumber}
+							onChange={(value) => setParams({ semesterNumber: value })}
 							clearable
 						/>
 
@@ -385,8 +404,8 @@ export function GradeFinderFilter({ mode, onSearch, isLoading }: Props) {
 							label='Term'
 							placeholder='All terms'
 							data={termOptions}
-							value={termCode}
-							onChange={setTermCode}
+							value={params.termCode}
+							onChange={(value) => setParams({ termCode: value })}
 							searchable
 							clearable
 							rightSection={termsLoading ? <Loader size='xs' /> : null}
@@ -401,7 +420,7 @@ export function GradeFinderFilter({ mode, onSearch, isLoading }: Props) {
 						value={moduleSearch}
 						onChange={(value) => {
 							setModuleSearch(value);
-							if (!value) setModuleId(null);
+							if (!value) setParams({ moduleId: null });
 						}}
 						onOptionSubmit={handleModuleSelect}
 						data={moduleAutocompleteOptions}
