@@ -1,6 +1,12 @@
-import { and, count, eq } from 'drizzle-orm';
+import { type ProgramLevel, programs } from '@academic/_database';
+import { and, count, countDistinct, eq, ilike, inArray, or } from 'drizzle-orm';
 import { db, entryRequirements } from '@/core/database';
 import BaseRepository from '@/core/platform/BaseRepository';
+
+export interface EntryRequirementsFilter {
+	schoolId?: number;
+	level?: ProgramLevel;
+}
 
 export default class EntryRequirementRepository extends BaseRepository<
 	typeof entryRequirements,
@@ -24,9 +30,14 @@ export default class EntryRequirementRepository extends BaseRepository<
 		return db.query.entryRequirements.findMany({
 			where: eq(entryRequirements.programId, programId),
 			with: {
-				program: true,
+				program: {
+					with: {
+						school: true,
+					},
+				},
 				certificateType: true,
 			},
+			orderBy: (er, { asc }) => [asc(er.certificateTypeId)],
 		});
 	}
 
@@ -57,6 +68,62 @@ export default class EntryRequirementRepository extends BaseRepository<
 				},
 			}),
 			db.select({ total: count() }).from(entryRequirements),
+		]);
+
+		return {
+			items,
+			totalPages: Math.ceil(total / pageSize),
+			totalItems: total,
+		};
+	}
+
+	async findProgramsWithRequirements(
+		page: number,
+		search: string,
+		filter?: EntryRequirementsFilter
+	) {
+		const pageSize = 15;
+		const offset = (page - 1) * pageSize;
+
+		const programIdsWithRequirements = db
+			.selectDistinct({ programId: entryRequirements.programId })
+			.from(entryRequirements);
+
+		const conditions = [inArray(programs.id, programIdsWithRequirements)];
+
+		if (search) {
+			conditions.push(
+				or(
+					ilike(programs.code, `%${search}%`),
+					ilike(programs.name, `%${search}%`)
+				)!
+			);
+		}
+
+		if (filter?.schoolId) {
+			conditions.push(eq(programs.schoolId, filter.schoolId));
+		}
+
+		if (filter?.level) {
+			conditions.push(eq(programs.level, filter.level));
+		}
+
+		const whereClause = and(...conditions);
+
+		const [items, [{ total }]] = await Promise.all([
+			db.query.programs.findMany({
+				where: whereClause,
+				limit: pageSize,
+				offset,
+				orderBy: (p, { asc }) => [asc(p.code)],
+				with: {
+					school: true,
+				},
+			}),
+			db
+				.select({ total: countDistinct(programs.id) })
+				.from(programs)
+				.where(whereClause),
 		]);
 
 		return {

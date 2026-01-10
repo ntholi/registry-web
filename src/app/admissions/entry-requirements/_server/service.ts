@@ -2,7 +2,9 @@ import type { entryRequirements } from '@/core/database';
 import BaseService from '@/core/platform/BaseService';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
 import withAuth from '@/core/platform/withAuth';
-import EntryRequirementRepository from './repository';
+import EntryRequirementRepository, {
+	type EntryRequirementsFilter,
+} from './repository';
 
 class EntryRequirementService extends BaseService<
 	typeof entryRequirements,
@@ -29,6 +31,17 @@ class EntryRequirementService extends BaseService<
 	async findAllWithRelations(page: number, search: string) {
 		return withAuth(
 			async () => this.repo.findAllWithRelations(page, search),
+			['registry', 'admin']
+		);
+	}
+
+	async findProgramsWithRequirements(
+		page: number,
+		search: string,
+		filter?: EntryRequirementsFilter
+	) {
+		return withAuth(
+			async () => this.repo.findProgramsWithRequirements(page, search, filter),
 			['registry', 'admin']
 		);
 	}
