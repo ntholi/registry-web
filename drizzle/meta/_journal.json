@@ -505,6 +505,13 @@
 			"when": 1768031360240,
 			"tag": "0071_lively_wild_pack",
 			"breakpoints": true
+		},
+		{
+			"idx": 72,
+			"version": "7",
+			"when": 1768037002002,
+			"tag": "0072_freezing_ares",
+			"breakpoints": true
 		}
 	]
 }

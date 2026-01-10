@@ -31,6 +31,7 @@
 			"@timetable/*": ["./src/app/timetable/*"],
 			"@auth/*": ["./src/app/auth/*"],
 			"@audit-logs/*": ["./src/app/audit-logs/*"],
+			"@library/*": ["./src/app/library/*"],
 			"@server/*": ["./src/server/*"]
 		}
 	},
