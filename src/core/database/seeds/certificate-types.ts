@@ -25,7 +25,7 @@ export async function seedCertificateTypes() {
 		},
 		{
 			name: 'NSC',
-			description: 'National Senior Certificate (South Africa)',
+			description: 'National Senior Certificate (Matric)',
 			lqfLevel: 4,
 			gradingType: 'subject-grades',
 		},
@@ -43,40 +43,37 @@ export async function seedCertificateTypes() {
 		},
 		{
 			name: 'GCE AS Level',
-			description:
-				'General Certificate of Education Advanced Subsidiary Level (grades A-E)',
+			description: 'General Certificate of Education Advanced Subsidiary Level',
 			lqfLevel: 5,
 			gradingType: 'subject-grades',
 		},
 		{
 			name: 'GCE A-Level',
-			description:
-				'General Certificate of Education Advanced Level (grades A*-E)',
+			description: 'General Certificate of Education Advanced Level',
 			lqfLevel: 5,
 			gradingType: 'subject-grades',
 		},
 		{
 			name: 'Certificate',
-			description: 'Post-secondary Certificate (Distinction/Merit/Credit/Pass)',
+			description: 'Post-secondary Certificate',
 			lqfLevel: 6,
 			gradingType: 'classification',
 		},
 		{
 			name: 'Diploma',
-			description: 'Post-secondary Diploma (Distinction/Merit/Credit/Pass)',
+			description: 'Post-secondary Diploma',
 			lqfLevel: 6,
 			gradingType: 'classification',
 		},
 		{
 			name: 'Higher Diploma',
-			description:
-				'Post-secondary Higher Diploma (Distinction/Merit/Credit/Pass)',
+			description: 'Post-secondary Higher Diploma',
 			lqfLevel: 7,
 			gradingType: 'classification',
 		},
 		{
 			name: 'Bachelor Degree',
-			description: 'Undergraduate Degree (Distinction/Merit/Credit/Pass)',
+			description: 'Undergraduate Degree',
 			lqfLevel: 8,
 			gradingType: 'classification',
 		},
