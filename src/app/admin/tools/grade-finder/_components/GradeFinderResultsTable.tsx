@@ -16,6 +16,7 @@ import {
 } from '@mantine/core';
 import { IconSearch } from '@tabler/icons-react';
 import { useState } from 'react';
+import { getGradeColor } from '@/shared/lib/utils/colors';
 import { formatSemester } from '@/shared/lib/utils/utils';
 import Link from '@/shared/ui/Link';
 import type { GradeFinderResult } from '../_server/repository';
@@ -89,10 +90,10 @@ export function GradeFinderResultsTable({
 							<Table.Tr>
 								<Table.Th>Student No.</Table.Th>
 								<Table.Th>Student Name</Table.Th>
-								<Table.Th>Class</Table.Th>
 								<Table.Th>Module</Table.Th>
 								<Table.Th ta='center'>Grade</Table.Th>
 								<Table.Th>Term</Table.Th>
+								<Table.Th>Class</Table.Th>
 								<Table.Th>School</Table.Th>
 							</Table.Tr>
 						</Table.Thead>
@@ -107,9 +108,6 @@ export function GradeFinderResultsTable({
 												<Skeleton height={14} width='80%' />
 											</Table.Td>
 											<Table.Td>
-												<Skeleton height={14} width={80} />
-											</Table.Td>
-											<Table.Td>
 												<Skeleton height={14} width='70%' />
 											</Table.Td>
 											<Table.Td ta='center'>
@@ -117,6 +115,9 @@ export function GradeFinderResultsTable({
 											</Table.Td>
 											<Table.Td>
 												<Skeleton height={14} width={70} />
+											</Table.Td>
+											<Table.Td>
+												<Skeleton height={14} width={80} />
 											</Table.Td>
 											<Table.Td>
 												<Skeleton height={14} width={50} />
@@ -138,11 +139,6 @@ export function GradeFinderResultsTable({
 												<Text size='sm'>{row.studentName}</Text>
 											</Table.Td>
 											<Table.Td>
-												<Badge variant='light' size='sm'>
-													{getClassName(row.programCode, row.semesterNumber)}
-												</Badge>
-											</Table.Td>
-											<Table.Td>
 												<Text size='sm' fw={500}>
 													{row.moduleCode}
 												</Text>
@@ -151,12 +147,17 @@ export function GradeFinderResultsTable({
 												</Text>
 											</Table.Td>
 											<Table.Td ta='center'>
-												<Badge variant='light' color='gray'>
+												<Badge variant='light' color={getGradeColor(row.grade)}>
 													{row.grade}
 												</Badge>
 											</Table.Td>
 											<Table.Td>
 												<Text size='sm'>{row.termCode}</Text>
+											</Table.Td>
+											<Table.Td>
+												<Badge variant='light' size='sm'>
+													{getClassName(row.programCode, row.semesterNumber)}
+												</Badge>
 											</Table.Td>
 											<Table.Td>
 												<Text size='sm'>{row.schoolCode}</Text>

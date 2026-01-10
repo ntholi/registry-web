@@ -16,6 +16,7 @@ import {
 } from '@mantine/core';
 import { IconSearch } from '@tabler/icons-react';
 import { useState } from 'react';
+import { formatSemester } from '@/shared/lib/utils/utils';
 import Link from '@/shared/ui/Link';
 import type { CGPAFinderResult } from '../_server/cgpa-repository';
 
@@ -100,8 +101,7 @@ export function CGPAFinderResultsTable({
 								<Table.Th>School</Table.Th>
 								<Table.Th ta='center'>GPA</Table.Th>
 								<Table.Th ta='center'>CGPA</Table.Th>
-								<Table.Th ta='center'>Credits Earned</Table.Th>
-								<Table.Th ta='center'>Semesters</Table.Th>
+								<Table.Th ta='center'>Semester</Table.Th>
 								<Table.Th>Latest Term</Table.Th>
 							</Table.Tr>
 						</Table.Thead>
@@ -120,9 +120,6 @@ export function CGPAFinderResultsTable({
 											</Table.Td>
 											<Table.Td>
 												<Skeleton height={14} width={50} />
-											</Table.Td>
-											<Table.Td ta='center'>
-												<Skeleton height={14} width={40} mx='auto' />
 											</Table.Td>
 											<Table.Td ta='center'>
 												<Skeleton height={14} width={40} mx='auto' />
@@ -172,13 +169,8 @@ export function CGPAFinderResultsTable({
 												</Badge>
 											</Table.Td>
 											<Table.Td ta='center'>
-												<Text size='sm'>
-													{row.creditsCompleted}/{row.creditsAttempted}
-												</Text>
-											</Table.Td>
-											<Table.Td ta='center'>
 												<Badge variant='light' size='sm'>
-													{row.semesterCount}
+													{formatSemester(String(row.semesterCount), 'mini')}
 												</Badge>
 											</Table.Td>
 											<Table.Td>
