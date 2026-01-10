@@ -30,6 +30,10 @@ interface Props {
 	onSearchChange: (search: string) => void;
 }
 
+function getClassName(programCode: string, semesterNumber: string) {
+	return `${programCode}${formatSemester(semesterNumber, 'mini')}`;
+}
+
 export function GradeFinderResultsTable({
 	data,
 	isLoading,
@@ -85,13 +89,10 @@ export function GradeFinderResultsTable({
 							<Table.Tr>
 								<Table.Th>Student No.</Table.Th>
 								<Table.Th>Student Name</Table.Th>
+								<Table.Th>Class</Table.Th>
 								<Table.Th>Module</Table.Th>
 								<Table.Th ta='center'>Grade</Table.Th>
-								<Table.Th ta='center'>Marks</Table.Th>
-								<Table.Th ta='center'>Credits</Table.Th>
 								<Table.Th>Term</Table.Th>
-								<Table.Th>Semester</Table.Th>
-								<Table.Th>Program</Table.Th>
 								<Table.Th>School</Table.Th>
 							</Table.Tr>
 						</Table.Thead>
@@ -106,25 +107,16 @@ export function GradeFinderResultsTable({
 												<Skeleton height={14} width='80%' />
 											</Table.Td>
 											<Table.Td>
+												<Skeleton height={14} width={80} />
+											</Table.Td>
+											<Table.Td>
 												<Skeleton height={14} width='70%' />
-											</Table.Td>
-											<Table.Td ta='center'>
-												<Skeleton height={14} width={30} mx='auto' />
-											</Table.Td>
-											<Table.Td ta='center'>
-												<Skeleton height={14} width={40} mx='auto' />
 											</Table.Td>
 											<Table.Td ta='center'>
 												<Skeleton height={14} width={30} mx='auto' />
 											</Table.Td>
 											<Table.Td>
 												<Skeleton height={14} width={70} />
-											</Table.Td>
-											<Table.Td>
-												<Skeleton height={14} width={60} />
-											</Table.Td>
-											<Table.Td>
-												<Skeleton height={14} width='60%' />
 											</Table.Td>
 											<Table.Td>
 												<Skeleton height={14} width={50} />
@@ -146,10 +138,15 @@ export function GradeFinderResultsTable({
 												<Text size='sm'>{row.studentName}</Text>
 											</Table.Td>
 											<Table.Td>
+												<Badge variant='light' size='sm'>
+													{getClassName(row.programCode, row.semesterNumber)}
+												</Badge>
+											</Table.Td>
+											<Table.Td>
 												<Text size='sm' fw={500}>
 													{row.moduleCode}
 												</Text>
-												<Text size='xs' c='dimmed'>
+												<Text size='xs' c='dimmed' lineClamp={1}>
 													{row.moduleName}
 												</Text>
 											</Table.Td>
@@ -158,24 +155,8 @@ export function GradeFinderResultsTable({
 													{row.grade}
 												</Badge>
 											</Table.Td>
-											<Table.Td ta='center'>
-												<Text size='sm'>{row.marks}</Text>
-											</Table.Td>
-											<Table.Td ta='center'>
-												<Text size='sm'>{row.credits}</Text>
-											</Table.Td>
 											<Table.Td>
 												<Text size='sm'>{row.termCode}</Text>
-											</Table.Td>
-											<Table.Td>
-												<Badge variant='light' size='sm'>
-													{formatSemester(row.semesterNumber, 'mini')}
-												</Badge>
-											</Table.Td>
-											<Table.Td>
-												<Text size='sm' fw={500}>
-													{row.programCode}
-												</Text>
 											</Table.Td>
 											<Table.Td>
 												<Text size='sm'>{row.schoolCode}</Text>

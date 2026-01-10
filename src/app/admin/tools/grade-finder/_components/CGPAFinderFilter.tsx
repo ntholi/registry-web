@@ -21,7 +21,12 @@ import { useDisclosure } from '@mantine/hooks';
 import { getAllTerms } from '@registry/dates/terms/_server/actions';
 import { IconFilter, IconSearch, IconX } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
-import { useState } from 'react';
+import {
+	parseAsFloat,
+	parseAsInteger,
+	parseAsString,
+	useQueryStates,
+} from 'nuqs';
 
 export interface CGPAFinderFilterValues {
 	minCGPA: number | null;
@@ -38,11 +43,14 @@ interface Props {
 
 export function CGPAFinderFilter({ onSearch, isLoading }: Props) {
 	const [opened, { open, close }] = useDisclosure(false);
-	const [minCGPA, setMinCGPA] = useState<number | null>(null);
-	const [maxCGPA, setMaxCGPA] = useState<number | null>(null);
-	const [schoolId, setSchoolId] = useState<number | null>(null);
-	const [programId, setProgramId] = useState<number | null>(null);
-	const [termCode, setTermCode] = useState<string | null>(null);
+
+	const [params, setParams] = useQueryStates({
+		minCGPA: parseAsFloat,
+		maxCGPA: parseAsFloat,
+		schoolId: parseAsInteger,
+		programId: parseAsInteger,
+		termCode: parseAsString,
+	});
 
 	const { data: schools = [], isLoading: schoolsLoading } = useQuery({
 		queryKey: ['active-schools'],
@@ -50,9 +58,9 @@ export function CGPAFinderFilter({ onSearch, isLoading }: Props) {
 	});
 
 	const { data: programs = [], isLoading: programsLoading } = useQuery({
-		queryKey: ['programs-by-school', schoolId],
-		queryFn: () => getProgramsBySchoolId(schoolId ?? undefined),
-		enabled: !!schoolId,
+		queryKey: ['programs-by-school', params.schoolId],
+		queryFn: () => getProgramsBySchoolId(params.schoolId ?? undefined),
+		enabled: !!params.schoolId,
 	});
 
 	const { data: terms = [], isLoading: termsLoading } = useQuery({
@@ -75,39 +83,48 @@ export function CGPAFinderFilter({ onSearch, isLoading }: Props) {
 		label: t.code,
 	}));
 
-	const activeFiltersCount = [schoolId, programId, termCode].filter(
-		Boolean
-	).length;
+	const activeFiltersCount = [
+		params.schoolId,
+		params.programId,
+		params.termCode,
+	].filter(Boolean).length;
 
-	const canSearch = minCGPA !== null && maxCGPA !== null && minCGPA <= maxCGPA;
+	const canSearch =
+		params.minCGPA !== null &&
+		params.maxCGPA !== null &&
+		params.minCGPA <= params.maxCGPA;
 
 	function handleSearch() {
 		onSearch({
-			minCGPA,
-			maxCGPA,
-			schoolId,
-			programId,
-			termCode,
+			minCGPA: params.minCGPA,
+			maxCGPA: params.maxCGPA,
+			schoolId: params.schoolId,
+			programId: params.programId,
+			termCode: params.termCode,
 		});
 	}
 
 	function handleClearFilters() {
-		setSchoolId(null);
-		setProgramId(null);
-		setTermCode(null);
+		setParams({
+			schoolId: null,
+			programId: null,
+			termCode: null,
+		});
 	}
 
 	function handleSchoolChange(value: string | null) {
-		setSchoolId(value ? Number(value) : null);
-		setProgramId(null);
+		setParams({
+			schoolId: value ? Number(value) : null,
+			programId: null,
+		});
 	}
 
 	function handleApplyFilters() {
 		close();
 	}
 
-	const selectedSchool = schools.find((s) => s.id === schoolId);
-	const selectedProgram = programs.find((p) => p.id === programId);
+	const selectedSchool = schools.find((s) => s.id === params.schoolId);
+	const selectedProgram = programs.find((p) => p.id === params.programId);
 
 	return (
 		<>
@@ -117,9 +134,11 @@ export function CGPAFinderFilter({ onSearch, isLoading }: Props) {
 						<Group gap='sm'>
 							<NumberInput
 								placeholder='Min CGPA'
-								value={minCGPA ?? ''}
+								value={params.minCGPA ?? ''}
 								onChange={(value) =>
-									setMinCGPA(typeof value === 'number' ? value : null)
+									setParams({
+										minCGPA: typeof value === 'number' ? value : null,
+									})
 								}
 								min={0}
 								max={4}
@@ -130,9 +149,11 @@ export function CGPAFinderFilter({ onSearch, isLoading }: Props) {
 							<Text c='dimmed'>to</Text>
 							<NumberInput
 								placeholder='Max CGPA'
-								value={maxCGPA ?? ''}
+								value={params.maxCGPA ?? ''}
 								onChange={(value) =>
-									setMaxCGPA(typeof value === 'number' ? value : null)
+									setParams({
+										maxCGPA: typeof value === 'number' ? value : null,
+									})
 								}
 								min={0}
 								max={4}
@@ -179,10 +200,9 @@ export function CGPAFinderFilter({ onSearch, isLoading }: Props) {
 										<IconX
 											size={12}
 											style={{ cursor: 'pointer' }}
-											onClick={() => {
-												setSchoolId(null);
-												setProgramId(null);
-											}}
+											onClick={() =>
+												setParams({ schoolId: null, programId: null })
+											}
 										/>
 									}
 								>
@@ -196,25 +216,25 @@ export function CGPAFinderFilter({ onSearch, isLoading }: Props) {
 										<IconX
 											size={12}
 											style={{ cursor: 'pointer' }}
-											onClick={() => setProgramId(null)}
+											onClick={() => setParams({ programId: null })}
 										/>
 									}
 								>
 									{selectedProgram.code}
 								</Badge>
 							)}
-							{termCode && (
+							{params.termCode && (
 								<Badge
 									variant='light'
 									rightSection={
 										<IconX
 											size={12}
 											style={{ cursor: 'pointer' }}
-											onClick={() => setTermCode(null)}
+											onClick={() => setParams({ termCode: null })}
 										/>
 									}
 								>
-									{termCode}
+									{params.termCode}
 								</Badge>
 							)}
 							<Button
@@ -243,7 +263,7 @@ export function CGPAFinderFilter({ onSearch, isLoading }: Props) {
 						label='School'
 						placeholder='All schools'
 						data={schoolOptions}
-						value={schoolId?.toString() ?? null}
+						value={params.schoolId?.toString() ?? null}
 						onChange={handleSchoolChange}
 						searchable
 						clearable
@@ -254,11 +274,13 @@ export function CGPAFinderFilter({ onSearch, isLoading }: Props) {
 						label='Program'
 						placeholder='All programs'
 						data={programOptions}
-						value={programId?.toString() ?? null}
-						onChange={(value) => setProgramId(value ? Number(value) : null)}
+						value={params.programId?.toString() ?? null}
+						onChange={(value) =>
+							setParams({ programId: value ? Number(value) : null })
+						}
 						searchable
 						clearable
-						disabled={!schoolId}
+						disabled={!params.schoolId}
 						rightSection={programsLoading ? <Loader size='xs' /> : null}
 					/>
 
@@ -268,8 +290,8 @@ export function CGPAFinderFilter({ onSearch, isLoading }: Props) {
 						label='Term (student must have enrolled in this term)'
 						placeholder='All terms'
 						data={termOptions}
-						value={termCode}
-						onChange={setTermCode}
+						value={params.termCode}
+						onChange={(value) => setParams({ termCode: value })}
 						searchable
 						clearable
 						rightSection={termsLoading ? <Loader size='xs' /> : null}
