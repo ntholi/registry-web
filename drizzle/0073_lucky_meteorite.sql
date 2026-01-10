@@ -1,0 +1,1 @@
+ALTER TYPE "public"."receipt_type" ADD VALUE 'library_fine';
