@@ -1,105 +1,86 @@
-import { Badge, Paper, Stack, Text, Title } from '@mantine/core';
+import {
+	Badge,
+	Box,
+	Group,
+	Paper,
+	Text,
+	ThemeIcon,
+	Title,
+} from '@mantine/core';
+import { IconSchool } from '@tabler/icons-react';
 import { notFound } from 'next/navigation';
 import {
 	DetailsView,
 	DetailsViewBody,
 	DetailsViewHeader,
-	FieldView,
 } from '@/shared/ui/adease';
-import type { ClassificationRules, SubjectGradeRules } from '../_lib/types';
-import {
-	deleteEntryRequirement,
-	getEntryRequirement,
-} from '../_server/actions';
+import RequirementsAccordion from '../_components/RequirementsAccordion';
+import { findEntryRequirementsByProgram } from '../_server/actions';
 
 type Props = {
 	params: Promise<{ id: string }>;
 };
 
-export default async function EntryRequirementDetails({ params }: Props) {
-	const { id } = await params;
-	const item = await getEntryRequirement(Number(id));
+const levelColors: Record<string, string> = {
+	certificate: 'gray',
+	diploma: 'blue',
+	degree: 'green',
+};
 
-	if (!item) {
+export default async function ProgramEntryRequirements({ params }: Props) {
+	const { id } = await params;
+	const requirements = await findEntryRequirementsByProgram(Number(id));
+
+	if (!requirements || requirements.length === 0) {
 		return notFound();
 	}
 
-	const rules = item.rules as SubjectGradeRules | ClassificationRules;
-	const isSubjectBased = rules?.type === 'subject-grades';
+	const program = requirements[0]?.program;
+
+	if (!program) {
+		return notFound();
+	}
+
+	const sortedRequirements = [...requirements].sort(
+		(a, b) =>
+			(a.certificateType?.lqfLevel || 0) - (b.certificateType?.lqfLevel || 0)
+	);
 
 	return (
 		<DetailsView>
 			<DetailsViewHeader
-				title='Entry Requirement'
+				title='Entry Requirements'
 				queryKey={['entry-requirements']}
-				handleDelete={async () => {
-					'use server';
-					await deleteEntryRequirement(Number(id));
-				}}
 			/>
 			<DetailsViewBody>
-				<FieldView label='Program'>
-					{'program' in item && item.program ? (
-						<Text>
-							{item.program.code} - {item.program.name}
-						</Text>
-					) : (
-						<Text c='dimmed'>Unknown</Text>
-					)}
-				</FieldView>
-				<FieldView label='Certificate Type'>
-					{'certificateType' in item && item.certificateType ? (
-						<Badge>
-							{item.certificateType.name} (Level {item.certificateType.lqfLevel}
-							)
-						</Badge>
-					) : (
-						<Text c='dimmed'>Unknown</Text>
-					)}
-				</FieldView>
+				<Paper withBorder p='lg' radius='md'>
+					<Group gap='md' mb='lg'>
+						<ThemeIcon size='xl' radius='md' variant='light'>
+							<IconSchool size='1.5rem' />
+						</ThemeIcon>
+						<Box>
+							<Group gap='xs'>
+								<Title order={3}>{program.code}</Title>
+								<Badge color={levelColors[program.level] || 'gray'} size='lg'>
+									{program.level}
+								</Badge>
+							</Group>
+							<Text c='dimmed' size='sm'>
+								{program.name}
+							</Text>
+							{program.school && (
+								<Text size='xs' c='dimmed'>
+									{program.school.name}
+								</Text>
+							)}
+						</Box>
+					</Group>
 
-				<Paper withBorder p='md' mt='md'>
 					<Title order={5} mb='md'>
-						Requirements
+						Entry Pathways ({sortedRequirements.length} options)
 					</Title>
 
-					{isSubjectBased && (
-						<Stack gap='sm'>
-							<FieldView label='Minimum Passes'>
-								{(rules as SubjectGradeRules).minimumGrades.count} subjects at
-								grade {(rules as SubjectGradeRules).minimumGrades.grade} or
-								better
-							</FieldView>
-							{(rules as SubjectGradeRules).requiredSubjects.length > 0 && (
-								<FieldView label='Required Subjects'>
-									<Stack gap='xs'>
-										{(rules as SubjectGradeRules).requiredSubjects.map(
-											(rs, idx) => (
-												<Text key={idx} size='sm'>
-													Subject #{rs.subjectId} - Minimum: {rs.minimumGrade}
-												</Text>
-											)
-										)}
-									</Stack>
-								</FieldView>
-							)}
-						</Stack>
-					)}
-
-					{!isSubjectBased && (
-						<Stack gap='sm'>
-							<FieldView label='Minimum Classification'>
-								<Badge color='blue'>
-									{(rules as ClassificationRules).minimumClassification}
-								</Badge>
-							</FieldView>
-							{(rules as ClassificationRules).requiredQualificationName && (
-								<FieldView label='Required Qualification'>
-									{(rules as ClassificationRules).requiredQualificationName}
-								</FieldView>
-							)}
-						</Stack>
-					)}
+					<RequirementsAccordion requirements={sortedRequirements} />
 				</Paper>
 			</DetailsViewBody>
 		</DetailsView>

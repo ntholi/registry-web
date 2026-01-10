@@ -1,3 +1,4 @@
+import type { ProgramLevel } from '@academic/_database';
 import type { entryRequirements } from '@/core/database';
 
 export type EntryRequirement = typeof entryRequirements.$inferSelect;
@@ -27,4 +28,22 @@ export type EntryRules = SubjectGradeRules | ClassificationRules;
 export type EntryRequirementWithRelations = EntryRequirement & {
 	program: { id: number; code: string; name: string };
 	certificateType: { id: number; name: string; lqfLevel: number };
+};
+
+export type ProgramWithSchool = {
+	id: number;
+	code: string;
+	name: string;
+	level: ProgramLevel;
+	schoolId: number;
+	school: {
+		id: number;
+		code: string;
+		name: string;
+	};
+};
+
+export type EntryRequirementFilter = {
+	schoolId?: number;
+	level?: ProgramLevel;
 };
