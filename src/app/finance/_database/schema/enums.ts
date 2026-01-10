@@ -7,5 +7,6 @@ export const receiptType = pgEnum('receipt_type', [
 	'repeat_modules',
 	'late_registration',
 	'tuition_fee',
+	'library_fine',
 ]);
 export type ReceiptType = (typeof receiptType.enumValues)[number];

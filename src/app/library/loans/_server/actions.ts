@@ -1,6 +1,7 @@
 'use server';
 
 import { auth } from '@/core/auth';
+import { createFineForLoan } from '../../fines/_server/actions';
 import type { LoanFilters } from '../_lib/types';
 import { loansService } from './service';
 
@@ -37,7 +38,14 @@ export async function createLoan(
 export async function returnLoan(id: number) {
 	const session = await auth();
 	if (!session?.user?.id) throw new Error('Unauthorized');
-	return loansService.returnBook(id, session.user.id);
+
+	const result = await loansService.returnBook(id, session.user.id);
+
+	if (result.daysOverdue && result.daysOverdue > 0) {
+		await createFineForLoan(id);
+	}
+
+	return result;
 }
 
 export async function renewLoan(id: number, newDueDate: Date) {

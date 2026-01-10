@@ -452,6 +452,12 @@ export function getLoanStatusColor(status: LoanStatusType) {
 	return getColorFromMap(status, statusColors.loanStatus);
 }
 
+export type FineStatusType = 'Unpaid' | 'Paid';
+
+export function getFineStatusColor(status: FineStatusType) {
+	return getColorFromMap(status, statusColors.paymentStatus);
+}
+
 export function getPercentageColor(percentage: number | null) {
 	return getThresholdColor(percentage, { good: 75, moderate: 50 });
 }
