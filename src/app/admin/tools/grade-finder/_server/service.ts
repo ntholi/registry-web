@@ -1,4 +1,5 @@
 import withAuth from '@/core/platform/withAuth';
+import { type CGPAFinderFilters, findStudentsByCGPA } from './cgpa-repository';
 import {
 	findStudentsByGrade,
 	type GradeFinderFilters,
@@ -12,6 +13,10 @@ class GradeFinderService {
 
 	async searchModulesForFilter(search: string) {
 		return withAuth(() => searchModulesForFilter(search), ['dashboard']);
+	}
+
+	async findStudentsByCGPA(filters: CGPAFinderFilters, page = 1) {
+		return withAuth(() => findStudentsByCGPA(filters, page), ['dashboard']);
 	}
 }
 

@@ -13,45 +13,74 @@ import {
 	Title,
 } from '@mantine/core';
 import { useDebouncedValue } from '@mantine/hooks';
-import { IconSearch } from '@tabler/icons-react';
+import { IconChartBar, IconSearch } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
+import {
+	CGPAFinderFilter,
+	type CGPAFinderFilterValues,
+} from './_components/CGPAFinderFilter';
+import { CGPAFinderResultsTable } from './_components/CGPAFinderResultsTable';
 import {
 	GradeFinderFilter,
 	type GradeFinderFilterValues,
 } from './_components/GradeFinderFilter';
 import { GradeFinderResultsTable } from './_components/GradeFinderResultsTable';
-import { findStudentsByGrade } from './_server/actions';
+import { findStudentsByCGPA, findStudentsByGrade } from './_server/actions';
+import type { CGPAFinderFilters } from './_server/cgpa-repository';
 import type { GradeFinderFilters, SearchMode } from './_server/repository';
 
 export default function GradeFinderPage() {
 	const [mode, setMode] = useState<SearchMode>('grade');
-	const [filters, setFilters] = useState<GradeFinderFilters | null>(null);
+	const [gradeFilters, setGradeFilters] = useState<GradeFinderFilters | null>(
+		null
+	);
+	const [cgpaFilters, setCgpaFilters] = useState<CGPAFinderFilters | null>(
+		null
+	);
 	const [page, setPage] = useState(1);
 	const [search, setSearch] = useState('');
 	const [debouncedSearch] = useDebouncedValue(search, 400);
 
-	const canFetch =
-		filters?.mode === 'grade'
-			? !!filters.grade
-			: filters?.mode === 'points' &&
-				filters.minPoints !== undefined &&
-				filters.maxPoints !== undefined;
+	const canFetchGrade =
+		gradeFilters?.mode === 'grade'
+			? !!gradeFilters.grade
+			: gradeFilters?.mode === 'points' &&
+				gradeFilters.minPoints !== undefined &&
+				gradeFilters.maxPoints !== undefined;
 
-	const { data, isLoading, isFetching } = useQuery({
-		queryKey: ['grade-finder', filters, page, debouncedSearch],
+	const canFetchCGPA =
+		cgpaFilters !== null &&
+		cgpaFilters.minCGPA !== undefined &&
+		cgpaFilters.maxCGPA !== undefined;
+
+	const gradeQuery = useQuery({
+		queryKey: ['grade-finder', gradeFilters, page, debouncedSearch],
 		queryFn: () =>
 			findStudentsByGrade(
 				{
-					...filters!,
+					...gradeFilters!,
 					search: debouncedSearch || undefined,
 				},
 				page
 			),
-		enabled: !!filters && canFetch,
+		enabled: mode === 'grade' && !!gradeFilters && canFetchGrade,
 	});
 
-	function handleSearch(values: GradeFinderFilterValues) {
+	const cgpaQuery = useQuery({
+		queryKey: ['cgpa-finder', cgpaFilters, page, debouncedSearch],
+		queryFn: () =>
+			findStudentsByCGPA(
+				{
+					...cgpaFilters!,
+					search: debouncedSearch || undefined,
+				},
+				page
+			),
+		enabled: mode === 'points' && canFetchCGPA,
+	});
+
+	function handleGradeSearch(values: GradeFinderFilterValues) {
 		if (values.mode === 'grade' && !values.grade) return;
 		if (
 			values.mode === 'points' &&
@@ -61,7 +90,7 @@ export default function GradeFinderPage() {
 
 		setPage(1);
 		setSearch('');
-		setFilters({
+		setGradeFilters({
 			mode: values.mode,
 			grade: values.grade as Grade | undefined,
 			minPoints: values.minPoints ?? undefined,
@@ -74,9 +103,24 @@ export default function GradeFinderPage() {
 		});
 	}
 
+	function handleCGPASearch(values: CGPAFinderFilterValues) {
+		if (values.minCGPA === null || values.maxCGPA === null) return;
+
+		setPage(1);
+		setSearch('');
+		setCgpaFilters({
+			minCGPA: values.minCGPA,
+			maxCGPA: values.maxCGPA,
+			schoolId: values.schoolId ?? undefined,
+			programId: values.programId ?? undefined,
+			termCode: values.termCode ?? undefined,
+		});
+	}
+
 	function handleModeChange(value: string) {
 		setMode(value as SearchMode);
-		setFilters(null);
+		setPage(1);
+		setSearch('');
 	}
 
 	function handlePageChange(newPage: number) {
@@ -88,6 +132,9 @@ export default function GradeFinderPage() {
 		setPage(1);
 	}
 
+	const isGradeMode = mode === 'grade';
+	const isCGPAMode = mode === 'points';
+
 	return (
 		<Container size='xl' py='lg' px='xl'>
 			<Stack gap='xl'>
@@ -95,16 +142,26 @@ export default function GradeFinderPage() {
 					<Stack gap='md'>
 						<Group gap='xs' align='center' justify='space-between'>
 							<Group gap='xs' align='center'>
-								<ThemeIcon size='xl' radius='sm' variant='light' color='gray'>
-									<IconSearch size={24} />
+								<ThemeIcon
+									size='xl'
+									radius='sm'
+									variant='light'
+									color={isGradeMode ? 'gray' : 'blue'}
+								>
+									{isGradeMode ? (
+										<IconSearch size={24} />
+									) : (
+										<IconChartBar size={24} />
+									)}
 								</ThemeIcon>
 								<Box>
 									<Title fw={400} size='h4'>
-										Grade Finder
+										{isGradeMode ? 'Grade Finder' : 'Points (CGPA) Finder'}
 									</Title>
 									<Text size='sm' c='dimmed'>
-										Find students with specific grades or CGPA (points) across
-										all active semesters
+										{isGradeMode
+											? 'Find students with specific grades across all active semesters'
+											: 'Find students by their cumulative GPA calculated from academic history'}
 									</Text>
 								</Box>
 							</Group>
@@ -117,20 +174,40 @@ export default function GradeFinderPage() {
 								]}
 							/>
 						</Group>
-						<GradeFinderFilter
-							mode={mode}
-							onSearch={handleSearch}
-							isLoading={isLoading || isFetching}
-						/>
+
+						{isGradeMode ? (
+							<GradeFinderFilter
+								mode='grade'
+								onSearch={handleGradeSearch}
+								isLoading={gradeQuery.isLoading || gradeQuery.isFetching}
+							/>
+						) : (
+							<CGPAFinderFilter
+								onSearch={handleCGPASearch}
+								isLoading={cgpaQuery.isLoading || cgpaQuery.isFetching}
+							/>
+						)}
 					</Stack>
 				</Paper>
 
-				{filters && canFetch && (
+				{isGradeMode && gradeFilters && canFetchGrade && (
 					<GradeFinderResultsTable
-						data={data?.items ?? []}
-						isLoading={isLoading || isFetching}
-						total={data?.total ?? 0}
-						pages={data?.pages ?? 0}
+						data={gradeQuery.data?.items ?? []}
+						isLoading={gradeQuery.isLoading || gradeQuery.isFetching}
+						total={gradeQuery.data?.total ?? 0}
+						pages={gradeQuery.data?.pages ?? 0}
+						currentPage={page}
+						onPageChange={handlePageChange}
+						onSearchChange={handleSearchChange}
+					/>
+				)}
+
+				{isCGPAMode && canFetchCGPA && (
+					<CGPAFinderResultsTable
+						data={cgpaQuery.data?.items ?? []}
+						isLoading={cgpaQuery.isLoading || cgpaQuery.isFetching}
+						total={cgpaQuery.data?.total ?? 0}
+						pages={cgpaQuery.data?.pages ?? 0}
 						currentPage={page}
 						onPageChange={handlePageChange}
 						onSearchChange={handleSearchChange}
