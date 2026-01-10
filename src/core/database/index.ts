@@ -4,6 +4,7 @@ import * as admissions from '@admissions/_database';
 import * as auditLogs from '@audit-logs/_database';
 import * as auth from '@auth/_database';
 import * as finance from '@finance/_database';
+import * as library from '@library/_database';
 import { Pool as NeonPool } from '@neondatabase/serverless';
 import * as registry from '@registry/_database';
 import * as timetable from '@timetable/_database';
@@ -18,6 +19,7 @@ const schema = {
 	...auth,
 	...auditLogs,
 	...finance,
+	...library,
 	...registry,
 	...timetable,
 };
@@ -48,6 +50,7 @@ export * from '@admissions/_database';
 export * from '@audit-logs/_database';
 export * from '@auth/_database';
 export * from '@finance/_database';
+export * from '@library/_database';
 export * from '@registry/_database';
 export * from '@timetable/_database';
 export * from './types';

@@ -210,6 +210,16 @@ export const statusColors = {
 		unpaid: semantic.error,
 		paid: semantic.success,
 	},
+	bookCondition: {
+		new: semantic.success,
+		good: semantic.info,
+		damaged: semantic.error,
+	},
+	bookCopyStatus: {
+		available: semantic.success,
+		onloan: semantic.warning,
+		withdrawn: semantic.neutral,
+	},
 } as const;
 
 const allStatuses = {
@@ -491,4 +501,16 @@ export type PaymentStatusType = keyof typeof statusColors.paymentStatus;
 
 export function getPaymentStatusColor(status: PaymentStatusType) {
 	return getColorFromMap(status, statusColors.paymentStatus);
+}
+
+export type BookConditionType = keyof typeof statusColors.bookCondition;
+
+export function getConditionColor(condition: BookConditionType | string) {
+	return getColorFromMap(condition, statusColors.bookCondition);
+}
+
+export type BookCopyStatusType = keyof typeof statusColors.bookCopyStatus;
+
+export function getBookCopyStatusColor(status: BookCopyStatusType | string) {
+	return getColorFromMap(status, statusColors.bookCopyStatus);
 }
