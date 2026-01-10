@@ -1,5 +1,3 @@
-'use client';
-
 import { GradeTable } from '@admin/tools';
 import { GradeCalculatorForm } from '@admin/tools/grade-calculator';
 import {
