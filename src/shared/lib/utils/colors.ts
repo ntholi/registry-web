@@ -220,6 +220,11 @@ export const statusColors = {
 		onloan: semantic.warning,
 		withdrawn: semantic.neutral,
 	},
+	loanStatus: {
+		active: semantic.info,
+		returned: semantic.success,
+		overdue: semantic.error,
+	},
 } as const;
 
 const allStatuses = {
@@ -439,6 +444,12 @@ export function getTaskPriorityColor(priority: TaskPriorityType) {
 
 export function getTaskStatusColor(status: TaskStatusType) {
 	return getColorFromMap(status, statusColors.taskStatus);
+}
+
+export type LoanStatusType = 'Active' | 'Returned' | 'Overdue';
+
+export function getLoanStatusColor(status: LoanStatusType) {
+	return getColorFromMap(status, statusColors.loanStatus);
 }
 
 export function getPercentageColor(percentage: number | null) {
