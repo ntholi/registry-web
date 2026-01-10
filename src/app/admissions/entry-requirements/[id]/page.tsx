@@ -14,6 +14,7 @@ import {
 	DetailsViewBody,
 	DetailsViewHeader,
 } from '@/shared/ui/adease';
+import { findActiveSubjects } from '../../subjects/_server/actions';
 import RequirementsAccordion from '../_components/RequirementsAccordion';
 import { findEntryRequirementsByProgram } from '../_server/actions';
 
@@ -29,7 +30,10 @@ const levelColors: Record<string, string> = {
 
 export default async function ProgramEntryRequirements({ params }: Props) {
 	const { id } = await params;
-	const requirements = await findEntryRequirementsByProgram(Number(id));
+	const [requirements, subjects] = await Promise.all([
+		findEntryRequirementsByProgram(Number(id)),
+		findActiveSubjects(),
+	]);
 
 	if (!requirements || requirements.length === 0) {
 		return notFound();
@@ -80,7 +84,10 @@ export default async function ProgramEntryRequirements({ params }: Props) {
 						Entry Pathways ({sortedRequirements.length} options)
 					</Title>
 
-					<RequirementsAccordion requirements={sortedRequirements} />
+					<RequirementsAccordion
+						requirements={sortedRequirements}
+						subjects={subjects}
+					/>
 				</Paper>
 			</DetailsViewBody>
 		</DetailsView>

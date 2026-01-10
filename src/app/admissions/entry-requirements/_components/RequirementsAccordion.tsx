@@ -24,11 +24,17 @@ type EntryRequirementItem = {
 	} | null;
 };
 
+type Subject = { id: number; name: string };
+
 type Props = {
 	requirements: EntryRequirementItem[];
+	subjects: Subject[];
 };
 
-export default function RequirementsAccordion({ requirements }: Props) {
+export default function RequirementsAccordion({
+	requirements,
+	subjects,
+}: Props) {
 	return (
 		<Accordion variant='separated' radius='md'>
 			{requirements.map((req, index) => {
@@ -64,7 +70,7 @@ export default function RequirementsAccordion({ requirements }: Props) {
 							</Group>
 						</Accordion.Control>
 						<Accordion.Panel>
-							<RequirementDetails rules={rules} />
+							<RequirementDetails rules={rules} subjects={subjects} />
 						</Accordion.Panel>
 					</Accordion.Item>
 				);
@@ -75,10 +81,12 @@ export default function RequirementsAccordion({ requirements }: Props) {
 
 type RequirementDetailsProps = {
 	rules: SubjectGradeRules | ClassificationRules;
+	subjects: Subject[];
 };
 
-function RequirementDetails({ rules }: RequirementDetailsProps) {
+function RequirementDetails({ rules, subjects }: RequirementDetailsProps) {
 	const isSubjectBased = rules?.type === 'subject-grades';
+	const subjectMap = new Map(subjects.map((s) => [s.id, s.name]));
 
 	if (isSubjectBased) {
 		const sgRules = rules as SubjectGradeRules;
@@ -112,7 +120,10 @@ function RequirementDetails({ rules }: RequirementDetailsProps) {
 									bg='var(--mantine-color-dark-7)'
 								>
 									<Group justify='space-between'>
-										<Text size='sm'>Subject #{rs.subjectId}</Text>
+										<Text size='sm'>
+											{subjectMap.get(rs.subjectId) ||
+												`Subject #${rs.subjectId}`}
+										</Text>
 										<Badge size='sm'>Min: {rs.minimumGrade}</Badge>
 									</Group>
 								</Paper>
@@ -145,10 +156,17 @@ function RequirementDetails({ rules }: RequirementDetailsProps) {
 												</Badge>
 											)}
 										</Group>
-										<Text size='xs' c='dimmed'>
-											Min grade: {group.minimumGrade} • Subjects:{' '}
-											{group.subjectIds.length}
-										</Text>
+										<Stack gap={4}>
+											<Text size='xs' c='dimmed'>
+												Min grade: {group.minimumGrade}
+											</Text>
+											<Text size='xs' c='dimmed'>
+												Subjects:{' '}
+												{group.subjectIds
+													.map((id) => subjectMap.get(id) || `#${id}`)
+													.join(', ')}
+											</Text>
+										</Stack>
 									</Paper>
 								))}
 							</Stack>
