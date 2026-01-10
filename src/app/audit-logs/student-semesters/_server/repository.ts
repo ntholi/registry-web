@@ -82,6 +82,7 @@ export default class StudentSemesterSyncRepository extends BaseRepository<
 
 			await tx.insert(studentSemesterAuditLogs).values({
 				studentSemesterId,
+				studentSemesterCmsId: oldRecord.cmsId,
 				oldValues: oldRecord,
 				newValues: updatedRecord,
 				reasons: reasons || null,

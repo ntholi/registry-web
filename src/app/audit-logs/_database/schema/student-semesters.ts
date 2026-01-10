@@ -22,6 +22,7 @@ export const studentSemesterAuditLogs = pgTable(
 		studentSemesterId: integer()
 			.references(() => studentSemesters.id, { onDelete: 'cascade' })
 			.notNull(),
+		studentSemesterCmsId: integer(),
 		oldValues: jsonb().$type<StudentSemester>().notNull(),
 		newValues: jsonb().$type<StudentSemester>().notNull(),
 		operation: operationType().notNull().default('update'),
