@@ -1,4 +1,4 @@
-import { Badge } from '@mantine/core';
+import { Badge, Flex, SimpleGrid } from '@mantine/core';
 import { deleteTerm, getTermByCode } from '@registry/dates/terms';
 import { notFound } from 'next/navigation';
 import { getBooleanColor } from '@/shared/lib/utils/colors';
@@ -32,17 +32,20 @@ export default async function TermDetails({ params }: Props) {
 				}}
 			/>
 			<DetailsViewBody>
-				<FieldView label='Code'>{term.code}</FieldView>
-				<FieldView label='Name'>{term.name}</FieldView>
-				<FieldView label='Year'>{term.year}</FieldView>
-				<FieldView label='Start Date'>{term.startDate}</FieldView>
-				<FieldView label='End Date'>{term.endDate}</FieldView>
-				<FieldView label='Semester'>{term.semester}</FieldView>
-				<FieldView label='Is Active'>
-					<Badge color={getBooleanColor(term.isActive)}>
-						{term.isActive ? 'Active' : 'Inactive'}
-					</Badge>
+				<FieldView label='Code'>
+					<Flex justify={'space-between'} align={'center'}>
+						{term.code}
+						<Badge color={getBooleanColor(term.isActive)}>
+							{term.isActive ? 'Active' : 'Inactive'}
+						</Badge>
+					</Flex>
 				</FieldView>
+				<SimpleGrid cols={{ base: 1, sm: 2 }} spacing='md' mt='md'>
+					<FieldView label='Name'>{term.name}</FieldView>
+					<FieldView label='Year'>{term.year}</FieldView>
+					<FieldView label='Start Date'>{term.startDate}</FieldView>
+					<FieldView label='End Date'>{term.endDate}</FieldView>
+				</SimpleGrid>
 			</DetailsViewBody>
 		</DetailsView>
 	);
