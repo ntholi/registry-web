@@ -1,7 +1,7 @@
 'use client';
 
 import {
-	Box,
+	Alert,
 	Button,
 	Checkbox,
 	Group,
@@ -11,7 +11,7 @@ import {
 } from '@mantine/core';
 import { modals } from '@mantine/modals';
 import { notifications } from '@mantine/notifications';
-import { IconAlertTriangle } from '@tabler/icons-react';
+import { IconAlertTriangle, IconInfoCircle } from '@tabler/icons-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import {
@@ -114,38 +114,27 @@ function PublishModalContent({
 	return (
 		<Stack gap='md'>
 			{!isPublished && (
-				<Box
-					bg='yellow.1'
-					p='sm'
-					style={{ borderRadius: 'var(--mantine-radius-sm)' }}
+				<Alert
+					icon={<IconInfoCircle size={18} />}
+					color='yellow'
+					variant='light'
+					title='Publishing Results'
 				>
-					<Group gap='xs' wrap='nowrap'>
-						<IconAlertTriangle
-							size={20}
-							color='var(--mantine-color-yellow-7)'
-						/>
-						<Text size='sm' c='yellow.9'>
-							This action will allow all students to view their grades and CGPA
-							for term <strong>{termCode}</strong>.
-						</Text>
-					</Group>
-				</Box>
+					This action will allow all students to view their grades and CGPA for
+					term <strong>{termCode}</strong>.
+				</Alert>
 			)}
 
 			{!isPublished && hasRejected && (
-				<Box
-					bg='red.1'
-					p='sm'
-					style={{ borderRadius: 'var(--mantine-radius-sm)' }}
+				<Alert
+					icon={<IconAlertTriangle size={18} />}
+					color='red'
+					variant='light'
+					title='Rejected Registrations'
 				>
-					<Group gap='xs' wrap='nowrap'>
-						<IconAlertTriangle size={20} color='var(--mantine-color-red-7)' />
-						<Text size='sm' c='red.9'>
-							There are rejected registration requests for this term that have
-							not been moved to blocked students. Consider doing this first.
-						</Text>
-					</Group>
-				</Box>
+					There are rejected registration requests for this term that have not
+					been moved to blocked students. Consider doing this first.
+				</Alert>
 			)}
 
 			{isPublished && (

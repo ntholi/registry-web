@@ -1,0 +1,1 @@
+ALTER TABLE "term_settings" ADD COLUMN "rejected_moved_to_blocked_date" date;

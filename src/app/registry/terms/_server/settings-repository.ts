@@ -129,7 +129,37 @@ export default class TermSettingsRepository {
 			.returning();
 	}
 
+	async updateRejectedMovedToBlockedDate(termId: number, userId: string) {
+		const today = new Date().toISOString().split('T')[0];
+		const [updated] = await db
+			.insert(termSettings)
+			.values({
+				termId,
+				rejectedMovedToBlockedDate: today,
+				createdBy: userId,
+				updatedAt: new Date(),
+				updatedBy: userId,
+			})
+			.onConflictDoUpdate({
+				target: termSettings.termId,
+				set: {
+					rejectedMovedToBlockedDate: today,
+					updatedAt: new Date(),
+					updatedBy: userId,
+				},
+			})
+			.returning();
+		return updated;
+	}
+
 	async hasRejectedStudentsForTerm(termId: number) {
+		const settings = await this.findByTermId(termId);
+		const today = new Date().toISOString().split('T')[0];
+
+		if (settings?.rejectedMovedToBlockedDate === today) {
+			return false;
+		}
+
 		const result = await db
 			.select({ count: sql<number>`count(*)` })
 			.from(registrationRequests)

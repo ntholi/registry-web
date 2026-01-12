@@ -118,6 +118,7 @@ You are a **Senior Principal Software Engineer** and **System Architect** specia
 - **NEVER** import `db` outside of `repository.ts` files.
 - **NEVER** create new .sql migration files manually; it corrupts the _journal. Always use `pnpm db:generate`.
     - *Exception*: You may edit the .sql content *after* generation for custom logic, then update snapshots.
+- **NEVER** use pnpm db:push
 - **NEVER** implement grade/marks/GPA/CGPA calculations locally.
 - **NEVER** format dates/times/ages manually.
 - **NEVER** write code comments

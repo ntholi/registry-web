@@ -107,6 +107,10 @@ class TermSettingsService {
 				const rejected =
 					await this.repository.getRejectedStudentsForTerm(termId);
 				if (rejected.length === 0) {
+					await this.repository.updateRejectedMovedToBlockedDate(
+						termId,
+						session.user.id!
+					);
 					return { moved: 0, skipped: 0 };
 				}
 
@@ -134,6 +138,10 @@ class TermSettingsService {
 				);
 
 				await this.repository.bulkCreateBlockedStudents(toBlock);
+				await this.repository.updateRejectedMovedToBlockedDate(
+					termId,
+					session.user.id!
+				);
 
 				return {
 					moved: toBlock.length,
