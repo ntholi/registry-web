@@ -4,9 +4,17 @@ import {
 	dismissNotification,
 	getActiveNotificationsForUser,
 } from '@admin/notifications';
-import { Alert, Container, Stack, Text, Transition } from '@mantine/core';
+import {
+	Alert,
+	Anchor,
+	Container,
+	Stack,
+	Text,
+	Transition,
+} from '@mantine/core';
 import { IconInfoCircle } from '@tabler/icons-react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import Link from 'next/link';
 
 export default function NotificationBanner() {
 	const queryClient = useQueryClient();
@@ -46,7 +54,17 @@ export default function NotificationBanner() {
 								onClose={() => handleDismiss(notification.id)}
 								title={notification.title}
 							>
-								<Text size='sm'>{notification.message}</Text>
+								<Text size='sm'>
+									{notification.message}
+									{notification.link && (
+										<>
+											{' '}
+											<Anchor component={Link} href={notification.link}>
+												View Details
+											</Anchor>
+										</>
+									)}
+								</Text>
 							</Alert>
 						)}
 					</Transition>

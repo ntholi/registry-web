@@ -38,6 +38,7 @@ type Props = {
 const notificationSchema = z.object({
 	title: z.string().min(1, 'Title is required'),
 	message: z.string().min(1, 'Message is required'),
+	link: z.string().nullable().optional(),
 	targetType: z.enum(['all', 'role', 'users']),
 	targetRoles: z.array(z.string()).nullable().optional(),
 	targetPositions: z.array(z.string()).nullable().optional(),
@@ -112,6 +113,7 @@ export default function NotificationForm({
 			defaultValues={{
 				title: defaultValues?.title || '',
 				message: defaultValues?.message || '',
+				link: defaultValues?.link || '',
 				targetType: defaultValues?.targetType || 'all',
 				visibleFrom: defaultValues?.visibleFrom || new Date(),
 				visibleUntil:
@@ -138,6 +140,13 @@ export default function NotificationForm({
 						minRows={4}
 						required
 						{...form.getInputProps('message')}
+					/>
+
+					<TextInput
+						label='Link (optional)'
+						description='URL to redirect users when they click "View Details"'
+						placeholder='/student-portal/transcripts?term=2025-02'
+						{...form.getInputProps('link')}
 					/>
 
 					<Group grow>

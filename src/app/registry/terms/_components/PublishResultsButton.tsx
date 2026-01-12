@@ -1,6 +1,14 @@
 'use client';
 
-import { Box, Button, Group, Stack, Text, TextInput } from '@mantine/core';
+import {
+	Box,
+	Button,
+	Checkbox,
+	Group,
+	Stack,
+	Text,
+	TextInput,
+} from '@mantine/core';
 import { modals } from '@mantine/modals';
 import { notifications } from '@mantine/notifications';
 import { IconAlertTriangle } from '@tabler/icons-react';
@@ -8,7 +16,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import {
 	hasRejectedStudentsForTerm,
-	updateResultsPublished,
+	updateResultsPublishedWithNotification,
 } from '../_server/settings-actions';
 
 interface Props {
@@ -25,7 +33,13 @@ export default function PublishResultsButton({
 	const queryClient = useQueryClient();
 
 	const mutation = useMutation({
-		mutationFn: (publish: boolean) => updateResultsPublished(termId, publish),
+		mutationFn: (params: { publish: boolean; sendNotification: boolean }) =>
+			updateResultsPublishedWithNotification(
+				termId,
+				params.publish,
+				termCode,
+				params.sendNotification
+			),
 		onSuccess: () => {
 			notifications.show({
 				title: 'Success',
@@ -56,8 +70,8 @@ export default function PublishResultsButton({
 					termCode={termCode}
 					isPublished={isPublished}
 					hasRejected={hasRejected}
-					onConfirm={() => {
-						mutation.mutate(!isPublished);
+					onConfirm={(sendNotification: boolean) => {
+						mutation.mutate({ publish: !isPublished, sendNotification });
 						modals.closeAll();
 					}}
 					isPending={mutation.isPending}
@@ -81,7 +95,7 @@ interface ModalProps {
 	termCode: string;
 	isPublished: boolean;
 	hasRejected: boolean;
-	onConfirm: () => void;
+	onConfirm: (sendNotification: boolean) => void;
 	isPending: boolean;
 }
 
@@ -93,6 +107,7 @@ function PublishModalContent({
 	isPending,
 }: ModalProps) {
 	const [confirmation, setConfirmation] = useState('');
+	const [sendNotification, setSendNotification] = useState(true);
 	const requiredText = 'publish results';
 	const isValid = confirmation.toLowerCase() === requiredText;
 
@@ -150,6 +165,11 @@ function PublishModalContent({
 						value={confirmation}
 						onChange={(e) => setConfirmation(e.currentTarget.value)}
 					/>
+					<Checkbox
+						label='Notify all students about published results'
+						checked={sendNotification}
+						onChange={(e) => setSendNotification(e.currentTarget.checked)}
+					/>
 				</>
 			)}
 
@@ -159,7 +179,7 @@ function PublishModalContent({
 				</Button>
 				<Button
 					color={isPublished ? 'orange' : 'green'}
-					onClick={onConfirm}
+					onClick={() => onConfirm(sendNotification)}
 					loading={isPending}
 					disabled={!isPublished && !isValid}
 				>
