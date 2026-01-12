@@ -17,6 +17,7 @@ import { getCleanedSemesters } from '@registry/students';
 import { getUnpublishedTermCodes } from '@registry/terms/_server/settings-actions';
 import { IconAlertCircle, IconLock } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
+import { useQueryState } from 'nuqs';
 import useUserStudent from '@/shared/lib/hooks/use-user-student';
 import { formatSemester } from '@/shared/lib/utils/utils';
 import {
@@ -29,6 +30,7 @@ import {
 export default function TranscriptsPage() {
 	const { student, program, isLoading } = useUserStudent();
 	const isMobile = useMediaQuery('(max-width: 768px)');
+	const [termCode, setTermCode] = useQueryState('term');
 
 	const { data: unpublishedTerms = [] } = useQuery({
 		queryKey: ['unpublished-terms'],
@@ -142,7 +144,12 @@ export default function TranscriptsPage() {
 						No semester records found for this program.
 					</Alert>
 				) : (
-					<Accordion variant='separated' radius='md'>
+					<Accordion
+						variant='separated'
+						radius='md'
+						value={termCode}
+						onChange={setTermCode}
+					>
 						{semesters.map((semester) => {
 							const modules =
 								semester.studentModules?.filter(
@@ -150,10 +157,7 @@ export default function TranscriptsPage() {
 								) || [];
 
 							return (
-								<Accordion.Item
-									key={semester.id}
-									value={semester.id.toString()}
-								>
+								<Accordion.Item key={semester.id} value={semester.termCode}>
 									<Accordion.Control>
 										<Box>
 											<Text size='sm' fw={600}>
