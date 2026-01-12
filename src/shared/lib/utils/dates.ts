@@ -30,12 +30,13 @@ export function formatTime(
 }
 
 export function formatDateTime(
-	timestamp: number | Date | string | undefined | null
+	timestamp: number | Date | string | undefined | null,
+	month: 'long' | 'short' = 'long'
 ) {
 	if (!timestamp) return '';
 	return new Date(timestamp).toLocaleString('en-GB', {
 		year: 'numeric',
-		month: 'short',
+		month: month,
 		day: 'numeric',
 		hour: '2-digit',
 		minute: '2-digit',

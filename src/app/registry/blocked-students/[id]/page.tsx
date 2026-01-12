@@ -1,8 +1,9 @@
 'use client';
 
-import { Center, Loader, Stack } from '@mantine/core';
+import { Center, Loader, SimpleGrid, Stack } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
 import { notFound, useParams } from 'next/navigation';
+import { formatDateTime } from '@/shared/lib/utils/dates';
 import {
 	DetailsView,
 	DetailsViewBody,
@@ -58,7 +59,17 @@ export default function BlockedStudentDetails() {
 					/>
 
 					<FieldView label='Std No'>{blockedStudent.stdNo}</FieldView>
-					<FieldView label='Status'>{blockedStudent.status}</FieldView>
+					<SimpleGrid cols={{ base: 1, sm: 2 }} spacing='md'>
+						<FieldView label='Status' tt='capitalize'>
+							{blockedStudent.status}
+						</FieldView>
+						<FieldView label='Department' tt='capitalize'>
+							{blockedStudent.byDepartment}
+						</FieldView>
+					</SimpleGrid>
+					<FieldView label='Date Blocked'>
+						{formatDateTime(blockedStudent.createdAt, 'long')}
+					</FieldView>
 					<FieldView label='Reason'>{blockedStudent.reason}</FieldView>
 				</Stack>
 			</DetailsViewBody>
