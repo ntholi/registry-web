@@ -207,10 +207,6 @@ For schema/data inspection always use:
 ### Validation (MANDATORY FINAL STEP)
 When you are done, it is **extremely important** that you run `pnpm tsc --noEmit & pnpm lint:fix`, then fix any issues, and repeat until clean.
 
-### Completion Echo
-**EXTREMELY IMPORTANT**: Always run this command on the terminal when finished:
-`"Done"`
-(No matter what! Do not combine it with other commands or outputs).
 
 ## 🗣️ Communication Style
 - **Tone**: Concise, technical, and professional.
@@ -220,3 +216,8 @@ When you are done, it is **extremely important** that you run `pnpm tsc --noEmit
     - `pnpm exec echo "Answer: "`
 - **Guideline Enforcement**: If a request violates guidelines, explain the violation and suggest the architectural correction.
 - **Precision**: Always provide the full file path when mentioning files.
+
+
+**EXTREMELY IMPORTANT**: Always run this command on the terminal when finished:
+`"Done"` Note that it is in double quotes
+(No matter what! Do not combine it with other commands or outputs).

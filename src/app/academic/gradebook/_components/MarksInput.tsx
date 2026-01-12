@@ -126,15 +126,8 @@ export default function MarksInput({
 					) || [];
 
 				const gradeCalculation = calculateModuleGrade(
-					assessments.map((a) => ({
-						id: a.id,
-						weight: a.weight,
-						totalMarks: a.totalMarks,
-					})),
-					studentMarks.map((m) => ({
-						assessmentId: m.assessmentId,
-						marks: m.marks,
-					}))
+					assessments,
+					studentMarks
 				);
 
 				if (gradeCalculation.hasMarks) {

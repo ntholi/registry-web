@@ -74,17 +74,7 @@ export async function calculateAndSaveModuleGrade(
 		return null;
 	}
 
-	const gradeCalculation = calculateModuleGrade(
-		assessments.map((a) => ({
-			id: a.id,
-			weight: a.weight,
-			totalMarks: a.totalMarks,
-		})),
-		assessmentMarks.map((m) => ({
-			assessmentId: m.assessmentId,
-			marks: m.marks,
-		}))
-	);
+	const gradeCalculation = calculateModuleGrade(assessments, assessmentMarks);
 
 	if (gradeCalculation.hasMarks) {
 		await updateGradeByStudentModuleId(
