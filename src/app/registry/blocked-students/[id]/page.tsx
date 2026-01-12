@@ -10,6 +10,7 @@ import {
 	DetailsViewHeader,
 	FieldView,
 } from '@/shared/ui/adease';
+import Link from '@/shared/ui/Link';
 import StudentStatusSwitch from '../_components/StudentStatusSwitch';
 import { deleteBlockedStudent, getBlockedStudent } from '../_server/actions';
 
@@ -58,7 +59,11 @@ export default function BlockedStudentDetails() {
 						studentName={blockedStudent.student.name}
 					/>
 
-					<FieldView label='Std No'>{blockedStudent.stdNo}</FieldView>
+					<FieldView label='Student'>
+						<Link href={`/registry/students/${blockedStudent.stdNo}`}>
+							{blockedStudent.stdNo}
+						</Link>
+					</FieldView>
 					<SimpleGrid cols={{ base: 1, sm: 2 }} spacing='md'>
 						<FieldView label='Status' tt='capitalize'>
 							{blockedStudent.status}

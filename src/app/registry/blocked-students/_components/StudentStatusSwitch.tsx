@@ -72,7 +72,7 @@ export default function StudentStatusSwitch({
 	const isBlocked = status === 'blocked';
 
 	return (
-		<Paper withBorder p='md' radius='md'>
+		<Paper withBorder p='md'>
 			<Stack gap='md'>
 				<Group justify='space-between' align='center'>
 					<Group gap='sm'>
