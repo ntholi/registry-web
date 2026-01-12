@@ -14,16 +14,24 @@ import { redirect } from 'next/navigation';
 import { auth, signIn } from '@/core/auth';
 import Logo from '@/shared/ui/Logo';
 
-async function handleGoogleSignIn() {
+async function handleGoogleSignIn(redirectTo: string) {
 	'use server';
-	await signIn('google', { redirectTo: '/' });
+	await signIn('google', { redirectTo });
 }
 
-export default async function LoginPage() {
+interface Props {
+	searchParams: Promise<{ callbackUrl?: string }>;
+}
+
+export default async function LoginPage({ searchParams }: Props) {
+	const { callbackUrl } = await searchParams;
 	const session = await auth();
 
 	if (session?.user) {
 		const role = session.user.role;
+		if (callbackUrl) {
+			redirect(callbackUrl);
+		}
 		if (role === 'student') {
 			redirect('/student-portal');
 		} else if (
@@ -41,6 +49,8 @@ export default async function LoginPage() {
 			redirect('/');
 		}
 	}
+
+	const signInAction = handleGoogleSignIn.bind(null, callbackUrl || '/');
 
 	return (
 		<Box
@@ -76,7 +86,7 @@ export default async function LoginPage() {
 							</Stack>
 
 							<Stack w='100%' gap='lg'>
-								<form action={handleGoogleSignIn}>
+								<form action={signInAction}>
 									<Button
 										type='submit'
 										variant='default'

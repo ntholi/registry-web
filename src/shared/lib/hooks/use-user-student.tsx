@@ -8,6 +8,7 @@ import { getUnpublishedTermCodes } from '@registry/terms/_server/settings-action
 import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
+import { useEffect } from 'react';
 import { getAcademicRemarks } from '@/shared/lib/utils/grades';
 
 export default function useUserStudent() {
@@ -25,9 +26,11 @@ export default function useUserStudent() {
 		queryFn: getUnpublishedTermCodes,
 	});
 
-	if (status === 'unauthenticated') {
-		router.push('/auth/login');
-	}
+	useEffect(() => {
+		if (status === 'unauthenticated') {
+			router.push('/auth/login');
+		}
+	}, [status, router]);
 
 	return {
 		isLoading: status === 'loading' || isLoading,
