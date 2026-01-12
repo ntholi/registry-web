@@ -32,7 +32,7 @@ import {
 	parseAsString,
 	useQueryStates,
 } from 'nuqs';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useUserSchools } from '@/shared/lib/hooks/use-user-schools';
 import { formatSemester } from '@/shared/lib/utils/utils';
 import { searchModulesForGradeFinder } from '../_server/actions';
@@ -79,6 +79,8 @@ export function GradeFinderFilter({ mode, onSearch, isLoading }: Props) {
 	const [moduleSearch, setModuleSearch] = useState('');
 	const [debouncedModuleSearch] = useDebouncedValue(moduleSearch, 300);
 	const { userSchools } = useUserSchools();
+	const termAutoSelected = useRef(false);
+	const schoolsAutoSelected = useRef(false);
 
 	const { data: schools = [], isLoading: schoolsLoading } = useQuery({
 		queryKey: ['active-schools'],
@@ -97,16 +99,18 @@ export function GradeFinderFilter({ mode, onSearch, isLoading }: Props) {
 	});
 
 	useEffect(() => {
-		if (!params.termCode && terms.length > 0) {
+		if (!termAutoSelected.current && !params.termCode && terms.length > 0) {
 			const activeTerm = terms.find((term) => term.isActive);
 			if (activeTerm) {
 				setParams({ termCode: activeTerm.code });
+				termAutoSelected.current = true;
 			}
 		}
 	}, [terms, params.termCode, setParams]);
 
 	useEffect(() => {
 		if (
+			!schoolsAutoSelected.current &&
 			(!params.schoolIds || params.schoolIds.length === 0) &&
 			userSchools.length > 0 &&
 			schools.length > 0
@@ -117,6 +121,7 @@ export function GradeFinderFilter({ mode, onSearch, isLoading }: Props) {
 			);
 			if (validSchoolIds.length > 0) {
 				setParams({ schoolIds: validSchoolIds });
+				schoolsAutoSelected.current = true;
 			}
 		}
 	}, [userSchools, schools, params.schoolIds, setParams]);

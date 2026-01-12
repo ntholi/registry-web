@@ -29,7 +29,7 @@ import {
 	parseAsString,
 	useQueryStates,
 } from 'nuqs';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useUserSchools } from '@/shared/lib/hooks/use-user-schools';
 
 export interface CGPAFinderFilterValues {
@@ -48,6 +48,8 @@ interface Props {
 export function CGPAFinderFilter({ onSearch, isLoading }: Props) {
 	const [opened, { open, close }] = useDisclosure(false);
 	const { userSchools } = useUserSchools();
+	const termAutoSelected = useRef(false);
+	const schoolsAutoSelected = useRef(false);
 
 	const [params, setParams] = useQueryStates({
 		minCGPA: parseAsFloat,
@@ -74,16 +76,18 @@ export function CGPAFinderFilter({ onSearch, isLoading }: Props) {
 	});
 
 	useEffect(() => {
-		if (!params.termCode && terms.length > 0) {
+		if (!termAutoSelected.current && !params.termCode && terms.length > 0) {
 			const activeTerm = terms.find((term) => term.isActive);
 			if (activeTerm) {
 				setParams({ termCode: activeTerm.code });
+				termAutoSelected.current = true;
 			}
 		}
 	}, [terms, params.termCode, setParams]);
 
 	useEffect(() => {
 		if (
+			!schoolsAutoSelected.current &&
 			(!params.schoolIds || params.schoolIds.length === 0) &&
 			userSchools.length > 0 &&
 			schools.length > 0
@@ -94,6 +98,7 @@ export function CGPAFinderFilter({ onSearch, isLoading }: Props) {
 			);
 			if (validSchoolIds.length > 0) {
 				setParams({ schoolIds: validSchoolIds });
+				schoolsAutoSelected.current = true;
 			}
 		}
 	}, [userSchools, schools, params.schoolIds, setParams]);
