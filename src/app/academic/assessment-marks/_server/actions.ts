@@ -81,7 +81,7 @@ export async function calculateAndSaveModuleGrade(
 			totalMarks: a.totalMarks,
 		})),
 		assessmentMarks.map((m) => ({
-			assessment_id: m.assessmentId,
+			assessmentId: m.assessmentId,
 			marks: m.marks,
 		}))
 	);

@@ -132,7 +132,7 @@ export default function MarksInput({
 						totalMarks: a.totalMarks,
 					})),
 					studentMarks.map((m) => ({
-						assessment_id: m.assessmentId,
+						assessmentId: m.assessmentId,
 						marks: m.marks,
 					}))
 				);

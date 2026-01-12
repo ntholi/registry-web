@@ -15,7 +15,7 @@ export function calculateModuleGrade(
 		totalMarks: number;
 	}>,
 	assessmentMarks: Array<{
-		assessment_id: number;
+		assessmentId: number;
 		marks: number;
 	}>
 ): GradeCalculation {
@@ -27,7 +27,7 @@ export function calculateModuleGrade(
 		totalWeight += assessment.weight;
 
 		const markRecord = assessmentMarks.find(
-			(mark) => mark.assessment_id === assessment.id
+			(mark) => mark.assessmentId === assessment.id
 		);
 
 		if (markRecord && markRecord.marks !== undefined) {
