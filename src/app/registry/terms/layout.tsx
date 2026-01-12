@@ -8,12 +8,10 @@ import { ListItem, ListLayout, NewLink } from '@/shared/ui/adease';
 export default function Layout({ children }: PropsWithChildren) {
 	return (
 		<ListLayout
-			path={'/registry/dates/terms'}
+			path={'/registry/terms'}
 			queryKey={['terms']}
 			getData={findAllTerms}
-			actionIcons={[
-				<NewLink key={'new-link'} href='/registry/dates/terms/new' />,
-			]}
+			actionIcons={[<NewLink key={'new-link'} href='/registry/terms/new' />]}
 			renderItem={(it) => (
 				<ListItem
 					id={it.code}

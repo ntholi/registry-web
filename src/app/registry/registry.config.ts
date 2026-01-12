@@ -59,7 +59,7 @@ export const registryConfig: ModuleConfig = {
 					},
 					{
 						label: 'Dates',
-						href: '/registry/graduations/dates',
+						href: '/registry/graduation/dates',
 						icon: IconCalendarEvent,
 						roles: ['admin', 'registry'],
 					},

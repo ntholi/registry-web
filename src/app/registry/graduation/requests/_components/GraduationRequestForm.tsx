@@ -17,7 +17,7 @@ import { graduationRequests } from '@registry/_database';
 import {
 	getAllGraduationDates,
 	getLatestGraduationDate,
-} from '@registry/dates/graduations';
+} from '@registry/graduation/dates';
 import { IconExternalLink, IconPlus, IconTrash } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { createInsertSchema } from 'drizzle-zod';

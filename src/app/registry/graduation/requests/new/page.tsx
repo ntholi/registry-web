@@ -1,10 +1,10 @@
 import type { ReceiptType } from '@finance/_database';
 import { Box } from '@mantine/core';
-import { getLatestGraduationDate } from '@registry/dates/graduations';
 import {
 	createGraduationRequest,
 	createGraduationRequestWithPaymentReceipts,
 } from '@registry/graduation/clearance';
+import { getLatestGraduationDate } from '@registry/graduation/dates';
 import { getStudent, getStudentRegistrationData } from '@registry/students';
 import type { graduationRequests } from '@/core/database';
 import GraduationRequestForm from '../_components/GraduationRequestForm';

@@ -2,11 +2,11 @@
 
 import { Select, Stack, TextInput } from '@mantine/core';
 import { graduationRequests } from '@registry/_database';
+import { getLatestGraduationDate } from '@registry/graduation/dates';
 import { useQuery } from '@tanstack/react-query';
 import { createInsertSchema } from 'drizzle-zod';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { getLatestGraduationDate } from '@/app/registry/dates/graduations/_server/actions';
 import { getEligiblePrograms } from '@/app/registry/graduation/clearance/_server/requests/actions';
 import { Form } from '@/shared/ui/adease';
 

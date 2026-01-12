@@ -38,7 +38,7 @@ export default function GraduationForm({
 			schema={createInsertSchema(graduationDates)}
 			defaultValues={defaultValues}
 			onSuccess={({ date }) => {
-				router.push(`/registry/dates/graduations/${date}`);
+				router.push(`/registry/graduation/dates/${date}`);
 			}}
 		>
 			{(form) => (

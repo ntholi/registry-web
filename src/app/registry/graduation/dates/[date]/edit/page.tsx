@@ -3,7 +3,7 @@ import {
 	Form,
 	getGraduationByDate,
 	updateGraduation,
-} from '@registry/dates/graduations';
+} from '@registry/graduation/dates';
 import { notFound } from 'next/navigation';
 import { getAllTerms } from '@/app/registry/terms';
 

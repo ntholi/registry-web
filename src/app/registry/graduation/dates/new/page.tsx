@@ -1,5 +1,5 @@
 import { Box } from '@mantine/core';
-import { createGraduation, Form } from '@registry/dates/graduations';
+import { createGraduation, Form } from '@registry/graduation/dates';
 import { getAllTerms } from '@/app/registry/terms';
 
 export default async function NewPage() {

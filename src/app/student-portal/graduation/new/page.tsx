@@ -14,12 +14,12 @@ import {
 	Title,
 } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
-import { getLatestGraduationDate } from '@registry/dates/graduations';
 import {
 	createGraduationRequestWithPaymentReceipts,
 	getEligiblePrograms,
 	getGraduationRequestByStudentNo,
 } from '@registry/graduation/clearance';
+import { getLatestGraduationDate } from '@registry/graduation/dates';
 import {
 	IconArrowLeft,
 	IconArrowRight,

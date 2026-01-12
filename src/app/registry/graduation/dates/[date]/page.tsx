@@ -1,7 +1,7 @@
 import {
 	deleteGraduation,
 	getGraduationByDate,
-} from '@registry/dates/graduations';
+} from '@registry/graduation/dates';
 import { notFound } from 'next/navigation';
 import {
 	DetailsView,
