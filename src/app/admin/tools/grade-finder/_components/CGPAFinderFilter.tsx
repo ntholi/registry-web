@@ -257,7 +257,6 @@ export function CGPAFinderFilter({ onSearch, isLoading }: Props) {
 				size='lg'
 			>
 				<Stack gap='md'>
-					<Divider label='Location' labelPosition='left' />
 
 					<Select
 						label='School'

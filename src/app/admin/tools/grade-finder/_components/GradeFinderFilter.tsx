@@ -361,9 +361,21 @@ export function GradeFinderFilter({ mode, onSearch, isLoading }: Props) {
 				size='lg'
 			>
 				<Stack gap='md'>
-					<Divider label='Location' labelPosition='left' />
+
 
 					<Select
+						label='Term'
+						placeholder='All terms'
+						data={termOptions}
+						value={params.termCode}
+						onChange={(value) => setParams({ termCode: value })}
+						searchable
+						clearable
+						rightSection={termsLoading ? <Loader size='xs' /> : null}
+					/>
+
+					<Group grow>
+											<Select
 						label='School'
 						placeholder='All schools'
 						data={schoolOptions}
@@ -387,30 +399,17 @@ export function GradeFinderFilter({ mode, onSearch, isLoading }: Props) {
 						disabled={!params.schoolId}
 						rightSection={programsLoading ? <Loader size='xs' /> : null}
 					/>
-
-					<Divider label='Academic' labelPosition='left' />
-
-					<Group grow>
-						<Select
-							label='Semester'
-							placeholder='All semesters'
-							data={semesterOptions}
-							value={params.semesterNumber}
-							onChange={(value) => setParams({ semesterNumber: value })}
-							clearable
-						/>
-
-						<Select
-							label='Term'
-							placeholder='All terms'
-							data={termOptions}
-							value={params.termCode}
-							onChange={(value) => setParams({ termCode: value })}
-							searchable
-							clearable
-							rightSection={termsLoading ? <Loader size='xs' /> : null}
-						/>
 					</Group>
+
+
+										<Select
+						label='Semester'
+						placeholder='All semesters'
+						data={semesterOptions}
+						value={params.semesterNumber}
+						onChange={(value) => setParams({ semesterNumber: value })}
+						clearable
+					/>
 
 					<Divider label='Module' labelPosition='left' />
 
