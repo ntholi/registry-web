@@ -39,7 +39,6 @@ export default function GradebookAccessButton({ termId, access }: Props) {
 			onChange={(e) => mutation.mutate(e.currentTarget.checked)}
 			disabled={mutation.isPending}
 			color='green'
-			size='md'
 			label={access ? 'Open' : 'Closed'}
 		/>
 	);

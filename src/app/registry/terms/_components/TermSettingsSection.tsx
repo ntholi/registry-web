@@ -1,6 +1,6 @@
 'use client';
 
-import { Badge, Card, Divider, Group, Stack, Text, Title } from '@mantine/core';
+import { Card, Divider, Group, Stack, Text, Title } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
 import { getTermSettings } from '../_server/settings-actions';
 import GradebookAccessButton from './GradebookAccessButton';
@@ -28,23 +28,15 @@ export default function TermSettingsSection({ termId, termCode }: Props) {
 					<Group justify='space-between' align='center'>
 						<Stack gap={2}>
 							<Text fw={500}>Results</Text>
-							<Text size='sm' c='dimmed'>
+							<Text size='xs' c='dimmed'>
 								Control student access to grades and CGPA for this term
 							</Text>
 						</Stack>
-						<Group gap='xs'>
-							<Badge
-								color={settings?.resultsPublished ? 'green' : 'gray'}
-								variant='light'
-							>
-								{settings?.resultsPublished ? 'Published' : 'Not Published'}
-							</Badge>
-							<PublishResultsButton
-								termId={termId}
-								termCode={termCode}
-								isPublished={settings?.resultsPublished ?? false}
-							/>
-						</Group>
+						<PublishResultsButton
+							termId={termId}
+							termCode={termCode}
+							isPublished={settings?.resultsPublished ?? false}
+						/>
 					</Group>
 
 					<Divider />
@@ -52,7 +44,7 @@ export default function TermSettingsSection({ termId, termCode }: Props) {
 					<Group justify='space-between' align='center'>
 						<Stack gap={2}>
 							<Text fw={500}>Lecturer Gradebook</Text>
-							<Text size='sm' c='dimmed'>
+							<Text size='xs' c='dimmed'>
 								Control lecturer access to enter and edit grades
 							</Text>
 						</Stack>
