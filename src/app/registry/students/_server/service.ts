@@ -1,4 +1,4 @@
-import { getActiveTerm } from '@registry/dates/terms';
+import { getActiveTerm } from '@/app/registry/terms';
 import type { students } from '@/core/database';
 import type { QueryOptions } from '@/core/platform/BaseRepository';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';

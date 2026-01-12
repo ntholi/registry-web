@@ -4,8 +4,8 @@ import {
 	getGraduationByDate,
 	updateGraduation,
 } from '@registry/dates/graduations';
-import { getAllTerms } from '@registry/dates/terms';
 import { notFound } from 'next/navigation';
+import { getAllTerms } from '@/app/registry/terms';
 
 type Props = {
 	params: Promise<{ date: string }>;

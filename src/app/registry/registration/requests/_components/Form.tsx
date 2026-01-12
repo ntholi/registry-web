@@ -15,7 +15,6 @@ import {
 } from '@mantine/core';
 import type { StudentModuleStatus } from '@registry/_database';
 import { studentModuleStatus } from '@registry/_database';
-import { getAllTerms } from '@registry/dates/terms';
 import { getStudentRegistrationData } from '@registry/students';
 import { IconExternalLink, IconTrash } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
@@ -23,6 +22,7 @@ import Link from 'next/link';
 import { useRouter } from 'nextjs-toploader/app';
 import { useCallback, useEffect, useState } from 'react';
 import StdNoInput from '@/app/dashboard/base/StdNoInput';
+import { getAllTerms } from '@/app/registry/terms';
 import { useActiveTerm } from '@/shared/lib/hooks/use-active-term';
 import { getAcademicRemarks } from '@/shared/lib/utils/grades';
 import {

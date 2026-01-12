@@ -14,11 +14,11 @@ import {
 	Text,
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
-import { getAllTerms } from '@registry/dates/terms';
 import { IconFilter } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useQueryState } from 'nuqs';
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { getAllTerms } from '@/app/registry/terms';
 import type { Term } from '@/core/database';
 import { getBooleanColor } from '@/shared/lib/utils/colors';
 import { formatSemester } from '@/shared/lib/utils/utils';

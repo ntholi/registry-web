@@ -1,7 +1,6 @@
 import { getModulesForStructure } from '@academic/semester-modules';
 import { getStudentCurrentSponsorship } from '@finance/sponsors';
 import { Box } from '@mantine/core';
-import { getActiveTerm } from '@registry/dates/terms';
 import {
 	createRegistration,
 	determineSemesterStatus,
@@ -9,6 +8,7 @@ import {
 	getStudentSemesterModules,
 } from '@registry/registration/requests';
 import { getStudent, getStudentRegistrationData } from '@registry/students';
+import { getActiveTerm } from '@/app/registry/terms';
 import type {
 	modules,
 	StudentModuleStatus,

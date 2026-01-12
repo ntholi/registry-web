@@ -21,7 +21,6 @@ import {
 	Text,
 } from '@mantine/core';
 import { useDebouncedValue, useDisclosure } from '@mantine/hooks';
-import { getAllTerms } from '@registry/dates/terms/_server/actions';
 import { IconFilter, IconSearch, IconX } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import {
@@ -31,6 +30,7 @@ import {
 	useQueryStates,
 } from 'nuqs';
 import { useState } from 'react';
+import { getAllTerms } from '@/app/registry/terms/_server/actions';
 import { formatSemester } from '@/shared/lib/utils/utils';
 import { searchModulesForGradeFinder } from '../_server/actions';
 import type { SearchMode } from '../_server/repository';

@@ -1,7 +1,7 @@
 'use server';
 
 import { updateGradeByStudentModuleId } from '@academic/semester-modules';
-import { getActiveTerm } from '@registry/dates/terms';
+import { getActiveTerm } from '@/app/registry/terms';
 import type { assessmentMarks } from '@/core/database';
 import { calculateModuleGrade } from '@/shared/lib/utils/gradeCalculations';
 import { assessmentMarksService as service } from './service';

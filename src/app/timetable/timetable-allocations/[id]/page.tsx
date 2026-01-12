@@ -11,11 +11,11 @@ import {
 	Text,
 	Title,
 } from '@mantine/core';
-import { getAllTerms } from '@registry/dates/terms';
 import { useQuery } from '@tanstack/react-query';
 import { useAtom } from 'jotai';
 import { notFound } from 'next/navigation';
 import { use, useEffect, useMemo } from 'react';
+import { getAllTerms } from '@/app/registry/terms';
 import useConfigDefaults from '@/shared/lib/hooks/use-config-defaults';
 import { DetailsView } from '@/shared/ui/adease';
 import { selectedTermAtom } from '@/shared/ui/atoms/termAtoms';

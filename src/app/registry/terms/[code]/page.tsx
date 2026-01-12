@@ -1,6 +1,6 @@
 import { Badge, Flex, SimpleGrid } from '@mantine/core';
-import { deleteTerm, getTermByCode } from '@registry/dates/terms';
 import { notFound } from 'next/navigation';
+import { deleteTerm, getTermByCode } from '@/app/registry/terms';
 import { getBooleanColor } from '@/shared/lib/utils/colors';
 import {
 	DetailsView,

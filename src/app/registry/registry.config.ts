@@ -1,7 +1,6 @@
 import {
 	IconCalendarDue,
 	IconCalendarEvent,
-	IconCalendarMonth,
 	IconCertificate,
 	IconGavel,
 	IconReportAnalytics,
@@ -50,31 +49,27 @@ export const registryConfig: ModuleConfig = {
 				roles: ['registry', 'admin'],
 			},
 			{
-				label: 'Graduation',
-				description: 'Graduation Requests',
-				href: '/registry/graduation/requests',
-				icon: IconCertificate,
-				roles: ['registry', 'admin'],
-			},
-			{
-				label: 'Dates',
-				icon: IconCalendarMonth,
-				roles: ['registry', 'admin'],
-				collapsed: true,
+				label: 'Graduations',
 				children: [
 					{
-						label: 'Terms',
-						href: '/registry/dates/terms',
-						icon: IconCalendarDue,
-						roles: ['admin', 'registry'],
+						label: 'Requests',
+						href: '/registry/graduation/requests',
+						icon: IconCertificate,
+						roles: ['registry', 'admin'],
 					},
 					{
-						label: 'Graduations',
-						href: '/registry/dates/graduations',
+						label: 'Dates',
+						href: '/registry/graduations/dates',
 						icon: IconCalendarEvent,
 						roles: ['admin', 'registry'],
 					},
 				],
+			},
+			{
+				label: 'Terms',
+				href: '/registry/terms',
+				icon: IconCalendarDue,
+				roles: ['admin', 'registry'],
 			},
 			{
 				label: 'Board of Examination',

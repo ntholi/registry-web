@@ -18,7 +18,6 @@ import {
 	Text,
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
-import { getAllTerms } from '@registry/dates/terms/_server/actions';
 import { IconFilter, IconSearch, IconX } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import {
@@ -27,6 +26,7 @@ import {
 	parseAsString,
 	useQueryStates,
 } from 'nuqs';
+import { getAllTerms } from '@/app/registry/terms/_server/actions';
 
 export interface CGPAFinderFilterValues {
 	minCGPA: number | null;

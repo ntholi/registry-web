@@ -1,6 +1,6 @@
 import { Box } from '@mantine/core';
 import { createGraduation, Form } from '@registry/dates/graduations';
-import { getAllTerms } from '@registry/dates/terms';
+import { getAllTerms } from '@/app/registry/terms';
 
 export default async function NewPage() {
 	const terms = await getAllTerms();

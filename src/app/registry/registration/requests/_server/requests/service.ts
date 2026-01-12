@@ -1,5 +1,5 @@
-import { getActiveTerm } from '@registry/dates/terms';
 import type { AcademicRemarks, Student } from '@registry/students';
+import { getActiveTerm } from '@/app/registry/terms';
 import {
 	dashboardUsers,
 	type registrationRequests,
