@@ -1,10 +1,11 @@
 import { desc, eq } from 'drizzle-orm';
-import { db, terms } from '@/core/database';
+import { db, termSettings, terms } from '@/core/database';
 import BaseRepository, {
 	type QueryOptions,
 } from '@/core/platform/BaseRepository';
 
 export type TermInsert = typeof terms.$inferInsert;
+export type TermSettingsInsert = typeof termSettings.$inferInsert;
 export type TermQueryOptions = QueryOptions<typeof terms>;
 
 export default class TermRepository extends BaseRepository<typeof terms, 'id'> {
@@ -13,7 +14,10 @@ export default class TermRepository extends BaseRepository<typeof terms, 'id'> {
 	}
 
 	async getByCode(code: string) {
-		return db.query.terms.findFirst({ where: eq(terms.code, code) });
+		return db.query.terms.findFirst({
+			where: eq(terms.code, code),
+			with: { settings: true },
+		});
 	}
 
 	async findAll() {
@@ -25,13 +29,20 @@ export default class TermRepository extends BaseRepository<typeof terms, 'id'> {
 	}
 
 	async getActive() {
-		return db.query.terms.findFirst({ where: eq(terms.isActive, true) });
+		return db.query.terms.findFirst({
+			where: eq(terms.isActive, true),
+			with: { settings: true },
+		});
 	}
 
-	async create(data: TermInsert) {
+	async create(data: TermInsert, userId?: string) {
 		return db.transaction(async (tx) => {
 			await this.clearActiveIfNeeded(data.isActive, tx);
 			const [created] = await tx.insert(this.table).values(data).returning();
+			await tx.insert(termSettings).values({
+				termId: created.id,
+				createdBy: userId,
+			});
 			return created;
 		});
 	}

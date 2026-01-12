@@ -1,6 +1,6 @@
 {
-	"id": "0614d65f-2f1c-4248-abfa-6e206ae0b466",
-	"prevId": "c0cfebea-7094-40e8-8753-1bdbe8da7a6b",
+	"id": "7c051b62-2f9e-47a7-85b0-a85ea2137dcf",
+	"prevId": "0614d65f-2f1c-4248-abfa-6e206ae0b466",
 	"version": "7",
 	"dialect": "postgresql",
 	"tables": {
@@ -8386,6 +8386,128 @@
 			},
 			"compositePrimaryKeys": {},
 			"uniqueConstraints": {},
+			"policies": {},
+			"checkConstraints": {},
+			"isRLSEnabled": false
+		},
+		"public.term_settings": {
+			"name": "term_settings",
+			"schema": "",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "serial",
+					"primaryKey": true,
+					"notNull": true
+				},
+				"term_id": {
+					"name": "term_id",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"results_published": {
+					"name": "results_published",
+					"type": "boolean",
+					"primaryKey": false,
+					"notNull": true,
+					"default": false
+				},
+				"lecturer_gradebook_access": {
+					"name": "lecturer_gradebook_access",
+					"type": "boolean",
+					"primaryKey": false,
+					"notNull": true,
+					"default": false
+				},
+				"gradebook_open_date": {
+					"name": "gradebook_open_date",
+					"type": "date",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"gradebook_close_date": {
+					"name": "gradebook_close_date",
+					"type": "date",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"registration_start_date": {
+					"name": "registration_start_date",
+					"type": "date",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"registration_end_date": {
+					"name": "registration_end_date",
+					"type": "date",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"created_at": {
+					"name": "created_at",
+					"type": "timestamp",
+					"primaryKey": false,
+					"notNull": false,
+					"default": "now()"
+				},
+				"created_by": {
+					"name": "created_by",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"updated_at": {
+					"name": "updated_at",
+					"type": "timestamp",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"updated_by": {
+					"name": "updated_by",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": false
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {
+				"term_settings_term_id_terms_id_fk": {
+					"name": "term_settings_term_id_terms_id_fk",
+					"tableFrom": "term_settings",
+					"tableTo": "terms",
+					"columnsFrom": ["term_id"],
+					"columnsTo": ["id"],
+					"onDelete": "cascade",
+					"onUpdate": "no action"
+				},
+				"term_settings_created_by_users_id_fk": {
+					"name": "term_settings_created_by_users_id_fk",
+					"tableFrom": "term_settings",
+					"tableTo": "users",
+					"columnsFrom": ["created_by"],
+					"columnsTo": ["id"],
+					"onDelete": "set null",
+					"onUpdate": "no action"
+				},
+				"term_settings_updated_by_users_id_fk": {
+					"name": "term_settings_updated_by_users_id_fk",
+					"tableFrom": "term_settings",
+					"tableTo": "users",
+					"columnsFrom": ["updated_by"],
+					"columnsTo": ["id"],
+					"onDelete": "set null",
+					"onUpdate": "no action"
+				}
+			},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {
+				"term_settings_termId_unique": {
+					"name": "term_settings_termId_unique",
+					"nullsNotDistinct": false,
+					"columns": ["term_id"]
+				}
+			},
 			"policies": {},
 			"checkConstraints": {},
 			"isRLSEnabled": false

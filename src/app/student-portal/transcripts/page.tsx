@@ -89,7 +89,9 @@ export default function TranscriptsPage() {
 	}
 
 	const semesters = getCleanedSemesters(program).filter(
-		(it: { termCode: string }) => it.termCode !== activeTerm?.code
+		(it: { termCode: string }) =>
+			activeTerm?.settings?.resultsPublished !== false ||
+			it.termCode !== activeTerm?.code
 	);
 
 	return (

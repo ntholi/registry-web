@@ -2,7 +2,7 @@ import type { terms } from '@/core/database';
 import BaseService from '@/core/platform/BaseService';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
 import withAuth from '@/core/platform/withAuth';
-import TermRepository from './repository';
+import TermRepository, { type TermInsert } from './repository';
 
 class TermService extends BaseService<typeof terms, 'id'> {
 	constructor() {
@@ -22,6 +22,14 @@ class TermService extends BaseService<typeof terms, 'id'> {
 		return withAuth(
 			async () => (this.repository as TermRepository).getActive(),
 			['all']
+		);
+	}
+
+	async create(data: TermInsert) {
+		return withAuth(
+			async (session) =>
+				(this.repository as TermRepository).create(data, session?.user?.id),
+			[]
 		);
 	}
 

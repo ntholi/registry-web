@@ -8,6 +8,7 @@ import {
 	DetailsViewHeader,
 	FieldView,
 } from '@/shared/ui/adease';
+import TermSettingsSection from '../_components/TermSettingsSection';
 
 type Props = {
 	params: Promise<{ code: string }>;
@@ -46,6 +47,12 @@ export default async function TermDetails({ params }: Props) {
 					<FieldView label='Start Date'>{term.startDate}</FieldView>
 					<FieldView label='End Date'>{term.endDate}</FieldView>
 				</SimpleGrid>
+
+				<TermSettingsSection
+					termId={term.id}
+					termCode={term.code}
+					settings={term.settings ?? null}
+				/>
 			</DetailsViewBody>
 		</DetailsView>
 	);

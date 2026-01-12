@@ -25,12 +25,17 @@ export default function useUserStudent() {
 		router.push('/auth/login');
 	}
 
+	const excludeTermCode =
+		activeTerm?.settings?.resultsPublished === false
+			? activeTerm.code
+			: undefined;
+
 	return {
 		isLoading: status === 'loading' || isLoading,
 		user: session?.user,
 		student,
 		program: getActiveProgram(student),
-		remarks: getAcademicRemarks(student?.programs ?? [], activeTerm?.code),
+		remarks: getAcademicRemarks(student?.programs ?? [], excludeTermCode),
 		semester: getCurrentSemester(student),
 	};
 }

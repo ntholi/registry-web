@@ -6,4 +6,5 @@ export * from './schema/graduations';
 export * from './schema/printing';
 export * from './schema/registration';
 export * from './schema/students';
+export * from './schema/term-settings';
 export * from './schema/terms';

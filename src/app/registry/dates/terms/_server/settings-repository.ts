@@ -1,0 +1,155 @@
+import { and, eq, inArray, ne, sql } from 'drizzle-orm';
+import {
+	blockedStudents,
+	clearance,
+	db,
+	registrationClearance,
+	registrationRequests,
+	termSettings,
+} from '@/core/database';
+
+export type TermSettingsInsert = typeof termSettings.$inferInsert;
+export type TermSettingsSelect = typeof termSettings.$inferSelect;
+
+export default class TermSettingsRepository {
+	async findByTermId(termId: number) {
+		return db.query.termSettings.findFirst({
+			where: eq(termSettings.termId, termId),
+		});
+	}
+
+	async updateResultsPublished(
+		termId: number,
+		published: boolean,
+		userId: string
+	) {
+		const [updated] = await db
+			.update(termSettings)
+			.set({
+				resultsPublished: published,
+				updatedAt: new Date(),
+				updatedBy: userId,
+			})
+			.where(eq(termSettings.termId, termId))
+			.returning();
+		return updated;
+	}
+
+	async updateGradebookAccess(
+		termId: number,
+		access: boolean,
+		openDate: string | null,
+		closeDate: string | null,
+		userId: string
+	) {
+		const [updated] = await db
+			.update(termSettings)
+			.set({
+				lecturerGradebookAccess: access,
+				gradebookOpenDate: openDate,
+				gradebookCloseDate: closeDate,
+				updatedAt: new Date(),
+				updatedBy: userId,
+			})
+			.where(eq(termSettings.termId, termId))
+			.returning();
+		return updated;
+	}
+
+	async updateRegistrationDates(
+		termId: number,
+		startDate: string | null,
+		endDate: string | null,
+		userId: string
+	) {
+		const [updated] = await db
+			.update(termSettings)
+			.set({
+				registrationStartDate: startDate,
+				registrationEndDate: endDate,
+				updatedAt: new Date(),
+				updatedBy: userId,
+			})
+			.where(eq(termSettings.termId, termId))
+			.returning();
+		return updated;
+	}
+
+	async getRejectedStudentsForTerm(termId: number) {
+		const rejected = await db
+			.select({
+				stdNo: registrationRequests.stdNo,
+				department: clearance.department,
+				message: clearance.message,
+			})
+			.from(registrationRequests)
+			.innerJoin(
+				registrationClearance,
+				eq(registrationClearance.registrationRequestId, registrationRequests.id)
+			)
+			.innerJoin(clearance, eq(clearance.id, registrationClearance.clearanceId))
+			.where(
+				and(
+					eq(registrationRequests.termId, termId),
+					eq(clearance.status, 'rejected')
+				)
+			);
+		return rejected;
+	}
+
+	async getAlreadyBlockedStudents(stdNos: number[]) {
+		if (stdNos.length === 0) return [];
+		return db
+			.select({ stdNo: blockedStudents.stdNo })
+			.from(blockedStudents)
+			.where(
+				and(
+					inArray(blockedStudents.stdNo, stdNos),
+					eq(blockedStudents.status, 'blocked')
+				)
+			);
+	}
+
+	async bulkCreateBlockedStudents(
+		data: { stdNo: number; reason: string; byDepartment: string }[]
+	) {
+		if (data.length === 0) return [];
+		return db
+			.insert(blockedStudents)
+			.values(
+				data.map((d) => ({
+					stdNo: d.stdNo,
+					reason: d.reason,
+					byDepartment: d.byDepartment as 'registry',
+				}))
+			)
+			.returning();
+	}
+
+	async hasRejectedStudentsForTerm(termId: number) {
+		const result = await db
+			.select({ count: sql<number>`count(*)` })
+			.from(registrationRequests)
+			.innerJoin(
+				registrationClearance,
+				eq(registrationClearance.registrationRequestId, registrationRequests.id)
+			)
+			.innerJoin(clearance, eq(clearance.id, registrationClearance.clearanceId))
+			.where(
+				and(
+					eq(registrationRequests.termId, termId),
+					eq(clearance.status, 'rejected')
+				)
+			);
+		return Number(result[0]?.count || 0) > 0;
+	}
+
+	async publishAllPreviousTerms(activeTermId: number) {
+		return db
+			.update(termSettings)
+			.set({ resultsPublished: true })
+			.where(ne(termSettings.termId, activeTermId));
+	}
+}
+
+export const termSettingsRepository = new TermSettingsRepository();
