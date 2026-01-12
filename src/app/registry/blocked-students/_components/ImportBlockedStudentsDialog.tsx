@@ -164,17 +164,17 @@ export default function ImportBlockedStudentsDialog() {
 												</Table.Tr>
 											</Table.Thead>
 											<Table.Tbody>
-												{parsedData.slice(0, 10).map((row, idx) => (
+												{parsedData.slice(0, 7).map((row, idx) => (
 													<Table.Tr key={idx}>
 														<Table.Td>{row.stdNo}</Table.Td>
 														<Table.Td>{row.reason}</Table.Td>
 													</Table.Tr>
 												))}
-												{parsedData.length > 10 && (
+												{parsedData.length > 7 && (
 													<Table.Tr>
 														<Table.Td colSpan={2}>
 															<Text size='sm' c='dimmed' ta='center'>
-																... and {parsedData.length - 10} more
+																... and {parsedData.length - 7} more
 															</Text>
 														</Table.Td>
 													</Table.Tr>
