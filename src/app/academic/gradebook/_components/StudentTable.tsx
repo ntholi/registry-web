@@ -1,6 +1,7 @@
 'use client';
 import { getAssessmentTypeLabel } from '@academic/assessments';
 import {
+	Alert,
 	Center,
 	CloseButton,
 	Group,
@@ -16,10 +17,12 @@ import AssessmentMarksModal from '@registry/students/_components/academics/Asses
 import {
 	IconChevronDown,
 	IconChevronUp,
+	IconLock,
 	IconSearch,
 	IconSelector,
 } from '@tabler/icons-react';
 import React, { useState } from 'react';
+import { useActiveTerm } from '@/shared/lib/hooks/use-active-term';
 import Link from '@/shared/ui/Link';
 import {
 	useAssessmentMarksQuery,
@@ -118,6 +121,10 @@ export default function StudentTable({
 	const [searchQuery, setSearchQuery] = useState('');
 	const [sortBy, setSortBy] = useState<keyof Student | null>(null);
 	const [reverseSortDirection, setReverseSortDirection] = useState(false);
+
+	const { activeTerm } = useActiveTerm();
+	const isGradebookClosed =
+		activeTerm?.settings?.lecturerGradebookAccess === false;
 
 	const { data: studentsData, isLoading: studentsLoading } = useStudentsQuery({
 		semesterModuleIds,
@@ -322,6 +329,7 @@ export default function StudentTable({
 											existingMark={mark}
 											existingMarkId={markId}
 											moduleId={moduleId}
+											readOnly={isGradebookClosed}
 										/>
 									</Table.Td>
 								);
@@ -370,6 +378,7 @@ export default function StudentTable({
 										weightedTotal={
 											getStudentGrade(student.studentModuleId)?.weightedTotal
 										}
+										readOnly={isGradebookClosed}
 									/>
 								</Group>
 							</Table.Td>
@@ -381,6 +390,16 @@ export default function StudentTable({
 	}
 	return (
 		<Stack gap='xs'>
+			{isGradebookClosed && (
+				<Alert
+					icon={<IconLock size={16} />}
+					title='Gradebook Closed'
+					color='yellow'
+				>
+					The gradebook is currently closed for editing. You can view grades but
+					cannot make changes.
+				</Alert>
+			)}
 			<Paper p={'md'} withBorder>
 				<Group justify='space-between' align='center' wrap='nowrap'>
 					<TextInput
