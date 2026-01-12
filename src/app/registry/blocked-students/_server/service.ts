@@ -41,21 +41,29 @@ class BlockedStudentService {
 	}
 
 	async update(id: number, data: Partial<BlockedStudent>) {
+		const existing = await this.repository.findById(id);
+		if (!existing) {
+			throw new Error('Blocked student record not found');
+		}
+
+		const blockedBy = existing.byDepartment;
+
 		return withAuth(
 			async (session) => {
 				return this.repository.update(id, {
-					byDepartment: session?.user?.role as DashboardUser,
 					...data,
+					byDepartment: session?.user?.role as DashboardUser,
 				});
 			},
-			['finance', 'registry', 'library']
-		);
-	}
-
-	async delete(id: number) {
-		return withAuth(
-			async () => this.repository.delete(id),
-			['finance', 'registry']
+			async (session) => {
+				if (session.user?.role === 'admin') return true;
+				if (data.status === 'unblocked') {
+					return session.user?.role === blockedBy;
+				}
+				return ['finance', 'registry', 'library'].includes(
+					session.user?.role ?? ''
+				);
+			}
 		);
 	}
 
