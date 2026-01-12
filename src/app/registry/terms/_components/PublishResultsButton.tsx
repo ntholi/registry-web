@@ -3,6 +3,7 @@
 import {
 	Alert,
 	Button,
+	Card,
 	Checkbox,
 	Group,
 	Stack,
@@ -12,7 +13,6 @@ import {
 } from '@mantine/core';
 import { modals } from '@mantine/modals';
 import { notifications } from '@mantine/notifications';
-import { IconInfoCircle } from '@tabler/icons-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { updateResultsPublishedWithNotification } from '../_server/settings-actions';
@@ -115,14 +115,9 @@ function PublishModalContent({
 	return (
 		<Stack gap='md'>
 			{!isPublished && (
-				<Alert
-					icon={<IconInfoCircle size={18} />}
-					color='yellow'
-					variant='light'
-					title='Publishing Results'
-				>
-					This action will allow all students to view their grades and CGPA for
-					term <strong>{termCode}</strong>.
+				<Alert color='yellow' variant='light'>
+					This action will allow all students to view their grades for term{' '}
+					<strong>{termCode}</strong>.
 				</Alert>
 			)}
 
@@ -135,20 +130,25 @@ function PublishModalContent({
 
 			{!isPublished && (
 				<>
-					<Stack gap='xs'>
-						<Switch
-							label='Close gradebook access for lecturers'
-							checked={closeGradebook}
-							onChange={(e) => setCloseGradebook(e.currentTarget.checked)}
-						/>
-						<Switch
-							label='Move rejected registration requests to blocked students'
-							checked={moveRejectedToBlocked}
-							onChange={(e) =>
-								setMoveRejectedToBlocked(e.currentTarget.checked)
-							}
-						/>
-					</Stack>
+					<Card withBorder p='sm'>
+						<Stack gap='xs'>
+							<Text size='sm' fw={500} c='dimmed'>
+								Additional Actions
+							</Text>
+							<Switch
+								label='Close gradebook access for lecturers'
+								checked={closeGradebook}
+								onChange={(e) => setCloseGradebook(e.currentTarget.checked)}
+							/>
+							<Switch
+								label='Move rejected registration requests to blocked students'
+								checked={moveRejectedToBlocked}
+								onChange={(e) =>
+									setMoveRejectedToBlocked(e.currentTarget.checked)
+								}
+							/>
+						</Stack>
+					</Card>
 					<Text size='sm'>
 						To confirm, type <strong>{requiredText}</strong> below:
 					</Text>
