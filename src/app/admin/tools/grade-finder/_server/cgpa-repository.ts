@@ -18,7 +18,7 @@ import { INACTIVE_SEMESTER_STATUSES } from '@/shared/lib/utils/utils';
 export interface CGPAFinderFilters {
 	minCGPA: number;
 	maxCGPA: number;
-	schoolId?: number;
+	schoolIds?: number[];
 	programId?: number;
 	termCode?: string;
 	search?: string;
@@ -49,8 +49,8 @@ export async function findStudentsByCGPA(
 		inArray(studentPrograms.status, ['Active', 'Completed']),
 	];
 
-	if (filters.schoolId) {
-		conditions.push(eq(schools.id, filters.schoolId));
+	if (filters.schoolIds && filters.schoolIds.length > 0) {
+		conditions.push(inArray(schools.id, filters.schoolIds));
 	}
 
 	if (filters.programId) {
@@ -292,8 +292,8 @@ export async function exportStudentsByCGPA(
 		inArray(studentPrograms.status, ['Active', 'Completed']),
 	];
 
-	if (filters.schoolId) {
-		conditions.push(eq(schools.id, filters.schoolId));
+	if (filters.schoolIds && filters.schoolIds.length > 0) {
+		conditions.push(inArray(schools.id, filters.schoolIds));
 	}
 
 	if (filters.programId) {

@@ -34,7 +34,7 @@ export interface GradeFinderFilters {
 	grade?: Grade;
 	minPoints?: number;
 	maxPoints?: number;
-	schoolId?: number;
+	schoolIds?: number[];
 	programId?: number;
 	semesterNumber?: string;
 	termCode?: string;
@@ -97,8 +97,8 @@ export async function findStudentsByGrade(
 		}
 	}
 
-	if (filters.schoolId) {
-		conditions.push(eq(schools.id, filters.schoolId));
+	if (filters.schoolIds && filters.schoolIds.length > 0) {
+		conditions.push(inArray(schools.id, filters.schoolIds));
 	}
 
 	if (filters.programId) {
@@ -267,8 +267,8 @@ export async function exportStudentsByGrade(
 		}
 	}
 
-	if (filters.schoolId) {
-		conditions.push(eq(schools.id, filters.schoolId));
+	if (filters.schoolIds && filters.schoolIds.length > 0) {
+		conditions.push(inArray(schools.id, filters.schoolIds));
 	}
 
 	if (filters.programId) {

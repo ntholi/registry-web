@@ -14,7 +14,12 @@ import {
 } from '@mantine/core';
 import { IconChartBar, IconSearch } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
-import { parseAsInteger, parseAsString, useQueryStates } from 'nuqs';
+import {
+	parseAsArrayOf,
+	parseAsInteger,
+	parseAsString,
+	useQueryStates,
+} from 'nuqs';
 import {
 	CGPAFinderFilter,
 	type CGPAFinderFilterValues,
@@ -44,7 +49,7 @@ export default function GradeFinderPage() {
 		maxPoints: parseAsInteger,
 		minCGPA: parseAsString,
 		maxCGPA: parseAsString,
-		schoolId: parseAsInteger,
+		schoolIds: parseAsArrayOf(parseAsInteger),
 		programId: parseAsInteger,
 		semesterNumber: parseAsString,
 		termCode: parseAsString,
@@ -60,7 +65,10 @@ export default function GradeFinderPage() {
 			? {
 					mode: 'grade',
 					grade: params.grade as Grade,
-					schoolId: params.schoolId ?? undefined,
+					schoolIds:
+						params.schoolIds && params.schoolIds.length > 0
+							? params.schoolIds
+							: undefined,
 					programId: params.programId ?? undefined,
 					semesterNumber: params.semesterNumber ?? undefined,
 					termCode: params.termCode ?? undefined,
@@ -74,7 +82,10 @@ export default function GradeFinderPage() {
 			? {
 					minCGPA: Number.parseFloat(params.minCGPA),
 					maxCGPA: Number.parseFloat(params.maxCGPA),
-					schoolId: params.schoolId ?? undefined,
+					schoolIds:
+						params.schoolIds && params.schoolIds.length > 0
+							? params.schoolIds
+							: undefined,
 					programId: params.programId ?? undefined,
 					termCode: params.termCode ?? undefined,
 					search: params.search || undefined,
@@ -105,7 +116,7 @@ export default function GradeFinderPage() {
 			grade: values.grade ?? null,
 			minPoints: values.minPoints,
 			maxPoints: values.maxPoints,
-			schoolId: values.schoolId,
+			schoolIds: values.schoolIds,
 			programId: values.programId,
 			semesterNumber: values.semesterNumber,
 			termCode: values.termCode,
@@ -121,7 +132,7 @@ export default function GradeFinderPage() {
 			search: '',
 			minCGPA: values.minCGPA.toString(),
 			maxCGPA: values.maxCGPA.toString(),
-			schoolId: values.schoolId,
+			schoolIds: values.schoolIds,
 			programId: values.programId,
 			termCode: values.termCode,
 		});
@@ -137,7 +148,7 @@ export default function GradeFinderPage() {
 			maxPoints: null,
 			minCGPA: null,
 			maxCGPA: null,
-			schoolId: null,
+			schoolIds: null,
 			programId: null,
 			semesterNumber: null,
 			termCode: null,
