@@ -3,6 +3,7 @@
 import {
 	Badge,
 	Box,
+	Button,
 	Group,
 	Loader,
 	Pagination,
@@ -14,7 +15,8 @@ import {
 	Text,
 	TextInput,
 } from '@mantine/core';
-import { IconSearch } from '@tabler/icons-react';
+import { IconDownload, IconSearch } from '@tabler/icons-react';
+import ExcelJS from 'exceljs';
 import { useState } from 'react';
 import { formatSemester } from '@/shared/lib/utils/utils';
 import Link from '@/shared/ui/Link';
@@ -28,6 +30,7 @@ interface Props {
 	currentPage: number;
 	onPageChange: (page: number) => void;
 	onSearchChange: (search: string) => void;
+	onExport: () => Promise<CGPAFinderResult[]>;
 }
 
 function formatCGPA(cgpa: number) {
@@ -50,25 +53,96 @@ export function CGPAFinderResultsTable({
 	currentPage,
 	onPageChange,
 	onSearchChange,
+	onExport,
 }: Props) {
 	const [searchValue, setSearchValue] = useState('');
+	const [isExporting, setIsExporting] = useState(false);
 
 	function handleSearchChange(value: string) {
 		setSearchValue(value);
 		onSearchChange(value);
 	}
 
+	async function handleExport() {
+		setIsExporting(true);
+		try {
+			const results = await onExport();
+			const workbook = new ExcelJS.Workbook();
+			const worksheet = workbook.addWorksheet('CGPA Finder Results');
+
+			worksheet.columns = [
+				{ header: 'Student No.', key: 'stdNo', width: 15 },
+				{ header: 'Student Name', key: 'studentName', width: 30 },
+				{ header: 'Program Code', key: 'programCode', width: 15 },
+				{ header: 'Program Name', key: 'programName', width: 40 },
+				{ header: 'School', key: 'schoolCode', width: 10 },
+				{ header: 'GPA', key: 'gpa', width: 10 },
+				{ header: 'CGPA', key: 'cgpa', width: 10 },
+				{ header: 'Semester', key: 'semesterCount', width: 10 },
+				{ header: 'Latest Term', key: 'latestTermCode', width: 12 },
+			];
+
+			const headerRow = worksheet.getRow(1);
+			headerRow.font = { bold: true };
+			headerRow.fill = {
+				type: 'pattern',
+				pattern: 'solid',
+				fgColor: { argb: 'FFE0E0E0' },
+			};
+
+			for (const row of results) {
+				worksheet.addRow({
+					stdNo: row.stdNo,
+					studentName: row.studentName,
+					programCode: row.programCode,
+					programName: row.programName,
+					schoolCode: row.schoolCode,
+					gpa: formatCGPA(row.gpa),
+					cgpa: formatCGPA(row.cgpa),
+					semesterCount: row.semesterCount,
+					latestTermCode: row.latestTermCode,
+				});
+			}
+
+			const buffer = await workbook.xlsx.writeBuffer();
+			const blob = new Blob([buffer], {
+				type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+			});
+			const url = URL.createObjectURL(blob);
+			const link = document.createElement('a');
+			link.href = url;
+			link.download = `cgpa_finder_${new Date().toISOString().split('T')[0]}.xlsx`;
+			link.click();
+			URL.revokeObjectURL(url);
+		} finally {
+			setIsExporting(false);
+		}
+	}
+
 	if (!data.length && !isLoading) {
 		return (
 			<Paper withBorder p='md'>
 				<Stack gap='md'>
-					<TextInput
-						placeholder='Search by student name or program...'
-						leftSection={<IconSearch size={16} />}
-						value={searchValue}
-						onChange={(e) => handleSearchChange(e.currentTarget.value)}
-						size='sm'
-					/>
+					<Group gap='sm'>
+						<TextInput
+							placeholder='Search by student name or program...'
+							leftSection={<IconSearch size={16} />}
+							value={searchValue}
+							onChange={(e) => handleSearchChange(e.currentTarget.value)}
+							size='sm'
+							style={{ flex: 1 }}
+						/>
+						<Button
+							size='sm'
+							variant='light'
+							leftSection={<IconDownload size={16} />}
+							onClick={handleExport}
+							loading={isExporting}
+							disabled
+						>
+							Export
+						</Button>
+					</Group>
 					<Box py='xl' ta='center'>
 						<Text c='dimmed'>
 							No results found. Try adjusting your CGPA range or filters.
@@ -82,14 +156,27 @@ export function CGPAFinderResultsTable({
 	return (
 		<Paper withBorder p='md'>
 			<Stack gap='md'>
-				<TextInput
-					placeholder='Search by student name or program...'
-					leftSection={<IconSearch size={16} />}
-					rightSection={isLoading ? <Loader size='xs' /> : null}
-					value={searchValue}
-					onChange={(e) => handleSearchChange(e.currentTarget.value)}
-					size='sm'
-				/>
+				<Group gap='sm'>
+					<TextInput
+						placeholder='Search by student name or program...'
+						leftSection={<IconSearch size={16} />}
+						rightSection={isLoading ? <Loader size='xs' /> : null}
+						value={searchValue}
+						onChange={(e) => handleSearchChange(e.currentTarget.value)}
+						size='sm'
+						style={{ flex: 1 }}
+					/>
+					<Button
+						size='sm'
+						variant='light'
+						leftSection={<IconDownload size={16} />}
+						onClick={handleExport}
+						loading={isExporting}
+						disabled={total === 0}
+					>
+						Export
+					</Button>
+				</Group>
 
 				<ScrollArea>
 					<Table striped highlightOnHover>

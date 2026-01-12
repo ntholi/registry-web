@@ -30,7 +30,7 @@ import {
 	parseAsString,
 	useQueryStates,
 } from 'nuqs';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { formatSemester } from '@/shared/lib/utils/utils';
 import { searchModulesForGradeFinder } from '../_server/actions';
 import type { SearchMode } from '../_server/repository';
@@ -91,6 +91,15 @@ export function GradeFinderFilter({ mode, onSearch, isLoading }: Props) {
 		queryKey: ['terms'],
 		queryFn: getAllTerms,
 	});
+
+	useEffect(() => {
+		if (!params.termCode && terms.length > 0) {
+			const activeTerm = terms.find((term) => term.isActive);
+			if (activeTerm) {
+				setParams({ termCode: activeTerm.code });
+			}
+		}
+	}, [terms, params.termCode, setParams]);
 
 	const { data: moduleOptions = [], isLoading: modulesLoading } = useQuery({
 		queryKey: ['grade-finder-modules', debouncedModuleSearch],
@@ -361,8 +370,6 @@ export function GradeFinderFilter({ mode, onSearch, isLoading }: Props) {
 				size='lg'
 			>
 				<Stack gap='md'>
-
-
 					<Select
 						label='Term'
 						placeholder='All terms'
@@ -375,34 +382,33 @@ export function GradeFinderFilter({ mode, onSearch, isLoading }: Props) {
 					/>
 
 					<Group grow>
-											<Select
-						label='School'
-						placeholder='All schools'
-						data={schoolOptions}
-						value={params.schoolId?.toString() ?? null}
-						onChange={handleSchoolChange}
-						searchable
-						clearable
-						rightSection={schoolsLoading ? <Loader size='xs' /> : null}
-					/>
+						<Select
+							label='School'
+							placeholder='All schools'
+							data={schoolOptions}
+							value={params.schoolId?.toString() ?? null}
+							onChange={handleSchoolChange}
+							searchable
+							clearable
+							rightSection={schoolsLoading ? <Loader size='xs' /> : null}
+						/>
 
-					<Select
-						label='Program'
-						placeholder='All programs'
-						data={programOptions}
-						value={params.programId?.toString() ?? null}
-						onChange={(value) =>
-							setParams({ programId: value ? Number(value) : null })
-						}
-						searchable
-						clearable
-						disabled={!params.schoolId}
-						rightSection={programsLoading ? <Loader size='xs' /> : null}
-					/>
+						<Select
+							label='Program'
+							placeholder='All programs'
+							data={programOptions}
+							value={params.programId?.toString() ?? null}
+							onChange={(value) =>
+								setParams({ programId: value ? Number(value) : null })
+							}
+							searchable
+							clearable
+							disabled={!params.schoolId}
+							rightSection={programsLoading ? <Loader size='xs' /> : null}
+						/>
 					</Group>
 
-
-										<Select
+					<Select
 						label='Semester'
 						placeholder='All semesters'
 						data={semesterOptions}

@@ -18,3 +18,11 @@ export async function searchModulesForGradeFinder(search: string) {
 export async function findStudentsByCGPA(filters: CGPAFinderFilters, page = 1) {
 	return gradeFinderService.findStudentsByCGPA(filters, page);
 }
+
+export async function exportGradeFinderResults(filters: GradeFinderFilters) {
+	return gradeFinderService.exportStudentsByGrade(filters);
+}
+
+export async function exportCGPAFinderResults(filters: CGPAFinderFilters) {
+	return gradeFinderService.exportStudentsByCGPA(filters);
+}

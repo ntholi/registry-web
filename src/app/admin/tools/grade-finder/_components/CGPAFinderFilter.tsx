@@ -27,6 +27,7 @@ import {
 	parseAsString,
 	useQueryStates,
 } from 'nuqs';
+import { useEffect } from 'react';
 
 export interface CGPAFinderFilterValues {
 	minCGPA: number | null;
@@ -67,6 +68,15 @@ export function CGPAFinderFilter({ onSearch, isLoading }: Props) {
 		queryKey: ['terms'],
 		queryFn: getAllTerms,
 	});
+
+	useEffect(() => {
+		if (!params.termCode && terms.length > 0) {
+			const activeTerm = terms.find((term) => term.isActive);
+			if (activeTerm) {
+				setParams({ termCode: activeTerm.code });
+			}
+		}
+	}, [terms, params.termCode, setParams]);
 
 	const schoolOptions = schools.map((s) => ({
 		value: s.id.toString(),
@@ -257,7 +267,6 @@ export function CGPAFinderFilter({ onSearch, isLoading }: Props) {
 				size='lg'
 			>
 				<Stack gap='md'>
-
 					<Select
 						label='School'
 						placeholder='All schools'

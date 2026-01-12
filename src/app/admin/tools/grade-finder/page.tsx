@@ -25,7 +25,12 @@ import {
 	type GradeFinderFilterValues,
 } from './_components/GradeFinderFilter';
 import { GradeFinderResultsTable } from './_components/GradeFinderResultsTable';
-import { findStudentsByCGPA, findStudentsByGrade } from './_server/actions';
+import {
+	exportCGPAFinderResults,
+	exportGradeFinderResults,
+	findStudentsByCGPA,
+	findStudentsByGrade,
+} from './_server/actions';
 import type { CGPAFinderFilters } from './_server/cgpa-repository';
 import type { GradeFinderFilters, SearchMode } from './_server/repository';
 
@@ -148,6 +153,16 @@ export default function GradeFinderPage() {
 		setParams({ search: value, page: 1 });
 	}
 
+	async function handleGradeExport() {
+		if (!gradeFilters) return [];
+		return exportGradeFinderResults(gradeFilters);
+	}
+
+	async function handleCGPAExport() {
+		if (!cgpaFilters) return [];
+		return exportCGPAFinderResults(cgpaFilters);
+	}
+
 	return (
 		<Container size='xl' py='lg' px='xl'>
 			<Stack gap='xl'>
@@ -207,6 +222,7 @@ export default function GradeFinderPage() {
 						currentPage={params.page}
 						onPageChange={handlePageChange}
 						onSearchChange={handleSearchChange}
+						onExport={handleGradeExport}
 					/>
 				)}
 
@@ -219,6 +235,7 @@ export default function GradeFinderPage() {
 						currentPage={params.page}
 						onPageChange={handlePageChange}
 						onSearchChange={handleSearchChange}
+						onExport={handleCGPAExport}
 					/>
 				)}
 			</Stack>
