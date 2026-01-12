@@ -59,9 +59,7 @@ export default function TermSettingsSection({
 						</Stack>
 						<GradebookAccessButton
 							termId={termId}
-							access={settings?.lecturerGradebookAccess ?? false}
-							openDate={settings?.gradebookOpenDate ?? null}
-							closeDate={settings?.gradebookCloseDate ?? null}
+							access={settings?.lecturerGradebookAccess ?? true}
 						/>
 					</Group>
 

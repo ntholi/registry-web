@@ -9,13 +9,8 @@ export async function updateResultsPublished(
 	return service.updateResultsPublished(termId, published);
 }
 
-export async function updateGradebookAccess(
-	termId: number,
-	access: boolean,
-	openDate: string | null,
-	closeDate: string | null
-) {
-	return service.updateGradebookAccess(termId, access, openDate, closeDate);
+export async function updateGradebookAccess(termId: number, access: boolean) {
+	return service.updateGradebookAccess(termId, access);
 }
 
 export async function updateRegistrationDates(

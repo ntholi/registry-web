@@ -526,6 +526,13 @@
 			"when": 1768199268658,
 			"tag": "0074_elite_epoch",
 			"breakpoints": true
+		},
+		{
+			"idx": 75,
+			"version": "7",
+			"when": 1768200384168,
+			"tag": "0075_regular_hiroim",
+			"breakpoints": true
 		}
 	]
 }

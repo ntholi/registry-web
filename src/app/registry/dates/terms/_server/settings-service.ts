@@ -34,12 +34,7 @@ class TermSettingsService {
 		);
 	}
 
-	async updateGradebookAccess(
-		termId: number,
-		access: boolean,
-		openDate: string | null,
-		closeDate: string | null
-	) {
+	async updateGradebookAccess(termId: number, access: boolean) {
 		return withAuth(
 			async (session) => {
 				if (
@@ -54,8 +49,6 @@ class TermSettingsService {
 				return this.repository.updateGradebookAccess(
 					termId,
 					access,
-					openDate,
-					closeDate,
 					session.user.id!
 				);
 			},

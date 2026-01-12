@@ -35,19 +35,11 @@ export default class TermSettingsRepository {
 		return updated;
 	}
 
-	async updateGradebookAccess(
-		termId: number,
-		access: boolean,
-		openDate: string | null,
-		closeDate: string | null,
-		userId: string
-	) {
+	async updateGradebookAccess(termId: number, access: boolean, userId: string) {
 		const [updated] = await db
 			.update(termSettings)
 			.set({
 				lecturerGradebookAccess: access,
-				gradebookOpenDate: openDate,
-				gradebookCloseDate: closeDate,
 				updatedAt: new Date(),
 				updatedBy: userId,
 			})
