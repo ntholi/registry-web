@@ -21,6 +21,7 @@ import {
 import { useDisclosure } from '@mantine/hooks';
 import { IconBell, IconTrash } from '@tabler/icons-react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useRouter } from 'nextjs-toploader/app';
 import { useState } from 'react';
 import { formatDateTime, formatRelativeTime } from '@/shared/lib/utils/dates';
 import { truncateText } from '@/shared/lib/utils/utils';
@@ -29,6 +30,7 @@ type Notification = {
 	id: number;
 	title: string;
 	message: string;
+	link: string | null;
 	visibleFrom: Date;
 	visibleUntil: Date;
 	createdAt: Date | null;
@@ -36,8 +38,9 @@ type Notification = {
 
 export default function NotificationBell() {
 	const theme = useMantineTheme();
+	const router = useRouter();
 	const queryClient = useQueryClient();
-	const [opened, { toggle }] = useDisclosure(false);
+	const [opened, { toggle, close }] = useDisclosure(false);
 	const [modalOpened, { open: openModal, close: closeModal }] =
 		useDisclosure(false);
 	const [selectedNotification, setSelectedNotification] =
@@ -55,9 +58,15 @@ export default function NotificationBell() {
 	};
 
 	const handleNotificationClick = async (notification: Notification) => {
-		setSelectedNotification(notification);
-		openModal();
 		await handleDismiss(notification.id);
+		close();
+
+		if (notification.link) {
+			router.push(notification.link);
+		} else {
+			setSelectedNotification(notification);
+			openModal();
+		}
 	};
 
 	const unreadCount = notifications.length;
