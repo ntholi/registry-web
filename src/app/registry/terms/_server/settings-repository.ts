@@ -56,14 +56,24 @@ export default class TermSettingsRepository {
 		userId: string
 	) {
 		const [updated] = await db
-			.update(termSettings)
-			.set({
+			.insert(termSettings)
+			.values({
+				termId,
 				registrationStartDate: startDate,
 				registrationEndDate: endDate,
+				createdBy: userId,
 				updatedAt: new Date(),
 				updatedBy: userId,
 			})
-			.where(eq(termSettings.termId, termId))
+			.onConflictDoUpdate({
+				target: termSettings.termId,
+				set: {
+					registrationStartDate: startDate,
+					registrationEndDate: endDate,
+					updatedAt: new Date(),
+					updatedBy: userId,
+				},
+			})
 			.returning();
 		return updated;
 	}

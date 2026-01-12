@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, Divider, Group, Stack, Text, Title } from '@mantine/core';
+import { Card, Divider, Group, Paper, Stack, Text, Title } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
 import { getTermSettings } from '../_server/settings-actions';
 import GradebookAccessButton from './GradebookAccessButton';
@@ -23,7 +23,7 @@ export default function TermSettingsSection({ termId, termCode }: Props) {
 		<Stack gap='lg' mt='xl'>
 			<Title order={4}>Settings</Title>
 
-			<Card withBorder padding='md'>
+			<Paper withBorder p='md'>
 				<Stack gap='md'>
 					<Group justify='space-between' align='center'>
 						<Stack gap={2}>
@@ -65,7 +65,7 @@ export default function TermSettingsSection({ termId, termCode }: Props) {
 						/>
 					</Stack>
 				</Stack>
-			</Card>
+			</Paper>
 
 			<Title order={4}>Actions</Title>
 
