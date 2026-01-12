@@ -209,7 +209,7 @@ When you are done, it is **extremely important** that you run `pnpm tsc --noEmit
 
 ### Completion Echo
 **EXTREMELY IMPORTANT**: Always run this command on the terminal when finished:
-`pnpm exec echo 'Done'`
+`"Done"`
 (No matter what! Do not combine it with other commands or outputs).
 
 ## 🗣️ Communication Style
