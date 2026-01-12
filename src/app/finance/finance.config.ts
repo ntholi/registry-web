@@ -16,7 +16,6 @@ import {
 	IconHourglass,
 	IconReportAnalytics,
 	IconReportMoney,
-	IconUserOff,
 } from '@tabler/icons-react';
 import type {
 	ModuleConfig,
@@ -115,12 +114,6 @@ export const financeConfig: ModuleConfig = {
 						},
 					},
 				] as NavItem[],
-			},
-			{
-				label: 'Blocked Students',
-				href: '/finance/blocked-students',
-				icon: IconUserOff,
-				roles: ['finance'],
 			},
 			{
 				label: 'Sponsored Students',

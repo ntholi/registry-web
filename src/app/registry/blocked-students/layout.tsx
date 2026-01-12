@@ -7,13 +7,13 @@ import { getBlockedStudentByStatus } from './_server/actions';
 export default function Layout({ children }: PropsWithChildren) {
 	return (
 		<ListLayout
-			path={'/finance/blocked-students'}
+			path={'/registry/blocked-students'}
 			queryKey={['blocked-students']}
 			getData={async (page, search) =>
 				await getBlockedStudentByStatus('blocked', page, search)
 			}
 			actionIcons={[
-				<NewLink key={'new-link'} href='/finance/blocked-students/new' />,
+				<NewLink key={'new-link'} href='/registry/blocked-students/new' />,
 			]}
 			renderItem={(it) => (
 				<ListItem id={it.id} label={it.stdNo} description={it.student.name} />

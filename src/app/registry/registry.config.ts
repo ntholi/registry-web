@@ -5,6 +5,7 @@ import {
 	IconGavel,
 	IconReportAnalytics,
 	IconSchool,
+	IconUserOff,
 	IconUserPlus,
 	IconUsers,
 } from '@tabler/icons-react';
@@ -50,6 +51,7 @@ export const registryConfig: ModuleConfig = {
 			},
 			{
 				label: 'Graduations',
+				icon: IconSchool,
 				collapsed: true,
 				children: [
 					{
@@ -65,6 +67,12 @@ export const registryConfig: ModuleConfig = {
 						roles: ['admin', 'registry'],
 					},
 				],
+			},
+			{
+				label: 'Blocked Students',
+				href: '/registry/blocked-students',
+				icon: IconUserOff,
+				roles: ['admin', 'registry', 'finance'],
 			},
 			{
 				label: 'Terms',
