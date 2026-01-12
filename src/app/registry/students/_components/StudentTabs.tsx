@@ -3,7 +3,7 @@
 import type { getBlockedStudentByStdNo } from '@finance/blocked-students';
 import { Tabs, TabsPanel, TabsTab } from '@mantine/core';
 import type { Session } from 'next-auth';
-import { useLocalStorage } from '@/shared/lib/hooks/use-local-storage';
+import { useQueryState } from 'nuqs';
 import ScrollableTabsList from '@/shared/ui/ScrollableTabsList';
 import type { getStudent } from '../_server/actions';
 import AcademicsView from './academics/AcademicsView';
@@ -28,14 +28,13 @@ export default function StudentTabs({
 	session,
 	blockedStudent,
 }: StudentTabsProps) {
-	const [activeTab, setActiveTab] = useLocalStorage<string | null>(
-		'studentDetailsTab',
-		'info'
-	);
-
 	const showAcademics = ['academic', 'admin', 'registry', 'finance'].includes(
 		session?.user?.role ?? ''
 	);
+
+	const [activeTab, setActiveTab] = useQueryState('tab', {
+		defaultValue: showAcademics ? 'academics' : 'info',
+	});
 
 	const showRegistration =
 		['admin', 'registry', 'finance', 'student_services'].includes(
