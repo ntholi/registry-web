@@ -15,34 +15,50 @@ export async function updateResultsPublished(
 	return service.updateResultsPublished(termId, published);
 }
 
+interface PublishOptions {
+	sendNotification: boolean;
+	closeGradebook: boolean;
+	moveRejectedToBlocked: boolean;
+}
+
 export async function updateResultsPublishedWithNotification(
 	termId: number,
 	published: boolean,
 	termCode: string,
-	sendNotification: boolean
+	options: PublishOptions
 ) {
 	const result = await service.updateResultsPublished(termId, published);
 
-	if (published && sendNotification) {
-		const session = await auth();
-		if (!session?.user?.id) {
-			throw new Error('Unauthorized');
+	if (published) {
+		if (options.closeGradebook) {
+			await service.updateGradebookAccess(termId, false);
 		}
 
-		const visibleFrom = new Date();
-		const visibleUntil = new Date();
-		visibleUntil.setMonth(visibleUntil.getMonth() + 3);
+		if (options.moveRejectedToBlocked) {
+			await service.moveRejectedToBlocked(termId);
+		}
 
-		await createNotification({
-			title: 'Results Published',
-			message: `Results for term ${termCode} have been published. Click to view your transcript.`,
-			link: `/student-portal/transcripts?term=${termCode}`,
-			targetType: 'role',
-			targetRoles: ['student'],
-			visibleFrom,
-			visibleUntil,
-			isActive: true,
-		});
+		if (options.sendNotification) {
+			const session = await auth();
+			if (!session?.user?.id) {
+				throw new Error('Unauthorized');
+			}
+
+			const visibleFrom = new Date();
+			const visibleUntil = new Date();
+			visibleUntil.setMonth(visibleUntil.getMonth() + 3);
+
+			await createNotification({
+				title: 'Results Published',
+				message: `Results for term ${termCode} have been published. Click to view your transcript.`,
+				link: `/student-portal/transcripts?term=${termCode}`,
+				targetType: 'role',
+				targetRoles: ['student'],
+				visibleFrom,
+				visibleUntil,
+				isActive: true,
+			});
+		}
 	}
 
 	return result;
@@ -62,10 +78,6 @@ export async function updateRegistrationDates(
 
 export async function moveRejectedToBlocked(termId: number) {
 	return service.moveRejectedToBlocked(termId);
-}
-
-export async function hasRejectedStudentsForTerm(termId: number) {
-	return service.hasRejectedStudentsForTerm(termId);
 }
 
 export async function getUnpublishedTermCodes() {

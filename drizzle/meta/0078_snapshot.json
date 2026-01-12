@@ -1,6 +1,6 @@
 {
-	"id": "5d5ed428-693d-4060-b84e-494e46025758",
-	"prevId": "debf4b3a-5b32-4f12-8b3b-5ba34497c0a2",
+	"id": "8b441faf-6b0e-482d-be69-17a1df87366f",
+	"prevId": "5d5ed428-693d-4060-b84e-494e46025758",
 	"version": "7",
 	"dialect": "postgresql",
 	"tables": {
@@ -8434,12 +8434,6 @@
 				},
 				"registration_end_date": {
 					"name": "registration_end_date",
-					"type": "date",
-					"primaryKey": false,
-					"notNull": false
-				},
-				"rejected_moved_to_blocked_date": {
-					"name": "rejected_moved_to_blocked_date",
 					"type": "date",
 					"primaryKey": false,
 					"notNull": false

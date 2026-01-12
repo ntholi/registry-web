@@ -1,4 +1,4 @@
-import { and, eq, inArray, ne, sql } from 'drizzle-orm';
+import { and, eq, inArray, ne } from 'drizzle-orm';
 import {
 	blockedStudents,
 	clearance,
@@ -127,54 +127,6 @@ export default class TermSettingsRepository {
 				}))
 			)
 			.returning();
-	}
-
-	async updateRejectedMovedToBlockedDate(termId: number, userId: string) {
-		const today = new Date().toISOString().split('T')[0];
-		const [updated] = await db
-			.insert(termSettings)
-			.values({
-				termId,
-				rejectedMovedToBlockedDate: today,
-				createdBy: userId,
-				updatedAt: new Date(),
-				updatedBy: userId,
-			})
-			.onConflictDoUpdate({
-				target: termSettings.termId,
-				set: {
-					rejectedMovedToBlockedDate: today,
-					updatedAt: new Date(),
-					updatedBy: userId,
-				},
-			})
-			.returning();
-		return updated;
-	}
-
-	async hasRejectedStudentsForTerm(termId: number) {
-		const settings = await this.findByTermId(termId);
-		const today = new Date().toISOString().split('T')[0];
-
-		if (settings?.rejectedMovedToBlockedDate === today) {
-			return false;
-		}
-
-		const result = await db
-			.select({ count: sql<number>`count(*)` })
-			.from(registrationRequests)
-			.innerJoin(
-				registrationClearance,
-				eq(registrationClearance.registrationRequestId, registrationRequests.id)
-			)
-			.innerJoin(clearance, eq(clearance.id, registrationClearance.clearanceId))
-			.where(
-				and(
-					eq(registrationRequests.termId, termId),
-					eq(clearance.status, 'rejected')
-				)
-			);
-		return Number(result[0]?.count || 0) > 0;
 	}
 
 	async publishAllPreviousTerms(activeTermId: number) {

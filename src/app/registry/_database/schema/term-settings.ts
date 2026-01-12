@@ -20,7 +20,6 @@ export const termSettings = pgTable('term_settings', {
 	lecturerGradebookAccess: boolean().notNull().default(true),
 	registrationStartDate: date({ mode: 'string' }),
 	registrationEndDate: date({ mode: 'string' }),
-	rejectedMovedToBlockedDate: date({ mode: 'string' }),
 	createdAt: timestamp().defaultNow(),
 	createdBy: text().references(() => users.id, { onDelete: 'set null' }),
 	updatedAt: timestamp(),

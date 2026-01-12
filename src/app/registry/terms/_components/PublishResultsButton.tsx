@@ -6,23 +6,27 @@ import {
 	Checkbox,
 	Group,
 	Stack,
+	Switch,
 	Text,
 	TextInput,
 } from '@mantine/core';
 import { modals } from '@mantine/modals';
 import { notifications } from '@mantine/notifications';
-import { IconAlertTriangle, IconInfoCircle } from '@tabler/icons-react';
+import { IconInfoCircle } from '@tabler/icons-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
-import {
-	hasRejectedStudentsForTerm,
-	updateResultsPublishedWithNotification,
-} from '../_server/settings-actions';
+import { updateResultsPublishedWithNotification } from '../_server/settings-actions';
 
 interface Props {
 	termId: number;
 	termCode: string;
 	isPublished: boolean;
+}
+
+interface PublishOptions {
+	sendNotification: boolean;
+	closeGradebook: boolean;
+	moveRejectedToBlocked: boolean;
 }
 
 export default function PublishResultsButton({
@@ -33,12 +37,12 @@ export default function PublishResultsButton({
 	const queryClient = useQueryClient();
 
 	const mutation = useMutation({
-		mutationFn: (params: { publish: boolean; sendNotification: boolean }) =>
+		mutationFn: (params: { publish: boolean; options: PublishOptions }) =>
 			updateResultsPublishedWithNotification(
 				termId,
 				params.publish,
 				termCode,
-				params.sendNotification
+				params.options
 			),
 		onSuccess: () => {
 			notifications.show({
@@ -59,9 +63,7 @@ export default function PublishResultsButton({
 		},
 	});
 
-	const openModal = async () => {
-		const hasRejected = await hasRejectedStudentsForTerm(termId);
-
+	const openModal = () => {
 		modals.open({
 			title: isPublished ? 'Unpublish Results' : 'Publish Results',
 			centered: true,
@@ -69,9 +71,8 @@ export default function PublishResultsButton({
 				<PublishModalContent
 					termCode={termCode}
 					isPublished={isPublished}
-					hasRejected={hasRejected}
-					onConfirm={(sendNotification: boolean) => {
-						mutation.mutate({ publish: !isPublished, sendNotification });
+					onConfirm={(options: PublishOptions) => {
+						mutation.mutate({ publish: !isPublished, options });
 						modals.closeAll();
 					}}
 					isPending={mutation.isPending}
@@ -94,20 +95,20 @@ export default function PublishResultsButton({
 interface ModalProps {
 	termCode: string;
 	isPublished: boolean;
-	hasRejected: boolean;
-	onConfirm: (sendNotification: boolean) => void;
+	onConfirm: (options: PublishOptions) => void;
 	isPending: boolean;
 }
 
 function PublishModalContent({
 	termCode,
 	isPublished,
-	hasRejected,
 	onConfirm,
 	isPending,
 }: ModalProps) {
 	const [confirmation, setConfirmation] = useState('');
 	const [sendNotification, setSendNotification] = useState(true);
+	const [closeGradebook, setCloseGradebook] = useState(true);
+	const [moveRejectedToBlocked, setMoveRejectedToBlocked] = useState(true);
 	const requiredText = 'publish results';
 	const isValid = confirmation.toLowerCase() === requiredText;
 
@@ -125,18 +126,6 @@ function PublishModalContent({
 				</Alert>
 			)}
 
-			{!isPublished && hasRejected && (
-				<Alert
-					icon={<IconAlertTriangle size={18} />}
-					color='red'
-					variant='light'
-					title='Rejected Registrations'
-				>
-					There are rejected registration requests for this term that have not
-					been moved to blocked students. Consider doing this first.
-				</Alert>
-			)}
-
 			{isPublished && (
 				<Text size='sm'>
 					This will hide the grades and CGPA for term{' '}
@@ -146,6 +135,20 @@ function PublishModalContent({
 
 			{!isPublished && (
 				<>
+					<Stack gap='xs'>
+						<Switch
+							label='Close gradebook access for lecturers'
+							checked={closeGradebook}
+							onChange={(e) => setCloseGradebook(e.currentTarget.checked)}
+						/>
+						<Switch
+							label='Move rejected registration requests to blocked students'
+							checked={moveRejectedToBlocked}
+							onChange={(e) =>
+								setMoveRejectedToBlocked(e.currentTarget.checked)
+							}
+						/>
+					</Stack>
 					<Text size='sm'>
 						To confirm, type <strong>{requiredText}</strong> below:
 					</Text>
@@ -168,7 +171,13 @@ function PublishModalContent({
 				</Button>
 				<Button
 					color={isPublished ? 'orange' : 'green'}
-					onClick={() => onConfirm(sendNotification)}
+					onClick={() =>
+						onConfirm({
+							sendNotification,
+							closeGradebook,
+							moveRejectedToBlocked,
+						})
+					}
 					loading={isPending}
 					disabled={!isPublished && !isValid}
 				>
