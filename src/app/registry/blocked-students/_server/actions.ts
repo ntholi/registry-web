@@ -45,7 +45,8 @@ export async function getBlockedStudentByStatus(
 }
 
 export async function bulkCreateBlockedStudents(
-	data: { stdNo: number; reason: string }[]
+	data: { stdNo: number; reason: string }[],
+	department?: string
 ) {
-	return service.bulkCreate(data);
+	return service.bulkCreate(data, department);
 }

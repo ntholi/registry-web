@@ -8,6 +8,7 @@ import {
 	FileInput,
 	Group,
 	Modal,
+	Select,
 	Stack,
 	Table,
 	Text,
@@ -22,8 +23,10 @@ import {
 	IconUpload,
 } from '@tabler/icons-react';
 import { useQueryClient } from '@tanstack/react-query';
+import { useSession } from 'next-auth/react';
 import { useState } from 'react';
 import * as XLSX from 'xlsx';
+import type { DashboardUser } from '@/core/database';
 import { bulkCreateBlockedStudents } from '../_server/actions';
 
 interface ParsedStudent {
@@ -42,12 +45,18 @@ export default function ImportBlockedStudentsDialog() {
 	const [parsedData, setParsedData] = useState<ParsedStudent[]>([]);
 	const [importing, setImporting] = useState(false);
 	const [result, setResult] = useState<ImportResult | null>(null);
+	const [department, setDepartment] = useState<DashboardUser | null>(null);
 	const queryClient = useQueryClient();
+	const { data: session } = useSession();
+
+	const isAdmin = session?.user?.role === 'admin';
+	const userDepartment = session?.user?.role as DashboardUser;
 
 	function reset() {
 		setFile(null);
 		setParsedData([]);
 		setResult(null);
+		setDepartment(null);
 	}
 
 	function handleClose() {
@@ -82,9 +91,20 @@ export default function ImportBlockedStudentsDialog() {
 	async function handleImport() {
 		if (parsedData.length === 0) return;
 
+		const deptToUse = isAdmin ? department : userDepartment;
+
+		if (!deptToUse) {
+			notifications.show({
+				title: 'Error',
+				message: 'Please select a department',
+				color: 'red',
+			});
+			return;
+		}
+
 		setImporting(true);
 		try {
-			const res = await bulkCreateBlockedStudents(parsedData);
+			const res = await bulkCreateBlockedStudents(parsedData, deptToUse);
 			setResult(res);
 			queryClient.invalidateQueries({ queryKey: ['blocked-students'] });
 			notifications.show({
@@ -133,6 +153,21 @@ export default function ImportBlockedStudentsDialog() {
 						</Alert>
 					) : (
 						<>
+							{isAdmin && (
+								<Select
+									label='Blocked By Department'
+									placeholder='Select department'
+									value={department}
+									onChange={(value) => setDepartment(value as DashboardUser)}
+									data={[
+										{ value: 'finance', label: 'Finance' },
+										{ value: 'registry', label: 'Registry' },
+										{ value: 'library', label: 'Library' },
+									]}
+									required
+								/>
+							)}
+
 							<FileInput
 								label='Select Excel File'
 								placeholder='Choose .xlsx or .xls file'
@@ -206,7 +241,7 @@ export default function ImportBlockedStudentsDialog() {
 							<Button
 								onClick={handleImport}
 								loading={importing}
-								disabled={parsedData.length === 0}
+								disabled={parsedData.length === 0 || (isAdmin && !department)}
 							>
 								Import {parsedData.length > 0 && `(${parsedData.length})`}
 							</Button>
