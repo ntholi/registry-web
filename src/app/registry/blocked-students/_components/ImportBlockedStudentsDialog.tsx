@@ -18,7 +18,7 @@ import { notifications } from '@mantine/notifications';
 import {
 	IconAlertCircle,
 	IconCheck,
-	IconFileSpreadsheet,
+	IconFileUpload,
 	IconUpload,
 } from '@tabler/icons-react';
 import { useQueryClient } from '@tanstack/react-query';
@@ -109,7 +109,7 @@ export default function ImportBlockedStudentsDialog() {
 		<>
 			<Tooltip label='Import from Excel'>
 				<ActionIcon variant='default' size='lg' onClick={open}>
-					<IconFileSpreadsheet size={18} />
+					<IconFileUpload size={18} />
 				</ActionIcon>
 			</Tooltip>
 
@@ -229,39 +229,37 @@ async function readExcelFile(file: File): Promise<ParsedStudent[]> {
 				const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
 				const range = XLSX.utils.decode_range(firstSheet['!ref'] || 'A1');
 
-				const headers: string[] = [];
-				for (let col = range.s.c; col <= range.e.c; col++) {
-					const cell =
-						firstSheet[XLSX.utils.encode_cell({ r: range.s.r, c: col })];
-					headers.push(cell ? String(cell.v).toLowerCase().trim() : '');
-				}
-
-				const rows: (string | number)[][] = [];
-				for (let row = range.s.r + 1; row <= range.e.r; row++) {
+				const allRows: (string | number)[][] = [];
+				for (let row = range.s.r; row <= range.e.r; row++) {
 					const rowData: (string | number)[] = [];
 					for (let col = range.s.c; col <= range.e.c; col++) {
 						const cell = firstSheet[XLSX.utils.encode_cell({ r: row, c: col })];
 						rowData.push(cell ? cell.v : '');
 					}
 					if (rowData.some((cell) => cell !== '')) {
-						rows.push(rowData);
+						allRows.push(rowData);
 					}
 				}
 
-				let stdNoColIdx = headers.findIndex(
-					(h) => h === 'student number' || h === 'stdno' || h === 'std no'
-				);
+				if (allRows.length === 0) {
+					resolve([]);
+					return;
+				}
 
-				if (stdNoColIdx === -1) {
-					for (let col = 0; col < headers.length; col++) {
-						const allNineDigits = rows.every((row) => {
-							const val = String(row[col]).trim();
-							return /^\d{9}$/.test(val);
-						});
-						if (allNineDigits && rows.length > 0) {
-							stdNoColIdx = col;
-							break;
+				let stdNoColIdx = -1;
+				let bestMatchCount = 0;
+
+				for (let col = 0; col <= range.e.c - range.s.c; col++) {
+					let nineDigitCount = 0;
+					for (const row of allRows) {
+						const val = String(row[col] ?? '').trim();
+						if (/^\d{9}$/.test(val)) {
+							nineDigitCount++;
 						}
+					}
+					if (nineDigitCount > bestMatchCount && nineDigitCount >= 1) {
+						bestMatchCount = nineDigitCount;
+						stdNoColIdx = col;
 					}
 				}
 
@@ -270,13 +268,25 @@ async function readExcelFile(file: File): Promise<ParsedStudent[]> {
 					return;
 				}
 
-				const reasonColIdx = headers.indexOf('reason');
+				let reasonColIdx = -1;
+				for (let col = 0; col <= range.e.c - range.s.c; col++) {
+					for (const row of allRows) {
+						const val = String(row[col] ?? '')
+							.toLowerCase()
+							.trim();
+						if (val === 'reason') {
+							reasonColIdx = col;
+							break;
+						}
+					}
+					if (reasonColIdx !== -1) break;
+				}
 
 				const students: ParsedStudent[] = [];
 				const seenStdNos = new Set<number>();
 
-				for (const row of rows) {
-					const stdNoVal = String(row[stdNoColIdx]).trim();
+				for (const row of allRows) {
+					const stdNoVal = String(row[stdNoColIdx] ?? '').trim();
 					if (!/^\d{9}$/.test(stdNoVal)) continue;
 
 					const stdNo = Number.parseInt(stdNoVal, 10);
@@ -287,6 +297,8 @@ async function readExcelFile(file: File): Promise<ParsedStudent[]> {
 						reasonColIdx !== -1 && row[reasonColIdx]
 							? String(row[reasonColIdx]).trim()
 							: 'No reason provided';
+
+					if (reason.toLowerCase() === 'reason') continue;
 
 					students.push({ stdNo, reason });
 				}
