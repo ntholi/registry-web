@@ -21,6 +21,7 @@ import { useQueryState } from 'nuqs';
 import useUserStudent from '@/shared/lib/hooks/use-user-student';
 import { formatSemester } from '@/shared/lib/utils/utils';
 import {
+	AcademicRemarksSummary,
 	DesktopTable,
 	LoadingSkeleton,
 	MobileTable,
@@ -28,7 +29,7 @@ import {
 } from './_components';
 
 export default function TranscriptsPage() {
-	const { student, program, isLoading } = useUserStudent();
+	const { student, program, remarks, isLoading } = useUserStudent();
 	const isMobile = useMediaQuery('(max-width: 768px)');
 	const [termCode, setTermCode] = useQueryState('term');
 
@@ -185,6 +186,7 @@ export default function TranscriptsPage() {
 						})}
 					</Accordion>
 				)}
+				<AcademicRemarksSummary remarks={remarks} />
 			</Stack>
 		</Container>
 	);
