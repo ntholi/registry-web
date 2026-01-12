@@ -2,7 +2,7 @@
 
 import {
 	getActiveSchools,
-	getProgramsBySchoolId,
+	getProgramsBySchoolIds,
 } from '@academic/schools/_server/actions';
 import {
 	Badge,
@@ -11,6 +11,7 @@ import {
 	Group,
 	Loader,
 	Modal,
+	MultiSelect,
 	NumberInput,
 	Paper,
 	Select,
@@ -21,17 +22,20 @@ import { useDisclosure } from '@mantine/hooks';
 import { IconFilter, IconSearch, IconX } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import {
+	parseAsArrayOf,
 	parseAsFloat,
 	parseAsInteger,
 	parseAsString,
 	useQueryStates,
 } from 'nuqs';
-import { getAllTerms } from '@/app/registry/terms/_server/actions';
+import { useEffect, useRef } from 'react';
+import { getAllTerms } from '@/app/registry/terms';
+import { useUserSchools } from '@/shared/lib/hooks/use-user-schools';
 
 export interface CGPAFinderFilterValues {
 	minCGPA: number | null;
 	maxCGPA: number | null;
-	schoolId: number | null;
+	schoolIds: number[] | null;
 	programId: number | null;
 	termCode: string | null;
 }
@@ -43,11 +47,14 @@ interface Props {
 
 export function CGPAFinderFilter({ onSearch, isLoading }: Props) {
 	const [opened, { open, close }] = useDisclosure(false);
+	const { userSchools } = useUserSchools();
+	const termAutoSelected = useRef(false);
+	const schoolsAutoSelected = useRef(false);
 
 	const [params, setParams] = useQueryStates({
 		minCGPA: parseAsFloat,
 		maxCGPA: parseAsFloat,
-		schoolId: parseAsInteger,
+		schoolIds: parseAsArrayOf(parseAsInteger),
 		programId: parseAsInteger,
 		termCode: parseAsString,
 	});
@@ -58,9 +65,9 @@ export function CGPAFinderFilter({ onSearch, isLoading }: Props) {
 	});
 
 	const { data: programs = [], isLoading: programsLoading } = useQuery({
-		queryKey: ['programs-by-school', params.schoolId],
-		queryFn: () => getProgramsBySchoolId(params.schoolId ?? undefined),
-		enabled: !!params.schoolId,
+		queryKey: ['programs-by-school-ids', params.schoolIds],
+		queryFn: () => getProgramsBySchoolIds(params.schoolIds ?? undefined),
+		enabled: (params.schoolIds?.length ?? 0) > 0,
 	});
 
 	const { data: terms = [], isLoading: termsLoading } = useQuery({
@@ -68,14 +75,44 @@ export function CGPAFinderFilter({ onSearch, isLoading }: Props) {
 		queryFn: getAllTerms,
 	});
 
+	useEffect(() => {
+		if (!termAutoSelected.current && !params.termCode && terms.length > 0) {
+			const activeTerm = terms.find((term) => term.isActive);
+			if (activeTerm) {
+				setParams({ termCode: activeTerm.code });
+				termAutoSelected.current = true;
+			}
+		}
+	}, [terms, params.termCode, setParams]);
+
+	useEffect(() => {
+		if (
+			!schoolsAutoSelected.current &&
+			(!params.schoolIds || params.schoolIds.length === 0) &&
+			userSchools.length > 0 &&
+			schools.length > 0
+		) {
+			const userSchoolIds = userSchools.map((us) => us.schoolId);
+			const validSchoolIds = userSchoolIds.filter((id) =>
+				schools.some((s) => s.id === id)
+			);
+			if (validSchoolIds.length > 0) {
+				setParams({ schoolIds: validSchoolIds });
+				schoolsAutoSelected.current = true;
+			}
+		}
+	}, [userSchools, schools, params.schoolIds, setParams]);
+
 	const schoolOptions = schools.map((s) => ({
 		value: s.id.toString(),
-		label: `${s.code} - ${s.name}`,
+		label: s.code,
+		description: s.name,
 	}));
 
 	const programOptions = programs.map((p) => ({
 		value: p.id.toString(),
-		label: `${p.code} - ${p.name}`,
+		label: p.code,
+		description: p.name,
 	}));
 
 	const termOptions = terms.map((t) => ({
@@ -84,7 +121,7 @@ export function CGPAFinderFilter({ onSearch, isLoading }: Props) {
 	}));
 
 	const activeFiltersCount = [
-		params.schoolId,
+		params.schoolIds && params.schoolIds.length > 0 ? 1 : 0,
 		params.programId,
 		params.termCode,
 	].filter(Boolean).length;
@@ -98,7 +135,7 @@ export function CGPAFinderFilter({ onSearch, isLoading }: Props) {
 		onSearch({
 			minCGPA: params.minCGPA,
 			maxCGPA: params.maxCGPA,
-			schoolId: params.schoolId,
+			schoolIds: params.schoolIds,
 			programId: params.programId,
 			termCode: params.termCode,
 		});
@@ -106,15 +143,15 @@ export function CGPAFinderFilter({ onSearch, isLoading }: Props) {
 
 	function handleClearFilters() {
 		setParams({
-			schoolId: null,
+			schoolIds: null,
 			programId: null,
 			termCode: null,
 		});
 	}
 
-	function handleSchoolChange(value: string | null) {
+	function handleSchoolsChange(values: string[]) {
 		setParams({
-			schoolId: value ? Number(value) : null,
+			schoolIds: values.length > 0 ? values.map(Number) : null,
 			programId: null,
 		});
 	}
@@ -123,7 +160,9 @@ export function CGPAFinderFilter({ onSearch, isLoading }: Props) {
 		close();
 	}
 
-	const selectedSchool = schools.find((s) => s.id === params.schoolId);
+	const selectedSchools = schools.filter((s) =>
+		params.schoolIds?.includes(s.id)
+	);
 	const selectedProgram = programs.find((p) => p.id === params.programId);
 
 	return (
@@ -193,22 +232,29 @@ export function CGPAFinderFilter({ onSearch, isLoading }: Props) {
 							<Text size='sm' c='dimmed'>
 								Active filters:
 							</Text>
-							{selectedSchool && (
+							{selectedSchools.map((school) => (
 								<Badge
+									key={school.id}
 									variant='light'
 									rightSection={
 										<IconX
 											size={12}
 											style={{ cursor: 'pointer' }}
 											onClick={() =>
-												setParams({ schoolId: null, programId: null })
+												setParams({
+													schoolIds:
+														params.schoolIds?.filter(
+															(id) => id !== school.id
+														) ?? null,
+													programId: null,
+												})
 											}
 										/>
 									}
 								>
-									{selectedSchool.code}
+									{school.code}
 								</Badge>
-							)}
+							))}
 							{selectedProgram && (
 								<Badge
 									variant='light'
@@ -257,17 +303,30 @@ export function CGPAFinderFilter({ onSearch, isLoading }: Props) {
 				size='lg'
 			>
 				<Stack gap='md'>
-					<Divider label='Location' labelPosition='left' />
-
-					<Select
-						label='School'
+					<MultiSelect
+						label='Schools'
 						placeholder='All schools'
 						data={schoolOptions}
-						value={params.schoolId?.toString() ?? null}
-						onChange={handleSchoolChange}
+						value={params.schoolIds?.map(String) ?? []}
+						onChange={handleSchoolsChange}
 						searchable
 						clearable
 						rightSection={schoolsLoading ? <Loader size='xs' /> : null}
+						renderOption={({ option }) => {
+							const customOption = option as {
+								value: string;
+								label: string;
+								description: string;
+							};
+							return (
+								<div>
+									<Text size='sm'>{customOption.label}</Text>
+									<Text size='xs' c='dimmed'>
+										{customOption.description}
+									</Text>
+								</div>
+							);
+						}}
 					/>
 
 					<Select
@@ -280,8 +339,23 @@ export function CGPAFinderFilter({ onSearch, isLoading }: Props) {
 						}
 						searchable
 						clearable
-						disabled={!params.schoolId}
+						disabled={!params.schoolIds || params.schoolIds.length === 0}
 						rightSection={programsLoading ? <Loader size='xs' /> : null}
+						renderOption={({ option }) => {
+							const customOption = option as {
+								value: string;
+								label: string;
+								description: string;
+							};
+							return (
+								<div>
+									<Text size='sm'>{customOption.label}</Text>
+									<Text size='xs' c='dimmed'>
+										{customOption.description}
+									</Text>
+								</div>
+							);
+						}}
 					/>
 
 					<Divider label='Academic' labelPosition='left' />

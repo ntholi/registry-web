@@ -1,6 +1,11 @@
 import withAuth from '@/core/platform/withAuth';
-import { type CGPAFinderFilters, findStudentsByCGPA } from './cgpa-repository';
 import {
+	type CGPAFinderFilters,
+	exportStudentsByCGPA,
+	findStudentsByCGPA,
+} from './cgpa-repository';
+import {
+	exportStudentsByGrade,
 	findStudentsByGrade,
 	type GradeFinderFilters,
 	searchModulesForFilter,
@@ -17,6 +22,14 @@ class GradeFinderService {
 
 	async findStudentsByCGPA(filters: CGPAFinderFilters, page = 1) {
 		return withAuth(() => findStudentsByCGPA(filters, page), ['dashboard']);
+	}
+
+	async exportStudentsByGrade(filters: GradeFinderFilters) {
+		return withAuth(() => exportStudentsByGrade(filters), ['dashboard']);
+	}
+
+	async exportStudentsByCGPA(filters: CGPAFinderFilters) {
+		return withAuth(() => exportStudentsByCGPA(filters), ['dashboard']);
 	}
 }
 

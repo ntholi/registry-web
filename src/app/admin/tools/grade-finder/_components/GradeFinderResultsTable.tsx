@@ -3,6 +3,7 @@
 import {
 	Badge,
 	Box,
+	Button,
 	Group,
 	Loader,
 	Pagination,
@@ -14,7 +15,8 @@ import {
 	Text,
 	TextInput,
 } from '@mantine/core';
-import { IconSearch } from '@tabler/icons-react';
+import { IconDownload, IconSearch } from '@tabler/icons-react';
+import ExcelJS from 'exceljs';
 import { useState } from 'react';
 import { getGradeColor } from '@/shared/lib/utils/colors';
 import { formatSemester } from '@/shared/lib/utils/utils';
@@ -29,6 +31,7 @@ interface Props {
 	currentPage: number;
 	onPageChange: (page: number) => void;
 	onSearchChange: (search: string) => void;
+	onExport: () => Promise<GradeFinderResult[]>;
 }
 
 function getClassName(programCode: string, semesterNumber: string) {
@@ -43,25 +46,94 @@ export function GradeFinderResultsTable({
 	currentPage,
 	onPageChange,
 	onSearchChange,
+	onExport,
 }: Props) {
 	const [searchValue, setSearchValue] = useState('');
+	const [isExporting, setIsExporting] = useState(false);
 
 	function handleSearchChange(value: string) {
 		setSearchValue(value);
 		onSearchChange(value);
 	}
 
+	async function handleExport() {
+		setIsExporting(true);
+		try {
+			const results = await onExport();
+			const workbook = new ExcelJS.Workbook();
+			const worksheet = workbook.addWorksheet('Grade Finder Results');
+
+			worksheet.columns = [
+				{ header: 'Student No.', key: 'stdNo', width: 15 },
+				{ header: 'Student Name', key: 'studentName', width: 30 },
+				{ header: 'Module Code', key: 'moduleCode', width: 15 },
+				{ header: 'Module Name', key: 'moduleName', width: 35 },
+				{ header: 'Grade', key: 'grade', width: 10 },
+				{ header: 'Term', key: 'termCode', width: 12 },
+				{ header: 'Class', key: 'class', width: 15 },
+				{ header: 'School', key: 'schoolCode', width: 10 },
+			];
+
+			const headerRow = worksheet.getRow(1);
+			headerRow.font = { bold: true };
+			headerRow.fill = {
+				type: 'pattern',
+				pattern: 'solid',
+				fgColor: { argb: 'FFE0E0E0' },
+			};
+
+			for (const row of results) {
+				worksheet.addRow({
+					stdNo: row.stdNo,
+					studentName: row.studentName,
+					moduleCode: row.moduleCode,
+					moduleName: row.moduleName,
+					grade: row.grade,
+					termCode: row.termCode,
+					class: getClassName(row.programCode, row.semesterNumber),
+					schoolCode: row.schoolCode,
+				});
+			}
+
+			const buffer = await workbook.xlsx.writeBuffer();
+			const blob = new Blob([buffer], {
+				type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+			});
+			const url = URL.createObjectURL(blob);
+			const link = document.createElement('a');
+			link.href = url;
+			link.download = `grade_finder_${new Date().toISOString().split('T')[0]}.xlsx`;
+			link.click();
+			URL.revokeObjectURL(url);
+		} finally {
+			setIsExporting(false);
+		}
+	}
+
 	if (!data.length && !isLoading) {
 		return (
 			<Paper withBorder p='md'>
 				<Stack gap='md'>
-					<TextInput
-						placeholder='Search by student name or module...'
-						leftSection={<IconSearch size={16} />}
-						value={searchValue}
-						onChange={(e) => handleSearchChange(e.currentTarget.value)}
-						size='sm'
-					/>
+					<Group gap='sm'>
+						<TextInput
+							placeholder='Search by student name or module...'
+							leftSection={<IconSearch size={16} />}
+							value={searchValue}
+							onChange={(e) => handleSearchChange(e.currentTarget.value)}
+							size='sm'
+							style={{ flex: 1 }}
+						/>
+						<Button
+							size='sm'
+							variant='light'
+							leftSection={<IconDownload size={16} />}
+							onClick={handleExport}
+							loading={isExporting}
+							disabled
+						>
+							Export
+						</Button>
+					</Group>
 					<Box py='xl' ta='center'>
 						<Text c='dimmed'>
 							No results found. Try adjusting your filters.
@@ -75,14 +147,27 @@ export function GradeFinderResultsTable({
 	return (
 		<Paper withBorder p='md'>
 			<Stack gap='md'>
-				<TextInput
-					placeholder='Search by student name or module...'
-					leftSection={<IconSearch size={16} />}
-					rightSection={isLoading ? <Loader size='xs' /> : null}
-					value={searchValue}
-					onChange={(e) => handleSearchChange(e.currentTarget.value)}
-					size='sm'
-				/>
+				<Group gap='sm'>
+					<TextInput
+						placeholder='Search by student name or module...'
+						leftSection={<IconSearch size={16} />}
+						rightSection={isLoading ? <Loader size='xs' /> : null}
+						value={searchValue}
+						onChange={(e) => handleSearchChange(e.currentTarget.value)}
+						size='sm'
+						style={{ flex: 1 }}
+					/>
+					<Button
+						size='sm'
+						variant='light'
+						leftSection={<IconDownload size={16} />}
+						onClick={handleExport}
+						loading={isExporting}
+						disabled={total === 0}
+					>
+						Export
+					</Button>
+				</Group>
 
 				<ScrollArea>
 					<Table striped highlightOnHover>
