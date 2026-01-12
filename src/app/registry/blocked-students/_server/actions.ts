@@ -43,3 +43,9 @@ export async function getBlockedStudentByStatus(
 		search,
 	});
 }
+
+export async function bulkCreateBlockedStudents(
+	data: { stdNo: number; reason: string }[]
+) {
+	return service.bulkCreate(data);
+}

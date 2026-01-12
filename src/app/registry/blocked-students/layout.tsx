@@ -2,6 +2,7 @@
 
 import type { PropsWithChildren } from 'react';
 import { ListItem, ListLayout, NewLink } from '@/shared/ui/adease';
+import ImportBlockedStudentsDialog from './_components/ImportBlockedStudentsDialog';
 import { getBlockedStudentByStatus } from './_server/actions';
 
 export default function Layout({ children }: PropsWithChildren) {
@@ -13,6 +14,7 @@ export default function Layout({ children }: PropsWithChildren) {
 				await getBlockedStudentByStatus('blocked', page, search)
 			}
 			actionIcons={[
+				<ImportBlockedStudentsDialog key='import' />,
 				<NewLink key={'new-link'} href='/registry/blocked-students/new' />,
 			]}
 			renderItem={(it) => (

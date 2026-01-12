@@ -58,6 +58,33 @@ class BlockedStudentService {
 			['finance', 'registry']
 		);
 	}
+
+	async bulkCreate(data: { stdNo: number; reason: string }[]) {
+		return withAuth(
+			async (session) => {
+				const stdNos = data.map((d) => d.stdNo);
+				const alreadyBlocked =
+					await this.repository.findBlockedByStdNos(stdNos);
+				const blockedSet = new Set(alreadyBlocked.map((b) => b.stdNo));
+
+				const toCreate = data
+					.filter((d) => !blockedSet.has(d.stdNo))
+					.map((d) => ({
+						stdNo: d.stdNo,
+						reason: d.reason,
+						byDepartment: session?.user?.role || 'registry',
+					}));
+
+				await this.repository.bulkCreate(toCreate);
+
+				return {
+					imported: toCreate.length,
+					skipped: blockedSet.size,
+				};
+			},
+			['finance', 'registry']
+		);
+	}
 }
 
 export const blockedStudentsService = serviceWrapper(

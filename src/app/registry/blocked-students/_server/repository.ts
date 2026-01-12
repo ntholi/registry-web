@@ -1,4 +1,4 @@
-import { and, eq } from 'drizzle-orm';
+import { and, eq, inArray } from 'drizzle-orm';
 import { blockedStudents, db } from '@/core/database';
 import BaseRepository, {
 	type QueryOptions,
@@ -31,6 +31,36 @@ export default class BlockedStudentRepository extends BaseRepository<
 				eq(blockedStudents.status, status)
 			),
 		});
+	}
+
+	async findBlockedByStdNos(stdNos: number[]) {
+		if (stdNos.length === 0) return [];
+		return db
+			.select({ stdNo: blockedStudents.stdNo })
+			.from(blockedStudents)
+			.where(
+				and(
+					inArray(blockedStudents.stdNo, stdNos),
+					eq(blockedStudents.status, 'blocked')
+				)
+			);
+	}
+
+	async bulkCreate(
+		data: { stdNo: number; reason: string; byDepartment: string }[]
+	) {
+		if (data.length === 0) return [];
+		return db
+			.insert(blockedStudents)
+			.values(
+				data.map((d) => ({
+					stdNo: d.stdNo,
+					reason: d.reason,
+					byDepartment: d.byDepartment as 'registry',
+					status: 'blocked' as const,
+				}))
+			)
+			.returning();
 	}
 
 	async query(options: QueryOptions<typeof blockedStudents>) {
