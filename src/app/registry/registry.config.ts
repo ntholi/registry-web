@@ -50,6 +50,7 @@ export const registryConfig: ModuleConfig = {
 			},
 			{
 				label: 'Graduations',
+				collapsed: true,
 				children: [
 					{
 						label: 'Requests',

@@ -29,10 +29,6 @@ export default function RequestDetailsView({ value, sponsorship }: Props) {
 		<Stack gap='md'>
 			<StudentNameView stdNo={value.stdNo} name={value.student.name} />
 
-			<FieldView label='Term' underline={false}>
-				{value.term.code}
-			</FieldView>
-
 			<FieldView label='Date' underline={false}>
 				{formatDateTime(value.createdAt)}
 			</FieldView>
@@ -41,8 +37,21 @@ export default function RequestDetailsView({ value, sponsorship }: Props) {
 				<FieldView label='Semester' underline={false}>
 					{formatSemester(value.semesterNumber)}
 				</FieldView>
-				<Badge radius={'sm'} color={getStatusColor(value.semesterStatus)}>
+				<Badge
+					radius={'sm'}
+					variant='light'
+					color={getStatusColor(value.semesterStatus)}
+				>
 					{value.semesterStatus}
+				</Badge>
+			</Flex>
+
+			<Flex justify={'space-between'} w='100%'>
+				<FieldView label='Term' underline={false}>
+					{value.term.code}
+				</FieldView>
+				<Badge radius={'sm'} color={getStatusColor(value.status)}>
+					{value.status}
 				</Badge>
 			</Flex>
 
