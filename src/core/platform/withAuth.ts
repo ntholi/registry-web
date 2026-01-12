@@ -49,31 +49,19 @@ export default async function withAuth<T>(
 			return await fn(session);
 		}
 
-		if (isRoleBased && roles.includes('dashboard')) {
-			const isDashboardUser = dashboardUsers.enumValues.includes(
-				session.user.role as (typeof dashboardUsers.enumValues)[number]
+		if (isRoleBased) {
+			const isDashboardUser =
+				roles.includes('dashboard') &&
+				dashboardUsers.enumValues.includes(
+					session.user.role as (typeof dashboardUsers.enumValues)[number]
+				);
+
+			const otherRoles = roles.filter((r) => r !== 'dashboard');
+			const hasRequiredRole = otherRoles.includes(
+				session.user.role as (typeof otherRoles)[number]
 			);
 
-			if (!isDashboardUser) {
-				logAuthError(
-					'Insufficient permissions for dashboard access',
-					functionName,
-					{
-						currentRole: session.user.role,
-						requiredRoles: roles,
-						userId: session.user.id,
-					}
-				);
-				return forbidden();
-			}
-
-			return await fn(session);
-		}
-
-		if (isRoleBased) {
-			const hasRequiredRole = roles.includes(session.user.role as Role);
-
-			if (!hasRequiredRole) {
+			if (!isDashboardUser && !hasRequiredRole) {
 				logAuthError('Insufficient role permissions', functionName, {
 					currentRole: session.user.role,
 					requiredRoles: roles,
