@@ -4,16 +4,15 @@ import {
 	getCurrentSemester,
 	getStudentByUserId,
 } from '@registry/students';
+import { getUnpublishedTermCodes } from '@registry/terms/_server/settings-actions';
 import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { getAcademicRemarks } from '@/shared/lib/utils/grades';
-import { useActiveTerm } from './use-active-term';
 
 export default function useUserStudent() {
 	const router = useRouter();
 	const { data: session, status } = useSession();
-	const { activeTerm } = useActiveTerm();
 	const { data: student, isLoading } = useQuery({
 		queryKey: ['student', session?.user?.id],
 		queryFn: () => getStudentByUserId(session?.user?.id),
@@ -21,21 +20,21 @@ export default function useUserStudent() {
 		enabled: !!session?.user?.id,
 	});
 
+	const { data: unpublishedTerms = [] } = useQuery({
+		queryKey: ['unpublished-terms'],
+		queryFn: getUnpublishedTermCodes,
+	});
+
 	if (status === 'unauthenticated') {
 		router.push('/auth/login');
 	}
-
-	const excludeTermCode =
-		activeTerm?.settings?.resultsPublished === false
-			? activeTerm.code
-			: undefined;
 
 	return {
 		isLoading: status === 'loading' || isLoading,
 		user: session?.user,
 		student,
 		program: getActiveProgram(student),
-		remarks: getAcademicRemarks(student?.programs ?? [], excludeTermCode),
+		remarks: getAcademicRemarks(student?.programs ?? [], unpublishedTerms),
 		semester: getCurrentSemester(student),
 	};
 }

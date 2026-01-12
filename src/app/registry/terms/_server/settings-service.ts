@@ -6,10 +6,7 @@ class TermSettingsService {
 	private repository = new TermSettingsRepository();
 
 	async findByTermId(termId: number) {
-		return withAuth(
-			async () => this.repository.findByTermId(termId),
-			['admin', 'registry']
-		);
+		return withAuth(async () => this.repository.findByTermId(termId), ['all']);
 	}
 
 	async updateResultsPublished(termId: number, published: boolean) {
@@ -140,6 +137,13 @@ class TermSettingsService {
 		return withAuth(
 			async () => this.repository.hasRejectedStudentsForTerm(termId),
 			['admin', 'registry']
+		);
+	}
+
+	async getUnpublishedTermCodes() {
+		return withAuth(
+			async () => this.repository.getUnpublishedTermCodes(),
+			['all']
 		);
 	}
 }

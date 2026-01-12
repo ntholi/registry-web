@@ -48,11 +48,7 @@ export default async function TermDetails({ params }: Props) {
 					<FieldView label='End Date'>{term.endDate}</FieldView>
 				</SimpleGrid>
 
-				<TermSettingsSection
-					termId={term.id}
-					termCode={term.code}
-					settings={term.settings ?? null}
-				/>
+				<TermSettingsSection termId={term.id} termCode={term.code} />
 			</DetailsViewBody>
 		</DetailsView>
 	);

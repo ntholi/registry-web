@@ -22,7 +22,7 @@ import Link from 'next/link';
 import { useSession } from 'next-auth/react';
 import { useState } from 'react';
 import { getStatusColor } from '@/shared/lib/utils/colors';
-import { getAcademicHistory } from '../../_server/actions';
+import { getPublishedAcademicHistory } from '../../_server/actions';
 import CertificateDownloader from './certificate/CertificateDownloader';
 import CertificatePreview from './certificate/CertificatePreview';
 import TranscriptPreview from './transcript/TranscriptPreview';
@@ -60,8 +60,8 @@ export default function GraduationView({
 	});
 
 	const { data: student, isLoading: isStudentLoading } = useQuery({
-		queryKey: ['student', stdNoNum, 'no-active-term'],
-		queryFn: () => getAcademicHistory(stdNoNum, true),
+		queryKey: ['student', stdNoNum, 'published'],
+		queryFn: () => getPublishedAcademicHistory(stdNoNum),
 		enabled: isActive,
 	});
 

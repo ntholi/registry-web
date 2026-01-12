@@ -1,7 +1,6 @@
 'use client';
 
-import { Button, Stack, Text } from '@mantine/core';
-import { modals } from '@mantine/modals';
+import { Switch } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { updateGradebookAccess } from '../_server/settings-actions';
@@ -23,7 +22,7 @@ export default function GradebookAccessButton({ termId, access }: Props) {
 				message: 'Gradebook access updated',
 				color: 'green',
 			});
-			queryClient.invalidateQueries({ queryKey: ['terms'] });
+			queryClient.invalidateQueries({ queryKey: ['term-settings', termId] });
 		},
 		onError: (error: Error) => {
 			notifications.show({
@@ -34,36 +33,14 @@ export default function GradebookAccessButton({ termId, access }: Props) {
 		},
 	});
 
-	const openModal = () => {
-		modals.openConfirmModal({
-			title: access ? 'Close Gradebook Access' : 'Open Gradebook Access',
-			centered: true,
-			children: (
-				<Stack gap='sm'>
-					<Text size='sm'>
-						{access
-							? 'This will prevent lecturers from accessing and editing grades.'
-							: 'This will allow lecturers to access and edit grades.'}
-					</Text>
-				</Stack>
-			),
-			labels: {
-				confirm: access ? 'Close Access' : 'Open Access',
-				cancel: 'Cancel',
-			},
-			confirmProps: { color: access ? 'red' : 'green' },
-			onConfirm: () => mutation.mutate(!access),
-		});
-	};
-
 	return (
-		<Button
-			color={access ? 'green' : 'gray'}
-			variant={access ? 'filled' : 'light'}
-			onClick={openModal}
-			loading={mutation.isPending}
-		>
-			{access ? 'Gradebook Open' : 'Gradebook Closed'}
-		</Button>
+		<Switch
+			checked={access}
+			onChange={(e) => mutation.mutate(e.currentTarget.checked)}
+			disabled={mutation.isPending}
+			color='green'
+			size='md'
+			label={access ? 'Open' : 'Closed'}
+		/>
 	);
 }

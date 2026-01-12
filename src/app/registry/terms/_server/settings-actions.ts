@@ -2,6 +2,10 @@
 
 import { termSettingsService as service } from './settings-service';
 
+export async function getTermSettings(termId: number) {
+	return service.findByTermId(termId);
+}
+
 export async function updateResultsPublished(
 	termId: number,
 	published: boolean
@@ -27,4 +31,8 @@ export async function moveRejectedToBlocked(termId: number) {
 
 export async function hasRejectedStudentsForTerm(termId: number) {
 	return service.hasRejectedStudentsForTerm(termId);
+}
+
+export async function getUnpublishedTermCodes() {
+	return service.getUnpublishedTermCodes();
 }

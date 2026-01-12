@@ -22,17 +22,14 @@ class StudentService {
 		}, ['dashboard']);
 	}
 
-	async getAcademicHistory(stdNo: number, excludeActiveTerm: boolean = false) {
+	async getAcademicHistory(stdNo: number, excludedTerms: string[] = []) {
 		return withAuth(async () => {
 			const data = await this.repository.findAcademicHistory(stdNo);
-			if (!excludeActiveTerm) return data;
-
-			const activeTerm = await getActiveTerm();
-			if (!data) return data;
+			if (excludedTerms.length === 0 || !data) return data;
 
 			return {
 				...data,
-				programs: removeTermFromPrograms(data.programs, activeTerm.code),
+				programs: removeTermsFromPrograms(data.programs, excludedTerms),
 			};
 		}, ['academic', 'registry', 'finance', 'student']);
 	}
@@ -131,12 +128,14 @@ class StudentService {
 	}
 }
 
-function removeTermFromPrograms(programs: Program[], termCode: string) {
+function removeTermsFromPrograms(programs: Program[], termCodes: string[]) {
+	const excludeSet = new Set(termCodes);
 	return programs.map((program) => ({
 		...program,
 		semesters:
-			program.semesters?.filter((semester) => semester.termCode !== termCode) ||
-			[],
+			program.semesters?.filter(
+				(semester) => !excludeSet.has(semester.termCode)
+			) || [],
 	}));
 }
 

@@ -6,6 +6,7 @@ import {
 	registrationClearance,
 	registrationRequests,
 	termSettings,
+	terms,
 } from '@/core/database';
 
 export type TermSettingsInsert = typeof termSettings.$inferInsert;
@@ -141,6 +142,15 @@ export default class TermSettingsRepository {
 			.update(termSettings)
 			.set({ resultsPublished: true })
 			.where(ne(termSettings.termId, activeTermId));
+	}
+
+	async getUnpublishedTermCodes() {
+		const results = await db
+			.select({ code: terms.code })
+			.from(termSettings)
+			.innerJoin(terms, eq(terms.id, termSettings.termId))
+			.where(eq(termSettings.resultsPublished, false));
+		return results.map((r) => r.code);
 	}
 }
 

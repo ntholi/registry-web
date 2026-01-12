@@ -15,7 +15,7 @@ import {
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 import { formatIssueDate } from '@/shared/lib/utils/dates';
-import { getAcademicHistory } from '../../../_server/actions';
+import { getPublishedAcademicHistory } from '../../../_server/actions';
 
 type CertificatePreviewProps = {
 	stdNo: number;
@@ -23,7 +23,9 @@ type CertificatePreviewProps = {
 	onProgramSelect?: (programId: number) => void;
 };
 
-type Student = NonNullable<Awaited<ReturnType<typeof getAcademicHistory>>>;
+type Student = NonNullable<
+	Awaited<ReturnType<typeof getPublishedAcademicHistory>>
+>;
 type StudentProgram = Student['programs'][number];
 
 export default function CertificatePreview({
@@ -36,8 +38,8 @@ export default function CertificatePreview({
 	);
 
 	const { data: student, isLoading } = useQuery({
-		queryKey: ['student', stdNo, 'no-active-term'],
-		queryFn: () => getAcademicHistory(stdNo, true),
+		queryKey: ['student', stdNo, 'published'],
+		queryFn: () => getPublishedAcademicHistory(stdNo),
 		enabled: isActive,
 	});
 

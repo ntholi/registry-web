@@ -14,9 +14,9 @@ import {
 } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
 import { getCleanedSemesters } from '@registry/students';
+import { getUnpublishedTermCodes } from '@registry/terms/_server/settings-actions';
 import { IconAlertCircle, IconLock } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
-import { useActiveTerm } from '@/shared/lib/hooks/use-active-term';
 import useUserStudent from '@/shared/lib/hooks/use-user-student';
 import { formatSemester } from '@/shared/lib/utils/utils';
 import {
@@ -28,8 +28,12 @@ import {
 
 export default function TranscriptsPage() {
 	const { student, program, isLoading } = useUserStudent();
-	const { activeTerm } = useActiveTerm();
 	const isMobile = useMediaQuery('(max-width: 768px)');
+
+	const { data: unpublishedTerms = [] } = useQuery({
+		queryKey: ['unpublished-terms'],
+		queryFn: getUnpublishedTermCodes,
+	});
 
 	const { data: blockedStudent, isLoading: blockedLoading } = useQuery({
 		queryKey: ['blocked-student', student?.stdNo],
@@ -89,9 +93,7 @@ export default function TranscriptsPage() {
 	}
 
 	const semesters = getCleanedSemesters(program).filter(
-		(it: { termCode: string }) =>
-			activeTerm?.settings?.resultsPublished !== false ||
-			it.termCode !== activeTerm?.code
+		(it: { termCode: string }) => !unpublishedTerms.includes(it.termCode)
 	);
 
 	return (

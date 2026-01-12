@@ -3,7 +3,7 @@
 import { Box, Center, Loader, Text } from '@mantine/core';
 import { PDFViewer } from '@react-pdf/renderer';
 import { useQuery } from '@tanstack/react-query';
-import { getAcademicHistory } from '../../../_server/actions';
+import { getPublishedAcademicHistory } from '../../../_server/actions';
 import TranscriptPDF from './TranscriptPDF';
 
 type TranscriptPreviewProps = {
@@ -16,8 +16,8 @@ export default function TranscriptPreview({
 	isActive,
 }: TranscriptPreviewProps) {
 	const { data: student, isLoading } = useQuery({
-		queryKey: ['student', stdNo, 'no-active-term'],
-		queryFn: () => getAcademicHistory(stdNo, true),
+		queryKey: ['student', stdNo, 'published'],
+		queryFn: () => getPublishedAcademicHistory(stdNo),
 		enabled: isActive,
 	});
 

@@ -11,7 +11,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
 import QRCode from 'qrcode';
 import { useState } from 'react';
-import { getAcademicHistory } from '../../../_server/actions';
+import { getPublishedAcademicHistory } from '../../../_server/actions';
 import StatementOfResultsPDF from './StatementOfResultsPDF';
 
 type Props = {
@@ -24,8 +24,8 @@ export default function StatementOfResultsPrinter({ stdNo, disabled }: Props) {
 	const { data: session } = useSession();
 
 	const { data: student } = useQuery({
-		queryKey: ['student', stdNo, 'no-active-term'],
-		queryFn: () => getAcademicHistory(stdNo, true),
+		queryKey: ['student', stdNo, 'published'],
+		queryFn: () => getPublishedAcademicHistory(stdNo),
 	});
 
 	const createPrintRecord = async () => {

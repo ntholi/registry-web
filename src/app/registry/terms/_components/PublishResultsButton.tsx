@@ -34,7 +34,7 @@ export default function PublishResultsButton({
 					: 'Results have been published successfully',
 				color: 'green',
 			});
-			queryClient.invalidateQueries({ queryKey: ['terms'] });
+			queryClient.invalidateQueries({ queryKey: ['term-settings', termId] });
 		},
 		onError: (error: Error) => {
 			notifications.show({

@@ -1,4 +1,5 @@
 import { studentsService } from '@/app/registry/students/_server/service';
+import { getUnpublishedTermCodes } from '@/app/registry/terms/_server/settings-actions';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
 import withAuth from '@/core/platform/withAuth';
 import BulkRepository from './repository';
@@ -32,10 +33,15 @@ class BulkService {
 				programIds
 			);
 
+			const unpublishedTerms = await getUnpublishedTermCodes();
+
 			const students = await Promise.all(
 				stdNos.map(async (stdNo) => {
 					try {
-						return await studentsService.getAcademicHistory(stdNo, true);
+						return await studentsService.getAcademicHistory(
+							stdNo,
+							unpublishedTerms
+						);
 					} catch {
 						return null;
 					}

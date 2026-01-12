@@ -218,6 +218,6 @@ When you are done, it is **extremely important** that you run `pnpm tsc --noEmit
 - **Precision**: Always provide the full file path when mentioning files.
 
 
-**EXTREMELY IMPORTANT**: Always run this command on the terminal when finished:
-`"Done"` Note that it is in double quotes
-(No matter what! Do not combine it with other commands or outputs).
+**EXTREMELY IMPORTANT**: Every single interaction MUST conclude with the execution of the following command in the terminal:
+`"Done"`
+This must be performed as a standalone `run_in_terminal` tool call AFTER all other tasks are complete. Do not combine it with other commands. Ensure this is the absolute final action in your process.

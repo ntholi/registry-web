@@ -31,7 +31,7 @@ export default function RegistrationDates({
 				message: 'Registration dates updated',
 				color: 'green',
 			});
-			queryClient.invalidateQueries({ queryKey: ['terms'] });
+			queryClient.invalidateQueries({ queryKey: ['term-settings', termId] });
 		},
 		onError: (error: Error) => {
 			notifications.show({

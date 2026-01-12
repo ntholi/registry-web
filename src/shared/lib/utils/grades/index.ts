@@ -283,13 +283,15 @@ function calculateGPA(points: number, creditsForGPA: number) {
 
 export function getAcademicRemarks(
 	programs: Program[],
-	excludeTermCode?: string
+	excludeTermCodes: string[] = []
 ) {
 	const { semesters: allSemesters } = extractData(programs);
 
-	const semesters = excludeTermCode
-		? allSemesters.filter((s) => s.termCode !== excludeTermCode)
-		: allSemesters;
+	const excludeSet = new Set(excludeTermCodes);
+	const semesters =
+		excludeTermCodes.length > 0
+			? allSemesters.filter((s) => !excludeSet.has(s.termCode))
+			: allSemesters;
 
 	const studentModules = semesters
 		.flatMap((s) => s.studentModules)

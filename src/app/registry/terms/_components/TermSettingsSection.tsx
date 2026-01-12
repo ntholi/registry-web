@@ -1,25 +1,24 @@
 'use client';
 
 import { Badge, Card, Divider, Group, Stack, Text, Title } from '@mantine/core';
-import type { termSettings } from '@/core/database';
+import { useQuery } from '@tanstack/react-query';
+import { getTermSettings } from '../_server/settings-actions';
 import GradebookAccessButton from './GradebookAccessButton';
 import MoveRejectedButton from './MoveRejectedButton';
 import PublishResultsButton from './PublishResultsButton';
 import RegistrationDates from './RegistrationDates';
 
-type Settings = typeof termSettings.$inferSelect;
-
 interface Props {
 	termId: number;
 	termCode: string;
-	settings: Settings | null;
 }
 
-export default function TermSettingsSection({
-	termId,
-	termCode,
-	settings,
-}: Props) {
+export default function TermSettingsSection({ termId, termCode }: Props) {
+	const { data: settings } = useQuery({
+		queryKey: ['term-settings', termId],
+		queryFn: () => getTermSettings(termId),
+	});
+
 	return (
 		<Stack gap='lg' mt='xl'>
 			<Title order={4}>Settings</Title>
