@@ -1,6 +1,5 @@
 'use client';
 
-import type { getBlockedStudentByStdNo } from '@finance/blocked-students';
 import {
 	Badge,
 	Box,
@@ -21,6 +20,7 @@ import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
 import { useState } from 'react';
+import type { getBlockedStudentByStdNo } from '@/app/registry/blocked-students';
 import { getStatusColor } from '@/shared/lib/utils/colors';
 import { getPublishedAcademicHistory } from '../../_server/actions';
 import CertificateDownloader from './certificate/CertificateDownloader';

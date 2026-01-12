@@ -1,6 +1,5 @@
 'use client';
 
-import type { getBlockedStudentByStdNo } from '@finance/blocked-students';
 import {
 	Accordion,
 	Anchor,
@@ -19,6 +18,7 @@ import {
 } from '@mantine/core';
 import { IconLock, IconSchool } from '@tabler/icons-react';
 import { useState } from 'react';
+import type { getBlockedStudentByStdNo } from '@/app/registry/blocked-students';
 import { useMediaQuery } from '@/shared/lib/hooks/use-media-query';
 import { getStatusColor } from '@/shared/lib/utils/colors';
 import type { getStudent } from '../../_server/actions';

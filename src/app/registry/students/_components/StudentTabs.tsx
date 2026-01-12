@@ -1,9 +1,9 @@
 'use client';
 
-import type { getBlockedStudentByStdNo } from '@finance/blocked-students';
 import { Tabs, TabsPanel, TabsTab } from '@mantine/core';
 import type { Session } from 'next-auth';
 import { useQueryState } from 'nuqs';
+import type { getBlockedStudentByStdNo } from '@/app/registry/blocked-students';
 import ScrollableTabsList from '@/shared/ui/ScrollableTabsList';
 import type { getStudent } from '../_server/actions';
 import AcademicsView from './academics/AcademicsView';

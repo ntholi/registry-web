@@ -21,7 +21,10 @@ class BlockedStudentService {
 	}
 
 	async getAll(params: QueryOptions<typeof blockedStudents>) {
-		return withAuth(async () => this.repository.query(params), ['finance']);
+		return withAuth(
+			async () => this.repository.query(params),
+			['finance', 'registry']
+		);
 	}
 
 	async create(data: BlockedStudent) {
@@ -50,7 +53,10 @@ class BlockedStudentService {
 	}
 
 	async delete(id: number) {
-		return withAuth(async () => this.repository.delete(id), ['finance']);
+		return withAuth(
+			async () => this.repository.delete(id),
+			['finance', 'registry']
+		);
 	}
 }
 

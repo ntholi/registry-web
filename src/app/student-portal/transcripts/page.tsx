@@ -1,6 +1,5 @@
 'use client';
 
-import { getBlockedStudentByStdNo } from '@finance/blocked-students';
 import {
 	Accordion,
 	Alert,
@@ -18,6 +17,7 @@ import { getUnpublishedTermCodes } from '@registry/terms/_server/settings-action
 import { IconAlertCircle, IconLock } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useQueryState } from 'nuqs';
+import { getBlockedStudentByStdNo } from '@/app/registry/blocked-students';
 import useUserStudent from '@/shared/lib/hooks/use-user-student';
 import { formatSemester } from '@/shared/lib/utils/utils';
 import {

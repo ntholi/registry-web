@@ -1,6 +1,6 @@
-import { getBlockedStudentByStdNo } from '@finance/blocked-students';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
+import { getBlockedStudentByStdNo } from '@/app/registry/blocked-students';
 import { auth } from '@/core/auth';
 import { DetailsView, DetailsViewHeader } from '@/shared/ui/adease';
 import StudentTabs from '../_components/StudentTabs';
