@@ -18,10 +18,10 @@ import {
 	NumberInput,
 	SegmentedControl,
 	Select,
+	SimpleGrid,
 	Stack,
 	Tabs,
 	Text,
-	Tooltip,
 } from '@mantine/core';
 import { TimeInput } from '@mantine/dates';
 import { useForm } from '@mantine/form';
@@ -309,16 +309,9 @@ export default function AddSlotAllocationWithLecturerModal() {
 
 	return (
 		<>
-			<Tooltip label='Add allocation to slot'>
-				<ActionIcon
-					variant='subtle'
-					color='gray'
-					size='lg'
-					onClick={handleOpen}
-				>
-					<IconPlus size={'1rem'} />
-				</ActionIcon>
-			</Tooltip>
+			<ActionIcon variant='subtle' color='gray' size='lg' onClick={handleOpen}>
+				<IconPlus size={'1rem'} />
+			</ActionIcon>
 
 			<Modal
 				opened={opened}
@@ -331,13 +324,11 @@ export default function AddSlotAllocationWithLecturerModal() {
 						icon={<IconAlertTriangle size='1rem' />}
 						color='yellow'
 						variant='light'
+						title='Proceed with Caution'
 					>
 						<Text size='sm'>
 							This is not the recommended way to add timetable slots and might
-							cause inconsistencies. For a the correct workflow, close this
-							modal, search for a lecturer in the search bar, then use the{' '}
-							<strong>&quot;Add&quot;</strong> button to add allocations to
-							slots.
+							cause inconsistencies or cause conflicts in the timetable
 						</Text>
 					</Alert>
 
@@ -398,38 +389,42 @@ export default function AddSlotAllocationWithLecturerModal() {
 							<Tabs.Panel value='form' pt='md'>
 								<form onSubmit={form.onSubmit(handleSubmit)}>
 									<Stack gap='md'>
-										<ModuleSearchInput
-											label='Module'
-											onModuleSelect={handleModuleSelect}
-											required
-										/>
+										<SimpleGrid cols={{ base: 1, sm: 2 }}>
+											<ModuleSearchInput
+												label='Module'
+												onModuleSelect={handleModuleSelect}
+												required
+											/>
 
-										<Select
-											label='Semester Module'
-											placeholder='Select a semester module'
-											data={semesterOptions}
-											value={
-												form.values.semesterModuleId
-													? form.values.semesterModuleId.toString()
-													: null
-											}
-											onChange={handleSemesterModuleChange}
-											error={form.errors.semesterModuleId}
-											disabled={!selectedModule || semesterOptions.length === 0}
-											searchable
-											required
-											renderOption={({ option }) => {
-												const semesterOption = option as SemesterOption;
-												return (
-													<Stack gap={0}>
-														<Text size='sm'>{semesterOption.label}</Text>
-														<Text size='xs' c='dimmed'>
-															{semesterOption.description}
-														</Text>
-													</Stack>
-												);
-											}}
-										/>
+											<Select
+												label='Semester Module'
+												placeholder='Select a semester module'
+												data={semesterOptions}
+												value={
+													form.values.semesterModuleId
+														? form.values.semesterModuleId.toString()
+														: null
+												}
+												onChange={handleSemesterModuleChange}
+												error={form.errors.semesterModuleId}
+												disabled={
+													!selectedModule || semesterOptions.length === 0
+												}
+												searchable
+												required
+												renderOption={({ option }) => {
+													const semesterOption = option as SemesterOption;
+													return (
+														<Stack gap={0}>
+															<Text size='sm'>{semesterOption.label}</Text>
+															<Text size='xs' c='dimmed'>
+																{semesterOption.description}
+															</Text>
+														</Stack>
+													);
+												}}
+											/>
+										</SimpleGrid>
 
 										{className && (
 											<Text size='sm' c='dimmed'>
