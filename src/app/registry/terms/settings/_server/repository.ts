@@ -3,6 +3,7 @@ import {
 	blockedStudents,
 	clearance,
 	db,
+	publicationAttachments,
 	registrationClearance,
 	registrationRequests,
 	termSettings,
@@ -143,6 +144,32 @@ export default class TermSettingsRepository {
 			.innerJoin(terms, eq(terms.id, termSettings.termId))
 			.where(eq(termSettings.resultsPublished, false));
 		return results.map((r) => r.code);
+	}
+
+	async getPublicationAttachments(termCode: string) {
+		return db.query.publicationAttachments.findMany({
+			where: eq(publicationAttachments.termCode, termCode),
+			orderBy: (t, { desc }) => [desc(t.createdAt)],
+		});
+	}
+
+	async createPublicationAttachment(data: {
+		termCode: string;
+		fileName: string;
+		type: 'scanned-pdf' | 'raw-marks' | 'other';
+		createdBy: string;
+	}) {
+		const [result] = await db
+			.insert(publicationAttachments)
+			.values(data)
+			.returning();
+		return result;
+	}
+
+	async deletePublicationAttachment(id: string) {
+		return db
+			.delete(publicationAttachments)
+			.where(eq(publicationAttachments.id, id));
 	}
 }
 

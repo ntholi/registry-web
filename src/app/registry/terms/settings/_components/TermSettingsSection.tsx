@@ -16,6 +16,7 @@ import GradebookAccessButton from './GradebookAccessButton';
 import MoveRejectedButton from './MoveRejectedButton';
 import PublishResultsButton from './PublishResultsButton';
 import RegistrationDates from './RegistrationDates';
+import ResultsPublicationAttachments from './ResultsPublicationAttachments';
 
 interface Props {
 	termId: number;
@@ -70,6 +71,10 @@ export default function TermSettingsSection({ termId, termCode }: Props) {
 									access={settings?.lecturerGradebookAccess ?? true}
 								/>
 							</Group>
+
+							<Divider />
+
+							<ResultsPublicationAttachments termCode={termCode} />
 						</Stack>
 					</Paper>
 				</Tabs.Panel>
