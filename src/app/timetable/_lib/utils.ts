@@ -39,3 +39,11 @@ export function addMinutesToTime(time: string, minutes: number): string {
 	const newMins = totalMinutes % 60;
 	return `${String(newHours).padStart(2, '0')}:${String(newMins).padStart(2, '0')}:00`;
 }
+
+export function calculateDuration(startTime: string, endTime: string): number {
+	const [startH, startM] = startTime.split(':').map(Number);
+	const [endH, endM] = endTime.split(':').map(Number);
+	const startMinutes = startH * 60 + startM;
+	const endMinutes = endH * 60 + endM;
+	return Math.max(0, endMinutes - startMinutes);
+}
