@@ -16,8 +16,9 @@ import {
 } from '@mantine/core';
 import { useQueryClient } from '@tanstack/react-query';
 import type useConfigDefaults from '@/shared/lib/hooks/use-config-defaults';
-import { getStudentClassName } from '@/shared/lib/utils/utils';
 import { DeleteButton } from '@/shared/ui/adease';
+import { formatDuration, toClassName } from '../../_lib/utils';
+import AddSlotAllocationModal from '../../_shared/components/AddSlotAllocationModal';
 import { deleteTimetableAllocation } from '../_server/actions';
 import AddAllocationModal from './AddAllocationModal';
 import EditAllocationModal from './EditAllocationModal';
@@ -71,37 +72,6 @@ type Props = {
 	defaults: ReturnType<typeof useConfigDefaults>['defaults'];
 };
 
-function formatDuration(totalMinutes: number): string {
-	if (totalMinutes <= 0) return '0 hours';
-	const hours = Math.floor(totalMinutes / 60);
-	const mins = totalMinutes % 60;
-
-	if (hours === 0) {
-		return `${mins} minute${mins !== 1 ? 's' : ''}`;
-	}
-	if (mins === 0) {
-		return `${hours} hour${hours !== 1 ? 's' : ''}`;
-	}
-	return `${hours} hour${hours !== 1 ? 's' : ''} ${mins} minute${mins !== 1 ? 's' : ''}`;
-}
-
-function toClassName(
-	semesterModule: {
-		semester: {
-			semesterNumber: string;
-			structure: {
-				program: {
-					code: string;
-				};
-			};
-		} | null;
-	},
-	groupName: string | null
-) {
-	if (!semesterModule.semester) return 'Unknown';
-	return `${getStudentClassName(semesterModule.semester)}${groupName ? `${groupName}` : ''}`;
-}
-
 export default function AllocationTab({
 	filteredAllocations,
 	userId,
@@ -124,14 +94,21 @@ export default function AllocationTab({
 							{`${totalStudents} Student${totalStudents !== 1 ? 's' : ''}`}
 						</Badge>
 					</Group>
-					<AddAllocationModal
-						userId={userId}
-						termId={selectedTermId!}
-						defaultDuration={defaults?.duration}
-						defaultAllowedDays={defaults?.allowedDays}
-						defaultStartTime={defaults?.startTime}
-						defaultEndTime={defaults?.endTime}
-					/>
+					<Group gap='xs'>
+						<AddSlotAllocationModal
+							userId={userId}
+							termId={selectedTermId!}
+							defaultDuration={defaults?.duration}
+						/>
+						<AddAllocationModal
+							userId={userId}
+							termId={selectedTermId!}
+							defaultDuration={defaults?.duration}
+							defaultAllowedDays={defaults?.allowedDays}
+							defaultStartTime={defaults?.startTime}
+							defaultEndTime={defaults?.endTime}
+						/>
+					</Group>
 				</Flex>
 
 				{filteredAllocations.length === 0 ? (

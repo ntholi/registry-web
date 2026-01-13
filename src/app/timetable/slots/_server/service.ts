@@ -1,5 +1,10 @@
-import type { timetableSlots } from '@/core/database';
-import { db } from '@/core/database';
+import type { timetableAllocations, timetableSlots } from '@/core/database';
+import {
+	db,
+	timetableAllocations as timetableAllocationsTable,
+	timetableSlotAllocations,
+	timetableSlots as timetableSlotsTable,
+} from '@/core/database';
 import BaseService from '@/core/platform/BaseService';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
 import withAuth from '@/core/platform/withAuth';
@@ -8,7 +13,12 @@ import {
 	buildTermPlan,
 	type VenueRecord,
 } from './planner';
-import TimetableSlotRepository from './repository';
+import TimetableSlotRepository, {
+	type TimetableSlotInsert,
+} from './repository';
+
+type AllocationInsert = typeof timetableAllocations.$inferInsert;
+type DayOfWeek = (typeof timetableSlots.dayOfWeek.enumValues)[number];
 
 class TimetableSlotService extends BaseService<typeof timetableSlots, 'id'> {
 	private readonly slotRepository: TimetableSlotRepository;
@@ -47,6 +57,46 @@ class TimetableSlotService extends BaseService<typeof timetableSlots, 'id'> {
 	async rebuildTermSlots(termId: number) {
 		return withAuth(async () => {
 			return this.planAndPersist(termId);
+		}, ['academic', 'registry']);
+	}
+
+	async createAllocationWithSlot(
+		allocation: AllocationInsert,
+		slot: {
+			venueId: number;
+			dayOfWeek: DayOfWeek;
+			startTime: string;
+			endTime: string;
+		}
+	) {
+		return withAuth(async () => {
+			return db.transaction(async (tx) => {
+				const [created] = await tx
+					.insert(timetableAllocationsTable)
+					.values(allocation)
+					.returning();
+
+				const slotData: TimetableSlotInsert = {
+					termId: created.termId,
+					venueId: slot.venueId,
+					dayOfWeek: slot.dayOfWeek,
+					startTime: slot.startTime,
+					endTime: slot.endTime,
+					capacityUsed: allocation.numberOfStudents ?? 0,
+				};
+
+				const [createdSlot] = await tx
+					.insert(timetableSlotsTable)
+					.values(slotData)
+					.returning();
+
+				await tx.insert(timetableSlotAllocations).values({
+					slotId: createdSlot.id,
+					timetableAllocationId: created.id,
+				});
+
+				return { allocation: created, slot: createdSlot };
+			});
 		}, ['academic', 'registry']);
 	}
 
