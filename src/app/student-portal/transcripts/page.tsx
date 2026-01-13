@@ -13,7 +13,7 @@ import {
 } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
 import { getCleanedSemesters } from '@registry/students';
-import { getUnpublishedTermCodes } from '@registry/terms/_server/settings-actions';
+import { getUnpublishedTermCodes } from '@registry/terms/settings/_server/actions';
 import { IconAlertCircle, IconLock } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useQueryState } from 'nuqs';

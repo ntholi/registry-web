@@ -4,7 +4,7 @@ import { Button, Stack, Text } from '@mantine/core';
 import { modals } from '@mantine/modals';
 import { notifications } from '@mantine/notifications';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { moveRejectedToBlocked } from '../_server/settings-actions';
+import { moveRejectedToBlocked } from '../_server/actions';
 
 interface Props {
 	termId: number;

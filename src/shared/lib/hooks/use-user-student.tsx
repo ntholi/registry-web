@@ -4,7 +4,7 @@ import {
 	getCurrentSemester,
 	getStudentByUserId,
 } from '@registry/students';
-import { getUnpublishedTermCodes } from '@registry/terms/_server/settings-actions';
+import { getUnpublishedTermCodes } from '@registry/terms/settings/_server/actions';
 import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';

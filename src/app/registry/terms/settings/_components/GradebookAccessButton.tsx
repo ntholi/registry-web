@@ -3,7 +3,7 @@
 import { Switch } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { updateGradebookAccess } from '../_server/settings-actions';
+import { updateGradebookAccess } from '../_server/actions';
 
 interface Props {
 	termId: number;

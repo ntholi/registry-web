@@ -2,7 +2,7 @@
 
 import { createNotification } from '@admin/notifications/_server/actions';
 import { auth } from '@/core/auth';
-import { termSettingsService as service } from './settings-service';
+import { termSettingsService as service } from './service';
 
 export async function getTermSettings(termId: number) {
 	return service.findByTermId(termId);

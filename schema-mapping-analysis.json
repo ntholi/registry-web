@@ -1,607 +1,415 @@
 {
-  "academic": {
-    "schools": {
-      "tables": [
-        "schools",
-        "programs"
-      ],
-      "targetPath": "academic/schools/_schema/",
-      "schemaFiles": [
-        "schools.ts"
-      ]
-    },
-    "modules": {
-      "tables": [
-        "modules",
-        "semesterModules",
-        "modulePrerequisites"
-      ],
-      "targetPath": "academic/modules/_schema/ or academic/semester-modules/_schema/",
-      "schemaFiles": [
-        "modules.ts"
-      ],
-      "notes": "Currently modules.ts contains both modules and semesterModules. Consider splitting into separate features."
-    },
-    "assessments": {
-      "tables": [
-        "assignedModules",
-        "assessments",
-        "assessmentMarks",
-        "assessmentMarksAudit",
-        "assessmentsAudit",
-        "lmsAssessments"
-      ],
-      "targetPath": "academic/assessments/_schema/ or academic/assigned-modules/_schema/",
-      "schemaFiles": [
-        "assessments.ts"
-      ],
-      "notes": "Contains both assessment and assigned module tables. assignedModules may warrant its own feature."
-    },
-    "attendance": {
-      "tables": [
-        "attendance"
-      ],
-      "targetPath": "academic/attendance/_schema/",
-      "schemaFiles": [
-        "attendance.ts"
-      ]
-    },
-    "structures": {
-      "tables": [
-        "structures",
-        "structureSemesters"
-      ],
-      "targetPath": "academic/structures/_schema/",
-      "schemaFiles": [
-        "structures.ts"
-      ]
-    },
-    "enums": {
-      "tables": [
-        "programLevelEnum",
-        "moduleStatusEnum",
-        "moduleType",
-        "grade",
-        "assessmentNumber",
-        "assessmentMarksAuditAction",
-        "assessmentsAuditAction",
-        "activityTypeEnum",
-        "attendanceStatus"
-      ],
-      "targetPath": "academic/_database/schema/",
-      "schemaFiles": [
-        "enums.ts",
-        "assessments.ts",
-        "attendance.ts"
-      ],
-      "notes": "Shared enums used across multiple features. Some enums defined in feature files."
-    }
-  },
-  "registry": {
-    "students": {
-      "tables": [
-        "students",
-        "studentEducation",
-        "nextOfKins",
-        "studentPrograms",
-        "studentSemesters",
-        "studentModules"
-      ],
-      "targetPath": "registry/students/_schema/",
-      "schemaFiles": [
-        "students.ts"
-      ],
-      "notes": "Large file containing all student-related tables. May benefit from splitting into separate features."
-    },
-    "terms": {
-      "tables": [
-        "terms"
-      ],
-      "targetPath": "registry/terms/_schema/",
-      "schemaFiles": [
-        "terms.ts"
-      ]
-    },
-    "term-settings": {
-      "tables": [
-        "termSettings"
-      ],
-      "targetPath": "registry/terms/_schema/",
-      "schemaFiles": [
-        "term-settings.ts"
-      ],
-      "notes": "Related to terms feature, could be merged with terms.ts"
-    },
-    "registration": {
-      "tables": [
-        "registrationRequests",
-        "requestedModules",
-        "clearance",
-        "registrationClearance",
-        "clearanceAudit"
-      ],
-      "targetPath": "registry/registration/_schema/",
-      "schemaFiles": [
-        "registration.ts"
-      ]
-    },
-    "graduation": {
-      "tables": [
-        "graduationDates",
-        "graduationRequests",
-        "graduationRequestReceipts",
-        "graduationClearance"
-      ],
-      "targetPath": "registry/graduation/_schema/",
-      "schemaFiles": [
-        "graduations.ts",
-        "graduation.ts"
-      ],
-      "notes": "Split across two files: graduations.ts (graduationDates) and graduation.ts (requests)"
-    },
-    "documents": {
-      "tables": [
-        "blockedStudents",
-        "documents"
-      ],
-      "targetPath": "registry/documents/_schema/ or registry/blocked-students/_schema/",
-      "schemaFiles": [
-        "documents.ts"
-      ],
-      "notes": "Contains both documents and blockedStudents tables"
-    },
-    "printing": {
-      "tables": [
-        "statementOfResultsPrints",
-        "transcriptPrints",
-        "studentCardPrints"
-      ],
-      "targetPath": "registry/print/_schema/",
-      "schemaFiles": [
-        "printing.ts"
-      ]
-    },
-    "enums": {
-      "tables": [
-        "gender",
-        "maritalStatusEnum",
-        "studentStatus",
-        "educationType",
-        "educationLevel",
-        "nextOfKinRelationship",
-        "programStatus",
-        "semesterStatus",
-        "studentModuleStatus",
-        "registrationRequestStatus",
-        "semesterStatusForRegistration",
-        "requestedModuleStatus",
-        "clearanceRequestStatus",
-        "blockedStudentStatusEnum"
-      ],
-      "targetPath": "registry/_database/schema/",
-      "schemaFiles": [
-        "enums.ts"
-      ],
-      "notes": "Shared enums across registry features"
-    }
-  },
-  "finance": {
-    "payment-receipts": {
-      "tables": [
-        "paymentReceipts"
-      ],
-      "targetPath": "finance/payment-receipts/_schema/",
-      "schemaFiles": [
-        "payments.ts"
-      ]
-    },
-    "sponsors": {
-      "tables": [
-        "sponsors",
-        "sponsoredStudents",
-        "sponsoredTerms"
-      ],
-      "targetPath": "finance/sponsors/_schema/",
-      "schemaFiles": [
-        "sponsorship.ts"
-      ]
-    },
-    "enums": {
-      "tables": [
-        "receiptType"
-      ],
-      "targetPath": "finance/_database/schema/",
-      "schemaFiles": [
-        "enums.ts"
-      ],
-      "notes": "Shared enums for finance module"
-    }
-  },
-  "auth": {
-    "users": {
-      "tables": [
-        "users"
-      ],
-      "targetPath": "auth/_schema/",
-      "schemaFiles": [
-        "users.ts"
-      ]
-    },
-    "user-schools": {
-      "tables": [
-        "userSchools"
-      ],
-      "targetPath": "auth/_schema/",
-      "schemaFiles": [
-        "user-schools.ts"
-      ]
-    },
-    "auth-providers": {
-      "tables": [
-        "accounts",
-        "sessions",
-        "verificationTokens",
-        "authenticators"
-      ],
-      "targetPath": "auth/_schema/",
-      "schemaFiles": [
-        "auth-providers.ts"
-      ],
-      "notes": "NextAuth.js adapter tables"
-    },
-    "enums": {
-      "tables": [
-        "dashboardUsers",
-        "userRoles",
-        "userPositions"
-      ],
-      "targetPath": "auth/_database/schema/",
-      "schemaFiles": [
-        "enums.ts"
-      ],
-      "notes": "Shared enums for auth module"
-    }
-  },
-  "admin": {
-    "tasks": {
-      "tables": [
-        "tasks",
-        "taskAssignees",
-        "taskStudents",
-        "taskPriority",
-        "taskStatus"
-      ],
-      "targetPath": "admin/tasks/_schema/",
-      "schemaFiles": [
-        "tasks.ts"
-      ],
-      "notes": "Contains both tables and enums for tasks"
-    },
-    "notifications": {
-      "tables": [
-        "notifications",
-        "notificationRecipients",
-        "notificationDismissals",
-        "notificationTargetType"
-      ],
-      "targetPath": "admin/notifications/_schema/",
-      "schemaFiles": [
-        "notifications.ts"
-      ],
-      "notes": "Contains both tables and enum"
-    },
-    "fortinet": {
-      "tables": [
-        "fortinetRegistrations"
-      ],
-      "targetPath": "admin/fortinet/_schema/",
-      "schemaFiles": [
-        "fortinet.ts"
-      ]
-    },
-    "enums": {
-      "tables": [
-        "fortinetLevel",
-        "fortinetRegistrationStatus"
-      ],
-      "targetPath": "admin/_database/schema/",
-      "schemaFiles": [
-        "enums.ts"
-      ],
-      "notes": "Fortinet-related enums"
-    }
-  },
-  "admissions": {
-    "applicants": {
-      "tables": [
-        "applicants",
-        "applicantPhones",
-        "guardians",
-        "guardianPhones"
-      ],
-      "targetPath": "admissions/applicants/_schema/",
-      "schemaFiles": [
-        "applicants.ts"
-      ]
-    },
-    "applications": {
-      "tables": [
-        "applications",
-        "applicationReceipts",
-        "applicationStatusHistory",
-        "applicationNotes"
-      ],
-      "targetPath": "admissions/applications/_schema/",
-      "schemaFiles": [
-        "applications.ts"
-      ]
-    },
-    "academic-records": {
-      "tables": [
-        "academicRecords",
-        "subjectGrades"
-      ],
-      "targetPath": "admissions/academic-records/_schema/",
-      "schemaFiles": [
-        "academic-records.ts"
-      ]
-    },
-    "certificate-types": {
-      "tables": [
-        "certificateTypes",
-        "gradeMappings"
-      ],
-      "targetPath": "admissions/certificate-types/_schema/",
-      "schemaFiles": [
-        "certificate-types.ts"
-      ]
-    },
-    "subjects": {
-      "tables": [
-        "subjects"
-      ],
-      "targetPath": "admissions/subjects/_schema/",
-      "schemaFiles": [
-        "subjects.ts"
-      ]
-    },
-    "intake-periods": {
-      "tables": [
-        "intakePeriods"
-      ],
-      "targetPath": "admissions/intake-periods/_schema/",
-      "schemaFiles": [
-        "intake-periods.ts"
-      ]
-    },
-    "entry-requirements": {
-      "tables": [
-        "entryRequirements"
-      ],
-      "targetPath": "admissions/entry-requirements/_schema/",
-      "schemaFiles": [
-        "entry-requirements.ts"
-      ]
-    },
-    "documents": {
-      "tables": [
-        "applicantDocuments"
-      ],
-      "targetPath": "admissions/documents/_schema/",
-      "schemaFiles": [
-        "documents.ts"
-      ]
-    },
-    "enums": {
-      "tables": [
-        "gradingTypeEnum",
-        "standardGradeEnum",
-        "resultClassificationEnum",
-        "documentCategoryEnum",
-        "documentVerificationStatusEnum",
-        "applicationStatusEnum",
-        "paymentStatusEnum"
-      ],
-      "targetPath": "admissions/_database/schema/",
-      "schemaFiles": [
-        "enums.ts"
-      ],
-      "notes": "Shared enums for admissions module"
-    }
-  },
-  "audit-logs": {
-    "students": {
-      "tables": [
-        "studentAuditLogs"
-      ],
-      "targetPath": "audit-logs/_schema/",
-      "schemaFiles": [
-        "students.ts"
-      ],
-      "notes": "Audit logs for student table changes"
-    },
-    "student-semesters": {
-      "tables": [
-        "studentSemesterAuditLogs",
-        "operationType"
-      ],
-      "targetPath": "audit-logs/_schema/",
-      "schemaFiles": [
-        "student-semesters.ts"
-      ],
-      "notes": "Audit logs for student_semesters table. operationType enum defined here."
-    },
-    "student-programs": {
-      "tables": [
-        "studentProgramAuditLogs"
-      ],
-      "targetPath": "audit-logs/_schema/",
-      "schemaFiles": [
-        "student-programs.ts"
-      ],
-      "notes": "Audit logs for student_programs table"
-    },
-    "student-modules": {
-      "tables": [
-        "studentModuleAuditLogs"
-      ],
-      "targetPath": "audit-logs/_schema/",
-      "schemaFiles": [
-        "student-modules.ts"
-      ],
-      "notes": "Audit logs for student_modules table"
-    }
-  },
-  "library": {
-    "books": {
-      "tables": [
-        "books",
-        "bookAuthors",
-        "bookCategories"
-      ],
-      "targetPath": "library/books/_schema/",
-      "schemaFiles": [
-        "books.ts"
-      ]
-    },
-    "book-copies": {
-      "tables": [
-        "bookCopies"
-      ],
-      "targetPath": "library/book-copies/_schema/",
-      "schemaFiles": [
-        "book-copies.ts"
-      ]
-    },
-    "authors": {
-      "tables": [
-        "authors"
-      ],
-      "targetPath": "library/authors/_schema/",
-      "schemaFiles": [
-        "authors.ts"
-      ]
-    },
-    "categories": {
-      "tables": [
-        "categories"
-      ],
-      "targetPath": "library/categories/_schema/",
-      "schemaFiles": [
-        "categories.ts"
-      ]
-    },
-    "loans": {
-      "tables": [
-        "loans",
-        "loanRenewals"
-      ],
-      "targetPath": "library/loans/_schema/",
-      "schemaFiles": [
-        "loans.ts"
-      ]
-    },
-    "fines": {
-      "tables": [
-        "fines"
-      ],
-      "targetPath": "library/fines/_schema/",
-      "schemaFiles": [
-        "fines.ts"
-      ]
-    },
-    "resources": {
-      "tables": [
-        "digitalResources"
-      ],
-      "targetPath": "library/resources/_schema/",
-      "schemaFiles": [
-        "resources.ts"
-      ]
-    },
-    "external": {
-      "tables": [
-        "externalLibraries"
-      ],
-      "targetPath": "library/external/_schema/",
-      "schemaFiles": [
-        "external.ts"
-      ]
-    },
-    "enums": {
-      "tables": [
-        "bookCondition",
-        "bookCopyStatus",
-        "loanStatus",
-        "fineStatus",
-        "resourceType"
-      ],
-      "targetPath": "library/_database/schema/",
-      "schemaFiles": [
-        "enums.ts"
-      ],
-      "notes": "Shared enums for library module"
-    }
-  },
-  "timetable": {
-    "venues": {
-      "tables": [
-        "venueTypes",
-        "venues",
-        "venueSchools"
-      ],
-      "targetPath": "timetable/venues/_schema/",
-      "schemaFiles": [
-        "venues.ts"
-      ]
-    },
-    "timetable-allocations": {
-      "tables": [
-        "timetableAllocations",
-        "timetableAllocationVenueTypes",
-        "dayOfWeekEnum",
-        "classTypeEnum"
-      ],
-      "targetPath": "timetable/allocations/_schema/",
-      "schemaFiles": [
-        "timetable-allocations.ts"
-      ],
-      "notes": "Contains both tables and enums"
-    },
-    "timetable-slots": {
-      "tables": [
-        "timetableSlots",
-        "timetableSlotAllocations"
-      ],
-      "targetPath": "timetable/slots/_schema/",
-      "schemaFiles": [
-        "timetable-slots.ts"
-      ]
-    }
-  },
-  "lms": {
-    "notes": "No _database schema directory found. LMS module appears to rely on external Moodle database or uses schemas from other modules (e.g., academic/assessments has lmsAssessments table)."
-  },
-  "summary": {
-    "totalModules": 10,
-    "totalSchemaFiles": 51,
-    "totalTables": 130,
-    "keyObservations": [
-      "Most tables are already logically grouped by feature",
-      "Some large schema files (students.ts, assessments.ts, modules.ts) contain multiple related entities that could be split",
-      "Enums are centralized at module level (_database/schema/enums.ts) with some defined inline in feature files",
-      "Auth module uses NextAuth.js adapter pattern",
-      "Audit-logs module is separate and tracks changes to registry entities",
-      "LMS module has no database schemas - appears to be API-only integration",
-      "Cross-module dependencies exist (e.g., finance references registry students, academic references auth users)"
-    ],
-    "recommendedActions": [
-      "Consider splitting academic/modules.ts into separate modules/ and semester-modules/ features",
-      "Split academic/assessments.ts to separate assigned-modules feature",
-      "Consider merging registry graduation.ts and graduations.ts into single file",
-      "Move blockedStudents from documents.ts to its own feature directory",
-      "Evaluate if termSettings should be merged with terms.ts",
-      "Review if studentPrograms, studentSemesters, studentModules in students.ts should be separate features"
-    ]
-  }
+	"academic": {
+		"schools": {
+			"tables": ["schools", "programs"],
+			"targetPath": "academic/schools/_schema/",
+			"schemaFiles": ["schools.ts"]
+		},
+		"modules": {
+			"tables": ["modules", "semesterModules", "modulePrerequisites"],
+			"targetPath": "academic/modules/_schema/ or academic/semester-modules/_schema/",
+			"schemaFiles": ["modules.ts"],
+			"notes": "Currently modules.ts contains both modules and semesterModules. Consider splitting into separate features."
+		},
+		"assessments": {
+			"tables": [
+				"assignedModules",
+				"assessments",
+				"assessmentMarks",
+				"assessmentMarksAudit",
+				"assessmentsAudit",
+				"lmsAssessments"
+			],
+			"targetPath": "academic/assessments/_schema/ or academic/assigned-modules/_schema/",
+			"schemaFiles": ["assessments.ts"],
+			"notes": "Contains both assessment and assigned module tables. assignedModules may warrant its own feature."
+		},
+		"attendance": {
+			"tables": ["attendance"],
+			"targetPath": "academic/attendance/_schema/",
+			"schemaFiles": ["attendance.ts"]
+		},
+		"structures": {
+			"tables": ["structures", "structureSemesters"],
+			"targetPath": "academic/structures/_schema/",
+			"schemaFiles": ["structures.ts"]
+		},
+		"enums": {
+			"tables": [
+				"programLevelEnum",
+				"moduleStatusEnum",
+				"moduleType",
+				"grade",
+				"assessmentNumber",
+				"assessmentMarksAuditAction",
+				"assessmentsAuditAction",
+				"activityTypeEnum",
+				"attendanceStatus"
+			],
+			"targetPath": "academic/_database/schema/",
+			"schemaFiles": ["enums.ts", "assessments.ts", "attendance.ts"],
+			"notes": "Shared enums used across multiple features. Some enums defined in feature files."
+		}
+	},
+	"registry": {
+		"students": {
+			"tables": [
+				"students",
+				"studentEducation",
+				"nextOfKins",
+				"studentPrograms",
+				"studentSemesters",
+				"studentModules"
+			],
+			"targetPath": "registry/students/_schema/",
+			"schemaFiles": ["students.ts"],
+			"notes": "Large file containing all student-related tables. May benefit from splitting into separate features."
+		},
+		"terms": {
+			"tables": ["terms"],
+			"targetPath": "registry/terms/_schema/",
+			"schemaFiles": ["terms.ts"]
+		},
+		"term-settings": {
+			"tables": ["termSettings"],
+			"targetPath": "registry/terms/_schema/",
+			"schemaFiles": ["term-settings.ts"],
+			"notes": "Related to terms feature, could be merged with terms.ts"
+		},
+		"registration": {
+			"tables": [
+				"registrationRequests",
+				"requestedModules",
+				"clearance",
+				"registrationClearance",
+				"clearanceAudit"
+			],
+			"targetPath": "registry/registration/_schema/",
+			"schemaFiles": ["registration.ts"]
+		},
+		"graduation": {
+			"tables": [
+				"graduationDates",
+				"graduationRequests",
+				"graduationRequestReceipts",
+				"graduationClearance"
+			],
+			"targetPath": "registry/graduation/_schema/",
+			"schemaFiles": ["graduations.ts", "graduation.ts"],
+			"notes": "Split across two files: graduations.ts (graduationDates) and graduation.ts (requests)"
+		},
+		"documents": {
+			"tables": ["blockedStudents", "documents"],
+			"targetPath": "registry/documents/_schema/ or registry/blocked-students/_schema/",
+			"schemaFiles": ["documents.ts"],
+			"notes": "Contains both documents and blockedStudents tables"
+		},
+		"printing": {
+			"tables": [
+				"statementOfResultsPrints",
+				"transcriptPrints",
+				"studentCardPrints"
+			],
+			"targetPath": "registry/print/_schema/",
+			"schemaFiles": ["printing.ts"]
+		},
+		"enums": {
+			"tables": [
+				"gender",
+				"maritalStatusEnum",
+				"studentStatus",
+				"educationType",
+				"educationLevel",
+				"nextOfKinRelationship",
+				"programStatus",
+				"semesterStatus",
+				"studentModuleStatus",
+				"registrationRequestStatus",
+				"semesterStatusForRegistration",
+				"requestedModuleStatus",
+				"clearanceRequestStatus",
+				"blockedStudentStatusEnum"
+			],
+			"targetPath": "registry/_database/schema/",
+			"schemaFiles": ["enums.ts"],
+			"notes": "Shared enums across registry features"
+		}
+	},
+	"finance": {
+		"payment-receipts": {
+			"tables": ["paymentReceipts"],
+			"targetPath": "finance/payment-receipts/_schema/",
+			"schemaFiles": ["payments.ts"]
+		},
+		"sponsors": {
+			"tables": ["sponsors", "sponsoredStudents", "sponsoredTerms"],
+			"targetPath": "finance/sponsors/_schema/",
+			"schemaFiles": ["sponsorship.ts"]
+		},
+		"enums": {
+			"tables": ["receiptType"],
+			"targetPath": "finance/_database/schema/",
+			"schemaFiles": ["enums.ts"],
+			"notes": "Shared enums for finance module"
+		}
+	},
+	"auth": {
+		"users": {
+			"tables": ["users"],
+			"targetPath": "auth/_schema/",
+			"schemaFiles": ["users.ts"]
+		},
+		"user-schools": {
+			"tables": ["userSchools"],
+			"targetPath": "auth/_schema/",
+			"schemaFiles": ["user-schools.ts"]
+		},
+		"auth-providers": {
+			"tables": [
+				"accounts",
+				"sessions",
+				"verificationTokens",
+				"authenticators"
+			],
+			"targetPath": "auth/_schema/",
+			"schemaFiles": ["auth-providers.ts"],
+			"notes": "NextAuth.js adapter tables"
+		},
+		"enums": {
+			"tables": ["dashboardUsers", "userRoles", "userPositions"],
+			"targetPath": "auth/_database/schema/",
+			"schemaFiles": ["enums.ts"],
+			"notes": "Shared enums for auth module"
+		}
+	},
+	"admin": {
+		"tasks": {
+			"tables": [
+				"tasks",
+				"taskAssignees",
+				"taskStudents",
+				"taskPriority",
+				"taskStatus"
+			],
+			"targetPath": "admin/tasks/_schema/",
+			"schemaFiles": ["tasks.ts"],
+			"notes": "Contains both tables and enums for tasks"
+		},
+		"notifications": {
+			"tables": [
+				"notifications",
+				"notificationRecipients",
+				"notificationDismissals",
+				"notificationTargetType"
+			],
+			"targetPath": "admin/notifications/_schema/",
+			"schemaFiles": ["notifications.ts"],
+			"notes": "Contains both tables and enum"
+		},
+		"fortinet": {
+			"tables": ["fortinetRegistrations"],
+			"targetPath": "admin/fortinet/_schema/",
+			"schemaFiles": ["fortinet.ts"]
+		},
+		"enums": {
+			"tables": ["fortinetLevel", "fortinetRegistrationStatus"],
+			"targetPath": "admin/_database/schema/",
+			"schemaFiles": ["enums.ts"],
+			"notes": "Fortinet-related enums"
+		}
+	},
+	"admissions": {
+		"applicants": {
+			"tables": [
+				"applicants",
+				"applicantPhones",
+				"guardians",
+				"guardianPhones"
+			],
+			"targetPath": "admissions/applicants/_schema/",
+			"schemaFiles": ["applicants.ts"]
+		},
+		"applications": {
+			"tables": [
+				"applications",
+				"applicationReceipts",
+				"applicationStatusHistory",
+				"applicationNotes"
+			],
+			"targetPath": "admissions/applications/_schema/",
+			"schemaFiles": ["applications.ts"]
+		},
+		"academic-records": {
+			"tables": ["academicRecords", "subjectGrades"],
+			"targetPath": "admissions/academic-records/_schema/",
+			"schemaFiles": ["academic-records.ts"]
+		},
+		"certificate-types": {
+			"tables": ["certificateTypes", "gradeMappings"],
+			"targetPath": "admissions/certificate-types/_schema/",
+			"schemaFiles": ["certificate-types.ts"]
+		},
+		"subjects": {
+			"tables": ["subjects"],
+			"targetPath": "admissions/subjects/_schema/",
+			"schemaFiles": ["subjects.ts"]
+		},
+		"intake-periods": {
+			"tables": ["intakePeriods"],
+			"targetPath": "admissions/intake-periods/_schema/",
+			"schemaFiles": ["intake-periods.ts"]
+		},
+		"entry-requirements": {
+			"tables": ["entryRequirements"],
+			"targetPath": "admissions/entry-requirements/_schema/",
+			"schemaFiles": ["entry-requirements.ts"]
+		},
+		"documents": {
+			"tables": ["applicantDocuments"],
+			"targetPath": "admissions/documents/_schema/",
+			"schemaFiles": ["documents.ts"]
+		},
+		"enums": {
+			"tables": [
+				"gradingTypeEnum",
+				"standardGradeEnum",
+				"resultClassificationEnum",
+				"documentCategoryEnum",
+				"documentVerificationStatusEnum",
+				"applicationStatusEnum",
+				"paymentStatusEnum"
+			],
+			"targetPath": "admissions/_database/schema/",
+			"schemaFiles": ["enums.ts"],
+			"notes": "Shared enums for admissions module"
+		}
+	},
+	"audit-logs": {
+		"students": {
+			"tables": ["studentAuditLogs"],
+			"targetPath": "audit-logs/_schema/",
+			"schemaFiles": ["students.ts"],
+			"notes": "Audit logs for student table changes"
+		},
+		"student-semesters": {
+			"tables": ["studentSemesterAuditLogs", "operationType"],
+			"targetPath": "audit-logs/_schema/",
+			"schemaFiles": ["student-semesters.ts"],
+			"notes": "Audit logs for student_semesters table. operationType enum defined here."
+		},
+		"student-programs": {
+			"tables": ["studentProgramAuditLogs"],
+			"targetPath": "audit-logs/_schema/",
+			"schemaFiles": ["student-programs.ts"],
+			"notes": "Audit logs for student_programs table"
+		},
+		"student-modules": {
+			"tables": ["studentModuleAuditLogs"],
+			"targetPath": "audit-logs/_schema/",
+			"schemaFiles": ["student-modules.ts"],
+			"notes": "Audit logs for student_modules table"
+		}
+	},
+	"library": {
+		"books": {
+			"tables": ["books", "bookAuthors", "bookCategories"],
+			"targetPath": "library/books/_schema/",
+			"schemaFiles": ["books.ts"]
+		},
+		"book-copies": {
+			"tables": ["bookCopies"],
+			"targetPath": "library/book-copies/_schema/",
+			"schemaFiles": ["book-copies.ts"]
+		},
+		"authors": {
+			"tables": ["authors"],
+			"targetPath": "library/authors/_schema/",
+			"schemaFiles": ["authors.ts"]
+		},
+		"categories": {
+			"tables": ["categories"],
+			"targetPath": "library/categories/_schema/",
+			"schemaFiles": ["categories.ts"]
+		},
+		"loans": {
+			"tables": ["loans", "loanRenewals"],
+			"targetPath": "library/loans/_schema/",
+			"schemaFiles": ["loans.ts"]
+		},
+		"fines": {
+			"tables": ["fines"],
+			"targetPath": "library/fines/_schema/",
+			"schemaFiles": ["fines.ts"]
+		},
+		"resources": {
+			"tables": ["digitalResources"],
+			"targetPath": "library/resources/_schema/",
+			"schemaFiles": ["resources.ts"]
+		},
+		"external": {
+			"tables": ["externalLibraries"],
+			"targetPath": "library/external/_schema/",
+			"schemaFiles": ["external.ts"]
+		},
+		"enums": {
+			"tables": [
+				"bookCondition",
+				"bookCopyStatus",
+				"loanStatus",
+				"fineStatus",
+				"resourceType"
+			],
+			"targetPath": "library/_database/schema/",
+			"schemaFiles": ["enums.ts"],
+			"notes": "Shared enums for library module"
+		}
+	},
+	"timetable": {
+		"venues": {
+			"tables": ["venueTypes", "venues", "venueSchools"],
+			"targetPath": "timetable/venues/_schema/",
+			"schemaFiles": ["venues.ts"]
+		},
+		"timetable-allocations": {
+			"tables": [
+				"timetableAllocations",
+				"timetableAllocationVenueTypes",
+				"dayOfWeekEnum",
+				"classTypeEnum"
+			],
+			"targetPath": "timetable/allocations/_schema/",
+			"schemaFiles": ["timetable-allocations.ts"],
+			"notes": "Contains both tables and enums"
+		},
+		"timetable-slots": {
+			"tables": ["timetableSlots", "timetableSlotAllocations"],
+			"targetPath": "timetable/slots/_schema/",
+			"schemaFiles": ["timetable-slots.ts"]
+		}
+	},
+	"lms": {
+		"notes": "No _database schema directory found. LMS module appears to rely on external Moodle database or uses schemas from other modules (e.g., academic/assessments has lmsAssessments table)."
+	},
+	"summary": {
+		"totalModules": 10,
+		"totalSchemaFiles": 51,
+		"totalTables": 130,
+		"keyObservations": [
+			"Most tables are already logically grouped by feature",
+			"Some large schema files (students.ts, assessments.ts, modules.ts) contain multiple related entities that could be split",
+			"Enums are centralized at module level (_database/schema/enums.ts) with some defined inline in feature files",
+			"Auth module uses NextAuth.js adapter pattern",
+			"Audit-logs module is separate and tracks changes to registry entities",
+			"LMS module has no database schemas - appears to be API-only integration",
+			"Cross-module dependencies exist (e.g., finance references registry students, academic references auth users)"
+		],
+		"recommendedActions": [
+			"Consider splitting academic/modules.ts into separate modules/ and semester-modules/ features",
+			"Split academic/assessments.ts to separate assigned-modules feature",
+			"Consider merging registry graduation.ts and graduations.ts into single file",
+			"Move blockedStudents from documents.ts to its own feature directory",
+			"Evaluate if termSettings should be merged with terms.ts",
+			"Review if studentPrograms, studentSemesters, studentModules in students.ts should be separate features"
+		]
+	}
 }

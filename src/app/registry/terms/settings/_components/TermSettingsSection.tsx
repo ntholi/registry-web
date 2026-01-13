@@ -2,7 +2,7 @@
 
 import { Card, Divider, Group, Paper, Stack, Text, Title } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
-import { getTermSettings } from '../_server/settings-actions';
+import { getTermSettings } from '../_server/actions';
 import GradebookAccessButton from './GradebookAccessButton';
 import MoveRejectedButton from './MoveRejectedButton';
 import PublishResultsButton from './PublishResultsButton';

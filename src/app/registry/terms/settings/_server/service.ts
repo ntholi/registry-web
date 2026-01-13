@@ -1,7 +1,7 @@
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
 import withAuth from '@/core/platform/withAuth';
 import { registrationDatesSchema } from '../_lib/registration-dates';
-import TermSettingsRepository from './settings-repository';
+import TermSettingsRepository from './repository';
 
 class TermSettingsService {
 	private repository = new TermSettingsRepository();
