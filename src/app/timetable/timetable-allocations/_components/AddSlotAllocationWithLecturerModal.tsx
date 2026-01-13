@@ -1,6 +1,6 @@
 'use client';
 
-import { getLecturers } from '@academic/lecturers';
+import { searchAllLecturers } from '@academic/lecturers';
 import {
 	getStudentCountForModule,
 	type searchModulesWithDetails,
@@ -25,7 +25,7 @@ import {
 } from '@mantine/core';
 import { TimeInput } from '@mantine/dates';
 import { useForm } from '@mantine/form';
-import { useDisclosure } from '@mantine/hooks';
+import { useDebouncedValue, useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import {
 	IconAlertTriangle,
@@ -41,7 +41,7 @@ import { useCallback, useState } from 'react';
 import { z } from 'zod';
 import { getAllTerms } from '@/app/registry/terms';
 import { toClassName as toClassNameShared } from '@/shared/lib/utils/utils';
-import { calculateDuration, formatDuration } from '../../_lib/utils';
+import { calculateDuration } from '../../_lib/utils';
 import { getTimetableAllocationsByUserId } from '../_server/actions';
 import AllocationTable from './AllocationTable';
 
@@ -113,14 +113,15 @@ export default function AddSlotAllocationWithLecturerModal() {
 	const queryClient = useQueryClient();
 	const [selectedModule, setSelectedModule] = useState<Module | null>(null);
 	const [className, setClassName] = useState<string>('');
+	const [lecturerSearch, setLecturerSearch] = useState('');
+	const [debouncedSearch] = useDebouncedValue(lecturerSearch, 300);
 	const [activeTab, setActiveTab] = useState<string | null>('form');
 
-	const { data: lecturersData } = useQuery({
-		queryKey: ['lecturers', 'all'],
-		queryFn: async () => getLecturers(1, ''),
+	const { data: lecturerOptions = [], isLoading: lecturersLoading } = useQuery({
+		queryKey: ['lecturers-search', debouncedSearch],
+		queryFn: () => searchAllLecturers(debouncedSearch),
+		enabled: debouncedSearch.length >= 2,
 	});
-
-	const lecturers = lecturersData?.items ?? [];
 
 	const { data: terms = [] } = useQuery({
 		queryKey: ['terms'],
@@ -227,6 +228,7 @@ export default function AddSlotAllocationWithLecturerModal() {
 			form.reset();
 			setSelectedModule(null);
 			setClassName('');
+			setLecturerSearch('');
 			close();
 		},
 		onError: (error: Error) => {
@@ -249,6 +251,7 @@ export default function AddSlotAllocationWithLecturerModal() {
 		}
 		setSelectedModule(null);
 		setClassName('');
+		setLecturerSearch('');
 		setActiveTab('form');
 		open();
 	};
@@ -299,17 +302,10 @@ export default function AddSlotAllocationWithLecturerModal() {
 			};
 		}) || [];
 
-	const lecturerOptions = lecturers.map((l) => ({
-		value: l.id,
-		label: l.name ?? l.email ?? l.id,
-	}));
-
 	const termOptions = terms.map((t) => ({
 		value: t.id.toString(),
 		label: `${t.code}${t.isActive ? ' (Current)' : ''}`,
 	}));
-
-	const selectedLecturer = lecturers.find((l) => l.id === selectedUserId);
 
 	return (
 		<>
@@ -337,37 +333,48 @@ export default function AddSlotAllocationWithLecturerModal() {
 						variant='light'
 					>
 						<Text size='sm'>
-							This is not the recommended way to add timetable slots and might cause inconsistencies. For a the correct
-							workflow, close this modal, search for a lecturer in the search bar, then use the{' '}
-							<strong>&quot;Add&quot;</strong> button to add allocations to slots.
+							This is not the recommended way to add timetable slots and might
+							cause inconsistencies. For a the correct workflow, close this
+							modal, search for a lecturer in the search bar, then use the{' '}
+							<strong>&quot;Add&quot;</strong> button to add allocations to
+							slots.
 						</Text>
 					</Alert>
 
-          <Group grow>
-            					<Select
-						label='Lecturer'
-						placeholder='Select a lecturer'
-						data={lecturerOptions}
-						value={form.values.userId || null}
-						onChange={(value) => form.setFieldValue('userId', value ?? '')}
-						error={form.errors.userId}
-						searchable
-						required
-					/>
+					<Group grow>
+						<Select
+							label='Lecturer'
+							placeholder='Type to search lecturers...'
+							data={lecturerOptions}
+							value={form.values.userId || null}
+							onChange={(value) => form.setFieldValue('userId', value ?? '')}
+							onSearchChange={setLecturerSearch}
+							searchValue={lecturerSearch}
+							error={form.errors.userId}
+							searchable
+							nothingFoundMessage={
+								lecturerSearch.length < 2
+									? 'Type at least 2 characters to search'
+									: lecturersLoading
+										? 'Searching...'
+										: 'No lecturers found'
+							}
+							required
+						/>
 
-					<Select
-						label='Term'
-						placeholder='Select a term'
-						data={termOptions}
-						value={form.values.termId ? form.values.termId.toString() : null}
-						onChange={(value) =>
-							form.setFieldValue('termId', value ? Number(value) : 0)
-						}
-						error={form.errors.termId}
-						searchable
-						required
-					/>
-          </Group>
+						<Select
+							label='Term'
+							placeholder='Select a term'
+							data={termOptions}
+							value={form.values.termId ? form.values.termId.toString() : null}
+							onChange={(value) =>
+								form.setFieldValue('termId', value ? Number(value) : 0)
+							}
+							error={form.errors.termId}
+							searchable
+							required
+						/>
+					</Group>
 
 					{selectedUserId && (
 						<Tabs value={activeTab} onChange={setActiveTab}>
@@ -547,18 +554,18 @@ export default function AddSlotAllocationWithLecturerModal() {
 							</Tabs.Panel>
 
 							<Tabs.Panel value='allocations' pt='md'>
-									{allocationsLoading ? (
-										<Box py='xl'>
-											<Loader size='sm' />
-										</Box>
-									) : (
-										<AllocationTable
-											allocations={filteredAllocations}
-											userId={selectedUserId}
-											showEdit={false}
-											emptyMessage='No allocations found for this lecturer in the selected term.'
-										/>
-									)}
+								{allocationsLoading ? (
+									<Box py='xl'>
+										<Loader size='sm' />
+									</Box>
+								) : (
+									<AllocationTable
+										allocations={filteredAllocations}
+										userId={selectedUserId}
+										showEdit={false}
+										emptyMessage='No allocations found for this lecturer in the selected term.'
+									/>
+								)}
 							</Tabs.Panel>
 						</Tabs>
 					)}

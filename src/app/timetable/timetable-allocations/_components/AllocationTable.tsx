@@ -142,10 +142,10 @@ export default function AllocationTable({
 								</Text>
 							)}
 						</TableTd>
-						
-							<TableTd>
-								<Group gap={2} wrap='nowrap'>
-                  {showEdit && (
+
+						<TableTd>
+							<Group gap={2} wrap='nowrap'>
+								{showEdit && (
 									<EditAllocationModal
 										allocationId={allocation.id}
 										currentDuration={
@@ -174,24 +174,25 @@ export default function AllocationTable({
 										currentEndTime={
 											allocation.endTime || defaults?.endTime || '17:30:00'
 										}
-									/>)}
-									<DeleteButton
-										variant='subtle'
-										size='sm'
-										handleDelete={async () => {
-											await deleteTimetableAllocation(allocation.id);
-										}}
-										queryKey={['timetable-allocations', userId]}
-										message='Are you sure you want to delete this allocation?'
-										onSuccess={async () => {
-											await queryClient.invalidateQueries({
-												queryKey: ['timetable-slots'],
-												refetchType: 'all',
-											});
-										}}
 									/>
-								</Group>
-							</TableTd>
+								)}
+								<DeleteButton
+									variant='subtle'
+									size='sm'
+									handleDelete={async () => {
+										await deleteTimetableAllocation(allocation.id);
+									}}
+									queryKey={['timetable-allocations', userId]}
+									message='Are you sure you want to delete this allocation?'
+									onSuccess={async () => {
+										await queryClient.invalidateQueries({
+											queryKey: ['timetable-slots'],
+											refetchType: 'all',
+										});
+									}}
+								/>
+							</Group>
+						</TableTd>
 					</TableTr>
 				))}
 			</TableTbody>
