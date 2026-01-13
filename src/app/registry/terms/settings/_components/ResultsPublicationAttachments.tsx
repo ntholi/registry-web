@@ -430,7 +430,7 @@ function UploadModal({ opened, onClose, termCode }: UploadModalProps) {
 		try {
 			setLoading(true);
 			const file = files[0];
-			const folder = getAttachmentFolderPath(termCode, type);
+			const folder = await getAttachmentFolderPath(termCode, type);
 
 			await uploadDocument(file, file.name, folder);
 
