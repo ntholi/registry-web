@@ -162,15 +162,6 @@ export default function AddSlotAllocationWithLecturerModal() {
 		(a) => a.termId === selectedTermId
 	);
 
-	const totalMinutes = filteredAllocations.reduce(
-		(sum, a) => sum + (a.duration || 0),
-		0
-	);
-	const totalStudents = filteredAllocations.reduce(
-		(sum, a) => sum + (a.numberOfStudents || 0),
-		0
-	);
-
 	const duration = calculateDuration(
 		form.values.startTime,
 		form.values.endTime
@@ -346,13 +337,14 @@ export default function AddSlotAllocationWithLecturerModal() {
 						variant='light'
 					>
 						<Text size='sm'>
-							This is not the recommended way to add allocations. For a better
-							workflow, search for a lecturer first, then use the{' '}
-							<strong>&quot;Add&quot;</strong> button on their profile page.
+							This is not the recommended way to add timetable slots and might cause inconsistencies. For a the correct
+							workflow, close this modal, search for a lecturer in the search bar, then use the{' '}
+							<strong>&quot;Add&quot;</strong> button to add allocations to slots.
 						</Text>
 					</Alert>
 
-					<Select
+          <Group grow>
+            					<Select
 						label='Lecturer'
 						placeholder='Select a lecturer'
 						data={lecturerOptions}
@@ -375,6 +367,7 @@ export default function AddSlotAllocationWithLecturerModal() {
 						searchable
 						required
 					/>
+          </Group>
 
 					{selectedUserId && (
 						<Tabs value={activeTab} onChange={setActiveTab}>
