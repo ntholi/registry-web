@@ -7,14 +7,19 @@ import {
 } from '@academic/semester-modules';
 import {
 	ActionIcon,
+	Alert,
+	Badge,
+	Box,
 	Button,
 	Grid,
 	Group,
+	Loader,
 	Modal,
 	NumberInput,
 	SegmentedControl,
 	Select,
 	Stack,
+	Tabs,
 	Text,
 	Tooltip,
 } from '@mantine/core';
@@ -22,7 +27,11 @@ import { TimeInput } from '@mantine/dates';
 import { useForm } from '@mantine/form';
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
-import { IconPlus } from '@tabler/icons-react';
+import {
+	IconAlertTriangle,
+	IconListDetails,
+	IconPlus,
+} from '@tabler/icons-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { createAllocationWithSlot } from '@timetable/slots';
 import { ModuleSearchInput } from '@timetable/timetable-allocations';
@@ -32,7 +41,9 @@ import { useCallback, useState } from 'react';
 import { z } from 'zod';
 import { getAllTerms } from '@/app/registry/terms';
 import { toClassName as toClassNameShared } from '@/shared/lib/utils/utils';
-import { calculateDuration } from '../../_lib/utils';
+import { calculateDuration, formatDuration } from '../../_lib/utils';
+import { getTimetableAllocationsByUserId } from '../_server/actions';
+import AllocationTable from './AllocationTable';
 
 const daysOfWeek = [
 	{ value: 'monday', label: 'Mon' },
@@ -102,6 +113,7 @@ export default function AddSlotAllocationWithLecturerModal() {
 	const queryClient = useQueryClient();
 	const [selectedModule, setSelectedModule] = useState<Module | null>(null);
 	const [className, setClassName] = useState<string>('');
+	const [activeTab, setActiveTab] = useState<string | null>('form');
 
 	const { data: lecturersData } = useQuery({
 		queryKey: ['lecturers', 'all'],
@@ -136,6 +148,28 @@ export default function AddSlotAllocationWithLecturerModal() {
 			venueId: 0,
 		},
 	});
+
+	const selectedUserId = form.values.userId;
+	const selectedTermId = form.values.termId;
+
+	const { data: allocations = [], isLoading: allocationsLoading } = useQuery({
+		queryKey: ['timetable-allocations', selectedUserId],
+		queryFn: () => getTimetableAllocationsByUserId(selectedUserId),
+		enabled: !!selectedUserId,
+	});
+
+	const filteredAllocations = allocations.filter(
+		(a) => a.termId === selectedTermId
+	);
+
+	const totalMinutes = filteredAllocations.reduce(
+		(sum, a) => sum + (a.duration || 0),
+		0
+	);
+	const totalStudents = filteredAllocations.reduce(
+		(sum, a) => sum + (a.numberOfStudents || 0),
+		0
+	);
 
 	const duration = calculateDuration(
 		form.values.startTime,
@@ -224,6 +258,7 @@ export default function AddSlotAllocationWithLecturerModal() {
 		}
 		setSelectedModule(null);
 		setClassName('');
+		setActiveTab('form');
 		open();
 	};
 
@@ -283,11 +318,18 @@ export default function AddSlotAllocationWithLecturerModal() {
 		label: `${t.code}${t.isActive ? ' (Current)' : ''}`,
 	}));
 
+	const selectedLecturer = lecturers.find((l) => l.id === selectedUserId);
+
 	return (
 		<>
 			<Tooltip label='Add allocation to slot'>
-				<ActionIcon variant='subtle' onClick={handleOpen}>
-					<IconPlus size={18} />
+				<ActionIcon
+					variant='subtle'
+					color='gray'
+					size='lg'
+					onClick={handleOpen}
+				>
+					<IconPlus size={'1rem'} />
 				</ActionIcon>
 			</Tooltip>
 
@@ -295,182 +337,245 @@ export default function AddSlotAllocationWithLecturerModal() {
 				opened={opened}
 				onClose={close}
 				title='Add Allocation to Slot'
-				size='lg'
+				size='xl'
 			>
-				<form onSubmit={form.onSubmit(handleSubmit)}>
-					<Stack gap='md'>
-						<Select
-							label='Lecturer'
-							placeholder='Select a lecturer'
-							data={lecturerOptions}
-							value={form.values.userId || null}
-							onChange={(value) => form.setFieldValue('userId', value ?? '')}
-							error={form.errors.userId}
-							searchable
-							required
-						/>
+				<Stack gap='md'>
+					<Alert
+						icon={<IconAlertTriangle size='1rem' />}
+						color='yellow'
+						variant='light'
+					>
+						<Text size='sm'>
+							This is not the recommended way to add allocations. For a better
+							workflow, search for a lecturer first, then use the{' '}
+							<strong>&quot;Add&quot;</strong> button on their profile page.
+						</Text>
+					</Alert>
 
-						<Select
-							label='Term'
-							placeholder='Select a term'
-							data={termOptions}
-							value={form.values.termId ? form.values.termId.toString() : null}
-							onChange={(value) =>
-								form.setFieldValue('termId', value ? Number(value) : 0)
-							}
-							error={form.errors.termId}
-							searchable
-							required
-						/>
+					<Select
+						label='Lecturer'
+						placeholder='Select a lecturer'
+						data={lecturerOptions}
+						value={form.values.userId || null}
+						onChange={(value) => form.setFieldValue('userId', value ?? '')}
+						error={form.errors.userId}
+						searchable
+						required
+					/>
 
-						<ModuleSearchInput
-							label='Module'
-							onModuleSelect={handleModuleSelect}
-							required
-						/>
+					<Select
+						label='Term'
+						placeholder='Select a term'
+						data={termOptions}
+						value={form.values.termId ? form.values.termId.toString() : null}
+						onChange={(value) =>
+							form.setFieldValue('termId', value ? Number(value) : 0)
+						}
+						error={form.errors.termId}
+						searchable
+						required
+					/>
 
-						<Select
-							label='Semester Module'
-							placeholder='Select a semester module'
-							data={semesterOptions}
-							value={
-								form.values.semesterModuleId
-									? form.values.semesterModuleId.toString()
-									: null
-							}
-							onChange={handleSemesterModuleChange}
-							error={form.errors.semesterModuleId}
-							disabled={!selectedModule || semesterOptions.length === 0}
-							searchable
-							required
-							renderOption={({ option }) => {
-								const semesterOption = option as SemesterOption;
-								return (
-									<Stack gap={0}>
-										<Text size='sm'>{semesterOption.label}</Text>
-										<Text size='xs' c='dimmed'>
-											{semesterOption.description}
-										</Text>
+					{selectedUserId && (
+						<Tabs value={activeTab} onChange={setActiveTab}>
+							<Tabs.List>
+								<Tabs.Tab value='form' leftSection={<IconPlus size='0.9rem' />}>
+									New Allocation
+								</Tabs.Tab>
+								<Tabs.Tab
+									value='allocations'
+									leftSection={<IconListDetails size='0.9rem' />}
+								>
+									Current Allocations
+									{filteredAllocations.length > 0 && (
+										<Badge size='xs' ml='xs' variant='light'>
+											{filteredAllocations.length}
+										</Badge>
+									)}
+								</Tabs.Tab>
+							</Tabs.List>
+
+							<Tabs.Panel value='form' pt='md'>
+								<form onSubmit={form.onSubmit(handleSubmit)}>
+									<Stack gap='md'>
+										<ModuleSearchInput
+											label='Module'
+											onModuleSelect={handleModuleSelect}
+											required
+										/>
+
+										<Select
+											label='Semester Module'
+											placeholder='Select a semester module'
+											data={semesterOptions}
+											value={
+												form.values.semesterModuleId
+													? form.values.semesterModuleId.toString()
+													: null
+											}
+											onChange={handleSemesterModuleChange}
+											error={form.errors.semesterModuleId}
+											disabled={!selectedModule || semesterOptions.length === 0}
+											searchable
+											required
+											renderOption={({ option }) => {
+												const semesterOption = option as SemesterOption;
+												return (
+													<Stack gap={0}>
+														<Text size='sm'>{semesterOption.label}</Text>
+														<Text size='xs' c='dimmed'>
+															{semesterOption.description}
+														</Text>
+													</Stack>
+												);
+											}}
+										/>
+
+										{className && (
+											<Text size='sm' c='dimmed'>
+												Class: <strong>{className}</strong>
+											</Text>
+										)}
+
+										<Grid>
+											<Grid.Col span={6}>
+												<NumberInput
+													label='Number of Students'
+													placeholder='Students'
+													value={form.values.numberOfStudents}
+													onChange={(value) =>
+														form.setFieldValue(
+															'numberOfStudents',
+															typeof value === 'number' ? value : 0
+														)
+													}
+													error={form.errors.numberOfStudents}
+													min={1}
+													required
+												/>
+											</Grid.Col>
+											<Grid.Col span={6}>
+												<NumberInput
+													label='Number of Groups'
+													placeholder='Groups'
+													value={form.values.numberOfGroups}
+													onChange={(value) =>
+														form.setFieldValue(
+															'numberOfGroups',
+															typeof value === 'number' ? value : 1
+														)
+													}
+													error={form.errors.numberOfGroups}
+													min={1}
+													max={10}
+													required
+												/>
+											</Grid.Col>
+										</Grid>
+
+										<Stack gap='xs'>
+											<Text size='sm' fw={500}>
+												Day
+											</Text>
+											<SegmentedControl
+												fullWidth
+												data={daysOfWeek}
+												value={form.values.dayOfWeek}
+												onChange={(value) =>
+													form.setFieldValue('dayOfWeek', value as DayOfWeek)
+												}
+											/>
+										</Stack>
+
+										<Grid>
+											<Grid.Col span={6}>
+												<TimeInput
+													label='Start Time'
+													value={form.values.startTime}
+													onChange={(e) =>
+														form.setFieldValue(
+															'startTime',
+															e.currentTarget.value
+														)
+													}
+													error={form.errors.startTime}
+													required
+												/>
+											</Grid.Col>
+											<Grid.Col span={6}>
+												<TimeInput
+													label='End Time'
+													value={form.values.endTime}
+													onChange={(e) =>
+														form.setFieldValue('endTime', e.currentTarget.value)
+													}
+													error={form.errors.endTime}
+													required
+												/>
+											</Grid.Col>
+										</Grid>
+
+										{duration > 0 && (
+											<Text size='xs' c='dimmed'>
+												Duration: {Math.floor(duration / 60)}h {duration % 60}m
+											</Text>
+										)}
+
+										<Select
+											label='Venue'
+											placeholder='Select a venue'
+											data={venues.map((v) => ({
+												value: v.id.toString(),
+												label: v.name,
+											}))}
+											value={
+												form.values.venueId
+													? form.values.venueId.toString()
+													: null
+											}
+											onChange={(value) =>
+												form.setFieldValue('venueId', value ? Number(value) : 0)
+											}
+											error={form.errors.venueId}
+											searchable
+											required
+										/>
 									</Stack>
-								);
-							}}
-						/>
 
-						{className && (
-							<Text size='sm' c='dimmed'>
-								Class: <strong>{className}</strong>
-							</Text>
-						)}
+									<Group justify='flex-end' mt='md'>
+										<Button variant='subtle' onClick={close}>
+											Cancel
+										</Button>
+										<Button type='submit' loading={mutation.isPending}>
+											Add Allocation
+										</Button>
+									</Group>
+								</form>
+							</Tabs.Panel>
 
-						<Grid>
-							<Grid.Col span={6}>
-								<NumberInput
-									label='Number of Students'
-									placeholder='Students'
-									value={form.values.numberOfStudents}
-									onChange={(value) =>
-										form.setFieldValue(
-											'numberOfStudents',
-											typeof value === 'number' ? value : 0
-										)
-									}
-									error={form.errors.numberOfStudents}
-									min={1}
-									required
-								/>
-							</Grid.Col>
-							<Grid.Col span={6}>
-								<NumberInput
-									label='Number of Groups'
-									placeholder='Groups'
-									value={form.values.numberOfGroups}
-									onChange={(value) =>
-										form.setFieldValue(
-											'numberOfGroups',
-											typeof value === 'number' ? value : 1
-										)
-									}
-									error={form.errors.numberOfGroups}
-									min={1}
-									max={10}
-									required
-								/>
-							</Grid.Col>
-						</Grid>
+							<Tabs.Panel value='allocations' pt='md'>
+									{allocationsLoading ? (
+										<Box py='xl'>
+											<Loader size='sm' />
+										</Box>
+									) : (
+										<AllocationTable
+											allocations={filteredAllocations}
+											userId={selectedUserId}
+											showEdit={false}
+											emptyMessage='No allocations found for this lecturer in the selected term.'
+										/>
+									)}
+							</Tabs.Panel>
+						</Tabs>
+					)}
 
-						<Stack gap='xs'>
-							<Text size='sm' fw={500}>
-								Day
-							</Text>
-							<SegmentedControl
-								fullWidth
-								data={daysOfWeek}
-								value={form.values.dayOfWeek}
-								onChange={(value) =>
-									form.setFieldValue('dayOfWeek', value as DayOfWeek)
-								}
-							/>
-						</Stack>
-
-						<Grid>
-							<Grid.Col span={6}>
-								<TimeInput
-									label='Start Time'
-									value={form.values.startTime}
-									onChange={(e) =>
-										form.setFieldValue('startTime', e.currentTarget.value)
-									}
-									error={form.errors.startTime}
-									required
-								/>
-							</Grid.Col>
-							<Grid.Col span={6}>
-								<TimeInput
-									label='End Time'
-									value={form.values.endTime}
-									onChange={(e) =>
-										form.setFieldValue('endTime', e.currentTarget.value)
-									}
-									error={form.errors.endTime}
-									required
-								/>
-							</Grid.Col>
-						</Grid>
-
-						{duration > 0 && (
-							<Text size='xs' c='dimmed'>
-								Duration: {Math.floor(duration / 60)}h {duration % 60}m
-							</Text>
-						)}
-
-						<Select
-							label='Venue'
-							placeholder='Select a venue'
-							data={venues.map((v) => ({
-								value: v.id.toString(),
-								label: v.name,
-							}))}
-							value={
-								form.values.venueId ? form.values.venueId.toString() : null
-							}
-							onChange={(value) =>
-								form.setFieldValue('venueId', value ? Number(value) : 0)
-							}
-							error={form.errors.venueId}
-							searchable
-							required
-						/>
-					</Stack>
-
-					<Group justify='flex-end' mt='md'>
-						<Button variant='subtle' onClick={close}>
-							Cancel
-						</Button>
-						<Button type='submit' loading={mutation.isPending}>
-							Add Allocation
-						</Button>
-					</Group>
-				</form>
+					{!selectedUserId && (
+						<Text size='sm' c='dimmed' ta='center' py='xl'>
+							Select a lecturer to view or add allocations.
+						</Text>
+					)}
+				</Stack>
 			</Modal>
 		</>
 	);

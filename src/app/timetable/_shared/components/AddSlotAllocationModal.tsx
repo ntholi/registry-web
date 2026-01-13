@@ -245,164 +245,154 @@ export default function AddSlotAllocationModal({
 		}) || [];
 
 	return (
-		<>
-			<Tooltip label='Add to slot'>
-				<ActionIcon variant='subtle' onClick={handleOpen}>
-					<IconPlus size={18} />
-				</ActionIcon>
-			</Tooltip>
+		<Modal
+			opened={opened}
+			onClose={close}
+			title='Add Allocation to Slot'
+			size='lg'
+		>
+			<form onSubmit={form.onSubmit(handleSubmit)}>
+				<Stack gap='md'>
+					<ModuleSearchInput
+						label='Module'
+						onModuleSelect={handleModuleSelect}
+						required
+					/>
 
-			<Modal
-				opened={opened}
-				onClose={close}
-				title='Add Allocation to Slot'
-				size='lg'
-			>
-				<form onSubmit={form.onSubmit(handleSubmit)}>
-					<Stack gap='md'>
-						<ModuleSearchInput
-							label='Module'
-							onModuleSelect={handleModuleSelect}
-							required
-						/>
+					<Select
+						label='Semester Module'
+						placeholder='Select a semester module'
+						data={semesterOptions}
+						value={
+							form.values.semesterModuleId
+								? form.values.semesterModuleId.toString()
+								: null
+						}
+						onChange={handleSemesterModuleChange}
+						error={form.errors.semesterModuleId}
+						disabled={!selectedModule || semesterOptions.length === 0}
+						searchable
+						required
+						renderOption={({ option }) => {
+							const semesterOption = option as SemesterOption;
+							return (
+								<Stack gap={0}>
+									<Text size='sm'>{semesterOption.label}</Text>
+									<Text size='xs' c='dimmed'>
+										{semesterOption.description}
+									</Text>
+								</Stack>
+							);
+						}}
+					/>
 
-						<Select
-							label='Semester Module'
-							placeholder='Select a semester module'
-							data={semesterOptions}
-							value={
-								form.values.semesterModuleId
-									? form.values.semesterModuleId.toString()
-									: null
-							}
-							onChange={handleSemesterModuleChange}
-							error={form.errors.semesterModuleId}
-							disabled={!selectedModule || semesterOptions.length === 0}
-							searchable
-							required
-							renderOption={({ option }) => {
-								const semesterOption = option as SemesterOption;
-								return (
-									<Stack gap={0}>
-										<Text size='sm'>{semesterOption.label}</Text>
-										<Text size='xs' c='dimmed'>
-											{semesterOption.description}
-										</Text>
-									</Stack>
-								);
-							}}
-						/>
+					{className && (
+						<Text size='sm' c='dimmed'>
+							Class: <strong>{className}</strong>
+						</Text>
+					)}
 
-						{className && (
-							<Text size='sm' c='dimmed'>
-								Class: <strong>{className}</strong>
-							</Text>
-						)}
-
-						<Grid>
-							<Grid.Col span={6}>
-								<NumberInput
-									label='Number of Students'
-									placeholder='Students'
-									value={form.values.numberOfStudents}
-									onChange={(value) =>
-										form.setFieldValue(
-											'numberOfStudents',
-											typeof value === 'number' ? value : 0
-										)
-									}
-									error={form.errors.numberOfStudents}
-									min={1}
-									required
-								/>
-							</Grid.Col>
-							<Grid.Col span={6}>
-								<NumberInput
-									label='Number of Groups'
-									placeholder='Groups'
-									value={form.values.numberOfGroups}
-									onChange={(value) =>
-										form.setFieldValue(
-											'numberOfGroups',
-											typeof value === 'number' ? value : 1
-										)
-									}
-									error={form.errors.numberOfGroups}
-									min={1}
-									max={10}
-									required
-								/>
-							</Grid.Col>
-						</Grid>
-
-						<DurationInput
-							label='Duration'
-							value={form.values.duration}
-							onChange={(value) => form.setFieldValue('duration', value)}
-							error={form.errors.duration}
-							required
-						/>
-
-						<Stack gap='xs'>
-							<Text size='sm' fw={500}>
-								Day
-							</Text>
-							<SegmentedControl
-								fullWidth
-								data={daysOfWeek}
-								value={form.values.dayOfWeek}
+					<Grid>
+						<Grid.Col span={6}>
+							<NumberInput
+								label='Number of Students'
+								placeholder='Students'
+								value={form.values.numberOfStudents}
 								onChange={(value) =>
-									form.setFieldValue('dayOfWeek', value as DayOfWeek)
+									form.setFieldValue(
+										'numberOfStudents',
+										typeof value === 'number' ? value : 0
+									)
 								}
+								error={form.errors.numberOfStudents}
+								min={1}
+								required
 							/>
-						</Stack>
+						</Grid.Col>
+						<Grid.Col span={6}>
+							<NumberInput
+								label='Number of Groups'
+								placeholder='Groups'
+								value={form.values.numberOfGroups}
+								onChange={(value) =>
+									form.setFieldValue(
+										'numberOfGroups',
+										typeof value === 'number' ? value : 1
+									)
+								}
+								error={form.errors.numberOfGroups}
+								min={1}
+								max={10}
+								required
+							/>
+						</Grid.Col>
+					</Grid>
 
-						<Grid>
-							<Grid.Col span={6}>
-								<TimeInput
-									label='Start Time'
-									value={form.values.startTime}
-									onChange={(e) =>
-										form.setFieldValue('startTime', e.currentTarget.value)
-									}
-									error={form.errors.startTime}
-									required
-								/>
-							</Grid.Col>
-							<Grid.Col span={6}>
-								<TimeInput label='End Time' value={endTime} disabled />
-							</Grid.Col>
-						</Grid>
+					<DurationInput
+						label='Duration'
+						value={form.values.duration}
+						onChange={(value) => form.setFieldValue('duration', value)}
+						error={form.errors.duration}
+						required
+					/>
 
-						<Select
-							label='Venue'
-							placeholder='Select a venue'
-							data={venues.map((v) => ({
-								value: v.id.toString(),
-								label: v.name,
-							}))}
-							value={
-								form.values.venueId ? form.values.venueId.toString() : null
-							}
+					<Stack gap='xs'>
+						<Text size='sm' fw={500}>
+							Day
+						</Text>
+						<SegmentedControl
+							fullWidth
+							data={daysOfWeek}
+							value={form.values.dayOfWeek}
 							onChange={(value) =>
-								form.setFieldValue('venueId', value ? Number(value) : 0)
+								form.setFieldValue('dayOfWeek', value as DayOfWeek)
 							}
-							error={form.errors.venueId}
-							searchable
-							required
 						/>
 					</Stack>
 
-					<Group justify='flex-end' mt='md'>
-						<Button variant='subtle' onClick={close}>
-							Cancel
-						</Button>
-						<Button type='submit' loading={mutation.isPending}>
-							Add Allocation
-						</Button>
-					</Group>
-				</form>
-			</Modal>
-		</>
+					<Grid>
+						<Grid.Col span={6}>
+							<TimeInput
+								label='Start Time'
+								value={form.values.startTime}
+								onChange={(e) =>
+									form.setFieldValue('startTime', e.currentTarget.value)
+								}
+								error={form.errors.startTime}
+								required
+							/>
+						</Grid.Col>
+						<Grid.Col span={6}>
+							<TimeInput label='End Time' value={endTime} disabled />
+						</Grid.Col>
+					</Grid>
+
+					<Select
+						label='Venue'
+						placeholder='Select a venue'
+						data={venues.map((v) => ({
+							value: v.id.toString(),
+							label: v.name,
+						}))}
+						value={form.values.venueId ? form.values.venueId.toString() : null}
+						onChange={(value) =>
+							form.setFieldValue('venueId', value ? Number(value) : 0)
+						}
+						error={form.errors.venueId}
+						searchable
+						required
+					/>
+				</Stack>
+
+				<Group justify='flex-end' mt='md'>
+					<Button variant='subtle' onClick={close}>
+						Cancel
+					</Button>
+					<Button type='submit' loading={mutation.isPending}>
+						Add Allocation
+					</Button>
+				</Group>
+			</form>
+		</Modal>
 	);
 }
