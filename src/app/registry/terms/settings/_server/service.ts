@@ -1,7 +1,7 @@
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
 import withAuth from '@/core/platform/withAuth';
 import { registrationDatesSchema } from '../_lib/registration-dates';
-import TermSettingsRepository from './settings-repository';
+import TermSettingsRepository from './repository';
 
 class TermSettingsService {
 	private repository = new TermSettingsRepository();
@@ -148,6 +148,56 @@ class TermSettingsService {
 		return withAuth(
 			async () => this.repository.getUnpublishedTermCodes(),
 			['all']
+		);
+	}
+
+	async getPublicationAttachments(termCode: string) {
+		return withAuth(
+			async () => this.repository.getPublicationAttachments(termCode),
+			['admin', 'registry']
+		);
+	}
+
+	async createPublicationAttachment(data: {
+		termCode: string;
+		fileName: string;
+		type: 'scanned-pdf' | 'raw-marks' | 'other';
+	}) {
+		return withAuth(
+			async (session) => {
+				if (
+					session?.user?.role !== 'admin' &&
+					!(
+						session?.user?.role === 'registry' &&
+						session?.user?.position === 'manager'
+					)
+				) {
+					throw new Error('Unauthorized');
+				}
+				return this.repository.createPublicationAttachment({
+					...data,
+					createdBy: session.user.id!,
+				});
+			},
+			['admin', 'registry']
+		);
+	}
+
+	async deletePublicationAttachment(id: string) {
+		return withAuth(
+			async (session) => {
+				if (
+					session?.user?.role !== 'admin' &&
+					!(
+						session?.user?.role === 'registry' &&
+						session?.user?.position === 'manager'
+					)
+				) {
+					throw new Error('Unauthorized');
+				}
+				return this.repository.deletePublicationAttachment(id);
+			},
+			['admin', 'registry']
 		);
 	}
 }

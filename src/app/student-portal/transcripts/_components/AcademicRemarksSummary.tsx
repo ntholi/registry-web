@@ -16,9 +16,7 @@ export default function AcademicRemarksSummary({ remarks }: Props) {
 		<Paper p='md' radius='md' withBorder>
 			<Stack gap='sm'>
 				<Group justify='space-between'>
-					<Text size='sm' c='dimmed'>
-						Academic Status
-					</Text>
+					<Text size='sm'>Academic Status</Text>
 					<Text
 						size='sm'
 						fw={600}

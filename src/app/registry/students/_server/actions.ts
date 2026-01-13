@@ -1,7 +1,7 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { getUnpublishedTermCodes } from '@/app/registry/terms/_server/settings-actions';
+import { getUnpublishedTermCodes } from '@/app/registry/terms/settings/_server/actions';
 import type { students } from '@/core/database';
 import type { QueryOptions } from '@/core/platform/BaseRepository';
 import { studentsService as service } from './service';

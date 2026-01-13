@@ -8,7 +8,7 @@ import {
 	DetailsViewHeader,
 	FieldView,
 } from '@/shared/ui/adease';
-import TermSettingsSection from '../_components/TermSettingsSection';
+import TermSettingsSection from '../settings/_components/TermSettingsSection';
 
 type Props = {
 	params: Promise<{ code: string }>;

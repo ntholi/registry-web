@@ -9,7 +9,7 @@ import { IconTrash } from '@tabler/icons-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { formatDate } from '@/shared/lib/utils/dates';
-import { updateRegistrationDates } from '../_server/settings-actions';
+import { updateRegistrationDates } from '../_server/actions';
 
 interface Props {
 	termId: number;

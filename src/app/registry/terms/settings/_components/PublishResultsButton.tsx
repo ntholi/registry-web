@@ -15,7 +15,7 @@ import { modals } from '@mantine/modals';
 import { notifications } from '@mantine/notifications';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
-import { updateResultsPublishedWithNotification } from '../_server/settings-actions';
+import { updateResultsPublishedWithNotification } from '../_server/actions';
 
 interface Props {
 	termId: number;
