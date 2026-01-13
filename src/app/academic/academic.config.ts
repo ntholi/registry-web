@@ -19,6 +19,7 @@ export const academicConfig: ModuleConfig = {
 		dashboard: [
 			{
 				label: 'Lecturers',
+				description: 'Assigned Modules',
 				href: '/academic/lecturers',
 				roles: ['academic'],
 				icon: IconPresentation,

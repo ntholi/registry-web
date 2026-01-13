@@ -1,4 +1,4 @@
-import { getActiveTerm } from '@registry/dates/terms';
+import { getActiveTerm } from '@/app/registry/terms';
 import { auth } from '@/core/auth';
 import type { clearance, DashboardUser } from '@/core/database';
 import type { QueryOptions } from '@/core/platform/BaseRepository';

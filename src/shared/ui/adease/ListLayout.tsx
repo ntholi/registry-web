@@ -102,7 +102,7 @@ export function ListLayout<T>({
 				<Paper withBorder h='88vh'>
 					<Flex direction='column' h='100%'>
 						<Stack p='md' gap='sm'>
-							<Flex justify='space-between' align='center' gap='md'>
+							<Flex justify='space-between' align='center' gap='xs'>
 								<Group style={{ width: '100%', flex: 1 }}>
 									<SearchField style={{ width: '100%' }} />
 								</Group>

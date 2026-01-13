@@ -3,6 +3,7 @@
 	"version": "0.1.0",
 	"private": true,
 	"scripts": {
+		"worktree": "node scripts/worktree.mjs",
 		"dev": "next dev",
 		"build": "next build",
 		"start": "next start",
@@ -14,7 +15,8 @@
 		"db:push": "drizzle-kit push",
 		"db:generate": "drizzle-kit generate",
 		"db:migrate": "drizzle-kit migrate",
-		"db:studio": "drizzle-kit studio"
+		"db:studio": "drizzle-kit studio",
+		"db:seed": "tsx src/core/database/seed.ts"
 	},
 	"dependencies": {
 		"@auth/drizzle-adapter": "^1.11.1",

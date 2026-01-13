@@ -2,11 +2,11 @@
 
 import { ActionIcon, Modal, Paper, Select, Tooltip } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
-import { getAllTerms } from '@registry/dates/terms';
 import { IconFilter } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useAtom } from 'jotai';
 import { useEffect } from 'react';
+import { getAllTerms } from '@/app/registry/terms';
 import { selectedTermAtom } from '@/shared/ui/atoms/termAtoms';
 
 interface TermFilterProps {

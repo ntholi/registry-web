@@ -2,8 +2,8 @@
 
 import { getOrReuseSection } from '@lms/_shared/utils';
 import { findStudentsByLmsUserIdsForSubmissions } from '@lms/students';
-import { getActiveTerm } from '@registry/dates/terms';
 import { createAssessment as createAcademicAssessment } from '@/app/academic/assessments/_server/actions';
+import { getActiveTerm } from '@/app/registry/terms';
 import { auth } from '@/core/auth';
 import type { AssessmentNumber } from '@/core/database';
 import { moodleGet, moodlePost } from '@/core/integrations/moodle';

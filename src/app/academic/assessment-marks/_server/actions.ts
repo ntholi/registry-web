@@ -1,7 +1,7 @@
 'use server';
 
 import { updateGradeByStudentModuleId } from '@academic/semester-modules';
-import { getActiveTerm } from '@registry/dates/terms';
+import { getActiveTerm } from '@/app/registry/terms';
 import type { assessmentMarks } from '@/core/database';
 import { calculateModuleGrade } from '@/shared/lib/utils/gradeCalculations';
 import { assessmentMarksService as service } from './service';
@@ -74,17 +74,7 @@ export async function calculateAndSaveModuleGrade(
 		return null;
 	}
 
-	const gradeCalculation = calculateModuleGrade(
-		assessments.map((a) => ({
-			id: a.id,
-			weight: a.weight,
-			totalMarks: a.totalMarks,
-		})),
-		assessmentMarks.map((m) => ({
-			assessment_id: m.assessmentId,
-			marks: m.marks,
-		}))
-	);
+	const gradeCalculation = calculateModuleGrade(assessments, assessmentMarks);
 
 	if (gradeCalculation.hasMarks) {
 		await updateGradeByStudentModuleId(

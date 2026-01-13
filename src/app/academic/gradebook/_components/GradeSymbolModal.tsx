@@ -32,6 +32,7 @@ interface Props {
 	moduleId: number;
 	currentGrade?: string;
 	weightedTotal?: number;
+	readOnly?: boolean;
 }
 
 type ManualGrade = 'DEF' | 'ANN' | 'EXP' | 'DNS';
@@ -43,6 +44,7 @@ export default function GradeSymbolModal({
 	moduleId,
 	currentGrade,
 	weightedTotal = 0,
+	readOnly = false,
 }: Props) {
 	const theme = useMantineTheme();
 	const [opened, { open, close }] = useDisclosure(false);
@@ -99,7 +101,7 @@ export default function GradeSymbolModal({
 	return (
 		<>
 			<Tooltip
-				label='Change Grade Symbol'
+				label={readOnly ? 'Gradebook is closed' : 'Change Grade Symbol'}
 				position='top'
 				withArrow
 				transitionProps={{ transition: 'pop' }}
@@ -107,10 +109,11 @@ export default function GradeSymbolModal({
 				<ActionIcon
 					variant='transparent'
 					color='gray'
-					onClick={open}
+					onClick={readOnly ? undefined : open}
 					radius='md'
 					size='md'
 					aria-label='Edit grade symbol'
+					disabled={readOnly}
 				>
 					<IconEdit size={18} stroke={1.5} />
 				</ActionIcon>

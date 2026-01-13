@@ -30,12 +30,13 @@ export function formatTime(
 }
 
 export function formatDateTime(
-	timestamp: number | Date | string | undefined | null
+	timestamp: number | Date | string | undefined | null,
+	month: 'long' | 'short' = 'long'
 ) {
 	if (!timestamp) return '';
 	return new Date(timestamp).toLocaleString('en-GB', {
 		year: 'numeric',
-		month: 'short',
+		month: month,
 		day: 'numeric',
 		hour: '2-digit',
 		minute: '2-digit',
@@ -146,4 +147,13 @@ export function formatTerm(
 	});
 
 	return `${monthName} ${year}`;
+}
+
+export function isIntakePeriodActive(
+	startDate: string | null | undefined,
+	endDate: string | null | undefined
+) {
+	if (!startDate || !endDate) return false;
+	const today = new Date().toISOString().split('T')[0];
+	return startDate <= today && endDate >= today;
 }

@@ -1,5 +1,4 @@
 import { Tabs, TabsList, TabsPanel, TabsTab } from '@mantine/core';
-import { getActiveTerm } from '@registry/dates/terms';
 import { ClearanceDetails, ClearanceHistory } from '@registry/registration';
 import {
 	AcademicsLoader,
@@ -7,6 +6,7 @@ import {
 } from '@registry/registration/clearance';
 import { getClearance } from '@registry/registration/requests';
 import { notFound } from 'next/navigation';
+import { getActiveTerm } from '@/app/registry/terms';
 import { auth } from '@/core/auth';
 import { DetailsView } from '@/shared/ui/adease';
 

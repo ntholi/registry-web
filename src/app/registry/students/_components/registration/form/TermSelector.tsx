@@ -1,9 +1,9 @@
 'use client';
 
 import { Alert, Select, Stack, Text } from '@mantine/core';
-import { getAllTerms } from '@registry/dates/terms';
 import { IconInfoCircle } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
+import { getAllTerms } from '@/app/registry/terms';
 import { useActiveTerm } from '@/shared/lib/hooks/use-active-term';
 
 type Props = {

@@ -234,15 +234,8 @@ export default class AssessmentRepository extends BaseRepository<
 						const studentMarks = marksByStudent.get(studentModuleId) || [];
 
 						const gradeCalculation = calculateModuleGrade(
-							moduleAssessments.map((a) => ({
-								id: a.id,
-								weight: a.weight,
-								totalMarks: a.totalMarks,
-							})),
-							studentMarks.map((m) => ({
-								assessment_id: m.assessmentId,
-								marks: m.marks,
-							}))
+							moduleAssessments,
+							studentMarks
 						);
 
 						if (gradeCalculation.hasMarks) {

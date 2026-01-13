@@ -21,6 +21,7 @@ type Props = {
 	existingMark?: number;
 	existingMarkId?: number;
 	moduleId: number;
+	readOnly?: boolean;
 };
 
 export default function MarksInput({
@@ -29,6 +30,7 @@ export default function MarksInput({
 	existingMark,
 	existingMarkId,
 	moduleId,
+	readOnly = false,
 }: Props) {
 	const [mark, setMark] = useState(existingMark?.toString() || '');
 	const [isEditing, setIsEditing] = useState(false);
@@ -126,15 +128,8 @@ export default function MarksInput({
 					) || [];
 
 				const gradeCalculation = calculateModuleGrade(
-					assessments.map((a) => ({
-						id: a.id,
-						weight: a.weight,
-						totalMarks: a.totalMarks,
-					})),
-					studentMarks.map((m) => ({
-						assessment_id: m.assessmentId,
-						marks: m.marks,
-					}))
+					assessments,
+					studentMarks
 				);
 
 				if (gradeCalculation.hasMarks) {
@@ -300,8 +295,13 @@ export default function MarksInput({
 		<Box pos='relative'>
 			<Box
 				pos='relative'
-				style={{ cursor: 'pointer', display: isEditing ? 'none' : undefined }}
+				style={{
+					cursor: readOnly ? 'not-allowed' : 'pointer',
+					display: isEditing ? 'none' : undefined,
+					opacity: readOnly ? 0.7 : 1,
+				}}
 				onClick={() => {
+					if (readOnly) return;
 					setIsEditing(true);
 					setError('');
 				}}

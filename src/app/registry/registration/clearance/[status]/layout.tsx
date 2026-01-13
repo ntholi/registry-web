@@ -1,12 +1,12 @@
 'use client';
 
-import { getActiveTerm } from '@registry/dates/terms';
 import { clearanceByStatus } from '@registry/registration/requests';
 import { IconAlertCircle, IconCheck, IconClock } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useAtom } from 'jotai';
 import { useParams } from 'next/navigation';
 import type { PropsWithChildren } from 'react';
+import { getActiveTerm } from '@/app/registry/terms';
 import { getStatusColor } from '@/shared/lib/utils/colors';
 import { ListItem, ListLayout } from '@/shared/ui/adease';
 import { selectedTermAtom } from '@/shared/ui/atoms/termAtoms';

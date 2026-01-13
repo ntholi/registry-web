@@ -1,6 +1,7 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
+import { getUnpublishedTermCodes } from '@/app/registry/terms/_server/settings-actions';
 import type { students } from '@/core/database';
 import type { QueryOptions } from '@/core/platform/BaseRepository';
 import { studentsService as service } from './service';
@@ -24,9 +25,14 @@ export async function getStudent(stdNo: number) {
 
 export async function getAcademicHistory(
 	stdNo: number,
-	excludeActiveTerm: boolean = false
+	excludedTerms: string[] = []
 ) {
-	return service.getAcademicHistory(stdNo, excludeActiveTerm);
+	return service.getAcademicHistory(stdNo, excludedTerms);
+}
+
+export async function getPublishedAcademicHistory(stdNo: number) {
+	const unpublishedTerms = await getUnpublishedTermCodes();
+	return service.getAcademicHistory(stdNo, unpublishedTerms);
 }
 
 export async function getStudentByUserId(userId: string | undefined | null) {

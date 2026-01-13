@@ -1,7 +1,7 @@
 'use client';
 
-import { getLatestGraduationDate } from '@registry/dates/graduations';
 import { graduationClearanceByStatus } from '@registry/graduation/clearance';
+import { getLatestGraduationDate } from '@registry/graduation/dates';
 import { IconAlertCircle, IconCheck, IconClock } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useAtom } from 'jotai';

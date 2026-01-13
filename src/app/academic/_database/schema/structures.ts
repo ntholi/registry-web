@@ -14,6 +14,7 @@ export const structures = pgTable(
 	'structures',
 	{
 		id: serial().primaryKey(),
+		cmsId: integer().unique(),
 		code: text().notNull().unique(),
 		desc: text(),
 		programId: integer()
@@ -28,6 +29,7 @@ export const structures = pgTable(
 
 export const structureSemesters = pgTable('structure_semesters', {
 	id: serial().primaryKey(),
+	cmsId: integer().unique(),
 	structureId: integer()
 		.references(() => structures.id, { onDelete: 'cascade' })
 		.notNull(),

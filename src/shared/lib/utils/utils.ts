@@ -209,3 +209,11 @@ export function truncateText(text: string, maxLength: number = 50) {
 	}
 	return `${text.slice(0, maxLength - 3)}...`;
 }
+
+export function formatCurrency(
+	amount: number | null | undefined,
+	currency = 'M'
+) {
+	if (amount === null || amount === undefined) return `${currency} 0.00`;
+	return `${currency} ${amount.toFixed(2)}`;
+}

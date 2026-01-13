@@ -11,6 +11,7 @@ import {
 	IconFlask,
 	IconPackage,
 	IconSchool,
+	IconSearch,
 	IconSettings,
 	IconUserShield,
 } from '@tabler/icons-react';
@@ -91,6 +92,11 @@ export const adminConfig: ModuleConfig = {
 						label: 'Grade Calculator',
 						href: '/admin/tools/grade-calculator',
 						icon: IconCalculator,
+					},
+					{
+						label: 'Grade Finder',
+						href: '/admin/tools/grade-finder',
+						icon: IconSearch,
 					},
 				] as NavItem[],
 			},

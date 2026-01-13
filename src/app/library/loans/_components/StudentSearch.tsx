@@ -1,0 +1,79 @@
+'use client';
+
+import { Autocomplete, Badge, Group, Loader, Stack, Text } from '@mantine/core';
+import { useDebouncedValue } from '@mantine/hooks';
+import { IconSearch } from '@tabler/icons-react';
+import { useQuery } from '@tanstack/react-query';
+import { useState } from 'react';
+import type { StudentSearchResult } from '../_lib/types';
+import { searchStudents } from '../_server/actions';
+
+type Props = {
+	onSelect: (student: StudentSearchResult) => void;
+	selectedStudent?: StudentSearchResult | null;
+};
+
+export default function StudentSearch({ onSelect, selectedStudent }: Props) {
+	const [search, setSearch] = useState('');
+	const [debounced] = useDebouncedValue(search, 300);
+
+	const { data: students = [], isLoading } = useQuery({
+		queryKey: ['student-search', debounced],
+		queryFn: () => searchStudents(debounced),
+		enabled: debounced.length >= 2,
+	});
+
+	const options = students.map((s) => ({
+		value: `${s.stdNo} - ${s.name}`,
+		student: s,
+	}));
+
+	function handleSelect(value: string) {
+		const selected = options.find((o) => o.value === value);
+		if (selected) {
+			onSelect(selected.student);
+			setSearch('');
+		}
+	}
+
+	return (
+		<Stack gap='xs'>
+			<Autocomplete
+				label='Search Student'
+				placeholder='Enter student number or name'
+				value={search}
+				onChange={setSearch}
+				onOptionSubmit={handleSelect}
+				data={options.map((o) => o.value)}
+				leftSection={
+					isLoading ? <Loader size={16} /> : <IconSearch size={16} />
+				}
+				filter={({ options }) => options}
+			/>
+			{selectedStudent && (
+				<Group
+					gap='xs'
+					p='sm'
+					style={{
+						border: '1px solid var(--mantine-color-default-border)',
+						borderRadius: 'var(--mantine-radius-md)',
+					}}
+				>
+					<Stack gap={2} flex={1}>
+						<Text fw={500}>{selectedStudent.name}</Text>
+						<Text size='sm' c='dimmed'>
+							Student No: {selectedStudent.stdNo}
+						</Text>
+					</Stack>
+					<Badge
+						variant='light'
+						color={selectedStudent.activeLoansCount > 0 ? 'blue' : 'gray'}
+					>
+						{selectedStudent.activeLoansCount} active loan
+						{selectedStudent.activeLoansCount !== 1 ? 's' : ''}
+					</Badge>
+				</Group>
+			)}
+		</Stack>
+	);
+}

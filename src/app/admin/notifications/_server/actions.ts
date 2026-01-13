@@ -5,6 +5,11 @@ import type { UserPosition, UserRole } from '@/core/database';
 import type { NotificationWithRecipients } from './repository';
 import { notificationsService as service } from './service';
 
+export type CreateNotificationInput = Omit<
+	NotificationWithRecipients,
+	'createdBy'
+>;
+
 export async function getNotification(id: number) {
 	return service.get(id);
 }
@@ -13,12 +18,12 @@ export async function findAllNotifications(page = 1, search = '') {
 	return service.findAll(page, search);
 }
 
-export async function createNotification(data: NotificationWithRecipients) {
+export async function createNotification(data: CreateNotificationInput) {
 	const session = await auth();
 	if (!session?.user?.id) {
 		throw new Error('Unauthorized');
 	}
-	return service.create(data, session.user.id);
+	return service.create(data as NotificationWithRecipients, session.user.id);
 }
 
 export async function updateNotification(

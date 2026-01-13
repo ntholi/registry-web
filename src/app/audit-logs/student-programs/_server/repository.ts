@@ -76,6 +76,7 @@ export default class StudentProgramAuditRepository extends BaseRepository<
 
 			await tx.insert(studentProgramAuditLogs).values({
 				studentProgramId,
+				studentProgramCmsId: oldRecord.cmsId,
 				oldValues: oldRecord,
 				newValues: updatedRecord,
 				reasons: reasons || null,

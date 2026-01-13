@@ -1,5 +1,5 @@
-import { getActiveTerm } from '@registry/dates/terms';
 import { useQuery } from '@tanstack/react-query';
+import { getActiveTerm } from '@/app/registry/terms';
 
 export function useActiveTerm() {
 	const { data, isLoading, isError } = useQuery({

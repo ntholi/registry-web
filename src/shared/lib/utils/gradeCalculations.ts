@@ -8,26 +8,19 @@ export type GradeCalculation = {
 	hasPassed: boolean;
 };
 
-export function calculateModuleGrade(
-	assessments: Array<{
-		id: number;
-		weight: number;
-		totalMarks: number;
-	}>,
-	assessmentMarks: Array<{
-		assessment_id: number;
-		marks: number;
-	}>
-): GradeCalculation {
+export function calculateModuleGrade<
+	T extends { id: number; weight: number; totalMarks: number },
+	M extends { assessmentId: number; marks: number },
+>(assessments: T[], assessmentMarks: M[]): GradeCalculation {
 	let totalWeight = 0;
 	let weightedMarks = 0;
 	let hasMarks = false;
 
-	assessments.forEach((assessment) => {
+	for (const assessment of assessments) {
 		totalWeight += assessment.weight;
 
 		const markRecord = assessmentMarks.find(
-			(mark) => mark.assessment_id === assessment.id
+			(mark) => mark.assessmentId === assessment.id
 		);
 
 		if (markRecord && markRecord.marks !== undefined) {
@@ -35,7 +28,7 @@ export function calculateModuleGrade(
 			weightedMarks += percentage * assessment.weight;
 			hasMarks = true;
 		}
-	});
+	}
 	const weightedTotal = Math.round(weightedMarks);
 	const grade = getLetterGrade(weightedTotal);
 	const hasPassed = weightedTotal >= totalWeight * 0.5;

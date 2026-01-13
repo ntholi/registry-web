@@ -19,6 +19,7 @@ export const notifications = pgTable('notifications', {
 	id: serial().primaryKey(),
 	title: text().notNull(),
 	message: text().notNull(),
+	link: text(),
 	targetType: notificationTargetType().notNull().default('all'),
 	targetRoles: text().array(),
 	targetPositions: text().array(),

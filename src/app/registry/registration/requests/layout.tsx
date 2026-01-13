@@ -1,10 +1,10 @@
 'use client';
 
-import { getActiveTerm } from '@registry/dates/terms';
 import { findAllRegistrationRequests } from '@registry/registration/requests';
 import { useQuery } from '@tanstack/react-query';
 import { useAtom } from 'jotai';
 import type { PropsWithChildren } from 'react';
+import { getActiveTerm } from '@/app/registry/terms';
 import { getStatusIcon } from '@/shared/lib/utils/status';
 import { ListItem, ListLayout } from '@/shared/ui/adease';
 import { selectedTermAtom } from '@/shared/ui/atoms/termAtoms';

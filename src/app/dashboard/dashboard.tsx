@@ -27,6 +27,7 @@ import { signOut, useSession } from 'next-auth/react';
 import React from 'react';
 import { academicConfig } from '@/app/academic/academic.config';
 import { adminConfig } from '@/app/admin/admin.config';
+import { admissionsConfig } from '@/app/admissions/admissions.config';
 import { financeConfig } from '@/app/finance/finance.config';
 import { lmsConfig } from '@/app/lms/lms.config';
 import { registryConfig } from '@/app/registry/registry.config';
@@ -44,6 +45,7 @@ function getNavigation(
 	const allConfigs = [
 		{ config: timetableConfig, enabled: moduleConfig.timetable },
 		{ config: academicConfig, enabled: moduleConfig.academic },
+		{ config: admissionsConfig, enabled: moduleConfig.admissions },
 		{ config: lmsConfig, enabled: moduleConfig.lms },
 		{ config: registryConfig, enabled: moduleConfig.registry },
 		{ config: financeConfig, enabled: moduleConfig.finance },

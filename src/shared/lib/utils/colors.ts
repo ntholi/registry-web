@@ -189,6 +189,42 @@ export const statusColors = {
 		completed: semantic.success,
 		cancelled: semantic.error,
 	},
+	documentVerificationStatus: {
+		pending: semantic.warning,
+		verified: semantic.success,
+		rejected: semantic.error,
+	},
+	applicationStatus: {
+		draft: semantic.neutral,
+		submitted: semantic.info,
+		under_review: semantic.warning,
+		underreview: semantic.warning,
+		accepted_first_choice: semantic.success,
+		acceptedfirstchoice: semantic.success,
+		accepted_second_choice: semantic.success,
+		acceptedsecondchoice: semantic.success,
+		rejected: semantic.error,
+		waitlisted: semantic.caution,
+	},
+	paymentStatus: {
+		unpaid: semantic.error,
+		paid: semantic.success,
+	},
+	bookCondition: {
+		new: semantic.success,
+		good: semantic.info,
+		damaged: semantic.error,
+	},
+	bookCopyStatus: {
+		available: semantic.success,
+		onloan: semantic.warning,
+		withdrawn: semantic.neutral,
+	},
+	loanStatus: {
+		active: semantic.info,
+		returned: semantic.success,
+		overdue: semantic.error,
+	},
 } as const;
 
 const allStatuses = {
@@ -410,6 +446,18 @@ export function getTaskStatusColor(status: TaskStatusType) {
 	return getColorFromMap(status, statusColors.taskStatus);
 }
 
+export type LoanStatusType = 'Active' | 'Returned' | 'Overdue';
+
+export function getLoanStatusColor(status: LoanStatusType) {
+	return getColorFromMap(status, statusColors.loanStatus);
+}
+
+export type FineStatusType = 'Unpaid' | 'Paid';
+
+export function getFineStatusColor(status: FineStatusType) {
+	return getColorFromMap(status, statusColors.paymentStatus);
+}
+
 export function getPercentageColor(percentage: number | null) {
 	return getThresholdColor(percentage, { good: 75, moderate: 50 });
 }
@@ -449,4 +497,37 @@ export function getSemesterResultColor(
 	if (normalized === 'active') return semantic.success;
 	if (normalized === 'repeat') return semantic.caution;
 	return getStatusColor(status as AllStatusType);
+}
+
+export type DocumentVerificationStatusType =
+	keyof typeof statusColors.documentVerificationStatus;
+
+export function getDocumentVerificationStatusColor(
+	status: DocumentVerificationStatusType
+) {
+	return getColorFromMap(status, statusColors.documentVerificationStatus);
+}
+
+export type ApplicationStatusType = keyof typeof statusColors.applicationStatus;
+
+export function getApplicationStatusColor(status: ApplicationStatusType) {
+	return getColorFromMap(status, statusColors.applicationStatus);
+}
+
+export type PaymentStatusType = keyof typeof statusColors.paymentStatus;
+
+export function getPaymentStatusColor(status: PaymentStatusType) {
+	return getColorFromMap(status, statusColors.paymentStatus);
+}
+
+export type BookConditionType = keyof typeof statusColors.bookCondition;
+
+export function getConditionColor(condition: BookConditionType | string) {
+	return getColorFromMap(condition, statusColors.bookCondition);
+}
+
+export type BookCopyStatusType = keyof typeof statusColors.bookCopyStatus;
+
+export function getBookCopyStatusColor(status: BookCopyStatusType | string) {
+	return getColorFromMap(status, statusColors.bookCopyStatus);
 }

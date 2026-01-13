@@ -2,7 +2,7 @@
 
 import { ActionIcon, Modal, Paper, Select, Tooltip } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
-import { getAllGraduationDates } from '@registry/dates/graduations';
+import { getAllGraduationDates } from '@registry/graduation/dates';
 import { IconFilter } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useAtom } from 'jotai';

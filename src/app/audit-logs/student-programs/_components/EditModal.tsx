@@ -21,10 +21,10 @@ import {
 	programStatus,
 	type StudentProgramStatus,
 } from '@registry/_database/schema/enums';
-import { getAllTerms } from '@registry/dates/terms';
 import { IconAlertCircle, IconEdit } from '@tabler/icons-react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect, useState } from 'react';
+import { getAllTerms } from '@/app/registry/terms';
 import { formatDateToISO, parseDate } from '@/shared/lib/utils/dates';
 import AuditHistoryTab from '../../_components/AuditHistoryTab';
 import {

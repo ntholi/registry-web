@@ -1,6 +1,5 @@
 'use client';
 
-import { getBlockedStudentByStdNo } from '@finance/blocked-students';
 import {
 	Accordion,
 	Alert,
@@ -14,12 +13,15 @@ import {
 } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
 import { getCleanedSemesters } from '@registry/students';
+import { getUnpublishedTermCodes } from '@registry/terms/_server/settings-actions';
 import { IconAlertCircle, IconLock } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
-import { useActiveTerm } from '@/shared/lib/hooks/use-active-term';
+import { useQueryState } from 'nuqs';
+import { getBlockedStudentByStdNo } from '@/app/registry/blocked-students';
 import useUserStudent from '@/shared/lib/hooks/use-user-student';
 import { formatSemester } from '@/shared/lib/utils/utils';
 import {
+	AcademicRemarksSummary,
 	DesktopTable,
 	LoadingSkeleton,
 	MobileTable,
@@ -27,9 +29,14 @@ import {
 } from './_components';
 
 export default function TranscriptsPage() {
-	const { student, program, isLoading } = useUserStudent();
-	const { activeTerm } = useActiveTerm();
+	const { student, program, remarks, isLoading } = useUserStudent();
 	const isMobile = useMediaQuery('(max-width: 768px)');
+	const [termCode, setTermCode] = useQueryState('term');
+
+	const { data: unpublishedTerms = [] } = useQuery({
+		queryKey: ['unpublished-terms'],
+		queryFn: getUnpublishedTermCodes,
+	});
 
 	const { data: blockedStudent, isLoading: blockedLoading } = useQuery({
 		queryKey: ['blocked-student', student?.stdNo],
@@ -89,7 +96,7 @@ export default function TranscriptsPage() {
 	}
 
 	const semesters = getCleanedSemesters(program).filter(
-		(it: { termCode: string }) => it.termCode !== activeTerm?.code
+		(it: { termCode: string }) => !unpublishedTerms.includes(it.termCode)
 	);
 
 	return (
@@ -138,7 +145,12 @@ export default function TranscriptsPage() {
 						No semester records found for this program.
 					</Alert>
 				) : (
-					<Accordion variant='separated' radius='md'>
+					<Accordion
+						variant='separated'
+						radius='md'
+						value={termCode}
+						onChange={setTermCode}
+					>
 						{semesters.map((semester) => {
 							const modules =
 								semester.studentModules?.filter(
@@ -146,10 +158,7 @@ export default function TranscriptsPage() {
 								) || [];
 
 							return (
-								<Accordion.Item
-									key={semester.id}
-									value={semester.id.toString()}
-								>
+								<Accordion.Item key={semester.id} value={semester.termCode}>
 									<Accordion.Control>
 										<Box>
 											<Text size='sm' fw={600}>
@@ -177,6 +186,7 @@ export default function TranscriptsPage() {
 						})}
 					</Accordion>
 				)}
+				<AcademicRemarksSummary remarks={remarks} />
 			</Stack>
 		</Container>
 	);

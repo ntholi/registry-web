@@ -35,6 +35,7 @@ import {
 	studentSemesters,
 	students,
 } from './schema/students';
+import { termSettings } from './schema/term-settings';
 import { terms } from './schema/terms';
 
 export const studentsRelations = relations(students, ({ many, one }) => ({
@@ -119,11 +120,30 @@ export const studentEducationRelations = relations(
 	})
 );
 
-export const termsRelations = relations(terms, ({ many }) => ({
+export const termsRelations = relations(terms, ({ many, one }) => ({
 	assignedModules: many(assignedModules),
 	assessments: many(assessments),
 	registrationRequests: many(registrationRequests),
 	graduations: many(graduationDates),
+	settings: one(termSettings, {
+		fields: [terms.id],
+		references: [termSettings.termId],
+	}),
+}));
+
+export const termSettingsRelations = relations(termSettings, ({ one }) => ({
+	term: one(terms, {
+		fields: [termSettings.termId],
+		references: [terms.id],
+	}),
+	createdByUser: one(users, {
+		fields: [termSettings.createdBy],
+		references: [users.id],
+	}),
+	updatedByUser: one(users, {
+		fields: [termSettings.updatedBy],
+		references: [users.id],
+	}),
 }));
 
 export const graduationRelations = relations(graduationDates, ({ one }) => ({

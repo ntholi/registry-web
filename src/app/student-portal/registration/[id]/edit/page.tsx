@@ -1,6 +1,5 @@
 'use client';
 
-import { getBlockedStudentByStdNo } from '@finance/blocked-students';
 import { getSponsoredStudent } from '@finance/sponsors';
 import {
 	Alert,
@@ -31,6 +30,7 @@ import {
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import { getBlockedStudentByStdNo } from '@/app/registry/blocked-students';
 import { config } from '@/config';
 import { useActiveTerm } from '@/shared/lib/hooks/use-active-term';
 import useUserStudent from '@/shared/lib/hooks/use-user-student';

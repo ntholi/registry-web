@@ -1,6 +1,6 @@
 import { getAssessmentTypeLabel } from '@academic/assessments';
 import { Packer } from 'docx';
-import { termsRepository } from '@/app/registry/dates/terms/_server/repository';
+import { termsRepository } from '@/app/registry/terms/_server/repository';
 import { auth } from '@/core/auth';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
 import { formatDate } from '@/shared/lib/utils/dates';

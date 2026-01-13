@@ -22,6 +22,7 @@
 		"paths": {
 			"@/*": ["./src/*"],
 			"@academic/*": ["./src/app/academic/*"],
+			"@admissions/*": ["./src/app/admissions/*"],
 			"@registry/*": ["./src/app/registry/*"],
 			"@student-portal/*": ["./src/app/student-portal/*"],
 			"@finance/*": ["./src/app/finance/*"],
@@ -30,6 +31,7 @@
 			"@timetable/*": ["./src/app/timetable/*"],
 			"@auth/*": ["./src/app/auth/*"],
 			"@audit-logs/*": ["./src/app/audit-logs/*"],
+			"@library/*": ["./src/app/library/*"],
 			"@server/*": ["./src/server/*"]
 		}
 	},

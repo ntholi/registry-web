@@ -13,7 +13,6 @@ import {
 	Select,
 	Text,
 } from '@mantine/core';
-import { getAllTerms } from '@registry/dates/terms/_server/actions';
 import { IconFilter } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import {
@@ -23,6 +22,7 @@ import {
 	useQueryStates,
 } from 'nuqs';
 import { useEffect } from 'react';
+import { getAllTerms } from '@/app/registry/terms/_server/actions';
 import { formatSemester } from '@/shared/lib/utils/utils';
 import {
 	DISTRIBUTION_OPTIONS,

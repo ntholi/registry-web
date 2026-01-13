@@ -10,6 +10,7 @@ import {
 	useModuleGradesQuery,
 } from '@academic/gradebook/_hooks/useAssessmentsQuery';
 import {
+	Alert,
 	Center,
 	CloseButton,
 	Group,
@@ -24,10 +25,12 @@ import AssessmentMarksModal from '@registry/students/_components/academics/Asses
 import {
 	IconChevronDown,
 	IconChevronUp,
+	IconLock,
 	IconSearch,
 	IconSelector,
 } from '@tabler/icons-react';
 import React, { useState } from 'react';
+import { useActiveTerm } from '@/shared/lib/hooks/use-active-term';
 import Link from '@/shared/ui/Link';
 import {
 	type Student,
@@ -123,6 +126,10 @@ export default function LMSStudentTable({
 	const [searchQuery, setSearchQuery] = useState('');
 	const [sortBy, setSortBy] = useState<keyof Student | null>(null);
 	const [reverseSortDirection, setReverseSortDirection] = useState(false);
+
+	const { activeTerm } = useActiveTerm();
+	const isGradebookClosed =
+		activeTerm?.settings?.lecturerGradebookAccess === false;
 
 	const { data: studentsData, isLoading: studentsLoading } =
 		useLMSStudentsQuery({
@@ -329,6 +336,7 @@ export default function LMSStudentTable({
 											existingMark={mark}
 											existingMarkId={markId}
 											moduleId={moduleId}
+											readOnly={isGradebookClosed}
 										/>
 									</Table.Td>
 								);
@@ -377,6 +385,7 @@ export default function LMSStudentTable({
 										weightedTotal={
 											getStudentGrade(student.studentModuleId)?.weightedTotal
 										}
+										readOnly={isGradebookClosed}
 									/>
 								</Group>
 							</Table.Td>
@@ -388,6 +397,16 @@ export default function LMSStudentTable({
 	}
 	return (
 		<Stack>
+			{isGradebookClosed && (
+				<Alert
+					icon={<IconLock size={16} />}
+					title='Gradebook Closed'
+					color='yellow'
+				>
+					The gradebook is currently closed for editing. You can view grades but
+					cannot make changes.
+				</Alert>
+			)}
 			<Group justify='space-between' align='center' wrap='nowrap'>
 				<TextInput
 					placeholder='Search by name or student number'
