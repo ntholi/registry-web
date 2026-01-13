@@ -1,24 +1,11 @@
 import type { timetableAllocations, timetableSlots } from '@/core/database';
-import {
-	db,
-	timetableAllocations as timetableAllocationsTable,
-	timetableSlotAllocations,
-	timetableSlots as timetableSlotsTable,
-} from '@/core/database';
 import BaseService from '@/core/platform/BaseService';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
 import withAuth from '@/core/platform/withAuth';
-import {
-	type AllocationRecord,
-	buildTermPlan,
-	type VenueRecord,
-} from './planner';
-import TimetableSlotRepository, {
-	type TimetableSlotInsert,
-} from './repository';
+import { buildTermPlan, type DayOfWeek } from './planner';
+import TimetableSlotRepository from './repository';
 
 type AllocationInsert = typeof timetableAllocations.$inferInsert;
-type DayOfWeek = (typeof timetableSlots.dayOfWeek.enumValues)[number];
 
 class TimetableSlotService extends BaseService<typeof timetableSlots, 'id'> {
 	private readonly slotRepository: TimetableSlotRepository;
@@ -70,33 +57,7 @@ class TimetableSlotService extends BaseService<typeof timetableSlots, 'id'> {
 		}
 	) {
 		return withAuth(async () => {
-			return db.transaction(async (tx) => {
-				const [created] = await tx
-					.insert(timetableAllocationsTable)
-					.values(allocation)
-					.returning();
-
-				const slotData: TimetableSlotInsert = {
-					termId: created.termId,
-					venueId: slot.venueId,
-					dayOfWeek: slot.dayOfWeek,
-					startTime: slot.startTime,
-					endTime: slot.endTime,
-					capacityUsed: allocation.numberOfStudents ?? 0,
-				};
-
-				const [createdSlot] = await tx
-					.insert(timetableSlotsTable)
-					.values(slotData)
-					.returning();
-
-				await tx.insert(timetableSlotAllocations).values({
-					slotId: createdSlot.id,
-					timetableAllocationId: created.id,
-				});
-
-				return { allocation: created, slot: createdSlot };
-			});
+			return this.slotRepository.createAllocationWithSlot(allocation, slot);
 		}, ['academic', 'registry']);
 	}
 
@@ -116,86 +77,15 @@ class TimetableSlotService extends BaseService<typeof timetableSlots, 'id'> {
 	}
 
 	private async loadAllocation(allocationId: number) {
-		const allocation = await db.query.timetableAllocations.findFirst({
-			where: (tbl, { eq }) => eq(tbl.id, allocationId),
-			with: {
-				timetableAllocationVenueTypes: true,
-				semesterModule: {
-					columns: {
-						id: true,
-						semesterId: true,
-					},
-					with: {
-						module: {
-							columns: {
-								id: true,
-								name: true,
-							},
-						},
-					},
-				},
-				user: {
-					with: {
-						userSchools: {
-							columns: {
-								schoolId: true,
-							},
-						},
-					},
-				},
-			},
-		});
-		if (!allocation) {
-			throw new Error('Allocation not found');
-		}
-		return allocation as AllocationRecord;
+		return this.slotRepository.findAllocationRecordById(allocationId);
 	}
 
 	private async fetchTermAllocations(termId: number) {
-		const allocations = await db.query.timetableAllocations.findMany({
-			where: (tbl, { eq }) => eq(tbl.termId, termId),
-			with: {
-				timetableAllocationVenueTypes: true,
-				semesterModule: {
-					columns: {
-						id: true,
-						semesterId: true,
-					},
-					with: {
-						module: {
-							columns: {
-								id: true,
-								name: true,
-							},
-						},
-					},
-				},
-				user: {
-					with: {
-						userSchools: {
-							columns: {
-								schoolId: true,
-							},
-						},
-					},
-				},
-			},
-		});
-		return allocations as AllocationRecord[];
+		return this.slotRepository.findTermAllocationRecords(termId);
 	}
 
 	private async fetchVenues() {
-		const venues = await db.query.venues.findMany({
-			with: {
-				type: true,
-				venueSchools: {
-					columns: {
-						schoolId: true,
-					},
-				},
-			},
-		});
-		return venues as VenueRecord[];
+		return this.slotRepository.findVenueRecords();
 	}
 }
 

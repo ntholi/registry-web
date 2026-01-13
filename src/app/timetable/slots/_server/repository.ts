@@ -11,8 +11,14 @@ import type {
 	venues,
 	venueTypes,
 } from '@/core/database';
-import { db, timetableSlotAllocations, timetableSlots } from '@/core/database';
+import {
+	db,
+	timetableAllocations as timetableAllocationsTable,
+	timetableSlotAllocations,
+	timetableSlots,
+} from '@/core/database';
 import BaseRepository from '@/core/platform/BaseRepository';
+import type { AllocationRecord, VenueRecord } from './planner';
 
 export type TimetableSlot = typeof timetableSlots.$inferSelect;
 export type TimetableSlotInsert = typeof timetableSlots.$inferInsert;
@@ -386,5 +392,128 @@ export default class TimetableSlotRepository extends BaseRepository<
 		endTime: string
 	) {
 		return `${venueId}-${dayOfWeek}-${startTime}-${endTime}`;
+	}
+
+	async findAllocationRecordById(
+		allocationId: number
+	): Promise<AllocationRecord> {
+		const allocation = await db.query.timetableAllocations.findFirst({
+			where: (tbl, { eq }) => eq(tbl.id, allocationId),
+			with: {
+				timetableAllocationVenueTypes: true,
+				semesterModule: {
+					columns: {
+						id: true,
+						semesterId: true,
+					},
+					with: {
+						module: {
+							columns: {
+								id: true,
+								name: true,
+							},
+						},
+					},
+				},
+				user: {
+					with: {
+						userSchools: {
+							columns: {
+								schoolId: true,
+							},
+						},
+					},
+				},
+			},
+		});
+		if (!allocation) {
+			throw new Error('Allocation not found');
+		}
+		return allocation as AllocationRecord;
+	}
+
+	async findTermAllocationRecords(termId: number): Promise<AllocationRecord[]> {
+		const allocations = await db.query.timetableAllocations.findMany({
+			where: (tbl, { eq }) => eq(tbl.termId, termId),
+			with: {
+				timetableAllocationVenueTypes: true,
+				semesterModule: {
+					columns: {
+						id: true,
+						semesterId: true,
+					},
+					with: {
+						module: {
+							columns: {
+								id: true,
+								name: true,
+							},
+						},
+					},
+				},
+				user: {
+					with: {
+						userSchools: {
+							columns: {
+								schoolId: true,
+							},
+						},
+					},
+				},
+			},
+		});
+		return allocations as AllocationRecord[];
+	}
+
+	async findVenueRecords(): Promise<VenueRecord[]> {
+		const venues = await db.query.venues.findMany({
+			with: {
+				type: true,
+				venueSchools: {
+					columns: {
+						schoolId: true,
+					},
+				},
+			},
+		});
+		return venues as VenueRecord[];
+	}
+
+	async createAllocationWithSlot(
+		allocation: typeof timetableAllocations.$inferInsert,
+		slot: {
+			venueId: number;
+			dayOfWeek: (typeof timetableSlots.dayOfWeek.enumValues)[number];
+			startTime: string;
+			endTime: string;
+		}
+	) {
+		return db.transaction(async (tx) => {
+			const [created] = await tx
+				.insert(timetableAllocationsTable)
+				.values(allocation)
+				.returning();
+
+			const slotData: TimetableSlotInsert = {
+				termId: created.termId,
+				venueId: slot.venueId,
+				dayOfWeek: slot.dayOfWeek,
+				startTime: slot.startTime,
+				endTime: slot.endTime,
+				capacityUsed: allocation.numberOfStudents ?? 0,
+			};
+
+			const [createdSlot] = await tx
+				.insert(timetableSlots)
+				.values(slotData)
+				.returning();
+
+			await tx.insert(timetableSlotAllocations).values({
+				slotId: createdSlot.id,
+				timetableAllocationId: created.id,
+			});
+
+			return { allocation: created, slot: createdSlot };
+		});
 	}
 }

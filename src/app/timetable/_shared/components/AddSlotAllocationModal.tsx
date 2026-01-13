@@ -5,7 +5,6 @@ import {
 	type searchModulesWithDetails,
 } from '@academic/semester-modules';
 import {
-	ActionIcon,
 	Button,
 	Grid,
 	Group,
@@ -15,13 +14,11 @@ import {
 	Select,
 	Stack,
 	Text,
-	Tooltip,
 } from '@mantine/core';
 import { TimeInput } from '@mantine/dates';
 import { useForm } from '@mantine/form';
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
-import { IconPlus } from '@tabler/icons-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { createAllocationWithSlot } from '@timetable/slots';
 import { ModuleSearchInput } from '@timetable/timetable-allocations';
@@ -92,7 +89,7 @@ export default function AddSlotAllocationModal({
 	termId,
 	defaultDuration = 120,
 }: Props) {
-	const [opened, { open, close }] = useDisclosure(false);
+	const [opened, { close }] = useDisclosure(false);
 	const queryClient = useQueryClient();
 	const [selectedModule, setSelectedModule] = useState<Module | null>(null);
 	const [className, setClassName] = useState<string>('');
@@ -189,13 +186,6 @@ export default function AddSlotAllocationModal({
 
 	const handleSubmit = (values: FormValues) => {
 		mutation.mutate(values);
-	};
-
-	const handleOpen = () => {
-		form.reset();
-		setSelectedModule(null);
-		setClassName('');
-		open();
 	};
 
 	const handleModuleSelect = (module: Module | null) => {
