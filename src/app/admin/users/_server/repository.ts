@@ -1,4 +1,4 @@
-import { and, eq, inArray } from 'drizzle-orm';
+import { and, eq, ilike, inArray, ne, or } from 'drizzle-orm';
 import { db, userSchools, users } from '@/core/database';
 import type { QueryOptions } from '@/core/platform/BaseRepository';
 import BaseRepository from '@/core/platform/BaseRepository';
@@ -43,6 +43,26 @@ export default class UserRepository extends BaseRepository<typeof users, 'id'> {
 
 	async findAllByRoles(roles: (typeof users.$inferSelect)['role'][]) {
 		return db.select().from(users).where(inArray(users.role, roles));
+	}
+
+	async searchLecturersWithSchools(search: string, limit = 20) {
+		return db.query.users.findMany({
+			where: and(
+				eq(users.role, 'academic'),
+				ne(users.position, 'admin'),
+				or(ilike(users.name, `%${search}%`), ilike(users.email, `%${search}%`))
+			),
+			with: {
+				userSchools: {
+					with: {
+						school: {
+							columns: { code: true },
+						},
+					},
+				},
+			},
+			limit,
+		});
 	}
 }
 

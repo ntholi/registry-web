@@ -42,11 +42,18 @@ export const timetableConfig: ModuleConfig = {
 						href: '/timetable/venue-types',
 					},
 				],
-				roles: ['academic'],
 				isVisible: (session) => {
-					return ['manager', 'admin', 'program_leader'].includes(
-						session?.user?.position || ''
-					);
+					if (session?.user?.role === 'admin') {
+						return true;
+					}
+					if (
+						session?.user?.role === 'academic' &&
+						['manager', 'admin', 'program_leader'].includes(
+							session?.user?.position || ''
+						)
+					)
+						return true;
+					return false;
 				},
 			},
 		],

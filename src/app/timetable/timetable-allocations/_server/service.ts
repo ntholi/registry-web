@@ -37,7 +37,7 @@ class TimetableAllocationService extends BaseService<
 
 	async createWithVenueTypes(
 		allocation: TimetableAllocationInsert,
-		venueTypeIds: number[]
+		venueTypeIds: string[]
 	) {
 		return withAuth(async () => {
 			const duplicate = await this.repo.findDuplicate(
@@ -57,7 +57,7 @@ class TimetableAllocationService extends BaseService<
 
 	async createManyWithVenueTypes(
 		allocations: TimetableAllocationInsert[],
-		venueTypeIds: number[]
+		venueTypeIds: string[]
 	) {
 		return withAuth(async () => {
 			for (const allocation of allocations) {
@@ -95,7 +95,7 @@ class TimetableAllocationService extends BaseService<
 		}, ['academic']);
 	}
 
-	async updateVenueTypes(allocationId: number, venueTypeIds: number[]) {
+	async updateVenueTypes(allocationId: number, venueTypeIds: string[]) {
 		return withAuth(async () => {
 			await this.repo.updateVenueTypes(allocationId, venueTypeIds);
 		}, ['academic']);

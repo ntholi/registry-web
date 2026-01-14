@@ -36,7 +36,7 @@ export const baseAllocationSchema = z.object({
 	duration: z.number().min(1, 'Please enter a valid duration'),
 	classType: z.enum(['lecture', 'tutorial', 'lab', 'workshop', 'practical']),
 	numberOfStudents: z.number().min(1, 'A class should have at least 1 student'),
-	venueTypeIds: z.array(z.number()),
+	venueTypeIds: z.array(z.string()),
 	allowedDays: z
 		.array(z.enum(daysOfWeek))
 		.min(1, 'Please select at least one day'),
@@ -48,7 +48,7 @@ export type BaseAllocationFormValues = z.infer<typeof baseAllocationSchema>;
 
 type Props<T extends BaseAllocationFormValues> = {
 	form: UseFormReturnType<T>;
-	venueTypes: { id: number; name: string }[];
+	venueTypes: { id: string; name: string }[];
 	renderTopDetails?: () => React.ReactNode;
 	renderMiddleDetails?: () => React.ReactNode;
 };

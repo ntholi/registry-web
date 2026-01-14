@@ -137,7 +137,7 @@ export default class TimetableAllocationRepository extends BaseRepository<
 
 	async createWithVenueTypes(
 		allocation: TimetableAllocationInsert,
-		venueTypeIds: number[]
+		venueTypeIds: string[]
 	) {
 		return db.transaction(async (tx) => {
 			const [created] = await tx
@@ -161,7 +161,7 @@ export default class TimetableAllocationRepository extends BaseRepository<
 
 	async createManyWithVenueTypes(
 		allocations: TimetableAllocationInsert[],
-		venueTypeIds: number[]
+		venueTypeIds: string[]
 	) {
 		if (allocations.length === 0) {
 			return [] as (typeof timetableAllocations.$inferSelect)[];
@@ -225,7 +225,7 @@ export default class TimetableAllocationRepository extends BaseRepository<
 		});
 	}
 
-	async updateVenueTypes(allocationId: number, venueTypeIds: number[]) {
+	async updateVenueTypes(allocationId: number, venueTypeIds: string[]) {
 		return db.transaction(async (tx) => {
 			await tx
 				.delete(timetableAllocationVenueTypes)

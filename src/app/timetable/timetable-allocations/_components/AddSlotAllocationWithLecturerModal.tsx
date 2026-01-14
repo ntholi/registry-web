@@ -27,11 +27,7 @@ import { TimeInput } from '@mantine/dates';
 import { useForm } from '@mantine/form';
 import { useDebouncedValue, useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
-import {
-	IconAlertTriangle,
-	IconListDetails,
-	IconPlus,
-} from '@tabler/icons-react';
+import { IconListDetails, IconPlus } from '@tabler/icons-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { createAllocationWithSlot } from '@timetable/slots';
 import { ModuleSearchInput } from '@timetable/timetable-allocations';
@@ -84,7 +80,7 @@ const schema = z
 		]),
 		startTime: z.string().min(1, 'Please enter a start time'),
 		endTime: z.string().min(1, 'Please enter an end time'),
-		venueId: z.number().min(1, 'Please select a venue'),
+		venueId: z.string().min(1, 'Please select a venue'),
 	})
 	.refine(
 		(data) => {
@@ -146,7 +142,7 @@ export default function AddSlotAllocationWithLecturerModal() {
 			dayOfWeek: 'monday' as DayOfWeek,
 			startTime: '08:30',
 			endTime: '10:30',
-			venueId: 0,
+			venueId: '',
 		},
 	});
 
@@ -320,12 +316,7 @@ export default function AddSlotAllocationWithLecturerModal() {
 				size='xl'
 			>
 				<Stack gap='md'>
-					<Alert
-						icon={<IconAlertTriangle size='1rem' />}
-						color='yellow'
-						variant='light'
-						title='Proceed with Caution'
-					>
+					<Alert color='red' variant='light' title='Proceed with Caution'>
 						<Text size='sm'>
 							This is not the recommended way to add timetable slots and might
 							cause inconsistencies or cause conflicts in the timetable
@@ -520,16 +511,12 @@ export default function AddSlotAllocationWithLecturerModal() {
 											label='Venue'
 											placeholder='Select a venue'
 											data={venues.map((v) => ({
-												value: v.id.toString(),
+												value: v.id,
 												label: v.name,
 											}))}
-											value={
-												form.values.venueId
-													? form.values.venueId.toString()
-													: null
-											}
+											value={form.values.venueId || null}
 											onChange={(value) =>
-												form.setFieldValue('venueId', value ? Number(value) : 0)
+												form.setFieldValue('venueId', value ?? '')
 											}
 											error={form.errors.venueId}
 											searchable

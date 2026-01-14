@@ -15,7 +15,7 @@ export default class VenueRepository extends BaseRepository<
 		super(venues, venues.id);
 	}
 
-	async findByIdWithRelations(id: number) {
+	async findByIdWithRelations(id: string) {
 		return db.query.venues.findFirst({
 			where: eq(venues.id, id),
 			with: {
@@ -63,7 +63,7 @@ export default class VenueRepository extends BaseRepository<
 	}
 
 	async updateWithSchools(
-		id: number,
+		id: string,
 		venue: Partial<VenueInsert>,
 		schoolIds?: number[]
 	): Promise<typeof venues.$inferSelect | undefined> {
