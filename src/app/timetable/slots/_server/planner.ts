@@ -11,7 +11,7 @@ export type DayOfWeek = (typeof timetableSlots.dayOfWeek.enumValues)[number];
 
 export type AllocationRecord = typeof timetableAllocations.$inferSelect & {
 	timetableAllocationVenueTypes: {
-		venueTypeId: number;
+		venueTypeId: string;
 	}[];
 	semesterModule: {
 		id: number;
@@ -37,7 +37,7 @@ export type VenueRecord = typeof venues.$inferSelect & {
 
 interface PlanSlot {
 	key: string;
-	venueId: number;
+	venueId: string;
 	dayOfWeek: DayOfWeek;
 	startMinutes: number;
 	endMinutes: number;
@@ -65,7 +65,7 @@ interface PlanningState {
 	daySchedules: Map<string, PlanSlot[]>;
 	lecturerSchedules: Map<string, LecturerSchedule>;
 	classSchedules: Map<number, ClassSchedule>;
-	venueLoad: Map<number, number>;
+	venueLoad: Map<string, number>;
 	allocationPlacements: Map<number, string>;
 	maxSlotsPerDay: number;
 }
@@ -75,7 +75,7 @@ interface PlacementCandidate {
 	slotKey: string;
 	isNew: boolean;
 	canCombine: boolean;
-	venueId: number;
+	venueId: string;
 	dayOfWeek: DayOfWeek;
 	startMinutes: number;
 	endMinutes: number;
@@ -624,7 +624,7 @@ function findAvailableTimeWindows(
 
 function validatePlacement(
 	allocation: AllocationRecord,
-	_venueId: number,
+	_venueId: string,
 	day: DayOfWeek,
 	startMinutes: number,
 	endMinutes: number,
@@ -1147,12 +1147,12 @@ function convertPlanToOutput(
 	return results;
 }
 
-function buildDayKey(venueId: number, day: DayOfWeek): string {
+function buildDayKey(venueId: string, day: DayOfWeek): string {
 	return `${venueId}-${day}`;
 }
 
 function buildSlotKey(
-	venueId: number,
+	venueId: string,
 	day: DayOfWeek,
 	start: number,
 	end: number

@@ -11,14 +11,14 @@ export async function getTimetableAllocationsByUserId(userId: string) {
 
 export async function createTimetableAllocationsWithVenueTypes(
 	allocations: TimetableAllocation[],
-	venueTypeIds: number[]
+	venueTypeIds: string[]
 ) {
 	return service.createManyWithVenueTypes(allocations, venueTypeIds);
 }
 
 export async function createTimetableAllocationWithVenueTypes(
 	allocation: TimetableAllocation,
-	venueTypeIds: number[]
+	venueTypeIds: string[]
 ) {
 	return service.createWithVenueTypes(allocation, venueTypeIds);
 }
@@ -32,7 +32,7 @@ export async function updateTimetableAllocation(
 
 export async function updateTimetableAllocationVenueTypes(
 	id: number,
-	venueTypeIds: number[]
+	venueTypeIds: string[]
 ) {
 	return service.updateVenueTypes(id, venueTypeIds);
 }

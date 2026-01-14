@@ -69,7 +69,7 @@ export const timetableAllocationVenueTypes = pgTable(
 		timetableAllocationId: integer()
 			.references(() => timetableAllocations.id, { onDelete: 'cascade' })
 			.notNull(),
-		venueTypeId: integer()
+		venueTypeId: text()
 			.references(() => venueTypes.id, { onDelete: 'cascade' })
 			.notNull(),
 		createdAt: timestamp().defaultNow(),

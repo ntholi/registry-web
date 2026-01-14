@@ -5,6 +5,7 @@ import {
 	pgTable,
 	primaryKey,
 	serial,
+	text,
 	time,
 	timestamp,
 	unique,
@@ -19,7 +20,7 @@ export const timetableSlots = pgTable(
 		termId: integer()
 			.notNull()
 			.references(() => terms.id, { onDelete: 'cascade' }),
-		venueId: integer()
+		venueId: text()
 			.notNull()
 			.references(() => venues.id, { onDelete: 'cascade' }),
 		dayOfWeek: dayOfWeekEnum().notNull(),

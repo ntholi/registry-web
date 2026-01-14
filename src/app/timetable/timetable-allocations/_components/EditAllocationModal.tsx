@@ -31,7 +31,7 @@ type Props = {
 	currentDuration: number;
 	currentClassType: FormValues['classType'];
 	currentNumberOfStudents: number;
-	currentVenueTypeIds: number[];
+	currentVenueTypeIds: string[];
 	currentAllowedDays: DayOfWeek[];
 	currentStartTime: string;
 	currentEndTime: string;

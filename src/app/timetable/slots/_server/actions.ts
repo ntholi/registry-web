@@ -13,7 +13,7 @@ type DayOfWeek = (typeof timetableSlots.dayOfWeek.enumValues)[number];
 export async function createAllocationWithSlot(
 	allocation: AllocationInsert,
 	slot: {
-		venueId: number;
+		venueId: string;
 		dayOfWeek: DayOfWeek;
 		startTime: string;
 		endTime: string;

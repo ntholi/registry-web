@@ -8,6 +8,7 @@ import {
 import { users } from '@auth/_database';
 import { paymentReceipts, sponsoredStudents } from '@finance/_database';
 import { relations } from 'drizzle-orm';
+import { certificateReprints } from './schema/certificate-reprints';
 import { blockedStudents, documents } from './schema/documents';
 import {
 	graduationClearance,
@@ -52,6 +53,7 @@ export const studentsRelations = relations(students, ({ many, one }) => ({
 	transcriptPrints: many(transcriptPrints),
 	studentCardPrints: many(studentCardPrints),
 	documents: many(documents),
+	certificateReprints: many(certificateReprints),
 }));
 
 export const studentProgramsRelations = relations(
@@ -345,6 +347,20 @@ export const blockedStudentsRelations = relations(
 		student: one(students, {
 			fields: [blockedStudents.stdNo],
 			references: [students.stdNo],
+		}),
+	})
+);
+
+export const certificateReprintsRelations = relations(
+	certificateReprints,
+	({ one }) => ({
+		student: one(students, {
+			fields: [certificateReprints.stdNo],
+			references: [students.stdNo],
+		}),
+		createdByUser: one(users, {
+			fields: [certificateReprints.createdBy],
+			references: [users.id],
 		}),
 	})
 );

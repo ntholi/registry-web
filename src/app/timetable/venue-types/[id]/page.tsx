@@ -13,7 +13,7 @@ type Props = {
 
 export default async function VenueTypeDetails({ params }: Props) {
 	const { id } = await params;
-	const venueType = await getVenueType(Number(id));
+	const venueType = await getVenueType(id);
 
 	if (!venueType) {
 		return notFound();
@@ -26,7 +26,7 @@ export default async function VenueTypeDetails({ params }: Props) {
 				queryKey={['venue-types']}
 				handleDelete={async () => {
 					'use server';
-					await deleteVenueType(Number(id));
+					await deleteVenueType(id);
 				}}
 			/>
 			<DetailsViewBody>

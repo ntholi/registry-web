@@ -1,4 +1,5 @@
 export * from './relations';
+export * from './schema/certificate-reprints';
 export * from './schema/documents';
 export * from './schema/enums';
 export * from './schema/graduation';

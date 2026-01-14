@@ -35,7 +35,7 @@ type SlotAllocation = {
 export type TimetableSlotData = {
 	id: number;
 	termId: number;
-	venueId: number;
+	venueId: string;
 	dayOfWeek:
 		| 'monday'
 		| 'tuesday'
@@ -101,7 +101,7 @@ type GroupedModule = {
 	moduleCode: string;
 	moduleName: string;
 	classType: ClassType;
-	venueId: number;
+	venueId: string;
 	venueName: string;
 	classNames: string[];
 	lecturerNames: string[];

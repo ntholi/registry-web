@@ -63,15 +63,15 @@ export default function VenueForm({ onSubmit, defaultValues, title }: Props) {
 					<NumberInput label='Capacity' {...form.getInputProps('capacity')} />
 					<Select
 						label='Venue Type'
-						data={venueTypes.map((vt: { id: number; name: string }) => ({
-							value: String(vt.id),
+						data={venueTypes.map((vt) => ({
+							value: vt.id,
 							label: vt.name,
 						}))}
 						{...form.getInputProps('typeId')}
 						onChange={(value) => {
-							form.setFieldValue('typeId', Number(value));
+							form.setFieldValue('typeId', value ?? '');
 						}}
-						value={String(form.values.typeId || '')}
+						value={form.values.typeId || ''}
 					/>
 					<MultiSelect
 						label='Schools'
