@@ -344,6 +344,8 @@ export default function AddSlotAllocationModal({
 						<Grid.Col span={6}>
 							<TimeInput
 								label='Start Time'
+								description='24hr format'
+								placeholder='HH:mm'
 								value={form.values.startTime}
 								onChange={(e) =>
 									form.setFieldValue('startTime', e.currentTarget.value)
@@ -353,7 +355,13 @@ export default function AddSlotAllocationModal({
 							/>
 						</Grid.Col>
 						<Grid.Col span={6}>
-							<TimeInput label='End Time' value={endTime} disabled />
+							<TimeInput
+								label='End Time'
+								description='24hr format'
+								placeholder='HH:mm'
+								value={endTime}
+								disabled
+							/>
 						</Grid.Col>
 					</Grid>
 

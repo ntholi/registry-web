@@ -161,7 +161,8 @@ export function AllocationForm<T extends BaseAllocationFormValues>({
 
 					<TimeInput
 						label='Start Time'
-						description='Earliest time this allocation can be scheduled'
+						description='Earliest time this allocation can be scheduled (24hr format)'
+						placeholder='HH:mm'
 						value={form.values.startTime}
 						onChange={(event) => {
 							// biome-ignore lint/suspicious/noExplicitAny: Generic form handling
@@ -174,7 +175,8 @@ export function AllocationForm<T extends BaseAllocationFormValues>({
 
 					<TimeInput
 						label='End Time'
-						description='Latest time this allocation can be scheduled'
+						description='Latest time this allocation can be scheduled (24hr format)'
+						placeholder='HH:mm'
 						value={form.values.endTime}
 						onChange={(event) => {
 							// biome-ignore lint/suspicious/noExplicitAny: Generic form handling

@@ -502,6 +502,8 @@ export default function AddSlotAllocationWithLecturerModal() {
 															<Grid.Col span={4}>
 																<TimeInput
 																	label='Start'
+																	description='24hr format'
+																	placeholder='HH:mm'
 																	value={slot.startTime}
 																	onChange={(e) =>
 																		form.setFieldValue(
@@ -518,6 +520,8 @@ export default function AddSlotAllocationWithLecturerModal() {
 															<Grid.Col span={4}>
 																<TimeInput
 																	label='End'
+																	description='24hr format'
+																	placeholder='HH:mm'
 																	value={slot.endTime}
 																	onChange={(e) =>
 																		form.setFieldValue(
