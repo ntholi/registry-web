@@ -6,7 +6,7 @@ import {
 	getClassesForTerm,
 } from './repository';
 
-export async function getVenueTimetable(venueId: number, termId: number) {
+export async function getVenueTimetable(venueId: string, termId: number) {
 	return withAuth(async () => {
 		return findSlotsForVenue(venueId, termId);
 	}, ['dashboard']);

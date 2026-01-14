@@ -12,7 +12,7 @@ type Props = {
 };
 
 export default function VenueTimetable({ termId }: Props) {
-	const [selectedVenueId, setSelectedVenueId] = useState<number | null>(null);
+	const [selectedVenueId, setSelectedVenueId] = useState<string | null>(null);
 
 	const { data: venues = [] } = useQuery({
 		queryKey: ['venues-select'],
@@ -32,11 +32,11 @@ export default function VenueTimetable({ termId }: Props) {
 				placeholder='Search for a venue'
 				searchable
 				data={venues.map((venue) => ({
-					value: venue.id.toString(),
+					value: venue.id,
 					label: venue.name,
 				}))}
-				value={selectedVenueId ? selectedVenueId.toString() : null}
-				onChange={(value) => setSelectedVenueId(value ? Number(value) : null)}
+				value={selectedVenueId}
+				onChange={(value) => setSelectedVenueId(value)}
 				clearable
 				w={400}
 			/>

@@ -568,6 +568,13 @@
 			"when": 1768374985142,
 			"tag": "0080_remarkable_lilith",
 			"breakpoints": true
+		},
+		{
+			"idx": 81,
+			"version": "7",
+			"when": 1768391555022,
+			"tag": "0081_clever_hellcat",
+			"breakpoints": true
 		}
 	]
 }

@@ -9,7 +9,7 @@ type Props = {
 
 export default async function VenueEdit({ params }: Props) {
 	const { id } = await params;
-	const venue = await getVenueWithRelations(Number(id));
+	const venue = await getVenueWithRelations(id);
 
 	if (!venue) {
 		return notFound();
@@ -30,7 +30,7 @@ export default async function VenueEdit({ params }: Props) {
 				onSubmit={async (value) => {
 					'use server';
 					const { schoolIds, ...venueData } = value;
-					const updated = await updateVenue(Number(id), venueData, schoolIds);
+					const updated = await updateVenue(id, venueData, schoolIds);
 					if (!updated) {
 						throw new Error('Failed to update venue');
 					}

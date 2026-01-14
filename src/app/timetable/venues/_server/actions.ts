@@ -6,7 +6,7 @@ import { venueService as service } from './service';
 
 type Venue = typeof venues.$inferInsert;
 
-export async function getVenueWithRelations(id: number) {
+export async function getVenueWithRelations(id: string) {
 	return service.getWithRelations(id);
 }
 
@@ -28,13 +28,13 @@ export async function createVenue(venue: VenueInsert, schoolIds: number[]) {
 }
 
 export async function updateVenue(
-	id: number,
+	id: string,
 	venue: Partial<Venue>,
 	schoolIds?: number[]
 ) {
 	return service.updateWithSchools(id, venue, schoolIds);
 }
 
-export async function deleteVenue(id: number) {
+export async function deleteVenue(id: string) {
 	return service.delete(id);
 }

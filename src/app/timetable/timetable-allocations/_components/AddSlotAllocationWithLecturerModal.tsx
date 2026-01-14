@@ -80,7 +80,7 @@ const schema = z
 		]),
 		startTime: z.string().min(1, 'Please enter a start time'),
 		endTime: z.string().min(1, 'Please enter an end time'),
-		venueId: z.number().min(1, 'Please select a venue'),
+		venueId: z.string().min(1, 'Please select a venue'),
 	})
 	.refine(
 		(data) => {
@@ -142,7 +142,7 @@ export default function AddSlotAllocationWithLecturerModal() {
 			dayOfWeek: 'monday' as DayOfWeek,
 			startTime: '08:30',
 			endTime: '10:30',
-			venueId: 0,
+			venueId: '',
 		},
 	});
 
@@ -511,16 +511,12 @@ export default function AddSlotAllocationWithLecturerModal() {
 											label='Venue'
 											placeholder='Select a venue'
 											data={venues.map((v) => ({
-												value: v.id.toString(),
+												value: v.id,
 												label: v.name,
 											}))}
-											value={
-												form.values.venueId
-													? form.values.venueId.toString()
-													: null
-											}
+											value={form.values.venueId || null}
 											onChange={(value) =>
-												form.setFieldValue('venueId', value ? Number(value) : 0)
+												form.setFieldValue('venueId', value ?? '')
 											}
 											error={form.errors.venueId}
 											searchable

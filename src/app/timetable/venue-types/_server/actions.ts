@@ -5,7 +5,7 @@ import { venueTypeService as service } from './service';
 
 type VenueType = typeof venueTypes.$inferInsert;
 
-export async function getVenueType(id: number) {
+export async function getVenueType(id: string) {
 	return service.get(id);
 }
 
@@ -27,12 +27,12 @@ export async function createVenueType(venueType: VenueType) {
 }
 
 export async function updateVenueType(
-	id: number,
+	id: string,
 	venueType: Partial<VenueType>
 ) {
 	return service.update(id, venueType);
 }
 
-export async function deleteVenueType(id: number) {
+export async function deleteVenueType(id: string) {
 	return service.delete(id);
 }

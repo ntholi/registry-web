@@ -111,7 +111,7 @@ async function findBaseSlotsForTerm(termId: number) {
 }
 
 export async function findSlotsForVenue(
-	venueId: number,
+	venueId: string,
 	termId: number
 ): Promise<UserSlot[]> {
 	const slots = await findBaseSlotsForTerm(termId);

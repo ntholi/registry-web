@@ -61,7 +61,7 @@ export type UserSlot = TimetableSlot & {
 
 export interface PlannedSlotInput {
 	termId: number;
-	venueId: number;
+	venueId: string;
 	dayOfWeek: (typeof timetableSlots.dayOfWeek.enumValues)[number];
 	startTime: string;
 	endTime: string;
@@ -115,7 +115,7 @@ export default class TimetableSlotRepository extends BaseRepository<
 
 	async findSlotsForVenueDay(
 		termId: number,
-		venueId: number,
+		venueId: string,
 		dayOfWeek: (typeof timetableSlots.dayOfWeek.enumValues)[number]
 	) {
 		return db.query.timetableSlots.findMany({
@@ -132,7 +132,7 @@ export default class TimetableSlotRepository extends BaseRepository<
 
 	async findSlotConflict(
 		termId: number,
-		venueId: number,
+		venueId: string,
 		dayOfWeek: (typeof timetableSlots.dayOfWeek.enumValues)[number],
 		startTime: string,
 		endTime: string
@@ -386,7 +386,7 @@ export default class TimetableSlotRepository extends BaseRepository<
 	}
 
 	private buildSlotKey(
-		venueId: number,
+		venueId: string,
 		dayOfWeek: (typeof timetableSlots.dayOfWeek.enumValues)[number],
 		startTime: string,
 		endTime: string
@@ -482,7 +482,7 @@ export default class TimetableSlotRepository extends BaseRepository<
 	async createAllocationWithSlot(
 		allocation: typeof timetableAllocations.$inferInsert,
 		slot: {
-			venueId: number;
+			venueId: string;
 			dayOfWeek: (typeof timetableSlots.dayOfWeek.enumValues)[number];
 			startTime: string;
 			endTime: string;

@@ -20,7 +20,7 @@ class VenueService extends BaseService<typeof venues, 'id'> {
 		this.venueRepository = repository;
 	}
 
-	getWithRelations = async (id: number) => {
+	getWithRelations = async (id: string) => {
 		return withAuth(async () => {
 			return this.venueRepository.findByIdWithRelations(id);
 		}, ['dashboard']);
@@ -39,7 +39,7 @@ class VenueService extends BaseService<typeof venues, 'id'> {
 	};
 
 	updateWithSchools = async (
-		id: number,
+		id: string,
 		venue: Partial<VenueInsert>,
 		schoolIds?: number[]
 	) => {

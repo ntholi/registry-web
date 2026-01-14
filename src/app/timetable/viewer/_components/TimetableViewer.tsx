@@ -33,7 +33,7 @@ export default function TimetableViewer() {
 	const [selectedLecturerId, setSelectedLecturerId] = useState<string | null>(
 		null
 	);
-	const [selectedVenueId, setSelectedVenueId] = useState<number | null>(null);
+	const [selectedVenueId, setSelectedVenueId] = useState<string | null>(null);
 	const [selectedClassId, setSelectedClassId] = useState<number | null>(null);
 
 	const { data: terms = [] } = useQuery({
@@ -112,13 +112,11 @@ export default function TimetableViewer() {
 						size='sm'
 						searchable
 						data={venues.map((venue) => ({
-							value: venue.id.toString(),
+							value: venue.id,
 							label: venue.name,
 						}))}
-						value={selectedVenueId ? selectedVenueId.toString() : null}
-						onChange={(value) =>
-							setSelectedVenueId(value ? Number(value) : null)
-						}
+						value={selectedVenueId}
+						onChange={setSelectedVenueId}
 						clearable
 						w={220}
 					/>

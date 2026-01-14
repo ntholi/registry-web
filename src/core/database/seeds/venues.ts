@@ -107,7 +107,7 @@ export async function seedVenues() {
 		);
 	const schoolMap = new Map(existingSchools.map((s) => [s.code, s.id]));
 
-	const associations: { venueId: number; schoolId: number }[] = [];
+	const associations: { venueId: string; schoolId: number }[] = [];
 
 	for (const assoc of VENUE_SCHOOL_ASSOCIATIONS) {
 		const venueId = venueMap.get(assoc.venue);

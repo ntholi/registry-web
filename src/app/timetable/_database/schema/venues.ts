@@ -4,13 +4,15 @@ import {
 	integer,
 	pgTable,
 	primaryKey,
-	serial,
 	text,
 	timestamp,
 } from 'drizzle-orm/pg-core';
+import { nanoid } from 'nanoid';
 
 export const venueTypes = pgTable('venue_types', {
-	id: serial().primaryKey(),
+	id: text()
+		.primaryKey()
+		.$defaultFn(() => nanoid()),
 	name: text().notNull().unique(),
 	description: text(),
 	createdAt: timestamp().defaultNow(),
@@ -19,10 +21,12 @@ export const venueTypes = pgTable('venue_types', {
 export const venues = pgTable(
 	'venues',
 	{
-		id: serial().primaryKey(),
+		id: text()
+			.primaryKey()
+			.$defaultFn(() => nanoid()),
 		name: text().notNull().unique(),
 		capacity: integer().notNull(),
-		typeId: integer()
+		typeId: text()
 			.references(() => venueTypes.id, { onDelete: 'cascade' })
 			.notNull(),
 		createdAt: timestamp().defaultNow(),
@@ -35,7 +39,7 @@ export const venues = pgTable(
 export const venueSchools = pgTable(
 	'venue_schools',
 	{
-		venueId: integer()
+		venueId: text()
 			.references(() => venues.id, { onDelete: 'cascade' })
 			.notNull(),
 		schoolId: integer()

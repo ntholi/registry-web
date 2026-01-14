@@ -51,7 +51,7 @@ export type AllocationData = {
 		};
 	};
 	timetableAllocationVenueTypes?: {
-		venueTypeId: number;
+		venueTypeId: string;
 		venueType: {
 			name: string;
 		};

@@ -7,7 +7,7 @@ import {
 	getVenueTimetable,
 } from './service';
 
-export async function getVenueTimetableSlots(venueId: number, termId: number) {
+export async function getVenueTimetableSlots(venueId: string, termId: number) {
 	return getVenueTimetable(venueId, termId);
 }
 

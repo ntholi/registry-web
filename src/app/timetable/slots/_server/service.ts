@@ -50,7 +50,7 @@ class TimetableSlotService extends BaseService<typeof timetableSlots, 'id'> {
 	async createAllocationWithSlot(
 		allocation: AllocationInsert,
 		slot: {
-			venueId: number;
+			venueId: string;
 			dayOfWeek: DayOfWeek;
 			startTime: string;
 			endTime: string;
