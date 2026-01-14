@@ -25,6 +25,8 @@ import { getStatusColor } from '@/shared/lib/utils/colors';
 import { getPublishedAcademicHistory } from '../../_server/actions';
 import CertificateDownloader from './certificate/CertificateDownloader';
 import CertificatePreview from './certificate/CertificatePreview';
+import CreateReprintModal from './reprints/CreateReprintModal';
+import ReprintsView from './reprints/ReprintsView';
 import TranscriptPreview from './transcript/TranscriptPreview';
 import TranscriptPrinter from './transcript/TranscriptPrinter';
 
@@ -82,6 +84,7 @@ export default function GraduationView({
 					<TabsList>
 						<TabsTab value='transcript'>Transcript</TabsTab>
 						<TabsTab value='certificate'>Certificate</TabsTab>
+						<TabsTab value='reprints'>Reprints</TabsTab>
 						{activeTab === 'transcript' && (
 							<Box ml='auto'>
 								<TranscriptPrinter
@@ -99,6 +102,11 @@ export default function GraduationView({
 								/>
 							</Box>
 						)}
+						{activeTab === 'reprints' && (
+							<Box ml='auto'>
+								<CreateReprintModal stdNo={stdNoNum} />
+							</Box>
+						)}
 					</TabsList>
 					<TabsPanel value='transcript' pt='xl'>
 						<TranscriptPreview
@@ -111,6 +119,12 @@ export default function GraduationView({
 							stdNo={stdNoNum}
 							isActive={isActive && activeTab === 'certificate'}
 							onProgramSelect={setSelectedProgramId}
+						/>
+					</TabsPanel>
+					<TabsPanel value='reprints' pt='xl'>
+						<ReprintsView
+							stdNo={stdNoNum}
+							isActive={isActive && activeTab === 'reprints'}
 						/>
 					</TabsPanel>
 				</Tabs>
