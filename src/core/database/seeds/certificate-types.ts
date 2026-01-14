@@ -53,6 +53,18 @@ export async function seedCertificateTypes() {
 			lqfLevel: 5,
 			gradingType: 'subject-grades',
 		},
+		{
+			name: 'Certificate',
+			description: 'Relevant Certificate',
+			lqfLevel: 5,
+			gradingType: 'classification',
+		},
+		{
+			name: 'Diploma',
+			description: 'Relevant Diploma',
+			lqfLevel: 6,
+			gradingType: 'classification',
+		},
 	];
 
 	await db.insert(certificateTypes).values(types).onConflictDoNothing();
