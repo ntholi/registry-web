@@ -9,7 +9,6 @@ import {
 	Stack,
 	Text,
 	Textarea,
-	TextInput,
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { useDisclosure } from '@mantine/hooks';
@@ -18,6 +17,7 @@ import { IconDeviceIpadHorizontalPlus } from '@tabler/icons-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
 import { createCertificateReprint } from '@/app/registry/certificate-reprints';
+import { ReceiptInput } from '@/shared/ui/adease';
 import { getPublishedAcademicHistory } from '../../../_server/actions';
 
 type Props = {
@@ -46,6 +46,12 @@ export default function CreateReprintModal({ stdNo }: Props) {
 			reason: '',
 		},
 		validate: {
+			receiptNumber: (value) => {
+				if (!value) return null;
+				return /^(PMRC\d{5}|SR-\d{5})$/.test(value)
+					? null
+					: 'Invalid receipt format';
+			},
 			reason: (value) =>
 				value.trim().length < 5 ? 'Reason must be at least 5 characters' : null,
 		},
@@ -170,9 +176,8 @@ export default function CreateReprintModal({ stdNo }: Props) {
 								</Stack>
 							</Card>
 
-							<TextInput
+							<ReceiptInput
 								label='Receipt Number'
-								placeholder='Enter receipt number (optional)'
 								{...form.getInputProps('receiptNumber')}
 							/>
 
