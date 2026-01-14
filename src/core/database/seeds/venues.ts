@@ -48,11 +48,18 @@ export async function seedVenues() {
 		{ name: 'Room 4', capacity: 50, typeId: type.id },
 		{ name: 'Room 6', capacity: 50, typeId: type.id },
 		{ name: 'Hall 6', capacity: 100, typeId: hallType.id },
+		{ name: 'Room 13', capacity: 50, typeId: type.id },
+		{ name: 'Room 14', capacity: 50, typeId: type.id },
+		{ name: 'Room 10', capacity: 50, typeId: type.id },
+		{ name: 'Room 9', capacity: 50, typeId: type.id },
+		{ name: 'Room 11', capacity: 50, typeId: type.id },
+		{ name: 'Hall 9', capacity: 100, typeId: hallType.id },
+		{ name: 'Hall 10', capacity: 100, typeId: hallType.id },
 	];
 
 	await db.insert(venues).values(venueData).onConflictDoNothing();
 
-	const schoolCodes = ['FICT', 'FBMG'];
+	const schoolCodes = ['FICT', 'FBMG', 'FFTB', 'FCM'];
 	const foundSchools = await db
 		.select()
 		.from(schools)
@@ -60,37 +67,46 @@ export async function seedVenues() {
 
 	const fict = foundSchools.find((s) => s.code === 'FICT');
 	const fbmg = foundSchools.find((s) => s.code === 'FBMG');
+	const fftb = foundSchools.find((s) => s.code === 'FFTB');
+	const fcm = foundSchools.find((s) => s.code === 'FCM');
 
-	if (!fict || !fbmg) {
-		console.warn('⚠️ Missing schools FICT or FBMG. Seed might be incomplete.');
+	if (!fict || !fbmg || !fftb || !fcm) {
+		console.warn('⚠️ Some schools were not found. Seed might be incomplete.');
 	}
 
-	const seededVenues = await db
-		.select()
-		.from(venues)
-		.where(inArray(venues.name, ['Room 1', 'Room 4', 'Room 6', 'Hall 6']));
+	const seededVenues = await db.select().from(venues);
 
-	const schoolAssociations = [];
+	const venueMap = new Map(seededVenues.map((v) => [v.name, v]));
+	const schoolAssociations: (typeof venueSchools.$inferInsert)[] = [];
 
-	const room1 = seededVenues.find((v) => v.name === 'Room 1');
-	const room4 = seededVenues.find((v) => v.name === 'Room 4');
-	const room6 = seededVenues.find((v) => v.name === 'Room 6');
-	const hall6 = seededVenues.find((v) => v.name === 'Hall 6');
+	const addAssociation = (
+		venueName: string,
+		school?: typeof schools.$inferSelect
+	) => {
+		const venue = venueMap.get(venueName);
+		if (venue && school) {
+			schoolAssociations.push({ venueId: venue.id, schoolId: school.id });
+		}
+	};
 
-	if (room1 && fict) {
-		schoolAssociations.push({ venueId: room1.id, schoolId: fict.id });
-	}
+	addAssociation('Room 1', fict);
+	addAssociation('Hall 6', fict);
+	addAssociation('Room 4', fbmg);
+	addAssociation('Room 6', fbmg);
 
-	if (hall6 && fict) {
-		schoolAssociations.push({ venueId: hall6.id, schoolId: fict.id });
-	}
+	const fftbFcmVenues = [
+		'Room 13',
+		'Room 14',
+		'Room 10',
+		'Room 9',
+		'Room 11',
+		'Hall 9',
+		'Hall 10',
+	];
 
-	if (room4 && fbmg) {
-		schoolAssociations.push({ venueId: room4.id, schoolId: fbmg.id });
-	}
-
-	if (room6 && fbmg) {
-		schoolAssociations.push({ venueId: room6.id, schoolId: fbmg.id });
+	for (const name of fftbFcmVenues) {
+		addAssociation(name, fftb);
+		addAssociation(name, fcm);
 	}
 
 	if (schoolAssociations.length > 0) {
