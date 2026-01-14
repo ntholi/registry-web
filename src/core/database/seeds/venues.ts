@@ -32,9 +32,27 @@ export async function seedVenues() {
 			'A laboratory equipped for multimedia production and digital media training.',
 	};
 
+	const networkingLabType = {
+		name: 'Networking Lab',
+		description:
+			'A laboratory equipped for networking and telecommunications training.',
+	};
+
+	const computerWorkshopType = {
+		name: 'Computer Workshop',
+		description: 'A workshop for computer hardware and maintenance.',
+	};
+
 	await db
 		.insert(venueTypes)
-		.values([lectureRoomType, lectureHallType, macLabType, multimediaLabType])
+		.values([
+			lectureRoomType,
+			lectureHallType,
+			macLabType,
+			multimediaLabType,
+			networkingLabType,
+			computerWorkshopType,
+		])
 		.onConflictDoNothing();
 
 	const [type] = await db
@@ -61,7 +79,19 @@ export async function seedVenues() {
 		.where(eq(venueTypes.name, 'Multimedia Lab'))
 		.limit(1);
 
-	if (!type || !hallType || !macType || !mmType) {
+	const [netType] = await db
+		.select()
+		.from(venueTypes)
+		.where(eq(venueTypes.name, 'Networking Lab'))
+		.limit(1);
+
+	const [workshopType] = await db
+		.select()
+		.from(venueTypes)
+		.where(eq(venueTypes.name, 'Computer Workshop'))
+		.limit(1);
+
+	if (!type || !hallType || !macType || !mmType || !netType || !workshopType) {
 		console.error('❌ Failed to find or create venue types');
 		return;
 	}
@@ -87,6 +117,8 @@ export async function seedVenues() {
 		{ name: 'MM6', capacity: 40, typeId: mmType.id },
 		{ name: 'MM7', capacity: 40, typeId: mmType.id },
 		{ name: 'MM10', capacity: 40, typeId: mmType.id },
+		{ name: 'Net Lab', capacity: 40, typeId: netType.id },
+		{ name: 'Workshop', capacity: 40, typeId: workshopType.id },
 	];
 
 	await db.insert(venues).values(venueData).onConflictDoNothing();
@@ -132,6 +164,8 @@ export async function seedVenues() {
 	addAssociation('Mac Lab', ffld);
 	addAssociation('MM10', fdi);
 	addAssociation('MM10', ffld);
+	addAssociation('Net Lab', fict);
+	addAssociation('Workshop', fict);
 
 	for (let i = 1; i <= 7; i++) {
 		addAssociation(`MM${i}`, fict);
