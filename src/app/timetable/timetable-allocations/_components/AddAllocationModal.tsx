@@ -36,7 +36,7 @@ import { ModuleSearchInput } from './ModuleSearchInput';
 
 const schema = z
 	.object({
-		semesterModuleId: z.number().min(1, 'Please select a semester module'),
+		semesterModuleId: z.number().min(1, 'Please select a student class'),
 		numberOfGroups: z
 			.number()
 			.min(0)
@@ -230,8 +230,8 @@ export default function AddAllocationModal({
 									required
 								/>
 								<Select
-									label='Semester Module'
-									placeholder='Select a semester module'
+									label='Class'
+									placeholder='Select a Student Class'
 									data={semesterOptions}
 									value={
 										form.values.semesterModuleId

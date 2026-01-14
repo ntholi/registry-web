@@ -388,8 +388,8 @@ export default function AddSlotAllocationWithLecturerModal() {
 											/>
 
 											<Select
-												label='Semester Module'
-												placeholder='Select a semester module'
+												label='Class'
+												placeholder='Select a Student Class'
 												data={semesterOptions}
 												value={
 													form.values.semesterModuleId
