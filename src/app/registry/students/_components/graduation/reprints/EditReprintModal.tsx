@@ -8,7 +8,6 @@ import {
 	Stack,
 	Text,
 	Textarea,
-	TextInput,
 } from '@mantine/core';
 import { DateInput } from '@mantine/dates';
 import { useForm } from '@mantine/form';
@@ -19,6 +18,7 @@ import { IconEdit } from '@tabler/icons-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { updateCertificateReprint } from '@/app/registry/certificate-reprints';
 import { formatDate } from '@/shared/lib/utils/dates';
+import { ReceiptInput } from '@/shared/ui/adease';
 
 type CertificateReprint = typeof certificateReprints.$inferSelect;
 
@@ -44,6 +44,12 @@ export default function EditReprintModal({ reprint, stdNo }: Props) {
 			receivedAt: reprint.receivedAt ? new Date(reprint.receivedAt) : null,
 		},
 		validate: {
+			receiptNumber: (value) => {
+				if (!value) return null;
+				return /^(PMRC\d{5}|SR-\d{5})$/.test(value)
+					? null
+					: 'Invalid receipt format';
+			},
 			reason: (value) =>
 				value.trim().length < 5 ? 'Reason must be at least 5 characters' : null,
 		},
@@ -126,9 +132,8 @@ export default function EditReprintModal({ reprint, stdNo }: Props) {
 							</Stack>
 						</Card>
 
-						<TextInput
+						<ReceiptInput
 							label='Receipt Number'
-							placeholder='Enter receipt number (optional)'
 							{...form.getInputProps('receiptNumber')}
 						/>
 

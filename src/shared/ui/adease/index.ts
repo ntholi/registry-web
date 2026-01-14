@@ -18,6 +18,7 @@ export {
 export { default as NewLink, type NewLinkProps } from './NewLink';
 export { NothingSelected, type NothingSelectedProps } from './NothingSelected';
 export { Pagination, type PaginationProps } from './Pagination';
+export { default as ReceiptInput } from './ReceiptInput';
 export { SearchField } from './SearchField';
 export { default as Shell } from './Shell';
 export { StatusToggle, type StatusToggleProps } from './StatusToggle';
