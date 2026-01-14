@@ -21,9 +21,20 @@ export async function seedVenues() {
 			'A large room used for lectures and formal instructional sessions.',
 	};
 
+	const macLabType = {
+		name: 'Mac Lab',
+		description: 'A laboratory equipped with Apple Macintosh computers.',
+	};
+
+	const multimediaLabType = {
+		name: 'Multimedia Lab',
+		description:
+			'A laboratory equipped for multimedia production and digital media training.',
+	};
+
 	await db
 		.insert(venueTypes)
-		.values([lectureRoomType, lectureHallType])
+		.values([lectureRoomType, lectureHallType, macLabType, multimediaLabType])
 		.onConflictDoNothing();
 
 	const [type] = await db
@@ -38,7 +49,19 @@ export async function seedVenues() {
 		.where(eq(venueTypes.name, 'Lecture Hall'))
 		.limit(1);
 
-	if (!type || !hallType) {
+	const [macType] = await db
+		.select()
+		.from(venueTypes)
+		.where(eq(venueTypes.name, 'Mac Lab'))
+		.limit(1);
+
+	const [mmType] = await db
+		.select()
+		.from(venueTypes)
+		.where(eq(venueTypes.name, 'Multimedia Lab'))
+		.limit(1);
+
+	if (!type || !hallType || !macType || !mmType) {
 		console.error('❌ Failed to find or create venue types');
 		return;
 	}
@@ -55,11 +78,20 @@ export async function seedVenues() {
 		{ name: 'Room 11', capacity: 50, typeId: type.id },
 		{ name: 'Hall 9', capacity: 100, typeId: hallType.id },
 		{ name: 'Hall 10', capacity: 100, typeId: hallType.id },
+		{ name: 'Mac Lab', capacity: 40, typeId: macType.id },
+		{ name: 'MM1', capacity: 40, typeId: mmType.id },
+		{ name: 'MM2', capacity: 40, typeId: mmType.id },
+		{ name: 'MM3', capacity: 40, typeId: mmType.id },
+		{ name: 'MM4', capacity: 40, typeId: mmType.id },
+		{ name: 'MM5', capacity: 40, typeId: mmType.id },
+		{ name: 'MM6', capacity: 40, typeId: mmType.id },
+		{ name: 'MM7', capacity: 40, typeId: mmType.id },
+		{ name: 'MM10', capacity: 40, typeId: mmType.id },
 	];
 
 	await db.insert(venues).values(venueData).onConflictDoNothing();
 
-	const schoolCodes = ['FICT', 'FBMG', 'FFTB', 'FCM'];
+	const schoolCodes = ['FICT', 'FBMG', 'FFTB', 'FCM', 'FDI', 'FFLD'];
 	const foundSchools = await db
 		.select()
 		.from(schools)
@@ -69,8 +101,10 @@ export async function seedVenues() {
 	const fbmg = foundSchools.find((s) => s.code === 'FBMG');
 	const fftb = foundSchools.find((s) => s.code === 'FFTB');
 	const fcm = foundSchools.find((s) => s.code === 'FCM');
+	const fdi = foundSchools.find((s) => s.code === 'FDI');
+	const ffld = foundSchools.find((s) => s.code === 'FFLD');
 
-	if (!fict || !fbmg || !fftb || !fcm) {
+	if (!fict || !fbmg || !fftb || !fcm || !fdi || !ffld) {
 		console.warn('⚠️ Some schools were not found. Seed might be incomplete.');
 	}
 
@@ -93,6 +127,15 @@ export async function seedVenues() {
 	addAssociation('Hall 6', fict);
 	addAssociation('Room 4', fbmg);
 	addAssociation('Room 6', fbmg);
+
+	addAssociation('Mac Lab', fdi);
+	addAssociation('Mac Lab', ffld);
+	addAssociation('MM10', fdi);
+	addAssociation('MM10', ffld);
+
+	for (let i = 1; i <= 7; i++) {
+		addAssociation(`MM${i}`, fict);
+	}
 
 	const fftbFcmVenues = [
 		'Room 13',
