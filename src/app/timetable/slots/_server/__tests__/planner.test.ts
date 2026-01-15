@@ -26,8 +26,8 @@ function nextSemesterId(): number {
 	return id;
 }
 
-function nextVenueId(): number {
-	const id = venueId;
+function nextVenueId(): string {
+	const id = `venue-${venueId}`;
 	venueId += 1;
 	return id;
 }
@@ -95,7 +95,7 @@ function makeAllocation(
 
 function makeVenue(overrides: Partial<VenueRecord> = {}): VenueRecord {
 	const id = overrides.id ?? nextVenueId();
-	const typeId = overrides.type?.id ?? overrides.typeId ?? 1;
+	const typeId = overrides.type?.id ?? overrides.typeId ?? `type-1`;
 	return {
 		id,
 		name: overrides.name ?? `Venue ${id}`,
@@ -124,11 +124,11 @@ describe('buildTermPlan - Basic Allocation', () => {
 			endTime: '12:30:00',
 			duration: 120,
 		});
-		const venues = [makeVenue({ id: 5 })];
+		const venues = [makeVenue({ id: 'venue-5' })];
 		const plan = buildTermPlan(1, [allocation], venues);
 
 		expect(plan).toHaveLength(1);
-		expect(plan[0].venueId).toBe(5);
+		expect(plan[0].venueId).toBe('venue-5');
 		expect(plan[0].allocationIds).toEqual([allocation.id]);
 		const slotDuration =
 			timeToMinutes(plan[0].endTime) - timeToMinutes(plan[0].startTime);
@@ -188,8 +188,8 @@ describe('buildTermPlan - Basic Allocation', () => {
 
 describe('buildTermPlan - Venue Constraints', () => {
 	it('respects venue type requirements', () => {
-		const labTypeId = 10;
-		const lectureTypeId = 11;
+		const labTypeId = 'type-10';
+		const lectureTypeId = 'type-11';
 
 		const allocation = makeAllocation({
 			numberOfStudents: 40,
@@ -198,7 +198,7 @@ describe('buildTermPlan - Venue Constraints', () => {
 
 		const venues = [
 			makeVenue({
-				id: 1,
+				id: 'venue-1',
 				typeId: lectureTypeId,
 				type: {
 					id: lectureTypeId,
@@ -208,7 +208,7 @@ describe('buildTermPlan - Venue Constraints', () => {
 				},
 			}),
 			makeVenue({
-				id: 2,
+				id: 'venue-2',
 				typeId: labTypeId,
 				type: {
 					id: labTypeId,
@@ -221,16 +221,16 @@ describe('buildTermPlan - Venue Constraints', () => {
 
 		const plan = buildTermPlan(1, [allocation], venues);
 		expect(plan).toHaveLength(1);
-		expect(plan[0].venueId).toBe(2);
+		expect(plan[0].venueId).toBe('venue-2');
 	});
 
 	it('allows up to 10% capacity overflow but not beyond', () => {
 		const allocation = makeAllocation({ numberOfStudents: 55 });
-		const tightVenue = makeVenue({ id: 3, capacity: 50 });
-		const ampleVenue = makeVenue({ id: 4, capacity: 80 });
+		const tightVenue = makeVenue({ id: 'venue-3', capacity: 50 });
+		const ampleVenue = makeVenue({ id: 'venue-4', capacity: 80 });
 
 		const plan = buildTermPlan(1, [allocation], [tightVenue, ampleVenue]);
-		expect(plan[0].venueId).toBe(3);
+		expect(plan[0].venueId).toBe('venue-3');
 
 		const overLimitAllocation = makeAllocation({ numberOfStudents: 120 });
 		expect(() =>
@@ -240,7 +240,7 @@ describe('buildTermPlan - Venue Constraints', () => {
 
 	it('never exceeds 10% capacity overflow for any slot', () => {
 		const baseCapacity = 100;
-		const venue = makeVenue({ id: 30, capacity: baseCapacity });
+		const venue = makeVenue({ id: 'venue-30', capacity: baseCapacity });
 		const moduleIdValue = nextModuleId();
 		const semesterModuleIdValue = nextSemesterModuleId();
 
@@ -307,7 +307,10 @@ describe('buildTermPlan - Lecturer Constraints', () => {
 			duration: 120,
 		});
 
-		const venues = [makeVenue({ id: 50 }), makeVenue({ id: 51 })];
+		const venues = [
+			makeVenue({ id: 'venue-50' }),
+			makeVenue({ id: 'venue-51' }),
+		];
 		const plan = buildTermPlan(1, [alloc1, alloc2], venues);
 
 		expect(plan.length).toBe(2);
@@ -400,7 +403,10 @@ describe('buildTermPlan - Class Constraints', () => {
 			duration: 120,
 		});
 
-		const venues = [makeVenue({ id: 60 }), makeVenue({ id: 61 })];
+		const venues = [
+			makeVenue({ id: 'venue-60' }),
+			makeVenue({ id: 'venue-61' }),
+		];
 		const plan = buildTermPlan(1, [alloc1, alloc2], venues);
 
 		expect(plan.length).toBe(2);
@@ -442,7 +448,10 @@ describe('buildTermPlan - Class Constraints', () => {
 			},
 		});
 
-		const venues = [makeVenue({ id: 70 }), makeVenue({ id: 71 })];
+		const venues = [
+			makeVenue({ id: 'venue-70' }),
+			makeVenue({ id: 'venue-71' }),
+		];
 		const plan = buildTermPlan(1, [alloc1, alloc2], venues);
 
 		expect(plan.length).toBeGreaterThanOrEqual(2);
@@ -471,9 +480,9 @@ describe('buildTermPlan - Consecutive Slots Constraint', () => {
 		}
 
 		const venues = [
-			makeVenue({ id: 80 }),
-			makeVenue({ id: 81 }),
-			makeVenue({ id: 82 }),
+			makeVenue({ id: 'venue-80' }),
+			makeVenue({ id: 'venue-81' }),
+			makeVenue({ id: 'venue-82' }),
 		];
 		const plan = buildTermPlan(1, allocations, venues, 5);
 
@@ -526,9 +535,9 @@ describe('buildTermPlan - Consecutive Slots Constraint', () => {
 		}
 
 		const venues = [
-			makeVenue({ id: 90 }),
-			makeVenue({ id: 91 }),
-			makeVenue({ id: 92 }),
+			makeVenue({ id: 'venue-90' }),
+			makeVenue({ id: 'venue-91' }),
+			makeVenue({ id: 'venue-92' }),
 		];
 		const plan = buildTermPlan(1, allocations, venues, 5);
 
@@ -584,9 +593,9 @@ describe('buildTermPlan - Max Slots Per Day Constraint', () => {
 		}
 
 		const venues = [
-			makeVenue({ id: 100 }),
-			makeVenue({ id: 101 }),
-			makeVenue({ id: 102 }),
+			makeVenue({ id: 'venue-100' }),
+			makeVenue({ id: 'venue-101' }),
+			makeVenue({ id: 'venue-102' }),
 		];
 		const plan = buildTermPlan(1, allocations, venues, maxSlotsPerDay);
 
@@ -623,9 +632,9 @@ describe('buildTermPlan - Max Slots Per Day Constraint', () => {
 		}
 
 		const venues = [
-			makeVenue({ id: 110 }),
-			makeVenue({ id: 111 }),
-			makeVenue({ id: 112 }),
+			makeVenue({ id: 'venue-110' }),
+			makeVenue({ id: 'venue-111' }),
+			makeVenue({ id: 'venue-112' }),
 		];
 		const plan = buildTermPlan(1, allocations, venues, maxSlotsPerDay);
 
@@ -651,7 +660,11 @@ describe('buildTermPlan - Time and Day Constraints', () => {
 			duration: 120,
 		});
 
-		const plan = buildTermPlan(1, [allocation], [makeVenue({ id: 120 })]);
+		const plan = buildTermPlan(
+			1,
+			[allocation],
+			[makeVenue({ id: 'venue-120' })]
+		);
 
 		expect(plan).toHaveLength(1);
 		expect(plan[0].dayOfWeek).toBe('wednesday');
@@ -664,7 +677,11 @@ describe('buildTermPlan - Time and Day Constraints', () => {
 			duration: 120,
 		});
 
-		const plan = buildTermPlan(1, [allocation], [makeVenue({ id: 130 })]);
+		const plan = buildTermPlan(
+			1,
+			[allocation],
+			[makeVenue({ id: 'venue-130' })]
+		);
 
 		expect(plan).toHaveLength(1);
 
@@ -692,10 +709,10 @@ describe('buildTermPlan - Stress Tests', () => {
 	it('schedules many allocations without violating constraints', () => {
 		const maxSlotsPerDay = 3;
 		const venues = [
-			makeVenue({ id: 200, capacity: 80 }),
-			makeVenue({ id: 201, capacity: 100 }),
-			makeVenue({ id: 202, capacity: 120 }),
-			makeVenue({ id: 203, capacity: 60 }),
+			makeVenue({ id: 'venue-200', capacity: 80 }),
+			makeVenue({ id: 'venue-201', capacity: 100 }),
+			makeVenue({ id: 'venue-202', capacity: 120 }),
+			makeVenue({ id: 'venue-203', capacity: 60 }),
 		];
 
 		const allocations: AllocationRecord[] = [];
@@ -748,8 +765,8 @@ describe('buildTermPlan - Stress Tests', () => {
 		const lecturer1 = 'stress-lecturer-1';
 		const lecturer2 = 'stress-lecturer-2';
 
-		const labTypeId = 50;
-		const lectureTypeId = 51;
+		const labTypeId = 'type-50';
+		const lectureTypeId = 'type-51';
 
 		const allocations: AllocationRecord[] = [
 			makeAllocation({
@@ -810,7 +827,7 @@ describe('buildTermPlan - Stress Tests', () => {
 
 		const venues = [
 			makeVenue({
-				id: 300,
+				id: 'venue-300',
 				capacity: 120,
 				typeId: lectureTypeId,
 				type: {
@@ -821,7 +838,7 @@ describe('buildTermPlan - Stress Tests', () => {
 				},
 			}),
 			makeVenue({
-				id: 301,
+				id: 'venue-301',
 				capacity: 60,
 				typeId: labTypeId,
 				type: {
@@ -832,7 +849,7 @@ describe('buildTermPlan - Stress Tests', () => {
 				},
 			}),
 			makeVenue({
-				id: 302,
+				id: 'venue-302',
 				capacity: 100,
 				typeId: lectureTypeId,
 				type: {
@@ -864,11 +881,11 @@ describe('buildTermPlan - Stress Tests', () => {
 describe('buildTermPlan - Edge Cases', () => {
 	it('throws when required venue type is unavailable', () => {
 		const restricted = makeAllocation({
-			timetableAllocationVenueTypes: [{ venueTypeId: 999 }],
+			timetableAllocationVenueTypes: [{ venueTypeId: 'type-999' }],
 		});
 
 		expect(() =>
-			buildTermPlan(1, [restricted], [makeVenue({ typeId: 1 })])
+			buildTermPlan(1, [restricted], [makeVenue({ typeId: 'type-1' })])
 		).toThrow();
 	});
 
@@ -892,7 +909,10 @@ describe('buildTermPlan - Edge Cases', () => {
 			}),
 		];
 
-		const venues = [makeVenue({ id: 400 }), makeVenue({ id: 401 })];
+		const venues = [
+			makeVenue({ id: 'venue-400' }),
+			makeVenue({ id: 'venue-401' }),
+		];
 		const plan = buildTermPlan(1, allocations, venues);
 
 		expect(plan.length).toBeGreaterThanOrEqual(4);
@@ -910,7 +930,7 @@ describe('buildTermPlan - Edge Cases', () => {
 	});
 
 	it('never overlaps slots for the same venue and day', () => {
-		const venue = makeVenue({ id: 500, capacity: 200 });
+		const venue = makeVenue({ id: 'venue-500', capacity: 200 });
 		const allocations = [
 			makeAllocation({
 				duration: 90,
@@ -953,7 +973,7 @@ describe('buildTermPlan - Edge Cases', () => {
 	});
 
 	it('fills gaps efficiently to minimize idle time', () => {
-		const venue = makeVenue({ id: 600 });
+		const venue = makeVenue({ id: 'venue-600' });
 
 		const first = makeAllocation({
 			duration: 120,
@@ -989,7 +1009,7 @@ describe('buildTermPlan - Edge Cases', () => {
 	});
 
 	it('prefers alternate days when primary day is saturated', () => {
-		const venue = makeVenue({ id: 700 });
+		const venue = makeVenue({ id: 'venue-700' });
 
 		const morning = makeAllocation({
 			allowedDays: ['monday'],
@@ -1040,7 +1060,10 @@ describe('buildTermPlan - Validation', () => {
 			makeAllocation({ duration: 120 }),
 		];
 
-		const venues = [makeVenue({ id: 800 }), makeVenue({ id: 801 })];
+		const venues = [
+			makeVenue({ id: 'venue-800' }),
+			makeVenue({ id: 'venue-801' }),
+		];
 		const plan = buildTermPlan(1, allocations, venues);
 
 		const allAllocationIds = new Set<number>();
@@ -1061,7 +1084,9 @@ describe('buildTermPlan - Validation', () => {
 			makeAllocation({ duration: 60 }),
 		];
 
-		const plan = buildTermPlan(1, allocations, [makeVenue({ id: 900 })]);
+		const plan = buildTermPlan(1, allocations, [
+			makeVenue({ id: 'venue-900' }),
+		]);
 
 		for (const slot of plan) {
 			expect(slot.allocationIds.length).toBeGreaterThan(0);
@@ -1083,12 +1108,12 @@ describe('buildTermPlan - School-Based Venue Filtering', () => {
 
 		const venues = [
 			makeVenue({
-				id: 1001,
+				id: 'venue-1001',
 				capacity: 60,
 				venueSchools: [{ schoolId: schoolId1 }],
 			}),
 			makeVenue({
-				id: 1002,
+				id: 'venue-1002',
 				capacity: 60,
 				venueSchools: [{ schoolId: schoolId2 }],
 			}),
@@ -1097,7 +1122,7 @@ describe('buildTermPlan - School-Based Venue Filtering', () => {
 		const plan = buildTermPlan(1, [allocation], venues);
 
 		expect(plan).toHaveLength(1);
-		expect(plan[0].venueId).toBe(1001);
+		expect(plan[0].venueId).toBe('venue-1001');
 	});
 
 	it('allows lecturer with multiple schools to use any of their school venues', () => {
@@ -1114,17 +1139,17 @@ describe('buildTermPlan - School-Based Venue Filtering', () => {
 
 		const venues = [
 			makeVenue({
-				id: 2001,
+				id: 'venue-2001',
 				capacity: 60,
 				venueSchools: [{ schoolId: schoolId1 }],
 			}),
 			makeVenue({
-				id: 2002,
+				id: 'venue-2002',
 				capacity: 60,
 				venueSchools: [{ schoolId: schoolId2 }],
 			}),
 			makeVenue({
-				id: 2003,
+				id: 'venue-2003',
 				capacity: 60,
 				venueSchools: [{ schoolId: schoolId3 }],
 			}),
@@ -1133,8 +1158,8 @@ describe('buildTermPlan - School-Based Venue Filtering', () => {
 		const plan = buildTermPlan(1, [allocation], venues);
 
 		expect(plan).toHaveLength(1);
-		expect([2001, 2002]).toContain(plan[0].venueId);
-		expect(plan[0].venueId).not.toBe(2003);
+		expect(['venue-2001', 'venue-2002']).toContain(plan[0].venueId);
+		expect(plan[0].venueId).not.toBe('venue-2003');
 	});
 
 	it('allows venue shared by multiple schools if one matches lecturer school', () => {
@@ -1149,7 +1174,7 @@ describe('buildTermPlan - School-Based Venue Filtering', () => {
 		});
 
 		const sharedVenue = makeVenue({
-			id: 3001,
+			id: 'venue-3001',
 			capacity: 60,
 			venueSchools: [{ schoolId: schoolId1 }, { schoolId: schoolId2 }],
 		});
@@ -1157,7 +1182,7 @@ describe('buildTermPlan - School-Based Venue Filtering', () => {
 		const plan = buildTermPlan(1, [allocation], [sharedVenue]);
 
 		expect(plan).toHaveLength(1);
-		expect(plan[0].venueId).toBe(3001);
+		expect(plan[0].venueId).toBe('venue-3001');
 	});
 
 	it("throws error when no venues match lecturer's schools", () => {
@@ -1173,7 +1198,7 @@ describe('buildTermPlan - School-Based Venue Filtering', () => {
 
 		const venues = [
 			makeVenue({
-				id: 4001,
+				id: 'venue-4001',
 				capacity: 100,
 				venueSchools: [{ schoolId: schoolId2 }],
 			}),
@@ -1214,12 +1239,12 @@ describe('buildTermPlan - School-Based Venue Filtering', () => {
 
 		const venues = [
 			makeVenue({
-				id: 5001,
+				id: 'venue-5001',
 				capacity: 60,
 				venueSchools: [{ schoolId: schoolId1 }],
 			}),
 			makeVenue({
-				id: 5002,
+				id: 'venue-5002',
 				capacity: 60,
 				venueSchools: [{ schoolId: schoolId2 }],
 			}),
@@ -1232,15 +1257,15 @@ describe('buildTermPlan - School-Based Venue Filtering', () => {
 		const slot1 = plan.find((p) => p.allocationIds.includes(alloc1.id));
 		const slot2 = plan.find((p) => p.allocationIds.includes(alloc2.id));
 
-		expect(slot1?.venueId).toBe(5001);
-		expect(slot2?.venueId).toBe(5002);
+		expect(slot1?.venueId).toBe('venue-5001');
+		expect(slot2?.venueId).toBe('venue-5002');
 	});
 
 	it('handles complex scenario with school filtering and venue type requirements', () => {
 		const schoolId1 = 100;
 		const schoolId2 = 200;
-		const labTypeId = 50;
-		const lectureTypeId = 51;
+		const labTypeId = 'type-50';
+		const lectureTypeId = 'type-51';
 
 		const allocation = makeAllocation({
 			numberOfStudents: 50,
@@ -1252,7 +1277,7 @@ describe('buildTermPlan - School-Based Venue Filtering', () => {
 
 		const venues = [
 			makeVenue({
-				id: 6001,
+				id: 'venue-6001',
 				capacity: 60,
 				typeId: labTypeId,
 				type: {
@@ -1264,7 +1289,7 @@ describe('buildTermPlan - School-Based Venue Filtering', () => {
 				venueSchools: [{ schoolId: schoolId2 }],
 			}),
 			makeVenue({
-				id: 6002,
+				id: 'venue-6002',
 				capacity: 60,
 				typeId: labTypeId,
 				type: {
@@ -1276,7 +1301,7 @@ describe('buildTermPlan - School-Based Venue Filtering', () => {
 				venueSchools: [{ schoolId: schoolId1 }],
 			}),
 			makeVenue({
-				id: 6003,
+				id: 'venue-6003',
 				capacity: 60,
 				typeId: lectureTypeId,
 				type: {
@@ -1292,7 +1317,7 @@ describe('buildTermPlan - School-Based Venue Filtering', () => {
 		const plan = buildTermPlan(1, [allocation], venues);
 
 		expect(plan).toHaveLength(1);
-		expect(plan[0].venueId).toBe(6002);
+		expect(plan[0].venueId).toBe('venue-6002');
 	});
 });
 
@@ -1329,7 +1354,10 @@ describe('buildTermPlan - Class Type Constraints', () => {
 			semesterModuleId: semesterModuleIdValue,
 		});
 
-		const venues = [makeVenue({ id: 950 }), makeVenue({ id: 951 })];
+		const venues = [
+			makeVenue({ id: 'venue-950' }),
+			makeVenue({ id: 'venue-951' }),
+		];
 		const plan = buildTermPlan(1, [lectureAlloc, tutorialAlloc], venues);
 
 		expect(plan.length).toBe(2);

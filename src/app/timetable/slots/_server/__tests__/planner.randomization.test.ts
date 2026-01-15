@@ -19,8 +19,8 @@ function nextSemesterModuleId(): number {
 	return id;
 }
 
-function nextVenueId(): number {
-	const id = venueId;
+function nextVenueId(): string {
+	const id = `venue-${venueId}`;
 	venueId += 1;
 	return id;
 }
@@ -89,7 +89,7 @@ function makeAllocation(
 
 function makeVenue(overrides: Partial<VenueRecord> = {}): VenueRecord {
 	const id = overrides.id ?? nextVenueId();
-	const typeId = overrides.type?.id ?? overrides.typeId ?? 1;
+	const typeId = overrides.type?.id ?? overrides.typeId ?? `type-1`;
 	return {
 		id,
 		name: overrides.name ?? `Venue ${id}`,

@@ -26,8 +26,8 @@ function nextSemesterId(): number {
 	return id;
 }
 
-function nextVenueId(): number {
-	const id = venueId;
+function nextVenueId(): string {
+	const id = `venue-${venueId}`;
 	venueId += 1;
 	return id;
 }
@@ -94,7 +94,7 @@ function makeAllocation(
 
 function makeVenue(overrides: Partial<VenueRecord> = {}): VenueRecord {
 	const id = overrides.id ?? nextVenueId();
-	const typeId = overrides.type?.id ?? overrides.typeId ?? 1;
+	const typeId = overrides.type?.id ?? overrides.typeId ?? `type-1`;
 	return {
 		id,
 		name: overrides.name ?? `Venue ${id}`,
@@ -827,9 +827,9 @@ describe('RUTHLESS STRESS TESTS - Mixed Extreme Scenarios', () => {
 	});
 
 	it('stress test with all constraint types active simultaneously', () => {
-		const labTypeId = 100;
-		const lectureTypeId = 101;
-		const studioTypeId = 102;
+		const labTypeId = 'type-100';
+		const lectureTypeId = 'type-101';
+		const studioTypeId = 'type-102';
 
 		const allocations: AllocationRecord[] = [];
 
@@ -1092,8 +1092,8 @@ describe('RUTHLESS STRESS TESTS - School-Based Venue Filtering', () => {
 	it('correctly handles school filtering with all other constraints combined', () => {
 		const school1 = 500;
 		const school2 = 600;
-		const labTypeId = 777;
-		const lectureTypeId = 888;
+		const labTypeId = 'type-777';
+		const lectureTypeId = 'type-888';
 
 		const allocations: AllocationRecord[] = [];
 		for (let i = 0; i < 30; i++) {
@@ -1196,9 +1196,9 @@ describe('RUTHLESS STRESS TESTS - School-Based Venue Filtering', () => {
 describe('buildTermPlan - EXTREME Stress Tests', () => {
 	it('handles highly constrained scenario with very limited time windows', () => {
 		const venues: VenueRecord[] = [
-			makeVenue({ id: 2000, capacity: 100 }),
-			makeVenue({ id: 2001, capacity: 100 }),
-			makeVenue({ id: 2002, capacity: 100 }),
+			makeVenue({ id: 'venue-2000', capacity: 100 }),
+			makeVenue({ id: 'venue-2001', capacity: 100 }),
+			makeVenue({ id: 'venue-2002', capacity: 100 }),
 		];
 
 		const allocations: AllocationRecord[] = [];
@@ -1234,7 +1234,7 @@ describe('buildTermPlan - EXTREME Stress Tests', () => {
 	});
 
 	it('handles worst-case backtracking scenario', () => {
-		const venue = makeVenue({ id: 3000, capacity: 100 });
+		const venue = makeVenue({ id: 'venue-3000', capacity: 100 });
 		const semester1 = nextSemesterId();
 		const semester2 = nextSemesterId();
 
@@ -1291,13 +1291,13 @@ describe('buildTermPlan - EXTREME Stress Tests', () => {
 
 	it('handles realistic university scenario with multiple programs', () => {
 		const venues: VenueRecord[] = [];
-		const lectureHallTypeId = 1;
-		const tutorialRoomTypeId = 2;
+		const lectureHallTypeId = 'type-1';
+		const tutorialRoomTypeId = 'type-2';
 
 		for (let i = 0; i < 15; i++) {
 			venues.push(
 				makeVenue({
-					id: 5000 + i,
+					id: `venue-${5000 + i}`,
 					capacity: 100 + i * 10,
 					typeId: lectureHallTypeId,
 					type: {
@@ -1313,7 +1313,7 @@ describe('buildTermPlan - EXTREME Stress Tests', () => {
 		for (let i = 0; i < 20; i++) {
 			venues.push(
 				makeVenue({
-					id: 5100 + i,
+					id: `venue-${5100 + i}`,
 					capacity: 30 + i * 2,
 					typeId: tutorialRoomTypeId,
 					type: {
@@ -1455,8 +1455,8 @@ describe('buildTermPlan - EXTREME Stress Tests', () => {
 
 	it('handles edge case with all allocations having same constraints', () => {
 		const venues: VenueRecord[] = [
-			makeVenue({ id: 6000, capacity: 50 }),
-			makeVenue({ id: 6001, capacity: 50 }),
+			makeVenue({ id: 'venue-6000', capacity: 50 }),
+			makeVenue({ id: 'venue-6001', capacity: 50 }),
 		];
 		const allocations: AllocationRecord[] = [];
 
