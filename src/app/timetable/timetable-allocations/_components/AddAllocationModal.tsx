@@ -168,10 +168,16 @@ export default function AddAllocationModal({
 			close();
 		},
 		onError: (error: Error) => {
+			const message = error.message || 'Failed to add allocation';
+			const isConflict =
+				message.toLowerCase().includes('already exists') ||
+				message.toLowerCase().includes('conflict') ||
+				message.toLowerCase().includes('duplicate');
 			notifications.show({
-				title: 'Error',
-				message: error.message || 'Failed to add allocation',
+				title: isConflict ? 'Allocation Conflict' : 'Error',
+				message,
 				color: 'red',
+				autoClose: isConflict ? 8000 : 5000,
 			});
 		},
 	});

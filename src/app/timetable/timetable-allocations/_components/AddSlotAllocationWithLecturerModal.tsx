@@ -242,10 +242,25 @@ export default function AddSlotAllocationWithLecturerModal() {
 			close();
 		},
 		onError: (error: Error) => {
+			const message = error.message || 'Failed to create allocation';
+			const isConflict =
+				message.toLowerCase().includes('already exists') ||
+				message.toLowerCase().includes('conflict') ||
+				message.toLowerCase().includes('duplicate');
+			const isVenueConflict =
+				message.toLowerCase().includes('venue') ||
+				message.toLowerCase().includes('slot');
+			let title = 'Error';
+			if (isConflict && isVenueConflict) {
+				title = 'Venue/Time Conflict';
+			} else if (isConflict) {
+				title = 'Allocation Conflict';
+			}
 			notifications.show({
-				title: 'Error',
-				message: error.message || 'Failed to create allocation',
+				title,
+				message,
 				color: 'red',
+				autoClose: isConflict ? 8000 : 5000,
 			});
 		},
 	});
