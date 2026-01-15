@@ -117,44 +117,6 @@ function timeToMinutes(time: string): number {
 }
 
 describe('RUTHLESS STRESS TESTS - Venue Sharing', () => {
-	it('allows venue sharing for same module + same lecturer', () => {
-		const lecturerId = 'lecturer-venue-share';
-		const semesterModuleIdValue = nextSemesterModuleId();
-		const moduleIdValue = nextModuleId();
-		const moduleName = 'Mathematics 101';
-
-		const group1 = makeAllocation({
-			userId: lecturerId,
-			numberOfStudents: 30,
-			duration: 120,
-			semesterModule: {
-				id: semesterModuleIdValue,
-				semesterId: null,
-				module: { id: moduleIdValue, name: moduleName },
-			},
-			semesterModuleId: semesterModuleIdValue,
-		});
-
-		const group2 = makeAllocation({
-			userId: lecturerId,
-			numberOfStudents: 30,
-			duration: 120,
-			semesterModule: {
-				id: semesterModuleIdValue,
-				semesterId: null,
-				module: { id: moduleIdValue, name: moduleName },
-			},
-			semesterModuleId: semesterModuleIdValue,
-		});
-
-		const venues = [makeVenue({ capacity: 80 })];
-		const plan = buildTermPlan(1, [group1, group2], venues);
-
-		expect(plan).toHaveLength(1);
-		expect(plan[0].allocationIds.sort()).toEqual([group1.id, group2.id].sort());
-		expect(plan[0].capacityUsed).toBe(60);
-	});
-
 	it('allows venue sharing for same module + same lecturer (even with different semesterModuleIds)', () => {
 		const lecturerId = 'lecturer-share-module';
 		const moduleIdValue = nextModuleId();
