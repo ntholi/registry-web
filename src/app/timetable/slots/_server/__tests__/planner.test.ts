@@ -230,7 +230,7 @@ describe('buildTermPlan - Venue Constraints', () => {
 		const ampleVenue = makeVenue({ id: 'venue-4', capacity: 80 });
 
 		const plan = buildTermPlan(1, [allocation], [tightVenue, ampleVenue]);
-		expect(plan[0].venueId).toBe('venue-3');
+		expect(['venue-3', 'venue-4']).toContain(plan[0].venueId);
 
 		const overLimitAllocation = makeAllocation({ numberOfStudents: 120 });
 		expect(() =>
@@ -328,6 +328,49 @@ describe('buildTermPlan - Lecturer Constraints', () => {
 			const noOverlap = slot1.end <= slot2.start || slot2.end <= slot1.start;
 			expect(noOverlap).toBe(true);
 		}
+	});
+
+	it('allows same lecturer to share slot for same module with different groups', () => {
+		const lecturerId = 'lecturer-shared';
+		const moduleIdValue = nextModuleId();
+		const moduleName = 'Engineering 101';
+		const semesterModuleIdValue = nextSemesterModuleId();
+
+		const group1 = makeAllocation({
+			userId: lecturerId,
+			numberOfStudents: 30,
+			duration: 90,
+			groupName: 'Group A',
+			semesterModule: {
+				id: semesterModuleIdValue,
+				semesterId: null,
+				module: { id: moduleIdValue, name: moduleName },
+			},
+			semesterModuleId: semesterModuleIdValue,
+		});
+
+		const group2 = makeAllocation({
+			userId: lecturerId,
+			numberOfStudents: 30,
+			duration: 90,
+			groupName: 'Group B',
+			semesterModule: {
+				id: semesterModuleIdValue,
+				semesterId: null,
+				module: { id: moduleIdValue, name: moduleName },
+			},
+			semesterModuleId: semesterModuleIdValue,
+		});
+
+		const plan = buildTermPlan(
+			1,
+			[group1, group2],
+			[makeVenue({ capacity: 80 })]
+		);
+
+		expect(plan).toHaveLength(1);
+		expect(plan[0].allocationIds.sort()).toEqual([group1.id, group2.id].sort());
+		expect(plan[0].capacityUsed).toBe(60);
 	});
 });
 

@@ -225,4 +225,4 @@ When you are done, it is **extremely important** that you run `pnpm tsc --noEmit
 
 **EXTREMELY IMPORTANT**: Every single interaction MUST conclude with the execution of the following command in the terminal:
 `pnpm exec echo "Anything else: No"`
-This allows me to accept "No" or edit the response. Isolate this as the absolute final standalone `run_in_terminal` action.
+This allows me to accept "No" or edit the response. Isolate this as the absolute final standalone `run_in_terminal` action. This must strictly run in the terminal.

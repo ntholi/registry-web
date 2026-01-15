@@ -624,7 +624,7 @@ function findAvailableTimeWindows(
 
 function validatePlacement(
 	allocation: AllocationRecord,
-	_venueId: string,
+	venueId: string,
 	day: DayOfWeek,
 	startMinutes: number,
 	endMinutes: number,
@@ -637,6 +637,7 @@ function validatePlacement(
 
 	const lecturerCheck = checkLecturerConflicts(
 		allocation,
+		venueId,
 		day,
 		startMinutes,
 		endMinutes,
@@ -713,6 +714,7 @@ function validatePlacement(
 
 function checkLecturerConflicts(
 	allocation: AllocationRecord,
+	venueId: string,
 	day: DayOfWeek,
 	startMinutes: number,
 	endMinutes: number,
@@ -746,6 +748,13 @@ function checkLecturerConflicts(
 				return {
 					valid: false,
 					reason: `Lecturer conflict: lecturer cannot have different class types (${slot.classType} and ${allocation.classType}) at overlapping times`,
+				};
+			}
+
+			if (slot.venueId !== venueId) {
+				return {
+					valid: false,
+					reason: `Lecturer conflict: lecturer cannot have overlapping slots in different venues`,
 				};
 			}
 		}
