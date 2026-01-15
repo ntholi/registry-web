@@ -120,14 +120,13 @@ export function AllocationForm<T extends BaseAllocationFormValues>({
 						label='Venue Types'
 						placeholder='Select venue types (optional)'
 						data={venueTypes.map((vt) => ({
-							value: vt.id.toString(),
+							value: vt.id,
 							label: vt.name,
 						}))}
-						value={form.values.venueTypeIds.map((id) => id.toString())}
+						value={form.values.venueTypeIds}
 						onChange={(values) => {
-							const castValues = values.map((v) => Number(v));
 							// @ts-expect-error - Generic form type inference limitation with Mantine
-							form.setFieldValue('venueTypeIds', castValues);
+							form.setFieldValue('venueTypeIds', values);
 						}}
 						searchable
 						clearable
