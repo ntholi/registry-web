@@ -488,6 +488,29 @@ export default class TimetableSlotRepository extends BaseRepository<
 			endTime: string;
 		}
 	) {
+		const existingSlot = await db.query.timetableSlots.findFirst({
+			where: and(
+				eq(timetableSlots.venueId, slot.venueId),
+				eq(timetableSlots.dayOfWeek, slot.dayOfWeek),
+				eq(timetableSlots.startTime, slot.startTime),
+				eq(timetableSlots.endTime, slot.endTime)
+			),
+			with: {
+				venue: true,
+			},
+		});
+
+		if (existingSlot) {
+			const day =
+				slot.dayOfWeek.charAt(0).toUpperCase() + slot.dayOfWeek.slice(1);
+			const start = slot.startTime.slice(0, 5);
+			const end = slot.endTime.slice(0, 5);
+			const venueName = existingSlot.venue?.name ?? 'the selected venue';
+			throw new Error(
+				`This time slot is already booked. ${venueName} is not available on ${day} from ${start} to ${end}. Please choose a different time or venue.`
+			);
+		}
+
 		return db.transaction(async (tx) => {
 			const [created] = await tx
 				.insert(timetableAllocationsTable)

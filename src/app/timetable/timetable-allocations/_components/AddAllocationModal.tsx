@@ -168,16 +168,36 @@ export default function AddAllocationModal({
 			close();
 		},
 		onError: (error: Error) => {
-			const message = error.message || 'Failed to add allocation';
-			const isConflict =
-				message.toLowerCase().includes('already exists') ||
-				message.toLowerCase().includes('conflict') ||
-				message.toLowerCase().includes('duplicate');
+			let message = error.message || 'Failed to add allocation';
+			let title = 'Error';
+
+			const lowerMsg = message.toLowerCase();
+			if (
+				lowerMsg.includes('already') ||
+				lowerMsg.includes('duplicate') ||
+				lowerMsg.includes('exists')
+			) {
+				title = 'Duplicate Allocation';
+			} else if (
+				lowerMsg.includes('not available') ||
+				lowerMsg.includes('booked') ||
+				lowerMsg.includes('conflict')
+			) {
+				title = 'Scheduling Conflict';
+			} else if (
+				lowerMsg.includes('failed query') ||
+				lowerMsg.includes('insert into')
+			) {
+				message =
+					'Unable to save the allocation. Please try again or contact support if the issue persists.';
+				title = 'Save Failed';
+			}
+
 			notifications.show({
-				title: isConflict ? 'Allocation Conflict' : 'Error',
+				title,
 				message,
 				color: 'red',
-				autoClose: isConflict ? 8000 : 5000,
+				autoClose: 8000,
 			});
 		},
 	});

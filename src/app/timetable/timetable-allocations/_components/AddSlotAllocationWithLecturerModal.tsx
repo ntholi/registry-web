@@ -242,25 +242,36 @@ export default function AddSlotAllocationWithLecturerModal() {
 			close();
 		},
 		onError: (error: Error) => {
-			const message = error.message || 'Failed to create allocation';
-			const isConflict =
-				message.toLowerCase().includes('already exists') ||
-				message.toLowerCase().includes('conflict') ||
-				message.toLowerCase().includes('duplicate');
-			const isVenueConflict =
-				message.toLowerCase().includes('venue') ||
-				message.toLowerCase().includes('slot');
+			let message = error.message || 'Failed to create allocation';
 			let title = 'Error';
-			if (isConflict && isVenueConflict) {
+
+			const lowerMsg = message.toLowerCase();
+			if (
+				lowerMsg.includes('not available') ||
+				lowerMsg.includes('booked') ||
+				lowerMsg.includes('time slot')
+			) {
 				title = 'Venue/Time Conflict';
-			} else if (isConflict) {
-				title = 'Allocation Conflict';
+			} else if (
+				lowerMsg.includes('already') ||
+				lowerMsg.includes('duplicate') ||
+				lowerMsg.includes('exists')
+			) {
+				title = 'Duplicate Allocation';
+			} else if (
+				lowerMsg.includes('failed query') ||
+				lowerMsg.includes('insert into')
+			) {
+				message =
+					'Unable to save the allocation. The venue might already be booked for this time. Please choose a different time or venue.';
+				title = 'Save Failed';
 			}
+
 			notifications.show({
 				title,
 				message,
 				color: 'red',
-				autoClose: isConflict ? 8000 : 5000,
+				autoClose: 8000,
 			});
 		},
 	});

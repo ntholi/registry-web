@@ -47,8 +47,11 @@ class TimetableAllocationService extends BaseService<
 				allocation.groupName
 			);
 			if (duplicate) {
+				const groupInfo = allocation.groupName
+					? `Group ${allocation.groupName}`
+					: 'All Students';
 				throw new Error(
-					'An allocation with the same semester module, term, class type, and group already exists'
+					`This class (${groupInfo}) has already been allocated for this module in the current term. Each class can only have one ${allocation.classType} allocation per module.`
 				);
 			}
 			return this.repo.createWithVenueTypes(allocation, venueTypeIds);
@@ -68,8 +71,11 @@ class TimetableAllocationService extends BaseService<
 					allocation.groupName
 				);
 				if (duplicate) {
+					const groupInfo = allocation.groupName
+						? `Group ${allocation.groupName}`
+						: 'All Students';
 					throw new Error(
-						`An allocation with the same semester module, term, class type, and group "${allocation.groupName ?? 'All Students'}" already exists`
+						`The class (${groupInfo}) has already been allocated for this module in the current term. Each class can only have one ${allocation.classType} allocation per module.`
 					);
 				}
 			}
