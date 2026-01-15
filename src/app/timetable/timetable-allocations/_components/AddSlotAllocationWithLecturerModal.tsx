@@ -468,7 +468,7 @@ export default function AddSlotAllocationWithLecturerModal() {
 												const groupLabel =
 													form.values.numberOfGroups === 1
 														? ''
-														: ` - Group ${String.fromCharCode(65 + index)}`;
+														: `Group ${String.fromCharCode(65 + index)}`;
 												const duration = calculateDuration(
 													slot.startTime,
 													slot.endTime
@@ -477,12 +477,9 @@ export default function AddSlotAllocationWithLecturerModal() {
 												return (
 													<Paper key={index} withBorder p='md'>
 														<Stack gap='sm'>
-															<Title order={6}>Schedule{groupLabel}</Title>
+															<Title order={6}>{groupLabel}</Title>
 
 															<Stack gap='xs'>
-																<Text size='sm' fw={500}>
-																	Day
-																</Text>
 																<SegmentedControl
 																	fullWidth
 																	size='xs'
