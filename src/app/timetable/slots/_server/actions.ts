@@ -10,14 +10,16 @@ export async function getUserTimetableSlots(userId: string, termId: number) {
 type AllocationInsert = typeof timetableAllocations.$inferInsert;
 type DayOfWeek = (typeof timetableSlots.dayOfWeek.enumValues)[number];
 
-export async function createAllocationWithSlot(
-	allocation: AllocationInsert,
-	slot: {
-		venueId: string;
-		dayOfWeek: DayOfWeek;
-		startTime: string;
-		endTime: string;
-	}
+export async function createAllocationsWithSlots(
+	items: Array<{
+		allocation: AllocationInsert;
+		slot: {
+			venueId: string;
+			dayOfWeek: DayOfWeek;
+			startTime: string;
+			endTime: string;
+		};
+	}>
 ) {
-	return timetableSlotService.createAllocationWithSlot(allocation, slot);
+	return timetableSlotService.createAllocationsWithSlots(items);
 }

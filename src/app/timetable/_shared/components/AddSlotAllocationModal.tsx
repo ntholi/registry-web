@@ -20,7 +20,7 @@ import { useForm } from '@mantine/form';
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { createAllocationWithSlot } from '@timetable/slots';
+import { createAllocationsWithSlots } from '@timetable/slots';
 import { ModuleSearchInput } from '@timetable/timetable-allocations';
 import { getAllVenues } from '@timetable/venues';
 import { zod4Resolver as zodResolver } from 'mantine-form-zod-resolver';
@@ -130,31 +130,28 @@ export default function AddSlotAllocationModal({
 				values.numberOfStudents / groups.length
 			);
 
-			const results = [];
-			for (const groupName of groups) {
-				const result = await createAllocationWithSlot(
-					{
-						userId,
-						termId,
-						semesterModuleId: values.semesterModuleId,
-						duration: values.duration,
-						classType: 'lecture',
-						numberOfStudents: studentsPerGroup,
-						groupName,
-						allowedDays: [values.dayOfWeek],
-						startTime: `${values.startTime}:00`,
-						endTime: endTime,
-					},
-					{
-						venueId: values.venueId,
-						dayOfWeek: values.dayOfWeek,
-						startTime: `${values.startTime}:00`,
-						endTime: endTime,
-					}
-				);
-				results.push(result);
-			}
-			return results;
+			const items = groups.map((groupName) => ({
+				allocation: {
+					userId,
+					termId,
+					semesterModuleId: values.semesterModuleId,
+					duration: values.duration,
+					classType: 'lecture' as const,
+					numberOfStudents: studentsPerGroup,
+					groupName,
+					allowedDays: [values.dayOfWeek],
+					startTime: `${values.startTime}:00`,
+					endTime: endTime,
+				},
+				slot: {
+					venueId: values.venueId,
+					dayOfWeek: values.dayOfWeek,
+					startTime: `${values.startTime}:00`,
+					endTime: endTime,
+				},
+			}));
+
+			return createAllocationsWithSlots(items);
 		},
 		onSuccess: async () => {
 			await queryClient.invalidateQueries({
