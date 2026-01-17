@@ -1,19 +1,12 @@
 'use client';
 
 import type { ProgramLevel } from '@academic/_database';
-import { Badge, Group, Text } from '@mantine/core';
 import { useSearchParams } from 'next/navigation';
 import type { PropsWithChildren } from 'react';
 import { ListItem, ListLayout, NewLink } from '@/shared/ui/adease';
 import EntryRequirementsFilter from './_components/EntryRequirementsFilter';
 import type { EntryRequirementFilter, ProgramWithSchool } from './_lib/types';
 import { findProgramsWithRequirements } from './_server/actions';
-
-const levelColors: Record<ProgramLevel, string> = {
-	certificate: 'gray',
-	diploma: 'blue',
-	degree: 'green',
-};
 
 export default function Layout({ children }: PropsWithChildren) {
 	const searchParams = useSearchParams();
@@ -43,29 +36,7 @@ export default function Layout({ children }: PropsWithChildren) {
 				<NewLink key='new-link' href='/admissions/entry-requirements/new' />,
 			]}
 			renderItem={(item) => (
-				<ListItem
-					id={item.id}
-					label={
-						<Group gap='xs'>
-							<Text size='sm' fw={500}>
-								{item.code}
-							</Text>
-							<Badge size='xs' color={levelColors[item.level]}>
-								{item.level}
-							</Badge>
-						</Group>
-					}
-					description={
-						<Group gap='xs'>
-							<Text size='xs' c='dimmed'>
-								{item.name}
-							</Text>
-							<Text size='xs' c='dimmed'>
-								• {item.school?.code}
-							</Text>
-						</Group>
-					}
-				/>
+				<ListItem id={item.id} label={item.code} description={item.name} />
 			)}
 		>
 			{children}
