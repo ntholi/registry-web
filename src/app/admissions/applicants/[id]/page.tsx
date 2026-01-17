@@ -1,4 +1,4 @@
-import { Badge, Tabs, TabsList, TabsPanel, TabsTab, Text } from '@mantine/core';
+import { Stack, Tabs, TabsList, TabsPanel, TabsTab } from '@mantine/core';
 import {
 	IconCertificate,
 	IconFileText,
@@ -6,18 +6,14 @@ import {
 	IconUser,
 	IconUsers,
 } from '@tabler/icons-react';
-import { notFound } from 'next/navigation';
-import {
-	DetailsView,
-	DetailsViewBody,
-	DetailsViewHeader,
-	FieldView,
-} from '@/shared/ui/adease';
-import GuardianManager from '../_components/GuardianManager';
-import PhoneManager from '../_components/PhoneManager';
+import { notFound, redirect } from 'next/navigation';
 import { deleteApplicant, getApplicant } from '../_server/actions';
-import AcademicRecordsList from './academic-records/_components/AcademicRecordsList';
-import DocumentsList from './documents/_components/DocumentsList';
+import AcademicRecordsTab from './_components/AcademicRecordsTab';
+import ApplicantHeader from './_components/ApplicantHeader';
+import ContactTab from './_components/ContactTab';
+import DocumentsTab from './_components/DocumentsTab';
+import GuardiansTab from './_components/GuardiansTab';
+import PersonalInfoTab from './_components/PersonalInfoTab';
 
 type Props = {
 	params: Promise<{ id: string }>;
@@ -31,96 +27,74 @@ export default async function ApplicantDetails({ params }: Props) {
 		return notFound();
 	}
 
+	async function handleDelete() {
+		'use server';
+		await deleteApplicant(id);
+		redirect('/admissions/applicants');
+	}
+
 	return (
-		<DetailsView>
-			<DetailsViewHeader
-				title='Applicant'
-				queryKey={['applicants']}
-				handleDelete={async () => {
-					'use server';
-					await deleteApplicant(id);
-				}}
+		<Stack gap='lg' p={{ base: 'sm', md: 'lg' }}>
+			<ApplicantHeader
+				id={item.id}
+				fullName={item.fullName}
+				dateOfBirth={item.dateOfBirth}
+				nationality={item.nationality}
+				gender={item.gender}
+				nationalId={item.nationalId}
+				onDelete={handleDelete}
 			/>
-			<DetailsViewBody>
-				<Tabs defaultValue='personal'>
-					<TabsList>
-						<TabsTab value='personal' leftSection={<IconUser size={16} />}>
-							Personal Info
-						</TabsTab>
-						<TabsTab value='contact' leftSection={<IconPhone size={16} />}>
-							Contact
-						</TabsTab>
-						<TabsTab value='guardians' leftSection={<IconUsers size={16} />}>
-							Guardians
-						</TabsTab>
-						<TabsTab
-							value='academic'
-							leftSection={<IconCertificate size={16} />}
-						>
-							Academic Records
-						</TabsTab>
-						<TabsTab value='documents' leftSection={<IconFileText size={16} />}>
-							Documents
-						</TabsTab>
-					</TabsList>
 
-					<TabsPanel value='personal' pt='md'>
-						<FieldView label='Full Name'>{item.fullName}</FieldView>
-						<FieldView label='Date of Birth'>{item.dateOfBirth}</FieldView>
-						<FieldView label='National ID'>
-							{item.nationalId || (
-								<Text size='sm' c='dimmed'>
-									Not provided
-								</Text>
-							)}
-						</FieldView>
-						<FieldView label='Nationality'>{item.nationality}</FieldView>
-						<FieldView label='Gender'>
-							<Badge variant='light'>{item.gender}</Badge>
-						</FieldView>
-						<FieldView label='Birth Place'>
-							{item.birthPlace || (
-								<Text size='sm' c='dimmed'>
-									Not provided
-								</Text>
-							)}
-						</FieldView>
-						<FieldView label='Religion'>
-							{item.religion || (
-								<Text size='sm' c='dimmed'>
-									Not provided
-								</Text>
-							)}
-						</FieldView>
-						<FieldView label='Address'>
-							{item.address || (
-								<Text size='sm' c='dimmed'>
-									Not provided
-								</Text>
-							)}
-						</FieldView>
-					</TabsPanel>
+			<Tabs defaultValue='personal' variant='outline'>
+				<TabsList>
+					<TabsTab value='personal' leftSection={<IconUser size={16} />}>
+						Personal
+					</TabsTab>
+					<TabsTab value='contact' leftSection={<IconPhone size={16} />}>
+						Contact
+					</TabsTab>
+					<TabsTab value='guardians' leftSection={<IconUsers size={16} />}>
+						Guardians
+					</TabsTab>
+					<TabsTab value='academic' leftSection={<IconCertificate size={16} />}>
+						Academic
+					</TabsTab>
+					<TabsTab value='documents' leftSection={<IconFileText size={16} />}>
+						Documents
+					</TabsTab>
+				</TabsList>
 
-					<TabsPanel value='contact' pt='md'>
-						<PhoneManager applicantId={item.id} phones={item.phones} />
-					</TabsPanel>
+				<TabsPanel value='personal' pt='lg'>
+					<PersonalInfoTab
+						fullName={item.fullName}
+						dateOfBirth={item.dateOfBirth}
+						nationalId={item.nationalId}
+						nationality={item.nationality}
+						birthPlace={item.birthPlace}
+						religion={item.religion}
+						address={item.address}
+					/>
+				</TabsPanel>
 
-					<TabsPanel value='guardians' pt='md'>
-						<GuardianManager applicantId={item.id} guardians={item.guardians} />
-					</TabsPanel>
+				<TabsPanel value='contact' pt='lg'>
+					<ContactTab applicantId={item.id} phones={item.phones} />
+				</TabsPanel>
 
-					<TabsPanel value='academic' pt='md'>
-						<AcademicRecordsList
-							applicantId={item.id}
-							records={item.academicRecords}
-						/>
-					</TabsPanel>
+				<TabsPanel value='guardians' pt='lg'>
+					<GuardiansTab applicantId={item.id} guardians={item.guardians} />
+				</TabsPanel>
 
-					<TabsPanel value='documents' pt='md'>
-						<DocumentsList applicantId={item.id} documents={item.documents} />
-					</TabsPanel>
-				</Tabs>
-			</DetailsViewBody>
-		</DetailsView>
+				<TabsPanel value='academic' pt='lg'>
+					<AcademicRecordsTab
+						applicantId={item.id}
+						records={item.academicRecords}
+					/>
+				</TabsPanel>
+
+				<TabsPanel value='documents' pt='lg'>
+					<DocumentsTab applicantId={item.id} documents={item.documents} />
+				</TabsPanel>
+			</Tabs>
+		</Stack>
 	);
 }
