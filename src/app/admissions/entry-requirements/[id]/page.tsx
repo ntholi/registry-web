@@ -1,13 +1,4 @@
-import {
-	Badge,
-	Box,
-	Group,
-	Paper,
-	Text,
-	ThemeIcon,
-	Title,
-} from '@mantine/core';
-import { IconSchool } from '@tabler/icons-react';
+import { Badge, Box, Group, Text, Title } from '@mantine/core';
 import { notFound } from 'next/navigation';
 import {
 	DetailsView,
@@ -20,12 +11,6 @@ import { findEntryRequirementsByProgram } from '../_server/actions';
 
 type Props = {
 	params: Promise<{ id: string }>;
-};
-
-const levelColors: Record<string, string> = {
-	certificate: 'gray',
-	diploma: 'blue',
-	degree: 'green',
 };
 
 export default async function ProgramEntryRequirements({ params }: Props) {
@@ -57,38 +42,29 @@ export default async function ProgramEntryRequirements({ params }: Props) {
 				queryKey={['entry-requirements']}
 			/>
 			<DetailsViewBody>
-				<Paper withBorder p='lg' radius='md'>
-					<Group gap='md' mb='lg'>
-						<ThemeIcon size='xl' radius='md' variant='light'>
-							<IconSchool size='1.5rem' />
-						</ThemeIcon>
-						<Box>
-							<Group gap='xs'>
-								<Title order={3}>{program.code}</Title>
-								<Badge color={levelColors[program.level] || 'gray'} size='lg'>
-									{program.level}
-								</Badge>
-							</Group>
-							<Text c='dimmed' size='sm'>
-								{program.name}
+				<Group gap='md' mb='lg' align='flex-start'>
+					<Box>
+						<Group gap='xs'>
+							<Title order={4}>{program.code}</Title>
+							<Badge variant='default'>{program.level}</Badge>
+						</Group>
+						<Text>{program.name}</Text>
+						{program.school && (
+							<Text size='xs' c='dimmed'>
+								{program.school.name}
 							</Text>
-							{program.school && (
-								<Text size='xs' c='dimmed'>
-									{program.school.name}
-								</Text>
-							)}
-						</Box>
-					</Group>
+						)}
+					</Box>
+				</Group>
 
-					<Title order={5} mb='md'>
-						Entry Pathways ({sortedRequirements.length} options)
-					</Title>
+				<Title order={5} mb='md'>
+					Entry Pathways ({sortedRequirements.length} options)
+				</Title>
 
-					<RequirementsAccordion
-						requirements={sortedRequirements}
-						subjects={subjects}
-					/>
-				</Paper>
+				<RequirementsAccordion
+					requirements={sortedRequirements}
+					subjects={subjects}
+				/>
 			</DetailsViewBody>
 		</DetailsView>
 	);

@@ -57,9 +57,6 @@ export default function RequirementsAccordion({
 								<Box>
 									<Group gap='xs'>
 										<Text fw={500}>{certType?.name || 'Unknown'}</Text>
-										<Badge size='sm' variant='outline'>
-											LQF Level {certType?.lqfLevel}
-										</Badge>
 									</Group>
 									<Text size='xs' c='dimmed'>
 										{isSubjectBased
