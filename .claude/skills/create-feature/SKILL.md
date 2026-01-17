@@ -7,14 +7,25 @@ description: Scaffolds a new feature module with database schema, repository, se
 
 Automates scaffolding a new feature within the Registry Web modular monolith architecture. Reference implementation: `src/app/academic/semester-modules/`.
 
-## Non-Negotiable Repository Rules
+## Non-Negotiable Rules
+
+### Schema Import Rules (CRITICAL)
+
+Schema files (`_schema/*.ts`) must NEVER import from `@/core/database`. Instead, import from specific module paths:
+
+- ✅ `import { users } from '@auth/users/_schema/users'`
+- ✅ `import { schools } from '@academic/schools/_schema/schools'`
+- ✅ `import { terms } from '@registry/terms/_schema/terms'`
+- ❌ `import { users, schools } from '@/core/database'`
+
+This rule exists because `@/core/database` is marked `'server-only'` and will cause build failures if imported in client components that use the module's `_database` barrel export.
 
 ### Ownership rule (schema/module)
 
 When creating or modifying server functions, place them under the *module/feature that owns the schema/table being queried or mutated*:
 
-- If the data comes from Academic schemas (e.g. `src/app/academic/_database/schema/schools.ts`), the Server Actions must live under the Academic feature that represents that domain (e.g. `src/app/academic/schools/_server/`), implemented as actions → service → repository.
-- If another module needs that data, it should import and call the Academic actions via aliases (don’t duplicate the same server function in the consuming module).
+- If the data comes from Academic schemas (e.g. `src/app/academic/schools/_schema/schools.ts`), the Server Actions must live under the Academic feature that represents that domain (e.g. `src/app/academic/schools/_server/`), implemented as actions → service → repository.
+- If another module needs that data, it should import and call the Academic actions via aliases (don't duplicate the same server function in the consuming module).
 
 Concrete example:
 - Implement `getSchools()` in `src/app/academic/schools/_server/actions.ts` (calling through `service.ts` → `repository.ts`), even if the UI that uses it lives in `registry/` or `finance/`.
@@ -55,6 +66,9 @@ src/app/{{module}}/{{feature}}/
 │   └── Form.tsx
 ├── _lib/
 │   └── types.ts
+├── _schema/
+│   ├── {{table_name}}.ts
+│   └── relations.ts
 ├── new/
 │   └── page.tsx
 ├── [id]/
@@ -69,7 +83,7 @@ src/app/{{module}}/{{feature}}/
 ## Implementation Steps
 
 ### Step 1: Database Schema
-**Path:** `src/app/{{module}}/_database/schema/{{table_name}}.ts`
+**Path:** `src/app/{{module}}/{{feature}}/_schema/{{table_name}}.ts`
 
 ```typescript
 import { boolean, integer, pgTable, serial, text, timestamp } from 'drizzle-orm/pg-core';
@@ -83,7 +97,20 @@ export const {{entities}} = pgTable('{{table_name}}', {
 });
 ```
 
-### Step 2: Repository
+### Step 2: Relations (if needed)
+**Path:** `src/app/{{module}}/{{feature}}/_schema/relations.ts`
+
+```typescript
+import { relations } from 'drizzle-orm';
+import { {{entities}} } from './{{table_name}}';
+
+export const {{entities}}Relations = relations({{entities}}, ({ many, one }) => ({
+	// Add relations here using specific module path imports
+	// Example: import { users } from '@auth/users/_schema/users';
+}));
+```
+
+### Step 3: Repository
 **Path:** `src/app/{{module}}/{{feature}}/_server/repository.ts`
 
 ```typescript
@@ -97,7 +124,7 @@ export default class {{Entity}}Repository extends BaseRepository<typeof {{entiti
 }
 ```
 
-### Step 3: Service
+### Step 4: Service
 **Path:** `src/app/{{module}}/{{feature}}/_server/service.ts`
 
 ```typescript
@@ -121,7 +148,7 @@ class {{Entity}}Service extends BaseService<typeof {{entities}}, 'id'> {
 export const {{entities}}Service = serviceWrapper({{Entity}}Service, '{{Entity}}Service');
 ```
 
-### Step 4: Server Actions
+### Step 5: Server Actions
 **Path:** `src/app/{{module}}/{{feature}}/_server/actions.ts`
 
 ```typescript
@@ -157,7 +184,7 @@ export async function delete{{Entity}}(id: number) {
 }
 ```
 
-### Step 5: Types
+### Step 6: Types
 **Path:** `src/app/{{module}}/{{feature}}/_lib/types.ts`
 
 ```typescript
@@ -167,7 +194,7 @@ export type {{Entity}} = typeof {{entities}}.$inferSelect;
 export type {{Entity}}Insert = typeof {{entities}}.$inferInsert;
 ```
 
-### Step 6: Index (Re-exports)
+### Step 7: Index (Re-exports)
 **Path:** `src/app/{{module}}/{{feature}}/index.ts`
 
 ```typescript
@@ -176,7 +203,7 @@ export * from './_lib/types';
 export * from './_server/actions';
 ```
 
-### Step 7: Form Component
+### Step 8: Form Component
 **Path:** `src/app/{{module}}/{{feature}}/_components/Form.tsx`
 
 ```typescript
@@ -219,7 +246,7 @@ export default function {{Entity}}Form({ onSubmit, defaultValues, title }: Props
 }
 ```
 
-### Step 8: Layout
+### Step 9: Layout
 **Path:** `src/app/{{module}}/{{feature}}/layout.tsx`
 
 ```typescript
@@ -246,7 +273,7 @@ export default function Layout({ children }: PropsWithChildren) {
 }
 ```
 
-### Step 9: Index Page
+### Step 10: Index Page
 **Path:** `src/app/{{module}}/{{feature}}/page.tsx`
 
 ```typescript
@@ -257,7 +284,7 @@ export default function Page() {
 }
 ```
 
-### Step 10: New Page
+### Step 11: New Page
 **Path:** `src/app/{{module}}/{{feature}}/new/page.tsx`
 
 ```typescript
@@ -274,7 +301,7 @@ export default async function NewPage() {
 }
 ```
 
-### Step 11: Details Page
+### Step 12: Details Page
 **Path:** `src/app/{{module}}/{{feature}}/[id]/page.tsx`
 
 ```typescript
@@ -318,7 +345,7 @@ export default async function {{Entity}}Details({ params }: Props) {
 }
 ```
 
-### Step 12: Edit Page
+### Step 13: Edit Page
 **Path:** `src/app/{{module}}/{{feature}}/[id]/edit/page.tsx`
 
 ```typescript
@@ -359,20 +386,19 @@ After scaffolding, remind user to:
 
 1. **Register schema export** - Add to `src/app/{{module}}/_database/index.ts`:
    ```typescript
-   export * from './schema/{{table_name}}';
+   export * from '../{{feature}}/_schema/{{table_name}}';
+   export * from '../{{feature}}/_schema/relations';
    ```
 
-2. **Add relations** (if needed) - Update `src/app/{{module}}/_database/relations.ts`
-
-3. **Run database migrations**:
+2. **Run database migrations**:
    ```bash
    pnpm db:generate
    pnpm db:migrate
    ```
 
-4. **Add navigation** (optional) - Add `NavItem` to `src/app/{{module}}/{{module}}.config.ts`
+3. **Add navigation** (optional) - Add `NavItem` to `src/app/{{module}}/{{module}}.config.ts`
 
-5. **Validate**:
+4. **Validate**:
    ```bash
    pnpm tsc --noEmit & pnpm lint:fix
    ```
@@ -380,6 +406,8 @@ After scaffolding, remind user to:
 ## Reference Implementation
 
 See `src/app/academic/semester-modules/` for a complete working example:
+- [_schema/semesterModules.ts](src/app/academic/semester-modules/_schema/semesterModules.ts) - Schema definition
+- [_schema/relations.ts](src/app/academic/semester-modules/_schema/relations.ts) - Relations using specific module imports
 - [repository.ts](src/app/academic/semester-modules/_server/repository.ts) - Extended repository with custom queries
 - [service.ts](src/app/academic/semester-modules/_server/service.ts) - Service with role-based auth
 - [actions.ts](src/app/academic/semester-modules/_server/actions.ts) - Server actions

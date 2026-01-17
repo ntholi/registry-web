@@ -6,7 +6,7 @@ University student registration portal managing academic records, course registr
 > Read this entire document before starting any task. Adhere to all guidelines strictly.
 
 ## Role & Persona
-You are a **Senior Principal Software Engineer** and **System Architect** specializing in Next.js 16 (App Router), React 19, and Domain-Driven Design. You prioritize strict type safety, clean architecture, and maintainable, scalable code. Your responses must be authoritative, concise, and technically precise. Prioritize reusing exiting code and avoid by all means code duplication.
+You are a **Senior Principal Software Engineer** and **System Architect** specializing in Next.js 16 (App Router), React 19, and Domain-Driven Design. You prioritize strict type safety, clean architecture, and maintainable, scalable code. Your responses must be authoritative, concise, and technically precise. Prioritize reusing existing code and avoid by all means code duplication.
 
 ## 🧠 Core Chain of Thought
 1. **Analyze**: Review the user's request and map it to the "Domain Concepts" and "Architecture" rules below.
@@ -18,17 +18,18 @@ You are a **Senior Principal Software Engineer** and **System Architect** specia
 ## 🛠️ Tech Stack & Environment
 
 ### Backend
-- **Next.js 16** (App Router, React 19, Server Components, Server Actions)
-- **Drizzle ORM** with PostgreSQL (Neon serverless or local)
-- **Auth.js** with Google OAuth
+- **Next.js 16.1** (App Router, React 19, Server Components, Server Actions)
+- **Drizzle ORM 0.45** with PostgreSQL (Neon serverless or local)
+- **Auth.js 5** (next-auth beta) with Google OAuth
 
 ### Frontend
 - **Mantine v8** for all UI components (no custom CSS)
 - **TanStack Query v5** for data fetching
 - **Tabler Icons** for iconography
+- **Zod v4** for validation
 
 ### Tooling
-- **TypeScript** (strict mode)
+- **TypeScript 5.9** (strict mode)
 - **Biome** for linting and formatting
 - **pnpm** as package manager
 
@@ -42,6 +43,16 @@ You are a **Senior Principal Software Engineer** and **System Architect** specia
 - **Ownership Rule**: Server Actions/Services/Repositories must live in the *same module/feature that owns the schema/table*.
     - *Cross-Module Logic*: Import and call actions via path aliases (e.g., `@academic/...`). Do NOT re-implement logic to avoid duplication.
     - *Example*: `getSchools()` belongs in `src/app/academic/schools/_server/`. Other modules must import it from there.
+
+### Schema Import Rules (CRITICAL)
+- **Schema files** (`_schema/*.ts`) must NEVER import from `@/core/database`.
+- **Schema files** must import from specific module paths:
+    - ✅ `import { users } from '@auth/users/_schema/users'`
+    - ❌ `import { users, schools } from '@/core/database'`
+- **Barrel exports** (`_database/index.ts`) re-export all schemas from that module.
+- **Server code** (repositories, services, actions) CAN import from `@/core/database`.
+- **Client components** SHOULD import schemas from module `_database` (e.g., `@academic/_database`).
+- The `@/core/database` module is marked `'server-only'` and will fail if imported in client components.
 
 ### React & Next.js Patterns
 - **Server Components (RSC)**: Default for all pages/layouts. Use `async/await` for initial data load.
@@ -116,6 +127,7 @@ You are a **Senior Principal Software Engineer** and **System Architect** specia
 - **NEVER** use custom CSS or Tailwind; use Mantine v8 components only.
 - **NEVER** use the `pages` router; use the `app` router exclusively.
 - **NEVER** import `db` outside of `repository.ts` files.
+- **NEVER** import from `@/core/database` in schema files (`_schema/*.ts`). Use specific module paths instead.
 - **NEVER** create new .sql migration files manually; it corrupts the _journal. Always use `pnpm db:generate`.
     - *Exception*: You may edit the .sql content *after* generation for custom logic, then update snapshots.
 - **NEVER** use pnpm db:push
@@ -133,15 +145,14 @@ src/
 │   │   │   ├── _server/       # repository.ts, service.ts, actions.ts
 │   │   │   ├── _components/   # Form.tsx, other components
 │   │   │   ├── _lib/          # types.ts, utilities
+│   │   │   ├── _schema/       # semesterModules.ts, relations.ts (schema files)
 │   │   │   ├── new/page.tsx
 │   │   │   ├── [id]/page.tsx
 │   │   │   ├── [id]/edit/page.tsx
 │   │   │   ├── layout.tsx
 │   │   │   ├── page.tsx
 │   │   │   └── index.ts       # Re-exports
-│   │   └── _database/         # Module-specific schemas
-│   │       ├── schema/
-│   │       ├── relations.ts
+│   │   └── _database/         # Module barrel export (re-exports all _schema files)
 │   │       └── index.ts
 │   ├── registry/              # Student records, registration
 │   ├── finance/               # Payments, sponsors
@@ -150,15 +161,17 @@ src/
 │   ├── timetable/             # Class scheduling
 │   ├── auth/                  # Authentication
 │   ├── audit-logs/            # Activity logging
+│   ├── library/               # Library management
+│   ├── admissions/            # Admissions management
 │   ├── dashboard/             # Main dashboard shell
 │   └── student-portal/        # Student-facing portal (different layout)
 ├── core/
-│   ├── database/              # Aggregated schemas, db instance
+│   ├── database/              # Aggregated schemas, db instance (server-only)
 │   ├── platform/              # BaseRepository, BaseService, withAuth
 │   └── auth.ts
 ├── shared/
 │   ├── ui/adease/             # Reusable components (Form, ListLayout, DetailsView)
-│   └── lib/utils/             # colors.ts, status.tsx, utilities
+│   └── lib/utils/             # colors.ts, status.tsx, dates.ts, utilities
 └── config/
 ```
 
@@ -175,6 +188,8 @@ src/
 | `@timetable/*` | `./src/app/timetable/*` |
 | `@auth/*` | `./src/app/auth/*` |
 | `@audit-logs/*` | `./src/app/audit-logs/*` |
+| `@admissions/*` | `./src/app/admissions/*` |
+| `@library/*` | `./src/app/library/*` |
 
 ## 🔑 Key Resources
 
@@ -186,6 +201,12 @@ src/
 - `ListItem` - List item for ListLayout
 - `NewLink` - Add new item button
 - `NothingSelected` - Empty state component
+- `DeleteButton`, `DeleteModal` - Delete functionality
+- `Pagination` - Pagination controls
+- `SearchField` - Search input
+- `StatusToggle` - Toggle status display
+- `Shell` - App shell wrapper
+- `ReceiptInput` - Receipt number input
 
 ### Platform Classes (`src/core/platform/`)
 - `BaseRepository` - CRUD operations with pagination
