@@ -15,11 +15,7 @@ import { DateInput } from '@mantine/dates';
 import { useForm } from '@mantine/form';
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
-import {
-	gender,
-	maritalStatusEnum,
-	studentStatus,
-} from '@registry/_database/schema/enums';
+import { gender, maritalStatusEnum, studentStatus } from '@registry/_database';
 import { IconAlertCircle, IconEdit } from '@tabler/icons-react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect, useState } from 'react';

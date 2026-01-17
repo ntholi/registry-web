@@ -1,16 +1,17 @@
-import type { Grade, ModuleType } from '@academic/_database';
-import type { programLevelEnum } from '@academic/_database/schema/enums';
+import type { ModuleType, programLevelEnum } from '@academic/_database';
 import type { taskPriority, taskStatus } from '@admin/_database';
 import type {
 	QuestionType as LmsQuestionType,
 	QuestionState,
 } from '@lms/quizzes';
 import type {
+	Grade,
+	gender,
 	SemesterStatus,
 	StudentModuleStatus,
 	StudentProgramStatus,
+	studentStatus,
 } from '@registry/_database';
-import type { gender, studentStatus } from '@registry/_database/schema/enums';
 import type { classTypeEnum } from '@timetable/_database';
 
 type Gender = (typeof gender.enumValues)[number];

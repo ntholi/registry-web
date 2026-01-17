@@ -1,8 +1,5 @@
 'use client';
-import {
-	type ProgramLevel,
-	programLevelEnum,
-} from '@academic/_database/schema/enums';
+import { type ProgramLevel, programLevelEnum } from '@academic/_database';
 import {
 	getActiveSchools,
 	getProgramsBySchoolIds,
@@ -31,7 +28,7 @@ import {
 	programStatus,
 	semesterStatus,
 	studentStatus,
-} from '@registry/_database/schema/enums';
+} from '@registry/_database';
 import { IconAdjustments, IconFilter } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import {

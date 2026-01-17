@@ -1,5 +1,5 @@
 'use client';
-import type { ProgramLevel } from '@academic/_database/schema/enums';
+import type { ProgramLevel } from '@academic/_database';
 import {
 	Alert,
 	Box,

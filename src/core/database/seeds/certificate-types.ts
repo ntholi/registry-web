@@ -1,5 +1,4 @@
-import { certificateTypes } from '@/app/admissions/_database';
-import type { GradingType } from '@/app/admissions/_database/schema/enums';
+import { certificateTypes, type GradingType } from '@/app/admissions/_database';
 import { db } from '../index';
 
 export async function seedCertificateTypes() {

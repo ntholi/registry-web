@@ -1,5 +1,4 @@
-import type { Grade } from '@academic/_database';
-import type { SemesterStatus } from '@registry/_database';
+import type { Grade, SemesterStatus } from '@registry/_database';
 import {
 	and,
 	count,

@@ -1,7 +1,6 @@
 'use client';
 
-import { entryRequirements } from '@admissions/_database';
-import type { GradingType } from '@admissions/_database/schema/enums';
+import { entryRequirements, type GradingType } from '@admissions/_database';
 import {
 	ActionIcon,
 	Group,

@@ -1,7 +1,5 @@
 'use client';
 
-import type { Grade } from '@academic/_database';
-import { grade as gradeEnum } from '@academic/_database/schema/enums';
 import {
 	getActiveSchools,
 	getProgramsBySchoolIds,
@@ -22,6 +20,7 @@ import {
 	Text,
 } from '@mantine/core';
 import { useDebouncedValue, useDisclosure } from '@mantine/hooks';
+import { type Grade, grade as gradeEnum } from '@registry/_database';
 import { IconFilter, IconSearch, IconX } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import {

@@ -1,6 +1,5 @@
 'use client';
 
-import { type Grade, grade } from '@academic/_database/schema/enums';
 import {
 	ActionIcon,
 	type ActionIconProps,
@@ -20,9 +19,11 @@ import { useForm } from '@mantine/form';
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import {
+	type Grade,
+	grade,
 	type StudentModuleStatus,
 	studentModuleStatus,
-} from '@registry/_database/schema/enums';
+} from '@registry/_database';
 import { IconAlertCircle, IconEdit } from '@tabler/icons-react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect, useState } from 'react';

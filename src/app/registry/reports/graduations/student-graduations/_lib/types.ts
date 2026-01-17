@@ -1,4 +1,4 @@
-import type { ProgramLevel } from '@academic/_database/schema/enums';
+import type { ProgramLevel } from '@academic/_database';
 
 export interface GraduationReportFilter {
 	graduationDateId?: number;

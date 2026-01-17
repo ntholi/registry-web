@@ -1,5 +1,5 @@
-import type { ProgramLevel } from '@academic/_database/schema/enums';
-import type { SemesterStatus } from '@registry/_database/schema/enums';
+import type { ProgramLevel } from '@academic/_database';
+import type { SemesterStatus } from '@registry/_database';
 import { and, desc, eq, ilike, inArray, or, type SQL, sql } from 'drizzle-orm';
 import {
 	db,

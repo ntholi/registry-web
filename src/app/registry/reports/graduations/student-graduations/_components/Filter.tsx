@@ -1,8 +1,5 @@
 'use client';
-import {
-	type ProgramLevel,
-	programLevelEnum,
-} from '@academic/_database/schema/enums';
+import { type ProgramLevel, programLevelEnum } from '@academic/_database';
 import {
 	getActiveSchools,
 	getProgramsBySchoolIds,
