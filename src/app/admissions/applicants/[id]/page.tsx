@@ -1,4 +1,4 @@
-import { Badge, Tabs, Text } from '@mantine/core';
+import { Badge, Tabs, TabsList, TabsPanel, TabsTab, Text } from '@mantine/core';
 import {
 	IconCertificate,
 	IconFileText,
@@ -43,31 +43,28 @@ export default async function ApplicantDetails({ params }: Props) {
 			/>
 			<DetailsViewBody>
 				<Tabs defaultValue='personal'>
-					<Tabs.List>
-						<Tabs.Tab value='personal' leftSection={<IconUser size={16} />}>
+					<TabsList>
+						<TabsTab value='personal' leftSection={<IconUser size={16} />}>
 							Personal Info
-						</Tabs.Tab>
-						<Tabs.Tab value='contact' leftSection={<IconPhone size={16} />}>
+						</TabsTab>
+						<TabsTab value='contact' leftSection={<IconPhone size={16} />}>
 							Contact
-						</Tabs.Tab>
-						<Tabs.Tab value='guardians' leftSection={<IconUsers size={16} />}>
+						</TabsTab>
+						<TabsTab value='guardians' leftSection={<IconUsers size={16} />}>
 							Guardians
-						</Tabs.Tab>
-						<Tabs.Tab
+						</TabsTab>
+						<TabsTab
 							value='academic'
 							leftSection={<IconCertificate size={16} />}
 						>
 							Academic Records
-						</Tabs.Tab>
-						<Tabs.Tab
-							value='documents'
-							leftSection={<IconFileText size={16} />}
-						>
+						</TabsTab>
+						<TabsTab value='documents' leftSection={<IconFileText size={16} />}>
 							Documents
-						</Tabs.Tab>
-					</Tabs.List>
+						</TabsTab>
+					</TabsList>
 
-					<Tabs.Panel value='personal' pt='md'>
+					<TabsPanel value='personal' pt='md'>
 						<FieldView label='Full Name'>{item.fullName}</FieldView>
 						<FieldView label='Date of Birth'>{item.dateOfBirth}</FieldView>
 						<FieldView label='National ID'>
@@ -102,26 +99,26 @@ export default async function ApplicantDetails({ params }: Props) {
 								</Text>
 							)}
 						</FieldView>
-					</Tabs.Panel>
+					</TabsPanel>
 
-					<Tabs.Panel value='contact' pt='md'>
+					<TabsPanel value='contact' pt='md'>
 						<PhoneManager applicantId={item.id} phones={item.phones} />
-					</Tabs.Panel>
+					</TabsPanel>
 
-					<Tabs.Panel value='guardians' pt='md'>
+					<TabsPanel value='guardians' pt='md'>
 						<GuardianManager applicantId={item.id} guardians={item.guardians} />
-					</Tabs.Panel>
+					</TabsPanel>
 
-					<Tabs.Panel value='academic' pt='md'>
+					<TabsPanel value='academic' pt='md'>
 						<AcademicRecordsList
 							applicantId={item.id}
 							records={item.academicRecords}
 						/>
-					</Tabs.Panel>
+					</TabsPanel>
 
-					<Tabs.Panel value='documents' pt='md'>
+					<TabsPanel value='documents' pt='md'>
 						<DocumentsList applicantId={item.id} documents={item.documents} />
-					</Tabs.Panel>
+					</TabsPanel>
 				</Tabs>
 			</DetailsViewBody>
 		</DetailsView>
