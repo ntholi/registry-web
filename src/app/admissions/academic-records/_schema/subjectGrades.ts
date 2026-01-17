@@ -1,3 +1,4 @@
+import { subjects } from '@admissions/subjects/_schema/subjects';
 import {
 	index,
 	integer,
@@ -7,7 +8,6 @@ import {
 	text,
 	unique,
 } from 'drizzle-orm/pg-core';
-import { subjects } from '@/core/database';
 import { academicRecords } from './academicRecords';
 
 export const standardGradeEnum = pgEnum('standard_grade', [

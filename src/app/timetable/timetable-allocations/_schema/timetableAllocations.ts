@@ -1,3 +1,6 @@
+import { semesterModules } from '@academic/semester-modules/_schema/semesterModules';
+import { users } from '@auth/users/_schema/users';
+import { terms } from '@registry/terms/_schema/terms';
 import {
 	index,
 	integer,
@@ -8,7 +11,6 @@ import {
 	time,
 	timestamp,
 } from 'drizzle-orm/pg-core';
-import { semesterModules, terms, users } from '@/core/database';
 
 export const dayOfWeekEnum = pgEnum('day_of_week', [
 	'monday',

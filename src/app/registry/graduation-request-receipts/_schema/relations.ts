@@ -1,5 +1,6 @@
+import { paymentReceipts } from '@finance/payment-receipts/_schema/paymentReceipts';
+import { graduationRequests } from '@registry/graduation-requests/_schema/graduationRequests';
 import { relations } from 'drizzle-orm';
-import { graduationRequests, paymentReceipts } from '@/core/database';
 import { graduationRequestReceipts } from './graduationRequestReceipts';
 
 export const graduationRequestReceiptsRelations = relations(

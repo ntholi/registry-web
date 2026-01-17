@@ -1,3 +1,4 @@
+import { users } from '@auth/users/_schema/users';
 import {
 	boolean,
 	integer,
@@ -7,7 +8,6 @@ import {
 	text,
 	timestamp,
 } from 'drizzle-orm/pg-core';
-import { users } from '@/core/database';
 
 export const notificationTargetType = pgEnum('notification_target_type', [
 	'all',

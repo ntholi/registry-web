@@ -1,3 +1,4 @@
+import { semesterModules } from '@academic/semester-modules/_schema/semesterModules';
 import {
 	index,
 	integer,
@@ -8,7 +9,6 @@ import {
 	text,
 	timestamp,
 } from 'drizzle-orm/pg-core';
-import { semesterModules } from '@/core/database';
 import { studentSemesters } from './studentSemesters';
 import { studentModuleStatus } from './types';
 

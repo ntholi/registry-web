@@ -1,3 +1,4 @@
+import { studentModules } from '@registry/students/_schema/studentModules';
 import {
 	index,
 	integer,
@@ -6,7 +7,6 @@ import {
 	serial,
 	timestamp,
 } from 'drizzle-orm/pg-core';
-import { studentModules } from '@/core/database';
 import { assessments } from './assessments';
 
 export const assessmentMarks = pgTable(

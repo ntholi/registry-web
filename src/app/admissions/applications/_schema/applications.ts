@@ -1,3 +1,7 @@
+import { programs } from '@academic/schools/_schema/programs';
+import { applicants } from '@admissions/applicants/_schema/applicants';
+import { intakePeriods } from '@admissions/intake-periods/_schema/intakePeriods';
+import { users } from '@auth/users/_schema/users';
 import {
 	index,
 	integer,
@@ -8,7 +12,6 @@ import {
 	timestamp,
 	unique,
 } from 'drizzle-orm/pg-core';
-import { applicants, intakePeriods, programs, users } from '@/core/database';
 
 export const applicationStatusEnum = pgEnum('application_status', [
 	'draft',

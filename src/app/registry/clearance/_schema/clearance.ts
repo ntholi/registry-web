@@ -1,3 +1,4 @@
+import { dashboardUsers, users } from '@auth/users/_schema/users';
 import {
 	boolean,
 	index,
@@ -7,7 +8,6 @@ import {
 	text,
 	timestamp,
 } from 'drizzle-orm/pg-core';
-import { dashboardUsers, users } from '@/core/database';
 
 export const clearanceRequestStatus = pgEnum('clearance_request_status', [
 	'pending',

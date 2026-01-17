@@ -1,3 +1,4 @@
+import { schools } from '@academic/schools/_schema/schools';
 import {
 	index,
 	integer,
@@ -7,7 +8,7 @@ import {
 	timestamp,
 	unique,
 } from 'drizzle-orm/pg-core';
-import { schools, users } from '@/core/database';
+import { users } from '../../users/_schema/users';
 
 export const userSchools = pgTable(
 	'user_schools',

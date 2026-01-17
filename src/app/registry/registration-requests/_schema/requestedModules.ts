@@ -1,3 +1,4 @@
+import { semesterModules } from '@academic/semester-modules/_schema/semesterModules';
 import {
 	index,
 	integer,
@@ -6,7 +7,7 @@ import {
 	serial,
 	timestamp,
 } from 'drizzle-orm/pg-core';
-import { semesterModules, studentModuleStatus } from '@/core/database';
+import { studentModuleStatus } from '../../students/_schema/types';
 import { registrationRequests } from './registrationRequests';
 
 export const requestedModuleStatus = pgEnum('requested_module_status', [

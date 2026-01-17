@@ -1,3 +1,5 @@
+import { users } from '@auth/users/_schema/users';
+import { registrationRequestStatus } from '@registry/registration-requests/_schema/registrationRequests';
 import {
 	index,
 	integer,
@@ -7,7 +9,6 @@ import {
 	text,
 	timestamp,
 } from 'drizzle-orm/pg-core';
-import { registrationRequestStatus, users } from '@/core/database';
 import { clearance } from './clearance';
 
 export const clearanceAudit = pgTable(

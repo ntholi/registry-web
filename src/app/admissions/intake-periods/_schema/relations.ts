@@ -1,5 +1,5 @@
+import { applications } from '@admissions/applications/_schema/applications';
 import { relations } from 'drizzle-orm';
-import { applications } from '@/core/database';
 import { intakePeriods } from './intakePeriods';
 
 export const intakePeriodsRelations = relations(intakePeriods, ({ many }) => ({

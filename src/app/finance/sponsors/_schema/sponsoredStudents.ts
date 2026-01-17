@@ -1,3 +1,4 @@
+import { students } from '@registry/students/_schema/students';
 import {
 	bigint,
 	boolean,
@@ -9,7 +10,6 @@ import {
 	timestamp,
 	unique,
 } from 'drizzle-orm/pg-core';
-import { students } from '@/core/database';
 import { sponsors } from './sponsors';
 
 export const sponsoredStudents = pgTable(

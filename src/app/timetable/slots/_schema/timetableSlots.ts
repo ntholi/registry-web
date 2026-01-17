@@ -1,3 +1,4 @@
+import { terms } from '@registry/terms/_schema/terms';
 import {
 	index,
 	integer,
@@ -8,7 +9,8 @@ import {
 	timestamp,
 	unique,
 } from 'drizzle-orm/pg-core';
-import { dayOfWeekEnum, terms, venues } from '@/core/database';
+import { dayOfWeekEnum } from '../../timetable-allocations/_schema/timetableAllocations';
+import { venues } from '../../venues/_schema/venues';
 
 export const timetableSlots = pgTable(
 	'timetable_slots',

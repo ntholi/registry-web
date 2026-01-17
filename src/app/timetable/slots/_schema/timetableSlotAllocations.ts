@@ -5,7 +5,7 @@ import {
 	primaryKey,
 	timestamp,
 } from 'drizzle-orm/pg-core';
-import { timetableAllocations } from '@/core/database';
+import { timetableAllocations } from '../../timetable-allocations/_schema/timetableAllocations';
 import { timetableSlots } from './timetableSlots';
 
 export const timetableSlotAllocations = pgTable(

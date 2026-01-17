@@ -1,3 +1,4 @@
+import { structureSemesters } from '@academic/structures/_schema/structureSemesters';
 import {
 	index,
 	integer,
@@ -6,7 +7,7 @@ import {
 	text,
 	timestamp,
 } from 'drizzle-orm/pg-core';
-import { registrationRequests, structureSemesters } from '@/core/database';
+import { registrationRequests } from '../../registration-requests/_schema/registrationRequests';
 import { studentPrograms } from './studentPrograms';
 import { semesterStatus } from './types';
 

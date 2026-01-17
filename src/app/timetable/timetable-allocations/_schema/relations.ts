@@ -1,11 +1,9 @@
+import { semesterModules } from '@academic/semester-modules/_schema/semesterModules';
+import { users } from '@auth/users/_schema/users';
+import { terms } from '@registry/terms/_schema/terms';
+import { timetableSlotAllocations } from '@timetable/slots/_schema/timetableSlotAllocations';
+import { venueTypes } from '@timetable/venues/_schema/venueTypes';
 import { relations } from 'drizzle-orm';
-import {
-	semesterModules,
-	terms,
-	timetableSlotAllocations,
-	users,
-	venueTypes,
-} from '@/core/database';
 import { timetableAllocations } from './timetableAllocations';
 import { timetableAllocationVenueTypes } from './timetableAllocationVenueTypes';
 

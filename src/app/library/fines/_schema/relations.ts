@@ -1,5 +1,7 @@
+import { paymentReceipts } from '@finance/payment-receipts/_schema/paymentReceipts';
+import { loans } from '@library/loans/_schema/loans';
+import { students } from '@registry/students/_schema/students';
 import { relations } from 'drizzle-orm';
-import { loans, paymentReceipts, students } from '@/core/database';
 import { fines } from './fines';
 
 export const finesRelations = relations(fines, ({ one }) => ({

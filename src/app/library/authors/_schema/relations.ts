@@ -1,5 +1,5 @@
+import { bookAuthors } from '@library/books/_schema/bookAuthors';
 import { relations } from 'drizzle-orm';
-import { bookAuthors } from '@/core/database';
 import { authors } from './authors';
 
 export const authorsRelations = relations(authors, ({ many }) => ({

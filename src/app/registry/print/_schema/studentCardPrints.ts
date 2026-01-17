@@ -1,6 +1,8 @@
+import { users } from '@auth/users/_schema/users';
+import { paymentReceipts } from '@finance/payment-receipts/_schema/paymentReceipts';
+import { students } from '@registry/students/_schema/students';
 import { bigint, index, pgTable, text, timestamp } from 'drizzle-orm/pg-core';
 import { nanoid } from 'nanoid';
-import { paymentReceipts, students, users } from '@/core/database';
 
 export const studentCardPrints = pgTable(
 	'student_card_prints',

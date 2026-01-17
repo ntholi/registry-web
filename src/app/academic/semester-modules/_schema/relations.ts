@@ -1,5 +1,7 @@
+import { assignedModules } from '@academic/assigned-modules/_schema/assignedModules';
+import { modules } from '@academic/modules/_schema/modules';
+import { structureSemesters } from '@academic/structures/_schema/structureSemesters';
 import { relations } from 'drizzle-orm';
-import { assignedModules, modules, structureSemesters } from '@/core/database';
 import { modulePrerequisites } from './modulePrerequisites';
 import { semesterModules } from './semesterModules';
 

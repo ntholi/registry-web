@@ -1,3 +1,4 @@
+import { paymentReceipts } from '@finance/payment-receipts/_schema/paymentReceipts';
 import {
 	index,
 	integer,
@@ -6,7 +7,7 @@ import {
 	timestamp,
 	unique,
 } from 'drizzle-orm/pg-core';
-import { graduationRequests, paymentReceipts } from '@/core/database';
+import { graduationRequests } from '../../graduation-requests/_schema/graduationRequests';
 
 export const graduationRequestReceipts = pgTable(
 	'graduation_request_receipts',

@@ -1,5 +1,6 @@
+import { schools } from '@academic/schools/_schema/schools';
+import { users } from '@auth/users/_schema/users';
 import { relations } from 'drizzle-orm';
-import { schools, users } from '@/core/database';
 import { userSchools } from './userSchools';
 
 export const userSchoolsRelations = relations(userSchools, ({ one }) => ({

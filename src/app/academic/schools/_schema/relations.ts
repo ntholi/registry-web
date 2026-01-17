@@ -1,5 +1,5 @@
+import { structures } from '@academic/structures/_schema/structures';
 import { relations } from 'drizzle-orm';
-import { structures } from '@/core/database';
 import { programs } from './programs';
 import { schools } from './schools';
 

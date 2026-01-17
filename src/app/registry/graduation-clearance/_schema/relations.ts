@@ -1,5 +1,6 @@
+import { clearance } from '@registry/clearance/_schema/clearance';
+import { graduationRequests } from '@registry/graduation-requests/_schema/graduationRequests';
 import { relations } from 'drizzle-orm';
-import { clearance, graduationRequests } from '@/core/database';
 import { graduationClearance } from './graduationClearance';
 
 export const graduationClearanceRelations = relations(

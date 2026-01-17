@@ -1,3 +1,4 @@
+import { users } from '@auth/users/_schema/users';
 import { sql } from 'drizzle-orm';
 import {
 	boolean,
@@ -9,7 +10,6 @@ import {
 	text,
 	timestamp,
 } from 'drizzle-orm/pg-core';
-import { users } from '@/core/database';
 
 export const resourceType = pgEnum('resource_type', [
 	'PastPaper',

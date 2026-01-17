@@ -1,3 +1,6 @@
+import { paymentReceipts } from '@finance/payment-receipts/_schema/paymentReceipts';
+import { loans } from '@library/loans/_schema/loans';
+import { students } from '@registry/students/_schema/students';
 import {
 	bigint,
 	index,
@@ -9,7 +12,6 @@ import {
 	text,
 	timestamp,
 } from 'drizzle-orm/pg-core';
-import { loans, paymentReceipts, students } from '@/core/database';
 
 export const fineStatus = pgEnum('fine_status', ['Unpaid', 'Paid']);
 export type FineStatus = (typeof fineStatus.enumValues)[number];

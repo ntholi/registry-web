@@ -7,7 +7,8 @@ import {
 	text,
 	timestamp,
 } from 'drizzle-orm/pg-core';
-import { graduationDates, studentPrograms } from '@/core/database';
+import { graduationDates } from '../../graduation-dates/_schema/graduationDates';
+import { studentPrograms } from '../../students/_schema/studentPrograms';
 
 export const graduationRequests = pgTable(
 	'graduation_requests',

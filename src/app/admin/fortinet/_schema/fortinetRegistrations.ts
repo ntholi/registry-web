@@ -1,3 +1,5 @@
+import { schools } from '@academic/schools/_schema/schools';
+import { students } from '@registry/students/_schema/students';
 import {
 	bigint,
 	index,
@@ -9,7 +11,6 @@ import {
 	timestamp,
 	unique,
 } from 'drizzle-orm/pg-core';
-import { schools, students } from '@/core/database';
 
 export const fortinetLevel = pgEnum('fortinet_level', [
 	'nse1',

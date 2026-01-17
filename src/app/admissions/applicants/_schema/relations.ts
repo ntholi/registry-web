@@ -1,9 +1,7 @@
+import { academicRecords } from '@admissions/academic-records/_schema/academicRecords';
+import { applications } from '@admissions/applications/_schema/applications';
+import { applicantDocuments } from '@admissions/documents/_schema/applicantDocuments';
 import { relations } from 'drizzle-orm';
-import {
-	academicRecords,
-	applicantDocuments,
-	applications,
-} from '@/core/database';
 import { applicantPhones } from './applicantPhones';
 import { applicants } from './applicants';
 import { guardianPhones } from './guardianPhones';

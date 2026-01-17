@@ -1,3 +1,5 @@
+import { modules } from '@academic/modules/_schema/modules';
+import { terms } from '@registry/terms/_schema/terms';
 import {
 	index,
 	integer,
@@ -9,7 +11,6 @@ import {
 	timestamp,
 	unique,
 } from 'drizzle-orm/pg-core';
-import { modules, terms } from '@/core/database';
 
 export const assessmentNumber = pgEnum('assessment_number', [
 	'CW1',

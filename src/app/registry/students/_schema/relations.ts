@@ -1,18 +1,16 @@
+import { semesterModules } from '@academic/semester-modules/_schema/semesterModules';
+import { structureSemesters } from '@academic/structures/_schema/structureSemesters';
+import { structures } from '@academic/structures/_schema/structures';
+import { users } from '@auth/users/_schema/users';
+import { blockedStudents } from '@registry/blocked-students/_schema/blockedStudents';
+import { certificateReprints } from '@registry/certificate-reprints/_schema/certificateReprints';
+import { documents } from '@registry/documents/_schema/documents';
+import { graduationRequests } from '@registry/graduation-requests/_schema/graduationRequests';
+import { statementOfResultsPrints } from '@registry/print/_schema/statementOfResultsPrints';
+import { studentCardPrints } from '@registry/print/_schema/studentCardPrints';
+import { transcriptPrints } from '@registry/print/_schema/transcriptPrints';
+import { registrationRequests } from '@registry/registration-requests/_schema/registrationRequests';
 import { relations } from 'drizzle-orm';
-import {
-	blockedStudents,
-	certificateReprints,
-	documents,
-	graduationRequests,
-	registrationRequests,
-	semesterModules,
-	statementOfResultsPrints,
-	structureSemesters,
-	structures,
-	studentCardPrints,
-	transcriptPrints,
-	users,
-} from '@/core/database';
 import { nextOfKins } from './nextOfKins';
 import { studentEducation } from './studentEducation';
 import { studentModules } from './studentModules';

@@ -1,3 +1,4 @@
+import { registrationRequests } from '@registry/registration-requests/_schema/registrationRequests';
 import {
 	index,
 	integer,
@@ -6,7 +7,6 @@ import {
 	timestamp,
 	unique,
 } from 'drizzle-orm/pg-core';
-import { registrationRequests } from '@/core/database';
 import { clearance } from './clearance';
 
 export const registrationClearance = pgTable(

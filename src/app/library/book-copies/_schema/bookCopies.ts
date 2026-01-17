@@ -1,3 +1,4 @@
+import { books } from '@library/books/_schema/books';
 import {
 	date,
 	index,
@@ -7,7 +8,6 @@ import {
 	serial,
 	text,
 } from 'drizzle-orm/pg-core';
-import { books } from '@/core/database';
 
 export const bookCondition = pgEnum('book_condition', [
 	'New',

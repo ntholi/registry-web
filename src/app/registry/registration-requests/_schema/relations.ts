@@ -1,12 +1,10 @@
+import { semesterModules } from '@academic/semester-modules/_schema/semesterModules';
+import { sponsoredStudents } from '@finance/sponsors/_schema/sponsoredStudents';
+import { registrationClearance } from '@registry/clearance/_schema/registrationClearance';
+import { studentSemesters } from '@registry/students/_schema/studentSemesters';
+import { students } from '@registry/students/_schema/students';
+import { terms } from '@registry/terms/_schema/terms';
 import { relations } from 'drizzle-orm';
-import {
-	registrationClearance,
-	semesterModules,
-	sponsoredStudents,
-	studentSemesters,
-	students,
-	terms,
-} from '@/core/database';
 import { registrationRequests } from './registrationRequests';
 import { requestedModules } from './requestedModules';
 

@@ -1,5 +1,7 @@
+import { users } from '@auth/users/_schema/users';
+import { paymentReceipts } from '@finance/payment-receipts/_schema/paymentReceipts';
+import { students } from '@registry/students/_schema/students';
 import { relations } from 'drizzle-orm';
-import { paymentReceipts, students, users } from '@/core/database';
 import { statementOfResultsPrints } from './statementOfResultsPrints';
 import { studentCardPrints } from './studentCardPrints';
 import { transcriptPrints } from './transcriptPrints';

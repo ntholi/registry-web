@@ -1,3 +1,5 @@
+import { users } from '@auth/users/_schema/users';
+import { students } from '@registry/students/_schema/students';
 import {
 	bigint,
 	index,
@@ -7,7 +9,6 @@ import {
 	timestamp,
 } from 'drizzle-orm/pg-core';
 import { nanoid } from 'nanoid';
-import { students, users } from '@/core/database';
 
 export const receiptType = pgEnum('receipt_type', [
 	'graduation_gown',

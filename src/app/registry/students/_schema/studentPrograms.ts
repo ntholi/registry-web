@@ -1,3 +1,4 @@
+import { structures } from '@academic/structures/_schema/structures';
 import {
 	bigint,
 	index,
@@ -7,7 +8,6 @@ import {
 	text,
 	timestamp,
 } from 'drizzle-orm/pg-core';
-import { structures } from '@/core/database';
 import { students } from './students';
 import { programStatus } from './types';
 

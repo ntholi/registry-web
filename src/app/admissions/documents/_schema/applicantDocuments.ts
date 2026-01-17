@@ -1,6 +1,6 @@
+import { applicants } from '@admissions/applicants/_schema/applicants';
 import { index, pgEnum, pgTable, text, timestamp } from 'drizzle-orm/pg-core';
 import { nanoid } from 'nanoid';
-import { applicants } from '@/core/database';
 
 export const documentCategoryEnum = pgEnum('document_category', [
 	'certificate',

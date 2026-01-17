@@ -1,5 +1,7 @@
+import { authors } from '@library/authors/_schema/authors';
+import { bookCopies } from '@library/book-copies/_schema/bookCopies';
+import { categories } from '@library/categories/_schema/categories';
 import { relations } from 'drizzle-orm';
-import { authors, bookCopies, categories } from '@/core/database';
 import { bookAuthors } from './bookAuthors';
 import { bookCategories } from './bookCategories';
 import { books } from './books';

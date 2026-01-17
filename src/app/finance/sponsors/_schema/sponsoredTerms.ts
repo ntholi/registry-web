@@ -1,3 +1,4 @@
+import { terms } from '@registry/terms/_schema/terms';
 import {
 	index,
 	integer,
@@ -6,7 +7,6 @@ import {
 	timestamp,
 	unique,
 } from 'drizzle-orm/pg-core';
-import { terms } from '@/core/database';
 import { sponsoredStudents } from './sponsoredStudents';
 
 export const sponsoredTerms = pgTable(

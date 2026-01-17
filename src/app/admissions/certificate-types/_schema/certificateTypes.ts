@@ -1,3 +1,4 @@
+import { standardGradeEnum } from '@admissions/academic-records/_schema/subjectGrades';
 import {
 	index,
 	integer,
@@ -8,7 +9,6 @@ import {
 	timestamp,
 	unique,
 } from 'drizzle-orm/pg-core';
-import { standardGradeEnum } from '@/core/database';
 
 export const gradingTypeEnum = pgEnum('grading_type', [
 	'subject-grades',

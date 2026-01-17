@@ -1,9 +1,7 @@
+import { schools } from '@academic/schools/_schema/schools';
+import { timetableSlots } from '@timetable/slots/_schema/timetableSlots';
+import { timetableAllocationVenueTypes } from '@timetable/timetable-allocations/_schema/timetableAllocationVenueTypes';
 import { relations } from 'drizzle-orm';
-import {
-	schools,
-	timetableAllocationVenueTypes,
-	timetableSlots,
-} from '@/core/database';
 import { venueSchools } from './venueSchools';
 import { venues } from './venues';
 import { venueTypes } from './venueTypes';

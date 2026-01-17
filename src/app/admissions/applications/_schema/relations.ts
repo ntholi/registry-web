@@ -1,11 +1,9 @@
+import { programs } from '@academic/schools/_schema/programs';
+import { applicants } from '@admissions/applicants/_schema/applicants';
+import { intakePeriods } from '@admissions/intake-periods/_schema/intakePeriods';
+import { users } from '@auth/users/_schema/users';
+import { paymentReceipts } from '@finance/payment-receipts/_schema/paymentReceipts';
 import { relations } from 'drizzle-orm';
-import {
-	applicants,
-	intakePeriods,
-	paymentReceipts,
-	programs,
-	users,
-} from '@/core/database';
 import { applicationNotes } from './applicationNotes';
 import { applicationReceipts } from './applicationReceipts';
 import { applicationStatusHistory } from './applicationStatusHistory';

@@ -1,5 +1,7 @@
+import { terms } from '@registry/terms/_schema/terms';
+import { timetableAllocations } from '@timetable/timetable-allocations/_schema/timetableAllocations';
+import { venues } from '@timetable/venues/_schema/venues';
 import { relations } from 'drizzle-orm';
-import { terms, timetableAllocations, venues } from '@/core/database';
 import { timetableSlotAllocations } from './timetableSlotAllocations';
 import { timetableSlots } from './timetableSlots';
 

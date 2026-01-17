@@ -1,5 +1,6 @@
+import { users } from '@auth/users/_schema/users';
+import { students } from '@registry/students/_schema/students';
 import { relations } from 'drizzle-orm';
-import { students, users } from '@/core/database';
 import { certificateReprints } from './certificateReprints';
 
 export const certificateReprintsRelations = relations(

@@ -1,5 +1,5 @@
+import { categories } from '@library/categories/_schema/categories';
 import { integer, pgTable, serial, unique } from 'drizzle-orm/pg-core';
-import { categories } from '@/core/database';
 import { books } from './books';
 
 export const bookCategories = pgTable(

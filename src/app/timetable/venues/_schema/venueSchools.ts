@@ -1,3 +1,4 @@
+import { schools } from '@academic/schools/_schema/schools';
 import {
 	index,
 	integer,
@@ -6,7 +7,6 @@ import {
 	text,
 	timestamp,
 } from 'drizzle-orm/pg-core';
-import { schools } from '@/core/database';
 import { venues } from './venues';
 
 export const venueSchools = pgTable(

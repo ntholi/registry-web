@@ -5,7 +5,7 @@ import {
 	primaryKey,
 	text,
 } from 'drizzle-orm/pg-core';
-import { users } from '@/core/database';
+import { users } from '../../users/_schema/users';
 
 export const authenticators = pgTable(
 	'authenticators',

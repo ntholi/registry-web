@@ -1,10 +1,8 @@
+import { accounts } from '@auth/auth-providers/_schema/accounts';
+import { authenticators } from '@auth/auth-providers/_schema/authenticators';
+import { sessions } from '@auth/auth-providers/_schema/sessions';
+import { userSchools } from '@auth/user-schools/_schema/userSchools';
 import { relations } from 'drizzle-orm';
-import {
-	accounts,
-	authenticators,
-	sessions,
-	userSchools,
-} from '@/core/database';
 import { users } from './users';
 
 export const usersRelations = relations(users, ({ many }) => ({

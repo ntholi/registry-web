@@ -1,3 +1,5 @@
+import { applicants } from '@admissions/applicants/_schema/applicants';
+import { certificateTypes } from '@admissions/certificate-types/_schema/certificateTypes';
 import {
 	index,
 	integer,
@@ -7,7 +9,6 @@ import {
 	text,
 	timestamp,
 } from 'drizzle-orm/pg-core';
-import { applicants, certificateTypes } from '@/core/database';
 
 export const resultClassificationEnum = pgEnum('result_classification', [
 	'Distinction',

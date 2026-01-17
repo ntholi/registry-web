@@ -1,3 +1,4 @@
+import { users } from '@auth/users/_schema/users';
 import {
 	index,
 	integer,
@@ -8,7 +9,6 @@ import {
 	text,
 	timestamp,
 } from 'drizzle-orm/pg-core';
-import { users } from '@/core/database';
 import { assessmentNumber, assessments } from './assessments';
 
 export const assessmentsAuditAction = pgEnum('assessments_audit_action', [

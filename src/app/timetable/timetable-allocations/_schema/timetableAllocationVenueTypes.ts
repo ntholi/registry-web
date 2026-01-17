@@ -6,7 +6,7 @@ import {
 	text,
 	timestamp,
 } from 'drizzle-orm/pg-core';
-import { venueTypes } from '@/core/database';
+import { venueTypes } from '../../venues/_schema/venueTypes';
 import { timetableAllocations } from './timetableAllocations';
 
 export const timetableAllocationVenueTypes = pgTable(

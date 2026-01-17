@@ -1,5 +1,7 @@
+import { registrationRequests } from '@registry/registration-requests/_schema/registrationRequests';
+import { students } from '@registry/students/_schema/students';
+import { terms } from '@registry/terms/_schema/terms';
 import { relations } from 'drizzle-orm';
-import { registrationRequests, students, terms } from '@/core/database';
 import { sponsoredStudents } from './sponsoredStudents';
 import { sponsoredTerms } from './sponsoredTerms';
 import { sponsors } from './sponsors';

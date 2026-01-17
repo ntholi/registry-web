@@ -1,10 +1,8 @@
+import { graduationClearance } from '@registry/graduation-clearance/_schema/graduationClearance';
+import { graduationDates } from '@registry/graduation-dates/_schema/graduationDates';
+import { graduationRequestReceipts } from '@registry/graduation-request-receipts/_schema/graduationRequestReceipts';
+import { studentPrograms } from '@registry/students/_schema/studentPrograms';
 import { relations } from 'drizzle-orm';
-import {
-	graduationClearance,
-	graduationDates,
-	graduationRequestReceipts,
-	studentPrograms,
-} from '@/core/database';
 import { graduationRequests } from './graduationRequests';
 
 export const graduationRequestsRelations = relations(

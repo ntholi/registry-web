@@ -1,3 +1,4 @@
+import { users } from '@auth/users/_schema/users';
 import { sql } from 'drizzle-orm';
 import {
 	bigint,
@@ -7,7 +8,6 @@ import {
 	text,
 	timestamp,
 } from 'drizzle-orm/pg-core';
-import { users } from '@/core/database';
 
 export const gender = pgEnum('gender', ['Male', 'Female', 'Unknown']);
 

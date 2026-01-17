@@ -11,7 +11,8 @@ import {
 	timestamp,
 	unique,
 } from 'drizzle-orm/pg-core';
-import { students, terms } from '@/core/database';
+import { students } from '../../students/_schema/students';
+import { terms } from '../../terms/_schema/terms';
 
 export const registrationRequestStatus = pgEnum('registration_request_status', [
 	'pending',

@@ -1,5 +1,5 @@
 import { integer, pgTable, serial, unique } from 'drizzle-orm/pg-core';
-import { authors } from '@/core/database';
+import { authors } from '../../authors/_schema/authors';
 import { books } from './books';
 
 export const bookAuthors = pgTable(

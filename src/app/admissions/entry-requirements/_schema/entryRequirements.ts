@@ -1,3 +1,5 @@
+import { programs } from '@academic/schools/_schema/programs';
+import { certificateTypes } from '@admissions/certificate-types/_schema/certificateTypes';
 import {
 	index,
 	integer,
@@ -7,7 +9,6 @@ import {
 	timestamp,
 	unique,
 } from 'drizzle-orm/pg-core';
-import { certificateTypes, programs } from '@/core/database';
 
 export const entryRequirements = pgTable(
 	'entry_requirements',

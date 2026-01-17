@@ -1,3 +1,4 @@
+import { users } from '@auth/users/_schema/users';
 import {
 	boolean,
 	date,
@@ -7,7 +8,6 @@ import {
 	text,
 	timestamp,
 } from 'drizzle-orm/pg-core';
-import { users } from '@/core/database';
 import { terms } from './terms';
 
 export const termSettings = pgTable('term_settings', {

@@ -1,3 +1,5 @@
+import { modules } from '@academic/modules/_schema/modules';
+import { structureSemesters } from '@academic/structures/_schema/structureSemesters';
 import {
 	boolean,
 	index,
@@ -8,7 +10,6 @@ import {
 	serial,
 	timestamp,
 } from 'drizzle-orm/pg-core';
-import { modules, structureSemesters } from '@/core/database';
 
 export const moduleType = pgEnum('module_type', [
 	'Major',

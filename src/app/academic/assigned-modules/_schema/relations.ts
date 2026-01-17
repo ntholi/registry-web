@@ -1,5 +1,7 @@
+import { semesterModules } from '@academic/semester-modules/_schema/semesterModules';
+import { users } from '@auth/users/_schema/users';
+import { terms } from '@registry/terms/_schema/terms';
 import { relations } from 'drizzle-orm';
-import { semesterModules, terms, users } from '@/core/database';
 import { assignedModules } from './assignedModules';
 
 export const assignedModulesRelations = relations(

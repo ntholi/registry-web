@@ -1,3 +1,4 @@
+import { users } from '@auth/users/_schema/users';
 import {
 	index,
 	integer,
@@ -6,7 +7,6 @@ import {
 	text,
 	timestamp,
 } from 'drizzle-orm/pg-core';
-import { users } from '@/core/database';
 import { applicationStatusEnum, applications } from './applications';
 
 export const applicationStatusHistory = pgTable(

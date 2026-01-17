@@ -1,5 +1,8 @@
+import { users } from '@auth/users/_schema/users';
+import { bookCopies } from '@library/book-copies/_schema/bookCopies';
+import { fines } from '@library/fines/_schema/fines';
+import { students } from '@registry/students/_schema/students';
 import { relations } from 'drizzle-orm';
-import { bookCopies, fines, students, users } from '@/core/database';
 import { loanRenewals, loans } from './loans';
 
 export const loansRelations = relations(loans, ({ one, many }) => ({

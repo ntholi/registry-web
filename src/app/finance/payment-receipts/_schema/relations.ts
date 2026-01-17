@@ -1,10 +1,8 @@
+import { users } from '@auth/users/_schema/users';
+import { graduationRequestReceipts } from '@registry/graduation-request-receipts/_schema/graduationRequestReceipts';
+import { studentCardPrints } from '@registry/print/_schema/studentCardPrints';
+import { students } from '@registry/students/_schema/students';
 import { relations } from 'drizzle-orm';
-import {
-	graduationRequestReceipts,
-	studentCardPrints,
-	students,
-	users,
-} from '@/core/database';
 import { paymentReceipts } from './paymentReceipts';
 
 export const paymentReceiptsRelations = relations(

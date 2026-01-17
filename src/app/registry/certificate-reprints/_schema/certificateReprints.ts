@@ -1,3 +1,5 @@
+import { users } from '@auth/users/_schema/users';
+import { students } from '@registry/students/_schema/students';
 import {
 	bigint,
 	index,
@@ -7,7 +9,6 @@ import {
 	text,
 	timestamp,
 } from 'drizzle-orm/pg-core';
-import { students, users } from '@/core/database';
 
 export const certificateReprintStatus = pgEnum('certificate_reprint_status', [
 	'pending',

@@ -1,3 +1,6 @@
+import { operationType } from '@audit-logs/student-semesters/_schema/studentSemesterAuditLogs';
+import { users } from '@auth/users/_schema/users';
+import { students } from '@registry/students/_schema/students';
 import {
 	bigint,
 	index,
@@ -7,7 +10,6 @@ import {
 	text,
 	timestamp,
 } from 'drizzle-orm/pg-core';
-import { operationType, students, users } from '@/core/database';
 
 type Student = typeof students.$inferSelect;
 

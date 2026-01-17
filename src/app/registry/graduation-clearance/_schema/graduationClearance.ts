@@ -6,7 +6,8 @@ import {
 	timestamp,
 	unique,
 } from 'drizzle-orm/pg-core';
-import { clearance, graduationRequests } from '@/core/database';
+import { clearance } from '../../clearance/_schema/clearance';
+import { graduationRequests } from '../../graduation-requests/_schema/graduationRequests';
 
 export const graduationClearance = pgTable(
 	'graduation_clearance',

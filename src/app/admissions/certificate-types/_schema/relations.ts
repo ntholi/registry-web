@@ -1,5 +1,6 @@
+import { academicRecords } from '@admissions/academic-records/_schema/academicRecords';
+import { entryRequirements } from '@admissions/entry-requirements/_schema/entryRequirements';
 import { relations } from 'drizzle-orm';
-import { academicRecords, entryRequirements } from '@/core/database';
 import { certificateTypes, gradeMappings } from './certificateTypes';
 
 export const certificateTypesRelations = relations(

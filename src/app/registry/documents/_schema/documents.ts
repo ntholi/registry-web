@@ -1,6 +1,6 @@
+import { students } from '@registry/students/_schema/students';
 import { bigint, index, pgTable, text, timestamp } from 'drizzle-orm/pg-core';
 import { nanoid } from 'nanoid';
-import { students } from '@/core/database';
 
 export const documents = pgTable(
 	'documents',

@@ -1,5 +1,6 @@
+import { programs } from '@academic/schools/_schema/programs';
+import { semesterModules } from '@academic/semester-modules/_schema/semesterModules';
 import { relations } from 'drizzle-orm';
-import { programs, semesterModules } from '@/core/database';
 import { structureSemesters } from './structureSemesters';
 import { structures } from './structures';
 
