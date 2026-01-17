@@ -1,6 +1,6 @@
 ---
 name: plan-module
-description: Creates a comprehensive multi-step implementation plan for a new module. Asks discovery questions first, then generates numbered markdown files in docs/ with detailed requirements. Use when asked to "plan a module", "create implementation plan", or "plan a feature".
+description: Creates a comprehensive multi-step implementation plan for a new module. Asks discovery questions first, then generates numbered markdown files in docs/ with detailed requirements. Use when asked to "plan a module", "create implementation plan", or "plan a feature", "help me plan"
 ---
 
 # Plan Module Skill

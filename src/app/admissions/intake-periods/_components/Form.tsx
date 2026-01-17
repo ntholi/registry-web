@@ -11,7 +11,7 @@ import type { IntakePeriod } from '../_lib/types';
 
 type Props = {
 	onSubmit: (values: IntakePeriod) => Promise<IntakePeriod>;
-	defaultValues?: IntakePeriod;
+	defaultValues?: Partial<IntakePeriod>;
 	title?: string;
 };
 

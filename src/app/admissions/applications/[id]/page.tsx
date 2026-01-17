@@ -1,4 +1,14 @@
-import { Anchor, Badge, Card, Group, Stack, Tabs, Text } from '@mantine/core';
+import {
+	Badge,
+	Card,
+	Group,
+	Stack,
+	Tabs,
+	TabsList,
+	TabsPanel,
+	TabsTab,
+	Text,
+} from '@mantine/core';
 import {
 	IconCash,
 	IconHistory,
@@ -6,7 +16,6 @@ import {
 	IconNote,
 	IconSchool,
 } from '@tabler/icons-react';
-import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { formatDateTime, isIntakePeriodActive } from '@/shared/lib/utils/dates';
 import {
@@ -15,6 +24,7 @@ import {
 	DetailsViewHeader,
 	FieldView,
 } from '@/shared/ui/adease';
+import Link from '@/shared/ui/Link';
 import NotesSection from '../_components/NotesSection';
 import PaymentSection from '../_components/PaymentSection';
 import StatusBadge from '../_components/StatusBadge';
@@ -52,28 +62,25 @@ export default async function ApplicationDetails({ params }: Props) {
 			/>
 			<DetailsViewBody>
 				<Tabs defaultValue='details'>
-					<Tabs.List>
-						<Tabs.Tab
-							value='details'
-							leftSection={<IconInfoCircle size={16} />}
-						>
+					<TabsList>
+						<TabsTab value='details' leftSection={<IconInfoCircle size={16} />}>
 							Details
-						</Tabs.Tab>
-						<Tabs.Tab value='programs' leftSection={<IconSchool size={16} />}>
+						</TabsTab>
+						<TabsTab value='programs' leftSection={<IconSchool size={16} />}>
 							Programs
-						</Tabs.Tab>
-						<Tabs.Tab value='payment' leftSection={<IconCash size={16} />}>
+						</TabsTab>
+						<TabsTab value='payment' leftSection={<IconCash size={16} />}>
 							Payment
-						</Tabs.Tab>
-						<Tabs.Tab value='history' leftSection={<IconHistory size={16} />}>
+						</TabsTab>
+						<TabsTab value='history' leftSection={<IconHistory size={16} />}>
 							History
-						</Tabs.Tab>
-						<Tabs.Tab value='notes' leftSection={<IconNote size={16} />}>
+						</TabsTab>
+						<TabsTab value='notes' leftSection={<IconNote size={16} />}>
 							Notes
-						</Tabs.Tab>
-					</Tabs.List>
+						</TabsTab>
+					</TabsList>
 
-					<Tabs.Panel value='details' pt='md'>
+					<TabsPanel value='details' pt='md'>
 						<Stack gap='md'>
 							<Card withBorder>
 								<Stack gap='sm'>
@@ -89,12 +96,9 @@ export default async function ApplicationDetails({ params }: Props) {
 							</Card>
 
 							<FieldView label='Applicant'>
-								<Anchor
-									component={Link}
-									href={`/admissions/applicants/${item.applicant.id}`}
-								>
+								<Link href={`/admissions/applicants/${item.applicant.id}`}>
 									{item.applicant.fullName}
-								</Anchor>
+								</Link>
 								{item.applicant.nationalId && (
 									<Text size='xs' c='dimmed'>
 										ID: {item.applicant.nationalId}
@@ -126,9 +130,9 @@ export default async function ApplicationDetails({ params }: Props) {
 								{item.createdByUser?.name || 'System'}
 							</FieldView>
 						</Stack>
-					</Tabs.Panel>
+					</TabsPanel>
 
-					<Tabs.Panel value='programs' pt='md'>
+					<TabsPanel value='programs' pt='md'>
 						<Stack gap='md'>
 							<Card withBorder>
 								<Stack gap='xs'>
@@ -162,24 +166,24 @@ export default async function ApplicationDetails({ params }: Props) {
 								</Text>
 							)}
 						</Stack>
-					</Tabs.Panel>
+					</TabsPanel>
 
-					<Tabs.Panel value='payment' pt='md'>
+					<TabsPanel value='payment' pt='md'>
 						<PaymentSection
 							applicationId={item.id}
 							feeAmount={item.intakePeriod.applicationFee}
 							paymentStatus={item.paymentStatus as PaymentStatus}
 							receipts={item.receipts}
 						/>
-					</Tabs.Panel>
+					</TabsPanel>
 
-					<Tabs.Panel value='history' pt='md'>
+					<TabsPanel value='history' pt='md'>
 						<StatusHistory history={item.statusHistory} />
-					</Tabs.Panel>
+					</TabsPanel>
 
-					<Tabs.Panel value='notes' pt='md'>
+					<TabsPanel value='notes' pt='md'>
 						<NotesSection applicationId={item.id} notes={item.notes} />
-					</Tabs.Panel>
+					</TabsPanel>
 				</Tabs>
 			</DetailsViewBody>
 		</DetailsView>

@@ -18,12 +18,14 @@ async function main() {
 		const { seedSubjects } = await import('./seeds/subjects');
 		const { seedCertificateTypes } = await import('./seeds/certificate-types');
 		const { seedGradeMappings } = await import('./seeds/grade-mappings');
-		const { seedVenues } = await import('./seeds/venues');
+		const { seedEntryRequirements } = await import(
+			'./seeds/entry-requirements'
+		);
 
 		await seedSubjects();
 		await seedCertificateTypes();
 		await seedGradeMappings();
-		await seedVenues();
+		await seedEntryRequirements();
 
 		console.log('🎉 Database seeding completed successfully.');
 	} catch (error) {

@@ -35,6 +35,14 @@ export async function seedSubjects() {
 		'French',
 		'Music',
 		'Drama',
+		'Art',
+		'Woodwork',
+		'Home Economics',
+		'Art and Design',
+		'Technical Drawing',
+		'Needlework',
+		'Bricklaying',
+		'Commerce',
 	];
 
 	const values = subjectList.map((name) => ({
