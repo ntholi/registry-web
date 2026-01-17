@@ -1,16 +1,19 @@
 import type {
 	applicantDocuments,
-	DocumentCategory,
+	DocumentType,
 	DocumentVerificationStatus,
+	documents,
 } from '@/core/database';
 
-export type ApplicantDocument = typeof applicantDocuments.$inferSelect;
+export type ApplicantDocument = typeof applicantDocuments.$inferSelect & {
+	document: typeof documents.$inferSelect;
+};
 export type ApplicantDocumentInsert = typeof applicantDocuments.$inferInsert;
 
 export type UploadDocumentInput = {
 	fileName: string;
 	fileUrl: string;
-	category: DocumentCategory;
+	type: DocumentType;
 };
 
 export type VerifyDocumentInput = {

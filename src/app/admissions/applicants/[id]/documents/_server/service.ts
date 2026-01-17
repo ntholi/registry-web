@@ -1,7 +1,8 @@
 import type {
 	applicantDocuments,
-	DocumentCategory,
+	DocumentType,
 	DocumentVerificationStatus,
+	documents,
 } from '@/core/database';
 import BaseService from '@/core/platform/BaseService';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
@@ -35,22 +36,23 @@ class ApplicantDocumentService extends BaseService<
 		);
 	}
 
-	async findByCategory(applicantId: string, category: DocumentCategory) {
+	async findByType(applicantId: string, type: DocumentType) {
 		return withAuth(
-			async () => this.repo.findByCategory(applicantId, category),
+			async () => this.repo.findByType(applicantId, type),
 			['registry', 'admin']
 		);
 	}
 
 	async uploadDocument(
-		data: typeof applicantDocuments.$inferInsert,
+		documentData: typeof documents.$inferInsert,
+		applicantId: string,
 		fileSize: number
 	) {
 		return withAuth(async () => {
 			if (fileSize > MAX_FILE_SIZE) {
 				throw new Error('FILE_TOO_LARGE: Document exceeds 5MB limit');
 			}
-			return this.repo.create(data);
+			return this.repo.createWithDocument(documentData, applicantId);
 		}, ['registry', 'admin']);
 	}
 

@@ -1,6 +1,5 @@
 'use client';
 
-import { documentCategoryEnum } from '@admissions/_database';
 import {
 	ActionIcon,
 	Badge,
@@ -17,6 +16,7 @@ import {
 import { useForm } from '@mantine/form';
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
+import { documentTypeEnum } from '@registry/_database';
 import {
 	IconCheck,
 	IconExternalLink,
@@ -39,9 +39,9 @@ type Props = {
 	documents: ApplicantDocument[];
 };
 
-const categoryOptions = documentCategoryEnum.enumValues.map((c) => ({
-	value: c,
-	label: c.replace('_', ' ').replace(/\b\w/g, (l) => l.toUpperCase()),
+const typeOptions = documentTypeEnum.enumValues.map((t) => ({
+	value: t,
+	label: t.replace('_', ' ').replace(/\b\w/g, (l) => l.toUpperCase()),
 }));
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
@@ -58,7 +58,7 @@ export default function DocumentsList({ applicantId, documents }: Props) {
 	const uploadForm = useForm({
 		initialValues: {
 			file: null as File | null,
-			category: '' as string,
+			type: '' as string,
 		},
 		validate: {
 			file: (value) => {
@@ -66,7 +66,7 @@ export default function DocumentsList({ applicantId, documents }: Props) {
 				if (value.size > MAX_FILE_SIZE) return 'File exceeds 5MB limit';
 				return null;
 			},
-			category: (value) => (!value ? 'Category is required' : null),
+			type: (value) => (!value ? 'Type is required' : null),
 		},
 	});
 
@@ -76,7 +76,7 @@ export default function DocumentsList({ applicantId, documents }: Props) {
 			return uploadApplicantDocument(
 				applicantId,
 				values.file,
-				values.category as (typeof documentCategoryEnum.enumValues)[number]
+				values.type as (typeof documentTypeEnum.enumValues)[number]
 			);
 		},
 		onSuccess: async () => {
@@ -163,9 +163,9 @@ export default function DocumentsList({ applicantId, documents }: Props) {
 		}
 	}
 
-	const groupedDocs = documentCategoryEnum.enumValues.reduce(
-		(acc, category) => {
-			acc[category] = documents.filter((d) => d.category === category);
+	const groupedDocs = documentTypeEnum.enumValues.reduce(
+		(acc, type) => {
+			acc[type] = documents.filter((d) => d.document.type === type);
 			return acc;
 		},
 		{} as Record<string, ApplicantDocument[]>
@@ -173,17 +173,17 @@ export default function DocumentsList({ applicantId, documents }: Props) {
 
 	return (
 		<Stack gap='md'>
-			{documentCategoryEnum.enumValues.map((category) => (
-				<Stack key={category} gap='xs'>
+			{documentTypeEnum.enumValues.map((type) => (
+				<Stack key={type} gap='xs'>
 					<Text fw={500} tt='capitalize'>
-						{category.replace('_', ' ')}
+						{type.replace('_', ' ')}
 					</Text>
-					{groupedDocs[category]?.length > 0 ? (
-						groupedDocs[category].map((doc) => (
+					{groupedDocs[type]?.length > 0 ? (
+						groupedDocs[type].map((doc) => (
 							<Card key={doc.id} withBorder padding='sm'>
 								<Group justify='space-between'>
 									<Stack gap={2}>
-										<Text size='sm'>{doc.fileName}</Text>
+										<Text size='sm'>{doc.document.fileName}</Text>
 										<Group gap='xs'>
 											<Badge
 												size='xs'
@@ -193,9 +193,11 @@ export default function DocumentsList({ applicantId, documents }: Props) {
 											>
 												{doc.verificationStatus}
 											</Badge>
-											{doc.uploadDate && (
+											{doc.document.createdAt && (
 												<Text size='xs' c='dimmed'>
-													{new Date(doc.uploadDate).toLocaleDateString()}
+													{new Date(
+														doc.document.createdAt
+													).toLocaleDateString()}
 												</Text>
 											)}
 										</Group>
@@ -210,7 +212,7 @@ export default function DocumentsList({ applicantId, documents }: Props) {
 										<ActionIcon
 											variant='subtle'
 											component='a'
-											href={doc.fileUrl}
+											href={doc.document.fileUrl ?? '#'}
 											target='_blank'
 										>
 											<IconExternalLink size={16} />
@@ -245,7 +247,7 @@ export default function DocumentsList({ applicantId, documents }: Props) {
 											onClick={() =>
 												deleteMutation.mutate({
 													id: doc.id,
-													fileUrl: doc.fileUrl,
+													fileUrl: doc.document.fileUrl ?? '',
 												})
 											}
 											loading={deleteMutation.isPending}
@@ -291,10 +293,10 @@ export default function DocumentsList({ applicantId, documents }: Props) {
 							{...uploadForm.getInputProps('file')}
 						/>
 						<Select
-							label='Category'
+							label='Type'
 							required
-							data={categoryOptions}
-							{...uploadForm.getInputProps('category')}
+							data={typeOptions}
+							{...uploadForm.getInputProps('type')}
 						/>
 						<Group justify='flex-end'>
 							<Button variant='subtle' onClick={closeUpload}>

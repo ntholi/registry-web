@@ -1,6 +1,21 @@
-import { students } from '@registry/students/_schema/students';
-import { bigint, index, pgTable, text, timestamp } from 'drizzle-orm/pg-core';
+import { index, pgEnum, pgTable, text, timestamp } from 'drizzle-orm/pg-core';
 import { nanoid } from 'nanoid';
+
+export const documentTypeEnum = pgEnum('document_type', [
+	'identity',
+	'certificate',
+	'transcript',
+	'proof_of_payment',
+	'passport_photo',
+	'recommendation_letter',
+	'personal_statement',
+	'medical_report',
+	'enrollment_letter',
+	'academic_record',
+	'clearance_form',
+	'other',
+]);
+export type DocumentType = (typeof documentTypeEnum.enumValues)[number];
 
 export const documents = pgTable(
 	'documents',
@@ -9,13 +24,11 @@ export const documents = pgTable(
 			.primaryKey()
 			.$defaultFn(() => nanoid()),
 		fileName: text().notNull(),
-		type: text(),
-		stdNo: bigint({ mode: 'number' })
-			.references(() => students.stdNo, { onDelete: 'cascade' })
-			.notNull(),
+		fileUrl: text(),
+		type: documentTypeEnum(),
 		createdAt: timestamp().defaultNow(),
 	},
 	(table) => ({
-		stdNoIdx: index('fk_documents_std_no').on(table.stdNo),
+		typeIdx: index('idx_documents_type').on(table.type),
 	})
 );

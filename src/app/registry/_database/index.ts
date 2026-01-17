@@ -8,6 +8,7 @@ export * from '../clearance/_schema/registrationClearance';
 export * from '../clearance/_schema/relations';
 export * from '../documents/_schema/documents';
 export * from '../documents/_schema/relations';
+export * from '../documents/_schema/studentDocuments';
 export * from '../graduation-clearance/_schema/graduationClearance';
 export * from '../graduation-clearance/_schema/relations';
 export * from '../graduation-dates/_schema/graduationDates';

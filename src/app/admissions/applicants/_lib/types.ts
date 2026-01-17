@@ -3,6 +3,7 @@ import type {
 	applicantDocuments,
 	applicantPhones,
 	applicants,
+	documents,
 	guardianPhones,
 	guardians,
 	subjectGrades,
@@ -29,5 +30,7 @@ export type ApplicantWithRelations = Applicant & {
 			subject: { id: number; name: string };
 		})[];
 	})[];
-	documents: (typeof applicantDocuments.$inferSelect)[];
+	documents: (typeof applicantDocuments.$inferSelect & {
+		document: typeof documents.$inferSelect;
+	})[];
 };

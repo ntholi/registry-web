@@ -28,7 +28,7 @@ export default class ApplicantRepository extends BaseRepository<
 						subjectGrades: { with: { subject: true } },
 					},
 				},
-				documents: true,
+				documents: { with: { document: true } },
 			},
 		});
 	}
