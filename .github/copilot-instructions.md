@@ -49,6 +49,8 @@ You are a **Senior Principal Software Engineer** and **System Architect** specia
 - **Schema files** must import from specific module paths:
     - ✅ `import { users } from '@auth/users/_schema/users'`
     - ❌ `import { users, schools } from '@/core/database'`
+- **Schema table files**: one table per file, file name is `camelCase` and matches the exported schema (e.g., `studentModules.ts` → `export const studentModules = pgTable(...)`).
+- **Relations** live in `relations.ts` within the same `_schema` folder; keep cross-module imports explicit.
 - **Barrel exports** (`_database/index.ts`) re-export all schemas from that module.
 - **Server code** (repositories, services, actions) CAN import from `@/core/database`.
 - **Client components** SHOULD import schemas from module `_database` (e.g., `@academic/_database`).
@@ -58,11 +60,12 @@ You are a **Senior Principal Software Engineer** and **System Architect** specia
 - **Server Components (RSC)**: Default for all pages/layouts. Use `async/await` for initial data load.
 - **Client Components**: Use `'use client'` only for strictly interactive leaf components.
 - **Server Actions**: EXCLUSIVE method for all mutations/writes.
-    - **Result Format**: Return consistent `{ data, error }` or `{ success, message }` objects.
+    - **Result Format**: Return the entity or paginated result shape expected by the consuming UI (`Form`, `ListLayout`), and keep the shape consistent within a feature.
 - **Data Fetching**:
     - **Initial**: `async/await` in RSC.
     - **Client/Updates**: TanStack Query.
     - **Forms**: Use the `Form` component from `@/shared/ui/adease/` (integrates with TanStack Query).
+    - **Lists**: `ListLayout` expects `getData(page, search)` returning `{ items, totalPages, totalItems }` and should be typed with `ListLayout<T>`.
 
 ## 📝 Coding Standards & Style
 
@@ -75,7 +78,11 @@ You are a **Senior Principal Software Engineer** and **System Architect** specia
 - **Comments**: Code should be self-explanatory.
 - **Component Order**: Props type → constants → default export → private props type → private components.
 - **Identifiers**: Use very short but meaningful names.
-- **File Naming**: Use `kebab-case` for all files and directories.
+- **File Naming**:
+    - **Routes & feature folders**: `kebab-case`.
+    - **React components**: `PascalCase` filenames (e.g., `StudentCardView.tsx`).
+    - **Schema table files**: `camelCase` matching the schema export, one table per file (e.g., `studentModules.ts`).
+    - **Other files**: follow existing local conventions in the module (do not rename legacy files).
 
 ### Error Handling
 - **Validation**: Use Zod for input validation (schemas in `_lib/types.ts` or near form).
@@ -89,6 +96,7 @@ You are a **Senior Principal Software Engineer** and **System Architect** specia
 | Column (TS) | `camelCase` | `moduleId`, `createdAt` |
 | Raw SQL | `snake_case` | `SELECT module_id FROM semester_modules` |
 | Schema export | `camelCase` plural | `export const semesterModules = pgTable(...)` |
+| Schema file | `camelCase.ts` | `studentModules.ts` |
 | Repository class | `PascalCase` + Repository | `SemesterModuleRepository` |
 | Service class | `PascalCase` + Service | `SemesterModuleService` |
 | Service export | `camelCase` + Service | `semesterModulesService` |

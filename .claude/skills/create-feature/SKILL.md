@@ -20,6 +20,12 @@ Schema files (`_schema/*.ts`) must NEVER import from `@/core/database`. Instead,
 
 This rule exists because `@/core/database` is marked `'server-only'` and will cause build failures if imported in client components that use the module's `_database` barrel export.
 
+### Schema File Naming & Ownership
+
+- **One table per file** under `_schema/`.
+- **File name is `camelCase`** and matches the schema export.
+	- Example: table `student_modules` → file `_schema/studentModules.ts` → `export const studentModules = pgTable(...)`.
+
 ### Ownership rule (schema/module)
 
 When creating or modifying server functions, place them under the *module/feature that owns the schema/table being queried or mutated*:
@@ -52,6 +58,7 @@ If your feature needs any conditional/semantic UI color logic or status icon log
 | `feature` | URL-friendly feature name (kebab-case) | `semester-modules` |
 | `Entity` | PascalCase entity name | `SemesterModule` |
 | `table_name` | snake_case database table name | `semester_modules` |
+| `table_file` | camelCase schema file name | `semesterModules` |
 | `entities` | camelCase plural for schema export | `semesterModules` |
 
 ## File Structure to Create
@@ -67,7 +74,7 @@ src/app/{{module}}/{{feature}}/
 ├── _lib/
 │   └── types.ts
 ├── _schema/
-│   ├── {{table_name}}.ts
+│   ├── {{table_file}}.ts
 │   └── relations.ts
 ├── new/
 │   └── page.tsx
@@ -83,7 +90,7 @@ src/app/{{module}}/{{feature}}/
 ## Implementation Steps
 
 ### Step 1: Database Schema
-**Path:** `src/app/{{module}}/{{feature}}/_schema/{{table_name}}.ts`
+**Path:** `src/app/{{module}}/{{feature}}/_schema/{{table_file}}.ts`
 
 ```typescript
 import { boolean, integer, pgTable, serial, text, timestamp } from 'drizzle-orm/pg-core';
@@ -102,7 +109,7 @@ export const {{entities}} = pgTable('{{table_name}}', {
 
 ```typescript
 import { relations } from 'drizzle-orm';
-import { {{entities}} } from './{{table_name}}';
+import { {{entities}} } from './{{table_file}}';
 
 export const {{entities}}Relations = relations({{entities}}, ({ many, one }) => ({
 	// Add relations here using specific module path imports
@@ -386,7 +393,7 @@ After scaffolding, remind user to:
 
 1. **Register schema export** - Add to `src/app/{{module}}/_database/index.ts`:
    ```typescript
-   export * from '../{{feature}}/_schema/{{table_name}}';
+	export * from '../{{feature}}/_schema/{{table_file}}';
    export * from '../{{feature}}/_schema/relations';
    ```
 
