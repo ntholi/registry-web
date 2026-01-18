@@ -1,5 +1,3 @@
-import 'server-only';
-
 import * as academic from '@academic/_database';
 import * as admin from '@admin/_database';
 import * as admissions from '@admissions/_database';

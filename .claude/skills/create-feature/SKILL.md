@@ -18,7 +18,6 @@ Schema files (`_schema/*.ts`) must NEVER import from `@/core/database`. Instead,
 - ✅ `import { terms } from '@registry/terms/_schema/terms'`
 - ❌ `import { users, schools } from '@/core/database'`
 
-This rule exists because `@/core/database` is marked `'server-only'` and will cause build failures if imported in client components that use the module's `_database` barrel export.
 
 ### Schema File Naming & Ownership
 
