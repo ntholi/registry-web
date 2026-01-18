@@ -1,10 +1,10 @@
 'use server';
 
 import { google } from '@ai-sdk/google';
-import { generateObject } from 'ai';
+import { generateText, Output } from 'ai';
 import { z } from 'zod';
 
-const model = google('gemini-flash-latest');
+const model = google('gemini-2.5-flash-preview-05-20');
 
 const identityDocumentSchema = z.object({
 	documentType: z
@@ -125,9 +125,9 @@ export async function analyzeDocument(
 	fileBase64: string,
 	mediaType: string
 ): Promise<DocumentAnalysisResult> {
-	const categoryResult = await generateObject({
+	const { output: categoryResult } = await generateText({
 		model,
-		schema: documentCategorySchema,
+		output: Output.object({ schema: documentCategorySchema }),
 		messages: [
 			{
 				role: 'user',
@@ -151,12 +151,12 @@ Only respond with the category.`,
 		],
 	});
 
-	const category = categoryResult.object.category;
+	const category = categoryResult?.category;
 
 	if (category === 'identity') {
-		const result = await generateObject({
+		const { output } = await generateText({
 			model,
-			schema: identityDocumentSchema,
+			output: Output.object({ schema: identityDocumentSchema }),
 			messages: [
 				{
 					role: 'user',
@@ -178,13 +178,13 @@ Only respond with the category.`,
 				},
 			],
 		});
-		return { category: 'identity', ...result.object };
+		return { category: 'identity', ...output! };
 	}
 
 	if (category === 'academic') {
-		const result = await generateObject({
+		const { output } = await generateText({
 			model,
-			schema: certificateDocumentSchema,
+			output: Output.object({ schema: certificateDocumentSchema }),
 			messages: [
 				{
 					role: 'user',
@@ -207,12 +207,12 @@ Only respond with the category.`,
 				},
 			],
 		});
-		return { category: 'academic', ...result.object };
+		return { category: 'academic', ...output! };
 	}
 
-	const result = await generateObject({
+	const { output } = await generateText({
 		model,
-		schema: otherDocumentSchema,
+		output: Output.object({ schema: otherDocumentSchema }),
 		messages: [
 			{
 				role: 'user',
@@ -232,5 +232,5 @@ Document types: proof_of_payment, personal_statement, medical_report, enrollment
 			},
 		],
 	});
-	return { category: 'other', ...result.object };
+	return { category: 'other', ...output! };
 }
