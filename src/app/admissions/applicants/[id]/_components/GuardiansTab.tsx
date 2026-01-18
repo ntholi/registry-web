@@ -3,8 +3,9 @@
 import {
 	ActionIcon,
 	Avatar,
-	Badge,
+	Box,
 	Button,
+	Divider,
 	Group,
 	Modal,
 	Paper,
@@ -14,14 +15,26 @@ import {
 	Text,
 	Textarea,
 	TextInput,
+	Tooltip,
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
-import { IconEdit, IconPlus, IconTrash, IconUser } from '@tabler/icons-react';
+import {
+	IconCirclePlus,
+	IconDeviceMobile,
+	IconEdit,
+	IconPhone,
+	IconTrash,
+	IconUser,
+	IconX,
+} from '@tabler/icons-react';
 import { useMutation } from '@tanstack/react-query';
+import { zod4Resolver as zodResolver } from 'mantine-form-zod-resolver';
 import { useRouter } from 'nextjs-toploader/app';
 import { useState } from 'react';
+import { z } from 'zod';
+import { DeleteButton } from '@/shared/ui/adease/DeleteButton';
 import {
 	addGuardianPhone,
 	deleteGuardian,
@@ -48,6 +61,14 @@ type Props = {
 	guardians: Guardian[];
 };
 
+const guardianSchema = z.object({
+	name: z.string().min(1, 'Name is required'),
+	relationship: z.string().min(1, 'Relationship is required'),
+	address: z.string().optional(),
+	occupation: z.string().optional(),
+	companyName: z.string().optional(),
+});
+
 const relationshipOptions = [
 	{ value: 'Father', label: 'Father' },
 	{ value: 'Mother', label: 'Mother' },
@@ -64,6 +85,7 @@ export default function GuardiansTab({ guardians }: Props) {
 	const [newPhone, setNewPhone] = useState('');
 
 	const form = useForm({
+		validate: zodResolver(guardianSchema),
 		initialValues: {
 			name: '',
 			relationship: '',
@@ -83,34 +105,8 @@ export default function GuardiansTab({ guardians }: Props) {
 			router.refresh();
 			notifications.show({
 				title: 'Success',
-				message: 'Guardian updated',
+				message: 'Guardian updated successfully',
 				color: 'green',
-			});
-		},
-		onError: (error: Error) => {
-			notifications.show({
-				title: 'Error',
-				message: error.message,
-				color: 'red',
-			});
-		},
-	});
-
-	const deleteMutation = useMutation({
-		mutationFn: deleteGuardian,
-		onSuccess: () => {
-			router.refresh();
-			notifications.show({
-				title: 'Success',
-				message: 'Guardian deleted',
-				color: 'green',
-			});
-		},
-		onError: (error: Error) => {
-			notifications.show({
-				title: 'Error',
-				message: error.message,
-				color: 'red',
 			});
 		},
 	});
@@ -129,15 +125,8 @@ export default function GuardiansTab({ guardians }: Props) {
 			router.refresh();
 			notifications.show({
 				title: 'Success',
-				message: 'Phone added',
+				message: 'Phone number added',
 				color: 'green',
-			});
-		},
-		onError: (error: Error) => {
-			notifications.show({
-				title: 'Error',
-				message: error.message,
-				color: 'red',
 			});
 		},
 	});
@@ -148,15 +137,8 @@ export default function GuardiansTab({ guardians }: Props) {
 			router.refresh();
 			notifications.show({
 				title: 'Success',
-				message: 'Phone removed',
+				message: 'Phone number removed',
 				color: 'green',
-			});
-		},
-		onError: (error: Error) => {
-			notifications.show({
-				title: 'Error',
-				message: error.message,
-				color: 'red',
 			});
 		},
 	});
@@ -186,177 +168,235 @@ export default function GuardiansTab({ guardians }: Props) {
 	}
 
 	return (
-		<Stack gap='md'>
+		<Stack gap='xl'>
 			{guardians.length > 0 ? (
-				<SimpleGrid cols={{ base: 1, md: 2 }} spacing='md'>
+				<SimpleGrid cols={{ base: 1, md: 2 }}>
 					{guardians.map((guardian) => (
-						<Paper key={guardian.id} p='lg' radius='md' withBorder>
-							<Stack gap='md'>
-								<Group justify='space-between'>
-									<Group gap='md'>
-										<Avatar radius='xl' color='blue' variant='light'>
-											<IconUser size={20} />
-										</Avatar>
-										<Stack gap={2}>
-											<Text fw={600}>{guardian.name}</Text>
-											<Badge variant='light' size='sm'>
-												{guardian.relationship}
-											</Badge>
-										</Stack>
-									</Group>
-									<Group gap={4}>
-										<ActionIcon
-											variant='subtle'
-											onClick={() => handleEdit(guardian)}
+						<Paper key={guardian.id} p='xl' radius='md' withBorder shadow='sm'>
+							<Stack gap='lg'>
+								<Group justify='space-between' align='flex-start'>
+									<Box>
+										<Text fw={700} size='lg'>
+											{guardian.name}
+										</Text>
+										<Text
+											size='xs'
+											c='dimmed'
+											fw={700}
+											tt='uppercase'
+											lts='1px'
 										>
-											<IconEdit size={16} />
-										</ActionIcon>
-										<ActionIcon
+											{guardian.relationship}
+										</Text>
+									</Box>
+									<Group gap='xs'>
+										<Tooltip label='Edit Guardian'>
+											<ActionIcon
+												variant='subtle'
+												color='blue'
+												onClick={() => handleEdit(guardian)}
+												size='md'
+											>
+												<IconEdit size={18} />
+											</ActionIcon>
+										</Tooltip>
+										<DeleteButton
+											handleDelete={async () => {
+												await deleteGuardian(guardian.id);
+											}}
 											variant='subtle'
 											color='red'
-											onClick={() => deleteMutation.mutate(guardian.id)}
-											loading={deleteMutation.isPending}
-										>
-											<IconTrash size={16} />
-										</ActionIcon>
+											size='md'
+										/>
 									</Group>
 								</Group>
 
-								{(guardian.occupation || guardian.companyName) && (
-									<Text size='sm' c='dimmed'>
-										{guardian.occupation}
-										{guardian.companyName && ` at ${guardian.companyName}`}
-									</Text>
-								)}
+								<Divider variant='dashed' />
 
-								{guardian.address && (
-									<Text size='sm' c='dimmed'>
-										{guardian.address}
-									</Text>
-								)}
-
-								<Stack gap='xs'>
-									<Text size='xs' c='dimmed' tt='uppercase' fw={500}>
-										Phone Numbers
-									</Text>
-									{guardian.phones.length > 0 ? (
-										<Group gap='xs'>
-											{guardian.phones.map((phone) => (
-												<Badge
-													key={phone.id}
-													variant='outline'
-													size='lg'
-													rightSection={
-														<ActionIcon
-															size={16}
-															variant='transparent'
-															color='red'
-															onClick={() =>
-																removePhoneMutation.mutate(phone.id)
-															}
-														>
-															<IconTrash size={12} />
-														</ActionIcon>
-													}
-												>
-													{phone.phoneNumber}
-												</Badge>
-											))}
-										</Group>
-									) : (
-										<Text size='sm' c='dimmed' fs='italic'>
-											No phone numbers
+								<Stack gap='sm'>
+									<Box>
+										<Text size='xs' c='dimmed'>
+											Occupation
 										</Text>
+										<Text size='xs' fw={500}>
+											{guardian.occupation || 'N/A'}
+										</Text>
+									</Box>
+									<Box>
+										<Text size='xs' c='dimmed'>
+											Company
+										</Text>
+										<Text size='sm' fw={500}>
+											{guardian.companyName || 'N/A'}
+										</Text>
+									</Box>
+									<Box>
+										<Text size='0.8rem' c='dimmed'>
+											Contact Address
+										</Text>
+										<Text size='sm' fw={500}>
+											{guardian.address || 'N/A'}
+										</Text>
+									</Box>
+								</Stack>
+
+								<Divider variant='dashed' />
+								<Stack gap='xs'>
+									<Group justify='flex-end' align='center'>
+										{addingPhoneFor !== guardian.id && (
+											<Button
+												size='compact-xs'
+												variant='subtle'
+												leftSection={<IconCirclePlus size={14} />}
+												onClick={() => setAddingPhoneFor(guardian.id)}
+											>
+												Add Number
+											</Button>
+										)}
+									</Group>
+
+									{addingPhoneFor === guardian.id && (
+										<Paper
+											withBorder
+											p='xs'
+											radius='sm'
+											bg='var(--mantine-color-gray-0)'
+										>
+											<Group gap='xs'>
+												<TextInput
+													size='xs'
+													placeholder='Phone number'
+													value={newPhone}
+													onChange={(e) => setNewPhone(e.target.value)}
+													flex={1}
+													leftSection={<IconDeviceMobile size={14} />}
+												/>
+												<Button
+													size='xs'
+													onClick={() =>
+														addPhoneMutation.mutate({
+															guardianId: guardian.id,
+															phone: newPhone,
+														})
+													}
+													loading={addPhoneMutation.isPending}
+												>
+													Save
+												</Button>
+												<ActionIcon
+													variant='subtle'
+													color='gray'
+													onClick={() => {
+														setAddingPhoneFor(null);
+														setNewPhone('');
+													}}
+												>
+													<IconX size={16} />
+												</ActionIcon>
+											</Group>
+										</Paper>
 									)}
 
-									{addingPhoneFor === guardian.id ? (
-										<Group gap='xs'>
-											<TextInput
-												size='xs'
-												placeholder='Phone number'
-												value={newPhone}
-												onChange={(e) => setNewPhone(e.target.value)}
-												flex={1}
-											/>
-											<Button
-												size='xs'
-												onClick={() =>
-													addPhoneMutation.mutate({
-														guardianId: guardian.id,
-														phone: newPhone,
-													})
-												}
-												loading={addPhoneMutation.isPending}
-											>
-												Add
-											</Button>
-											<Button
-												size='xs'
-												variant='subtle'
-												onClick={() => {
-													setAddingPhoneFor(null);
-													setNewPhone('');
-												}}
-											>
-												Cancel
-											</Button>
-										</Group>
-									) : (
-										<Button
-											size='xs'
-											variant='light'
-											leftSection={<IconPlus size={14} />}
-											onClick={() => setAddingPhoneFor(guardian.id)}
-											w='fit-content'
-										>
-											Add Phone
-										</Button>
-									)}
+									<Stack gap={2}>
+										{guardian.phones.map((phone) => (
+											<Group key={phone.id} justify='space-between' py={4}>
+												<Group gap='xs'>
+													<IconPhone
+														size={16}
+														color='var(--mantine-color-gray-6)'
+													/>
+													<Text size='sm' fw={500}>
+														{phone.phoneNumber}
+													</Text>
+												</Group>
+												<Tooltip label='Remove Phone'>
+													<ActionIcon
+														size='sm'
+														variant='subtle'
+														color='red'
+														onClick={() => removePhoneMutation.mutate(phone.id)}
+														loading={removePhoneMutation.isPending}
+													>
+														<IconTrash size={14} />
+													</ActionIcon>
+												</Tooltip>
+											</Group>
+										))}
+										{guardian.phones.length === 0 && !addingPhoneFor && (
+											<Text size='sm' c='dimmed' fs='italic'>
+												No phone numbers recorded
+											</Text>
+										)}
+									</Stack>
 								</Stack>
 							</Stack>
 						</Paper>
 					))}
 				</SimpleGrid>
 			) : (
-				<Paper p='xl' radius='md' withBorder>
-					<Stack align='center' gap='xs'>
-						<IconUser size={32} opacity={0.3} />
-						<Text size='sm' c='dimmed'>
-							No guardians added
-						</Text>
+				<Paper p='xl' radius='md' withBorder bg='var(--mantine-color-gray-0)'>
+					<Stack align='center' gap='sm' py='xl'>
+						<Avatar size={64} radius='xl' variant='light' color='gray'>
+							<IconUser size={32} />
+						</Avatar>
+						<Box style={{ textAlign: 'center' }}>
+							<Text fw={600}>No guardians found</Text>
+							<Text size='sm' c='dimmed'>
+								There are no guardians registered for this applicant yet.
+							</Text>
+						</Box>
 					</Stack>
 				</Paper>
 			)}
 
-			<Modal opened={opened} onClose={handleClose} title='Edit Guardian'>
+			<Modal
+				opened={opened}
+				onClose={handleClose}
+				title={
+					<Text fw={700} size='lg'>
+						Edit Guardian Information
+					</Text>
+				}
+				radius='md'
+				centered
+			>
 				<form onSubmit={form.onSubmit(handleSubmit)}>
-					<Stack gap='sm'>
-						<TextInput label='Name' required {...form.getInputProps('name')} />
+					<Stack gap='md' p='md'>
+						<TextInput
+							label='Full Name'
+							required
+							{...form.getInputProps('name')}
+							placeholder='e.g. John Doe'
+						/>
 						<Select
 							label='Relationship'
 							required
 							data={relationshipOptions}
 							{...form.getInputProps('relationship')}
+							placeholder='Select relationship'
 						/>
 						<TextInput
 							label='Occupation'
 							{...form.getInputProps('occupation')}
+							placeholder='e.g. Software Engineer'
 						/>
 						<TextInput
 							label='Company Name'
 							{...form.getInputProps('companyName')}
+							placeholder='e.g. Tech Corp'
 						/>
 						<Textarea
-							label='Address'
-							rows={2}
+							label='Home Address'
+							rows={3}
 							{...form.getInputProps('address')}
+							placeholder='Enter full address'
 						/>
-						<Group justify='flex-end'>
+						<Group justify='flex-end' pt='md'>
 							<Button variant='subtle' onClick={handleClose}>
 								Cancel
 							</Button>
 							<Button type='submit' loading={updateMutation.isPending}>
-								Update
+								Save Changes
 							</Button>
 						</Group>
 					</Stack>
