@@ -24,7 +24,6 @@ import { useRouter } from 'nextjs-toploader/app';
 import { useState } from 'react';
 import {
 	addGuardianPhone,
-	createGuardian,
 	deleteGuardian,
 	removeGuardianPhone,
 	updateGuardian,
@@ -46,7 +45,6 @@ type Guardian = {
 };
 
 type Props = {
-	applicantId: string;
 	guardians: Guardian[];
 };
 
@@ -58,7 +56,7 @@ const relationshipOptions = [
 	{ value: 'Other', label: 'Other' },
 ];
 
-export default function GuardiansTab({ applicantId, guardians }: Props) {
+export default function GuardiansTab({ guardians }: Props) {
 	const router = useRouter();
 	const [opened, { open, close }] = useDisclosure(false);
 	const [editingGuardian, setEditingGuardian] = useState<Guardian | null>(null);
@@ -72,28 +70,6 @@ export default function GuardiansTab({ applicantId, guardians }: Props) {
 			address: '',
 			occupation: '',
 			companyName: '',
-		},
-	});
-
-	const createMutation = useMutation({
-		mutationFn: (data: typeof form.values) =>
-			createGuardian({ ...data, applicantId }),
-		onSuccess: () => {
-			form.reset();
-			close();
-			router.refresh();
-			notifications.show({
-				title: 'Success',
-				message: 'Guardian added',
-				color: 'green',
-			});
-		},
-		onError: (error: Error) => {
-			notifications.show({
-				title: 'Error',
-				message: error.message,
-				color: 'red',
-			});
 		},
 	});
 
@@ -200,8 +176,6 @@ export default function GuardiansTab({ applicantId, guardians }: Props) {
 	function handleSubmit(values: typeof form.values) {
 		if (editingGuardian) {
 			updateMutation.mutate({ id: editingGuardian.id, data: values });
-		} else {
-			createMutation.mutate(values);
 		}
 	}
 
@@ -354,20 +328,7 @@ export default function GuardiansTab({ applicantId, guardians }: Props) {
 				</Paper>
 			)}
 
-			<Button
-				variant='light'
-				leftSection={<IconPlus size={16} />}
-				onClick={open}
-				w='fit-content'
-			>
-				Add Guardian
-			</Button>
-
-			<Modal
-				opened={opened}
-				onClose={handleClose}
-				title={editingGuardian ? 'Edit Guardian' : 'Add Guardian'}
-			>
+			<Modal opened={opened} onClose={handleClose} title='Edit Guardian'>
 				<form onSubmit={form.onSubmit(handleSubmit)}>
 					<Stack gap='sm'>
 						<TextInput label='Name' required {...form.getInputProps('name')} />
@@ -394,11 +355,8 @@ export default function GuardiansTab({ applicantId, guardians }: Props) {
 							<Button variant='subtle' onClick={handleClose}>
 								Cancel
 							</Button>
-							<Button
-								type='submit'
-								loading={createMutation.isPending || updateMutation.isPending}
-							>
-								{editingGuardian ? 'Update' : 'Add'}
+							<Button type='submit' loading={updateMutation.isPending}>
+								Update
 							</Button>
 						</Group>
 					</Stack>

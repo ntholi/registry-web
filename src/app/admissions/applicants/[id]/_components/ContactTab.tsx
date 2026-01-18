@@ -2,21 +2,17 @@
 
 import {
 	ActionIcon,
-	Button,
 	Group,
 	Paper,
 	SimpleGrid,
 	Stack,
 	Text,
-	TextInput,
 } from '@mantine/core';
-import { useForm } from '@mantine/form';
 import { notifications } from '@mantine/notifications';
-import { IconPhone, IconPlus, IconTrash } from '@tabler/icons-react';
+import { IconPhone, IconTrash } from '@tabler/icons-react';
 import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'nextjs-toploader/app';
-import { useState } from 'react';
-import { addApplicantPhone, removeApplicantPhone } from '../../_server/actions';
+import { removeApplicantPhone } from '../../_server/actions';
 
 type Phone = {
 	id: number;
@@ -24,36 +20,11 @@ type Phone = {
 };
 
 type Props = {
-	applicantId: string;
 	phones: Phone[];
 };
 
-export default function ContactTab({ applicantId, phones }: Props) {
+export default function ContactTab({ phones }: Props) {
 	const router = useRouter();
-	const [isAdding, setIsAdding] = useState(false);
-	const form = useForm({ initialValues: { phoneNumber: '' } });
-
-	const addMutation = useMutation({
-		mutationFn: (phoneNumber: string) =>
-			addApplicantPhone(applicantId, phoneNumber),
-		onSuccess: () => {
-			form.reset();
-			setIsAdding(false);
-			router.refresh();
-			notifications.show({
-				title: 'Success',
-				message: 'Phone number added',
-				color: 'green',
-			});
-		},
-		onError: (error: Error) => {
-			notifications.show({
-				title: 'Error',
-				message: error.message,
-				color: 'red',
-			});
-		},
-	});
 
 	const removeMutation = useMutation({
 		mutationFn: removeApplicantPhone,
@@ -108,45 +79,6 @@ export default function ContactTab({ applicantId, phones }: Props) {
 						</Text>
 					</Stack>
 				</Paper>
-			)}
-
-			{isAdding ? (
-				<Paper p='md' radius='md' withBorder>
-					<form
-						onSubmit={form.onSubmit((values) =>
-							addMutation.mutate(values.phoneNumber)
-						)}
-					>
-						<Group>
-							<TextInput
-								placeholder='Enter phone number'
-								{...form.getInputProps('phoneNumber')}
-								flex={1}
-							/>
-							<Button type='submit' size='sm' loading={addMutation.isPending}>
-								Add
-							</Button>
-							<Button
-								variant='subtle'
-								size='sm'
-								onClick={() => {
-									setIsAdding(false);
-									form.reset();
-								}}
-							>
-								Cancel
-							</Button>
-						</Group>
-					</form>
-				</Paper>
-			) : (
-				<Button
-					variant='light'
-					leftSection={<IconPlus size={16} />}
-					onClick={() => setIsAdding(true)}
-				>
-					Add Phone Number
-				</Button>
 			)}
 		</Stack>
 	);
