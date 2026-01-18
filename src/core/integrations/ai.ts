@@ -70,7 +70,11 @@ const academicSchema = z.object({
 		.array(
 			z.object({
 				name: z.string().describe('Subject/course name'),
-				grade: z.string().describe('Grade/mark achieved'),
+				grade: z
+					.string()
+					.describe(
+						'Grade value: for COSC use numeric (1-9), for LGCSE/IGCSE use letter (A-G)'
+					),
 			})
 		)
 		.nullable()
@@ -130,21 +134,19 @@ export type DocumentAnalysisResult =
 
 const SYSTEM_PROMPT = `You are a document analysis expert specializing in extracting structured data from identity documents, academic certificates, and other official documents. You have expertise in recognizing document formats from Southern African countries (Lesotho, South Africa, Botswana, etc.) and international standards.`;
 
-const ANALYSIS_PROMPT = `Analyze this document image and extract all relevant information.
+const ANALYSIS_PROMPT = `Analyze this document and extract information.
 
-CLASSIFICATION:
-- "identity": National IDs, passports, driver licenses, birth certificates
-- "academic": Certificates, diplomas, transcripts, result slips, recommendation letters
-- "other": Payment receipts, personal statements, medical reports, clearance forms
+CATEGORIES:
+- identity: IDs, passports, birth certificates
+- academic: Certificates, transcripts, result slips
+- other: Receipts, statements, medical reports
 
-EXTRACTION RULES:
-- Populate ONLY the field matching the detected category (set others to null)
-- Dates must be in YYYY-MM-DD format
-- National IDs: extract exact number as shown
-- Nationality: use full country name (e.g., "Lesotho", "South Africa")
-- Certificate types: identify as LGCSE, COSC, IGCSE, A-Level, Diploma, Bachelor's Degree, etc.
-- Extract ALL visible subjects with their grades
-- Use null for unclear, missing, or illegible information`;
+RULES:
+- Dates: YYYY-MM-DD format
+- COSC grades: Extract NUMERIC value (e.g., "C(c SIX)" → "6", "B(b THREE)" → "3")
+- LGCSE/IGCSE grades: Use letter (A*, A, B, C, D, E, F, G, U)
+- Extract ALL subjects with grades
+- Use null for missing/illegible data`;
 
 export async function analyzeDocument(
 	fileBase64: string,
