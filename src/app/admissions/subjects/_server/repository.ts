@@ -1,5 +1,5 @@
 import { count, eq, ilike } from 'drizzle-orm';
-import { db, subjectGrades, subjects } from '@/core/database';
+import { db, subjectAliases, subjectGrades, subjects } from '@/core/database';
 import BaseRepository from '@/core/platform/BaseRepository';
 
 export default class SubjectRepository extends BaseRepository<
@@ -11,13 +11,23 @@ export default class SubjectRepository extends BaseRepository<
 	}
 
 	async findByName(name: string) {
-		return db.query.subjects.findFirst({
-			where: ilike(subjects.name, name.trim()),
+		const trimmedName = name.trim();
+
+		const byName = await db.query.subjects.findFirst({
+			where: ilike(subjects.name, trimmedName),
 		});
+		if (byName) return byName;
+
+		const alias = await db.query.subjectAliases.findFirst({
+			where: ilike(subjectAliases.alias, trimmedName),
+			with: { subject: true },
+		});
+		return alias?.subject ?? null;
 	}
 
 	async findOrCreateByName(name: string) {
 		const trimmedName = name.trim();
+
 		const existing = await this.findByName(trimmedName);
 		if (existing) return existing;
 
