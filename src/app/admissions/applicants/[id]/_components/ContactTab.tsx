@@ -5,6 +5,7 @@ import {
 	Button,
 	Group,
 	Paper,
+	SimpleGrid,
 	Stack,
 	Text,
 	TextInput,
@@ -76,7 +77,7 @@ export default function ContactTab({ applicantId, phones }: Props) {
 	return (
 		<Stack gap='md'>
 			{phones.length > 0 ? (
-				<Stack gap='sm'>
+				<SimpleGrid cols={{ base: 1, sm: 3 }}>
 					{phones.map((phone) => (
 						<Paper key={phone.id} p='md' radius='md' withBorder>
 							<Group justify='space-between'>
@@ -97,7 +98,7 @@ export default function ContactTab({ applicantId, phones }: Props) {
 							</Group>
 						</Paper>
 					))}
-				</Stack>
+				</SimpleGrid>
 			) : (
 				<Paper p='xl' radius='md' withBorder>
 					<Stack align='center' gap='xs'>
