@@ -37,6 +37,7 @@ export type ExtractedAcademicData = {
 	qualificationName?: string | null;
 	examYear?: number | null;
 	certificateType?: string | null;
+	certificateNumber?: string | null;
 	subjects?:
 		| {
 				name: string;

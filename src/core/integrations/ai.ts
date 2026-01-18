@@ -83,6 +83,10 @@ const academicSchema = z.object({
 		.enum(['Distinction', 'Merit', 'Credit', 'Pass', 'Fail'])
 		.nullable()
 		.describe('Overall qualification grade classification'),
+	certificateNumber: z
+		.string()
+		.nullable()
+		.describe('Certificate or serial number on the document'),
 	studentName: z
 		.string()
 		.nullable()

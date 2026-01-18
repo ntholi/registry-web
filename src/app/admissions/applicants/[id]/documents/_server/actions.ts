@@ -117,6 +117,7 @@ export async function reanalyzeDocumentFromUrl(
 			qualificationName: result.qualificationName,
 			examYear: result.examYear,
 			certificateType: result.certificateType,
+			certificateNumber: result.certificateNumber,
 			subjects: result.subjects,
 			overallClassification: result.overallClassification,
 		});
@@ -224,6 +225,7 @@ export async function createAcademicRecordFromDocument(
 			examYear: data.examYear,
 			institutionName: data.institutionName,
 			qualificationName: data.qualificationName,
+			certificateNumber: data.certificateNumber,
 			resultClassification: data.overallClassification,
 			subjectGrades,
 		},

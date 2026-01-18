@@ -89,7 +89,7 @@ export function DocumentCard({ doc, onPreview, onReanalyze }: Props) {
 		onSuccess: () => {
 			notifications.show({
 				title: 'Success',
-				message: 'Document re-analyzed and data saved',
+				message: 'Document analyzed and data saved',
 				color: 'green',
 			});
 			onReanalyze?.(fileUrl);
@@ -98,7 +98,7 @@ export function DocumentCard({ doc, onPreview, onReanalyze }: Props) {
 		onError: () => {
 			notifications.show({
 				title: 'Error',
-				message: 'Failed to re-analyze document',
+				message: 'Failed to analyze document',
 				color: 'red',
 			});
 		},
@@ -185,7 +185,7 @@ export function DocumentCard({ doc, onPreview, onReanalyze }: Props) {
 								<IconDownload size={16} />
 							</ActionIcon>
 						</Tooltip>
-						<Tooltip label='Re-analyze with AI'>
+						<Tooltip label='Analyze with AI'>
 							<ActionIcon
 								variant='light'
 								color='violet'
