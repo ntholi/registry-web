@@ -76,6 +76,53 @@ export async function analyzeDocumentWithAI(
 	return analyzeDocument(fileBase64, mediaType);
 }
 
+export async function reanalyzeDocumentFromUrl(
+	fileUrl: string,
+	applicantId: string,
+	documentType: DocumentType
+): Promise<DocumentAnalysisResult> {
+	const response = await fetch(fileUrl);
+	if (!response.ok) {
+		throw new Error('Failed to fetch document');
+	}
+	const buffer = await response.arrayBuffer();
+	const base64 = Buffer.from(buffer).toString('base64');
+	const contentType = response.headers.get('content-type') ?? 'application/pdf';
+	const result = await analyzeDocument(base64, contentType);
+
+	if (result.category === 'identity' && documentType === 'identity') {
+		await updateApplicantFromIdentity(applicantId, {
+			fullName: result.fullName,
+			dateOfBirth: result.dateOfBirth,
+			nationalId: result.nationalId,
+			nationality: result.nationality,
+			gender: result.gender,
+			birthPlace: result.birthPlace,
+			address: result.address,
+		});
+	}
+
+	if (
+		result.category === 'academic' &&
+		(documentType === 'certificate' ||
+			documentType === 'transcript' ||
+			documentType === 'academic_record') &&
+		result.examYear &&
+		result.institutionName
+	) {
+		await createAcademicRecordFromDocument(applicantId, {
+			institutionName: result.institutionName,
+			qualificationName: result.qualificationName,
+			examYear: result.examYear,
+			certificateType: result.certificateType,
+			subjects: result.subjects,
+			overallClassification: result.overallClassification,
+		});
+	}
+
+	return result;
+}
+
 export async function updateApplicantFromIdentity(
 	applicantId: string,
 	data: ExtractedIdentityData

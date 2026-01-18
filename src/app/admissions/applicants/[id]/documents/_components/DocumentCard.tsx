@@ -25,8 +25,8 @@ import { useRouter } from 'nextjs-toploader/app';
 import { getDocumentVerificationStatusColor } from '@/shared/lib/utils/colors';
 import type { ApplicantDocument } from '../_lib/types';
 import {
-	analyzeDocumentWithAI,
 	deleteApplicantDocument,
+	reanalyzeDocumentFromUrl,
 } from '../_server/actions';
 import { ReviewModal } from './ReviewModal';
 
@@ -77,27 +77,19 @@ export function DocumentCard({ doc, onPreview, onReanalyze }: Props) {
 
 	const reanalyzeMutation = useMutation({
 		mutationFn: async () => {
-			const response = await fetch(fileUrl);
-			const blob = await response.blob();
-			const reader = new FileReader();
-			return new Promise<void>((resolve, reject) => {
-				reader.onloadend = async () => {
-					try {
-						const base64 = (reader.result as string).split(',')[1];
-						await analyzeDocumentWithAI(base64, blob.type);
-						resolve();
-					} catch (e) {
-						reject(e);
-					}
-				};
-				reader.onerror = reject;
-				reader.readAsDataURL(blob);
-			});
+			if (!doc.document.type) {
+				throw new Error('Document type is required');
+			}
+			await reanalyzeDocumentFromUrl(
+				fileUrl,
+				doc.applicantId,
+				doc.document.type
+			);
 		},
 		onSuccess: () => {
 			notifications.show({
 				title: 'Success',
-				message: 'Document re-analyzed',
+				message: 'Document re-analyzed and data saved',
 				color: 'green',
 			});
 			onReanalyze?.(fileUrl);
