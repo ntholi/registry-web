@@ -4,7 +4,7 @@ import type { DocumentType, DocumentVerificationStatus } from '@/core/database';
 import { deleteDocument } from '@/core/integrations/storage';
 import { applicantDocumentsService } from './service';
 
-const R2_PUBLIC_URL = process.env.R2_PUBLIC_URL || '';
+const BASE_URL = 'https://pub-2b37ce26bd70421e9e59e4fe805c6873.r2.dev';
 
 export async function getDocumentFolder(applicantId: string) {
 	return `documents/admissions/applicants/${applicantId}`;
@@ -30,8 +30,8 @@ export async function saveApplicantDocument(data: {
 	fileName: string;
 	type: DocumentType;
 }) {
-	const folder = getDocumentFolder(data.applicantId);
-	const fileUrl = `${R2_PUBLIC_URL}/${folder}/${data.fileName}`;
+	const folder = await getDocumentFolder(data.applicantId);
+	const fileUrl = `${BASE_URL}/${folder}/${data.fileName}`;
 
 	return applicantDocumentsService.uploadDocument(
 		{
@@ -53,7 +53,7 @@ export async function verifyApplicantDocument(
 }
 
 export async function deleteApplicantDocument(id: string, fileUrl: string) {
-	const key = fileUrl.replace(`${R2_PUBLIC_URL}/`, '');
+	const key = fileUrl.replace(`${BASE_URL}/`, '');
 	await deleteDocument(key);
 	return applicantDocumentsService.delete(id);
 }
