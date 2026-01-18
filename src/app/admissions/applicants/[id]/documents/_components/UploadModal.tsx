@@ -5,6 +5,7 @@ import {
 	Group,
 	Modal,
 	Paper,
+	Progress,
 	rem,
 	Select,
 	Stack,
@@ -27,12 +28,18 @@ import {
 	IconPhoto,
 	IconTrash,
 	IconUpload,
-	IconX,
 } from '@tabler/icons-react';
 import { useRouter } from 'nextjs-toploader/app';
 import { useState } from 'react';
+import type { DocumentAnalysisResult } from '@/core/integrations/ai';
 import { uploadDocument } from '@/core/integrations/storage';
-import { getDocumentFolder, saveApplicantDocument } from '../_server/actions';
+import {
+	analyzeDocumentWithAI,
+	createAcademicRecordFromDocument,
+	getDocumentFolder,
+	saveApplicantDocument,
+	updateApplicantFromIdentity,
+} from '../_server/actions';
 
 type DocumentType = (typeof documentTypeEnum.enumValues)[number];
 
@@ -55,6 +62,51 @@ function formatFileSize(bytes: number): string {
 	return `${val.toFixed(val < 10 && exp > 0 ? 1 : 0)} ${units[exp]}`;
 }
 
+function mapDocumentTypeFromAI(
+	result: DocumentAnalysisResult
+): DocumentType | null {
+	if (result.category === 'identity') {
+		return result.documentType === 'identity'
+			? 'identity'
+			: result.documentType === 'passport_photo'
+				? 'passport_photo'
+				: null;
+	}
+	if (result.category === 'academic') {
+		switch (result.documentType) {
+			case 'certificate':
+				return 'certificate';
+			case 'transcript':
+				return 'transcript';
+			case 'academic_record':
+				return 'academic_record';
+			case 'recommendation_letter':
+				return 'recommendation_letter';
+			default:
+				return 'certificate';
+		}
+	}
+	if (result.category === 'other') {
+		switch (result.documentType) {
+			case 'proof_of_payment':
+				return 'proof_of_payment';
+			case 'personal_statement':
+				return 'personal_statement';
+			case 'medical_report':
+				return 'medical_report';
+			case 'enrollment_letter':
+				return 'enrollment_letter';
+			case 'clearance_form':
+				return 'clearance_form';
+			default:
+				return 'other';
+		}
+	}
+	return null;
+}
+
+type UploadState = 'idle' | 'uploading' | 'analyzing' | 'ready';
+
 type UploadModalProps = {
 	opened: boolean;
 	onClose: () => void;
@@ -69,11 +121,55 @@ export function UploadModal({
 	const router = useRouter();
 	const [files, setFiles] = useState<FileWithPath[]>([]);
 	const [type, setType] = useState<DocumentType | null>(null);
-	const [loading, setLoading] = useState(false);
+	const [uploadState, setUploadState] = useState<UploadState>('idle');
+	const [analysisResult, setAnalysisResult] =
+		useState<DocumentAnalysisResult | null>(null);
+	const [uploadedFileName, setUploadedFileName] = useState<string | null>(null);
+	const [saving, setSaving] = useState(false);
 
-	function handleDrop(dropped: FileWithPath[]) {
-		if (dropped.length > 0) {
-			setFiles([dropped[0]]);
+	async function handleDrop(dropped: FileWithPath[]) {
+		if (dropped.length === 0) return;
+
+		const file = dropped[0];
+		setFiles([file]);
+		setUploadState('uploading');
+		setAnalysisResult(null);
+		setType(null);
+
+		try {
+			const folder = await getDocumentFolder(applicantId);
+			const fileName = `${Date.now()}-${file.name}`;
+			await uploadDocument(file, fileName, folder);
+			setUploadedFileName(fileName);
+
+			setUploadState('analyzing');
+
+			const arrayBuffer = await file.arrayBuffer();
+			const uint8Array = new Uint8Array(arrayBuffer);
+			const charArray = Array.from(uint8Array, (byte) =>
+				String.fromCharCode(byte)
+			);
+			const binaryString = charArray.join('');
+			const base64Data = btoa(binaryString);
+
+			const result = await analyzeDocumentWithAI(base64Data, file.type);
+			setAnalysisResult(result);
+
+			const detectedType = mapDocumentTypeFromAI(result);
+			if (detectedType) {
+				setType(detectedType);
+			}
+
+			setUploadState('ready');
+		} catch (error) {
+			console.error('Upload/Analysis error:', error);
+			notifications.show({
+				title: 'Error',
+				message: 'Failed to process document',
+				color: 'red',
+			});
+			setUploadState('idle');
+			setFiles([]);
 		}
 	}
 
@@ -87,6 +183,10 @@ export function UploadModal({
 
 	function handleRemoveFile() {
 		setFiles([]);
+		setType(null);
+		setUploadState('idle');
+		setAnalysisResult(null);
+		setUploadedFileName(null);
 	}
 
 	function handleTypeChange(value: string | null) {
@@ -103,58 +203,105 @@ export function UploadModal({
 			return;
 		}
 
-		if (files.length === 0) {
+		if (!uploadedFileName) {
 			notifications.show({
 				title: 'Error',
-				message: 'Please select a file to upload',
+				message: 'No file uploaded',
 				color: 'red',
 			});
 			return;
 		}
 
 		try {
-			setLoading(true);
-			const file = files[0];
-			const folder = await getDocumentFolder(applicantId);
-			const fileName = `${Date.now()}-${file.name}`;
-
-			await uploadDocument(file, fileName, folder);
+			setSaving(true);
 
 			await saveApplicantDocument({
 				applicantId,
-				fileName,
+				fileName: uploadedFileName,
 				type,
 			});
 
+			if (analysisResult) {
+				if (analysisResult.category === 'identity' && type === 'identity') {
+					try {
+						await updateApplicantFromIdentity(applicantId, {
+							fullName: analysisResult.fullName,
+							dateOfBirth: analysisResult.dateOfBirth,
+							nationalId: analysisResult.nationalId,
+							nationality: analysisResult.nationality,
+							gender: analysisResult.gender,
+							birthPlace: analysisResult.birthPlace,
+							address: analysisResult.address,
+						});
+						notifications.show({
+							title: 'Personal Info Updated',
+							message:
+								'Applicant information has been updated from the identity document',
+							color: 'blue',
+						});
+					} catch {
+						console.error('Failed to update applicant info');
+					}
+				}
+
+				if (
+					analysisResult.category === 'academic' &&
+					(type === 'certificate' ||
+						type === 'transcript' ||
+						type === 'academic_record')
+				) {
+					if (analysisResult.examYear && analysisResult.institutionName) {
+						try {
+							await createAcademicRecordFromDocument(applicantId, {
+								institutionName: analysisResult.institutionName,
+								qualificationName: analysisResult.qualificationName,
+								examYear: analysisResult.examYear,
+								certificateType: analysisResult.certificateType,
+								subjects: analysisResult.subjects,
+								overallClassification: analysisResult.overallClassification,
+							});
+							notifications.show({
+								title: 'Academic Record Created',
+								message:
+									'A new academic record has been created from the document',
+								color: 'blue',
+							});
+						} catch {
+							console.error('Failed to create academic record');
+						}
+					}
+				}
+			}
+
 			notifications.show({
 				title: 'Success',
-				message: 'Document uploaded successfully',
+				message: 'Document saved successfully',
 				color: 'green',
 			});
 
 			router.refresh();
-
-			setFiles([]);
-			setType(null);
-			onClose();
+			handleClose();
 		} catch (error) {
-			console.error('Upload error:', error);
+			console.error('Save error:', error);
 			notifications.show({
 				title: 'Error',
-				message: 'Failed to upload document',
+				message: 'Failed to save document',
 				color: 'red',
 			});
 		} finally {
-			setLoading(false);
+			setSaving(false);
 		}
 	}
 
 	function handleClose() {
-		if (!loading) {
-			setFiles([]);
-			setType(null);
-			onClose();
-		}
+		if (uploadState === 'uploading' || uploadState === 'analyzing' || saving)
+			return;
+		setFiles([]);
+		setType(null);
+		setUploadState('idle');
+		setAnalysisResult(null);
+		setUploadedFileName(null);
+		onClose();
 	}
 
 	function getIcon() {
@@ -167,22 +314,41 @@ export function UploadModal({
 		return <IconFile size={40} stroke={1.5} />;
 	}
 
+	function getStatusMessage(): string {
+		switch (uploadState) {
+			case 'uploading':
+				return 'Uploading document...';
+			case 'analyzing':
+				return 'Analyzing document with AI...';
+			case 'ready':
+				return analysisResult
+					? `Detected: ${analysisResult.category} document`
+					: 'Analysis complete';
+			default:
+				return '';
+		}
+	}
+
+	const isProcessing =
+		uploadState === 'uploading' || uploadState === 'analyzing';
+	const isReady = uploadState === 'ready';
+
 	return (
 		<Modal
 			opened={opened}
 			onClose={handleClose}
 			title='Upload Document'
-			closeOnClickOutside={!loading}
-			closeOnEscape={!loading}
+			closeOnClickOutside={!isProcessing && !saving}
+			closeOnEscape={!isProcessing && !saving}
 		>
 			<Stack gap='lg'>
 				<Select
 					label='Document Type'
-					placeholder='Select type'
+					placeholder={isProcessing ? 'Detecting...' : 'Select type'}
 					data={TYPE_OPTIONS}
 					value={type}
 					onChange={handleTypeChange}
-					disabled={loading}
+					disabled={isProcessing}
 					required
 				/>
 
@@ -195,8 +361,8 @@ export function UploadModal({
 							maxSize={MAX_FILE_SIZE}
 							accept={ACCEPTED_MIME_TYPES}
 							style={{ cursor: 'pointer' }}
-							disabled={loading}
-							loading={loading}
+							disabled={isProcessing}
+							loading={isProcessing}
 						>
 							<Group
 								justify='center'
@@ -208,7 +374,7 @@ export function UploadModal({
 									<IconUpload stroke={1.5} size={20} />
 								</Dropzone.Accept>
 								<Dropzone.Reject>
-									<IconX
+									<IconFile
 										style={{
 											width: rem(52),
 											height: rem(52),
@@ -253,32 +419,52 @@ export function UploadModal({
 								</Text>
 							</Stack>
 
-							<Button
-								variant='light'
-								color='red'
-								size='sm'
-								leftSection={<IconTrash size={16} />}
-								onClick={handleRemoveFile}
-								disabled={loading}
-								mt='xs'
-							>
-								Remove File
-							</Button>
+							{isProcessing && (
+								<Stack gap='xs' w='100%'>
+									<Progress radius='xs' value={100} animated />
+									<Text size='xs' c='dimmed' ta='center'>
+										{getStatusMessage()}
+									</Text>
+								</Stack>
+							)}
+
+							{isReady && analysisResult && (
+								<Text size='xs' c='blue' ta='center'>
+									{getStatusMessage()}
+								</Text>
+							)}
+
+							{!isProcessing && !saving && (
+								<Button
+									variant='light'
+									color='red'
+									size='sm'
+									leftSection={<IconTrash size={16} />}
+									onClick={handleRemoveFile}
+									mt='xs'
+								>
+									Remove File
+								</Button>
+							)}
 						</Stack>
 					</Paper>
 				)}
 
 				<Group justify='flex-end' mt='md'>
-					<Button variant='subtle' onClick={handleClose} disabled={loading}>
+					<Button
+						variant='subtle'
+						onClick={handleClose}
+						disabled={isProcessing || saving}
+					>
 						Cancel
 					</Button>
 					<Button
 						leftSection={<IconUpload size={16} />}
 						onClick={handleSubmit}
-						loading={loading}
-						disabled={!type || files.length === 0}
+						loading={saving}
+						disabled={!type || files.length === 0 || !isReady}
 					>
-						Upload
+						{isReady ? 'Save' : 'Upload'}
 					</Button>
 				</Group>
 			</Stack>

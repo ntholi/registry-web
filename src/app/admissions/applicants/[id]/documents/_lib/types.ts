@@ -3,6 +3,7 @@ import type {
 	DocumentType,
 	DocumentVerificationStatus,
 	documents,
+	ResultClassification,
 } from '@/core/database';
 
 export type ApplicantDocument = typeof applicantDocuments.$inferSelect & {
@@ -19,4 +20,28 @@ export type UploadDocumentInput = {
 export type VerifyDocumentInput = {
 	status: DocumentVerificationStatus;
 	rejectionReason?: string;
+};
+
+export type ExtractedIdentityData = {
+	fullName?: string | null;
+	dateOfBirth?: string | null;
+	nationalId?: string | null;
+	nationality?: string | null;
+	gender?: string | null;
+	birthPlace?: string | null;
+	address?: string | null;
+};
+
+export type ExtractedAcademicData = {
+	institutionName?: string | null;
+	qualificationName?: string | null;
+	examYear?: number | null;
+	certificateType?: string | null;
+	subjects?:
+		| {
+				name: string;
+				grade: string;
+		  }[]
+		| null;
+	overallClassification?: ResultClassification | null;
 };

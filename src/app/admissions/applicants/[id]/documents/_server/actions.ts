@@ -1,7 +1,18 @@
 'use server';
 
+import { getApplicant, updateApplicant } from '@admissions/applicants';
+import { findAllCertificateTypes } from '@admissions/certificate-types';
 import type { DocumentType, DocumentVerificationStatus } from '@/core/database';
+import {
+	analyzeDocument,
+	type DocumentAnalysisResult,
+} from '@/core/integrations/ai';
 import { deleteDocument } from '@/core/integrations/storage';
+import { createAcademicRecord } from '../../academic-records/_server/actions';
+import type {
+	ExtractedAcademicData,
+	ExtractedIdentityData,
+} from '../_lib/types';
 import { applicantDocumentsService } from './service';
 
 const BASE_URL = 'https://pub-2b37ce26bd70421e9e59e4fe805c6873.r2.dev';
@@ -56,4 +67,104 @@ export async function deleteApplicantDocument(id: string, fileUrl: string) {
 	const key = fileUrl.replace(`${BASE_URL}/`, '');
 	await deleteDocument(key);
 	return applicantDocumentsService.delete(id);
+}
+
+export async function analyzeDocumentWithAI(
+	fileBase64: string,
+	mediaType: string
+): Promise<DocumentAnalysisResult> {
+	return analyzeDocument(fileBase64, mediaType);
+}
+
+export async function updateApplicantFromIdentity(
+	applicantId: string,
+	data: ExtractedIdentityData
+) {
+	const applicant = await getApplicant(applicantId);
+	if (!applicant) {
+		throw new Error('Applicant not found');
+	}
+
+	const updateData: Partial<typeof applicant> = {};
+
+	if (data.fullName && data.fullName !== applicant.fullName) {
+		updateData.fullName = data.fullName;
+	}
+	if (data.dateOfBirth && data.dateOfBirth !== applicant.dateOfBirth) {
+		updateData.dateOfBirth = data.dateOfBirth;
+	}
+	if (data.nationalId && data.nationalId !== applicant.nationalId) {
+		updateData.nationalId = data.nationalId;
+	}
+	if (data.nationality && data.nationality !== applicant.nationality) {
+		updateData.nationality = data.nationality;
+	}
+	if (data.gender && data.gender !== applicant.gender) {
+		updateData.gender = data.gender;
+	}
+	if (data.birthPlace && data.birthPlace !== applicant.birthPlace) {
+		updateData.birthPlace = data.birthPlace;
+	}
+	if (data.address && data.address !== applicant.address) {
+		updateData.address = data.address;
+	}
+
+	if (Object.keys(updateData).length > 0) {
+		return updateApplicant(applicantId, { ...applicant, ...updateData });
+	}
+
+	return applicant;
+}
+
+export async function createAcademicRecordFromDocument(
+	applicantId: string,
+	data: ExtractedAcademicData
+) {
+	if (!data.examYear || !data.institutionName) {
+		throw new Error('Exam year and institution name are required');
+	}
+
+	let certificateTypeId: number | null = null;
+
+	if (data.certificateType) {
+		const { items: certTypes } = await findAllCertificateTypes(1, '');
+		const normalizedSearchType = data.certificateType.toLowerCase().trim();
+
+		const matchedType = certTypes.find((ct) => {
+			const normalizedName = ct.name.toLowerCase().trim();
+			return (
+				normalizedName === normalizedSearchType ||
+				normalizedName.includes(normalizedSearchType) ||
+				normalizedSearchType.includes(normalizedName)
+			);
+		});
+
+		if (matchedType) {
+			certificateTypeId = matchedType.id;
+		}
+	}
+
+	if (!certificateTypeId) {
+		const { items: certTypes } = await findAllCertificateTypes(1, '');
+		if (certTypes.length > 0) {
+			certificateTypeId = certTypes[0].id;
+		} else {
+			throw new Error('No certificate types found in the system');
+		}
+	}
+
+	const isLevel4 = false;
+
+	return createAcademicRecord(
+		applicantId,
+		{
+			certificateTypeId,
+			examYear: data.examYear,
+			institutionName: data.institutionName,
+			qualificationName: data.qualificationName,
+			resultClassification: data.overallClassification,
+			subjectGrades: undefined,
+		},
+		isLevel4
+	);
 }
