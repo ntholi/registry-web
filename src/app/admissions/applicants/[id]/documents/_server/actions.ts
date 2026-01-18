@@ -2,12 +2,14 @@
 
 import { getApplicant, updateApplicant } from '@admissions/applicants';
 import { findAllCertificateTypes } from '@admissions/certificate-types';
+import { findOrCreateSubjectByName } from '@admissions/subjects';
 import type { DocumentType, DocumentVerificationStatus } from '@/core/database';
 import {
 	analyzeDocument,
 	type DocumentAnalysisResult,
 } from '@/core/integrations/ai';
 import { deleteDocument } from '@/core/integrations/storage';
+import type { SubjectGradeInput } from '../../academic-records/_lib/types';
 import { createAcademicRecord } from '../../academic-records/_server/actions';
 import type {
 	ExtractedAcademicData,
@@ -200,7 +202,20 @@ export async function createAcademicRecordFromDocument(
 		}
 	}
 
-	const isLevel4 = false;
+	let subjectGrades: SubjectGradeInput[] | undefined;
+	if (data.subjects && data.subjects.length > 0) {
+		subjectGrades = await Promise.all(
+			data.subjects.map(async (sub) => {
+				const subject = await findOrCreateSubjectByName(sub.name);
+				return {
+					subjectId: subject.id,
+					originalGrade: sub.grade,
+				};
+			})
+		);
+	}
+
+	const isLevel4 = !!(subjectGrades && subjectGrades.length > 0);
 
 	return createAcademicRecord(
 		applicantId,
@@ -210,7 +225,7 @@ export async function createAcademicRecordFromDocument(
 			institutionName: data.institutionName,
 			qualificationName: data.qualificationName,
 			resultClassification: data.overallClassification,
-			subjectGrades: undefined,
+			subjectGrades,
 		},
 		isLevel4
 	);

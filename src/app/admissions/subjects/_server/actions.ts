@@ -21,6 +21,14 @@ export async function findActiveSubjects() {
 	return subjectsService.findActive();
 }
 
+export async function findSubjectByName(name: string) {
+	return subjectsService.findByName(name);
+}
+
+export async function findOrCreateSubjectByName(name: string) {
+	return subjectsService.findOrCreateByName(name);
+}
+
 export async function createSubject(data: Subject) {
 	return subjectsService.create(data);
 }
