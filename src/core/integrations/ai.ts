@@ -143,7 +143,8 @@ CATEGORIES:
 
 RULES:
 - Dates: YYYY-MM-DD format
-- COSC grades: Extract NUMERIC value (e.g., "C(c SIX)" → "6", "B(b THREE)" → "3")
+- institutionName: Student's school (not examining body like Cambridge/ECoL)
+- COSC grades: Extract NUMERIC value (e.g., "C(c SIX)" → "6")
 - LGCSE/IGCSE grades: Use letter (A*, A, B, C, D, E, F, G, U)
 - Extract ALL subjects with grades
 - Use null for missing/illegible data`;
