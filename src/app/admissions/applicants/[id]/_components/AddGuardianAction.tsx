@@ -39,6 +39,7 @@ export default function AddGuardianAction({ applicantId }: Props) {
 			address: '',
 			occupation: '',
 			companyName: '',
+			phoneNumber: '',
 		},
 		validate: {
 			name: (v) => (v ? null : 'Name is required'),
@@ -47,8 +48,13 @@ export default function AddGuardianAction({ applicantId }: Props) {
 	});
 
 	const createMutation = useMutation({
-		mutationFn: (data: typeof form.values) =>
-			createGuardian({ ...data, applicantId }),
+		mutationFn: (data: typeof form.values) => {
+			const { phoneNumber, ...guardianData } = data;
+			return createGuardian(
+				{ ...guardianData, applicantId },
+				phoneNumber || undefined
+			);
+		},
 		onSuccess: () => {
 			form.reset();
 			close();
@@ -95,6 +101,11 @@ export default function AddGuardianAction({ applicantId }: Props) {
 							required
 							data={relationshipOptions}
 							{...form.getInputProps('relationship')}
+						/>
+						<TextInput
+							label='Phone Number'
+							placeholder='Primary phone number'
+							{...form.getInputProps('phoneNumber')}
 						/>
 						<TextInput
 							label='Occupation'

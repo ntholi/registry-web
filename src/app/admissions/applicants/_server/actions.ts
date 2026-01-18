@@ -37,8 +37,8 @@ export async function removeApplicantPhone(phoneId: number) {
 	return applicantsService.removePhone(phoneId);
 }
 
-export async function createGuardian(data: Guardian) {
-	return applicantsService.createGuardian(data);
+export async function createGuardian(data: Guardian, phoneNumber?: string) {
+	return applicantsService.createGuardian(data, phoneNumber);
 }
 
 export async function updateGuardian(id: number, data: Partial<Guardian>) {
