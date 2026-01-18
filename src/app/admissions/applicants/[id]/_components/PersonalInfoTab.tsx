@@ -1,6 +1,8 @@
 'use client';
 
-import { Grid, Paper, Stack, Text } from '@mantine/core';
+import { SimpleGrid } from '@mantine/core';
+import { formatDate } from '@/shared/lib/utils/dates';
+import { DetailsViewBody, FieldView } from '@/shared/ui/adease';
 
 type Props = {
 	fullName: string;
@@ -12,26 +14,6 @@ type Props = {
 	address: string | null;
 };
 
-interface InfoCardProps {
-	label: string;
-	value: string | null | undefined;
-}
-
-function InfoCard({ label, value }: InfoCardProps) {
-	return (
-		<Paper p='md' radius='md' withBorder>
-			<Stack gap={4}>
-				<Text size='xs' c='dimmed' tt='uppercase' fw={500}>
-					{label}
-				</Text>
-				<Text size='sm' fw={500}>
-					{value || '—'}
-				</Text>
-			</Stack>
-		</Paper>
-	);
-}
-
 export default function PersonalInfoTab({
 	fullName,
 	dateOfBirth,
@@ -42,28 +24,18 @@ export default function PersonalInfoTab({
 	address,
 }: Props) {
 	return (
-		<Grid gutter='md'>
-			<Grid.Col span={{ base: 12, sm: 6, md: 4 }}>
-				<InfoCard label='Full Name' value={fullName} />
-			</Grid.Col>
-			<Grid.Col span={{ base: 12, sm: 6, md: 4 }}>
-				<InfoCard label='Date of Birth' value={dateOfBirth} />
-			</Grid.Col>
-			<Grid.Col span={{ base: 12, sm: 6, md: 4 }}>
-				<InfoCard label='National ID' value={nationalId} />
-			</Grid.Col>
-			<Grid.Col span={{ base: 12, sm: 6, md: 4 }}>
-				<InfoCard label='Nationality' value={nationality} />
-			</Grid.Col>
-			<Grid.Col span={{ base: 12, sm: 6, md: 4 }}>
-				<InfoCard label='Birth Place' value={birthPlace} />
-			</Grid.Col>
-			<Grid.Col span={{ base: 12, sm: 6, md: 4 }}>
-				<InfoCard label='Religion' value={religion} />
-			</Grid.Col>
-			<Grid.Col span={12}>
-				<InfoCard label='Address' value={address} />
-			</Grid.Col>
-		</Grid>
+		<DetailsViewBody mt={'xl'} pt={0}>
+			<FieldView label='Full Name'>{fullName}</FieldView>
+			<SimpleGrid cols={{ base: 1, sm: 2 }} verticalSpacing='xl'>
+				<FieldView label='Date of Birth'>{formatDate(dateOfBirth)}</FieldView>
+				<FieldView label='National ID'>{nationalId}</FieldView>
+				<FieldView label='Nationality'>{nationality}</FieldView>
+				<FieldView label='Birth Place'>{birthPlace}</FieldView>
+				<FieldView label='Religion'>{religion}</FieldView>
+			</SimpleGrid>
+			<FieldView label='Address' mt='md'>
+				{address}
+			</FieldView>
+		</DetailsViewBody>
 	);
 }

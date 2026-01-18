@@ -54,7 +54,6 @@ You are a **Senior Principal Software Engineer** and **System Architect** specia
 - **Barrel exports** (`_database/index.ts`) re-export all schemas from that module.
 - **Server code** (repositories, services, actions) CAN import from `@/core/database`.
 - **Client components** SHOULD import schemas from module `_database` (e.g., `@academic/_database`).
-- The `@/core/database` module is marked `'server-only'` and will fail if imported in client components.
 
 ### React & Next.js Patterns
 - **Server Components (RSC)**: Default for all pages/layouts. Use `async/await` for initial data load.
@@ -174,7 +173,7 @@ src/
 │   ├── dashboard/             # Main dashboard shell
 │   └── student-portal/        # Student-facing portal (different layout)
 ├── core/
-│   ├── database/              # Aggregated schemas, db instance (server-only)
+│   ├── database/              # Aggregated schemas, db instance (server only)
 │   ├── platform/              # BaseRepository, BaseService, withAuth
 │   └── auth.ts
 ├── shared/
