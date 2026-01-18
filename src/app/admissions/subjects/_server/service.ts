@@ -37,6 +37,27 @@ class SubjectService extends BaseService<typeof subjects, 'id'> {
 		);
 	}
 
+	async addAlias(subjectId: number, alias: string) {
+		return withAuth(
+			async () => this.repo.addAlias(subjectId, alias),
+			['registry', 'admin']
+		);
+	}
+
+	async removeAlias(aliasId: number) {
+		return withAuth(
+			async () => this.repo.removeAlias(aliasId),
+			['registry', 'admin']
+		);
+	}
+
+	async getAliases(subjectId: number) {
+		return withAuth(
+			async () => this.repo.getAliases(subjectId),
+			['registry', 'admin']
+		);
+	}
+
 	override async delete(id: number) {
 		return withAuth(async () => {
 			const isInUse = await this.repo.isInUse(id);

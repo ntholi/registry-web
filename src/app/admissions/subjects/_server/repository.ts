@@ -10,6 +10,13 @@ export default class SubjectRepository extends BaseRepository<
 		super(subjects, subjects.id);
 	}
 
+	override async findById(id: number) {
+		return db.query.subjects.findFirst({
+			where: eq(subjects.id, id),
+			with: { aliases: true },
+		});
+	}
+
 	async findByName(name: string) {
 		const trimmedName = name.trim();
 
@@ -62,5 +69,24 @@ export default class SubjectRepository extends BaseRepository<
 			.where(eq(subjects.id, id))
 			.returning()
 			.then((rows) => rows[0]);
+	}
+
+	async addAlias(subjectId: number, alias: string) {
+		const [created] = await db
+			.insert(subjectAliases)
+			.values({ subjectId, alias: alias.trim() })
+			.returning();
+		return created;
+	}
+
+	async removeAlias(aliasId: number) {
+		await db.delete(subjectAliases).where(eq(subjectAliases.id, aliasId));
+	}
+
+	async getAliases(subjectId: number) {
+		return db.query.subjectAliases.findMany({
+			where: eq(subjectAliases.subjectId, subjectId),
+			orderBy: (a, { asc }) => [asc(a.alias)],
+		});
 	}
 }

@@ -1,4 +1,4 @@
-import { Badge } from '@mantine/core';
+import { Badge, List, ListItem, Paper, Text } from '@mantine/core';
 import { notFound } from 'next/navigation';
 import {
 	DetailsView,
@@ -6,6 +6,7 @@ import {
 	DetailsViewHeader,
 	FieldView,
 } from '@/shared/ui/adease';
+import type { SubjectWithAliases } from '../_lib/types';
 import { deleteSubject, getSubject } from '../_server/actions';
 
 type Props = {
@@ -14,7 +15,7 @@ type Props = {
 
 export default async function SubjectDetails({ params }: Props) {
 	const { id } = await params;
-	const item = await getSubject(Number(id));
+	const item = (await getSubject(Number(id))) as SubjectWithAliases | null;
 
 	if (!item) {
 		return notFound();
@@ -37,6 +38,22 @@ export default async function SubjectDetails({ params }: Props) {
 						{item.isActive ? 'Active' : 'Inactive'}
 					</Badge>
 				</FieldView>
+				<Paper withBorder p='md'>
+					<Text fw={500} size='sm' mb='xs'>
+						Aliases
+					</Text>
+					{item.aliases?.length > 0 ? (
+						<List size='sm' spacing='xs'>
+							{item.aliases.map((a) => (
+								<ListItem key={a.id}>{a.alias}</ListItem>
+							))}
+						</List>
+					) : (
+						<Text size='sm' c='dimmed' fs='italic'>
+							No aliases
+						</Text>
+					)}
+				</Paper>
 			</DetailsViewBody>
 		</DetailsView>
 	);

@@ -40,3 +40,15 @@ export async function deleteSubject(id: number) {
 export async function toggleSubjectActive(id: number) {
 	return subjectsService.toggleActive(id);
 }
+
+export async function addSubjectAlias(subjectId: number, alias: string) {
+	return subjectsService.addAlias(subjectId, alias);
+}
+
+export async function removeSubjectAlias(aliasId: number) {
+	return subjectsService.removeAlias(aliasId);
+}
+
+export async function getSubjectAliases(subjectId: number) {
+	return subjectsService.getAliases(subjectId);
+}
