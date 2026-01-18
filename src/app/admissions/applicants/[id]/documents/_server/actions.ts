@@ -1,11 +1,14 @@
 'use server';
 
 import type { DocumentType, DocumentVerificationStatus } from '@/core/database';
-import {
-	deleteDocument,
-	uploadDocument as uploadToStorage,
-} from '@/core/integrations/storage';
+import { deleteDocument } from '@/core/integrations/storage';
 import { applicantDocumentsService } from './service';
+
+const R2_PUBLIC_URL = process.env.R2_PUBLIC_URL || '';
+
+export async function getDocumentFolder(applicantId: string) {
+	return `documents/admissions/applicants/${applicantId}`;
+}
 
 export async function getApplicantDocument(id: string) {
 	return applicantDocumentsService.get(id);
@@ -22,28 +25,22 @@ export async function findDocumentsByType(
 	return applicantDocumentsService.findByType(applicantId, type);
 }
 
-export async function uploadApplicantDocument(
-	applicantId: string,
-	file: File,
-	type: DocumentType
-) {
-	const folder = `documents/admissions/applicants/${applicantId}`;
-	const fileName = await uploadToStorage(
-		file,
-		`${Date.now()}-${file.name}`,
-		folder
-	);
-
-	const fileUrl = `${process.env.R2_PUBLIC_URL}/${folder}/${fileName}`;
+export async function saveApplicantDocument(data: {
+	applicantId: string;
+	fileName: string;
+	type: DocumentType;
+}) {
+	const folder = getDocumentFolder(data.applicantId);
+	const fileUrl = `${R2_PUBLIC_URL}/${folder}/${data.fileName}`;
 
 	return applicantDocumentsService.uploadDocument(
 		{
-			fileName: file.name,
+			fileName: data.fileName,
 			fileUrl,
-			type,
+			type: data.type,
 		},
-		applicantId,
-		file.size
+		data.applicantId,
+		0
 	);
 }
 
@@ -56,9 +53,7 @@ export async function verifyApplicantDocument(
 }
 
 export async function deleteApplicantDocument(id: string, fileUrl: string) {
-	const publicUrl = process.env.R2_PUBLIC_URL || '';
-	const key = fileUrl.replace(`${publicUrl}/`, '');
-
+	const key = fileUrl.replace(`${R2_PUBLIC_URL}/`, '');
 	await deleteDocument(key);
 	return applicantDocumentsService.delete(id);
 }
