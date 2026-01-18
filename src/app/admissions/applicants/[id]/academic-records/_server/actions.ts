@@ -64,3 +64,9 @@ export async function updateAcademicRecord(
 export async function deleteAcademicRecord(id: number) {
 	return academicRecordsService.delete(id);
 }
+
+export async function findAcademicRecordByCertificateNumber(
+	certificateNumber: string
+) {
+	return academicRecordsService.findByCertificateNumber(certificateNumber);
+}

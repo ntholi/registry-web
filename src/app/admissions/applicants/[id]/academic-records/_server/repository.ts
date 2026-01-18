@@ -1,5 +1,5 @@
 import type { StandardGrade } from '@admissions/_database';
-import { count, eq } from 'drizzle-orm';
+import { and, count, eq, isNotNull } from 'drizzle-orm';
 import { academicRecords, db, subjectGrades } from '@/core/database';
 import BaseRepository from '@/core/platform/BaseRepository';
 
@@ -128,5 +128,18 @@ export default class AcademicRecordRepository extends BaseRepository<
 
 	async removeById(id: number) {
 		await db.delete(academicRecords).where(eq(academicRecords.id, id));
+	}
+
+	async findByCertificateNumber(certificateNumber: string) {
+		return db.query.academicRecords.findFirst({
+			where: and(
+				eq(academicRecords.certificateNumber, certificateNumber),
+				isNotNull(academicRecords.certificateNumber)
+			),
+			with: {
+				certificateType: true,
+				subjectGrades: { with: { subject: true } },
+			},
+		});
 	}
 }

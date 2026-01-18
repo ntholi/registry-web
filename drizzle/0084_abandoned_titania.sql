@@ -1,0 +1,1 @@
+ALTER TABLE "academic_records" ADD CONSTRAINT "academic_records_certificateNumber_unique" UNIQUE("certificate_number");

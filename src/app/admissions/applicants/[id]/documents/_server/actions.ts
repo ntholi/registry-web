@@ -10,7 +10,11 @@ import {
 } from '@/core/integrations/ai';
 import { deleteDocument } from '@/core/integrations/storage';
 import type { SubjectGradeInput } from '../../academic-records/_lib/types';
-import { createAcademicRecord } from '../../academic-records/_server/actions';
+import {
+	createAcademicRecord,
+	findAcademicRecordByCertificateNumber,
+	updateAcademicRecord,
+} from '../../academic-records/_server/actions';
 import type {
 	ExtractedAcademicData,
 	ExtractedIdentityData,
@@ -217,6 +221,27 @@ export async function createAcademicRecordFromDocument(
 	}
 
 	const isLevel4 = !!(subjectGrades && subjectGrades.length > 0);
+
+	if (data.certificateNumber) {
+		const existing = await findAcademicRecordByCertificateNumber(
+			data.certificateNumber
+		);
+		if (existing) {
+			return updateAcademicRecord(
+				existing.id,
+				{
+					certificateTypeId,
+					examYear: data.examYear,
+					institutionName: data.institutionName,
+					qualificationName: data.qualificationName,
+					certificateNumber: data.certificateNumber,
+					resultClassification: data.overallClassification,
+					subjectGrades,
+				},
+				isLevel4
+			);
+		}
+	}
 
 	return createAcademicRecord(
 		applicantId,
