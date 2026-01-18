@@ -1,194 +1,209 @@
 'use server';
 
 import { google } from '@ai-sdk/google';
-import { generateText, Output } from 'ai';
+import { generateText, NoObjectGeneratedError, Output } from 'ai';
 import { z } from 'zod';
 
 const model = google('gemini-2.5-flash-lite');
+
+const identitySchema = z.object({
+	documentType: z
+		.enum(['identity', 'passport_photo', 'other'])
+		.describe('Type: identity card, passport photo, or other ID document'),
+	fullName: z
+		.string()
+		.nullable()
+		.describe('Complete legal name as shown on document'),
+	dateOfBirth: z
+		.string()
+		.nullable()
+		.describe('Birth date in YYYY-MM-DD format'),
+	nationalId: z
+		.string()
+		.nullable()
+		.describe('Government-issued ID number (passport, national ID)'),
+	nationality: z
+		.string()
+		.nullable()
+		.describe('Country of citizenship (e.g., Lesotho, South Africa)'),
+	gender: z
+		.enum(['Male', 'Female'])
+		.nullable()
+		.describe('Biological sex as stated on document'),
+	birthPlace: z.string().nullable().describe('City/town of birth'),
+	address: z.string().nullable().describe('Residential address if visible'),
+	expiryDate: z
+		.string()
+		.nullable()
+		.describe('Document expiration in YYYY-MM-DD format'),
+});
+
+const academicSchema = z.object({
+	documentType: z
+		.enum([
+			'certificate',
+			'transcript',
+			'academic_record',
+			'recommendation_letter',
+			'other',
+		])
+		.describe('Academic document classification'),
+	institutionName: z
+		.string()
+		.nullable()
+		.describe('Full name of school, college, or university'),
+	qualificationName: z
+		.string()
+		.nullable()
+		.describe('Degree, diploma, or certificate title'),
+	examYear: z
+		.number()
+		.nullable()
+		.describe('Year examination was completed (4-digit)'),
+	certificateType: z
+		.string()
+		.nullable()
+		.describe(
+			'Certificate standard: LGCSE, COSC, IGCSE, A-Level, Diploma, Degree'
+		),
+	subjects: z
+		.array(
+			z.object({
+				name: z.string().describe('Subject/course name'),
+				grade: z.string().describe('Grade/mark achieved'),
+			})
+		)
+		.nullable()
+		.describe('Individual subject results'),
+	overallClassification: z
+		.enum(['Distinction', 'Merit', 'Credit', 'Pass', 'Fail'])
+		.nullable()
+		.describe('Overall qualification grade classification'),
+	studentName: z
+		.string()
+		.nullable()
+		.describe('Student name appearing on document'),
+});
+
+const otherSchema = z.object({
+	documentType: z
+		.enum([
+			'proof_of_payment',
+			'personal_statement',
+			'medical_report',
+			'enrollment_letter',
+			'clearance_form',
+			'other',
+		])
+		.describe('Type of supporting document'),
+	description: z
+		.string()
+		.nullable()
+		.describe('Summary of document purpose and content'),
+});
 
 const documentAnalysisSchema = z.object({
 	category: z
 		.enum(['identity', 'academic', 'other'])
 		.describe(
-			'Document category: "identity" for IDs/passports, "academic" for certificates/transcripts, "other" for other documents'
+			'Primary classification: identity (IDs/passports), academic (certificates/transcripts), other'
 		),
-	identity: z
-		.object({
-			documentType: z
-				.enum(['identity', 'passport_photo', 'other'])
-				.describe('The type of identity document'),
-			fullName: z.string().nullable().describe('Full name of the person'),
-			dateOfBirth: z
-				.string()
-				.nullable()
-				.describe('Date of birth in YYYY-MM-DD format'),
-			nationalId: z
-				.string()
-				.nullable()
-				.describe('National ID, passport number, or similar identifier'),
-			nationality: z
-				.string()
-				.nullable()
-				.describe('Nationality or country of citizenship'),
-			gender: z.enum(['Male', 'Female']).nullable().describe('Gender'),
-			birthPlace: z.string().nullable().describe('Place of birth'),
-			address: z.string().nullable().describe('Address if available'),
-			expiryDate: z
-				.string()
-				.nullable()
-				.describe('Document expiry date in YYYY-MM-DD format'),
-		})
+	identity: identitySchema
 		.nullable()
-		.describe('Populated only when category is "identity"'),
-	academic: z
-		.object({
-			documentType: z
-				.enum([
-					'certificate',
-					'transcript',
-					'academic_record',
-					'recommendation_letter',
-					'other',
-				])
-				.describe('Type of academic document'),
-			institutionName: z
-				.string()
-				.nullable()
-				.describe('Name of the educational institution'),
-			qualificationName: z
-				.string()
-				.nullable()
-				.describe('Name of qualification or program'),
-			examYear: z
-				.number()
-				.nullable()
-				.describe('Year of examination/graduation'),
-			certificateType: z
-				.string()
-				.nullable()
-				.describe(
-					'Type of certificate (LGCSE, COSC, IGCSE, A-Level, Diploma, Degree)'
-				),
-			subjects: z
-				.array(
-					z.object({
-						name: z.string().describe('Subject name'),
-						grade: z.string().describe('Grade obtained'),
-					})
-				)
-				.nullable()
-				.describe('List of subjects and grades'),
-			overallClassification: z
-				.enum(['Distinction', 'Merit', 'Credit', 'Pass', 'Fail'])
-				.nullable()
-				.describe('Overall result classification'),
-			studentName: z
-				.string()
-				.nullable()
-				.describe('Name of the student on the certificate'),
-		})
+		.describe('Identity document data - only when category is identity'),
+	academic: academicSchema
 		.nullable()
-		.describe('Populated only when category is "academic"'),
-	other: z
-		.object({
-			documentType: z
-				.enum([
-					'proof_of_payment',
-					'personal_statement',
-					'medical_report',
-					'enrollment_letter',
-					'clearance_form',
-					'other',
-				])
-				.describe('The detected document type'),
-			description: z
-				.string()
-				.nullable()
-				.describe('Brief description of the document content'),
-		})
+		.describe('Academic document data - only when category is academic'),
+	other: otherSchema
 		.nullable()
-		.describe('Populated only when category is "other"'),
+		.describe('Other document data - only when category is other'),
 });
 
-type DocumentAnalysisOutput = z.infer<typeof documentAnalysisSchema>;
-
-export type IdentityDocumentResult = NonNullable<
-	DocumentAnalysisOutput['identity']
->;
-export type CertificateDocumentResult = NonNullable<
-	DocumentAnalysisOutput['academic']
->;
-export type OtherDocumentResult = NonNullable<DocumentAnalysisOutput['other']>;
+export type IdentityDocumentResult = z.infer<typeof identitySchema>;
+export type CertificateDocumentResult = z.infer<typeof academicSchema>;
+export type OtherDocumentResult = z.infer<typeof otherSchema>;
 
 export type DocumentAnalysisResult =
 	| ({ category: 'identity' } & IdentityDocumentResult)
 	| ({ category: 'academic' } & CertificateDocumentResult)
 	| ({ category: 'other' } & OtherDocumentResult);
 
+const SYSTEM_PROMPT = `You are a document analysis expert specializing in extracting structured data from identity documents, academic certificates, and other official documents. You have expertise in recognizing document formats from Southern African countries (Lesotho, South Africa, Botswana, etc.) and international standards.`;
+
+const ANALYSIS_PROMPT = `Analyze this document image and extract all relevant information.
+
+CLASSIFICATION:
+- "identity": National IDs, passports, driver licenses, birth certificates
+- "academic": Certificates, diplomas, transcripts, result slips, recommendation letters
+- "other": Payment receipts, personal statements, medical reports, clearance forms
+
+EXTRACTION RULES:
+- Populate ONLY the field matching the detected category (set others to null)
+- Dates must be in YYYY-MM-DD format
+- National IDs: extract exact number as shown
+- Nationality: use full country name (e.g., "Lesotho", "South Africa")
+- Certificate types: identify as LGCSE, COSC, IGCSE, A-Level, Diploma, Bachelor's Degree, etc.
+- Extract ALL visible subjects with their grades
+- Use null for unclear, missing, or illegible information`;
+
 export async function analyzeDocument(
 	fileBase64: string,
 	mediaType: string
 ): Promise<DocumentAnalysisResult> {
-	const { output } = await generateText({
-		model,
-		output: Output.object({ schema: documentAnalysisSchema }),
-		messages: [
-			{
-				role: 'user',
-				content: [
-					{
-						type: 'text',
-						text: `Analyze this document and extract all relevant information in a single pass.
+	try {
+		const { output } = await generateText({
+			model,
+			system: SYSTEM_PROMPT,
+			output: Output.object({
+				schema: documentAnalysisSchema,
+				name: 'DocumentAnalysis',
+				description:
+					'Extracted data from identity, academic, or other documents',
+			}),
+			messages: [
+				{
+					role: 'user',
+					content: [
+						{ type: 'text', text: ANALYSIS_PROMPT },
+						{ type: 'file', data: fileBase64, mediaType },
+					],
+				},
+			],
+		});
 
-1. First, determine the document CATEGORY:
-   - "identity": National IDs, passports, driver licenses, government-issued identification
-   - "academic": Certificates, diplomas, transcripts, result slips, educational documents
-   - "other": Payment receipts, letters, medical reports, other documents
+		if (!output) {
+			throw new Error('Failed to analyze document: no output generated');
+		}
 
-2. Based on the category, populate ONLY the corresponding field with extracted data:
-   - If category is "identity", populate the "identity" field and leave "academic" and "other" as null
-   - If category is "academic", populate the "academic" field and leave "identity" and "other" as null
-   - If category is "other", populate the "other" field and leave "identity" and "academic" as null
+		const { category, identity, academic, other } = output;
 
-EXTRACTION GUIDELINES:
-- For dates, use YYYY-MM-DD format
-- For national IDs, include the full number exactly as shown
-- For nationality, use country name (e.g., "Lesotho", "South Africa")
-- For certificateType, identify: LGCSE, COSC, IGCSE, A-Level, Diploma, Bachelor's Degree, etc.
-- For subjects, extract all visible subject names with their grades
-- If information is unclear or not visible, use null`,
-					},
-					{
-						type: 'file',
-						data: fileBase64,
-						mediaType,
-					},
-				],
-			},
-		],
-	});
+		if (category === 'identity' && identity) {
+			return { category: 'identity', ...identity };
+		}
 
-	if (!output) {
-		throw new Error('Failed to analyze document');
+		if (category === 'academic' && academic) {
+			return { category: 'academic', ...academic };
+		}
+
+		if (other) {
+			return { category: 'other', ...other };
+		}
+
+		return {
+			category: 'other',
+			documentType: 'other',
+			description: 'Unable to classify document',
+		};
+	} catch (error) {
+		if (NoObjectGeneratedError.isInstance(error)) {
+			console.error('Document analysis failed:', {
+				cause: error.cause,
+				text: error.text,
+			});
+			throw new Error(
+				`Failed to extract structured data from document: ${error.cause}`
+			);
+		}
+		throw error;
 	}
-
-	const { category, identity, academic, other } = output;
-
-	if (category === 'identity' && identity) {
-		return { category: 'identity', ...identity };
-	}
-
-	if (category === 'academic' && academic) {
-		return { category: 'academic', ...academic };
-	}
-
-	if (other) {
-		return { category: 'other', ...other };
-	}
-
-	return {
-		category: 'other',
-		documentType: 'other',
-		description: 'Unable to classify document',
-	};
 }
