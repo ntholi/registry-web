@@ -57,13 +57,10 @@ export default async function ApplyCoursesPage({
 			<Container size='xl' py='xl'>
 				<Stack gap='xl'>
 					<Stack gap='xs'>
-						<Text size='xs' c='dimmed' tt='uppercase' fw={600}>
-							Limkokwing University
-						</Text>
 						<Title order={1} fw={600}>
-							Browse available courses
+							Browse Courses
 						</Title>
-						<Text c='dimmed' maw={720}>
+						<Text c='dimmed' size='sm' maw={720}>
 							Explore programs that currently accept applications. Filter by
 							school and program level to narrow your selection.
 						</Text>

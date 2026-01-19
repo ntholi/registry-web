@@ -10,29 +10,18 @@ interface CourseFilterValues {
 	level?: ProgramLevel;
 }
 
-interface CoursesFiltersProps {
+interface Props {
 	schools: SchoolSummary[];
 	levels: ProgramLevel[];
 	value: CourseFilterValues;
 }
 
-export default function CoursesFilters({
-	schools,
-	levels,
-	value,
-}: CoursesFiltersProps) {
+export default function CoursesFilters({ schools, levels, value }: Props) {
 	const [filter, setFilter] = useQueryStates({
 		schoolId: parseAsInteger,
 		level: parseAsString,
 		page: parseAsInteger,
 	});
-
-	function toSingleValue(nextValue: string | string[] | null) {
-		if (!nextValue) {
-			return undefined;
-		}
-		return Array.isArray(nextValue) ? nextValue[0] : nextValue;
-	}
 
 	const levelValue = filter.level ?? value.level ?? null;
 	const schoolValue = (filter.schoolId ?? value.schoolId)?.toString() ?? null;
@@ -59,48 +48,44 @@ export default function CoursesFilters({
 					All
 				</Chip>
 
-				<Chip.Group
-					value={selectedLevel ?? undefined}
-					onChange={(nextValue) => {
-						const resolved = toSingleValue(nextValue);
-						setFilter({
-							level:
-								resolved && isProgramLevel(resolved, levels) ? resolved : null,
-							page: null,
-						});
-					}}
-				>
-					<Group gap='xs' wrap='nowrap'>
-						{levelOptions.map((level) => (
-							<Chip key={level} value={level} variant='filled'>
-								{levelLabel(level)}
-							</Chip>
-						))}
-					</Group>
-				</Chip.Group>
+				<Group gap='xs' wrap='nowrap'>
+					{levelOptions.map((level) => (
+						<Chip
+							key={level}
+							value={level}
+							variant='filled'
+							checked={selectedLevel === level}
+							onChange={() => {
+								setFilter({
+									level: selectedLevel === level ? null : level,
+									page: null,
+								});
+							}}
+						>
+							{levelLabel(level)}
+						</Chip>
+					))}
+				</Group>
 
-				<Chip.Group
-					value={schoolValue ?? undefined}
-					onChange={(nextValue) => {
-						const resolved = toSingleValue(nextValue);
-						setFilter({
-							schoolId: resolved ? Number(resolved) : null,
-							page: null,
-						});
-					}}
-				>
-					<Group gap='xs' wrap='nowrap'>
-						{schools.map((school) => (
-							<Chip
-								key={school.id}
-								value={school.id.toString()}
-								variant='filled'
-							>
-								{school.shortName ?? school.name}
-							</Chip>
-						))}
-					</Group>
-				</Chip.Group>
+				<Group gap='xs' wrap='nowrap'>
+					{schools.map((school) => (
+						<Chip
+							key={school.id}
+							value={school.id.toString()}
+							variant='filled'
+							checked={schoolValue === school.id.toString()}
+							onChange={() => {
+								setFilter({
+									schoolId:
+										schoolValue === school.id.toString() ? null : school.id,
+									page: null,
+								});
+							}}
+						>
+							{school.shortName ?? school.name}
+						</Chip>
+					))}
+				</Group>
 			</Group>
 		</ScrollArea>
 	);
