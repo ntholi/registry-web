@@ -28,6 +28,7 @@ export async function createAcademicRecord(
 		examYear: input.examYear,
 		institutionName: input.institutionName,
 		qualificationName: input.qualificationName,
+		certificateNumber: input.certificateNumber,
 		resultClassification: input.resultClassification,
 	};
 
@@ -48,6 +49,7 @@ export async function updateAcademicRecord(
 		examYear: input.examYear,
 		institutionName: input.institutionName,
 		qualificationName: input.qualificationName,
+		certificateNumber: input.certificateNumber,
 		resultClassification: input.resultClassification,
 	};
 
@@ -61,4 +63,10 @@ export async function updateAcademicRecord(
 
 export async function deleteAcademicRecord(id: number) {
 	return academicRecordsService.delete(id);
+}
+
+export async function findAcademicRecordByCertificateNumber(
+	certificateNumber: string
+) {
+	return academicRecordsService.findByCertificateNumber(certificateNumber);
 }

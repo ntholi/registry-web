@@ -71,9 +71,12 @@ class ApplicantService extends BaseService<typeof applicants, 'id'> {
 		);
 	}
 
-	async createGuardian(data: typeof guardians.$inferInsert) {
+	async createGuardian(
+		data: typeof guardians.$inferInsert,
+		phoneNumber?: string
+	) {
 		return withAuth(
-			async () => this.repo.createGuardian(data),
+			async () => this.repo.createGuardian(data, phoneNumber),
 			['registry', 'admin']
 		);
 	}

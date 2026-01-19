@@ -82,9 +82,19 @@ export default class ApplicantRepository extends BaseRepository<
 		await db.delete(applicantPhones).where(eq(applicantPhones.id, phoneId));
 	}
 
-	async createGuardian(data: typeof guardians.$inferInsert) {
-		const [guardian] = await db.insert(guardians).values(data).returning();
-		return guardian;
+	async createGuardian(
+		data: typeof guardians.$inferInsert,
+		phoneNumber?: string
+	) {
+		return db.transaction(async (tx) => {
+			const [guardian] = await tx.insert(guardians).values(data).returning();
+			if (phoneNumber) {
+				await tx
+					.insert(guardianPhones)
+					.values({ guardianId: guardian.id, phoneNumber });
+			}
+			return guardian;
+		});
 	}
 
 	async updateGuardian(

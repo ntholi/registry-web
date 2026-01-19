@@ -15,16 +15,13 @@ import {
 	Text,
 } from '@mantine/core';
 import { modals } from '@mantine/modals';
-import {
-	IconChevronRight,
-	IconChevronUp,
-	IconLogout2,
-} from '@tabler/icons-react';
+import { IconLogout2 } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
+import type { Session } from 'next-auth';
 import { signOut, useSession } from 'next-auth/react';
-import React from 'react';
+import type React from 'react';
 import { academicConfig } from '@/app/academic/academic.config';
 import { adminConfig } from '@/app/admin/admin.config';
 import { admissionsConfig } from '@/app/admissions/admissions.config';
@@ -38,10 +35,52 @@ import Logo from '@/shared/ui/Logo';
 import { timetableConfig } from '../timetable/timetable.config';
 import type { NavItem } from './module-config.types';
 
+type NavigationGroup = {
+	moduleName: string;
+	items: NavItem[];
+};
+
+function isItemVisible(item: NavItem, session: Session | null): boolean {
+	if (item.isVisible && !item.isVisible(session)) {
+		return false;
+	}
+
+	if (
+		item.roles &&
+		(!session?.user?.role ||
+			!item.roles.includes(session.user.role as UserRole))
+	) {
+		return false;
+	}
+
+	return true;
+}
+
+function filterNavigationItems(
+	items: NavItem[],
+	session: Session | null
+): NavItem[] {
+	return items
+		.filter((item) => isItemVisible(item, session))
+		.map((item) => {
+			if (!item.children) {
+				return item;
+			}
+
+			const children = filterNavigationItems(item.children, session);
+			if (children.length === 0) {
+				return { ...item, children: undefined };
+			}
+
+			return { ...item, children };
+		})
+		.filter((item) => !!item.href || (item.children?.length ?? 0) > 0);
+}
+
 function getNavigation(
 	department: DashboardUser,
 	moduleConfig: ClientModuleConfig
-) {
+): NavigationGroup[] {
 	const allConfigs = [
 		{ config: timetableConfig, enabled: moduleConfig.timetable },
 		{ config: academicConfig, enabled: moduleConfig.academic },
@@ -51,18 +90,6 @@ function getNavigation(
 		{ config: financeConfig, enabled: moduleConfig.finance },
 		{ config: adminConfig, enabled: moduleConfig.admin },
 	];
-
-	const navItems: NavItem[] = [];
-
-	for (const { config, enabled } of allConfigs) {
-		if (enabled && config.flags.enabled) {
-			navItems.push(...config.navigation.dashboard);
-		}
-	}
-
-	const combinedItems: NavItem[] = [];
-	const itemMap = new Map<string, NavItem>();
-	const reportItems: NavItem[] = [];
 
 	const reportLabels = [
 		'Course Summary',
@@ -79,66 +106,84 @@ function getNavigation(
 		return String(label);
 	};
 
-	for (const item of navItems) {
-		const labelKey = getLabelKey(item.label);
-		if (reportLabels.includes(labelKey)) {
-			reportItems.push(item);
-			continue;
+	const normalizeItems = (items: NavItem[]): NavItem[] => {
+		const combinedItems: NavItem[] = [];
+		const itemMap = new Map<string, NavItem>();
+		const reportItems: NavItem[] = [];
+
+		for (const item of items) {
+			const labelKey = getLabelKey(item.label);
+			if (reportLabels.includes(labelKey)) {
+				reportItems.push(item);
+				continue;
+			}
+
+			const key = labelKey;
+
+			if (itemMap.has(key)) {
+				const existing = itemMap.get(key)!;
+				if (item.children && existing.children) {
+					const childrenMap = new Map<string, NavItem>();
+					for (const child of existing.children) {
+						const childKey =
+							typeof child.href === 'string'
+								? child.href
+								: getLabelKey(child.label);
+						childrenMap.set(childKey, child);
+					}
+					for (const child of item.children) {
+						const childKey =
+							typeof child.href === 'string'
+								? child.href
+								: getLabelKey(child.label);
+						if (!childrenMap.has(childKey)) {
+							existing.children.push(child);
+						}
+					}
+				} else if (item.children && !existing.children) {
+					existing.children = item.children;
+				}
+			} else {
+				itemMap.set(key, { ...item });
+				combinedItems.push(itemMap.get(key)!);
+			}
 		}
 
-		const key = labelKey;
+		const reportsParent = combinedItems.find(
+			(item) => getLabelKey(item.label) === 'Reports'
+		);
+		if (reportsParent && reportItems.length > 0) {
+			reportsParent.children = reportItems;
+		}
 
-		if (itemMap.has(key)) {
-			const existing = itemMap.get(key)!;
-			if (item.children && existing.children) {
-				const childrenMap = new Map<string, NavItem>();
-				for (const child of existing.children) {
-					const childKey =
-						typeof child.href === 'string'
-							? child.href
-							: getLabelKey(child.label);
-					childrenMap.set(childKey, child);
-				}
-				for (const child of item.children) {
-					const childKey =
-						typeof child.href === 'string'
-							? child.href
-							: getLabelKey(child.label);
-					if (!childrenMap.has(childKey)) {
-						existing.children.push(child);
+		for (const item of combinedItems) {
+			if (item.children) {
+				for (let i = 0; i < item.children.length; i++) {
+					const child = item.children[i];
+					if (typeof child.href === 'function') {
+						item.children[i] = {
+							...child,
+							href: child.href(department),
+						};
 					}
 				}
-			} else if (item.children && !existing.children) {
-				existing.children = item.children;
 			}
-		} else {
-			itemMap.set(key, { ...item });
-			combinedItems.push(itemMap.get(key)!);
+		}
+
+		return combinedItems;
+	};
+
+	const groups: NavigationGroup[] = [];
+	for (const { config, enabled } of allConfigs) {
+		if (enabled && config.flags.enabled) {
+			groups.push({
+				moduleName: config.name,
+				items: normalizeItems(config.navigation.dashboard),
+			});
 		}
 	}
 
-	const reportsParent = combinedItems.find(
-		(item) => getLabelKey(item.label) === 'Reports'
-	);
-	if (reportsParent && reportItems.length > 0) {
-		reportsParent.children = reportItems;
-	}
-
-	for (const item of combinedItems) {
-		if (item.children) {
-			for (let i = 0; i < item.children.length; i++) {
-				const child = item.children[i];
-				if (typeof child.href === 'function') {
-					item.children[i] = {
-						...child,
-						href: child.href(department),
-					};
-				}
-			}
-		}
-	}
-
-	return combinedItems;
+	return groups;
 }
 
 export default function Dashboard({
@@ -160,15 +205,17 @@ export default function Dashboard({
 		enabled: session?.user?.role === 'academic',
 	});
 
-	for (const nav of navigation) {
-		if (nav.label === 'Gradebook') {
-			nav.isLoading = isModulesLoading && session?.user?.role === 'academic';
-			if (!isModulesLoading && assignedModules) {
-				nav.children = assignedModules.map((it) => ({
-					label: it?.semesterModule?.module?.code || 'Unknown Module',
-					description: it?.semesterModule?.module?.name || 'Unknown Module',
-					href: `/academic/gradebook/${it?.semesterModule.moduleId}`,
-				}));
+	for (const group of navigation) {
+		for (const nav of group.items) {
+			if (nav.label === 'Gradebook') {
+				nav.isLoading = isModulesLoading && session?.user?.role === 'academic';
+				if (!isModulesLoading && assignedModules) {
+					nav.children = assignedModules.map((it) => ({
+						label: it?.semesterModule?.module?.code || 'Unknown Module',
+						description: it?.semesterModule?.module?.name || 'Unknown Module',
+						href: `/academic/gradebook/${it?.semesterModule.moduleId}`,
+					}));
+				}
 			}
 		}
 	}
@@ -240,20 +287,39 @@ function UserButton() {
 	);
 }
 
-export function Navigation({ navigation }: { navigation: NavItem[] }) {
+export function Navigation({ navigation }: { navigation: NavigationGroup[] }) {
+	const { data: session } = useSession();
 	const getLabelKey = (label: React.ReactNode): string => {
 		if (typeof label === 'string') return label;
 		return String(label);
 	};
 
+	const visibleGroups = navigation
+		.map((group) => ({
+			...group,
+			items: filterNavigationItems(group.items, session ?? null),
+		}))
+		.filter((group) => group.items.length > 0);
+
 	return (
-		<>
-			{navigation.map((item) => {
-				const key =
-					typeof item.href === 'string' ? item.href : getLabelKey(item.label);
-				return <DisplayWithNotification key={key} item={item} />;
-			})}
-		</>
+		<Stack gap='md'>
+			{visibleGroups.map((group) => (
+				<Stack key={group.moduleName} gap={6}>
+					<Text size='0.7rem' fw={600} c='dimmed' tt='uppercase'>
+						{group.moduleName}
+					</Text>
+					<Stack gap={4}>
+						{group.items.map((item) => {
+							const key =
+								typeof item.href === 'string'
+									? item.href
+									: getLabelKey(item.label);
+							return <DisplayWithNotification key={key} item={item} />;
+						})}
+					</Stack>
+				</Stack>
+			))}
+		</Stack>
 	);
 }
 
@@ -283,22 +349,12 @@ function ItemDisplay({ item }: { item: NavItem }) {
 	const pathname = usePathname();
 	const Icon = item.icon;
 	const { data: session } = useSession();
-	const [opened, setOpen] = React.useState(!item.collapsed);
-
 	const getLabelKey = (label: React.ReactNode): string => {
 		if (typeof label === 'string') return label;
 		return String(label);
 	};
 
-	if (item.isVisible && !item.isVisible(session)) {
-		return null;
-	}
-
-	if (
-		item.roles &&
-		(!session?.user?.role ||
-			!item.roles.includes(session.user.role as UserRole))
-	) {
+	if (!isItemVisible(item, session ?? null)) {
 		return null;
 	}
 
@@ -339,17 +395,7 @@ function ItemDisplay({ item }: { item: NavItem }) {
 			active={isActive}
 			leftSection={Icon ? <Icon size='1.1rem' /> : null}
 			description={item.description}
-			rightSection={
-				hasChildren ? (
-					opened ? (
-						<IconChevronUp size='0.8rem' stroke={1.5} />
-					) : (
-						<IconChevronRight size='0.8rem' stroke={1.5} />
-					)
-				) : null
-			}
-			opened={opened}
-			onClick={hasChildren ? () => setOpen((o) => !o) : undefined}
+			opened={hasChildren}
 		>
 			{item.children?.map((child) => {
 				const childKey =

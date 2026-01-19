@@ -257,6 +257,7 @@ export function UploadModal({
 								qualificationName: analysisResult.qualificationName,
 								examYear: analysisResult.examYear,
 								certificateType: analysisResult.certificateType,
+								certificateNumber: analysisResult.certificateNumber,
 								subjects: analysisResult.subjects,
 								overallClassification: analysisResult.overallClassification,
 							});

@@ -27,6 +27,7 @@ export type CreateAcademicRecordInput = {
 	examYear: number;
 	institutionName: string;
 	qualificationName?: string | null;
+	certificateNumber?: string | null;
 	resultClassification?: ResultClassification | null;
 	subjectGrades?: SubjectGradeInput[];
 };

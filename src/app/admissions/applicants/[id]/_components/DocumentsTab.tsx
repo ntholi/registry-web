@@ -1,31 +1,19 @@
 'use client';
 
-import {
-	Button,
-	Group,
-	Paper,
-	SimpleGrid,
-	Stack,
-	Text,
-	ThemeIcon,
-} from '@mantine/core';
+import { Paper, SimpleGrid, Stack, Text, ThemeIcon } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { documentTypeEnum } from '@registry/_database';
-import { IconFile, IconPlus } from '@tabler/icons-react';
+import { IconFile } from '@tabler/icons-react';
 import { useState } from 'react';
 import { DocumentCard } from '../documents/_components/DocumentCard';
 import { DocumentPreviewModal } from '../documents/_components/DocumentPreviewModal';
-import { UploadModal } from '../documents/_components/UploadModal';
 import type { ApplicantDocument } from '../documents/_lib/types';
 
 type Props = {
-	applicantId: string;
 	documents: ApplicantDocument[];
 };
 
-export default function DocumentsTab({ applicantId, documents }: Props) {
-	const [uploadOpened, { open: openUpload, close: closeUpload }] =
-		useDisclosure(false);
+export default function DocumentsTab({ documents }: Props) {
 	const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 	const [previewOpened, { open: openPreview, close: closePreview }] =
 		useDisclosure(false);
@@ -50,23 +38,6 @@ export default function DocumentsTab({ applicantId, documents }: Props) {
 
 	return (
 		<Stack gap='md'>
-			<Group justify='space-between'>
-				<Stack gap={2}>
-					<Text fw={500}>Documents</Text>
-					<Text size='xs' c='dimmed'>
-						Identity documents, certificates, and supporting files
-					</Text>
-				</Stack>
-				<Button
-					variant='light'
-					size='xs'
-					leftSection={<IconPlus size={16} />}
-					onClick={openUpload}
-				>
-					Add Document
-				</Button>
-			</Group>
-
 			{!hasDocuments && (
 				<Paper withBorder p='xl'>
 					<Stack align='center' gap='xs'>
@@ -92,12 +63,6 @@ export default function DocumentsTab({ applicantId, documents }: Props) {
 					</SimpleGrid>
 				</Stack>
 			))}
-
-			<UploadModal
-				opened={uploadOpened}
-				onClose={closeUpload}
-				applicantId={applicantId}
-			/>
 
 			<DocumentPreviewModal
 				opened={previewOpened}

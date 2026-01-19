@@ -1,5 +1,5 @@
-import { count, eq } from 'drizzle-orm';
-import { db, subjectGrades, subjects } from '@/core/database';
+import { count, eq, ilike } from 'drizzle-orm';
+import { db, subjectAliases, subjectGrades, subjects } from '@/core/database';
 import BaseRepository from '@/core/platform/BaseRepository';
 
 export default class SubjectRepository extends BaseRepository<
@@ -8,6 +8,41 @@ export default class SubjectRepository extends BaseRepository<
 > {
 	constructor() {
 		super(subjects, subjects.id);
+	}
+
+	override async findById(id: number) {
+		return db.query.subjects.findFirst({
+			where: eq(subjects.id, id),
+			with: { aliases: true },
+		});
+	}
+
+	async findByName(name: string) {
+		const trimmedName = name.trim();
+
+		const byName = await db.query.subjects.findFirst({
+			where: ilike(subjects.name, trimmedName),
+		});
+		if (byName) return byName;
+
+		const alias = await db.query.subjectAliases.findFirst({
+			where: ilike(subjectAliases.alias, trimmedName),
+			with: { subject: true },
+		});
+		return alias?.subject ?? null;
+	}
+
+	async findOrCreateByName(name: string) {
+		const trimmedName = name.trim();
+
+		const existing = await this.findByName(trimmedName);
+		if (existing) return existing;
+
+		const [created] = await db
+			.insert(subjects)
+			.values({ name: trimmedName })
+			.returning();
+		return created;
 	}
 
 	async isInUse(id: number): Promise<boolean> {
@@ -34,5 +69,24 @@ export default class SubjectRepository extends BaseRepository<
 			.where(eq(subjects.id, id))
 			.returning()
 			.then((rows) => rows[0]);
+	}
+
+	async addAlias(subjectId: number, alias: string) {
+		const [created] = await db
+			.insert(subjectAliases)
+			.values({ subjectId, alias: alias.trim() })
+			.returning();
+		return created;
+	}
+
+	async removeAlias(aliasId: number) {
+		await db.delete(subjectAliases).where(eq(subjectAliases.id, aliasId));
+	}
+
+	async getAliases(subjectId: number) {
+		return db.query.subjectAliases.findMany({
+			where: eq(subjectAliases.subjectId, subjectId),
+			orderBy: (a, { asc }) => [asc(a.alias)],
+		});
 	}
 }

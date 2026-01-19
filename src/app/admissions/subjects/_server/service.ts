@@ -19,6 +19,13 @@ class SubjectService extends BaseService<typeof subjects, 'id'> {
 		this.repo = repo;
 	}
 
+	async findOrCreateByName(name: string) {
+		return withAuth(
+			async () => this.repo.findOrCreateByName(name),
+			['registry', 'admin']
+		);
+	}
+
 	async findActive() {
 		return withAuth(async () => this.repo.findActive(), ['registry', 'admin']);
 	}
@@ -26,6 +33,27 @@ class SubjectService extends BaseService<typeof subjects, 'id'> {
 	async toggleActive(id: number) {
 		return withAuth(
 			async () => this.repo.toggleActive(id),
+			['registry', 'admin']
+		);
+	}
+
+	async addAlias(subjectId: number, alias: string) {
+		return withAuth(
+			async () => this.repo.addAlias(subjectId, alias),
+			['registry', 'admin']
+		);
+	}
+
+	async removeAlias(aliasId: number) {
+		return withAuth(
+			async () => this.repo.removeAlias(aliasId),
+			['registry', 'admin']
+		);
+	}
+
+	async getAliases(subjectId: number) {
+		return withAuth(
+			async () => this.repo.getAliases(subjectId),
 			['registry', 'admin']
 		);
 	}

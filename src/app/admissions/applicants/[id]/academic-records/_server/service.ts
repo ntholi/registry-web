@@ -89,6 +89,13 @@ class AcademicRecordService extends BaseService<typeof academicRecords, 'id'> {
 			['registry', 'admin']
 		);
 	}
+
+	async findByCertificateNumber(certificateNumber: string) {
+		return withAuth(
+			async () => this.repo.findByCertificateNumber(certificateNumber),
+			['registry', 'admin']
+		);
+	}
 }
 
 export const academicRecordsService = serviceWrapper(
