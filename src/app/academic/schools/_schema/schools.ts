@@ -12,6 +12,7 @@ export const schools = pgTable('schools', {
 	cmsId: integer().unique(),
 	code: text().notNull().unique(),
 	name: text().notNull(),
+	shortName: text(),
 	isActive: boolean().notNull().default(true),
 	createdAt: timestamp().defaultNow(),
 });

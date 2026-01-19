@@ -617,6 +617,13 @@
       "when": 1768831680463,
       "tag": "0087_clumsy_ma_gnuci",
       "breakpoints": true
+    },
+    {
+      "idx": 88,
+      "version": "7",
+      "when": 1768832593513,
+      "tag": "0088_open_vulcan",
+      "breakpoints": true
     }
   ]
 }
