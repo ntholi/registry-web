@@ -17,11 +17,17 @@ interface Props {
 }
 
 export default function CoursesFilters({ schools, levels, value }: Props) {
-	const [filter, setFilter] = useQueryStates({
-		schoolId: parseAsInteger,
-		level: parseAsString,
-		page: parseAsInteger,
-	});
+	const [filter, setFilter] = useQueryStates(
+		{
+			schoolId: parseAsInteger,
+			level: parseAsString,
+			page: parseAsInteger,
+		},
+		{
+			history: 'push',
+			shallow: false,
+		}
+	);
 
 	const levelValue = filter.level ?? value.level ?? null;
 	const schoolValue = (filter.schoolId ?? value.schoolId)?.toString() ?? null;

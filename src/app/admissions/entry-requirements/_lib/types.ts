@@ -40,6 +40,7 @@ export type ProgramWithSchool = {
 		id: number;
 		code: string;
 		name: string;
+		shortName: string | null;
 	};
 };
 

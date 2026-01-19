@@ -2,10 +2,7 @@ import {
 	type ProgramLevel,
 	programLevelEnum,
 } from '@academic/schools/_schema/programs';
-import type {
-	EntryRequirementFilter,
-	ProgramWithSchool,
-} from '@admissions/entry-requirements/_lib/types';
+import type { EntryRequirementFilter } from '@admissions/entry-requirements/_lib/types';
 import {
 	findEntryRequirementSchoolsPublic,
 	findProgramsWithRequirementsPublic,
@@ -23,10 +20,11 @@ import {
 	Title,
 } from '@mantine/core';
 import ButtonLink from '@/shared/ui/ButtonLink';
+import CourseCard from './_components/CourseCard';
 import CoursesFilters from './_components/CoursesFilters';
 import CoursesPagination from './_components/CoursesPagination';
 
-interface ApplyCoursesPageProps {
+interface Props {
 	searchParams?: {
 		schoolId?: string | string[];
 		level?: string | string[];
@@ -34,9 +32,7 @@ interface ApplyCoursesPageProps {
 	};
 }
 
-export default async function ApplyCoursesPage({
-	searchParams,
-}: ApplyCoursesPageProps) {
+export default async function ApplyCoursesPage({ searchParams }: Props) {
 	const page = parsePositiveNumber(searchParams?.page) ?? 1;
 	const schoolId = parsePositiveNumber(searchParams?.schoolId);
 	const level = parseProgramLevel(searchParams?.level);
@@ -126,42 +122,6 @@ function Header() {
 	);
 }
 
-interface CourseCardProps {
-	program: ProgramWithSchool;
-}
-
-function CourseCard({ program }: CourseCardProps) {
-	return (
-		<Paper withBorder radius='lg' p='lg' h='100%'>
-			<Stack gap='sm'>
-				<Group justify='space-between' align='flex-start'>
-					<Stack gap={4}>
-						<Text fw={600}>{program.name}</Text>
-						<Text size='sm' c='dimmed'>
-							{program.code}
-						</Text>
-					</Stack>
-					<Badge variant='light'>{levelLabel(program.level)}</Badge>
-				</Group>
-
-				<Divider />
-
-				<Stack gap={6}>
-					<Text size='sm' c='dimmed'>
-						School
-					</Text>
-					<Group gap='xs'>
-						<Text fw={500}>{program.school.name}</Text>
-						<Badge variant='outline' color='gray'>
-							{program.school.code}
-						</Badge>
-					</Group>
-				</Stack>
-			</Stack>
-		</Paper>
-	);
-}
-
 function EmptyState() {
 	return (
 		<Paper withBorder radius='lg' p='xl'>
@@ -220,8 +180,4 @@ function parseProgramLevel(
 	}
 
 	return value as ProgramLevel;
-}
-
-function levelLabel(level: ProgramWithSchool['level']) {
-	return `${level.charAt(0).toUpperCase()}${level.slice(1)}`;
 }
