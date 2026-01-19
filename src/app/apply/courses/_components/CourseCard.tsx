@@ -4,16 +4,10 @@ import {
 	Divider,
 	Group,
 	Paper,
+	SimpleGrid,
 	Stack,
 	Text,
-	ThemeIcon,
 } from '@mantine/core';
-import {
-	IconBook,
-	IconBooks,
-	IconCheck,
-	IconStarFilled,
-} from '@tabler/icons-react';
 import type {
 	ProgramWithRequirements,
 	SubjectGradeRules,
@@ -40,28 +34,27 @@ export default function CourseCard({ program, subjects }: CourseCardProps) {
 	return (
 		<Paper
 			withBorder
-			radius='lg'
-			p='lg'
+			radius='xl'
+			p='xl'
 			h='100%'
-			style={{
-				background:
-					'linear-gradient(145deg, var(--mantine-color-dark-7) 0%, var(--mantine-color-dark-8) 100%)',
-			}}
+			shadow='md'
+			bg='var(--mantine-color-body)'
+			style={{ borderColor: 'var(--mantine-color-default-border)' }}
 		>
 			<Stack gap='md' h='100%'>
-				<Box>
-					<Group justify='space-between' align='flex-start' mb={6}>
-						<Text fw={600} size='md' lh={1.3} style={{ flex: 1 }}>
+				<Group justify='space-between' align='flex-start'>
+					<Stack gap={4} style={{ flex: 1 }}>
+						<Text fw={600} size='lg' lh={1.2}>
 							{program.name}
 						</Text>
-						<Badge variant='light' size='sm' radius='sm'>
-							{program.level}
-						</Badge>
-					</Group>
-					<Text size='xs' c='dimmed'>
-						{program.school.shortName}
-					</Text>
-				</Box>
+						<Text size='xs' c='dimmed' fw={500}>
+							{program.school.shortName}
+						</Text>
+					</Stack>
+					<Badge variant='outline' size='sm' radius='xl' color='gray'>
+						{program.level}
+					</Badge>
+				</Group>
 
 				<Divider />
 
@@ -72,30 +65,68 @@ export default function CourseCard({ program, subjects }: CourseCardProps) {
 						</Text>
 					</Box>
 				) : (
-					<Stack gap='sm' style={{ flex: 1 }}>
-						<MinimumPassesSection rules={rules} />
-						{rules.requiredSubjects.length > 0 && (
-							<RequiredSubjectsSection
-								subjects={rules.requiredSubjects}
-								subjectMap={subjectMap}
+					<Stack gap='md' style={{ flex: 1 }}>
+						<SimpleGrid cols={2} spacing='xs'>
+							<SummaryCard
+								label='Minimum passes'
+								value={`${rules.minimumGrades.count} at ${rules.minimumGrades.grade}`}
 							/>
-						)}
-						{rules.optionalSubjectGroups &&
-							rules.optionalSubjectGroups.length > 0 && (
-								<OptionalGroupsSection
-									groups={rules.optionalSubjectGroups}
-									subjectMap={subjectMap}
-								/>
-							)}
-						{rules.alternatives && rules.alternatives.length > 0 && (
-							<AlternativesSection
-								alternatives={rules.alternatives}
-								subjectMap={subjectMap}
+							<SummaryCard
+								label='Required subjects'
+								value={`${rules.requiredSubjects.length}`}
 							/>
-						)}
+						</SimpleGrid>
+
+						<Paper
+							p='md'
+							radius='md'
+							withBorder
+							bg='var(--mantine-color-default-hover)'
+						>
+							<Stack gap='md'>
+								<MinimumPassesSection rules={rules} />
+								{rules.requiredSubjects.length > 0 && (
+									<RequiredSubjectsSection
+										subjects={rules.requiredSubjects}
+										subjectMap={subjectMap}
+									/>
+								)}
+								{rules.optionalSubjectGroups &&
+									rules.optionalSubjectGroups.length > 0 && (
+										<OptionalGroupsSection
+											groups={rules.optionalSubjectGroups}
+											subjectMap={subjectMap}
+										/>
+									)}
+								{rules.alternatives && rules.alternatives.length > 0 && (
+									<AlternativesSection
+										alternatives={rules.alternatives}
+										subjectMap={subjectMap}
+									/>
+								)}
+							</Stack>
+						</Paper>
 					</Stack>
 				)}
 			</Stack>
+		</Paper>
+	);
+}
+
+interface SummaryCardProps {
+	label: string;
+	value: string;
+}
+
+function SummaryCard({ label, value }: SummaryCardProps) {
+	return (
+		<Paper withBorder p='xs' radius='md' bg='var(--mantine-color-body)'>
+			<Text size='xs' c='dimmed' fw={600} tt='uppercase'>
+				{label}
+			</Text>
+			<Text size='sm' fw={600} mt={4}>
+				{value}
+			</Text>
 		</Paper>
 	);
 }
@@ -106,17 +137,20 @@ interface MinimumPassesSectionProps {
 
 function MinimumPassesSection({ rules }: MinimumPassesSectionProps) {
 	return (
-		<Paper p='sm' radius='md' bg='var(--mantine-color-blue-light)'>
-			<Group gap='xs' wrap='nowrap'>
-				<ThemeIcon size='sm' radius='xl' variant='light' color='blue'>
-					<IconCheck size={12} />
-				</ThemeIcon>
-				<Text size='xs' fw={500}>
-					{rules.minimumGrades.count} passes at grade{' '}
-					{rules.minimumGrades.grade} or better
+		<Box>
+			<Group gap='xs' wrap='nowrap' justify='space-between'>
+				<Text size='xs' fw={600} c='dimmed'>
+					Minimum passes
 				</Text>
+				<Badge size='xs' variant='outline' radius='sm' color='gray'>
+					{rules.minimumGrades.count} at {rules.minimumGrades.grade}
+				</Badge>
 			</Group>
-		</Paper>
+			<Text size='xs' mt={4}>
+				{rules.minimumGrades.count} passes at grade {rules.minimumGrades.grade}{' '}
+				or better
+			</Text>
+		</Box>
 	);
 }
 
@@ -131,37 +165,29 @@ function RequiredSubjectsSection({
 }: RequiredSubjectsSectionProps) {
 	return (
 		<Box>
-			<Group gap={6} mb='xs'>
-				<ThemeIcon size='xs' variant='transparent' c='yellow'>
-					<IconStarFilled size={10} />
-				</ThemeIcon>
-				<Text size='xs' fw={600} c='dimmed' tt='uppercase'>
-					Required Subjects
-				</Text>
-			</Group>
-			<Stack gap={4}>
+			<Text size='xs' fw={600} c='dimmed' tt='uppercase' mb={6}>
+				Required Subjects
+			</Text>
+			<Stack gap={6}>
 				{subjects.map((sub, idx) => (
-					<Paper
+					<Box
 						key={idx}
-						px='sm'
+						px='xs'
 						py={6}
-						radius='sm'
-						bg='var(--mantine-color-dark-6)'
+						style={{
+							border: '1px solid var(--mantine-color-default-border)',
+							borderRadius: 'var(--mantine-radius-sm)',
+						}}
 					>
 						<Group justify='space-between' wrap='nowrap'>
-							<Group gap='xs' wrap='nowrap'>
-								<ThemeIcon size='xs' variant='light' color='grape' radius='xl'>
-									<IconBook size={10} />
-								</ThemeIcon>
-								<Text size='xs' truncate maw={140}>
-									{subjectMap.get(sub.subjectId) || sub.subjectId}
-								</Text>
-							</Group>
+							<Text size='xs' truncate maw={200}>
+								{subjectMap.get(sub.subjectId) || sub.subjectId}
+							</Text>
 							<Badge size='xs' variant='outline' color='gray'>
 								{sub.minimumGrade}
 							</Badge>
 						</Group>
-					</Paper>
+					</Box>
 				))}
 			</Stack>
 		</Box>
@@ -179,22 +205,18 @@ function OptionalGroupsSection({
 }: OptionalGroupsSectionProps) {
 	return (
 		<Box>
-			<Group gap={6} mb='xs'>
-				<ThemeIcon size='xs' variant='transparent' c='teal'>
-					<IconBooks size={12} />
-				</ThemeIcon>
-				<Text size='xs' fw={600} c='dimmed' tt='uppercase'>
-					Subject Groups
-				</Text>
-			</Group>
+			<Text size='xs' fw={600} c='dimmed' tt='uppercase' mb={6}>
+				Subject Groups
+			</Text>
 			<Stack gap='xs'>
 				{groups.map((group, idx) => (
-					<Paper
+					<Box
 						key={idx}
 						p='xs'
-						radius='sm'
-						withBorder
-						style={{ borderColor: 'var(--mantine-color-dark-4)' }}
+						style={{
+							border: '1px solid var(--mantine-color-default-border)',
+							borderRadius: 'var(--mantine-radius-sm)',
+						}}
 					>
 						<Group justify='space-between' mb={4}>
 							<Text size='xs' fw={500}>
@@ -202,7 +224,7 @@ function OptionalGroupsSection({
 							</Text>
 							<Group gap={4}>
 								{group.required && (
-									<Badge size='xs' color='red' variant='light'>
+									<Badge size='xs' color='gray' variant='outline'>
 										Required
 									</Badge>
 								)}
@@ -216,7 +238,7 @@ function OptionalGroupsSection({
 								.map((id) => subjectMap.get(id) || id)
 								.join(' • ')}
 						</Text>
-					</Paper>
+					</Box>
 				))}
 			</Stack>
 		</Box>
@@ -246,17 +268,18 @@ function AlternativesSection({
 				my='xs'
 			/>
 			{alternatives.map((alt, idx) => (
-				<Paper
+				<Box
 					key={idx}
-					p='sm'
-					radius='sm'
-					withBorder
-					style={{ borderColor: 'var(--mantine-color-orange-6)' }}
+					p='xs'
+					style={{
+						border: '1px solid var(--mantine-color-default-border)',
+						borderRadius: 'var(--mantine-radius-sm)',
+					}}
 				>
-					<Text size='xs' fw={500} c='orange' mb='xs'>
+					<Text size='xs' fw={600} mb={4}>
 						Alternative Path
 					</Text>
-					<Text size='xs' mb='xs'>
+					<Text size='xs' c='dimmed' mb='xs'>
 						{alt.minimumGrades.count} passes at grade {alt.minimumGrades.grade}
 					</Text>
 					{alt.requiredSubjects.length > 0 && (
@@ -266,14 +289,14 @@ function AlternativesSection({
 									<Text size='xs' c='dimmed'>
 										{subjectMap.get(sub.subjectId) || sub.subjectId}
 									</Text>
-									<Badge size='xs' variant='outline'>
+									<Badge size='xs' variant='outline' color='gray'>
 										{sub.minimumGrade}
 									</Badge>
 								</Group>
 							))}
 						</Stack>
 					)}
-				</Paper>
+				</Box>
 			))}
 		</Box>
 	);
