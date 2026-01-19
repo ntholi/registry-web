@@ -2,8 +2,8 @@
 
 import type { ProgramLevel } from '@academic/_database';
 import type { SchoolSummary } from '@admissions/entry-requirements/_lib/types';
-import { Chip, Group, ScrollArea, Stack } from '@mantine/core';
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { Chip, Group, ScrollArea } from '@mantine/core';
+import { parseAsInteger, parseAsString, useQueryStates } from 'nuqs';
 
 interface CourseFilterValues {
 	schoolId?: number;
@@ -21,9 +21,11 @@ export default function CoursesFilters({
 	levels,
 	value,
 }: CoursesFiltersProps) {
-	const router = useRouter();
-	const pathname = usePathname();
-	const searchParams = useSearchParams();
+	const [filter, setFilter] = useQueryStates({
+		schoolId: parseAsInteger,
+		level: parseAsString,
+		page: parseAsInteger,
+	});
 
 	function toSingleValue(nextValue: string | string[] | null) {
 		if (!nextValue) {
@@ -32,26 +34,20 @@ export default function CoursesFilters({
 		return Array.isArray(nextValue) ? nextValue[0] : nextValue;
 	}
 
-	function updateParam(key: string, nextValue?: string) {
-		const params = new URLSearchParams(searchParams.toString());
-		if (nextValue) {
-			params.set(key, nextValue);
-		} else {
-			params.delete(key);
-		}
-		params.delete('page');
-		const queryString = params.toString();
-		router.push(queryString ? `${pathname}?${queryString}` : pathname);
-	}
+	const levelValue = filter.level ?? value.level ?? 'all';
+	const schoolValue = (filter.schoolId ?? value.schoolId)?.toString() ?? 'all';
 
 	return (
-		<Stack gap='xs'>
-			<ScrollArea type='hover' offsetScrollbars>
+		<ScrollArea type='hover' offsetScrollbars>
+			<Group gap='md' wrap='nowrap'>
 				<Chip.Group
-					value={value.level ?? 'all'}
+					value={levelValue}
 					onChange={(nextValue) => {
 						const resolved = toSingleValue(nextValue);
-						updateParam('level', resolved === 'all' ? undefined : resolved);
+						setFilter({
+							level: resolved === 'all' ? null : resolved,
+							page: null,
+						});
 					}}
 				>
 					<Group gap='xs' wrap='nowrap'>
@@ -65,14 +61,15 @@ export default function CoursesFilters({
 						))}
 					</Group>
 				</Chip.Group>
-			</ScrollArea>
 
-			<ScrollArea type='hover' offsetScrollbars>
 				<Chip.Group
-					value={value.schoolId?.toString() ?? 'all'}
+					value={schoolValue}
 					onChange={(nextValue) => {
 						const resolved = toSingleValue(nextValue);
-						updateParam('schoolId', resolved === 'all' ? undefined : resolved);
+						setFilter({
+							schoolId: resolved === 'all' ? null : Number(resolved),
+							page: null,
+						});
 					}}
 				>
 					<Group gap='xs' wrap='nowrap'>
@@ -85,13 +82,13 @@ export default function CoursesFilters({
 								value={school.id.toString()}
 								variant='filled'
 							>
-								{school.code}
+								{school.shortName ?? school.name}
 							</Chip>
 						))}
 					</Group>
 				</Chip.Group>
-			</ScrollArea>
-		</Stack>
+			</Group>
+		</ScrollArea>
 	);
 }
 

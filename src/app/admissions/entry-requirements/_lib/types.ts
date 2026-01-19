@@ -47,6 +47,7 @@ export type SchoolSummary = {
 	id: number;
 	code: string;
 	name: string;
+	shortName: string | null;
 };
 
 export type EntryRequirementFilter = {

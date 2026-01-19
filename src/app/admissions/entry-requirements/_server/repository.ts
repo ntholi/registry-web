@@ -162,6 +162,7 @@ export default class EntryRequirementRepository extends BaseRepository<
 				id: schools.id,
 				code: schools.code,
 				name: schools.name,
+				shortName: schools.shortName,
 			})
 			.from(schools)
 			.innerJoin(programs, eq(programs.schoolId, schools.id))
