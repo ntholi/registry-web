@@ -54,3 +54,10 @@ export async function deleteCertificateType(id: string) {
 export async function isCertificateTypeInUse(id: string) {
 	return certificateTypesService.isInUse(id);
 }
+
+export async function mapGrade(
+	certificateTypeId: string,
+	originalGrade: string
+) {
+	return certificateTypesService.mapGrade(certificateTypeId, originalGrade);
+}

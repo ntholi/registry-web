@@ -81,6 +81,13 @@ class CertificateTypeService extends BaseService<
 	async isInUse(id: string) {
 		return withAuth(async () => this.repo.isInUse(id), ['registry', 'admin']);
 	}
+
+	async mapGrade(certificateTypeId: string, originalGrade: string) {
+		return withAuth(
+			async () => this.repo.mapGrade(certificateTypeId, originalGrade),
+			['registry', 'admin']
+		);
+	}
 }
 
 export const certificateTypesService = serviceWrapper(

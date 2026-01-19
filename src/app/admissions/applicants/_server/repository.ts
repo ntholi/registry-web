@@ -1,12 +1,38 @@
 import { count, eq, ilike, or } from 'drizzle-orm';
 import {
+	academicRecords,
+	applicantDocuments,
 	applicantPhones,
 	applicants,
 	db,
+	documents,
 	guardianPhones,
 	guardians,
+	subjectGrades,
 } from '@/core/database';
+import type { DocumentAnalysisResult } from '@/core/integrations/ai';
 import BaseRepository from '@/core/platform/BaseRepository';
+
+type DocumentInput = {
+	fileName: string;
+	fileUrl: string;
+	type: (typeof documents.$inferInsert)['type'];
+	analysisResult: DocumentAnalysisResult;
+};
+
+type AcademicRecordInput = {
+	certificateTypeId: string;
+	examYear: number;
+	institutionName: string;
+	qualificationName?: string | null;
+	certificateNumber?: string | null;
+	resultClassification?: (typeof academicRecords.$inferInsert)['resultClassification'];
+	subjectGrades?: {
+		subjectId: string;
+		originalGrade: string;
+		standardGrade: (typeof subjectGrades.$inferInsert)['standardGrade'];
+	}[];
+};
 
 export default class ApplicantRepository extends BaseRepository<
 	typeof applicants,
@@ -123,5 +149,62 @@ export default class ApplicantRepository extends BaseRepository<
 
 	async removeGuardianPhone(phoneId: string) {
 		await db.delete(guardianPhones).where(eq(guardianPhones.id, phoneId));
+	}
+
+	async createWithDocumentsAndRecords(
+		applicantData: typeof applicants.$inferInsert,
+		documentInputs: DocumentInput[],
+		academicRecordInputs: AcademicRecordInput[]
+	) {
+		return db.transaction(async (tx) => {
+			const [applicant] = await tx
+				.insert(applicants)
+				.values(applicantData)
+				.returning();
+
+			for (const docInput of documentInputs) {
+				const [doc] = await tx
+					.insert(documents)
+					.values({
+						fileName: docInput.fileName,
+						fileUrl: docInput.fileUrl,
+						type: docInput.type,
+					})
+					.returning();
+
+				await tx.insert(applicantDocuments).values({
+					documentId: doc.id,
+					applicantId: applicant.id,
+				});
+			}
+
+			for (const recordInput of academicRecordInputs) {
+				const [record] = await tx
+					.insert(academicRecords)
+					.values({
+						applicantId: applicant.id,
+						certificateTypeId: recordInput.certificateTypeId,
+						examYear: recordInput.examYear,
+						institutionName: recordInput.institutionName,
+						qualificationName: recordInput.qualificationName,
+						certificateNumber: recordInput.certificateNumber,
+						resultClassification: recordInput.resultClassification,
+					})
+					.returning();
+
+				if (recordInput.subjectGrades && recordInput.subjectGrades.length > 0) {
+					await tx.insert(subjectGrades).values(
+						recordInput.subjectGrades.map((sg) => ({
+							academicRecordId: record.id,
+							subjectId: sg.subjectId,
+							originalGrade: sg.originalGrade,
+							standardGrade: sg.standardGrade,
+						}))
+					);
+				}
+			}
+
+			return applicant;
+		});
 	}
 }

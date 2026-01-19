@@ -147,4 +147,15 @@ export default class CertificateTypeRepository extends BaseRepository<
 	async removeById(id: string) {
 		await db.delete(certificateTypes).where(eq(certificateTypes.id, id));
 	}
+
+	async mapGrade(certificateTypeId: string, originalGrade: string) {
+		const mapping = await db.query.gradeMappings.findFirst({
+			where: (gm, { and, eq: e }) =>
+				and(
+					e(gm.certificateTypeId, certificateTypeId),
+					e(gm.originalGrade, originalGrade)
+				),
+		});
+		return mapping?.standardGrade ?? null;
+	}
 }
