@@ -61,6 +61,12 @@ function formatFileSize(bytes: number): string {
 	return `${val.toFixed(val < 10 && exp > 0 ? 1 : 0)} ${units[exp]}`;
 }
 
+function getFileExtension(name: string) {
+	const index = name.lastIndexOf('.');
+	if (index === -1 || index === name.length - 1) return '';
+	return name.slice(index);
+}
+
 export default function DocumentUpload() {
 	const router = useRouter();
 	const [fileItems, setFileItems] = useState<FileItem[]>([]);
@@ -78,9 +84,9 @@ export default function DocumentUpload() {
 		updateFileItem(id, { uploadState: 'uploading' });
 
 		try {
-			const tempFolder = `documents/admissions/temp/${nanoid()}`;
-			const fileName = `${Date.now()}-${file.name}`;
-			await uploadDocument(file, fileName, tempFolder);
+			const folder = 'documents/admissions';
+			const fileName = `${nanoid()}.${getFileExtension(file.name)}`;
+			await uploadDocument(file, fileName, folder);
 
 			updateFileItem(id, {
 				uploadState: 'analyzing',

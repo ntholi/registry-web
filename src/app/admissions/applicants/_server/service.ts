@@ -153,7 +153,7 @@ class ApplicantService extends BaseService<typeof applicants, 'id'> {
 				const type = this.mapDocumentType(doc.analysisResult);
 				return {
 					fileName: doc.fileName,
-					fileUrl: `https://pub-2b37ce26bd70421e9e59e4fe805c6873.r2.dev/documents/admissions/applicants/temp/${doc.fileName}`,
+					fileUrl: `https://pub-2b37ce26bd70421e9e59e4fe805c6873.r2.dev/documents/admissions/${doc.fileName}`,
 					type,
 					analysisResult: doc.analysisResult,
 				};

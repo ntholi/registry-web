@@ -29,6 +29,7 @@ import {
 	IconTrash,
 	IconUpload,
 } from '@tabler/icons-react';
+import { nanoid } from 'nanoid';
 import { useRouter } from 'nextjs-toploader/app';
 import { useState } from 'react';
 import type { DocumentAnalysisResult } from '@/core/integrations/ai';
@@ -60,6 +61,12 @@ function formatFileSize(bytes: number): string {
 	);
 	const val = bytes / 1024 ** exp;
 	return `${val.toFixed(val < 10 && exp > 0 ? 1 : 0)} ${units[exp]}`;
+}
+
+function getFileExtension(name: string) {
+	const index = name.lastIndexOf('.');
+	if (index === -1 || index === name.length - 1) return '';
+	return name.slice(index);
 }
 
 function mapDocumentTypeFromAI(
@@ -138,7 +145,7 @@ export function UploadModal({
 
 		try {
 			const folder = await getDocumentFolder(applicantId);
-			const fileName = `${Date.now()}-${file.name}`;
+			const fileName = `${nanoid()}.${getFileExtension(file.name)}`;
 			await uploadDocument(file, fileName, folder);
 			setUploadedFileName(fileName);
 

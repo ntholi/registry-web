@@ -23,8 +23,8 @@ import { applicantDocumentsService } from './service';
 
 const BASE_URL = 'https://pub-2b37ce26bd70421e9e59e4fe805c6873.r2.dev';
 
-export async function getDocumentFolder(applicantId: string) {
-	return `documents/admissions/applicants/${applicantId}`;
+export async function getDocumentFolder(_applicantId: string) {
+	return 'documents/admissions';
 }
 
 export async function getApplicantDocument(id: string) {
