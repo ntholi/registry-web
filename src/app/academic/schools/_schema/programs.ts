@@ -23,6 +23,7 @@ export const programs = pgTable(
 		cmsId: integer().unique(),
 		code: text().notNull().unique(),
 		name: text().notNull(),
+		shortName: text(),
 		level: programLevelEnum().notNull(),
 		schoolId: integer()
 			.references(() => schools.id, { onDelete: 'cascade' })
