@@ -4,6 +4,7 @@ import {
 	Badge,
 	Box,
 	Divider,
+	Flex,
 	Group,
 	List,
 	Paper,
@@ -37,17 +38,20 @@ export default function CourseCard({ program, subjects }: Props) {
 
 	return (
 		<Paper h='100%' radius='md' shadow='sm' withBorder>
-			<Box p='xl' pb='lg'>
-				<Badge size='lg' mb='md'>
-					{program.level}
-				</Badge>
-				<Title order={3} mb='xs'>
-					{program.name}
-				</Title>
-				<Text c='dimmed'>{program.school.name}</Text>
+			<Box p='xl' w={'100%'}>
+				<Flex justify='space-between' align='center'>
+					<Text>{program.school.shortName}</Text>
+					<Badge size='sm' variant='light' radius={'xs'}>
+						{program.level}
+					</Badge>
+				</Flex>
+				<Title order={3}>{program.name}</Title>
+				<Text c='dimmed' size='xs'>
+					{program.school.name}
+				</Text>
 			</Box>
 
-			<Divider />
+			<Divider my={'sm'} />
 
 			<Box p='xl'>
 				{!rules ? (
@@ -55,10 +59,10 @@ export default function CourseCard({ program, subjects }: Props) {
 				) : (
 					<Stack gap='xl'>
 						<Box>
-							<Title order={5} mb='sm'>
-								What you need to qualify
+							<Title size={'xs'} order={5} mb='sm'>
+								Entry Requirements
 							</Title>
-							<Text size='lg'>
+							<Text>
 								You must pass at least{' '}
 								<Text span fw={700} c='teal'>
 									{rules.minimumGrades.count} subjects
@@ -67,23 +71,20 @@ export default function CourseCard({ program, subjects }: Props) {
 								<Text span fw={700} c='teal'>
 									{rules.minimumGrades.grade}
 								</Text>{' '}
-								or better in your LGCSE results.
+								or better.
 							</Text>
 						</Box>
 
 						{rules.requiredSubjects.length > 0 && (
 							<Box>
-								<Title order={5} mb='sm'>
-									Subjects you must pass
+								<Title size={'xs'} order={5} mb='sm'>
+									Required Subjects
 								</Title>
-								<Text mb='md' c='dimmed'>
-									You need to pass these specific subjects:
-								</Text>
 								<List
 									spacing='sm'
 									icon={
 										<IconCheck
-											size={18}
+											size={16}
 											color='var(--mantine-color-teal-filled)'
 										/>
 									}
@@ -106,12 +107,9 @@ export default function CourseCard({ program, subjects }: Props) {
 						{rules.optionalSubjectGroups &&
 							rules.optionalSubjectGroups.length > 0 && (
 								<Box>
-									<Title order={5} mb='sm'>
-										Choose from these subject groups
+									<Title size={'xs'} order={5} mb='sm'>
+										Additional Requirements
 									</Title>
-									<Text mb='md' c='dimmed'>
-										Pick subjects from the following groups:
-									</Text>
 									<Stack gap='md'>
 										{rules.optionalSubjectGroups.map((group, idx) => (
 											<Paper key={idx} p='md' radius='md' withBorder>
@@ -143,8 +141,8 @@ export default function CourseCard({ program, subjects }: Props) {
 
 						{rules.alternatives && rules.alternatives.length > 0 && (
 							<Box>
-								<Title order={5} mb='sm'>
-									Another way to qualify
+								<Title size={'sm'} fw={400} order={5} mb='sm'>
+									Additional Requirements
 								</Title>
 								<Text mb='md' c='dimmed'>
 									If you don't meet the requirements above, you can also qualify
