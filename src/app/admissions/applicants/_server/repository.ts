@@ -65,6 +65,23 @@ export default class ApplicantRepository extends BaseRepository<
 		});
 	}
 
+	async findByUserId(userId: string) {
+		return db.query.applicants.findFirst({
+			where: eq(applicants.userId, userId),
+			with: {
+				phones: true,
+				guardians: { with: { phones: true } },
+				academicRecords: {
+					with: {
+						certificateType: true,
+						subjectGrades: { with: { subject: true } },
+					},
+				},
+				documents: { with: { document: true } },
+			},
+		});
+	}
+
 	async search(page: number, search: string) {
 		const pageSize = 15;
 		const offset = (page - 1) * pageSize;

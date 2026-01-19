@@ -38,6 +38,10 @@ class ApplicantService extends BaseService<typeof applicants, 'id'> {
 		return withAuth(async () => this.repo.findById(id), ['registry', 'admin']);
 	}
 
+	async findByUserId(userId: string) {
+		return this.repo.findByUserId(userId);
+	}
+
 	async search(page: number, search: string) {
 		return withAuth(
 			async () => this.repo.search(page, search),

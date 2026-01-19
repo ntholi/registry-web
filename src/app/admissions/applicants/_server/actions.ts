@@ -10,6 +10,10 @@ export async function getApplicant(id: string) {
 	return applicantsService.get(id);
 }
 
+export async function findApplicantByUserId(userId: string) {
+	return applicantsService.findByUserId(userId);
+}
+
 export async function findAllApplicants(page = 1, search = '') {
 	return applicantsService.search(page, search);
 }

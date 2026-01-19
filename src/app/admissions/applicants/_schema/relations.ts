@@ -1,13 +1,18 @@
 import { academicRecords } from '@admissions/academic-records/_schema/academicRecords';
 import { applications } from '@admissions/applications/_schema/applications';
 import { applicantDocuments } from '@admissions/documents/_schema/applicantDocuments';
+import { users } from '@auth/users/_schema/users';
 import { relations } from 'drizzle-orm';
 import { applicantPhones } from './applicantPhones';
 import { applicants } from './applicants';
 import { guardianPhones } from './guardianPhones';
 import { guardians } from './guardians';
 
-export const applicantsRelations = relations(applicants, ({ many }) => ({
+export const applicantsRelations = relations(applicants, ({ one, many }) => ({
+	user: one(users, {
+		fields: [applicants.userId],
+		references: [users.id],
+	}),
 	phones: many(applicantPhones),
 	guardians: many(guardians),
 	academicRecords: many(academicRecords),
