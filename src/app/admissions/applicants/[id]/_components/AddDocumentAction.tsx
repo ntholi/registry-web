@@ -15,12 +15,12 @@ export default function AddDocumentAction({ applicantId }: Props) {
 	return (
 		<>
 			<Button
-				variant='light'
+				variant='default'
 				size='xs'
 				leftSection={<IconPlus size={16} />}
 				onClick={open}
 			>
-				Add Document
+				Add
 			</Button>
 
 			<UploadModal opened={opened} onClose={close} applicantId={applicantId} />

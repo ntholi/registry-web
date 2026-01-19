@@ -82,12 +82,12 @@ export default function AddGuardianAction({ applicantId }: Props) {
 	return (
 		<>
 			<Button
-				variant='light'
+				variant='default'
 				size='xs'
 				leftSection={<IconPlus size={16} />}
 				onClick={open}
 			>
-				Add Guardian
+				Add
 			</Button>
 
 			<Modal opened={opened} onClose={handleClose} title='Add Guardian'>

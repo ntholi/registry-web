@@ -54,123 +54,119 @@ export default function AcademicRecordsTab({ records }: Props) {
 							record.subjectGrades.length > 0;
 
 						return (
-							<Box key={record.id} p='md'>
-								<Stack gap='md' p={'md'}>
-									{hasGrades ? (
-										<Accordion variant='separated'>
-											<Accordion.Item value={record.id.toString()}>
-												<Accordion.Control>
-													<Group justify='space-between' w='100%'>
-														<Group gap='md'>
-															<IconCertificate size={20} opacity={0.6} />
-															<Stack gap={2}>
-																<Group gap='xs'>
-																	<Text fw={600}>
-																		{record.certificateType.name}
-																	</Text>
-																	<Badge variant='default' size='sm'>
-																		{record.certificateNumber}
-																	</Badge>
-																</Group>
-																<Text size='sm' c='dimmed'>
-																	{record.institutionName} • {record.examYear}
+							<Box key={record.id} px='md'>
+								{hasGrades ? (
+									<Accordion variant='separated'>
+										<Accordion.Item value={record.id.toString()}>
+											<Accordion.Control>
+												<Group justify='space-between' w='100%'>
+													<Group gap='md'>
+														<IconCertificate size={20} opacity={0.6} />
+														<Stack gap={2}>
+															<Group gap='xs'>
+																<Text fw={600}>
+																	{record.certificateType.name}
 																</Text>
-															</Stack>
-														</Group>
-														<ActionIcon
-															component='div'
-															color='red'
-															variant='subtle'
-															onClick={(event) => {
-																event.stopPropagation();
-																deleteMutation.mutate(record.id);
-															}}
-															loading={deleteMutation.isPending}
-														>
-															<IconTrash size={16} />
-														</ActionIcon>
-													</Group>
-												</Accordion.Control>
-												<Accordion.Panel>
-													{record.certificateType.lqfLevel > 4 && (
-														<Group gap='xs' mb='sm'>
-															{record.qualificationName && (
-																<Text size='sm'>
-																	{record.qualificationName}
-																</Text>
-															)}
-															{record.resultClassification && (
-																<Badge variant='light'>
-																	{record.resultClassification}
+																<Badge variant='default' size='sm'>
+																	{record.certificateNumber}
 																</Badge>
-															)}
-														</Group>
-													)}
-													<Table striped highlightOnHover withTableBorder>
-														<Table.Thead>
-															<Table.Tr>
-																<Table.Th>Subject</Table.Th>
-																<Table.Th>Original Grade</Table.Th>
-																<Table.Th>Standard Grade</Table.Th>
-															</Table.Tr>
-														</Table.Thead>
-														<Table.Tbody>
-															{record.subjectGrades.map((sg) => (
-																<Table.Tr key={sg.id}>
-																	<Table.Td>{sg.subject.name}</Table.Td>
-																	<Table.Td>{sg.originalGrade}</Table.Td>
-																	<Table.Td>
-																		<Badge variant='light' size='sm'>
-																			{sg.standardGrade}
-																		</Badge>
-																	</Table.Td>
-																</Table.Tr>
-															))}
-														</Table.Tbody>
-													</Table>
-												</Accordion.Panel>
-											</Accordion.Item>
-										</Accordion>
-									) : (
-										<Group justify='space-between'>
-											<Group gap='md'>
-												<IconCertificate size={20} opacity={0.6} />
-												<Stack gap={2}>
-													<Group gap='xs'>
-														<Text fw={600}>{record.certificateType.name}</Text>
-														<Badge variant='light' size='sm'>
-															LQF {record.certificateType.lqfLevel}
-														</Badge>
+															</Group>
+															<Text size='sm' c='dimmed'>
+																{record.institutionName} • {record.examYear}
+															</Text>
+														</Stack>
 													</Group>
-													<Text size='sm' c='dimmed'>
-														{record.institutionName} • {record.examYear}
-													</Text>
-												</Stack>
-											</Group>
-											<ActionIcon
-												color='red'
-												variant='subtle'
-												onClick={() => deleteMutation.mutate(record.id)}
-												loading={deleteMutation.isPending}
-											>
-												<IconTrash size={16} />
-											</ActionIcon>
+													<ActionIcon
+														component='div'
+														color='red'
+														variant='subtle'
+														onClick={(event) => {
+															event.stopPropagation();
+															deleteMutation.mutate(record.id);
+														}}
+														loading={deleteMutation.isPending}
+													>
+														<IconTrash size={16} />
+													</ActionIcon>
+												</Group>
+											</Accordion.Control>
+											<Accordion.Panel>
+												{record.certificateType.lqfLevel > 4 && (
+													<Group gap='xs' mb='sm'>
+														{record.qualificationName && (
+															<Text size='sm'>{record.qualificationName}</Text>
+														)}
+														{record.resultClassification && (
+															<Badge variant='light'>
+																{record.resultClassification}
+															</Badge>
+														)}
+													</Group>
+												)}
+												<Table striped highlightOnHover withTableBorder>
+													<Table.Thead>
+														<Table.Tr>
+															<Table.Th>Subject</Table.Th>
+															<Table.Th>Original Grade</Table.Th>
+															<Table.Th>Standard Grade</Table.Th>
+														</Table.Tr>
+													</Table.Thead>
+													<Table.Tbody>
+														{record.subjectGrades.map((sg) => (
+															<Table.Tr key={sg.id}>
+																<Table.Td>{sg.subject.name}</Table.Td>
+																<Table.Td>{sg.originalGrade}</Table.Td>
+																<Table.Td>
+																	<Badge variant='light' size='sm'>
+																		{sg.standardGrade}
+																	</Badge>
+																</Table.Td>
+															</Table.Tr>
+														))}
+													</Table.Tbody>
+												</Table>
+											</Accordion.Panel>
+										</Accordion.Item>
+									</Accordion>
+								) : (
+									<Group justify='space-between'>
+										<Group gap='md'>
+											<IconCertificate size={20} opacity={0.6} />
+											<Stack gap={2}>
+												<Group gap='xs'>
+													<Text fw={600}>{record.certificateType.name}</Text>
+													<Badge variant='light' size='sm'>
+														LQF {record.certificateType.lqfLevel}
+													</Badge>
+												</Group>
+												<Text size='sm' c='dimmed'>
+													{record.institutionName} • {record.examYear}
+												</Text>
+											</Stack>
 										</Group>
-									)}
+										<ActionIcon
+											color='red'
+											variant='subtle'
+											onClick={() => deleteMutation.mutate(record.id)}
+											loading={deleteMutation.isPending}
+										>
+											<IconTrash size={16} />
+										</ActionIcon>
+									</Group>
+								)}
 
-									{record.certificateType.lqfLevel > 4 && !hasGrades && (
-										<Group gap='xs'>
-											{record.qualificationName && (
-												<Text size='sm'>{record.qualificationName}</Text>
-											)}
-											{record.resultClassification && (
-												<Badge variant='light'>
-													{record.resultClassification}
-												</Badge>
-											)}
-										</Group>
-									)}
-								</Stack>
+								{record.certificateType.lqfLevel > 4 && !hasGrades && (
+									<Group gap='xs'>
+										{record.qualificationName && (
+											<Text size='sm'>{record.qualificationName}</Text>
+										)}
+										{record.resultClassification && (
+											<Badge variant='light'>
+												{record.resultClassification}
+											</Badge>
+										)}
+									</Group>
+								)}
 							</Box>
 						);
 					})}

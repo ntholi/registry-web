@@ -48,12 +48,12 @@ export default function AddPhoneAction({ applicantId }: Props) {
 	return (
 		<>
 			<Button
-				variant='light'
+				variant='default'
 				size='xs'
 				leftSection={<IconPlus size={16} />}
 				onClick={open}
 			>
-				Add Phone
+				Add
 			</Button>
 
 			<Modal opened={opened} onClose={close} title='Add Phone Number' centered>
