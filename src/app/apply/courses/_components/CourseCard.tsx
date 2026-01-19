@@ -1,11 +1,19 @@
 import { Badge, Divider, Group, Paper, Stack, Text } from '@mantine/core';
-import type { ProgramWithSchool } from '@/app/admissions/entry-requirements';
+import type {
+	EntryRules,
+	ProgramWithRequirements,
+} from '@/app/admissions/entry-requirements';
 
 interface CourseCardProps {
-	program: ProgramWithSchool;
+	program: ProgramWithRequirements;
 }
 
 export default function CourseCard({ program }: CourseCardProps) {
+	const lgcseRequirements = program.entryRequirements.filter(
+		(requirement) =>
+			requirement.certificateType?.name?.toLowerCase() === 'lgcse'
+	);
+
 	return (
 		<Paper withBorder radius='lg' p='lg' h='100%'>
 			<Stack gap='sm'>
@@ -23,16 +31,31 @@ export default function CourseCard({ program }: CourseCardProps) {
 
 				<Stack gap={6}>
 					<Text size='sm' c='dimmed'>
-						School
+						Entry requirements
 					</Text>
-					<Group gap='xs'>
-						<Text fw={500}>{program.school.name}</Text>
-						<Badge variant='outline' color='gray'>
-							{program.school.code}
-						</Badge>
-					</Group>
+					{lgcseRequirements.length === 0 ? (
+						<Text size='sm' c='dimmed'>
+							Entry requirements are not available yet.
+						</Text>
+					) : (
+						<Stack gap='xs'>
+							{lgcseRequirements.map((requirement) => (
+								<Text key={requirement.id} size='sm'>
+									{formatRequirementSummary(requirement.rules)}
+								</Text>
+							))}
+						</Stack>
+					)}
 				</Stack>
 			</Stack>
 		</Paper>
 	);
+}
+
+function formatRequirementSummary(rules: EntryRules) {
+	if (rules.type === 'subject-grades') {
+		return `Minimum ${rules.minimumGrades.count} passes at grade ${rules.minimumGrades.grade}`;
+	}
+
+	return `Minimum ${rules.minimumClassification} classification`;
 }

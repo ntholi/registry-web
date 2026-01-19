@@ -25,6 +25,12 @@ export type ClassificationRules = {
 
 export type EntryRules = SubjectGradeRules | ClassificationRules;
 
+export type EntryRequirementSummary = {
+	id: string;
+	rules: EntryRules;
+	certificateType: { id: string; name: string; lqfLevel: number } | null;
+};
+
 export type EntryRequirementWithRelations = EntryRequirement & {
 	program: { id: number; code: string; name: string };
 	certificateType: { id: string; name: string; lqfLevel: number };
@@ -42,6 +48,10 @@ export type ProgramWithSchool = {
 		name: string;
 		shortName: string | null;
 	};
+};
+
+export type ProgramWithRequirements = ProgramWithSchool & {
+	entryRequirements: EntryRequirementSummary[];
 };
 
 export type SchoolSummary = {

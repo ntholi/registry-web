@@ -11,6 +11,7 @@ import {
 } from 'drizzle-orm';
 import { db, entryRequirements } from '@/core/database';
 import BaseRepository from '@/core/platform/BaseRepository';
+import type { EntryRequirementSummary, EntryRules } from '../_lib/types';
 
 export interface EntryRequirementsFilter {
 	schoolId?: number;
@@ -139,6 +140,51 @@ export default class EntryRequirementRepository extends BaseRepository<
 			items,
 			totalPages: Math.ceil(total / pageSize),
 			totalItems: total,
+		};
+	}
+
+	async findProgramsWithRequirementsPublic(
+		page: number,
+		search: string,
+		filter?: EntryRequirementsFilter
+	) {
+		const { items, totalPages, totalItems } =
+			await this.findProgramsWithRequirements(page, search, filter);
+
+		if (items.length === 0) {
+			return { items: [], totalPages, totalItems };
+		}
+
+		const programIds = items.map((item) => item.id);
+		const requirements = await db.query.entryRequirements.findMany({
+			where: inArray(entryRequirements.programId, programIds),
+			with: {
+				certificateType: true,
+			},
+			orderBy: (er, { asc }) => [asc(er.programId), asc(er.certificateTypeId)],
+		});
+
+		const requirementsByProgram = new Map<number, EntryRequirementSummary[]>();
+
+		for (const requirement of requirements) {
+			const list = requirementsByProgram.get(requirement.programId) ?? [];
+			list.push({
+				id: requirement.id,
+				rules: requirement.rules as EntryRules,
+				certificateType: requirement.certificateType,
+			});
+			requirementsByProgram.set(requirement.programId, list);
+		}
+
+		const enrichedItems = items.map((program) => ({
+			...program,
+			entryRequirements: requirementsByProgram.get(program.id) ?? [],
+		}));
+
+		return {
+			items: enrichedItems,
+			totalPages,
+			totalItems,
 		};
 	}
 

@@ -51,7 +51,7 @@ class EntryRequirementService extends BaseService<
 		search: string,
 		filter?: EntryRequirementsFilter
 	) {
-		return this.repo.findProgramsWithRequirements(page, search, filter);
+		return this.repo.findProgramsWithRequirementsPublic(page, search, filter);
 	}
 
 	async findByProgram(programId: number) {
