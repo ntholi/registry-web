@@ -6,13 +6,11 @@ import {
 	CloseButton,
 	Divider,
 	Group,
-	Paper,
 	Stack,
 	Tabs,
 	TabsList,
 	TabsPanel,
 	TabsTab,
-	Text,
 	Title,
 } from '@mantine/core';
 import { IconDeviceFloppy, IconForms, IconUpload } from '@tabler/icons-react';
@@ -30,7 +28,9 @@ export default function NewPage() {
 	return (
 		<Box p='lg'>
 			<Stack gap='lg'>
-				<Title order={3}>New Applicant</Title>
+				<Title order={4} fw={100}>
+					New Applicant
+				</Title>
 				<Tabs value={activeTab} onChange={setActiveTab}>
 					<TabsList>
 						<TabsTab value='upload' leftSection={<IconUpload size={16} />}>
@@ -55,19 +55,12 @@ export default function NewPage() {
 						)}
 					</TabsList>
 
-					<TabsPanel value='upload' pt='md'>
-						<Paper p='lg' withBorder radius='md'>
-							<DocumentUpload />
-						</Paper>
+					<TabsPanel value='upload' pt='xl' px={'md'}>
+						<DocumentUpload />
 					</TabsPanel>
 
-					<TabsPanel value='form' pt='md'>
-						<Paper p='lg' withBorder radius='md'>
-							<Text size='sm' c='dimmed' mb='md'>
-								Manually enter applicant information
-							</Text>
-							<Form onSubmit={createApplicant} formRef={formRef} hideHeader />
-						</Paper>
+					<TabsPanel value='form' pt='xl' px={'md'}>
+						<Form onSubmit={createApplicant} formRef={formRef} hideHeader />
 					</TabsPanel>
 				</Tabs>
 			</Stack>
