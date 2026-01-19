@@ -27,7 +27,7 @@ export default function ApplyPage() {
 			}}
 		>
 			<Header isDark={isDark} />
-			<HeroSection />
+			<HeroSection isDark={isDark} />
 			<Footer />
 		</Box>
 	);
@@ -56,15 +56,7 @@ function Header({ isDark }: HeaderProps) {
 			}}
 		>
 			<Container size='xl'>
-				<Group justify='space-between'>
-					<Image
-						src={isDark ? '/images/logo-dark.png' : '/images/logo-light.png'}
-						alt='Limkokwing University'
-						width={140}
-						height={35}
-						style={{ objectFit: 'contain' }}
-						priority
-					/>
+				<Group justify='flex-end'>
 					<Button
 						component={Link}
 						href='/auth/login'
@@ -79,7 +71,11 @@ function Header({ isDark }: HeaderProps) {
 	);
 }
 
-function HeroSection() {
+interface HeroSectionProps {
+	isDark: boolean;
+}
+
+function HeroSection({ isDark }: HeroSectionProps) {
 	return (
 		<Container
 			size='lg'
@@ -94,15 +90,14 @@ function HeroSection() {
 		>
 			<Stack gap={50} align='center' ta='center'>
 				<Stack gap='lg' align='center'>
-					<Text
-						size='sm'
-						fw={600}
-						c='dimmed'
-						tt='uppercase'
-						style={{ letterSpacing: 3 }}
-					>
-						Limkokwing University of Creative Technology
-					</Text>
+					<Image
+						src={isDark ? '/images/logo-dark.png' : '/images/logo-light.png'}
+						alt='Limkokwing University'
+						width={280}
+						height={70}
+						style={{ objectFit: 'contain' }}
+						priority
+					/>
 
 					<Title
 						order={1}
