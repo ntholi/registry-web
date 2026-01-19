@@ -44,7 +44,7 @@ export default function ApplicantHeader({
 		.toUpperCase();
 
 	return (
-		<Paper p='lg' radius='md' withBorder>
+		<Paper p='lg' withBorder>
 			<Group justify='space-between' align='flex-start'>
 				<Group gap='lg'>
 					<Avatar
@@ -95,19 +95,21 @@ export default function ApplicantHeader({
 						</Group>
 					</Stack>
 				</Group>
-				<Group gap='xs'>
+				<Stack justify='space-between' align='end'>
+					<Group gap='xs'>
+						<ActionIcon
+							variant='subtle'
+							component={Link}
+							href={`/admissions/applicants/${id}/edit`}
+						>
+							<IconEdit size={18} />
+						</ActionIcon>
+						<ActionIcon variant='subtle' color='red' onClick={onDelete}>
+							<IconTrash size={18} />
+						</ActionIcon>
+					</Group>
 					<CreateApplicationModal applicantId={id} />
-					<ActionIcon
-						variant='subtle'
-						component={Link}
-						href={`/admissions/applicants/${id}/edit`}
-					>
-						<IconEdit size={18} />
-					</ActionIcon>
-					<ActionIcon variant='subtle' color='red' onClick={onDelete}>
-						<IconTrash size={18} />
-					</ActionIcon>
-				</Group>
+				</Stack>
 			</Group>
 		</Paper>
 	);
