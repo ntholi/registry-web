@@ -6,7 +6,7 @@ import { notifications } from '@mantine/notifications';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { zod4Resolver as zodResolver } from 'mantine-form-zod-resolver';
 import { useRouter } from 'nextjs-toploader/app';
-import type { JSX } from 'react';
+import type { JSX, RefObject } from 'react';
 import type { ZodObject, ZodTypeAny } from 'zod';
 import FormHeader from './FormHeader';
 
@@ -25,6 +25,8 @@ export type FormProps<T extends Record<string, unknown>, V> = Omit<
 	onSuccess?: (values: T) => void;
 	onError?: (error: Error) => void;
 	queryKey: string[];
+	formRef?: RefObject<HTMLFormElement | null>;
+	hideHeader?: boolean;
 };
 
 export function Form<T extends Record<string, unknown>, V>({
@@ -37,6 +39,8 @@ export function Form<T extends Record<string, unknown>, V>({
 	onSuccess,
 	onError,
 	queryKey,
+	formRef,
+	hideHeader,
 	...props
 }: FormProps<T, V>) {
 	const router = useRouter();
@@ -78,19 +82,22 @@ export function Form<T extends Record<string, unknown>, V>({
 
 	return (
 		<form
+			ref={formRef}
 			onSubmit={(e) => {
 				beforeSubmit?.(form);
 				form.onSubmit(handleSubmit)(e);
 			}}
 		>
-			<FormHeader
-				title={title}
-				isLoading={mutation.isPending}
-				onClose={() => {
-					router.back();
-				}}
-			/>
-			<Stack p='xl' {...props}>
+			{!hideHeader && (
+				<FormHeader
+					title={title}
+					isLoading={mutation.isPending}
+					onClose={() => {
+						router.back();
+					}}
+				/>
+			)}
+			<Stack p={hideHeader ? undefined : 'xl'} {...props}>
 				{children(form)}
 			</Stack>
 		</form>
