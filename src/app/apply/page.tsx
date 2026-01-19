@@ -9,7 +9,7 @@ import {
 	Text,
 	useMantineColorScheme,
 } from '@mantine/core';
-import { IconArrowRight, IconBooks } from '@tabler/icons-react';
+import { IconArrowRight } from '@tabler/icons-react';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -60,6 +60,7 @@ function Header({ isDark }: HeaderProps) {
 						component={Link}
 						href='/auth/login'
 						variant='subtle'
+						color='gray'
 						size='sm'
 					>
 						Sign In
@@ -105,6 +106,7 @@ function HeroSection({ isDark }: HeroSectionProps) {
 						lh={1.1}
 						ta='center'
 						variant='gradient'
+						tt={'uppercase'}
 						gradient={
 							isDark
 								? { from: 'white', to: 'gray.5', deg: 135 }
@@ -126,17 +128,10 @@ function HeroSection({ isDark }: HeroSectionProps) {
 					<Button
 						component={Link}
 						href='/apply/new'
-						size='xl'
+						size='md'
 						radius='xl'
 						rightSection={<IconArrowRight size={20} />}
 						variant='gradient'
-						gradient={{ from: 'violet', to: 'grape', deg: 135 }}
-						styles={{
-							root: {
-								paddingInline: 40,
-								fontWeight: 600,
-							},
-						}}
 					>
 						Apply Now
 					</Button>
@@ -144,16 +139,9 @@ function HeroSection({ isDark }: HeroSectionProps) {
 					<Button
 						component={Link}
 						href='/apply/courses'
-						size='xl'
+						size='md'
 						radius='xl'
 						variant='default'
-						leftSection={<IconBooks size={20} />}
-						styles={{
-							root: {
-								paddingInline: 40,
-								fontWeight: 600,
-							},
-						}}
 					>
 						Browse Courses
 					</Button>
