@@ -85,7 +85,7 @@ function meetsRequiredSubjects(
 }
 
 function meetsOptionalGroups(
-	groups: SubjectGradeRules['optionalSubjectGroups'] | undefined,
+	groups: SubjectGradeRules['subjectGroups'] | undefined,
 	grades: GradeMap
 ) {
 	if (!groups || groups.length === 0) return true;
@@ -156,7 +156,7 @@ function meetsSubjectGradeRule(
 	const basePass =
 		meetsMinimumPasses(rules.minimumGrades, grades) &&
 		meetsRequiredSubjects(rules.requiredSubjects, grades) &&
-		meetsOptionalGroups(rules.optionalSubjectGroups, grades);
+		meetsOptionalGroups(rules.subjectGroups, grades);
 	if (basePass) return true;
 	if (!rules.alternatives || rules.alternatives.length === 0) return false;
 	return rules.alternatives.some((alternative) =>

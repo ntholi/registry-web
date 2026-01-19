@@ -104,40 +104,39 @@ export default function CourseCard({ program, subjects }: Props) {
 							</Box>
 						)}
 
-						{rules.optionalSubjectGroups &&
-							rules.optionalSubjectGroups.length > 0 && (
-								<Box>
-									<Title size={'xs'} order={5} mb='sm'>
-										Additional Requirements
-									</Title>
-									<Stack gap='md'>
-										{rules.optionalSubjectGroups.map((group, idx) => (
-											<Paper key={idx} p='md' radius='md' withBorder>
-												<Group justify='space-between' mb='xs'>
-													<Text fw={600}>{group.name}</Text>
-													{group.required && (
-														<Badge color='red' size='sm'>
-															Required
-														</Badge>
-													)}
-												</Group>
-												<Text size='sm' mb='xs'>
-													Minimum grade needed:{' '}
-													<Text span fw={600}>
-														{group.minimumGrade}
-													</Text>
+						{rules.subjectGroups && rules.subjectGroups.length > 0 && (
+							<Box>
+								<Title size={'xs'} order={5} mb='sm'>
+									Additional Requirements
+								</Title>
+								<Stack gap='md'>
+									{rules.subjectGroups.map((group, idx) => (
+										<Paper key={idx} p='md' radius='md' withBorder>
+											<Group justify='space-between' mb='xs'>
+												<Text fw={600}>{group.name}</Text>
+												{group.required && (
+													<Badge color='red' size='sm'>
+														Required
+													</Badge>
+												)}
+											</Group>
+											<Text size='sm' mb='xs'>
+												Minimum grade needed:{' '}
+												<Text span fw={600}>
+													{group.minimumGrade}
 												</Text>
-												<Text size='sm' c='dimmed'>
-													Subjects:{' '}
-													{group.subjectIds
-														.map((id) => subjectMap.get(id) || id)
-														.join(', ')}
-												</Text>
-											</Paper>
-										))}
-									</Stack>
-								</Box>
-							)}
+											</Text>
+											<Text size='sm' c='dimmed'>
+												Subjects:{' '}
+												{group.subjectIds
+													.map((id) => subjectMap.get(id) || id)
+													.join(', ')}
+											</Text>
+										</Paper>
+									))}
+								</Stack>
+							</Box>
+						)}
 
 						{rules.alternatives && rules.alternatives.length > 0 && (
 							<Box>

@@ -129,46 +129,45 @@ function RequirementDetails({ rules, subjects }: RequirementDetailsProps) {
 					</Box>
 				)}
 
-				{sgRules.optionalSubjectGroups &&
-					sgRules.optionalSubjectGroups.length > 0 && (
-						<Box>
-							<Text fw={500} size='sm' mb='xs'>
-								Optional Subject Groups
-							</Text>
-							<Stack gap='xs'>
-								{sgRules.optionalSubjectGroups.map((group, idx) => (
-									<Paper
-										key={idx}
-										withBorder
-										p='sm'
-										bg='var(--mantine-color-dark-7)'
-									>
-										<Group justify='space-between' mb='xs'>
-											<Text size='sm' fw={500}>
-												{group.name}
-											</Text>
-											{group.required && (
-												<Badge size='xs' color='red'>
-													Required
-												</Badge>
-											)}
-										</Group>
-										<Stack gap={4}>
-											<Text size='xs' c='dimmed'>
-												Min grade: {group.minimumGrade}
-											</Text>
-											<Text size='xs' c='dimmed'>
-												Subjects:{' '}
-												{group.subjectIds
-													.map((id) => subjectMap.get(id) || `#${id}`)
-													.join(', ')}
-											</Text>
-										</Stack>
-									</Paper>
-								))}
-							</Stack>
-						</Box>
-					)}
+				{sgRules.subjectGroups && sgRules.subjectGroups.length > 0 && (
+					<Box>
+						<Text fw={500} size='sm' mb='xs'>
+							Optional Subject Groups
+						</Text>
+						<Stack gap='xs'>
+							{sgRules.subjectGroups.map((group, idx) => (
+								<Paper
+									key={idx}
+									withBorder
+									p='sm'
+									bg='var(--mantine-color-dark-7)'
+								>
+									<Group justify='space-between' mb='xs'>
+										<Text size='sm' fw={500}>
+											{group.name}
+										</Text>
+										{group.required && (
+											<Badge size='xs' color='red'>
+												Required
+											</Badge>
+										)}
+									</Group>
+									<Stack gap={4}>
+										<Text size='xs' c='dimmed'>
+											Min grade: {group.minimumGrade}
+										</Text>
+										<Text size='xs' c='dimmed'>
+											Subjects:{' '}
+											{group.subjectIds
+												.map((id) => subjectMap.get(id) || `#${id}`)
+												.join(', ')}
+										</Text>
+									</Stack>
+								</Paper>
+							))}
+						</Stack>
+					</Box>
+				)}
 			</Stack>
 		);
 	}
