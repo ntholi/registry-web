@@ -181,14 +181,13 @@ export function DocumentCard({ doc, onPreview, onReanalyze }: Props) {
 				<Group justify='space-between'>
 					<Group gap='xs'>
 						<Tooltip label='Download'>
-							<ActionIcon variant='light' onClick={handleDownload}>
+							<ActionIcon variant='default' onClick={handleDownload}>
 								<IconDownload size={16} />
 							</ActionIcon>
 						</Tooltip>
 						<Tooltip label='Analyze with AI'>
 							<ActionIcon
-								variant='light'
-								color='violet'
+								variant='gradient'
 								onClick={() => reanalyzeMutation.mutate()}
 								loading={reanalyzeMutation.isPending}
 							>

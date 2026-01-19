@@ -4,7 +4,7 @@ import { google } from '@ai-sdk/google';
 import { generateText, NoObjectGeneratedError, Output } from 'ai';
 import { z } from 'zod';
 
-const model = google('gemini-2.5-flash-lite');
+const model = google('gemini-2.5-flash');
 
 const identitySchema = z.object({
 	documentType: z
