@@ -22,17 +22,18 @@ import CoursesFilters from './_components/CoursesFilters';
 import CoursesPagination from './_components/CoursesPagination';
 
 interface Props {
-	searchParams?: {
-		schoolId?: string | string[];
-		level?: string | string[];
-		page?: string | string[];
-	};
+	searchParams: Promise<{
+		schoolId?: string;
+		level?: string;
+		page?: string;
+	}>;
 }
 
 export default async function ApplyCoursesPage({ searchParams }: Props) {
-	const page = parsePositiveNumber(searchParams?.page) ?? 1;
-	const schoolId = parsePositiveNumber(searchParams?.schoolId);
-	const level = parseProgramLevel(searchParams?.level);
+	const params = await searchParams;
+	const page = parsePositiveNumber(params.page) ?? 1;
+	const schoolId = parsePositiveNumber(params.schoolId);
+	const level = parseProgramLevel(params.level);
 
 	const filter: EntryRequirementFilter = {
 		...(schoolId ? { schoolId } : {}),
@@ -154,32 +155,16 @@ function Footer() {
 	);
 }
 
-function parsePositiveNumber(value?: string | string[]) {
-	if (!value || Array.isArray(value)) {
-		return undefined;
-	}
-
+function parsePositiveNumber(value?: string) {
+	if (!value) return undefined;
 	const parsed = Number(value);
-
-	if (!Number.isFinite(parsed) || parsed <= 0) {
-		return undefined;
-	}
-
-	return parsed;
+	return Number.isFinite(parsed) && parsed > 0 ? parsed : undefined;
 }
 
-function parseProgramLevel(
-	value?: string | string[]
-): ProgramLevel | undefined {
-	if (!value || Array.isArray(value)) {
-		return undefined;
-	}
-
-	const allowedLevels = programLevelEnum.enumValues;
-
-	if (!allowedLevels.includes(value as ProgramLevel)) {
-		return undefined;
-	}
-
-	return value as ProgramLevel;
+function parseProgramLevel(value?: string): ProgramLevel | undefined {
+	if (!value) return undefined;
+	const allowed = programLevelEnum.enumValues;
+	return allowed.includes(value as ProgramLevel)
+		? (value as ProgramLevel)
+		: undefined;
 }

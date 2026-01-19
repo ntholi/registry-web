@@ -3,70 +3,63 @@
 import type { ProgramLevel } from '@academic/_database';
 import type { SchoolSummary } from '@admissions/entry-requirements/_lib/types';
 import { Chip, Group, ScrollArea } from '@mantine/core';
-import { parseAsInteger, parseAsString, useQueryStates } from 'nuqs';
-
-interface CourseFilterValues {
-	schoolId?: number;
-	level?: ProgramLevel;
-}
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { useCallback } from 'react';
 
 interface Props {
 	schools: SchoolSummary[];
 	levels: ProgramLevel[];
-	value: CourseFilterValues;
+	value: { schoolId?: number; level?: ProgramLevel };
 }
 
 export default function CoursesFilters({ schools, levels, value }: Props) {
-	const [filter, setFilter] = useQueryStates(
-		{
-			schoolId: parseAsInteger,
-			level: parseAsString,
-			page: parseAsInteger,
+	const router = useRouter();
+	const pathname = usePathname();
+	const searchParams = useSearchParams();
+
+	const currentLevel = searchParams.get('level') ?? value.level ?? null;
+	const currentSchoolId =
+		searchParams.get('schoolId') ?? value.schoolId?.toString() ?? null;
+
+	const navigate = useCallback(
+		(updates: Record<string, string | null>) => {
+			const params = new URLSearchParams(searchParams.toString());
+			for (const [key, val] of Object.entries(updates)) {
+				if (val === null) {
+					params.delete(key);
+				} else {
+					params.set(key, val);
+				}
+			}
+			params.delete('page');
+			const query = params.toString();
+			router.push(query ? `${pathname}?${query}` : pathname);
 		},
-		{
-			history: 'push',
-			shallow: false,
-		}
+		[router, pathname, searchParams]
 	);
 
-	const levelValue = filter.level ?? value.level ?? null;
-	const schoolValue = (filter.schoolId ?? value.schoolId)?.toString() ?? null;
 	const levelsSorted = [...levels].sort((a, b) => b.localeCompare(a));
-	const selectedLevel =
-		levelValue && isProgramLevel(levelValue, levels) ? levelValue : null;
-	const levelOptions = selectedLevel ? [selectedLevel] : levelsSorted;
 
 	return (
 		<ScrollArea type='hover' offsetScrollbars>
 			<Group gap='md' wrap='nowrap'>
 				<Chip
-					value='all'
 					variant='filled'
-					checked={!levelValue && !schoolValue}
-					onChange={() => {
-						setFilter({
-							level: null,
-							schoolId: null,
-							page: null,
-						});
-					}}
+					checked={!currentLevel && !currentSchoolId}
+					onChange={() => navigate({ level: null, schoolId: null })}
 				>
 					All
 				</Chip>
 
 				<Group gap='xs' wrap='nowrap'>
-					{levelOptions.map((level) => (
+					{levelsSorted.map((level) => (
 						<Chip
 							key={level}
-							value={level}
 							variant='filled'
-							checked={selectedLevel === level}
-							onChange={() => {
-								setFilter({
-									level: selectedLevel === level ? null : level,
-									page: null,
-								});
-							}}
+							checked={currentLevel === level}
+							onChange={() =>
+								navigate({ level: currentLevel === level ? null : level })
+							}
 						>
 							{levelLabel(level)}
 						</Chip>
@@ -77,16 +70,16 @@ export default function CoursesFilters({ schools, levels, value }: Props) {
 					{schools.map((school) => (
 						<Chip
 							key={school.id}
-							value={school.id.toString()}
 							variant='filled'
-							checked={schoolValue === school.id.toString()}
-							onChange={() => {
-								setFilter({
+							checked={currentSchoolId === school.id.toString()}
+							onChange={() =>
+								navigate({
 									schoolId:
-										schoolValue === school.id.toString() ? null : school.id,
-									page: null,
-								});
-							}}
+										currentSchoolId === school.id.toString()
+											? null
+											: school.id.toString(),
+								})
+							}
 						>
 							{school.shortName ?? school.name}
 						</Chip>
@@ -99,11 +92,4 @@ export default function CoursesFilters({ schools, levels, value }: Props) {
 
 function levelLabel(level: ProgramLevel) {
 	return `${level.charAt(0).toUpperCase()}${level.slice(1)}`;
-}
-
-function isProgramLevel(
-	value: string,
-	options: ProgramLevel[]
-): value is ProgramLevel {
-	return options.includes(value as ProgramLevel);
 }
