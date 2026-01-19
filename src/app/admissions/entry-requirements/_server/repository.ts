@@ -148,51 +148,6 @@ export default class EntryRequirementRepository extends BaseRepository<
 		};
 	}
 
-	async findProgramsWithRequirementsPublic(
-		page: number,
-		search: string,
-		filter?: EntryRequirementsFilter
-	) {
-		const { items, totalPages, totalItems } =
-			await this.findProgramsWithRequirements(page, search, filter);
-
-		if (items.length === 0) {
-			return { items: [], totalPages, totalItems };
-		}
-
-		const programIds = items.map((item) => item.id);
-		const requirements = await db.query.entryRequirements.findMany({
-			where: inArray(entryRequirements.programId, programIds),
-			with: {
-				certificateType: true,
-			},
-			orderBy: (er, { asc }) => [asc(er.programId), asc(er.certificateTypeId)],
-		});
-
-		const requirementsByProgram = new Map<number, EntryRequirementSummary[]>();
-
-		for (const requirement of requirements) {
-			const list = requirementsByProgram.get(requirement.programId) ?? [];
-			list.push({
-				id: requirement.id,
-				rules: requirement.rules as EntryRules,
-				certificateType: requirement.certificateType,
-			});
-			requirementsByProgram.set(requirement.programId, list);
-		}
-
-		const enrichedItems = items.map((program) => ({
-			...program,
-			entryRequirements: requirementsByProgram.get(program.id) ?? [],
-		}));
-
-		return {
-			items: enrichedItems,
-			totalPages,
-			totalItems,
-		};
-	}
-
 	async findAllForEligibility() {
 		return db.query.entryRequirements.findMany({
 			with: {
@@ -201,24 +156,6 @@ export default class EntryRequirementRepository extends BaseRepository<
 			},
 			orderBy: (er, { asc }) => [asc(er.programId)],
 		});
-	}
-
-	async findSchoolsWithRequirements() {
-		const programIdsWithRequirements = db
-			.selectDistinct({ programId: entryRequirements.programId })
-			.from(entryRequirements);
-
-		return db
-			.selectDistinct({
-				id: schools.id,
-				code: schools.code,
-				name: schools.name,
-				shortName: schools.shortName,
-			})
-			.from(schools)
-			.innerJoin(programs, eq(programs.schoolId, schools.id))
-			.where(inArray(programs.id, programIdsWithRequirements))
-			.orderBy(asc(schools.name));
 	}
 
 	async findPublicCoursesData(
