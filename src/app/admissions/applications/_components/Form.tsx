@@ -14,7 +14,7 @@ import type { Application } from '../_lib/types';
 
 type Props = {
 	onSubmit: (values: typeof applications.$inferInsert) => Promise<Application>;
-	defaultValues?: Application;
+	defaultValues?: Partial<typeof applications.$inferInsert>;
 	title?: string;
 };
 
@@ -49,7 +49,7 @@ export default function ApplicationForm({
 	const intakePeriodOptions =
 		intakePeriodsData?.map((ip) => ({
 			value: ip.id,
-			label: `${ip.name} (${ip.startDate} - ${ip.endDate})`,
+			label: ip.name,
 		})) || [];
 
 	const programOptions =
@@ -76,9 +76,11 @@ export default function ApplicationForm({
 				defaultValues
 					? {
 							...defaultValues,
-							intakePeriodId: defaultValues.intakePeriodId,
-							firstChoiceProgramId: defaultValues.firstChoiceProgramId,
-							secondChoiceProgramId: defaultValues.secondChoiceProgramId,
+							intakePeriodId: defaultValues.intakePeriodId ?? undefined,
+							firstChoiceProgramId:
+								defaultValues.firstChoiceProgramId ?? undefined,
+							secondChoiceProgramId:
+								defaultValues.secondChoiceProgramId ?? undefined,
 						}
 					: undefined
 			}

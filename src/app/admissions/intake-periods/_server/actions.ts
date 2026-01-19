@@ -21,6 +21,10 @@ export async function findActiveIntakePeriods() {
 	return intakePeriodsService.findAllActive();
 }
 
+export async function findActiveIntakePeriod() {
+	return intakePeriodsService.findActive();
+}
+
 export async function createIntakePeriod(data: IntakePeriod) {
 	return intakePeriodsService.create(data);
 }

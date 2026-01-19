@@ -230,7 +230,7 @@ src/
 
 ### Database Access
 For schema/data inspection always use:
-`psql "postgresql://dev:111111@localhost:5432/registry" -P pager=off -c "<<query>>"`
+`psql postgresql://dev:111111@localhost:5432/registry -P pager=off -c "<<query>>"`
 (Query via terminal to understand database structure).
 
 ### Validation (MANDATORY FINAL STEP)
