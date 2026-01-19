@@ -59,3 +59,7 @@ export async function addGuardianPhone(
 export async function removeGuardianPhone(phoneId: string) {
 	return applicantsService.removeGuardianPhone(phoneId);
 }
+
+export async function getEligibleProgramsForApplicant(applicantId: string) {
+	return applicantsService.findEligiblePrograms(applicantId);
+}

@@ -14,6 +14,7 @@ import { IconEdit, IconTrash } from '@tabler/icons-react';
 import Link from 'next/link';
 import { type GenderType, getGenderColor } from '@/shared/lib/utils/colors';
 import { calculateAge, formatDate } from '@/shared/lib/utils/dates';
+import CreateApplicationModal from './CreateApplicationModal';
 
 type Props = {
 	id: string;
@@ -95,6 +96,7 @@ export default function ApplicantHeader({
 					</Stack>
 				</Group>
 				<Group gap='xs'>
+					<CreateApplicationModal applicantId={id} />
 					<ActionIcon
 						variant='subtle'
 						component={Link}

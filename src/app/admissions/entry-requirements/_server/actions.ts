@@ -30,6 +30,10 @@ export async function findEntryRequirementsByProgram(programId: number) {
 	return entryRequirementsService.findByProgram(programId);
 }
 
+export async function findEntryRequirementsForEligibility() {
+	return entryRequirementsService.findAllForEligibility();
+}
+
 export async function createEntryRequirement(data: EntryRequirement) {
 	return entryRequirementsService.create(data);
 }

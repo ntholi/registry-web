@@ -64,6 +64,13 @@ class EntryRequirementService extends BaseService<
 		);
 	}
 
+	async findAllForEligibility() {
+		return withAuth(
+			async () => this.repo.findAllForEligibility(),
+			['registry', 'admin']
+		);
+	}
+
 	override async create(data: typeof entryRequirements.$inferInsert) {
 		return withAuth(async () => {
 			const existing = await this.repo.findByProgramAndCertificate(

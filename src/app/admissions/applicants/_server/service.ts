@@ -1,8 +1,10 @@
+import { entryRequirementsService } from '@admissions/entry-requirements/_server/service';
 import type { applicants, documents, guardians } from '@/core/database';
 import type { DocumentAnalysisResult } from '@/core/integrations/ai';
 import BaseService from '@/core/platform/BaseService';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
 import withAuth from '@/core/platform/withAuth';
+import { getEligiblePrograms } from '../_lib/eligibility';
 import type { PendingDocument } from './document-actions';
 import ApplicantRepository from './repository';
 
@@ -200,6 +202,16 @@ class ApplicantService extends BaseService<typeof applicants, 'id'> {
 				docInputs,
 				recordInputs
 			);
+		}, ['registry', 'admin']);
+	}
+
+	async findEligiblePrograms(applicantId: string) {
+		return withAuth(async () => {
+			const applicant = await this.repo.findById(applicantId);
+			if (!applicant) return [];
+			const requirements =
+				await entryRequirementsService.findAllForEligibility();
+			return getEligiblePrograms(applicant.academicRecords, requirements);
 		}, ['registry', 'admin']);
 	}
 
