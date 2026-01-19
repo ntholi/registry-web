@@ -46,6 +46,14 @@ class EntryRequirementService extends BaseService<
 		);
 	}
 
+	async findProgramsWithRequirementsPublic(
+		page: number,
+		search: string,
+		filter?: EntryRequirementsFilter
+	) {
+		return this.repo.findProgramsWithRequirements(page, search, filter);
+	}
+
 	async findByProgram(programId: number) {
 		return withAuth(
 			async () => this.repo.findByProgram(programId),
@@ -69,6 +77,10 @@ class EntryRequirementService extends BaseService<
 			async () => this.repo.findAllForEligibility(),
 			['registry', 'admin']
 		);
+	}
+
+	async findSchoolsWithRequirementsPublic() {
+		return this.repo.findSchoolsWithRequirements();
 	}
 
 	override async create(data: typeof entryRequirements.$inferInsert) {

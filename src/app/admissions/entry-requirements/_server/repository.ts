@@ -1,5 +1,14 @@
-import { type ProgramLevel, programs } from '@academic/_database';
-import { and, count, countDistinct, eq, ilike, inArray, or } from 'drizzle-orm';
+import { type ProgramLevel, programs, schools } from '@academic/_database';
+import {
+	and,
+	asc,
+	count,
+	countDistinct,
+	eq,
+	ilike,
+	inArray,
+	or,
+} from 'drizzle-orm';
 import { db, entryRequirements } from '@/core/database';
 import BaseRepository from '@/core/platform/BaseRepository';
 
@@ -141,5 +150,22 @@ export default class EntryRequirementRepository extends BaseRepository<
 			},
 			orderBy: (er, { asc }) => [asc(er.programId)],
 		});
+	}
+
+	async findSchoolsWithRequirements() {
+		const programIdsWithRequirements = db
+			.selectDistinct({ programId: entryRequirements.programId })
+			.from(entryRequirements);
+
+		return db
+			.selectDistinct({
+				id: schools.id,
+				code: schools.code,
+				name: schools.name,
+			})
+			.from(schools)
+			.innerJoin(programs, eq(programs.schoolId, schools.id))
+			.where(inArray(programs.id, programIdsWithRequirements))
+			.orderBy(asc(schools.name));
 	}
 }

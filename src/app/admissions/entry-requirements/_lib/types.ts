@@ -43,6 +43,12 @@ export type ProgramWithSchool = {
 	};
 };
 
+export type SchoolSummary = {
+	id: number;
+	code: string;
+	name: string;
+};
+
 export type EntryRequirementFilter = {
 	schoolId?: number;
 	level?: ProgramLevel;

@@ -26,12 +26,28 @@ export async function findProgramsWithRequirements(
 	);
 }
 
+export async function findProgramsWithRequirementsPublic(
+	page = 1,
+	search = '',
+	filter?: EntryRequirementFilter
+) {
+	return entryRequirementsService.findProgramsWithRequirementsPublic(
+		page,
+		search,
+		filter
+	);
+}
+
 export async function findEntryRequirementsByProgram(programId: number) {
 	return entryRequirementsService.findByProgram(programId);
 }
 
 export async function findEntryRequirementsForEligibility() {
 	return entryRequirementsService.findAllForEligibility();
+}
+
+export async function findEntryRequirementSchoolsPublic() {
+	return entryRequirementsService.findSchoolsWithRequirementsPublic();
 }
 
 export async function createEntryRequirement(data: EntryRequirement) {
