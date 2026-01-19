@@ -82,14 +82,27 @@ export async function analyzeDocumentWithAI(
 	return analyzeDocument(fileBase64, mediaType);
 }
 
+function normalizeFileUrl(fileUrl: string) {
+	if (!fileUrl) {
+		throw new Error('Document URL is missing');
+	}
+
+	try {
+		return new URL(fileUrl).toString();
+	} catch {
+		return encodeURI(fileUrl);
+	}
+}
+
 export async function reanalyzeDocumentFromUrl(
 	fileUrl: string,
 	applicantId: string,
 	documentType: DocumentType
 ): Promise<DocumentAnalysisResult> {
-	const response = await fetch(fileUrl);
+	const normalizedUrl = normalizeFileUrl(fileUrl);
+	const response = await fetch(normalizedUrl, { cache: 'no-store' });
 	if (!response.ok) {
-		throw new Error('Failed to fetch document');
+		throw new Error(`Failed to fetch document (${response.status})`);
 	}
 	const buffer = await response.arrayBuffer();
 	const base64 = Buffer.from(buffer).toString('base64');

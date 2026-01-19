@@ -71,6 +71,7 @@ const subjectsWithAliases: { name: string; aliases: string[] }[] = [
 			'Human Biology',
 			'Biological Sciences',
 			'Biological Science',
+			'Human and Social Biology',
 		],
 	},
 	{
