@@ -7,7 +7,6 @@ import {
 	Group,
 	Stack,
 	Text,
-	Title,
 	useMantineColorScheme,
 } from '@mantine/core';
 import { IconArrowRight, IconBooks } from '@tabler/icons-react';
@@ -99,22 +98,23 @@ function HeroSection({ isDark }: HeroSectionProps) {
 						priority
 					/>
 
-					<Title
-						order={1}
+					<Text
+						component='h1'
 						fz={{ base: 48, sm: 64, md: 80 }}
 						fw={800}
 						lh={1.1}
-						style={{
-							background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-							WebkitBackgroundClip: 'text',
-							WebkitTextFillColor: 'transparent',
-							backgroundClip: 'text',
-						}}
+						ta='center'
+						variant='gradient'
+						gradient={
+							isDark
+								? { from: 'white', to: 'gray.5', deg: 135 }
+								: { from: 'dark.9', to: 'dark.5', deg: 135 }
+						}
 					>
 						Be the most
 						<br />
 						successful
-					</Title>
+					</Text>
 
 					<Text size='lg' c='dimmed' maw={500} lh={1.6} mt='md'>
 						Transform your passion into a career. Join a global community of
