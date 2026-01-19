@@ -229,10 +229,6 @@ export default function DocumentUpload() {
 		(f) =>
 			f.uploadState === 'ready' && f.analysisResult?.category === 'identity'
 	);
-	const hasAcademic = fileItems.some(
-		(f) =>
-			f.uploadState === 'ready' && f.analysisResult?.category === 'academic'
-	);
 
 	return (
 		<Stack gap='lg'>
@@ -335,32 +331,6 @@ export default function DocumentUpload() {
 							</Group>
 						</Paper>
 					))}
-
-					<Paper withBorder radius='md' p='sm' bg='gray.0'>
-						<Group gap='md'>
-							<Stack gap={2} style={{ flex: 1 }}>
-								<Text size='xs' fw={500}>
-									Detection Summary
-								</Text>
-								<Group gap='xs'>
-									<Text
-										size='xs'
-										c={hasIdentity ? 'green' : 'red'}
-										fw={hasIdentity ? 500 : 400}
-									>
-										{hasIdentity ? '✓' : '✗'} Identity
-									</Text>
-									<Text
-										size='xs'
-										c={hasAcademic ? 'green' : 'dimmed'}
-										fw={hasAcademic ? 500 : 400}
-									>
-										{hasAcademic ? '✓' : '○'} Academic
-									</Text>
-								</Group>
-							</Stack>
-						</Group>
-					</Paper>
 				</Stack>
 			)}
 

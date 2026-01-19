@@ -78,6 +78,7 @@ export default function AcademicRecordsTab({ records }: Props) {
 															</Stack>
 														</Group>
 														<ActionIcon
+															component='div'
 															color='red'
 															variant='subtle'
 															onClick={(event) => {

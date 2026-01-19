@@ -334,7 +334,7 @@ export default function GuardiansTab({ guardians }: Props) {
 					))}
 				</SimpleGrid>
 			) : (
-				<Paper p='xl' radius='md' withBorder bg='var(--mantine-color-gray-0)'>
+				<Paper p='xl' radius='md' withBorder>
 					<Stack align='center' gap='sm' py='xl'>
 						<Avatar size={64} radius='xl' variant='light' color='gray'>
 							<IconUser size={32} />
