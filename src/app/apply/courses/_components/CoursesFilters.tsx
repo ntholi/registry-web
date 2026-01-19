@@ -34,27 +34,44 @@ export default function CoursesFilters({
 		return Array.isArray(nextValue) ? nextValue[0] : nextValue;
 	}
 
-	const levelValue = filter.level ?? value.level ?? 'all';
-	const schoolValue = (filter.schoolId ?? value.schoolId)?.toString() ?? 'all';
+	const levelValue = filter.level ?? value.level ?? null;
+	const schoolValue = (filter.schoolId ?? value.schoolId)?.toString() ?? null;
+	const levelsSorted = [...levels].sort((a, b) => b.localeCompare(a));
+	const selectedLevel =
+		levelValue && isProgramLevel(levelValue, levels) ? levelValue : null;
+	const levelOptions = selectedLevel ? [selectedLevel] : levelsSorted;
 
 	return (
 		<ScrollArea type='hover' offsetScrollbars>
 			<Group gap='md' wrap='nowrap'>
+				<Chip
+					value='all'
+					variant='filled'
+					checked={!levelValue && !schoolValue}
+					onChange={() => {
+						setFilter({
+							level: null,
+							schoolId: null,
+							page: null,
+						});
+					}}
+				>
+					All
+				</Chip>
+
 				<Chip.Group
-					value={levelValue}
+					value={selectedLevel ?? undefined}
 					onChange={(nextValue) => {
 						const resolved = toSingleValue(nextValue);
 						setFilter({
-							level: resolved === 'all' ? null : resolved,
+							level:
+								resolved && isProgramLevel(resolved, levels) ? resolved : null,
 							page: null,
 						});
 					}}
 				>
 					<Group gap='xs' wrap='nowrap'>
-						<Chip value='all' variant='filled'>
-							All
-						</Chip>
-						{levels.map((level) => (
+						{levelOptions.map((level) => (
 							<Chip key={level} value={level} variant='filled'>
 								{levelLabel(level)}
 							</Chip>
@@ -63,19 +80,16 @@ export default function CoursesFilters({
 				</Chip.Group>
 
 				<Chip.Group
-					value={schoolValue}
+					value={schoolValue ?? undefined}
 					onChange={(nextValue) => {
 						const resolved = toSingleValue(nextValue);
 						setFilter({
-							schoolId: resolved === 'all' ? null : Number(resolved),
+							schoolId: resolved ? Number(resolved) : null,
 							page: null,
 						});
 					}}
 				>
 					<Group gap='xs' wrap='nowrap'>
-						<Chip value='all' variant='filled'>
-							All
-						</Chip>
 						{schools.map((school) => (
 							<Chip
 								key={school.id}
@@ -94,4 +108,11 @@ export default function CoursesFilters({
 
 function levelLabel(level: ProgramLevel) {
 	return `${level.charAt(0).toUpperCase()}${level.slice(1)}`;
+}
+
+function isProgramLevel(
+	value: string,
+	options: ProgramLevel[]
+): value is ProgramLevel {
+	return options.includes(value as ProgramLevel);
 }
