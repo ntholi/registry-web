@@ -4,7 +4,7 @@ import { structures } from '@academic/structures/_schema/structures';
 import { users } from '@auth/users/_schema/users';
 import { blockedStudents } from '@registry/blocked-students/_schema/blockedStudents';
 import { certificateReprints } from '@registry/certificate-reprints/_schema/certificateReprints';
-import { documents } from '@registry/documents/_schema/documents';
+import { studentDocuments } from '@registry/documents/_schema/studentDocuments';
 import { graduationRequests } from '@registry/graduation-requests/_schema/graduationRequests';
 import { statementOfResultsPrints } from '@registry/print/_schema/statementOfResultsPrints';
 import { studentCardPrints } from '@registry/print/_schema/studentCardPrints';
@@ -31,7 +31,7 @@ export const studentsRelations = relations(students, ({ many, one }) => ({
 	statementOfResultsPrints: many(statementOfResultsPrints),
 	transcriptPrints: many(transcriptPrints),
 	studentCardPrints: many(studentCardPrints),
-	documents: many(documents),
+	studentDocuments: many(studentDocuments),
 	certificateReprints: many(certificateReprints),
 }));
 
