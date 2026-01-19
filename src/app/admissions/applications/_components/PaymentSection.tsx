@@ -17,7 +17,7 @@ type Receipt = {
 };
 
 type Props = {
-	applicationId: number;
+	applicationId: string;
 	feeAmount: string;
 	paymentStatus: PaymentStatus;
 	receipts: { receipt: Receipt }[];

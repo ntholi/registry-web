@@ -5,7 +5,7 @@ import { subjectsService } from './service';
 
 type Subject = typeof subjects.$inferInsert;
 
-export async function getSubject(id: number) {
+export async function getSubject(id: string) {
 	return subjectsService.get(id);
 }
 
@@ -29,26 +29,26 @@ export async function createSubject(data: Subject) {
 	return subjectsService.create(data);
 }
 
-export async function updateSubject(id: number, data: Subject) {
+export async function updateSubject(id: string, data: Subject) {
 	return subjectsService.update(id, data);
 }
 
-export async function deleteSubject(id: number) {
+export async function deleteSubject(id: string) {
 	return subjectsService.delete(id);
 }
 
-export async function toggleSubjectActive(id: number) {
+export async function toggleSubjectActive(id: string) {
 	return subjectsService.toggleActive(id);
 }
 
-export async function addSubjectAlias(subjectId: number, alias: string) {
+export async function addSubjectAlias(subjectId: string, alias: string) {
 	return subjectsService.addAlias(subjectId, alias);
 }
 
-export async function removeSubjectAlias(aliasId: number) {
+export async function removeSubjectAlias(aliasId: string) {
 	return subjectsService.removeAlias(aliasId);
 }
 
-export async function getSubjectAliases(subjectId: number) {
+export async function getSubjectAliases(subjectId: string) {
 	return subjectsService.getAliases(subjectId);
 }

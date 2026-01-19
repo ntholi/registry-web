@@ -5,7 +5,7 @@ import { intakePeriodsService } from './service';
 
 type IntakePeriod = typeof intakePeriods.$inferInsert;
 
-export async function getIntakePeriod(id: number) {
+export async function getIntakePeriod(id: string) {
 	return intakePeriodsService.get(id);
 }
 
@@ -25,10 +25,10 @@ export async function createIntakePeriod(data: IntakePeriod) {
 	return intakePeriodsService.create(data);
 }
 
-export async function updateIntakePeriod(id: number, data: IntakePeriod) {
+export async function updateIntakePeriod(id: string, data: IntakePeriod) {
 	return intakePeriodsService.update(id, data);
 }
 
-export async function deleteIntakePeriod(id: number) {
+export async function deleteIntakePeriod(id: string) {
 	return intakePeriodsService.delete(id);
 }

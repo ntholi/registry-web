@@ -26,7 +26,7 @@ export type ApplicationWithRelations = Application & {
 		nationalId: string | null;
 	};
 	intakePeriod: {
-		id: number;
+		id: string;
 		name: string;
 		applicationFee: string;
 		startDate: string;
@@ -57,7 +57,7 @@ export type ApplicationWithRelations = Application & {
 export type ApplicationFilters = {
 	status?: ApplicationStatus;
 	paymentStatus?: PaymentStatus;
-	intakePeriodId?: number;
+	intakePeriodId?: string;
 };
 
 export type { ApplicationStatus, PaymentStatus };

@@ -24,7 +24,7 @@ class EntryRequirementService extends BaseService<
 		this.repo = repo;
 	}
 
-	override async get(id: number) {
+	override async get(id: string) {
 		return withAuth(async () => this.repo.findById(id), ['registry', 'admin']);
 	}
 
@@ -55,7 +55,7 @@ class EntryRequirementService extends BaseService<
 
 	async findByProgramAndCertificate(
 		programId: number,
-		certificateTypeId: number
+		certificateTypeId: string
 	) {
 		return withAuth(
 			async () =>

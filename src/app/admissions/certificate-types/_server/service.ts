@@ -27,7 +27,7 @@ class CertificateTypeService extends BaseService<
 		this.repo = repo;
 	}
 
-	override async get(id: number) {
+	override async get(id: string) {
 		return withAuth(async () => this.repo.findById(id), ['registry', 'admin']);
 	}
 
@@ -52,7 +52,7 @@ class CertificateTypeService extends BaseService<
 	}
 
 	async updateWithMappings(
-		id: number,
+		id: string,
 		data: Partial<typeof certificateTypes.$inferInsert>,
 		mappings?: GradeMapping[]
 	) {
@@ -65,7 +65,7 @@ class CertificateTypeService extends BaseService<
 		}, ['registry', 'admin']);
 	}
 
-	override async delete(id: number) {
+	override async delete(id: string) {
 		return withAuth(async () => {
 			const isInUse = await this.repo.isInUse(id);
 			if (isInUse) {
@@ -78,7 +78,7 @@ class CertificateTypeService extends BaseService<
 		}, ['registry', 'admin']);
 	}
 
-	async isInUse(id: number) {
+	async isInUse(id: string) {
 		return withAuth(async () => this.repo.isInUse(id), ['registry', 'admin']);
 	}
 }

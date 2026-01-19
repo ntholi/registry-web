@@ -7,10 +7,10 @@ export type EntryRequirementInsert = typeof entryRequirements.$inferInsert;
 export type SubjectGradeRules = {
 	type: 'subject-grades';
 	minimumGrades: { count: number; grade: string };
-	requiredSubjects: { subjectId: number; minimumGrade: string }[];
+	requiredSubjects: { subjectId: string; minimumGrade: string }[];
 	optionalSubjectGroups?: {
 		name: string;
-		subjectIds: number[];
+		subjectIds: string[];
 		minimumGrade: string;
 		required: boolean;
 	}[];
@@ -27,7 +27,7 @@ export type EntryRules = SubjectGradeRules | ClassificationRules;
 
 export type EntryRequirementWithRelations = EntryRequirement & {
 	program: { id: number; code: string; name: string };
-	certificateType: { id: number; name: string; lqfLevel: number };
+	certificateType: { id: string; name: string; lqfLevel: number };
 };
 
 export type ProgramWithSchool = {

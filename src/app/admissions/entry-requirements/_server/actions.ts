@@ -6,7 +6,7 @@ import { entryRequirementsService } from './service';
 
 type EntryRequirement = typeof entryRequirements.$inferInsert;
 
-export async function getEntryRequirement(id: number) {
+export async function getEntryRequirement(id: string) {
 	return entryRequirementsService.get(id);
 }
 
@@ -35,12 +35,12 @@ export async function createEntryRequirement(data: EntryRequirement) {
 }
 
 export async function updateEntryRequirement(
-	id: number,
+	id: string,
 	data: EntryRequirement
 ) {
 	return entryRequirementsService.update(id, data);
 }
 
-export async function deleteEntryRequirement(id: number) {
+export async function deleteEntryRequirement(id: string) {
 	return entryRequirementsService.delete(id);
 }

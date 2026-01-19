@@ -10,9 +10,9 @@ import type {
 } from '@/app/admissions/entry-requirements/_lib/types';
 import { db } from '../index';
 
-type SubjectMap = Map<string, number>;
+type SubjectMap = Map<string, string>;
 type ProgramMap = Map<string, number>;
-type CertTypeMap = Map<string, number>;
+type CertTypeMap = Map<string, string>;
 
 export async function seedEntryRequirements() {
 	console.log('🌱 Seeding entry requirements...');
@@ -55,7 +55,7 @@ export async function seedEntryRequirements() {
 
 	const requirements: {
 		programId: number;
-		certificateTypeId: number;
+		certificateTypeId: string;
 		rules: SubjectGradeRules | ClassificationRules;
 	}[] = [];
 

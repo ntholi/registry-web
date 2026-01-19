@@ -6,7 +6,7 @@ import { academicRecordsService } from './service';
 
 type AcademicRecord = typeof academicRecords.$inferInsert;
 
-export async function getAcademicRecord(id: number) {
+export async function getAcademicRecord(id: string) {
 	return academicRecordsService.get(id);
 }
 
@@ -40,7 +40,7 @@ export async function createAcademicRecord(
 }
 
 export async function updateAcademicRecord(
-	id: number,
+	id: string,
 	input: CreateAcademicRecordInput,
 	isLevel4: boolean
 ) {
@@ -61,7 +61,7 @@ export async function updateAcademicRecord(
 	);
 }
 
-export async function deleteAcademicRecord(id: number) {
+export async function deleteAcademicRecord(id: string) {
 	return academicRecordsService.delete(id);
 }
 

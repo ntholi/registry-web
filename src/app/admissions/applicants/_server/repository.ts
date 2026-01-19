@@ -78,7 +78,7 @@ export default class ApplicantRepository extends BaseRepository<
 		return phone;
 	}
 
-	async removePhone(phoneId: number) {
+	async removePhone(phoneId: string) {
 		await db.delete(applicantPhones).where(eq(applicantPhones.id, phoneId));
 	}
 
@@ -98,7 +98,7 @@ export default class ApplicantRepository extends BaseRepository<
 	}
 
 	async updateGuardian(
-		id: number,
+		id: string,
 		data: Partial<typeof guardians.$inferInsert>
 	) {
 		const [guardian] = await db
@@ -109,11 +109,11 @@ export default class ApplicantRepository extends BaseRepository<
 		return guardian;
 	}
 
-	async deleteGuardian(id: number) {
+	async deleteGuardian(id: string) {
 		await db.delete(guardians).where(eq(guardians.id, id));
 	}
 
-	async addGuardianPhone(guardianId: number, phoneNumber: string) {
+	async addGuardianPhone(guardianId: string, phoneNumber: string) {
 		const [phone] = await db
 			.insert(guardianPhones)
 			.values({ guardianId, phoneNumber })
@@ -121,7 +121,7 @@ export default class ApplicantRepository extends BaseRepository<
 		return phone;
 	}
 
-	async removeGuardianPhone(phoneId: number) {
+	async removeGuardianPhone(phoneId: string) {
 		await db.delete(guardianPhones).where(eq(guardianPhones.id, phoneId));
 	}
 }

@@ -21,7 +21,7 @@ class AcademicRecordService extends BaseService<typeof academicRecords, 'id'> {
 		this.repo = repo;
 	}
 
-	override async get(id: number) {
+	override async get(id: string) {
 		return withAuth(async () => this.repo.findById(id), ['registry', 'admin']);
 	}
 
@@ -40,7 +40,7 @@ class AcademicRecordService extends BaseService<typeof academicRecords, 'id'> {
 		return withAuth(async () => {
 			let mappedGrades:
 				| {
-						subjectId: number;
+						subjectId: string;
 						originalGrade: string;
 						standardGrade: StandardGrade;
 				  }[]
@@ -58,7 +58,7 @@ class AcademicRecordService extends BaseService<typeof academicRecords, 'id'> {
 	}
 
 	async updateWithGrades(
-		id: number,
+		id: string,
 		data: Partial<typeof academicRecords.$inferInsert>,
 		isLevel4: boolean,
 		grades?: SubjectGradeInput[]
@@ -66,7 +66,7 @@ class AcademicRecordService extends BaseService<typeof academicRecords, 'id'> {
 		return withAuth(async () => {
 			let mappedGrades:
 				| {
-						subjectId: number;
+						subjectId: string;
 						originalGrade: string;
 						standardGrade: StandardGrade;
 				  }[]
@@ -83,7 +83,7 @@ class AcademicRecordService extends BaseService<typeof academicRecords, 'id'> {
 		}, ['registry', 'admin']);
 	}
 
-	override async delete(id: number) {
+	override async delete(id: string) {
 		return withAuth(
 			async () => this.repo.removeById(id),
 			['registry', 'admin']

@@ -15,7 +15,7 @@ type Props = {
 
 export default async function IntakePeriodDetails({ params }: Props) {
 	const { id } = await params;
-	const item = await getIntakePeriod(Number(id));
+	const item = await getIntakePeriod(id);
 
 	if (!item) {
 		return notFound();
@@ -30,7 +30,7 @@ export default async function IntakePeriodDetails({ params }: Props) {
 				queryKey={['intake-periods']}
 				handleDelete={async () => {
 					'use server';
-					await deleteIntakePeriod(Number(id));
+					await deleteIntakePeriod(id);
 				}}
 			/>
 			<DetailsViewBody>

@@ -11,7 +11,7 @@ export default class AcademicRecordRepository extends BaseRepository<
 		super(academicRecords, academicRecords.id);
 	}
 
-	override async findById(id: number) {
+	override async findById(id: string) {
 		return db.query.academicRecords.findFirst({
 			where: eq(academicRecords.id, id),
 			with: {
@@ -52,7 +52,7 @@ export default class AcademicRecordRepository extends BaseRepository<
 	async createWithGrades(
 		data: typeof academicRecords.$inferInsert,
 		grades?: {
-			subjectId: number;
+			subjectId: string;
 			originalGrade: string;
 			standardGrade: StandardGrade;
 		}[]
@@ -85,10 +85,10 @@ export default class AcademicRecordRepository extends BaseRepository<
 	}
 
 	async updateWithGrades(
-		id: number,
+		id: string,
 		data: Partial<typeof academicRecords.$inferInsert>,
 		grades?: {
-			subjectId: number;
+			subjectId: string;
 			originalGrade: string;
 			standardGrade: StandardGrade;
 		}[]
@@ -126,7 +126,7 @@ export default class AcademicRecordRepository extends BaseRepository<
 		});
 	}
 
-	async removeById(id: number) {
+	async removeById(id: string) {
 		await db.delete(academicRecords).where(eq(academicRecords.id, id));
 	}
 

@@ -25,9 +25,9 @@ export type ApplicantWithRelations = Applicant & {
 	phones: ApplicantPhone[];
 	guardians: (Guardian & { phones: GuardianPhone[] })[];
 	academicRecords: (typeof academicRecords.$inferSelect & {
-		certificateType: { id: number; name: string; lqfLevel: number };
+		certificateType: { id: string; name: string; lqfLevel: number };
 		subjectGrades: (typeof subjectGrades.$inferSelect & {
-			subject: { id: number; name: string };
+			subject: { id: string; name: string };
 		})[];
 	})[];
 	documents: (typeof applicantDocuments.$inferSelect & {

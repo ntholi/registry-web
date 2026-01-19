@@ -15,7 +15,7 @@ type Props = {
 
 export default async function SubjectDetails({ params }: Props) {
 	const { id } = await params;
-	const item = (await getSubject(Number(id))) as SubjectWithAliases | null;
+	const item = (await getSubject(id)) as SubjectWithAliases | null;
 
 	if (!item) {
 		return notFound();
@@ -28,7 +28,7 @@ export default async function SubjectDetails({ params }: Props) {
 				queryKey={['subjects']}
 				handleDelete={async () => {
 					'use server';
-					await deleteSubject(Number(id));
+					await deleteSubject(id);
 				}}
 			/>
 			<DetailsViewBody>

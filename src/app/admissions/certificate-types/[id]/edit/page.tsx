@@ -12,7 +12,7 @@ type Props = {
 
 export default async function CertificateTypeEdit({ params }: Props) {
 	const { id } = await params;
-	const item = await getCertificateType(Number(id));
+	const item = await getCertificateType(id);
 
 	if (!item) {
 		return notFound();
@@ -25,7 +25,7 @@ export default async function CertificateTypeEdit({ params }: Props) {
 				defaultValues={item}
 				onSubmit={async (value) => {
 					'use server';
-					return await updateCertificateType(Number(id), value);
+					return await updateCertificateType(id, value);
 				}}
 			/>
 		</Box>

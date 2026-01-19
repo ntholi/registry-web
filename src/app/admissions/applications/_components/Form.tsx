@@ -48,7 +48,7 @@ export default function ApplicationForm({
 
 	const intakePeriodOptions =
 		intakePeriodsData?.map((ip) => ({
-			value: ip.id.toString(),
+			value: ip.id,
 			label: `${ip.name} (${ip.startDate} - ${ip.endDate})`,
 		})) || [];
 
@@ -61,7 +61,7 @@ export default function ApplicationForm({
 	const schema = z.object({
 		...createInsertSchema(applications).shape,
 		applicantId: z.string().min(1, 'Applicant is required'),
-		intakePeriodId: z.coerce.number().min(1, 'Intake period is required'),
+		intakePeriodId: z.string().min(1, 'Intake period is required'),
 		firstChoiceProgramId: z.coerce.number().min(1, 'First choice is required'),
 		secondChoiceProgramId: z.coerce.number().optional().nullable(),
 	});
@@ -100,10 +100,8 @@ export default function ApplicationForm({
 						placeholder='Select intake period'
 						data={intakePeriodOptions}
 						required
-						value={form.values.intakePeriodId?.toString() || ''}
-						onChange={(val) =>
-							form.setFieldValue('intakePeriodId', val ? Number(val) : 0)
-						}
+						value={form.values.intakePeriodId || ''}
+						onChange={(val) => form.setFieldValue('intakePeriodId', val || '')}
 						error={form.errors.intakePeriodId}
 					/>
 

@@ -33,7 +33,7 @@ export async function addApplicantPhone(
 	return applicantsService.addPhone(applicantId, phoneNumber);
 }
 
-export async function removeApplicantPhone(phoneId: number) {
+export async function removeApplicantPhone(phoneId: string) {
 	return applicantsService.removePhone(phoneId);
 }
 
@@ -41,21 +41,21 @@ export async function createGuardian(data: Guardian, phoneNumber?: string) {
 	return applicantsService.createGuardian(data, phoneNumber);
 }
 
-export async function updateGuardian(id: number, data: Partial<Guardian>) {
+export async function updateGuardian(id: string, data: Partial<Guardian>) {
 	return applicantsService.updateGuardian(id, data);
 }
 
-export async function deleteGuardian(id: number) {
+export async function deleteGuardian(id: string) {
 	return applicantsService.deleteGuardian(id);
 }
 
 export async function addGuardianPhone(
-	guardianId: number,
+	guardianId: string,
 	phoneNumber: string
 ) {
 	return applicantsService.addGuardianPhone(guardianId, phoneNumber);
 }
 
-export async function removeGuardianPhone(phoneId: number) {
+export async function removeGuardianPhone(phoneId: string) {
 	return applicantsService.removeGuardianPhone(phoneId);
 }

@@ -36,7 +36,7 @@ type Props = {
 };
 
 type CertificateType = {
-	id: number;
+	id: string;
 	name: string;
 	lqfLevel: number;
 	gradeMappings: { originalGrade: string; standardGrade: string }[];
@@ -80,7 +80,7 @@ export default function AcademicRecordsList({ applicantId, records }: Props) {
 			return createAcademicRecord(
 				applicantId,
 				{
-					certificateTypeId: Number(values.certificateTypeId),
+					certificateTypeId: values.certificateTypeId,
 					examYear: values.examYear,
 					institutionName: values.institutionName,
 					qualificationName: values.qualificationName || null,
@@ -134,7 +134,7 @@ export default function AcademicRecordsList({ applicantId, records }: Props) {
 
 	function handleCertTypeChange(value: string | null) {
 		form.setFieldValue('certificateTypeId', value || '');
-		const certType = certificateTypes.find((ct) => ct.id === Number(value)) as
+		const certType = certificateTypes.find((ct) => ct.id === value) as
 			| CertificateType
 			| undefined;
 		setSelectedCertType(certType || null);
@@ -142,7 +142,7 @@ export default function AcademicRecordsList({ applicantId, records }: Props) {
 	}
 
 	function addSubjectGrade() {
-		setSubjectGrades([...subjectGrades, { subjectId: 0, originalGrade: '' }]);
+		setSubjectGrades([...subjectGrades, { subjectId: '', originalGrade: '' }]);
 	}
 
 	function removeSubjectGrade(index: number) {
@@ -152,7 +152,7 @@ export default function AcademicRecordsList({ applicantId, records }: Props) {
 	function updateSubjectGrade(
 		index: number,
 		field: keyof SubjectGradeInput,
-		value: string | number
+		value: string
 	) {
 		const updated = [...subjectGrades];
 		updated[index] = { ...updated[index], [field]: value };
@@ -320,7 +320,7 @@ export default function AcademicRecordsList({ applicantId, records }: Props) {
 											data={subjectOptions}
 											value={sg.subjectId ? String(sg.subjectId) : ''}
 											onChange={(v) =>
-												updateSubjectGrade(index, 'subjectId', Number(v))
+												updateSubjectGrade(index, 'subjectId', v || '')
 											}
 											style={{ flex: 2 }}
 										/>

@@ -46,7 +46,7 @@ class IntakePeriodService extends BaseService<typeof intakePeriods, 'id'> {
 	}
 
 	override async update(
-		id: number,
+		id: string,
 		data: Partial<typeof intakePeriods.$inferInsert>
 	) {
 		return withAuth(async () => {
@@ -66,7 +66,7 @@ class IntakePeriodService extends BaseService<typeof intakePeriods, 'id'> {
 		}, ['registry', 'admin']);
 	}
 
-	override async delete(id: number) {
+	override async delete(id: string) {
 		return withAuth(async () => {
 			const hasApps = await this.repo.hasApplications(id);
 			if (hasApps) {

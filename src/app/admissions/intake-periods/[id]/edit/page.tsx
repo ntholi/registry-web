@@ -9,7 +9,7 @@ type Props = {
 
 export default async function EditIntakePeriodPage({ params }: Props) {
 	const { id } = await params;
-	const item = await getIntakePeriod(Number(id));
+	const item = await getIntakePeriod(id);
 
 	if (!item) {
 		return notFound();
@@ -22,7 +22,7 @@ export default async function EditIntakePeriodPage({ params }: Props) {
 				defaultValues={item}
 				onSubmit={async (values) => {
 					'use server';
-					return updateIntakePeriod(Number(id), values);
+					return updateIntakePeriod(id, values);
 				}}
 			/>
 		</Box>

@@ -10,7 +10,7 @@ export default class SubjectRepository extends BaseRepository<
 		super(subjects, subjects.id);
 	}
 
-	override async findById(id: number) {
+	override async findById(id: string) {
 		return db.query.subjects.findFirst({
 			where: eq(subjects.id, id),
 			with: { aliases: true },
@@ -45,7 +45,7 @@ export default class SubjectRepository extends BaseRepository<
 		return created;
 	}
 
-	async isInUse(id: number): Promise<boolean> {
+	async isInUse(id: string): Promise<boolean> {
 		const [result] = await db
 			.select({ total: count() })
 			.from(subjectGrades)
@@ -60,7 +60,7 @@ export default class SubjectRepository extends BaseRepository<
 		});
 	}
 
-	async toggleActive(id: number) {
+	async toggleActive(id: string) {
 		const subject = await this.findById(id);
 		if (!subject) return null;
 		return db
@@ -71,7 +71,7 @@ export default class SubjectRepository extends BaseRepository<
 			.then((rows) => rows[0]);
 	}
 
-	async addAlias(subjectId: number, alias: string) {
+	async addAlias(subjectId: string, alias: string) {
 		const [created] = await db
 			.insert(subjectAliases)
 			.values({ subjectId, alias: alias.trim() })
@@ -79,11 +79,11 @@ export default class SubjectRepository extends BaseRepository<
 		return created;
 	}
 
-	async removeAlias(aliasId: number) {
+	async removeAlias(aliasId: string) {
 		await db.delete(subjectAliases).where(eq(subjectAliases.id, aliasId));
 	}
 
-	async getAliases(subjectId: number) {
+	async getAliases(subjectId: string) {
 		return db.query.subjectAliases.findMany({
 			where: eq(subjectAliases.subjectId, subjectId),
 			orderBy: (a, { asc }) => [asc(a.alias)],

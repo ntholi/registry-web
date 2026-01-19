@@ -30,35 +30,35 @@ class SubjectService extends BaseService<typeof subjects, 'id'> {
 		return withAuth(async () => this.repo.findActive(), ['registry', 'admin']);
 	}
 
-	async toggleActive(id: number) {
+	async toggleActive(id: string) {
 		return withAuth(
 			async () => this.repo.toggleActive(id),
 			['registry', 'admin']
 		);
 	}
 
-	async addAlias(subjectId: number, alias: string) {
+	async addAlias(subjectId: string, alias: string) {
 		return withAuth(
 			async () => this.repo.addAlias(subjectId, alias),
 			['registry', 'admin']
 		);
 	}
 
-	async removeAlias(aliasId: number) {
+	async removeAlias(aliasId: string) {
 		return withAuth(
 			async () => this.repo.removeAlias(aliasId),
 			['registry', 'admin']
 		);
 	}
 
-	async getAliases(subjectId: number) {
+	async getAliases(subjectId: string) {
 		return withAuth(
 			async () => this.repo.getAliases(subjectId),
 			['registry', 'admin']
 		);
 	}
 
-	override async delete(id: number) {
+	override async delete(id: string) {
 		return withAuth(async () => {
 			const isInUse = await this.repo.isInUse(id);
 			if (isInUse) {

@@ -1,10 +1,13 @@
-import { index, pgTable, serial, text, timestamp } from 'drizzle-orm/pg-core';
+import { index, pgTable, text, timestamp } from 'drizzle-orm/pg-core';
+import { nanoid } from 'nanoid';
 import { applicants } from './applicants';
 
 export const guardians = pgTable(
 	'guardians',
 	{
-		id: serial().primaryKey(),
+		id: text()
+			.primaryKey()
+			.$defaultFn(() => nanoid()),
 		applicantId: text()
 			.references(() => applicants.id, { onDelete: 'cascade' })
 			.notNull(),

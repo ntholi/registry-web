@@ -6,7 +6,7 @@ import { applicationsService } from './service';
 
 type Application = typeof applications.$inferInsert;
 
-export async function getApplication(id: number) {
+export async function getApplication(id: string) {
 	return applicationsService.get(id);
 }
 
@@ -22,16 +22,16 @@ export async function createApplication(data: Application) {
 	return applicationsService.create(data);
 }
 
-export async function updateApplication(id: number, data: Application) {
+export async function updateApplication(id: string, data: Application) {
 	return applicationsService.update(id, data);
 }
 
-export async function deleteApplication(id: number) {
+export async function deleteApplication(id: string) {
 	return applicationsService.delete(id);
 }
 
 export async function changeApplicationStatus(
-	applicationId: number,
+	applicationId: string,
 	newStatus: ApplicationStatus,
 	notes?: string,
 	rejectionReason?: string
@@ -45,24 +45,24 @@ export async function changeApplicationStatus(
 }
 
 export async function addApplicationNote(
-	applicationId: number,
+	applicationId: string,
 	content: string
 ) {
 	return applicationsService.addNote(applicationId, content);
 }
 
-export async function getApplicationNotes(applicationId: number) {
+export async function getApplicationNotes(applicationId: string) {
 	return applicationsService.getNotes(applicationId);
 }
 
 export async function recordApplicationPayment(
-	applicationId: number,
+	applicationId: string,
 	receiptId: string
 ) {
 	return applicationsService.recordPayment(applicationId, receiptId);
 }
 
-export async function getApplicationPaymentInfo(applicationId: number) {
+export async function getApplicationPaymentInfo(applicationId: string) {
 	return applicationsService.getPaymentInfo(applicationId);
 }
 

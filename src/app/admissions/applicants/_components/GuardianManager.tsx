@@ -28,12 +28,12 @@ import {
 } from '../_server/actions';
 
 type GuardianPhone = {
-	id: number;
+	id: string;
 	phoneNumber: string;
 };
 
 type Guardian = {
-	id: number;
+	id: string;
 	name: string;
 	relationship: string;
 	address: string | null;
@@ -59,7 +59,7 @@ export default function GuardianManager({ applicantId, guardians }: Props) {
 	const queryClient = useQueryClient();
 	const [opened, { open, close }] = useDisclosure(false);
 	const [editingGuardian, setEditingGuardian] = useState<Guardian | null>(null);
-	const [addingPhoneFor, setAddingPhoneFor] = useState<number | null>(null);
+	const [addingPhoneFor, setAddingPhoneFor] = useState<string | null>(null);
 	const [newPhone, setNewPhone] = useState('');
 
 	const form = useForm({
@@ -95,7 +95,7 @@ export default function GuardianManager({ applicantId, guardians }: Props) {
 	});
 
 	const updateMutation = useMutation({
-		mutationFn: ({ id, data }: { id: number; data: typeof form.values }) =>
+		mutationFn: ({ id, data }: { id: string; data: typeof form.values }) =>
 			updateGuardian(id, data),
 		onSuccess: async () => {
 			await queryClient.invalidateQueries({ queryKey: ['applicants'] });
@@ -141,7 +141,7 @@ export default function GuardianManager({ applicantId, guardians }: Props) {
 			guardianId,
 			phone,
 		}: {
-			guardianId: number;
+			guardianId: string;
 			phone: string;
 		}) => addGuardianPhone(guardianId, phone),
 		onSuccess: async () => {

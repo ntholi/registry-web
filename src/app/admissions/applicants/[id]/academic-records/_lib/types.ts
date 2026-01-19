@@ -11,19 +11,19 @@ export type SubjectGrade = typeof subjectGrades.$inferSelect;
 export type SubjectGradeInsert = typeof subjectGrades.$inferInsert;
 
 export type SubjectGradeInput = {
-	subjectId: number;
+	subjectId: string;
 	originalGrade: string;
 };
 
 export type AcademicRecordWithRelations = AcademicRecord & {
-	certificateType: { id: number; name: string; lqfLevel: number };
+	certificateType: { id: string; name: string; lqfLevel: number };
 	subjectGrades: (SubjectGrade & {
-		subject: { id: number; name: string };
+		subject: { id: string; name: string };
 	})[];
 };
 
 export type CreateAcademicRecordInput = {
-	certificateTypeId: number;
+	certificateTypeId: string;
 	examYear: number;
 	institutionName: string;
 	qualificationName?: string | null;

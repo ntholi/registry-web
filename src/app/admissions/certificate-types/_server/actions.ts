@@ -9,7 +9,7 @@ type GradeMapping = {
 	standardGrade: (typeof gradeMappings.$inferInsert)['standardGrade'];
 };
 
-export async function getCertificateType(id: number) {
+export async function getCertificateType(id: string) {
 	return certificateTypesService.get(id);
 }
 
@@ -32,7 +32,7 @@ export async function createCertificateType(
 }
 
 export async function updateCertificateType(
-	id: number,
+	id: string,
 	data: CertificateType & { gradeMappings?: GradeMapping[] }
 ) {
 	const { gradeMappings: mappings, ...certData } = data;
@@ -47,10 +47,10 @@ export async function updateCertificateType(
 	return result;
 }
 
-export async function deleteCertificateType(id: number) {
+export async function deleteCertificateType(id: string) {
 	return certificateTypesService.delete(id);
 }
 
-export async function isCertificateTypeInUse(id: number) {
+export async function isCertificateTypeInUse(id: string) {
 	return certificateTypesService.isInUse(id);
 }

@@ -5,19 +5,22 @@ import {
 	integer,
 	jsonb,
 	pgTable,
-	serial,
+	text,
 	timestamp,
 	unique,
 } from 'drizzle-orm/pg-core';
+import { nanoid } from 'nanoid';
 
 export const entryRequirements = pgTable(
 	'entry_requirements',
 	{
-		id: serial().primaryKey(),
+		id: text()
+			.primaryKey()
+			.$defaultFn(() => nanoid()),
 		programId: integer()
 			.references(() => programs.id, { onDelete: 'cascade' })
 			.notNull(),
-		certificateTypeId: integer()
+		certificateTypeId: text()
 			.references(() => certificateTypes.id, { onDelete: 'restrict' })
 			.notNull(),
 		rules: jsonb().notNull(),

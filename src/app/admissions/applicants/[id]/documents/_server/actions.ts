@@ -178,7 +178,7 @@ export async function createAcademicRecordFromDocument(
 		throw new Error('Exam year and institution name are required');
 	}
 
-	let certificateTypeId: number | null = null;
+	let certificateTypeId: string | null = null;
 
 	if (data.certificateType) {
 		const { items: certTypes } = await findAllCertificateTypes(1, '');

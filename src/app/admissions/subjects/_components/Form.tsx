@@ -69,7 +69,7 @@ export default function SubjectForm({ onSubmit, defaultValues, title }: Props) {
 }
 
 type AliasEditorProps = {
-	subjectId: number;
+	subjectId: string;
 	aliases: SubjectAlias[];
 };
 
@@ -88,7 +88,7 @@ function AliasEditor({ subjectId, aliases: initialAliases }: AliasEditorProps) {
 	});
 
 	const removeMutation = useMutation({
-		mutationFn: (aliasId: number) => removeSubjectAlias(aliasId),
+		mutationFn: (aliasId: string) => removeSubjectAlias(aliasId),
 		onSuccess: (_, aliasId) => {
 			setAliases((prev) => prev.filter((a) => a.id !== aliasId));
 			queryClient.invalidateQueries({ queryKey: ['subjects'] });

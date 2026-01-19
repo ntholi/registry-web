@@ -4,11 +4,11 @@ import {
 	integer,
 	pgEnum,
 	pgTable,
-	serial,
 	text,
 	timestamp,
 	unique,
 } from 'drizzle-orm/pg-core';
+import { nanoid } from 'nanoid';
 
 export const gradingTypeEnum = pgEnum('grading_type', [
 	'subject-grades',
@@ -17,7 +17,9 @@ export const gradingTypeEnum = pgEnum('grading_type', [
 export type GradingType = (typeof gradingTypeEnum.enumValues)[number];
 
 export const certificateTypes = pgTable('certificate_types', {
-	id: serial().primaryKey(),
+	id: text()
+		.primaryKey()
+		.$defaultFn(() => nanoid()),
 	name: text().notNull().unique(),
 	description: text(),
 	lqfLevel: integer().notNull(),
@@ -29,8 +31,10 @@ export const certificateTypes = pgTable('certificate_types', {
 export const gradeMappings = pgTable(
 	'grade_mappings',
 	{
-		id: serial().primaryKey(),
-		certificateTypeId: integer()
+		id: text()
+			.primaryKey()
+			.$defaultFn(() => nanoid()),
+		certificateTypeId: text()
 			.references(() => certificateTypes.id, { onDelete: 'cascade' })
 			.notNull(),
 		originalGrade: text().notNull(),

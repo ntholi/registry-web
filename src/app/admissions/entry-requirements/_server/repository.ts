@@ -16,7 +16,7 @@ export default class EntryRequirementRepository extends BaseRepository<
 		super(entryRequirements, entryRequirements.id);
 	}
 
-	override async findById(id: number) {
+	override async findById(id: string) {
 		return db.query.entryRequirements.findFirst({
 			where: eq(entryRequirements.id, id),
 			with: {
@@ -43,7 +43,7 @@ export default class EntryRequirementRepository extends BaseRepository<
 
 	async findByProgramAndCertificate(
 		programId: number,
-		certificateTypeId: number
+		certificateTypeId: string
 	) {
 		return db.query.entryRequirements.findFirst({
 			where: and(

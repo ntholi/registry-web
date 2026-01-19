@@ -16,11 +16,11 @@ import type { ApplicationStatus, PaymentStatus } from './_lib/types';
 import { findAllApplications } from './_server/actions';
 
 type ApplicationListItem = {
-	id: number;
+	id: string;
 	status: ApplicationStatus;
 	paymentStatus: PaymentStatus;
 	applicant: { id: string; fullName: string; nationalId: string | null };
-	intakePeriod: { id: number; name: string };
+	intakePeriod: { id: string; name: string };
 	firstChoiceProgram: { id: number; name: string; code: string };
 };
 
@@ -56,7 +56,7 @@ export default function Layout({ children }: PropsWithChildren) {
 	const intakeOptions = [
 		{ value: '', label: 'All Intakes' },
 		...(intakePeriods?.items?.map((ip) => ({
-			value: ip.id.toString(),
+			value: ip.id,
 			label: ip.name,
 		})) || []),
 	];
@@ -75,7 +75,7 @@ export default function Layout({ children }: PropsWithChildren) {
 	const filters = {
 		...(statusFilter && { status: statusFilter }),
 		...(paymentFilter && { paymentStatus: paymentFilter }),
-		...(intakeFilter && { intakePeriodId: Number(intakeFilter) }),
+		...(intakeFilter && { intakePeriodId: intakeFilter }),
 	};
 
 	return (

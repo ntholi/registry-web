@@ -15,7 +15,7 @@ import { useRouter } from 'nextjs-toploader/app';
 import { removeApplicantPhone } from '../../_server/actions';
 
 type Phone = {
-	id: number;
+	id: string;
 	phoneNumber: string;
 };
 

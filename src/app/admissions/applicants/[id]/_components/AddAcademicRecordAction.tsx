@@ -32,7 +32,7 @@ type Props = {
 };
 
 type CertificateType = {
-	id: number;
+	id: string;
 	name: string;
 	lqfLevel: number;
 	gradeMappings: { originalGrade: string; standardGrade: string }[];
@@ -76,7 +76,7 @@ export default function AddAcademicRecordAction({ applicantId }: Props) {
 			return createAcademicRecord(
 				applicantId,
 				{
-					certificateTypeId: Number(values.certificateTypeId),
+					certificateTypeId: values.certificateTypeId,
 					examYear: values.examYear,
 					institutionName: values.institutionName,
 					qualificationName: values.qualificationName || null,
@@ -111,7 +111,7 @@ export default function AddAcademicRecordAction({ applicantId }: Props) {
 
 	function handleCertTypeChange(value: string | null) {
 		form.setFieldValue('certificateTypeId', value || '');
-		const certType = certificateTypes.find((ct) => ct.id === Number(value)) as
+		const certType = certificateTypes.find((ct) => ct.id === value) as
 			| CertificateType
 			| undefined;
 		setSelectedCertType(certType || null);
@@ -119,7 +119,7 @@ export default function AddAcademicRecordAction({ applicantId }: Props) {
 	}
 
 	function addSubjectGrade() {
-		setSubjectGrades([...subjectGrades, { subjectId: 0, originalGrade: '' }]);
+		setSubjectGrades([...subjectGrades, { subjectId: '', originalGrade: '' }]);
 	}
 
 	function removeSubjectGrade(index: number) {
@@ -129,7 +129,7 @@ export default function AddAcademicRecordAction({ applicantId }: Props) {
 	function updateSubjectGrade(
 		index: number,
 		field: keyof SubjectGradeInput,
-		value: string | number
+		value: string
 	) {
 		const updated = [...subjectGrades];
 		updated[index] = { ...updated[index], [field]: value };
@@ -229,7 +229,7 @@ export default function AddAcademicRecordAction({ applicantId }: Props) {
 											data={subjectOptions}
 											value={sg.subjectId ? String(sg.subjectId) : ''}
 											onChange={(v) =>
-												updateSubjectGrade(index, 'subjectId', Number(v))
+												updateSubjectGrade(index, 'subjectId', v || '')
 											}
 											flex={2}
 										/>

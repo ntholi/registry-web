@@ -1,0 +1,26 @@
+ALTER TABLE "academic_records" ALTER COLUMN "id" SET DATA TYPE text;--> statement-breakpoint
+ALTER TABLE "academic_records" ALTER COLUMN "certificate_type_id" SET DATA TYPE text;--> statement-breakpoint
+ALTER TABLE "subject_grades" ALTER COLUMN "id" SET DATA TYPE text;--> statement-breakpoint
+ALTER TABLE "subject_grades" ALTER COLUMN "academic_record_id" SET DATA TYPE text;--> statement-breakpoint
+ALTER TABLE "subject_grades" ALTER COLUMN "subject_id" SET DATA TYPE text;--> statement-breakpoint
+ALTER TABLE "applicant_phones" ALTER COLUMN "id" SET DATA TYPE text;--> statement-breakpoint
+ALTER TABLE "guardian_phones" ALTER COLUMN "id" SET DATA TYPE text;--> statement-breakpoint
+ALTER TABLE "guardian_phones" ALTER COLUMN "guardian_id" SET DATA TYPE text;--> statement-breakpoint
+ALTER TABLE "guardians" ALTER COLUMN "id" SET DATA TYPE text;--> statement-breakpoint
+ALTER TABLE "application_notes" ALTER COLUMN "id" SET DATA TYPE text;--> statement-breakpoint
+ALTER TABLE "application_notes" ALTER COLUMN "application_id" SET DATA TYPE text;--> statement-breakpoint
+ALTER TABLE "application_receipts" ALTER COLUMN "id" SET DATA TYPE text;--> statement-breakpoint
+ALTER TABLE "application_receipts" ALTER COLUMN "application_id" SET DATA TYPE text;--> statement-breakpoint
+ALTER TABLE "application_status_history" ALTER COLUMN "id" SET DATA TYPE text;--> statement-breakpoint
+ALTER TABLE "application_status_history" ALTER COLUMN "application_id" SET DATA TYPE text;--> statement-breakpoint
+ALTER TABLE "applications" ALTER COLUMN "id" SET DATA TYPE text;--> statement-breakpoint
+ALTER TABLE "applications" ALTER COLUMN "intake_period_id" SET DATA TYPE text;--> statement-breakpoint
+ALTER TABLE "certificate_types" ALTER COLUMN "id" SET DATA TYPE text;--> statement-breakpoint
+ALTER TABLE "grade_mappings" ALTER COLUMN "id" SET DATA TYPE text;--> statement-breakpoint
+ALTER TABLE "grade_mappings" ALTER COLUMN "certificate_type_id" SET DATA TYPE text;--> statement-breakpoint
+ALTER TABLE "entry_requirements" ALTER COLUMN "id" SET DATA TYPE text;--> statement-breakpoint
+ALTER TABLE "entry_requirements" ALTER COLUMN "certificate_type_id" SET DATA TYPE text;--> statement-breakpoint
+ALTER TABLE "intake_periods" ALTER COLUMN "id" SET DATA TYPE text;--> statement-breakpoint
+ALTER TABLE "subject_aliases" ALTER COLUMN "id" SET DATA TYPE text;--> statement-breakpoint
+ALTER TABLE "subject_aliases" ALTER COLUMN "subject_id" SET DATA TYPE text;--> statement-breakpoint
+ALTER TABLE "subjects" ALTER COLUMN "id" SET DATA TYPE text;

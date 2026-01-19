@@ -9,7 +9,7 @@ type Props = {
 
 export default async function SubjectEdit({ params }: Props) {
 	const { id } = await params;
-	const item = await getSubject(Number(id));
+	const item = await getSubject(id);
 	if (!item) {
 		return notFound();
 	}
@@ -21,7 +21,7 @@ export default async function SubjectEdit({ params }: Props) {
 				defaultValues={item}
 				onSubmit={async (value) => {
 					'use server';
-					return await updateSubject(Number(id), value);
+					return await updateSubject(id, value);
 				}}
 			/>
 		</Box>

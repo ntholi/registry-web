@@ -17,7 +17,7 @@ export default async function EntryRequirementEdit({ params }: Props) {
 	const { id } = await params;
 	const [item, programsData, certificateTypesData, subjects] =
 		await Promise.all([
-			getEntryRequirement(Number(id)),
+			getEntryRequirement(id),
 			getAllPrograms(),
 			findAllCertificateTypes(1, ''),
 			findActiveSubjects(),
@@ -40,7 +40,7 @@ export default async function EntryRequirementEdit({ params }: Props) {
 				subjects={subjects}
 				onSubmit={async (value) => {
 					'use server';
-					return await updateEntryRequirement(Number(id), value);
+					return await updateEntryRequirement(id, value);
 				}}
 			/>
 		</Box>

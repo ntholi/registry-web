@@ -26,12 +26,12 @@ import type {
 
 type Program = { id: number; code: string; name: string };
 type CertificateType = {
-	id: number;
+	id: string;
 	name: string;
 	lqfLevel: number;
 	gradingType: GradingType;
 };
-type Subject = { id: number; name: string };
+type Subject = { id: string; name: string };
 
 type Props = {
 	onSubmit: (values: EntryRequirement) => Promise<EntryRequirement>;
@@ -97,7 +97,7 @@ export default function EntryRequirementForm({
 	const schema = z.object({
 		...createInsertSchema(entryRequirements).shape,
 		programId: z.coerce.number().min(1, 'Program is required'),
-		certificateTypeId: z.coerce.number().min(1, 'Certificate type is required'),
+		certificateTypeId: z.string().min(1, 'Certificate type is required'),
 	});
 
 	const isSubjectBased = selectedCertType?.gradingType === 'subject-grades';
@@ -112,7 +112,7 @@ export default function EntryRequirementForm({
 			...prev,
 			requiredSubjects: [
 				...prev.requiredSubjects,
-				{ subjectId: 0, minimumGrade: 'C' },
+				{ subjectId: '', minimumGrade: 'C' },
 			],
 		}));
 	};
@@ -127,7 +127,7 @@ export default function EntryRequirementForm({
 	const updateRequiredSubject = (
 		index: number,
 		field: 'subjectId' | 'minimumGrade',
-		value: number | string
+		value: string
 	) => {
 		setSubjectGradeRules((prev) => ({
 			...prev,
@@ -176,9 +176,9 @@ export default function EntryRequirementForm({
 						}))}
 						searchable
 						{...form.getInputProps('certificateTypeId')}
-						value={form.values.certificateTypeId?.toString() || ''}
+						value={form.values.certificateTypeId || ''}
 						onChange={(val) => {
-							const id = val ? Number(val) : 0;
+							const id = val || '';
 							form.setFieldValue('certificateTypeId', id);
 							const ct = certificateTypes.find((c) => c.id === id);
 							setSelectedCertType(ct || null);
@@ -248,11 +248,7 @@ export default function EntryRequirementForm({
 											}))}
 											value={rs.subjectId?.toString() || ''}
 											onChange={(val) =>
-												updateRequiredSubject(
-													idx,
-													'subjectId',
-													val ? Number(val) : 0
-												)
+												updateRequiredSubject(idx, 'subjectId', val || '')
 											}
 											style={{ flex: 1 }}
 											searchable

@@ -9,7 +9,7 @@ export type MappedGrade = {
 
 export async function mapGradeToStandard(
 	originalGrade: string,
-	certificateTypeId: number
+	certificateTypeId: string
 ): Promise<StandardGrade> {
 	const mapping = await db.query.gradeMappings.findFirst({
 		where: (gm, { and }) =>
@@ -29,10 +29,10 @@ export async function mapGradeToStandard(
 }
 
 export async function mapGradesToStandard(
-	grades: { subjectId: number; originalGrade: string }[],
-	certificateTypeId: number
+	grades: { subjectId: string; originalGrade: string }[],
+	certificateTypeId: string
 ): Promise<
-	{ subjectId: number; originalGrade: string; standardGrade: StandardGrade }[]
+	{ subjectId: string; originalGrade: string; standardGrade: StandardGrade }[]
 > {
 	const mappings = await db.query.gradeMappings.findMany({
 		where: eq(gradeMappings.certificateTypeId, certificateTypeId),

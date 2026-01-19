@@ -1,19 +1,15 @@
 import { paymentReceipts } from '@finance/payment-receipts/_schema/paymentReceipts';
-import {
-	index,
-	integer,
-	pgTable,
-	serial,
-	text,
-	timestamp,
-} from 'drizzle-orm/pg-core';
+import { index, pgTable, text, timestamp } from 'drizzle-orm/pg-core';
+import { nanoid } from 'nanoid';
 import { applications } from './applications';
 
 export const applicationReceipts = pgTable(
 	'application_receipts',
 	{
-		id: serial().primaryKey(),
-		applicationId: integer()
+		id: text()
+			.primaryKey()
+			.$defaultFn(() => nanoid()),
+		applicationId: text()
 			.references(() => applications.id, { onDelete: 'cascade' })
 			.notNull(),
 		receiptId: text()

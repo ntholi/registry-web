@@ -34,7 +34,7 @@ export default class IntakePeriodRepository extends BaseRepository<
 	async findOverlapping(
 		startDate: string,
 		endDate: string,
-		excludeId?: number
+		excludeId?: string
 	) {
 		const baseCondition = or(
 			and(
@@ -58,7 +58,7 @@ export default class IntakePeriodRepository extends BaseRepository<
 		return db.query.intakePeriods.findFirst({ where });
 	}
 
-	async hasApplications(id: number) {
+	async hasApplications(id: string) {
 		const [result] = await db
 			.select({ total: count() })
 			.from(applications)

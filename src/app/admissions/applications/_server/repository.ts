@@ -19,7 +19,7 @@ export default class ApplicationRepository extends BaseRepository<
 		super(applications, applications.id);
 	}
 
-	override async findById(id: number) {
+	override async findById(id: string) {
 		return db.query.applications.findFirst({
 			where: eq(applications.id, id),
 			with: {
@@ -162,7 +162,7 @@ export default class ApplicationRepository extends BaseRepository<
 		return result.total;
 	}
 
-	async existsForIntake(applicantId: string, intakePeriodId: number) {
+	async existsForIntake(applicantId: string, intakePeriodId: string) {
 		const existing = await db.query.applications.findFirst({
 			where: and(
 				eq(applications.applicantId, applicantId),
@@ -180,7 +180,7 @@ export default class ApplicationRepository extends BaseRepository<
 		return entry;
 	}
 
-	async updateStatus(id: number, status: ApplicationStatus) {
+	async updateStatus(id: string, status: ApplicationStatus) {
 		const [updated] = await db
 			.update(applications)
 			.set({ status, updatedAt: new Date() })
@@ -194,7 +194,7 @@ export default class ApplicationRepository extends BaseRepository<
 		return note;
 	}
 
-	async getNotes(applicationId: number) {
+	async getNotes(applicationId: string) {
 		return db.query.applicationNotes.findMany({
 			where: eq(applicationNotes.applicationId, applicationId),
 			with: {
@@ -204,7 +204,7 @@ export default class ApplicationRepository extends BaseRepository<
 		});
 	}
 
-	async linkReceipt(applicationId: number, receiptId: string) {
+	async linkReceipt(applicationId: string, receiptId: string) {
 		const [link] = await db
 			.insert(applicationReceipts)
 			.values({ applicationId, receiptId })
@@ -212,7 +212,7 @@ export default class ApplicationRepository extends BaseRepository<
 		return link;
 	}
 
-	async updatePaymentStatus(id: number, paymentStatus: PaymentStatus) {
+	async updatePaymentStatus(id: string, paymentStatus: PaymentStatus) {
 		const [updated] = await db
 			.update(applications)
 			.set({ paymentStatus, updatedAt: new Date() })
@@ -221,7 +221,7 @@ export default class ApplicationRepository extends BaseRepository<
 		return updated;
 	}
 
-	async getLinkedReceipts(applicationId: number) {
+	async getLinkedReceipts(applicationId: string) {
 		return db.query.applicationReceipts.findMany({
 			where: eq(applicationReceipts.applicationId, applicationId),
 			with: {

@@ -26,7 +26,7 @@ class ApplicationService extends BaseService<typeof applications, 'id'> {
 		this.repo = repo;
 	}
 
-	override async get(id: number) {
+	override async get(id: string) {
 		return withAuth(async () => this.repo.findById(id), ['registry', 'admin']);
 	}
 
@@ -90,7 +90,7 @@ class ApplicationService extends BaseService<typeof applications, 'id'> {
 	}
 
 	async changeStatus(
-		applicationId: number,
+		applicationId: string,
 		newStatus: ApplicationStatus,
 		notes?: string,
 		rejectionReason?: string
@@ -124,7 +124,7 @@ class ApplicationService extends BaseService<typeof applications, 'id'> {
 		);
 	}
 
-	async addNote(applicationId: number, content: string) {
+	async addNote(applicationId: string, content: string) {
 		return withAuth(
 			async (session) => {
 				return this.repo.addNote({
@@ -137,21 +137,21 @@ class ApplicationService extends BaseService<typeof applications, 'id'> {
 		);
 	}
 
-	async getNotes(applicationId: number) {
+	async getNotes(applicationId: string) {
 		return withAuth(
 			async () => this.repo.getNotes(applicationId),
 			['registry', 'admin']
 		);
 	}
 
-	async recordPayment(applicationId: number, receiptId: string) {
+	async recordPayment(applicationId: string, receiptId: string) {
 		return withAuth(async () => {
 			await this.repo.linkReceipt(applicationId, receiptId);
 			return this.repo.updatePaymentStatus(applicationId, 'paid');
 		}, ['registry', 'admin']);
 	}
 
-	async getPaymentInfo(applicationId: number) {
+	async getPaymentInfo(applicationId: string) {
 		return withAuth(async () => {
 			const application = await this.repo.findById(applicationId);
 			if (!application) {

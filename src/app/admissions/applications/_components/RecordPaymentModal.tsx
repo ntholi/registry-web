@@ -9,7 +9,7 @@ import { useState } from 'react';
 import { recordApplicationPayment } from '../_server/actions';
 
 type Props = {
-	applicationId: number;
+	applicationId: string;
 };
 
 export default function RecordPaymentModal({ applicationId }: Props) {

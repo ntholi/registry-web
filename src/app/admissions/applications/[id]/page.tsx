@@ -39,7 +39,7 @@ type Props = {
 
 export default async function ApplicationDetails({ params }: Props) {
 	const { id } = await params;
-	const item = await getApplication(Number(id));
+	const item = await getApplication(id);
 
 	if (!item) {
 		return notFound();
@@ -57,7 +57,7 @@ export default async function ApplicationDetails({ params }: Props) {
 				queryKey={['applications']}
 				handleDelete={async () => {
 					'use server';
-					await deleteApplication(Number(id));
+					await deleteApplication(id);
 				}}
 			/>
 			<DetailsViewBody>

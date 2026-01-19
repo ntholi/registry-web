@@ -5,10 +5,10 @@ import {
 	integer,
 	pgEnum,
 	pgTable,
-	serial,
 	text,
 	timestamp,
 } from 'drizzle-orm/pg-core';
+import { nanoid } from 'nanoid';
 
 export const resultClassificationEnum = pgEnum('result_classification', [
 	'Distinction',
@@ -23,11 +23,13 @@ export type ResultClassification =
 export const academicRecords = pgTable(
 	'academic_records',
 	{
-		id: serial().primaryKey(),
+		id: text()
+			.primaryKey()
+			.$defaultFn(() => nanoid()),
 		applicantId: text()
 			.references(() => applicants.id, { onDelete: 'cascade' })
 			.notNull(),
-		certificateTypeId: integer()
+		certificateTypeId: text()
 			.references(() => certificateTypes.id, { onDelete: 'restrict' })
 			.notNull(),
 		examYear: integer().notNull(),

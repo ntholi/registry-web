@@ -24,7 +24,7 @@ type Props = {
 
 export default async function CertificateTypeDetails({ params }: Props) {
 	const { id } = await params;
-	const item = await getCertificateType(Number(id));
+	const item = await getCertificateType(id);
 
 	if (!item) {
 		return notFound();
@@ -37,7 +37,7 @@ export default async function CertificateTypeDetails({ params }: Props) {
 				queryKey={['certificate-types']}
 				handleDelete={async () => {
 					'use server';
-					await deleteCertificateType(Number(id));
+					await deleteCertificateType(id);
 				}}
 			/>
 			<DetailsViewBody>

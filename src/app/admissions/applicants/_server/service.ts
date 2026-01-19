@@ -64,7 +64,7 @@ class ApplicantService extends BaseService<typeof applicants, 'id'> {
 		);
 	}
 
-	async removePhone(phoneId: number) {
+	async removePhone(phoneId: string) {
 		return withAuth(
 			async () => this.repo.removePhone(phoneId),
 			['registry', 'admin']
@@ -82,7 +82,7 @@ class ApplicantService extends BaseService<typeof applicants, 'id'> {
 	}
 
 	async updateGuardian(
-		id: number,
+		id: string,
 		data: Partial<typeof guardians.$inferInsert>
 	) {
 		return withAuth(
@@ -91,21 +91,21 @@ class ApplicantService extends BaseService<typeof applicants, 'id'> {
 		);
 	}
 
-	async deleteGuardian(id: number) {
+	async deleteGuardian(id: string) {
 		return withAuth(
 			async () => this.repo.deleteGuardian(id),
 			['registry', 'admin']
 		);
 	}
 
-	async addGuardianPhone(guardianId: number, phoneNumber: string) {
+	async addGuardianPhone(guardianId: string, phoneNumber: string) {
 		return withAuth(
 			async () => this.repo.addGuardianPhone(guardianId, phoneNumber),
 			['registry', 'admin']
 		);
 	}
 
-	async removeGuardianPhone(phoneId: number) {
+	async removeGuardianPhone(phoneId: string) {
 		return withAuth(
 			async () => this.repo.removeGuardianPhone(phoneId),
 			['registry', 'admin']

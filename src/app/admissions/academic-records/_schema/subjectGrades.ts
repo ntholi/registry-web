@@ -1,13 +1,6 @@
 import { subjects } from '@admissions/subjects/_schema/subjects';
-import {
-	index,
-	integer,
-	pgEnum,
-	pgTable,
-	serial,
-	text,
-	unique,
-} from 'drizzle-orm/pg-core';
+import { index, pgEnum, pgTable, text, unique } from 'drizzle-orm/pg-core';
+import { nanoid } from 'nanoid';
 import { academicRecords } from './academicRecords';
 
 export const standardGradeEnum = pgEnum('standard_grade', [
@@ -25,11 +18,13 @@ export type StandardGrade = (typeof standardGradeEnum.enumValues)[number];
 export const subjectGrades = pgTable(
 	'subject_grades',
 	{
-		id: serial().primaryKey(),
-		academicRecordId: integer()
+		id: text()
+			.primaryKey()
+			.$defaultFn(() => nanoid()),
+		academicRecordId: text()
 			.references(() => academicRecords.id, { onDelete: 'cascade' })
 			.notNull(),
-		subjectId: integer()
+		subjectId: text()
 			.references(() => subjects.id, { onDelete: 'restrict' })
 			.notNull(),
 		originalGrade: text().notNull(),

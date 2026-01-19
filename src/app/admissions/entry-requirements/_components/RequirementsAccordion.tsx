@@ -15,16 +15,16 @@ import { FieldView } from '@/shared/ui/adease';
 import type { ClassificationRules, SubjectGradeRules } from '../_lib/types';
 
 type EntryRequirementItem = {
-	id: number;
+	id: string;
 	rules: unknown;
 	certificateType: {
-		id: number;
+		id: string;
 		name: string;
 		lqfLevel: number;
 	} | null;
 };
 
-type Subject = { id: number; name: string };
+type Subject = { id: string; name: string };
 
 type Props = {
 	requirements: EntryRequirementItem[];

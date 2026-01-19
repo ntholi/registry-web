@@ -7,11 +7,11 @@ import {
 	integer,
 	pgEnum,
 	pgTable,
-	serial,
 	text,
 	timestamp,
 	unique,
 } from 'drizzle-orm/pg-core';
+import { nanoid } from 'nanoid';
 
 export const applicationStatusEnum = pgEnum('application_status', [
 	'draft',
@@ -31,11 +31,13 @@ export type PaymentStatus = (typeof paymentStatusEnum.enumValues)[number];
 export const applications = pgTable(
 	'applications',
 	{
-		id: serial().primaryKey(),
+		id: text()
+			.primaryKey()
+			.$defaultFn(() => nanoid()),
 		applicantId: text()
 			.references(() => applicants.id, { onDelete: 'cascade' })
 			.notNull(),
-		intakePeriodId: integer()
+		intakePeriodId: text()
 			.references(() => intakePeriods.id, { onDelete: 'restrict' })
 			.notNull(),
 		firstChoiceProgramId: integer()
