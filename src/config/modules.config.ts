@@ -5,6 +5,7 @@ export type ModuleKey =
 	| 'lms'
 	| 'finance'
 	| 'registry'
+	| 'reports'
 	| 'timetable'
 	| 'student-portal'
 	| 'audit-logs';
@@ -16,6 +17,7 @@ const moduleEnvKeys: Record<ModuleKey, string> = {
 	lms: 'ENABLE_MODULE_LMS',
 	finance: 'ENABLE_MODULE_FINANCE',
 	registry: 'ENABLE_MODULE_REGISTRY',
+	reports: 'ENABLE_MODULE_REPORTS',
 	timetable: 'ENABLE_MODULE_TIMETABLE',
 	'student-portal': 'ENABLE_MODULE_STUDENT_PORTAL',
 	'audit-logs': 'ENABLE_MODULE_AUDIT_LOGS',
@@ -39,6 +41,7 @@ export const moduleConfig = {
 	lms: isModuleEnabled('lms'),
 	finance: isModuleEnabled('finance'),
 	registry: isModuleEnabled('registry'),
+	reports: isModuleEnabled('reports'),
 	timetable: isModuleEnabled('timetable'),
 	studentPortal: isModuleEnabled('student-portal'),
 	auditLogs: isModuleEnabled('audit-logs'),
@@ -52,6 +55,7 @@ export function getModuleConfig() {
 		lms: moduleConfig.lms,
 		finance: moduleConfig.finance,
 		registry: moduleConfig.registry,
+		reports: moduleConfig.reports,
 		timetable: moduleConfig.timetable,
 		studentPortal: moduleConfig.studentPortal,
 		auditLogs: moduleConfig.auditLogs,

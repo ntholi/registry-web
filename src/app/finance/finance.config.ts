@@ -14,8 +14,6 @@ import {
 	IconCircleCheck,
 	IconClipboardCheck,
 	IconHourglass,
-	IconReportAnalytics,
-	IconReportMoney,
 } from '@tabler/icons-react';
 import type {
 	ModuleConfig,
@@ -114,25 +112,6 @@ export const financeConfig: ModuleConfig = {
 						},
 					},
 				] as NavItem[],
-			},
-			{
-				label: 'Sponsored Students',
-				href: '/finance/reports/sponsored-students',
-				icon: IconReportAnalytics,
-				roles: ['finance', 'registry', 'admin'],
-			},
-			{
-				label: 'Clearance',
-				href: (department: string) => `/admin/reports/clearance/${department}`,
-				icon: IconReportMoney,
-				isVisible: (session) => {
-					const userRole = session?.user?.role;
-					return !!(
-						session?.user?.position === 'manager' &&
-						userRole &&
-						['finance', 'library', 'resource'].includes(userRole)
-					);
-				},
 			},
 		],
 	},

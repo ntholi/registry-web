@@ -2,8 +2,6 @@ import {
 	IconCalendarDue,
 	IconCalendarEvent,
 	IconCertificate,
-	IconGavel,
-	IconReportAnalytics,
 	IconSchool,
 	IconUserOff,
 	IconUserPlus,
@@ -11,7 +9,6 @@ import {
 } from '@tabler/icons-react';
 import type { ModuleConfig } from '@/app/dashboard/module-config.types';
 import { moduleConfig } from '@/config/modules.config';
-import type { UserPosition, UserRole } from '@/core/database';
 
 export const registryConfig: ModuleConfig = {
 	id: 'registry',
@@ -79,45 +76,6 @@ export const registryConfig: ModuleConfig = {
 				href: '/registry/terms',
 				icon: IconCalendarDue,
 				roles: ['admin', 'registry'],
-			},
-			{
-				label: 'Board of Examination',
-				href: '/academic/reports/boe',
-				icon: IconGavel,
-				roles: ['academic', 'registry', 'admin'],
-				isVisible: (session) => {
-					if (['admin', 'registry'].includes(session?.user?.role as UserRole))
-						return true;
-					const academicRole = session?.user?.position as UserPosition;
-					return !!(
-						academicRole &&
-						['manager', 'admin', 'program_leader'].includes(academicRole)
-					);
-				},
-			},
-			{
-				label: 'Student Enrollments',
-				href: '/registry/reports/student-enrollments',
-				icon: IconReportAnalytics,
-				isVisible: (session) => {
-					if (
-						['admin', 'registry', 'finance'].includes(
-							session?.user?.role as UserRole
-						)
-					)
-						return true;
-					const academicRole = session?.user?.position as UserPosition;
-					return !!(
-						academicRole &&
-						['manager', 'admin', 'program_leader'].includes(academicRole)
-					);
-				},
-			},
-			{
-				label: 'Graduation Reports',
-				href: '/registry/reports/graduations',
-				icon: IconSchool,
-				roles: ['registry', 'admin'],
 			},
 		],
 	},

@@ -5,7 +5,7 @@ import {
 	DistributionFilter,
 	type DistributionReportFilter,
 	type DistributionType,
-} from '@registry/reports';
+} from '@reports/registry';
 import { IconInfoCircle } from '@tabler/icons-react';
 import { useCallback, useState } from 'react';
 

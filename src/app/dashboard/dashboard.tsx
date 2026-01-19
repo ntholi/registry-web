@@ -27,6 +27,7 @@ import { adminConfig } from '@/app/admin/admin.config';
 import { admissionsConfig } from '@/app/admissions/admissions.config';
 import { financeConfig } from '@/app/finance/finance.config';
 import { lmsConfig } from '@/app/lms/lms.config';
+import { reportsConfig } from '@/app/reports/reports.config';
 import { registryConfig } from '@/app/registry/registry.config';
 import type { ClientModuleConfig } from '@/config/modules.config';
 import { toTitleCase } from '@/shared/lib/utils/utils';
@@ -89,16 +90,7 @@ function getNavigation(
 		{ config: registryConfig, enabled: moduleConfig.registry },
 		{ config: financeConfig, enabled: moduleConfig.finance },
 		{ config: adminConfig, enabled: moduleConfig.admin },
-	];
-
-	const reportLabels = [
-		'Course Summary',
-		'Clearance',
-		'Sponsored Students',
-		'Board of Examination',
-		'Student Enrollments',
-		'Attendance Report',
-		'Graduation Reports',
+		{ config: reportsConfig, enabled: moduleConfig.reports },
 	];
 
 	const getLabelKey = (label: React.ReactNode): string => {
@@ -109,15 +101,9 @@ function getNavigation(
 	const normalizeItems = (items: NavItem[]): NavItem[] => {
 		const combinedItems: NavItem[] = [];
 		const itemMap = new Map<string, NavItem>();
-		const reportItems: NavItem[] = [];
 
 		for (const item of items) {
 			const labelKey = getLabelKey(item.label);
-			if (reportLabels.includes(labelKey)) {
-				reportItems.push(item);
-				continue;
-			}
-
 			const key = labelKey;
 
 			if (itemMap.has(key)) {
@@ -147,13 +133,6 @@ function getNavigation(
 				itemMap.set(key, { ...item });
 				combinedItems.push(itemMap.get(key)!);
 			}
-		}
-
-		const reportsParent = combinedItems.find(
-			(item) => getLabelKey(item.label) === 'Reports'
-		);
-		if (reportsParent && reportItems.length > 0) {
-			reportsParent.children = reportItems;
 		}
 
 		for (const item of combinedItems) {
