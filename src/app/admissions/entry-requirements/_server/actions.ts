@@ -50,6 +50,14 @@ export async function findEntryRequirementSchoolsPublic() {
 	return entryRequirementsService.findSchoolsWithRequirementsPublic();
 }
 
+export async function getPublicCoursesData(
+	page = 1,
+	search = '',
+	filter?: EntryRequirementFilter
+) {
+	return entryRequirementsService.findPublicCoursesData(page, search, filter);
+}
+
 export async function createEntryRequirement(data: EntryRequirement) {
 	return entryRequirementsService.create(data);
 }

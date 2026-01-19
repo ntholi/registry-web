@@ -83,6 +83,14 @@ class EntryRequirementService extends BaseService<
 		return this.repo.findSchoolsWithRequirements();
 	}
 
+	async findPublicCoursesData(
+		page: number,
+		search: string,
+		filter?: EntryRequirementsFilter
+	) {
+		return this.repo.findPublicCoursesData(page, search, filter);
+	}
+
 	override async create(data: typeof entryRequirements.$inferInsert) {
 		return withAuth(async () => {
 			const existing = await this.repo.findByProgramAndCertificate(

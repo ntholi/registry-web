@@ -65,3 +65,18 @@ export type EntryRequirementFilter = {
 	schoolId?: number;
 	level?: ProgramLevel;
 };
+
+export type SubjectRef = {
+	id: string;
+	name: string;
+};
+
+export type PublicCoursesData = {
+	programs: {
+		items: ProgramWithRequirements[];
+		totalPages: number;
+		totalItems: number;
+	};
+	schools: SchoolSummary[];
+	subjects: SubjectRef[];
+};

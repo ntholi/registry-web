@@ -3,10 +3,7 @@ import {
 	programLevelEnum,
 } from '@academic/schools/_schema/programs';
 import type { EntryRequirementFilter } from '@admissions/entry-requirements/_lib/types';
-import {
-	findEntryRequirementSchoolsPublic,
-	findProgramsWithRequirementsPublic,
-} from '@admissions/entry-requirements/_server/actions';
+import { getPublicCoursesData } from '@admissions/entry-requirements/_server/actions';
 import {
 	Badge,
 	Box,
@@ -42,10 +39,11 @@ export default async function ApplyCoursesPage({ searchParams }: Props) {
 		...(level ? { level } : {}),
 	};
 
-	const [schools, programs] = await Promise.all([
-		findEntryRequirementSchoolsPublic(),
-		findProgramsWithRequirementsPublic(page, '', filter),
-	]);
+	const { programs, schools, subjects } = await getPublicCoursesData(
+		page,
+		'',
+		filter
+	);
 
 	return (
 		<Box bg='var(--mantine-color-body)'>
@@ -87,7 +85,11 @@ export default async function ApplyCoursesPage({ searchParams }: Props) {
 					) : (
 						<SimpleGrid cols={{ base: 1, sm: 2, lg: 3 }} spacing='lg'>
 							{programs.items.map((program) => (
-								<CourseCard key={program.id} program={program} />
+								<CourseCard
+									key={program.id}
+									program={program}
+									subjects={subjects}
+								/>
 							))}
 						</SimpleGrid>
 					)}

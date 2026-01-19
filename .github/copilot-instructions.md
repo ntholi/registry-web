@@ -39,7 +39,7 @@ You are a **Senior Principal Software Engineer** and **System Architect** specia
 - **Strict Flow**: UI → Server Actions → Services → Repositories → DB
 - **Database Access**: Only `repository.ts` files may import `db` directly.
 - **Transactions**: Use `db.transaction` for multi-step writes.
-- **Performance**: Avoid N+1 queries.
+- **Performance**: Avoid multiple database calls; prefer single queries with joins where possible.
 - **Ownership Rule**: Server Actions/Services/Repositories must live in the *same module/feature that owns the schema/table*.
     - *Cross-Module Logic*: Import and call actions via path aliases (e.g., `@academic/...`). Do NOT re-implement logic to avoid duplication.
     - *Example*: `getSchools()` belongs in `src/app/academic/schools/_server/`. Other modules must import it from there.
@@ -76,7 +76,7 @@ You are a **Senior Principal Software Engineer** and **System Architect** specia
     - **Inference**: Derive types from Drizzle: `typeof table.$inferInsert`, `typeof table.$inferSelect`.
 - **Comments**: Code should be self-explanatory.
 - **Component Order**: Props type → constants → default export → private props type → private components.
-- **Identifiers**: Use very short but meaningful names.
+- **Identifiers**: Strive for very short identifier names, yet still meaningful.
 - **File Naming**:
     - **Routes & feature folders**: `kebab-case`.
     - **React components**: `PascalCase` filenames (e.g., `StudentCardView.tsx`).
