@@ -97,7 +97,12 @@ export default function AcademicRecordsTab({ records }: Props) {
 															<Text size='sm'>{record.qualificationName}</Text>
 														)}
 														{record.resultClassification && (
-															<Badge variant='light'>
+															<Badge
+																variant='light'
+																color={getClassificationColor(
+																	record.resultClassification
+																)}
+															>
 																{record.resultClassification}
 															</Badge>
 														)}
@@ -107,17 +112,23 @@ export default function AcademicRecordsTab({ records }: Props) {
 													<Table.Thead>
 														<Table.Tr>
 															<Table.Th>Subject</Table.Th>
-															<Table.Th>Original Grade</Table.Th>
-															<Table.Th>Standard Grade</Table.Th>
+															<Table.Th w={80}>Original</Table.Th>
+															<Table.Th w={80}>Grade</Table.Th>
 														</Table.Tr>
 													</Table.Thead>
 													<Table.Tbody>
 														{record.subjectGrades.map((sg) => (
 															<Table.Tr key={sg.id}>
 																<Table.Td>{sg.subject.name}</Table.Td>
-																<Table.Td>{sg.originalGrade}</Table.Td>
-																<Table.Td>
-																	<Badge variant='light' size='sm'>
+																<Table.Td ta='center'>
+																	{sg.originalGrade}
+																</Table.Td>
+																<Table.Td ta='center'>
+																	<Badge
+																		variant='light'
+																		size='sm'
+																		color={getGradeColor(sg.standardGrade)}
+																	>
 																		{sg.standardGrade}
 																	</Badge>
 																</Table.Td>
@@ -161,7 +172,12 @@ export default function AcademicRecordsTab({ records }: Props) {
 											<Text size='sm'>{record.qualificationName}</Text>
 										)}
 										{record.resultClassification && (
-											<Badge variant='light'>
+											<Badge
+												variant='light'
+												color={getClassificationColor(
+													record.resultClassification
+												)}
+											>
 												{record.resultClassification}
 											</Badge>
 										)}
@@ -183,4 +199,22 @@ export default function AcademicRecordsTab({ records }: Props) {
 			)}
 		</Stack>
 	);
+}
+
+function getGradeColor(grade: string | null) {
+	if (!grade) return 'gray';
+	const g = grade.toUpperCase();
+	if (['A*', 'A', 'B', 'C'].includes(g)) return 'green';
+	if (['D'].includes(g)) return 'yellow';
+	if (['E', 'F', 'U'].includes(g)) return 'red';
+	return 'gray';
+}
+
+function getClassificationColor(classification: string | null) {
+	if (!classification) return 'gray';
+	const c = classification.toLowerCase();
+	if (['distinction', 'merit', 'credit', 'pass'].some((s) => c.includes(s)))
+		return 'green';
+	if (c.includes('fail')) return 'red';
+	return 'gray';
 }
