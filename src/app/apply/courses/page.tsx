@@ -13,7 +13,6 @@ import {
 import {
 	Badge,
 	Box,
-	Button,
 	Container,
 	Divider,
 	Group,
@@ -23,7 +22,7 @@ import {
 	Text,
 	Title,
 } from '@mantine/core';
-import Link from 'next/link';
+import ButtonLink from '@/shared/ui/ButtonLink';
 import CoursesFilters from './_components/CoursesFilters';
 import CoursesPagination from './_components/CoursesPagination';
 
@@ -85,9 +84,7 @@ export default async function ApplyCoursesPage({
 								{programs.totalItems} total
 							</Badge>
 						</Group>
-						<Link href='/apply/new' legacyBehavior passHref>
-							<Button component='a'>Apply now</Button>
-						</Link>
+						<ButtonLink href='/apply/new'>Apply now</ButtonLink>
 					</Group>
 
 					<Divider />
@@ -122,11 +119,9 @@ function Header() {
 						</Text>
 					</Stack>
 					<Group>
-						<Link href='/auth/login' legacyBehavior passHref>
-							<Button component='a' variant='default'>
-								Sign in
-							</Button>
-						</Link>
+						<ButtonLink href='/auth/login' variant='default'>
+							Sign in
+						</ButtonLink>
 					</Group>
 				</Group>
 			</Container>
