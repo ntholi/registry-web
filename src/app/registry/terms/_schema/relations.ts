@@ -1,7 +1,7 @@
 import { assessments } from '@academic/assessments/_schema/assessments';
 import { assignedModules } from '@academic/assigned-modules/_schema/assignedModules';
 import { users } from '@auth/users/_schema/users';
-import { graduationDates } from '@registry/graduation-dates/_schema/graduationDates';
+import { graduationDates } from '@registry/graduation/dates/_schema/graduationDates';
 import { registrationRequests } from '@registry/registration-requests/_schema/registrationRequests';
 import { relations } from 'drizzle-orm';
 import { termSettings } from './termSettings';

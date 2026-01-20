@@ -7,7 +7,7 @@ import {
 	timestamp,
 	unique,
 } from 'drizzle-orm/pg-core';
-import { graduationRequests } from '../../graduation-requests/_schema/graduationRequests';
+import { graduationRequests } from '../../requests/_schema/graduationRequests';
 
 export const graduationRequestReceipts = pgTable(
 	'graduation_request_receipts',

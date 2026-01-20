@@ -7,6 +7,7 @@ export const dashboardUsers = pgEnum('dashboard_users', [
 	'library',
 	'resource',
 	'academic',
+	'marketing',
 	'student_services',
 	'admin',
 ]);
@@ -21,6 +22,7 @@ export const userRoles = pgEnum('user_roles', [
 	'library',
 	'resource',
 	'academic',
+	'marketing',
 	'student_services',
 	'admin',
 ]);

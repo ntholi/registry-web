@@ -1,5 +1,5 @@
 import { users } from '@auth/users/_schema/users';
-import { graduationClearance } from '@registry/graduation-clearance/_schema/graduationClearance';
+import { graduationClearance } from '@registry/graduation/clearance/_schema/graduationClearance';
 import { registrationRequests } from '@registry/registration-requests/_schema/registrationRequests';
 import { relations } from 'drizzle-orm';
 import { clearance } from './clearance';

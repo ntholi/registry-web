@@ -10,6 +10,7 @@ import {
 } from '@registry/registration';
 import {
 	IconBan,
+	IconBuildingBank,
 	IconCertificate,
 	IconCircleCheck,
 	IconClipboardCheck,
@@ -112,6 +113,12 @@ export const financeConfig: ModuleConfig = {
 						},
 					},
 				] as NavItem[],
+			},
+			{
+				label: 'Sponsors',
+				href: '/finance/sponsors',
+				icon: IconBuildingBank,
+				roles: ['admin', 'finance'],
 			},
 		],
 	},

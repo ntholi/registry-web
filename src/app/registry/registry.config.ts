@@ -1,4 +1,6 @@
 import {
+	IconBook,
+	IconBooks,
 	IconCalendarDue,
 	IconCalendarEvent,
 	IconCertificate,
@@ -76,6 +78,33 @@ export const registryConfig: ModuleConfig = {
 				href: '/registry/terms',
 				icon: IconCalendarDue,
 				roles: ['admin', 'registry'],
+			},
+
+			{
+				label: 'Modules',
+				href: '/academic/modules',
+				icon: IconBook,
+				roles: ['admin'],
+			},
+			{
+				label: 'Semester Modules',
+				href: '/academic/semester-modules',
+				icon: IconBooks,
+				roles: ['registry', 'admin', 'academic', 'finance'],
+			},
+
+			{
+				label: 'Schools',
+				href: '/academic/schools',
+				icon: IconSchool,
+				roles: [
+					'registry',
+					'admin',
+					'academic',
+					'finance',
+					'student_services',
+					'marketing',
+				],
 			},
 		],
 	},

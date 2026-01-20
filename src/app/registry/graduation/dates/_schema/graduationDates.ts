@@ -1,5 +1,5 @@
 import { integer, pgTable, serial, text, timestamp } from 'drizzle-orm/pg-core';
-import { terms } from '../../terms/_schema/terms';
+import { terms } from '../../../terms/_schema/terms';
 
 export const graduationDates = pgTable('graduation_dates', {
 	id: serial().primaryKey(),
