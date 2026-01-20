@@ -4,7 +4,6 @@ import {
 	findApplicantByUserId,
 	getOrCreateApplicantForCurrentUser,
 } from '@admissions/applicants';
-import { mapDocumentTypeFromAnalysis } from '@admissions/applicants/_lib/documentTypes';
 import {
 	analyzeDocumentWithAI,
 	createAcademicRecordFromDocument,
@@ -129,7 +128,7 @@ export async function uploadAndAnalyzeDocument(formData: FormData) {
 	const base64 = Buffer.from(buffer).toString('base64');
 	const result = await analyzeDocumentWithAI(base64, file.type);
 
-	const type: DocumentType = mapDocumentTypeFromAnalysis(result);
+	const type: DocumentType = result.documentType;
 
 	await saveApplicantDocument({
 		applicantId: applicant.id,

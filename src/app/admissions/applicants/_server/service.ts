@@ -1,4 +1,3 @@
-import { mapDocumentTypeFromAnalysis } from '@admissions/applicants/_lib/documentTypes';
 import { mapGrade } from '@admissions/certificate-types/_server/actions';
 import { entryRequirementsService } from '@admissions/entry-requirements/_server/service';
 import type { applicants, documents, guardians } from '@/core/database';
@@ -156,7 +155,7 @@ class ApplicantService extends BaseService<typeof applicants, 'id'> {
 			}
 
 			const docInputs: DocumentInput[] = pendingDocs.map((doc) => {
-				const type = mapDocumentTypeFromAnalysis(doc.analysisResult);
+				const type = doc.analysisResult.documentType;
 				return {
 					fileName: doc.fileName,
 					fileUrl: `https://pub-2b37ce26bd70421e9e59e4fe805c6873.r2.dev/documents/admissions/${doc.fileName}`,

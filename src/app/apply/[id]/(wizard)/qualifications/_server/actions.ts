@@ -1,6 +1,5 @@
 'use server';
 
-import { mapDocumentTypeFromAnalysis } from '@admissions/applicants/_lib/documentTypes';
 import {
 	createAcademicRecordFromDocument,
 	saveApplicantDocument,
@@ -29,7 +28,7 @@ export async function uploadAcademicDocument(
 	const base64 = Buffer.from(buffer).toString('base64');
 	const result = await analyzeDocument(base64, file.type);
 
-	const type = mapDocumentTypeFromAnalysis(result);
+	const type = result.documentType;
 
 	await saveApplicantDocument({
 		applicantId,
