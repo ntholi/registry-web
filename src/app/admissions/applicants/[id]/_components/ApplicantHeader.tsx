@@ -20,8 +20,8 @@ type Props = {
 	id: string;
 	fullName: string;
 	dateOfBirth: string | null;
-	nationality: string;
-	gender: string;
+	nationality: string | null;
+	gender: string | null;
 	nationalId: string | null;
 	onDelete: () => void;
 };
@@ -43,16 +43,13 @@ export default function ApplicantHeader({
 		.slice(0, 2)
 		.toUpperCase();
 
+	const genderColor = gender ? getGenderColor(gender as GenderType) : 'gray';
+
 	return (
 		<Paper p='lg' withBorder>
 			<Group justify='space-between' align='flex-start'>
 				<Group gap='lg'>
-					<Avatar
-						size={80}
-						radius='xl'
-						color={getGenderColor(gender as GenderType)}
-						variant='light'
-					>
+					<Avatar size={80} radius='xl' color={genderColor} variant='light'>
 						{initials}
 					</Avatar>
 					<Stack gap={4}>
@@ -60,12 +57,8 @@ export default function ApplicantHeader({
 							{fullName}
 						</Title>
 						<Group gap='xs'>
-							<Badge
-								variant='light'
-								color={getGenderColor(gender as GenderType)}
-								size='sm'
-							>
-								{gender}
+							<Badge variant='light' color={genderColor} size='sm'>
+								{gender ?? 'Not specified'}
 							</Badge>
 							{age && (
 								<Text size='sm' c='dimmed'>
@@ -80,7 +73,7 @@ export default function ApplicantHeader({
 						</Group>
 						<Group gap='xs' mt={4}>
 							<Text size='sm' c='dimmed'>
-								{nationality}
+								{nationality ?? 'Not specified'}
 							</Text>
 							{nationalId && (
 								<>

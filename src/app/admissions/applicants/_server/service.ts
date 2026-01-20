@@ -1,3 +1,4 @@
+import { mapDocumentTypeFromAnalysis } from '@admissions/applicants/_lib/documentTypes';
 import { mapGrade } from '@admissions/certificate-types/_server/actions';
 import { entryRequirementsService } from '@admissions/entry-requirements/_server/service';
 import type { applicants, documents, guardians } from '@/core/database';
@@ -152,7 +153,7 @@ class ApplicantService extends BaseService<typeof applicants, 'id'> {
 			}
 
 			const docInputs: DocumentInput[] = pendingDocs.map((doc) => {
-				const type = this.mapDocumentType(doc.analysisResult);
+				const type = mapDocumentTypeFromAnalysis(doc.analysisResult);
 				return {
 					fileName: doc.fileName,
 					fileUrl: `https://pub-2b37ce26bd70421e9e59e4fe805c6873.r2.dev/documents/admissions/${doc.fileName}`,
@@ -207,6 +208,21 @@ class ApplicantService extends BaseService<typeof applicants, 'id'> {
 		}, ['registry', 'admin']);
 	}
 
+	async getOrCreateForCurrentUser() {
+		return withAuth(
+			async (session) => {
+				const userId = session?.user?.id;
+				if (!userId) {
+					throw new Error('INVALID_SESSION: User ID is missing');
+				}
+
+				const fullName = session?.user?.name ?? 'New Applicant';
+				return this.repo.findOrCreateByUserId(userId, fullName);
+			},
+			['auth']
+		);
+	}
+
 	async findEligiblePrograms(applicantId: string) {
 		return withAuth(async () => {
 			const applicant = await this.repo.findById(applicantId);
@@ -215,47 +231,6 @@ class ApplicantService extends BaseService<typeof applicants, 'id'> {
 				await entryRequirementsService.findAllForEligibility();
 			return getEligiblePrograms(applicant.academicRecords, requirements);
 		}, ['registry', 'admin']);
-	}
-
-	private mapDocumentType(
-		result: DocumentAnalysisResult
-	): (typeof documents.$inferInsert)['type'] {
-		if (result.category === 'identity') {
-			return result.documentType === 'passport_photo'
-				? 'passport_photo'
-				: 'identity';
-		}
-		if (result.category === 'academic') {
-			switch (result.documentType) {
-				case 'certificate':
-					return 'certificate';
-				case 'transcript':
-					return 'transcript';
-				case 'academic_record':
-					return 'academic_record';
-				case 'recommendation_letter':
-					return 'recommendation_letter';
-				default:
-					return 'certificate';
-			}
-		}
-		if (result.category === 'other') {
-			switch (result.documentType) {
-				case 'proof_of_payment':
-					return 'proof_of_payment';
-				case 'personal_statement':
-					return 'personal_statement';
-				case 'medical_report':
-					return 'medical_report';
-				case 'enrollment_letter':
-					return 'enrollment_letter';
-				case 'clearance_form':
-					return 'clearance_form';
-				default:
-					return 'other';
-			}
-		}
-		return 'other';
 	}
 }
 

@@ -9,6 +9,7 @@ import {
 	guardianPhones,
 	guardians,
 	subjectGrades,
+	users,
 } from '@/core/database';
 import type { DocumentAnalysisResult } from '@/core/integrations/ai';
 import BaseRepository from '@/core/platform/BaseRepository';
@@ -79,6 +80,25 @@ export default class ApplicantRepository extends BaseRepository<
 				},
 				documents: { with: { document: true } },
 			},
+		});
+	}
+
+	async findOrCreateByUserId(userId: string, fullName: string) {
+		const existing = await this.findByUserId(userId);
+		if (existing) return existing;
+
+		return db.transaction(async (tx) => {
+			const [applicant] = await tx
+				.insert(applicants)
+				.values({ userId, fullName })
+				.returning();
+
+			await tx
+				.update(users)
+				.set({ role: 'applicant' })
+				.where(eq(users.id, userId));
+
+			return applicant;
 		});
 	}
 

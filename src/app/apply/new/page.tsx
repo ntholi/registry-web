@@ -1,7 +1,7 @@
+import { getCurrentApplicant } from '@admissions/applications';
 import { redirect } from 'next/navigation';
 import { auth } from '@/core/auth';
 import DocumentUploadClient from './_components/DocumentUploadClient';
-import { getCurrentApplicant } from './_server/actions';
 
 export default async function ApplyNewPage() {
 	const session = await auth();

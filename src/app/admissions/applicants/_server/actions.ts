@@ -14,6 +14,10 @@ export async function findApplicantByUserId(userId: string) {
 	return applicantsService.findByUserId(userId);
 }
 
+export async function getOrCreateApplicantForCurrentUser() {
+	return applicantsService.getOrCreateForCurrentUser();
+}
+
 export async function findAllApplicants(page = 1, search = '') {
 	return applicantsService.search(page, search);
 }

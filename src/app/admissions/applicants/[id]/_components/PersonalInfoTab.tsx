@@ -8,7 +8,7 @@ type Props = {
 	fullName: string;
 	dateOfBirth: string | null;
 	nationalId: string | null;
-	nationality: string;
+	nationality: string | null;
 	birthPlace: string | null;
 	religion: string | null;
 	address: string | null;
@@ -29,7 +29,9 @@ export default function PersonalInfoTab({
 			<SimpleGrid cols={{ base: 1, sm: 2 }} verticalSpacing='xl'>
 				<FieldView label='Date of Birth'>{formatDate(dateOfBirth)}</FieldView>
 				<FieldView label='National ID'>{nationalId}</FieldView>
-				<FieldView label='Nationality'>{nationality}</FieldView>
+				<FieldView label='Nationality'>
+					{nationality ?? 'Not provided'}
+				</FieldView>
 				<FieldView label='Birth Place'>{birthPlace}</FieldView>
 				<FieldView label='Religion'>{religion}</FieldView>
 			</SimpleGrid>

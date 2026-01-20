@@ -1,6 +1,26 @@
 'use server';
 
-import type { ApplicationStatus, applications } from '@/core/database';
+import {
+	findApplicantByUserId,
+	getOrCreateApplicantForCurrentUser,
+} from '@admissions/applicants';
+import { mapDocumentTypeFromAnalysis } from '@admissions/applicants/_lib/documentTypes';
+import {
+	analyzeDocumentWithAI,
+	createAcademicRecordFromDocument,
+	saveApplicantDocument,
+	updateApplicantFromIdentity,
+} from '@admissions/applicants/[id]/documents/_server/actions';
+import { nanoid } from 'nanoid';
+import { redirect, unauthorized } from 'next/navigation';
+import { auth } from '@/core/auth';
+import type {
+	ApplicationStatus,
+	applications,
+	DocumentType,
+} from '@/core/database';
+import type { DocumentAnalysisResult } from '@/core/integrations/ai';
+import { uploadDocument } from '@/core/integrations/storage';
 import type { ApplicationFilters } from '../_lib/types';
 import { applicationsService } from './service';
 
@@ -76,4 +96,107 @@ export async function countApplicationsByStatus(status: ApplicationStatus) {
 
 export async function countPendingApplications() {
 	return applicationsService.countPending();
+}
+
+function getFileExtension(name: string) {
+	const idx = name.lastIndexOf('.');
+	if (idx === -1 || idx === name.length - 1) return '';
+	return name.slice(idx);
+}
+
+export async function getCurrentApplicant() {
+	const session = await auth();
+	if (!session?.user?.id) return null;
+	return findApplicantByUserId(session.user.id);
+}
+
+export async function uploadAndAnalyzeDocument(formData: FormData) {
+	const session = await auth();
+	if (!session?.user?.id) {
+		return unauthorized();
+	}
+
+	const file = formData.get('file');
+	if (!(file instanceof File)) {
+		throw new Error('No file provided');
+	}
+
+	const applicant = await getOrCreateApplicantForCurrentUser();
+	if (!applicant) {
+		throw new Error('Failed to get applicant');
+	}
+
+	const folder = 'documents/admissions';
+	const fileName = `${nanoid()}${getFileExtension(file.name)}`;
+
+	await uploadDocument(file, fileName, folder);
+
+	const buffer = await file.arrayBuffer();
+	const base64 = Buffer.from(buffer).toString('base64');
+	const result = await analyzeDocumentWithAI(base64, file.type);
+
+	const type: DocumentType = mapDocumentTypeFromAnalysis(result);
+
+	await saveApplicantDocument({
+		applicantId: applicant.id,
+		fileName,
+		type,
+	});
+
+	if (result.category === 'identity' && type === 'identity') {
+		await updateApplicantFromIdentity(applicant.id, {
+			fullName: result.fullName,
+			dateOfBirth: result.dateOfBirth,
+			nationalId: result.nationalId,
+			nationality: result.nationality,
+			gender: result.gender,
+			birthPlace: result.birthPlace,
+			address: result.address,
+		});
+	}
+
+	if (
+		result.category === 'academic' &&
+		(type === 'certificate' ||
+			type === 'transcript' ||
+			type === 'academic_record') &&
+		result.examYear &&
+		result.institutionName
+	) {
+		await createAcademicRecordFromDocument(applicant.id, {
+			institutionName: result.institutionName,
+			qualificationName: result.qualificationName,
+			examYear: result.examYear,
+			certificateType: result.certificateType,
+			certificateNumber: result.certificateNumber,
+			subjects: result.subjects,
+			overallClassification: result.overallClassification,
+		});
+	}
+
+	const payload: {
+		result: DocumentAnalysisResult;
+		type: DocumentType;
+		fileName: string;
+	} = {
+		result,
+		type,
+		fileName,
+	};
+
+	return payload;
+}
+
+export async function completeApplication() {
+	const session = await auth();
+	if (!session?.user?.id) {
+		return unauthorized();
+	}
+
+	const applicant = await findApplicantByUserId(session.user.id);
+	if (!applicant) {
+		throw new Error('No applicant found');
+	}
+
+	redirect('/apply/courses');
 }

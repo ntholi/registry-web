@@ -1,6 +1,10 @@
 'use client';
 
 import {
+	completeApplication,
+	uploadAndAnalyzeDocument,
+} from '@admissions/applications';
+import {
 	ActionIcon,
 	Badge,
 	Box,
@@ -42,10 +46,6 @@ import { useState } from 'react';
 import type { DocumentAnalysisResult } from '@/core/integrations/ai';
 import ButtonLink from '@/shared/ui/ButtonLink';
 import Link from '@/shared/ui/Link';
-import {
-	completeApplication,
-	uploadAndAnalyzeDocument,
-} from '../_server/actions';
 
 type ApplicantInfo =
 	| {
