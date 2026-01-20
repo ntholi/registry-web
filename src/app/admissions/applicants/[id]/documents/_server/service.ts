@@ -66,7 +66,7 @@ class ApplicantDocumentService extends BaseService<
 				throw new Error('Rejection reason is required');
 			}
 			return this.repo.updateVerificationStatus(id, status, rejectionReason);
-		}, ['registry', 'admin']);
+		}, ['registry', 'admin', 'applicant']);
 	}
 
 	override async delete(id: string) {

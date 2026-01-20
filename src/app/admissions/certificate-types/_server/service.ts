@@ -28,7 +28,10 @@ class CertificateTypeService extends BaseService<
 	}
 
 	override async get(id: string) {
-		return withAuth(async () => this.repo.findById(id), ['registry', 'admin']);
+		return withAuth(
+			async () => this.repo.findById(id),
+			['registry', 'admin', 'applicant']
+		);
 	}
 
 	async search(page: number, search: string) {

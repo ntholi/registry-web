@@ -22,7 +22,10 @@ class AcademicRecordService extends BaseService<typeof academicRecords, 'id'> {
 	}
 
 	override async get(id: string) {
-		return withAuth(async () => this.repo.findById(id), ['registry', 'admin']);
+		return withAuth(
+			async () => this.repo.findById(id),
+			['registry', 'admin', 'applicant']
+		);
 	}
 
 	async findByApplicant(applicantId: string, page = 1) {

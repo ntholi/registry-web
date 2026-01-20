@@ -41,7 +41,10 @@ class ApplicantService extends BaseService<typeof applicants, 'id'> {
 	}
 
 	override async get(id: string) {
-		return withAuth(async () => this.repo.findById(id), ['registry', 'admin']);
+		return withAuth(
+			async () => this.repo.findById(id),
+			['registry', 'admin', 'applicant']
+		);
 	}
 
 	async findByUserId(userId: string) {

@@ -104,12 +104,6 @@ function getFileExtension(name: string) {
 	return name.slice(idx);
 }
 
-export async function getCurrentApplicant() {
-	const session = await auth();
-	if (!session?.user?.id) return null;
-	return findApplicantByUserId(session.user.id);
-}
-
 export async function uploadAndAnalyzeDocument(formData: FormData) {
 	const session = await auth();
 	if (!session?.user?.id) {
