@@ -7,6 +7,7 @@ import {
 	Button,
 	Card,
 	Group,
+	Modal,
 	Paper,
 	SimpleGrid,
 	Stack,
@@ -14,6 +15,7 @@ import {
 	ThemeIcon,
 	Title,
 } from '@mantine/core';
+import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import {
 	IconArrowLeft,
@@ -193,76 +195,105 @@ function AcademicRecordCard({
 	onDelete,
 	deleting,
 }: AcademicRecordCardProps) {
+	const [opened, { open, close }] = useDisclosure(false);
+
+	function handleConfirmDelete() {
+		onDelete();
+		close();
+	}
+
 	return (
-		<Card withBorder radius='md' p='md'>
-			<Stack gap='sm'>
-				<Group wrap='nowrap' justify='space-between'>
-					<Group wrap='nowrap'>
-						<ThemeIcon size='lg' variant='light' color='green'>
-							<IconCertificate size={20} />
-						</ThemeIcon>
-						<Stack gap={0} style={{ flex: 1, minWidth: 0 }}>
-							<Group gap='xs'>
-								<Text size='sm' fw={600} truncate>
-									{record.certificateType?.name ?? 'Certificate'}
-								</Text>
-								{record.certificateType?.lqfLevel && (
-									<Badge size='xs' variant='light'>
-										LQF {record.certificateType.lqfLevel}
-									</Badge>
-								)}
-							</Group>
-							<Group gap={4}>
-								<IconCheck size={12} color='var(--mantine-color-green-6)' />
-								<Text size='xs' c='green'>
-									Verified
-								</Text>
-							</Group>
-						</Stack>
+		<>
+			<Modal opened={opened} onClose={close} title='Delete Record' centered>
+				<Stack gap='md'>
+					<Text size='sm'>
+						Are you sure you want to delete this academic record? This action
+						cannot be undone.
+					</Text>
+					<Group justify='flex-end'>
+						<Button variant='subtle' onClick={close}>
+							Cancel
+						</Button>
+						<Button
+							color='red'
+							onClick={handleConfirmDelete}
+							loading={deleting}
+						>
+							Delete
+						</Button>
 					</Group>
-					<ActionIcon
-						variant='subtle'
-						color='red'
-						onClick={onDelete}
-						loading={deleting}
-						disabled={deleting}
-					>
-						<IconTrash size={16} />
-					</ActionIcon>
-				</Group>
-				<Stack gap={4}>
-					{record.institutionName && (
-						<Group gap='xs'>
-							<Text size='xs' c='dimmed' w={80}>
-								Institution:
-							</Text>
-							<Text size='xs' fw={500} style={{ flex: 1 }} truncate>
-								{record.institutionName}
-							</Text>
-						</Group>
-					)}
-					{record.examYear && (
-						<Group gap='xs'>
-							<Text size='xs' c='dimmed' w={80}>
-								Year:
-							</Text>
-							<Text size='xs' fw={500}>
-								{record.examYear}
-							</Text>
-						</Group>
-					)}
-					{record.resultClassification && (
-						<Group gap='xs'>
-							<Text size='xs' c='dimmed' w={80}>
-								Result:
-							</Text>
-							<Badge size='xs' variant='outline'>
-								{record.resultClassification}
-							</Badge>
-						</Group>
-					)}
 				</Stack>
-			</Stack>
-		</Card>
+			</Modal>
+
+			<Card withBorder radius='md' p='md'>
+				<Stack gap='sm'>
+					<Group wrap='nowrap' justify='space-between'>
+						<Group wrap='nowrap'>
+							<ThemeIcon size='lg' variant='light' color='green'>
+								<IconCertificate size={20} />
+							</ThemeIcon>
+							<Stack gap={0} style={{ flex: 1, minWidth: 0 }}>
+								<Group gap='xs'>
+									<Text size='sm' fw={600} truncate>
+										{record.certificateType?.name ?? 'Certificate'}
+									</Text>
+									{record.certificateType?.lqfLevel && (
+										<Badge size='xs' variant='light'>
+											LQF {record.certificateType.lqfLevel}
+										</Badge>
+									)}
+								</Group>
+								<Group gap={4}>
+									<IconCheck size={12} color='var(--mantine-color-green-6)' />
+									<Text size='xs' c='green'>
+										Verified
+									</Text>
+								</Group>
+							</Stack>
+						</Group>
+						<ActionIcon
+							variant='subtle'
+							color='red'
+							onClick={open}
+							disabled={deleting}
+						>
+							<IconTrash size={16} />
+						</ActionIcon>
+					</Group>
+					<Stack gap={4}>
+						{record.institutionName && (
+							<Group gap='xs'>
+								<Text size='xs' c='dimmed' w={80}>
+									Institution:
+								</Text>
+								<Text size='xs' fw={500} style={{ flex: 1 }} truncate>
+									{record.institutionName}
+								</Text>
+							</Group>
+						)}
+						{record.examYear && (
+							<Group gap='xs'>
+								<Text size='xs' c='dimmed' w={80}>
+									Year:
+								</Text>
+								<Text size='xs' fw={500}>
+									{record.examYear}
+								</Text>
+							</Group>
+						)}
+						{record.resultClassification && (
+							<Group gap='xs'>
+								<Text size='xs' c='dimmed' w={80}>
+									Result:
+								</Text>
+								<Badge size='xs' variant='outline'>
+									{record.resultClassification}
+								</Badge>
+							</Group>
+						)}
+					</Stack>
+				</Stack>
+			</Card>
+		</>
 	);
 }

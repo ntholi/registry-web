@@ -7,6 +7,7 @@ import {
 	Button,
 	Card,
 	Group,
+	Modal,
 	Paper,
 	SimpleGrid,
 	Stack,
@@ -14,6 +15,7 @@ import {
 	ThemeIcon,
 	Title,
 } from '@mantine/core';
+import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import {
 	IconArrowRight,
@@ -200,79 +202,108 @@ function IdentityDocumentCard({
 	onDelete,
 	deleting,
 }: IdentityDocumentCardProps) {
+	const [opened, { open, close }] = useDisclosure(false);
+
+	function handleConfirmDelete() {
+		onDelete();
+		close();
+	}
+
 	return (
-		<Card withBorder radius='md' p='md'>
-			<Stack gap='sm'>
-				<Group wrap='nowrap' justify='space-between'>
-					<Group wrap='nowrap'>
-						<ThemeIcon size='lg' variant='light' color='green'>
-							<IconId size={20} />
-						</ThemeIcon>
-						<Stack gap={0} style={{ flex: 1, minWidth: 0 }}>
-							<Text size='sm' fw={600}>
-								Identity Document
-							</Text>
-							<Group gap={4}>
-								<IconCheck size={12} color='var(--mantine-color-green-6)' />
-								<Text size='xs' c='green'>
-									Verified
+		<>
+			<Modal opened={opened} onClose={close} title='Delete Document' centered>
+				<Stack gap='md'>
+					<Text size='sm'>
+						Are you sure you want to delete this identity document? This action
+						cannot be undone.
+					</Text>
+					<Group justify='flex-end'>
+						<Button variant='subtle' onClick={close}>
+							Cancel
+						</Button>
+						<Button
+							color='red'
+							onClick={handleConfirmDelete}
+							loading={deleting}
+						>
+							Delete
+						</Button>
+					</Group>
+				</Stack>
+			</Modal>
+
+			<Card withBorder radius='md' p='md'>
+				<Stack gap='sm'>
+					<Group wrap='nowrap' justify='space-between'>
+						<Group wrap='nowrap'>
+							<ThemeIcon size='lg' variant='light' color='green'>
+								<IconId size={20} />
+							</ThemeIcon>
+							<Stack gap={0} style={{ flex: 1, minWidth: 0 }}>
+								<Text size='sm' fw={600}>
+									Identity Document
+								</Text>
+								<Group gap={4}>
+									<IconCheck size={12} color='var(--mantine-color-green-6)' />
+									<Text size='xs' c='green'>
+										Verified
+									</Text>
+								</Group>
+							</Stack>
+						</Group>
+						<ActionIcon
+							variant='subtle'
+							color='red'
+							onClick={open}
+							disabled={deleting}
+						>
+							<IconTrash size={16} />
+						</ActionIcon>
+					</Group>
+					<Stack gap={4}>
+						{doc.fullName && (
+							<Group gap='xs'>
+								<Text size='xs' c='dimmed' w={80}>
+									Name:
+								</Text>
+								<Text size='xs' fw={500}>
+									{doc.fullName}
 								</Text>
 							</Group>
-						</Stack>
-					</Group>
-					<ActionIcon
-						variant='subtle'
-						color='red'
-						onClick={onDelete}
-						loading={deleting}
-						disabled={deleting}
-					>
-						<IconTrash size={16} />
-					</ActionIcon>
-				</Group>
-				<Stack gap={4}>
-					{doc.fullName && (
-						<Group gap='xs'>
-							<Text size='xs' c='dimmed' w={80}>
-								Name:
-							</Text>
-							<Text size='xs' fw={500}>
-								{doc.fullName}
-							</Text>
-						</Group>
-					)}
-					{doc.nationalId && (
-						<Group gap='xs'>
-							<Text size='xs' c='dimmed' w={80}>
-								ID Number:
-							</Text>
-							<Text size='xs' fw={500}>
-								{doc.nationalId}
-							</Text>
-						</Group>
-					)}
-					{doc.dateOfBirth && (
-						<Group gap='xs'>
-							<Text size='xs' c='dimmed' w={80}>
-								DOB:
-							</Text>
-							<Text size='xs' fw={500}>
-								{doc.dateOfBirth}
-							</Text>
-						</Group>
-					)}
-					{doc.nationality && (
-						<Group gap='xs'>
-							<Text size='xs' c='dimmed' w={80}>
-								Nationality:
-							</Text>
-							<Text size='xs' fw={500}>
-								{doc.nationality}
-							</Text>
-						</Group>
-					)}
+						)}
+						{doc.nationalId && (
+							<Group gap='xs'>
+								<Text size='xs' c='dimmed' w={80}>
+									ID Number:
+								</Text>
+								<Text size='xs' fw={500}>
+									{doc.nationalId}
+								</Text>
+							</Group>
+						)}
+						{doc.dateOfBirth && (
+							<Group gap='xs'>
+								<Text size='xs' c='dimmed' w={80}>
+									DOB:
+								</Text>
+								<Text size='xs' fw={500}>
+									{doc.dateOfBirth}
+								</Text>
+							</Group>
+						)}
+						{doc.nationality && (
+							<Group gap='xs'>
+								<Text size='xs' c='dimmed' w={80}>
+									Nationality:
+								</Text>
+								<Text size='xs' fw={500}>
+									{doc.nationality}
+								</Text>
+							</Group>
+						)}
+					</Stack>
 				</Stack>
-			</Stack>
-		</Card>
+			</Card>
+		</>
 	);
 }
