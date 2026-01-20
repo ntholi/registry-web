@@ -2,13 +2,13 @@ import { getApplicant } from '@admissions/applicants';
 import { notFound, redirect } from 'next/navigation';
 import type { PropsWithChildren } from 'react';
 import { auth } from '@/core/auth';
-import WizardLayout from './_components/WizardLayout';
+import ApplyLayout from './_components/ApplyLayout';
 
 type Props = PropsWithChildren<{
 	params: Promise<{ id: string }>;
 }>;
 
-export default async function ApplyWizardLayout({ children, params }: Props) {
+export default async function ApplyIdLayout({ children, params }: Props) {
 	const session = await auth();
 
 	if (!session?.user) {
@@ -27,8 +27,8 @@ export default async function ApplyWizardLayout({ children, params }: Props) {
 	}
 
 	return (
-		<WizardLayout applicantId={applicant.id} applicantName={applicant.fullName}>
+		<ApplyLayout applicantId={applicant.id} applicantName={applicant.fullName}>
 			{children}
-		</WizardLayout>
+		</ApplyLayout>
 	);
 }
