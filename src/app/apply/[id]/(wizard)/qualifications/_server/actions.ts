@@ -8,6 +8,7 @@ import {
 import { nanoid } from 'nanoid';
 import { analyzeDocument } from '@/core/integrations/ai';
 import { uploadDocument } from '@/core/integrations/storage';
+import { getFileExtension } from '@/shared/lib/utils/files';
 
 export async function uploadAcademicDocument(
 	applicantId: string,
@@ -56,10 +57,4 @@ export async function uploadAcademicDocument(
 	}
 
 	return { fileName, type, result };
-}
-
-function getFileExtension(name: string) {
-	const idx = name.lastIndexOf('.');
-	if (idx === -1 || idx === name.length - 1) return '';
-	return name.slice(idx);
 }

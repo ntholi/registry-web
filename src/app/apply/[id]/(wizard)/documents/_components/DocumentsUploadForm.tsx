@@ -34,7 +34,7 @@ import {
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'nextjs-toploader/app';
 import { useState } from 'react';
-import { uploadIdentityDocument } from '../_server/actions';
+import { uploadAcademicDocument } from '../../qualifications/_server/actions';
 
 type Props = {
 	applicantId: string;
@@ -67,7 +67,7 @@ export default function DocumentsUploadForm({ applicantId }: Props) {
 		mutationFn: async (file: FileWithPath) => {
 			const formData = new FormData();
 			formData.append('file', file);
-			return uploadIdentityDocument(applicantId, formData);
+			return uploadAcademicDocument(applicantId, formData);
 		},
 		onSuccess: ({ fileName }) => {
 			setPendingDocs((prev) => [...prev, { id: fileName, fileName }]);
