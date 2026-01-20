@@ -6,6 +6,8 @@ import type { DashboardUser, UserRole } from '@auth/_database';
 import {
 	ActionIcon,
 	Avatar,
+	Box,
+	Divider,
 	Flex,
 	Group,
 	Indicator,
@@ -13,15 +15,17 @@ import {
 	Skeleton,
 	Stack,
 	Text,
+	TextInput,
 } from '@mantine/core';
 import { modals } from '@mantine/modals';
-import { IconLogout2 } from '@tabler/icons-react';
+import { IconLogout2, IconSearch } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import type { Session } from 'next-auth';
 import { signOut, useSession } from 'next-auth/react';
 import type React from 'react';
+import { useState } from 'react';
 import { academicConfig } from '@/app/academic/academic.config';
 import { adminConfig } from '@/app/admin/admin.config';
 import { admissionsConfig } from '@/app/admissions/admissions.config';
@@ -85,9 +89,9 @@ function getNavigation(
 	const allConfigs = [
 		{ config: timetableConfig, enabled: moduleConfig.timetable },
 		{ config: academicConfig, enabled: moduleConfig.academic },
-		{ config: admissionsConfig, enabled: moduleConfig.admissions },
 		{ config: lmsConfig, enabled: moduleConfig.lms },
 		{ config: registryConfig, enabled: moduleConfig.registry },
+		{ config: admissionsConfig, enabled: moduleConfig.admissions },
 		{ config: financeConfig, enabled: moduleConfig.finance },
 		{ config: adminConfig, enabled: moduleConfig.admin },
 		{ config: reportsConfig, enabled: moduleConfig.reports },
@@ -268,9 +272,36 @@ function UserButton() {
 
 export function Navigation({ navigation }: { navigation: NavigationGroup[] }) {
 	const { data: session } = useSession();
+	const [search, setSearch] = useState('');
+
 	const getLabelKey = (label: React.ReactNode): string => {
 		if (typeof label === 'string') return label;
 		return String(label);
+	};
+
+	const filterBySearch = (items: NavItem[], query: string): NavItem[] => {
+		if (!query) return items;
+		const s = query.toLowerCase();
+
+		return items.reduce((acc, item) => {
+			const label = typeof item.label === 'string' ? item.label : '';
+			const matches =
+				label.toLowerCase().includes(s) ||
+				item.description?.toLowerCase().includes(s);
+
+			const filteredChildren = item.children
+				? filterBySearch(item.children, query)
+				: undefined;
+
+			if (matches || (filteredChildren && filteredChildren.length > 0)) {
+				acc.push({
+					...item,
+					children: filteredChildren,
+				});
+			}
+
+			return acc;
+		}, [] as NavItem[]);
 	};
 
 	const visibleGroups = navigation
@@ -278,10 +309,25 @@ export function Navigation({ navigation }: { navigation: NavigationGroup[] }) {
 			...group,
 			items: filterNavigationItems(group.items, session ?? null),
 		}))
+		.map((group) => ({
+			...group,
+			items: filterBySearch(group.items, search),
+		}))
 		.filter((group) => group.items.length > 0);
 
 	return (
 		<Stack gap='md'>
+			<Box>
+				<TextInput
+					placeholder='Search menu...'
+					leftSection={<IconSearch size='1rem' />}
+					value={search}
+					onChange={(e) => setSearch(e.target.value)}
+					variant='unstyled'
+				/>
+				<Divider mt={5} />
+			</Box>
+
 			{visibleGroups.map((group) => (
 				<Stack key={group.moduleName} gap={6}>
 					<Text size='0.7rem' fw={600} c='dimmed' tt='uppercase'>
