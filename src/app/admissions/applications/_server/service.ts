@@ -17,11 +17,11 @@ class ApplicationService extends BaseService<typeof applications, 'id'> {
 	constructor() {
 		const repo = new ApplicationRepository();
 		super(repo, {
-			byIdRoles: ['registry', 'admin'],
-			findAllRoles: ['registry', 'admin'],
-			createRoles: ['registry', 'admin'],
-			updateRoles: ['registry', 'admin'],
-			deleteRoles: ['registry', 'admin'],
+			byIdRoles: ['registry', 'marketing', 'admin'],
+			findAllRoles: ['registry', 'marketing', 'admin'],
+			createRoles: ['registry', 'marketing', 'admin'],
+			updateRoles: ['registry', 'marketing', 'admin'],
+			deleteRoles: ['registry', 'marketing', 'admin'],
 		});
 		this.repo = repo;
 	}
@@ -29,14 +29,14 @@ class ApplicationService extends BaseService<typeof applications, 'id'> {
 	override async get(id: string) {
 		return withAuth(
 			async () => this.repo.findById(id),
-			['registry', 'admin', 'applicant']
+			['registry', 'marketing', 'admin', 'applicant']
 		);
 	}
 
 	async search(page: number, search: string, filters?: ApplicationFilters) {
 		return withAuth(
 			async () => this.repo.search(page, search, filters),
-			['registry', 'admin']
+			['registry', 'marketing', 'admin']
 		);
 	}
 
@@ -88,7 +88,7 @@ class ApplicationService extends BaseService<typeof applications, 'id'> {
 
 				return application;
 			},
-			['registry', 'admin']
+			['registry', 'marketing', 'admin']
 		);
 	}
 
@@ -123,7 +123,7 @@ class ApplicationService extends BaseService<typeof applications, 'id'> {
 
 				return this.repo.updateStatus(applicationId, newStatus);
 			},
-			['registry', 'admin']
+			['registry', 'marketing', 'admin']
 		);
 	}
 
@@ -136,14 +136,14 @@ class ApplicationService extends BaseService<typeof applications, 'id'> {
 					createdBy: session?.user?.id,
 				});
 			},
-			['registry', 'admin']
+			['registry', 'marketing', 'admin']
 		);
 	}
 
 	async getNotes(applicationId: string) {
 		return withAuth(
 			async () => this.repo.getNotes(applicationId),
-			['registry', 'admin']
+			['registry', 'marketing', 'admin']
 		);
 	}
 
@@ -151,7 +151,7 @@ class ApplicationService extends BaseService<typeof applications, 'id'> {
 		return withAuth(async () => {
 			await this.repo.linkReceipt(applicationId, receiptId);
 			return this.repo.updatePaymentStatus(applicationId, 'paid');
-		}, ['registry', 'admin']);
+		}, ['registry', 'marketing', 'admin']);
 	}
 
 	async getPaymentInfo(applicationId: string) {
@@ -166,27 +166,27 @@ class ApplicationService extends BaseService<typeof applications, 'id'> {
 				paymentStatus: application.paymentStatus,
 				receipts,
 			};
-		}, ['registry', 'admin']);
+		}, ['registry', 'marketing', 'admin']);
 	}
 
 	async findByApplicant(applicantId: string) {
 		return withAuth(
 			async () => this.repo.findByApplicant(applicantId),
-			['registry', 'admin']
+			['registry', 'marketing', 'admin']
 		);
 	}
 
 	async countByStatus(status: ApplicationStatus) {
 		return withAuth(
 			async () => this.repo.countByStatus(status),
-			['registry', 'admin']
+			['registry', 'marketing', 'admin']
 		);
 	}
 
 	async countPending() {
 		return withAuth(
 			async () => this.repo.countPending(),
-			['registry', 'admin']
+			['registry', 'marketing', 'admin']
 		);
 	}
 }

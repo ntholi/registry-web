@@ -30,11 +30,11 @@ class ApplicantService extends BaseService<typeof applicants, 'id'> {
 	constructor() {
 		const repo = new ApplicantRepository();
 		super(repo, {
-			byIdRoles: ['registry', 'admin'],
-			findAllRoles: ['registry', 'admin'],
-			createRoles: ['registry', 'admin'],
-			updateRoles: ['registry', 'admin'],
-			deleteRoles: ['registry', 'admin'],
+			byIdRoles: ['registry', 'marketing', 'admin'],
+			findAllRoles: ['registry', 'marketing', 'admin'],
+			createRoles: ['registry', 'marketing', 'admin'],
+			updateRoles: ['registry', 'marketing', 'admin'],
+			deleteRoles: ['registry', 'marketing', 'admin'],
 		});
 		this.repo = repo;
 	}
@@ -42,7 +42,7 @@ class ApplicantService extends BaseService<typeof applicants, 'id'> {
 	override async get(id: string) {
 		return withAuth(
 			async () => this.repo.findById(id),
-			['registry', 'admin', 'applicant']
+			['registry', 'marketing', 'admin', 'applicant']
 		);
 	}
 
@@ -53,7 +53,7 @@ class ApplicantService extends BaseService<typeof applicants, 'id'> {
 	async search(page: number, search: string) {
 		return withAuth(
 			async () => this.repo.search(page, search),
-			['registry', 'admin']
+			['registry', 'marketing', 'admin', 'applicant']
 		);
 	}
 
@@ -66,7 +66,7 @@ class ApplicantService extends BaseService<typeof applicants, 'id'> {
 				}
 			}
 			return this.repo.create(data);
-		}, ['registry', 'admin']);
+		}, ['registry', 'marketing', 'admin']);
 	}
 
 	override async update(
@@ -74,27 +74,27 @@ class ApplicantService extends BaseService<typeof applicants, 'id'> {
 		data: Partial<typeof applicants.$inferInsert>
 	) {
 		return withAuth(async () => {
-			if (data.nationalId) {
-				const existing = await this.repo.findByNationalId(data.nationalId);
-				if (existing && existing.id !== id) {
-					throw new Error('DUPLICATE_NATIONAL_ID: National ID already exists');
-				}
-			}
+			// if (data.nationalId) {
+			// 	const existing = await this.repo.findByNationalId(data.nationalId);
+			// 	if (existing && existing.id !== id) {
+			// 		throw new Error('DUPLICATE_NATIONAL_ID: National ID already exists');
+			// 	}
+			// }
 			return this.repo.update(id, data);
-		}, ['registry', 'admin']);
+		}, ['registry', 'marketing', 'admin']);
 	}
 
 	async addPhone(applicantId: string, phoneNumber: string) {
 		return withAuth(
 			async () => this.repo.addPhone(applicantId, phoneNumber),
-			['registry', 'admin']
+			['registry', 'marketing', 'admin']
 		);
 	}
 
 	async removePhone(phoneId: string) {
 		return withAuth(
 			async () => this.repo.removePhone(phoneId),
-			['registry', 'admin']
+			['registry', 'marketing', 'admin']
 		);
 	}
 
@@ -104,7 +104,7 @@ class ApplicantService extends BaseService<typeof applicants, 'id'> {
 	) {
 		return withAuth(
 			async () => this.repo.createGuardian(data, phoneNumber),
-			['registry', 'admin']
+			['registry', 'marketing', 'admin']
 		);
 	}
 
@@ -114,28 +114,28 @@ class ApplicantService extends BaseService<typeof applicants, 'id'> {
 	) {
 		return withAuth(
 			async () => this.repo.updateGuardian(id, data),
-			['registry', 'admin']
+			['registry', 'marketing', 'admin']
 		);
 	}
 
 	async deleteGuardian(id: string) {
 		return withAuth(
 			async () => this.repo.deleteGuardian(id),
-			['registry', 'admin']
+			['registry', 'marketing', 'admin']
 		);
 	}
 
 	async addGuardianPhone(guardianId: string, phoneNumber: string) {
 		return withAuth(
 			async () => this.repo.addGuardianPhone(guardianId, phoneNumber),
-			['registry', 'admin']
+			['registry', 'marketing', 'admin']
 		);
 	}
 
 	async removeGuardianPhone(phoneId: string) {
 		return withAuth(
 			async () => this.repo.removeGuardianPhone(phoneId),
-			['registry', 'admin']
+			['registry', 'marketing', 'admin']
 		);
 	}
 
@@ -207,7 +207,7 @@ class ApplicantService extends BaseService<typeof applicants, 'id'> {
 				docInputs,
 				recordInputs
 			);
-		}, ['registry', 'admin']);
+		}, ['registry', 'marketing', 'admin']);
 	}
 
 	async getOrCreateForCurrentUser() {
@@ -232,7 +232,7 @@ class ApplicantService extends BaseService<typeof applicants, 'id'> {
 			const requirements =
 				await entryRequirementsService.findAllForEligibility();
 			return getEligiblePrograms(applicant.academicRecords, requirements);
-		}, ['registry', 'admin']);
+		}, ['registry', 'marketing', 'admin']);
 	}
 }
 

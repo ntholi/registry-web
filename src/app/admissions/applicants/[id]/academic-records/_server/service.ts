@@ -12,11 +12,11 @@ class AcademicRecordService extends BaseService<typeof academicRecords, 'id'> {
 	constructor() {
 		const repo = new AcademicRecordRepository();
 		super(repo, {
-			byIdRoles: ['registry', 'admin'],
-			findAllRoles: ['registry', 'admin'],
-			createRoles: ['registry', 'admin'],
-			updateRoles: ['registry', 'admin'],
-			deleteRoles: ['registry', 'admin'],
+			byIdRoles: ['registry', 'marketing', 'admin'],
+			findAllRoles: ['registry', 'marketing', 'admin'],
+			createRoles: ['registry', 'marketing', 'admin'],
+			updateRoles: ['registry', 'marketing', 'admin'],
+			deleteRoles: ['registry', 'marketing', 'admin'],
 		});
 		this.repo = repo;
 	}
@@ -24,14 +24,14 @@ class AcademicRecordService extends BaseService<typeof academicRecords, 'id'> {
 	override async get(id: string) {
 		return withAuth(
 			async () => this.repo.findById(id),
-			['registry', 'admin', 'applicant']
+			['registry', 'marketing', 'admin', 'applicant']
 		);
 	}
 
 	async findByApplicant(applicantId: string, page = 1) {
 		return withAuth(
 			async () => this.repo.findByApplicant(applicantId, page),
-			['registry', 'admin']
+			['registry', 'marketing', 'admin']
 		);
 	}
 
@@ -57,7 +57,7 @@ class AcademicRecordService extends BaseService<typeof academicRecords, 'id'> {
 			}
 
 			return this.repo.createWithGrades(data, mappedGrades);
-		}, ['registry', 'admin']);
+		}, ['registry', 'marketing', 'admin']);
 	}
 
 	async updateWithGrades(
@@ -83,20 +83,20 @@ class AcademicRecordService extends BaseService<typeof academicRecords, 'id'> {
 			}
 
 			return this.repo.updateWithGrades(id, data, mappedGrades);
-		}, ['registry', 'admin']);
+		}, ['registry', 'marketing', 'admin']);
 	}
 
 	override async delete(id: string) {
 		return withAuth(
 			async () => this.repo.removeById(id),
-			['registry', 'admin']
+			['registry', 'marketing', 'admin']
 		);
 	}
 
 	async findByCertificateNumber(certificateNumber: string) {
 		return withAuth(
 			async () => this.repo.findByCertificateNumber(certificateNumber),
-			['registry', 'admin']
+			['registry', 'marketing', 'admin']
 		);
 	}
 }

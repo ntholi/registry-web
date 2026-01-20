@@ -15,11 +15,11 @@ class EntryRequirementService extends BaseService<
 	constructor() {
 		const repo = new EntryRequirementRepository();
 		super(repo, {
-			byIdRoles: ['registry', 'admin'],
-			findAllRoles: ['registry', 'admin'],
-			createRoles: ['registry', 'admin'],
-			updateRoles: ['registry', 'admin'],
-			deleteRoles: ['registry', 'admin'],
+			byIdRoles: ['registry', 'marketing', 'admin'],
+			findAllRoles: ['registry', 'marketing', 'admin'],
+			createRoles: ['registry', 'marketing', 'admin'],
+			updateRoles: ['registry', 'marketing', 'admin'],
+			deleteRoles: ['registry', 'marketing', 'admin'],
 		});
 		this.repo = repo;
 	}
@@ -27,14 +27,14 @@ class EntryRequirementService extends BaseService<
 	override async get(id: string) {
 		return withAuth(
 			async () => this.repo.findById(id),
-			['registry', 'admin', 'applicant']
+			['registry', 'marketing', 'admin', 'applicant']
 		);
 	}
 
 	async findAllWithRelations(page: number, search: string) {
 		return withAuth(
 			async () => this.repo.findAllWithRelations(page, search),
-			['registry', 'admin']
+			['registry', 'marketing', 'admin']
 		);
 	}
 
@@ -45,14 +45,14 @@ class EntryRequirementService extends BaseService<
 	) {
 		return withAuth(
 			async () => this.repo.findProgramsWithRequirements(page, search, filter),
-			['registry', 'admin']
+			['registry', 'marketing', 'admin']
 		);
 	}
 
 	async findByProgram(programId: number) {
 		return withAuth(
 			async () => this.repo.findByProgram(programId),
-			['registry', 'admin']
+			['registry', 'marketing', 'admin']
 		);
 	}
 
@@ -63,14 +63,14 @@ class EntryRequirementService extends BaseService<
 		return withAuth(
 			async () =>
 				this.repo.findByProgramAndCertificate(programId, certificateTypeId),
-			['registry', 'admin']
+			['registry', 'marketing', 'admin']
 		);
 	}
 
 	async findAllForEligibility() {
 		return withAuth(
 			async () => this.repo.findAllForEligibility(),
-			['registry', 'admin']
+			['registry', 'marketing', 'admin']
 		);
 	}
 
@@ -94,7 +94,7 @@ class EntryRequirementService extends BaseService<
 				);
 			}
 			return this.repo.create(data);
-		}, ['registry', 'admin']);
+		}, ['registry', 'marketing', 'admin']);
 	}
 }
 

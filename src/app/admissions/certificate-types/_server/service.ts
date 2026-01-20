@@ -18,11 +18,11 @@ class CertificateTypeService extends BaseService<
 	constructor() {
 		const repo = new CertificateTypeRepository();
 		super(repo, {
-			byIdRoles: ['registry', 'admin'],
-			findAllRoles: ['registry', 'admin'],
-			createRoles: ['registry', 'admin'],
-			updateRoles: ['registry', 'admin'],
-			deleteRoles: ['registry', 'admin'],
+			byIdRoles: ['registry', 'marketing', 'admin'],
+			findAllRoles: ['registry', 'marketing', 'admin'],
+			createRoles: ['registry', 'marketing', 'admin'],
+			updateRoles: ['registry', 'marketing', 'admin'],
+			deleteRoles: ['registry', 'marketing', 'admin'],
 		});
 		this.repo = repo;
 	}
@@ -30,14 +30,14 @@ class CertificateTypeService extends BaseService<
 	override async get(id: string) {
 		return withAuth(
 			async () => this.repo.findById(id),
-			['registry', 'admin', 'applicant']
+			['registry', 'marketing', 'admin', 'applicant']
 		);
 	}
 
 	async search(page: number, search: string) {
 		return withAuth(
 			async () => this.repo.search(page, search),
-			['registry', 'admin']
+			['registry', 'marketing', 'admin', 'applicant']
 		);
 	}
 
@@ -51,7 +51,7 @@ class CertificateTypeService extends BaseService<
 			}
 
 			return this.repo.createWithMappings(data, mappings);
-		}, ['registry', 'admin']);
+		}, ['registry', 'marketing', 'admin']);
 	}
 
 	async updateWithMappings(
@@ -65,7 +65,7 @@ class CertificateTypeService extends BaseService<
 			}
 
 			return this.repo.updateWithMappings(id, data, mappings);
-		}, ['registry', 'admin']);
+		}, ['registry', 'marketing', 'admin']);
 	}
 
 	override async delete(id: string) {
@@ -78,17 +78,20 @@ class CertificateTypeService extends BaseService<
 			}
 
 			await this.repo.removeById(id);
-		}, ['registry', 'admin']);
+		}, ['registry', 'marketing', 'admin']);
 	}
 
 	async isInUse(id: string) {
-		return withAuth(async () => this.repo.isInUse(id), ['registry', 'admin']);
+		return withAuth(
+			async () => this.repo.isInUse(id),
+			['registry', 'marketing', 'admin']
+		);
 	}
 
 	async mapGrade(certificateTypeId: string, originalGrade: string) {
 		return withAuth(
 			async () => this.repo.mapGrade(certificateTypeId, originalGrade),
-			['registry', 'admin']
+			['registry', 'marketing', 'admin']
 		);
 	}
 }

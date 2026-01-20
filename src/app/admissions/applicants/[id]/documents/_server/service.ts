@@ -20,11 +20,11 @@ class ApplicantDocumentService extends BaseService<
 	constructor() {
 		const repo = new ApplicantDocumentRepository();
 		super(repo, {
-			byIdRoles: ['registry', 'admin'],
-			findAllRoles: ['registry', 'admin'],
-			createRoles: ['registry', 'admin'],
-			updateRoles: ['registry', 'admin'],
-			deleteRoles: ['registry', 'admin'],
+			byIdRoles: ['registry', 'marketing', 'admin'],
+			findAllRoles: ['registry', 'marketing', 'admin'],
+			createRoles: ['registry', 'marketing', 'admin'],
+			updateRoles: ['registry', 'marketing', 'admin'],
+			deleteRoles: ['registry', 'marketing', 'admin'],
 		});
 		this.repo = repo;
 	}
@@ -32,14 +32,14 @@ class ApplicantDocumentService extends BaseService<
 	async findByApplicant(applicantId: string, page = 1) {
 		return withAuth(
 			async () => this.repo.findByApplicant(applicantId, page),
-			['registry', 'admin']
+			['registry', 'marketing', 'admin']
 		);
 	}
 
 	async findByType(applicantId: string, type: DocumentType) {
 		return withAuth(
 			async () => this.repo.findByType(applicantId, type),
-			['registry', 'admin']
+			['registry', 'marketing', 'admin']
 		);
 	}
 
@@ -53,7 +53,7 @@ class ApplicantDocumentService extends BaseService<
 				throw new Error('FILE_TOO_LARGE: Document exceeds 5MB limit');
 			}
 			return this.repo.createWithDocument(documentData, applicantId);
-		}, ['registry', 'admin', 'applicant']);
+		}, ['registry', 'marketing', 'admin', 'applicant']);
 	}
 
 	async verifyDocument(
@@ -66,13 +66,13 @@ class ApplicantDocumentService extends BaseService<
 				throw new Error('Rejection reason is required');
 			}
 			return this.repo.updateVerificationStatus(id, status, rejectionReason);
-		}, ['registry', 'admin', 'applicant']);
+		}, ['registry', 'marketing', 'admin', 'applicant']);
 	}
 
 	override async delete(id: string) {
 		return withAuth(
 			async () => this.repo.removeById(id),
-			['registry', 'admin']
+			['registry', 'marketing', 'admin']
 		);
 	}
 }
