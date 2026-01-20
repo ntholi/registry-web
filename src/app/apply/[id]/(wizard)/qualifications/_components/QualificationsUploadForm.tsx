@@ -8,7 +8,6 @@ import {
 	Card,
 	Group,
 	Paper,
-	rem,
 	SimpleGrid,
 	Stack,
 	Table,
@@ -16,26 +15,21 @@ import {
 	ThemeIcon,
 	Title,
 } from '@mantine/core';
-import {
-	Dropzone,
-	type FileRejection,
-	type FileWithPath,
-	IMAGE_MIME_TYPE,
-	MIME_TYPES,
-} from '@mantine/dropzone';
 import { notifications } from '@mantine/notifications';
 import {
 	IconArrowLeft,
 	IconArrowRight,
 	IconFileTypePdf,
-	IconSchool,
 	IconTrash,
-	IconUpload,
 } from '@tabler/icons-react';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'nextjs-toploader/app';
 import { useState } from 'react';
-import { uploadAcademicDocument } from '../_server/actions';
+import {
+	DocumentUpload,
+	type DocumentUploadResult,
+} from '@/shared/ui/DocumentUpload';
+import { uploadCertificateDocument } from '../_server/actions';
 
 type Props = {
 	applicantId: string;
@@ -46,13 +40,11 @@ type UploadedDoc = {
 	fileName: string;
 };
 
-const ACCEPTED_MIME_TYPES = [...IMAGE_MIME_TYPE, MIME_TYPES.pdf];
-const MAX_FILE_SIZE = 10 * 1024 * 1024;
-
 export default function QualificationsUploadForm({ applicantId }: Props) {
 	const router = useRouter();
 	const queryClient = useQueryClient();
 	const [pendingDocs, setPendingDocs] = useState<UploadedDoc[]>([]);
+	const [uploading, setUploading] = useState(false);
 
 	const { data: recordsData } = useQuery({
 		queryKey: ['academic-records', applicantId],
@@ -62,13 +54,16 @@ export default function QualificationsUploadForm({ applicantId }: Props) {
 	const records = recordsData?.items ?? [];
 	const hasRecords = records.length > 0 || pendingDocs.length > 0;
 
-	const uploadMutation = useMutation({
-		mutationFn: async (file: FileWithPath) => {
-			const formData = new FormData();
-			formData.append('file', file);
-			return uploadAcademicDocument(applicantId, formData);
-		},
-		onSuccess: ({ fileName }) => {
+	async function handleUploadComplete(
+		result: DocumentUploadResult<'certificate'>
+	) {
+		try {
+			setUploading(true);
+			const { fileName } = await uploadCertificateDocument(
+				applicantId,
+				result.file,
+				result.analysis
+			);
 			setPendingDocs((prev) => [...prev, { id: fileName, fileName }]);
 			queryClient.invalidateQueries({
 				queryKey: ['academic-records', applicantId],
@@ -79,28 +74,15 @@ export default function QualificationsUploadForm({ applicantId }: Props) {
 				message: 'Academic document processed successfully',
 				color: 'green',
 			});
-		},
-		onError: (error) => {
+		} catch (error) {
 			notifications.show({
 				title: 'Upload failed',
-				message: error.message,
+				message: error instanceof Error ? error.message : 'Upload failed',
 				color: 'red',
 			});
-		},
-	});
-
-	function handleDrop(files: FileWithPath[]) {
-		for (const file of files) {
-			uploadMutation.mutate(file);
+		} finally {
+			setUploading(false);
 		}
-	}
-
-	function handleReject(_rejections: FileRejection[]) {
-		notifications.show({
-			title: 'File rejected',
-			message: 'Please upload PDF or image files under 10MB',
-			color: 'red',
-		});
 	}
 
 	function handleRemove(id: string) {
@@ -125,51 +107,13 @@ export default function QualificationsUploadForm({ applicantId }: Props) {
 					</Text>
 				</Stack>
 
-				<Dropzone
-					onDrop={handleDrop}
-					onReject={handleReject}
-					maxSize={MAX_FILE_SIZE}
-					accept={ACCEPTED_MIME_TYPES}
-					loading={uploadMutation.isPending}
-				>
-					<Group
-						justify='center'
-						gap='xl'
-						mih={rem(140)}
-						style={{ pointerEvents: 'none' }}
-					>
-						<Dropzone.Accept>
-							<IconUpload
-								size={52}
-								stroke={1.5}
-								color='var(--mantine-color-blue-6)'
-							/>
-						</Dropzone.Accept>
-						<Dropzone.Reject>
-							<IconSchool
-								size={52}
-								stroke={1.5}
-								color='var(--mantine-color-red-6)'
-							/>
-						</Dropzone.Reject>
-						<Dropzone.Idle>
-							<IconSchool
-								size={52}
-								stroke={1.5}
-								color='var(--mantine-color-dimmed)'
-							/>
-						</Dropzone.Idle>
-
-						<Stack gap='xs' ta='center'>
-							<Text size='lg' inline>
-								Drag academic documents here or click to browse
-							</Text>
-							<Text size='sm' c='dimmed' inline>
-								Certificates, transcripts, results - PDF or image, max 10MB
-							</Text>
-						</Stack>
-					</Group>
-				</Dropzone>
+				<DocumentUpload
+					type='certificate'
+					onUploadComplete={handleUploadComplete}
+					disabled={uploading}
+					title='Upload Academic Document'
+					description='Certificates, transcripts, results - PDF or image, max 10MB'
+				/>
 
 				{records.length > 0 && (
 					<Stack gap='sm'>

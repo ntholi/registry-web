@@ -7,34 +7,27 @@ import {
 	Card,
 	Group,
 	Paper,
-	rem,
 	SimpleGrid,
 	Stack,
 	Text,
 	ThemeIcon,
 	Title,
 } from '@mantine/core';
-import {
-	Dropzone,
-	type FileRejection,
-	type FileWithPath,
-	IMAGE_MIME_TYPE,
-	MIME_TYPES,
-} from '@mantine/dropzone';
 import { notifications } from '@mantine/notifications';
 import {
 	IconArrowRight,
 	IconCheck,
 	IconFileTypePdf,
-	IconId,
-	IconPhoto,
 	IconTrash,
-	IconUpload,
 } from '@tabler/icons-react';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'nextjs-toploader/app';
 import { useState } from 'react';
-import { uploadAcademicDocument } from '../../qualifications/_server/actions';
+import {
+	DocumentUpload,
+	type DocumentUploadResult,
+} from '@/shared/ui/DocumentUpload';
+import { uploadIdentityDocument } from '../_server/actions';
 
 type Props = {
 	applicantId: string;
@@ -43,16 +36,13 @@ type Props = {
 type UploadedDoc = {
 	id: string;
 	fileName: string;
-	preview?: string;
 };
-
-const ACCEPTED_MIME_TYPES = [...IMAGE_MIME_TYPE, MIME_TYPES.pdf];
-const MAX_FILE_SIZE = 10 * 1024 * 1024;
 
 export default function DocumentsUploadForm({ applicantId }: Props) {
 	const router = useRouter();
 	const queryClient = useQueryClient();
 	const [pendingDocs, setPendingDocs] = useState<UploadedDoc[]>([]);
+	const [uploading, setUploading] = useState(false);
 
 	const { data: existingDocs } = useQuery({
 		queryKey: ['applicant-documents', applicantId],
@@ -63,13 +53,16 @@ export default function DocumentsUploadForm({ applicantId }: Props) {
 		existingDocs?.items.filter((d) => d.document.type === 'identity') ?? [];
 	const hasIdentity = identityDocs.length > 0 || pendingDocs.length > 0;
 
-	const uploadMutation = useMutation({
-		mutationFn: async (file: FileWithPath) => {
-			const formData = new FormData();
-			formData.append('file', file);
-			return uploadAcademicDocument(applicantId, formData);
-		},
-		onSuccess: ({ fileName }) => {
+	async function handleUploadComplete(
+		result: DocumentUploadResult<'identity'>
+	) {
+		try {
+			setUploading(true);
+			const { fileName } = await uploadIdentityDocument(
+				applicantId,
+				result.file,
+				result.analysis
+			);
 			setPendingDocs((prev) => [...prev, { id: fileName, fileName }]);
 			queryClient.invalidateQueries({
 				queryKey: ['applicant-documents', applicantId],
@@ -79,28 +72,15 @@ export default function DocumentsUploadForm({ applicantId }: Props) {
 				message: 'Identity document processed successfully',
 				color: 'green',
 			});
-		},
-		onError: (error) => {
+		} catch (error) {
 			notifications.show({
 				title: 'Upload failed',
-				message: error.message,
+				message: error instanceof Error ? error.message : 'Upload failed',
 				color: 'red',
 			});
-		},
-	});
-
-	function handleDrop(files: FileWithPath[]) {
-		for (const file of files) {
-			uploadMutation.mutate(file);
+		} finally {
+			setUploading(false);
 		}
-	}
-
-	function handleReject(_rejections: FileRejection[]) {
-		notifications.show({
-			title: 'File rejected',
-			message: 'Please upload PDF or image files under 10MB',
-			color: 'red',
-		});
 	}
 
 	function handleRemove(id: string) {
@@ -121,51 +101,13 @@ export default function DocumentsUploadForm({ applicantId }: Props) {
 					</Text>
 				</Stack>
 
-				<Dropzone
-					onDrop={handleDrop}
-					onReject={handleReject}
-					maxSize={MAX_FILE_SIZE}
-					accept={ACCEPTED_MIME_TYPES}
-					loading={uploadMutation.isPending}
-				>
-					<Group
-						justify='center'
-						gap='xl'
-						mih={rem(140)}
-						style={{ pointerEvents: 'none' }}
-					>
-						<Dropzone.Accept>
-							<IconUpload
-								size={52}
-								stroke={1.5}
-								color='var(--mantine-color-blue-6)'
-							/>
-						</Dropzone.Accept>
-						<Dropzone.Reject>
-							<IconPhoto
-								size={52}
-								stroke={1.5}
-								color='var(--mantine-color-red-6)'
-							/>
-						</Dropzone.Reject>
-						<Dropzone.Idle>
-							<IconId
-								size={52}
-								stroke={1.5}
-								color='var(--mantine-color-dimmed)'
-							/>
-						</Dropzone.Idle>
-
-						<Stack gap='xs' ta='center'>
-							<Text size='lg' inline>
-								Drag identity document here or click to browse
-							</Text>
-							<Text size='sm' c='dimmed' inline>
-								PDF or image files, max 10MB
-							</Text>
-						</Stack>
-					</Group>
-				</Dropzone>
+				<DocumentUpload
+					type='identity'
+					onUploadComplete={handleUploadComplete}
+					disabled={uploading}
+					title='Upload Identity Document'
+					description='National ID, passport, or birth certificate'
+				/>
 
 				{(identityDocs.length > 0 || pendingDocs.length > 0) && (
 					<SimpleGrid cols={{ base: 1, sm: 2, md: 3 }} spacing='md'>
