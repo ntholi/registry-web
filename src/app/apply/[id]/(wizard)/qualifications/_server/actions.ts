@@ -1,5 +1,6 @@
 'use server';
 
+import { deleteAcademicRecord } from '@admissions/applicants/[id]/academic-records/_server/actions';
 import {
 	createAcademicRecordFromDocument,
 	saveApplicantDocument,
@@ -47,4 +48,8 @@ export async function uploadCertificateDocument(
 	}
 
 	return { fileName, type, analysis };
+}
+
+export async function removeAcademicRecord(id: string) {
+	return deleteAcademicRecord(id);
 }

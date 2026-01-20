@@ -1,6 +1,7 @@
 'use server';
 
 import {
+	deleteApplicantDocument,
 	saveApplicantDocument,
 	updateApplicantFromIdentity,
 } from '@admissions/applicants/[id]/documents/_server/actions';
@@ -37,4 +38,8 @@ export async function uploadIdentityDocument(
 	});
 
 	return { fileName, analysis };
+}
+
+export async function removeIdentityDocument(id: string, fileUrl: string) {
+	return deleteApplicantDocument(id, fileUrl);
 }

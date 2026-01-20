@@ -72,7 +72,7 @@ class ApplicantDocumentService extends BaseService<
 	override async delete(id: string) {
 		return withAuth(
 			async () => this.repo.removeById(id),
-			['registry', 'marketing', 'admin']
+			['registry', 'marketing', 'admin', 'applicant']
 		);
 	}
 }

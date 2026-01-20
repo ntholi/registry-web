@@ -2,6 +2,7 @@
 
 import { findAcademicRecordsByApplicant } from '@admissions/applicants/[id]/academic-records/_server/actions';
 import {
+	ActionIcon,
 	Badge,
 	Button,
 	Card,
@@ -19,15 +20,19 @@ import {
 	IconArrowRight,
 	IconCertificate,
 	IconCheck,
+	IconTrash,
 } from '@tabler/icons-react';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'nextjs-toploader/app';
 import { useState } from 'react';
 import {
 	DocumentUpload,
 	type DocumentUploadResult,
 } from '@/shared/ui/DocumentUpload';
-import { uploadCertificateDocument } from '../_server/actions';
+import {
+	removeAcademicRecord,
+	uploadCertificateDocument,
+} from '../_server/actions';
 
 type Props = {
 	applicantId: string;
@@ -46,6 +51,27 @@ export default function QualificationsUploadForm({ applicantId }: Props) {
 
 	const records = recordsData?.items ?? [];
 	const hasRecords = records.length > 0;
+
+	const deleteMutation = useMutation({
+		mutationFn: removeAcademicRecord,
+		onSuccess: () => {
+			queryClient.invalidateQueries({
+				queryKey: ['academic-records', applicantId],
+			});
+			notifications.show({
+				title: 'Record removed',
+				message: 'Academic record has been deleted',
+				color: 'green',
+			});
+		},
+		onError: (error) => {
+			notifications.show({
+				title: 'Delete failed',
+				message: error instanceof Error ? error.message : 'Failed to delete',
+				color: 'red',
+			});
+		},
+	});
 
 	async function handleUploadComplete(
 		result: DocumentUploadResult<'certificate'>
@@ -76,6 +102,10 @@ export default function QualificationsUploadForm({ applicantId }: Props) {
 		} finally {
 			setUploading(false);
 		}
+	}
+
+	function handleDelete(id: string) {
+		deleteMutation.mutate(id);
 	}
 
 	function handleContinue() {
@@ -112,7 +142,12 @@ export default function QualificationsUploadForm({ applicantId }: Props) {
 						</Text>
 						<SimpleGrid cols={{ base: 1, sm: 2 }} spacing='md'>
 							{records.map((record) => (
-								<AcademicRecordCard key={record.id} record={record} />
+								<AcademicRecordCard
+									key={record.id}
+									record={record}
+									onDelete={() => handleDelete(record.id)}
+									deleting={deleteMutation.isPending}
+								/>
 							))}
 						</SimpleGrid>
 					</Stack>
@@ -149,34 +184,51 @@ type AcademicRecord = {
 
 type AcademicRecordCardProps = {
 	record: AcademicRecord;
+	onDelete: () => void;
+	deleting: boolean;
 };
 
-function AcademicRecordCard({ record }: AcademicRecordCardProps) {
+function AcademicRecordCard({
+	record,
+	onDelete,
+	deleting,
+}: AcademicRecordCardProps) {
 	return (
 		<Card withBorder radius='md' p='md'>
 			<Stack gap='sm'>
-				<Group wrap='nowrap'>
-					<ThemeIcon size='lg' variant='light' color='green'>
-						<IconCertificate size={20} />
-					</ThemeIcon>
-					<Stack gap={0} style={{ flex: 1, minWidth: 0 }}>
-						<Group gap='xs'>
-							<Text size='sm' fw={600} truncate>
-								{record.certificateType?.name ?? 'Certificate'}
-							</Text>
-							{record.certificateType?.lqfLevel && (
-								<Badge size='xs' variant='light'>
-									LQF {record.certificateType.lqfLevel}
-								</Badge>
-							)}
-						</Group>
-						<Group gap={4}>
-							<IconCheck size={12} color='var(--mantine-color-green-6)' />
-							<Text size='xs' c='green'>
-								Verified
-							</Text>
-						</Group>
-					</Stack>
+				<Group wrap='nowrap' justify='space-between'>
+					<Group wrap='nowrap'>
+						<ThemeIcon size='lg' variant='light' color='green'>
+							<IconCertificate size={20} />
+						</ThemeIcon>
+						<Stack gap={0} style={{ flex: 1, minWidth: 0 }}>
+							<Group gap='xs'>
+								<Text size='sm' fw={600} truncate>
+									{record.certificateType?.name ?? 'Certificate'}
+								</Text>
+								{record.certificateType?.lqfLevel && (
+									<Badge size='xs' variant='light'>
+										LQF {record.certificateType.lqfLevel}
+									</Badge>
+								)}
+							</Group>
+							<Group gap={4}>
+								<IconCheck size={12} color='var(--mantine-color-green-6)' />
+								<Text size='xs' c='green'>
+									Verified
+								</Text>
+							</Group>
+						</Stack>
+					</Group>
+					<ActionIcon
+						variant='subtle'
+						color='red'
+						onClick={onDelete}
+						loading={deleting}
+						disabled={deleting}
+					>
+						<IconTrash size={16} />
+					</ActionIcon>
 				</Group>
 				<Stack gap={4}>
 					{record.institutionName && (

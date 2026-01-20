@@ -89,7 +89,7 @@ class AcademicRecordService extends BaseService<typeof academicRecords, 'id'> {
 	override async delete(id: string) {
 		return withAuth(
 			async () => this.repo.removeById(id),
-			['registry', 'marketing', 'admin']
+			['registry', 'marketing', 'admin', 'applicant']
 		);
 	}
 

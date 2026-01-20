@@ -3,6 +3,7 @@
 import { getApplicant } from '@admissions/applicants/_server/actions';
 import { findDocumentsByApplicant } from '@admissions/applicants/[id]/documents/_server/actions';
 import {
+	ActionIcon,
 	Button,
 	Card,
 	Group,
@@ -14,15 +15,23 @@ import {
 	Title,
 } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
-import { IconArrowRight, IconCheck, IconId } from '@tabler/icons-react';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import {
+	IconArrowRight,
+	IconCheck,
+	IconId,
+	IconTrash,
+} from '@tabler/icons-react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'nextjs-toploader/app';
 import { useState } from 'react';
 import {
 	DocumentUpload,
 	type DocumentUploadResult,
 } from '@/shared/ui/DocumentUpload';
-import { uploadIdentityDocument } from '../_server/actions';
+import {
+	removeIdentityDocument,
+	uploadIdentityDocument,
+} from '../_server/actions';
 
 type Props = {
 	applicantId: string;
@@ -30,6 +39,7 @@ type Props = {
 
 type UploadedIdentityDoc = {
 	id: string;
+	fileUrl?: string | null;
 	fullName?: string | null;
 	nationalId?: string | null;
 	dateOfBirth?: string | null;
@@ -59,12 +69,36 @@ export default function DocumentsUploadForm({ applicantId }: Props) {
 
 	const uploadedDocs: UploadedIdentityDoc[] = identityDocs.map((doc) => ({
 		id: doc.id,
+		fileUrl: doc.document.fileUrl,
 		fullName: applicant?.fullName,
 		nationalId: applicant?.nationalId,
 		dateOfBirth: applicant?.dateOfBirth,
 		nationality: applicant?.nationality,
 		documentType: doc.document.type,
 	}));
+
+	const deleteMutation = useMutation({
+		mutationFn: async ({ id, fileUrl }: { id: string; fileUrl: string }) => {
+			return removeIdentityDocument(id, fileUrl);
+		},
+		onSuccess: () => {
+			queryClient.invalidateQueries({
+				queryKey: ['applicant-documents', applicantId],
+			});
+			notifications.show({
+				title: 'Document removed',
+				message: 'Identity document has been deleted',
+				color: 'green',
+			});
+		},
+		onError: (error) => {
+			notifications.show({
+				title: 'Delete failed',
+				message: error instanceof Error ? error.message : 'Failed to delete',
+				color: 'red',
+			});
+		},
+	});
 
 	async function handleUploadComplete(
 		result: DocumentUploadResult<'identity'>
@@ -93,6 +127,11 @@ export default function DocumentsUploadForm({ applicantId }: Props) {
 		} finally {
 			setUploading(false);
 		}
+	}
+
+	function handleDelete(id: string, fileUrl?: string | null) {
+		if (!fileUrl) return;
+		deleteMutation.mutate({ id, fileUrl });
 	}
 
 	function handleContinue() {
@@ -125,7 +164,12 @@ export default function DocumentsUploadForm({ applicantId }: Props) {
 						</Text>
 						<SimpleGrid cols={{ base: 1, sm: 2 }} spacing='md'>
 							{uploadedDocs.map((doc) => (
-								<IdentityDocumentCard key={doc.id} doc={doc} />
+								<IdentityDocumentCard
+									key={doc.id}
+									doc={doc}
+									onDelete={() => handleDelete(doc.id, doc.fileUrl)}
+									deleting={deleteMutation.isPending}
+								/>
 							))}
 						</SimpleGrid>
 					</Stack>
@@ -147,27 +191,44 @@ export default function DocumentsUploadForm({ applicantId }: Props) {
 
 type IdentityDocumentCardProps = {
 	doc: UploadedIdentityDoc;
+	onDelete: () => void;
+	deleting: boolean;
 };
 
-function IdentityDocumentCard({ doc }: IdentityDocumentCardProps) {
+function IdentityDocumentCard({
+	doc,
+	onDelete,
+	deleting,
+}: IdentityDocumentCardProps) {
 	return (
 		<Card withBorder radius='md' p='md'>
 			<Stack gap='sm'>
-				<Group wrap='nowrap'>
-					<ThemeIcon size='lg' variant='light' color='green'>
-						<IconId size={20} />
-					</ThemeIcon>
-					<Stack gap={0} style={{ flex: 1, minWidth: 0 }}>
-						<Text size='sm' fw={600}>
-							Identity Document
-						</Text>
-						<Group gap={4}>
-							<IconCheck size={12} color='var(--mantine-color-green-6)' />
-							<Text size='xs' c='green'>
-								Verified
+				<Group wrap='nowrap' justify='space-between'>
+					<Group wrap='nowrap'>
+						<ThemeIcon size='lg' variant='light' color='green'>
+							<IconId size={20} />
+						</ThemeIcon>
+						<Stack gap={0} style={{ flex: 1, minWidth: 0 }}>
+							<Text size='sm' fw={600}>
+								Identity Document
 							</Text>
-						</Group>
-					</Stack>
+							<Group gap={4}>
+								<IconCheck size={12} color='var(--mantine-color-green-6)' />
+								<Text size='xs' c='green'>
+									Verified
+								</Text>
+							</Group>
+						</Stack>
+					</Group>
+					<ActionIcon
+						variant='subtle'
+						color='red'
+						onClick={onDelete}
+						loading={deleting}
+						disabled={deleting}
+					>
+						<IconTrash size={16} />
+					</ActionIcon>
 				</Group>
 				<Stack gap={4}>
 					{doc.fullName && (
