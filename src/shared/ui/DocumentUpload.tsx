@@ -102,26 +102,12 @@ const ICON_MAP = {
 	any: IconFileUpload,
 } as const;
 
-const TITLE_MAP = {
-	identity: 'Upload Identity Document',
-	certificate: 'Upload Academic Document',
-	any: 'Upload Document',
-} as const;
-
-const DESCRIPTION_MAP = {
-	identity: 'National ID, passport, or birth certificate',
-	certificate: 'Certificates, transcripts, or results slips',
-	any: 'Any supported document type',
-} as const;
-
 export function DocumentUpload({
 	type,
 	onUploadComplete,
 	onRemove,
 	disabled,
 	maxSize = MAX_FILE_SIZE,
-	title,
-	description,
 	certificateTypes,
 }: Props) {
 	const [file, setFile] = useState<FileWithPath | null>(null);
@@ -246,8 +232,6 @@ export function DocumentUpload({
 	}
 
 	const isProcessing = uploadState === 'uploading' || uploadState === 'reading';
-	const displayTitle = title ?? TITLE_MAP[type];
-	const displayDescription = description ?? DESCRIPTION_MAP[type];
 
 	if (file) {
 		return (
@@ -304,15 +288,8 @@ export function DocumentUpload({
 	}
 
 	return (
-		<Paper withBorder radius='md' p='lg'>
+		<Paper withBorder p='sm'>
 			<Stack gap='sm'>
-				<Stack gap={4}>
-					<Text fw={500}>{displayTitle}</Text>
-					<Text size='sm' c='dimmed'>
-						{displayDescription}
-					</Text>
-				</Stack>
-
 				<Dropzone
 					onDrop={handleDrop}
 					onReject={handleReject}
