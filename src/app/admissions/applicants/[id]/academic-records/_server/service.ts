@@ -31,7 +31,7 @@ class AcademicRecordService extends BaseService<typeof academicRecords, 'id'> {
 	async findByApplicant(applicantId: string, page = 1) {
 		return withAuth(
 			async () => this.repo.findByApplicant(applicantId, page),
-			['registry', 'marketing', 'admin']
+			['registry', 'marketing', 'admin', 'applicant']
 		);
 	}
 

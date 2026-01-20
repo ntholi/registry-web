@@ -1,8 +1,8 @@
 'use client';
 
+import { getApplicant } from '@admissions/applicants/_server/actions';
 import { findDocumentsByApplicant } from '@admissions/applicants/[id]/documents/_server/actions';
 import {
-	ActionIcon,
 	Button,
 	Card,
 	Group,
@@ -14,12 +14,7 @@ import {
 	Title,
 } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
-import {
-	IconArrowRight,
-	IconCheck,
-	IconFileTypePdf,
-	IconTrash,
-} from '@tabler/icons-react';
+import { IconArrowRight, IconCheck, IconId } from '@tabler/icons-react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'nextjs-toploader/app';
 import { useState } from 'react';
@@ -33,40 +28,57 @@ type Props = {
 	applicantId: string;
 };
 
-type UploadedDoc = {
+type UploadedIdentityDoc = {
 	id: string;
-	fileName: string;
+	fullName?: string | null;
+	nationalId?: string | null;
+	dateOfBirth?: string | null;
+	nationality?: string | null;
+	documentType?: string | null;
 };
 
 export default function DocumentsUploadForm({ applicantId }: Props) {
 	const router = useRouter();
 	const queryClient = useQueryClient();
-	const [pendingDocs, setPendingDocs] = useState<UploadedDoc[]>([]);
 	const [uploading, setUploading] = useState(false);
+	const [uploadKey, setUploadKey] = useState(0);
 
 	const { data: existingDocs } = useQuery({
 		queryKey: ['applicant-documents', applicantId],
 		queryFn: () => findDocumentsByApplicant(applicantId),
 	});
 
+	const { data: applicant } = useQuery({
+		queryKey: ['applicant', applicantId],
+		queryFn: () => getApplicant(applicantId),
+	});
+
 	const identityDocs =
 		existingDocs?.items.filter((d) => d.document.type === 'identity') ?? [];
-	const hasIdentity = identityDocs.length > 0 || pendingDocs.length > 0;
+	const hasIdentity = identityDocs.length > 0;
+
+	const uploadedDocs: UploadedIdentityDoc[] = identityDocs.map((doc) => ({
+		id: doc.id,
+		fullName: applicant?.fullName,
+		nationalId: applicant?.nationalId,
+		dateOfBirth: applicant?.dateOfBirth,
+		nationality: applicant?.nationality,
+		documentType: doc.document.type,
+	}));
 
 	async function handleUploadComplete(
 		result: DocumentUploadResult<'identity'>
 	) {
 		try {
 			setUploading(true);
-			const { fileName } = await uploadIdentityDocument(
-				applicantId,
-				result.file,
-				result.analysis
-			);
-			setPendingDocs((prev) => [...prev, { id: fileName, fileName }]);
-			queryClient.invalidateQueries({
+			await uploadIdentityDocument(applicantId, result.file, result.analysis);
+			await queryClient.invalidateQueries({
 				queryKey: ['applicant-documents', applicantId],
 			});
+			await queryClient.invalidateQueries({
+				queryKey: ['applicant', applicantId],
+			});
+			setUploadKey((prev) => prev + 1);
 			notifications.show({
 				title: 'Document uploaded',
 				message: 'Identity document processed successfully',
@@ -81,10 +93,6 @@ export default function DocumentsUploadForm({ applicantId }: Props) {
 		} finally {
 			setUploading(false);
 		}
-	}
-
-	function handleRemove(id: string) {
-		setPendingDocs((prev) => prev.filter((d) => d.id !== id));
 	}
 
 	function handleContinue() {
@@ -102,6 +110,7 @@ export default function DocumentsUploadForm({ applicantId }: Props) {
 				</Stack>
 
 				<DocumentUpload
+					key={uploadKey}
 					type='identity'
 					onUploadComplete={handleUploadComplete}
 					disabled={uploading}
@@ -109,50 +118,17 @@ export default function DocumentsUploadForm({ applicantId }: Props) {
 					description='National ID, passport, or birth certificate'
 				/>
 
-				{(identityDocs.length > 0 || pendingDocs.length > 0) && (
-					<SimpleGrid cols={{ base: 1, sm: 2, md: 3 }} spacing='md'>
-						{identityDocs.map((doc) => (
-							<Card key={doc.id} withBorder radius='md' p='sm'>
-								<Group wrap='nowrap'>
-									<ThemeIcon size='lg' variant='light' color='green'>
-										<IconCheck size={20} />
-									</ThemeIcon>
-									<Stack gap={0} style={{ flex: 1, minWidth: 0 }}>
-										<Text size='sm' fw={500} truncate>
-											{doc.document.type}
-										</Text>
-										<Text size='xs' c='dimmed' truncate>
-											Uploaded
-										</Text>
-									</Stack>
-								</Group>
-							</Card>
-						))}
-						{pendingDocs.map((doc) => (
-							<Card key={doc.id} withBorder radius='md' p='sm'>
-								<Group wrap='nowrap'>
-									<ThemeIcon size='lg' variant='light' color='blue'>
-										<IconFileTypePdf size={20} />
-									</ThemeIcon>
-									<Stack gap={0} style={{ flex: 1, minWidth: 0 }}>
-										<Text size='sm' fw={500} truncate>
-											{doc.fileName}
-										</Text>
-										<Text size='xs' c='dimmed'>
-											Just uploaded
-										</Text>
-									</Stack>
-									<ActionIcon
-										variant='subtle'
-										color='red'
-										onClick={() => handleRemove(doc.id)}
-									>
-										<IconTrash size={16} />
-									</ActionIcon>
-								</Group>
-							</Card>
-						))}
-					</SimpleGrid>
+				{uploadedDocs.length > 0 && (
+					<Stack gap='sm'>
+						<Text fw={500} size='sm'>
+							Uploaded Documents
+						</Text>
+						<SimpleGrid cols={{ base: 1, sm: 2 }} spacing='md'>
+							{uploadedDocs.map((doc) => (
+								<IdentityDocumentCard key={doc.id} doc={doc} />
+							))}
+						</SimpleGrid>
+					</Stack>
 				)}
 
 				<Group justify='flex-end' mt='md'>
@@ -166,5 +142,76 @@ export default function DocumentsUploadForm({ applicantId }: Props) {
 				</Group>
 			</Stack>
 		</Paper>
+	);
+}
+
+type IdentityDocumentCardProps = {
+	doc: UploadedIdentityDoc;
+};
+
+function IdentityDocumentCard({ doc }: IdentityDocumentCardProps) {
+	return (
+		<Card withBorder radius='md' p='md'>
+			<Stack gap='sm'>
+				<Group wrap='nowrap'>
+					<ThemeIcon size='lg' variant='light' color='green'>
+						<IconId size={20} />
+					</ThemeIcon>
+					<Stack gap={0} style={{ flex: 1, minWidth: 0 }}>
+						<Text size='sm' fw={600}>
+							Identity Document
+						</Text>
+						<Group gap={4}>
+							<IconCheck size={12} color='var(--mantine-color-green-6)' />
+							<Text size='xs' c='green'>
+								Verified
+							</Text>
+						</Group>
+					</Stack>
+				</Group>
+				<Stack gap={4}>
+					{doc.fullName && (
+						<Group gap='xs'>
+							<Text size='xs' c='dimmed' w={80}>
+								Name:
+							</Text>
+							<Text size='xs' fw={500}>
+								{doc.fullName}
+							</Text>
+						</Group>
+					)}
+					{doc.nationalId && (
+						<Group gap='xs'>
+							<Text size='xs' c='dimmed' w={80}>
+								ID Number:
+							</Text>
+							<Text size='xs' fw={500}>
+								{doc.nationalId}
+							</Text>
+						</Group>
+					)}
+					{doc.dateOfBirth && (
+						<Group gap='xs'>
+							<Text size='xs' c='dimmed' w={80}>
+								DOB:
+							</Text>
+							<Text size='xs' fw={500}>
+								{doc.dateOfBirth}
+							</Text>
+						</Group>
+					)}
+					{doc.nationality && (
+						<Group gap='xs'>
+							<Text size='xs' c='dimmed' w={80}>
+								Nationality:
+							</Text>
+							<Text size='xs' fw={500}>
+								{doc.nationality}
+							</Text>
+						</Group>
+					)}
+				</Stack>
+			</Stack>
+		</Card>
 	);
 }

@@ -2,7 +2,6 @@
 
 import { findAcademicRecordsByApplicant } from '@admissions/applicants/[id]/academic-records/_server/actions';
 import {
-	ActionIcon,
 	Badge,
 	Button,
 	Card,
@@ -10,7 +9,6 @@ import {
 	Paper,
 	SimpleGrid,
 	Stack,
-	Table,
 	Text,
 	ThemeIcon,
 	Title,
@@ -19,8 +17,8 @@ import { notifications } from '@mantine/notifications';
 import {
 	IconArrowLeft,
 	IconArrowRight,
-	IconFileTypePdf,
-	IconTrash,
+	IconCertificate,
+	IconCheck,
 } from '@tabler/icons-react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'nextjs-toploader/app';
@@ -35,16 +33,11 @@ type Props = {
 	applicantId: string;
 };
 
-type UploadedDoc = {
-	id: string;
-	fileName: string;
-};
-
 export default function QualificationsUploadForm({ applicantId }: Props) {
 	const router = useRouter();
 	const queryClient = useQueryClient();
-	const [pendingDocs, setPendingDocs] = useState<UploadedDoc[]>([]);
 	const [uploading, setUploading] = useState(false);
+	const [uploadKey, setUploadKey] = useState(0);
 
 	const { data: recordsData } = useQuery({
 		queryKey: ['academic-records', applicantId],
@@ -52,23 +45,23 @@ export default function QualificationsUploadForm({ applicantId }: Props) {
 	});
 
 	const records = recordsData?.items ?? [];
-	const hasRecords = records.length > 0 || pendingDocs.length > 0;
+	const hasRecords = records.length > 0;
 
 	async function handleUploadComplete(
 		result: DocumentUploadResult<'certificate'>
 	) {
 		try {
 			setUploading(true);
-			const { fileName } = await uploadCertificateDocument(
+			await uploadCertificateDocument(
 				applicantId,
 				result.file,
 				result.analysis
 			);
-			setPendingDocs((prev) => [...prev, { id: fileName, fileName }]);
-			queryClient.invalidateQueries({
+			await queryClient.invalidateQueries({
 				queryKey: ['academic-records', applicantId],
 			});
-			queryClient.invalidateQueries({ queryKey: ['applicants'] });
+			await queryClient.invalidateQueries({ queryKey: ['applicants'] });
+			setUploadKey((prev) => prev + 1);
 			notifications.show({
 				title: 'Document uploaded',
 				message: 'Academic document processed successfully',
@@ -83,10 +76,6 @@ export default function QualificationsUploadForm({ applicantId }: Props) {
 		} finally {
 			setUploading(false);
 		}
-	}
-
-	function handleRemove(id: string) {
-		setPendingDocs((prev) => prev.filter((d) => d.id !== id));
 	}
 
 	function handleContinue() {
@@ -108,6 +97,7 @@ export default function QualificationsUploadForm({ applicantId }: Props) {
 				</Stack>
 
 				<DocumentUpload
+					key={uploadKey}
 					type='certificate'
 					onUploadComplete={handleUploadComplete}
 					disabled={uploading}
@@ -117,76 +107,15 @@ export default function QualificationsUploadForm({ applicantId }: Props) {
 
 				{records.length > 0 && (
 					<Stack gap='sm'>
-						<Text fw={500}>Extracted Academic Records</Text>
-						<Table highlightOnHover withTableBorder>
-							<Table.Thead>
-								<Table.Tr>
-									<Table.Th>Certificate</Table.Th>
-									<Table.Th>Institution</Table.Th>
-									<Table.Th>Year</Table.Th>
-									<Table.Th>Classification</Table.Th>
-								</Table.Tr>
-							</Table.Thead>
-							<Table.Tbody>
-								{records.map((record) => (
-									<Table.Tr key={record.id}>
-										<Table.Td>
-											<Group gap='xs'>
-												<Text size='sm'>{record.certificateType?.name}</Text>
-												{record.certificateType?.lqfLevel && (
-													<Badge size='xs' variant='light'>
-														LQF {record.certificateType.lqfLevel}
-													</Badge>
-												)}
-											</Group>
-										</Table.Td>
-										<Table.Td>
-											<Text size='sm'>{record.institutionName}</Text>
-										</Table.Td>
-										<Table.Td>
-											<Text size='sm'>{record.examYear}</Text>
-										</Table.Td>
-										<Table.Td>
-											{record.resultClassification && (
-												<Badge variant='outline' size='sm'>
-													{record.resultClassification}
-												</Badge>
-											)}
-										</Table.Td>
-									</Table.Tr>
-								))}
-							</Table.Tbody>
-						</Table>
+						<Text fw={500} size='sm'>
+							Uploaded Qualifications
+						</Text>
+						<SimpleGrid cols={{ base: 1, sm: 2 }} spacing='md'>
+							{records.map((record) => (
+								<AcademicRecordCard key={record.id} record={record} />
+							))}
+						</SimpleGrid>
 					</Stack>
-				)}
-
-				{pendingDocs.length > 0 && (
-					<SimpleGrid cols={{ base: 1, sm: 2, md: 3 }} spacing='md'>
-						{pendingDocs.map((doc) => (
-							<Card key={doc.id} withBorder radius='md' p='sm'>
-								<Group wrap='nowrap'>
-									<ThemeIcon size='lg' variant='light' color='blue'>
-										<IconFileTypePdf size={20} />
-									</ThemeIcon>
-									<Stack gap={0} style={{ flex: 1, minWidth: 0 }}>
-										<Text size='sm' fw={500} truncate>
-											{doc.fileName}
-										</Text>
-										<Text size='xs' c='dimmed'>
-											Processing...
-										</Text>
-									</Stack>
-									<ActionIcon
-										variant='subtle'
-										color='red'
-										onClick={() => handleRemove(doc.id)}
-									>
-										<IconTrash size={16} />
-									</ActionIcon>
-								</Group>
-							</Card>
-						))}
-					</SimpleGrid>
 				)}
 
 				<Group justify='space-between' mt='md'>
@@ -207,5 +136,81 @@ export default function QualificationsUploadForm({ applicantId }: Props) {
 				</Group>
 			</Stack>
 		</Paper>
+	);
+}
+
+type AcademicRecord = {
+	id: string;
+	certificateType?: { name: string; lqfLevel?: number | null } | null;
+	institutionName?: string | null;
+	examYear?: number | null;
+	resultClassification?: string | null;
+};
+
+type AcademicRecordCardProps = {
+	record: AcademicRecord;
+};
+
+function AcademicRecordCard({ record }: AcademicRecordCardProps) {
+	return (
+		<Card withBorder radius='md' p='md'>
+			<Stack gap='sm'>
+				<Group wrap='nowrap'>
+					<ThemeIcon size='lg' variant='light' color='green'>
+						<IconCertificate size={20} />
+					</ThemeIcon>
+					<Stack gap={0} style={{ flex: 1, minWidth: 0 }}>
+						<Group gap='xs'>
+							<Text size='sm' fw={600} truncate>
+								{record.certificateType?.name ?? 'Certificate'}
+							</Text>
+							{record.certificateType?.lqfLevel && (
+								<Badge size='xs' variant='light'>
+									LQF {record.certificateType.lqfLevel}
+								</Badge>
+							)}
+						</Group>
+						<Group gap={4}>
+							<IconCheck size={12} color='var(--mantine-color-green-6)' />
+							<Text size='xs' c='green'>
+								Verified
+							</Text>
+						</Group>
+					</Stack>
+				</Group>
+				<Stack gap={4}>
+					{record.institutionName && (
+						<Group gap='xs'>
+							<Text size='xs' c='dimmed' w={80}>
+								Institution:
+							</Text>
+							<Text size='xs' fw={500} style={{ flex: 1 }} truncate>
+								{record.institutionName}
+							</Text>
+						</Group>
+					)}
+					{record.examYear && (
+						<Group gap='xs'>
+							<Text size='xs' c='dimmed' w={80}>
+								Year:
+							</Text>
+							<Text size='xs' fw={500}>
+								{record.examYear}
+							</Text>
+						</Group>
+					)}
+					{record.resultClassification && (
+						<Group gap='xs'>
+							<Text size='xs' c='dimmed' w={80}>
+								Result:
+							</Text>
+							<Badge size='xs' variant='outline'>
+								{record.resultClassification}
+							</Badge>
+						</Group>
+					)}
+				</Stack>
+			</Stack>
+		</Card>
 	);
 }

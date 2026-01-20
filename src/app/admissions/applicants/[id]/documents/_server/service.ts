@@ -32,14 +32,14 @@ class ApplicantDocumentService extends BaseService<
 	async findByApplicant(applicantId: string, page = 1) {
 		return withAuth(
 			async () => this.repo.findByApplicant(applicantId, page),
-			['registry', 'marketing', 'admin']
+			['registry', 'marketing', 'admin', 'applicant']
 		);
 	}
 
 	async findByType(applicantId: string, type: DocumentType) {
 		return withAuth(
 			async () => this.repo.findByType(applicantId, type),
-			['registry', 'marketing', 'admin']
+			['registry', 'marketing', 'admin', 'applicant']
 		);
 	}
 

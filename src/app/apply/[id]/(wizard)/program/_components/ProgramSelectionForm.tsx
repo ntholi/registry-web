@@ -23,8 +23,13 @@ import {
 } from '@tabler/icons-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'nextjs-toploader/app';
-import { useState } from 'react';
-import { getActiveIntake, getEligiblePrograms } from '../_server/actions';
+import { useEffect, useState } from 'react';
+import {
+	getActiveIntake,
+	getEligiblePrograms,
+	getExistingApplication,
+	updateProgramChoices,
+} from '../_server/actions';
 
 type Props = {
 	applicantId: string;
@@ -44,6 +49,7 @@ export default function ProgramSelectionForm({ applicantId }: Props) {
 	const queryClient = useQueryClient();
 	const [firstChoice, setFirstChoice] = useState<string | null>(null);
 	const [secondChoice, setSecondChoice] = useState<string | null>(null);
+	const [initialized, setInitialized] = useState(false);
 
 	const { data: eligiblePrograms = [], isLoading: loadingPrograms } = useQuery({
 		queryKey: ['eligible-programs', applicantId],
@@ -55,10 +61,34 @@ export default function ProgramSelectionForm({ applicantId }: Props) {
 		queryFn: getActiveIntake,
 	});
 
+	const { data: existingApp } = useQuery({
+		queryKey: ['existing-application', applicantId],
+		queryFn: () => getExistingApplication(applicantId),
+	});
+
+	useEffect(() => {
+		if (!initialized && existingApp) {
+			if (existingApp.firstChoiceProgramId) {
+				setFirstChoice(String(existingApp.firstChoiceProgramId));
+			}
+			if (existingApp.secondChoiceProgramId) {
+				setSecondChoice(String(existingApp.secondChoiceProgramId));
+			}
+			setInitialized(true);
+		}
+	}, [existingApp, initialized]);
+
 	const submitMutation = useMutation({
 		mutationFn: async () => {
 			if (!firstChoice || !activeIntake?.id) {
 				throw new Error('Please select a program and ensure intake is active');
+			}
+			if (existingApp?.id) {
+				return updateProgramChoices(
+					existingApp.id,
+					Number(firstChoice),
+					secondChoice ? Number(secondChoice) : null
+				);
 			}
 			return createApplication({
 				applicantId,
@@ -70,6 +100,9 @@ export default function ProgramSelectionForm({ applicantId }: Props) {
 		},
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: ['applications'] });
+			queryClient.invalidateQueries({
+				queryKey: ['existing-application', applicantId],
+			});
 			notifications.show({
 				title: 'Programs selected',
 				message: 'Your program choices have been saved',
