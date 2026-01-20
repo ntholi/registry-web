@@ -54,8 +54,21 @@ RULES:
 - COSC grades: Extract NUMERIC value (e.g., "C(c SIX)" → "6")
 - LGCSE/IGCSE grades: Use letter (A*, A, B, C, D, E, F, G, U)
 - Extract ALL subjects with grades
-- Return certificateName and lqfLevel using the system certificate type naming and LQF levels
+- Return certificateType using the provided system naming and return the appropriate lqfLevel
 - Use null for missing/illegible data`;
+
+const DEFAULT_CERTIFICATE_TYPES = [
+	'LGCSE',
+	'COSC',
+	'NSC',
+	'IGCSE',
+	'GCE O-Level',
+	'GCE AS Level',
+	'GCE A-Level',
+	'Certificate',
+	'Diploma',
+	'Degree',
+];
 
 export async function analyzeDocument(
 	fileBase64: string,
@@ -149,6 +162,10 @@ export async function analyzeIdentityDocument(
 			);
 		}
 
+		if (output.documentType === 'other') {
+			throw new Error('Invalid identity document');
+		}
+
 		return output;
 	} catch (error) {
 		if (NoObjectGeneratedError.isInstance(error)) {
@@ -166,8 +183,12 @@ export async function analyzeIdentityDocument(
 
 export async function analyzeAcademicDocument(
 	fileBase64: string,
-	mediaType: string
+	mediaType: string,
+	certificateTypes?: string[]
 ): Promise<CertificateDocumentResult> {
+	const types = certificateTypes ?? DEFAULT_CERTIFICATE_TYPES;
+	const typeList = types.map((t) => `  - ${t}`).join('\n');
+
 	try {
 		const { output } = await generateText({
 			model,
@@ -181,7 +202,10 @@ export async function analyzeAcademicDocument(
 				{
 					role: 'user',
 					content: [
-						{ type: 'text', text: ACADEMIC_PROMPT },
+						{
+							type: 'text',
+							text: `${ACADEMIC_PROMPT}\n\nSYSTEM CERTIFICATE TYPES:\n${typeList}`,
+						},
 						{ type: 'file', data: fileBase64, mediaType },
 					],
 				},
@@ -192,6 +216,17 @@ export async function analyzeAcademicDocument(
 			throw new Error(
 				'Failed to analyze academic document: no output generated'
 			);
+		}
+
+		if (output.documentType === 'other') {
+			throw new Error('Invalid academic document');
+		}
+
+		if (
+			output.documentType === 'certificate' &&
+			(!output.certificateType || !types.includes(output.certificateType))
+		) {
+			throw new Error(`Invalid certificate type: ${output.certificateType}`);
 		}
 
 		return output;
