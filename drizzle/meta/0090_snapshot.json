@@ -1,6 +1,6 @@
 {
-	"id": "62a20e16-4d45-403f-811e-d787c315e907",
-	"prevId": "54f44ac9-7d31-4150-b4d9-d795a879ad9d",
+	"id": "3e77dbd2-0f8b-4794-9b9c-836d0ab1934a",
+	"prevId": "62a20e16-4d45-403f-811e-d787c315e907",
 	"version": "7",
 	"dialect": "postgresql",
 	"tables": {
@@ -9760,6 +9760,7 @@
 			"schema": "public",
 			"values": [
 				"user",
+				"applicant",
 				"student",
 				"finance",
 				"registry",

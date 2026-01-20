@@ -36,8 +36,8 @@ You are a **Senior Principal Software Engineer** and **System Architect** specia
 ## 🏛️ Architecture & Design Patterns
 
 ### Data Flow & Ownership
-- **Strict Flow**: UI → Server Actions → Services → Repositories → DB
-- **Database Access**: Only `repository.ts` files may import `db` directly.
+- **Strict Flow**: UI → Server Actions → Services → Repositories → DB. Separation of concerns is mandatory.
+- **Database Access**: Only `repository.ts` files may import `db` directly or any access to the database.
 - **Transactions**: Use `db.transaction` for multi-step writes.
 - **Performance**: Avoid multiple database calls; prefer single queries with joins where possible.
 - **Ownership Rule**: Server Actions/Services/Repositories must live in the *same module/feature that owns the schema/table*.

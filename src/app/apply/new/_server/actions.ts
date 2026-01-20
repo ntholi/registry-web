@@ -8,6 +8,8 @@ import {
 	saveApplicantDocument,
 	updateApplicantFromIdentity,
 } from '@admissions/applicants/[id]/documents/_server/actions';
+import { users } from '@auth/users/_schema/users';
+import { eq } from 'drizzle-orm';
 import { nanoid } from 'nanoid';
 import { redirect, unauthorized } from 'next/navigation';
 import { auth } from '@/core/auth';
@@ -28,19 +30,31 @@ export async function getOrCreateApplicant() {
 		return unauthorized();
 	}
 
-	const existing = await findApplicantByUserId(session.user.id);
+	const userId = session.user.id;
+	const userName = session.user.name;
+
+	const existing = await findApplicantByUserId(userId);
 	if (existing) return existing;
 
-	const [applicant] = await db
-		.insert(applicantsTable)
-		.values({
-			userId: session.user.id,
-			fullName: session.user.name || 'New Applicant',
-			dateOfBirth: '2000-01-01',
-			nationality: 'Lesotho',
-			gender: 'Male',
-		})
-		.returning();
+	const [applicant] = await db.transaction(async (tx) => {
+		const [newApplicant] = await tx
+			.insert(applicantsTable)
+			.values({
+				userId,
+				fullName: userName || 'New Applicant',
+				dateOfBirth: '2000-01-01',
+				nationality: 'Lesotho',
+				gender: 'Male',
+			})
+			.returning();
+
+		await tx
+			.update(users)
+			.set({ role: 'applicant' })
+			.where(eq(users.id, userId));
+
+		return [newApplicant];
+	});
 
 	return applicant;
 }

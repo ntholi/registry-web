@@ -53,7 +53,7 @@ class ApplicantDocumentService extends BaseService<
 				throw new Error('FILE_TOO_LARGE: Document exceeds 5MB limit');
 			}
 			return this.repo.createWithDocument(documentData, applicantId);
-		}, ['registry', 'admin']);
+		}, ['registry', 'admin', 'applicant']);
 	}
 
 	async verifyDocument(
