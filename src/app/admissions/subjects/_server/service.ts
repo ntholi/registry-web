@@ -22,14 +22,14 @@ class SubjectService extends BaseService<typeof subjects, 'id'> {
 	async findOrCreateByName(name: string) {
 		return withAuth(
 			async () => this.repo.findOrCreateByName(name),
-			['registry', 'marketing', 'admin']
+			['registry', 'marketing', 'admin', 'applicant']
 		);
 	}
 
 	async findActive() {
 		return withAuth(
 			async () => this.repo.findActive(),
-			['registry', 'marketing', 'admin']
+			['registry', 'marketing', 'admin', 'applicant']
 		);
 	}
 

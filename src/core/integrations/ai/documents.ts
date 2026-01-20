@@ -10,7 +10,7 @@ import {
 	type otherSchema,
 } from './schemas';
 
-const model = google('gemini-2.5-flash');
+const model = google('gemini-2.5-flash-lite');
 
 export type IdentityDocumentResult = z.infer<typeof identitySchema>;
 export type CertificateDocumentResult = z.infer<typeof academicSchema>;

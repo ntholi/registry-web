@@ -57,7 +57,7 @@ class AcademicRecordService extends BaseService<typeof academicRecords, 'id'> {
 			}
 
 			return this.repo.createWithGrades(data, mappedGrades);
-		}, ['registry', 'marketing', 'admin']);
+		}, ['registry', 'marketing', 'admin', 'applicant']);
 	}
 
 	async updateWithGrades(
@@ -96,7 +96,7 @@ class AcademicRecordService extends BaseService<typeof academicRecords, 'id'> {
 	async findByCertificateNumber(certificateNumber: string) {
 		return withAuth(
 			async () => this.repo.findByCertificateNumber(certificateNumber),
-			['registry', 'marketing', 'admin']
+			['registry', 'marketing', 'admin', 'applicant']
 		);
 	}
 }

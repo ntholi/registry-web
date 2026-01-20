@@ -1,19 +1,8 @@
-import fs from 'node:fs';
-import path from 'node:path';
-import dotenv from 'dotenv';
+import './env-load';
 import { seedCertificateTypes } from './seeds/certificate-types';
 import { seedEntryRequirements } from './seeds/entry-requirements';
 import { seedGradeMappings } from './seeds/grade-mappings';
 import { seedSubjects } from './seeds/subjects';
-
-const envLocalPath = path.resolve(process.cwd(), '.env.local');
-if (fs.existsSync(envLocalPath)) {
-	dotenv.config({ path: envLocalPath });
-	console.log(`Loaded environment from ${envLocalPath}`);
-} else {
-	dotenv.config();
-	console.log('Loaded environment from .env');
-}
 
 async function main() {
 	console.log('🚀 Starting database seed...');

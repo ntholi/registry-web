@@ -66,7 +66,7 @@ class ApplicantService extends BaseService<typeof applicants, 'id'> {
 				}
 			}
 			return this.repo.create(data);
-		}, ['registry', 'marketing', 'admin']);
+		}, ['registry', 'marketing', 'admin', 'applicant']);
 	}
 
 	override async update(
@@ -81,7 +81,7 @@ class ApplicantService extends BaseService<typeof applicants, 'id'> {
 			// 	}
 			// }
 			return this.repo.update(id, data);
-		}, ['registry', 'marketing', 'admin']);
+		}, ['registry', 'marketing', 'admin', 'applicant']);
 	}
 
 	async addPhone(applicantId: string, phoneNumber: string) {
