@@ -11,7 +11,7 @@ import {
 	subjectGrades,
 	users,
 } from '@/core/database';
-import type { DocumentAnalysisResult } from '@/core/integrations/documents';
+import type { DocumentAnalysisResult } from '@/core/integrations/ai/documents';
 import BaseRepository from '@/core/platform/BaseRepository';
 
 type DocumentInput = {

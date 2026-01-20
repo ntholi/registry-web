@@ -60,6 +60,14 @@ const academicSchema = z.object({
 		.describe(
 			'Certificate standard: LGCSE, COSC, IGCSE, A-Level, Diploma, Degree'
 		),
+	certificateName: z
+		.string()
+		.nullable()
+		.describe('Certificate type name as used in the system'),
+	lqfLevel: z
+		.number()
+		.nullable()
+		.describe('LQF level associated with the certificate type'),
 	subjects: z
 		.array(
 			z.object({

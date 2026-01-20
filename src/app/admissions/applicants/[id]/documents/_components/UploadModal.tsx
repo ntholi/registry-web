@@ -32,7 +32,7 @@ import {
 import { nanoid } from 'nanoid';
 import { useRouter } from 'nextjs-toploader/app';
 import { useState } from 'react';
-import type { DocumentAnalysisResult } from '@/core/integrations/documents';
+import type { DocumentAnalysisResult } from '@/core/integrations/ai/documents';
 import { uploadDocument } from '@/core/integrations/storage';
 import {
 	analyzeDocumentWithAI,

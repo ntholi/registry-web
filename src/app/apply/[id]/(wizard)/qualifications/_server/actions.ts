@@ -6,7 +6,7 @@ import {
 	saveApplicantDocument,
 } from '@admissions/applicants/[id]/documents/_server/actions';
 import { nanoid } from 'nanoid';
-import { analyzeDocument } from '@/core/integrations/documents';
+import { analyzeDocument } from '@/core/integrations/ai/documents';
 import { uploadDocument } from '@/core/integrations/storage';
 import { getFileExtension } from '@/shared/lib/utils/files';
 
