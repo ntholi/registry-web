@@ -1,16 +1,16 @@
 import { afterAll, beforeAll, beforeEach, vi } from 'vitest';
+import * as actualDb from '@/core/database';
 import { resetMockUser } from './mocks.auth';
 import {
 	cleanupTestDatabase,
 	closeTestDatabase,
 	setupTestDatabase,
+	testDb,
 } from './mocks.db';
 
 vi.mock('@/auth', () => vi.importActual('./mocks.auth'));
 
-vi.mock('@/core/database', async () => {
-	const actualDb = await import('@/core/database');
-	const { testDb } = await vi.importActual('./mocks.db');
+vi.mock('@/core/database', () => {
 	return { ...actualDb, db: testDb };
 });
 

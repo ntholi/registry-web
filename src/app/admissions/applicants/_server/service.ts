@@ -1,3 +1,4 @@
+import { mapGrade } from '@admissions/certificate-types/_server/actions';
 import { entryRequirementsService } from '@admissions/entry-requirements/_server/service';
 import type { applicants, documents, guardians } from '@/core/database';
 import type { DocumentAnalysisResult } from '@/core/integrations/ai';
@@ -5,7 +6,11 @@ import BaseService from '@/core/platform/BaseService';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
 import withAuth from '@/core/platform/withAuth';
 import { getEligiblePrograms } from '../_lib/eligibility';
-import type { PendingDocument } from './document-actions';
+import {
+	findCertificateTypeByName,
+	type PendingDocument,
+	resolveSubjectId,
+} from './document-actions';
 import ApplicantRepository from './repository';
 
 type DocumentInput = {
@@ -145,13 +150,6 @@ class ApplicantService extends BaseService<typeof applicants, 'id'> {
 					throw new Error('An applicant with this National ID already exists');
 				}
 			}
-
-			const { findCertificateTypeByName, resolveSubjectId } = await import(
-				'./document-actions'
-			);
-			const { mapGrade } = await import(
-				'@admissions/certificate-types/_server/actions'
-			);
 
 			const docInputs: DocumentInput[] = pendingDocs.map((doc) => {
 				const type = this.mapDocumentType(doc.analysisResult);

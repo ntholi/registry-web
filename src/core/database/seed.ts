@@ -1,6 +1,10 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import dotenv from 'dotenv';
+import { seedCertificateTypes } from './seeds/certificate-types';
+import { seedEntryRequirements } from './seeds/entry-requirements';
+import { seedGradeMappings } from './seeds/grade-mappings';
+import { seedSubjects } from './seeds/subjects';
 
 const envLocalPath = path.resolve(process.cwd(), '.env.local');
 if (fs.existsSync(envLocalPath)) {
@@ -15,13 +19,6 @@ async function main() {
 	console.log('🚀 Starting database seed...');
 
 	try {
-		const { seedSubjects } = await import('./seeds/subjects');
-		const { seedCertificateTypes } = await import('./seeds/certificate-types');
-		const { seedGradeMappings } = await import('./seeds/grade-mappings');
-		const { seedEntryRequirements } = await import(
-			'./seeds/entry-requirements'
-		);
-
 		await seedSubjects();
 		await seedCertificateTypes();
 		await seedGradeMappings();

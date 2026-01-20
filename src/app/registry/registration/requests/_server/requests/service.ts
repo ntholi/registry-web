@@ -8,6 +8,7 @@ import {
 import type { QueryOptions } from '@/core/platform/BaseRepository';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
 import withAuth from '@/core/platform/withAuth';
+import { getStudentSemesterModulesLogic } from './getStudentSemesterModules';
 import RegistrationRequestRepository from './repository';
 
 class RegistrationRequestService {
@@ -131,9 +132,6 @@ class RegistrationRequestService {
 
 	async getStudentSemesterModules(student: Student, remarks: AcademicRemarks) {
 		return withAuth(async () => {
-			const { getStudentSemesterModulesLogic } = await import(
-				'./getStudentSemesterModules'
-			);
 			return getStudentSemesterModulesLogic(student, remarks);
 		}, ['student', 'registry']);
 	}
