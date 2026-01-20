@@ -2,7 +2,7 @@ import { mapDocumentTypeFromAnalysis } from '@admissions/applicants/_lib/documen
 import { mapGrade } from '@admissions/certificate-types/_server/actions';
 import { entryRequirementsService } from '@admissions/entry-requirements/_server/service';
 import type { applicants, documents, guardians } from '@/core/database';
-import type { DocumentAnalysisResult } from '@/core/integrations/ai';
+import type { DocumentAnalysisResult } from '@/core/integrations/documents';
 import BaseService from '@/core/platform/BaseService';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
 import withAuth from '@/core/platform/withAuth';

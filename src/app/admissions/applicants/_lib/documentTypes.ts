@@ -1,5 +1,5 @@
 import type { DocumentType } from '@/core/database';
-import type { DocumentAnalysisResult } from '@/core/integrations/ai';
+import type { DocumentAnalysisResult } from '@/core/integrations/documents';
 
 export function mapDocumentTypeFromAnalysis(
 	result: DocumentAnalysisResult

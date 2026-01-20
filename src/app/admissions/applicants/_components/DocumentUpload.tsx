@@ -29,13 +29,13 @@ import {
 import { nanoid } from 'nanoid';
 import { useRouter } from 'nextjs-toploader/app';
 import { useState } from 'react';
-import type { DocumentAnalysisResult } from '@/core/integrations/ai';
+import type { DocumentAnalysisResult } from '@/core/integrations/ai/documents';
 import { uploadDocument } from '@/core/integrations/storage';
 import {
-	analyzeDocumentWithAI,
 	createApplicantFromDocuments,
 	type PendingDocument,
 } from '../_server/document-actions';
+import { analyzeDocumentWithAI } from '../[id]/documents/_server/actions';
 
 type UploadState = 'idle' | 'uploading' | 'analyzing' | 'ready';
 

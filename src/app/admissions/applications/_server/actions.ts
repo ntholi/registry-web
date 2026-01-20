@@ -19,7 +19,7 @@ import type {
 	applications,
 	DocumentType,
 } from '@/core/database';
-import type { DocumentAnalysisResult } from '@/core/integrations/ai';
+import type { DocumentAnalysisResult } from '@/core/integrations/documents';
 import { uploadDocument } from '@/core/integrations/storage';
 import type { ApplicationFilters } from '../_lib/types';
 import { applicationsService } from './service';

@@ -7,7 +7,7 @@ import type { DocumentType, DocumentVerificationStatus } from '@/core/database';
 import {
 	analyzeDocument,
 	type DocumentAnalysisResult,
-} from '@/core/integrations/ai';
+} from '@/core/integrations/ai/documents';
 import { deleteDocument } from '@/core/integrations/storage';
 import type { SubjectGradeInput } from '../../academic-records/_lib/types';
 import {

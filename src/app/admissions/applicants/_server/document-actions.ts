@@ -2,8 +2,7 @@
 
 import { findAllCertificateTypes } from '@admissions/certificate-types';
 import { findOrCreateSubjectByName } from '@admissions/subjects';
-import type { DocumentAnalysisResult } from '@/core/integrations/ai';
-import { analyzeDocument } from '@/core/integrations/ai';
+import type { DocumentAnalysisResult } from '@/core/integrations/ai/documents';
 import { applicantsService } from './service';
 
 export type PendingDocument = {
@@ -11,13 +10,6 @@ export type PendingDocument = {
 	originalName: string;
 	analysisResult: DocumentAnalysisResult;
 };
-
-export async function analyzeDocumentWithAI(
-	fileBase64: string,
-	mediaType: string
-): Promise<DocumentAnalysisResult> {
-	return analyzeDocument(fileBase64, mediaType);
-}
 
 export async function createApplicantFromDocuments(
 	documents: PendingDocument[]
