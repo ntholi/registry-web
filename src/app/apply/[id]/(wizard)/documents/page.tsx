@@ -1,4 +1,4 @@
-import DocumentsUploadForm from './_components/DocumentsUploadForm';
+import IdentityUploadForm from './_components/IdentityUploadForm';
 
 type Props = {
 	params: Promise<{ id: string }>;
@@ -7,5 +7,5 @@ type Props = {
 export default async function DocumentsPage({ params }: Props) {
 	const { id } = await params;
 
-	return <DocumentsUploadForm applicantId={id} />;
+	return <IdentityUploadForm applicantId={id} />;
 }
