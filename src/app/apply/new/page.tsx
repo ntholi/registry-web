@@ -1,7 +1,6 @@
+import { getOrCreateApplicantForCurrentUser } from '@admissions/applicants';
 import { redirect } from 'next/navigation';
 import { auth } from '@/core/auth';
-import DocumentUploadClient from './_components/DocumentUploadClient';
-import { getCurrentApplicant } from './_server/actions';
 
 export default async function ApplyNewPage() {
 	const session = await auth();
@@ -10,7 +9,7 @@ export default async function ApplyNewPage() {
 		redirect('/auth/login?callbackUrl=/apply/new');
 	}
 
-	const applicant = await getCurrentApplicant();
+	const applicant = await getOrCreateApplicantForCurrentUser();
 
-	return <DocumentUploadClient applicant={applicant} user={session.user} />;
+	redirect(`/apply/${applicant.id}/documents`);
 }
