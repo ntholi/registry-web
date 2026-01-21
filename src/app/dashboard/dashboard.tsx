@@ -87,8 +87,8 @@ function getNavigation(
 	moduleConfig: ClientModuleConfig
 ): NavigationGroup[] {
 	const allConfigs = [
-		{ config: timetableConfig, enabled: moduleConfig.timetable },
 		{ config: academicConfig, enabled: moduleConfig.academic },
+		{ config: timetableConfig, enabled: moduleConfig.timetable },
 		{ config: lmsConfig, enabled: moduleConfig.lms },
 		{ config: registryConfig, enabled: moduleConfig.registry },
 		{ config: admissionsConfig, enabled: moduleConfig.admissions },
