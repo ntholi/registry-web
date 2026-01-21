@@ -39,9 +39,12 @@ const schema = z
 		semesterModuleId: z.number().min(1, 'Please select a student class'),
 		numberOfGroups: z
 			.number()
-			.min(0)
+			.min(1)
 			.max(10)
-			.refine((val) => val !== 1, 'Number of groups must be 0 or at least 2'),
+			.refine(
+				(val) => val === 1 || val >= 2,
+				'Number of groups must be 1 or at least 2'
+			),
 		groups: z.array(z.string()),
 	})
 	.merge(baseAllocationSchema);
@@ -91,7 +94,7 @@ export default function AddAllocationModal({
 			classType: 'lecture',
 			numberOfStudents: 0,
 			venueTypeIds: [],
-			numberOfGroups: 0,
+			numberOfGroups: 1,
 			groups: [],
 			allowedDays: defaultAllowedDays,
 			startTime: defaultStartTime,
@@ -100,7 +103,7 @@ export default function AddAllocationModal({
 	});
 
 	function generateGroupNames(count: number): string[] {
-		if (count === 0) return [];
+		if (count <= 1) return [];
 		const letters = 'ABCDEFGHIJ'.split('');
 		return letters.slice(0, count);
 	}
@@ -301,11 +304,11 @@ export default function AddAllocationModal({
 								<Slider
 									value={form.values.numberOfGroups}
 									onChange={handleGroupCountChange}
-									min={0}
+									min={1}
 									max={10}
 									step={1}
 									marks={[
-										{ value: 0, label: '0' },
+										{ value: 1, label: '1' },
 										{ value: 2, label: '2' },
 										{ value: 3, label: '3' },
 										{ value: 4, label: '4' },
@@ -317,15 +320,13 @@ export default function AddAllocationModal({
 										{ value: 10, label: '10' },
 									]}
 									label={(value) =>
-										value === 0
-											? 'All Students'
-											: `${value} Group${value === 1 ? '' : 's'}`
+										value === 1 ? 'All Students' : `${value} Groups`
 									}
 								/>
 								<Text size='xs' c='dimmed' mt='md'>
-									{form.values.numberOfGroups === 0
+									{form.values.numberOfGroups === 1
 										? 'Assign the entire class to this lecturer'
-										: `Split the class into ${form.values.numberOfGroups} group${form.values.numberOfGroups === 1 ? '' : 's'}`}
+										: `Split the class into ${form.values.numberOfGroups} groups`}
 								</Text>
 							</Stack>
 						)}
