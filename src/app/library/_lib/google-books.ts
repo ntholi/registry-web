@@ -5,6 +5,12 @@ export type BookLookupResult = {
 	publisher?: string;
 	publishedDate?: string;
 	thumbnail?: string;
+	isbn?: string;
+};
+
+type IndustryIdentifier = {
+	type: string;
+	identifier: string;
 };
 
 type GoogleBooksResponse = {
@@ -16,6 +22,7 @@ type GoogleBooksResponse = {
 			authors?: string[];
 			publisher?: string;
 			publishedDate?: string;
+			industryIdentifiers?: IndustryIdentifier[];
 			imageLinks?: {
 				thumbnail?: string;
 				smallThumbnail?: string;
@@ -23,6 +30,14 @@ type GoogleBooksResponse = {
 		};
 	}>;
 };
+
+function extractIsbn(identifiers?: IndustryIdentifier[]): string | undefined {
+	if (!identifiers) return undefined;
+	const isbn13 = identifiers.find((id) => id.type === 'ISBN_13');
+	if (isbn13) return isbn13.identifier;
+	const isbn10 = identifiers.find((id) => id.type === 'ISBN_10');
+	return isbn10?.identifier;
+}
 
 function parseBookResults(data: GoogleBooksResponse): BookLookupResult[] {
 	if (!data.items || data.items.length === 0) return [];
@@ -36,6 +51,7 @@ function parseBookResults(data: GoogleBooksResponse): BookLookupResult[] {
 		thumbnail:
 			item.volumeInfo?.imageLinks?.thumbnail ??
 			item.volumeInfo?.imageLinks?.smallThumbnail,
+		isbn: extractIsbn(item.volumeInfo?.industryIdentifiers),
 	}));
 }
 

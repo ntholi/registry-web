@@ -72,6 +72,10 @@ export default function BookForm({ onSubmit, defaultValues, title }: Props) {
 			setBookTitle(book.title);
 			form.setFieldValue('title', book.title);
 		}
+		if (book.isbn) {
+			setIsbn(book.isbn);
+			form.setFieldValue('isbn', book.isbn);
+		}
 		if (book.publisher) form.setFieldValue('publisher', book.publisher);
 		if (book.publishedDate) {
 			const year = Number.parseInt(book.publishedDate.slice(0, 4), 10);
