@@ -32,6 +32,12 @@ class VenueService extends BaseService<typeof venues, 'id'> {
 		}, ['dashboard']);
 	};
 
+	getAllWithRelations = async () => {
+		return withAuth(async () => {
+			return this.venueRepository.getAllWithRelations();
+		}, ['dashboard']);
+	};
+
 	createWithSchools = async (venue: VenueInsert, schoolIds: number[]) => {
 		return withAuth(async () => {
 			return this.venueRepository.createWithSchools(venue, schoolIds);

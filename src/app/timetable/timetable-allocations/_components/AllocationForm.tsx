@@ -1,5 +1,4 @@
 import {
-	Alert,
 	Box,
 	Checkbox,
 	Grid,
@@ -8,12 +7,12 @@ import {
 	NumberInput,
 	Select,
 	Stack,
-	Text,
 	Tabs,
+	Text,
 } from '@mantine/core';
 import { TimeInput } from '@mantine/dates';
 import type { UseFormReturnType } from '@mantine/form';
-import { IconInfoCircle } from '@tabler/icons-react';
+import { useUserSchools } from '@/shared/lib/hooks/use-user-schools';
 import DurationInput from '@/shared/ui/DurationInput';
 import {
 	applyTimeRefinements,
@@ -37,7 +36,9 @@ export type { BaseAllocationFormValues, DayOfWeek };
 type Props<T extends BaseAllocationFormValues> = {
 	form: UseFormReturnType<T>;
 	venueTypes: { id: string; name: string }[];
-	venues: { id: string; name: string }[];
+	venues: ({ id: string; name: string } & {
+		venueSchools?: { schoolId: number }[];
+	})[];
 	renderTopDetails?: () => React.ReactNode;
 	renderMiddleDetails?: () => React.ReactNode;
 };
@@ -49,6 +50,9 @@ export function AllocationForm<T extends BaseAllocationFormValues>({
 	renderTopDetails,
 	renderMiddleDetails,
 }: Props<T>) {
+	const { userSchools } = useUserSchools();
+	const userSchoolIds = userSchools.map((us) => us.schoolId);
+
 	const hasAllowedVenues = form.values.allowedVenueIds.length > 0;
 	const selectedVenueNames = venues
 		.filter((v) => form.values.allowedVenueIds.includes(v.id))
@@ -111,9 +115,7 @@ export function AllocationForm<T extends BaseAllocationFormValues>({
 
 					{renderMiddleDetails?.()}
 
-
 					<Box>
-
 						<MultiSelect
 							label='Venue Types'
 							placeholder='Select venue types (optional)'
@@ -129,11 +131,14 @@ export function AllocationForm<T extends BaseAllocationFormValues>({
 							}}
 							searchable
 							clearable
-							/>
-							{selectedVenueNames.length > 0 && (	
-							<Text size='xs' c='dimmed' mt={3}> Allowed Venues have been
-							set: {selectedVenueNames.join(', ')}</Text>)}
-							</Box>
+						/>
+						{selectedVenueNames.length > 0 && (
+							<Text size='xs' c='dimmed' mt={3}>
+								{' '}
+								Allowed Venues have been set: {selectedVenueNames.join(', ')}
+							</Text>
+						)}
+					</Box>
 				</Stack>
 			</Tabs.Panel>
 
@@ -143,7 +148,15 @@ export function AllocationForm<T extends BaseAllocationFormValues>({
 						label='Allowed Venues'
 						description='Optionally restrict this allocation to specific venues'
 						placeholder='Select allowed venues (optional)'
-						data={venues.map((v) => ({ value: v.id, label: v.name }))}
+						data={venues
+							.filter((v) => {
+								if (userSchoolIds.length === 0) return true;
+								if (!v.venueSchools || v.venueSchools.length === 0) return true;
+								return v.venueSchools.some((vs) =>
+									userSchoolIds.includes(vs.schoolId)
+								);
+							})
+							.map((v) => ({ value: v.id, label: v.name }))}
 						value={form.values.allowedVenueIds}
 						onChange={(values) => {
 							// @ts-expect-error - Generic form type inference limitation with Mantine
