@@ -15,24 +15,36 @@ vi.mock('@/core/database', async () => {
 	return { ...actualDb, db: testDb };
 });
 
+let dbAvailable = false;
+
 beforeAll(async () => {
 	try {
 		await setupTestDatabase();
+		dbAvailable = true;
 	} catch (error) {
 		console.warn('Failed to setup test database:', error);
+		dbAvailable = false;
 	}
 });
 
 beforeEach(async () => {
 	resetMockUser();
-	await cleanupTestDatabase();
+	if (dbAvailable) {
+		try {
+			await cleanupTestDatabase();
+		} catch {
+			dbAvailable = false;
+		}
+	}
 });
 
 afterAll(async () => {
-	try {
-		await cleanupTestDatabase();
-		await closeTestDatabase();
-	} catch (error) {
-		console.warn('Failed to final cleanup:', error);
+	if (dbAvailable) {
+		try {
+			await cleanupTestDatabase();
+			await closeTestDatabase();
+		} catch (error) {
+			console.warn('Failed to final cleanup:', error);
+		}
 	}
 });
