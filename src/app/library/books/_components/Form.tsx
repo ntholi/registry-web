@@ -3,6 +3,7 @@
 import { books } from '@library/_database';
 import {
 	Grid,
+	Group,
 	MultiSelect,
 	NumberInput,
 	Stack,
@@ -13,9 +14,11 @@ import { createInsertSchema } from 'drizzle-zod';
 import { useRouter } from 'nextjs-toploader/app';
 import { useState } from 'react';
 import { Form } from '@/shared/ui/adease';
+import type { BookLookupResult } from '../../_lib/google-books';
 import { getAllAuthors } from '../../authors/_server/actions';
 import { getAllCategories } from '../../categories/_server/actions';
 import type { BookWithRelations } from '../_lib/types';
+import BookLookupModal from './BookLookupModal';
 import CoverImage from './CoverImage';
 
 type Book = typeof books.$inferInsert;
@@ -40,6 +43,7 @@ export default function BookForm({ onSubmit, defaultValues, title }: Props) {
 		defaultValues?.bookCategories?.map((bc) => String(bc.categoryId)) ?? []
 	);
 	const [isbn, setIsbn] = useState(defaultValues?.isbn ?? '');
+	const [bookTitle, setBookTitle] = useState(defaultValues?.title ?? '');
 
 	const { data: authorsData } = useQuery({
 		queryKey: ['authors', 'all'],
@@ -55,6 +59,24 @@ export default function BookForm({ onSubmit, defaultValues, title }: Props) {
 		authorsData?.map((a) => ({ value: String(a.id), label: a.name })) ?? [];
 	const categoryOptions =
 		categoriesData?.map((c) => ({ value: String(c.id), label: c.name })) ?? [];
+
+	function handleBookSelect(
+		book: BookLookupResult,
+		form: {
+			setFieldValue: (field: string, value: string | number | null) => void;
+		}
+	) {
+		if (book.thumbnail) setCoverUrl(book.thumbnail);
+		if (book.title) {
+			setBookTitle(book.title);
+			form.setFieldValue('title', book.title);
+		}
+		if (book.publisher) form.setFieldValue('publisher', book.publisher);
+		if (book.publishedDate) {
+			const year = Number.parseInt(book.publishedDate.slice(0, 4), 10);
+			if (!Number.isNaN(year)) form.setFieldValue('publicationYear', year);
+		}
+	}
 
 	return (
 		<Form
@@ -77,19 +99,31 @@ export default function BookForm({ onSubmit, defaultValues, title }: Props) {
 					<Grid gutter='xl'>
 						<Grid.Col span={{ base: 12, sm: 7 }}>
 							<Stack>
-								<TextInput
-									label='ISBN'
-									{...form.getInputProps('isbn')}
-									required
-									onChange={(e) => {
-										form.getInputProps('isbn').onChange(e);
-										setIsbn(e.currentTarget.value);
-									}}
-								/>
+								<Group align='flex-end'>
+									<TextInput
+										label='ISBN'
+										{...form.getInputProps('isbn')}
+										required
+										flex={1}
+										onChange={(e) => {
+											form.getInputProps('isbn').onChange(e);
+											setIsbn(e.currentTarget.value);
+										}}
+									/>
+									<BookLookupModal
+										isbn={isbn}
+										title={bookTitle}
+										onSelect={(book) => handleBookSelect(book, form)}
+									/>
+								</Group>
 								<TextInput
 									label='Title'
 									{...form.getInputProps('title')}
 									required
+									onChange={(e) => {
+										form.getInputProps('title').onChange(e);
+										setBookTitle(e.currentTarget.value);
+									}}
 								/>
 								<TextInput
 									label='Publisher'
@@ -104,11 +138,7 @@ export default function BookForm({ onSubmit, defaultValues, title }: Props) {
 							</Stack>
 						</Grid.Col>
 						<Grid.Col span={{ base: 12, sm: 5 }}>
-							<CoverImage
-								isbn={isbn}
-								coverUrl={coverUrl}
-								onCoverChange={setCoverUrl}
-							/>
+							<CoverImage coverUrl={coverUrl} onCoverChange={setCoverUrl} />
 						</Grid.Col>
 					</Grid>
 					<TextInput label='Edition' {...form.getInputProps('edition')} />
