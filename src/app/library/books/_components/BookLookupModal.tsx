@@ -51,7 +51,7 @@ export default function BookLookupModal({ isbn, title, onSelect }: Props) {
 		<>
 			<Button
 				variant='light'
-				size='xs'
+				size='sm'
 				leftSection={<IconSearch size={14} />}
 				onClick={handleLookup}
 				loading={loading}

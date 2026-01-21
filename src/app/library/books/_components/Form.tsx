@@ -102,7 +102,7 @@ export default function BookForm({ onSubmit, defaultValues, title }: Props) {
 			{(form) => (
 				<Stack>
 					<Grid gutter='xl'>
-						<Grid.Col span={{ base: 12, sm: 7 }}>
+						<Grid.Col span={{ base: 12, sm: 'auto' }}>
 							<Stack>
 								<Box pos='relative' pb='md'>
 									<Paper withBorder p='md' pb='xl'>
@@ -129,7 +129,7 @@ export default function BookForm({ onSubmit, defaultValues, title }: Props) {
 									</Paper>
 									<Box
 										pos='absolute'
-										bottom={0}
+										bottom={-2}
 										left='50%'
 										style={{ transform: 'translateX(-50%)' }}
 									>
@@ -152,7 +152,7 @@ export default function BookForm({ onSubmit, defaultValues, title }: Props) {
 								/>
 							</Stack>
 						</Grid.Col>
-						<Grid.Col span={{ base: 12, sm: 5 }}>
+						<Grid.Col span={{ base: 12, sm: 'content' }}>
 							<CoverImage coverUrl={coverUrl} onCoverChange={setCoverUrl} />
 						</Grid.Col>
 					</Grid>
