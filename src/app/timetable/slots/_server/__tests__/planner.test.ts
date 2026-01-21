@@ -43,7 +43,7 @@ function makeAllocation(
 		semesterModule?: {
 			id?: number;
 			semesterId?: number | null;
-			module?: { id?: number; name?: string };
+			module?: { id?: number; code?: string; name?: string };
 		};
 		user?: {
 			userSchools?: { schoolId: number }[];
@@ -56,6 +56,8 @@ function makeAllocation(
 		overrides.semesterModule?.id ??
 		nextSemesterModuleId();
 	const moduleIdValue = overrides.semesterModule?.module?.id ?? nextModuleId();
+	const moduleCodeValue =
+		overrides.semesterModule?.module?.code ?? `MOD-${moduleIdValue}`;
 	const moduleNameValue =
 		overrides.semesterModule?.module?.name ?? `Module-${moduleIdValue}`;
 	const semesterIdValue = overrides.semesterModule?.semesterId ?? null;
@@ -65,6 +67,7 @@ function makeAllocation(
 		semesterId: overrides.semesterModule?.semesterId ?? semesterIdValue,
 		module: {
 			id: moduleIdValue,
+			code: moduleCodeValue,
 			name: moduleNameValue,
 		},
 	};
@@ -455,6 +458,106 @@ describe('buildTermPlan - Class Constraints', () => {
 		const plan = buildTermPlan(1, [alloc1, alloc2], venues);
 
 		expect(plan.length).toBeGreaterThanOrEqual(2);
+	});
+
+	it('allows different groups within same class to overlap', () => {
+		const semesterIdValue = nextSemesterId();
+		const moduleIdValue = nextModuleId();
+		const semesterModuleIdValue = nextSemesterModuleId();
+
+		const groupA = makeAllocation({
+			userId: 'lecturer-group-a',
+			groupName: 'A',
+			allowedDays: ['monday'],
+			startTime: '08:30:00',
+			endTime: '10:30:00',
+			duration: 120,
+			semesterModule: {
+				id: semesterModuleIdValue,
+				semesterId: semesterIdValue,
+				module: { id: moduleIdValue, name: 'Group Module' },
+			},
+			semesterModuleId: semesterModuleIdValue,
+		});
+
+		const groupB = makeAllocation({
+			userId: 'lecturer-group-b',
+			groupName: 'B',
+			allowedDays: ['monday'],
+			startTime: '08:30:00',
+			endTime: '10:30:00',
+			duration: 120,
+			semesterModule: {
+				id: nextSemesterModuleId(),
+				semesterId: semesterIdValue,
+				module: { id: moduleIdValue, name: 'Group Module' },
+			},
+		});
+
+		const venues = [
+			makeVenue({ id: 'venue-group-1' }),
+			makeVenue({ id: 'venue-group-2' }),
+		];
+		const plan = buildTermPlan(1, [groupA, groupB], venues);
+
+		expect(plan).toHaveLength(2);
+		const startTimes = new Set(plan.map((slot) => slot.startTime));
+		expect(startTimes.size).toBe(1);
+	});
+
+	it('prevents class-wide allocation from overlapping group allocation', () => {
+		const semesterIdValue = nextSemesterId();
+		const moduleIdValue = nextModuleId();
+		const semesterModuleIdValue = nextSemesterModuleId();
+
+		const classWide = makeAllocation({
+			userId: 'lecturer-class-wide',
+			groupName: null,
+			allowedDays: ['monday'],
+			startTime: '08:30:00',
+			endTime: '14:30:00',
+			duration: 120,
+			semesterModule: {
+				id: semesterModuleIdValue,
+				semesterId: semesterIdValue,
+				module: { id: moduleIdValue, name: 'Class Module' },
+			},
+			semesterModuleId: semesterModuleIdValue,
+		});
+
+		const groupA = makeAllocation({
+			userId: 'lecturer-class-group',
+			groupName: 'A',
+			allowedDays: ['monday'],
+			startTime: '08:30:00',
+			endTime: '14:30:00',
+			duration: 120,
+			semesterModule: {
+				id: nextSemesterModuleId(),
+				semesterId: semesterIdValue,
+				module: { id: moduleIdValue, name: 'Class Module' },
+			},
+		});
+
+		const venues = [
+			makeVenue({ id: 'venue-class-1' }),
+			makeVenue({ id: 'venue-class-2' }),
+		];
+		const plan = buildTermPlan(1, [classWide, groupA], venues);
+
+		expect(plan).toHaveLength(2);
+		const slots = plan.map((p) => ({
+			start: timeToMinutes(p.startTime),
+			end: timeToMinutes(p.endTime),
+			day: p.dayOfWeek,
+		}));
+
+		const slot1 = slots[0];
+		const slot2 = slots[1];
+		if (slot1.day === slot2.day) {
+			const noOverlap = slot1.end <= slot2.start || slot2.end <= slot1.start;
+			expect(noOverlap).toBe(true);
+		}
 	});
 });
 

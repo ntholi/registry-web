@@ -410,6 +410,7 @@ export default class TimetableSlotRepository extends BaseRepository<
 						module: {
 							columns: {
 								id: true,
+								code: true,
 								name: true,
 							},
 						},
@@ -446,6 +447,7 @@ export default class TimetableSlotRepository extends BaseRepository<
 						module: {
 							columns: {
 								id: true,
+								code: true,
 								name: true,
 							},
 						},

@@ -2,7 +2,7 @@
 
 import { Badge, Box, Flex, Group } from '@mantine/core';
 import type useConfigDefaults from '@/shared/lib/hooks/use-config-defaults';
-import { formatDuration } from '../../_lib/utils';
+import { formatDuration } from '@/shared/lib/utils/dates';
 import AddSlotAllocationModal from '../../_shared/components/AddSlotAllocationModal';
 import AddAllocationModal from './AddAllocationModal';
 import AllocationTable, { type AllocationData } from './AllocationTable';

@@ -43,7 +43,7 @@ function makeAllocation(
 		semesterModule?: {
 			id?: number;
 			semesterId?: number | null;
-			module?: { id?: number; name?: string };
+			module?: { id?: number; code?: string; name?: string };
 		};
 		user?: {
 			userSchools?: { schoolId: number }[];
@@ -56,6 +56,8 @@ function makeAllocation(
 		overrides.semesterModule?.id ??
 		nextSemesterModuleId();
 	const moduleIdValue = overrides.semesterModule?.module?.id ?? nextModuleId();
+	const moduleCodeValue =
+		overrides.semesterModule?.module?.code ?? `MOD-${moduleIdValue}`;
 	const moduleNameValue =
 		overrides.semesterModule?.module?.name ?? `Module-${moduleIdValue}`;
 	const semesterIdValue = overrides.semesterModule?.semesterId ?? null;
@@ -65,6 +67,7 @@ function makeAllocation(
 		semesterId: overrides.semesterModule?.semesterId ?? semesterIdValue,
 		module: {
 			id: moduleIdValue,
+			code: moduleCodeValue,
 			name: moduleNameValue,
 		},
 	};
@@ -80,6 +83,7 @@ function makeAllocation(
 		semesterModuleId: semesterModule.id,
 		duration: overrides.duration ?? 120,
 		numberOfStudents: overrides.numberOfStudents ?? 60,
+		classType: overrides.classType ?? 'lecture',
 		groupName: overrides.groupName ?? null,
 		allowedDays: overrides.allowedDays ?? (['monday'] as DayOfWeek[]),
 		startTime: overrides.startTime ?? '08:00:00',
@@ -1190,6 +1194,373 @@ describe('RUTHLESS STRESS TESTS - School-Based Venue Filtering', () => {
 				}
 			}
 		}
+	});
+});
+
+describe('HARD CONSTRAINT NEVER VIOLATED TESTS', () => {
+	it('places lecturer in same venue when multiple allocations overlap and resources available', () => {
+		const lecturerId = 'single-loc-lecturer';
+		const moduleIdValue = nextModuleId();
+		const smId = nextSemesterModuleId();
+
+		const allocations = [
+			makeAllocation({
+				userId: lecturerId,
+				duration: 120,
+				allowedDays: ['monday'],
+				startTime: '08:00:00',
+				endTime: '18:00:00',
+				semesterModule: {
+					id: smId,
+					semesterId: null,
+					module: { id: moduleIdValue },
+				},
+				semesterModuleId: smId,
+			}),
+			makeAllocation({
+				userId: lecturerId,
+				duration: 120,
+				allowedDays: ['monday'],
+				startTime: '08:00:00',
+				endTime: '18:00:00',
+				semesterModule: {
+					id: smId,
+					semesterId: null,
+					module: { id: moduleIdValue },
+				},
+				semesterModuleId: smId,
+			}),
+		];
+
+		const venues = [
+			makeVenue({ id: 'venue-hard-1', capacity: 200 }),
+			makeVenue({ id: 'venue-hard-2', capacity: 200 }),
+		];
+
+		const plan = buildTermPlan(1, allocations, venues, 10);
+		expect(plan.length).toBeGreaterThanOrEqual(1);
+
+		const combinedSlots = plan.filter((s) => s.allocationIds.length > 1);
+		if (combinedSlots.length > 0) {
+			expect(combinedSlots[0].allocationIds.length).toBe(2);
+		}
+	});
+
+	it('schedules class allocations in non-overlapping times when possible', () => {
+		const semesterIdValue = nextSemesterId();
+
+		const allocations = [
+			makeAllocation({
+				userId: 'lecturer-1',
+				duration: 120,
+				allowedDays: ['monday'],
+				startTime: '08:00:00',
+				endTime: '18:00:00',
+				semesterModule: {
+					id: nextSemesterModuleId(),
+					semesterId: semesterIdValue,
+					module: { id: nextModuleId() },
+				},
+			}),
+			makeAllocation({
+				userId: 'lecturer-2',
+				duration: 120,
+				allowedDays: ['monday'],
+				startTime: '08:00:00',
+				endTime: '18:00:00',
+				semesterModule: {
+					id: nextSemesterModuleId(),
+					semesterId: semesterIdValue,
+					module: { id: nextModuleId() },
+				},
+			}),
+		];
+
+		const venues = [
+			makeVenue({ id: 'venue-hard-3', capacity: 100 }),
+			makeVenue({ id: 'venue-hard-4', capacity: 100 }),
+		];
+
+		const plan = buildTermPlan(1, allocations, venues, 10);
+		expect(plan.length).toBe(2);
+
+		const times1 = { start: plan[0].startTime, end: plan[0].endTime };
+		const times2 = { start: plan[1].startTime, end: plan[1].endTime };
+
+		const t1Start = timeToMinutes(times1.start);
+		const t1End = timeToMinutes(times1.end);
+		const t2Start = timeToMinutes(times2.start);
+		const t2End = timeToMinutes(times2.end);
+
+		const overlaps =
+			(t1Start < t2End && t1End > t2Start) ||
+			(t2Start < t1End && t2End > t1Start);
+		expect(overlaps).toBe(false);
+	});
+
+	it('NEVER exceeds venue capacity by more than 10% even when combining slots', () => {
+		const lecturerId = 'capacity-lecturer';
+		const moduleIdValue = nextModuleId();
+		const semesterModuleIdValue = nextSemesterModuleId();
+
+		const allocations = [
+			makeAllocation({
+				userId: lecturerId,
+				numberOfStudents: 60,
+				duration: 120,
+				semesterModule: {
+					id: semesterModuleIdValue,
+					semesterId: null,
+					module: { id: moduleIdValue },
+				},
+				semesterModuleId: semesterModuleIdValue,
+			}),
+			makeAllocation({
+				userId: lecturerId,
+				numberOfStudents: 60,
+				duration: 120,
+				semesterModule: {
+					id: semesterModuleIdValue,
+					semesterId: null,
+					module: { id: moduleIdValue },
+				},
+				semesterModuleId: semesterModuleIdValue,
+			}),
+		];
+
+		const venue = makeVenue({ id: 'venue-capacity-test', capacity: 100 });
+		const plan = buildTermPlan(1, allocations, [venue], 10);
+
+		expect(plan.length).toBe(2);
+
+		for (const slot of plan) {
+			const maxCapacity = Math.floor(100 * 1.1);
+			expect(slot.capacityUsed).toBeLessThanOrEqual(maxCapacity);
+		}
+	});
+
+	it('NEVER assigns allocation to venue from different school', () => {
+		const school1 = 1000;
+		const school2 = 2000;
+
+		const allocation = makeAllocation({
+			userId: 'school-test-lecturer',
+			numberOfStudents: 50,
+			user: {
+				userSchools: [{ schoolId: school1 }],
+			},
+		});
+
+		const venue = makeVenue({
+			id: 'wrong-school-venue',
+			capacity: 100,
+			venueSchools: [{ schoolId: school2 }],
+		});
+
+		expect(() => buildTermPlan(1, [allocation], [venue], 10)).toThrow();
+	});
+
+	it('NEVER assigns allocation to wrong venue type', () => {
+		const labTypeId = 'type-lab-test';
+		const lectureTypeId = 'type-lecture-test';
+
+		const allocation = makeAllocation({
+			timetableAllocationVenueTypes: [{ venueTypeId: labTypeId }],
+		});
+
+		const venue = makeVenue({
+			id: 'wrong-type-venue',
+			capacity: 100,
+			typeId: lectureTypeId,
+			type: {
+				id: lectureTypeId,
+				name: 'Lecture',
+				description: null,
+				createdAt: new Date(),
+			},
+		});
+
+		expect(() => buildTermPlan(1, [allocation], [venue], 10)).toThrow();
+	});
+
+	it('schedules slot within specified time window', () => {
+		const allocation = makeAllocation({
+			duration: 60,
+			startTime: '14:00:00',
+			endTime: '16:00:00',
+		});
+
+		const venue = makeVenue({ capacity: 100 });
+		const plan = buildTermPlan(1, [allocation], [venue], 10);
+
+		expect(plan.length).toBe(1);
+
+		const startMinutes =
+			Number(plan[0].startTime.split(':')[0]) * 60 +
+			Number(plan[0].startTime.split(':')[1]);
+		const endMinutes =
+			Number(plan[0].endTime.split(':')[0]) * 60 +
+			Number(plan[0].endTime.split(':')[1]);
+
+		expect(startMinutes).toBeGreaterThanOrEqual(14 * 60);
+		expect(endMinutes).toBeLessThanOrEqual(16 * 60);
+	});
+
+	it('NEVER allows different modules to share a slot even with same lecturer', () => {
+		const lecturerId = 'no-mix-lecturer';
+		const module1 = nextModuleId();
+		const module2 = nextModuleId();
+
+		const alloc1 = makeAllocation({
+			userId: lecturerId,
+			numberOfStudents: 30,
+			duration: 120,
+			allowedDays: ['monday'],
+			semesterModule: {
+				id: nextSemesterModuleId(),
+				semesterId: null,
+				module: { id: module1, code: 'MOD-A' },
+			},
+		});
+
+		const alloc2 = makeAllocation({
+			userId: lecturerId,
+			numberOfStudents: 30,
+			duration: 120,
+			allowedDays: ['monday'],
+			semesterModule: {
+				id: nextSemesterModuleId(),
+				semesterId: null,
+				module: { id: module2, code: 'MOD-B' },
+			},
+		});
+
+		const venue = makeVenue({ capacity: 100 });
+		const plan = buildTermPlan(1, [alloc1, alloc2], [venue], 10);
+
+		expect(plan.length).toBe(2);
+
+		const slot1 = plan.find((p) => p.allocationIds.includes(alloc1.id));
+		const slot2 = plan.find((p) => p.allocationIds.includes(alloc2.id));
+		expect(slot1?.allocationIds.length).toBe(1);
+		expect(slot2?.allocationIds.length).toBe(1);
+	});
+
+	it('NEVER allows different class types to share a slot even with same lecturer and module', () => {
+		const lecturerId = 'class-type-lecturer';
+		const moduleIdValue = nextModuleId();
+
+		const lecture = makeAllocation({
+			userId: lecturerId,
+			classType: 'lecture',
+			numberOfStudents: 30,
+			duration: 120,
+			allowedDays: ['monday'],
+			semesterModule: {
+				id: nextSemesterModuleId(),
+				semesterId: null,
+				module: { id: moduleIdValue, code: 'SAME-MOD' },
+			},
+		});
+
+		const tutorial = makeAllocation({
+			userId: lecturerId,
+			classType: 'tutorial',
+			numberOfStudents: 30,
+			duration: 120,
+			allowedDays: ['monday'],
+			semesterModule: {
+				id: nextSemesterModuleId(),
+				semesterId: null,
+				module: { id: moduleIdValue, code: 'SAME-MOD' },
+			},
+		});
+
+		const venue = makeVenue({ capacity: 100 });
+		const plan = buildTermPlan(1, [lecture, tutorial], [venue], 10);
+
+		expect(plan.length).toBe(2);
+
+		const slot1 = plan.find((p) => p.allocationIds.includes(lecture.id));
+		const slot2 = plan.find((p) => p.allocationIds.includes(tutorial.id));
+		expect(slot1?.allocationIds.length).toBe(1);
+		expect(slot2?.allocationIds.length).toBe(1);
+	});
+});
+
+describe('VENUE SHARING RULES TESTS', () => {
+	it('allows venue sharing ONLY when same lecturer + same module code + same class type', () => {
+		const lecturerId = 'share-lecturer';
+		const moduleIdValue = nextModuleId();
+		const moduleCode = 'SHARE-MOD';
+
+		const group1 = makeAllocation({
+			userId: lecturerId,
+			classType: 'lecture',
+			numberOfStudents: 30,
+			duration: 120,
+			groupName: 'A',
+			semesterModule: {
+				id: nextSemesterModuleId(),
+				semesterId: null,
+				module: { id: moduleIdValue, code: moduleCode },
+			},
+		});
+
+		const group2 = makeAllocation({
+			userId: lecturerId,
+			classType: 'lecture',
+			numberOfStudents: 30,
+			duration: 120,
+			groupName: 'B',
+			semesterModule: {
+				id: nextSemesterModuleId(),
+				semesterId: null,
+				module: { id: moduleIdValue, code: moduleCode },
+			},
+		});
+
+		const venue = makeVenue({ capacity: 80 });
+		const plan = buildTermPlan(1, [group1, group2], [venue], 10);
+
+		expect(plan.length).toBe(1);
+		expect(plan[0].allocationIds.sort()).toEqual([group1.id, group2.id].sort());
+		expect(plan[0].capacityUsed).toBe(60);
+	});
+
+	it('does NOT combine slots when durations differ', () => {
+		const lecturerId = 'duration-diff-lecturer';
+		const moduleIdValue = nextModuleId();
+		const moduleCode = 'DUR-MOD';
+
+		const short = makeAllocation({
+			userId: lecturerId,
+			classType: 'lecture',
+			numberOfStudents: 30,
+			duration: 60,
+			semesterModule: {
+				id: nextSemesterModuleId(),
+				semesterId: null,
+				module: { id: moduleIdValue, code: moduleCode },
+			},
+		});
+
+		const longer = makeAllocation({
+			userId: lecturerId,
+			classType: 'lecture',
+			numberOfStudents: 30,
+			duration: 120,
+			semesterModule: {
+				id: nextSemesterModuleId(),
+				semesterId: null,
+				module: { id: moduleIdValue, code: moduleCode },
+			},
+		});
+
+		const venue = makeVenue({ capacity: 100 });
+		const plan = buildTermPlan(1, [short, longer], [venue], 10);
+
+		expect(plan.length).toBe(2);
 	});
 });
 

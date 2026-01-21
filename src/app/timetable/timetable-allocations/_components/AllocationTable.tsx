@@ -12,8 +12,9 @@ import {
 	Text,
 } from '@mantine/core';
 import { useQueryClient } from '@tanstack/react-query';
+import { formatDuration } from '@/shared/lib/utils/dates';
+import { getStudentClassName } from '@/shared/lib/utils/utils';
 import { DeleteButton } from '@/shared/ui/adease';
-import { formatDuration, toClassName } from '../../_lib/utils';
 import { deleteTimetableAllocation } from '../_server/actions';
 import EditAllocationModal from './EditAllocationModal';
 
@@ -120,7 +121,10 @@ export default function AllocationTable({
 							{allocation.semesterModule?.module?.code})
 						</TableTd>
 						<TableTd>
-							{toClassName(allocation.semesterModule, allocation.groupName)}
+							{getStudentClassName(
+								allocation.semesterModule.semester,
+								allocation.groupName
+							)}
 						</TableTd>
 						<TableTd>{formatDuration(allocation.duration || 0)}</TableTd>
 						<TableTd>

@@ -26,9 +26,9 @@ import { getAllVenues } from '@timetable/venues';
 import { zod4Resolver as zodResolver } from 'mantine-form-zod-resolver';
 import { useCallback, useState } from 'react';
 import { z } from 'zod';
+import { addMinutesToTime } from '@/shared/lib/utils/dates';
 import { toClassName as toClassNameShared } from '@/shared/lib/utils/utils';
 import DurationInput from '@/shared/ui/DurationInput';
-import { addMinutesToTime } from '../../_lib/utils';
 
 const daysOfWeek = [
 	{ value: 'monday', label: 'Mon' },
