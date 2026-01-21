@@ -2,6 +2,7 @@ import './env-load';
 import { seedCertificateTypes } from './seeds/certificate-types';
 import { seedEntryRequirements } from './seeds/entry-requirements';
 import { seedGradeMappings } from './seeds/grade-mappings';
+import { seedSchools } from './seeds/schools';
 import { seedSubjects } from './seeds/subjects';
 
 async function main() {
@@ -12,6 +13,7 @@ async function main() {
 		await seedCertificateTypes();
 		await seedGradeMappings();
 		await seedEntryRequirements();
+		await seedSchools();
 
 		console.log('🎉 Database seeding completed successfully.');
 	} catch (error) {
