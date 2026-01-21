@@ -1,23 +1,3 @@
-import { getStudentClassName } from '@/shared/lib/utils/utils';
-
-export function toClassName(
-	semesterModule: {
-		semester?: {
-			semesterNumber: string;
-			structure?: {
-				program: {
-					code: string;
-				};
-			};
-		} | null;
-	},
-	groupName: string | null
-) {
-	if (!semesterModule.semester || !semesterModule.semester.structure)
-		return 'Unknown';
-	return `${getStudentClassName(semesterModule.semester as { semesterNumber: string; structure: { program: { code: string } } })}${groupName ? `${groupName}` : ''}`;
-}
-
 export function formatDuration(totalMinutes: number): string {
 	if (totalMinutes <= 0) return '0 hours';
 	const hours = Math.floor(totalMinutes / 60);
