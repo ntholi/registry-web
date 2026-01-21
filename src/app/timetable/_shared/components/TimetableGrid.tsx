@@ -177,7 +177,7 @@ export default function TimetableGrid({
 	}
 
 	return (
-		<Box p='md'>
+		<Box p='xl' pt={'xs'}>
 			<Table
 				withTableBorder
 				withColumnBorders

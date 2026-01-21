@@ -2,6 +2,8 @@
 
 import { getLecturers } from '@academic/lecturers';
 import {
+	Badge,
+	Box,
 	Center,
 	Group,
 	Paper,
@@ -168,14 +170,24 @@ export default function TimetableViewer() {
 
 		if (selectedClass.groupNames.length === 0) {
 			return (
-				<TimetableGrid
-					slots={classSlots}
-					isLoading={isLoadingClass}
-					emptyMessage='No timetable found for this class.'
-					showVenue
-					showClass={false}
-					showLecturer
-				/>
+				<Box>
+					<Badge
+						variant='default'
+						radius={0}
+						p={'md'}
+						mb={0}
+						ml={'xl'}
+					>{`${baseClassName}`}</Badge>
+
+					<TimetableGrid
+						slots={classSlots}
+						isLoading={isLoadingClass}
+						emptyMessage='No timetable found for this class.'
+						showVenue
+						showClass={false}
+						showLecturer
+					/>
+				</Box>
 			);
 		}
 
@@ -191,8 +203,14 @@ export default function TimetableViewer() {
 					);
 
 					return (
-						<Stack key={groupName} gap='sm'>
-							<Title order={4}>{`${baseClassName}${groupName}`}</Title>
+						<Box key={groupName}>
+							<Badge
+								variant='default'
+								radius={0}
+								p={'md'}
+								mb={0}
+								ml={'xl'}
+							>{`${baseClassName}${groupName}`}</Badge>
 							<TimetableGrid
 								slots={groupSlots}
 								isLoading={isLoadingClass}
@@ -201,7 +219,7 @@ export default function TimetableViewer() {
 								showClass={false}
 								showLecturer
 							/>
-						</Stack>
+						</Box>
 					);
 				})}
 			</Stack>
@@ -261,7 +279,7 @@ export default function TimetableViewer() {
 
 	return (
 		<Stack gap='lg' p='md'>
-			<Paper p='md' radius='md' withBorder>
+			<Paper p='md' withBorder>
 				<Group justify='space-between' align='center'>
 					<SegmentedControl
 						value={viewType ?? 'lecturers'}
