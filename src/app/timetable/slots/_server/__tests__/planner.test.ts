@@ -587,7 +587,7 @@ describe('buildTermPlan - Consecutive Slots Constraint', () => {
 			makeVenue({ id: 'venue-81' }),
 			makeVenue({ id: 'venue-82' }),
 		];
-		const plan = buildTermPlan(1, allocations, venues, 5);
+		const plan = buildTermPlan(1, allocations, venues, { maxSlotsPerDay: 5 });
 
 		const lecturerSlots = plan.map((p) => ({
 			start: timeToMinutes(p.startTime),
@@ -642,7 +642,7 @@ describe('buildTermPlan - Consecutive Slots Constraint', () => {
 			makeVenue({ id: 'venue-91' }),
 			makeVenue({ id: 'venue-92' }),
 		];
-		const plan = buildTermPlan(1, allocations, venues, 5);
+		const plan = buildTermPlan(1, allocations, venues, { maxSlotsPerDay: 5 });
 
 		const classSlots = plan.map((p) => ({
 			start: timeToMinutes(p.startTime),
@@ -700,7 +700,7 @@ describe('buildTermPlan - Max Slots Per Day Constraint', () => {
 			makeVenue({ id: 'venue-101' }),
 			makeVenue({ id: 'venue-102' }),
 		];
-		const plan = buildTermPlan(1, allocations, venues, maxSlotsPerDay);
+		const plan = buildTermPlan(1, allocations, venues, { maxSlotsPerDay });
 
 		const slotsByDay = new Map<string, number>();
 
@@ -739,7 +739,7 @@ describe('buildTermPlan - Max Slots Per Day Constraint', () => {
 			makeVenue({ id: 'venue-111' }),
 			makeVenue({ id: 'venue-112' }),
 		];
-		const plan = buildTermPlan(1, allocations, venues, maxSlotsPerDay);
+		const plan = buildTermPlan(1, allocations, venues, { maxSlotsPerDay });
 
 		const slotsByDay = new Map<string, number>();
 
@@ -839,7 +839,7 @@ describe('buildTermPlan - Stress Tests', () => {
 			);
 		}
 
-		const plan = buildTermPlan(1, allocations, venues, maxSlotsPerDay);
+		const plan = buildTermPlan(1, allocations, venues, { maxSlotsPerDay });
 
 		expect(plan.length).toBeGreaterThan(0);
 
@@ -964,7 +964,7 @@ describe('buildTermPlan - Stress Tests', () => {
 			}),
 		];
 
-		const plan = buildTermPlan(1, allocations, venues, 3);
+		const plan = buildTermPlan(1, allocations, venues, { maxSlotsPerDay: 3 });
 
 		expect(plan.length).toBeGreaterThanOrEqual(4);
 

@@ -307,7 +307,7 @@ describe('RUTHLESS STRESS TESTS - Massive Load', () => {
 			);
 		}
 
-		const plan = buildTermPlan(1, allocations, venues, 4);
+		const plan = buildTermPlan(1, allocations, venues, { maxSlotsPerDay: 4 });
 
 		expect(plan.length).toBeGreaterThan(0);
 
@@ -357,7 +357,7 @@ describe('RUTHLESS STRESS TESTS - Massive Load', () => {
 			);
 		}
 
-		const plan = buildTermPlan(1, allocations, venues, 5);
+		const plan = buildTermPlan(1, allocations, venues, { maxSlotsPerDay: 5 });
 
 		expect(plan.length).toBeGreaterThan(0);
 
@@ -398,7 +398,7 @@ describe('RUTHLESS STRESS TESTS - Constraint Violations (Allowed When Necessary)
 		}
 
 		const venues = [makeVenue(), makeVenue()];
-		const plan = buildTermPlan(1, allocations, venues, maxSlotsPerDay);
+		const plan = buildTermPlan(1, allocations, venues, { maxSlotsPerDay });
 
 		expect(plan.length).toBeGreaterThanOrEqual(6);
 
@@ -437,7 +437,7 @@ describe('RUTHLESS STRESS TESTS - Constraint Violations (Allowed When Necessary)
 		}
 
 		const venues = [makeVenue()];
-		const plan = buildTermPlan(1, allocations, venues, 10);
+		const plan = buildTermPlan(1, allocations, venues, { maxSlotsPerDay: 10 });
 
 		expect(plan.length).toBeGreaterThanOrEqual(4);
 
@@ -504,7 +504,7 @@ describe('RUTHLESS STRESS TESTS - Extreme Edge Cases', () => {
 		}
 
 		const venues = [makeVenue({ capacity: 150 }), makeVenue({ capacity: 150 })];
-		const plan = buildTermPlan(1, allocations, venues, 4);
+		const plan = buildTermPlan(1, allocations, venues, { maxSlotsPerDay: 4 });
 
 		expect(plan.length).toBeGreaterThanOrEqual(6);
 
@@ -581,7 +581,7 @@ describe('RUTHLESS STRESS TESTS - Extreme Edge Cases', () => {
 		}
 
 		const venues = Array.from({ length: 3 }, () => makeVenue());
-		const plan = buildTermPlan(1, allocations, venues, 5);
+		const plan = buildTermPlan(1, allocations, venues, { maxSlotsPerDay: 5 });
 
 		expect(plan.length).toBeGreaterThan(0);
 
@@ -625,7 +625,7 @@ describe('RUTHLESS STRESS TESTS - Complex Lecturer Conflicts', () => {
 		}
 
 		const venues = Array.from({ length: 3 }, () => makeVenue());
-		const plan = buildTermPlan(1, allocations, venues, 5);
+		const plan = buildTermPlan(1, allocations, venues, { maxSlotsPerDay: 5 });
 
 		const lecturerSlots = plan.map((p) => ({
 			start: timeToMinutes(p.startTime),
@@ -669,7 +669,7 @@ describe('RUTHLESS STRESS TESTS - Complex Lecturer Conflicts', () => {
 		}
 
 		const venues = Array.from({ length: 15 }, () => makeVenue());
-		const plan = buildTermPlan(1, allocations, venues, 4);
+		const plan = buildTermPlan(1, allocations, venues, { maxSlotsPerDay: 4 });
 
 		expect(plan.length).toBeGreaterThan(0);
 
@@ -709,7 +709,7 @@ describe('RUTHLESS STRESS TESTS - Complex Class Conflicts', () => {
 		}
 
 		const venues = Array.from({ length: 10 }, () => makeVenue());
-		const plan = buildTermPlan(1, allocations, venues, 10);
+		const plan = buildTermPlan(1, allocations, venues, { maxSlotsPerDay: 10 });
 
 		const classSlots = plan.map((p) => ({
 			start: timeToMinutes(p.startTime),
@@ -753,7 +753,7 @@ describe('RUTHLESS STRESS TESTS - Complex Class Conflicts', () => {
 		}
 
 		const venues = Array.from({ length: 20 }, () => makeVenue());
-		const plan = buildTermPlan(1, allocations, venues, 3);
+		const plan = buildTermPlan(1, allocations, venues, { maxSlotsPerDay: 3 });
 
 		expect(plan.length).toBeGreaterThan(0);
 
@@ -814,7 +814,7 @@ describe('RUTHLESS STRESS TESTS - Mixed Extreme Scenarios', () => {
 		const venues = Array.from({ length: 10 }, () =>
 			makeVenue({ capacity: 100 })
 		);
-		const plan = buildTermPlan(1, allocations, venues, 6);
+		const plan = buildTermPlan(1, allocations, venues, { maxSlotsPerDay: 6 });
 
 		expect(plan.length).toBeGreaterThan(0);
 
@@ -903,7 +903,7 @@ describe('RUTHLESS STRESS TESTS - Mixed Extreme Scenarios', () => {
 			),
 		];
 
-		const plan = buildTermPlan(1, allocations, venues, 5);
+		const plan = buildTermPlan(1, allocations, venues, { maxSlotsPerDay: 5 });
 
 		expect(plan.length).toBeGreaterThan(0);
 
@@ -964,7 +964,7 @@ describe('RUTHLESS STRESS TESTS - School-Based Venue Filtering', () => {
 			);
 		}
 
-		const plan = buildTermPlan(1, allocations, venues, 4);
+		const plan = buildTermPlan(1, allocations, venues, { maxSlotsPerDay: 4 });
 
 		expect(plan.length).toBeGreaterThan(0);
 
@@ -1060,7 +1060,7 @@ describe('RUTHLESS STRESS TESTS - School-Based Venue Filtering', () => {
 			),
 		];
 
-		const plan = buildTermPlan(1, allocations, venues, 4);
+		const plan = buildTermPlan(1, allocations, venues, { maxSlotsPerDay: 4 });
 
 		const allAllocationIds = new Set<number>();
 		for (const slot of plan) {
@@ -1156,7 +1156,7 @@ describe('RUTHLESS STRESS TESTS - School-Based Venue Filtering', () => {
 			),
 		];
 
-		const plan = buildTermPlan(1, allocations, venues, 4);
+		const plan = buildTermPlan(1, allocations, venues, { maxSlotsPerDay: 4 });
 
 		const allAllocationIds = new Set<number>();
 		for (const slot of plan) {
@@ -1237,7 +1237,7 @@ describe('HARD CONSTRAINT NEVER VIOLATED TESTS', () => {
 			makeVenue({ id: 'venue-hard-2', capacity: 200 }),
 		];
 
-		const plan = buildTermPlan(1, allocations, venues, 10);
+		const plan = buildTermPlan(1, allocations, venues, { maxSlotsPerDay: 10 });
 		expect(plan.length).toBeGreaterThanOrEqual(1);
 
 		const combinedSlots = plan.filter((s) => s.allocationIds.length > 1);
@@ -1281,7 +1281,7 @@ describe('HARD CONSTRAINT NEVER VIOLATED TESTS', () => {
 			makeVenue({ id: 'venue-hard-4', capacity: 100 }),
 		];
 
-		const plan = buildTermPlan(1, allocations, venues, 10);
+		const plan = buildTermPlan(1, allocations, venues, { maxSlotsPerDay: 10 });
 		expect(plan.length).toBe(2);
 
 		const times1 = { start: plan[0].startTime, end: plan[0].endTime };
@@ -1329,7 +1329,7 @@ describe('HARD CONSTRAINT NEVER VIOLATED TESTS', () => {
 		];
 
 		const venue = makeVenue({ id: 'venue-capacity-test', capacity: 100 });
-		const plan = buildTermPlan(1, allocations, [venue], 10);
+		const plan = buildTermPlan(1, allocations, [venue], { maxSlotsPerDay: 10 });
 
 		expect(plan.length).toBe(2);
 
@@ -1357,7 +1357,9 @@ describe('HARD CONSTRAINT NEVER VIOLATED TESTS', () => {
 			venueSchools: [{ schoolId: school2 }],
 		});
 
-		expect(() => buildTermPlan(1, [allocation], [venue], 10)).toThrow();
+		expect(() =>
+			buildTermPlan(1, [allocation], [venue], { maxSlotsPerDay: 10 })
+		).toThrow();
 	});
 
 	it('NEVER assigns allocation to wrong venue type', () => {
@@ -1380,7 +1382,9 @@ describe('HARD CONSTRAINT NEVER VIOLATED TESTS', () => {
 			},
 		});
 
-		expect(() => buildTermPlan(1, [allocation], [venue], 10)).toThrow();
+		expect(() =>
+			buildTermPlan(1, [allocation], [venue], { maxSlotsPerDay: 10 })
+		).toThrow();
 	});
 
 	it('schedules slot within specified time window', () => {
@@ -1391,7 +1395,9 @@ describe('HARD CONSTRAINT NEVER VIOLATED TESTS', () => {
 		});
 
 		const venue = makeVenue({ capacity: 100 });
-		const plan = buildTermPlan(1, [allocation], [venue], 10);
+		const plan = buildTermPlan(1, [allocation], [venue], {
+			maxSlotsPerDay: 10,
+		});
 
 		expect(plan.length).toBe(1);
 
@@ -1436,7 +1442,9 @@ describe('HARD CONSTRAINT NEVER VIOLATED TESTS', () => {
 		});
 
 		const venue = makeVenue({ capacity: 100 });
-		const plan = buildTermPlan(1, [alloc1, alloc2], [venue], 10);
+		const plan = buildTermPlan(1, [alloc1, alloc2], [venue], {
+			maxSlotsPerDay: 10,
+		});
 
 		expect(plan.length).toBe(2);
 
@@ -1477,7 +1485,9 @@ describe('HARD CONSTRAINT NEVER VIOLATED TESTS', () => {
 		});
 
 		const venue = makeVenue({ capacity: 100 });
-		const plan = buildTermPlan(1, [lecture, tutorial], [venue], 10);
+		const plan = buildTermPlan(1, [lecture, tutorial], [venue], {
+			maxSlotsPerDay: 10,
+		});
 
 		expect(plan.length).toBe(2);
 
@@ -1521,7 +1531,9 @@ describe('VENUE SHARING RULES TESTS', () => {
 		});
 
 		const venue = makeVenue({ capacity: 80 });
-		const plan = buildTermPlan(1, [group1, group2], [venue], 10);
+		const plan = buildTermPlan(1, [group1, group2], [venue], {
+			maxSlotsPerDay: 10,
+		});
 
 		expect(plan.length).toBe(1);
 		expect(plan[0].allocationIds.sort()).toEqual([group1.id, group2.id].sort());
@@ -1558,7 +1570,9 @@ describe('VENUE SHARING RULES TESTS', () => {
 		});
 
 		const venue = makeVenue({ capacity: 100 });
-		const plan = buildTermPlan(1, [short, longer], [venue], 10);
+		const plan = buildTermPlan(1, [short, longer], [venue], {
+			maxSlotsPerDay: 10,
+		});
 
 		expect(plan.length).toBe(2);
 	});
@@ -1593,7 +1607,7 @@ describe('buildTermPlan - EXTREME Stress Tests', () => {
 			);
 		}
 
-		const plan = buildTermPlan(1, allocations, venues, 5);
+		const plan = buildTermPlan(1, allocations, venues, { maxSlotsPerDay: 5 });
 
 		const placedIds = new Set<number>();
 		for (const slot of plan) {
@@ -1649,7 +1663,7 @@ describe('buildTermPlan - EXTREME Stress Tests', () => {
 			}),
 		];
 
-		const plan = buildTermPlan(1, allocations, [venue], 5);
+		const plan = buildTermPlan(1, allocations, [venue], { maxSlotsPerDay: 5 });
 
 		const placedIds = new Set<number>();
 		for (const slot of plan) {
@@ -1754,7 +1768,7 @@ describe('buildTermPlan - EXTREME Stress Tests', () => {
 			}
 		}
 
-		const plan = buildTermPlan(1, allocations, venues, 4);
+		const plan = buildTermPlan(1, allocations, venues, { maxSlotsPerDay: 4 });
 
 		const placedIds = new Set<number>();
 		for (const slot of plan) {
@@ -1850,7 +1864,7 @@ describe('buildTermPlan - EXTREME Stress Tests', () => {
 			);
 		}
 
-		const plan = buildTermPlan(1, allocations, venues, 10);
+		const plan = buildTermPlan(1, allocations, venues, { maxSlotsPerDay: 10 });
 
 		const placedIds = new Set<number>();
 		for (const slot of plan) {

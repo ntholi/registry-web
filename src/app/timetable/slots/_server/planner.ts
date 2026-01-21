@@ -120,13 +120,21 @@ function generateValidStartTimes(
 	return validTimes;
 }
 
+interface BuildTermPlanOptions {
+	maxSlotsPerDay?: number;
+	warn?: (message: string) => void;
+	skipOnFailure?: boolean;
+}
+
+export type { BuildTermPlanOptions };
+
 export function buildTermPlan(
 	termId: number,
 	allocations: AllocationRecord[],
 	venues: VenueRecord[],
-	maxSlotsPerDay?: number,
-	warn?: (message: string) => void
+	options?: BuildTermPlanOptions
 ): PlannedSlotInput[] {
+	const { maxSlotsPerDay, warn, skipOnFailure = false } = options ?? {};
 	const planningState: PlanningState = {
 		slots: new Map(),
 		daySchedules: new Map(),
@@ -162,13 +170,21 @@ export function buildTermPlan(
 		);
 
 		if (!placed) {
+			if (skipOnFailure) {
+				planningState.warn(
+					`Skipped allocation ${allocation.id}: unable to place with current constraints`
+				);
+				continue;
+			}
 			throw new Error(
 				`Unable to allocate slot for allocation ${allocation.id} with provided constraints. Try relaxing constraints or adding more venues/time slots.`
 			);
 		}
 	}
 
-	validateFinalPlan(planningState, allocations);
+	if (!skipOnFailure) {
+		validateFinalPlan(planningState, allocations);
+	}
 
 	return convertPlanToOutput(termId, planningState);
 }

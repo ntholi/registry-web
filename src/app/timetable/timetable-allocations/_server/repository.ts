@@ -230,7 +230,7 @@ export default class TimetableAllocationRepository extends BaseRepository<
 			await tx
 				.delete(timetableAllocations)
 				.where(eq(timetableAllocations.id, id));
-			await this.rebuildTermSlots(tx, existing.termId);
+			await this.rebuildTermSlots(tx, existing.termId, true);
 		});
 	}
 
@@ -247,7 +247,7 @@ export default class TimetableAllocationRepository extends BaseRepository<
 				.delete(timetableAllocations)
 				.where(inArray(timetableAllocations.id, ids));
 			for (const termId of affectedTerms) {
-				await this.rebuildTermSlots(tx, termId);
+				await this.rebuildTermSlots(tx, termId, true);
 			}
 		});
 	}
@@ -278,7 +278,11 @@ export default class TimetableAllocationRepository extends BaseRepository<
 		});
 	}
 
-	private async rebuildTermSlots(tx: TransactionClient, termId: number) {
+	private async rebuildTermSlots(
+		tx: TransactionClient,
+		termId: number,
+		skipOnFailure = false
+	) {
 		const allocations = (await tx.query.timetableAllocations.findMany({
 			where: eq(timetableAllocations.termId, termId),
 			with: {
@@ -308,7 +312,7 @@ export default class TimetableAllocationRepository extends BaseRepository<
 		if (venues.length === 0) {
 			throw new Error('No venues available for timetable planning');
 		}
-		const plan = buildTermPlan(termId, allocations, venues);
+		const plan = buildTermPlan(termId, allocations, venues, { skipOnFailure });
 		await this.slotRepository.replaceTermSlots(termId, plan, tx);
 	}
 }
