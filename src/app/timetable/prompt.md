@@ -31,7 +31,15 @@ A **student class** is a cohort of students enrolled in the same program and sem
 
 **Identification**: All `timetableAllocations` whose `semesterModules` share the same `semesterId` belong to the same student class.
 
-**Naming Convention**: Use `getStudentClassName(structureSemester)` from `@/shared/lib/utils/utils` to generate the class identifier. Format: `[ProgramCode][YearSemester]` (e.g., `DITY1S1` = Diploma in IT, Year 1, Semester 1).
+**Naming Convention**: Use `getStudentClassName(structureSemester, groupName)` from `@/shared/lib/utils/utils` to generate the class identifier. Format: `[ProgramCode][YearSemester][GroupName?]` (e.g., `DITY1S1` = Diploma in IT, Year 1, Semester 1).
+
+### Group Name
+A **groupName** is an optional subdivision within a student class. When a class is too large for a single venue or requires parallel sessions, it can be split into groups.
+
+- **Format**: Single letter suffix (e.g., `A`, `B`, `C`)
+- **Combined Identifier**: `getStudentClassName()` appends the groupName to create unique identifiers (e.g., `DITY1S1A`, `DITY1S1B`)
+- **Null GroupName**: When `groupName` is null, the allocation applies to "All Students" in that class
+- **Uniqueness**: Each group can only have one allocation per module/term/classType combination
 
 ---
 
@@ -54,8 +62,12 @@ A venue can only have **one slot at a time**, with one exception:
 - A lecturer **CANNOT** have overlapping slots of the same module if the **class types are different** (e.g., cannot have a `lecture` and `tutorial` of the same module at the same time)
 - A lecturer **CAN** have overlapping slots of the same module if the class types are **the same** (enables venue sharing for split groups)
 
-#### 1.3 Student Class Conflict Prevention
-A student class **CANNOT** have more than one slot at the same time. Students cannot attend two different modules simultaneously.
+#### 1.3 Student Class/Group Conflict Prevention
+A student class (or group within a class) **CANNOT** have more than one slot at the same time. Students cannot attend two different modules simultaneously.
+
+- If `groupName` is null, the allocation covers all students in the class
+- If `groupName` is set (e.g., `A`), only that specific group is affected
+- Groups within the same class are independent—`DITY1S1A` and `DITY1S1B` can have different slots at the same time
 
 #### 1.4 School-Based Venue Access
 A `timetableAllocation` can **ONLY** be assigned to a venue that belongs to the **same school** as the lecturer (user). Use:
@@ -190,7 +202,7 @@ Create comprehensive tests covering:
 | Lecturer Single Location | Cannot be in different venues simultaneously | Never |
 | Module Conflict | Cannot teach different modules simultaneously | Never |
 | Class Type Conflict | Cannot have different class types of same module simultaneously | Never |
-| Student Class Conflict | Class cannot have multiple slots at same time | Never |
+| Student Class/Group Conflict | Class/group cannot have multiple slots at same time | Never |
 | School Access | Venue must match lecturer's school | Never |
 | Venue Type | Must match allocation's required types | Never |
 | Time Window | Must fit within startTime-endTime | Never |

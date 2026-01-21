@@ -135,7 +135,7 @@ export function getStudentClassName(
 		| undefined,
 	groupName?: string | null
 ) {
-	if (!structureSemester?.structure) return 'Unknown';
+	if (!structureSemester?.structure) return 'Unknown Class';
 	const code = structureSemester.structure.program.code;
 	const num = structureSemester.semesterNumber;
 	return `${code}${formatSemester(num, 'mini')}${groupName ?? ''}`;

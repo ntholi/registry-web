@@ -38,8 +38,8 @@ import { zod4Resolver as zodResolver } from 'mantine-form-zod-resolver';
 import { useCallback, useState } from 'react';
 import { z } from 'zod';
 import { getAllTerms } from '@/app/registry/terms';
+import { calculateDuration } from '@/shared/lib/utils/dates';
 import { toClassName as toClassNameShared } from '@/shared/lib/utils/utils';
-import { calculateDuration } from '../../_lib/utils';
 import { getTimetableAllocationsByUserId } from '../_server/actions';
 import AllocationTable from './AllocationTable';
 
