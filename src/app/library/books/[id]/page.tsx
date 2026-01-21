@@ -1,6 +1,4 @@
-import { Badge, Button, Group, Image, Stack, Text } from '@mantine/core';
-import { IconBook } from '@tabler/icons-react';
-import Link from 'next/link';
+import { Badge, Group, Image, Stack } from '@mantine/core';
 import { notFound } from 'next/navigation';
 import {
 	DetailsView,
@@ -66,22 +64,6 @@ export default async function BookDetailsPage({ params }: Props) {
 										{bc.category.name}
 									</Badge>
 								))}
-							</Group>
-						</FieldView>
-						<FieldView label='Copies'>
-							<Group gap='xs'>
-								<Text size='sm'>
-									{book.availableCopies} available / {book.totalCopies} total
-								</Text>
-								<Button
-									component={Link}
-									href={`/library/books/${id}/copies`}
-									size='xs'
-									variant='light'
-									leftSection={<IconBook size={14} />}
-								>
-									Manage Copies
-								</Button>
 							</Group>
 						</FieldView>
 					</Stack>
