@@ -101,7 +101,7 @@ export default function BookForm({ onSubmit, defaultValues, title }: Props) {
 						<Grid.Col span={{ base: 12, sm: 'auto' }}>
 							<Stack>
 								<Box pos='relative' pb='md'>
-									<Paper withBorder p='md' pb='xl'>
+									<Paper withBorder px='xl' py={50}>
 										<Stack>
 											<TextInput
 												label='ISBN'
@@ -121,10 +121,6 @@ export default function BookForm({ onSubmit, defaultValues, title }: Props) {
 													setBookTitle(e.currentTarget.value);
 												}}
 											/>
-											<TextInput
-												label='Subtitle'
-												{...form.getInputProps('subtitle')}
-											/>
 										</Stack>
 									</Paper>
 									<Box
@@ -140,20 +136,27 @@ export default function BookForm({ onSubmit, defaultValues, title }: Props) {
 										/>
 									</Box>
 								</Box>
-								<TextInput
-									label='Publisher'
-									{...form.getInputProps('publisher')}
-								/>
-								<NumberInput
-									label='Publication Year'
-									{...form.getInputProps('publicationYear')}
-									min={1900}
-									max={new Date().getFullYear()}
-								/>
 							</Stack>
 						</Grid.Col>
 						<Grid.Col span={{ base: 12, sm: 'content' }}>
 							<CoverImage coverUrl={coverUrl} onCoverChange={setCoverUrl} />
+						</Grid.Col>
+					</Grid>
+					<TextInput label='Subtitle' {...form.getInputProps('subtitle')} />
+					<Grid>
+						<Grid.Col span={{ base: 12, md: 8 }}>
+							<TextInput
+								label='Publisher'
+								{...form.getInputProps('publisher')}
+							/>
+						</Grid.Col>
+						<Grid.Col span={{ base: 12, md: 4 }}>
+							<NumberInput
+								label='Publication Year'
+								{...form.getInputProps('publicationYear')}
+								min={1900}
+								max={new Date().getFullYear()}
+							/>
 						</Grid.Col>
 					</Grid>
 					<Textarea
