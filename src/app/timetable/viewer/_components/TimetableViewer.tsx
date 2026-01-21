@@ -80,10 +80,10 @@ export default function TimetableViewer() {
 		enabled: !!classId && !!termId,
 	});
 
-	const activeTermId = termId ?? terms.find((t) => t.isActive)?.id;
+	const latestTermId = termId ?? terms[0]?.id;
 
-	if (!termId && activeTermId) {
-		setTermId(activeTermId);
+	if (!termId && latestTermId) {
+		setTermId(latestTermId);
 	}
 
 	function getEntitySelect() {

@@ -88,9 +88,9 @@ function getNavigation(
 ): NavigationGroup[] {
 	const allConfigs = [
 		{ config: academicConfig, enabled: moduleConfig.academic },
-		{ config: timetableConfig, enabled: moduleConfig.timetable },
 		{ config: lmsConfig, enabled: moduleConfig.lms },
 		{ config: registryConfig, enabled: moduleConfig.registry },
+		{ config: timetableConfig, enabled: moduleConfig.timetable },
 		{ config: admissionsConfig, enabled: moduleConfig.admissions },
 		{ config: financeConfig, enabled: moduleConfig.finance },
 		{ config: adminConfig, enabled: moduleConfig.admin },

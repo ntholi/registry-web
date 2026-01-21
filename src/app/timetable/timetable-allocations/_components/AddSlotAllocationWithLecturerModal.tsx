@@ -111,13 +111,13 @@ export default function AddSlotAllocationWithLecturerModal() {
 		queryFn: getAllVenues,
 	});
 
-	const activeTerm = terms.find((t) => t.isActive);
+	const latestTerm = terms[0];
 
 	const form = useForm<FormValues>({
 		validate: zodResolver(schema),
 		initialValues: {
 			userId: '',
-			termId: activeTerm?.id ?? 0,
+			termId: latestTerm?.id ?? 0,
 			semesterModuleId: 0,
 			numberOfStudents: 0,
 			numberOfGroups: 1,
@@ -260,8 +260,8 @@ export default function AddSlotAllocationWithLecturerModal() {
 
 	const handleOpen = () => {
 		form.reset();
-		if (activeTerm) {
-			form.setFieldValue('termId', activeTerm.id);
+		if (latestTerm) {
+			form.setFieldValue('termId', latestTerm.id);
 		}
 		form.setFieldValue('groupSlots', [createDefaultGroupSlot()]);
 		setSelectedModule(null);
@@ -326,7 +326,7 @@ export default function AddSlotAllocationWithLecturerModal() {
 				opened={opened}
 				onClose={close}
 				title='Add Allocation to Slot'
-				size='xl'
+				size='60vw'
 			>
 				<Stack gap='xl'>
 					<Alert color='red' variant='light' title='Proceed with Caution'>
