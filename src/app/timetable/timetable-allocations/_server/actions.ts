@@ -40,3 +40,7 @@ export async function updateTimetableAllocationVenueTypes(
 export async function deleteTimetableAllocation(id: number) {
 	return service.delete(id);
 }
+
+export async function deleteTimetableAllocations(ids: number[]) {
+	return service.deleteMany(ids);
+}

@@ -101,6 +101,12 @@ class TimetableAllocationService extends BaseService<
 		}, ['academic']);
 	}
 
+	async deleteMany(ids: number[]) {
+		return withAuth(async () => {
+			return this.repo.deleteAllocations(ids);
+		}, ['academic']);
+	}
+
 	async updateVenueTypes(allocationId: number, venueTypeIds: string[]) {
 		return withAuth(async () => {
 			await this.repo.updateVenueTypes(allocationId, venueTypeIds);

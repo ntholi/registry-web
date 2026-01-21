@@ -1,4 +1,4 @@
-import { eq } from 'drizzle-orm';
+import { eq, inArray } from 'drizzle-orm';
 import {
 	db,
 	timetableAllocations,
@@ -231,6 +231,24 @@ export default class TimetableAllocationRepository extends BaseRepository<
 				.delete(timetableAllocations)
 				.where(eq(timetableAllocations.id, id));
 			await this.rebuildTermSlots(tx, existing.termId);
+		});
+	}
+
+	async deleteAllocations(ids: number[]) {
+		if (ids.length === 0) return;
+		return db.transaction(async (tx) => {
+			const existing = await tx.query.timetableAllocations.findMany({
+				where: inArray(timetableAllocations.id, ids),
+			});
+			if (existing.length === 0) return;
+
+			const affectedTerms = new Set(existing.map((a) => a.termId));
+			await tx
+				.delete(timetableAllocations)
+				.where(inArray(timetableAllocations.id, ids));
+			for (const termId of affectedTerms) {
+				await this.rebuildTermSlots(tx, termId);
+			}
 		});
 	}
 

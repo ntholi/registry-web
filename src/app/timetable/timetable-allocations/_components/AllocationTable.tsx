@@ -11,11 +11,9 @@ import {
 	TableTr,
 	Text,
 } from '@mantine/core';
-import { useQueryClient } from '@tanstack/react-query';
 import { formatDuration } from '@/shared/lib/utils/dates';
 import { getStudentClassName } from '@/shared/lib/utils/utils';
-import { DeleteButton } from '@/shared/ui/adease';
-import { deleteTimetableAllocation } from '../_server/actions';
+import DeleteAllocationButton from './DeleteAllocationButton';
 import EditAllocationModal from './EditAllocationModal';
 
 export type AllocationData = {
@@ -97,8 +95,6 @@ export default function AllocationTable({
 	showEdit = true,
 	emptyMessage = 'No allocations found.',
 }: Props) {
-	const queryClient = useQueryClient();
-
 	if (allocations.length === 0) {
 		return (
 			<Center h={200}>
@@ -190,20 +186,10 @@ export default function AllocationTable({
 										}
 									/>
 								)}
-								<DeleteButton
-									variant='subtle'
-									size='sm'
-									handleDelete={async () => {
-										await deleteTimetableAllocation(allocation.id);
-									}}
-									queryKey={['timetable-allocations', userId]}
-									message='Are you sure you want to delete this allocation?'
-									onSuccess={async () => {
-										await queryClient.invalidateQueries({
-											queryKey: ['timetable-slots'],
-											refetchType: 'all',
-										});
-									}}
+								<DeleteAllocationButton
+									allocation={allocation}
+									allAllocations={allocations}
+									userId={userId}
 								/>
 							</Group>
 						</TableTd>
