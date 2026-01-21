@@ -321,8 +321,8 @@ export function Navigation({ navigation }: { navigation: NavigationGroup[] }) {
 		<Stack gap='md'>
 			<Box>
 				<TextInput
-					placeholder='Search menu...'
-					leftSection={<IconSearch size='1rem' />}
+					placeholder='Menu...'
+					leftSection={<IconSearch size='0.9rem' />}
 					value={search}
 					onChange={(e) => setSearch(e.target.value)}
 					variant='unstyled'
