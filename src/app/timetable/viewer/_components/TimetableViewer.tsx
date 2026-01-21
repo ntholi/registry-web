@@ -9,15 +9,14 @@ import {
 	Select,
 	Stack,
 	Text,
+	Title,
 } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
 import TimetableGrid from '@timetable/_shared/components/TimetableGrid';
 import { getAllVenues } from '@timetable/venues';
-import { useAtom } from 'jotai';
-import { useEffect, useState } from 'react';
+import { parseAsInteger, parseAsString, useQueryState } from 'nuqs';
 import { getAllTerms } from '@/app/registry/terms';
-import { formatSemester } from '@/shared/lib/utils/utils';
-import { selectedTermAtom } from '@/shared/ui/atoms/termAtoms';
+import { getStudentClassName } from '@/shared/lib/utils/utils';
 import {
 	getClassesWithTimetable,
 	getClassTimetableSlots,
@@ -28,13 +27,14 @@ import {
 type ViewType = 'lecturers' | 'venues' | 'students';
 
 export default function TimetableViewer() {
-	const [selectedTermId, setSelectedTermId] = useAtom(selectedTermAtom);
-	const [viewType, setViewType] = useState<ViewType>('lecturers');
-	const [selectedLecturerId, setSelectedLecturerId] = useState<string | null>(
-		null
+	const [termId, setTermId] = useQueryState('term', parseAsInteger);
+	const [viewType, setViewType] = useQueryState(
+		'view',
+		parseAsString.withDefault('lecturers')
 	);
-	const [selectedVenueId, setSelectedVenueId] = useState<string | null>(null);
-	const [selectedClassId, setSelectedClassId] = useState<number | null>(null);
+	const [lecturerId, setLecturerId] = useQueryState('lecturer', parseAsString);
+	const [venueId, setVenueId] = useQueryState('venue', parseAsString);
+	const [classId, setClassId] = useQueryState('class', parseAsInteger);
 
 	const { data: terms = [] } = useQuery({
 		queryKey: ['terms'],
@@ -52,40 +52,38 @@ export default function TimetableViewer() {
 	});
 
 	const { data: classes = [] } = useQuery({
-		queryKey: ['classes-for-term', selectedTermId],
-		queryFn: () => getClassesWithTimetable(selectedTermId!),
-		enabled: !!selectedTermId,
+		queryKey: ['classes-for-term', termId],
+		queryFn: () => getClassesWithTimetable(termId!),
+		enabled: !!termId,
 	});
 
 	const lecturers = lecturersData?.items ?? [];
 
+	const selectedClass = classes.find((cls) => cls.semesterId === classId);
+
 	const { data: lecturerSlots = [], isLoading: isLoadingLecturer } = useQuery({
-		queryKey: ['lecturer-timetable', selectedLecturerId, selectedTermId],
-		queryFn: () =>
-			getLecturerTimetableSlots(selectedLecturerId!, selectedTermId!),
-		enabled: !!selectedLecturerId && !!selectedTermId,
+		queryKey: ['lecturer-timetable', lecturerId, termId],
+		queryFn: () => getLecturerTimetableSlots(lecturerId!, termId!),
+		enabled: !!lecturerId && !!termId,
 	});
 
 	const { data: venueSlots = [], isLoading: isLoadingVenue } = useQuery({
-		queryKey: ['venue-timetable', selectedVenueId, selectedTermId],
-		queryFn: () => getVenueTimetableSlots(selectedVenueId!, selectedTermId!),
-		enabled: !!selectedVenueId && !!selectedTermId,
+		queryKey: ['venue-timetable', venueId, termId],
+		queryFn: () => getVenueTimetableSlots(venueId!, termId!),
+		enabled: !!venueId && !!termId,
 	});
 
 	const { data: classSlots = [], isLoading: isLoadingClass } = useQuery({
-		queryKey: ['class-timetable', selectedClassId, selectedTermId],
-		queryFn: () => getClassTimetableSlots(selectedClassId!, selectedTermId!),
-		enabled: !!selectedClassId && !!selectedTermId,
+		queryKey: ['class-timetable', classId, termId],
+		queryFn: () => getClassTimetableSlots(classId!, termId!),
+		enabled: !!classId && !!termId,
 	});
 
-	useEffect(() => {
-		if (!selectedTermId && terms.length > 0) {
-			const activeTerm = terms.find((term) => term.isActive);
-			if (activeTerm) {
-				setSelectedTermId(activeTerm.id);
-			}
-		}
-	}, [selectedTermId, terms, setSelectedTermId]);
+	const activeTermId = termId ?? terms.find((t) => t.isActive)?.id;
+
+	if (!termId && activeTermId) {
+		setTermId(activeTermId);
+	}
 
 	function getEntitySelect() {
 		switch (viewType) {
@@ -99,8 +97,8 @@ export default function TimetableViewer() {
 							value: lecturer.id,
 							label: lecturer.name ?? lecturer.email ?? 'Unknown',
 						}))}
-						value={selectedLecturerId}
-						onChange={setSelectedLecturerId}
+						value={lecturerId}
+						onChange={(value) => setLecturerId(value)}
 						clearable
 						w={220}
 					/>
@@ -115,8 +113,8 @@ export default function TimetableViewer() {
 							value: venue.id,
 							label: venue.name,
 						}))}
-						value={selectedVenueId}
-						onChange={setSelectedVenueId}
+						value={venueId}
+						onChange={(value) => setVenueId(value)}
 						clearable
 						w={220}
 					/>
@@ -129,12 +127,13 @@ export default function TimetableViewer() {
 						searchable
 						data={classes.map((cls) => ({
 							value: cls.semesterId.toString(),
-							label: `${cls.programCode} - ${formatSemester(cls.semesterNumber, 'short')}`,
+							label: getStudentClassName({
+								semesterNumber: cls.semesterNumber,
+								structure: { program: { code: cls.programCode } },
+							}),
 						}))}
-						value={selectedClassId ? selectedClassId.toString() : null}
-						onChange={(value) =>
-							setSelectedClassId(value ? Number(value) : null)
-						}
+						value={classId ? classId.toString() : null}
+						onChange={(value) => setClassId(value ? Number(value) : null)}
 						clearable
 						w={220}
 					/>
@@ -145,16 +144,72 @@ export default function TimetableViewer() {
 	function getSelectedEntity() {
 		switch (viewType) {
 			case 'lecturers':
-				return selectedLecturerId;
+				return lecturerId;
 			case 'venues':
-				return selectedVenueId;
+				return venueId;
 			case 'students':
-				return selectedClassId;
+				return classId;
 		}
 	}
 
+	function renderClassTimetables() {
+		if (!selectedClass) {
+			return (
+				<Center h={400}>
+					<Text c='dimmed'>Select a class to view timetable</Text>
+				</Center>
+			);
+		}
+
+		const baseClassName = getStudentClassName({
+			semesterNumber: selectedClass.semesterNumber,
+			structure: { program: { code: selectedClass.programCode } },
+		});
+
+		if (selectedClass.groupNames.length === 0) {
+			return (
+				<TimetableGrid
+					slots={classSlots}
+					isLoading={isLoadingClass}
+					emptyMessage='No timetable found for this class.'
+					showVenue
+					showClass={false}
+					showLecturer
+				/>
+			);
+		}
+
+		return (
+			<Stack gap='lg'>
+				{selectedClass.groupNames.map((groupName) => {
+					const groupSlots = classSlots.filter((slot) =>
+						slot.timetableSlotAllocations.some(
+							(sa) =>
+								sa.timetableAllocation.groupName === groupName ||
+								!sa.timetableAllocation.groupName
+						)
+					);
+
+					return (
+						<Stack key={groupName} gap='sm'>
+							<Title order={4}>{`${baseClassName}${groupName}`}</Title>
+							<TimetableGrid
+								slots={groupSlots}
+								isLoading={isLoadingClass}
+								emptyMessage={`No timetable found for ${baseClassName}${groupName}.`}
+								showVenue
+								showClass={false}
+								showLecturer
+							/>
+						</Stack>
+					);
+				})}
+			</Stack>
+		);
+	}
+
 	function renderTimetable() {
-		if (!selectedTermId) {
+		if (!termId) {
 			return (
 				<Center h={400}>
 					<Text c='dimmed'>Please select a term to view timetables</Text>
@@ -200,16 +255,7 @@ export default function TimetableViewer() {
 					/>
 				);
 			case 'students':
-				return (
-					<TimetableGrid
-						slots={classSlots}
-						isLoading={isLoadingClass}
-						emptyMessage='No timetable found for this class.'
-						showVenue
-						showClass={false}
-						showLecturer
-					/>
-				);
+				return renderClassTimetables();
 		}
 	}
 
@@ -218,7 +264,7 @@ export default function TimetableViewer() {
 			<Paper p='md' radius='md' withBorder>
 				<Group justify='space-between' align='center'>
 					<SegmentedControl
-						value={viewType}
+						value={viewType ?? 'lecturers'}
 						onChange={(value) => setViewType(value as ViewType)}
 						data={[
 							{ label: 'Lecturers', value: 'lecturers' },
@@ -236,14 +282,8 @@ export default function TimetableViewer() {
 								value: term.id.toString(),
 								label: term.code,
 							}))}
-							value={selectedTermId ? selectedTermId.toString() : null}
-							onChange={(value) => {
-								if (value) {
-									setSelectedTermId(Number(value));
-								} else {
-									setSelectedTermId(null);
-								}
-							}}
+							value={termId ? termId.toString() : null}
+							onChange={(value) => setTermId(value ? Number(value) : null)}
 							clearable
 							w={180}
 						/>

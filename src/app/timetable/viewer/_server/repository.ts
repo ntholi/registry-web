@@ -172,6 +172,7 @@ export async function getClassesForTerm(termId: number) {
 		where: eq(timetableAllocations.termId, termId),
 		columns: {
 			semesterModuleId: true,
+			groupName: true,
 		},
 		with: {
 			semesterModule: {
@@ -214,24 +215,39 @@ export async function getClassesForTerm(termId: number) {
 			semesterNumber: string;
 			programCode: string;
 			programName: string;
+			groupNames: Set<string | null>;
 		}
 	>();
 
 	for (const allocation of allocations) {
 		const semester = allocation.semesterModule.semester;
-		if (semester && !classMap.has(semester.id)) {
-			classMap.set(semester.id, {
-				semesterId: semester.id,
-				semesterNumber: semester.semesterNumber,
-				programCode: semester.structure.program.code,
-				programName: semester.structure.program.name,
-			});
+		if (semester) {
+			const existing = classMap.get(semester.id);
+			if (existing) {
+				existing.groupNames.add(allocation.groupName);
+			} else {
+				classMap.set(semester.id, {
+					semesterId: semester.id,
+					semesterNumber: semester.semesterNumber,
+					programCode: semester.structure.program.code,
+					programName: semester.structure.program.name,
+					groupNames: new Set([allocation.groupName]),
+				});
+			}
 		}
 	}
 
-	return Array.from(classMap.values()).sort((a, b) => {
-		const codeCompare = a.programCode.localeCompare(b.programCode);
-		if (codeCompare !== 0) return codeCompare;
-		return a.semesterNumber.localeCompare(b.semesterNumber);
-	});
+	return Array.from(classMap.values())
+		.map((cls) => ({
+			semesterId: cls.semesterId,
+			semesterNumber: cls.semesterNumber,
+			programCode: cls.programCode,
+			programName: cls.programName,
+			groupNames: Array.from(cls.groupNames).filter(Boolean).sort() as string[],
+		}))
+		.sort((a, b) => {
+			const codeCompare = a.programCode.localeCompare(b.programCode);
+			if (codeCompare !== 0) return codeCompare;
+			return a.semesterNumber.localeCompare(b.semesterNumber);
+		});
 }
