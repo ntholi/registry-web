@@ -43,7 +43,7 @@ function makeAllocation(
 		semesterModule?: {
 			id?: number;
 			semesterId?: number | null;
-			module?: { id?: number; name?: string };
+			module?: { id?: number; code?: string; name?: string };
 		};
 		user?: {
 			userSchools?: { schoolId: number }[];
@@ -56,6 +56,8 @@ function makeAllocation(
 		overrides.semesterModule?.id ??
 		nextSemesterModuleId();
 	const moduleIdValue = overrides.semesterModule?.module?.id ?? nextModuleId();
+	const moduleCodeValue =
+		overrides.semesterModule?.module?.code ?? `MOD-${moduleIdValue}`;
 	const moduleNameValue =
 		overrides.semesterModule?.module?.name ?? `Module-${moduleIdValue}`;
 	const semesterIdValue = overrides.semesterModule?.semesterId ?? null;
@@ -65,6 +67,7 @@ function makeAllocation(
 		semesterId: overrides.semesterModule?.semesterId ?? semesterIdValue,
 		module: {
 			id: moduleIdValue,
+			code: moduleCodeValue,
 			name: moduleNameValue,
 		},
 	};

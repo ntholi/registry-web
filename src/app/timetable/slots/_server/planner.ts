@@ -18,6 +18,7 @@ export type AllocationRecord = typeof timetableAllocations.$inferSelect & {
 		semesterId: number | null;
 		module: {
 			id: number;
+			code: string;
 			name: string;
 		};
 	};
@@ -45,7 +46,7 @@ interface PlanSlot {
 	allocationIds: Set<number>;
 	lecturerIds: Set<string>;
 	semesterIds: Set<number>;
-	moduleName: string;
+	moduleCode: string;
 	semesterModuleId: number;
 	classType: string;
 }
@@ -57,6 +58,7 @@ interface LecturerSchedule {
 
 interface ClassSchedule {
 	semesterId: number;
+	groupName: string | null;
 	slotsByDay: Map<DayOfWeek, PlanSlot[]>;
 }
 
@@ -64,10 +66,12 @@ interface PlanningState {
 	slots: Map<string, PlanSlot>;
 	daySchedules: Map<string, PlanSlot[]>;
 	lecturerSchedules: Map<string, LecturerSchedule>;
-	classSchedules: Map<number, ClassSchedule>;
+	classSchedules: Map<string, ClassSchedule>;
+	classScheduleKeys: Map<number, Set<string>>;
 	venueLoad: Map<string, number>;
 	allocationPlacements: Map<number, string>;
 	maxSlotsPerDay: number;
+	warn: (message: string) => void;
 }
 
 interface PlacementCandidate {
@@ -120,17 +124,20 @@ export function buildTermPlan(
 	termId: number,
 	allocations: AllocationRecord[],
 	venues: VenueRecord[],
-	maxSlotsPerDay?: number
+	maxSlotsPerDay?: number,
+	warn?: (message: string) => void
 ): PlannedSlotInput[] {
 	const planningState: PlanningState = {
 		slots: new Map(),
 		daySchedules: new Map(),
 		lecturerSchedules: new Map(),
 		classSchedules: new Map(),
+		classScheduleKeys: new Map(),
 		venueLoad: new Map(),
 		allocationPlacements: new Map(),
 		maxSlotsPerDay:
 			maxSlotsPerDay ?? config.timetable.timetableAllocations.maxSlotsPerDay,
+		warn: warn ?? console.warn,
 	};
 
 	const sortedAllocations = sortAllocationsByConstraints(allocations);
@@ -284,6 +291,9 @@ function attemptPlaceAllocation(
 	);
 
 	if (relaxedConsecutivePlacements.length > 0) {
+		planningState.warn(
+			`Relaxed consecutive slots constraint for allocation ${allocation.id}`
+		);
 		relaxedConsecutivePlacements.sort((a, b) => a.score - b.score);
 		const best = relaxedConsecutivePlacements[0];
 		applyPlacement(allocation, best, planningState);
@@ -297,6 +307,9 @@ function attemptPlaceAllocation(
 	);
 
 	if (relaxedMaxSlotsPlacements.length > 0) {
+		planningState.warn(
+			`Relaxed max slots per day constraint for allocation ${allocation.id}`
+		);
 		relaxedMaxSlotsPlacements.sort((a, b) => a.score - b.score);
 		const best = relaxedMaxSlotsPlacements[0];
 		applyPlacement(allocation, best, planningState);
@@ -419,7 +432,10 @@ function collectCandidateVenues(
 	candidates.sort((a, b) => {
 		const capacityDiffA = Math.abs(a.capacity - requiredCapacity);
 		const capacityDiffB = Math.abs(b.capacity - requiredCapacity);
-		return capacityDiffA - capacityDiffB;
+		if (capacityDiffA !== capacityDiffB) {
+			return capacityDiffA - capacityDiffB;
+		}
+		return Math.random() - 0.5;
 	});
 
 	return candidates;
@@ -548,7 +564,7 @@ function findCombinableSlot(
 
 	for (const slot of daySlots) {
 		if (
-			slot.moduleName !== allocation.semesterModule.module.name ||
+			slot.moduleCode !== allocation.semesterModule.module.code ||
 			!slot.lecturerIds.has(allocation.userId) ||
 			slot.classType !== allocation.classType
 		) {
@@ -658,12 +674,14 @@ function validatePlacement(
 		return classCheck;
 	}
 
+	const lecturerDaySlots =
+		planningState.lecturerSchedules
+			.get(allocation.userId)
+			?.slotsByDay.get(day) ?? [];
 	const consecutiveCheckLecturer = checkConsecutiveSlots(
-		allocation.userId,
-		day,
 		startMinutes,
 		endMinutes,
-		planningState.lecturerSchedules.get(allocation.userId),
+		lecturerDaySlots,
 		'lecturer'
 	);
 	if (!consecutiveCheckLecturer.valid) {
@@ -672,12 +690,15 @@ function validatePlacement(
 
 	const semesterId = allocation.semesterModule.semesterId;
 	if (semesterId !== null) {
-		const consecutiveCheckClass = checkConsecutiveSlots(
-			String(semesterId),
+		const classDaySlots = getClassSlotsForLimits(
+			allocation,
 			day,
+			planningState
+		);
+		const consecutiveCheckClass = checkConsecutiveSlots(
 			startMinutes,
 			endMinutes,
-			planningState.classSchedules.get(semesterId),
+			classDaySlots,
 			'class'
 		);
 		if (!consecutiveCheckClass.valid) {
@@ -686,9 +707,8 @@ function validatePlacement(
 	}
 
 	const maxSlotsCheckLecturer = checkMaxSlotsPerDay(
-		allocation.userId,
 		day,
-		planningState.lecturerSchedules.get(allocation.userId),
+		lecturerDaySlots,
 		planningState.maxSlotsPerDay,
 		'lecturer'
 	);
@@ -697,10 +717,14 @@ function validatePlacement(
 	}
 
 	if (semesterId !== null) {
-		const maxSlotsCheckClass = checkMaxSlotsPerDay(
-			String(semesterId),
+		const classDaySlots = getClassSlotsForLimits(
+			allocation,
 			day,
-			planningState.classSchedules.get(semesterId),
+			planningState
+		);
+		const maxSlotsCheckClass = checkMaxSlotsPerDay(
+			day,
+			classDaySlots,
 			planningState.maxSlotsPerDay,
 			'class'
 		);
@@ -737,7 +761,7 @@ function checkLecturerConflicts(
 			(startMinutes <= slot.startMinutes && endMinutes >= slot.endMinutes);
 
 		if (overlaps) {
-			if (slot.moduleName !== allocation.semesterModule.module.name) {
+			if (slot.moduleCode !== allocation.semesterModule.module.code) {
 				return {
 					valid: false,
 					reason: `Lecturer conflict: lecturer has another module at this time`,
@@ -776,25 +800,25 @@ function checkClassConflicts(
 		return { valid: true };
 	}
 
-	const classSchedule = planningState.classSchedules.get(semesterId);
-
-	if (!classSchedule) {
+	const schedules = getClassSchedulesForConflicts(allocation, planningState);
+	if (schedules.length === 0) {
 		return { valid: true };
 	}
 
-	const daySlots = classSchedule.slotsByDay.get(day) ?? [];
+	for (const schedule of schedules) {
+		const daySlots = schedule.slotsByDay.get(day) ?? [];
+		for (const slot of daySlots) {
+			const overlaps =
+				(startMinutes >= slot.startMinutes && startMinutes < slot.endMinutes) ||
+				(endMinutes > slot.startMinutes && endMinutes <= slot.endMinutes) ||
+				(startMinutes <= slot.startMinutes && endMinutes >= slot.endMinutes);
 
-	for (const slot of daySlots) {
-		const overlaps =
-			(startMinutes >= slot.startMinutes && startMinutes < slot.endMinutes) ||
-			(endMinutes > slot.startMinutes && endMinutes <= slot.endMinutes) ||
-			(startMinutes <= slot.startMinutes && endMinutes >= slot.endMinutes);
-
-		if (overlaps) {
-			return {
-				valid: false,
-				reason: `Class conflict: class has another module at this time`,
-			};
+			if (overlaps) {
+				return {
+					valid: false,
+					reason: `Class conflict: class has another module at this time`,
+				};
+			}
 		}
 	}
 
@@ -802,19 +826,11 @@ function checkClassConflicts(
 }
 
 function checkConsecutiveSlots(
-	_entityId: string,
-	day: DayOfWeek,
 	startMinutes: number,
 	endMinutes: number,
-	schedule: LecturerSchedule | ClassSchedule | undefined,
+	daySlots: PlanSlot[],
 	entityType: 'lecturer' | 'class'
 ): ConstraintCheck {
-	if (!schedule) {
-		return { valid: true };
-	}
-
-	const daySlots = schedule.slotsByDay.get(day) ?? [];
-
 	if (daySlots.length === 0) {
 		return { valid: true };
 	}
@@ -864,18 +880,11 @@ function checkConsecutiveSlots(
 }
 
 function checkMaxSlotsPerDay(
-	_entityId: string,
 	day: DayOfWeek,
-	schedule: LecturerSchedule | ClassSchedule | undefined,
+	daySlots: PlanSlot[],
 	maxSlots: number,
 	entityType: 'lecturer' | 'class'
 ): ConstraintCheck {
-	if (!schedule) {
-		return { valid: true };
-	}
-
-	const daySlots = schedule.slotsByDay.get(day) ?? [];
-
 	if (daySlots.length >= maxSlots) {
 		return {
 			valid: false,
@@ -937,7 +946,7 @@ function applyPlacement(
 			allocationIds: new Set([allocation.id]),
 			lecturerIds: new Set([allocation.userId]),
 			semesterIds: new Set(semesterId !== null ? [semesterId] : []),
-			moduleName: allocation.semesterModule.module.name,
+			moduleCode: allocation.semesterModule.module.code,
 			semesterModuleId: allocation.semesterModuleId,
 			classType: allocation.classType,
 		};
@@ -966,6 +975,7 @@ function applyPlacement(
 		if (semesterId !== null) {
 			existing.semesterIds.add(semesterId);
 		}
+		updateScheduleTracking(existing, allocation, planningState);
 	}
 
 	planningState.allocationPlacements.set(allocation.id, placement.slotKey);
@@ -984,28 +994,22 @@ function updateScheduleTracking(
 		};
 		planningState.lecturerSchedules.set(allocation.userId, lecturerSchedule);
 	}
-
-	const lecturerDaySlots =
-		lecturerSchedule.slotsByDay.get(slot.dayOfWeek) ?? [];
-	lecturerDaySlots.push(slot);
-	lecturerDaySlots.sort((a, b) => a.startMinutes - b.startMinutes);
-	lecturerSchedule.slotsByDay.set(slot.dayOfWeek, lecturerDaySlots);
+	addSlotToSchedule(lecturerSchedule.slotsByDay, slot.dayOfWeek, slot);
 
 	const semesterId = allocation.semesterModule.semesterId;
 	if (semesterId !== null) {
-		let classSchedule = planningState.classSchedules.get(semesterId);
+		const classKey = buildClassKey(semesterId, allocation.groupName ?? null);
+		let classSchedule = planningState.classSchedules.get(classKey);
 		if (!classSchedule) {
 			classSchedule = {
 				semesterId,
+				groupName: allocation.groupName ?? null,
 				slotsByDay: new Map(),
 			};
-			planningState.classSchedules.set(semesterId, classSchedule);
+			planningState.classSchedules.set(classKey, classSchedule);
+			registerClassScheduleKey(semesterId, classKey, planningState);
 		}
-
-		const classDaySlots = classSchedule.slotsByDay.get(slot.dayOfWeek) ?? [];
-		classDaySlots.push(slot);
-		classDaySlots.sort((a, b) => a.startMinutes - b.startMinutes);
-		classSchedule.slotsByDay.set(slot.dayOfWeek, classDaySlots);
+		addSlotToSchedule(classSchedule.slotsByDay, slot.dayOfWeek, slot);
 	}
 }
 
@@ -1060,9 +1064,11 @@ function clonePlanningState(state: PlanningState): PlanningState {
 		daySchedules: new Map(),
 		lecturerSchedules: new Map(),
 		classSchedules: new Map(),
+		classScheduleKeys: new Map(),
 		venueLoad: new Map(state.venueLoad),
 		allocationPlacements: new Map(state.allocationPlacements),
 		maxSlotsPerDay: state.maxSlotsPerDay,
+		warn: state.warn,
 	};
 
 	for (const [key, slot] of state.slots.entries()) {
@@ -1092,12 +1098,17 @@ function clonePlanningState(state: PlanningState): PlanningState {
 	for (const [key, schedule] of state.classSchedules.entries()) {
 		const newSchedule: ClassSchedule = {
 			semesterId: schedule.semesterId,
+			groupName: schedule.groupName,
 			slotsByDay: new Map(),
 		};
 		for (const [day, slots] of schedule.slotsByDay.entries()) {
 			newSchedule.slotsByDay.set(day, [...slots]);
 		}
 		cloned.classSchedules.set(key, newSchedule);
+	}
+
+	for (const [semesterId, keys] of state.classScheduleKeys.entries()) {
+		cloned.classScheduleKeys.set(semesterId, new Set(keys));
 	}
 
 	return cloned;
@@ -1111,9 +1122,11 @@ function restorePlanningState(
 	target.daySchedules = backup.daySchedules;
 	target.lecturerSchedules = backup.lecturerSchedules;
 	target.classSchedules = backup.classSchedules;
+	target.classScheduleKeys = backup.classScheduleKeys;
 	target.venueLoad = backup.venueLoad;
 	target.allocationPlacements = backup.allocationPlacements;
 	target.maxSlotsPerDay = backup.maxSlotsPerDay;
+	target.warn = backup.warn;
 }
 
 function validateFinalPlan(
@@ -1167,6 +1180,106 @@ function buildSlotKey(
 	end: number
 ): string {
 	return `${venueId}-${day}-${start}-${end}`;
+}
+
+function buildClassKey(semesterId: number, groupName: string | null): string {
+	const groupKey = groupName ?? 'all';
+	return `${semesterId}-${groupKey}`;
+}
+
+function registerClassScheduleKey(
+	semesterId: number,
+	classKey: string,
+	planningState: PlanningState
+): void {
+	const keys = planningState.classScheduleKeys.get(semesterId) ?? new Set();
+	keys.add(classKey);
+	planningState.classScheduleKeys.set(semesterId, keys);
+}
+
+function getClassSchedulesForSemester(
+	semesterId: number,
+	planningState: PlanningState
+): ClassSchedule[] {
+	const keys = planningState.classScheduleKeys.get(semesterId);
+	if (!keys) {
+		return [];
+	}
+
+	const schedules: ClassSchedule[] = [];
+	for (const key of keys) {
+		const schedule = planningState.classSchedules.get(key);
+		if (schedule) {
+			schedules.push(schedule);
+		}
+	}
+	return schedules;
+}
+
+function getClassSchedulesForConflicts(
+	allocation: AllocationRecord,
+	planningState: PlanningState
+): ClassSchedule[] {
+	const semesterId = allocation.semesterModule.semesterId;
+	if (semesterId === null) {
+		return [];
+	}
+	const groupName = allocation.groupName ?? null;
+
+	const schedules = getClassSchedulesForSemester(semesterId, planningState);
+	if (groupName === null) {
+		return schedules;
+	}
+
+	return schedules.filter(
+		(schedule) =>
+			schedule.groupName === null || schedule.groupName === groupName
+	);
+}
+
+function getClassSlotsForLimits(
+	allocation: AllocationRecord,
+	day: DayOfWeek,
+	planningState: PlanningState
+): PlanSlot[] {
+	const semesterId = allocation.semesterModule.semesterId;
+	if (semesterId === null) {
+		return [];
+	}
+	const groupName = allocation.groupName ?? null;
+
+	const slots: PlanSlot[] = [];
+	const allSchedule = planningState.classSchedules.get(
+		buildClassKey(semesterId, null)
+	);
+	if (allSchedule) {
+		slots.push(...(allSchedule.slotsByDay.get(day) ?? []));
+	}
+
+	if (groupName !== null) {
+		const groupSchedule = planningState.classSchedules.get(
+			buildClassKey(semesterId, groupName)
+		);
+		if (groupSchedule) {
+			slots.push(...(groupSchedule.slotsByDay.get(day) ?? []));
+		}
+	}
+
+	return slots;
+}
+
+function addSlotToSchedule(
+	slotsByDay: Map<DayOfWeek, PlanSlot[]>,
+	day: DayOfWeek,
+	slot: PlanSlot
+): void {
+	const daySlots = slotsByDay.get(day) ?? [];
+	if (daySlots.some((item) => item.key === slot.key)) {
+		return;
+	}
+	daySlots.push(slot);
+	daySlots.sort((a, b) => a.startMinutes - b.startMinutes);
+	slotsByDay.set(day, daySlots);
 }
 
 function toMinutes(time: string): number {
