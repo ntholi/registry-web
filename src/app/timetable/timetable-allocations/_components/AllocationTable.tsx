@@ -121,12 +121,10 @@ export default function AllocationTable({
 							{allocation.semesterModule?.module?.code})
 						</TableTd>
 						<TableTd>
-							{allocation.semesterModule.semester
-								? getStudentClassName(
-										allocation.semesterModule.semester,
-										allocation.groupName
-									)
-								: 'Unknown'}
+							{getStudentClassName(
+								allocation.semesterModule.semester,
+								allocation.groupName
+							)}
 						</TableTd>
 						<TableTd>{formatDuration(allocation.duration || 0)}</TableTd>
 						<TableTd>

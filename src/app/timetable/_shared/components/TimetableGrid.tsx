@@ -98,16 +98,10 @@ function groupAllocationsByModule(slot: TimetableSlotData): GroupedModule[] {
 		const moduleName = allocation.semesterModule.module.name;
 		const moduleCode = allocation.semesterModule.module.code;
 		const classType = allocation.classType;
-		const { semester } = allocation.semesterModule;
-		const className = semester?.structure
-			? getStudentClassName(
-					semester as {
-						semesterNumber: string;
-						structure: { program: { code: string } };
-					},
-					allocation.groupName
-				)
-			: 'Unknown';
+		const className = getStudentClassName(
+			allocation.semesterModule.semester,
+			allocation.groupName
+		);
 		const lecturerName = allocation.user.name || 'Unknown';
 
 		if (moduleMap.has(moduleId)) {

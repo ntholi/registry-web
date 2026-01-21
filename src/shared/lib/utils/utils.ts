@@ -126,12 +126,16 @@ export function toClassName(programCode: string, semesterName: string) {
 }
 
 export function getStudentClassName(
-	structureSemester: {
-		semesterNumber: string;
-		structure: { program: { code: string } };
-	},
+	structureSemester:
+		| {
+				semesterNumber: string;
+				structure?: { program: { code: string } } | null;
+		  }
+		| null
+		| undefined,
 	groupName?: string | null
 ) {
+	if (!structureSemester?.structure) return 'Unknown';
 	const code = structureSemester.structure.program.code;
 	const num = structureSemester.semesterNumber;
 	return `${code}${formatSemester(num, 'mini')}${groupName ?? ''}`;
