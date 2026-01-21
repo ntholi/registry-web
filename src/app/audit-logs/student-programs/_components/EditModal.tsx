@@ -205,6 +205,7 @@ export default function EditStudentProgramModal({
 				onClose={close}
 				title='Edit Student Program'
 				size='lg'
+				onClick={(e) => e.stopPropagation()}
 			>
 				<form onSubmit={form.onSubmit(handleSubmit)}>
 					<Tabs defaultValue='details'>
