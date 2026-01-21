@@ -13,11 +13,22 @@ import {
 	IconUserPlus,
 	IconUsers,
 } from '@tabler/icons-react';
-import type { ModuleConfig, NavItem } from '@/app/dashboard/module-config.types';
+import type {
+	ModuleConfig,
+	NavItem,
+} from '@/app/dashboard/module-config.types';
 import { moduleConfig } from '@/config/modules.config';
-import { countApprovedGraduationClearances, countPendingGraduationClearances, countRejectedGraduationClearances } from './graduation';
-import { UserPosition, UserRole } from '../auth/_database';
-import { countApprovedClearances, countPendingClearances, countRejectedClearances } from './registration';
+import type { UserPosition, UserRole } from '../auth/_database';
+import {
+	countApprovedGraduationClearances,
+	countPendingGraduationClearances,
+	countRejectedGraduationClearances,
+} from './graduation';
+import {
+	countApprovedClearances,
+	countPendingClearances,
+	countRejectedClearances,
+} from './registration';
 
 export const registryConfig: ModuleConfig = {
 	id: 'registry',
@@ -74,7 +85,7 @@ export const registryConfig: ModuleConfig = {
 					},
 				],
 			},
-						{
+			{
 				label: 'Registration Clearance',
 				icon: IconClipboardCheck,
 				roles: ['finance', 'library', 'resource'],

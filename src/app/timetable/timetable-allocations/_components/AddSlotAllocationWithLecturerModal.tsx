@@ -346,7 +346,7 @@ export default function AddSlotAllocationWithLecturerModal() {
 				opened={opened}
 				onClose={close}
 				title='Add Allocation to Slot'
-				size='90vw'
+				size='xl'
 			>
 				<Stack gap='xl'>
 					<Alert color='red' variant='light' title='Proceed with Caution'>

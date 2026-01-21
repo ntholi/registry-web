@@ -87,6 +87,15 @@ export default class TimetableAllocationRepository extends BaseRepository<
 						venueType: true,
 					},
 				},
+				timetableSlotAllocations: {
+					with: {
+						slot: {
+							with: {
+								venue: true,
+							},
+						},
+					},
+				},
 			},
 			orderBy: (timetableAllocations, { desc }) => [
 				desc(timetableAllocations.createdAt),

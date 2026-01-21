@@ -57,6 +57,14 @@ export type AllocationData = {
 			name: string;
 		};
 	}[];
+	timetableSlotAllocations?: {
+		slot: {
+			venue: {
+				id: string;
+				name: string;
+			};
+		};
+	}[];
 };
 
 type Defaults = {
@@ -131,15 +139,17 @@ export default function AllocationTable({
 							<Text size='sm'>{allocation.numberOfStudents}</Text>
 						</TableTd>
 						<TableTd>
-							{allocation.timetableAllocationVenueTypes &&
-							allocation.timetableAllocationVenueTypes.length > 0 ? (
-								<Group gap='xs'>
-									{allocation.timetableAllocationVenueTypes.map((avt) => (
-										<Text key={avt.venueTypeId} size='sm'>
-											{avt.venueType?.name}
-										</Text>
-									))}
-								</Group>
+							{allocation.timetableSlotAllocations &&
+							allocation.timetableSlotAllocations.length > 0 ? (
+								<Text size='sm'>
+									{[
+										...new Set(
+											allocation.timetableSlotAllocations.map(
+												(sa) => sa.slot.venue.name
+											)
+										),
+									].join(', ')}
+								</Text>
 							) : (
 								<Text size='sm' c='dimmed'>
 									-
