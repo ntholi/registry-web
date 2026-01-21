@@ -14,6 +14,8 @@ export const books = pgTable(
 		id: serial().primaryKey(),
 		isbn: text().notNull().unique(),
 		title: text().notNull(),
+		subtitle: text(),
+		description: text(),
 		publisher: text(),
 		publicationYear: integer(),
 		coverUrl: text(),

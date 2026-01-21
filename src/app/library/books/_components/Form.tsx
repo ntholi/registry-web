@@ -8,15 +8,19 @@ import {
 	NumberInput,
 	Paper,
 	Stack,
+	Textarea,
 	TextInput,
 } from '@mantine/core';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { createInsertSchema } from 'drizzle-zod';
 import { useRouter } from 'nextjs-toploader/app';
 import { useState } from 'react';
 import { Form } from '@/shared/ui/adease';
 import type { BookLookupResult } from '../../_lib/google-books';
-import { getAllAuthors } from '../../authors/_server/actions';
+import {
+	getAllAuthors,
+	getOrCreateAuthors,
+} from '../../authors/_server/actions';
 import type { BookWithRelations } from '../_lib/types';
 import BookLookupModal from './BookLookupModal';
 import CoverImage from './CoverImage';
@@ -31,6 +35,7 @@ type Props = {
 
 export default function BookForm({ onSubmit, defaultValues, title }: Props) {
 	const router = useRouter();
+	const queryClient = useQueryClient();
 	const [coverUrl, setCoverUrl] = useState(defaultValues?.coverUrl ?? '');
 	const [authorIds, setAuthorIds] = useState<string[]>(
 		defaultValues?.bookAuthors?.map((ba) => String(ba.authorId)) ?? []
@@ -46,7 +51,7 @@ export default function BookForm({ onSubmit, defaultValues, title }: Props) {
 	const authorOptions =
 		authorsData?.map((a) => ({ value: String(a.id), label: a.name })) ?? [];
 
-	function handleBookSelect(
+	async function handleBookSelect(
 		book: BookLookupResult,
 		form: {
 			setFieldValue: (field: string, value: string | number | null) => void;
@@ -57,6 +62,8 @@ export default function BookForm({ onSubmit, defaultValues, title }: Props) {
 			setBookTitle(book.title);
 			form.setFieldValue('title', book.title);
 		}
+		if (book.subtitle) form.setFieldValue('subtitle', book.subtitle);
+		if (book.description) form.setFieldValue('description', book.description);
 		if (book.isbn) {
 			setIsbn(book.isbn);
 			form.setFieldValue('isbn', book.isbn);
@@ -65,6 +72,11 @@ export default function BookForm({ onSubmit, defaultValues, title }: Props) {
 		if (book.publishedDate) {
 			const year = Number.parseInt(book.publishedDate.slice(0, 4), 10);
 			if (!Number.isNaN(year)) form.setFieldValue('publicationYear', year);
+		}
+		if (book.authors.length > 0) {
+			const created = await getOrCreateAuthors(book.authors);
+			setAuthorIds(created.map((a) => String(a.id)));
+			await queryClient.invalidateQueries({ queryKey: ['authors', 'all'] });
 		}
 	}
 
@@ -109,6 +121,10 @@ export default function BookForm({ onSubmit, defaultValues, title }: Props) {
 													setBookTitle(e.currentTarget.value);
 												}}
 											/>
+											<TextInput
+												label='Subtitle'
+												{...form.getInputProps('subtitle')}
+											/>
 										</Stack>
 									</Paper>
 									<Box
@@ -140,6 +156,13 @@ export default function BookForm({ onSubmit, defaultValues, title }: Props) {
 							<CoverImage coverUrl={coverUrl} onCoverChange={setCoverUrl} />
 						</Grid.Col>
 					</Grid>
+					<Textarea
+						label='Description'
+						{...form.getInputProps('description')}
+						autosize
+						minRows={3}
+						maxRows={6}
+					/>
 					<MultiSelect
 						label='Authors'
 						data={authorOptions}

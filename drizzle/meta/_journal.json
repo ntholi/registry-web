@@ -673,6 +673,13 @@
 			"when": 1769020784819,
 			"tag": "0095_talented_ink",
 			"breakpoints": true
+		},
+		{
+			"idx": 96,
+			"version": "7",
+			"when": 1769021928829,
+			"tag": "0096_wakeful_thaddeus_ross",
+			"breakpoints": true
 		}
 	]
 }
