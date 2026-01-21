@@ -172,7 +172,7 @@ class ApplicationService extends BaseService<typeof applications, 'id'> {
 	async findByApplicant(applicantId: string) {
 		return withAuth(
 			async () => this.repo.findByApplicant(applicantId),
-			['registry', 'marketing', 'admin']
+			['registry', 'marketing', 'admin', 'applicant']
 		);
 	}
 

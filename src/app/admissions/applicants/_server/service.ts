@@ -232,7 +232,7 @@ class ApplicantService extends BaseService<typeof applicants, 'id'> {
 			const requirements =
 				await entryRequirementsService.findAllForEligibility();
 			return getEligiblePrograms(applicant.academicRecords, requirements);
-		}, ['registry', 'marketing', 'admin']);
+		}, ['registry', 'marketing', 'admin', 'applicant']);
 	}
 }
 

@@ -70,7 +70,7 @@ class EntryRequirementService extends BaseService<
 	async findAllForEligibility() {
 		return withAuth(
 			async () => this.repo.findAllForEligibility(),
-			['registry', 'marketing', 'admin']
+			['registry', 'marketing', 'admin', 'applicant']
 		);
 	}
 
