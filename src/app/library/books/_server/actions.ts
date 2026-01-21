@@ -1,7 +1,6 @@
 'use server';
 
 import type { books } from '@/core/database';
-import { fetchBookCoverByIsbn } from '../../_lib/google-books';
 import { booksService } from './service';
 
 type Book = typeof books.$inferInsert;
@@ -38,8 +37,4 @@ export async function updateBook(
 
 export async function deleteBook(id: number) {
 	return booksService.delete(id);
-}
-
-export async function fetchBookCover(isbn: string) {
-	return fetchBookCoverByIsbn(isbn);
 }

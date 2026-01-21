@@ -2,9 +2,7 @@
 
 import { books } from '@library/_database';
 import {
-	Group,
-	Image,
-	Loader,
+	Grid,
 	MultiSelect,
 	NumberInput,
 	Stack,
@@ -18,7 +16,7 @@ import { Form } from '@/shared/ui/adease';
 import { getAllAuthors } from '../../authors/_server/actions';
 import { getAllCategories } from '../../categories/_server/actions';
 import type { BookWithRelations } from '../_lib/types';
-import { fetchBookCover } from '../_server/actions';
+import CoverImage from './CoverImage';
 
 type Book = typeof books.$inferInsert;
 
@@ -35,13 +33,13 @@ type Props = {
 export default function BookForm({ onSubmit, defaultValues, title }: Props) {
 	const router = useRouter();
 	const [coverUrl, setCoverUrl] = useState(defaultValues?.coverUrl ?? '');
-	const [loadingCover, setLoadingCover] = useState(false);
 	const [authorIds, setAuthorIds] = useState<string[]>(
 		defaultValues?.bookAuthors?.map((ba) => String(ba.authorId)) ?? []
 	);
 	const [categoryIds, setCategoryIds] = useState<string[]>(
 		defaultValues?.bookCategories?.map((bc) => String(bc.categoryId)) ?? []
 	);
+	const [isbn, setIsbn] = useState(defaultValues?.isbn ?? '');
 
 	const { data: authorsData } = useQuery({
 		queryKey: ['authors', 'all'],
@@ -52,14 +50,6 @@ export default function BookForm({ onSubmit, defaultValues, title }: Props) {
 		queryKey: ['categories', 'all'],
 		queryFn: getAllCategories,
 	});
-
-	async function handleIsbnBlur(isbn: string) {
-		if (!isbn || isbn.length < 10) return;
-		setLoadingCover(true);
-		const url = await fetchBookCover(isbn);
-		if (url) setCoverUrl(url);
-		setLoadingCover(false);
-	}
 
 	const authorOptions =
 		authorsData?.map((a) => ({ value: String(a.id), label: a.name })) ?? [];
@@ -83,54 +73,60 @@ export default function BookForm({ onSubmit, defaultValues, title }: Props) {
 			onSuccess={({ id }) => router.push(`/library/books/${id}`)}
 		>
 			{(form) => (
-				<Group align='flex-start'>
-					<Stack flex={1}>
-						<TextInput
-							label='ISBN'
-							{...form.getInputProps('isbn')}
-							required
-							onBlur={(e) => handleIsbnBlur(e.currentTarget.value)}
-							rightSection={loadingCover && <Loader size='xs' />}
-						/>
-						<TextInput
-							label='Title'
-							{...form.getInputProps('title')}
-							required
-						/>
-						<TextInput label='Publisher' {...form.getInputProps('publisher')} />
-						<NumberInput
-							label='Publication Year'
-							{...form.getInputProps('publicationYear')}
-							min={1900}
-							max={new Date().getFullYear()}
-						/>
-						<TextInput label='Edition' {...form.getInputProps('edition')} />
-						<MultiSelect
-							label='Authors'
-							data={authorOptions}
-							value={authorIds}
-							onChange={setAuthorIds}
-							searchable
-						/>
-						<MultiSelect
-							label='Categories'
-							data={categoryOptions}
-							value={categoryIds}
-							onChange={setCategoryIds}
-							searchable
-						/>
-					</Stack>
-					{coverUrl && (
-						<Image
-							src={coverUrl}
-							alt='Book cover'
-							w={150}
-							h={200}
-							fit='contain'
-							radius='md'
-						/>
-					)}
-				</Group>
+				<Stack>
+					<Grid gutter='xl'>
+						<Grid.Col span={{ base: 12, sm: 7 }}>
+							<Stack>
+								<TextInput
+									label='ISBN'
+									{...form.getInputProps('isbn')}
+									required
+									onChange={(e) => {
+										form.getInputProps('isbn').onChange(e);
+										setIsbn(e.currentTarget.value);
+									}}
+								/>
+								<TextInput
+									label='Title'
+									{...form.getInputProps('title')}
+									required
+								/>
+								<TextInput
+									label='Publisher'
+									{...form.getInputProps('publisher')}
+								/>
+								<NumberInput
+									label='Publication Year'
+									{...form.getInputProps('publicationYear')}
+									min={1900}
+									max={new Date().getFullYear()}
+								/>
+							</Stack>
+						</Grid.Col>
+						<Grid.Col span={{ base: 12, sm: 5 }}>
+							<CoverImage
+								isbn={isbn}
+								coverUrl={coverUrl}
+								onCoverChange={setCoverUrl}
+							/>
+						</Grid.Col>
+					</Grid>
+					<TextInput label='Edition' {...form.getInputProps('edition')} />
+					<MultiSelect
+						label='Authors'
+						data={authorOptions}
+						value={authorIds}
+						onChange={setAuthorIds}
+						searchable
+					/>
+					<MultiSelect
+						label='Categories'
+						data={categoryOptions}
+						value={categoryIds}
+						onChange={setCategoryIds}
+						searchable
+					/>
+				</Stack>
 			)}
 		</Form>
 	);
