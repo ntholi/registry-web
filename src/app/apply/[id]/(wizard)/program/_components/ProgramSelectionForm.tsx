@@ -1,6 +1,6 @@
 'use client';
 
-import { createApplication } from '@admissions/applications';
+import { createOrUpdateApplication } from '@admissions/applications';
 import {
 	Badge,
 	Button,
@@ -28,7 +28,6 @@ import {
 	getActiveIntake,
 	getEligiblePrograms,
 	getExistingApplication,
-	updateProgramChoices,
 } from '../_server/actions';
 
 type Props = {
@@ -83,14 +82,7 @@ export default function ProgramSelectionForm({ applicantId }: Props) {
 			if (!firstChoice || !activeIntake?.id) {
 				throw new Error('Please select a program and ensure intake is active');
 			}
-			if (existingApp?.id) {
-				return updateProgramChoices(
-					existingApp.id,
-					Number(firstChoice),
-					secondChoice ? Number(secondChoice) : null
-				);
-			}
-			return createApplication({
+			return createOrUpdateApplication({
 				applicantId,
 				intakePeriodId: activeIntake.id,
 				firstChoiceProgramId: Number(firstChoice),

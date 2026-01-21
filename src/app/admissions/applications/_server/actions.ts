@@ -41,6 +41,10 @@ export async function createApplication(data: Application) {
 	return applicationsService.create(data);
 }
 
+export async function createOrUpdateApplication(data: Application) {
+	return applicationsService.createOrUpdate(data);
+}
+
 export async function updateApplication(id: string, data: Application) {
 	return applicationsService.update(id, data);
 }

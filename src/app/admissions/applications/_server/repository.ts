@@ -162,13 +162,20 @@ export default class ApplicationRepository extends BaseRepository<
 		return result.total;
 	}
 
-	async existsForIntake(applicantId: string, intakePeriodId: string) {
-		const existing = await db.query.applications.findFirst({
+	async findByApplicantAndIntake(applicantId: string, intakePeriodId: string) {
+		return db.query.applications.findFirst({
 			where: and(
 				eq(applications.applicantId, applicantId),
 				eq(applications.intakePeriodId, intakePeriodId)
 			),
 		});
+	}
+
+	async existsForIntake(applicantId: string, intakePeriodId: string) {
+		const existing = await this.findByApplicantAndIntake(
+			applicantId,
+			intakePeriodId
+		);
 		return !!existing;
 	}
 

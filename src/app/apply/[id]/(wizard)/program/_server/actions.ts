@@ -1,11 +1,7 @@
 'use server';
 
 import { getEligibleProgramsForApplicant } from '@admissions/applicants';
-import {
-	findApplicationsByApplicant,
-	getApplication,
-	updateApplication,
-} from '@admissions/applications';
+import { findApplicationsByApplicant } from '@admissions/applications';
 import { findActiveIntakePeriod } from '@admissions/intake-periods/_server/actions';
 
 export async function getEligiblePrograms(applicantId: string) {
@@ -22,20 +18,4 @@ export async function getExistingApplication(applicantId: string) {
 		applications.find((app: { status: string }) => app.status === 'draft') ??
 		null
 	);
-}
-
-export async function updateProgramChoices(
-	applicationId: string,
-	firstChoiceProgramId: number,
-	secondChoiceProgramId: number | null
-) {
-	const existing = await getApplication(applicationId);
-	if (!existing) {
-		throw new Error('Application not found');
-	}
-	return updateApplication(applicationId, {
-		...existing,
-		firstChoiceProgramId,
-		secondChoiceProgramId,
-	});
 }

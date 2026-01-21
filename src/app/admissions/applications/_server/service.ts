@@ -92,6 +92,52 @@ class ApplicationService extends BaseService<typeof applications, 'id'> {
 		);
 	}
 
+	async createOrUpdate(data: typeof applications.$inferInsert) {
+		return withAuth(
+			async (session) => {
+				const existing = await this.repo.findByApplicantAndIntake(
+					data.applicantId,
+					data.intakePeriodId
+				);
+
+				if (existing) {
+					return this.repo.update(existing.id, {
+						...data,
+						updatedAt: new Date(),
+					});
+				}
+
+				const intake = await db.query.intakePeriods.findFirst({
+					where: eq(intakePeriods.id, data.intakePeriodId),
+				});
+
+				if (!intake) {
+					throw new Error('Intake period not found');
+				}
+
+				const today = new Date().toISOString().split('T')[0];
+				const isActive = intake.startDate <= today && intake.endDate >= today;
+
+				if (!isActive) {
+					throw new Error(
+						'INACTIVE_INTAKE_PERIOD: Cannot create application for inactive intake'
+					);
+				}
+
+				const application = await this.repo.create({
+					...data,
+					status: data.status ?? 'draft',
+					paymentStatus: 'unpaid',
+					createdBy: session?.user?.id,
+					applicationDate: new Date(),
+				});
+
+				return application;
+			},
+			['registry', 'marketing', 'admin', 'applicant']
+		);
+	}
+
 	async changeStatus(
 		applicationId: string,
 		newStatus: ApplicationStatus,
