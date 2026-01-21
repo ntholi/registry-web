@@ -51,7 +51,7 @@ class VenueService extends BaseService<typeof venues, 'id'> {
 	) => {
 		return withAuth(async () => {
 			return this.venueRepository.updateWithSchools(id, venue, schoolIds);
-		}, []);
+		}, ['academic', 'registry']);
 	};
 }
 
