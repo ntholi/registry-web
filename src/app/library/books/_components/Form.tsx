@@ -156,7 +156,6 @@ export default function BookForm({ onSubmit, defaultValues, title }: Props) {
 							<CoverImage coverUrl={coverUrl} onCoverChange={setCoverUrl} />
 						</Grid.Col>
 					</Grid>
-					<TextInput label='Edition' {...form.getInputProps('edition')} />
 					<MultiSelect
 						label='Authors'
 						data={authorOptions}

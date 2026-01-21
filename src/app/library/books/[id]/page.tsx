@@ -47,7 +47,6 @@ export default async function BookDetailsPage({ params }: Props) {
 						<FieldView label='Publication Year'>
 							{book.publicationYear}
 						</FieldView>
-						<FieldView label='Edition'>{book.edition}</FieldView>
 						<FieldView label='Authors'>
 							<Group gap='xs'>
 								{book.bookAuthors.map((ba) => (

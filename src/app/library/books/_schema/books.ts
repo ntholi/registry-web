@@ -16,7 +16,6 @@ export const books = pgTable(
 		title: text().notNull(),
 		publisher: text(),
 		publicationYear: integer(),
-		edition: text(),
 		coverUrl: text(),
 		createdAt: timestamp().defaultNow(),
 	},
