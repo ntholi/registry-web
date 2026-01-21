@@ -151,7 +151,11 @@ export default class EntryRequirementRepository extends BaseRepository<
 	async findAllForEligibility() {
 		return db.query.entryRequirements.findMany({
 			with: {
-				program: true,
+				program: {
+					with: {
+						school: true,
+					},
+				},
 				certificateType: true,
 			},
 			orderBy: (er, { asc }) => [asc(er.programId)],

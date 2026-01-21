@@ -1,4 +1,4 @@
-import ProgramSelectionForm from './_components/ProgramSelectionForm';
+import CourseSelectionForm from './_components/CourseSelectionForm';
 
 type Props = {
 	params: Promise<{ id: string }>;
@@ -7,5 +7,5 @@ type Props = {
 export default async function ProgramPage({ params }: Props) {
 	const { id } = await params;
 
-	return <ProgramSelectionForm applicantId={id} />;
+	return <CourseSelectionForm applicantId={id} />;
 }

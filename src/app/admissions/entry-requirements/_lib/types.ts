@@ -32,7 +32,19 @@ export type EntryRequirementSummary = {
 };
 
 export type EntryRequirementWithRelations = EntryRequirement & {
-	program: { id: number; code: string; name: string };
+	program: {
+		id: number;
+		code: string;
+		name: string;
+		level: ProgramLevel;
+		schoolId: number;
+		school: {
+			id: number;
+			code: string;
+			name: string;
+			shortName: string | null;
+		};
+	};
 	certificateType: { id: string; name: string; lqfLevel: number };
 };
 

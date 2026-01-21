@@ -65,7 +65,6 @@ export default async function ApplyCoursesPage({ searchParams }: Props) {
 						<CoursesFilters
 							schools={schools}
 							levels={programLevelEnum.enumValues}
-							value={{ schoolId, level }}
 						/>
 					</Paper>
 

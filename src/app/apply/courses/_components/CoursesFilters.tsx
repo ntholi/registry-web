@@ -3,40 +3,18 @@
 import type { ProgramLevel } from '@academic/_database';
 import type { SchoolSummary } from '@admissions/entry-requirements/_lib/types';
 import { Chip, Group, ScrollArea } from '@mantine/core';
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { useCallback } from 'react';
+import { parseAsInteger, parseAsString, useQueryStates } from 'nuqs';
 
 interface Props {
 	schools: SchoolSummary[];
 	levels: ProgramLevel[];
-	value: { schoolId?: number; level?: ProgramLevel };
 }
 
-export default function CoursesFilters({ schools, levels, value }: Props) {
-	const router = useRouter();
-	const pathname = usePathname();
-	const searchParams = useSearchParams();
-
-	const currentLevel = searchParams.get('level') ?? value.level ?? null;
-	const currentSchoolId =
-		searchParams.get('schoolId') ?? value.schoolId?.toString() ?? null;
-
-	const navigate = useCallback(
-		(updates: Record<string, string | null>) => {
-			const params = new URLSearchParams(searchParams.toString());
-			for (const [key, val] of Object.entries(updates)) {
-				if (val === null) {
-					params.delete(key);
-				} else {
-					params.set(key, val);
-				}
-			}
-			params.delete('page');
-			const query = params.toString();
-			router.push(query ? `${pathname}?${query}` : pathname);
-		},
-		[router, pathname, searchParams]
-	);
+export default function CoursesFilters({ schools, levels }: Props) {
+	const [filters, setFilters] = useQueryStates({
+		schoolId: parseAsInteger,
+		level: parseAsString,
+	});
 
 	const levelsSorted = [...levels].sort((a, b) => b.localeCompare(a));
 
@@ -45,8 +23,8 @@ export default function CoursesFilters({ schools, levels, value }: Props) {
 			<Group gap='md' wrap='nowrap'>
 				<Chip
 					variant='filled'
-					checked={!currentLevel && !currentSchoolId}
-					onChange={() => navigate({ level: null, schoolId: null })}
+					checked={!filters.level && !filters.schoolId}
+					onChange={() => setFilters({ level: null, schoolId: null })}
 				>
 					All
 				</Chip>
@@ -56,9 +34,9 @@ export default function CoursesFilters({ schools, levels, value }: Props) {
 						<Chip
 							key={level}
 							variant='filled'
-							checked={currentLevel === level}
+							checked={filters.level === level}
 							onChange={() =>
-								navigate({ level: currentLevel === level ? null : level })
+								setFilters({ level: filters.level === level ? null : level })
 							}
 						>
 							{levelLabel(level)}
@@ -71,13 +49,10 @@ export default function CoursesFilters({ schools, levels, value }: Props) {
 						<Chip
 							key={school.id}
 							variant='filled'
-							checked={currentSchoolId === school.id.toString()}
+							checked={filters.schoolId === school.id}
 							onChange={() =>
-								navigate({
-									schoolId:
-										currentSchoolId === school.id.toString()
-											? null
-											: school.id.toString(),
+								setFilters({
+									schoolId: filters.schoolId === school.id ? null : school.id,
 								})
 							}
 						>
