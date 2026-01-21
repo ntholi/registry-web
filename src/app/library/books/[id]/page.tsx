@@ -56,15 +56,6 @@ export default async function BookDetailsPage({ params }: Props) {
 								))}
 							</Group>
 						</FieldView>
-						<FieldView label='Categories'>
-							<Group gap='xs'>
-								{book.bookCategories.map((bc) => (
-									<Badge key={bc.categoryId} variant='outline'>
-										{bc.category.name}
-									</Badge>
-								))}
-							</Group>
-						</FieldView>
 					</Stack>
 				</Group>
 			</DetailsViewBody>

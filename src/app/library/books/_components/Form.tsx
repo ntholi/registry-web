@@ -17,7 +17,6 @@ import { useState } from 'react';
 import { Form } from '@/shared/ui/adease';
 import type { BookLookupResult } from '../../_lib/google-books';
 import { getAllAuthors } from '../../authors/_server/actions';
-import { getAllCategories } from '../../categories/_server/actions';
 import type { BookWithRelations } from '../_lib/types';
 import BookLookupModal from './BookLookupModal';
 import CoverImage from './CoverImage';
@@ -25,11 +24,7 @@ import CoverImage from './CoverImage';
 type Book = typeof books.$inferInsert;
 
 type Props = {
-	onSubmit: (
-		values: Book,
-		authorIds: number[],
-		categoryIds: number[]
-	) => Promise<Book>;
+	onSubmit: (values: Book, authorIds: number[]) => Promise<Book>;
 	defaultValues?: BookWithRelations;
 	title?: string;
 };
@@ -40,9 +35,6 @@ export default function BookForm({ onSubmit, defaultValues, title }: Props) {
 	const [authorIds, setAuthorIds] = useState<string[]>(
 		defaultValues?.bookAuthors?.map((ba) => String(ba.authorId)) ?? []
 	);
-	const [categoryIds, setCategoryIds] = useState<string[]>(
-		defaultValues?.bookCategories?.map((bc) => String(bc.categoryId)) ?? []
-	);
 	const [isbn, setIsbn] = useState(defaultValues?.isbn ?? '');
 	const [bookTitle, setBookTitle] = useState(defaultValues?.title ?? '');
 
@@ -51,15 +43,8 @@ export default function BookForm({ onSubmit, defaultValues, title }: Props) {
 		queryFn: getAllAuthors,
 	});
 
-	const { data: categoriesData } = useQuery({
-		queryKey: ['categories', 'all'],
-		queryFn: getAllCategories,
-	});
-
 	const authorOptions =
 		authorsData?.map((a) => ({ value: String(a.id), label: a.name })) ?? [];
-	const categoryOptions =
-		categoriesData?.map((c) => ({ value: String(c.id), label: c.name })) ?? [];
 
 	function handleBookSelect(
 		book: BookLookupResult,
@@ -89,8 +74,7 @@ export default function BookForm({ onSubmit, defaultValues, title }: Props) {
 			action={async (values) => {
 				const result = await onSubmit(
 					{ ...values, coverUrl } as typeof books.$inferInsert,
-					authorIds.map(Number),
-					categoryIds.map(Number)
+					authorIds.map(Number)
 				);
 				return result;
 			}}
@@ -161,13 +145,6 @@ export default function BookForm({ onSubmit, defaultValues, title }: Props) {
 						data={authorOptions}
 						value={authorIds}
 						onChange={setAuthorIds}
-						searchable
-					/>
-					<MultiSelect
-						label='Categories'
-						data={categoryOptions}
-						value={categoryIds}
-						onChange={setCategoryIds}
 						searchable
 					/>
 				</Stack>

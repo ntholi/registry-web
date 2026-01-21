@@ -8,10 +8,6 @@ export type BookWithRelations = Book & {
 		authorId: number;
 		author: { id: number; name: string };
 	}>;
-	bookCategories: Array<{
-		categoryId: number;
-		category: { id: number; name: string };
-	}>;
 	bookCopies: Array<typeof bookCopies.$inferSelect>;
 	availableCopies: number;
 	totalCopies: number;

@@ -1,7 +1,6 @@
 import {
 	IconBook2,
 	IconCash,
-	IconCategory,
 	IconLibrary,
 	IconTags,
 	IconUsers,
@@ -18,7 +17,6 @@ export const libraryConfig: ModuleConfig = {
 			{ label: 'Books', href: '/library/books', icon: IconBook2 },
 			{ label: 'Loans', href: '/library/loans', icon: IconLibrary },
 			{ label: 'Authors', href: '/library/authors', icon: IconUsers },
-			{ label: 'Categories', href: '/library/categories', icon: IconCategory },
 			{ label: 'Fines', href: '/library/fines', icon: IconCash },
 			{ label: 'Resources', href: '/library/resources', icon: IconTags },
 		],

@@ -1,14 +1,11 @@
 import { authors } from '@library/authors/_schema/authors';
 import { bookCopies } from '@library/book-copies/_schema/bookCopies';
-import { categories } from '@library/categories/_schema/categories';
 import { relations } from 'drizzle-orm';
 import { bookAuthors } from './bookAuthors';
-import { bookCategories } from './bookCategories';
 import { books } from './books';
 
 export const booksRelations = relations(books, ({ many }) => ({
 	bookAuthors: many(bookAuthors),
-	bookCategories: many(bookCategories),
 	bookCopies: many(bookCopies),
 }));
 
@@ -20,16 +17,5 @@ export const bookAuthorsRelations = relations(bookAuthors, ({ one }) => ({
 	author: one(authors, {
 		fields: [bookAuthors.authorId],
 		references: [authors.id],
-	}),
-}));
-
-export const bookCategoriesRelations = relations(bookCategories, ({ one }) => ({
-	book: one(books, {
-		fields: [bookCategories.bookId],
-		references: [books.id],
-	}),
-	category: one(categories, {
-		fields: [bookCategories.categoryId],
-		references: [categories.id],
 	}),
 }));

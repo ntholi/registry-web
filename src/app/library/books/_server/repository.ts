@@ -1,5 +1,5 @@
 import { eq } from 'drizzle-orm';
-import { bookAuthors, bookCategories, books, db } from '@/core/database';
+import { bookAuthors, books, db } from '@/core/database';
 import BaseRepository from '@/core/platform/BaseRepository';
 
 export default class BookRepository extends BaseRepository<typeof books, 'id'> {
@@ -13,9 +13,6 @@ export default class BookRepository extends BaseRepository<typeof books, 'id'> {
 			with: {
 				bookAuthors: {
 					with: { author: true },
-				},
-				bookCategories: {
-					with: { category: true },
 				},
 				bookCopies: true,
 			},
@@ -41,8 +38,7 @@ export default class BookRepository extends BaseRepository<typeof books, 'id'> {
 
 	async createWithRelations(
 		book: typeof books.$inferInsert,
-		authorIds: number[],
-		categoryIds: number[]
+		authorIds: number[]
 	) {
 		return db.transaction(async (tx) => {
 			const [newBook] = await tx.insert(books).values(book).returning();
@@ -56,15 +52,6 @@ export default class BookRepository extends BaseRepository<typeof books, 'id'> {
 				);
 			}
 
-			if (categoryIds.length > 0) {
-				await tx.insert(bookCategories).values(
-					categoryIds.map((categoryId) => ({
-						bookId: newBook.id,
-						categoryId,
-					}))
-				);
-			}
-
 			return newBook;
 		});
 	}
@@ -72,8 +59,7 @@ export default class BookRepository extends BaseRepository<typeof books, 'id'> {
 	async updateWithRelations(
 		id: number,
 		book: Partial<typeof books.$inferInsert>,
-		authorIds: number[],
-		categoryIds: number[]
+		authorIds: number[]
 	) {
 		return db.transaction(async (tx) => {
 			const [updated] = await tx
@@ -83,22 +69,12 @@ export default class BookRepository extends BaseRepository<typeof books, 'id'> {
 				.returning();
 
 			await tx.delete(bookAuthors).where(eq(bookAuthors.bookId, id));
-			await tx.delete(bookCategories).where(eq(bookCategories.bookId, id));
 
 			if (authorIds.length > 0) {
 				await tx.insert(bookAuthors).values(
 					authorIds.map((authorId) => ({
 						bookId: id,
 						authorId,
-					}))
-				);
-			}
-
-			if (categoryIds.length > 0) {
-				await tx.insert(bookCategories).values(
-					categoryIds.map((categoryId) => ({
-						bookId: id,
-						categoryId,
 					}))
 				);
 			}
