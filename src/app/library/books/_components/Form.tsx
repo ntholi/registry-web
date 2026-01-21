@@ -2,10 +2,11 @@
 
 import { books } from '@library/_database';
 import {
+	Box,
 	Grid,
-	Group,
 	MultiSelect,
 	NumberInput,
+	Paper,
 	Stack,
 	TextInput,
 } from '@mantine/core';
@@ -99,32 +100,42 @@ export default function BookForm({ onSubmit, defaultValues, title }: Props) {
 					<Grid gutter='xl'>
 						<Grid.Col span={{ base: 12, sm: 7 }}>
 							<Stack>
-								<Group align='flex-end'>
-									<TextInput
-										label='ISBN'
-										{...form.getInputProps('isbn')}
-										required
-										flex={1}
-										onChange={(e) => {
-											form.getInputProps('isbn').onChange(e);
-											setIsbn(e.currentTarget.value);
-										}}
-									/>
-									<BookLookupModal
-										isbn={isbn}
-										title={bookTitle}
-										onSelect={(book) => handleBookSelect(book, form)}
-									/>
-								</Group>
-								<TextInput
-									label='Title'
-									{...form.getInputProps('title')}
-									required
-									onChange={(e) => {
-										form.getInputProps('title').onChange(e);
-										setBookTitle(e.currentTarget.value);
-									}}
-								/>
+								<Box pos='relative' pb='md'>
+									<Paper withBorder p='md' pb='xl'>
+										<Stack>
+											<TextInput
+												label='ISBN'
+												{...form.getInputProps('isbn')}
+												required
+												onChange={(e) => {
+													form.getInputProps('isbn').onChange(e);
+													setIsbn(e.currentTarget.value);
+												}}
+											/>
+											<TextInput
+												label='Title'
+												{...form.getInputProps('title')}
+												required
+												onChange={(e) => {
+													form.getInputProps('title').onChange(e);
+													setBookTitle(e.currentTarget.value);
+												}}
+											/>
+										</Stack>
+									</Paper>
+									<Box
+										pos='absolute'
+										bottom={0}
+										left='50%'
+										style={{ transform: 'translateX(-50%)' }}
+									>
+										<BookLookupModal
+											isbn={isbn}
+											title={bookTitle}
+											onSelect={(book) => handleBookSelect(book, form)}
+										/>
+									</Box>
+								</Box>
 								<TextInput
 									label='Publisher'
 									{...form.getInputProps('publisher')}
