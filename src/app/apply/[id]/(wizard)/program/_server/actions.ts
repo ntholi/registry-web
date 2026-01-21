@@ -13,12 +13,15 @@ export async function getEligiblePrograms(applicantId: string) {
 }
 
 export async function getActiveIntake() {
-	return findActiveIntakePeriod();
+	return (await findActiveIntakePeriod()) ?? null;
 }
 
 export async function getExistingApplication(applicantId: string) {
 	const applications = await findApplicationsByApplicant(applicantId);
-	return applications.find((app: { status: string }) => app.status === 'draft');
+	return (
+		applications.find((app: { status: string }) => app.status === 'draft') ??
+		null
+	);
 }
 
 export async function updateProgramChoices(
