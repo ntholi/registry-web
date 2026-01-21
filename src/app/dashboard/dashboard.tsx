@@ -3,6 +3,7 @@
 import { getAssignedModulesByCurrentUser } from '@academic/assigned-modules';
 import { getUserSchools } from '@admin/users';
 import type { DashboardUser, UserRole } from '@auth/_database';
+import { libraryConfig } from '@library/library.config';
 import {
 	ActionIcon,
 	Avatar,
@@ -88,6 +89,7 @@ function getNavigation(
 ): NavigationGroup[] {
 	const allConfigs = [
 		{ config: academicConfig, enabled: moduleConfig.academic },
+		{ config: libraryConfig, enabled: moduleConfig.library },
 		{ config: lmsConfig, enabled: moduleConfig.lms },
 		{ config: registryConfig, enabled: moduleConfig.registry },
 		{ config: timetableConfig, enabled: moduleConfig.timetable },
