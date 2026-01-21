@@ -40,10 +40,15 @@ import { z } from 'zod';
 import { getAllTerms } from '@/app/registry/terms';
 import { calculateDuration } from '@/shared/lib/utils/dates';
 import { toClassName as toClassNameShared } from '@/shared/lib/utils/utils';
+import {
+	type DayOfWeek,
+	type GroupSlot,
+	groupSlotSchema,
+} from '../_lib/schemas';
 import { getTimetableAllocationsByUserId } from '../_server/actions';
 import AllocationTable from './AllocationTable';
 
-const daysOfWeek = [
+const daysOfWeekOptions = [
 	{ value: 'monday', label: 'Mon' },
 	{ value: 'tuesday', label: 'Tue' },
 	{ value: 'wednesday', label: 'Wed' },
@@ -52,30 +57,6 @@ const daysOfWeek = [
 	{ value: 'saturday', label: 'Sat' },
 	{ value: 'sunday', label: 'Sun' },
 ];
-
-type DayOfWeek =
-	| 'monday'
-	| 'tuesday'
-	| 'wednesday'
-	| 'thursday'
-	| 'friday'
-	| 'saturday'
-	| 'sunday';
-
-const groupSlotSchema = z.object({
-	dayOfWeek: z.enum([
-		'monday',
-		'tuesday',
-		'wednesday',
-		'thursday',
-		'friday',
-		'saturday',
-		'sunday',
-	]),
-	startTime: z.string().min(1, 'Please enter a start time'),
-	endTime: z.string().min(1, 'Please enter an end time'),
-	venueId: z.string().min(1, 'Please select a venue'),
-});
 
 const schema = z.object({
 	userId: z.string().min(1, 'Please select a lecturer'),
@@ -86,7 +67,6 @@ const schema = z.object({
 	groupSlots: z.array(groupSlotSchema).min(1),
 });
 
-type GroupSlot = z.infer<typeof groupSlotSchema>;
 type FormValues = z.infer<typeof schema>;
 
 type Module = Awaited<ReturnType<typeof searchModulesWithDetails>>[number];
@@ -507,7 +487,7 @@ export default function AddSlotAllocationWithLecturerModal() {
 																<SegmentedControl
 																	fullWidth
 																	size='xs'
-																	data={daysOfWeek}
+																	data={daysOfWeekOptions}
 																	value={slot.dayOfWeek}
 																	onChange={(value) =>
 																		form.setFieldValue(

@@ -9,42 +9,25 @@ import {
 } from '@mantine/core';
 import { TimeInput } from '@mantine/dates';
 import type { UseFormReturnType } from '@mantine/form';
-import { z } from 'zod';
 import DurationInput from '@/shared/ui/DurationInput';
+import {
+	applyTimeRefinements,
+	type BaseAllocationFormValues,
+	baseAllocationSchema,
+	baseAllocationSchemaInner,
+	classTypes,
+	type DayOfWeek,
+	daysOfWeek,
+} from '../_lib/schemas';
 
-export const daysOfWeek = [
-	'monday',
-	'tuesday',
-	'wednesday',
-	'thursday',
-	'friday',
-	'saturday',
-	'sunday',
-] as const;
-
-export type DayOfWeek = (typeof daysOfWeek)[number];
-
-export const classTypes = [
-	{ value: 'lecture', label: 'Lecture' },
-	{ value: 'tutorial', label: 'Tutorial' },
-	{ value: 'lab', label: 'Lab' },
-	{ value: 'workshop', label: 'Workshop' },
-	{ value: 'practical', label: 'Practical' },
-] as const;
-
-export const baseAllocationSchema = z.object({
-	duration: z.number().min(1, 'Please enter a valid duration'),
-	classType: z.enum(['lecture', 'tutorial', 'lab', 'workshop', 'practical']),
-	numberOfStudents: z.number().min(1, 'A class should have at least 1 student'),
-	venueTypeIds: z.array(z.string()),
-	allowedDays: z
-		.array(z.enum(daysOfWeek))
-		.min(1, 'Please select at least one day'),
-	startTime: z.string().min(1, 'Please enter a start time'),
-	endTime: z.string().min(1, 'Please enter an end time'),
-});
-
-export type BaseAllocationFormValues = z.infer<typeof baseAllocationSchema>;
+export {
+	applyTimeRefinements,
+	baseAllocationSchema,
+	baseAllocationSchemaInner,
+	classTypes,
+	daysOfWeek,
+};
+export type { BaseAllocationFormValues, DayOfWeek };
 
 type Props<T extends BaseAllocationFormValues> = {
 	form: UseFormReturnType<T>;

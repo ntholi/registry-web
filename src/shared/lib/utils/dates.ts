@@ -180,6 +180,11 @@ export function addMinutesToTime(time: string, minutes: number): string {
 	return `${String(newHours).padStart(2, '0')}:${String(newMins).padStart(2, '0')}:00`;
 }
 
+export function parseTimeToMinutes(time: string): number {
+	const [h, m] = time.split(':').map(Number);
+	return h * 60 + (m || 0);
+}
+
 export function calculateDuration(startTime: string, endTime: string): number {
 	const [startH, startM] = startTime.split(':').map(Number);
 	const [endH, endM] = endTime.split(':').map(Number);

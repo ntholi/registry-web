@@ -24,30 +24,33 @@ import { useState } from 'react';
 import { z } from 'zod';
 import { toClassName } from '@/shared/lib/utils/utils';
 import {
+	applyTimeRefinements,
+	baseAllocationSchemaInner,
+	type DayOfWeek,
+} from '../_lib/schemas';
+import {
 	createTimetableAllocationsWithVenueTypes,
 	createTimetableAllocationWithVenueTypes,
 } from '../_server/actions';
-import {
-	AllocationForm,
-	baseAllocationSchema,
-	type DayOfWeek,
-} from './AllocationForm';
+import { AllocationForm } from './AllocationForm';
 import { ModuleSearchInput } from './ModuleSearchInput';
 
-const schema = z
-	.object({
-		semesterModuleId: z.number().min(1, 'Please select a student class'),
-		numberOfGroups: z
-			.number()
-			.min(1)
-			.max(10)
-			.refine(
-				(val) => val === 1 || val >= 2,
-				'Number of groups must be 1 or at least 2'
-			),
-		groups: z.array(z.string()),
-	})
-	.merge(baseAllocationSchema);
+const schema = applyTimeRefinements(
+	z
+		.object({
+			semesterModuleId: z.number().min(1, 'Please select a student class'),
+			numberOfGroups: z
+				.number()
+				.min(1)
+				.max(10)
+				.refine(
+					(val) => val === 1 || val >= 2,
+					'Number of groups must be 1 or at least 2'
+				),
+			groups: z.array(z.string()),
+		})
+		.merge(baseAllocationSchemaInner)
+);
 
 type FormValues = z.infer<typeof schema>;
 
@@ -132,7 +135,7 @@ export default function AddAllocationModal({
 				);
 			}
 
-			const allocations = values.groups.map((groupName) => ({
+			const allocations = values.groups.map((groupName: string) => ({
 				userId,
 				termId,
 				semesterModuleId: values.semesterModuleId,

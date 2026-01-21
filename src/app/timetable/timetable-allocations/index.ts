@@ -1,8 +1,10 @@
 export { default as AddAllocationModal } from './_components/AddAllocationModal';
 export {
 	AllocationForm,
+	applyTimeRefinements,
 	type BaseAllocationFormValues,
 	baseAllocationSchema,
+	baseAllocationSchemaInner,
 	classTypes,
 	type DayOfWeek,
 	daysOfWeek,

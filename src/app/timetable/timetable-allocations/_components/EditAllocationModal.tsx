@@ -11,18 +11,21 @@ import { zod4Resolver as zodResolver } from 'mantine-form-zod-resolver';
 import { z } from 'zod';
 import { getActionColor, getAlertColor } from '@/shared/lib/utils/colors';
 import {
+	applyTimeRefinements,
+	baseAllocationSchemaInner,
+	type DayOfWeek,
+} from '../_lib/schemas';
+import {
 	updateTimetableAllocation,
 	updateTimetableAllocationVenueTypes,
 } from '../_server/actions';
-import {
-	AllocationForm,
-	baseAllocationSchema,
-	type DayOfWeek,
-} from './AllocationForm';
+import { AllocationForm } from './AllocationForm';
 
-const schema = baseAllocationSchema.extend({
-	numberOfStudents: z.number().min(0),
-});
+const schema = applyTimeRefinements(
+	baseAllocationSchemaInner.extend({
+		numberOfStudents: z.number().min(0),
+	})
+);
 
 type FormValues = z.infer<typeof schema>;
 
