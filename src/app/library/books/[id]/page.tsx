@@ -1,4 +1,4 @@
-import { Badge, Group, Image, Stack } from '@mantine/core';
+import { Badge, Group, Image, Stack, Text } from '@mantine/core';
 import { notFound } from 'next/navigation';
 import {
 	DetailsView,
@@ -43,6 +43,9 @@ export default async function BookDetailsPage({ params }: Props) {
 					<Stack flex={1} gap='xs'>
 						<FieldView label='ISBN'>{book.isbn}</FieldView>
 						<FieldView label='Title'>{book.title}</FieldView>
+						{book.subtitle && (
+							<FieldView label='Subtitle'>{book.subtitle}</FieldView>
+						)}
 						<FieldView label='Publisher'>{book.publisher}</FieldView>
 						<FieldView label='Publication Year'>
 							{book.publicationYear}
@@ -58,6 +61,16 @@ export default async function BookDetailsPage({ params }: Props) {
 						</FieldView>
 					</Stack>
 				</Group>
+				{book.description && (
+					<Stack gap='xs' mt='md'>
+						<Text size='sm' fw={500} c='dimmed'>
+							Description
+						</Text>
+						<Text size='sm' style={{ whiteSpace: 'pre-wrap' }}>
+							{book.description}
+						</Text>
+					</Stack>
+				)}
 			</DetailsViewBody>
 		</DetailsView>
 	);
