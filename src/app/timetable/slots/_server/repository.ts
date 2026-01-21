@@ -401,6 +401,7 @@ export default class TimetableSlotRepository extends BaseRepository<
 			where: (tbl, { eq }) => eq(tbl.id, allocationId),
 			with: {
 				timetableAllocationVenueTypes: true,
+				timetableAllocationAllowedVenues: true,
 				semesterModule: {
 					columns: {
 						id: true,
@@ -438,6 +439,7 @@ export default class TimetableSlotRepository extends BaseRepository<
 			where: (tbl, { eq }) => eq(tbl.termId, termId),
 			with: {
 				timetableAllocationVenueTypes: true,
+				timetableAllocationAllowedVenues: true,
 				semesterModule: {
 					columns: {
 						id: true,

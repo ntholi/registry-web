@@ -11,16 +11,26 @@ export async function getTimetableAllocationsByUserId(userId: string) {
 
 export async function createTimetableAllocationsWithVenueTypes(
 	allocations: TimetableAllocation[],
-	venueTypeIds: string[]
+	venueTypeIds: string[],
+	allowedVenueIds?: string[]
 ) {
-	return service.createManyWithVenueTypes(allocations, venueTypeIds);
+	return service.createManyWithVenueTypes(
+		allocations,
+		venueTypeIds,
+		allowedVenueIds ?? []
+	);
 }
 
 export async function createTimetableAllocationWithVenueTypes(
 	allocation: TimetableAllocation,
-	venueTypeIds: string[]
+	venueTypeIds: string[],
+	allowedVenueIds?: string[]
 ) {
-	return service.createWithVenueTypes(allocation, venueTypeIds);
+	return service.createWithVenueTypes(
+		allocation,
+		venueTypeIds,
+		allowedVenueIds ?? []
+	);
 }
 
 export async function updateTimetableAllocation(
@@ -35,6 +45,13 @@ export async function updateTimetableAllocationVenueTypes(
 	venueTypeIds: string[]
 ) {
 	return service.updateVenueTypes(id, venueTypeIds);
+}
+
+export async function updateTimetableAllocationAllowedVenues(
+	id: number,
+	venueIds: string[]
+) {
+	return service.updateAllowedVenues(id, venueIds);
 }
 
 export async function deleteTimetableAllocation(id: number) {

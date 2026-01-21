@@ -37,7 +37,8 @@ class TimetableAllocationService extends BaseService<
 
 	async createWithVenueTypes(
 		allocation: TimetableAllocationInsert,
-		venueTypeIds: string[]
+		venueTypeIds: string[],
+		allowedVenueIds: string[]
 	) {
 		return withAuth(async () => {
 			const duplicate = await this.repo.findDuplicate(
@@ -54,13 +55,18 @@ class TimetableAllocationService extends BaseService<
 					`This class (${groupInfo}) has already been allocated for this module in the current term. Each class can only have one ${allocation.classType} allocation per module.`
 				);
 			}
-			return this.repo.createWithVenueTypes(allocation, venueTypeIds);
+			return this.repo.createWithVenueTypes(
+				allocation,
+				venueTypeIds,
+				allowedVenueIds
+			);
 		}, ['academic']);
 	}
 
 	async createManyWithVenueTypes(
 		allocations: TimetableAllocationInsert[],
-		venueTypeIds: string[]
+		venueTypeIds: string[],
+		allowedVenueIds: string[]
 	) {
 		return withAuth(async () => {
 			for (const allocation of allocations) {
@@ -79,7 +85,11 @@ class TimetableAllocationService extends BaseService<
 					);
 				}
 			}
-			return this.repo.createManyWithVenueTypes(allocations, venueTypeIds);
+			return this.repo.createManyWithVenueTypes(
+				allocations,
+				venueTypeIds,
+				allowedVenueIds
+			);
 		}, ['academic']);
 	}
 
@@ -110,6 +120,12 @@ class TimetableAllocationService extends BaseService<
 	async updateVenueTypes(allocationId: number, venueTypeIds: string[]) {
 		return withAuth(async () => {
 			await this.repo.updateVenueTypes(allocationId, venueTypeIds);
+		}, ['academic']);
+	}
+
+	async updateAllowedVenues(allocationId: number, venueIds: string[]) {
+		return withAuth(async () => {
+			await this.repo.updateAllowedVenues(allocationId, venueIds);
 		}, ['academic']);
 	}
 }

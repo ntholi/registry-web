@@ -55,6 +55,13 @@ export type AllocationData = {
 			name: string;
 		};
 	}[];
+	timetableAllocationAllowedVenues?: {
+		venueId: string;
+		venue: {
+			id: string;
+			name: string;
+		};
+	}[];
 	timetableSlotAllocations?: {
 		slot: {
 			venue: {
@@ -183,6 +190,11 @@ export default function AllocationTable({
 										}
 										currentEndTime={
 											allocation.endTime || defaults?.endTime || '17:30:00'
+										}
+										currentAllowedVenueIds={
+											allocation.timetableAllocationAllowedVenues?.map(
+												(av) => av.venueId
+											) || []
 										}
 									/>
 								)}

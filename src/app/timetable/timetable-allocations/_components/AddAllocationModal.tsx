@@ -19,6 +19,7 @@ import { notifications } from '@mantine/notifications';
 import { IconPlus } from '@tabler/icons-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { getAllVenueTypes } from '@timetable/venue-types';
+import { getAllVenues } from '@timetable/venues';
 import { zod4Resolver as zodResolver } from 'mantine-form-zod-resolver';
 import { useState } from 'react';
 import { z } from 'zod';
@@ -89,6 +90,11 @@ export default function AddAllocationModal({
 		queryFn: getAllVenueTypes,
 	});
 
+	const { data: venues = [] } = useQuery({
+		queryKey: ['venues'],
+		queryFn: getAllVenues,
+	});
+
 	const form = useForm<FormValues>({
 		validate: zodResolver(schema),
 		initialValues: {
@@ -102,6 +108,7 @@ export default function AddAllocationModal({
 			allowedDays: defaultAllowedDays,
 			startTime: defaultStartTime,
 			endTime: defaultEndTime,
+			allowedVenueIds: [],
 		},
 	});
 
@@ -131,7 +138,8 @@ export default function AddAllocationModal({
 						startTime: values.startTime,
 						endTime: values.endTime,
 					},
-					values.venueTypeIds
+					values.venueTypeIds,
+					values.allowedVenueIds
 				);
 			}
 
@@ -152,7 +160,8 @@ export default function AddAllocationModal({
 
 			return createTimetableAllocationsWithVenueTypes(
 				allocations,
-				values.venueTypeIds
+				values.venueTypeIds,
+				values.allowedVenueIds
 			);
 		},
 		onSuccess: async () => {
@@ -255,6 +264,7 @@ export default function AddAllocationModal({
 					<AllocationForm
 						form={form}
 						venueTypes={venueTypes}
+						venues={venues}
 						renderTopDetails={() => (
 							<>
 								<ModuleSearchInput

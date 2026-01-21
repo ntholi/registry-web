@@ -25,6 +25,7 @@ A **timetable allocation** represents a teaching assignment that needs to be sch
 - **Time Window**: `startTime` (earliest start) and `endTime` (latest end)
 - **Number of Students**: Expected class size for venue capacity matching
 - **Venue Types**: Optional restrictions on venue types (e.g., lab, lecture hall)
+- **Allowed Venues**: Optional strict restriction to specific venues.
 
 ### Student Class
 A **student class** is a cohort of students enrolled in the same program and semester. 
@@ -89,6 +90,9 @@ The assigned venue must accommodate the expected number of students:
 - Venue capacity ≥ `numberOfStudents`
 - **Exception**: Allow up to **10% overflow** (e.g., 55 students in a 50-capacity venue is acceptable; 56 is not)
 
+#### 1.8 Allowed Venues (Strict)
+If specific venues are selected in `timetableAllocationAllowedVenues`, the algorithm **MUST strictly** use one of those venues. This overrides and disables Venue Type requirements.
+
 ### 2. Soft Constraints (Prefer, But May Violate When Necessary)
 
 #### 2.1 Consecutive Slots Limit
@@ -148,7 +152,7 @@ When no valid placement exists with all constraints:
 1. First, relax **consecutive slots** constraint
 2. Then, relax **maxSlotsPerDay** constraint
 (Before doing any of the two above, warn the user) 
-3. **Never** relax hard constraints (1.1 - 1.7)
+3. **Never** relax hard constraints (1.1 - 1.8)
 
 ---
 
@@ -207,6 +211,7 @@ Create comprehensive tests covering:
 | Venue Type | Must match allocation's required types | Never |
 | Time Window | Must fit within startTime-endTime | Never |
 | Capacity | ≤110% of venue capacity | Never |
+| Allowed Venues | Must strictly be one of the selected venues | Never |
 | 3+ Consecutive Slots | Avoid for lecturers and classes | Only if necessary |
 | Max Slots Per Day | Limit daily slots | Only if absolutely impossible |
 | Best-Fit Venue | Prefer smallest fitting venue | Preference only |
@@ -220,6 +225,7 @@ Create comprehensive tests covering:
 - `timetableSlots`: Stores scheduled slots
 - `timetableAllocations`: Teaching assignments to schedule
 - `timetableAllocationVenueTypes`: Venue type requirements
+- `timetableAllocationAllowedVenues`: Specific venue restrictions
 - `venues`: Physical locations with capacity
 - `venueTypes`: Categories of venues
 - `venueSchools`: Links venues to schools

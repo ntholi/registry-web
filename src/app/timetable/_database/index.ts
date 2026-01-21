@@ -2,6 +2,7 @@ export * from '../slots/_schema/relations';
 export * from '../slots/_schema/timetableSlotAllocations';
 export * from '../slots/_schema/timetableSlots';
 export * from '../timetable-allocations/_schema/relations';
+export * from '../timetable-allocations/_schema/timetableAllocationAllowedVenues';
 export * from '../timetable-allocations/_schema/timetableAllocations';
 export * from '../timetable-allocations/_schema/timetableAllocationVenueTypes';
 export * from '../venues/_schema/relations';

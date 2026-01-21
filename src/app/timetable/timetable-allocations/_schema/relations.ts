@@ -2,8 +2,10 @@ import { semesterModules } from '@academic/semester-modules/_schema/semesterModu
 import { users } from '@auth/users/_schema/users';
 import { terms } from '@registry/terms/_schema/terms';
 import { timetableSlotAllocations } from '@timetable/slots/_schema/timetableSlotAllocations';
+import { venues } from '@timetable/venues/_schema/venues';
 import { venueTypes } from '@timetable/venues/_schema/venueTypes';
 import { relations } from 'drizzle-orm';
+import { timetableAllocationAllowedVenues } from './timetableAllocationAllowedVenues';
 import { timetableAllocations } from './timetableAllocations';
 import { timetableAllocationVenueTypes } from './timetableAllocationVenueTypes';
 
@@ -23,6 +25,7 @@ export const timetableAllocationsRelations = relations(
 			references: [terms.id],
 		}),
 		timetableAllocationVenueTypes: many(timetableAllocationVenueTypes),
+		timetableAllocationAllowedVenues: many(timetableAllocationAllowedVenues),
 		timetableSlotAllocations: many(timetableSlotAllocations),
 	})
 );
@@ -37,6 +40,20 @@ export const timetableAllocationVenueTypesRelations = relations(
 		venueType: one(venueTypes, {
 			fields: [timetableAllocationVenueTypes.venueTypeId],
 			references: [venueTypes.id],
+		}),
+	})
+);
+
+export const timetableAllocationAllowedVenuesRelations = relations(
+	timetableAllocationAllowedVenues,
+	({ one }) => ({
+		timetableAllocation: one(timetableAllocations, {
+			fields: [timetableAllocationAllowedVenues.timetableAllocationId],
+			references: [timetableAllocations.id],
+		}),
+		venue: one(venues, {
+			fields: [timetableAllocationAllowedVenues.venueId],
+			references: [venues.id],
 		}),
 	})
 );

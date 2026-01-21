@@ -7,6 +7,7 @@ import { notifications } from '@mantine/notifications';
 import { IconEdit } from '@tabler/icons-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { getAllVenueTypes } from '@timetable/venue-types';
+import { getAllVenues } from '@timetable/venues';
 import { zod4Resolver as zodResolver } from 'mantine-form-zod-resolver';
 import { z } from 'zod';
 import { getActionColor, getAlertColor } from '@/shared/lib/utils/colors';
@@ -17,6 +18,7 @@ import {
 } from '../_lib/schemas';
 import {
 	updateTimetableAllocation,
+	updateTimetableAllocationAllowedVenues,
 	updateTimetableAllocationVenueTypes,
 } from '../_server/actions';
 import { AllocationForm } from './AllocationForm';
@@ -38,6 +40,7 @@ type Props = {
 	currentAllowedDays: DayOfWeek[];
 	currentStartTime: string;
 	currentEndTime: string;
+	currentAllowedVenueIds: string[];
 };
 
 export default function EditAllocationModal({
@@ -49,6 +52,7 @@ export default function EditAllocationModal({
 	currentAllowedDays,
 	currentStartTime,
 	currentEndTime,
+	currentAllowedVenueIds,
 }: Props) {
 	const [opened, { open, close }] = useDisclosure(false);
 	const queryClient = useQueryClient();
@@ -56,6 +60,11 @@ export default function EditAllocationModal({
 	const { data: venueTypes = [] } = useQuery({
 		queryKey: ['venue-types'],
 		queryFn: getAllVenueTypes,
+	});
+
+	const { data: venues = [] } = useQuery({
+		queryKey: ['venues'],
+		queryFn: getAllVenues,
 	});
 
 	const form = useForm<FormValues>({
@@ -68,6 +77,7 @@ export default function EditAllocationModal({
 			allowedDays: currentAllowedDays,
 			startTime: currentStartTime,
 			endTime: currentEndTime,
+			allowedVenueIds: currentAllowedVenueIds,
 		},
 	});
 
@@ -84,6 +94,10 @@ export default function EditAllocationModal({
 			await updateTimetableAllocationVenueTypes(
 				allocationId,
 				values.venueTypeIds
+			);
+			await updateTimetableAllocationAllowedVenues(
+				allocationId,
+				values.allowedVenueIds
 			);
 		},
 		onSuccess: async () => {
@@ -124,6 +138,7 @@ export default function EditAllocationModal({
 			allowedDays: currentAllowedDays,
 			startTime: currentStartTime,
 			endTime: currentEndTime,
+			allowedVenueIds: currentAllowedVenueIds,
 		});
 		open();
 	};
@@ -141,7 +156,7 @@ export default function EditAllocationModal({
 
 			<Modal opened={opened} onClose={close} title='Edit Allocation' size='md'>
 				<form onSubmit={form.onSubmit(handleSubmit)}>
-					<AllocationForm form={form} venueTypes={venueTypes} />
+					<AllocationForm form={form} venueTypes={venueTypes} venues={venues} />
 
 					<Group justify='flex-end' mt='md'>
 						<Button variant='subtle' onClick={close}>

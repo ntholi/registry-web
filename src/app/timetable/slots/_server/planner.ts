@@ -13,6 +13,9 @@ export type AllocationRecord = typeof timetableAllocations.$inferSelect & {
 	timetableAllocationVenueTypes: {
 		venueTypeId: string;
 	}[];
+	timetableAllocationAllowedVenues: {
+		venueId: string;
+	}[];
 	semesterModule: {
 		id: number;
 		semesterId: number | null;
@@ -414,6 +417,9 @@ function collectCandidateVenues(
 	venues: VenueRecord[]
 ): VenueRecord[] {
 	const requiredCapacity = allocation.numberOfStudents ?? 0;
+	const allowedVenueIds = allocation.timetableAllocationAllowedVenues.map(
+		(item) => item.venueId
+	);
 	const requiredTypes = allocation.timetableAllocationVenueTypes.map(
 		(item) => item.venueTypeId
 	);
@@ -424,7 +430,15 @@ function collectCandidateVenues(
 	const candidates: VenueRecord[] = [];
 
 	for (const venue of venues) {
-		if (requiredTypes.length > 0 && !requiredTypes.includes(venue.typeId)) {
+		if (allowedVenueIds.length > 0 && !allowedVenueIds.includes(venue.id)) {
+			continue;
+		}
+
+		if (
+			allowedVenueIds.length === 0 &&
+			requiredTypes.length > 0 &&
+			!requiredTypes.includes(venue.typeId)
+		) {
 			continue;
 		}
 

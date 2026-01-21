@@ -1,14 +1,19 @@
 import {
+	Alert,
+	Box,
 	Checkbox,
 	Grid,
+	Group,
 	MultiSelect,
 	NumberInput,
 	Select,
 	Stack,
+	Text,
 	Tabs,
 } from '@mantine/core';
 import { TimeInput } from '@mantine/dates';
 import type { UseFormReturnType } from '@mantine/form';
+import { IconInfoCircle } from '@tabler/icons-react';
 import DurationInput from '@/shared/ui/DurationInput';
 import {
 	applyTimeRefinements,
@@ -32,6 +37,7 @@ export type { BaseAllocationFormValues, DayOfWeek };
 type Props<T extends BaseAllocationFormValues> = {
 	form: UseFormReturnType<T>;
 	venueTypes: { id: string; name: string }[];
+	venues: { id: string; name: string }[];
 	renderTopDetails?: () => React.ReactNode;
 	renderMiddleDetails?: () => React.ReactNode;
 };
@@ -39,9 +45,15 @@ type Props<T extends BaseAllocationFormValues> = {
 export function AllocationForm<T extends BaseAllocationFormValues>({
 	form,
 	venueTypes,
+	venues,
 	renderTopDetails,
 	renderMiddleDetails,
 }: Props<T>) {
+	const hasAllowedVenues = form.values.allowedVenueIds.length > 0;
+	const selectedVenueNames = venues
+		.filter((v) => form.values.allowedVenueIds.includes(v.id))
+		.map((v) => v.name);
+
 	return (
 		<Tabs defaultValue='details'>
 			<Tabs.List>
@@ -99,26 +111,48 @@ export function AllocationForm<T extends BaseAllocationFormValues>({
 
 					{renderMiddleDetails?.()}
 
-					<MultiSelect
-						label='Venue Types'
-						placeholder='Select venue types (optional)'
-						data={venueTypes.map((vt) => ({
-							value: vt.id,
-							label: vt.name,
-						}))}
-						value={form.values.venueTypeIds}
-						onChange={(values) => {
-							// @ts-expect-error - Generic form type inference limitation with Mantine
-							form.setFieldValue('venueTypeIds', values);
-						}}
-						searchable
-						clearable
-					/>
+
+					<Box>
+
+						<MultiSelect
+							label='Venue Types'
+							placeholder='Select venue types (optional)'
+							disabled={hasAllowedVenues}
+							data={venueTypes.map((vt) => ({
+								value: vt.id,
+								label: vt.name,
+							}))}
+							value={form.values.venueTypeIds}
+							onChange={(values) => {
+								// @ts-expect-error - Generic form type inference limitation with Mantine
+								form.setFieldValue('venueTypeIds', values);
+							}}
+							searchable
+							clearable
+							/>
+							{selectedVenueNames.length > 0 && (	
+							<Text size='xs' c='dimmed' mt={3}> Allowed Venues have been
+							set: {selectedVenueNames.join(', ')}</Text>)}
+							</Box>
 				</Stack>
 			</Tabs.Panel>
 
 			<Tabs.Panel value='constraints' pt='md'>
 				<Stack gap='md'>
+					<MultiSelect
+						label='Allowed Venues'
+						description='Optionally restrict this allocation to specific venues'
+						placeholder='Select allowed venues (optional)'
+						data={venues.map((v) => ({ value: v.id, label: v.name }))}
+						value={form.values.allowedVenueIds}
+						onChange={(values) => {
+							// @ts-expect-error - Generic form type inference limitation with Mantine
+							form.setFieldValue('allowedVenueIds', values);
+						}}
+						error={form.errors.allowedVenueIds}
+						searchable
+						clearable
+					/>
 					<Checkbox.Group
 						label='Allowed Days'
 						description='Select which days of the week this allocation can be scheduled'
@@ -140,34 +174,33 @@ export function AllocationForm<T extends BaseAllocationFormValues>({
 							))}
 						</Stack>
 					</Checkbox.Group>
+					<Group grow>
+						<TimeInput
+							label='Start Time'
+							placeholder='HH:mm'
+							value={form.values.startTime}
+							onChange={(event) => {
+								// biome-ignore lint/suspicious/noExplicitAny: Generic form handling
+								const castValue = event.currentTarget.value as any;
+								form.setFieldValue('startTime', castValue);
+							}}
+							error={form.errors.startTime}
+							required
+						/>
 
-					<TimeInput
-						label='Start Time'
-						description='Earliest time this allocation can be scheduled (24hr format)'
-						placeholder='HH:mm'
-						value={form.values.startTime}
-						onChange={(event) => {
-							// biome-ignore lint/suspicious/noExplicitAny: Generic form handling
-							const castValue = event.currentTarget.value as any;
-							form.setFieldValue('startTime', castValue);
-						}}
-						error={form.errors.startTime}
-						required
-					/>
-
-					<TimeInput
-						label='End Time'
-						description='Latest time this allocation can be scheduled (24hr format)'
-						placeholder='HH:mm'
-						value={form.values.endTime}
-						onChange={(event) => {
-							// biome-ignore lint/suspicious/noExplicitAny: Generic form handling
-							const castValue = event.currentTarget.value as any;
-							form.setFieldValue('endTime', castValue);
-						}}
-						error={form.errors.endTime}
-						required
-					/>
+						<TimeInput
+							label='End Time'
+							placeholder='HH:mm'
+							value={form.values.endTime}
+							onChange={(event) => {
+								// biome-ignore lint/suspicious/noExplicitAny: Generic form handling
+								const castValue = event.currentTarget.value as any;
+								form.setFieldValue('endTime', castValue);
+							}}
+							error={form.errors.endTime}
+							required
+						/>
+					</Group>
 				</Stack>
 			</Tabs.Panel>
 		</Tabs>

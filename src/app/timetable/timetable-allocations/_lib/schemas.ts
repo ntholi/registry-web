@@ -71,6 +71,7 @@ export const baseAllocationSchemaInner = z.object({
 		.min(1, 'Please select at least one day'),
 	startTime: z.string().min(1, 'Please enter a start time'),
 	endTime: z.string().min(1, 'Please enter an end time'),
+	allowedVenueIds: z.array(z.string()),
 });
 
 export const baseAllocationSchema = applyTimeRefinements(
