@@ -1,13 +1,22 @@
 'use client';
 
-import { Badge, Card, Group, Stack, Text, Title } from '@mantine/core';
+import {
+	Badge,
+	Box,
+	Card,
+	Group,
+	Stack,
+	Text,
+	ThemeIcon,
+	Title,
+} from '@mantine/core';
 import {
 	IconArticle,
 	IconBook2,
 	IconFileText,
 	IconSchool,
+	IconUser,
 } from '@tabler/icons-react';
-import Link from 'next/link';
 import type { CatalogPublication } from '../_server/types';
 
 type Props = {
@@ -29,44 +38,47 @@ export default function PublicationCard({ publication }: Props) {
 		.join(', ');
 
 	return (
-		<Card
-			component={Link}
-			href={`/library/resources/publications/${publication.id}`}
-			shadow='sm'
-			padding='lg'
-			radius='md'
-			withBorder
-			style={{ textDecoration: 'none' }}
-		>
-			<Stack gap='sm'>
+		<Card shadow='sm' padding={0} radius='md' withBorder>
+			<Box
+				p='md'
+				bg={`var(--mantine-color-${config.color}-light)`}
+				style={{
+					borderBottom: '1px solid var(--mantine-color-default-border)',
+				}}
+			>
 				<Group justify='space-between' align='flex-start'>
-					<Badge
-						leftSection={<Icon size={12} />}
-						color={config.color}
-						variant='light'
-					>
+					<ThemeIcon variant='light' color={config.color} size='xl' radius='md'>
+						<Icon size={24} />
+					</ThemeIcon>
+					<Badge color={config.color} variant='filled' size='sm'>
 						{config.label}
 					</Badge>
-					{publication.datePublished && (
-						<Text size='xs' c='dimmed'>
-							{publication.datePublished}
-						</Text>
-					)}
 				</Group>
+			</Box>
 
+			<Stack gap='sm' p='md'>
 				<Title order={5} lineClamp={2} lh={1.3}>
 					{publication.title}
 				</Title>
 
 				{authors && (
-					<Text size='sm' c='dimmed' lineClamp={1}>
-						{authors}
-					</Text>
+					<Group gap='xs' wrap='nowrap'>
+						<IconUser size={14} color='var(--mantine-color-dimmed)' />
+						<Text size='sm' c='dimmed' lineClamp={1}>
+							{authors}
+						</Text>
+					</Group>
 				)}
 
 				{publication.abstract && (
 					<Text size='xs' c='dimmed' lineClamp={2}>
 						{publication.abstract}
+					</Text>
+				)}
+
+				{publication.datePublished && (
+					<Text size='xs' c='dimmed' ta='right'>
+						{publication.datePublished}
 					</Text>
 				)}
 			</Stack>

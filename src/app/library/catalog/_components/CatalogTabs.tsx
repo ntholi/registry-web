@@ -19,6 +19,7 @@ import type { CatalogBook, CatalogPublication } from '../_server/types';
 import BookCard from './BookCard';
 import BookDetailModal from './BookDetailModal';
 import PublicationCard from './PublicationCard';
+import PublicationDetailModal from './PublicationDetailModal';
 
 type Props = {
 	initialBooks: CatalogBook[];
@@ -110,7 +111,9 @@ export default function CatalogTabs({
 					) : (
 						<SimpleGrid cols={{ base: 1, sm: 2, lg: 3 }}>
 							{publications.map((pub) => (
-								<PublicationCard key={pub.id} publication={pub} />
+								<PublicationDetailModal key={pub.id} publication={pub}>
+									<PublicationCard publication={pub} />
+								</PublicationDetailModal>
 							))}
 						</SimpleGrid>
 					)}

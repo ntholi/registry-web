@@ -22,7 +22,16 @@ export const libraryConfig: ModuleConfig = {
 				label: 'Catalog',
 				href: '/library/catalog',
 				icon: IconBooks,
-				roles: ['admin', 'library'],
+				roles: [
+					'admin',
+					'academic',
+					'finance',
+					'library',
+					'marketing',
+					'registry',
+					'resource',
+					'student_services',
+				],
 			},
 			{
 				label: 'Books',
