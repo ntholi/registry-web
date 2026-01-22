@@ -72,19 +72,19 @@ export default function PublicationDetailModal({
 				size='xl'
 				styles={{ body: { padding: 0 } }}
 			>
-				<Tabs defaultValue={hasDocument ? 'preview' : 'details'}>
+				<Tabs defaultValue={'details'}>
 					<Tabs.List px='md'>
-						{hasDocument && (
-							<Tabs.Tab value='preview' leftSection={<IconEye size={16} />}>
-								Preview
-							</Tabs.Tab>
-						)}
 						<Tabs.Tab
 							value='details'
 							leftSection={<IconInfoCircle size={16} />}
 						>
 							Details
 						</Tabs.Tab>
+						{hasDocument && (
+							<Tabs.Tab value='preview' leftSection={<IconEye size={16} />}>
+								Preview
+							</Tabs.Tab>
+						)}
 					</Tabs.List>
 
 					{hasDocument && (
@@ -102,7 +102,7 @@ export default function PublicationDetailModal({
 					)}
 
 					<Tabs.Panel value='details'>
-						<ScrollArea h={hasDocument ? 500 : 400}>
+						<ScrollArea mih={400}>
 							<Stack gap='md' p='md'>
 								<Title order={3} lh={1.3}>
 									{publication.title}
