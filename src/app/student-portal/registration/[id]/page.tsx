@@ -1,7 +1,6 @@
 import {
 	Badge,
 	Box,
-	Button,
 	Container,
 	Flex,
 	Group,
@@ -17,13 +16,13 @@ import {
 } from '@mantine/core';
 import { getRegistrationRequest } from '@registry/registration/requests';
 import { IconBooks, IconEdit } from '@tabler/icons-react';
-import Link from 'next/link';
 import { forbidden, notFound } from 'next/navigation';
 import { config } from '@/config';
 import { auth } from '@/core/auth';
 import { getStatusColor } from '@/shared/lib/utils/colors';
 import { getStatusIcon } from '@/shared/lib/utils/status';
 import { formatSemester } from '@/shared/lib/utils/utils';
+import ButtonLink from '@/shared/ui/ButtonLink';
 import {
 	ClearanceStatusView,
 	DepartmentMessagesView,
@@ -84,8 +83,7 @@ export default async function page({ params }: Props) {
 							{registration.status === 'pending' &&
 								registration.count <=
 									config.registry.maxRegistrationAttempts && (
-									<Button
-										component={Link}
+									<ButtonLink
 										href={`/student-portal/registration/${registration.id}/edit`}
 										variant='subtle'
 										mr={-10}
@@ -93,7 +91,7 @@ export default async function page({ params }: Props) {
 										leftSection={<IconEdit size={16} />}
 									>
 										Update
-									</Button>
+									</ButtonLink>
 								)}
 							{registration.status === 'registered' && (
 								<ProofOfRegistrationDownload
