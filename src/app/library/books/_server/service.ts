@@ -26,17 +26,24 @@ class BookService extends BaseService<typeof books, 'id'> {
 
 	async createWithRelations(
 		book: typeof books.$inferInsert,
-		authorIds: number[]
+		authorIds: number[],
+		categoryIds: number[]
 	) {
-		return this.repository.createWithRelations(book, authorIds);
+		return this.repository.createWithRelations(book, authorIds, categoryIds);
 	}
 
 	async updateWithRelations(
 		id: number,
 		book: Partial<typeof books.$inferInsert>,
-		authorIds: number[]
+		authorIds: number[],
+		categoryIds: number[]
 	) {
-		return this.repository.updateWithRelations(id, book, authorIds);
+		return this.repository.updateWithRelations(
+			id,
+			book,
+			authorIds,
+			categoryIds
+		);
 	}
 }
 

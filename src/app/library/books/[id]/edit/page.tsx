@@ -18,9 +18,9 @@ export default async function EditBookPage({ params }: Props) {
 			<Form
 				title='Edit Book'
 				defaultValues={book}
-				onSubmit={async (value, authorIds) => {
+				onSubmit={async (value, authorIds, categoryIds) => {
 					'use server';
-					return updateBook(Number(id), value, authorIds);
+					return updateBook(Number(id), value, authorIds, categoryIds);
 				}}
 			/>
 		</Box>

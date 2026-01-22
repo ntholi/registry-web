@@ -18,12 +18,21 @@ export async function getBooks(page = 1, search = '') {
 	});
 }
 
-export async function createBook(book: Book, authorIds: number[]) {
-	return booksService.createWithRelations(book, authorIds);
+export async function createBook(
+	book: Book,
+	authorIds: number[],
+	categoryIds: number[]
+) {
+	return booksService.createWithRelations(book, authorIds, categoryIds);
 }
 
-export async function updateBook(id: number, book: Book, authorIds: number[]) {
-	return booksService.updateWithRelations(id, book, authorIds);
+export async function updateBook(
+	id: number,
+	book: Book,
+	authorIds: number[],
+	categoryIds: number[]
+) {
+	return booksService.updateWithRelations(id, book, authorIds, categoryIds);
 }
 
 export async function deleteBook(id: number) {

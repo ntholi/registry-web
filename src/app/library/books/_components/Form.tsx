@@ -23,12 +23,17 @@ import {
 } from '../../authors/_server/actions';
 import type { BookWithRelations } from '../_lib/types';
 import BookLookupModal from './BookLookupModal';
+import CategoriesSelect from './CategoriesSelect';
 import CoverImage from './CoverImage';
 
 type Book = typeof books.$inferInsert;
 
 type Props = {
-	onSubmit: (values: Book, authorIds: number[]) => Promise<Book>;
+	onSubmit: (
+		values: Book,
+		authorIds: number[],
+		categoryIds: number[]
+	) => Promise<Book>;
 	defaultValues?: BookWithRelations;
 	title?: string;
 };
@@ -39,6 +44,9 @@ export default function BookForm({ onSubmit, defaultValues, title }: Props) {
 	const [coverUrl, setCoverUrl] = useState(defaultValues?.coverUrl ?? '');
 	const [authorIds, setAuthorIds] = useState<string[]>(
 		defaultValues?.bookAuthors?.map((ba) => String(ba.authorId)) ?? []
+	);
+	const [categoryIds, setCategoryIds] = useState<string[]>(
+		defaultValues?.bookCategories?.map((bc) => String(bc.categoryId)) ?? []
 	);
 	const [isbn, setIsbn] = useState(defaultValues?.isbn ?? '');
 	const [bookTitle, setBookTitle] = useState(defaultValues?.title ?? '');
@@ -86,7 +94,8 @@ export default function BookForm({ onSubmit, defaultValues, title }: Props) {
 			action={async (values) => {
 				const result = await onSubmit(
 					{ ...values, coverUrl } as typeof books.$inferInsert,
-					authorIds.map(Number)
+					authorIds.map(Number),
+					categoryIds.map(Number)
 				);
 				return result;
 			}}
@@ -173,6 +182,7 @@ export default function BookForm({ onSubmit, defaultValues, title }: Props) {
 						onChange={setAuthorIds}
 						searchable
 					/>
+					<CategoriesSelect value={categoryIds} onChange={setCategoryIds} />
 				</Stack>
 			)}
 		</Form>
