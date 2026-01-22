@@ -64,7 +64,7 @@ export default function LoanForm() {
 		const selected = bookOptions.find((o) => o.value === value);
 		if (selected) {
 			setBook(selected.book);
-			setCopy(null);
+			setCopy(selected.book.matchedCopy || null);
 			setBookSearch('');
 		}
 	}

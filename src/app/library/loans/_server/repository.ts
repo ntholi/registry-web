@@ -8,7 +8,7 @@ import {
 	students,
 } from '@/core/database';
 import BaseRepository from '@/core/platform/BaseRepository';
-import type { LoanFilters } from '../_lib/types';
+import type { AvailableCopy, LoanFilters } from '../_lib/types';
 
 export default class LoanRepository extends BaseRepository<typeof loans, 'id'> {
 	constructor() {
@@ -359,8 +359,11 @@ export default class LoanRepository extends BaseRepository<typeof loans, 'id'> {
 			searchResults.map(async (book) => {
 				const copiesData = await db
 					.select({
+						id: bookCopies.id,
 						status: bookCopies.status,
+						condition: bookCopies.condition,
 						location: bookCopies.location,
+						serialNumber: bookCopies.serialNumber,
 					})
 					.from(bookCopies)
 					.where(eq(bookCopies.bookId, book.id));
@@ -373,10 +376,17 @@ export default class LoanRepository extends BaseRepository<typeof loans, 'id'> {
 					new Set(copiesData.map((c) => c.location).filter(Boolean) as string[])
 				);
 
+				const matchedCopy = copiesData.find(
+					(c) =>
+						c.status === 'Available' &&
+						c.serialNumber.toLowerCase().includes(query.toLowerCase())
+				);
+
 				return {
 					...book,
 					availableCopies,
 					locations: uniqueLocations,
+					matchedCopy: matchedCopy as AvailableCopy | undefined,
 				};
 			})
 		);

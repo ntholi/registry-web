@@ -54,6 +54,7 @@ export interface BookSearchResult {
 	coverUrl: string | null;
 	availableCopies: number;
 	locations?: string[];
+	matchedCopy?: AvailableCopy;
 }
 
 export interface AvailableCopy {
