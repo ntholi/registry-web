@@ -52,27 +52,62 @@ export async function updateTimetableAllocation(
 	id: number,
 	allocation: Partial<TimetableAllocation>
 ) {
-	return service.update(id, allocation);
+	try {
+		return await service.update(id, allocation);
+	} catch (error) {
+		if (error instanceof TimetablePlanningError) {
+			throw new Error(error.message);
+		}
+		throw error;
+	}
 }
 
 export async function updateTimetableAllocationVenueTypes(
 	id: number,
 	venueTypeIds: string[]
 ) {
-	return service.updateVenueTypes(id, venueTypeIds);
+	try {
+		return await service.updateVenueTypes(id, venueTypeIds);
+	} catch (error) {
+		if (error instanceof TimetablePlanningError) {
+			throw new Error(error.message);
+		}
+		throw error;
+	}
 }
 
 export async function updateTimetableAllocationAllowedVenues(
 	id: number,
 	venueIds: string[]
 ) {
-	return service.updateAllowedVenues(id, venueIds);
+	try {
+		return await service.updateAllowedVenues(id, venueIds);
+	} catch (error) {
+		if (error instanceof TimetablePlanningError) {
+			throw new Error(error.message);
+		}
+		throw error;
+	}
 }
 
 export async function deleteTimetableAllocation(id: number) {
-	return service.delete(id);
+	try {
+		return await service.delete(id);
+	} catch (error) {
+		if (error instanceof TimetablePlanningError) {
+			throw new Error(error.message);
+		}
+		throw error;
+	}
 }
 
 export async function deleteTimetableAllocations(ids: number[]) {
-	return service.deleteMany(ids);
+	try {
+		return await service.deleteMany(ids);
+	} catch (error) {
+		if (error instanceof TimetablePlanningError) {
+			throw new Error(error.message);
+		}
+		throw error;
+	}
 }
