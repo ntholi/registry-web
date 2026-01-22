@@ -1,4 +1,4 @@
-import { and, desc, eq, isNull, lt, or, sql } from 'drizzle-orm';
+import { and, desc, eq, exists, isNull, lt, or, sql } from 'drizzle-orm';
 import {
 	bookCopies,
 	books,
@@ -336,26 +336,47 @@ export default class LoanRepository extends BaseRepository<typeof loans, 'id'> {
 			.where(
 				or(
 					sql`${books.title} ILIKE ${`%${query}%`}`,
-					sql`${books.isbn} ILIKE ${`%${query}%`}`
+					sql`${books.isbn} ILIKE ${`%${query}%`}`,
+					exists(
+						db
+							.select()
+							.from(bookCopies)
+							.where(
+								and(
+									eq(bookCopies.bookId, books.id),
+									or(
+										sql`${bookCopies.location} ILIKE ${`%${query}%`}`,
+										sql`${bookCopies.serialNumber} ILIKE ${`%${query}%`}`
+									)
+								)
+							)
+					)
 				)
 			)
 			.limit(10);
 
 		const resultsWithCopies = await Promise.all(
 			searchResults.map(async (book) => {
-				const availableCopiesResult = await db
-					.select({ count: sql<number>`count(*)` })
+				const copiesData = await db
+					.select({
+						status: bookCopies.status,
+						location: bookCopies.location,
+					})
 					.from(bookCopies)
-					.where(
-						and(
-							eq(bookCopies.bookId, book.id),
-							eq(bookCopies.status, 'Available')
-						)
-					);
+					.where(eq(bookCopies.bookId, book.id));
+
+				const availableCopies = copiesData.filter(
+					(c) => c.status === 'Available'
+				).length;
+
+				const uniqueLocations = Array.from(
+					new Set(copiesData.map((c) => c.location).filter(Boolean) as string[])
+				);
 
 				return {
 					...book,
-					availableCopies: Number(availableCopiesResult[0]?.count || 0),
+					availableCopies,
+					locations: uniqueLocations,
 				};
 			})
 		);

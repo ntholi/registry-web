@@ -122,7 +122,7 @@ export default function LoanForm() {
 					<Stack gap='md'>
 						<Autocomplete
 							label='Search Book'
-							placeholder='Enter ISBN or title'
+							placeholder='Enter ISBN, title, serial or location'
 							value={bookSearch}
 							onChange={setBookSearch}
 							onOptionSubmit={handleBookSelect}
@@ -138,9 +138,17 @@ export default function LoanForm() {
 										<Text size='sm' fw={500}>
 											{foundBook?.title}
 										</Text>
-										<Text size='xs' c='dimmed'>
-											{foundBook?.isbn}
-										</Text>
+										<Group gap='xs'>
+											<Text size='xs' c='dimmed'>
+												{foundBook?.isbn}
+											</Text>
+											{foundBook?.locations &&
+												foundBook.locations.length > 0 && (
+													<Text size='xs' c='blue' fw={500}>
+														• {foundBook.locations.join(', ')}
+													</Text>
+												)}
+										</Group>
 									</Stack>
 								);
 							}}

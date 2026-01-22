@@ -53,6 +53,7 @@ export interface BookSearchResult {
 	title: string;
 	coverUrl: string | null;
 	availableCopies: number;
+	locations?: string[];
 }
 
 export interface AvailableCopy {
