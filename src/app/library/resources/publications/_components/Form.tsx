@@ -1,10 +1,9 @@
 'use client';
 
-import { getAllAuthors } from '@library/authors/_server/actions';
-import { MultiSelect, Select, Stack, Textarea, TextInput } from '@mantine/core';
+import AuthorSelector from '@library/_components/AuthorSelector';
+import { Select, Stack, Textarea, TextInput } from '@mantine/core';
 import { DateInput } from '@mantine/dates';
 import type { FileWithPath } from '@mantine/dropzone';
-import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'nextjs-toploader/app';
 import { useRef, useState } from 'react';
 import { Form } from '@/shared/ui/adease';
@@ -37,14 +36,6 @@ export default function PublicationForm({
 	const [datePublished, setDatePublished] = useState<Date | null>(
 		defaultValues?.datePublished ? new Date(defaultValues.datePublished) : null
 	);
-
-	const { data: authorsData } = useQuery({
-		queryKey: ['authors', 'all'],
-		queryFn: getAllAuthors,
-	});
-
-	const authorOptions =
-		authorsData?.map((a) => ({ value: a.id, label: a.name })) ?? [];
 
 	fileRef.current = file;
 
@@ -99,13 +90,7 @@ export default function PublicationForm({
 						{...form.getInputProps('type')}
 					/>
 
-					<MultiSelect
-						label='Authors'
-						data={authorOptions}
-						value={authorIds}
-						onChange={setAuthorIds}
-						searchable
-					/>
+					<AuthorSelector value={authorIds} onChange={setAuthorIds} />
 
 					<DateInput
 						label='Date Published'

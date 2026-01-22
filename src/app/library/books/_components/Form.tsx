@@ -4,23 +4,20 @@ import { books } from '@library/_database';
 import {
 	Box,
 	Grid,
-	MultiSelect,
 	NumberInput,
 	Paper,
 	Stack,
 	Textarea,
 	TextInput,
 } from '@mantine/core';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import { createInsertSchema } from 'drizzle-zod';
 import { useRouter } from 'nextjs-toploader/app';
 import { useState } from 'react';
 import { Form } from '@/shared/ui/adease';
+import AuthorSelector from '../../_components/AuthorSelector';
 import type { BookLookupResult } from '../../_lib/google-books';
-import {
-	getAllAuthors,
-	getOrCreateAuthors,
-} from '../../authors/_server/actions';
+import { getOrCreateAuthors } from '../../authors/_server/actions';
 import type { BookWithRelations } from '../_lib/types';
 import BookLookupModal from './BookLookupModal';
 import CategoriesSelect from './CategoriesSelect';
@@ -50,14 +47,6 @@ export default function BookForm({ onSubmit, defaultValues, title }: Props) {
 	);
 	const [isbn, setIsbn] = useState(defaultValues?.isbn ?? '');
 	const [bookTitle, setBookTitle] = useState(defaultValues?.title ?? '');
-
-	const { data: authorsData } = useQuery({
-		queryKey: ['authors', 'all'],
-		queryFn: getAllAuthors,
-	});
-
-	const authorOptions =
-		authorsData?.map((a) => ({ value: String(a.id), label: a.name })) ?? [];
 
 	async function handleBookSelect(
 		book: BookLookupResult,
@@ -175,13 +164,7 @@ export default function BookForm({ onSubmit, defaultValues, title }: Props) {
 						minRows={3}
 						maxRows={6}
 					/>
-					<MultiSelect
-						label='Authors'
-						data={authorOptions}
-						value={authorIds}
-						onChange={setAuthorIds}
-						searchable
-					/>
+					<AuthorSelector value={authorIds} onChange={setAuthorIds} />
 					<CategoriesSelect value={categoryIds} onChange={setCategoryIds} />
 				</Stack>
 			)}
