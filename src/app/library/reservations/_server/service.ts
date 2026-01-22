@@ -61,7 +61,11 @@ class ReservationService extends BaseService<typeof reservations, 'id'> {
 		return this.repository.markExpired(id);
 	}
 
-	async getReservationHistory(page: number, search: string, filters?: ReservationFilters) {
+	async getReservationHistory(
+		page: number,
+		search: string,
+		filters?: ReservationFilters
+	) {
 		return this.repository.getReservationHistory(page, search, filters);
 	}
 
@@ -82,4 +86,7 @@ class ReservationService extends BaseService<typeof reservations, 'id'> {
 	}
 }
 
-export const reservationsService = serviceWrapper(ReservationService, 'ReservationService');
+export const reservationsService = serviceWrapper(
+	ReservationService,
+	'ReservationService'
+);

@@ -1,14 +1,12 @@
-import { and, desc, eq, isNull, lt, or, sql } from 'drizzle-orm';
-import {
-	books,
-	db,
-	reservations,
-	students,
-} from '@/core/database';
+import { and, desc, eq, lt, or, sql } from 'drizzle-orm';
+import { books, db, reservations, students } from '@/core/database';
 import BaseRepository from '@/core/platform/BaseRepository';
 import type { ReservationFilters } from '../_lib/types';
 
-export default class ReservationRepository extends BaseRepository<typeof reservations, 'id'> {
+export default class ReservationRepository extends BaseRepository<
+	typeof reservations,
+	'id'
+> {
 	constructor() {
 		super(reservations, reservations.id);
 	}
@@ -37,8 +35,7 @@ export default class ReservationRepository extends BaseRepository<typeof reserva
 
 		const now = new Date();
 		const expiryDate = new Date(reservation.expiryDate);
-		const isExpired =
-			reservation.status === 'Active' && expiryDate < now;
+		const isExpired = reservation.status === 'Active' && expiryDate < now;
 
 		return { ...reservation, isExpired };
 	}
@@ -46,7 +43,12 @@ export default class ReservationRepository extends BaseRepository<typeof reserva
 	async findByStudent(stdNo: number, status?: string) {
 		const conditions = [eq(reservations.stdNo, stdNo)];
 		if (status) {
-			conditions.push(eq(reservations.status, status as 'Active' | 'Fulfilled' | 'Cancelled' | 'Expired'));
+			conditions.push(
+				eq(
+					reservations.status,
+					status as 'Active' | 'Fulfilled' | 'Cancelled' | 'Expired'
+				)
+			);
 		}
 
 		return db.query.reservations.findMany({
@@ -152,7 +154,11 @@ export default class ReservationRepository extends BaseRepository<typeof reserva
 		return updated;
 	}
 
-	async getReservationHistory(page: number, search: string, filters?: ReservationFilters) {
+	async getReservationHistory(
+		page: number,
+		search: string,
+		filters?: ReservationFilters
+	) {
 		const pageSize = 15;
 		const offset = (page - 1) * pageSize;
 		const conditions: ReturnType<typeof eq>[] = [];
@@ -262,7 +268,10 @@ export default class ReservationRepository extends BaseRepository<typeof reserva
 					.select({ count: sql<number>`count(*)` })
 					.from(reservations)
 					.where(
-						and(eq(reservations.stdNo, student.stdNo), eq(reservations.status, 'Active'))
+						and(
+							eq(reservations.stdNo, student.stdNo),
+							eq(reservations.status, 'Active')
+						)
 					);
 
 				return {
@@ -299,7 +308,9 @@ export default class ReservationRepository extends BaseRepository<typeof reserva
 		const result = await db
 			.select({ count: sql<number>`count(*)` })
 			.from(reservations)
-			.where(and(eq(reservations.stdNo, stdNo), eq(reservations.status, 'Active')));
+			.where(
+				and(eq(reservations.stdNo, stdNo), eq(reservations.status, 'Active'))
+			);
 		return Number(result[0]?.count || 0);
 	}
 

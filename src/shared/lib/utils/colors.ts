@@ -541,6 +541,8 @@ export function getBookCopyStatusColor(status: BookCopyStatusType | string) {
 
 export type ReservationStatusType = keyof typeof statusColors.reservationStatus;
 
-export function getReservationStatusColor(status: ReservationStatusType | string) {
+export function getReservationStatusColor(
+	status: ReservationStatusType | string
+) {
 	return getColorFromMap(status, statusColors.reservationStatus);
 }

@@ -31,12 +31,14 @@ type Props = {
 
 export default function BookDetailModal({ book, children }: Props) {
 	const [opened, { open, close }] = useDisclosure(false);
-	const [reserveOpened, { open: openReserve, close: closeReserve }] = useDisclosure(false);
+	const [reserveOpened, { open: openReserve, close: closeReserve }] =
+		useDisclosure(false);
 	const [expiryDate, setExpiryDate] = useState<string | null>(null);
 	const { data: session } = useSession();
 	const queryClient = useQueryClient();
 	const isAvailable = book.availableCopies > 0;
-	const isDashboardUser = session?.user?.role && ['dashboard'].includes(session.user.role);
+	const isDashboardUser =
+		session?.user?.role && ['dashboard'].includes(session.user.role);
 
 	const reservationMutation = useMutation({
 		mutationFn: async () => {
@@ -46,7 +48,11 @@ export default function BookDetailModal({ book, children }: Props) {
 			if (!expiryDate) {
 				throw new Error('Please select an expiry date');
 			}
-			return createReservation(book.id, session.user.stdNo, new Date(expiryDate));
+			return createReservation(
+				book.id,
+				session.user.stdNo,
+				new Date(expiryDate)
+			);
 		},
 		onSuccess: async () => {
 			await queryClient.invalidateQueries({ queryKey: ['reservations'] });
@@ -221,14 +227,14 @@ export default function BookDetailModal({ book, children }: Props) {
 				</Stack>
 			</Modal>
 
-			<Modal
-				opened={reserveOpened}
-				onClose={closeReserve}
-				title='Reserve Book'
-			>
+			<Modal opened={reserveOpened} onClose={closeReserve} title='Reserve Book'>
 				<Stack gap='md'>
 					<Text size='sm'>
-						Reserve <Text span fw={500}>{book.title}</Text> for yourself?
+						Reserve{' '}
+						<Text span fw={500}>
+							{book.title}
+						</Text>{' '}
+						for yourself?
 					</Text>
 
 					<DateInput

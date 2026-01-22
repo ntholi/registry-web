@@ -13,7 +13,8 @@ import { getReservations } from './_server/actions';
 export default function ReservationsLayout({ children }: PropsWithChildren) {
 	const router = useRouter();
 	const searchParams = useSearchParams();
-	const statusFilter = (searchParams.get('status') as ReservationStatus) || undefined;
+	const statusFilter =
+		(searchParams.get('status') as ReservationStatus) || undefined;
 
 	async function fetchReservations(page: number, search: string) {
 		const filters: ReservationFilters = {};

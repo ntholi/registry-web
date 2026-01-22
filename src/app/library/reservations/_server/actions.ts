@@ -8,7 +8,11 @@ export async function getReservation(id: string) {
 	return reservationsService.getWithRelations(id);
 }
 
-export async function getReservations(page = 1, search = '', filters?: ReservationFilters) {
+export async function getReservations(
+	page = 1,
+	search = '',
+	filters?: ReservationFilters
+) {
 	return reservationsService.getReservationHistory(page, search, filters);
 }
 
@@ -32,7 +36,13 @@ export async function createReservation(
 ) {
 	const session = await auth();
 	const reservedBy = session?.user?.id;
-	return reservationsService.createReservation(bookId, stdNo, expiryDate, reservedBy, notes);
+	return reservationsService.createReservation(
+		bookId,
+		stdNo,
+		expiryDate,
+		reservedBy,
+		notes
+	);
 }
 
 export async function cancelReservation(id: string) {

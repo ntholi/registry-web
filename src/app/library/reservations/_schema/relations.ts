@@ -1,7 +1,7 @@
-import { relations } from 'drizzle-orm';
 import { users } from '@auth/users/_schema/users';
 import { books } from '@library/books/_schema/books';
 import { students } from '@registry/students/_schema/students';
+import { relations } from 'drizzle-orm';
 import { reservations } from './reservations';
 
 export const reservationsRelations = relations(reservations, ({ one }) => ({

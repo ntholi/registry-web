@@ -19,10 +19,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'nextjs-toploader/app';
 import { useState } from 'react';
 import FormHeader from '@/shared/ui/adease/FormHeader';
-import {
-	createReservation,
-	searchBooks,
-} from '../_server/actions';
+import { createReservation, searchBooks } from '../_server/actions';
 import StudentSearch from './StudentSearch';
 
 type BookSearchResult = {
@@ -74,7 +71,12 @@ export default function ReservationForm() {
 			if (!student || !book || !expiryDate) {
 				throw new Error('Please fill all required fields');
 			}
-			return createReservation(book.id, student.stdNo, new Date(expiryDate), notes);
+			return createReservation(
+				book.id,
+				student.stdNo,
+				new Date(expiryDate),
+				notes
+			);
 		},
 		onSuccess: async (reservation) => {
 			await queryClient.invalidateQueries({ queryKey: ['reservations'] });

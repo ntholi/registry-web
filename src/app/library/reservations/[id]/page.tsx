@@ -81,7 +81,10 @@ export default async function ReservationDetailsPage({ params }: Props) {
 						</Stack>
 
 						<Stack align='flex-end' gap='md'>
-							<Badge variant='light' color={getReservationStatusColor(displayStatus)}>
+							<Badge
+								variant='light'
+								color={getReservationStatusColor(displayStatus)}
+							>
 								{displayStatus}
 							</Badge>
 							{isActive && !isExpired && (
@@ -102,7 +105,9 @@ export default async function ReservationDetailsPage({ params }: Props) {
 						<Grid>
 							<GridCol span={4}>
 								<FieldView label='Student Number' underline={false}>
-									<Link href={`/registry/students/${reservation.student.stdNo}`}>
+									<Link
+										href={`/registry/students/${reservation.student.stdNo}`}
+									>
 										{reservation.student.stdNo}
 									</Link>
 								</FieldView>
