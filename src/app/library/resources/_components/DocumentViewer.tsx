@@ -1,8 +1,18 @@
 'use client';
 
-import { Button, Card, Group, Stack, Text } from '@mantine/core';
-import { IconDownload, IconExternalLink } from '@tabler/icons-react';
-import Image from 'next/image';
+import { Box, Button, Card, Group, Image, Stack, Text } from '@mantine/core';
+import { IconDownload, IconExternalLink, IconFile } from '@tabler/icons-react';
+
+function isImageFile(fileName: string | null | undefined): boolean {
+	if (!fileName) return false;
+	const ext = fileName.toLowerCase().split('.').pop();
+	return ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp'].includes(ext || '');
+}
+
+function isPdfFile(fileName: string | null | undefined): boolean {
+	if (!fileName) return false;
+	return fileName.toLowerCase().endsWith('.pdf');
+}
 
 type Props = {
 	fileUrl: string;
@@ -15,26 +25,37 @@ export default function DocumentViewer({
 	fileName,
 	isDownloadable,
 }: Props) {
-	const ext = fileName.split('.').pop()?.toLowerCase() || '';
-	const isPdf = ext === 'pdf';
-	const isImage = ['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(ext);
+	const isPdf = isPdfFile(fileName);
+	const isImage = isImageFile(fileName);
+
+	function handleDownload() {
+		window.open(fileUrl, '_blank');
+	}
 
 	if (isPdf) {
 		return (
 			<Stack gap='sm'>
-				<iframe
-					src={fileUrl}
-					width='100%'
-					height='500px'
-					style={{ border: 'none', borderRadius: 'var(--mantine-radius-md)' }}
-					title={fileName}
-				/>
+				<Box
+					style={{
+						position: 'relative',
+						overflow: 'hidden',
+						borderRadius: 'var(--mantine-radius-md)',
+					}}
+				>
+					<iframe
+						src={`${fileUrl}#toolbar=0&navpanes=0&scrollbar=0`}
+						style={{
+							width: '100%',
+							height: '500px',
+							border: 'none',
+						}}
+						title={fileName}
+					/>
+				</Box>
 				{isDownloadable && (
 					<Group justify='flex-end'>
 						<Button
-							component='a'
-							href={fileUrl}
-							download={fileName}
+							onClick={handleDownload}
 							leftSection={<IconDownload size={16} />}
 							variant='light'
 						>
@@ -52,8 +73,6 @@ export default function DocumentViewer({
 				<Image
 					src={fileUrl}
 					alt={fileName}
-					width={800}
-					height={500}
 					style={{
 						maxWidth: '100%',
 						height: 'auto',
@@ -64,9 +83,7 @@ export default function DocumentViewer({
 				{isDownloadable && (
 					<Group justify='flex-end'>
 						<Button
-							component='a'
-							href={fileUrl}
-							download={fileName}
+							onClick={handleDownload}
 							leftSection={<IconDownload size={16} />}
 							variant='light'
 						>
@@ -81,13 +98,22 @@ export default function DocumentViewer({
 	return (
 		<Card withBorder p='md'>
 			<Stack gap='sm' align='center'>
+				<Box
+					style={{
+						display: 'flex',
+						alignItems: 'center',
+						justifyContent: 'center',
+						padding: 'var(--mantine-spacing-xl)',
+						backgroundColor: 'var(--mantine-color-dark-6)',
+						borderRadius: 'var(--mantine-radius-md)',
+					}}
+				>
+					<IconFile size={48} color='var(--mantine-color-gray-6)' />
+				</Box>
 				<Text fw={500}>{fileName}</Text>
 				<Group>
 					<Button
-						component='a'
-						href={fileUrl}
-						target='_blank'
-						rel='noopener noreferrer'
+						onClick={() => window.open(fileUrl, '_blank')}
 						leftSection={<IconExternalLink size={16} />}
 						variant='light'
 					>
@@ -95,9 +121,7 @@ export default function DocumentViewer({
 					</Button>
 					{isDownloadable && (
 						<Button
-							component='a'
-							href={fileUrl}
-							download={fileName}
+							onClick={handleDownload}
 							leftSection={<IconDownload size={16} />}
 							variant='light'
 						>

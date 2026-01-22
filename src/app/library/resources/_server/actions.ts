@@ -12,6 +12,9 @@ import {
 } from '../_lib/types';
 import { resourcesService } from './service';
 
+const BASE_URL = 'https://pub-2b37ce26bd70421e9e59e4fe805c6873.r2.dev';
+const FOLDER = 'library/resources';
+
 export async function getResource(id: number) {
 	return resourcesService.getWithRelations(id);
 }
@@ -40,13 +43,14 @@ export async function createResource(data: ResourceFormData) {
 
 	const ext = file.name.split('.').pop()?.toLowerCase() || 'unknown';
 	const fileName = `${nanoid()}.${ext}`;
-	const fileUrl = await uploadDocument(file, fileName, 'library/resources');
+	await uploadDocument(file, fileName, FOLDER);
+	const fileUrl = `${BASE_URL}/${FOLDER}/${fileName}`;
 
 	return db.transaction(async (tx) => {
 		const [doc] = await tx
 			.insert(documents)
 			.values({
-				fileName: file.name,
+				fileName: fileName,
 				fileUrl,
 			})
 			.returning();
@@ -87,12 +91,14 @@ export async function updateResource(id: number, data: ResourceFormData) {
 			}
 
 			if (existing.document?.fileUrl) {
-				await deleteDocument(existing.document.fileUrl);
+				const key = existing.document.fileUrl.replace(`${BASE_URL}/`, '');
+				await deleteDocument(key);
 			}
 
 			const ext = file.name.split('.').pop()?.toLowerCase() || 'unknown';
 			const fileName = `${nanoid()}.${ext}`;
-			const fileUrl = await uploadDocument(file, fileName, 'library/resources');
+			await uploadDocument(file, fileName, FOLDER);
+			const fileUrl = `${BASE_URL}/${FOLDER}/${fileName}`;
 
 			await tx
 				.update(documents)
@@ -123,7 +129,8 @@ export async function deleteResource(id: number) {
 	if (!resource) throw new Error('Resource not found');
 
 	if (resource.document?.fileUrl) {
-		await deleteDocument(resource.document.fileUrl);
+		const key = resource.document.fileUrl.replace(`${BASE_URL}/`, '');
+		await deleteDocument(key);
 	}
 
 	await db.transaction(async (tx) => {

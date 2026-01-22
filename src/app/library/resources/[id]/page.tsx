@@ -17,7 +17,11 @@ type Props = {
 
 export default async function ResourceDetailsPage({ params }: Props) {
 	const { id } = await params;
-	const resource = await getResource(Number(id));
+	const numericId = Number(id);
+
+	if (Number.isNaN(numericId)) return notFound();
+
+	const resource = await getResource(numericId);
 
 	if (!resource) return notFound();
 
@@ -28,7 +32,7 @@ export default async function ResourceDetailsPage({ params }: Props) {
 				queryKey={['resources']}
 				handleDelete={async () => {
 					'use server';
-					await deleteResource(Number(id));
+					await deleteResource(numericId);
 				}}
 			/>
 			<DetailsViewBody>
