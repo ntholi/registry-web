@@ -13,8 +13,8 @@ import { IconPlus } from '@tabler/icons-react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import {
-	createCategory,
 	getAllCategories,
+	getOrCreateCategories,
 } from '../../categories/_server/actions';
 
 type Props = {
@@ -37,11 +37,20 @@ export default function CategoriesSelect({ value, onChange }: Props) {
 		categoriesData?.map((c) => ({ value: String(c.id), label: c.name })) ?? [];
 
 	async function handleAddCategory() {
-		if (!newCategory.trim()) return;
+		const name = newCategory.trim();
+		if (!name) return;
+
 		setLoading(true);
-		const created = await createCategory({ name: newCategory.trim() });
-		await queryClient.invalidateQueries({ queryKey: ['categories', 'all'] });
-		onChange([...value, String(created.id)]);
+
+		const [created] = await getOrCreateCategories([name]);
+		if (created) {
+			await queryClient.invalidateQueries({ queryKey: ['categories', 'all'] });
+			const idStr = String(created.id);
+			if (!value.includes(idStr)) {
+				onChange([...value, idStr]);
+			}
+		}
+
 		setNewCategory('');
 		setLoading(false);
 		close();

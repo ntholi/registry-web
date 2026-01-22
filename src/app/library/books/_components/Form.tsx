@@ -163,13 +163,6 @@ export default function BookForm({ onSubmit, defaultValues, title }: Props) {
 							/>
 						</Grid.Col>
 					</Grid>
-					<NumberInput
-						label='Price'
-						{...form.getInputProps('price')}
-						min={0}
-						decimalScale={2}
-						prefix='M'
-					/>
 					<Textarea
 						label='Summary'
 						{...form.getInputProps('summary')}
@@ -179,6 +172,14 @@ export default function BookForm({ onSubmit, defaultValues, title }: Props) {
 					/>
 					<AuthorSelector value={authorIds} onChange={setAuthorIds} />
 					<CategoriesSelect value={categoryIds} onChange={setCategoryIds} />
+
+					<NumberInput
+						label='Price'
+						{...form.getInputProps('price')}
+						min={0}
+						decimalScale={2}
+						prefix='M'
+					/>
 				</Stack>
 			)}
 		</Form>

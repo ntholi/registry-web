@@ -1,6 +1,6 @@
 'use server';
 
-import { eq } from 'drizzle-orm';
+import { ilike } from 'drizzle-orm';
 import { authors, db } from '@/core/database';
 import { authorsService } from './service';
 
@@ -20,7 +20,7 @@ export async function getOrCreateAuthors(names: string[]) {
 			const [existing] = await tx
 				.select()
 				.from(authors)
-				.where(eq(authors.name, trimmed))
+				.where(ilike(authors.name, trimmed))
 				.limit(1);
 			if (existing) {
 				results.push(existing);

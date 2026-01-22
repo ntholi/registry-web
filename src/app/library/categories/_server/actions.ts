@@ -1,6 +1,6 @@
 'use server';
 
-import { eq } from 'drizzle-orm';
+import { ilike } from 'drizzle-orm';
 import { categories, db } from '@/core/database';
 import { categoriesService } from './service';
 
@@ -34,7 +34,7 @@ export async function getOrCreateCategories(names: string[]) {
 			const [existing] = await tx
 				.select()
 				.from(categories)
-				.where(eq(categories.name, trimmed))
+				.where(ilike(categories.name, trimmed))
 				.limit(1);
 			if (existing) {
 				results.push(existing);

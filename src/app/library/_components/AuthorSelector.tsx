@@ -1,6 +1,9 @@
 'use client';
 
-import { createAuthor, getAllAuthors } from '@library/authors/_server/actions';
+import {
+	getAllAuthors,
+	getOrCreateAuthors,
+} from '@library/authors/_server/actions';
 import {
 	ActionIcon,
 	Button,
@@ -34,11 +37,19 @@ export default function AuthorSelector({ value, onChange }: Props) {
 		authorsData?.map((a) => ({ value: a.id, label: a.name })) ?? [];
 
 	async function handleAddAuthor() {
-		if (!newAuthor.trim()) return;
+		const name = newAuthor.trim();
+		if (!name) return;
+
 		setLoading(true);
-		const created = await createAuthor({ name: newAuthor.trim() });
-		await queryClient.invalidateQueries({ queryKey: ['authors', 'all'] });
-		onChange([...value, created.id]);
+
+		const [created] = await getOrCreateAuthors([name]);
+		if (created) {
+			await queryClient.invalidateQueries({ queryKey: ['authors', 'all'] });
+			if (!value.includes(created.id)) {
+				onChange([...value, created.id]);
+			}
+		}
+
 		setNewAuthor('');
 		setLoading(false);
 		close();
