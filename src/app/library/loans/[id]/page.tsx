@@ -7,6 +7,11 @@ import {
 	Image,
 	Stack,
 	Table,
+	TableTbody,
+	TableTd,
+	TableTh,
+	TableThead,
+	TableTr,
 	Text,
 } from '@mantine/core';
 import { notFound } from 'next/navigation';
@@ -196,40 +201,6 @@ export default async function LoanDetailsPage({ params }: Props) {
 						</>
 					)}
 
-					{loan.renewals.length > 0 && (
-						<>
-							<Divider />
-							<Stack gap='xs'>
-								<Text size='lg' fw={600}>
-									Renewal History
-								</Text>
-								<Table striped highlightOnHover withTableBorder>
-									<Table.Thead>
-										<Table.Tr>
-											<Table.Th>Previous Due</Table.Th>
-											<Table.Th>New Due</Table.Th>
-											<Table.Th>Renewed By</Table.Th>
-											<Table.Th>Date</Table.Th>
-										</Table.Tr>
-									</Table.Thead>
-									<Table.Tbody>
-										{loan.renewals.map((r) => (
-											<Table.Tr key={r.id}>
-												<Table.Td>{formatDate(r.previousDueDate)}</Table.Td>
-												<Table.Td>{formatDate(r.newDueDate)}</Table.Td>
-												<Table.Td>
-													{(r as { renewedByUser?: { name: string | null } })
-														.renewedByUser?.name || '-'}
-												</Table.Td>
-												<Table.Td>{formatDate(r.renewedAt)}</Table.Td>
-											</Table.Tr>
-										))}
-									</Table.Tbody>
-								</Table>
-							</Stack>
-						</>
-					)}
-
 					<Divider />
 
 					<Stack gap='xs'>
@@ -251,6 +222,40 @@ export default async function LoanDetailsPage({ params }: Props) {
 							</GridCol>
 						</Grid>
 					</Stack>
+
+					{loan.renewals.length > 0 && (
+						<>
+							<Divider />
+							<Stack gap='xs'>
+								<Text size='lg' fw={600}>
+									Renewal History
+								</Text>
+								<Table striped highlightOnHover withTableBorder>
+									<TableThead>
+										<TableTr>
+											<TableTh>Previous Due</TableTh>
+											<TableTh>New Due</TableTh>
+											<TableTh>Renewed By</TableTh>
+											<TableTh>Date</TableTh>
+										</TableTr>
+									</TableThead>
+									<TableTbody>
+										{loan.renewals.map((r) => (
+											<TableTr key={r.id}>
+												<TableTd>{formatDate(r.previousDueDate)}</TableTd>
+												<TableTd>{formatDate(r.newDueDate)}</TableTd>
+												<TableTd>
+													{(r as { renewedByUser?: { name: string | null } })
+														.renewedByUser?.name || '-'}
+												</TableTd>
+												<TableTd>{formatDate(r.renewedAt)}</TableTd>
+											</TableTr>
+										))}
+									</TableTbody>
+								</Table>
+							</Stack>
+						</>
+					)}
 				</Stack>
 			</DetailsViewBody>
 		</DetailsView>
