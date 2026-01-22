@@ -13,6 +13,7 @@ import type {
 } from '@/core/database';
 import {
 	db,
+	timetableAllocationAllowedVenues,
 	timetableAllocations as timetableAllocationsTable,
 	timetableSlotAllocations,
 	timetableSlots,
@@ -551,6 +552,11 @@ export default class TimetableSlotRepository extends BaseRepository<
 				await tx.insert(timetableSlotAllocations).values({
 					slotId: createdSlot.id,
 					timetableAllocationId: created.id,
+				});
+
+				await tx.insert(timetableAllocationAllowedVenues).values({
+					timetableAllocationId: created.id,
+					venueId: item.slot.venueId,
 				});
 
 				results.push({ allocation: created, slot: createdSlot });
