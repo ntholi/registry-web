@@ -17,14 +17,9 @@ function isPdfFile(fileName: string | null | undefined): boolean {
 type Props = {
 	fileUrl: string;
 	fileName: string;
-	isDownloadable: boolean;
 };
 
-export default function DocumentViewer({
-	fileUrl,
-	fileName,
-	isDownloadable,
-}: Props) {
+export default function DocumentViewer({ fileUrl, fileName }: Props) {
 	const isPdf = isPdfFile(fileName);
 	const isImage = isImageFile(fileName);
 
@@ -52,17 +47,15 @@ export default function DocumentViewer({
 						title={fileName}
 					/>
 				</Box>
-				{isDownloadable && (
-					<Group justify='flex-end'>
-						<Button
-							onClick={handleDownload}
-							leftSection={<IconDownload size={16} />}
-							variant='light'
-						>
-							Download
-						</Button>
-					</Group>
-				)}
+				<Group justify='flex-end'>
+					<Button
+						onClick={handleDownload}
+						leftSection={<IconDownload size={16} />}
+						variant='light'
+					>
+						Download
+					</Button>
+				</Group>
 			</Stack>
 		);
 	}
@@ -80,17 +73,15 @@ export default function DocumentViewer({
 						objectFit: 'contain',
 					}}
 				/>
-				{isDownloadable && (
-					<Group justify='flex-end'>
-						<Button
-							onClick={handleDownload}
-							leftSection={<IconDownload size={16} />}
-							variant='light'
-						>
-							Download
-						</Button>
-					</Group>
-				)}
+				<Group justify='flex-end'>
+					<Button
+						onClick={handleDownload}
+						leftSection={<IconDownload size={16} />}
+						variant='light'
+					>
+						Download
+					</Button>
+				</Group>
 			</Stack>
 		);
 	}
@@ -119,15 +110,13 @@ export default function DocumentViewer({
 					>
 						Open
 					</Button>
-					{isDownloadable && (
-						<Button
-							onClick={handleDownload}
-							leftSection={<IconDownload size={16} />}
-							variant='light'
-						>
-							Download
-						</Button>
-					)}
+					<Button
+						onClick={handleDownload}
+						leftSection={<IconDownload size={16} />}
+						variant='light'
+					>
+						Download
+					</Button>
 				</Group>
 			</Stack>
 		</Card>

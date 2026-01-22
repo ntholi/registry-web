@@ -2,7 +2,6 @@ import { users } from '@auth/users/_schema/users';
 import { documents } from '@registry/documents/_schema/documents';
 import { sql } from 'drizzle-orm';
 import {
-	boolean,
 	index,
 	pgEnum,
 	pgTable,
@@ -30,7 +29,6 @@ export const libraryResources = pgTable(
 		title: text().notNull(),
 		description: text(),
 		type: resourceType().notNull(),
-		isDownloadable: boolean().notNull().default(true),
 		uploadedBy: text().references(() => users.id, { onDelete: 'set null' }),
 		createdAt: timestamp().defaultNow(),
 	},

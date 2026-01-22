@@ -28,7 +28,6 @@ export type ResourceFormData = {
 	title: string;
 	description: string;
 	type: ResourceType;
-	isDownloadable: boolean;
 	file?: File;
 };
 

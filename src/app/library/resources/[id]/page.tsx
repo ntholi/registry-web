@@ -55,9 +55,6 @@ export default async function ResourceDetailsPage({ params }: Props) {
 					</Group>
 
 					<Group grow>
-						<FieldView label='Downloadable'>
-							{resource.isDownloadable ? 'Yes' : 'No'}
-						</FieldView>
 						<FieldView label='Uploaded On'>
 							{resource.createdAt ? formatDate(resource.createdAt) : '-'}
 						</FieldView>
@@ -71,7 +68,6 @@ export default async function ResourceDetailsPage({ params }: Props) {
 					<DocumentViewer
 						fileUrl={resource.document?.fileUrl || ''}
 						fileName={resource.document?.fileName || ''}
-						isDownloadable={resource.isDownloadable}
 					/>
 				</Stack>
 			</DetailsViewBody>

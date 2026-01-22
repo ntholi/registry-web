@@ -1,6 +1,6 @@
 'use client';
 
-import { Checkbox, Select, Textarea, TextInput } from '@mantine/core';
+import { Select, Textarea, TextInput } from '@mantine/core';
 import type { FileWithPath } from '@mantine/dropzone';
 import { useRouter } from 'nextjs-toploader/app';
 import { useRef, useState } from 'react';
@@ -42,7 +42,6 @@ export default function ResourceForm({
 		title: defaultValues?.title || '',
 		description: defaultValues?.description || '',
 		type: defaultValues?.type || ('' as ResourceType),
-		isDownloadable: defaultValues?.isDownloadable ?? true,
 	};
 
 	return (
@@ -73,14 +72,6 @@ export default function ResourceForm({
 							}[]
 						}
 						{...form.getInputProps('type')}
-					/>
-
-					<Checkbox
-						label='Allow downloads'
-						checked={form.values.isDownloadable}
-						onChange={(e) =>
-							form.setFieldValue('isDownloadable', e.currentTarget.checked)
-						}
 					/>
 
 					<UploadField

@@ -31,7 +31,7 @@ export async function createResource(data: ResourceFormData) {
 	const session = await auth();
 	if (!session?.user?.id) throw new Error('Unauthorized');
 
-	const { title, description, type, isDownloadable, file } = data;
+	const { title, description, type, file } = data;
 
 	if (!file || !title || !type) {
 		throw new Error('Missing required fields');
@@ -62,7 +62,6 @@ export async function createResource(data: ResourceFormData) {
 				title,
 				description: description || null,
 				type,
-				isDownloadable,
 				uploadedBy: session.user?.id,
 			})
 			.returning();
@@ -75,7 +74,7 @@ export async function updateResource(id: number, data: ResourceFormData) {
 	const session = await auth();
 	if (!session?.user?.id) throw new Error('Unauthorized');
 
-	const { title, description, type, isDownloadable, file } = data;
+	const { title, description, type, file } = data;
 
 	if (!title || !type) {
 		throw new Error('Missing required fields');
@@ -115,7 +114,6 @@ export async function updateResource(id: number, data: ResourceFormData) {
 				title,
 				description: description || null,
 				type,
-				isDownloadable,
 			})
 			.where(eq(libraryResources.id, id))
 			.returning();
