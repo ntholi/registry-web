@@ -1,11 +1,12 @@
 'use client';
 
-import { Badge, Group, Select } from '@mantine/core';
+import { Badge, Group } from '@mantine/core';
 import { useSearchParams } from 'next/navigation';
 import { useRouter } from 'nextjs-toploader/app';
 import type { PropsWithChildren } from 'react';
 import { getLoanStatusColor } from '@/shared/lib/utils/colors';
 import { ListItem, ListLayout, NewLink } from '@/shared/ui/adease';
+import LoanStatusFilter from './_components/LoanStatusFilter';
 import type { LoanFilters, LoanStatus } from './_lib/types';
 import { getLoans } from './_server/actions';
 
@@ -37,19 +38,10 @@ export default function LoansLayout({ children }: PropsWithChildren) {
 			queryKey={['loans', statusFilter || 'all']}
 			getData={fetchLoans}
 			actionIcons={[
-				<Select
+				<LoanStatusFilter
 					key='status-filter'
-					size='xs'
-					w={120}
-					placeholder='Filter'
 					value={statusFilter || 'all'}
 					onChange={handleStatusChange}
-					data={[
-						{ value: 'all', label: 'All' },
-						{ value: 'Active', label: 'Active' },
-						{ value: 'Overdue', label: 'Overdue' },
-						{ value: 'Returned', label: 'Returned' },
-					]}
 				/>,
 				<NewLink key='new' href='/library/loans/new' />,
 			]}
@@ -75,7 +67,7 @@ export default function LoansLayout({ children }: PropsWithChildren) {
 								</Badge>
 							</Group>
 						}
-						description={loan.student.name}
+						description={`${loan.student.stdNo} | ${loan.student.name}`}
 					/>
 				);
 			}}

@@ -52,7 +52,7 @@ export default function FinesLayout({ children }: PropsWithChildren) {
 				<Select
 					key='status-filter'
 					size='xs'
-					w={120}
+					w={80}
 					placeholder='Filter'
 					value={statusFilter || 'all'}
 					onChange={handleStatusChange}
