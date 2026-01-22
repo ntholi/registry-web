@@ -1,10 +1,7 @@
 'use client';
 
 import {
-	Alert,
 	Autocomplete,
-	Button,
-	Divider,
 	Group,
 	Image,
 	Loader,
@@ -17,7 +14,7 @@ import {
 import { DateInput } from '@mantine/dates';
 import { useDebouncedValue } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
-import { IconAlertCircle, IconBook, IconSearch } from '@tabler/icons-react';
+import { IconSearch } from '@tabler/icons-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'nextjs-toploader/app';
 import { useState } from 'react';
@@ -59,7 +56,7 @@ export default function LoanForm() {
 	});
 
 	const bookOptions = books.map((b) => ({
-		value: `${b.isbn} - ${b.title}`,
+		value: b.isbn,
 		book: b,
 	}));
 
@@ -100,8 +97,6 @@ export default function LoanForm() {
 	const tomorrow = new Date();
 	tomorrow.setDate(tomorrow.getDate() + 1);
 
-	const isValid = student && copy && dueDate;
-
 	return (
 		<form
 			onSubmit={(e) => {
@@ -116,12 +111,7 @@ export default function LoanForm() {
 			/>
 
 			<Stack p='xl' gap='lg'>
-				<Paper p='md' withBorder>
-					<Title order={5} mb='md'>
-						Student
-					</Title>
-					<StudentSearch onSelect={setStudent} selectedStudent={student} />
-				</Paper>
+				<StudentSearch onSelect={setStudent} selectedStudent={student} />
 
 				<Paper p='md' withBorder>
 					<Title order={5} mb='md'>
@@ -139,6 +129,19 @@ export default function LoanForm() {
 								booksLoading ? <Loader size={16} /> : <IconSearch size={16} />
 							}
 							filter={({ options }) => options}
+							renderOption={({ option }) => {
+								const foundBook = books.find((b) => b.isbn === option.value);
+								return (
+									<Stack gap={0}>
+										<Text size='sm' fw={500}>
+											{foundBook?.title}
+										</Text>
+										<Text size='xs' c='dimmed'>
+											{foundBook?.isbn}
+										</Text>
+									</Stack>
+								);
+							}}
 						/>
 
 						{book && (
@@ -169,7 +172,6 @@ export default function LoanForm() {
 										{book.availableCopies} copies available
 									</Text>
 								</Stack>
-								<IconBook size={24} color='var(--mantine-color-dimmed)' />
 							</Group>
 						)}
 
@@ -192,42 +194,15 @@ export default function LoanForm() {
 					</Stack>
 				</Paper>
 
-				<Paper p='md' withBorder>
-					<Title order={5} mb='md'>
-						Loan Details
-					</Title>
-					<DateInput
-						label='Due Date'
-						placeholder='Select due date'
-						value={dueDate}
-						onChange={setDueDate}
-						minDate={tomorrow}
-						firstDayOfWeek={0}
-						required
-					/>
-				</Paper>
-
-				{!isValid && (
-					<Alert
-						variant='light'
-						color='yellow'
-						icon={<IconAlertCircle size={16} />}
-					>
-						Please select a student, book copy, and due date to issue the book.
-					</Alert>
-				)}
-
-				<Divider />
-
-				<Group justify='flex-end'>
-					<Button
-						type='submit'
-						disabled={!isValid}
-						loading={mutation.isPending}
-					>
-						Issue Book
-					</Button>
-				</Group>
+				<DateInput
+					label='Due Date'
+					placeholder='Select due date'
+					value={dueDate}
+					onChange={setDueDate}
+					minDate={tomorrow}
+					firstDayOfWeek={0}
+					required
+				/>
 			</Stack>
 		</form>
 	);
