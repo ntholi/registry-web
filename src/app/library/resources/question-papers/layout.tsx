@@ -22,8 +22,8 @@ export default function QuestionPapersLayout({ children }: PropsWithChildren) {
 			renderItem={(item) => (
 				<ListItem
 					id={item.id}
-					label={item.title}
-					description={`${item.module?.code} • ${item.term?.code} • ${getAssessmentTypeLabel(item.assessmentType)}`}
+					label={getAssessmentTypeLabel(item.assessmentType)}
+					description={`${item.module?.code} • ${item.term?.code}`}
 				/>
 			)}
 		>

@@ -24,7 +24,7 @@ export default async function QuestionPaperDetailsPage({ params }: Props) {
 	return (
 		<DetailsView>
 			<DetailsViewHeader
-				title='Question Paper'
+				title={getAssessmentTypeLabel(questionPaper.assessmentType)}
 				queryKey={['question-papers']}
 				handleDelete={async () => {
 					'use server';
@@ -33,10 +33,6 @@ export default async function QuestionPaperDetailsPage({ params }: Props) {
 			/>
 			<DetailsViewBody>
 				<Stack gap='lg'>
-					<FieldView label='Title' underline={false}>
-						{questionPaper.title}
-					</FieldView>
-
 					<Group grow>
 						<FieldView label='Module' underline={false}>
 							{questionPaper.module

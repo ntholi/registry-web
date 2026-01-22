@@ -34,9 +34,9 @@ export async function createQuestionPaper(data: QuestionPaperFormData) {
 	const session = await auth();
 	if (!session?.user?.id) throw new Error('Unauthorized');
 
-	const { title, moduleId, termId, assessmentType, file } = data;
+	const { moduleId, termId, assessmentType, file } = data;
 
-	if (!file || !title || !moduleId || !termId || !assessmentType) {
+	if (!file || !moduleId || !termId || !assessmentType) {
 		throw new Error('Missing required fields');
 	}
 
@@ -64,7 +64,6 @@ export async function createQuestionPaper(data: QuestionPaperFormData) {
 			.insert(questionPapers)
 			.values({
 				documentId: doc.id,
-				title,
 				moduleId,
 				termId,
 				assessmentType,
@@ -82,9 +81,9 @@ export async function updateQuestionPaper(
 	const session = await auth();
 	if (!session?.user?.id) throw new Error('Unauthorized');
 
-	const { title, moduleId, termId, assessmentType, file } = data;
+	const { moduleId, termId, assessmentType, file } = data;
 
-	if (!title || !moduleId || !termId || !assessmentType) {
+	if (!moduleId || !termId || !assessmentType) {
 		throw new Error('Missing required fields');
 	}
 
@@ -116,7 +115,6 @@ export async function updateQuestionPaper(
 		const [updated] = await tx
 			.update(questionPapers)
 			.set({
-				title,
 				moduleId,
 				termId,
 				assessmentType,

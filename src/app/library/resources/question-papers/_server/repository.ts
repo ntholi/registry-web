@@ -37,13 +37,10 @@ export default class QuestionPaperRepository extends BaseRepository<
 		if (termId) {
 			conditions.push(eq(questionPapers.termId, termId));
 		}
-		if (search) {
-			conditions.push(sql`${questionPapers.title} ILIKE ${`%${search}%`}`);
-		}
 
 		const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
 
-		const data = await db.query.questionPapers.findMany({
+		let data = await db.query.questionPapers.findMany({
 			where: whereClause,
 			with: {
 				document: true,
@@ -54,6 +51,15 @@ export default class QuestionPaperRepository extends BaseRepository<
 			limit: pageSize,
 			offset,
 		});
+
+		if (search) {
+			const searchLower = search.toLowerCase();
+			data = data.filter(
+				(item) =>
+					item.module?.code.toLowerCase().includes(searchLower) ||
+					item.module?.name.toLowerCase().includes(searchLower)
+			);
+		}
 
 		const [countResult] = await db
 			.select({ count: sql<number>`count(*)` })

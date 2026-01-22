@@ -2,7 +2,7 @@
 
 import { ASSESSMENT_TYPES } from '@academic/assessments/_lib/utils';
 import { getModules } from '@academic/modules';
-import { Select, Stack, TextInput } from '@mantine/core';
+import { Select, Stack } from '@mantine/core';
 import type { FileWithPath } from '@mantine/dropzone';
 import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'nextjs-toploader/app';
@@ -71,7 +71,6 @@ export default function QuestionPaperForm({
 	}
 
 	const initialValues: QuestionPaperFormData = {
-		title: defaultValues?.title || '',
 		moduleId: defaultValues?.moduleId || 0,
 		termId: defaultValues?.termId || 0,
 		assessmentType: defaultValues?.assessmentType || '',
@@ -89,8 +88,6 @@ export default function QuestionPaperForm({
 		>
 			{(form, { isSubmitting }) => (
 				<Stack>
-					<TextInput label='Title' required {...form.getInputProps('title')} />
-
 					<Select
 						label='Module'
 						required

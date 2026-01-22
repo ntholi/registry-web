@@ -715,6 +715,13 @@
 			"when": 1769089689883,
 			"tag": "0101_nostalgic_hulk",
 			"breakpoints": true
+		},
+		{
+			"idx": 102,
+			"version": "7",
+			"when": 1769090445535,
+			"tag": "0102_volatile_jane_foster",
+			"breakpoints": true
 		}
 	]
 }

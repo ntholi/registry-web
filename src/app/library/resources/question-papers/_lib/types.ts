@@ -22,7 +22,6 @@ export type QuestionPaperWithRelations = QuestionPaper & {
 };
 
 export type QuestionPaperFormData = {
-	title: string;
 	moduleId: number;
 	termId: number;
 	assessmentType: string;
