@@ -1,7 +1,7 @@
 'use client';
 
 import { getBookCopies } from '@library/book-copies/_server/actions';
-import { Badge, Group, Stack, Table, Text } from '@mantine/core';
+import { Badge, Stack, Table, Text } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
 import { formatDate } from '@/shared/lib/utils/dates';
 import BookCopyModal from './BookCopyModal';
@@ -38,10 +38,6 @@ export default function BookCopiesTab({ bookId }: Props) {
 
 	return (
 		<Stack>
-			<Group justify='flex-end'>
-				<BookCopyModal bookId={bookId} />
-			</Group>
-
 			{copies.length === 0 ? (
 				<Text size='sm' c='dimmed' ta='center' py='xl'>
 					No copies available for this book.
