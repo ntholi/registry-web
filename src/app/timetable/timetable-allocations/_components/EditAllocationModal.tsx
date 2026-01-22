@@ -154,7 +154,7 @@ export default function EditAllocationModal({
 				<IconEdit size={16} />
 			</ActionIcon>
 
-			<Modal opened={opened} onClose={close} title='Edit Allocation' size='md'>
+			<Modal opened={opened} onClose={close} title='Edit Allocation' size='lg'>
 				<form onSubmit={form.onSubmit(handleSubmit)}>
 					<AllocationForm form={form} venueTypes={venueTypes} venues={venues} />
 
