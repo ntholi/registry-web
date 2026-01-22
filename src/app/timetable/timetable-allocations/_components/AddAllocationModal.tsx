@@ -127,7 +127,7 @@ export default function AddAllocationModal({
 	const mutation = useMutation({
 		mutationFn: async (values: FormValues) => {
 			if (values.groups.length === 0) {
-				return createTimetableAllocationWithVenueTypes(
+				const result = await createTimetableAllocationWithVenueTypes(
 					{
 						userId,
 						termId,
@@ -142,6 +142,10 @@ export default function AddAllocationModal({
 					values.venueTypeIds,
 					values.allowedVenueIds
 				);
+				if (!result.success) {
+					throw new Error(result.error);
+				}
+				return result.data;
 			}
 
 			const allocations = values.groups.map((groupName: string) => ({
@@ -159,11 +163,15 @@ export default function AddAllocationModal({
 				endTime: values.endTime,
 			}));
 
-			return createTimetableAllocationsWithVenueTypes(
+			const result = await createTimetableAllocationsWithVenueTypes(
 				allocations,
 				values.venueTypeIds,
 				values.allowedVenueIds
 			);
+			if (!result.success) {
+				throw new Error(result.error);
+			}
+			return result.data;
 		},
 		onSuccess: async () => {
 			await queryClient.invalidateQueries({

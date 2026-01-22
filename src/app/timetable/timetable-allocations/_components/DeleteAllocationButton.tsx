@@ -41,7 +41,12 @@ export default function DeleteAllocationButton({
 		: [allocation.id];
 
 	const mutation = useMutation({
-		mutationFn: () => deleteTimetableAllocations(allocationIds),
+		mutationFn: async () => {
+			const result = await deleteTimetableAllocations(allocationIds);
+			if (!result.success) {
+				throw new Error(result.error);
+			}
+		},
 		onSuccess: async () => {
 			await queryClient.invalidateQueries({
 				queryKey: ['timetable-allocations', userId],

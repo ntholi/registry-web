@@ -83,7 +83,7 @@ export default function EditAllocationModal({
 
 	const mutation = useMutation({
 		mutationFn: async (values: FormValues) => {
-			await updateTimetableAllocation(allocationId, {
+			const result = await updateTimetableAllocation(allocationId, {
 				duration: values.duration,
 				classType: values.classType,
 				numberOfStudents: values.numberOfStudents,
@@ -91,14 +91,23 @@ export default function EditAllocationModal({
 				startTime: values.startTime,
 				endTime: values.endTime,
 			});
-			await updateTimetableAllocationVenueTypes(
+			if (!result.success) {
+				throw new Error(result.error);
+			}
+			const venueTypesResult = await updateTimetableAllocationVenueTypes(
 				allocationId,
 				values.venueTypeIds
 			);
-			await updateTimetableAllocationAllowedVenues(
+			if (!venueTypesResult.success) {
+				throw new Error(venueTypesResult.error);
+			}
+			const venuesResult = await updateTimetableAllocationAllowedVenues(
 				allocationId,
 				values.allowedVenueIds
 			);
+			if (!venuesResult.success) {
+				throw new Error(venuesResult.error);
+			}
 		},
 		onSuccess: async () => {
 			await queryClient.invalidateQueries({

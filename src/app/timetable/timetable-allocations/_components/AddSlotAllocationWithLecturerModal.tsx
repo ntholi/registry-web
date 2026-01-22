@@ -198,7 +198,10 @@ export default function AddSlotAllocationWithLecturerModal() {
 				};
 			});
 
-			return createAllocationsWithSlots(items);
+			const result = await createAllocationsWithSlots(items);
+			if (!result.success) {
+				throw new Error(result.error);
+			}
 		},
 		onSuccess: async () => {
 			await queryClient.invalidateQueries({
