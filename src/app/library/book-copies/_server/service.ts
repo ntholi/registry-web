@@ -16,11 +16,11 @@ class BookCopyService extends BaseService<typeof bookCopies, 'id'> {
 		});
 	}
 
-	async getWithBook(id: number) {
+	async getWithBook(id: string) {
 		return this.repository.findByIdWithBook(id);
 	}
 
-	async findByBookId(bookId: number) {
+	async findByBookId(bookId: string) {
 		return this.repository.findByBookId(bookId);
 	}
 
@@ -28,7 +28,7 @@ class BookCopyService extends BaseService<typeof bookCopies, 'id'> {
 		return this.repository.findBySerialNumber(serialNumber);
 	}
 
-	async withdraw(id: number) {
+	async withdraw(id: string) {
 		return this.repository.updateStatus(id, 'Withdrawn');
 	}
 }

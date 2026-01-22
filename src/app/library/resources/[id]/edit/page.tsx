@@ -8,11 +8,7 @@ type Props = {
 
 export default async function EditResourcePage({ params }: Props) {
 	const { id } = await params;
-	const numericId = Number(id);
-
-	if (Number.isNaN(numericId)) return notFound();
-
-	const resource = await getResource(numericId);
+	const resource = await getResource(id);
 
 	if (!resource) return notFound();
 

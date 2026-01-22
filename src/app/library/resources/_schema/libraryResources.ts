@@ -1,14 +1,8 @@
 import { users } from '@auth/users/_schema/users';
 import { documents } from '@registry/documents/_schema/documents';
 import { sql } from 'drizzle-orm';
-import {
-	index,
-	pgEnum,
-	pgTable,
-	serial,
-	text,
-	timestamp,
-} from 'drizzle-orm/pg-core';
+import { index, pgEnum, pgTable, text, timestamp } from 'drizzle-orm/pg-core';
+import { nanoid } from 'nanoid';
 
 export const resourceType = pgEnum('resource_type', [
 	'PastPaper',
@@ -22,7 +16,9 @@ export type ResourceType = (typeof resourceType.enumValues)[number];
 export const libraryResources = pgTable(
 	'library_resources',
 	{
-		id: serial().primaryKey(),
+		id: text()
+			.primaryKey()
+			.$defaultFn(() => nanoid()),
 		documentId: text()
 			.references(() => documents.id, { onDelete: 'cascade' })
 			.notNull(),

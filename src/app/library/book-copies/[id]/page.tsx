@@ -19,7 +19,7 @@ type Props = {
 
 export default async function BookCopyDetailsPage({ params }: Props) {
 	const { id } = await params;
-	const copy = await getBookCopy(Number(id));
+	const copy = await getBookCopy(id);
 
 	if (!copy) return notFound();
 
@@ -32,7 +32,7 @@ export default async function BookCopyDetailsPage({ params }: Props) {
 					copy.status === 'Available'
 						? async () => {
 								'use server';
-								await withdrawBookCopy(Number(id));
+								await withdrawBookCopy(id);
 							}
 						: undefined
 				}

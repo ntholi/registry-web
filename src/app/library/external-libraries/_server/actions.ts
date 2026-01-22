@@ -5,7 +5,7 @@ import { externalLibrariesService } from './service';
 
 type ExternalLibraryInsert = typeof externalLibraries.$inferInsert;
 
-export async function getExternalLibrary(id: number) {
+export async function getExternalLibrary(id: string) {
 	return externalLibrariesService.get(id);
 }
 
@@ -26,12 +26,12 @@ export async function createExternalLibrary(data: ExternalLibraryInsert) {
 }
 
 export async function updateExternalLibrary(
-	id: number,
+	id: string,
 	data: Partial<ExternalLibraryInsert>
 ) {
 	return externalLibrariesService.update(id, data);
 }
 
-export async function deleteExternalLibrary(id: number) {
+export async function deleteExternalLibrary(id: string) {
 	return externalLibrariesService.delete(id);
 }

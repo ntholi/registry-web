@@ -15,7 +15,7 @@ import { resourcesService } from './service';
 const BASE_URL = 'https://pub-2b37ce26bd70421e9e59e4fe805c6873.r2.dev';
 const FOLDER = 'library/resources';
 
-export async function getResource(id: number) {
+export async function getResource(id: string) {
 	return resourcesService.getWithRelations(id);
 }
 
@@ -55,6 +55,8 @@ export async function createResource(data: ResourceFormData) {
 			})
 			.returning();
 
+		if (!doc) throw new Error('Failed to create document');
+
 		const [resource] = await tx
 			.insert(libraryResources)
 			.values({
@@ -70,7 +72,7 @@ export async function createResource(data: ResourceFormData) {
 	});
 }
 
-export async function updateResource(id: number, data: ResourceFormData) {
+export async function updateResource(id: string, data: ResourceFormData) {
 	const session = await auth();
 	if (!session?.user?.id) throw new Error('Unauthorized');
 
@@ -122,7 +124,7 @@ export async function updateResource(id: number, data: ResourceFormData) {
 	});
 }
 
-export async function deleteResource(id: number) {
+export async function deleteResource(id: string) {
 	const resource = await resourcesService.getWithRelations(id);
 	if (!resource) throw new Error('Resource not found');
 

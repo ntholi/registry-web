@@ -31,8 +31,8 @@ type Book = typeof books.$inferInsert;
 type Props = {
 	onSubmit: (
 		values: Book,
-		authorIds: number[],
-		categoryIds: number[]
+		authorIds: string[],
+		categoryIds: string[]
 	) => Promise<Book>;
 	defaultValues?: BookWithRelations;
 	title?: string;
@@ -94,8 +94,8 @@ export default function BookForm({ onSubmit, defaultValues, title }: Props) {
 			action={async (values) => {
 				const result = await onSubmit(
 					{ ...values, coverUrl } as typeof books.$inferInsert,
-					authorIds.map(Number),
-					categoryIds.map(Number)
+					authorIds,
+					categoryIds
 				);
 				return result;
 			}}

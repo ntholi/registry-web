@@ -13,7 +13,7 @@ type Props = {
 
 export default async function CategoryDetails({ params }: Props) {
 	const { id } = await params;
-	const item = await getCategory(Number(id));
+	const item = await getCategory(id);
 
 	if (!item) {
 		return notFound();
@@ -26,7 +26,7 @@ export default async function CategoryDetails({ params }: Props) {
 				queryKey={['categories']}
 				handleDelete={async () => {
 					'use server';
-					await deleteCategory(Number(id));
+					await deleteCategory(id);
 				}}
 			/>
 			<DetailsViewBody>

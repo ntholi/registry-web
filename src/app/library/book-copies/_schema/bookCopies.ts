@@ -1,13 +1,6 @@
 import { books } from '@library/books/_schema/books';
-import {
-	date,
-	index,
-	integer,
-	pgEnum,
-	pgTable,
-	serial,
-	text,
-} from 'drizzle-orm/pg-core';
+import { date, index, pgEnum, pgTable, text } from 'drizzle-orm/pg-core';
+import { nanoid } from 'nanoid';
 
 export const bookCondition = pgEnum('book_condition', [
 	'New',
@@ -26,8 +19,10 @@ export type BookCopyStatus = (typeof bookCopyStatus.enumValues)[number];
 export const bookCopies = pgTable(
 	'book_copies',
 	{
-		id: serial().primaryKey(),
-		bookId: integer()
+		id: text()
+			.primaryKey()
+			.$defaultFn(() => nanoid()),
+		bookId: text()
 			.references(() => books.id, { onDelete: 'cascade' })
 			.notNull(),
 		serialNumber: text().notNull().unique(),

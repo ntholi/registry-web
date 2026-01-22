@@ -25,8 +25,8 @@ import { zod4Resolver as zodResolver } from 'mantine-form-zod-resolver';
 type BookCopy = typeof bookCopies.$inferInsert;
 
 type Props = {
-	bookId: number;
-	copy?: BookCopy & { id: number };
+	bookId: string;
+	copy?: BookCopy & { id: string };
 };
 
 const schema = createInsertSchema(bookCopies).omit({

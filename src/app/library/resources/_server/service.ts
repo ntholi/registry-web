@@ -17,7 +17,7 @@ class ResourceService extends BaseService<typeof libraryResources, 'id'> {
 		});
 	}
 
-	async getWithRelations(id: number) {
+	async getWithRelations(id: string) {
 		return this.repository.findByIdWithRelations(id);
 	}
 

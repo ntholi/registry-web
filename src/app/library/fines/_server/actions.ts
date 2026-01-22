@@ -8,7 +8,7 @@ import { calculateFine } from '../_lib/calculations';
 import type { FineStatus } from '../_lib/types';
 import { finesService } from './service';
 
-export async function getFine(id: number) {
+export async function getFine(id: string) {
 	return finesService.getWithRelations(id);
 }
 
@@ -24,7 +24,7 @@ export async function getUnpaidFines() {
 	return finesService.findByStatus('Unpaid');
 }
 
-export async function createFineForLoan(loanId: number) {
+export async function createFineForLoan(loanId: string) {
 	const loan = await db.query.loans.findFirst({
 		where: eq(loans.id, loanId),
 	});
@@ -39,7 +39,7 @@ export async function createFineForLoan(loanId: number) {
 	return finesService.createFine(loanId, loan.stdNo, amount, daysOverdue);
 }
 
-export async function payFine(id: number) {
+export async function payFine(id: string) {
 	const session = await auth();
 	if (!session?.user?.id) throw new Error('Unauthorized');
 

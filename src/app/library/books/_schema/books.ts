@@ -1,17 +1,13 @@
 import { sql } from 'drizzle-orm';
-import {
-	index,
-	integer,
-	pgTable,
-	serial,
-	text,
-	timestamp,
-} from 'drizzle-orm/pg-core';
+import { index, integer, pgTable, text, timestamp } from 'drizzle-orm/pg-core';
+import { nanoid } from 'nanoid';
 
 export const books = pgTable(
 	'books',
 	{
-		id: serial().primaryKey(),
+		id: text()
+			.primaryKey()
+			.$defaultFn(() => nanoid()),
 		isbn: text().notNull().unique(),
 		title: text().notNull(),
 		subtitle: text(),

@@ -8,10 +8,10 @@ import {
 	pgEnum,
 	pgTable,
 	real,
-	serial,
 	text,
 	timestamp,
 } from 'drizzle-orm/pg-core';
+import { nanoid } from 'nanoid';
 
 export const fineStatus = pgEnum('fine_status', ['Unpaid', 'Paid']);
 export type FineStatus = (typeof fineStatus.enumValues)[number];
@@ -19,8 +19,10 @@ export type FineStatus = (typeof fineStatus.enumValues)[number];
 export const fines = pgTable(
 	'fines',
 	{
-		id: serial().primaryKey(),
-		loanId: integer()
+		id: text()
+			.primaryKey()
+			.$defaultFn(() => nanoid()),
+		loanId: text()
 			.references(() => loans.id, { onDelete: 'cascade' })
 			.notNull(),
 		stdNo: bigint({ mode: 'number' })

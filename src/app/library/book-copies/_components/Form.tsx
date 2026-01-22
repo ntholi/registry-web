@@ -10,7 +10,7 @@ import { Form } from '@/shared/ui/adease';
 type BookCopy = typeof bookCopies.$inferInsert;
 
 type Props = {
-	bookId: number;
+	bookId: string;
 	onSubmit: (values: BookCopy) => Promise<BookCopy>;
 	defaultValues?: BookCopy;
 	title?: string;
@@ -36,7 +36,7 @@ export default function BookCopyForm({
 			action={async (values) =>
 				onSubmit({ ...values, bookId } as typeof bookCopies.$inferInsert)
 			}
-			queryKey={['book-copies', String(bookId)]}
+			queryKey={['book-copies', bookId]}
 			schema={createInsertSchema(bookCopies).omit({ bookId: true })}
 			defaultValues={defaultValues}
 			onSuccess={() => router.push(returnPath)}

@@ -1,17 +1,6 @@
 import { Group, Image, Stack, Text } from '@mantine/core';
 import { FieldView } from '@/shared/ui/adease';
-
-type BookWithRelations = {
-	id: number;
-	isbn: string;
-	title: string;
-	subtitle?: string | null;
-	description?: string | null;
-	publisher?: string | null;
-	publicationYear?: number | null;
-	coverUrl?: string | null;
-	bookAuthors: { author: { name: string } }[];
-};
+import type { BookWithRelations } from '../_lib/types';
 
 type Props = {
 	book: BookWithRelations;

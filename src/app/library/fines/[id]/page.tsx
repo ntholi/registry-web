@@ -19,7 +19,7 @@ type Props = {
 
 export default async function FineDetailsPage({ params }: Props) {
 	const { id } = await params;
-	const fine = await getFine(Number(id));
+	const fine = await getFine(id);
 
 	if (!fine) return notFound();
 

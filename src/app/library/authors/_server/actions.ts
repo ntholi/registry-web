@@ -6,14 +6,14 @@ import { authorsService } from './service';
 
 type Author = typeof authors.$inferInsert;
 
-export async function getAuthor(id: number) {
+export async function getAuthor(id: string) {
 	return authorsService.get(id);
 }
 
 export async function getOrCreateAuthors(names: string[]) {
 	if (names.length === 0) return [];
 	return db.transaction(async (tx) => {
-		const results: { id: number; name: string }[] = [];
+		const results: { id: string; name: string }[] = [];
 		for (const name of names) {
 			const trimmed = name.trim();
 			if (!trimmed) continue;
@@ -29,7 +29,9 @@ export async function getOrCreateAuthors(names: string[]) {
 					.insert(authors)
 					.values({ name: trimmed })
 					.returning();
-				results.push(created);
+				if (created) {
+					results.push(created);
+				}
 			}
 		}
 		return results;
@@ -54,10 +56,10 @@ export async function createAuthor(data: Author) {
 	return authorsService.create(data);
 }
 
-export async function updateAuthor(id: number, data: Author) {
+export async function updateAuthor(id: string, data: Author) {
 	return authorsService.update(id, data);
 }
 
-export async function deleteAuthor(id: number) {
+export async function deleteAuthor(id: string) {
 	return authorsService.delete(id);
 }

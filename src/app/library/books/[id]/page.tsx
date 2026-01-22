@@ -10,7 +10,7 @@ type Props = {
 
 export default async function BookDetailsPage({ params }: Props) {
 	const { id } = await params;
-	const book = await getBook(Number(id));
+	const book = await getBook(id);
 
 	if (!book) return notFound();
 
@@ -21,7 +21,7 @@ export default async function BookDetailsPage({ params }: Props) {
 				queryKey={['books']}
 				handleDelete={async () => {
 					'use server';
-					await deleteBook(Number(id));
+					await deleteBook(id);
 				}}
 			/>
 			<Box mt='xl'>

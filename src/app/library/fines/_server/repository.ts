@@ -8,7 +8,7 @@ export default class FineRepository extends BaseRepository<typeof fines, 'id'> {
 		super(fines, fines.id);
 	}
 
-	async findByIdWithRelations(id: number) {
+	async findByIdWithRelations(id: string) {
 		return db.query.fines.findFirst({
 			where: eq(fines.id, id),
 			with: {
@@ -82,7 +82,7 @@ export default class FineRepository extends BaseRepository<typeof fines, 'id'> {
 		});
 	}
 
-	async findByLoan(loanId: number) {
+	async findByLoan(loanId: string) {
 		return db.query.fines.findFirst({
 			where: eq(fines.loanId, loanId),
 			with: {
@@ -94,7 +94,7 @@ export default class FineRepository extends BaseRepository<typeof fines, 'id'> {
 	}
 
 	async createFine(
-		loanId: number,
+		loanId: string,
 		stdNo: number,
 		amount: number,
 		daysOverdue: number
@@ -112,7 +112,7 @@ export default class FineRepository extends BaseRepository<typeof fines, 'id'> {
 		return fine;
 	}
 
-	async markPaid(id: number, receiptId: string) {
+	async markPaid(id: string, receiptId: string) {
 		const [updated] = await db
 			.update(fines)
 			.set({

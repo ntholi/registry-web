@@ -1,10 +1,13 @@
 import { sql } from 'drizzle-orm';
-import { index, pgTable, serial, text, timestamp } from 'drizzle-orm/pg-core';
+import { index, pgTable, text, timestamp } from 'drizzle-orm/pg-core';
+import { nanoid } from 'nanoid';
 
 export const authors = pgTable(
 	'authors',
 	{
-		id: serial().primaryKey(),
+		id: text()
+			.primaryKey()
+			.$defaultFn(() => nanoid()),
 		name: text().notNull(),
 		createdAt: timestamp().defaultNow(),
 	},

@@ -34,7 +34,7 @@ type Props = {
 
 export default async function LoanDetailsPage({ params }: Props) {
 	const { id } = await params;
-	const loan = await getLoan(Number(id));
+	const loan = await getLoan(id);
 
 	if (!loan) return notFound();
 
@@ -50,7 +50,7 @@ export default async function LoanDetailsPage({ params }: Props) {
 				queryKey={['loans']}
 				handleDelete={async () => {
 					'use server';
-					await deleteLoan(Number(id));
+					await deleteLoan(id);
 				}}
 				hideEdit
 			/>

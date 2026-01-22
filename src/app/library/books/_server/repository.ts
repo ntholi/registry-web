@@ -7,7 +7,7 @@ export default class BookRepository extends BaseRepository<typeof books, 'id'> {
 		super(books, books.id);
 	}
 
-	async findByIdWithRelations(id: number) {
+	async findByIdWithRelations(id: string) {
 		const book = await db.query.books.findFirst({
 			where: eq(books.id, id),
 			with: {
@@ -41,13 +41,13 @@ export default class BookRepository extends BaseRepository<typeof books, 'id'> {
 
 	async createWithRelations(
 		book: typeof books.$inferInsert,
-		authorIds: number[],
-		categoryIds: number[]
+		authorIds: string[],
+		categoryIds: string[]
 	) {
 		return db.transaction(async (tx) => {
 			const [newBook] = await tx.insert(books).values(book).returning();
 
-			if (authorIds.length > 0) {
+			if (newBook && authorIds.length > 0) {
 				await tx.insert(bookAuthors).values(
 					authorIds.map((authorId) => ({
 						bookId: newBook.id,
@@ -56,7 +56,7 @@ export default class BookRepository extends BaseRepository<typeof books, 'id'> {
 				);
 			}
 
-			if (categoryIds.length > 0) {
+			if (newBook && categoryIds.length > 0) {
 				await tx.insert(bookCategories).values(
 					categoryIds.map((categoryId) => ({
 						bookId: newBook.id,
@@ -70,10 +70,10 @@ export default class BookRepository extends BaseRepository<typeof books, 'id'> {
 	}
 
 	async updateWithRelations(
-		id: number,
+		id: string,
 		book: Partial<typeof books.$inferInsert>,
-		authorIds: number[],
-		categoryIds: number[]
+		authorIds: string[],
+		categoryIds: string[]
 	) {
 		return db.transaction(async (tx) => {
 			const [updated] = await tx

@@ -6,7 +6,7 @@ import { categoriesService } from './service';
 
 type Category = typeof categories.$inferInsert;
 
-export async function getCategory(id: number) {
+export async function getCategory(id: string) {
 	return categoriesService.get(id);
 }
 
@@ -27,7 +27,7 @@ export async function getAllCategories() {
 export async function getOrCreateCategories(names: string[]) {
 	if (names.length === 0) return [];
 	return db.transaction(async (tx) => {
-		const results: { id: number; name: string }[] = [];
+		const results: { id: string; name: string }[] = [];
 		for (const name of names) {
 			const trimmed = name.trim();
 			if (!trimmed) continue;
@@ -43,7 +43,9 @@ export async function getOrCreateCategories(names: string[]) {
 					.insert(categories)
 					.values({ name: trimmed })
 					.returning();
-				results.push(created);
+				if (created) {
+					results.push(created);
+				}
 			}
 		}
 		return results;
@@ -54,10 +56,10 @@ export async function createCategory(data: Category) {
 	return categoriesService.create(data);
 }
 
-export async function updateCategory(id: number, data: Category) {
+export async function updateCategory(id: string, data: Category) {
 	return categoriesService.update(id, data);
 }
 
-export async function deleteCategory(id: number) {
+export async function deleteCategory(id: string) {
 	return categoriesService.delete(id);
 }

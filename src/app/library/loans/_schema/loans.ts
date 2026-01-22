@@ -4,13 +4,12 @@ import { students } from '@registry/students/_schema/students';
 import {
 	bigint,
 	index,
-	integer,
 	pgEnum,
 	pgTable,
-	serial,
 	text,
 	timestamp,
 } from 'drizzle-orm/pg-core';
+import { nanoid } from 'nanoid';
 
 export const loanStatus = pgEnum('loan_status', [
 	'Active',
@@ -22,8 +21,10 @@ export type LoanStatus = (typeof loanStatus.enumValues)[number];
 export const loans = pgTable(
 	'loans',
 	{
-		id: serial().primaryKey(),
-		bookCopyId: integer()
+		id: text()
+			.primaryKey()
+			.$defaultFn(() => nanoid()),
+		bookCopyId: text()
 			.references(() => bookCopies.id, { onDelete: 'cascade' })
 			.notNull(),
 		stdNo: bigint({ mode: 'number' })
@@ -52,8 +53,10 @@ export const loans = pgTable(
 export const loanRenewals = pgTable(
 	'loan_renewals',
 	{
-		id: serial().primaryKey(),
-		loanId: integer()
+		id: text()
+			.primaryKey()
+			.$defaultFn(() => nanoid()),
+		loanId: text()
 			.references(() => loans.id, { onDelete: 'cascade' })
 			.notNull(),
 		previousDueDate: timestamp().notNull(),

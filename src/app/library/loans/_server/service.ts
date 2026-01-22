@@ -17,7 +17,7 @@ class LoanService extends BaseService<typeof loans, 'id'> {
 		});
 	}
 
-	async getWithRelations(id: number) {
+	async getWithRelations(id: string) {
 		return this.repository.findByIdWithRelations(id);
 	}
 
@@ -34,7 +34,7 @@ class LoanService extends BaseService<typeof loans, 'id'> {
 	}
 
 	async issueLoan(
-		bookCopyId: number,
+		bookCopyId: string,
 		stdNo: number,
 		dueDate: Date,
 		issuedBy: string
@@ -42,11 +42,11 @@ class LoanService extends BaseService<typeof loans, 'id'> {
 		return this.repository.createLoan({ bookCopyId, stdNo, dueDate, issuedBy });
 	}
 
-	async returnBook(loanId: number, returnedTo: string) {
+	async returnBook(loanId: string, returnedTo: string) {
 		return this.repository.processReturn(loanId, returnedTo);
 	}
 
-	async renewLoan(loanId: number, newDueDate: Date, renewedBy: string) {
+	async renewLoan(loanId: string, newDueDate: Date, renewedBy: string) {
 		return this.repository.renewLoan(loanId, newDueDate, renewedBy);
 	}
 
@@ -62,7 +62,7 @@ class LoanService extends BaseService<typeof loans, 'id'> {
 		return this.repository.searchBooks(query);
 	}
 
-	async getAvailableCopies(bookId: number) {
+	async getAvailableCopies(bookId: string) {
 		return this.repository.getAvailableCopies(bookId);
 	}
 

@@ -15,7 +15,7 @@ export default class LoanRepository extends BaseRepository<typeof loans, 'id'> {
 		super(loans, loans.id);
 	}
 
-	async findByIdWithRelations(id: number) {
+	async findByIdWithRelations(id: string) {
 		const loan = await db.query.loans.findFirst({
 			where: eq(loans.id, id),
 			with: {
@@ -109,7 +109,7 @@ export default class LoanRepository extends BaseRepository<typeof loans, 'id'> {
 	}
 
 	async createLoan(data: {
-		bookCopyId: number;
+		bookCopyId: string;
 		stdNo: number;
 		dueDate: Date;
 		issuedBy: string;
@@ -135,7 +135,7 @@ export default class LoanRepository extends BaseRepository<typeof loans, 'id'> {
 		});
 	}
 
-	async processReturn(id: number, returnedTo: string) {
+	async processReturn(id: string, returnedTo: string) {
 		return db.transaction(async (tx) => {
 			const loan = await tx.query.loans.findFirst({
 				where: eq(loans.id, id),
@@ -162,16 +162,18 @@ export default class LoanRepository extends BaseRepository<typeof loans, 'id'> {
 				.where(eq(loans.id, id))
 				.returning();
 
-			await tx
-				.update(bookCopies)
-				.set({ status: 'Available' })
-				.where(eq(bookCopies.id, loan.bookCopyId));
+			if (updated) {
+				await tx
+					.update(bookCopies)
+					.set({ status: 'Available' })
+					.where(eq(bookCopies.id, updated.bookCopyId));
+			}
 
 			return { ...updated, daysOverdue };
 		});
 	}
 
-	async renewLoan(loanId: number, newDueDate: Date, renewedBy: string) {
+	async renewLoan(loanId: string, newDueDate: Date, renewedBy: string) {
 		return db.transaction(async (tx) => {
 			const loan = await tx.query.loans.findFirst({
 				where: eq(loans.id, loanId),
@@ -361,7 +363,7 @@ export default class LoanRepository extends BaseRepository<typeof loans, 'id'> {
 		return resultsWithCopies.filter((b) => b.availableCopies > 0);
 	}
 
-	async getAvailableCopies(bookId: number) {
+	async getAvailableCopies(bookId: string) {
 		return db
 			.select({
 				id: bookCopies.id,

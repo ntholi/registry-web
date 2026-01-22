@@ -1,15 +1,18 @@
-import { integer, pgTable, serial, unique } from 'drizzle-orm/pg-core';
+import { pgTable, text, unique } from 'drizzle-orm/pg-core';
+import { nanoid } from 'nanoid';
 import { authors } from '../../authors/_schema/authors';
 import { books } from './books';
 
 export const bookAuthors = pgTable(
 	'book_authors',
 	{
-		id: serial().primaryKey(),
-		bookId: integer()
+		id: text()
+			.primaryKey()
+			.$defaultFn(() => nanoid()),
+		bookId: text()
 			.references(() => books.id, { onDelete: 'cascade' })
 			.notNull(),
-		authorId: integer()
+		authorId: text()
 			.references(() => authors.id, { onDelete: 'cascade' })
 			.notNull(),
 	},

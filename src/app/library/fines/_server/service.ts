@@ -17,7 +17,7 @@ class FineService extends BaseService<typeof fines, 'id'> {
 		});
 	}
 
-	async getWithRelations(id: number) {
+	async getWithRelations(id: string) {
 		return this.repository.findByIdWithRelations(id);
 	}
 
@@ -29,12 +29,12 @@ class FineService extends BaseService<typeof fines, 'id'> {
 		return this.repository.findByStatus(status);
 	}
 
-	async findByLoan(loanId: number) {
+	async findByLoan(loanId: string) {
 		return this.repository.findByLoan(loanId);
 	}
 
 	async createFine(
-		loanId: number,
+		loanId: string,
 		stdNo: number,
 		amount: number,
 		daysOverdue: number
@@ -42,7 +42,7 @@ class FineService extends BaseService<typeof fines, 'id'> {
 		return this.repository.createFine(loanId, stdNo, amount, daysOverdue);
 	}
 
-	async markPaid(id: number, receiptId: string) {
+	async markPaid(id: string, receiptId: string) {
 		return this.repository.markPaid(id, receiptId);
 	}
 

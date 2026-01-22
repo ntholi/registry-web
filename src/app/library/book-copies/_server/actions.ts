@@ -5,11 +5,11 @@ import { bookCopiesService } from './service';
 
 type BookCopy = typeof bookCopies.$inferInsert;
 
-export async function getBookCopy(id: number) {
+export async function getBookCopy(id: string) {
 	return bookCopiesService.getWithBook(id);
 }
 
-export async function getBookCopies(bookId: number) {
+export async function getBookCopies(bookId: string) {
 	return bookCopiesService.findByBookId(bookId);
 }
 
@@ -21,10 +21,10 @@ export async function createBookCopy(data: BookCopy) {
 	return bookCopiesService.create(data);
 }
 
-export async function updateBookCopy(id: number, data: BookCopy) {
+export async function updateBookCopy(id: string, data: BookCopy) {
 	return bookCopiesService.update(id, data);
 }
 
-export async function withdrawBookCopy(id: number) {
+export async function withdrawBookCopy(id: string) {
 	return bookCopiesService.withdraw(id);
 }

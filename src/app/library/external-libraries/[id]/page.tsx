@@ -13,7 +13,7 @@ type Props = {
 
 export default async function ExternalLibraryDetailsPage({ params }: Props) {
 	const { id } = await params;
-	const library = await getExternalLibrary(Number(id));
+	const library = await getExternalLibrary(id);
 
 	if (!library) return notFound();
 
@@ -24,7 +24,7 @@ export default async function ExternalLibraryDetailsPage({ params }: Props) {
 				queryKey={['external-libraries']}
 				handleDelete={async () => {
 					'use server';
-					await deleteExternalLibrary(Number(id));
+					await deleteExternalLibrary(id);
 				}}
 			/>
 			<DetailsViewBody>

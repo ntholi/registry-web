@@ -11,7 +11,7 @@ export default class ResourceRepository extends BaseRepository<
 		super(libraryResources, libraryResources.id);
 	}
 
-	async findByIdWithRelations(id: number) {
+	async findByIdWithRelations(id: string) {
 		return db.query.libraryResources.findFirst({
 			where: eq(libraryResources.id, id),
 			with: {

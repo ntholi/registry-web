@@ -7,7 +7,7 @@ import { formatDate } from '@/shared/lib/utils/dates';
 import BookCopyModal from './BookCopyModal';
 
 type Props = {
-	bookId: number;
+	bookId: string;
 };
 
 const statusColors: Record<string, string> = {
@@ -24,7 +24,7 @@ const conditionColors: Record<string, string> = {
 
 export default function BookCopiesTab({ bookId }: Props) {
 	const { data: copies = [], isLoading } = useQuery({
-		queryKey: ['book-copies', String(bookId)],
+		queryKey: ['book-copies', bookId],
 		queryFn: () => getBookCopies(bookId),
 	});
 

@@ -9,7 +9,7 @@ type Props = {
 
 export default async function CategoryEdit({ params }: Props) {
 	const { id } = await params;
-	const item = await getCategory(Number(id));
+	const item = await getCategory(id);
 	if (!item) {
 		return notFound();
 	}
@@ -21,7 +21,7 @@ export default async function CategoryEdit({ params }: Props) {
 				defaultValues={item}
 				onSubmit={async (value) => {
 					'use server';
-					return await updateCategory(Number(id), value);
+					return await updateCategory(id, value);
 				}}
 			/>
 		</Box>

@@ -5,12 +5,12 @@ export type BookInsert = typeof books.$inferInsert;
 
 export type BookWithRelations = Book & {
 	bookAuthors: Array<{
-		authorId: number;
-		author: { id: number; name: string };
+		authorId: string;
+		author: { id: string; name: string };
 	}>;
 	bookCategories: Array<{
-		categoryId: number;
-		category: { id: number; name: string };
+		categoryId: string;
+		category: { id: string; name: string };
 	}>;
 	bookCopies: Array<typeof bookCopies.$inferSelect>;
 	availableCopies: number;

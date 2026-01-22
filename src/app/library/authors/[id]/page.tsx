@@ -13,7 +13,7 @@ type Props = {
 
 export default async function AuthorDetailsPage({ params }: Props) {
 	const { id } = await params;
-	const item = await getAuthor(Number(id));
+	const item = await getAuthor(id);
 
 	if (!item) return notFound();
 
@@ -24,7 +24,7 @@ export default async function AuthorDetailsPage({ params }: Props) {
 				queryKey={['authors']}
 				handleDelete={async () => {
 					'use server';
-					await deleteAuthor(Number(id));
+					await deleteAuthor(id);
 				}}
 			/>
 			<DetailsViewBody>

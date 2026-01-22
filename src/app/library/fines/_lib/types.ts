@@ -7,15 +7,15 @@ export type FineStatus = 'Unpaid' | 'Paid';
 
 export interface FineWithRelations extends Fine {
 	loan: {
-		id: number;
+		id: string;
 		loanDate: Date | null;
 		dueDate: Date;
 		returnDate: Date | null;
 		bookCopy: {
-			id: number;
+			id: string;
 			serialNumber: string;
 			book: {
-				id: number;
+				id: string;
 				title: string;
 				isbn: string;
 			};

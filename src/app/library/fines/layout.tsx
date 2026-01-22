@@ -11,8 +11,8 @@ import type { FineStatus } from './_lib/types';
 import { getFines } from './_server/actions';
 
 type FineListItem = {
-	id: number;
-	loanId: number;
+	id: string;
+	loanId: string;
 	stdNo: number;
 	amount: number;
 	daysOverdue: number;

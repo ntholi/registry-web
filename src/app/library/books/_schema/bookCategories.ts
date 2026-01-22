@@ -1,15 +1,18 @@
-import { integer, pgTable, serial, unique } from 'drizzle-orm/pg-core';
+import { pgTable, text, unique } from 'drizzle-orm/pg-core';
+import { nanoid } from 'nanoid';
 import { categories } from '../../categories/_schema/categories';
 import { books } from './books';
 
 export const bookCategories = pgTable(
 	'book_categories',
 	{
-		id: serial().primaryKey(),
-		bookId: integer()
+		id: text()
+			.primaryKey()
+			.$defaultFn(() => nanoid()),
+		bookId: text()
 			.references(() => books.id, { onDelete: 'cascade' })
 			.notNull(),
-		categoryId: integer()
+		categoryId: text()
 			.references(() => categories.id, { onDelete: 'cascade' })
 			.notNull(),
 	},

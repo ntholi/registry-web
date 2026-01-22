@@ -3,21 +3,10 @@
 import { Box, Tabs } from '@mantine/core';
 import { IconBook, IconCopy } from '@tabler/icons-react';
 import { useQueryState } from 'nuqs';
+import type { BookWithRelations } from '../_lib/types';
 import BookCopiesTab from './BookCopiesTab';
 import BookCopyModal from './BookCopyModal';
 import BookDetailsTab from './BookDetailsTab';
-
-type BookWithRelations = {
-	id: number;
-	isbn: string;
-	title: string;
-	subtitle?: string | null;
-	description?: string | null;
-	publisher?: string | null;
-	publicationYear?: number | null;
-	coverUrl?: string | null;
-	bookAuthors: { author: { name: string } }[];
-};
 
 type Props = {
 	book: BookWithRelations;
