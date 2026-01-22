@@ -708,6 +708,13 @@
 			"when": 1769088029530,
 			"tag": "0100_black_namor",
 			"breakpoints": true
+		},
+		{
+			"idx": 101,
+			"version": "7",
+			"when": 1769089689883,
+			"tag": "0101_nostalgic_hulk",
+			"breakpoints": true
 		}
 	]
 }

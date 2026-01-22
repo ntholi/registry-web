@@ -1,0 +1,71 @@
+import { getAssessmentTypeLabel } from '@academic/assessments/_lib/utils';
+import { Divider, Group, Stack } from '@mantine/core';
+import { notFound } from 'next/navigation';
+import { formatDate } from '@/shared/lib/utils/dates';
+import {
+	DetailsView,
+	DetailsViewBody,
+	DetailsViewHeader,
+	FieldView,
+} from '@/shared/ui/adease';
+import DocumentViewer from '../../_components/DocumentViewer';
+import { deleteQuestionPaper, getQuestionPaper } from '../_server/actions';
+
+type Props = {
+	params: Promise<{ id: string }>;
+};
+
+export default async function QuestionPaperDetailsPage({ params }: Props) {
+	const { id } = await params;
+	const questionPaper = await getQuestionPaper(id);
+
+	if (!questionPaper) return notFound();
+
+	return (
+		<DetailsView>
+			<DetailsViewHeader
+				title='Question Paper'
+				queryKey={['question-papers']}
+				handleDelete={async () => {
+					'use server';
+					await deleteQuestionPaper(id);
+				}}
+			/>
+			<DetailsViewBody>
+				<Stack gap='lg'>
+					<FieldView label='Title' underline={false}>
+						{questionPaper.title}
+					</FieldView>
+
+					<Group grow>
+						<FieldView label='Module' underline={false}>
+							{questionPaper.module
+								? `${questionPaper.module.code} - ${questionPaper.module.name}`
+								: '-'}
+						</FieldView>
+						<FieldView label='Term' underline={false}>
+							{questionPaper.term?.code || '-'}
+						</FieldView>
+					</Group>
+
+					<FieldView label='Assessment Type' underline={false}>
+						{getAssessmentTypeLabel(questionPaper.assessmentType)}
+					</FieldView>
+
+					<FieldView label='Uploaded On' underline={false}>
+						{questionPaper.createdAt
+							? formatDate(questionPaper.createdAt)
+							: '-'}
+					</FieldView>
+
+					<Divider label='Document' labelPosition='left' />
+
+					<DocumentViewer
+						fileUrl={questionPaper.document?.fileUrl || ''}
+						fileName={questionPaper.document?.fileName || ''}
+					/>
+				</Stack>
+			</DetailsViewBody>
+		</DetailsView>
+	);
+}

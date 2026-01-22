@@ -2,9 +2,11 @@ import {
 	IconBook2,
 	IconCash,
 	IconCategory,
+	IconFileText,
 	IconLibrary,
 	IconTags,
 	IconUsers,
+	IconWriting,
 } from '@tabler/icons-react';
 import type { ModuleConfig } from '@/app/dashboard/module-config.types';
 
@@ -47,9 +49,23 @@ export const libraryConfig: ModuleConfig = {
 			},
 			{
 				label: 'Resources',
-				href: '/library/resources',
 				icon: IconTags,
+				collapsed: true,
 				roles: ['admin', 'library'],
+				children: [
+					{
+						label: 'Publications',
+						href: '/library/resources/publications',
+						icon: IconWriting,
+						roles: ['admin', 'library'],
+					},
+					{
+						label: 'Question Papers',
+						href: '/library/resources/question-papers',
+						icon: IconFileText,
+						roles: ['admin', 'library'],
+					},
+				],
 			},
 		],
 	},

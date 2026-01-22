@@ -13,7 +13,8 @@ import {
 } from '@mantine/core';
 import { Dropzone, type FileWithPath } from '@mantine/dropzone';
 import { IconFile, IconTrash, IconUpload, IconX } from '@tabler/icons-react';
-import { MAX_FILE_SIZE } from '../_lib/types';
+
+const MAX_FILE_SIZE = 10 * 1024 * 1024;
 
 type Props = {
 	value: FileWithPath | null;

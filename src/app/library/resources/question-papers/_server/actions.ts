@@ -3,37 +3,40 @@
 import { eq } from 'drizzle-orm';
 import { nanoid } from 'nanoid';
 import { auth } from '@/core/auth';
-import { db, documents, libraryResources } from '@/core/database';
+import { db, documents, questionPapers } from '@/core/database';
 import { deleteDocument, uploadDocument } from '@/core/integrations/storage';
-import {
-	MAX_FILE_SIZE,
-	type ResourceFormData,
-	type ResourceType,
-} from '../_lib/types';
-import { resourcesService } from './service';
+import type { QuestionPaperFormData } from '../_lib/types';
+import { questionPapersService } from './service';
 
 const BASE_URL = 'https://pub-2b37ce26bd70421e9e59e4fe805c6873.r2.dev';
-const FOLDER = 'library/resources';
+const FOLDER = 'library/question-papers';
+const MAX_FILE_SIZE = 10 * 1024 * 1024;
 
-export async function getResource(id: string) {
-	return resourcesService.getWithRelations(id);
+export async function getQuestionPaper(id: string) {
+	return questionPapersService.getWithRelations(id);
 }
 
-export async function getResources(page = 1, search = '', type?: ResourceType) {
-	return resourcesService.getResources(page, search, type);
+export async function getQuestionPapers(
+	page = 1,
+	search = '',
+	moduleId?: number,
+	termId?: number
+) {
+	return questionPapersService.getQuestionPapers(
+		page,
+		search,
+		moduleId,
+		termId
+	);
 }
 
-export async function getAllResources() {
-	return resourcesService.getAll();
-}
-
-export async function createResource(data: ResourceFormData) {
+export async function createQuestionPaper(data: QuestionPaperFormData) {
 	const session = await auth();
 	if (!session?.user?.id) throw new Error('Unauthorized');
 
-	const { title, description, type, file } = data;
+	const { title, moduleId, termId, assessmentType, file } = data;
 
-	if (!file || !title || !type) {
+	if (!file || !title || !moduleId || !termId || !assessmentType) {
 		throw new Error('Missing required fields');
 	}
 
@@ -57,33 +60,36 @@ export async function createResource(data: ResourceFormData) {
 
 		if (!doc) throw new Error('Failed to create document');
 
-		const [resource] = await tx
-			.insert(libraryResources)
+		const [questionPaper] = await tx
+			.insert(questionPapers)
 			.values({
 				documentId: doc.id,
 				title,
-				description: description || null,
-				type,
-				uploadedBy: session.user?.id,
+				moduleId,
+				termId,
+				assessmentType,
 			})
 			.returning();
 
-		return resource;
+		return questionPaper;
 	});
 }
 
-export async function updateResource(id: string, data: ResourceFormData) {
+export async function updateQuestionPaper(
+	id: string,
+	data: QuestionPaperFormData
+) {
 	const session = await auth();
 	if (!session?.user?.id) throw new Error('Unauthorized');
 
-	const { title, description, type, file } = data;
+	const { title, moduleId, termId, assessmentType, file } = data;
 
-	if (!title || !type) {
+	if (!title || !moduleId || !termId || !assessmentType) {
 		throw new Error('Missing required fields');
 	}
 
-	const existing = await resourcesService.getWithRelations(id);
-	if (!existing) throw new Error('Resource not found');
+	const existing = await questionPapersService.getWithRelations(id);
+	if (!existing) throw new Error('Question paper not found');
 
 	return db.transaction(async (tx) => {
 		if (file && file.size > 0) {
@@ -103,38 +109,38 @@ export async function updateResource(id: string, data: ResourceFormData) {
 
 			await tx
 				.update(documents)
-				.set({
-					fileName: file.name,
-					fileUrl,
-				})
+				.set({ fileName, fileUrl })
 				.where(eq(documents.id, existing.documentId));
 		}
 
 		const [updated] = await tx
-			.update(libraryResources)
+			.update(questionPapers)
 			.set({
 				title,
-				description: description || null,
-				type,
+				moduleId,
+				termId,
+				assessmentType,
 			})
-			.where(eq(libraryResources.id, id))
+			.where(eq(questionPapers.id, id))
 			.returning();
 
 		return updated;
 	});
 }
 
-export async function deleteResource(id: string) {
-	const resource = await resourcesService.getWithRelations(id);
-	if (!resource) throw new Error('Resource not found');
+export async function deleteQuestionPaper(id: string) {
+	const existing = await questionPapersService.getWithRelations(id);
+	if (!existing) throw new Error('Question paper not found');
 
-	if (resource.document?.fileUrl) {
-		const key = resource.document.fileUrl.replace(`${BASE_URL}/`, '');
+	if (existing.document?.fileUrl) {
+		const key = existing.document.fileUrl.replace(`${BASE_URL}/`, '');
 		await deleteDocument(key);
 	}
 
 	await db.transaction(async (tx) => {
-		await tx.delete(libraryResources).where(eq(libraryResources.id, id));
-		await tx.delete(documents).where(eq(documents.id, resource.documentId));
+		await tx.delete(questionPapers).where(eq(questionPapers.id, id));
+		if (existing.documentId) {
+			await tx.delete(documents).where(eq(documents.id, existing.documentId));
+		}
 	});
 }
