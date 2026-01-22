@@ -245,7 +245,7 @@ export default class TimetableAllocationRepository extends BaseRepository<
 			if (!updated) {
 				throw new Error('Timetable allocation not found');
 			}
-			await this.rebuildTermSlots(tx, updated.termId);
+			await this.rebuildTermSlots(tx, updated.termId, true);
 			return updated;
 		});
 	}
@@ -305,7 +305,7 @@ export default class TimetableAllocationRepository extends BaseRepository<
 			if (!allocation) {
 				throw new Error('Timetable allocation not found');
 			}
-			await this.rebuildTermSlots(tx, allocation.termId);
+			await this.rebuildTermSlots(tx, allocation.termId, true);
 		});
 	}
 
@@ -334,7 +334,7 @@ export default class TimetableAllocationRepository extends BaseRepository<
 			if (!allocation) {
 				throw new Error('Timetable allocation not found');
 			}
-			await this.rebuildTermSlots(tx, allocation.termId);
+			await this.rebuildTermSlots(tx, allocation.termId, true);
 		});
 	}
 
