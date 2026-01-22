@@ -54,7 +54,7 @@ export default function ResourcesLayout({ children }: PropsWithChildren) {
 							</Badge>
 						</Group>
 					}
-					description={resource.originalName}
+					description={resource.document?.fileName}
 				/>
 			)}
 		>

@@ -86,7 +86,7 @@ export default function ResourceForm({
 					<UploadField
 						value={file}
 						onChange={setFile}
-						currentFileName={defaultValues?.originalName}
+						currentFileName={defaultValues?.document?.fileName}
 					/>
 				</>
 			)}

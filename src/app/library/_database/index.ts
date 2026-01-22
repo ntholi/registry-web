@@ -13,5 +13,5 @@ export * from '../fines/_schema/fines';
 export * from '../fines/_schema/relations';
 export * from '../loans/_schema/loans';
 export * from '../loans/_schema/relations';
-export * from '../resources/_schema/digitalResources';
+export * from '../resources/_schema/libraryResources';
 export * from '../resources/_schema/relations';

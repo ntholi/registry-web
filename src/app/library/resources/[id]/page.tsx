@@ -15,12 +15,6 @@ type Props = {
 	params: Promise<{ id: string }>;
 };
 
-function formatFileSize(bytes: number) {
-	if (bytes < 1024) return `${bytes} B`;
-	if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
-	return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
-}
-
 export default async function ResourceDetailsPage({ params }: Props) {
 	const { id } = await params;
 	const resource = await getResource(Number(id));
@@ -51,11 +45,9 @@ export default async function ResourceDetailsPage({ params }: Props) {
 					<Divider label='File Information' labelPosition='left' />
 
 					<Group grow>
-						<FieldView label='File Name'>{resource.originalName}</FieldView>
-						<FieldView label='Size'>
-							{formatFileSize(resource.fileSize)}
+						<FieldView label='File Name'>
+							{resource.document?.fileName}
 						</FieldView>
-						<FieldView label='Type'>{resource.mimeType}</FieldView>
 					</Group>
 
 					<Group grow>
@@ -73,9 +65,8 @@ export default async function ResourceDetailsPage({ params }: Props) {
 					<Divider label='Preview' labelPosition='left' />
 
 					<DocumentViewer
-						fileName={resource.fileName}
-						originalName={resource.originalName}
-						mimeType={resource.mimeType}
+						fileUrl={resource.document?.fileUrl || ''}
+						fileName={resource.document?.fileName || ''}
 						isDownloadable={resource.isDownloadable}
 					/>
 				</Stack>

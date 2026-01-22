@@ -1,20 +1,21 @@
 import { and, desc, eq, sql } from 'drizzle-orm';
-import { db, digitalResources } from '@/core/database';
+import { db, libraryResources } from '@/core/database';
 import BaseRepository from '@/core/platform/BaseRepository';
 import type { ResourceType } from '../_lib/types';
 
 export default class ResourceRepository extends BaseRepository<
-	typeof digitalResources,
+	typeof libraryResources,
 	'id'
 > {
 	constructor() {
-		super(digitalResources, digitalResources.id);
+		super(libraryResources, libraryResources.id);
 	}
 
 	async findByIdWithRelations(id: number) {
-		return db.query.digitalResources.findFirst({
-			where: eq(digitalResources.id, id),
+		return db.query.libraryResources.findFirst({
+			where: eq(libraryResources.id, id),
 			with: {
+				document: true,
 				uploadedByUser: {
 					columns: { id: true, name: true },
 				},
@@ -23,32 +24,34 @@ export default class ResourceRepository extends BaseRepository<
 	}
 
 	async findByType(type: ResourceType) {
-		return db.query.digitalResources.findMany({
-			where: eq(digitalResources.type, type),
+		return db.query.libraryResources.findMany({
+			where: eq(libraryResources.type, type),
 			with: {
+				document: true,
 				uploadedByUser: {
 					columns: { id: true, name: true },
 				},
 			},
-			orderBy: desc(digitalResources.createdAt),
+			orderBy: desc(libraryResources.createdAt),
 		});
 	}
 
 	async search(query: string, type?: ResourceType) {
-		const conditions = [sql`${digitalResources.title} ILIKE ${`%${query}%`}`];
+		const conditions = [sql`${libraryResources.title} ILIKE ${`%${query}%`}`];
 
 		if (type) {
-			conditions.push(eq(digitalResources.type, type));
+			conditions.push(eq(libraryResources.type, type));
 		}
 
-		return db.query.digitalResources.findMany({
+		return db.query.libraryResources.findMany({
 			where: and(...conditions),
 			with: {
+				document: true,
 				uploadedByUser: {
 					columns: { id: true, name: true },
 				},
 			},
-			orderBy: desc(digitalResources.createdAt),
+			orderBy: desc(libraryResources.createdAt),
 		});
 	}
 
@@ -62,29 +65,30 @@ export default class ResourceRepository extends BaseRepository<
 
 		const conditions = [];
 		if (type) {
-			conditions.push(eq(digitalResources.type, type));
+			conditions.push(eq(libraryResources.type, type));
 		}
 		if (search) {
-			conditions.push(sql`${digitalResources.title} ILIKE ${`%${search}%`}`);
+			conditions.push(sql`${libraryResources.title} ILIKE ${`%${search}%`}`);
 		}
 
 		const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
 
-		const data = await db.query.digitalResources.findMany({
+		const data = await db.query.libraryResources.findMany({
 			where: whereClause,
 			with: {
+				document: true,
 				uploadedByUser: {
 					columns: { id: true, name: true },
 				},
 			},
-			orderBy: desc(digitalResources.createdAt),
+			orderBy: desc(libraryResources.createdAt),
 			limit: pageSize,
 			offset,
 		});
 
 		const [{ count: total }] = await db
 			.select({ count: sql<number>`count(*)` })
-			.from(digitalResources)
+			.from(libraryResources)
 			.where(whereClause);
 
 		return {

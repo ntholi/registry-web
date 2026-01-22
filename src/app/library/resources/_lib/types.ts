@@ -1,7 +1,7 @@
-import type { digitalResources } from '@/core/database';
+import type { libraryResources } from '../_schema/libraryResources';
 
-export type Resource = typeof digitalResources.$inferSelect;
-export type ResourceInsert = typeof digitalResources.$inferInsert;
+export type Resource = typeof libraryResources.$inferSelect;
+export type ResourceInsert = typeof libraryResources.$inferInsert;
 
 export type ResourceType =
 	| 'PastPaper'
@@ -10,12 +10,19 @@ export type ResourceType =
 	| 'Journal'
 	| 'Other';
 
-export interface ResourceWithRelations extends Resource {
+export type ResourceWithRelations = Resource & {
+	document: {
+		id: string;
+		fileName: string;
+		fileUrl: string | null;
+		type: string | null;
+		createdAt: Date | null;
+	};
 	uploadedByUser: {
 		id: string;
 		name: string | null;
 	} | null;
-}
+};
 
 export type ResourceFormData = {
 	title: string;

@@ -1,10 +1,10 @@
-import type { digitalResources } from '@/core/database';
+import type { libraryResources } from '@/core/database';
 import BaseService from '@/core/platform/BaseService';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
 import type { ResourceType } from '../_lib/types';
 import ResourceRepository from './repository';
 
-class ResourceService extends BaseService<typeof digitalResources, 'id'> {
+class ResourceService extends BaseService<typeof libraryResources, 'id'> {
 	declare repository: ResourceRepository;
 
 	constructor() {

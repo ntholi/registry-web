@@ -3,7 +3,7 @@
 import { eq } from 'drizzle-orm';
 import { nanoid } from 'nanoid';
 import { auth } from '@/core/auth';
-import { db, digitalResources } from '@/core/database';
+import { db, documents, libraryResources } from '@/core/database';
 import { deleteDocument, uploadDocument } from '@/core/integrations/storage';
 import {
 	MAX_FILE_SIZE,
@@ -40,25 +40,31 @@ export async function createResource(data: ResourceFormData) {
 
 	const ext = file.name.split('.').pop()?.toLowerCase() || 'unknown';
 	const fileName = `${nanoid()}.${ext}`;
+	const fileUrl = await uploadDocument(file, fileName, 'library/resources');
 
-	await uploadDocument(file, fileName, 'library/resources');
+	return db.transaction(async (tx) => {
+		const [doc] = await tx
+			.insert(documents)
+			.values({
+				fileName: file.name,
+				fileUrl,
+			})
+			.returning();
 
-	const [resource] = await db
-		.insert(digitalResources)
-		.values({
-			title,
-			description: description || null,
-			type,
-			fileName,
-			originalName: file.name,
-			fileSize: file.size,
-			mimeType: file.type,
-			isDownloadable,
-			uploadedBy: session.user.id,
-		})
-		.returning();
+		const [resource] = await tx
+			.insert(libraryResources)
+			.values({
+				documentId: doc.id,
+				title,
+				description: description || null,
+				type,
+				isDownloadable,
+				uploadedBy: session.user?.id,
+			})
+			.returning();
 
-	return resource;
+		return resource;
+	});
 }
 
 export async function updateResource(id: number, data: ResourceFormData) {
@@ -71,52 +77,57 @@ export async function updateResource(id: number, data: ResourceFormData) {
 		throw new Error('Missing required fields');
 	}
 
-	const existing = await resourcesService.get(id);
+	const existing = await resourcesService.getWithRelations(id);
 	if (!existing) throw new Error('Resource not found');
 
-	let fileName = existing.fileName;
-	let originalName = existing.originalName;
-	let fileSize = existing.fileSize;
-	let mimeType = existing.mimeType;
+	return db.transaction(async (tx) => {
+		if (file && file.size > 0) {
+			if (file.size > MAX_FILE_SIZE) {
+				throw new Error('File size exceeds 10MB limit');
+			}
 
-	if (file && file.size > 0) {
-		if (file.size > MAX_FILE_SIZE) {
-			throw new Error('File size exceeds 10MB limit');
+			if (existing.document?.fileUrl) {
+				await deleteDocument(existing.document.fileUrl);
+			}
+
+			const ext = file.name.split('.').pop()?.toLowerCase() || 'unknown';
+			const fileName = `${nanoid()}.${ext}`;
+			const fileUrl = await uploadDocument(file, fileName, 'library/resources');
+
+			await tx
+				.update(documents)
+				.set({
+					fileName: file.name,
+					fileUrl,
+				})
+				.where(eq(documents.id, existing.documentId));
 		}
 
-		await deleteDocument(`library/resources/${existing.fileName}`);
+		const [updated] = await tx
+			.update(libraryResources)
+			.set({
+				title,
+				description: description || null,
+				type,
+				isDownloadable,
+			})
+			.where(eq(libraryResources.id, id))
+			.returning();
 
-		const ext = file.name.split('.').pop()?.toLowerCase() || 'unknown';
-		fileName = `${nanoid()}.${ext}`;
-
-		await uploadDocument(file, fileName, 'library/resources');
-		originalName = file.name;
-		fileSize = file.size;
-		mimeType = file.type;
-	}
-
-	const [updated] = await db
-		.update(digitalResources)
-		.set({
-			title,
-			description: description || null,
-			type,
-			fileName,
-			originalName,
-			fileSize,
-			mimeType,
-			isDownloadable,
-		})
-		.where(eq(digitalResources.id, id))
-		.returning();
-
-	return updated;
+		return updated;
+	});
 }
 
 export async function deleteResource(id: number) {
-	const resource = await resourcesService.get(id);
+	const resource = await resourcesService.getWithRelations(id);
 	if (!resource) throw new Error('Resource not found');
 
-	await deleteDocument(`library/resources/${resource.fileName}`);
-	await resourcesService.delete(id);
+	if (resource.document?.fileUrl) {
+		await deleteDocument(resource.document.fileUrl);
+	}
+
+	await db.transaction(async (tx) => {
+		await tx.delete(libraryResources).where(eq(libraryResources.id, id));
+		await tx.delete(documents).where(eq(documents.id, resource.documentId));
+	});
 }

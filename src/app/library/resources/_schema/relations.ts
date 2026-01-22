@@ -1,12 +1,17 @@
 import { users } from '@auth/users/_schema/users';
+import { documents } from '@registry/documents/_schema/documents';
 import { relations } from 'drizzle-orm';
-import { digitalResources } from './digitalResources';
+import { libraryResources } from './libraryResources';
 
-export const digitalResourcesRelations = relations(
-	digitalResources,
+export const libraryResourcesRelations = relations(
+	libraryResources,
 	({ one }) => ({
+		document: one(documents, {
+			fields: [libraryResources.documentId],
+			references: [documents.id],
+		}),
 		uploadedByUser: one(users, {
-			fields: [digitalResources.uploadedBy],
+			fields: [libraryResources.uploadedBy],
 			references: [users.id],
 		}),
 	})

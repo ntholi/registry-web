@@ -3,41 +3,38 @@
 import { Button, Card, Group, Stack, Text } from '@mantine/core';
 import { IconDownload, IconExternalLink } from '@tabler/icons-react';
 import Image from 'next/image';
-import { getResourceUrl } from '../_lib/url';
 
 type Props = {
+	fileUrl: string;
 	fileName: string;
-	originalName: string;
-	mimeType: string;
 	isDownloadable: boolean;
 };
 
 export default function DocumentViewer({
+	fileUrl,
 	fileName,
-	originalName,
-	mimeType,
 	isDownloadable,
 }: Props) {
-	const url = getResourceUrl(fileName);
-	const isPdf = mimeType === 'application/pdf';
-	const isImage = mimeType.startsWith('image/');
+	const ext = fileName.split('.').pop()?.toLowerCase() || '';
+	const isPdf = ext === 'pdf';
+	const isImage = ['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(ext);
 
 	if (isPdf) {
 		return (
 			<Stack gap='sm'>
 				<iframe
-					src={url}
+					src={fileUrl}
 					width='100%'
 					height='500px'
 					style={{ border: 'none', borderRadius: 'var(--mantine-radius-md)' }}
-					title={originalName}
+					title={fileName}
 				/>
 				{isDownloadable && (
 					<Group justify='flex-end'>
 						<Button
 							component='a'
-							href={url}
-							download={originalName}
+							href={fileUrl}
+							download={fileName}
 							leftSection={<IconDownload size={16} />}
 							variant='light'
 						>
@@ -53,8 +50,8 @@ export default function DocumentViewer({
 		return (
 			<Stack gap='sm'>
 				<Image
-					src={url}
-					alt={originalName}
+					src={fileUrl}
+					alt={fileName}
 					width={800}
 					height={500}
 					style={{
@@ -68,8 +65,8 @@ export default function DocumentViewer({
 					<Group justify='flex-end'>
 						<Button
 							component='a'
-							href={url}
-							download={originalName}
+							href={fileUrl}
+							download={fileName}
 							leftSection={<IconDownload size={16} />}
 							variant='light'
 						>
@@ -84,14 +81,11 @@ export default function DocumentViewer({
 	return (
 		<Card withBorder p='md'>
 			<Stack gap='sm' align='center'>
-				<Text fw={500}>{originalName}</Text>
-				<Text size='sm' c='dimmed'>
-					{mimeType}
-				</Text>
+				<Text fw={500}>{fileName}</Text>
 				<Group>
 					<Button
 						component='a'
-						href={url}
+						href={fileUrl}
 						target='_blank'
 						rel='noopener noreferrer'
 						leftSection={<IconExternalLink size={16} />}
@@ -102,8 +96,8 @@ export default function DocumentViewer({
 					{isDownloadable && (
 						<Button
 							component='a'
-							href={url}
-							download={originalName}
+							href={fileUrl}
+							download={fileName}
 							leftSection={<IconDownload size={16} />}
 							variant='light'
 						>
