@@ -1,11 +1,12 @@
 'use client';
 
-import { Badge, Group, Select } from '@mantine/core';
+import { Badge, Group } from '@mantine/core';
 import { useSearchParams } from 'next/navigation';
 import { useRouter } from 'nextjs-toploader/app';
 import type { PropsWithChildren } from 'react';
 import { toTitleCase } from '@/shared/lib/utils/utils';
 import { ListItem, ListLayout, NewLink } from '@/shared/ui/adease';
+import ResourceTypeFilter from './_components/ResourceTypeFilter';
 import type { ResourceType, ResourceWithRelations } from './_lib/types';
 import { getResources } from './_server/actions';
 
@@ -35,21 +36,10 @@ export default function ResourcesLayout({ children }: PropsWithChildren) {
 			queryKey={['resources', typeFilter || 'all']}
 			getData={fetchResources}
 			actionIcons={[
-				<Select
+				<ResourceTypeFilter
 					key='type-filter'
-					size='xs'
-					w={140}
-					placeholder='Filter'
 					value={typeFilter || 'all'}
 					onChange={handleTypeChange}
-					data={[
-						{ value: 'all', label: 'All' },
-						{ value: 'PastPaper', label: 'Past Paper' },
-						{ value: 'ResearchPaper', label: 'Research Paper' },
-						{ value: 'Thesis', label: 'Thesis' },
-						{ value: 'Journal', label: 'Journal' },
-						{ value: 'Other', label: 'Other' },
-					]}
 				/>,
 				<NewLink key='new' href='/library/resources/new' />,
 			]}
