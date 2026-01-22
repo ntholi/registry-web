@@ -8,6 +8,7 @@ import {
 import BaseRepository, {
 	type QueryOptions,
 } from '@/core/platform/BaseRepository';
+import { TimetablePlanningError } from '../../slots/_server/errors';
 import {
 	type AllocationRecord,
 	buildTermPlan,
@@ -370,10 +371,23 @@ export default class TimetableAllocationRepository extends BaseRepository<
 			},
 		})) as VenueRecord[];
 		if (venues.length === 0) {
-			throw new Error('No venues available for timetable planning');
+			throw new TimetablePlanningError(
+				'No venues available for timetable planning'
+			);
 		}
-		const plan = buildTermPlan(termId, allocations, venues, { skipOnFailure });
-		await this.slotRepository.replaceTermSlots(termId, plan, tx);
+		try {
+			const plan = buildTermPlan(termId, allocations, venues, {
+				skipOnFailure,
+			});
+			await this.slotRepository.replaceTermSlots(termId, plan, tx);
+		} catch (error) {
+			if (error instanceof TimetablePlanningError) {
+				throw error;
+			}
+			throw new TimetablePlanningError(
+				error instanceof Error ? error.message : 'Unknown planning error'
+			);
+		}
 	}
 }
 

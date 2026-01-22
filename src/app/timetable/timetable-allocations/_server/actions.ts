@@ -1,6 +1,7 @@
 'use server';
 
 import type { timetableAllocations } from '@/core/database';
+import { TimetablePlanningError } from '../../slots/_server/errors';
 import { timetableAllocationService as service } from './service';
 
 type TimetableAllocation = typeof timetableAllocations.$inferInsert;
@@ -14,11 +15,18 @@ export async function createTimetableAllocationsWithVenueTypes(
 	venueTypeIds: string[],
 	allowedVenueIds?: string[]
 ) {
-	return service.createManyWithVenueTypes(
-		allocations,
-		venueTypeIds,
-		allowedVenueIds ?? []
-	);
+	try {
+		return await service.createManyWithVenueTypes(
+			allocations,
+			venueTypeIds,
+			allowedVenueIds ?? []
+		);
+	} catch (error) {
+		if (error instanceof TimetablePlanningError) {
+			throw new Error(error.message);
+		}
+		throw error;
+	}
 }
 
 export async function createTimetableAllocationWithVenueTypes(
@@ -26,11 +34,18 @@ export async function createTimetableAllocationWithVenueTypes(
 	venueTypeIds: string[],
 	allowedVenueIds?: string[]
 ) {
-	return service.createWithVenueTypes(
-		allocation,
-		venueTypeIds,
-		allowedVenueIds ?? []
-	);
+	try {
+		return await service.createWithVenueTypes(
+			allocation,
+			venueTypeIds,
+			allowedVenueIds ?? []
+		);
+	} catch (error) {
+		if (error instanceof TimetablePlanningError) {
+			throw new Error(error.message);
+		}
+		throw error;
+	}
 }
 
 export async function updateTimetableAllocation(

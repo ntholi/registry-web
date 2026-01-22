@@ -119,8 +119,9 @@ export default function AddAllocationModal({
 	}
 
 	function handleGroupCountChange(value: number) {
+		const groupNames = generateGroupNames(value);
 		form.setFieldValue('numberOfGroups', value);
-		form.setFieldValue('groups', generateGroupNames(value));
+		form.setFieldValue('groups', groupNames);
 	}
 
 	const mutation = useMutation({
@@ -193,6 +194,14 @@ export default function AddAllocationModal({
 				lowerMsg.includes('exists')
 			) {
 				title = 'Duplicate Allocation';
+			} else if (
+				lowerMsg.includes('unable to allocate') ||
+				lowerMsg.includes('no venue') ||
+				lowerMsg.includes('students') ||
+				lowerMsg.includes('slot grid') ||
+				lowerMsg.includes('time window')
+			) {
+				title = 'Scheduling Constraint';
 			} else if (
 				lowerMsg.includes('not available') ||
 				lowerMsg.includes('booked') ||
@@ -316,7 +325,10 @@ export default function AddAllocationModal({
 								</Text>
 								<Slider
 									value={form.values.numberOfGroups}
-									onChange={handleGroupCountChange}
+									onChange={(value) =>
+										form.setFieldValue('numberOfGroups', value)
+									}
+									onChangeEnd={handleGroupCountChange}
 									min={1}
 									max={10}
 									step={1}

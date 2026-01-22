@@ -5,6 +5,7 @@ import type {
 	venues,
 	venueTypes,
 } from '@/core/database';
+import { TimetablePlanningError } from './errors';
 import type { PlannedSlotInput } from './repository';
 
 export type DayOfWeek = (typeof timetableSlots.dayOfWeek.enumValues)[number];
@@ -179,9 +180,8 @@ export function buildTermPlan(
 				);
 				continue;
 			}
-			throw new Error(
-				`Unable to allocate slot for allocation ${allocation.id} with provided constraints. Try relaxing constraints or adding more venues/time slots.`
-			);
+			const diagnosis = diagnoseAllocationFailure(allocation, venues);
+			throw new TimetablePlanningError(diagnosis, allocation.id);
 		}
 	}
 
@@ -1326,4 +1326,117 @@ function minutesToTime(minutesValue: number): string {
 	const hoursText = hoursPart.toString().padStart(2, '0');
 	const minutesText = minutesPart.toString().padStart(2, '0');
 	return `${hoursText}:${minutesText}:00`;
+}
+
+function diagnoseAllocationFailure(
+	allocation: AllocationRecord,
+	venues: VenueRecord[]
+): string {
+	const issues: string[] = [];
+	const requiredCapacity = allocation.numberOfStudents ?? 0;
+	const lecturerSchoolIds = allocation.user.userSchools.map(
+		(us) => us.schoolId
+	);
+	const requiredTypes = allocation.timetableAllocationVenueTypes.map(
+		(vt) => vt.venueTypeId
+	);
+	const allowedVenueIds = allocation.timetableAllocationAllowedVenues.map(
+		(av) => av.venueId
+	);
+
+	const venuesWithSchoolMatch = venues.filter((venue) => {
+		const venueSchoolIds = venue.venueSchools.map((vs) => vs.schoolId);
+		return lecturerSchoolIds.some((id) => venueSchoolIds.includes(id));
+	});
+
+	if (venuesWithSchoolMatch.length === 0) {
+		issues.push(
+			`No venues assigned to the lecturer's school(s). Assign venues to the lecturer's faculty.`
+		);
+	} else {
+		const venuesWithCapacity = venuesWithSchoolMatch.filter(
+			(v) => Math.floor(v.capacity * 1.1) >= requiredCapacity
+		);
+
+		if (venuesWithCapacity.length === 0) {
+			const maxCapacity = Math.max(
+				...venuesWithSchoolMatch.map((v) => v.capacity)
+			);
+			issues.push(
+				`No venue can fit ${requiredCapacity} students. Largest venue holds ${maxCapacity}. Split class into groups or assign a larger venue to the faculty.`
+			);
+		} else if (requiredTypes.length > 0) {
+			const venuesWithType = venuesWithCapacity.filter((v) =>
+				requiredTypes.includes(v.typeId)
+			);
+			if (venuesWithType.length === 0) {
+				issues.push(
+					`No suitable venue matches the required type. Remove venue type constraint or assign appropriate venues to the faculty.`
+				);
+			}
+		}
+	}
+
+	if (allowedVenueIds.length > 0) {
+		const allowedAvailable = venues.filter((v) =>
+			allowedVenueIds.includes(v.id)
+		);
+		if (allowedAvailable.length === 0) {
+			issues.push(`Specified allowed venues are not available.`);
+		}
+	}
+
+	const windowStart = toMinutes(allocation.startTime);
+	const windowEnd = toMinutes(allocation.endTime);
+	const windowDuration = windowEnd - windowStart;
+
+	if (windowDuration < allocation.duration) {
+		issues.push(
+			`Time window (${allocation.startTime}-${allocation.endTime}) is shorter than the required duration (${allocation.duration} min).`
+		);
+	} else if (windowDuration === allocation.duration) {
+		const baseStart = toMinutes(
+			config.timetable.timetableAllocations.startTime
+		);
+		const slotDuration = config.timetable.timetableAllocations.duration;
+		let candidateTime = baseStart;
+		let hasValidSlot = false;
+
+		while (candidateTime < windowEnd) {
+			if (
+				candidateTime >= windowStart &&
+				candidateTime + allocation.duration <= windowEnd
+			) {
+				hasValidSlot = true;
+				break;
+			}
+			candidateTime += slotDuration;
+		}
+
+		if (!hasValidSlot) {
+			const validSlots: string[] = [];
+			candidateTime = baseStart;
+			while (candidateTime < toMinutes('18:00:00')) {
+				validSlots.push(minutesToTime(candidateTime).slice(0, 5));
+				candidateTime += slotDuration;
+			}
+			issues.push(
+				`Time window doesn't align with slot grid. Valid start times: ${validSlots.join(', ')}. Adjust start/end time to align with these slots.`
+			);
+		}
+	}
+
+	if (allocation.allowedDays.length === 0) {
+		issues.push(`No allowed days specified.`);
+	} else if (allocation.allowedDays.length === 1) {
+		issues.push(
+			`Only one day (${allocation.allowedDays[0]}) is allowed. Allow more days for flexibility.`
+		);
+	}
+
+	if (issues.length === 0) {
+		return `Could not determine specific cause. Try relaxing constraints or adding more venues/time slots.`;
+	}
+
+	return issues.join(' ');
 }
