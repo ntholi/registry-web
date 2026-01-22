@@ -41,9 +41,7 @@ export default async function ResourceDetailsPage({ params }: Props) {
 				<Stack gap='md'>
 					<Group justify='space-between'>
 						<FieldView label='Title'>{resource.title}</FieldView>
-						<Badge size='lg' variant='light'>
-							{toTitleCase(resource.type)}
-						</Badge>
+						<Badge variant='light'>{toTitleCase(resource.type)}</Badge>
 					</Group>
 
 					{resource.description && (

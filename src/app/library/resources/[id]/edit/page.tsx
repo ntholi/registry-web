@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
 import ResourceForm from '../../_components/Form';
-import { getResource } from '../../_server/actions';
+import { getResource, updateResource } from '../../_server/actions';
 
 type Props = {
 	params: Promise<{ id: string }>;
@@ -12,5 +12,11 @@ export default async function EditResourcePage({ params }: Props) {
 
 	if (!resource) return notFound();
 
-	return <ResourceForm defaultValues={resource} title='Edit Resource' />;
+	return (
+		<ResourceForm
+			onSubmit={(data) => updateResource(resource.id, data)}
+			defaultValues={resource}
+			title='Edit Resource'
+		/>
+	);
 }

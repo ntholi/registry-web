@@ -17,6 +17,14 @@ export interface ResourceWithRelations extends Resource {
 	} | null;
 }
 
+export type ResourceFormData = {
+	title: string;
+	description: string;
+	type: ResourceType;
+	isDownloadable: boolean;
+	file?: File;
+};
+
 export const RESOURCE_TYPE_OPTIONS = [
 	{ value: 'PastPaper', label: 'Past Paper' },
 	{ value: 'ResearchPaper', label: 'Research Paper' },

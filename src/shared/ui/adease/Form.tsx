@@ -12,24 +12,24 @@ import FormHeader from './FormHeader';
 
 type ZodSchema = ZodObject<Record<string, ZodTypeAny>>;
 
-export type FormProps<T extends Record<string, unknown>, V> = Omit<
+export type FormProps<T extends Record<string, unknown>, V, R = T> = Omit<
 	StackProps,
 	'children'
 > & {
 	children: (form: ReturnType<typeof useForm<T>>) => JSX.Element;
 	beforeSubmit?: (form: ReturnType<typeof useForm<T>>) => void;
-	action: (values: T) => Promise<T>;
+	action: (values: T) => Promise<R>;
 	schema?: ZodSchema;
 	defaultValues?: V;
 	title?: string;
-	onSuccess?: (values: T) => void;
+	onSuccess?: (values: R) => void;
 	onError?: (error: Error) => void;
 	queryKey: string[];
 	formRef?: RefObject<HTMLFormElement | null>;
 	hideHeader?: boolean;
 };
 
-export function Form<T extends Record<string, unknown>, V>({
+export function Form<T extends Record<string, unknown>, V, R = T>({
 	schema,
 	beforeSubmit,
 	defaultValues,
@@ -42,7 +42,7 @@ export function Form<T extends Record<string, unknown>, V>({
 	formRef,
 	hideHeader,
 	...props
-}: FormProps<T, V>) {
+}: FormProps<T, V, R>) {
 	const router = useRouter();
 	const queryClient = useQueryClient();
 

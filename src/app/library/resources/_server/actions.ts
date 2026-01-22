@@ -5,7 +5,11 @@ import { nanoid } from 'nanoid';
 import { auth } from '@/core/auth';
 import { db, digitalResources } from '@/core/database';
 import { deleteDocument, uploadDocument } from '@/core/integrations/storage';
-import { MAX_FILE_SIZE, type ResourceType } from '../_lib/types';
+import {
+	MAX_FILE_SIZE,
+	type ResourceFormData,
+	type ResourceType,
+} from '../_lib/types';
 import { resourcesService } from './service';
 
 export async function getResource(id: number) {
@@ -20,15 +24,11 @@ export async function getAllResources() {
 	return resourcesService.getAll();
 }
 
-export async function createResource(formData: FormData) {
+export async function createResource(data: ResourceFormData) {
 	const session = await auth();
 	if (!session?.user?.id) throw new Error('Unauthorized');
 
-	const file = formData.get('file') as File;
-	const title = formData.get('title') as string;
-	const description = formData.get('description') as string | null;
-	const type = formData.get('type') as ResourceType;
-	const isDownloadable = formData.get('isDownloadable') === 'true';
+	const { title, description, type, isDownloadable, file } = data;
 
 	if (!file || !title || !type) {
 		throw new Error('Missing required fields');
@@ -47,7 +47,7 @@ export async function createResource(formData: FormData) {
 		.insert(digitalResources)
 		.values({
 			title,
-			description,
+			description: description || null,
 			type,
 			fileName,
 			originalName: file.name,
@@ -61,15 +61,11 @@ export async function createResource(formData: FormData) {
 	return resource;
 }
 
-export async function updateResource(id: number, formData: FormData) {
+export async function updateResource(id: number, data: ResourceFormData) {
 	const session = await auth();
 	if (!session?.user?.id) throw new Error('Unauthorized');
 
-	const file = formData.get('file') as File | null;
-	const title = formData.get('title') as string;
-	const description = formData.get('description') as string | null;
-	const type = formData.get('type') as ResourceType;
-	const isDownloadable = formData.get('isDownloadable') === 'true';
+	const { title, description, type, isDownloadable, file } = data;
 
 	if (!title || !type) {
 		throw new Error('Missing required fields');
@@ -103,7 +99,7 @@ export async function updateResource(id: number, formData: FormData) {
 		.update(digitalResources)
 		.set({
 			title,
-			description,
+			description: description || null,
 			type,
 			fileName,
 			originalName,
