@@ -15,12 +15,42 @@ export const libraryConfig: ModuleConfig = {
 	category: 'core',
 	navigation: {
 		dashboard: [
-			{ label: 'Books', href: '/library/books', icon: IconBook2 },
-			{ label: 'Loans', href: '/library/loans', icon: IconLibrary },
-			{ label: 'Authors', href: '/library/authors', icon: IconUsers },
-			{ label: 'Categories', href: '/library/categories', icon: IconCategory },
-			{ label: 'Fines', href: '/library/fines', icon: IconCash },
-			{ label: 'Resources', href: '/library/resources', icon: IconTags },
+			{
+				label: 'Books',
+				href: '/library/books',
+				icon: IconBook2,
+				roles: ['admin', 'library'],
+			},
+			{
+				label: 'Loans',
+				href: '/library/loans',
+				icon: IconLibrary,
+				roles: ['admin', 'library'],
+			},
+			{
+				label: 'Authors',
+				href: '/library/authors',
+				icon: IconUsers,
+				roles: ['admin', 'library'],
+			},
+			{
+				label: 'Categories',
+				href: '/library/categories',
+				icon: IconCategory,
+				roles: ['admin', 'library'],
+			},
+			{
+				label: 'Fines',
+				href: '/library/fines',
+				icon: IconCash,
+				roles: ['admin', 'library'],
+			},
+			{
+				label: 'Resources',
+				href: '/library/resources',
+				icon: IconTags,
+				roles: ['admin', 'library'],
+			},
 		],
 	},
 	flags: {

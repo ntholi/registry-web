@@ -1,27 +1,6 @@
-import {
-	countApprovedGraduationClearances,
-	countPendingGraduationClearances,
-	countRejectedGraduationClearances,
-} from '@registry/graduation/clearance';
-import {
-	countApprovedClearances,
-	countPendingClearances,
-	countRejectedClearances,
-} from '@registry/registration';
-import {
-	IconBan,
-	IconBuildingBank,
-	IconCertificate,
-	IconCircleCheck,
-	IconClipboardCheck,
-	IconHourglass,
-} from '@tabler/icons-react';
-import type {
-	ModuleConfig,
-	NavItem,
-} from '@/app/dashboard/module-config.types';
+import { IconBuildingBank } from '@tabler/icons-react';
+import type { ModuleConfig } from '@/app/dashboard/module-config.types';
 import { moduleConfig } from '@/config/modules.config';
-import type { UserPosition, UserRole } from '@/core/database';
 
 export const financeConfig: ModuleConfig = {
 	id: 'finance',
