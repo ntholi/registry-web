@@ -32,7 +32,7 @@ export default function PublicationCard({ publication }: Props) {
 		<Card shadow='sm' padding={0} radius='md' withBorder h={260}>
 			<Box
 				p='md'
-				bg={`var(--mantine-color-${config.color}-light)`}
+				bg={`var(--mantine-color-dark-5)`}
 				style={{
 					borderBottom: '1px solid var(--mantine-color-default-border)',
 				}}
@@ -41,7 +41,7 @@ export default function PublicationCard({ publication }: Props) {
 					<ThemeIcon variant='light' color={config.color} size='xl' radius='md'>
 						<Icon size={24} />
 					</ThemeIcon>
-					<Badge color={config.color} variant='filled' size='sm'>
+					<Badge color={config.color} variant='default' size='sm'>
 						{config.label}
 					</Badge>
 				</Group>
@@ -60,6 +60,12 @@ export default function PublicationCard({ publication }: Props) {
 								{authors}
 							</Text>
 						</Group>
+					)}
+
+					{publication.abstract && (
+						<Text size='sm' c='dimmed' lineClamp={2}>
+							{publication.abstract}
+						</Text>
 					)}
 				</Stack>
 
