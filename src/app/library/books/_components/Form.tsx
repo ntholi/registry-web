@@ -18,6 +18,7 @@ import { Form } from '@/shared/ui/adease';
 import AuthorSelector from '../../_components/AuthorSelector';
 import type { BookLookupResult } from '../../_lib/google-books';
 import { getOrCreateAuthors } from '../../authors/_server/actions';
+import { getOrCreateCategories } from '../../categories/_server/actions';
 import type { BookWithRelations } from '../_lib/types';
 import BookLookupModal from './BookLookupModal';
 import CategoriesSelect from './CategoriesSelect';
@@ -60,7 +61,7 @@ export default function BookForm({ onSubmit, defaultValues, title }: Props) {
 			form.setFieldValue('title', book.title);
 		}
 		if (book.subtitle) form.setFieldValue('subtitle', book.subtitle);
-		if (book.description) form.setFieldValue('description', book.description);
+		if (book.description) form.setFieldValue('summary', book.description);
 		if (book.isbn) {
 			setIsbn(book.isbn);
 			form.setFieldValue('isbn', book.isbn);
@@ -74,6 +75,11 @@ export default function BookForm({ onSubmit, defaultValues, title }: Props) {
 			const created = await getOrCreateAuthors(book.authors);
 			setAuthorIds(created.map((a) => String(a.id)));
 			await queryClient.invalidateQueries({ queryKey: ['authors', 'all'] });
+		}
+		if (book.categories.length > 0) {
+			const created = await getOrCreateCategories(book.categories);
+			setCategoryIds(created.map((c) => String(c.id)));
+			await queryClient.invalidateQueries({ queryKey: ['categories', 'all'] });
 		}
 	}
 
@@ -157,9 +163,16 @@ export default function BookForm({ onSubmit, defaultValues, title }: Props) {
 							/>
 						</Grid.Col>
 					</Grid>
+					<NumberInput
+						label='Price'
+						{...form.getInputProps('price')}
+						min={0}
+						decimalScale={2}
+						prefix='M'
+					/>
 					<Textarea
-						label='Description'
-						{...form.getInputProps('description')}
+						label='Summary'
+						{...form.getInputProps('summary')}
 						autosize
 						minRows={3}
 						maxRows={6}

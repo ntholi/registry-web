@@ -4,6 +4,7 @@ export type BookLookupResult = {
 	subtitle?: string;
 	description?: string;
 	authors: string[];
+	categories: string[];
 	publisher?: string;
 	publishedDate?: string;
 	thumbnail?: string;
@@ -24,6 +25,7 @@ type GoogleBooksResponse = {
 			subtitle?: string;
 			description?: string;
 			authors?: string[];
+			categories?: string[];
 			publisher?: string;
 			publishedDate?: string;
 			industryIdentifiers?: IndustryIdentifier[];
@@ -52,6 +54,7 @@ function parseBookResults(data: GoogleBooksResponse): BookLookupResult[] {
 		subtitle: item.volumeInfo?.subtitle,
 		description: item.volumeInfo?.description,
 		authors: item.volumeInfo?.authors ?? [],
+		categories: item.volumeInfo?.categories ?? [],
 		publisher: item.volumeInfo?.publisher,
 		publishedDate: item.volumeInfo?.publishedDate,
 		thumbnail:

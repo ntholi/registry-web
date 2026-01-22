@@ -1,5 +1,6 @@
 import {
 	IconBook2,
+	IconBooks,
 	IconCash,
 	IconCategory,
 	IconFileText,
@@ -17,6 +18,12 @@ export const libraryConfig: ModuleConfig = {
 	category: 'core',
 	navigation: {
 		dashboard: [
+			{
+				label: 'Catalog',
+				href: '/library/catalog',
+				icon: IconBooks,
+				roles: ['admin', 'library'],
+			},
 			{
 				label: 'Books',
 				href: '/library/books',

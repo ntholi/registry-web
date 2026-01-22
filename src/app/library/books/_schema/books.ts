@@ -1,5 +1,12 @@
 import { sql } from 'drizzle-orm';
-import { index, integer, pgTable, text, timestamp } from 'drizzle-orm/pg-core';
+import {
+	doublePrecision,
+	index,
+	integer,
+	pgTable,
+	text,
+	timestamp,
+} from 'drizzle-orm/pg-core';
 import { nanoid } from 'nanoid';
 
 export const books = pgTable(
@@ -11,7 +18,8 @@ export const books = pgTable(
 		isbn: text().notNull().unique(),
 		title: text().notNull(),
 		subtitle: text(),
-		description: text(),
+		summary: text(),
+		price: doublePrecision(),
 		publisher: text(),
 		publicationYear: integer(),
 		coverUrl: text(),
