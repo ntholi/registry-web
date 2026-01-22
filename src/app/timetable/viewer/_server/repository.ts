@@ -115,7 +115,10 @@ export async function findSlotsForVenue(
 	termId: number
 ): Promise<UserSlot[]> {
 	const slots = await findBaseSlotsForTerm(termId);
-	const filteredSlots = slots.filter((slot) => slot.venueId === venueId);
+	const filteredSlots =
+		venueId === 'ALL'
+			? slots.filter((slot) => slot.venueId !== null)
+			: slots.filter((slot) => slot.venueId === venueId);
 	return enrichSlotsWithRelations(filteredSlots);
 }
 
@@ -123,6 +126,16 @@ export async function findSlotsForClass(
 	semesterId: number,
 	termId: number
 ): Promise<UserSlot[]> {
+	if (semesterId === -1) {
+		const slots = await findBaseSlotsForTerm(termId);
+		const filteredSlots = slots.filter((slot) =>
+			slot.timetableSlotAllocations.some(
+				(sa) => sa.timetableAllocation.semesterModuleId !== null
+			)
+		);
+		return enrichSlotsWithRelations(filteredSlots);
+	}
+
 	const semesterModulesForClass = await db.query.semesterModules.findMany({
 		where: eq(semesterModules.semesterId, semesterId),
 		columns: { id: true },
@@ -159,11 +172,18 @@ export async function findSlotsForUser(
 	termId: number
 ): Promise<UserSlot[]> {
 	const slots = await findBaseSlotsForTerm(termId);
-	const filteredSlots = slots.filter((slot) =>
-		slot.timetableSlotAllocations.some(
-			(allocation) => allocation.timetableAllocation.userId === userId
-		)
-	);
+	const filteredSlots =
+		userId === 'ALL'
+			? slots.filter((slot) =>
+					slot.timetableSlotAllocations.some(
+						(allocation) => allocation.timetableAllocation.userId !== null
+					)
+				)
+			: slots.filter((slot) =>
+					slot.timetableSlotAllocations.some(
+						(allocation) => allocation.timetableAllocation.userId === userId
+					)
+				);
 	return enrichSlotsWithRelations(filteredSlots);
 }
 
