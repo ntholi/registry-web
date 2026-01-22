@@ -1,10 +1,7 @@
-import { Box, Tabs, TabsList, TabsPanel, TabsTab } from '@mantine/core';
-import { IconBook, IconCopy } from '@tabler/icons-react';
+import { Box } from '@mantine/core';
 import { notFound } from 'next/navigation';
 import { DetailsView, DetailsViewHeader } from '@/shared/ui/adease';
-import BookCopiesTab from '../_components/BookCopiesTab';
-import BookCopyModal from '../_components/BookCopyModal';
-import BookDetailsTab from '../_components/BookDetailsTab';
+import BookTabs from '../_components/BookTabs';
 import { deleteBook, getBook } from '../_server/actions';
 
 type Props = {
@@ -27,27 +24,9 @@ export default async function BookDetailsPage({ params }: Props) {
 					await deleteBook(Number(id));
 				}}
 			/>
-			<Tabs defaultValue='book'>
-				<TabsList>
-					<TabsTab value='book' leftSection={<IconBook size={16} />}>
-						Book
-					</TabsTab>
-					<TabsTab value='copies' leftSection={<IconCopy size={16} />}>
-						Copies
-					</TabsTab>
-					<Box ml='auto'>
-						<BookCopyModal bookId={book.id} />
-					</Box>
-				</TabsList>
-
-				<TabsPanel value='book' pt='md'>
-					<BookDetailsTab book={book} />
-				</TabsPanel>
-
-				<TabsPanel value='copies' pt='md'>
-					<BookCopiesTab bookId={book.id} />
-				</TabsPanel>
-			</Tabs>
+			<Box mt='xl'>
+				<BookTabs book={book} />
+			</Box>
 		</DetailsView>
 	);
 }
