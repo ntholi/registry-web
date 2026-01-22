@@ -1,11 +1,13 @@
-import { Group, Image, Stack, Text } from '@mantine/core';
+import { Tabs, TabsList, TabsPanel, TabsTab } from '@mantine/core';
+import { IconBook, IconCopy } from '@tabler/icons-react';
 import { notFound } from 'next/navigation';
 import {
 	DetailsView,
 	DetailsViewBody,
 	DetailsViewHeader,
-	FieldView,
 } from '@/shared/ui/adease';
+import BookCopiesTab from '../_components/BookCopiesTab';
+import BookDetailsTab from '../_components/BookDetailsTab';
 import { deleteBook, getBook } from '../_server/actions';
 
 type Props = {
@@ -21,7 +23,7 @@ export default async function BookDetailsPage({ params }: Props) {
 	return (
 		<DetailsView>
 			<DetailsViewHeader
-				title='Book'
+				title={book.title}
 				queryKey={['books']}
 				handleDelete={async () => {
 					'use server';
@@ -29,46 +31,24 @@ export default async function BookDetailsPage({ params }: Props) {
 				}}
 			/>
 			<DetailsViewBody gap={0}>
-				<Group align='flex-start'>
-					{book.coverUrl && (
-						<Image
-							src={book.coverUrl}
-							alt={book.title}
-							w={150}
-							h={200}
-							fit='contain'
-							radius='md'
-						/>
-					)}
-					<Stack flex={1} gap='xs'>
-						<FieldView label='ISBN'>{book.isbn}</FieldView>
-						<FieldView label='Title'>{book.title}</FieldView>
-						{book.subtitle && (
-							<FieldView label='Subtitle'>{book.subtitle}</FieldView>
-						)}
-						<FieldView label='Publisher'>{book.publisher}</FieldView>
-						<FieldView label='Publication Year'>
-							{book.publicationYear}
-						</FieldView>
-						<FieldView label='Authors'>
-							<Group gap='xs'>
-								<Text size='sm' variant='light'>
-									{book.bookAuthors.map((ba) => ba.author.name).join(', ')}
-								</Text>
-							</Group>
-						</FieldView>
-					</Stack>
-				</Group>
-				{book.description && (
-					<Stack gap='xs' mt='md'>
-						<Text size='sm' fw={500} c='dimmed'>
-							Description
-						</Text>
-						<Text size='sm' style={{ whiteSpace: 'pre-wrap' }}>
-							{book.description}
-						</Text>
-					</Stack>
-				)}
+				<Tabs defaultValue='book'>
+					<TabsList>
+						<TabsTab value='book' leftSection={<IconBook size={16} />}>
+							Book
+						</TabsTab>
+						<TabsTab value='copies' leftSection={<IconCopy size={16} />}>
+							Copies
+						</TabsTab>
+					</TabsList>
+
+					<TabsPanel value='book' pt='md'>
+						<BookDetailsTab book={book} />
+					</TabsPanel>
+
+					<TabsPanel value='copies' pt='md'>
+						<BookCopiesTab bookId={book.id} />
+					</TabsPanel>
+				</Tabs>
 			</DetailsViewBody>
 		</DetailsView>
 	);
