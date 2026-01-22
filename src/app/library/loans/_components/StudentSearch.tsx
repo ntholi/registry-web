@@ -24,7 +24,7 @@ export default function StudentSearch({ onSelect, selectedStudent }: Props) {
 	});
 
 	const options = students.map((s) => ({
-		value: `${s.stdNo} - ${s.name}`,
+		value: String(s.stdNo),
 		student: s,
 	}));
 
@@ -49,6 +49,21 @@ export default function StudentSearch({ onSelect, selectedStudent }: Props) {
 					isLoading ? <Loader size={16} /> : <IconSearch size={16} />
 				}
 				filter={({ options }) => options}
+				renderOption={({ option }) => {
+					const student = students.find(
+						(s) => String(s.stdNo) === option.value
+					);
+					return (
+						<Stack gap={0}>
+							<Text size='sm' fw={500}>
+								{student?.stdNo}
+							</Text>
+							<Text size='xs' c='dimmed'>
+								{student?.name}
+							</Text>
+						</Stack>
+					);
+				}}
 			/>
 			{selectedStudent && (
 				<Group
