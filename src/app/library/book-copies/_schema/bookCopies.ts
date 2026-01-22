@@ -29,7 +29,7 @@ export const bookCopies = pgTable(
 		condition: bookCondition().notNull().default('Good'),
 		status: bookCopyStatus().notNull().default('Available'),
 		location: text(),
-		acquiredAt: date({ mode: 'date' }),
+		acquiredAt: date({ mode: 'string' }),
 	},
 	(table) => ({
 		bookIdIdx: index('idx_book_copies_book_id').on(table.bookId),
