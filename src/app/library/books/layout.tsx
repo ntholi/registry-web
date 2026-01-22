@@ -12,7 +12,7 @@ export default function BooksLayout({ children }: PropsWithChildren) {
 			getData={getBooks}
 			actionIcons={[<NewLink key='new' href='/library/books/new' />]}
 			renderItem={(it) => (
-				<ListItem id={it.id} label={it.isbn} description={it.title} />
+				<ListItem id={it.id} label={it.title} description={it.isbn} />
 			)}
 		>
 			{children}

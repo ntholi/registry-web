@@ -1,4 +1,4 @@
-import { Badge, Group, Image, Stack, Text } from '@mantine/core';
+import { Group, Image, Stack, Text } from '@mantine/core';
 import { notFound } from 'next/navigation';
 import {
 	DetailsView,
@@ -28,7 +28,7 @@ export default async function BookDetailsPage({ params }: Props) {
 					await deleteBook(Number(id));
 				}}
 			/>
-			<DetailsViewBody>
+			<DetailsViewBody gap={0}>
 				<Group align='flex-start'>
 					{book.coverUrl && (
 						<Image
@@ -52,11 +52,9 @@ export default async function BookDetailsPage({ params }: Props) {
 						</FieldView>
 						<FieldView label='Authors'>
 							<Group gap='xs'>
-								{book.bookAuthors.map((ba) => (
-									<Badge key={ba.authorId} variant='light'>
-										{ba.author.name}
-									</Badge>
-								))}
+								<Text size='sm' variant='light'>
+									{book.bookAuthors.map((ba) => ba.author.name).join(', ')}
+								</Text>
 							</Group>
 						</FieldView>
 					</Stack>
