@@ -78,6 +78,8 @@ export default function LoanForm() {
 		},
 		onSuccess: async (loan) => {
 			await queryClient.invalidateQueries({ queryKey: ['loans'] });
+			await queryClient.invalidateQueries({ queryKey: ['book-search'] });
+			await queryClient.invalidateQueries({ queryKey: ['available-copies'] });
 			notifications.show({
 				title: 'Success',
 				message: 'Book issued successfully',

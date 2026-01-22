@@ -3,7 +3,7 @@
 import { Alert, Button, Group, Modal, Stack, Text } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
-import { IconAlertTriangle, IconCheck } from '@tabler/icons-react';
+import { IconAlertTriangle } from '@tabler/icons-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'nextjs-toploader/app';
 import { formatDate } from '@/shared/lib/utils/dates';
@@ -50,12 +50,7 @@ export default function ReturnModal({ loan }: Props) {
 
 	return (
 		<>
-			<Button
-				onClick={open}
-				variant='filled'
-				color='teal'
-				leftSection={<IconCheck size={16} />}
-			>
+			<Button onClick={open} variant='filled' color='teal'>
 				Return Book
 			</Button>
 

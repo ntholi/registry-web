@@ -50,13 +50,6 @@ export default async function LoanDetailsPage({ params }: Props) {
 
 			<DetailsViewBody>
 				<Stack gap='md'>
-					{isActive && (
-						<Group justify='flex-end' gap='xs'>
-							<RenewalModal loan={loan} />
-							<ReturnModal loan={loan} />
-						</Group>
-					)}
-
 					<Group justify='space-between' align='flex-start'>
 						<Stack gap='xs' flex={1}>
 							<Text size='lg' fw={600}>
@@ -84,13 +77,17 @@ export default async function LoanDetailsPage({ params }: Props) {
 							</Group>
 						</Stack>
 
-						<Badge
-							size='lg'
-							variant='light'
-							color={getLoanStatusColor(displayStatus)}
-						>
-							{displayStatus}
-						</Badge>
+						<Stack align='flex-end' gap='md'>
+							<Badge variant='light' color={getLoanStatusColor(displayStatus)}>
+								{displayStatus}
+							</Badge>
+							{isActive && (
+								<Group justify='flex-end' gap='xs'>
+									<RenewalModal loan={loan} />
+									<ReturnModal loan={loan} />
+								</Group>
+							)}
+						</Stack>
 					</Group>
 
 					<Divider />
