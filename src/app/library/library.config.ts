@@ -1,5 +1,6 @@
 import {
 	IconBook2,
+	IconBookmark,
 	IconBooks,
 	IconCash,
 	IconCategory,
@@ -43,6 +44,12 @@ export const libraryConfig: ModuleConfig = {
 				label: 'Loans',
 				href: '/library/loans',
 				icon: IconLibrary,
+				roles: ['admin', 'library'],
+			},
+			{
+				label: 'Reservations',
+				href: '/library/reservations',
+				icon: IconBookmark,
 				roles: ['admin', 'library'],
 			},
 			{
