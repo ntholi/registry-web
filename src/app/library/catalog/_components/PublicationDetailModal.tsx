@@ -1,13 +1,15 @@
 'use client';
 
 import {
-	Anchor,
 	Badge,
+	Box,
 	Button,
 	Divider,
 	Group,
 	Modal,
+	ScrollArea,
 	Stack,
+	Tabs,
 	Text,
 	Title,
 	UnstyledButton,
@@ -18,7 +20,9 @@ import {
 	IconBook2,
 	IconCalendar,
 	IconDownload,
+	IconEye,
 	IconFileText,
+	IconInfoCircle,
 	IconSchool,
 	IconUser,
 } from '@tabler/icons-react';
@@ -46,6 +50,7 @@ export default function PublicationDetailModal({
 	const authors = publication.publicationAuthors
 		.map((pa) => pa.author.name)
 		.join(', ');
+	const hasDocument = publication.document?.fileUrl;
 
 	return (
 		<>
@@ -64,68 +69,102 @@ export default function PublicationDetailModal({
 						</Badge>
 					</Group>
 				}
-				size='lg'
+				size='xl'
+				styles={{ body: { padding: 0 } }}
 			>
-				<Stack gap='md'>
-					<Title order={3} lh={1.3}>
-						{publication.title}
-					</Title>
-
-					{authors && (
-						<Group gap='xs'>
-							<IconUser size={16} color='var(--mantine-color-dimmed)' />
-							<Text size='sm' c='dimmed'>
-								{authors}
-							</Text>
-						</Group>
-					)}
-
-					{publication.datePublished && (
-						<Group gap='xs'>
-							<IconCalendar size={16} color='var(--mantine-color-dimmed)' />
-							<Text size='sm' c='dimmed'>
-								{publication.datePublished}
-							</Text>
-						</Group>
-					)}
-
-					{publication.abstract && (
-						<>
-							<Divider />
-							<Stack gap='xs'>
-								<Text fw={500} size='sm'>
-									Abstract
-								</Text>
-								<Text size='sm' c='dimmed' style={{ whiteSpace: 'pre-wrap' }}>
-									{publication.abstract}
-								</Text>
-							</Stack>
-						</>
-					)}
-
-					<Divider />
-
-					<Group justify='space-between'>
-						<Anchor
-							href={`/library/resources/publications/${publication.id}`}
-							size='sm'
-						>
-							View full details
-						</Anchor>
-						{publication.document?.fileUrl && (
-							<Button
-								component='a'
-								href={publication.document.fileUrl}
-								target='_blank'
-								leftSection={<IconDownload size={16} />}
-								variant='light'
-								size='sm'
-							>
-								Download
-							</Button>
+				<Tabs defaultValue={hasDocument ? 'preview' : 'details'}>
+					<Tabs.List px='md'>
+						{hasDocument && (
+							<Tabs.Tab value='preview' leftSection={<IconEye size={16} />}>
+								Preview
+							</Tabs.Tab>
 						)}
-					</Group>
-				</Stack>
+						<Tabs.Tab
+							value='details'
+							leftSection={<IconInfoCircle size={16} />}
+						>
+							Details
+						</Tabs.Tab>
+					</Tabs.List>
+
+					{hasDocument && (
+						<Tabs.Panel value='preview'>
+							<Box h={500}>
+								<iframe
+									src={publication.document.fileUrl ?? undefined}
+									title={publication.title}
+									width='100%'
+									height='100%'
+									style={{ border: 'none' }}
+								/>
+							</Box>
+						</Tabs.Panel>
+					)}
+
+					<Tabs.Panel value='details'>
+						<ScrollArea h={hasDocument ? 500 : 400}>
+							<Stack gap='md' p='md'>
+								<Title order={3} lh={1.3}>
+									{publication.title}
+								</Title>
+
+								{authors && (
+									<Group gap='xs'>
+										<IconUser size={16} color='var(--mantine-color-dimmed)' />
+										<Text size='sm' c='dimmed'>
+											{authors}
+										</Text>
+									</Group>
+								)}
+
+								{publication.datePublished && (
+									<Group gap='xs'>
+										<IconCalendar
+											size={16}
+											color='var(--mantine-color-dimmed)'
+										/>
+										<Text size='sm' c='dimmed'>
+											{publication.datePublished}
+										</Text>
+									</Group>
+								)}
+
+								{publication.abstract && (
+									<>
+										<Divider />
+										<Stack gap='xs'>
+											<Text fw={500} size='sm'>
+												Abstract
+											</Text>
+											<Text
+												size='sm'
+												c='dimmed'
+												style={{ whiteSpace: 'pre-wrap' }}
+											>
+												{publication.abstract}
+											</Text>
+										</Stack>
+									</>
+								)}
+
+								{hasDocument && (
+									<>
+										<Divider />
+										<Button
+											component='a'
+											href={publication.document.fileUrl ?? undefined}
+											target='_blank'
+											leftSection={<IconDownload size={16} />}
+											variant='light'
+										>
+											Download Document
+										</Button>
+									</>
+								)}
+							</Stack>
+						</ScrollArea>
+					</Tabs.Panel>
+				</Tabs>
 			</Modal>
 		</>
 	);
