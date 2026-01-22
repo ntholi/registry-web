@@ -3,6 +3,7 @@
 import {
 	AspectRatio,
 	Badge,
+	Button,
 	Divider,
 	Group,
 	Image,
@@ -13,8 +14,14 @@ import {
 	Title,
 	UnstyledButton,
 } from '@mantine/core';
+import { DateInput } from '@mantine/dates';
 import { useDisclosure } from '@mantine/hooks';
-import { IconBook } from '@tabler/icons-react';
+import { notifications } from '@mantine/notifications';
+import { IconBook, IconCalendar } from '@tabler/icons-react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useSession } from 'next-auth/react';
+import { useState } from 'react';
+import { createReservation } from '../../reservations/_server/actions';
 import type { CatalogBook } from '../_server/types';
 
 type Props = {
@@ -24,7 +31,44 @@ type Props = {
 
 export default function BookDetailModal({ book, children }: Props) {
 	const [opened, { open, close }] = useDisclosure(false);
+	const [reserveOpened, { open: openReserve, close: closeReserve }] = useDisclosure(false);
+	const [expiryDate, setExpiryDate] = useState<string | null>(null);
+	const { data: session } = useSession();
+	const queryClient = useQueryClient();
 	const isAvailable = book.availableCopies > 0;
+	const isDashboardUser = session?.user?.role && ['dashboard'].includes(session.user.role);
+
+	const reservationMutation = useMutation({
+		mutationFn: async () => {
+			if (!session?.user?.stdNo) {
+				throw new Error('Student number not found');
+			}
+			if (!expiryDate) {
+				throw new Error('Please select an expiry date');
+			}
+			return createReservation(book.id, session.user.stdNo, new Date(expiryDate));
+		},
+		onSuccess: async () => {
+			await queryClient.invalidateQueries({ queryKey: ['reservations'] });
+			notifications.show({
+				title: 'Success',
+				message: 'Book reserved successfully',
+				color: 'green',
+			});
+			closeReserve();
+			close();
+		},
+		onError: (error: Error) => {
+			notifications.show({
+				title: 'Error',
+				message: error.message,
+				color: 'red',
+			});
+		},
+	});
+
+	const tomorrow = new Date();
+	tomorrow.setDate(tomorrow.getDate() + 1);
 
 	return (
 		<>
@@ -148,6 +192,19 @@ export default function BookDetailModal({ book, children }: Props) {
 						</Stack>
 					</SimpleGrid>
 
+					{isDashboardUser && (
+						<>
+							<Divider />
+							<Button
+								fullWidth
+								leftSection={<IconCalendar size={16} />}
+								onClick={openReserve}
+							>
+								Reserve This Book
+							</Button>
+						</>
+					)}
+
 					{book.summary && (
 						<>
 							<Divider />
@@ -161,6 +218,37 @@ export default function BookDetailModal({ book, children }: Props) {
 							</Stack>
 						</>
 					)}
+				</Stack>
+			</Modal>
+
+			<Modal
+				opened={reserveOpened}
+				onClose={closeReserve}
+				title='Reserve Book'
+			>
+				<Stack gap='md'>
+					<Text size='sm'>
+						Reserve <Text span fw={500}>{book.title}</Text> for yourself?
+					</Text>
+
+					<DateInput
+						label='Expiry Date'
+						placeholder='Select expiry date'
+						value={expiryDate}
+						onChange={setExpiryDate}
+						minDate={tomorrow}
+						firstDayOfWeek={0}
+						required
+					/>
+
+					<Button
+						fullWidth
+						loading={reservationMutation.isPending}
+						onClick={() => reservationMutation.mutate()}
+						disabled={!expiryDate}
+					>
+						Confirm Reservation
+					</Button>
 				</Stack>
 			</Modal>
 		</>

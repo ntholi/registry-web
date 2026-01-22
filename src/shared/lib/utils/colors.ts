@@ -226,6 +226,12 @@ export const statusColors = {
 		returned: semantic.success,
 		overdue: semantic.error,
 	},
+	reservationStatus: {
+		active: semantic.info,
+		fulfilled: semantic.success,
+		cancelled: semantic.error,
+		expired: semantic.neutral,
+	},
 } as const;
 
 const allStatuses = {
@@ -531,4 +537,10 @@ export type BookCopyStatusType = keyof typeof statusColors.bookCopyStatus;
 
 export function getBookCopyStatusColor(status: BookCopyStatusType | string) {
 	return getColorFromMap(status, statusColors.bookCopyStatus);
+}
+
+export type ReservationStatusType = keyof typeof statusColors.reservationStatus;
+
+export function getReservationStatusColor(status: ReservationStatusType | string) {
+	return getColorFromMap(status, statusColors.reservationStatus);
 }

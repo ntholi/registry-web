@@ -13,6 +13,8 @@ export * from '../fines/_schema/fines';
 export * from '../fines/_schema/relations';
 export * from '../loans/_schema/loans';
 export * from '../loans/_schema/relations';
+export * from '../reservations/_schema/relations';
+export * from '../reservations/_schema/reservations';
 export * from '../resources/publications/_schema/publicationAuthors';
 export * from '../resources/publications/_schema/publications';
 export * from '../resources/publications/_schema/relations';
