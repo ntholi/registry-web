@@ -1,14 +1,25 @@
 'use client';
 
-import { Group, rem, Stack, Text } from '@mantine/core';
+import {
+	ActionIcon,
+	Badge,
+	Card,
+	Group,
+	rem,
+	Stack,
+	Text,
+	ThemeIcon,
+	Tooltip,
+} from '@mantine/core';
 import { Dropzone, type FileWithPath } from '@mantine/dropzone';
-import { IconFile, IconUpload, IconX } from '@tabler/icons-react';
+import { IconFile, IconTrash, IconUpload, IconX } from '@tabler/icons-react';
 import { MAX_FILE_SIZE } from '../_lib/types';
 
 type Props = {
 	value: FileWithPath | null;
 	onChange: (file: FileWithPath | null) => void;
 	currentFileName?: string;
+	loading?: boolean;
 };
 
 function formatFileSize(bytes: number) {
@@ -21,6 +32,7 @@ export default function UploadField({
 	value,
 	onChange,
 	currentFileName,
+	loading,
 }: Props) {
 	return (
 		<Stack gap='xs'>
@@ -29,6 +41,7 @@ export default function UploadField({
 				onReject={() => onChange(null)}
 				maxSize={MAX_FILE_SIZE}
 				multiple={false}
+				loading={loading}
 			>
 				<Group
 					justify='center'
@@ -78,19 +91,43 @@ export default function UploadField({
 				</Group>
 			</Dropzone>
 
-			{value && (
-				<Group gap='xs'>
-					<IconFile size={16} />
-					<Text size='sm'>
-						{value.name} ({formatFileSize(value.size)})
-					</Text>
-				</Group>
-			)}
-
-			{!value && currentFileName && (
-				<Text size='sm' c='dimmed'>
-					Current file: {currentFileName}
-				</Text>
+			{(value || currentFileName) && (
+				<Card withBorder p='md' radius='md'>
+					<Group justify='space-between' wrap='nowrap'>
+						<Group gap='sm' wrap='nowrap' style={{ flex: 1 }}>
+							<ThemeIcon size={40} radius='md' variant='light' color='blue'>
+								<IconFile size={24} />
+							</ThemeIcon>
+							<div style={{ flex: 1, minWidth: 0 }}>
+								<Text size='sm' fw={600} truncate>
+									{value?.name || currentFileName}
+								</Text>
+								<Group gap={4}>
+									{value ? (
+										<Text size='xs' c='dimmed'>
+											{formatFileSize(value.size)}
+										</Text>
+									) : (
+										<Badge size='xs' variant='outline' color='blue'>
+											Existing File
+										</Badge>
+									)}
+								</Group>
+							</div>
+						</Group>
+						<Tooltip label='Remove file'>
+							<ActionIcon
+								variant='subtle'
+								color='red'
+								onClick={() => onChange(null)}
+								disabled={loading}
+								size='lg'
+							>
+								<IconTrash size={20} />
+							</ActionIcon>
+						</Tooltip>
+					</Group>
+				</Card>
 			)}
 		</Stack>
 	);

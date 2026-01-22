@@ -36,9 +36,11 @@ export default async function ResourceDetailsPage({ params }: Props) {
 				}}
 			/>
 			<DetailsViewBody>
-				<Stack gap='md'>
+				<Stack gap='lg'>
 					<Group justify='space-between'>
-						<FieldView label='Title'>{resource.title}</FieldView>
+						<FieldView label='Title' underline={false}>
+							{resource.title}
+						</FieldView>
 						<Badge variant='light'>{toTitleCase(resource.type)}</Badge>
 					</Group>
 
@@ -46,19 +48,11 @@ export default async function ResourceDetailsPage({ params }: Props) {
 						<FieldView label='Description'>{resource.description}</FieldView>
 					)}
 
-					<Divider label='File Information' labelPosition='left' />
-
 					<Group grow>
-						<FieldView label='File Name'>
-							{resource.document?.fileName}
-						</FieldView>
-					</Group>
-
-					<Group grow>
-						<FieldView label='Uploaded On'>
+						<FieldView label='Uploaded On' underline={false}>
 							{resource.createdAt ? formatDate(resource.createdAt) : '-'}
 						</FieldView>
-						<FieldView label='Uploaded By'>
+						<FieldView label='Uploaded By' underline={false}>
 							{resource.uploadedByUser?.name || '-'}
 						</FieldView>
 					</Group>

@@ -16,7 +16,10 @@ export type FormProps<T extends Record<string, unknown>, V, R = T> = Omit<
 	StackProps,
 	'children'
 > & {
-	children: (form: ReturnType<typeof useForm<T>>) => JSX.Element;
+	children: (
+		form: ReturnType<typeof useForm<T>>,
+		state: { isSubmitting: boolean }
+	) => JSX.Element;
 	beforeSubmit?: (form: ReturnType<typeof useForm<T>>) => void;
 	action: (values: T) => Promise<R>;
 	schema?: ZodSchema;
@@ -98,7 +101,7 @@ export function Form<T extends Record<string, unknown>, V, R = T>({
 				/>
 			)}
 			<Stack p={hideHeader ? undefined : 'xl'} {...props}>
-				{children(form)}
+				{children(form, { isSubmitting: mutation.isPending })}
 			</Stack>
 		</form>
 	);

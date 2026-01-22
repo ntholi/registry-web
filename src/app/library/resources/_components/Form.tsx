@@ -52,7 +52,7 @@ export default function ResourceForm({
 			defaultValues={initialValues}
 			onSuccess={(data) => router.push(`/library/resources/${data.id}`)}
 		>
-			{(form) => (
+			{(form, { isSubmitting }) => (
 				<>
 					<TextInput label='Title' required {...form.getInputProps('title')} />
 
@@ -78,6 +78,7 @@ export default function ResourceForm({
 						value={file}
 						onChange={setFile}
 						currentFileName={defaultValues?.document?.fileName}
+						loading={isSubmitting}
 					/>
 				</>
 			)}
