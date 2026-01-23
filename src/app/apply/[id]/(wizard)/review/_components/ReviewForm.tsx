@@ -3,6 +3,7 @@
 import type { Applicant } from '@admissions/applicants';
 import {
 	Badge,
+	Box,
 	Button,
 	Card,
 	Divider,
@@ -161,6 +162,73 @@ export default function ReviewForm({
 					<Group justify='space-between'>
 						<Group gap='sm'>
 							<ThemeIcon size='lg' variant='light'>
+								<IconSchool size={20} />
+							</ThemeIcon>
+							<Title order={4}>Program Selection</Title>
+						</Group>
+						<Button
+							variant='subtle'
+							size='xs'
+							leftSection={<IconEdit size={14} />}
+							onClick={() => handleEdit('program')}
+						>
+							Edit
+						</Button>
+					</Group>
+
+					{application ? (
+						<Stack gap='md'>
+							<Card withBorder radius='md' p='sm'>
+								<Box>
+									<Text size='xs'>First Choice</Text>
+									<Group>
+										<Text size='sm' fw={500}>
+											{application.firstChoiceProgram?.name}
+										</Text>
+										{application.firstChoiceProgram?.code && (
+											<Badge size='xs' variant='default'>
+												{application.firstChoiceProgram.code}
+											</Badge>
+										)}
+									</Group>
+								</Box>
+							</Card>
+
+							{application.secondChoiceProgram && (
+								<Card withBorder radius='md' p='sm'>
+									<Box>
+										<Badge color='gray'>Second Choice</Badge>
+										<Group>
+											<Text size='sm' fw={500}>
+												{application.secondChoiceProgram.name}
+											</Text>
+											<Badge size='xs' variant='default'>
+												{application.secondChoiceProgram.code}
+											</Badge>
+										</Group>
+									</Box>
+								</Card>
+							)}
+
+							{application.intakePeriod && (
+								<Text size='sm' c='dimmed'>
+									Intake: {application.intakePeriod.name}
+								</Text>
+							)}
+						</Stack>
+					) : (
+						<Text c='dimmed' size='sm'>
+							No program selected
+						</Text>
+					)}
+				</Stack>
+			</Paper>
+
+			<Paper withBorder radius='md' p='lg'>
+				<Stack gap='lg'>
+					<Group justify='space-between'>
+						<Group gap='sm'>
+							<ThemeIcon size='lg' variant='light'>
 								<IconFile size={20} />
 							</ThemeIcon>
 							<Title order={4}>Documents</Title>
@@ -242,69 +310,6 @@ export default function ReviewForm({
 					) : (
 						<Text c='dimmed' size='sm'>
 							No academic records found
-						</Text>
-					)}
-				</Stack>
-			</Paper>
-
-			<Paper withBorder radius='md' p='lg'>
-				<Stack gap='lg'>
-					<Group justify='space-between'>
-						<Group gap='sm'>
-							<ThemeIcon size='lg' variant='light'>
-								<IconSchool size={20} />
-							</ThemeIcon>
-							<Title order={4}>Program Selection</Title>
-						</Group>
-						<Button
-							variant='subtle'
-							size='xs'
-							leftSection={<IconEdit size={14} />}
-							onClick={() => handleEdit('program')}
-						>
-							Edit
-						</Button>
-					</Group>
-
-					{application ? (
-						<Stack gap='md'>
-							<Card withBorder radius='md' p='sm'>
-								<Group>
-									<Badge color='blue'>First Choice</Badge>
-									<Text size='sm' fw={500}>
-										{application.firstChoiceProgram?.name ?? '-'}
-									</Text>
-									{application.firstChoiceProgram?.code && (
-										<Badge size='xs' variant='light'>
-											{application.firstChoiceProgram.code}
-										</Badge>
-									)}
-								</Group>
-							</Card>
-
-							{application.secondChoiceProgram && (
-								<Card withBorder radius='md' p='sm'>
-									<Group>
-										<Badge color='gray'>Second Choice</Badge>
-										<Text size='sm' fw={500}>
-											{application.secondChoiceProgram.name}
-										</Text>
-										<Badge size='xs' variant='light'>
-											{application.secondChoiceProgram.code}
-										</Badge>
-									</Group>
-								</Card>
-							)}
-
-							{application.intakePeriod && (
-								<Text size='sm' c='dimmed'>
-									Intake: {application.intakePeriod.name}
-								</Text>
-							)}
-						</Stack>
-					) : (
-						<Text c='dimmed' size='sm'>
-							No program selected
 						</Text>
 					)}
 				</Stack>
