@@ -7,6 +7,7 @@ import {
 	Button,
 	Group,
 	Paper,
+	SegmentedControl,
 	SimpleGrid,
 	Skeleton,
 	Stack,
@@ -51,6 +52,7 @@ export default function CourseSelectionForm({ applicantId }: Props) {
 	const queryClient = useQueryClient();
 	const [firstChoice, setFirstChoice] = useState<string | null>(null);
 	const [secondChoice, setSecondChoice] = useState<string | null>(null);
+	const [choiceType, setChoiceType] = useState<'first' | 'second'>('first');
 	const [initialized, setInitialized] = useState(false);
 
 	const [filters] = useQueryStates({
@@ -223,41 +225,50 @@ export default function CourseSelectionForm({ applicantId }: Props) {
 							</Box>
 						)}
 
+						{eligiblePrograms.length > 1 && (
+							<SegmentedControl
+								fullWidth
+								value={choiceType}
+								onChange={(val) => setChoiceType(val as 'first' | 'second')}
+								data={[
+									{ label: 'First Choice', value: 'first' },
+									{ label: 'Second Choice', value: 'second' },
+								]}
+							/>
+						)}
+
 						<Stack gap='xs'>
-							<Text fw={500}>First Choice (Required)</Text>
+							<Text fw={500}>
+								{choiceType === 'first'
+									? 'First Choice (Required)'
+									: 'Second Choice (Optional)'}
+							</Text>
 							<SimpleGrid cols={{ base: 1, md: 2 }} spacing='sm'>
 								{filteredPrograms.map((program) => (
 									<CourseCard
 										key={program.id}
 										program={program}
-										selected={firstChoice === String(program.id)}
-										disabled={secondChoice === String(program.id)}
-										onToggle={(sel) =>
-											setFirstChoice(sel ? String(program.id) : null)
+										selected={
+											choiceType === 'first'
+												? firstChoice === String(program.id)
+												: secondChoice === String(program.id)
 										}
+										disabled={
+											choiceType === 'first'
+												? secondChoice === String(program.id)
+												: firstChoice === String(program.id)
+										}
+										onToggle={(sel) => {
+											if (choiceType === 'first') {
+												setFirstChoice(sel ? String(program.id) : null);
+											} else {
+												setSecondChoice(sel ? String(program.id) : null);
+											}
+										}}
 									/>
 								))}
 							</SimpleGrid>
 						</Stack>
-
-						{filteredPrograms.length > 1 && (
-							<Stack gap='xs'>
-								<Text fw={500}>Second Choice (Optional)</Text>
-								<SimpleGrid cols={{ base: 1, md: 2 }} spacing='sm'>
-									{filteredPrograms.map((program) => (
-										<CourseCard
-											key={program.id}
-											program={program}
-											selected={secondChoice === String(program.id)}
-											disabled={firstChoice === String(program.id)}
-											onToggle={(sel) =>
-												setSecondChoice(sel ? String(program.id) : null)
-											}
-										/>
-									))}
-								</SimpleGrid>
-							</Stack>
-						)}
 					</Stack>
 				)}
 
