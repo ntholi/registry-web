@@ -1,6 +1,6 @@
 'use client';
 
-import type { Applicant } from '@admissions/applicants';
+import type { ApplicantWithRelations } from '@admissions/applicants';
 import {
 	Badge,
 	Box,
@@ -32,15 +32,23 @@ import { submitApplication } from '../_server/actions';
 
 type Application = {
 	id: string;
-	firstChoiceProgram?: { name: string; code: string } | null;
-	secondChoiceProgram?: { name: string; code: string } | null;
+	firstChoiceProgram?: {
+		name: string;
+		code: string;
+		school?: { shortName: string | null } | null;
+	} | null;
+	secondChoiceProgram?: {
+		name: string;
+		code: string;
+		school?: { shortName: string | null } | null;
+	} | null;
 	intakePeriod?: { name: string } | null;
 	status: string;
 };
 
 type Props = {
 	applicantId: string;
-	applicant: Applicant;
+	applicant: ApplicantWithRelations;
 	application?: Application | null;
 };
 
@@ -89,9 +97,8 @@ export default function ReviewForm({
 		submitMutation.mutate();
 	}
 
-	const hasDocuments = (applicant as ApplicantWithDocs).documents?.length > 0;
-	const hasRecords =
-		(applicant as ApplicantWithRecords).academicRecords?.length > 0;
+	const hasDocuments = applicant.documents?.length > 0;
+	const hasRecords = applicant.academicRecords?.length > 0;
 
 	return (
 		<Stack gap='lg'>
@@ -185,9 +192,9 @@ export default function ReviewForm({
 										<Text size='sm' fw={500}>
 											{application.firstChoiceProgram?.name}
 										</Text>
-										{application.firstChoiceProgram?.code && (
+										{application.firstChoiceProgram?.school?.shortName && (
 											<Badge size='xs' variant='default'>
-												{application.firstChoiceProgram.code}
+												{application.firstChoiceProgram.school.shortName}
 											</Badge>
 										)}
 									</Group>
@@ -197,23 +204,19 @@ export default function ReviewForm({
 							{application.secondChoiceProgram && (
 								<Card withBorder radius='md' p='sm'>
 									<Box>
-										<Badge color='gray'>Second Choice</Badge>
+										<Text size='xs'>Second Choice</Text>
 										<Group>
 											<Text size='sm' fw={500}>
 												{application.secondChoiceProgram.name}
 											</Text>
-											<Badge size='xs' variant='default'>
-												{application.secondChoiceProgram.code}
-											</Badge>
+											{application.secondChoiceProgram.school?.shortName && (
+												<Badge size='xs' variant='default'>
+													{application.secondChoiceProgram.school.shortName}
+												</Badge>
+											)}
 										</Group>
 									</Box>
 								</Card>
-							)}
-
-							{application.intakePeriod && (
-								<Text size='sm' c='dimmed'>
-									Intake: {application.intakePeriod.name}
-								</Text>
 							)}
 						</Stack>
 					) : (
@@ -249,8 +252,7 @@ export default function ReviewForm({
 								<IconCheck size={14} />
 							</ThemeIcon>
 							<Text size='sm'>
-								{(applicant as ApplicantWithDocs).documents.length} document(s)
-								uploaded
+								{applicant.documents.length} document(s) uploaded
 							</Text>
 						</Group>
 					) : (
@@ -290,21 +292,19 @@ export default function ReviewForm({
 								</Table.Tr>
 							</Table.Thead>
 							<Table.Tbody>
-								{(applicant as ApplicantWithRecords).academicRecords.map(
-									(record) => (
-										<Table.Tr key={record.id}>
-											<Table.Td>
-												<Text size='sm'>{record.certificateType?.name}</Text>
-											</Table.Td>
-											<Table.Td>
-												<Text size='sm'>{record.institutionName}</Text>
-											</Table.Td>
-											<Table.Td>
-												<Text size='sm'>{record.examYear}</Text>
-											</Table.Td>
-										</Table.Tr>
-									)
-								)}
+								{applicant.academicRecords.map((record) => (
+									<Table.Tr key={record.id}>
+										<Table.Td>
+											<Text size='sm'>{record.certificateType?.name}</Text>
+										</Table.Td>
+										<Table.Td>
+											<Text size='sm'>{record.institutionName}</Text>
+										</Table.Td>
+										<Table.Td>
+											<Text size='sm'>{record.examYear}</Text>
+										</Table.Td>
+									</Table.Tr>
+								))}
 							</Table.Tbody>
 						</Table>
 					) : (
@@ -338,16 +338,3 @@ export default function ReviewForm({
 		</Stack>
 	);
 }
-
-type ApplicantWithDocs = Applicant & {
-	documents: { id: string }[];
-};
-
-type ApplicantWithRecords = Applicant & {
-	academicRecords: {
-		id: string;
-		certificateType?: { name: string } | null;
-		institutionName: string;
-		examYear: number;
-	}[];
-};

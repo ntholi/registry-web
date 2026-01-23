@@ -37,9 +37,11 @@ export default class ApplicationRepository extends BaseRepository<
 				},
 				firstChoiceProgram: {
 					columns: { id: true, name: true, code: true },
+					with: { school: { columns: { shortName: true } } },
 				},
 				secondChoiceProgram: {
 					columns: { id: true, name: true, code: true },
+					with: { school: { columns: { shortName: true } } },
 				},
 				createdByUser: {
 					columns: { id: true, name: true },
@@ -140,6 +142,11 @@ export default class ApplicationRepository extends BaseRepository<
 				},
 				firstChoiceProgram: {
 					columns: { id: true, name: true, code: true },
+					with: { school: { columns: { shortName: true } } },
+				},
+				secondChoiceProgram: {
+					columns: { id: true, name: true, code: true },
+					with: { school: { columns: { shortName: true } } },
 				},
 			},
 			orderBy: (a, { desc }) => [desc(a.applicationDate)],
