@@ -3,13 +3,16 @@
 import { findAcademicRecordsByApplicant } from '@admissions/applicants/[id]/academic-records/_server/actions';
 import {
 	ActionIcon,
+	Badge,
 	Button,
 	Card,
+	Divider,
 	Group,
 	Modal,
 	Paper,
 	SimpleGrid,
 	Stack,
+	Table,
 	Text,
 	ThemeIcon,
 	Title,
@@ -174,12 +177,22 @@ export default function QualificationsUploadForm({ applicantId }: Props) {
 	);
 }
 
+type SubjectGrade = {
+	id: string;
+	originalGrade: string;
+	standardGrade: string;
+	subject: { id: string; name: string };
+};
+
 type AcademicRecord = {
 	id: string;
 	certificateType?: { name: string; lqfLevel?: number | null } | null;
 	institutionName?: string | null;
 	examYear?: number | null;
 	resultClassification?: string | null;
+	qualificationName?: string | null;
+	certificateNumber?: string | null;
+	subjectGrades?: SubjectGrade[];
 };
 
 type AcademicRecordCardProps = {
@@ -193,23 +206,33 @@ function AcademicRecordCard({
 	onDelete,
 	deleting,
 }: AcademicRecordCardProps) {
-	const [opened, { open, close }] = useDisclosure(false);
+	const [deleteOpened, { open: openDelete, close: closeDelete }] =
+		useDisclosure(false);
+	const [detailsOpened, { open: openDetails, close: closeDetails }] =
+		useDisclosure(false);
 
 	function handleConfirmDelete() {
 		onDelete();
-		close();
+		closeDelete();
 	}
+
+	const hasSubjects = record.subjectGrades && record.subjectGrades.length > 0;
 
 	return (
 		<>
-			<Modal opened={opened} onClose={close} title='Delete Record' centered>
+			<Modal
+				opened={deleteOpened}
+				onClose={closeDelete}
+				title='Delete Record'
+				centered
+			>
 				<Stack gap='md'>
 					<Text size='sm'>
 						Are you sure you want to delete this academic record? This action
 						cannot be undone.
 					</Text>
 					<Group justify='flex-end'>
-						<Button variant='subtle' onClick={close}>
+						<Button variant='subtle' onClick={closeDelete}>
 							Cancel
 						</Button>
 						<Button
@@ -223,7 +246,19 @@ function AcademicRecordCard({
 				</Stack>
 			</Modal>
 
-			<Card withBorder radius='md' p='md'>
+			<QualificationDetailsModal
+				record={record}
+				opened={detailsOpened}
+				onClose={closeDetails}
+			/>
+
+			<Card
+				withBorder
+				radius='md'
+				p='md'
+				style={{ cursor: 'pointer' }}
+				onClick={openDetails}
+			>
 				<Stack gap='sm'>
 					<Group wrap='nowrap' justify='space-between'>
 						<Group wrap='nowrap'>
@@ -241,7 +276,10 @@ function AcademicRecordCard({
 						<ActionIcon
 							variant='subtle'
 							color='red'
-							onClick={open}
+							onClick={(e) => {
+								e.stopPropagation();
+								openDelete();
+							}}
 							disabled={deleting}
 						>
 							<IconTrash size={16} />
@@ -268,9 +306,175 @@ function AcademicRecordCard({
 								</Text>
 							</Group>
 						)}
+						{hasSubjects && (
+							<Text size='xs' c='blue' mt={4}>
+								{record.subjectGrades?.length} subject(s) - tap to view
+							</Text>
+						)}
 					</Stack>
 				</Stack>
 			</Card>
 		</>
 	);
+}
+
+type QualificationDetailsModalProps = {
+	record: AcademicRecord;
+	opened: boolean;
+	onClose: () => void;
+};
+
+function QualificationDetailsModal({
+	record,
+	opened,
+	onClose,
+}: QualificationDetailsModalProps) {
+	const hasSubjects = record.subjectGrades && record.subjectGrades.length > 0;
+
+	return (
+		<Modal
+			opened={opened}
+			onClose={onClose}
+			title='Qualification Details'
+			size='lg'
+			centered
+		>
+			<Stack gap='md'>
+				<Group gap='sm'>
+					<ThemeIcon size='xl' variant='light' color='green'>
+						<IconCertificate size={24} />
+					</ThemeIcon>
+					<Stack gap={2}>
+						<Text fw={600}>
+							{record.certificateType?.name ?? 'Certificate'}
+						</Text>
+						{record.certificateType?.lqfLevel && (
+							<Badge size='xs' variant='light'>
+								LQF Level {record.certificateType.lqfLevel}
+							</Badge>
+						)}
+					</Stack>
+				</Group>
+
+				<SimpleGrid cols={2} spacing='sm'>
+					{record.institutionName && (
+						<Stack gap={2}>
+							<Text size='xs' c='dimmed'>
+								Institution
+							</Text>
+							<Text size='sm' fw={500}>
+								{record.institutionName}
+							</Text>
+						</Stack>
+					)}
+					{record.examYear && (
+						<Stack gap={2}>
+							<Text size='xs' c='dimmed'>
+								Year
+							</Text>
+							<Text size='sm' fw={500}>
+								{record.examYear}
+							</Text>
+						</Stack>
+					)}
+					{record.qualificationName && (
+						<Stack gap={2}>
+							<Text size='xs' c='dimmed'>
+								Qualification
+							</Text>
+							<Text size='sm' fw={500}>
+								{record.qualificationName}
+							</Text>
+						</Stack>
+					)}
+					{record.certificateNumber && (
+						<Stack gap={2}>
+							<Text size='xs' c='dimmed'>
+								Certificate Number
+							</Text>
+							<Text size='sm' fw={500}>
+								{record.certificateNumber}
+							</Text>
+						</Stack>
+					)}
+					{record.resultClassification && (
+						<Stack gap={2}>
+							<Text size='xs' c='dimmed'>
+								Classification
+							</Text>
+							<Badge size='sm' variant='light'>
+								{record.resultClassification}
+							</Badge>
+						</Stack>
+					)}
+				</SimpleGrid>
+
+				{hasSubjects && (
+					<>
+						<Divider />
+						<Stack gap='xs'>
+							<Text fw={500} size='sm'>
+								Subjects & Grades
+							</Text>
+							<Table highlightOnHover withTableBorder>
+								<Table.Thead>
+									<Table.Tr>
+										<Table.Th>Subject</Table.Th>
+										<Table.Th w={80} ta='center'>
+											Grade
+										</Table.Th>
+									</Table.Tr>
+								</Table.Thead>
+								<Table.Tbody>
+									{record.subjectGrades?.map((sg) => (
+										<Table.Tr key={sg.id}>
+											<Table.Td>
+												<Text size='sm'>{sg.subject.name}</Text>
+											</Table.Td>
+											<Table.Td ta='center'>
+												<Badge
+													size='sm'
+													variant='light'
+													color={getGradeColor(sg.standardGrade)}
+												>
+													{sg.standardGrade}
+												</Badge>
+											</Table.Td>
+										</Table.Tr>
+									))}
+								</Table.Tbody>
+							</Table>
+						</Stack>
+					</>
+				)}
+
+				<Group justify='flex-end'>
+					<Button variant='subtle' onClick={onClose}>
+						Close
+					</Button>
+				</Group>
+			</Stack>
+		</Modal>
+	);
+}
+
+function getGradeColor(grade: string): string {
+	switch (grade) {
+		case 'A*':
+		case 'A':
+			return 'green';
+		case 'B':
+			return 'teal';
+		case 'C':
+			return 'blue';
+		case 'D':
+			return 'yellow';
+		case 'E':
+			return 'orange';
+		case 'F':
+		case 'U':
+			return 'red';
+		default:
+			return 'gray';
+	}
 }

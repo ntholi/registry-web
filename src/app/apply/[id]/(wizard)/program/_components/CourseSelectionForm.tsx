@@ -21,7 +21,7 @@ import { IconArrowLeft, IconArrowRight, IconSchool } from '@tabler/icons-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'nextjs-toploader/app';
 import { parseAsInteger, parseAsString, useQueryStates } from 'nuqs';
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import CoursesFilters from '@/app/apply/courses/_components/CoursesFilters';
 import {
 	getActiveIntake,
@@ -51,10 +51,7 @@ type EligibleProgram = {
 export default function CourseSelectionForm({ applicantId }: Props) {
 	const router = useRouter();
 	const queryClient = useQueryClient();
-	const [firstChoice, setFirstChoice] = useState<string | null>(null);
-	const [secondChoice, setSecondChoice] = useState<string | null>(null);
 	const [choiceType, setChoiceType] = useState<'first' | 'second'>('first');
-	const [initialized, setInitialized] = useState(false);
 
 	const [filters] = useQueryStates({
 		schoolId: parseAsInteger,
@@ -71,22 +68,24 @@ export default function CourseSelectionForm({ applicantId }: Props) {
 		queryFn: getActiveIntake,
 	});
 
-	const { data: existingApp } = useQuery({
+	const { data: existingApp, isSuccess: appLoaded } = useQuery({
 		queryKey: ['existing-application', applicantId],
 		queryFn: () => getExistingApplication(applicantId),
 	});
 
-	useEffect(() => {
-		if (!initialized && existingApp) {
-			if (existingApp.firstChoiceProgramId) {
-				setFirstChoice(String(existingApp.firstChoiceProgramId));
-			}
-			if (existingApp.secondChoiceProgramId) {
-				setSecondChoice(String(existingApp.secondChoiceProgramId));
-			}
-			setInitialized(true);
+	const [firstChoice, setFirstChoice] = useState<string | null>(null);
+	const [secondChoice, setSecondChoice] = useState<string | null>(null);
+	const [initialized, setInitialized] = useState(false);
+
+	if (appLoaded && !initialized) {
+		if (existingApp?.firstChoiceProgramId) {
+			setFirstChoice(String(existingApp.firstChoiceProgramId));
 		}
-	}, [existingApp, initialized]);
+		if (existingApp?.secondChoiceProgramId) {
+			setSecondChoice(String(existingApp.secondChoiceProgramId));
+		}
+		setInitialized(true);
+	}
 
 	const filteredPrograms = useMemo(() => {
 		let result = eligiblePrograms as EligibleProgram[];

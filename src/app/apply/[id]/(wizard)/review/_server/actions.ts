@@ -12,11 +12,12 @@ export async function getApplicantWithApplication(applicantId: string) {
 		findApplicationsByApplicant(applicantId),
 	]);
 
-	const draftApplication = applications.find(
-		(app: { status: string }) => app.status === 'draft'
+	const application = applications.find(
+		(app: { status: string }) =>
+			app.status === 'draft' || app.status === 'submitted'
 	);
 
-	return { applicant, application: draftApplication };
+	return { applicant, application };
 }
 
 export async function submitApplication(applicationId: string) {

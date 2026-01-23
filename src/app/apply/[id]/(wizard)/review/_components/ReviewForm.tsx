@@ -22,6 +22,7 @@ import {
 	IconCheck,
 	IconEdit,
 	IconFile,
+	IconRefresh,
 	IconSchool,
 	IconSend,
 	IconUser,
@@ -60,6 +61,8 @@ export default function ReviewForm({
 	const router = useRouter();
 	const queryClient = useQueryClient();
 
+	const isAlreadySubmitted = application?.status === 'submitted';
+
 	const submitMutation = useMutation({
 		mutationFn: async () => {
 			if (!application?.id) {
@@ -70,8 +73,12 @@ export default function ReviewForm({
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: ['applications'] });
 			notifications.show({
-				title: 'Application submitted!',
-				message: 'Your application has been submitted for review',
+				title: isAlreadySubmitted
+					? 'Application updated!'
+					: 'Application submitted!',
+				message: isAlreadySubmitted
+					? 'Your application has been updated'
+					: 'Your application has been submitted for review',
 				color: 'green',
 			});
 			router.push(`/apply/${applicantId}/payment`);
@@ -327,12 +334,18 @@ export default function ReviewForm({
 				</Button>
 				<Button
 					color='green'
-					leftSection={<IconSend size={16} />}
+					leftSection={
+						isAlreadySubmitted ? (
+							<IconRefresh size={16} />
+						) : (
+							<IconSend size={16} />
+						)
+					}
 					onClick={handleSubmit}
 					disabled={!application}
 					loading={submitMutation.isPending}
 				>
-					Submit Application
+					{isAlreadySubmitted ? 'Update Application' : 'Submit Application'}
 				</Button>
 			</Group>
 		</Stack>
