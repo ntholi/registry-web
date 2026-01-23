@@ -3,7 +3,6 @@
 import type { ApplicantWithRelations } from '@admissions/applicants';
 import {
 	Alert,
-	Badge,
 	Button,
 	Card,
 	Divider,
@@ -311,7 +310,7 @@ export default function PaymentForm({
 							)}
 
 							<Button
-								size='lg'
+								color='red'
 								leftSection={<IconCreditCard size={20} />}
 								onClick={handleSubmit}
 								loading={initiateMutation.isPending}
@@ -322,9 +321,9 @@ export default function PaymentForm({
 
 							<Divider label='or' labelPosition='center' />
 
-							<Badge variant='light' color='gray' size='lg'>
+							<Text variant='light' c='gray' size='sm' ta='center'>
 								Ecocash - Coming Soon
-							</Badge>
+							</Text>
 						</>
 					)}
 				</Stack>
