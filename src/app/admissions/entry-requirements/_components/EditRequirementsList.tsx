@@ -7,6 +7,7 @@ import {
 	Badge,
 	Button,
 	Group,
+	Modal,
 	NumberInput,
 	Paper,
 	Select,
@@ -16,6 +17,7 @@ import {
 	ThemeIcon,
 	Title,
 } from '@mantine/core';
+import { useDisclosure } from '@mantine/hooks';
 import {
 	IconCertificate,
 	IconDeviceFloppy,
@@ -220,6 +222,8 @@ function RequirementEditor({
 	isSaving,
 	isDeleting,
 }: EditorProps) {
+	const [deleteOpened, { open: openDelete, close: closeDelete }] =
+		useDisclosure(false);
 	const certType = certificateTypes.find(
 		(ct) => ct.id === requirement.certificateTypeId
 	);
@@ -431,7 +435,7 @@ function RequirementEditor({
 							color='red'
 							size='xs'
 							leftSection={<IconTrash size={14} />}
-							onClick={() => onDelete(requirement.id)}
+							onClick={openDelete}
 							loading={isDeleting}
 						>
 							Remove Pathway
@@ -445,6 +449,37 @@ function RequirementEditor({
 							Save Changes
 						</Button>
 					</Group>
+
+					<Modal
+						opened={deleteOpened}
+						onClose={closeDelete}
+						title='Remove Entry Pathway'
+						centered
+						size='sm'
+					>
+						<Stack gap='md'>
+							<Text size='sm'>
+								Are you sure you want to remove the{' '}
+								<strong>{requirement.certificateType?.name}</strong> entry
+								pathway? This action cannot be undone.
+							</Text>
+							<Group justify='flex-end'>
+								<Button variant='default' onClick={closeDelete}>
+									Cancel
+								</Button>
+								<Button
+									color='red'
+									onClick={() => {
+										onDelete(requirement.id);
+										closeDelete();
+									}}
+									loading={isDeleting}
+								>
+									Remove
+								</Button>
+							</Group>
+						</Stack>
+					</Modal>
 				</Stack>
 			</Accordion.Panel>
 		</Accordion.Item>
