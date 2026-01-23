@@ -8,13 +8,14 @@ import {
 	Group,
 	Modal,
 	Select,
+	SimpleGrid,
 	Stack,
 	Text,
 	Textarea,
 	TextInput,
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
-import { useDisclosure } from '@mantine/hooks';
+import { useDisclosure, useMediaQuery } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import { IconEdit, IconPlus, IconTrash } from '@tabler/icons-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -59,6 +60,7 @@ export default function GuardianManager({ applicantId, guardians }: Props) {
 	const queryClient = useQueryClient();
 	const [opened, { open, close }] = useDisclosure(false);
 	const [editingGuardian, setEditingGuardian] = useState<Guardian | null>(null);
+	const isMobile = useMediaQuery('(max-width: 600px)');
 
 	const form = useForm({
 		initialValues: {
@@ -256,7 +258,7 @@ export default function GuardianManager({ applicantId, guardians }: Props) {
 							data={relationshipOptions}
 							{...form.getInputProps('relationship')}
 						/>
-						<Group grow>
+						<SimpleGrid cols={{ base: 1, sm: 2 }}>
 							<TextInput
 								label='Phone 1'
 								placeholder='Enter phone number'
@@ -267,17 +269,22 @@ export default function GuardianManager({ applicantId, guardians }: Props) {
 								placeholder='Enter phone number'
 								{...form.getInputProps('phoneNumber2')}
 							/>
-						</Group>
-						<TextInput
-							label='Occupation'
-							{...form.getInputProps('occupation')}
-						/>
-						<TextInput
-							label='Company / Employer'
-							{...form.getInputProps('companyName')}
-						/>
+						</SimpleGrid>
+						{!isMobile && (
+							<>
+								<TextInput
+									label='Occupation'
+									{...form.getInputProps('occupation')}
+								/>
+								<TextInput
+									label='Company / Employer'
+									{...form.getInputProps('companyName')}
+								/>
+							</>
+						)}
 						<Textarea
 							label='Address'
+							description='Residential or physical address'
 							rows={2}
 							{...form.getInputProps('address')}
 						/>

@@ -7,6 +7,7 @@ import {
 	Group,
 	Paper,
 	Select,
+	SimpleGrid,
 	Stack,
 	Textarea,
 	TextInput,
@@ -90,7 +91,7 @@ export default function PersonalInfoForm({ applicant }: Props) {
 							key={form.key('fullName')}
 							{...form.getInputProps('fullName')}
 						/>
-						<Group grow>
+						<SimpleGrid cols={{ base: 1, sm: 2 }}>
 							<DateInput
 								label='Date of Birth'
 								placeholder='Select date of birth'
@@ -105,8 +106,8 @@ export default function PersonalInfoForm({ applicant }: Props) {
 								key={form.key('gender')}
 								{...form.getInputProps('gender')}
 							/>
-						</Group>
-						<Group grow>
+						</SimpleGrid>
+						<SimpleGrid cols={{ base: 1, sm: 2 }}>
 							<TextInput
 								label='National ID'
 								placeholder='Enter national ID'
@@ -119,8 +120,8 @@ export default function PersonalInfoForm({ applicant }: Props) {
 								key={form.key('nationality')}
 								{...form.getInputProps('nationality')}
 							/>
-						</Group>
-						<Group grow>
+						</SimpleGrid>
+						<SimpleGrid cols={{ base: 1, sm: 2 }}>
 							<TextInput
 								label='Birth Place'
 								placeholder='Enter birth place'
@@ -133,9 +134,10 @@ export default function PersonalInfoForm({ applicant }: Props) {
 								key={form.key('religion')}
 								{...form.getInputProps('religion')}
 							/>
-						</Group>
+						</SimpleGrid>
 						<Textarea
 							label='Address'
+							description='Residential or physical address'
 							placeholder='Enter address'
 							rows={2}
 							key={form.key('address')}
