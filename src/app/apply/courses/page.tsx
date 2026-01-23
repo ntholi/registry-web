@@ -17,6 +17,7 @@ import {
 	Title,
 } from '@mantine/core';
 import ButtonLink from '@/shared/ui/ButtonLink';
+import ApplyHeader from '../_components/ApplyHeader';
 import CourseCard from './_components/CourseCard';
 import CoursesFilters from './_components/CoursesFilters';
 import CoursesPagination from './_components/CoursesPagination';
@@ -48,8 +49,8 @@ export default async function ApplyCoursesPage({ searchParams }: Props) {
 
 	return (
 		<Box bg='var(--mantine-color-body)'>
-			<Header />
-			<Container size='xl' py='xl'>
+			<ApplyHeader />
+			<Container size='xl' py='xl' pt={100}>
 				<Stack gap='xl'>
 					<Stack gap='xs'>
 						<Title order={1} fw={600}>
@@ -99,28 +100,6 @@ export default async function ApplyCoursesPage({ searchParams }: Props) {
 			</Container>
 			<Footer />
 		</Box>
-	);
-}
-
-function Header() {
-	return (
-		<Paper component='header' withBorder radius={0} py='md'>
-			<Container size='xl'>
-				<Group justify='space-between'>
-					<Stack gap={2}>
-						<Text fw={700}>Limkokwing University</Text>
-						<Text size='xs' c='dimmed'>
-							Course catalogue
-						</Text>
-					</Stack>
-					<Group>
-						<ButtonLink href='/auth/login' variant='default'>
-							Sign in
-						</ButtonLink>
-					</Group>
-				</Group>
-			</Container>
-		</Paper>
 	);
 }
 

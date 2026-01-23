@@ -12,6 +12,7 @@ import {
 import { IconArrowRight } from '@tabler/icons-react';
 import Image from 'next/image';
 import Link from 'next/link';
+import ApplyHeader from './_components/ApplyHeader';
 
 export default function ApplyPage() {
 	const { colorScheme } = useMantineColorScheme();
@@ -25,48 +26,9 @@ export default function ApplyPage() {
 				flexDirection: 'column',
 			}}
 		>
-			<Header isDark={isDark} />
+			<ApplyHeader />
 			<HeroSection isDark={isDark} />
 			<Footer />
-		</Box>
-	);
-}
-
-interface HeaderProps {
-	isDark: boolean;
-}
-
-function Header({ isDark }: HeaderProps) {
-	return (
-		<Box
-			component='header'
-			py='md'
-			px='xl'
-			style={{
-				position: 'fixed',
-				top: 0,
-				left: 0,
-				right: 0,
-				zIndex: 100,
-				backdropFilter: 'blur(10px)',
-				backgroundColor: isDark
-					? 'rgba(26, 27, 30, 0.8)'
-					: 'rgba(255, 255, 255, 0.8)',
-			}}
-		>
-			<Container size='xl'>
-				<Group justify='flex-end'>
-					<Button
-						component={Link}
-						href='/auth/login'
-						variant='subtle'
-						color='gray'
-						size='sm'
-					>
-						Sign In
-					</Button>
-				</Group>
-			</Container>
 		</Box>
 	);
 }
