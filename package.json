@@ -19,9 +19,9 @@
 		"db:seed": "tsx src/core/database/seed.ts"
 	},
 	"dependencies": {
-		"@ai-sdk/google": "^3.0.10",
+		"@ai-sdk/google": "^3.0.13",
 		"@auth/drizzle-adapter": "^1.11.1",
-		"@aws-sdk/client-s3": "^3.972.0",
+		"@aws-sdk/client-s3": "^3.974.0",
 		"@hookform/resolvers": "^5.2.2",
 		"@mantine/charts": "^8.3.13",
 		"@mantine/core": "^8.3.13",
@@ -48,7 +48,7 @@
 		"@tiptap/extension-underline": "^3.16.0",
 		"@tiptap/react": "^3.16.0",
 		"@tiptap/starter-kit": "^3.16.0",
-		"ai": "^6.0.43",
+		"ai": "^6.0.48",
 		"date-fns": "^4.1.0",
 		"dayjs": "^1.11.19",
 		"docx": "^9.5.1",
@@ -73,21 +73,21 @@
 		"react-hook-form": "^7.71.1",
 		"react-image-crop": "^11.0.10",
 		"react-pdf-tailwind": "^3.0.0",
-		"recharts": "^3.6.0",
+		"recharts": "^3.7.0",
 		"rimraf": "^6.1.2",
 		"sharp": "^0.34.5",
 		"winston": "^3.19.0",
 		"xlsx": "^0.18.5",
-		"zod": "^4.3.5"
+		"zod": "^4.3.6"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "^2.3.11",
-		"@types/node": "^25.0.9",
+		"@types/node": "^25.0.10",
 		"@types/pg": "^8.16.0",
 		"@types/qrcode": "^1.5.6",
 		"@types/react": "^19.2.9",
 		"@types/react-dom": "^19.2.3",
-		"@vitest/coverage-v8": "^4.0.17",
+		"@vitest/coverage-v8": "^4.0.18",
 		"babel-plugin-react-compiler": "^1.0.0",
 		"drizzle-kit": "^0.31.8",
 		"postcss": "^8.5.6",
@@ -96,7 +96,7 @@
 		"tsx": "^4.21.0",
 		"typescript": "^5.9.3",
 		"vite-tsconfig-paths": "^6.0.4",
-		"vitest": "^4.0.17"
+		"vitest": "^4.0.18"
 	},
 	"pnpm": {
 		"ignoredBuiltDependencies": [
