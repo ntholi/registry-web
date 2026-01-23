@@ -17,12 +17,7 @@ import {
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
-import {
-	IconArrowRight,
-	IconCheck,
-	IconId,
-	IconTrash,
-} from '@tabler/icons-react';
+import { IconArrowRight, IconId, IconTrash } from '@tabler/icons-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'nextjs-toploader/app';
 import { useState } from 'react';
@@ -243,12 +238,6 @@ function IdentityDocumentCard({
 								<Text size='sm' fw={600}>
 									Identity Document
 								</Text>
-								<Group gap={4}>
-									<IconCheck size={12} color='var(--mantine-color-green-6)' />
-									<Text size='xs' c='green'>
-										Verified
-									</Text>
-								</Group>
 							</Stack>
 						</Group>
 						<ActionIcon
