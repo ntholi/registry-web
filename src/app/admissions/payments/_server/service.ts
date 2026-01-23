@@ -76,6 +76,8 @@ class PaymentService extends BaseService<typeof paymentTransactions, 'id'> {
 					clientReference
 				);
 
+				console.log('MPESA RESPONSE', response);
+
 				if (isPaymentSuccessful(response)) {
 					await this.repo.updateStatus(
 						transaction.id,

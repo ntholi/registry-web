@@ -93,9 +93,29 @@ export async function initiateMpesaPayment(
 		}),
 	});
 
-	const data = (await response.json()) as MpesaPaymentResponse;
+	const text = await response.text();
 
-	return data;
+	if (!response.ok || text.startsWith('<!DOCTYPE') || text.startsWith('<')) {
+		console.error(
+			'Pay Lesotho API error:',
+			response.status,
+			text.slice(0, 500)
+		);
+		return {
+			status_code: response.status,
+			message: `API error: ${response.status} ${response.statusText}`,
+		};
+	}
+
+	try {
+		return JSON.parse(text) as MpesaPaymentResponse;
+	} catch {
+		console.error('Pay Lesotho invalid JSON:', text.slice(0, 500));
+		return {
+			status_code: 500,
+			message: 'Invalid response from payment provider',
+		};
+	}
 }
 
 export async function verifyTransaction(
@@ -115,9 +135,29 @@ export async function verifyTransaction(
 		}
 	);
 
-	const data = (await response.json()) as VerifyTransactionResponse;
+	const text = await response.text();
 
-	return data;
+	if (!response.ok || text.startsWith('<!DOCTYPE') || text.startsWith('<')) {
+		console.error(
+			'Pay Lesotho verify error:',
+			response.status,
+			text.slice(0, 500)
+		);
+		return {
+			status_code: String(response.status),
+			message: `API error: ${response.status} ${response.statusText}`,
+		};
+	}
+
+	try {
+		return JSON.parse(text) as VerifyTransactionResponse;
+	} catch {
+		console.error('Pay Lesotho invalid JSON:', text.slice(0, 500));
+		return {
+			status_code: '500',
+			message: 'Invalid response from payment provider',
+		};
+	}
 }
 
 export function isPaymentSuccessful(
