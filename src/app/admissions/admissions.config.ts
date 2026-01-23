@@ -4,6 +4,7 @@ import {
 	IconCertificate,
 	IconChecklist,
 	IconClipboardList,
+	IconCreditCard,
 	IconUsers,
 } from '@tabler/icons-react';
 import type { ModuleConfig } from '@/app/dashboard/module-config.types';
@@ -58,6 +59,12 @@ export const admissionsConfig: ModuleConfig = {
 					queryFn: countPendingApplications,
 					color: 'red',
 				},
+			},
+			{
+				label: 'Payments',
+				href: '/admissions/payments',
+				icon: IconCreditCard,
+				roles: ['registry', 'finance', 'admin', 'marketing'],
 			},
 		],
 	},
