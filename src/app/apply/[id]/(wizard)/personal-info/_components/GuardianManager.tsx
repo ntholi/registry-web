@@ -18,6 +18,7 @@ import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import { IconEdit, IconPlus, IconTrash } from '@tabler/icons-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import {
 	addGuardianPhoneNumber,
@@ -56,6 +57,7 @@ const relationshipOptions = [
 ];
 
 export default function GuardianManager({ applicantId, guardians }: Props) {
+	const router = useRouter();
 	const queryClient = useQueryClient();
 	const [opened, { open, close }] = useDisclosure(false);
 	const [editingGuardian, setEditingGuardian] = useState<Guardian | null>(null);
@@ -69,14 +71,22 @@ export default function GuardianManager({ applicantId, guardians }: Props) {
 			address: '',
 			occupation: '',
 			companyName: '',
+			phoneNumber: '',
+		},
+		validate: {
+			name: (value) => (value ? null : 'Name is required'),
+			relationship: (value) => (value ? null : 'Relationship is required'),
 		},
 	});
 
 	const createMutation = useMutation({
-		mutationFn: (data: typeof form.values) =>
-			addNewGuardian({ ...data, applicantId }),
+		mutationFn: (values: typeof form.values) => {
+			const { phoneNumber, ...data } = values;
+			return addNewGuardian({ ...data, applicantId }, phoneNumber);
+		},
 		onSuccess: async () => {
 			await queryClient.invalidateQueries({ queryKey: ['applicants'] });
+			router.refresh();
 			form.reset();
 			close();
 			notifications.show({
@@ -95,10 +105,19 @@ export default function GuardianManager({ applicantId, guardians }: Props) {
 	});
 
 	const updateMutation = useMutation({
-		mutationFn: ({ id, data }: { id: string; data: typeof form.values }) =>
-			updateExistingGuardian(id, data),
+		mutationFn: ({
+			id,
+			values,
+		}: {
+			id: string;
+			values: typeof form.values;
+		}) => {
+			const { phoneNumber, ...data } = values;
+			return updateExistingGuardian(id, data);
+		},
 		onSuccess: async () => {
 			await queryClient.invalidateQueries({ queryKey: ['applicants'] });
+			router.refresh();
 			form.reset();
 			setEditingGuardian(null);
 			close();
@@ -121,6 +140,7 @@ export default function GuardianManager({ applicantId, guardians }: Props) {
 		mutationFn: removeGuardian,
 		onSuccess: async () => {
 			await queryClient.invalidateQueries({ queryKey: ['applicants'] });
+			router.refresh();
 			notifications.show({
 				title: 'Success',
 				message: 'Guardian deleted',
@@ -146,6 +166,7 @@ export default function GuardianManager({ applicantId, guardians }: Props) {
 		}) => addGuardianPhoneNumber(guardianId, phone),
 		onSuccess: async () => {
 			await queryClient.invalidateQueries({ queryKey: ['applicants'] });
+			router.refresh();
 			setAddingPhoneFor(null);
 			setNewPhone('');
 			notifications.show({
@@ -167,6 +188,7 @@ export default function GuardianManager({ applicantId, guardians }: Props) {
 		mutationFn: removeGuardianPhoneNumber,
 		onSuccess: async () => {
 			await queryClient.invalidateQueries({ queryKey: ['applicants'] });
+			router.refresh();
 			notifications.show({
 				title: 'Success',
 				message: 'Phone number removed',
@@ -190,6 +212,7 @@ export default function GuardianManager({ applicantId, guardians }: Props) {
 			address: guardian.address || '',
 			occupation: guardian.occupation || '',
 			companyName: guardian.companyName || '',
+			phoneNumber: guardian.phones[0]?.phoneNumber || '',
 		});
 		open();
 	}
@@ -202,7 +225,7 @@ export default function GuardianManager({ applicantId, guardians }: Props) {
 
 	function handleSubmit(values: typeof form.values) {
 		if (editingGuardian) {
-			updateMutation.mutate({ id: editingGuardian.id, data: values });
+			updateMutation.mutate({ id: editingGuardian.id, values });
 		} else {
 			createMutation.mutate(values);
 		}
@@ -334,6 +357,11 @@ export default function GuardianManager({ applicantId, guardians }: Props) {
 							required
 							data={relationshipOptions}
 							{...form.getInputProps('relationship')}
+						/>
+						<TextInput
+							label='Phone Number'
+							placeholder='Enter phone number'
+							{...form.getInputProps('phoneNumber')}
 						/>
 						<TextInput
 							label='Occupation'

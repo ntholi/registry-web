@@ -4,16 +4,18 @@ import {
 	ActionIcon,
 	Button,
 	Group,
+	Modal,
 	Stack,
 	Table,
 	Text,
 	TextInput,
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
+import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import { IconPlus, IconTrash } from '@tabler/icons-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { addPhone, removePhone } from '../_server/actions';
 
 type Phone = {
@@ -27,16 +29,23 @@ type Props = {
 };
 
 export default function PhoneManager({ applicantId, phones }: Props) {
+	const router = useRouter();
 	const queryClient = useQueryClient();
-	const [isAdding, setIsAdding] = useState(false);
-	const form = useForm({ initialValues: { phoneNumber: '' } });
+	const [opened, { open, close }] = useDisclosure(false);
+	const form = useForm({
+		initialValues: { phoneNumber: '' },
+		validate: {
+			phoneNumber: (value) => (value ? null : 'Phone number is required'),
+		},
+	});
 
 	const addMutation = useMutation({
 		mutationFn: (phoneNumber: string) => addPhone(applicantId, phoneNumber),
 		onSuccess: async () => {
 			await queryClient.invalidateQueries({ queryKey: ['applicants'] });
+			router.refresh();
 			form.reset();
-			setIsAdding(false);
+			close();
 			notifications.show({
 				title: 'Success',
 				message: 'Phone number added',
@@ -56,6 +65,7 @@ export default function PhoneManager({ applicantId, phones }: Props) {
 		mutationFn: removePhone,
 		onSuccess: async () => {
 			await queryClient.invalidateQueries({ queryKey: ['applicants'] });
+			router.refresh();
 			notifications.show({
 				title: 'Success',
 				message: 'Phone number removed',
@@ -105,43 +115,39 @@ export default function PhoneManager({ applicantId, phones }: Props) {
 				</Text>
 			)}
 
-			{isAdding ? (
+			<Button
+				variant='light'
+				leftSection={<IconPlus size={16} />}
+				onClick={open}
+				size='sm'
+			>
+				Add Phone Number
+			</Button>
+
+			<Modal opened={opened} onClose={close} title='Add Phone Number' centered>
 				<form
 					onSubmit={form.onSubmit((values) =>
 						addMutation.mutate(values.phoneNumber)
 					)}
 				>
-					<Group>
+					<Stack gap='md'>
 						<TextInput
+							label='Phone Number'
 							placeholder='Enter phone number'
+							required
 							{...form.getInputProps('phoneNumber')}
-							style={{ flex: 1 }}
 						/>
-						<Button type='submit' size='sm' loading={addMutation.isPending}>
-							Add
-						</Button>
-						<Button
-							variant='subtle'
-							size='sm'
-							onClick={() => {
-								setIsAdding(false);
-								form.reset();
-							}}
-						>
-							Cancel
-						</Button>
-					</Group>
+						<Group justify='flex-end'>
+							<Button variant='subtle' onClick={close}>
+								Cancel
+							</Button>
+							<Button type='submit' loading={addMutation.isPending}>
+								Add
+							</Button>
+						</Group>
+					</Stack>
 				</form>
-			) : (
-				<Button
-					variant='light'
-					leftSection={<IconPlus size={16} />}
-					onClick={() => setIsAdding(true)}
-					size='sm'
-				>
-					Add Phone Number
-				</Button>
-			)}
+			</Modal>
 		</Stack>
 	);
 }

@@ -154,7 +154,7 @@ export default function PersonalInfoForm({ applicant }: Props) {
 
 			<Paper withBorder radius='md' p='lg'>
 				<Stack gap='md'>
-					<Title order={3}>Guardians / Sponsors</Title>
+					<Title order={3}>Guardians</Title>
 					<GuardianManager
 						applicantId={applicant.id}
 						guardians={applicant.guardians}
