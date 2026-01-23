@@ -3,10 +3,8 @@
 import type { ProgramLevel } from '@academic/_database';
 import { createOrUpdateApplication } from '@admissions/applications';
 import {
-	Badge,
 	Box,
 	Button,
-	Card,
 	Group,
 	Paper,
 	Radio,
@@ -18,12 +16,7 @@ import {
 	Title,
 } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
-import {
-	IconArrowLeft,
-	IconArrowRight,
-	IconCheck,
-	IconSchool,
-} from '@tabler/icons-react';
+import { IconArrowLeft, IconArrowRight, IconSchool } from '@tabler/icons-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'nextjs-toploader/app';
 import { parseAsInteger, parseAsString, useQueryStates } from 'nuqs';
@@ -34,6 +27,7 @@ import {
 	getEligiblePrograms,
 	getExistingApplication,
 } from '../_server/actions';
+import CourseCard from './CourseCard';
 
 type Props = {
 	applicantId: string;
@@ -296,60 +290,5 @@ export default function CourseSelectionForm({ applicantId }: Props) {
 				</Group>
 			</Stack>
 		</Paper>
-	);
-}
-
-type CourseCardProps = {
-	program: EligibleProgram;
-	selected: boolean;
-	disabled: boolean;
-	onSelect: () => void;
-};
-
-function CourseCard({
-	program,
-	selected,
-	disabled,
-	onSelect,
-}: CourseCardProps) {
-	return (
-		<Card
-			withBorder
-			radius='md'
-			p='sm'
-			style={{
-				cursor: disabled ? 'not-allowed' : 'pointer',
-				opacity: disabled ? 0.5 : 1,
-				borderColor: selected
-					? 'var(--mantine-color-blue-6)'
-					: 'var(--mantine-color-default-border)',
-				borderWidth: selected ? 2 : 1,
-			}}
-			onClick={disabled ? undefined : onSelect}
-		>
-			<Group wrap='nowrap' align='flex-start'>
-				<Radio value={String(program.id)} disabled={disabled} />
-				<Stack gap={4} style={{ flex: 1 }}>
-					<Text fw={500} size='sm' lh={1.3}>
-						{program.name}
-					</Text>
-					<Group gap='xs'>
-						{program.school.shortName && (
-							<Badge size='xs' variant='light' color='blue'>
-								{program.school.shortName}
-							</Badge>
-						)}
-						<Badge size='xs' variant='outline' tt='capitalize'>
-							{program.level}
-						</Badge>
-					</Group>
-				</Stack>
-				{selected && (
-					<ThemeIcon size='sm' variant='light' color='blue'>
-						<IconCheck size={14} />
-					</ThemeIcon>
-				)}
-			</Group>
-		</Card>
 	);
 }
