@@ -1,17 +1,20 @@
 'use client';
 
 import { intakePeriods } from '@admissions/_database';
-import { Group, NumberInput, TextInput } from '@mantine/core';
+import { Divider, Group, NumberInput, TextInput } from '@mantine/core';
 import { DateInput } from '@mantine/dates';
 import { createInsertSchema } from 'drizzle-zod';
 import { useRouter } from 'nextjs-toploader/app';
 import { z } from 'zod';
 import { Form } from '@/shared/ui/adease';
 import type { IntakePeriod } from '../_lib/types';
+import ProgramSelector from './ProgramSelector';
+
+type FormValues = IntakePeriod & { programIds?: number[] };
 
 type Props = {
-	onSubmit: (values: IntakePeriod) => Promise<IntakePeriod>;
-	defaultValues?: Partial<IntakePeriod>;
+	onSubmit: (values: FormValues) => Promise<IntakePeriod>;
+	defaultValues?: Partial<FormValues>;
 	title?: string;
 };
 
@@ -28,6 +31,7 @@ export default function IntakePeriodForm({
 		startDate: z.string().min(1, 'Start date is required'),
 		endDate: z.string().min(1, 'End date is required'),
 		applicationFee: z.string().min(1, 'Application fee is required'),
+		programIds: z.number().array().optional(),
 	});
 
 	return (
@@ -77,6 +81,12 @@ export default function IntakePeriodForm({
 							form.setFieldValue('applicationFee', val?.toString() || '')
 						}
 						error={form.errors.applicationFee}
+					/>
+					<Divider my='sm' />
+					<ProgramSelector
+						value={form.values.programIds ?? []}
+						onChange={(ids) => form.setFieldValue('programIds', ids)}
+						error={form.errors.programIds as string | undefined}
 					/>
 				</>
 			)}

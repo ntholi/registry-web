@@ -1,7 +1,12 @@
 import { Box } from '@mantine/core';
 import { notFound } from 'next/navigation';
 import IntakePeriodForm from '../../_components/Form';
-import { getIntakePeriod, updateIntakePeriod } from '../../_server/actions';
+import {
+	getIntakePeriod,
+	getIntakePeriodProgramIds,
+	setIntakePeriodProgramIds,
+	updateIntakePeriod,
+} from '../../_server/actions';
 
 type Props = {
 	params: Promise<{ id: string }>;
@@ -9,7 +14,10 @@ type Props = {
 
 export default async function EditIntakePeriodPage({ params }: Props) {
 	const { id } = await params;
-	const item = await getIntakePeriod(id);
+	const [item, programIds] = await Promise.all([
+		getIntakePeriod(id),
+		getIntakePeriodProgramIds(id),
+	]);
 
 	if (!item) {
 		return notFound();
@@ -19,10 +27,13 @@ export default async function EditIntakePeriodPage({ params }: Props) {
 		<Box p={'lg'}>
 			<IntakePeriodForm
 				title='Edit Intake Period'
-				defaultValues={item}
+				defaultValues={{ ...item, programIds }}
 				onSubmit={async (values) => {
 					'use server';
-					return updateIntakePeriod(id, values);
+					const { programIds: newProgramIds, ...data } = values;
+					const result = await updateIntakePeriod(id, data);
+					await setIntakePeriodProgramIds(id, newProgramIds ?? []);
+					return result;
 				}}
 			/>
 		</Box>

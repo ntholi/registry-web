@@ -9,6 +9,10 @@ export async function getIntakePeriod(id: string) {
 	return intakePeriodsService.get(id);
 }
 
+export async function getIntakePeriodWithPrograms(id: string) {
+	return intakePeriodsService.findWithPrograms(id);
+}
+
 export async function findAllIntakePeriods(page = 1, search = '') {
 	return intakePeriodsService.findAll({
 		page,
@@ -23,6 +27,21 @@ export async function findActiveIntakePeriods() {
 
 export async function findActiveIntakePeriod() {
 	return intakePeriodsService.findActive();
+}
+
+export async function getIntakePeriodProgramIds(intakePeriodId: string) {
+	return intakePeriodsService.getProgramIds(intakePeriodId);
+}
+
+export async function setIntakePeriodProgramIds(
+	intakePeriodId: string,
+	programIds: number[]
+) {
+	return intakePeriodsService.setProgramIds(intakePeriodId, programIds);
+}
+
+export async function getOpenProgramIds(intakePeriodId: string) {
+	return intakePeriodsService.getOpenProgramIds(intakePeriodId);
 }
 
 export async function createIntakePeriod(data: IntakePeriod) {

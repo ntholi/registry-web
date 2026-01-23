@@ -33,6 +33,34 @@ class IntakePeriodService extends BaseService<typeof intakePeriods, 'id'> {
 		);
 	}
 
+	async findWithPrograms(id: string) {
+		return withAuth(
+			async () => this.repo.findWithPrograms(id),
+			['registry', 'marketing', 'admin']
+		);
+	}
+
+	async getProgramIds(intakePeriodId: string) {
+		return withAuth(
+			async () => this.repo.getProgramIds(intakePeriodId),
+			['registry', 'marketing', 'admin']
+		);
+	}
+
+	async setProgramIds(intakePeriodId: string, programIds: number[]) {
+		return withAuth(
+			async () => this.repo.setProgramIds(intakePeriodId, programIds),
+			['registry', 'marketing', 'admin']
+		);
+	}
+
+	async getOpenProgramIds(intakePeriodId: string) {
+		return withAuth(
+			async () => this.repo.getOpenProgramIds(intakePeriodId),
+			['registry', 'marketing', 'admin', 'applicant']
+		);
+	}
+
 	override async create(data: typeof intakePeriods.$inferInsert) {
 		return withAuth(async () => {
 			const overlap = await this.repo.findOverlapping(

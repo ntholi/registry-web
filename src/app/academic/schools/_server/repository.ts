@@ -1,4 +1,4 @@
-import { desc, eq, inArray } from 'drizzle-orm';
+import { asc, desc, eq, inArray } from 'drizzle-orm';
 import { db, programs, schools } from '@/core/database';
 import BaseRepository from '@/core/platform/BaseRepository';
 
@@ -50,6 +50,18 @@ export default class SchoolRepository extends BaseRepository<
 			},
 			orderBy: desc(programs.id),
 		});
+	}
+
+	async getAllProgramsWithLevel() {
+		return db
+			.select({
+				id: programs.id,
+				code: programs.code,
+				name: programs.name,
+				level: programs.level,
+			})
+			.from(programs)
+			.orderBy(asc(programs.level), asc(programs.name));
 	}
 
 	async getProgramsBySchoolIds(schoolIds?: number[]) {

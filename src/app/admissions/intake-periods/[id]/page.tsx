@@ -1,4 +1,4 @@
-import { Badge, Text } from '@mantine/core';
+import { Badge, Group, Stack, Text } from '@mantine/core';
 import { notFound } from 'next/navigation';
 import { isIntakePeriodActive } from '@/shared/lib/utils/dates';
 import {
@@ -7,7 +7,10 @@ import {
 	DetailsViewHeader,
 	FieldView,
 } from '@/shared/ui/adease';
-import { deleteIntakePeriod, getIntakePeriod } from '../_server/actions';
+import {
+	deleteIntakePeriod,
+	getIntakePeriodWithPrograms,
+} from '../_server/actions';
 
 type Props = {
 	params: Promise<{ id: string }>;
@@ -15,13 +18,14 @@ type Props = {
 
 export default async function IntakePeriodDetails({ params }: Props) {
 	const { id } = await params;
-	const item = await getIntakePeriod(id);
+	const item = await getIntakePeriodWithPrograms(id);
 
 	if (!item) {
 		return notFound();
 	}
 
 	const isActive = isIntakePeriodActive(item.startDate, item.endDate);
+	const programs = item.intakePeriodPrograms?.map((ip) => ip.program) ?? [];
 
 	return (
 		<DetailsView>
@@ -44,6 +48,27 @@ export default async function IntakePeriodDetails({ params }: Props) {
 				<FieldView label='End Date'>{item.endDate}</FieldView>
 				<FieldView label='Application Fee'>
 					<Text fw={500}>M{Number(item.applicationFee).toFixed(2)}</Text>
+				</FieldView>
+				<FieldView label='Open Programs'>
+					{programs.length > 0 ? (
+						<Stack gap='xs'>
+							<Group gap='xs' wrap='wrap'>
+								{programs.map((p) => (
+									<Badge key={p.id} variant='light' size='sm'>
+										{p.code}
+									</Badge>
+								))}
+							</Group>
+							<Text size='sm' c='dimmed'>
+								{programs.length} program{programs.length !== 1 ? 's' : ''} open
+								for applications
+							</Text>
+						</Stack>
+					) : (
+						<Text size='sm' c='dimmed'>
+							All programs (no restrictions)
+						</Text>
+					)}
 				</FieldView>
 			</DetailsViewBody>
 		</DetailsView>

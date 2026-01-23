@@ -17,6 +17,7 @@ export * from '../documents/_schema/applicantDocuments';
 export * from '../documents/_schema/relations';
 export * from '../entry-requirements/_schema/entryRequirements';
 export * from '../entry-requirements/_schema/relations';
+export * from '../intake-periods/_schema/intakePeriodPrograms';
 export * from '../intake-periods/_schema/intakePeriods';
 export * from '../intake-periods/_schema/relations';
 export * from '../subjects/_schema/relations';
