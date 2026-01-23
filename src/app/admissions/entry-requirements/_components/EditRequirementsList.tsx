@@ -6,6 +6,7 @@ import {
 	ActionIcon,
 	Badge,
 	Button,
+	Divider,
 	Group,
 	Modal,
 	NumberInput,
@@ -36,6 +37,7 @@ import {
 	deleteEntryRequirement,
 	updateEntryRequirement,
 } from '../_server/actions';
+import SubjectGroupModal from './SubjectGroupModal';
 
 type CertificateType = {
 	id: string;
@@ -280,6 +282,32 @@ function RequirementEditor({
 		}));
 	};
 
+	const handleAddSubjectGroup = (
+		group: NonNullable<SubjectGradeRules['subjectGroups']>[0]
+	) => {
+		setSubjectRules((prev) => ({
+			...prev,
+			subjectGroups: [...(prev.subjectGroups || []), group],
+		}));
+	};
+
+	const handleUpdateSubjectGroup = (
+		idx: number,
+		group: NonNullable<SubjectGradeRules['subjectGroups']>[0]
+	) => {
+		setSubjectRules((prev) => ({
+			...prev,
+			subjectGroups: prev.subjectGroups?.map((g, i) => (i === idx ? group : g)),
+		}));
+	};
+
+	const handleRemoveSubjectGroup = (idx: number) => {
+		setSubjectRules((prev) => ({
+			...prev,
+			subjectGroups: prev.subjectGroups?.filter((_, i) => i !== idx),
+		}));
+	};
+
 	return (
 		<Accordion.Item value={requirement.id}>
 			<Accordion.Control>
@@ -394,6 +422,72 @@ function RequirementEditor({
 											<IconTrash size={16} />
 										</ActionIcon>
 									</Group>
+								))}
+							</Stack>
+
+							<Divider my='md' />
+
+							<Stack gap='xs'>
+								<Group justify='space-between'>
+									<Text size='sm' fw={500}>
+										Subject Groups
+									</Text>
+									<SubjectGroupModal
+										mode='add'
+										subjects={subjects}
+										onSave={handleAddSubjectGroup}
+									/>
+								</Group>
+
+								<Text size='xs' c='dimmed'>
+									Define groups of alternative subjects (e.g., "Choose one
+									Science subject")
+								</Text>
+
+								{subjectRules.subjectGroups?.map((group, idx) => (
+									<Paper
+										key={idx}
+										withBorder
+										p='sm'
+										bg='var(--mantine-color-dark-8)'
+									>
+										<Group justify='space-between'>
+											<div>
+												<Group gap='xs'>
+													<Text size='sm' fw={500}>
+														{group.name || 'Unnamed Group'}
+													</Text>
+													{group.required && (
+														<Badge size='xs' color='red'>
+															Required
+														</Badge>
+													)}
+													<Badge size='xs' variant='light'>
+														Min: {group.minimumGrade}
+													</Badge>
+												</Group>
+												<Text size='xs' c='dimmed'>
+													{group.subjectIds.length} subject(s)
+												</Text>
+											</div>
+											<Group gap='xs'>
+												<SubjectGroupModal
+													mode='edit'
+													group={group}
+													subjects={subjects}
+													onSave={(g) => handleUpdateSubjectGroup(idx, g)}
+												/>
+												<ActionIcon
+													variant='subtle'
+													color='red'
+													size='sm'
+													onClick={() => handleRemoveSubjectGroup(idx)}
+												>
+													<IconTrash size={14} />
+												</ActionIcon>
+											</Group>
+										</Group>
+									</Paper>
 								))}
 							</Stack>
 						</Paper>
