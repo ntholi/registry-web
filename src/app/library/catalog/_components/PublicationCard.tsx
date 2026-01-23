@@ -29,19 +29,13 @@ export default function PublicationCard({ publication }: Props) {
 		.join(', ');
 
 	return (
-		<Card shadow='sm' padding={0} radius='md' withBorder h={260}>
-			<Box
-				p='md'
-				bg={`var(--mantine-color-dark-5)`}
-				style={{
-					borderBottom: '1px solid var(--mantine-color-default-border)',
-				}}
-			>
+		<Card shadow='sm' padding={0} radius='md' withBorder h={245}>
+			<Box px='md' py={'sm'} bg={`var(--mantine-color-dark-5)`}>
 				<Group justify='space-between' align='flex-start'>
-					<ThemeIcon variant='light' color={config.color} size='xl' radius='md'>
+					<ThemeIcon variant='light' color='gray' size='xl' radius='md'>
 						<Icon size={24} />
 					</ThemeIcon>
-					<Badge color={config.color} variant='default' size='sm'>
+					<Badge variant='default' size='sm'>
 						{config.label}
 					</Badge>
 				</Group>
