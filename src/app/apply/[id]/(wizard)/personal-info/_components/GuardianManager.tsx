@@ -225,20 +225,12 @@ export default function GuardianManager({ applicantId, guardians }: Props) {
 									{guardian.companyName && ` at ${guardian.companyName}`}
 								</Text>
 							)}
-
-							<Group gap='xs'>
-								{guardian.phones.map((phone) => (
-									<Badge key={phone.id} variant='outline'>
-										{phone.phoneNumber}
-									</Badge>
-								))}
-							</Group>
 						</Stack>
 					</Card>
 				))
 			) : (
 				<Text size='sm' c='dimmed'>
-					No guardians or sponsors added
+					No guardians added
 				</Text>
 			)}
 
@@ -247,7 +239,7 @@ export default function GuardianManager({ applicantId, guardians }: Props) {
 				leftSection={<IconPlus size={16} />}
 				onClick={open}
 			>
-				Add Guardian / Sponsor
+				Add Guardian
 			</Button>
 
 			<Modal
