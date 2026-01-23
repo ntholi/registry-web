@@ -197,12 +197,7 @@ export default function GuardianManager({ applicantId, guardians }: Props) {
 					<Card key={guardian.id} withBorder radius='md' p='sm'>
 						<Stack gap='xs'>
 							<Group justify='space-between'>
-								<Group gap='xs'>
-									<Text fw={500}>{guardian.name}</Text>
-									<Badge variant='light' size='sm'>
-										{guardian.relationship}
-									</Badge>
-								</Group>
+								<Text fw={500}>{guardian.name}</Text>
 								<Group gap='xs'>
 									<ActionIcon
 										variant='subtle'
@@ -220,13 +215,9 @@ export default function GuardianManager({ applicantId, guardians }: Props) {
 									</ActionIcon>
 								</Group>
 							</Group>
-
-							{guardian.occupation && (
-								<Text size='sm' c='dimmed'>
-									{guardian.occupation}
-									{guardian.companyName && ` at ${guardian.companyName}`}
-								</Text>
-							)}
+							<Badge variant='default' size='sm' radius='xs'>
+								{guardian.relationship}
+							</Badge>
 						</Stack>
 					</Card>
 				))

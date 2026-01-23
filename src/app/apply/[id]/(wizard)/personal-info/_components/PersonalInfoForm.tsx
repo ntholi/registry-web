@@ -2,6 +2,7 @@
 
 import type { ApplicantWithRelations } from '@admissions/applicants';
 import {
+	Box,
 	Button,
 	Divider,
 	Group,
@@ -174,13 +175,17 @@ export default function PersonalInfoForm({ applicant }: Props) {
 				>
 					Back
 				</Button>
-				<Button
-					rightSection={<IconArrowRight size={16} />}
-					onClick={() => form.onSubmit((values) => mutation.mutate(values))()}
-					loading={mutation.isPending}
-				>
-					Continue
-				</Button>
+
+				<Box>
+					<Button
+						rightSection={<IconArrowRight size={16} />}
+						onClick={() => form.onSubmit((values) => mutation.mutate(values))()}
+						loading={mutation.isPending}
+						disabled={applicant.guardians.length === 0}
+					>
+						Continue
+					</Button>
+				</Box>
 			</Group>
 		</Stack>
 	);
