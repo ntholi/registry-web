@@ -1,4 +1,4 @@
-const BASE_URL = 'https://api.paylesotho.co.ls/api/v2/vcl';
+const BASE_URL = 'https://api.paylesotho.co.ls/api/v1/vcl';
 
 interface MpesaPaymentRequest {
 	merchantId: string;
@@ -78,19 +78,23 @@ export async function initiateMpesaPayment(
 		clientReference,
 	};
 
+	const body = {
+		merchantid: payload.merchantId,
+		amount: payload.amount,
+		mobileNumber: payload.mobileNumber,
+		merchantname: payload.merchantName,
+		clientReference: payload.clientReference,
+	};
+
+	console.log('Pay Lesotho request:', { url: `${BASE_URL}/payment`, body });
+
 	const response = await fetch(`${BASE_URL}/payment`, {
 		method: 'POST',
 		headers: {
-			'Content-Type': 'application/json',
 			Authorization: `Bearer ${apiKey}`,
+			Accept: 'application/json',
 		},
-		body: JSON.stringify({
-			merchantid: payload.merchantId,
-			amount: payload.amount,
-			mobileNumber: payload.mobileNumber,
-			merchantname: payload.merchantName,
-			clientReference: payload.clientReference,
-		}),
+		body: JSON.stringify(body),
 	});
 
 	const text = await response.text();
