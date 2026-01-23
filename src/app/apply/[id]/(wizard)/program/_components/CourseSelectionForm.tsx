@@ -15,6 +15,7 @@ import {
 	ThemeIcon,
 	Title,
 } from '@mantine/core';
+import { modals } from '@mantine/modals';
 import { notifications } from '@mantine/notifications';
 import { IconArrowLeft, IconArrowRight, IconSchool } from '@tabler/icons-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -165,6 +166,21 @@ export default function CourseSelectionForm({ applicantId }: Props) {
 	}
 
 	function handleContinue() {
+		if (eligiblePrograms.length > 1 && !secondChoice) {
+			modals.openConfirmModal({
+				title: 'No Second Choice Selected',
+				children: (
+					<Text size='sm'>
+						You have not selected a second choice program. Would you like to
+						select one now?
+					</Text>
+				),
+				labels: { confirm: 'Choose Second Choice', cancel: 'Continue Anyway' },
+				onConfirm: () => setChoiceType('second'),
+				onCancel: () => submitMutation.mutate(),
+			});
+			return;
+		}
 		submitMutation.mutate();
 	}
 
@@ -237,38 +253,31 @@ export default function CourseSelectionForm({ applicantId }: Props) {
 							/>
 						)}
 
-						<Stack gap='xs'>
-							<Text fw={500}>
-								{choiceType === 'first'
-									? 'First Choice (Required)'
-									: 'Second Choice (Optional)'}
-							</Text>
-							<SimpleGrid cols={{ base: 1, md: 2 }} spacing='sm'>
-								{filteredPrograms.map((program) => (
-									<CourseCard
-										key={program.id}
-										program={program}
-										selected={
-											choiceType === 'first'
-												? firstChoice === String(program.id)
-												: secondChoice === String(program.id)
+						<SimpleGrid cols={{ base: 1, md: 2 }} spacing='sm'>
+							{filteredPrograms.map((program) => (
+								<CourseCard
+									key={program.id}
+									program={program}
+									selected={
+										choiceType === 'first'
+											? firstChoice === String(program.id)
+											: secondChoice === String(program.id)
+									}
+									disabled={
+										choiceType === 'first'
+											? secondChoice === String(program.id)
+											: firstChoice === String(program.id)
+									}
+									onToggle={(sel) => {
+										if (choiceType === 'first') {
+											setFirstChoice(sel ? String(program.id) : null);
+										} else {
+											setSecondChoice(sel ? String(program.id) : null);
 										}
-										disabled={
-											choiceType === 'first'
-												? secondChoice === String(program.id)
-												: firstChoice === String(program.id)
-										}
-										onToggle={(sel) => {
-											if (choiceType === 'first') {
-												setFirstChoice(sel ? String(program.id) : null);
-											} else {
-												setSecondChoice(sel ? String(program.id) : null);
-											}
-										}}
-									/>
-								))}
-							</SimpleGrid>
-						</Stack>
+									}}
+								/>
+							))}
+						</SimpleGrid>
 					</Stack>
 				)}
 
