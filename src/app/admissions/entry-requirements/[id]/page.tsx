@@ -40,6 +40,7 @@ export default async function ProgramEntryRequirements({ params }: Props) {
 			<DetailsViewHeader
 				title='Entry Requirements'
 				queryKey={['entry-requirements']}
+				editRoles={['registry', 'marketing']}
 			/>
 			<DetailsViewBody>
 				<Group gap='md' mb='lg' align='flex-start'>
