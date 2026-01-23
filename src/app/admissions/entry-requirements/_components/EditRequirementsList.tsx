@@ -1,6 +1,5 @@
 'use client';
 
-import type { ProgramLevel } from '@academic/_database';
 import type { GradingType } from '@admissions/_database';
 import {
 	Accordion,
@@ -51,20 +50,16 @@ type RequirementItem = EntryRequirement & {
 
 type Props = {
 	programId: number;
-	programLevel: ProgramLevel;
 	requirements: RequirementItem[];
 	certificateTypes: CertificateType[];
 	subjects: Subject[];
 };
-
-const LGCSE_ID = 'eHxTppZkH1JUs0XSbOWPW';
 
 const standardGrades = ['A*', 'A', 'B', 'C', 'D', 'E', 'F', 'U'];
 const classifications = ['Distinction', 'Merit', 'Credit', 'Pass'] as const;
 
 export default function EditRequirementsList({
 	programId,
-	programLevel,
 	requirements: initialRequirements,
 	certificateTypes,
 	subjects,
@@ -74,18 +69,14 @@ export default function EditRequirementsList({
 		useState<RequirementItem[]>(initialRequirements);
 
 	const lgcseRequirement = initialRequirements.find(
-		(r) => r.certificateTypeId === LGCSE_ID
+		(r) => r.certificateType?.name === 'LGCSE'
 	);
 	const [expandedId, setExpandedId] = useState<string | null>(
 		lgcseRequirement?.id || initialRequirements[0]?.id || null
 	);
 
 	const usedCertTypeIds = new Set(requirements.map((r) => r.certificateTypeId));
-	const filteredCertTypes =
-		programLevel === 'certificate'
-			? certificateTypes.filter((ct) => ct.id === LGCSE_ID)
-			: certificateTypes;
-	const availableCertTypes = filteredCertTypes.filter(
+	const availableCertTypes = certificateTypes.filter(
 		(ct) => !usedCertTypeIds.has(ct.id)
 	);
 

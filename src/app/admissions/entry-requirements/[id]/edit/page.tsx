@@ -60,7 +60,6 @@ export default async function ProgramEntryRequirementsEdit({ params }: Props) {
 
 					<EditRequirementsList
 						programId={programId}
-						programLevel={program.level}
 						requirements={requirements}
 						certificateTypes={certificateTypes}
 						subjects={subjects}
