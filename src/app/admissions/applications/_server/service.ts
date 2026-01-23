@@ -169,7 +169,7 @@ class ApplicationService extends BaseService<typeof applications, 'id'> {
 
 				return this.repo.updateStatus(applicationId, newStatus);
 			},
-			['registry', 'marketing', 'admin']
+			['registry', 'marketing', 'admin', 'applicant']
 		);
 	}
 
