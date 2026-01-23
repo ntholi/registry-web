@@ -18,3 +18,5 @@ export * from '../resources/publications/_schema/publications';
 export * from '../resources/publications/_schema/relations';
 export * from '../resources/question-papers/_schema/questionPapers';
 export * from '../resources/question-papers/_schema/relations';
+export * from '../settings/_schema/librarySettings';
+export * from '../settings/_schema/relations';

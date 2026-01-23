@@ -17,8 +17,9 @@ import { notifications } from '@mantine/notifications';
 import { IconSearch } from '@tabler/icons-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'nextjs-toploader/app';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import FormHeader from '@/shared/ui/adease/FormHeader';
+import { getLibrarySettings } from '../../settings/_server/actions';
 import type {
 	AvailableCopy,
 	BookSearchResult,
@@ -42,6 +43,19 @@ export default function LoanForm() {
 
 	const [bookSearch, setBookSearch] = useState('');
 	const [debouncedBookSearch] = useDebouncedValue(bookSearch, 300);
+
+	const { data: settings } = useQuery({
+		queryKey: ['library-settings'],
+		queryFn: () => getLibrarySettings(),
+	});
+
+	useEffect(() => {
+		if (student && settings) {
+			const date = new Date();
+			date.setDate(date.getDate() + (settings.studentLoanDuration ?? 14));
+			setDueDate(date.toISOString().split('T')[0]);
+		}
+	}, [student, settings]);
 
 	const { data: books = [], isLoading: booksLoading } = useQuery({
 		queryKey: ['book-search', debouncedBookSearch],
