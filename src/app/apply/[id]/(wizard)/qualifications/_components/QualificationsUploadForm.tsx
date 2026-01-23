@@ -3,7 +3,6 @@
 import { findAcademicRecordsByApplicant } from '@admissions/applicants/[id]/academic-records/_server/actions';
 import {
 	ActionIcon,
-	Badge,
 	Button,
 	Card,
 	Group,
@@ -21,7 +20,6 @@ import {
 	IconArrowLeft,
 	IconArrowRight,
 	IconCertificate,
-	IconCheck,
 	IconTrash,
 } from '@tabler/icons-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -237,17 +235,6 @@ function AcademicRecordCard({
 									<Text size='sm' fw={600} truncate>
 										{record.certificateType?.name ?? 'Certificate'}
 									</Text>
-									{record.certificateType?.lqfLevel && (
-										<Badge size='xs' variant='light'>
-											LQF {record.certificateType.lqfLevel}
-										</Badge>
-									)}
-								</Group>
-								<Group gap={4}>
-									<IconCheck size={12} color='var(--mantine-color-green-6)' />
-									<Text size='xs' c='green'>
-										Verified
-									</Text>
 								</Group>
 							</Stack>
 						</Group>
@@ -279,16 +266,6 @@ function AcademicRecordCard({
 								<Text size='xs' fw={500}>
 									{record.examYear}
 								</Text>
-							</Group>
-						)}
-						{record.resultClassification && (
-							<Group gap='xs'>
-								<Text size='xs' c='dimmed' w={80}>
-									Result:
-								</Text>
-								<Badge size='xs' variant='outline'>
-									{record.resultClassification}
-								</Badge>
 							</Group>
 						)}
 					</Stack>
