@@ -147,14 +147,18 @@ export default class ApplicantRepository extends BaseRepository<
 
 	async createGuardian(
 		data: typeof guardians.$inferInsert,
-		phoneNumber?: string
+		phoneNumbers?: string[]
 	) {
 		return db.transaction(async (tx) => {
 			const [guardian] = await tx.insert(guardians).values(data).returning();
-			if (phoneNumber) {
-				await tx
-					.insert(guardianPhones)
-					.values({ guardianId: guardian.id, phoneNumber });
+			if (phoneNumbers && phoneNumbers.length > 0) {
+				for (const phoneNumber of phoneNumbers) {
+					if (phoneNumber) {
+						await tx
+							.insert(guardianPhones)
+							.values({ guardianId: guardian.id, phoneNumber });
+					}
+				}
 			}
 			return guardian;
 		});
@@ -162,14 +166,32 @@ export default class ApplicantRepository extends BaseRepository<
 
 	async updateGuardian(
 		id: string,
-		data: Partial<typeof guardians.$inferInsert>
+		data: Partial<typeof guardians.$inferInsert>,
+		phoneNumbers?: string[]
 	) {
-		const [guardian] = await db
-			.update(guardians)
-			.set(data)
-			.where(eq(guardians.id, id))
-			.returning();
-		return guardian;
+		return db.transaction(async (tx) => {
+			const [guardian] = await tx
+				.update(guardians)
+				.set(data)
+				.where(eq(guardians.id, id))
+				.returning();
+
+			if (phoneNumbers) {
+				// Simple sync: delete all and re-add
+				await tx
+					.delete(guardianPhones)
+					.where(eq(guardianPhones.guardianId, id));
+
+				for (const phoneNumber of phoneNumbers) {
+					if (phoneNumber) {
+						await tx
+							.insert(guardianPhones)
+							.values({ guardianId: id, phoneNumber });
+					}
+				}
+			}
+			return guardian;
+		});
 	}
 
 	async deleteGuardian(id: string) {

@@ -21,10 +21,8 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import {
-	addGuardianPhoneNumber,
 	addNewGuardian,
 	removeGuardian,
-	removeGuardianPhoneNumber,
 	updateExistingGuardian,
 } from '../_server/actions';
 
@@ -61,8 +59,6 @@ export default function GuardianManager({ applicantId, guardians }: Props) {
 	const queryClient = useQueryClient();
 	const [opened, { open, close }] = useDisclosure(false);
 	const [editingGuardian, setEditingGuardian] = useState<Guardian | null>(null);
-	const [addingPhoneFor, setAddingPhoneFor] = useState<string | null>(null);
-	const [newPhone, setNewPhone] = useState('');
 
 	const form = useForm({
 		initialValues: {
@@ -71,7 +67,8 @@ export default function GuardianManager({ applicantId, guardians }: Props) {
 			address: '',
 			occupation: '',
 			companyName: '',
-			phoneNumber: '',
+			phoneNumber1: '',
+			phoneNumber2: '',
 		},
 		validate: {
 			name: (value) => (value ? null : 'Name is required'),
@@ -81,8 +78,11 @@ export default function GuardianManager({ applicantId, guardians }: Props) {
 
 	const createMutation = useMutation({
 		mutationFn: (values: typeof form.values) => {
-			const { phoneNumber, ...data } = values;
-			return addNewGuardian({ ...data, applicantId }, phoneNumber);
+			const { phoneNumber1, phoneNumber2, ...data } = values;
+			return addNewGuardian(
+				{ ...data, applicantId },
+				[phoneNumber1, phoneNumber2].filter(Boolean)
+			);
 		},
 		onSuccess: async () => {
 			await queryClient.invalidateQueries({ queryKey: ['applicants'] });
@@ -112,8 +112,12 @@ export default function GuardianManager({ applicantId, guardians }: Props) {
 			id: string;
 			values: typeof form.values;
 		}) => {
-			const { phoneNumber, ...data } = values;
-			return updateExistingGuardian(id, data);
+			const { phoneNumber1, phoneNumber2, ...data } = values;
+			return updateExistingGuardian(
+				id,
+				data,
+				[phoneNumber1, phoneNumber2].filter(Boolean)
+			);
 		},
 		onSuccess: async () => {
 			await queryClient.invalidateQueries({ queryKey: ['applicants'] });
@@ -156,54 +160,6 @@ export default function GuardianManager({ applicantId, guardians }: Props) {
 		},
 	});
 
-	const addPhoneMutation = useMutation({
-		mutationFn: ({
-			guardianId,
-			phone,
-		}: {
-			guardianId: string;
-			phone: string;
-		}) => addGuardianPhoneNumber(guardianId, phone),
-		onSuccess: async () => {
-			await queryClient.invalidateQueries({ queryKey: ['applicants'] });
-			router.refresh();
-			setAddingPhoneFor(null);
-			setNewPhone('');
-			notifications.show({
-				title: 'Success',
-				message: 'Phone number added',
-				color: 'green',
-			});
-		},
-		onError: (error: Error) => {
-			notifications.show({
-				title: 'Error',
-				message: error.message,
-				color: 'red',
-			});
-		},
-	});
-
-	const removePhoneMutation = useMutation({
-		mutationFn: removeGuardianPhoneNumber,
-		onSuccess: async () => {
-			await queryClient.invalidateQueries({ queryKey: ['applicants'] });
-			router.refresh();
-			notifications.show({
-				title: 'Success',
-				message: 'Phone number removed',
-				color: 'green',
-			});
-		},
-		onError: (error: Error) => {
-			notifications.show({
-				title: 'Error',
-				message: error.message,
-				color: 'red',
-			});
-		},
-	});
-
 	function handleEdit(guardian: Guardian) {
 		setEditingGuardian(guardian);
 		form.setValues({
@@ -212,7 +168,8 @@ export default function GuardianManager({ applicantId, guardians }: Props) {
 			address: guardian.address || '',
 			occupation: guardian.occupation || '',
 			companyName: guardian.companyName || '',
-			phoneNumber: guardian.phones[0]?.phoneNumber || '',
+			phoneNumber1: guardian.phones[0]?.phoneNumber || '',
+			phoneNumber2: guardian.phones[1]?.phoneNumber || '',
 		});
 		open();
 	}
@@ -271,61 +228,10 @@ export default function GuardianManager({ applicantId, guardians }: Props) {
 
 							<Group gap='xs'>
 								{guardian.phones.map((phone) => (
-									<Badge
-										key={phone.id}
-										variant='outline'
-										rightSection={
-											<ActionIcon
-												size='xs'
-												variant='transparent'
-												color='red'
-												onClick={() => removePhoneMutation.mutate(phone.id)}
-											>
-												<IconTrash size={12} />
-											</ActionIcon>
-										}
-									>
+									<Badge key={phone.id} variant='outline'>
 										{phone.phoneNumber}
 									</Badge>
 								))}
-								{addingPhoneFor === guardian.id ? (
-									<Group gap='xs'>
-										<TextInput
-											size='xs'
-											placeholder='Phone'
-											value={newPhone}
-											onChange={(e) => setNewPhone(e.target.value)}
-										/>
-										<Button
-											size='xs'
-											onClick={() =>
-												addPhoneMutation.mutate({
-													guardianId: guardian.id,
-													phone: newPhone,
-												})
-											}
-											loading={addPhoneMutation.isPending}
-										>
-											Add
-										</Button>
-										<Button
-											size='xs'
-											variant='subtle'
-											onClick={() => setAddingPhoneFor(null)}
-										>
-											Cancel
-										</Button>
-									</Group>
-								) : (
-									<Button
-										size='xs'
-										variant='subtle'
-										leftSection={<IconPlus size={14} />}
-										onClick={() => setAddingPhoneFor(guardian.id)}
-									>
-										Add Phone
-									</Button>
-								)}
 							</Group>
 						</Stack>
 					</Card>
@@ -358,11 +264,18 @@ export default function GuardianManager({ applicantId, guardians }: Props) {
 							data={relationshipOptions}
 							{...form.getInputProps('relationship')}
 						/>
-						<TextInput
-							label='Phone Number'
-							placeholder='Enter phone number'
-							{...form.getInputProps('phoneNumber')}
-						/>
+						<Group grow>
+							<TextInput
+								label='Phone 1'
+								placeholder='Enter phone number'
+								{...form.getInputProps('phoneNumber1')}
+							/>
+							<TextInput
+								label='Phone 2'
+								placeholder='Enter phone number'
+								{...form.getInputProps('phoneNumber2')}
+							/>
+						</Group>
 						<TextInput
 							label='Occupation'
 							{...form.getInputProps('occupation')}

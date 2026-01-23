@@ -29,16 +29,17 @@ export async function removePhone(phoneId: string) {
 
 export async function addNewGuardian(
 	data: GuardianInput,
-	phoneNumber?: string
+	phoneNumbers?: string[]
 ) {
-	return createGuardian(data, phoneNumber);
+	return createGuardian(data, phoneNumbers);
 }
 
 export async function updateExistingGuardian(
 	id: string,
-	data: Partial<GuardianInput>
+	data: Partial<GuardianInput>,
+	phoneNumbers?: string[]
 ) {
-	return updateGuardian(id, data);
+	return updateGuardian(id, data, phoneNumbers);
 }
 
 export async function removeGuardian(id: string) {

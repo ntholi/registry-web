@@ -3,6 +3,7 @@
 import {
 	ActionIcon,
 	Avatar,
+	Badge,
 	Box,
 	Button,
 	Divider,
@@ -20,27 +21,14 @@ import {
 import { useForm } from '@mantine/form';
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
-import {
-	IconCirclePlus,
-	IconDeviceMobile,
-	IconEdit,
-	IconPhone,
-	IconTrash,
-	IconUser,
-	IconX,
-} from '@tabler/icons-react';
+import { IconEdit, IconPhone, IconUser } from '@tabler/icons-react';
 import { useMutation } from '@tanstack/react-query';
 import { zod4Resolver as zodResolver } from 'mantine-form-zod-resolver';
 import { useRouter } from 'nextjs-toploader/app';
 import { useState } from 'react';
 import { z } from 'zod';
 import { DeleteButton } from '@/shared/ui/adease/DeleteButton';
-import {
-	addGuardianPhone,
-	deleteGuardian,
-	removeGuardianPhone,
-	updateGuardian,
-} from '../../_server/actions';
+import { deleteGuardian, updateGuardian } from '../../_server/actions';
 
 type GuardianPhone = {
 	id: string;
@@ -81,8 +69,6 @@ export default function GuardiansTab({ guardians }: Props) {
 	const router = useRouter();
 	const [opened, { open, close }] = useDisclosure(false);
 	const [editingGuardian, setEditingGuardian] = useState<Guardian | null>(null);
-	const [addingPhoneFor, setAddingPhoneFor] = useState<string | null>(null);
-	const [newPhone, setNewPhone] = useState('');
 
 	const form = useForm({
 		validate: zodResolver(guardianSchema),
@@ -92,12 +78,26 @@ export default function GuardiansTab({ guardians }: Props) {
 			address: '',
 			occupation: '',
 			companyName: '',
+			phoneNumber1: '',
+			phoneNumber2: '',
 		},
 	});
 
 	const updateMutation = useMutation({
-		mutationFn: ({ id, data }: { id: string; data: typeof form.values }) =>
-			updateGuardian(id, data),
+		mutationFn: ({
+			id,
+			values,
+		}: {
+			id: string;
+			values: typeof form.values;
+		}) => {
+			const { phoneNumber1, phoneNumber2, ...data } = values;
+			return updateGuardian(
+				id,
+				data,
+				[phoneNumber1, phoneNumber2].filter(Boolean)
+			);
+		},
 		onSuccess: () => {
 			form.reset();
 			setEditingGuardian(null);
@@ -111,38 +111,6 @@ export default function GuardiansTab({ guardians }: Props) {
 		},
 	});
 
-	const addPhoneMutation = useMutation({
-		mutationFn: ({
-			guardianId,
-			phone,
-		}: {
-			guardianId: string;
-			phone: string;
-		}) => addGuardianPhone(guardianId, phone),
-		onSuccess: () => {
-			setAddingPhoneFor(null);
-			setNewPhone('');
-			router.refresh();
-			notifications.show({
-				title: 'Success',
-				message: 'Phone number added',
-				color: 'green',
-			});
-		},
-	});
-
-	const removePhoneMutation = useMutation({
-		mutationFn: removeGuardianPhone,
-		onSuccess: () => {
-			router.refresh();
-			notifications.show({
-				title: 'Success',
-				message: 'Phone number removed',
-				color: 'green',
-			});
-		},
-	});
-
 	function handleEdit(guardian: Guardian) {
 		setEditingGuardian(guardian);
 		form.setValues({
@@ -151,13 +119,15 @@ export default function GuardiansTab({ guardians }: Props) {
 			address: guardian.address || '',
 			occupation: guardian.occupation || '',
 			companyName: guardian.companyName || '',
+			phoneNumber1: guardian.phones[0]?.phoneNumber || '',
+			phoneNumber2: guardian.phones[1]?.phoneNumber || '',
 		});
 		open();
 	}
 
 	function handleSubmit(values: typeof form.values) {
 		if (editingGuardian) {
-			updateMutation.mutate({ id: editingGuardian.id, data: values });
+			updateMutation.mutate({ id: editingGuardian.id, values });
 		}
 	}
 
@@ -242,92 +212,26 @@ export default function GuardiansTab({ guardians }: Props) {
 
 								<Divider variant='dashed' />
 								<Stack gap='xs'>
-									<Group justify='flex-end' align='center'>
-										{addingPhoneFor !== guardian.id && (
-											<Button
-												size='compact-xs'
-												variant='subtle'
-												leftSection={<IconCirclePlus size={14} />}
-												onClick={() => setAddingPhoneFor(guardian.id)}
-											>
-												Add Number
-											</Button>
-										)}
-									</Group>
-
-									{addingPhoneFor === guardian.id && (
-										<Paper
-											withBorder
-											p='xs'
-											radius='sm'
-											bg='var(--mantine-color-gray-0)'
-										>
-											<Group gap='xs'>
-												<TextInput
-													size='xs'
-													placeholder='Phone number'
-													value={newPhone}
-													onChange={(e) => setNewPhone(e.target.value)}
-													flex={1}
-													leftSection={<IconDeviceMobile size={14} />}
-												/>
-												<Button
-													size='xs'
-													onClick={() =>
-														addPhoneMutation.mutate({
-															guardianId: guardian.id,
-															phone: newPhone,
-														})
-													}
-													loading={addPhoneMutation.isPending}
-												>
-													Save
-												</Button>
-												<ActionIcon
-													variant='subtle'
-													color='gray'
-													onClick={() => {
-														setAddingPhoneFor(null);
-														setNewPhone('');
-													}}
-												>
-													<IconX size={16} />
-												</ActionIcon>
-											</Group>
-										</Paper>
-									)}
-
-									<Stack gap={2}>
+									<Text size='xs' c='dimmed' fw={700} tt='uppercase'>
+										Phone Numbers
+									</Text>
+									<Group gap='xs'>
 										{guardian.phones.map((phone) => (
-											<Group key={phone.id} justify='space-between' py={4}>
-												<Group gap='xs'>
-													<IconPhone
-														size={16}
-														color='var(--mantine-color-gray-6)'
-													/>
-													<Text size='sm' fw={500}>
-														{phone.phoneNumber}
-													</Text>
-												</Group>
-												<Tooltip label='Remove Phone'>
-													<ActionIcon
-														size='sm'
-														variant='subtle'
-														color='red'
-														onClick={() => removePhoneMutation.mutate(phone.id)}
-														loading={removePhoneMutation.isPending}
-													>
-														<IconTrash size={14} />
-													</ActionIcon>
-												</Tooltip>
-											</Group>
+											<Badge
+												key={phone.id}
+												variant='light'
+												size='sm'
+												leftSection={<IconPhone size={12} />}
+											>
+												{phone.phoneNumber}
+											</Badge>
 										))}
-										{guardian.phones.length === 0 && !addingPhoneFor && (
-											<Text size='sm' c='dimmed' fs='italic'>
+										{guardian.phones.length === 0 && (
+											<Text size='xs' c='dimmed' fs='italic'>
 												No phone numbers recorded
 											</Text>
 										)}
-									</Stack>
+									</Group>
 								</Stack>
 							</Stack>
 						</Paper>
@@ -375,6 +279,18 @@ export default function GuardiansTab({ guardians }: Props) {
 							{...form.getInputProps('relationship')}
 							placeholder='Select relationship'
 						/>
+						<Group grow>
+							<TextInput
+								label='Phone 1'
+								placeholder='Enter phone number'
+								{...form.getInputProps('phoneNumber1')}
+							/>
+							<TextInput
+								label='Phone 2'
+								placeholder='Enter phone number'
+								{...form.getInputProps('phoneNumber2')}
+							/>
+						</Group>
 						<TextInput
 							label='Occupation'
 							{...form.getInputProps('occupation')}

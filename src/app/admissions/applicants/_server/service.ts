@@ -100,20 +100,21 @@ class ApplicantService extends BaseService<typeof applicants, 'id'> {
 
 	async createGuardian(
 		data: typeof guardians.$inferInsert,
-		phoneNumber?: string
+		phoneNumbers?: string[]
 	) {
 		return withAuth(
-			async () => this.repo.createGuardian(data, phoneNumber),
+			async () => this.repo.createGuardian(data, phoneNumbers),
 			['registry', 'marketing', 'admin', 'applicant']
 		);
 	}
 
 	async updateGuardian(
 		id: string,
-		data: Partial<typeof guardians.$inferInsert>
+		data: Partial<typeof guardians.$inferInsert>,
+		phoneNumbers?: string[]
 	) {
 		return withAuth(
-			async () => this.repo.updateGuardian(id, data),
+			async () => this.repo.updateGuardian(id, data, phoneNumbers),
 			['registry', 'marketing', 'admin', 'applicant']
 		);
 	}

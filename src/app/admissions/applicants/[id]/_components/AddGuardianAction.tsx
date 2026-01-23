@@ -52,7 +52,7 @@ export default function AddGuardianAction({ applicantId }: Props) {
 			const { phoneNumber, ...guardianData } = data;
 			return createGuardian(
 				{ ...guardianData, applicantId },
-				phoneNumber || undefined
+				phoneNumber ? [phoneNumber] : []
 			);
 		},
 		onSuccess: () => {

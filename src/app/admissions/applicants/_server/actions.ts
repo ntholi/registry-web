@@ -45,12 +45,16 @@ export async function removeApplicantPhone(phoneId: string) {
 	return applicantsService.removePhone(phoneId);
 }
 
-export async function createGuardian(data: Guardian, phoneNumber?: string) {
-	return applicantsService.createGuardian(data, phoneNumber);
+export async function createGuardian(data: Guardian, phoneNumbers?: string[]) {
+	return applicantsService.createGuardian(data, phoneNumbers);
 }
 
-export async function updateGuardian(id: string, data: Partial<Guardian>) {
-	return applicantsService.updateGuardian(id, data);
+export async function updateGuardian(
+	id: string,
+	data: Partial<Guardian>,
+	phoneNumbers?: string[]
+) {
+	return applicantsService.updateGuardian(id, data, phoneNumbers);
 }
 
 export async function deleteGuardian(id: string) {
