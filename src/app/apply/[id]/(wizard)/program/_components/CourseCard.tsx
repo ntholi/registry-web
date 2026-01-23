@@ -22,15 +22,20 @@ type Props = {
 	program: EligibleProgram;
 	selected: boolean;
 	disabled: boolean;
-	onSelect: () => void;
+	onToggle: (selected: boolean) => void;
 };
 
 export default function CourseCard({
 	program,
 	selected,
 	disabled,
-	onSelect,
+	onToggle,
 }: Props) {
+	function handleClick() {
+		if (disabled) return;
+		onToggle(!selected);
+	}
+
 	return (
 		<Card
 			withBorder
@@ -44,7 +49,7 @@ export default function CourseCard({
 					: 'var(--mantine-color-default-border)',
 				borderWidth: selected ? 2 : 1,
 			}}
-			onClick={disabled ? undefined : onSelect}
+			onClick={handleClick}
 		>
 			<Group wrap='nowrap' align='flex-start' gap='md'>
 				<Stack gap='xs' style={{ flex: 1 }}>
@@ -62,9 +67,13 @@ export default function CourseCard({
 						</Text>
 					</Group>
 
-					<Badge size='sm' color='gray' radius='sm'>
-						{program.level}
-					</Badge>
+					<Group gap='xs' ml={32}>
+						{program.school.shortName && (
+							<Badge size='sm' color='gray' radius='sm'>
+								{program.school.shortName}
+							</Badge>
+						)}
+					</Group>
 				</Stack>
 
 				{selected && (

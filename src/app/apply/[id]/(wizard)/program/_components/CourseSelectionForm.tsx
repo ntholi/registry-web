@@ -7,7 +7,6 @@ import {
 	Button,
 	Group,
 	Paper,
-	Radio,
 	SimpleGrid,
 	Skeleton,
 	Stack,
@@ -226,46 +225,37 @@ export default function CourseSelectionForm({ applicantId }: Props) {
 
 						<Stack gap='xs'>
 							<Text fw={500}>First Choice (Required)</Text>
-							<Radio.Group value={firstChoice} onChange={setFirstChoice}>
-								<SimpleGrid cols={{ base: 1, md: 2 }} spacing='sm'>
-									{filteredPrograms.map((program) => (
-										<CourseCard
-											key={program.id}
-											program={program}
-											selected={firstChoice === String(program.id)}
-											disabled={secondChoice === String(program.id)}
-											onSelect={() => setFirstChoice(String(program.id))}
-										/>
-									))}
-								</SimpleGrid>
-							</Radio.Group>
+							<SimpleGrid cols={{ base: 1, md: 2 }} spacing='sm'>
+								{filteredPrograms.map((program) => (
+									<CourseCard
+										key={program.id}
+										program={program}
+										selected={firstChoice === String(program.id)}
+										disabled={secondChoice === String(program.id)}
+										onToggle={(sel) =>
+											setFirstChoice(sel ? String(program.id) : null)
+										}
+									/>
+								))}
+							</SimpleGrid>
 						</Stack>
 
 						{filteredPrograms.length > 1 && (
 							<Stack gap='xs'>
 								<Text fw={500}>Second Choice (Optional)</Text>
-								<Radio.Group value={secondChoice} onChange={setSecondChoice}>
-									<SimpleGrid cols={{ base: 1, md: 2 }} spacing='sm'>
-										{filteredPrograms.map((program) => (
-											<CourseCard
-												key={program.id}
-												program={program}
-												selected={secondChoice === String(program.id)}
-												disabled={firstChoice === String(program.id)}
-												onSelect={() => setSecondChoice(String(program.id))}
-											/>
-										))}
-									</SimpleGrid>
-								</Radio.Group>
-								{secondChoice && (
-									<Button
-										variant='subtle'
-										size='xs'
-										onClick={() => setSecondChoice(null)}
-									>
-										Clear second choice
-									</Button>
-								)}
+								<SimpleGrid cols={{ base: 1, md: 2 }} spacing='sm'>
+									{filteredPrograms.map((program) => (
+										<CourseCard
+											key={program.id}
+											program={program}
+											selected={secondChoice === String(program.id)}
+											disabled={firstChoice === String(program.id)}
+											onToggle={(sel) =>
+												setSecondChoice(sel ? String(program.id) : null)
+											}
+										/>
+									))}
+								</SimpleGrid>
 							</Stack>
 						)}
 					</Stack>
