@@ -87,14 +87,14 @@ class ApplicantService extends BaseService<typeof applicants, 'id'> {
 	async addPhone(applicantId: string, phoneNumber: string) {
 		return withAuth(
 			async () => this.repo.addPhone(applicantId, phoneNumber),
-			['registry', 'marketing', 'admin']
+			['registry', 'marketing', 'admin', 'applicant']
 		);
 	}
 
 	async removePhone(phoneId: string) {
 		return withAuth(
 			async () => this.repo.removePhone(phoneId),
-			['registry', 'marketing', 'admin']
+			['registry', 'marketing', 'admin', 'applicant']
 		);
 	}
 
@@ -104,7 +104,7 @@ class ApplicantService extends BaseService<typeof applicants, 'id'> {
 	) {
 		return withAuth(
 			async () => this.repo.createGuardian(data, phoneNumber),
-			['registry', 'marketing', 'admin']
+			['registry', 'marketing', 'admin', 'applicant']
 		);
 	}
 
@@ -114,28 +114,28 @@ class ApplicantService extends BaseService<typeof applicants, 'id'> {
 	) {
 		return withAuth(
 			async () => this.repo.updateGuardian(id, data),
-			['registry', 'marketing', 'admin']
+			['registry', 'marketing', 'admin', 'applicant']
 		);
 	}
 
 	async deleteGuardian(id: string) {
 		return withAuth(
 			async () => this.repo.deleteGuardian(id),
-			['registry', 'marketing', 'admin']
+			['registry', 'marketing', 'admin', 'applicant']
 		);
 	}
 
 	async addGuardianPhone(guardianId: string, phoneNumber: string) {
 		return withAuth(
 			async () => this.repo.addGuardianPhone(guardianId, phoneNumber),
-			['registry', 'marketing', 'admin']
+			['registry', 'marketing', 'admin', 'applicant']
 		);
 	}
 
 	async removeGuardianPhone(phoneId: string) {
 		return withAuth(
 			async () => this.repo.removeGuardianPhone(phoneId),
-			['registry', 'marketing', 'admin']
+			['registry', 'marketing', 'admin', 'applicant']
 		);
 	}
 
