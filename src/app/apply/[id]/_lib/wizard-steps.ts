@@ -30,6 +30,11 @@ export const WIZARD_STEPS: WizardStep[] = [
 		path: 'review',
 		description: 'Submit application',
 	},
+	{
+		label: 'Payment',
+		path: 'payment',
+		description: 'Pay application fee',
+	},
 ];
 
 export function getStepIndex(path: string): number {

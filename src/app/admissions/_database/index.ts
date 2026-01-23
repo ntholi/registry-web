@@ -20,6 +20,8 @@ export * from '../entry-requirements/_schema/relations';
 export * from '../intake-periods/_schema/intakePeriodPrograms';
 export * from '../intake-periods/_schema/intakePeriods';
 export * from '../intake-periods/_schema/relations';
+export * from '../payments/_schema/paymentTransactions';
+export * from '../payments/_schema/relations';
 export * from '../subjects/_schema/relations';
 export * from '../subjects/_schema/subjectAliases';
 export * from '../subjects/_schema/subjects';

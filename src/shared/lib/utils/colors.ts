@@ -226,6 +226,11 @@ export const statusColors = {
 		returned: semantic.success,
 		overdue: semantic.error,
 	},
+	transactionStatus: {
+		pending: semantic.warning,
+		success: semantic.success,
+		failed: semantic.error,
+	},
 } as const;
 
 const allStatuses = {
@@ -531,4 +536,10 @@ export type BookCopyStatusType = keyof typeof statusColors.bookCopyStatus;
 
 export function getBookCopyStatusColor(status: BookCopyStatusType | string) {
 	return getColorFromMap(status, statusColors.bookCopyStatus);
+}
+
+export type TransactionStatusType = keyof typeof statusColors.transactionStatus;
+
+export function getTransactionStatusColor(status: TransactionStatusType) {
+	return getColorFromMap(status, statusColors.transactionStatus);
 }

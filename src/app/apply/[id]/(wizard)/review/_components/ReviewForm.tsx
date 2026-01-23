@@ -74,7 +74,7 @@ export default function ReviewForm({
 				message: 'Your application has been submitted for review',
 				color: 'green',
 			});
-			router.push('/apply');
+			router.push(`/apply/${applicantId}/payment`);
 		},
 		onError: (error) => {
 			notifications.show({
