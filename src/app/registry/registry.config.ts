@@ -44,9 +44,13 @@ export const registryConfig: ModuleConfig = {
 				icon: IconUsers,
 				isVisible: (session) => {
 					if (
-						['registry', 'finance', 'admin', 'student_services'].includes(
-							session?.user?.role || ''
-						)
+						[
+							'registry',
+							'finance',
+							'admin',
+							'student_services',
+							'marketing',
+						].includes(session?.user?.role || '')
 					) {
 						return true;
 					}
