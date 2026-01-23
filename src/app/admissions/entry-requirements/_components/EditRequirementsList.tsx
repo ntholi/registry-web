@@ -22,7 +22,6 @@ import { useDisclosure } from '@mantine/hooks';
 import {
 	IconCertificate,
 	IconDeviceFloppy,
-	IconPlus,
 	IconTrash,
 } from '@tabler/icons-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -37,6 +36,7 @@ import {
 	deleteEntryRequirement,
 	updateEntryRequirement,
 } from '../_server/actions';
+import RequiredSubjectModal from './RequiredSubjectModal';
 import SubjectGroupModal from './SubjectGroupModal';
 
 type CertificateType = {
@@ -252,33 +252,32 @@ function RequirementEditor({
 		onSave({ ...requirement, rules });
 	};
 
-	const addRequiredSubject = () => {
+	const handleAddRequiredSubject = (subject: {
+		subjectId: string;
+		minimumGrade: string;
+	}) => {
 		setSubjectRules((prev) => ({
 			...prev,
-			requiredSubjects: [
-				...prev.requiredSubjects,
-				{ subjectId: '', minimumGrade: 'C' },
-			],
+			requiredSubjects: [...prev.requiredSubjects, subject],
 		}));
 	};
 
-	const removeRequiredSubject = (idx: number) => {
-		setSubjectRules((prev) => ({
-			...prev,
-			requiredSubjects: prev.requiredSubjects.filter((_, i) => i !== idx),
-		}));
-	};
-
-	const updateRequiredSubject = (
+	const handleUpdateRequiredSubject = (
 		idx: number,
-		field: 'subjectId' | 'minimumGrade',
-		value: string
+		subject: { subjectId: string; minimumGrade: string }
 	) => {
 		setSubjectRules((prev) => ({
 			...prev,
 			requiredSubjects: prev.requiredSubjects.map((s, i) =>
-				i === idx ? { ...s, [field]: value } : s
+				i === idx ? subject : s
 			),
+		}));
+	};
+
+	const handleRemoveRequiredSubject = (idx: number) => {
+		setSubjectRules((prev) => ({
+			...prev,
+			requiredSubjects: prev.requiredSubjects.filter((_, i) => i !== idx),
 		}));
 	};
 
@@ -381,48 +380,51 @@ function RequirementEditor({
 									<Text size='sm' fw={500}>
 										Required Subjects
 									</Text>
-									<ActionIcon
-										variant='light'
-										color='blue'
-										onClick={addRequiredSubject}
-									>
-										<IconPlus size={16} />
-									</ActionIcon>
+									<RequiredSubjectModal
+										mode='add'
+										subjects={subjects}
+										onSave={handleAddRequiredSubject}
+									/>
 								</Group>
 
-								{subjectRules.requiredSubjects.map((rs, idx) => (
-									<Group key={idx} gap='xs'>
-										<Select
-											placeholder='Subject'
-											data={subjects.map((s) => ({
-												value: s.id,
-												label: s.name,
-											}))}
-											value={rs.subjectId || ''}
-											onChange={(val) =>
-												updateRequiredSubject(idx, 'subjectId', val || '')
-											}
-											style={{ flex: 1 }}
-											searchable
-										/>
-										<Select
-											placeholder='Grade'
-											data={standardGrades}
-											value={rs.minimumGrade}
-											onChange={(val) =>
-												updateRequiredSubject(idx, 'minimumGrade', val || 'C')
-											}
-											w={90}
-										/>
-										<ActionIcon
-											variant='light'
-											color='red'
-											onClick={() => removeRequiredSubject(idx)}
+								{subjectRules.requiredSubjects.map((rs, idx) => {
+									const subjectName =
+										subjects.find((s) => s.id === rs.subjectId)?.name ||
+										'Unknown Subject';
+									return (
+										<Paper
+											key={idx}
+											withBorder
+											p='sm'
+											bg='var(--mantine-color-dark-8)'
 										>
-											<IconTrash size={16} />
-										</ActionIcon>
-									</Group>
-								))}
+											<Group justify='space-between'>
+												<Group gap='xs'>
+													<Text size='sm'>{subjectName}</Text>
+													<Badge size='xs' variant='light'>
+														Min: {rs.minimumGrade}
+													</Badge>
+												</Group>
+												<Group gap='xs'>
+													<RequiredSubjectModal
+														mode='edit'
+														subject={rs}
+														subjects={subjects}
+														onSave={(s) => handleUpdateRequiredSubject(idx, s)}
+													/>
+													<ActionIcon
+														variant='subtle'
+														color='red'
+														size='sm'
+														onClick={() => handleRemoveRequiredSubject(idx)}
+													>
+														<IconTrash size={14} />
+													</ActionIcon>
+												</Group>
+											</Group>
+										</Paper>
+									);
+								})}
 							</Stack>
 
 							<Divider my='md' />
