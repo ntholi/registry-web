@@ -3,6 +3,7 @@
 import {
 	Alert,
 	Button,
+	Divider,
 	Group,
 	Progress,
 	Stack,
@@ -249,6 +250,8 @@ export function MobilePayment({
 			>
 				Pay M {fee} with M-Pesa
 			</Button>
+
+			<Divider label='OR' my={'md'} />
 
 			<Button
 				variant='subtle'

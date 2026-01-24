@@ -192,9 +192,6 @@ export default function ReceiptUploadForm({
 								</Text>
 							</Box>
 						</Group>
-						<Badge variant='outline' color='gray' size='lg' radius='sm'>
-							FEE: M {parseFloat(fee).toFixed(2)}
-						</Badge>
 					</Group>
 
 					<Divider variant='dashed' />
@@ -203,80 +200,41 @@ export default function ReceiptUploadForm({
 						<FieldView label='Bank Name' underline={false}>
 							Standard Lesotho Bank
 						</FieldView>
+						<FieldView label='Account Holder' underline={false}>
+							Limkokwing University of Creative Technology
+						</FieldView>
 						<FieldView label='Account Number' underline={false}>
 							<Group gap={6} align='center'>
 								<Text size='sm' fw={600} ff='monospace'>
 									9080003987813
 								</Text>
-								<CopyButton value='9080003987813' timeout={2000}>
-									{({ copied, copy }) => (
-										<Tooltip
-											label={copied ? 'Copied' : 'Copy Account No'}
-											withArrow
-											position='right'
-										>
-											<ActionIcon
-												color={copied ? 'teal' : 'gray'}
-												variant='subtle'
-												onClick={copy}
-												size='sm'
-											>
-												{copied ? (
-													<IconCheck size={14} />
-												) : (
-													<IconCopy size={14} />
-												)}
-											</ActionIcon>
-										</Tooltip>
-									)}
-								</CopyButton>
 							</Group>
 						</FieldView>
 						<FieldView label='Branch Code' underline={false}>
 							060667
-						</FieldView>
-						<FieldView label='Swift Code' underline={false}>
-							SBICLSMX
 						</FieldView>
 					</SimpleGrid>
 
 					<Paper
 						p='md'
 						radius='md'
-						bg='var(--mantine-color-blue-light)'
-						style={{ border: '1px dashed var(--mantine-color-blue-outline)' }}
+						bg='var(--mantine-color-dark-7)'
+						style={{ border: '1px dashed var(--mantine-color-dark-outline)' }}
 					>
 						<Stack gap={4}>
-							<Text size='xs' c='blue' fw={700} tt='uppercase' lts={1}>
+							<Text size='xs' c='dimmed' fw={700} tt='uppercase' lts={1}>
 								Payment Reference
 							</Text>
-							<Text size='lg' fw={700} c='blue.9'>
+							<Text size='lg' fw={700}>
 								{application?.applicant?.fullName}
 							</Text>
-							<Text size='xs' c='blue' opacity={0.8}>
+							<Text size='xs' opacity={0.8}>
 								Use your full name exactly as shown above as the bank reference.
 							</Text>
 						</Stack>
 					</Paper>
 				</Stack>
 			</Card>
-
-			<Alert color='blue' variant='light' icon={<IconAlertCircle size={18} />}>
-				<Stack gap={4}>
-					<Text size='sm' fw={600}>
-						Payment Window
-					</Text>
-					<Text size='xs'>
-						Deposit must be made between{' '}
-						<strong>{formatDate(intakeStartDate)}</strong> and{' '}
-						<strong>{formatDate(intakeEndDate)}</strong>
-					</Text>
-					<Text size='xs'>
-						You can upload multiple receipts if the payment was split across
-						different transactions.
-					</Text>
-				</Stack>
-			</Alert>
 
 			{isMobile ? (
 				<MobileReceiptUpload
@@ -350,7 +308,7 @@ export default function ReceiptUploadForm({
 				</Stack>
 			)}
 
-			<Stack gap='sm'>
+			<Stack gap='lg'>
 				<Button
 					color='green'
 					size='md'
@@ -361,6 +319,8 @@ export default function ReceiptUploadForm({
 				>
 					Submit
 				</Button>
+
+				<Divider label='OR' my={'md'} />
 
 				<Button
 					variant='subtle'
