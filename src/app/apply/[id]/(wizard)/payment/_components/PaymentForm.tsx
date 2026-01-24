@@ -73,7 +73,7 @@ export default function PaymentForm({
 			receipts: Array<{
 				base64: string;
 				mediaType: string;
-				receiptNumber: string;
+				referenceNumber: string;
 			}>
 		) => submitReceiptPayment(applicationId, receipts),
 		onSuccess: (result) => {

@@ -16,7 +16,11 @@ export { validateSingleReceipt, validateReceipts };
 
 export async function submitReceiptPayment(
 	applicationId: string,
-	receipts: Array<{ base64: string; mediaType: string; receiptNumber: string }>
+	receipts: Array<{
+		base64: string;
+		mediaType: string;
+		referenceNumber: string;
+	}>
 ): Promise<{ success: boolean; error?: string }> {
 	const validation = await validateReceipts(
 		applicationId,

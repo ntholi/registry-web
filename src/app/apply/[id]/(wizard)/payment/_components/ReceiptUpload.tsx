@@ -37,7 +37,7 @@ type Props = {
 		receipts: Array<{
 			base64: string;
 			mediaType: string;
-			receiptNumber: string;
+			referenceNumber: string;
 		}>
 	) => void;
 	onBack: () => void;
@@ -69,7 +69,7 @@ export default function ReceiptUploadForm({
 	const isAmountSufficient = totalAmount >= requiredAmount;
 	const allValid = receipts.every((r) => r.isValid);
 
-	const validReceipts = receipts.filter((r) => r.isValid && r.receiptNumber);
+	const validReceipts = receipts.filter((r) => r.isValid && r.referenceNumber);
 	const canSubmit = validReceipts.length > 0 && isAmountSufficient;
 
 	async function handleUploadComplete(result: ReceiptUploadResult) {
@@ -86,9 +86,9 @@ export default function ReceiptUploadForm({
 
 			const newReceipt: UploadedReceipt = {
 				id: generateId(),
-				receiptNumber: validation.data?.receiptNumber ?? null,
-				amount: validation.data?.amountPaid ?? null,
-				dateIssued: validation.data?.dateIssued ?? null,
+				referenceNumber: validation.data?.referenceNumber ?? null,
+				amount: validation.data?.amountDeposited ?? null,
+				dateDeposited: validation.data?.dateDeposited ?? null,
 				isValid: validation.isValid,
 				errors: validation.errors,
 				base64: result.base64,
@@ -133,7 +133,7 @@ export default function ReceiptUploadForm({
 			validReceipts.map((r) => ({
 				base64: r.base64,
 				mediaType: r.mediaType,
-				receiptNumber: r.receiptNumber!,
+				referenceNumber: r.referenceNumber!,
 			}))
 		);
 	}
@@ -153,14 +153,18 @@ export default function ReceiptUploadForm({
 			<Alert color='blue' variant='light'>
 				<Stack gap='xs'>
 					<Text size='sm' fw={500}>
-						Upload Limkokwing University Receipt
+						Upload Bank Deposit Slip
 					</Text>
 					<Text size='xs'>
-						• Receipt number must be in SR-XXXXX format (e.g., SR-53657)
+						• Must be a bank deposit to "Limkokwing University of Creative
+						Technology"
 					</Text>
 					<Text size='xs'>
-						• Receipt must be issued within the intake period ({intakeStartDate}{' '}
+						• Deposit must be made within the intake period ({intakeStartDate}{' '}
 						to {intakeEndDate})
+					</Text>
+					<Text size='xs'>
+						• Amount must be equal to or greater than the application fee
 					</Text>
 					<Text size='xs'>• You can upload multiple receipts if needed</Text>
 				</Stack>
@@ -171,16 +175,16 @@ export default function ReceiptUploadForm({
 					key={`mobile-${uploadKey}`}
 					onUploadComplete={handleUploadComplete}
 					disabled={disabled}
-					title='Upload Receipt'
-					description='Limkokwing University receipt (SR-XXXXX format)'
+					title='Upload Bank Deposit'
+					description='Bank deposit slip showing payment to Limkokwing'
 				/>
 			) : (
 				<ReceiptDropzone
 					key={uploadKey}
 					onUploadComplete={handleUploadComplete}
 					disabled={disabled}
-					title='Drop receipt here or click to browse'
-					description='Limkokwing University receipt (SR-XXXXX format)'
+					title='Drop deposit slip here or click to browse'
+					description='Bank deposit slip showing payment to Limkokwing'
 				/>
 			)}
 
@@ -232,7 +236,7 @@ export default function ReceiptUploadForm({
 							title='Invalid Receipts'
 						>
 							Some receipts failed validation. Please remove them and upload
-							valid Limkokwing University receipts.
+							valid bank deposit slips showing payment to Limkokwing University.
 						</Alert>
 					)}
 				</Stack>

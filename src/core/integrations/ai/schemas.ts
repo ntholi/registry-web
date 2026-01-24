@@ -113,30 +113,39 @@ const otherSchema = z.object({
 });
 
 const receiptSchema = z.object({
-	isLimkokwingReceipt: z
+	isBankDeposit: z
 		.boolean()
-		.describe('Whether this is an official Limkokwing University receipt'),
-	receiptNumber: z
+		.describe('Whether this is a bank deposit slip or proof of payment'),
+	beneficiaryName: z
 		.string()
 		.nullable()
-		.describe('Receipt number in SR-XXXXX format (e.g., SR-53657)'),
-	dateIssued: z
+		.describe(
+			'Name of the account holder/beneficiary the money was deposited to'
+		),
+	referenceNumber: z
 		.string()
 		.nullable()
-		.describe('Date the receipt was issued in YYYY-MM-DD format'),
-	amountPaid: z
+		.describe('Bank reference number or transaction ID'),
+	dateDeposited: z
+		.string()
+		.nullable()
+		.describe('Date the deposit was made in YYYY-MM-DD format'),
+	amountDeposited: z
 		.number()
 		.nullable()
-		.describe('Total amount paid as shown on the receipt'),
+		.describe('Total amount deposited as shown on the receipt'),
 	currency: z
 		.string()
 		.nullable()
 		.describe('Currency code (e.g., LSL, ZAR, USD)'),
-	payerName: z.string().nullable().describe('Name of the person who paid'),
-	description: z
+	depositorName: z
 		.string()
 		.nullable()
-		.describe('Payment description or purpose as stated on receipt'),
+		.describe('Name of the person who made the deposit'),
+	bankName: z
+		.string()
+		.nullable()
+		.describe('Name of the bank where the deposit was made'),
 });
 
 const documentAnalysisSchema = z.object({

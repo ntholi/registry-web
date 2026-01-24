@@ -9,9 +9,9 @@ import {
 
 export type UploadedReceipt = {
 	id: string;
-	receiptNumber: string | null;
+	referenceNumber: string | null;
 	amount: number | null;
-	dateIssued: string | null;
+	dateDeposited: string | null;
 	isValid: boolean;
 	errors: string[];
 	base64: string;
@@ -29,7 +29,7 @@ export function ReceiptCard({ receipt, onDelete, deleting }: Props) {
 		<DocumentCardShell
 			icon={<IconReceipt size={20} />}
 			iconColor={receipt.isValid ? 'green' : 'red'}
-			title='Payment Receipt'
+			title='Bank Deposit'
 			badge={
 				<Badge
 					size='xs'
@@ -47,14 +47,14 @@ export function ReceiptCard({ receipt, onDelete, deleting }: Props) {
 			deleteMessage='Are you sure you want to delete this receipt? This action cannot be undone.'
 		>
 			<Stack gap={4}>
-				<DocumentDetailRow label='Receipt #' value={receipt.receiptNumber} />
+				<DocumentDetailRow label='Reference' value={receipt.referenceNumber} />
 				<DocumentDetailRow
 					label='Amount'
 					value={
 						receipt.amount !== null ? `M ${receipt.amount.toFixed(2)}` : null
 					}
 				/>
-				<DocumentDetailRow label='Date' value={receipt.dateIssued} />
+				<DocumentDetailRow label='Date' value={receipt.dateDeposited} />
 				{!receipt.isValid && receipt.errors.length > 0 && (
 					<Text size='xs' c='red' mt='xs'>
 						{receipt.errors[0]}

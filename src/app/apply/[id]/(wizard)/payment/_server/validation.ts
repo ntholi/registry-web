@@ -8,6 +8,14 @@ import {
 	type ReceiptResult,
 } from '@/core/integrations/ai/documents';
 
+const BENEFICIARY_NAME = 'Limkokwing University of Creative Technology';
+const BENEFICIARY_VARIATIONS = [
+	'limkokwing university of creative technology',
+	'limkokwing university',
+	'luct',
+	'limkokwing',
+];
+
 export type ReceiptValidation = {
 	isValid: boolean;
 	errors: string[];
@@ -20,48 +28,64 @@ export type ReceiptsValidationResult = {
 	totalAmount: number;
 	requiredAmount: number;
 	receipts: Array<{
-		receiptNumber: string | null;
+		referenceNumber: string | null;
 		amount: number;
-		dateIssued: string | null;
+		dateDeposited: string | null;
 		isValid: boolean;
 		errors: string[];
 	}>;
 };
 
-function validateReceiptNumber(receiptNumber: string | null): {
+function validateBeneficiary(beneficiaryName: string | null): {
 	valid: boolean;
 	error?: string;
 } {
-	if (!receiptNumber) {
-		return { valid: false, error: 'Receipt number not found' };
+	if (!beneficiaryName) {
+		return { valid: false, error: 'Beneficiary name not found on receipt' };
 	}
-	const pattern = /^SR-\d{5}$/;
-	if (!pattern.test(receiptNumber)) {
+
+	const normalizedName = beneficiaryName.toLowerCase().trim();
+	const isValid = BENEFICIARY_VARIATIONS.some(
+		(variation) =>
+			normalizedName.includes(variation) || variation.includes(normalizedName)
+	);
+
+	if (!isValid) {
 		return {
 			valid: false,
-			error: `Invalid receipt number format: ${receiptNumber}. Expected SR-XXXXX (e.g., SR-53657)`,
+			error: `Deposit must be made to "${BENEFICIARY_NAME}". Found: "${beneficiaryName}"`,
 		};
 	}
 	return { valid: true };
 }
 
-function validateReceiptDate(
-	dateIssued: string | null,
+function validateDepositDate(
+	dateDeposited: string | null,
 	intakeStartDate: string,
 	intakeEndDate: string
 ): { valid: boolean; error?: string } {
-	if (!dateIssued) {
-		return { valid: false, error: 'Receipt date not found' };
+	if (!dateDeposited) {
+		return { valid: false, error: 'Deposit date not found on receipt' };
 	}
-	const receiptDate = new Date(dateIssued);
+	const depositDate = new Date(dateDeposited);
 	const startDate = new Date(intakeStartDate);
 	const endDate = new Date(intakeEndDate);
 
-	if (receiptDate < startDate || receiptDate > endDate) {
+	if (depositDate < startDate || depositDate > endDate) {
 		return {
 			valid: false,
-			error: `Receipt date ${dateIssued} is outside the intake period (${intakeStartDate} to ${intakeEndDate})`,
+			error: `Deposit date ${dateDeposited} is outside the intake period (${intakeStartDate} to ${intakeEndDate})`,
 		};
+	}
+	return { valid: true };
+}
+
+function validateReference(referenceNumber: string | null): {
+	valid: boolean;
+	error?: string;
+} {
+	if (!referenceNumber) {
+		return { valid: false, error: 'Reference number not found on receipt' };
 	}
 	return { valid: true };
 }
@@ -76,19 +100,22 @@ export async function validateSingleReceipt(
 
 	const data = await analyzeReceipt(fileBase64, mediaType);
 
-	if (!data.isLimkokwingReceipt) {
-		errors.push(
-			'This does not appear to be an official Limkokwing University receipt'
-		);
+	if (!data.isBankDeposit) {
+		errors.push('This does not appear to be a bank deposit slip');
 	}
 
-	const numberValidation = validateReceiptNumber(data.receiptNumber);
-	if (!numberValidation.valid && numberValidation.error) {
-		errors.push(numberValidation.error);
+	const beneficiaryValidation = validateBeneficiary(data.beneficiaryName);
+	if (!beneficiaryValidation.valid && beneficiaryValidation.error) {
+		errors.push(beneficiaryValidation.error);
 	}
 
-	const dateValidation = validateReceiptDate(
-		data.dateIssued,
+	const referenceValidation = validateReference(data.referenceNumber);
+	if (!referenceValidation.valid && referenceValidation.error) {
+		errors.push(referenceValidation.error);
+	}
+
+	const dateValidation = validateDepositDate(
+		data.dateDeposited,
 		intakeStartDate,
 		intakeEndDate
 	);
@@ -96,8 +123,8 @@ export async function validateSingleReceipt(
 		errors.push(dateValidation.error);
 	}
 
-	if (data.amountPaid === null || data.amountPaid <= 0) {
-		errors.push('Could not extract a valid payment amount from the receipt');
+	if (data.amountDeposited === null || data.amountDeposited <= 0) {
+		errors.push('Could not extract a valid deposit amount from the receipt');
 	}
 
 	return {
@@ -149,13 +176,13 @@ export async function validateReceipts(
 			intake.endDate
 		);
 
-		const amount = validation.data?.amountPaid ?? 0;
+		const amount = validation.data?.amountDeposited ?? 0;
 		totalAmount += amount;
 
 		validatedReceipts.push({
-			receiptNumber: validation.data?.receiptNumber ?? null,
+			referenceNumber: validation.data?.referenceNumber ?? null,
 			amount,
-			dateIssued: validation.data?.dateIssued ?? null,
+			dateDeposited: validation.data?.dateDeposited ?? null,
 			isValid: validation.isValid,
 			errors: validation.errors,
 		});

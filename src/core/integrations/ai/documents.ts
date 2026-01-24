@@ -246,16 +246,16 @@ export async function analyzeAcademicDocument(
 	}
 }
 
-const RECEIPT_PROMPT = `Analyze this receipt/payment proof document and extract structured information.
+const RECEIPT_PROMPT = `Analyze this bank deposit slip or proof of payment document and extract structured information.
 
 IMPORTANT:
-- This should be an official Limkokwing University receipt
-- Receipt numbers from Limkokwing University follow the format SR-XXXXX (SR- followed by 5 digits)
-- Extract the exact receipt number as printed
+- This should be a bank deposit slip showing payment to "Limkokwing University of Creative Technology"
+- Extract the beneficiary/account holder name exactly as shown
+- Extract the bank reference number or transaction ID
 - Dates: YYYY-MM-DD format
 - Amount: Extract numeric value only (no currency symbols)
 - Use null for missing/illegible data
-- Set isLimkokwingReceipt to false if this does not appear to be an official Limkokwing University receipt`;
+- Set isBankDeposit to true if this appears to be a bank deposit slip`;
 
 export async function analyzeReceipt(
 	fileBase64: string,
