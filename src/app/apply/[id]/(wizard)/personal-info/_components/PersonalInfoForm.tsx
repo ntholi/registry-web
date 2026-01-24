@@ -2,10 +2,7 @@
 
 import type { ApplicantWithRelations } from '@admissions/applicants';
 import {
-	ActionIcon,
-	Button,
 	Divider,
-	Group,
 	Paper,
 	Select,
 	SimpleGrid,
@@ -16,12 +13,10 @@ import {
 } from '@mantine/core';
 import { DateInput } from '@mantine/dates';
 import { useForm } from '@mantine/form';
-import { useMediaQuery } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
-import { IconArrowLeft, IconArrowRight } from '@tabler/icons-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'nextjs-toploader/app';
-import FinishButton from '../../../_components/FinishButton';
+import WizardNavigation from '../../../_components/WizardNavigation';
 import { updateApplicantInfo } from '../_server/actions';
 import GuardianManager from './GuardianManager';
 import PhoneManager from './PhoneManager';
@@ -38,7 +33,6 @@ const genderOptions = [
 export default function PersonalInfoForm({ applicant }: Props) {
 	const router = useRouter();
 	const queryClient = useQueryClient();
-	const isMobile = useMediaQuery('(max-width: 48em)');
 
 	const form = useForm({
 		mode: 'uncontrolled',
@@ -77,10 +71,6 @@ export default function PersonalInfoForm({ applicant }: Props) {
 			});
 		},
 	});
-
-	function handleBack() {
-		router.push(`/apply/${applicant.id}/program`);
-	}
 
 	return (
 		<Stack gap='lg'>
@@ -170,33 +160,13 @@ export default function PersonalInfoForm({ applicant }: Props) {
 
 			<Divider />
 
-			<Group justify='space-between'>
-				{isMobile ? (
-					<ActionIcon variant='subtle' onClick={handleBack} size='lg'>
-						<IconArrowLeft size={20} />
-					</ActionIcon>
-				) : (
-					<Button
-						variant='subtle'
-						leftSection={<IconArrowLeft size={16} />}
-						onClick={handleBack}
-					>
-						Back
-					</Button>
-				)}
-
-				<Group>
-					<Button
-						rightSection={<IconArrowRight size={16} />}
-						onClick={() => form.onSubmit((values) => mutation.mutate(values))()}
-						loading={mutation.isPending}
-						disabled={applicant.guardians.length === 0}
-					>
-						Next
-					</Button>
-					<FinishButton applicantId={applicant.id} />
-				</Group>
-			</Group>
+			<WizardNavigation
+				applicantId={applicant.id}
+				backPath={`/apply/${applicant.id}/program`}
+				onNext={() => form.onSubmit((values) => mutation.mutate(values))()}
+				nextDisabled={applicant.guardians.length === 0}
+				nextLoading={mutation.isPending}
+			/>
 		</Stack>
 	);
 }

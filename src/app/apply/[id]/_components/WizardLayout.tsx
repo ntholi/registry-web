@@ -2,6 +2,7 @@
 
 import {
 	Box,
+	Group,
 	Paper,
 	Progress,
 	Stack,
@@ -51,9 +52,14 @@ export default function WizardLayout({ applicantId, children }: Props) {
 							<Text size='sm' fw={500}>
 								{currentStep?.label}
 							</Text>
-							<Text size='xs' c='dimmed'>
-								Step {activeStep + 1} of {WIZARD_STEPS.length}
-							</Text>
+							<Group justify='space-between'>
+								<Text size='xs' c='dimmed'>
+									{currentStep?.description}
+								</Text>
+								<Text size='xs' c='dimmed'>
+									Step {activeStep + 1} of {WIZARD_STEPS.length}
+								</Text>
+							</Group>
 						</Stack>
 						<Progress value={progressValue} size='sm' radius='xl' />
 					</Stack>

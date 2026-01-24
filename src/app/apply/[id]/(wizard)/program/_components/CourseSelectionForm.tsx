@@ -3,10 +3,7 @@
 import type { ProgramLevel } from '@academic/_database';
 import { createOrUpdateApplication } from '@admissions/applications';
 import {
-	ActionIcon,
 	Box,
-	Button,
-	Group,
 	Paper,
 	SegmentedControl,
 	SimpleGrid,
@@ -16,16 +13,15 @@ import {
 	ThemeIcon,
 	Title,
 } from '@mantine/core';
-import { useMediaQuery } from '@mantine/hooks';
 import { modals } from '@mantine/modals';
 import { notifications } from '@mantine/notifications';
-import { IconArrowLeft, IconArrowRight, IconSchool } from '@tabler/icons-react';
+import { IconSchool } from '@tabler/icons-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'nextjs-toploader/app';
 import { parseAsInteger, parseAsString, useQueryStates } from 'nuqs';
 import { useMemo, useState } from 'react';
 import CoursesFilters from '@/app/apply/courses/_components/CoursesFilters';
-import FinishButton from '../../../_components/FinishButton';
+import WizardNavigation from '../../../_components/WizardNavigation';
 import { useApplicant } from '../../../_lib/useApplicant';
 import { getActiveIntake, getEligiblePrograms } from '../_server/actions';
 import CourseCard from './CourseCard';
@@ -51,7 +47,6 @@ type EligibleProgram = {
 export default function CourseSelectionForm({ applicantId }: Props) {
 	const router = useRouter();
 	const queryClient = useQueryClient();
-	const isMobile = useMediaQuery('(max-width: 48em)');
 	const [choiceType, setChoiceType] = useState<'first' | 'second'>('first');
 
 	const [filters] = useQueryStates({
@@ -156,10 +151,6 @@ export default function CourseSelectionForm({ applicantId }: Props) {
 			});
 		},
 	});
-
-	function handleBack() {
-		router.push(`/apply/${applicantId}/qualifications`);
-	}
 
 	function handleContinue() {
 		if (eligiblePrograms.length > 1 && !secondChoice) {
@@ -277,32 +268,13 @@ export default function CourseSelectionForm({ applicantId }: Props) {
 					</Stack>
 				)}
 
-				<Group justify='space-between' mt='md'>
-					{isMobile ? (
-						<ActionIcon variant='subtle' onClick={handleBack} size='lg'>
-							<IconArrowLeft size={20} />
-						</ActionIcon>
-					) : (
-						<Button
-							variant='subtle'
-							leftSection={<IconArrowLeft size={16} />}
-							onClick={handleBack}
-						>
-							Back
-						</Button>
-					)}
-					<Group>
-						<Button
-							rightSection={<IconArrowRight size={16} />}
-							onClick={handleContinue}
-							disabled={!canContinue}
-							loading={submitMutation.isPending}
-						>
-							Next
-						</Button>
-						<FinishButton applicantId={applicantId} />
-					</Group>
-				</Group>
+				<WizardNavigation
+					applicantId={applicantId}
+					backPath={`/apply/${applicantId}/qualifications`}
+					onNext={handleContinue}
+					nextDisabled={!canContinue}
+					nextLoading={submitMutation.isPending}
+				/>
 			</Stack>
 		</Paper>
 	);

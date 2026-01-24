@@ -18,14 +18,9 @@ import {
 	ThemeIcon,
 	Title,
 } from '@mantine/core';
-import { useDisclosure, useMediaQuery } from '@mantine/hooks';
+import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
-import {
-	IconArrowLeft,
-	IconArrowRight,
-	IconCertificate,
-	IconTrash,
-} from '@tabler/icons-react';
+import { IconCertificate, IconTrash } from '@tabler/icons-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'nextjs-toploader/app';
 import { useState } from 'react';
@@ -34,7 +29,7 @@ import {
 	DocumentUpload,
 	type DocumentUploadResult,
 } from '@/shared/ui/DocumentUpload';
-import FinishButton from '../../../_components/FinishButton';
+import WizardNavigation from '../../../_components/WizardNavigation';
 import {
 	removeAcademicRecord,
 	uploadCertificateDocument,
@@ -47,7 +42,6 @@ type Props = {
 export default function QualificationsUploadForm({ applicantId }: Props) {
 	const router = useRouter();
 	const queryClient = useQueryClient();
-	const isMobile = useMediaQuery('(max-width: 48em)');
 	const [uploading, setUploading] = useState(false);
 	const [uploadKey, setUploadKey] = useState(0);
 
@@ -119,10 +113,6 @@ export default function QualificationsUploadForm({ applicantId }: Props) {
 		router.push(`/apply/${applicantId}/program`);
 	}
 
-	function handleBack() {
-		router.push(`/apply/${applicantId}/documents`);
-	}
-
 	return (
 		<Paper withBorder radius='md' p='lg'>
 			<Stack gap='lg'>
@@ -160,31 +150,12 @@ export default function QualificationsUploadForm({ applicantId }: Props) {
 					</Stack>
 				)}
 
-				<Group justify='space-between' mt='md'>
-					{isMobile ? (
-						<ActionIcon variant='subtle' onClick={handleBack} size='lg'>
-							<IconArrowLeft size={20} />
-						</ActionIcon>
-					) : (
-						<Button
-							variant='subtle'
-							leftSection={<IconArrowLeft size={16} />}
-							onClick={handleBack}
-						>
-							Back
-						</Button>
-					)}
-					<Group>
-						<Button
-							rightSection={<IconArrowRight size={16} />}
-							onClick={handleContinue}
-							disabled={!hasRecords}
-						>
-							Next
-						</Button>
-						<FinishButton applicantId={applicantId} />
-					</Group>
-				</Group>
+				<WizardNavigation
+					applicantId={applicantId}
+					backPath={`/apply/${applicantId}/documents`}
+					onNext={handleContinue}
+					nextDisabled={!hasRecords}
+				/>
 			</Stack>
 		</Paper>
 	);

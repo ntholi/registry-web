@@ -17,7 +17,7 @@ import {
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
-import { IconArrowRight, IconId, IconTrash } from '@tabler/icons-react';
+import { IconId, IconTrash } from '@tabler/icons-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'nextjs-toploader/app';
 import { useState } from 'react';
@@ -25,7 +25,7 @@ import {
 	DocumentUpload,
 	type DocumentUploadResult,
 } from '@/shared/ui/DocumentUpload';
-import FinishButton from '../../../_components/FinishButton';
+import WizardNavigation from '../../../_components/WizardNavigation';
 import {
 	removeIdentityDocument,
 	uploadIdentityDocument,
@@ -173,16 +173,12 @@ export default function IdentityUploadForm({ applicantId }: Props) {
 					</Stack>
 				)}
 
-				<Group justify='flex-end' mt='md'>
-					<Button
-						rightSection={<IconArrowRight size={16} />}
-						onClick={handleContinue}
-						disabled={!hasIdentity}
-					>
-						Next
-					</Button>
-					<FinishButton applicantId={applicantId} />
-				</Group>
+				<WizardNavigation
+					applicantId={applicantId}
+					onNext={handleContinue}
+					nextDisabled={!hasIdentity}
+					hideBack
+				/>
 			</Stack>
 		</Paper>
 	);
