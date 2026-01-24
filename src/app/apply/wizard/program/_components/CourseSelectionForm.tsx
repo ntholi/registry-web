@@ -22,7 +22,7 @@ import { useRouter } from 'nextjs-toploader/app';
 import { parseAsInteger, parseAsString, useQueryStates } from 'nuqs';
 import { useMemo, useState } from 'react';
 import CoursesFilters from '@/app/apply/courses/_components/CoursesFilters';
-import WizardNavigation from '../../../_components/WizardNavigation';
+import WizardNavigation from '../../_components/WizardNavigation';
 import { getActiveIntake, getEligiblePrograms } from '../_server/actions';
 import CourseCard from './CourseCard';
 
@@ -140,7 +140,7 @@ export default function CourseSelectionForm() {
 				message: 'Your course choices have been saved',
 				color: 'green',
 			});
-			router.push(`/apply/${applicantId}/personal-info`);
+			router.push('/apply/wizard/personal-info');
 		},
 		onError: (error) => {
 			notifications.show({
@@ -268,8 +268,7 @@ export default function CourseSelectionForm() {
 				)}
 
 				<WizardNavigation
-					applicantId={applicantId}
-					backPath={`/apply/${applicantId}/qualifications`}
+					backPath='/apply/wizard/qualifications'
 					onNext={handleContinue}
 					nextDisabled={!canContinue}
 					nextLoading={submitMutation.isPending}

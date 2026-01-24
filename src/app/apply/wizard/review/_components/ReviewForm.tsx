@@ -54,7 +54,6 @@ type Props = {
 export default function ReviewForm({ application }: Props) {
 	const router = useRouter();
 	const { applicant, refetch } = useApplicant();
-	const applicantId = applicant?.id ?? '';
 
 	const isAlreadySubmitted = application?.status === 'submitted';
 
@@ -76,7 +75,7 @@ export default function ReviewForm({ application }: Props) {
 					: 'Your application has been submitted for review',
 				color: 'green',
 			});
-			router.push(`/apply/${applicantId}/payment`);
+			router.push('/apply/wizard/payment');
 		},
 		onError: (error) => {
 			notifications.show({
@@ -88,11 +87,11 @@ export default function ReviewForm({ application }: Props) {
 	});
 
 	function handleBack() {
-		router.push(`/apply/${applicantId}/personal-info`);
+		router.push('/apply/wizard/personal-info');
 	}
 
 	function handleEdit(step: string) {
-		router.push(`/apply/${applicantId}/${step}`);
+		router.push(`/apply/wizard/${step}`);
 	}
 
 	function handleSubmit() {

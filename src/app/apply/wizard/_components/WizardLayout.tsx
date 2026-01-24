@@ -15,11 +15,10 @@ import { usePathname, useRouter } from 'next/navigation';
 import { getStepIndex, WIZARD_STEPS } from '../_lib/wizard-steps';
 
 type Props = {
-	applicantId: string;
 	children: React.ReactNode;
 };
 
-export default function WizardLayout({ applicantId, children }: Props) {
+export default function WizardLayout({ children }: Props) {
 	const pathname = usePathname();
 	const router = useRouter();
 	const isMobile = useMediaQuery('(max-width: 48em)');
@@ -31,7 +30,7 @@ export default function WizardLayout({ applicantId, children }: Props) {
 	function handleStepClick(stepIndex: number) {
 		const step = WIZARD_STEPS[stepIndex];
 		if (step) {
-			router.push(`/apply/${applicantId}/${step.path}`);
+			router.push(`/apply/wizard/${step.path}`);
 		}
 	}
 

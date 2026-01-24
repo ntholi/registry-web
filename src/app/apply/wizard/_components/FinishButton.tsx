@@ -5,11 +5,7 @@ import { IconCheck } from '@tabler/icons-react';
 import { useRouter } from 'nextjs-toploader/app';
 import { useApplicant } from '../../_lib/useApplicant';
 
-type Props = {
-	applicantId: string;
-};
-
-export default function FinishButton({ applicantId }: Props) {
+export default function FinishButton() {
 	const router = useRouter();
 	const { completeness } = useApplicant();
 
@@ -20,7 +16,7 @@ export default function FinishButton({ applicantId }: Props) {
 			variant='filled'
 			color='green'
 			leftSection={<IconCheck size={16} />}
-			onClick={() => router.push(`/apply/${applicantId}/review`)}
+			onClick={() => router.push('/apply/wizard/review')}
 		>
 			Finish
 		</Button>

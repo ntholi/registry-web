@@ -29,7 +29,7 @@ import {
 	DocumentUpload,
 	type DocumentUploadResult,
 } from '@/shared/ui/DocumentUpload';
-import WizardNavigation from '../../../_components/WizardNavigation';
+import WizardNavigation from '../../_components/WizardNavigation';
 import {
 	removeAcademicRecord,
 	uploadCertificateDocument,
@@ -98,7 +98,7 @@ export default function QualificationsUploadForm() {
 	}
 
 	function handleContinue() {
-		router.push(`/apply/${applicantId}/program`);
+		router.push('/apply/wizard/program');
 	}
 
 	return (
@@ -139,8 +139,7 @@ export default function QualificationsUploadForm() {
 				)}
 
 				<WizardNavigation
-					applicantId={applicantId}
-					backPath={`/apply/${applicantId}/documents`}
+					backPath='/apply/wizard/documents'
 					onNext={handleContinue}
 					nextDisabled={!hasRecords}
 				/>

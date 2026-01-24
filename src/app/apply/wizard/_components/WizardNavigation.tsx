@@ -1,13 +1,12 @@
 'use client';
 
+import { useApplicant } from '@apply/_lib/useApplicant';
 import { ActionIcon, Button, Group } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
 import { IconArrowLeft, IconArrowRight, IconCheck } from '@tabler/icons-react';
 import { useRouter } from 'nextjs-toploader/app';
-import { useApplicant } from '../../_lib/useApplicant';
 
 type Props = {
-	applicantId: string;
 	backPath?: string;
 	onNext?: () => void;
 	nextDisabled?: boolean;
@@ -16,7 +15,6 @@ type Props = {
 };
 
 export default function WizardNavigation({
-	applicantId,
 	backPath,
 	onNext,
 	nextDisabled,
@@ -32,7 +30,7 @@ export default function WizardNavigation({
 	}
 
 	function handleFinish() {
-		router.push(`/apply/${applicantId}/review`);
+		router.push('/apply/wizard/review');
 	}
 
 	return (

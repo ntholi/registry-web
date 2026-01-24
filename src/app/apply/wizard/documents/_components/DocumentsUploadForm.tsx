@@ -1,6 +1,7 @@
 'use client';
 
-import { useApplicant } from '@apply/_lib/useApplicant';
+import { getApplicant } from '@admissions/applicants/_server/actions';
+import { findDocumentsByApplicant } from '@admissions/applicants/[id]/documents/_server/actions';
 import {
 	ActionIcon,
 	Button,
@@ -16,19 +17,27 @@ import {
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
-import { IconId, IconTrash } from '@tabler/icons-react';
-import { useMutation } from '@tanstack/react-query';
+import {
+	IconArrowRight,
+	IconCheck,
+	IconId,
+	IconTrash,
+} from '@tabler/icons-react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'nextjs-toploader/app';
 import { useState } from 'react';
 import {
 	DocumentUpload,
 	type DocumentUploadResult,
 } from '@/shared/ui/DocumentUpload';
-import WizardNavigation from '../../../_components/WizardNavigation';
 import {
 	removeIdentityDocument,
 	uploadIdentityDocument,
 } from '../_server/actions';
+
+type Props = {
+	applicantId: string;
+};
 
 type UploadedIdentityDoc = {
 	id: string;
@@ -40,16 +49,24 @@ type UploadedIdentityDoc = {
 	documentType?: string | null;
 };
 
-export default function IdentityUploadForm() {
+export default function DocumentsUploadForm({ applicantId }: Props) {
 	const router = useRouter();
+	const queryClient = useQueryClient();
 	const [uploading, setUploading] = useState(false);
 	const [uploadKey, setUploadKey] = useState(0);
 
-	const { applicant, refetch } = useApplicant();
-	const applicantId = applicant?.id ?? '';
+	const { data: existingDocs } = useQuery({
+		queryKey: ['applicant-documents', applicantId],
+		queryFn: () => findDocumentsByApplicant(applicantId),
+	});
+
+	const { data: applicant } = useQuery({
+		queryKey: ['applicant', applicantId],
+		queryFn: () => getApplicant(applicantId),
+	});
 
 	const identityDocs =
-		applicant?.documents.filter((d) => d.document.type === 'identity') ?? [];
+		existingDocs?.items.filter((d) => d.document.type === 'identity') ?? [];
 	const hasIdentity = identityDocs.length > 0;
 
 	const uploadedDocs: UploadedIdentityDoc[] = identityDocs.map((doc) => ({
@@ -67,7 +84,9 @@ export default function IdentityUploadForm() {
 			return removeIdentityDocument(id, fileUrl);
 		},
 		onSuccess: () => {
-			refetch();
+			queryClient.invalidateQueries({
+				queryKey: ['applicant-documents', applicantId],
+			});
 			notifications.show({
 				title: 'Document removed',
 				message: 'Identity document has been deleted',
@@ -89,7 +108,12 @@ export default function IdentityUploadForm() {
 		try {
 			setUploading(true);
 			await uploadIdentityDocument(applicantId, result.file, result.analysis);
-			await refetch();
+			await queryClient.invalidateQueries({
+				queryKey: ['applicant-documents', applicantId],
+			});
+			await queryClient.invalidateQueries({
+				queryKey: ['applicant', applicantId],
+			});
 			setUploadKey((prev) => prev + 1);
 			notifications.show({
 				title: 'Document uploaded',
@@ -113,7 +137,7 @@ export default function IdentityUploadForm() {
 	}
 
 	function handleContinue() {
-		router.push(`/apply/${applicantId}/qualifications`);
+		router.push('/apply/wizard/qualifications');
 	}
 
 	return (
@@ -153,12 +177,15 @@ export default function IdentityUploadForm() {
 					</Stack>
 				)}
 
-				<WizardNavigation
-					applicantId={applicantId}
-					onNext={handleContinue}
-					nextDisabled={!hasIdentity}
-					hideBack
-				/>
+				<Group justify='flex-end' mt='md'>
+					<Button
+						rightSection={<IconArrowRight size={16} />}
+						onClick={handleContinue}
+						disabled={!hasIdentity}
+					>
+						Continue
+					</Button>
+				</Group>
 			</Stack>
 		</Paper>
 	);
@@ -216,6 +243,12 @@ function IdentityDocumentCard({
 								<Text size='sm' fw={600}>
 									Identity Document
 								</Text>
+								<Group gap={4}>
+									<IconCheck size={12} color='var(--mantine-color-green-6)' />
+									<Text size='xs' c='green'>
+										Verified
+									</Text>
+								</Group>
 							</Stack>
 						</Group>
 						<ActionIcon

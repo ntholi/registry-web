@@ -11,5 +11,5 @@ export default async function ApplyNewPage() {
 
 	const applicant = await getOrCreateApplicantForCurrentUser();
 
-	redirect(`/apply/${applicant.id}/documents`);
+	redirect(`/apply/wizard/documents`);
 }

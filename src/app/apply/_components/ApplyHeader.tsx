@@ -111,7 +111,7 @@ export default function ApplyHeader() {
 										<Menu.Item
 											leftSection={<IconUser size={14} />}
 											component={Link}
-											href={`/apply/${applicantId}/profile`}
+											href='/apply/wizard/profile'
 										>
 											My Profile
 										</Menu.Item>

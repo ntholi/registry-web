@@ -97,7 +97,7 @@ export default function PaymentForm({
 					message: 'Your application fee has already been paid',
 					color: 'yellow',
 				});
-				router.push(`/apply/${applicantId}/thank-you`);
+				router.push('/apply/wizard/thank-you');
 			} else {
 				setPaymentError(result.error || 'Payment initiation failed');
 				notifications.show({
@@ -127,7 +127,7 @@ export default function PaymentForm({
 					message: 'Your application fee has been paid',
 					color: 'green',
 				});
-				router.push(`/apply/${applicantId}/thank-you`);
+				router.push('/apply/wizard/thank-you');
 			} else if (result.status === 'failed') {
 				setIsPolling(false);
 				setPaymentError('Payment was declined or failed');
@@ -162,11 +162,11 @@ export default function PaymentForm({
 	}, [isPolling, currentTransactionId, verifyMutation.mutate]);
 
 	function handleBack() {
-		router.push(`/apply/${applicantId}/review`);
+		router.push('/apply/wizard/review');
 	}
 
 	function handleSkip() {
-		router.push(`/apply/${applicantId}/thank-you`);
+		router.push('/apply/wizard/thank-you');
 	}
 
 	function handleRetry() {
@@ -208,9 +208,7 @@ export default function PaymentForm({
 						</ThemeIcon>
 						<Title order={3}>Payment Complete</Title>
 						<Text c='dimmed'>Your application fee has been paid</Text>
-						<Button
-							onClick={() => router.push(`/apply/${applicantId}/thank-you`)}
-						>
+						<Button onClick={() => router.push('/apply/wizard/thank-you')}>
 							Continue
 						</Button>
 					</Stack>

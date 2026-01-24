@@ -100,7 +100,7 @@ export default function ProgramSelectionForm({ applicantId }: Props) {
 				message: 'Your program choices have been saved',
 				color: 'green',
 			});
-			router.push(`/apply/${applicantId}/personal-info`);
+			router.push('/apply/wizard/personal-info');
 		},
 		onError: (error) => {
 			notifications.show({
@@ -112,7 +112,7 @@ export default function ProgramSelectionForm({ applicantId }: Props) {
 	});
 
 	function handleBack() {
-		router.push(`/apply/${applicantId}/qualifications`);
+		router.push('/apply/wizard/qualifications');
 	}
 
 	function handleContinue() {

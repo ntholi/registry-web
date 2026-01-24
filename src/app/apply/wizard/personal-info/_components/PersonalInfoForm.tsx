@@ -16,7 +16,7 @@ import { useForm } from '@mantine/form';
 import { notifications } from '@mantine/notifications';
 import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'nextjs-toploader/app';
-import WizardNavigation from '../../../_components/WizardNavigation';
+import WizardNavigation from '../../_components/WizardNavigation';
 import { updateApplicantInfo } from '../_server/actions';
 import GuardianManager from './GuardianManager';
 import PhoneManager from './PhoneManager';
@@ -59,7 +59,7 @@ export default function PersonalInfoForm() {
 				message: 'Your personal information has been updated',
 				color: 'green',
 			});
-			router.push(`/apply/${applicantId}/review`);
+			router.push('/apply/wizard/review');
 		},
 		onError: (error) => {
 			notifications.show({
@@ -156,8 +156,7 @@ export default function PersonalInfoForm() {
 			<Divider />
 
 			<WizardNavigation
-				applicantId={applicantId}
-				backPath={`/apply/${applicantId}/program`}
+				backPath='/apply/wizard/program'
 				onNext={() => form.onSubmit((values) => mutation.mutate(values))()}
 				nextDisabled={(applicant?.guardians.length ?? 0) === 0}
 				nextLoading={mutation.isPending}
