@@ -1,22 +1,35 @@
 'use client';
 
 import {
+	ActionIcon,
 	Alert,
+	Badge,
+	Box,
 	Button,
 	Card,
+	CopyButton,
+	Divider,
 	Group,
+	Paper,
 	SimpleGrid,
 	Stack,
 	Text,
+	ThemeIcon,
+	Tooltip,
 } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import {
 	IconAlertCircle,
 	IconCheck,
+	IconCopy,
 	IconCreditCard,
+	IconLibrary,
 } from '@tabler/icons-react';
 import { useState } from 'react';
+import { useApplicant } from '@/app/apply/_lib/useApplicant';
+import { formatDate } from '@/shared/lib/utils/dates';
+import { FieldView } from '@/shared/ui/adease/FieldView';
 import { DocumentCardSkeleton } from '@/shared/ui/DocumentCardShell';
 import {
 	MobileReceiptUpload,
@@ -66,6 +79,7 @@ export default function ReceiptUploadForm({
 	const [uploadKey, setUploadKey] = useState(0);
 	const [receipts, setReceipts] = useState<UploadedReceipt[]>([]);
 	const [pendingUploads, setPendingUploads] = useState(0);
+	const application = useApplicant();
 
 	const requiredAmount = parseFloat(fee);
 	const totalAmount = receipts
@@ -162,23 +176,105 @@ export default function ReceiptUploadForm({
 
 	return (
 		<Stack gap='lg'>
-			<Alert color='blue' variant='light'>
-				<Stack gap='xs'>
-					<Text size='sm' fw={500}>
-						Upload Bank Deposit Slip
+			<Card withBorder padding='lg' radius='md'>
+				<Stack gap='md'>
+					<Group justify='space-between' align='center'>
+						<Group gap='sm'>
+							<ThemeIcon variant='light' color='gray' size='lg' radius='md'>
+								<IconLibrary size={20} stroke={1.5} />
+							</ThemeIcon>
+							<Box>
+								<Text fw={600} size='sm'>
+									Banking Details
+								</Text>
+								<Text size='xs' c='dimmed'>
+									Make payment to the account below
+								</Text>
+							</Box>
+						</Group>
+						<Badge variant='outline' color='gray' size='lg' radius='sm'>
+							FEE: M {parseFloat(fee).toFixed(2)}
+						</Badge>
+					</Group>
+
+					<Divider variant='dashed' />
+
+					<SimpleGrid cols={{ base: 1, sm: 2 }} spacing='xl'>
+						<FieldView label='Bank Name' underline={false}>
+							Standard Lesotho Bank
+						</FieldView>
+						<FieldView label='Account Number' underline={false}>
+							<Group gap={6} align='center'>
+								<Text size='sm' fw={600} ff='monospace'>
+									9080003987813
+								</Text>
+								<CopyButton value='9080003987813' timeout={2000}>
+									{({ copied, copy }) => (
+										<Tooltip
+											label={copied ? 'Copied' : 'Copy Account No'}
+											withArrow
+											position='right'
+										>
+											<ActionIcon
+												color={copied ? 'teal' : 'gray'}
+												variant='subtle'
+												onClick={copy}
+												size='sm'
+											>
+												{copied ? (
+													<IconCheck size={14} />
+												) : (
+													<IconCopy size={14} />
+												)}
+											</ActionIcon>
+										</Tooltip>
+									)}
+								</CopyButton>
+							</Group>
+						</FieldView>
+						<FieldView label='Branch Code' underline={false}>
+							060667
+						</FieldView>
+						<FieldView label='Swift Code' underline={false}>
+							SBICLSMX
+						</FieldView>
+					</SimpleGrid>
+
+					<Paper
+						p='md'
+						radius='md'
+						bg='var(--mantine-color-blue-light)'
+						style={{ border: '1px dashed var(--mantine-color-blue-outline)' }}
+					>
+						<Stack gap={4}>
+							<Text size='xs' c='blue' fw={700} tt='uppercase' lts={1}>
+								Payment Reference
+							</Text>
+							<Text size='lg' fw={700} c='blue.9'>
+								{application?.applicant?.fullName}
+							</Text>
+							<Text size='xs' c='blue' opacity={0.8}>
+								Use your full name exactly as shown above as the bank reference.
+							</Text>
+						</Stack>
+					</Paper>
+				</Stack>
+			</Card>
+
+			<Alert color='blue' variant='light' icon={<IconAlertCircle size={18} />}>
+				<Stack gap={4}>
+					<Text size='sm' fw={600}>
+						Payment Window
 					</Text>
 					<Text size='xs'>
-						• Must be a bank deposit to "Limkokwing University of Creative
-						Technology"
+						Deposit must be made between{' '}
+						<strong>{formatDate(intakeStartDate)}</strong> and{' '}
+						<strong>{formatDate(intakeEndDate)}</strong>
 					</Text>
 					<Text size='xs'>
-						• Deposit must be made within the intake period ({intakeStartDate}{' '}
-						to {intakeEndDate})
+						You can upload multiple receipts if the payment was split across
+						different transactions.
 					</Text>
-					<Text size='xs'>
-						• Amount must be equal to or greater than the application fee
-					</Text>
-					<Text size='xs'>• You can upload multiple receipts if needed</Text>
 				</Stack>
 			</Alert>
 
@@ -195,8 +291,8 @@ export default function ReceiptUploadForm({
 					key={uploadKey}
 					onUploadComplete={handleUploadComplete}
 					disabled={disabled}
-					title='Drop deposit slip here or click to browse'
-					description='Bank deposit slip showing payment to Limkokwing'
+					title='Click to upload bank deposit slips'
+					description='Upload your bank deposit slip'
 				/>
 			)}
 
