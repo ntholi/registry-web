@@ -1,22 +1,8 @@
 'use client';
 
 import { useApplicant } from '@apply/_lib/useApplicant';
-import {
-	ActionIcon,
-	Button,
-	Card,
-	Group,
-	Modal,
-	Paper,
-	SimpleGrid,
-	Stack,
-	Text,
-	ThemeIcon,
-	Title,
-} from '@mantine/core';
-import { useDisclosure } from '@mantine/hooks';
+import { Box, Paper, SimpleGrid, Stack, Text, Title } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
-import { IconId, IconTrash } from '@tabler/icons-react';
 import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'nextjs-toploader/app';
 import { useState } from 'react';
@@ -24,21 +10,16 @@ import {
 	DocumentUpload,
 	type DocumentUploadResult,
 } from '@/shared/ui/DocumentUpload';
+import { MobileDocumentUpload } from '@/shared/ui/MobileDocumentUpload';
 import WizardNavigation from '../../_components/WizardNavigation';
 import {
 	removeIdentityDocument,
 	uploadIdentityDocument,
 } from '../_server/actions';
-
-type UploadedIdentityDoc = {
-	id: string;
-	fileUrl?: string | null;
-	fullName?: string | null;
-	nationalId?: string | null;
-	dateOfBirth?: string | null;
-	nationality?: string | null;
-	documentType?: string | null;
-};
+import {
+	IdentityDocumentCard,
+	type UploadedIdentityDoc,
+} from './IdentityDocumentCard';
 
 export default function IdentityUploadForm() {
 	const router = useRouter();
@@ -126,14 +107,26 @@ export default function IdentityUploadForm() {
 					</Text>
 				</Stack>
 
-				<DocumentUpload
-					key={uploadKey}
-					type='identity'
-					onUploadComplete={handleUploadComplete}
-					disabled={uploading}
-					title='Upload Identity Document'
-					description='National ID, passport, or birth certificate'
-				/>
+				<Box hiddenFrom='sm'>
+					<MobileDocumentUpload
+						key={`mobile-${uploadKey}`}
+						type='identity'
+						onUploadComplete={handleUploadComplete}
+						disabled={uploading}
+						title='Upload Identity Document'
+						description='National ID, passport, or birth certificate'
+					/>
+				</Box>
+				<Box visibleFrom='sm'>
+					<DocumentUpload
+						key={uploadKey}
+						type='identity'
+						onUploadComplete={handleUploadComplete}
+						disabled={uploading}
+						title='Upload Identity Document'
+						description='National ID, passport, or birth certificate'
+					/>
+				</Box>
 
 				{uploadedDocs.length > 0 && (
 					<Stack gap='sm'>
@@ -160,116 +153,5 @@ export default function IdentityUploadForm() {
 				/>
 			</Stack>
 		</Paper>
-	);
-}
-
-type IdentityDocumentCardProps = {
-	doc: UploadedIdentityDoc;
-	onDelete: () => void;
-	deleting: boolean;
-};
-
-function IdentityDocumentCard({
-	doc,
-	onDelete,
-	deleting,
-}: IdentityDocumentCardProps) {
-	const [opened, { open, close }] = useDisclosure(false);
-
-	function handleConfirmDelete() {
-		onDelete();
-		close();
-	}
-
-	return (
-		<>
-			<Modal opened={opened} onClose={close} title='Delete Document' centered>
-				<Stack gap='md'>
-					<Text size='sm'>
-						Are you sure you want to delete this identity document? This action
-						cannot be undone.
-					</Text>
-					<Group justify='flex-end'>
-						<Button variant='subtle' onClick={close}>
-							Cancel
-						</Button>
-						<Button
-							color='red'
-							onClick={handleConfirmDelete}
-							loading={deleting}
-						>
-							Delete
-						</Button>
-					</Group>
-				</Stack>
-			</Modal>
-
-			<Card withBorder radius='md' p='md'>
-				<Stack gap='sm'>
-					<Group wrap='nowrap' justify='space-between'>
-						<Group wrap='nowrap'>
-							<ThemeIcon size='lg' variant='light' color='green'>
-								<IconId size={20} />
-							</ThemeIcon>
-							<Stack gap={0} style={{ flex: 1, minWidth: 0 }}>
-								<Text size='sm' fw={600}>
-									Identity Document
-								</Text>
-							</Stack>
-						</Group>
-						<ActionIcon
-							variant='subtle'
-							color='red'
-							onClick={open}
-							disabled={deleting}
-						>
-							<IconTrash size={16} />
-						</ActionIcon>
-					</Group>
-					<Stack gap={4}>
-						{doc.fullName && (
-							<Group gap='xs'>
-								<Text size='xs' c='dimmed' w={80}>
-									Name:
-								</Text>
-								<Text size='xs' fw={500}>
-									{doc.fullName}
-								</Text>
-							</Group>
-						)}
-						{doc.nationalId && (
-							<Group gap='xs'>
-								<Text size='xs' c='dimmed' w={80}>
-									ID Number:
-								</Text>
-								<Text size='xs' fw={500}>
-									{doc.nationalId}
-								</Text>
-							</Group>
-						)}
-						{doc.dateOfBirth && (
-							<Group gap='xs'>
-								<Text size='xs' c='dimmed' w={80}>
-									DOB:
-								</Text>
-								<Text size='xs' fw={500}>
-									{doc.dateOfBirth}
-								</Text>
-							</Group>
-						)}
-						{doc.nationality && (
-							<Group gap='xs'>
-								<Text size='xs' c='dimmed' w={80}>
-									Nationality:
-								</Text>
-								<Text size='xs' fw={500}>
-									{doc.nationality}
-								</Text>
-							</Group>
-						)}
-					</Stack>
-				</Stack>
-			</Card>
-		</>
 	);
 }
