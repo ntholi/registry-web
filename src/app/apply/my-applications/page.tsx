@@ -96,7 +96,7 @@ function ApplicationCard({ application }: ApplicationCardProps) {
 	return (
 		<Card
 			component={Link}
-			href={`/apply/${application.id}/documents`}
+			href={`/apply/${application.id}/review`}
 			withBorder
 			radius='md'
 			p='lg'

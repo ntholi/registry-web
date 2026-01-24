@@ -1,7 +1,6 @@
 import { getApplication } from '@admissions/applications';
 import {
 	Badge,
-	Button,
 	Container,
 	Group,
 	Paper,
@@ -11,7 +10,7 @@ import {
 	Title,
 } from '@mantine/core';
 import { IconCheck, IconHome } from '@tabler/icons-react';
-import Link from 'next/link';
+import LinkButton from '@/shared/ui/ButtonLink';
 
 type Props = {
 	params: Promise<{ id: string }>;
@@ -68,18 +67,17 @@ export default async function ThankYouPage({ params }: Props) {
 					</Text>
 
 					<Group mt='md'>
-						<Button
-							component={Link}
+						<LinkButton
 							href='/apply/my-applications'
 							variant='light'
 							leftSection={<IconHome size={16} />}
 						>
 							My Applications
-						</Button>
+						</LinkButton>
 						{!isPaid && (
-							<Button component={Link} href={`/apply/${id}/payment`}>
+							<LinkButton href={`/apply/${id}/payment`}>
 								Complete Payment
-							</Button>
+							</LinkButton>
 						)}
 					</Group>
 				</Stack>
