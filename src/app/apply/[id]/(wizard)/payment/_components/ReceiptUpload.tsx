@@ -165,39 +165,12 @@ export default function ReceiptUploadForm({
 
 	return (
 		<Stack gap='lg'>
-			<Group gap='sm'>
-				<ThemeIcon size='lg' variant='light' color='teal'>
-					<IconReceipt size={20} />
-				</ThemeIcon>
-				<Title order={4}>Upload Proof of Payment</Title>
-			</Group>
-
-			<Alert color='blue' variant='light'>
-				<Stack gap='xs'>
-					<Text size='sm' fw={500}>
-						Upload Bank Deposit Slip
-					</Text>
-					<Text size='xs'>
-						• Must be a bank deposit to "Limkokwing University of Creative
-						Technology"
-					</Text>
-					<Text size='xs'>
-						• Deposit must be made within the intake period ({intakeStartDate}{' '}
-						to {intakeEndDate})
-					</Text>
-					<Text size='xs'>
-						• Amount must be equal to or greater than the application fee
-					</Text>
-					<Text size='xs'>• You can upload multiple receipts if needed</Text>
-				</Stack>
-			</Alert>
-
 			{isMobile ? (
 				<MobileReceiptUpload
 					key={`mobile-${uploadKey}`}
 					onUploadComplete={handleUploadComplete}
 					disabled={disabled}
-					title='Upload Bank Deposit'
+					title='Bank Deposit'
 					description='Bank deposit slip showing payment to Limkokwing'
 				/>
 			) : (
@@ -273,7 +246,7 @@ export default function ReceiptUploadForm({
 					loading={isSubmitting}
 					disabled={!canSubmit}
 				>
-					Submit Receipt Payment
+					Submit
 				</Button>
 
 				<Button

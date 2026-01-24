@@ -149,7 +149,7 @@ export default function PaymentForm({
 						<Title order={4}>Application Fee Payment</Title>
 					</Group>
 
-					<Card withBorder radius='md' p='md'>
+					<Card withBorder p='md'>
 						<Group justify='space-between'>
 							<Text size='sm' c='dimmed'>
 								Application Fee
@@ -174,7 +174,7 @@ export default function PaymentForm({
 								<PaymentOption
 									icon={<IconReceipt size={28} />}
 									title='Upload Receipt'
-									description='Already paid? Upload proof'
+									description='Upload Bank Deposit Slip'
 									color='teal'
 									onClick={() => setView('receipt')}
 								/>
