@@ -241,7 +241,7 @@ export default function ReceiptUploadForm({
 					key={`mobile-${uploadKey}`}
 					onUploadComplete={handleUploadComplete}
 					disabled={disabled}
-					title='Bank Deposit'
+					title='Upload Deposit Slip'
 					description='Bank deposit slip showing payment to Limkokwing'
 				/>
 			) : (
