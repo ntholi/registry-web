@@ -2,12 +2,12 @@
 
 import { useApplicant } from '@apply/_lib/useApplicant';
 import {
-	Alert,
 	Button,
 	Card,
 	Divider,
 	Group,
 	Paper,
+	SimpleGrid,
 	Stack,
 	Text,
 	ThemeIcon,
@@ -16,10 +16,8 @@ import {
 } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import {
-	IconAlertCircle,
 	IconArrowLeft,
 	IconCheck,
-	IconChevronRight,
 	IconCreditCard,
 	IconReceipt,
 } from '@tabler/icons-react';
@@ -155,29 +153,41 @@ export default function PaymentForm({
 					</Card>
 
 					{view === 'select' && (
-						<Stack gap='md'>
+						<SimpleGrid cols={2} spacing='md'>
 							<PaymentOption
-								icon={<IconCreditCard size={24} />}
+								icon={<IconCreditCard size={28} />}
 								title='Pay with M-Pesa'
-								description='Pay instantly using your M-Pesa mobile money'
-								color='blue'
+								description='Pay instantly using mobile money'
+								color='red'
 								onClick={() => setView('mobile')}
 							/>
 
 							{intakeStartDate && intakeEndDate && fee ? (
 								<PaymentOption
-									icon={<IconReceipt size={24} />}
-									title='Upload Proof of Payment'
-									description='Already paid? Upload your receipt'
+									icon={<IconReceipt size={28} />}
+									title='Upload Receipt'
+									description='Already paid? Upload proof'
 									color='teal'
 									onClick={() => setView('receipt')}
 								/>
 							) : (
-								<Alert color='yellow' icon={<IconAlertCircle size={16} />}>
-									Receipt upload is not available. Please use mobile payment.
-								</Alert>
+								<Card withBorder radius='md' p='md'>
+									<Stack align='center' justify='center' h='100%' gap='xs'>
+										<ThemeIcon
+											size={48}
+											radius='md'
+											variant='light'
+											color='gray'
+										>
+											<IconReceipt size={28} />
+										</ThemeIcon>
+										<Text size='sm' c='dimmed' ta='center'>
+											Receipt upload unavailable
+										</Text>
+									</Stack>
+								</Card>
 							)}
-						</Stack>
+						</SimpleGrid>
 					)}
 
 					{view === 'mobile' && fee && (
@@ -240,24 +250,21 @@ function PaymentOption({
 	onClick,
 }: PaymentOptionProps) {
 	return (
-		<UnstyledButton onClick={onClick} w='100%'>
-			<Card withBorder radius='md' p='md'>
-				<Group justify='space-between'>
-					<Group gap='md'>
-						<ThemeIcon size={48} radius='md' variant='light' color={color}>
-							{icon}
-						</ThemeIcon>
-						<Stack gap={2}>
-							<Text fw={600}>{title}</Text>
-							<Text size='sm' c='dimmed'>
-								{description}
-							</Text>
-						</Stack>
-					</Group>
-					<ThemeIcon variant='subtle' color='gray'>
-						<IconChevronRight size={20} />
+		<UnstyledButton onClick={onClick} w='100%' h='100%'>
+			<Card withBorder radius='md' p='lg' h='100%'>
+				<Stack align='center' justify='center' gap='sm' h='100%'>
+					<ThemeIcon size={56} radius='md' variant='light' color={color}>
+						{icon}
 					</ThemeIcon>
-				</Group>
+					<Stack gap={2} align='center'>
+						<Text fw={600} ta='center'>
+							{title}
+						</Text>
+						<Text size='xs' c='dimmed' ta='center'>
+							{description}
+						</Text>
+					</Stack>
+				</Stack>
 			</Card>
 		</UnstyledButton>
 	);

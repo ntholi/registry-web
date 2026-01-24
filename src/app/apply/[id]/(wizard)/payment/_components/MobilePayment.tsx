@@ -3,7 +3,6 @@
 import {
 	Alert,
 	Button,
-	Divider,
 	Group,
 	Progress,
 	Stack,
@@ -248,7 +247,7 @@ export function MobilePayment({
 			)}
 
 			<Button
-				color='green'
+				color='red'
 				size='md'
 				leftSection={<IconCreditCard size={20} />}
 				onClick={handleSubmit}
@@ -257,12 +256,6 @@ export function MobilePayment({
 			>
 				Pay M {fee} with M-Pesa
 			</Button>
-
-			<Divider label='or' labelPosition='center' />
-
-			<Text c='dimmed' size='sm' ta='center'>
-				Ecocash - Coming Soon
-			</Text>
 
 			<Button
 				variant='subtle'
