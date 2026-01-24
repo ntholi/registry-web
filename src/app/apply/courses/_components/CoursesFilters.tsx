@@ -3,7 +3,8 @@
 import type { ProgramLevel } from '@academic/_database';
 import type { SchoolSummary } from '@admissions/entry-requirements/_lib/types';
 import { Chip, Group, ScrollArea } from '@mantine/core';
-import { parseAsInteger, parseAsString, useQueryStates } from 'nuqs';
+import { useQueryStates } from 'nuqs';
+import { coursesSearchParams } from '../_lib/params';
 
 interface Props {
 	schools: SchoolSummary[];
@@ -11,10 +12,7 @@ interface Props {
 }
 
 export default function CoursesFilters({ schools, levels }: Props) {
-	const [filters, setFilters] = useQueryStates({
-		schoolId: parseAsInteger,
-		level: parseAsString,
-	});
+	const [filters, setFilters] = useQueryStates(coursesSearchParams);
 
 	const levelsSorted = [...levels].sort((a, b) => b.localeCompare(a));
 
@@ -24,7 +22,7 @@ export default function CoursesFilters({ schools, levels }: Props) {
 				<Chip
 					variant='filled'
 					checked={!filters.level && !filters.schoolId}
-					onChange={() => setFilters({ level: null, schoolId: null })}
+					onChange={() => setFilters({ level: null, schoolId: null, page: 1 })}
 				>
 					All
 				</Chip>
@@ -36,7 +34,10 @@ export default function CoursesFilters({ schools, levels }: Props) {
 							variant='filled'
 							checked={filters.level === level}
 							onChange={() =>
-								setFilters({ level: filters.level === level ? null : level })
+								setFilters({
+									level: filters.level === level ? null : level,
+									page: 1,
+								})
 							}
 						>
 							{levelLabel(level)}
@@ -53,6 +54,7 @@ export default function CoursesFilters({ schools, levels }: Props) {
 							onChange={() =>
 								setFilters({
 									schoolId: filters.schoolId === school.id ? null : school.id,
+									page: 1,
 								})
 							}
 						>

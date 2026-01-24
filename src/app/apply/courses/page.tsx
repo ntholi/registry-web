@@ -16,11 +16,13 @@ import {
 	Text,
 	Title,
 } from '@mantine/core';
+import { createLoader } from 'nuqs/server';
 import ButtonLink from '@/shared/ui/ButtonLink';
 import ApplyHeader from '../_components/ApplyHeader';
 import CourseCard from './_components/CourseCard';
 import CoursesFilters from './_components/CoursesFilters';
 import CoursesPagination from './_components/CoursesPagination';
+import { coursesSearchParams } from './_lib/params';
 
 interface Props {
 	searchParams: Promise<{
@@ -30,15 +32,14 @@ interface Props {
 	}>;
 }
 
+const loadSearchParams = createLoader(coursesSearchParams);
+
 export default async function ApplyCoursesPage({ searchParams }: Props) {
-	const params = await searchParams;
-	const page = parsePositiveNumber(params.page) ?? 1;
-	const schoolId = parsePositiveNumber(params.schoolId);
-	const level = parseProgramLevel(params.level);
+	const { page, schoolId, level } = await loadSearchParams(searchParams);
 
 	const filter: EntryRequirementFilter = {
 		...(schoolId ? { schoolId } : {}),
-		...(level ? { level } : {}),
+		...(level ? { level: level as ProgramLevel } : {}),
 	};
 
 	const { programs, schools, subjects } = await getPublicCoursesData(
@@ -131,18 +132,4 @@ function Footer() {
 			</Container>
 		</Paper>
 	);
-}
-
-function parsePositiveNumber(value?: string) {
-	if (!value) return undefined;
-	const parsed = Number(value);
-	return Number.isFinite(parsed) && parsed > 0 ? parsed : undefined;
-}
-
-function parseProgramLevel(value?: string): ProgramLevel | undefined {
-	if (!value) return undefined;
-	const allowed = programLevelEnum.enumValues;
-	return allowed.includes(value as ProgramLevel)
-		? (value as ProgramLevel)
-		: undefined;
 }

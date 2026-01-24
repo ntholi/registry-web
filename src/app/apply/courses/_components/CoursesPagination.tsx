@@ -1,7 +1,7 @@
 'use client';
 
 import { Group, Pagination } from '@mantine/core';
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { parseAsInteger, useQueryState } from 'nuqs';
 
 interface CoursesPaginationProps {
 	page: number;
@@ -12,24 +12,19 @@ export default function CoursesPagination({
 	page,
 	total,
 }: CoursesPaginationProps) {
-	const router = useRouter();
-	const pathname = usePathname();
-	const searchParams = useSearchParams();
+	const [_, setPage] = useQueryState('page', parseAsInteger.withDefault(1));
 
 	if (total <= 1) {
 		return null;
 	}
 
-	function handleChange(nextPage: number) {
-		const params = new URLSearchParams(searchParams.toString());
-		params.set('page', nextPage.toString());
-		const queryString = params.toString();
-		router.push(queryString ? `${pathname}?${queryString}` : pathname);
-	}
-
 	return (
 		<Group justify='center'>
-			<Pagination value={page} onChange={handleChange} total={total} />
+			<Pagination
+				value={page}
+				onChange={(nextPage) => setPage(nextPage)}
+				total={total}
+			/>
 		</Group>
 	);
 }
