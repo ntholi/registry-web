@@ -64,6 +64,7 @@ export function DocumentCardShell({
 							message={deleteMessage}
 							variant='subtle'
 							disabled={deleting}
+							typedConfirmation={false}
 							onSuccess={() => {}}
 						/>
 					</Box>
