@@ -1,8 +1,9 @@
 'use client';
 
-import { getApplicant } from '@admissions/applicants';
+import type { getApplicant } from '@admissions/applicants';
+import { findApplicantByUserId } from '@admissions/applicants';
 import { useQuery } from '@tanstack/react-query';
-import { useParams } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 import { useMemo } from 'react';
 
 export type ApplicantWithRelations = NonNullable<
@@ -56,15 +57,15 @@ function computeCompleteness(
 	};
 }
 
-export function useApplicant(id?: string) {
-	const params = useParams();
-	const applicantId = id || (params.id as string);
+export function useApplicant() {
+	const { data: session } = useSession();
+	const userId = session?.user?.id;
 
 	const query = useQuery({
-		queryKey: ['applicant', applicantId],
-		queryFn: () => getApplicant(applicantId),
+		queryKey: ['applicant', 'user', userId],
+		queryFn: () => findApplicantByUserId(userId!),
 		staleTime: 30_000,
-		enabled: !!applicantId,
+		enabled: !!userId,
 	});
 
 	const completeness = useMemo(
