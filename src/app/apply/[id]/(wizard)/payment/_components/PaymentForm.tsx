@@ -226,24 +226,20 @@ export default function PaymentForm({
 				</Stack>
 			</Paper>
 
-			{view === 'select' && (
-				<>
-					<Divider />
+			<Divider />
 
-					<Group justify='space-between'>
-						<Button
-							variant='subtle'
-							leftSection={<IconArrowLeft size={16} />}
-							onClick={handleBack}
-						>
-							Back
-						</Button>
-						<Button variant='light' onClick={handleSkip}>
-							Skip for now
-						</Button>
-					</Group>
-				</>
-			)}
+			<Group justify='space-between'>
+				<Button
+					variant='subtle'
+					leftSection={<IconArrowLeft size={16} />}
+					onClick={handleBack}
+				>
+					Back
+				</Button>
+				<Button variant='light' onClick={handleSkip}>
+					Skip for now
+				</Button>
+			</Group>
 		</Stack>
 	);
 }

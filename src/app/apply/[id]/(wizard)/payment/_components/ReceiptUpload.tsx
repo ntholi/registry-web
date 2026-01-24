@@ -162,6 +162,26 @@ export default function ReceiptUploadForm({
 
 	return (
 		<Stack gap='lg'>
+			<Alert color='blue' variant='light'>
+				<Stack gap='xs'>
+					<Text size='sm' fw={500}>
+						Upload Bank Deposit Slip
+					</Text>
+					<Text size='xs'>
+						• Must be a bank deposit to "Limkokwing University of Creative
+						Technology"
+					</Text>
+					<Text size='xs'>
+						• Deposit must be made within the intake period ({intakeStartDate}{' '}
+						to {intakeEndDate})
+					</Text>
+					<Text size='xs'>
+						• Amount must be equal to or greater than the application fee
+					</Text>
+					<Text size='xs'>• You can upload multiple receipts if needed</Text>
+				</Stack>
+			</Alert>
+
 			{isMobile ? (
 				<MobileReceiptUpload
 					key={`mobile-${uploadKey}`}

@@ -202,13 +202,6 @@ export function MobilePayment({
 
 	return (
 		<Stack gap='lg'>
-			<Group gap='sm'>
-				<ThemeIcon size='lg' variant='light' color='blue'>
-					<IconCreditCard size={20} />
-				</ThemeIcon>
-				<Title order={4}>Pay with M-Pesa</Title>
-			</Group>
-
 			{paymentError && (
 				<Alert
 					color='red'
@@ -221,18 +214,18 @@ export function MobilePayment({
 
 			<TextInput
 				label='M-Pesa Phone Number'
-				placeholder='59146563'
 				value={phoneNumber}
 				onChange={(e) => setPhoneNumber(e.currentTarget.value)}
-				description='Enter your M-Pesa number (must start with 5)'
+				description='Enter any number with funds in the M-Pesa account to make the payment'
 				leftSection={<Text size='sm'>+266</Text>}
 				disabled={initiateMutation.isPending}
 			/>
 
 			<Alert color='blue' variant='light'>
 				<Text size='sm'>
-					A USSD prompt will be sent to your phone. Enter your M-Pesa PIN to
-					authorize the payment.
+					A USSD prompt will be sent to{' '}
+					{phoneNumber ? `+266${phoneNumber}` : 'the number above'}. Enter your
+					M-Pesa PIN to authorize the payment of M {fee} to 'Pay Lesotho'.
 				</Text>
 			</Alert>
 
