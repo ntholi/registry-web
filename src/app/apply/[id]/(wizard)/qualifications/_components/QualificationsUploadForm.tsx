@@ -86,7 +86,8 @@ export default function QualificationsUploadForm({ applicationId }: Props) {
 				<Stack gap='xs'>
 					<Title order={3}>Academic Qualifications</Title>
 					<Text c='dimmed' size='sm'>
-						Upload your academic certificates, transcripts, or results slips
+						Upload your academic certificates, transcripts, or results slips.
+						Documents must be certified (stamped and signed).
 					</Text>
 				</Stack>
 
