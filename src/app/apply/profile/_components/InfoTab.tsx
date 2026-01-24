@@ -1,5 +1,6 @@
 'use client';
 
+import { getGradeColor } from '@/app/admissions/applicants/[id]/_components/AcademicRecordsTab';
 import type { ApplicantWithRelations } from '@admissions/applicants';
 import {
 	Badge,
@@ -155,21 +156,18 @@ export function InfoTab({ applicant }: Props) {
 												{record.institutionName}
 											</Text>
 										</Stack>
-										<Badge variant='dot' size='lg'>
-											LQF {record.certificateType.lqfLevel}
-										</Badge>
 									</Group>
 
 									{record.subjectGrades.length > 0 && (
 										<Box
 											mt='md'
 											p='md'
-											bg={isDark ? 'dark.6' : 'gray.0'}
+											bg={isDark ? 'dark.8' : 'gray.0'}
 											style={{ borderRadius: '8px' }}
 										>
-											<SimpleGrid cols={{ base: 2, sm: 3, md: 4 }} spacing='sm'>
+											<SimpleGrid cols={{ base: 1}} spacing='sm'>
 												{record.subjectGrades.map((grade) => (
-													<Group key={grade.id} gap='xs' wrap='nowrap'>
+													<Group key={grade.id}>
 														<Text
 															size='xs'
 															fw={600}
@@ -180,9 +178,8 @@ export function InfoTab({ applicant }: Props) {
 														</Text>
 														<Badge
 															size='sm'
-															variant='white'
-															fw={700}
-															color={isDark ? 'white' : 'black'}
+                              variant='light'
+															color={getGradeColor(grade.standardGrade)}
 														>
 															{grade.standardGrade}
 														</Badge>
