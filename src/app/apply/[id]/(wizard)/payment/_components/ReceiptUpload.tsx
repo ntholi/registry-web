@@ -2,16 +2,23 @@
 
 import {
 	Alert,
+	Button,
 	Card,
 	Group,
 	SimpleGrid,
 	Stack,
 	Text,
+	ThemeIcon,
 	Title,
 } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
-import { IconAlertCircle } from '@tabler/icons-react';
+import {
+	IconAlertCircle,
+	IconArrowLeft,
+	IconCheck,
+	IconReceipt,
+} from '@tabler/icons-react';
 import { useState } from 'react';
 import { DocumentCardSkeleton } from '@/shared/ui/DocumentCardShell';
 import {
@@ -26,15 +33,15 @@ type Props = {
 	fee: string;
 	intakeStartDate: string;
 	intakeEndDate: string;
-	onValidationComplete: (
+	onSubmit: (
 		receipts: Array<{
 			base64: string;
 			mediaType: string;
 			receiptNumber: string;
 		}>
 	) => void;
-	onTotalAmountChange: (amount: number) => void;
-	disabled?: boolean;
+	onBack: () => void;
+	isSubmitting?: boolean;
 };
 
 function generateId(): string {
@@ -45,9 +52,9 @@ export default function ReceiptUploadForm({
 	fee,
 	intakeStartDate,
 	intakeEndDate,
-	onValidationComplete,
-	onTotalAmountChange,
-	disabled,
+	onSubmit,
+	onBack,
+	isSubmitting,
 }: Props) {
 	const isMobile = useMediaQuery('(max-width: 768px)');
 	const [uploading, setUploading] = useState(false);
@@ -61,6 +68,9 @@ export default function ReceiptUploadForm({
 		.reduce((sum, r) => sum + (r.amount ?? 0), 0);
 	const isAmountSufficient = totalAmount >= requiredAmount;
 	const allValid = receipts.every((r) => r.isValid);
+
+	const validReceipts = receipts.filter((r) => r.isValid && r.receiptNumber);
+	const canSubmit = validReceipts.length > 0 && isAmountSufficient;
 
 	async function handleUploadComplete(result: ReceiptUploadResult) {
 		try {
@@ -85,12 +95,7 @@ export default function ReceiptUploadForm({
 				mediaType: result.file.type,
 			};
 
-			setReceipts((prev) => {
-				const updated = [...prev, newReceipt];
-				updateCallbacks(updated);
-				return updated;
-			});
-
+			setReceipts((prev) => [...prev, newReceipt]);
 			setUploadKey((prev) => prev + 1);
 
 			if (validation.isValid) {
@@ -118,14 +123,13 @@ export default function ReceiptUploadForm({
 		}
 	}
 
-	function updateCallbacks(updated: UploadedReceipt[]) {
-		const newTotal = updated
-			.filter((r) => r.isValid)
-			.reduce((sum, r) => sum + (r.amount ?? 0), 0);
-		onTotalAmountChange(newTotal);
+	async function handleDelete(id: string) {
+		setReceipts((prev) => prev.filter((r) => r.id !== id));
+	}
 
-		const validReceipts = updated.filter((r) => r.isValid && r.receiptNumber);
-		onValidationComplete(
+	function handleSubmit() {
+		if (!canSubmit) return;
+		onSubmit(
 			validReceipts.map((r) => ({
 				base64: r.base64,
 				mediaType: r.mediaType,
@@ -134,30 +138,39 @@ export default function ReceiptUploadForm({
 		);
 	}
 
-	async function handleDelete(id: string) {
-		setReceipts((prev) => {
-			const updated = prev.filter((r) => r.id !== id);
-			updateCallbacks(updated);
-			return updated;
-		});
-	}
-
 	const showUploadedSection = receipts.length > 0 || pendingUploads > 0;
+	const disabled = isSubmitting || uploading;
 
 	return (
 		<Stack gap='lg'>
-			<Stack gap='xs'>
-				<Title order={5}>Upload Payment Receipts</Title>
-				<Text c='dimmed' size='sm'>
-					Upload your Limkokwing University payment receipts
-				</Text>
-			</Stack>
+			<Group gap='sm'>
+				<ThemeIcon size='lg' variant='light' color='teal'>
+					<IconReceipt size={20} />
+				</ThemeIcon>
+				<Title order={4}>Upload Proof of Payment</Title>
+			</Group>
+
+			<Alert color='blue' variant='light'>
+				<Stack gap='xs'>
+					<Text size='sm' fw={500}>
+						Upload Limkokwing University Receipt
+					</Text>
+					<Text size='xs'>
+						• Receipt number must be in SR-XXXXX format (e.g., SR-53657)
+					</Text>
+					<Text size='xs'>
+						• Receipt must be issued within the intake period ({intakeStartDate}{' '}
+						to {intakeEndDate})
+					</Text>
+					<Text size='xs'>• You can upload multiple receipts if needed</Text>
+				</Stack>
+			</Alert>
 
 			{isMobile ? (
 				<MobileReceiptUpload
 					key={`mobile-${uploadKey}`}
 					onUploadComplete={handleUploadComplete}
-					disabled={disabled || uploading}
+					disabled={disabled}
 					title='Upload Receipt'
 					description='Limkokwing University receipt (SR-XXXXX format)'
 				/>
@@ -165,7 +178,7 @@ export default function ReceiptUploadForm({
 				<ReceiptDropzone
 					key={uploadKey}
 					onUploadComplete={handleUploadComplete}
-					disabled={disabled || uploading}
+					disabled={disabled}
 					title='Drop receipt here or click to browse'
 					description='Limkokwing University receipt (SR-XXXXX format)'
 				/>
@@ -224,6 +237,28 @@ export default function ReceiptUploadForm({
 					)}
 				</Stack>
 			)}
+
+			<Stack gap='sm'>
+				<Button
+					color='green'
+					size='md'
+					leftSection={<IconCheck size={20} />}
+					onClick={handleSubmit}
+					loading={isSubmitting}
+					disabled={!canSubmit}
+				>
+					Submit Receipt Payment
+				</Button>
+
+				<Button
+					variant='subtle'
+					leftSection={<IconArrowLeft size={16} />}
+					onClick={onBack}
+					disabled={isSubmitting}
+				>
+					Choose another method
+				</Button>
+			</Stack>
 		</Stack>
 	);
 }
