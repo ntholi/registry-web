@@ -59,26 +59,35 @@ export function DocumentPreviewModal({
 			size='xl'
 			centered
 		>
-			<Stack gap='md'>
-				<Box h={500}>
-					{isPdf ? (
-						<iframe
-							src={previewUrl}
-							style={{ width: '100%', height: '100%', border: 'none' }}
-							title='Document Preview'
-						/>
-					) : (
-						<Image
-							src={previewUrl}
-							alt='Document Preview'
-							fit='contain'
-							mah='100%'
-						/>
-					)}
-				</Box>
+			<Box pos='relative' h={600}>
+				{isPdf ? (
+					<iframe
+						src={previewUrl}
+						style={{ width: '100%', height: '100%', border: 'none' }}
+						title='Document Preview'
+					/>
+				) : (
+					<Image
+						src={previewUrl}
+						alt='Document Preview'
+						fit='contain'
+						mah='100%'
+					/>
+				)}
 
 				{document && (
-					<Paper withBorder p='md' bg='var(--mantine-color-dark-6)' radius='md'>
+					<Paper
+						withBorder
+						p='md'
+						pos='absolute'
+						bottom={10}
+						left={0}
+						right={0}
+						style={{
+							background: 'rgba(33, 33, 33, 0.85)',
+							backdropFilter: 'blur(8px)',
+						}}
+					>
 						<Stack gap='sm'>
 							<Group gap='lg' wrap='wrap'>
 								{document.type && (
@@ -105,12 +114,13 @@ export function DocumentPreviewModal({
 
 							<Divider />
 
-							<Group gap='sm' wrap='wrap'>
+							<Group gap='sm'>
 								{isCertified ? (
 									<Badge
 										leftSection={<IconCertificate size={12} />}
 										color='green'
 										variant='light'
+										radius={'xs'}
 									>
 										Certified
 									</Badge>
@@ -119,18 +129,16 @@ export function DocumentPreviewModal({
 										leftSection={<IconCertificateOff size={12} />}
 										color='red'
 										variant='light'
+										radius={'xs'}
 									>
 										Not Certified
 									</Badge>
 								)}
 
 								{isCertified && (
-									<Group gap='md' ml='auto'>
+									<Group gap='md'>
 										{document.certifiedBy && (
 											<Text size='sm'>
-												<Text span c='dimmed'>
-													By:{' '}
-												</Text>
 												{document.certifiedBy}
 											</Text>
 										)}
@@ -148,7 +156,7 @@ export function DocumentPreviewModal({
 						</Stack>
 					</Paper>
 				)}
-			</Stack>
+			</Box>
 		</Modal>
 	);
 }
