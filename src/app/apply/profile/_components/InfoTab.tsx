@@ -12,6 +12,7 @@ import {
 	Stack,
 	Text,
 	ThemeIcon,
+	Title,
 	useMantineColorScheme,
 } from '@mantine/core';
 import {
@@ -33,63 +34,37 @@ export function InfoTab({ applicant }: Props) {
 
 	return (
 		<Stack gap={40}>
-			<Section title='Personal Information'>
-				<Paper withBorder radius='md' p='xl'>
-					<Grid gutter={30}>
-						<Grid.Col span={{ base: 12, sm: 6 }}>
-							<FieldDisplay
-								icon={<IconUser size={18} />}
-								label='Full Name'
-								value={applicant.fullName}
-							/>
-						</Grid.Col>
-						<Grid.Col span={{ base: 12, sm: 6 }}>
-							<FieldDisplay
-								icon={<IconCalendar size={18} />}
-								label='Date of Birth'
-								value={applicant.dateOfBirth}
-							/>
-						</Grid.Col>
-						<Grid.Col span={{ base: 12, sm: 6 }}>
-							<FieldDisplay
-								icon={<IconId size={18} />}
-								label='National ID'
-								value={applicant.nationalId}
-							/>
-						</Grid.Col>
-						<Grid.Col span={{ base: 12, sm: 6 }}>
-							<FieldDisplay label='Nationality' value={applicant.nationality} />
-						</Grid.Col>
-						<Grid.Col span={{ base: 12, sm: 6 }}>
-							<FieldDisplay label='Gender' value={applicant.gender} />
-						</Grid.Col>
-						<Grid.Col span={{ base: 12, sm: 6 }}>
-							<FieldDisplay
-								icon={<IconMapPin size={18} />}
-								label='Birth Place'
-								value={applicant.birthPlace}
-							/>
-						</Grid.Col>
-					</Grid>
-				</Paper>
-			</Section>
+			<Paper withBorder radius='md' p='xl'>
+				<Grid>
+					<Grid.Col span={{ base: 12, sm: 6 }}>
+						<FieldDisplay label='Full Name' value={applicant.fullName} />
+					</Grid.Col>
+					<Grid.Col span={{ base: 12, sm: 6 }}>
+						<FieldDisplay label='Date of Birth' value={applicant.dateOfBirth} />
+					</Grid.Col>
+					<Grid.Col span={{ base: 12, sm: 6 }}>
+						<FieldDisplay label='National ID' value={applicant.nationalId} />
+					</Grid.Col>
+					<Grid.Col span={{ base: 12, sm: 6 }}>
+						<FieldDisplay label='Nationality' value={applicant.nationality} />
+					</Grid.Col>
+					<Grid.Col span={{ base: 12, sm: 6 }}>
+						<FieldDisplay label='Gender' value={applicant.gender} />
+					</Grid.Col>
+					<Grid.Col span={{ base: 12, sm: 6 }}>
+						<FieldDisplay label='Birth Place' value={applicant.birthPlace} />
+					</Grid.Col>
+				</Grid>
+			</Paper>
 
 			<Section title='Contact Information'>
 				<Paper withBorder radius='md' p='xl'>
-					<Grid gutter={30}>
+					<Grid>
 						<Grid.Col span={{ base: 12, sm: 6 }}>
-							<FieldDisplay
-								icon={<IconPhone size={18} />}
-								label='Phone'
-								value={primaryPhone?.phoneNumber}
-							/>
+							<FieldDisplay label='Phone' value={primaryPhone?.phoneNumber} />
 						</Grid.Col>
 						<Grid.Col span={12}>
-							<FieldDisplay
-								icon={<IconMapPin size={18} />}
-								label='Address'
-								value={applicant.address}
-							/>
+							<FieldDisplay label='Address' value={applicant.address} />
 						</Grid.Col>
 					</Grid>
 				</Paper>
@@ -99,43 +74,40 @@ export function InfoTab({ applicant }: Props) {
 				<Section title='Guardian Information'>
 					<Stack gap='lg'>
 						{applicant.guardians.map((guardian, index) => (
-							<Paper key={guardian.id} withBorder radius='md' p='xl'>
-								<Stack gap='xl'>
-									{applicant.guardians.length > 1 && (
-										<Text size='sm' fw={700} c='blue' tt='uppercase'>
-											Guardian {index + 1}
-										</Text>
-									)}
-									<Grid gutter={30}>
-										<Grid.Col span={{ base: 12, sm: 6 }}>
-											<FieldDisplay
-												icon={<IconUser size={18} />}
-												label='Name'
-												value={guardian.name}
-											/>
-										</Grid.Col>
-										<Grid.Col span={{ base: 12, sm: 6 }}>
-											<FieldDisplay
-												label='Relationship'
-												value={guardian.relationship}
-											/>
-										</Grid.Col>
-										<Grid.Col span={{ base: 12, sm: 6 }}>
-											<FieldDisplay
-												icon={<IconPhone size={18} />}
-												label='Phone'
-												value={guardian.phones?.[0]?.phoneNumber}
-											/>
-										</Grid.Col>
-										<Grid.Col span={{ base: 12, sm: 6 }}>
-											<FieldDisplay
-												label='Occupation'
-												value={guardian.occupation}
-											/>
-										</Grid.Col>
-									</Grid>
-								</Stack>
-							</Paper>
+							<SimpleGrid cols={{ base: 1, sm: 2 }}>
+								<Paper key={guardian.id} withBorder radius='md' p='xl'>
+									<Stack gap='xl'>
+										{applicant.guardians.length > 1 && (
+											<Text size='sm' fw={700} c='blue' tt='uppercase'>
+												Guardian {index + 1}
+											</Text>
+										)}
+										<Grid>
+											<Grid.Col span={{ base: 12, sm: 6 }}>
+												<FieldDisplay label='Name' value={guardian.name} />
+											</Grid.Col>
+											<Grid.Col span={{ base: 12, sm: 6 }}>
+												<FieldDisplay
+													label='Relationship'
+													value={guardian.relationship}
+												/>
+											</Grid.Col>
+											<Grid.Col span={{ base: 12, sm: 6 }}>
+												<FieldDisplay
+													label='Phone'
+													value={guardian.phones?.[0]?.phoneNumber}
+												/>
+											</Grid.Col>
+											<Grid.Col span={{ base: 12, sm: 6 }}>
+												<FieldDisplay
+													label='Occupation'
+													value={guardian.occupation}
+												/>
+											</Grid.Col>
+										</Grid>
+									</Stack>
+								</Paper>
+							</SimpleGrid>
 						))}
 					</Stack>
 				</Section>
@@ -146,13 +118,13 @@ export function InfoTab({ applicant }: Props) {
 					<Stack gap='lg'>
 						{applicant.academicRecords.map((record) => (
 							<Paper key={record.id} withBorder radius='md' p='xl'>
-								<Stack gap='md'>
+								<Stack gap={2}>
 									<Group justify='space-between' align='flex-start'>
 										<Stack gap={4}>
-											<Text fw={700} size='lg'>
+											<Text>
 												{record.certificateType.name}
 											</Text>
-											<Text size='sm' c='dimmed' fw={500}>
+											<Text size='xs' c='dimmed'>
 												{record.institutionName}
 											</Text>
 										</Stack>
@@ -165,7 +137,7 @@ export function InfoTab({ applicant }: Props) {
 											bg={isDark ? 'dark.8' : 'gray.0'}
 											style={{ borderRadius: '8px' }}
 										>
-											<SimpleGrid cols={{ base: 1}} spacing='sm'>
+											<SimpleGrid cols={{ base: 1 }} spacing='sm'>
 												{record.subjectGrades.map((grade) => (
 													<Group key={grade.id}>
 														<Text
@@ -178,7 +150,7 @@ export function InfoTab({ applicant }: Props) {
 														</Text>
 														<Badge
 															size='sm'
-                              variant='light'
+															variant='light'
 															color={getGradeColor(grade.standardGrade)}
 														>
 															{grade.standardGrade}
@@ -206,12 +178,12 @@ function Section({
 	children: React.ReactNode;
 }) {
 	return (
-		<Stack gap='lg'>
-			<Text fw={700} size='20px' style={{ letterSpacing: '-0.5px' }}>
+		<Box>
+			<Title order={4} fw={500} mb={'sm'}>
 				{title}
-			</Text>
+			</Title>
 			{children}
-		</Stack>
+		</Box>
 	);
 }
 

@@ -1,5 +1,6 @@
 'use client';
 
+import { formatDateTime } from '@/shared/lib/utils/dates';
 import type { ApplicantWithRelations } from '@admissions/applicants';
 import { Card, SimpleGrid, Stack, Text, ThemeIcon } from '@mantine/core';
 import {
@@ -31,7 +32,7 @@ export function DocumentsTab({ applicant }: Props) {
 			{documents.map((doc) => (
 				<DocumentCard
 					key={doc.id}
-					name={doc.document.fileName}
+					dateUploaded={formatDateTime(doc.document.createdAt)}
 					type={doc.document.type ?? 'other'}
 					url={doc.document.fileUrl ?? '#'}
 				/>
@@ -41,12 +42,12 @@ export function DocumentsTab({ applicant }: Props) {
 }
 
 interface DocumentCardProps {
-	name: string;
+	dateUploaded: string;
 	type: string;
 	url: string;
 }
 
-function DocumentCard({ name, type, url }: DocumentCardProps) {
+function DocumentCard({ dateUploaded, type, url }: DocumentCardProps) {
 	const icon = getDocumentIcon(type);
 	const label = getDocumentLabel(type);
 	const color = getDocumentColor(type);
@@ -67,16 +68,13 @@ function DocumentCard({ name, type, url }: DocumentCardProps) {
 				</ThemeIcon>
 				<Stack gap={4}>
 					<Text size='sm' fw={600} lineClamp={1}>
-						{name}
+						{label}
 					</Text>
 					<Text
 						size='xs'
 						c='dimmed'
-						fw={500}
-						tt='uppercase'
-						style={{ letterSpacing: '0.5px' }}
 					>
-						{label}
+						Uploaded: {dateUploaded}
 					</Text>
 				</Stack>
 			</Stack>

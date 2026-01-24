@@ -1,13 +1,7 @@
 'use client';
 
 import { useApplicant } from '@apply/_lib/useApplicant';
-import {
-  Box,
-  Center,
-  Loader,
-  Stack,
-  Text
-} from '@mantine/core';
+import { Box, Center, Loader, Stack, Text } from '@mantine/core';
 import ApplyHeader from '../_components/ApplyHeader';
 import { ProfileView } from './_components/ProfileView';
 

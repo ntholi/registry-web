@@ -90,15 +90,6 @@ export function ProfileView({ applicant }: Props) {
 									</Text>
 								</Group>
 							</Group>
-
-							<Box>
-								<Text fw={600} size='sm'>
-									Limkokwing University Applicant
-								</Text>
-								<Text size='sm' c='dimmed'>
-									Future Professional
-								</Text>
-							</Box>
 						</Stack>
 					</Group>
 
