@@ -228,7 +228,7 @@ export function MobileReceiptUpload({
 						</Text>
 					)}
 
-					{!isProcessing && (
+					{!isProcessing && uploadState === 'error' && (
 						<Button
 							variant='light'
 							color='red'

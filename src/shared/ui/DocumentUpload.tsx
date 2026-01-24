@@ -270,7 +270,7 @@ export function DocumentUpload({
 						</Text>
 					)}
 
-					{!isProcessing && (
+					{!isProcessing && uploadState === 'error' && (
 						<Button
 							variant='light'
 							color='red'

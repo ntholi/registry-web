@@ -296,7 +296,7 @@ export function MobileDocumentUpload({
 						</Text>
 					)}
 
-					{!isProcessing && (
+					{!isProcessing && uploadState === 'error' && (
 						<Button
 							variant='light'
 							color='red'
