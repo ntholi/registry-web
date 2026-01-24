@@ -2,7 +2,6 @@
 
 import {
 	Button,
-	Group,
 	Paper,
 	Progress,
 	rem,
@@ -11,6 +10,7 @@ import {
 	Text,
 	ThemeIcon,
 } from '@mantine/core';
+import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import {
 	IconCamera,
@@ -31,6 +31,7 @@ import {
 	type DocumentAnalysisResult,
 	type IdentityDocumentResult,
 } from '@/core/integrations/ai/documents';
+import { CameraModal } from './CameraModal';
 
 export type DocumentUploadType = 'identity' | 'certificate' | 'any';
 
@@ -109,7 +110,8 @@ export function MobileDocumentUpload({
 	const [file, setFile] = useState<File | null>(null);
 	const [uploadState, setUploadState] = useState<UploadState>('idle');
 	const [errorMessage, setErrorMessage] = useState<string | null>(null);
-	const cameraInputRef = useRef<HTMLInputElement>(null);
+	const [cameraOpened, { open: openCamera, close: closeCamera }] =
+		useDisclosure(false);
 	const galleryInputRef = useRef<HTMLInputElement>(null);
 
 	const IdleIcon = ICON_MAP[type];
@@ -205,8 +207,8 @@ export function MobileDocumentUpload({
 		event.target.value = '';
 	}
 
-	function handleCameraClick() {
-		cameraInputRef.current?.click();
+	function handleCameraCapture(capturedFile: File) {
+		processFile(capturedFile);
 	}
 
 	function handleGalleryClick() {
@@ -313,19 +315,22 @@ export function MobileDocumentUpload({
 
 	return (
 		<Paper withBorder radius='md' p='md'>
+			<CameraModal
+				opened={cameraOpened}
+				onClose={closeCamera}
+				onCapture={handleCameraCapture}
+			/>
 			<Stack gap='md'>
-				<Group justify='center' gap='sm'>
+				<Stack gap={4} ta='center'>
 					<ThemeIcon
 						variant='light'
 						size={60}
 						radius='md'
 						color='var(--mantine-color-dimmed)'
+						mx='auto'
 					>
 						<IdleIcon size={32} stroke={1.5} />
 					</ThemeIcon>
-				</Group>
-
-				<Stack gap={4} ta='center'>
 					<Text size='md' fw={500}>
 						{title ?? 'Upload Document'}
 					</Text>
@@ -339,7 +344,7 @@ export function MobileDocumentUpload({
 						variant='light'
 						size='lg'
 						leftSection={<IconCamera size={20} />}
-						onClick={handleCameraClick}
+						onClick={openCamera}
 						disabled={disabled || isProcessing}
 						loading={isProcessing}
 					>
@@ -356,14 +361,6 @@ export function MobileDocumentUpload({
 					</Button>
 				</SimpleGrid>
 
-				<input
-					ref={cameraInputRef}
-					type='file'
-					accept='image/*'
-					capture='environment'
-					onChange={handleFileChange}
-					style={{ display: 'none' }}
-				/>
 				<input
 					ref={galleryInputRef}
 					type='file'
