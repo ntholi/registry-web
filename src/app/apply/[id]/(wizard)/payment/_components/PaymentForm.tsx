@@ -146,7 +146,7 @@ export default function PaymentForm({
 						<ThemeIcon size='lg' variant='light'>
 							<IconCreditCard size={20} />
 						</ThemeIcon>
-						<Title order={4}>Application Fee Payment</Title>
+						<Title order={4}>Payment</Title>
 					</Group>
 
 					<Card withBorder p='md'>
@@ -203,7 +203,7 @@ export default function PaymentForm({
 							applicationId={applicationId}
 							fee={fee}
 							defaultPhone={defaultPhone}
-							onBack={() => setView('select')}
+							onSwitchToUpload={() => setView('receipt')}
 						/>
 					)}
 
@@ -213,7 +213,7 @@ export default function PaymentForm({
 							intakeStartDate={intakeStartDate}
 							intakeEndDate={intakeEndDate}
 							onSubmit={(receipts) => submitReceiptMutation.mutate(receipts)}
-							onBack={() => setView('select')}
+							onSwitchToMpesa={() => setView('mobile')}
 							isSubmitting={submitReceiptMutation.isPending}
 						/>
 					)}

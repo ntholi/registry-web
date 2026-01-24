@@ -8,8 +8,6 @@ import {
 	SimpleGrid,
 	Stack,
 	Text,
-	ThemeIcon,
-	Title,
 } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
@@ -17,7 +15,7 @@ import {
 	IconAlertCircle,
 	IconArrowLeft,
 	IconCheck,
-	IconReceipt,
+	IconCreditCard,
 } from '@tabler/icons-react';
 import { useState } from 'react';
 import { DocumentCardSkeleton } from '@/shared/ui/DocumentCardShell';
@@ -48,7 +46,7 @@ type Props = {
 	intakeStartDate: string;
 	intakeEndDate: string;
 	onSubmit: (receipts: DepositSubmission[]) => void;
-	onBack: () => void;
+	onSwitchToMpesa: () => void;
 	isSubmitting?: boolean;
 };
 
@@ -61,7 +59,7 @@ export default function ReceiptUploadForm({
 	intakeStartDate,
 	intakeEndDate,
 	onSubmit,
-	onBack,
+	onSwitchToMpesa,
 	isSubmitting,
 }: Props) {
 	const isMobile = useMediaQuery('(max-width: 768px)');
@@ -251,11 +249,12 @@ export default function ReceiptUploadForm({
 
 				<Button
 					variant='subtle'
-					leftSection={<IconArrowLeft size={16} />}
-					onClick={onBack}
+					color='gray'
+					leftSection={<IconCreditCard size={16} />}
+					onClick={onSwitchToMpesa}
 					disabled={isSubmitting}
 				>
-					Choose another method
+					Switch to M-Pesa
 				</Button>
 			</Stack>
 		</Stack>

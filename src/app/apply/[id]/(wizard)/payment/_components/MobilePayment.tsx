@@ -16,6 +16,7 @@ import {
 	IconAlertCircle,
 	IconArrowLeft,
 	IconCreditCard,
+	IconReceipt,
 	IconRefresh,
 } from '@tabler/icons-react';
 import { useMutation } from '@tanstack/react-query';
@@ -34,14 +35,14 @@ type Props = {
 	applicationId: string;
 	fee: string;
 	defaultPhone: string;
-	onBack: () => void;
+	onSwitchToUpload: () => void;
 };
 
 export function MobilePayment({
 	applicationId,
 	fee,
 	defaultPhone,
-	onBack,
+	onSwitchToUpload,
 }: Props) {
 	const router = useRouter();
 	const [phoneNumber, setPhoneNumber] = useState(defaultPhone);
@@ -259,10 +260,11 @@ export function MobilePayment({
 
 			<Button
 				variant='subtle'
-				leftSection={<IconArrowLeft size={16} />}
-				onClick={onBack}
+				color='gray'
+				leftSection={<IconReceipt size={16} />}
+				onClick={onSwitchToUpload}
 			>
-				Choose another method
+				Switch to Deposit Slip
 			</Button>
 		</Stack>
 	);
