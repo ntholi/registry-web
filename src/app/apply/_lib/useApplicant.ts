@@ -2,6 +2,7 @@
 
 import { getApplicant } from '@admissions/applicants';
 import { useQuery } from '@tanstack/react-query';
+import { useParams } from 'next/navigation';
 import { useMemo } from 'react';
 
 export type ApplicantWithRelations = NonNullable<
@@ -55,11 +56,15 @@ function computeCompleteness(
 	};
 }
 
-export function useApplicant(applicantId: string) {
+export function useApplicant(id?: string) {
+	const params = useParams();
+	const applicantId = id || (params.id as string);
+
 	const query = useQuery({
 		queryKey: ['applicant', applicantId],
 		queryFn: () => getApplicant(applicantId),
 		staleTime: 30_000,
+		enabled: !!applicantId,
 	});
 
 	const completeness = useMemo(

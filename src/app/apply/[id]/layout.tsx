@@ -26,5 +26,5 @@ export default async function ApplyIdLayout({ children, params }: Props) {
 		redirect('/apply/new');
 	}
 
-	return <ApplyLayout applicantId={applicant.id}>{children}</ApplyLayout>;
+	return <ApplyLayout>{children}</ApplyLayout>;
 }

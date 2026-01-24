@@ -4,7 +4,7 @@ import { ActionIcon, Button, Group } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
 import { IconArrowLeft, IconArrowRight, IconCheck } from '@tabler/icons-react';
 import { useRouter } from 'nextjs-toploader/app';
-import { useApplicant } from '../_lib/useApplicant';
+import { useApplicant } from '../../_lib/useApplicant';
 
 type Props = {
 	applicantId: string;
@@ -25,7 +25,7 @@ export default function WizardNavigation({
 }: Props) {
 	const router = useRouter();
 	const isMobile = useMediaQuery('(max-width: 48em)');
-	const { completeness } = useApplicant(applicantId);
+	const { completeness } = useApplicant();
 
 	function handleBack() {
 		if (backPath) router.push(backPath);

@@ -21,8 +21,8 @@ import { useRouter } from 'nextjs-toploader/app';
 import { parseAsInteger, parseAsString, useQueryStates } from 'nuqs';
 import { useMemo, useState } from 'react';
 import CoursesFilters from '@/app/apply/courses/_components/CoursesFilters';
+import { useApplicant } from '../../../../_lib/useApplicant';
 import WizardNavigation from '../../../_components/WizardNavigation';
-import { useApplicant } from '../../../_lib/useApplicant';
 import { getActiveIntake, getEligiblePrograms } from '../_server/actions';
 import CourseCard from './CourseCard';
 
@@ -54,8 +54,7 @@ export default function CourseSelectionForm({ applicantId }: Props) {
 		level: parseAsString,
 	});
 
-	const { currentApplication, isSuccess: appLoaded } =
-		useApplicant(applicantId);
+	const { currentApplication, isSuccess: appLoaded } = useApplicant();
 
 	const { data: eligiblePrograms = [], isLoading: loadingPrograms } = useQuery({
 		queryKey: ['eligible-programs', applicantId],

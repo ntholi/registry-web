@@ -3,7 +3,7 @@
 import { Button } from '@mantine/core';
 import { IconCheck } from '@tabler/icons-react';
 import { useRouter } from 'nextjs-toploader/app';
-import { useApplicant } from '../_lib/useApplicant';
+import { useApplicant } from '../../_lib/useApplicant';
 
 type Props = {
 	applicantId: string;
@@ -11,7 +11,7 @@ type Props = {
 
 export default function FinishButton({ applicantId }: Props) {
 	const router = useRouter();
-	const { completeness } = useApplicant(applicantId);
+	const { completeness } = useApplicant();
 
 	if (!completeness.isComplete) return null;
 

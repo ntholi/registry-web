@@ -15,12 +15,11 @@ import { IconLogout, IconUser } from '@tabler/icons-react';
 import NextImage from 'next/image';
 import Link from 'next/link';
 import { signOut, useSession } from 'next-auth/react';
+import { useApplicant } from '../_lib/useApplicant';
 
-type Props = {
-	applicantId?: string;
-};
-
-export default function ApplyHeader({ applicantId }: Props) {
+export default function ApplyHeader() {
+	const { applicant } = useApplicant();
+	const applicantId = applicant?.id;
 	const { colorScheme } = useMantineColorScheme();
 	const isDark = colorScheme === 'dark';
 	const { data: session, status } = useSession();
