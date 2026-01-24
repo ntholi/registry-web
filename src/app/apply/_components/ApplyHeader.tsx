@@ -37,7 +37,7 @@ export default function ApplyHeader() {
 	return (
 		<Box
 			component='header'
-			py='md'
+			py='sm'
 			px='xl'
 			style={{
 				position: 'fixed',
