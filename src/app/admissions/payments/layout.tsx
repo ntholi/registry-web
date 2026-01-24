@@ -54,7 +54,7 @@ export default function PaymentsLayout({ children }: PropsWithChildren) {
 					id={payment.id}
 					label={
 						<Group gap='xs'>
-							{payment.applicant.fullName}
+							{payment.application?.applicant?.fullName || 'Unknown'}
 							<Badge
 								size='xs'
 								variant='light'

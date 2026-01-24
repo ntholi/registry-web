@@ -34,12 +34,12 @@ export async function markPaymentAsPaid(
 	return paymentsService.markAsPaid(transactionId, manualReference);
 }
 
-export async function getPaymentsByApplicant(applicantId: string) {
-	return paymentsService.getByApplicant(applicantId);
+export async function getPaymentsByApplication(applicationId: string) {
+	return paymentsService.getByApplication(applicationId);
 }
 
-export async function getPendingPayment(applicantId: string) {
-	return paymentsService.getPendingByApplicant(applicantId);
+export async function getPendingPayment(applicationId: string) {
+	return paymentsService.getPendingByApplication(applicationId);
 }
 
 export async function countPaymentsByStatus(status: TransactionStatus) {

@@ -89,20 +89,24 @@ export default async function PaymentDetailsPage({ params }: Props) {
 
 					<Divider />
 
-					<Stack gap='xs'>
-						<Text size='lg' fw={600}>
-							Applicant
-						</Text>
-						<Grid>
-							<GridCol span={6}>
-								<FieldView label='Name' underline={false}>
-									<Link href={`/admissions/applicants/${payment.applicant.id}`}>
-										{payment.applicant.fullName}
-									</Link>
-								</FieldView>
-							</GridCol>
-						</Grid>
-					</Stack>
+					{payment.application?.applicant && (
+						<Stack gap='xs'>
+							<Text size='lg' fw={600}>
+								Applicant
+							</Text>
+							<Grid>
+								<GridCol span={6}>
+									<FieldView label='Name' underline={false}>
+										<Link
+											href={`/admissions/applicants/${payment.application.applicant.id}`}
+										>
+											{payment.application.applicant.fullName}
+										</Link>
+									</FieldView>
+								</GridCol>
+							</Grid>
+						</Stack>
+					)}
 
 					<Divider />
 

@@ -1,4 +1,4 @@
-import { applicants } from '@admissions/applicants/_schema/applicants';
+import { applications } from '@admissions/applications/_schema/applications';
 import { users } from '@auth/users/_schema/users';
 import {
 	decimal,
@@ -31,9 +31,9 @@ export const paymentTransactions = pgTable(
 		id: text()
 			.primaryKey()
 			.$defaultFn(() => nanoid()),
-		applicantId: text()
-			.references(() => applicants.id, { onDelete: 'cascade' })
-			.notNull(),
+		applicationId: text().references(() => applications.id, {
+			onDelete: 'set null',
+		}),
 		amount: decimal({ precision: 10, scale: 2 }).notNull(),
 		mobileNumber: text().notNull(),
 		provider: paymentProviderEnum().notNull(),
@@ -50,8 +50,8 @@ export const paymentTransactions = pgTable(
 			.$onUpdate(() => new Date()),
 	},
 	(table) => ({
-		applicantIdx: index('fk_payment_transactions_applicant').on(
-			table.applicantId
+		applicationIdx: index('fk_payment_transactions_application').on(
+			table.applicationId
 		),
 		statusIdx: index('idx_payment_transactions_status').on(table.status),
 		clientRefIdx: index('idx_payment_transactions_client_ref').on(

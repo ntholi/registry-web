@@ -47,8 +47,8 @@ class PaymentService extends BaseService<typeof paymentTransactions, 'id'> {
 
 	async initiatePayment(input: InitiatePaymentInput) {
 		return withAuth(async () => {
-			const existingSuccess = await this.repo.findSuccessfulByApplicant(
-				input.applicantId
+			const existingSuccess = await this.repo.findSuccessfulByApplication(
+				input.applicationId
 			);
 			if (existingSuccess) {
 				return {
@@ -58,10 +58,10 @@ class PaymentService extends BaseService<typeof paymentTransactions, 'id'> {
 				};
 			}
 
-			const clientReference = generateClientReference(input.applicantId);
+			const clientReference = generateClientReference(input.applicationId);
 
 			const transaction = await this.repo.create({
-				applicantId: input.applicantId,
+				applicationId: input.applicationId,
 				amount: input.amount.toString(),
 				mobileNumber: input.mobileNumber,
 				provider: input.provider,
@@ -142,21 +142,17 @@ class PaymentService extends BaseService<typeof paymentTransactions, 'id'> {
 					response
 				);
 
-				const receiptNumber = `APPLY-${transaction.applicantId}-${Date.now()}`;
+				const receiptNumber = `APPLY-${transaction.applicationId}-${Date.now()}`;
 				await db
 					.update(paymentTransactions)
 					.set({ receiptNumber })
 					.where(eq(paymentTransactions.id, transactionId));
 
-				const application = await db.query.applications.findFirst({
-					where: eq(applications.applicantId, transaction.applicantId),
-				});
-
-				if (application) {
+				if (transaction.applicationId) {
 					await db
 						.update(applications)
 						.set({ paymentStatus: 'paid' })
-						.where(eq(applications.id, application.id));
+						.where(eq(applications.id, transaction.applicationId));
 				}
 
 				return { success: true, status: 'success' as TransactionStatus };
@@ -175,7 +171,7 @@ class PaymentService extends BaseService<typeof paymentTransactions, 'id'> {
 					throw new Error('Transaction not found');
 				}
 
-				const receiptNumber = `APPLY-${transaction.applicantId}-${Date.now()}`;
+				const receiptNumber = `APPLY-${transaction.applicationId}-${Date.now()}`;
 
 				const updated = await this.repo.markAsPaidManually(
 					transactionId,
@@ -184,15 +180,11 @@ class PaymentService extends BaseService<typeof paymentTransactions, 'id'> {
 					receiptNumber
 				);
 
-				const application = await db.query.applications.findFirst({
-					where: eq(applications.applicantId, transaction.applicantId),
-				});
-
-				if (application) {
+				if (transaction.applicationId) {
 					await db
 						.update(applications)
 						.set({ paymentStatus: 'paid' })
-						.where(eq(applications.id, application.id));
+						.where(eq(applications.id, transaction.applicationId));
 				}
 
 				return updated;
@@ -201,16 +193,16 @@ class PaymentService extends BaseService<typeof paymentTransactions, 'id'> {
 		);
 	}
 
-	async getByApplicant(applicantId: string) {
+	async getByApplication(applicationId: string) {
 		return withAuth(
-			async () => this.repo.findByApplicant(applicantId),
+			async () => this.repo.findByApplication(applicationId),
 			['registry', 'marketing', 'admin', 'applicant']
 		);
 	}
 
-	async getPendingByApplicant(applicantId: string) {
+	async getPendingByApplication(applicationId: string) {
 		return withAuth(
-			async () => this.repo.findPendingByApplicant(applicantId),
+			async () => this.repo.findPendingByApplication(applicationId),
 			['registry', 'marketing', 'admin', 'applicant']
 		);
 	}

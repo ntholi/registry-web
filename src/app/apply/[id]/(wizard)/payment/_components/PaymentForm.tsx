@@ -58,7 +58,6 @@ export default function PaymentForm({
 }: Props) {
 	const router = useRouter();
 	const { applicant } = useApplicant();
-	const applicantId = applicant?.id ?? '';
 
 	const defaultPhone =
 		applicant?.phones?.find((p) => {
@@ -80,7 +79,7 @@ export default function PaymentForm({
 	const initiateMutation = useMutation({
 		mutationFn: async () => {
 			if (!fee) throw new Error('Fee not available');
-			return initiateMpesaPayment(applicantId, parseFloat(fee), phoneNumber);
+			return initiateMpesaPayment(applicationId, parseFloat(fee), phoneNumber);
 		},
 		onSuccess: (result) => {
 			if (result.success && result.transactionId) {

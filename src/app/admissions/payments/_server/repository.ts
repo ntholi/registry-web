@@ -1,5 +1,5 @@
-import { and, desc, eq, or, sql } from 'drizzle-orm';
-import { applicants, db, paymentTransactions } from '@/core/database';
+import { and, desc, eq, isNotNull, or, sql } from 'drizzle-orm';
+import { db, paymentTransactions } from '@/core/database';
 import BaseRepository from '@/core/platform/BaseRepository';
 import type { PaymentFilters, TransactionStatus } from '../_lib/types';
 
@@ -15,8 +15,13 @@ export default class PaymentRepository extends BaseRepository<
 		return db.query.paymentTransactions.findFirst({
 			where: eq(paymentTransactions.id, id),
 			with: {
-				applicant: {
-					columns: { id: true, fullName: true },
+				application: {
+					columns: { id: true },
+					with: {
+						applicant: {
+							columns: { id: true, fullName: true },
+						},
+					},
 				},
 				markedPaidByUser: {
 					columns: { id: true, name: true },
@@ -31,27 +36,27 @@ export default class PaymentRepository extends BaseRepository<
 		});
 	}
 
-	async findByApplicant(applicantId: string) {
+	async findByApplication(applicationId: string) {
 		return db.query.paymentTransactions.findMany({
-			where: eq(paymentTransactions.applicantId, applicantId),
+			where: eq(paymentTransactions.applicationId, applicationId),
 			orderBy: desc(paymentTransactions.createdAt),
 		});
 	}
 
-	async findPendingByApplicant(applicantId: string) {
+	async findPendingByApplication(applicationId: string) {
 		return db.query.paymentTransactions.findFirst({
 			where: and(
-				eq(paymentTransactions.applicantId, applicantId),
+				eq(paymentTransactions.applicationId, applicationId),
 				eq(paymentTransactions.status, 'pending')
 			),
 			orderBy: desc(paymentTransactions.createdAt),
 		});
 	}
 
-	async findSuccessfulByApplicant(applicantId: string) {
+	async findSuccessfulByApplication(applicationId: string) {
 		return db.query.paymentTransactions.findFirst({
 			where: and(
-				eq(paymentTransactions.applicantId, applicantId),
+				eq(paymentTransactions.applicationId, applicationId),
 				eq(paymentTransactions.status, 'success')
 			),
 		});
@@ -109,13 +114,14 @@ export default class PaymentRepository extends BaseRepository<
 			conditions.push(eq(paymentTransactions.provider, filters.provider));
 		}
 
-		if (filters?.applicantId) {
-			conditions.push(eq(paymentTransactions.applicantId, filters.applicantId));
+		if (filters?.applicationId) {
+			conditions.push(
+				eq(paymentTransactions.applicationId, filters.applicationId)
+			);
 		}
 
 		const searchCondition = search
 			? or(
-					sql`${applicants.fullName} ILIKE ${`%${search}%`}`,
 					sql`${paymentTransactions.mobileNumber} ILIKE ${`%${search}%`}`,
 					sql`${paymentTransactions.clientReference} ILIKE ${`%${search}%`}`
 				)
@@ -131,8 +137,9 @@ export default class PaymentRepository extends BaseRepository<
 		const countResult = await db
 			.select({ count: sql<number>`count(*)` })
 			.from(paymentTransactions)
-			.innerJoin(applicants, eq(paymentTransactions.applicantId, applicants.id))
-			.where(whereConditions);
+			.where(
+				and(whereConditions, isNotNull(paymentTransactions.applicationId))
+			);
 
 		const totalItems = Number(countResult[0]?.count || 0);
 		const totalPages = Math.ceil(totalItems / pageSize);
@@ -140,8 +147,7 @@ export default class PaymentRepository extends BaseRepository<
 		const transactionIds = await db
 			.select({ id: paymentTransactions.id })
 			.from(paymentTransactions)
-			.innerJoin(applicants, eq(paymentTransactions.applicantId, applicants.id))
-			.where(whereConditions)
+			.where(and(whereConditions, isNotNull(paymentTransactions.applicationId)))
 			.orderBy(desc(paymentTransactions.createdAt))
 			.limit(pageSize)
 			.offset(offset);

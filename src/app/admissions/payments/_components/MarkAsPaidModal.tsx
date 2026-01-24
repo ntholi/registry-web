@@ -80,14 +80,16 @@ export default function MarkAsPaidModal({ payment }: Props) {
 						payments made via bank transfer or cash.
 					</Text>
 
-					<Stack gap='xs'>
-						<Text size='sm' c='dimmed'>
-							Applicant
-						</Text>
-						<Text size='sm' fw={500}>
-							{payment.applicant.fullName}
-						</Text>
-					</Stack>
+					{payment.application?.applicant && (
+						<Stack gap='xs'>
+							<Text size='sm' c='dimmed'>
+								Applicant
+							</Text>
+							<Text size='sm' fw={500}>
+								{payment.application.applicant.fullName}
+							</Text>
+						</Stack>
+					)}
 
 					<Stack gap='xs'>
 						<Text size='sm' c='dimmed'>

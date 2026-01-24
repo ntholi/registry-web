@@ -3,7 +3,7 @@
 import { getApplicant } from '@admissions/applicants';
 import { getApplication } from '@admissions/applications';
 import {
-	getPaymentsByApplicant,
+	getPaymentsByApplication,
 	getPendingPayment,
 	initiatePayment,
 	verifyPayment,
@@ -27,8 +27,8 @@ export async function getPaymentPageData(applicationId: string) {
 
 	const [applicant, transactions, pendingTransaction] = await Promise.all([
 		getApplicant(application.applicantId),
-		getPaymentsByApplicant(application.applicantId),
-		getPendingPayment(application.applicantId),
+		getPaymentsByApplication(applicationId),
+		getPendingPayment(applicationId),
 	]);
 
 	const intake = await db.query.intakePeriods.findFirst({
@@ -50,12 +50,12 @@ export async function getPaymentPageData(applicationId: string) {
 }
 
 export async function initiateMpesaPayment(
-	applicantId: string,
+	applicationId: string,
 	amount: number,
 	mobileNumber: string
 ) {
 	return initiatePayment({
-		applicantId,
+		applicationId,
 		amount,
 		mobileNumber,
 		provider: 'mpesa',
@@ -66,6 +66,6 @@ export async function checkPaymentStatus(transactionId: string) {
 	return verifyPayment(transactionId);
 }
 
-export async function getApplicantPendingPayment(applicantId: string) {
-	return getPendingPayment(applicantId);
+export async function getApplicationPendingPayment(applicationId: string) {
+	return getPendingPayment(applicationId);
 }

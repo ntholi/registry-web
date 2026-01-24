@@ -9,14 +9,17 @@ export type PaymentProvider = 'mpesa' | 'ecocash';
 export interface PaymentFilters {
 	status?: TransactionStatus;
 	provider?: PaymentProvider;
-	applicantId?: string;
+	applicationId?: string;
 }
 
 export interface PaymentWithRelations extends PaymentTransaction {
-	applicant: {
+	application: {
 		id: string;
-		fullName: string;
-	};
+		applicant: {
+			id: string;
+			fullName: string;
+		};
+	} | null;
 	markedPaidByUser: {
 		id: string;
 		name: string | null;
@@ -24,7 +27,7 @@ export interface PaymentWithRelations extends PaymentTransaction {
 }
 
 export interface InitiatePaymentInput {
-	applicantId: string;
+	applicationId: string;
 	amount: number;
 	mobileNumber: string;
 	provider: PaymentProvider;
