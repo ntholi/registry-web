@@ -122,7 +122,7 @@ export default function ProgramSelector({ value, onChange, error }: Props) {
 					{error}
 				</Text>
 			)}
-			<Accordion variant='separated' multiple defaultValue={LEVEL_ORDER}>
+			<Accordion variant='separated' multiple>
 				{LEVEL_ORDER.map((level) => {
 					const levelPrograms = grouped.get(level) ?? [];
 					const selectedCount = getLevelSelectedCount(level);

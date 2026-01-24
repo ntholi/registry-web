@@ -107,8 +107,8 @@ export default function QualificationsUploadForm({ applicationId }: Props) {
 						icon={<IconAlertTriangle size={16} />}
 						title='Approaching document limit'
 					>
-						You have uploaded {documentLimits.current} of {documentLimits.max}{' '}
-						allowed documents. {documentLimits.remaining} remaining.
+						You have uploaded {documentLimits.current} documents and are nearing
+						your maximum limit. Be careful to only upload what is necessary.
 					</Alert>
 				)}
 
