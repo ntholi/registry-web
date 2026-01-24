@@ -18,6 +18,14 @@ type CompletenessResult = {
 	hasPersonalInfo: boolean;
 };
 
+type DocumentLimitsResult = {
+	current: number;
+	max: number;
+	remaining: number;
+	isAtLimit: boolean;
+	isNearLimit: boolean;
+};
+
 function computeCompleteness(
 	applicant: ApplicantWithRelations | null | undefined
 ): CompletenessResult {
@@ -57,6 +65,33 @@ function computeCompleteness(
 	};
 }
 
+function computeDocumentLimits(
+	applicant: ApplicantWithRelations | null | undefined,
+	maxDocuments: number
+): DocumentLimitsResult {
+	if (!applicant) {
+		return {
+			current: 0,
+			max: maxDocuments,
+			remaining: maxDocuments,
+			isAtLimit: false,
+			isNearLimit: false,
+		};
+	}
+
+	const current = applicant.documents.length + applicant.academicRecords.length;
+	const remaining = Math.max(0, maxDocuments - current);
+	const halfMax = Math.ceil(maxDocuments / 2);
+
+	return {
+		current,
+		max: maxDocuments,
+		remaining,
+		isAtLimit: current >= maxDocuments,
+		isNearLimit: current >= halfMax && current < maxDocuments,
+	};
+}
+
 export function useApplicant() {
 	const { data: session } = useSession();
 	const userId = session?.user?.id;
@@ -82,6 +117,13 @@ export function useApplicant() {
 		);
 	}, [query.data]);
 
+	const maxDocuments = currentApplication?.intakePeriod?.maxDocuments ?? 18;
+
+	const documentLimits = useMemo(
+		() => computeDocumentLimits(query.data, maxDocuments),
+		[query.data, maxDocuments]
+	);
+
 	return {
 		applicant: query.data,
 		isLoading: query.isLoading,
@@ -90,5 +132,6 @@ export function useApplicant() {
 		refetch: query.refetch,
 		completeness,
 		currentApplication,
+		documentLimits,
 	};
 }

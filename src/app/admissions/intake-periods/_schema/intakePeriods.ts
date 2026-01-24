@@ -1,4 +1,11 @@
-import { date, decimal, pgTable, text, timestamp } from 'drizzle-orm/pg-core';
+import {
+	date,
+	decimal,
+	integer,
+	pgTable,
+	text,
+	timestamp,
+} from 'drizzle-orm/pg-core';
 import { nanoid } from 'nanoid';
 
 export const intakePeriods = pgTable('intake_periods', {
@@ -9,6 +16,7 @@ export const intakePeriods = pgTable('intake_periods', {
 	startDate: date({ mode: 'string' }).notNull(),
 	endDate: date({ mode: 'string' }).notNull(),
 	applicationFee: decimal({ precision: 10, scale: 2 }).notNull(),
+	maxDocuments: integer().notNull().default(18),
 	createdAt: timestamp().defaultNow(),
 	updatedAt: timestamp().defaultNow(),
 });

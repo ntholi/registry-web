@@ -1,9 +1,10 @@
 'use client';
 
 import { useApplicant } from '@apply/_lib/useApplicant';
-import { Paper, SimpleGrid, Stack, Text, Title } from '@mantine/core';
+import { Alert, Paper, SimpleGrid, Stack, Text, Title } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
+import { IconAlertTriangle, IconBan } from '@tabler/icons-react';
 import { useRouter } from 'nextjs-toploader/app';
 import { useState } from 'react';
 import { DocumentCardSkeleton } from '@/shared/ui/DocumentCardShell';
@@ -30,7 +31,7 @@ export default function QualificationsUploadForm({ applicationId }: Props) {
 	const [uploadKey, setUploadKey] = useState(0);
 	const [pendingUploads, setPendingUploads] = useState(0);
 
-	const { applicant, refetch } = useApplicant();
+	const { applicant, refetch, documentLimits } = useApplicant();
 	const applicantId = applicant?.id ?? '';
 
 	const records = applicant?.academicRecords ?? [];
@@ -76,6 +77,8 @@ export default function QualificationsUploadForm({ applicationId }: Props) {
 	}
 
 	const showUploadedSection = records.length > 0 || pendingUploads > 0;
+	const uploadDisabled =
+		uploading || documentLimits.isAtLimit || pendingUploads > 0;
 
 	return (
 		<Paper withBorder radius='md' p='lg'>
@@ -87,12 +90,34 @@ export default function QualificationsUploadForm({ applicationId }: Props) {
 					</Text>
 				</Stack>
 
+				{documentLimits.isAtLimit && (
+					<Alert
+						color='red'
+						icon={<IconBan size={16} />}
+						title='Document limit reached'
+					>
+						You have uploaded the maximum of {documentLimits.max} documents.
+						Remove some documents to upload more.
+					</Alert>
+				)}
+
+				{documentLimits.isNearLimit && !documentLimits.isAtLimit && (
+					<Alert
+						color='yellow'
+						icon={<IconAlertTriangle size={16} />}
+						title='Approaching document limit'
+					>
+						You have uploaded {documentLimits.current} of {documentLimits.max}{' '}
+						allowed documents. {documentLimits.remaining} remaining.
+					</Alert>
+				)}
+
 				{isMobile ? (
 					<MobileDocumentUpload
 						key={`mobile-${uploadKey}`}
 						type='certificate'
 						onUploadComplete={handleUploadComplete}
-						disabled={uploading}
+						disabled={uploadDisabled}
 						title='Upload Academic Document'
 						description='Certificates, transcripts, results - PDF or image, max 10MB'
 					/>
@@ -101,7 +126,7 @@ export default function QualificationsUploadForm({ applicationId }: Props) {
 						key={uploadKey}
 						type='certificate'
 						onUploadComplete={handleUploadComplete}
-						disabled={uploading}
+						disabled={uploadDisabled}
 						title='Upload Academic Document'
 						description='Certificates, transcripts, results - PDF or image, max 10MB'
 					/>

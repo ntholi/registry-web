@@ -58,6 +58,7 @@ export default class ApplicantRepository extends BaseRepository<
 				documents: { with: { document: true } },
 				applications: {
 					with: {
+						intakePeriod: true,
 						firstChoiceProgram: true,
 						secondChoiceProgram: true,
 					},
@@ -87,6 +88,7 @@ export default class ApplicantRepository extends BaseRepository<
 				documents: { with: { document: true } },
 				applications: {
 					with: {
+						intakePeriod: true,
 						firstChoiceProgram: true,
 						secondChoiceProgram: true,
 					},

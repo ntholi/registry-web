@@ -1,0 +1,1 @@
+ALTER TABLE "intake_periods" ADD COLUMN "max_documents" integer DEFAULT 18 NOT NULL;
