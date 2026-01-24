@@ -261,6 +261,15 @@ export async function analyzeAcademicDocument(
 			throw new Error(`Invalid certificate type: ${output.certificateType}`);
 		}
 
+		if (!output.certification?.isCertified) {
+			const missing = [];
+			if (!output.certification?.hasStamp) missing.push('stamp');
+			if (!output.certification?.hasSignature) missing.push('signature');
+			const detail =
+				missing.length > 0 ? ` (missing: ${missing.join(' and ')})` : '';
+			throw new Error(`Document must be certified${detail}`);
+		}
+
 		return output;
 	} catch (error) {
 		if (NoObjectGeneratedError.isInstance(error)) {

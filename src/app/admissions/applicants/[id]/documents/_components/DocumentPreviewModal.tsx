@@ -138,9 +138,7 @@ export function DocumentPreviewModal({
 								{isCertified && (
 									<Group gap='md'>
 										{document.certifiedBy && (
-											<Text size='sm'>
-												{document.certifiedBy}
-											</Text>
+											<Text size='sm'>{document.certifiedBy}</Text>
 										)}
 										{document.certifiedDate && (
 											<Text size='sm'>
