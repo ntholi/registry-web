@@ -3,9 +3,11 @@
 import {
 	Badge,
 	Box,
+	Divider,
 	Group,
 	Image,
 	Modal,
+	Paper,
 	Stack,
 	Text,
 	ThemeIcon,
@@ -13,8 +15,8 @@ import {
 import {
 	IconCalendar,
 	IconCertificate,
+	IconCertificateOff,
 	IconFile,
-	IconUser,
 } from '@tabler/icons-react';
 import { formatDate } from '@/shared/lib/utils/dates';
 
@@ -57,50 +59,41 @@ export function DocumentPreviewModal({
 			size='xl'
 			centered
 		>
-			<Box pos='relative' h={600}>
-				{isPdf ? (
-					<iframe
-						src={previewUrl}
-						style={{ width: '100%', height: '100%', border: 'none' }}
-						title='Document Preview'
-					/>
-				) : (
-					<Image
-						src={previewUrl}
-						alt='Document Preview'
-						fit='contain'
-						mah='100%'
-					/>
-				)}
+			<Stack gap='md'>
+				<Box h={500}>
+					{isPdf ? (
+						<iframe
+							src={previewUrl}
+							style={{ width: '100%', height: '100%', border: 'none' }}
+							title='Document Preview'
+						/>
+					) : (
+						<Image
+							src={previewUrl}
+							alt='Document Preview'
+							fit='contain'
+							mah='100%'
+						/>
+					)}
+				</Box>
 
 				{document && (
-					<Box
-						pos='absolute'
-						bottom={0}
-						left={0}
-						right={0}
-						p='md'
-						style={{
-							background:
-								'linear-gradient(transparent 0%, rgba(0, 0, 0, 0.7) 30%)',
-							backdropFilter: 'blur(4px)',
-						}}
-					>
-						<Stack gap='xs'>
+					<Paper withBorder p='md' bg='var(--mantine-color-dark-6)' radius='md'>
+						<Stack gap='sm'>
 							<Group gap='lg' wrap='wrap'>
 								{document.type && (
 									<Group gap='xs'>
-										<ThemeIcon variant='transparent' size='sm' c='white'>
+										<ThemeIcon variant='light' size='sm' color='gray'>
 											<IconFile size={14} />
 										</ThemeIcon>
-										<Text size='sm' c='white' fw={500}>
+										<Text size='sm' fw={500}>
 											{formatType(document.type)}
 										</Text>
 									</Group>
 								)}
 								{document.createdAt && (
 									<Group gap='xs'>
-										<ThemeIcon variant='transparent' size='sm' c='white'>
+										<ThemeIcon variant='light' size='sm' color='gray'>
 											<IconCalendar size={14} />
 										</ThemeIcon>
 										<Text size='sm' c='dimmed'>
@@ -110,42 +103,52 @@ export function DocumentPreviewModal({
 								)}
 							</Group>
 
-							{isCertified && (
-								<Group gap='lg' wrap='wrap'>
+							<Divider />
+
+							<Group gap='sm' wrap='wrap'>
+								{isCertified ? (
 									<Badge
 										leftSection={<IconCertificate size={12} />}
 										color='green'
 										variant='light'
-										size='sm'
 									>
 										Certified
 									</Badge>
-									{document.certifiedBy && (
-										<Group gap='xs'>
-											<ThemeIcon variant='transparent' size='sm' c='white'>
-												<IconUser size={14} />
-											</ThemeIcon>
-											<Text size='sm' c='white'>
+								) : (
+									<Badge
+										leftSection={<IconCertificateOff size={12} />}
+										color='red'
+										variant='light'
+									>
+										Not Certified
+									</Badge>
+								)}
+
+								{isCertified && (
+									<Group gap='md' ml='auto'>
+										{document.certifiedBy && (
+											<Text size='sm'>
+												<Text span c='dimmed'>
+													By:{' '}
+												</Text>
 												{document.certifiedBy}
 											</Text>
-										</Group>
-									)}
-									{document.certifiedDate && (
-										<Group gap='xs'>
-											<ThemeIcon variant='transparent' size='sm' c='white'>
-												<IconCalendar size={14} />
-											</ThemeIcon>
-											<Text size='sm' c='dimmed'>
+										)}
+										{document.certifiedDate && (
+											<Text size='sm'>
+												<Text span c='dimmed'>
+													Date:{' '}
+												</Text>
 												{document.certifiedDate}
 											</Text>
-										</Group>
-									)}
-								</Group>
-							)}
+										)}
+									</Group>
+								)}
+							</Group>
 						</Stack>
-					</Box>
+					</Paper>
 				)}
-			</Box>
+			</Stack>
 		</Modal>
 	);
 }
