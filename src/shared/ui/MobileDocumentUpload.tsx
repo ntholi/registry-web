@@ -342,8 +342,7 @@ export function MobileDocumentUpload({
 				<SimpleGrid cols={2} spacing='sm'>
 					<Button
 						variant='light'
-						size='lg'
-						leftSection={<IconCamera size={20} />}
+						leftSection={<IconCamera size={'1rem'} />}
 						onClick={openCamera}
 						disabled={disabled || isProcessing}
 						loading={isProcessing}
@@ -352,8 +351,7 @@ export function MobileDocumentUpload({
 					</Button>
 					<Button
 						variant='light'
-						size='lg'
-						leftSection={<IconPhoto size={20} />}
+						leftSection={<IconPhoto size={'1rem'} />}
 						onClick={handleGalleryClick}
 						disabled={disabled || isProcessing}
 					>
