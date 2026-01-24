@@ -1,9 +1,9 @@
 'use client';
 
 import {
+	ActionIcon,
 	Badge,
 	Box,
-	Divider,
 	Group,
 	Image,
 	Modal,
@@ -11,28 +11,27 @@ import {
 	Stack,
 	Text,
 	ThemeIcon,
+	Tooltip,
 } from '@mantine/core';
+import { notifications } from '@mantine/notifications';
 import {
 	IconCalendar,
 	IconCertificate,
 	IconCertificateOff,
+	IconDownload,
 	IconFile,
 } from '@tabler/icons-react';
+import { useRouter } from 'nextjs-toploader/app';
 import { formatDate } from '@/shared/lib/utils/dates';
-
-type DocumentDetails = {
-	fileName?: string | null;
-	type?: string | null;
-	certifiedDate?: string | null;
-	certifiedBy?: string | null;
-	createdAt?: Date | null;
-};
+import { DeleteButton } from '@/shared/ui/adease/DeleteButton';
+import type { ApplicantDocument } from '../_lib/types';
+import { deleteApplicantDocument } from '../_server/actions';
+import { ReviewModal } from './ReviewModal';
 
 type Props = {
 	opened: boolean;
 	onClose: () => void;
-	previewUrl: string | null;
-	document?: DocumentDetails | null;
+	applicantDoc: ApplicantDocument | null;
 };
 
 function formatType(type: string | null | undefined): string {
@@ -40,16 +39,39 @@ function formatType(type: string | null | undefined): string {
 	return type.replace(/_/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase());
 }
 
-export function DocumentPreviewModal({
-	opened,
-	onClose,
-	previewUrl,
-	document,
-}: Props) {
-	if (!previewUrl) return null;
+export function DocumentPreviewModal({ opened, onClose, applicantDoc }: Props) {
+	const router = useRouter();
 
+	if (!applicantDoc) return null;
+
+	const { id: docId, verificationStatus, rejectionReason } = applicantDoc;
+	const doc = applicantDoc.document;
+	const previewUrl = doc.fileUrl ?? '';
 	const isPdf = previewUrl.toLowerCase().endsWith('.pdf');
-	const isCertified = !!(document?.certifiedBy || document?.certifiedDate);
+	const isCertified = !!(doc.certifiedBy || doc.certifiedDate);
+
+	async function handleDelete() {
+		await deleteApplicantDocument(docId, previewUrl);
+	}
+
+	function handleDeleteSuccess() {
+		notifications.show({
+			title: 'Success',
+			message: 'Document deleted',
+			color: 'green',
+		});
+		onClose();
+		router.refresh();
+	}
+
+	function handleDownload() {
+		window.open(previewUrl, '_blank');
+	}
+
+	function handleReviewSuccess() {
+		onClose();
+		router.refresh();
+	}
 
 	return (
 		<Modal
@@ -59,102 +81,100 @@ export function DocumentPreviewModal({
 			size='xl'
 			centered
 		>
-			<Box pos='relative' h={600}>
-				{isPdf ? (
-					<iframe
-						src={previewUrl}
-						style={{ width: '100%', height: '100%', border: 'none' }}
-						title='Document Preview'
-					/>
-				) : (
-					<Image
-						src={previewUrl}
-						alt='Document Preview'
-						fit='contain'
-						mah='100%'
-					/>
-				)}
+			<Stack gap='md'>
+				<Paper
+					withBorder
+					p='sm'
+					pos='sticky'
+					top={0}
+					style={{ zIndex: 10, background: 'var(--mantine-color-body)' }}
+				>
+					<Group justify='space-between' wrap='wrap'>
+						<Group gap='md'>
+							{doc.type && (
+								<Group gap='xs'>
+									<ThemeIcon variant='light' size='sm' color='gray'>
+										<IconFile size={14} />
+									</ThemeIcon>
+									<Text size='sm' fw={500}>
+										{formatType(doc.type)}
+									</Text>
+								</Group>
+							)}
+							{doc.createdAt && (
+								<Group gap='xs'>
+									<ThemeIcon variant='light' size='sm' color='gray'>
+										<IconCalendar size={14} />
+									</ThemeIcon>
+									<Text size='sm' c='dimmed'>
+										{formatDate(doc.createdAt)}
+									</Text>
+								</Group>
+							)}
+							{isCertified ? (
+								<Badge
+									leftSection={<IconCertificate size={12} />}
+									color='green'
+									variant='light'
+									radius='xs'
+								>
+									Certified
+								</Badge>
+							) : (
+								<Badge
+									leftSection={<IconCertificateOff size={12} />}
+									color='red'
+									variant='light'
+									radius='xs'
+								>
+									Not Certified
+								</Badge>
+							)}
+						</Group>
 
-				{document && (
-					<Paper
-						withBorder
-						p='md'
-						pos='absolute'
-						bottom={10}
-						left={0}
-						right={0}
-						style={{
-							background: 'rgba(33, 33, 33, 0.85)',
-							backdropFilter: 'blur(8px)',
-						}}
-					>
-						<Stack gap='sm'>
-							<Group gap='lg' wrap='wrap'>
-								{document.type && (
-									<Group gap='xs'>
-										<ThemeIcon variant='light' size='sm' color='gray'>
-											<IconFile size={14} />
-										</ThemeIcon>
-										<Text size='sm' fw={500}>
-											{formatType(document.type)}
-										</Text>
-									</Group>
-								)}
-								{document.createdAt && (
-									<Group gap='xs'>
-										<ThemeIcon variant='light' size='sm' color='gray'>
-											<IconCalendar size={14} />
-										</ThemeIcon>
-										<Text size='sm' c='dimmed'>
-											Uploaded {formatDate(document.createdAt)}
-										</Text>
-									</Group>
-								)}
-							</Group>
+						<Group gap='xs'>
+							<Tooltip label='Download'>
+								<ActionIcon variant='default' onClick={handleDownload}>
+									<IconDownload size={16} />
+								</ActionIcon>
+							</Tooltip>
+							<ReviewModal
+								docId={docId}
+								initialStatus={verificationStatus}
+								initialReason={rejectionReason}
+								onSuccess={handleReviewSuccess}
+							/>
+							<Tooltip label='Delete'>
+								<DeleteButton
+									handleDelete={handleDelete}
+									onSuccess={handleDeleteSuccess}
+									itemType='document'
+									itemName={doc.fileName ?? undefined}
+									typedConfirmation={false}
+									variant='light'
+								/>
+							</Tooltip>
+						</Group>
+					</Group>
+				</Paper>
 
-							<Divider />
-
-							<Group gap='sm'>
-								{isCertified ? (
-									<Badge
-										leftSection={<IconCertificate size={12} />}
-										color='green'
-										variant='light'
-										radius={'xs'}
-									>
-										Certified
-									</Badge>
-								) : (
-									<Badge
-										leftSection={<IconCertificateOff size={12} />}
-										color='red'
-										variant='light'
-										radius={'xs'}
-									>
-										Not Certified
-									</Badge>
-								)}
-
-								{isCertified && (
-									<Group gap='md'>
-										{document.certifiedBy && (
-											<Text size='sm'>{document.certifiedBy}</Text>
-										)}
-										{document.certifiedDate && (
-											<Text size='sm'>
-												<Text span c='dimmed'>
-													Date:{' '}
-												</Text>
-												{document.certifiedDate}
-											</Text>
-										)}
-									</Group>
-								)}
-							</Group>
-						</Stack>
-					</Paper>
-				)}
-			</Box>
+				<Box h={550}>
+					{isPdf ? (
+						<iframe
+							src={previewUrl}
+							style={{ width: '100%', height: '100%', border: 'none' }}
+							title='Document Preview'
+						/>
+					) : (
+						<Image
+							src={previewUrl}
+							alt='Document Preview'
+							fit='contain'
+							mah='100%'
+						/>
+					)}
+				</Box>
+			</Stack>
 		</Modal>
 	);
 }

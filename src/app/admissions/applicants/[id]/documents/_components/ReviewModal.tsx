@@ -13,13 +13,15 @@ type Props = {
 	docId: string;
 	initialStatus: DocumentVerificationStatus;
 	initialReason?: string | null;
-	children: (open: () => void) => React.ReactNode;
+	onSuccess?: () => void;
+	children?: (open: () => void) => React.ReactNode;
 };
 
 export function ReviewModal({
 	docId,
 	initialStatus,
 	initialReason,
+	onSuccess,
 	children,
 }: Props) {
 	const router = useRouter();
@@ -42,6 +44,7 @@ export function ReviewModal({
 				message: 'Document verification updated',
 				color: 'green',
 			});
+			onSuccess?.();
 			router.refresh();
 			close();
 		},
@@ -54,9 +57,17 @@ export function ReviewModal({
 		},
 	});
 
+	const trigger = children ? (
+		children(open)
+	) : (
+		<Button size='compact-xs' variant='light' onClick={open}>
+			Review
+		</Button>
+	);
+
 	return (
 		<>
-			{children(open)}
+			{trigger}
 			<Modal opened={opened} onClose={close} title='Review Document'>
 				<Stack gap='md'>
 					<Radio.Group

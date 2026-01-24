@@ -73,8 +73,7 @@ export default function DocumentsTab({ documents }: Props) {
 			<DocumentPreviewModal
 				opened={previewOpened}
 				onClose={closePreview}
-				previewUrl={selectedDoc?.document.fileUrl ?? null}
-				document={selectedDoc?.document}
+				applicantDoc={selectedDoc}
 			/>
 		</Stack>
 	);

@@ -1,30 +1,18 @@
 'use client';
 
 import {
-	ActionIcon,
 	AspectRatio,
 	Badge,
 	Box,
-	Button,
 	Card,
 	Group,
 	Image,
 	Stack,
 	Text,
-	Tooltip,
 } from '@mantine/core';
-import { notifications } from '@mantine/notifications';
-import { IconDownload, IconFile, IconSparkles } from '@tabler/icons-react';
-import { useMutation } from '@tanstack/react-query';
-import { useRouter } from 'nextjs-toploader/app';
+import { IconFile } from '@tabler/icons-react';
 import { getDocumentVerificationStatusColor } from '@/shared/lib/utils/colors';
-import { DeleteButton } from '@/shared/ui/adease/DeleteButton';
 import type { ApplicantDocument } from '../_lib/types';
-import {
-	deleteApplicantDocument,
-	reanalyzeDocumentFromUrl,
-} from '../_server/actions';
-import { ReviewModal } from './ReviewModal';
 
 function isImageFile(fileName: string | null | undefined): boolean {
 	if (!fileName) return false;
@@ -40,74 +28,23 @@ function isPdfFile(fileName: string | null | undefined): boolean {
 type Props = {
 	doc: ApplicantDocument;
 	onPreview: () => void;
-	onReanalyze?: (fileUrl: string) => void;
 };
 
-export function DocumentCard({ doc, onPreview, onReanalyze }: Props) {
-	const router = useRouter();
-
+export function DocumentCard({ doc, onPreview }: Props) {
 	const fileUrl = doc.document.fileUrl ?? '';
 	const isPdf = isPdfFile(doc.document.fileName);
 	const isImage = isImageFile(doc.document.fileName);
 
-	async function handleDelete() {
-		await deleteApplicantDocument(doc.id, fileUrl);
-	}
-
-	function handleDeleteSuccess() {
-		notifications.show({
-			title: 'Success',
-			message: 'Document deleted',
-			color: 'green',
-		});
-		router.refresh();
-	}
-
-	const reanalyzeMutation = useMutation({
-		mutationFn: async () => {
-			if (!doc.document.type) {
-				throw new Error('Document type is required');
-			}
-			await reanalyzeDocumentFromUrl(
-				fileUrl,
-				doc.applicantId,
-				doc.document.type
-			);
-		},
-		onSuccess: () => {
-			notifications.show({
-				title: 'Success',
-				message: 'Document analyzed and data saved',
-				color: 'green',
-			});
-			onReanalyze?.(fileUrl);
-			router.refresh();
-		},
-		onError: () => {
-			notifications.show({
-				title: 'Error',
-				message: 'Failed to analyze document',
-				color: 'red',
-			});
-		},
-	});
-
-	function handleDownload() {
-		window.open(fileUrl, '_blank');
-	}
-
 	return (
-		<Card withBorder padding='xs'>
+		<Card
+			withBorder
+			padding='xs'
+			style={{ cursor: 'pointer' }}
+			onClick={onPreview}
+		>
 			<AspectRatio ratio={16 / 9}>
 				{isPdf ? (
-					<Box
-						style={{
-							position: 'relative',
-							overflow: 'hidden',
-							cursor: 'pointer',
-						}}
-						onClick={onPreview}
-					>
+					<Box style={{ position: 'relative', overflow: 'hidden' }}>
 						<iframe
 							src={`${fileUrl}#toolbar=0&navpanes=0&scrollbar=0`}
 							style={{
@@ -120,17 +57,15 @@ export function DocumentCard({ doc, onPreview, onReanalyze }: Props) {
 						/>
 					</Box>
 				) : isImage ? (
-					<Box style={{ cursor: 'pointer' }} onClick={onPreview}>
-						<Image
-							src={fileUrl}
-							alt={doc.document.fileName ?? 'Document'}
-							style={{
-								width: '100%',
-								height: '100%',
-								objectFit: 'cover',
-							}}
-						/>
-					</Box>
+					<Image
+						src={fileUrl}
+						alt={doc.document.fileName ?? 'Document'}
+						style={{
+							width: '100%',
+							height: '100%',
+							objectFit: 'cover',
+						}}
+					/>
 				) : (
 					<Box
 						style={{
@@ -138,9 +73,7 @@ export function DocumentCard({ doc, onPreview, onReanalyze }: Props) {
 							alignItems: 'center',
 							justifyContent: 'center',
 							backgroundColor: 'var(--mantine-color-dark-6)',
-							cursor: 'pointer',
 						}}
-						onClick={handleDownload}
 					>
 						<IconFile size={48} color='var(--mantine-color-gray-6)' />
 					</Box>
@@ -165,45 +98,6 @@ export function DocumentCard({ doc, onPreview, onReanalyze }: Props) {
 						{doc.rejectionReason}
 					</Text>
 				)}
-
-				<Group justify='space-between'>
-					<Group gap='xs'>
-						<Tooltip label='Download'>
-							<ActionIcon variant='default' onClick={handleDownload}>
-								<IconDownload size={16} />
-							</ActionIcon>
-						</Tooltip>
-						<Tooltip label='Analyze with AI'>
-							<ActionIcon
-								variant='gradient'
-								onClick={() => reanalyzeMutation.mutate()}
-								loading={reanalyzeMutation.isPending}
-							>
-								<IconSparkles size={16} />
-							</ActionIcon>
-						</Tooltip>
-						<ReviewModal
-							docId={doc.id}
-							initialStatus={doc.verificationStatus}
-							initialReason={doc.rejectionReason}
-						>
-							{(open) => (
-								<Button size='compact-xs' variant='light' onClick={open}>
-									Review
-								</Button>
-							)}
-						</ReviewModal>
-					</Group>
-					<Tooltip label='Delete'>
-						<DeleteButton
-							handleDelete={handleDelete}
-							onSuccess={handleDeleteSuccess}
-							itemType='document'
-							itemName={doc.document.fileName ?? undefined}
-							variant='light'
-						/>
-					</Tooltip>
-				</Group>
 			</Stack>
 		</Card>
 	);
