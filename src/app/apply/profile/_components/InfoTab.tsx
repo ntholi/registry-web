@@ -1,7 +1,18 @@
 'use client';
 
 import type { ApplicantWithRelations } from '@admissions/applicants';
-import { Badge, Grid, Group, Stack, Text, ThemeIcon } from '@mantine/core';
+import {
+	Badge,
+	Box,
+	Grid,
+	Group,
+	Paper,
+	SimpleGrid,
+	Stack,
+	Text,
+	ThemeIcon,
+	useMantineColorScheme,
+} from '@mantine/core';
 import {
 	IconCalendar,
 	IconId,
@@ -15,107 +26,115 @@ interface Props {
 }
 
 export function InfoTab({ applicant }: Props) {
+	const { colorScheme } = useMantineColorScheme();
+	const isDark = colorScheme === 'dark';
 	const primaryPhone = applicant.phones?.[0];
 
 	return (
-		<Stack gap='xl'>
+		<Stack gap={40}>
 			<Section title='Personal Information'>
-				<Grid gutter='md'>
-					<Grid.Col span={{ base: 12, sm: 6 }}>
-						<FieldDisplay
-							icon={<IconUser size={16} />}
-							label='Full Name'
-							value={applicant.fullName}
-						/>
-					</Grid.Col>
-					<Grid.Col span={{ base: 12, sm: 6 }}>
-						<FieldDisplay
-							icon={<IconCalendar size={16} />}
-							label='Date of Birth'
-							value={applicant.dateOfBirth}
-						/>
-					</Grid.Col>
-					<Grid.Col span={{ base: 12, sm: 6 }}>
-						<FieldDisplay
-							icon={<IconId size={16} />}
-							label='National ID'
-							value={applicant.nationalId}
-						/>
-					</Grid.Col>
-					<Grid.Col span={{ base: 12, sm: 6 }}>
-						<FieldDisplay label='Nationality' value={applicant.nationality} />
-					</Grid.Col>
-					<Grid.Col span={{ base: 12, sm: 6 }}>
-						<FieldDisplay label='Gender' value={applicant.gender} />
-					</Grid.Col>
-					<Grid.Col span={{ base: 12, sm: 6 }}>
-						<FieldDisplay
-							icon={<IconMapPin size={16} />}
-							label='Birth Place'
-							value={applicant.birthPlace}
-						/>
-					</Grid.Col>
-				</Grid>
+				<Paper withBorder radius='md' p='xl'>
+					<Grid gutter={30}>
+						<Grid.Col span={{ base: 12, sm: 6 }}>
+							<FieldDisplay
+								icon={<IconUser size={18} />}
+								label='Full Name'
+								value={applicant.fullName}
+							/>
+						</Grid.Col>
+						<Grid.Col span={{ base: 12, sm: 6 }}>
+							<FieldDisplay
+								icon={<IconCalendar size={18} />}
+								label='Date of Birth'
+								value={applicant.dateOfBirth}
+							/>
+						</Grid.Col>
+						<Grid.Col span={{ base: 12, sm: 6 }}>
+							<FieldDisplay
+								icon={<IconId size={18} />}
+								label='National ID'
+								value={applicant.nationalId}
+							/>
+						</Grid.Col>
+						<Grid.Col span={{ base: 12, sm: 6 }}>
+							<FieldDisplay label='Nationality' value={applicant.nationality} />
+						</Grid.Col>
+						<Grid.Col span={{ base: 12, sm: 6 }}>
+							<FieldDisplay label='Gender' value={applicant.gender} />
+						</Grid.Col>
+						<Grid.Col span={{ base: 12, sm: 6 }}>
+							<FieldDisplay
+								icon={<IconMapPin size={18} />}
+								label='Birth Place'
+								value={applicant.birthPlace}
+							/>
+						</Grid.Col>
+					</Grid>
+				</Paper>
 			</Section>
 
 			<Section title='Contact Information'>
-				<Grid gutter='md'>
-					<Grid.Col span={{ base: 12, sm: 6 }}>
-						<FieldDisplay
-							icon={<IconPhone size={16} />}
-							label='Phone'
-							value={primaryPhone?.phoneNumber}
-						/>
-					</Grid.Col>
-					<Grid.Col span={12}>
-						<FieldDisplay
-							icon={<IconMapPin size={16} />}
-							label='Address'
-							value={applicant.address}
-						/>
-					</Grid.Col>
-				</Grid>
+				<Paper withBorder radius='md' p='xl'>
+					<Grid gutter={30}>
+						<Grid.Col span={{ base: 12, sm: 6 }}>
+							<FieldDisplay
+								icon={<IconPhone size={18} />}
+								label='Phone'
+								value={primaryPhone?.phoneNumber}
+							/>
+						</Grid.Col>
+						<Grid.Col span={12}>
+							<FieldDisplay
+								icon={<IconMapPin size={18} />}
+								label='Address'
+								value={applicant.address}
+							/>
+						</Grid.Col>
+					</Grid>
+				</Paper>
 			</Section>
 
 			{applicant.guardians.length > 0 && (
 				<Section title='Guardian Information'>
 					<Stack gap='lg'>
 						{applicant.guardians.map((guardian, index) => (
-							<Stack key={guardian.id} gap='md'>
-								{applicant.guardians.length > 1 && (
-									<Text size='sm' fw={500} c='dimmed'>
-										Guardian {index + 1}
-									</Text>
-								)}
-								<Grid gutter='md'>
-									<Grid.Col span={{ base: 12, sm: 6 }}>
-										<FieldDisplay
-											icon={<IconUser size={16} />}
-											label='Name'
-											value={guardian.name}
-										/>
-									</Grid.Col>
-									<Grid.Col span={{ base: 12, sm: 6 }}>
-										<FieldDisplay
-											label='Relationship'
-											value={guardian.relationship}
-										/>
-									</Grid.Col>
-									<Grid.Col span={{ base: 12, sm: 6 }}>
-										<FieldDisplay
-											icon={<IconPhone size={16} />}
-											label='Phone'
-											value={guardian.phones?.[0]?.phoneNumber}
-										/>
-									</Grid.Col>
-									<Grid.Col span={{ base: 12, sm: 6 }}>
-										<FieldDisplay
-											label='Occupation'
-											value={guardian.occupation}
-										/>
-									</Grid.Col>
-								</Grid>
-							</Stack>
+							<Paper key={guardian.id} withBorder radius='md' p='xl'>
+								<Stack gap='xl'>
+									{applicant.guardians.length > 1 && (
+										<Text size='sm' fw={700} c='blue' tt='uppercase'>
+											Guardian {index + 1}
+										</Text>
+									)}
+									<Grid gutter={30}>
+										<Grid.Col span={{ base: 12, sm: 6 }}>
+											<FieldDisplay
+												icon={<IconUser size={18} />}
+												label='Name'
+												value={guardian.name}
+											/>
+										</Grid.Col>
+										<Grid.Col span={{ base: 12, sm: 6 }}>
+											<FieldDisplay
+												label='Relationship'
+												value={guardian.relationship}
+											/>
+										</Grid.Col>
+										<Grid.Col span={{ base: 12, sm: 6 }}>
+											<FieldDisplay
+												icon={<IconPhone size={18} />}
+												label='Phone'
+												value={guardian.phones?.[0]?.phoneNumber}
+											/>
+										</Grid.Col>
+										<Grid.Col span={{ base: 12, sm: 6 }}>
+											<FieldDisplay
+												label='Occupation'
+												value={guardian.occupation}
+											/>
+										</Grid.Col>
+									</Grid>
+								</Stack>
+							</Paper>
 						))}
 					</Stack>
 				</Section>
@@ -125,31 +144,55 @@ export function InfoTab({ applicant }: Props) {
 				<Section title='Academic Background'>
 					<Stack gap='lg'>
 						{applicant.academicRecords.map((record) => (
-							<Stack key={record.id} gap='xs'>
-								<Group gap='xs'>
-									<Text fw={500}>{record.certificateType.name}</Text>
-									<Badge size='sm' variant='light'>
-										LQF Level {record.certificateType.lqfLevel}
-									</Badge>
-								</Group>
-								<Text size='sm' c='dimmed'>
-									{record.institutionName}
-								</Text>
-								{record.subjectGrades.length > 0 && (
-									<Group gap='xs' mt='xs'>
-										{record.subjectGrades.slice(0, 5).map((grade) => (
-											<Badge key={grade.id} variant='outline' size='sm'>
-												{grade.subject.name}: {grade.standardGrade}
-											</Badge>
-										))}
-										{record.subjectGrades.length > 5 && (
-											<Badge variant='light' size='sm' color='gray'>
-												+{record.subjectGrades.length - 5} more
-											</Badge>
-										)}
+							<Paper key={record.id} withBorder radius='md' p='xl'>
+								<Stack gap='md'>
+									<Group justify='space-between' align='flex-start'>
+										<Stack gap={4}>
+											<Text fw={700} size='lg'>
+												{record.certificateType.name}
+											</Text>
+											<Text size='sm' c='dimmed' fw={500}>
+												{record.institutionName}
+											</Text>
+										</Stack>
+										<Badge variant='dot' size='lg'>
+											LQF {record.certificateType.lqfLevel}
+										</Badge>
 									</Group>
-								)}
-							</Stack>
+
+									{record.subjectGrades.length > 0 && (
+										<Box
+											mt='md'
+											p='md'
+											bg={isDark ? 'dark.6' : 'gray.0'}
+											style={{ borderRadius: '8px' }}
+										>
+											<SimpleGrid cols={{ base: 2, sm: 3, md: 4 }} spacing='sm'>
+												{record.subjectGrades.map((grade) => (
+													<Group key={grade.id} gap='xs' wrap='nowrap'>
+														<Text
+															size='xs'
+															fw={600}
+															truncate
+															style={{ flex: 1 }}
+														>
+															{grade.subject.name}
+														</Text>
+														<Badge
+															size='sm'
+															variant='white'
+															fw={700}
+															color={isDark ? 'white' : 'black'}
+														>
+															{grade.standardGrade}
+														</Badge>
+													</Group>
+												))}
+											</SimpleGrid>
+										</Box>
+									)}
+								</Stack>
+							</Paper>
 						))}
 					</Stack>
 				</Section>
@@ -166,8 +209,8 @@ function Section({
 	children: React.ReactNode;
 }) {
 	return (
-		<Stack gap='md'>
-			<Text fw={600} size='lg'>
+		<Stack gap='lg'>
+			<Text fw={700} size='20px' style={{ letterSpacing: '-0.5px' }}>
 				{title}
 			</Text>
 			{children}

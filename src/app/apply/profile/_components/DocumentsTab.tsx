@@ -1,15 +1,7 @@
 'use client';
 
 import type { ApplicantWithRelations } from '@admissions/applicants';
-import {
-	Badge,
-	Card,
-	Group,
-	SimpleGrid,
-	Stack,
-	Text,
-	ThemeIcon,
-} from '@mantine/core';
+import { Card, SimpleGrid, Stack, Text, ThemeIcon } from '@mantine/core';
 import {
 	IconCertificate,
 	IconFile,
@@ -57,6 +49,7 @@ interface DocumentCardProps {
 function DocumentCard({ name, type, url }: DocumentCardProps) {
 	const icon = getDocumentIcon(type);
 	const label = getDocumentLabel(type);
+	const color = getDocumentColor(type);
 
 	return (
 		<Card
@@ -67,22 +60,25 @@ function DocumentCard({ name, type, url }: DocumentCardProps) {
 			withBorder
 			radius='md'
 			p='md'
-			style={{ cursor: 'pointer' }}
 		>
-			<Stack gap='sm'>
-				<Group>
-					<ThemeIcon size='lg' variant='light' color={getDocumentColor(type)}>
-						{icon}
-					</ThemeIcon>
-					<Stack gap={2} style={{ flex: 1, minWidth: 0 }}>
-						<Text size='sm' fw={500} truncate>
-							{name}
-						</Text>
-						<Badge size='xs' variant='light' color={getDocumentColor(type)}>
-							{label}
-						</Badge>
-					</Stack>
-				</Group>
+			<Stack gap='md' align='center' ta='center'>
+				<ThemeIcon size={50} radius='md' variant='light' color={color}>
+					{icon}
+				</ThemeIcon>
+				<Stack gap={4}>
+					<Text size='sm' fw={600} lineClamp={1}>
+						{name}
+					</Text>
+					<Text
+						size='xs'
+						c='dimmed'
+						fw={500}
+						tt='uppercase'
+						style={{ letterSpacing: '0.5px' }}
+					>
+						{label}
+					</Text>
+				</Stack>
 			</Stack>
 		</Card>
 	);

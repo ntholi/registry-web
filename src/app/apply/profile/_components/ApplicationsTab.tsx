@@ -1,7 +1,15 @@
 'use client';
 
 import type { findApplicationsByApplicant } from '@admissions/applications';
-import { Badge, Card, Group, SimpleGrid, Stack, Text } from '@mantine/core';
+import {
+	Badge,
+	Box,
+	Card,
+	Group,
+	SimpleGrid,
+	Stack,
+	Text,
+} from '@mantine/core';
 import { IconCalendar, IconSchool } from '@tabler/icons-react';
 import Link from 'next/link';
 import { getStatusColor, getStatusLabel } from '../_lib/status';
@@ -42,39 +50,44 @@ function ApplicationCard({ application }: { application: Application }) {
 			component={Link}
 			href={`/apply/${application.id}/review`}
 			withBorder
-			radius='md'
-			p='lg'
-			style={{ cursor: 'pointer' }}
+			p={0}
 		>
-			<Stack gap='sm'>
-				<Group justify='space-between' align='flex-start'>
-					<Stack gap={4}>
-						<Text fw={600} size='lg'>
+			<Stack gap='md' p='lg'>
+				<Stack gap={4} style={{ flex: 1 }}>
+					<Box pos={'relative'}>
+						<Text size='lg' lineClamp={1}>
 							{application.firstChoiceProgram.name}
 						</Text>
-						<Group gap='xs'>
-							<IconSchool size={14} />
-							<Text size='sm' c='dimmed'>
-								{application.firstChoiceProgram.school?.shortName ??
-									application.firstChoiceProgram.code}
-							</Text>
-						</Group>
-					</Stack>
-					<Badge color={getStatusColor(application.status)} variant='light'>
-						{getStatusLabel(application.status)}
-					</Badge>
-				</Group>
+						<Badge
+							pos='absolute'
+							top={-8}
+							right={-8}
+							color={getStatusColor(application.status)}
+							variant='light'
+							size='sm'
+							radius='xs'
+						>
+							{getStatusLabel(application.status)}
+						</Badge>
+					</Box>
+					<Group gap='xs'>
+						<IconSchool size={16} color='var(--mantine-color-dimmed)' />
+						<Text size='sm' c='dimmed' fw={500}>
+							{application.firstChoiceProgram.school?.shortName ??
+								application.firstChoiceProgram.code}
+						</Text>
+					</Group>
+				</Stack>
 
-				{application.secondChoiceProgram && (
-					<Text size='sm' c='dimmed'>
-						Second Choice: {application.secondChoiceProgram.name}
-					</Text>
-				)}
-
-				<Group gap='xs'>
-					<IconCalendar size={14} />
-					<Text size='sm' c='dimmed'>
-						{application.intakePeriod.name}
+				<Group justify='space-between' align='flex-end' mt='xs'>
+					<Group gap='xs'>
+						<IconCalendar size={16} color='var(--mantine-color-dimmed)' />
+						<Text size='xs' c='dimmed'>
+							{application.intakePeriod.name}
+						</Text>
+					</Group>
+					<Text size='xs' c='dimmed' fw={500}>
+						ID: {application.id.slice(0, 8)}
 					</Text>
 				</Group>
 			</Stack>
