@@ -10,13 +10,12 @@ import {
 	Text,
 	Title,
 } from '@mantine/core';
-import { useDisclosure } from '@mantine/hooks';
 import { IconEdit, IconTrash } from '@tabler/icons-react';
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
 import { type GenderType, getGenderColor } from '@/shared/lib/utils/colors';
 import { calculateAge, formatDate } from '@/shared/lib/utils/dates';
-import { DeleteModal } from '@/shared/ui/adease/DeleteModal';
+import { DeleteButton } from '@/shared/ui/adease/DeleteButton';
 import CreateApplicationModal from './CreateApplicationModal';
 
 type Props = {
@@ -40,7 +39,6 @@ export default function ApplicantHeader({
 }: Props) {
 	const { data: session } = useSession();
 	const isAdmin = session?.user?.role === 'admin';
-	const [opened, { open, close }] = useDisclosure(false);
 	const age = calculateAge(dateOfBirth);
 	const initials = fullName
 		.split(' ')
@@ -104,21 +102,20 @@ export default function ApplicantHeader({
 							<IconEdit size={18} />
 						</ActionIcon>
 						{isAdmin && (
-							<ActionIcon variant='subtle' color='red' onClick={open}>
-								<IconTrash size={18} />
-							</ActionIcon>
+							<DeleteButton
+								handleDelete={onDelete}
+								itemName={fullName}
+								itemType='Applicant'
+							>
+								<ActionIcon variant='subtle' color='red'>
+									<IconTrash size={18} />
+								</ActionIcon>
+							</DeleteButton>
 						)}
 					</Group>
 					<CreateApplicationModal applicantId={id} />
 				</Stack>
 			</Group>
-			<DeleteModal
-				opened={opened}
-				onClose={close}
-				onDelete={onDelete}
-				itemName={fullName}
-				itemType='Applicant'
-			/>
 		</Paper>
 	);
 }

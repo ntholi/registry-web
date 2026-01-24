@@ -1,11 +1,28 @@
 'use client';
-import { ActionIcon, type ActionIconProps } from '@mantine/core';
+import {
+	ActionIcon,
+	type ActionIconProps,
+	Alert,
+	Box,
+	Button,
+	Group,
+	Modal,
+	Text,
+	TextInput,
+} from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
-import { IconTrashFilled } from '@tabler/icons-react';
+import { IconAlertTriangle, IconTrashFilled } from '@tabler/icons-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
-import { DeleteModal } from './DeleteModal';
+import {
+	cloneElement,
+	isValidElement,
+	type MouseEvent,
+	type ReactElement,
+	type ReactNode,
+	useState,
+} from 'react';
 
 export interface DeleteButtonProps extends ActionIconProps {
 	handleDelete: () => Promise<void>;
@@ -15,6 +32,11 @@ export interface DeleteButtonProps extends ActionIconProps {
 	queryKey?: string[];
 	itemName?: string;
 	itemType?: string;
+	warningMessage?: string;
+	title?: string;
+	typedConfirmation?: boolean;
+	children?: ReactNode;
+	onClick?: (event: MouseEvent<HTMLButtonElement>) => void;
 }
 
 export function DeleteButton({
@@ -23,13 +45,19 @@ export function DeleteButton({
 	onSuccess,
 	onError,
 	queryKey,
-	itemName = 'this item',
-	itemType = 'Item',
+	itemName,
+	itemType,
+	warningMessage,
+	title,
+	typedConfirmation = true,
+	children,
+	onClick,
 	...props
 }: DeleteButtonProps) {
 	const router = useRouter();
 	const queryClient = useQueryClient();
 	const [opened, { open, close }] = useDisclosure(false);
+	const [confirmValue, setConfirmValue] = useState('');
 
 	const mutation = useMutation({
 		mutationFn: handleDelete,
@@ -59,24 +87,131 @@ export function DeleteButton({
 		},
 	});
 
-	return (
-		<>
+	const requiresTypedConfirmation = typedConfirmation;
+	const isConfirmed = requiresTypedConfirmation
+		? confirmValue === 'delete permanently'
+		: true;
+	const itemLabel = itemType ?? 'item';
+	const itemDescriptor = itemName
+		? `${itemLabel} "${itemName}"`
+		: `this ${itemLabel}`;
+	const descriptionMessage =
+		warningMessage ??
+		message ??
+		'This will permanently remove all associated data. This action cannot be undone.';
+	const modalTitle = title ?? `Delete ${itemLabel}`;
+
+	function handleClose() {
+		setConfirmValue('');
+		close();
+	}
+
+	async function handleConfirmDelete() {
+		if (!isConfirmed) return;
+		try {
+			await mutation.mutateAsync();
+			handleClose();
+		} catch {
+			return;
+		}
+	}
+
+	function handleOpen(event: MouseEvent<HTMLButtonElement>) {
+		onClick?.(event);
+		open();
+	}
+
+	function renderTrigger() {
+		if (children) {
+			if (isValidElement(children)) {
+				const child = children as ReactElement<{
+					onClick?: (event: MouseEvent) => void;
+				}>;
+				return cloneElement(child, {
+					onClick: (event: MouseEvent) => {
+						child.props.onClick?.(event);
+						if (!event.defaultPrevented) {
+							open();
+						}
+					},
+				});
+			}
+			return (
+				<Box onClick={open} style={{ display: 'inline-flex' }}>
+					{children}
+				</Box>
+			);
+		}
+
+		return (
 			<ActionIcon
 				color='red'
-				loading={mutation.isPending}
-				onClick={open}
+				loading={mutation.isPending || props.loading}
 				{...props}
+				onClick={handleOpen}
 			>
 				<IconTrashFilled size={'1rem'} />
 			</ActionIcon>
-			<DeleteModal
+		);
+	}
+
+	return (
+		<>
+			{renderTrigger()}
+			<Modal
 				opened={opened}
-				onClose={close}
-				onDelete={async () => mutation.mutateAsync()}
-				itemName={itemName}
-				itemType={itemType}
-				warningMessage={message}
-			/>
+				onClose={handleClose}
+				title={modalTitle}
+				size='md'
+				centered
+			>
+				<Box mb='md'>
+					<Alert
+						icon={<IconAlertTriangle size={16} />}
+						title='Warning'
+						color='red'
+						mb='md'
+					>
+						<Text fw={500} mb='xs'>
+							You are about to delete {itemDescriptor}.
+						</Text>
+						<Text size='sm'>{descriptionMessage}</Text>
+					</Alert>
+
+					{requiresTypedConfirmation && (
+						<>
+							<Text size='sm' mb='md'>
+								To confirm deletion, please type{' '}
+								<Text span fw={700}>
+									delete permanently
+								</Text>{' '}
+								in the field below:
+							</Text>
+
+							<TextInput
+								placeholder='delete permanently'
+								value={confirmValue}
+								onChange={(event) => setConfirmValue(event.target.value)}
+								data-autofocus
+							/>
+						</>
+					)}
+				</Box>
+
+				<Group justify='right' mt='xl'>
+					<Button variant='outline' onClick={handleClose}>
+						Cancel
+					</Button>
+					<Button
+						color='red'
+						onClick={handleConfirmDelete}
+						disabled={!isConfirmed}
+						loading={mutation.isPending}
+					>
+						Delete
+					</Button>
+				</Group>
+			</Modal>
 		</>
 	);
 }

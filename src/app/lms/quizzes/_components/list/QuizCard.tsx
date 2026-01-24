@@ -11,7 +11,6 @@ import {
 	Stack,
 	Text,
 } from '@mantine/core';
-import { useDisclosure } from '@mantine/hooks';
 import {
 	IconClock,
 	IconDotsVertical,
@@ -27,7 +26,7 @@ import {
 	getAssessmentByLmsId,
 } from '@/app/academic/assessments/_server/actions';
 import { getBooleanColor, getQuizStatusColor } from '@/shared/lib/utils/colors';
-import { DeleteModal } from '@/shared/ui/adease';
+import { DeleteButton } from '@/shared/ui/adease';
 import { deleteQuiz } from '../../_server/actions';
 import type { MoodleQuiz } from '../../types';
 
@@ -61,8 +60,6 @@ export default function QuizCard({ quiz, courseId }: Props) {
 	const closeDate = quiz.timeclose ? new Date(quiz.timeclose * 1000) : null;
 	const isOverdue = closeDate && closeDate < new Date();
 	const queryClient = useQueryClient();
-	const [deleteOpened, { open: openDelete, close: closeDelete }] =
-		useDisclosure(false);
 
 	async function handleDelete() {
 		const assessment = await getAssessmentByLmsId(quiz.id);
@@ -82,107 +79,103 @@ export default function QuizCard({ quiz, courseId }: Props) {
 	}
 
 	return (
-		<>
-			<DeleteModal
-				opened={deleteOpened}
-				onClose={closeDelete}
-				onDelete={handleDelete}
-				itemName={quiz.name}
-				itemType='quiz'
-				warningMessage='This will also delete the associated assessment and all student marks. This action cannot be undone.'
-			/>
-			<Card padding='md' withBorder>
-				<Stack gap='sm'>
-					<Card.Section withBorder inheritPadding py='xs'>
-						<Group justify='space-between' wrap='nowrap'>
-							<Box
-								component={Link}
-								href={`/lms/courses/${courseId}/quizzes/${quiz.id}`}
-								style={{ textDecoration: 'none', color: 'inherit', flex: 1 }}
-							>
-								<Text fw={500} size='md'>
-									{quiz.name}
-								</Text>
-							</Box>
-							<Group gap='xs' wrap='nowrap'>
-								<Badge size='sm' variant='light' color={status.color}>
-									{status.label}
-								</Badge>
-								<Menu position='bottom-end' withArrow shadow='md'>
-									<Menu.Target>
-										<ActionIcon
-											variant='subtle'
-											color='gray'
-											size='sm'
-											onClick={(e) => e.preventDefault()}
-										>
-											<IconDotsVertical size={16} />
-										</ActionIcon>
-									</Menu.Target>
-									<Menu.Dropdown>
-										<Menu.Item
-											leftSection={<IconEdit size={14} />}
-											component={Link}
-											href={`/lms/courses/${courseId}/quizzes/${quiz.id}/edit`}
-										>
-											Edit
-										</Menu.Item>
-										<Menu.Item
-											leftSection={<IconExternalLink size={14} />}
-											onClick={handleViewInMoodle}
-										>
-											View in Moodle
-										</Menu.Item>
-										<Menu.Divider />
+		<Card padding='md' withBorder>
+			<Stack gap='sm'>
+				<Card.Section withBorder inheritPadding py='xs'>
+					<Group justify='space-between' wrap='nowrap'>
+						<Box
+							component={Link}
+							href={`/lms/courses/${courseId}/quizzes/${quiz.id}`}
+							style={{ textDecoration: 'none', color: 'inherit', flex: 1 }}
+						>
+							<Text fw={500} size='md'>
+								{quiz.name}
+							</Text>
+						</Box>
+						<Group gap='xs' wrap='nowrap'>
+							<Badge size='sm' variant='light' color={status.color}>
+								{status.label}
+							</Badge>
+							<Menu position='bottom-end' withArrow shadow='md'>
+								<Menu.Target>
+									<ActionIcon
+										variant='subtle'
+										color='gray'
+										size='sm'
+										onClick={(e) => e.preventDefault()}
+									>
+										<IconDotsVertical size={16} />
+									</ActionIcon>
+								</Menu.Target>
+								<Menu.Dropdown>
+									<Menu.Item
+										leftSection={<IconEdit size={14} />}
+										component={Link}
+										href={`/lms/courses/${courseId}/quizzes/${quiz.id}/edit`}
+									>
+										Edit
+									</Menu.Item>
+									<Menu.Item
+										leftSection={<IconExternalLink size={14} />}
+										onClick={handleViewInMoodle}
+									>
+										View in Moodle
+									</Menu.Item>
+									<Menu.Divider />
+									<DeleteButton
+										handleDelete={handleDelete}
+										itemName={quiz.name}
+										itemType='quiz'
+										warningMessage='This will also delete the associated assessment and all student marks. This action cannot be undone.'
+									>
 										<Menu.Item
 											leftSection={<IconTrash size={14} />}
 											color='red'
-											onClick={openDelete}
 										>
 											Delete
 										</Menu.Item>
-									</Menu.Dropdown>
-								</Menu>
-							</Group>
+									</DeleteButton>
+								</Menu.Dropdown>
+							</Menu>
 						</Group>
-					</Card.Section>
+					</Group>
+				</Card.Section>
 
-					<Box
-						component={Link}
-						href={`/lms/courses/${courseId}/quizzes/${quiz.id}`}
-						style={{ textDecoration: 'none', color: 'inherit' }}
-					>
-						<Group justify='s' gap='lg' py='xs'>
-							{quiz.timelimit > 0 && (
-								<Text size='sm' c='dimmed'>
-									Duration:{' '}
-									<Text component='span' c='bright'>
-										{formatDuration(quiz.timelimit)}
-									</Text>
+				<Box
+					component={Link}
+					href={`/lms/courses/${courseId}/quizzes/${quiz.id}`}
+					style={{ textDecoration: 'none', color: 'inherit' }}
+				>
+					<Group justify='s' gap='lg' py='xs'>
+						{quiz.timelimit > 0 && (
+							<Text size='sm' c='dimmed'>
+								Duration:{' '}
+								<Text component='span' c='bright'>
+									{formatDuration(quiz.timelimit)}
+								</Text>
+							</Text>
+						)}
+					</Group>
+				</Box>
+
+				<Card.Section withBorder inheritPadding py='xs'>
+					<Group>
+						<IconClock size={16} />
+						<Flex flex={1} gap='xl' justify={'space-between'}>
+							{openDate && (
+								<Text size='xs' c='dimmed'>
+									Opens: {dayjs(openDate).format('DD MMM [at] HH:mm')}
 								</Text>
 							)}
-						</Group>
-					</Box>
-
-					<Card.Section withBorder inheritPadding py='xs'>
-						<Group>
-							<IconClock size={16} />
-							<Flex flex={1} gap='xl' justify={'space-between'}>
-								{openDate && (
-									<Text size='xs' c='dimmed'>
-										Opens: {dayjs(openDate).format('DD MMM [at] HH:mm')}
-									</Text>
-								)}
-								{closeDate && (
-									<Text size='xs' c={getBooleanColor(!!isOverdue, 'negative')}>
-										Closes: {dayjs(closeDate).format('DD MMM [at] HH:mm')}
-									</Text>
-								)}
-							</Flex>
-						</Group>
-					</Card.Section>
-				</Stack>
-			</Card>
-		</>
+							{closeDate && (
+								<Text size='xs' c={getBooleanColor(!!isOverdue, 'negative')}>
+									Closes: {dayjs(closeDate).format('DD MMM [at] HH:mm')}
+								</Text>
+							)}
+						</Flex>
+					</Group>
+				</Card.Section>
+			</Stack>
+		</Card>
 	);
 }
