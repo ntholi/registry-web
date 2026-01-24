@@ -87,10 +87,13 @@ export async function initiateMpesaPayment(
 	};
 
 	console.log('Pay Lesotho request:', { url: `${BASE_URL}/payment`, body });
+	console.log('API Key (first 10 chars):', apiKey);
+	console.log('API Key length:', apiKey.length);
 
 	const response = await fetch(`${BASE_URL}/payment`, {
 		method: 'POST',
 		headers: {
+			'Content-Type': 'application/json',
 			Authorization: `Bearer ${apiKey}`,
 			Accept: 'application/json',
 		},
