@@ -1,7 +1,7 @@
 'use client';
 
 import { Box, Container, useMantineColorScheme } from '@mantine/core';
-import ApplyHeader from '@/app/apply/_components/ApplyHeader';
+import ApplyHeader from '../_components/ApplyHeader';
 
 type Props = {
 	children: React.ReactNode;

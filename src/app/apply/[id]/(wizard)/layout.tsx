@@ -1,5 +1,4 @@
 import type { PropsWithChildren } from 'react';
-import ApplyLayout from './_components/ApplyLayout';
 import WizardLayout from './_components/WizardLayout';
 
 type Props = PropsWithChildren<{
@@ -9,9 +8,5 @@ type Props = PropsWithChildren<{
 export default async function WizardGroupLayout({ children, params }: Props) {
 	const { id } = await params;
 
-	return (
-		<ApplyLayout>
-			<WizardLayout applicationId={id}>{children}</WizardLayout>
-		</ApplyLayout>
-	);
+	return <WizardLayout applicationId={id}>{children}</WizardLayout>;
 }

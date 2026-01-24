@@ -24,9 +24,9 @@ export default async function ThankYouPage({ params }: Props) {
 
 	return (
 		<Container size='sm' py='xl'>
-			<Paper withBorder radius='lg' p='xl'>
+			<Paper withBorder p='xl'>
 				<Stack align='center' gap='lg'>
-					<ThemeIcon size={80} radius='xl' color='green' variant='light'>
+					<ThemeIcon size={80} radius={50} color='green' variant='light'>
 						<IconCheck size={48} />
 					</ThemeIcon>
 
