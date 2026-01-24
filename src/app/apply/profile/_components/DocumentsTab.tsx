@@ -1,6 +1,5 @@
 'use client';
 
-import { formatDateTime } from '@/shared/lib/utils/dates';
 import type { ApplicantWithRelations } from '@admissions/applicants';
 import { Card, SimpleGrid, Stack, Text, ThemeIcon } from '@mantine/core';
 import {
@@ -10,6 +9,7 @@ import {
 	IconId,
 	IconPhoto,
 } from '@tabler/icons-react';
+import { formatDateTime } from '@/shared/lib/utils/dates';
 
 interface Props {
 	applicant: ApplicantWithRelations;
@@ -70,10 +70,7 @@ function DocumentCard({ dateUploaded, type, url }: DocumentCardProps) {
 					<Text size='sm' fw={600} lineClamp={1}>
 						{label}
 					</Text>
-					<Text
-						size='xs'
-						c='dimmed'
-					>
+					<Text size='xs' c='dimmed'>
 						Uploaded: {dateUploaded}
 					</Text>
 				</Stack>

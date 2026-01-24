@@ -14,7 +14,9 @@ type Props = {
 };
 
 export default function DocumentsTab({ documents }: Props) {
-	const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+	const [selectedDoc, setSelectedDoc] = useState<ApplicantDocument | null>(
+		null
+	);
 	const [previewOpened, { open: openPreview, close: closePreview }] =
 		useDisclosure(false);
 
@@ -31,8 +33,8 @@ export default function DocumentsTab({ documents }: Props) {
 
 	const hasDocuments = Object.keys(groupedDocs).length > 0;
 
-	function handlePreview(url: string) {
-		setPreviewUrl(url);
+	function handlePreview(doc: ApplicantDocument) {
+		setSelectedDoc(doc);
 		openPreview();
 	}
 
@@ -58,7 +60,11 @@ export default function DocumentsTab({ documents }: Props) {
 					</Text>
 					<SimpleGrid cols={{ base: 1, sm: 2, md: 3 }} spacing='md'>
 						{docs.map((doc) => (
-							<DocumentCard key={doc.id} doc={doc} onPreview={handlePreview} />
+							<DocumentCard
+								key={doc.id}
+								doc={doc}
+								onPreview={() => handlePreview(doc)}
+							/>
 						))}
 					</SimpleGrid>
 				</Stack>
@@ -67,7 +73,8 @@ export default function DocumentsTab({ documents }: Props) {
 			<DocumentPreviewModal
 				opened={previewOpened}
 				onClose={closePreview}
-				previewUrl={previewUrl}
+				previewUrl={selectedDoc?.document.fileUrl ?? null}
+				document={selectedDoc?.document}
 			/>
 		</Stack>
 	);

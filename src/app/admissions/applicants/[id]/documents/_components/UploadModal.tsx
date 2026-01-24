@@ -136,13 +136,14 @@ export function UploadModal({
 			const fileName = `${nanoid()}${getFileExtension(uploadResult.file.name)}`;
 			await uploadDocument(uploadResult.file, fileName, folder);
 
+			const result = uploadResult.analysis;
+
 			await saveApplicantDocument({
 				applicantId,
 				fileName,
 				type,
+				certification: result.certification,
 			});
-
-			const result = uploadResult.analysis;
 
 			if (result.category === 'identity' && type === 'identity') {
 				try {

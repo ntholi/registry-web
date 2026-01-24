@@ -43,7 +43,7 @@ function isPdfFile(fileName: string | null | undefined): boolean {
 
 type Props = {
 	doc: ApplicantDocument;
-	onPreview: (url: string) => void;
+	onPreview: () => void;
 	onReanalyze?: (fileUrl: string) => void;
 };
 
@@ -118,7 +118,7 @@ export function DocumentCard({ doc, onPreview, onReanalyze }: Props) {
 							overflow: 'hidden',
 							cursor: 'pointer',
 						}}
-						onClick={() => onPreview(fileUrl)}
+						onClick={onPreview}
 					>
 						<iframe
 							src={`${fileUrl}#toolbar=0&navpanes=0&scrollbar=0`}
@@ -132,7 +132,7 @@ export function DocumentCard({ doc, onPreview, onReanalyze }: Props) {
 						/>
 					</Box>
 				) : isImage ? (
-					<Box style={{ cursor: 'pointer' }} onClick={() => onPreview(fileUrl)}>
+					<Box style={{ cursor: 'pointer' }} onClick={onPreview}>
 						<Image
 							src={fileUrl}
 							alt={doc.document.fileName ?? 'Document'}

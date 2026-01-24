@@ -1,6 +1,5 @@
 'use client';
 
-import { getGradeColor } from '@/app/admissions/applicants/[id]/_components/AcademicRecordsTab';
 import type { ApplicantWithRelations } from '@admissions/applicants';
 import {
 	Badge,
@@ -22,6 +21,7 @@ import {
 	IconPhone,
 	IconUser,
 } from '@tabler/icons-react';
+import { getGradeColor } from '@/app/admissions/applicants/[id]/_components/AcademicRecordsTab';
 
 interface Props {
 	applicant: ApplicantWithRelations;
@@ -121,9 +121,7 @@ export function InfoTab({ applicant }: Props) {
 								<Stack gap={2}>
 									<Group justify='space-between' align='flex-start'>
 										<Stack gap={4}>
-											<Text>
-												{record.certificateType.name}
-											</Text>
+											<Text>{record.certificateType.name}</Text>
 											<Text size='xs' c='dimmed'>
 												{record.institutionName}
 											</Text>

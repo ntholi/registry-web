@@ -138,6 +138,7 @@ export async function uploadAndAnalyzeDocument(formData: FormData) {
 		applicantId: applicant.id,
 		fileName,
 		type,
+		certification: result.certification,
 	});
 
 	if (result.category === 'identity' && type === 'identity') {

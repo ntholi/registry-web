@@ -27,6 +27,7 @@ export async function uploadCertificateDocument(
 		applicantId,
 		fileName,
 		type,
+		certification: analysis.certification,
 	});
 
 	if (

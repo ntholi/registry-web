@@ -1,5 +1,28 @@
 import { z } from 'zod';
 
+const certificationSchema = z.object({
+	isCertified: z
+		.boolean()
+		.describe(
+			'Whether the document has visible certification (stamp AND signature required)'
+		),
+	certifiedDate: z.string().nullable().describe('Date on certification stamp'),
+	certifierName: z
+		.string()
+		.nullable()
+		.describe('Name of person or organization who certified (from stamp)'),
+	certifierTitle: z
+		.string()
+		.nullable()
+		.describe(
+			'Title or position of certifier (e.g., Commissioner of Oaths, Notary Public)'
+		),
+	hasSignature: z
+		.boolean()
+		.describe('Whether a signature is present alongside the stamp'),
+	hasStamp: z.boolean().describe('Whether an official stamp is present'),
+});
+
 const identitySchema = z.object({
 	documentType: z
 		.enum(['identity', 'passport_photo', 'other'])
@@ -30,6 +53,9 @@ const identitySchema = z.object({
 		.string()
 		.nullable()
 		.describe('Document expiration in YYYY-MM-DD format'),
+	certification: certificationSchema
+		.nullable()
+		.describe('Certification details if document is certified'),
 });
 
 const academicSchema = z.object({
@@ -93,6 +119,9 @@ const academicSchema = z.object({
 		.string()
 		.nullable()
 		.describe('Student name appearing on document'),
+	certification: certificationSchema
+		.nullable()
+		.describe('Certification details if document is certified'),
 });
 
 const otherSchema = z.object({
@@ -110,6 +139,9 @@ const otherSchema = z.object({
 		.string()
 		.nullable()
 		.describe('Summary of document purpose and content'),
+	certification: certificationSchema
+		.nullable()
+		.describe('Certification details if document is certified'),
 });
 
 const receiptSchema = z.object({
@@ -179,4 +211,5 @@ export {
 	academicSchema,
 	otherSchema,
 	receiptSchema,
+	certificationSchema,
 };

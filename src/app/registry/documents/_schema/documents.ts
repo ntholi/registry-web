@@ -26,6 +26,8 @@ export const documents = pgTable(
 		fileName: text().notNull(),
 		fileUrl: text(),
 		type: documentTypeEnum(),
+		certifiedDate: text(),
+		certifiedBy: text(),
 		createdAt: timestamp().defaultNow(),
 	},
 	(table) => ({

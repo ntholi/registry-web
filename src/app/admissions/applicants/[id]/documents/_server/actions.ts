@@ -6,6 +6,7 @@ import { findOrCreateSubjectByName } from '@admissions/subjects';
 import type { DocumentType, DocumentVerificationStatus } from '@/core/database';
 import {
 	analyzeDocument,
+	type CertificationResult,
 	type DocumentAnalysisResult,
 } from '@/core/integrations/ai/documents';
 import { deleteDocument } from '@/core/integrations/storage';
@@ -46,15 +47,24 @@ export async function saveApplicantDocument(data: {
 	applicantId: string;
 	fileName: string;
 	type: DocumentType;
+	certification?: CertificationResult | null;
 }) {
 	const folder = await getDocumentFolder(data.applicantId);
 	const fileUrl = `${BASE_URL}/${folder}/${data.fileName}`;
+
+	const cert = data.certification;
+	const certifiedBy = cert?.isCertified
+		? [cert.certifierName, cert.certifierTitle].filter(Boolean).join(', ') ||
+			null
+		: null;
 
 	return applicantDocumentsService.uploadDocument(
 		{
 			fileName: data.fileName,
 			fileUrl,
 			type: data.type,
+			certifiedDate: cert?.isCertified ? cert.certifiedDate : null,
+			certifiedBy,
 		},
 		data.applicantId,
 		0

@@ -5,6 +5,7 @@ import { generateText, NoObjectGeneratedError, Output } from 'ai';
 import type { z } from 'zod';
 import {
 	academicSchema,
+	type certificationSchema,
 	documentAnalysisSchema,
 	identitySchema,
 	type otherSchema,
@@ -17,6 +18,7 @@ export type IdentityDocumentResult = z.infer<typeof identitySchema>;
 export type CertificateDocumentResult = z.infer<typeof academicSchema>;
 export type OtherDocumentResult = z.infer<typeof otherSchema>;
 export type ReceiptResult = z.infer<typeof receiptSchema>;
+export type CertificationResult = z.infer<typeof certificationSchema>;
 
 export type DocumentAnalysisResult =
 	| ({ category: 'identity' } & IdentityDocumentResult)
@@ -40,13 +42,31 @@ RULES:
 - COSC grades: Extract NUMERIC value (e.g., "C(c SIX)" → "6")
 - LGCSE/IGCSE grades: Use letter (A*, A, B, C, D, E, F, G, U)
 - Extract ALL subjects with grades
-- Use null for missing/illegible data`;
+- Use null for missing/illegible data
+
+CERTIFICATION EXTRACTION:
+- A certified document MUST have BOTH a stamp AND a signature
+- isCertified: true only if stamp AND signature are present
+- hasStamp: true if official stamp/seal visible (Commissioner of Oaths, Notary, etc.)
+- hasSignature: true if handwritten signature present near stamp
+- certifiedDate: Extract date from stamp in YYYY-MM-DD format
+- certifierName: Name from stamp (person or organization)
+- certifierTitle: Title from stamp (Commissioner of Oaths, Notary Public, JP, etc.)`;
 
 const IDENTITY_PROMPT = `Analyze this identity document and extract structured information.
 
 RULES:
 - Dates: YYYY-MM-DD format
-- Use null for missing/illegible data`;
+- Use null for missing/illegible data
+
+CERTIFICATION EXTRACTION:
+- A certified document MUST have BOTH a stamp AND a signature
+- isCertified: true only if stamp AND signature are present
+- hasStamp: true if official stamp/seal visible (Commissioner of Oaths, Notary, etc.)
+- hasSignature: true if handwritten signature present near stamp
+- certifiedDate: Extract date from stamp in YYYY-MM-DD format
+- certifierName: Name from stamp (person or organization)
+- certifierTitle: Title from stamp (Commissioner of Oaths, Notary Public, JP, etc.)`;
 
 const ACADEMIC_PROMPT = `Analyze this academic document and extract structured information.
 
@@ -57,7 +77,16 @@ RULES:
 - LGCSE/IGCSE grades: Use letter (A*, A, B, C, D, E, F, G, U)
 - Extract ALL subjects with grades
 - Return certificateType using the provided system naming and return the appropriate lqfLevel
-- Use null for missing/illegible data`;
+- Use null for missing/illegible data
+
+CERTIFICATION EXTRACTION:
+- A certified document MUST have BOTH a stamp AND a signature
+- isCertified: true only if stamp AND signature are present
+- hasStamp: true if official stamp/seal visible (Commissioner of Oaths, Notary, etc.)
+- hasSignature: true if handwritten signature present near stamp
+- certifiedDate: Extract date from stamp in YYYY-MM-DD format
+- certifierName: Name from stamp (person or organization)
+- certifierTitle: Title from stamp (Commissioner of Oaths, Notary Public, JP, etc.)`;
 
 const DEFAULT_CERTIFICATE_TYPES = [
 	'LGCSE',
@@ -119,6 +148,7 @@ export async function analyzeDocument(
 			category: 'other',
 			documentType: 'other',
 			description: 'Unable to classify document',
+			certification: null,
 		};
 	} catch (error) {
 		if (NoObjectGeneratedError.isInstance(error)) {
