@@ -18,6 +18,8 @@ export interface DetailsViewHeaderProps {
 	deleteRoles?: UserRole[];
 	editRoles?: UserRole[];
 	hideEdit?: boolean;
+	itemName?: string;
+	itemType?: string;
 }
 
 export function DetailsViewHeader({
@@ -28,6 +30,8 @@ export function DetailsViewHeader({
 	deleteRoles,
 	editRoles,
 	hideEdit,
+	itemName,
+	itemType,
 }: DetailsViewHeaderProps) {
 	const { data: session } = useSession();
 	const pathname = usePathname();
@@ -63,6 +67,8 @@ export function DetailsViewHeader({
 								handleDelete={handleDelete}
 								onSuccess={onDeleteSuccess}
 								queryKey={queryKey}
+								itemName={itemName}
+								itemType={itemType}
 							/>
 						)}
 					{!hideEdit &&

@@ -1,10 +1,11 @@
 'use client';
-import { ActionIcon, type ActionIconProps, Text } from '@mantine/core';
-import { modals } from '@mantine/modals';
+import { ActionIcon, type ActionIconProps } from '@mantine/core';
+import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import { IconTrashFilled } from '@tabler/icons-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
+import { DeleteModal } from './DeleteModal';
 
 export interface DeleteButtonProps extends ActionIconProps {
 	handleDelete: () => Promise<void>;
@@ -12,6 +13,8 @@ export interface DeleteButtonProps extends ActionIconProps {
 	onSuccess?: () => void;
 	onError?: (error: Error) => void;
 	queryKey?: string[];
+	itemName?: string;
+	itemType?: string;
 }
 
 export function DeleteButton({
@@ -20,10 +23,13 @@ export function DeleteButton({
 	onSuccess,
 	onError,
 	queryKey,
+	itemName = 'this item',
+	itemType = 'Item',
 	...props
 }: DeleteButtonProps) {
 	const router = useRouter();
 	const queryClient = useQueryClient();
+	const [opened, { open, close }] = useDisclosure(false);
 
 	const mutation = useMutation({
 		mutationFn: handleDelete,
@@ -53,28 +59,24 @@ export function DeleteButton({
 		},
 	});
 
-	const openModal = () =>
-		modals.openConfirmModal({
-			title: 'Confirm Delete',
-			children: (
-				<Text size='sm'>
-					{message || 'Are you sure you want to delete this'}
-				</Text>
-			),
-			labels: { confirm: 'Delete', cancel: 'Cancel' },
-			confirmProps: { color: 'red' },
-			onCancel: () => console.log('Cancel'),
-			onConfirm: () => mutation.mutate(),
-		});
-
 	return (
-		<ActionIcon
-			color='red'
-			loading={mutation.isPending}
-			onClick={openModal}
-			{...props}
-		>
-			<IconTrashFilled size={'1rem'} />
-		</ActionIcon>
+		<>
+			<ActionIcon
+				color='red'
+				loading={mutation.isPending}
+				onClick={open}
+				{...props}
+			>
+				<IconTrashFilled size={'1rem'} />
+			</ActionIcon>
+			<DeleteModal
+				opened={opened}
+				onClose={close}
+				onDelete={async () => mutation.mutateAsync()}
+				itemName={itemName}
+				itemType={itemType}
+				warningMessage={message}
+			/>
+		</>
 	);
 }

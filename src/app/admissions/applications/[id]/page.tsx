@@ -59,6 +59,9 @@ export default async function ApplicationDetails({ params }: Props) {
 					'use server';
 					await deleteApplication(id);
 				}}
+				deleteRoles={['admin']}
+				itemName={`${item.applicant.fullName} - ${item.intakePeriod.name}`}
+				itemType='Application'
 			/>
 			<DetailsViewBody>
 				<Tabs defaultValue='details'>

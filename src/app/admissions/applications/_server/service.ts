@@ -21,7 +21,7 @@ class ApplicationService extends BaseService<typeof applications, 'id'> {
 			findAllRoles: ['registry', 'marketing', 'admin'],
 			createRoles: ['registry', 'marketing', 'admin'],
 			updateRoles: ['registry', 'marketing', 'admin'],
-			deleteRoles: ['registry', 'marketing', 'admin'],
+			deleteRoles: ['admin'],
 		});
 		this.repo = repo;
 	}
