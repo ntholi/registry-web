@@ -9,7 +9,12 @@ import {
 	ThemeIcon,
 	Title,
 } from '@mantine/core';
-import { IconCheck, IconHome } from '@tabler/icons-react';
+import {
+	IconAlertTriangle,
+	IconCheck,
+	IconCreditCard,
+	IconHome,
+} from '@tabler/icons-react';
 import LinkButton from '@/shared/ui/ButtonLink';
 
 type Props = {
@@ -26,14 +31,23 @@ export default async function ThankYouPage({ params }: Props) {
 		<Container size='sm' py='xl'>
 			<Paper withBorder p='xl'>
 				<Stack align='center' gap='lg'>
-					<ThemeIcon size={80} radius={50} color='green' variant='light'>
-						<IconCheck size={48} />
+					<ThemeIcon
+						size={80}
+						radius={50}
+						color={isPaid ? 'green' : 'orange'}
+						variant='light'
+					>
+						{isPaid ? <IconCheck size={48} /> : <IconAlertTriangle size={48} />}
 					</ThemeIcon>
 
 					<Stack align='center' gap='xs'>
-						<Title order={2}>Application Submitted</Title>
+						<Title order={2}>
+							{isPaid ? 'Application Submitted' : 'Payment Required'}
+						</Title>
 						<Text c='dimmed' ta='center'>
-							Thank you for applying to Limkokwing University
+							{isPaid
+								? 'Thank you for applying to Limkokwing University'
+								: 'Your application has been saved but requires payment to be processed'}
 						</Text>
 					</Stack>
 
@@ -67,17 +81,30 @@ export default async function ThankYouPage({ params }: Props) {
 					</Text>
 
 					<Group mt='md'>
-						<LinkButton
-							href='/apply/my-applications'
-							variant='light'
-							leftSection={<IconHome size={16} />}
-						>
-							My Applications
-						</LinkButton>
-						{!isPaid && (
-							<LinkButton href={`/apply/${id}/payment`}>
-								Complete Payment
+						{isPaid ? (
+							<LinkButton
+								href='/apply/my-applications'
+								leftSection={<IconHome size={16} />}
+							>
+								My Applications
 							</LinkButton>
+						) : (
+							<>
+								<LinkButton
+									href='/apply/my-applications'
+									variant='light'
+									leftSection={<IconHome size={16} />}
+								>
+									My Applications
+								</LinkButton>
+								<LinkButton
+									href={`/apply/${id}/payment`}
+									color='orange'
+									leftSection={<IconCreditCard size={16} />}
+								>
+									Pay Now
+								</LinkButton>
+							</>
 						)}
 					</Group>
 				</Stack>

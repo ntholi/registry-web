@@ -54,8 +54,8 @@ export function validateEcocashNumber(phone: string): boolean {
 	return normalized.startsWith('6');
 }
 
-export function generateClientReference(applicantId: string): string {
-	return `APPLY-${applicantId}-${Date.now()}`;
+export function generateClientReference(applicationId: string): string {
+	return `APPLY-${applicationId}-${Date.now()}`;
 }
 
 export async function initiateMpesaPayment(
@@ -87,9 +87,6 @@ export async function initiateMpesaPayment(
 	};
 
 	console.log('Pay Lesotho request:', { url: `${BASE_URL}/payment`, body });
-	console.log('API Key (first 10 chars):', apiKey);
-	console.log('API Key length:', apiKey.length);
-
 	const response = await fetch(`${BASE_URL}/payment`, {
 		method: 'POST',
 		headers: {

@@ -6,6 +6,7 @@ import {
 	Card,
 	Divider,
 	Group,
+	Modal,
 	Paper,
 	SimpleGrid,
 	Stack,
@@ -14,8 +15,10 @@ import {
 	Title,
 	UnstyledButton,
 } from '@mantine/core';
+import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import {
+	IconAlertTriangle,
 	IconArrowLeft,
 	IconCheck,
 	IconCreditCard,
@@ -64,6 +67,9 @@ export default function PaymentForm({
 			return 'select';
 		},
 	});
+
+	const [payLaterOpened, { open: openPayLater, close: closePayLater }] =
+		useDisclosure(false);
 
 	const defaultPhone =
 		applicant?.phones?.find((p) => {
@@ -236,10 +242,39 @@ export default function PaymentForm({
 				>
 					Back
 				</Button>
-				<Button variant='light' onClick={handleSkip}>
-					Skip for now
+				<Button variant='light' onClick={openPayLater}>
+					Pay Later
 				</Button>
 			</Group>
+
+			<Modal
+				opened={payLaterOpened}
+				onClose={closePayLater}
+				title='Pay Later'
+				centered
+			>
+				<Stack gap='md'>
+					<Group gap='sm'>
+						<ThemeIcon size='lg' color='orange' variant='light'>
+							<IconAlertTriangle size={20} />
+						</ThemeIcon>
+						<Text fw={500}>Important Notice</Text>
+					</Group>
+					<Text size='sm' c='dimmed'>
+						Your application will <strong>not be processed</strong> until the
+						application fee of <strong>M {fee}</strong> is paid. You can return
+						later to complete your payment.
+					</Text>
+					<Group justify='flex-end' mt='sm'>
+						<Button variant='default' onClick={closePayLater}>
+							Go Back
+						</Button>
+						<Button color='orange' onClick={handleSkip}>
+							Continue Without Paying
+						</Button>
+					</Group>
+				</Stack>
+			</Modal>
 		</Stack>
 	);
 }
