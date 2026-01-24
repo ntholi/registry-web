@@ -18,7 +18,7 @@ import {
 	ThemeIcon,
 	Title,
 } from '@mantine/core';
-import { useDisclosure } from '@mantine/hooks';
+import { useDisclosure, useMediaQuery } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import {
 	IconArrowLeft,
@@ -34,7 +34,7 @@ import {
 	DocumentUpload,
 	type DocumentUploadResult,
 } from '@/shared/ui/DocumentUpload';
-import ReviewButton from '../../../_components/ReviewButton';
+import FinishButton from '../../../_components/FinishButton';
 import {
 	removeAcademicRecord,
 	uploadCertificateDocument,
@@ -47,6 +47,7 @@ type Props = {
 export default function QualificationsUploadForm({ applicantId }: Props) {
 	const router = useRouter();
 	const queryClient = useQueryClient();
+	const isMobile = useMediaQuery('(max-width: 48em)');
 	const [uploading, setUploading] = useState(false);
 	const [uploadKey, setUploadKey] = useState(0);
 
@@ -160,22 +161,28 @@ export default function QualificationsUploadForm({ applicantId }: Props) {
 				)}
 
 				<Group justify='space-between' mt='md'>
-					<Button
-						variant='subtle'
-						leftSection={<IconArrowLeft size={16} />}
-						onClick={handleBack}
-					>
-						Back
-					</Button>
+					{isMobile ? (
+						<ActionIcon variant='subtle' onClick={handleBack} size='lg'>
+							<IconArrowLeft size={20} />
+						</ActionIcon>
+					) : (
+						<Button
+							variant='subtle'
+							leftSection={<IconArrowLeft size={16} />}
+							onClick={handleBack}
+						>
+							Back
+						</Button>
+					)}
 					<Group>
-						<ReviewButton applicantId={applicantId} />
 						<Button
 							rightSection={<IconArrowRight size={16} />}
 							onClick={handleContinue}
 							disabled={!hasRecords}
 						>
-							Continue
+							Next
 						</Button>
+						<FinishButton applicantId={applicantId} />
 					</Group>
 				</Group>
 			</Stack>

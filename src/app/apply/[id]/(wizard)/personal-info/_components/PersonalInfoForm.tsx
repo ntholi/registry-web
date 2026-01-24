@@ -2,6 +2,7 @@
 
 import type { ApplicantWithRelations } from '@admissions/applicants';
 import {
+	ActionIcon,
 	Button,
 	Divider,
 	Group,
@@ -15,11 +16,12 @@ import {
 } from '@mantine/core';
 import { DateInput } from '@mantine/dates';
 import { useForm } from '@mantine/form';
+import { useMediaQuery } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import { IconArrowLeft, IconArrowRight } from '@tabler/icons-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'nextjs-toploader/app';
-import ReviewButton from '../../../_components/ReviewButton';
+import FinishButton from '../../../_components/FinishButton';
 import { updateApplicantInfo } from '../_server/actions';
 import GuardianManager from './GuardianManager';
 import PhoneManager from './PhoneManager';
@@ -36,6 +38,7 @@ const genderOptions = [
 export default function PersonalInfoForm({ applicant }: Props) {
 	const router = useRouter();
 	const queryClient = useQueryClient();
+	const isMobile = useMediaQuery('(max-width: 48em)');
 
 	const form = useForm({
 		mode: 'uncontrolled',
@@ -168,24 +171,30 @@ export default function PersonalInfoForm({ applicant }: Props) {
 			<Divider />
 
 			<Group justify='space-between'>
-				<Button
-					variant='subtle'
-					leftSection={<IconArrowLeft size={16} />}
-					onClick={handleBack}
-				>
-					Back
-				</Button>
+				{isMobile ? (
+					<ActionIcon variant='subtle' onClick={handleBack} size='lg'>
+						<IconArrowLeft size={20} />
+					</ActionIcon>
+				) : (
+					<Button
+						variant='subtle'
+						leftSection={<IconArrowLeft size={16} />}
+						onClick={handleBack}
+					>
+						Back
+					</Button>
+				)}
 
 				<Group>
-					<ReviewButton applicantId={applicant.id} />
 					<Button
 						rightSection={<IconArrowRight size={16} />}
 						onClick={() => form.onSubmit((values) => mutation.mutate(values))()}
 						loading={mutation.isPending}
 						disabled={applicant.guardians.length === 0}
 					>
-						Continue
+						Next
 					</Button>
+					<FinishButton applicantId={applicant.id} />
 				</Group>
 			</Group>
 		</Stack>

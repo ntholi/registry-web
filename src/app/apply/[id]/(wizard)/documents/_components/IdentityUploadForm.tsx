@@ -25,7 +25,7 @@ import {
 	DocumentUpload,
 	type DocumentUploadResult,
 } from '@/shared/ui/DocumentUpload';
-import ReviewButton from '../../../_components/ReviewButton';
+import FinishButton from '../../../_components/FinishButton';
 import {
 	removeIdentityDocument,
 	uploadIdentityDocument,
@@ -174,14 +174,14 @@ export default function IdentityUploadForm({ applicantId }: Props) {
 				)}
 
 				<Group justify='flex-end' mt='md'>
-					<ReviewButton applicantId={applicantId} />
 					<Button
 						rightSection={<IconArrowRight size={16} />}
 						onClick={handleContinue}
 						disabled={!hasIdentity}
 					>
-						Continue
+						Next
 					</Button>
+					<FinishButton applicantId={applicantId} />
 				</Group>
 			</Stack>
 		</Paper>
