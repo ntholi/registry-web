@@ -3,22 +3,21 @@
 import { findApplicationsByApplicant } from '@admissions/applications';
 import { useApplicant } from '@apply/_lib/useApplicant';
 import {
-	Badge,
 	Box,
 	Card,
 	Container,
-	Group,
+	SimpleGrid,
 	Skeleton,
 	Stack,
 	Text,
 	Title,
 	useMantineColorScheme,
 } from '@mantine/core';
-import { IconCalendar, IconSchool } from '@tabler/icons-react';
+import { IconSchool } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
 import ApplyHeader from '../_components/ApplyHeader';
-import { getStatusColor, getStatusLabel } from './_lib/status';
+import { ApplicationCard } from './_components/ApplicationCard';
 
 export default function MyApplicationsPage() {
 	const { colorScheme } = useMantineColorScheme();
@@ -69,71 +68,17 @@ export default function MyApplicationsPage() {
 					)}
 
 					{!isLoading && applications && applications.length > 0 && (
-						<Stack gap='md'>
+						<SimpleGrid cols={{ base: 1, sm: 2 }}>
 							{applications.map((application) => (
 								<ApplicationCard
 									key={application.id}
 									application={application}
 								/>
 							))}
-						</Stack>
+						</SimpleGrid>
 					)}
 				</Stack>
 			</Container>
 		</Box>
-	);
-}
-
-type Application = Awaited<
-	ReturnType<typeof findApplicationsByApplicant>
->[number];
-
-interface ApplicationCardProps {
-	application: Application;
-}
-
-function ApplicationCard({ application }: ApplicationCardProps) {
-	return (
-		<Card
-			component={Link}
-			href={`/apply/${application.id}/review`}
-			withBorder
-			radius='md'
-			p='lg'
-			style={{ cursor: 'pointer' }}
-		>
-			<Stack gap='sm'>
-				<Group justify='space-between' align='flex-start'>
-					<Stack gap={4}>
-						<Text fw={600} size='lg'>
-							{application.firstChoiceProgram.name}
-						</Text>
-						<Group gap='xs'>
-							<IconSchool size={14} />
-							<Text size='sm' c='dimmed'>
-								{application.firstChoiceProgram.school?.shortName ??
-									application.firstChoiceProgram.code}
-							</Text>
-						</Group>
-					</Stack>
-					<Badge color={getStatusColor(application.status)} variant='light'>
-						{getStatusLabel(application.status)}
-					</Badge>
-				</Group>
-
-				{application.secondChoiceProgram && (
-					<Text size='sm' c='dimmed'>
-						Second Choice: {application.secondChoiceProgram.name}
-					</Text>
-				)}
-
-				<Group gap='xs'>
-					<IconCalendar size={14} />
-					<Text size='sm' c='dimmed'>
-						{application.intakePeriod.name}
-					</Text>
-				</Group>
-			</Stack>
-		</Card>
 	);
 }
