@@ -3,6 +3,7 @@
 import type { ProgramLevel } from '@academic/_database';
 import { createOrUpdateApplication } from '@admissions/applications';
 import { useApplicant } from '@apply/_lib/useApplicant';
+import { useApplicationId } from '@apply/[id]/_lib/ApplicationContext';
 import {
 	Box,
 	Paper,
@@ -43,6 +44,7 @@ type EligibleProgram = {
 export default function CourseSelectionForm() {
 	const router = useRouter();
 	const [choiceType, setChoiceType] = useState<'first' | 'second'>('first');
+	const applicationId = useApplicationId();
 
 	const [filters] = useQueryStates({
 		schoolId: parseAsInteger,
@@ -133,14 +135,14 @@ export default function CourseSelectionForm() {
 				status: 'draft',
 			});
 		},
-		onSuccess: (application) => {
+		onSuccess: () => {
 			refetch();
 			notifications.show({
 				title: 'Courses selected',
 				message: 'Your course choices have been saved',
 				color: 'green',
 			});
-			router.push(`/apply/${application.id}/personal-info`);
+			router.push(`/apply/${applicationId}/personal-info`);
 		},
 		onError: (error) => {
 			notifications.show({
@@ -268,7 +270,7 @@ export default function CourseSelectionForm() {
 				)}
 
 				<WizardNavigation
-					backPath='/apply/wizard/qualifications'
+					backPath='qualifications'
 					onNext={handleContinue}
 					nextDisabled={!canContinue}
 					nextLoading={submitMutation.isPending}

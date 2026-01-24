@@ -11,7 +11,7 @@ import {
 	UnstyledButton,
 	useMantineColorScheme,
 } from '@mantine/core';
-import { IconLogout, IconUser } from '@tabler/icons-react';
+import { IconFileText, IconLogout } from '@tabler/icons-react';
 import NextImage from 'next/image';
 import Link from 'next/link';
 import { signOut, useSession } from 'next-auth/react';
@@ -109,11 +109,11 @@ export default function ApplyHeader() {
 								{applicantId && (
 									<>
 										<Menu.Item
-											leftSection={<IconUser size={14} />}
+											leftSection={<IconFileText size={14} />}
 											component={Link}
-											href='/apply/wizard/profile'
+											href='/apply/my-applications'
 										>
-											My Profile
+											My Applications
 										</Menu.Item>
 										<Menu.Divider />
 									</>
