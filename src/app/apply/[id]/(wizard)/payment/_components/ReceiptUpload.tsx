@@ -13,6 +13,7 @@ import { useMediaQuery } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import { IconAlertCircle } from '@tabler/icons-react';
 import { useState } from 'react';
+import { DocumentCardSkeleton } from '@/shared/ui/DocumentCardShell';
 import {
 	MobileReceiptUpload,
 	type ReceiptUploadResult,
@@ -52,7 +53,7 @@ export default function ReceiptUploadForm({
 	const [uploading, setUploading] = useState(false);
 	const [uploadKey, setUploadKey] = useState(0);
 	const [receipts, setReceipts] = useState<UploadedReceipt[]>([]);
-	const [deleting, setDeleting] = useState(false);
+	const [pendingUploads, setPendingUploads] = useState(0);
 
 	const requiredAmount = parseFloat(fee);
 	const totalAmount = receipts
@@ -64,6 +65,7 @@ export default function ReceiptUploadForm({
 	async function handleUploadComplete(result: ReceiptUploadResult) {
 		try {
 			setUploading(true);
+			setPendingUploads((prev) => prev + 1);
 
 			const validation = await validateSingleReceipt(
 				result.base64,
@@ -112,6 +114,7 @@ export default function ReceiptUploadForm({
 			});
 		} finally {
 			setUploading(false);
+			setPendingUploads((prev) => Math.max(0, prev - 1));
 		}
 	}
 
@@ -131,20 +134,15 @@ export default function ReceiptUploadForm({
 		);
 	}
 
-	function handleDelete(id: string) {
-		setDeleting(true);
+	async function handleDelete(id: string) {
 		setReceipts((prev) => {
 			const updated = prev.filter((r) => r.id !== id);
 			updateCallbacks(updated);
 			return updated;
 		});
-		setDeleting(false);
-		notifications.show({
-			title: 'Receipt removed',
-			message: 'Receipt has been deleted',
-			color: 'green',
-		});
 	}
+
+	const showUploadedSection = receipts.length > 0 || pendingUploads > 0;
 
 	return (
 		<Stack gap='lg'>
@@ -173,7 +171,7 @@ export default function ReceiptUploadForm({
 				/>
 			)}
 
-			{receipts.length > 0 && (
+			{showUploadedSection && (
 				<Stack gap='sm'>
 					<Text fw={500} size='sm'>
 						Uploaded Receipts
@@ -184,27 +182,35 @@ export default function ReceiptUploadForm({
 								key={receipt.id}
 								receipt={receipt}
 								onDelete={() => handleDelete(receipt.id)}
-								deleting={deleting}
 							/>
+						))}
+						{Array.from({ length: pendingUploads }).map((_, i) => (
+							<DocumentCardSkeleton key={`skeleton-${i}`} />
 						))}
 					</SimpleGrid>
 
-					<Card withBorder padding='md'>
-						<Group justify='space-between'>
-							<Text size='sm' fw={500}>
-								Total Amount
-							</Text>
-							<Text size='lg' fw={700} c={isAmountSufficient ? 'green' : 'red'}>
-								M {totalAmount.toFixed(2)} / M {requiredAmount.toFixed(2)}
-							</Text>
-						</Group>
-						{!isAmountSufficient && receipts.some((r) => r.isValid) && (
-							<Text size='xs' c='red' mt='xs'>
-								Total amount is less than the required application fee. Please
-								upload additional receipts.
-							</Text>
-						)}
-					</Card>
+					{receipts.length > 0 && (
+						<Card withBorder padding='md'>
+							<Group justify='space-between'>
+								<Text size='sm' fw={500}>
+									Total Amount
+								</Text>
+								<Text
+									size='lg'
+									fw={700}
+									c={isAmountSufficient ? 'green' : 'red'}
+								>
+									M {totalAmount.toFixed(2)} / M {requiredAmount.toFixed(2)}
+								</Text>
+							</Group>
+							{!isAmountSufficient && receipts.some((r) => r.isValid) && (
+								<Text size='xs' c='red' mt='xs'>
+									Total amount is less than the required application fee. Please
+									upload additional receipts.
+								</Text>
+							)}
+						</Card>
+					)}
 
 					{!allValid && receipts.some((r) => !r.isValid) && (
 						<Alert

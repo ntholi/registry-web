@@ -4,9 +4,9 @@ import { useApplicant } from '@apply/_lib/useApplicant';
 import { Paper, SimpleGrid, Stack, Text, Title } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
-import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'nextjs-toploader/app';
 import { useState } from 'react';
+import { DocumentCardSkeleton } from '@/shared/ui/DocumentCardShell';
 import {
 	DocumentUpload,
 	type DocumentUploadResult,
@@ -31,6 +31,7 @@ export default function IdentityUploadForm({ applicationId }: Props) {
 	const isMobile = useMediaQuery('(max-width: 768px)');
 	const [uploading, setUploading] = useState(false);
 	const [uploadKey, setUploadKey] = useState(0);
+	const [pendingUploads, setPendingUploads] = useState(0);
 
 	const { applicant, refetch } = useApplicant();
 	const applicantId = applicant?.id ?? '';
@@ -49,32 +50,12 @@ export default function IdentityUploadForm({ applicationId }: Props) {
 		documentType: doc.document.type,
 	}));
 
-	const deleteMutation = useMutation({
-		mutationFn: async ({ id, fileUrl }: { id: string; fileUrl: string }) => {
-			return removeIdentityDocument(id, fileUrl);
-		},
-		onSuccess: () => {
-			refetch();
-			notifications.show({
-				title: 'Document removed',
-				message: 'Identity document has been deleted',
-				color: 'green',
-			});
-		},
-		onError: (error) => {
-			notifications.show({
-				title: 'Delete failed',
-				message: error instanceof Error ? error.message : 'Failed to delete',
-				color: 'red',
-			});
-		},
-	});
-
 	async function handleUploadComplete(
 		result: DocumentUploadResult<'identity'>
 	) {
 		try {
 			setUploading(true);
+			setPendingUploads((prev) => prev + 1);
 			await uploadIdentityDocument(applicantId, result.file, result.analysis);
 			await refetch();
 			setUploadKey((prev) => prev + 1);
@@ -91,17 +72,21 @@ export default function IdentityUploadForm({ applicationId }: Props) {
 			});
 		} finally {
 			setUploading(false);
+			setPendingUploads((prev) => Math.max(0, prev - 1));
 		}
 	}
 
-	function handleDelete(id: string, fileUrl?: string | null) {
+	async function handleDelete(id: string, fileUrl?: string | null) {
 		if (!fileUrl) return;
-		deleteMutation.mutate({ id, fileUrl });
+		await removeIdentityDocument(id, fileUrl);
+		await refetch();
 	}
 
 	function handleContinue() {
 		router.push(`/apply/${applicationId}/qualifications`);
 	}
+
+	const showUploadedSection = uploadedDocs.length > 0 || pendingUploads > 0;
 
 	return (
 		<Paper withBorder radius='md' p='lg'>
@@ -133,7 +118,7 @@ export default function IdentityUploadForm({ applicationId }: Props) {
 					/>
 				)}
 
-				{uploadedDocs.length > 0 && (
+				{showUploadedSection && (
 					<Stack gap='sm'>
 						<Text fw={500} size='sm'>
 							Uploaded Documents
@@ -144,8 +129,10 @@ export default function IdentityUploadForm({ applicationId }: Props) {
 									key={doc.id}
 									doc={doc}
 									onDelete={() => handleDelete(doc.id, doc.fileUrl)}
-									deleting={deleteMutation.isPending}
 								/>
+							))}
+							{Array.from({ length: pendingUploads }).map((_, i) => (
+								<DocumentCardSkeleton key={`skeleton-${i}`} />
 							))}
 						</SimpleGrid>
 					</Stack>

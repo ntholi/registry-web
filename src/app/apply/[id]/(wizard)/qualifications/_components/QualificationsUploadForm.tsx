@@ -4,9 +4,9 @@ import { useApplicant } from '@apply/_lib/useApplicant';
 import { Paper, SimpleGrid, Stack, Text, Title } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
-import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'nextjs-toploader/app';
 import { useState } from 'react';
+import { DocumentCardSkeleton } from '@/shared/ui/DocumentCardShell';
 import {
 	DocumentUpload,
 	type DocumentUploadResult,
@@ -28,6 +28,7 @@ export default function QualificationsUploadForm({ applicationId }: Props) {
 	const isMobile = useMediaQuery('(max-width: 768px)');
 	const [uploading, setUploading] = useState(false);
 	const [uploadKey, setUploadKey] = useState(0);
+	const [pendingUploads, setPendingUploads] = useState(0);
 
 	const { applicant, refetch } = useApplicant();
 	const applicantId = applicant?.id ?? '';
@@ -35,30 +36,12 @@ export default function QualificationsUploadForm({ applicationId }: Props) {
 	const records = applicant?.academicRecords ?? [];
 	const hasRecords = records.length > 0;
 
-	const deleteMutation = useMutation({
-		mutationFn: removeAcademicRecord,
-		onSuccess: () => {
-			refetch();
-			notifications.show({
-				title: 'Record removed',
-				message: 'Academic record has been deleted',
-				color: 'green',
-			});
-		},
-		onError: (error) => {
-			notifications.show({
-				title: 'Delete failed',
-				message: error instanceof Error ? error.message : 'Failed to delete',
-				color: 'red',
-			});
-		},
-	});
-
 	async function handleUploadComplete(
 		result: DocumentUploadResult<'certificate'>
 	) {
 		try {
 			setUploading(true);
+			setPendingUploads((prev) => prev + 1);
 			await uploadCertificateDocument(
 				applicantId,
 				result.file,
@@ -79,16 +62,20 @@ export default function QualificationsUploadForm({ applicationId }: Props) {
 			});
 		} finally {
 			setUploading(false);
+			setPendingUploads((prev) => Math.max(0, prev - 1));
 		}
 	}
 
-	function handleDelete(id: string) {
-		deleteMutation.mutate(id);
+	async function handleDelete(id: string) {
+		await removeAcademicRecord(id);
+		await refetch();
 	}
 
 	function handleContinue() {
 		router.push(`/apply/${applicationId}/program`);
 	}
+
+	const showUploadedSection = records.length > 0 || pendingUploads > 0;
 
 	return (
 		<Paper withBorder radius='md' p='lg'>
@@ -120,7 +107,7 @@ export default function QualificationsUploadForm({ applicationId }: Props) {
 					/>
 				)}
 
-				{records.length > 0 && (
+				{showUploadedSection && (
 					<Stack gap='sm'>
 						<Text fw={500} size='sm'>
 							Uploaded Qualifications
@@ -131,8 +118,10 @@ export default function QualificationsUploadForm({ applicationId }: Props) {
 									key={record.id}
 									record={record}
 									onDelete={() => handleDelete(record.id)}
-									deleting={deleteMutation.isPending}
 								/>
+							))}
+							{Array.from({ length: pendingUploads }).map((_, i) => (
+								<DocumentCardSkeleton key={`skeleton-${i}`} />
 							))}
 						</SimpleGrid>
 					</Stack>
