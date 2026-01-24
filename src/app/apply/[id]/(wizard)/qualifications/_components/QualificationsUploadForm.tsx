@@ -8,7 +8,6 @@ import {
 	Button,
 	Card,
 	Divider,
-	Flex,
 	Group,
 	Modal,
 	Paper,
@@ -35,6 +34,7 @@ import {
 	DocumentUpload,
 	type DocumentUploadResult,
 } from '@/shared/ui/DocumentUpload';
+import ReviewButton from '../../../_components/ReviewButton';
 import {
 	removeAcademicRecord,
 	uploadCertificateDocument,
@@ -167,13 +167,16 @@ export default function QualificationsUploadForm({ applicantId }: Props) {
 					>
 						Back
 					</Button>
-					<Button
-						rightSection={<IconArrowRight size={16} />}
-						onClick={handleContinue}
-						disabled={!hasRecords}
-					>
-						Continue
-					</Button>
+					<Group>
+						<ReviewButton applicantId={applicantId} />
+						<Button
+							rightSection={<IconArrowRight size={16} />}
+							onClick={handleContinue}
+							disabled={!hasRecords}
+						>
+							Continue
+						</Button>
+					</Group>
 				</Group>
 			</Stack>
 		</Paper>

@@ -2,7 +2,6 @@
 
 import type { ApplicantWithRelations } from '@admissions/applicants';
 import {
-	Box,
 	Button,
 	Divider,
 	Group,
@@ -20,6 +19,7 @@ import { notifications } from '@mantine/notifications';
 import { IconArrowLeft, IconArrowRight } from '@tabler/icons-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'nextjs-toploader/app';
+import ReviewButton from '../../../_components/ReviewButton';
 import { updateApplicantInfo } from '../_server/actions';
 import GuardianManager from './GuardianManager';
 import PhoneManager from './PhoneManager';
@@ -176,7 +176,8 @@ export default function PersonalInfoForm({ applicant }: Props) {
 					Back
 				</Button>
 
-				<Box>
+				<Group>
+					<ReviewButton applicantId={applicant.id} />
 					<Button
 						rightSection={<IconArrowRight size={16} />}
 						onClick={() => form.onSubmit((values) => mutation.mutate(values))()}
@@ -185,7 +186,7 @@ export default function PersonalInfoForm({ applicant }: Props) {
 					>
 						Continue
 					</Button>
-				</Box>
+				</Group>
 			</Group>
 		</Stack>
 	);

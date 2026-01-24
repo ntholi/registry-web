@@ -23,6 +23,7 @@ import { useRouter } from 'nextjs-toploader/app';
 import { parseAsInteger, parseAsString, useQueryStates } from 'nuqs';
 import { useMemo, useState } from 'react';
 import CoursesFilters from '@/app/apply/courses/_components/CoursesFilters';
+import ReviewButton from '../../../_components/ReviewButton';
 import { useApplicant } from '../../../_lib/useApplicant';
 import { getActiveIntake, getEligiblePrograms } from '../_server/actions';
 import CourseCard from './CourseCard';
@@ -281,14 +282,17 @@ export default function CourseSelectionForm({ applicantId }: Props) {
 					>
 						Back
 					</Button>
-					<Button
-						rightSection={<IconArrowRight size={16} />}
-						onClick={handleContinue}
-						disabled={!canContinue}
-						loading={submitMutation.isPending}
-					>
-						Continue
-					</Button>
+					<Group>
+						<ReviewButton applicantId={applicantId} />
+						<Button
+							rightSection={<IconArrowRight size={16} />}
+							onClick={handleContinue}
+							disabled={!canContinue}
+							loading={submitMutation.isPending}
+						>
+							Continue
+						</Button>
+					</Group>
 				</Group>
 			</Stack>
 		</Paper>
