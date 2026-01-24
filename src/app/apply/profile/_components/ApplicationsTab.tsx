@@ -1,20 +1,42 @@
 'use client';
 
 import type { findApplicationsByApplicant } from '@admissions/applications';
-import { Badge, Card, Group, Stack, Text } from '@mantine/core';
+import { Badge, Card, Group, SimpleGrid, Stack, Text } from '@mantine/core';
 import { IconCalendar, IconSchool } from '@tabler/icons-react';
 import Link from 'next/link';
-import { getStatusColor, getStatusLabel } from '.././_lib/status';
+import { getStatusColor, getStatusLabel } from '../_lib/status';
 
 type Application = Awaited<
 	ReturnType<typeof findApplicationsByApplicant>
 >[number];
 
 interface Props {
-	application: Application;
+	applications: Application[];
 }
 
-export function ApplicationCard({ application }: Props) {
+export function ApplicationsTab({ applications }: Props) {
+	if (applications.length === 0) {
+		return (
+			<Stack align='center' py='xl'>
+				<IconSchool size={48} color='var(--mantine-color-dimmed)' />
+				<Text c='dimmed'>No applications yet</Text>
+				<Text component={Link} href='/apply/new' c='blue' td='underline'>
+					Start a new application
+				</Text>
+			</Stack>
+		);
+	}
+
+	return (
+		<SimpleGrid cols={{ base: 1, sm: 2 }} spacing='md'>
+			{applications.map((application) => (
+				<ApplicationCard key={application.id} application={application} />
+			))}
+		</SimpleGrid>
+	);
+}
+
+function ApplicationCard({ application }: { application: Application }) {
 	return (
 		<Card
 			component={Link}

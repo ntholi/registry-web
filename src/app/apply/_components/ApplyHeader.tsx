@@ -111,9 +111,9 @@ export default function ApplyHeader() {
 										<Menu.Item
 											leftSection={<IconFileText size={14} />}
 											component={Link}
-											href='/apply/my-applications'
+											href='/apply/profile'
 										>
-											My Applications
+											My Profile
 										</Menu.Item>
 										<Menu.Divider />
 									</>

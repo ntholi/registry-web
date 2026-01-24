@@ -227,7 +227,11 @@ export function MobilePayment({
 				<Text size='sm'>
 					A USSD prompt will be sent to{' '}
 					{phoneNumber ? `+266${phoneNumber}` : 'the number above'}. Enter your
-					M-Pesa PIN to authorize the payment of M {fee} to <Text component='span' fw={'bold'}>Pay Lesotho</Text>.
+					M-Pesa PIN to authorize the payment of M {fee} to{' '}
+					<Text component='span' fw={'bold'}>
+						Pay Lesotho
+					</Text>
+					.
 				</Text>
 			</Alert>
 

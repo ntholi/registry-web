@@ -83,19 +83,19 @@ export default async function ThankYouPage({ params }: Props) {
 					<Group mt='md'>
 						{isPaid ? (
 							<LinkButton
-								href='/apply/my-applications'
+								href='/apply/profile'
 								leftSection={<IconHome size={16} />}
 							>
-								My Applications
+								My Profile
 							</LinkButton>
 						) : (
 							<>
 								<LinkButton
-									href='/apply/my-applications'
+									href='/apply/profile'
 									variant='light'
 									leftSection={<IconHome size={16} />}
 								>
-									My Applications
+									My Profile
 								</LinkButton>
 								<LinkButton
 									href={`/apply/${id}/payment`}
