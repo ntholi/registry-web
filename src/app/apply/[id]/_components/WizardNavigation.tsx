@@ -40,7 +40,7 @@ export default function WizardNavigation({
 			{!hideBack &&
 				backPath &&
 				(isMobile ? (
-					<ActionIcon variant='subtle' onClick={handleBack} size='lg'>
+					<ActionIcon variant='light' onClick={handleBack} size='lg'>
 						<IconArrowLeft size={20} />
 					</ActionIcon>
 				) : (
@@ -53,6 +53,16 @@ export default function WizardNavigation({
 					</Button>
 				))}
 			<Group>
+				{completeness.isComplete && (
+					<Button
+						variant='light'
+						color='green'
+						leftSection={<IconCheck size={16} />}
+						onClick={handleFinish}
+					>
+						Finish
+					</Button>
+				)}
 				{onNext && (
 					<Button
 						rightSection={<IconArrowRight size={16} />}
@@ -61,16 +71,6 @@ export default function WizardNavigation({
 						loading={nextLoading}
 					>
 						Next
-					</Button>
-				)}
-				{completeness.isComplete && (
-					<Button
-						variant='filled'
-						color='green'
-						leftSection={<IconCheck size={16} />}
-						onClick={handleFinish}
-					>
-						Finish
 					</Button>
 				)}
 			</Group>

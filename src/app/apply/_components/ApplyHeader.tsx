@@ -5,13 +5,14 @@ import {
 	Box,
 	Button,
 	Container,
+	Image,
 	Menu,
 	Text,
 	UnstyledButton,
 	useMantineColorScheme,
 } from '@mantine/core';
 import { IconLogout, IconUser } from '@tabler/icons-react';
-import Image from 'next/image';
+import NextImage from 'next/image';
 import Link from 'next/link';
 import { signOut, useSession } from 'next-auth/react';
 
@@ -63,12 +64,15 @@ export default function ApplyHeader({ applicantId }: Props) {
 					}}
 				>
 					<Link
-						href={applicantId ? `/apply/${applicantId}/documents` : '/apply'}
+						href={'/apply'}
 						style={{ display: 'flex', alignItems: 'center' }}
 					>
 						<Image
 							src={isDark ? '/images/logo-dark.png' : '/images/logo-light.png'}
 							alt='Limkokwing University'
+							component={NextImage}
+							h={40}
+							w={'auto'}
 							width={160}
 							height={40}
 							style={{ objectFit: 'contain' }}

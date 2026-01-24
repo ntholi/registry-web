@@ -8,7 +8,7 @@ export const WIZARD_STEPS: WizardStep[] = [
 	{
 		label: 'Documents',
 		path: 'documents',
-		description: 'Upload identity documents',
+		description: 'Identity documents',
 	},
 	{
 		label: 'Qualifications',
@@ -18,7 +18,7 @@ export const WIZARD_STEPS: WizardStep[] = [
 	{
 		label: 'Program',
 		path: 'program',
-		description: 'Choose your courses',
+		description: 'Choose Courses',
 	},
 	{
 		label: 'Personal Info',
@@ -33,7 +33,7 @@ export const WIZARD_STEPS: WizardStep[] = [
 	{
 		label: 'Payment',
 		path: 'payment',
-		description: 'Pay application fee',
+		description: 'Online Payment',
 	},
 ];
 
