@@ -1,7 +1,6 @@
 'use client';
 
 import { useApplicant } from '@apply/_lib/useApplicant';
-import { useApplicationId } from '@apply/[id]/_lib/ApplicationContext';
 import { Paper, SimpleGrid, Stack, Text, Title } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
@@ -20,12 +19,15 @@ import {
 } from '../_server/actions';
 import { AcademicRecordCard } from './AcademicRecordCard';
 
-export default function QualificationsUploadForm() {
+type Props = {
+	applicationId: string;
+};
+
+export default function QualificationsUploadForm({ applicationId }: Props) {
 	const router = useRouter();
 	const isMobile = useMediaQuery('(max-width: 768px)');
 	const [uploading, setUploading] = useState(false);
 	const [uploadKey, setUploadKey] = useState(0);
-	const applicationId = useApplicationId();
 
 	const { applicant, refetch } = useApplicant();
 	const applicantId = applicant?.id ?? '';
@@ -137,6 +139,7 @@ export default function QualificationsUploadForm() {
 				)}
 
 				<WizardNavigation
+					applicationId={applicationId}
 					backPath='documents'
 					onNext={handleContinue}
 					nextDisabled={!hasRecords}

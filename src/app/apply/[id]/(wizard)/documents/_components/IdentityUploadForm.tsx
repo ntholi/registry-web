@@ -1,7 +1,6 @@
 'use client';
 
 import { useApplicant } from '@apply/_lib/useApplicant';
-import { useApplicationId } from '@apply/[id]/_lib/ApplicationContext';
 import { Paper, SimpleGrid, Stack, Text, Title } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
@@ -23,12 +22,15 @@ import {
 	type UploadedIdentityDoc,
 } from './IdentityDocumentCard';
 
-export default function IdentityUploadForm() {
+type Props = {
+	applicationId: string;
+};
+
+export default function IdentityUploadForm({ applicationId }: Props) {
 	const router = useRouter();
 	const isMobile = useMediaQuery('(max-width: 768px)');
 	const [uploading, setUploading] = useState(false);
 	const [uploadKey, setUploadKey] = useState(0);
-	const applicationId = useApplicationId();
 
 	const { applicant, refetch } = useApplicant();
 	const applicantId = applicant?.id ?? '';
@@ -150,6 +152,7 @@ export default function IdentityUploadForm() {
 				)}
 
 				<WizardNavigation
+					applicationId={applicationId}
 					onNext={handleContinue}
 					nextDisabled={!hasIdentity}
 					hideBack

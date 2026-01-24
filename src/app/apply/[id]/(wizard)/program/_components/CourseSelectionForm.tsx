@@ -3,7 +3,6 @@
 import type { ProgramLevel } from '@academic/_database';
 import { createOrUpdateApplication } from '@admissions/applications';
 import { useApplicant } from '@apply/_lib/useApplicant';
-import { useApplicationId } from '@apply/[id]/_lib/ApplicationContext';
 import {
 	Box,
 	Paper,
@@ -41,10 +40,13 @@ type EligibleProgram = {
 	};
 };
 
-export default function CourseSelectionForm() {
+type Props = {
+	applicationId: string;
+};
+
+export default function CourseSelectionForm({ applicationId }: Props) {
 	const router = useRouter();
 	const [choiceType, setChoiceType] = useState<'first' | 'second'>('first');
-	const applicationId = useApplicationId();
 
 	const [filters] = useQueryStates({
 		schoolId: parseAsInteger,
@@ -270,6 +272,7 @@ export default function CourseSelectionForm() {
 				)}
 
 				<WizardNavigation
+					applicationId={applicationId}
 					backPath='qualifications'
 					onNext={handleContinue}
 					nextDisabled={!canContinue}

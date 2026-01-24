@@ -1,7 +1,6 @@
 'use client';
 
 import { useApplicant } from '@apply/_lib/useApplicant';
-import { useApplicationId } from '@apply/[id]/_lib/ApplicationContext';
 import {
 	Divider,
 	Paper,
@@ -27,10 +26,13 @@ const genderOptions = [
 	{ value: 'Female', label: 'Female' },
 ];
 
-export default function PersonalInfoForm() {
+type Props = {
+	applicationId: string;
+};
+
+export default function PersonalInfoForm({ applicationId }: Props) {
 	const router = useRouter();
 	const { applicant, refetch } = useApplicant();
-	const applicationId = useApplicationId();
 
 	const form = useForm({
 		mode: 'uncontrolled',
@@ -158,6 +160,7 @@ export default function PersonalInfoForm() {
 			<Divider />
 
 			<WizardNavigation
+				applicationId={applicationId}
 				backPath='program'
 				onNext={() => form.onSubmit((values) => mutation.mutate(values))()}
 				nextDisabled={(applicant?.guardians.length ?? 0) === 0}

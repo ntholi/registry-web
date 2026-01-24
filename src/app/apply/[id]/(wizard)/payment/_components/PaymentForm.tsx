@@ -1,7 +1,6 @@
 'use client';
 
 import { useApplicant } from '@apply/_lib/useApplicant';
-import { useApplicationId } from '@apply/[id]/_lib/ApplicationContext';
 import {
 	Alert,
 	Button,
@@ -42,6 +41,7 @@ type Transaction = {
 };
 
 type Props = {
+	applicationId: string;
 	fee: string | null;
 	isPaid: boolean;
 	pendingTransaction?: Transaction | null;
@@ -51,13 +51,13 @@ const POLL_INTERVAL = 5000;
 const TIMEOUT_SECONDS = 90;
 
 export default function PaymentForm({
+	applicationId,
 	fee,
 	isPaid,
 	pendingTransaction,
 }: Props) {
 	const router = useRouter();
 	const { applicant } = useApplicant();
-	const applicationId = useApplicationId();
 	const applicantId = applicant?.id ?? '';
 
 	const defaultPhone =

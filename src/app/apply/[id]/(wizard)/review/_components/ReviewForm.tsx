@@ -1,9 +1,7 @@
 'use client';
 
 import { useApplicant } from '@apply/_lib/useApplicant';
-import { useApplicationId } from '@apply/[id]/_lib/ApplicationContext';
 import {
-	Badge,
 	Box,
 	Button,
 	Card,
@@ -32,30 +30,15 @@ import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'nextjs-toploader/app';
 import { submitApplication } from '../_server/actions';
 
-type Application = {
-	id: string;
-	firstChoiceProgram?: {
-		name: string;
-		code: string;
-		school?: { shortName: string | null } | null;
-	} | null;
-	secondChoiceProgram?: {
-		name: string;
-		code: string;
-		school?: { shortName: string | null } | null;
-	} | null;
-	intakePeriod?: { name: string } | null;
-	status: string;
-};
-
 type Props = {
-	application?: Application | null;
+	applicationId: string;
 };
 
-export default function ReviewForm({ application }: Props) {
+export default function ReviewForm({ applicationId }: Props) {
 	const router = useRouter();
-	const { applicant, refetch } = useApplicant();
-	const applicationId = useApplicationId();
+	const { applicant, currentApplication, refetch } = useApplicant();
+
+	const application = currentApplication;
 
 	const isAlreadySubmitted = application?.status === 'submitted';
 
@@ -195,11 +178,6 @@ export default function ReviewForm({ application }: Props) {
 										<Text size='sm' fw={500}>
 											{application.firstChoiceProgram?.name}
 										</Text>
-										{application.firstChoiceProgram?.school?.shortName && (
-											<Badge size='xs' variant='default'>
-												{application.firstChoiceProgram.school.shortName}
-											</Badge>
-										)}
 									</Group>
 								</Box>
 							</Card>
@@ -212,11 +190,6 @@ export default function ReviewForm({ application }: Props) {
 											<Text size='sm' fw={500}>
 												{application.secondChoiceProgram.name}
 											</Text>
-											{application.secondChoiceProgram.school?.shortName && (
-												<Badge size='xs' variant='default'>
-													{application.secondChoiceProgram.school.shortName}
-												</Badge>
-											)}
 										</Group>
 									</Box>
 								</Card>

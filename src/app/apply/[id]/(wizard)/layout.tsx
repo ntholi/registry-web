@@ -1,21 +1,17 @@
-'use client';
-
-import { useApplicant } from '@apply/_lib/useApplicant';
-import { redirect } from 'next/navigation';
 import type { PropsWithChildren } from 'react';
 import ApplyLayout from './_components/ApplyLayout';
 import WizardLayout from './_components/WizardLayout';
 
-export default function WizardGroupLayout({ children }: PropsWithChildren) {
-	const { applicant, isLoading, isSuccess } = useApplicant();
+type Props = PropsWithChildren<{
+	params: Promise<{ id: string }>;
+}>;
 
-	if (!isLoading && isSuccess && !applicant) {
-		redirect('/apply/new');
-	}
+export default async function WizardGroupLayout({ children, params }: Props) {
+	const { id } = await params;
 
 	return (
 		<ApplyLayout>
-			<WizardLayout>{children}</WizardLayout>
+			<WizardLayout applicationId={id}>{children}</WizardLayout>
 		</ApplyLayout>
 	);
 }

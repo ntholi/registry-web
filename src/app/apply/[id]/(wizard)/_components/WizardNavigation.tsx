@@ -1,13 +1,13 @@
 'use client';
 
 import { useApplicant } from '@apply/_lib/useApplicant';
-import { useApplicationId } from '@apply/[id]/_lib/ApplicationContext';
 import { ActionIcon, Button, Group } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
 import { IconArrowLeft, IconArrowRight, IconCheck } from '@tabler/icons-react';
 import { useRouter } from 'nextjs-toploader/app';
 
 type Props = {
+	applicationId: string;
 	backPath?: string;
 	onNext?: () => void;
 	nextDisabled?: boolean;
@@ -16,6 +16,7 @@ type Props = {
 };
 
 export default function WizardNavigation({
+	applicationId,
 	backPath,
 	onNext,
 	nextDisabled,
@@ -25,7 +26,6 @@ export default function WizardNavigation({
 	const router = useRouter();
 	const isMobile = useMediaQuery('(max-width: 48em)');
 	const { completeness } = useApplicant();
-	const applicationId = useApplicationId();
 
 	function handleBack() {
 		if (backPath) router.push(`/apply/${applicationId}/${backPath}`);

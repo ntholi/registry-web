@@ -1,6 +1,5 @@
 'use client';
 
-import { useApplicationId } from '@apply/[id]/_lib/ApplicationContext';
 import {
 	Box,
 	Group,
@@ -16,14 +15,14 @@ import { usePathname, useRouter } from 'next/navigation';
 import { getStepIndex, WIZARD_STEPS } from '../_lib/wizard-steps';
 
 type Props = {
+	applicationId: string;
 	children: React.ReactNode;
 };
 
-export default function WizardLayout({ children }: Props) {
+export default function WizardLayout({ applicationId, children }: Props) {
 	const pathname = usePathname();
 	const router = useRouter();
 	const isMobile = useMediaQuery('(max-width: 48em)');
-	const applicationId = useApplicationId();
 
 	const segments = pathname.split('/').filter(Boolean);
 	const currentPath = segments[segments.length - 1] ?? 'documents';
