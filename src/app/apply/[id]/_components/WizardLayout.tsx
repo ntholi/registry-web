@@ -13,9 +13,8 @@ import {
 } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
 import { IconEye } from '@tabler/icons-react';
-import { useQuery } from '@tanstack/react-query';
 import { usePathname, useRouter } from 'next/navigation';
-import { checkWizardCompleteness } from '../_lib/wizard-completeness';
+import { useApplicant } from '../_lib/useApplicant';
 import { getStepIndex, WIZARD_STEPS } from '../_lib/wizard-steps';
 
 type Props = {
@@ -32,10 +31,7 @@ export default function WizardLayout({ applicantId, children }: Props) {
 	const currentPath = segments[segments.length - 1] ?? 'documents';
 	const activeStep = getStepIndex(currentPath);
 
-	const { data: completeness } = useQuery({
-		queryKey: ['wizard-completeness', applicantId],
-		queryFn: () => checkWizardCompleteness(applicantId),
-	});
+	const { completeness } = useApplicant(applicantId);
 
 	function handleStepClick(stepIndex: number) {
 		const step = WIZARD_STEPS[stepIndex];

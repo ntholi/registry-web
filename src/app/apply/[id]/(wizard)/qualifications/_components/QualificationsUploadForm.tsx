@@ -4,9 +4,11 @@ import { findAcademicRecordsByApplicant } from '@admissions/applicants/[id]/acad
 import {
 	ActionIcon,
 	Badge,
+	Box,
 	Button,
 	Card,
 	Divider,
+	Flex,
 	Group,
 	Modal,
 	Paper,
@@ -307,9 +309,14 @@ function AcademicRecordCard({
 							</Group>
 						)}
 						{hasSubjects && (
-							<Text size='xs' c='blue' mt={4}>
-								{record.subjectGrades?.length} subject(s) - tap to view
-							</Text>
+							<Group gap='xs'>
+								<Box w={80} />
+								<Text size='xs' c='dimmed' fs={'italic'} mt={4}>
+									{record.subjectGrades?.length}{' '}
+									{record.subjectGrades?.length === 1 ? 'subject' : 'subjects'}{' '}
+									Found, tap to view
+								</Text>
+							</Group>
 						)}
 					</Stack>
 				</Stack>
@@ -344,19 +351,19 @@ function QualificationDetailsModal({
 					<ThemeIcon size='xl' variant='light' color='green'>
 						<IconCertificate size={24} />
 					</ThemeIcon>
-					<Stack gap={2}>
+					<Stack gap={2} justify='start'>
 						<Text fw={600}>
 							{record.certificateType?.name ?? 'Certificate'}
 						</Text>
-						{record.certificateType?.lqfLevel && (
+						{record.resultClassification && (
 							<Badge size='xs' variant='light'>
-								LQF Level {record.certificateType.lqfLevel}
+								{record.resultClassification}
 							</Badge>
 						)}
 					</Stack>
 				</Group>
 
-				<SimpleGrid cols={2} spacing='sm'>
+				<Group justify={'space-between'} wrap='nowrap'>
 					{record.institutionName && (
 						<Stack gap={2}>
 							<Text size='xs' c='dimmed'>
@@ -369,7 +376,7 @@ function QualificationDetailsModal({
 					)}
 					{record.examYear && (
 						<Stack gap={2}>
-							<Text size='xs' c='dimmed'>
+							<Text size='xs' c='dimmed' ta={'right'}>
 								Year
 							</Text>
 							<Text size='sm' fw={500}>
@@ -377,6 +384,8 @@ function QualificationDetailsModal({
 							</Text>
 						</Stack>
 					)}
+				</Group>
+				<Group justify={'space-between'} wrap='nowrap'>
 					{record.qualificationName && (
 						<Stack gap={2}>
 							<Text size='xs' c='dimmed'>
@@ -389,25 +398,15 @@ function QualificationDetailsModal({
 					)}
 					{record.certificateNumber && (
 						<Stack gap={2}>
-							<Text size='xs' c='dimmed'>
-								Certificate Number
+							<Text size='xs' c='dimmed' ta={'right'}>
+								Cert No.
 							</Text>
 							<Text size='sm' fw={500}>
 								{record.certificateNumber}
 							</Text>
 						</Stack>
 					)}
-					{record.resultClassification && (
-						<Stack gap={2}>
-							<Text size='xs' c='dimmed'>
-								Classification
-							</Text>
-							<Badge size='sm' variant='light'>
-								{record.resultClassification}
-							</Badge>
-						</Stack>
-					)}
-				</SimpleGrid>
+				</Group>
 
 				{hasSubjects && (
 					<>

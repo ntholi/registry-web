@@ -23,11 +23,8 @@ import { useRouter } from 'nextjs-toploader/app';
 import { parseAsInteger, parseAsString, useQueryStates } from 'nuqs';
 import { useMemo, useState } from 'react';
 import CoursesFilters from '@/app/apply/courses/_components/CoursesFilters';
-import {
-	getActiveIntake,
-	getEligiblePrograms,
-	getExistingApplication,
-} from '../_server/actions';
+import { useApplicant } from '../../../_lib/useApplicant';
+import { getActiveIntake, getEligiblePrograms } from '../_server/actions';
 import CourseCard from './CourseCard';
 
 type Props = {
@@ -58,6 +55,9 @@ export default function CourseSelectionForm({ applicantId }: Props) {
 		level: parseAsString,
 	});
 
+	const { currentApplication, isSuccess: appLoaded } =
+		useApplicant(applicantId);
+
 	const { data: eligiblePrograms = [], isLoading: loadingPrograms } = useQuery({
 		queryKey: ['eligible-programs', applicantId],
 		queryFn: () => getEligiblePrograms(applicantId),
@@ -68,21 +68,16 @@ export default function CourseSelectionForm({ applicantId }: Props) {
 		queryFn: getActiveIntake,
 	});
 
-	const { data: existingApp, isSuccess: appLoaded } = useQuery({
-		queryKey: ['existing-application', applicantId],
-		queryFn: () => getExistingApplication(applicantId),
-	});
-
 	const [firstChoice, setFirstChoice] = useState<string | null>(null);
 	const [secondChoice, setSecondChoice] = useState<string | null>(null);
 	const [initialized, setInitialized] = useState(false);
 
 	if (appLoaded && !initialized) {
-		if (existingApp?.firstChoiceProgramId) {
-			setFirstChoice(String(existingApp.firstChoiceProgramId));
+		if (currentApplication?.firstChoiceProgramId) {
+			setFirstChoice(String(currentApplication.firstChoiceProgramId));
 		}
-		if (existingApp?.secondChoiceProgramId) {
-			setSecondChoice(String(existingApp.secondChoiceProgramId));
+		if (currentApplication?.secondChoiceProgramId) {
+			setSecondChoice(String(currentApplication.secondChoiceProgramId));
 		}
 		setInitialized(true);
 	}
@@ -141,9 +136,7 @@ export default function CourseSelectionForm({ applicantId }: Props) {
 		},
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: ['applications'] });
-			queryClient.invalidateQueries({
-				queryKey: ['existing-application', applicantId],
-			});
+			queryClient.invalidateQueries({ queryKey: ['applicant', applicantId] });
 			notifications.show({
 				title: 'Courses selected',
 				message: 'Your course choices have been saved',

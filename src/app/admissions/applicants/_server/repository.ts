@@ -56,6 +56,12 @@ export default class ApplicantRepository extends BaseRepository<
 					},
 				},
 				documents: { with: { document: true } },
+				applications: {
+					with: {
+						firstChoiceProgram: true,
+						secondChoiceProgram: true,
+					},
+				},
 			},
 		});
 	}
@@ -79,6 +85,12 @@ export default class ApplicantRepository extends BaseRepository<
 					},
 				},
 				documents: { with: { document: true } },
+				applications: {
+					with: {
+						firstChoiceProgram: true,
+						secondChoiceProgram: true,
+					},
+				},
 			},
 		});
 	}
