@@ -1,7 +1,8 @@
 'use client';
 
 import { useApplicant } from '@apply/_lib/useApplicant';
-import { Box, Paper, SimpleGrid, Stack, Text, Title } from '@mantine/core';
+import { Paper, SimpleGrid, Stack, Text, Title } from '@mantine/core';
+import { useMediaQuery } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'nextjs-toploader/app';
@@ -20,6 +21,7 @@ import { AcademicRecordCard } from './AcademicRecordCard';
 
 export default function QualificationsUploadForm() {
 	const router = useRouter();
+	const isMobile = useMediaQuery('(max-width: 768px)');
 	const [uploading, setUploading] = useState(false);
 	const [uploadKey, setUploadKey] = useState(0);
 
@@ -94,7 +96,7 @@ export default function QualificationsUploadForm() {
 					</Text>
 				</Stack>
 
-				<Box hiddenFrom='sm'>
+				{isMobile ? (
 					<MobileDocumentUpload
 						key={`mobile-${uploadKey}`}
 						type='certificate'
@@ -103,8 +105,7 @@ export default function QualificationsUploadForm() {
 						title='Upload Academic Document'
 						description='Certificates, transcripts, results - PDF or image, max 10MB'
 					/>
-				</Box>
-				<Box visibleFrom='sm'>
+				) : (
 					<DocumentUpload
 						key={uploadKey}
 						type='certificate'
@@ -113,7 +114,7 @@ export default function QualificationsUploadForm() {
 						title='Upload Academic Document'
 						description='Certificates, transcripts, results - PDF or image, max 10MB'
 					/>
-				</Box>
+				)}
 
 				{records.length > 0 && (
 					<Stack gap='sm'>

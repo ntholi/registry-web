@@ -1,7 +1,8 @@
 'use client';
 
 import { useApplicant } from '@apply/_lib/useApplicant';
-import { Box, Paper, SimpleGrid, Stack, Text, Title } from '@mantine/core';
+import { Paper, SimpleGrid, Stack, Text, Title } from '@mantine/core';
+import { useMediaQuery } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'nextjs-toploader/app';
@@ -23,6 +24,7 @@ import {
 
 export default function IdentityUploadForm() {
 	const router = useRouter();
+	const isMobile = useMediaQuery('(max-width: 768px)');
 	const [uploading, setUploading] = useState(false);
 	const [uploadKey, setUploadKey] = useState(0);
 
@@ -107,7 +109,7 @@ export default function IdentityUploadForm() {
 					</Text>
 				</Stack>
 
-				<Box hiddenFrom='sm'>
+				{isMobile ? (
 					<MobileDocumentUpload
 						key={`mobile-${uploadKey}`}
 						type='identity'
@@ -116,8 +118,7 @@ export default function IdentityUploadForm() {
 						title='Upload Identity Document'
 						description='National ID, passport, or birth certificate'
 					/>
-				</Box>
-				<Box visibleFrom='sm'>
+				) : (
 					<DocumentUpload
 						key={uploadKey}
 						type='identity'
@@ -126,7 +127,7 @@ export default function IdentityUploadForm() {
 						title='Upload Identity Document'
 						description='National ID, passport, or birth certificate'
 					/>
-				</Box>
+				)}
 
 				{uploadedDocs.length > 0 && (
 					<Stack gap='sm'>
