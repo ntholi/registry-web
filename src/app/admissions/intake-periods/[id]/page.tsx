@@ -88,6 +88,9 @@ export default async function IntakePeriodDetails({ params }: Props) {
 						<FieldView label='Application Fee'>
 							<Text fw={500}>M{Number(item.applicationFee).toFixed(2)}</Text>
 						</FieldView>
+						<FieldView label='Max Documents'>
+							{item.maxDocuments} per application
+						</FieldView>
 					</Stack>
 				</TabsPanel>
 
