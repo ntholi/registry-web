@@ -2,6 +2,7 @@ import { programs } from '@academic/schools/_schema/programs';
 import { applicants } from '@admissions/applicants/_schema/applicants';
 import { intakePeriods } from '@admissions/intake-periods/_schema/intakePeriods';
 import { users } from '@auth/users/_schema/users';
+import { sql } from 'drizzle-orm';
 import {
 	index,
 	integer,
@@ -11,7 +12,6 @@ import {
 	timestamp,
 	unique,
 } from 'drizzle-orm/pg-core';
-import { nanoid } from 'nanoid';
 
 export const applicationStatusEnum = pgEnum('application_status', [
 	'draft',
@@ -31,9 +31,7 @@ export type PaymentStatus = (typeof paymentStatusEnum.enumValues)[number];
 export const applications = pgTable(
 	'applications',
 	{
-		id: text()
-			.primaryKey()
-			.$defaultFn(() => nanoid()),
+		id: text().primaryKey().default(sql`nextval('application_id_seq')::text`),
 		applicantId: text()
 			.references(() => applicants.id, { onDelete: 'cascade' })
 			.notNull(),
