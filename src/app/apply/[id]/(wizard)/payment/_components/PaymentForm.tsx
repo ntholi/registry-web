@@ -23,7 +23,7 @@ import {
 } from '@tabler/icons-react';
 import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'nextjs-toploader/app';
-import { useState } from 'react';
+import { useQueryState } from 'nuqs';
 import { validateMpesaNumber } from '@/core/integrations/pay-lesotho';
 import { submitReceiptPayment } from '../_server/actions';
 import { MobilePayment } from './MobilePayment';
@@ -57,7 +57,13 @@ export default function PaymentForm({
 }: Props) {
 	const router = useRouter();
 	const { applicant } = useApplicant();
-	const [view, setView] = useState<PaymentView>('select');
+	const [view, setView] = useQueryState('method', {
+		defaultValue: 'select' as PaymentView,
+		parse: (value): PaymentView => {
+			if (value === 'mobile' || value === 'receipt') return value;
+			return 'select';
+		},
+	});
 
 	const defaultPhone =
 		applicant?.phones?.find((p) => {

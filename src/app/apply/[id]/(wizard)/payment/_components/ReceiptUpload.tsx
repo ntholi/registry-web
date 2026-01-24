@@ -13,7 +13,6 @@ import { useMediaQuery } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import {
 	IconAlertCircle,
-	IconArrowLeft,
 	IconCheck,
 	IconCreditCard,
 } from '@tabler/icons-react';
@@ -254,7 +253,7 @@ export default function ReceiptUploadForm({
 					onClick={onSwitchToMpesa}
 					disabled={isSubmitting}
 				>
-					Switch to M-Pesa
+					Pay with M-Pesa
 				</Button>
 			</Stack>
 		</Stack>

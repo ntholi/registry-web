@@ -14,7 +14,6 @@ import {
 import { notifications } from '@mantine/notifications';
 import {
 	IconAlertCircle,
-	IconArrowLeft,
 	IconCreditCard,
 	IconReceipt,
 	IconRefresh,
@@ -264,7 +263,7 @@ export function MobilePayment({
 				leftSection={<IconReceipt size={16} />}
 				onClick={onSwitchToUpload}
 			>
-				Switch to Deposit Slip
+				Upload Deposit Slip
 			</Button>
 		</Stack>
 	);
