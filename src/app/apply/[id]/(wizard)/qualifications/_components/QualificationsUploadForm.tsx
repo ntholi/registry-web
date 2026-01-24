@@ -30,6 +30,7 @@ import {
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'nextjs-toploader/app';
 import { useState } from 'react';
+import { getGradeColor } from '@/app/admissions/applicants/[id]/_components/AcademicRecordsTab';
 import {
 	DocumentUpload,
 	type DocumentUploadResult,
@@ -455,25 +456,4 @@ function QualificationDetailsModal({
 			</Stack>
 		</Modal>
 	);
-}
-
-function getGradeColor(grade: string): string {
-	switch (grade) {
-		case 'A*':
-		case 'A':
-			return 'green';
-		case 'B':
-			return 'teal';
-		case 'C':
-			return 'blue';
-		case 'D':
-			return 'yellow';
-		case 'E':
-			return 'orange';
-		case 'F':
-		case 'U':
-			return 'red';
-		default:
-			return 'gray';
-	}
 }

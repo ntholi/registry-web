@@ -331,7 +331,7 @@ export default function AcademicRecordsTab({ records }: Props) {
 	);
 }
 
-function getGradeColor(grade: string | null) {
+export function getGradeColor(grade: string | null) {
 	if (!grade) return 'gray';
 	const g = grade.toUpperCase();
 	if (['A*', 'A', 'B', 'C'].includes(g)) return 'green';
