@@ -100,17 +100,14 @@ export default class ApplicantRepository extends BaseRepository<
 		if (existing) return existing;
 
 		return db.transaction(async (tx) => {
-			const [applicant] = await tx
-				.insert(applicants)
-				.values({ userId, fullName })
-				.returning();
+			await tx.insert(applicants).values({ userId, fullName });
 
 			await tx
 				.update(users)
 				.set({ role: 'applicant' })
 				.where(eq(users.id, userId));
 
-			return applicant;
+			return this.findByUserId(userId);
 		});
 	}
 

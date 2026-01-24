@@ -1,7 +1,7 @@
 'use client';
 
 import type { getApplicant } from '@admissions/applicants';
-import { findApplicantByUserId } from '@admissions/applicants';
+import { getOrCreateApplicantForCurrentUser } from '@admissions/applicants';
 import { useQuery } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
 import { useMemo } from 'react';
@@ -63,7 +63,7 @@ export function useApplicant() {
 
 	const query = useQuery({
 		queryKey: ['applicant', 'user', userId],
-		queryFn: () => findApplicantByUserId(userId!),
+		queryFn: () => getOrCreateApplicantForCurrentUser(),
 		staleTime: 30_000,
 		enabled: !!userId,
 	});
