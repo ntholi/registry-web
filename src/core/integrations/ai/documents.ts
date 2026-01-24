@@ -252,6 +252,8 @@ IMPORTANT:
 - This should be a bank deposit slip showing payment to "Limkokwing University of Creative Technology"
 - Extract the beneficiary/account holder name exactly as shown
 - Extract the bank reference number or transaction ID
+- Extract transaction number if visible
+- Extract terminal or teller number if visible
 - Dates: YYYY-MM-DD format
 - Amount: Extract numeric value only (no currency symbols)
 - Use null for missing/illegible data

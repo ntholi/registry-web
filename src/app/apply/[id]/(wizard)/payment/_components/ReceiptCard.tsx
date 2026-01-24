@@ -9,9 +9,15 @@ import {
 
 export type UploadedReceipt = {
 	id: string;
-	referenceNumber: string | null;
+	reference: string | null;
 	amount: number | null;
 	dateDeposited: string | null;
+	beneficiaryName: string | null;
+	currency: string | null;
+	depositorName: string | null;
+	bankName: string | null;
+	transactionNumber: string | null;
+	terminalNumber: string | null;
 	isValid: boolean;
 	errors: string[];
 	base64: string;
@@ -47,7 +53,7 @@ export function ReceiptCard({ receipt, onDelete, deleting }: Props) {
 			deleteMessage='Are you sure you want to delete this receipt? This action cannot be undone.'
 		>
 			<Stack gap={4}>
-				<DocumentDetailRow label='Reference' value={receipt.referenceNumber} />
+				<DocumentDetailRow label='Reference' value={receipt.reference} />
 				<DocumentDetailRow
 					label='Amount'
 					value={

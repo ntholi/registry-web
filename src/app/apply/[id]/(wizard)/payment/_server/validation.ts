@@ -28,7 +28,7 @@ export type ReceiptsValidationResult = {
 	totalAmount: number;
 	requiredAmount: number;
 	receipts: Array<{
-		referenceNumber: string | null;
+		reference: string | null;
 		amount: number;
 		dateDeposited: string | null;
 		isValid: boolean;
@@ -80,11 +80,11 @@ function validateDepositDate(
 	return { valid: true };
 }
 
-function validateReference(referenceNumber: string | null): {
+function validateReference(reference: string | null): {
 	valid: boolean;
 	error?: string;
 } {
-	if (!referenceNumber) {
+	if (!reference) {
 		return { valid: false, error: 'Reference number not found on receipt' };
 	}
 	return { valid: true };
@@ -109,7 +109,7 @@ export async function validateSingleReceipt(
 		errors.push(beneficiaryValidation.error);
 	}
 
-	const referenceValidation = validateReference(data.referenceNumber);
+	const referenceValidation = validateReference(data.reference);
 	if (!referenceValidation.valid && referenceValidation.error) {
 		errors.push(referenceValidation.error);
 	}
@@ -180,7 +180,7 @@ export async function validateReceipts(
 		totalAmount += amount;
 
 		validatedReceipts.push({
-			referenceNumber: validation.data?.referenceNumber ?? null,
+			reference: validation.data?.reference ?? null,
 			amount,
 			dateDeposited: validation.data?.dateDeposited ?? null,
 			isValid: validation.isValid,

@@ -122,7 +122,7 @@ const receiptSchema = z.object({
 		.describe(
 			'Name of the account holder/beneficiary the money was deposited to'
 		),
-	referenceNumber: z
+	reference: z
 		.string()
 		.nullable()
 		.describe('Bank reference number or transaction ID'),
@@ -146,6 +146,14 @@ const receiptSchema = z.object({
 		.string()
 		.nullable()
 		.describe('Name of the bank where the deposit was made'),
+	transactionNumber: z
+		.string()
+		.nullable()
+		.describe('Transaction number if different from reference'),
+	terminalNumber: z
+		.string()
+		.nullable()
+		.describe('Terminal or teller ID number'),
 });
 
 const documentAnalysisSchema = z.object({

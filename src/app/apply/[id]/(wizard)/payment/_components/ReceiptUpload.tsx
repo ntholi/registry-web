@@ -29,17 +29,25 @@ import { ReceiptUpload as ReceiptDropzone } from '@/shared/ui/ReceiptUpload';
 import { validateSingleReceipt } from '../_server/actions';
 import { ReceiptCard, type UploadedReceipt } from './ReceiptCard';
 
+type DepositSubmission = {
+	base64: string;
+	mediaType: string;
+	reference: string;
+	beneficiaryName: string | null;
+	dateDeposited: string | null;
+	amountDeposited: number | null;
+	currency: string | null;
+	depositorName: string | null;
+	bankName: string | null;
+	transactionNumber: string | null;
+	terminalNumber: string | null;
+};
+
 type Props = {
 	fee: string;
 	intakeStartDate: string;
 	intakeEndDate: string;
-	onSubmit: (
-		receipts: Array<{
-			base64: string;
-			mediaType: string;
-			referenceNumber: string;
-		}>
-	) => void;
+	onSubmit: (receipts: DepositSubmission[]) => void;
 	onBack: () => void;
 	isSubmitting?: boolean;
 };
@@ -69,7 +77,7 @@ export default function ReceiptUploadForm({
 	const isAmountSufficient = totalAmount >= requiredAmount;
 	const allValid = receipts.every((r) => r.isValid);
 
-	const validReceipts = receipts.filter((r) => r.isValid && r.referenceNumber);
+	const validReceipts = receipts.filter((r) => r.isValid && r.reference);
 	const canSubmit = validReceipts.length > 0 && isAmountSufficient;
 
 	async function handleUploadComplete(result: ReceiptUploadResult) {
@@ -86,9 +94,15 @@ export default function ReceiptUploadForm({
 
 			const newReceipt: UploadedReceipt = {
 				id: generateId(),
-				referenceNumber: validation.data?.referenceNumber ?? null,
+				reference: validation.data?.reference ?? null,
 				amount: validation.data?.amountDeposited ?? null,
 				dateDeposited: validation.data?.dateDeposited ?? null,
+				beneficiaryName: validation.data?.beneficiaryName ?? null,
+				currency: validation.data?.currency ?? null,
+				depositorName: validation.data?.depositorName ?? null,
+				bankName: validation.data?.bankName ?? null,
+				transactionNumber: validation.data?.transactionNumber ?? null,
+				terminalNumber: validation.data?.terminalNumber ?? null,
 				isValid: validation.isValid,
 				errors: validation.errors,
 				base64: result.base64,
@@ -133,7 +147,15 @@ export default function ReceiptUploadForm({
 			validReceipts.map((r) => ({
 				base64: r.base64,
 				mediaType: r.mediaType,
-				referenceNumber: r.referenceNumber!,
+				reference: r.reference!,
+				beneficiaryName: r.beneficiaryName,
+				dateDeposited: r.dateDeposited,
+				amountDeposited: r.amount,
+				currency: r.currency,
+				depositorName: r.depositorName,
+				bankName: r.bankName,
+				transactionNumber: r.transactionNumber,
+				terminalNumber: r.terminalNumber,
 			}))
 		);
 	}

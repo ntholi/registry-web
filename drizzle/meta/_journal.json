@@ -771,6 +771,13 @@
 			"when": 1769252660142,
 			"tag": "0109_kind_speedball",
 			"breakpoints": true
+		},
+		{
+			"idx": 110,
+			"version": "7",
+			"when": 1769258805953,
+			"tag": "0110_flashy_lady_vermin",
+			"breakpoints": true
 		}
 	]
 }

@@ -9,18 +9,34 @@ import {
 	verifyPayment,
 } from '@admissions/payments';
 import { eq } from 'drizzle-orm';
-import { applications, db, intakePeriods } from '@/core/database';
+import {
+	applications,
+	bankDeposits,
+	db,
+	documents,
+	intakePeriods,
+} from '@/core/database';
 import { validateReceipts, validateSingleReceipt } from './validation';
 
 export { validateSingleReceipt, validateReceipts };
 
+type DepositData = {
+	base64: string;
+	mediaType: string;
+	reference: string;
+	beneficiaryName?: string | null;
+	dateDeposited?: string | null;
+	amountDeposited?: number | null;
+	currency?: string | null;
+	depositorName?: string | null;
+	bankName?: string | null;
+	transactionNumber?: string | null;
+	terminalNumber?: string | null;
+};
+
 export async function submitReceiptPayment(
 	applicationId: string,
-	receipts: Array<{
-		base64: string;
-		mediaType: string;
-		referenceNumber: string;
-	}>
+	receipts: DepositData[]
 ): Promise<{ success: boolean; error?: string }> {
 	const validation = await validateReceipts(
 		applicationId,
@@ -38,10 +54,37 @@ export async function submitReceiptPayment(
 		};
 	}
 
-	await db
-		.update(applications)
-		.set({ paymentStatus: 'paid', updatedAt: new Date() })
-		.where(eq(applications.id, applicationId));
+	await db.transaction(async (tx) => {
+		for (const receipt of receipts) {
+			const [doc] = await tx
+				.insert(documents)
+				.values({
+					fileName: `deposit-${receipt.reference}.${receipt.mediaType.split('/')[1] || 'pdf'}`,
+					fileUrl: `data:${receipt.mediaType};base64,${receipt.base64}`,
+					type: 'proof_of_payment',
+				})
+				.returning({ id: documents.id });
+
+			await tx.insert(bankDeposits).values({
+				applicationId,
+				documentId: doc.id,
+				reference: receipt.reference,
+				beneficiaryName: receipt.beneficiaryName,
+				dateDeposited: receipt.dateDeposited,
+				amountDeposited: receipt.amountDeposited?.toString(),
+				currency: receipt.currency,
+				depositorName: receipt.depositorName,
+				bankName: receipt.bankName,
+				transactionNumber: receipt.transactionNumber,
+				terminalNumber: receipt.terminalNumber,
+			});
+		}
+
+		await tx
+			.update(applications)
+			.set({ paymentStatus: 'paid', updatedAt: new Date() })
+			.where(eq(applications.id, applicationId));
+	});
 
 	return { success: true };
 }
