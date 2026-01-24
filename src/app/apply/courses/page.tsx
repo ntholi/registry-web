@@ -35,12 +35,17 @@ interface Props {
 const loadSearchParams = createLoader(coursesSearchParams);
 
 export default async function ApplyCoursesPage({ searchParams }: Props) {
-	const { page, schoolId, level } = await loadSearchParams(searchParams);
+	const params = await searchParams;
+	const {
+		page: rawPage,
+		schoolId,
+		level,
+	} = await loadSearchParams(params);
+	const page = Math.max(1, rawPage);
 
-	const filter: EntryRequirementFilter = {
-		...(schoolId ? { schoolId } : {}),
-		...(level ? { level: level as ProgramLevel } : {}),
-	};
+	const filter: EntryRequirementFilter = {};
+	if (schoolId) filter.schoolId = schoolId;
+	if (level) filter.level = level as ProgramLevel;
 
 	const { programs, schools, subjects } = await getPublicCoursesData(
 		page,

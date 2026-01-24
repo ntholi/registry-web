@@ -12,7 +12,9 @@ interface Props {
 }
 
 export default function CoursesFilters({ schools, levels }: Props) {
-	const [filters, setFilters] = useQueryStates(coursesSearchParams);
+	const [filters, setFilters] = useQueryStates(coursesSearchParams, {
+		shallow: false,
+	});
 
 	const levelsSorted = [...levels].sort((a, b) => b.localeCompare(a));
 

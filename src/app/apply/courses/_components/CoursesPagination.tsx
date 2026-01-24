@@ -12,7 +12,10 @@ export default function CoursesPagination({
 	page,
 	total,
 }: CoursesPaginationProps) {
-	const [_, setPage] = useQueryState('page', parseAsInteger.withDefault(1));
+	const [_, setPage] = useQueryState(
+		'page',
+		parseAsInteger.withDefault(1).withOptions({ shallow: false })
+	);
 
 	if (total <= 1) {
 		return null;
