@@ -9,6 +9,7 @@ import {
 	Group,
 	Paper,
 	Progress,
+	SegmentedControl,
 	Stack,
 	Text,
 	TextInput,
@@ -21,6 +22,8 @@ import {
 	IconArrowLeft,
 	IconCheck,
 	IconCreditCard,
+	IconDeviceMobile,
+	IconReceipt,
 	IconRefresh,
 } from '@tabler/icons-react';
 import { useMutation } from '@tanstack/react-query';
@@ -30,7 +33,12 @@ import {
 	normalizePhoneNumber,
 	validateMpesaNumber,
 } from '@/core/integrations/pay-lesotho';
-import { checkPaymentStatus, initiateMpesaPayment } from '../_server/actions';
+import {
+	checkPaymentStatus,
+	initiateMpesaPayment,
+	submitReceiptPayment,
+} from '../_server/actions';
+import ReceiptUpload from './ReceiptUpload';
 
 type Transaction = {
 	id: string;
@@ -45,6 +53,8 @@ type Props = {
 	fee: string | null;
 	isPaid: boolean;
 	pendingTransaction?: Transaction | null;
+	intakeStartDate: string | null;
+	intakeEndDate: string | null;
 };
 
 const POLL_INTERVAL = 5000;
@@ -55,6 +65,8 @@ export default function PaymentForm({
 	fee,
 	isPaid,
 	pendingTransaction,
+	intakeStartDate,
+	intakeEndDate,
 }: Props) {
 	const router = useRouter();
 	const { applicant } = useApplicant();
@@ -68,6 +80,9 @@ export default function PaymentForm({
 			}
 		})?.phoneNumber || '';
 
+	const [paymentMethod, setPaymentMethod] = useState<'mobile' | 'receipt'>(
+		'mobile'
+	);
 	const [phoneNumber, setPhoneNumber] = useState(defaultPhone);
 	const [isPolling, setIsPolling] = useState(false);
 	const [currentTransactionId, setCurrentTransactionId] = useState<
@@ -75,6 +90,15 @@ export default function PaymentForm({
 	>(pendingTransaction?.id || null);
 	const [timeRemaining, setTimeRemaining] = useState(TIMEOUT_SECONDS);
 	const [paymentError, setPaymentError] = useState<string | null>(null);
+
+	const [validReceipts, setValidReceipts] = useState<
+		Array<{ base64: string; mediaType: string; receiptNumber: string }>
+	>([]);
+	const [totalReceiptAmount, setTotalReceiptAmount] = useState(0);
+
+	const requiredAmount = parseFloat(fee ?? '0');
+	const canSubmitReceipts =
+		validReceipts.length > 0 && totalReceiptAmount >= requiredAmount;
 
 	const initiateMutation = useMutation({
 		mutationFn: async () => {
@@ -136,6 +160,35 @@ export default function PaymentForm({
 		},
 	});
 
+	const submitReceiptMutation = useMutation({
+		mutationFn: async () => submitReceiptPayment(applicationId, validReceipts),
+		onSuccess: (result) => {
+			if (result.success) {
+				notifications.show({
+					title: 'Payment Verified',
+					message: 'Your receipts have been verified successfully',
+					color: 'green',
+				});
+				router.push(`/apply/${applicationId}/thank-you`);
+			} else {
+				setPaymentError(result.error || 'Receipt verification failed');
+				notifications.show({
+					title: 'Verification Failed',
+					message: result.error || 'Failed to verify receipts',
+					color: 'red',
+				});
+			}
+		},
+		onError: (error: Error) => {
+			setPaymentError(error.message);
+			notifications.show({
+				title: 'Error',
+				message: error.message,
+				color: 'red',
+			});
+		},
+	});
+
 	useEffect(() => {
 		if (!isPolling || !currentTransactionId) return;
 
@@ -176,7 +229,7 @@ export default function PaymentForm({
 		setTimeRemaining(TIMEOUT_SECONDS);
 	}
 
-	function handleSubmit() {
+	function handleMobileSubmit() {
 		try {
 			normalizePhoneNumber(phoneNumber);
 			if (!validateMpesaNumber(phoneNumber)) {
@@ -187,7 +240,7 @@ export default function PaymentForm({
 				});
 				return;
 			}
-		} catch (_error) {
+		} catch {
 			notifications.show({
 				title: 'Invalid Number',
 				message: 'Please enter a valid 8-digit phone number',
@@ -197,6 +250,11 @@ export default function PaymentForm({
 		}
 
 		initiateMutation.mutate();
+	}
+
+	function handleReceiptSubmit() {
+		if (!canSubmitReceipts) return;
+		submitReceiptMutation.mutate();
 	}
 
 	if (isPaid) {
@@ -242,6 +300,33 @@ export default function PaymentForm({
 						</Group>
 					</Card>
 
+					<SegmentedControl
+						value={paymentMethod}
+						onChange={(v) => setPaymentMethod(v as 'mobile' | 'receipt')}
+						data={[
+							{
+								value: 'mobile',
+								label: (
+									<Group gap='xs'>
+										<IconDeviceMobile size={16} />
+										<span>Mobile Payment</span>
+									</Group>
+								),
+							},
+							{
+								value: 'receipt',
+								label: (
+									<Group gap='xs'>
+										<IconReceipt size={16} />
+										<span>Upload Receipt</span>
+									</Group>
+								),
+							},
+						]}
+						fullWidth
+						disabled={isPolling}
+					/>
+
 					{paymentError && (
 						<Alert
 							color='red'
@@ -252,79 +337,128 @@ export default function PaymentForm({
 						</Alert>
 					)}
 
-					{isPolling ? (
-						<Stack gap='md'>
-							<Alert color='blue' icon={<IconCreditCard size={16} />}>
+					{paymentMethod === 'mobile' &&
+						(isPolling ? (
+							<Stack gap='md'>
+								<Alert color='blue' icon={<IconCreditCard size={16} />}>
+									<Stack gap='xs'>
+										<Text size='sm' fw={500}>
+											Waiting for payment confirmation...
+										</Text>
+										<Text size='xs' c='dimmed'>
+											Enter your M-Pesa PIN on your phone to authorize the
+											payment
+										</Text>
+									</Stack>
+								</Alert>
+
 								<Stack gap='xs'>
-									<Text size='sm' fw={500}>
-										Waiting for payment confirmation...
-									</Text>
-									<Text size='xs' c='dimmed'>
-										Enter your M-Pesa PIN on your phone to authorize the payment
-									</Text>
+									<Group justify='space-between'>
+										<Text size='sm'>Time remaining</Text>
+										<Text size='sm' fw={500}>
+											{Math.floor(timeRemaining / 60)}:
+											{(timeRemaining % 60).toString().padStart(2, '0')}
+										</Text>
+									</Group>
+									<Progress
+										value={(timeRemaining / TIMEOUT_SECONDS) * 100}
+										animated
+									/>
 								</Stack>
-							</Alert>
-
-							<Stack gap='xs'>
-								<Group justify='space-between'>
-									<Text size='sm'>Time remaining</Text>
-									<Text size='sm' fw={500}>
-										{Math.floor(timeRemaining / 60)}:
-										{(timeRemaining % 60).toString().padStart(2, '0')}
-									</Text>
-								</Group>
-								<Progress
-									value={(timeRemaining / TIMEOUT_SECONDS) * 100}
-									animated
-								/>
 							</Stack>
-						</Stack>
-					) : (
-						<>
-							<TextInput
-								label='M-Pesa Phone Number'
-								placeholder='59146563'
-								value={phoneNumber}
-								onChange={(e) => setPhoneNumber(e.currentTarget.value)}
-								description='Enter your M-Pesa number (must start with 5)'
-								leftSection={<Text size='sm'>+266</Text>}
-								disabled={initiateMutation.isPending}
-							/>
+						) : (
+							<>
+								<TextInput
+									label='M-Pesa Phone Number'
+									placeholder='59146563'
+									value={phoneNumber}
+									onChange={(e) => setPhoneNumber(e.currentTarget.value)}
+									description='Enter your M-Pesa number (must start with 5)'
+									leftSection={<Text size='sm'>+266</Text>}
+									disabled={initiateMutation.isPending}
+								/>
 
-							<Alert color='blue' variant='light'>
-								<Text size='sm'>
-									A USSD prompt will be sent to your phone. Enter your M-Pesa
-									PIN to authorize the payment.
-								</Text>
-							</Alert>
+								<Alert color='blue' variant='light'>
+									<Text size='sm'>
+										A USSD prompt will be sent to your phone. Enter your M-Pesa
+										PIN to authorize the payment.
+									</Text>
+								</Alert>
 
-							{paymentError && (
+								{paymentError && (
+									<Button
+										variant='outline'
+										leftSection={<IconRefresh size={16} />}
+										onClick={handleRetry}
+									>
+										Retry Payment
+									</Button>
+								)}
+
 								<Button
-									variant='outline'
-									leftSection={<IconRefresh size={16} />}
-									onClick={handleRetry}
+									color='red'
+									leftSection={<IconCreditCard size={20} />}
+									onClick={handleMobileSubmit}
+									loading={initiateMutation.isPending}
+									disabled={!phoneNumber || !fee}
 								>
-									Retry Payment
+									Pay M {fee || '0.00'} with M-Pesa
 								</Button>
-							)}
 
-							<Button
-								color='red'
-								leftSection={<IconCreditCard size={20} />}
-								onClick={handleSubmit}
-								loading={initiateMutation.isPending}
-								disabled={!phoneNumber || !fee}
-							>
-								Pay M {fee || '0.00'} with M-Pesa
-							</Button>
+								<Divider label='or' labelPosition='center' />
 
-							<Divider label='or' labelPosition='center' />
+								<Text variant='light' c='gray' size='sm' ta='center'>
+									Ecocash - Coming Soon
+								</Text>
+							</>
+						))}
 
-							<Text variant='light' c='gray' size='sm' ta='center'>
-								Ecocash - Coming Soon
-							</Text>
-						</>
-					)}
+					{paymentMethod === 'receipt' &&
+						(intakeStartDate && intakeEndDate && fee ? (
+							<>
+								<Alert color='blue' variant='light'>
+									<Stack gap='xs'>
+										<Text size='sm' fw={500}>
+											Upload Limkokwing University Receipt
+										</Text>
+										<Text size='xs'>
+											• Receipt number must be in SR-XXXXX format (e.g.,
+											SR-53657)
+										</Text>
+										<Text size='xs'>
+											• Receipt must be issued within the intake period (
+											{intakeStartDate} to {intakeEndDate})
+										</Text>
+										<Text size='xs'>
+											• You can upload multiple receipts if needed
+										</Text>
+									</Stack>
+								</Alert>
+
+								<ReceiptUpload
+									fee={fee}
+									intakeStartDate={intakeStartDate}
+									intakeEndDate={intakeEndDate}
+									onValidationComplete={setValidReceipts}
+									onTotalAmountChange={setTotalReceiptAmount}
+									disabled={submitReceiptMutation.isPending}
+								/>
+
+								<Button
+									color='green'
+									leftSection={<IconCheck size={20} />}
+									onClick={handleReceiptSubmit}
+									loading={submitReceiptMutation.isPending}
+									disabled={!canSubmitReceipts}
+								>
+									Submit Receipt Payment
+								</Button>
+							</>
+						) : (
+							<Alert color='yellow' icon={<IconAlertCircle size={16} />}>
+								Receipt upload is not available. Please use mobile payment.
+							</Alert>
+						))}
 				</Stack>
 			</Paper>
 
@@ -335,11 +469,15 @@ export default function PaymentForm({
 					variant='subtle'
 					leftSection={<IconArrowLeft size={16} />}
 					onClick={handleBack}
-					disabled={isPolling}
+					disabled={isPolling || submitReceiptMutation.isPending}
 				>
 					Back
 				</Button>
-				<Button variant='light' onClick={handleSkip} disabled={isPolling}>
+				<Button
+					variant='light'
+					onClick={handleSkip}
+					disabled={isPolling || submitReceiptMutation.isPending}
+				>
 					Skip for now
 				</Button>
 			</Group>

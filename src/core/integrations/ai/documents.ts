@@ -8,6 +8,7 @@ import {
 	documentAnalysisSchema,
 	identitySchema,
 	type otherSchema,
+	receiptSchema,
 } from './schemas';
 
 const model = google('gemini-2.5-flash');
@@ -15,6 +16,7 @@ const model = google('gemini-2.5-flash');
 export type IdentityDocumentResult = z.infer<typeof identitySchema>;
 export type CertificateDocumentResult = z.infer<typeof academicSchema>;
 export type OtherDocumentResult = z.infer<typeof otherSchema>;
+export type ReceiptResult = z.infer<typeof receiptSchema>;
 
 export type DocumentAnalysisResult =
 	| ({ category: 'identity' } & IdentityDocumentResult)
@@ -238,6 +240,60 @@ export async function analyzeAcademicDocument(
 			});
 			throw new Error(
 				`Failed to extract structured data from academic document: ${error.cause}`
+			);
+		}
+		throw error;
+	}
+}
+
+const RECEIPT_PROMPT = `Analyze this receipt/payment proof document and extract structured information.
+
+IMPORTANT:
+- This should be an official Limkokwing University receipt
+- Receipt numbers from Limkokwing University follow the format SR-XXXXX (SR- followed by 5 digits)
+- Extract the exact receipt number as printed
+- Dates: YYYY-MM-DD format
+- Amount: Extract numeric value only (no currency symbols)
+- Use null for missing/illegible data
+- Set isLimkokwingReceipt to false if this does not appear to be an official Limkokwing University receipt`;
+
+export async function analyzeReceipt(
+	fileBase64: string,
+	mediaType: string
+): Promise<ReceiptResult> {
+	try {
+		const { output } = await generateText({
+			model,
+			system: SYSTEM_PROMPT,
+			output: Output.object({
+				schema: receiptSchema,
+				name: 'Receipt',
+				description: 'Extracted data from payment receipt',
+			}),
+			messages: [
+				{
+					role: 'user',
+					content: [
+						{ type: 'text', text: RECEIPT_PROMPT },
+						{ type: 'file', data: fileBase64, mediaType },
+					],
+				},
+			],
+		});
+
+		if (!output) {
+			throw new Error('Failed to analyze receipt: no output generated');
+		}
+
+		return output;
+	} catch (error) {
+		if (NoObjectGeneratedError.isInstance(error)) {
+			console.error('Receipt analysis failed:', {
+				cause: error.cause,
+				text: error.text,
+			});
+			throw new Error(
+				`Failed to extract structured data from receipt: ${error.cause}`
 			);
 		}
 		throw error;

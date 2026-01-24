@@ -112,6 +112,33 @@ const otherSchema = z.object({
 		.describe('Summary of document purpose and content'),
 });
 
+const receiptSchema = z.object({
+	isLimkokwingReceipt: z
+		.boolean()
+		.describe('Whether this is an official Limkokwing University receipt'),
+	receiptNumber: z
+		.string()
+		.nullable()
+		.describe('Receipt number in SR-XXXXX format (e.g., SR-53657)'),
+	dateIssued: z
+		.string()
+		.nullable()
+		.describe('Date the receipt was issued in YYYY-MM-DD format'),
+	amountPaid: z
+		.number()
+		.nullable()
+		.describe('Total amount paid as shown on the receipt'),
+	currency: z
+		.string()
+		.nullable()
+		.describe('Currency code (e.g., LSL, ZAR, USD)'),
+	payerName: z.string().nullable().describe('Name of the person who paid'),
+	description: z
+		.string()
+		.nullable()
+		.describe('Payment description or purpose as stated on receipt'),
+});
+
 const documentAnalysisSchema = z.object({
 	category: z
 		.enum(['identity', 'academic', 'other'])
@@ -129,4 +156,10 @@ const documentAnalysisSchema = z.object({
 		.describe('Other document data - only when category is other'),
 });
 
-export { documentAnalysisSchema, identitySchema, academicSchema, otherSchema };
+export {
+	documentAnalysisSchema,
+	identitySchema,
+	academicSchema,
+	otherSchema,
+	receiptSchema,
+};
