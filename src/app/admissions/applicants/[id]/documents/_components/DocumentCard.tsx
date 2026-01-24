@@ -14,15 +14,11 @@ import {
 	Tooltip,
 } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
-import {
-	IconDownload,
-	IconFile,
-	IconSparkles,
-	IconTrash,
-} from '@tabler/icons-react';
+import { IconDownload, IconFile, IconSparkles } from '@tabler/icons-react';
 import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'nextjs-toploader/app';
 import { getDocumentVerificationStatusColor } from '@/shared/lib/utils/colors';
+import { DeleteButton } from '@/shared/ui/adease/DeleteButton';
 import type { ApplicantDocument } from '../_lib/types';
 import {
 	deleteApplicantDocument,
@@ -54,26 +50,18 @@ export function DocumentCard({ doc, onPreview, onReanalyze }: Props) {
 	const isPdf = isPdfFile(doc.document.fileName);
 	const isImage = isImageFile(doc.document.fileName);
 
-	const deleteMutation = useMutation({
-		mutationFn: async () => {
-			await deleteApplicantDocument(doc.id, fileUrl);
-		},
-		onSuccess: () => {
-			notifications.show({
-				title: 'Success',
-				message: 'Document deleted',
-				color: 'green',
-			});
-			router.refresh();
-		},
-		onError: () => {
-			notifications.show({
-				title: 'Error',
-				message: 'Failed to delete document',
-				color: 'red',
-			});
-		},
-	});
+	async function handleDelete() {
+		await deleteApplicantDocument(doc.id, fileUrl);
+	}
+
+	function handleDeleteSuccess() {
+		notifications.show({
+			title: 'Success',
+			message: 'Document deleted',
+			color: 'green',
+		});
+		router.refresh();
+	}
 
 	const reanalyzeMutation = useMutation({
 		mutationFn: async () => {
@@ -207,14 +195,13 @@ export function DocumentCard({ doc, onPreview, onReanalyze }: Props) {
 						</ReviewModal>
 					</Group>
 					<Tooltip label='Delete'>
-						<ActionIcon
+						<DeleteButton
+							handleDelete={handleDelete}
+							onSuccess={handleDeleteSuccess}
+							itemType='document'
+							itemName={doc.document.fileName ?? undefined}
 							variant='light'
-							color='red'
-							onClick={() => deleteMutation.mutate()}
-							loading={deleteMutation.isPending}
-						>
-							<IconTrash size={16} />
-						</ActionIcon>
+						/>
 					</Tooltip>
 				</Group>
 			</Stack>
