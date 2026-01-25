@@ -1,10 +1,14 @@
 'use client';
 
 import type { getApplicant } from '@admissions/applicants';
-import { getOrCreateApplicantForCurrentUser } from '@admissions/applicants';
+import {
+	canCurrentUserApply,
+	getOrCreateApplicantForCurrentUser,
+} from '@admissions/applicants';
 import { useQuery } from '@tanstack/react-query';
+import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 
 export type ApplicantWithRelations = NonNullable<
 	Awaited<ReturnType<typeof getApplicant>>
@@ -94,13 +98,27 @@ function computeDocumentLimits(
 
 export function useApplicant() {
 	const { data: session } = useSession();
+	const router = useRouter();
 	const userId = session?.user?.id;
+
+	const eligibilityQuery = useQuery({
+		queryKey: ['applicant-eligibility', userId],
+		queryFn: () => canCurrentUserApply(),
+		staleTime: 60_000,
+		enabled: !!userId,
+	});
+
+	useEffect(() => {
+		if (eligibilityQuery.data && !eligibilityQuery.data.canApply) {
+			router.replace('/apply/restricted');
+		}
+	}, [eligibilityQuery.data, router]);
 
 	const query = useQuery({
 		queryKey: ['applicant', 'user', userId],
 		queryFn: () => getOrCreateApplicantForCurrentUser(),
 		staleTime: 30_000,
-		enabled: !!userId,
+		enabled: !!userId && eligibilityQuery.data?.canApply === true,
 	});
 
 	const completeness = useMemo(
@@ -126,7 +144,7 @@ export function useApplicant() {
 
 	return {
 		applicant: query.data,
-		isLoading: query.isLoading,
+		isLoading: query.isLoading || eligibilityQuery.isLoading,
 		isSuccess: query.isSuccess,
 		error: query.error,
 		refetch: query.refetch,

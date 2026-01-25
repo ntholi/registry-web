@@ -1,10 +1,42 @@
 'use server';
 
+import type { UserRole } from '@auth/users/_schema/users';
+import { auth } from '@/core/auth';
 import type { applicants, guardians } from '@/core/database';
 import { applicantsService } from './service';
 
 type Applicant = typeof applicants.$inferInsert;
 type Guardian = typeof guardians.$inferInsert;
+
+const APPLICANT_ELIGIBLE_ROLES: UserRole[] = ['user', 'applicant'];
+
+export async function canCurrentUserApply(): Promise<{
+	canApply: boolean;
+	role: UserRole | null;
+	hasExistingApplicant: boolean;
+}> {
+	const session = await auth();
+	if (!session?.user?.id) {
+		return { canApply: false, role: null, hasExistingApplicant: false };
+	}
+
+	const role = session.user.role as UserRole;
+	const canApply = APPLICANT_ELIGIBLE_ROLES.includes(role);
+
+	if (canApply) {
+		return { canApply: true, role, hasExistingApplicant: false };
+	}
+
+	const existingApplicant = await applicantsService.findByUserId(
+		session.user.id
+	);
+
+	return {
+		canApply: false,
+		role,
+		hasExistingApplicant: !!existingApplicant,
+	};
+}
 
 export async function getApplicant(id: string) {
 	return applicantsService.get(id);
