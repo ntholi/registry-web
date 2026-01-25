@@ -14,7 +14,9 @@ type Props = {
 export function CameraModal({ opened, onClose, onCapture }: Props) {
 	const webcamRef = useRef<Webcam>(null);
 	const [error, setError] = useState<string | null>(null);
-	const [facingMode, setFacingMode] = useState<'environment' | 'user'>('user');
+	const [facingMode, setFacingMode] = useState<'environment' | 'user'>(
+		'environment'
+	);
 	const [retryCount, setRetryCount] = useState(0);
 
 	const videoConstraints = {
@@ -60,7 +62,7 @@ export function CameraModal({ opened, onClose, onCapture }: Props) {
 
 	function handleClose() {
 		setError(null);
-		setFacingMode('user');
+		setFacingMode('environment');
 		setRetryCount(0);
 		onClose();
 	}
@@ -120,7 +122,7 @@ export function CameraModal({ opened, onClose, onCapture }: Props) {
 							</Button>
 							<Button
 								size='xl'
-								radius='xl'
+								radius={100}
 								color='white'
 								variant='filled'
 								onClick={handleCapture}
