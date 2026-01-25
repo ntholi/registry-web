@@ -36,11 +36,7 @@ const loadSearchParams = createLoader(coursesSearchParams);
 
 export default async function ApplyCoursesPage({ searchParams }: Props) {
 	const params = await searchParams;
-	const {
-		page: rawPage,
-		schoolId,
-		level,
-	} = await loadSearchParams(params);
+	const { page: rawPage, schoolId, level } = await loadSearchParams(params);
 	const page = Math.max(1, rawPage);
 
 	const filter: EntryRequirementFilter = {};

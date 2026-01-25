@@ -1,4 +1,7 @@
-import { getOrCreateApplicantForCurrentUser } from '@admissions/applicants';
+import {
+	canCurrentUserApply,
+	getOrCreateApplicantForCurrentUser,
+} from '@admissions/applicants';
 import { findApplicationsByApplicant } from '@admissions/applications';
 import { findActiveIntakePeriod } from '@admissions/intake-periods';
 import { redirect } from 'next/navigation';
@@ -9,6 +12,11 @@ export default async function ApplyNewPage() {
 
 	if (!session?.user?.id) {
 		redirect('/auth/login?callbackUrl=/apply/new');
+	}
+
+	const eligibility = await canCurrentUserApply();
+	if (!eligibility.canApply) {
+		redirect('/apply/restricted');
 	}
 
 	const applicant = await getOrCreateApplicantForCurrentUser();
