@@ -66,18 +66,21 @@ type IdentityProps = BaseProps & {
 	type: 'identity';
 	onUploadComplete: (result: DocumentUploadResult<'identity'>) => void;
 	certificateTypes?: never;
+	applicantName?: never;
 };
 
 type CertificateProps = BaseProps & {
 	type: 'certificate';
 	onUploadComplete: (result: DocumentUploadResult<'certificate'>) => void;
 	certificateTypes?: string[];
+	applicantName?: string;
 };
 
 type AnyProps = BaseProps & {
 	type: 'any';
 	onUploadComplete: (result: DocumentUploadResult<'any'>) => void;
 	certificateTypes?: string[];
+	applicantName?: string;
 };
 
 type Props = IdentityProps | CertificateProps | AnyProps;
@@ -109,6 +112,7 @@ export function DocumentUpload({
 	disabled,
 	maxSize = MAX_FILE_SIZE,
 	certificateTypes,
+	applicantName,
 }: Props) {
 	const [file, setFile] = useState<FileWithPath | null>(null);
 	const [uploadState, setUploadState] = useState<UploadState>('idle');
@@ -150,7 +154,8 @@ export function DocumentUpload({
 				const analysis = await analyzeAcademicDocument(
 					base64,
 					droppedFile.type,
-					certificateTypes
+					certificateTypes,
+					applicantName
 				);
 				setUploadState('ready');
 				(onUploadComplete as (r: DocumentUploadResult<'certificate'>) => void)({
