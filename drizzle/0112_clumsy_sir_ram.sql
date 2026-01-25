@@ -1,0 +1,1 @@
+ALTER TABLE "intake_periods" ADD COLUMN "certification_valid_days" integer DEFAULT 90 NOT NULL;

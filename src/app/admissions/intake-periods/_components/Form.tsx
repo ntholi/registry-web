@@ -32,6 +32,9 @@ export default function IntakePeriodForm({
 		endDate: z.string().min(1, 'End date is required'),
 		applicationFee: z.string().min(1, 'Application fee is required'),
 		maxDocuments: z.number().min(1, 'Max documents must be at least 1'),
+		certificationValidDays: z
+			.number()
+			.min(1, 'Certification valid days must be at least 1'),
 		programIds: z.number().array().optional(),
 	});
 
@@ -41,7 +44,11 @@ export default function IntakePeriodForm({
 			action={onSubmit}
 			queryKey={['intake-periods']}
 			schema={schema}
-			defaultValues={{ maxDocuments: 18, ...defaultValues }}
+			defaultValues={{
+				maxDocuments: 18,
+				certificationValidDays: 90,
+				...defaultValues,
+			}}
 			onSuccess={({ id }) => router.push(`/admissions/intake-periods/${id}`)}
 		>
 			{(form) => (
@@ -93,6 +100,14 @@ export default function IntakePeriodForm({
 							{...form.getInputProps('maxDocuments')}
 						/>
 					</Group>
+					<NumberInput
+						label='Certification Valid Days'
+						description='Number of days a certified stamp is valid for'
+						required
+						min={1}
+						max={365}
+						{...form.getInputProps('certificationValidDays')}
+					/>
 					<Divider my='sm' />
 					<ProgramSelector
 						value={form.values.programIds ?? []}

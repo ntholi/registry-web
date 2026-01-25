@@ -31,11 +31,14 @@ export default function QualificationsUploadForm({ applicationId }: Props) {
 	const [uploadKey, setUploadKey] = useState(0);
 	const [pendingUploads, setPendingUploads] = useState(0);
 
-	const { applicant, refetch, documentLimits } = useApplicant();
+	const { applicant, refetch, documentLimits, currentApplication } =
+		useApplicant();
 	const applicantId = applicant?.id ?? '';
 
 	const records = applicant?.academicRecords ?? [];
 	const hasRecords = records.length > 0;
+	const certificationValidDays =
+		currentApplication?.intakePeriod?.certificationValidDays ?? undefined;
 
 	async function handleUploadComplete(
 		result: DocumentUploadResult<'certificate'>
@@ -122,6 +125,7 @@ export default function QualificationsUploadForm({ applicationId }: Props) {
 						title='Upload Academic Document'
 						description='Certificates, transcripts, results - Image or PDF, max 2MB'
 						applicantName={applicant?.fullName ?? undefined}
+						certificationValidDays={certificationValidDays}
 					/>
 				) : (
 					<DocumentUpload
@@ -132,6 +136,7 @@ export default function QualificationsUploadForm({ applicationId }: Props) {
 						applicantName={applicant?.fullName ?? undefined}
 						title='Upload Academic Document'
 						description='Certificates, transcripts, results - Image or PDF, max 2MB'
+						certificationValidDays={certificationValidDays}
 					/>
 				)}
 

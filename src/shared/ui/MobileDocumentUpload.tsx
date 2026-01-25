@@ -62,6 +62,7 @@ type IdentityProps = BaseProps & {
 	onUploadComplete: (result: DocumentUploadResult<'identity'>) => void;
 	certificateTypes?: never;
 	applicantName?: never;
+	certificationValidDays?: never;
 };
 
 type CertificateProps = BaseProps & {
@@ -69,6 +70,7 @@ type CertificateProps = BaseProps & {
 	onUploadComplete: (result: DocumentUploadResult<'certificate'>) => void;
 	certificateTypes?: string[];
 	applicantName?: string;
+	certificationValidDays?: number;
 };
 
 type AnyProps = BaseProps & {
@@ -76,6 +78,7 @@ type AnyProps = BaseProps & {
 	onUploadComplete: (result: DocumentUploadResult<'any'>) => void;
 	certificateTypes?: string[];
 	applicantName?: string;
+	certificationValidDays?: number;
 };
 
 type Props = IdentityProps | CertificateProps | AnyProps;
@@ -110,6 +113,7 @@ export function MobileDocumentUpload({
 	title,
 	description,
 	applicantName,
+	certificationValidDays,
 }: Props) {
 	const [file, setFile] = useState<File | null>(null);
 	const [uploadState, setUploadState] = useState<UploadState>('idle');
@@ -173,7 +177,8 @@ export function MobileDocumentUpload({
 					base64,
 					selectedFile.type,
 					certificateTypes,
-					applicantName
+					applicantName,
+					certificationValidDays
 				);
 				setUploadState('ready');
 				(onUploadComplete as (r: DocumentUploadResult<'certificate'>) => void)({
