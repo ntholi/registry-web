@@ -45,7 +45,7 @@ type Props = {
 };
 
 const ACCEPTED_TYPES = 'image/*,application/pdf';
-const MAX_FILE_SIZE = 10 * 1024 * 1024;
+const MAX_FILE_SIZE = 2 * 1024 * 1024;
 
 function formatFileSize(bytes: number): string {
 	if (bytes === 0) return '0 B';
