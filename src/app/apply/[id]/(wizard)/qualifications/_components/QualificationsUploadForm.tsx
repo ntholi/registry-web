@@ -121,6 +121,7 @@ export default function QualificationsUploadForm({ applicationId }: Props) {
 						disabled={uploadDisabled}
 						title='Upload Academic Document'
 						description='Certificates, transcripts, results - Image or PDF, max 10MB'
+						applicantName={applicant?.fullName ?? undefined}
 					/>
 				) : (
 					<DocumentUpload
@@ -128,6 +129,7 @@ export default function QualificationsUploadForm({ applicationId }: Props) {
 						type='certificate'
 						onUploadComplete={handleUploadComplete}
 						disabled={uploadDisabled}
+						applicantName={applicant?.fullName ?? undefined}
 						title='Upload Academic Document'
 						description='Certificates, transcripts, results - Image or PDF, max 10MB'
 					/>

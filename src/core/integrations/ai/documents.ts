@@ -101,6 +101,31 @@ const DEFAULT_CERTIFICATE_TYPES = [
 	'Degree',
 ];
 
+function normalizeNameParts(name: string): string[] {
+	return name
+		.toLowerCase()
+		.replace(/[^a-z\s]/g, '')
+		.split(/\s+/)
+		.filter((part) => part.length > 0);
+}
+
+function namesMatch(applicantName: string, documentName: string): boolean {
+	const applicantParts = normalizeNameParts(applicantName);
+	const documentParts = normalizeNameParts(documentName);
+
+	if (applicantParts.length === 0 || documentParts.length === 0) {
+		return false;
+	}
+
+	const applicantSet = new Set(applicantParts);
+	const documentSet = new Set(documentParts);
+
+	const matchingParts = applicantParts.filter((part) => documentSet.has(part));
+	const minRequiredMatches = Math.min(applicantSet.size, documentSet.size, 2);
+
+	return matchingParts.length >= minRequiredMatches;
+}
+
 export async function analyzeDocument(
 	fileBase64: string,
 	mediaType: string
@@ -216,7 +241,8 @@ export async function analyzeIdentityDocument(
 export async function analyzeAcademicDocument(
 	fileBase64: string,
 	mediaType: string,
-	certificateTypes?: string[]
+	certificateTypes?: string[],
+	applicantName?: string
 ): Promise<CertificateDocumentResult> {
 	const types = certificateTypes ?? DEFAULT_CERTIFICATE_TYPES;
 	const typeList = types.map((t) => `  - ${t}`).join('\n');
@@ -268,6 +294,14 @@ export async function analyzeAcademicDocument(
 			const detail =
 				missing.length > 0 ? ` (missing: ${missing.join(' and ')})` : '';
 			throw new Error(`Document must be certified${detail}`);
+		}
+
+		if (applicantName && output.studentName) {
+			if (!namesMatch(applicantName, output.studentName)) {
+				throw new Error(
+					`Name mismatch: document belongs to "${output.studentName}", not "${applicantName}"`
+				);
+			}
 		}
 
 		return output;
