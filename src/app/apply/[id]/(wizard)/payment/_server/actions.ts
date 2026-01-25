@@ -20,6 +20,8 @@ import { validateReceipts, validateSingleReceipt } from './validation';
 
 export { validateSingleReceipt, validateReceipts };
 
+const MAX_FILE_SIZE = 2 * 1024 * 1024;
+
 type DepositData = {
 	base64: string;
 	mediaType: string;
@@ -38,6 +40,16 @@ export async function submitReceiptPayment(
 	applicationId: string,
 	receipts: DepositData[]
 ): Promise<{ success: boolean; error?: string }> {
+	for (const receipt of receipts) {
+		const base64Size = Math.ceil((receipt.base64.length * 3) / 4);
+		if (base64Size > MAX_FILE_SIZE) {
+			return {
+				success: false,
+				error: 'Receipt file size exceeds 2MB limit',
+			};
+		}
+	}
+
 	const validation = await validateReceipts(
 		applicationId,
 		receipts.map((r) => ({ base64: r.base64, mediaType: r.mediaType }))

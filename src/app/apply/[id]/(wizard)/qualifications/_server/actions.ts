@@ -10,11 +10,17 @@ import type { CertificateDocumentResult } from '@/core/integrations/ai/documents
 import { uploadDocument } from '@/core/integrations/storage';
 import { getFileExtension } from '@/shared/lib/utils/files';
 
+const MAX_FILE_SIZE = 2 * 1024 * 1024;
+
 export async function uploadCertificateDocument(
 	applicantId: string,
 	file: File,
 	analysis: CertificateDocumentResult
 ) {
+	if (file.size > MAX_FILE_SIZE) {
+		throw new Error('File size exceeds 2MB limit');
+	}
+
 	const folder = 'documents/admissions';
 	const ext = getFileExtension(file.name);
 	const fileName = `${nanoid()}${ext}`;
