@@ -58,7 +58,7 @@ export default function HeroSection() {
 				<Group gap='lg' justify='center'>
 					<Button
 						component={Link}
-						href='/apply/new'
+						href='/apply/welcome'
 						size='md'
 						radius='xl'
 						rightSection={<IconArrowRight size={20} />}
