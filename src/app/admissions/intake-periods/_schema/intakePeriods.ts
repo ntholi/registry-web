@@ -17,6 +17,7 @@ export const intakePeriods = pgTable('intake_periods', {
 	endDate: date({ mode: 'string' }).notNull(),
 	applicationFee: decimal({ precision: 10, scale: 2 }).notNull(),
 	maxDocuments: integer().notNull().default(18),
+	certificationValidDays: integer().notNull().default(90),
 	createdAt: timestamp().defaultNow(),
 	updatedAt: timestamp().defaultNow(),
 });

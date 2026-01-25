@@ -14,13 +14,6 @@ import {
 	Title,
 	useMantineColorScheme,
 } from '@mantine/core';
-import {
-	IconCalendar,
-	IconId,
-	IconMapPin,
-	IconPhone,
-	IconUser,
-} from '@tabler/icons-react';
 import { getGradeColor } from '@/app/admissions/applicants/[id]/_components/AcademicRecordsTab';
 
 interface Props {

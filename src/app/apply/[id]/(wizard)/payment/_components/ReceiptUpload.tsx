@@ -1,13 +1,10 @@
 'use client';
 
 import {
-	ActionIcon,
 	Alert,
-	Badge,
 	Box,
 	Button,
 	Card,
-	CopyButton,
 	Divider,
 	Group,
 	Paper,
@@ -15,20 +12,17 @@ import {
 	Stack,
 	Text,
 	ThemeIcon,
-	Tooltip,
 } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import {
 	IconAlertCircle,
 	IconCheck,
-	IconCopy,
 	IconCreditCard,
 	IconLibrary,
 } from '@tabler/icons-react';
 import { useState } from 'react';
 import { useApplicant } from '@/app/apply/_lib/useApplicant';
-import { formatDate } from '@/shared/lib/utils/dates';
 import { FieldView } from '@/shared/ui/adease/FieldView';
 import { DocumentCardSkeleton } from '@/shared/ui/DocumentCardShell';
 import {

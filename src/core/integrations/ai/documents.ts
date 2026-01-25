@@ -218,7 +218,8 @@ export async function analyzeAcademicDocument(
 	fileBase64: string,
 	mediaType: string,
 	certificateTypes?: string[],
-	applicantName?: string
+	applicantName?: string,
+	certificationValidDays?: number
 ): Promise<CertificateDocumentResult> {
 	const types = certificateTypes ?? DEFAULT_CERTIFICATE_TYPES;
 	const typeList = types.map((t) => `  - ${t}`).join('\n');
@@ -270,6 +271,19 @@ export async function analyzeAcademicDocument(
 			const detail =
 				missing.length > 0 ? ` (missing: ${missing.join(' and ')})` : '';
 			throw new Error(`Document must be certified${detail}`);
+		}
+
+		if (certificationValidDays && output.certification?.certifiedDate) {
+			const certDate = new Date(output.certification.certifiedDate);
+			const today = new Date();
+			const daysDiff = Math.floor(
+				(today.getTime() - certDate.getTime()) / (1000 * 60 * 60 * 24)
+			);
+			if (daysDiff > certificationValidDays) {
+				throw new Error(
+					`Certification has expired (certified ${daysDiff} days ago, valid for ${certificationValidDays} days)`
+				);
+			}
 		}
 
 		if (applicantName && output.studentName) {

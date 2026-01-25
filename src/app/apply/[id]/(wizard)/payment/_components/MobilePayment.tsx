@@ -5,7 +5,6 @@ import {
 	Button,
 	Divider,
 	Group,
-	Kbd,
 	Progress,
 	Stack,
 	Text,
