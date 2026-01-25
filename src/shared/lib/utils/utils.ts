@@ -224,3 +224,31 @@ export function formatCurrency(
 	if (amount === null || amount === undefined) return `${currency} 0.00`;
 	return `${currency} ${amount.toFixed(2)}`;
 }
+
+function normalizeNameParts(name: string): string[] {
+	return name
+		.toLowerCase()
+		.replace(/[^a-z\s]/g, '')
+		.split(/\s+/)
+		.filter((part) => part.length > 0);
+}
+
+export function namesMatch(
+	applicantName: string,
+	documentName: string
+): boolean {
+	const applicantParts = normalizeNameParts(applicantName);
+	const documentParts = normalizeNameParts(documentName);
+
+	if (applicantParts.length === 0 || documentParts.length === 0) {
+		return false;
+	}
+
+	const applicantSet = new Set(applicantParts);
+	const documentSet = new Set(documentParts);
+
+	const matchingParts = applicantParts.filter((part) => documentSet.has(part));
+	const minRequiredMatches = Math.min(applicantSet.size, documentSet.size, 2);
+
+	return matchingParts.length >= minRequiredMatches;
+}

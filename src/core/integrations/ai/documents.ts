@@ -3,6 +3,7 @@
 import { google } from '@ai-sdk/google';
 import { generateText, NoObjectGeneratedError, Output } from 'ai';
 import type { z } from 'zod';
+import { namesMatch } from '@/shared/lib/utils/utils';
 import {
 	academicSchema,
 	type certificationSchema,
@@ -100,31 +101,6 @@ const DEFAULT_CERTIFICATE_TYPES = [
 	'Diploma',
 	'Degree',
 ];
-
-function normalizeNameParts(name: string): string[] {
-	return name
-		.toLowerCase()
-		.replace(/[^a-z\s]/g, '')
-		.split(/\s+/)
-		.filter((part) => part.length > 0);
-}
-
-function namesMatch(applicantName: string, documentName: string): boolean {
-	const applicantParts = normalizeNameParts(applicantName);
-	const documentParts = normalizeNameParts(documentName);
-
-	if (applicantParts.length === 0 || documentParts.length === 0) {
-		return false;
-	}
-
-	const applicantSet = new Set(applicantParts);
-	const documentSet = new Set(documentParts);
-
-	const matchingParts = applicantParts.filter((part) => documentSet.has(part));
-	const minRequiredMatches = Math.min(applicantSet.size, documentSet.size, 2);
-
-	return matchingParts.length >= minRequiredMatches;
-}
 
 export async function analyzeDocument(
 	fileBase64: string,
