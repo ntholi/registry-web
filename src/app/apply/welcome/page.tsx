@@ -1,7 +1,6 @@
 import { canCurrentUserApply } from '@admissions/applicants';
 import { findActiveIntakePeriod } from '@admissions/intake-periods';
 import {
-	Badge,
 	Box,
 	Center,
 	Group,
@@ -60,14 +59,13 @@ export default async function WelcomePage() {
 							</Text>
 						</Stack>
 
-						<Badge
-							size='lg'
-							color='orange'
-							variant='light'
-							leftSection={<IconCalendar size={14} />}
-						>
-							Deadline: {formatDate(activeIntake.endDate)}
-						</Badge>
+						<Box>
+							<Text>
+								<IconCalendar size={14} /> Deadline:{' '}
+								{formatDate(activeIntake.endDate)}
+							</Text>
+							<Box h={2} bg='var(--mantine-color-orange-3)' mt='4px' />
+						</Box>
 
 						<Stack gap='md' w='100%'>
 							<Group gap='md' wrap='nowrap' align='flex-start'>

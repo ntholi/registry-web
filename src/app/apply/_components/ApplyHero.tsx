@@ -1,18 +1,79 @@
+'use client';
+
+import type { ApplicationProgress } from '@admissions/applicants';
+import { getCurrentUserApplicationProgress } from '@admissions/applicants';
 import {
 	Button,
 	Container,
 	Group,
+	Skeleton,
 	Stack,
 	Text,
 	useMantineColorScheme,
 } from '@mantine/core';
-import { IconArrowRight } from '@tabler/icons-react';
+import { IconArrowRight, IconUser } from '@tabler/icons-react';
+import { useQuery } from '@tanstack/react-query';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useSession } from 'next-auth/react';
+
+function ApplyButton({ progress }: { progress?: ApplicationProgress }) {
+	if (!progress) {
+		return (
+			<Button
+				component={Link}
+				href='/apply/welcome'
+				size='md'
+				radius='xl'
+				rightSection={<IconArrowRight size={20} />}
+				variant='gradient'
+			>
+				Apply Now
+			</Button>
+		);
+	}
+
+	if (progress.hasApplication) {
+		return (
+			<Button
+				component={Link}
+				href={progress.nextStepUrl}
+				size='md'
+				radius='xl'
+				rightSection={<IconUser size={20} />}
+				variant='gradient'
+			>
+				My Application
+			</Button>
+		);
+	}
+
+	return (
+		<Button
+			component={Link}
+			href='/apply/welcome'
+			size='md'
+			radius='xl'
+			rightSection={<IconArrowRight size={20} />}
+			variant='gradient'
+		>
+			Apply Now
+		</Button>
+	);
+}
 
 export default function HeroSection() {
 	const { colorScheme } = useMantineColorScheme();
+	const { data: session, status } = useSession();
 	const isDark = colorScheme === 'dark';
+
+	const { data: progress, isLoading } = useQuery({
+		queryKey: ['application-progress', session?.user?.id],
+		queryFn: getCurrentUserApplicationProgress,
+		enabled: status === 'authenticated',
+		staleTime: 30_000,
+	});
+
 	return (
 		<Container
 			size='lg'
@@ -56,16 +117,11 @@ export default function HeroSection() {
 				</Stack>
 
 				<Group gap='lg' justify='center'>
-					<Button
-						component={Link}
-						href='/apply/welcome'
-						size='md'
-						radius='xl'
-						rightSection={<IconArrowRight size={20} />}
-						variant='gradient'
-					>
-						Apply Now
-					</Button>
+					{isLoading && status === 'authenticated' ? (
+						<Skeleton height={42} width={150} radius='xl' />
+					) : (
+						<ApplyButton progress={progress} />
+					)}
 
 					<Button
 						component={Link}
