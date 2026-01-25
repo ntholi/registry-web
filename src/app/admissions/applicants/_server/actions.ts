@@ -1,5 +1,6 @@
 'use server';
 
+import { findActiveIntakePeriod } from '@admissions/intake-periods';
 import type { UserRole } from '@auth/users/_schema/users';
 import { auth } from '@/core/auth';
 import type { applicants, guardians } from '@/core/database';
@@ -35,6 +36,90 @@ export async function canCurrentUserApply(): Promise<{
 		canApply: false,
 		role,
 		hasExistingApplicant: !!existingApplicant,
+	};
+}
+
+export type ApplicationProgress = {
+	hasApplication: boolean;
+	applicationId: string | null;
+	nextStepUrl: string;
+	isSubmitted: boolean;
+};
+
+export async function getCurrentUserApplicationProgress(): Promise<ApplicationProgress> {
+	const session = await auth();
+	if (!session?.user?.id) {
+		return {
+			hasApplication: false,
+			applicationId: null,
+			nextStepUrl: '/apply/welcome',
+			isSubmitted: false,
+		};
+	}
+
+	const applicant = await applicantsService.findByUserId(session.user.id);
+	if (!applicant) {
+		return {
+			hasApplication: false,
+			applicationId: null,
+			nextStepUrl: '/apply/welcome',
+			isSubmitted: false,
+		};
+	}
+
+	const activeIntake = await findActiveIntakePeriod();
+	if (!activeIntake) {
+		return {
+			hasApplication: false,
+			applicationId: null,
+			nextStepUrl: '/apply',
+			isSubmitted: false,
+		};
+	}
+
+	const currentApp = applicant.applications.find(
+		(app) => app.intakePeriodId === activeIntake.id
+	);
+
+	if (!currentApp) {
+		return {
+			hasApplication: false,
+			applicationId: null,
+			nextStepUrl: '/apply/welcome',
+			isSubmitted: false,
+		};
+	}
+
+	if (currentApp.status === 'submitted') {
+		return {
+			hasApplication: true,
+			applicationId: currentApp.id,
+			nextStepUrl: '/apply/profile',
+			isSubmitted: true,
+		};
+	}
+
+	const hasIdentity = applicant.documents.some(
+		(d) => d.document.type === 'identity'
+	);
+	const hasQualifications = applicant.academicRecords.length > 0;
+	const hasFirstChoice = !!currentApp.firstChoiceProgramId;
+	const hasPersonalInfo =
+		!!applicant.fullName && applicant.guardians.length > 0;
+
+	let nextStep = 'documents';
+	if (hasIdentity) nextStep = 'qualifications';
+	if (hasIdentity && hasQualifications) nextStep = 'program';
+	if (hasIdentity && hasQualifications && hasFirstChoice)
+		nextStep = 'personal-info';
+	if (hasIdentity && hasQualifications && hasFirstChoice && hasPersonalInfo)
+		nextStep = 'review';
+
+	return {
+		hasApplication: true,
+		applicationId: currentApp.id,
+		nextStepUrl: `/apply/${currentApp.id}/${nextStep}`,
+		isSubmitted: false,
 	};
 }
 
