@@ -133,6 +133,14 @@ export default class StructureRepository extends BaseRepository<
 			orderBy: (sems, { asc }) => [asc(sems.semesterNumber)],
 		});
 	}
+
+	async createStructureSemester(data: typeof structureSemesters.$inferInsert) {
+		const [result] = await db
+			.insert(structureSemesters)
+			.values(data)
+			.returning();
+		return result;
+	}
 }
 
 export const structuresRepository = new StructureRepository();

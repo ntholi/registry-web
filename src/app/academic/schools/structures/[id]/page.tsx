@@ -30,6 +30,7 @@ import Link from '@/shared/ui/Link';
 import EditButton from '../../_components/EditButton';
 import HideButton from '../../_components/HideButton';
 import PrerequisiteDisplay from '../../_components/PrerequisiteDisplay';
+import AddSemesterModal from '../_components/AddSemesterModal';
 import AddSemesterModuleModal from '../_components/AddSemesterModuleModal';
 import { getStructure } from '../_server/actions';
 
@@ -117,15 +118,23 @@ export default function StructureDetailsPage() {
 							{breadcrumbItems}
 						</Breadcrumbs>
 
-						<Group>
-							<ThemeIcon variant='light' color='gray' size='xl'>
-								<IconBook size='1.1rem' />
-							</ThemeIcon>
-							<Box>
-								<Group gap='md' align='baseline'>
-									<Title order={2}>{structure.code}</Title>
-								</Group>
-							</Box>
+						<Group justify='space-between' align='center'>
+							<Group>
+								<ThemeIcon variant='light' color='gray' size='xl'>
+									<IconBook size='1.1rem' />
+								</ThemeIcon>
+								<Box>
+									<Group gap='md' align='baseline'>
+										<Title order={2}>{structure.code}</Title>
+									</Group>
+								</Box>
+							</Group>
+							{canEditModule(session) && (
+								<AddSemesterModal
+									structureId={structureId}
+									existingSemesterCount={structure.semesters?.length ?? 0}
+								/>
+							)}
 						</Group>
 					</Stack>
 				</Paper>
