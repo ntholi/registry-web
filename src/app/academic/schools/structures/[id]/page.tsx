@@ -30,6 +30,7 @@ import Link from '@/shared/ui/Link';
 import EditButton from '../../_components/EditButton';
 import HideButton from '../../_components/HideButton';
 import PrerequisiteDisplay from '../../_components/PrerequisiteDisplay';
+import AddSemesterModuleModal from '../_components/AddSemesterModuleModal';
 import { getStructure } from '../_server/actions';
 
 export default function StructureDetailsPage() {
@@ -139,9 +140,17 @@ export default function StructureDetailsPage() {
 											{formatSemester(semester.semesterNumber)}
 										</Title>
 									</Group>
-									<Text size='sm' c='dimmed'>
-										{semester.semesterModules?.length || 0} modules
-									</Text>
+									<Group gap='xs'>
+										<Text size='sm' c='dimmed'>
+											{semester.semesterModules?.length || 0} modules
+										</Text>
+										{canEditModule(session) && (
+											<AddSemesterModuleModal
+												semesterId={semester.id}
+												structureId={structureId}
+											/>
+										)}
+									</Group>
 								</Group>
 
 								{semester.semesterModules &&
