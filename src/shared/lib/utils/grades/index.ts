@@ -404,8 +404,12 @@ export function getAcademicRemarks(
 	const hasOutstandingFailOrPP =
 		uniqueFailedModules.length > 0 || uniqueSupplementaryModules.length > 0;
 
+	const hasTwoFailsWithSupp =
+		uniqueFailedModules.length === 2 && uniqueSupplementaryModules.length > 0;
+
 	const remainInSemester =
 		latestFailedModules.length >= 3 ||
+		hasTwoFailsWithSupp ||
 		(isDiplomaSem5 && hasOutstandingFailOrPP);
 	const status = remainInSemester ? 'Remain in Semester' : 'Proceed';
 
@@ -425,8 +429,12 @@ export function getAcademicRemarks(
 	const message = messageParts.join(', ');
 
 	let details = '';
-	if (remainInSemester) {
+	if (latestFailedModules.length >= 3) {
 		details = `Failed ${latestFailedModules.length} modules in latest semester`;
+	} else if (hasTwoFailsWithSupp) {
+		details = 'To Proceed if supplementary exams passed';
+	} else if (remainInSemester) {
+		details = 'Has outstanding modules';
 	} else {
 		details = 'Student is eligible to proceed';
 	}
