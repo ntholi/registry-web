@@ -1,5 +1,6 @@
 'use server';
 
+import { getCertificateTypeByName } from '@admissions/certificate-types/_server/actions';
 import { google } from '@ai-sdk/google';
 import { generateText, NoObjectGeneratedError, Output } from 'ai';
 import type { z } from 'zod';
@@ -81,6 +82,11 @@ RULES:
 - Extract ALL subjects with grades
 - Return certificateType using the provided system naming and return the appropriate lqfLevel
 - Use null for missing/illegible data
+
+ISSUING AUTHORITY:
+- issuingAuthority: Extract the examining body or issuing authority
+- Common authorities: "ECoL" (Examinations Council of Lesotho), "Cambridge", "IEB", "Umalusi"
+- Look for official text like "Examinations Council of Lesotho" and record as "ECoL"
 
 CERTIFICATION EXTRACTION:
 - isCertified: true only if a NON-ECoL stamp AND signature are present
@@ -303,6 +309,31 @@ export async function analyzeAcademicDocument(
 				return {
 					success: false,
 					error: `Name mismatch: document belongs to "${output.studentName}", not "${applicantName}"`,
+				};
+			}
+		}
+
+		if (output.documentType === 'certificate' && output.certificateType) {
+			const dbCertType = await getCertificateTypeByName(output.certificateType);
+
+			if (!dbCertType) {
+				return {
+					success: false,
+					error: `Certificate type "${output.certificateType}" is not recognized. Only certificates registered in the system are accepted.`,
+				};
+			}
+
+			const isEcol =
+				output.issuingAuthority?.toLowerCase().includes('ecol') ||
+				output.issuingAuthority
+					?.toLowerCase()
+					.includes('examinations council of lesotho');
+
+			if (dbCertType.lqfLevel === 4 && !isEcol) {
+				return {
+					success: false,
+					error:
+						'LQF Level 4 certificates and result slips must be issued by the Examinations Council of Lesotho (ECoL).',
 				};
 			}
 		}
