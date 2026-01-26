@@ -16,6 +16,12 @@ import { getStudentClassName } from '@/shared/lib/utils/utils';
 import DeleteAllocationButton from './DeleteAllocationButton';
 import EditAllocationModal from './EditAllocationModal';
 
+function formatTimePeriod(start: string | null, end: string | null) {
+	if (!start || !end) return null;
+	const fmt = (t: string) => t.slice(0, 5);
+	return `${fmt(start)} - ${fmt(end)}`;
+}
+
 export type AllocationData = {
 	id: number;
 	duration: number | null;
@@ -137,7 +143,10 @@ export default function AllocationTable({
 								allocation.groupName
 							)}
 						</TableTd>
-						<TableTd>{formatDuration(allocation.duration || 0)}</TableTd>
+						<TableTd>
+							{formatDuration(allocation.duration || 0)} (
+							{formatTimePeriod(allocation.startTime, allocation.endTime)})
+						</TableTd>
 						<TableTd>
 							<Text size='sm'>{allocation.numberOfStudents}</Text>
 						</TableTd>
