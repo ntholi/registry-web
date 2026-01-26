@@ -1,16 +1,20 @@
 'use client';
 
-import { clearanceByStatus } from '@registry/registration/requests';
+import {
+	type ClearanceFilter,
+	clearanceByStatus,
+} from '@registry/registration/requests';
 import { IconAlertCircle, IconCheck, IconClock } from '@tabler/icons-react';
-import { useQuery } from '@tanstack/react-query';
 import { useAtom } from 'jotai';
 import { useParams } from 'next/navigation';
 import type { PropsWithChildren } from 'react';
-import { getActiveTerm } from '@/app/registry/terms';
 import { getStatusColor } from '@/shared/lib/utils/colors';
 import { ListItem, ListLayout } from '@/shared/ui/adease';
-import { selectedTermAtom } from '@/shared/ui/atoms/termAtoms';
-import TermFilter from '@/shared/ui/TermFilter';
+import {
+	type ClearanceFilter as AtomClearanceFilter,
+	clearanceFilterAtom,
+} from '@/shared/ui/atoms/clearanceFilterAtoms';
+import RegistrationClearanceFilter from '@/shared/ui/RegistrationClearanceFilter';
 
 type Status = 'pending' | 'approved' | 'rejected';
 
@@ -31,40 +35,37 @@ const statusTitles = {
 	rejected: 'Rejected Clearances',
 };
 
+function getFilterKey(filter: AtomClearanceFilter) {
+	return JSON.stringify(filter);
+}
+
 export default function Layout({ children }: PropsWithChildren) {
 	const params = useParams();
 	const status = params.status as Status;
-	const [selectedTerm, setSelectedTerm] = useAtom(selectedTermAtom);
-
-	const { data: activeTerm } = useQuery({
-		queryKey: ['active-term'],
-		queryFn: getActiveTerm,
-		staleTime: 5 * 60 * 1000, // 5 minutes
-	});
-
-	if (activeTerm?.id && !selectedTerm) {
-		setSelectedTerm(activeTerm.id);
-	}
+	const [filter, setFilter] = useAtom(clearanceFilterAtom);
 
 	if (!statusTitles[status]) {
 		return <div>Invalid status: {status}</div>;
 	}
 
+	const apiFilter: ClearanceFilter = {
+		termId: filter.termId,
+		schoolId: filter.schoolId,
+		programId: filter.programId,
+		programLevel: filter.programLevel,
+		semester: filter.semester,
+	};
+
 	return (
 		<ListLayout
 			path={`/registry/registration/clearance/${status}`}
-			queryKey={[
-				'clearances',
-				status,
-				selectedTerm?.toString() || activeTerm?.id?.toString() || 'all',
-			]}
+			queryKey={['clearances', status, getFilterKey(filter)]}
 			getData={async (page, search) => {
-				const termToUse = selectedTerm || activeTerm?.id;
 				const response = await clearanceByStatus(
 					status,
 					page,
 					search,
-					termToUse || undefined
+					apiFilter
 				);
 				return {
 					items: response.items || [],
@@ -72,7 +73,10 @@ export default function Layout({ children }: PropsWithChildren) {
 				};
 			}}
 			actionIcons={[
-				<TermFilter key='term-filter' onTermChange={setSelectedTerm} />,
+				<RegistrationClearanceFilter
+					key='clearance-filter'
+					onFilterChange={setFilter}
+				/>,
 			]}
 			renderItem={(it: ClearanceItem) => (
 				<ListItem
