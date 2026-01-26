@@ -5,7 +5,7 @@ import {
 	saveApplicantDocument,
 	updateApplicantFromIdentity,
 } from '@admissions/applicants/[id]/documents/_server/actions';
-import { type ActionResult, extractError } from '@apply/_lib/actions';
+import { type ActionResult, extractError } from '@apply/_lib/errors';
 import { nanoid } from 'nanoid';
 import type { IdentityDocumentResult } from '@/core/integrations/ai/documents';
 import { uploadDocument } from '@/core/integrations/storage';

@@ -10,7 +10,7 @@ import {
 	updateApplicant,
 	updateGuardian,
 } from '@admissions/applicants';
-import { type ActionResult, extractError } from '@apply/_lib/actions';
+import { type ActionResult, extractError } from '@apply/_lib/errors';
 import type { applicants, guardians } from '@/core/database';
 
 type ApplicantInput = typeof applicants.$inferInsert;

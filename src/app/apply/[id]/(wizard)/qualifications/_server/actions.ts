@@ -5,7 +5,7 @@ import {
 	createAcademicRecordFromDocument,
 	saveApplicantDocument,
 } from '@admissions/applicants/[id]/documents/_server/actions';
-import { type ActionResult, extractError } from '@apply/_lib/actions';
+import { type ActionResult, extractError } from '@apply/_lib/errors';
 import { nanoid } from 'nanoid';
 import type { CertificateDocumentResult } from '@/core/integrations/ai/documents';
 import { uploadDocument } from '@/core/integrations/storage';

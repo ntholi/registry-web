@@ -8,7 +8,7 @@ import {
 	initiatePayment,
 	verifyPayment,
 } from '@admissions/payments';
-import { extractError } from '@apply/_lib/actions';
+import { extractError } from '@apply/_lib/errors';
 import { eq } from 'drizzle-orm';
 import {
 	applications,
