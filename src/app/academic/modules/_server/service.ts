@@ -9,6 +9,7 @@ class ModuleService extends BaseService<typeof modules, 'id'> {
 		super(new ModuleRepository(), {
 			byIdRoles: ['dashboard'],
 			findAllRoles: ['dashboard'],
+			createRoles: ['registry'],
 		});
 	}
 
