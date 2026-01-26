@@ -41,14 +41,20 @@ export default function QualificationsUploadForm({ applicationId }: Props) {
 	async function handleUploadComplete(
 		result: DocumentUploadResult<'certificate'>
 	) {
-		try {
-			setUploading(true);
-			setPendingUploads((prev) => prev + 1);
-			await uploadCertificateDocument(
-				applicantId,
-				result.file,
-				result.analysis
-			);
+		setUploading(true);
+		setPendingUploads((prev) => prev + 1);
+		const res = await uploadCertificateDocument(
+			applicantId,
+			result.file,
+			result.analysis
+		);
+		if (!res.success) {
+			notifications.show({
+				title: 'Upload failed',
+				message: res.error,
+				color: 'red',
+			});
+		} else {
 			await refetch();
 			setUploadKey((prev) => prev + 1);
 			notifications.show({
@@ -56,20 +62,21 @@ export default function QualificationsUploadForm({ applicationId }: Props) {
 				message: 'Academic document processed successfully',
 				color: 'green',
 			});
-		} catch (error) {
-			notifications.show({
-				title: 'Upload failed',
-				message: error instanceof Error ? error.message : 'Upload failed',
-				color: 'red',
-			});
-		} finally {
-			setUploading(false);
-			setPendingUploads((prev) => Math.max(0, prev - 1));
 		}
+		setUploading(false);
+		setPendingUploads((prev) => Math.max(0, prev - 1));
 	}
 
 	async function handleDelete(id: string) {
-		await removeAcademicRecord(id);
+		const res = await removeAcademicRecord(id);
+		if (!res.success) {
+			notifications.show({
+				title: 'Delete failed',
+				message: res.error,
+				color: 'red',
+			});
+			return;
+		}
 		await refetch();
 	}
 

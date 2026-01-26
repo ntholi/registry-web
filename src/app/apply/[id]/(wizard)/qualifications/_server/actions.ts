@@ -5,6 +5,7 @@ import {
 	createAcademicRecordFromDocument,
 	saveApplicantDocument,
 } from '@admissions/applicants/[id]/documents/_server/actions';
+import { type ActionResult, extractError } from '@apply/_lib/actions';
 import { nanoid } from 'nanoid';
 import type { CertificateDocumentResult } from '@/core/integrations/ai/documents';
 import { uploadDocument } from '@/core/integrations/storage';
@@ -12,51 +13,68 @@ import { getFileExtension } from '@/shared/lib/utils/files';
 
 const MAX_FILE_SIZE = 2 * 1024 * 1024;
 
+type UploadResult = {
+	fileName: string;
+	type: string;
+	analysis: CertificateDocumentResult;
+};
+
 export async function uploadCertificateDocument(
 	applicantId: string,
 	file: File,
 	analysis: CertificateDocumentResult
-) {
-	if (file.size > MAX_FILE_SIZE) {
-		throw new Error('File size exceeds 2MB limit');
-	}
+): Promise<ActionResult<UploadResult>> {
+	try {
+		if (file.size > MAX_FILE_SIZE) {
+			return { success: false, error: 'File size exceeds 2MB limit' };
+		}
 
-	const folder = 'documents/admissions';
-	const ext = getFileExtension(file.name);
-	const fileName = `${nanoid()}${ext}`;
+		const folder = 'documents/admissions';
+		const ext = getFileExtension(file.name);
+		const fileName = `${nanoid()}${ext}`;
 
-	await uploadDocument(file, fileName, folder);
+		await uploadDocument(file, fileName, folder);
 
-	const type = analysis.documentType;
+		const type = analysis.documentType;
 
-	await saveApplicantDocument({
-		applicantId,
-		fileName,
-		type,
-		certification: analysis.certification,
-	});
-
-	if (
-		(type === 'certificate' ||
-			type === 'transcript' ||
-			type === 'academic_record') &&
-		analysis.examYear &&
-		analysis.institutionName
-	) {
-		await createAcademicRecordFromDocument(applicantId, {
-			institutionName: analysis.institutionName,
-			qualificationName: analysis.qualificationName,
-			examYear: analysis.examYear,
-			certificateType: analysis.certificateType,
-			certificateNumber: analysis.certificateNumber,
-			subjects: analysis.subjects,
-			overallClassification: analysis.overallClassification,
+		await saveApplicantDocument({
+			applicantId,
+			fileName,
+			type,
+			certification: analysis.certification,
 		});
-	}
 
-	return { fileName, type, analysis };
+		if (
+			(type === 'certificate' ||
+				type === 'transcript' ||
+				type === 'academic_record') &&
+			analysis.examYear &&
+			analysis.institutionName
+		) {
+			await createAcademicRecordFromDocument(applicantId, {
+				institutionName: analysis.institutionName,
+				qualificationName: analysis.qualificationName,
+				examYear: analysis.examYear,
+				certificateType: analysis.certificateType,
+				certificateNumber: analysis.certificateNumber,
+				subjects: analysis.subjects,
+				overallClassification: analysis.overallClassification,
+			});
+		}
+
+		return { success: true, data: { fileName, type, analysis } };
+	} catch (error) {
+		return { success: false, error: extractError(error) };
+	}
 }
 
-export async function removeAcademicRecord(id: string) {
-	return deleteAcademicRecord(id);
+export async function removeAcademicRecord(
+	id: string
+): Promise<ActionResult<void>> {
+	try {
+		await deleteAcademicRecord(id);
+		return { success: true, data: undefined };
+	} catch (error) {
+		return { success: false, error: extractError(error) };
+	}
 }

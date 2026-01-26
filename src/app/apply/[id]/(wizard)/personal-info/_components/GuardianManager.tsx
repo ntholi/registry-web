@@ -71,12 +71,13 @@ export default function GuardianManager() {
 	});
 
 	const createMutation = useMutation({
-		mutationFn: (values: typeof form.values) => {
+		mutationFn: async (values: typeof form.values) => {
 			const { phoneNumber1, phoneNumber2, ...data } = values;
-			return addNewGuardian(
+			const res = await addNewGuardian(
 				{ ...data, applicantId },
 				[phoneNumber1, phoneNumber2].filter(Boolean)
 			);
+			if (!res.success) throw new Error(res.error);
 		},
 		onSuccess: async () => {
 			await refetch();
@@ -98,7 +99,7 @@ export default function GuardianManager() {
 	});
 
 	const updateMutation = useMutation({
-		mutationFn: ({
+		mutationFn: async ({
 			id,
 			values,
 		}: {
@@ -106,11 +107,12 @@ export default function GuardianManager() {
 			values: typeof form.values;
 		}) => {
 			const { phoneNumber1, phoneNumber2, ...data } = values;
-			return updateExistingGuardian(
+			const res = await updateExistingGuardian(
 				id,
 				data,
 				[phoneNumber1, phoneNumber2].filter(Boolean)
 			);
+			if (!res.success) throw new Error(res.error);
 		},
 		onSuccess: async () => {
 			await refetch();
@@ -133,7 +135,10 @@ export default function GuardianManager() {
 	});
 
 	const deleteMutation = useMutation({
-		mutationFn: removeGuardian,
+		mutationFn: async (id: string) => {
+			const res = await removeGuardian(id);
+			if (!res.success) throw new Error(res.error);
+		},
 		onSuccess: async () => {
 			await refetch();
 			notifications.show({
