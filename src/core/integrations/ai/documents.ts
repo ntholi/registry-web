@@ -21,6 +21,10 @@ export type OtherDocumentResult = z.infer<typeof otherSchema>;
 export type ReceiptResult = z.infer<typeof receiptSchema>;
 export type CertificationResult = z.infer<typeof certificationSchema>;
 
+export type AnalysisResult<T> =
+	| { success: true; data: T }
+	| { success: false; error: string };
+
 export type DocumentAnalysisResult =
 	| ({ category: 'identity' } & IdentityDocumentResult)
 	| ({ category: 'academic' } & CertificateDocumentResult)
@@ -168,7 +172,7 @@ export async function analyzeDocument(
 export async function analyzeIdentityDocument(
 	fileBase64: string,
 	mediaType: string
-): Promise<IdentityDocumentResult> {
+): Promise<AnalysisResult<IdentityDocumentResult>> {
 	try {
 		const { output } = await generateText({
 			model,
@@ -190,27 +194,33 @@ export async function analyzeIdentityDocument(
 		});
 
 		if (!output) {
-			throw new Error(
-				'Failed to analyze identity document: no output generated'
-			);
+			return {
+				success: false,
+				error: 'Failed to analyze identity document: no output generated',
+			};
 		}
 
 		if (output.documentType === 'other') {
-			throw new Error('Invalid identity document');
+			return { success: false, error: 'Invalid identity document' };
 		}
 
-		return output;
+		return { success: true, data: output };
 	} catch (error) {
 		if (NoObjectGeneratedError.isInstance(error)) {
 			console.error('Identity document analysis failed:', {
 				cause: error.cause,
 				text: error.text,
 			});
-			throw new Error(
-				`Failed to extract structured data from identity document: ${error.cause}`
-			);
+			return {
+				success: false,
+				error: `Failed to extract structured data from identity document: ${error.cause}`,
+			};
 		}
-		throw error;
+		return {
+			success: false,
+			error:
+				error instanceof Error ? error.message : 'An unexpected error occurred',
+		};
 	}
 }
 
@@ -220,7 +230,7 @@ export async function analyzeAcademicDocument(
 	certificateTypes?: string[],
 	applicantName?: string,
 	certificationValidDays?: number
-): Promise<CertificateDocumentResult> {
+): Promise<AnalysisResult<CertificateDocumentResult>> {
 	const types = certificateTypes ?? DEFAULT_CERTIFICATE_TYPES;
 	const typeList = types.map((t) => `  - ${t}`).join('\n');
 
@@ -248,20 +258,24 @@ export async function analyzeAcademicDocument(
 		});
 
 		if (!output) {
-			throw new Error(
-				'Failed to analyze academic document: no output generated'
-			);
+			return {
+				success: false,
+				error: 'Failed to analyze academic document: no output generated',
+			};
 		}
 
 		if (output.documentType === 'other') {
-			throw new Error('Invalid academic document');
+			return { success: false, error: 'Invalid academic document' };
 		}
 
 		if (
 			output.documentType === 'certificate' &&
 			(!output.certificateType || !types.includes(output.certificateType))
 		) {
-			throw new Error(`Invalid certificate type: ${output.certificateType}`);
+			return {
+				success: false,
+				error: `Invalid certificate type: ${output.certificateType}`,
+			};
 		}
 
 		if (!output.certification?.isCertified) {
@@ -270,15 +284,8 @@ export async function analyzeAcademicDocument(
 			if (!output.certification?.hasSignature) missing.push('signature');
 			const detail =
 				missing.length > 0 ? ` (missing: ${missing.join(' and ')})` : '';
-			throw new Error(`Document must be certified${detail}`);
+			return { success: false, error: `Document must be certified${detail}` };
 		}
-
-		console.log(
-			'certificationValidDays: ',
-			certificationValidDays,
-			'certifiedDate: ',
-			output.certification?.certifiedDate
-		);
 
 		if (certificationValidDays && output.certification?.certifiedDate) {
 			const certDate = new Date(output.certification.certifiedDate);
@@ -287,32 +294,39 @@ export async function analyzeAcademicDocument(
 				(today.getTime() - certDate.getTime()) / (1000 * 60 * 60 * 24)
 			);
 			if (daysDiff > certificationValidDays) {
-				throw new Error(
-					`Certification has expired (certified ${daysDiff} days ago, valid for ${certificationValidDays} days)`
-				);
+				return {
+					success: false,
+					error: `Certification has expired (certified ${daysDiff} days ago, valid for ${certificationValidDays} days)`,
+				};
 			}
 		}
 
 		if (applicantName && output.studentName) {
 			if (!namesMatch(applicantName, output.studentName)) {
-				throw new Error(
-					`Name mismatch: document belongs to "${output.studentName}", not "${applicantName}"`
-				);
+				return {
+					success: false,
+					error: `Name mismatch: document belongs to "${output.studentName}", not "${applicantName}"`,
+				};
 			}
 		}
 
-		return output;
+		return { success: true, data: output };
 	} catch (error) {
 		if (NoObjectGeneratedError.isInstance(error)) {
 			console.error('Academic document analysis failed:', {
 				cause: error.cause,
 				text: error.text,
 			});
-			throw new Error(
-				`Failed to extract structured data from academic document: ${error.cause}`
-			);
+			return {
+				success: false,
+				error: `Failed to extract structured data from academic document: ${error.cause}`,
+			};
 		}
-		throw error;
+		return {
+			success: false,
+			error:
+				error instanceof Error ? error.message : 'An unexpected error occurred',
+		};
 	}
 }
 
