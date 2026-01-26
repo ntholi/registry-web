@@ -19,6 +19,7 @@ import { getAllVenues } from '@timetable/venues';
 import { parseAsInteger, parseAsString, useQueryState } from 'nuqs';
 import { getAllTerms } from '@/app/registry/terms';
 import { getStudentClassName } from '@/shared/lib/utils/utils';
+import { Pagination } from '@/shared/ui/adease/Pagination';
 import {
 	getClassesWithTimetable,
 	getClassTimetableSlots,
@@ -27,6 +28,8 @@ import {
 } from '../_server/actions';
 
 type ViewType = 'lecturers' | 'venues' | 'students';
+
+const ITEMS_PER_PAGE = 20;
 
 export default function TimetableViewer() {
 	const [termId, setTermId] = useQueryState('term', parseAsInteger);
@@ -37,6 +40,7 @@ export default function TimetableViewer() {
 	const [lecturerId, setLecturerId] = useQueryState('lecturer', parseAsString);
 	const [venueId, setVenueId] = useQueryState('venue', parseAsString);
 	const [classId, setClassId] = useQueryState('class', parseAsInteger);
+	const [page, setPage] = useQueryState('page', parseAsInteger.withDefault(1));
 
 	const { data: terms = [] } = useQuery({
 		queryKey: ['terms'],
@@ -103,7 +107,10 @@ export default function TimetableViewer() {
 							})),
 						]}
 						value={lecturerId}
-						onChange={(value) => setLecturerId(value)}
+						onChange={(value) => {
+							setLecturerId(value);
+							setPage(1);
+						}}
 						clearable
 						w={220}
 					/>
@@ -122,7 +129,10 @@ export default function TimetableViewer() {
 							})),
 						]}
 						value={venueId}
-						onChange={(value) => setVenueId(value)}
+						onChange={(value) => {
+							setVenueId(value);
+							setPage(1);
+						}}
 						clearable
 						w={220}
 					/>
@@ -144,7 +154,10 @@ export default function TimetableViewer() {
 							})),
 						]}
 						value={classId ? classId.toString() : null}
-						onChange={(value) => setClassId(value ? Number(value) : null)}
+						onChange={(value) => {
+							setClassId(value ? Number(value) : null);
+							setPage(1);
+						}}
 						clearable
 						w={220}
 					/>
@@ -223,9 +236,15 @@ export default function TimetableViewer() {
 			);
 		}
 
+		const totalPages = Math.ceil(sortedLecturers.length / ITEMS_PER_PAGE);
+		const paginatedLecturers = sortedLecturers.slice(
+			(page - 1) * ITEMS_PER_PAGE,
+			page * ITEMS_PER_PAGE
+		);
+
 		return (
 			<Stack gap='xl'>
-				{sortedLecturers.map((lecturer) => (
+				{paginatedLecturers.map((lecturer) => (
 					<Box key={lecturer.name}>
 						<Badge variant='default' radius={0} p={'md'} mb={0} ml={'xl'}>
 							{lecturer.name}
@@ -239,6 +258,7 @@ export default function TimetableViewer() {
 						/>
 					</Box>
 				))}
+				<Pagination total={totalPages} totalItems={sortedLecturers.length} />
 			</Stack>
 		);
 	}
@@ -294,9 +314,15 @@ export default function TimetableViewer() {
 			);
 		}
 
+		const totalPages = Math.ceil(sortedVenues.length / ITEMS_PER_PAGE);
+		const paginatedVenues = sortedVenues.slice(
+			(page - 1) * ITEMS_PER_PAGE,
+			page * ITEMS_PER_PAGE
+		);
+
 		return (
 			<Stack gap='xl'>
-				{sortedVenues.map((venue) => (
+				{paginatedVenues.map((venue) => (
 					<Box key={venue.name}>
 						<Badge variant='default' radius={0} p={'md'} mb={0} ml={'xl'}>
 							{venue.name}
@@ -310,6 +336,7 @@ export default function TimetableViewer() {
 						/>
 					</Box>
 				))}
+				<Pagination total={totalPages} totalItems={sortedVenues.length} />
 			</Stack>
 		);
 	}
@@ -366,9 +393,15 @@ export default function TimetableViewer() {
 				);
 			}
 
+			const totalPages = Math.ceil(sortedClasses.length / ITEMS_PER_PAGE);
+			const paginatedClasses = sortedClasses.slice(
+				(page - 1) * ITEMS_PER_PAGE,
+				page * ITEMS_PER_PAGE
+			);
+
 			return (
 				<Stack gap='xl'>
-					{sortedClasses.map((cls) => (
+					{paginatedClasses.map((cls) => (
 						<Box key={cls.name}>
 							<Badge variant='default' radius={0} p={'md'} mb={0} ml={'xl'}>
 								{cls.name}
@@ -382,6 +415,7 @@ export default function TimetableViewer() {
 							/>
 						</Box>
 					))}
+					<Pagination total={totalPages} totalItems={sortedClasses.length} />
 				</Stack>
 			);
 		}
@@ -496,7 +530,10 @@ export default function TimetableViewer() {
 				<Group justify='space-between' align='center'>
 					<SegmentedControl
 						value={viewType ?? 'lecturers'}
-						onChange={(value) => setViewType(value as ViewType)}
+						onChange={(value) => {
+							setViewType(value as ViewType);
+							setPage(1);
+						}}
 						data={[
 							{ label: 'Lecturers', value: 'lecturers' },
 							{ label: 'Venues', value: 'venues' },
