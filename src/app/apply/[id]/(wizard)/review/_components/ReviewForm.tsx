@@ -47,7 +47,8 @@ export default function ReviewForm({ applicationId }: Props) {
 			if (!application?.id) {
 				throw new Error('No application found');
 			}
-			return submitApplication(application.id);
+			const res = await submitApplication(application.id);
+			if (!res.success) throw new Error(res.error);
 		},
 		onSuccess: () => {
 			refetch();

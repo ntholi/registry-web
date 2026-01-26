@@ -32,7 +32,10 @@ export default function PhoneManager() {
 	});
 
 	const addMutation = useMutation({
-		mutationFn: (phoneNumber: string) => addPhone(applicantId, phoneNumber),
+		mutationFn: async (phoneNumber: string) => {
+			const res = await addPhone(applicantId, phoneNumber);
+			if (!res.success) throw new Error(res.error);
+		},
 		onSuccess: async () => {
 			await refetch();
 			form.reset();
@@ -53,7 +56,10 @@ export default function PhoneManager() {
 	});
 
 	const removeMutation = useMutation({
-		mutationFn: removePhone,
+		mutationFn: async (phoneId: string) => {
+			const res = await removePhone(phoneId);
+			if (!res.success) throw new Error(res.error);
+		},
 		onSuccess: async () => {
 			await refetch();
 			notifications.show({
