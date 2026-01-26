@@ -21,7 +21,6 @@ import { Form } from '@/shared/ui/adease';
 import type {
 	ClassificationRules,
 	EntryRequirement,
-	MinimumGradeRequirement,
 	SubjectGradeRules,
 } from '../_lib/types';
 
@@ -108,33 +107,6 @@ export default function EntryRequirementForm({
 		return onSubmit({ ...values, rules });
 	};
 
-	const addMinimumGradeReq = () => {
-		setSubjectGradeRules((prev) => ({
-			...prev,
-			minimumGrades: [...prev.minimumGrades, { count: 1, grade: 'C' }],
-		}));
-	};
-
-	const removeMinimumGradeReq = (index: number) => {
-		setSubjectGradeRules((prev) => ({
-			...prev,
-			minimumGrades: prev.minimumGrades.filter((_, i) => i !== index),
-		}));
-	};
-
-	const updateMinimumGradeReq = (
-		index: number,
-		field: keyof MinimumGradeRequirement,
-		value: string | number
-	) => {
-		setSubjectGradeRules((prev) => ({
-			...prev,
-			minimumGrades: prev.minimumGrades.map((mg, i) =>
-				i === index ? { ...mg, [field]: value } : mg
-			),
-		}));
-	};
-
 	const addRequiredSubject = () => {
 		setSubjectGradeRules((prev) => ({
 			...prev,
@@ -162,6 +134,33 @@ export default function EntryRequirementForm({
 			requiredSubjects: prev.requiredSubjects.map((s, i) =>
 				i === index ? { ...s, [field]: value } : s
 			),
+		}));
+	};
+
+	const addMinimumGradeRule = () => {
+		setSubjectGradeRules((prev) => ({
+			...prev,
+			minimumGrades: [...prev.minimumGrades, { count: 1, grade: 'C' }],
+		}));
+	};
+
+	const updateMinimumGradeRule = (
+		index: number,
+		field: 'count' | 'grade',
+		value: number | string
+	) => {
+		setSubjectGradeRules((prev) => ({
+			...prev,
+			minimumGrades: prev.minimumGrades.map((rule, i) =>
+				i === index ? { ...rule, [field]: value } : rule
+			),
+		}));
+	};
+
+	const removeMinimumGradeRule = (index: number) => {
+		setSubjectGradeRules((prev) => ({
+			...prev,
+			minimumGrades: prev.minimumGrades.filter((_, i) => i !== index),
 		}));
 	};
 
@@ -223,53 +222,51 @@ export default function EntryRequirementForm({
 							<Stack gap='xs' mb='md'>
 								<Group justify='space-between'>
 									<Text size='sm' fw={500}>
-										Minimum Grades Required
+										Minimum Grades
 									</Text>
 									<ActionIcon
 										variant='light'
 										color='blue'
-										onClick={addMinimumGradeReq}
+										onClick={addMinimumGradeRule}
 									>
 										<IconPlus size={16} />
 									</ActionIcon>
 								</Group>
-								<Text size='xs' c='dimmed'>
-									Define multiple grade requirements (e.g., 2 D grades + 3 C
-									grades). All requirements must be satisfied.
-								</Text>
 
-								{subjectGradeRules.minimumGrades.map((mg, idx) => (
-									<Group key={idx} gap='xs'>
+								{subjectGradeRules.minimumGrades.map((rule, idx) => (
+									<Group key={idx} gap='xs' align='flex-end'>
 										<NumberInput
-											placeholder='Count'
+											label='Minimum Passes'
 											min={1}
 											max={10}
-											value={mg.count}
+											value={rule.count}
 											onChange={(val) =>
-												updateMinimumGradeReq(idx, 'count', Number(val) || 1)
+												updateMinimumGradeRule(
+													idx,
+													'count',
+													Number(val) || 1
+												)
 											}
-											w={80}
 										/>
-										<Text size='sm'>passes at</Text>
 										<Select
-											placeholder='Grade'
+											label='Minimum Grade'
 											data={standardGrades}
-											value={mg.grade}
+											value={rule.grade}
 											onChange={(val) =>
-												updateMinimumGradeReq(idx, 'grade', val || 'C')
+												updateMinimumGradeRule(
+													idx,
+													'grade',
+													val || 'C'
+												)
 											}
-											w={80}
 										/>
-										<Text size='sm'>or better</Text>
-										{subjectGradeRules.minimumGrades.length > 1 && (
-											<ActionIcon
-												variant='light'
-												color='red'
-												onClick={() => removeMinimumGradeReq(idx)}
-											>
-												<IconTrash size={16} />
-											</ActionIcon>
-										)}
+										<ActionIcon
+											variant='light'
+											color='red'
+											onClick={() => removeMinimumGradeRule(idx)}
+										>
+											<IconTrash size={16} />
+										</ActionIcon>
 									</Group>
 								))}
 							</Stack>
