@@ -31,14 +31,12 @@ export default function QualificationsUploadForm({ applicationId }: Props) {
 	const [uploadKey, setUploadKey] = useState(0);
 	const [pendingUploads, setPendingUploads] = useState(0);
 
-	const { applicant, refetch, documentLimits, currentApplication } =
+	const { applicant, refetch, documentLimits, certificationValidDays } =
 		useApplicant();
 	const applicantId = applicant?.id ?? '';
 
 	const records = applicant?.academicRecords ?? [];
 	const hasRecords = records.length > 0;
-	const certificationValidDays =
-		currentApplication?.intakePeriod?.certificationValidDays ?? undefined;
 
 	async function handleUploadComplete(
 		result: DocumentUploadResult<'certificate'>
