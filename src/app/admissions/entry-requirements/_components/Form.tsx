@@ -241,11 +241,7 @@ export default function EntryRequirementForm({
 											max={10}
 											value={rule.count}
 											onChange={(val) =>
-												updateMinimumGradeRule(
-													idx,
-													'count',
-													Number(val) || 1
-												)
+												updateMinimumGradeRule(idx, 'count', Number(val) || 1)
 											}
 										/>
 										<Select
@@ -253,11 +249,7 @@ export default function EntryRequirementForm({
 											data={standardGrades}
 											value={rule.grade}
 											onChange={(val) =>
-												updateMinimumGradeRule(
-													idx,
-													'grade',
-													val || 'C'
-												)
+												updateMinimumGradeRule(idx, 'grade', val || 'C')
 											}
 										/>
 										<ActionIcon

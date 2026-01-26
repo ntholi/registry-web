@@ -54,6 +54,14 @@ export default function IdentityUploadForm({ applicationId }: Props) {
 	async function handleUploadComplete(
 		result: DocumentUploadResult<'identity'>
 	) {
+		if (!applicantId) {
+			notifications.show({
+				title: 'Upload failed',
+				message: 'Applicant data not loaded yet. Please try again.',
+				color: 'red',
+			});
+			return;
+		}
 		setUploading(true);
 		setPendingUploads((prev) => prev + 1);
 		const res = await uploadIdentityDocument(

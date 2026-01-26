@@ -102,7 +102,7 @@ function RequirementDetails({ rules, subjects }: RequirementDetailsProps) {
 						{sgRules.minimumGrades.map((rule, idx) => (
 							<Text key={idx} size='sm'>
 								Minimum of <strong>{rule.count}</strong> subjects passed at
-								 grade <strong>{rule.grade}</strong> or better
+								grade <strong>{rule.grade}</strong> or better
 							</Text>
 						))}
 					</Stack>
