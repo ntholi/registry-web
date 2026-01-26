@@ -11,7 +11,6 @@ import {
 	TableTr,
 	Text,
 } from '@mantine/core';
-import { formatDuration } from '@/shared/lib/utils/dates';
 import { getStudentClassName } from '@/shared/lib/utils/utils';
 import DeleteAllocationButton from './DeleteAllocationButton';
 import EditAllocationModal from './EditAllocationModal';
@@ -124,7 +123,7 @@ export default function AllocationTable({
 				<TableTr>
 					<TableTh>Module</TableTh>
 					<TableTh>Class</TableTh>
-					<TableTh>Duration</TableTh>
+					<TableTh>Time</TableTh>
 					<TableTh>Students</TableTh>
 					<TableTh>Venue</TableTh>
 					<TableTh>Actions</TableTh>
@@ -144,8 +143,11 @@ export default function AllocationTable({
 							)}
 						</TableTd>
 						<TableTd>
-							{formatDuration(allocation.duration || 0)} (
-							{formatTimePeriod(allocation.startTime, allocation.endTime)})
+							{formatTimePeriod(allocation.startTime, allocation.endTime) || (
+								<Text size='sm' c='dimmed'>
+									-
+								</Text>
+							)}
 						</TableTd>
 						<TableTd>
 							<Text size='sm'>{allocation.numberOfStudents}</Text>
