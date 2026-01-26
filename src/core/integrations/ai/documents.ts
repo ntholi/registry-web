@@ -273,6 +273,13 @@ export async function analyzeAcademicDocument(
 			throw new Error(`Document must be certified${detail}`);
 		}
 
+		console.log(
+			'certificationValidDays: ',
+			certificationValidDays,
+			'certifiedDate: ',
+			output.certification?.certifiedDate
+		);
+
 		if (certificationValidDays && output.certification?.certifiedDate) {
 			const certDate = new Date(output.certification.certifiedDate);
 			const today = new Date();

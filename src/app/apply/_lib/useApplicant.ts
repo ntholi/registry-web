@@ -5,6 +5,7 @@ import {
 	canCurrentUserApply,
 	getOrCreateApplicantForCurrentUser,
 } from '@admissions/applicants';
+import { findActiveIntakePeriod } from '@admissions/intake-periods';
 import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
@@ -121,6 +122,13 @@ export function useApplicant() {
 		enabled: !!userId && eligibilityQuery.data?.canApply === true,
 	});
 
+	const activeIntakeQuery = useQuery({
+		queryKey: ['active-intake-period'],
+		queryFn: () => findActiveIntakePeriod(),
+		staleTime: 60_000,
+		enabled: !!userId,
+	});
+
 	const completeness = useMemo(
 		() => computeCompleteness(query.data),
 		[query.data]
@@ -135,7 +143,15 @@ export function useApplicant() {
 		);
 	}, [query.data]);
 
-	const maxDocuments = currentApplication?.intakePeriod?.maxDocuments ?? 18;
+	const activeIntake = activeIntakeQuery.data ?? null;
+	const maxDocuments =
+		currentApplication?.intakePeriod?.maxDocuments ??
+		activeIntake?.maxDocuments ??
+		18;
+	const certificationValidDays =
+		currentApplication?.intakePeriod?.certificationValidDays ??
+		activeIntake?.certificationValidDays ??
+		undefined;
 
 	const documentLimits = useMemo(
 		() => computeDocumentLimits(query.data, maxDocuments),
@@ -144,12 +160,17 @@ export function useApplicant() {
 
 	return {
 		applicant: query.data,
-		isLoading: query.isLoading || eligibilityQuery.isLoading,
+		isLoading:
+			query.isLoading ||
+			eligibilityQuery.isLoading ||
+			activeIntakeQuery.isLoading,
 		isSuccess: query.isSuccess,
 		error: query.error,
 		refetch: query.refetch,
 		completeness,
 		currentApplication,
+		activeIntake,
 		documentLimits,
+		certificationValidDays,
 	};
 }
