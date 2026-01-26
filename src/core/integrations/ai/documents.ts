@@ -51,12 +51,15 @@ RULES:
 - Use null for missing/illegible data
 
 CERTIFICATION EXTRACTION:
-- isCertified: true only if a NON-ECoL stamp AND signature are present
-- hasStamp: true if any official stamp/seal visible
-- hasSignature: true if handwritten signature present near stamp
-- IMPORTANT: Extract ALL stamps visible on the document into the stamps array
-- For each stamp extract: date (YYYY-MM-DD), name (person/organization), title (e.g., Commissioner of Oaths)
-- For each stamp, set isEcol: true if it's from ECoL (Examinations Council of Lesotho)`;
+- A certified document MUST have BOTH a stamp AND a signature
+- There might be multiple stamps on a document, IGNORE stamps from the examining body (ECoL, Cambridge, etc.) - these are part of the certificate itself
+- Only consider certification stamps from Commissioner of Oaths, Notary Public, Justice of the Peace, etc.
+- isCertified: true only if a THIRD-PARTY certification stamp AND signature are present
+- hasStamp: true if official certification stamp/seal visible (NOT the examining body's stamp)
+- hasSignature: true if handwritten signature present near the certification stamp
+- certifiedDate: Extract date from certification stamp in YYYY-MM-DD format
+- certifierName: Name from certification stamp (person or organization)
+- certifierTitle: Title from stamp (Commissioner of Oaths, Notary Public, JP, etc.)`;
 
 const IDENTITY_PROMPT = `Analyze this identity document and extract structured information.
 
@@ -89,12 +92,15 @@ ISSUING AUTHORITY:
 - Look for official text like "Examinations Council of Lesotho" and record as "ECoL"
 
 CERTIFICATION EXTRACTION:
-- isCertified: true only if a NON-ECoL stamp AND signature are present
-- hasStamp: true if any official stamp/seal visible
-- hasSignature: true if handwritten signature present near stamp
-- IMPORTANT: Extract ALL stamps visible on the document into the stamps array
-- For each stamp extract: date (YYYY-MM-DD), name (person/organization), title (e.g., Commissioner of Oaths)
-- For each stamp, set isEcol: true if it's from ECoL (Examinations Council of Lesotho)`;
+- A certified document MUST have BOTH a stamp AND a signature
+- IGNORE stamps from the examining body (ECoL, Cambridge, etc.) - these are part of the certificate itself
+- Only consider certification stamps from Commissioner of Oaths, Notary Public, Justice of the Peace, etc.
+- isCertified: true only if a THIRD-PARTY certification stamp AND signature are present
+- hasStamp: true if official certification stamp/seal visible (NOT the examining body's stamp)
+- hasSignature: true if handwritten signature present near the certification stamp
+- certifiedDate: Extract date from certification stamp in YYYY-MM-DD format
+- certifierName: Name from certification stamp (person or organization)
+- certifierTitle: Title from stamp (Commissioner of Oaths, Notary Public, JP, etc.)`;
 
 const DEFAULT_CERTIFICATE_TYPES = [
 	'LGCSE',
