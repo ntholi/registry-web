@@ -62,10 +62,10 @@ export default function CourseCard({ program, subjects }: Props) {
 							<Title size={'xs'} order={5} mb='sm'>
 								Entry Requirements
 							</Title>
-							<Stack gap='xs'>
+							<Text>
 								{rules.minimumGrades.map((mg, idx) => (
-									<Text key={idx}>
-										You must pass at least{' '}
+									<span key={idx}>
+										{idx === 0 ? 'You must pass at least ' : ' And '}
 										<Text span fw={700} c='teal'>
 											{mg.count} subjects
 										</Text>{' '}
@@ -74,9 +74,9 @@ export default function CourseCard({ program, subjects }: Props) {
 											{mg.grade}
 										</Text>{' '}
 										or better.
-									</Text>
+									</span>
 								))}
-							</Stack>
+							</Text>
 						</Box>
 
 						{rules.requiredSubjects.length > 0 && (
