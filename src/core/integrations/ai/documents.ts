@@ -52,11 +52,13 @@ RULES:
 
 CERTIFICATION EXTRACTION:
 - A certified document MUST have BOTH a stamp AND a signature
-- isCertified: true only if stamp AND signature are present
-- hasStamp: true if official stamp/seal visible (Commissioner of Oaths, Notary, etc.)
-- hasSignature: true if handwritten signature present near stamp
-- certifiedDate: Extract date from stamp in YYYY-MM-DD format
-- certifierName: Name from stamp (person or organization)
+- There might be multiple stamps on a document, IGNORE stamps from the examining body (ECoL, Cambridge, etc.) - these are part of the certificate itself
+- Only consider certification stamps from Commissioner of Oaths, Notary Public, Justice of the Peace, etc.
+- isCertified: true only if a THIRD-PARTY certification stamp AND signature are present
+- hasStamp: true if official certification stamp/seal visible (NOT the examining body's stamp)
+- hasSignature: true if handwritten signature present near the certification stamp
+- certifiedDate: Extract date from certification stamp in YYYY-MM-DD format
+- certifierName: Name from certification stamp (person or organization)
 - certifierTitle: Title from stamp (Commissioner of Oaths, Notary Public, JP, etc.)`;
 
 const IDENTITY_PROMPT = `Analyze this identity document and extract structured information.
@@ -92,11 +94,13 @@ ISSUING AUTHORITY:
 
 CERTIFICATION EXTRACTION:
 - A certified document MUST have BOTH a stamp AND a signature
-- isCertified: true only if stamp AND signature are present
-- hasStamp: true if official stamp/seal visible (Commissioner of Oaths, Notary, etc.)
-- hasSignature: true if handwritten signature present near stamp
-- certifiedDate: Extract date from stamp in YYYY-MM-DD format
-- certifierName: Name from stamp (person or organization)
+- IGNORE stamps from the examining body (ECoL, Cambridge, etc.) - these are part of the certificate itself
+- Only consider certification stamps from Commissioner of Oaths, Notary Public, Justice of the Peace, etc.
+- isCertified: true only if a THIRD-PARTY certification stamp AND signature are present
+- hasStamp: true if official certification stamp/seal visible (NOT the examining body's stamp)
+- hasSignature: true if handwritten signature present near the certification stamp
+- certifiedDate: Extract date from certification stamp in YYYY-MM-DD format
+- certifierName: Name from certification stamp (person or organization)
 - certifierTitle: Title from stamp (Commissioner of Oaths, Notary Public, JP, etc.)`;
 
 const DEFAULT_CERTIFICATE_TYPES = [
