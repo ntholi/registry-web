@@ -1,5 +1,6 @@
 import { mapGrade } from '@admissions/certificate-types/_server/actions';
 import { entryRequirementsService } from '@admissions/entry-requirements/_server/service';
+import { intakePeriodsService } from '@admissions/intake-periods/_server/service';
 import type { applicants, documents, guardians } from '@/core/database';
 import type { DocumentAnalysisResult } from '@/core/integrations/ai/documents';
 import BaseService from '@/core/platform/BaseService';
@@ -220,7 +221,14 @@ class ApplicantService extends BaseService<typeof applicants, 'id'> {
 				}
 
 				const fullName = session?.user?.name ?? 'New Applicant';
-				return this.repo.findOrCreateByUserId(userId, fullName);
+				const [applicant, activeIntake] = await Promise.all([
+					this.repo.findOrCreateByUserId(userId, fullName),
+					intakePeriodsService.findActive(),
+				]);
+
+				if (!applicant) return null;
+
+				return { ...applicant, activeIntake };
 			},
 			['auth']
 		);
