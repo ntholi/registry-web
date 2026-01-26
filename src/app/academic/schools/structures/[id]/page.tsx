@@ -266,9 +266,20 @@ export default function StructureDetailsPage() {
 
 function canEditModule(session: Session | null) {
 	if (!session) return false;
-	return (
-		['admin', 'registry'].includes(session?.user?.role ?? '') ||
-		(session?.user?.role === 'academic' &&
-			['manager', 'program_leader'].includes(session.user.position ?? ''))
-	);
+	if (session?.user?.role === 'admin') {
+		return true;
+	}
+	if (
+		session.user?.role === 'registry' &&
+		session.user.position === 'manager'
+	) {
+		return true;
+	}
+	if (
+		session.user?.role === 'academic' &&
+		['manager', 'program_leader'].includes(session.user.position || '')
+	) {
+		return true;
+	}
+	return false;
 }

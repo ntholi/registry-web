@@ -32,6 +32,20 @@ type Props = {
 	structureId: number;
 };
 
+function extractCreditsFromCode(code: string): number {
+	const lastTwo = code.slice(-2);
+	const credits = Number.parseInt(lastTwo, 10);
+	return Number.isNaN(credits) ? 4 : credits;
+}
+
+function getTypeFromCredits(
+	credits: number
+): (typeof moduleType.enumValues)[number] {
+	if (credits > 11) return 'Major';
+	if (credits < 10) return 'Minor';
+	return 'Core';
+}
+
 export default function AddSemesterModuleModal({
 	semesterId,
 	structureId,
@@ -199,6 +213,17 @@ export default function AddSemesterModuleModal({
 											'moduleId',
 											value ? Number(value) : null
 										);
+										if (value) {
+											const mod = modulesData?.items.find(
+												(m) => m.id.toString() === value
+											);
+											if (mod?.code) {
+												const credits = extractCreditsFromCode(mod.code);
+												const type = getTypeFromCredits(credits);
+												searchForm.setFieldValue('credits', credits);
+												searchForm.setFieldValue('type', type);
+											}
+										}
 									}}
 									searchable
 									onSearchChange={setSearchQuery}
@@ -254,8 +279,18 @@ export default function AddSemesterModuleModal({
 							<Stack gap='md'>
 								<TextInput
 									label='Code'
-									placeholder='e.g., CS101'
+									placeholder='e.g., BBTY1212'
 									{...createForm.getInputProps('code')}
+									onChange={(e) => {
+										createForm.setFieldValue('code', e.target.value);
+										const code = e.target.value.trim();
+										if (code.length >= 2) {
+											const credits = extractCreditsFromCode(code);
+											const type = getTypeFromCredits(credits);
+											createForm.setFieldValue('credits', credits);
+											createForm.setFieldValue('type', type);
+										}
+									}}
 								/>
 								<TextInput
 									label='Name'
