@@ -5,13 +5,17 @@ import {
 	createModule as createBaseModule,
 	getModules,
 } from '@academic/modules';
-import { createModule as createSemesterModule } from '@academic/semester-modules';
+import {
+	createModule as createSemesterModule,
+	findModulesByStructure,
+} from '@academic/semester-modules';
 import {
 	ActionIcon,
 	Button,
 	Group,
 	Loader,
 	Modal,
+	MultiSelect,
 	NumberInput,
 	Select,
 	Stack,
@@ -63,11 +67,33 @@ export default function AddSemesterModuleModal({
 		enabled: opened && activeTab === 'search',
 	});
 
+	const { data: structureModules } = useQuery({
+		queryKey: ['structure-modules', structureId],
+		queryFn: () => findModulesByStructure(structureId),
+		enabled: opened,
+	});
+
+	const prerequisiteOptions = Array.from(
+		new Set(structureModules?.map((mod) => mod.module!.code) || [])
+	)
+		.map((code) => {
+			const foundModule = structureModules?.find(
+				(m) => m.module!.code === code
+			);
+			if (!foundModule) return null;
+			return {
+				value: code,
+				label: `${foundModule.module!.code} - ${foundModule.module!.name}`,
+			};
+		})
+		.filter(Boolean) as { value: string; label: string }[];
+
 	const searchForm = useForm({
 		initialValues: {
 			moduleId: null as number | null,
 			type: 'Core' as (typeof moduleType.enumValues)[number],
 			credits: 4,
+			prerequisiteCodes: [] as string[],
 		},
 		validate: {
 			moduleId: (value) => (!value ? 'Select a module' : null),
@@ -82,6 +108,7 @@ export default function AddSemesterModuleModal({
 			name: '',
 			type: 'Core' as (typeof moduleType.enumValues)[number],
 			credits: 4,
+			prerequisiteCodes: [] as string[],
 		},
 		validate: {
 			code: (value) => (!value?.trim() ? 'Code is required' : null),
@@ -99,6 +126,7 @@ export default function AddSemesterModuleModal({
 				type: values.type,
 				credits: values.credits,
 				hidden: false,
+				prerequisiteCodes: values.prerequisiteCodes,
 			});
 		},
 		onSuccess: () => {
@@ -132,6 +160,7 @@ export default function AddSemesterModuleModal({
 				type: values.type,
 				credits: values.credits,
 				hidden: false,
+				prerequisiteCodes: values.prerequisiteCodes,
 			});
 		},
 		onSuccess: () => {
@@ -254,6 +283,15 @@ export default function AddSemesterModuleModal({
 									decimalScale={1}
 									{...searchForm.getInputProps('credits')}
 								/>
+								<MultiSelect
+									label='Prerequisites'
+									placeholder='Select prerequisites'
+									data={prerequisiteOptions}
+									searchable
+									clearSearchOnChange={false}
+									hidePickedOptions
+									{...searchForm.getInputProps('prerequisiteCodes')}
+								/>
 								<Group justify='flex-end' mt='md'>
 									<Button
 										variant='light'
@@ -311,6 +349,15 @@ export default function AddSemesterModuleModal({
 									step={0.5}
 									decimalScale={1}
 									{...createForm.getInputProps('credits')}
+								/>
+								<MultiSelect
+									label='Prerequisites'
+									placeholder='Select prerequisites'
+									data={prerequisiteOptions}
+									searchable
+									clearSearchOnChange={false}
+									hidePickedOptions
+									{...createForm.getInputProps('prerequisiteCodes')}
 								/>
 								<Group justify='flex-end' mt='md'>
 									<Button
