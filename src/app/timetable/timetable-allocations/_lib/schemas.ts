@@ -93,6 +93,7 @@ const groupSlotSchemaInner = z.object({
 	startTime: z.string().min(1, 'Please enter a start time'),
 	endTime: z.string().min(1, 'Please enter an end time'),
 	venueId: z.string().min(1, 'Please select a venue'),
+	allowOverflow: z.boolean().default(false),
 });
 
 export const groupSlotSchema = applyTimeRefinements(

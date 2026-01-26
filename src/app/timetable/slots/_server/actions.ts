@@ -29,6 +29,7 @@ export async function createAllocationsWithSlots(
 			dayOfWeek: DayOfWeek;
 			startTime: string;
 			endTime: string;
+			allowOverflow?: boolean;
 		};
 	}>
 ): Promise<ActionResult<void>> {

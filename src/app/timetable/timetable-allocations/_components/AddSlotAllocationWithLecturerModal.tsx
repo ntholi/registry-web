@@ -11,6 +11,7 @@ import {
 	Badge,
 	Box,
 	Button,
+	Checkbox,
 	Grid,
 	Group,
 	Loader,
@@ -84,6 +85,7 @@ function createDefaultGroupSlot(): GroupSlot {
 		startTime: '08:30',
 		endTime: '10:30',
 		venueId: '',
+		allowOverflow: false,
 	};
 }
 
@@ -194,6 +196,7 @@ export default function AddSlotAllocationWithLecturerModal() {
 						dayOfWeek: slot.dayOfWeek,
 						startTime: `${slot.startTime}:00`,
 						endTime: `${slot.endTime}:00`,
+						allowOverflow: slot.allowOverflow,
 					},
 				};
 			});
@@ -566,6 +569,18 @@ export default function AddSlotAllocationWithLecturerModal() {
 																	{duration % 60}m
 																</Text>
 															)}
+
+															<Checkbox
+																label='Allow overflow (bypass capacity limit)'
+																checked={slot.allowOverflow}
+																onChange={(e) =>
+																	form.setFieldValue(
+																		`groupSlots.${index}.allowOverflow`,
+																		e.currentTarget.checked
+																	)
+																}
+																size='xs'
+															/>
 														</Stack>
 													</Paper>
 												);

@@ -55,6 +55,7 @@ class TimetableSlotService extends BaseService<typeof timetableSlots, 'id'> {
 				dayOfWeek: DayOfWeek;
 				startTime: string;
 				endTime: string;
+				allowOverflow?: boolean;
 			};
 		}>
 	) {
