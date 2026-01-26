@@ -4,25 +4,33 @@ export interface OverflowOption {
 	capacity: number;
 }
 
+export interface AllocationInfo {
+	id: number;
+	moduleCode: string;
+	moduleName: string;
+}
+
 export class TimetablePlanningError extends Error {
 	readonly digest?: string;
 	readonly allocationId?: number;
+	readonly allocationInfo?: AllocationInfo;
 	readonly canAllowOverflow: boolean;
 	readonly overflowOptions: OverflowOption[];
 
 	constructor(
 		message: string,
-		allocationId?: number,
+		allocationInfo?: AllocationInfo,
 		overflowOptions?: OverflowOption[]
 	) {
 		const canAllowOverflow = message.includes('NO_VENUE_CAPACITY:');
 		const cleanMessage = message.replace('NO_VENUE_CAPACITY:', '');
-		const userMessage = allocationId
-			? `Unable to allocate slot for allocation ${allocationId}. ${cleanMessage}`
+		const userMessage = allocationInfo
+			? `Unable to allocate slot for ${allocationInfo.moduleCode} (${allocationInfo.moduleName}). ${cleanMessage}`
 			: cleanMessage;
 		super(userMessage);
 		this.name = 'TimetablePlanningError';
-		this.allocationId = allocationId;
+		this.allocationId = allocationInfo?.id;
+		this.allocationInfo = allocationInfo;
 		this.canAllowOverflow = canAllowOverflow;
 		this.overflowOptions = overflowOptions ?? [];
 	}
