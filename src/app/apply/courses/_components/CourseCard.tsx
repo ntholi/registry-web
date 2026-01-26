@@ -38,7 +38,7 @@ export default function CourseCard({ program, subjects }: Props) {
 
 	return (
 		<Paper h='100%' radius='md' shadow='sm' withBorder>
-			<Box p='xl' w={'100%'}>
+			<Box px='xl' py={'lg'} w={'100%'}>
 				<Flex justify='space-between' align='center'>
 					<Text>{program.school.shortName}</Text>
 					<Badge size='sm' variant='light' radius={'xs'}>
@@ -51,9 +51,9 @@ export default function CourseCard({ program, subjects }: Props) {
 				</Text>
 			</Box>
 
-			<Divider my={'sm'} />
+			<Divider my={'xs'} />
 
-			<Box p='xl'>
+			<Box px='xl' py={'sm'} w={'100%'}>
 				{!rules ? (
 					<Text c='dimmed'>Entry requirements coming soon.</Text>
 				) : (
