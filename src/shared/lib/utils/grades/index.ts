@@ -388,12 +388,28 @@ export function getAcademicRemarks(
 		return !hasPassedLater;
 	});
 
-	const remainInSemester = latestFailedModules.length >= 3;
+	const uniqueSupplementaryModules = getUniqueModules(supplementary);
+	const uniqueFailedModules = getUniqueModules(failedModules);
+
+	const activeProgram = programs.find((p) => p.status === 'Active');
+	const latestSemester = semesters[semesters.length - 1];
+	const latestSemesterNumber = Number.parseInt(
+		latestSemester?.structureSemester?.semesterNumber || '0',
+		10
+	);
+	const isDiplomaSem5 =
+		activeProgram?.structure.program.level === 'diploma' &&
+		latestSemesterNumber === 5;
+
+	const hasOutstandingFailOrPP =
+		uniqueFailedModules.length > 0 || uniqueSupplementaryModules.length > 0;
+
+	const remainInSemester =
+		latestFailedModules.length >= 3 ||
+		(isDiplomaSem5 && hasOutstandingFailOrPP);
 	const status = remainInSemester ? 'Remain in Semester' : 'Proceed';
 
 	const messageParts: string[] = [status];
-	const uniqueSupplementaryModules = getUniqueModules(supplementary);
-	const uniqueFailedModules = getUniqueModules(failedModules);
 
 	if (uniqueSupplementaryModules.length > 0) {
 		messageParts.push(

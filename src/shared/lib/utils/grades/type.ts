@@ -48,6 +48,7 @@ export type Program = {
 			id: number;
 			name: string;
 			code: string;
+			level: 'certificate' | 'diploma' | 'degree';
 			school: {
 				id: number;
 				name: string;
