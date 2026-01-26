@@ -608,7 +608,7 @@ export default function AddSlotAllocationWithLecturerModal() {
 									<AllocationTable
 										allocations={filteredAllocations}
 										userId={selectedUserId}
-										showEdit={false}
+										showEdit={true}
 										emptyMessage='No allocations found for this lecturer in the selected term.'
 									/>
 								)}
