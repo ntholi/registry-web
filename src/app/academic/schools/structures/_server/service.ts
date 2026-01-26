@@ -1,4 +1,4 @@
-import type { structures } from '@/core/database';
+import type { structureSemesters, structures } from '@/core/database';
 import BaseService from '@/core/platform/BaseService';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
 import withAuth from '@/core/platform/withAuth';
@@ -44,6 +44,14 @@ class StructureService extends BaseService<typeof structures, 'id'> {
 					this.repository as StructureRepository
 				).getStructureSemestersByStructureId(structureId),
 			['dashboard']
+		);
+	}
+
+	async createStructureSemester(data: typeof structureSemesters.$inferInsert) {
+		return withAuth(
+			async () =>
+				(this.repository as StructureRepository).createStructureSemester(data),
+			['registry', 'admin']
 		);
 	}
 }
