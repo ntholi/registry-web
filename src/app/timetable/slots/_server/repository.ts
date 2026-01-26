@@ -492,6 +492,7 @@ export default class TimetableSlotRepository extends BaseRepository<
 				dayOfWeek: (typeof timetableSlots.dayOfWeek.enumValues)[number];
 				startTime: string;
 				endTime: string;
+				allowOverflow?: boolean;
 			};
 		}>
 	) {
@@ -557,6 +558,7 @@ export default class TimetableSlotRepository extends BaseRepository<
 				await tx.insert(timetableAllocationAllowedVenues).values({
 					timetableAllocationId: created.id,
 					venueId: item.slot.venueId,
+					allowOverflow: item.slot.allowOverflow ?? false,
 				});
 
 				results.push({ allocation: created, slot: createdSlot });
