@@ -20,10 +20,7 @@ class IntakePeriodService extends BaseService<typeof intakePeriods, 'id'> {
 	}
 
 	async findActive() {
-		return withAuth(
-			async () => this.repo.findActive(),
-			['registry', 'marketing', 'admin', 'applicant']
-		);
+		return withAuth(async () => this.repo.findActive(), ['all']);
 	}
 
 	async findAllActive() {
