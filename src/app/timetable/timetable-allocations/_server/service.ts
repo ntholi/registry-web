@@ -128,6 +128,12 @@ class TimetableAllocationService extends BaseService<
 			await this.repo.updateAllowedVenues(allocationId, venueIds);
 		}, ['academic']);
 	}
+
+	async setOverflowVenue(allocationId: number, venueId: string) {
+		return withAuth(async () => {
+			await this.repo.setOverflowVenue(allocationId, venueId);
+		}, ['academic']);
+	}
 }
 
 export const timetableAllocationService = serviceWrapper(

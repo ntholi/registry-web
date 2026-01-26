@@ -338,6 +338,33 @@ export default class TimetableAllocationRepository extends BaseRepository<
 		});
 	}
 
+	async setOverflowVenue(allocationId: number, venueId: string) {
+		return db.transaction(async (tx) => {
+			await tx
+				.delete(timetableAllocationAllowedVenues)
+				.where(
+					eq(
+						timetableAllocationAllowedVenues.timetableAllocationId,
+						allocationId
+					)
+				);
+
+			await tx.insert(timetableAllocationAllowedVenues).values({
+				timetableAllocationId: allocationId,
+				venueId,
+				allowOverflow: true,
+			});
+
+			const allocation = await tx.query.timetableAllocations.findFirst({
+				where: eq(timetableAllocations.id, allocationId),
+			});
+			if (!allocation) {
+				throw new Error('Timetable allocation not found');
+			}
+			await this.rebuildTermSlots(tx, allocation.termId);
+		});
+	}
+
 	private async rebuildTermSlots(
 		tx: TransactionClient,
 		termId: number,

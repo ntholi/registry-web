@@ -1,0 +1,2 @@
+ALTER TABLE "intake_periods" ALTER COLUMN "certification_valid_days" SET DEFAULT 90;--> statement-breakpoint
+ALTER TABLE "timetable_allocation_allowed_venues" ADD COLUMN "allow_overflow" boolean DEFAULT false NOT NULL;

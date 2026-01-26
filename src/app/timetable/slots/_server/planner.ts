@@ -5,7 +5,7 @@ import type {
 	venues,
 	venueTypes,
 } from '@/core/database';
-import { TimetablePlanningError } from './errors';
+import { type OverflowOption, TimetablePlanningError } from './errors';
 import type { PlannedSlotInput } from './repository';
 
 export type DayOfWeek = (typeof timetableSlots.dayOfWeek.enumValues)[number];
@@ -16,6 +16,7 @@ export type AllocationRecord = typeof timetableAllocations.$inferSelect & {
 	}[];
 	timetableAllocationAllowedVenues: {
 		venueId: string;
+		allowOverflow: boolean;
 	}[];
 	semesterModule: {
 		id: number;
@@ -181,7 +182,12 @@ export function buildTermPlan(
 				continue;
 			}
 			const diagnosis = diagnoseAllocationFailure(allocation, venues);
-			throw new TimetablePlanningError(diagnosis, allocation.id);
+			const overflowOptions = collectOverflowOptions(allocation, venues);
+			throw new TimetablePlanningError(
+				diagnosis,
+				allocation.id,
+				overflowOptions
+			);
 		}
 	}
 
@@ -420,6 +426,11 @@ function collectCandidateVenues(
 	const allowedVenueIds = allocation.timetableAllocationAllowedVenues.map(
 		(item) => item.venueId
 	);
+	const overflowVenueIds = new Set(
+		allocation.timetableAllocationAllowedVenues
+			.filter((item) => item.allowOverflow)
+			.map((item) => item.venueId)
+	);
 	const requiredTypes = allocation.timetableAllocationVenueTypes.map(
 		(item) => item.venueTypeId
 	);
@@ -442,9 +453,12 @@ function collectCandidateVenues(
 			continue;
 		}
 
-		const maxCapacity = Math.floor(venue.capacity * 1.1);
-		if (requiredCapacity > maxCapacity) {
-			continue;
+		const hasOverflow = overflowVenueIds.has(venue.id);
+		if (!hasOverflow) {
+			const maxCapacity = Math.floor(venue.capacity * 1.1);
+			if (requiredCapacity > maxCapacity) {
+				continue;
+			}
 		}
 
 		const venueSchoolIds = venue.venueSchools.map((vs) => vs.schoolId);
@@ -592,6 +606,13 @@ function findCombinableSlot(
 	const earliestStart = toMinutes(allocation.startTime);
 	const latestEnd = toMinutes(allocation.endTime);
 
+	const overflowVenueIds = new Set(
+		allocation.timetableAllocationAllowedVenues
+			.filter((item) => item.allowOverflow)
+			.map((item) => item.venueId)
+	);
+	const hasOverflow = overflowVenueIds.has(venue.id);
+
 	for (const slot of daySlots) {
 		if (
 			slot.moduleCode !== allocation.semesterModule.module.code ||
@@ -609,10 +630,13 @@ function findCombinableSlot(
 			continue;
 		}
 
-		const maxCapacity = Math.floor(venue.capacity * 1.1);
-		const newCapacity = slot.capacityUsed + (allocation.numberOfStudents ?? 0);
-		if (newCapacity > maxCapacity) {
-			continue;
+		if (!hasOverflow) {
+			const maxCapacity = Math.floor(venue.capacity * 1.1);
+			const newCapacity =
+				slot.capacityUsed + (allocation.numberOfStudents ?? 0);
+			if (newCapacity > maxCapacity) {
+				continue;
+			}
 		}
 
 		return slot;
@@ -1363,7 +1387,7 @@ function diagnoseAllocationFailure(
 				...venuesWithSchoolMatch.map((v) => v.capacity)
 			);
 			issues.push(
-				`No venue can fit ${requiredCapacity} students. Largest venue holds ${maxCapacity}. Split class into groups or assign a larger venue to the faculty.`
+				`NO_VENUE_CAPACITY:No venue can fit ${requiredCapacity} students. Largest venue holds ${maxCapacity}. You can allow overflow for a specific venue to bypass capacity limits.`
 			);
 		} else if (requiredTypes.length > 0) {
 			const venuesWithType = venuesWithCapacity.filter((v) =>
@@ -1439,4 +1463,27 @@ function diagnoseAllocationFailure(
 	}
 
 	return issues.join(' ');
+}
+
+function collectOverflowOptions(
+	allocation: AllocationRecord,
+	venues: VenueRecord[]
+): OverflowOption[] {
+	const lecturerSchoolIds = allocation.user.userSchools.map(
+		(us) => us.schoolId
+	);
+
+	const venuesWithSchoolMatch = venues.filter((venue) => {
+		const venueSchoolIds = venue.venueSchools.map((vs) => vs.schoolId);
+		return lecturerSchoolIds.some((id) => venueSchoolIds.includes(id));
+	});
+
+	return venuesWithSchoolMatch
+		.sort((a, b) => b.capacity - a.capacity)
+		.slice(0, 10)
+		.map((v) => ({
+			venueId: v.id,
+			venueName: v.name,
+			capacity: v.capacity,
+		}));
 }
