@@ -60,7 +60,6 @@ export async function seedEntryRequirements() {
 	}[] = [];
 
 	const LGCSE = C('LGCSE');
-	const CERT = C('Certificate');
 	const DIPLOMA = C('Diploma');
 
 	const MATH = S('Mathematics');
@@ -69,7 +68,6 @@ export async function seedEntryRequirements() {
 	const ACC = S('Accounting');
 	const BUS = S('Business Studies');
 	const ECON = S('Economics');
-	const PHYS_SCI = S('Physical Science');
 	const ART = S('Art');
 	const WOODWORK = S('Woodwork');
 	const HOME_ECON = S('Home Economics');
@@ -77,247 +75,41 @@ export async function seedEntryRequirements() {
 	const DESIGN_TECH = S('Design and Technology');
 	const NEEDLEWORK = S('Needlework');
 	const TECH_DRAWING = S('Technical Drawing');
-	const BRICKLAYING = S('Bricklaying');
+	const GEO = S('Geography');
 	const COMMERCE = S('Commerce');
 
 	const commercialSubjects = [ACC, BUS, ECON, COMMERCE];
 	const designSubjects = [
 		ART,
-		WOODWORK,
-		HOME_ECON,
 		ART_DESIGN,
 		DESIGN_TECH,
+		HOME_ECON,
 		NEEDLEWORK,
+		WOODWORK,
+	];
+	const architectureSubjects = [
+		ART,
+		WOODWORK,
+		ART_DESIGN,
+		DESIGN_TECH,
+		TECH_DRAWING,
 	];
 
 	// ============================================================
-	// DIPLOMA PROGRAMS (LGCSE entry) - Based on ENROLMENT PLAN.docx.md
+	// FACULTY OF DESIGN & INNOVATION
 	// ============================================================
 
-	// 1. Diploma in Information Technology (DIT)
-	// "3C grades including Mathematics and a D in any 2 subjects OR 4C grades or better including Mathematics OR relevant certificate"
-	requirements.push({
-		programId: P('DIT'),
-		certificateTypeId: LGCSE,
-		rules: {
-			type: 'subject-grades',
-			minimumGrades: [{ count: 3, grade: 'C' }],
-			requiredSubjects: [{ subjectId: MATH, minimumGrade: 'C' }],
-		},
-	});
-	requirements.push({
-		programId: P('DIT'),
-		certificateTypeId: CERT,
-		rules: {
-			type: 'classification',
-			minimumClassification: 'Pass',
-			requiredQualificationName: 'Relevant Certificate in IT',
-		},
-	});
-
-	// 2. Diploma in Multimedia & Software Engineering (DMSE)
-	// "3C grades including Mathematics and a D in any 2 subjects OR 4C grades or better including Mathematics OR relevant certificate"
-	requirements.push({
-		programId: P('DMSE'),
-		certificateTypeId: LGCSE,
-		rules: {
-			type: 'subject-grades',
-			minimumGrades: [{ count: 3, grade: 'C' }],
-			requiredSubjects: [{ subjectId: MATH, minimumGrade: 'C' }],
-		},
-	});
-	requirements.push({
-		programId: P('DMSE'),
-		certificateTypeId: CERT,
-		rules: {
-			type: 'classification',
-			minimumClassification: 'Pass',
-			requiredQualificationName: 'Relevant Certificate',
-		},
-	});
-
-	// 3. Diploma in Business Information Technology (DBIT)
-	// "3C grades including Mathematics and a D in any 2 subjects. D grade in Mathematics with at least 3C grades or better including Commercial/Financial subject and a D in any 2 subjects OR 4C grades or better OR relevant certificate"
-	requirements.push({
-		programId: P('DBIT'),
-		certificateTypeId: LGCSE,
-		rules: {
-			type: 'subject-grades',
-			minimumGrades: [{ count: 3, grade: 'C' }],
-			requiredSubjects: [{ subjectId: MATH, minimumGrade: 'C' }],
-			subjectGroups: [
-				{
-					name: 'Commercial/Financial Subjects',
-					subjectIds: commercialSubjects,
-					minimumGrade: 'C',
-					required: false,
-				},
-			],
-		},
-	});
-	requirements.push({
-		programId: P('DBIT'),
-		certificateTypeId: CERT,
-		rules: {
-			type: 'classification',
-			minimumClassification: 'Pass',
-			requiredQualificationName: 'Relevant Certificate',
-		},
-	});
-
-	// 7. Diploma in Public Relations (DPR)
-	// "3C grades including a C in English and/or LIT with at least a D in any other two subjects OR 4C grades or better including ENG and/LIT OR relevant certificate"
-	requirements.push({
-		programId: P('DPR'),
-		certificateTypeId: LGCSE,
-		rules: {
-			type: 'subject-grades',
-			minimumGrades: [{ count: 3, grade: 'C' }],
-			requiredSubjects: [],
-			subjectGroups: [
-				{
-					name: 'English/Literature',
-					subjectIds: [ENG, LIT],
-					minimumGrade: 'C',
-					required: true,
-				},
-			],
-		},
-	});
-	requirements.push({
-		programId: P('DPR'),
-		certificateTypeId: CERT,
-		rules: {
-			type: 'classification',
-			minimumClassification: 'Pass',
-			requiredQualificationName: 'Relevant Certificate',
-		},
-	});
-
-	// 8. Diploma in Broadcasting (Radio & TV) (DBRTV)
-	// "3C grades including a C in English and/or LIT with at least a D in any other two subjects or 4C grades or better including ENG and/LIT OR relevant certificate"
-	requirements.push({
-		programId: P('DBRTV'),
-		certificateTypeId: LGCSE,
-		rules: {
-			type: 'subject-grades',
-			minimumGrades: [{ count: 3, grade: 'C' }],
-			requiredSubjects: [],
-			subjectGroups: [
-				{
-					name: 'English/Literature',
-					subjectIds: [ENG, LIT],
-					minimumGrade: 'C',
-					required: true,
-				},
-			],
-		},
-	});
-	requirements.push({
-		programId: P('DBRTV'),
-		certificateTypeId: CERT,
-		rules: {
-			type: 'classification',
-			minimumClassification: 'Pass',
-			requiredQualificationName: 'Relevant Certificate',
-		},
-	});
-
-	// 9. Diploma in Film Production (DFP)
-	// "3C grades including a C in English and/or LIT with at least a D in any other two subjects OR 4C grades or better including ENG and/LIT OR relevant certificate"
-	requirements.push({
-		programId: P('DFP'),
-		certificateTypeId: LGCSE,
-		rules: {
-			type: 'subject-grades',
-			minimumGrades: [{ count: 3, grade: 'C' }],
-			requiredSubjects: [],
-			subjectGroups: [
-				{
-					name: 'English/Literature',
-					subjectIds: [ENG, LIT],
-					minimumGrade: 'C',
-					required: true,
-				},
-			],
-		},
-	});
-	requirements.push({
-		programId: P('DFP'),
-		certificateTypeId: CERT,
-		rules: {
-			type: 'classification',
-			minimumClassification: 'Pass',
-			requiredQualificationName: 'Relevant Certificate',
-		},
-	});
-
-	// 10. Diploma in Journalism & Media (DJM)
-	// "3C grades including a C in English and/or LIT with at least a D in any other two subjects OR 4C grades or better including ENG and/LIT OR relevant certificate"
-	requirements.push({
-		programId: P('DJM'),
-		certificateTypeId: LGCSE,
-		rules: {
-			type: 'subject-grades',
-			minimumGrades: [{ count: 3, grade: 'C' }],
-			requiredSubjects: [],
-			subjectGroups: [
-				{
-					name: 'English/Literature',
-					subjectIds: [ENG, LIT],
-					minimumGrade: 'C',
-					required: true,
-				},
-			],
-		},
-	});
-	requirements.push({
-		programId: P('DJM'),
-		certificateTypeId: CERT,
-		rules: {
-			type: 'classification',
-			minimumClassification: 'Pass',
-			requiredQualificationName: 'Relevant Certificate',
-		},
-	});
-
-	// 14. Diploma in Graphic Design (DGD)
-	// "3C grades with at least a D in any other two subjects. At least a D in English Language and submission of portfolio, a credit in any of: Art, Woodwork, Home Economics, Art and Design and Design and Technology and Needlework. A diploma in any relevant field or TVET certificate in any relevant field from a recognized institution or N4 in any relevant field."
-	requirements.push({
-		programId: P('DGD'),
-		certificateTypeId: LGCSE,
-		rules: {
-			type: 'subject-grades',
-			minimumGrades: [{ count: 3, grade: 'C' }],
-			requiredSubjects: [{ subjectId: ENG, minimumGrade: 'D' }],
-			subjectGroups: [
-				{
-					name: 'Design Subjects (Advantageous)',
-					subjectIds: designSubjects,
-					minimumGrade: 'C',
-					required: false,
-				},
-			],
-		},
-	});
-	requirements.push({
-		programId: P('DGD'),
-		certificateTypeId: CERT,
-		rules: {
-			type: 'classification',
-			minimumClassification: 'Pass',
-			requiredQualificationName: 'TVET Certificate or N4 in relevant field',
-		},
-	});
-
-	// 15. Diploma in Creative Advertising (DCA)
-	// Same as Graphic Design
+	// Diploma in Creative Advertising (DCA)
+	// 3 C grades and 2 D passes with at least D in English. C in design subjects is advantageous.
 	requirements.push({
 		programId: P('DCA'),
 		certificateTypeId: LGCSE,
 		rules: {
 			type: 'subject-grades',
-			minimumGrades: [{ count: 3, grade: 'C' }],
+			minimumGrades: [
+				{ count: 3, grade: 'C' },
+				{ count: 2, grade: 'D' },
+			],
 			requiredSubjects: [{ subjectId: ENG, minimumGrade: 'D' }],
 			subjectGroups: [
 				{
@@ -331,594 +123,951 @@ export async function seedEntryRequirements() {
 	});
 	requirements.push({
 		programId: P('DCA'),
-		certificateTypeId: CERT,
-		rules: {
-			type: 'classification',
-			minimumClassification: 'Pass',
-			requiredQualificationName: 'TVET Certificate or N4 in relevant field',
-		},
-	});
-
-	// 16. Diploma in Fashion & Apparel Design (DFAD)
-	// Same as Graphic Design
-	requirements.push({
-		programId: P('DFAD'),
-		certificateTypeId: LGCSE,
-		rules: {
-			type: 'subject-grades',
-			minimumGrades: [{ count: 3, grade: 'C' }],
-			requiredSubjects: [{ subjectId: ENG, minimumGrade: 'D' }],
-			subjectGroups: [
-				{
-					name: 'Design Subjects (Advantageous)',
-					subjectIds: designSubjects,
-					minimumGrade: 'C',
-					required: false,
-				},
-			],
-		},
-	});
-	requirements.push({
-		programId: P('DFAD'),
-		certificateTypeId: CERT,
-		rules: {
-			type: 'classification',
-			minimumClassification: 'Pass',
-			requiredQualificationName: 'TVET Certificate or N4 in relevant field',
-		},
-	});
-
-	// 17. Diploma in Architecture Technology (DAT)
-	// "3C grades with at least a D in any other two subjects. A D in Mathematics with a credit in physical science any of the below subjects is an added advantage: Art, Woodwork, Art and Design and Design and Technology, Technical Drawing in Bricklaying OR relevant certificate"
-	requirements.push({
-		programId: P('DAT'),
-		certificateTypeId: LGCSE,
-		rules: {
-			type: 'subject-grades',
-			minimumGrades: [{ count: 3, grade: 'C' }],
-			requiredSubjects: [{ subjectId: MATH, minimumGrade: 'D' }],
-			subjectGroups: [
-				{
-					name: 'Physical Science (Advantageous)',
-					subjectIds: [PHYS_SCI],
-					minimumGrade: 'C',
-					required: false,
-				},
-				{
-					name: 'Design/Technical Subjects (Advantageous)',
-					subjectIds: [
-						ART,
-						WOODWORK,
-						ART_DESIGN,
-						DESIGN_TECH,
-						TECH_DRAWING,
-						BRICKLAYING,
-					],
-					minimumGrade: 'C',
-					required: false,
-				},
-			],
-		},
-	});
-	requirements.push({
-		programId: P('DAT'),
-		certificateTypeId: CERT,
-		rules: {
-			type: 'classification',
-			minimumClassification: 'Pass',
-			requiredQualificationName: 'Relevant Certificate',
-		},
-	});
-
-	// 19. Diploma in Tourism (DTM) - mapped to DITR (Diploma in International Tourism)
-	// "D English Language OR English Language with a C or better in Literature, 3C grades or better and D in any other subject OR 4C grade or better OR relevant certificate"
-	requirements.push({
-		programId: P('DITR'),
-		certificateTypeId: LGCSE,
-		rules: {
-			type: 'subject-grades',
-			minimumGrades: [{ count: 3, grade: 'C' }],
-			requiredSubjects: [{ subjectId: ENG, minimumGrade: 'D' }],
-			subjectGroups: [
-				{
-					name: 'Literature (Advantageous)',
-					subjectIds: [LIT],
-					minimumGrade: 'C',
-					required: false,
-				},
-			],
-		},
-	});
-	requirements.push({
-		programId: P('DITR'),
-		certificateTypeId: CERT,
-		rules: {
-			type: 'classification',
-			minimumClassification: 'Pass',
-			requiredQualificationName: 'Relevant Certificate',
-		},
-	});
-
-	// 20. Diploma in Hotel Management (DHM)
-	// Same as Tourism
-	requirements.push({
-		programId: P('DHM'),
-		certificateTypeId: LGCSE,
-		rules: {
-			type: 'subject-grades',
-			minimumGrades: [{ count: 3, grade: 'C' }],
-			requiredSubjects: [{ subjectId: ENG, minimumGrade: 'D' }],
-			subjectGroups: [
-				{
-					name: 'Literature (Advantageous)',
-					subjectIds: [LIT],
-					minimumGrade: 'C',
-					required: false,
-				},
-			],
-		},
-	});
-	requirements.push({
-		programId: P('DHM'),
-		certificateTypeId: CERT,
-		rules: {
-			type: 'classification',
-			minimumClassification: 'Pass',
-			requiredQualificationName: 'Relevant Certificate',
-		},
-	});
-
-	// 21. Diploma in Events Management (DEM)
-	// Same as Tourism
-	requirements.push({
-		programId: P('DEM'),
-		certificateTypeId: LGCSE,
-		rules: {
-			type: 'subject-grades',
-			minimumGrades: [{ count: 3, grade: 'C' }],
-			requiredSubjects: [{ subjectId: ENG, minimumGrade: 'D' }],
-			subjectGroups: [
-				{
-					name: 'Literature (Advantageous)',
-					subjectIds: [LIT],
-					minimumGrade: 'C',
-					required: false,
-				},
-			],
-		},
-	});
-	requirements.push({
-		programId: P('DEM'),
-		certificateTypeId: CERT,
-		rules: {
-			type: 'classification',
-			minimumClassification: 'Pass',
-			requiredQualificationName: 'Relevant Certificate',
-		},
-	});
-
-	// 23. Diploma in Business Management (DBM)
-	// "3C grades or better including pass grade or better in Mathematics and Commercial/Financial subjects with at least a D in any other two subjects OR Certificate or Diploma in a relevant field"
-	requirements.push({
-		programId: P('DBM'),
-		certificateTypeId: LGCSE,
-		rules: {
-			type: 'subject-grades',
-			minimumGrades: [{ count: 3, grade: 'C' }],
-			requiredSubjects: [{ subjectId: MATH, minimumGrade: 'D' }],
-			subjectGroups: [
-				{
-					name: 'Commercial/Financial Subjects',
-					subjectIds: commercialSubjects,
-					minimumGrade: 'D',
-					required: true,
-				},
-			],
-		},
-	});
-	requirements.push({
-		programId: P('DBM'),
-		certificateTypeId: CERT,
-		rules: {
-			type: 'classification',
-			minimumClassification: 'Pass',
-			requiredQualificationName: 'Certificate in a relevant field',
-		},
-	});
-
-	// 24. Diploma in Marketing (DMK)
-	// Same as Business Management
-	requirements.push({
-		programId: P('DMK'),
-		certificateTypeId: LGCSE,
-		rules: {
-			type: 'subject-grades',
-			minimumGrades: [{ count: 3, grade: 'C' }],
-			requiredSubjects: [{ subjectId: MATH, minimumGrade: 'D' }],
-			subjectGroups: [
-				{
-					name: 'Commercial/Financial Subjects',
-					subjectIds: commercialSubjects,
-					minimumGrade: 'D',
-					required: true,
-				},
-			],
-		},
-	});
-	requirements.push({
-		programId: P('DMK'),
-		certificateTypeId: CERT,
-		rules: {
-			type: 'classification',
-			minimumClassification: 'Pass',
-			requiredQualificationName: 'Certificate in a relevant field',
-		},
-	});
-
-	// 25. Diploma in Retail Management (DRM)
-	// Same as Business Management
-	requirements.push({
-		programId: P('DRM'),
-		certificateTypeId: LGCSE,
-		rules: {
-			type: 'subject-grades',
-			minimumGrades: [{ count: 3, grade: 'C' }],
-			requiredSubjects: [{ subjectId: MATH, minimumGrade: 'D' }],
-			subjectGroups: [
-				{
-					name: 'Commercial/Financial Subjects',
-					subjectIds: commercialSubjects,
-					minimumGrade: 'D',
-					required: true,
-				},
-			],
-		},
-	});
-	requirements.push({
-		programId: P('DRM'),
-		certificateTypeId: CERT,
-		rules: {
-			type: 'classification',
-			minimumClassification: 'Pass',
-			requiredQualificationName: 'Certificate in a relevant field',
-		},
-	});
-
-	// ============================================================
-	// BACHELOR PROGRAMS (LGCSE/Diploma entry)
-	// ============================================================
-
-	// 4. BSc in Information Technology (BSCIT)
-	// "4C grades or better including Mathematics and a D in any 2 subjects OR relevant diploma"
-	requirements.push({
-		programId: P('BSCIT'),
-		certificateTypeId: LGCSE,
-		rules: {
-			type: 'subject-grades',
-			minimumGrades: [{ count: 4, grade: 'C' }],
-			requiredSubjects: [{ subjectId: MATH, minimumGrade: 'C' }],
-		},
-	});
-	requirements.push({
-		programId: P('BSCIT'),
-		certificateTypeId: DIPLOMA,
-		rules: {
-			type: 'classification',
-			minimumClassification: 'Pass',
-			requiredQualificationName: 'Relevant Diploma in IT',
-		},
-	});
-
-	// 5. BSc in Software Engineering with Multimedia (BSCSM)
-	// "4C grades or better including Mathematics and a D in any 2 subjects OR relevant diploma"
-	requirements.push({
-		programId: P('BSCSM'),
-		certificateTypeId: LGCSE,
-		rules: {
-			type: 'subject-grades',
-			minimumGrades: [{ count: 4, grade: 'C' }],
-			requiredSubjects: [{ subjectId: MATH, minimumGrade: 'C' }],
-		},
-	});
-	requirements.push({
-		programId: P('BSCSM'),
-		certificateTypeId: DIPLOMA,
-		rules: {
-			type: 'classification',
-			minimumClassification: 'Pass',
-			requiredQualificationName: 'Relevant Diploma',
-		},
-	});
-
-	// 6. BSc in Business Information Technology (BSCBIT)
-	// "4C grades or better including Mathematics with at least a D in any 2 subjects OR D grade in Mathematics with 4C grades or better including Commercial/Financial subjects OR relevant diploma"
-	requirements.push({
-		programId: P('BSCBIT'),
-		certificateTypeId: LGCSE,
-		rules: {
-			type: 'subject-grades',
-			minimumGrades: [{ count: 4, grade: 'C' }],
-			requiredSubjects: [{ subjectId: MATH, minimumGrade: 'C' }],
-		},
-	});
-	requirements.push({
-		programId: P('BSCBIT'),
-		certificateTypeId: DIPLOMA,
-		rules: {
-			type: 'classification',
-			minimumClassification: 'Pass',
-			requiredQualificationName: 'Relevant Diploma',
-		},
-	});
-
-	// 11. BA in Professional Communication (BPC)
-	// "4C grades or better including English Language and/or LIT with at least two Ds in any other two subjects or relevant diploma"
-	requirements.push({
-		programId: P('BPC'),
-		certificateTypeId: LGCSE,
-		rules: {
-			type: 'subject-grades',
-			minimumGrades: [{ count: 4, grade: 'C' }],
-			requiredSubjects: [],
-			subjectGroups: [
-				{
-					name: 'English/Literature',
-					subjectIds: [ENG, LIT],
-					minimumGrade: 'C',
-					required: true,
-				},
-			],
-		},
-	});
-	requirements.push({
-		programId: P('BPC'),
-		certificateTypeId: DIPLOMA,
-		rules: {
-			type: 'classification',
-			minimumClassification: 'Pass',
-			requiredQualificationName: 'Relevant Diploma',
-		},
-	});
-
-	// 12. BA in Broadcasting & Journalism (BBJ)
-	// "4C grades or better including English Language and/or LIT with at least two Ds in any other two subjects or relevant diploma"
-	requirements.push({
-		programId: P('BBJ'),
-		certificateTypeId: LGCSE,
-		rules: {
-			type: 'subject-grades',
-			minimumGrades: [{ count: 4, grade: 'C' }],
-			requiredSubjects: [],
-			subjectGroups: [
-				{
-					name: 'English/Literature',
-					subjectIds: [ENG, LIT],
-					minimumGrade: 'C',
-					required: true,
-				},
-			],
-		},
-	});
-	requirements.push({
-		programId: P('BBJ'),
-		certificateTypeId: DIPLOMA,
-		rules: {
-			type: 'classification',
-			minimumClassification: 'Pass',
-			requiredQualificationName: 'Relevant Diploma',
-		},
-	});
-
-	// 13. BA in Digital Film & TV (BDF)
-	// "4C grades including a C in English and/or LIT with at least a D in any other two subjects OR relevant certificate"
-	requirements.push({
-		programId: P('BDF'),
-		certificateTypeId: LGCSE,
-		rules: {
-			type: 'subject-grades',
-			minimumGrades: [{ count: 4, grade: 'C' }],
-			requiredSubjects: [],
-			subjectGroups: [
-				{
-					name: 'English/Literature',
-					subjectIds: [ENG, LIT],
-					minimumGrade: 'C',
-					required: true,
-				},
-			],
-		},
-	});
-	requirements.push({
-		programId: P('BDF'),
-		certificateTypeId: CERT,
-		rules: {
-			type: 'classification',
-			minimumClassification: 'Pass',
-			requiredQualificationName: 'Relevant Certificate',
-		},
-	});
-
-	// 18. BA in Architectural Studies (BAS)
-	// "4C grades with at least a D in any other two subjects. A D Mathematics or E Mathematics with a credit in physical science in any of: Art, Woodwork, Art and Design and Design and Technology, Technical Drawing in Bricklaying OR relevant drawing."
-	requirements.push({
-		programId: P('BAS'),
-		certificateTypeId: LGCSE,
-		rules: {
-			type: 'subject-grades',
-			minimumGrades: [{ count: 4, grade: 'C' }],
-			requiredSubjects: [{ subjectId: MATH, minimumGrade: 'E' }],
-			subjectGroups: [
-				{
-					name: 'Physical Science (Advantageous)',
-					subjectIds: [PHYS_SCI],
-					minimumGrade: 'C',
-					required: false,
-				},
-				{
-					name: 'Design/Technical Subjects (Advantageous)',
-					subjectIds: [
-						ART,
-						WOODWORK,
-						ART_DESIGN,
-						DESIGN_TECH,
-						TECH_DRAWING,
-						BRICKLAYING,
-					],
-					minimumGrade: 'C',
-					required: false,
-				},
-			],
-		},
-	});
-	requirements.push({
-		programId: P('BAS'),
-		certificateTypeId: DIPLOMA,
-		rules: {
-			type: 'classification',
-			minimumClassification: 'Pass',
-			requiredQualificationName: 'Relevant Diploma',
-		},
-	});
-
-	// 22. BA in Tourism Management (BTM)
-	// "D English Language OR English Language with a C or better in Literature, 4C grades or better and D in any other subject OR 5C grades or better OR relevant diploma"
-	requirements.push({
-		programId: P('BTM'),
-		certificateTypeId: LGCSE,
-		rules: {
-			type: 'subject-grades',
-			minimumGrades: [{ count: 4, grade: 'C' }],
-			requiredSubjects: [{ subjectId: ENG, minimumGrade: 'D' }],
-			subjectGroups: [
-				{
-					name: 'Literature (Advantageous)',
-					subjectIds: [LIT],
-					minimumGrade: 'C',
-					required: false,
-				},
-			],
-		},
-	});
-	requirements.push({
-		programId: P('BTM'),
-		certificateTypeId: DIPLOMA,
-		rules: {
-			type: 'classification',
-			minimumClassification: 'Pass',
-			requiredQualificationName: 'Relevant Diploma',
-		},
-	});
-
-	// 26. B BUSS in International Business (BIB)
-	// "4C grades or better Mathematics or Commercial subject, with at least a D in Mathematics/Mathematics with C in Commercial OR Diploma in a relevant field"
-	requirements.push({
-		programId: P('BIB'),
-		certificateTypeId: LGCSE,
-		rules: {
-			type: 'subject-grades',
-			minimumGrades: [{ count: 4, grade: 'C' }],
-			requiredSubjects: [{ subjectId: MATH, minimumGrade: 'D' }],
-			subjectGroups: [
-				{
-					name: 'Commercial Subjects',
-					subjectIds: commercialSubjects,
-					minimumGrade: 'C',
-					required: false,
-				},
-			],
-		},
-	});
-	requirements.push({
-		programId: P('BIB'),
-		certificateTypeId: DIPLOMA,
-		rules: {
-			type: 'classification',
-			minimumClassification: 'Pass',
-			requiredQualificationName: 'Diploma in a relevant field',
-		},
-	});
-
-	// 27. B BUSS in Entrepreneurship (BEN)
-	// Same as International Business
-	requirements.push({
-		programId: P('BEN'),
-		certificateTypeId: LGCSE,
-		rules: {
-			type: 'subject-grades',
-			minimumGrades: [{ count: 4, grade: 'C' }],
-			requiredSubjects: [{ subjectId: MATH, minimumGrade: 'D' }],
-			subjectGroups: [
-				{
-					name: 'Commercial Subjects',
-					subjectIds: commercialSubjects,
-					minimumGrade: 'C',
-					required: false,
-				},
-			],
-		},
-	});
-	requirements.push({
-		programId: P('BEN'),
-		certificateTypeId: DIPLOMA,
-		rules: {
-			type: 'classification',
-			minimumClassification: 'Pass',
-			requiredQualificationName: 'Diploma in a relevant field',
-		},
-	});
-
-	// 28. BA in Human Resource Management (BHR)
-	// "Pass in Mathematics, D/, 4c grades & two D grades or better or Diploma in a relevant field."
-	requirements.push({
-		programId: P('BHR'),
-		certificateTypeId: LGCSE,
-		rules: {
-			type: 'subject-grades',
-			minimumGrades: [{ count: 4, grade: 'C' }],
-			requiredSubjects: [{ subjectId: MATH, minimumGrade: 'D' }],
-		},
-	});
-	requirements.push({
-		programId: P('BHR'),
-		certificateTypeId: DIPLOMA,
-		rules: {
-			type: 'classification',
-			minimumClassification: 'Pass',
-			requiredQualificationName: 'Diploma in a relevant field',
-		},
-	});
-
-	// 30. BA in Fashion & Apparel Design (BAFASH)
-	// "4C grades with at least a D in any other two subjects. At least a D in English Language and submission of portfolio, a credit in any of the below subjects is an added advantage: Art, Woodwork, Home Economics, Art and Design and Design and Technology and Needlework. A diploma in any relevant field or TVET certificate in any relevant field from a recognized institution or N4 in any relevant field."
-	requirements.push({
-		programId: P('BAFASH'),
-		certificateTypeId: LGCSE,
-		rules: {
-			type: 'subject-grades',
-			minimumGrades: [{ count: 4, grade: 'C' }],
-			requiredSubjects: [{ subjectId: ENG, minimumGrade: 'D' }],
-			subjectGroups: [
-				{
-					name: 'Design Subjects (Advantageous)',
-					subjectIds: designSubjects,
-					minimumGrade: 'C',
-					required: false,
-				},
-			],
-		},
-	});
-	requirements.push({
-		programId: P('BAFASH'),
 		certificateTypeId: DIPLOMA,
 		rules: {
 			type: 'classification',
 			minimumClassification: 'Pass',
 			requiredQualificationName:
-				'Diploma in a relevant field or TVET certificate or N4',
+				'Diploma in any relevant field or TVET Certificate',
 		},
 	});
 
-	// Insert all requirements
+	// Diploma in Graphic Design (DGD)
+	// 3 C grades and 2 D passes with at least D in English. C in design subjects is advantageous.
+	requirements.push({
+		programId: P('DGD'),
+		certificateTypeId: LGCSE,
+		rules: {
+			type: 'subject-grades',
+			minimumGrades: [
+				{ count: 3, grade: 'C' },
+				{ count: 2, grade: 'D' },
+			],
+			requiredSubjects: [{ subjectId: ENG, minimumGrade: 'D' }],
+			subjectGroups: [
+				{
+					name: 'Design Subjects (Advantageous)',
+					subjectIds: designSubjects,
+					minimumGrade: 'C',
+					required: false,
+				},
+			],
+		},
+	});
+	requirements.push({
+		programId: P('DGD'),
+		certificateTypeId: DIPLOMA,
+		rules: {
+			type: 'classification',
+			minimumClassification: 'Pass',
+			requiredQualificationName:
+				'Diploma in any relevant field or TVET Certificate',
+		},
+	});
+
+	// Diploma in Fashion and Apparel Design (DFAD)
+	// 3 C grades and 2 D passes with at least D in English. C in design subjects is advantageous.
+	requirements.push({
+		programId: P('DFAD'),
+		certificateTypeId: LGCSE,
+		rules: {
+			type: 'subject-grades',
+			minimumGrades: [
+				{ count: 3, grade: 'C' },
+				{ count: 2, grade: 'D' },
+			],
+			requiredSubjects: [{ subjectId: ENG, minimumGrade: 'D' }],
+			subjectGroups: [
+				{
+					name: 'Design Subjects (Advantageous)',
+					subjectIds: [ART, ART_DESIGN, DESIGN_TECH, HOME_ECON, NEEDLEWORK],
+					minimumGrade: 'C',
+					required: false,
+				},
+			],
+		},
+	});
+	requirements.push({
+		programId: P('DFAD'),
+		certificateTypeId: DIPLOMA,
+		rules: {
+			type: 'classification',
+			minimumClassification: 'Pass',
+			requiredQualificationName:
+				'Diploma in a relevant field or TVET Certificate or N4',
+		},
+	});
+
+	// BA in Fashion & Retailing (BAFASH)
+	// 4 C grades and 2 D passes including C in English Language or English Literature.
+	requirements.push({
+		programId: P('BAFASH'),
+		certificateTypeId: LGCSE,
+		rules: {
+			type: 'subject-grades',
+			minimumGrades: [
+				{ count: 4, grade: 'C' },
+				{ count: 2, grade: 'D' },
+			],
+			requiredSubjects: [],
+			subjectGroups: [
+				{
+					name: 'English/Literature',
+					subjectIds: [ENG, LIT],
+					minimumGrade: 'C',
+					required: true,
+				},
+			],
+		},
+	});
+	requirements.push({
+		programId: P('BAFASH'),
+		certificateTypeId: DIPLOMA,
+		rules: {
+			type: 'classification',
+			minimumClassification: 'Pass',
+			requiredQualificationName: 'Diploma in any relevant field',
+		},
+	});
+
+	// ============================================================
+	// FACULTY OF ARCHITECTURE AND THE BUILT ENVIRONMENT
+	// ============================================================
+
+	// BA in Architectural Studies (BAS)
+	// 4 C grades and 2 D passes including C in English Language or English Literature and D in Mathematics.
+	// C in Art, Woodwork, Art & Design, Design & Technology, Technical Drawing is advantageous.
+	requirements.push({
+		programId: P('BAS'),
+		certificateTypeId: LGCSE,
+		rules: {
+			type: 'subject-grades',
+			minimumGrades: [
+				{ count: 4, grade: 'C' },
+				{ count: 2, grade: 'D' },
+			],
+			requiredSubjects: [{ subjectId: MATH, minimumGrade: 'D' }],
+			subjectGroups: [
+				{
+					name: 'English/Literature',
+					subjectIds: [ENG, LIT],
+					minimumGrade: 'C',
+					required: true,
+				},
+				{
+					name: 'Architecture Subjects (Advantageous)',
+					subjectIds: architectureSubjects,
+					minimumGrade: 'C',
+					required: false,
+				},
+			],
+		},
+	});
+	requirements.push({
+		programId: P('BAS'),
+		certificateTypeId: DIPLOMA,
+		rules: {
+			type: 'classification',
+			minimumClassification: 'Pass',
+			requiredQualificationName:
+				'Diploma in Architectural Technology or any relevant certificate',
+		},
+	});
+
+	// Diploma in Architectural Technology (DAT)
+	// 3 C grades and 2 D passes with at least D in Mathematics and English Language.
+	// C in Art, Woodwork, Design & Technology, Technical Drawing is advantageous.
+	requirements.push({
+		programId: P('DAT'),
+		certificateTypeId: LGCSE,
+		rules: {
+			type: 'subject-grades',
+			minimumGrades: [
+				{ count: 3, grade: 'C' },
+				{ count: 2, grade: 'D' },
+			],
+			requiredSubjects: [
+				{ subjectId: MATH, minimumGrade: 'D' },
+				{ subjectId: ENG, minimumGrade: 'D' },
+			],
+			subjectGroups: [
+				{
+					name: 'Architecture Subjects (Advantageous)',
+					subjectIds: architectureSubjects,
+					minimumGrade: 'C',
+					required: false,
+				},
+			],
+		},
+	});
+	requirements.push({
+		programId: P('DAT'),
+		certificateTypeId: DIPLOMA,
+		rules: {
+			type: 'classification',
+			minimumClassification: 'Pass',
+			requiredQualificationName:
+				'TVET Certificate, Certificate in Bricklaying/Carpentry, or N4 in relevant field',
+		},
+	});
+
+	// ============================================================
+	// FACULTY OF BUSINESS AND GLOBALIZATION
+	// ============================================================
+
+	// B.Bus in International Business (BIB)
+	// 4 C grades with C in English Language and Commercial subjects (Accounting, Economics) and 2 D passes including Mathematics.
+	requirements.push({
+		programId: P('BIB'),
+		certificateTypeId: LGCSE,
+		rules: {
+			type: 'subject-grades',
+			minimumGrades: [
+				{ count: 4, grade: 'C' },
+				{ count: 2, grade: 'D' },
+			],
+			requiredSubjects: [
+				{ subjectId: ENG, minimumGrade: 'C' },
+				{ subjectId: MATH, minimumGrade: 'D' },
+			],
+			subjectGroups: [
+				{
+					name: 'Commercial Subjects',
+					subjectIds: commercialSubjects,
+					minimumGrade: 'C',
+					required: true,
+				},
+			],
+		},
+	});
+	requirements.push({
+		programId: P('BIB'),
+		certificateTypeId: DIPLOMA,
+		rules: {
+			type: 'classification',
+			minimumClassification: 'Pass',
+			requiredQualificationName: 'Diploma in any relevant field',
+		},
+	});
+
+	// B.Bus in Entrepreneurship (BEN)
+	// 4 C grades with C in English Language and Commercial subjects (Accounting, Economics) and 2 D passes including Mathematics.
+	requirements.push({
+		programId: P('BEN'),
+		certificateTypeId: LGCSE,
+		rules: {
+			type: 'subject-grades',
+			minimumGrades: [
+				{ count: 4, grade: 'C' },
+				{ count: 2, grade: 'D' },
+			],
+			requiredSubjects: [
+				{ subjectId: ENG, minimumGrade: 'C' },
+				{ subjectId: MATH, minimumGrade: 'D' },
+			],
+			subjectGroups: [
+				{
+					name: 'Commercial Subjects',
+					subjectIds: commercialSubjects,
+					minimumGrade: 'C',
+					required: true,
+				},
+			],
+		},
+	});
+	requirements.push({
+		programId: P('BEN'),
+		certificateTypeId: DIPLOMA,
+		rules: {
+			type: 'classification',
+			minimumClassification: 'Pass',
+			requiredQualificationName: 'Diploma in any relevant field',
+		},
+	});
+
+	// BA in Human Resource Management (BHR)
+	// 4 C grades with C in English Language and Commercial subjects (Accounting, Economics) and 2 D passes including Mathematics.
+	requirements.push({
+		programId: P('BHR'),
+		certificateTypeId: LGCSE,
+		rules: {
+			type: 'subject-grades',
+			minimumGrades: [
+				{ count: 4, grade: 'C' },
+				{ count: 2, grade: 'D' },
+			],
+			requiredSubjects: [
+				{ subjectId: ENG, minimumGrade: 'C' },
+				{ subjectId: MATH, minimumGrade: 'D' },
+			],
+			subjectGroups: [
+				{
+					name: 'Commercial Subjects',
+					subjectIds: commercialSubjects,
+					minimumGrade: 'C',
+					required: true,
+				},
+			],
+		},
+	});
+	requirements.push({
+		programId: P('BHR'),
+		certificateTypeId: DIPLOMA,
+		rules: {
+			type: 'classification',
+			minimumClassification: 'Pass',
+			requiredQualificationName: 'Diploma in any relevant field',
+		},
+	});
+
+	// Diploma in Business Management (DBM)
+	// 3 C grades with C in Commercial subjects and 2 D passes including Mathematics and English Language.
+	requirements.push({
+		programId: P('DBM'),
+		certificateTypeId: LGCSE,
+		rules: {
+			type: 'subject-grades',
+			minimumGrades: [
+				{ count: 3, grade: 'C' },
+				{ count: 2, grade: 'D' },
+			],
+			requiredSubjects: [
+				{ subjectId: MATH, minimumGrade: 'D' },
+				{ subjectId: ENG, minimumGrade: 'D' },
+			],
+			subjectGroups: [
+				{
+					name: 'Commercial Subjects',
+					subjectIds: commercialSubjects,
+					minimumGrade: 'C',
+					required: true,
+				},
+			],
+		},
+	});
+	requirements.push({
+		programId: P('DBM'),
+		certificateTypeId: DIPLOMA,
+		rules: {
+			type: 'classification',
+			minimumClassification: 'Pass',
+			requiredQualificationName: 'TVET Certificate in any relevant field',
+		},
+	});
+
+	// Diploma in Retail Management (DRM)
+	// 3 C grades with C in Commercial subjects and 2 D passes including Mathematics and English Language.
+	requirements.push({
+		programId: P('DRM'),
+		certificateTypeId: LGCSE,
+		rules: {
+			type: 'subject-grades',
+			minimumGrades: [
+				{ count: 3, grade: 'C' },
+				{ count: 2, grade: 'D' },
+			],
+			requiredSubjects: [
+				{ subjectId: MATH, minimumGrade: 'D' },
+				{ subjectId: ENG, minimumGrade: 'D' },
+			],
+			subjectGroups: [
+				{
+					name: 'Commercial Subjects',
+					subjectIds: commercialSubjects,
+					minimumGrade: 'C',
+					required: true,
+				},
+			],
+		},
+	});
+	requirements.push({
+		programId: P('DRM'),
+		certificateTypeId: DIPLOMA,
+		rules: {
+			type: 'classification',
+			minimumClassification: 'Pass',
+			requiredQualificationName: 'TVET Certificate in any relevant field',
+		},
+	});
+
+	// Diploma in Marketing (DMK)
+	// 3 C grades with C in Commercial subjects and 2 D passes including Mathematics and English Language.
+	requirements.push({
+		programId: P('DMK'),
+		certificateTypeId: LGCSE,
+		rules: {
+			type: 'subject-grades',
+			minimumGrades: [
+				{ count: 3, grade: 'C' },
+				{ count: 2, grade: 'D' },
+			],
+			requiredSubjects: [
+				{ subjectId: MATH, minimumGrade: 'D' },
+				{ subjectId: ENG, minimumGrade: 'D' },
+			],
+			subjectGroups: [
+				{
+					name: 'Commercial Subjects',
+					subjectIds: commercialSubjects,
+					minimumGrade: 'C',
+					required: true,
+				},
+			],
+		},
+	});
+	requirements.push({
+		programId: P('DMK'),
+		certificateTypeId: DIPLOMA,
+		rules: {
+			type: 'classification',
+			minimumClassification: 'Pass',
+			requiredQualificationName: 'TVET Certificate in any relevant field',
+		},
+	});
+
+	// ============================================================
+	// FACULTY OF CREATIVITY IN TOURISM AND HOSPITALITY
+	// ============================================================
+
+	// BA in Tourism Management (BTM)
+	// 4 C grades with C in English Language or English Literature and 2 D passes including Geography.
+	requirements.push({
+		programId: P('BTM'),
+		certificateTypeId: LGCSE,
+		rules: {
+			type: 'subject-grades',
+			minimumGrades: [
+				{ count: 4, grade: 'C' },
+				{ count: 2, grade: 'D' },
+			],
+			requiredSubjects: [{ subjectId: GEO, minimumGrade: 'D' }],
+			subjectGroups: [
+				{
+					name: 'English/Literature',
+					subjectIds: [ENG, LIT],
+					minimumGrade: 'C',
+					required: true,
+				},
+			],
+		},
+	});
+	requirements.push({
+		programId: P('BTM'),
+		certificateTypeId: DIPLOMA,
+		rules: {
+			type: 'classification',
+			minimumClassification: 'Pass',
+			requiredQualificationName:
+				'Diploma in Tourism Management / Business Management / Business Administration',
+		},
+	});
+
+	// Diploma in Tourism Management (DTM)
+	// 3 C grades and 2 D passes including D in English Language or English Literature and Geography.
+	requirements.push({
+		programId: P('DTM'),
+		certificateTypeId: LGCSE,
+		rules: {
+			type: 'subject-grades',
+			minimumGrades: [
+				{ count: 3, grade: 'C' },
+				{ count: 2, grade: 'D' },
+			],
+			requiredSubjects: [{ subjectId: GEO, minimumGrade: 'D' }],
+			subjectGroups: [
+				{
+					name: 'English/Literature',
+					subjectIds: [ENG, LIT],
+					minimumGrade: 'D',
+					required: true,
+				},
+			],
+		},
+	});
+	requirements.push({
+		programId: P('DTM'),
+		certificateTypeId: DIPLOMA,
+		rules: {
+			type: 'classification',
+			minimumClassification: 'Pass',
+			requiredQualificationName:
+				'TVET Certificate or Certificate in Catering/Home Science/Nutrition',
+		},
+	});
+
+	// Diploma in Hotel Management (DHM)
+	// 3 C grades and 2 D passes including D in English Language or English Literature and Geography.
+	requirements.push({
+		programId: P('DHM'),
+		certificateTypeId: LGCSE,
+		rules: {
+			type: 'subject-grades',
+			minimumGrades: [
+				{ count: 3, grade: 'C' },
+				{ count: 2, grade: 'D' },
+			],
+			requiredSubjects: [{ subjectId: GEO, minimumGrade: 'D' }],
+			subjectGroups: [
+				{
+					name: 'English/Literature',
+					subjectIds: [ENG, LIT],
+					minimumGrade: 'D',
+					required: true,
+				},
+			],
+		},
+	});
+	requirements.push({
+		programId: P('DHM'),
+		certificateTypeId: DIPLOMA,
+		rules: {
+			type: 'classification',
+			minimumClassification: 'Pass',
+			requiredQualificationName:
+				'TVET Certificate or Certificate in Catering/Home Science/Nutrition',
+		},
+	});
+
+	// Diploma in Events Management (DEM)
+	// 3 C grades and 2 D passes including D in English Language or English Literature and Geography.
+	requirements.push({
+		programId: P('DEM'),
+		certificateTypeId: LGCSE,
+		rules: {
+			type: 'subject-grades',
+			minimumGrades: [
+				{ count: 3, grade: 'C' },
+				{ count: 2, grade: 'D' },
+			],
+			requiredSubjects: [{ subjectId: GEO, minimumGrade: 'D' }],
+			subjectGroups: [
+				{
+					name: 'English/Literature',
+					subjectIds: [ENG, LIT],
+					minimumGrade: 'D',
+					required: true,
+				},
+			],
+		},
+	});
+	requirements.push({
+		programId: P('DEM'),
+		certificateTypeId: DIPLOMA,
+		rules: {
+			type: 'classification',
+			minimumClassification: 'Pass',
+			requiredQualificationName:
+				'TVET Certificate or Certificate in Catering/Home Science/Nutrition',
+		},
+	});
+
+	// ============================================================
+	// FACULTY OF COMMUNICATION, MEDIA AND BROADCASTING
+	// ============================================================
+
+	// BA in Professional Communication (BPC)
+	// 4 C grades including English Language or English Literature and 2 D passes.
+	requirements.push({
+		programId: P('BPC'),
+		certificateTypeId: LGCSE,
+		rules: {
+			type: 'subject-grades',
+			minimumGrades: [
+				{ count: 4, grade: 'C' },
+				{ count: 2, grade: 'D' },
+			],
+			requiredSubjects: [],
+			subjectGroups: [
+				{
+					name: 'English/Literature',
+					subjectIds: [ENG, LIT],
+					minimumGrade: 'C',
+					required: true,
+				},
+			],
+		},
+	});
+	requirements.push({
+		programId: P('BPC'),
+		certificateTypeId: DIPLOMA,
+		rules: {
+			type: 'classification',
+			minimumClassification: 'Pass',
+			requiredQualificationName:
+				'Diploma in Mass Communication, Public Relations or any relevant field',
+		},
+	});
+
+	// BA in Broadcasting & Journalism (BBJ)
+	// 4 C grades including English Language or English Literature and 2 D passes.
+	requirements.push({
+		programId: P('BBJ'),
+		certificateTypeId: LGCSE,
+		rules: {
+			type: 'subject-grades',
+			minimumGrades: [
+				{ count: 4, grade: 'C' },
+				{ count: 2, grade: 'D' },
+			],
+			requiredSubjects: [],
+			subjectGroups: [
+				{
+					name: 'English/Literature',
+					subjectIds: [ENG, LIT],
+					minimumGrade: 'C',
+					required: true,
+				},
+			],
+		},
+	});
+	requirements.push({
+		programId: P('BBJ'),
+		certificateTypeId: DIPLOMA,
+		rules: {
+			type: 'classification',
+			minimumClassification: 'Pass',
+			requiredQualificationName:
+				'Diploma in Mass Communication, Public Relations or any relevant field',
+		},
+	});
+
+	// BA in Digital Film and Television (BDF)
+	// 4 C grades including English Language or English Literature and 2 D passes.
+	requirements.push({
+		programId: P('BDF'),
+		certificateTypeId: LGCSE,
+		rules: {
+			type: 'subject-grades',
+			minimumGrades: [
+				{ count: 4, grade: 'C' },
+				{ count: 2, grade: 'D' },
+			],
+			requiredSubjects: [],
+			subjectGroups: [
+				{
+					name: 'English/Literature',
+					subjectIds: [ENG, LIT],
+					minimumGrade: 'C',
+					required: true,
+				},
+			],
+		},
+	});
+	requirements.push({
+		programId: P('BDF'),
+		certificateTypeId: DIPLOMA,
+		rules: {
+			type: 'classification',
+			minimumClassification: 'Pass',
+			requiredQualificationName:
+				'Diploma in Mass Communication, Public Relations or any relevant field',
+		},
+	});
+
+	// Diploma in Television and Film Production (DFP)
+	// 3 C grades and 2 D passes including C in English Language and English Literature.
+	requirements.push({
+		programId: P('DFP'),
+		certificateTypeId: LGCSE,
+		rules: {
+			type: 'subject-grades',
+			minimumGrades: [
+				{ count: 3, grade: 'C' },
+				{ count: 2, grade: 'D' },
+			],
+			requiredSubjects: [
+				{ subjectId: ENG, minimumGrade: 'C' },
+				{ subjectId: LIT, minimumGrade: 'C' },
+			],
+		},
+	});
+	requirements.push({
+		programId: P('DFP'),
+		certificateTypeId: DIPLOMA,
+		rules: {
+			type: 'classification',
+			minimumClassification: 'Pass',
+			requiredQualificationName:
+				'Diploma or TVET Certificate in any relevant field',
+		},
+	});
+
+	// Diploma in Broadcasting (Radio and TV) (DBRTV)
+	// 3 C grades and 2 D passes including C in English Language and English Literature.
+	requirements.push({
+		programId: P('DBRTV'),
+		certificateTypeId: LGCSE,
+		rules: {
+			type: 'subject-grades',
+			minimumGrades: [
+				{ count: 3, grade: 'C' },
+				{ count: 2, grade: 'D' },
+			],
+			requiredSubjects: [
+				{ subjectId: ENG, minimumGrade: 'C' },
+				{ subjectId: LIT, minimumGrade: 'C' },
+			],
+		},
+	});
+	requirements.push({
+		programId: P('DBRTV'),
+		certificateTypeId: DIPLOMA,
+		rules: {
+			type: 'classification',
+			minimumClassification: 'Pass',
+			requiredQualificationName:
+				'Diploma or TVET Certificate in any relevant field',
+		},
+	});
+
+	// Diploma in Public Relations (DPR)
+	// 3 C grades and 2 D passes including C in English Language and English Literature.
+	requirements.push({
+		programId: P('DPR'),
+		certificateTypeId: LGCSE,
+		rules: {
+			type: 'subject-grades',
+			minimumGrades: [
+				{ count: 3, grade: 'C' },
+				{ count: 2, grade: 'D' },
+			],
+			requiredSubjects: [
+				{ subjectId: ENG, minimumGrade: 'C' },
+				{ subjectId: LIT, minimumGrade: 'C' },
+			],
+		},
+	});
+	requirements.push({
+		programId: P('DPR'),
+		certificateTypeId: DIPLOMA,
+		rules: {
+			type: 'classification',
+			minimumClassification: 'Pass',
+			requiredQualificationName:
+				'Diploma or TVET Certificate in any relevant field',
+		},
+	});
+
+	// Diploma in Journalism and Media (DJM)
+	// 3 C grades and 2 D passes including C in English Language and English Literature.
+	requirements.push({
+		programId: P('DJM'),
+		certificateTypeId: LGCSE,
+		rules: {
+			type: 'subject-grades',
+			minimumGrades: [
+				{ count: 3, grade: 'C' },
+				{ count: 2, grade: 'D' },
+			],
+			requiredSubjects: [
+				{ subjectId: ENG, minimumGrade: 'C' },
+				{ subjectId: LIT, minimumGrade: 'C' },
+			],
+		},
+	});
+	requirements.push({
+		programId: P('DJM'),
+		certificateTypeId: DIPLOMA,
+		rules: {
+			type: 'classification',
+			minimumClassification: 'Pass',
+			requiredQualificationName:
+				'Diploma or TVET Certificate in any relevant field',
+		},
+	});
+
+	// ============================================================
+	// FACULTY OF INFORMATION AND COMMUNICATION TECHNOLOGY
+	// ============================================================
+
+	// BSc in Software Engineering with Multimedia (BSCSM)
+	// 4 C grades including English Language or English Literature and 2 D passes. C or better in Mathematics.
+	requirements.push({
+		programId: P('BSCSM'),
+		certificateTypeId: LGCSE,
+		rules: {
+			type: 'subject-grades',
+			minimumGrades: [
+				{ count: 4, grade: 'C' },
+				{ count: 2, grade: 'D' },
+			],
+			requiredSubjects: [{ subjectId: MATH, minimumGrade: 'C' }],
+			subjectGroups: [
+				{
+					name: 'English/Literature',
+					subjectIds: [ENG, LIT],
+					minimumGrade: 'C',
+					required: true,
+				},
+			],
+		},
+	});
+	requirements.push({
+		programId: P('BSCSM'),
+		certificateTypeId: DIPLOMA,
+		rules: {
+			type: 'classification',
+			minimumClassification: 'Pass',
+			requiredQualificationName:
+				'Diploma in Information Technology or any relevant field',
+		},
+	});
+
+	// BSc in Business Information Technology (BSCBIT)
+	// 4 C grades including English Language or English Literature and 2 D passes. C or better in Mathematics. C or better in Commercial subjects.
+	requirements.push({
+		programId: P('BSCBIT'),
+		certificateTypeId: LGCSE,
+		rules: {
+			type: 'subject-grades',
+			minimumGrades: [
+				{ count: 4, grade: 'C' },
+				{ count: 2, grade: 'D' },
+			],
+			requiredSubjects: [{ subjectId: MATH, minimumGrade: 'C' }],
+			subjectGroups: [
+				{
+					name: 'English/Literature',
+					subjectIds: [ENG, LIT],
+					minimumGrade: 'C',
+					required: true,
+				},
+				{
+					name: 'Commercial Subjects',
+					subjectIds: commercialSubjects,
+					minimumGrade: 'C',
+					required: true,
+				},
+			],
+		},
+	});
+	requirements.push({
+		programId: P('BSCBIT'),
+		certificateTypeId: DIPLOMA,
+		rules: {
+			type: 'classification',
+			minimumClassification: 'Pass',
+			requiredQualificationName:
+				'Diploma in Information Technology or any relevant field',
+		},
+	});
+
+	// BSc in Information Technology (BSCIT)
+	// 4 C grades including English Language or English Literature and 2 D passes. C or better in Mathematics.
+	requirements.push({
+		programId: P('BSCIT'),
+		certificateTypeId: LGCSE,
+		rules: {
+			type: 'subject-grades',
+			minimumGrades: [
+				{ count: 4, grade: 'C' },
+				{ count: 2, grade: 'D' },
+			],
+			requiredSubjects: [{ subjectId: MATH, minimumGrade: 'C' }],
+			subjectGroups: [
+				{
+					name: 'English/Literature',
+					subjectIds: [ENG, LIT],
+					minimumGrade: 'C',
+					required: true,
+				},
+			],
+		},
+	});
+	requirements.push({
+		programId: P('BSCIT'),
+		certificateTypeId: DIPLOMA,
+		rules: {
+			type: 'classification',
+			minimumClassification: 'Pass',
+			requiredQualificationName:
+				'Diploma in Information Technology or any relevant field',
+		},
+	});
+
+	// Diploma in Multimedia and Software Engineering (DMSE)
+	// 3 C grades and 2 D passes. C or better in Mathematics.
+	requirements.push({
+		programId: P('DMSE'),
+		certificateTypeId: LGCSE,
+		rules: {
+			type: 'subject-grades',
+			minimumGrades: [
+				{ count: 3, grade: 'C' },
+				{ count: 2, grade: 'D' },
+			],
+			requiredSubjects: [{ subjectId: MATH, minimumGrade: 'C' }],
+		},
+	});
+	requirements.push({
+		programId: P('DMSE'),
+		certificateTypeId: DIPLOMA,
+		rules: {
+			type: 'classification',
+			minimumClassification: 'Pass',
+			requiredQualificationName:
+				'Diploma in Information Technology or TVET Certificate in any relevant field',
+		},
+	});
+
+	// Diploma in Business Information Technology (DBIT)
+	// 3 C grades and 2 D passes. C or better in Mathematics. C or better in Commercial/Financial subjects.
+	requirements.push({
+		programId: P('DBIT'),
+		certificateTypeId: LGCSE,
+		rules: {
+			type: 'subject-grades',
+			minimumGrades: [
+				{ count: 3, grade: 'C' },
+				{ count: 2, grade: 'D' },
+			],
+			requiredSubjects: [{ subjectId: MATH, minimumGrade: 'C' }],
+			subjectGroups: [
+				{
+					name: 'Commercial/Financial Subjects',
+					subjectIds: commercialSubjects,
+					minimumGrade: 'C',
+					required: true,
+				},
+			],
+		},
+	});
+	requirements.push({
+		programId: P('DBIT'),
+		certificateTypeId: DIPLOMA,
+		rules: {
+			type: 'classification',
+			minimumClassification: 'Pass',
+			requiredQualificationName:
+				'Diploma in Information Technology or TVET Certificate in any relevant field',
+		},
+	});
+
+	// Diploma in Information Technology (DIT)
+	// 3 C grades and 2 D passes. C or better in Mathematics.
+	requirements.push({
+		programId: P('DIT'),
+		certificateTypeId: LGCSE,
+		rules: {
+			type: 'subject-grades',
+			minimumGrades: [
+				{ count: 3, grade: 'C' },
+				{ count: 2, grade: 'D' },
+			],
+			requiredSubjects: [{ subjectId: MATH, minimumGrade: 'C' }],
+		},
+	});
+	requirements.push({
+		programId: P('DIT'),
+		certificateTypeId: DIPLOMA,
+		rules: {
+			type: 'classification',
+			minimumClassification: 'Pass',
+			requiredQualificationName:
+				'Diploma in Information Technology or TVET Certificate in any relevant field',
+		},
+	});
+
 	if (requirements.length > 0) {
 		await db
 			.insert(entryRequirements)
