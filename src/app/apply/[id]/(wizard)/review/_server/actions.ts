@@ -5,7 +5,7 @@ import {
 	changeApplicationStatus,
 	findApplicationsByApplicant,
 } from '@admissions/applications';
-import { type ActionResult, extractError } from '@apply/_lib/actions';
+import { type ActionResult, extractError } from '@apply/_lib/errors';
 
 export async function getApplicantWithApplication(applicantId: string) {
 	const [applicant, applications] = await Promise.all([

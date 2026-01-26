@@ -1,7 +1,7 @@
 'use server';
 
 import { updateApplicant } from '@admissions/applicants';
-import { type ActionResult, extractError } from '@apply/_lib/actions';
+import { type ActionResult, extractError } from '@apply/_lib/errors';
 import type { applicants } from '@/core/database';
 
 type ApplicantInput = typeof applicants.$inferInsert;
