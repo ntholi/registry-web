@@ -54,6 +54,10 @@ class CertificateTypeService extends BaseService<
 		}, ['registry', 'marketing', 'admin']);
 	}
 
+	async findByName(name: string) {
+		return this.repo.findByName(name);
+	}
+
 	async updateWithMappings(
 		id: string,
 		data: Partial<typeof certificateTypes.$inferInsert>,

@@ -51,6 +51,10 @@ export async function deleteCertificateType(id: string) {
 	return certificateTypesService.delete(id);
 }
 
+export async function getCertificateTypeByName(name: string) {
+	return certificateTypesService.findByName(name);
+}
+
 export async function isCertificateTypeInUse(id: string) {
 	return certificateTypesService.isInUse(id);
 }

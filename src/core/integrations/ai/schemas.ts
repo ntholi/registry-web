@@ -106,6 +106,12 @@ const academicSchema = z.object({
 		.number()
 		.nullable()
 		.describe('LQF level associated with the certificate type'),
+	issuingAuthority: z
+		.string()
+		.nullable()
+		.describe(
+			'Examining body or issuing authority (e.g., ECoL, Cambridge, IEB, Umalusi)'
+		),
 	subjects: z
 		.array(
 			z.object({
