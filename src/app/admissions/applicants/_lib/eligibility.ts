@@ -101,10 +101,29 @@ function meetsMinimumPasses(
 	minimumGrades: SubjectGradeRules['minimumGrades'],
 	grades: GradeMap
 ) {
-	const count = Array.from(grades.values()).filter((grade) =>
-		isGradeAtLeast(grade, minimumGrades.grade)
-	).length;
-	return count >= minimumGrades.count;
+	const gradeArray = Array.from(grades.values());
+	const sortedReqs = [...minimumGrades].sort(
+		(a, b) => gradeRank(b.grade) - gradeRank(a.grade)
+	);
+
+	let availableGrades = [...gradeArray];
+
+	for (const req of sortedReqs) {
+		let found = 0;
+		const usedIndices: number[] = [];
+		for (let i = 0; i < availableGrades.length; i++) {
+			if (isGradeAtLeast(availableGrades[i], req.grade)) {
+				found++;
+				usedIndices.push(i);
+				if (found >= req.count) break;
+			}
+		}
+		if (found < req.count) return false;
+		availableGrades = availableGrades.filter(
+			(_, i) => !usedIndices.includes(i)
+		);
+	}
+	return true;
 }
 
 function matchesQualificationName(
@@ -153,14 +172,10 @@ function meetsSubjectGradeRule(
 	records: AcademicRecord[]
 ): boolean {
 	const grades = getBestSubjectGrades(records);
-	const basePass =
+	return (
 		meetsMinimumPasses(rules.minimumGrades, grades) &&
 		meetsRequiredSubjects(rules.requiredSubjects, grades) &&
-		meetsOptionalGroups(rules.subjectGroups, grades);
-	if (basePass) return true;
-	if (!rules.alternatives || rules.alternatives.length === 0) return false;
-	return rules.alternatives.some((alternative) =>
-		meetsSubjectGradeRule(alternative, records)
+		meetsOptionalGroups(rules.subjectGroups, grades)
 	);
 }
 

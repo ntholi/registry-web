@@ -4,9 +4,11 @@ import type { entryRequirements } from '@/core/database';
 export type EntryRequirement = typeof entryRequirements.$inferSelect;
 export type EntryRequirementInsert = typeof entryRequirements.$inferInsert;
 
+export type MinimumGradeRequirement = { count: number; grade: string };
+
 export type SubjectGradeRules = {
 	type: 'subject-grades';
-	minimumGrades: { count: number; grade: string };
+	minimumGrades: MinimumGradeRequirement[];
 	requiredSubjects: { subjectId: string; minimumGrade: string }[];
 	subjectGroups?: {
 		name: string;
@@ -14,7 +16,6 @@ export type SubjectGradeRules = {
 		minimumGrade: string;
 		required: boolean;
 	}[];
-	alternatives?: SubjectGradeRules[];
 };
 
 export type ClassificationRules = {

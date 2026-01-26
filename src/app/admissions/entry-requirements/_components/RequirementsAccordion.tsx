@@ -12,7 +12,15 @@ import {
 } from '@mantine/core';
 import { IconCertificate, IconChecklist } from '@tabler/icons-react';
 import { FieldView } from '@/shared/ui/adease';
-import type { ClassificationRules, SubjectGradeRules } from '../_lib/types';
+import type {
+	ClassificationRules,
+	MinimumGradeRequirement,
+	SubjectGradeRules,
+} from '../_lib/types';
+
+function formatMinimumGrades(grades: MinimumGradeRequirement[]): string {
+	return grades.map((g) => `${g.count} at ${g.grade}`).join(' + ');
+}
 
 type EntryRequirementItem = {
 	id: string;
@@ -60,7 +68,9 @@ export default function RequirementsAccordion({
 									</Group>
 									<Text size='xs' c='dimmed'>
 										{isSubjectBased
-											? `Minimum ${(rules as SubjectGradeRules).minimumGrades.count} passes at grade ${(rules as SubjectGradeRules).minimumGrades.grade}`
+											? formatMinimumGrades(
+													(rules as SubjectGradeRules).minimumGrades
+												)
 											: `Minimum ${(rules as ClassificationRules).minimumClassification} classification`}
 									</Text>
 								</Box>
@@ -96,11 +106,14 @@ function RequirementDetails({ rules, subjects }: RequirementDetailsProps) {
 							General Requirements
 						</Text>
 					</Group>
-					<Text size='sm'>
-						Minimum of <strong>{sgRules.minimumGrades.count}</strong> subjects
-						passed at grade <strong>{sgRules.minimumGrades.grade}</strong> or
-						better
-					</Text>
+					<Stack gap='xs'>
+						{sgRules.minimumGrades.map((mg, idx) => (
+							<Text key={idx} size='sm'>
+								Minimum of <strong>{mg.count}</strong> subjects passed at grade{' '}
+								<strong>{mg.grade}</strong> or better
+							</Text>
+						))}
+					</Stack>
 				</Paper>
 
 				{sgRules.requiredSubjects.length > 0 && (

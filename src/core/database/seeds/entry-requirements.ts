@@ -101,15 +101,8 @@ export async function seedEntryRequirements() {
 		certificateTypeId: LGCSE,
 		rules: {
 			type: 'subject-grades',
-			minimumGrades: { count: 3, grade: 'C' },
+			minimumGrades: [{ count: 3, grade: 'C' }],
 			requiredSubjects: [{ subjectId: MATH, minimumGrade: 'C' }],
-			alternatives: [
-				{
-					type: 'subject-grades',
-					minimumGrades: { count: 4, grade: 'C' },
-					requiredSubjects: [{ subjectId: MATH, minimumGrade: 'C' }],
-				},
-			],
 		},
 	});
 	requirements.push({
@@ -129,15 +122,8 @@ export async function seedEntryRequirements() {
 		certificateTypeId: LGCSE,
 		rules: {
 			type: 'subject-grades',
-			minimumGrades: { count: 3, grade: 'C' },
+			minimumGrades: [{ count: 3, grade: 'C' }],
 			requiredSubjects: [{ subjectId: MATH, minimumGrade: 'C' }],
-			alternatives: [
-				{
-					type: 'subject-grades',
-					minimumGrades: { count: 4, grade: 'C' },
-					requiredSubjects: [{ subjectId: MATH, minimumGrade: 'C' }],
-				},
-			],
 		},
 	});
 	requirements.push({
@@ -157,7 +143,7 @@ export async function seedEntryRequirements() {
 		certificateTypeId: LGCSE,
 		rules: {
 			type: 'subject-grades',
-			minimumGrades: { count: 3, grade: 'C' },
+			minimumGrades: [{ count: 3, grade: 'C' }],
 			requiredSubjects: [{ subjectId: MATH, minimumGrade: 'C' }],
 			subjectGroups: [
 				{
@@ -165,26 +151,6 @@ export async function seedEntryRequirements() {
 					subjectIds: commercialSubjects,
 					minimumGrade: 'C',
 					required: false,
-				},
-			],
-			alternatives: [
-				{
-					type: 'subject-grades',
-					minimumGrades: { count: 3, grade: 'C' },
-					requiredSubjects: [{ subjectId: MATH, minimumGrade: 'D' }],
-					subjectGroups: [
-						{
-							name: 'Commercial/Financial Subjects',
-							subjectIds: commercialSubjects,
-							minimumGrade: 'C',
-							required: true,
-						},
-					],
-				},
-				{
-					type: 'subject-grades',
-					minimumGrades: { count: 4, grade: 'C' },
-					requiredSubjects: [],
 				},
 			],
 		},
@@ -206,7 +172,7 @@ export async function seedEntryRequirements() {
 		certificateTypeId: LGCSE,
 		rules: {
 			type: 'subject-grades',
-			minimumGrades: { count: 3, grade: 'C' },
+			minimumGrades: [{ count: 3, grade: 'C' }],
 			requiredSubjects: [],
 			subjectGroups: [
 				{
@@ -214,21 +180,6 @@ export async function seedEntryRequirements() {
 					subjectIds: [ENG, LIT],
 					minimumGrade: 'C',
 					required: true,
-				},
-			],
-			alternatives: [
-				{
-					type: 'subject-grades',
-					minimumGrades: { count: 4, grade: 'C' },
-					requiredSubjects: [],
-					subjectGroups: [
-						{
-							name: 'English/Literature',
-							subjectIds: [ENG, LIT],
-							minimumGrade: 'C',
-							required: true,
-						},
-					],
 				},
 			],
 		},
@@ -250,7 +201,7 @@ export async function seedEntryRequirements() {
 		certificateTypeId: LGCSE,
 		rules: {
 			type: 'subject-grades',
-			minimumGrades: { count: 3, grade: 'C' },
+			minimumGrades: [{ count: 3, grade: 'C' }],
 			requiredSubjects: [],
 			subjectGroups: [
 				{
@@ -258,21 +209,6 @@ export async function seedEntryRequirements() {
 					subjectIds: [ENG, LIT],
 					minimumGrade: 'C',
 					required: true,
-				},
-			],
-			alternatives: [
-				{
-					type: 'subject-grades',
-					minimumGrades: { count: 4, grade: 'C' },
-					requiredSubjects: [],
-					subjectGroups: [
-						{
-							name: 'English/Literature',
-							subjectIds: [ENG, LIT],
-							minimumGrade: 'C',
-							required: true,
-						},
-					],
 				},
 			],
 		},
@@ -294,7 +230,7 @@ export async function seedEntryRequirements() {
 		certificateTypeId: LGCSE,
 		rules: {
 			type: 'subject-grades',
-			minimumGrades: { count: 3, grade: 'C' },
+			minimumGrades: [{ count: 3, grade: 'C' }],
 			requiredSubjects: [],
 			subjectGroups: [
 				{
@@ -302,21 +238,6 @@ export async function seedEntryRequirements() {
 					subjectIds: [ENG, LIT],
 					minimumGrade: 'C',
 					required: true,
-				},
-			],
-			alternatives: [
-				{
-					type: 'subject-grades',
-					minimumGrades: { count: 4, grade: 'C' },
-					requiredSubjects: [],
-					subjectGroups: [
-						{
-							name: 'English/Literature',
-							subjectIds: [ENG, LIT],
-							minimumGrade: 'C',
-							required: true,
-						},
-					],
 				},
 			],
 		},
@@ -338,7 +259,7 @@ export async function seedEntryRequirements() {
 		certificateTypeId: LGCSE,
 		rules: {
 			type: 'subject-grades',
-			minimumGrades: { count: 3, grade: 'C' },
+			minimumGrades: [{ count: 3, grade: 'C' }],
 			requiredSubjects: [],
 			subjectGroups: [
 				{
@@ -346,21 +267,6 @@ export async function seedEntryRequirements() {
 					subjectIds: [ENG, LIT],
 					minimumGrade: 'C',
 					required: true,
-				},
-			],
-			alternatives: [
-				{
-					type: 'subject-grades',
-					minimumGrades: { count: 4, grade: 'C' },
-					requiredSubjects: [],
-					subjectGroups: [
-						{
-							name: 'English/Literature',
-							subjectIds: [ENG, LIT],
-							minimumGrade: 'C',
-							required: true,
-						},
-					],
 				},
 			],
 		},
@@ -382,7 +288,7 @@ export async function seedEntryRequirements() {
 		certificateTypeId: LGCSE,
 		rules: {
 			type: 'subject-grades',
-			minimumGrades: { count: 3, grade: 'C' },
+			minimumGrades: [{ count: 3, grade: 'C' }],
 			requiredSubjects: [{ subjectId: ENG, minimumGrade: 'D' }],
 			subjectGroups: [
 				{
@@ -411,7 +317,7 @@ export async function seedEntryRequirements() {
 		certificateTypeId: LGCSE,
 		rules: {
 			type: 'subject-grades',
-			minimumGrades: { count: 3, grade: 'C' },
+			minimumGrades: [{ count: 3, grade: 'C' }],
 			requiredSubjects: [{ subjectId: ENG, minimumGrade: 'D' }],
 			subjectGroups: [
 				{
@@ -440,7 +346,7 @@ export async function seedEntryRequirements() {
 		certificateTypeId: LGCSE,
 		rules: {
 			type: 'subject-grades',
-			minimumGrades: { count: 3, grade: 'C' },
+			minimumGrades: [{ count: 3, grade: 'C' }],
 			requiredSubjects: [{ subjectId: ENG, minimumGrade: 'D' }],
 			subjectGroups: [
 				{
@@ -469,7 +375,7 @@ export async function seedEntryRequirements() {
 		certificateTypeId: LGCSE,
 		rules: {
 			type: 'subject-grades',
-			minimumGrades: { count: 3, grade: 'C' },
+			minimumGrades: [{ count: 3, grade: 'C' }],
 			requiredSubjects: [{ subjectId: MATH, minimumGrade: 'D' }],
 			subjectGroups: [
 				{
@@ -511,7 +417,7 @@ export async function seedEntryRequirements() {
 		certificateTypeId: LGCSE,
 		rules: {
 			type: 'subject-grades',
-			minimumGrades: { count: 3, grade: 'C' },
+			minimumGrades: [{ count: 3, grade: 'C' }],
 			requiredSubjects: [{ subjectId: ENG, minimumGrade: 'D' }],
 			subjectGroups: [
 				{
@@ -519,13 +425,6 @@ export async function seedEntryRequirements() {
 					subjectIds: [LIT],
 					minimumGrade: 'C',
 					required: false,
-				},
-			],
-			alternatives: [
-				{
-					type: 'subject-grades',
-					minimumGrades: { count: 4, grade: 'C' },
-					requiredSubjects: [],
 				},
 			],
 		},
@@ -547,7 +446,7 @@ export async function seedEntryRequirements() {
 		certificateTypeId: LGCSE,
 		rules: {
 			type: 'subject-grades',
-			minimumGrades: { count: 3, grade: 'C' },
+			minimumGrades: [{ count: 3, grade: 'C' }],
 			requiredSubjects: [{ subjectId: ENG, minimumGrade: 'D' }],
 			subjectGroups: [
 				{
@@ -555,13 +454,6 @@ export async function seedEntryRequirements() {
 					subjectIds: [LIT],
 					minimumGrade: 'C',
 					required: false,
-				},
-			],
-			alternatives: [
-				{
-					type: 'subject-grades',
-					minimumGrades: { count: 4, grade: 'C' },
-					requiredSubjects: [],
 				},
 			],
 		},
@@ -583,7 +475,7 @@ export async function seedEntryRequirements() {
 		certificateTypeId: LGCSE,
 		rules: {
 			type: 'subject-grades',
-			minimumGrades: { count: 3, grade: 'C' },
+			minimumGrades: [{ count: 3, grade: 'C' }],
 			requiredSubjects: [{ subjectId: ENG, minimumGrade: 'D' }],
 			subjectGroups: [
 				{
@@ -591,13 +483,6 @@ export async function seedEntryRequirements() {
 					subjectIds: [LIT],
 					minimumGrade: 'C',
 					required: false,
-				},
-			],
-			alternatives: [
-				{
-					type: 'subject-grades',
-					minimumGrades: { count: 4, grade: 'C' },
-					requiredSubjects: [],
 				},
 			],
 		},
@@ -619,7 +504,7 @@ export async function seedEntryRequirements() {
 		certificateTypeId: LGCSE,
 		rules: {
 			type: 'subject-grades',
-			minimumGrades: { count: 3, grade: 'C' },
+			minimumGrades: [{ count: 3, grade: 'C' }],
 			requiredSubjects: [{ subjectId: MATH, minimumGrade: 'D' }],
 			subjectGroups: [
 				{
@@ -648,7 +533,7 @@ export async function seedEntryRequirements() {
 		certificateTypeId: LGCSE,
 		rules: {
 			type: 'subject-grades',
-			minimumGrades: { count: 3, grade: 'C' },
+			minimumGrades: [{ count: 3, grade: 'C' }],
 			requiredSubjects: [{ subjectId: MATH, minimumGrade: 'D' }],
 			subjectGroups: [
 				{
@@ -677,7 +562,7 @@ export async function seedEntryRequirements() {
 		certificateTypeId: LGCSE,
 		rules: {
 			type: 'subject-grades',
-			minimumGrades: { count: 3, grade: 'C' },
+			minimumGrades: [{ count: 3, grade: 'C' }],
 			requiredSubjects: [{ subjectId: MATH, minimumGrade: 'D' }],
 			subjectGroups: [
 				{
@@ -710,7 +595,7 @@ export async function seedEntryRequirements() {
 		certificateTypeId: LGCSE,
 		rules: {
 			type: 'subject-grades',
-			minimumGrades: { count: 4, grade: 'C' },
+			minimumGrades: [{ count: 4, grade: 'C' }],
 			requiredSubjects: [{ subjectId: MATH, minimumGrade: 'C' }],
 		},
 	});
@@ -731,7 +616,7 @@ export async function seedEntryRequirements() {
 		certificateTypeId: LGCSE,
 		rules: {
 			type: 'subject-grades',
-			minimumGrades: { count: 4, grade: 'C' },
+			minimumGrades: [{ count: 4, grade: 'C' }],
 			requiredSubjects: [{ subjectId: MATH, minimumGrade: 'C' }],
 		},
 	});
@@ -752,23 +637,8 @@ export async function seedEntryRequirements() {
 		certificateTypeId: LGCSE,
 		rules: {
 			type: 'subject-grades',
-			minimumGrades: { count: 4, grade: 'C' },
+			minimumGrades: [{ count: 4, grade: 'C' }],
 			requiredSubjects: [{ subjectId: MATH, minimumGrade: 'C' }],
-			alternatives: [
-				{
-					type: 'subject-grades',
-					minimumGrades: { count: 4, grade: 'C' },
-					requiredSubjects: [{ subjectId: MATH, minimumGrade: 'D' }],
-					subjectGroups: [
-						{
-							name: 'Commercial/Financial Subjects',
-							subjectIds: commercialSubjects,
-							minimumGrade: 'C',
-							required: true,
-						},
-					],
-				},
-			],
 		},
 	});
 	requirements.push({
@@ -788,7 +658,7 @@ export async function seedEntryRequirements() {
 		certificateTypeId: LGCSE,
 		rules: {
 			type: 'subject-grades',
-			minimumGrades: { count: 4, grade: 'C' },
+			minimumGrades: [{ count: 4, grade: 'C' }],
 			requiredSubjects: [],
 			subjectGroups: [
 				{
@@ -817,7 +687,7 @@ export async function seedEntryRequirements() {
 		certificateTypeId: LGCSE,
 		rules: {
 			type: 'subject-grades',
-			minimumGrades: { count: 4, grade: 'C' },
+			minimumGrades: [{ count: 4, grade: 'C' }],
 			requiredSubjects: [],
 			subjectGroups: [
 				{
@@ -846,7 +716,7 @@ export async function seedEntryRequirements() {
 		certificateTypeId: LGCSE,
 		rules: {
 			type: 'subject-grades',
-			minimumGrades: { count: 4, grade: 'C' },
+			minimumGrades: [{ count: 4, grade: 'C' }],
 			requiredSubjects: [],
 			subjectGroups: [
 				{
@@ -875,7 +745,7 @@ export async function seedEntryRequirements() {
 		certificateTypeId: LGCSE,
 		rules: {
 			type: 'subject-grades',
-			minimumGrades: { count: 4, grade: 'C' },
+			minimumGrades: [{ count: 4, grade: 'C' }],
 			requiredSubjects: [{ subjectId: MATH, minimumGrade: 'E' }],
 			subjectGroups: [
 				{
@@ -917,7 +787,7 @@ export async function seedEntryRequirements() {
 		certificateTypeId: LGCSE,
 		rules: {
 			type: 'subject-grades',
-			minimumGrades: { count: 4, grade: 'C' },
+			minimumGrades: [{ count: 4, grade: 'C' }],
 			requiredSubjects: [{ subjectId: ENG, minimumGrade: 'D' }],
 			subjectGroups: [
 				{
@@ -925,13 +795,6 @@ export async function seedEntryRequirements() {
 					subjectIds: [LIT],
 					minimumGrade: 'C',
 					required: false,
-				},
-			],
-			alternatives: [
-				{
-					type: 'subject-grades',
-					minimumGrades: { count: 5, grade: 'C' },
-					requiredSubjects: [],
 				},
 			],
 		},
@@ -953,7 +816,7 @@ export async function seedEntryRequirements() {
 		certificateTypeId: LGCSE,
 		rules: {
 			type: 'subject-grades',
-			minimumGrades: { count: 4, grade: 'C' },
+			minimumGrades: [{ count: 4, grade: 'C' }],
 			requiredSubjects: [{ subjectId: MATH, minimumGrade: 'D' }],
 			subjectGroups: [
 				{
@@ -961,21 +824,6 @@ export async function seedEntryRequirements() {
 					subjectIds: commercialSubjects,
 					minimumGrade: 'C',
 					required: false,
-				},
-			],
-			alternatives: [
-				{
-					type: 'subject-grades',
-					minimumGrades: { count: 4, grade: 'C' },
-					requiredSubjects: [],
-					subjectGroups: [
-						{
-							name: 'Commercial Subjects',
-							subjectIds: commercialSubjects,
-							minimumGrade: 'C',
-							required: true,
-						},
-					],
 				},
 			],
 		},
@@ -997,7 +845,7 @@ export async function seedEntryRequirements() {
 		certificateTypeId: LGCSE,
 		rules: {
 			type: 'subject-grades',
-			minimumGrades: { count: 4, grade: 'C' },
+			minimumGrades: [{ count: 4, grade: 'C' }],
 			requiredSubjects: [{ subjectId: MATH, minimumGrade: 'D' }],
 			subjectGroups: [
 				{
@@ -1005,21 +853,6 @@ export async function seedEntryRequirements() {
 					subjectIds: commercialSubjects,
 					minimumGrade: 'C',
 					required: false,
-				},
-			],
-			alternatives: [
-				{
-					type: 'subject-grades',
-					minimumGrades: { count: 4, grade: 'C' },
-					requiredSubjects: [],
-					subjectGroups: [
-						{
-							name: 'Commercial Subjects',
-							subjectIds: commercialSubjects,
-							minimumGrade: 'C',
-							required: true,
-						},
-					],
 				},
 			],
 		},
@@ -1041,7 +874,7 @@ export async function seedEntryRequirements() {
 		certificateTypeId: LGCSE,
 		rules: {
 			type: 'subject-grades',
-			minimumGrades: { count: 4, grade: 'C' },
+			minimumGrades: [{ count: 4, grade: 'C' }],
 			requiredSubjects: [{ subjectId: MATH, minimumGrade: 'D' }],
 		},
 	});
@@ -1062,7 +895,7 @@ export async function seedEntryRequirements() {
 		certificateTypeId: LGCSE,
 		rules: {
 			type: 'subject-grades',
-			minimumGrades: { count: 4, grade: 'C' },
+			minimumGrades: [{ count: 4, grade: 'C' }],
 			requiredSubjects: [{ subjectId: ENG, minimumGrade: 'D' }],
 			subjectGroups: [
 				{

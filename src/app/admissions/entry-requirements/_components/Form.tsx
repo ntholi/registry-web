@@ -21,6 +21,7 @@ import { Form } from '@/shared/ui/adease';
 import type {
 	ClassificationRules,
 	EntryRequirement,
+	MinimumGradeRequirement,
 	SubjectGradeRules,
 } from '../_lib/types';
 
@@ -75,7 +76,7 @@ export default function EntryRequirementForm({
 			if (rules?.type === 'subject-grades') return rules;
 			return {
 				type: 'subject-grades',
-				minimumGrades: { count: 5, grade: 'C' },
+				minimumGrades: [{ count: 5, grade: 'C' }],
 				requiredSubjects: [],
 			};
 		}
@@ -105,6 +106,33 @@ export default function EntryRequirementForm({
 	const handleSubmit = async (values: EntryRequirement) => {
 		const rules = isSubjectBased ? subjectGradeRules : classificationRules;
 		return onSubmit({ ...values, rules });
+	};
+
+	const addMinimumGradeReq = () => {
+		setSubjectGradeRules((prev) => ({
+			...prev,
+			minimumGrades: [...prev.minimumGrades, { count: 1, grade: 'C' }],
+		}));
+	};
+
+	const removeMinimumGradeReq = (index: number) => {
+		setSubjectGradeRules((prev) => ({
+			...prev,
+			minimumGrades: prev.minimumGrades.filter((_, i) => i !== index),
+		}));
+	};
+
+	const updateMinimumGradeReq = (
+		index: number,
+		field: keyof MinimumGradeRequirement,
+		value: string | number
+	) => {
+		setSubjectGradeRules((prev) => ({
+			...prev,
+			minimumGrades: prev.minimumGrades.map((mg, i) =>
+				i === index ? { ...mg, [field]: value } : mg
+			),
+		}));
 	};
 
 	const addRequiredSubject = () => {
@@ -192,37 +220,59 @@ export default function EntryRequirementForm({
 								{selectedCertType.lqfLevel})
 							</Title>
 
-							<Group grow mb='md'>
-								<NumberInput
-									label='Minimum Passes Required'
-									min={1}
-									max={10}
-									value={subjectGradeRules.minimumGrades.count}
-									onChange={(val) =>
-										setSubjectGradeRules((prev) => ({
-											...prev,
-											minimumGrades: {
-												...prev.minimumGrades,
-												count: Number(val) || 5,
-											},
-										}))
-									}
-								/>
-								<Select
-									label='Minimum Grade'
-									data={standardGrades}
-									value={subjectGradeRules.minimumGrades.grade}
-									onChange={(val) =>
-										setSubjectGradeRules((prev) => ({
-											...prev,
-											minimumGrades: {
-												...prev.minimumGrades,
-												grade: val || 'C',
-											},
-										}))
-									}
-								/>
-							</Group>
+							<Stack gap='xs' mb='md'>
+								<Group justify='space-between'>
+									<Text size='sm' fw={500}>
+										Minimum Grades Required
+									</Text>
+									<ActionIcon
+										variant='light'
+										color='blue'
+										onClick={addMinimumGradeReq}
+									>
+										<IconPlus size={16} />
+									</ActionIcon>
+								</Group>
+								<Text size='xs' c='dimmed'>
+									Define multiple grade requirements (e.g., 2 D grades + 3 C
+									grades). All requirements must be satisfied.
+								</Text>
+
+								{subjectGradeRules.minimumGrades.map((mg, idx) => (
+									<Group key={idx} gap='xs'>
+										<NumberInput
+											placeholder='Count'
+											min={1}
+											max={10}
+											value={mg.count}
+											onChange={(val) =>
+												updateMinimumGradeReq(idx, 'count', Number(val) || 1)
+											}
+											w={80}
+										/>
+										<Text size='sm'>passes at</Text>
+										<Select
+											placeholder='Grade'
+											data={standardGrades}
+											value={mg.grade}
+											onChange={(val) =>
+												updateMinimumGradeReq(idx, 'grade', val || 'C')
+											}
+											w={80}
+										/>
+										<Text size='sm'>or better</Text>
+										{subjectGradeRules.minimumGrades.length > 1 && (
+											<ActionIcon
+												variant='light'
+												color='red'
+												onClick={() => removeMinimumGradeReq(idx)}
+											>
+												<IconTrash size={16} />
+											</ActionIcon>
+										)}
+									</Group>
+								))}
+							</Stack>
 
 							<Stack gap='xs'>
 								<Group justify='space-between'>
