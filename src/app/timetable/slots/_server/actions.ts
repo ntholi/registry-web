@@ -40,3 +40,14 @@ export async function createAllocationsWithSlots(
 		return { success: false, error: extractErrorMessage(error) };
 	}
 }
+
+export async function rebuildTermSlots(
+	termId: number
+): Promise<ActionResult<void>> {
+	try {
+		await timetableSlotService.rebuildTermSlots(termId);
+		return { success: true, data: undefined };
+	} catch (error) {
+		return { success: false, error: extractErrorMessage(error) };
+	}
+}
