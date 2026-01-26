@@ -346,6 +346,7 @@ export default class BoeReportService {
 							id: semester.studentProgram.structure.program.id,
 							name: semester.studentProgram.structure.program.name,
 							code: semester.studentProgram.structure.program.code,
+							level: semester.studentProgram.structure.program.level,
 							school: {
 								id: semester.studentProgram.structure.program.schoolId,
 								name: '',
