@@ -36,6 +36,7 @@ import {
 	deleteEntryRequirement,
 	updateEntryRequirement,
 } from '../_server/actions';
+import AlternativeRulesModal from './AlternativeRulesModal';
 import RequiredSubjectModal from './RequiredSubjectModal';
 import SubjectGroupModal from './SubjectGroupModal';
 
@@ -307,6 +308,27 @@ function RequirementEditor({
 		}));
 	};
 
+	const handleAddAlternative = (alt: SubjectGradeRules) => {
+		setSubjectRules((prev) => ({
+			...prev,
+			alternatives: [...(prev.alternatives || []), alt],
+		}));
+	};
+
+	const handleUpdateAlternative = (idx: number, alt: SubjectGradeRules) => {
+		setSubjectRules((prev) => ({
+			...prev,
+			alternatives: prev.alternatives?.map((a, i) => (i === idx ? alt : a)),
+		}));
+	};
+
+	const handleRemoveAlternative = (idx: number) => {
+		setSubjectRules((prev) => ({
+			...prev,
+			alternatives: prev.alternatives?.filter((_, i) => i !== idx),
+		}));
+	};
+
 	return (
 		<Accordion.Item value={requirement.id}>
 			<Accordion.Control>
@@ -484,6 +506,71 @@ function RequirementEditor({
 													color='red'
 													size='sm'
 													onClick={() => handleRemoveSubjectGroup(idx)}
+												>
+													<IconTrash size={14} />
+												</ActionIcon>
+											</Group>
+										</Group>
+									</Paper>
+								))}
+							</Stack>
+
+							<Divider my='md' />
+
+							<Stack gap='xs'>
+								<Group justify='space-between'>
+									<Text size='sm' fw={500}>
+										Alternative Requirements
+									</Text>
+									<AlternativeRulesModal
+										mode='add'
+										subjects={subjects}
+										onSave={handleAddAlternative}
+									/>
+								</Group>
+
+								<Text size='xs' c='dimmed'>
+									Define alternative sets of requirements (e.g., different
+									subject combinations that also qualify)
+								</Text>
+
+								{subjectRules.alternatives?.map((alt, idx) => (
+									<Paper
+										key={idx}
+										withBorder
+										p='sm'
+										bg='var(--mantine-color-dark-8)'
+									>
+										<Group justify='space-between'>
+											<div>
+												<Group gap='xs'>
+													<Badge size='xs' variant='light' color='grape'>
+														Alternative {idx + 1}
+													</Badge>
+													<Text size='sm'>
+														{alt.minimumGrades.count} passes at{' '}
+														{alt.minimumGrades.grade}
+													</Text>
+												</Group>
+												<Text size='xs' c='dimmed'>
+													{alt.requiredSubjects.length} required subject(s)
+													{alt.subjectGroups?.length
+														? `, ${alt.subjectGroups.length} group(s)`
+														: ''}
+												</Text>
+											</div>
+											<Group gap='xs'>
+												<AlternativeRulesModal
+													mode='edit'
+													alternative={alt}
+													subjects={subjects}
+													onSave={(a) => handleUpdateAlternative(idx, a)}
+												/>
+												<ActionIcon
+													variant='subtle'
+													color='red'
+													size='sm'
+													onClick={() => handleRemoveAlternative(idx)}
 												>
 													<IconTrash size={14} />
 												</ActionIcon>
