@@ -62,17 +62,21 @@ export default function CourseCard({ program, subjects }: Props) {
 							<Title size={'xs'} order={5} mb='sm'>
 								Entry Requirements
 							</Title>
-							<Text>
-								You must pass at least{' '}
-								<Text span fw={700} c='teal'>
-									{rules.minimumGrades.count} subjects
-								</Text>{' '}
-								with a grade of{' '}
-								<Text span fw={700} c='teal'>
-									{rules.minimumGrades.grade}
-								</Text>{' '}
-								or better.
-							</Text>
+							<Stack gap='xs'>
+								{rules.minimumGrades.map((mg, idx) => (
+									<Text key={idx}>
+										You must pass at least{' '}
+										<Text span fw={700} c='teal'>
+											{mg.count} subjects
+										</Text>{' '}
+										with a grade of{' '}
+										<Text span fw={700} c='teal'>
+											{mg.grade}
+										</Text>{' '}
+										or better.
+									</Text>
+								))}
+							</Stack>
 						</Box>
 
 						{rules.requiredSubjects.length > 0 && (
@@ -132,55 +136,6 @@ export default function CourseCard({ program, subjects }: Props) {
 													.map((id) => subjectMap.get(id) || id)
 													.join(', ')}
 											</Text>
-										</Paper>
-									))}
-								</Stack>
-							</Box>
-						)}
-
-						{rules.alternatives && rules.alternatives.length > 0 && (
-							<Box>
-								<Title size={'sm'} fw={400} order={5} mb='sm'>
-									Additional Requirements
-								</Title>
-								<Text mb='md' c='dimmed'>
-									If you don't meet the requirements above, you can also qualify
-									this way:
-								</Text>
-								<Stack gap='md'>
-									{rules.alternatives.map((alt, idx) => (
-										<Paper
-											key={idx}
-											p='md'
-											radius='md'
-											bg='var(--mantine-color-yellow-light)'
-										>
-											<Text mb='sm'>
-												Pass{' '}
-												<Text span fw={700}>
-													{alt.minimumGrades.count} subjects
-												</Text>{' '}
-												with grade{' '}
-												<Text span fw={700}>
-													{alt.minimumGrades.grade}
-												</Text>{' '}
-												or better.
-											</Text>
-											{alt.requiredSubjects.length > 0 && (
-												<>
-													<Text size='sm' c='dimmed' mb='xs'>
-														Including these subjects:
-													</Text>
-													<List size='sm' spacing='xs'>
-														{alt.requiredSubjects.map((sub, subIdx) => (
-															<List.Item key={subIdx}>
-																{subjectMap.get(sub.subjectId) || sub.subjectId}{' '}
-																(grade {sub.minimumGrade})
-															</List.Item>
-														))}
-													</List>
-												</>
-											)}
 										</Paper>
 									))}
 								</Stack>

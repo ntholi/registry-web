@@ -22,6 +22,7 @@ import { useDisclosure } from '@mantine/hooks';
 import {
 	IconCertificate,
 	IconDeviceFloppy,
+	IconPlus,
 	IconTrash,
 } from '@tabler/icons-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -29,6 +30,7 @@ import { useState } from 'react';
 import type {
 	ClassificationRules,
 	EntryRequirement,
+	MinimumGradeRequirement,
 	SubjectGradeRules,
 } from '../_lib/types';
 import {
@@ -36,7 +38,6 @@ import {
 	deleteEntryRequirement,
 	updateEntryRequirement,
 } from '../_server/actions';
-import AlternativeRulesModal from './AlternativeRulesModal';
 import RequiredSubjectModal from './RequiredSubjectModal';
 import SubjectGroupModal from './SubjectGroupModal';
 
@@ -134,7 +135,7 @@ export default function EditRequirementsList({
 		const rules: SubjectGradeRules | ClassificationRules = isSubjectBased
 			? {
 					type: 'subject-grades',
-					minimumGrades: { count: 5, grade: 'C' },
+					minimumGrades: [{ count: 5, grade: 'C' }],
 					requiredSubjects: [],
 				}
 			: {
@@ -237,7 +238,7 @@ function RequirementEditor({
 		if (rules?.type === 'subject-grades') return rules;
 		return {
 			type: 'subject-grades',
-			minimumGrades: { count: 5, grade: 'C' },
+			minimumGrades: [{ count: 5, grade: 'C' }],
 			requiredSubjects: [],
 		};
 	});
@@ -308,24 +309,30 @@ function RequirementEditor({
 		}));
 	};
 
-	const handleAddAlternative = (alt: SubjectGradeRules) => {
+	const handleAddMinimumGrade = () => {
 		setSubjectRules((prev) => ({
 			...prev,
-			alternatives: [...(prev.alternatives || []), alt],
+			minimumGrades: [...prev.minimumGrades, { count: 1, grade: 'C' }],
 		}));
 	};
 
-	const handleUpdateAlternative = (idx: number, alt: SubjectGradeRules) => {
+	const handleUpdateMinimumGrade = (
+		idx: number,
+		field: keyof MinimumGradeRequirement,
+		value: string | number
+	) => {
 		setSubjectRules((prev) => ({
 			...prev,
-			alternatives: prev.alternatives?.map((a, i) => (i === idx ? alt : a)),
+			minimumGrades: prev.minimumGrades.map((mg, i) =>
+				i === idx ? { ...mg, [field]: value } : mg
+			),
 		}));
 	};
 
-	const handleRemoveAlternative = (idx: number) => {
+	const handleRemoveMinimumGrade = (idx: number) => {
 		setSubjectRules((prev) => ({
 			...prev,
-			alternatives: prev.alternatives?.filter((_, i) => i !== idx),
+			minimumGrades: prev.minimumGrades.filter((_, i) => i !== idx),
 		}));
 	};
 
@@ -352,7 +359,9 @@ function RequirementEditor({
 						</Group>
 						<Text size='xs' c='dimmed'>
 							{isSubjectBased
-								? `${subjectRules.minimumGrades.count} passes at ${subjectRules.minimumGrades.grade}`
+								? subjectRules.minimumGrades
+										.map((g) => `${g.count} at ${g.grade}`)
+										.join(' + ')
 								: `${classRules.minimumClassification} classification`}
 						</Text>
 					</div>
@@ -365,37 +374,71 @@ function RequirementEditor({
 							<Title order={6} mb='sm'>
 								Subject-Based Requirements
 							</Title>
-							<Group grow mb='md'>
-								<NumberInput
-									label='Minimum Passes'
-									min={1}
-									max={10}
-									value={subjectRules.minimumGrades.count}
-									onChange={(val) =>
-										setSubjectRules((prev) => ({
-											...prev,
-											minimumGrades: {
-												...prev.minimumGrades,
-												count: Number(val) || 5,
-											},
-										}))
-									}
-								/>
-								<Select
-									label='Minimum Grade'
-									data={standardGrades}
-									value={subjectRules.minimumGrades.grade}
-									onChange={(val) =>
-										setSubjectRules((prev) => ({
-											...prev,
-											minimumGrades: {
-												...prev.minimumGrades,
-												grade: val || 'C',
-											},
-										}))
-									}
-								/>
-							</Group>
+							<Stack gap='xs' mb='md'>
+								<Group justify='space-between'>
+									<Text size='sm' fw={500}>
+										Minimum Grades Required
+									</Text>
+									<ActionIcon
+										variant='light'
+										color='blue'
+										onClick={handleAddMinimumGrade}
+									>
+										<IconPlus size={14} />
+									</ActionIcon>
+								</Group>
+								<Text size='xs' c='dimmed'>
+									All requirements must be satisfied (e.g., 2 D grades + 3 C
+									grades)
+								</Text>
+
+								{subjectRules.minimumGrades.map((mg, idx) => (
+									<Paper
+										key={idx}
+										withBorder
+										p='sm'
+										bg='var(--mantine-color-dark-8)'
+									>
+										<Group gap='sm' wrap='nowrap' align='center'>
+											<NumberInput
+												min={1}
+												max={10}
+												value={mg.count}
+												onChange={(val) =>
+													handleUpdateMinimumGrade(
+														idx,
+														'count',
+														Number(val) || 1
+													)
+												}
+												w={70}
+											/>
+											<Text size='sm'>passes at</Text>
+											<Select
+												data={standardGrades}
+												value={mg.grade}
+												onChange={(val) =>
+													handleUpdateMinimumGrade(idx, 'grade', val || 'C')
+												}
+												w={80}
+											/>
+											<Text size='sm'>or better</Text>
+											{subjectRules.minimumGrades.length > 1 && (
+												<ActionIcon
+													variant='subtle'
+													color='red'
+													size='sm'
+													onClick={() => handleRemoveMinimumGrade(idx)}
+												>
+													<IconTrash size={14} />
+												</ActionIcon>
+											)}
+										</Group>
+									</Paper>
+								))}
+							</Stack>
+
+							<Divider my='md' />
 
 							<Stack gap='xs'>
 								<Group justify='space-between'>
@@ -506,71 +549,6 @@ function RequirementEditor({
 													color='red'
 													size='sm'
 													onClick={() => handleRemoveSubjectGroup(idx)}
-												>
-													<IconTrash size={14} />
-												</ActionIcon>
-											</Group>
-										</Group>
-									</Paper>
-								))}
-							</Stack>
-
-							<Divider my='md' />
-
-							<Stack gap='xs'>
-								<Group justify='space-between'>
-									<Text size='sm' fw={500}>
-										Alternative Requirements
-									</Text>
-									<AlternativeRulesModal
-										mode='add'
-										subjects={subjects}
-										onSave={handleAddAlternative}
-									/>
-								</Group>
-
-								<Text size='xs' c='dimmed'>
-									Define alternative sets of requirements (e.g., different
-									subject combinations that also qualify)
-								</Text>
-
-								{subjectRules.alternatives?.map((alt, idx) => (
-									<Paper
-										key={idx}
-										withBorder
-										p='sm'
-										bg='var(--mantine-color-dark-8)'
-									>
-										<Group justify='space-between'>
-											<div>
-												<Group gap='xs'>
-													<Badge size='xs' variant='light' color='grape'>
-														Alternative {idx + 1}
-													</Badge>
-													<Text size='sm'>
-														{alt.minimumGrades.count} passes at{' '}
-														{alt.minimumGrades.grade}
-													</Text>
-												</Group>
-												<Text size='xs' c='dimmed'>
-													{alt.requiredSubjects.length} required subject(s)
-													{alt.subjectGroups?.length
-														? `, ${alt.subjectGroups.length} group(s)`
-														: ''}
-												</Text>
-											</div>
-											<Group gap='xs'>
-												<AlternativeRulesModal
-													mode='edit'
-													alternative={alt}
-													subjects={subjects}
-													onSave={(a) => handleUpdateAlternative(idx, a)}
-												/>
-												<ActionIcon
-													variant='subtle'
-													color='red'
-													size='sm'
-													onClick={() => handleRemoveAlternative(idx)}
 												>
 													<IconTrash size={14} />
 												</ActionIcon>
