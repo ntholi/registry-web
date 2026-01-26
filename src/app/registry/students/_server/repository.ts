@@ -68,6 +68,7 @@ export default class StudentRepository extends BaseRepository<
 										id: true,
 										name: true,
 										code: true,
+										level: true,
 									},
 									with: {
 										school: {
@@ -164,6 +165,7 @@ export default class StudentRepository extends BaseRepository<
 										id: true,
 										name: true,
 										code: true,
+										level: true,
 									},
 									with: {
 										school: {
@@ -514,6 +516,7 @@ export default class StudentRepository extends BaseRepository<
 										id: true,
 										name: true,
 										code: true,
+										level: true,
 									},
 									with: {
 										school: {
