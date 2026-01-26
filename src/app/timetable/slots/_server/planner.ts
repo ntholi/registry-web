@@ -5,7 +5,11 @@ import type {
 	venues,
 	venueTypes,
 } from '@/core/database';
-import { type OverflowOption, TimetablePlanningError } from './errors';
+import {
+	type AllocationInfo,
+	type OverflowOption,
+	TimetablePlanningError,
+} from './errors';
 import type { PlannedSlotInput } from './repository';
 
 export type DayOfWeek = (typeof timetableSlots.dayOfWeek.enumValues)[number];
@@ -183,9 +187,14 @@ export function buildTermPlan(
 			}
 			const diagnosis = diagnoseAllocationFailure(allocation, venues);
 			const overflowOptions = collectOverflowOptions(allocation, venues);
+			const allocationInfo: AllocationInfo = {
+				id: allocation.id,
+				moduleCode: allocation.semesterModule.module.code,
+				moduleName: allocation.semesterModule.module.name,
+			};
 			throw new TimetablePlanningError(
 				diagnosis,
-				allocation.id,
+				allocationInfo,
 				overflowOptions
 			);
 		}
