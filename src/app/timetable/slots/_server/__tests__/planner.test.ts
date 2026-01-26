@@ -48,6 +48,10 @@ function makeAllocation(
 		user?: {
 			userSchools?: { schoolId: number }[];
 		};
+		timetableAllocationAllowedVenues?: {
+			venueId: string;
+			allowOverflow: boolean;
+		}[];
 	} = {}
 ): AllocationRecord {
 	const id = overrides.id ?? nextAllocationId();
@@ -91,6 +95,8 @@ function makeAllocation(
 		createdAt: overrides.createdAt ?? new Date(),
 		timetableAllocationVenueTypes:
 			overrides.timetableAllocationVenueTypes ?? [],
+		timetableAllocationAllowedVenues:
+			overrides.timetableAllocationAllowedVenues ?? [],
 		semesterModule,
 		user,
 	} as AllocationRecord;
@@ -1569,6 +1575,158 @@ describe('buildTermPlan - Class Type Constraints', () => {
 
 		for (const slot of plan) {
 			expect(slot.allocationIds.length).toBeLessThanOrEqual(1);
+		}
+	});
+});
+
+describe('buildTermPlan - Overflow Override', () => {
+	it('allows allocation exceeding capacity when overflow is enabled', () => {
+		const venue = makeVenue({ id: 'overflow-venue-1', capacity: 50 });
+		const allocation = makeAllocation({
+			numberOfStudents: 100,
+			timetableAllocationAllowedVenues: [
+				{ venueId: 'overflow-venue-1', allowOverflow: true },
+			],
+		});
+
+		const plan = buildTermPlan(1, [allocation], [venue]);
+
+		expect(plan).toHaveLength(1);
+		expect(plan[0].venueId).toBe('overflow-venue-1');
+		expect(plan[0].capacityUsed).toBe(100);
+	});
+
+	it('throws when capacity exceeded without overflow enabled', () => {
+		const venue = makeVenue({ id: 'small-venue', capacity: 50 });
+		const allocation = makeAllocation({
+			numberOfStudents: 100,
+		});
+
+		expect(() => buildTermPlan(1, [allocation], [venue])).toThrow();
+	});
+
+	it('uses overflow venue only for specific allocation', () => {
+		const smallVenue = makeVenue({ id: 'small-v', capacity: 40 });
+		const largeVenue = makeVenue({ id: 'large-v', capacity: 100 });
+
+		const overflowAlloc = makeAllocation({
+			userId: 'lecturer-overflow',
+			numberOfStudents: 80,
+			timetableAllocationAllowedVenues: [
+				{ venueId: 'small-v', allowOverflow: true },
+			],
+			semesterModule: {
+				id: nextSemesterModuleId(),
+				semesterId: null,
+				module: { id: nextModuleId() },
+			},
+		});
+
+		const normalAlloc = makeAllocation({
+			userId: 'lecturer-normal',
+			numberOfStudents: 50,
+			semesterModule: {
+				id: nextSemesterModuleId(),
+				semesterId: null,
+				module: { id: nextModuleId() },
+			},
+		});
+
+		const plan = buildTermPlan(
+			1,
+			[overflowAlloc, normalAlloc],
+			[smallVenue, largeVenue]
+		);
+
+		expect(plan).toHaveLength(2);
+		const overflowSlot = plan.find((p) =>
+			p.allocationIds.includes(overflowAlloc.id)
+		);
+		const normalSlot = plan.find((p) =>
+			p.allocationIds.includes(normalAlloc.id)
+		);
+
+		expect(overflowSlot?.venueId).toBe('small-v');
+		expect(normalSlot?.venueId).toBe('large-v');
+	});
+
+	it('respects overflow flag per venue in allowed venues list', () => {
+		const venueA = makeVenue({ id: 'venue-a', capacity: 30 });
+		const venueB = makeVenue({ id: 'venue-b', capacity: 40 });
+
+		const allocation = makeAllocation({
+			numberOfStudents: 60,
+			timetableAllocationAllowedVenues: [
+				{ venueId: 'venue-a', allowOverflow: false },
+				{ venueId: 'venue-b', allowOverflow: true },
+			],
+		});
+
+		const plan = buildTermPlan(1, [allocation], [venueA, venueB]);
+
+		expect(plan).toHaveLength(1);
+		expect(plan[0].venueId).toBe('venue-b');
+	});
+
+	it('combines allocations in overflow venue when same module', () => {
+		const venue = makeVenue({ id: 'overflow-combine', capacity: 40 });
+		const moduleIdValue = nextModuleId();
+		const lecturerId = 'lecturer-combine';
+		const smId = nextSemesterModuleId();
+
+		const group1 = makeAllocation({
+			userId: lecturerId,
+			numberOfStudents: 30,
+			duration: 90,
+			groupName: 'A',
+			semesterModule: {
+				id: smId,
+				semesterId: null,
+				module: { id: moduleIdValue },
+			},
+			semesterModuleId: smId,
+			timetableAllocationAllowedVenues: [
+				{ venueId: 'overflow-combine', allowOverflow: true },
+			],
+		});
+
+		const group2 = makeAllocation({
+			userId: lecturerId,
+			numberOfStudents: 30,
+			duration: 90,
+			groupName: 'B',
+			semesterModule: {
+				id: smId,
+				semesterId: null,
+				module: { id: moduleIdValue },
+			},
+			semesterModuleId: smId,
+			timetableAllocationAllowedVenues: [
+				{ venueId: 'overflow-combine', allowOverflow: true },
+			],
+		});
+
+		const plan = buildTermPlan(1, [group1, group2], [venue]);
+
+		expect(plan).toHaveLength(1);
+		expect(plan[0].capacityUsed).toBe(60);
+		expect(plan[0].allocationIds.sort()).toEqual([group1.id, group2.id].sort());
+	});
+
+	it('error includes overflow options when capacity fails', () => {
+		const venue = makeVenue({ id: 'diag-venue', capacity: 30 });
+		const allocation = makeAllocation({
+			numberOfStudents: 100,
+		});
+
+		try {
+			buildTermPlan(1, [allocation], [venue]);
+			expect.fail('Should have thrown');
+		} catch (error) {
+			expect(error).toHaveProperty('canAllowOverflow', true);
+			expect(error).toHaveProperty('overflowOptions');
+			const opts = (error as { overflowOptions: unknown[] }).overflowOptions;
+			expect(opts.length).toBeGreaterThan(0);
 		}
 	});
 });

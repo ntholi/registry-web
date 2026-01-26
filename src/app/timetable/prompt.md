@@ -93,6 +93,12 @@ The assigned venue must accommodate the expected number of students:
 #### 1.8 Allowed Venues (Strict)
 If specific venues are selected in `timetableAllocationAllowedVenues`, the algorithm **MUST strictly** use one of those venues. This overrides and disables Venue Type requirements.
 
+#### 1.9 Overflow Venue Override
+When no venue fits capacity, user can allow overflow for a specific venue:
+- Set `allowOverflow = true` in `timetableAllocationAllowedVenues`
+- Capacity constraint bypassed **only** for that allocation + venue pair
+- Error prompts user to select overflow venue when no venue fits
+
 ### 2. Soft Constraints (Prefer, But May Violate When Necessary)
 
 #### 2.1 Consecutive Slots Limit
@@ -152,7 +158,7 @@ When no valid placement exists with all constraints:
 1. First, relax **consecutive slots** constraint
 2. Then, relax **maxSlotsPerDay** constraint
 (Before doing any of the two above, warn the user) 
-3. **Never** relax hard constraints (1.1 - 1.8)
+3. **Never** relax hard constraints (1.1 - 1.9)
 
 ---
 
@@ -177,17 +183,18 @@ Create comprehensive tests covering:
 
 1. **Basic Allocation**: Single allocation placement
 2. **Venue Constraints**: Type requirements, capacity limits, overflow rules
-3. **Lecturer Constraints**: Module conflicts, class type conflicts, venue sharing
-4. **Student Class Constraints**: No double-booking
-5. **Time Constraints**: Window compliance, allowed days
-6. **Consecutive Slot Avoidance**: For both lecturers and classes
-7. **Max Slots Per Day**: Enforcement and relaxation
-8. **School-Based Filtering**: Venue access restrictions
-9. **Randomization**: Distribution across times/days
-10. **Stress Tests**: High load scenarios (50+, 100+ allocations)
-11. **Edge Cases**: Narrow windows, extreme durations, capacity variations
-12. **Backtracking**: Complex reallocation scenarios
-13. **Constraint Relaxation**: Proper order of relaxation
+3. **Overflow Override**: Capacity bypass with `allowOverflow` flag
+4. **Lecturer Constraints**: Module conflicts, class type conflicts, venue sharing
+5. **Student Class Constraints**: No double-booking
+6. **Time Constraints**: Window compliance, allowed days
+7. **Consecutive Slot Avoidance**: For both lecturers and classes
+8. **Max Slots Per Day**: Enforcement and relaxation
+9. **School-Based Filtering**: Venue access restrictions
+10. **Randomization**: Distribution across times/days
+11. **Stress Tests**: High load scenarios (50+, 100+ allocations)
+12. **Edge Cases**: Narrow windows, extreme durations, capacity variations
+13. **Backtracking**: Complex reallocation scenarios
+14. **Constraint Relaxation**: Proper order of relaxation
 
 ### Test Philosophy
 - **Ruthless**: Tests should stress the algorithm to its limits
@@ -212,6 +219,7 @@ Create comprehensive tests covering:
 | Time Window | Must fit within startTime-endTime | Never |
 | Capacity | ≤110% of venue capacity | Never |
 | Allowed Venues | Must strictly be one of the selected venues | Never |
+| Overflow Override | Bypass capacity for venue with `allowOverflow = true` | Never |
 | 3+ Consecutive Slots | Avoid for lecturers and classes | Only if necessary |
 | Max Slots Per Day | Limit daily slots | Only if absolutely impossible |
 | Best-Fit Venue | Prefer smallest fitting venue | Preference only |
@@ -225,7 +233,7 @@ Create comprehensive tests covering:
 - `timetableSlots`: Stores scheduled slots
 - `timetableAllocations`: Teaching assignments to schedule
 - `timetableAllocationVenueTypes`: Venue type requirements
-- `timetableAllocationAllowedVenues`: Specific venue restrictions
+- `timetableAllocationAllowedVenues`: Specific venue restrictions (includes `allowOverflow` flag)
 - `venues`: Physical locations with capacity
 - `venueTypes`: Categories of venues
 - `venueSchools`: Links venues to schools

@@ -111,3 +111,15 @@ export async function deleteTimetableAllocations(
 		return { success: false, error: extractErrorMessage(error) };
 	}
 }
+
+export async function setAllocationOverflowVenue(
+	allocationId: number,
+	venueId: string
+): Promise<ActionResult<void>> {
+	try {
+		await service.setOverflowVenue(allocationId, venueId);
+		return { success: true, data: undefined };
+	} catch (error) {
+		return { success: false, error: extractErrorMessage(error) };
+	}
+}

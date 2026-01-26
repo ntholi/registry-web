@@ -15,5 +15,9 @@ export {
 	ModuleSearchInput,
 	type ModuleSearchInputProps,
 } from './_components/ModuleSearchInput';
+export {
+	default as OverflowVenueModal,
+	type OverflowVenueModalRef,
+} from './_components/OverflowVenueModal';
 export { default as TimetableTab } from './_components/TimetableTab';
 export * from './_server/actions';

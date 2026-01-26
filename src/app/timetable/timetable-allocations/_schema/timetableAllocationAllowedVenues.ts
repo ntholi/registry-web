@@ -1,4 +1,5 @@
 import {
+	boolean,
 	index,
 	integer,
 	pgTable,
@@ -18,6 +19,7 @@ export const timetableAllocationAllowedVenues = pgTable(
 		venueId: text()
 			.references(() => venues.id, { onDelete: 'cascade' })
 			.notNull(),
+		allowOverflow: boolean().notNull().default(false),
 		createdAt: timestamp().defaultNow(),
 	},
 	(table) => ({
