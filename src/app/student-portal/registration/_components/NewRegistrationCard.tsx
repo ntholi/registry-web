@@ -68,6 +68,15 @@ export default function NewRegistrationCard() {
 		return null;
 	}
 
+	const registrationOpen = isRegistrationOpen(
+		activeTerm?.settings?.registrationStartDate,
+		activeTerm?.settings?.registrationEndDate
+	);
+
+	if (!registrationOpen) {
+		return null;
+	}
+
 	const hasActiveRegistration =
 		registrationHistory?.some(
 			(request) => request.term.id === activeTerm?.id
@@ -110,7 +119,7 @@ export default function NewRegistrationCard() {
 					<Text size='sm' c='dimmed' ta='center'>
 						You don&apos;t have a registration request for
 						<Text span fw={600}>
-							{activeTerm?.code}
+							{` ${activeTerm?.code} `}
 						</Text>
 						yet. Click below to start your registration process.
 					</Text>
@@ -121,4 +130,13 @@ export default function NewRegistrationCard() {
 			</Stack>
 		</Card>
 	);
+}
+
+export function isRegistrationOpen(
+	startDate: string | null | undefined,
+	endDate: string | null | undefined
+) {
+	if (!startDate || !endDate) return false;
+	const today = new Date().toISOString().split('T')[0];
+	return startDate <= today && endDate >= today;
 }

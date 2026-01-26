@@ -181,7 +181,7 @@ export default function ModuleSelection({
 					)}
 				>
 					You have selected {selectedModules.length} module
-					{selectedModules.length !== 1 ? 's' : ''}
+					{selectedModules.length !== 1 ? 's ' : ' '}
 					for registration.
 					{selectedModules.length > config.registry.maxRegModules && (
 						<Text size='sm' mt='xs'>

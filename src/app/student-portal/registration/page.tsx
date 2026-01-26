@@ -12,6 +12,8 @@ import { forbidden } from 'next/navigation';
 import { Suspense } from 'react';
 import { auth } from '@/core/auth';
 import {
+	NewRegistrationCard,
+	NewRegistrationCardSkeleton,
 	RegistrationHistory,
 	RegistrationHistorySkeleton,
 } from './_components';
@@ -41,9 +43,9 @@ export default async function RegistrationPage() {
 					</Box>
 				</Group>
 
-				{/* <Suspense fallback={<NewRegistrationCardSkeleton />}>
-          <NewRegistrationCard />
-        </Suspense> */}
+				<Suspense fallback={<NewRegistrationCardSkeleton />}>
+					<NewRegistrationCard />
+				</Suspense>
 
 				<Divider />
 
