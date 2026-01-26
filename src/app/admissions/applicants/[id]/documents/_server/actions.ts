@@ -162,7 +162,7 @@ export async function updateApplicantFromIdentity(
 		throw new Error('Applicant not found');
 	}
 
-	const updateData: Partial<typeof applicant> = {};
+	const updateData: Partial<ExtractedIdentityData> = {};
 
 	if (data.fullName && data.fullName !== applicant.fullName) {
 		updateData.fullName = data.fullName;
@@ -187,7 +187,20 @@ export async function updateApplicantFromIdentity(
 	}
 
 	if (Object.keys(updateData).length > 0) {
-		return updateApplicant(applicantId, { ...applicant, ...updateData });
+		return updateApplicant(applicantId, {
+			id: applicant.id,
+			userId: applicant.userId,
+			fullName: updateData.fullName ?? applicant.fullName,
+			dateOfBirth: updateData.dateOfBirth ?? applicant.dateOfBirth,
+			nationalId: updateData.nationalId ?? applicant.nationalId,
+			nationality: updateData.nationality ?? applicant.nationality,
+			birthPlace: updateData.birthPlace ?? applicant.birthPlace,
+			religion: applicant.religion,
+			address: updateData.address ?? applicant.address,
+			gender: updateData.gender ?? applicant.gender,
+			createdAt: applicant.createdAt,
+			updatedAt: applicant.updatedAt,
+		});
 	}
 
 	return applicant;
