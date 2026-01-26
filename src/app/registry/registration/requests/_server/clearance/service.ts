@@ -4,7 +4,7 @@ import type { clearance, DashboardUser } from '@/core/database';
 import type { QueryOptions } from '@/core/platform/BaseRepository';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
 import withAuth from '@/core/platform/withAuth';
-import ClearanceRepository from './repository';
+import ClearanceRepository, { type ClearanceFilterOptions } from './repository';
 
 type Clearance = typeof clearance.$inferInsert;
 
@@ -43,11 +43,11 @@ class ClearanceService {
 		department: DashboardUser,
 		params: QueryOptions<typeof clearance>,
 		status?: 'pending' | 'approved' | 'rejected',
-		termId?: number
+		filter?: ClearanceFilterOptions
 	) {
 		return withAuth(
 			async () =>
-				this.repository.findByDepartment(department, params, status, termId),
+				this.repository.findByDepartment(department, params, status, filter),
 			['dashboard']
 		);
 	}
