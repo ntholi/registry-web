@@ -1,10 +1,19 @@
 'use server';
 
+import type { ProgramLevel } from '@academic/_database';
 import { auth } from '@/core/auth';
 import type { clearance, DashboardUser } from '@/core/database';
 import { clearanceService as service } from './service';
 
 type Clearance = typeof clearance.$inferInsert;
+
+export interface ClearanceFilter {
+	termId?: number;
+	schoolId?: number;
+	programId?: number;
+	programLevel?: ProgramLevel;
+	semester?: string;
+}
 
 export async function getClearance(id: number) {
 	return service.get(id);
@@ -26,7 +35,7 @@ export async function clearanceByStatus(
 	status: 'pending' | 'approved' | 'rejected',
 	page: number = 1,
 	search = '',
-	termId?: number
+	filter?: ClearanceFilter
 ) {
 	const session = await auth();
 	if (!session?.user?.role) {
@@ -43,7 +52,7 @@ export async function clearanceByStatus(
 			search,
 		},
 		status,
-		termId
+		filter
 	);
 
 	return {

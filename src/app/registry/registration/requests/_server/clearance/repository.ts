@@ -1,3 +1,4 @@
+import type { ProgramLevel } from '@academic/_database';
 import { and, asc, count, desc, eq, inArray, sql } from 'drizzle-orm';
 import { auth } from '@/core/auth';
 import {
@@ -5,14 +6,26 @@ import {
 	clearanceAudit,
 	type DashboardUser,
 	db,
+	programs,
 	registrationClearance,
 	registrationRequests,
 	requestedModules,
+	structureSemesters,
+	structures,
 	studentPrograms,
+	studentSemesters,
 } from '@/core/database';
 import BaseRepository, {
 	type QueryOptions,
 } from '@/core/platform/BaseRepository';
+
+export interface ClearanceFilterOptions {
+	termId?: number;
+	schoolId?: number;
+	programId?: number;
+	programLevel?: ProgramLevel;
+	semester?: string;
+}
 
 type Model = typeof clearance.$inferInsert;
 
@@ -199,20 +212,40 @@ export default class ClearanceRepository extends BaseRepository<
 		department: DashboardUser,
 		params: QueryOptions<typeof clearance>,
 		status?: 'pending' | 'approved' | 'rejected',
-		termId?: number
+		filter?: ClearanceFilterOptions
 	) {
 		const { offset, limit } = this.buildQueryCriteria(params);
 
-		const whereJoin = and(
+		const hasAdvancedFilter =
+			filter?.schoolId || filter?.programId || filter?.programLevel;
+		const hasSemesterFilter = filter?.semester;
+
+		const baseConditions = and(
 			params.search
 				? sql`${registrationRequests.stdNo}::text LIKE ${`%${params.search}%`}`
 				: undefined,
-			termId ? eq(registrationRequests.termId, termId) : undefined,
+			filter?.termId
+				? eq(registrationRequests.termId, filter.termId)
+				: undefined,
 			eq(clearance.department, department),
 			status ? eq(clearance.status, status) : undefined
 		);
 
-		const [{ total }] = await db
+		const programConditions = hasAdvancedFilter
+			? and(
+					filter.schoolId ? eq(programs.schoolId, filter.schoolId) : undefined,
+					filter.programId ? eq(programs.id, filter.programId) : undefined,
+					filter.programLevel
+						? eq(programs.level, filter.programLevel)
+						: undefined
+				)
+			: undefined;
+
+		const semesterCondition = hasSemesterFilter
+			? eq(structureSemesters.semesterNumber, filter.semester!)
+			: undefined;
+
+		let countQuery = db
 			.select({ total: count() })
 			.from(registrationClearance)
 			.innerJoin(
@@ -220,13 +253,37 @@ export default class ClearanceRepository extends BaseRepository<
 				eq(registrationClearance.registrationRequestId, registrationRequests.id)
 			)
 			.innerJoin(clearance, eq(registrationClearance.clearanceId, clearance.id))
-			.where(whereJoin);
+			.$dynamic();
+
+		if (hasAdvancedFilter || hasSemesterFilter) {
+			countQuery = countQuery
+				.innerJoin(
+					studentSemesters,
+					eq(studentSemesters.registrationRequestId, registrationRequests.id)
+				)
+				.innerJoin(
+					studentPrograms,
+					eq(studentSemesters.studentProgramId, studentPrograms.id)
+				)
+				.innerJoin(structures, eq(studentPrograms.structureId, structures.id))
+				.innerJoin(programs, eq(structures.programId, programs.id));
+		}
+
+		if (hasSemesterFilter) {
+			countQuery = countQuery.innerJoin(
+				structureSemesters,
+				eq(studentSemesters.structureSemesterId, structureSemesters.id)
+			);
+		}
+
+		const whereJoin = and(baseConditions, programConditions, semesterCondition);
+		const [{ total }] = await countQuery.where(whereJoin);
 
 		if (total === 0) {
 			return { items: [], totalPages: 0, totalItems: 0 };
 		}
 
-		const idRows = await db
+		let idQuery = db
 			.select({ id: registrationClearance.id })
 			.from(registrationClearance)
 			.innerJoin(
@@ -234,6 +291,30 @@ export default class ClearanceRepository extends BaseRepository<
 				eq(registrationClearance.registrationRequestId, registrationRequests.id)
 			)
 			.innerJoin(clearance, eq(registrationClearance.clearanceId, clearance.id))
+			.$dynamic();
+
+		if (hasAdvancedFilter || hasSemesterFilter) {
+			idQuery = idQuery
+				.innerJoin(
+					studentSemesters,
+					eq(studentSemesters.registrationRequestId, registrationRequests.id)
+				)
+				.innerJoin(
+					studentPrograms,
+					eq(studentSemesters.studentProgramId, studentPrograms.id)
+				)
+				.innerJoin(structures, eq(studentPrograms.structureId, structures.id))
+				.innerJoin(programs, eq(structures.programId, programs.id));
+		}
+
+		if (hasSemesterFilter) {
+			idQuery = idQuery.innerJoin(
+				structureSemesters,
+				eq(studentSemesters.structureSemesterId, structureSemesters.id)
+			);
+		}
+
+		const idRows = await idQuery
 			.where(whereJoin)
 			.orderBy(asc(clearance.createdAt))
 			.limit(limit)
