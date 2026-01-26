@@ -132,61 +132,65 @@ export function DocumentUpload({
 		setUploadState('uploading');
 		setErrorMessage(null);
 
-		try {
-			const arrayBuffer = await droppedFile.arrayBuffer();
-			const uint8Array = new Uint8Array(arrayBuffer);
-			const charArray = Array.from(uint8Array, (byte) =>
-				String.fromCharCode(byte)
-			);
-			const binaryString = charArray.join('');
-			const base64 = btoa(binaryString);
+		const arrayBuffer = await droppedFile.arrayBuffer();
+		const uint8Array = new Uint8Array(arrayBuffer);
+		const charArray = Array.from(uint8Array, (byte) =>
+			String.fromCharCode(byte)
+		);
+		const binaryString = charArray.join('');
+		const base64 = btoa(binaryString);
 
-			setUploadState('reading');
+		setUploadState('reading');
 
-			if (type === 'identity') {
-				const analysis = await analyzeIdentityDocument(
-					base64,
-					droppedFile.type
-				);
-				setUploadState('ready');
-				(onUploadComplete as (r: DocumentUploadResult<'identity'>) => void)({
-					file: droppedFile,
-					base64,
-					analysis,
+		if (type === 'identity') {
+			const result = await analyzeIdentityDocument(base64, droppedFile.type);
+			if (!result.success) {
+				setErrorMessage(result.error);
+				setUploadState('error');
+				notifications.show({
+					title: 'Processing Failed',
+					message: result.error,
+					color: 'red',
 				});
-			} else if (type === 'certificate') {
-				const analysis = await analyzeAcademicDocument(
-					base64,
-					droppedFile.type,
-					certificateTypes,
-					applicantName,
-					certificationValidDays
-				);
-				setUploadState('ready');
-				(onUploadComplete as (r: DocumentUploadResult<'certificate'>) => void)({
-					file: droppedFile,
-					base64,
-					analysis,
-				});
-			} else {
-				const analysis = await analyzeDocument(base64, droppedFile.type);
-				setUploadState('ready');
-				(onUploadComplete as (r: DocumentUploadResult<'any'>) => void)({
-					file: droppedFile,
-					base64,
-					analysis,
-				});
+				return;
 			}
-		} catch (error) {
-			console.error('Document processing error:', error);
-			const message =
-				error instanceof Error ? error.message : 'Failed to process document';
-			setErrorMessage(message);
-			setUploadState('error');
-			notifications.show({
-				title: 'Processing Failed',
-				message,
-				color: 'red',
+			setUploadState('ready');
+			(onUploadComplete as (r: DocumentUploadResult<'identity'>) => void)({
+				file: droppedFile,
+				base64,
+				analysis: result.data,
+			});
+		} else if (type === 'certificate') {
+			const result = await analyzeAcademicDocument(
+				base64,
+				droppedFile.type,
+				certificateTypes,
+				applicantName,
+				certificationValidDays
+			);
+			if (!result.success) {
+				setErrorMessage(result.error);
+				setUploadState('error');
+				notifications.show({
+					title: 'Processing Failed',
+					message: result.error,
+					color: 'red',
+				});
+				return;
+			}
+			setUploadState('ready');
+			(onUploadComplete as (r: DocumentUploadResult<'certificate'>) => void)({
+				file: droppedFile,
+				base64,
+				analysis: result.data,
+			});
+		} else {
+			const analysis = await analyzeDocument(base64, droppedFile.type);
+			setUploadState('ready');
+			(onUploadComplete as (r: DocumentUploadResult<'any'>) => void)({
+				file: droppedFile,
+				base64,
+				analysis,
 			});
 		}
 	}
