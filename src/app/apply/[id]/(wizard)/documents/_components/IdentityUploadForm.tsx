@@ -38,18 +38,24 @@ export default function IdentityUploadForm({ applicationId }: Props) {
 	const applicantId = applicant?.id ?? '';
 
 	const identityDocs =
-		applicant?.documents.filter((d) => d.document.type === 'identity') ?? [];
-	const hasIdentity = identityDocs.length > 0;
+		applicant?.documents.filter(
+			(d) => d.document.type === 'identity' && d.document.fileUrl
+		) ?? [];
+	const hasIdentity =
+		identityDocs.length > 0 &&
+		(applicant?.nationalId || applicant?.dateOfBirth);
 
-	const uploadedDocs: UploadedIdentityDoc[] = identityDocs.map((doc) => ({
-		id: doc.id,
-		fileUrl: doc.document.fileUrl,
-		fullName: applicant?.fullName,
-		nationalId: applicant?.nationalId,
-		dateOfBirth: applicant?.dateOfBirth,
-		nationality: applicant?.nationality,
-		documentType: doc.document.type,
-	}));
+	const uploadedDocs: UploadedIdentityDoc[] = hasIdentity
+		? identityDocs.map((doc) => ({
+				id: doc.id,
+				fileUrl: doc.document.fileUrl,
+				fullName: applicant?.fullName,
+				nationalId: applicant?.nationalId,
+				dateOfBirth: applicant?.dateOfBirth,
+				nationality: applicant?.nationality,
+				documentType: doc.document.type,
+			}))
+		: [];
 
 	async function handleUploadComplete(
 		result: DocumentUploadResult<'identity'>
