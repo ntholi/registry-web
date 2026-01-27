@@ -453,11 +453,17 @@ export default class ClearanceRepository extends BaseRepository<
 			}),
 		]);
 
-		const clearanceHistory = clearanceRows.map((rc) => ({
-			...rc.clearance,
-			registrationRequest: rc.registrationRequest,
-			isAutoApproval: false as const,
-		}));
+		const autoApprovalTermIds = new Set(
+			autoApprovalRows.map((aa) => aa.termId)
+		);
+
+		const clearanceHistory = clearanceRows
+			.filter((rc) => !autoApprovalTermIds.has(rc.registrationRequest.termId))
+			.map((rc) => ({
+				...rc.clearance,
+				registrationRequest: rc.registrationRequest,
+				isAutoApproval: false as const,
+			}));
 
 		const autoApprovalHistory = autoApprovalRows.map((aa) => ({
 			id: aa.id,
