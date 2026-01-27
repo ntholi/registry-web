@@ -50,13 +50,12 @@ RULES:
 - Use null for missing/illegible data
 
 CERTIFICATION EXTRACTION:
-- A certified document MUST have BOTH a stamp AND a signature
-- isCertified: true only if stamp AND signature are present
-- hasStamp: true if official stamp/seal visible (Commissioner of Oaths, Notary, etc.)
+- isCertified: true only if a NON-ECoL stamp AND signature are present
+- hasStamp: true if any official stamp/seal visible
 - hasSignature: true if handwritten signature present near stamp
-- certifiedDate: Extract date from stamp in YYYY-MM-DD format
-- certifierName: Name from stamp (person or organization)
-- certifierTitle: Title from stamp (Commissioner of Oaths, Notary Public, JP, etc.)`;
+- IMPORTANT: Extract ALL stamps visible on the document into the stamps array
+- For each stamp extract: date (YYYY-MM-DD), name (person/organization), title (e.g., Commissioner of Oaths)
+- For each stamp, set isEcol: true if it's from ECoL (Examinations Council of Lesotho)`;
 
 const IDENTITY_PROMPT = `Analyze this identity document and extract structured information.
 
@@ -65,13 +64,12 @@ RULES:
 - Use null for missing/illegible data
 
 CERTIFICATION EXTRACTION:
-- A certified document MUST have BOTH a stamp AND a signature
-- isCertified: true only if stamp AND signature are present
-- hasStamp: true if official stamp/seal visible (Commissioner of Oaths, Notary, etc.)
+- isCertified: true only if a NON-ECoL stamp AND signature are present
+- hasStamp: true if any official stamp/seal visible
 - hasSignature: true if handwritten signature present near stamp
-- certifiedDate: Extract date from stamp in YYYY-MM-DD format
-- certifierName: Name from stamp (person or organization)
-- certifierTitle: Title from stamp (Commissioner of Oaths, Notary Public, JP, etc.)`;
+- IMPORTANT: Extract ALL stamps visible on the document into the stamps array
+- For each stamp extract: date (YYYY-MM-DD), name (person/organization), title (e.g., Commissioner of Oaths)
+- For each stamp, set isEcol: true if it's from ECoL (Examinations Council of Lesotho)`;
 
 const ACADEMIC_PROMPT = `Analyze this academic document and extract structured information.
 
@@ -85,13 +83,12 @@ RULES:
 - Use null for missing/illegible data
 
 CERTIFICATION EXTRACTION:
-- A certified document MUST have BOTH a stamp AND a signature
-- isCertified: true only if stamp AND signature are present
-- hasStamp: true if official stamp/seal visible (Commissioner of Oaths, Notary, etc.)
+- isCertified: true only if a NON-ECoL stamp AND signature are present
+- hasStamp: true if any official stamp/seal visible
 - hasSignature: true if handwritten signature present near stamp
-- certifiedDate: Extract date from stamp in YYYY-MM-DD format
-- certifierName: Name from stamp (person or organization)
-- certifierTitle: Title from stamp (Commissioner of Oaths, Notary Public, JP, etc.)`;
+- IMPORTANT: Extract ALL stamps visible on the document into the stamps array
+- For each stamp extract: date (YYYY-MM-DD), name (person/organization), title (e.g., Commissioner of Oaths)
+- For each stamp, set isEcol: true if it's from ECoL (Examinations Council of Lesotho)`;
 
 const DEFAULT_CERTIFICATE_TYPES = [
 	'LGCSE',

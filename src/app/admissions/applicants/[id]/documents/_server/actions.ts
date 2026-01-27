@@ -43,6 +43,18 @@ export async function findDocumentsByType(
 	return applicantDocumentsService.findByType(applicantId, type);
 }
 
+function getCertificationDetails(cert: CertificationResult | null | undefined) {
+	if (!cert?.isCertified) return { certifiedBy: null, certifiedDate: null };
+
+	const nonEcolStamp = cert.stamps.find((s) => !s.isEcol);
+	if (!nonEcolStamp) return { certifiedBy: null, certifiedDate: null };
+
+	const certifiedBy =
+		[nonEcolStamp.name, nonEcolStamp.title].filter(Boolean).join(', ') || null;
+
+	return { certifiedBy, certifiedDate: nonEcolStamp.date };
+}
+
 export async function saveApplicantDocument(data: {
 	applicantId: string;
 	fileName: string;
@@ -52,18 +64,16 @@ export async function saveApplicantDocument(data: {
 	const folder = await getDocumentFolder(data.applicantId);
 	const fileUrl = `${BASE_URL}/${folder}/${data.fileName}`;
 
-	const cert = data.certification;
-	const certifiedBy = cert?.isCertified
-		? [cert.certifierName, cert.certifierTitle].filter(Boolean).join(', ') ||
-			null
-		: null;
+	const { certifiedBy, certifiedDate } = getCertificationDetails(
+		data.certification
+	);
 
 	return applicantDocumentsService.uploadDocument(
 		{
 			fileName: data.fileName,
 			fileUrl,
 			type: data.type,
-			certifiedDate: cert?.isCertified ? cert.certifiedDate : null,
+			certifiedDate,
 			certifiedBy,
 		},
 		data.applicantId,
