@@ -192,6 +192,19 @@ export async function analyzeIdentityDocument(
 			return { success: false, error: 'Invalid identity document' };
 		}
 
+		const missing: string[] = [];
+		if (!output.fullName) missing.push('name');
+		if (!output.nationalId) missing.push('ID number');
+		if (!output.dateOfBirth) missing.push('date of birth');
+		if (!output.gender) missing.push('gender');
+
+		if (missing.length > 0) {
+			return {
+				success: false,
+				error: `Invalid identity document: missing ${missing.join(', ')}`,
+			};
+		}
+
 		return { success: true, data: output };
 	} catch (error) {
 		if (NoObjectGeneratedError.isInstance(error)) {
