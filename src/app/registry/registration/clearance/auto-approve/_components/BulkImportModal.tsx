@@ -1,6 +1,7 @@
 'use client';
 
 import {
+	ActionIcon,
 	Alert,
 	Button,
 	FileButton,
@@ -142,13 +143,13 @@ export default function BulkImportModal() {
 
 	return (
 		<>
-			<Button
-				leftSection={<IconFileUpload size={16} />}
+			<ActionIcon
 				variant='light'
+				size='lg'
 				onClick={open}
 			>
-				Bulk Import
-			</Button>
+			<IconFileUpload size={16} />
+			</ActionIcon>
 
 			<Modal
 				opened={opened}
