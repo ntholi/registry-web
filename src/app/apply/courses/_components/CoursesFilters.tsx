@@ -19,7 +19,7 @@ export default function CoursesFilters({ schools, levels }: Props) {
 	const levelsSorted = [...levels].sort((a, b) => b.localeCompare(a));
 
 	return (
-		<ScrollArea type='hover' offsetScrollbars>
+		<ScrollArea type='hover' offsetScrollbars pb={5}>
 			<Group gap='md' wrap='nowrap'>
 				<Chip
 					variant='filled'

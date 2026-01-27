@@ -64,12 +64,13 @@ export default async function ApplyCoursesPage({ searchParams }: Props) {
 						</Text>
 					</Stack>
 
-					<Paper withBorder radius='lg' p='lg'>
+					<Box>
 						<CoursesFilters
 							schools={schools}
 							levels={programLevelEnum.enumValues}
 						/>
-					</Paper>
+						<Divider />
+					</Box>
 
 					<Group justify='space-between' align='center'>
 						<Group gap='xs'>
