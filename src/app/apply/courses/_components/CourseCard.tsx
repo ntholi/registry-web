@@ -37,7 +37,7 @@ export default function CourseCard({ program, subjects }: Props) {
 			: null;
 
 	return (
-		<Paper h='100%' radius='md' shadow='sm' withBorder>
+		<Paper h='100%' radius='md' pb={'lg'} shadow='sm' withBorder>
 			<Box px='xl' py={'lg'} w={'100%'}>
 				<Flex justify='space-between' align='center'>
 					<Text>{program.school.shortName}</Text>
