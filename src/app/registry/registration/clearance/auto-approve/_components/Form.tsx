@@ -8,6 +8,7 @@ import { getAllTerms } from '@/app/registry/terms';
 import type { DashboardUser } from '@/core/database';
 import { Form } from '@/shared/ui/adease';
 import { createAutoApproval, updateAutoApproval } from '../_server/actions';
+import StdNoInput from '@/app/dashboard/base/StdNoInput';
 
 type Props = {
 	rule?: {
@@ -64,7 +65,7 @@ export default function AutoApprovalForm({ rule }: Props) {
 		>
 			{(form) => (
 				<Stack>
-					<NumberInput
+					<StdNoInput
 						label='Student Number'
 						placeholder='Enter student number'
 						hideControls
