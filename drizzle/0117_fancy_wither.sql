@@ -1,0 +1,1 @@
+ALTER TABLE "modules" ADD CONSTRAINT "modules_code_unique" UNIQUE("code");
