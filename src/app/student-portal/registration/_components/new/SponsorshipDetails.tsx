@@ -271,8 +271,7 @@ export default function SponsorshipDetails({
 									<Card
 										key={index}
 										withBorder
-										padding='xs'
-										radius='md'
+										padding='lg'
 										style={{ position: 'relative' }}
 									>
 										<Group justify='space-between' wrap='nowrap'>
