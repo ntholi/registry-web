@@ -4,7 +4,10 @@ import {
 	autoApprovals,
 	clearance,
 	db,
+	paymentReceipts,
+	type ReceiptType,
 	registrationClearance,
+	registrationRequestReceipts,
 	registrationRequests,
 	requestedModules,
 	type StudentModuleStatus,
@@ -261,6 +264,7 @@ export default class RegistrationRequestRepository extends BaseRepository<
 		borrowerNo?: string;
 		bankName?: string;
 		accountNumber?: string;
+		receipts?: { receiptNo: string; receiptType: ReceiptType }[];
 	}) {
 		return db.transaction(async (tx) => {
 			const student = await tx.query.students.findFirst({
@@ -363,6 +367,24 @@ export default class RegistrationRequestRepository extends BaseRepository<
 				request.id,
 				data.modules
 			);
+
+			if (data.receipts && data.receipts.length > 0) {
+				for (const receipt of data.receipts) {
+					const [newReceipt] = await tx
+						.insert(paymentReceipts)
+						.values({
+							receiptNo: receipt.receiptNo,
+							receiptType: receipt.receiptType,
+							stdNo: data.stdNo,
+						})
+						.returning();
+
+					await tx.insert(registrationRequestReceipts).values({
+						registrationRequestId: request.id,
+						receiptId: newReceipt.id,
+					});
+				}
+			}
 
 			return { request, modules };
 		});

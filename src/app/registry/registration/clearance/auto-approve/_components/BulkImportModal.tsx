@@ -143,12 +143,8 @@ export default function BulkImportModal() {
 
 	return (
 		<>
-			<ActionIcon
-				variant='light'
-				size='lg'
-				onClick={open}
-			>
-			<IconFileUpload size={16} />
+			<ActionIcon variant='light' size='lg' onClick={open}>
+				<IconFileUpload size={16} />
 			</ActionIcon>
 
 			<Modal

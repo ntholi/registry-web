@@ -31,11 +31,12 @@ export default function Layout({ children }: PropsWithChildren) {
 				<ListItem
 					id={item.id.toString()}
 					label={item.stdNo}
-					rightSection={							<Badge size='xs' variant='light'>
-								{item.term?.code ?? 'Unknown'}
-							</Badge>}
-					description={item.student?.name ?? 'Unknown Student'
+					rightSection={
+						<Badge size='xs' variant='light'>
+							{item.term?.code ?? 'Unknown'}
+						</Badge>
 					}
+					description={item.student?.name ?? 'Unknown Student'}
 				/>
 			)}
 		>

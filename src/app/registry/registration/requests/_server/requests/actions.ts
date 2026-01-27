@@ -1,7 +1,7 @@
 'use server';
 
 import type { AcademicRemarks, Student } from '@registry/students';
-import type { StudentModuleStatus } from '@/core/database';
+import type { ReceiptType, StudentModuleStatus } from '@/core/database';
 import { registrationRequestsService as service } from './service';
 
 type ModuleWithStatus = {
@@ -78,6 +78,7 @@ export async function createRegistration(data: {
 	borrowerNo?: string;
 	bankName?: string;
 	accountNumber?: string;
+	receipts?: { receiptNo: string; receiptType: ReceiptType }[];
 }) {
 	return service.createWithModules(data);
 }

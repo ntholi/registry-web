@@ -1,6 +1,6 @@
 {
-	"id": "883eeff1-72e4-43a3-81af-0a6eebd7f07e",
-	"prevId": "60311fe4-4919-41de-b48a-34a5969161c9",
+	"id": "431b2b9b-2569-4b84-a7e0-a1a98404e214",
+	"prevId": "883eeff1-72e4-43a3-81af-0a6eebd7f07e",
 	"version": "7",
 	"dialect": "postgresql",
 	"tables": {
@@ -8274,6 +8274,94 @@
 					"name": "unique_auto_approval_rule",
 					"nullsNotDistinct": false,
 					"columns": ["std_no", "term_id", "department"]
+				}
+			},
+			"policies": {},
+			"checkConstraints": {},
+			"isRLSEnabled": false
+		},
+		"public.registration_request_receipts": {
+			"name": "registration_request_receipts",
+			"schema": "",
+			"columns": {
+				"registration_request_id": {
+					"name": "registration_request_id",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"receipt_id": {
+					"name": "receipt_id",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"created_at": {
+					"name": "created_at",
+					"type": "timestamp",
+					"primaryKey": false,
+					"notNull": false,
+					"default": "now()"
+				}
+			},
+			"indexes": {
+				"fk_registration_request_receipts_registration_request_id": {
+					"name": "fk_registration_request_receipts_registration_request_id",
+					"columns": [
+						{
+							"expression": "registration_request_id",
+							"isExpression": false,
+							"asc": true,
+							"nulls": "last"
+						}
+					],
+					"isUnique": false,
+					"concurrently": false,
+					"method": "btree",
+					"with": {}
+				},
+				"fk_registration_request_receipts_receipt_id": {
+					"name": "fk_registration_request_receipts_receipt_id",
+					"columns": [
+						{
+							"expression": "receipt_id",
+							"isExpression": false,
+							"asc": true,
+							"nulls": "last"
+						}
+					],
+					"isUnique": false,
+					"concurrently": false,
+					"method": "btree",
+					"with": {}
+				}
+			},
+			"foreignKeys": {
+				"registration_request_receipts_registration_request_id_registration_requests_id_fk": {
+					"name": "registration_request_receipts_registration_request_id_registration_requests_id_fk",
+					"tableFrom": "registration_request_receipts",
+					"tableTo": "registration_requests",
+					"columnsFrom": ["registration_request_id"],
+					"columnsTo": ["id"],
+					"onDelete": "cascade",
+					"onUpdate": "no action"
+				},
+				"registration_request_receipts_receipt_id_payment_receipts_id_fk": {
+					"name": "registration_request_receipts_receipt_id_payment_receipts_id_fk",
+					"tableFrom": "registration_request_receipts",
+					"tableTo": "payment_receipts",
+					"columnsFrom": ["receipt_id"],
+					"columnsTo": ["id"],
+					"onDelete": "cascade",
+					"onUpdate": "no action"
+				}
+			},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {
+				"registration_request_receipts_registrationRequestId_receiptId_unique": {
+					"name": "registration_request_receipts_registrationRequestId_receiptId_unique",
+					"nullsNotDistinct": false,
+					"columns": ["registration_request_id", "receipt_id"]
 				}
 			},
 			"policies": {},
