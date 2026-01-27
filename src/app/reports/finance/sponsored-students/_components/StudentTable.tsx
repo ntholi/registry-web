@@ -28,7 +28,6 @@ interface SponsoredStudent {
 	borrowerNo: string | null;
 	bankName: string | null;
 	accountNumber: string | null;
-	confirmed: boolean;
 }
 
 interface Props {
@@ -80,7 +79,6 @@ export default function StudentTable({
 									<Table.Th>Borrower No.</Table.Th>
 									<Table.Th>Bank Name</Table.Th>
 									<Table.Th>Account No.</Table.Th>
-									<Table.Th ta='center'>Confirmed</Table.Th>
 								</Table.Tr>
 							</Table.Thead>
 							<Table.Tbody>
@@ -115,9 +113,6 @@ export default function StudentTable({
 										</Table.Td>
 										<Table.Td>
 											<Skeleton height={14} width={80} />
-										</Table.Td>
-										<Table.Td ta='center'>
-											<Skeleton height={18} width={40} radius='sm' />
 										</Table.Td>
 									</Table.Tr>
 								))}
@@ -181,9 +176,6 @@ export default function StudentTable({
 								<Table.Th miw={100}>Borrower No.</Table.Th>
 								<Table.Th miw={100}>Bank Name</Table.Th>
 								<Table.Th miw={110}>Account No.</Table.Th>
-								<Table.Th ta='center' miw={80}>
-									Confirmed
-								</Table.Th>
 							</Table.Tr>
 						</Table.Thead>
 						<Table.Tbody>
@@ -233,15 +225,6 @@ export default function StudentTable({
 										<Text size='sm' c='dimmed'>
 											{student.accountNumber || '-'}
 										</Text>
-									</Table.Td>
-									<Table.Td ta='center'>
-										<Badge
-											variant='light'
-											size='sm'
-											color={student.confirmed ? 'green' : 'yellow'}
-										>
-											{student.confirmed ? 'Yes' : 'No'}
-										</Badge>
 									</Table.Td>
 								</Table.Tr>
 							))}

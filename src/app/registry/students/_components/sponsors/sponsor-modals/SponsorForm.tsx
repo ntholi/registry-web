@@ -1,7 +1,7 @@
 'use client';
 
 import { getAllSponsors } from '@finance/sponsors';
-import { Button, Group, Select, Stack, Switch, TextInput } from '@mantine/core';
+import { Button, Group, Select, Stack, TextInput } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { useQuery } from '@tanstack/react-query';
 
@@ -10,7 +10,6 @@ export type SponsorFormValues = {
 	borrowerNo: string;
 	bankName: string;
 	accountNumber: string;
-	confirmed: boolean;
 };
 
 type Props = {
@@ -19,7 +18,6 @@ type Props = {
 	onCancel: () => void;
 	isPending: boolean;
 	submitLabel: string;
-	showConfirmed?: boolean;
 };
 
 export function SponsorForm({
@@ -28,7 +26,6 @@ export function SponsorForm({
 	onCancel,
 	isPending,
 	submitLabel,
-	showConfirmed = false,
 }: Props) {
 	const form = useForm<SponsorFormValues>({
 		initialValues: {
@@ -36,7 +33,6 @@ export function SponsorForm({
 			borrowerNo: initialValues?.borrowerNo || '',
 			bankName: initialValues?.bankName || '',
 			accountNumber: initialValues?.accountNumber || '',
-			confirmed: initialValues?.confirmed || false,
 		},
 		validate: {
 			sponsorId: (value) => (!value ? 'Sponsor is required' : null),
@@ -85,14 +81,6 @@ export function SponsorForm({
 					placeholder='Enter account number (optional)'
 					{...form.getInputProps('accountNumber')}
 				/>
-
-				{showConfirmed && (
-					<Switch
-						label='Confirmed'
-						description='Mark this sponsorship as confirmed'
-						{...form.getInputProps('confirmed', { type: 'checkbox' })}
-					/>
-				)}
 
 				<Group justify='flex-end' gap='sm'>
 					<Button variant='light' onClick={onCancel} disabled={isPending}>

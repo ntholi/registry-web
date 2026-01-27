@@ -33,15 +33,12 @@ export interface SponsoredStudentRow {
 	borrowerNo: string | null;
 	bankName: string | null;
 	accountNumber: string | null;
-	confirmed: boolean;
 }
 
 export interface SponsorSummary {
 	sponsorName: string;
 	sponsorCode: string;
 	studentCount: number;
-	confirmedCount: number;
-	unconfirmedCount: number;
 }
 
 export interface SchoolSummary {
@@ -63,8 +60,6 @@ export interface SemesterSummary {
 
 export interface SponsoredStudentsSummary {
 	totalStudents: number;
-	confirmedCount: number;
-	unconfirmedCount: number;
 	bySponsor: SponsorSummary[];
 	bySchool: SchoolSummary[];
 	byProgram: ProgramSummary[];
@@ -121,7 +116,6 @@ export class SponsoredStudentsReportRepository {
 				borrowerNo: sponsoredStudents.borrowerNo,
 				bankName: sponsoredStudents.bankName,
 				accountNumber: sponsoredStudents.accountNumber,
-				confirmed: sponsoredStudents.confirmed,
 			})
 			.from(sponsoredTerms)
 			.innerJoin(terms, eq(sponsoredTerms.termId, terms.id))
@@ -202,18 +196,14 @@ export class SponsoredStudentsReportRepository {
 				sponsors.name,
 				sponsoredStudents.borrowerNo,
 				sponsoredStudents.bankName,
-				sponsoredStudents.accountNumber,
-				sponsoredStudents.confirmed
+				sponsoredStudents.accountNumber
 			)
 			.orderBy(students.name)
 			.limit(pageSize)
 			.offset(offset);
 
 		return {
-			students: studentsData.map((s) => ({
-				...s,
-				confirmed: s.confirmed ?? false,
-			})),
+			students: studentsData,
 			totalCount,
 			currentPage: page,
 			totalPages,
@@ -236,15 +226,11 @@ export class SponsoredStudentsReportRepository {
 				sponsors.name,
 				sponsoredStudents.borrowerNo,
 				sponsoredStudents.bankName,
-				sponsoredStudents.accountNumber,
-				sponsoredStudents.confirmed
+				sponsoredStudents.accountNumber
 			)
 			.orderBy(students.name);
 
-		return studentsData.map((s) => ({
-			...s,
-			confirmed: s.confirmed ?? false,
-		}));
+		return studentsData;
 	}
 
 	async getSummary(
@@ -255,7 +241,6 @@ export class SponsoredStudentsReportRepository {
 		const totalResult = await db
 			.select({
 				total: sql<number>`count(DISTINCT ${students.stdNo})`,
-				confirmed: sql<number>`count(DISTINCT CASE WHEN ${sponsoredStudents.confirmed} = true THEN ${students.stdNo} END)`,
 			})
 			.from(sponsoredTerms)
 			.innerJoin(terms, eq(sponsoredTerms.termId, terms.id))
@@ -283,14 +268,12 @@ export class SponsoredStudentsReportRepository {
 			.where(and(...conditions));
 
 		const totalStudents = totalResult[0]?.total ?? 0;
-		const confirmedCount = totalResult[0]?.confirmed ?? 0;
 
 		const bySponsor = await db
 			.select({
 				sponsorName: sponsors.name,
 				sponsorCode: sponsors.code,
 				studentCount: sql<number>`count(DISTINCT ${students.stdNo})`,
-				confirmedCount: sql<number>`count(DISTINCT CASE WHEN ${sponsoredStudents.confirmed} = true THEN ${students.stdNo} END)`,
 			})
 			.from(sponsoredTerms)
 			.innerJoin(terms, eq(sponsoredTerms.termId, terms.id))
@@ -419,12 +402,7 @@ export class SponsoredStudentsReportRepository {
 
 		return {
 			totalStudents,
-			confirmedCount,
-			unconfirmedCount: totalStudents - confirmedCount,
-			bySponsor: bySponsor.map((s) => ({
-				...s,
-				unconfirmedCount: s.studentCount - s.confirmedCount,
-			})),
+			bySponsor,
 			bySchool,
 			byProgram,
 			bySemester,

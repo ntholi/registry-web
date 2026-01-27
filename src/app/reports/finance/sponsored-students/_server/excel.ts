@@ -26,25 +26,24 @@ export async function createSponsoredStudentsExcel(
 		{ header: 'Borrower No.', key: 'borrowerNo', width: 15 },
 		{ header: 'Bank Name', key: 'bankName', width: 20 },
 		{ header: 'Account No.', key: 'accountNumber', width: 18 },
-		{ header: 'Confirmed', key: 'confirmed', width: 12 },
 	];
 
-	worksheet.mergeCells('A1:K1');
+	worksheet.mergeCells('A1:J1');
 	worksheet.getCell('A1').value = 'Sponsored Students Report';
 	worksheet.getCell('A1').font = { name: 'Arial', size: 16, bold: true };
 	worksheet.getCell('A1').alignment = { horizontal: 'center' };
 
-	worksheet.mergeCells('A2:K2');
+	worksheet.mergeCells('A2:J2');
 	worksheet.getCell('A2').value = `Term: ${termCode}`;
 	worksheet.getCell('A2').font = { name: 'Arial', size: 12, bold: true };
 	worksheet.getCell('A2').alignment = { horizontal: 'center' };
 
-	worksheet.mergeCells('A3:K3');
+	worksheet.mergeCells('A3:J3');
 	worksheet.getCell('A3').value = `Total Students: ${students.length}`;
 	worksheet.getCell('A3').font = { name: 'Arial', size: 12 };
 	worksheet.getCell('A3').alignment = { horizontal: 'center' };
 
-	worksheet.mergeCells('A4:K4');
+	worksheet.mergeCells('A4:J4');
 	worksheet.getCell('A4').value = '';
 
 	const headerRow = worksheet.getRow(5);
@@ -59,7 +58,6 @@ export async function createSponsoredStudentsExcel(
 		'Borrower No.',
 		'Bank Name',
 		'Account No.',
-		'Confirmed',
 	];
 
 	headerRow.eachCell((cell) => {
@@ -90,7 +88,6 @@ export async function createSponsoredStudentsExcel(
 			borrowerNo: student.borrowerNo || '-',
 			bankName: student.bankName || '-',
 			accountNumber: student.accountNumber || '-',
-			confirmed: student.confirmed ? 'Yes' : 'No',
 		});
 
 		row.eachCell((cell) => {

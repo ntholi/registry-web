@@ -25,7 +25,6 @@ export function EditSponsoredStudentModal({
 			borrowerNo?: string | null;
 			bankName?: string | null;
 			accountNumber?: string | null;
-			confirmed?: boolean;
 		}) => updateSponsoredStudent(sponsoredStudent.id, data),
 		onSuccess: () => {
 			notifications.show({
@@ -57,7 +56,6 @@ export function EditSponsoredStudentModal({
 			borrowerNo: values.borrowerNo || null,
 			bankName: values.bankName || null,
 			accountNumber: values.accountNumber || null,
-			confirmed: values.confirmed,
 		});
 	};
 
@@ -86,13 +84,11 @@ export function EditSponsoredStudentModal({
 							borrowerNo: sponsoredStudent.borrowerNo || '',
 							bankName: sponsoredStudent.bankName || '',
 							accountNumber: sponsoredStudent.accountNumber || '',
-							confirmed: sponsoredStudent.confirmed || false,
 						}}
 						onSubmit={handleSubmit}
 						onCancel={close}
 						isPending={updateMutation.isPending}
 						submitLabel='Update'
-						showConfirmed
 					/>
 				)}
 			</Modal>

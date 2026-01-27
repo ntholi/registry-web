@@ -1,7 +1,6 @@
 import { students } from '@registry/students/_schema/students';
 import {
 	bigint,
-	boolean,
 	index,
 	integer,
 	pgTable,
@@ -25,7 +24,6 @@ export const sponsoredStudents = pgTable(
 		borrowerNo: text(),
 		bankName: text(),
 		accountNumber: text(),
-		confirmed: boolean().default(false),
 		createdAt: timestamp().defaultNow(),
 		updatedAt: timestamp(),
 	},

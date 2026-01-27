@@ -1,0 +1,1 @@
+ALTER TABLE "sponsored_students" DROP COLUMN "confirmed";

@@ -16,8 +16,6 @@ interface SponsorSummary {
 	sponsorName: string;
 	sponsorCode: string;
 	studentCount: number;
-	confirmedCount: number;
-	unconfirmedCount: number;
 }
 
 interface SchoolSummary {
@@ -39,8 +37,6 @@ interface SemesterSummary {
 
 interface SummaryData {
 	totalStudents: number;
-	confirmedCount: number;
-	unconfirmedCount: number;
 	bySponsor: SponsorSummary[];
 	bySchool: SchoolSummary[];
 	byProgram: ProgramSummary[];
