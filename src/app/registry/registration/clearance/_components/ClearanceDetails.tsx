@@ -97,7 +97,7 @@ export default function ClearanceDetails({ request }: Props) {
 																				{request.registrationRequest.registrationRequestReceipts.map(
 											(rr) => (
 												<Card key={rr.receiptId} >
-													<Text size='sm'>{rr.receipt.receiptNo}</Text>
+													<Text size='sm' c={'teal'}>{rr.receipt.receiptNo}</Text>
 													<Text size='xs' c='dimmed'>{toTitleCase(rr.receipt.receiptType)}</Text>
 												</Card>
 											)
