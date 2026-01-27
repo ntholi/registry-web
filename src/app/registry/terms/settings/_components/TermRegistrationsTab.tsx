@@ -309,6 +309,12 @@ function RegistrationModal({
 	const [selectedPrograms, setSelectedPrograms] = useState<string[]>([]);
 	const [filterByPrograms, setFilterByPrograms] = useState(false);
 
+	const isAllSchools = schoolId === '__all__';
+
+	const schoolOptions: SchoolOption[] = editing
+		? schools
+		: [{ value: '__all__', label: '— All Schools —' }, ...schools];
+
 	useEffect(() => {
 		if (opened) {
 			if (editing) {
@@ -331,7 +337,7 @@ function RegistrationModal({
 		queryKey: ['school-programs', schoolId],
 		queryFn: () =>
 			getProgramsBySchoolId(schoolId ? Number(schoolId) : undefined),
-		enabled: !!schoolId,
+		enabled: !!schoolId && !isAllSchools,
 	});
 
 	const programOptions = programs.map((p) => ({
@@ -374,14 +380,24 @@ function RegistrationModal({
 	const handleSave = () => {
 		if (!schoolId || !startDate || !endDate) return;
 
-		const entry: RegistrationEntry = {
-			schoolId: Number(schoolId),
-			startDate,
-			endDate,
-			programIds: filterByPrograms ? selectedPrograms.map(Number) : undefined,
-		};
-
-		saveMutation.mutate([entry]);
+		if (isAllSchools) {
+			const entries: RegistrationEntry[] = schools
+				.filter((s) => s.value !== '__all__')
+				.map((s) => ({
+					schoolId: Number(s.value),
+					startDate,
+					endDate,
+				}));
+			saveMutation.mutate(entries);
+		} else {
+			const entry: RegistrationEntry = {
+				schoolId: Number(schoolId),
+				startDate,
+				endDate,
+				programIds: filterByPrograms ? selectedPrograms.map(Number) : undefined,
+			};
+			saveMutation.mutate([entry]);
+		}
 	};
 
 	const canSave = schoolId && startDate && endDate && !saveMutation.isPending;
@@ -398,7 +414,7 @@ function RegistrationModal({
 				<Select
 					label='School'
 					placeholder='Select school'
-					data={schools}
+					data={schoolOptions}
 					value={schoolId}
 					onChange={setSchoolId}
 					disabled={!!editing}
@@ -424,29 +440,35 @@ function RegistrationModal({
 					/>
 				</Group>
 
-				<Divider />
+				{!isAllSchools && (
+					<>
+						<Divider />
 
-				<Checkbox
-					label='Restrict to specific programs'
-					description='If unchecked, all programs in this school can register'
-					checked={filterByPrograms}
-					onChange={(e) => setFilterByPrograms(e.currentTarget.checked)}
-				/>
-
-				<Collapse in={filterByPrograms}>
-					<Box>
-						<MultiSelect
-							label='Programs'
-							placeholder={programsLoading ? 'Loading...' : 'Select programs'}
-							data={programOptions}
-							value={selectedPrograms}
-							onChange={setSelectedPrograms}
-							disabled={!schoolId || programsLoading}
-							searchable
-							clearable
+						<Checkbox
+							label='Restrict to specific programs'
+							description='If unchecked, all programs in this school can register'
+							checked={filterByPrograms}
+							onChange={(e) => setFilterByPrograms(e.currentTarget.checked)}
 						/>
-					</Box>
-				</Collapse>
+
+						<Collapse in={filterByPrograms}>
+							<Box>
+								<MultiSelect
+									label='Programs'
+									placeholder={
+										programsLoading ? 'Loading...' : 'Select programs'
+									}
+									data={programOptions}
+									value={selectedPrograms}
+									onChange={setSelectedPrograms}
+									disabled={!schoolId || programsLoading}
+									searchable
+									clearable
+								/>
+							</Box>
+						</Collapse>
+					</>
+				)}
 
 				<Group justify='flex-end' mt='md'>
 					<Button variant='default' onClick={handleClose}>
