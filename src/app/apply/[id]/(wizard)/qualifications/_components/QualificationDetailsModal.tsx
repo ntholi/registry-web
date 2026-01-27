@@ -39,11 +39,18 @@ export function QualificationDetailsModal({ record, opened, onClose }: Props) {
 						<Text fw={600}>
 							{record.certificateType?.name ?? 'Certificate'}
 						</Text>
-						{record.resultClassification && (
-							<Badge size='xs' variant='light'>
-								{record.resultClassification}
-							</Badge>
-						)}
+						<Group gap={4}>
+							{record.resultClassification && (
+								<Badge size='xs' variant='light'>
+									{record.resultClassification}
+								</Badge>
+							)}
+							{record.certificateType?.lqfLevel && (
+								<Badge size='xs' variant='default' radius={'xs'} color='gray'>
+									LQF Level {record.certificateType.lqfLevel}
+								</Badge>
+							)}
+						</Group>
 					</Stack>
 				</Group>
 
