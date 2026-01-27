@@ -177,7 +177,6 @@ export function UploadModal({
 					try {
 						await createAcademicRecordFromDocument(applicantId, {
 							institutionName: result.institutionName,
-							qualificationName: result.qualificationName,
 							examYear: result.examYear,
 							certificateType: result.certificateType,
 							certificateNumber: result.certificateNumber,

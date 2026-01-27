@@ -197,7 +197,6 @@ class ApplicantService extends BaseService<typeof applicants, 'id'> {
 					certificateTypeId: certType.id,
 					examYear: result.examYear,
 					institutionName: result.institutionName,
-					qualificationName: result.qualificationName,
 					certificateNumber: result.certificateNumber,
 					resultClassification: result.overallClassification,
 					subjectGrades: grades.length > 0 ? grades : undefined,

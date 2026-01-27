@@ -31,7 +31,6 @@ const certificationSchema = z.object({
 	hasSignature: z
 		.boolean()
 		.describe('Whether a signature is present alongside the stamp'),
-	hasStamp: z.boolean().describe('Whether an official stamp is present'),
 	stamps: z.array(stampSchema).describe('All stamps found on the document'),
 });
 
@@ -84,10 +83,6 @@ const academicSchema = z.object({
 		.string()
 		.nullable()
 		.describe('Full name of school, college, or university'),
-	qualificationName: z
-		.string()
-		.nullable()
-		.describe('Degree, diploma, or certificate title'),
 	examYear: z
 		.number()
 		.nullable()
@@ -98,10 +93,6 @@ const academicSchema = z.object({
 		.describe(
 			'Certificate standard: LGCSE, COSC, IGCSE, A-Level, Diploma, Degree'
 		),
-	certificateName: z
-		.string()
-		.nullable()
-		.describe('Certificate type name as used in the system'),
 	lqfLevel: z
 		.number()
 		.nullable()
@@ -119,7 +110,7 @@ const academicSchema = z.object({
 				grade: z
 					.string()
 					.describe(
-						'Grade value: for COSC use numeric (1-9), for LGCSE/IGCSE use letter (A-G)'
+						'Grade value: for COSC use numeric (1-9), for LGCSE/IGCSE use letter (A*-U)'
 					),
 			})
 		)
