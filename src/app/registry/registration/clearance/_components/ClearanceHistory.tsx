@@ -95,7 +95,11 @@ export default function ClearanceHistory({ stdNo }: Props) {
 											<Table.Td>{audit.newStatus}</Table.Td>
 											<Table.Td>{audit.message || '-'}</Table.Td>
 											<Table.Td>
-												{audit.user ? (
+												{clearance.isAutoApproval ? (
+													<Text size='sm' c='dimmed'>
+														System
+													</Text>
+												) : audit.user ? (
 													<Link
 														size='sm'
 														href={`/admin/users/${audit.createdBy}`}
