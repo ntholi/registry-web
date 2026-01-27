@@ -5,19 +5,24 @@ import {
 	getStudentCurrentSponsorship,
 } from '@finance/sponsors';
 import {
+	ActionIcon,
 	Alert,
+	Button,
+	Group,
 	LoadingOverlay,
 	Paper,
 	Select,
 	Stack,
 	Text,
 	TextInput,
+	Title,
 } from '@mantine/core';
-import { IconInfoCircle } from '@tabler/icons-react';
+import { IconInfoCircle, IconPlus, IconTrash } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useCallback, useEffect, useState } from 'react';
 import useUserStudent from '@/shared/lib/hooks/use-user-student';
 import { getAlertColor } from '@/shared/lib/utils/colors';
+import { ReceiptInput } from '@/shared/ui/adease';
 
 type SponsorshipData = {
 	sponsorId: number;
@@ -29,12 +34,16 @@ type SponsorshipData = {
 interface SponsorshipDetailsProps {
 	sponsorshipData: SponsorshipData | null;
 	onSponsorshipChange: (data: SponsorshipData) => void;
+	tuitionFeeReceipts: string[];
+	onTuitionFeeReceiptsChange: (receipts: string[]) => void;
 	loading: boolean;
 }
 
 export default function SponsorshipDetails({
 	sponsorshipData,
 	onSponsorshipChange,
+	tuitionFeeReceipts,
+	onTuitionFeeReceiptsChange,
 	loading,
 }: SponsorshipDetailsProps) {
 	const { student } = useUserStudent();
@@ -75,6 +84,30 @@ export default function SponsorshipDetails({
 		},
 		[sponsors]
 	);
+
+	const isPRV = useCallback(
+		(sponsorId: number) => {
+			if (!sponsors) return false;
+			return sponsors.find((s) => s.id === sponsorId)?.code === 'PRV';
+		},
+		[sponsors]
+	);
+
+	const handleAddTuitionReceipt = () => {
+		onTuitionFeeReceiptsChange([...tuitionFeeReceipts, '']);
+	};
+
+	const handleTuitionReceiptChange = (index: number, value: string) => {
+		const updated = [...tuitionFeeReceipts];
+		updated[index] = value;
+		onTuitionFeeReceiptsChange(updated);
+	};
+
+	const handleRemoveTuitionReceipt = (index: number) => {
+		onTuitionFeeReceiptsChange(
+			tuitionFeeReceipts.filter((_, i) => i !== index)
+		);
+	};
 
 	useEffect(() => {
 		if (
@@ -222,6 +255,52 @@ export default function SponsorshipDetails({
 					)}
 				</Stack>
 			</Paper>
+
+			{sponsorshipData?.sponsorId && isPRV(sponsorshipData.sponsorId) && (
+				<Paper p='lg' withBorder>
+					<Stack gap='md'>
+						<Title order={5}>Tuition Fee Payment Receipts</Title>
+						<Text size='sm' c='dimmed'>
+							As a self-sponsored student, please provide your tuition fee
+							payment receipts.
+						</Text>
+
+						{tuitionFeeReceipts.map((receipt, index) => (
+							<Group key={index} gap='sm' align='flex-end'>
+								<div style={{ flex: 1 }}>
+									<ReceiptInput
+										label={`Receipt ${index + 1}`}
+										value={receipt}
+										onChange={(value) =>
+											handleTuitionReceiptChange(index, value)
+										}
+										required
+									/>
+								</div>
+								{tuitionFeeReceipts.length > 1 && (
+									<ActionIcon
+										color='red'
+										variant='subtle'
+										onClick={() => handleRemoveTuitionReceipt(index)}
+										mb={4}
+									>
+										<IconTrash size={16} />
+									</ActionIcon>
+								)}
+							</Group>
+						))}
+
+						<Button
+							variant='light'
+							leftSection={<IconPlus size={16} />}
+							onClick={handleAddTuitionReceipt}
+							size='sm'
+						>
+							Add Another Receipt
+						</Button>
+					</Stack>
+				</Paper>
+			)}
 
 			<Alert
 				icon={<IconInfoCircle size='1rem' />}

@@ -27,15 +27,17 @@ import {
 } from '@tabler/icons-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { getBlockedStudentByStdNo } from '@/app/registry/blocked-students';
 import { config } from '@/config';
+import type { ReceiptType } from '@/core/database';
 import { useActiveTerm } from '@/shared/lib/hooks/use-active-term';
 import useUserStudent from '@/shared/lib/hooks/use-user-student';
 import {
 	AccountConfirmation,
 	ModuleSelection,
 	RemainInSemesterAlert,
+	RepeatModuleReceipts,
 	SemesterConfirmation,
 	SponsorshipDetails,
 } from '../_components';
@@ -52,21 +54,37 @@ type SponsorshipData = {
 	accountNumber?: string;
 };
 
-const STEPS = [
+const BASE_STEPS = [
 	{
+		id: 'modules',
 		label: 'Select Modules',
 		description: 'Choose your modules for this semester',
 	},
-	{ label: 'Confirm Semester', description: 'Review your semester status' },
 	{
+		id: 'semester',
+		label: 'Confirm Semester',
+		description: 'Review your semester status',
+	},
+	{
+		id: 'repeat-receipts',
+		label: 'Repeat Module Receipts',
+		description: 'Provide payment receipts for repeat modules',
+	},
+	{
+		id: 'sponsorship',
 		label: 'Sponsorship Details',
 		description: 'Enter your sponsorship information',
 	},
 	{
+		id: 'account',
 		label: 'Confirm Account',
 		description: 'Confirm your account details (NMDS only)',
 	},
 ];
+
+function isValidReceipt(value: string): boolean {
+	return /^(PMRC\d{5}|SR-\d{5})$/.test(value);
+}
 
 export default function NewRegistrationPage() {
 	const router = useRouter();
@@ -81,6 +99,10 @@ export default function NewRegistrationPage() {
 	const [sponsorshipData, setSponsorshipData] =
 		useState<SponsorshipData | null>(null);
 	const [accountConfirmed, setAccountConfirmed] = useState(false);
+	const [repeatModuleReceipts, setRepeatModuleReceipts] = useState<string[]>([
+		'',
+	]);
+	const [tuitionFeeReceipts, setTuitionFeeReceipts] = useState<string[]>(['']);
 	const { activeTerm } = useActiveTerm();
 
 	const { data: sponsors } = useQuery({
@@ -89,10 +111,21 @@ export default function NewRegistrationPage() {
 		select: (data) => data.items || [],
 	});
 
-	const isNMDS = (sponsorId: number) => {
-		if (!sponsors) return false;
-		return sponsors.find((s) => s.id === sponsorId)?.name === 'NMDS';
-	};
+	const isNMDS = useCallback(
+		(sponsorId: number) => {
+			if (!sponsors) return false;
+			return sponsors.find((s) => s.id === sponsorId)?.name === 'NMDS';
+		},
+		[sponsors]
+	);
+
+	const isPRV = useCallback(
+		(sponsorId: number) => {
+			if (!sponsors) return false;
+			return sponsors.find((s) => s.id === sponsorId)?.code === 'PRV';
+		},
+		[sponsors]
+	);
 
 	const { data: blockedStudent, isLoading: blockedLoading } = useQuery({
 		queryKey: ['blocked-student', student?.stdNo],
@@ -132,6 +165,57 @@ export default function NewRegistrationPage() {
 		enabled: !!student && !!availableModules && selectedModules.length > 0,
 	});
 
+	const selectedRepeatModules = useMemo(() => {
+		return availableModules.filter(
+			(m) =>
+				m.status.startsWith('Repeat') &&
+				selectedModules.some((sm) => sm.moduleId === m.semesterModuleId)
+		);
+	}, [availableModules, selectedModules]);
+
+	const hasRepeatModules = selectedRepeatModules.length > 0;
+
+	const steps = useMemo(() => {
+		const result = BASE_STEPS.filter((step) => {
+			if (step.id === 'repeat-receipts') {
+				return hasRepeatModules;
+			}
+			if (step.id === 'account') {
+				return sponsorshipData?.sponsorId && isNMDS(sponsorshipData.sponsorId);
+			}
+			return true;
+		});
+		return result;
+	}, [hasRepeatModules, sponsorshipData?.sponsorId, isNMDS]);
+
+	const currentStepId = steps[activeStep]?.id;
+	const totalSteps = steps.length;
+
+	const handleRemoveRepeatModule = (moduleId: number) => {
+		setSelectedModules((prev) => prev.filter((m) => m.moduleId !== moduleId));
+	};
+
+	const buildReceiptsPayload = (): {
+		receiptNo: string;
+		receiptType: ReceiptType;
+	}[] => {
+		const receipts: { receiptNo: string; receiptType: ReceiptType }[] = [];
+
+		const validRepeatReceipts = repeatModuleReceipts.filter(isValidReceipt);
+		for (const receiptNo of validRepeatReceipts) {
+			receipts.push({ receiptNo, receiptType: 'repeat_module' });
+		}
+
+		if (sponsorshipData?.sponsorId && isPRV(sponsorshipData.sponsorId)) {
+			const validTuitionReceipts = tuitionFeeReceipts.filter(isValidReceipt);
+			for (const receiptNo of validTuitionReceipts) {
+				receipts.push({ receiptNo, receiptType: 'tuition_fee' });
+			}
+		}
+
+		return receipts;
+	};
+
 	const registrationMutation = useMutation({
 		mutationFn: async () => {
 			if (
@@ -154,6 +238,7 @@ export default function NewRegistrationPage() {
 				bankName: sponsorshipData.bankName,
 				accountNumber: sponsorshipData.accountNumber,
 				termId: activeTerm.id,
+				receipts: buildReceiptsPayload(),
 			});
 		},
 		onSuccess: () => {
@@ -174,20 +259,43 @@ export default function NewRegistrationPage() {
 		},
 	});
 
+	const canProceedFromCurrentStep = (): boolean => {
+		switch (currentStepId) {
+			case 'modules':
+				return (
+					selectedModules.length > 0 &&
+					selectedModules.length <= config.registry.maxRegModules
+				);
+			case 'semester':
+				return semesterData !== null;
+			case 'repeat-receipts': {
+				const validReceipts = repeatModuleReceipts.filter(isValidReceipt);
+				return validReceipts.length > 0;
+			}
+			case 'sponsorship': {
+				if (!sponsorshipData) return false;
+				if (isPRV(sponsorshipData.sponsorId)) {
+					const validTuitionReceipts =
+						tuitionFeeReceipts.filter(isValidReceipt);
+					return validTuitionReceipts.length > 0;
+				}
+				return true;
+			}
+			case 'account':
+				return accountConfirmed;
+			default:
+				return false;
+		}
+	};
+
 	const nextStep = () => {
-		if (activeStep === 0 && selectedModules.length > 0) {
+		if (currentStepId === 'modules' && selectedModules.length > 0) {
 			if (semesterStatus) {
 				setSemesterData(semesterStatus);
 			}
-			setActiveStep(1);
-		} else if (activeStep === 1 && semesterData) {
-			setActiveStep(2);
-		} else if (activeStep === 2 && sponsorshipData) {
-			if (sponsorshipData.sponsorId && isNMDS(sponsorshipData.sponsorId)) {
-				setActiveStep(3);
-			} else {
-				handleSubmit();
-			}
+		}
+		if (activeStep < totalSteps - 1) {
+			setActiveStep(activeStep + 1);
 		}
 	};
 
@@ -210,20 +318,7 @@ export default function NewRegistrationPage() {
 		}
 	};
 
-	const canProceedStep1 =
-		selectedModules.length > 0 &&
-		selectedModules.length <= config.registry.maxRegModules;
-	const canProceedStep2 = semesterData !== null;
-	const canProceedStep3 = sponsorshipData !== null;
-	const canSubmit =
-		sponsorshipData !== null &&
-		(!isNMDS(sponsorshipData?.sponsorId || 0) || accountConfirmed);
-
-	const totalSteps =
-		sponsorshipData?.sponsorId && isNMDS(sponsorshipData.sponsorId)
-			? STEPS.length
-			: STEPS.length - 1;
-
+	const isLastStep = activeStep === totalSteps - 1;
 	const progressValue = ((activeStep + 1) / totalSteps) * 100;
 
 	if (blockedLoading) {
@@ -268,8 +363,8 @@ export default function NewRegistrationPage() {
 	const isRemainInSemester = remarks?.status === 'Remain in Semester';
 
 	const renderStepContent = () => {
-		switch (activeStep) {
-			case 0:
+		switch (currentStepId) {
+			case 'modules':
 				if (isRemainInSemester && !modulesLoading) {
 					return (
 						<Stack gap='lg'>
@@ -298,7 +393,7 @@ export default function NewRegistrationPage() {
 						error={moduleResult?.error}
 					/>
 				);
-			case 1:
+			case 'semester':
 				return (
 					<SemesterConfirmation
 						semesterData={semesterData}
@@ -307,15 +402,26 @@ export default function NewRegistrationPage() {
 						loading={semesterStatusLoading}
 					/>
 				);
-			case 2:
+			case 'repeat-receipts':
+				return (
+					<RepeatModuleReceipts
+						repeatModules={selectedRepeatModules}
+						receipts={repeatModuleReceipts}
+						onReceiptsChange={setRepeatModuleReceipts}
+						onRemoveModule={handleRemoveRepeatModule}
+					/>
+				);
+			case 'sponsorship':
 				return (
 					<SponsorshipDetails
 						sponsorshipData={sponsorshipData}
 						onSponsorshipChange={setSponsorshipData}
+						tuitionFeeReceipts={tuitionFeeReceipts}
+						onTuitionFeeReceiptsChange={setTuitionFeeReceipts}
 						loading={registrationMutation.isPending}
 					/>
 				);
-			case 3:
+			case 'account':
 				return (
 					<AccountConfirmation
 						sponsorshipData={sponsorshipData}
@@ -327,6 +433,8 @@ export default function NewRegistrationPage() {
 				return null;
 		}
 	};
+
+	const currentStep = steps[activeStep];
 
 	return (
 		<Container size='md'>
@@ -349,18 +457,16 @@ export default function NewRegistrationPage() {
 
 					<Box>
 						<Text fw={500} size='lg'>
-							{STEPS[activeStep].label}
+							{currentStep?.label}
 						</Text>
 						<Text size='sm' c='dimmed'>
-							{STEPS[activeStep].description}
+							{currentStep?.description}
 						</Text>
 					</Box>
 				</Box>
 
-				{/* Step Content */}
 				<Box>{renderStepContent()}</Box>
 
-				{/* Navigation */}
 				<Group justify='space-between' mt='xl'>
 					<Button
 						variant='default'
@@ -371,14 +477,10 @@ export default function NewRegistrationPage() {
 						Back
 					</Button>
 
-					{activeStep < totalSteps - 1 ? (
+					{!isLastStep ? (
 						<Button
 							onClick={nextStep}
-							disabled={
-								(activeStep === 0 && !canProceedStep1) ||
-								(activeStep === 1 && !canProceedStep2) ||
-								(activeStep === 2 && !canProceedStep3)
-							}
+							disabled={!canProceedFromCurrentStep()}
 							rightSection={<IconArrowRight size={16} />}
 						>
 							Next
@@ -386,7 +488,7 @@ export default function NewRegistrationPage() {
 					) : (
 						<Button
 							onClick={handleSubmit}
-							disabled={!canSubmit}
+							disabled={!canProceedFromCurrentStep()}
 							loading={registrationMutation.isPending}
 						>
 							Submit Registration

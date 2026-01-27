@@ -2,6 +2,7 @@ import type { AcademicRemarks, Student } from '@registry/students';
 import { getActiveTerm } from '@/app/registry/terms';
 import {
 	dashboardUsers,
+	type ReceiptType,
 	type registrationRequests,
 	type StudentModuleStatus,
 } from '@/core/database';
@@ -95,6 +96,7 @@ class RegistrationRequestService {
 		borrowerNo?: string;
 		bankName?: string;
 		accountNumber?: string;
+		receipts?: { receiptNo: string; receiptType: ReceiptType }[];
 	}) {
 		return withAuth(
 			async () => {

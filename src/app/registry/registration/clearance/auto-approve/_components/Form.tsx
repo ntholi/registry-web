@@ -4,11 +4,11 @@ import { NumberInput, Select, Stack } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'nextjs-toploader/app';
+import StdNoInput from '@/app/dashboard/base/StdNoInput';
 import { getAllTerms } from '@/app/registry/terms';
 import type { DashboardUser } from '@/core/database';
 import { Form } from '@/shared/ui/adease';
 import { createAutoApproval, updateAutoApproval } from '../_server/actions';
-import StdNoInput from '@/app/dashboard/base/StdNoInput';
 
 type Props = {
 	rule?: {

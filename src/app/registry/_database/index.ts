@@ -22,6 +22,7 @@ export * from '../print/_schema/studentCardPrints';
 export * from '../print/_schema/transcriptPrints';
 export * from '../registration/clearance/auto-approve/_schema/autoApprovals';
 export * from '../registration/clearance/auto-approve/_schema/relations';
+export * from '../registration-requests/_schema/registrationRequestReceipts';
 export * from '../registration-requests/_schema/registrationRequests';
 export * from '../registration-requests/_schema/relations';
 export * from '../registration-requests/_schema/requestedModules';
