@@ -36,6 +36,7 @@ import { useActiveTerm } from '@/shared/lib/hooks/use-active-term';
 import useUserStudent from '@/shared/lib/hooks/use-user-student';
 import {
 	ModuleSelection,
+	RemainInSemesterAlert,
 	SemesterConfirmation,
 	SponsorshipDetailsEdit,
 } from '../../_components';
@@ -291,15 +292,37 @@ export default function EditRegistrationPage() {
 		);
 	}
 
+	const isRemainInSemester = remarks?.status === 'Remain in Semester';
+
 	const renderStepContent = () => {
 		switch (activeStep) {
 			case 0:
+				if (isRemainInSemester && !modulesLoading) {
+					return (
+						<Stack gap='lg'>
+							<RemainInSemesterAlert
+								failedModules={remarks.failedModules}
+								supplementaryModules={remarks.supplementaryModules}
+								details={remarks.details}
+							/>
+							{availableModules.length > 0 && (
+								<ModuleSelection
+									modules={availableModules}
+									selectedModules={selectedModules}
+									onSelectionChange={setSelectedModules}
+									loading={modulesLoading}
+								/>
+							)}
+						</Stack>
+					);
+				}
 				return (
 					<ModuleSelection
 						modules={availableModules}
 						selectedModules={selectedModules}
 						onSelectionChange={setSelectedModules}
 						loading={modulesLoading}
+						error={moduleResult?.error}
 					/>
 				);
 			case 1:
