@@ -413,7 +413,6 @@ type TimetableEntry = {
 };
 
 type GenerateOptions = {
-	title: string;
 	entries: TimetableEntry[];
 	showVenue: boolean;
 	showLecturer: boolean;
@@ -422,10 +421,9 @@ type GenerateOptions = {
 };
 
 export function generateTimetableDocx(options: GenerateOptions): Promise<Blob> {
-	const { title, entries, showVenue, showLecturer, showClass, termCode } =
-		options;
+	const { entries, showVenue, showLecturer, showClass, termCode } = options;
 
-	const sections = entries.map((entry, index) => ({
+	const sections = entries.map((entry) => ({
 		properties: {
 			page: {
 				size: {
@@ -443,7 +441,7 @@ export function generateTimetableDocx(options: GenerateOptions): Promise<Blob> {
 			new Paragraph({
 				children: [
 					new TextRun({
-						text: title,
+						text: entry.name,
 						bold: true,
 						size: 32,
 					}),
@@ -455,28 +453,15 @@ export function generateTimetableDocx(options: GenerateOptions): Promise<Blob> {
 			new Paragraph({
 				children: [
 					new TextRun({
-						text: entry.name,
-						bold: true,
-						size: 28,
+						text: termCode,
+						size: 22,
 						color: '374151',
-					}),
-				],
-				alignment: AlignmentType.CENTER,
-				spacing: { after: 100 },
-			}),
-			new Paragraph({
-				children: [
-					new TextRun({
-						text: `Term: ${termCode}`,
-						size: 20,
-						color: '6b7280',
 					}),
 				],
 				alignment: AlignmentType.CENTER,
 				spacing: { after: 300 },
 			}),
 			createTimetableTable(entry.slots, { showVenue, showLecturer, showClass }),
-			...(index < entries.length - 1 ? [] : []),
 		],
 	}));
 

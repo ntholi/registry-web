@@ -105,7 +105,6 @@ export default function TimetableViewer() {
 		try {
 			type TimetableEntry = { name: string; slots: UserSlot[] };
 			let entries: TimetableEntry[] = [];
-			let title = '';
 			let showVenue = true;
 			let showLecturer = false;
 			let showClass = true;
@@ -116,7 +115,6 @@ export default function TimetableViewer() {
 				showClass = true;
 
 				if (lecturerId === 'ALL') {
-					title = 'All Lecturers Timetable';
 					const lecturerMap = new Map<
 						string,
 						{ name: string; slots: UserSlot[] }
@@ -146,7 +144,6 @@ export default function TimetableViewer() {
 					);
 				} else {
 					const lecturer = lecturers.find((l) => l.id === lecturerId);
-					title = 'Lecturer Timetable';
 					entries = [
 						{
 							name: lecturer?.name ?? lecturer?.email ?? 'Unknown',
@@ -160,7 +157,6 @@ export default function TimetableViewer() {
 				showClass = true;
 
 				if (venueId === 'ALL') {
-					title = 'All Venues Timetable';
 					const venueMap = new Map<
 						string,
 						{ name: string; slots: UserSlot[] }
@@ -181,7 +177,6 @@ export default function TimetableViewer() {
 					);
 				} else {
 					const venue = venues.find((v) => v.id === venueId);
-					title = 'Venue Timetable';
 					entries = [{ name: venue?.name ?? 'Unknown', slots: venueSlots }];
 				}
 			} else if (viewType === 'students' && classId) {
@@ -190,7 +185,6 @@ export default function TimetableViewer() {
 				showClass = false;
 
 				if (classId === -1) {
-					title = 'All Classes Timetable';
 					const classMap = new Map<
 						string,
 						{ name: string; slots: UserSlot[] }
@@ -222,7 +216,6 @@ export default function TimetableViewer() {
 						a.name.localeCompare(b.name)
 					);
 				} else if (selectedClass) {
-					title = 'Class Timetable';
 					const baseClassName = getStudentClassName({
 						semesterNumber: selectedClass.semesterNumber,
 						structure: { program: { code: selectedClass.programCode } },
@@ -251,7 +244,6 @@ export default function TimetableViewer() {
 			if (entries.length === 0) return;
 
 			const blob = await generateTimetableDocx({
-				title,
 				entries,
 				showVenue,
 				showLecturer,
