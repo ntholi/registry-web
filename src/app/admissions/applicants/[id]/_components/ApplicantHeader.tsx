@@ -38,7 +38,8 @@ export default function ApplicantHeader({
 	onDelete,
 }: Props) {
 	const { data: session } = useSession();
-	const isAdmin = session?.user?.role === 'admin';
+	const canDelete =
+		session?.user?.role === 'admin' || session?.user?.role === 'registry';
 	const age = calculateAge(dateOfBirth);
 	const initials = fullName
 		.split(' ')
@@ -101,7 +102,7 @@ export default function ApplicantHeader({
 						>
 							<IconEdit size={18} />
 						</ActionIcon>
-						{isAdmin && (
+						{canDelete && (
 							<DeleteButton
 								handleDelete={onDelete}
 								itemName={fullName}
