@@ -2,7 +2,6 @@
 
 import {
 	ActionIcon,
-	Alert,
 	Button,
 	FileButton,
 	Group,
@@ -14,20 +13,17 @@ import {
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
-import {
-	IconAlertCircle,
-	IconFileUpload,
-	IconUpload,
-} from '@tabler/icons-react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { IconFileUpload, IconUpload } from '@tabler/icons-react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
 import { useState } from 'react';
+import * as XLSX from 'xlsx';
+import { getAllTerms } from '@/app/registry/terms';
 import type { DashboardUser } from '@/core/database';
 import { bulkCreateAutoApprovals } from '../_server/actions';
 
 type ParsedRow = {
 	stdNo: number;
-	termCode: string;
 	valid: boolean;
 	error?: string;
 };
@@ -42,14 +38,27 @@ export default function BulkImportModal() {
 	const [department, setDepartment] = useState<string | null>(
 		isAdmin ? null : (userRole ?? null)
 	);
+	const [selectedTermCode, setSelectedTermCode] = useState<string | null>(null);
 	const [fileName, setFileName] = useState<string | null>(null);
 	const queryClient = useQueryClient();
+
+	const { data: terms } = useQuery({
+		queryKey: ['terms'],
+		queryFn: () => getAllTerms(),
+	});
+
+	const termOptions =
+		terms?.map((t) => ({ value: t.code, label: t.code })) ?? [];
 
 	const mutation = useMutation({
 		mutationFn: async () => {
 			const validRows = parsedData.filter((row) => row.valid);
+			if (!selectedTermCode) throw new Error('Please select a term');
 			return bulkCreateAutoApprovals(
-				validRows.map((row) => ({ stdNo: row.stdNo, termCode: row.termCode })),
+				validRows.map((row) => ({
+					stdNo: row.stdNo,
+					termCode: selectedTermCode,
+				})),
 				department as DashboardUser
 			);
 		},
@@ -74,55 +83,41 @@ export default function BulkImportModal() {
 	function handleClose() {
 		setParsedData([]);
 		setFileName(null);
+		setSelectedTermCode(null);
 		if (isAdmin) setDepartment(null);
 		close();
 	}
 
-	function parseCSV(content: string): ParsedRow[] {
-		const lines = content.trim().split('\n');
-		const rows: ParsedRow[] = [];
+	function detectStudentNumberColumn(
+		data: (string | number | null | undefined)[][]
+	): number {
+		if (data.length === 0) return -1;
 
-		for (let i = 0; i < lines.length; i++) {
-			const line = lines[i].trim();
-			if (!line) continue;
+		const colCounts = new Array(data[0].length).fill(0);
+		const stdNoRegex = /^90\d{7}$/;
 
-			if (
-				i === 0 &&
-				(line.toLowerCase().includes('stdno') ||
-					line.toLowerCase().includes('student'))
-			) {
-				continue;
+		// Sample first 100 rows
+		const sampleSize = Math.min(data.length, 100);
+		for (let r = 0; r < sampleSize; r++) {
+			const row = data[r];
+			for (let c = 0; c < row.length; c++) {
+				const val = String(row[c] || '').trim();
+				if (stdNoRegex.test(val)) {
+					colCounts[c]++;
+				}
 			}
-
-			const parts = line.split(',').map((p) => p.trim());
-			const stdNoStr = parts[0];
-			const termCode = parts[1];
-
-			const stdNo = Number.parseInt(stdNoStr, 10);
-			if (Number.isNaN(stdNo)) {
-				rows.push({
-					stdNo: 0,
-					termCode: termCode || '',
-					valid: false,
-					error: 'Invalid student number',
-				});
-				continue;
-			}
-
-			if (!termCode || !/^\d{4}-\d{2}$/.test(termCode)) {
-				rows.push({
-					stdNo,
-					termCode: termCode || '',
-					valid: false,
-					error: 'Invalid term code (expected YYYY-MM)',
-				});
-				continue;
-			}
-
-			rows.push({ stdNo, termCode, valid: true });
 		}
 
-		return rows;
+		let maxCount = 0;
+		let bestCol = -1;
+		for (let c = 0; c < colCounts.length; c++) {
+			if (colCounts[c] > maxCount) {
+				maxCount = colCounts[c];
+				bestCol = c;
+			}
+		}
+
+		return bestCol;
 	}
 
 	function handleFileSelect(file: File | null) {
@@ -131,15 +126,54 @@ export default function BulkImportModal() {
 		setFileName(file.name);
 		const reader = new FileReader();
 		reader.onload = (e) => {
-			const content = e.target?.result as string;
-			const parsed = parseCSV(content);
-			setParsedData(parsed);
+			try {
+				const data = new Uint8Array(e.target?.result as ArrayBuffer);
+				const workbook = XLSX.read(data, { type: 'array' });
+				const firstSheetName = workbook.SheetNames[0];
+				const worksheet = workbook.Sheets[firstSheetName];
+				const jsonData = XLSX.utils.sheet_to_json(worksheet, {
+					header: 1,
+				}) as (string | number | null | undefined)[][];
+
+				const stdNoColIndex = detectStudentNumberColumn(jsonData);
+
+				if (stdNoColIndex === -1) {
+					notifications.show({
+						title: 'Detection Error',
+						message:
+							'Could not find a student number column (9 digits starting with 90)',
+						color: 'red',
+					});
+					return;
+				}
+
+				const rows: ParsedRow[] = [];
+				const stdNoRegex = /^90\d{7}$/;
+
+				for (let i = 0; i < jsonData.length; i++) {
+					const val = String(jsonData[i][stdNoColIndex] || '').trim();
+					if (!val) continue;
+
+					const stdNo = Number.parseInt(val, 10);
+					if (stdNoRegex.test(val)) {
+						rows.push({ stdNo, valid: true });
+					}
+				}
+
+				setParsedData(rows);
+			} catch (_err) {
+				notifications.show({
+					title: 'Error',
+					message:
+						'Failed to parse file. Ensure it is a valid CSV or Excel file.',
+					color: 'red',
+				});
+			}
 		};
-		reader.readAsText(file);
+		reader.readAsArrayBuffer(file);
 	}
 
 	const validCount = parsedData.filter((r) => r.valid).length;
-	const invalidCount = parsedData.filter((r) => !r.valid).length;
 
 	return (
 		<>
@@ -154,35 +188,50 @@ export default function BulkImportModal() {
 				size='lg'
 			>
 				<Stack>
-					{isAdmin && (
+					<Group grow>
+						{isAdmin && (
+							<Select
+								label='Department'
+								placeholder='Select department'
+								data={[
+									{ value: 'finance', label: 'Finance' },
+									{ value: 'library', label: 'Library' },
+								]}
+								value={department}
+								onChange={setDepartment}
+								required
+							/>
+						)}
 						<Select
-							label='Department'
-							placeholder='Select department'
-							data={[
-								{ value: 'finance', label: 'Finance' },
-								{ value: 'library', label: 'Library' },
-							]}
-							value={department}
-							onChange={setDepartment}
+							label='Import Term'
+							placeholder='Select term for all students'
+							data={termOptions}
+							value={selectedTermCode}
+							onChange={setSelectedTermCode}
 							required
+							searchable
 						/>
-					)}
+					</Group>
 
 					<Stack gap='xs'>
 						<Text size='sm' fw={500}>
-							Upload CSV File
+							Upload File
 						</Text>
 						<Text size='xs' c='dimmed'>
-							CSV format: stdNo,termCode (e.g., 901234,2026-02)
+							Supports CSV and Excel (.xlsx, .xls). System will automatically
+							find the student number column.
 						</Text>
-						<FileButton onChange={handleFileSelect} accept='.csv,text/csv'>
+						<FileButton
+							onChange={handleFileSelect}
+							accept='.csv,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel'
+						>
 							{(props) => (
 								<Button
 									{...props}
 									leftSection={<IconUpload size={16} />}
 									variant='default'
 								>
-									{fileName || 'Select CSV File'}
+									{fileName || 'Select File'}
 								</Button>
 							)}
 						</FileButton>
@@ -192,33 +241,22 @@ export default function BulkImportModal() {
 						<>
 							<Group>
 								<Text size='sm'>
-									Valid: <strong>{validCount}</strong>
-								</Text>
-								<Text size='sm' c='red'>
-									Invalid: <strong>{invalidCount}</strong>
+									Students found: <strong>{validCount}</strong>
 								</Text>
 							</Group>
 
-							{invalidCount > 0 && (
-								<Alert color='yellow' icon={<IconAlertCircle size={16} />}>
-									{invalidCount} row(s) have errors and will be skipped
-								</Alert>
-							)}
-
-							<Table.ScrollContainer minWidth={400} mah={300}>
+							<Table.ScrollContainer minWidth={300} mah={300}>
 								<Table striped highlightOnHover>
 									<Table.Thead>
 										<Table.Tr>
 											<Table.Th>Student No</Table.Th>
-											<Table.Th>Term Code</Table.Th>
 											<Table.Th>Status</Table.Th>
 										</Table.Tr>
 									</Table.Thead>
 									<Table.Tbody>
 										{parsedData.slice(0, 50).map((row, idx) => (
-											<Table.Tr key={idx} c={row.valid ? undefined : 'red'}>
-												<Table.Td>{row.stdNo || '-'}</Table.Td>
-												<Table.Td>{row.termCode || '-'}</Table.Td>
+											<Table.Tr key={idx}>
+												<Table.Td>{row.stdNo}</Table.Td>
 												<Table.Td>{row.valid ? '✓' : row.error}</Table.Td>
 											</Table.Tr>
 										))}
@@ -227,7 +265,7 @@ export default function BulkImportModal() {
 							</Table.ScrollContainer>
 							{parsedData.length > 50 && (
 								<Text size='xs' c='dimmed'>
-									Showing first 50 of {parsedData.length} rows
+									Showing first 50 of {parsedData.length} records
 								</Text>
 							)}
 						</>
@@ -240,9 +278,13 @@ export default function BulkImportModal() {
 						<Button
 							onClick={() => mutation.mutate()}
 							loading={mutation.isPending}
-							disabled={validCount === 0 || (isAdmin && !department)}
+							disabled={
+								validCount === 0 ||
+								!selectedTermCode ||
+								(isAdmin && !department)
+							}
 						>
-							Import {validCount} Rules
+							Import {validCount} Records
 						</Button>
 					</Group>
 				</Stack>
