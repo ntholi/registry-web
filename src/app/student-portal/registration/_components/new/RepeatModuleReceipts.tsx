@@ -2,21 +2,17 @@
 
 import {
 	ActionIcon,
-	Alert,
 	Button,
+	Card,
 	Group,
 	Paper,
+	SimpleGrid,
 	Stack,
 	Text,
 	Title,
 } from '@mantine/core';
-import {
-	IconInfoCircle,
-	IconPlus,
-	IconTrash,
-	IconX,
-} from '@tabler/icons-react';
-import { getAlertColor } from '@/shared/lib/utils/colors';
+import { IconPlus, IconTrash, IconX } from '@tabler/icons-react';
+import { useState } from 'react';
 import { ReceiptInput } from '@/shared/ui/adease';
 
 type ModuleWithStatus = {
@@ -39,14 +35,10 @@ export default function RepeatModuleReceipts({
 	onReceiptsChange,
 	onRemoveModule,
 }: RepeatModuleReceiptsProps) {
-	const handleAddReceipt = () => {
-		onReceiptsChange([...receipts, '']);
-	};
-
-	const handleReceiptChange = (index: number, value: string) => {
-		const updated = [...receipts];
-		updated[index] = value;
-		onReceiptsChange(updated);
+	const handleAddReceipt = (value: string) => {
+		if (value.trim() && !receipts.includes(value.trim())) {
+			onReceiptsChange([...receipts, value.trim()]);
+		}
 	};
 
 	const handleRemoveReceipt = (index: number) => {
@@ -102,46 +94,71 @@ export default function RepeatModuleReceipts({
 						multiple receipts if needed.
 					</Text>
 
-					{receipts.map((receipt, index) => (
-						<Group key={index} gap='sm' align='flex-end'>
-							<div style={{ flex: 1 }}>
-								<ReceiptInput
-									label={`Receipt`}
-									value={receipt}
-									onChange={(value) => handleReceiptChange(index, value)}
-									required
-								/>
-							</div>
-							{receipts.length > 1 && (
-								<ActionIcon
-									color='red'
-									variant='subtle'
-									onClick={() => handleRemoveReceipt(index)}
-									mb={4}
-								>
-									<IconTrash size={16} />
-								</ActionIcon>
-							)}
-						</Group>
-					))}
+					<ReceiptInputWithAdd onAdd={handleAddReceipt} />
 
-					<Button
-						variant='light'
-						leftSection={<IconPlus size={16} />}
-						onClick={handleAddReceipt}
-						size='sm'
-					>
-						Add Another Receipt
-					</Button>
+					{receipts.length > 0 && (
+						<SimpleGrid cols={{ base: 1, sm: 2, md: 3 }} spacing='sm'>
+							{receipts.map((receipt, index) => (
+								<Card
+									key={index}
+									withBorder
+									padding='lg'
+									style={{ position: 'relative' }}
+								>
+									<Group justify='space-between' wrap='nowrap'>
+										<Text size='sm' fw={500} truncate>
+											{receipt}
+										</Text>
+										<ActionIcon
+											color='red'
+											variant='subtle'
+											size='sm'
+											onClick={() => handleRemoveReceipt(index)}
+										>
+											<IconTrash size={14} />
+										</ActionIcon>
+									</Group>
+								</Card>
+							))}
+						</SimpleGrid>
+					)}
 				</Stack>
 			</Paper>
-
-			{validReceipts.length > 0 && (
-				<Text size='sm' c='dimmed'>
-					{validReceipts.length} valid receipt
-					{validReceipts.length !== 1 ? 's' : ''} entered
-				</Text>
-			)}
 		</Stack>
+	);
+}
+
+type ReceiptInputWithAddProps = {
+	onAdd: (value: string) => void;
+};
+
+function ReceiptInputWithAdd({ onAdd }: ReceiptInputWithAddProps) {
+	const [value, setValue] = useState('');
+
+	const handleAdd = () => {
+		if (value.trim()) {
+			onAdd(value.trim());
+			setValue('');
+		}
+	};
+
+	return (
+		<Group gap='sm' align='flex-end'>
+			<div style={{ flex: 1 }}>
+				<ReceiptInput
+					label='Receipt Number'
+					value={value}
+					onChange={setValue}
+				/>
+			</div>
+			<Button
+				variant='light'
+				leftSection={<IconPlus size={16} />}
+				onClick={handleAdd}
+				disabled={!value.trim()}
+			>
+				Add
+			</Button>
+		</Group>
 	);
 }
