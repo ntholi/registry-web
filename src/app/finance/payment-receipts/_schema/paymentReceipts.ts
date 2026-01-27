@@ -14,7 +14,7 @@ export const receiptType = pgEnum('receipt_type', [
 	'graduation_gown',
 	'graduation_fee',
 	'student_card',
-	'repeat_modules',
+	'repeat_module',
 	'late_registration',
 	'tuition_fee',
 	'library_fine',
