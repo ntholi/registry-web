@@ -229,16 +229,8 @@ export default function SponsorshipDetails({
 			>
 				<Text size='sm'>
 					<strong>Important:</strong> Make sure your sponsorship details are
-					correct.
-					{sponsorshipData?.sponsorId && isNMDS(sponsorshipData.sponsorId) && (
-						<span>
-							{' '}
-							For NMDS sponsorship, the borrower&apos;s number and correct bank
-							account details are required.
-						</span>
-					)}{' '}
-					If you&apos;re unsure about your sponsor or borrower number, please
-					contact the finance office.
+					correct. If you&apos;re unsure about your sponsor or borrower number,
+					please contact the finance office.
 				</Text>
 			</Alert>
 
