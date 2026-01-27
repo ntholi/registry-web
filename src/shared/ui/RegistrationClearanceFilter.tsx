@@ -7,9 +7,9 @@ import {
 } from '@academic/schools/_server/actions';
 import {
 	ActionIcon,
-	Badge,
 	Button,
 	Group,
+	Indicator,
 	Modal,
 	Paper,
 	Select,
@@ -104,28 +104,21 @@ export default function RegistrationClearanceFilter({ onFilterChange }: Props) {
 	return (
 		<>
 			<Tooltip label='Filter clearances'>
-				<ActionIcon
-					variant={isDefaultFilter ? 'default' : 'filled'}
-					color='blue'
-					onClick={open}
-					size='input-sm'
-					pos='relative'
+				<Indicator
+					label={activeFiltersCount || undefined}
+					size={16}
+					color='red'
+					disabled={activeFiltersCount === 0}
 				>
-					<IconFilter size={16} />
-					{activeFiltersCount > 0 && (
-						<Badge
-							size='xs'
-							circle
-							style={{ zIndex: 100 }}
-							pos='absolute'
-							top={-4}
-							right={-4}
-							color='red'
-						>
-							{activeFiltersCount}
-						</Badge>
-					)}
-				</ActionIcon>
+					<ActionIcon
+						variant={isDefaultFilter ? 'default' : 'filled'}
+						color='blue'
+						onClick={open}
+						size='input-sm'
+					>
+						<IconFilter size={16} />
+					</ActionIcon>
+				</Indicator>
 			</Tooltip>
 
 			<Modal
