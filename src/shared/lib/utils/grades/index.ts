@@ -356,8 +356,8 @@ export function getAcademicRemarks(
 
 	const latestFailedModules =
 		semesters.length > 0
-			? semesters[semesters.length - 1].studentModules.filter((m) =>
-					isFailingGrade(m.grade)
+			? semesters[semesters.length - 1].studentModules.filter(
+					(m) => isActiveModule(m.status) && isFailingGrade(m.grade)
 				)
 			: [];
 	const failedModules = studentModules.filter((m) => {
