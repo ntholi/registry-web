@@ -1,6 +1,9 @@
 'use client';
 
-import { findAllSponsors, getSponsoredStudent } from '@finance/sponsors';
+import {
+	findAllSponsors,
+	getStudentCurrentSponsorship,
+} from '@finance/sponsors';
 import {
 	Alert,
 	LoadingOverlay,
@@ -13,7 +16,6 @@ import {
 import { IconInfoCircle } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useCallback, useEffect, useState } from 'react';
-import { useActiveTerm } from '@/shared/lib/hooks/use-active-term';
 import useUserStudent from '@/shared/lib/hooks/use-user-student';
 import { getAlertColor } from '@/shared/lib/utils/colors';
 
@@ -34,7 +36,6 @@ export default function SponsorshipDetailsEdit({
 	loading,
 }: Props) {
 	const { student } = useUserStudent();
-	const { activeTerm } = useActiveTerm();
 
 	const [borrowerNo, setBorrowerNo] = useState(
 		sponsorshipData?.borrowerNo || ''
@@ -46,10 +47,10 @@ export default function SponsorshipDetailsEdit({
 		select: (data) => data.items || [],
 	});
 
-	const { data: previousSponsorshipData } = useQuery({
-		queryKey: ['previous-sponsorship', student?.stdNo, activeTerm?.id],
-		queryFn: () => getSponsoredStudent(student!.stdNo, activeTerm!.id),
-		enabled: !!student?.stdNo && !!activeTerm?.id,
+	const { data: currentSponsorship } = useQuery({
+		queryKey: ['student-sponsorship', student?.stdNo],
+		queryFn: () => getStudentCurrentSponsorship(student!.stdNo),
+		enabled: !!student?.stdNo,
 	});
 
 	const sponsors = sponsorsData || [];
@@ -63,21 +64,26 @@ export default function SponsorshipDetailsEdit({
 	);
 
 	useEffect(() => {
-		if (sponsorshipData?.sponsorId && isNMDS(sponsorshipData.sponsorId)) {
-			if (previousSponsorshipData?.borrowerNo && !borrowerNo) {
-				setBorrowerNo(previousSponsorshipData.borrowerNo);
-				onSponsorshipChange({
-					sponsorId: sponsorshipData.sponsorId,
-					borrowerNo: previousSponsorshipData.borrowerNo,
-				});
-			}
+		if (
+			currentSponsorship &&
+			sponsors.length > 0 &&
+			!sponsorshipData?.sponsorId
+		) {
+			const sponsorId = currentSponsorship.sponsorId;
+			const newBorrowerNo = currentSponsorship.borrowerNo || '';
+
+			setBorrowerNo(newBorrowerNo);
+
+			onSponsorshipChange({
+				sponsorId,
+				borrowerNo: newBorrowerNo || undefined,
+			});
 		}
 	}, [
+		currentSponsorship,
+		sponsors,
 		sponsorshipData?.sponsorId,
-		previousSponsorshipData?.borrowerNo,
-		borrowerNo,
 		onSponsorshipChange,
-		isNMDS,
 	]);
 
 	const handleSponsorChange = (value: string | null) => {
@@ -87,11 +93,8 @@ export default function SponsorshipDetailsEdit({
 
 			let newBorrowerNo = borrowerNo;
 
-			if (
-				selectedSponsor?.name === 'NMDS' &&
-				previousSponsorshipData?.borrowerNo
-			) {
-				newBorrowerNo = previousSponsorshipData.borrowerNo;
+			if (selectedSponsor?.name === 'NMDS' && currentSponsorship?.borrowerNo) {
+				newBorrowerNo = currentSponsorship.borrowerNo;
 				setBorrowerNo(newBorrowerNo);
 			} else if (selectedSponsor?.name !== 'NMDS') {
 				newBorrowerNo = '';
@@ -165,15 +168,8 @@ export default function SponsorshipDetailsEdit({
 				<Text size='sm'>
 					<strong>Note:</strong> When editing your registration, only sponsor
 					and borrower number can be updated. Banking details cannot be changed
-					during registration updates.
-					{sponsorshipData?.sponsorId && isNMDS(sponsorshipData.sponsorId) && (
-						<span>
-							{' '}
-							For NMDS sponsorship, make sure your borrower number is correct.
-						</span>
-					)}{' '}
-					If you need to update banking details, please contact the finance
-					office.
+					during registration updates. If you need to update banking details,
+					please contact the finance office.
 				</Text>
 			</Alert>
 
