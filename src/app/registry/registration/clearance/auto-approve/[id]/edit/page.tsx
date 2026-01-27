@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation';
 import AutoApprovalForm from '../../_components/Form';
 import { getAutoApproval } from '../../_server/actions';
+import { Box } from '@mantine/core';
 
 type Props = {
 	params: Promise<{ id: string }>;
@@ -15,7 +16,8 @@ export default async function EditAutoApprovalPage({ params }: Props) {
 	}
 
 	return (
-		<AutoApprovalForm
+		<Box p='xl'>
+					<AutoApprovalForm
 			rule={{
 				id: rule.id,
 				stdNo: rule.stdNo,
@@ -23,5 +25,6 @@ export default async function EditAutoApprovalPage({ params }: Props) {
 				department: rule.department,
 			}}
 		/>
+		</Box>
 	);
 }
