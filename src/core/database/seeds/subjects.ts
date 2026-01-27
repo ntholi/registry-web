@@ -29,6 +29,7 @@ const subjectsWithAliases: { name: string; aliases: string[] }[] = [
 			'Core Mathematics',
 			'Mathematical Literacy',
 			'Maths Literacy',
+			'Mathematics A',
 		],
 	},
 	{
