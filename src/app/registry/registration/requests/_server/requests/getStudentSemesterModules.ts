@@ -175,36 +175,33 @@ async function getRepeatModules(
 			? ['02', '04', '06', '08', '2', '4', '6', '8']
 			: ['01', '03', '05', '07', '1', '3', '5', '7'];
 
-	const allRepeatModules: ModuleWithStatus[] = [];
 	const allSemesterModules = await getSemesterModulesMultiple(
 		targetSemesters,
 		structureId
 	);
 
-	targetSemesters.forEach((semesterNumber) => {
-		const semesterModules = allSemesterModules.filter(
-			(sm) =>
-				sm.semester.semesterNumber === semesterNumber ||
-				sm.semester.semesterNumber === semesterNumber.padStart(2, '0')
-		);
-		const repeatModulesForSemester = semesterModules.filter(
-			(sm) => sm.module && failedModuleNames.includes(sm.module.name)
-		);
+	const repeatSemesterModules = allSemesterModules.filter(
+		(sm) => sm.module && failedModuleNames.includes(sm.module.name)
+	);
 
-		repeatModulesForSemester.forEach((sm, index: number) => {
-			const globalIndex = allRepeatModules.length + index + 1;
-			allRepeatModules.push({
-				semesterModuleId: sm.id,
-				code: sm.module!.code,
-				name: sm.module!.name,
-				type: sm.type,
-				credits: sm.credits,
-				status: `Repeat${globalIndex}` as const,
-				semesterNo: sm.semester.semesterNumber,
-				prerequisites: failedPrerequisites[sm.module!.name] || [],
-			});
+	const seenIds = new Set<number>();
+	const allRepeatModules: ModuleWithStatus[] = [];
+
+	for (const sm of repeatSemesterModules) {
+		if (seenIds.has(sm.id)) continue;
+		seenIds.add(sm.id);
+
+		allRepeatModules.push({
+			semesterModuleId: sm.id,
+			code: sm.module!.code,
+			name: sm.module!.name,
+			type: sm.type,
+			credits: sm.credits,
+			status: `Repeat${allRepeatModules.length + 1}` as const,
+			semesterNo: sm.semester.semesterNumber,
+			prerequisites: failedPrerequisites[sm.module!.name] || [],
 		});
-	});
+	}
 
 	return allRepeatModules;
 }
