@@ -2,6 +2,7 @@ import type { ProgramLevel } from '@academic/_database';
 import { and, asc, count, desc, eq, inArray, sql } from 'drizzle-orm';
 import { auth } from '@/core/auth';
 import {
+	autoApprovals,
 	clearance,
 	clearanceAudit,
 	type DashboardUser,
@@ -420,28 +421,79 @@ export default class ClearanceRepository extends BaseRepository<
 			);
 
 		const ids = idRows.map((r) => r.id);
-		if (ids.length === 0) return [];
 
-		const rows = await db.query.registrationClearance.findMany({
-			where: inArray(registrationClearance.id, ids),
-			with: {
-				registrationRequest: { with: { term: true } },
-				clearance: {
-					with: {
-						audits: {
-							orderBy: desc(clearanceAudit.date),
-							with: { user: true },
+		const [clearanceRows, autoApprovalRows] = await Promise.all([
+			ids.length > 0
+				? db.query.registrationClearance.findMany({
+						where: inArray(registrationClearance.id, ids),
+						with: {
+							registrationRequest: { with: { term: true } },
+							clearance: {
+								with: {
+									audits: {
+										orderBy: desc(clearanceAudit.date),
+										with: { user: true },
+									},
+								},
+							},
 						},
-					},
+						orderBy: (rcs, { desc: d }) => [d(rcs.createdAt)],
+					})
+				: Promise.resolve([]),
+			db.query.autoApprovals.findMany({
+				where: and(
+					eq(autoApprovals.stdNo, stdNo),
+					eq(autoApprovals.department, department)
+				),
+				with: {
+					term: true,
+					createdByUser: true,
 				},
-			},
-			orderBy: (rcs, { desc: d }) => [d(rcs.createdAt)],
-		});
+				orderBy: (aa, { desc: d }) => [d(aa.createdAt)],
+			}),
+		]);
 
-		return rows.map((rc) => ({
+		const clearanceHistory = clearanceRows.map((rc) => ({
 			...rc.clearance,
 			registrationRequest: rc.registrationRequest,
+			isAutoApproval: false as const,
 		}));
+
+		const autoApprovalHistory = autoApprovalRows.map((aa) => ({
+			id: aa.id,
+			department: aa.department,
+			status: 'approved' as const,
+			message: 'Auto-approved',
+			emailSent: null,
+			respondedBy: aa.createdBy,
+			responseDate: aa.createdAt,
+			createdAt: aa.createdAt,
+			registrationRequest: { term: aa.term },
+			audits: [
+				{
+					id: aa.id,
+					clearanceId: aa.id,
+					previousStatus: null,
+					newStatus: 'approved' as const,
+					createdBy: aa.createdBy,
+					date: aa.createdAt,
+					message: 'Auto-approved',
+					modules: null,
+					user: aa.createdByUser,
+				},
+			],
+			isAutoApproval: true as const,
+		}));
+
+		const combined = [...clearanceHistory, ...autoApprovalHistory].sort(
+			(a, b) => {
+				const dateA = a.createdAt ?? new Date(0);
+				const dateB = b.createdAt ?? new Date(0);
+				return new Date(dateB).getTime() - new Date(dateA).getTime();
+			}
+		);
+
+		return combined;
 	}
 
 	async findNextPending(department: DashboardUser) {

@@ -51,9 +51,16 @@ export default function ClearanceHistory({ stdNo }: Props) {
 					<Accordion.Item key={clearance.id} value={clearance.id.toString()}>
 						<Accordion.Control>
 							<Group justify='space-between' pe={'md'}>
-								<Text fw={500}>
-									Term: {clearance.registrationRequest?.term.code || 'N/A'}
-								</Text>
+								<Group gap='xs'>
+									<Text fw={500}>
+										Term: {clearance.registrationRequest?.term.code || 'N/A'}
+									</Text>
+									{clearance.isAutoApproval && (
+										<Badge color='teal' variant='light' size='xs'>
+											Auto
+										</Badge>
+									)}
+								</Group>
 								<Badge
 									color={getStatusColor(clearance.status)}
 									variant='outline'
@@ -88,12 +95,16 @@ export default function ClearanceHistory({ stdNo }: Props) {
 											<Table.Td>{audit.newStatus}</Table.Td>
 											<Table.Td>{audit.message || '-'}</Table.Td>
 											<Table.Td>
-												<Link
-													size='sm'
-													href={`/admin/users/${audit.createdBy}`}
-												>
-													{audit.user.name}
-												</Link>
+												{audit.user ? (
+													<Link
+														size='sm'
+														href={`/admin/users/${audit.createdBy}`}
+													>
+														{audit.user.name}
+													</Link>
+												) : (
+													'-'
+												)}
 											</Table.Td>
 										</Table.Tr>
 									))}
