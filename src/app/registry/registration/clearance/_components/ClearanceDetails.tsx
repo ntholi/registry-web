@@ -23,13 +23,13 @@ import { notifications } from '@mantine/notifications';
 import { IconCopy } from '@tabler/icons-react';
 import { useState } from 'react';
 import { formatDateTime } from '@/shared/lib/utils/dates';
+import { toTitleCase } from '@/shared/lib/utils/utils';
 import { FieldView } from '@/shared/ui/adease';
 import Link from '@/shared/ui/Link';
 import type { getClearance } from '../../requests/_server/clearance/actions';
 import ClearanceSwitch from './ClearanceSwitch';
 import { ModulesTable } from './ModulesTable';
 import SponsorInfo from './SponsorInfo';
-import { toTitleCase } from '@/shared/lib/utils/utils';
 
 type Props = {
 	request: NonNullable<Awaited<ReturnType<typeof getClearance>>>;
@@ -91,19 +91,23 @@ export default function ClearanceDetails({ request }: Props) {
 					<Paper withBorder p='md' mt='md'>
 						<Text>Receipts</Text>
 						<Divider mb='xs' />
-													{request.registrationRequest.registrationRequestReceipts.length >
-								0 && (
-									<Box>
-																				{request.registrationRequest.registrationRequestReceipts.map(
-											(rr) => (
-												<Card key={rr.receiptId} >
-													<Text size='sm' c={'teal'}>{rr.receipt.receiptNo}</Text>
-													<Text size='xs' c='dimmed'>{toTitleCase(rr.receipt.receiptType)}</Text>
-												</Card>
-											)
-										)}
-									</Box>
-							)}
+						{request.registrationRequest.registrationRequestReceipts.length >
+							0 && (
+							<Box>
+								{request.registrationRequest.registrationRequestReceipts.map(
+									(rr) => (
+										<Card key={rr.receiptId}>
+											<Text size='sm' c={'teal'}>
+												{rr.receipt.receiptNo}
+											</Text>
+											<Text size='xs' c='dimmed'>
+												{toTitleCase(rr.receipt.receiptType)}
+											</Text>
+										</Card>
+									)
+								)}
+							</Box>
+						)}
 					</Paper>
 				</GridCol>
 			</Grid>
