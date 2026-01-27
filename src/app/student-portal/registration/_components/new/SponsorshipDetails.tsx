@@ -8,10 +8,12 @@ import {
 	ActionIcon,
 	Alert,
 	Button,
+	Card,
 	Group,
 	LoadingOverlay,
 	Paper,
 	Select,
+	SimpleGrid,
 	Stack,
 	Text,
 	TextInput,
@@ -93,14 +95,10 @@ export default function SponsorshipDetails({
 		[sponsors]
 	);
 
-	const handleAddTuitionReceipt = () => {
-		onTuitionFeeReceiptsChange([...tuitionFeeReceipts, '']);
-	};
-
-	const handleTuitionReceiptChange = (index: number, value: string) => {
-		const updated = [...tuitionFeeReceipts];
-		updated[index] = value;
-		onTuitionFeeReceiptsChange(updated);
+	const handleAddTuitionReceipt = (value: string) => {
+		if (value.trim() && !tuitionFeeReceipts.includes(value.trim())) {
+			onTuitionFeeReceiptsChange([...tuitionFeeReceipts, value.trim()]);
+		}
 	};
 
 	const handleRemoveTuitionReceipt = (index: number) => {
@@ -265,39 +263,35 @@ export default function SponsorshipDetails({
 							payment receipts.
 						</Text>
 
-						{tuitionFeeReceipts.map((receipt, index) => (
-							<Group key={index} gap='sm' align='flex-end'>
-								<div style={{ flex: 1 }}>
-									<ReceiptInput
-										label={`Receipt ${index + 1}`}
-										value={receipt}
-										onChange={(value) =>
-											handleTuitionReceiptChange(index, value)
-										}
-										required
-									/>
-								</div>
-								{tuitionFeeReceipts.length > 1 && (
-									<ActionIcon
-										color='red'
-										variant='subtle'
-										onClick={() => handleRemoveTuitionReceipt(index)}
-										mb={4}
-									>
-										<IconTrash size={16} />
-									</ActionIcon>
-								)}
-							</Group>
-						))}
+						<ReceiptInputWithAdd onAdd={handleAddTuitionReceipt} />
 
-						<Button
-							variant='light'
-							leftSection={<IconPlus size={16} />}
-							onClick={handleAddTuitionReceipt}
-							size='sm'
-						>
-							Add Another Receipt
-						</Button>
+						{tuitionFeeReceipts.length > 0 && (
+							<SimpleGrid cols={{ base: 2, sm: 3, md: 4 }} spacing='sm'>
+								{tuitionFeeReceipts.map((receipt, index) => (
+									<Card
+										key={index}
+										withBorder
+										padding='xs'
+										radius='md'
+										style={{ position: 'relative' }}
+									>
+										<Group justify='space-between' wrap='nowrap'>
+											<Text size='sm' fw={500} truncate>
+												{receipt}
+											</Text>
+											<ActionIcon
+												color='red'
+												variant='subtle'
+												size='sm'
+												onClick={() => handleRemoveTuitionReceipt(index)}
+											>
+												<IconTrash size={14} />
+											</ActionIcon>
+										</Group>
+									</Card>
+								))}
+							</SimpleGrid>
+						)}
 					</Stack>
 				</Paper>
 			)}
@@ -323,5 +317,40 @@ export default function SponsorshipDetails({
 				</Alert>
 			)}
 		</Stack>
+	);
+}
+
+type ReceiptInputWithAddProps = {
+	onAdd: (value: string) => void;
+};
+
+function ReceiptInputWithAdd({ onAdd }: ReceiptInputWithAddProps) {
+	const [value, setValue] = useState('');
+
+	const handleAdd = () => {
+		if (value.trim()) {
+			onAdd(value.trim());
+			setValue('');
+		}
+	};
+
+	return (
+		<Group gap='sm' align='flex-end'>
+			<div style={{ flex: 1 }}>
+				<ReceiptInput
+					label='Receipt Number'
+					value={value}
+					onChange={setValue}
+				/>
+			</div>
+			<Button
+				variant='light'
+				leftSection={<IconPlus size={16} />}
+				onClick={handleAdd}
+				disabled={!value.trim()}
+			>
+				Add
+			</Button>
+		</Group>
 	);
 }
