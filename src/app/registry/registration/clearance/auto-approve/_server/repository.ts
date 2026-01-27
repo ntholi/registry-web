@@ -1,42 +1,37 @@
 import { and, count, desc, eq, sql } from 'drizzle-orm';
-import {
-	autoApprovalRules,
-	type DashboardUser,
-	db,
-	terms,
-} from '@/core/database';
+import { autoApprovals, type DashboardUser, db, terms } from '@/core/database';
 import BaseRepository, {
 	type QueryOptions,
 } from '@/core/platform/BaseRepository';
 
-export default class AutoApprovalRuleRepository extends BaseRepository<
-	typeof autoApprovalRules,
+export default class AutoApprovalRepository extends BaseRepository<
+	typeof autoApprovals,
 	'id'
 > {
 	constructor() {
-		super(autoApprovalRules, autoApprovalRules.id);
+		super(autoApprovals, autoApprovals.id);
 	}
 
 	async findAllPaginated(
-		params: QueryOptions<typeof autoApprovalRules>,
+		params: QueryOptions<typeof autoApprovals>,
 		department?: DashboardUser
 	) {
 		const { offset, limit } = this.buildQueryCriteria(params);
 
 		const whereCondition = and(
 			params.search
-				? sql`${autoApprovalRules.stdNo}::text LIKE ${`%${params.search}%`}`
+				? sql`${autoApprovals.stdNo}::text LIKE ${`%${params.search}%`}`
 				: undefined,
-			department ? eq(autoApprovalRules.department, department) : undefined
+			department ? eq(autoApprovals.department, department) : undefined
 		);
 
 		const [total, items] = await Promise.all([
 			db
 				.select({ value: count() })
-				.from(autoApprovalRules)
+				.from(autoApprovals)
 				.where(whereCondition)
 				.then((res) => res[0].value),
-			db.query.autoApprovalRules.findMany({
+			db.query.autoApprovals.findMany({
 				where: whereCondition,
 				with: {
 					term: true,
@@ -44,7 +39,7 @@ export default class AutoApprovalRuleRepository extends BaseRepository<
 				},
 				limit,
 				offset,
-				orderBy: [desc(autoApprovalRules.createdAt)],
+				orderBy: [desc(autoApprovals.createdAt)],
 			}),
 		]);
 
@@ -56,8 +51,8 @@ export default class AutoApprovalRuleRepository extends BaseRepository<
 	}
 
 	async findByIdWithRelations(id: number) {
-		return db.query.autoApprovalRules.findFirst({
-			where: eq(autoApprovalRules.id, id),
+		return db.query.autoApprovals.findFirst({
+			where: eq(autoApprovals.id, id),
 			with: {
 				term: true,
 				createdByUser: true,
@@ -66,10 +61,10 @@ export default class AutoApprovalRuleRepository extends BaseRepository<
 	}
 
 	async findMatchingRules(stdNo: number, termId: number) {
-		return db.query.autoApprovalRules.findMany({
+		return db.query.autoApprovals.findMany({
 			where: and(
-				eq(autoApprovalRules.stdNo, stdNo),
-				eq(autoApprovalRules.termId, termId)
+				eq(autoApprovals.stdNo, stdNo),
+				eq(autoApprovals.termId, termId)
 			),
 		});
 	}
@@ -86,7 +81,7 @@ export default class AutoApprovalRuleRepository extends BaseRepository<
 		}));
 
 		const result = await db
-			.insert(autoApprovalRules)
+			.insert(autoApprovals)
 			.values(rulesWithCreator)
 			.onConflictDoNothing()
 			.returning();

@@ -1,14 +1,14 @@
 import { auth } from '@/core/auth';
-import type { autoApprovalRules, DashboardUser } from '@/core/database';
+import type { autoApprovals, DashboardUser } from '@/core/database';
 import type { QueryOptions } from '@/core/platform/BaseRepository';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
 import withAuth from '@/core/platform/withAuth';
-import AutoApprovalRuleRepository from './repository';
+import AutoApprovalRepository from './repository';
 
-type Rule = typeof autoApprovalRules.$inferInsert;
+type Rule = typeof autoApprovals.$inferInsert;
 
-class AutoApprovalRuleService {
-	constructor(private readonly repository = new AutoApprovalRuleRepository()) {}
+class AutoApprovalService {
+	constructor(private readonly repository = new AutoApprovalRepository()) {}
 
 	async get(id: number) {
 		return withAuth(
@@ -17,7 +17,7 @@ class AutoApprovalRuleService {
 		);
 	}
 
-	async findAll(params: QueryOptions<typeof autoApprovalRules>) {
+	async findAll(params: QueryOptions<typeof autoApprovals>) {
 		return withAuth(async () => {
 			const session = await auth();
 			const role = session?.user?.role as DashboardUser | undefined;
@@ -131,7 +131,7 @@ class AutoApprovalRuleService {
 	}
 }
 
-export const autoApprovalRulesService = serviceWrapper(
-	AutoApprovalRuleService,
-	'AutoApprovalRuleService'
+export const autoApprovalsService = serviceWrapper(
+	AutoApprovalService,
+	'AutoApprovalService'
 );

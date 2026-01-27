@@ -22,7 +22,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
 import { useState } from 'react';
 import type { DashboardUser } from '@/core/database';
-import { bulkCreateAutoApprovalRules } from '../_server/actions';
+import { bulkCreateAutoApprovals } from '../_server/actions';
 
 type ParsedRow = {
 	stdNo: number;
@@ -47,13 +47,13 @@ export default function BulkImportModal() {
 	const mutation = useMutation({
 		mutationFn: async () => {
 			const validRows = parsedData.filter((row) => row.valid);
-			return bulkCreateAutoApprovalRules(
+			return bulkCreateAutoApprovals(
 				validRows.map((row) => ({ stdNo: row.stdNo, termCode: row.termCode })),
 				department as DashboardUser
 			);
 		},
 		onSuccess: (result) => {
-			queryClient.invalidateQueries({ queryKey: ['auto-approval-rules'] });
+			queryClient.invalidateQueries({ queryKey: ['auto-approvals'] });
 			notifications.show({
 				title: 'Import Complete',
 				message: `${result.inserted} rules created, ${result.skipped} duplicates skipped, ${result.invalidTermCodes} invalid term codes`,
@@ -153,7 +153,7 @@ export default function BulkImportModal() {
 			<Modal
 				opened={opened}
 				onClose={handleClose}
-				title='Bulk Import Auto-Approval Rules'
+				title='Bulk Import Auto-Approvals'
 				size='lg'
 			>
 				<Stack>

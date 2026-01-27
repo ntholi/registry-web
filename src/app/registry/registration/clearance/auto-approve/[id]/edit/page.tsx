@@ -1,21 +1,21 @@
 import { notFound } from 'next/navigation';
-import AutoApprovalRuleForm from '../../_components/Form';
-import { getAutoApprovalRule } from '../../_server/actions';
+import AutoApprovalForm from '../../_components/Form';
+import { getAutoApproval } from '../../_server/actions';
 
 type Props = {
 	params: Promise<{ id: string }>;
 };
 
-export default async function EditAutoApprovalRulePage({ params }: Props) {
+export default async function EditAutoApprovalPage({ params }: Props) {
 	const { id } = await params;
-	const rule = await getAutoApprovalRule(Number.parseInt(id, 10));
+	const rule = await getAutoApproval(Number.parseInt(id, 10));
 
 	if (!rule) {
 		return notFound();
 	}
 
 	return (
-		<AutoApprovalRuleForm
+		<AutoApprovalForm
 			rule={{
 				id: rule.id,
 				stdNo: rule.stdNo,

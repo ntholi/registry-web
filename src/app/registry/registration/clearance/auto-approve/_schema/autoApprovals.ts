@@ -10,7 +10,7 @@ import {
 	unique,
 } from 'drizzle-orm/pg-core';
 
-export const autoApprovalRules = pgTable(
+export const autoApprovals = pgTable(
 	'auto_approval_rules',
 	{
 		id: serial().primaryKey(),
