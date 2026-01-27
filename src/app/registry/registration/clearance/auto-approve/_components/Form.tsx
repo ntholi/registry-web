@@ -7,10 +7,7 @@ import { useRouter } from 'nextjs-toploader/app';
 import { getAllTerms } from '@/app/registry/terms';
 import type { DashboardUser } from '@/core/database';
 import { Form } from '@/shared/ui/adease';
-import {
-	createAutoApprovalRule,
-	updateAutoApprovalRule,
-} from '../_server/actions';
+import { createAutoApproval, updateAutoApproval } from '../_server/actions';
 
 type Props = {
 	rule?: {
@@ -21,7 +18,7 @@ type Props = {
 	};
 };
 
-export default function AutoApprovalRuleForm({ rule }: Props) {
+export default function AutoApprovalForm({ rule }: Props) {
 	const router = useRouter();
 	const { data: session } = useSession();
 	const userRole = session?.user?.role as DashboardUser | undefined;
@@ -45,7 +42,7 @@ export default function AutoApprovalRuleForm({ rule }: Props) {
 
 	return (
 		<Form
-			title={rule ? 'Edit Auto-Approval Rule' : 'New Auto-Approval Rule'}
+			title={rule ? 'Edit Auto-Approval' : 'New Auto-Approval'}
 			action={async (values) => {
 				const data = {
 					stdNo: values.stdNo as number,
@@ -53,11 +50,11 @@ export default function AutoApprovalRuleForm({ rule }: Props) {
 					department: values.department as DashboardUser,
 				};
 				if (rule) {
-					return updateAutoApprovalRule(rule.id, data);
+					return updateAutoApproval(rule.id, data);
 				}
-				return createAutoApprovalRule(data);
+				return createAutoApproval(data);
 			}}
-			queryKey={['auto-approval-rules']}
+			queryKey={['auto-approvals']}
 			defaultValues={{
 				stdNo: rule?.stdNo ?? ('' as unknown as number),
 				termId: rule?.termId ?? ('' as unknown as number),

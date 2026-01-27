@@ -1,4 +1,4 @@
 export {
-	findAllAutoApprovalRules,
-	getAutoApprovalRule,
+	findAllAutoApprovals,
+	getAutoApproval,
 } from './_server/actions';

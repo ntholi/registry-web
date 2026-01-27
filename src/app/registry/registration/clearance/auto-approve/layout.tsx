@@ -4,7 +4,7 @@ import { Badge, Group, Text } from '@mantine/core';
 import type { PropsWithChildren } from 'react';
 import { ListItem, ListLayout, NewLink } from '@/shared/ui/adease';
 import BulkImportModal from './_components/BulkImportModal';
-import { findAllAutoApprovalRules } from './_server/actions';
+import { findAllAutoApprovals } from './_server/actions';
 
 type RuleItem = {
 	id: number;
@@ -17,8 +17,8 @@ export default function Layout({ children }: PropsWithChildren) {
 	return (
 		<ListLayout<RuleItem>
 			path='/registry/registration/clearance/auto-approve'
-			queryKey={['auto-approval-rules']}
-			getData={findAllAutoApprovalRules}
+			queryKey={['auto-approvals']}
+			getData={findAllAutoApprovals}
 			actionIcons={[
 				<BulkImportModal key='bulk' />,
 				<NewLink
