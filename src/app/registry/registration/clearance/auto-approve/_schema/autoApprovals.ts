@@ -11,7 +11,7 @@ import {
 } from 'drizzle-orm/pg-core';
 
 export const autoApprovals = pgTable(
-	'auto_approval_rules',
+	'auto_approvals',
 	{
 		id: serial().primaryKey(),
 		stdNo: integer().notNull(),
