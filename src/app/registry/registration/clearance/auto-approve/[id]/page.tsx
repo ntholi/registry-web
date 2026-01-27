@@ -6,18 +6,15 @@ import {
 	DetailsViewHeader,
 	FieldView,
 } from '@/shared/ui/adease';
-import {
-	deleteAutoApprovalRule,
-	getAutoApprovalRule,
-} from '../_server/actions';
+import { deleteAutoApproval, getAutoApproval } from '../_server/actions';
 
 type Props = {
 	params: Promise<{ id: string }>;
 };
 
-export default async function AutoApprovalRuleDetails({ params }: Props) {
+export default async function AutoApprovalDetails({ params }: Props) {
 	const { id } = await params;
-	const rule = await getAutoApprovalRule(Number.parseInt(id, 10));
+	const rule = await getAutoApproval(Number.parseInt(id, 10));
 
 	if (!rule) {
 		return notFound();
@@ -26,12 +23,12 @@ export default async function AutoApprovalRuleDetails({ params }: Props) {
 	return (
 		<DetailsView>
 			<DetailsViewHeader
-				title='Auto-Approval Rule'
-				queryKey={['auto-approval-rules']}
+				title='Auto-Approval'
+				queryKey={['auto-approvals']}
 				editRoles={['finance', 'library', 'admin']}
 				handleDelete={async () => {
 					'use server';
-					await deleteAutoApprovalRule(rule.id);
+					await deleteAutoApproval(rule.id);
 				}}
 			/>
 			<DetailsViewBody>

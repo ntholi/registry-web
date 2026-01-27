@@ -1,5 +1,5 @@
-import AutoApprovalRuleForm from '../_components/Form';
+import AutoApprovalForm from '../_components/Form';
 
-export default function NewAutoApprovalRulePage() {
-	return <AutoApprovalRuleForm />;
+export default function NewAutoApprovalPage() {
+	return <AutoApprovalForm />;
 }

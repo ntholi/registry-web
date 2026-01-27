@@ -5,7 +5,7 @@ export const moduleStatusEnum = pgEnum('module_status', ['Active', 'Defunct']);
 export const modules = pgTable('modules', {
 	id: serial().primaryKey(),
 	cmsId: integer().unique(),
-	code: text().notNull(),
+	code: text().notNull().unique(),
 	name: text().notNull(),
 	status: moduleStatusEnum().notNull().default('Active'),
 	remark: text(),

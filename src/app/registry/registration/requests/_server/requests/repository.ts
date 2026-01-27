@@ -1,7 +1,7 @@
 import { and, count, desc, eq, exists, ilike, ne, not, sql } from 'drizzle-orm';
 import { config } from '@/config';
 import {
-	autoApprovalRules,
+	autoApprovals,
 	clearance,
 	db,
 	registrationClearance,
@@ -331,10 +331,10 @@ export default class RegistrationRequestRepository extends BaseRepository<
 				})
 				.returning();
 
-			const matchingRules = await tx.query.autoApprovalRules.findMany({
+			const matchingRules = await tx.query.autoApprovals.findMany({
 				where: and(
-					eq(autoApprovalRules.stdNo, data.stdNo),
-					eq(autoApprovalRules.termId, data.termId)
+					eq(autoApprovals.stdNo, data.stdNo),
+					eq(autoApprovals.termId, data.termId)
 				),
 			});
 
