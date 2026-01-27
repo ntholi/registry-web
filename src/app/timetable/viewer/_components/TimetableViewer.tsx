@@ -4,6 +4,7 @@ import { getLecturers } from '@academic/lecturers';
 import {
 	Badge,
 	Box,
+	Button,
 	Center,
 	Group,
 	Paper,
@@ -12,14 +13,17 @@ import {
 	Stack,
 	Text,
 } from '@mantine/core';
+import { IconDownload } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import TimetableGrid from '@timetable/_shared/components/TimetableGrid';
 import type { UserSlot } from '@timetable/slots';
 import { getAllVenues } from '@timetable/venues';
 import { parseAsInteger, parseAsString, useQueryState } from 'nuqs';
+import { useState } from 'react';
 import { getAllTerms } from '@/app/registry/terms';
 import { getStudentClassName } from '@/shared/lib/utils/utils';
 import { Pagination } from '@/shared/ui/adease/Pagination';
+import { generateTimetableDocx } from '../_lib/generateTimetableDocx';
 import {
 	getClassesWithTimetable,
 	getClassTimetableSlots,
@@ -41,6 +45,7 @@ export default function TimetableViewer() {
 	const [venueId, setVenueId] = useQueryState('venue', parseAsString);
 	const [classId, setClassId] = useQueryState('class', parseAsInteger);
 	const [page, setPage] = useQueryState('page', parseAsInteger.withDefault(1));
+	const [isDownloading, setIsDownloading] = useState(false);
 
 	const { data: terms = [] } = useQuery({
 		queryKey: ['terms'],
@@ -89,6 +94,196 @@ export default function TimetableViewer() {
 
 	if (!termId && latestTermId) {
 		setTermId(latestTermId);
+	}
+
+	const selectedTerm = terms.find((t) => t.id === termId);
+
+	async function handleDownload() {
+		if (!termId || !selectedTerm) return;
+
+		setIsDownloading(true);
+		try {
+			type TimetableEntry = { name: string; slots: UserSlot[] };
+			let entries: TimetableEntry[] = [];
+			let title = '';
+			let showVenue = true;
+			let showLecturer = false;
+			let showClass = true;
+
+			if (viewType === 'lecturers' && lecturerId) {
+				showVenue = true;
+				showLecturer = false;
+				showClass = true;
+
+				if (lecturerId === 'ALL') {
+					title = 'All Lecturers Timetable';
+					const lecturerMap = new Map<
+						string,
+						{ name: string; slots: UserSlot[] }
+					>();
+					for (const slot of lecturerSlots) {
+						for (const sa of slot.timetableSlotAllocations) {
+							const user = sa.timetableAllocation.user;
+							if (user) {
+								if (!lecturerMap.has(user.id)) {
+									lecturerMap.set(user.id, {
+										name: user.name ?? user.email ?? 'Unknown',
+										slots: [],
+									});
+								}
+								if (
+									!lecturerMap
+										.get(user.id)!
+										.slots.some((s: UserSlot) => s.id === slot.id)
+								) {
+									lecturerMap.get(user.id)!.slots.push(slot);
+								}
+							}
+						}
+					}
+					entries = Array.from(lecturerMap.values()).sort((a, b) =>
+						a.name.localeCompare(b.name)
+					);
+				} else {
+					const lecturer = lecturers.find((l) => l.id === lecturerId);
+					title = 'Lecturer Timetable';
+					entries = [
+						{
+							name: lecturer?.name ?? lecturer?.email ?? 'Unknown',
+							slots: lecturerSlots,
+						},
+					];
+				}
+			} else if (viewType === 'venues' && venueId) {
+				showVenue = false;
+				showLecturer = true;
+				showClass = true;
+
+				if (venueId === 'ALL') {
+					title = 'All Venues Timetable';
+					const venueMap = new Map<
+						string,
+						{ name: string; slots: UserSlot[] }
+					>();
+					for (const slot of venueSlots) {
+						if (slot.venue) {
+							if (!venueMap.has(slot.venue.id)) {
+								venueMap.set(slot.venue.id, {
+									name: slot.venue.name,
+									slots: [],
+								});
+							}
+							venueMap.get(slot.venue.id)!.slots.push(slot);
+						}
+					}
+					entries = Array.from(venueMap.values()).sort((a, b) =>
+						a.name.localeCompare(b.name)
+					);
+				} else {
+					const venue = venues.find((v) => v.id === venueId);
+					title = 'Venue Timetable';
+					entries = [{ name: venue?.name ?? 'Unknown', slots: venueSlots }];
+				}
+			} else if (viewType === 'students' && classId) {
+				showVenue = true;
+				showLecturer = true;
+				showClass = false;
+
+				if (classId === -1) {
+					title = 'All Classes Timetable';
+					const classMap = new Map<
+						string,
+						{ name: string; slots: UserSlot[] }
+					>();
+					for (const slot of classSlots) {
+						for (const sa of slot.timetableSlotAllocations) {
+							const sm = sa.timetableAllocation.semesterModule;
+							if (sm?.semester) {
+								const name = getStudentClassName({
+									semesterNumber: sm.semester.semesterNumber,
+									structure: {
+										program: { code: sm.semester.structure.program.code },
+									},
+								});
+								if (!classMap.has(name)) {
+									classMap.set(name, { name, slots: [] });
+								}
+								if (
+									!classMap
+										.get(name)!
+										.slots.some((s: UserSlot) => s.id === slot.id)
+								) {
+									classMap.get(name)!.slots.push(slot);
+								}
+							}
+						}
+					}
+					entries = Array.from(classMap.values()).sort((a, b) =>
+						a.name.localeCompare(b.name)
+					);
+				} else if (selectedClass) {
+					title = 'Class Timetable';
+					const baseClassName = getStudentClassName({
+						semesterNumber: selectedClass.semesterNumber,
+						structure: { program: { code: selectedClass.programCode } },
+					});
+
+					if (selectedClass.groupNames.length === 0) {
+						entries = [{ name: baseClassName, slots: classSlots }];
+					} else {
+						entries = selectedClass.groupNames.map((groupName) => {
+							const groupSlots = classSlots.filter((slot) =>
+								slot.timetableSlotAllocations.some(
+									(sa) =>
+										sa.timetableAllocation.groupName === groupName ||
+										!sa.timetableAllocation.groupName
+								)
+							);
+							return {
+								name: `${baseClassName}${groupName}`,
+								slots: groupSlots,
+							};
+						});
+					}
+				}
+			}
+
+			if (entries.length === 0) return;
+
+			const blob = await generateTimetableDocx({
+				title,
+				entries,
+				showVenue,
+				showLecturer,
+				showClass,
+				termCode: selectedTerm.code,
+			});
+
+			const url = URL.createObjectURL(blob);
+			const a = document.createElement('a');
+			a.href = url;
+			a.download = `timetable-${viewType}-${selectedTerm.code}.docx`;
+			document.body.appendChild(a);
+			a.click();
+			document.body.removeChild(a);
+			URL.revokeObjectURL(url);
+		} finally {
+			setIsDownloading(false);
+		}
+	}
+
+	function canDownload() {
+		if (!termId) return false;
+		switch (viewType) {
+			case 'lecturers':
+				return !!lecturerId && lecturerSlots.length > 0;
+			case 'venues':
+				return !!venueId && venueSlots.length > 0;
+			case 'students':
+				return !!classId && classSlots.length > 0;
+			default:
+				return false;
+		}
 	}
 
 	function getEntitySelect() {
@@ -555,6 +750,16 @@ export default function TimetableViewer() {
 							clearable
 							w={180}
 						/>
+						<Button
+							leftSection={<IconDownload size={16} />}
+							size='sm'
+							variant='light'
+							onClick={handleDownload}
+							loading={isDownloading}
+							disabled={!canDownload()}
+						>
+							Download
+						</Button>
 					</Group>
 				</Group>
 			</Paper>
