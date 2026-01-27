@@ -10,6 +10,7 @@ import {
 	ThemeIcon,
 } from '@mantine/core';
 import { getStudentRegistrationHistory } from '@registry/registration';
+import { canStudentRegister } from '@registry/terms/settings/_server/termRegistrationsActions';
 import { IconInfoCircle, IconPlus } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
@@ -19,19 +20,20 @@ import useUserStudent from '@/shared/lib/hooks/use-user-student';
 import { isActiveSemester } from '@/shared/lib/utils/utils';
 
 export default function NewRegistrationCard() {
-	const { student, isLoading: studentLoading } = useUserStudent();
+	const { student, program, isLoading: studentLoading } = useUserStudent();
 	const { activeTerm } = useActiveTerm();
 
 	const hasExistingSemester =
 		student?.programs
-			.flatMap((program) => program.semesters)
+			.flatMap((p) => p.semesters)
 			.some(
 				(semester) =>
 					semester.termCode === activeTerm?.code &&
 					isActiveSemester(semester.status)
 			) || false;
 
-	const shouldFetchData = !!student?.stdNo && !hasExistingSemester;
+	const shouldFetchData =
+		!!student?.stdNo && !!activeTerm?.id && !!program && !hasExistingSemester;
 
 	const { data: registrationHistory, isLoading: registrationLoading } =
 		useQuery({
@@ -46,7 +48,24 @@ export default function NewRegistrationCard() {
 		enabled: shouldFetchData,
 	});
 
-	const isLoading = studentLoading || registrationLoading || blockedLoading;
+	const { data: regAccess, isLoading: regAccessLoading } = useQuery({
+		queryKey: [
+			'can-register',
+			activeTerm?.id,
+			program?.schoolId,
+			program?.structure?.program?.id,
+		],
+		queryFn: () =>
+			canStudentRegister(
+				activeTerm!.id,
+				program!.schoolId,
+				program!.structure.program.id
+			),
+		enabled: shouldFetchData,
+	});
+
+	const isLoading =
+		studentLoading || registrationLoading || blockedLoading || regAccessLoading;
 
 	if (isLoading) {
 		return (
@@ -68,12 +87,7 @@ export default function NewRegistrationCard() {
 		return null;
 	}
 
-	const registrationOpen = isRegistrationOpen(
-		activeTerm?.settings?.registrationStartDate,
-		activeTerm?.settings?.registrationEndDate
-	);
-
-	if (!registrationOpen) {
+	if (!regAccess?.allowed) {
 		return null;
 	}
 
@@ -130,13 +144,4 @@ export default function NewRegistrationCard() {
 			</Stack>
 		</Card>
 	);
-}
-
-export function isRegistrationOpen(
-	startDate: string | null | undefined,
-	endDate: string | null | undefined
-) {
-	if (!startDate || !endDate) return false;
-	const today = new Date().toISOString().split('T')[0];
-	return startDate <= today && endDate >= today;
 }

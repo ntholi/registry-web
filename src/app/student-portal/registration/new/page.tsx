@@ -20,6 +20,7 @@ import {
 	determineSemesterStatus,
 	getStudentSemesterModules,
 } from '@registry/registration/requests';
+import { canStudentRegister } from '@registry/terms/settings/_server/termRegistrationsActions';
 import {
 	IconArrowLeft,
 	IconArrowRight,
@@ -27,8 +28,9 @@ import {
 } from '@tabler/icons-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { getBlockedStudentByStdNo } from '@/app/registry/blocked-students';
+import { getActiveProgram } from '@/app/registry/students/_lib/utils';
 import { config } from '@/config';
 import type { ReceiptType } from '@/core/database';
 import { useActiveTerm } from '@/shared/lib/hooks/use-active-term';
@@ -104,6 +106,30 @@ export default function NewRegistrationPage() {
 	);
 	const [tuitionFeeReceipts, setTuitionFeeReceipts] = useState<string[]>([]);
 	const { activeTerm } = useActiveTerm();
+
+	const activeProgram = getActiveProgram(student);
+
+	const { data: regAccess, isLoading: regAccessLoading } = useQuery({
+		queryKey: [
+			'can-register',
+			activeTerm?.id,
+			activeProgram?.schoolId,
+			activeProgram?.structure?.program?.id,
+		],
+		queryFn: () =>
+			canStudentRegister(
+				activeTerm!.id,
+				activeProgram!.schoolId,
+				activeProgram!.structure.program.id
+			),
+		enabled: !!activeTerm?.id && !!activeProgram?.schoolId,
+	});
+
+	useEffect(() => {
+		if (regAccess && !regAccess.allowed) {
+			router.replace('/student-portal/registration');
+		}
+	}, [regAccess, router]);
 
 	const { data: sponsors } = useQuery({
 		queryKey: ['sponsors'],
@@ -321,10 +347,24 @@ export default function NewRegistrationPage() {
 	const isLastStep = activeStep === totalSteps - 1;
 	const progressValue = ((activeStep + 1) / totalSteps) * 100;
 
-	if (blockedLoading) {
+	if (blockedLoading || regAccessLoading) {
 		return (
 			<Container size='lg' py='xl'>
 				<LoadingOverlay visible />
+			</Container>
+		);
+	}
+
+	if (regAccess && !regAccess.allowed) {
+		return (
+			<Container size='lg' py='xl'>
+				<Alert
+					icon={<IconInfoCircle size='1rem' />}
+					title='Registration Not Available'
+					color='orange'
+				>
+					{regAccess.reason || 'You are not eligible to register at this time.'}
+				</Alert>
 			</Container>
 		);
 	}

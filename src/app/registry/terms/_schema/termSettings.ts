@@ -1,7 +1,6 @@
 import { users } from '@auth/users/_schema/users';
 import {
 	boolean,
-	date,
 	integer,
 	pgTable,
 	serial,
@@ -18,8 +17,6 @@ export const termSettings = pgTable('term_settings', {
 		.unique(),
 	resultsPublished: boolean().notNull().default(false),
 	lecturerGradebookAccess: boolean().notNull().default(true),
-	registrationStartDate: date({ mode: 'string' }),
-	registrationEndDate: date({ mode: 'string' }),
 	createdAt: timestamp().defaultNow(),
 	createdBy: text().references(() => users.id, { onDelete: 'set null' }),
 	updatedAt: timestamp(),
