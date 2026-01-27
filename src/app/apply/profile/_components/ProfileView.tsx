@@ -217,7 +217,7 @@ export function ProfileView({ applicant }: Props) {
 											: undefined,
 								}}
 							>
-								Documents
+								Docs
 							</Tabs.Tab>
 						</Tabs.List>
 
