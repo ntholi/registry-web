@@ -1,6 +1,7 @@
 import { and, count, desc, eq, exists, ilike, ne, not, sql } from 'drizzle-orm';
 import { config } from '@/config';
 import {
+	autoApprovalRules,
 	clearance,
 	db,
 	registrationClearance,
@@ -330,11 +331,24 @@ export default class RegistrationRequestRepository extends BaseRepository<
 				})
 				.returning();
 
-			for (const department of ['finance', 'library']) {
+			const matchingRules = await tx.query.autoApprovalRules.findMany({
+				where: and(
+					eq(autoApprovalRules.stdNo, data.stdNo),
+					eq(autoApprovalRules.termId, data.termId)
+				),
+			});
+
+			const autoApprovedDepts = new Set(matchingRules.map((r) => r.department));
+
+			for (const department of ['finance', 'library'] as const) {
+				const isAutoApproved = autoApprovedDepts.has(department);
 				const [clearanceRecord] = await tx
 					.insert(clearance)
 					.values({
-						department: department as 'finance' | 'library',
+						department,
+						status: isAutoApproved ? 'approved' : 'pending',
+						message: isAutoApproved ? 'Auto-approved by rule' : null,
+						responseDate: isAutoApproved ? new Date() : null,
 					})
 					.returning();
 
