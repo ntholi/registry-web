@@ -11,7 +11,7 @@ import {
 	Text,
 	useMantineColorScheme,
 } from '@mantine/core';
-import { IconArrowRight, IconUser } from '@tabler/icons-react';
+import { IconArrowRight } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -40,7 +40,6 @@ function ApplyButton({ progress }: { progress?: ApplicationProgress }) {
 				href={progress.nextStepUrl}
 				size='md'
 				radius='xl'
-				rightSection={<IconUser size={20} />}
 				variant='gradient'
 			>
 				My Application

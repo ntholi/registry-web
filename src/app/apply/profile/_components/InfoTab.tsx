@@ -67,8 +67,8 @@ export function InfoTab({ applicant }: Props) {
 				<Section title='Guardian Information'>
 					<Stack gap='lg'>
 						{applicant.guardians.map((guardian, index) => (
-							<SimpleGrid cols={{ base: 1, sm: 2 }}>
-								<Paper key={guardian.id} withBorder radius='md' p='xl'>
+							<SimpleGrid key={guardian.id} cols={{ base: 1, sm: 2 }}>
+								<Paper withBorder radius='md' p='xl'>
 									<Stack gap='xl'>
 										{applicant.guardians.length > 1 && (
 											<Text size='sm' fw={700} c='blue' tt='uppercase'>

@@ -16,6 +16,7 @@ import {
 } from '@mantine/core';
 import { IconFileText, IconGridDots, IconUser } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
+import { useState } from 'react';
 import ApplyHeader from '../../_components/ApplyHeader';
 import { ApplicationsTab } from './ApplicationsTab';
 import { DocumentsTab } from './DocumentsTab';
@@ -28,6 +29,7 @@ interface Props {
 export function ProfileView({ applicant }: Props) {
 	const { colorScheme } = useMantineColorScheme();
 	const isDark = colorScheme === 'dark';
+	const [activeTab, setActiveTab] = useState<string | null>('applications');
 
 	const { data: applications, isLoading } = useQuery({
 		queryKey: ['my-applications', applicant.id],
@@ -127,7 +129,8 @@ export function ProfileView({ applicant }: Props) {
 
 					{/* Tabs */}
 					<Tabs
-						defaultValue='applications'
+						value={activeTab}
+						onChange={setActiveTab}
 						variant='default'
 						styles={(theme) => ({
 							root: {
@@ -146,16 +149,6 @@ export function ProfileView({ applicant }: Props) {
 								borderRadius: 0,
 								padding: '12px 0',
 								backgroundColor: 'transparent',
-								'&[data-active]': {
-									borderTopColor: isDark ? 'white' : 'black',
-									color: isDark ? 'white' : 'black',
-								},
-								'&:hover': {
-									backgroundColor: 'transparent',
-									borderTopColor: isDark
-										? theme.colors.dark[4]
-										: theme.colors.gray[3],
-								},
 							},
 							tabLabel: {
 								fontSize: '12px',
@@ -169,15 +162,60 @@ export function ProfileView({ applicant }: Props) {
 							<Tabs.Tab
 								value='applications'
 								leftSection={<IconGridDots size={14} />}
+								style={{
+									borderTopColor:
+										activeTab === 'applications'
+											? isDark
+												? 'white'
+												: 'black'
+											: 'transparent',
+									color:
+										activeTab === 'applications'
+											? isDark
+												? 'white'
+												: 'black'
+											: undefined,
+								}}
 							>
 								Applications
 							</Tabs.Tab>
-							<Tabs.Tab value='info' leftSection={<IconUser size={14} />}>
+							<Tabs.Tab
+								value='info'
+								leftSection={<IconUser size={14} />}
+								style={{
+									borderTopColor:
+										activeTab === 'info'
+											? isDark
+												? 'white'
+												: 'black'
+											: 'transparent',
+									color:
+										activeTab === 'info'
+											? isDark
+												? 'white'
+												: 'black'
+											: undefined,
+								}}
+							>
 								Info
 							</Tabs.Tab>
 							<Tabs.Tab
 								value='documents'
 								leftSection={<IconFileText size={14} />}
+								style={{
+									borderTopColor:
+										activeTab === 'documents'
+											? isDark
+												? 'white'
+												: 'black'
+											: 'transparent',
+									color:
+										activeTab === 'documents'
+											? isDark
+												? 'white'
+												: 'black'
+											: undefined,
+								}}
 							>
 								Documents
 							</Tabs.Tab>
