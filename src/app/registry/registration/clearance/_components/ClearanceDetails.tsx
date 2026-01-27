@@ -6,11 +6,16 @@ import {
 	AccordionItem,
 	AccordionPanel,
 	ActionIcon,
+	Badge,
+	Box,
+	Card,
+	Divider,
 	Grid,
 	GridCol,
 	Group,
 	Paper,
 	Stack,
+	Text,
 	Textarea,
 	Tooltip,
 } from '@mantine/core';
@@ -24,6 +29,7 @@ import type { getClearance } from '../../requests/_server/clearance/actions';
 import ClearanceSwitch from './ClearanceSwitch';
 import { ModulesTable } from './ModulesTable';
 import SponsorInfo from './SponsorInfo';
+import { toTitleCase } from '@/shared/lib/utils/utils';
 
 type Props = {
 	request: NonNullable<Awaited<ReturnType<typeof getClearance>>>;
@@ -39,7 +45,7 @@ export default function ClearanceDetails({ request }: Props) {
 		<Stack p='lg'>
 			<Grid>
 				<GridCol span={{ base: 12, md: 7 }}>
-					<Paper withBorder p='md'>
+					<Paper withBorder p='md' pb={60}>
 						<Stack>
 							<FieldView label='Student Number' underline={false}>
 								<Group justify='space-between'>
@@ -82,6 +88,23 @@ export default function ClearanceDetails({ request }: Props) {
 						setAccordion={setAccordion}
 						comment={comment}
 					/>
+					<Paper withBorder p='md' mt='md'>
+						<Text>Receipts</Text>
+						<Divider mb='xs' />
+													{request.registrationRequest.registrationRequestReceipts.length >
+								0 && (
+									<Box>
+																				{request.registrationRequest.registrationRequestReceipts.map(
+											(rr) => (
+												<Card key={rr.receiptId} >
+													<Text size='sm'>{rr.receipt.receiptNo}</Text>
+													<Text size='xs' c='dimmed'>{toTitleCase(rr.receipt.receiptType)}</Text>
+												</Card>
+											)
+										)}
+									</Box>
+							)}
+					</Paper>
 				</GridCol>
 			</Grid>
 			<Accordion

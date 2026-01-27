@@ -7,6 +7,7 @@ import {
 	Card,
 	Divider,
 	Group,
+	Paper,
 	Stack,
 	Text,
 	Timeline,
@@ -19,7 +20,6 @@ import { getStatusColor } from '@/shared/lib/utils/colors';
 import { formatDateTime } from '@/shared/lib/utils/dates';
 import { getStatusIcon } from '@/shared/lib/utils/status';
 import { toTitleCase } from '@/shared/lib/utils/utils';
-import { getRegistrationOverallClearanceStatus as getOverallClearanceStatus } from '../../_lib/status';
 
 type Props = {
 	registration: NonNullable<Awaited<ReturnType<typeof getRegistrationRequest>>>;
@@ -28,11 +28,10 @@ type Props = {
 export default function ClearanceStatusView({ registration }: Props) {
 	const { clearances = [] } = registration;
 
-	const _overallStatus = getOverallClearanceStatus(registration);
 	const departments = ['finance', 'library'];
 
 	return (
-		<Card withBorder p='md' radius='md'>
+		<Paper withBorder p='md' radius='md'>
 			<Stack gap='md'>
 				<Box pos='relative'>
 					<Title order={2} size='h4' fw={600}>
@@ -112,7 +111,7 @@ export default function ClearanceStatusView({ registration }: Props) {
 					</Timeline>
 				)}
 			</Stack>
-		</Card>
+		</Paper>
 	);
 }
 
