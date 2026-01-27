@@ -1,26 +1,38 @@
 import { z } from 'zod';
 
+const stampSchema = z.object({
+	date: z
+		.string()
+		.nullable()
+		.describe('Date on this stamp in YYYY-MM-DD format'),
+	name: z
+		.string()
+		.nullable()
+		.describe('Name of person or organization from this stamp'),
+	title: z
+		.string()
+		.nullable()
+		.describe(
+			'Title or position from stamp (e.g., Commissioner of Oaths, Notary Public)'
+		),
+	isEcol: z
+		.boolean()
+		.describe(
+			'Whether this stamp is from ECoL (Examinations Council of Lesotho)'
+		),
+});
+
 const certificationSchema = z.object({
 	isCertified: z
 		.boolean()
 		.describe(
-			'Whether the document has visible certification (stamp AND signature required)'
-		),
-	certifiedDate: z.string().nullable().describe('Date on certification stamp'),
-	certifierName: z
-		.string()
-		.nullable()
-		.describe('Name of person or organization who certified (from stamp)'),
-	certifierTitle: z
-		.string()
-		.nullable()
-		.describe(
-			'Title or position of certifier (e.g., Commissioner of Oaths, Notary Public)'
+			'Whether the document has visible certification (non-ECoL stamp AND signature required)'
 		),
 	hasSignature: z
 		.boolean()
 		.describe('Whether a signature is present alongside the stamp'),
 	hasStamp: z.boolean().describe('Whether an official stamp is present'),
+	stamps: z.array(stampSchema).describe('All stamps found on the document'),
 });
 
 const identitySchema = z.object({
@@ -212,4 +224,5 @@ export {
 	otherSchema,
 	receiptSchema,
 	certificationSchema,
+	stampSchema,
 };
