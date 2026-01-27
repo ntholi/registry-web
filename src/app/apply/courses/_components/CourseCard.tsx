@@ -65,7 +65,7 @@ export default function CourseCard({ program, subjects }: Props) {
 							<Text>
 								{rules.minimumGrades.map((mg, idx) => (
 									<span key={idx}>
-										{idx === 0 ? 'You must pass at least ' : ' And '}
+										{idx === 0 ? 'You must pass at least ' : ' and '}
 										<Text span fw={700} c='teal'>
 											{mg.count} subjects
 										</Text>{' '}
@@ -73,7 +73,8 @@ export default function CourseCard({ program, subjects }: Props) {
 										<Text span fw={700} c='teal'>
 											{mg.grade}
 										</Text>{' '}
-										or better.
+										or better
+										{idx === rules.minimumGrades.length - 1 ? '.' : ''}
 									</span>
 								))}
 							</Text>
