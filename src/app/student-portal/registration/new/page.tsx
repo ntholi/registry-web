@@ -99,10 +99,10 @@ export default function NewRegistrationPage() {
 	const [sponsorshipData, setSponsorshipData] =
 		useState<SponsorshipData | null>(null);
 	const [accountConfirmed, setAccountConfirmed] = useState(false);
-	const [repeatModuleReceipts, setRepeatModuleReceipts] = useState<string[]>([
-		'',
-	]);
-	const [tuitionFeeReceipts, setTuitionFeeReceipts] = useState<string[]>(['']);
+	const [repeatModuleReceipts, setRepeatModuleReceipts] = useState<string[]>(
+		[]
+	);
+	const [tuitionFeeReceipts, setTuitionFeeReceipts] = useState<string[]>([]);
 	const { activeTerm } = useActiveTerm();
 
 	const { data: sponsors } = useQuery({

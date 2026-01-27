@@ -9,6 +9,7 @@ import {
 	db,
 	programs,
 	registrationClearance,
+	registrationRequestReceipts,
 	registrationRequests,
 	requestedModules,
 	structureSemesters,
@@ -166,7 +167,7 @@ export default class ClearanceRepository extends BaseRepository<
 
 		if (!rc) return null;
 
-		const [studentProgram, modules] = await Promise.all([
+		const [studentProgram, modules, receipts] = await Promise.all([
 			db.query.studentPrograms.findFirst({
 				where: and(
 					eq(studentPrograms.stdNo, rc.registrationRequest.stdNo),
@@ -194,6 +195,15 @@ export default class ClearanceRepository extends BaseRepository<
 					},
 				},
 			}),
+			db.query.registrationRequestReceipts.findMany({
+				where: eq(
+					registrationRequestReceipts.registrationRequestId,
+					rc.registrationRequest.id
+				),
+				with: {
+					receipt: true,
+				},
+			}),
 		]);
 
 		return {
@@ -205,6 +215,7 @@ export default class ClearanceRepository extends BaseRepository<
 					programs: studentProgram ? [studentProgram] : [],
 				},
 				requestedModules: modules,
+				registrationRequestReceipts: receipts,
 			},
 		};
 	}
