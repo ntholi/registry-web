@@ -55,13 +55,6 @@ export async function getStudentSemesterModulesLogic(
 		};
 	}
 
-	if (remarks.status === 'Remain in Semester') {
-		return {
-			error: `${remarks.status}, ${remarks.details}`,
-			modules: [],
-		};
-	}
-
 	const failedPrerequisites = await getFailedPrerequisites(
 		remarks.failedModules
 	);
@@ -70,6 +63,13 @@ export async function getStudentSemesterModulesLogic(
 		getNextSemesterNo(student),
 		activeProgram.structureId
 	);
+
+	if (remarks.status === 'Remain in Semester') {
+		return {
+			error: `${remarks.status}, ${remarks.details}`,
+			modules: repeatModules,
+		};
+	}
 
 	const attemptedModules = new Set(
 		student.programs
@@ -170,10 +170,9 @@ async function getRepeatModules(
 	const failedModuleNames = failedModules.map((m) => m.name);
 	const failedPrerequisites = await getFailedPrerequisites(failedModules);
 	const nextSemNum = Number.parseInt(nextSemester, 10);
-	const targetSemesters =
-		nextSemNum % 2 === 0
-			? ['02', '04', '06', '08', '2', '4', '6', '8']
-			: ['01', '03', '05', '07', '1', '3', '5', '7'];
+	const targetSemesters = Array.from({ length: nextSemNum - 1 }, (_, i) =>
+		String(i + 1).padStart(2, '0')
+	);
 
 	const allRepeatModules: ModuleWithStatus[] = [];
 	const allSemesterModules = await getSemesterModulesMultiple(

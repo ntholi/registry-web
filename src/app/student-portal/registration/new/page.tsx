@@ -35,6 +35,7 @@ import useUserStudent from '@/shared/lib/hooks/use-user-student';
 import {
 	AccountConfirmation,
 	ModuleSelection,
+	RemainInSemesterAlert,
 	SemesterConfirmation,
 	SponsorshipDetails,
 } from '../_components';
@@ -264,15 +265,37 @@ export default function NewRegistrationPage() {
 		);
 	}
 
+	const isRemainInSemester = remarks?.status === 'Remain in Semester';
+
 	const renderStepContent = () => {
 		switch (activeStep) {
 			case 0:
+				if (isRemainInSemester && !modulesLoading) {
+					return (
+						<Stack gap='lg'>
+							<RemainInSemesterAlert
+								failedModules={remarks.failedModules}
+								supplementaryModules={remarks.supplementaryModules}
+								details={remarks.details}
+							/>
+							{availableModules.length > 0 && (
+								<ModuleSelection
+									modules={availableModules}
+									selectedModules={selectedModules}
+									onSelectionChange={setSelectedModules}
+									loading={modulesLoading}
+								/>
+							)}
+						</Stack>
+					);
+				}
 				return (
 					<ModuleSelection
 						modules={availableModules}
 						selectedModules={selectedModules}
 						onSelectionChange={setSelectedModules}
 						loading={modulesLoading}
+						error={moduleResult?.error}
 					/>
 				);
 			case 1:
