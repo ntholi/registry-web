@@ -170,9 +170,10 @@ async function getRepeatModules(
 	const failedModuleNames = failedModules.map((m) => m.name);
 	const failedPrerequisites = await getFailedPrerequisites(failedModules);
 	const nextSemNum = Number.parseInt(nextSemester, 10);
-	const targetSemesters = Array.from({ length: nextSemNum - 1 }, (_, i) =>
-		String(i + 1).padStart(2, '0')
-	);
+	const targetSemesters =
+		nextSemNum % 2 === 0
+			? ['02', '04', '06', '08', '2', '4', '6', '8']
+			: ['01', '03', '05', '07', '1', '3', '5', '7'];
 
 	const allRepeatModules: ModuleWithStatus[] = [];
 	const allSemesterModules = await getSemesterModulesMultiple(

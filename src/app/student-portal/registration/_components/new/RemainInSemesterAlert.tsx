@@ -1,6 +1,6 @@
 'use client';
 
-import { Alert, Badge, Group, List, Stack, Text } from '@mantine/core';
+import { Alert, Box, List, Stack, Text } from '@mantine/core';
 import { IconAlertCircle } from '@tabler/icons-react';
 
 type Module = {
@@ -28,18 +28,22 @@ export default function RemainInSemesterAlert({
 			variant='light'
 		>
 			<Stack gap='md'>
-				<Text size='sm'>
-					You are required to remain in your current semester due to outstanding
-					academic requirements.
-				</Text>
-				{details && <Text size='sm'>{details}</Text>}
+				<Box>
+					<Text size='sm'>
+						You are required to remain in your current semester due to
+						outstanding academic requirements.
+					</Text>
+					{details && (
+						<Text size='sm' fs={'italic'}>
+							{details}
+						</Text>
+					)}
+				</Box>
 				{failedModules.length > 0 && (
 					<div>
-						<Group gap='xs' mb='xs'>
-							<Text size='sm' fw={500}>
-								Failed Modules (Must Repeat):
-							</Text>
-						</Group>
+						<Text size='sm' fw={500}>
+							Failed Modules (Must Repeat):
+						</Text>
 						<List size='sm' spacing='xs'>
 							{failedModules.map((m) => (
 								<List.Item key={m.id}>
@@ -51,14 +55,9 @@ export default function RemainInSemesterAlert({
 				)}
 				{supplementaryModules.length > 0 && (
 					<div>
-						<Group gap='xs' mb='xs'>
-							<Text size='sm' fw={500}>
-								Supplementary Modules:
-							</Text>
-							<Badge color='orange' size='sm'>
-								{supplementaryModules.length}
-							</Badge>
-						</Group>
+						<Text size='sm' fw={500}>
+							Supplementary Modules:
+						</Text>
 						<List size='sm' spacing='xs'>
 							{supplementaryModules.map((m) => (
 								<List.Item key={m.id}>
