@@ -1,18 +1,10 @@
 'use client';
 
 import { getStudentCurrentSponsorship } from '@finance/sponsors';
-import {
-	Alert,
-	Badge,
-	Card,
-	Group,
-	Skeleton,
-	Stack,
-	Text,
-} from '@mantine/core';
+import { Alert, Card, Group, Skeleton, Stack, Text } from '@mantine/core';
 import { IconInfoCircle, IconWallet } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
-import { getAlertColor, getStatusColor } from '@/shared/lib/utils/colors';
+import { getAlertColor } from '@/shared/lib/utils/colors';
 
 interface SponsorshipInformationProps {
 	studentNo: number;
@@ -118,35 +110,7 @@ export default function SponsorshipInformation({
 							<Text fw={500}>{sponsorship.accountNumber}</Text>
 						</Group>
 					)}
-
-					{isNMDS && (
-						<Group justify='space-between'>
-							<Text size='sm' c='dimmed'>
-								Status
-							</Text>
-							<Badge
-								color={getStatusColor(
-									sponsorship.confirmed ? 'confirmed' : 'pending'
-								)}
-								variant='light'
-							>
-								{sponsorship.confirmed ? 'Confirmed' : 'Pending Confirmation'}
-							</Badge>
-						</Group>
-					)}
 				</Stack>
-
-				{isNMDS && !sponsorship.confirmed && (
-					<Alert
-						icon={<IconInfoCircle size='1rem' />}
-						color={getAlertColor('warning')}
-					>
-						<Text size='sm'>
-							Your NMDS sponsorship is pending confirmation. Please ensure your
-							borrower number and bank details are correct.
-						</Text>
-					</Alert>
-				)}
 			</Stack>
 		</Card>
 	);

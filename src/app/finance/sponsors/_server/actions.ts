@@ -54,7 +54,6 @@ export async function getAllSponsoredStudents(
 	search = '',
 	sponsorId?: string,
 	programId?: string,
-	confirmed?: boolean,
 	termId?: string,
 	clearedOnly?: boolean
 ) {
@@ -63,7 +62,6 @@ export async function getAllSponsoredStudents(
 		search,
 		sponsorId,
 		programId,
-		confirmed,
 		termId,
 		clearedOnly,
 		limit: 10,
@@ -107,7 +105,6 @@ export async function updateStudentSponsorshipById(data: {
 	borrowerNo?: string;
 	bankName?: string;
 	accountNumber?: string;
-	confirmed?: boolean;
 }) {
 	return service.updateStudentSponsorship(data);
 }
@@ -125,10 +122,6 @@ export async function bulkUpdateAccountDetails(
 	batchSize: number = 100
 ) {
 	return service.bulkUpdateAccountDetails(items, batchSize);
-}
-
-export async function confirmAccountDetails(stdNo: number, termId: number) {
-	return service.confirmAccountDetails(stdNo, termId);
 }
 
 export async function getStudentSponsors(stdNo: number) {
@@ -152,7 +145,6 @@ export async function updateSponsoredStudent(
 		borrowerNo?: string | null;
 		bankName?: string | null;
 		accountNumber?: string | null;
-		confirmed?: boolean;
 	}
 ) {
 	return service.updateSponsoredStudent(id, data);

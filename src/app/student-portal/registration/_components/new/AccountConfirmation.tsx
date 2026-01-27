@@ -1,21 +1,17 @@
 'use client';
 
-import { confirmAccountDetails } from '@finance/sponsors';
 import {
 	Alert,
 	Card,
 	Group,
-	Loader,
 	LoadingOverlay,
+	Paper,
 	Stack,
 	Text,
 	TextInput,
 } from '@mantine/core';
 import { IconCheck, IconInfoCircle } from '@tabler/icons-react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useEffect, useState } from 'react';
-import { useActiveTerm } from '@/shared/lib/hooks/use-active-term';
-import useUserStudent from '@/shared/lib/hooks/use-user-student';
+import { useState } from 'react';
 
 type SponsorshipData = {
 	sponsorId: number;
@@ -35,49 +31,15 @@ export default function AccountConfirmation({
 	onConfirmationChange,
 	loading,
 }: AccountConfirmationProps) {
-	const { student } = useUserStudent();
-	const { activeTerm } = useActiveTerm();
-	const queryClient = useQueryClient();
 	const [confirmedAccountNumber, setConfirmedAccountNumber] = useState('');
-	const [isConfirmed, setIsConfirmed] = useState(false);
-
-	const confirmationMutation = useMutation({
-		mutationFn: async () => {
-			if (!student || !activeTerm) {
-				throw new Error('Missing student or term data');
-			}
-			return confirmAccountDetails(student.stdNo, activeTerm.id);
-		},
-		onSuccess: () => {
-			setIsConfirmed(true);
-			onConfirmationChange(true);
-			queryClient.invalidateQueries({ queryKey: ['previous-sponsorship'] });
-		},
-		onError: (error) => {
-			console.error(
-				'Confirmation Failed:',
-				error.message || 'Failed to confirm account details'
-			);
-		},
-	});
-
-	const handleAccountNumberChange = (value: string) => {
-		setConfirmedAccountNumber(value);
-	};
 
 	const accountNumberMatches =
 		confirmedAccountNumber === sponsorshipData?.accountNumber;
 
-	useEffect(() => {
-		if (accountNumberMatches && confirmedAccountNumber && !isConfirmed) {
-			confirmationMutation.mutate();
-		}
-	}, [
-		accountNumberMatches,
-		confirmedAccountNumber,
-		isConfirmed,
-		confirmationMutation.mutate,
-	]);
+	const handleAccountNumberChange = (value: string) => {
+		setConfirmedAccountNumber(value);
+		onConfirmationChange(value === sponsorshipData?.accountNumber);
+	};
 
 	if (loading) {
 		return (
@@ -89,18 +51,16 @@ export default function AccountConfirmation({
 
 	return (
 		<Stack gap='lg' mt='md'>
-			<Card padding='lg' withBorder>
+			<Paper p='lg' withBorder>
 				<Stack gap='md'>
 					<Text size='lg' fw={600}>
 						Confirm Account Details
 					</Text>
 
-					<Alert icon={<IconInfoCircle size='1rem' />} color='blue'>
+					<Alert color='blue'>
 						<Text size='sm'>
-							<strong>
-								Please review your account details below and re-enter your
-								account number to confirm:
-							</strong>
+							Please review your account details below and re-enter your account
+							number to confirm:
 						</Text>
 					</Alert>
 
@@ -148,13 +108,10 @@ export default function AccountConfirmation({
 							!accountNumberMatches &&
 							'Account numbers do not match'
 						}
-						rightSection={
-							confirmationMutation.isPending && <Loader size='sm' />
-						}
-						disabled={isConfirmed}
+						disabled={accountNumberMatches && !!confirmedAccountNumber}
 					/>
 
-					{isConfirmed && (
+					{accountNumberMatches && confirmedAccountNumber && (
 						<Alert icon={<IconCheck size='1rem' />} color='blue'>
 							<Text size='sm'>
 								<strong>Account confirmed</strong>
@@ -162,14 +119,12 @@ export default function AccountConfirmation({
 						</Alert>
 					)}
 				</Stack>
-			</Card>
+			</Paper>
 
 			<Alert icon={<IconInfoCircle size='1rem' />} color='orange'>
 				<Text size='sm'>
-					<strong>Important:</strong> Once you confirm your account details by
-					correctly re-entering your account number, you cannot change them
-					without contacting the finance office. Please ensure all information
-					is accurate before confirming.
+					<strong>Important:</strong> Please ensure your account details are
+					accurate before proceeding with registration.
 				</Text>
 			</Alert>
 		</Stack>
