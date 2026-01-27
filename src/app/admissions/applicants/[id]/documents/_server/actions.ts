@@ -220,9 +220,8 @@ export async function createAcademicRecordFromDocument(
 	applicantId: string,
 	data: ExtractedAcademicData
 ) {
-	if (!data.examYear || !data.institutionName) {
-		throw new Error('Exam year and institution name are required');
-	}
+	const examYear = data.examYear ?? new Date().getFullYear();
+	const institutionName = data.institutionName ?? 'Unknown Institution';
 
 	let certificateTypeId: string | null = null;
 
@@ -277,8 +276,8 @@ export async function createAcademicRecordFromDocument(
 				existing.id,
 				{
 					certificateTypeId,
-					examYear: data.examYear,
-					institutionName: data.institutionName,
+					examYear,
+					institutionName,
 					qualificationName: data.qualificationName,
 					certificateNumber: data.certificateNumber,
 					resultClassification: data.overallClassification,
@@ -293,8 +292,8 @@ export async function createAcademicRecordFromDocument(
 		applicantId,
 		{
 			certificateTypeId,
-			examYear: data.examYear,
-			institutionName: data.institutionName,
+			examYear,
+			institutionName,
 			qualificationName: data.qualificationName,
 			certificateNumber: data.certificateNumber,
 			resultClassification: data.overallClassification,

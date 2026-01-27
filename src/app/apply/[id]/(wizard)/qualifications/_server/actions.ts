@@ -12,6 +12,7 @@ import { uploadDocument } from '@/core/integrations/storage';
 import { getFileExtension } from '@/shared/lib/utils/files';
 
 const MAX_FILE_SIZE = 2 * 1024 * 1024;
+const CURRENT_YEAR = new Date().getFullYear();
 
 type UploadResult = {
 	fileName: string;
@@ -44,17 +45,26 @@ export async function uploadCertificateDocument(
 			certification: analysis.certification,
 		});
 
-		if (
-			(type === 'certificate' ||
-				type === 'transcript' ||
-				type === 'academic_record') &&
-			analysis.examYear &&
-			analysis.institutionName
-		) {
-			await createAcademicRecordFromDocument(applicantId, {
-				institutionName: analysis.institutionName,
+		const isAcademicType =
+			type === 'certificate' ||
+			type === 'transcript' ||
+			type === 'academic_record';
 
-				examYear: analysis.examYear,
+		if (isAcademicType) {
+			const examYear = analysis.examYear ?? CURRENT_YEAR;
+			const institutionName = analysis.institutionName ?? 'Unknown Institution';
+
+			console.info('[uploadCertificateDocument] Creating academic record:', {
+				applicantId,
+				examYear,
+				institutionName,
+				certificateType: analysis.certificateType,
+				hasSubjects: !!analysis.subjects?.length,
+			});
+
+			await createAcademicRecordFromDocument(applicantId, {
+				institutionName,
+				examYear,
 				certificateType: analysis.certificateType,
 				certificateNumber: analysis.certificateNumber,
 				subjects: analysis.subjects,
@@ -64,6 +74,7 @@ export async function uploadCertificateDocument(
 
 		return { success: true, data: { fileName, type, analysis } };
 	} catch (error) {
+		console.error('[uploadCertificateDocument] Error:', error);
 		return { success: false, error: extractError(error) };
 	}
 }
