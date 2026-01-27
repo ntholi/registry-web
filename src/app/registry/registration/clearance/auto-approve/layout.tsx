@@ -11,6 +11,7 @@ type RuleItem = {
 	stdNo: number;
 	department: string;
 	term: { code: string } | null;
+	student: { name: string } | null;
 };
 
 export default function Layout({ children }: PropsWithChildren) {
@@ -29,21 +30,11 @@ export default function Layout({ children }: PropsWithChildren) {
 			renderItem={(item) => (
 				<ListItem
 					id={item.id.toString()}
-					label={
-						<Group gap='xs'>
-							<Text fw={500}>{item.stdNo}</Text>
-							<Badge size='xs' variant='light'>
+					label={item.stdNo}
+					rightSection={							<Badge size='xs' variant='light'>
 								{item.term?.code ?? 'Unknown'}
-							</Badge>
-						</Group>
-					}
-					description={
-						<Badge
-							size='xs'
-							color={item.department === 'finance' ? 'green' : 'blue'}
-						>
-							{item.department}
-						</Badge>
+							</Badge>}
+					description={item.student?.name ?? 'Unknown Student'
 					}
 				/>
 			)}
