@@ -61,14 +61,14 @@ const BASE_STEPS = [
 		description: 'Choose your modules for this semester',
 	},
 	{
-		id: 'semester',
-		label: 'Confirm Semester',
-		description: 'Review your semester status',
-	},
-	{
 		id: 'repeat-receipts',
 		label: 'Repeat Module Receipts',
 		description: 'Provide payment receipts for repeat modules',
+	},
+	{
+		id: 'semester',
+		label: 'Confirm Semester',
+		description: 'Review your semester status',
 	},
 	{
 		id: 'sponsorship',

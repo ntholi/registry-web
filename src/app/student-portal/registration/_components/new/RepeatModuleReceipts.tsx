@@ -106,7 +106,7 @@ export default function RepeatModuleReceipts({
 						<Group key={index} gap='sm' align='flex-end'>
 							<div style={{ flex: 1 }}>
 								<ReceiptInput
-									label={`Receipt ${index + 1}`}
+									label={`Receipt`}
 									value={receipt}
 									onChange={(value) => handleReceiptChange(index, value)}
 									required
@@ -135,17 +135,6 @@ export default function RepeatModuleReceipts({
 					</Button>
 				</Stack>
 			</Paper>
-
-			<Alert
-				icon={<IconInfoCircle size='1rem' />}
-				color={getAlertColor('info')}
-			>
-				<Text size='sm'>
-					<strong>Note:</strong> You can enter multiple receipts if you paid for
-					modules across different transactions. Each receipt must be in format
-					PMRC00000 or SR-00000.
-				</Text>
-			</Alert>
 
 			{validReceipts.length > 0 && (
 				<Text size='sm' c='dimmed'>
