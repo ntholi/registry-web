@@ -45,10 +45,6 @@ export default function RepeatModuleReceipts({
 		onReceiptsChange(receipts.filter((_, i) => i !== index));
 	};
 
-	const validReceipts = receipts.filter(
-		(r) => r && /^(PMRC\d{5}|SR-\d{5})$/.test(r)
-	);
-
 	return (
 		<Stack gap='lg' mt='md'>
 			<Paper p='lg' withBorder>
@@ -96,9 +92,9 @@ export default function RepeatModuleReceipts({
 
 					<ReceiptInputWithAdd onAdd={handleAddReceipt} />
 
-					{receipts.length > 0 && (
+					{receipts.filter(Boolean).length > 0 && (
 						<SimpleGrid cols={{ base: 1, sm: 2, md: 3 }} spacing='sm'>
-							{receipts.map((receipt, index) => (
+							{receipts.filter(Boolean).map((receipt, index) => (
 								<Card
 									key={index}
 									withBorder
