@@ -163,7 +163,7 @@ export async function uploadAndAnalyzeDocument(formData: FormData) {
 	) {
 		await createAcademicRecordFromDocument(applicant.id, {
 			institutionName: result.institutionName,
-			qualificationName: result.qualificationName,
+
 			examYear: result.examYear,
 			certificateType: result.certificateType,
 			certificateNumber: result.certificateNumber,

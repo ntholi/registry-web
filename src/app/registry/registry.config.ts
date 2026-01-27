@@ -93,7 +93,7 @@ export const registryConfig: ModuleConfig = {
 			{
 				label: 'Registration Clearance',
 				icon: IconClipboardCheck,
-				
+
 				children: [
 					{
 						label: 'Requests',

@@ -31,76 +31,55 @@ export type DocumentAnalysisResult =
 	| ({ category: 'academic' } & CertificateDocumentResult)
 	| ({ category: 'other' } & OtherDocumentResult);
 
-const SYSTEM_PROMPT = `You are a document analysis expert specializing in extracting structured data from identity documents, 
-academic certificates, and other official documents. You have expertise in recognizing document formats from Southern African 
-countries (Lesotho, South Africa, Botswana, etc.) and international standards.`;
+const SYSTEM_PROMPT = `You are a document analysis expert specializing in extracting structured data from identity documents, academic certificates, and other official documents. You have expertise in recognizing document formats from Southern African countries (Lesotho, South Africa, Botswana, etc.) and international standards.`;
+
+const COMMON_RULES = `- Dates: YYYY-MM-DD format
+- Use null for missing/illegible data`;
+
+const CERTIFICATION_RULES = `CERTIFICATION:
+- Extract ALL stamps into the stamps array
+- For each stamp: date (YYYY-MM-DD), name (person/organization), title (e.g., Commissioner of Oaths)
+- isEcol: true if stamp is from ECoL (Examinations Council of Lesotho)
+- isCertified: true only if NON-ECoL stamp AND handwritten signature present
+- hasSignature: true if handwritten signature visible near certification stamp`;
 
 const ANALYSIS_PROMPT = `Analyze this document and extract information.
 
 CATEGORIES:
-- identity: IDs, passports, birth certificates
+- identity: IDs, passports, birth certificates  
 - academic: Certificates, transcripts, result slips
 - other: Receipts, statements, medical reports
 
 RULES:
-- Dates: YYYY-MM-DD format
+${COMMON_RULES}
 - institutionName: Student's school (not examining body like Cambridge/ECoL)
 - COSC grades: Extract NUMERIC value (e.g., "C(c SIX)" → "6")
 - LGCSE/IGCSE grades: Use letter (A*, A, B, C, D, E, F, G, U)
 - Extract ALL subjects with grades
-- Use null for missing/illegible data
 
-CERTIFICATION EXTRACTION:
-- A certified document MUST have BOTH a stamp AND a signature
-- There might be multiple stamps on a document, IGNORE stamps from the examining body (ECoL, Cambridge, etc.) - these are part of the certificate itself
-- Only consider certification stamps from Commissioner of Oaths, Notary Public, Justice of the Peace, etc.
-- isCertified: true only if a THIRD-PARTY certification stamp AND signature are present
-- hasStamp: true if official certification stamp/seal visible (NOT the examining body's stamp)
-- hasSignature: true if handwritten signature present near the certification stamp
-- certifiedDate: Extract date from certification stamp in YYYY-MM-DD format
-- certifierName: Name from certification stamp (person or organization)
-- certifierTitle: Title from stamp (Commissioner of Oaths, Notary Public, JP, etc.)`;
+${CERTIFICATION_RULES}`;
 
 const IDENTITY_PROMPT = `Analyze this identity document and extract structured information.
 
 RULES:
-- Dates: YYYY-MM-DD format
-- Use null for missing/illegible data
+${COMMON_RULES}
 
-CERTIFICATION EXTRACTION:
-- isCertified: true only if a NON-ECoL stamp AND signature are present
-- hasStamp: true if any official stamp/seal visible
-- hasSignature: true if handwritten signature present near stamp
-- IMPORTANT: Extract ALL stamps visible on the document into the stamps array
-- For each stamp extract: date (YYYY-MM-DD), name (person/organization), title (e.g., Commissioner of Oaths)
-- For each stamp, set isEcol: true if it's from ECoL (Examinations Council of Lesotho)`;
+${CERTIFICATION_RULES}`;
 
 const ACADEMIC_PROMPT = `Analyze this academic document and extract structured information.
 
 RULES:
-- Dates: YYYY-MM-DD format
+${COMMON_RULES}
 - institutionName: Student's school (not examining body like Cambridge/ECoL)
 - COSC grades: Extract NUMERIC value (e.g., "C(c SIX)" → "6")
 - LGCSE/IGCSE grades: Use letter (A*, A, B, C, D, E, F, G, U)
 - Extract ALL subjects with grades
-- Return certificateType using the provided system naming and return the appropriate lqfLevel
-- Use null for missing/illegible data
 
 ISSUING AUTHORITY:
-- issuingAuthority: Extract the examining body or issuing authority
-- Common authorities: "ECoL" (Examinations Council of Lesotho), "Cambridge", "IEB", "Umalusi"
-- Look for official text like "Examinations Council of Lesotho" and record as "ECoL"
+- issuingAuthority: Extract examining body (ECoL, Cambridge, IEB, Umalusi)
+- "Examinations Council of Lesotho" → record as "ECoL"
 
-CERTIFICATION EXTRACTION:
-- A certified document MUST have BOTH a stamp AND a signature
-- IGNORE stamps from the examining body (ECoL, Cambridge, etc.) - these are part of the certificate itself
-- Only consider certification stamps from Commissioner of Oaths, Notary Public, Justice of the Peace, etc.
-- isCertified: true only if a THIRD-PARTY certification stamp AND signature are present
-- hasStamp: true if official certification stamp/seal visible (NOT the examining body's stamp)
-- hasSignature: true if handwritten signature present near the certification stamp
-- certifiedDate: Extract date from certification stamp in YYYY-MM-DD format
-- certifierName: Name from certification stamp (person or organization)
-- certifierTitle: Title from stamp (Commissioner of Oaths, Notary Public, JP, etc.)`;
+${CERTIFICATION_RULES}`;
 
 const DEFAULT_CERTIFICATE_TYPES = [
 	'LGCSE',
@@ -233,15 +212,29 @@ export async function analyzeIdentityDocument(
 	}
 }
 
+type CertificateTypeInput = string | { name: string; lqfLevel: number | null };
+
+function normalizeCertificateTypes(
+	types: CertificateTypeInput[] | undefined
+): Array<{ name: string; lqfLevel: number | null }> {
+	if (!types)
+		return DEFAULT_CERTIFICATE_TYPES.map((t) => ({ name: t, lqfLevel: null }));
+	return types.map((t) =>
+		typeof t === 'string' ? { name: t, lqfLevel: null } : t
+	);
+}
+
 export async function analyzeAcademicDocument(
 	fileBase64: string,
 	mediaType: string,
-	certificateTypes?: string[],
+	certificateTypes?: CertificateTypeInput[],
 	applicantName?: string,
 	certificationValidDays?: number
 ): Promise<AnalysisResult<CertificateDocumentResult>> {
-	const types = certificateTypes ?? DEFAULT_CERTIFICATE_TYPES;
-	const typeList = types.map((t) => `  - ${t}`).join('\n');
+	const types = normalizeCertificateTypes(certificateTypes);
+	const typeList = types
+		.map((t) => `  - ${t.name}${t.lqfLevel ? ` (LQF ${t.lqfLevel})` : ''}`)
+		.join('\n');
 
 	try {
 		const { output } = await generateText({
@@ -258,7 +251,7 @@ export async function analyzeAcademicDocument(
 					content: [
 						{
 							type: 'text',
-							text: `${ACADEMIC_PROMPT}\n\nSYSTEM CERTIFICATE TYPES:\n${typeList}`,
+							text: `${ACADEMIC_PROMPT}\n\nCERTIFICATE TYPES (use exact name and corresponding lqfLevel):\n${typeList}`,
 						},
 						{ type: 'file', data: fileBase64, mediaType },
 					],
@@ -279,7 +272,8 @@ export async function analyzeAcademicDocument(
 
 		if (
 			output.documentType === 'certificate' &&
-			(!output.certificateType || !types.includes(output.certificateType))
+			(!output.certificateType ||
+				!types.some((t) => t.name === output.certificateType))
 		) {
 			return {
 				success: false,
@@ -287,17 +281,19 @@ export async function analyzeAcademicDocument(
 			};
 		}
 
+		const hasStamp = (output.certification?.stamps?.length ?? 0) >= 1;
 		if (!output.certification?.isCertified) {
 			const missing = [];
-			if (!output.certification?.hasStamp) missing.push('stamp');
+			if (!hasStamp) missing.push('stamp');
 			if (!output.certification?.hasSignature) missing.push('signature');
 			const detail =
 				missing.length > 0 ? ` (missing: ${missing.join(' and ')})` : '';
 			return { success: false, error: `Document must be certified${detail}` };
 		}
 
-		if (certificationValidDays && output.certification?.certifiedDate) {
-			const certDate = new Date(output.certification.certifiedDate);
+		const certStamp = output.certification?.stamps?.find((s) => !s.isEcol);
+		if (certificationValidDays && certStamp?.date) {
+			const certDate = new Date(certStamp.date);
 			const today = new Date();
 			const daysDiff = Math.floor(
 				(today.getTime() - certDate.getTime()) / (1000 * 60 * 60 * 24)
@@ -364,18 +360,14 @@ export async function analyzeAcademicDocument(
 	}
 }
 
-const RECEIPT_PROMPT = `Analyze this bank deposit slip or proof of payment document and extract structured information.
+const RECEIPT_PROMPT = `Analyze this bank deposit slip or proof of payment document.
 
-IMPORTANT:
-- This should be a bank deposit slip showing payment to "Limkokwing University of Creative Technology"
-- Extract the beneficiary/account holder name exactly as shown
-- Extract the bank reference number or transaction ID
-- Extract transaction number if visible
-- Extract terminal or teller number if visible
-- Dates: YYYY-MM-DD format
-- Amount: Extract numeric value only (no currency symbols)
-- Use null for missing/illegible data
-- Set isBankDeposit to true if this appears to be a bank deposit slip`;
+RULES:
+${COMMON_RULES}
+- Beneficiary: Extract account holder name exactly as shown
+- Reference: Bank reference number or transaction ID
+- Amount: Numeric value only (no currency symbols)
+- isBankDeposit: true if this is a bank deposit slip to "Limkokwing University of Creative Technology"`;
 
 export async function analyzeReceipt(
 	fileBase64: string,
