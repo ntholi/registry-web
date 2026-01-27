@@ -1,7 +1,7 @@
 'use server';
 
 import { getApplicant } from '@admissions/applicants';
-import { getApplication } from '@admissions/applications';
+import { getApplicationForPayment } from '@admissions/applications';
 import {
 	getPaymentsByApplication,
 	getPendingPayment,
@@ -10,13 +10,7 @@ import {
 } from '@admissions/payments';
 import { extractError } from '@apply/_lib/errors';
 import { eq } from 'drizzle-orm';
-import {
-	applications,
-	bankDeposits,
-	db,
-	documents,
-	intakePeriods,
-} from '@/core/database';
+import { applications, bankDeposits, db, documents } from '@/core/database';
 import { validateReceipts, validateSingleReceipt } from './validation';
 
 export { validateSingleReceipt, validateReceipts };
@@ -107,7 +101,7 @@ export async function submitReceiptPayment(
 }
 
 export async function getPaymentPageData(applicationId: string) {
-	const application = await getApplication(applicationId);
+	const application = await getApplicationForPayment(applicationId);
 
 	if (!application?.applicantId) {
 		return {
@@ -128,23 +122,21 @@ export async function getPaymentPageData(applicationId: string) {
 		getPendingPayment(applicationId),
 	]);
 
-	const intake = await db.query.intakePeriods.findFirst({
-		where: eq(intakePeriods.id, application.intakePeriodId),
-	});
-
 	const successfulPayment = transactions.find(
 		(t: { status: string }) => t.status === 'success'
 	);
 
+	const intake = application.intakePeriod;
+
 	return {
 		applicant,
 		application,
-		fee: intake?.applicationFee || null,
+		fee: intake?.applicationFee ?? null,
 		transactions,
 		isPaid: !!successfulPayment || application.paymentStatus === 'paid',
 		pendingTransaction,
-		intakeStartDate: intake?.startDate || null,
-		intakeEndDate: intake?.endDate || null,
+		intakeStartDate: intake?.startDate ?? null,
+		intakeEndDate: intake?.endDate ?? null,
 	};
 }
 

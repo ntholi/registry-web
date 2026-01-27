@@ -243,4 +243,25 @@ export default class ApplicationRepository extends BaseRepository<
 			},
 		});
 	}
+
+	async findForPayment(id: string) {
+		return db.query.applications.findFirst({
+			where: eq(applications.id, id),
+			columns: {
+				id: true,
+				applicantId: true,
+				paymentStatus: true,
+			},
+			with: {
+				intakePeriod: {
+					columns: {
+						id: true,
+						applicationFee: true,
+						startDate: true,
+						endDate: true,
+					},
+				},
+			},
+		});
+	}
 }

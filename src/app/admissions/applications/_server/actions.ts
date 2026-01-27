@@ -101,6 +101,10 @@ export async function countPendingApplications() {
 	return applicationsService.countPending();
 }
 
+export async function getApplicationForPayment(applicationId: string) {
+	return applicationsService.getForPayment(applicationId);
+}
+
 function getFileExtension(name: string) {
 	const idx = name.lastIndexOf('.');
 	if (idx === -1 || idx === name.length - 1) return '';

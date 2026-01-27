@@ -235,6 +235,13 @@ class ApplicationService extends BaseService<typeof applications, 'id'> {
 			['registry', 'marketing', 'admin']
 		);
 	}
+
+	async getForPayment(applicationId: string) {
+		return withAuth(
+			async () => this.repo.findForPayment(applicationId),
+			['all']
+		);
+	}
 }
 
 export const applicationsService = serviceWrapper(
