@@ -36,5 +36,7 @@ export * from '../students/_schema/students';
 export * from '../students/_schema/types';
 export * from '../terms/_schema/publicationAttachments';
 export * from '../terms/_schema/relations';
+export * from '../terms/_schema/termRegistrationPrograms';
+export * from '../terms/_schema/termRegistrations';
 export * from '../terms/_schema/termSettings';
 export * from '../terms/_schema/terms';

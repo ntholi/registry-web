@@ -50,35 +50,6 @@ export default class TermSettingsRepository {
 		return updated;
 	}
 
-	async updateRegistrationDates(
-		termId: number,
-		startDate: string | null,
-		endDate: string | null,
-		userId: string
-	) {
-		const [updated] = await db
-			.insert(termSettings)
-			.values({
-				termId,
-				registrationStartDate: startDate,
-				registrationEndDate: endDate,
-				createdBy: userId,
-				updatedAt: new Date(),
-				updatedBy: userId,
-			})
-			.onConflictDoUpdate({
-				target: termSettings.termId,
-				set: {
-					registrationStartDate: startDate,
-					registrationEndDate: endDate,
-					updatedAt: new Date(),
-					updatedBy: userId,
-				},
-			})
-			.returning();
-		return updated;
-	}
-
 	async getRejectedStudentsForTerm(termId: number) {
 		const rejected = await db
 			.select({
