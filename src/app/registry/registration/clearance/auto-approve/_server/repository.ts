@@ -35,6 +35,7 @@ export default class AutoApprovalRepository extends BaseRepository<
 				where: whereCondition,
 				with: {
 					term: true,
+					student: true,
 					createdByUser: true,
 				},
 				limit,
@@ -55,6 +56,7 @@ export default class AutoApprovalRepository extends BaseRepository<
 			where: eq(autoApprovals.id, id),
 			with: {
 				term: true,
+				student: true,
 				createdByUser: true,
 			},
 		});
