@@ -93,7 +93,7 @@ export const registryConfig: ModuleConfig = {
 			{
 				label: 'Registration Clearance',
 				icon: IconClipboardCheck,
-				roles: ['finance', 'library', 'resource'],
+				
 				children: [
 					{
 						label: 'Requests',
@@ -104,6 +104,7 @@ export const registryConfig: ModuleConfig = {
 							queryFn: () => countPendingClearances(),
 							color: 'red',
 						},
+						roles: ['finance', 'library', 'resource'],
 					},
 					{
 						label: 'Approved',
@@ -114,6 +115,7 @@ export const registryConfig: ModuleConfig = {
 							queryFn: () => countApprovedClearances(),
 							color: 'gray',
 						},
+						roles: ['finance', 'library', 'resource'],
 					},
 					{
 						label: 'Rejected',
@@ -124,11 +126,13 @@ export const registryConfig: ModuleConfig = {
 							queryFn: () => countRejectedClearances(),
 							color: 'gray',
 						},
+						roles: ['finance', 'library', 'resource'],
 					},
 					{
 						label: 'Auto-Approvals',
 						href: '/registry/registration/clearance/auto-approve',
 						icon: IconRobot,
+						roles: ['finance', 'library', 'resource', 'admin'],
 					},
 				] as NavItem[],
 			},
