@@ -3,8 +3,8 @@
 import { findAllSponsors, getSponsoredStudent } from '@finance/sponsors';
 import {
 	Alert,
-	Card,
 	LoadingOverlay,
+	Paper,
 	Select,
 	Stack,
 	Text,
@@ -22,7 +22,7 @@ type SponsorshipData = {
 	borrowerNo?: string;
 };
 
-interface SponsorshipDetailsEditProps {
+interface Props {
 	sponsorshipData: SponsorshipData | null;
 	onSponsorshipChange: (data: SponsorshipData) => void;
 	loading: boolean;
@@ -32,7 +32,7 @@ export default function SponsorshipDetailsEdit({
 	sponsorshipData,
 	onSponsorshipChange,
 	loading,
-}: SponsorshipDetailsEditProps) {
+}: Props) {
 	const { student } = useUserStudent();
 	const { activeTerm } = useActiveTerm();
 
@@ -130,7 +130,7 @@ export default function SponsorshipDetailsEdit({
 
 	return (
 		<Stack gap='lg' mt='md'>
-			<Card padding='lg' withBorder>
+			<Paper p='lg' withBorder>
 				<Stack gap='md'>
 					<Select
 						label='Sponsor'
@@ -156,7 +156,7 @@ export default function SponsorshipDetailsEdit({
 						/>
 					)}
 				</Stack>
-			</Card>
+			</Paper>
 
 			<Alert
 				icon={<IconInfoCircle size='1rem' />}
