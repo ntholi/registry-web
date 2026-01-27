@@ -28,6 +28,10 @@ import {
 	defaultClearanceFilter,
 } from '@/shared/ui/atoms/clearanceFilterAtoms';
 
+function useActiveTerm(terms: { id: number; isActive: boolean }[]) {
+	return terms.find((t) => t.isActive);
+}
+
 const semesterOptions = Array.from({ length: 8 }, (_, i) => {
 	const num = (i + 1).toString().padStart(2, '0');
 	return { value: num, label: formatSemester(num, 'mini') };
@@ -52,6 +56,8 @@ export default function RegistrationClearanceFilter({ onFilterChange }: Props) {
 		staleTime: 1000 * 60 * 10,
 	});
 
+	const activeTerm = useActiveTerm(terms);
+
 	const { data: schools = [], isLoading: schoolsLoading } = useQuery({
 		queryKey: ['all-schools'],
 		queryFn: getAllSchools,
@@ -65,8 +71,11 @@ export default function RegistrationClearanceFilter({ onFilterChange }: Props) {
 		staleTime: 1000 * 60 * 10,
 	});
 
+	const isNonActiveTermSelected =
+		filter.termId !== undefined && filter.termId !== activeTerm?.id;
+
 	const activeFiltersCount = [
-		filter.termId,
+		isNonActiveTermSelected ? filter.termId : undefined,
 		filter.schoolId,
 		filter.programId,
 		filter.programLevel,
@@ -97,9 +106,7 @@ export default function RegistrationClearanceFilter({ onFilterChange }: Props) {
 		close();
 	}
 
-	const isDefaultFilter =
-		Object.keys(filter).length === 0 ||
-		Object.values(filter).every((v) => v === undefined);
+	const isDefaultFilter = activeFiltersCount === 0;
 
 	return (
 		<>
