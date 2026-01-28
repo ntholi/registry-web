@@ -97,6 +97,11 @@ export default class RegistrationRequestRepository extends BaseRepository<
 						},
 					},
 				},
+				registrationRequestReceipts: {
+					with: {
+						receipt: true,
+					},
+				},
 			},
 		});
 	}

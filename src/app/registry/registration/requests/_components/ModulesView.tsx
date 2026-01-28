@@ -1,6 +1,16 @@
 'use client';
 
-import { Badge, Flex, Stack, Table, Text, Title } from '@mantine/core';
+import {
+	Badge,
+	Card,
+	Flex,
+	Group,
+	SimpleGrid,
+	Stack,
+	Table,
+	Text,
+	Title,
+} from '@mantine/core';
 import {
 	getModuleStatusTextColor,
 	getStatusColor,
@@ -13,7 +23,7 @@ type Props = {
 };
 
 export default function ModulesView({ value }: Props) {
-	const { requestedModules } = value;
+	const { requestedModules, registrationRequestReceipts } = value;
 
 	const rows = requestedModules.map(
 		({ semesterModule, moduleStatus, status }) => (
@@ -62,6 +72,29 @@ export default function ModulesView({ value }: Props) {
 				</Table.Thead>
 				<Table.Tbody>{rows}</Table.Tbody>
 			</Table>
+
+			{registrationRequestReceipts &&
+				registrationRequestReceipts.length > 0 && (
+					<Stack gap='sm' mt={'md'}>
+						<Title order={5} fw={400}>
+							Payment Receipts
+						</Title>
+						<SimpleGrid cols={{ base: 2, sm: 4 }} spacing='sm'>
+							{registrationRequestReceipts.map(({ receipt }) => (
+								<Card key={receipt.id} withBorder padding='sm'>
+									<Group justify='space-between'>
+										<Text size='sm' fw={500}>
+											{receipt.receiptNo}
+										</Text>
+										<Badge size='xs' variant='light'>
+											{receipt.receiptType}
+										</Badge>
+									</Group>
+								</Card>
+							))}
+						</SimpleGrid>
+					</Stack>
+				)}
 		</Stack>
 	);
 }
