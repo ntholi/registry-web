@@ -13,7 +13,8 @@ import {
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import { IconEdit } from '@tabler/icons-react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import UserInput from '@/shared/ui/UserInput';
 import { updateApplicantUserId } from '../../_server/actions';
@@ -31,7 +32,12 @@ export default function ApplicantEmailModal({
 }: ApplicantEmailModalProps) {
 	const [opened, { open, close }] = useDisclosure(false);
 	const [selectedUser, setSelectedUser] = useState<User | null>(currentUser);
-	const queryClient = useQueryClient();
+	const router = useRouter();
+
+	const handleOpen = () => {
+		setSelectedUser(currentUser);
+		open();
+	};
 
 	const updateUserMutation = useMutation({
 		mutationFn: async (userId: string | null) => {
@@ -42,9 +48,7 @@ export default function ApplicantEmailModal({
 				message: 'User updated successfully',
 				color: 'green',
 			});
-			queryClient.invalidateQueries({
-				queryKey: ['applicants'],
-			});
+			router.refresh();
 			close();
 		},
 		onError: (error) => {
@@ -61,12 +65,17 @@ export default function ApplicantEmailModal({
 
 	return (
 		<>
-			<Group gap={'lg'}>
+			<Group gap={'sm'}>
 				<Text size='sm' c='dimmed'>
 					{currentUser?.email ?? 'No email'}
 				</Text>
 				<Tooltip label='Edit User'>
-					<ActionIcon variant='subtle' color='gray' size='xs' onClick={open}>
+					<ActionIcon
+						variant='subtle'
+						color='gray'
+						size='xs'
+						onClick={handleOpen}
+					>
 						<IconEdit size={14} />
 					</ActionIcon>
 				</Tooltip>
