@@ -102,6 +102,14 @@ const academicSchema = z.object({
 		.string()
 		.nullable()
 		.describe('Student name appearing on document'),
+	nameMatchConfidence: z
+		.number()
+		.min(0)
+		.max(100)
+		.nullable()
+		.describe(
+			'Confidence (0-100) that the student name matches the expected applicant name. Only set when expectedName is provided.'
+		),
 	certification: certificationSchema
 		.nullable()
 		.describe('Certification details if document is certified'),

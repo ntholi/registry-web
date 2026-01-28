@@ -4,7 +4,6 @@ import { getCertificateTypeByName } from '@admissions/certificate-types/_server/
 import { google } from '@ai-sdk/google';
 import { generateText, NoObjectGeneratedError, Output } from 'ai';
 import type { z } from 'zod';
-import { namesMatch } from '@/shared/lib/utils/utils';
 import {
 	academicSchema,
 	type certificationSchema,
@@ -244,6 +243,15 @@ export async function analyzeAcademicDocument(
 		.map((t) => `  - ${t.name}${t.lqfLevel ? ` (LQF ${t.lqfLevel})` : ''}`)
 		.join('\n');
 
+	const nameInstruction = applicantName
+		? `\n\nNAME VERIFICATION:\nThe expected applicant name is: "${applicantName}"
+Compare this with the student name on the document and set nameMatchConfidence (0-100):
+- 100: Names are identical or have minor formatting differences
+- 80-99: Names are clearly the same person (slight spelling variations, OCR errors)
+- 50-79: Names are similar but uncertain
+- 0-49: Names are clearly different people`
+		: '';
+
 	try {
 		const { output } = await generateText({
 			model,
@@ -259,7 +267,7 @@ export async function analyzeAcademicDocument(
 					content: [
 						{
 							type: 'text',
-							text: `${ACADEMIC_PROMPT}\n\nCERTIFICATE TYPES (use exact name and corresponding lqfLevel):\n${typeList}`,
+							text: `${ACADEMIC_PROMPT}\n\nCERTIFICATE TYPES (use exact name and corresponding lqfLevel):\n${typeList}${nameInstruction}`,
 						},
 						{ type: 'file', data: fileBase64, mediaType },
 					],
@@ -293,8 +301,8 @@ export async function analyzeAcademicDocument(
 			return { success: false, error: 'Document must be certified' };
 		}
 
-		if (applicantName && output.studentName) {
-			if (!namesMatch(applicantName, output.studentName)) {
+		if (applicantName && output.nameMatchConfidence !== null) {
+			if (output.nameMatchConfidence < 80) {
 				return {
 					success: false,
 					error: `Name mismatch: document belongs to "${output.studentName}", not "${applicantName}"`,
