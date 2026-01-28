@@ -4,7 +4,6 @@ import {
 	Alert,
 	Badge,
 	Box,
-	Card,
 	Divider,
 	Group,
 	Paper,
@@ -101,7 +100,7 @@ export default function ClearanceStatusView({ registration }: Props) {
 										{clearance?.status === 'pending' && (
 											<Text size='sm' c='dimmed' fs='italic'>
 												Waiting for {toTitleCase(dept)} Department to process
-												your graduation request...
+												your registration request...
 											</Text>
 										)}
 									</Stack>
