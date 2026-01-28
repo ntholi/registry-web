@@ -6,6 +6,7 @@ export * from '../clearance/_schema/clearance';
 export * from '../clearance/_schema/clearanceAudit';
 export * from '../clearance/_schema/registrationClearance';
 export * from '../clearance/_schema/relations';
+export * from '../documents/_schema/documentStamps';
 export * from '../documents/_schema/documents';
 export * from '../documents/_schema/relations';
 export * from '../documents/_schema/studentDocuments';

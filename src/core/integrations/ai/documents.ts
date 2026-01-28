@@ -39,8 +39,7 @@ const COMMON_RULES = `- Dates: YYYY-MM-DD format
 const CERTIFICATION_RULES = `CERTIFICATION:
 - Extract ALL stamps into the stamps array
 - For each stamp: date (YYYY-MM-DD), name (person/organization), title (e.g., Commissioner of Oaths)
-- isEcol: true if stamp is from ECoL (Examinations Council of Lesotho)
-- isCertified: true only if NON-ECoL stamp AND handwritten signature present
+- isCertified: true only if stamp AND handwritten signature present
 - hasSignature: true if handwritten signature visible near certification stamp`;
 
 const ANALYSIS_PROMPT = `Analyze this document and extract information.
@@ -304,9 +303,12 @@ export async function analyzeAcademicDocument(
 			return { success: false, error: `Document must be certified${detail}` };
 		}
 
-		const certStamp = output.certification?.stamps?.find((s) => !s.isEcol);
-		if (certificationValidDays && certStamp?.date) {
-			const certDate = new Date(certStamp.date);
+		const stampsWithDates = output.certification?.stamps?.filter((s) => s.date);
+		const latestStamp = stampsWithDates?.sort(
+			(a, b) => new Date(b.date!).getTime() - new Date(a.date!).getTime()
+		)[0];
+		if (certificationValidDays && latestStamp?.date) {
+			const certDate = new Date(latestStamp.date);
 			const today = new Date();
 			const daysDiff = Math.floor(
 				(today.getTime() - certDate.getTime()) / (1000 * 60 * 60 * 24)

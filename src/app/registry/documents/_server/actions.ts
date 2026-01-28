@@ -1,5 +1,6 @@
 'use server';
 
+import type { NewDocumentStamp } from '../_schema/documentStamps';
 import type { DocumentType } from '../_schema/documents';
 import { documentsService as service } from './service';
 
@@ -49,4 +50,19 @@ export async function getDocumentUrl(
 		console.error('Error checking document:', error);
 		return null;
 	}
+}
+
+export async function saveDocumentStamps(
+	documentId: string,
+	stamps: Omit<NewDocumentStamp, 'id' | 'documentId' | 'createdAt'>[]
+) {
+	return service.saveStamps(documentId, stamps);
+}
+
+export async function getDocumentStamps(documentId: string) {
+	return service.getStamps(documentId);
+}
+
+export async function deleteDocumentStamps(documentId: string) {
+	return service.deleteStamps(documentId);
 }
