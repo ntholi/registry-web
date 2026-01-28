@@ -3,7 +3,6 @@
 import {
 	ActionIcon,
 	Avatar,
-	Badge,
 	Group,
 	Paper,
 	Stack,
@@ -14,7 +13,6 @@ import { IconEdit } from '@tabler/icons-react';
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
 import { type GenderType, getGenderColor } from '@/shared/lib/utils/colors';
-import { calculateAge, formatDate } from '@/shared/lib/utils/dates';
 import { DeleteButton } from '@/shared/ui/adease/DeleteButton';
 import { deleteApplicant } from '../../_server/actions';
 import CreateApplicationModal from './CreateApplicationModal';
@@ -22,8 +20,6 @@ import CreateApplicationModal from './CreateApplicationModal';
 type Props = {
 	id: string;
 	fullName: string;
-	dateOfBirth: string | null;
-	nationality: string | null;
 	gender: string | null;
 	nationalId: string | null;
 };
@@ -31,14 +27,11 @@ type Props = {
 export default function ApplicantHeader({
 	id,
 	fullName,
-	dateOfBirth,
-	nationality,
 	gender,
 	nationalId,
 }: Props) {
 	const { data: session } = useSession();
 	const canDelete = session?.user?.role === 'admin';
-	const age = calculateAge(dateOfBirth);
 	const initials = fullName
 		.split(' ')
 		.map((n) => n[0])
@@ -52,42 +45,23 @@ export default function ApplicantHeader({
 		<Paper p='lg' withBorder>
 			<Group justify='space-between' align='flex-start'>
 				<Group gap='lg'>
-					<Avatar size={80} radius='xl' color={genderColor} variant='light'>
+					<Avatar
+						src={session?.user?.image}
+						size={80}
+						radius={80}
+						color={genderColor}
+						variant='light'
+					>
 						{initials}
 					</Avatar>
 					<Stack gap={4}>
 						<Title order={2} fw={600}>
 							{fullName}
 						</Title>
-						<Group gap='xs'>
-							<Badge variant='light' color={genderColor} size='sm'>
-								{gender ?? 'Not specified'}
-							</Badge>
-							{age && (
-								<Text size='sm' c='dimmed'>
-									{age} years old
-								</Text>
-							)}
-							{dateOfBirth && (
-								<Text size='sm' c='dimmed'>
-									• Born {formatDate(dateOfBirth, 'long')}
-								</Text>
-							)}
-						</Group>
 						<Group gap='xs' mt={4}>
 							<Text size='sm' c='dimmed'>
-								{nationality ?? 'Not specified'}
+								ID: {nationalId}
 							</Text>
-							{nationalId && (
-								<>
-									<Text size='sm' c='dimmed'>
-										•
-									</Text>
-									<Text size='sm' c='dimmed'>
-										ID: {nationalId}
-									</Text>
-								</>
-							)}
 						</Group>
 					</Stack>
 				</Group>

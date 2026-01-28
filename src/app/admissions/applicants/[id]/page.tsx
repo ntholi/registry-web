@@ -21,8 +21,6 @@ export default async function ApplicantDetails({ params }: Props) {
 			<ApplicantHeader
 				id={item.id}
 				fullName={item.fullName}
-				dateOfBirth={item.dateOfBirth}
-				nationality={item.nationality}
 				gender={item.gender}
 				nationalId={item.nationalId}
 			/>
