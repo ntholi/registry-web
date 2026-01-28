@@ -91,9 +91,6 @@ export default async function IntakePeriodDetails({ params }: Props) {
 						<FieldView label='Max Documents'>
 							{item.maxDocuments} per application
 						</FieldView>
-						<FieldView label='Certification Valid Days'>
-							{item.certificationValidDays} days
-						</FieldView>
 					</Stack>
 				</TabsPanel>
 

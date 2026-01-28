@@ -1,19 +1,7 @@
 import { count, eq } from 'drizzle-orm';
-import { nanoid } from 'nanoid';
 import type { DocumentType, DocumentVerificationStatus } from '@/core/database';
-import {
-	applicantDocuments,
-	db,
-	documentStamps,
-	documents,
-} from '@/core/database';
+import { applicantDocuments, db, documents } from '@/core/database';
 import BaseRepository from '@/core/platform/BaseRepository';
-
-type StampInput = {
-	date?: string | null;
-	name?: string | null;
-	title?: string | null;
-};
 
 export default class ApplicantDocumentRepository extends BaseRepository<
 	typeof applicantDocuments,
@@ -69,8 +57,7 @@ export default class ApplicantDocumentRepository extends BaseRepository<
 
 	async createWithDocument(
 		documentData: typeof documents.$inferInsert,
-		applicantId: string,
-		stamps?: StampInput[]
+		applicantId: string
 	) {
 		return db.transaction(async (tx) => {
 			const [doc] = await tx.insert(documents).values(documentData).returning();
@@ -81,17 +68,6 @@ export default class ApplicantDocumentRepository extends BaseRepository<
 					applicantId,
 				})
 				.returning();
-
-			if (stamps && stamps.length > 0) {
-				const stampValues = stamps.map((s) => ({
-					id: nanoid(),
-					documentId: doc.id,
-					date: s.date ?? null,
-					name: s.name ?? null,
-					title: s.title ?? null,
-				}));
-				await tx.insert(documentStamps).values(stampValues);
-			}
 
 			return { ...appDoc, document: doc };
 		});

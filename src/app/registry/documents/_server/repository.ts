@@ -1,15 +1,7 @@
 import { eq } from 'drizzle-orm';
 import { nanoid } from 'nanoid';
-import {
-	db,
-	documentStamps,
-	documents,
-	studentDocuments,
-} from '@/core/database';
-import type { NewDocumentStamp } from '../_schema/documentStamps';
+import { db, documents, studentDocuments } from '@/core/database';
 import type { DocumentType } from '../_schema/documents';
-
-type StampInput = Omit<NewDocumentStamp, 'id' | 'documentId' | 'createdAt'>;
 
 export default class DocumentRepository {
 	protected readonly db = db;
@@ -30,15 +22,12 @@ export default class DocumentRepository {
 		return result.find((sd) => sd.document.type === type);
 	}
 
-	async createWithDocument(
-		data: {
-			fileName: string;
-			fileUrl: string;
-			type: DocumentType;
-			stdNo: number;
-		},
-		stamps?: StampInput[]
-	) {
+	async createWithDocument(data: {
+		fileName: string;
+		fileUrl: string;
+		type: DocumentType;
+		stdNo: number;
+	}) {
 		return this.db.transaction(async (tx) => {
 			const docId = nanoid();
 			await tx.insert(documents).values({
@@ -57,17 +46,6 @@ export default class DocumentRepository {
 					stdNo: data.stdNo,
 				})
 				.returning();
-
-			if (stamps && stamps.length > 0) {
-				const stampValues = stamps.map((s) => ({
-					id: nanoid(),
-					documentId: docId,
-					date: s.date ?? null,
-					name: s.name ?? null,
-					title: s.title ?? null,
-				}));
-				await tx.insert(documentStamps).values(stampValues);
-			}
 
 			return studentDoc;
 		});
@@ -88,36 +66,6 @@ export default class DocumentRepository {
 
 			return studentDoc;
 		});
-	}
-
-	async createStamps(
-		documentId: string,
-		stamps: Omit<NewDocumentStamp, 'id' | 'documentId' | 'createdAt'>[]
-	) {
-		if (stamps.length === 0) return [];
-
-		const values = stamps.map((stamp) => ({
-			id: nanoid(),
-			documentId,
-			date: stamp.date,
-			name: stamp.name,
-			title: stamp.title,
-		}));
-
-		return this.db.insert(documentStamps).values(values).returning();
-	}
-
-	async getStampsByDocumentId(documentId: string) {
-		return this.db.query.documentStamps.findMany({
-			where: eq(documentStamps.documentId, documentId),
-			orderBy: (stamps, { desc }) => [desc(stamps.date)],
-		});
-	}
-
-	async deleteStampsByDocumentId(documentId: string) {
-		return this.db
-			.delete(documentStamps)
-			.where(eq(documentStamps.documentId, documentId));
 	}
 }
 

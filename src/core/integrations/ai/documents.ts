@@ -37,10 +37,7 @@ const COMMON_RULES = `- Dates: YYYY-MM-DD format
 - Use null for missing/illegible data`;
 
 const CERTIFICATION_RULES = `CERTIFICATION:
-- Extract ALL stamps into the stamps array
-- For each stamp: date (YYYY-MM-DD), name (person/organization), title (e.g., Commissioner of Oaths)
-- isCertified: true only if stamp AND handwritten signature present
-- hasSignature: true if handwritten signature visible near certification stamp`;
+- isCertified: true if document shows any official certification (stamp, seal, or official mark)`;
 
 const ANALYSIS_PROMPT = `Analyze this document and extract information.
 
@@ -240,8 +237,7 @@ export async function analyzeAcademicDocument(
 	fileBase64: string,
 	mediaType: string,
 	certificateTypes?: CertificateTypeInput[],
-	applicantName?: string,
-	certificationValidDays?: number
+	applicantName?: string
 ): Promise<AnalysisResult<CertificateDocumentResult>> {
 	const types = normalizeCertificateTypes(certificateTypes);
 	const typeList = types
@@ -293,32 +289,8 @@ export async function analyzeAcademicDocument(
 			};
 		}
 
-		const hasStamp = (output.certification?.stamps?.length ?? 0) >= 1;
 		if (!output.certification?.isCertified) {
-			const missing = [];
-			if (!hasStamp) missing.push('stamp');
-			if (!output.certification?.hasSignature) missing.push('signature');
-			const detail =
-				missing.length > 0 ? ` (missing: ${missing.join(' and ')})` : '';
-			return { success: false, error: `Document must be certified${detail}` };
-		}
-
-		const stampsWithDates = output.certification?.stamps?.filter((s) => s.date);
-		const latestStamp = stampsWithDates?.sort(
-			(a, b) => new Date(b.date!).getTime() - new Date(a.date!).getTime()
-		)[0];
-		if (certificationValidDays && latestStamp?.date) {
-			const certDate = new Date(latestStamp.date);
-			const today = new Date();
-			const daysDiff = Math.floor(
-				(today.getTime() - certDate.getTime()) / (1000 * 60 * 60 * 24)
-			);
-			if (daysDiff > certificationValidDays) {
-				return {
-					success: false,
-					error: `Certification has expired (certified ${daysDiff} days ago, valid for ${certificationValidDays} days)`,
-				};
-			}
+			return { success: false, error: 'Document must be certified' };
 		}
 
 		if (applicantName && output.studentName) {

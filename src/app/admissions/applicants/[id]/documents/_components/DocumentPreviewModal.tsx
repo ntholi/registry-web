@@ -2,7 +2,6 @@
 
 import {
 	ActionIcon,
-	Badge,
 	Box,
 	Group,
 	Image,
@@ -14,13 +13,7 @@ import {
 	Tooltip,
 } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
-import {
-	IconCalendar,
-	IconCertificate,
-	IconCertificateOff,
-	IconDownload,
-	IconFile,
-} from '@tabler/icons-react';
+import { IconCalendar, IconDownload, IconFile } from '@tabler/icons-react';
 import { useRouter } from 'nextjs-toploader/app';
 import { formatDate } from '@/shared/lib/utils/dates';
 import { DeleteButton } from '@/shared/ui/adease/DeleteButton';
@@ -48,7 +41,6 @@ export function DocumentPreviewModal({ opened, onClose, applicantDoc }: Props) {
 	const doc = applicantDoc.document;
 	const previewUrl = doc.fileUrl ?? '';
 	const isPdf = previewUrl.toLowerCase().endsWith('.pdf');
-	const isCertified = !!(doc.certifiedBy || doc.certifiedDate);
 
 	async function handleDelete() {
 		await deleteApplicantDocument(docId, previewUrl);
@@ -110,25 +102,6 @@ export function DocumentPreviewModal({ opened, onClose, applicantDoc }: Props) {
 										{formatDate(doc.createdAt)}
 									</Text>
 								</Group>
-							)}
-							{isCertified ? (
-								<Badge
-									leftSection={<IconCertificate size={12} />}
-									color='green'
-									variant='light'
-									radius='xs'
-								>
-									Certified
-								</Badge>
-							) : (
-								<Badge
-									leftSection={<IconCertificateOff size={12} />}
-									color='red'
-									variant='light'
-									radius='xs'
-								>
-									Not Certified
-								</Badge>
 							)}
 						</Group>
 

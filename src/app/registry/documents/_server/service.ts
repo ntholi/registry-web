@@ -1,10 +1,7 @@
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
 import withAuth from '@/core/platform/withAuth';
-import type { NewDocumentStamp } from '../_schema/documentStamps';
 import type { DocumentType } from '../_schema/documents';
 import DocumentRepository from './repository';
-
-type StampInput = Omit<NewDocumentStamp, 'id' | 'documentId' | 'createdAt'>;
 
 class DocumentService {
 	constructor(private readonly repository = new DocumentRepository()) {}
@@ -29,17 +26,14 @@ class DocumentService {
 		);
 	}
 
-	async create(
-		data: {
-			fileName: string;
-			fileUrl: string;
-			type: DocumentType;
-			stdNo: number;
-		},
-		stamps?: StampInput[]
-	) {
+	async create(data: {
+		fileName: string;
+		fileUrl: string;
+		type: DocumentType;
+		stdNo: number;
+	}) {
 		return withAuth(
-			async () => this.repository.createWithDocument(data, stamps),
+			async () => this.repository.createWithDocument(data),
 			['admin', 'registry', 'student_services']
 		);
 	}
@@ -47,21 +41,6 @@ class DocumentService {
 	async delete(id: string) {
 		return withAuth(
 			async () => this.repository.removeById(id),
-			['admin', 'registry', 'student_services']
-		);
-	}
-
-	async saveStamps(documentId: string, stamps: StampInput[]) {
-		return this.repository.createStamps(documentId, stamps);
-	}
-
-	async getStamps(documentId: string) {
-		return this.repository.getStampsByDocumentId(documentId);
-	}
-
-	async deleteStamps(documentId: string) {
-		return withAuth(
-			async () => this.repository.deleteStampsByDocumentId(documentId),
 			['admin', 'registry', 'student_services']
 		);
 	}

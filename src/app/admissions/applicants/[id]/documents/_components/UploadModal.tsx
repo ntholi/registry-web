@@ -142,7 +142,6 @@ export function UploadModal({
 				applicantId,
 				fileName,
 				type,
-				certification: result.certification,
 			});
 
 			if (result.category === 'identity' && type === 'identity') {

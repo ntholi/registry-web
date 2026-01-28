@@ -6,7 +6,6 @@ import { findOrCreateSubjectByName } from '@admissions/subjects';
 import type { DocumentType, DocumentVerificationStatus } from '@/core/database';
 import {
 	analyzeDocument,
-	type CertificationResult,
 	type DocumentAnalysisResult,
 } from '@/core/integrations/ai/documents';
 import { deleteDocument } from '@/core/integrations/storage';
@@ -43,52 +42,22 @@ export async function findDocumentsByType(
 	return applicantDocumentsService.findByType(applicantId, type);
 }
 
-function getCertificationDetails(cert: CertificationResult | null | undefined) {
-	if (!cert?.isCertified) return { certifiedBy: null, certifiedDate: null };
-
-	const stampsWithDates = cert.stamps.filter((s) => s.date);
-	const latestStamp =
-		stampsWithDates.sort(
-			(a, b) => new Date(b.date!).getTime() - new Date(a.date!).getTime()
-		)[0] ?? cert.stamps[0];
-	if (!latestStamp) return { certifiedBy: null, certifiedDate: null };
-
-	const certifiedBy =
-		[latestStamp.name, latestStamp.title].filter(Boolean).join(', ') || null;
-
-	return { certifiedBy, certifiedDate: latestStamp.date };
-}
-
 export async function saveApplicantDocument(data: {
 	applicantId: string;
 	fileName: string;
 	type: DocumentType;
-	certification?: CertificationResult | null;
 }) {
 	const folder = await getDocumentFolder(data.applicantId);
 	const fileUrl = `${BASE_URL}/${folder}/${data.fileName}`;
-
-	const { certifiedBy, certifiedDate } = getCertificationDetails(
-		data.certification
-	);
-
-	const stamps = data.certification?.stamps?.map((s) => ({
-		date: s.date,
-		name: s.name,
-		title: s.title,
-	}));
 
 	return applicantDocumentsService.uploadDocument(
 		{
 			fileName: data.fileName,
 			fileUrl,
 			type: data.type,
-			certifiedDate,
-			certifiedBy,
 		},
 		data.applicantId,
-		0,
-		stamps
+		0
 	);
 }
 

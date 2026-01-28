@@ -169,10 +169,6 @@ export function useApplicant({
 		currentApplication?.intakePeriod?.maxDocuments ??
 		activeIntake?.maxDocuments ??
 		18;
-	const certificationValidDays =
-		currentApplication?.intakePeriod?.certificationValidDays ??
-		activeIntake?.certificationValidDays ??
-		undefined;
 
 	const documentLimits = useMemo(
 		() => computeDocumentLimits(query.data, maxDocuments),
@@ -198,7 +194,6 @@ export function useApplicant({
 		currentApplication,
 		activeIntake,
 		documentLimits,
-		certificationValidDays,
 		nextStepUrl,
 	};
 }

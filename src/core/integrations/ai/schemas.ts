@@ -1,32 +1,11 @@
 import { z } from 'zod';
 
-const stampSchema = z.object({
-	date: z
-		.string()
-		.nullable()
-		.describe('Date on this stamp in YYYY-MM-DD format'),
-	name: z
-		.string()
-		.nullable()
-		.describe('Name of person or organization from this stamp'),
-	title: z
-		.string()
-		.nullable()
-		.describe(
-			'Title or position from stamp (e.g., Commissioner of Oaths, Notary Public)'
-		),
-});
-
 const certificationSchema = z.object({
 	isCertified: z
 		.boolean()
 		.describe(
-			'Whether the document has visible certification (stamp AND signature required)'
+			'Whether the document has visible certification (stamp, seal, or official mark)'
 		),
-	hasSignature: z
-		.boolean()
-		.describe('Whether a signature is present alongside the stamp'),
-	stamps: z.array(stampSchema).describe('All stamps found on the document'),
 });
 
 const identitySchema = z.object({
@@ -216,5 +195,4 @@ export {
 	otherSchema,
 	receiptSchema,
 	certificationSchema,
-	stampSchema,
 };

@@ -35,7 +35,6 @@ export async function uploadIdentityDocument(
 			applicantId,
 			fileName,
 			type: 'identity',
-			certification: analysis.certification,
 		});
 
 		await updateApplicantFromIdentity(applicantId, {
