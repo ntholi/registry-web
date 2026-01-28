@@ -1,6 +1,12 @@
 import { eq } from 'drizzle-orm';
 import { nanoid } from 'nanoid';
-import { db, documents, studentDocuments } from '@/core/database';
+import {
+	db,
+	documentStamps,
+	documents,
+	studentDocuments,
+} from '@/core/database';
+import type { NewDocumentStamp } from '../_schema/documentStamps';
 import type { DocumentType } from '../_schema/documents';
 
 export default class DocumentRepository {
@@ -66,6 +72,36 @@ export default class DocumentRepository {
 
 			return studentDoc;
 		});
+	}
+
+	async createStamps(
+		documentId: string,
+		stamps: Omit<NewDocumentStamp, 'id' | 'documentId' | 'createdAt'>[]
+	) {
+		if (stamps.length === 0) return [];
+
+		const values = stamps.map((stamp) => ({
+			id: nanoid(),
+			documentId,
+			date: stamp.date,
+			name: stamp.name,
+			title: stamp.title,
+		}));
+
+		return this.db.insert(documentStamps).values(values).returning();
+	}
+
+	async getStampsByDocumentId(documentId: string) {
+		return this.db.query.documentStamps.findMany({
+			where: eq(documentStamps.documentId, documentId),
+			orderBy: (stamps, { desc }) => [desc(stamps.date)],
+		});
+	}
+
+	async deleteStampsByDocumentId(documentId: string) {
+		return this.db
+			.delete(documentStamps)
+			.where(eq(documentStamps.documentId, documentId));
 	}
 }
 

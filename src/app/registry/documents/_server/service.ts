@@ -1,5 +1,6 @@
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
 import withAuth from '@/core/platform/withAuth';
+import type { NewDocumentStamp } from '../_schema/documentStamps';
 import type { DocumentType } from '../_schema/documents';
 import DocumentRepository from './repository';
 
@@ -41,6 +42,24 @@ class DocumentService {
 	async delete(id: string) {
 		return withAuth(
 			async () => this.repository.removeById(id),
+			['admin', 'registry', 'student_services']
+		);
+	}
+
+	async saveStamps(
+		documentId: string,
+		stamps: Omit<NewDocumentStamp, 'id' | 'documentId' | 'createdAt'>[]
+	) {
+		return this.repository.createStamps(documentId, stamps);
+	}
+
+	async getStamps(documentId: string) {
+		return this.repository.getStampsByDocumentId(documentId);
+	}
+
+	async deleteStamps(documentId: string) {
+		return withAuth(
+			async () => this.repository.deleteStampsByDocumentId(documentId),
 			['admin', 'registry', 'student_services']
 		);
 	}

@@ -46,13 +46,17 @@ export async function findDocumentsByType(
 function getCertificationDetails(cert: CertificationResult | null | undefined) {
 	if (!cert?.isCertified) return { certifiedBy: null, certifiedDate: null };
 
-	const nonEcolStamp = cert.stamps.find((s) => !s.isEcol);
-	if (!nonEcolStamp) return { certifiedBy: null, certifiedDate: null };
+	const stampsWithDates = cert.stamps.filter((s) => s.date);
+	const latestStamp =
+		stampsWithDates.sort(
+			(a, b) => new Date(b.date!).getTime() - new Date(a.date!).getTime()
+		)[0] ?? cert.stamps[0];
+	if (!latestStamp) return { certifiedBy: null, certifiedDate: null };
 
 	const certifiedBy =
-		[nonEcolStamp.name, nonEcolStamp.title].filter(Boolean).join(', ') || null;
+		[latestStamp.name, latestStamp.title].filter(Boolean).join(', ') || null;
 
-	return { certifiedBy, certifiedDate: nonEcolStamp.date };
+	return { certifiedBy, certifiedDate: latestStamp.date };
 }
 
 export async function saveApplicantDocument(data: {

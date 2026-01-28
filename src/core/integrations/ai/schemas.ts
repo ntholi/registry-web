@@ -15,18 +15,13 @@ const stampSchema = z.object({
 		.describe(
 			'Title or position from stamp (e.g., Commissioner of Oaths, Notary Public)'
 		),
-	isEcol: z
-		.boolean()
-		.describe(
-			'Whether this stamp is from ECoL (Examinations Council of Lesotho)'
-		),
 });
 
 const certificationSchema = z.object({
 	isCertified: z
 		.boolean()
 		.describe(
-			'Whether the document has visible certification (non-ECoL stamp AND signature required)'
+			'Whether the document has visible certification (stamp AND signature required)'
 		),
 	hasSignature: z
 		.boolean()
