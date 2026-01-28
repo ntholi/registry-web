@@ -1,6 +1,6 @@
 import { Stack } from '@mantine/core';
-import { notFound, redirect } from 'next/navigation';
-import { deleteApplicant, getApplicant } from '../_server/actions';
+import { notFound } from 'next/navigation';
+import { getApplicant } from '../_server/actions';
 import ApplicantHeader from './_components/ApplicantHeader';
 import ApplicantTabs from './_components/ApplicantTabs';
 
@@ -16,12 +16,6 @@ export default async function ApplicantDetails({ params }: Props) {
 		return notFound();
 	}
 
-	async function handleDelete() {
-		'use server';
-		await deleteApplicant(id);
-		redirect('/admissions/applicants');
-	}
-
 	return (
 		<Stack gap='lg' p={{ base: 'sm', md: 'lg' }}>
 			<ApplicantHeader
@@ -31,7 +25,6 @@ export default async function ApplicantDetails({ params }: Props) {
 				nationality={item.nationality}
 				gender={item.gender}
 				nationalId={item.nationalId}
-				onDelete={handleDelete}
 			/>
 
 			<ApplicantTabs applicant={item} />

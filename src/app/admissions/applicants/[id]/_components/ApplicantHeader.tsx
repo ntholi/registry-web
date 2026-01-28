@@ -10,12 +10,13 @@ import {
 	Text,
 	Title,
 } from '@mantine/core';
-import { IconEdit, IconTrash } from '@tabler/icons-react';
+import { IconEdit } from '@tabler/icons-react';
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
 import { type GenderType, getGenderColor } from '@/shared/lib/utils/colors';
 import { calculateAge, formatDate } from '@/shared/lib/utils/dates';
 import { DeleteButton } from '@/shared/ui/adease/DeleteButton';
+import { deleteApplicant } from '../../_server/actions';
 import CreateApplicationModal from './CreateApplicationModal';
 
 type Props = {
@@ -25,7 +26,6 @@ type Props = {
 	nationality: string | null;
 	gender: string | null;
 	nationalId: string | null;
-	onDelete: () => Promise<void>;
 };
 
 export default function ApplicantHeader({
@@ -35,11 +35,9 @@ export default function ApplicantHeader({
 	nationality,
 	gender,
 	nationalId,
-	onDelete,
 }: Props) {
 	const { data: session } = useSession();
-	const canDelete =
-		session?.user?.role === 'admin' || session?.user?.role === 'registry';
+	const canDelete = session?.user?.role === 'admin';
 	const age = calculateAge(dateOfBirth);
 	const initials = fullName
 		.split(' ')
@@ -97,6 +95,7 @@ export default function ApplicantHeader({
 					<Group gap='xs'>
 						<ActionIcon
 							variant='subtle'
+							color='gray'
 							component={Link}
 							href={`/admissions/applicants/${id}/edit`}
 						>
@@ -104,14 +103,12 @@ export default function ApplicantHeader({
 						</ActionIcon>
 						{canDelete && (
 							<DeleteButton
-								handleDelete={onDelete}
+								handleDelete={async () => {
+									await deleteApplicant(id);
+								}}
 								itemName={fullName}
 								itemType='Applicant'
-							>
-								<ActionIcon variant='subtle' color='red'>
-									<IconTrash size={18} />
-								</ActionIcon>
-							</DeleteButton>
+							/>
 						)}
 					</Group>
 					<CreateApplicationModal applicantId={id} />
