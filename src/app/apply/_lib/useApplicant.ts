@@ -9,6 +9,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { useEffect, useMemo } from 'react';
+import { computeWizardStep } from './wizard-utils';
 
 export type ApplicantWithRelations = NonNullable<
 	Awaited<ReturnType<typeof getApplicant>>
@@ -98,7 +99,6 @@ function computeDocumentLimits(
 
 function computeNextStepUrl(
 	applicant: ApplicantWithRelations | null | undefined,
-	completeness: CompletenessResult,
 	currentApplication: ApplicantWithRelations['applications'][number] | null
 ): string {
 	if (!applicant) {
@@ -113,17 +113,7 @@ function computeNextStepUrl(
 		return '/apply/profile';
 	}
 
-	const { hasIdentity, hasQualifications, hasFirstChoice, hasPersonalInfo } =
-		completeness;
-
-	let step = 'documents';
-	if (hasIdentity) step = 'qualifications';
-	if (hasIdentity && hasQualifications) step = 'program';
-	if (hasIdentity && hasQualifications && hasFirstChoice)
-		step = 'personal-info';
-	if (hasIdentity && hasQualifications && hasFirstChoice && hasPersonalInfo)
-		step = 'review';
-
+	const step = computeWizardStep(applicant, currentApplication);
 	return `/apply/${currentApplication.id}/${step}`;
 }
 
@@ -182,8 +172,8 @@ export function useApplicant() {
 	);
 
 	const nextStepUrl = useMemo(
-		() => computeNextStepUrl(query.data, completeness, currentApplication),
-		[query.data, completeness, currentApplication]
+		() => computeNextStepUrl(query.data, currentApplication),
+		[query.data, currentApplication]
 	);
 
 	const isDataReady =
