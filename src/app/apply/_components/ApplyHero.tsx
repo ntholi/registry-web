@@ -40,16 +40,18 @@ function ApplyButton({
 		);
 	}
 
+	const isNewUser = nextStepUrl === '/apply/welcome';
+
 	return (
 		<Button
 			component={Link}
-			href='/apply/welcome'
+			href={nextStepUrl}
 			size='md'
 			radius='xl'
-			rightSection={<IconArrowRight size={20} />}
+			rightSection={isNewUser ? <IconArrowRight size={20} /> : undefined}
 			variant='gradient'
 		>
-			Apply Now
+			{isNewUser ? 'Apply Now' : 'Continue Application'}
 		</Button>
 	);
 }

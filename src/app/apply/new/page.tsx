@@ -7,6 +7,27 @@ import { findActiveIntakePeriod } from '@admissions/intake-periods';
 import { redirect } from 'next/navigation';
 import { auth } from '@/core/auth';
 
+function computeWizardStep(
+	applicant: Awaited<ReturnType<typeof getOrCreateApplicantForCurrentUser>>,
+	application?: { firstChoiceProgramId: number | null }
+) {
+	if (!applicant) return 'documents';
+
+	const hasIdentity = applicant.documents.some(
+		(d) => d.document.type === 'identity'
+	);
+	const hasQualifications = applicant.academicRecords.length > 0;
+	const hasFirstChoice = !!application?.firstChoiceProgramId;
+	const hasPersonalInfo =
+		!!applicant.fullName && applicant.guardians.length > 0;
+
+	if (!hasIdentity) return 'documents';
+	if (!hasQualifications) return 'qualifications';
+	if (!hasFirstChoice) return 'program';
+	if (!hasPersonalInfo) return 'personal-info';
+	return 'review';
+}
+
 export default async function ApplyNewPage() {
 	const session = await auth();
 
@@ -37,11 +58,14 @@ export default async function ApplyNewPage() {
 	);
 
 	if (existingForIntake) {
-		if (existingForIntake.status === 'draft') {
-			redirect(`/apply/${existingForIntake.id}/documents`);
+		const step = computeWizardStep(applicant, existingForIntake);
+
+		if (existingForIntake.status === 'submitted') {
+			redirect(`/apply/${existingForIntake.id}/thank-you`);
 		}
-		redirect(`/apply/${existingForIntake.id}/thank-you`);
+		redirect(`/apply/${existingForIntake.id}/${step}`);
 	}
 
-	redirect('/apply/wizard/documents');
+	const step = computeWizardStep(applicant);
+	redirect(`/apply/draft/${step}`);
 }

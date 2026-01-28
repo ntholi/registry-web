@@ -101,8 +101,12 @@ function computeNextStepUrl(
 	completeness: CompletenessResult,
 	currentApplication: ApplicantWithRelations['applications'][number] | null
 ): string {
-	if (!applicant || !currentApplication) {
+	if (!applicant) {
 		return '/apply/welcome';
+	}
+
+	if (!currentApplication) {
+		return '/apply/new';
 	}
 
 	if (currentApplication.status === 'submitted') {
@@ -182,9 +186,13 @@ export function useApplicant() {
 		[query.data, completeness, currentApplication]
 	);
 
+	const isDataReady =
+		eligibilityQuery.isSuccess &&
+		(eligibilityQuery.data?.canApply === false || query.isSuccess);
+
 	return {
 		applicant: query.data,
-		isLoading: query.isLoading || eligibilityQuery.isLoading,
+		isLoading: !isDataReady,
 		isSuccess: query.isSuccess,
 		error: query.error,
 		refetch: query.refetch,
