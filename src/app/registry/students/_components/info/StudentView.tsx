@@ -220,7 +220,7 @@ export default function StudentView({ student }: Props) {
 										(['admin', 'registry'] as UserRole[]).includes(
 											session.user.role
 										) && (
-											<Box pt={18}>
+											<Box pt={15}>
 												<EditStructureModal
 													stdNo={student.stdNo}
 													programId={activePrograms[0].structure.programId}

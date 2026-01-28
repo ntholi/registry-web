@@ -107,3 +107,10 @@ export async function removeGuardianPhone(phoneId: string) {
 export async function getEligibleProgramsForApplicant(applicantId: string) {
 	return applicantsService.findEligiblePrograms(applicantId);
 }
+
+export async function updateApplicantUserId(
+	applicantId: string,
+	userId: string | null
+) {
+	return applicantsService.updateUserId(applicantId, userId);
+}
