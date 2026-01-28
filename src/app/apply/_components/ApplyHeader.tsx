@@ -17,8 +17,12 @@ import Link from 'next/link';
 import { signOut, useSession } from 'next-auth/react';
 import { useApplicant } from '../_lib/useApplicant';
 
-export default function ApplyHeader() {
-	const { applicant } = useApplicant();
+type Props = {
+	redirectIfRestricted?: boolean;
+};
+
+export default function ApplyHeader({ redirectIfRestricted = true }: Props) {
+	const { applicant } = useApplicant({ redirectIfRestricted });
 	const applicantId = applicant?.id;
 	const { colorScheme } = useMantineColorScheme();
 	const isDark = colorScheme === 'dark';

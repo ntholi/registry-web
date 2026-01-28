@@ -56,12 +56,18 @@ function ApplyButton({
 	);
 }
 
-export default function HeroSection() {
+export default function HeroSection({
+	redirectIfRestricted = true,
+}: {
+	redirectIfRestricted?: boolean;
+}) {
 	const { colorScheme } = useMantineColorScheme();
 	const { status } = useSession();
 	const isDark = colorScheme === 'dark';
 
-	const { currentApplication, nextStepUrl, isLoading } = useApplicant();
+	const { currentApplication, nextStepUrl, isLoading } = useApplicant({
+		redirectIfRestricted,
+	});
 
 	return (
 		<Container

@@ -117,7 +117,11 @@ function computeNextStepUrl(
 	return `/apply/${currentApplication.id}/${step}`;
 }
 
-export function useApplicant() {
+export function useApplicant({
+	redirectIfRestricted = true,
+}: {
+	redirectIfRestricted?: boolean;
+} = {}) {
 	const { data: session } = useSession();
 	const router = useRouter();
 	const userId = session?.user?.id;
@@ -130,10 +134,14 @@ export function useApplicant() {
 	});
 
 	useEffect(() => {
-		if (eligibilityQuery.data && !eligibilityQuery.data.canApply) {
+		if (
+			redirectIfRestricted &&
+			eligibilityQuery.data &&
+			!eligibilityQuery.data.canApply
+		) {
 			router.replace('/apply/restricted');
 		}
-	}, [eligibilityQuery.data, router]);
+	}, [eligibilityQuery.data, router, redirectIfRestricted]);
 
 	const query = useQuery({
 		queryKey: ['applicant', 'user', userId],

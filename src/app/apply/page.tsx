@@ -15,8 +15,8 @@ export default function ApplyPage() {
 					flexDirection: 'column',
 				}}
 			>
-				<ApplyHeader />
-				<ApplyHero />
+				<ApplyHeader redirectIfRestricted={false} />
+				<ApplyHero redirectIfRestricted={false} />
 			</Box>
 			<Footer />
 		</>
