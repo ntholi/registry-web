@@ -203,8 +203,11 @@ export default function EditRegistrationPage() {
 
 	const nextStep = () => {
 		if (activeStep === 0 && selectedModules.length > 0) {
-			if (semesterStatus) {
-				setSemesterData(semesterStatus);
+			if (semesterStatus && semesterData) {
+				setSemesterData({
+					semesterNo: semesterData.semesterNo,
+					status: semesterStatus.status,
+				});
 			}
 			setActiveStep(1);
 		} else if (activeStep === 1 && semesterData) {
