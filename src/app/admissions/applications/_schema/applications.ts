@@ -38,9 +38,9 @@ export const applications = pgTable(
 		intakePeriodId: text()
 			.references(() => intakePeriods.id, { onDelete: 'restrict' })
 			.notNull(),
-		firstChoiceProgramId: integer()
-			.references(() => programs.id, { onDelete: 'restrict' })
-			.notNull(),
+		firstChoiceProgramId: integer().references(() => programs.id, {
+			onDelete: 'restrict',
+		}),
 		secondChoiceProgramId: integer().references(() => programs.id, {
 			onDelete: 'restrict',
 		}),

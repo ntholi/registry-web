@@ -143,8 +143,9 @@ export default async function ApplicationDetails({ params }: Props) {
 										First Choice
 									</Text>
 									<Text fw={500}>
-										{item.firstChoiceProgram.code} -{' '}
-										{item.firstChoiceProgram.name}
+										{item.firstChoiceProgram
+											? `${item.firstChoiceProgram.code} - ${item.firstChoiceProgram.name}`
+											: 'Program not selected yet'}
 									</Text>
 								</Stack>
 							</Card>

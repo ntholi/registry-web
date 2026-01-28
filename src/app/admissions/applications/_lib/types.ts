@@ -36,7 +36,7 @@ export type ApplicationWithRelations = Application & {
 		id: number;
 		name: string;
 		code: string;
-	};
+	} | null;
 	secondChoiceProgram: {
 		id: number;
 		name: string;

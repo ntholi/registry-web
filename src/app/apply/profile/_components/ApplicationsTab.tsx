@@ -45,6 +45,13 @@ export function ApplicationsTab({ applications }: Props) {
 }
 
 function ApplicationCard({ application }: { application: Application }) {
+	const programLabel =
+		application.firstChoiceProgram?.name ?? 'Program not selected';
+	const schoolLabel =
+		application.firstChoiceProgram?.school?.shortName ??
+		application.firstChoiceProgram?.code ??
+		'Select a program';
+
 	return (
 		<Card
 			component={Link}
@@ -56,7 +63,7 @@ function ApplicationCard({ application }: { application: Application }) {
 				<Stack gap={4} style={{ flex: 1 }}>
 					<Box pos={'relative'}>
 						<Text size='lg' lineClamp={1}>
-							{application.firstChoiceProgram.name}
+							{programLabel}
 						</Text>
 						<Badge
 							pos='absolute'
@@ -73,8 +80,7 @@ function ApplicationCard({ application }: { application: Application }) {
 					<Group gap='xs'>
 						<IconSchool size={16} color='var(--mantine-color-dimmed)' />
 						<Text size='sm' c='dimmed' fw={500}>
-							{application.firstChoiceProgram.school?.shortName ??
-								application.firstChoiceProgram.code}
+							{schoolLabel}
 						</Text>
 					</Group>
 				</Stack>
