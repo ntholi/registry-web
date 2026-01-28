@@ -245,11 +245,19 @@ export async function analyzeAcademicDocument(
 
 	const nameInstruction = applicantName
 		? `\n\nNAME VERIFICATION:\nThe expected applicant name is: "${applicantName}"
-Compare this with the student name on the document and set nameMatchConfidence (0-100):
-- 100: Names are identical or have minor formatting differences
-- 80-99: Names are clearly the same person (slight spelling variations, OCR errors)
-- 50-79: Names are similar but uncertain
-- 0-49: Names are clearly different people`
+Compare this with the student name on the document and set nameMatchConfidence (0-100).
+
+IMPORTANT: Names can appear in different formats but still belong to the same person:
+- Different order: "Thabo Lebese" = "Lebese Thabo"
+- With/without middle names: "Thabo Lebese" = "Thabo David Lebese"
+- Combined variations: "Thabo Lebese" = "Lebese Thabo David"
+
+Scoring guide:
+- 100: Names are identical
+- 90-99: Same person - names share all key parts (first name + surname match, possibly different order or extra middle name)
+- 80-89: Very likely same person - minor OCR/spelling variations (1-2 characters different)
+- 50-79: Uncertain - some parts match but significant differences
+- 0-49: Different people - no clear match`
 		: '';
 
 	try {
