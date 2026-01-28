@@ -27,6 +27,7 @@ import Link from '@/shared/ui/Link';
 import type { getStudent } from '../../_server/actions';
 import EditStudentUserModal from '../academics/EditStudentUserModal';
 import AcademicSummary from './AcademicSummary';
+import EditStructureModal from './EditStructureModal';
 import PhotoView from './PhotoView';
 
 type Props = {
@@ -208,13 +209,28 @@ export default function StudentView({ student }: Props) {
 								/>
 							</Grid.Col>
 							<Grid.Col span={{ base: 12, sm: 3 }}>
-								<Flex justify='flex-end'>
+								<Flex justify='flex-end' gap='xs'>
 									<InfoItem
 										label='Structure'
 										value={activePrograms[0].structure.code}
 										href={`/academic/schools/structures/${activePrograms[0].structureId}`}
 										copyable={false}
 									/>
+									{session?.user?.role &&
+										(['admin', 'registry'] as UserRole[]).includes(
+											session.user.role
+										) && (
+											<Box pt={18}>
+												<EditStructureModal
+													stdNo={student.stdNo}
+													programId={activePrograms[0].structure.programId}
+													currentStructureId={activePrograms[0].structureId}
+													currentStructureCode={
+														activePrograms[0].structure.code
+													}
+												/>
+											</Box>
+										)}
 								</Flex>
 							</Grid.Col>
 						</Grid>
