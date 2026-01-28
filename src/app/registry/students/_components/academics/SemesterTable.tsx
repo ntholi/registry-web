@@ -13,6 +13,7 @@ import {
 	useComputedColorScheme,
 } from '@mantine/core';
 import type { Grade, StudentModuleStatus } from '@registry/_database';
+import type { Session } from 'next-auth';
 import { useSession } from 'next-auth/react';
 import {
 	getGradeColor,
@@ -60,13 +61,6 @@ export default function SemesterTable({
 
 	const canEdit =
 		session?.user?.role === 'registry' || session?.user?.role === 'admin';
-
-	const canViewAssessmentMarks =
-		session?.user?.role === 'admin' ||
-		(session?.user?.role === 'registry' &&
-			session?.user?.position === 'manager') ||
-		(session?.user?.role === 'academic' &&
-			session?.user?.position === 'manager');
 
 	const getModulesWithFailHistory = (moduleCode: string) => {
 		if (!allSemesters) return false;
@@ -291,7 +285,7 @@ export default function SemesterTable({
 								</Table.Td>
 								{showMarks && (
 									<Table.Td>
-										{canViewAssessmentMarks ? (
+										{canViewAssessmentMarks(session) ? (
 											<AssessmentMarksModal
 												studentModuleId={module.id}
 												moduleCode={module.code}
@@ -306,10 +300,11 @@ export default function SemesterTable({
 										)}
 									</Table.Td>
 								)}
-								<Table.Td>
+								<Table.Td ta={'center'}>
 									<Badge
 										size='sm'
 										variant='light'
+										w={module.grade.length > 2 ? 42 : undefined}
 										color={getGradeColor(module.grade)}
 										style={isDroppedOrDeleted ? { opacity: 0.7 } : undefined}
 									>
@@ -323,4 +318,19 @@ export default function SemesterTable({
 			</Table>
 		</Table.ScrollContainer>
 	);
+}
+
+function canViewAssessmentMarks(session: Session | undefined | null) {
+	const role = session?.user?.role;
+	const position = session?.user?.position;
+
+	if (role === 'admin') {
+		return true;
+	}
+	if (role === 'registry' && position === 'manager') {
+		return true;
+	}
+	if (role === 'academic' && ['manager', 'program_leader'].includes(position)) {
+		return true;
+	}
 }
