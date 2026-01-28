@@ -14,7 +14,7 @@ import {
 	receiptSchema,
 } from './schemas';
 
-const model = google('gemini-2.5-flash');
+const model = google('gemini-3-flash-preview');
 
 export type IdentityDocumentResult = z.infer<typeof identitySchema>;
 export type CertificateDocumentResult = z.infer<typeof academicSchema>;
