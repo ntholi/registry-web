@@ -31,7 +31,7 @@ export default function QualificationsUploadForm({ applicationId }: Props) {
 	const [uploadKey, setUploadKey] = useState(0);
 	const [pendingUploads, setPendingUploads] = useState(0);
 
-	const { applicant, refetch, documentLimits } = useApplicant();
+	const { applicant, refetch, documentLimits, isLoading } = useApplicant();
 	const applicantId = applicant?.id ?? '';
 
 	const records = applicant?.academicRecords ?? [];
@@ -93,7 +93,7 @@ export default function QualificationsUploadForm({ applicationId }: Props) {
 
 	const showUploadedSection = records.length > 0 || pendingUploads > 0;
 	const uploadDisabled =
-		uploading || documentLimits.isAtLimit || pendingUploads > 0;
+		isLoading || uploading || documentLimits.isAtLimit || pendingUploads > 0;
 
 	return (
 		<Paper withBorder radius='md' p='lg'>
