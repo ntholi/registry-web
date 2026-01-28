@@ -14,12 +14,19 @@ import {
 	requestedModules,
 	structureSemesters,
 	structures,
+	studentModules,
 	studentPrograms,
 	studentSemesters,
 } from '@/core/database';
 import BaseRepository, {
 	type QueryOptions,
 } from '@/core/platform/BaseRepository';
+
+type Transaction = Parameters<(typeof db)['transaction']>[0] extends (
+	tx: infer T
+) => Promise<unknown>
+	? T
+	: never;
 
 export interface ClearanceFilterOptions {
 	termId?: number;
@@ -138,6 +145,13 @@ export default class ClearanceRepository extends BaseRepository<
 						message: data.message,
 						modules: modulesList.map((rm) => rm.semesterModule.module!.code),
 					});
+
+					if (data.status === 'approved') {
+						await this.finalizeIfAllApproved(
+							tx,
+							regClearance.registrationRequestId
+						);
+					}
 				}
 			}
 
@@ -145,6 +159,110 @@ export default class ClearanceRepository extends BaseRepository<
 		});
 
 		return updated;
+	}
+
+	private async finalizeIfAllApproved(
+		tx: Transaction,
+		registrationRequestId: number
+	) {
+		const allClearances = await tx.query.registrationClearance.findMany({
+			where: eq(
+				registrationClearance.registrationRequestId,
+				registrationRequestId
+			),
+			with: { clearance: true },
+		});
+
+		const allApproved = allClearances.every(
+			(c) => c.clearance.status === 'approved'
+		);
+		if (!allApproved) return;
+
+		const request = await tx.query.registrationRequests.findFirst({
+			where: eq(registrationRequests.id, registrationRequestId),
+			with: {
+				term: true,
+				student: {
+					with: {
+						programs: {
+							where: eq(studentPrograms.status, 'Active'),
+							limit: 1,
+							with: {
+								structure: {
+									with: {
+										semesters: true,
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		});
+
+		if (!request) throw new Error('Registration request not found');
+		if (request.status === 'registered') return;
+
+		const activeProgram = request.student.programs[0];
+		if (!activeProgram) throw new Error('No active program found for student');
+
+		const structureSemester = activeProgram.structure.semesters.find(
+			(s) => s.semesterNumber === request.semesterNumber
+		);
+		if (!structureSemester)
+			throw new Error(
+				`Structure semester not found for semester ${request.semesterNumber}`
+			);
+
+		const pendingModules = await tx.query.requestedModules.findMany({
+			where: and(
+				eq(requestedModules.registrationRequestId, registrationRequestId),
+				eq(requestedModules.status, 'pending')
+			),
+			with: {
+				semesterModule: true,
+			},
+		});
+
+		const [semester] = await tx
+			.insert(studentSemesters)
+			.values({
+				termCode: request.term.code,
+				structureSemesterId: structureSemester.id,
+				status: request.semesterStatus,
+				studentProgramId: activeProgram.id,
+				registrationRequestId: request.id,
+				sponsorId: request.sponsoredStudentId,
+			})
+			.returning();
+
+		if (pendingModules.length > 0) {
+			await tx.insert(studentModules).values(
+				pendingModules.map((rm) => ({
+					semesterModuleId: rm.semesterModuleId,
+					status: rm.moduleStatus,
+					marks: 'NM',
+					grade: 'NM' as const,
+					credits: rm.semesterModule.credits,
+					studentSemesterId: semester.id,
+				}))
+			);
+		}
+
+		await tx
+			.update(requestedModules)
+			.set({ status: 'registered' })
+			.where(
+				and(
+					eq(requestedModules.registrationRequestId, registrationRequestId),
+					eq(requestedModules.status, 'pending')
+				)
+			);
+
+		await tx
+			.update(registrationRequests)
+			.set({ status: 'registered', dateRegistered: new Date() })
+			.where(eq(registrationRequests.id, registrationRequestId));
 	}
 
 	async findByIdWithRelations(id: number) {
