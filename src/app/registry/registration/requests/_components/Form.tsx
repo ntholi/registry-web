@@ -118,6 +118,7 @@ export default function RegistrationRequestForm({
 		status: StudentModuleStatus;
 	} | null>(null);
 	const [repeatReceipt, setRepeatReceipt] = useState('');
+	const [isTuitionFeeValid, setIsTuitionFeeValid] = useState(true);
 	const [
 		repeatModalOpened,
 		{ open: openRepeatModal, close: closeRepeatModal },
@@ -272,7 +273,12 @@ export default function RegistrationRequestForm({
 	return (
 		<Form
 			title={title}
-			action={(values: RegistrationRequest) => onSubmit(values)}
+			action={(values: RegistrationRequest) => {
+				if (!isTuitionFeeValid) {
+					throw new Error('Please add at least one tuition fee receipt');
+				}
+				return onSubmit(values);
+			}}
 			queryKey={['registration-requests']}
 			defaultValues={{
 				...defaultValues,
@@ -486,6 +492,7 @@ export default function RegistrationRequestForm({
 							onTuitionFeeReceiptsChange={(receipts) =>
 								form.setFieldValue('tuitionFeeReceipts', receipts)
 							}
+							onReceiptValidationChange={setIsTuitionFeeValid}
 							disabled={!structureId}
 						/>
 

@@ -3,12 +3,12 @@
 import { findAllSponsors } from '@finance/sponsors';
 import {
 	ActionIcon,
+	Box,
 	Button,
 	Card,
 	Grid,
 	GridCol,
 	Group,
-	Modal,
 	Paper,
 	Select,
 	SimpleGrid,
@@ -17,10 +17,9 @@ import {
 	TextInput,
 	Title,
 } from '@mantine/core';
-import { useDisclosure } from '@mantine/hooks';
 import { IconPlus, IconTrash } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ReceiptInput } from '@/shared/ui/adease';
 
 interface SponsorInputProps {
@@ -34,6 +33,7 @@ interface SponsorInputProps {
 	onAccountNumberChange: (accountNumber: string) => void;
 	tuitionFeeReceipts?: string[];
 	onTuitionFeeReceiptsChange?: (receipts: string[]) => void;
+	onReceiptValidationChange?: (isValid: boolean) => void;
 	disabled?: boolean;
 }
 
@@ -48,12 +48,9 @@ export default function SponsorInput({
 	onAccountNumberChange,
 	tuitionFeeReceipts = [],
 	onTuitionFeeReceiptsChange,
+	onReceiptValidationChange,
 	disabled,
 }: SponsorInputProps) {
-	const [
-		receiptModalOpened,
-		{ open: openReceiptModal, close: closeReceiptModal },
-	] = useDisclosure(false);
 	const [receiptValue, setReceiptValue] = useState('');
 
 	const { data: sponsors } = useQuery({
@@ -79,6 +76,14 @@ export default function SponsorInput({
 		return sponsors.find((s) => s.id === id)?.code === 'PRV';
 	};
 
+	const requiresReceipt = sponsorId && isPRV(sponsorId);
+	const hasValidReceipts = tuitionFeeReceipts.filter(Boolean).length > 0;
+
+	useEffect(() => {
+		const isValid = !requiresReceipt || hasValidReceipts;
+		onReceiptValidationChange?.(isValid);
+	}, [requiresReceipt, hasValidReceipts, onReceiptValidationChange]);
+
 	const handleAddTuitionReceipt = () => {
 		if (
 			receiptValue.trim() &&
@@ -88,20 +93,14 @@ export default function SponsorInput({
 				...tuitionFeeReceipts,
 				receiptValue.trim(),
 			]);
+			setReceiptValue('');
 		}
-		setReceiptValue('');
-		closeReceiptModal();
 	};
 
 	const handleRemoveTuitionReceipt = (index: number) => {
 		onTuitionFeeReceiptsChange?.(
 			tuitionFeeReceipts.filter((_, i) => i !== index)
 		);
-	};
-
-	const handleOpenReceiptModal = () => {
-		setReceiptValue('');
-		openReceiptModal();
 	};
 
 	return (
@@ -164,19 +163,28 @@ export default function SponsorInput({
 			{sponsorId && isPRV(sponsorId) && (
 				<Paper withBorder p='md'>
 					<Stack gap='md'>
-						<Group justify='space-between'>
-							<div>
-								<Title order={5}>Payment Receipt</Title>
-								<Text size='sm' c='dimmed'>
-									Tuition fee payment receipts.
-								</Text>
-							</div>
+						<div>
+							<Title order={5}>Payment Receipt</Title>
+							<Text size='sm' c='dimmed'>
+								Tuition fee payment receipts (required).
+							</Text>
+						</div>
+
+						<Group align='flex-end'>
+							<Box style={{ flex: 1 }}>
+								<ReceiptInput
+									label='Receipt Number'
+									value={receiptValue}
+									onChange={setReceiptValue}
+								/>
+							</Box>
 							<Button
 								variant='light'
 								leftSection={<IconPlus size={16} />}
-								onClick={handleOpenReceiptModal}
+								onClick={handleAddTuitionReceipt}
+								disabled={!receiptValue.trim()}
 							>
-								Add Receipt
+								Add
 							</Button>
 						</Group>
 
@@ -209,36 +217,6 @@ export default function SponsorInput({
 					</Stack>
 				</Paper>
 			)}
-
-			<Modal
-				opened={receiptModalOpened}
-				onClose={closeReceiptModal}
-				title='Add Tuition Fee Receipt'
-				centered
-			>
-				<Stack gap='md'>
-					<Text size='sm'>
-						Please enter the receipt number for your tuition fee payment.
-					</Text>
-					<ReceiptInput
-						label='Receipt Number'
-						value={receiptValue}
-						onChange={setReceiptValue}
-						required
-					/>
-					<Group justify='flex-end' gap='sm'>
-						<Button variant='default' onClick={closeReceiptModal}>
-							Cancel
-						</Button>
-						<Button
-							onClick={handleAddTuitionReceipt}
-							disabled={!receiptValue.trim()}
-						>
-							Add Receipt
-						</Button>
-					</Group>
-				</Stack>
-			</Modal>
 		</Stack>
 	);
 }
