@@ -54,7 +54,7 @@ export default function UserInput({
 
 	const options = users.map((user) => ({
 		value: `${user.id}:${user.name || user.email}`,
-		label: `${user.name || 'Unnamed User'} (${user.email})`,
+		label: `${user.email}`,
 	}));
 
 	return (
