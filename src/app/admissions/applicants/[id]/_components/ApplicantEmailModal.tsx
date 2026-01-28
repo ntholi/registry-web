@@ -75,7 +75,8 @@ export default function ApplicantEmailModal({
 			<Modal opened={opened} onClose={close} title='Edit User' size='md'>
 				<Stack gap='md'>
 					<Text size='sm' c='dimmed'>
-						Select a user to associate with this applicant.
+						Select a user to associate with this applicant, or remove the
+						association.
 					</Text>
 
 					<UserInput
@@ -85,14 +86,37 @@ export default function ApplicantEmailModal({
 					/>
 
 					{currentUser && (
-						<Group gap='xs'>
-							<Text size='sm' c='dimmed'>
-								Current user:
-							</Text>
-							<Text size='sm' fw={500}>
-								{currentUser.name || currentUser.email}
-							</Text>
+						<Group gap='xs' justify='space-between'>
+							<Group gap='xs'>
+								<Text size='sm' c='dimmed'>
+									Current user:
+								</Text>
+								<Text size='sm' fw={500}>
+									{currentUser.name || currentUser.email}
+								</Text>
+							</Group>
+							{selectedUser && (
+								<Button
+									variant='subtle'
+									color='red'
+									size='xs'
+									onClick={() => setSelectedUser(null)}
+								>
+									Unlink User
+								</Button>
+							)}
 						</Group>
+					)}
+
+					{!currentUser && selectedUser && (
+						<Button
+							variant='subtle'
+							color='red'
+							size='xs'
+							onClick={() => setSelectedUser(null)}
+						>
+							Clear Selection
+						</Button>
 					)}
 
 					<Group justify='flex-end' gap='sm'>
@@ -103,8 +127,9 @@ export default function ApplicantEmailModal({
 							onClick={handleSave}
 							loading={updateUserMutation.isPending}
 							disabled={selectedUser?.id === currentUser?.id}
+							color={!selectedUser && currentUser ? 'red' : undefined}
 						>
-							Save
+							{!selectedUser && currentUser ? 'Unlink User' : 'Save'}
 						</Button>
 					</Group>
 				</Stack>
