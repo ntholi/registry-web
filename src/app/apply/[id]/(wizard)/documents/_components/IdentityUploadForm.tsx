@@ -7,12 +7,12 @@ import { notifications } from '@mantine/notifications';
 import { IconAlertTriangle, IconBan } from '@tabler/icons-react';
 import { useRouter } from 'nextjs-toploader/app';
 import { useState } from 'react';
-import { DocumentCardSkeleton } from '@/shared/ui/DocumentCardShell';
 import {
 	DocumentUpload,
 	type DocumentUploadResult,
-} from '@/shared/ui/DocumentUpload';
-import { MobileDocumentUpload } from '@/shared/ui/MobileDocumentUpload';
+} from '@/app/apply/_components/DocumentUpload';
+import { MobileDocumentUpload } from '@/app/apply/_components/MobileDocumentUpload';
+import { DocumentCardSkeleton } from '@/shared/ui/DocumentCardShell';
 import WizardNavigation from '../../_components/WizardNavigation';
 import {
 	removeIdentityDocument,

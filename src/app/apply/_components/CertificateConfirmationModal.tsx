@@ -1,0 +1,284 @@
+'use client';
+
+import {
+	Badge,
+	Box,
+	Button,
+	Divider,
+	Group,
+	Modal,
+	Paper,
+	ScrollArea,
+	SimpleGrid,
+	Stack,
+	Table,
+	Text,
+	ThemeIcon,
+} from '@mantine/core';
+import {
+	IconAward,
+	IconCertificate,
+	IconCheck,
+	IconX,
+} from '@tabler/icons-react';
+import type { CertificateDocumentResult } from '@/core/integrations/ai/documents';
+
+type Props = {
+	opened: boolean;
+	onClose: () => void;
+	onConfirm: () => void;
+	analysis: CertificateDocumentResult | null;
+	loading?: boolean;
+};
+
+function CertField({
+	label,
+	value,
+	highlight,
+}: {
+	label: string;
+	value?: string | number | null;
+	highlight?: boolean;
+}) {
+	return (
+		<Stack gap={2} ta='center'>
+			<Text size='xs' c='dimmed' tt='uppercase' fw={500}>
+				{label}
+			</Text>
+			<Text
+				size={highlight ? 'lg' : 'sm'}
+				fw={highlight ? 700 : 500}
+				c={highlight ? 'cyan' : undefined}
+			>
+				{value?.toString() || '—'}
+			</Text>
+		</Stack>
+	);
+}
+
+export function CertificateConfirmationModal({
+	opened,
+	onClose,
+	onConfirm,
+	analysis,
+	loading,
+}: Props) {
+	if (!analysis) return null;
+
+	const hasSubjects = analysis.subjects && analysis.subjects.length > 0;
+	const isResultsSlip =
+		analysis.documentType === 'transcript' ||
+		analysis.documentType === 'academic_record' ||
+		hasSubjects;
+
+	return (
+		<Modal
+			opened={opened}
+			onClose={onClose}
+			title='Confirm Academic Document Details'
+			centered
+			size='lg'
+		>
+			<Stack gap='lg'>
+				<Text size='sm' c='dimmed'>
+					We extracted the following information from your document. Please
+					verify it is correct before continuing.
+				</Text>
+
+				<Paper
+					p={0}
+					radius='md'
+					style={{
+						background:
+							'linear-gradient(180deg, var(--mantine-color-dark-7) 0%, var(--mantine-color-dark-8) 100%)',
+						border: '3px double var(--mantine-color-dark-4)',
+						position: 'relative',
+						overflow: 'hidden',
+					}}
+				>
+					<Box
+						style={{
+							background:
+								'linear-gradient(90deg, var(--mantine-color-yellow-8) 0%, var(--mantine-color-orange-7) 100%)',
+							padding: 'var(--mantine-spacing-md)',
+							borderBottom: '2px solid var(--mantine-color-dark-4)',
+						}}
+					>
+						<Group justify='center' gap='sm'>
+							<ThemeIcon variant='filled' size={36} radius='xl' color='dark'>
+								<IconCertificate size={22} />
+							</ThemeIcon>
+							<Stack gap={0} ta='center'>
+								<Text
+									size='lg'
+									fw={800}
+									tt='uppercase'
+									lts={2}
+									c='dark.9'
+									style={{ textShadow: '0 1px 0 rgba(255,255,255,0.3)' }}
+								>
+									{analysis.certificateType || 'Academic Document'}
+								</Text>
+								{analysis.issuingAuthority && (
+									<Text size='xs' c='dark.7' fw={500}>
+										Issued by {analysis.issuingAuthority}
+									</Text>
+								)}
+							</Stack>
+						</Group>
+					</Box>
+
+					<Stack gap='md' p='lg'>
+						<Stack gap={4} ta='center'>
+							<Text size='xs' c='dimmed' tt='uppercase'>
+								This is to certify that
+							</Text>
+							<Text
+								size='xl'
+								fw={700}
+								ff='Georgia, serif'
+								style={{ fontStyle: 'italic' }}
+							>
+								{analysis.studentName || '—'}
+							</Text>
+						</Stack>
+
+						<Divider
+							label={<IconAward size={16} />}
+							labelPosition='center'
+							color='dark.5'
+						/>
+
+						<SimpleGrid cols={{ base: 2, sm: 4 }} spacing='md'>
+							<CertField label='Institution' value={analysis.institutionName} />
+							<CertField label='Exam Year' value={analysis.examYear} />
+							{analysis.certificateNumber && (
+								<CertField
+									label='Cert No.'
+									value={analysis.certificateNumber}
+								/>
+							)}
+							{analysis.overallClassification && (
+								<CertField
+									label='Classification'
+									value={analysis.overallClassification}
+									highlight
+								/>
+							)}
+						</SimpleGrid>
+
+						{hasSubjects && (
+							<>
+								<Divider color='dark.5' my='xs' />
+								<Stack gap='xs'>
+									<Group justify='space-between'>
+										<Text size='sm' fw={600}>
+											Subjects & Grades
+										</Text>
+										<Badge variant='light' size='sm'>
+											{analysis.subjects?.length} subjects
+										</Badge>
+									</Group>
+									<ScrollArea.Autosize mah={200}>
+										<Table
+											striped
+											highlightOnHover
+											withTableBorder
+											withColumnBorders
+										>
+											<Table.Thead>
+												<Table.Tr>
+													<Table.Th>Subject</Table.Th>
+													<Table.Th ta='center' w={80}>
+														Grade
+													</Table.Th>
+												</Table.Tr>
+											</Table.Thead>
+											<Table.Tbody>
+												{analysis.subjects?.map((subject, index) => (
+													<Table.Tr key={index}>
+														<Table.Td>
+															<Text size='sm'>{subject.name}</Text>
+														</Table.Td>
+														<Table.Td ta='center'>
+															<Badge variant='light' color='cyan' size='md'>
+																{subject.grade}
+															</Badge>
+														</Table.Td>
+													</Table.Tr>
+												))}
+											</Table.Tbody>
+										</Table>
+									</ScrollArea.Autosize>
+								</Stack>
+							</>
+						)}
+
+						{!isResultsSlip && !hasSubjects && (
+							<Box ta='center' py='md'>
+								<ThemeIcon
+									variant='light'
+									size={60}
+									radius='xl'
+									color='yellow'
+									mx='auto'
+									mb='sm'
+								>
+									<IconAward size={32} />
+								</ThemeIcon>
+								<Text size='sm' c='dimmed'>
+									Certificate document verified
+								</Text>
+							</Box>
+						)}
+					</Stack>
+
+					<Box
+						style={{
+							borderTop: '1px dashed var(--mantine-color-dark-5)',
+							padding: 'var(--mantine-spacing-xs)',
+							background: 'var(--mantine-color-dark-9)',
+						}}
+					>
+						<Group justify='center' gap='xs'>
+							{analysis.certification?.isCertified && (
+								<Badge
+									leftSection={<IconCheck size={12} />}
+									variant='light'
+									color='green'
+									size='sm'
+								>
+									Certified
+								</Badge>
+							)}
+							{analysis.lqfLevel && (
+								<Badge variant='light' color='blue' size='sm'>
+									LQF Level {analysis.lqfLevel}
+								</Badge>
+							)}
+						</Group>
+					</Box>
+				</Paper>
+
+				<Group justify='flex-end' gap='sm'>
+					<Button
+						variant='light'
+						color='red'
+						leftSection={<IconX size={16} />}
+						onClick={onClose}
+						disabled={loading}
+					>
+						Cancel
+					</Button>
+					<Button
+						leftSection={<IconCheck size={16} />}
+						onClick={onConfirm}
+						loading={loading}
+					>
+						Confirm & Save
+					</Button>
+				</Group>
+			</Stack>
+		</Modal>
+	);
+}

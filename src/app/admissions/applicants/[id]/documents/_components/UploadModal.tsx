@@ -7,12 +7,12 @@ import { IconUpload } from '@tabler/icons-react';
 import { nanoid } from 'nanoid';
 import { useRouter } from 'nextjs-toploader/app';
 import { useState } from 'react';
-import type { DocumentAnalysisResult } from '@/core/integrations/ai/documents';
-import { uploadDocument } from '@/core/integrations/storage';
 import {
 	DocumentUpload,
 	type DocumentUploadResult,
-} from '@/shared/ui/DocumentUpload';
+} from '@/app/apply/_components/DocumentUpload';
+import type { DocumentAnalysisResult } from '@/core/integrations/ai/documents';
+import { uploadDocument } from '@/core/integrations/storage';
 import {
 	createAcademicRecordFromDocument,
 	getDocumentFolder,

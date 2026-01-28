@@ -17,6 +17,7 @@ import {
 	IMAGE_MIME_TYPE,
 	MIME_TYPES,
 } from '@mantine/dropzone';
+import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import {
 	IconFile,
@@ -37,6 +38,8 @@ import {
 	type DocumentAnalysisResult,
 	type IdentityDocumentResult,
 } from '@/core/integrations/ai/documents';
+import { CertificateConfirmationModal } from './CertificateConfirmationModal';
+import { IdentityConfirmationModal } from './IdentityConfirmationModal';
 
 export type DocumentUploadType = 'identity' | 'certificate' | 'any';
 
@@ -117,6 +120,13 @@ export function DocumentUpload({
 	const [file, setFile] = useState<FileWithPath | null>(null);
 	const [uploadState, setUploadState] = useState<UploadState>('idle');
 	const [errorMessage, setErrorMessage] = useState<string | null>(null);
+	const [pendingResult, setPendingResult] = useState<DocumentUploadResult<
+		typeof type
+	> | null>(null);
+	const [
+		confirmModalOpened,
+		{ open: openConfirmModal, close: closeConfirmModal },
+	] = useDisclosure(false);
 
 	const IdleIcon = ICON_MAP[type];
 
@@ -151,11 +161,13 @@ export function DocumentUpload({
 				return;
 			}
 			setUploadState('ready');
-			(onUploadComplete as (r: DocumentUploadResult<'identity'>) => void)({
+			const uploadResult: DocumentUploadResult<'identity'> = {
 				file: droppedFile,
 				base64,
 				analysis: result.data,
-			});
+			};
+			setPendingResult(uploadResult as DocumentUploadResult<typeof type>);
+			openConfirmModal();
 		} else if (type === 'certificate') {
 			const result = await analyzeAcademicDocument(
 				base64,
@@ -174,11 +186,13 @@ export function DocumentUpload({
 				return;
 			}
 			setUploadState('ready');
-			(onUploadComplete as (r: DocumentUploadResult<'certificate'>) => void)({
+			const uploadResult: DocumentUploadResult<'certificate'> = {
 				file: droppedFile,
 				base64,
 				analysis: result.data,
-			});
+			};
+			setPendingResult(uploadResult as DocumentUploadResult<typeof type>);
+			openConfirmModal();
 		} else {
 			const analysis = await analyzeDocument(base64, droppedFile.type);
 			setUploadState('ready');
@@ -188,6 +202,27 @@ export function DocumentUpload({
 				analysis,
 			});
 		}
+	}
+
+	function handleConfirm() {
+		if (!pendingResult) return;
+		if (type === 'identity') {
+			(onUploadComplete as (r: DocumentUploadResult<'identity'>) => void)(
+				pendingResult as DocumentUploadResult<'identity'>
+			);
+		} else if (type === 'certificate') {
+			(onUploadComplete as (r: DocumentUploadResult<'certificate'>) => void)(
+				pendingResult as DocumentUploadResult<'certificate'>
+			);
+		}
+		closeConfirmModal();
+		setPendingResult(null);
+	}
+
+	function handleCancelConfirm() {
+		closeConfirmModal();
+		setPendingResult(null);
+		handleRemove();
 	}
 
 	function handleReject(_rejections: FileRejection[]) {
@@ -242,57 +277,80 @@ export function DocumentUpload({
 
 	const isProcessing = uploadState === 'uploading' || uploadState === 'reading';
 
+	const identityAnalysis =
+		type === 'identity' && pendingResult
+			? (pendingResult as DocumentUploadResult<'identity'>).analysis
+			: null;
+	const certificateAnalysis =
+		type === 'certificate' && pendingResult
+			? (pendingResult as DocumentUploadResult<'certificate'>).analysis
+			: null;
+
 	if (file) {
 		return (
-			<Paper withBorder radius='md' p='xl'>
-				<Stack gap='md' align='center' mih={rem(180)} justify='center'>
-					<ThemeIcon
-						variant='light'
-						size={80}
-						radius='md'
-						color={getStatusColor()}
-					>
-						{getFileIcon()}
-					</ThemeIcon>
+			<>
+				<IdentityConfirmationModal
+					opened={confirmModalOpened && type === 'identity'}
+					onClose={handleCancelConfirm}
+					onConfirm={handleConfirm}
+					analysis={identityAnalysis}
+				/>
+				<CertificateConfirmationModal
+					opened={confirmModalOpened && type === 'certificate'}
+					onClose={handleCancelConfirm}
+					onConfirm={handleConfirm}
+					analysis={certificateAnalysis}
+				/>
+				<Paper withBorder radius='md' p='xl'>
+					<Stack gap='md' align='center' mih={rem(180)} justify='center'>
+						<ThemeIcon
+							variant='light'
+							size={80}
+							radius='md'
+							color={getStatusColor()}
+						>
+							{getFileIcon()}
+						</ThemeIcon>
 
-					<Stack gap={4} align='center'>
-						<Text size='sm' fw={600} ta='center' maw={300} truncate='end'>
-							{file.name}
-						</Text>
-						<Text size='sm' c='dimmed'>
-							{formatFileSize(file.size)}
-						</Text>
-					</Stack>
-
-					{isProcessing && (
-						<Stack gap='xs' w='100%'>
-							<Progress radius='xs' value={100} animated />
-							<Text size='xs' c='dimmed' ta='center'>
-								{getStatusMessage()}
+						<Stack gap={4} align='center'>
+							<Text size='sm' fw={600} ta='center' maw={300} truncate='end'>
+								{file.name}
+							</Text>
+							<Text size='sm' c='dimmed'>
+								{formatFileSize(file.size)}
 							</Text>
 						</Stack>
-					)}
 
-					{(uploadState === 'ready' || uploadState === 'error') && (
-						<Text size='xs' c={getStatusColor()} ta='center'>
-							{getStatusMessage()}
-						</Text>
-					)}
+						{isProcessing && (
+							<Stack gap='xs' w='100%'>
+								<Progress radius='xs' value={100} animated />
+								<Text size='xs' c='dimmed' ta='center'>
+									{getStatusMessage()}
+								</Text>
+							</Stack>
+						)}
 
-					{!isProcessing && uploadState === 'error' && (
-						<Button
-							variant='light'
-							color='red'
-							size='sm'
-							leftSection={<IconTrash size={16} />}
-							onClick={handleRemove}
-							mt='xs'
-						>
-							Remove File
-						</Button>
-					)}
-				</Stack>
-			</Paper>
+						{(uploadState === 'ready' || uploadState === 'error') && (
+							<Text size='xs' c={getStatusColor()} ta='center'>
+								{getStatusMessage()}
+							</Text>
+						)}
+
+						{!isProcessing && uploadState === 'error' && (
+							<Button
+								variant='light'
+								color='red'
+								size='sm'
+								leftSection={<IconTrash size={16} />}
+								onClick={handleRemove}
+								mt='xs'
+							>
+								Remove File
+							</Button>
+						)}
+					</Stack>
+				</Paper>
+			</>
 		);
 	}
 
