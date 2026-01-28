@@ -78,7 +78,7 @@ export default function ClearanceDetails({ request }: Props) {
 								stdNo={request.registrationRequest.stdNo}
 								termId={request.registrationRequest.termId}
 							/>
-							<FieldView label='Year' underline={false}>
+							<FieldView label='Semester' underline={false}>
 								{formatSemester(request.registrationRequest.semesterNumber)}
 							</FieldView>
 						</Stack>
