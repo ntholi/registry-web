@@ -12,7 +12,6 @@ import {
 	registrationRequestReceipts,
 	registrationRequests,
 	requestedModules,
-	structureSemesters,
 	structures,
 	studentModules,
 	studentPrograms,
@@ -367,12 +366,13 @@ export default class ClearanceRepository extends BaseRepository<
 					filter.programId ? eq(programs.id, filter.programId) : undefined,
 					filter.programLevel
 						? eq(programs.level, filter.programLevel)
-						: undefined
+						: undefined,
+					eq(studentPrograms.status, 'Active')
 				)
 			: undefined;
 
 		const semesterCondition = hasSemesterFilter
-			? eq(structureSemesters.semesterNumber, filter.semester!)
+			? eq(registrationRequests.semesterNumber, filter.semester!)
 			: undefined;
 
 		let countQuery = db
@@ -385,25 +385,14 @@ export default class ClearanceRepository extends BaseRepository<
 			.innerJoin(clearance, eq(registrationClearance.clearanceId, clearance.id))
 			.$dynamic();
 
-		if (hasAdvancedFilter || hasSemesterFilter) {
+		if (hasAdvancedFilter) {
 			countQuery = countQuery
 				.innerJoin(
-					studentSemesters,
-					eq(studentSemesters.registrationRequestId, registrationRequests.id)
-				)
-				.innerJoin(
 					studentPrograms,
-					eq(studentSemesters.studentProgramId, studentPrograms.id)
+					eq(studentPrograms.stdNo, registrationRequests.stdNo)
 				)
 				.innerJoin(structures, eq(studentPrograms.structureId, structures.id))
 				.innerJoin(programs, eq(structures.programId, programs.id));
-		}
-
-		if (hasSemesterFilter) {
-			countQuery = countQuery.innerJoin(
-				structureSemesters,
-				eq(studentSemesters.structureSemesterId, structureSemesters.id)
-			);
 		}
 
 		const whereJoin = and(baseConditions, programConditions, semesterCondition);
@@ -423,25 +412,14 @@ export default class ClearanceRepository extends BaseRepository<
 			.innerJoin(clearance, eq(registrationClearance.clearanceId, clearance.id))
 			.$dynamic();
 
-		if (hasAdvancedFilter || hasSemesterFilter) {
+		if (hasAdvancedFilter) {
 			idQuery = idQuery
 				.innerJoin(
-					studentSemesters,
-					eq(studentSemesters.registrationRequestId, registrationRequests.id)
-				)
-				.innerJoin(
 					studentPrograms,
-					eq(studentSemesters.studentProgramId, studentPrograms.id)
+					eq(studentPrograms.stdNo, registrationRequests.stdNo)
 				)
 				.innerJoin(structures, eq(studentPrograms.structureId, structures.id))
 				.innerJoin(programs, eq(structures.programId, programs.id));
-		}
-
-		if (hasSemesterFilter) {
-			idQuery = idQuery.innerJoin(
-				structureSemesters,
-				eq(studentSemesters.structureSemesterId, structureSemesters.id)
-			);
 		}
 
 		const idRows = await idQuery
