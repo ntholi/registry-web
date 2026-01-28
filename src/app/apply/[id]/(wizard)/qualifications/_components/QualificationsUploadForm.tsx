@@ -102,8 +102,12 @@ export default function QualificationsUploadForm({ applicationId }: Props) {
 				<Stack gap='xs'>
 					<Title order={3}>Academic Qualifications</Title>
 					<Text c='dimmed' size='sm'>
-						Upload your academic certificates, transcripts, or results slips.
-						Documents must be certified (stamped and signed).
+						Upload{' '}
+						<Text c='cyan.5' component='span'>
+							LGCSE
+						</Text>{' '}
+						equivalent or higher qualifications (multiple documents allowed).
+						Documents must be certified.
 					</Text>
 				</Stack>
 
@@ -136,7 +140,7 @@ export default function QualificationsUploadForm({ applicationId }: Props) {
 						onUploadComplete={handleUploadComplete}
 						disabled={uploadDisabled}
 						title='Upload Academic Document'
-						description='Certificates, transcripts, results - Image or PDF, max 2MB'
+						description='LGCSE equivalent or higher - Image or PDF, max 2MB'
 						applicantName={applicant?.fullName ?? undefined}
 						certificationValidDays={certificationValidDays}
 					/>
@@ -148,7 +152,7 @@ export default function QualificationsUploadForm({ applicationId }: Props) {
 						disabled={uploadDisabled}
 						applicantName={applicant?.fullName ?? undefined}
 						title='Upload Academic Document'
-						description='Certificates, transcripts, results - Image or PDF, max 2MB'
+						description='LGCSE equivalent or higher - Image or PDF, max 2MB'
 						certificationValidDays={certificationValidDays}
 					/>
 				)}

@@ -35,7 +35,7 @@ function ApplyButton({
 				radius='xl'
 				variant='gradient'
 			>
-				{isSubmitted ? 'View Application' : 'Continue Application'}
+				{isSubmitted ? 'View Application' : 'Continue Applying'}
 			</Button>
 		);
 	}
@@ -51,7 +51,7 @@ function ApplyButton({
 			rightSection={isNewUser ? <IconArrowRight size={20} /> : undefined}
 			variant='gradient'
 		>
-			{isNewUser ? 'Apply Now' : 'Continue Application'}
+			{isNewUser ? 'Apply Now' : 'Continue Applying'}
 		</Button>
 	);
 }
