@@ -92,6 +92,15 @@ export async function updateStudentUserId(
 	return res;
 }
 
+export async function updateStudentProgramStructure(
+	stdNo: number,
+	structureId: number
+) {
+	const res = await service.updateProgramStructure(stdNo, structureId);
+	revalidatePath(`/registry/students/${stdNo}`);
+	return res;
+}
+
 export async function getStudentPhoto(
 	studentNumber: number | undefined | null
 ): Promise<string | null> {
