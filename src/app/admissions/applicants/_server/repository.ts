@@ -47,6 +47,7 @@ export default class ApplicantRepository extends BaseRepository<
 		return db.query.applicants.findFirst({
 			where: eq(applicants.id, id),
 			with: {
+				user: true,
 				phones: true,
 				guardians: { with: { phones: true } },
 				academicRecords: {
@@ -77,6 +78,7 @@ export default class ApplicantRepository extends BaseRepository<
 		return db.query.applicants.findFirst({
 			where: eq(applicants.userId, userId),
 			with: {
+				user: true,
 				phones: true,
 				guardians: { with: { phones: true } },
 				academicRecords: {

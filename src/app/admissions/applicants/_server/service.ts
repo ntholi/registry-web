@@ -241,6 +241,13 @@ class ApplicantService extends BaseService<typeof applicants, 'id'> {
 			return getEligiblePrograms(applicant.academicRecords, requirements);
 		}, ['registry', 'marketing', 'admin', 'applicant']);
 	}
+
+	async updateUserId(applicantId: string, userId: string | null) {
+		return withAuth(
+			async () => this.repo.update(applicantId, { userId }),
+			['registry', 'marketing', 'admin']
+		);
+	}
 }
 
 export const applicantsService = serviceWrapper(

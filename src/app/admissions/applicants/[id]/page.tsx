@@ -22,7 +22,7 @@ export default async function ApplicantDetails({ params }: Props) {
 				id={item.id}
 				fullName={item.fullName}
 				gender={item.gender}
-				nationalId={item.nationalId}
+				user={item.user ?? null}
 			/>
 
 			<ApplicantTabs applicant={item} />
