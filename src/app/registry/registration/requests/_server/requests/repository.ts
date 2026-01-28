@@ -351,7 +351,7 @@ export default class RegistrationRequestRepository extends BaseRepository<
 					.values({
 						department,
 						status: isAutoApproved ? 'approved' : 'pending',
-						message: isAutoApproved ? 'Auto-approved by rule' : null,
+						message: isAutoApproved ? 'Auto-approved' : null,
 						responseDate: isAutoApproved ? new Date() : null,
 					})
 					.returning();

@@ -8,6 +8,7 @@ import {
 	Grid,
 	GridCol,
 	Group,
+	Modal,
 	Paper,
 	Select,
 	SimpleGrid,
@@ -16,6 +17,7 @@ import {
 	TextInput,
 	Title,
 } from '@mantine/core';
+import { useDisclosure } from '@mantine/hooks';
 import { IconPlus, IconTrash } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
@@ -48,6 +50,12 @@ export default function SponsorInput({
 	onTuitionFeeReceiptsChange,
 	disabled,
 }: SponsorInputProps) {
+	const [
+		receiptModalOpened,
+		{ open: openReceiptModal, close: closeReceiptModal },
+	] = useDisclosure(false);
+	const [receiptValue, setReceiptValue] = useState('');
+
 	const { data: sponsors } = useQuery({
 		queryKey: ['sponsors'],
 		queryFn: () => findAllSponsors(1),
@@ -71,16 +79,29 @@ export default function SponsorInput({
 		return sponsors.find((s) => s.id === id)?.code === 'PRV';
 	};
 
-	const handleAddTuitionReceipt = (value: string) => {
-		if (value.trim() && !tuitionFeeReceipts.includes(value.trim())) {
-			onTuitionFeeReceiptsChange?.([...tuitionFeeReceipts, value.trim()]);
+	const handleAddTuitionReceipt = () => {
+		if (
+			receiptValue.trim() &&
+			!tuitionFeeReceipts.includes(receiptValue.trim())
+		) {
+			onTuitionFeeReceiptsChange?.([
+				...tuitionFeeReceipts,
+				receiptValue.trim(),
+			]);
 		}
+		setReceiptValue('');
+		closeReceiptModal();
 	};
 
 	const handleRemoveTuitionReceipt = (index: number) => {
 		onTuitionFeeReceiptsChange?.(
 			tuitionFeeReceipts.filter((_, i) => i !== index)
 		);
+	};
+
+	const handleOpenReceiptModal = () => {
+		setReceiptValue('');
+		openReceiptModal();
 	};
 
 	return (
@@ -143,13 +164,21 @@ export default function SponsorInput({
 			{sponsorId && isPRV(sponsorId) && (
 				<Paper withBorder p='md'>
 					<Stack gap='md'>
-						<Title order={5}>Tuition Fee Payment Receipts</Title>
-						<Text size='sm' c='dimmed'>
-							As a self-sponsored student, please provide tuition fee payment
-							receipts.
-						</Text>
-
-						<ReceiptInputWithAdd onAdd={handleAddTuitionReceipt} />
+						<Group justify='space-between'>
+							<div>
+								<Title order={5}>Payment Receipt</Title>
+								<Text size='sm' c='dimmed'>
+									Tuition fee payment receipts.
+								</Text>
+							</div>
+							<Button
+								variant='light'
+								leftSection={<IconPlus size={16} />}
+								onClick={handleOpenReceiptModal}
+							>
+								Add Receipt
+							</Button>
+						</Group>
 
 						{tuitionFeeReceipts.filter(Boolean).length > 0 && (
 							<SimpleGrid cols={{ base: 1, sm: 3 }} spacing='sm'>
@@ -180,41 +209,36 @@ export default function SponsorInput({
 					</Stack>
 				</Paper>
 			)}
-		</Stack>
-	);
-}
 
-type ReceiptInputWithAddProps = {
-	onAdd: (value: string) => void;
-};
-
-function ReceiptInputWithAdd({ onAdd }: ReceiptInputWithAddProps) {
-	const [value, setValue] = useState('');
-
-	const handleAdd = () => {
-		if (value.trim()) {
-			onAdd(value.trim());
-			setValue('');
-		}
-	};
-
-	return (
-		<Group gap='sm' align='flex-end'>
-			<div style={{ flex: 1 }}>
-				<ReceiptInput
-					label='Receipt Number'
-					value={value}
-					onChange={setValue}
-				/>
-			</div>
-			<Button
-				variant='light'
-				leftSection={<IconPlus size={16} />}
-				onClick={handleAdd}
-				disabled={!value.trim()}
+			<Modal
+				opened={receiptModalOpened}
+				onClose={closeReceiptModal}
+				title='Add Tuition Fee Receipt'
+				centered
 			>
-				Add
-			</Button>
-		</Group>
+				<Stack gap='md'>
+					<Text size='sm'>
+						Please enter the receipt number for your tuition fee payment.
+					</Text>
+					<ReceiptInput
+						label='Receipt Number'
+						value={receiptValue}
+						onChange={setReceiptValue}
+						required
+					/>
+					<Group justify='flex-end' gap='sm'>
+						<Button variant='default' onClick={closeReceiptModal}>
+							Cancel
+						</Button>
+						<Button
+							onClick={handleAddTuitionReceipt}
+							disabled={!receiptValue.trim()}
+						>
+							Add Receipt
+						</Button>
+					</Group>
+				</Stack>
+			</Modal>
+		</Stack>
 	);
 }

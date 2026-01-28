@@ -11,6 +11,7 @@ import { getStudent, getStudentRegistrationData } from '@registry/students';
 import { getActiveTerm } from '@/app/registry/terms';
 import type {
 	modules,
+	ReceiptType,
 	StudentModuleStatus,
 	semesterModules,
 } from '@/core/database';
@@ -28,6 +29,7 @@ type SemesterModule = typeof semesterModules.$inferSelect & {
 };
 interface SelectedModule extends SemesterModule {
 	status: StudentModuleStatus;
+	receiptNumber?: string;
 }
 
 type RegistrationRequest = {
@@ -41,6 +43,7 @@ type RegistrationRequest = {
 	semesterNumber: string;
 	termId: number;
 	selectedModules?: Array<SelectedModule>;
+	tuitionFeeReceipts?: string[];
 };
 
 export default async function NewRegistrationRequestPage({
@@ -136,7 +139,28 @@ export default async function NewRegistrationRequestPage({
 
 	async function handleSubmit(values: RegistrationRequest) {
 		'use server';
-		const { selectedModules } = values;
+		const { selectedModules, tuitionFeeReceipts } = values;
+
+		const receipts: { receiptNo: string; receiptType: ReceiptType }[] = [];
+
+		if (selectedModules) {
+			for (const module of selectedModules) {
+				if (module.status.startsWith('Repeat') && module.receiptNumber) {
+					receipts.push({
+						receiptNo: module.receiptNumber,
+						receiptType: 'repeat_module',
+					});
+				}
+			}
+		}
+
+		if (tuitionFeeReceipts) {
+			for (const receiptNo of tuitionFeeReceipts) {
+				if (receiptNo) {
+					receipts.push({ receiptNo, receiptType: 'tuition_fee' });
+				}
+			}
+		}
 
 		const result = await createRegistration({
 			stdNo: values.stdNo,
@@ -152,6 +176,7 @@ export default async function NewRegistrationRequestPage({
 			borrowerNo: values.borrowerNo,
 			bankName: values.bankName,
 			accountNumber: values.accountNumber,
+			receipts: receipts.length > 0 ? receipts : undefined,
 		});
 
 		return {
