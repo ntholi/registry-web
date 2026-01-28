@@ -354,12 +354,18 @@ export function getAcademicRemarks(
 		};
 	}
 
-	const latestFailedModules =
-		semesters.length > 0
-			? semesters[semesters.length - 1].studentModules.filter(
-					(m) => isActiveModule(m.status) && isFailingGrade(m.grade)
-				)
-			: [];
+	const latestSemester = semesters[semesters.length - 1];
+	const latestSemesterModules = latestSemester
+		? latestSemester.studentModules.filter((m) => isActiveModule(m.status))
+		: [];
+
+	const latestFailedModules = latestSemesterModules.filter((m) =>
+		isFailingGrade(m.grade)
+	);
+	const latestSupplementaryModules = latestSemesterModules.filter((m) =>
+		isSupplementaryGrade(m.grade)
+	);
+
 	const failedModules = studentModules.filter((m) => {
 		if (!isFailingGrade(m.grade)) return false;
 
@@ -392,7 +398,6 @@ export function getAcademicRemarks(
 	const uniqueFailedModules = getUniqueModules(failedModules);
 
 	const activeProgram = programs.find((p) => p.status === 'Active');
-	const latestSemester = semesters[semesters.length - 1];
 	const latestSemesterNumber = Number.parseInt(
 		latestSemester?.structureSemester?.semesterNumber || '0',
 		10
@@ -401,16 +406,16 @@ export function getAcademicRemarks(
 		activeProgram?.structure.program.level === 'diploma' &&
 		latestSemesterNumber === 5;
 
-	const hasOutstandingFailOrPP =
-		uniqueFailedModules.length > 0 || uniqueSupplementaryModules.length > 0;
+	const latestHasFailOrPP =
+		latestFailedModules.length > 0 || latestSupplementaryModules.length > 0;
 
-	const hasTwoFailsWithSupp =
-		uniqueFailedModules.length === 2 && uniqueSupplementaryModules.length > 0;
+	const latestHasTwoFailsWithSupp =
+		latestFailedModules.length === 2 && latestSupplementaryModules.length > 0;
 
 	const remainInSemester =
 		latestFailedModules.length >= 3 ||
-		hasTwoFailsWithSupp ||
-		(isDiplomaSem5 && hasOutstandingFailOrPP);
+		latestHasTwoFailsWithSupp ||
+		(isDiplomaSem5 && latestHasFailOrPP);
 	const status = remainInSemester ? 'Remain in Semester' : 'Proceed';
 
 	const messageParts: string[] = [status];
@@ -431,7 +436,7 @@ export function getAcademicRemarks(
 	let details = '';
 	if (latestFailedModules.length >= 3) {
 		details = `Failed ${latestFailedModules.length} modules in latest semester`;
-	} else if (hasTwoFailsWithSupp) {
+	} else if (latestHasTwoFailsWithSupp) {
 		details = 'To Proceed if supplementary exams passed';
 	} else if (remainInSemester) {
 		details = 'Has outstanding modules';
