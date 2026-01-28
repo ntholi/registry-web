@@ -266,7 +266,7 @@ export default function SponsorshipDetails({
 						<ReceiptInputWithAdd onAdd={handleAddTuitionReceipt} />
 
 						{tuitionFeeReceipts.filter(Boolean).length > 0 && (
-							<SimpleGrid cols={{ base: 2, sm: 3, md: 4 }} spacing='sm'>
+							<SimpleGrid cols={{ base: 1, sm: 3 }} spacing='sm'>
 								{tuitionFeeReceipts.filter(Boolean).map((receipt, index) => (
 									<Card
 										key={index}
