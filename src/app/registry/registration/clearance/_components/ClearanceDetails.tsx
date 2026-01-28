@@ -6,7 +6,6 @@ import {
 	AccordionItem,
 	AccordionPanel,
 	ActionIcon,
-	Badge,
 	Box,
 	Card,
 	Divider,
@@ -88,11 +87,12 @@ export default function ClearanceDetails({ request }: Props) {
 						setAccordion={setAccordion}
 						comment={comment}
 					/>
-					<Paper withBorder p='md' mt='md'>
-						<Text>Receipts</Text>
-						<Divider mb='xs' />
-						{request.registrationRequest.registrationRequestReceipts.length >
-							0 && (
+
+					{request.registrationRequest.registrationRequestReceipts.length >
+						0 && (
+						<Paper withBorder p='md' mt='md'>
+							<Text>Receipts</Text>
+							<Divider mb='xs' />
 							<Box>
 								{request.registrationRequest.registrationRequestReceipts.map(
 									(rr) => (
@@ -107,8 +107,8 @@ export default function ClearanceDetails({ request }: Props) {
 									)
 								)}
 							</Box>
-						)}
-					</Paper>
+						</Paper>
+					)}
 				</GridCol>
 			</Grid>
 			<Accordion
