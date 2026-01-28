@@ -1,4 +1,5 @@
 import type { getAcademicRemarks } from '@/shared/lib/utils/grades';
+import { isActiveSemester } from '@/shared/lib/utils/utils';
 import type {
 	getAcademicHistory,
 	getStudentByUserId,
@@ -38,7 +39,9 @@ export function getActiveProgram(student: Student | null | undefined) {
 export function getCurrentSemester(student: Student | null | undefined) {
 	if (!student) return null;
 	const activeProgram = getActiveProgram(student);
-	return activeProgram?.semesters.sort((a, b) => b.id - a.id)[0];
+	return activeProgram?.semesters
+		.filter((s) => isActiveSemester(s.status))
+		.sort((a, b) => b.id - a.id)[0];
 }
 
 export function getNextSemesterNo(student: Student | null) {
@@ -58,7 +61,11 @@ export function getNextSemesterNo(student: Student | null) {
 		.flatMap((program) => program.semesters)
 		.filter((semester) => {
 			const semNo = semester.structureSemester?.semesterNumber;
-			return semNo && semesterNos.includes(semNo);
+			return (
+				semNo &&
+				semesterNos.includes(semNo) &&
+				isActiveSemester(semester.status)
+			);
 		});
 	const maxSemesterNo = Math.max(
 		...allSemesters.map((semester) => {
