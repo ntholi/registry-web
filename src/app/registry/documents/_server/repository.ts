@@ -9,6 +9,8 @@ import {
 import type { NewDocumentStamp } from '../_schema/documentStamps';
 import type { DocumentType } from '../_schema/documents';
 
+type StampInput = Omit<NewDocumentStamp, 'id' | 'documentId' | 'createdAt'>;
+
 export default class DocumentRepository {
 	protected readonly db = db;
 
@@ -28,12 +30,15 @@ export default class DocumentRepository {
 		return result.find((sd) => sd.document.type === type);
 	}
 
-	async createWithDocument(data: {
-		fileName: string;
-		fileUrl: string;
-		type: DocumentType;
-		stdNo: number;
-	}) {
+	async createWithDocument(
+		data: {
+			fileName: string;
+			fileUrl: string;
+			type: DocumentType;
+			stdNo: number;
+		},
+		stamps?: StampInput[]
+	) {
 		return this.db.transaction(async (tx) => {
 			const docId = nanoid();
 			await tx.insert(documents).values({
@@ -52,6 +57,17 @@ export default class DocumentRepository {
 					stdNo: data.stdNo,
 				})
 				.returning();
+
+			if (stamps && stamps.length > 0) {
+				const stampValues = stamps.map((s) => ({
+					id: nanoid(),
+					documentId: docId,
+					date: s.date ?? null,
+					name: s.name ?? null,
+					title: s.title ?? null,
+				}));
+				await tx.insert(documentStamps).values(stampValues);
+			}
 
 			return studentDoc;
 		});

@@ -11,6 +11,12 @@ import ApplicantDocumentRepository from './repository';
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 
+type StampInput = {
+	date?: string | null;
+	name?: string | null;
+	title?: string | null;
+};
+
 class ApplicantDocumentService extends BaseService<
 	typeof applicantDocuments,
 	'id'
@@ -46,13 +52,14 @@ class ApplicantDocumentService extends BaseService<
 	async uploadDocument(
 		documentData: typeof documents.$inferInsert,
 		applicantId: string,
-		fileSize: number
+		fileSize: number,
+		stamps?: StampInput[]
 	) {
 		return withAuth(async () => {
 			if (fileSize > MAX_FILE_SIZE) {
 				throw new Error('FILE_TOO_LARGE: Document exceeds 5MB limit');
 			}
-			return this.repo.createWithDocument(documentData, applicantId);
+			return this.repo.createWithDocument(documentData, applicantId, stamps);
 		}, ['registry', 'marketing', 'admin', 'applicant']);
 	}
 
