@@ -137,14 +137,14 @@ export default function CourseSelectionForm({ applicationId }: Props) {
 				status: 'draft',
 			});
 		},
-		onSuccess: () => {
+		onSuccess: (application) => {
 			refetch();
 			notifications.show({
 				title: 'Courses selected',
 				message: 'Your course choices have been saved',
 				color: 'green',
 			});
-			router.push(`/apply/${applicationId}/personal-info`);
+			router.push(`/apply/${application.id}/personal-info`);
 		},
 		onError: (error) => {
 			notifications.show({
