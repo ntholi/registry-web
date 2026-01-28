@@ -22,7 +22,7 @@ import { notifications } from '@mantine/notifications';
 import { IconCopy } from '@tabler/icons-react';
 import { useState } from 'react';
 import { formatDateTime } from '@/shared/lib/utils/dates';
-import { toTitleCase } from '@/shared/lib/utils/utils';
+import { formatSemester, toTitleCase } from '@/shared/lib/utils/utils';
 import { FieldView } from '@/shared/ui/adease';
 import Link from '@/shared/ui/Link';
 import type { getClearance } from '../../requests/_server/clearance/actions';
@@ -44,7 +44,7 @@ export default function ClearanceDetails({ request }: Props) {
 		<Stack p='lg'>
 			<Grid>
 				<GridCol span={{ base: 12, md: 7 }}>
-					<Paper withBorder p='md' pb={60}>
+					<Paper withBorder p='md' pb={'xl'}>
 						<Stack>
 							<FieldView label='Student Number' underline={false}>
 								<Group justify='space-between'>
@@ -78,6 +78,9 @@ export default function ClearanceDetails({ request }: Props) {
 								stdNo={request.registrationRequest.stdNo}
 								termId={request.registrationRequest.termId}
 							/>
+							<FieldView label='Registering For' underline={false}>
+								{formatSemester(request.registrationRequest.semesterNumber)}
+							</FieldView>
 						</Stack>
 					</Paper>
 				</GridCol>
