@@ -113,12 +113,15 @@ export default class ApplicationRepository extends BaseRepository<
 
 		if (search) {
 			const searchLower = search.toLowerCase();
-			const filtered = items.filter(
-				(item) =>
+			const filtered = items.filter((item) => {
+				const programName =
+					item.firstChoiceProgram?.name?.toLowerCase() ?? '';
+				return (
 					item.applicant.fullName.toLowerCase().includes(searchLower) ||
 					item.applicant.nationalId?.toLowerCase().includes(searchLower) ||
-					item.firstChoiceProgram.name.toLowerCase().includes(searchLower)
-			);
+					programName.includes(searchLower)
+				);
+			});
 			return {
 				items: filtered,
 				totalPages: Math.ceil(filtered.length / pageSize),

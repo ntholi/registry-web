@@ -1,0 +1,1 @@
+ALTER TABLE "applications" ALTER COLUMN "first_choice_program_id" DROP NOT NULL;

@@ -15,7 +15,7 @@ type ApplicationListItem = {
 	paymentStatus: PaymentStatus;
 	applicant: { id: string; fullName: string; nationalId: string | null };
 	intakePeriod: { id: string; name: string };
-	firstChoiceProgram: { id: number; name: string; code: string };
+	firstChoiceProgram: { id: number; name: string; code: string } | null;
 };
 
 export default function Layout({ children }: PropsWithChildren) {
@@ -49,7 +49,9 @@ export default function Layout({ children }: PropsWithChildren) {
 							<StatusBadge status={item.status} />
 						</Group>
 					}
-					description={`${item.firstChoiceProgram.code} • ${item.intakePeriod.name}`}
+					description={`${
+						item.firstChoiceProgram?.code ?? 'Program pending'
+					} • ${item.intakePeriod.name}`}
 				/>
 			)}
 		>

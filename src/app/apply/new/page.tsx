@@ -2,7 +2,10 @@ import {
 	canCurrentUserApply,
 	getOrCreateApplicantForCurrentUser,
 } from '@admissions/applicants';
-import { findApplicationsByApplicant } from '@admissions/applications';
+import {
+	createOrUpdateApplication,
+	findApplicationsByApplicant,
+} from '@admissions/applications';
 import { findActiveIntakePeriod } from '@admissions/intake-periods';
 import { computeWizardStep } from '@apply/_lib/wizard-utils';
 import { redirect } from 'next/navigation';
@@ -47,5 +50,12 @@ export default async function ApplyNewPage() {
 	}
 
 	const step = computeWizardStep(applicant);
-	redirect(`/apply/draft/${step}`);
+	const draftApplication = await createOrUpdateApplication({
+		applicantId: applicant.id,
+		intakePeriodId: activeIntake.id,
+		firstChoiceProgramId: null,
+		secondChoiceProgramId: null,
+		status: 'draft',
+	});
+	redirect(`/apply/${draftApplication.id}/${step}`);
 }
