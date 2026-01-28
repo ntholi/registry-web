@@ -238,7 +238,7 @@ export default function RegistrationRequestForm({
 
 				form.setFieldValue('selectedModules', mappedModules);
 				form.setFieldValue('semesterNumber', semesterNo.toString());
-				form.setFieldValue('semester-status', status);
+				form.setFieldValue('semesterStatus', status);
 			} catch (error) {
 				console.error('Error loading student modules:', error);
 			}
@@ -286,7 +286,7 @@ export default function RegistrationRequestForm({
 				selectedModules: defaultValues?.selectedModules || [],
 				semesterNumber: defaultValues?.semesterNumber?.toString(),
 				termId: defaultValues?.termId || activeTerm?.id || '',
-				'semester-status': defaultValues?.semesterStatus,
+				semesterStatus: defaultValues?.semesterStatus,
 				tuitionFeeReceipts: defaultValues?.tuitionFeeReceipts || [],
 			}}
 			onSuccess={({ id }) => {
@@ -466,7 +466,7 @@ export default function RegistrationRequestForm({
 									{ value: 'Active', label: 'Active' },
 									{ value: 'Repeat', label: 'Repeat' },
 								]}
-								{...form.getInputProps('semester-status')}
+								{...form.getInputProps('semesterStatus')}
 								disabled={!structureId}
 							/>
 						</Group>
