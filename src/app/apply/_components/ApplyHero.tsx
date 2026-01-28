@@ -1,7 +1,5 @@
 'use client';
 
-import type { ApplicationProgress } from '@admissions/applicants';
-import { getCurrentUserApplicationProgress } from '@admissions/applicants';
 import {
 	Button,
 	Container,
@@ -12,37 +10,32 @@ import {
 	useMantineColorScheme,
 } from '@mantine/core';
 import { IconArrowRight } from '@tabler/icons-react';
-import { useQuery } from '@tanstack/react-query';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
+import { useApplicant } from '../_lib/useApplicant';
 
-function ApplyButton({ progress }: { progress?: ApplicationProgress }) {
-	if (!progress) {
+type ApplyButtonProps = {
+	hasApplication: boolean;
+	nextStepUrl: string;
+	isSubmitted: boolean;
+};
+
+function ApplyButton({
+	hasApplication,
+	nextStepUrl,
+	isSubmitted,
+}: ApplyButtonProps) {
+	if (hasApplication) {
 		return (
 			<Button
 				component={Link}
-				href='/apply/welcome'
-				size='md'
-				radius='xl'
-				rightSection={<IconArrowRight size={20} />}
-				variant='gradient'
-			>
-				Apply Now
-			</Button>
-		);
-	}
-
-	if (progress.hasApplication) {
-		return (
-			<Button
-				component={Link}
-				href={progress.nextStepUrl}
+				href={nextStepUrl}
 				size='md'
 				radius='xl'
 				variant='gradient'
 			>
-				My Application
+				{isSubmitted ? 'View Application' : 'Continue Application'}
 			</Button>
 		);
 	}
@@ -63,15 +56,10 @@ function ApplyButton({ progress }: { progress?: ApplicationProgress }) {
 
 export default function HeroSection() {
 	const { colorScheme } = useMantineColorScheme();
-	const { data: session, status } = useSession();
+	const { status } = useSession();
 	const isDark = colorScheme === 'dark';
 
-	const { data: progress, isLoading } = useQuery({
-		queryKey: ['application-progress', session?.user?.id],
-		queryFn: getCurrentUserApplicationProgress,
-		enabled: status === 'authenticated',
-		staleTime: 30_000,
-	});
+	const { currentApplication, nextStepUrl, isLoading } = useApplicant();
 
 	return (
 		<Container
@@ -119,7 +107,11 @@ export default function HeroSection() {
 					{isLoading && status === 'authenticated' ? (
 						<Skeleton height={42} width={150} radius='xl' />
 					) : (
-						<ApplyButton progress={progress} />
+						<ApplyButton
+							hasApplication={!!currentApplication}
+							nextStepUrl={nextStepUrl}
+							isSubmitted={currentApplication?.status === 'submitted'}
+						/>
 					)}
 
 					<Button

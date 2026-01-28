@@ -96,6 +96,33 @@ function computeDocumentLimits(
 	};
 }
 
+function computeNextStepUrl(
+	applicant: ApplicantWithRelations | null | undefined,
+	completeness: CompletenessResult,
+	currentApplication: ApplicantWithRelations['applications'][number] | null
+): string {
+	if (!applicant || !currentApplication) {
+		return '/apply/welcome';
+	}
+
+	if (currentApplication.status === 'submitted') {
+		return '/apply/profile';
+	}
+
+	const { hasIdentity, hasQualifications, hasFirstChoice, hasPersonalInfo } =
+		completeness;
+
+	let step = 'documents';
+	if (hasIdentity) step = 'qualifications';
+	if (hasIdentity && hasQualifications) step = 'program';
+	if (hasIdentity && hasQualifications && hasFirstChoice)
+		step = 'personal-info';
+	if (hasIdentity && hasQualifications && hasFirstChoice && hasPersonalInfo)
+		step = 'review';
+
+	return `/apply/${currentApplication.id}/${step}`;
+}
+
 export function useApplicant() {
 	const { data: session } = useSession();
 	const router = useRouter();
@@ -150,6 +177,11 @@ export function useApplicant() {
 		[query.data, maxDocuments]
 	);
 
+	const nextStepUrl = useMemo(
+		() => computeNextStepUrl(query.data, completeness, currentApplication),
+		[query.data, completeness, currentApplication]
+	);
+
 	return {
 		applicant: query.data,
 		isLoading: query.isLoading || eligibilityQuery.isLoading,
@@ -161,5 +193,6 @@ export function useApplicant() {
 		activeIntake,
 		documentLimits,
 		certificationValidDays,
+		nextStepUrl,
 	};
 }
