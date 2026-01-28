@@ -4,6 +4,8 @@ import type { NewDocumentStamp } from '../_schema/documentStamps';
 import type { DocumentType } from '../_schema/documents';
 import DocumentRepository from './repository';
 
+type StampInput = Omit<NewDocumentStamp, 'id' | 'documentId' | 'createdAt'>;
+
 class DocumentService {
 	constructor(private readonly repository = new DocumentRepository()) {}
 
@@ -27,14 +29,17 @@ class DocumentService {
 		);
 	}
 
-	async create(data: {
-		fileName: string;
-		fileUrl: string;
-		type: DocumentType;
-		stdNo: number;
-	}) {
+	async create(
+		data: {
+			fileName: string;
+			fileUrl: string;
+			type: DocumentType;
+			stdNo: number;
+		},
+		stamps?: StampInput[]
+	) {
 		return withAuth(
-			async () => this.repository.createWithDocument(data),
+			async () => this.repository.createWithDocument(data, stamps),
 			['admin', 'registry', 'student_services']
 		);
 	}
@@ -46,10 +51,7 @@ class DocumentService {
 		);
 	}
 
-	async saveStamps(
-		documentId: string,
-		stamps: Omit<NewDocumentStamp, 'id' | 'documentId' | 'createdAt'>[]
-	) {
+	async saveStamps(documentId: string, stamps: StampInput[]) {
 		return this.repository.createStamps(documentId, stamps);
 	}
 

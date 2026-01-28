@@ -4,17 +4,22 @@ import type { NewDocumentStamp } from '../_schema/documentStamps';
 import type { DocumentType } from '../_schema/documents';
 import { documentsService as service } from './service';
 
+type StampInput = Omit<NewDocumentStamp, 'id' | 'documentId' | 'createdAt'>;
+
 export async function getStudentDocuments(stdNo: number) {
 	return service.getByStudent(stdNo);
 }
 
-export async function createDocument(data: {
-	fileName: string;
-	fileUrl: string;
-	type: DocumentType;
-	stdNo: number;
-}) {
-	return service.create(data);
+export async function createDocument(
+	data: {
+		fileName: string;
+		fileUrl: string;
+		type: DocumentType;
+		stdNo: number;
+	},
+	stamps?: StampInput[]
+) {
+	return service.create(data, stamps);
 }
 
 export async function deleteDocument(id: string) {

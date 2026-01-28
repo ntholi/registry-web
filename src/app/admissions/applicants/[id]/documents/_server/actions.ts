@@ -72,6 +72,12 @@ export async function saveApplicantDocument(data: {
 		data.certification
 	);
 
+	const stamps = data.certification?.stamps?.map((s) => ({
+		date: s.date,
+		name: s.name,
+		title: s.title,
+	}));
+
 	return applicantDocumentsService.uploadDocument(
 		{
 			fileName: data.fileName,
@@ -81,7 +87,8 @@ export async function saveApplicantDocument(data: {
 			certifiedBy,
 		},
 		data.applicantId,
-		0
+		0,
+		stamps
 	);
 }
 
