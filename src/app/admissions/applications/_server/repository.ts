@@ -114,8 +114,7 @@ export default class ApplicationRepository extends BaseRepository<
 		if (search) {
 			const searchLower = search.toLowerCase();
 			const filtered = items.filter((item) => {
-				const programName =
-					item.firstChoiceProgram?.name?.toLowerCase() ?? '';
+				const programName = item.firstChoiceProgram?.name?.toLowerCase() ?? '';
 				return (
 					item.applicant.fullName.toLowerCase().includes(searchLower) ||
 					item.applicant.nationalId?.toLowerCase().includes(searchLower) ||
