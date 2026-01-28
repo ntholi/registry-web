@@ -50,6 +50,7 @@ export function DeleteButton({
 	warningMessage,
 	title,
 	typedConfirmation = true,
+	variant = 'subtle',
 	children,
 	onClick,
 	...props
@@ -147,6 +148,7 @@ export function DeleteButton({
 			<ActionIcon
 				color='red'
 				loading={mutation.isPending || props.loading}
+				variant={variant}
 				{...props}
 				onClick={handleOpen}
 			>

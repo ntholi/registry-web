@@ -35,7 +35,6 @@ class ApplicantService extends BaseService<typeof applicants, 'id'> {
 			findAllRoles: ['registry', 'marketing', 'admin'],
 			createRoles: ['registry', 'marketing', 'admin'],
 			updateRoles: ['registry', 'marketing', 'admin'],
-			deleteRoles: ['registry', 'admin'],
 		});
 		this.repo = repo;
 	}
