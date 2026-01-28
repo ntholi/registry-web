@@ -48,39 +48,22 @@ export function IdentityConfirmationModal({
 		<Modal
 			opened={opened}
 			onClose={onClose}
-			title='Confirm Your Identity Details'
+			title='Confirm Identity Document'
 			centered
 			size='md'
 		>
 			<Stack gap='lg'>
-				<Text size='sm' c='dimmed'>
-					We extracted the following information from your document. Please
-					verify it is correct before continuing.
-				</Text>
-
 				<Paper
 					p='md'
 					radius='md'
 					style={{
 						background:
 							'linear-gradient(135deg, var(--mantine-color-dark-7) 0%, var(--mantine-color-dark-8) 100%)',
-						border: '2px solid var(--mantine-color-dark-4)',
+						border: '1px solid var(--mantine-color-dark-4)',
 						position: 'relative',
 						overflow: 'hidden',
 					}}
 				>
-					<Box
-						style={{
-							position: 'absolute',
-							top: 0,
-							left: 0,
-							right: 0,
-							height: 8,
-							background:
-								'linear-gradient(90deg, var(--mantine-color-blue-6) 0%, var(--mantine-color-cyan-5) 100%)',
-						}}
-					/>
-
 					<Stack gap='md' pt='xs'>
 						<Group justify='space-between' align='flex-start'>
 							<Stack gap={4}>
@@ -148,7 +131,7 @@ export function IdentityConfirmationModal({
 						onClick={onConfirm}
 						loading={loading}
 					>
-						Confirm & Save
+						Confirm
 					</Button>
 				</Group>
 			</Stack>

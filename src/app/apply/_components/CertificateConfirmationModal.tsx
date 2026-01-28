@@ -75,70 +75,49 @@ export function CertificateConfirmationModal({
 		<Modal
 			opened={opened}
 			onClose={onClose}
-			title='Confirm Academic Document Details'
+			title='Confirm Academic Document'
 			centered
 			size='lg'
 		>
 			<Stack gap='lg'>
-				<Text size='sm' c='dimmed'>
-					We extracted the following information from your document. Please
-					verify it is correct before continuing.
-				</Text>
-
 				<Paper
 					p={0}
 					radius='md'
 					style={{
 						background:
 							'linear-gradient(180deg, var(--mantine-color-dark-7) 0%, var(--mantine-color-dark-8) 100%)',
-						border: '3px double var(--mantine-color-dark-4)',
+						border: '1px double var(--mantine-color-dark-4)',
 						position: 'relative',
 						overflow: 'hidden',
 					}}
 				>
-					<Box
-						style={{
-							background:
-								'linear-gradient(90deg, var(--mantine-color-yellow-8) 0%, var(--mantine-color-orange-7) 100%)',
-							padding: 'var(--mantine-spacing-md)',
-							borderBottom: '2px solid var(--mantine-color-dark-4)',
-						}}
-					>
-						<Group justify='center' gap='sm'>
-							<ThemeIcon variant='filled' size={36} radius='xl' color='dark'>
-								<IconCertificate size={22} />
-							</ThemeIcon>
-							<Stack gap={0} ta='center'>
-								<Text
-									size='lg'
-									fw={800}
-									tt='uppercase'
-									lts={2}
-									c='dark.9'
-									style={{ textShadow: '0 1px 0 rgba(255,255,255,0.3)' }}
-								>
-									{analysis.certificateType || 'Academic Document'}
-								</Text>
-								{analysis.issuingAuthority && (
-									<Text size='xs' c='dark.7' fw={500}>
-										Issued by {analysis.issuingAuthority}
+					<Box bg={'dark.8'}>
+						<Box p={'md'}>
+							<Group justify='center' gap='sm'>
+								<ThemeIcon variant='filled' size={36} radius='xl' color='dark'>
+									<IconCertificate size={50} />
+								</ThemeIcon>
+								<Stack gap={0} ta='center'>
+									<Text size='lg' fw={600} tt='uppercase' lts={2}>
+										{analysis.certificateType || 'Academic Document'}
 									</Text>
-								)}
-							</Stack>
-						</Group>
+									{analysis.issuingAuthority && (
+										<Text size='xs' c='dark.7' fw={500}>
+											Issued by {analysis.issuingAuthority}
+										</Text>
+									)}
+								</Stack>
+							</Group>
+						</Box>
+						<Divider my='sm' />
 					</Box>
 
 					<Stack gap='md' p='lg'>
 						<Stack gap={4} ta='center'>
-							<Text size='xs' c='dimmed' tt='uppercase'>
-								This is to certify that
+							<Text size='xs' c='dimmed'>
+								Name on Document
 							</Text>
-							<Text
-								size='xl'
-								fw={700}
-								ff='Georgia, serif'
-								style={{ fontStyle: 'italic' }}
-							>
+							<Text size='xl' fw={700} ff='Georgia, serif'>
 								{analysis.studentName || '—'}
 							</Text>
 						</Stack>
@@ -232,32 +211,6 @@ export function CertificateConfirmationModal({
 							</Box>
 						)}
 					</Stack>
-
-					<Box
-						style={{
-							borderTop: '1px dashed var(--mantine-color-dark-5)',
-							padding: 'var(--mantine-spacing-xs)',
-							background: 'var(--mantine-color-dark-9)',
-						}}
-					>
-						<Group justify='center' gap='xs'>
-							{analysis.certification?.isCertified && (
-								<Badge
-									leftSection={<IconCheck size={12} />}
-									variant='light'
-									color='green'
-									size='sm'
-								>
-									Certified
-								</Badge>
-							)}
-							{analysis.lqfLevel && (
-								<Badge variant='light' color='blue' size='sm'>
-									LQF Level {analysis.lqfLevel}
-								</Badge>
-							)}
-						</Group>
-					</Box>
 				</Paper>
 
 				<Group justify='flex-end' gap='sm'>
@@ -275,7 +228,7 @@ export function CertificateConfirmationModal({
 						onClick={onConfirm}
 						loading={loading}
 					>
-						Confirm & Save
+						Confirm
 					</Button>
 				</Group>
 			</Stack>
