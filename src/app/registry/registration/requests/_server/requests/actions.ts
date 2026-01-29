@@ -47,6 +47,7 @@ export async function determineSemesterStatus(
 	const semesterNo = commonSemesterNo(modules);
 	const completedSemesters =
 		student?.programs
+			.filter((p) => p.status === 'Active')
 			.flatMap((program) => program.semesters)
 			.map((semester) => semester.structureSemester?.semesterNumber)
 			.filter(
