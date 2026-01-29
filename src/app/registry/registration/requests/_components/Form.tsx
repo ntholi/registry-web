@@ -2,6 +2,7 @@
 
 import type { modules, semesterModules } from '@academic/_database';
 import { getModulesForStructure } from '@academic/semester-modules';
+import { findAllSponsors } from '@finance/sponsors';
 import {
 	ActionIcon,
 	Box,
@@ -141,6 +142,17 @@ export default function RegistrationRequestForm({
 		enabled: !!structureId && !initialStructureModules,
 		initialData: initialStructureModules,
 	});
+
+	const { data: sponsors } = useQuery({
+		queryKey: ['sponsors'],
+		queryFn: () => findAllSponsors(1),
+		select: ({ items }) => items,
+	});
+
+	const isSelfSponsored = (sponsorId: number) => {
+		if (!sponsors) return false;
+		return sponsors.find((s) => s.id === sponsorId)?.code === 'PRV';
+	};
 
 	const semesterOptions = structureModules
 		? [...new Set(structureModules.map((sem) => sem.id.toString()))]
@@ -337,7 +349,10 @@ export default function RegistrationRequestForm({
 						}
 					}
 
-					if (moduleStatus.startsWith('Repeat')) {
+					const sponsorId = Number(form.values.sponsorId);
+					const selfSponsored = isSelfSponsored(sponsorId);
+
+					if (moduleStatus.startsWith('Repeat') && !selfSponsored) {
 						setPendingRepeatModule({ module, status: moduleStatus });
 						setRepeatReceipt('');
 						openRepeatModal();
@@ -559,7 +574,8 @@ export default function RegistrationRequestForm({
 													/>
 												</Table.Td>
 												<Table.Td>
-													{semModule.status.startsWith('Repeat') ? (
+													{semModule.status.startsWith('Repeat') &&
+													!isSelfSponsored(Number(form.values.sponsorId)) ? (
 														<ReceiptInput
 															value={semModule.receiptNumber || ''}
 															onChange={(value) =>

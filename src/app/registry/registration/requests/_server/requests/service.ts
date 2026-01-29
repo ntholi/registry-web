@@ -1,3 +1,4 @@
+import { getSponsor } from '@finance/sponsors';
 import type { AcademicRemarks, Student } from '@registry/students';
 import { getActiveTerm } from '@/app/registry/terms';
 import {
@@ -98,22 +99,27 @@ class RegistrationRequestService {
 		accountNumber?: string;
 		receipts?: { receiptNo: string; receiptType: ReceiptType }[];
 	}) {
-		const repeatModules = data.modules.filter((m) =>
-			m.moduleStatus.startsWith('Repeat')
-		);
-		const repeatReceipts =
-			data.receipts?.filter((r) => r.receiptType === 'repeat_module') || [];
+		const sponsor = await getSponsor(data.sponsorId);
+		const isSelfSponsored = sponsor?.code === 'PRV';
 
-		if (repeatModules.length > 0 && repeatReceipts.length === 0) {
-			throw new Error(
-				'A receipt is required for repeat modules. Please ensure all repeat modules have a receipt number attached.'
+		if (!isSelfSponsored) {
+			const repeatModules = data.modules.filter((m) =>
+				m.moduleStatus.startsWith('Repeat')
 			);
-		}
+			const repeatReceipts =
+				data.receipts?.filter((r) => r.receiptType === 'repeat_module') || [];
 
-		if (repeatModules.length > repeatReceipts.length) {
-			throw new Error(
-				`You have selected ${repeatModules.length} repeat modules but only provided ${repeatReceipts.length} receipt(s). Each repeat module requires its own receipt.`
-			);
+			if (repeatModules.length > 0 && repeatReceipts.length === 0) {
+				throw new Error(
+					'A receipt is required for repeat modules. Please ensure all repeat modules have a receipt number attached.'
+				);
+			}
+
+			if (repeatModules.length > repeatReceipts.length) {
+				throw new Error(
+					`You have selected ${repeatModules.length} repeat modules but only provided ${repeatReceipts.length} receipt(s). Each repeat module requires its own receipt.`
+				);
+			}
 		}
 
 		return withAuth(
