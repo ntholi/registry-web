@@ -52,6 +52,14 @@ ${COMMON_RULES}
 - LGCSE/IGCSE grades: Use letter (A*, A, B, C, D, E, F, G, U)
 - Extract ALL subjects with grades
 
+GRADE ACCURACY (CRITICAL - FOR ACADEMIC DOCUMENTS):
+- For each subject, provide a confidence score (0-100) for the grade reading.
+- 100 = absolutely certain the grade is correct
+- 95-99 = very confident, minor image quality issues
+- <95 = uncertain, add subject name to "unreadableGrades" list
+- If confidence < 95 for ANY subject, you MUST add that subject to "unreadableGrades".
+- DO NOT guess grades. Accuracy is more important than completeness.
+
 ${CERTIFICATION_RULES}`;
 
 const IDENTITY_PROMPT = `Analyze this identity document and extract structured information.
@@ -70,11 +78,18 @@ ${COMMON_RULES}
 - LGCSE/IGCSE grades: Use letter (A*, A, B, C, D, E, F, G, U)
 - Extract ALL subjects with grades
 
-GRADE ACCURACY (CRITICAL):
-- You must be 100% sure of the grade symbol (letter or number).
-- If a grade is blurry, ambiguous, or you are less than 95% confident in reading it, DO NOT guess.
-- Instead, add the subject name to the "unreadableGrades" list.
-- Example: If "Mathematics" grade looks like "B" but might be "D", add "Mathematics" to "unreadableGrades".
+GRADE ACCURACY (CRITICAL - ZERO TOLERANCE FOR ERRORS):
+- For EACH subject, you MUST provide a confidence score (0-100) for the grade reading.
+- 100 = absolutely certain, crystal clear, no doubt whatsoever
+- 95-99 = very confident, minor image quality issues but grade is distinguishable
+- <95 = uncertain, ambiguous, blurry, or could be misread
+
+MANDATORY RULES:
+1. If confidence < 95 for ANY subject, you MUST add that subject name to "unreadableGrades".
+2. DO NOT guess grades. If "B" could be "D" or "8", that is <95 confidence.
+3. If the document is blurry, faded, or partially obscured, report ALL affected subjects.
+4. It is BETTER to report a grade as unreadable than to guess incorrectly.
+5. Example: "Mathematics" grade looks like "B" but might be "D" → confidence: 70, add "Mathematics" to "unreadableGrades".
 
 ISSUING AUTHORITY:
 - issuingAuthority: Extract examining body (ECoL, Cambridge, IEB, Umalusi)
@@ -131,6 +146,20 @@ export async function analyzeDocument(
 		}
 
 		if (category === 'academic' && academic) {
+			if (academic.unreadableGrades && academic.unreadableGrades.length > 0) {
+				throw new Error(
+					`Unable to read grades for: ${academic.unreadableGrades.join(', ')}. Please upload a clearer image.`
+				);
+			}
+			const lowConfidenceSubjects =
+				academic.subjects
+					?.filter((s) => s.confidence < 95)
+					.map((s) => s.name) ?? [];
+			if (lowConfidenceSubjects.length > 0) {
+				throw new Error(
+					`Uncertain grade readings for: ${lowConfidenceSubjects.join(', ')}. Please upload a clearer image.`
+				);
+			}
 			return { category: 'academic', ...academic };
 		}
 
@@ -304,6 +333,16 @@ Scoring guide:
 			return {
 				success: false,
 				error: `Unable to read grades for: ${output.unreadableGrades.join(', ')}. Please upload a clearer image.`,
+			};
+		}
+
+		const lowConfidenceSubjects =
+			output.subjects?.filter((s) => s.confidence < 95).map((s) => s.name) ??
+			[];
+		if (lowConfidenceSubjects.length > 0) {
+			return {
+				success: false,
+				error: `Uncertain grade readings for: ${lowConfidenceSubjects.join(', ')}. Please upload a clearer image.`,
 			};
 		}
 

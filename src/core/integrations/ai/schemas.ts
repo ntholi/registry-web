@@ -86,15 +86,22 @@ const academicSchema = z.object({
 					.describe(
 						'Grade value: for COSC use numeric (1-9), for LGCSE/IGCSE use letter (A*-U)'
 					),
+				confidence: z
+					.number()
+					.min(0)
+					.max(100)
+					.describe(
+						'Confidence level (0-100) in the accuracy of this grade reading. 100 = absolutely certain, <95 = uncertain.'
+					),
 			})
 		)
 		.nullable()
-		.describe('Individual subject results'),
+		.describe('Individual subject results with confidence scores'),
 	unreadableGrades: z
 		.array(z.string())
 		.nullable()
 		.describe(
-			'List of subject names where the grade symbol is not clearly legible or uncertain.'
+			'List of subject names where the grade symbol is not clearly legible or uncertain (confidence < 95).'
 		),
 	overallClassification: z
 		.enum(['Distinction', 'Merit', 'Credit', 'Pass', 'Fail'])

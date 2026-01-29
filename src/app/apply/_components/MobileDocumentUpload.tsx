@@ -444,8 +444,7 @@ export function MobileDocumentUpload({
 						Camera
 					</Button>
 					<Button
-						variant='light'
-						leftSection={<IconPhoto size={'1rem'} />}
+						variant='default'
 						onClick={handleGalleryClick}
 						disabled={disabled || isProcessing}
 					>
