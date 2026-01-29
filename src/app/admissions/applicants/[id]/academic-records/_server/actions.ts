@@ -21,7 +21,7 @@ export async function createAcademicRecord(
 	applicantId: string,
 	input: CreateAcademicRecordInput,
 	isLevel4: boolean,
-	documentId?: string
+	applicantDocumentId?: string
 ) {
 	const data: AcademicRecord = {
 		applicantId,
@@ -31,13 +31,13 @@ export async function createAcademicRecord(
 		qualificationName: input.qualificationName,
 		certificateNumber: input.certificateNumber,
 		resultClassification: input.resultClassification,
+		applicantDocumentId,
 	};
 
 	return academicRecordsService.createWithGrades(
 		data,
 		isLevel4,
-		input.subjectGrades,
-		documentId
+		input.subjectGrades
 	);
 }
 
@@ -75,7 +75,10 @@ export async function findAcademicRecordByCertificateNumber(
 
 export async function linkDocumentToAcademicRecord(
 	academicRecordId: string,
-	documentId: string
+	applicantDocumentId: string
 ) {
-	return academicRecordsService.linkDocument(academicRecordId, documentId);
+	return academicRecordsService.linkDocument(
+		academicRecordId,
+		applicantDocumentId
+	);
 }

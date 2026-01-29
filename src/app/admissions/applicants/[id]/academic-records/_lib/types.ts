@@ -3,6 +3,7 @@ import type {
 	ResultClassification,
 	subjectGrades,
 } from '@/core/database';
+import type { ApplicantDocument } from '../../documents/_lib/types';
 
 export type AcademicRecord = typeof academicRecords.$inferSelect;
 export type AcademicRecordInsert = typeof academicRecords.$inferInsert;
@@ -20,6 +21,7 @@ export type AcademicRecordWithRelations = AcademicRecord & {
 	subjectGrades: (SubjectGrade & {
 		subject: { id: string; name: string };
 	})[];
+	applicantDocument?: ApplicantDocument | null;
 };
 
 export type CreateAcademicRecordInput = {

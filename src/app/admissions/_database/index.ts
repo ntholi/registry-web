@@ -1,4 +1,3 @@
-export * from '../academic-records/_schema/academicDocuments';
 export * from '../academic-records/_schema/academicRecords';
 export * from '../academic-records/_schema/relations';
 export * from '../academic-records/_schema/subjectGrades';

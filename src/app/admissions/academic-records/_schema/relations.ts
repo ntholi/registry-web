@@ -1,9 +1,8 @@
 import { applicants } from '@admissions/applicants/_schema/applicants';
 import { certificateTypes } from '@admissions/certificate-types/_schema/certificateTypes';
+import { applicantDocuments } from '@admissions/documents/_schema/applicantDocuments';
 import { subjects } from '@admissions/subjects/_schema/subjects';
-import { documents } from '@registry/documents/_schema/documents';
 import { relations } from 'drizzle-orm';
-import { academicDocuments } from './academicDocuments';
 import { academicRecords } from './academicRecords';
 import { subjectGrades } from './subjectGrades';
 
@@ -18,22 +17,11 @@ export const academicRecordsRelations = relations(
 			fields: [academicRecords.certificateTypeId],
 			references: [certificateTypes.id],
 		}),
+		applicantDocument: one(applicantDocuments, {
+			fields: [academicRecords.applicantDocumentId],
+			references: [applicantDocuments.id],
+		}),
 		subjectGrades: many(subjectGrades),
-		academicDocuments: many(academicDocuments),
-	})
-);
-
-export const academicDocumentsRelations = relations(
-	academicDocuments,
-	({ one }) => ({
-		academicRecord: one(academicRecords, {
-			fields: [academicDocuments.academicRecordId],
-			references: [academicRecords.id],
-		}),
-		document: one(documents, {
-			fields: [academicDocuments.documentId],
-			references: [documents.id],
-		}),
 	})
 );
 

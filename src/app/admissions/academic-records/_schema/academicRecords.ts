@@ -1,5 +1,6 @@
 import { applicants } from '@admissions/applicants/_schema/applicants';
 import { certificateTypes } from '@admissions/certificate-types/_schema/certificateTypes';
+import { applicantDocuments } from '@admissions/documents/_schema/applicantDocuments';
 import {
 	index,
 	integer,
@@ -32,6 +33,9 @@ export const academicRecords = pgTable(
 		certificateTypeId: text()
 			.references(() => certificateTypes.id, { onDelete: 'restrict' })
 			.notNull(),
+		applicantDocumentId: text().references(() => applicantDocuments.id, {
+			onDelete: 'set null',
+		}),
 		examYear: integer().notNull(),
 		institutionName: text().notNull(),
 		qualificationName: text(),
@@ -44,6 +48,9 @@ export const academicRecords = pgTable(
 		applicantIdx: index('fk_academic_records_applicant').on(table.applicantId),
 		certTypeIdx: index('fk_academic_records_cert_type').on(
 			table.certificateTypeId
+		),
+		docIdx: index('fk_academic_records_applicant_document').on(
+			table.applicantDocumentId
 		),
 	})
 );

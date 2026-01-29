@@ -11,14 +11,23 @@ import {
 	Stack,
 	Table,
 	Text,
+	Tooltip,
 } from '@mantine/core';
+import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
-import { IconBooks, IconCertificate, IconTrash } from '@tabler/icons-react';
+import {
+	IconBooks,
+	IconCertificate,
+	IconFile,
+	IconTrash,
+} from '@tabler/icons-react';
 import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'nextjs-toploader/app';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import type { AcademicRecordWithRelations } from '../academic-records/_lib/types';
 import { deleteAcademicRecord } from '../academic-records/_server/actions';
+import { DocumentPreviewModal } from '../documents/_components/DocumentPreviewModal';
+import type { ApplicantDocument } from '../documents/_lib/types';
 
 type Props = {
 	records: AcademicRecordWithRelations[];
@@ -26,6 +35,15 @@ type Props = {
 
 export default function AcademicRecordsTab({ records }: Props) {
 	const router = useRouter();
+	const [opened, { open, close }] = useDisclosure(false);
+	const [selectedDoc, setSelectedDoc] = useState<ApplicantDocument | null>(
+		null
+	);
+
+	function openDocument(doc: ApplicantDocument) {
+		setSelectedDoc(doc);
+		open();
+	}
 
 	const consolidatedGroups = useMemo(() => {
 		const groups = new Map<
@@ -206,18 +224,36 @@ export default function AcademicRecordsTab({ records }: Props) {
 															</Text>
 														</Stack>
 													</Group>
-													<ActionIcon
-														component='div'
-														color='red'
-														variant='subtle'
-														onClick={(event) => {
-															event.stopPropagation();
-															deleteMutation.mutate(record.id);
-														}}
-														loading={deleteMutation.isPending}
-													>
-														<IconTrash size={16} />
-													</ActionIcon>
+													<Group gap='xs'>
+														{record.applicantDocument && (
+															<Tooltip label='View Document'>
+																<ActionIcon
+																	component='div'
+																	variant='subtle'
+																	onClick={(event) => {
+																		event.stopPropagation();
+																		openDocument(record.applicantDocument!);
+																	}}
+																>
+																	<IconFile size={16} />
+																</ActionIcon>
+															</Tooltip>
+														)}
+														<Tooltip label='Delete'>
+															<ActionIcon
+																component='div'
+																color='red'
+																variant='subtle'
+																onClick={(event) => {
+																	event.stopPropagation();
+																	deleteMutation.mutate(record.id);
+																}}
+																loading={deleteMutation.isPending}
+															>
+																<IconTrash size={16} />
+															</ActionIcon>
+														</Tooltip>
+													</Group>
 												</Group>
 											</Accordion.Control>
 											<Accordion.Panel>
@@ -285,14 +321,30 @@ export default function AcademicRecordsTab({ records }: Props) {
 												</Text>
 											</Stack>
 										</Group>
-										<ActionIcon
-											color='red'
-											variant='subtle'
-											onClick={() => deleteMutation.mutate(record.id)}
-											loading={deleteMutation.isPending}
-										>
-											<IconTrash size={16} />
-										</ActionIcon>
+										<Group gap='xs'>
+											{record.applicantDocument && (
+												<Tooltip label='View Document'>
+													<ActionIcon
+														variant='subtle'
+														onClick={() =>
+															openDocument(record.applicantDocument!)
+														}
+													>
+														<IconFile size={16} />
+													</ActionIcon>
+												</Tooltip>
+											)}
+											<Tooltip label='Delete'>
+												<ActionIcon
+													color='red'
+													variant='subtle'
+													onClick={() => deleteMutation.mutate(record.id)}
+													loading={deleteMutation.isPending}
+												>
+													<IconTrash size={16} />
+												</ActionIcon>
+											</Tooltip>
+										</Group>
 									</Group>
 								)}
 
@@ -327,6 +379,11 @@ export default function AcademicRecordsTab({ records }: Props) {
 					</Stack>
 				</Paper>
 			)}
+			<DocumentPreviewModal
+				opened={opened}
+				onClose={close}
+				applicantDoc={selectedDoc}
+			/>
 		</Stack>
 	);
 }

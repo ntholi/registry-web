@@ -1,6 +1,5 @@
 import { count, eq, ilike, or } from 'drizzle-orm';
 import {
-	academicDocuments,
 	academicRecords,
 	applicantDocuments,
 	applicantPhones,
@@ -236,7 +235,7 @@ export default class ApplicantRepository extends BaseRepository<
 				.values(applicantData)
 				.returning();
 
-			const docIdMap = new Map<string, string>();
+			const applicantDocIdMap = new Map<string, string>();
 
 			for (const docInput of documentInputs) {
 				const [doc] = await tx
@@ -248,15 +247,22 @@ export default class ApplicantRepository extends BaseRepository<
 					})
 					.returning();
 
-				docIdMap.set(docInput.fileName, doc.id);
+				const [appDoc] = await tx
+					.insert(applicantDocuments)
+					.values({
+						documentId: doc.id,
+						applicantId: applicant.id,
+					})
+					.returning();
 
-				await tx.insert(applicantDocuments).values({
-					documentId: doc.id,
-					applicantId: applicant.id,
-				});
+				applicantDocIdMap.set(docInput.fileName, appDoc.id);
 			}
 
 			for (const recordInput of academicRecordInputs) {
+				const applicantDocumentId = recordInput.sourceFileName
+					? applicantDocIdMap.get(recordInput.sourceFileName)
+					: undefined;
+
 				const [record] = await tx
 					.insert(academicRecords)
 					.values({
@@ -267,6 +273,7 @@ export default class ApplicantRepository extends BaseRepository<
 						qualificationName: recordInput.qualificationName,
 						certificateNumber: recordInput.certificateNumber,
 						resultClassification: recordInput.resultClassification,
+						applicantDocumentId,
 					})
 					.returning();
 
@@ -279,16 +286,6 @@ export default class ApplicantRepository extends BaseRepository<
 							standardGrade: sg.standardGrade,
 						}))
 					);
-				}
-
-				if (recordInput.sourceFileName) {
-					const docId = docIdMap.get(recordInput.sourceFileName);
-					if (docId) {
-						await tx.insert(academicDocuments).values({
-							academicRecordId: record.id,
-							documentId: docId,
-						});
-					}
 				}
 			}
 
