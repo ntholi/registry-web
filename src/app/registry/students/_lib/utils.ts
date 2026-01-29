@@ -47,26 +47,15 @@ export function getCurrentSemester(student: Student | null | undefined) {
 export function getNextSemesterNo(student: Student | null) {
 	if (!student) return '01';
 
-	const currentSemester =
-		getCurrentSemester(student)?.structureSemester?.semesterNumber;
-	if (!currentSemester) return '01';
-
-	const currentNum = Number.parseInt(currentSemester, 10);
-	const semesterNos =
-		currentNum % 2 === 0
-			? ['02', '04', '06', '08', '2', '4', '6', '8']
-			: ['01', '03', '05', '07', '1', '3', '5', '7'];
-
 	const allSemesters = student.programs
 		.flatMap((program) => program.semesters)
 		.filter((semester) => {
 			const semNo = semester.structureSemester?.semesterNumber;
-			return (
-				semNo &&
-				semesterNos.includes(semNo) &&
-				isActiveSemester(semester.status)
-			);
+			return semNo && isActiveSemester(semester.status);
 		});
+
+	if (allSemesters.length === 0) return '01';
+
 	const maxSemesterNo = Math.max(
 		...allSemesters.map((semester) => {
 			const semNo = semester.structureSemester?.semesterNumber;
