@@ -148,7 +148,7 @@ export function CameraModal({
 							ref={webcamRef}
 							audio={false}
 							screenshotFormat='image/jpeg'
-							screenshotQuality={0.92}
+							screenshotQuality={1}
 							videoConstraints={videoConstraints}
 							onUserMediaError={handleUserMediaError}
 							style={{
