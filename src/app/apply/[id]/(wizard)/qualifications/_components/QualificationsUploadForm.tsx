@@ -93,7 +93,11 @@ export default function QualificationsUploadForm({ applicationId }: Props) {
 
 	const showUploadedSection = records.length > 0 || pendingUploads > 0;
 	const uploadDisabled =
-		isLoading || uploading || documentLimits.isAtLimit || pendingUploads > 0;
+		isLoading ||
+		!applicantId ||
+		uploading ||
+		documentLimits.isAtLimit ||
+		pendingUploads > 0;
 
 	return (
 		<Paper withBorder radius='md' p='lg'>

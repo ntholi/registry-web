@@ -182,7 +182,8 @@ export function useApplicant({
 
 	const isDataReady =
 		eligibilityQuery.isSuccess &&
-		(eligibilityQuery.data?.canApply === false || query.isSuccess);
+		(eligibilityQuery.data?.canApply === false ||
+			(query.isSuccess && !!query.data));
 
 	return {
 		applicant: query.data,

@@ -114,7 +114,11 @@ export default function IdentityUploadForm({ applicationId }: Props) {
 
 	const showUploadedSection = uploadedDocs.length > 0 || pendingUploads > 0;
 	const uploadDisabled =
-		isLoading || uploading || documentLimits.isAtLimit || pendingUploads > 0;
+		isLoading ||
+		!applicantId ||
+		uploading ||
+		documentLimits.isAtLimit ||
+		pendingUploads > 0;
 
 	return (
 		<Paper withBorder radius='md' p='lg'>
