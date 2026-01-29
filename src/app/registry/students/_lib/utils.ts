@@ -48,6 +48,7 @@ export function getNextSemesterNo(student: Student | null) {
 	if (!student) return '01';
 
 	const allSemesters = student.programs
+		.filter((p) => p.status === 'Active')
 		.flatMap((program) => program.semesters)
 		.filter((semester) => {
 			const semNo = semester.structureSemester?.semesterNumber;

@@ -21,6 +21,7 @@ type ModuleWithStatus = {
 
 type Student = {
 	programs: Array<{
+		status: string;
 		semesters: Array<{
 			studentModules: Array<{
 				semesterModule: {
@@ -69,6 +70,7 @@ export default function ModuleSection({
 			return moduleData.type === 'Elective' ? 'Elective' : 'Compulsory';
 
 		const attemptedModules = student.programs
+			.filter((p) => p.status === 'Active')
 			.flatMap((p) => p.semesters)
 			.flatMap((s) => s.studentModules)
 			.filter((m) => m.semesterModule.module?.name === moduleData.name);

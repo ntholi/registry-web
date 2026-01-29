@@ -310,6 +310,7 @@ export default function RegistrationRequestForm({
 							const student = await getStudentRegistrationData(stdNo);
 							if (student) {
 								const allStudentModules = student.programs
+									.filter((p) => p.status === 'Active')
 									.flatMap((p) => p.semesters)
 									.filter((s) => isActiveSemester(s.status))
 									.flatMap((s) => s.studentModules)

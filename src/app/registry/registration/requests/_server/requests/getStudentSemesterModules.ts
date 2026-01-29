@@ -77,6 +77,7 @@ export async function getStudentSemesterModulesLogic(
 
 	const attemptedModules = new Set(
 		student.programs
+			.filter((p) => p.status === 'Active')
 			.flatMap((p) => p.semesters)
 			.filter((s) => isActiveSemester(s.status))
 			.flatMap((s) => s.studentModules)

@@ -81,6 +81,7 @@ export default function StructureView({ stdNo, isActive = true }: Props) {
 
 	const completedModules = new Set(
 		student?.programs
+			.filter((p) => p.status === 'Active')
 			.flatMap((p) => p.semesters)
 			.flatMap((s) => s.studentModules)
 			.filter((m) => m.marks !== null && Number(m.marks) >= 50)

@@ -25,6 +25,7 @@ export default function NewRegistrationCard() {
 
 	const hasExistingSemester =
 		student?.programs
+			.filter((p) => p.status === 'Active')
 			.flatMap((p) => p.semesters)
 			.some(
 				(semester) =>
