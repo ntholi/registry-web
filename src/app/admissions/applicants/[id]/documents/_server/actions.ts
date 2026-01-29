@@ -200,7 +200,7 @@ export async function updateApplicantFromIdentity(
 export async function createAcademicRecordFromDocument(
 	applicantId: string,
 	data: ExtractedAcademicData,
-	documentId?: string
+	applicantDocumentId?: string
 ) {
 	const examYear = data.examYear ?? new Date().getFullYear();
 	const institutionName = data.institutionName ?? 'Unknown Institution';
@@ -267,8 +267,8 @@ export async function createAcademicRecordFromDocument(
 				},
 				isLevel4
 			);
-			if (documentId && record) {
-				await linkDocumentToAcademicRecord(record.id, documentId);
+			if (applicantDocumentId && record) {
+				await linkDocumentToAcademicRecord(record.id, applicantDocumentId);
 			}
 			return record;
 		}
@@ -286,6 +286,6 @@ export async function createAcademicRecordFromDocument(
 			subjectGrades,
 		},
 		isLevel4,
-		documentId
+		applicantDocumentId
 	);
 }

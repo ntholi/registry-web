@@ -71,7 +71,7 @@ export async function uploadCertificateDocument(
 					subjects: analysis.subjects,
 					overallClassification: analysis.overallClassification,
 				},
-				savedDoc?.document?.id
+				savedDoc?.id
 			);
 		}
 
