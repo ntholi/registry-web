@@ -21,8 +21,8 @@ import {
 	IconCheck,
 	IconX,
 } from '@tabler/icons-react';
-import type { CertificateDocumentResult } from '@/core/integrations/ai/documents';
 import { getGradeColor } from '@/app/admissions/applicants/[id]/_components/AcademicRecordsTab';
+import type { CertificateDocumentResult } from '@/core/integrations/ai/documents';
 
 type Props = {
 	opened: boolean;
@@ -130,25 +130,24 @@ export function CertificateConfirmationModal({
 						/>
 
 						<Stack>
-						<SimpleGrid cols={{ base: 2}} spacing='md'>
-							
-							<CertField label='Exam Year' value={analysis.examYear} />
-							{analysis.certificateNumber && (
-								<CertField
-								label='Cert No.'
-								value={analysis.certificateNumber}
-								/>
-							)}
-							{analysis.overallClassification && (
-								<CertField
-								label='Classification'
-								value={analysis.overallClassification}
-								highlight
-								/>
-							)}
-						</SimpleGrid>
-						<CertField label='Institution' value={analysis.institutionName} />
-							</Stack>
+							<SimpleGrid cols={{ base: 2 }} spacing='md'>
+								<CertField label='Exam Year' value={analysis.examYear} />
+								{analysis.certificateNumber && (
+									<CertField
+										label='Cert No.'
+										value={analysis.certificateNumber}
+									/>
+								)}
+								{analysis.overallClassification && (
+									<CertField
+										label='Classification'
+										value={analysis.overallClassification}
+										highlight
+									/>
+								)}
+							</SimpleGrid>
+							<CertField label='Institution' value={analysis.institutionName} />
+						</Stack>
 
 						{hasSubjects && (
 							<>
@@ -184,7 +183,11 @@ export function CertificateConfirmationModal({
 															<Text size='sm'>{subject.name}</Text>
 														</Table.Td>
 														<Table.Td ta='center'>
-															<Badge variant='light' color={getGradeColor(subject.grade)} size='md'>
+															<Badge
+																variant='light'
+																color={getGradeColor(subject.grade)}
+																size='md'
+															>
 																{subject.grade}
 															</Badge>
 														</Table.Td>
