@@ -37,7 +37,7 @@ export default function ApplicantHeader({ id, fullName, gender, user }: Props) {
 			<Group justify='space-between' align='flex-start'>
 				<Group gap='lg'>
 					<Avatar
-						src={session?.user?.image}
+						src={user?.image}
 						size={80}
 						radius={80}
 						color={genderColor}

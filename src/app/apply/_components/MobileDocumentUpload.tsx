@@ -116,6 +116,8 @@ export function MobileDocumentUpload({
 	const [file, setFile] = useState<File | null>(null);
 	const [uploadState, setUploadState] = useState<UploadState>('idle');
 	const [errorMessage, setErrorMessage] = useState<string | null>(null);
+	const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+	const [isFromCamera, setIsFromCamera] = useState(false);
 	const [pendingResult, setPendingResult] = useState<DocumentUploadResult<
 		typeof type
 	> | null>(null);
@@ -129,13 +131,14 @@ export function MobileDocumentUpload({
 
 	const IdleIcon = ICON_MAP[type];
 
-	async function processFile(selectedFile: File) {
+	async function processFile(selectedFile: File, fromCamera = false) {
 		if (selectedFile.size > maxSize) {
 			notifications.show({
 				title: 'File too large',
 				message: `Please upload a file under ${formatFileSize(maxSize)}`,
 				color: 'red',
 			});
+			if (fromCamera) closeCamera();
 			return;
 		}
 
@@ -148,12 +151,20 @@ export function MobileDocumentUpload({
 				message: 'Please upload a PDF or image file',
 				color: 'red',
 			});
+			if (fromCamera) closeCamera();
 			return;
 		}
 
 		setFile(selectedFile);
 		setUploadState('uploading');
 		setErrorMessage(null);
+		setIsFromCamera(fromCamera);
+
+		if (selectedFile.type.startsWith('image/')) {
+			setPreviewUrl(URL.createObjectURL(selectedFile));
+		} else {
+			setPreviewUrl(null);
+		}
 
 		const arrayBuffer = await selectedFile.arrayBuffer();
 		const uint8Array = new Uint8Array(arrayBuffer);
@@ -170,6 +181,7 @@ export function MobileDocumentUpload({
 			if (!result.success) {
 				setErrorMessage(result.error);
 				setUploadState('error');
+				closeCamera();
 				notifications.show({
 					title: 'Processing Failed',
 					message: result.error,
@@ -178,6 +190,7 @@ export function MobileDocumentUpload({
 				return;
 			}
 			setUploadState('ready');
+			closeCamera();
 			const uploadResult: DocumentUploadResult<'identity'> = {
 				file: selectedFile,
 				base64,
@@ -195,6 +208,7 @@ export function MobileDocumentUpload({
 			if (!result.success) {
 				setErrorMessage(result.error);
 				setUploadState('error');
+				closeCamera();
 				notifications.show({
 					title: 'Processing Failed',
 					message: result.error,
@@ -203,6 +217,7 @@ export function MobileDocumentUpload({
 				return;
 			}
 			setUploadState('ready');
+			closeCamera();
 			const uploadResult: DocumentUploadResult<'certificate'> = {
 				file: selectedFile,
 				base64,
@@ -213,6 +228,7 @@ export function MobileDocumentUpload({
 		} else {
 			const analysis = await analyzeDocument(base64, selectedFile.type);
 			setUploadState('ready');
+			closeCamera();
 			(onUploadComplete as (r: DocumentUploadResult<'any'>) => void)({
 				file: selectedFile,
 				base64,
@@ -251,7 +267,7 @@ export function MobileDocumentUpload({
 	}
 
 	function handleCameraCapture(capturedFile: File) {
-		processFile(capturedFile);
+		processFile(capturedFile, true);
 	}
 
 	function handleGalleryClick() {
@@ -259,9 +275,14 @@ export function MobileDocumentUpload({
 	}
 
 	function handleRemove() {
+		if (previewUrl) {
+			URL.revokeObjectURL(previewUrl);
+		}
 		setFile(null);
 		setUploadState('idle');
 		setErrorMessage(null);
+		setPreviewUrl(null);
+		setIsFromCamera(false);
 		onRemove?.();
 	}
 
@@ -314,6 +335,13 @@ export function MobileDocumentUpload({
 	if (file) {
 		return (
 			<>
+				<CameraModal
+					opened={cameraOpened || (isFromCamera && uploadState === 'reading')}
+					onClose={closeCamera}
+					onCapture={handleCameraCapture}
+					isAnalyzing={isFromCamera && uploadState === 'reading'}
+					capturedImageUrl={previewUrl}
+				/>
 				<IdentityConfirmationModal
 					opened={confirmModalOpened && type === 'identity'}
 					onClose={handleCancelConfirm}
