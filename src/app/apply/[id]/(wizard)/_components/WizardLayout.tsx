@@ -25,7 +25,7 @@ export default function WizardLayout({ applicationId, children }: Props) {
 	const isMobile = useMediaQuery('(max-width: 48em)');
 
 	const segments = pathname.split('/').filter(Boolean);
-	const currentPath = segments[segments.length - 1] ?? 'documents';
+	const currentPath = segments[segments.length - 1] ?? 'identity';
 	const activeStep = getStepIndex(currentPath);
 
 	function handleStepClick(stepIndex: number) {

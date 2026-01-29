@@ -6,8 +6,8 @@ export type WizardStep = {
 
 export const WIZARD_STEPS: WizardStep[] = [
 	{
-		label: 'Documents',
-		path: 'documents',
+		label: 'Identity',
+		path: 'identity',
 		description: 'Identity documents',
 	},
 	{

@@ -176,7 +176,7 @@ export default function QualificationsUploadForm({ applicationId }: Props) {
 
 				<WizardNavigation
 					applicationId={applicationId}
-					backPath='documents'
+					backPath='identity'
 					onNext={handleContinue}
 					nextDisabled={!hasRecords}
 				/>

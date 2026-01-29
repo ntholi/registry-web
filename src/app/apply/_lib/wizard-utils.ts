@@ -10,7 +10,7 @@ type ApplicationData = {
 };
 
 export type WizardStep =
-	| 'documents'
+	| 'identity'
 	| 'qualifications'
 	| 'program'
 	| 'personal-info'
@@ -20,7 +20,7 @@ export function computeWizardStep(
 	applicant: ApplicantData | null | undefined,
 	application?: ApplicationData | null
 ): WizardStep {
-	if (!applicant) return 'documents';
+	if (!applicant) return 'identity';
 
 	const hasIdentity = applicant.documents.some(
 		(d) => d.document.type === 'identity'
@@ -30,7 +30,7 @@ export function computeWizardStep(
 	const hasPersonalInfo =
 		!!applicant.fullName && applicant.guardians.length > 0;
 
-	if (!hasIdentity) return 'documents';
+	if (!hasIdentity) return 'identity';
 	if (!hasQualifications) return 'qualifications';
 	if (!hasFirstChoice) return 'program';
 	if (!hasPersonalInfo) return 'personal-info';
