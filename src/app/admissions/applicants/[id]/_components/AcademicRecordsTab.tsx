@@ -229,7 +229,7 @@ export default function AcademicRecordsTab({ records }: Props) {
 															<Tooltip label='View Document'>
 																<ActionIcon
 																	component='div'
-																	variant='subtle'
+																	variant='default'
 																	onClick={(event) => {
 																		event.stopPropagation();
 																		openDocument(record.applicantDocument!);

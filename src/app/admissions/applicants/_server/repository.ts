@@ -55,6 +55,7 @@ export default class ApplicantRepository extends BaseRepository<
 					with: {
 						certificateType: true,
 						subjectGrades: { with: { subject: true } },
+						applicantDocument: { with: { document: true } },
 					},
 				},
 				documents: { with: { document: true } },
@@ -86,6 +87,7 @@ export default class ApplicantRepository extends BaseRepository<
 					with: {
 						certificateType: true,
 						subjectGrades: { with: { subject: true } },
+						applicantDocument: { with: { document: true } },
 					},
 				},
 				documents: { with: { document: true } },
