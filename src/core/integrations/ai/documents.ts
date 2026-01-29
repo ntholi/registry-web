@@ -70,6 +70,12 @@ ${COMMON_RULES}
 - LGCSE/IGCSE grades: Use letter (A*, A, B, C, D, E, F, G, U)
 - Extract ALL subjects with grades
 
+GRADE ACCURACY (CRITICAL):
+- You must be 100% sure of the grade symbol (letter or number).
+- If a grade is blurry, ambiguous, or you are less than 95% confident in reading it, DO NOT guess.
+- Instead, add the subject name to the "unreadableGrades" list.
+- Example: If "Mathematics" grade looks like "B" but might be "D", add "Mathematics" to "unreadableGrades".
+
 ISSUING AUTHORITY:
 - issuingAuthority: Extract examining body (ECoL, Cambridge, IEB, Umalusi)
 - "Examinations Council of Lesotho" → record as "ECoL"
@@ -292,6 +298,13 @@ Scoring guide:
 
 		if (output.documentType === 'other') {
 			return { success: false, error: 'Invalid academic document' };
+		}
+
+		if (output.unreadableGrades && output.unreadableGrades.length > 0) {
+			return {
+				success: false,
+				error: `Unable to read grades for: ${output.unreadableGrades.join(', ')}. Please upload a clearer image.`,
+			};
 		}
 
 		if (

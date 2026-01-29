@@ -90,6 +90,12 @@ const academicSchema = z.object({
 		)
 		.nullable()
 		.describe('Individual subject results'),
+	unreadableGrades: z
+		.array(z.string())
+		.nullable()
+		.describe(
+			'List of subject names where the grade symbol is not clearly legible or uncertain.'
+		),
 	overallClassification: z
 		.enum(['Distinction', 'Merit', 'Credit', 'Pass', 'Fail'])
 		.nullable()
