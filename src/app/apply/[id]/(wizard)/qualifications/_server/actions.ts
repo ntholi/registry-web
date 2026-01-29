@@ -38,7 +38,7 @@ export async function uploadCertificateDocument(
 
 		const type = analysis.documentType;
 
-		await saveApplicantDocument({
+		const savedDoc = await saveApplicantDocument({
 			applicantId,
 			fileName,
 			type,
@@ -61,14 +61,18 @@ export async function uploadCertificateDocument(
 				hasSubjects: !!analysis.subjects?.length,
 			});
 
-			await createAcademicRecordFromDocument(applicantId, {
-				institutionName,
-				examYear,
-				certificateType: analysis.certificateType,
-				certificateNumber: analysis.certificateNumber,
-				subjects: analysis.subjects,
-				overallClassification: analysis.overallClassification,
-			});
+			await createAcademicRecordFromDocument(
+				applicantId,
+				{
+					institutionName,
+					examYear,
+					certificateType: analysis.certificateType,
+					certificateNumber: analysis.certificateNumber,
+					subjects: analysis.subjects,
+					overallClassification: analysis.overallClassification,
+				},
+				savedDoc?.document?.id
+			);
 		}
 
 		return { success: true, data: { fileName, type, analysis } };

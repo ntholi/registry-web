@@ -138,7 +138,7 @@ export async function uploadAndAnalyzeDocument(formData: FormData) {
 
 	const type: DocumentType = result.documentType;
 
-	await saveApplicantDocument({
+	const savedDoc = await saveApplicantDocument({
 		applicantId: applicant.id,
 		fileName,
 		type,
@@ -164,15 +164,18 @@ export async function uploadAndAnalyzeDocument(formData: FormData) {
 		result.examYear &&
 		result.institutionName
 	) {
-		await createAcademicRecordFromDocument(applicant.id, {
-			institutionName: result.institutionName,
-
-			examYear: result.examYear,
-			certificateType: result.certificateType,
-			certificateNumber: result.certificateNumber,
-			subjects: result.subjects,
-			overallClassification: result.overallClassification,
-		});
+		await createAcademicRecordFromDocument(
+			applicant.id,
+			{
+				institutionName: result.institutionName,
+				examYear: result.examYear,
+				certificateType: result.certificateType,
+				certificateNumber: result.certificateNumber,
+				subjects: result.subjects,
+				overallClassification: result.overallClassification,
+			},
+			savedDoc?.document?.id
+		);
 	}
 
 	const payload: {

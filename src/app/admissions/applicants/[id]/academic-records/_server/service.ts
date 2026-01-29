@@ -38,7 +38,8 @@ class AcademicRecordService extends BaseService<typeof academicRecords, 'id'> {
 	async createWithGrades(
 		data: typeof academicRecords.$inferInsert,
 		isLevel4: boolean,
-		grades?: SubjectGradeInput[]
+		grades?: SubjectGradeInput[],
+		documentId?: string
 	) {
 		return withAuth(async () => {
 			let mappedGrades:
@@ -56,7 +57,7 @@ class AcademicRecordService extends BaseService<typeof academicRecords, 'id'> {
 				);
 			}
 
-			return this.repo.createWithGrades(data, mappedGrades);
+			return this.repo.createWithGrades(data, mappedGrades, documentId);
 		}, ['registry', 'marketing', 'admin', 'applicant']);
 	}
 
@@ -96,6 +97,13 @@ class AcademicRecordService extends BaseService<typeof academicRecords, 'id'> {
 	async findByCertificateNumber(certificateNumber: string) {
 		return withAuth(
 			async () => this.repo.findByCertificateNumber(certificateNumber),
+			['registry', 'marketing', 'admin', 'applicant']
+		);
+	}
+
+	async linkDocument(academicRecordId: string, documentId: string) {
+		return withAuth(
+			async () => this.repo.linkDocument(academicRecordId, documentId),
 			['registry', 'marketing', 'admin', 'applicant']
 		);
 	}

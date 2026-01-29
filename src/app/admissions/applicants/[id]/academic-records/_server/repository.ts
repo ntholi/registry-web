@@ -1,6 +1,11 @@
 import type { StandardGrade } from '@admissions/_database';
 import { and, count, eq, isNotNull } from 'drizzle-orm';
-import { academicRecords, db, subjectGrades } from '@/core/database';
+import {
+	academicDocuments,
+	academicRecords,
+	db,
+	subjectGrades,
+} from '@/core/database';
 import BaseRepository from '@/core/platform/BaseRepository';
 
 export default class AcademicRecordRepository extends BaseRepository<
@@ -17,6 +22,7 @@ export default class AcademicRecordRepository extends BaseRepository<
 			with: {
 				certificateType: true,
 				subjectGrades: { with: { subject: true } },
+				academicDocuments: { with: { document: true } },
 			},
 		});
 	}
@@ -34,6 +40,7 @@ export default class AcademicRecordRepository extends BaseRepository<
 				with: {
 					certificateType: true,
 					subjectGrades: { with: { subject: true } },
+					academicDocuments: { with: { document: true } },
 				},
 			}),
 			db
@@ -55,7 +62,8 @@ export default class AcademicRecordRepository extends BaseRepository<
 			subjectId: string;
 			originalGrade: string;
 			standardGrade: StandardGrade;
-		}[]
+		}[],
+		documentId?: string
 	) {
 		return db.transaction(async (tx) => {
 			const [record] = await tx
@@ -74,11 +82,19 @@ export default class AcademicRecordRepository extends BaseRepository<
 				);
 			}
 
+			if (documentId) {
+				await tx.insert(academicDocuments).values({
+					academicRecordId: record.id,
+					documentId,
+				});
+			}
+
 			return tx.query.academicRecords.findFirst({
 				where: eq(academicRecords.id, record.id),
 				with: {
 					certificateType: true,
 					subjectGrades: { with: { subject: true } },
+					academicDocuments: { with: { document: true } },
 				},
 			});
 		});
@@ -121,6 +137,7 @@ export default class AcademicRecordRepository extends BaseRepository<
 				with: {
 					certificateType: true,
 					subjectGrades: { with: { subject: true } },
+					academicDocuments: { with: { document: true } },
 				},
 			});
 		});
@@ -139,7 +156,16 @@ export default class AcademicRecordRepository extends BaseRepository<
 			with: {
 				certificateType: true,
 				subjectGrades: { with: { subject: true } },
+				academicDocuments: { with: { document: true } },
 			},
 		});
+	}
+
+	async linkDocument(academicRecordId: string, documentId: string) {
+		const [link] = await db
+			.insert(academicDocuments)
+			.values({ academicRecordId, documentId })
+			.returning();
+		return link;
 	}
 }

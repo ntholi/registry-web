@@ -199,6 +199,7 @@ class ApplicantService extends BaseService<typeof applicants, 'id'> {
 					certificateNumber: result.certificateNumber,
 					resultClassification: result.overallClassification,
 					subjectGrades: grades.length > 0 ? grades : undefined,
+					sourceFileName: doc.fileName,
 				});
 			}
 

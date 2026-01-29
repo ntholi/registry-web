@@ -13,6 +13,7 @@ import type { SubjectGradeInput } from '../../academic-records/_lib/types';
 import {
 	createAcademicRecord,
 	findAcademicRecordByCertificateNumber,
+	linkDocumentToAcademicRecord,
 	updateAcademicRecord,
 } from '../../academic-records/_server/actions';
 import type {
@@ -198,7 +199,8 @@ export async function updateApplicantFromIdentity(
 
 export async function createAcademicRecordFromDocument(
 	applicantId: string,
-	data: ExtractedAcademicData
+	data: ExtractedAcademicData,
+	documentId?: string
 ) {
 	const examYear = data.examYear ?? new Date().getFullYear();
 	const institutionName = data.institutionName ?? 'Unknown Institution';
@@ -252,7 +254,7 @@ export async function createAcademicRecordFromDocument(
 			data.certificateNumber
 		);
 		if (existing) {
-			return updateAcademicRecord(
+			const record = await updateAcademicRecord(
 				existing.id,
 				{
 					certificateTypeId,
@@ -265,6 +267,10 @@ export async function createAcademicRecordFromDocument(
 				},
 				isLevel4
 			);
+			if (documentId && record) {
+				await linkDocumentToAcademicRecord(record.id, documentId);
+			}
+			return record;
 		}
 	}
 
@@ -279,6 +285,7 @@ export async function createAcademicRecordFromDocument(
 			resultClassification: data.overallClassification,
 			subjectGrades,
 		},
-		isLevel4
+		isLevel4,
+		documentId
 	);
 }

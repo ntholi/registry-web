@@ -138,7 +138,7 @@ export function UploadModal({
 
 			const result = uploadResult.analysis;
 
-			await saveApplicantDocument({
+			const savedDoc = await saveApplicantDocument({
 				applicantId,
 				fileName,
 				type,
@@ -174,14 +174,18 @@ export function UploadModal({
 			) {
 				if (result.examYear && result.institutionName) {
 					try {
-						await createAcademicRecordFromDocument(applicantId, {
-							institutionName: result.institutionName,
-							examYear: result.examYear,
-							certificateType: result.certificateType,
-							certificateNumber: result.certificateNumber,
-							subjects: result.subjects,
-							overallClassification: result.overallClassification,
-						});
+						await createAcademicRecordFromDocument(
+							applicantId,
+							{
+								institutionName: result.institutionName,
+								examYear: result.examYear,
+								certificateType: result.certificateType,
+								certificateNumber: result.certificateNumber,
+								subjects: result.subjects,
+								overallClassification: result.overallClassification,
+							},
+							savedDoc?.document?.id
+						);
 						notifications.show({
 							title: 'Academic Record Created',
 							message:

@@ -1,5 +1,6 @@
 import { count, eq, ilike, or } from 'drizzle-orm';
 import {
+	academicDocuments,
 	academicRecords,
 	applicantDocuments,
 	applicantPhones,
@@ -33,6 +34,7 @@ type AcademicRecordInput = {
 		originalGrade: string;
 		standardGrade: (typeof subjectGrades.$inferInsert)['standardGrade'];
 	}[];
+	sourceFileName?: string;
 };
 
 export default class ApplicantRepository extends BaseRepository<
@@ -234,6 +236,8 @@ export default class ApplicantRepository extends BaseRepository<
 				.values(applicantData)
 				.returning();
 
+			const docIdMap = new Map<string, string>();
+
 			for (const docInput of documentInputs) {
 				const [doc] = await tx
 					.insert(documents)
@@ -243,6 +247,8 @@ export default class ApplicantRepository extends BaseRepository<
 						type: docInput.type,
 					})
 					.returning();
+
+				docIdMap.set(docInput.fileName, doc.id);
 
 				await tx.insert(applicantDocuments).values({
 					documentId: doc.id,
@@ -273,6 +279,16 @@ export default class ApplicantRepository extends BaseRepository<
 							standardGrade: sg.standardGrade,
 						}))
 					);
+				}
+
+				if (recordInput.sourceFileName) {
+					const docId = docIdMap.get(recordInput.sourceFileName);
+					if (docId) {
+						await tx.insert(academicDocuments).values({
+							academicRecordId: record.id,
+							documentId: docId,
+						});
+					}
 				}
 			}
 
