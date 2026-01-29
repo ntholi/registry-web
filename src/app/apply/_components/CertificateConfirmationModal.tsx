@@ -22,6 +22,7 @@ import {
 	IconX,
 } from '@tabler/icons-react';
 import type { CertificateDocumentResult } from '@/core/integrations/ai/documents';
+import { getGradeColor } from '@/app/admissions/applicants/[id]/_components/AcademicRecordsTab';
 
 type Props = {
 	opened: boolean;
@@ -102,7 +103,7 @@ export function CertificateConfirmationModal({
 										{analysis.certificateType || 'Academic Document'}
 									</Text>
 									{analysis.issuingAuthority && (
-										<Text size='xs' c='dark.7' fw={500}>
+										<Text size='xs' c='dark.3' fw={500}>
 											Issued by {analysis.issuingAuthority}
 										</Text>
 									)}
@@ -128,23 +129,26 @@ export function CertificateConfirmationModal({
 							color='dark.5'
 						/>
 
-						<SimpleGrid cols={{ base: 2, sm: 4 }} spacing='md'>
-							<CertField label='Institution' value={analysis.institutionName} />
+						<Stack>
+						<SimpleGrid cols={{ base: 2}} spacing='md'>
+							
 							<CertField label='Exam Year' value={analysis.examYear} />
 							{analysis.certificateNumber && (
 								<CertField
-									label='Cert No.'
-									value={analysis.certificateNumber}
+								label='Cert No.'
+								value={analysis.certificateNumber}
 								/>
 							)}
 							{analysis.overallClassification && (
 								<CertField
-									label='Classification'
-									value={analysis.overallClassification}
-									highlight
+								label='Classification'
+								value={analysis.overallClassification}
+								highlight
 								/>
 							)}
 						</SimpleGrid>
+						<CertField label='Institution' value={analysis.institutionName} />
+							</Stack>
 
 						{hasSubjects && (
 							<>
@@ -180,7 +184,7 @@ export function CertificateConfirmationModal({
 															<Text size='sm'>{subject.name}</Text>
 														</Table.Td>
 														<Table.Td ta='center'>
-															<Badge variant='light' color='cyan' size='md'>
+															<Badge variant='light' color={getGradeColor(subject.grade)} size='md'>
 																{subject.grade}
 															</Badge>
 														</Table.Td>
@@ -213,7 +217,7 @@ export function CertificateConfirmationModal({
 					</Stack>
 				</Paper>
 
-				<Group justify='flex-end' gap='sm'>
+				<Group justify='space-between' gap='sm'>
 					<Button
 						variant='light'
 						color='red'
@@ -221,7 +225,7 @@ export function CertificateConfirmationModal({
 						onClick={onClose}
 						disabled={loading}
 					>
-						Cancel
+						Try Again
 					</Button>
 					<Button
 						leftSection={<IconCheck size={16} />}

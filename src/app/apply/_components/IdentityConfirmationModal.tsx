@@ -116,7 +116,7 @@ export function IdentityConfirmationModal({
 					</Stack>
 				</Paper>
 
-				<Group justify='flex-end' gap='sm'>
+				<Group justify='space-between' gap='sm'>
 					<Button
 						variant='light'
 						color='red'
@@ -124,7 +124,7 @@ export function IdentityConfirmationModal({
 						onClick={onClose}
 						disabled={loading}
 					>
-						Cancel
+						Try Again
 					</Button>
 					<Button
 						leftSection={<IconCheck size={16} />}
