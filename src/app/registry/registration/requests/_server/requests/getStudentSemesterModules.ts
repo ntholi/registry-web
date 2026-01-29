@@ -14,6 +14,10 @@ import {
 } from '@/core/database';
 import { isActiveModule, isActiveSemester } from '@/shared/lib/utils/utils';
 
+function normalizeName(name: string | undefined | null): string {
+	return (name ?? '').trim().replace(/\s+/g, ' ');
+}
+
 type ModuleWithStatus = {
 	semesterModuleId: number;
 	code: string;
@@ -77,7 +81,7 @@ export async function getStudentSemesterModulesLogic(
 			.filter((s) => isActiveSemester(s.status))
 			.flatMap((s) => s.studentModules)
 			.filter((m) => isActiveModule(m.status))
-			.map((m) => m.semesterModule.module?.name)
+			.map((m) => normalizeName(m.semesterModule.module?.name))
 	);
 
 	const eligibleModules = await getSemesterModules(
@@ -86,7 +90,7 @@ export async function getStudentSemesterModulesLogic(
 	);
 
 	const filteredModules = eligibleModules.filter(
-		(m) => !attemptedModules.has(m.module?.name)
+		(m) => !attemptedModules.has(normalizeName(m.module?.name))
 	);
 
 	const modules = [
@@ -99,7 +103,7 @@ export async function getStudentSemesterModulesLogic(
 				credits: m.credits,
 				status: m.type === 'Elective' ? 'Elective' : 'Compulsory',
 				semesterNo: m.semester.semesterNumber,
-				prerequisites: failedPrerequisites[m.module?.name] || [],
+				prerequisites: failedPrerequisites[normalizeName(m.module?.name)] || [],
 			})
 		),
 		...repeatModules,
@@ -115,7 +119,7 @@ async function getFailedPrerequisites(failedModules: Module[]) {
 
 	const failedModulesByName = failedModules.reduce(
 		(acc, module) => {
-			acc[module.name] = module;
+			acc[normalizeName(module.name)] = module;
 			return acc;
 		},
 		{} as Record<string, Module>
@@ -142,16 +146,18 @@ async function getFailedPrerequisites(failedModules: Module[]) {
 
 	return prerequisites.reduce(
 		(acc, { semesterModule: { module }, prerequisite }) => {
-			if (
-				module &&
-				prerequisite.module &&
-				failedModulesByName[prerequisite.module.name]
-			) {
-				acc[module.name] = acc[module.name] || [];
-				const pModule = failedModulesByName[prerequisite.module.name];
+			const prereqName = normalizeName(prerequisite.module?.name);
+			const modName = normalizeName(module?.name);
+			if (module && prerequisite.module && failedModulesByName[prereqName]) {
+				acc[modName] = acc[modName] || [];
+				const pModule = failedModulesByName[prereqName];
 
-				if (!acc[module.name].some((p) => p.name === pModule.name)) {
-					acc[module.name].push(pModule);
+				if (
+					!acc[modName].some(
+						(p) => normalizeName(p.name) === normalizeName(pModule.name)
+					)
+				) {
+					acc[modName].push(pModule);
 				}
 			}
 			return acc;
@@ -167,7 +173,7 @@ async function getRepeatModules(
 ) {
 	if (failedModules.length === 0) return [];
 
-	const failedModuleNames = failedModules.map((m) => m.name);
+	const failedModuleNames = failedModules.map((m) => normalizeName(m.name));
 	const failedPrerequisites = await getFailedPrerequisites(failedModules);
 	const nextSemNum = Number.parseInt(nextSemester, 10);
 	const targetSemesters =
@@ -181,7 +187,8 @@ async function getRepeatModules(
 	);
 
 	const repeatSemesterModules = allSemesterModules.filter(
-		(sm) => sm.module && failedModuleNames.includes(sm.module.name)
+		(sm) =>
+			sm.module && failedModuleNames.includes(normalizeName(sm.module.name))
 	);
 
 	const seenIds = new Set<number>();
@@ -199,7 +206,7 @@ async function getRepeatModules(
 			credits: sm.credits,
 			status: `Repeat${allRepeatModules.length + 1}` as const,
 			semesterNo: sm.semester.semesterNumber,
-			prerequisites: failedPrerequisites[sm.module!.name] || [],
+			prerequisites: failedPrerequisites[normalizeName(sm.module!.name)] || [],
 		});
 	}
 
