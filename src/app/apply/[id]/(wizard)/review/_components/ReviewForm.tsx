@@ -312,7 +312,7 @@ export default function ReviewForm({ applicationId }: Props) {
 						)
 					}
 					onClick={handleSubmit}
-					disabled={!application}
+					disabled={!application || application.firstChoiceProgramId === null}
 					loading={submitMutation.isPending}
 				>
 					{isAlreadySubmitted ? 'Update Application' : 'Submit Application'}
