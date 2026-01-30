@@ -180,16 +180,19 @@ export function useApplicant({
 		[query.data, currentApplication]
 	);
 
+	const hasEligibilityResult =
+		eligibilityQuery.isSuccess || eligibilityQuery.isError;
+	const hasApplicantResult = query.isSuccess || query.isError;
+
 	const isDataReady =
-		eligibilityQuery.isSuccess &&
-		(eligibilityQuery.data?.canApply === false ||
-			(query.isSuccess && !!query.data));
+		hasEligibilityResult &&
+		(eligibilityQuery.data?.canApply === false || hasApplicantResult);
 
 	return {
 		applicant: query.data,
 		isLoading: !isDataReady,
 		isSuccess: query.isSuccess,
-		error: query.error,
+		error: query.error ?? eligibilityQuery.error,
 		refetch: query.refetch,
 		completeness,
 		currentApplication,
