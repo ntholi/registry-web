@@ -1,10 +1,23 @@
 import { z } from 'zod';
 
+const gradeConfidenceMin = 99;
+const lgcseIgcseGrades = new Set([
+	'A*',
+	'A',
+	'B',
+	'C',
+	'D',
+	'E',
+	'F',
+	'G',
+	'U',
+]);
+
 const certificationSchema = z.object({
 	isCertified: z
 		.boolean()
 		.describe(
-			'Whether the document has visible certification (stamp, seal, or official mark)'
+			'Whether the document has visible certification (stamp, seal, or official mark)',
 		),
 });
 
@@ -43,90 +56,144 @@ const identitySchema = z.object({
 		.describe('Certification details if document is certified'),
 });
 
-const academicSchema = z.object({
-	documentType: z
-		.enum([
-			'certificate',
-			'transcript',
-			'academic_record',
-			'recommendation_letter',
-			'other',
-		])
-		.describe('Academic document classification'),
-	institutionName: z
-		.string()
-		.nullable()
-		.describe('Full name of school, college, or university'),
-	examYear: z
-		.number()
-		.nullable()
-		.describe('Year examination was completed (4-digit)'),
-	certificateType: z
-		.string()
-		.nullable()
-		.describe(
-			'Certificate standard: LGCSE, COSC, IGCSE, A-Level, Diploma, Degree'
-		),
-	lqfLevel: z
-		.number()
-		.nullable()
-		.describe('LQF level associated with the certificate type'),
-	issuingAuthority: z
-		.string()
-		.nullable()
-		.describe(
-			'Examining body or issuing authority (e.g., ECoL, Cambridge, IEB, Umalusi)'
-		),
-	subjects: z
-		.array(
-			z.object({
-				name: z.string().describe('Subject/course name'),
-				grade: z
-					.string()
-					.describe(
-						'Grade value: for COSC use numeric (1-9), for LGCSE/IGCSE use letter (A*-U)'
-					),
-				confidence: z
-					.number()
-					.min(0)
-					.max(100)
-					.describe(
-						'Confidence level (0-100) in the accuracy of this grade reading. 100 = absolutely certain, <95 = uncertain.'
-					),
-			})
-		)
-		.nullable()
-		.describe('Individual subject results with confidence scores'),
-	unreadableGrades: z
-		.array(z.string())
-		.nullable()
-		.describe(
-			'List of subject names where the grade symbol is not clearly legible or uncertain (confidence < 95).'
-		),
-	overallClassification: z
-		.enum(['Distinction', 'Merit', 'Credit', 'Pass', 'Fail'])
-		.nullable()
-		.describe('Overall qualification grade classification'),
-	certificateNumber: z
-		.string()
-		.nullable()
-		.describe('Certificate or serial number on the document'),
-	studentName: z
-		.string()
-		.nullable()
-		.describe('Student name appearing on document'),
-	nameMatchConfidence: z
-		.number()
-		.min(0)
-		.max(100)
-		.nullable()
-		.describe(
-			'Confidence (0-100) that the student name matches the expected applicant name. Only set when expectedName is provided.'
-		),
-	certification: certificationSchema
-		.nullable()
-		.describe('Certification details if document is certified'),
-});
+const academicSchema = z
+	.object({
+		documentType: z
+			.enum([
+				'certificate',
+				'transcript',
+				'academic_record',
+				'recommendation_letter',
+				'other',
+			])
+			.describe('Academic document classification'),
+		institutionName: z
+			.string()
+			.nullable()
+			.describe('Full name of school, college, or university'),
+		examYear: z
+			.number()
+			.nullable()
+			.describe('Year examination was completed (4-digit)'),
+		certificateType: z
+			.string()
+			.nullable()
+			.describe(
+				'Certificate standard: LGCSE, COSC, IGCSE, A-Level, Diploma, Degree',
+			),
+		lqfLevel: z
+			.number()
+			.nullable()
+			.describe('LQF level associated with the certificate type'),
+		issuingAuthority: z
+			.string()
+			.nullable()
+			.describe(
+				'Examining body or issuing authority (e.g., ECoL, Cambridge, IEB, Umalusi)',
+			),
+		subjects: z
+			.array(
+				z.object({
+					name: z.string().describe('Subject/course name'),
+					grade: z
+						.string()
+						.describe(
+							'Grade value: for COSC use numeric (1-9), for LGCSE/IGCSE use letter (A*-U)',
+						),
+					confidence: z
+						.number()
+						.min(0)
+						.max(100)
+						.describe(
+							`Confidence level (0-100) in the accuracy of this grade reading. 100 = absolutely certain, <${gradeConfidenceMin} = uncertain.`,
+						),
+				}),
+			)
+			.nullable()
+			.describe('Individual subject results with confidence scores'),
+		unreadableGrades: z
+			.array(z.string())
+			.nullable()
+			.describe(
+				`List of subject names where the grade symbol is not clearly legible or uncertain (confidence < ${gradeConfidenceMin}).`,
+			),
+		overallClassification: z
+			.enum(['Distinction', 'Merit', 'Credit', 'Pass', 'Fail'])
+			.nullable()
+			.describe('Overall qualification grade classification'),
+		certificateNumber: z
+			.string()
+			.nullable()
+			.describe('Certificate or serial number on the document'),
+		studentName: z
+			.string()
+			.nullable()
+			.describe('Student name appearing on document'),
+		nameMatchConfidence: z
+			.number()
+			.min(0)
+			.max(100)
+			.nullable()
+			.describe(
+				'Confidence (0-100) that the student name matches the expected applicant name. Only set when expectedName is provided.',
+			),
+		certification: certificationSchema
+			.nullable()
+			.describe('Certification details if document is certified'),
+	})
+	.superRefine((value, ctx) => {
+		const subjects = value.subjects ?? [];
+		const certificateType = value.certificateType?.toLowerCase() ?? '';
+		const needsSubjects =
+			value.documentType === 'certificate' ||
+			value.documentType === 'transcript' ||
+			value.documentType === 'academic_record';
+
+		if (needsSubjects && subjects.length === 0) {
+			ctx.addIssue({
+				code: z.ZodIssueCode.custom,
+				path: ['subjects'],
+				message: 'Subjects are required for academic results documents.',
+			});
+		}
+
+		const lowConfidence = subjects
+			.filter((subject) => subject.confidence < gradeConfidenceMin)
+			.map((subject) => subject.name);
+		if (lowConfidence.length > 0) {
+			const unreadable = new Set(value.unreadableGrades ?? []);
+			for (const subjectName of lowConfidence) {
+				if (!unreadable.has(subjectName)) {
+					ctx.addIssue({
+						code: z.ZodIssueCode.custom,
+						path: ['unreadableGrades'],
+						message: `Unreadable grades must include: ${subjectName}.`,
+					});
+				}
+			}
+		}
+
+		const isCosC = certificateType.includes('cosc');
+		const isLgcseIgcse =
+			certificateType.includes('lgcse') || certificateType.includes('igcse');
+		for (const subject of subjects) {
+			const grade = subject.grade.trim().toUpperCase();
+			if (isCosC && !/^[1-9]$/.test(grade)) {
+				ctx.addIssue({
+					code: z.ZodIssueCode.custom,
+					path: ['subjects'],
+					message: `COSC grades must be numeric 1-9. Invalid grade for ${subject.name}.`,
+				});
+			}
+			if (isLgcseIgcse && !lgcseIgcseGrades.has(grade)) {
+				ctx.addIssue({
+					code: z.ZodIssueCode.custom,
+					path: ['subjects'],
+					message: `LGCSE/IGCSE grades must be A*, A, B, C, D, E, F, G, or U. Invalid grade for ${subject.name}.`,
+				});
+			}
+		}
+	});
 
 const otherSchema = z.object({
 	documentType: z
@@ -156,7 +223,7 @@ const receiptSchema = z.object({
 		.string()
 		.nullable()
 		.describe(
-			'Name of the account holder/beneficiary the money was deposited to'
+			'Name of the account holder/beneficiary the money was deposited to',
 		),
 	reference: z
 		.string()
@@ -196,7 +263,7 @@ const documentAnalysisSchema = z.object({
 	category: z
 		.enum(['identity', 'academic', 'other'])
 		.describe(
-			'Primary classification: identity (IDs/passports), academic (certificates/transcripts), other'
+			'Primary classification: identity (IDs/passports), academic (certificates/transcripts), other',
 		),
 	identity: identitySchema
 		.nullable()
@@ -210,6 +277,7 @@ const documentAnalysisSchema = z.object({
 });
 
 export {
+	gradeConfidenceMin,
 	documentAnalysisSchema,
 	identitySchema,
 	academicSchema,

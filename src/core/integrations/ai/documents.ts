@@ -8,6 +8,7 @@ import {
 	academicSchema,
 	type certificationSchema,
 	documentAnalysisSchema,
+	gradeConfidenceMin,
 	identitySchema,
 	type otherSchema,
 	receiptSchema,
@@ -56,9 +57,9 @@ ${COMMON_RULES}
 GRADE ACCURACY (CRITICAL - FOR ACADEMIC DOCUMENTS):
 - For each subject, provide a confidence score (0-100) for the grade reading.
 - 100 = absolutely certain the grade is correct
-- 95-99 = very confident, minor image quality issues
-- <95 = uncertain, add subject name to "unreadableGrades" list
-- If confidence < 95 for ANY subject, you MUST add that subject to "unreadableGrades".
+- 99 = very confident, minor image quality issues
+- <99 = uncertain, add subject name to "unreadableGrades" list
+- If confidence < 99 for ANY subject, you MUST add that subject to "unreadableGrades".
 - DO NOT guess grades. Accuracy is more important than completeness.
 
 ${CERTIFICATION_RULES}`;
@@ -82,12 +83,12 @@ ${COMMON_RULES}
 GRADE ACCURACY (CRITICAL - ZERO TOLERANCE FOR ERRORS):
 - For EACH subject, you MUST provide a confidence score (0-100) for the grade reading.
 - 100 = absolutely certain, crystal clear, no doubt whatsoever
-- 95-99 = very confident, minor image quality issues but grade is distinguishable
-- <95 = uncertain, ambiguous, blurry, or could be misread
+- 99 = very confident, minor image quality issues but grade is distinguishable
+- <99 = uncertain, ambiguous, blurry, or could be misread
 
 MANDATORY RULES:
-1. If confidence < 95 for ANY subject, you MUST add that subject name to "unreadableGrades".
-2. DO NOT guess grades. If "B" could be "D" or "8", that is <95 confidence.
+1. If confidence < 99 for ANY subject, you MUST add that subject name to "unreadableGrades".
+2. DO NOT guess grades. If "B" could be "D" or "8", that is <99 confidence.
 3. If the document is blurry, faded, or partially obscured, report ALL affected subjects.
 4. It is BETTER to report a grade as unreadable than to guess incorrectly.
 5. Example: "Mathematics" grade looks like "B" but might be "D" → confidence: 70, add "Mathematics" to "unreadableGrades".
@@ -156,7 +157,7 @@ export async function analyzeDocument(
 			}
 			const lowConfidenceSubjects =
 				academic.subjects
-					?.filter((s) => s.confidence < 95)
+					?.filter((s) => s.confidence < gradeConfidenceMin)
 					.map((s) => s.name) ?? [];
 			if (lowConfidenceSubjects.length > 0) {
 				throw new Error(
@@ -344,8 +345,9 @@ Scoring guide:
 		}
 
 		const lowConfidenceSubjects =
-			output.subjects?.filter((s) => s.confidence < 95).map((s) => s.name) ??
-			[];
+			output.subjects
+				?.filter((s) => s.confidence < gradeConfidenceMin)
+				.map((s) => s.name) ?? [];
 		if (lowConfidenceSubjects.length > 0) {
 			return {
 				success: false,

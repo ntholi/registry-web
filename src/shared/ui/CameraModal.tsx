@@ -23,7 +23,7 @@ export function CameraModal({
 	const webcamRef = useRef<Webcam>(null);
 	const [error, setError] = useState<string | null>(null);
 	const [facingMode, setFacingMode] = useState<'environment' | 'user'>(
-		'environment',
+		'environment'
 	);
 	const [retryCount, setRetryCount] = useState(0);
 
