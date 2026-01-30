@@ -79,7 +79,7 @@ const academicSchema = z
 			.string()
 			.nullable()
 			.describe(
-				'Certificate standard: LGCSE, COSC, IGCSE, A-Level, Diploma, Degree',
+				'Certificate standard: LGCSE, IGCSE, NSC, GCE O-Level, GCE AS Level, GCE A-Level, Certificate, Diploma, Degree',
 			),
 		lqfLevel: z
 			.number()
@@ -98,7 +98,7 @@ const academicSchema = z
 					grade: z
 						.string()
 						.describe(
-							'Grade value: for COSC use numeric (1-9), for LGCSE/IGCSE use letter (A*-U)',
+							'Grade value as shown. LGCSE/IGCSE grades must be A*, A, B, C, D, E, F, G, or U.',
 						),
 					confidence: z
 						.number()
@@ -173,18 +173,10 @@ const academicSchema = z
 			}
 		}
 
-		const isCosC = certificateType.includes('cosc');
 		const isLgcseIgcse =
 			certificateType.includes('lgcse') || certificateType.includes('igcse');
 		for (const subject of subjects) {
 			const grade = subject.grade.trim().toUpperCase();
-			if (isCosC && !/^[1-9]$/.test(grade)) {
-				ctx.addIssue({
-					code: z.ZodIssueCode.custom,
-					path: ['subjects'],
-					message: `COSC grades must be numeric 1-9. Invalid grade for ${subject.name}.`,
-				});
-			}
 			if (isLgcseIgcse && !lgcseIgcseGrades.has(grade)) {
 				ctx.addIssue({
 					code: z.ZodIssueCode.custom,

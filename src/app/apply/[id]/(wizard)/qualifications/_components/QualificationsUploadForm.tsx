@@ -1,11 +1,5 @@
 'use client';
 
-import {
-	DocumentUpload,
-	type DocumentUploadResult,
-} from '@/app/apply/_components/DocumentUpload';
-import { MobileDocumentUpload } from '@/app/apply/_components/MobileDocumentUpload';
-import { DocumentCardSkeleton } from '@/shared/ui/DocumentCardShell';
 import { useApplicant } from '@apply/_lib/useApplicant';
 import { Alert, Paper, SimpleGrid, Stack, Text, Title } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
@@ -13,6 +7,12 @@ import { notifications } from '@mantine/notifications';
 import { IconAlertTriangle, IconBan } from '@tabler/icons-react';
 import { useRouter } from 'nextjs-toploader/app';
 import { useState } from 'react';
+import {
+	DocumentUpload,
+	type DocumentUploadResult,
+} from '@/app/apply/_components/DocumentUpload';
+import { MobileDocumentUpload } from '@/app/apply/_components/MobileDocumentUpload';
+import { DocumentCardSkeleton } from '@/shared/ui/DocumentCardShell';
 import WizardNavigation from '../../_components/WizardNavigation';
 import {
 	removeAcademicRecord,
@@ -38,7 +38,7 @@ export default function QualificationsUploadForm({ applicationId }: Props) {
 	const hasRecords = records.length > 0;
 
 	async function handleUploadComplete(
-		result: DocumentUploadResult<'certificate'>,
+		result: DocumentUploadResult<'certificate'>
 	) {
 		if (!applicantId) {
 			notifications.show({
@@ -53,7 +53,7 @@ export default function QualificationsUploadForm({ applicationId }: Props) {
 		const res = await uploadCertificateDocument(
 			applicantId,
 			result.file,
-			result.analysis,
+			result.analysis
 		);
 		if (!res.success) {
 			notifications.show({

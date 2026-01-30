@@ -1,5 +1,13 @@
 'use server';
 
+import { auth } from '@/core/auth';
+import type {
+	ApplicationStatus,
+	DocumentType,
+	applications,
+} from '@/core/database';
+import type { DocumentAnalysisResult } from '@/core/integrations/ai/documents';
+import { uploadDocument } from '@/core/integrations/storage';
 import {
 	findApplicantByUserId,
 	getOrCreateApplicantForCurrentUser,
@@ -12,14 +20,6 @@ import {
 } from '@admissions/applicants/[id]/documents/_server/actions';
 import { nanoid } from 'nanoid';
 import { redirect, unauthorized } from 'next/navigation';
-import { auth } from '@/core/auth';
-import type {
-	ApplicationStatus,
-	applications,
-	DocumentType,
-} from '@/core/database';
-import type { DocumentAnalysisResult } from '@/core/integrations/ai/documents';
-import { uploadDocument } from '@/core/integrations/storage';
 import type { ApplicationFilters } from '../_lib/types';
 import { applicationsService } from './service';
 
@@ -32,7 +32,7 @@ export async function getApplication(id: string) {
 export async function findAllApplications(
 	page = 1,
 	search = '',
-	filters?: ApplicationFilters
+	filters?: ApplicationFilters,
 ) {
 	return applicationsService.search(page, search, filters);
 }
@@ -57,19 +57,19 @@ export async function changeApplicationStatus(
 	applicationId: string,
 	newStatus: ApplicationStatus,
 	notes?: string,
-	rejectionReason?: string
+	rejectionReason?: string,
 ) {
 	return applicationsService.changeStatus(
 		applicationId,
 		newStatus,
 		notes,
-		rejectionReason
+		rejectionReason,
 	);
 }
 
 export async function addApplicationNote(
 	applicationId: string,
-	content: string
+	content: string,
 ) {
 	return applicationsService.addNote(applicationId, content);
 }
@@ -80,7 +80,7 @@ export async function getApplicationNotes(applicationId: string) {
 
 export async function recordApplicationPayment(
 	applicationId: string,
-	receiptId: string
+	receiptId: string,
 ) {
 	return applicationsService.recordPayment(applicationId, receiptId);
 }
@@ -135,8 +135,12 @@ export async function uploadAndAnalyzeDocument(formData: FormData) {
 	const buffer = await file.arrayBuffer();
 	const base64 = Buffer.from(buffer).toString('base64');
 	const result = await analyzeDocumentWithAI(base64, file.type);
+	if (!result.success) {
+		throw new Error(result.error);
+	}
+	const analysis = result.data;
 
-	const type: DocumentType = result.documentType;
+	const type: DocumentType = analysis.documentType;
 
 	const savedDoc = await saveApplicantDocument({
 		applicantId: applicant.id,
@@ -144,37 +148,37 @@ export async function uploadAndAnalyzeDocument(formData: FormData) {
 		type,
 	});
 
-	if (result.category === 'identity' && type === 'identity') {
+	if (analysis.category === 'identity' && type === 'identity') {
 		await updateApplicantFromIdentity(applicant.id, {
-			fullName: result.fullName,
-			dateOfBirth: result.dateOfBirth,
-			nationalId: result.nationalId,
-			nationality: result.nationality,
-			gender: result.gender,
-			birthPlace: result.birthPlace,
-			address: result.address,
+			fullName: analysis.fullName,
+			dateOfBirth: analysis.dateOfBirth,
+			nationalId: analysis.nationalId,
+			nationality: analysis.nationality,
+			gender: analysis.gender,
+			birthPlace: analysis.birthPlace,
+			address: analysis.address,
 		});
 	}
 
 	if (
-		result.category === 'academic' &&
+		analysis.category === 'academic' &&
 		(type === 'certificate' ||
 			type === 'transcript' ||
 			type === 'academic_record') &&
-		result.examYear &&
-		result.institutionName
+		analysis.examYear &&
+		analysis.institutionName
 	) {
 		await createAcademicRecordFromDocument(
 			applicant.id,
 			{
-				institutionName: result.institutionName,
-				examYear: result.examYear,
-				certificateType: result.certificateType,
-				certificateNumber: result.certificateNumber,
-				subjects: result.subjects,
-				overallClassification: result.overallClassification,
+				institutionName: analysis.institutionName,
+				examYear: analysis.examYear,
+				certificateType: analysis.certificateType,
+				certificateNumber: analysis.certificateNumber,
+				subjects: analysis.subjects,
+				overallClassification: analysis.overallClassification,
 			},
-			savedDoc?.document?.id
+			savedDoc?.document?.id,
 		);
 	}
 
@@ -183,7 +187,7 @@ export async function uploadAndAnalyzeDocument(formData: FormData) {
 		type: DocumentType;
 		fileName: string;
 	} = {
-		result,
+		result: analysis,
 		type,
 		fileName,
 	};

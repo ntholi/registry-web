@@ -1,14 +1,22 @@
 'use client';
 
 import {
+	type CertificateDocumentResult,
+	type DocumentAnalysisResult,
+	type IdentityDocumentResult,
+	analyzeAcademicDocument,
+	analyzeDocument,
+	analyzeIdentityDocument,
+} from '@/core/integrations/ai/documents';
+import {
 	Button,
 	Grid,
 	Paper,
 	Progress,
-	rem,
 	Stack,
 	Text,
 	ThemeIcon,
+	rem,
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
@@ -23,14 +31,6 @@ import {
 	IconTrash,
 } from '@tabler/icons-react';
 import { useRef, useState } from 'react';
-import {
-	analyzeAcademicDocument,
-	analyzeDocument,
-	analyzeIdentityDocument,
-	type CertificateDocumentResult,
-	type DocumentAnalysisResult,
-	type IdentityDocumentResult,
-} from '@/core/integrations/ai/documents';
 import { CameraModal } from '../../../shared/ui/CameraModal';
 import { CertificateConfirmationModal } from './CertificateConfirmationModal';
 import { IdentityConfirmationModal } from './IdentityConfirmationModal';
@@ -90,7 +90,7 @@ function formatFileSize(bytes: number): string {
 	const units = ['B', 'KB', 'MB', 'GB'];
 	const exp = Math.min(
 		Math.floor(Math.log(bytes) / Math.log(1024)),
-		units.length - 1
+		units.length - 1,
 	);
 	const val = bytes / 1024 ** exp;
 	return `${val.toFixed(val < 10 && exp > 0 ? 1 : 0)} ${units[exp]}`;
@@ -169,7 +169,7 @@ export function MobileDocumentUpload({
 		const arrayBuffer = await selectedFile.arrayBuffer();
 		const uint8Array = new Uint8Array(arrayBuffer);
 		const charArray = Array.from(uint8Array, (byte) =>
-			String.fromCharCode(byte)
+			String.fromCharCode(byte),
 		);
 		const binaryString = charArray.join('');
 		const base64 = btoa(binaryString);
@@ -203,7 +203,7 @@ export function MobileDocumentUpload({
 				base64,
 				selectedFile.type,
 				certificateTypes,
-				applicantName
+				applicantName,
 			);
 			if (!result.success) {
 				setErrorMessage(result.error);
@@ -226,13 +226,24 @@ export function MobileDocumentUpload({
 			setPendingResult(uploadResult as DocumentUploadResult<typeof type>);
 			openConfirmModal();
 		} else {
-			const analysis = await analyzeDocument(base64, selectedFile.type);
+			const result = await analyzeDocument(base64, selectedFile.type);
+			if (!result.success) {
+				setErrorMessage(result.error);
+				setUploadState('error');
+				closeCamera();
+				notifications.show({
+					title: 'Processing Failed',
+					message: result.error,
+					color: 'red',
+				});
+				return;
+			}
 			setUploadState('ready');
 			closeCamera();
 			(onUploadComplete as (r: DocumentUploadResult<'any'>) => void)({
 				file: selectedFile,
 				base64,
-				analysis,
+				analysis: result.data,
 			});
 		}
 	}
@@ -241,11 +252,11 @@ export function MobileDocumentUpload({
 		if (!pendingResult) return;
 		if (type === 'identity') {
 			(onUploadComplete as (r: DocumentUploadResult<'identity'>) => void)(
-				pendingResult as DocumentUploadResult<'identity'>
+				pendingResult as DocumentUploadResult<'identity'>,
 			);
 		} else if (type === 'certificate') {
 			(onUploadComplete as (r: DocumentUploadResult<'certificate'>) => void)(
-				pendingResult as DocumentUploadResult<'certificate'>
+				pendingResult as DocumentUploadResult<'certificate'>,
 			);
 		}
 		closeConfirmModal();

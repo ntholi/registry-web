@@ -50,9 +50,9 @@ CATEGORIES:
 RULES:
 ${COMMON_RULES}
 - institutionName: Student's school (not examining body like Cambridge/ECoL)
-- COSC grades: Extract NUMERIC value (e.g., "C(c SIX)" → "6")
 - LGCSE/IGCSE grades: Use letter (A*, A, B, C, D, E, F, G, U)
 - Extract ALL subjects with grades
+- Only accept LGCSE (or equivalent) or higher certificates/result slips. If lower than LGCSE, classify as "other" and set certificateType to null.
 
 GRADE ACCURACY (CRITICAL - FOR ACADEMIC DOCUMENTS):
 - For each subject, provide a confidence score (0-100) for the grade reading.
@@ -76,9 +76,9 @@ const ACADEMIC_PROMPT = `Analyze this academic document and extract structured i
 RULES:
 ${COMMON_RULES}
 - institutionName: Student's school (not examining body like Cambridge/ECoL)
-- COSC grades: Extract NUMERIC value (e.g., "C(c SIX)" → "6")
 - LGCSE/IGCSE grades: Use letter (A*, A, B, C, D, E, F, G, U)
 - Extract ALL subjects with grades
+- Only accept LGCSE (or equivalent) or higher certificates/result slips. If lower than LGCSE, classify as "other" and set certificateType to null.
 
 GRADE ACCURACY (CRITICAL - ZERO TOLERANCE FOR ERRORS):
 - For EACH subject, you MUST provide a confidence score (0-100) for the grade reading.
@@ -101,9 +101,8 @@ ${CERTIFICATION_RULES}`;
 
 const DEFAULT_CERTIFICATE_TYPES = [
 	'LGCSE',
-	'COSC',
-	'NSC',
 	'IGCSE',
+	'NSC',
 	'GCE O-Level',
 	'GCE AS Level',
 	'GCE A-Level',
@@ -112,10 +111,19 @@ const DEFAULT_CERTIFICATE_TYPES = [
 	'Degree',
 ];
 
+const ACCEPTED_CERTIFICATE_TYPES = DEFAULT_CERTIFICATE_TYPES;
+
+function isAcceptedCertificateType(name: string): boolean {
+	const normalized = name.trim().toLowerCase();
+	return ACCEPTED_CERTIFICATE_TYPES.some(
+		(type) => type.trim().toLowerCase() === normalized,
+	);
+}
+
 export async function analyzeDocument(
 	fileBase64: string,
 	mediaType: string,
-): Promise<DocumentAnalysisResult> {
+): Promise<AnalysisResult<DocumentAnalysisResult>> {
 	try {
 		const { output } = await generateText({
 			model,
@@ -138,46 +146,64 @@ export async function analyzeDocument(
 		});
 
 		if (!output) {
-			throw new Error('Failed to analyze document: no output generated');
+			return {
+				success: false,
+				error: 'Failed to analyze document: no output generated',
+			};
 		}
 
 		const { category, identity, academic, other } = output;
 
 		if (category === 'identity' && identity) {
-			return { category: 'identity', ...identity };
+			return { success: true, data: { category: 'identity', ...identity } };
 		}
 
 		if (category === 'academic' && academic) {
 			if (academic.unreadableGrades && academic.unreadableGrades.length > 0) {
-				throw new Error(
-					`Unable to read grades for: ${academic.unreadableGrades.join(
+				return {
+					success: false,
+					error: `Unable to read grades for: ${academic.unreadableGrades.join(
 						', ',
 					)}. Please upload a clearer image.`,
-				);
+				};
 			}
 			const lowConfidenceSubjects =
 				academic.subjects
 					?.filter((s) => s.confidence < gradeConfidenceMin)
 					.map((s) => s.name) ?? [];
 			if (lowConfidenceSubjects.length > 0) {
-				throw new Error(
-					`Uncertain grade readings for: ${lowConfidenceSubjects.join(
+				return {
+					success: false,
+					error: `Uncertain grade readings for: ${lowConfidenceSubjects.join(
 						', ',
 					)}. Please upload a clearer image.`,
-				);
+				};
 			}
-			return { category: 'academic', ...academic };
+			if (
+				academic.documentType === 'certificate' &&
+				(!academic.certificateType ||
+					!isAcceptedCertificateType(academic.certificateType))
+			) {
+				return {
+					success: false,
+					error: `Only LGCSE or equivalent or higher certificates/result slips are accepted. Invalid certificate type: ${academic.certificateType}.`,
+				};
+			}
+			return { success: true, data: { category: 'academic', ...academic } };
 		}
 
 		if (other) {
-			return { category: 'other', ...other };
+			return { success: true, data: { category: 'other', ...other } };
 		}
 
 		return {
-			category: 'other',
-			documentType: 'other',
-			description: 'Unable to classify document',
-			certification: null,
+			success: true,
+			data: {
+				category: 'other',
+				documentType: 'other',
+				description: 'Unable to classify document',
+				certification: null,
+			},
 		};
 	} catch (error) {
 		if (NoObjectGeneratedError.isInstance(error)) {
@@ -185,11 +211,16 @@ export async function analyzeDocument(
 				cause: error.cause,
 				text: error.text,
 			});
-			throw new Error(
-				`Failed to extract structured data from document: ${error.cause}`,
-			);
+			return {
+				success: false,
+				error: `Failed to extract structured data from document: ${error.cause}`,
+			};
 		}
-		throw error;
+		return {
+			success: false,
+			error:
+				error instanceof Error ? error.message : 'An unexpected error occurred',
+		};
 	}
 }
 
@@ -279,7 +310,14 @@ export async function analyzeAcademicDocument(
 	certificateTypes?: CertificateTypeInput[],
 	applicantName?: string,
 ): Promise<AnalysisResult<CertificateDocumentResult>> {
-	const types = normalizeCertificateTypes(certificateTypes);
+	const normalizedTypes = normalizeCertificateTypes(certificateTypes);
+	const acceptedTypes = normalizedTypes.filter((type) =>
+		isAcceptedCertificateType(type.name),
+	);
+	const types =
+		acceptedTypes.length > 0
+			? acceptedTypes
+			: normalizeCertificateTypes(undefined);
 	const typeList = types
 		.map((t) => `  - ${t.name}${t.lqfLevel ? ` (LQF ${t.lqfLevel})` : ''}`)
 		.join('\n');
@@ -364,7 +402,7 @@ Scoring guide:
 		) {
 			return {
 				success: false,
-				error: `Invalid certificate type: ${output.certificateType}`,
+				error: `Only LGCSE or equivalent or higher certificates/result slips are accepted. Invalid certificate type: ${output.certificateType}.`,
 			};
 		}
 
@@ -382,12 +420,26 @@ Scoring guide:
 		}
 
 		if (output.documentType === 'certificate' && output.certificateType) {
+			if (!isAcceptedCertificateType(output.certificateType)) {
+				return {
+					success: false,
+					error: `Only LGCSE or equivalent or higher certificates/result slips are accepted. Invalid certificate type: ${output.certificateType}.`,
+				};
+			}
 			const dbCertType = await getCertificateTypeByName(output.certificateType);
 
 			if (!dbCertType) {
 				return {
 					success: false,
 					error: `Certificate type "${output.certificateType}" is not recognized. Only certificates registered in the system are accepted.`,
+				};
+			}
+
+			if (dbCertType.lqfLevel !== null && dbCertType.lqfLevel < 4) {
+				return {
+					success: false,
+					error:
+						'Only LGCSE or equivalent or higher certificates/result slips are accepted.',
 				};
 			}
 
@@ -438,7 +490,7 @@ ${COMMON_RULES}
 export async function analyzeReceipt(
 	fileBase64: string,
 	mediaType: string,
-): Promise<ReceiptResult> {
+): Promise<AnalysisResult<ReceiptResult>> {
 	try {
 		const { output } = await generateText({
 			model,
@@ -460,20 +512,28 @@ export async function analyzeReceipt(
 		});
 
 		if (!output) {
-			throw new Error('Failed to analyze receipt: no output generated');
+			return {
+				success: false,
+				error: 'Failed to analyze receipt: no output generated',
+			};
 		}
 
-		return output;
+		return { success: true, data: output };
 	} catch (error) {
 		if (NoObjectGeneratedError.isInstance(error)) {
 			console.error('Receipt analysis failed:', {
 				cause: error.cause,
 				text: error.text,
 			});
-			throw new Error(
-				`Failed to extract structured data from receipt: ${error.cause}`,
-			);
+			return {
+				success: false,
+				error: `Failed to extract structured data from receipt: ${error.cause}`,
+			};
 		}
-		throw error;
+		return {
+			success: false,
+			error:
+				error instanceof Error ? error.message : 'An unexpected error occurred',
+		};
 	}
 }

@@ -1,14 +1,15 @@
 'use server';
 
+import type { DocumentType, DocumentVerificationStatus } from '@/core/database';
+import {
+	type AnalysisResult,
+	type DocumentAnalysisResult,
+	analyzeDocument,
+} from '@/core/integrations/ai/documents';
+import { deleteDocument } from '@/core/integrations/storage';
 import { getApplicant, updateApplicant } from '@admissions/applicants';
 import { findAllCertificateTypes } from '@admissions/certificate-types';
 import { findOrCreateSubjectByName } from '@admissions/subjects';
-import type { DocumentType, DocumentVerificationStatus } from '@/core/database';
-import {
-	analyzeDocument,
-	type DocumentAnalysisResult,
-} from '@/core/integrations/ai/documents';
-import { deleteDocument } from '@/core/integrations/storage';
 import type { SubjectGradeInput } from '../../academic-records/_lib/types';
 import {
 	createAcademicRecord,
@@ -38,7 +39,7 @@ export async function findDocumentsByApplicant(applicantId: string, page = 1) {
 
 export async function findDocumentsByType(
 	applicantId: string,
-	type: DocumentType
+	type: DocumentType,
 ) {
 	return applicantDocumentsService.findByType(applicantId, type);
 }
@@ -58,14 +59,14 @@ export async function saveApplicantDocument(data: {
 			type: data.type,
 		},
 		data.applicantId,
-		0
+		0,
 	);
 }
 
 export async function verifyApplicantDocument(
 	id: string,
 	status: DocumentVerificationStatus,
-	rejectionReason?: string
+	rejectionReason?: string,
 ) {
 	return applicantDocumentsService.verifyDocument(id, status, rejectionReason);
 }
@@ -78,8 +79,8 @@ export async function deleteApplicantDocument(id: string, fileUrl: string) {
 
 export async function analyzeDocumentWithAI(
 	fileBase64: string,
-	mediaType: string
-): Promise<DocumentAnalysisResult> {
+	mediaType: string,
+): Promise<AnalysisResult<DocumentAnalysisResult>> {
 	return analyzeDocument(fileBase64, mediaType);
 }
 
@@ -98,7 +99,7 @@ function normalizeFileUrl(fileUrl: string) {
 export async function reanalyzeDocumentFromUrl(
 	fileUrl: string,
 	applicantId: string,
-	documentType: DocumentType
+	documentType: DocumentType,
 ): Promise<DocumentAnalysisResult> {
 	const normalizedUrl = normalizeFileUrl(fileUrl);
 	const response = await fetch(normalizedUrl, { cache: 'no-store' });
@@ -109,44 +110,48 @@ export async function reanalyzeDocumentFromUrl(
 	const base64 = Buffer.from(buffer).toString('base64');
 	const contentType = response.headers.get('content-type') ?? 'application/pdf';
 	const result = await analyzeDocument(base64, contentType);
+	if (!result.success) {
+		throw new Error(result.error);
+	}
+	const data = result.data;
 
-	if (result.category === 'identity' && documentType === 'identity') {
+	if (data.category === 'identity' && documentType === 'identity') {
 		await updateApplicantFromIdentity(applicantId, {
-			fullName: result.fullName,
-			dateOfBirth: result.dateOfBirth,
-			nationalId: result.nationalId,
-			nationality: result.nationality,
-			gender: result.gender,
-			birthPlace: result.birthPlace,
-			address: result.address,
+			fullName: data.fullName,
+			dateOfBirth: data.dateOfBirth,
+			nationalId: data.nationalId,
+			nationality: data.nationality,
+			gender: data.gender,
+			birthPlace: data.birthPlace,
+			address: data.address,
 		});
 	}
 
 	if (
-		result.category === 'academic' &&
+		data.category === 'academic' &&
 		(documentType === 'certificate' ||
 			documentType === 'transcript' ||
 			documentType === 'academic_record') &&
-		result.examYear &&
-		result.institutionName
+		data.examYear &&
+		data.institutionName
 	) {
 		await createAcademicRecordFromDocument(applicantId, {
-			institutionName: result.institutionName,
+			institutionName: data.institutionName,
 
-			examYear: result.examYear,
-			certificateType: result.certificateType,
-			certificateNumber: result.certificateNumber,
-			subjects: result.subjects,
-			overallClassification: result.overallClassification,
+			examYear: data.examYear,
+			certificateType: data.certificateType,
+			certificateNumber: data.certificateNumber,
+			subjects: data.subjects,
+			overallClassification: data.overallClassification,
 		});
 	}
 
-	return result;
+	return data;
 }
 
 export async function updateApplicantFromIdentity(
 	applicantId: string,
-	data: ExtractedIdentityData
+	data: ExtractedIdentityData,
 ) {
 	const applicant = await getApplicant(applicantId);
 	if (!applicant) {
@@ -200,7 +205,7 @@ export async function updateApplicantFromIdentity(
 export async function createAcademicRecordFromDocument(
 	applicantId: string,
 	data: ExtractedAcademicData,
-	applicantDocumentId?: string
+	applicantDocumentId?: string,
 ) {
 	const examYear = data.examYear ?? new Date().getFullYear();
 	const institutionName = data.institutionName ?? 'Unknown Institution';
@@ -243,7 +248,7 @@ export async function createAcademicRecordFromDocument(
 					subjectId: subject.id,
 					originalGrade: sub.grade,
 				};
-			})
+			}),
 		);
 	}
 
@@ -251,7 +256,7 @@ export async function createAcademicRecordFromDocument(
 
 	if (data.certificateNumber) {
 		const existing = await findAcademicRecordByCertificateNumber(
-			data.certificateNumber
+			data.certificateNumber,
 		);
 		if (existing) {
 			const record = await updateAcademicRecord(
@@ -265,7 +270,7 @@ export async function createAcademicRecordFromDocument(
 					resultClassification: data.overallClassification,
 					subjectGrades,
 				},
-				isLevel4
+				isLevel4,
 			);
 			if (applicantDocumentId && record) {
 				await linkDocumentToAcademicRecord(record.id, applicantDocumentId);
@@ -286,6 +291,6 @@ export async function createAcademicRecordFromDocument(
 			subjectGrades,
 		},
 		isLevel4,
-		applicantDocumentId
+		applicantDocumentId,
 	);
 }
