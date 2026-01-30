@@ -23,8 +23,16 @@ export async function mapGradeToStandard(
 		mappings.map((m) => [normalizeGrade(m.originalGrade), m.standardGrade])
 	);
 
-	const standardGrade = lookup.get(normalizeGrade(originalGrade));
+	const normalized = normalizeGrade(originalGrade);
+	const standardGrade = lookup.get(normalized);
+
 	if (!standardGrade) {
+		const upperGrade = originalGrade.trim().toUpperCase() as StandardGrade;
+		const validGrades = ['A*', 'A', 'B', 'C', 'D', 'E', 'F', 'U'];
+		if (validGrades.includes(upperGrade)) {
+			return upperGrade;
+		}
+
 		throw new Error(
 			`INVALID_GRADE_MAPPING: Grade "${originalGrade}" not found in certificate type mappings`
 		);
@@ -47,10 +55,21 @@ export async function mapGradesToStandard(
 		mappings.map((m) => [normalizeGrade(m.originalGrade), m.standardGrade])
 	);
 
+	const validGrades = ['A*', 'A', 'B', 'C', 'D', 'E', 'F', 'U'];
+
 	return grades.map((grade) => {
-		const standardGrade = mappingLookup.get(
-			normalizeGrade(grade.originalGrade)
-		);
+		const normalized = normalizeGrade(grade.originalGrade);
+		let standardGrade = mappingLookup.get(normalized);
+
+		if (!standardGrade) {
+			const upperGrade = grade.originalGrade
+				.trim()
+				.toUpperCase() as StandardGrade;
+			if (validGrades.includes(upperGrade)) {
+				standardGrade = upperGrade;
+			}
+		}
+
 		if (!standardGrade) {
 			throw new Error(
 				`INVALID_GRADE_MAPPING: Grade "${grade.originalGrade}" not found in certificate type mappings`
