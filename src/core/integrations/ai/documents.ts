@@ -97,7 +97,7 @@ MANDATORY RULES:
 ISSUING AUTHORITY:
 - issuingAuthority: Extract examining body (ECoL, Cambridge, IEB, Umalusi)
 - "Examinations Council of Lesotho" → record as "ECoL"
-- isEcol: true if the document explicitly indicates ECoL/Examinations Council of Lesotho as the issuing authority, otherwise false. Always set true or false; do not leave null.
+- isEcol: true if the document somehow indicates ECoL/Examinations Council of Lesotho in the document, otherwise false. Always set true or false; do not leave null.
 
 ${CERTIFICATION_RULES}`;
 

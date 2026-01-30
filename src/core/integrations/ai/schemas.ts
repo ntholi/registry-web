@@ -94,7 +94,7 @@ const academicSchema = z
 		isEcol: z
 			.boolean()
 			.describe(
-				'Whether the document explicitly indicates the Examinations Council of Lesotho (ECoL) as the issuing authority'
+				'Whether the document somehow includes the Examinations Council of Lesotho (ECoL) in the document'
 			),
 		subjects: z
 			.array(
