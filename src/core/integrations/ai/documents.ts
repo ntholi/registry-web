@@ -2,7 +2,7 @@
 
 import { getCertificateTypeByName } from '@admissions/certificate-types/_server/actions';
 import { google } from '@ai-sdk/google';
-import { generateText, NoObjectGeneratedError, Output } from 'ai';
+import { NoObjectGeneratedError, Output, generateText } from 'ai';
 import type { z } from 'zod';
 import {
 	academicSchema,
@@ -30,7 +30,8 @@ export type DocumentAnalysisResult =
 	| ({ category: 'academic' } & CertificateDocumentResult)
 	| ({ category: 'other' } & OtherDocumentResult);
 
-const SYSTEM_PROMPT = `You are a document analysis expert specializing in extracting structured data from identity documents, academic certificates, and other official documents. You have expertise in recognizing document formats from Southern African countries (Lesotho, South Africa, Botswana, etc.) and international standards.`;
+const SYSTEM_PROMPT =
+	'You are a document analysis expert specializing in extracting structured data from identity documents, academic certificates, and other official documents. You have expertise in recognizing document formats from Southern African countries (Lesotho, South Africa, Botswana, etc.) and international standards.';
 
 const COMMON_RULES = `- Dates: YYYY-MM-DD format
 - Use null for missing/illegible data`;
@@ -112,7 +113,7 @@ const DEFAULT_CERTIFICATE_TYPES = [
 
 export async function analyzeDocument(
 	fileBase64: string,
-	mediaType: string
+	mediaType: string,
 ): Promise<DocumentAnalysisResult> {
 	try {
 		const { output } = await generateText({
@@ -148,7 +149,9 @@ export async function analyzeDocument(
 		if (category === 'academic' && academic) {
 			if (academic.unreadableGrades && academic.unreadableGrades.length > 0) {
 				throw new Error(
-					`Unable to read grades for: ${academic.unreadableGrades.join(', ')}. Please upload a clearer image.`
+					`Unable to read grades for: ${academic.unreadableGrades.join(
+						', ',
+					)}. Please upload a clearer image.`,
 				);
 			}
 			const lowConfidenceSubjects =
@@ -157,7 +160,9 @@ export async function analyzeDocument(
 					.map((s) => s.name) ?? [];
 			if (lowConfidenceSubjects.length > 0) {
 				throw new Error(
-					`Uncertain grade readings for: ${lowConfidenceSubjects.join(', ')}. Please upload a clearer image.`
+					`Uncertain grade readings for: ${lowConfidenceSubjects.join(
+						', ',
+					)}. Please upload a clearer image.`,
 				);
 			}
 			return { category: 'academic', ...academic };
@@ -180,7 +185,7 @@ export async function analyzeDocument(
 				text: error.text,
 			});
 			throw new Error(
-				`Failed to extract structured data from document: ${error.cause}`
+				`Failed to extract structured data from document: ${error.cause}`,
 			);
 		}
 		throw error;
@@ -189,7 +194,7 @@ export async function analyzeDocument(
 
 export async function analyzeIdentityDocument(
 	fileBase64: string,
-	mediaType: string
+	mediaType: string,
 ): Promise<AnalysisResult<IdentityDocumentResult>> {
 	try {
 		const { output } = await generateText({
@@ -258,12 +263,12 @@ export async function analyzeIdentityDocument(
 type CertificateTypeInput = string | { name: string; lqfLevel: number | null };
 
 function normalizeCertificateTypes(
-	types: CertificateTypeInput[] | undefined
+	types: CertificateTypeInput[] | undefined,
 ): Array<{ name: string; lqfLevel: number | null }> {
 	if (!types)
 		return DEFAULT_CERTIFICATE_TYPES.map((t) => ({ name: t, lqfLevel: null }));
 	return types.map((t) =>
-		typeof t === 'string' ? { name: t, lqfLevel: null } : t
+		typeof t === 'string' ? { name: t, lqfLevel: null } : t,
 	);
 }
 
@@ -271,7 +276,7 @@ export async function analyzeAcademicDocument(
 	fileBase64: string,
 	mediaType: string,
 	certificateTypes?: CertificateTypeInput[],
-	applicantName?: string
+	applicantName?: string,
 ): Promise<AnalysisResult<CertificateDocumentResult>> {
 	const types = normalizeCertificateTypes(certificateTypes);
 	const typeList = types
@@ -332,7 +337,9 @@ Scoring guide:
 		if (output.unreadableGrades && output.unreadableGrades.length > 0) {
 			return {
 				success: false,
-				error: `Unable to read grades for: ${output.unreadableGrades.join(', ')}. Please upload a clearer image.`,
+				error: `Unable to read grades for: ${output.unreadableGrades.join(
+					', ',
+				)}. Please upload a clearer image.`,
 			};
 		}
 
@@ -342,7 +349,9 @@ Scoring guide:
 		if (lowConfidenceSubjects.length > 0) {
 			return {
 				success: false,
-				error: `Uncertain grade readings for: ${lowConfidenceSubjects.join(', ')}. Please upload a clearer image.`,
+				error: `Uncertain grade readings for: ${lowConfidenceSubjects.join(
+					', ',
+				)}. Please upload a clearer image.`,
 			};
 		}
 
@@ -426,7 +435,7 @@ ${COMMON_RULES}
 
 export async function analyzeReceipt(
 	fileBase64: string,
-	mediaType: string
+	mediaType: string,
 ): Promise<ReceiptResult> {
 	try {
 		const { output } = await generateText({
@@ -460,7 +469,7 @@ export async function analyzeReceipt(
 				text: error.text,
 			});
 			throw new Error(
-				`Failed to extract structured data from receipt: ${error.cause}`
+				`Failed to extract structured data from receipt: ${error.cause}`,
 			);
 		}
 		throw error;

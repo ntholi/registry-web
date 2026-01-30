@@ -439,6 +439,7 @@ export function MobileDocumentUpload({
 						<Button
 							variant='default'
 							fullWidth
+							size='md'
 							onClick={handleGalleryClick}
 							disabled={disabled || isProcessing}
 						>
@@ -449,6 +450,7 @@ export function MobileDocumentUpload({
 						<Button
 							fullWidth
 							variant='light'
+							size='md'
 							leftSection={<IconCamera size={'1rem'} />}
 							onClick={openCamera}
 							disabled={disabled || isProcessing}
