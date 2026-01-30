@@ -23,7 +23,7 @@ export function CameraModal({
 	const webcamRef = useRef<Webcam>(null);
 	const [error, setError] = useState<string | null>(null);
 	const [facingMode, setFacingMode] = useState<'environment' | 'user'>(
-		'environment'
+		'environment',
 	);
 	const [retryCount, setRetryCount] = useState(0);
 
@@ -120,7 +120,7 @@ export function CameraModal({
 						>
 							<Stack gap='xs' align='center'>
 								<Loader type='dots' color='cyan' size='md' />
-								<Text size='sm' fw={500} c='dimmed'>
+								<Text size='sm' fw={500}>
 									Analyzing document...
 								</Text>
 							</Stack>
