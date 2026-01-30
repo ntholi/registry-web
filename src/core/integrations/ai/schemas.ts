@@ -79,7 +79,7 @@ const academicSchema = z
 			.string()
 			.nullable()
 			.describe(
-				'Certificate standard: LGCSE, IGCSE, NSC, GCE O-Level, GCE AS Level, GCE A-Level, Certificate, Diploma, Degree'
+				'Certificate standard: LGCSE, COSC, IGCSE, NSC, GCE O-Level, GCE AS Level, GCE A-Level, Certificate, Diploma, Degree'
 			),
 		lqfLevel: z
 			.number()
@@ -98,7 +98,7 @@ const academicSchema = z
 					grade: z
 						.string()
 						.describe(
-							'Grade value as shown. LGCSE/IGCSE grades must be A*, A, B, C, D, E, F, G, or U.'
+							'Grade value as shown. LGCSE grades must be A*, A, B, C, D, E, F, G, or U.'
 						),
 					confidence: z
 						.number()

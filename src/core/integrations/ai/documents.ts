@@ -50,7 +50,7 @@ CATEGORIES:
 RULES:
 ${COMMON_RULES}
 - institutionName: Student's school (not examining body like Cambridge/ECoL)
-- LGCSE/IGCSE grades: Use letter (A*, A, B, C, D, E, F, G, U)
+- LGCSE grades: Use letter (A*, A, B, C, D, E, F, G, U)
 - Extract ALL subjects with grades
 - Only accept LGCSE (or equivalent) or higher certificates/result slips. If lower than LGCSE, classify as "other" and set certificateType to null.
 
@@ -76,7 +76,7 @@ const ACADEMIC_PROMPT = `Analyze this academic document and extract structured i
 RULES:
 ${COMMON_RULES}
 - institutionName: Student's school (not examining body like Cambridge/ECoL)
-- LGCSE/IGCSE grades: Use letter (A*, A, B, C, D, E, F, G, U)
+- LGCSE grades: Use letter (A*, A, B, C, D, E, F, G, U)
 - Extract ALL subjects with grades
 - Only accept LGCSE (or equivalent) or higher certificates/result slips. If lower than LGCSE, classify as "other" and set certificateType to null.
 
@@ -101,6 +101,7 @@ ${CERTIFICATION_RULES}`;
 
 const DEFAULT_CERTIFICATE_TYPES = [
 	'LGCSE',
+	'COSC',
 	'IGCSE',
 	'NSC',
 	'GCE O-Level',
