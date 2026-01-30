@@ -91,6 +91,11 @@ const academicSchema = z
 			.describe(
 				'Examining body or issuing authority (e.g., ECoL, Cambridge, IEB, Umalusi)'
 			),
+		isEcol: z
+			.boolean()
+			.describe(
+				'Whether the document explicitly indicates the Examinations Council of Lesotho (ECoL) as the issuing authority'
+			),
 		subjects: z
 			.array(
 				z.object({

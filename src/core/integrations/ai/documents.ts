@@ -53,13 +53,14 @@ ${COMMON_RULES}
 - LGCSE grades: Use letter (A*, A, B, C, D, E, F, G, U)
 - Extract ALL subjects with grades
 - Only accept LGCSE (or equivalent) or higher certificates/result slips. If lower than LGCSE, classify as "other" and set certificateType to null.
+- Determine if the document explicitly mentions ECoL as issuing authority and set isEcol accordingly (true/false). Search for any mention of "ECoL" or "Examinations Council of Lesotho".
 
 GRADE ACCURACY (CRITICAL - FOR ACADEMIC DOCUMENTS):
-- For each subject, provide a confidence score (0-100) for the grade reading.
+- For each subject think extra, provide a confidence score (0-100) for the grade reading.
 - 100 = absolutely certain the grade is correct
-- 99 = very confident, minor image quality issues
-- <99 = uncertain, add subject name to "unreadableGrades" list
-- If confidence < 99 for ANY subject, you MUST add that subject to "unreadableGrades".
+- 90 = very confident, minor image quality issues
+- <90 = uncertain, add subject name to "unreadableGrades" list
+- If confidence < 100 for ANY subject, you MUST add that subject to "unreadableGrades".
 - DO NOT guess grades. Accuracy is more important than completeness.
 
 ${CERTIFICATION_RULES}`;
@@ -87,8 +88,8 @@ GRADE ACCURACY (CRITICAL - ZERO TOLERANCE FOR ERRORS):
 - <99 = uncertain, ambiguous, blurry, or could be misread
 
 MANDATORY RULES:
-1. If confidence < 99 for ANY subject, you MUST add that subject name to "unreadableGrades".
-2. DO NOT guess grades. If "B" could be "D" or "8", that is <99 confidence.
+1. If confidence < 100 for ANY subject, you MUST add that subject name to "unreadableGrades".
+2. DO NOT guess grades. If "B" could be "D" or "8", that is <90 confidence.
 3. If the document is blurry, faded, or partially obscured, report ALL affected subjects.
 4. It is BETTER to report a grade as unreadable than to guess incorrectly.
 5. Example: "Mathematics" grade looks like "B" but might be "D" → confidence: 70, add "Mathematics" to "unreadableGrades".
@@ -96,6 +97,7 @@ MANDATORY RULES:
 ISSUING AUTHORITY:
 - issuingAuthority: Extract examining body (ECoL, Cambridge, IEB, Umalusi)
 - "Examinations Council of Lesotho" → record as "ECoL"
+- isEcol: true if the document explicitly indicates ECoL/Examinations Council of Lesotho as the issuing authority, otherwise false. Always set true or false; do not leave null.
 
 ${CERTIFICATION_RULES}`;
 
@@ -444,13 +446,7 @@ Scoring guide:
 				};
 			}
 
-			const isEcol =
-				output.issuingAuthority?.toLowerCase().includes('ecol') ||
-				output.issuingAuthority
-					?.toLowerCase()
-					.includes('examinations council of lesotho');
-
-			if (dbCertType.lqfLevel === 4 && !isEcol) {
+			if (dbCertType.lqfLevel === 4 && !output.isEcol) {
 				return {
 					success: false,
 					error:
