@@ -364,6 +364,47 @@ describe('Eligibility - LGCSE Subject-Based Rules', () => {
 		});
 	});
 
+	describe('Optional subjects', () => {
+		const requirements: EntryRequirementWithRelations[] = [
+			createLgcseRequirement(1, 'DIT', 'Diploma in IT', {
+				type: 'subject-grades',
+				minimumGrades: [{ count: 5, grade: 'C' }],
+				subjects: [{ subjectId: MATH_ID, minimumGrade: 'C', required: false }],
+			}),
+		];
+
+		it('should qualify without optional subject present', () => {
+			const records = [
+				createLgcseRecord([
+					{ subjectId: ENG_ID, grade: 'C' },
+					{ subjectId: SCI_ID, grade: 'C' },
+					{ subjectId: BUS_ID, grade: 'C' },
+					{ subjectId: ACC_ID, grade: 'C' },
+					{ subjectId: LIT_ID, grade: 'C' },
+				]),
+			];
+
+			const eligible = getEligiblePrograms(records, requirements);
+			expect(eligible).toHaveLength(1);
+		});
+
+		it('should qualify when optional subject is below minimum', () => {
+			const records = [
+				createLgcseRecord([
+					{ subjectId: ENG_ID, grade: 'C' },
+					{ subjectId: SCI_ID, grade: 'C' },
+					{ subjectId: BUS_ID, grade: 'C' },
+					{ subjectId: ACC_ID, grade: 'C' },
+					{ subjectId: LIT_ID, grade: 'C' },
+					{ subjectId: MATH_ID, grade: 'F' },
+				]),
+			];
+
+			const eligible = getEligiblePrograms(records, requirements);
+			expect(eligible).toHaveLength(1);
+		});
+	});
+
 	describe('Subject groups (required)', () => {
 		const requirements: EntryRequirementWithRelations[] = [
 			createLgcseRequirement(1, 'DBM', 'Diploma in Business', {
