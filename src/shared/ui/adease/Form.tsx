@@ -1,5 +1,6 @@
 'use client';
 
+import type { ActionResult } from '@/shared/lib/utils/actionResult';
 import { Stack, type StackProps } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { notifications } from '@mantine/notifications';
@@ -18,10 +19,10 @@ export type FormProps<T extends Record<string, unknown>, V, R = T> = Omit<
 > & {
 	children: (
 		form: ReturnType<typeof useForm<T>>,
-		state: { isSubmitting: boolean }
+		state: { isSubmitting: boolean },
 	) => JSX.Element;
 	beforeSubmit?: (form: ReturnType<typeof useForm<T>>) => void;
-	action: (values: T) => Promise<R>;
+	action: (values: T) => Promise<R | ActionResult<R>>;
 	schema?: ZodSchema;
 	defaultValues?: V;
 	title?: string;
@@ -31,6 +32,15 @@ export type FormProps<T extends Record<string, unknown>, V, R = T> = Omit<
 	formRef?: RefObject<HTMLFormElement | null>;
 	hideHeader?: boolean;
 };
+
+function isActionResult(value: unknown): value is ActionResult<unknown> {
+	return (
+		typeof value === 'object' &&
+		value !== null &&
+		'success' in value &&
+		typeof (value as { success: unknown }).success === 'boolean'
+	);
+}
 
 export function Form<T extends Record<string, unknown>, V, R = T>({
 	schema,
@@ -57,6 +67,28 @@ export function Form<T extends Record<string, unknown>, V, R = T>({
 	const mutation = useMutation({
 		mutationFn: action,
 		onSuccess: async (data) => {
+			if (isActionResult(data)) {
+				if (!data.success) {
+					notifications.show({
+						title: 'Error',
+						message: data.error,
+						color: 'red',
+					});
+					onError?.({ message: data.error } as Error);
+					return;
+				}
+				await queryClient.invalidateQueries({
+					queryKey,
+					refetchType: 'all',
+				});
+				onSuccess?.(data.data as R);
+				notifications.show({
+					title: 'Success',
+					message: 'Record saved successfully',
+					color: 'green',
+				});
+				return;
+			}
 			await queryClient.invalidateQueries({
 				queryKey,
 				refetchType: 'all',

@@ -2,7 +2,7 @@
 
 import { getCertificateTypeByName } from '@admissions/certificate-types/_server/actions';
 import { google } from '@ai-sdk/google';
-import { NoObjectGeneratedError, Output, generateText } from 'ai';
+import { generateText, NoObjectGeneratedError, Output } from 'ai';
 import type { z } from 'zod';
 import {
 	academicSchema,
@@ -116,13 +116,13 @@ const ACCEPTED_CERTIFICATE_TYPES = DEFAULT_CERTIFICATE_TYPES;
 function isAcceptedCertificateType(name: string): boolean {
 	const normalized = name.trim().toLowerCase();
 	return ACCEPTED_CERTIFICATE_TYPES.some(
-		(type) => type.trim().toLowerCase() === normalized,
+		(type) => type.trim().toLowerCase() === normalized
 	);
 }
 
 export async function analyzeDocument(
 	fileBase64: string,
-	mediaType: string,
+	mediaType: string
 ): Promise<AnalysisResult<DocumentAnalysisResult>> {
 	try {
 		const { output } = await generateText({
@@ -163,7 +163,7 @@ export async function analyzeDocument(
 				return {
 					success: false,
 					error: `Unable to read grades for: ${academic.unreadableGrades.join(
-						', ',
+						', '
 					)}. Please upload a clearer image.`,
 				};
 			}
@@ -175,7 +175,7 @@ export async function analyzeDocument(
 				return {
 					success: false,
 					error: `Uncertain grade readings for: ${lowConfidenceSubjects.join(
-						', ',
+						', '
 					)}. Please upload a clearer image.`,
 				};
 			}
@@ -226,7 +226,7 @@ export async function analyzeDocument(
 
 export async function analyzeIdentityDocument(
 	fileBase64: string,
-	mediaType: string,
+	mediaType: string
 ): Promise<AnalysisResult<IdentityDocumentResult>> {
 	try {
 		const { output } = await generateText({
@@ -295,12 +295,12 @@ export async function analyzeIdentityDocument(
 type CertificateTypeInput = string | { name: string; lqfLevel: number | null };
 
 function normalizeCertificateTypes(
-	types: CertificateTypeInput[] | undefined,
+	types: CertificateTypeInput[] | undefined
 ): Array<{ name: string; lqfLevel: number | null }> {
 	if (!types)
 		return DEFAULT_CERTIFICATE_TYPES.map((t) => ({ name: t, lqfLevel: null }));
 	return types.map((t) =>
-		typeof t === 'string' ? { name: t, lqfLevel: null } : t,
+		typeof t === 'string' ? { name: t, lqfLevel: null } : t
 	);
 }
 
@@ -308,11 +308,11 @@ export async function analyzeAcademicDocument(
 	fileBase64: string,
 	mediaType: string,
 	certificateTypes?: CertificateTypeInput[],
-	applicantName?: string,
+	applicantName?: string
 ): Promise<AnalysisResult<CertificateDocumentResult>> {
 	const normalizedTypes = normalizeCertificateTypes(certificateTypes);
 	const acceptedTypes = normalizedTypes.filter((type) =>
-		isAcceptedCertificateType(type.name),
+		isAcceptedCertificateType(type.name)
 	);
 	const types =
 		acceptedTypes.length > 0
@@ -377,7 +377,7 @@ Scoring guide:
 			return {
 				success: false,
 				error: `Unable to read grades for: ${output.unreadableGrades.join(
-					', ',
+					', '
 				)}. Please upload a clearer image.`,
 			};
 		}
@@ -390,7 +390,7 @@ Scoring guide:
 			return {
 				success: false,
 				error: `Uncertain grade readings for: ${lowConfidenceSubjects.join(
-					', ',
+					', '
 				)}. Please upload a clearer image.`,
 			};
 		}
@@ -489,7 +489,7 @@ ${COMMON_RULES}
 
 export async function analyzeReceipt(
 	fileBase64: string,
-	mediaType: string,
+	mediaType: string
 ): Promise<AnalysisResult<ReceiptResult>> {
 	try {
 		const { output } = await generateText({

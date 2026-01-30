@@ -9,6 +9,11 @@ import type {
 import type { DocumentAnalysisResult } from '@/core/integrations/ai/documents';
 import { uploadDocument } from '@/core/integrations/storage';
 import {
+	type ActionResult,
+	failure,
+	success,
+} from '@/shared/lib/utils/actionResult';
+import {
 	findApplicantByUserId,
 	getOrCreateApplicantForCurrentUser,
 } from '@admissions/applicants';
@@ -19,7 +24,7 @@ import {
 	updateApplicantFromIdentity,
 } from '@admissions/applicants/[id]/documents/_server/actions';
 import { nanoid } from 'nanoid';
-import { redirect, unauthorized } from 'next/navigation';
+import { redirect } from 'next/navigation';
 import type { ApplicationFilters } from '../_lib/types';
 import { applicationsService } from './service';
 
@@ -111,20 +116,26 @@ function getFileExtension(name: string) {
 	return name.slice(idx);
 }
 
-export async function uploadAndAnalyzeDocument(formData: FormData) {
+export async function uploadAndAnalyzeDocument(formData: FormData): Promise<
+	ActionResult<{
+		result: DocumentAnalysisResult;
+		type: DocumentType;
+		fileName: string;
+	}>
+> {
 	const session = await auth();
 	if (!session?.user?.id) {
-		return unauthorized();
+		return failure('Unauthorized');
 	}
 
 	const file = formData.get('file');
 	if (!(file instanceof File)) {
-		throw new Error('No file provided');
+		return failure('No file provided');
 	}
 
 	const applicant = await getOrCreateApplicantForCurrentUser();
 	if (!applicant) {
-		throw new Error('Failed to get applicant');
+		return failure('Failed to get applicant');
 	}
 
 	const folder = 'documents/admissions';
@@ -136,7 +147,7 @@ export async function uploadAndAnalyzeDocument(formData: FormData) {
 	const base64 = Buffer.from(buffer).toString('base64');
 	const result = await analyzeDocumentWithAI(base64, file.type);
 	if (!result.success) {
-		throw new Error(result.error);
+		return failure(result.error);
 	}
 	const analysis = result.data;
 
@@ -149,7 +160,7 @@ export async function uploadAndAnalyzeDocument(formData: FormData) {
 	});
 
 	if (analysis.category === 'identity' && type === 'identity') {
-		await updateApplicantFromIdentity(applicant.id, {
+		const updateResult = await updateApplicantFromIdentity(applicant.id, {
 			fullName: analysis.fullName,
 			dateOfBirth: analysis.dateOfBirth,
 			nationalId: analysis.nationalId,
@@ -158,6 +169,9 @@ export async function uploadAndAnalyzeDocument(formData: FormData) {
 			birthPlace: analysis.birthPlace,
 			address: analysis.address,
 		});
+		if (!updateResult.success) {
+			return failure(updateResult.error);
+		}
 	}
 
 	if (
@@ -168,7 +182,7 @@ export async function uploadAndAnalyzeDocument(formData: FormData) {
 		analysis.examYear &&
 		analysis.institutionName
 	) {
-		await createAcademicRecordFromDocument(
+		const recordResult = await createAcademicRecordFromDocument(
 			applicant.id,
 			{
 				institutionName: analysis.institutionName,
@@ -180,6 +194,9 @@ export async function uploadAndAnalyzeDocument(formData: FormData) {
 			},
 			savedDoc?.document?.id,
 		);
+		if (!recordResult.success) {
+			return failure(recordResult.error);
+		}
 	}
 
 	const payload: {
@@ -192,19 +209,20 @@ export async function uploadAndAnalyzeDocument(formData: FormData) {
 		fileName,
 	};
 
-	return payload;
+	return success(payload);
 }
 
-export async function completeApplication() {
+export async function completeApplication(): Promise<ActionResult<void>> {
 	const session = await auth();
 	if (!session?.user?.id) {
-		return unauthorized();
+		return failure('Unauthorized');
 	}
 
 	const applicant = await findApplicantByUserId(session.user.id);
 	if (!applicant) {
-		throw new Error('No applicant found');
+		return failure('No applicant found');
 	}
 
 	redirect('/apply/courses');
+	return success(undefined);
 }

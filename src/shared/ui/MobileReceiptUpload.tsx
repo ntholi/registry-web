@@ -1,18 +1,14 @@
 'use client';
 
 import {
-	type ReceiptResult,
-	analyzeReceipt,
-} from '@/core/integrations/ai/documents';
-import {
 	Button,
 	Paper,
 	Progress,
+	rem,
 	SimpleGrid,
 	Stack,
 	Text,
 	ThemeIcon,
-	rem,
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
@@ -25,6 +21,10 @@ import {
 	IconTrash,
 } from '@tabler/icons-react';
 import { useRef, useState } from 'react';
+import {
+	analyzeReceipt,
+	type ReceiptResult,
+} from '@/core/integrations/ai/documents';
 import { CameraModal } from './CameraModal';
 
 export type UploadState = 'idle' | 'uploading' | 'reading' | 'ready' | 'error';
@@ -52,7 +52,7 @@ function formatFileSize(bytes: number): string {
 	const units = ['B', 'KB', 'MB', 'GB'];
 	const exp = Math.min(
 		Math.floor(Math.log(bytes) / Math.log(1024)),
-		units.length - 1,
+		units.length - 1
 	);
 	const val = bytes / 1024 ** exp;
 	return `${val.toFixed(val < 10 && exp > 0 ? 1 : 0)} ${units[exp]}`;
@@ -102,7 +102,7 @@ export function MobileReceiptUpload({
 		const arrayBuffer = await selectedFile.arrayBuffer();
 		const uint8Array = new Uint8Array(arrayBuffer);
 		const charArray = Array.from(uint8Array, (byte) =>
-			String.fromCharCode(byte),
+			String.fromCharCode(byte)
 		);
 		const binaryString = charArray.join('');
 		const base64 = btoa(binaryString);

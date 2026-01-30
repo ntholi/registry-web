@@ -1,8 +1,13 @@
 'use server';
 
+import type { DocumentAnalysisResult } from '@/core/integrations/ai/documents';
+import {
+	type ActionResult,
+	failure,
+	success,
+} from '@/shared/lib/utils/actionResult';
 import { findAllCertificateTypes } from '@admissions/certificate-types';
 import { findOrCreateSubjectByName } from '@admissions/subjects';
-import type { DocumentAnalysisResult } from '@/core/integrations/ai/documents';
 import { applicantsService } from './service';
 
 export type PendingDocument = {
@@ -12,38 +17,42 @@ export type PendingDocument = {
 };
 
 export async function createApplicantFromDocuments(
-	documents: PendingDocument[]
-) {
+	documents: PendingDocument[],
+): Promise<
+	ActionResult<
+		Awaited<ReturnType<typeof applicantsService.createWithDocumentsAndRecords>>
+	>
+> {
 	const identityDoc = documents.find(
-		(d) => d.analysisResult.category === 'identity'
+		(d) => d.analysisResult.category === 'identity',
 	);
 	const academicDocs = documents.filter(
-		(d) => d.analysisResult.category === 'academic'
+		(d) => d.analysisResult.category === 'academic',
 	);
 
 	if (!identityDoc) {
-		throw new Error('Identity document is required to create an applicant');
+		return failure('Identity document is required to create an applicant');
 	}
 
 	const identity = identityDoc.analysisResult;
 	if (identity.category !== 'identity') {
-		throw new Error('Invalid identity document');
+		return failure('Invalid identity document');
 	}
 
 	if (!identity.fullName) {
-		throw new Error('Could not extract full name from identity document');
+		return failure('Could not extract full name from identity document');
 	}
 
 	if (!identity.dateOfBirth) {
-		throw new Error('Could not extract date of birth from identity document');
+		return failure('Could not extract date of birth from identity document');
 	}
 
 	if (!identity.nationality) {
-		throw new Error('Could not extract nationality from identity document');
+		return failure('Could not extract nationality from identity document');
 	}
 
 	if (!identity.gender) {
-		throw new Error('Could not extract gender from identity document');
+		return failure('Could not extract gender from identity document');
 	}
 
 	const applicant = await applicantsService.createWithDocumentsAndRecords(
@@ -57,10 +66,10 @@ export async function createApplicantFromDocuments(
 			address: identity.address ?? undefined,
 		},
 		documents,
-		academicDocs
+		academicDocs,
 	);
 
-	return applicant;
+	return success(applicant);
 }
 
 export async function findCertificateTypeByName(name: string) {

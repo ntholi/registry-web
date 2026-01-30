@@ -103,7 +103,13 @@ export default function DocumentUpload() {
 
 			const result = await analyzeDocumentWithAI(base64Data, file.type);
 			if (!result.success) {
-				throw new Error(result.error);
+				notifications.show({
+					title: 'Error',
+					message: result.error,
+					color: 'red',
+				});
+				setFileItems((prev) => prev.filter((item) => item.id !== id));
+				return;
 			}
 
 			updateFileItem(id, {
@@ -185,7 +191,16 @@ export default function DocumentUpload() {
 				analysisResult: f.analysisResult!,
 			}));
 
-			const applicant = await createApplicantFromDocuments(documents);
+			const result = await createApplicantFromDocuments(documents);
+			if (!result.success) {
+				notifications.show({
+					title: 'Error',
+					message: result.error,
+					color: 'red',
+				});
+				return;
+			}
+			const applicant = result.data;
 
 			notifications.show({
 				title: 'Success',

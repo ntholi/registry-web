@@ -1,6 +1,6 @@
-export type ActionResult<T> =
-	| { success: true; data: T }
-	| { success: false; error: string };
+import type { ActionResult } from '@/shared/lib/utils/actionResult';
+
+export type { ActionResult };
 
 export function extractError(error: unknown): string {
 	if (error instanceof Error) return error.message;

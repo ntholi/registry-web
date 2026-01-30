@@ -1,5 +1,11 @@
 'use client';
 
+import {
+	DocumentUpload,
+	type DocumentUploadResult,
+} from '@/app/apply/_components/DocumentUpload';
+import type { DocumentAnalysisResult } from '@/core/integrations/ai/documents';
+import { uploadDocument } from '@/core/integrations/storage';
 import { Button, Group, Modal, Select, Stack } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { documentTypeEnum } from '@registry/_database';
@@ -8,19 +14,13 @@ import { nanoid } from 'nanoid';
 import { useRouter } from 'nextjs-toploader/app';
 import { useState } from 'react';
 import {
-	DocumentUpload,
-	type DocumentUploadResult,
-} from '@/app/apply/_components/DocumentUpload';
-import type { DocumentAnalysisResult } from '@/core/integrations/ai/documents';
-import { uploadDocument } from '@/core/integrations/storage';
-import {
 	createAcademicRecordFromDocument,
 	getDocumentFolder,
 	saveApplicantDocument,
 	updateApplicantFromIdentity,
 } from '../_server/actions';
 
-type DocumentType = (typeof documentTypeEnum.enumValues)[number];
+type DocumentType = typeof documentTypeEnum.enumValues[number];
 
 const TYPE_OPTIONS = documentTypeEnum.enumValues.map((t) => ({
 	value: t,
@@ -34,14 +34,14 @@ function getFileExtension(name: string) {
 }
 
 function mapDocumentTypeFromAI(
-	result: DocumentAnalysisResult
+	result: DocumentAnalysisResult,
 ): DocumentType | null {
 	if (result.category === 'identity') {
 		return result.documentType === 'identity'
 			? 'identity'
 			: result.documentType === 'passport_photo'
-				? 'passport_photo'
-				: null;
+			? 'passport_photo'
+			: null;
 	}
 	if (result.category === 'academic') {
 		switch (result.documentType) {
@@ -145,24 +145,28 @@ export function UploadModal({
 			});
 
 			if (result.category === 'identity' && type === 'identity') {
-				try {
-					await updateApplicantFromIdentity(applicantId, {
-						fullName: result.fullName,
-						dateOfBirth: result.dateOfBirth,
-						nationalId: result.nationalId,
-						nationality: result.nationality,
-						gender: result.gender,
-						birthPlace: result.birthPlace,
-						address: result.address,
-					});
+				const updateResult = await updateApplicantFromIdentity(applicantId, {
+					fullName: result.fullName,
+					dateOfBirth: result.dateOfBirth,
+					nationalId: result.nationalId,
+					nationality: result.nationality,
+					gender: result.gender,
+					birthPlace: result.birthPlace,
+					address: result.address,
+				});
+				if (updateResult.success) {
 					notifications.show({
 						title: 'Personal Info Updated',
 						message:
 							'Applicant information has been updated from the identity document',
 						color: 'blue',
 					});
-				} catch {
-					console.error('Failed to update applicant info');
+				} else {
+					notifications.show({
+						title: 'Update Failed',
+						message: updateResult.error,
+						color: 'red',
+					});
 				}
 			}
 
@@ -173,27 +177,31 @@ export function UploadModal({
 					type === 'academic_record')
 			) {
 				if (result.examYear && result.institutionName) {
-					try {
-						await createAcademicRecordFromDocument(
-							applicantId,
-							{
-								institutionName: result.institutionName,
-								examYear: result.examYear,
-								certificateType: result.certificateType,
-								certificateNumber: result.certificateNumber,
-								subjects: result.subjects,
-								overallClassification: result.overallClassification,
-							},
-							savedDoc?.document?.id
-						);
+					const recordResult = await createAcademicRecordFromDocument(
+						applicantId,
+						{
+							institutionName: result.institutionName,
+							examYear: result.examYear,
+							certificateType: result.certificateType,
+							certificateNumber: result.certificateNumber,
+							subjects: result.subjects,
+							overallClassification: result.overallClassification,
+						},
+						savedDoc?.document?.id,
+					);
+					if (recordResult.success) {
 						notifications.show({
 							title: 'Academic Record Created',
 							message:
 								'A new academic record has been created from the document',
 							color: 'blue',
 						});
-					} catch {
-						console.error('Failed to create academic record');
+					} else {
+						notifications.show({
+							title: 'Academic Record Failed',
+							message: recordResult.error,
+							color: 'red',
+						});
 					}
 				}
 			}

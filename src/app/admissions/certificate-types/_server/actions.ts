@@ -1,13 +1,21 @@
 'use server';
 
 import type { certificateTypes, gradeMappings } from '@/core/database';
+import {
+	type ActionResult,
+	failure,
+	success,
+} from '@/shared/lib/utils/actionResult';
 import { certificateTypesService } from './service';
 
 type CertificateType = typeof certificateTypes.$inferInsert;
 type GradeMapping = {
 	originalGrade: string;
-	standardGrade: (typeof gradeMappings.$inferInsert)['standardGrade'];
+	standardGrade: typeof gradeMappings.$inferInsert['standardGrade'];
 };
+type CertificateTypeResult = NonNullable<
+	Awaited<ReturnType<typeof certificateTypesService.createWithMappings>>
+>;
 
 export async function getCertificateType(id: string) {
 	return certificateTypesService.get(id);
@@ -18,33 +26,33 @@ export async function findAllCertificateTypes(page = 1, search = '') {
 }
 
 export async function createCertificateType(
-	data: CertificateType & { gradeMappings?: GradeMapping[] }
-) {
+	data: CertificateType & { gradeMappings?: GradeMapping[] },
+): Promise<ActionResult<CertificateTypeResult>> {
 	const { gradeMappings: mappings, ...certData } = data;
 	const result = await certificateTypesService.createWithMappings(
 		certData,
-		mappings
+		mappings,
 	);
 	if (!result) {
-		throw new Error('Failed to create certificate type');
+		return failure('Failed to create certificate type');
 	}
-	return result;
+	return success(result);
 }
 
 export async function updateCertificateType(
 	id: string,
-	data: CertificateType & { gradeMappings?: GradeMapping[] }
-) {
+	data: CertificateType & { gradeMappings?: GradeMapping[] },
+): Promise<ActionResult<CertificateTypeResult>> {
 	const { gradeMappings: mappings, ...certData } = data;
 	const result = await certificateTypesService.updateWithMappings(
 		id,
 		certData,
-		mappings
+		mappings,
 	);
 	if (!result) {
-		throw new Error('Failed to update certificate type');
+		return failure('Failed to update certificate type');
 	}
-	return result;
+	return success(result);
 }
 
 export async function deleteCertificateType(id: string) {
@@ -61,7 +69,7 @@ export async function isCertificateTypeInUse(id: string) {
 
 export async function mapGrade(
 	certificateTypeId: string,
-	originalGrade: string
+	originalGrade: string,
 ) {
 	return certificateTypesService.mapGrade(certificateTypeId, originalGrade);
 }

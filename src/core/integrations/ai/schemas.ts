@@ -17,7 +17,7 @@ const certificationSchema = z.object({
 	isCertified: z
 		.boolean()
 		.describe(
-			'Whether the document has visible certification (stamp, seal, or official mark)',
+			'Whether the document has visible certification (stamp, seal, or official mark)'
 		),
 });
 
@@ -79,7 +79,7 @@ const academicSchema = z
 			.string()
 			.nullable()
 			.describe(
-				'Certificate standard: LGCSE, IGCSE, NSC, GCE O-Level, GCE AS Level, GCE A-Level, Certificate, Diploma, Degree',
+				'Certificate standard: LGCSE, IGCSE, NSC, GCE O-Level, GCE AS Level, GCE A-Level, Certificate, Diploma, Degree'
 			),
 		lqfLevel: z
 			.number()
@@ -89,7 +89,7 @@ const academicSchema = z
 			.string()
 			.nullable()
 			.describe(
-				'Examining body or issuing authority (e.g., ECoL, Cambridge, IEB, Umalusi)',
+				'Examining body or issuing authority (e.g., ECoL, Cambridge, IEB, Umalusi)'
 			),
 		subjects: z
 			.array(
@@ -98,16 +98,16 @@ const academicSchema = z
 					grade: z
 						.string()
 						.describe(
-							'Grade value as shown. LGCSE/IGCSE grades must be A*, A, B, C, D, E, F, G, or U.',
+							'Grade value as shown. LGCSE/IGCSE grades must be A*, A, B, C, D, E, F, G, or U.'
 						),
 					confidence: z
 						.number()
 						.min(0)
 						.max(100)
 						.describe(
-							`Confidence level (0-100) in the accuracy of this grade reading. 100 = absolutely certain, <${gradeConfidenceMin} = uncertain.`,
+							`Confidence level (0-100) in the accuracy of this grade reading. 100 = absolutely certain, <${gradeConfidenceMin} = uncertain.`
 						),
-				}),
+				})
 			)
 			.nullable()
 			.describe('Individual subject results with confidence scores'),
@@ -115,7 +115,7 @@ const academicSchema = z
 			.array(z.string())
 			.nullable()
 			.describe(
-				`List of subject names where the grade symbol is not clearly legible or uncertain (confidence < ${gradeConfidenceMin}).`,
+				`List of subject names where the grade symbol is not clearly legible or uncertain (confidence < ${gradeConfidenceMin}).`
 			),
 		overallClassification: z
 			.enum(['Distinction', 'Merit', 'Credit', 'Pass', 'Fail'])
@@ -135,7 +135,7 @@ const academicSchema = z
 			.max(100)
 			.nullable()
 			.describe(
-				'Confidence (0-100) that the student name matches the expected applicant name. Only set when expectedName is provided.',
+				'Confidence (0-100) that the student name matches the expected applicant name. Only set when expectedName is provided.'
 			),
 		certification: certificationSchema
 			.nullable()
@@ -215,7 +215,7 @@ const receiptSchema = z.object({
 		.string()
 		.nullable()
 		.describe(
-			'Name of the account holder/beneficiary the money was deposited to',
+			'Name of the account holder/beneficiary the money was deposited to'
 		),
 	reference: z
 		.string()
@@ -255,7 +255,7 @@ const documentAnalysisSchema = z.object({
 	category: z
 		.enum(['identity', 'academic', 'other'])
 		.describe(
-			'Primary classification: identity (IDs/passports), academic (certificates/transcripts), other',
+			'Primary classification: identity (IDs/passports), academic (certificates/transcripts), other'
 		),
 	identity: identitySchema
 		.nullable()

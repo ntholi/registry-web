@@ -7,6 +7,11 @@ import {
 	analyzeDocument,
 } from '@/core/integrations/ai/documents';
 import { deleteDocument } from '@/core/integrations/storage';
+import {
+	type ActionResult,
+	failure,
+	success,
+} from '@/shared/lib/utils/actionResult';
 import { getApplicant, updateApplicant } from '@admissions/applicants';
 import { findAllCertificateTypes } from '@admissions/certificate-types';
 import { findOrCreateSubjectByName } from '@admissions/subjects';
@@ -84,15 +89,15 @@ export async function analyzeDocumentWithAI(
 	return analyzeDocument(fileBase64, mediaType);
 }
 
-function normalizeFileUrl(fileUrl: string) {
+function normalizeFileUrl(fileUrl: string): ActionResult<string> {
 	if (!fileUrl) {
-		throw new Error('Document URL is missing');
+		return failure('Document URL is missing');
 	}
 
 	try {
-		return new URL(fileUrl).toString();
+		return success(new URL(fileUrl).toString());
 	} catch {
-		return encodeURI(fileUrl);
+		return success(encodeURI(fileUrl));
 	}
 }
 
@@ -100,23 +105,26 @@ export async function reanalyzeDocumentFromUrl(
 	fileUrl: string,
 	applicantId: string,
 	documentType: DocumentType,
-): Promise<DocumentAnalysisResult> {
+): Promise<ActionResult<DocumentAnalysisResult>> {
 	const normalizedUrl = normalizeFileUrl(fileUrl);
-	const response = await fetch(normalizedUrl, { cache: 'no-store' });
+	if (!normalizedUrl.success) {
+		return failure(normalizedUrl.error);
+	}
+	const response = await fetch(normalizedUrl.data, { cache: 'no-store' });
 	if (!response.ok) {
-		throw new Error(`Failed to fetch document (${response.status})`);
+		return failure(`Failed to fetch document (${response.status})`);
 	}
 	const buffer = await response.arrayBuffer();
 	const base64 = Buffer.from(buffer).toString('base64');
 	const contentType = response.headers.get('content-type') ?? 'application/pdf';
 	const result = await analyzeDocument(base64, contentType);
 	if (!result.success) {
-		throw new Error(result.error);
+		return failure(result.error);
 	}
 	const data = result.data;
 
 	if (data.category === 'identity' && documentType === 'identity') {
-		await updateApplicantFromIdentity(applicantId, {
+		const updateResult = await updateApplicantFromIdentity(applicantId, {
 			fullName: data.fullName,
 			dateOfBirth: data.dateOfBirth,
 			nationalId: data.nationalId,
@@ -125,6 +133,9 @@ export async function reanalyzeDocumentFromUrl(
 			birthPlace: data.birthPlace,
 			address: data.address,
 		});
+		if (!updateResult.success) {
+			return failure(updateResult.error);
+		}
 	}
 
 	if (
@@ -135,7 +146,7 @@ export async function reanalyzeDocumentFromUrl(
 		data.examYear &&
 		data.institutionName
 	) {
-		await createAcademicRecordFromDocument(applicantId, {
+		const recordResult = await createAcademicRecordFromDocument(applicantId, {
 			institutionName: data.institutionName,
 
 			examYear: data.examYear,
@@ -144,18 +155,23 @@ export async function reanalyzeDocumentFromUrl(
 			subjects: data.subjects,
 			overallClassification: data.overallClassification,
 		});
+		if (!recordResult.success) {
+			return failure(recordResult.error);
+		}
 	}
 
-	return data;
+	return success(data);
 }
 
 export async function updateApplicantFromIdentity(
 	applicantId: string,
 	data: ExtractedIdentityData,
-) {
+): Promise<
+	ActionResult<NonNullable<Awaited<ReturnType<typeof getApplicant>>>>
+> {
 	const applicant = await getApplicant(applicantId);
 	if (!applicant) {
-		throw new Error('Applicant not found');
+		return failure('Applicant not found');
 	}
 
 	const updateData: Partial<ExtractedIdentityData> = {};
@@ -183,7 +199,7 @@ export async function updateApplicantFromIdentity(
 	}
 
 	if (Object.keys(updateData).length > 0) {
-		return updateApplicant(applicantId, {
+		await updateApplicant(applicantId, {
 			id: applicant.id,
 			userId: applicant.userId,
 			fullName: updateData.fullName ?? applicant.fullName,
@@ -197,16 +213,21 @@ export async function updateApplicantFromIdentity(
 			createdAt: applicant.createdAt,
 			updatedAt: applicant.updatedAt,
 		});
+		const refreshed = await getApplicant(applicantId);
+		if (!refreshed) {
+			return failure('Applicant not found');
+		}
+		return success(refreshed);
 	}
 
-	return applicant;
+	return success(applicant);
 }
 
 export async function createAcademicRecordFromDocument(
 	applicantId: string,
 	data: ExtractedAcademicData,
 	applicantDocumentId?: string,
-) {
+): Promise<ActionResult<Awaited<ReturnType<typeof createAcademicRecord>>>> {
 	const examYear = data.examYear ?? new Date().getFullYear();
 	const institutionName = data.institutionName ?? 'Unknown Institution';
 
@@ -235,7 +256,7 @@ export async function createAcademicRecordFromDocument(
 		if (certTypes.length > 0) {
 			certificateTypeId = certTypes[0].id;
 		} else {
-			throw new Error('No certificate types found in the system');
+			return failure('No certificate types found in the system');
 		}
 	}
 
@@ -275,11 +296,11 @@ export async function createAcademicRecordFromDocument(
 			if (applicantDocumentId && record) {
 				await linkDocumentToAcademicRecord(record.id, applicantDocumentId);
 			}
-			return record;
+			return success(record);
 		}
 	}
 
-	return createAcademicRecord(
+	const record = await createAcademicRecord(
 		applicantId,
 		{
 			certificateTypeId,
@@ -293,4 +314,5 @@ export async function createAcademicRecordFromDocument(
 		isLevel4,
 		applicantDocumentId,
 	);
+	return success(record);
 }

@@ -1,12 +1,12 @@
 'use server';
 
-import { db, intakePeriods } from '@/core/database';
-import {
-	type ReceiptResult,
-	analyzeReceipt,
-} from '@/core/integrations/ai/documents';
 import { getApplication } from '@admissions/applications';
 import { eq } from 'drizzle-orm';
+import { db, intakePeriods } from '@/core/database';
+import {
+	analyzeReceipt,
+	type ReceiptResult,
+} from '@/core/integrations/ai/documents';
 
 const BENEFICIARY_NAME = 'Limkokwing University of Creative Technology';
 const BENEFICIARY_VARIATIONS = [
@@ -47,7 +47,7 @@ function validateBeneficiary(beneficiaryName: string | null): {
 	const normalizedName = beneficiaryName.toLowerCase().trim();
 	const isValid = BENEFICIARY_VARIATIONS.some(
 		(variation) =>
-			normalizedName.includes(variation) || variation.includes(normalizedName),
+			normalizedName.includes(variation) || variation.includes(normalizedName)
 	);
 
 	if (!isValid) {
@@ -62,7 +62,7 @@ function validateBeneficiary(beneficiaryName: string | null): {
 function validateDepositDate(
 	dateDeposited: string | null,
 	intakeStartDate: string,
-	intakeEndDate: string,
+	intakeEndDate: string
 ): { valid: boolean; error?: string } {
 	if (!dateDeposited) {
 		return { valid: false, error: 'Deposit date not found on receipt' };
@@ -94,7 +94,7 @@ export async function validateSingleReceipt(
 	fileBase64: string,
 	mediaType: string,
 	intakeStartDate: string,
-	intakeEndDate: string,
+	intakeEndDate: string
 ): Promise<ReceiptValidation> {
 	const errors: string[] = [];
 
@@ -126,7 +126,7 @@ export async function validateSingleReceipt(
 	const dateValidation = validateDepositDate(
 		data.dateDeposited,
 		intakeStartDate,
-		intakeEndDate,
+		intakeEndDate
 	);
 	if (!dateValidation.valid && dateValidation.error) {
 		errors.push(dateValidation.error);
@@ -145,7 +145,7 @@ export async function validateSingleReceipt(
 
 export async function validateReceipts(
 	applicationId: string,
-	receipts: Array<{ base64: string; mediaType: string }>,
+	receipts: Array<{ base64: string; mediaType: string }>
 ): Promise<ReceiptsValidationResult> {
 	const application = await getApplication(applicationId);
 	if (!application) {
@@ -182,7 +182,7 @@ export async function validateReceipts(
 			receipt.base64,
 			receipt.mediaType,
 			intake.startDate,
-			intake.endDate,
+			intake.endDate
 		);
 
 		const amount = validation.data?.amountDeposited ?? 0;
@@ -200,8 +200,8 @@ export async function validateReceipts(
 	if (totalAmount < requiredAmount) {
 		globalErrors.push(
 			`Total amount (M ${totalAmount.toFixed(
-				2,
-			)}) is less than required fee (M ${requiredAmount.toFixed(2)})`,
+				2
+			)}) is less than required fee (M ${requiredAmount.toFixed(2)})`
 		);
 	}
 

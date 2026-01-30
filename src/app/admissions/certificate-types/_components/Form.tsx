@@ -1,5 +1,7 @@
 'use client';
 
+import type { ActionResult } from '@/shared/lib/utils/actionResult';
+import { Form } from '@/shared/ui/adease';
 import {
 	certificateTypes,
 	gradingTypeEnum,
@@ -14,19 +16,18 @@ import {
 	Stack,
 	Table,
 	Text,
-	Textarea,
 	TextInput,
+	Textarea,
 } from '@mantine/core';
 import { IconInfoCircle, IconPlus, IconTrash } from '@tabler/icons-react';
 import { createInsertSchema } from 'drizzle-zod';
 import { useRouter } from 'nextjs-toploader/app';
 import { z } from 'zod';
-import { Form } from '@/shared/ui/adease';
 import type { CertificateTypeWithMappings } from '../_lib/types';
 
 type GradeMappingInput = {
 	originalGrade: string;
-	standardGrade: (typeof standardGradeEnum.enumValues)[number];
+	standardGrade: typeof standardGradeEnum.enumValues[number];
 };
 
 type FormValues = typeof certificateTypes.$inferInsert & {
@@ -34,7 +35,9 @@ type FormValues = typeof certificateTypes.$inferInsert & {
 };
 
 type Props = {
-	onSubmit: (values: FormValues) => Promise<CertificateTypeWithMappings>;
+	onSubmit: (
+		values: FormValues,
+	) => Promise<ActionResult<CertificateTypeWithMappings>>;
 	defaultValues?: CertificateTypeWithMappings;
 	title?: string;
 };
@@ -71,7 +74,7 @@ export default function CertificateTypeForm({
 				z.object({
 					originalGrade: z.string().min(1, 'Original grade is required'),
 					standardGrade: z.enum(standardGradeEnum.enumValues),
-				})
+				}),
 			)
 			.optional(),
 	});
@@ -90,7 +93,7 @@ export default function CertificateTypeForm({
 								originalGrade: m.originalGrade,
 								standardGrade: m.standardGrade,
 							})),
-						}
+					  }
 					: { lqfLevel: 4, gradingType: 'subject-grades', gradeMappings: [] }
 			}
 			onSuccess={({ id }) => router.push(`/admissions/certificate-types/${id}`)}
@@ -163,7 +166,7 @@ function GradeMappingEditor({ form }: GradeMappingEditorProps) {
 	function removeMapping(index: number) {
 		form.setFieldValue(
 			'gradeMappings',
-			mappings.filter((_, i) => i !== index)
+			mappings.filter((_, i) => i !== index),
 		);
 	}
 
@@ -193,13 +196,15 @@ function GradeMappingEditor({ form }: GradeMappingEditorProps) {
 						</Table.Tr>
 					</Table.Thead>
 					<Table.Tbody>
-						{mappings.map((_, index) => (
-							<Table.Tr key={index}>
+						{mappings.map((mapping, index) => (
+							<Table.Tr
+								key={`${mapping.originalGrade}-${mapping.standardGrade}-${index}`}
+							>
 								<Table.Td>
 									<TextInput
 										placeholder='e.g., 1, A, Pass'
 										{...form.getInputProps(
-											`gradeMappings.${index}.originalGrade`
+											`gradeMappings.${index}.originalGrade`,
 										)}
 									/>
 								</Table.Td>
@@ -207,7 +212,7 @@ function GradeMappingEditor({ form }: GradeMappingEditorProps) {
 									<Select
 										data={standardGradeOptions}
 										{...form.getInputProps(
-											`gradeMappings.${index}.standardGrade`
+											`gradeMappings.${index}.standardGrade`,
 										)}
 									/>
 								</Table.Td>
