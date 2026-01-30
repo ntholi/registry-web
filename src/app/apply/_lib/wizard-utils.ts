@@ -30,9 +30,8 @@ export function computeWizardStep(
 	const hasPersonalInfo =
 		!!applicant.fullName && applicant.guardians.length > 0;
 
-	if (!hasIdentity) return 'identity';
-	if (!hasQualifications) return 'qualifications';
-	if (!hasFirstChoice) return 'program';
-	if (!hasPersonalInfo) return 'personal-info';
-	return 'review';
+	if (!hasIdentity || !hasQualifications) return 'identity';
+	if (!hasFirstChoice) return 'qualifications';
+	if (!hasPersonalInfo) return 'program';
+	return 'personal-info';
 }
