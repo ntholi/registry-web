@@ -246,20 +246,19 @@ export async function seedEntryRequirements() {
 				{ count: 4, grade: 'C' },
 				{ count: 2, grade: 'D' },
 			],
-			subjects: [
-				{ subjectId: MATH, minimumGrade: 'D', required: true },
-				...architectureSubjects.map((subjectId) => ({
-					subjectId,
-					minimumGrade: 'C',
-					required: false,
-				})),
-			],
+			subjects: [{ subjectId: MATH, minimumGrade: 'D', required: true }],
 			subjectGroups: [
 				{
 					name: 'English/Literature',
 					subjectIds: [ENG, LIT],
 					minimumGrade: 'C',
 					required: true,
+				},
+				{
+					name: 'Architecture Subjects',
+					subjectIds: architectureSubjects,
+					minimumGrade: 'C',
+					required: false,
 				},
 			],
 		},
@@ -290,11 +289,14 @@ export async function seedEntryRequirements() {
 			subjects: [
 				{ subjectId: MATH, minimumGrade: 'D', required: true },
 				{ subjectId: ENG, minimumGrade: 'D', required: true },
-				...architectureSubjects.map((subjectId) => ({
-					subjectId,
+			],
+			subjectGroups: [
+				{
+					name: 'Architecture Subjects',
+					subjectIds: architectureSubjects,
 					minimumGrade: 'C',
 					required: false,
-				})),
+				},
 			],
 		},
 	});
