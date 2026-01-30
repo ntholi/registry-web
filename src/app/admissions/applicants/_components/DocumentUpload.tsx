@@ -1,16 +1,14 @@
 'use client';
 
-import type { DocumentAnalysisResult } from '@/core/integrations/ai/documents';
-import { uploadDocument } from '@/core/integrations/storage';
 import {
 	Button,
 	Group,
 	Paper,
 	Progress,
+	rem,
 	Stack,
 	Text,
 	ThemeIcon,
-	rem,
 } from '@mantine/core';
 import {
 	Dropzone,
@@ -31,11 +29,13 @@ import {
 import { nanoid } from 'nanoid';
 import { useRouter } from 'nextjs-toploader/app';
 import { useState } from 'react';
-import { analyzeDocumentWithAI } from '../[id]/documents/_server/actions';
+import type { DocumentAnalysisResult } from '@/core/integrations/ai/documents';
+import { uploadDocument } from '@/core/integrations/storage';
 import {
-	type PendingDocument,
 	createApplicantFromDocuments,
+	type PendingDocument,
 } from '../_server/document-actions';
+import { analyzeDocumentWithAI } from '../[id]/documents/_server/actions';
 
 type UploadState = 'idle' | 'uploading' | 'analyzing' | 'ready';
 
@@ -55,7 +55,7 @@ function formatFileSize(bytes: number): string {
 	const units = ['B', 'KB', 'MB', 'GB'];
 	const exp = Math.min(
 		Math.floor(Math.log(bytes) / Math.log(1024)),
-		units.length - 1,
+		units.length - 1
 	);
 	const val = bytes / 1024 ** exp;
 	return `${val.toFixed(val < 10 && exp > 0 ? 1 : 0)} ${units[exp]}`;
@@ -74,7 +74,7 @@ export default function DocumentUpload() {
 
 	function updateFileItem(id: string, updates: Partial<FileItem>) {
 		setFileItems((prev) =>
-			prev.map((item) => (item.id === id ? { ...item, ...updates } : item)),
+			prev.map((item) => (item.id === id ? { ...item, ...updates } : item))
 		);
 	}
 
@@ -96,7 +96,7 @@ export default function DocumentUpload() {
 			const arrayBuffer = await file.arrayBuffer();
 			const uint8Array = new Uint8Array(arrayBuffer);
 			const charArray = Array.from(uint8Array, (byte) =>
-				String.fromCharCode(byte),
+				String.fromCharCode(byte)
 			);
 			const binaryString = charArray.join('');
 			const base64Data = btoa(binaryString);
@@ -157,7 +157,7 @@ export default function DocumentUpload() {
 
 	async function handleSubmit() {
 		const readyFiles = fileItems.filter(
-			(f) => f.uploadState === 'ready' && f.analysisResult,
+			(f) => f.uploadState === 'ready' && f.analysisResult
 		);
 
 		if (readyFiles.length === 0) {
@@ -170,7 +170,7 @@ export default function DocumentUpload() {
 		}
 
 		const hasIdentity = readyFiles.some(
-			(f) => f.analysisResult?.category === 'identity',
+			(f) => f.analysisResult?.category === 'identity'
 		);
 
 		if (!hasIdentity) {
@@ -248,12 +248,12 @@ export default function DocumentUpload() {
 	}
 
 	const isProcessing = fileItems.some(
-		(f) => f.uploadState === 'uploading' || f.uploadState === 'analyzing',
+		(f) => f.uploadState === 'uploading' || f.uploadState === 'analyzing'
 	);
 	const readyCount = fileItems.filter((f) => f.uploadState === 'ready').length;
 	const hasIdentity = fileItems.some(
 		(f) =>
-			f.uploadState === 'ready' && f.analysisResult?.category === 'identity',
+			f.uploadState === 'ready' && f.analysisResult?.category === 'identity'
 	);
 
 	return (

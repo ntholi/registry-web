@@ -1,10 +1,13 @@
 'use server';
 
+import { getApplicant, updateApplicant } from '@admissions/applicants';
+import { findAllCertificateTypes } from '@admissions/certificate-types';
+import { findOrCreateSubjectByName } from '@admissions/subjects';
 import type { DocumentType, DocumentVerificationStatus } from '@/core/database';
 import {
 	type AnalysisResult,
-	type DocumentAnalysisResult,
 	analyzeDocument,
+	type DocumentAnalysisResult,
 } from '@/core/integrations/ai/documents';
 import { deleteDocument } from '@/core/integrations/storage';
 import {
@@ -12,9 +15,6 @@ import {
 	failure,
 	success,
 } from '@/shared/lib/utils/actionResult';
-import { getApplicant, updateApplicant } from '@admissions/applicants';
-import { findAllCertificateTypes } from '@admissions/certificate-types';
-import { findOrCreateSubjectByName } from '@admissions/subjects';
 import type { SubjectGradeInput } from '../../academic-records/_lib/types';
 import {
 	createAcademicRecord,
@@ -44,7 +44,7 @@ export async function findDocumentsByApplicant(applicantId: string, page = 1) {
 
 export async function findDocumentsByType(
 	applicantId: string,
-	type: DocumentType,
+	type: DocumentType
 ) {
 	return applicantDocumentsService.findByType(applicantId, type);
 }
@@ -64,14 +64,14 @@ export async function saveApplicantDocument(data: {
 			type: data.type,
 		},
 		data.applicantId,
-		0,
+		0
 	);
 }
 
 export async function verifyApplicantDocument(
 	id: string,
 	status: DocumentVerificationStatus,
-	rejectionReason?: string,
+	rejectionReason?: string
 ) {
 	return applicantDocumentsService.verifyDocument(id, status, rejectionReason);
 }
@@ -84,7 +84,7 @@ export async function deleteApplicantDocument(id: string, fileUrl: string) {
 
 export async function analyzeDocumentWithAI(
 	fileBase64: string,
-	mediaType: string,
+	mediaType: string
 ): Promise<AnalysisResult<DocumentAnalysisResult>> {
 	return analyzeDocument(fileBase64, mediaType);
 }
@@ -104,7 +104,7 @@ function normalizeFileUrl(fileUrl: string): ActionResult<string> {
 export async function reanalyzeDocumentFromUrl(
 	fileUrl: string,
 	applicantId: string,
-	documentType: DocumentType,
+	documentType: DocumentType
 ): Promise<ActionResult<DocumentAnalysisResult>> {
 	const normalizedUrl = normalizeFileUrl(fileUrl);
 	if (!normalizedUrl.success) {
@@ -165,7 +165,7 @@ export async function reanalyzeDocumentFromUrl(
 
 export async function updateApplicantFromIdentity(
 	applicantId: string,
-	data: ExtractedIdentityData,
+	data: ExtractedIdentityData
 ): Promise<
 	ActionResult<NonNullable<Awaited<ReturnType<typeof getApplicant>>>>
 > {
@@ -226,7 +226,7 @@ export async function updateApplicantFromIdentity(
 export async function createAcademicRecordFromDocument(
 	applicantId: string,
 	data: ExtractedAcademicData,
-	applicantDocumentId?: string,
+	applicantDocumentId?: string
 ): Promise<ActionResult<Awaited<ReturnType<typeof createAcademicRecord>>>> {
 	const examYear = data.examYear ?? new Date().getFullYear();
 	const institutionName = data.institutionName ?? 'Unknown Institution';
@@ -269,7 +269,7 @@ export async function createAcademicRecordFromDocument(
 					subjectId: subject.id,
 					originalGrade: sub.grade,
 				};
-			}),
+			})
 		);
 	}
 
@@ -277,7 +277,7 @@ export async function createAcademicRecordFromDocument(
 
 	if (data.certificateNumber) {
 		const existing = await findAcademicRecordByCertificateNumber(
-			data.certificateNumber,
+			data.certificateNumber
 		);
 		if (existing) {
 			const record = await updateAcademicRecord(
@@ -291,7 +291,7 @@ export async function createAcademicRecordFromDocument(
 					resultClassification: data.overallClassification,
 					subjectGrades,
 				},
-				isLevel4,
+				isLevel4
 			);
 			if (applicantDocumentId && record) {
 				await linkDocumentToAcademicRecord(record.id, applicantDocumentId);
@@ -312,7 +312,7 @@ export async function createAcademicRecordFromDocument(
 			subjectGrades,
 		},
 		isLevel4,
-		applicantDocumentId,
+		applicantDocumentId
 	);
 	return success(record);
 }

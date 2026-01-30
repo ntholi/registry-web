@@ -1,8 +1,5 @@
 'use server';
 
-import type { IdentityDocumentResult } from '@/core/integrations/ai/documents';
-import { uploadDocument } from '@/core/integrations/storage';
-import { getFileExtension } from '@/shared/lib/utils/files';
 import {
 	deleteApplicantDocument,
 	saveApplicantDocument,
@@ -10,6 +7,9 @@ import {
 } from '@admissions/applicants/[id]/documents/_server/actions';
 import { type ActionResult, extractError } from '@apply/_lib/errors';
 import { nanoid } from 'nanoid';
+import type { IdentityDocumentResult } from '@/core/integrations/ai/documents';
+import { uploadDocument } from '@/core/integrations/storage';
+import { getFileExtension } from '@/shared/lib/utils/files';
 
 const MAX_FILE_SIZE = 2 * 1024 * 1024;
 
@@ -18,7 +18,7 @@ type UploadResult = { fileName: string; analysis: IdentityDocumentResult };
 export async function uploadIdentityDocument(
 	applicantId: string,
 	file: File,
-	analysis: IdentityDocumentResult,
+	analysis: IdentityDocumentResult
 ): Promise<ActionResult<UploadResult>> {
 	try {
 		if (file.size > MAX_FILE_SIZE) {
@@ -58,7 +58,7 @@ export async function uploadIdentityDocument(
 
 export async function removeIdentityDocument(
 	id: string,
-	fileUrl: string,
+	fileUrl: string
 ): Promise<ActionResult<void>> {
 	try {
 		await deleteApplicantDocument(id, fileUrl);

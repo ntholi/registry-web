@@ -1,11 +1,23 @@
 'use client';
 
-import { ActionIcon, Button, Group, Modal, Select, Stack } from '@mantine/core';
+import {
+	ActionIcon,
+	Button,
+	Group,
+	Modal,
+	Select,
+	Stack,
+	Switch,
+} from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { IconPencil, IconPlus } from '@tabler/icons-react';
 import { useState } from 'react';
 
-type RequiredSubject = { subjectId: string; minimumGrade: string };
+type RequiredSubject = {
+	subjectId: string;
+	minimumGrade: string;
+	required: boolean;
+};
 type Subject = { id: string; name: string };
 
 type Props = {
@@ -25,11 +37,13 @@ export default function RequiredSubjectModal({
 }: Props) {
 	const [opened, { open, close }] = useDisclosure(false);
 	const [formData, setFormData] = useState<RequiredSubject>(
-		subject || { subjectId: '', minimumGrade: 'C' }
+		subject || { subjectId: '', minimumGrade: 'C', required: true }
 	);
 
 	const handleOpen = () => {
-		setFormData(subject || { subjectId: '', minimumGrade: 'C' });
+		setFormData(
+			subject || { subjectId: '', minimumGrade: 'C', required: true }
+		);
 		open();
 	};
 
@@ -55,9 +69,7 @@ export default function RequiredSubjectModal({
 			<Modal
 				opened={opened}
 				onClose={close}
-				title={
-					mode === 'add' ? 'Add Required Subject' : 'Edit Required Subject'
-				}
+				title={mode === 'add' ? 'Add Subject Rule' : 'Edit Subject Rule'}
 				centered
 				size='sm'
 			>
@@ -82,6 +94,17 @@ export default function RequiredSubjectModal({
 							setFormData((prev) => ({
 								...prev,
 								minimumGrade: val || 'C',
+							}))
+						}
+					/>
+
+					<Switch
+						label='Required'
+						checked={formData.required}
+						onChange={(event) =>
+							setFormData((prev) => ({
+								...prev,
+								required: event.currentTarget.checked,
 							}))
 						}
 					/>

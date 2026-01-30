@@ -1,13 +1,13 @@
 'use client';
 
+import { Badge, Collapse, Stack, Table, Text } from '@mantine/core';
+import { useDisclosure } from '@mantine/hooks';
+import { IconCertificate } from '@tabler/icons-react';
 import { getGradeColor } from '@/app/admissions/applicants/[id]/_components/AcademicRecordsTab';
 import {
 	DocumentCardShell,
 	DocumentDetailRow,
 } from '@/shared/ui/DocumentCardShell';
-import { Badge, Collapse, Stack, Table, Text } from '@mantine/core';
-import { useDisclosure } from '@mantine/hooks';
-import { IconCertificate } from '@tabler/icons-react';
 
 export type SubjectGrade = {
 	id: string;

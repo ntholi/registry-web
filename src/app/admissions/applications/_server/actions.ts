@@ -1,18 +1,5 @@
 'use server';
 
-import { auth } from '@/core/auth';
-import type {
-	ApplicationStatus,
-	DocumentType,
-	applications,
-} from '@/core/database';
-import type { DocumentAnalysisResult } from '@/core/integrations/ai/documents';
-import { uploadDocument } from '@/core/integrations/storage';
-import {
-	type ActionResult,
-	failure,
-	success,
-} from '@/shared/lib/utils/actionResult';
 import {
 	findApplicantByUserId,
 	getOrCreateApplicantForCurrentUser,
@@ -25,6 +12,19 @@ import {
 } from '@admissions/applicants/[id]/documents/_server/actions';
 import { nanoid } from 'nanoid';
 import { redirect } from 'next/navigation';
+import { auth } from '@/core/auth';
+import type {
+	ApplicationStatus,
+	applications,
+	DocumentType,
+} from '@/core/database';
+import type { DocumentAnalysisResult } from '@/core/integrations/ai/documents';
+import { uploadDocument } from '@/core/integrations/storage';
+import {
+	type ActionResult,
+	failure,
+	success,
+} from '@/shared/lib/utils/actionResult';
 import type { ApplicationFilters } from '../_lib/types';
 import { applicationsService } from './service';
 
@@ -37,7 +37,7 @@ export async function getApplication(id: string) {
 export async function findAllApplications(
 	page = 1,
 	search = '',
-	filters?: ApplicationFilters,
+	filters?: ApplicationFilters
 ) {
 	return applicationsService.search(page, search, filters);
 }
@@ -62,19 +62,19 @@ export async function changeApplicationStatus(
 	applicationId: string,
 	newStatus: ApplicationStatus,
 	notes?: string,
-	rejectionReason?: string,
+	rejectionReason?: string
 ) {
 	return applicationsService.changeStatus(
 		applicationId,
 		newStatus,
 		notes,
-		rejectionReason,
+		rejectionReason
 	);
 }
 
 export async function addApplicationNote(
 	applicationId: string,
-	content: string,
+	content: string
 ) {
 	return applicationsService.addNote(applicationId, content);
 }
@@ -85,7 +85,7 @@ export async function getApplicationNotes(applicationId: string) {
 
 export async function recordApplicationPayment(
 	applicationId: string,
-	receiptId: string,
+	receiptId: string
 ) {
 	return applicationsService.recordPayment(applicationId, receiptId);
 }
@@ -192,7 +192,7 @@ export async function uploadAndAnalyzeDocument(formData: FormData): Promise<
 				subjects: analysis.subjects,
 				overallClassification: analysis.overallClassification,
 			},
-			savedDoc?.document?.id,
+			savedDoc?.document?.id
 		);
 		if (!recordResult.success) {
 			return failure(recordResult.error);

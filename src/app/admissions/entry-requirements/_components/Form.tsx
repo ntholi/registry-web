@@ -8,6 +8,7 @@ import {
 	Paper,
 	Select,
 	Stack,
+	Switch,
 	Text,
 	TextInput,
 	Title,
@@ -76,7 +77,7 @@ export default function EntryRequirementForm({
 			return {
 				type: 'subject-grades',
 				minimumGrades: [{ count: 5, grade: 'C' }],
-				requiredSubjects: [],
+				subjects: [],
 			};
 		}
 	);
@@ -107,31 +108,31 @@ export default function EntryRequirementForm({
 		return onSubmit({ ...values, rules });
 	};
 
-	const addRequiredSubject = () => {
+	const addSubject = () => {
 		setSubjectGradeRules((prev) => ({
 			...prev,
-			requiredSubjects: [
-				...prev.requiredSubjects,
-				{ subjectId: '', minimumGrade: 'C' },
+			subjects: [
+				...prev.subjects,
+				{ subjectId: '', minimumGrade: 'C', required: true },
 			],
 		}));
 	};
 
-	const removeRequiredSubject = (index: number) => {
+	const removeSubject = (index: number) => {
 		setSubjectGradeRules((prev) => ({
 			...prev,
-			requiredSubjects: prev.requiredSubjects.filter((_, i) => i !== index),
+			subjects: prev.subjects.filter((_, i) => i !== index),
 		}));
 	};
 
-	const updateRequiredSubject = (
+	const updateSubject = (
 		index: number,
-		field: 'subjectId' | 'minimumGrade',
-		value: string
+		field: 'subjectId' | 'minimumGrade' | 'required',
+		value: string | boolean
 	) => {
 		setSubjectGradeRules((prev) => ({
 			...prev,
-			requiredSubjects: prev.requiredSubjects.map((s, i) =>
+			subjects: prev.subjects.map((s, i) =>
 				i === index ? { ...s, [field]: value } : s
 			),
 		}));
@@ -266,18 +267,14 @@ export default function EntryRequirementForm({
 							<Stack gap='xs'>
 								<Group justify='space-between'>
 									<Text size='sm' fw={500}>
-										Required Subjects
+										Subjects
 									</Text>
-									<ActionIcon
-										variant='light'
-										color='blue'
-										onClick={addRequiredSubject}
-									>
+									<ActionIcon variant='light' color='blue' onClick={addSubject}>
 										<IconPlus size={16} />
 									</ActionIcon>
 								</Group>
 
-								{subjectGradeRules.requiredSubjects.map((rs, idx) => (
+								{subjectGradeRules.subjects.map((rs, idx) => (
 									<Group key={idx} gap='xs'>
 										<Select
 											placeholder='Select subject'
@@ -287,7 +284,7 @@ export default function EntryRequirementForm({
 											}))}
 											value={rs.subjectId?.toString() || ''}
 											onChange={(val) =>
-												updateRequiredSubject(idx, 'subjectId', val || '')
+												updateSubject(idx, 'subjectId', val || '')
 											}
 											style={{ flex: 1 }}
 											searchable
@@ -297,14 +294,26 @@ export default function EntryRequirementForm({
 											data={standardGrades}
 											value={rs.minimumGrade}
 											onChange={(val) =>
-												updateRequiredSubject(idx, 'minimumGrade', val || 'C')
+												updateSubject(idx, 'minimumGrade', val || 'C')
 											}
 											w={100}
+										/>
+										<Switch
+											label='Required'
+											checked={rs.required}
+											onChange={(event) =>
+												updateSubject(
+													idx,
+													'required',
+													event.currentTarget.checked
+												)
+											}
+											labelPosition='left'
 										/>
 										<ActionIcon
 											variant='light'
 											color='red'
-											onClick={() => removeRequiredSubject(idx)}
+											onClick={() => removeSubject(idx)}
 										>
 											<IconTrash size={16} />
 										</ActionIcon>

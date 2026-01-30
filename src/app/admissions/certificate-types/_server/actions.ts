@@ -11,7 +11,7 @@ import { certificateTypesService } from './service';
 type CertificateType = typeof certificateTypes.$inferInsert;
 type GradeMapping = {
 	originalGrade: string;
-	standardGrade: typeof gradeMappings.$inferInsert['standardGrade'];
+	standardGrade: (typeof gradeMappings.$inferInsert)['standardGrade'];
 };
 type CertificateTypeResult = NonNullable<
 	Awaited<ReturnType<typeof certificateTypesService.createWithMappings>>
@@ -26,12 +26,12 @@ export async function findAllCertificateTypes(page = 1, search = '') {
 }
 
 export async function createCertificateType(
-	data: CertificateType & { gradeMappings?: GradeMapping[] },
+	data: CertificateType & { gradeMappings?: GradeMapping[] }
 ): Promise<ActionResult<CertificateTypeResult>> {
 	const { gradeMappings: mappings, ...certData } = data;
 	const result = await certificateTypesService.createWithMappings(
 		certData,
-		mappings,
+		mappings
 	);
 	if (!result) {
 		return failure('Failed to create certificate type');
@@ -41,13 +41,13 @@ export async function createCertificateType(
 
 export async function updateCertificateType(
 	id: string,
-	data: CertificateType & { gradeMappings?: GradeMapping[] },
+	data: CertificateType & { gradeMappings?: GradeMapping[] }
 ): Promise<ActionResult<CertificateTypeResult>> {
 	const { gradeMappings: mappings, ...certData } = data;
 	const result = await certificateTypesService.updateWithMappings(
 		id,
 		certData,
-		mappings,
+		mappings
 	);
 	if (!result) {
 		return failure('Failed to update certificate type');
@@ -69,7 +69,7 @@ export async function isCertificateTypeInUse(id: string) {
 
 export async function mapGrade(
 	certificateTypeId: string,
-	originalGrade: string,
+	originalGrade: string
 ) {
 	return certificateTypesService.mapGrade(certificateTypeId, originalGrade);
 }

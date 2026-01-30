@@ -35,6 +35,12 @@ export default function CourseCard({ program, subjects }: Props) {
 		lgcseReq?.rules?.type === 'subject-grades'
 			? (lgcseReq.rules as SubjectGradeRules)
 			: null;
+	const requiredSubjects = rules
+		? rules.subjects.filter((subject) => subject.required)
+		: [];
+	const advantageSubjects = rules
+		? rules.subjects.filter((subject) => !subject.required)
+		: [];
 
 	return (
 		<Paper h='100%' radius='md' pb={'lg'} shadow='sm' withBorder>
@@ -80,7 +86,7 @@ export default function CourseCard({ program, subjects }: Props) {
 							</Text>
 						</Box>
 
-						{rules.requiredSubjects.length > 0 && (
+						{requiredSubjects.length > 0 && (
 							<Box>
 								<Title size={'xs'} order={5} mb='sm'>
 									Required Subjects
@@ -94,7 +100,36 @@ export default function CourseCard({ program, subjects }: Props) {
 										/>
 									}
 								>
-									{rules.requiredSubjects.map((sub, idx) => (
+									{requiredSubjects.map((sub, idx) => (
+										<List.Item key={idx}>
+											<Group gap='xs' wrap='nowrap'>
+												<Text fw={500}>
+													{subjectMap.get(sub.subjectId) || sub.subjectId}
+												</Text>
+												<Text c='dimmed'>—</Text>
+												<Text c='dimmed'>minimum grade {sub.minimumGrade}</Text>
+											</Group>
+										</List.Item>
+									))}
+								</List>
+							</Box>
+						)}
+
+						{advantageSubjects.length > 0 && (
+							<Box>
+								<Title size={'xs'} order={5} mb='sm'>
+									Advantage Subjects
+								</Title>
+								<List
+									spacing='sm'
+									icon={
+										<IconCheck
+											size={16}
+											color='var(--mantine-color-teal-filled)'
+										/>
+									}
+								>
+									{advantageSubjects.map((sub, idx) => (
 										<List.Item key={idx}>
 											<Group gap='xs' wrap='nowrap'>
 												<Text fw={500}>

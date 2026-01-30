@@ -1,6 +1,5 @@
 'use client';
 
-import type { ActionResult } from '@/shared/lib/utils/actionResult';
 import { Stack, type StackProps } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { notifications } from '@mantine/notifications';
@@ -9,6 +8,7 @@ import { zod4Resolver as zodResolver } from 'mantine-form-zod-resolver';
 import { useRouter } from 'nextjs-toploader/app';
 import type { JSX, RefObject } from 'react';
 import type { ZodObject, ZodTypeAny } from 'zod';
+import type { ActionResult } from '@/shared/lib/utils/actionResult';
 import FormHeader from './FormHeader';
 
 type ZodSchema = ZodObject<Record<string, ZodTypeAny>>;
@@ -19,7 +19,7 @@ export type FormProps<T extends Record<string, unknown>, V, R = T> = Omit<
 > & {
 	children: (
 		form: ReturnType<typeof useForm<T>>,
-		state: { isSubmitting: boolean },
+		state: { isSubmitting: boolean }
 	) => JSX.Element;
 	beforeSubmit?: (form: ReturnType<typeof useForm<T>>) => void;
 	action: (values: T) => Promise<R | ActionResult<R>>;

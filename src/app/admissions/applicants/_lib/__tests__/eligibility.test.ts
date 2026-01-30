@@ -124,7 +124,7 @@ describe('Eligibility - LGCSE Subject-Based Rules', () => {
 			createLgcseRequirement(1, 'DIT', 'Diploma in IT', {
 				type: 'subject-grades',
 				minimumGrades: [{ count: 5, grade: 'C' }],
-				requiredSubjects: [],
+				subjects: [],
 			}),
 		];
 
@@ -198,7 +198,7 @@ describe('Eligibility - LGCSE Subject-Based Rules', () => {
 					{ count: 3, grade: 'C' },
 					{ count: 2, grade: 'D' },
 				],
-				requiredSubjects: [],
+				subjects: [],
 			}),
 		];
 
@@ -298,7 +298,7 @@ describe('Eligibility - LGCSE Subject-Based Rules', () => {
 			createLgcseRequirement(1, 'DIT', 'Diploma in IT', {
 				type: 'subject-grades',
 				minimumGrades: [{ count: 5, grade: 'C' }],
-				requiredSubjects: [{ subjectId: MATH_ID, minimumGrade: 'C' }],
+				subjects: [{ subjectId: MATH_ID, minimumGrade: 'C', required: true }],
 			}),
 		];
 
@@ -369,7 +369,7 @@ describe('Eligibility - LGCSE Subject-Based Rules', () => {
 			createLgcseRequirement(1, 'DBM', 'Diploma in Business', {
 				type: 'subject-grades',
 				minimumGrades: [{ count: 5, grade: 'C' }],
-				requiredSubjects: [],
+				subjects: [],
 				subjectGroups: [
 					{
 						name: 'Commercial Subjects',
@@ -447,7 +447,7 @@ describe('Eligibility - LGCSE Subject-Based Rules', () => {
 			createLgcseRequirement(1, 'DGD', 'Diploma in Graphic Design', {
 				type: 'subject-grades',
 				minimumGrades: [{ count: 5, grade: 'C' }],
-				requiredSubjects: [],
+				subjects: [],
 				subjectGroups: [
 					{
 						name: 'Design Subjects (Advantageous)',
@@ -483,7 +483,7 @@ describe('Eligibility - LGCSE Subject-Based Rules', () => {
 					{ count: 3, grade: 'C' },
 					{ count: 2, grade: 'D' },
 				],
-				requiredSubjects: [{ subjectId: MATH_ID, minimumGrade: 'D' }],
+				subjects: [{ subjectId: MATH_ID, minimumGrade: 'D', required: true }],
 				subjectGroups: [
 					{
 						name: 'Commercial Subjects',
@@ -546,12 +546,12 @@ describe('Eligibility - LGCSE Subject-Based Rules', () => {
 			createLgcseRequirement(1, 'DIT', 'Diploma in IT', {
 				type: 'subject-grades',
 				minimumGrades: [{ count: 3, grade: 'C' }],
-				requiredSubjects: [{ subjectId: MATH_ID, minimumGrade: 'C' }],
+				subjects: [{ subjectId: MATH_ID, minimumGrade: 'C', required: true }],
 			}),
 			createLgcseRequirement(2, 'DBM', 'Diploma in Business', {
 				type: 'subject-grades',
 				minimumGrades: [{ count: 3, grade: 'C' }],
-				requiredSubjects: [],
+				subjects: [],
 				subjectGroups: [
 					{
 						name: 'Commercial',
@@ -564,7 +564,7 @@ describe('Eligibility - LGCSE Subject-Based Rules', () => {
 			createLgcseRequirement(3, 'DJM', 'Diploma in Journalism', {
 				type: 'subject-grades',
 				minimumGrades: [{ count: 4, grade: 'C' }],
-				requiredSubjects: [{ subjectId: ENG_ID, minimumGrade: 'C' }],
+				subjects: [{ subjectId: ENG_ID, minimumGrade: 'C', required: true }],
 			}),
 		];
 
@@ -622,7 +622,7 @@ describe('Eligibility - LGCSE Subject-Based Rules', () => {
 			createLgcseRequirement(1, 'TEST', 'Test Program', {
 				type: 'subject-grades',
 				minimumGrades: [{ count: 3, grade: 'C' }],
-				requiredSubjects: [],
+				subjects: [],
 			}),
 		];
 
@@ -721,7 +721,7 @@ describe('Eligibility - LQF Level Matching', () => {
 	const lgcseReq = createLgcseRequirement(1, 'DIT', 'Diploma in IT', {
 		type: 'subject-grades',
 		minimumGrades: [{ count: 3, grade: 'C' }],
-		requiredSubjects: [],
+		subjects: [],
 	});
 
 	const diplomaReq = createDiplomaRequirement(2, 'BSCIT', 'BSc in IT', {
@@ -771,7 +771,7 @@ describe('Eligibility - Best Grade Selection', () => {
 		createLgcseRequirement(1, 'DIT', 'Diploma in IT', {
 			type: 'subject-grades',
 			minimumGrades: [{ count: 3, grade: 'B' }],
-			requiredSubjects: [],
+			subjects: [],
 		}),
 	];
 

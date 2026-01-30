@@ -1,11 +1,5 @@
 'use client';
 
-import {
-	DocumentUpload,
-	type DocumentUploadResult,
-} from '@/app/apply/_components/DocumentUpload';
-import type { DocumentAnalysisResult } from '@/core/integrations/ai/documents';
-import { uploadDocument } from '@/core/integrations/storage';
 import { Button, Group, Modal, Select, Stack } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { documentTypeEnum } from '@registry/_database';
@@ -14,13 +8,19 @@ import { nanoid } from 'nanoid';
 import { useRouter } from 'nextjs-toploader/app';
 import { useState } from 'react';
 import {
+	DocumentUpload,
+	type DocumentUploadResult,
+} from '@/app/apply/_components/DocumentUpload';
+import type { DocumentAnalysisResult } from '@/core/integrations/ai/documents';
+import { uploadDocument } from '@/core/integrations/storage';
+import {
 	createAcademicRecordFromDocument,
 	getDocumentFolder,
 	saveApplicantDocument,
 	updateApplicantFromIdentity,
 } from '../_server/actions';
 
-type DocumentType = typeof documentTypeEnum.enumValues[number];
+type DocumentType = (typeof documentTypeEnum.enumValues)[number];
 
 const TYPE_OPTIONS = documentTypeEnum.enumValues.map((t) => ({
 	value: t,
@@ -34,14 +34,14 @@ function getFileExtension(name: string) {
 }
 
 function mapDocumentTypeFromAI(
-	result: DocumentAnalysisResult,
+	result: DocumentAnalysisResult
 ): DocumentType | null {
 	if (result.category === 'identity') {
 		return result.documentType === 'identity'
 			? 'identity'
 			: result.documentType === 'passport_photo'
-			? 'passport_photo'
-			: null;
+				? 'passport_photo'
+				: null;
 	}
 	if (result.category === 'academic') {
 		switch (result.documentType) {
@@ -187,7 +187,7 @@ export function UploadModal({
 							subjects: result.subjects,
 							overallClassification: result.overallClassification,
 						},
-						savedDoc?.document?.id,
+						savedDoc?.document?.id
 					);
 					if (recordResult.success) {
 						notifications.show({

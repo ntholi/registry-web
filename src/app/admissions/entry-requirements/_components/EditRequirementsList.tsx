@@ -136,7 +136,7 @@ export default function EditRequirementsList({
 			? {
 					type: 'subject-grades',
 					minimumGrades: [{ count: 5, grade: 'C' }],
-					requiredSubjects: [],
+					subjects: [],
 				}
 			: {
 					type: 'classification',
@@ -239,7 +239,7 @@ function RequirementEditor({
 		return {
 			type: 'subject-grades',
 			minimumGrades: [{ count: 5, grade: 'C' }],
-			requiredSubjects: [],
+			subjects: [],
 		};
 	});
 
@@ -254,32 +254,31 @@ function RequirementEditor({
 		onSave({ ...requirement, rules });
 	};
 
-	const handleAddRequiredSubject = (subject: {
+	const handleAddSubject = (subject: {
 		subjectId: string;
 		minimumGrade: string;
+		required: boolean;
 	}) => {
 		setSubjectRules((prev) => ({
 			...prev,
-			requiredSubjects: [...prev.requiredSubjects, subject],
+			subjects: [...prev.subjects, subject],
 		}));
 	};
 
-	const handleUpdateRequiredSubject = (
+	const handleUpdateSubject = (
 		idx: number,
-		subject: { subjectId: string; minimumGrade: string }
+		subject: { subjectId: string; minimumGrade: string; required: boolean }
 	) => {
 		setSubjectRules((prev) => ({
 			...prev,
-			requiredSubjects: prev.requiredSubjects.map((s, i) =>
-				i === idx ? subject : s
-			),
+			subjects: prev.subjects.map((s, i) => (i === idx ? subject : s)),
 		}));
 	};
 
-	const handleRemoveRequiredSubject = (idx: number) => {
+	const handleRemoveSubject = (idx: number) => {
 		setSubjectRules((prev) => ({
 			...prev,
-			requiredSubjects: prev.requiredSubjects.filter((_, i) => i !== idx),
+			subjects: prev.subjects.filter((_, i) => i !== idx),
 		}));
 	};
 
@@ -443,16 +442,16 @@ function RequirementEditor({
 							<Stack gap='xs'>
 								<Group justify='space-between'>
 									<Text size='sm' fw={500}>
-										Required Subjects
+										Subjects
 									</Text>
 									<RequiredSubjectModal
 										mode='add'
 										subjects={subjects}
-										onSave={handleAddRequiredSubject}
+										onSave={handleAddSubject}
 									/>
 								</Group>
 
-								{subjectRules.requiredSubjects.map((rs, idx) => {
+								{subjectRules.subjects.map((rs, idx) => {
 									const subjectName =
 										subjects.find((s) => s.id === rs.subjectId)?.name ||
 										'Unknown Subject';
@@ -469,19 +468,28 @@ function RequirementEditor({
 													<Badge size='xs' variant='light'>
 														Min: {rs.minimumGrade}
 													</Badge>
+													{rs.required ? (
+														<Badge size='xs' color='red' variant='light'>
+															Required
+														</Badge>
+													) : (
+														<Badge size='xs' color='teal' variant='light'>
+															Advantage
+														</Badge>
+													)}
 												</Group>
 												<Group gap='xs'>
 													<RequiredSubjectModal
 														mode='edit'
 														subject={rs}
 														subjects={subjects}
-														onSave={(s) => handleUpdateRequiredSubject(idx, s)}
+														onSave={(s) => handleUpdateSubject(idx, s)}
 													/>
 													<ActionIcon
 														variant='subtle'
 														color='red'
 														size='sm'
-														onClick={() => handleRemoveRequiredSubject(idx)}
+														onClick={() => handleRemoveSubject(idx)}
 													>
 														<IconTrash size={14} />
 													</ActionIcon>

@@ -9,7 +9,7 @@ export type MinimumGradeRequirement = { count: number; grade: string };
 export type SubjectGradeRules = {
 	type: 'subject-grades';
 	minimumGrades: MinimumGradeRequirement[];
-	requiredSubjects: { subjectId: string; minimumGrade: string }[];
+	subjects: { subjectId: string; minimumGrade: string; required: boolean }[];
 	subjectGroups?: {
 		name: string;
 		subjectIds: string[];

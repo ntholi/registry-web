@@ -1,13 +1,13 @@
 'use server';
 
+import { findAllCertificateTypes } from '@admissions/certificate-types';
+import { findOrCreateSubjectByName } from '@admissions/subjects';
 import type { DocumentAnalysisResult } from '@/core/integrations/ai/documents';
 import {
 	type ActionResult,
 	failure,
 	success,
 } from '@/shared/lib/utils/actionResult';
-import { findAllCertificateTypes } from '@admissions/certificate-types';
-import { findOrCreateSubjectByName } from '@admissions/subjects';
 import { applicantsService } from './service';
 
 export type PendingDocument = {
@@ -17,17 +17,17 @@ export type PendingDocument = {
 };
 
 export async function createApplicantFromDocuments(
-	documents: PendingDocument[],
+	documents: PendingDocument[]
 ): Promise<
 	ActionResult<
 		Awaited<ReturnType<typeof applicantsService.createWithDocumentsAndRecords>>
 	>
 > {
 	const identityDoc = documents.find(
-		(d) => d.analysisResult.category === 'identity',
+		(d) => d.analysisResult.category === 'identity'
 	);
 	const academicDocs = documents.filter(
-		(d) => d.analysisResult.category === 'academic',
+		(d) => d.analysisResult.category === 'academic'
 	);
 
 	if (!identityDoc) {
@@ -66,7 +66,7 @@ export async function createApplicantFromDocuments(
 			address: identity.address ?? undefined,
 		},
 		documents,
-		academicDocs,
+		academicDocs
 	);
 
 	return success(applicant);

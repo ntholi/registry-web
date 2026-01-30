@@ -89,6 +89,8 @@ function RequirementDetails({ rules, subjects }: RequirementDetailsProps) {
 
 	if (isSubjectBased) {
 		const sgRules = rules as SubjectGradeRules;
+		const requiredSubjects = sgRules.subjects.filter((s) => s.required);
+		const advantageSubjects = sgRules.subjects.filter((s) => !s.required);
 		return (
 			<Stack gap='md'>
 				<Paper withBorder p='md' bg='var(--mantine-color-dark-7)'>
@@ -108,13 +110,13 @@ function RequirementDetails({ rules, subjects }: RequirementDetailsProps) {
 					</Stack>
 				</Paper>
 
-				{sgRules.requiredSubjects.length > 0 && (
+				{requiredSubjects.length > 0 && (
 					<Box>
 						<Text fw={500} size='sm' mb='xs'>
 							Required Subjects
 						</Text>
 						<Stack gap='xs'>
-							{sgRules.requiredSubjects.map((rs, idx) => (
+							{requiredSubjects.map((rs, idx) => (
 								<Paper
 									key={idx}
 									withBorder
@@ -127,6 +129,34 @@ function RequirementDetails({ rules, subjects }: RequirementDetailsProps) {
 												`Subject #${rs.subjectId}`}
 										</Text>
 										<Badge size='sm'>Min: {rs.minimumGrade}</Badge>
+									</Group>
+								</Paper>
+							))}
+						</Stack>
+					</Box>
+				)}
+
+				{advantageSubjects.length > 0 && (
+					<Box>
+						<Text fw={500} size='sm' mb='xs'>
+							Advantage Subjects
+						</Text>
+						<Stack gap='xs'>
+							{advantageSubjects.map((rs, idx) => (
+								<Paper
+									key={idx}
+									withBorder
+									p='sm'
+									bg='var(--mantine-color-dark-7)'
+								>
+									<Group justify='space-between'>
+										<Text size='sm'>
+											{subjectMap.get(rs.subjectId) ||
+												`Subject #${rs.subjectId}`}
+										</Text>
+										<Badge size='sm' variant='light'>
+											Min: {rs.minimumGrade}
+										</Badge>
 									</Group>
 								</Paper>
 							))}

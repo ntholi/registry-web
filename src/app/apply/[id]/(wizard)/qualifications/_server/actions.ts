@@ -1,8 +1,5 @@
 'use server';
 
-import type { CertificateDocumentResult } from '@/core/integrations/ai/documents';
-import { uploadDocument } from '@/core/integrations/storage';
-import { getFileExtension } from '@/shared/lib/utils/files';
 import { deleteAcademicRecord } from '@admissions/applicants/[id]/academic-records/_server/actions';
 import {
 	createAcademicRecordFromDocument,
@@ -10,6 +7,9 @@ import {
 } from '@admissions/applicants/[id]/documents/_server/actions';
 import { type ActionResult, extractError } from '@apply/_lib/errors';
 import { nanoid } from 'nanoid';
+import type { CertificateDocumentResult } from '@/core/integrations/ai/documents';
+import { uploadDocument } from '@/core/integrations/storage';
+import { getFileExtension } from '@/shared/lib/utils/files';
 
 const MAX_FILE_SIZE = 2 * 1024 * 1024;
 const CURRENT_YEAR = new Date().getFullYear();
@@ -23,7 +23,7 @@ type UploadResult = {
 export async function uploadCertificateDocument(
 	applicantId: string,
 	file: File,
-	analysis: CertificateDocumentResult,
+	analysis: CertificateDocumentResult
 ): Promise<ActionResult<UploadResult>> {
 	try {
 		if (file.size > MAX_FILE_SIZE) {
@@ -71,7 +71,7 @@ export async function uploadCertificateDocument(
 					subjects: analysis.subjects,
 					overallClassification: analysis.overallClassification,
 				},
-				savedDoc?.id,
+				savedDoc?.id
 			);
 			if (!recordResult.success) {
 				return { success: false, error: recordResult.error };
@@ -86,7 +86,7 @@ export async function uploadCertificateDocument(
 }
 
 export async function removeAcademicRecord(
-	id: string,
+	id: string
 ): Promise<ActionResult<void>> {
 	try {
 		await deleteAcademicRecord(id);

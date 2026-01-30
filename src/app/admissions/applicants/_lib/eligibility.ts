@@ -75,9 +75,11 @@ function getBestSubjectGrades(records: AcademicRecord[]): GradeMap {
 }
 
 function meetsRequiredSubjects(
-	requiredSubjects: SubjectGradeRules['requiredSubjects'],
+	subjects: SubjectGradeRules['subjects'],
 	grades: GradeMap
 ) {
+	const requiredSubjects = subjects.filter((subject) => subject.required);
+	if (requiredSubjects.length === 0) return true;
 	return requiredSubjects.every((req) => {
 		const grade = grades.get(req.subjectId);
 		return isGradeAtLeast(grade, req.minimumGrade);
@@ -174,7 +176,7 @@ function meetsSubjectGradeRule(
 	const grades = getBestSubjectGrades(records);
 	return (
 		meetsMinimumPasses(rules.minimumGrades, grades) &&
-		meetsRequiredSubjects(rules.requiredSubjects, grades) &&
+		meetsRequiredSubjects(rules.subjects, grades) &&
 		meetsOptionalGroups(rules.subjectGroups, grades)
 	);
 }
