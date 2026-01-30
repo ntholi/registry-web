@@ -1,12 +1,13 @@
 'use client';
 
-import { Badge, Collapse, Stack, Table, Text } from '@mantine/core';
-import { useDisclosure } from '@mantine/hooks';
-import { IconCertificate } from '@tabler/icons-react';
+import { getGradeColor } from '@/app/admissions/applicants/[id]/_components/AcademicRecordsTab';
 import {
 	DocumentCardShell,
 	DocumentDetailRow,
 } from '@/shared/ui/DocumentCardShell';
+import { Badge, Collapse, Stack, Table, Text } from '@mantine/core';
+import { useDisclosure } from '@mantine/hooks';
+import { IconCertificate } from '@tabler/icons-react';
 
 export type SubjectGrade = {
 	id: string;
@@ -93,13 +94,4 @@ export function AcademicRecordCard({ record, onDelete, deleting }: Props) {
 			</Stack>
 		</DocumentCardShell>
 	);
-}
-
-function getGradeColor(grade: string | null) {
-	if (!grade) return 'gray';
-	const g = grade.toUpperCase();
-	if (['A*', 'A', 'B', 'C'].includes(g)) return 'green';
-	if (['D'].includes(g)) return 'yellow';
-	if (['E', 'F', 'U'].includes(g)) return 'red';
-	return 'gray';
 }

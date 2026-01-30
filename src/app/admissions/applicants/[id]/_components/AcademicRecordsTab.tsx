@@ -37,7 +37,7 @@ export default function AcademicRecordsTab({ records }: Props) {
 	const router = useRouter();
 	const [opened, { open, close }] = useDisclosure(false);
 	const [selectedDoc, setSelectedDoc] = useState<ApplicantDocument | null>(
-		null
+		null,
 	);
 
 	function openDocument(doc: ApplicantDocument) {
@@ -99,7 +99,7 @@ export default function AcademicRecordsTab({ records }: Props) {
 				consolidated.push({
 					type: group.type,
 					grades: Array.from(bestGrades.values()).sort((a, b) =>
-						a.subject.name.localeCompare(b.subject.name)
+						a.subject.name.localeCompare(b.subject.name),
 					),
 				});
 			}
@@ -146,7 +146,7 @@ export default function AcademicRecordsTab({ records }: Props) {
 													Best performance across{' '}
 													{
 														records.filter(
-															(r) => r.certificateType.id === group.type.id
+															(r) => r.certificateType.id === group.type.id,
 														).length
 													}{' '}
 													sittings
@@ -266,7 +266,7 @@ export default function AcademicRecordsTab({ records }: Props) {
 															<Badge
 																variant='light'
 																color={getClassificationColor(
-																	record.resultClassification
+																	record.resultClassification,
 																)}
 															>
 																{record.resultClassification}
@@ -357,7 +357,7 @@ export default function AcademicRecordsTab({ records }: Props) {
 											<Badge
 												variant='light'
 												color={getClassificationColor(
-													record.resultClassification
+													record.resultClassification,
 												)}
 											>
 												{record.resultClassification}
@@ -393,7 +393,7 @@ export function getGradeColor(grade: string | null) {
 	const g = grade.toUpperCase();
 	if (['A*', 'A', 'B', 'C'].includes(g)) return 'green';
 	if (['D'].includes(g)) return 'yellow';
-	if (['E', 'F', 'U'].includes(g)) return 'red';
+	if (['E', 'F', 'G', 'U'].includes(g)) return 'red';
 	return 'gray';
 }
 
