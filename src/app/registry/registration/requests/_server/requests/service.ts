@@ -13,6 +13,10 @@ import withAuth from '@/core/platform/withAuth';
 import { getStudentSemesterModulesLogic } from './getStudentSemesterModules';
 import RegistrationRequestRepository from './repository';
 
+type RegistrationRequestQuery = QueryOptions<typeof registrationRequests> & {
+	includeDeleted?: boolean;
+};
+
 class RegistrationRequestService {
 	constructor(
 		private readonly repository = new RegistrationRequestRepository()
@@ -25,10 +29,7 @@ class RegistrationRequestService {
 		);
 	}
 
-	async findAll(
-		params: QueryOptions<typeof registrationRequests>,
-		termId?: number
-	) {
+	async findAll(params: RegistrationRequestQuery, termId?: number) {
 		return withAuth(
 			async () => this.repository.findAllPaginated(params, termId),
 			['registry', 'finance', 'library']
@@ -84,7 +85,13 @@ class RegistrationRequestService {
 	}
 
 	async delete(id: number) {
-		return withAuth(async () => this.repository.delete(id), []);
+		return withAuth(
+			async (session) => {
+				const userId = session?.user?.id ?? null;
+				return this.repository.softDelete(id, userId);
+			},
+			['registry']
+		);
 	}
 
 	async createWithModules(data: {

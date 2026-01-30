@@ -24,6 +24,8 @@ export interface DetailsViewHeaderProps {
 	warningMessage?: string;
 	deleteTitle?: string;
 	typedConfirmation?: boolean;
+	confirmationText?: string;
+	confirmButtonText?: string;
 }
 
 export function DetailsViewHeader({
@@ -40,6 +42,8 @@ export function DetailsViewHeader({
 	warningMessage,
 	deleteTitle,
 	typedConfirmation,
+	confirmationText,
+	confirmButtonText,
 }: DetailsViewHeaderProps) {
 	const { data: session } = useSession();
 	const pathname = usePathname();
@@ -81,6 +85,8 @@ export function DetailsViewHeader({
 								warningMessage={warningMessage}
 								title={deleteTitle}
 								typedConfirmation={typedConfirmation}
+								confirmationText={confirmationText}
+								confirmButtonText={confirmButtonText}
 							/>
 						)}
 					{!hideEdit &&

@@ -28,9 +28,10 @@ export async function countByStatus(
 export async function findAllRegistrationRequests(
 	page = 1,
 	search = '',
-	termId?: number
+	termId?: number,
+	includeDeleted = false
 ) {
-	return service.findAll({ page, search }, termId);
+	return service.findAll({ page, search, includeDeleted }, termId);
 }
 
 export async function getStudentSemesterModules(

@@ -75,6 +75,8 @@ export default async function RegistrationRequestDetails({
 				title={registrationRequest.student.name}
 				queryKey={['registration-requests']}
 				editRoles={['registry']}
+				deleteRoles={['registry']}
+				typedConfirmation={false}
 				handleDelete={async () => {
 					'use server';
 					await deleteRegistrationRequest(Number(id));

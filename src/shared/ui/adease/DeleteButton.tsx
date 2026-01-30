@@ -35,6 +35,8 @@ export interface DeleteButtonProps extends ActionIconProps {
 	warningMessage?: string;
 	title?: string;
 	typedConfirmation?: boolean;
+	confirmationText?: string;
+	confirmButtonText?: string;
 	children?: ReactNode;
 	onClick?: (event: MouseEvent<HTMLButtonElement>) => void;
 }
@@ -50,6 +52,8 @@ export function DeleteButton({
 	warningMessage,
 	title,
 	typedConfirmation = true,
+	confirmationText = 'delete permanently',
+	confirmButtonText = 'Delete',
 	variant = 'subtle',
 	children,
 	onClick,
@@ -90,7 +94,7 @@ export function DeleteButton({
 
 	const requiresTypedConfirmation = typedConfirmation;
 	const isConfirmed = requiresTypedConfirmation
-		? confirmValue === 'delete permanently'
+		? confirmValue === confirmationText
 		: true;
 	const itemLabel = itemType ?? 'item';
 	const itemDescriptor = itemName
@@ -183,15 +187,15 @@ export function DeleteButton({
 					{requiresTypedConfirmation && (
 						<>
 							<Text size='sm' mb='md'>
-								To confirm deletion, please type{' '}
+								To confirm, please type{' '}
 								<Text span fw={700}>
-									delete permanently
+									{confirmationText}
 								</Text>{' '}
 								in the field below:
 							</Text>
 
 							<TextInput
-								placeholder='delete permanently'
+								placeholder={confirmationText}
 								value={confirmValue}
 								onChange={(event) => setConfirmValue(event.target.value)}
 								data-autofocus
@@ -210,7 +214,7 @@ export function DeleteButton({
 						disabled={!isConfirmed}
 						loading={mutation.isPending}
 					>
-						Delete
+						{confirmButtonText}
 					</Button>
 				</Group>
 			</Modal>

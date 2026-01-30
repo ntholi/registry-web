@@ -1,4 +1,5 @@
 import { semesterModules } from '@academic/semester-modules/_schema/semesterModules';
+import { users } from '@auth/users/_schema/users';
 import { paymentReceipts } from '@finance/payment-receipts/_schema/paymentReceipts';
 import { sponsoredStudents } from '@finance/sponsors/_schema/sponsoredStudents';
 import { registrationClearance } from '@registry/clearance/_schema/registrationClearance';
@@ -24,6 +25,10 @@ export const registrationRequestsRelations = relations(
 		sponsoredStudent: one(sponsoredStudents, {
 			fields: [registrationRequests.sponsoredStudentId],
 			references: [sponsoredStudents.id],
+		}),
+		deletedBy: one(users, {
+			fields: [registrationRequests.deletedBy],
+			references: [users.id],
 		}),
 		clearances: many(registrationClearance),
 		requestedModules: many(requestedModules),

@@ -1,3 +1,5 @@
+import { users } from '@auth/users/_schema/users';
+import { sql } from 'drizzle-orm';
 import {
 	bigint,
 	boolean,
@@ -9,7 +11,7 @@ import {
 	serial,
 	text,
 	timestamp,
-	unique,
+	uniqueIndex,
 } from 'drizzle-orm/pg-core';
 import { students } from '../../students/_schema/students';
 import { terms } from '../../terms/_schema/terms';
@@ -47,9 +49,15 @@ export const registrationRequests = pgTable(
 		createdAt: timestamp().defaultNow(),
 		updatedAt: timestamp(),
 		dateRegistered: timestamp(),
+		deletedAt: timestamp(),
+		deletedBy: text().references(() => users.id, { onDelete: 'set null' }),
 	},
 	(table) => ({
-		uniqueRegistrationRequests: unique().on(table.stdNo, table.termId),
+		uniqueRegistrationRequests: uniqueIndex(
+			'unique_registration_requests_active'
+		)
+			.on(table.stdNo, table.termId)
+			.where(sql`${table.deletedAt} IS NULL`),
 		stdNoIdx: index('fk_registration_requests_std_no').on(table.stdNo),
 		termIdIdx: index('fk_registration_requests_term_id').on(table.termId),
 		statusIdx: index('idx_registration_requests_status').on(table.status),

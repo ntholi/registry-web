@@ -1,6 +1,6 @@
 'use client';
 
-import { NumberInput, Select, Stack } from '@mantine/core';
+import { Select, Stack } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'nextjs-toploader/app';

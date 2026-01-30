@@ -1,4 +1,14 @@
-import { and, count, desc, eq, exists, ilike, ne, not, sql } from 'drizzle-orm';
+import {
+	and,
+	count,
+	desc,
+	eq,
+	exists,
+	isNull,
+	ne,
+	not,
+	sql,
+} from 'drizzle-orm';
 import { config } from '@/config';
 import {
 	autoApprovals,
@@ -20,6 +30,9 @@ import BaseRepository, {
 } from '@/core/platform/BaseRepository';
 
 type RegistrationRequestInsert = typeof registrationRequests.$inferInsert;
+type RegistrationRequestQuery = QueryOptions<typeof registrationRequests> & {
+	includeDeleted?: boolean;
+};
 
 export default class RegistrationRequestRepository extends BaseRepository<
 	typeof registrationRequests,
@@ -32,9 +45,11 @@ export default class RegistrationRequestRepository extends BaseRepository<
 	override async query(params: QueryOptions<typeof registrationRequests>) {
 		const { orderBy, offset, limit } = this.buildQueryCriteria(params);
 
-		const whereCondition = ilike(
-			registrationRequests.stdNo,
-			`%${params.search}%`
+		const whereCondition = and(
+			params.search
+				? sql`${registrationRequests.stdNo}::text LIKE ${`%${params.search}%`}`
+				: undefined,
+			isNull(registrationRequests.deletedAt)
 		);
 
 		const data = await db.query.registrationRequests.findMany({
@@ -106,17 +121,16 @@ export default class RegistrationRequestRepository extends BaseRepository<
 		});
 	}
 
-	async findAllPaginated(
-		params: QueryOptions<typeof registrationRequests>,
-		termId?: number
-	) {
+	async findAllPaginated(params: RegistrationRequestQuery, termId?: number) {
 		const { offset, limit } = this.buildQueryCriteria(params);
+		const includeDeleted = params.includeDeleted === true;
 
 		const whereCondition = and(
 			params.search
 				? sql`${registrationRequests.stdNo}::text LIKE ${`%${params.search}%`}`
 				: undefined,
-			termId ? eq(registrationRequests.termId, termId) : undefined
+			termId ? eq(registrationRequests.termId, termId) : undefined,
+			includeDeleted ? undefined : isNull(registrationRequests.deletedAt)
 		);
 
 		const [total, items] = await Promise.all([
@@ -151,6 +165,7 @@ export default class RegistrationRequestRepository extends BaseRepository<
 		status: 'pending' | 'registered' | 'rejected' | 'approved',
 		termId?: number
 	) {
+		const notDeleted = isNull(registrationRequests.deletedAt);
 		if (status === 'registered') {
 			const [result] = await db
 				.select({ value: count() })
@@ -158,6 +173,7 @@ export default class RegistrationRequestRepository extends BaseRepository<
 				.where(
 					and(
 						eq(registrationRequests.status, status),
+						notDeleted,
 						termId ? eq(registrationRequests.termId, termId) : undefined
 					)
 				);
@@ -199,6 +215,7 @@ export default class RegistrationRequestRepository extends BaseRepository<
 									)
 								)
 						),
+						notDeleted,
 						ne(registrationRequests.status, 'registered'),
 						termId ? eq(registrationRequests.termId, termId) : undefined
 					)
@@ -228,6 +245,7 @@ export default class RegistrationRequestRepository extends BaseRepository<
 									)
 								)
 						),
+						notDeleted,
 						termId ? eq(registrationRequests.termId, termId) : undefined
 					)
 				);
@@ -564,6 +582,7 @@ export default class RegistrationRequestRepository extends BaseRepository<
 			return db.query.registrationRequests.findMany({
 				where: and(
 					eq(registrationRequests.status, status),
+					isNull(registrationRequests.deletedAt),
 					termId ? eq(registrationRequests.termId, termId) : undefined
 				),
 				with: {
@@ -594,7 +613,10 @@ export default class RegistrationRequestRepository extends BaseRepository<
 
 	async getHistory(stdNo: number) {
 		return db.query.registrationRequests.findMany({
-			where: eq(registrationRequests.stdNo, stdNo),
+			where: and(
+				eq(registrationRequests.stdNo, stdNo),
+				isNull(registrationRequests.deletedAt)
+			),
 			with: {
 				term: true,
 				requestedModules: {
@@ -609,6 +631,19 @@ export default class RegistrationRequestRepository extends BaseRepository<
 			},
 			orderBy: [desc(registrationRequests.createdAt)],
 		});
+	}
+
+	async softDelete(id: number, deletedBy: string | null) {
+		const [updated] = await db
+			.update(registrationRequests)
+			.set({
+				deletedAt: new Date(),
+				deletedBy,
+				updatedAt: new Date(),
+			})
+			.where(eq(registrationRequests.id, id))
+			.returning();
+		return updated;
 	}
 }
 

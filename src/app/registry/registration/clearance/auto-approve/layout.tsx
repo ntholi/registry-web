@@ -1,6 +1,6 @@
 'use client';
 
-import { Badge, Group, Text } from '@mantine/core';
+import { Badge } from '@mantine/core';
 import type { PropsWithChildren } from 'react';
 import { ListItem, ListLayout, NewLink } from '@/shared/ui/adease';
 import BulkImportModal from './_components/BulkImportModal';

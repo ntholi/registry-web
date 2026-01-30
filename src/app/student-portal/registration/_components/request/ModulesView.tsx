@@ -3,7 +3,6 @@
 import {
 	Alert,
 	Badge,
-	Card,
 	Group,
 	Paper,
 	ScrollArea,
