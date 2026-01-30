@@ -1,6 +1,6 @@
 'use client';
 
-import { Group, Switch } from '@mantine/core';
+import { Switch } from '@mantine/core';
 import { findAllRegistrationRequests } from '@registry/registration/requests';
 import { useQuery } from '@tanstack/react-query';
 import { useAtom } from 'jotai';
@@ -53,15 +53,20 @@ export default function Layout({ children }: PropsWithChildren) {
 				};
 			}}
 			actionIcons={[
-				<Group key='filters' gap='xs'>
-					<TermFilter onTermChange={setSelectedTerm} />
-					<Switch
-						size='sm'
-						label='Include deleted'
-						checked={includeDeleted}
-						onChange={(event) => setIncludeDeleted(event.currentTarget.checked)}
-					/>
-				</Group>,
+				<TermFilter
+					key='term-filter'
+					onTermChange={setSelectedTerm}
+					extraContent={
+						<Switch
+							size='sm'
+							label='Include deleted'
+							checked={includeDeleted}
+							onChange={(event) =>
+								setIncludeDeleted(event.currentTarget.checked)
+							}
+						/>
+					}
+				/>,
 			]}
 			renderItem={(it) => (
 				<ListItem
