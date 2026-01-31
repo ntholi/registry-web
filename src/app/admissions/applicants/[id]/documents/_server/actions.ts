@@ -140,9 +140,7 @@ export async function reanalyzeDocumentFromUrl(
 
 	if (
 		data.category === 'academic' &&
-		(documentType === 'certificate' ||
-			documentType === 'transcript' ||
-			documentType === 'academic_record') &&
+		(documentType === 'certificate' || documentType === 'academic_record') &&
 		data.examYear &&
 		data.institutionName
 	) {

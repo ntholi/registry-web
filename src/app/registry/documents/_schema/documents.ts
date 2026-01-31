@@ -4,14 +4,13 @@ import { nanoid } from 'nanoid';
 export const documentTypeEnum = pgEnum('document_type', [
 	'identity',
 	'certificate',
-	'transcript',
+	'academic_record',
 	'proof_of_payment',
 	'passport_photo',
 	'recommendation_letter',
 	'personal_statement',
 	'medical_report',
 	'enrollment_letter',
-	'academic_record',
 	'clearance_form',
 	'other',
 ]);

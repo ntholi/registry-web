@@ -44,8 +44,20 @@ const ANALYSIS_PROMPT = `Analyze this document and extract information.
 
 CATEGORIES:
 - identity: IDs, passports, birth certificates  
-- academic: Certificates, transcripts, result slips
+- academic: Certificates and academic records (results slips, transcripts, statements of results)
 - other: Receipts, statements, medical reports
+
+DOCUMENT TYPE CLASSIFICATION (CRITICAL FOR ACADEMIC):
+- certificate: Official credential document issued upon COMPLETION of a qualification. Key indicators:
+  * Formal title: "Certificate", "Diploma", "Degree"
+  * Completion language: "This is to certify that...", "has successfully completed", "conferred upon", "awarded to"
+  * Has institution seal, signatures, formal certification
+  * Examples: LGCSE Certificate, Diploma Certificate, Degree Certificate
+- academic_record: Any document showing grades/results (NOT the final credential). Key indicators:
+  * Results/grades language: "Statement of Results", "Results Slip", "Transcript", "Academic Record"
+  * Shows subject list with grades/marks
+  * May show GPA, cumulative average, or individual subject scores
+  * Examples: LGCSE results slip, IGCSE statement of results, NSC results, university transcripts
 
 RULES:
 ${COMMON_RULES}
@@ -74,6 +86,23 @@ ${COMMON_RULES}
 ${CERTIFICATION_RULES}`;
 
 const ACADEMIC_PROMPT = `Analyze this academic document and extract structured information.
+
+DOCUMENT TYPE CLASSIFICATION (CRITICAL):
+- certificate: Official credential document issued upon COMPLETION of a qualification. Key indicators:
+  * Formal title: "Certificate", "Diploma Certificate", "Degree"
+  * Completion language: "This is to certify that...", "has successfully completed", "conferred upon", "awarded to"
+  * Has institution seal, signatures, formal certification
+  * Examples: LGCSE Certificate, Diploma Certificate, Degree Certificate, National Certificate
+- academic_record: Any document showing grades/results (NOT the final credential). Key indicators:
+  * Results/grades language: "Statement of Results", "Results Slip", "Transcript", "Academic Record", "Grade Report"
+  * Shows subject/course list with grades/marks
+  * May show GPA, cumulative average, or individual subject scores
+  * Can be preliminary or final results
+  * Examples: LGCSE results slip, IGCSE statement of results, NSC results, university transcripts, diploma transcripts
+
+Note: Different institutions (LGCSE, IGCSE, NSC, universities, technicons) have different formats but the distinction is:
+- certificate = formal credential proving qualification completion
+- academic_record = document showing grades/results (results slips, transcripts, statements of results)
 
 RULES:
 ${COMMON_RULES}

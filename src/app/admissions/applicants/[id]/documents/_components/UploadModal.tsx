@@ -47,14 +47,12 @@ function mapDocumentTypeFromAI(
 		switch (result.documentType) {
 			case 'certificate':
 				return 'certificate';
-			case 'transcript':
-				return 'transcript';
 			case 'academic_record':
 				return 'academic_record';
 			case 'recommendation_letter':
 				return 'recommendation_letter';
 			default:
-				return 'certificate';
+				return 'academic_record';
 		}
 	}
 	if (result.category === 'other') {
@@ -172,9 +170,7 @@ export function UploadModal({
 
 			if (
 				result.category === 'academic' &&
-				(type === 'certificate' ||
-					type === 'transcript' ||
-					type === 'academic_record')
+				(type === 'certificate' || type === 'academic_record')
 			) {
 				if (result.examYear && result.institutionName) {
 					const recordResult = await createAcademicRecordFromDocument(

@@ -176,9 +176,7 @@ export async function uploadAndAnalyzeDocument(formData: FormData): Promise<
 
 	if (
 		analysis.category === 'academic' &&
-		(type === 'certificate' ||
-			type === 'transcript' ||
-			type === 'academic_record') &&
+		(type === 'certificate' || type === 'academic_record') &&
 		analysis.examYear &&
 		analysis.institutionName
 	) {

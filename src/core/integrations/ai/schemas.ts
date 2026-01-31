@@ -61,12 +61,13 @@ const academicSchema = z
 		documentType: z
 			.enum([
 				'certificate',
-				'transcript',
 				'academic_record',
 				'recommendation_letter',
 				'other',
 			])
-			.describe('Academic document classification'),
+			.describe(
+				'Academic document classification: certificate (formal credential upon completion) or academic_record (results slips, transcripts, statements of results)'
+			),
 		institutionName: z
 			.string()
 			.nullable()
@@ -157,7 +158,6 @@ const academicSchema = z
 		const certificateType = value.certificateType?.toLowerCase() ?? '';
 		const needsSubjects =
 			value.documentType === 'certificate' ||
-			value.documentType === 'transcript' ||
 			value.documentType === 'academic_record';
 
 		if (needsSubjects && subjects.length === 0) {

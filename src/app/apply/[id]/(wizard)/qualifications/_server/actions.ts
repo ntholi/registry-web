@@ -44,10 +44,7 @@ export async function uploadCertificateDocument(
 			type,
 		});
 
-		const isAcademicType =
-			type === 'certificate' ||
-			type === 'transcript' ||
-			type === 'academic_record';
+		const isAcademicType = type === 'certificate' || type === 'academic_record';
 
 		if (isAcademicType) {
 			const examYear = analysis.examYear ?? CURRENT_YEAR;

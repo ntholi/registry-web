@@ -68,9 +68,7 @@ export function CertificateConfirmationModal({
 
 	const hasSubjects = analysis.subjects && analysis.subjects.length > 0;
 	const isResultsSlip =
-		analysis.documentType === 'transcript' ||
-		analysis.documentType === 'academic_record' ||
-		hasSubjects;
+		analysis.documentType === 'academic_record' || hasSubjects;
 
 	return (
 		<Modal
