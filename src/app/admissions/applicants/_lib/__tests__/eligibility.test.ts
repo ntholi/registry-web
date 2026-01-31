@@ -746,40 +746,94 @@ describe('Eligibility - Classification-Based Rules (Diploma entry)', () => {
 			courses: ['Diploma in IT'],
 		}),
 	];
+	const recognized = [createRecognizedSchool('Test College')];
 
 	it('should qualify with Pass classification for Pass requirement', () => {
 		const records = [createDiplomaRecord('Pass')];
 
-		const eligible = getEligiblePrograms(records, requirements);
+		const eligible = getEligiblePrograms(records, requirements, recognized);
 		expect(eligible.some((p) => p.code === 'BSCIT')).toBe(true);
 	});
 
 	it('should qualify with Distinction for Pass requirement', () => {
 		const records = [createDiplomaRecord('Distinction')];
 
-		const eligible = getEligiblePrograms(records, requirements);
+		const eligible = getEligiblePrograms(records, requirements, recognized);
 		expect(eligible.some((p) => p.code === 'BSCIT')).toBe(true);
 	});
 
 	it('should NOT qualify with Pass for Credit requirement', () => {
 		const records = [createDiplomaRecord('Pass')];
 
-		const eligible = getEligiblePrograms(records, requirements);
+		const eligible = getEligiblePrograms(records, requirements, recognized);
 		expect(eligible.some((p) => p.code === 'BSCBIT')).toBe(false);
 	});
 
 	it('should qualify with Credit for Credit requirement', () => {
 		const records = [createDiplomaRecord('Credit')];
 
-		const eligible = getEligiblePrograms(records, requirements);
+		const eligible = getEligiblePrograms(records, requirements, recognized);
 		expect(eligible.some((p) => p.code === 'BSCBIT')).toBe(true);
 	});
 
 	it('should default to Pass when minimum classification is missing', () => {
 		const records = [createDiplomaRecord('Pass')];
 
-		const eligible = getEligiblePrograms(records, requirements);
+		const eligible = getEligiblePrograms(records, requirements, recognized);
 		expect(eligible.some((p) => p.code === 'BSCS')).toBe(true);
+	});
+
+	it('should not qualify when courses list is empty', () => {
+		const records = [createDiplomaRecord('Pass')];
+		const emptyCourseReq = createDiplomaRequirement(
+			4,
+			'BSENG',
+			'BSc in Engineering',
+			{
+				type: 'classification',
+				minimumClassification: 'Pass',
+				courses: [],
+			}
+		);
+
+		const eligible = getEligiblePrograms(records, [emptyCourseReq], recognized);
+		expect(eligible).toHaveLength(0);
+	});
+
+	it('should match course names case-insensitively and trimmed', () => {
+		const records = [createDiplomaRecord('Pass')];
+		const courseReq = createDiplomaRequirement(
+			5,
+			'BSSE',
+			'BSc in Software Engineering',
+			{
+				type: 'classification',
+				minimumClassification: 'Pass',
+				courses: ['  diploma in it  '],
+			}
+		);
+
+		const eligible = getEligiblePrograms(records, [courseReq], recognized);
+		expect(eligible).toHaveLength(1);
+		expect(eligible[0].code).toBe('BSSE');
+	});
+
+	it('should qualify when any course in the list matches', () => {
+		const records = [createDiplomaRecord('Pass')];
+		const courseReq = createDiplomaRequirement(
+			6,
+			'BSIS',
+			'BSc in Information Systems',
+			{
+				type: 'classification',
+				minimumClassification: 'Pass',
+				courses: ['Diploma in Business', 'Diploma in IT'],
+			}
+		);
+
+		const eligible = getEligiblePrograms(records, [courseReq], recognized);
+		expect(eligible).toHaveLength(1);
+		expect(eligible[0].code).toBe('BSIS');
 	});
 });
 
@@ -812,8 +866,13 @@ describe('Eligibility - LQF Level Matching', () => {
 
 	it('should only match Diploma requirements for Diploma records', () => {
 		const records = [createDiplomaRecord('Pass')];
+		const recognized = [createRecognizedSchool('Test College')];
 
-		const eligible = getEligiblePrograms(records, [lgcseReq, diplomaReq]);
+		const eligible = getEligiblePrograms(
+			records,
+			[lgcseReq, diplomaReq],
+			recognized
+		);
 		expect(eligible).toHaveLength(1);
 		expect(eligible[0].code).toBe('BSCIT');
 	});
@@ -826,8 +885,13 @@ describe('Eligibility - LQF Level Matching', () => {
 		]);
 		const diploma = createDiplomaRecord('Credit');
 		const records = [lgcse, diploma];
+		const recognized = [createRecognizedSchool('Test College')];
 
-		const eligible = getEligiblePrograms(records, [lgcseReq, diplomaReq]);
+		const eligible = getEligiblePrograms(
+			records,
+			[lgcseReq, diplomaReq],
+			recognized
+		);
 		expect(eligible).toHaveLength(1);
 		expect(eligible[0].code).toBe('BSCIT');
 	});
@@ -851,6 +915,40 @@ describe('Eligibility - Recognized Schools (LQF 5+)', () => {
 	it('should block eligibility for unrecognized institutions at LQF 5+', () => {
 		const records = [createDiplomaRecord('Pass')];
 		const recognized = [createRecognizedSchool('Other College')];
+
+		const eligible = getEligiblePrograms(records, [diplomaReq], recognized);
+		expect(eligible).toHaveLength(0);
+	});
+
+	it('should block eligibility when recognition list is empty for LQF 5+', () => {
+		const records = [createDiplomaRecord('Pass')];
+
+		const eligible = getEligiblePrograms(records, [diplomaReq], []);
+		expect(eligible).toHaveLength(0);
+	});
+
+	it('should allow eligibility when any highest-level record is recognized', () => {
+		const rec1 = createDiplomaRecord('Pass');
+		const rec2 = createDiplomaRecord('Credit');
+		rec2.id = 'rec-diploma-2';
+		rec2.institutionName = 'Other College';
+		const records = [rec1, rec2];
+		const recognized = [createRecognizedSchool('Test College')];
+
+		const eligible = getEligiblePrograms(records, [diplomaReq], recognized);
+		expect(eligible).toHaveLength(1);
+	});
+
+	it('should use recognized records for course matching at LQF 5+', () => {
+		const rec1 = createDiplomaRecord('Pass');
+		rec1.qualificationName = 'Diploma in Business';
+		rec1.institutionName = 'Test College';
+		const rec2 = createDiplomaRecord('Pass');
+		rec2.id = 'rec-diploma-2';
+		rec2.qualificationName = 'Diploma in IT';
+		rec2.institutionName = 'Other College';
+		const records = [rec1, rec2];
+		const recognized = [createRecognizedSchool('Test College')];
 
 		const eligible = getEligiblePrograms(records, [diplomaReq], recognized);
 		expect(eligible).toHaveLength(0);
