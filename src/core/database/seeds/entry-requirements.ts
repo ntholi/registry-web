@@ -127,7 +127,13 @@ export async function seedEntryRequirements() {
 		rules: {
 			type: 'classification',
 			minimumClassification: 'Pass',
-			courses: ['Diploma in any relevant field or TVET Certificate'],
+			courses: [
+				'Diploma in Creative Advertising',
+				'Associate Degree in Creative Advertising',
+				'Associate Degree in Creative Multimedia',
+				'Associate Degree in Graphic Design',
+				'Associate Degree in Digital Photography',
+			],
 		},
 	});
 
@@ -158,7 +164,13 @@ export async function seedEntryRequirements() {
 		rules: {
 			type: 'classification',
 			minimumClassification: 'Pass',
-			courses: ['Diploma in any relevant field or TVET Certificate'],
+			courses: [
+				'Diploma in Graphic Design',
+				'Associate Degree in Graphic Design',
+				'Associate Degree in Creative Multimedia',
+				'Associate Degree in Packaging and Design',
+				'Associate Degree in Fine Art',
+			],
 		},
 	});
 
@@ -191,7 +203,13 @@ export async function seedEntryRequirements() {
 		rules: {
 			type: 'classification',
 			minimumClassification: 'Pass',
-			courses: ['Diploma in a relevant field or TVET Certificate or N4'],
+			courses: [
+				'Diploma in Fashion & Apparel Design',
+				'Associate Degree in Fashion & Apparel Design',
+				'Associate Degree in Merchandising & Retailing',
+				'Associate Degree in Textile Design',
+				'Associate Degree in Accessories Design',
+			],
 		},
 	});
 
@@ -223,7 +241,14 @@ export async function seedEntryRequirements() {
 		rules: {
 			type: 'classification',
 			minimumClassification: 'Pass',
-			courses: ['Diploma in any relevant field'],
+			courses: [
+				'Diploma in Fashion & Apparel Design',
+				'Diploma in Retail Management',
+				'Diploma in Marketing',
+				'Associate Degree in Fashion & Apparel Design',
+				'Associate Degree in Merchandising & Retailing',
+				'Associate Degree in Retail Management',
+			],
 		},
 	});
 
@@ -267,7 +292,9 @@ export async function seedEntryRequirements() {
 			type: 'classification',
 			minimumClassification: 'Pass',
 			courses: [
-				'Diploma in Architectural Technology or any relevant certificate',
+				'Diploma in Architecture Technology',
+				'Associate Degree in Architecture Technology',
+				'Associate Degree in Interior Design',
 			],
 		},
 	});
@@ -305,7 +332,8 @@ export async function seedEntryRequirements() {
 			type: 'classification',
 			minimumClassification: 'Pass',
 			courses: [
-				'TVET Certificate, Certificate in Bricklaying/Carpentry, or N4 in relevant field',
+				'Diploma in Architecture Technology',
+				'Associate Degree in Architecture Technology',
 			],
 		},
 	});
@@ -345,7 +373,15 @@ export async function seedEntryRequirements() {
 		rules: {
 			type: 'classification',
 			minimumClassification: 'Pass',
-			courses: ['Diploma in any relevant field'],
+			courses: [
+				'Diploma in Business Management',
+				'Diploma in Business Information Technology',
+				'Diploma in Marketing',
+				'Associate Degree in Business Management',
+				'Associate Degree in Business Information Systems',
+				'Associate Degree in Business Information Technology',
+				'Associate Degree in Marketing',
+			],
 		},
 	});
 
@@ -380,7 +416,15 @@ export async function seedEntryRequirements() {
 		rules: {
 			type: 'classification',
 			minimumClassification: 'Pass',
-			courses: ['Diploma in any relevant field'],
+			courses: [
+				'Diploma in Business Management',
+				'Diploma in Business Information Technology',
+				'Diploma in Marketing',
+				'Diploma in Retail Management',
+				'Associate Degree in Business Management',
+				'Associate Degree in Business Information Systems',
+				'Associate Degree in Marketing',
+			],
 		},
 	});
 
@@ -415,7 +459,13 @@ export async function seedEntryRequirements() {
 		rules: {
 			type: 'classification',
 			minimumClassification: 'Pass',
-			courses: ['Diploma in any relevant field'],
+			courses: [
+				'Diploma in Business Management',
+				'Diploma in Marketing',
+				'Diploma in Business Information Technology',
+				'Associate Degree in Business Management',
+				'Associate Degree in Marketing',
+			],
 		},
 	});
 
@@ -450,7 +500,13 @@ export async function seedEntryRequirements() {
 		rules: {
 			type: 'classification',
 			minimumClassification: 'Pass',
-			courses: ['TVET Certificate in any relevant field'],
+			courses: [
+				'Diploma in Business Management',
+				'Diploma in Marketing',
+				'Associate Degree in Business Management',
+				'Associate Degree in Business Information Systems',
+				'Associate Degree in Marketing',
+			],
 		},
 	});
 
@@ -485,7 +541,13 @@ export async function seedEntryRequirements() {
 		rules: {
 			type: 'classification',
 			minimumClassification: 'Pass',
-			courses: ['TVET Certificate in any relevant field'],
+			courses: [
+				'Diploma in Retail Management',
+				'Diploma in Marketing',
+				'Associate Degree in Retail Management',
+				'Associate Degree in Merchandising & Retailing',
+				'Associate Degree in Retail Design & Management',
+			],
 		},
 	});
 
@@ -520,7 +582,12 @@ export async function seedEntryRequirements() {
 		rules: {
 			type: 'classification',
 			minimumClassification: 'Pass',
-			courses: ['TVET Certificate in any relevant field'],
+			courses: [
+				'Diploma in Marketing',
+				'Diploma in Business Management',
+				'Associate Degree in Marketing',
+				'Associate Degree in Business Management',
+			],
 		},
 	});
 
@@ -557,7 +624,14 @@ export async function seedEntryRequirements() {
 			type: 'classification',
 			minimumClassification: 'Pass',
 			courses: [
-				'Diploma in Tourism Management / Business Management / Business Administration',
+				'Diploma in Tourism Management',
+				'Diploma in International Tourism',
+				'Diploma in Hotel Management',
+				'Diploma in Events Management',
+				'Associate Degree in Tourism Management',
+				'Associate Degree in International Tourism',
+				'Associate Degree in Hotel Management',
+				'Associate Degree in Event Management',
 			],
 		},
 	});
@@ -591,7 +665,10 @@ export async function seedEntryRequirements() {
 			type: 'classification',
 			minimumClassification: 'Pass',
 			courses: [
-				'TVET Certificate or Certificate in Catering/Home Science/Nutrition',
+				'Diploma in Tourism Management',
+				'Diploma in International Tourism',
+				'Associate Degree in Tourism Management',
+				'Associate Degree in International Tourism',
 			],
 		},
 	});
@@ -625,7 +702,10 @@ export async function seedEntryRequirements() {
 			type: 'classification',
 			minimumClassification: 'Pass',
 			courses: [
-				'TVET Certificate or Certificate in Catering/Home Science/Nutrition',
+				'Diploma in Hotel Management',
+				'Diploma in Tourism Management',
+				'Associate Degree in Hotel Management',
+				'Associate Degree in Tourism Management',
 			],
 		},
 	});
@@ -659,7 +739,10 @@ export async function seedEntryRequirements() {
 			type: 'classification',
 			minimumClassification: 'Pass',
 			courses: [
-				'TVET Certificate or Certificate in Catering/Home Science/Nutrition',
+				'Diploma in Events Management',
+				'Diploma in Tourism Management',
+				'Associate Degree in Event Management',
+				'Associate Degree in Tourism Management',
 			],
 		},
 	});
@@ -697,7 +780,12 @@ export async function seedEntryRequirements() {
 			type: 'classification',
 			minimumClassification: 'Pass',
 			courses: [
-				'Diploma in Mass Communication, Public Relations or any relevant field',
+				'Diploma in Public Relations',
+				'Diploma in Journalism & Media',
+				'Diploma in Broadcasting Radio & TV',
+				'Associate Degree in Public Relations',
+				'Associate Degree in Journalism & Media',
+				'Associate Degree in Broadcasting (Radio & TV)',
 			],
 		},
 	});
@@ -731,7 +819,12 @@ export async function seedEntryRequirements() {
 			type: 'classification',
 			minimumClassification: 'Pass',
 			courses: [
-				'Diploma in Mass Communication, Public Relations or any relevant field',
+				'Diploma in Broadcasting Radio & TV',
+				'Diploma in Journalism & Media',
+				'Diploma in Film Production',
+				'Associate Degree in Broadcasting (Radio & TV)',
+				'Associate Degree in Journalism & Media',
+				'Associate Degree in Film Production',
 			],
 		},
 	});
@@ -765,7 +858,12 @@ export async function seedEntryRequirements() {
 			type: 'classification',
 			minimumClassification: 'Pass',
 			courses: [
-				'Diploma in Mass Communication, Public Relations or any relevant field',
+				'Diploma in Film Production',
+				'Diploma in Broadcasting Radio & TV',
+				'Diploma in Journalism & Media',
+				'Associate Degree in Film Production',
+				'Associate Degree in Digital Video',
+				'Associate Degree in Videography',
 			],
 		},
 	});
@@ -794,7 +892,12 @@ export async function seedEntryRequirements() {
 		rules: {
 			type: 'classification',
 			minimumClassification: 'Pass',
-			courses: ['Diploma or TVET Certificate in any relevant field'],
+			courses: [
+				'Diploma in Film Production',
+				'Associate Degree in Film Production',
+				'Associate Degree in Digital Video',
+				'Associate Degree in Videography',
+			],
 		},
 	});
 
@@ -821,7 +924,12 @@ export async function seedEntryRequirements() {
 		rules: {
 			type: 'classification',
 			minimumClassification: 'Pass',
-			courses: ['Diploma or TVET Certificate in any relevant field'],
+			courses: [
+				'Diploma in Broadcasting Radio & TV',
+				'Diploma in Film Production',
+				'Associate Degree in Broadcasting (Radio & TV)',
+				'Associate Degree in Digital Video',
+			],
 		},
 	});
 
@@ -848,7 +956,12 @@ export async function seedEntryRequirements() {
 		rules: {
 			type: 'classification',
 			minimumClassification: 'Pass',
-			courses: ['Diploma or TVET Certificate in any relevant field'],
+			courses: [
+				'Diploma in Public Relations',
+				'Diploma in Journalism & Media',
+				'Associate Degree in Public Relations',
+				'Associate Degree in Journalism & Media',
+			],
 		},
 	});
 
@@ -875,7 +988,12 @@ export async function seedEntryRequirements() {
 		rules: {
 			type: 'classification',
 			minimumClassification: 'Pass',
-			courses: ['Diploma or TVET Certificate in any relevant field'],
+			courses: [
+				'Diploma in Journalism & Media',
+				'Diploma in Public Relations',
+				'Associate Degree in Journalism & Media',
+				'Associate Degree in Public Relations',
+			],
 		},
 	});
 
@@ -911,7 +1029,14 @@ export async function seedEntryRequirements() {
 		rules: {
 			type: 'classification',
 			minimumClassification: 'Pass',
-			courses: ['Diploma in Information Technology or any relevant field'],
+			courses: [
+				'Diploma in Multimedia & Software Engineering',
+				'Diploma in Information Technology',
+				'Diploma in Business Information Technology',
+				'Associate Degree in Multimedia & Software Engineering',
+				'Associate Degree in Information Technology',
+				'Associate Degree in Software Engineering',
+			],
 		},
 	});
 
@@ -949,7 +1074,14 @@ export async function seedEntryRequirements() {
 		rules: {
 			type: 'classification',
 			minimumClassification: 'Pass',
-			courses: ['Diploma in Information Technology or any relevant field'],
+			courses: [
+				'Diploma in Business Information Technology',
+				'Diploma in Information Technology',
+				'Diploma in Business Management',
+				'Associate Degree in Business Information Technology',
+				'Associate Degree in Business Information Systems',
+				'Associate Degree in Information Technology',
+			],
 		},
 	});
 
@@ -981,7 +1113,14 @@ export async function seedEntryRequirements() {
 		rules: {
 			type: 'classification',
 			minimumClassification: 'Pass',
-			courses: ['Diploma in Information Technology or any relevant field'],
+			courses: [
+				'Diploma in Information Technology',
+				'Diploma in Business Information Technology',
+				'Diploma in Multimedia & Software Engineering',
+				'Associate Degree in Information Technology',
+				'Associate Degree in Business Information Technology',
+				'Associate Degree in Multimedia & Software Engineering',
+			],
 		},
 	});
 
@@ -1006,7 +1145,11 @@ export async function seedEntryRequirements() {
 			type: 'classification',
 			minimumClassification: 'Pass',
 			courses: [
-				'Diploma in Information Technology or TVET Certificate in any relevant field',
+				'Diploma in Multimedia & Software Engineering',
+				'Associate Degree in Multimedia & Software Engineering',
+				'Associate Degree in Software Engineering',
+				'Associate Degree in Mobile Computing',
+				'Associate Degree in Web Design',
 			],
 		},
 	});
@@ -1040,7 +1183,11 @@ export async function seedEntryRequirements() {
 			type: 'classification',
 			minimumClassification: 'Pass',
 			courses: [
-				'Diploma in Information Technology or TVET Certificate in any relevant field',
+				'Diploma in Business Information Technology',
+				'Diploma in Information Technology',
+				'Associate Degree in Business Information Technology',
+				'Associate Degree in Business Information Systems',
+				'Associate Degree in Information Technology',
 			],
 		},
 	});
@@ -1066,7 +1213,10 @@ export async function seedEntryRequirements() {
 			type: 'classification',
 			minimumClassification: 'Pass',
 			courses: [
-				'Diploma in Information Technology or TVET Certificate in any relevant field',
+				'Diploma in Information Technology',
+				'Associate Degree in Information Technology',
+				'Associate Degree in Business Information Technology',
+				'Associate Degree in Multimedia & Software Engineering',
 			],
 		},
 	});
