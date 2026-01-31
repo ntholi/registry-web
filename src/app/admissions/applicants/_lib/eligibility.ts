@@ -130,16 +130,11 @@ function meetsMinimumPasses(
 	return true;
 }
 
-function matchesQualificationName(
-	record: AcademicRecord,
-	required: string | undefined
-) {
-	if (!required) return true;
+function matchesCourse(record: AcademicRecord, courses: string[]) {
+	if (courses.length === 0) return false;
 	if (!record.qualificationName) return false;
-	return (
-		record.qualificationName.trim().toLowerCase() ===
-		required.trim().toLowerCase()
-	);
+	const recordCourse = record.qualificationName.trim().toLowerCase();
+	return courses.some((course) => course.trim().toLowerCase() === recordCourse);
 }
 
 function getBestClassification(records: AcademicRecord[]) {
@@ -160,7 +155,7 @@ function meetsClassificationRule(
 	records: AcademicRecord[]
 ) {
 	const relevant = records.filter((record) =>
-		matchesQualificationName(record, rules.requiredQualificationName)
+		matchesCourse(record, rules.courses)
 	);
 	if (relevant.length === 0) return false;
 	const best = getBestClassification(relevant);

@@ -127,8 +127,7 @@ export async function seedEntryRequirements() {
 		rules: {
 			type: 'classification',
 			minimumClassification: 'Pass',
-			requiredQualificationName:
-				'Diploma in any relevant field or TVET Certificate',
+			courses: ['Diploma in any relevant field or TVET Certificate'],
 		},
 	});
 
@@ -159,8 +158,7 @@ export async function seedEntryRequirements() {
 		rules: {
 			type: 'classification',
 			minimumClassification: 'Pass',
-			requiredQualificationName:
-				'Diploma in any relevant field or TVET Certificate',
+			courses: ['Diploma in any relevant field or TVET Certificate'],
 		},
 	});
 
@@ -193,8 +191,7 @@ export async function seedEntryRequirements() {
 		rules: {
 			type: 'classification',
 			minimumClassification: 'Pass',
-			requiredQualificationName:
-				'Diploma in a relevant field or TVET Certificate or N4',
+			courses: ['Diploma in a relevant field or TVET Certificate or N4'],
 		},
 	});
 
@@ -226,7 +223,7 @@ export async function seedEntryRequirements() {
 		rules: {
 			type: 'classification',
 			minimumClassification: 'Pass',
-			requiredQualificationName: 'Diploma in any relevant field',
+			courses: ['Diploma in any relevant field'],
 		},
 	});
 
@@ -269,8 +266,9 @@ export async function seedEntryRequirements() {
 		rules: {
 			type: 'classification',
 			minimumClassification: 'Pass',
-			requiredQualificationName:
+			courses: [
 				'Diploma in Architectural Technology or any relevant certificate',
+			],
 		},
 	});
 
@@ -306,8 +304,9 @@ export async function seedEntryRequirements() {
 		rules: {
 			type: 'classification',
 			minimumClassification: 'Pass',
-			requiredQualificationName:
+			courses: [
 				'TVET Certificate, Certificate in Bricklaying/Carpentry, or N4 in relevant field',
+			],
 		},
 	});
 
@@ -346,7 +345,7 @@ export async function seedEntryRequirements() {
 		rules: {
 			type: 'classification',
 			minimumClassification: 'Pass',
-			requiredQualificationName: 'Diploma in any relevant field',
+			courses: ['Diploma in any relevant field'],
 		},
 	});
 
@@ -381,7 +380,7 @@ export async function seedEntryRequirements() {
 		rules: {
 			type: 'classification',
 			minimumClassification: 'Pass',
-			requiredQualificationName: 'Diploma in any relevant field',
+			courses: ['Diploma in any relevant field'],
 		},
 	});
 
@@ -416,7 +415,7 @@ export async function seedEntryRequirements() {
 		rules: {
 			type: 'classification',
 			minimumClassification: 'Pass',
-			requiredQualificationName: 'Diploma in any relevant field',
+			courses: ['Diploma in any relevant field'],
 		},
 	});
 
@@ -451,7 +450,7 @@ export async function seedEntryRequirements() {
 		rules: {
 			type: 'classification',
 			minimumClassification: 'Pass',
-			requiredQualificationName: 'TVET Certificate in any relevant field',
+			courses: ['TVET Certificate in any relevant field'],
 		},
 	});
 
@@ -486,7 +485,7 @@ export async function seedEntryRequirements() {
 		rules: {
 			type: 'classification',
 			minimumClassification: 'Pass',
-			requiredQualificationName: 'TVET Certificate in any relevant field',
+			courses: ['TVET Certificate in any relevant field'],
 		},
 	});
 
@@ -521,7 +520,7 @@ export async function seedEntryRequirements() {
 		rules: {
 			type: 'classification',
 			minimumClassification: 'Pass',
-			requiredQualificationName: 'TVET Certificate in any relevant field',
+			courses: ['TVET Certificate in any relevant field'],
 		},
 	});
 
@@ -557,8 +556,9 @@ export async function seedEntryRequirements() {
 		rules: {
 			type: 'classification',
 			minimumClassification: 'Pass',
-			requiredQualificationName:
+			courses: [
 				'Diploma in Tourism Management / Business Management / Business Administration',
+			],
 		},
 	});
 
@@ -590,8 +590,9 @@ export async function seedEntryRequirements() {
 		rules: {
 			type: 'classification',
 			minimumClassification: 'Pass',
-			requiredQualificationName:
+			courses: [
 				'TVET Certificate or Certificate in Catering/Home Science/Nutrition',
+			],
 		},
 	});
 
@@ -623,8 +624,9 @@ export async function seedEntryRequirements() {
 		rules: {
 			type: 'classification',
 			minimumClassification: 'Pass',
-			requiredQualificationName:
+			courses: [
 				'TVET Certificate or Certificate in Catering/Home Science/Nutrition',
+			],
 		},
 	});
 
@@ -656,8 +658,9 @@ export async function seedEntryRequirements() {
 		rules: {
 			type: 'classification',
 			minimumClassification: 'Pass',
-			requiredQualificationName:
+			courses: [
 				'TVET Certificate or Certificate in Catering/Home Science/Nutrition',
+			],
 		},
 	});
 
@@ -693,8 +696,9 @@ export async function seedEntryRequirements() {
 		rules: {
 			type: 'classification',
 			minimumClassification: 'Pass',
-			requiredQualificationName:
+			courses: [
 				'Diploma in Mass Communication, Public Relations or any relevant field',
+			],
 		},
 	});
 
@@ -726,8 +730,9 @@ export async function seedEntryRequirements() {
 		rules: {
 			type: 'classification',
 			minimumClassification: 'Pass',
-			requiredQualificationName:
+			courses: [
 				'Diploma in Mass Communication, Public Relations or any relevant field',
+			],
 		},
 	});
 
@@ -759,8 +764,9 @@ export async function seedEntryRequirements() {
 		rules: {
 			type: 'classification',
 			minimumClassification: 'Pass',
-			requiredQualificationName:
+			courses: [
 				'Diploma in Mass Communication, Public Relations or any relevant field',
+			],
 		},
 	});
 
@@ -788,8 +794,7 @@ export async function seedEntryRequirements() {
 		rules: {
 			type: 'classification',
 			minimumClassification: 'Pass',
-			requiredQualificationName:
-				'Diploma or TVET Certificate in any relevant field',
+			courses: ['Diploma or TVET Certificate in any relevant field'],
 		},
 	});
 
@@ -816,8 +821,7 @@ export async function seedEntryRequirements() {
 		rules: {
 			type: 'classification',
 			minimumClassification: 'Pass',
-			requiredQualificationName:
-				'Diploma or TVET Certificate in any relevant field',
+			courses: ['Diploma or TVET Certificate in any relevant field'],
 		},
 	});
 
@@ -844,8 +848,7 @@ export async function seedEntryRequirements() {
 		rules: {
 			type: 'classification',
 			minimumClassification: 'Pass',
-			requiredQualificationName:
-				'Diploma or TVET Certificate in any relevant field',
+			courses: ['Diploma or TVET Certificate in any relevant field'],
 		},
 	});
 
@@ -872,8 +875,7 @@ export async function seedEntryRequirements() {
 		rules: {
 			type: 'classification',
 			minimumClassification: 'Pass',
-			requiredQualificationName:
-				'Diploma or TVET Certificate in any relevant field',
+			courses: ['Diploma or TVET Certificate in any relevant field'],
 		},
 	});
 
@@ -909,8 +911,7 @@ export async function seedEntryRequirements() {
 		rules: {
 			type: 'classification',
 			minimumClassification: 'Pass',
-			requiredQualificationName:
-				'Diploma in Information Technology or any relevant field',
+			courses: ['Diploma in Information Technology or any relevant field'],
 		},
 	});
 
@@ -948,8 +949,7 @@ export async function seedEntryRequirements() {
 		rules: {
 			type: 'classification',
 			minimumClassification: 'Pass',
-			requiredQualificationName:
-				'Diploma in Information Technology or any relevant field',
+			courses: ['Diploma in Information Technology or any relevant field'],
 		},
 	});
 
@@ -981,8 +981,7 @@ export async function seedEntryRequirements() {
 		rules: {
 			type: 'classification',
 			minimumClassification: 'Pass',
-			requiredQualificationName:
-				'Diploma in Information Technology or any relevant field',
+			courses: ['Diploma in Information Technology or any relevant field'],
 		},
 	});
 
@@ -1006,8 +1005,9 @@ export async function seedEntryRequirements() {
 		rules: {
 			type: 'classification',
 			minimumClassification: 'Pass',
-			requiredQualificationName:
+			courses: [
 				'Diploma in Information Technology or TVET Certificate in any relevant field',
+			],
 		},
 	});
 
@@ -1039,8 +1039,9 @@ export async function seedEntryRequirements() {
 		rules: {
 			type: 'classification',
 			minimumClassification: 'Pass',
-			requiredQualificationName:
+			courses: [
 				'Diploma in Information Technology or TVET Certificate in any relevant field',
+			],
 		},
 	});
 
@@ -1064,8 +1065,9 @@ export async function seedEntryRequirements() {
 		rules: {
 			type: 'classification',
 			minimumClassification: 'Pass',
-			requiredQualificationName:
+			courses: [
 				'Diploma in Information Technology or TVET Certificate in any relevant field',
+			],
 		},
 	});
 

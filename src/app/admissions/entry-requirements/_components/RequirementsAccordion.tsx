@@ -218,10 +218,16 @@ function RequirementDetails({ rules, subjects }: RequirementDetailsProps) {
 				</FieldView>
 			</Paper>
 
-			{classRules.requiredQualificationName && (
+			{classRules.courses.length > 0 && (
 				<Paper withBorder p='md' bg='var(--mantine-color-dark-7)'>
-					<FieldView label='Required Qualification'>
-						<Text>{classRules.requiredQualificationName}</Text>
+					<FieldView label='Eligible Courses'>
+						<Group gap='xs'>
+							{classRules.courses.map((course) => (
+								<Badge key={course} size='sm' variant='light'>
+									{course}
+								</Badge>
+							))}
+						</Group>
 					</FieldView>
 				</Paper>
 			)}

@@ -21,7 +21,7 @@ export type SubjectGradeRules = {
 export type ClassificationRules = {
 	type: 'classification';
 	minimumClassification?: 'Distinction' | 'Merit' | 'Credit' | 'Pass';
-	requiredQualificationName?: string;
+	courses: string[];
 };
 
 export type EntryRules = SubjectGradeRules | ClassificationRules;

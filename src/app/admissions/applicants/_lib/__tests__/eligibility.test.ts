@@ -734,14 +734,16 @@ describe('Eligibility - Classification-Based Rules (Diploma entry)', () => {
 		createDiplomaRequirement(1, 'BSCIT', 'BSc in IT', {
 			type: 'classification',
 			minimumClassification: 'Pass',
-			requiredQualificationName: 'Diploma in IT',
+			courses: ['Diploma in IT'],
 		}),
 		createDiplomaRequirement(2, 'BSCBIT', 'BSc in Business IT', {
 			type: 'classification',
 			minimumClassification: 'Credit',
+			courses: ['Diploma in IT'],
 		}),
 		createDiplomaRequirement(3, 'BSCS', 'BSc in Computer Science', {
 			type: 'classification',
+			courses: ['Diploma in IT'],
 		}),
 	];
 
@@ -791,6 +793,7 @@ describe('Eligibility - LQF Level Matching', () => {
 	const diplomaReq = createDiplomaRequirement(2, 'BSCIT', 'BSc in IT', {
 		type: 'classification',
 		minimumClassification: 'Pass',
+		courses: ['Diploma in IT'],
 	});
 
 	it('should only match LGCSE requirements for LGCSE records', () => {
@@ -834,6 +837,7 @@ describe('Eligibility - Recognized Schools (LQF 5+)', () => {
 	const diplomaReq = createDiplomaRequirement(1, 'BSCIT', 'BSc in IT', {
 		type: 'classification',
 		minimumClassification: 'Pass',
+		courses: ['Diploma in IT'],
 	});
 
 	it('should allow eligibility for recognized institutions at LQF 5+', () => {

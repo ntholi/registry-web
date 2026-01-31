@@ -13,8 +13,8 @@ import {
 	Paper,
 	Select,
 	Stack,
+	TagsInput,
 	Text,
-	TextInput,
 	ThemeIcon,
 	Title,
 } from '@mantine/core';
@@ -141,6 +141,7 @@ export default function EditRequirementsList({
 			: {
 					type: 'classification',
 					minimumClassification: 'Credit',
+					courses: [],
 				};
 
 		createMutation.mutate({ programId, certificateTypeId, rules });
@@ -246,7 +247,11 @@ function RequirementEditor({
 	const [classRules, setClassRules] = useState<ClassificationRules>(() => {
 		const rules = requirement.rules as SubjectGradeRules | ClassificationRules;
 		if (rules?.type === 'classification') return rules;
-		return { type: 'classification', minimumClassification: 'Credit' };
+		return {
+			type: 'classification',
+			minimumClassification: 'Credit',
+			courses: [],
+		};
 	});
 
 	const handleSave = () => {
@@ -583,15 +588,15 @@ function RequirementEditor({
 									}))
 								}
 							/>
-							<TextInput
-								label='Required Qualification (Optional)'
-								placeholder='e.g., Diploma in Information Technology'
+							<TagsInput
+								label='Eligible Courses'
+								placeholder='Add courses'
 								mt='md'
-								value={classRules.requiredQualificationName || ''}
-								onChange={(e) =>
+								value={classRules.courses}
+								onChange={(value) =>
 									setClassRules((prev) => ({
 										...prev,
-										requiredQualificationName: e.target.value || undefined,
+										courses: value,
 									}))
 								}
 							/>

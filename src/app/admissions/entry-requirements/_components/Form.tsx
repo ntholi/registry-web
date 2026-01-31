@@ -9,8 +9,8 @@ import {
 	Select,
 	Stack,
 	Switch,
+	TagsInput,
 	Text,
-	TextInput,
 	Title,
 } from '@mantine/core';
 import { IconPlus, IconTrash } from '@tabler/icons-react';
@@ -92,6 +92,7 @@ export default function EntryRequirementForm({
 			return {
 				type: 'classification',
 				minimumClassification: 'Credit',
+				courses: [],
 			};
 		});
 
@@ -342,15 +343,15 @@ export default function EntryRequirementForm({
 								}
 							/>
 
-							<TextInput
-								label='Required Qualification Name (Optional)'
-								placeholder='e.g., Diploma in Information Technology'
+							<TagsInput
+								label='Eligible Courses'
+								placeholder='Add courses'
 								mt='md'
-								value={classificationRules.requiredQualificationName || ''}
-								onChange={(e) =>
+								value={classificationRules.courses}
+								onChange={(value) =>
 									setClassificationRules((prev) => ({
 										...prev,
-										requiredQualificationName: e.target.value || undefined,
+										courses: value,
 									}))
 								}
 							/>
