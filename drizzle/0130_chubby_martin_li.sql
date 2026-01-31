@@ -1,0 +1,1 @@
+ALTER TABLE "academic_records" ADD COLUMN "candidate_number" text;

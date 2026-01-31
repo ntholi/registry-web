@@ -40,6 +40,7 @@ export const academicRecords = pgTable(
 		institutionName: text().notNull(),
 		qualificationName: text(),
 		certificateNumber: text().unique(),
+		candidateNumber: text(),
 		resultClassification: resultClassificationEnum(),
 		createdAt: timestamp().defaultNow(),
 		updatedAt: timestamp().defaultNow(),

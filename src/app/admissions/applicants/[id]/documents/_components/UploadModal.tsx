@@ -184,6 +184,7 @@ export function UploadModal({
 							examYear: result.examYear,
 							certificateType: result.certificateType,
 							certificateNumber: result.certificateNumber,
+							candidateNumber: result.candidateNumber,
 							subjects: result.subjects,
 							overallClassification: result.overallClassification,
 						},

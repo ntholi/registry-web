@@ -30,6 +30,7 @@ export async function createAcademicRecord(
 		institutionName: input.institutionName,
 		qualificationName: input.qualificationName,
 		certificateNumber: input.certificateNumber,
+		candidateNumber: input.candidateNumber,
 		resultClassification: input.resultClassification,
 		applicantDocumentId,
 	};
@@ -52,6 +53,7 @@ export async function updateAcademicRecord(
 		institutionName: input.institutionName,
 		qualificationName: input.qualificationName,
 		certificateNumber: input.certificateNumber,
+		candidateNumber: input.candidateNumber,
 		resultClassification: input.resultClassification,
 	};
 

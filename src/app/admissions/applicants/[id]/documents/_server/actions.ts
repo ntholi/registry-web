@@ -152,6 +152,7 @@ export async function reanalyzeDocumentFromUrl(
 			examYear: data.examYear,
 			certificateType: data.certificateType,
 			certificateNumber: data.certificateNumber,
+			candidateNumber: data.candidateNumber,
 			subjects: data.subjects,
 			overallClassification: data.overallClassification,
 		});
@@ -290,6 +291,7 @@ export async function createAcademicRecordFromDocument(
 					certificateNumber: data.certificateNumber,
 					resultClassification: data.overallClassification,
 					subjectGrades,
+					candidateNumber: data.candidateNumber,
 				},
 				isLevel4
 			);
@@ -310,6 +312,7 @@ export async function createAcademicRecordFromDocument(
 			certificateNumber: data.certificateNumber,
 			resultClassification: data.overallClassification,
 			subjectGrades,
+			candidateNumber: data.candidateNumber,
 		},
 		isLevel4,
 		applicantDocumentId

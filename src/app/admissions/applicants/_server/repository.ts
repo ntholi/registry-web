@@ -27,6 +27,7 @@ type AcademicRecordInput = {
 	institutionName: string;
 	qualificationName?: string | null;
 	certificateNumber?: string | null;
+	candidateNumber?: string | null;
 	resultClassification?: (typeof academicRecords.$inferInsert)['resultClassification'];
 	subjectGrades?: {
 		subjectId: string;
@@ -274,6 +275,7 @@ export default class ApplicantRepository extends BaseRepository<
 						institutionName: recordInput.institutionName,
 						qualificationName: recordInput.qualificationName,
 						certificateNumber: recordInput.certificateNumber,
+						candidateNumber: recordInput.candidateNumber,
 						resultClassification: recordInput.resultClassification,
 						applicantDocumentId,
 					})

@@ -54,6 +54,7 @@ ${COMMON_RULES}
 - Extract ALL subjects with grades
 - Only accept LGCSE (or equivalent) or higher certificates/result slips. If lower than LGCSE, classify as "other" and set certificateType to null.
 - Determine if the document explicitly mentions ECoL as issuing authority and set isEcol accordingly (true/false). Search for any mention of "ECoL" or "Examinations Council of Lesotho".
+- candidateNumber: Extract if present, commonly labeled "Center/Candidate Number", "Centre/Candidate Number", or "Center / Cand. No.".
 
 GRADE ACCURACY (CRITICAL - FOR ACADEMIC DOCUMENTS):
 - For each subject think extra, provide a confidence score (0-100) for the grade reading.
@@ -80,6 +81,7 @@ ${COMMON_RULES}
 - LGCSE grades: Use letter (A*, A, B, C, D, E, F, G, U)
 - Extract ALL subjects with grades
 - Only accept LGCSE (or equivalent) or higher certificates/result slips. If lower than LGCSE, classify as "other" and set certificateType to null.
+- candidateNumber: Extract if present, commonly labeled "Center/Candidate Number", "Centre/Candidate Number", or "Center / Cand. No.".
 
 GRADE ACCURACY (CRITICAL - ZERO TOLERANCE FOR ERRORS):
 - For EACH subject, you MUST provide a confidence score (0-100) for the grade reading.

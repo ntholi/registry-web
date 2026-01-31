@@ -70,6 +70,7 @@ export default function AcademicRecordsList({ applicantId, records }: Props) {
 			examYear: new Date().getFullYear(),
 			institutionName: '',
 			qualificationName: '',
+			candidateNumber: '',
 			resultClassification: '',
 		},
 	});
@@ -84,6 +85,7 @@ export default function AcademicRecordsList({ applicantId, records }: Props) {
 					examYear: values.examYear,
 					institutionName: values.institutionName,
 					qualificationName: values.qualificationName || null,
+					candidateNumber: values.candidateNumber || null,
 					resultClassification: values.resultClassification
 						? (values.resultClassification as (typeof resultClassificationEnum.enumValues)[number])
 						: null,
@@ -291,6 +293,11 @@ export default function AcademicRecordsList({ applicantId, records }: Props) {
 							required
 							placeholder='Enter institution name'
 							{...form.getInputProps('institutionName')}
+						/>
+						<TextInput
+							label='Candidate Number'
+							placeholder='Center/Candidate Number'
+							{...form.getInputProps('candidateNumber')}
 						/>
 
 						{selectedCertType && !isLevel4 && (

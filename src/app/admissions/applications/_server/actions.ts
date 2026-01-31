@@ -189,6 +189,7 @@ export async function uploadAndAnalyzeDocument(formData: FormData): Promise<
 				examYear: analysis.examYear,
 				certificateType: analysis.certificateType,
 				certificateNumber: analysis.certificateNumber,
+				candidateNumber: analysis.candidateNumber,
 				subjects: analysis.subjects,
 				overallClassification: analysis.overallClassification,
 			},

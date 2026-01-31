@@ -215,9 +215,16 @@ export default function AcademicRecordsTab({ records }: Props) {
 																<Text fw={600}>
 																	{record.certificateType.name}
 																</Text>
-																<Badge variant='default' size='sm'>
-																	{record.certificateNumber}
-																</Badge>
+																{record.certificateNumber && (
+																	<Badge variant='default' size='sm'>
+																		{record.certificateNumber}
+																	</Badge>
+																)}
+																{record.candidateNumber && (
+																	<Badge variant='outline' size='sm'>
+																		{record.candidateNumber}
+																	</Badge>
+																)}
 															</Group>
 															<Text size='sm' c='dimmed'>
 																{record.institutionName} • {record.examYear}

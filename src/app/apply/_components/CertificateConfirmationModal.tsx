@@ -98,7 +98,7 @@ export function CertificateConfirmationModal({
 								<ThemeIcon variant='filled' size={36} radius='xl' color='dark'>
 									<IconCertificate size={50} />
 								</ThemeIcon>
-								<Stack gap={0} ta='center'>
+								<Stack gap={0}>
 									<Text size='lg' fw={600} tt='uppercase' lts={2}>
 										{analysis.certificateType || 'Academic Document'}
 									</Text>

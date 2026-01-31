@@ -130,6 +130,12 @@ const academicSchema = z
 			.string()
 			.nullable()
 			.describe('Certificate or serial number on the document'),
+		candidateNumber: z
+			.string()
+			.nullable()
+			.describe(
+				'Candidate number if present (e.g., Centre/Candidate Number or Center/Cand. No.)'
+			),
 		studentName: z
 			.string()
 			.nullable()

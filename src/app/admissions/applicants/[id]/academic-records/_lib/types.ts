@@ -30,6 +30,7 @@ export type CreateAcademicRecordInput = {
 	institutionName: string;
 	qualificationName?: string | null;
 	certificateNumber?: string | null;
+	candidateNumber?: string | null;
 	resultClassification?: ResultClassification | null;
 	subjectGrades?: SubjectGradeInput[];
 };
