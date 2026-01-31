@@ -106,7 +106,6 @@ export function CameraCapture({ onCapture, disabled, children }: Props) {
 			<Modal
 				opened={isOpen}
 				onClose={handleClose}
-				title='Analyzing Document'
 				fullScreen
 				closeOnClickOutside={false}
 				closeOnEscape={false}

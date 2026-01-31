@@ -97,6 +97,11 @@ const academicSchema = z
 			.describe(
 				'Whether the document somehow includes the Examinations Council of Lesotho (ECoL) in the document'
 			),
+		isCambridge: z
+			.boolean()
+			.describe(
+				'Whether the document is issued by Cambridge Assessment International Education (Cambridge, CAIE, CIE, or UCLES)'
+			),
 		subjects: z
 			.array(
 				z.object({

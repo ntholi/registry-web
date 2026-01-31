@@ -66,6 +66,7 @@ ${COMMON_RULES}
 - Extract ALL subjects with grades
 - Only accept LGCSE (or equivalent) or higher certificates/result slips. If lower than LGCSE, classify as "other" and set certificateType to null.
 - Determine if the document explicitly mentions ECoL as issuing authority and set isEcol accordingly (true/false). Search for any mention of "ECoL" or "Examinations Council of Lesotho".
+- Determine if the document is issued by Cambridge and set isCambridge accordingly (true/false). Search for any mention of "Cambridge", "CAIE", "CIE", or "UCLES".
 - candidateNumber: Extract if present, commonly labeled "Center/Candidate Number", "Centre/Candidate Number", or "Center / Cand. No.".
 
 GRADE ACCURACY (CRITICAL - FOR ACADEMIC DOCUMENTS):
@@ -129,6 +130,7 @@ ISSUING AUTHORITY:
 - issuingAuthority: Extract examining body (ECoL, Cambridge, IEB, Umalusi)
 - "Examinations Council of Lesotho" → record as "ECoL"
 - isEcol: true if the document somehow indicates ECoL/Examinations Council of Lesotho in the document, otherwise false. Always set true or false; do not leave null.
+- isCambridge: true if the document is issued by Cambridge Assessment International Education (Cambridge, CAIE, CIE, UCLES), otherwise false. Always set true or false; do not leave null.
 
 ${CERTIFICATION_RULES}`;
 
@@ -478,11 +480,14 @@ Scoring guide:
 				};
 			}
 
-			if (dbCertType.lqfLevel === 4 && !output.isEcol) {
+			const isIGCSE =
+				output.certificateType?.toLowerCase().includes('igcse') &&
+				output.isCambridge;
+			if (dbCertType.lqfLevel === 4 && !output.isEcol && !isIGCSE) {
 				return {
 					success: false,
 					error:
-						'LQF Level 4 certificates and result slips must be issued by the Examinations Council of Lesotho (ECoL).',
+						'LQF Level 4 certificates and result slips must be issued by the Examinations Council of Lesotho (ECoL) or Cambridge (for IGCSE).',
 				};
 			}
 		}
