@@ -1,5 +1,6 @@
 import {
 	IconBook,
+	IconBuildingCommunity,
 	IconCalendarEvent,
 	IconCertificate,
 	IconChecklist,
@@ -35,6 +36,12 @@ export const admissionsConfig: ModuleConfig = {
 				label: 'Subjects',
 				href: '/admissions/subjects',
 				icon: IconBook,
+				roles: ['registry', 'marketing', 'admin'],
+			},
+			{
+				label: 'Recognized Schools',
+				href: '/admissions/recognized-schools',
+				icon: IconBuildingCommunity,
 				roles: ['registry', 'marketing', 'admin'],
 			},
 			{

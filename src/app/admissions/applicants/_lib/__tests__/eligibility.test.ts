@@ -6,6 +6,7 @@ import type {
 	EntryRequirementWithRelations,
 	SubjectGradeRules,
 } from '@admissions/entry-requirements/_lib/types';
+import type { RecognizedSchool } from '@admissions/recognized-schools/_lib/types';
 import { describe, expect, it } from 'vitest';
 import { getEligiblePrograms } from '../eligibility';
 import type { ApplicantWithRelations } from '../types';
@@ -81,6 +82,16 @@ function createProgram(
 		level,
 		schoolId: 1,
 		school: { id: 1, code: 'SIIT', name: 'School of IT', shortName: 'SIIT' },
+	};
+}
+
+function createRecognizedSchool(name: string): RecognizedSchool {
+	return {
+		id: 1,
+		name,
+		isActive: true,
+		createdAt: new Date(),
+		updatedAt: new Date(),
 	};
 }
 
@@ -729,6 +740,9 @@ describe('Eligibility - Classification-Based Rules (Diploma entry)', () => {
 			type: 'classification',
 			minimumClassification: 'Credit',
 		}),
+		createDiplomaRequirement(3, 'BSCS', 'BSc in Computer Science', {
+			type: 'classification',
+		}),
 	];
 
 	it('should qualify with Pass classification for Pass requirement', () => {
@@ -757,6 +771,13 @@ describe('Eligibility - Classification-Based Rules (Diploma entry)', () => {
 
 		const eligible = getEligiblePrograms(records, requirements);
 		expect(eligible.some((p) => p.code === 'BSCBIT')).toBe(true);
+	});
+
+	it('should default to Pass when minimum classification is missing', () => {
+		const records = [createDiplomaRecord('Pass')];
+
+		const eligible = getEligiblePrograms(records, requirements);
+		expect(eligible.some((p) => p.code === 'BSCS')).toBe(true);
 	});
 });
 
@@ -806,6 +827,49 @@ describe('Eligibility - LQF Level Matching', () => {
 		const eligible = getEligiblePrograms(records, [lgcseReq, diplomaReq]);
 		expect(eligible).toHaveLength(1);
 		expect(eligible[0].code).toBe('BSCIT');
+	});
+});
+
+describe('Eligibility - Recognized Schools (LQF 5+)', () => {
+	const diplomaReq = createDiplomaRequirement(1, 'BSCIT', 'BSc in IT', {
+		type: 'classification',
+		minimumClassification: 'Pass',
+	});
+
+	it('should allow eligibility for recognized institutions at LQF 5+', () => {
+		const records = [createDiplomaRecord('Pass')];
+		const recognized = [createRecognizedSchool('Test College')];
+
+		const eligible = getEligiblePrograms(records, [diplomaReq], recognized);
+		expect(eligible).toHaveLength(1);
+	});
+
+	it('should block eligibility for unrecognized institutions at LQF 5+', () => {
+		const records = [createDiplomaRecord('Pass')];
+		const recognized = [createRecognizedSchool('Other College')];
+
+		const eligible = getEligiblePrograms(records, [diplomaReq], recognized);
+		expect(eligible).toHaveLength(0);
+	});
+
+	it('should not require recognition for LQF below 5', () => {
+		const requirements: EntryRequirementWithRelations[] = [
+			createLgcseRequirement(1, 'DIT', 'Diploma in IT', {
+				type: 'subject-grades',
+				minimumGrades: [{ count: 3, grade: 'C' }],
+				subjects: [],
+			}),
+		];
+		const records = [
+			createLgcseRecord([
+				{ subjectId: MATH_ID, grade: 'C' },
+				{ subjectId: ENG_ID, grade: 'C' },
+				{ subjectId: SCI_ID, grade: 'C' },
+			]),
+		];
+
+		const eligible = getEligiblePrograms(records, requirements, []);
+		expect(eligible).toHaveLength(1);
 	});
 });
 

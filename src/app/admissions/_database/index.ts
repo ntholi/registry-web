@@ -23,6 +23,8 @@ export * from '../intake-periods/_schema/relations';
 export * from '../payments/_schema/bankDeposits';
 export * from '../payments/_schema/paymentTransactions';
 export * from '../payments/_schema/relations';
+export * from '../recognized-schools/_schema/recognizedSchools';
+export * from '../recognized-schools/_schema/relations';
 export * from '../subjects/_schema/relations';
 export * from '../subjects/_schema/subjectAliases';
 export * from '../subjects/_schema/subjects';

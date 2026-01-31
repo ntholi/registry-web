@@ -4,6 +4,7 @@ import type {
 	EntryRequirementWithRelations,
 	SubjectGradeRules,
 } from '@admissions/entry-requirements/_lib/types';
+import type { RecognizedSchool } from '@admissions/recognized-schools/_lib/types';
 import type { ApplicantWithRelations } from './types';
 
 type AcademicRecord = ApplicantWithRelations['academicRecords'][number];
@@ -164,9 +165,26 @@ function meetsClassificationRule(
 	if (relevant.length === 0) return false;
 	const best = getBestClassification(relevant);
 	if (!best) return false;
+	const minimum = rules.minimumClassification ?? 'Pass';
 	return (
-		(classificationRanks[best] ?? -1) >=
-		(classificationRanks[rules.minimumClassification] ?? -1)
+		(classificationRanks[best] ?? -1) >= (classificationRanks[minimum] ?? -1)
+	);
+}
+
+function normalizeSchoolName(name: string) {
+	return name.trim().toLowerCase();
+}
+
+function filterRecognizedRecords(
+	records: AcademicRecord[],
+	recognizedSchools: RecognizedSchool[]
+) {
+	const recognizedSet = new Set(
+		recognizedSchools.map((school) => normalizeSchoolName(school.name))
+	);
+	if (recognizedSet.size === 0) return [];
+	return records.filter((record) =>
+		recognizedSet.has(normalizeSchoolName(record.institutionName))
 	);
 }
 
@@ -194,18 +212,25 @@ function meetsEntryRules(
 
 export function getEligiblePrograms(
 	academicRecords: ApplicantWithRelations['academicRecords'],
-	requirements: EntryRequirementWithRelations[]
+	requirements: EntryRequirementWithRelations[],
+	recognizedSchools: RecognizedSchool[] = []
 ): EligibilityProgram[] {
 	const highestLevel = getHighestLqfLevel(academicRecords);
 	if (!highestLevel) return [];
 	const highestRecords = getHighestLqfRecords(academicRecords);
 	if (highestRecords.length === 0) return [];
 
+	const isRecognitionRequired = highestLevel >= 5;
+	const eligibleRecords = isRecognitionRequired
+		? filterRecognizedRecords(highestRecords, recognizedSchools)
+		: highestRecords;
+	if (eligibleRecords.length === 0) return [];
+
 	const eligiblePrograms = new Map<number, EligibilityProgram>();
 
 	for (const requirement of requirements) {
 		if (requirement.certificateType.lqfLevel !== highestLevel) continue;
-		const records = highestRecords;
+		const records = eligibleRecords;
 		const rules = requirement.rules as SubjectGradeRules | ClassificationRules;
 		if (!meetsEntryRules(rules, records)) continue;
 		eligiblePrograms.set(requirement.program.id, requirement.program);

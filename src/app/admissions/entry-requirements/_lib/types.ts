@@ -20,7 +20,7 @@ export type SubjectGradeRules = {
 
 export type ClassificationRules = {
 	type: 'classification';
-	minimumClassification: 'Distinction' | 'Merit' | 'Credit' | 'Pass';
+	minimumClassification?: 'Distinction' | 'Merit' | 'Credit' | 'Pass';
 	requiredQualificationName?: string;
 };
 

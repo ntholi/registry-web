@@ -1,6 +1,7 @@
 import { mapGrade } from '@admissions/certificate-types/_server/actions';
 import { entryRequirementsService } from '@admissions/entry-requirements/_server/service';
 import { intakePeriodsService } from '@admissions/intake-periods/_server/service';
+import { recognizedSchoolsService } from '@admissions/recognized-schools/_server/service';
 import type { applicants, documents, guardians } from '@/core/database';
 import type { DocumentAnalysisResult } from '@/core/integrations/ai/documents';
 import BaseService from '@/core/platform/BaseService';
@@ -248,9 +249,15 @@ class ApplicantService extends BaseService<typeof applicants, 'id'> {
 		return withAuth(async () => {
 			const applicant = await this.repo.findById(applicantId);
 			if (!applicant) return [];
-			const requirements =
-				await entryRequirementsService.findAllForEligibility();
-			return getEligiblePrograms(applicant.academicRecords, requirements);
+			const [requirements, recognizedSchools] = await Promise.all([
+				entryRequirementsService.findAllForEligibility(),
+				recognizedSchoolsService.findAllForEligibility(),
+			]);
+			return getEligiblePrograms(
+				applicant.academicRecords,
+				requirements,
+				recognizedSchools
+			);
 		}, ['registry', 'marketing', 'admin', 'applicant']);
 	}
 
