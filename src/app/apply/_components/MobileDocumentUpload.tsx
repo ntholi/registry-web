@@ -31,7 +31,7 @@ import {
 	type DocumentAnalysisResult,
 	type IdentityDocumentResult,
 } from '@/core/integrations/ai/documents';
-import { CameraModal } from '../../../shared/ui/CameraModal';
+import { CameraCapture } from '../../../shared/ui/CameraModal';
 import { CertificateConfirmationModal } from './CertificateConfirmationModal';
 import { IdentityConfirmationModal } from './IdentityConfirmationModal';
 
@@ -117,12 +117,9 @@ export function MobileDocumentUpload({
 	const [uploadState, setUploadState] = useState<UploadState>('idle');
 	const [errorMessage, setErrorMessage] = useState<string | null>(null);
 	const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-	const [isFromCamera, setIsFromCamera] = useState(false);
 	const [pendingResult, setPendingResult] = useState<DocumentUploadResult<
 		typeof type
 	> | null>(null);
-	const [cameraOpened, { open: openCamera, close: closeCamera }] =
-		useDisclosure(false);
 	const [
 		confirmModalOpened,
 		{ open: openConfirmModal, close: closeConfirmModal },
@@ -131,14 +128,13 @@ export function MobileDocumentUpload({
 
 	const IdleIcon = ICON_MAP[type];
 
-	async function processFile(selectedFile: File, fromCamera = false) {
+	async function processFile(selectedFile: File, skipEarlyState = false) {
 		if (selectedFile.size > maxSize) {
 			notifications.show({
 				title: 'File too large',
 				message: `Please upload a file under ${formatFileSize(maxSize)}`,
 				color: 'red',
 			});
-			if (fromCamera) closeCamera();
 			return;
 		}
 
@@ -151,19 +147,19 @@ export function MobileDocumentUpload({
 				message: 'Please upload a PDF or image file',
 				color: 'red',
 			});
-			if (fromCamera) closeCamera();
 			return;
 		}
 
-		setFile(selectedFile);
-		setUploadState('uploading');
-		setErrorMessage(null);
-		setIsFromCamera(fromCamera);
+		if (!skipEarlyState) {
+			setFile(selectedFile);
+			setUploadState('uploading');
+			setErrorMessage(null);
 
-		if (selectedFile.type.startsWith('image/')) {
-			setPreviewUrl(URL.createObjectURL(selectedFile));
-		} else {
-			setPreviewUrl(null);
+			if (selectedFile.type.startsWith('image/')) {
+				setPreviewUrl(URL.createObjectURL(selectedFile));
+			} else {
+				setPreviewUrl(null);
+			}
 		}
 
 		const arrayBuffer = await selectedFile.arrayBuffer();
@@ -174,14 +170,16 @@ export function MobileDocumentUpload({
 		const binaryString = charArray.join('');
 		const base64 = btoa(binaryString);
 
-		setUploadState('reading');
+		if (!skipEarlyState) {
+			setUploadState('reading');
+		}
 
 		if (type === 'identity') {
 			const result = await analyzeIdentityDocument(base64, selectedFile.type);
 			if (!result.success) {
+				setFile(selectedFile);
 				setErrorMessage(result.error);
 				setUploadState('error');
-				closeCamera();
 				notifications.show({
 					title: 'Processing Failed',
 					message: result.error,
@@ -189,8 +187,8 @@ export function MobileDocumentUpload({
 				});
 				return;
 			}
+			setFile(selectedFile);
 			setUploadState('ready');
-			closeCamera();
 			const uploadResult: DocumentUploadResult<'identity'> = {
 				file: selectedFile,
 				base64,
@@ -206,9 +204,9 @@ export function MobileDocumentUpload({
 				applicantName
 			);
 			if (!result.success) {
+				setFile(selectedFile);
 				setErrorMessage(result.error);
 				setUploadState('error');
-				closeCamera();
 				notifications.show({
 					title: 'Processing Failed',
 					message: result.error,
@@ -216,8 +214,8 @@ export function MobileDocumentUpload({
 				});
 				return;
 			}
+			setFile(selectedFile);
 			setUploadState('ready');
-			closeCamera();
 			const uploadResult: DocumentUploadResult<'certificate'> = {
 				file: selectedFile,
 				base64,
@@ -228,9 +226,9 @@ export function MobileDocumentUpload({
 		} else {
 			const result = await analyzeDocument(base64, selectedFile.type);
 			if (!result.success) {
+				setFile(selectedFile);
 				setErrorMessage(result.error);
 				setUploadState('error');
-				closeCamera();
 				notifications.show({
 					title: 'Processing Failed',
 					message: result.error,
@@ -238,14 +236,18 @@ export function MobileDocumentUpload({
 				});
 				return;
 			}
+			setFile(selectedFile);
 			setUploadState('ready');
-			closeCamera();
 			(onUploadComplete as (r: DocumentUploadResult<'any'>) => void)({
 				file: selectedFile,
 				base64,
 				analysis: result.data,
 			});
 		}
+	}
+
+	async function handleCameraCapture(capturedFile: File) {
+		await processFile(capturedFile, true);
 	}
 
 	function handleConfirm() {
@@ -272,13 +274,9 @@ export function MobileDocumentUpload({
 	function handleFileChange(event: React.ChangeEvent<HTMLInputElement>) {
 		const files = event.target.files;
 		if (files && files.length > 0) {
-			processFile(files[0]);
+			processFile(files[0], false);
 		}
 		event.target.value = '';
-	}
-
-	function handleCameraCapture(capturedFile: File) {
-		processFile(capturedFile, true);
 	}
 
 	function handleGalleryClick() {
@@ -293,7 +291,6 @@ export function MobileDocumentUpload({
 		setUploadState('idle');
 		setErrorMessage(null);
 		setPreviewUrl(null);
-		setIsFromCamera(false);
 		onRemove?.();
 	}
 
@@ -346,13 +343,6 @@ export function MobileDocumentUpload({
 	if (file) {
 		return (
 			<>
-				<CameraModal
-					opened={cameraOpened || (isFromCamera && uploadState === 'reading')}
-					onClose={closeCamera}
-					onCapture={handleCameraCapture}
-					isAnalyzing={isFromCamera && uploadState === 'reading'}
-					capturedImageUrl={previewUrl}
-				/>
 				<IdentityConfirmationModal
 					opened={confirmModalOpened && type === 'identity'}
 					onClose={handleCancelConfirm}
@@ -420,11 +410,6 @@ export function MobileDocumentUpload({
 
 	return (
 		<Paper withBorder radius='md' p='md'>
-			<CameraModal
-				opened={cameraOpened}
-				onClose={closeCamera}
-				onCapture={handleCameraCapture}
-			/>
 			<Stack gap='md'>
 				<Stack gap={4} ta='center'>
 					<ThemeIcon
@@ -457,17 +442,21 @@ export function MobileDocumentUpload({
 						</Button>
 					</Grid.Col>
 					<Grid.Col span={7}>
-						<Button
-							fullWidth
-							variant='light'
-							size='md'
-							leftSection={<IconCamera size={'1rem'} />}
-							onClick={openCamera}
-							disabled={disabled || isProcessing}
-							loading={isProcessing}
-						>
-							Camera
-						</Button>
+						<CameraCapture onCapture={handleCameraCapture} disabled={disabled}>
+							{({ openCamera, isProcessing: cameraProcessing }) => (
+								<Button
+									fullWidth
+									variant='light'
+									size='md'
+									leftSection={<IconCamera size={'1rem'} />}
+									onClick={openCamera}
+									disabled={disabled || isProcessing || cameraProcessing}
+									loading={cameraProcessing}
+								>
+									Camera
+								</Button>
+							)}
+						</CameraCapture>
 					</Grid.Col>
 				</Grid>
 

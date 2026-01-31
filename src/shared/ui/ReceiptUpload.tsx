@@ -18,7 +18,6 @@ import {
 	IMAGE_MIME_TYPE,
 	MIME_TYPES,
 } from '@mantine/dropzone';
-import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import {
 	IconCamera,
@@ -34,7 +33,7 @@ import {
 	analyzeReceipt,
 	type ReceiptResult,
 } from '@/core/integrations/ai/documents';
-import { CameraModal } from './CameraModal';
+import { CameraCapture } from './CameraModal';
 
 export type UploadState = 'idle' | 'uploading' | 'reading' | 'ready' | 'error';
 
@@ -81,8 +80,6 @@ export function ReceiptUpload({
 	const [file, setFile] = useState<File | null>(null);
 	const [uploadState, setUploadState] = useState<UploadState>('idle');
 	const [errorMessage, setErrorMessage] = useState<string | null>(null);
-	const [cameraOpened, { open: openCamera, close: closeCamera }] =
-		useDisclosure(false);
 	const galleryInputRef = useRef<HTMLInputElement>(null);
 
 	async function processFile(selectedFile: File) {
@@ -170,8 +167,8 @@ export function ReceiptUpload({
 		event.target.value = '';
 	}
 
-	function handleCameraCapture(capturedFile: File) {
-		processFile(capturedFile);
+	async function handleCameraCapture(capturedFile: File) {
+		await processFile(capturedFile);
 	}
 
 	function handleGalleryClick() {
@@ -272,11 +269,6 @@ export function ReceiptUpload({
 	if (variant === 'mobile') {
 		return (
 			<Paper withBorder radius='md' p='md'>
-				<CameraModal
-					opened={cameraOpened}
-					onClose={closeCamera}
-					onCapture={handleCameraCapture}
-				/>
 				<Stack gap='md'>
 					<Stack gap={4} ta='center'>
 						<ThemeIcon
@@ -297,16 +289,20 @@ export function ReceiptUpload({
 					</Stack>
 
 					<SimpleGrid cols={2} spacing='sm'>
-						<Button
-							variant='light'
-							size='lg'
-							leftSection={<IconCamera size={20} />}
-							onClick={openCamera}
-							disabled={disabled || isProcessing}
-							loading={isProcessing}
-						>
-							Camera
-						</Button>
+						<CameraCapture onCapture={handleCameraCapture} disabled={disabled}>
+							{({ openCamera, isProcessing: cameraProcessing }) => (
+								<Button
+									variant='light'
+									size='lg'
+									leftSection={<IconCamera size={20} />}
+									onClick={openCamera}
+									disabled={disabled || isProcessing || cameraProcessing}
+									loading={cameraProcessing}
+								>
+									Camera
+								</Button>
+							)}
+						</CameraCapture>
 						<Button
 							variant='light'
 							size='lg'
