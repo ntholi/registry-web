@@ -174,13 +174,19 @@ function filterRecognizedRecords(
 	records: AcademicRecord[],
 	recognizedSchools: RecognizedSchool[]
 ) {
-	const recognizedSet = new Set(
-		recognizedSchools.map((school) => normalizeSchoolName(school.name))
+	const normalizedRecognized = recognizedSchools.map((school) =>
+		normalizeSchoolName(school.name)
 	);
-	if (recognizedSet.size === 0) return [];
-	return records.filter((record) =>
-		recognizedSet.has(normalizeSchoolName(record.institutionName))
-	);
+	if (normalizedRecognized.length === 0) return [];
+
+	return records.filter((record) => {
+		const normalizedRecord = normalizeSchoolName(record.institutionName);
+		return normalizedRecognized.some(
+			(recognized) =>
+				normalizedRecord === recognized ||
+				normalizedRecord.startsWith(recognized)
+		);
+	});
 }
 
 function meetsSubjectGradeRule(
