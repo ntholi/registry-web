@@ -4,10 +4,9 @@ import { Box, Group, Loader, Modal, Stack, Text } from '@mantine/core';
 import imageCompression from 'browser-image-compression';
 import { useRef, useState } from 'react';
 
-type AnalyzingState = {
-	isAnalyzing: boolean;
+type CaptureState = {
+	phase: 'idle' | 'camera-open' | 'compressing' | 'analyzing';
 	previewUrl: string | null;
-	stage: 'compressing' | 'analyzing';
 };
 
 type Props = {
@@ -28,26 +27,29 @@ const COMPRESSION_OPTIONS = {
 
 export function CameraCapture({ onCapture, disabled, children }: Props) {
 	const inputRef = useRef<HTMLInputElement>(null);
-	const [state, setState] = useState<AnalyzingState>({
-		isAnalyzing: false,
+	const [state, setState] = useState<CaptureState>({
+		phase: 'idle',
 		previewUrl: null,
-		stage: 'compressing',
 	});
 
 	function openCamera() {
 		if (disabled) return;
+		setState({ phase: 'camera-open', previewUrl: null });
 		inputRef.current?.click();
 	}
 
 	async function handleFileChange(event: React.ChangeEvent<HTMLInputElement>) {
 		const files = event.target.files;
-		if (!files || files.length === 0) return;
+		if (!files || files.length === 0) {
+			setState({ phase: 'idle', previewUrl: null });
+			return;
+		}
 
 		const file = files[0];
 		event.target.value = '';
 
 		const previewUrl = URL.createObjectURL(file);
-		setState({ isAnalyzing: true, previewUrl, stage: 'compressing' });
+		setState({ phase: 'compressing', previewUrl });
 
 		const compressedFile = await imageCompression(file, COMPRESSION_OPTIONS);
 		const renamedFile = new File(
@@ -58,25 +60,36 @@ export function CameraCapture({ onCapture, disabled, children }: Props) {
 			}
 		);
 
-		setState((prev) => ({ ...prev, stage: 'analyzing' }));
+		setState((prev) => ({ ...prev, phase: 'analyzing' }));
 
 		await onCapture(renamedFile);
 
 		URL.revokeObjectURL(previewUrl);
-		setState({ isAnalyzing: false, previewUrl: null, stage: 'compressing' });
+		setState({ phase: 'idle', previewUrl: null });
 	}
 
 	function handleClose() {
 		if (state.previewUrl) {
 			URL.revokeObjectURL(state.previewUrl);
 		}
-		setState({ isAnalyzing: false, previewUrl: null, stage: 'compressing' });
+		setState({ phase: 'idle', previewUrl: null });
 	}
 
+	function handleInputBlur() {
+		setTimeout(() => {
+			if (state.phase === 'camera-open') {
+				setState({ phase: 'idle', previewUrl: null });
+			}
+		}, 300);
+	}
+
+	const isOpen = state.phase !== 'idle';
 	const stageMessage =
-		state.stage === 'compressing'
-			? 'Compressing image...'
-			: 'Analyzing document...';
+		state.phase === 'camera-open'
+			? 'Opening camera...'
+			: state.phase === 'compressing'
+				? 'Compressing image...'
+				: 'Analyzing document...';
 
 	return (
 		<>
@@ -86,26 +99,28 @@ export function CameraCapture({ onCapture, disabled, children }: Props) {
 				accept='image/*'
 				capture='environment'
 				onChange={handleFileChange}
+				onBlur={handleInputBlur}
 				style={{ display: 'none' }}
 			/>
-			{children({ openCamera, isProcessing: state.isAnalyzing })}
+			{children({ openCamera, isProcessing: isOpen })}
 			<Modal
-				opened={state.isAnalyzing}
+				opened={isOpen}
 				onClose={handleClose}
 				title='Analyzing Document'
 				fullScreen
 				closeOnClickOutside={false}
 				closeOnEscape={false}
 				withCloseButton={false}
+				transitionProps={{ duration: 0 }}
 				styles={{
 					body: { padding: 0, height: 'calc(100vh - 60px)' },
 					content: { display: 'flex', flexDirection: 'column' },
 				}}
 			>
 				<Stack gap={0} h='100%'>
-					{state.previewUrl && (
-						<>
-							<Box pos='relative' flex={1} style={{ overflow: 'hidden' }}>
+					<Box pos='relative' flex={1} style={{ overflow: 'hidden' }}>
+						{state.previewUrl ? (
+							<>
 								<Box
 									component='img'
 									src={state.previewUrl}
@@ -128,28 +143,40 @@ export function CameraCapture({ onCapture, disabled, children }: Props) {
 										animation: 'scanLine 2s ease-in-out infinite',
 									}}
 								/>
-							</Box>
-							<Group
-								justify='center'
-								p='lg'
-								bg='dark.7'
-								style={{ position: 'absolute', bottom: 0, left: 0, right: 0 }}
-							>
-								<Stack gap='xs' align='center'>
-									<Loader type='dots' color='cyan' size='md' />
-									<Text size='sm' fw={500}>
-										{stageMessage}
-									</Text>
-								</Stack>
-							</Group>
-							<style>{`
-								@keyframes scanLine {
-									0%, 100% { top: 0%; }
-									50% { top: calc(100% - 2px); }
-								}
-							`}</style>
-						</>
-					)}
+							</>
+						) : (
+							<Box
+								h='100%'
+								bg='dark.8'
+								style={{
+									display: 'flex',
+									alignItems: 'center',
+									justifyContent: 'center',
+								}}
+							/>
+						)}
+					</Box>
+					<Group
+						justify='center'
+						p='lg'
+						bg='dark.7'
+						style={{ position: 'absolute', bottom: 0, left: 0, right: 0 }}
+					>
+						<Stack gap='xs' align='center'>
+							{state.phase !== 'camera-open' && (
+								<Loader type='dots' color='cyan' size='md' />
+							)}
+							<Text size='sm'>
+								{stageMessage}
+							</Text>
+						</Stack>
+					</Group>
+					<style>{`
+						@keyframes scanLine {
+							0%, 100% { top: 0%; }
+							50% { top: calc(100% - 2px); }
+						}
+					`}</style>
 				</Stack>
 			</Modal>
 		</>
