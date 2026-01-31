@@ -2,6 +2,7 @@ import './env-load';
 import { seedCertificateTypes } from './seeds/certificate-types';
 import { seedEntryRequirements } from './seeds/entry-requirements';
 import { seedGradeMappings } from './seeds/grade-mappings';
+import { seedRecognizedSchools } from './seeds/recognized-schools';
 import { seedSchools } from './seeds/schools';
 import { seedSubjects } from './seeds/subjects';
 
@@ -10,6 +11,7 @@ async function main() {
 
 	try {
 		await seedSubjects();
+		await seedRecognizedSchools();
 		await seedCertificateTypes();
 		await seedGradeMappings();
 		await seedEntryRequirements();

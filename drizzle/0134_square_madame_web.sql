@@ -1,0 +1,1 @@
+ALTER TABLE "recognized_schools" ADD CONSTRAINT "recognized_schools_name_unique" UNIQUE("name");

@@ -27,7 +27,7 @@ export default function RecognizedSchoolForm({
 			action={onSubmit}
 			queryKey={['recognized-schools']}
 			schema={createInsertSchema(recognizedSchools)}
-			defaultValues={defaultValues}
+			defaultValues={{ isActive: true, ...defaultValues }}
 			onSuccess={({ id }) =>
 				router.push(`/admissions/recognized-schools/${id}`)
 			}
