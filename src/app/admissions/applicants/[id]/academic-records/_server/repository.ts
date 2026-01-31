@@ -66,8 +66,11 @@ export default class AcademicRecordRepository extends BaseRepository<
 				.returning();
 
 			if (grades && grades.length > 0) {
+				const unique = [
+					...new Map(grades.map((g) => [g.subjectId, g])).values(),
+				];
 				await tx.insert(subjectGrades).values(
-					grades.map((g) => ({
+					unique.map((g) => ({
 						academicRecordId: record.id,
 						subjectId: g.subjectId,
 						originalGrade: g.originalGrade,
@@ -108,8 +111,11 @@ export default class AcademicRecordRepository extends BaseRepository<
 					.where(eq(subjectGrades.academicRecordId, id));
 
 				if (grades.length > 0) {
+					const unique = [
+						...new Map(grades.map((g) => [g.subjectId, g])).values(),
+					];
 					await tx.insert(subjectGrades).values(
-						grades.map((g) => ({
+						unique.map((g) => ({
 							academicRecordId: id,
 							subjectId: g.subjectId,
 							originalGrade: g.originalGrade,
