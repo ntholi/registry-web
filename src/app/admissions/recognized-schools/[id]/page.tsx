@@ -16,7 +16,7 @@ type Props = {
 
 export default async function RecognizedSchoolDetails({ params }: Props) {
 	const { id } = await params;
-	const item = await getRecognizedSchool(Number(id));
+	const item = await getRecognizedSchool(id);
 
 	if (!item) {
 		return notFound();
@@ -29,7 +29,7 @@ export default async function RecognizedSchoolDetails({ params }: Props) {
 				queryKey={['recognized-schools']}
 				handleDelete={async () => {
 					'use server';
-					await deleteRecognizedSchool(Number(id));
+					await deleteRecognizedSchool(id);
 				}}
 			/>
 			<DetailsViewBody>

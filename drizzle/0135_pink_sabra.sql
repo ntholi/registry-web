@@ -1,0 +1,1 @@
+ALTER TABLE "recognized_schools" ALTER COLUMN "id" SET DATA TYPE text;

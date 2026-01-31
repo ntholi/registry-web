@@ -166,7 +166,7 @@ export function CameraCapture({ onCapture, disabled, children }: Props) {
 					justify='center'
 					p='lg'
 					style={{
-						background: 'rgba(36, 36, 36, 0.7)',
+						background: 'rgba(36, 36, 36, 0.8)',
 						position: 'absolute',
 						bottom: 0,
 						left: 0,

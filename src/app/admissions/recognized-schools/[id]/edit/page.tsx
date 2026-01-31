@@ -12,7 +12,7 @@ type Props = {
 
 export default async function RecognizedSchoolEdit({ params }: Props) {
 	const { id } = await params;
-	const item = await getRecognizedSchool(Number(id));
+	const item = await getRecognizedSchool(id);
 	if (!item) {
 		return notFound();
 	}
@@ -24,7 +24,7 @@ export default async function RecognizedSchoolEdit({ params }: Props) {
 				defaultValues={item}
 				onSubmit={async (value) => {
 					'use server';
-					return await updateRecognizedSchool(Number(id), value);
+					return await updateRecognizedSchool(id, value);
 				}}
 			/>
 		</Box>

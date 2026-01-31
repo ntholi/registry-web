@@ -87,7 +87,7 @@ function createProgram(
 
 function createRecognizedSchool(name: string): RecognizedSchool {
 	return {
-		id: 1,
+		id: '1',
 		name,
 		isActive: true,
 		createdAt: new Date(),

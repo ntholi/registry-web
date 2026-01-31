@@ -5,7 +5,7 @@ import { recognizedSchoolsService } from './service';
 
 type RecognizedSchool = typeof recognizedSchools.$inferInsert;
 
-export async function getRecognizedSchool(id: number) {
+export async function getRecognizedSchool(id: string) {
 	return recognizedSchoolsService.get(id);
 }
 
@@ -22,13 +22,13 @@ export async function createRecognizedSchool(data: RecognizedSchool) {
 }
 
 export async function updateRecognizedSchool(
-	id: number,
+	id: string,
 	data: RecognizedSchool
 ) {
 	return recognizedSchoolsService.update(id, data);
 }
 
-export async function deleteRecognizedSchool(id: number) {
+export async function deleteRecognizedSchool(id: string) {
 	return recognizedSchoolsService.delete(id);
 }
 
