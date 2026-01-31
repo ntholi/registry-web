@@ -1,4 +1,4 @@
-import { count, eq, ilike } from 'drizzle-orm';
+import { count, eq, ilike, sql } from 'drizzle-orm';
 import { db, subjectAliases, subjectGrades, subjects } from '@/core/database';
 import BaseRepository from '@/core/platform/BaseRepository';
 
@@ -38,11 +38,15 @@ export default class SubjectRepository extends BaseRepository<
 		const existing = await this.findByName(trimmedName);
 		if (existing) return existing;
 
-		const [created] = await db
+		const [result] = await db
 			.insert(subjects)
 			.values({ name: trimmedName })
+			.onConflictDoUpdate({
+				target: subjects.name,
+				set: { updatedAt: sql`now()` },
+			})
 			.returning();
-		return created;
+		return result;
 	}
 
 	async isInUse(id: string): Promise<boolean> {
