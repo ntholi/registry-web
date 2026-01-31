@@ -26,10 +26,9 @@ import { useApplicant } from '@/app/apply/_lib/useApplicant';
 import { FieldView } from '@/shared/ui/adease/FieldView';
 import { DocumentCardSkeleton } from '@/shared/ui/DocumentCardShell';
 import {
-	MobileReceiptUpload,
+	ReceiptUpload,
 	type ReceiptUploadResult,
-} from '@/shared/ui/MobileReceiptUpload';
-import { ReceiptUpload as ReceiptDropzone } from '@/shared/ui/ReceiptUpload';
+} from '@/shared/ui/ReceiptUpload';
 import { validateSingleReceipt } from '../_server/actions';
 import { ReceiptCard, type UploadedReceipt } from './ReceiptCard';
 
@@ -230,23 +229,22 @@ export default function ReceiptUploadForm({
 				</Stack>
 			</Card>
 
-			{isMobile ? (
-				<MobileReceiptUpload
-					key={`mobile-${uploadKey}`}
-					onUploadComplete={handleUploadComplete}
-					disabled={disabled}
-					title='Upload Deposit Slip'
-					description='Bank deposit slip showing payment to Limkokwing'
-				/>
-			) : (
-				<ReceiptDropzone
-					key={uploadKey}
-					onUploadComplete={handleUploadComplete}
-					disabled={disabled}
-					title='Click to upload bank deposit slips'
-					description='Upload your bank deposit slip'
-				/>
-			)}
+			<ReceiptUpload
+				key={uploadKey}
+				onUploadComplete={handleUploadComplete}
+				disabled={disabled}
+				title={
+					isMobile
+						? 'Upload Deposit Slip'
+						: 'Click to upload bank deposit slips'
+				}
+				description={
+					isMobile
+						? 'Bank deposit slip showing payment to Limkokwing'
+						: 'Upload your bank deposit slip'
+				}
+				variant={isMobile ? 'mobile' : 'dropzone'}
+			/>
 
 			{showUploadedSection && (
 				<Stack gap='sm'>

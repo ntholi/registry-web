@@ -6,6 +6,7 @@ import {
 	Paper,
 	Progress,
 	rem,
+	SimpleGrid,
 	Stack,
 	Text,
 	ThemeIcon,
@@ -17,8 +18,10 @@ import {
 	IMAGE_MIME_TYPE,
 	MIME_TYPES,
 } from '@mantine/dropzone';
+import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import {
+	IconCamera,
 	IconFile,
 	IconFileTypePdf,
 	IconPhoto,
@@ -26,11 +29,12 @@ import {
 	IconTrash,
 	IconUpload,
 } from '@tabler/icons-react';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import {
 	analyzeReceipt,
 	type ReceiptResult,
 } from '@/core/integrations/ai/documents';
+import { CameraModal } from './CameraModal';
 
 export type UploadState = 'idle' | 'uploading' | 'reading' | 'ready' | 'error';
 
@@ -47,9 +51,11 @@ type Props = {
 	maxSize?: number;
 	title?: string;
 	description?: string;
+	variant?: 'dropzone' | 'mobile';
 };
 
 const ACCEPTED_MIME_TYPES = [...IMAGE_MIME_TYPE, MIME_TYPES.pdf];
+const ACCEPTED_FILE_TYPES = 'image/*,application/pdf';
 const MAX_FILE_SIZE = 2 * 1024 * 1024;
 
 function formatFileSize(bytes: number): string {
@@ -70,20 +76,42 @@ export function ReceiptUpload({
 	maxSize = MAX_FILE_SIZE,
 	title,
 	description,
+	variant = 'dropzone',
 }: Props) {
-	const [file, setFile] = useState<FileWithPath | null>(null);
+	const [file, setFile] = useState<File | null>(null);
 	const [uploadState, setUploadState] = useState<UploadState>('idle');
 	const [errorMessage, setErrorMessage] = useState<string | null>(null);
+	const [cameraOpened, { open: openCamera, close: closeCamera }] =
+		useDisclosure(false);
+	const galleryInputRef = useRef<HTMLInputElement>(null);
 
-	async function handleDrop(dropped: FileWithPath[]) {
-		if (dropped.length === 0) return;
+	async function processFile(selectedFile: File) {
+		if (selectedFile.size > maxSize) {
+			notifications.show({
+				title: 'File too large',
+				message: `Please upload a file under ${formatFileSize(maxSize)}`,
+				color: 'red',
+			});
+			return;
+		}
 
-		const droppedFile = dropped[0];
-		setFile(droppedFile);
+		const isValidType =
+			selectedFile.type.startsWith('image/') ||
+			selectedFile.type === 'application/pdf';
+		if (!isValidType) {
+			notifications.show({
+				title: 'Invalid file type',
+				message: 'Please upload a PDF or image file',
+				color: 'red',
+			});
+			return;
+		}
+
+		setFile(selectedFile);
 		setUploadState('uploading');
 		setErrorMessage(null);
 
-		const arrayBuffer = await droppedFile.arrayBuffer();
+		const arrayBuffer = await selectedFile.arrayBuffer();
 		const uint8Array = new Uint8Array(arrayBuffer);
 		const charArray = Array.from(uint8Array, (byte) =>
 			String.fromCharCode(byte)
@@ -93,7 +121,7 @@ export function ReceiptUpload({
 
 		setUploadState('reading');
 
-		const result = await analyzeReceipt(base64, droppedFile.type);
+		const result = await analyzeReceipt(base64, selectedFile.type);
 		if (!result.success) {
 			setErrorMessage(result.error);
 			setUploadState('error');
@@ -106,10 +134,15 @@ export function ReceiptUpload({
 		}
 		setUploadState('ready');
 		onUploadComplete({
-			file: droppedFile,
+			file: selectedFile,
 			base64,
 			analysis: result.data,
 		});
+	}
+
+	async function handleDrop(dropped: FileWithPath[]) {
+		if (dropped.length === 0) return;
+		await processFile(dropped[0]);
 	}
 
 	function handleReject(_rejections: FileRejection[]) {
@@ -127,6 +160,22 @@ export function ReceiptUpload({
 		setUploadState('idle');
 		setErrorMessage(null);
 		onRemove?.();
+	}
+
+	function handleFileChange(event: React.ChangeEvent<HTMLInputElement>) {
+		const files = event.target.files;
+		if (files && files.length > 0) {
+			processFile(files[0]);
+		}
+		event.target.value = '';
+	}
+
+	function handleCameraCapture(capturedFile: File) {
+		processFile(capturedFile);
+	}
+
+	function handleGalleryClick() {
+		galleryInputRef.current?.click();
 	}
 
 	function getFileIcon() {
@@ -203,7 +252,7 @@ export function ReceiptUpload({
 						</Text>
 					)}
 
-					{!isProcessing && uploadState === 'error' && (
+					{!isProcessing && (
 						<Button
 							variant='light'
 							color='red'
@@ -215,6 +264,67 @@ export function ReceiptUpload({
 							Remove File
 						</Button>
 					)}
+				</Stack>
+			</Paper>
+		);
+	}
+
+	if (variant === 'mobile') {
+		return (
+			<Paper withBorder radius='md' p='md'>
+				<CameraModal
+					opened={cameraOpened}
+					onClose={closeCamera}
+					onCapture={handleCameraCapture}
+				/>
+				<Stack gap='md'>
+					<Stack gap={4} ta='center'>
+						<ThemeIcon
+							variant='light'
+							size={60}
+							radius='md'
+							color='var(--mantine-color-dimmed)'
+							mx='auto'
+						>
+							<IconReceipt size={32} stroke={1.5} />
+						</ThemeIcon>
+						<Text size='md' fw={500}>
+							{title ?? 'Upload Receipt'}
+						</Text>
+						<Text size='sm' c='dimmed'>
+							{description ?? `PDF or images • Max ${formatFileSize(maxSize)}`}
+						</Text>
+					</Stack>
+
+					<SimpleGrid cols={2} spacing='sm'>
+						<Button
+							variant='light'
+							size='lg'
+							leftSection={<IconCamera size={20} />}
+							onClick={openCamera}
+							disabled={disabled || isProcessing}
+							loading={isProcessing}
+						>
+							Camera
+						</Button>
+						<Button
+							variant='light'
+							size='lg'
+							leftSection={<IconPhoto size={20} />}
+							onClick={handleGalleryClick}
+							disabled={disabled || isProcessing}
+						>
+							Gallery
+						</Button>
+					</SimpleGrid>
+
+					<input
+						ref={galleryInputRef}
+						type='file'
+						accept={ACCEPTED_FILE_TYPES}
+						onChange={handleFileChange}
+						style={{ display: 'none' }}
+					/>
 				</Stack>
 			</Paper>
 		);
