@@ -346,6 +346,7 @@ Scoring guide:
 		const { output } = await generateText({
 			model,
 			system: SYSTEM_PROMPT,
+			tools: { code_execution: google.tools.codeExecution({}) },
 			output: Output.object({
 				schema: academicSchema,
 				name: 'AcademicDocument',

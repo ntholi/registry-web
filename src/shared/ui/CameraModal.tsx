@@ -166,7 +166,7 @@ export function CameraCapture({ onCapture, disabled, children }: Props) {
 							{state.phase !== 'camera-open' && (
 								<Loader type='dots' color='cyan' size='md' />
 							)}
-							<Text size='sm'>
+							<Text size='xs'>
 								{stageMessage}
 							</Text>
 						</Stack>
