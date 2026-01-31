@@ -155,19 +155,6 @@ export function CameraCapture({ onCapture, disabled, children }: Props) {
 							/>
 						)}
 					</Box>
-					<Group
-						justify='center'
-						p='lg'
-						bg='dark.7'
-						style={{ position: 'absolute', bottom: 0, left: 0, right: 0 }}
-					>
-						<Stack gap='xs' align='center'>
-							{state.phase !== 'camera-open' && (
-								<Loader type='dots' color='cyan' size='md' />
-							)}
-							<Text size='xs'>{stageMessage}</Text>
-						</Stack>
-					</Group>
 					<style>{`
 						@keyframes scanLine {
 							0%, 100% { top: 0%; }
@@ -175,6 +162,24 @@ export function CameraCapture({ onCapture, disabled, children }: Props) {
 						}
 					`}</style>
 				</Stack>
+				<Group
+					justify='center'
+					p='lg'
+					style={{
+						background: 'rgba(36, 36, 36, 0.7)',
+						position: 'absolute',
+						bottom: 0,
+						left: 0,
+						right: 0,
+					}}
+				>
+					<Stack gap='xs' align='center'>
+						{state.phase !== 'camera-open' && (
+							<Loader type='dots' color='cyan' size='md' />
+						)}
+						<Text size='xs'>{stageMessage}</Text>
+					</Stack>
+				</Group>
 			</Modal>
 		</>
 	);
