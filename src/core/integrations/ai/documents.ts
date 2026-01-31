@@ -499,10 +499,9 @@ Scoring guide:
 				cause: error.cause,
 				text: error.text,
 			});
-			return {
-				success: false,
-				error: `Failed to extract structured data from academic document: ${error.cause}`,
-			};
+
+			const friendlyMessage = getAcademicDocumentErrorMessage(error);
+			return { success: false, error: friendlyMessage };
 		}
 		return {
 			success: false,
@@ -510,6 +509,30 @@ Scoring guide:
 				error instanceof Error ? error.message : 'An unexpected error occurred',
 		};
 	}
+}
+
+function getAcademicDocumentErrorMessage(
+	error: NoObjectGeneratedError
+): string {
+	const cause = error.cause;
+	if (cause && typeof cause === 'object' && 'issues' in cause) {
+		const zodError = cause as {
+			issues: Array<{ path: string[]; message: string }>;
+		};
+		const subjectsIssue = zodError.issues.find((i) =>
+			i.path.includes('subjects')
+		);
+		if (subjectsIssue) {
+			return 'Could not extract subjects from this document. Please ensure you upload a clear image of an academic results slip, transcript, or certificate that shows individual subjects and grades.';
+		}
+		const unreadableIssue = zodError.issues.find((i) =>
+			i.path.includes('unreadableGrades')
+		);
+		if (unreadableIssue) {
+			return 'Some grades on this document are unclear. Please upload a higher quality image where all grades are clearly visible.';
+		}
+	}
+	return 'Could not analyze this academic document. Please ensure the image is clear and shows a valid academic certificate, results slip, or transcript.';
 }
 
 const RECEIPT_PROMPT = `Analyze this bank deposit slip or proof of payment document.
