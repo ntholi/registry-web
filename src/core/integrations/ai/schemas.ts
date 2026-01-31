@@ -82,6 +82,12 @@ const academicSchema = z
 			.describe(
 				'Certificate standard: LGCSE, COSC, IGCSE, NSC, GCE O-Level, GCE AS Level, GCE A-Level, Certificate, Diploma, Degree'
 			),
+		qualificationName: z
+			.string()
+			.nullable()
+			.describe(
+				'Full title of the qualification for diplomas/degrees (e.g., "Diploma in Tourism Management", "BA in Tourism Management"). Only applicable for diploma, degree, or certificate completion documents.'
+			),
 		lqfLevel: z
 			.number()
 			.nullable()

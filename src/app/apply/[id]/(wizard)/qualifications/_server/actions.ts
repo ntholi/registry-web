@@ -67,6 +67,7 @@ export async function uploadCertificateDocument(
 					certificateNumber: analysis.certificateNumber,
 					subjects: analysis.subjects,
 					overallClassification: analysis.overallClassification,
+					qualificationName: analysis.qualificationName,
 				},
 				savedDoc?.id
 			);

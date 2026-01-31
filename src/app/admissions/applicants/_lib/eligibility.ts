@@ -159,10 +159,11 @@ function meetsClassificationRule(
 	);
 	if (relevant.length === 0) return false;
 	const best = getBestClassification(relevant);
-	if (!best) return false;
+	const effectiveBest = best ?? 'Pass';
 	const minimum = rules.minimumClassification ?? 'Pass';
 	return (
-		(classificationRanks[best] ?? -1) >= (classificationRanks[minimum] ?? -1)
+		(classificationRanks[effectiveBest] ?? -1) >=
+		(classificationRanks[minimum] ?? -1)
 	);
 }
 
