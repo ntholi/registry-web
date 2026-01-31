@@ -1,7 +1,9 @@
 'use server';
 
+import { getApplicant } from '@admissions/applicants';
 import {
 	deleteApplicantDocument,
+	findDocumentsByType,
 	saveApplicantDocument,
 	updateApplicantFromIdentity,
 } from '@admissions/applicants/[id]/documents/_server/actions';
@@ -15,12 +17,38 @@ const MAX_FILE_SIZE = 2 * 1024 * 1024;
 
 type UploadResult = { fileName: string; analysis: IdentityDocumentResult };
 
+async function hasValidIdentityDocument(
+	applicantId: string
+): Promise<ActionResult<boolean>> {
+	const applicant = await getApplicant(applicantId);
+	if (!applicant) {
+		return { success: false, error: 'Applicant not found' };
+	}
+	const docs = await findDocumentsByType(applicantId, 'identity');
+	const hasIdentityDoc = docs.some((doc) => doc.document.fileUrl);
+	const hasIdentityData = Boolean(
+		applicant.nationalId || applicant.dateOfBirth
+	);
+	return { success: true, data: hasIdentityDoc && hasIdentityData };
+}
+
 export async function uploadIdentityDocument(
 	applicantId: string,
 	file: File,
 	analysis: IdentityDocumentResult
 ): Promise<ActionResult<UploadResult>> {
 	try {
+		const locked = await hasValidIdentityDocument(applicantId);
+		if (!locked.success) {
+			return { success: false, error: locked.error };
+		}
+		if (locked.data) {
+			return {
+				success: false,
+				error: 'A valid identity document is already attached',
+			};
+		}
+
 		if (file.size > MAX_FILE_SIZE) {
 			return { success: false, error: 'File size exceeds 2MB limit' };
 		}
@@ -57,10 +85,22 @@ export async function uploadIdentityDocument(
 }
 
 export async function removeIdentityDocument(
+	applicantId: string,
 	id: string,
 	fileUrl: string
 ): Promise<ActionResult<void>> {
 	try {
+		const locked = await hasValidIdentityDocument(applicantId);
+		if (!locked.success) {
+			return { success: false, error: locked.error };
+		}
+		if (locked.data) {
+			return {
+				success: false,
+				error: 'Valid identity documents cannot be removed',
+			};
+		}
+
 		await deleteApplicantDocument(id, fileUrl);
 		return { success: true, data: undefined };
 	} catch (error) {

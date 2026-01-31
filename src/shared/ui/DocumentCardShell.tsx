@@ -18,9 +18,10 @@ type Props = {
 	title: string;
 	badge?: ReactNode;
 	children: ReactNode;
-	onDelete: () => Promise<void>;
+	onDelete?: () => Promise<void>;
 	deleting?: boolean;
 	deleteMessage?: string;
+	canDelete?: boolean;
 	onClick?: () => void;
 };
 
@@ -33,8 +34,11 @@ export function DocumentCardShell({
 	onDelete,
 	deleting,
 	deleteMessage = 'Are you sure you want to delete this item? This action cannot be undone.',
+	canDelete = true,
 	onClick,
 }: Props) {
+	const showDelete = canDelete && Boolean(onDelete);
+
 	return (
 		<Card
 			withBorder
@@ -58,16 +62,18 @@ export function DocumentCardShell({
 							{badge}
 						</Stack>
 					</Group>
-					<Box onClick={(e) => e.stopPropagation()}>
-						<DeleteButton
-							handleDelete={onDelete}
-							message={deleteMessage}
-							variant='subtle'
-							disabled={deleting}
-							typedConfirmation={false}
-							onSuccess={() => {}}
-						/>
-					</Box>
+					{showDelete && (
+						<Box onClick={(e) => e.stopPropagation()}>
+							<DeleteButton
+								handleDelete={onDelete!}
+								message={deleteMessage}
+								variant='subtle'
+								disabled={deleting}
+								typedConfirmation={false}
+								onSuccess={() => {}}
+							/>
+						</Box>
+					)}
 				</Group>
 				{children}
 			</Stack>

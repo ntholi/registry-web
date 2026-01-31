@@ -44,6 +44,7 @@ export default function IdentityUploadForm({ applicationId }: Props) {
 	const hasIdentity =
 		identityDocs.length > 0 &&
 		(applicant?.nationalId || applicant?.dateOfBirth);
+	const isIdentityLocked = hasIdentity;
 
 	const uploadedDocs: UploadedIdentityDoc[] = hasIdentity
 		? identityDocs.map((doc) => ({
@@ -96,7 +97,7 @@ export default function IdentityUploadForm({ applicationId }: Props) {
 
 	async function handleDelete(id: string, fileUrl?: string | null) {
 		if (!fileUrl) return;
-		const res = await removeIdentityDocument(id, fileUrl);
+		const res = await removeIdentityDocument(applicantId, id, fileUrl);
 		if (!res.success) {
 			notifications.show({
 				title: 'Delete failed',
@@ -113,12 +114,14 @@ export default function IdentityUploadForm({ applicationId }: Props) {
 	}
 
 	const showUploadedSection = uploadedDocs.length > 0 || pendingUploads > 0;
-	const uploadDisabled =
+	const uploadDisabled = Boolean(
 		isLoading ||
-		!applicantId ||
-		uploading ||
-		documentLimits.isAtLimit ||
-		pendingUploads > 0;
+			!applicantId ||
+			uploading ||
+			documentLimits.isAtLimit ||
+			isIdentityLocked ||
+			pendingUploads > 0
+	);
 
 	return (
 		<Paper withBorder radius='md' p='lg'>
@@ -183,6 +186,7 @@ export default function IdentityUploadForm({ applicationId }: Props) {
 									key={doc.id}
 									doc={doc}
 									onDelete={() => handleDelete(doc.id, doc.fileUrl)}
+									canDelete={!isIdentityLocked}
 								/>
 							))}
 							{Array.from({ length: pendingUploads }).map((_, i) => (

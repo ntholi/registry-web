@@ -21,15 +21,22 @@ type Props = {
 	doc: UploadedIdentityDoc;
 	onDelete: () => Promise<void>;
 	deleting?: boolean;
+	canDelete?: boolean;
 };
 
-export function IdentityDocumentCard({ doc, onDelete, deleting }: Props) {
+export function IdentityDocumentCard({
+	doc,
+	onDelete,
+	deleting,
+	canDelete = true,
+}: Props) {
 	return (
 		<DocumentCardShell
 			icon={<IconId size={20} />}
 			title='Identity Document'
 			onDelete={onDelete}
 			deleting={deleting}
+			canDelete={canDelete}
 			deleteMessage='Are you sure you want to delete this identity document? This action cannot be undone.'
 		>
 			<Stack gap={4}>
