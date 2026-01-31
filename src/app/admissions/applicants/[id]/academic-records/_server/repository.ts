@@ -56,7 +56,7 @@ export default class AcademicRecordRepository extends BaseRepository<
 		grades?: {
 			subjectId: string;
 			originalGrade: string;
-			standardGrade: StandardGrade;
+			standardGrade: StandardGrade | null;
 		}[]
 	) {
 		return db.transaction(async (tx) => {
@@ -93,7 +93,7 @@ export default class AcademicRecordRepository extends BaseRepository<
 		grades?: {
 			subjectId: string;
 			originalGrade: string;
-			standardGrade: StandardGrade;
+			standardGrade: StandardGrade | null;
 		}[]
 	) {
 		return db.transaction(async (tx) => {

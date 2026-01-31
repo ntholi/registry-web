@@ -177,16 +177,26 @@ class ApplicantService extends BaseService<typeof applicants, 'id'> {
 
 				if (!certType) continue;
 
+				const isLevel4 = certType.lqfLevel === 4;
 				const grades: AcademicRecordInput['subjectGrades'] = [];
+
 				if (result.subjects && result.subjects.length > 0) {
 					for (const sub of result.subjects) {
 						const subjectId = await resolveSubjectId(sub.name);
-						const mapped = await mapGrade(certType.id, sub.grade);
-						if (mapped) {
+						if (isLevel4) {
+							const mapped = await mapGrade(certType.id, sub.grade);
+							if (mapped) {
+								grades.push({
+									subjectId,
+									originalGrade: sub.grade,
+									standardGrade: mapped,
+								});
+							}
+						} else {
 							grades.push({
 								subjectId,
 								originalGrade: sub.grade,
-								standardGrade: mapped,
+								standardGrade: null,
 							});
 						}
 					}

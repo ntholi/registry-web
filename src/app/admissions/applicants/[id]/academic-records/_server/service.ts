@@ -41,22 +41,30 @@ class AcademicRecordService extends BaseService<typeof academicRecords, 'id'> {
 		grades?: SubjectGradeInput[]
 	) {
 		return withAuth(async () => {
-			let mappedGrades:
+			let preparedGrades:
 				| {
 						subjectId: string;
 						originalGrade: string;
-						standardGrade: StandardGrade;
+						standardGrade: StandardGrade | null;
 				  }[]
 				| undefined;
 
-			if (isLevel4 && grades && grades.length > 0) {
-				mappedGrades = await mapGradesToStandard(
-					grades,
-					data.certificateTypeId
-				);
+			if (grades && grades.length > 0) {
+				if (isLevel4) {
+					preparedGrades = await mapGradesToStandard(
+						grades,
+						data.certificateTypeId
+					);
+				} else {
+					preparedGrades = grades.map((g) => ({
+						subjectId: g.subjectId,
+						originalGrade: g.originalGrade,
+						standardGrade: null,
+					}));
+				}
 			}
 
-			return this.repo.createWithGrades(data, mappedGrades);
+			return this.repo.createWithGrades(data, preparedGrades);
 		}, ['registry', 'marketing', 'admin', 'applicant']);
 	}
 
@@ -67,22 +75,30 @@ class AcademicRecordService extends BaseService<typeof academicRecords, 'id'> {
 		grades?: SubjectGradeInput[]
 	) {
 		return withAuth(async () => {
-			let mappedGrades:
+			let preparedGrades:
 				| {
 						subjectId: string;
 						originalGrade: string;
-						standardGrade: StandardGrade;
+						standardGrade: StandardGrade | null;
 				  }[]
 				| undefined;
 
-			if (isLevel4 && grades !== undefined && data.certificateTypeId) {
-				mappedGrades =
-					grades.length > 0
-						? await mapGradesToStandard(grades, data.certificateTypeId)
-						: [];
+			if (grades !== undefined && data.certificateTypeId) {
+				if (isLevel4) {
+					preparedGrades =
+						grades.length > 0
+							? await mapGradesToStandard(grades, data.certificateTypeId)
+							: [];
+				} else {
+					preparedGrades = grades.map((g) => ({
+						subjectId: g.subjectId,
+						originalGrade: g.originalGrade,
+						standardGrade: null,
+					}));
+				}
 			}
 
-			return this.repo.updateWithGrades(id, data, mappedGrades);
+			return this.repo.updateWithGrades(id, data, preparedGrades);
 		}, ['registry', 'marketing', 'admin']);
 	}
 

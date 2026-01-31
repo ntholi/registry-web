@@ -28,7 +28,7 @@ export const subjectGrades = pgTable(
 			.references(() => subjects.id, { onDelete: 'restrict' })
 			.notNull(),
 		originalGrade: text().notNull(),
-		standardGrade: standardGradeEnum().notNull(),
+		standardGrade: standardGradeEnum(),
 	},
 	(table) => ({
 		recordSubjectUnique: unique('uq_subject_grades_record_subject').on(

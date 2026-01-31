@@ -72,17 +72,19 @@ export default function AcademicRecordsTab({ records }: Props) {
 					{
 						subject: AcademicRecordWithRelations['subjectGrades'][number]['subject'];
 						originalGrade: string;
-						standardGrade: string;
+						standardGrade: string | null;
 					}
 				>();
 
 				for (const record of group.records) {
 					for (const sg of record.subjectGrades) {
+						if (!sg.standardGrade) continue;
 						const existing = bestGrades.get(sg.subject.id);
 						const currentRank = standardGradeOrder.indexOf(sg.standardGrade);
 
 						if (
 							!existing ||
+							!existing.standardGrade ||
 							(currentRank !== -1 &&
 								currentRank <
 									standardGradeOrder.indexOf(existing.standardGrade))
@@ -197,9 +199,8 @@ export default function AcademicRecordsTab({ records }: Props) {
 			{records.length > 0 ? (
 				<Stack gap='sm'>
 					{records.map((record) => {
-						const hasGrades =
-							record.certificateType.lqfLevel === 4 &&
-							record.subjectGrades.length > 0;
+						const hasGrades = record.subjectGrades.length > 0;
+						const isLevel4 = record.certificateType.lqfLevel === 4;
 
 						return (
 							<Box key={record.id} px='md'>
@@ -285,8 +286,8 @@ export default function AcademicRecordsTab({ records }: Props) {
 													<Table.Thead>
 														<Table.Tr>
 															<Table.Th>Subject</Table.Th>
-															<Table.Th w={80}>Original</Table.Th>
 															<Table.Th w={80}>Grade</Table.Th>
+															{isLevel4 && <Table.Th w={80}>Standard</Table.Th>}
 														</Table.Tr>
 													</Table.Thead>
 													<Table.Tbody>
@@ -296,15 +297,17 @@ export default function AcademicRecordsTab({ records }: Props) {
 																<Table.Td ta='center'>
 																	{sg.originalGrade}
 																</Table.Td>
-																<Table.Td ta='center'>
-																	<Badge
-																		variant='light'
-																		size='sm'
-																		color={getGradeColor(sg.standardGrade)}
-																	>
-																		{sg.standardGrade}
-																	</Badge>
-																</Table.Td>
+																{isLevel4 && (
+																	<Table.Td ta='center'>
+																		<Badge
+																			variant='light'
+																			size='sm'
+																			color={getGradeColor(sg.standardGrade)}
+																		>
+																			{sg.standardGrade}
+																		</Badge>
+																	</Table.Td>
+																)}
 															</Table.Tr>
 														))}
 													</Table.Tbody>

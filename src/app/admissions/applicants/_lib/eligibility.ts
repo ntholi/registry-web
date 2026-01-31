@@ -65,6 +65,7 @@ function getBestSubjectGrades(records: AcademicRecord[]): GradeMap {
 	const best = new Map<string, StandardGrade>();
 	for (const record of records) {
 		for (const grade of record.subjectGrades) {
+			if (!grade.standardGrade) continue;
 			const existing = best.get(grade.subjectId);
 			if (!existing || gradeRank(grade.standardGrade) > gradeRank(existing)) {
 				best.set(grade.subjectId, grade.standardGrade);

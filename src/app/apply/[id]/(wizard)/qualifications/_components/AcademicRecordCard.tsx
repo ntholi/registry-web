@@ -12,7 +12,7 @@ import {
 export type SubjectGrade = {
 	id: string;
 	originalGrade: string;
-	standardGrade: string;
+	standardGrade: string | null;
 	subject: { id: string; name: string };
 };
 
@@ -82,7 +82,7 @@ export function AcademicRecordCard({ record, onDelete, deleting }: Props) {
 												variant='light'
 												color={getGradeColor(sg.standardGrade)}
 											>
-												{sg.standardGrade}
+												{sg.standardGrade ?? sg.originalGrade}
 											</Badge>
 										</Table.Td>
 									</Table.Tr>

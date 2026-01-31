@@ -78,6 +78,7 @@ export default function AcademicRecordsList({ applicantId, records }: Props) {
 	const createMutation = useMutation({
 		mutationFn: async (values: typeof form.values) => {
 			const isLevel4 = selectedCertType?.lqfLevel === 4;
+			const hasSubjectGrades = subjectGrades.length > 0;
 			return createAcademicRecord(
 				applicantId,
 				{
@@ -89,7 +90,7 @@ export default function AcademicRecordsList({ applicantId, records }: Props) {
 					resultClassification: values.resultClassification
 						? (values.resultClassification as (typeof resultClassificationEnum.enumValues)[number])
 						: null,
-					subjectGrades: isLevel4 ? subjectGrades : undefined,
+					subjectGrades: hasSubjectGrades ? subjectGrades : undefined,
 				},
 				isLevel4
 			);
@@ -212,14 +213,15 @@ export default function AcademicRecordsList({ applicantId, records }: Props) {
 							{record.institutionName}
 						</Text>
 
-						{record.certificateType.lqfLevel === 4 &&
-						record.subjectGrades.length > 0 ? (
+						{record.subjectGrades.length > 0 ? (
 							<Table>
 								<Table.Thead>
 									<Table.Tr>
 										<Table.Th>Subject</Table.Th>
-										<Table.Th>Original Grade</Table.Th>
-										<Table.Th>Standard Grade</Table.Th>
+										<Table.Th>Grade</Table.Th>
+										{record.certificateType.lqfLevel === 4 && (
+											<Table.Th>Standard Grade</Table.Th>
+										)}
 									</Table.Tr>
 								</Table.Thead>
 								<Table.Tbody>
@@ -227,11 +229,13 @@ export default function AcademicRecordsList({ applicantId, records }: Props) {
 										<Table.Tr key={sg.id}>
 											<Table.Td>{sg.subject.name}</Table.Td>
 											<Table.Td>{sg.originalGrade}</Table.Td>
-											<Table.Td>
-												<Badge variant='outline' size='sm'>
-													{sg.standardGrade}
-												</Badge>
-											</Table.Td>
+											{record.certificateType.lqfLevel === 4 && (
+												<Table.Td>
+													<Badge variant='outline' size='sm'>
+														{sg.standardGrade}
+													</Badge>
+												</Table.Td>
+											)}
 										</Table.Tr>
 									))}
 								</Table.Tbody>
@@ -315,10 +319,15 @@ export default function AcademicRecordsList({ applicantId, records }: Props) {
 							</>
 						)}
 
-						{selectedCertType && isLevel4 && (
+						{selectedCertType && (
 							<Stack gap='xs'>
 								<Text fw={500} size='sm'>
 									Subject Grades
+									{!isLevel4 && (
+										<Text span size='xs' c='dimmed' ml='xs'>
+											(optional - grades stored as entered)
+										</Text>
+									)}
 								</Text>
 								{subjectGrades.map((sg, index) => (
 									<Group key={index} gap='xs'>
@@ -331,15 +340,30 @@ export default function AcademicRecordsList({ applicantId, records }: Props) {
 											}
 											style={{ flex: 2 }}
 										/>
-										<Select
-											placeholder='Grade'
-											data={gradeOptions}
-											value={sg.originalGrade}
-											onChange={(v) =>
-												updateSubjectGrade(index, 'originalGrade', v || '')
-											}
-											style={{ flex: 1 }}
-										/>
+										{isLevel4 ? (
+											<Select
+												placeholder='Grade'
+												data={gradeOptions}
+												value={sg.originalGrade}
+												onChange={(v) =>
+													updateSubjectGrade(index, 'originalGrade', v || '')
+												}
+												style={{ flex: 1 }}
+											/>
+										) : (
+											<TextInput
+												placeholder='Grade (e.g., A+, 85%)'
+												value={sg.originalGrade}
+												onChange={(e) =>
+													updateSubjectGrade(
+														index,
+														'originalGrade',
+														e.currentTarget.value
+													)
+												}
+												style={{ flex: 1 }}
+											/>
+										)}
 										<ActionIcon
 											color='red'
 											variant='subtle'

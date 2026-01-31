@@ -231,9 +231,11 @@ export async function createAcademicRecordFromDocument(
 	const institutionName = data.institutionName ?? 'Unknown Institution';
 
 	let certificateTypeId: string | null = null;
+	let certLqfLevel = 4;
+
+	const { items: certTypes } = await findAllCertificateTypes(1, '');
 
 	if (data.certificateType) {
-		const { items: certTypes } = await findAllCertificateTypes(1, '');
 		const normalizedSearchType = data.certificateType.toLowerCase().trim();
 
 		const matchedType = certTypes.find((ct) => {
@@ -247,13 +249,14 @@ export async function createAcademicRecordFromDocument(
 
 		if (matchedType) {
 			certificateTypeId = matchedType.id;
+			certLqfLevel = matchedType.lqfLevel;
 		}
 	}
 
 	if (!certificateTypeId) {
-		const { items: certTypes } = await findAllCertificateTypes(1, '');
 		if (certTypes.length > 0) {
 			certificateTypeId = certTypes[0].id;
+			certLqfLevel = certTypes[0].lqfLevel;
 		} else {
 			return failure('No certificate types found in the system');
 		}
@@ -272,7 +275,7 @@ export async function createAcademicRecordFromDocument(
 		);
 	}
 
-	const isLevel4 = !!(subjectGrades && subjectGrades.length > 0);
+	const isLevel4 = certLqfLevel === 4;
 
 	if (data.certificateNumber) {
 		const existing = await findAcademicRecordByCertificateNumber(
