@@ -161,8 +161,17 @@ const academicSchema = z
 	.superRefine((value, ctx) => {
 		const subjects = value.subjects ?? [];
 		const certificateType = value.certificateType?.toLowerCase() ?? '';
+		const isCompletionCertificate =
+			certificateType.includes('diploma') ||
+			certificateType.includes('degree') ||
+			(certificateType === 'certificate' &&
+				!certificateType.includes('lgcse') &&
+				!certificateType.includes('igcse') &&
+				!certificateType.includes('nsc') &&
+				!certificateType.includes('cosc') &&
+				!certificateType.includes('gce'));
 		const needsSubjects =
-			value.documentType === 'certificate' ||
+			(value.documentType === 'certificate' && !isCompletionCertificate) ||
 			value.documentType === 'academic_record';
 
 		if (needsSubjects && subjects.length === 0) {
