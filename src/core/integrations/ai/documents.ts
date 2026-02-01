@@ -1,5 +1,3 @@
-'use server';
-
 import { getCertificateTypeByName } from '@admissions/certificate-types/_server/actions';
 import { google } from '@ai-sdk/google';
 import { generateText, NoObjectGeneratedError, Output } from 'ai';

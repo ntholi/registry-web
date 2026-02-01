@@ -23,13 +23,10 @@ import {
 	IconTrash,
 } from '@tabler/icons-react';
 import { useRef, useState } from 'react';
-import {
-	analyzeAcademicDocument,
-	analyzeDocument,
-	analyzeIdentityDocument,
-	type CertificateDocumentResult,
-	type DocumentAnalysisResult,
-	type IdentityDocumentResult,
+import type {
+	CertificateDocumentResult,
+	DocumentAnalysisResult,
+	IdentityDocumentResult,
 } from '@/core/integrations/ai/documents';
 import { CameraCapture } from '../../../shared/ui/CameraModal';
 import { CertificateConfirmationModal } from './CertificateConfirmationModal';
@@ -175,7 +172,16 @@ export function MobileDocumentUpload({
 		}
 
 		if (type === 'identity') {
-			const result = await analyzeIdentityDocument(base64, selectedFile.type);
+			const response = await fetch('/api/documents/analyze', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({
+					type: 'identity',
+					base64,
+					mediaType: selectedFile.type,
+				}),
+			});
+			const result = await response.json();
 			if (!result.success) {
 				setFile(selectedFile);
 				setErrorMessage(result.error);
@@ -197,12 +203,18 @@ export function MobileDocumentUpload({
 			setPendingResult(uploadResult as DocumentUploadResult<typeof type>);
 			openConfirmModal();
 		} else if (type === 'certificate') {
-			const result = await analyzeAcademicDocument(
-				base64,
-				selectedFile.type,
-				certificateTypes,
-				applicantName
-			);
+			const response = await fetch('/api/documents/analyze', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({
+					type: 'academic',
+					base64,
+					mediaType: selectedFile.type,
+					certificateTypes,
+					applicantName,
+				}),
+			});
+			const result = await response.json();
 			if (!result.success) {
 				setFile(selectedFile);
 				setErrorMessage(result.error);
@@ -224,7 +236,16 @@ export function MobileDocumentUpload({
 			setPendingResult(uploadResult as DocumentUploadResult<typeof type>);
 			openConfirmModal();
 		} else {
-			const result = await analyzeDocument(base64, selectedFile.type);
+			const response = await fetch('/api/documents/analyze', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({
+					type: 'any',
+					base64,
+					mediaType: selectedFile.type,
+				}),
+			});
+			const result = await response.json();
 			if (!result.success) {
 				setFile(selectedFile);
 				setErrorMessage(result.error);
