@@ -520,8 +520,7 @@ function RequirementEditor({
 								</Group>
 
 								<Text size='xs' c='dimmed'>
-									Define groups of alternative subjects (e.g., "Choose one
-									Science subject")
+									Define group of subjects an applicant can have
 								</Text>
 
 								{subjectRules.subjectGroups?.map((group, idx) => (

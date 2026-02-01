@@ -1,10 +1,16 @@
-import { Badge, Box, Group, Stack, Text, Title } from '@mantine/core';
-import { notFound } from 'next/navigation';
 import {
-	DetailsView,
-	DetailsViewBody,
-	DetailsViewHeader,
-} from '@/shared/ui/adease';
+	Badge,
+	Box,
+	CloseButton,
+	Divider,
+	Flex,
+	Group,
+	Stack,
+	Text,
+	Title,
+} from '@mantine/core';
+import { notFound } from 'next/navigation';
+import { DetailsView, DetailsViewBody } from '@/shared/ui/adease';
 import { findAllCertificateTypes } from '../../../certificate-types/_server/actions';
 import { findActiveSubjects } from '../../../subjects/_server/actions';
 import EditRequirementsList from '../../_components/EditRequirementsList';
@@ -37,10 +43,13 @@ export default async function ProgramEntryRequirementsEdit({ params }: Props) {
 
 	return (
 		<DetailsView>
-			<DetailsViewHeader
-				title='Edit Entry Requirements'
-				queryKey={['entry-requirements']}
-			/>
+			<Flex justify='space-between' align={'center'}>
+				<Title order={3} fw={100}>
+					Entry Requirements for {program.name}
+				</Title>
+				<CloseButton size={'lg'} />
+			</Flex>
+			<Divider my={15} />
 			<DetailsViewBody>
 				<Stack gap='lg'>
 					<Group gap='md' align='flex-start'>
