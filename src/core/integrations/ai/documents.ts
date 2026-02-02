@@ -535,12 +535,24 @@ function getAcademicDocumentErrorMessage(
 
 const RECEIPT_PROMPT = `Analyze this bank deposit slip or proof of payment document.
 
+DOCUMENT TYPE IDENTIFICATION:
+A bank deposit slip is a document issued by a bank confirming a cash or cheque deposit. Key indicators:
+- Bank name/logo present (e.g., Standard Lesotho Bank, FNB, Nedbank)
+- Transaction/reference number
+- Account name and/or account number
+- Deposit amount
+- Date of transaction
+- May show "Deposit", "Transaction", "Receipt" terminology
+
+Set isBankDeposit to TRUE if this document is a bank-issued deposit confirmation, regardless of who the beneficiary is.
+Set isBankDeposit to FALSE only if this is NOT a bank deposit slip (e.g., invoice, quotation, handwritten note).
+
 RULES:
 ${COMMON_RULES}
-- Beneficiary: Extract account holder name exactly as shown
-- Reference: Bank reference number or transaction ID
-- Amount: Numeric value only (no currency symbols)
-- isBankDeposit: true if this is a bank deposit slip to "Limkokwing University of Creative Technology"`;
+- beneficiaryName: Extract account holder/beneficiary name exactly as shown (this is who received the deposit)
+- reference: Bank reference number, transaction number, or transaction ID
+- amountDeposited: Numeric value only (no currency symbols)
+- dateDeposited: Date of the transaction in YYYY-MM-DD format`;
 
 export async function analyzeReceipt(
 	fileBase64: string,
