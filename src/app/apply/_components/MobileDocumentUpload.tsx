@@ -27,18 +27,21 @@ import type {
 	CertificateDocumentResult,
 	DocumentAnalysisResult,
 	IdentityDocumentResult,
+	ReceiptResult,
 } from '@/core/integrations/ai/documents';
 import { CameraCapture } from '../../../shared/ui/CameraModal';
 import { CertificateConfirmationModal } from './CertificateConfirmationModal';
 import { IdentityConfirmationModal } from './IdentityConfirmationModal';
+import { ReceiptConfirmationModal } from './ReceiptConfirmationModal';
 
-export type DocumentUploadType = 'identity' | 'certificate' | 'any';
+export type DocumentUploadType = 'identity' | 'certificate' | 'receipt' | 'any';
 
 export type UploadState = 'idle' | 'uploading' | 'reading' | 'ready' | 'error';
 
 type AnalysisResultMap = {
 	identity: IdentityDocumentResult;
 	certificate: CertificateDocumentResult;
+	receipt: ReceiptResult;
 	any: DocumentAnalysisResult;
 };
 
@@ -70,6 +73,13 @@ type CertificateProps = BaseProps & {
 	applicantName?: string;
 };
 
+type ReceiptProps = BaseProps & {
+	type: 'receipt';
+	onUploadComplete: (result: DocumentUploadResult<'receipt'>) => void;
+	certificateTypes?: never;
+	applicantName?: never;
+};
+
 type AnyProps = BaseProps & {
 	type: 'any';
 	onUploadComplete: (result: DocumentUploadResult<'any'>) => void;
@@ -77,7 +87,7 @@ type AnyProps = BaseProps & {
 	applicantName?: string;
 };
 
-type Props = IdentityProps | CertificateProps | AnyProps;
+type Props = IdentityProps | CertificateProps | ReceiptProps | AnyProps;
 
 const ACCEPTED_TYPES = 'image/*,application/pdf';
 const MAX_FILE_SIZE = 2 * 1024 * 1024;
@@ -96,6 +106,7 @@ function formatFileSize(bytes: number): string {
 const ICON_MAP = {
 	identity: IconId,
 	certificate: IconSchool,
+	receipt: IconFileUpload,
 	any: IconFileUpload,
 } as const;
 
@@ -235,6 +246,37 @@ export function MobileDocumentUpload({
 			};
 			setPendingResult(uploadResult as DocumentUploadResult<typeof type>);
 			openConfirmModal();
+		} else if (type === 'receipt') {
+			const response = await fetch('/api/documents/analyze', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({
+					type: 'receipt',
+					base64,
+					mediaType: selectedFile.type,
+				}),
+			});
+			const result = await response.json();
+			if (!result.success) {
+				setFile(selectedFile);
+				setErrorMessage(result.error);
+				setUploadState('error');
+				notifications.show({
+					title: 'Processing Failed',
+					message: result.error,
+					color: 'red',
+				});
+				return;
+			}
+			setFile(selectedFile);
+			setUploadState('ready');
+			const uploadResult: DocumentUploadResult<'receipt'> = {
+				file: selectedFile,
+				base64,
+				analysis: result.data,
+			};
+			setPendingResult(uploadResult as DocumentUploadResult<typeof type>);
+			openConfirmModal();
 		} else {
 			const response = await fetch('/api/documents/analyze', {
 				method: 'POST',
@@ -280,6 +322,10 @@ export function MobileDocumentUpload({
 		} else if (type === 'certificate') {
 			(onUploadComplete as (r: DocumentUploadResult<'certificate'>) => void)(
 				pendingResult as DocumentUploadResult<'certificate'>
+			);
+		} else if (type === 'receipt') {
+			(onUploadComplete as (r: DocumentUploadResult<'receipt'>) => void)(
+				pendingResult as DocumentUploadResult<'receipt'>
 			);
 		}
 		closeConfirmModal();
@@ -360,6 +406,10 @@ export function MobileDocumentUpload({
 		type === 'certificate' && pendingResult
 			? (pendingResult as DocumentUploadResult<'certificate'>).analysis
 			: null;
+	const receiptAnalysis =
+		type === 'receipt' && pendingResult
+			? (pendingResult as DocumentUploadResult<'receipt'>).analysis
+			: null;
 
 	if (file) {
 		return (
@@ -375,6 +425,12 @@ export function MobileDocumentUpload({
 					onClose={handleCancelConfirm}
 					onConfirm={handleConfirm}
 					analysis={certificateAnalysis}
+				/>
+				<ReceiptConfirmationModal
+					opened={confirmModalOpened && type === 'receipt'}
+					onClose={handleCancelConfirm}
+					onConfirm={handleConfirm}
+					analysis={receiptAnalysis}
 				/>
 				<Paper withBorder radius='md' p='xl'>
 					<Stack gap='md' align='center' mih={rem(180)} justify='center'>

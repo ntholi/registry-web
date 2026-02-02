@@ -17,13 +17,14 @@ import { useMediaQuery } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import { IconAlertCircle, IconCheck, IconLibrary } from '@tabler/icons-react';
 import { useState } from 'react';
+import {
+	DocumentUpload,
+	type DocumentUploadResult,
+} from '@/app/apply/_components/DocumentUpload';
+import { MobileDocumentUpload } from '@/app/apply/_components/MobileDocumentUpload';
 import { useApplicant } from '@/app/apply/_lib/useApplicant';
 import { FieldView } from '@/shared/ui/adease/FieldView';
 import { DocumentCardSkeleton } from '@/shared/ui/DocumentCardShell';
-import {
-	ReceiptUpload,
-	type ReceiptUploadResult,
-} from '@/shared/ui/ReceiptUpload';
 import { validateSingleReceipt } from '../_server/actions';
 import { ReceiptCard, type UploadedReceipt } from './ReceiptCard';
 
@@ -77,7 +78,7 @@ export default function ReceiptUploadForm({
 	const validReceipts = receipts.filter((r) => r.isValid && r.reference);
 	const canSubmit = validReceipts.length > 0 && isAmountSufficient;
 
-	async function handleUploadComplete(result: ReceiptUploadResult) {
+	async function handleUploadComplete(result: DocumentUploadResult<'receipt'>) {
 		try {
 			setUploading(true);
 			setPendingUploads((prev) => prev + 1);
@@ -91,15 +92,15 @@ export default function ReceiptUploadForm({
 
 			const newReceipt: UploadedReceipt = {
 				id: generateId(),
-				reference: validation.data?.reference ?? null,
-				amount: validation.data?.amountDeposited ?? null,
-				dateDeposited: validation.data?.dateDeposited ?? null,
-				beneficiaryName: validation.data?.beneficiaryName ?? null,
-				currency: validation.data?.currency ?? null,
-				depositorName: validation.data?.depositorName ?? null,
-				bankName: validation.data?.bankName ?? null,
-				transactionNumber: validation.data?.transactionNumber ?? null,
-				terminalNumber: validation.data?.terminalNumber ?? null,
+				reference: result.analysis.reference ?? null,
+				amount: result.analysis.amountDeposited ?? null,
+				dateDeposited: result.analysis.dateDeposited ?? null,
+				beneficiaryName: result.analysis.beneficiaryName ?? null,
+				currency: result.analysis.currency ?? null,
+				depositorName: result.analysis.depositorName ?? null,
+				bankName: result.analysis.bankName ?? null,
+				transactionNumber: result.analysis.transactionNumber ?? null,
+				terminalNumber: result.analysis.terminalNumber ?? null,
 				isValid: validation.isValid,
 				errors: validation.errors,
 				base64: result.base64,
@@ -214,30 +215,30 @@ export default function ReceiptUploadForm({
 							<Text size='lg' fw={700}>
 								{application?.applicant?.fullName}
 							</Text>
-							<Text size='xs' opacity={0.8}>
-								Use your full name exactly as shown above as the bank reference.
-							</Text>
 						</Stack>
 					</Paper>
 				</Stack>
 			</Card>
 
-			<ReceiptUpload
-				key={uploadKey}
-				onUploadComplete={handleUploadComplete}
-				disabled={disabled}
-				title={
-					isMobile
-						? 'Upload Deposit Slip'
-						: 'Click to upload bank deposit slips'
-				}
-				description={
-					isMobile
-						? 'Bank deposit slip showing payment to Limkokwing'
-						: 'Upload your bank deposit slip'
-				}
-				variant={isMobile ? 'mobile' : 'dropzone'}
-			/>
+			{isMobile ? (
+				<MobileDocumentUpload
+					key={`mobile-${uploadKey}`}
+					type='receipt'
+					onUploadComplete={handleUploadComplete}
+					disabled={disabled}
+					title='Upload Deposit Slip'
+					description='Bank deposit slip showing payment to Limkokwing'
+				/>
+			) : (
+				<DocumentUpload
+					key={uploadKey}
+					type='receipt'
+					onUploadComplete={handleUploadComplete}
+					disabled={disabled}
+					title='Drop bank deposit slip here or click to browse'
+					description='Upload your bank deposit slip'
+				/>
+			)}
 
 			{showUploadedSection && (
 				<Stack gap='sm'>

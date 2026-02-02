@@ -4,10 +4,11 @@ import {
 	analyzeAcademicDocument,
 	analyzeDocument,
 	analyzeIdentityDocument,
+	analyzeReceipt,
 } from '@/core/integrations/ai/documents';
 
 interface RequestBody {
-	type: 'identity' | 'academic' | 'any';
+	type: 'identity' | 'academic' | 'receipt' | 'any';
 	base64: string;
 	mediaType: string;
 	certificateTypes?: Array<string | { name: string; lqfLevel: number | null }>;
@@ -51,6 +52,11 @@ export async function POST(request: Request) {
 		return NextResponse.json(result);
 	}
 
+	if (type === 'receipt') {
+		const result = await analyzeReceipt(base64, mediaType);
+		return NextResponse.json(result);
+	}
+
 	if (type === 'any') {
 		const result = await analyzeDocument(base64, mediaType);
 		return NextResponse.json(result);
@@ -59,7 +65,7 @@ export async function POST(request: Request) {
 	return NextResponse.json(
 		{
 			success: false,
-			error: 'Invalid type. Must be identity, academic, or any',
+			error: 'Invalid type. Must be identity, academic, receipt, or any',
 		},
 		{ status: 400 }
 	);
