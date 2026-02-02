@@ -90,41 +90,29 @@ function validateReference(reference: string | null): {
 	return { valid: true };
 }
 
-export async function validateSingleReceipt(
-	fileBase64: string,
-	mediaType: string,
+export async function validateAnalyzedReceipt(
+	analysis: ReceiptResult,
 	intakeStartDate: string,
 	intakeEndDate: string
 ): Promise<ReceiptValidation> {
 	const errors: string[] = [];
 
-	const result = await analyzeReceipt(fileBase64, mediaType);
-	if (!result.success) {
-		return {
-			isValid: false,
-			errors: [result.error],
-			data: null,
-		};
-	}
-
-	const data = result.data;
-
-	if (!data.isBankDeposit) {
+	if (!analysis.isBankDeposit) {
 		errors.push('This does not appear to be a bank deposit slip');
 	}
 
-	const beneficiaryValidation = validateBeneficiary(data.beneficiaryName);
+	const beneficiaryValidation = validateBeneficiary(analysis.beneficiaryName);
 	if (!beneficiaryValidation.valid && beneficiaryValidation.error) {
 		errors.push(beneficiaryValidation.error);
 	}
 
-	const referenceValidation = validateReference(data.reference);
+	const referenceValidation = validateReference(analysis.reference);
 	if (!referenceValidation.valid && referenceValidation.error) {
 		errors.push(referenceValidation.error);
 	}
 
 	const dateValidation = validateDepositDate(
-		data.dateDeposited,
+		analysis.dateDeposited,
 		intakeStartDate,
 		intakeEndDate
 	);
@@ -132,14 +120,14 @@ export async function validateSingleReceipt(
 		errors.push(dateValidation.error);
 	}
 
-	if (data.amountDeposited === null || data.amountDeposited <= 0) {
+	if (analysis.amountDeposited === null || analysis.amountDeposited <= 0) {
 		errors.push('Could not extract a valid deposit amount from the receipt');
 	}
 
 	return {
 		isValid: errors.length === 0,
 		errors,
-		data,
+		data: analysis,
 	};
 }
 
@@ -178,9 +166,24 @@ export async function validateReceipts(
 	let totalAmount = 0;
 
 	for (const receipt of receipts) {
-		const validation = await validateSingleReceipt(
+		const analysisResult = await analyzeReceipt(
 			receipt.base64,
-			receipt.mediaType,
+			receipt.mediaType
+		);
+
+		if (!analysisResult.success) {
+			validatedReceipts.push({
+				reference: null,
+				amount: 0,
+				dateDeposited: null,
+				isValid: false,
+				errors: [analysisResult.error],
+			});
+			continue;
+		}
+
+		const validation = await validateAnalyzedReceipt(
+			analysisResult.data,
 			intake.startDate,
 			intake.endDate
 		);

@@ -25,7 +25,7 @@ import { MobileDocumentUpload } from '@/app/apply/_components/MobileDocumentUplo
 import { useApplicant } from '@/app/apply/_lib/useApplicant';
 import { FieldView } from '@/shared/ui/adease/FieldView';
 import { DocumentCardSkeleton } from '@/shared/ui/DocumentCardShell';
-import { validateSingleReceipt } from '../_server/actions';
+import { validateAnalyzedReceipt } from '../_server/actions';
 import { ReceiptCard, type UploadedReceipt } from './ReceiptCard';
 
 type DepositSubmission = {
@@ -83,9 +83,8 @@ export default function ReceiptUploadForm({
 			setUploading(true);
 			setPendingUploads((prev) => prev + 1);
 
-			const validation = await validateSingleReceipt(
-				result.base64,
-				result.file.type,
+			const validation = await validateAnalyzedReceipt(
+				result.analysis,
 				intakeStartDate,
 				intakeEndDate
 			);

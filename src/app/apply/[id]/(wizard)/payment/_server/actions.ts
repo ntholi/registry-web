@@ -11,9 +11,9 @@ import {
 import { extractError } from '@apply/_lib/errors';
 import { eq } from 'drizzle-orm';
 import { applications, bankDeposits, db, documents } from '@/core/database';
-import { validateReceipts, validateSingleReceipt } from './validation';
+import { validateAnalyzedReceipt, validateReceipts } from './validation';
 
-export { validateSingleReceipt, validateReceipts };
+export { validateAnalyzedReceipt, validateReceipts };
 
 const MAX_FILE_SIZE = 2 * 1024 * 1024;
 
