@@ -953,6 +953,13 @@
 			"when": 1769878366557,
 			"tag": "0135_pink_sabra",
 			"breakpoints": true
+		},
+		{
+			"idx": 136,
+			"version": "7",
+			"when": 1770033951328,
+			"tag": "0136_rich_sabretooth",
+			"breakpoints": true
 		}
 	]
 }

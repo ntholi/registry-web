@@ -1,51 +1,47 @@
 'use server';
 
-import type {
-	InitiatePaymentInput,
-	PaymentFilters,
-	TransactionStatus,
-} from '../_lib/types';
+import type { bankDeposits, DepositStatus } from '@/core/database';
+import type { DepositFilters } from '../_lib/types';
 import { paymentsService } from './service';
 
-export async function getPayment(id: string) {
-	return paymentsService.getWithRelations(id);
+export async function getBankDeposit(id: string) {
+	return paymentsService.getBankDeposit(id);
 }
 
-export async function getPayments(
+export async function getBankDepositWithDocument(id: string) {
+	return paymentsService.getBankDepositWithDocument(id);
+}
+
+export async function getBankDeposits(
 	page = 1,
 	search = '',
-	filters?: PaymentFilters
+	filters?: DepositFilters
 ) {
-	return paymentsService.search(page, search, filters);
+	return paymentsService.searchBankDeposits(page, search, filters);
 }
 
-export async function initiatePayment(input: InitiatePaymentInput) {
-	return paymentsService.initiatePayment(input);
+export async function getBankDepositsByApplication(applicationId: string) {
+	return paymentsService.getBankDepositsByApplication(applicationId);
 }
 
-export async function verifyPayment(transactionId: string) {
-	return paymentsService.verifyPayment(transactionId);
-}
-
-export async function markPaymentAsPaid(
-	transactionId: string,
-	manualReference: string
+export async function createBankDeposit(
+	data: typeof bankDeposits.$inferInsert
 ) {
-	return paymentsService.markAsPaid(transactionId, manualReference);
+	return paymentsService.createBankDeposit(data);
 }
 
-export async function getPaymentsByApplication(applicationId: string) {
-	return paymentsService.getByApplication(applicationId);
+export async function verifyBankDeposit(depositId: string, receiptNo: string) {
+	return paymentsService.verifyBankDeposit(depositId, receiptNo);
 }
 
-export async function getPendingPayment(applicationId: string) {
-	return paymentsService.getPendingByApplication(applicationId);
+export async function rejectBankDeposit(depositId: string) {
+	return paymentsService.rejectBankDeposit(depositId);
 }
 
-export async function countPaymentsByStatus(status: TransactionStatus) {
-	return paymentsService.countByStatus(status);
+export async function countBankDepositsByStatus(status: DepositStatus) {
+	return paymentsService.countBankDepositsByStatus(status);
 }
 
-export async function deletePayment(id: string) {
+export async function deleteBankDeposit(id: string) {
 	return paymentsService.delete(id);
 }

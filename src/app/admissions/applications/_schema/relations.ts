@@ -1,11 +1,11 @@
 import { programs } from '@academic/schools/_schema/programs';
 import { applicants } from '@admissions/applicants/_schema/applicants';
 import { intakePeriods } from '@admissions/intake-periods/_schema/intakePeriods';
+import { bankDeposits } from '@admissions/payments/_schema/bankDeposits';
+import { mobileDeposits } from '@admissions/payments/_schema/mobileDeposits';
 import { users } from '@auth/users/_schema/users';
-import { paymentReceipts } from '@finance/payment-receipts/_schema/paymentReceipts';
 import { relations } from 'drizzle-orm';
 import { applicationNotes } from './applicationNotes';
-import { applicationReceipts } from './applicationReceipts';
 import { applicationStatusHistory } from './applicationStatusHistory';
 import { applications } from './applications';
 
@@ -34,23 +34,10 @@ export const applicationsRelations = relations(
 			fields: [applications.createdBy],
 			references: [users.id],
 		}),
-		receipts: many(applicationReceipts),
+		bankDeposits: many(bankDeposits),
+		mobileDeposits: many(mobileDeposits),
 		statusHistory: many(applicationStatusHistory),
 		notes: many(applicationNotes),
-	})
-);
-
-export const applicationReceiptsRelations = relations(
-	applicationReceipts,
-	({ one }) => ({
-		application: one(applications, {
-			fields: [applicationReceipts.applicationId],
-			references: [applications.id],
-		}),
-		receipt: one(paymentReceipts, {
-			fields: [applicationReceipts.receiptId],
-			references: [paymentReceipts.id],
-		}),
 	})
 );
 

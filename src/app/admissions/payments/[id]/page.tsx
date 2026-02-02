@@ -4,11 +4,12 @@ import {
 	Grid,
 	GridCol,
 	Group,
+	Image,
 	Stack,
 	Text,
 } from '@mantine/core';
 import { notFound } from 'next/navigation';
-import { getTransactionStatusColor } from '@/shared/lib/utils/colors';
+import { getDepositStatusColor } from '@/shared/lib/utils/colors';
 import { formatDateTime } from '@/shared/lib/utils/dates';
 import {
 	DetailsView,
@@ -17,31 +18,35 @@ import {
 	FieldView,
 } from '@/shared/ui/adease';
 import Link from '@/shared/ui/Link';
-import MarkAsPaidModal from '../_components/MarkAsPaidModal';
-import type { PaymentWithRelations } from '../_lib/types';
-import { deletePayment, getPayment } from '../_server/actions';
+import RejectDepositModal from '../_components/RejectDepositModal';
+import VerifyDepositModal from '../_components/VerifyDepositModal';
+import {
+	deleteBankDeposit,
+	getBankDepositWithDocument,
+} from '../_server/actions';
 
 type Props = {
 	params: Promise<{ id: string }>;
 };
 
-export default async function PaymentDetailsPage({ params }: Props) {
+export default async function DepositDetailsPage({ params }: Props) {
 	const { id } = await params;
-	const payment = (await getPayment(id)) as PaymentWithRelations | null;
+	const deposit = await getBankDepositWithDocument(id);
 
-	if (!payment) return notFound();
+	if (!deposit) return notFound();
 
-	const isPending = payment.status === 'pending';
-	const isSuccess = payment.status === 'success';
+	const isPending = deposit.status === 'pending';
+	const isVerified = deposit.status === 'verified';
+	const applicantName = deposit.application?.applicant?.fullName || 'Unknown';
 
 	return (
 		<DetailsView>
 			<DetailsViewHeader
-				title='Payment Details'
-				queryKey={['payments']}
+				title='Bank Deposit Details'
+				queryKey={['bank-deposits']}
 				handleDelete={async () => {
 					'use server';
-					await deletePayment(id);
+					await deleteBankDeposit(id);
 				}}
 				hideEdit
 			/>
@@ -51,7 +56,7 @@ export default async function PaymentDetailsPage({ params }: Props) {
 					<Group justify='space-between' align='flex-start'>
 						<Stack gap='xs' flex={1}>
 							<Text size='lg' fw={600}>
-								Transaction Information
+								Deposit Information
 							</Text>
 							<Divider />
 						</Stack>
@@ -59,37 +64,76 @@ export default async function PaymentDetailsPage({ params }: Props) {
 						<Stack align='flex-end' gap='md'>
 							<Badge
 								variant='light'
-								color={getTransactionStatusColor(payment.status)}
+								color={getDepositStatusColor(deposit.status)}
 							>
-								{payment.status}
+								{deposit.status}
 							</Badge>
-							{isPending && <MarkAsPaidModal payment={payment} />}
+							{isPending && (
+								<Group gap='xs'>
+									<VerifyDepositModal
+										depositId={deposit.id}
+										applicantName={applicantName}
+									/>
+									<RejectDepositModal
+										depositId={deposit.id}
+										applicantName={applicantName}
+									/>
+								</Group>
+							)}
 						</Stack>
 					</Group>
 
 					<Grid>
 						<GridCol span={4}>
 							<FieldView label='Amount' underline={false}>
-								<Text fw={500}>M {payment.amount}</Text>
+								<Text fw={500}>
+									{deposit.currency || 'M'} {deposit.amountDeposited || '0.00'}
+								</Text>
 							</FieldView>
 						</GridCol>
 						<GridCol span={4}>
-							<FieldView label='Mobile Number' underline={false}>
-								{payment.mobileNumber}
+							<FieldView label='Reference' underline={false}>
+								<Text ff='monospace'>{deposit.reference}</Text>
 							</FieldView>
 						</GridCol>
 						<GridCol span={4}>
-							<FieldView label='Provider' underline={false}>
-								<Badge size='sm' variant='light'>
-									{payment.provider.toUpperCase()}
-								</Badge>
+							<FieldView label='Bank' underline={false}>
+								{deposit.bankName || '-'}
 							</FieldView>
 						</GridCol>
 					</Grid>
 
+					<Grid>
+						<GridCol span={4}>
+							<FieldView label='Date Deposited' underline={false}>
+								{deposit.dateDeposited || '-'}
+							</FieldView>
+						</GridCol>
+						<GridCol span={4}>
+							<FieldView label='Depositor Name' underline={false}>
+								{deposit.depositorName || '-'}
+							</FieldView>
+						</GridCol>
+						<GridCol span={4}>
+							<FieldView label='Beneficiary' underline={false}>
+								{deposit.beneficiaryName || '-'}
+							</FieldView>
+						</GridCol>
+					</Grid>
+
+					{deposit.transactionNumber && (
+						<Grid>
+							<GridCol span={6}>
+								<FieldView label='Transaction Number' underline={false}>
+									<Text ff='monospace'>{deposit.transactionNumber}</Text>
+								</FieldView>
+							</GridCol>
+						</Grid>
+					)}
+
 					<Divider />
 
-					{payment.application?.applicant && (
+					{deposit.application?.applicant && (
 						<Stack gap='xs'>
 							<Text size='lg' fw={600}>
 								Applicant
@@ -98,10 +142,28 @@ export default async function PaymentDetailsPage({ params }: Props) {
 								<GridCol span={6}>
 									<FieldView label='Name' underline={false}>
 										<Link
-											href={`/admissions/applicants/${payment.application.applicant.id}`}
+											href={`/admissions/applicants/${deposit.application.applicant.id}`}
 										>
-											{payment.application.applicant.fullName}
+											{deposit.application.applicant.fullName}
 										</Link>
+									</FieldView>
+								</GridCol>
+								<GridCol span={6}>
+									<FieldView label='National ID' underline={false}>
+										{deposit.application.applicant.nationalId || '-'}
+									</FieldView>
+								</GridCol>
+							</Grid>
+							<Grid>
+								<GridCol span={6}>
+									<FieldView label='Application Fee' underline={false}>
+										M{' '}
+										{deposit.application.intakePeriod?.applicationFee || '0.00'}
+									</FieldView>
+								</GridCol>
+								<GridCol span={6}>
+									<FieldView label='Intake' underline={false}>
+										{deposit.application.intakePeriod?.name || '-'}
 									</FieldView>
 								</GridCol>
 							</Grid>
@@ -110,40 +172,53 @@ export default async function PaymentDetailsPage({ params }: Props) {
 
 					<Divider />
 
+					{isVerified && deposit.receipt && (
+						<>
+							<Stack gap='xs'>
+								<Text size='lg' fw={600}>
+									Receipt Information
+								</Text>
+								<Grid>
+									<GridCol span={6}>
+										<FieldView label='Receipt Number' underline={false}>
+											<Text fw={500} c='green'>
+												{deposit.receipt.receiptNo}
+											</Text>
+										</FieldView>
+									</GridCol>
+									<GridCol span={6}>
+										<FieldView label='Created By' underline={false}>
+											{deposit.receipt.createdByUser?.name || '-'}
+										</FieldView>
+									</GridCol>
+									<GridCol span={6}>
+										<FieldView label='Created At' underline={false}>
+											{deposit.receipt.createdAt
+												? formatDateTime(deposit.receipt.createdAt)
+												: '-'}
+										</FieldView>
+									</GridCol>
+								</Grid>
+							</Stack>
+							<Divider />
+						</>
+					)}
+
 					<Stack gap='xs'>
 						<Text size='lg' fw={600}>
-							Reference Details
+							Deposit Slip
 						</Text>
-						<Grid>
-							<GridCol span={6}>
-								<FieldView label='Client Reference' underline={false}>
-									<Text size='sm' ff='monospace'>
-										{payment.clientReference}
-									</Text>
-								</FieldView>
-							</GridCol>
-							<GridCol span={6}>
-								<FieldView label='Provider Reference' underline={false}>
-									{payment.providerReference || '-'}
-								</FieldView>
-							</GridCol>
-							{payment.manualReference && (
-								<GridCol span={6}>
-									<FieldView label='Manual Reference' underline={false}>
-										{payment.manualReference}
-									</FieldView>
-								</GridCol>
-							)}
-							{isSuccess && payment.receiptNumber && (
-								<GridCol span={6}>
-									<FieldView label='Receipt Number' underline={false}>
-										<Text fw={500} c='green'>
-											{payment.receiptNumber}
-										</Text>
-									</FieldView>
-								</GridCol>
-							)}
-						</Grid>
+						{deposit.document?.fileUrl ? (
+							<Image
+								src={deposit.document.fileUrl}
+								alt='Deposit Slip'
+								radius='md'
+								maw={600}
+								fit='contain'
+							/>
+						) : (
+							<Text c='dimmed'>No deposit slip image available</Text>
+						)}
 					</Stack>
 
 					<Divider />
@@ -153,23 +228,11 @@ export default async function PaymentDetailsPage({ params }: Props) {
 							Timestamps
 						</Text>
 						<Grid>
-							<GridCol span={4}>
-								<FieldView label='Created' underline={false}>
-									{payment.createdAt ? formatDateTime(payment.createdAt) : '-'}
+							<GridCol span={6}>
+								<FieldView label='Submitted' underline={false}>
+									{deposit.createdAt ? formatDateTime(deposit.createdAt) : '-'}
 								</FieldView>
 							</GridCol>
-							<GridCol span={4}>
-								<FieldView label='Updated' underline={false}>
-									{payment.updatedAt ? formatDateTime(payment.updatedAt) : '-'}
-								</FieldView>
-							</GridCol>
-							{payment.markedPaidByUser && (
-								<GridCol span={4}>
-									<FieldView label='Marked Paid By' underline={false}>
-										{payment.markedPaidByUser.name || '-'}
-									</FieldView>
-								</GridCol>
-							)}
 						</Grid>
 					</Stack>
 				</Stack>

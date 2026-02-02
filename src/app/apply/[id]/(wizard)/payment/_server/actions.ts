@@ -2,15 +2,9 @@
 
 import { getApplicant } from '@admissions/applicants';
 import { getApplicationForPayment } from '@admissions/applications';
-import {
-	getPaymentsByApplication,
-	getPendingPayment,
-	initiatePayment,
-	verifyPayment,
-} from '@admissions/payments';
+import { getBankDepositsByApplication } from '@admissions/payments';
 import { extractError } from '@apply/_lib/errors';
-import { eq } from 'drizzle-orm';
-import { applications, bankDeposits, db, documents } from '@/core/database';
+import { bankDeposits, db, documents } from '@/core/database';
 import { validateAnalyzedReceipt, validateReceipts } from './validation';
 
 export { validateAnalyzedReceipt, validateReceipts };
@@ -77,6 +71,7 @@ export async function submitReceiptPayment(
 					applicationId,
 					documentId: doc.id,
 					reference: receipt.reference,
+					status: 'pending',
 					beneficiaryName: receipt.beneficiaryName,
 					dateDeposited: receipt.dateDeposited,
 					amountDeposited: receipt.amountDeposited?.toString(),
@@ -87,11 +82,6 @@ export async function submitReceiptPayment(
 					terminalNumber: receipt.terminalNumber,
 				});
 			}
-
-			await tx
-				.update(applications)
-				.set({ paymentStatus: 'paid', updatedAt: new Date() })
-				.where(eq(applications.id, applicationId));
 		});
 
 		return { success: true };
@@ -108,22 +98,24 @@ export async function getPaymentPageData(applicationId: string) {
 			applicant: null,
 			application: null,
 			fee: null,
-			transactions: [],
+			bankDeposits: [],
 			isPaid: false,
-			pendingTransaction: null,
+			hasPendingDeposit: false,
 			intakeStartDate: null,
 			intakeEndDate: null,
 		};
 	}
 
-	const [applicant, transactions, pendingTransaction] = await Promise.all([
+	const [applicant, deposits] = await Promise.all([
 		getApplicant(application.applicantId),
-		getPaymentsByApplication(applicationId),
-		getPendingPayment(applicationId),
+		getBankDepositsByApplication(applicationId),
 	]);
 
-	const successfulPayment = transactions.find(
-		(t: { status: string }) => t.status === 'success'
+	const verifiedDeposit = deposits?.find(
+		(d: { status: string }) => d.status === 'verified'
+	);
+	const pendingDeposit = deposits?.find(
+		(d: { status: string }) => d.status === 'pending'
 	);
 
 	const intake = application.intakePeriod;
@@ -132,39 +124,10 @@ export async function getPaymentPageData(applicationId: string) {
 		applicant,
 		application,
 		fee: intake?.applicationFee ?? null,
-		transactions,
-		isPaid: !!successfulPayment || application.paymentStatus === 'paid',
-		pendingTransaction,
+		bankDeposits: deposits ?? [],
+		isPaid: !!verifiedDeposit || application.paymentStatus === 'paid',
+		hasPendingDeposit: !!pendingDeposit,
 		intakeStartDate: intake?.startDate ?? null,
 		intakeEndDate: intake?.endDate ?? null,
 	};
-}
-
-export async function initiateMpesaPayment(
-	applicationId: string,
-	amount: number,
-	mobileNumber: string
-) {
-	try {
-		return await initiatePayment({
-			applicationId,
-			amount,
-			mobileNumber,
-			provider: 'mpesa',
-		});
-	} catch (error) {
-		return { success: false, error: extractError(error) };
-	}
-}
-
-export async function checkPaymentStatus(transactionId: string) {
-	try {
-		return await verifyPayment(transactionId);
-	} catch (error) {
-		return { success: false, error: extractError(error), status: 'failed' };
-	}
-}
-
-export async function getApplicationPendingPayment(applicationId: string) {
-	return getPendingPayment(applicationId);
 }

@@ -1,216 +1,129 @@
-import { eq } from 'drizzle-orm';
-import { applications, db, paymentTransactions } from '@/core/database';
-import {
-	generateClientReference,
-	initiateMpesaPayment,
-	isPaymentSuccessful,
-	verifyTransaction,
-} from '@/core/integrations/pay-lesotho';
+import type { bankDeposits, DepositStatus } from '@/core/database';
 import BaseService from '@/core/platform/BaseService';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
 import withAuth from '@/core/platform/withAuth';
-import type {
-	InitiatePaymentInput,
-	PaymentFilters,
-	TransactionStatus,
-} from '../_lib/types';
+import type { DepositFilters } from '../_lib/types';
 import PaymentRepository from './repository';
 
-class PaymentService extends BaseService<typeof paymentTransactions, 'id'> {
+class PaymentService extends BaseService<typeof bankDeposits, 'id'> {
 	private repo: PaymentRepository;
 
 	constructor() {
 		const repo = new PaymentRepository();
 		super(repo, {
-			byIdRoles: ['registry', 'marketing', 'admin'],
-			findAllRoles: ['registry', 'marketing', 'admin'],
+			byIdRoles: ['registry', 'marketing', 'admin', 'finance'],
+			findAllRoles: ['registry', 'marketing', 'admin', 'finance'],
 			createRoles: ['registry', 'marketing', 'admin', 'applicant'],
-			updateRoles: ['registry', 'marketing', 'admin'],
+			updateRoles: ['registry', 'marketing', 'admin', 'finance'],
 			deleteRoles: ['admin'],
 		});
 		this.repo = repo;
 	}
 
-	async getWithRelations(id: string) {
+	async getBankDeposit(id: string) {
 		return withAuth(
-			async () => this.repo.findByIdWithRelations(id),
-			['registry', 'marketing', 'admin']
+			async () => this.repo.findBankDepositById(id),
+			['registry', 'marketing', 'admin', 'finance']
 		);
 	}
 
-	async search(page: number, search: string, filters?: PaymentFilters) {
+	async getBankDepositWithDocument(id: string) {
 		return withAuth(
-			async () => this.repo.search(page, search, filters),
-			['registry', 'marketing', 'admin']
+			async () => this.repo.findBankDepositWithDocument(id),
+			['registry', 'marketing', 'admin', 'finance']
 		);
 	}
 
-	async initiatePayment(input: InitiatePaymentInput) {
-		return withAuth(async () => {
-			const existingSuccess = await this.repo.findSuccessfulByApplication(
-				input.applicationId
-			);
-			if (existingSuccess) {
-				return {
-					success: false,
-					error: 'Application fee already paid',
-					isDuplicate: true,
-				};
-			}
-
-			const clientReference = generateClientReference(input.applicationId);
-
-			const transaction = await this.repo.create({
-				applicationId: input.applicationId,
-				amount: input.amount.toString(),
-				mobileNumber: input.mobileNumber,
-				provider: input.provider,
-				status: 'pending',
-				clientReference,
-			});
-
-			if (input.provider === 'mpesa') {
-				const response = await initiateMpesaPayment(
-					input.amount,
-					input.mobileNumber,
-					clientReference
-				);
-
-				console.log('MPESA RESPONSE', response);
-
-				if (isPaymentSuccessful(response)) {
-					await this.repo.updateStatus(
-						transaction.id,
-						'pending',
-						response.reference,
-						response
-					);
-					return {
-						success: true,
-						transactionId: transaction.id,
-						reference: response.reference,
-						message: 'USSD prompt sent to your phone. Enter PIN to authorize.',
-					};
-				}
-
-				await this.repo.updateStatus(
-					transaction.id,
-					'failed',
-					undefined,
-					response
-				);
-				return {
-					success: false,
-					error: response.message,
-					transactionId: transaction.id,
-				};
-			}
-
-			return {
-				success: false,
-				error: 'Ecocash is not available at this time',
-			};
-		}, ['registry', 'marketing', 'admin', 'applicant']);
+	async searchBankDeposits(
+		page: number,
+		search: string,
+		filters?: DepositFilters
+	) {
+		return withAuth(
+			async () => this.repo.searchBankDeposits(page, search, filters),
+			['registry', 'marketing', 'admin', 'finance']
+		);
 	}
 
-	async verifyPayment(transactionId: string) {
-		return withAuth(async () => {
-			const transaction = await this.repo.findByIdWithRelations(transactionId);
-			if (!transaction) {
-				throw new Error('Transaction not found');
-			}
-
-			if (transaction.status === 'success') {
-				return { success: true, status: 'success' as TransactionStatus };
-			}
-
-			if (transaction.status === 'failed') {
-				return { success: false, status: 'failed' as TransactionStatus };
-			}
-
-			if (!transaction.providerReference) {
-				return { success: false, status: 'pending' as TransactionStatus };
-			}
-
-			const response = await verifyTransaction(transaction.providerReference);
-
-			if (isPaymentSuccessful(response)) {
-				await this.repo.updateStatus(
-					transactionId,
-					'success',
-					response.transaction_id || transaction.providerReference,
-					response
-				);
-
-				const receiptNumber = `APPLY-${transaction.applicationId}-${Date.now()}`;
-				await db
-					.update(paymentTransactions)
-					.set({ receiptNumber })
-					.where(eq(paymentTransactions.id, transactionId));
-
-				if (transaction.applicationId) {
-					await db
-						.update(applications)
-						.set({ paymentStatus: 'paid' })
-						.where(eq(applications.id, transaction.applicationId));
-				}
-
-				return { success: true, status: 'success' as TransactionStatus };
-			}
-
-			return { success: false, status: 'pending' as TransactionStatus };
-		}, ['registry', 'marketing', 'admin', 'applicant']);
+	async getBankDepositsByApplication(applicationId: string) {
+		return withAuth(
+			async () => this.repo.findBankDepositsByApplication(applicationId),
+			['registry', 'marketing', 'admin', 'finance', 'applicant']
+		);
 	}
 
-	async markAsPaid(transactionId: string, manualReference: string) {
+	async createBankDeposit(data: typeof bankDeposits.$inferInsert) {
+		return withAuth(
+			async () => this.repo.createBankDeposit(data),
+			['registry', 'marketing', 'admin', 'applicant']
+		);
+	}
+
+	async verifyBankDeposit(depositId: string, receiptNo: string) {
 		return withAuth(
 			async (session) => {
-				const transaction =
-					await this.repo.findByIdWithRelations(transactionId);
-				if (!transaction) {
-					throw new Error('Transaction not found');
+				const deposit = await this.repo.findBankDepositById(depositId);
+				if (!deposit) {
+					throw new Error('Deposit not found');
 				}
 
-				const receiptNumber = `APPLY-${transaction.applicationId}-${Date.now()}`;
-
-				const updated = await this.repo.markAsPaidManually(
-					transactionId,
-					manualReference,
-					session?.user?.id || '',
-					receiptNumber
-				);
-
-				if (transaction.applicationId) {
-					await db
-						.update(applications)
-						.set({ paymentStatus: 'paid' })
-						.where(eq(applications.id, transaction.applicationId));
+				if (deposit.status !== 'pending') {
+					throw new Error('Deposit is not pending');
 				}
 
-				return updated;
+				const existingReceipt = await this.repo.findReceiptByNo(receiptNo);
+				if (existingReceipt) {
+					throw new Error('Receipt number already exists');
+				}
+
+				const receipt = await this.repo.createReceipt({
+					receiptNo,
+					createdBy: session?.user?.id,
+				});
+
+				await this.repo.linkReceiptToBankDeposit(depositId, receipt.id);
+
+				if (deposit.application?.id) {
+					await this.repo.updateApplicationPaymentStatus(
+						deposit.application.id,
+						'paid'
+					);
+				}
+
+				return { deposit, receipt };
 			},
-			['registry', 'marketing', 'admin']
+			['registry', 'marketing', 'admin', 'finance']
 		);
 	}
 
-	async getByApplication(applicationId: string) {
-		return withAuth(
-			async () => this.repo.findByApplication(applicationId),
-			['registry', 'marketing', 'admin', 'applicant']
-		);
+	async rejectBankDeposit(depositId: string) {
+		return withAuth(async () => {
+			const deposit = await this.repo.findBankDepositById(depositId);
+			if (!deposit) {
+				throw new Error('Deposit not found');
+			}
+
+			if (deposit.status !== 'pending') {
+				throw new Error('Deposit is not pending');
+			}
+
+			await this.repo.updateBankDepositStatus(depositId, 'rejected');
+
+			if (deposit.application?.id) {
+				await this.repo.updateApplicationStatus(
+					deposit.application.id,
+					'rejected'
+				);
+			}
+
+			return { success: true };
+		}, ['registry', 'marketing', 'admin', 'finance']);
 	}
 
-	async getPendingByApplication(applicationId: string) {
+	async countBankDepositsByStatus(status: DepositStatus) {
 		return withAuth(
-			async () => this.repo.findPendingByApplication(applicationId),
-			['registry', 'marketing', 'admin', 'applicant']
-		);
-	}
-
-	async countByStatus(status: TransactionStatus) {
-		return withAuth(
-			async () => this.repo.countByStatus(status),
-			['registry', 'marketing', 'admin']
+			async () => this.repo.countBankDepositsByStatus(status),
+			['registry', 'marketing', 'admin', 'finance']
 		);
 	}
 }

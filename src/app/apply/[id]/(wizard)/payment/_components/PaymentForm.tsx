@@ -27,22 +27,13 @@ import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'nextjs-toploader/app';
 import { useQueryState } from 'nuqs';
 import { submitReceiptPayment } from '../_server/actions';
-import { MobilePayment } from './MobilePayment';
 import ReceiptUpload from './ReceiptUpload';
-
-type Transaction = {
-	id: string;
-	status: string;
-	amount: string;
-	mobileNumber: string;
-	receiptNumber: string | null;
-};
 
 type Props = {
 	applicationId: string;
 	fee: string | null;
 	isPaid: boolean;
-	pendingTransaction?: Transaction | null;
+	hasPendingDeposit: boolean;
 	intakeStartDate: string | null;
 	intakeEndDate: string | null;
 };
@@ -53,6 +44,7 @@ export default function PaymentForm({
 	applicationId,
 	fee,
 	isPaid,
+	hasPendingDeposit,
 	intakeStartDate,
 	intakeEndDate,
 }: Props) {
@@ -87,15 +79,16 @@ export default function PaymentForm({
 		onSuccess: (result) => {
 			if (result.success) {
 				notifications.show({
-					title: 'Payment Verified',
-					message: 'Your receipts have been verified successfully',
-					color: 'green',
+					title: 'Payment Submitted',
+					message:
+						'Your deposit slip has been submitted and is pending verification by finance.',
+					color: 'blue',
 				});
 				router.push(`/apply/${applicationId}/thank-you`);
 			} else {
 				notifications.show({
-					title: 'Verification Failed',
-					message: result.error || 'Failed to verify receipts',
+					title: 'Submission Failed',
+					message: result.error || 'Failed to submit deposit slip',
 					color: 'red',
 				});
 			}
@@ -127,6 +120,30 @@ export default function PaymentForm({
 						</ThemeIcon>
 						<Title order={3}>Payment Complete</Title>
 						<Text c='dimmed'>Your application fee has been paid</Text>
+						<Button
+							onClick={() => router.push(`/apply/${applicationId}/thank-you`)}
+						>
+							Continue
+						</Button>
+					</Stack>
+				</Paper>
+			</Stack>
+		);
+	}
+
+	if (hasPendingDeposit) {
+		return (
+			<Stack gap='lg'>
+				<Paper withBorder radius='md' p='lg'>
+					<Stack align='center' gap='md'>
+						<ThemeIcon size={60} radius='xl' color='blue'>
+							<IconCreditCard size={32} />
+						</ThemeIcon>
+						<Title order={3}>Payment Pending Verification</Title>
+						<Text c='dimmed' ta='center'>
+							Your bank deposit slip has been submitted and is being reviewed by
+							our finance team. You will be notified once verified.
+						</Text>
 						<Button
 							onClick={() => router.push(`/apply/${applicationId}/thank-you`)}
 						>
@@ -188,15 +205,6 @@ export default function PaymentForm({
 								</Card>
 							)}
 						</SimpleGrid>
-					)}
-
-					{view === 'mobile' && fee && (
-						<MobilePayment
-							applicationId={applicationId}
-							fee={fee}
-							defaultPhone={''}
-							onSwitchToUpload={() => setView('receipt')}
-						/>
 					)}
 
 					{view === 'receipt' && intakeStartDate && intakeEndDate && fee && (

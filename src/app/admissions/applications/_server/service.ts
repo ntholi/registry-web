@@ -193,28 +193,6 @@ class ApplicationService extends BaseService<typeof applications, 'id'> {
 		);
 	}
 
-	async recordPayment(applicationId: string, receiptId: string) {
-		return withAuth(async () => {
-			await this.repo.linkReceipt(applicationId, receiptId);
-			return this.repo.updatePaymentStatus(applicationId, 'paid');
-		}, ['registry', 'marketing', 'admin']);
-	}
-
-	async getPaymentInfo(applicationId: string) {
-		return withAuth(async () => {
-			const application = await this.repo.findById(applicationId);
-			if (!application) {
-				throw new Error('Application not found');
-			}
-			const receipts = await this.repo.getLinkedReceipts(applicationId);
-			return {
-				feeAmount: application.intakePeriod.applicationFee,
-				paymentStatus: application.paymentStatus,
-				receipts,
-			};
-		}, ['registry', 'marketing', 'admin']);
-	}
-
 	async findByApplicant(applicantId: string) {
 		return withAuth(
 			async () => this.repo.findByApplicant(applicantId),

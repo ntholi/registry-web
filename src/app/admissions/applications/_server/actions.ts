@@ -83,17 +83,6 @@ export async function getApplicationNotes(applicationId: string) {
 	return applicationsService.getNotes(applicationId);
 }
 
-export async function recordApplicationPayment(
-	applicationId: string,
-	receiptId: string
-) {
-	return applicationsService.recordPayment(applicationId, receiptId);
-}
-
-export async function getApplicationPaymentInfo(applicationId: string) {
-	return applicationsService.getPaymentInfo(applicationId);
-}
-
 export async function findApplicationsByApplicant(applicantId: string) {
 	return applicationsService.findByApplicant(applicantId);
 }

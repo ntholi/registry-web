@@ -4,26 +4,26 @@ import { Badge, Group } from '@mantine/core';
 import { useSearchParams } from 'next/navigation';
 import { useRouter } from 'nextjs-toploader/app';
 import type { PropsWithChildren } from 'react';
-import { getTransactionStatusColor } from '@/shared/lib/utils/colors';
+import { getDepositStatusColor } from '@/shared/lib/utils/colors';
 import { ListItem, ListLayout } from '@/shared/ui/adease';
-import PaymentStatusFilter from './_components/PaymentStatusFilter';
+import DepositStatusFilter from './_components/DepositStatusFilter';
 import type {
-	PaymentFilters,
-	PaymentWithRelations,
-	TransactionStatus,
+	BankDepositWithRelations,
+	DepositFilters,
+	DepositStatus,
 } from './_lib/types';
-import { getPayments } from './_server/actions';
+import { getBankDeposits } from './_server/actions';
 
 export default function PaymentsLayout({ children }: PropsWithChildren) {
 	const router = useRouter();
 	const searchParams = useSearchParams();
 	const statusFilter =
-		(searchParams.get('status') as TransactionStatus) || undefined;
+		(searchParams.get('status') as DepositStatus) || undefined;
 
-	async function fetchPayments(page: number, search: string) {
-		const filters: PaymentFilters = {};
+	async function fetchDeposits(page: number, search: string) {
+		const filters: DepositFilters = {};
 		if (statusFilter) filters.status = statusFilter;
-		return getPayments(page, search, filters);
+		return getBankDeposits(page, search, filters);
 	}
 
 	function handleStatusChange(value: string | null) {
@@ -38,33 +38,33 @@ export default function PaymentsLayout({ children }: PropsWithChildren) {
 	}
 
 	return (
-		<ListLayout<PaymentWithRelations>
+		<ListLayout<BankDepositWithRelations>
 			path='/admissions/payments'
-			queryKey={['payments', statusFilter || 'all']}
-			getData={fetchPayments}
+			queryKey={['bank-deposits', statusFilter || 'all']}
+			getData={fetchDeposits}
 			actionIcons={[
-				<PaymentStatusFilter
+				<DepositStatusFilter
 					key='status-filter'
 					value={statusFilter || 'all'}
 					onChange={handleStatusChange}
 				/>,
 			]}
-			renderItem={(payment) => (
+			renderItem={(deposit) => (
 				<ListItem
-					id={payment.id}
+					id={deposit.id}
 					label={
 						<Group gap='xs'>
-							{payment.application?.applicant?.fullName || 'Unknown'}
+							{deposit.application?.applicant?.fullName || 'Unknown'}
 							<Badge
 								size='xs'
 								variant='light'
-								color={getTransactionStatusColor(payment.status)}
+								color={getDepositStatusColor(deposit.status)}
 							>
-								{payment.status}
+								{deposit.status}
 							</Badge>
 						</Group>
 					}
-					description={`M ${payment.amount} | ${payment.mobileNumber}`}
+					description={`M ${deposit.amountDeposited || '0.00'} | ${deposit.reference}`}
 				/>
 			)}
 		>

@@ -174,10 +174,9 @@ export default async function ApplicationDetails({ params }: Props) {
 
 					<TabsPanel value='payment' pt='md'>
 						<PaymentSection
-							applicationId={item.id}
 							feeAmount={item.intakePeriod.applicationFee}
 							paymentStatus={item.paymentStatus as PaymentStatus}
-							receipts={item.receipts}
+							bankDeposits={item.bankDeposits}
 						/>
 					</TabsPanel>
 

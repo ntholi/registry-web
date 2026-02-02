@@ -1,18 +1,28 @@
-import type { paymentTransactions } from '@admissions/_database';
+import type {
+	admissionReceipts,
+	bankDeposits,
+	DepositStatus,
+	mobileDeposits,
+} from '@admissions/_database';
 
-export type PaymentTransaction = typeof paymentTransactions.$inferSelect;
-export type PaymentTransactionInsert = typeof paymentTransactions.$inferInsert;
+export type BankDeposit = typeof bankDeposits.$inferSelect;
+export type BankDepositInsert = typeof bankDeposits.$inferInsert;
 
-export type TransactionStatus = 'pending' | 'success' | 'failed';
-export type PaymentProvider = 'mpesa' | 'ecocash';
+export type MobileDeposit = typeof mobileDeposits.$inferSelect;
+export type MobileDepositInsert = typeof mobileDeposits.$inferInsert;
 
-export interface PaymentFilters {
-	status?: TransactionStatus;
-	provider?: PaymentProvider;
+export type AdmissionReceipt = typeof admissionReceipts.$inferSelect;
+export type AdmissionReceiptInsert = typeof admissionReceipts.$inferInsert;
+
+export type { DepositStatus };
+export type MobileProvider = 'mpesa' | 'ecocash';
+
+export interface DepositFilters {
+	status?: DepositStatus;
 	applicationId?: string;
 }
 
-export interface PaymentWithRelations extends PaymentTransaction {
+export interface BankDepositWithRelations extends BankDeposit {
 	application: {
 		id: string;
 		applicant: {
@@ -20,15 +30,5 @@ export interface PaymentWithRelations extends PaymentTransaction {
 			fullName: string;
 		};
 	} | null;
-	markedPaidByUser: {
-		id: string;
-		name: string | null;
-	} | null;
-}
-
-export interface InitiatePaymentInput {
-	applicationId: string;
-	amount: number;
-	mobileNumber: string;
-	provider: PaymentProvider;
+	receipt: AdmissionReceipt | null;
 }

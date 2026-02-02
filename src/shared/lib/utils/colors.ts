@@ -543,3 +543,9 @@ export type TransactionStatusType = keyof typeof statusColors.transactionStatus;
 export function getTransactionStatusColor(status: TransactionStatusType) {
 	return getColorFromMap(status, statusColors.transactionStatus);
 }
+
+export type DepositStatusType = 'pending' | 'verified' | 'rejected';
+
+export function getDepositStatusColor(status: DepositStatusType) {
+	return getColorFromMap(status, statusColors.documentVerificationStatus);
+}

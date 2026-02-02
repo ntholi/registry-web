@@ -45,7 +45,7 @@ export default function PaymentClient({ applicationId }: Props) {
 			applicationId={applicationId}
 			fee={data.fee}
 			isPaid={data.isPaid ?? false}
-			pendingTransaction={data.pendingTransaction}
+			hasPendingDeposit={data.hasPendingDeposit ?? false}
 			intakeStartDate={data.intakeStartDate}
 			intakeEndDate={data.intakeEndDate}
 		/>

@@ -2,7 +2,6 @@ import { and, count, eq, inArray } from 'drizzle-orm';
 import {
 	type ApplicationStatus,
 	applicationNotes,
-	applicationReceipts,
 	applicationStatusHistory,
 	applications,
 	db,
@@ -46,12 +45,21 @@ export default class ApplicationRepository extends BaseRepository<
 				createdByUser: {
 					columns: { id: true, name: true },
 				},
-				receipts: {
+				bankDeposits: {
 					with: {
 						receipt: {
 							columns: { id: true, receiptNo: true, createdAt: true },
 						},
 					},
+					orderBy: (bd, { desc }) => [desc(bd.createdAt)],
+				},
+				mobileDeposits: {
+					with: {
+						receipt: {
+							columns: { id: true, receiptNo: true, createdAt: true },
+						},
+					},
+					orderBy: (md, { desc }) => [desc(md.createdAt)],
 				},
 				statusHistory: {
 					with: {
@@ -220,14 +228,6 @@ export default class ApplicationRepository extends BaseRepository<
 		});
 	}
 
-	async linkReceipt(applicationId: string, receiptId: string) {
-		const [link] = await db
-			.insert(applicationReceipts)
-			.values({ applicationId, receiptId })
-			.returning();
-		return link;
-	}
-
 	async updatePaymentStatus(id: string, paymentStatus: PaymentStatus) {
 		const [updated] = await db
 			.update(applications)
@@ -235,15 +235,6 @@ export default class ApplicationRepository extends BaseRepository<
 			.where(eq(applications.id, id))
 			.returning();
 		return updated;
-	}
-
-	async getLinkedReceipts(applicationId: string) {
-		return db.query.applicationReceipts.findMany({
-			where: eq(applicationReceipts.applicationId, applicationId),
-			with: {
-				receipt: true,
-			},
-		});
 	}
 
 	async findForPayment(id: string) {
