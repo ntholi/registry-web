@@ -233,7 +233,8 @@ export default function CourseSelectionForm({ applicationId }: Props) {
 
 						{eligiblePrograms.length > 1 && (
 							<SegmentedControl
-								fullWidth
+								color='teal'
+								size='md'
 								value={choiceType}
 								onChange={(val) => setChoiceType(val as 'first' | 'second')}
 								data={[
