@@ -61,7 +61,7 @@ export default function ReviewForm({ applicationId }: Props) {
 					: 'Your application has been submitted for review',
 				color: 'green',
 			});
-			router.push(`/apply/${applicationId}/payment`);
+			router.push(`/apply/${applicationId}/payment?method=receipt`);
 		},
 		onError: (error) => {
 			notifications.show({

@@ -100,7 +100,7 @@ export default async function WelcomePage() {
 									<IconCreditCard size={16} />
 								</ThemeIcon>
 								<Text size='sm'>
-									Application fee can be paid via M-Pesa or bank deposit.
+									Application fee can be paid via bank deposit.
 								</Text>
 							</Group>
 						</Stack>

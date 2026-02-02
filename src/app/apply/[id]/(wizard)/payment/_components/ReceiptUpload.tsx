@@ -15,12 +15,7 @@ import {
 } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
-import {
-	IconAlertCircle,
-	IconCheck,
-	IconCreditCard,
-	IconLibrary,
-} from '@tabler/icons-react';
+import { IconAlertCircle, IconCheck, IconLibrary } from '@tabler/icons-react';
 import { useState } from 'react';
 import { useApplicant } from '@/app/apply/_lib/useApplicant';
 import { FieldView } from '@/shared/ui/adease/FieldView';
@@ -51,7 +46,6 @@ type Props = {
 	intakeStartDate: string;
 	intakeEndDate: string;
 	onSubmit: (receipts: DepositSubmission[]) => void;
-	onSwitchToMpesa: () => void;
 	isSubmitting?: boolean;
 };
 
@@ -64,7 +58,6 @@ export default function ReceiptUploadForm({
 	intakeStartDate,
 	intakeEndDate,
 	onSubmit,
-	onSwitchToMpesa,
 	isSubmitting,
 }: Props) {
 	const isMobile = useMediaQuery('(max-width: 768px)');
@@ -310,18 +303,6 @@ export default function ReceiptUploadForm({
 					disabled={!canSubmit}
 				>
 					Submit
-				</Button>
-
-				<Divider label='OR' my={'md'} />
-
-				<Button
-					variant='subtle'
-					color='gray'
-					leftSection={<IconCreditCard size={16} />}
-					onClick={onSwitchToMpesa}
-					disabled={isSubmitting}
-				>
-					Pay with M-Pesa
 				</Button>
 			</Stack>
 		</Stack>

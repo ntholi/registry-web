@@ -98,7 +98,7 @@ export default async function ThankYouPage({ params }: Props) {
 									My Profile
 								</LinkButton>
 								<LinkButton
-									href={`/apply/${id}/payment`}
+									href={`/apply/${id}/payment?method=receipt`}
 									color='orange'
 									leftSection={<IconCreditCard size={16} />}
 								>

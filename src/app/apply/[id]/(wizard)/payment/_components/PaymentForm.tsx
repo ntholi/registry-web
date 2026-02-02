@@ -1,6 +1,5 @@
 'use client';
 
-import { useApplicant } from '@apply/_lib/useApplicant';
 import {
 	Button,
 	Card,
@@ -27,7 +26,6 @@ import {
 import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'nextjs-toploader/app';
 import { useQueryState } from 'nuqs';
-import { validateMpesaNumber } from '@/core/integrations/pay-lesotho';
 import { submitReceiptPayment } from '../_server/actions';
 import { MobilePayment } from './MobilePayment';
 import ReceiptUpload from './ReceiptUpload';
@@ -59,7 +57,6 @@ export default function PaymentForm({
 	intakeEndDate,
 }: Props) {
 	const router = useRouter();
-	const { applicant } = useApplicant();
 	const [view, setView] = useQueryState('method', {
 		defaultValue: 'select' as PaymentView,
 		parse: (value): PaymentView => {
@@ -70,15 +67,6 @@ export default function PaymentForm({
 
 	const [payLaterOpened, { open: openPayLater, close: closePayLater }] =
 		useDisclosure(false);
-
-	const defaultPhone =
-		applicant?.phones?.find((p) => {
-			try {
-				return validateMpesaNumber(p.phoneNumber);
-			} catch {
-				return false;
-			}
-		})?.phoneNumber || '';
 
 	const submitReceiptMutation = useMutation({
 		mutationFn: async (
@@ -173,15 +161,7 @@ export default function PaymentForm({
 					</Card>
 
 					{view === 'select' && (
-						<SimpleGrid cols={2} spacing='md'>
-							<PaymentOption
-								icon={<IconCreditCard size={28} />}
-								title='Pay with M-Pesa'
-								description='Pay instantly using mobile money'
-								color='red'
-								onClick={() => setView('mobile')}
-							/>
-
+						<SimpleGrid cols={1} spacing='md'>
 							{intakeStartDate && intakeEndDate && fee ? (
 								<PaymentOption
 									icon={<IconReceipt size={28} />}
@@ -214,7 +194,7 @@ export default function PaymentForm({
 						<MobilePayment
 							applicationId={applicationId}
 							fee={fee}
-							defaultPhone={defaultPhone}
+							defaultPhone={''}
 							onSwitchToUpload={() => setView('receipt')}
 						/>
 					)}
@@ -225,7 +205,6 @@ export default function PaymentForm({
 							intakeStartDate={intakeStartDate}
 							intakeEndDate={intakeEndDate}
 							onSubmit={(receipts) => submitReceiptMutation.mutate(receipts)}
-							onSwitchToMpesa={() => setView('mobile')}
 							isSubmitting={submitReceiptMutation.isPending}
 						/>
 					)}
