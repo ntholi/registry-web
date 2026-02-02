@@ -1,5 +1,6 @@
 'use server';
 
+import { getActiveTerm } from '@/app/registry/terms';
 import { auth } from '@/core/auth';
 import { assignedModulesService as service } from './service';
 
@@ -27,7 +28,8 @@ export async function getLecturersByModule(moduleId: number) {
 }
 
 export async function getAssignedModulesByUser(userId: string) {
-	return service.getByUser(userId);
+	const termId = await getActiveTerm();
+	return service.getByUser(userId, termId.id);
 }
 
 export async function getAssignedModulesByCurrentUser() {
@@ -35,7 +37,8 @@ export async function getAssignedModulesByCurrentUser() {
 	if (!session?.user?.id) {
 		return [];
 	}
-	return service.getByUserGroupedByModule(session.user.id);
+	const termId = await getActiveTerm();
+	return service.getByUserGroupedByModule(session.user.id, termId.id);
 }
 
 export async function getAssignedModuleByLmsCourseId(lmsCourseId: string) {

@@ -37,15 +37,15 @@ class AssignedModuleService {
 		);
 	}
 
-	async getByUser(userId: string) {
+	async getByUser(userId: string, termId?: number) {
 		return withAuth(
-			async () => this.repository.findByUser(userId),
+			async () => this.repository.findByUser(userId, termId),
 			['academic']
 		);
 	}
 
-	async getByUserGroupedByModule(userId: string) {
-		const data = await this.getByUser(userId);
+	async getByUserGroupedByModule(userId: string, termId?: number) {
+		const data = await this.getByUser(userId, termId);
 		type ResultType = (typeof data)[0];
 
 		const moduleMap = new Map<number, ResultType>();
