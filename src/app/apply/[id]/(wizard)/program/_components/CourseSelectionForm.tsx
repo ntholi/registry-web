@@ -19,7 +19,13 @@ import { notifications } from '@mantine/notifications';
 import { IconSchool } from '@tabler/icons-react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useRouter } from 'nextjs-toploader/app';
-import { parseAsInteger, parseAsString, useQueryStates } from 'nuqs';
+import {
+	parseAsInteger,
+	parseAsString,
+	parseAsStringLiteral,
+	useQueryState,
+	useQueryStates,
+} from 'nuqs';
 import { useMemo, useState } from 'react';
 import CoursesFilters from '@/app/apply/courses/_components/CoursesFilters';
 import WizardNavigation from '../../_components/WizardNavigation';
@@ -46,7 +52,10 @@ type Props = {
 
 export default function CourseSelectionForm({ applicationId }: Props) {
 	const router = useRouter();
-	const [choiceType, setChoiceType] = useState<'first' | 'second'>('first');
+	const [choiceType, setChoiceType] = useQueryState(
+		'choice',
+		parseAsStringLiteral(['first', 'second']).withDefault('first')
+	);
 
 	const [filters] = useQueryStates({
 		schoolId: parseAsInteger,
@@ -124,6 +133,14 @@ export default function CourseSelectionForm({ applicationId }: Props) {
 		return Array.from(set);
 	}, [eligiblePrograms]);
 
+	const firstChoiceProgram = useMemo(
+		() =>
+			(eligiblePrograms as EligibleProgram[]).find(
+				(p) => String(p.id) === firstChoice
+			),
+		[eligiblePrograms, firstChoice]
+	);
+
 	const submitMutation = useMutation({
 		mutationFn: async () => {
 			if (!firstChoice || !activeIntake?.id) {
@@ -156,22 +173,51 @@ export default function CourseSelectionForm({ applicationId }: Props) {
 	});
 
 	function handleContinue() {
-		if (eligiblePrograms.length > 1 && !secondChoice) {
+		if (choiceType === 'first') {
+			if (eligiblePrograms.length > 1) {
+				setChoiceType('second');
+				return;
+			}
+			submitMutation.mutate();
+			return;
+		}
+
+		if (!secondChoice) {
 			modals.openConfirmModal({
 				title: 'No Second Choice Selected',
 				children: (
 					<Text size='sm'>
-						You have not selected a second choice program. Would you like to
-						select one now?
+						You have not selected a second choice program. Are you sure you want
+						to continue without one?
 					</Text>
 				),
-				labels: { confirm: 'Choose Second Choice', cancel: 'Continue Anyway' },
-				onConfirm: () => setChoiceType('second'),
-				onCancel: () => submitMutation.mutate(),
+				labels: { confirm: 'Continue Without', cancel: 'Select One' },
+				onConfirm: () => submitMutation.mutate(),
 			});
 			return;
 		}
 		submitMutation.mutate();
+	}
+
+	function handleSecondChoiceToggle(program: EligibleProgram, sel: boolean) {
+		if (sel && firstChoiceProgram?.schoolId === program.schoolId) {
+			modals.openConfirmModal({
+				title: 'Same School Warning',
+				children: (
+					<Text size='sm'>
+						We recommend selecting a second choice from a different school to
+						increase your admission chances. Your first choice is already from{' '}
+						<strong>{firstChoiceProgram.school.name}</strong>. Are you sure you
+						want to continue with this selection?
+					</Text>
+				),
+				labels: { confirm: 'Select Anyway', cancel: 'Choose Different' },
+				confirmProps: { color: 'yellow' },
+				onConfirm: () => setSecondChoice(String(program.id)),
+			});
+			return;
+		}
+		setSecondChoice(sel ? String(program.id) : null);
 	}
 
 	const isLoading = loadingPrograms || loadingIntake;
@@ -263,7 +309,7 @@ export default function CourseSelectionForm({ applicationId }: Props) {
 										if (choiceType === 'first') {
 											setFirstChoice(sel ? String(program.id) : null);
 										} else {
-											setSecondChoice(sel ? String(program.id) : null);
+											handleSecondChoiceToggle(program, sel);
 										}
 									}}
 								/>
