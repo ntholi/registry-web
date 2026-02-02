@@ -1,4 +1,5 @@
 import type { AcademicRemarks, Student } from '@registry/students';
+import { getSponsor } from '@/app/finance/sponsors';
 import { getActiveTerm } from '@/app/registry/terms';
 import {
 	dashboardUsers,
@@ -105,25 +106,22 @@ class RegistrationRequestService {
 		accountNumber?: string;
 		receipts?: { receiptNo: string; receiptType: ReceiptType }[];
 	}) {
-		const repeatModules = data.modules.filter((m) =>
-			m.moduleStatus.startsWith('Repeat')
-		);
-		const repeatReceipts =
-			data.receipts?.filter((r) => r.receiptType === 'repeat_module') || [];
+		const sponsor = await getSponsor(data.sponsorId);
+		const isSelfSponsored = sponsor?.code === 'PRV';
 
-		if (repeatModules.length > 0 && repeatReceipts.length === 0) {
-			throw new Error(
-				'A receipt is required for repeat modules. Please ensure all repeat modules have a receipt number attached.'
+		if (!isSelfSponsored) {
+			const repeatModules = data.modules.filter((m) =>
+				m.moduleStatus.startsWith('Repeat')
 			);
-		}
+			const repeatReceipts =
+				data.receipts?.filter((r) => r.receiptType === 'repeat_module') || [];
 
-		return withAuth(
-			async () => {
-				return this.repository.createWithModules(data);
-			},
-			async (session) =>
-				session.user?.stdNo === data.stdNo || session.user?.role === 'registry'
-		);
+			if (repeatModules.length > 0 && repeatReceipts.length === 0) {
+				throw new Error(
+					'A receipt is required for repeat modules. Please ensure all repeat modules have a receipt number attached.'
+				);
+			}
+		}
 	}
 
 	async updateWithModules(
