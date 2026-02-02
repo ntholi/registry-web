@@ -200,7 +200,12 @@ export default function CourseSelectionForm({ applicationId }: Props) {
 	}
 
 	function handleSecondChoiceToggle(program: EligibleProgram, sel: boolean) {
-		if (sel && firstChoiceProgram?.schoolId === program.schoolId) {
+		const hasMultipleSchools = schools.length > 1;
+		if (
+			sel &&
+			hasMultipleSchools &&
+			firstChoiceProgram?.schoolId === program.schoolId
+		) {
 			modals.openConfirmModal({
 				title: 'Same School Warning',
 				children: (
