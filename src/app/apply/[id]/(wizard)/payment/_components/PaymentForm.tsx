@@ -27,6 +27,7 @@ import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'nextjs-toploader/app';
 import { useQueryState } from 'nuqs';
 import { submitReceiptPayment } from '../_server/actions';
+import { MobilePayment } from './MobilePayment';
 import ReceiptUpload from './ReceiptUpload';
 
 type Props = {
@@ -205,6 +206,15 @@ export default function PaymentForm({
 								</Card>
 							)}
 						</SimpleGrid>
+					)}
+
+					{view === 'mobile' && fee && (
+						<MobilePayment
+							applicationId={applicationId}
+							fee={fee}
+							defaultPhone={''}
+							onSwitchToUpload={() => setView('receipt')}
+						/>
 					)}
 
 					{view === 'receipt' && intakeStartDate && intakeEndDate && fee && (

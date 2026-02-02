@@ -45,3 +45,29 @@ export async function countBankDepositsByStatus(status: DepositStatus) {
 export async function deleteBankDeposit(id: string) {
 	return paymentsService.delete(id);
 }
+
+export async function initiateMobilePayment(
+	applicationId: string,
+	amount: number,
+	mobileNumber: string,
+	provider: 'mpesa' | 'ecocash' = 'mpesa'
+) {
+	return paymentsService.initiateMobilePayment(
+		applicationId,
+		amount,
+		mobileNumber,
+		provider
+	);
+}
+
+export async function verifyMobilePayment(depositId: string) {
+	return paymentsService.verifyMobilePayment(depositId);
+}
+
+export async function getPendingMobileDeposit(applicationId: string) {
+	return paymentsService.getPendingMobileDeposit(applicationId);
+}
+
+export async function getMobileDepositsByApplication(applicationId: string) {
+	return paymentsService.getMobileDepositsByApplication(applicationId);
+}

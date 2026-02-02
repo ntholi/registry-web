@@ -5,6 +5,7 @@ import {
 	bankDeposits,
 	type DepositStatus,
 	db,
+	mobileDeposits,
 } from '@/core/database';
 import BaseRepository from '@/core/platform/BaseRepository';
 import type { DepositFilters } from '../_lib/types';
@@ -194,6 +195,71 @@ export default class PaymentRepository extends BaseRepository<
 			.update(applications)
 			.set({ status, updatedAt: new Date() })
 			.where(eq(applications.id, applicationId))
+			.returning();
+		return updated;
+	}
+
+	async createMobileDeposit(data: typeof mobileDeposits.$inferInsert) {
+		const [deposit] = await db.insert(mobileDeposits).values(data).returning();
+		return deposit;
+	}
+
+	async findMobileDepositById(id: string) {
+		return db.query.mobileDeposits.findFirst({
+			where: eq(mobileDeposits.id, id),
+			with: {
+				application: {
+					columns: { id: true },
+					with: {
+						applicant: { columns: { id: true, fullName: true } },
+					},
+				},
+				receipt: true,
+			},
+		});
+	}
+
+	async findMobileDepositByClientRef(clientReference: string) {
+		return db.query.mobileDeposits.findFirst({
+			where: eq(mobileDeposits.clientReference, clientReference),
+		});
+	}
+
+	async findPendingMobileDeposit(applicationId: string) {
+		return db.query.mobileDeposits.findFirst({
+			where: and(
+				eq(mobileDeposits.applicationId, applicationId),
+				eq(mobileDeposits.status, 'pending')
+			),
+		});
+	}
+
+	async findMobileDepositsByApplication(applicationId: string) {
+		return db.query.mobileDeposits.findMany({
+			where: eq(mobileDeposits.applicationId, applicationId),
+			orderBy: desc(mobileDeposits.createdAt),
+			with: { receipt: true },
+		});
+	}
+
+	async updateMobileDepositStatus(
+		id: string,
+		status: DepositStatus,
+		providerReference?: string,
+		providerResponse?: Record<string, unknown>
+	) {
+		const updateData: Partial<typeof mobileDeposits.$inferInsert> = {
+			status,
+		};
+		if (providerReference) updateData.providerReference = providerReference;
+		if (providerResponse)
+			updateData.providerResponse =
+				providerResponse as typeof updateData.providerResponse;
+
+		const [updated] = await db
+			.update(mobileDeposits)
+			.set(updateData)
+			.where(eq(mobileDeposits.id, id))
 			.returning();
 		return updated;
 	}

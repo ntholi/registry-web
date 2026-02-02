@@ -2,7 +2,11 @@
 
 import { getApplicant } from '@admissions/applicants';
 import { getApplicationForPayment } from '@admissions/applications';
-import { getBankDepositsByApplication } from '@admissions/payments';
+import {
+	getBankDepositsByApplication,
+	initiateMobilePayment,
+	verifyMobilePayment,
+} from '@admissions/payments';
 import { extractError } from '@apply/_lib/errors';
 import { bankDeposits, db, documents } from '@/core/database';
 import { validateAnalyzedReceipt, validateReceipts } from './validation';
@@ -130,4 +134,29 @@ export async function getPaymentPageData(applicationId: string) {
 		intakeStartDate: intake?.startDate ?? null,
 		intakeEndDate: intake?.endDate ?? null,
 	};
+}
+
+export async function initiateMpesaPayment(
+	applicationId: string,
+	amount: number,
+	mobileNumber: string
+) {
+	try {
+		return await initiateMobilePayment(
+			applicationId,
+			amount,
+			mobileNumber,
+			'mpesa'
+		);
+	} catch (error) {
+		return { success: false, error: extractError(error) };
+	}
+}
+
+export async function checkPaymentStatus(depositId: string) {
+	try {
+		return await verifyMobilePayment(depositId);
+	} catch (error) {
+		return { success: false, error: extractError(error), status: 'failed' };
+	}
 }
