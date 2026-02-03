@@ -166,13 +166,13 @@ export default function AttendanceForm({
 	if (isLoading || isFetching) {
 		return (
 			<Stack gap='md'>
-				<Group justify='space-between'>
-					<Skeleton h={36} w={320} radius='md' />
-					<Group gap='xs'>
-						<Skeleton h={36} w={150} radius='md' />
-						<Skeleton h={36} w={36} radius='md' />
-					</Group>
-				</Group>
+				<Flex justify='space-between' w={'100%'} align='flex-end' mb='sm'>
+					<Skeleton h={36} w={400} radius='md' />
+					<Stack align='flex-start' gap={5}>
+						<Skeleton h={12} w={240} radius='md' />
+						<Skeleton h={32} w={560} radius='md' />
+					</Stack>
+				</Flex>
 				<Paper withBorder>
 					<Table striped>
 						<Table.Thead>
@@ -193,7 +193,7 @@ export default function AttendanceForm({
 									</Table.Td>
 									<Table.Td>
 										<Group justify='flex-end'>
-											<Skeleton h={22} w={220} radius='md' />
+											<Skeleton h={28} w={220} radius='md' />
 										</Group>
 									</Table.Td>
 								</Table.Tr>
