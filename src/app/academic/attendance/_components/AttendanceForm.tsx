@@ -1,10 +1,7 @@
 'use client';
 
 import {
-	ActionIcon,
-	Button,
 	Group,
-	Menu,
 	Paper,
 	SegmentedControl,
 	Skeleton,
@@ -12,31 +9,23 @@ import {
 	Table,
 	Text,
 	TextInput,
-	Tooltip,
 } from '@mantine/core';
 import { useDebouncedValue } from '@mantine/hooks';
-import { modals } from '@mantine/modals';
 import { notifications } from '@mantine/notifications';
 import {
 	IconCalendarOff,
-	IconChevronDown,
 	IconCircleCheck,
 	IconCircleMinus,
 	IconCircleX,
 	IconClock,
 	IconQuestionMark,
 	IconSearch,
-	IconTrash,
 } from '@tabler/icons-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useMemo, useState } from 'react';
 import type { AttendanceStatus } from '@/core/database';
 import { getStatusColor } from '@/shared/lib/utils/colors';
-import {
-	deleteAttendanceForWeek,
-	getAttendanceForWeek,
-	markAttendance,
-} from '../_server/actions';
+import { getAttendanceForWeek, markAttendance } from '../_server/actions';
 
 type Props = {
 	semesterModuleId: number;
@@ -67,6 +56,7 @@ export default function AttendanceForm({
 	const queryClient = useQueryClient();
 	const [searchQuery, setSearchQuery] = useState('');
 	const [debouncedSearch] = useDebouncedValue(searchQuery, 300);
+	const [bulkStatus, setBulkStatus] = useState<AttendanceStatus>('present');
 
 	const {
 		data: students,
@@ -105,31 +95,6 @@ export default function AttendanceForm({
 		},
 	});
 
-	const deleteMutation = useMutation({
-		mutationFn: async () =>
-			deleteAttendanceForWeek(semesterModuleId, termId, weekNumber),
-		onSuccess: () => {
-			queryClient.invalidateQueries({
-				queryKey: ['attendance-week', semesterModuleId, termId, weekNumber],
-			});
-			queryClient.invalidateQueries({
-				queryKey: ['attendance-summary', semesterModuleId, termId],
-			});
-			notifications.show({
-				title: 'Deleted',
-				message: 'Attendance records have been deleted',
-				color: 'green',
-			});
-		},
-		onError: () => {
-			notifications.show({
-				title: 'Error',
-				message: 'Failed to delete attendance records',
-				color: 'red',
-			});
-		},
-	});
-
 	const handleStatusChange = (stdNo: number, status: AttendanceStatus) => {
 		saveMutation.mutate([{ stdNo, status }]);
 	};
@@ -148,19 +113,10 @@ export default function AttendanceForm({
 		});
 	};
 
-	const handleDelete = () => {
-		modals.openConfirmModal({
-			title: 'Delete Attendance',
-			children: (
-				<Text size='sm'>
-					Are you sure you want to delete all attendance records for this week?
-					This action cannot be undone.
-				</Text>
-			),
-			labels: { confirm: 'Delete', cancel: 'Cancel' },
-			confirmProps: { color: 'red' },
-			onConfirm: () => deleteMutation.mutate(),
-		});
+	const handleBulkChange = (value: string) => {
+		const status = value as AttendanceStatus;
+		setBulkStatus(status);
+		handleBulkSetStatus(status);
 	};
 
 	const filteredStudents = useMemo(() => {
@@ -237,42 +193,22 @@ export default function AttendanceForm({
 					onChange={(e) => setSearchQuery(e.currentTarget.value)}
 					style={{ flex: 1, maxWidth: 400 }}
 				/>
-				<Group gap='xs'>
-					<Menu shadow='md' width={200}>
-						<Menu.Target>
-							<Button
-								variant='default'
-								w={150}
-								rightSection={<IconChevronDown size={16} />}
-								loading={saveMutation.isPending}
-							>
-								Bulk Action
-							</Button>
-						</Menu.Target>
-						<Menu.Dropdown>
-							{statusOptions.map((opt) => (
-								<Menu.Item
-									key={opt.value}
-									leftSection={<opt.icon size={16} />}
-									onClick={() => handleBulkSetStatus(opt.value)}
-								>
-									Mark all as {opt.label}
-								</Menu.Item>
-							))}
-						</Menu.Dropdown>
-					</Menu>
-					<Tooltip label='Delete all attendance for this week'>
-						<ActionIcon
-							variant='light'
-							color='red'
-							size='lg'
-							onClick={handleDelete}
-							loading={deleteMutation.isPending}
-						>
-							<IconTrash size={18} />
-						</ActionIcon>
-					</Tooltip>
-				</Group>
+				<SegmentedControl
+					value={bulkStatus}
+					onChange={handleBulkChange}
+					data={statusOptions.map((opt) => ({
+						value: opt.value,
+						label: (
+							<Group gap={6} wrap='nowrap'>
+								<opt.icon size={16} />
+								<span>{opt.label}</span>
+							</Group>
+						),
+					}))}
+					disabled={saveMutation.isPending}
+					color={getStatusColor(bulkStatus)}
+					size='sm'
+				/>
 			</Group>
 
 			<Paper withBorder>
@@ -291,7 +227,6 @@ export default function AttendanceForm({
 								<Table.Td>{student.name}</Table.Td>
 								<Table.Td style={{ textAlign: 'right' }}>
 									<SegmentedControl
-										size='xs'
 										value={student.status}
 										onChange={(value) =>
 											handleStatusChange(
@@ -303,8 +238,7 @@ export default function AttendanceForm({
 											value: opt.value,
 											label: (
 												<Group gap={4} wrap='nowrap'>
-													<opt.icon size={14} />
-													<span>{opt.label}</span>
+													<opt.icon size={18} />
 												</Group>
 											),
 										}))}
@@ -314,6 +248,7 @@ export default function AttendanceForm({
 												backgroundColor: 'transparent',
 											},
 										}}
+										size='sm'
 									/>
 								</Table.Td>
 							</Table.Tr>
