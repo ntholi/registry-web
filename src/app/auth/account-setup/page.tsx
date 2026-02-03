@@ -14,7 +14,7 @@ import {
 	Title,
 } from '@mantine/core';
 import { modals } from '@mantine/modals';
-import { IconLogout, IconMail } from '@tabler/icons-react';
+import { IconArrowRight, IconLogout, IconMail } from '@tabler/icons-react';
 import { useRouter } from 'next/navigation';
 import { signOut, useSession } from 'next-auth/react';
 import Logo from '@/shared/ui/Logo';
@@ -34,6 +34,22 @@ export default function AccountSetupPage() {
 	if (session?.user?.role !== 'user') {
 		router.push('/');
 	}
+
+	const handleApply = () => {
+		modals.openConfirmModal({
+			centered: true,
+			title: 'Start Application',
+			children: (
+				<Text size='sm'>
+					You are about to start a new application to Limkokwing University. You
+					will be redirected to the application portal. Do you want to continue?
+				</Text>
+			),
+			confirmProps: { color: 'blue' },
+			labels: { confirm: 'Start Application', cancel: 'Cancel' },
+			onConfirm: () => router.push('/apply/welcome'),
+		});
+	};
 
 	const handleLogout = () => {
 		modals.openConfirmModal({
@@ -80,19 +96,19 @@ export default function AccountSetupPage() {
 								This email address is not registered in our system. Please
 								contact the Registry Department for assistance.
 							</Text>
+						</Stack>
 
-							<Center>
-								<Text
-									size='sm'
-									c='blue'
-									component='a'
-									href='mailto:registry@limkokwing.ac.ls'
-									td='underline'
-									fw={500}
-								>
-									registry@limkokwing.ac.ls
-								</Text>
-							</Center>
+						<Divider w='100%' label='Want to Apply?' labelPosition='center' />
+
+						<Stack gap='md' w='100%' align='center'>
+							<Button
+								variant='light'
+								rightSection={<IconArrowRight size={16} />}
+								onClick={handleApply}
+								fullWidth
+							>
+								Become an Applicant
+							</Button>
 						</Stack>
 
 						<Divider w='100%' />
