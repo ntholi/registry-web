@@ -1,6 +1,7 @@
 'use client';
 
 import {
+	Anchor,
 	Flex,
 	Group,
 	Paper,
@@ -26,6 +27,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useMemo, useState } from 'react';
 import type { AttendanceStatus } from '@/core/database';
 import { getStatusColor } from '@/shared/lib/utils/colors';
+import Link from '@/shared/ui/Link';
 import { getAttendanceForWeek, markAttendance } from '../_server/actions';
 
 type Props = {
@@ -219,7 +221,7 @@ export default function AttendanceForm({
 					leftSection={<IconSearch size={16} />}
 					value={searchQuery}
 					onChange={(e) => setSearchQuery(e.currentTarget.value)}
-					style={{ flex: 1, maxWidth: 400 }}
+					style={{ flex: 1, maxWidth: 450 }}
 				/>
 				<Stack align='flex-start' gap={5}>
 					<Text size='xs' c='dimmed' pl={2}>
@@ -257,7 +259,14 @@ export default function AttendanceForm({
 					<Table.Tbody>
 						{filteredStudents.map((student) => (
 							<Table.Tr key={student.stdNo}>
-								<Table.Td>{student.stdNo}</Table.Td>
+								<Table.Td>
+									<Anchor
+										component={Link}
+										href={`/registry/students/${student.stdNo}`}
+									>
+										{student.stdNo}
+									</Anchor>
+								</Table.Td>
 								<Table.Td>{student.name}</Table.Td>
 								<Table.Td style={{ textAlign: 'right' }}>
 									<SegmentedControl

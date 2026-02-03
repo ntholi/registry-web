@@ -33,6 +33,12 @@ export type WeekInfo = {
 	isCurrent: boolean;
 };
 
+export type TermInfo = {
+	id: number;
+	code: string;
+	name: string | null;
+};
+
 export default class AttendanceRepository extends BaseRepository<
 	typeof attendance,
 	'id'
@@ -89,6 +95,15 @@ export default class AttendanceRepository extends BaseRepository<
 		}
 
 		return weeks;
+	}
+
+	async getTermInfo(termId: number): Promise<TermInfo | null> {
+		return (
+			(await db.query.terms.findFirst({
+				where: eq(terms.id, termId),
+				columns: { id: true, code: true, name: true },
+			})) ?? null
+		);
 	}
 
 	async getStudentsForModule(
@@ -317,7 +332,7 @@ export default class AttendanceRepository extends BaseRepository<
 			.returning();
 	}
 
-	async getAssignedModulesWithDetails(userId: string) {
+	async getAssignedModulesWithDetails(userId: string, termId: number) {
 		return await db
 			.select({
 				assignedModuleId: assignedModules.id,
@@ -344,7 +359,8 @@ export default class AttendanceRepository extends BaseRepository<
 			.where(
 				and(
 					eq(assignedModules.userId, userId),
-					eq(assignedModules.active, true)
+					eq(assignedModules.active, true),
+					eq(assignedModules.termId, termId)
 				)
 			)
 			.orderBy(modules.code);

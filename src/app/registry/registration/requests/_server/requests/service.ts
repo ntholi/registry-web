@@ -106,22 +106,26 @@ class RegistrationRequestService {
 		accountNumber?: string;
 		receipts?: { receiptNo: string; receiptType: ReceiptType }[];
 	}) {
-		const sponsor = await getSponsor(data.sponsorId);
-		const isSelfSponsored = sponsor?.code === 'PRV';
+		return withAuth(async () => {
+			const sponsor = await getSponsor(data.sponsorId);
+			const isSelfSponsored = sponsor?.code === 'PRV';
 
-		if (!isSelfSponsored) {
-			const repeatModules = data.modules.filter((m) =>
-				m.moduleStatus.startsWith('Repeat')
-			);
-			const repeatReceipts =
-				data.receipts?.filter((r) => r.receiptType === 'repeat_module') || [];
-
-			if (repeatModules.length > 0 && repeatReceipts.length === 0) {
-				throw new Error(
-					'A receipt is required for repeat modules. Please ensure all repeat modules have a receipt number attached.'
+			if (!isSelfSponsored) {
+				const repeatModules = data.modules.filter((m) =>
+					m.moduleStatus.startsWith('Repeat')
 				);
+				const repeatReceipts =
+					data.receipts?.filter((r) => r.receiptType === 'repeat_module') || [];
+
+				if (repeatModules.length > 0 && repeatReceipts.length === 0) {
+					throw new Error(
+						'A receipt is required for repeat modules. Please ensure all repeat modules have a receipt number attached.'
+					);
+				}
 			}
-		}
+
+			return this.repository.createWithModules(data);
+		}, ['student', 'registry']);
 	}
 
 	async updateWithModules(

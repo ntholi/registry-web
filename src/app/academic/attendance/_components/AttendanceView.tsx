@@ -65,6 +65,10 @@ export default function AttendanceView() {
 
 	const currentWeek = weeks?.find((w) => w.isCurrent);
 	const effectiveWeek = selectedWeek ?? currentWeek?.weekNumber ?? null;
+	const selectedClassName = selectedModule
+		? (selectedClass ??
+			toClassName(selectedModule.programCode, selectedModule.semesterName))
+		: null;
 
 	const handleModuleChange = (value: string | null) => {
 		setSelectedModuleCode(value);
@@ -259,7 +263,13 @@ export default function AttendanceView() {
 								Summary
 							</Tabs.Tab>
 							<Box ml='auto' mb={5}>
-								<AttendanceDownload />
+								<AttendanceDownload
+									semesterModuleId={selectedModule.semesterModuleId}
+									termId={selectedModule.termId}
+									moduleCode={selectedModule.moduleCode}
+									moduleName={selectedModule.moduleName}
+									className={selectedClassName ?? ''}
+								/>
 							</Box>
 						</Tabs.List>
 
