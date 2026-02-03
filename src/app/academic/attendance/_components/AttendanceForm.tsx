@@ -35,6 +35,13 @@ type Props = {
 	assignedModuleId: number;
 };
 
+type AttendanceStudent = {
+	stdNo: number;
+	name: string;
+	attendanceId: number | null;
+	status: AttendanceStatus;
+};
+
 const statusOptions: {
 	value: AttendanceStatus;
 	label: string;
@@ -58,13 +65,24 @@ export default function AttendanceForm({
 	const [searchQuery, setSearchQuery] = useState('');
 	const [debouncedSearch] = useDebouncedValue(searchQuery, 300);
 	const [bulkStatus, setBulkStatus] = useState<AttendanceStatus>('not_marked');
+	const attendanceWeekKey = [
+		'attendance-week',
+		semesterModuleId,
+		termId,
+		weekNumber,
+	] as const;
+	const attendanceSummaryKey = [
+		'attendance-summary',
+		semesterModuleId,
+		termId,
+	] as const;
 
 	const {
 		data: students,
 		isLoading,
 		isFetching,
 	} = useQuery({
-		queryKey: ['attendance-week', semesterModuleId, termId, weekNumber],
+		queryKey: attendanceWeekKey,
 		queryFn: () => getAttendanceForWeek(semesterModuleId, termId, weekNumber),
 	});
 
@@ -79,20 +97,38 @@ export default function AttendanceForm({
 				assignedModuleId,
 				records
 			),
-		onSuccess: () => {
-			queryClient.invalidateQueries({
-				queryKey: ['attendance-week', semesterModuleId, termId, weekNumber],
-			});
-			queryClient.invalidateQueries({
-				queryKey: ['attendance-summary', semesterModuleId, termId],
-			});
+		onMutate: async (records) => {
+			await queryClient.cancelQueries({ queryKey: attendanceWeekKey });
+			const previous =
+				queryClient.getQueryData<AttendanceStudent[]>(attendanceWeekKey);
+			if (previous) {
+				const statusMap = new Map(
+					records.map((record) => [record.stdNo, record.status])
+				);
+				queryClient.setQueryData<AttendanceStudent[]>(
+					attendanceWeekKey,
+					previous.map((student) => {
+						const nextStatus = statusMap.get(student.stdNo);
+						if (!nextStatus) return student;
+						return { ...student, status: nextStatus };
+					})
+				);
+			}
+			return { previous };
 		},
-		onError: () => {
+		onError: (_error, _records, context) => {
+			if (context?.previous) {
+				queryClient.setQueryData(attendanceWeekKey, context.previous);
+			}
 			notifications.show({
 				title: 'Error',
 				message: 'Failed to save attendance',
 				color: 'red',
 			});
+		},
+		onSettled: () => {
+			queryClient.invalidateQueries({ queryKey: attendanceWeekKey });
+			queryClient.invalidateQueries({ queryKey: attendanceSummaryKey });
 		},
 	});
 
@@ -107,11 +143,6 @@ export default function AttendanceForm({
 			status,
 		}));
 		saveMutation.mutate(records);
-		notifications.show({
-			title: 'Saving',
-			message: `Setting all students to ${status}...`,
-			color: 'blue',
-		});
 	};
 
 	const handleBulkChange = (value: string) => {
@@ -194,11 +225,12 @@ export default function AttendanceForm({
 					onChange={(e) => setSearchQuery(e.currentTarget.value)}
 					style={{ flex: 1, maxWidth: 400 }}
 				/>
-				<Stack align='flex-start' gap={0}>
-					<Text size='xs' c='dimmed'>
-						Applies to all students. Edit individuals below.
+				<Stack align='flex-start' gap={5}>
+					<Text size='xs' c='dimmed' pl={2}>
+						Mark all students or edit individually.
 					</Text>
 					<SegmentedControl
+						bg={'dark.7'}
 						value={bulkStatus}
 						onChange={handleBulkChange}
 						data={statusOptions.map((opt) => ({
@@ -249,11 +281,6 @@ export default function AttendanceForm({
 											),
 										}))}
 										color={getStatusColor(student.status)}
-										styles={{
-											root: {
-												backgroundColor: 'transparent',
-											},
-										}}
 										size='sm'
 									/>
 								</Table.Td>
@@ -261,11 +288,11 @@ export default function AttendanceForm({
 						))}
 					</Table.Tbody>
 				</Table>
-				); filteredStudents.length === 0 && debouncedSearch && (
-				<Text c='dimmed' ta='center' py='md'>
-					No students match your search.
-				</Text>
-				);
+				{filteredStudents.length === 0 && debouncedSearch && (
+					<Text c='dimmed' ta='center' py='md'>
+						No students match your search.
+					</Text>
+				)}
 			</Paper>
 		</Stack>
 	);

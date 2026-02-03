@@ -27,6 +27,7 @@ export async function markAttendance(
 	assignedModuleId: number,
 	records: { stdNo: number; status: AttendanceStatus }[]
 ) {
+	await new Promise((resolve) => setTimeout(resolve, 500)); // Simulate network delay
 	const session = await auth();
 	if (!session?.user?.id) {
 		throw new Error('Unauthorized');
