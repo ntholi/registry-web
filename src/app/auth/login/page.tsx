@@ -1,6 +1,5 @@
 import {
 	Box,
-	Button,
 	Center,
 	Container,
 	Group,
@@ -9,15 +8,10 @@ import {
 	Text,
 	Title,
 } from '@mantine/core';
-import Image from 'next/image';
 import { redirect } from 'next/navigation';
-import { auth, signIn } from '@/core/auth';
+import { auth } from '@/core/auth';
+import GoogleSignInForm from '@/shared/ui/GoogleSignInForm';
 import Logo from '@/shared/ui/Logo';
-
-async function handleGoogleSignIn(redirectTo: string) {
-	'use server';
-	await signIn('google', { redirectTo });
-}
 
 interface Props {
 	searchParams: Promise<{ callbackUrl?: string }>;
@@ -49,8 +43,6 @@ export default async function LoginPage({ searchParams }: Props) {
 			redirect('/');
 		}
 	}
-
-	const signInAction = handleGoogleSignIn.bind(null, callbackUrl || '/');
 
 	return (
 		<Box
@@ -86,23 +78,7 @@ export default async function LoginPage({ searchParams }: Props) {
 							</Stack>
 
 							<Stack w='100%' gap='lg'>
-								<form action={signInAction}>
-									<Button
-										type='submit'
-										variant='default'
-										leftSection={
-											<Image
-												src='/images/google.svg'
-												alt='Google'
-												width={18}
-												height={18}
-											/>
-										}
-										fullWidth
-									>
-										Sign in with Google
-									</Button>
-								</form>
+								<GoogleSignInForm redirectTo={callbackUrl} />
 
 								<Stack gap='xs' mt='lg'>
 									<Group justify='center' gap='xs'>
