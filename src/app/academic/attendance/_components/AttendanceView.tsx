@@ -4,20 +4,21 @@ import {
 	Badge,
 	Button,
 	Card,
+	Flex,
+	Grid,
 	Group,
 	Loader,
 	Paper,
 	Select,
-	SimpleGrid,
 	Stack,
 	Tabs,
 	Text,
 	ThemeIcon,
 	Title,
 } from '@mantine/core';
-import { IconCalendarWeek, IconTable } from '@tabler/icons-react';
+import { IconCalendarWeek, IconFilter, IconTable } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
-import { parseAsInteger, useQueryState } from 'nuqs';
+import { parseAsInteger, parseAsString, useQueryState } from 'nuqs';
 import { formatDate } from '@/shared/lib/utils/dates';
 import { toClassName } from '@/shared/lib/utils/utils';
 import {
@@ -27,36 +28,50 @@ import {
 import AttendanceForm from './AttendanceForm';
 import AttendanceSummary from './AttendanceSummary';
 
+type WeeksResult = Awaited<ReturnType<typeof getWeeksForTerm>>;
+type ModulesResult = Awaited<
+	ReturnType<typeof getAssignedModulesForCurrentUser>
+>;
+
 export default function AttendanceView() {
-	const [selectedModuleId, setSelectedModuleId] = useQueryState(
+	const [selectedModuleCode, setSelectedModuleCode] = useQueryState(
 		'module',
-		parseAsInteger
+		parseAsString
 	);
 	const [selectedWeek, setSelectedWeek] = useQueryState('week', parseAsInteger);
+	const [selectedClass, setSelectedClass] = useQueryState(
+		'studentClass',
+		parseAsString
+	);
 
-	const { data: modules, isLoading: modulesLoading } = useQuery({
+	const { data: modules, isLoading: modulesLoading } = useQuery<ModulesResult>({
 		queryKey: ['assigned-modules-attendance'],
 		queryFn: getAssignedModulesForCurrentUser,
 	});
 
 	const selectedModule = modules?.find(
-		(m) => m.semesterModuleId === selectedModuleId
+		(m) =>
+			m.moduleCode === selectedModuleCode &&
+			toClassName(m.programCode, m.semesterName) === selectedClass
 	);
 
-	const { data: weeks, isLoading: weeksLoading } = useQuery({
+	const { data: weeks, isLoading: weeksLoading } = useQuery<WeeksResult>({
 		queryKey: ['term-weeks', selectedModule?.termId],
 		queryFn: () => getWeeksForTerm(selectedModule!.termId),
 		enabled: !!selectedModule?.termId,
 	});
 
 	const currentWeek = weeks?.find((w) => w.isCurrent);
+	const effectiveWeek = selectedWeek ?? currentWeek?.weekNumber ?? null;
 
 	const handleModuleChange = (value: string | null) => {
-		if (value) {
-			setSelectedModuleId(parseInt(value, 10));
-		} else {
-			setSelectedModuleId(null);
-		}
+		setSelectedModuleCode(value);
+		setSelectedClass(null);
+		setSelectedWeek(null);
+	};
+
+	const handleClassChange = (value: string | null) => {
+		setSelectedClass(value);
 		setSelectedWeek(null);
 	};
 
@@ -98,9 +113,24 @@ export default function AttendanceView() {
 		);
 	}
 
-	const moduleOptions = modules.map((m) => ({
-		value: m.semesterModuleId.toString(),
-		label: `${toClassName(m.programCode, m.semesterName)} - ${m.moduleName}`,
+	const moduleOptions = Array.from(
+		new Map(
+			modules.map((m) => [m.moduleCode, `${m.moduleCode} - ${m.moduleName}`])
+		)
+	).map(([value, label]) => ({
+		value,
+		label,
+	}));
+
+	const classOptions = Array.from(
+		new Set(
+			modules
+				.filter((m) => m.moduleCode === selectedModuleCode)
+				.map((m) => toClassName(m.programCode, m.semesterName))
+		)
+	).map((name) => ({
+		value: name,
+		label: name,
 	}));
 
 	const weekOptions =
@@ -113,63 +143,70 @@ export default function AttendanceView() {
 	return (
 		<Stack gap='lg'>
 			<Paper p='lg' withBorder>
-				<Stack gap='md'>
-					<Group justify='space-between' align='flex-start'>
-						<Stack gap={2}>
-							<Title order={4}>Filters</Title>
-							<Text size='sm' c='dimmed'>
-								Pick a module and week to start marking attendance.
-							</Text>
-						</Stack>
-						{currentWeek && selectedModuleId && !selectedWeek && (
-							<Button
-								variant='light'
-								size='xs'
-								onClick={() => setSelectedWeek(currentWeek.weekNumber)}
-							>
-								Use current week
-							</Button>
-						)}
-					</Group>
-					<SimpleGrid cols={{ base: 1, sm: 2 }} spacing='md'>
-						<Select
-							label='Module'
-							placeholder='Select a module'
-							data={moduleOptions}
-							value={selectedModuleId?.toString() ?? null}
-							onChange={handleModuleChange}
-							searchable
-							clearable
-						/>
-						<Select
-							label='Week'
-							placeholder={
-								selectedModuleId ? 'Select a week' : 'Select a module first'
-							}
-							data={weekOptions}
-							value={selectedWeek?.toString() ?? null}
-							onChange={handleWeekChange}
-							disabled={!selectedModuleId || weeksLoading}
-							searchable
-							rightSection={weeksLoading ? <Loader size='xs' /> : null}
-							renderOption={({ option }) => (
-								<Stack gap={0}>
-									<Text size='sm'>{option.label}</Text>
-									<Text size='xs' c='dimmed'>
-										{(option as { description?: string }).description}
-									</Text>
-								</Stack>
-							)}
-						/>
-					</SimpleGrid>
-					{currentWeek && selectedModuleId && !selectedWeek && (
-						<Text size='xs' c='dimmed'>
-							Current week: Week {currentWeek.weekNumber} (
-							{formatDate(currentWeek.startDate, 'short')} -{' '}
-							{formatDate(currentWeek.endDate, 'short')})
-						</Text>
-					)}
-				</Stack>
+				<Group mb='md'>
+					<IconFilter size={18} />
+					<Text fw={600}>Filters</Text>
+				</Group>
+				<Flex align='flex-end' gap='sm'>
+					<Grid gutter='md' flex={1}>
+						<Grid.Col span={{ base: 12, sm: 6, md: 4 }}>
+							<Select
+								label='Module'
+								placeholder='Select module'
+								data={moduleOptions}
+								value={selectedModuleCode ?? null}
+								onChange={handleModuleChange}
+								searchable
+								clearable
+							/>
+						</Grid.Col>
+						<Grid.Col span={{ base: 12, sm: 6, md: 4 }}>
+							<Select
+								label='Student Class'
+								placeholder={
+									selectedModuleCode ? 'Select class' : 'Select a module first'
+								}
+								data={classOptions}
+								value={selectedClass ?? null}
+								onChange={handleClassChange}
+								searchable
+								clearable
+								disabled={!selectedModuleCode}
+							/>
+						</Grid.Col>
+						<Grid.Col span={{ base: 12, sm: 6, md: 4 }}>
+							<Select
+								label='Week'
+								placeholder={
+									selectedModule
+										? 'Auto-filled'
+										: 'Select module and class first'
+								}
+								data={weekOptions}
+								value={effectiveWeek?.toString() ?? null}
+								onChange={handleWeekChange}
+								disabled={!selectedModule || weeksLoading}
+								searchable
+								rightSection={weeksLoading ? <Loader size='xs' /> : null}
+								renderOption={({ option }) => (
+									<Stack gap={0}>
+										<Text size='sm'>{option.label}</Text>
+										<Text size='xs' c='dimmed'>
+											{(option as { description?: string }).description}
+										</Text>
+									</Stack>
+								)}
+							/>
+						</Grid.Col>
+					</Grid>
+				</Flex>
+				{currentWeek && selectedModule && (
+					<Text size='xs' c='dimmed' mt='sm'>
+						Current week: Week {currentWeek.weekNumber} (
+						{formatDate(currentWeek.startDate, 'short')} -{' '}
+						{formatDate(currentWeek.endDate, 'short')})
+					</Text>
+				)}
 			</Paper>
 
 			{selectedModule && (
@@ -218,11 +255,11 @@ export default function AttendanceView() {
 						</Tabs.List>
 
 						<Tabs.Panel value='mark' pt='md'>
-							{selectedWeek ? (
+							{effectiveWeek ? (
 								<AttendanceForm
 									semesterModuleId={selectedModule.semesterModuleId}
 									termId={selectedModule.termId}
-									weekNumber={selectedWeek}
+									weekNumber={effectiveWeek}
 									assignedModuleId={selectedModule.assignedModuleId}
 								/>
 							) : (
