@@ -382,8 +382,8 @@ export default function ProofOfRegistrationPDF({
 							Date Requested:{' '}
 						</Text>
 						<Text style={tw('text-[9pt] text-black')}>
-							{latestSemester.registrationRequest?.createdAt
-								? formatDate(latestSemester.registrationRequest.createdAt)
+							{latestSemester.registrationRequests?.[0]?.createdAt
+								? formatDate(latestSemester.registrationRequests[0].createdAt)
 								: 'N/A'}
 						</Text>
 					</View>
@@ -392,8 +392,10 @@ export default function ProofOfRegistrationPDF({
 							Date Registered:{' '}
 						</Text>
 						<Text style={tw('text-[9pt] text-black')}>
-							{latestSemester.registrationRequest?.dateRegistered
-								? formatDate(latestSemester.registrationRequest.dateRegistered)
+							{latestSemester.registrationRequests?.[0]?.dateRegistered
+								? formatDate(
+										latestSemester.registrationRequests[0].dateRegistered
+									)
 								: 'N/A'}
 						</Text>
 					</View>

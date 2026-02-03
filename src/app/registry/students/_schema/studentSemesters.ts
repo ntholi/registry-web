@@ -7,7 +7,6 @@ import {
 	text,
 	timestamp,
 } from 'drizzle-orm/pg-core';
-import { registrationRequests } from '../../registration-requests/_schema/registrationRequests';
 import { studentPrograms } from './studentPrograms';
 import { semesterStatus } from './types';
 
@@ -24,9 +23,6 @@ export const studentSemesters = pgTable(
 		studentProgramId: integer()
 			.references(() => studentPrograms.id, { onDelete: 'cascade' })
 			.notNull(),
-		registrationRequestId: integer().references(() => registrationRequests.id, {
-			onDelete: 'set null',
-		}),
 		sponsorId: integer(),
 		cafDate: text(),
 		createdAt: timestamp().defaultNow(),
@@ -41,8 +37,5 @@ export const studentSemesters = pgTable(
 		termIdx: index('idx_student_semesters_term').on(table.termCode),
 		statusIdx: index('idx_student_semesters_status').on(table.status),
 		sponsorIdIdx: index('fk_student_semesters_sponsor_id').on(table.sponsorId),
-		registrationRequestIdIdx: index(
-			'fk_student_semesters_registration_request_id'
-		).on(table.registrationRequestId),
 	})
 );

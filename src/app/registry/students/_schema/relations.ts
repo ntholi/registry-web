@@ -65,10 +65,7 @@ export const studentSemestersRelations = relations(
 			fields: [studentSemesters.structureSemesterId],
 			references: [structureSemesters.id],
 		}),
-		registrationRequest: one(registrationRequests, {
-			fields: [studentSemesters.registrationRequestId],
-			references: [registrationRequests.id],
-		}),
+		registrationRequests: many(registrationRequests),
 		studentModules: many(studentModules),
 	})
 );

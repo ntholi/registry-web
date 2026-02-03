@@ -4,6 +4,7 @@ import {
 	desc,
 	eq,
 	exists,
+	inArray,
 	isNull,
 	ne,
 	not,
@@ -23,7 +24,10 @@ import {
 	type StudentModuleStatus,
 	sponsoredStudents,
 	sponsoredTerms,
+	studentModules,
 	studentPrograms,
+	studentSemesters,
+	terms,
 } from '@/core/database';
 import BaseRepository, {
 	type QueryOptions,
@@ -277,6 +281,46 @@ export default class RegistrationRequestRepository extends BaseRepository<
 		return tx.insert(requestedModules).values(modulesToCreate).returning();
 	}
 
+	async findExistingStudentSemester(stdNo: number, termId: number) {
+		const term = await db.query.terms.findFirst({
+			where: eq(terms.id, termId),
+		});
+		if (!term) return null;
+
+		const activeProgram = await db.query.studentPrograms.findFirst({
+			where: and(
+				eq(studentPrograms.stdNo, stdNo),
+				eq(studentPrograms.status, 'Active')
+			),
+		});
+		if (!activeProgram) return null;
+
+		return db.query.studentSemesters.findFirst({
+			where: and(
+				eq(studentSemesters.studentProgramId, activeProgram.id),
+				eq(studentSemesters.termCode, term.code),
+				inArray(studentSemesters.status, ['Active', 'Enrolled'])
+			),
+			with: {
+				studentModules: true,
+			},
+		});
+	}
+
+	async getAlreadyRegisteredModuleIds(
+		studentSemesterId: number,
+		moduleIds: number[]
+	) {
+		const existing = await db.query.studentModules.findMany({
+			where: and(
+				eq(studentModules.studentSemesterId, studentSemesterId),
+				inArray(studentModules.semesterModuleId, moduleIds)
+			),
+			columns: { semesterModuleId: true },
+		});
+		return existing.map((m) => m.semesterModuleId);
+	}
+
 	async createWithModules(data: {
 		stdNo: number;
 		termId: number;
@@ -289,6 +333,25 @@ export default class RegistrationRequestRepository extends BaseRepository<
 		accountNumber?: string;
 		receipts?: { receiptNo: string; receiptType: ReceiptType }[];
 	}) {
+		const existingSemester = await this.findExistingStudentSemester(
+			data.stdNo,
+			data.termId
+		);
+		const isAdditionalRequest = !!existingSemester;
+
+		if (existingSemester) {
+			const moduleIds = data.modules.map((m) => m.moduleId);
+			const alreadyRegistered = await this.getAlreadyRegisteredModuleIds(
+				existingSemester.id,
+				moduleIds
+			);
+			if (alreadyRegistered.length > 0) {
+				throw new Error(
+					`Some modules are already registered for this term. Remove duplicates and try again.`
+				);
+			}
+		}
+
 		return db.transaction(async (tx) => {
 			const student = await tx.query.students.findFirst({
 				where: (students, { eq }) => eq(students.stdNo, data.stdNo),
@@ -355,6 +418,7 @@ export default class RegistrationRequestRepository extends BaseRepository<
 					semesterNumber: data.semesterNumber,
 					semesterStatus: data.semesterStatus,
 					sponsoredStudentId: sponsoredStudent.id,
+					studentSemesterId: existingSemester?.id ?? null,
 				})
 				.returning();
 
@@ -367,7 +431,11 @@ export default class RegistrationRequestRepository extends BaseRepository<
 
 			const autoApprovedDepts = new Set(matchingRules.map((r) => r.department));
 
-			for (const department of ['finance', 'library'] as const) {
+			const departments: ('finance' | 'library')[] = isAdditionalRequest
+				? ['finance']
+				: ['finance', 'library'];
+
+			for (const department of departments) {
 				const isAutoApproved = autoApprovedDepts.has(department);
 				const [clearanceRecord] = await tx
 					.insert(clearance)
@@ -409,7 +477,7 @@ export default class RegistrationRequestRepository extends BaseRepository<
 				}
 			}
 
-			return { request, modules };
+			return { request, modules, isAdditionalRequest };
 		});
 	}
 

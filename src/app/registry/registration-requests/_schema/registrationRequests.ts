@@ -1,5 +1,4 @@
 import { users } from '@auth/users/_schema/users';
-import { sql } from 'drizzle-orm';
 import {
 	bigint,
 	boolean,
@@ -11,8 +10,8 @@ import {
 	serial,
 	text,
 	timestamp,
-	uniqueIndex,
 } from 'drizzle-orm/pg-core';
+import { studentSemesters } from '../../students/_schema/studentSemesters';
 import { students } from '../../students/_schema/students';
 import { terms } from '../../terms/_schema/terms';
 
@@ -51,18 +50,19 @@ export const registrationRequests = pgTable(
 		dateRegistered: timestamp(),
 		deletedAt: timestamp(),
 		deletedBy: text().references(() => users.id, { onDelete: 'set null' }),
+		studentSemesterId: integer().references(() => studentSemesters.id, {
+			onDelete: 'set null',
+		}),
 	},
 	(table) => ({
-		uniqueRegistrationRequests: uniqueIndex(
-			'unique_registration_requests_active'
-		)
-			.on(table.stdNo, table.termId)
-			.where(sql`${table.deletedAt} IS NULL`),
 		stdNoIdx: index('fk_registration_requests_std_no').on(table.stdNo),
 		termIdIdx: index('fk_registration_requests_term_id').on(table.termId),
 		statusIdx: index('idx_registration_requests_status').on(table.status),
 		sponsoredStudentIdIdx: index(
 			'fk_registration_requests_sponsored_student_id'
 		).on(table.sponsoredStudentId),
+		studentSemesterIdIdx: index(
+			'fk_registration_requests_student_semester_id'
+		).on(table.studentSemesterId),
 	})
 );

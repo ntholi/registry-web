@@ -34,8 +34,8 @@ export const registrationRequestsRelations = relations(
 		requestedModules: many(requestedModules),
 		registrationRequestReceipts: many(registrationRequestReceipts),
 		studentSemester: one(studentSemesters, {
-			fields: [registrationRequests.id],
-			references: [studentSemesters.registrationRequestId],
+			fields: [registrationRequests.studentSemesterId],
+			references: [studentSemesters.id],
 		}),
 	})
 );

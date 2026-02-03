@@ -223,17 +223,28 @@ export default class ClearanceRepository extends BaseRepository<
 			},
 		});
 
-		const [semester] = await tx
-			.insert(studentSemesters)
-			.values({
-				termCode: request.term.code,
-				structureSemesterId: structureSemester.id,
-				status: request.semesterStatus,
-				studentProgramId: activeProgram.id,
-				registrationRequestId: request.id,
-				sponsorId: request.sponsoredStudentId,
-			})
-			.returning();
+		let semesterId: number;
+
+		if (request.studentSemesterId) {
+			semesterId = request.studentSemesterId;
+		} else {
+			const [semester] = await tx
+				.insert(studentSemesters)
+				.values({
+					termCode: request.term.code,
+					structureSemesterId: structureSemester.id,
+					status: request.semesterStatus,
+					studentProgramId: activeProgram.id,
+					sponsorId: request.sponsoredStudentId,
+				})
+				.returning();
+			semesterId = semester.id;
+
+			await tx
+				.update(registrationRequests)
+				.set({ studentSemesterId: semesterId })
+				.where(eq(registrationRequests.id, registrationRequestId));
+		}
 
 		if (pendingModules.length > 0) {
 			await tx.insert(studentModules).values(
@@ -243,7 +254,7 @@ export default class ClearanceRepository extends BaseRepository<
 					marks: 'NM',
 					grade: 'NM' as const,
 					credits: rm.semesterModule.credits,
-					studentSemesterId: semester.id,
+					studentSemesterId: semesterId,
 				}))
 			);
 		}
