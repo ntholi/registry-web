@@ -1,7 +1,6 @@
 'use client';
 
 import {
-	Badge,
 	Button,
 	Card,
 	Flex,
@@ -66,7 +65,19 @@ export default function AttendanceView() {
 
 	const handleModuleChange = (value: string | null) => {
 		setSelectedModuleCode(value);
-		setSelectedClass(null);
+		if (!value || !modules) {
+			setSelectedClass(null);
+			setSelectedWeek(null);
+			return;
+		}
+		const moduleClasses = Array.from(
+			new Set(
+				modules
+					.filter((m) => m.moduleCode === value)
+					.map((m) => toClassName(m.programCode, m.semesterName))
+			)
+		);
+		setSelectedClass(moduleClasses[0] ?? null);
 		setSelectedWeek(null);
 	};
 
@@ -211,36 +222,6 @@ export default function AttendanceView() {
 
 			{selectedModule && (
 				<Stack gap='lg'>
-					<Card withBorder p='lg'>
-						<Group justify='space-between' align='center'>
-							<Stack gap={4}>
-								<Group gap='xs'>
-									<Badge variant='light'>{selectedModule.moduleCode}</Badge>
-									<Title order={4}>{selectedModule.moduleName}</Title>
-								</Group>
-								<Text size='sm' c='dimmed'>
-									{toClassName(
-										selectedModule.programCode,
-										selectedModule.semesterName
-									)}
-								</Text>
-							</Stack>
-							{currentWeek && (
-								<Group gap='xs'>
-									<ThemeIcon size={32} radius='xl' variant='light'>
-										<IconCalendarWeek size={16} />
-									</ThemeIcon>
-									<Stack gap={0}>
-										<Text size='xs' c='dimmed'>
-											Current week
-										</Text>
-										<Text size='sm'>Week {currentWeek.weekNumber}</Text>
-									</Stack>
-								</Group>
-							)}
-						</Group>
-					</Card>
-
 					<Tabs defaultValue='mark'>
 						<Tabs.List>
 							<Tabs.Tab
