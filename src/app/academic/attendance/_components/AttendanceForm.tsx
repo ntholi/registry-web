@@ -77,11 +77,7 @@ export default function AttendanceForm({
 		termId,
 	] as const;
 
-	const {
-		data: students,
-		isLoading,
-		isFetching,
-	} = useQuery({
+	const { data: students, isLoading } = useQuery({
 		queryKey: attendanceWeekKey,
 		queryFn: () => getAttendanceForWeek(semesterModuleId, termId, weekNumber),
 	});
@@ -163,14 +159,14 @@ export default function AttendanceForm({
 		);
 	}, [students, debouncedSearch]);
 
-	if (isLoading || isFetching) {
+	if (isLoading) {
 		return (
 			<Stack gap='md'>
 				<Flex justify='space-between' w={'100%'} align='flex-end' mb='sm'>
 					<Skeleton h={36} w={400} radius='md' />
 					<Stack align='flex-start' gap={5}>
-						<Skeleton h={12} w={240} radius='md' />
-						<Skeleton h={32} w={560} radius='md' />
+						<Skeleton h={14} w={240} radius='md' />
+						<Skeleton h={36} w={560} radius='md' />
 					</Stack>
 				</Flex>
 				<Paper withBorder>
@@ -183,17 +179,17 @@ export default function AttendanceForm({
 							</Table.Tr>
 						</Table.Thead>
 						<Table.Tbody>
-							{Array.from({ length: 6 }).map((_, index) => (
+							{Array.from({ length: 10 }).map((_, index) => (
 								<Table.Tr key={`skeleton-${index}`}>
 									<Table.Td>
-										<Skeleton h={12} w={80} />
+										<Skeleton h={16} w={80} />
 									</Table.Td>
 									<Table.Td>
-										<Skeleton h={12} w='70%' />
+										<Skeleton h={16} w='70%' />
 									</Table.Td>
 									<Table.Td>
 										<Group justify='flex-end'>
-											<Skeleton h={28} w={220} radius='md' />
+											<Skeleton h={36} w={220} radius='md' />
 										</Group>
 									</Table.Td>
 								</Table.Tr>

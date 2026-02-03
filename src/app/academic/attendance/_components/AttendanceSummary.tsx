@@ -3,10 +3,10 @@
 import {
 	Badge,
 	Group,
-	Loader,
 	Paper,
 	Progress,
 	ScrollArea,
+	Skeleton,
 	Stack,
 	Table,
 	Text,
@@ -82,9 +82,58 @@ export default function AttendanceSummary({ semesterModuleId, termId }: Props) {
 
 	if (summaryLoading) {
 		return (
-			<Stack align='center' justify='center' h={200}>
-				<Loader />
-				<Text c='dimmed'>Loading attendance summary...</Text>
+			<Stack gap='md'>
+				<Group gap='lg'>
+					{Array.from({ length: 6 }).map((_, i) => (
+						<Group key={i} gap='xs'>
+							<Skeleton h={20} w={20} radius='sm' />
+							<Skeleton h={12} w={60} radius='sm' />
+						</Group>
+					))}
+				</Group>
+
+				<Paper withBorder>
+					<Table striped withTableBorder>
+						<Table.Thead>
+							<Table.Tr>
+								<Table.Th>Student</Table.Th>
+								{Array.from({ length: 14 }).map((_, i) => (
+									<Table.Th key={i}>W{i + 1}</Table.Th>
+								))}
+								<Table.Th>Rate</Table.Th>
+								<Table.Th>P</Table.Th>
+								<Table.Th>A</Table.Th>
+								<Table.Th>L</Table.Th>
+								<Table.Th>E</Table.Th>
+							</Table.Tr>
+						</Table.Thead>
+						<Table.Tbody>
+							{Array.from({ length: 10 }).map((_, i) => (
+								<Table.Tr key={i}>
+									<Table.Td>
+										<Stack gap={4}>
+											<Skeleton h={14} w={120} />
+											<Skeleton h={10} w={80} />
+										</Stack>
+									</Table.Td>
+									{Array.from({ length: 14 }).map((_, j) => (
+										<Table.Td key={j}>
+											<Skeleton h={20} w={20} radius='sm' m='auto' />
+										</Table.Td>
+									))}
+									<Table.Td>
+										<Skeleton h={20} w={40} radius='xl' m='auto' />
+									</Table.Td>
+									{Array.from({ length: 4 }).map((_, j) => (
+										<Table.Td key={j}>
+											<Skeleton h={14} w={20} m='auto' />
+										</Table.Td>
+									))}
+								</Table.Tr>
+							))}
+						</Table.Tbody>
+					</Table>
+				</Paper>
 			</Stack>
 		);
 	}
