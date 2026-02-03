@@ -163,14 +163,18 @@ export default function NewRegistrationPage() {
 	});
 
 	const { data: moduleResult, isLoading: modulesLoading } = useQuery({
-		queryKey: ['student-semester-modules', student?.stdNo],
+		queryKey: ['student-semester-modules', student?.stdNo, activeTerm?.code],
 		queryFn: async () => {
 			if (!student || !remarks) {
 				return { error: 'Missing student or remarks data', modules: [] };
 			}
-			return await getStudentSemesterModules(student, remarks);
+			return await getStudentSemesterModules(
+				student,
+				remarks,
+				activeTerm?.code
+			);
 		},
-		enabled: !!student && !!remarks,
+		enabled: !!student && !!remarks && !!activeTerm,
 	});
 
 	const availableModules = moduleResult?.modules || [];

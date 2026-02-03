@@ -157,9 +157,13 @@ class RegistrationRequestService {
 		}, ['student', 'registry']);
 	}
 
-	async getStudentSemesterModules(student: Student, remarks: AcademicRemarks) {
+	async getStudentSemesterModules(
+		student: Student,
+		remarks: AcademicRemarks,
+		termCode?: string
+	) {
 		return withAuth(async () => {
-			return getStudentSemesterModulesLogic(student, remarks);
+			return getStudentSemesterModulesLogic(student, remarks, termCode);
 		}, ['student', 'registry']);
 	}
 

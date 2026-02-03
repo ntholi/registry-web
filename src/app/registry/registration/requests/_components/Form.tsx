@@ -217,10 +217,16 @@ export default function RegistrationRequestForm({
 					return;
 				}
 
+				const termId = form.values.termId || activeTerm?.id;
+				const termCode = termId
+					? allTerms.find((t) => t.id === termId)?.code
+					: activeTerm?.code;
+
 				const academicRemarks = getAcademicRemarks(student.programs);
 				const semesterData = await getStudentSemesterModules(
 					student,
-					academicRemarks
+					academicRemarks,
+					termCode
 				);
 
 				if (semesterData.error) {
@@ -255,7 +261,7 @@ export default function RegistrationRequestForm({
 				console.error('Error loading student modules:', error);
 			}
 		},
-		[structureId]
+		[structureId, activeTerm, allTerms]
 	);
 
 	const [formInstance, setFormInstance] = useState<MinimalForm | null>(null);

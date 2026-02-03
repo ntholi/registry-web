@@ -38,6 +38,7 @@ import {
 } from '@tabler/icons-react';
 import { useQueryState } from 'nuqs';
 import { useState, useTransition } from 'react';
+import { useActiveTerm } from '@/shared/lib/hooks/use-active-term';
 import { getModuleTypeColor } from '@/shared/lib/utils/colors';
 import { getAcademicRemarks } from '@/shared/lib/utils/grades';
 import { formatSemester } from '@/shared/lib/utils/utils';
@@ -90,6 +91,7 @@ export default function RegistrationSimulator() {
 	const [semesterStatusResult, setSemesterStatusResult] =
 		useState<SemesterStatusResult | null>(null);
 	const [modalOpened, setModalOpened] = useState(false);
+	const { activeTerm } = useActiveTerm();
 
 	const handleSubmit = () => {
 		if (!stdNo.trim()) {
@@ -133,7 +135,8 @@ export default function RegistrationSimulator() {
 				const remarks = getAcademicRemarks(studentData.programs);
 				const moduleDataResponse = await getStudentSemesterModules(
 					studentData,
-					remarks
+					remarks,
+					activeTerm?.code
 				);
 
 				if (moduleDataResponse.error) {

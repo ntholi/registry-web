@@ -18,6 +18,20 @@ function normalizeName(name: string | undefined | null): string {
 	return (name ?? '').trim().replace(/\s+/g, ' ');
 }
 
+function getCurrentSemesterNo(
+	student: Student,
+	termCode: string | undefined
+): string | null {
+	if (!termCode) return null;
+
+	const currentSemester = student.programs
+		.filter((p) => p.status === 'Active')
+		.flatMap((p) => p.semesters)
+		.find((s) => s.termCode === termCode && isActiveSemester(s.status));
+
+	return currentSemester?.structureSemester?.semesterNumber || null;
+}
+
 type ModuleWithStatus = {
 	semesterModuleId: number;
 	code: string;
@@ -42,7 +56,8 @@ type SemesterModuleWithModule = typeof semesterModules.$inferSelect & {
 
 export async function getStudentSemesterModulesLogic(
 	student: Student,
-	remarks: AcademicRemarks
+	remarks: AcademicRemarks,
+	termCode?: string
 ) {
 	if (!student) {
 		return {
@@ -59,12 +74,15 @@ export async function getStudentSemesterModulesLogic(
 		};
 	}
 
+	const currentSemesterNo = getCurrentSemesterNo(student, termCode);
+	const targetSemesterNo = currentSemesterNo || getNextSemesterNo(student);
+
 	const failedPrerequisites = await getFailedPrerequisites(
 		remarks.failedModules
 	);
 	const repeatModules = await getRepeatModules(
 		remarks.failedModules,
-		getNextSemesterNo(student),
+		targetSemesterNo,
 		activeProgram.structureId
 	);
 
@@ -86,7 +104,7 @@ export async function getStudentSemesterModulesLogic(
 	);
 
 	const eligibleModules = await getSemesterModules(
-		getNextSemesterNo(student),
+		targetSemesterNo,
 		activeProgram.structureId
 	);
 

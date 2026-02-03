@@ -81,7 +81,8 @@ export default async function NewRegistrationRequestPage({
 					const remarks = getAcademicRemarks(studentData.programs);
 					const moduleDataResponse = await getStudentSemesterModules(
 						studentData,
-						remarks
+						remarks,
+						activeTerm.code
 					);
 
 					if (

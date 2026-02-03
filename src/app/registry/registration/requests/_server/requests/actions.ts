@@ -36,9 +36,10 @@ export async function findAllRegistrationRequests(
 
 export async function getStudentSemesterModules(
 	student: Student,
-	remarks: AcademicRemarks
+	remarks: AcademicRemarks,
+	termCode?: string
 ) {
-	return service.getStudentSemesterModules(student, remarks);
+	return service.getStudentSemesterModules(student, remarks, termCode);
 }
 
 export async function determineSemesterStatus(
