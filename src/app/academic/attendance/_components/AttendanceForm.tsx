@@ -1,6 +1,7 @@
 'use client';
 
 import {
+	Flex,
 	Group,
 	Paper,
 	SegmentedControl,
@@ -56,7 +57,7 @@ export default function AttendanceForm({
 	const queryClient = useQueryClient();
 	const [searchQuery, setSearchQuery] = useState('');
 	const [debouncedSearch] = useDebouncedValue(searchQuery, 300);
-	const [bulkStatus, setBulkStatus] = useState<AttendanceStatus>('present');
+	const [bulkStatus, setBulkStatus] = useState<AttendanceStatus>('not_marked');
 
 	const {
 		data: students,
@@ -185,7 +186,7 @@ export default function AttendanceForm({
 
 	return (
 		<Stack gap='md'>
-			<Group justify='space-between'>
+			<Flex justify='space-between' w={'100%'} align='flex-end' mb='sm'>
 				<TextInput
 					placeholder='Search by name or student number...'
 					leftSection={<IconSearch size={16} />}
@@ -193,23 +194,28 @@ export default function AttendanceForm({
 					onChange={(e) => setSearchQuery(e.currentTarget.value)}
 					style={{ flex: 1, maxWidth: 400 }}
 				/>
-				<SegmentedControl
-					value={bulkStatus}
-					onChange={handleBulkChange}
-					data={statusOptions.map((opt) => ({
-						value: opt.value,
-						label: (
-							<Group gap={6} wrap='nowrap'>
-								<opt.icon size={16} />
-								<span>{opt.label}</span>
-							</Group>
-						),
-					}))}
-					disabled={saveMutation.isPending}
-					color={getStatusColor(bulkStatus)}
-					size='sm'
-				/>
-			</Group>
+				<Stack align='flex-start' gap={0}>
+					<Text size='xs' c='dimmed'>
+						Applies to all students. Edit individuals below.
+					</Text>
+					<SegmentedControl
+						value={bulkStatus}
+						onChange={handleBulkChange}
+						data={statusOptions.map((opt) => ({
+							value: opt.value,
+							label: (
+								<Group gap={6} wrap='nowrap'>
+									<opt.icon size={16} />
+									<span>{opt.label}</span>
+								</Group>
+							),
+						}))}
+						disabled={saveMutation.isPending}
+						color={getStatusColor(bulkStatus)}
+						size='sm'
+					/>
+				</Stack>
+			</Flex>
 
 			<Paper withBorder>
 				<Table striped>
@@ -255,11 +261,11 @@ export default function AttendanceForm({
 						))}
 					</Table.Tbody>
 				</Table>
-				{filteredStudents.length === 0 && debouncedSearch && (
-					<Text c='dimmed' ta='center' py='md'>
-						No students match your search.
-					</Text>
-				)}
+				); filteredStudents.length === 0 && debouncedSearch && (
+				<Text c='dimmed' ta='center' py='md'>
+					No students match your search.
+				</Text>
+				);
 			</Paper>
 		</Stack>
 	);
