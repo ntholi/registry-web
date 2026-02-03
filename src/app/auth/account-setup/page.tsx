@@ -41,8 +41,10 @@ export default function AccountSetupPage() {
 			title: 'Start Application',
 			children: (
 				<Text size='sm'>
-					You are about to start a new application to Limkokwing University. You
-					will be redirected to the application portal. Do you want to continue?
+					You are about to start a new application to Limkokwing University. If
+					you are not currently a student and wish to become one, please
+					proceed. You will be redirected to the application portal. Do you want
+					to continue?
 				</Text>
 			),
 			confirmProps: { color: 'blue' },
@@ -74,9 +76,6 @@ export default function AccountSetupPage() {
 								<Title order={2} size='h3' fw={600} ta='center'>
 									Account Not Found
 								</Title>
-								<Text c='dimmed' ta='center' size='md'>
-									Your email is not associated with any account
-								</Text>
 							</Stack>
 						</Stack>
 
@@ -107,7 +106,7 @@ export default function AccountSetupPage() {
 								onClick={handleApply}
 								fullWidth
 							>
-								Become an Applicant
+								I am a New Applicant
 							</Button>
 						</Stack>
 
@@ -121,10 +120,6 @@ export default function AccountSetupPage() {
 						>
 							Sign Out
 						</Button>
-
-						<Text size='xs' c='dimmed' ta='center' mt='md'>
-							Limkokwing University Registry System
-						</Text>
 					</Stack>
 				</Paper>
 			</Center>
