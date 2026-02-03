@@ -1,15 +1,12 @@
-import { Container, Stack, Text, Title } from '@mantine/core';
+import { Container, Stack, Title } from '@mantine/core';
 import AttendanceView from './_components/AttendanceView';
 
 export default function AttendancePage() {
 	return (
-		<Container size='xl' py='md'>
+		<Container size='xl' p='lg'>
 			<Stack gap='lg'>
 				<Stack gap={4}>
-					<Title order={2}>Attendance</Title>
-					<Text c='dimmed'>
-						Select a module and week to mark attendance or review summaries.
-					</Text>
+					<Title order={3}>Attendance</Title>
 				</Stack>
 				<AttendanceView />
 			</Stack>

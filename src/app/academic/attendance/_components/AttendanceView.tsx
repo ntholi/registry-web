@@ -1,6 +1,7 @@
 'use client';
 
 import {
+	Box,
 	Button,
 	Card,
 	Flex,
@@ -9,6 +10,7 @@ import {
 	Loader,
 	Paper,
 	Select,
+	Skeleton,
 	Stack,
 	Tabs,
 	Text,
@@ -24,6 +26,7 @@ import {
 	getAssignedModulesForCurrentUser,
 	getWeeksForTerm,
 } from '../_server/actions';
+import AttendanceDownload from './AttendanceDownload';
 import AttendanceForm from './AttendanceForm';
 import AttendanceSummary from './AttendanceSummary';
 
@@ -96,12 +99,41 @@ export default function AttendanceView() {
 
 	if (modulesLoading) {
 		return (
-			<Paper withBorder p='xl'>
-				<Stack align='center' gap='sm'>
-					<Loader />
-					<Text c='dimmed'>Loading your modules...</Text>
-				</Stack>
-			</Paper>
+			<Stack gap='lg'>
+				<Paper p='lg' withBorder>
+					<Group mb='md'>
+						<Skeleton h={18} w={100} radius='sm' />
+					</Group>
+					<Grid gutter='md'>
+						<Grid.Col span={{ base: 12, sm: 6, md: 5 }}>
+							<Stack gap={5}>
+								<Skeleton h={14} w={60} radius='sm' />
+								<Skeleton h={36} radius='sm' />
+							</Stack>
+						</Grid.Col>
+						<Grid.Col span={{ base: 12, sm: 6, md: 4 }}>
+							<Stack gap={5}>
+								<Skeleton h={14} w={100} radius='sm' />
+								<Skeleton h={36} radius='sm' />
+							</Stack>
+						</Grid.Col>
+						<Grid.Col span={{ base: 12, sm: 6, md: 3 }}>
+							<Stack gap={5}>
+								<Skeleton h={14} w={40} radius='sm' />
+								<Skeleton h={36} radius='sm' />
+							</Stack>
+						</Grid.Col>
+					</Grid>
+				</Paper>
+
+				<Paper withBorder p='xl'>
+					<Stack align='center' gap='md' py='xl'>
+						<Skeleton circle h={56} w={56} />
+						<Skeleton h={16} w={200} radius='sm' />
+						<Skeleton h={12} w={300} radius='sm' />
+					</Stack>
+				</Paper>
+			</Stack>
 		);
 	}
 
@@ -160,7 +192,7 @@ export default function AttendanceView() {
 				</Group>
 				<Flex align='flex-end' gap='sm'>
 					<Grid gutter='md' flex={1}>
-						<Grid.Col span={{ base: 12, sm: 6, md: 4 }}>
+						<Grid.Col span={{ base: 12, sm: 6, md: 5 }}>
 							<Select
 								label='Module'
 								placeholder='Select module'
@@ -185,7 +217,7 @@ export default function AttendanceView() {
 								disabled={!selectedModuleCode}
 							/>
 						</Grid.Col>
-						<Grid.Col span={{ base: 12, sm: 6, md: 4 }}>
+						<Grid.Col span={{ base: 12, sm: 6, md: 3 }}>
 							<Select
 								label='Week'
 								placeholder={
@@ -226,6 +258,9 @@ export default function AttendanceView() {
 							<Tabs.Tab value='summary' leftSection={<IconTable size={16} />}>
 								Summary
 							</Tabs.Tab>
+							<Box ml='auto' mb={5}>
+								<AttendanceDownload />
+							</Box>
 						</Tabs.List>
 
 						<Tabs.Panel value='mark' pt='md'>
