@@ -7,6 +7,7 @@ import {
 	Menu,
 	Paper,
 	SegmentedControl,
+	Skeleton,
 	Stack,
 	Table,
 	Text,
@@ -67,7 +68,11 @@ export default function AttendanceForm({
 	const [searchQuery, setSearchQuery] = useState('');
 	const [debouncedSearch] = useDebouncedValue(searchQuery, 300);
 
-	const { data: students, isLoading } = useQuery({
+	const {
+		data: students,
+		isLoading,
+		isFetching,
+	} = useQuery({
 		queryKey: ['attendance-week', semesterModuleId, termId, weekNumber],
 		queryFn: () => getAttendanceForWeek(semesterModuleId, termId, weekNumber),
 	});
@@ -170,11 +175,45 @@ export default function AttendanceForm({
 		);
 	}, [students, debouncedSearch]);
 
-	if (isLoading) {
+	if (isLoading || isFetching) {
 		return (
-			<Paper p='md' withBorder>
-				<Text c='dimmed'>Loading students...</Text>
-			</Paper>
+			<Stack gap='md'>
+				<Group justify='space-between'>
+					<Skeleton h={36} w={320} radius='md' />
+					<Group gap='xs'>
+						<Skeleton h={36} w={150} radius='md' />
+						<Skeleton h={36} w={36} radius='md' />
+					</Group>
+				</Group>
+				<Paper withBorder>
+					<Table striped>
+						<Table.Thead>
+							<Table.Tr>
+								<Table.Th>Student No</Table.Th>
+								<Table.Th>Name</Table.Th>
+								<Table.Th style={{ textAlign: 'right' }}>Status</Table.Th>
+							</Table.Tr>
+						</Table.Thead>
+						<Table.Tbody>
+							{Array.from({ length: 6 }).map((_, index) => (
+								<Table.Tr key={`skeleton-${index}`}>
+									<Table.Td>
+										<Skeleton h={12} w={80} />
+									</Table.Td>
+									<Table.Td>
+										<Skeleton h={12} w='70%' />
+									</Table.Td>
+									<Table.Td>
+										<Group justify='flex-end'>
+											<Skeleton h={22} w={220} radius='md' />
+										</Group>
+									</Table.Td>
+								</Table.Tr>
+							))}
+						</Table.Tbody>
+					</Table>
+				</Paper>
+			</Stack>
 		);
 	}
 

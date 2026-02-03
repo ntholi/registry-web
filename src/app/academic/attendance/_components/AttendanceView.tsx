@@ -211,13 +211,6 @@ export default function AttendanceView() {
 						</Grid.Col>
 					</Grid>
 				</Flex>
-				{currentWeek && selectedModule && (
-					<Text size='xs' c='dimmed' mt='sm'>
-						Current week: Week {currentWeek.weekNumber} (
-						{formatDate(currentWeek.startDate, 'short')} -{' '}
-						{formatDate(currentWeek.endDate, 'short')})
-					</Text>
-				)}
 			</Paper>
 
 			{selectedModule && (
