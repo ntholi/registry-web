@@ -162,7 +162,7 @@ You are a **Senior Principal Software Engineer** and **System Architect** specia
 - **NEVER** use the `pages` router; use the `app` router exclusively.
 - **NEVER** import `db` outside of `repository.ts` files.
 - **NEVER** import from `@/core/database` in schema files (`_schema/*.ts`). Use specific module paths instead.
-- **NEVER** create new .sql migration files manually; it corrupts the _journal. Always use `pnpm db:generate`.
+- **NEVER** create new .sql migration files manually; it corrupts the _journal. Always use `pnpm db:generate --custom`.
     - *Exception*: You may edit the .sql content *after* generation for custom logic, then update snapshots.
 - **NEVER** use pnpm db:push
 - **NEVER** implement grade/marks/GPA/CGPA calculations locally.

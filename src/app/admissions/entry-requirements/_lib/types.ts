@@ -6,9 +6,11 @@ export type EntryRequirementInsert = typeof entryRequirements.$inferInsert;
 
 export type MinimumGradeRequirement = { count: number; grade: string };
 
+export type GradeRequirementOption = MinimumGradeRequirement[];
+
 export type SubjectGradeRules = {
 	type: 'subject-grades';
-	minimumGrades: MinimumGradeRequirement[];
+	gradeOptions: GradeRequirementOption[];
 	subjects: { subjectId: string; minimumGrade: string; required: boolean }[];
 	subjectGroups?: {
 		name: string;

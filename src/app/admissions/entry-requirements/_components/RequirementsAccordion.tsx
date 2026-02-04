@@ -42,6 +42,11 @@ export default function RequirementsAccordion({
 				const isSubjectBased = rules?.type === 'subject-grades';
 				const certType = req.certificateType;
 
+				const formatGradeOptions = (opts: SubjectGradeRules['gradeOptions']) =>
+					opts
+						.map((opt) => opt.map((g) => `${g.count} at ${g.grade}`).join(', '))
+						.join(' OR ');
+
 				return (
 					<Accordion.Item key={req.id} value={req.id.toString()}>
 						<Accordion.Control>
@@ -60,9 +65,9 @@ export default function RequirementsAccordion({
 									</Group>
 									<Text size='xs' c='dimmed'>
 										{isSubjectBased
-											? (rules as SubjectGradeRules).minimumGrades
-													.map((rule) => `${rule.count} at ${rule.grade}`)
-													.join(', ')
+											? formatGradeOptions(
+													(rules as SubjectGradeRules).gradeOptions
+												)
 											: `Minimum ${(rules as ClassificationRules).minimumClassification} classification`}
 									</Text>
 								</Box>
@@ -102,11 +107,21 @@ function RequirementDetails({ rules, subjects }: RequirementDetailsProps) {
 						</Text>
 					</Group>
 					<Stack gap={4}>
-						{sgRules.minimumGrades.map((rule, idx) => (
-							<Text key={idx} size='sm'>
-								Minimum of <strong>{rule.count}</strong> subjects passed at
-								grade <strong>{rule.grade}</strong> or better
-							</Text>
+						{sgRules.gradeOptions.map((option, optIdx) => (
+							<Box key={optIdx}>
+								{optIdx > 0 && (
+									<Text size='sm' c='blue' fw={500} my='xs'>
+										OR
+									</Text>
+								)}
+								{option.map((rule, ruleIdx) => (
+									<Text key={ruleIdx} size='sm'>
+										{ruleIdx > 0 && 'and '}Minimum of{' '}
+										<strong>{rule.count}</strong> subjects passed at grade{' '}
+										<strong>{rule.grade}</strong> or better
+									</Text>
+								))}
+							</Box>
 						))}
 					</Stack>
 				</Paper>

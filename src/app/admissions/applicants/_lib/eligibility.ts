@@ -101,12 +101,12 @@ function meetsOptionalGroups(
 	});
 }
 
-function meetsMinimumPasses(
-	minimumGrades: SubjectGradeRules['minimumGrades'],
+function meetsGradeOption(
+	option: SubjectGradeRules['gradeOptions'][number],
 	grades: GradeMap
 ) {
 	const gradeArray = Array.from(grades.values());
-	const sortedReqs = [...minimumGrades].sort(
+	const sortedReqs = [...option].sort(
 		(a, b) => gradeRank(b.grade) - gradeRank(a.grade)
 	);
 
@@ -128,6 +128,14 @@ function meetsMinimumPasses(
 		);
 	}
 	return true;
+}
+
+function meetsAnyGradeOption(
+	gradeOptions: SubjectGradeRules['gradeOptions'],
+	grades: GradeMap
+) {
+	if (gradeOptions.length === 0) return true;
+	return gradeOptions.some((option) => meetsGradeOption(option, grades));
 }
 
 function matchesCourse(record: AcademicRecord, courses: string[]) {
@@ -196,7 +204,7 @@ function meetsSubjectGradeRule(
 ): boolean {
 	const grades = getBestSubjectGrades(records);
 	return (
-		meetsMinimumPasses(rules.minimumGrades, grades) &&
+		meetsAnyGradeOption(rules.gradeOptions, grades) &&
 		meetsRequiredSubjects(rules.subjects, grades) &&
 		meetsOptionalGroups(rules.subjectGroups, grades)
 	);
