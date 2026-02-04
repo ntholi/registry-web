@@ -68,22 +68,31 @@ export default function CourseCard({ program, subjects }: Props) {
 							<Title size={'xs'} order={5} mb='sm'>
 								Entry Requirements
 							</Title>
-							<Text>
-								{rules.minimumGrades.map((mg, idx) => (
-									<span key={idx}>
-										{idx === 0 ? 'You must pass at least ' : ' and '}
-										<Text span fw={700} c='teal'>
-											{mg.count} subjects
-										</Text>{' '}
-										with a grade of{' '}
-										<Text span fw={700} c='teal'>
-											{mg.grade}
-										</Text>{' '}
-										or better
-										{idx === rules.minimumGrades.length - 1 ? '.' : ''}
-									</span>
-								))}
-							</Text>
+							{rules.gradeOptions.map((option, optIdx) => (
+								<Box key={optIdx}>
+									{optIdx > 0 && (
+										<Text c='blue' fw={600} my='xs'>
+											OR
+										</Text>
+									)}
+									<Text>
+										{option.map((mg, idx) => (
+											<span key={idx}>
+												{idx === 0 ? 'You must pass at least ' : ' and '}
+												<Text span fw={700} c='teal'>
+													{mg.count} subjects
+												</Text>{' '}
+												with a grade of{' '}
+												<Text span fw={700} c='teal'>
+													{mg.grade}
+												</Text>{' '}
+												or better
+												{idx === option.length - 1 ? '.' : ''}
+											</span>
+										))}
+									</Text>
+								</Box>
+							))}
 						</Box>
 
 						{requiredSubjects.length > 0 && (

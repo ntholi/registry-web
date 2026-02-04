@@ -5,6 +5,7 @@ import {
 	Accordion,
 	ActionIcon,
 	Badge,
+	Box,
 	Button,
 	Divider,
 	Group,
@@ -30,7 +31,7 @@ import { useState } from 'react';
 import type {
 	ClassificationRules,
 	EntryRequirement,
-	MinimumGradeRequirement,
+	GradeRequirementOption,
 	SubjectGradeRules,
 } from '../_lib/types';
 import {
@@ -135,7 +136,7 @@ export default function EditRequirementsList({
 		const rules: SubjectGradeRules | ClassificationRules = isSubjectBased
 			? {
 					type: 'subject-grades',
-					minimumGrades: [{ count: 5, grade: 'C' }],
+					gradeOptions: [[{ count: 5, grade: 'C' }]],
 					subjects: [],
 				}
 			: {
@@ -239,7 +240,7 @@ function RequirementEditor({
 		if (rules?.type === 'subject-grades') return rules;
 		return {
 			type: 'subject-grades',
-			minimumGrades: [{ count: 5, grade: 'C' }],
+			gradeOptions: [[{ count: 5, grade: 'C' }]],
 			subjects: [],
 		};
 	});
@@ -313,31 +314,60 @@ function RequirementEditor({
 		}));
 	};
 
-	const handleAddMinimumGrade = () => {
+	const handleAddGradeOption = () => {
 		setSubjectRules((prev) => ({
 			...prev,
-			minimumGrades: [...prev.minimumGrades, { count: 1, grade: 'C' }],
+			gradeOptions: [...prev.gradeOptions, [{ count: 4, grade: 'C' }]],
 		}));
 	};
 
-	const handleUpdateMinimumGrade = (
-		idx: number,
-		field: keyof MinimumGradeRequirement,
-		value: string | number
-	) => {
+	const handleRemoveGradeOption = (optionIdx: number) => {
 		setSubjectRules((prev) => ({
 			...prev,
-			minimumGrades: prev.minimumGrades.map((mg, i) =>
-				i === idx ? { ...mg, [field]: value } : mg
+			gradeOptions: prev.gradeOptions.filter((_, i) => i !== optionIdx),
+		}));
+	};
+
+	const handleAddGradeRule = (optionIdx: number) => {
+		setSubjectRules((prev) => ({
+			...prev,
+			gradeOptions: prev.gradeOptions.map((option, i) =>
+				i === optionIdx ? [...option, { count: 2, grade: 'D' }] : option
 			),
 		}));
 	};
 
-	const handleRemoveMinimumGrade = (idx: number) => {
+	const handleUpdateGradeRule = (
+		optionIdx: number,
+		ruleIdx: number,
+		field: 'count' | 'grade',
+		value: string | number
+	) => {
 		setSubjectRules((prev) => ({
 			...prev,
-			minimumGrades: prev.minimumGrades.filter((_, i) => i !== idx),
+			gradeOptions: prev.gradeOptions.map((option, oi) =>
+				oi === optionIdx
+					? option.map((rule, ri) =>
+							ri === ruleIdx ? { ...rule, [field]: value } : rule
+						)
+					: option
+			),
 		}));
+	};
+
+	const handleRemoveGradeRule = (optionIdx: number, ruleIdx: number) => {
+		setSubjectRules((prev) => ({
+			...prev,
+			gradeOptions: prev.gradeOptions.map((option, i) =>
+				i === optionIdx ? option.filter((_, ri) => ri !== ruleIdx) : option
+			),
+		}));
+	};
+
+	const formatGradeOptions = (options: GradeRequirementOption[]) => {
+		return options
+			.map((opt) => opt.map((g) => `${g.count}${g.grade}`).join(' + '))
+			.join(' OR ');
 	};
 
 	return (
@@ -363,9 +393,7 @@ function RequirementEditor({
 						</Group>
 						<Text size='xs' c='dimmed'>
 							{isSubjectBased
-								? subjectRules.minimumGrades
-										.map((g) => `${g.count} at ${g.grade}`)
-										.join(' + ')
+								? formatGradeOptions(subjectRules.gradeOptions)
 								: `${classRules.minimumClassification} classification`}
 						</Text>
 					</div>
@@ -381,64 +409,115 @@ function RequirementEditor({
 							<Stack gap='xs' mb='md'>
 								<Group justify='space-between'>
 									<Text size='sm' fw={500}>
-										Minimum Grades Required
+										Grade Options
 									</Text>
 									<ActionIcon
 										variant='light'
-										color='blue'
-										onClick={handleAddMinimumGrade}
+										color='green'
+										onClick={handleAddGradeOption}
+										title='Add alternative option'
 									>
 										<IconPlus size={14} />
 									</ActionIcon>
 								</Group>
 								<Text size='xs' c='dimmed'>
-									All requirements must be satisfied (e.g., 2 D grades + 3 C
-									grades)
+									Applicant must satisfy ANY one option (alternatives)
 								</Text>
 
-								{subjectRules.minimumGrades.map((mg, idx) => (
-									<Paper
-										key={idx}
-										withBorder
-										p='sm'
-										bg='var(--mantine-color-dark-8)'
-									>
-										<Group gap='sm' wrap='nowrap' align='center'>
-											<NumberInput
-												min={1}
-												max={10}
-												value={mg.count}
-												onChange={(val) =>
-													handleUpdateMinimumGrade(
-														idx,
-														'count',
-														Number(val) || 1
-													)
-												}
-												w={70}
+								{subjectRules.gradeOptions.map((option, optionIdx) => (
+									<Box key={optionIdx}>
+										{optionIdx > 0 && (
+											<Divider
+												my='sm'
+												label='OR'
+												labelPosition='center'
+												color='blue'
 											/>
-											<Text size='sm'>passes at</Text>
-											<Select
-												data={standardGrades}
-												value={mg.grade}
-												onChange={(val) =>
-													handleUpdateMinimumGrade(idx, 'grade', val || 'C')
-												}
-												w={80}
-											/>
-											<Text size='sm'>or better</Text>
-											{subjectRules.minimumGrades.length > 1 && (
-												<ActionIcon
-													variant='subtle'
-													color='red'
-													size='sm'
-													onClick={() => handleRemoveMinimumGrade(idx)}
-												>
-													<IconTrash size={14} />
-												</ActionIcon>
-											)}
-										</Group>
-									</Paper>
+										)}
+										<Paper withBorder p='sm' bg='var(--mantine-color-dark-8)'>
+											<Group justify='space-between' mb='xs'>
+												<Text size='xs' c='dimmed'>
+													Option {optionIdx + 1}
+												</Text>
+												<Group gap='xs'>
+													<ActionIcon
+														variant='light'
+														color='blue'
+														size='sm'
+														onClick={() => handleAddGradeRule(optionIdx)}
+														title='Add grade requirement'
+													>
+														<IconPlus size={14} />
+													</ActionIcon>
+													{subjectRules.gradeOptions.length > 1 && (
+														<ActionIcon
+															variant='subtle'
+															color='red'
+															size='sm'
+															onClick={() => handleRemoveGradeOption(optionIdx)}
+															title='Remove option'
+														>
+															<IconTrash size={14} />
+														</ActionIcon>
+													)}
+												</Group>
+											</Group>
+											<Stack gap='xs'>
+												{option.map((rule, ruleIdx) => (
+													<Group
+														key={ruleIdx}
+														gap='sm'
+														wrap='nowrap'
+														align='center'
+													>
+														<NumberInput
+															min={1}
+															max={10}
+															value={rule.count}
+															onChange={(val) =>
+																handleUpdateGradeRule(
+																	optionIdx,
+																	ruleIdx,
+																	'count',
+																	Number(val) || 1
+																)
+															}
+															w={70}
+															size='xs'
+														/>
+														<Text size='sm'>passes at</Text>
+														<Select
+															data={standardGrades}
+															value={rule.grade}
+															onChange={(val) =>
+																handleUpdateGradeRule(
+																	optionIdx,
+																	ruleIdx,
+																	'grade',
+																	val || 'C'
+																)
+															}
+															w={80}
+															size='xs'
+														/>
+														<Text size='sm'>or better</Text>
+														{option.length > 1 && (
+															<ActionIcon
+																variant='subtle'
+																color='red'
+																size='sm'
+																onClick={() =>
+																	handleRemoveGradeRule(optionIdx, ruleIdx)
+																}
+															>
+																<IconTrash size={14} />
+															</ActionIcon>
+														)}
+													</Group>
+												))}
+											</Stack>
+										</Paper>
+									</Box>
 								))}
 							</Stack>
 
