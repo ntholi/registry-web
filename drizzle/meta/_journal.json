@@ -967,6 +967,13 @@
 			"when": 1770122435680,
 			"tag": "0137_soft_princess_powerful",
 			"breakpoints": true
+		},
+		{
+			"idx": 138,
+			"version": "7",
+			"when": 1770195340313,
+			"tag": "0138_blushing_shotgun",
+			"breakpoints": true
 		}
 	]
 }
