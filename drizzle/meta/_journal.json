@@ -981,6 +981,13 @@
 			"when": 1770227689298,
 			"tag": "0139_curious_argent",
 			"breakpoints": true
+		},
+		{
+			"idx": 140,
+			"version": "7",
+			"when": 1770228684533,
+			"tag": "0140_petite_ogun",
+			"breakpoints": true
 		}
 	]
 }
