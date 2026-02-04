@@ -51,6 +51,9 @@ export default async function SubjectDetails({ params }: Props) {
 					</Group>
 					<Divider />
 				</Box>
+				<FieldView label='LQF Level'>
+					{item.lqfLevel ? `Level ${item.lqfLevel}` : 'Not set'}
+				</FieldView>
 				<FieldView label='Status'>
 					<Badge color={item.isActive ? 'green' : 'gray'}>
 						{item.isActive ? 'Active' : 'Inactive'}
