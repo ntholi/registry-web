@@ -4,6 +4,7 @@ import { subjects } from '@admissions/_database';
 import {
 	ActionIcon,
 	Group,
+	NumberInput,
 	Paper,
 	Stack,
 	Switch,
@@ -51,6 +52,14 @@ export default function SubjectForm({ onSubmit, defaultValues, title }: Props) {
 						placeholder='e.g., Mathematics'
 						required
 						{...form.getInputProps('name')}
+					/>
+					<NumberInput
+						label='LQF Level'
+						description='Lesotho Qualifications Framework level (e.g., 4 for secondary)'
+						placeholder='e.g., 4'
+						min={1}
+						max={10}
+						{...form.getInputProps('lqfLevel')}
 					/>
 					<Switch
 						label='Active'
