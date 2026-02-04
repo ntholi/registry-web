@@ -308,6 +308,68 @@ describe('Eligibility - LGCSE Subject-Based Rules', () => {
 		});
 	});
 
+	describe('Alternative grade options (OR)', () => {
+		const diplomaRequirements: EntryRequirementWithRelations[] = [
+			createLgcseRequirement(1, 'DIT', 'Diploma in IT', {
+				type: 'subject-grades',
+				gradeOptions: [
+					[
+						{ count: 3, grade: 'C' },
+						{ count: 2, grade: 'D' },
+					],
+					[{ count: 4, grade: 'C' }],
+				],
+				subjects: [],
+			}),
+		];
+
+		const degreeRequirements: EntryRequirementWithRelations[] = [
+			createLgcseRequirement(2, 'BSCIT', 'BSc in IT', {
+				type: 'subject-grades',
+				gradeOptions: [
+					[
+						{ count: 3, grade: 'C' },
+						{ count: 2, grade: 'D' },
+					],
+					[{ count: 5, grade: 'C' }],
+				],
+				subjects: [],
+			}),
+		];
+
+		it('should qualify diploma student with 4 C grades under alternative', () => {
+			const records = [
+				createLgcseRecord([
+					{ subjectId: MATH_ID, grade: 'C' },
+					{ subjectId: ENG_ID, grade: 'C' },
+					{ subjectId: SCI_ID, grade: 'C' },
+					{ subjectId: BUS_ID, grade: 'C' },
+					{ subjectId: ACC_ID, grade: 'D' },
+				]),
+			];
+
+			const eligible = getEligiblePrograms(records, diplomaRequirements);
+			expect(eligible).toHaveLength(1);
+			expect(eligible[0].code).toBe('DIT');
+		});
+
+		it('should qualify degree student with 5 C grades under alternative', () => {
+			const records = [
+				createLgcseRecord([
+					{ subjectId: MATH_ID, grade: 'C' },
+					{ subjectId: ENG_ID, grade: 'C' },
+					{ subjectId: SCI_ID, grade: 'C' },
+					{ subjectId: BUS_ID, grade: 'C' },
+					{ subjectId: ACC_ID, grade: 'C' },
+				]),
+			];
+
+			const eligible = getEligiblePrograms(records, degreeRequirements);
+			expect(eligible).toHaveLength(1);
+			expect(eligible[0].code).toBe('BSCIT');
+		});
+	});
+
 	describe('Required subjects', () => {
 		const requirements: EntryRequirementWithRelations[] = [
 			createLgcseRequirement(1, 'DIT', 'Diploma in IT', {
