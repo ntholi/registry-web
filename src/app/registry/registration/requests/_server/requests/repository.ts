@@ -281,6 +281,117 @@ export default class RegistrationRequestRepository extends BaseRepository<
 		return tx.insert(requestedModules).values(modulesToCreate).returning();
 	}
 
+	private async finalizeRegistration(
+		// biome-ignore lint/suspicious/noExplicitAny: transaction type from drizzle
+		tx: any,
+		registrationRequestId: number,
+		existingSemesterId?: number
+	) {
+		const request = await tx.query.registrationRequests.findFirst({
+			where: eq(registrationRequests.id, registrationRequestId),
+			with: {
+				term: true,
+				student: {
+					with: {
+						programs: {
+							where: eq(studentPrograms.status, 'Active'),
+							limit: 1,
+							with: {
+								structure: {
+									with: {
+										semesters: true,
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		});
+
+		if (!request) throw new Error('Registration request not found');
+		if (request.status === 'registered') return;
+
+		const activeProgram = request.student.programs[0];
+		if (!activeProgram) throw new Error('No active program found');
+
+		const structureSemester = activeProgram.structure.semesters.find(
+			(s: { semesterNumber: string }) =>
+				s.semesterNumber === request.semesterNumber
+		);
+		if (!structureSemester)
+			throw new Error(
+				`Structure semester not found for semester ${request.semesterNumber}`
+			);
+
+		const pendingModules = await tx.query.requestedModules.findMany({
+			where: and(
+				eq(requestedModules.registrationRequestId, registrationRequestId),
+				eq(requestedModules.status, 'pending')
+			),
+			with: {
+				semesterModule: true,
+			},
+		});
+
+		let semesterId: number;
+
+		if (existingSemesterId) {
+			semesterId = existingSemesterId;
+		} else {
+			const [semester] = await tx
+				.insert(studentSemesters)
+				.values({
+					termCode: request.term.code,
+					structureSemesterId: structureSemester.id,
+					status: request.semesterStatus,
+					studentProgramId: activeProgram.id,
+					sponsorId: request.sponsoredStudentId,
+				})
+				.returning();
+			semesterId = semester.id;
+
+			await tx
+				.update(registrationRequests)
+				.set({ studentSemesterId: semesterId })
+				.where(eq(registrationRequests.id, registrationRequestId));
+		}
+
+		if (pendingModules.length > 0) {
+			await tx.insert(studentModules).values(
+				pendingModules.map(
+					(rm: {
+						semesterModuleId: number;
+						moduleStatus: StudentModuleStatus;
+						semesterModule: { credits: number };
+					}) => ({
+						semesterModuleId: rm.semesterModuleId,
+						status: rm.moduleStatus,
+						marks: 'NM',
+						grade: 'NM' as const,
+						credits: rm.semesterModule.credits,
+						studentSemesterId: semesterId,
+					})
+				)
+			);
+		}
+
+		await tx
+			.update(requestedModules)
+			.set({ status: 'registered' })
+			.where(
+				and(
+					eq(requestedModules.registrationRequestId, registrationRequestId),
+					eq(requestedModules.status, 'pending')
+				)
+			);
+
+		await tx
+			.update(registrationRequests)
+			.set({ status: 'registered', dateRegistered: new Date() })
+			.where(eq(registrationRequests.id, registrationRequestId));
+	}
+
 	async findExistingStudentSemester(stdNo: number, termId: number) {
 		const term = await db.query.terms.findFirst({
 			where: eq(terms.id, termId),
@@ -534,6 +645,14 @@ export default class RegistrationRequestRepository extends BaseRepository<
 						receiptId: newReceipt.id,
 					});
 				}
+			}
+
+			const allAutoApproved = departments.every((dept) =>
+				autoApprovedDepts.has(dept)
+			);
+
+			if (allAutoApproved) {
+				await this.finalizeRegistration(tx, request.id, existingSemester?.id);
 			}
 
 			return { request, modules, isAdditionalRequest };
