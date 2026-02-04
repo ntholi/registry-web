@@ -470,6 +470,34 @@ export default class RegistrationRequestRepository extends BaseRepository<
 		return existing.map((m) => m.semesterModuleId);
 	}
 
+	async findPreviousClearedRequest(stdNo: number, termId: number) {
+		const requests = await db.query.registrationRequests.findMany({
+			where: and(
+				eq(registrationRequests.stdNo, stdNo),
+				eq(registrationRequests.termId, termId),
+				isNull(registrationRequests.deletedAt)
+			),
+			with: {
+				clearances: {
+					with: {
+						clearance: true,
+					},
+				},
+			},
+			orderBy: [desc(registrationRequests.createdAt)],
+		});
+
+		for (const request of requests) {
+			if (request.clearances.length === 0) continue;
+			const allApproved = request.clearances.every(
+				(c) => c.clearance.status === 'approved'
+			);
+			if (allApproved) return request;
+		}
+
+		return null;
+	}
+
 	async createWithModules(data: {
 		stdNo: number;
 		termId: number;
@@ -487,6 +515,16 @@ export default class RegistrationRequestRepository extends BaseRepository<
 			data.termId
 		);
 		const isAdditionalRequest = !!existingSemester;
+
+		const hasRepeatModules = data.modules.some((m) =>
+			m.moduleStatus.startsWith('Repeat')
+		);
+		const previousClearedRequest = await this.findPreviousClearedRequest(
+			data.stdNo,
+			data.termId
+		);
+		const skipClearance =
+			!!previousClearedRequest && !hasRepeatModules && isAdditionalRequest;
 
 		if (existingSemester) {
 			const moduleIds = data.modules.map((m) => m.moduleId);
@@ -601,9 +639,12 @@ export default class RegistrationRequestRepository extends BaseRepository<
 
 			const autoApprovedDepts = new Set(matchingRules.map((r) => r.department));
 
-			const departments: ('finance' | 'library')[] = isAdditionalRequest
-				? ['finance']
-				: ['finance', 'library'];
+			let departments: ('finance' | 'library')[] = [];
+			if (!skipClearance) {
+				departments = isAdditionalRequest
+					? ['finance']
+					: ['finance', 'library'];
+			}
 
 			for (const department of departments) {
 				const isAutoApproved = autoApprovedDepts.has(department);
@@ -647,9 +688,9 @@ export default class RegistrationRequestRepository extends BaseRepository<
 				}
 			}
 
-			const allAutoApproved = departments.every((dept) =>
-				autoApprovedDepts.has(dept)
-			);
+			const allAutoApproved =
+				skipClearance ||
+				departments.every((dept) => autoApprovedDepts.has(dept));
 
 			if (allAutoApproved) {
 				await this.finalizeRegistration(tx, request.id, existingSemester?.id);
