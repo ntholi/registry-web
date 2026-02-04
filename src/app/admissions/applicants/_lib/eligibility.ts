@@ -4,6 +4,7 @@ import type {
 	EntryRequirementWithRelations,
 	SubjectGradeRules,
 } from '@admissions/entry-requirements/_lib/types';
+import { normalizeSubjectGradeRules } from '@admissions/entry-requirements/_lib/types';
 import type { RecognizedSchool } from '@admissions/recognized-schools/_lib/types';
 import type { ApplicantWithRelations } from './types';
 
@@ -215,7 +216,10 @@ function meetsEntryRules(
 	records: AcademicRecord[]
 ): boolean {
 	if (rules.type === 'subject-grades') {
-		return meetsSubjectGradeRule(rules, records);
+		const normalized = normalizeSubjectGradeRules(
+			rules as Parameters<typeof normalizeSubjectGradeRules>[0]
+		);
+		return meetsSubjectGradeRule(normalized, records);
 	}
 	return meetsClassificationRule(rules, records);
 }

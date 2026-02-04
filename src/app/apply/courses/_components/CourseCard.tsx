@@ -13,9 +13,9 @@ import {
 	Title,
 } from '@mantine/core';
 import { IconCheck } from '@tabler/icons-react';
-import type {
-	ProgramWithRequirements,
-	SubjectGradeRules,
+import {
+	normalizeSubjectGradeRules,
+	type ProgramWithRequirements,
 } from '@/app/admissions/entry-requirements';
 
 type Subject = { id: string; name: string };
@@ -33,7 +33,9 @@ export default function CourseCard({ program, subjects }: Props) {
 	const subjectMap = new Map(subjects.map((s) => [s.id, s.name]));
 	const rules =
 		lgcseReq?.rules?.type === 'subject-grades'
-			? (lgcseReq.rules as SubjectGradeRules)
+			? normalizeSubjectGradeRules(
+					lgcseReq.rules as Parameters<typeof normalizeSubjectGradeRules>[0]
+				)
 			: null;
 	const requiredSubjects = rules
 		? rules.subjects.filter((subject) => subject.required)

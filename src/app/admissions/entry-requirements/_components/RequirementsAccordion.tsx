@@ -12,7 +12,11 @@ import {
 } from '@mantine/core';
 import { IconCertificate, IconChecklist } from '@tabler/icons-react';
 import { FieldView } from '@/shared/ui/adease';
-import type { ClassificationRules, SubjectGradeRules } from '../_lib/types';
+import {
+	type ClassificationRules,
+	normalizeSubjectGradeRules,
+	type SubjectGradeRules,
+} from '../_lib/types';
 
 type EntryRequirementItem = {
 	id: string;
@@ -38,8 +42,13 @@ export default function RequirementsAccordion({
 	return (
 		<Accordion variant='separated' radius='md'>
 			{requirements.map((req, index) => {
-				const rules = req.rules as SubjectGradeRules | ClassificationRules;
-				const isSubjectBased = rules?.type === 'subject-grades';
+				const rawRules = req.rules as SubjectGradeRules | ClassificationRules;
+				const isSubjectBased = rawRules?.type === 'subject-grades';
+				const rules = isSubjectBased
+					? normalizeSubjectGradeRules(
+							rawRules as Parameters<typeof normalizeSubjectGradeRules>[0]
+						)
+					: rawRules;
 				const certType = req.certificateType;
 
 				const formatGradeOptions = (opts: SubjectGradeRules['gradeOptions']) =>
