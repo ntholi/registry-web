@@ -30,6 +30,7 @@ import {
 } from '@tabler/icons-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
+import { useQueryState } from 'nuqs';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { getBlockedStudentByStdNo } from '@/app/registry/blocked-students';
 import { getActiveProgram } from '@/app/registry/students/_lib/utils';
@@ -94,7 +95,10 @@ export default function NewRegistrationPage() {
 	const router = useRouter();
 	const queryClient = useQueryClient();
 	const { student, remarks } = useUserStudent();
-	const [activeStep, setActiveStep] = useState(0);
+	const [stepId, setStepId] = useQueryState('step', {
+		defaultValue: 'modules',
+		history: 'push',
+	});
 	const [selectedModules, setSelectedModules] = useState<SelectedModule[]>([]);
 	const [semesterData, setSemesterData] = useState<{
 		semesterNo: string;
@@ -269,8 +273,19 @@ export default function NewRegistrationPage() {
 		isExistingSponsorPRV,
 	]);
 
+	const activeStep = useMemo(() => {
+		const index = steps.findIndex((s) => s.id === stepId);
+		return index >= 0 ? index : 0;
+	}, [steps, stepId]);
+
 	const currentStepId = steps[activeStep]?.id;
 	const totalSteps = steps.length;
+
+	useEffect(() => {
+		if (currentStepId && currentStepId !== stepId) {
+			setStepId(currentStepId);
+		}
+	}, [currentStepId, stepId, setStepId]);
 
 	const handleRemoveRepeatModule = (moduleId: number) => {
 		setSelectedModules((prev) => prev.filter((m) => m.moduleId !== moduleId));
@@ -376,13 +391,19 @@ export default function NewRegistrationPage() {
 			}
 		}
 		if (activeStep < totalSteps - 1) {
-			setActiveStep(activeStep + 1);
+			const nextStepId = steps[activeStep + 1]?.id;
+			if (nextStepId) {
+				setStepId(nextStepId);
+			}
 		}
 	};
 
 	const prevStep = () => {
 		if (activeStep > 0) {
-			setActiveStep(activeStep - 1);
+			const prevStepId = steps[activeStep - 1]?.id;
+			if (prevStepId) {
+				setStepId(prevStepId);
+			}
 		}
 	};
 
