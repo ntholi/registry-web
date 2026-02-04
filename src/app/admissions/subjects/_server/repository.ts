@@ -99,10 +99,18 @@ export default class SubjectRepository extends BaseRepository<
 		if (!source) throw new Error('Source subject not found');
 
 		await db.transaction(async (tx) => {
-			await tx.insert(subjectAliases).values({
-				subjectId: targetId,
-				alias: source.name,
-			});
+			await tx
+				.insert(subjectAliases)
+				.values({
+					subjectId: targetId,
+					alias: source.name,
+				})
+				.onConflictDoNothing();
+
+			await tx
+				.update(subjectAliases)
+				.set({ subjectId: targetId })
+				.where(eq(subjectAliases.subjectId, sourceId));
 
 			await tx
 				.update(subjectGrades)
