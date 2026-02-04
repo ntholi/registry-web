@@ -410,7 +410,9 @@ export default function NewRegistrationPage() {
 	const handleSubmit = () => {
 		if (selectedModules.length > 0 && semesterData && sponsorshipData) {
 			const needsConfirmation =
-				sponsorshipData.sponsorId && isNMDS(sponsorshipData.sponsorId);
+				!isAdditionalRequest &&
+				sponsorshipData.sponsorId &&
+				isNMDS(sponsorshipData.sponsorId);
 
 			if (needsConfirmation && !accountConfirmed) {
 				return;
