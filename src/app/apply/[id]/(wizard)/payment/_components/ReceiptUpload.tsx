@@ -44,8 +44,6 @@ type DepositSubmission = {
 
 type Props = {
 	fee: string;
-	intakeStartDate: string;
-	intakeEndDate: string;
 	onSubmit: (receipts: DepositSubmission[]) => void;
 	isSubmitting?: boolean;
 };
@@ -56,8 +54,6 @@ function generateId(): string {
 
 export default function ReceiptUploadForm({
 	fee,
-	intakeStartDate,
-	intakeEndDate,
 	onSubmit,
 	isSubmitting,
 }: Props) {
@@ -83,11 +79,7 @@ export default function ReceiptUploadForm({
 			setUploading(true);
 			setPendingUploads((prev) => prev + 1);
 
-			const validation = await validateAnalyzedReceipt(
-				result.analysis,
-				intakeStartDate,
-				intakeEndDate
-			);
+			const validation = await validateAnalyzedReceipt(result.analysis);
 
 			const newReceipt: UploadedReceipt = {
 				id: generateId(),

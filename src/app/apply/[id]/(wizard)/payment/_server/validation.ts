@@ -59,27 +59,6 @@ function validateBeneficiary(beneficiaryName: string | null): {
 	return { valid: true };
 }
 
-function validateDepositDate(
-	dateDeposited: string | null,
-	intakeStartDate: string,
-	intakeEndDate: string
-): { valid: boolean; error?: string } {
-	if (!dateDeposited) {
-		return { valid: false, error: 'Deposit date not found on receipt' };
-	}
-	const depositDate = new Date(dateDeposited);
-	const startDate = new Date(intakeStartDate);
-	const endDate = new Date(intakeEndDate);
-
-	if (depositDate < startDate || depositDate > endDate) {
-		return {
-			valid: false,
-			error: `Deposit date ${dateDeposited} is outside the intake period (${intakeStartDate} to ${intakeEndDate})`,
-		};
-	}
-	return { valid: true };
-}
-
 function validateReference(reference: string | null): {
 	valid: boolean;
 	error?: string;
@@ -91,9 +70,7 @@ function validateReference(reference: string | null): {
 }
 
 export async function validateAnalyzedReceipt(
-	analysis: ReceiptResult,
-	intakeStartDate: string,
-	intakeEndDate: string
+	analysis: ReceiptResult
 ): Promise<ReceiptValidation> {
 	const errors: string[] = [];
 
@@ -109,15 +86,6 @@ export async function validateAnalyzedReceipt(
 	const referenceValidation = validateReference(analysis.reference);
 	if (!referenceValidation.valid && referenceValidation.error) {
 		errors.push(referenceValidation.error);
-	}
-
-	const dateValidation = validateDepositDate(
-		analysis.dateDeposited,
-		intakeStartDate,
-		intakeEndDate
-	);
-	if (!dateValidation.valid && dateValidation.error) {
-		errors.push(dateValidation.error);
 	}
 
 	if (analysis.amountDeposited === null || analysis.amountDeposited <= 0) {
@@ -182,11 +150,7 @@ export async function validateReceipts(
 			continue;
 		}
 
-		const validation = await validateAnalyzedReceipt(
-			analysisResult.data,
-			intake.startDate,
-			intake.endDate
-		);
+		const validation = await validateAnalyzedReceipt(analysisResult.data);
 
 		const amount = validation.data?.amountDeposited ?? 0;
 		totalAmount += amount;

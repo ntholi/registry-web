@@ -35,8 +35,6 @@ type Props = {
 	fee: string | null;
 	isPaid: boolean;
 	hasPendingDeposit: boolean;
-	intakeStartDate: string | null;
-	intakeEndDate: string | null;
 };
 
 type PaymentView = 'select' | 'mobile' | 'receipt';
@@ -46,8 +44,6 @@ export default function PaymentForm({
 	fee,
 	isPaid,
 	hasPendingDeposit,
-	intakeStartDate,
-	intakeEndDate,
 }: Props) {
 	const router = useRouter();
 	const [view, setView] = useQueryState('method', {
@@ -180,7 +176,7 @@ export default function PaymentForm({
 
 					{view === 'select' && (
 						<SimpleGrid cols={1} spacing='md'>
-							{intakeStartDate && intakeEndDate && fee ? (
+							{fee ? (
 								<PaymentOption
 									icon={<IconReceipt size={28} />}
 									title='Upload Receipt'
@@ -217,11 +213,9 @@ export default function PaymentForm({
 						/>
 					)}
 
-					{view === 'receipt' && intakeStartDate && intakeEndDate && fee && (
+					{view === 'receipt' && fee && (
 						<ReceiptUpload
 							fee={fee}
-							intakeStartDate={intakeStartDate}
-							intakeEndDate={intakeEndDate}
 							onSubmit={(receipts) => submitReceiptMutation.mutate(receipts)}
 							isSubmitting={submitReceiptMutation.isPending}
 						/>
