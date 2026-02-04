@@ -16,8 +16,10 @@ import {
 import { notifications } from '@mantine/notifications';
 import type { StudentModuleStatus } from '@registry/_database';
 import {
+	checkIsAdditionalRequest,
 	createRegistration,
 	determineSemesterStatus,
+	getExistingRegistrationSponsorship,
 	getStudentSemesterModules,
 } from '@registry/registration/requests';
 import { canStudentRegister } from '@registry/terms/settings/_server/termRegistrationsActions';
@@ -162,6 +164,38 @@ export default function NewRegistrationPage() {
 		enabled: !!student?.stdNo,
 	});
 
+	const { data: isAdditionalRequest = false } = useQuery({
+		queryKey: ['is-additional-request', student?.stdNo, activeTerm?.id],
+		queryFn: async () => {
+			if (!student?.stdNo || !activeTerm?.id) return false;
+			return await checkIsAdditionalRequest(student.stdNo, activeTerm.id);
+		},
+		enabled: !!student?.stdNo && !!activeTerm?.id,
+	});
+
+	const { data: existingSponsorship } = useQuery({
+		queryKey: ['existing-sponsorship', student?.stdNo, activeTerm?.id],
+		queryFn: async () => {
+			if (!student?.stdNo || !activeTerm?.id) return null;
+			return await getExistingRegistrationSponsorship(
+				student.stdNo,
+				activeTerm.id
+			);
+		},
+		enabled: !!student?.stdNo && !!activeTerm?.id && isAdditionalRequest,
+	});
+
+	useEffect(() => {
+		if (isAdditionalRequest && existingSponsorship && !sponsorshipData) {
+			setSponsorshipData({
+				sponsorId: existingSponsorship.sponsorId,
+				borrowerNo: existingSponsorship.borrowerNo ?? undefined,
+				bankName: existingSponsorship.bankName ?? undefined,
+				accountNumber: existingSponsorship.accountNumber ?? undefined,
+			});
+		}
+	}, [isAdditionalRequest, existingSponsorship, sponsorshipData]);
+
 	const { data: moduleResult, isLoading: modulesLoading } = useQuery({
 		queryKey: ['student-semester-modules', student?.stdNo, activeTerm?.code],
 		queryFn: async () => {
@@ -205,10 +239,18 @@ export default function NewRegistrationPage() {
 
 	const hasRepeatModules = selectedRepeatModules.length > 0;
 
+	const isExistingSponsorPRV = existingSponsorship?.sponsorCode === 'PRV';
+
 	const steps = useMemo(() => {
 		const result = BASE_STEPS.filter((step) => {
 			if (step.id === 'repeat-receipts') {
 				return hasRepeatModules;
+			}
+			if (step.id === 'sponsorship') {
+				if (isAdditionalRequest && !isExistingSponsorPRV) {
+					return false;
+				}
+				return true;
 			}
 			if (step.id === 'account') {
 				return sponsorshipData?.sponsorId && isNMDS(sponsorshipData.sponsorId);
@@ -216,7 +258,13 @@ export default function NewRegistrationPage() {
 			return true;
 		});
 		return result;
-	}, [hasRepeatModules, sponsorshipData?.sponsorId, isNMDS]);
+	}, [
+		hasRepeatModules,
+		sponsorshipData?.sponsorId,
+		isNMDS,
+		isAdditionalRequest,
+		isExistingSponsorPRV,
+	]);
 
 	const currentStepId = steps[activeStep]?.id;
 	const totalSteps = steps.length;
@@ -463,6 +511,7 @@ export default function NewRegistrationPage() {
 						tuitionFeeReceipts={tuitionFeeReceipts}
 						onTuitionFeeReceiptsChange={setTuitionFeeReceipts}
 						loading={registrationMutation.isPending}
+						isAdditionalRequest={isAdditionalRequest}
 					/>
 				);
 			case 'account':

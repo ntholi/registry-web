@@ -39,6 +39,7 @@ interface SponsorshipDetailsProps {
 	tuitionFeeReceipts: string[];
 	onTuitionFeeReceiptsChange: (receipts: string[]) => void;
 	loading: boolean;
+	isAdditionalRequest?: boolean;
 }
 
 export default function SponsorshipDetails({
@@ -47,6 +48,7 @@ export default function SponsorshipDetails({
 	tuitionFeeReceipts,
 	onTuitionFeeReceiptsChange,
 	loading,
+	isAdditionalRequest = false,
 }: SponsorshipDetailsProps) {
 	const { student } = useUserStudent();
 
@@ -201,6 +203,51 @@ export default function SponsorshipDetails({
 			<div style={{ position: 'relative', minHeight: 200 }}>
 				<LoadingOverlay visible />
 			</div>
+		);
+	}
+
+	if (isAdditionalRequest) {
+		return (
+			<Stack gap='lg' mt='md'>
+				<Paper p='lg' withBorder>
+					<Stack gap='md'>
+						<Title order={5}>Tuition Fee Payment Receipts</Title>
+						<Text size='sm' c='dimmed'>
+							As a self-sponsored student adding more modules, please provide
+							your tuition fee payment receipts.
+						</Text>
+
+						<ReceiptInputWithAdd onAdd={handleAddTuitionReceipt} />
+
+						{tuitionFeeReceipts.filter(Boolean).length > 0 && (
+							<SimpleGrid cols={{ base: 1, sm: 3 }} spacing='sm'>
+								{tuitionFeeReceipts.filter(Boolean).map((receipt, index) => (
+									<Card
+										key={index}
+										withBorder
+										padding='lg'
+										style={{ position: 'relative' }}
+									>
+										<Group justify='space-between' wrap='nowrap'>
+											<Text size='sm' fw={500} truncate>
+												{receipt}
+											</Text>
+											<ActionIcon
+												color='red'
+												variant='subtle'
+												size='sm'
+												onClick={() => handleRemoveTuitionReceipt(index)}
+											>
+												<IconTrash size={14} />
+											</ActionIcon>
+										</Group>
+									</Card>
+								))}
+							</SimpleGrid>
+						)}
+					</Stack>
+				</Paper>
+			</Stack>
 		);
 	}
 

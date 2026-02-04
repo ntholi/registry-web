@@ -295,16 +295,54 @@ export default class RegistrationRequestRepository extends BaseRepository<
 		});
 		if (!activeProgram) return null;
 
+		const inactiveStatuses = [
+			'Deleted',
+			'Deferred',
+			'DroppedOut',
+			'Withdrawn',
+			'Inactive',
+		] as const;
+
 		return db.query.studentSemesters.findFirst({
 			where: and(
 				eq(studentSemesters.studentProgramId, activeProgram.id),
 				eq(studentSemesters.termCode, term.code),
-				inArray(studentSemesters.status, ['Active', 'Enrolled'])
+				not(inArray(studentSemesters.status, [...inactiveStatuses]))
 			),
 			with: {
 				studentModules: true,
 			},
 		});
+	}
+
+	async getExistingRegistrationSponsorship(stdNo: number, termId: number) {
+		const existingRequest = await db.query.registrationRequests.findFirst({
+			where: and(
+				eq(registrationRequests.stdNo, stdNo),
+				eq(registrationRequests.termId, termId),
+				isNull(registrationRequests.deletedAt)
+			),
+			with: {
+				sponsoredStudent: {
+					with: {
+						sponsor: true,
+					},
+				},
+			},
+			orderBy: desc(registrationRequests.createdAt),
+		});
+
+		if (!existingRequest?.sponsoredStudent) return null;
+
+		const { sponsoredStudent } = existingRequest;
+		return {
+			sponsorId: sponsoredStudent.sponsorId,
+			sponsorName: sponsoredStudent.sponsor?.name ?? null,
+			sponsorCode: sponsoredStudent.sponsor?.code ?? null,
+			borrowerNo: sponsoredStudent.borrowerNo,
+			bankName: sponsoredStudent.bankName,
+			accountNumber: sponsoredStudent.accountNumber,
+		};
 	}
 
 	async getAlreadyRegisteredModuleIds(
@@ -352,6 +390,19 @@ export default class RegistrationRequestRepository extends BaseRepository<
 			}
 		}
 
+		let existingSponsoredStudentId: number | null = null;
+		if (isAdditionalRequest) {
+			const existingRequest = await db.query.registrationRequests.findFirst({
+				where: and(
+					eq(registrationRequests.stdNo, data.stdNo),
+					eq(registrationRequests.termId, data.termId),
+					isNull(registrationRequests.deletedAt)
+				),
+				columns: { sponsoredStudentId: true },
+			});
+			existingSponsoredStudentId = existingRequest?.sponsoredStudentId ?? null;
+		}
+
 		return db.transaction(async (tx) => {
 			const student = await tx.query.students.findFirst({
 				where: (students, { eq }) => eq(students.stdNo, data.stdNo),
@@ -361,53 +412,61 @@ export default class RegistrationRequestRepository extends BaseRepository<
 				throw new Error('Student not found');
 			}
 
-			let sponsoredStudent = await tx.query.sponsoredStudents.findFirst({
-				where: and(
-					eq(sponsoredStudents.sponsorId, data.sponsorId),
-					eq(sponsoredStudents.stdNo, data.stdNo)
-				),
-			});
+			let sponsoredStudentId: number;
 
-			if (!sponsoredStudent) {
-				sponsoredStudent = await tx.query.sponsoredStudents.findFirst({
-					where: eq(sponsoredStudents.stdNo, data.stdNo),
-				});
-			}
-
-			if (sponsoredStudent) {
-				const [updated] = await tx
-					.update(sponsoredStudents)
-					.set({
-						sponsorId: data.sponsorId,
-						borrowerNo: data.borrowerNo,
-						bankName: data.bankName,
-						accountNumber: data.accountNumber,
-						updatedAt: new Date(),
-					})
-					.where(eq(sponsoredStudents.id, sponsoredStudent.id))
-					.returning();
-				sponsoredStudent = updated;
+			if (isAdditionalRequest && existingSponsoredStudentId) {
+				sponsoredStudentId = existingSponsoredStudentId;
 			} else {
-				const [created] = await tx
-					.insert(sponsoredStudents)
-					.values({
-						sponsorId: data.sponsorId,
-						stdNo: data.stdNo,
-						borrowerNo: data.borrowerNo,
-						bankName: data.bankName,
-						accountNumber: data.accountNumber,
-					})
-					.returning();
-				sponsoredStudent = created;
-			}
+				let sponsoredStudent = await tx.query.sponsoredStudents.findFirst({
+					where: and(
+						eq(sponsoredStudents.sponsorId, data.sponsorId),
+						eq(sponsoredStudents.stdNo, data.stdNo)
+					),
+				});
 
-			await tx
-				.insert(sponsoredTerms)
-				.values({
-					sponsoredStudentId: sponsoredStudent.id,
-					termId: data.termId,
-				})
-				.onConflictDoNothing();
+				if (!sponsoredStudent) {
+					sponsoredStudent = await tx.query.sponsoredStudents.findFirst({
+						where: eq(sponsoredStudents.stdNo, data.stdNo),
+					});
+				}
+
+				if (sponsoredStudent) {
+					const [updated] = await tx
+						.update(sponsoredStudents)
+						.set({
+							sponsorId: data.sponsorId,
+							borrowerNo: data.borrowerNo,
+							bankName: data.bankName,
+							accountNumber: data.accountNumber,
+							updatedAt: new Date(),
+						})
+						.where(eq(sponsoredStudents.id, sponsoredStudent.id))
+						.returning();
+					sponsoredStudent = updated;
+				} else {
+					const [created] = await tx
+						.insert(sponsoredStudents)
+						.values({
+							sponsorId: data.sponsorId,
+							stdNo: data.stdNo,
+							borrowerNo: data.borrowerNo,
+							bankName: data.bankName,
+							accountNumber: data.accountNumber,
+						})
+						.returning();
+					sponsoredStudent = created;
+				}
+
+				await tx
+					.insert(sponsoredTerms)
+					.values({
+						sponsoredStudentId: sponsoredStudent.id,
+						termId: data.termId,
+					})
+					.onConflictDoNothing();
+
+				sponsoredStudentId = sponsoredStudent.id;
+			}
 
 			const [request] = await tx
 				.insert(registrationRequests)
@@ -417,7 +476,7 @@ export default class RegistrationRequestRepository extends BaseRepository<
 					status: 'pending',
 					semesterNumber: data.semesterNumber,
 					semesterStatus: data.semesterStatus,
-					sponsoredStudentId: sponsoredStudent.id,
+					sponsoredStudentId: sponsoredStudentId,
 					studentSemesterId: existingSemester?.id ?? null,
 				})
 				.returning();

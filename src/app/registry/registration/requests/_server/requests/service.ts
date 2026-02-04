@@ -167,6 +167,27 @@ class RegistrationRequestService {
 		}, ['student', 'registry']);
 	}
 
+	async getExistingRegistrationSponsorship(stdNo: number, termId: number) {
+		return withAuth(
+			async () =>
+				this.repository.getExistingRegistrationSponsorship(stdNo, termId),
+			async (session) =>
+				session.user?.stdNo === stdNo || session.user?.role === 'registry'
+		);
+	}
+
+	async checkIsAdditionalRequest(stdNo: number, termId: number) {
+		return withAuth(
+			async () => {
+				const existingSemester =
+					await this.repository.findExistingStudentSemester(stdNo, termId);
+				return !!existingSemester;
+			},
+			async (session) =>
+				session.user?.stdNo === stdNo || session.user?.role === 'registry'
+		);
+	}
+
 	async getForProofOfRegistration(registrationId: number) {
 		return withAuth(async () => {
 			const result = await this.repository.findById(registrationId);

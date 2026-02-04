@@ -42,6 +42,17 @@ export async function getStudentSemesterModules(
 	return service.getStudentSemesterModules(student, remarks, termCode);
 }
 
+export async function getExistingRegistrationSponsorship(
+	stdNo: number,
+	termId: number
+) {
+	return service.getExistingRegistrationSponsorship(stdNo, termId);
+}
+
+export async function checkIsAdditionalRequest(stdNo: number, termId: number) {
+	return service.checkIsAdditionalRequest(stdNo, termId);
+}
+
 export async function determineSemesterStatus(
 	modules: ModuleWithStatus[],
 	student: Student
