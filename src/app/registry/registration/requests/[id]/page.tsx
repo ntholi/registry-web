@@ -1,4 +1,3 @@
-import { getSponsoredStudent } from '@finance/sponsors';
 import {
 	Divider,
 	Group,
@@ -64,10 +63,7 @@ export default async function RegistrationRequestDetails({
 		return notFound();
 	}
 
-	const sponsorship = await getSponsoredStudent(
-		registrationRequest.stdNo,
-		registrationRequest.termId
-	);
+	const sponsorship = registrationRequest.sponsoredStudent;
 
 	return (
 		<DetailsView>

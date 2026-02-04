@@ -75,8 +75,7 @@ export default function ClearanceDetails({ request }: Props) {
 								{request.programName}
 							</FieldView>
 							<SponsorInfo
-								stdNo={request.registrationRequest.stdNo}
-								termId={request.registrationRequest.termId}
+								sponsorship={request.registrationRequest.sponsoredStudent}
 							/>
 							<FieldView label='Semester' underline={false}>
 								{formatSemester(request.registrationRequest.semesterNumber)}

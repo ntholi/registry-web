@@ -288,6 +288,11 @@ export default class ClearanceRepository extends BaseRepository<
 					with: {
 						student: true,
 						term: true,
+						sponsoredStudent: {
+							with: {
+								sponsor: true,
+							},
+						},
 					},
 				},
 			},
