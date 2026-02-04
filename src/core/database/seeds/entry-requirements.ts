@@ -1,4 +1,4 @@
-import { programs } from '@academic/_database';
+import { type ProgramLevel, programs } from '@academic/_database';
 import {
 	certificateTypes,
 	entryRequirements,
@@ -6,20 +6,74 @@ import {
 } from '@/app/admissions/_database';
 import type {
 	ClassificationRules,
+	GradeRequirementOption,
 	SubjectGradeRules,
 } from '@/app/admissions/entry-requirements/_lib/types';
 import { db } from '../index';
 
 type SubjectMap = Map<string, string>;
 type ProgramMap = Map<string, number>;
+type ProgramLevelMap = Map<number, ProgramLevel>;
 type CertTypeMap = Map<string, string>;
+
+function gradeOptionEquals(
+	left: GradeRequirementOption,
+	right: GradeRequirementOption
+) {
+	if (left.length !== right.length) return false;
+	for (let i = 0; i < left.length; i++) {
+		if (left[i].count !== right[i].count || left[i].grade !== right[i].grade) {
+			return false;
+		}
+	}
+	return true;
+}
+
+function addGradeOptionIfMissing(
+	options: GradeRequirementOption[],
+	option: GradeRequirementOption
+) {
+	if (options.some((opt) => gradeOptionEquals(opt, option))) return options;
+	return [...options, option];
+}
+
+function applyProgramAlternatives(
+	requirements: {
+		programId: number;
+		certificateTypeId: string;
+		rules: SubjectGradeRules | ClassificationRules;
+	}[],
+	programLevels: ProgramLevelMap
+) {
+	return requirements.map((requirement) => {
+		if (requirement.rules.type !== 'subject-grades') return requirement;
+		const level = programLevels.get(requirement.programId);
+		if (level !== 'diploma' && level !== 'degree') return requirement;
+		const option: GradeRequirementOption =
+			level === 'diploma'
+				? [{ count: 4, grade: 'C' }]
+				: [{ count: 5, grade: 'C' }];
+		return {
+			...requirement,
+			rules: {
+				...requirement.rules,
+				gradeOptions: addGradeOptionIfMissing(
+					requirement.rules.gradeOptions,
+					option
+				),
+			},
+		};
+	});
+}
 
 export async function seedEntryRequirements() {
 	console.log('🌱 Seeding entry requirements...');
 
 	const [subjectRows, programRows, certTypeRows] = await Promise.all([
 		db.select({ id: subjects.id, name: subjects.name }).from(subjects),
-		db.select({ id: programs.id, code: programs.code }).from(programs),
+		db
+			.select({ id: programs.id, code: programs.code, level: programs.level })
+			.from(programs),
 		db
 			.select({ id: certificateTypes.id, name: certificateTypes.name })
 			.from(certificateTypes),
@@ -30,6 +84,9 @@ export async function seedEntryRequirements() {
 	);
 	const programMap: ProgramMap = new Map(
 		programRows.map((p) => [p.code, p.id])
+	);
+	const programLevelMap: ProgramLevelMap = new Map(
+		programRows.map((p) => [p.id, p.level])
 	);
 	const certTypeMap: CertTypeMap = new Map(
 		certTypeRows.map((c) => [c.name, c.id])
@@ -1313,11 +1370,18 @@ export async function seedEntryRequirements() {
 		},
 	});
 
-	if (requirements.length > 0) {
+	const normalizedRequirements = applyProgramAlternatives(
+		requirements,
+		programLevelMap
+	);
+
+	if (normalizedRequirements.length > 0) {
 		await db
 			.insert(entryRequirements)
-			.values(requirements)
+			.values(normalizedRequirements)
 			.onConflictDoNothing();
-		console.log(`✅ Seeded ${requirements.length} entry requirements.`);
+		console.log(
+			`✅ Seeded ${normalizedRequirements.length} entry requirements.`
+		);
 	}
 }
