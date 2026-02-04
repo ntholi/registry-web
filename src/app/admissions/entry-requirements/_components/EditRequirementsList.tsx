@@ -34,6 +34,7 @@ import type {
 	GradeRequirementOption,
 	SubjectGradeRules,
 } from '../_lib/types';
+import { normalizeSubjectGradeRules } from '../_lib/types';
 import {
 	createEntryRequirement,
 	deleteEntryRequirement,
@@ -237,7 +238,11 @@ function RequirementEditor({
 
 	const [subjectRules, setSubjectRules] = useState<SubjectGradeRules>(() => {
 		const rules = requirement.rules as SubjectGradeRules | ClassificationRules;
-		if (rules?.type === 'subject-grades') return rules;
+		if (rules?.type === 'subject-grades') {
+			return normalizeSubjectGradeRules(
+				rules as Parameters<typeof normalizeSubjectGradeRules>[0]
+			);
+		}
 		return {
 			type: 'subject-grades',
 			gradeOptions: [[{ count: 5, grade: 'C' }]],

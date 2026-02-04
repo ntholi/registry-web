@@ -20,6 +20,30 @@ export type SubjectGradeRules = {
 	}[];
 };
 
+type LegacySubjectGradeRules = Omit<
+	SubjectGradeRules,
+	'gradeOptions' | 'subjects'
+> & {
+	minimumGrades?: MinimumGradeRequirement[];
+	gradeOptions?: GradeRequirementOption[];
+	subjects?: SubjectGradeRules['subjects'];
+};
+
+export function normalizeSubjectGradeRules(
+	rules: LegacySubjectGradeRules
+): SubjectGradeRules {
+	return {
+		type: 'subject-grades',
+		gradeOptions:
+			rules.gradeOptions ??
+			(rules.minimumGrades
+				? [rules.minimumGrades]
+				: [[{ count: 5, grade: 'C' }]]),
+		subjects: rules.subjects ?? [],
+		subjectGroups: rules.subjectGroups,
+	};
+}
+
 export type ClassificationRules = {
 	type: 'classification';
 	minimumClassification?: 'Distinction' | 'Merit' | 'Credit' | 'Pass';
