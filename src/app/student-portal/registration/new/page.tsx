@@ -253,6 +253,9 @@ export default function NewRegistrationPage() {
 				return true;
 			}
 			if (step.id === 'account') {
+				if (isAdditionalRequest) {
+					return false;
+				}
 				return sponsorshipData?.sponsorId && isNMDS(sponsorshipData.sponsorId);
 			}
 			return true;
