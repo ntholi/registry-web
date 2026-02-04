@@ -1,4 +1,4 @@
-import { count, eq, ilike, sql } from 'drizzle-orm';
+import { and, count, eq, ilike, sql } from 'drizzle-orm';
 import { db, subjectAliases, subjectGrades, subjects } from '@/core/database';
 import BaseRepository from '@/core/platform/BaseRepository';
 
@@ -111,6 +111,15 @@ export default class SubjectRepository extends BaseRepository<
 				.update(subjectAliases)
 				.set({ subjectId: targetId })
 				.where(eq(subjectAliases.subjectId, sourceId));
+
+			await tx
+				.delete(subjectGrades)
+				.where(
+					and(
+						eq(subjectGrades.subjectId, sourceId),
+						sql`exists (select 1 from subject_grades sg2 where sg2.academic_record_id = ${subjectGrades.academicRecordId} and sg2.subject_id = ${targetId})`
+					)
+				);
 
 			await tx
 				.update(subjectGrades)
