@@ -13,6 +13,7 @@ export async function findAllSubjects(page = 1, search = '') {
 	return subjectsService.findAll({
 		page,
 		search,
+		searchColumns: ['name'],
 		sort: [{ column: 'name', order: 'asc' }],
 	});
 }
