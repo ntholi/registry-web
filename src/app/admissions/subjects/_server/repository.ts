@@ -93,4 +93,26 @@ export default class SubjectRepository extends BaseRepository<
 			orderBy: (a, { asc }) => [asc(a.alias)],
 		});
 	}
+
+	async moveToAlias(sourceId: string, targetId: string) {
+		const source = await this.findById(sourceId);
+		if (!source) throw new Error('Source subject not found');
+
+		await db.transaction(async (tx) => {
+			await tx.insert(subjectAliases).values({
+				subjectId: targetId,
+				alias: source.name,
+			});
+
+			await tx
+				.update(subjectGrades)
+				.set({ subjectId: targetId })
+				.where(eq(subjectGrades.subjectId, sourceId));
+
+			await tx
+				.update(subjects)
+				.set({ isActive: false })
+				.where(eq(subjects.id, sourceId));
+		});
+	}
 }
