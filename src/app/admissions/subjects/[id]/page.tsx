@@ -1,4 +1,13 @@
-import { Badge, List, ListItem, Paper, Text } from '@mantine/core';
+import {
+	Badge,
+	Box,
+	Divider,
+	Group,
+	List,
+	ListItem,
+	Paper,
+	Text,
+} from '@mantine/core';
 import { notFound } from 'next/navigation';
 import {
 	DetailsView,
@@ -6,6 +15,7 @@ import {
 	DetailsViewHeader,
 	FieldView,
 } from '@/shared/ui/adease';
+import MakeAliasModal from '../_components/MakeAliasModal';
 import type { SubjectWithAliases } from '../_lib/types';
 import { deleteSubject, getSubject } from '../_server/actions';
 
@@ -32,7 +42,15 @@ export default async function SubjectDetails({ params }: Props) {
 				}}
 			/>
 			<DetailsViewBody>
-				<FieldView label='Name'>{item.name}</FieldView>
+				<Box>
+					<Group justify='space-between' align='start'>
+						<FieldView underline={false} label='Name'>
+							{item.name}
+						</FieldView>
+						<MakeAliasModal subjectId={item.id} subjectName={item.name} />
+					</Group>
+					<Divider />
+				</Box>
 				<FieldView label='Status'>
 					<Badge color={item.isActive ? 'green' : 'gray'}>
 						{item.isActive ? 'Active' : 'Inactive'}
