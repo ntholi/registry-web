@@ -9,3 +9,7 @@ export type SubjectAliasInsert = typeof subjectAliases.$inferInsert;
 export type SubjectWithAliases = Subject & {
 	aliases: SubjectAlias[];
 };
+
+export type SubjectFilter = {
+	lqfLevel?: number | null;
+};

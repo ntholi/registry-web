@@ -1,6 +1,7 @@
 'use server';
 
-import type { subjects } from '@/core/database';
+import { eq, isNull, type SQL } from 'drizzle-orm';
+import { type subjects, subjects as subjectsTable } from '@/core/database';
 import { subjectsService } from './service';
 
 type Subject = typeof subjects.$inferInsert;
@@ -9,12 +10,24 @@ export async function getSubject(id: string) {
 	return subjectsService.get(id);
 }
 
-export async function findAllSubjects(page = 1, search = '') {
+export async function findAllSubjects(
+	page = 1,
+	search = '',
+	lqfLevel?: number | null
+) {
+	let filter: SQL | undefined;
+	if (lqfLevel !== undefined) {
+		filter =
+			lqfLevel === null
+				? isNull(subjectsTable.lqfLevel)
+				: eq(subjectsTable.lqfLevel, lqfLevel);
+	}
 	return subjectsService.findAll({
 		page,
 		search,
 		searchColumns: ['name'],
 		sort: [{ column: 'name', order: 'asc' }],
+		filter,
 	});
 }
 

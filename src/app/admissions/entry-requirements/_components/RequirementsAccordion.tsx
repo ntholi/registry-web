@@ -89,8 +89,9 @@ function RequirementDetails({ rules, subjects }: RequirementDetailsProps) {
 
 	if (isSubjectBased) {
 		const sgRules = rules as SubjectGradeRules;
-		const requiredSubjects = sgRules.subjects.filter((s) => s.required);
-		const advantageSubjects = sgRules.subjects.filter((s) => !s.required);
+		const ruleSubjects = sgRules.subjects ?? [];
+		const requiredSubjects = ruleSubjects.filter((s) => s.required);
+		const advantageSubjects = ruleSubjects.filter((s) => !s.required);
 		return (
 			<Stack gap='md'>
 				<Paper withBorder p='md' bg='var(--mantine-color-dark-7)'>
@@ -208,6 +209,7 @@ function RequirementDetails({ rules, subjects }: RequirementDetailsProps) {
 	}
 
 	const classRules = rules as ClassificationRules;
+	const courses = classRules.courses ?? [];
 	return (
 		<Stack gap='md'>
 			<Paper withBorder p='md' bg='var(--mantine-color-dark-7)'>
@@ -218,11 +220,11 @@ function RequirementDetails({ rules, subjects }: RequirementDetailsProps) {
 				</FieldView>
 			</Paper>
 
-			{classRules.courses.length > 0 && (
+			{courses.length > 0 && (
 				<Paper withBorder p='md' bg='var(--mantine-color-dark-7)'>
 					<FieldView label='Eligible Courses'>
 						<Group gap='xs'>
-							{classRules.courses.map((course) => (
+							{courses.map((course) => (
 								<Badge key={course} size='sm' variant='light'>
 									{course}
 								</Badge>
