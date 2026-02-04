@@ -7,7 +7,7 @@ import { IconArrowRight } from '@tabler/icons-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'nextjs-toploader/app';
 import { useState } from 'react';
-import { addSubjectAlias, findActiveSubjects } from '../_server/actions';
+import { findActiveSubjects, moveSubjectToAlias } from '../_server/actions';
 
 type Props = {
 	subjectId: string;
@@ -35,7 +35,7 @@ export default function MakeAliasModal({ subjectId, subjectName }: Props) {
 	const mutation = useMutation({
 		mutationFn: async () => {
 			if (!targetId) throw new Error('Please select a subject');
-			return addSubjectAlias(targetId, subjectName);
+			return moveSubjectToAlias(subjectId, targetId);
 		},
 		onSuccess: async () => {
 			await queryClient.invalidateQueries({ queryKey: ['subjects'] });
@@ -76,7 +76,8 @@ export default function MakeAliasModal({ subjectId, subjectName }: Props) {
 				<Stack>
 					<Text size='sm' c='dimmed'>
 						This will add "<strong>{subjectName}</strong>" as an alias to the
-						selected subject. You may want to deactivate this subject afterward.
+						selected subject and update all student records to point to the
+						target subject. This subject will then be deactivated.
 					</Text>
 
 					<Select

@@ -66,3 +66,7 @@ export async function removeSubjectAlias(aliasId: string) {
 export async function getSubjectAliases(subjectId: string) {
 	return subjectsService.getAliases(subjectId);
 }
+
+export async function moveSubjectToAlias(sourceId: string, targetId: string) {
+	return subjectsService.moveToAlias(sourceId, targetId);
+}
