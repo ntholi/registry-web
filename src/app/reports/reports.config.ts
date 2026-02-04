@@ -90,7 +90,7 @@ export const reportsConfig: ModuleConfig = {
 			},
 			{
 				label: 'Clearance',
-				href: (department: string) => `/reports/admin/clearance/${department}`,
+				href: (department: string) => `/reports/clearance/${department}`,
 				icon: IconReportMoney,
 				isVisible: (session) => {
 					const userRole = session?.user?.role;

@@ -142,6 +142,9 @@ function getNavigation(
 		}
 
 		for (const item of combinedItems) {
+			if (typeof item.href === 'function') {
+				item.href = item.href(department);
+			}
 			if (item.children) {
 				for (let i = 0; i < item.children.length; i++) {
 					const child = item.children[i];
