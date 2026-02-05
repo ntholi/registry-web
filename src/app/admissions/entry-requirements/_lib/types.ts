@@ -29,16 +29,21 @@ type LegacySubjectGradeRules = Omit<
 	subjects?: SubjectGradeRules['subjects'];
 };
 
+type GradeOptionLike = GradeRequirementOption | MinimumGradeRequirement;
+
 export function normalizeSubjectGradeRules(
 	rules: LegacySubjectGradeRules
 ): SubjectGradeRules {
+	const rawOptions = (rules.gradeOptions ??
+		(rules.minimumGrades ? [rules.minimumGrades] : undefined)) as
+		| GradeOptionLike[]
+		| undefined;
+	const gradeOptions = rawOptions?.map((opt) =>
+		Array.isArray(opt) ? opt : [opt]
+	) ?? [[{ count: 5, grade: 'C' }]];
 	return {
 		type: 'subject-grades',
-		gradeOptions:
-			rules.gradeOptions ??
-			(rules.minimumGrades
-				? [rules.minimumGrades]
-				: [[{ count: 5, grade: 'C' }]]),
+		gradeOptions,
 		subjects: rules.subjects ?? [],
 		subjectGroups: rules.subjectGroups,
 	};
