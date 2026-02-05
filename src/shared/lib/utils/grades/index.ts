@@ -227,20 +227,29 @@ function getClassificationThresholds() {
 			(g) =>
 				g.points !== null && g.description.toLowerCase().includes('distinction')
 		)
-		.reduce((max, g) => Math.max(max, g.points ?? 0), 0);
+		.reduce(
+			(min, g) => Math.min(min, g.points ?? min),
+			Number.POSITIVE_INFINITY
+		);
 	const merit = grades
 		.filter(
 			(g) => g.points !== null && g.description.toLowerCase().includes('merit')
 		)
-		.reduce((max, g) => Math.max(max, g.points ?? 0), 0);
+		.reduce(
+			(min, g) => Math.min(min, g.points ?? min),
+			Number.POSITIVE_INFINITY
+		);
 	const pass = grades
 		.filter((g) => g.points !== null && g.description === 'Pass')
-		.reduce((max, g) => Math.max(max, g.points ?? 0), 0);
+		.reduce(
+			(min, g) => Math.min(min, g.points ?? min),
+			Number.POSITIVE_INFINITY
+		);
 
 	return {
-		distinction,
-		merit,
-		pass,
+		distinction: Number.isFinite(distinction) ? distinction : 0,
+		merit: Number.isFinite(merit) ? merit : 0,
+		pass: Number.isFinite(pass) ? pass : 0,
 	};
 }
 
