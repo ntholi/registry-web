@@ -134,7 +134,11 @@ class RegistrationRequestService {
 
 	async updateWithModules(
 		registrationRequestId: number,
-		modules: { id: number; status: StudentModuleStatus }[],
+		modules: {
+			id: number;
+			status: StudentModuleStatus;
+			receiptNumber?: string;
+		}[],
 		sponsorshipData?: {
 			sponsorId: number;
 			borrowerNo?: string;
@@ -143,7 +147,8 @@ class RegistrationRequestService {
 		},
 		semesterNumber?: string,
 		semesterStatus?: 'Active' | 'Repeat',
-		termId?: number
+		termId?: number,
+		receipts?: { receiptNo: string; receiptType: ReceiptType }[]
 	) {
 		return withAuth(async () => {
 			return this.repository.updateWithModules(
@@ -152,7 +157,8 @@ class RegistrationRequestService {
 				sponsorshipData,
 				semesterNumber,
 				semesterStatus,
-				termId
+				termId,
+				receipts
 			);
 		}, ['student', 'registry']);
 	}

@@ -702,7 +702,11 @@ export default class RegistrationRequestRepository extends BaseRepository<
 
 	async updateWithModules(
 		registrationRequestId: number,
-		modules: { id: number; status: StudentModuleStatus }[],
+		modules: {
+			id: number;
+			status: StudentModuleStatus;
+			receiptNumber?: string;
+		}[],
 		sponsorshipData?: {
 			sponsorId: number;
 			borrowerNo?: string;
@@ -711,7 +715,8 @@ export default class RegistrationRequestRepository extends BaseRepository<
 		},
 		semesterNumber?: string,
 		semesterStatus?: 'Active' | 'Repeat',
-		termId?: number
+		termId?: number,
+		receipts?: { receiptNo: string; receiptType: ReceiptType }[]
 	) {
 		return db.transaction(async (tx) => {
 			const registration = await tx.query.registrationRequests.findFirst({
@@ -857,6 +862,47 @@ export default class RegistrationRequestRepository extends BaseRepository<
 				registrationRequestId,
 				convertedModules
 			);
+
+			if (receipts && receipts.length > 0 && registration.stdNo) {
+				await tx
+					.delete(registrationRequestReceipts)
+					.where(
+						eq(
+							registrationRequestReceipts.registrationRequestId,
+							registrationRequestId
+						)
+					);
+
+				for (const receipt of receipts) {
+					const existingReceipt = await tx.query.paymentReceipts.findFirst({
+						where: eq(paymentReceipts.receiptNo, receipt.receiptNo),
+					});
+
+					let receiptId: string;
+					if (existingReceipt) {
+						receiptId = existingReceipt.id;
+					} else {
+						const [newReceipt] = await tx
+							.insert(paymentReceipts)
+							.values({
+								receiptNo: receipt.receiptNo,
+								receiptType: receipt.receiptType,
+								stdNo: registration.stdNo,
+							})
+							.returning();
+						receiptId = newReceipt.id;
+					}
+
+					await tx
+						.insert(registrationRequestReceipts)
+						.values({
+							registrationRequestId,
+							receiptId,
+						})
+						.onConflictDoNothing();
+				}
+			}
+
 			return { request: updated, modules: updatedModules };
 		});
 	}

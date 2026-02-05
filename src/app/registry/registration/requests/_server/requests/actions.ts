@@ -99,7 +99,11 @@ export async function createRegistration(data: {
 
 export async function updateRegistration(
 	registrationRequestId: number,
-	modules: { id: number; status: StudentModuleStatus }[],
+	modules: {
+		id: number;
+		status: StudentModuleStatus;
+		receiptNumber?: string;
+	}[],
 	sponsorshipData?: {
 		sponsorId: number;
 		borrowerNo?: string;
@@ -108,7 +112,8 @@ export async function updateRegistration(
 	},
 	semesterNumber?: string,
 	semesterStatus?: 'Active' | 'Repeat',
-	termId?: number
+	termId?: number,
+	receipts?: { receiptNo: string; receiptType: ReceiptType }[]
 ) {
 	return service.updateWithModules(
 		registrationRequestId,
@@ -116,7 +121,8 @@ export async function updateRegistration(
 		sponsorshipData,
 		semesterNumber,
 		semesterStatus,
-		termId
+		termId,
+		receipts
 	);
 }
 
