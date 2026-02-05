@@ -22,7 +22,7 @@ type Props = {
 export default function WizardLayout({ applicationId, children }: Props) {
 	const pathname = usePathname();
 	const router = useRouter();
-	const isMobile = useMediaQuery('(max-width: 48em)');
+	const isMobile = useMediaQuery('(max-width: 48em)', true);
 
 	const segments = pathname.split('/').filter(Boolean);
 	const currentPath = segments[segments.length - 1] ?? 'identity';

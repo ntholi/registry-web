@@ -24,7 +24,7 @@ export default function WizardNavigation({
 	hideBack,
 }: Props) {
 	const router = useRouter();
-	const isMobile = useMediaQuery('(max-width: 48em)');
+	const isMobile = useMediaQuery('(max-width: 48em)', true);
 	const { completeness } = useApplicant();
 
 	function handleBack() {
