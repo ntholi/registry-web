@@ -1,12 +1,20 @@
 'use server';
 
-import { deleteAcademicRecord } from '@admissions/applicants/[id]/academic-records/_server/actions';
+import { getOrCreateApplicantForCurrentUser } from '@admissions/applicants';
+import { findCertificateTypeByName } from '@admissions/applicants/_server/document-actions';
+import {
+	createAcademicRecord,
+	deleteAcademicRecord,
+} from '@admissions/applicants/[id]/academic-records/_server/actions';
 import {
 	createAcademicRecordFromDocument,
 	saveApplicantDocument,
 } from '@admissions/applicants/[id]/documents/_server/actions';
+import { getApplication } from '@admissions/applications';
 import { type ActionResult, extractError } from '@apply/_lib/errors';
+import { getStudentByUserId } from '@registry/students';
 import { nanoid } from 'nanoid';
+import { auth } from '@/core/auth';
 import type { CertificateDocumentResult } from '@/core/integrations/ai/documents';
 import { uploadDocument } from '@/core/integrations/storage';
 import { getFileExtension } from '@/shared/lib/utils/files';
@@ -19,6 +27,94 @@ type UploadResult = {
 	type: string;
 	analysis: CertificateDocumentResult;
 };
+
+function extractYear(value: string | null | undefined) {
+	if (!value) return undefined;
+	const match = value.match(/\d{4}/);
+	if (!match) return undefined;
+	const year = Number.parseInt(match[0] ?? '', 10);
+	return Number.isNaN(year) ? undefined : year;
+}
+
+export async function prepopulateAcademicRecordsFromCompletedPrograms(
+	applicationId: string
+): Promise<ActionResult<number>> {
+	try {
+		const session = await auth();
+		if (!session?.user?.id) {
+			return { success: false, error: 'Unauthorized' };
+		}
+
+		const application = await getApplication(applicationId);
+		if (!application) {
+			return { success: false, error: 'Application not found' };
+		}
+
+		const applicant = await getOrCreateApplicantForCurrentUser();
+		if (!applicant || applicant.id !== application.applicantId) {
+			return { success: false, error: 'Applicant not found' };
+		}
+
+		const student = await getStudentByUserId(session.user.id);
+		if (!student) {
+			return { success: true, data: 0 };
+		}
+
+		const completedPrograms = student.programs.filter(
+			(program) => program.status === 'Completed'
+		);
+		if (completedPrograms.length === 0) {
+			return { success: true, data: 0 };
+		}
+
+		const existingKeys = new Set(
+			applicant.academicRecords.map(
+				(record) =>
+					`${record.certificateTypeId}:${record.qualificationName ?? ''}`
+			)
+		);
+
+		let createdCount = 0;
+		for (const program of completedPrograms) {
+			const certType = await findCertificateTypeByName(
+				program.structure.program.level
+			);
+			if (!certType) continue;
+
+			const qualificationName = program.structure.program.name;
+			const key = `${certType.id}:${qualificationName}`;
+			if (existingKeys.has(key)) continue;
+
+			const examYear =
+				extractYear(program.graduationDate) ??
+				extractYear(program.intakeDate) ??
+				CURRENT_YEAR;
+
+			const isLevel4 = certType.lqfLevel === 4;
+
+			await createAcademicRecord(
+				applicant.id,
+				{
+					certificateTypeId: certType.id,
+					examYear,
+					institutionName: 'Limkokwing University of Creative Technology',
+					qualificationName,
+					certificateNumber: null,
+					candidateNumber: null,
+					resultClassification: null,
+				},
+				isLevel4
+			);
+
+			existingKeys.add(key);
+			createdCount += 1;
+		}
+
+		return { success: true, data: createdCount };
+	} catch (error) {
+		return { success: false, error: extractError(error) };
+	}
+}
 
 export async function uploadCertificateDocument(
 	applicantId: string,
