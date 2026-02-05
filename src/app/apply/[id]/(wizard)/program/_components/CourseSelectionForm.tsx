@@ -74,6 +74,7 @@ export default function CourseSelectionForm({ applicationId }: Props) {
 	const { data: eligiblePrograms = [], isLoading: loadingPrograms } = useQuery({
 		queryKey: ['eligible-programs', applicantId],
 		queryFn: () => getEligiblePrograms(applicantId),
+		enabled: !!applicantId,
 	});
 
 	const { data: activeIntake, isLoading: loadingIntake } = useQuery({
@@ -226,7 +227,7 @@ export default function CourseSelectionForm({ applicationId }: Props) {
 		setSecondChoice(sel ? String(program.id) : null);
 	}
 
-	const isLoading = loadingPrograms || loadingIntake;
+	const isLoading = !applicantId || loadingPrograms || loadingIntake;
 	const canContinue = firstChoice && activeIntake?.id;
 
 	return (
