@@ -8,7 +8,7 @@ UPDATE entry_requirements er
 SET rules = jsonb_set(
     rules,
     '{gradeOptions}',
-    rules->'gradeOptions' || '[{"count": 4, "grade": "C"}]'::jsonb
+    rules->'gradeOptions' || '[[{"count": 4, "grade": "C"}]]'::jsonb
 )
 FROM programs p
 WHERE er.program_id = p.id
@@ -16,7 +16,7 @@ WHERE er.program_id = p.id
   AND rules->>'type' = 'subject-grades'
   AND NOT EXISTS (
     SELECT 1 FROM jsonb_array_elements(rules->'gradeOptions') opt
-    WHERE opt = '[{"count": 4, "grade": "C"}]'::jsonb
+    WHERE opt = '[[{"count": 4, "grade": "C"}]]'::jsonb
   );
 
 --> statement-breakpoint
@@ -26,7 +26,7 @@ UPDATE entry_requirements er
 SET rules = jsonb_set(
     rules,
     '{gradeOptions}',
-    rules->'gradeOptions' || '[{"count": 5, "grade": "C"}]'::jsonb
+    rules->'gradeOptions' || '[[{"count": 5, "grade": "C"}]]'::jsonb
 )
 FROM programs p
 WHERE er.program_id = p.id
@@ -34,5 +34,5 @@ WHERE er.program_id = p.id
   AND rules->>'type' = 'subject-grades'
   AND NOT EXISTS (
     SELECT 1 FROM jsonb_array_elements(rules->'gradeOptions') opt
-    WHERE opt = '[{"count": 5, "grade": "C"}]'::jsonb
+    WHERE opt = '[[{"count": 5, "grade": "C"}]]'::jsonb
   );

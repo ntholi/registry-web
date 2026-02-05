@@ -38,9 +38,8 @@ export function normalizeSubjectGradeRules(
 		(rules.minimumGrades ? [rules.minimumGrades] : undefined)) as
 		| GradeOptionLike[]
 		| undefined;
-	const gradeOptions = rawOptions?.map((opt) =>
-		Array.isArray(opt) ? opt : [opt]
-	) ?? [[{ count: 5, grade: 'C' }]];
+	const gradeOptions =
+		rawOptions?.map((opt) => (Array.isArray(opt) ? opt : [opt])) ?? [];
 	return {
 		type: 'subject-grades',
 		gradeOptions,
