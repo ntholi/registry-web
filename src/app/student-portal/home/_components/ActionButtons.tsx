@@ -14,6 +14,7 @@ import {
 	IconChevronRight,
 	IconClipboardCheck,
 	IconFileCertificate,
+	IconFilePlus,
 	IconSchool,
 	IconShield,
 } from '@tabler/icons-react';
@@ -54,7 +55,7 @@ const baseActions: Action[] = [
 ];
 
 export default function ActionButtons() {
-	const { student, isLoading } = useUserStudent();
+	const { student, program, isLoading } = useUserStudent();
 
 	if (isLoading || !student) {
 		return null;
@@ -65,6 +66,7 @@ export default function ActionButtons() {
 	);
 
 	const actions = [...baseActions];
+	const hasActiveProgram = !!program;
 
 	if (isICTStudent) {
 		actions.push({
@@ -73,6 +75,16 @@ export default function ActionButtons() {
 			href: '/student-portal/fortinet-registration',
 			color: semantic.neutral,
 			description: 'Register for Fortinet network security certification',
+		});
+	}
+
+	if (!hasActiveProgram) {
+		actions.push({
+			label: 'Apply',
+			icon: IconFilePlus,
+			href: '/apply',
+			color: semantic.neutral,
+			description: 'Apply for a new Program',
 		});
 	}
 

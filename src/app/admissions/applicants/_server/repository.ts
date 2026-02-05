@@ -8,6 +8,7 @@ import {
 	documents,
 	guardianPhones,
 	guardians,
+	students,
 	subjectGrades,
 	users,
 } from '@/core/database';
@@ -50,6 +51,7 @@ export default class ApplicantRepository extends BaseRepository<
 			where: eq(applicants.id, id),
 			with: {
 				user: true,
+				student: true,
 				phones: true,
 				guardians: { with: { phones: true } },
 				academicRecords: {
@@ -82,6 +84,7 @@ export default class ApplicantRepository extends BaseRepository<
 			where: eq(applicants.userId, userId),
 			with: {
 				user: true,
+				student: true,
 				phones: true,
 				guardians: { with: { phones: true } },
 				academicRecords: {
@@ -104,11 +107,39 @@ export default class ApplicantRepository extends BaseRepository<
 	}
 
 	async findOrCreateByUserId(userId: string, fullName: string) {
+		const student = await db.query.students.findFirst({
+			where: eq(students.userId, userId),
+			columns: {
+				stdNo: true,
+			},
+		});
+
 		const existing = await this.findByUserId(userId);
-		if (existing) return existing;
+		if (existing) {
+			let needsRefresh = false;
+			if (student?.stdNo && !existing.stdNo) {
+				await db
+					.update(applicants)
+					.set({ stdNo: student.stdNo })
+					.where(eq(applicants.id, existing.id));
+				needsRefresh = true;
+			}
+
+			await db
+				.update(users)
+				.set({ role: 'applicant' })
+				.where(eq(users.id, userId));
+
+			if (needsRefresh) return this.findByUserId(userId);
+			return existing;
+		}
 
 		return db.transaction(async (tx) => {
-			await tx.insert(applicants).values({ userId, fullName });
+			await tx.insert(applicants).values({
+				userId,
+				fullName,
+				stdNo: student?.stdNo ?? null,
+			});
 
 			await tx
 				.update(users)

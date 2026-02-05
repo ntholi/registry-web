@@ -1,6 +1,8 @@
 'use server';
 
 import type { UserRole } from '@auth/users/_schema/users';
+import { getStudentByUserId } from '@registry/students';
+import { getActiveProgram } from '@registry/students/_lib/utils';
 import { auth } from '@/core/auth';
 import type { applicants, guardians } from '@/core/database';
 import { applicantsService } from './service';
@@ -25,6 +27,14 @@ export async function canCurrentUserApply(): Promise<{
 
 	if (canApply) {
 		return { canApply: true, role, hasExistingApplicant: false };
+	}
+
+	if (role === 'student') {
+		const student = await getStudentByUserId(session.user.id);
+		const activeProgram = getActiveProgram(student);
+		if (!activeProgram) {
+			return { canApply: true, role, hasExistingApplicant: false };
+		}
 	}
 
 	const existingApplicant = await applicantsService.findByUserId(
