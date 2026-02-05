@@ -43,12 +43,11 @@ export default function AccountSetupPage() {
 				<Text size='sm'>
 					You are about to start a new application to Limkokwing University. If
 					you are not currently a student and wish to become one, please
-					proceed. You will be redirected to the application portal. Do you want
-					to continue?
+					proceed. Do not proceed if you are already a student!
 				</Text>
 			),
 			confirmProps: { color: 'blue' },
-			labels: { confirm: 'Start Application', cancel: 'Cancel' },
+			labels: { confirm: 'Proceed Application', cancel: 'Cancel' },
 			onConfirm: () => router.push('/apply/welcome'),
 		});
 	};
@@ -101,7 +100,7 @@ export default function AccountSetupPage() {
 
 						<Stack gap='md' w='100%' align='center'>
 							<Button
-								variant='light'
+								variant='gradient'
 								rightSection={<IconArrowRight size={16} />}
 								onClick={handleApply}
 								fullWidth

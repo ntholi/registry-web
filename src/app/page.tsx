@@ -78,8 +78,8 @@ export default async function HomePage() {
 										University, you can start your application here.
 									</Text>
 									<ButtonLink
-										href='/apply'
-										variant='light'
+										href='/apply/new'
+										variant='gradient'
 										rightSection={<IconArrowRight size={18} />}
 										fullWidth
 									>
