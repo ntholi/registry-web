@@ -18,6 +18,11 @@ import { auth } from '@/core/auth';
 import type { CertificateDocumentResult } from '@/core/integrations/ai/documents';
 import { uploadDocument } from '@/core/integrations/storage';
 import { getFileExtension } from '@/shared/lib/utils/files';
+import {
+	getAcademicRemarks,
+	getResultClassificationFromCgpa,
+} from '@/shared/lib/utils/grades';
+import type { Program as GradeProgram } from '@/shared/lib/utils/grades/type';
 
 const MAX_FILE_SIZE = 2 * 1024 * 1024;
 const CURRENT_YEAR = new Date().getFullYear();
@@ -91,6 +96,10 @@ export async function prepopulateAcademicRecordsFromCompletedPrograms(
 				CURRENT_YEAR;
 
 			const isLevel4 = certType.lqfLevel === 4;
+			const academicRemarks = getAcademicRemarks([program as GradeProgram]);
+			const resultClassification = getResultClassificationFromCgpa(
+				academicRemarks.latestPoints?.cgpa
+			);
 
 			await createAcademicRecord(
 				applicant.id,
@@ -101,7 +110,7 @@ export async function prepopulateAcademicRecordsFromCompletedPrograms(
 					qualificationName,
 					certificateNumber: null,
 					candidateNumber: null,
-					resultClassification: null,
+					resultClassification,
 				},
 				isLevel4
 			);

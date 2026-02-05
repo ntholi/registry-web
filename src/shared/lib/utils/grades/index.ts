@@ -1,4 +1,5 @@
 import { getVisibleModulesForStructure } from '@academic/semester-modules';
+import type { ResultClassification } from '@admissions/academic-records/_schema/academicRecords';
 import type { grade } from '@/core/database';
 import { isActiveModule, isActiveSemester } from '../utils';
 import type { GradePoint, Program, StudentModule } from './type';
@@ -218,6 +219,39 @@ export function getLetterGrade(marks: number) {
 export function getGradePoints(grade: string) {
 	const gradeDefinition = getGradeBySymbol(grade);
 	return gradeDefinition?.points ?? 0;
+}
+
+function getClassificationThresholds() {
+	const distinction = grades
+		.filter(
+			(g) =>
+				g.points !== null && g.description.toLowerCase().includes('distinction')
+		)
+		.reduce((max, g) => Math.max(max, g.points ?? 0), 0);
+	const merit = grades
+		.filter(
+			(g) => g.points !== null && g.description.toLowerCase().includes('merit')
+		)
+		.reduce((max, g) => Math.max(max, g.points ?? 0), 0);
+	const pass = grades
+		.filter((g) => g.points !== null && g.description === 'Pass')
+		.reduce((max, g) => Math.max(max, g.points ?? 0), 0);
+
+	return {
+		distinction,
+		merit,
+		pass,
+	};
+}
+
+export function getResultClassificationFromCgpa(
+	cgpa: number
+): ResultClassification {
+	const thresholds = getClassificationThresholds();
+	if (cgpa >= thresholds.distinction) return 'Distinction';
+	if (cgpa >= thresholds.merit) return 'Merit';
+	if (cgpa >= thresholds.pass) return 'Pass';
+	return 'Fail';
 }
 
 export function isFailingGrade(grade: string) {

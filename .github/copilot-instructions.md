@@ -102,7 +102,7 @@ You are a **Senior Principal Software Engineer** and **System Architect** specia
     - **Inference**: Derive types from Drizzle: `typeof table.$inferInsert`, `typeof table.$inferSelect`.
 - **Comments**: Code should be self-explanatory.
 - **Component Order**: Props type → constants → default export → private props type → private components.
-- **Identifiers**: Strive for very short identifier names, yet still meaningful.
+- **Identifiers**: Strive for an extremely short identifier names, yet still meaningful.
 - **File Naming**:
     - **Routes & feature folders**: `kebab-case`.
     - **React components**: `PascalCase` filenames (e.g., `StudentCardView.tsx`).
