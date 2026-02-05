@@ -5,6 +5,7 @@ import { createOrUpdateApplication } from '@admissions/applications';
 import { useApplicant } from '@apply/_lib/useApplicant';
 import {
 	Box,
+	Divider,
 	Paper,
 	SegmentedControl,
 	SimpleGrid,
@@ -232,10 +233,9 @@ export default function CourseSelectionForm({ applicationId }: Props) {
 		<Paper withBorder radius='md' p='lg'>
 			<Stack gap='lg'>
 				<Stack gap='xs'>
-					<Title order={3}>Select Your Courses</Title>
+					<Title order={3}>Choose a Courses</Title>
 					<Text c='dimmed' size='sm'>
-						Choose your first and optional second choice based on your
-						qualifications
+						Choose your course based on your qualifications
 					</Text>
 				</Stack>
 
@@ -267,9 +267,6 @@ export default function CourseSelectionForm({ applicationId }: Props) {
 							<Text c='dimmed'>
 								No eligible courses found based on your qualifications
 							</Text>
-							<Text size='sm' c='dimmed'>
-								Please ensure you have uploaded your academic documents
-							</Text>
 						</Stack>
 					</Paper>
 				)}
@@ -279,13 +276,13 @@ export default function CourseSelectionForm({ applicationId }: Props) {
 						{(schools.length > 1 || levels.length > 1) && (
 							<Box>
 								<CoursesFilters schools={schools} levels={levels} />
+								<Divider my={2} />
 							</Box>
 						)}
 
 						{eligiblePrograms.length > 1 && (
 							<SegmentedControl
 								color='teal'
-								size='md'
 								value={choiceType}
 								onChange={(val) => setChoiceType(val as 'first' | 'second')}
 								data={[
