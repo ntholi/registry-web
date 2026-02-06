@@ -24,7 +24,7 @@ export function getRegistrationOverallClearanceStatus(registration: {
 	status: RegistrationStatus;
 }) {
 	const baseStatus = getClearanceStatus(registration.clearances);
-	if (baseStatus === 'approved' && registration.status === 'registered') {
+	if (baseStatus === 'approved' || registration.status === 'registered') {
 		return 'registered';
 	}
 	if (baseStatus === 'pending' && registration.status === 'partial') {
