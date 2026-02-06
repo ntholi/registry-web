@@ -61,7 +61,7 @@ export default async function ThankYouPage({ params }: Props) {
 							{isPaid
 								? 'Thank you for applying to Limkokwing University'
 								: showPending
-									? 'Your bank deposit has been received and is under verification.'
+									? 'Your application has been submitted and your payment is under verification.'
 									: 'Your application has been saved but requires payment to be processed'}
 						</Text>
 					</Stack>
