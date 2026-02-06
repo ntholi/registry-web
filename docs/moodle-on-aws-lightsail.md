@@ -1,70 +1,44 @@
 # Moodle on AWS Lightsail (Ubuntu + LAMP)
 
-This guide walks through provisioning an AWS Lightsail Ubuntu instance, installing a LAMP stack, installing Moodle with the CLI installer, wiring cron, and enabling HTTPS. It includes both AWS CLI commands and Linux server commands.
+This guide walks through provisioning an AWS Lightsail Ubuntu instance using the Lightsail console, installing a LAMP stack, installing Moodle with the CLI installer, wiring cron, and enabling HTTPS.
 
 ## Prerequisites
 
 - AWS account with Lightsail access.
-- AWS CLI installed and configured on your local machine.
+- AWS CLI installed and configured on your local machine (optional, only if you want to automate provisioning).
 - A registered domain name (optional but recommended for HTTPS).
 - Local SSH client.
 
-## 1) Provision a Lightsail instance (AWS CLI)
+## 1) Provision a Lightsail instance (UI)
 
-Use AWS CLI to create the instance, open ports, and attach a static IP. Replace values in ALL_CAPS.
+Use the Lightsail console at https://lightsail.aws.amazon.com/ls/webapp/home/instances.
 
 ### 1.1 Create instance
 
-Choose a Linux blueprint (for example: Ubuntu) and a bundle size that fits your load.
+1) Select Create instance.
+2) Choose a region and availability zone close to your users.
+3) Pick a blueprint: Ubuntu.
+4) Choose a plan size that fits your load.
+5) Name the instance and create it.
 
-```bash
-aws lightsail create-instances \
-  --instance-names MOODLE-1 \
-  --availability-zone REGION_AZ \
-  --blueprint-id ubuntu_22_04 \
-  --bundle-id medium_3_0
-```
+### 1.2 Configure networking
 
-If you are unsure about blueprint or bundle IDs, list them first:
-
-```bash
-aws lightsail get-blueprints
-aws lightsail get-bundles
-```
-
-### 1.2 Open required ports
-
-Open SSH (22), HTTP (80), and HTTPS (443).
-
-```bash
-aws lightsail open-instance-public-ports \
-  --instance-name MOODLE-1 \
-  --port-info fromPort=22,toPort=22,protocol=TCP
-
-aws lightsail open-instance-public-ports \
-  --instance-name MOODLE-1 \
-  --port-info fromPort=80,toPort=80,protocol=TCP
-
-aws lightsail open-instance-public-ports \
-  --instance-name MOODLE-1 \
-  --port-info fromPort=443,toPort=443,protocol=TCP
-```
+1) Open the instance.
+2) Go to Networking.
+3) Add or ensure inbound rules for:
+   - SSH 22
+   - HTTP 80
+   - HTTPS 443
 
 ### 1.3 Allocate and attach a static IP
 
-```bash
-aws lightsail allocate-static-ip --static-ip-name MOODLE-STATIC-IP
-
-aws lightsail attach-static-ip \
-  --static-ip-name MOODLE-STATIC-IP \
-  --instance-name MOODLE-1
-```
+1) Open the Networking tab.
+2) Create a static IP.
+3) Attach it to your instance.
 
 ### 1.4 Find the public IP
 
-```bash
-aws lightsail get-instances
-```
+The public IP is shown on the instance card and in the Networking tab.
 
 ### 1.5 SSH into the instance
 
@@ -113,7 +87,7 @@ EXIT;
 
 ## 4) Download and place Moodle
 
-Use the latest stable package from Moodle downloads.
+Use the latest stable package from Moodle downloads. This is the recommended approach for production. The GitHub repo is best for development or if you need a specific unreleased fix.
 
 ```bash
 cd /tmp
@@ -129,6 +103,17 @@ sudo mkdir -p /var/moodledata
 sudo chown -R www-data:www-data /var/moodledata /var/www/moodle
 sudo chmod -R 2770 /var/moodledata
 ```
+
+## 4.1) Should you use GitHub instead of the release download?
+
+Recommendation: use the official release package for production.
+
+Use GitHub only when you need one of the following:
+- A specific unreleased patch or branch.
+- Contributing or developing plugins with a matching core branch.
+- Tracking a stable branch for controlled updates.
+
+If you choose GitHub, use a stable branch (for example, MOODLE_405_STABLE) and keep updates deliberate.
 
 ## 5) Apache site configuration
 
@@ -229,11 +214,7 @@ sudo -u www-data /usr/bin/php /var/www/moodle/admin/cli/upgrade.php
 
 ## Sources
 
-- AWS CLI Lightsail reference: https://docs.aws.amazon.com/cli/latest/reference/lightsail/index.html
-- AWS CLI create instances: https://docs.aws.amazon.com/cli/latest/reference/lightsail/create-instances.html
-- AWS CLI open ports: https://docs.aws.amazon.com/cli/latest/reference/lightsail/open-instance-public-ports.html
-- AWS CLI allocate static IP: https://docs.aws.amazon.com/cli/latest/reference/lightsail/allocate-static-ip.html
-- AWS CLI attach static IP: https://docs.aws.amazon.com/cli/latest/reference/lightsail/attach-static-ip.html
+- Lightsail console: https://lightsail.aws.amazon.com/ls/webapp/home/instances
 - Ubuntu LAMP stack commands: https://help.ubuntu.com/community/ApacheMySQLPHP
 - Moodle CLI installer options: https://raw.githubusercontent.com/moodle/moodle/main/admin/cli/install.php
 - Moodle CLI cron: https://raw.githubusercontent.com/moodle/moodle/main/admin/cli/cron.php
