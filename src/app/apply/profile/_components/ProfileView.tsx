@@ -3,6 +3,7 @@
 import type { ApplicantWithRelations } from '@admissions/applicants';
 import { findApplicationsByApplicant } from '@admissions/applications';
 import {
+	Alert,
 	Avatar,
 	Box,
 	Button,
@@ -24,6 +25,7 @@ import {
 } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
+import { useSession } from 'next-auth/react';
 import { useState } from 'react';
 import ApplyHeader from '../../_components/ApplyHeader';
 import { getOverallStatusColor, getOverallStatusSummary } from '../_lib/status';
@@ -38,6 +40,7 @@ interface Props {
 export function ProfileView({ applicant }: Props) {
 	const { colorScheme } = useMantineColorScheme();
 	const isDark = colorScheme === 'dark';
+	const { data: session } = useSession();
 	const [activeTab, setActiveTab] = useState<string | null>('applications');
 
 	const { data: applications, isLoading } = useQuery({
@@ -90,6 +93,7 @@ export function ProfileView({ applicant }: Props) {
 							size={150}
 							radius={150}
 							color='blue'
+							src={session?.user?.image}
 							style={{
 								border: `1px solid ${
 									isDark
@@ -139,7 +143,12 @@ export function ProfileView({ applicant }: Props) {
 					{/* Mobile Header */}
 					<Stack gap='lg' hiddenFrom='sm'>
 						<Group gap='xl'>
-							<Avatar size={80} radius={80} color='blue'>
+							<Avatar
+								size={80}
+								src={session?.user?.image}
+								radius={80}
+								color='blue'
+							>
 								{initials}
 							</Avatar>
 							<Group gap={20} grow style={{ flex: 1 }}>
@@ -170,9 +179,9 @@ export function ProfileView({ applicant }: Props) {
 									compact
 								/>
 							</Group>
-							<Text c={statusColor} mt='sm' variant='light' size='sm'>
+							<Alert variant='light' color={statusColor} mt='sm' title='Status'>
 								{statusSummary}
-							</Text>
+							</Alert>
 						</Stack>
 					</Stack>
 
@@ -336,7 +345,7 @@ function ProfileActionButton({
 		return (
 			<Button
 				component={Link}
-				href={`/apply/${app.id}/payment`}
+				href={`/apply/${app.id}/payment?method=receipt`}
 				size={compact ? 'xs' : 'sm'}
 				variant='filled'
 				rightSection={<IconCreditCard size={14} />}
