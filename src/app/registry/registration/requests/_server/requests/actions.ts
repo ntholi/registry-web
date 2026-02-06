@@ -2,6 +2,7 @@
 
 import type { AcademicRemarks, Student } from '@registry/students';
 import type { ReceiptType, StudentModuleStatus } from '@/core/database';
+import { isActiveSemester } from '@/shared/lib/utils/utils';
 import { registrationRequestsService as service } from './service';
 
 type ModuleWithStatus = {
@@ -62,6 +63,7 @@ export async function determineSemesterStatus(
 		student?.programs
 			.filter((p) => p.status === 'Active')
 			.flatMap((program) => program.semesters)
+			.filter((s) => isActiveSemester(s.status))
 			.map((semester) => semester.structureSemester?.semesterNumber)
 			.filter(
 				(semesterNo): semesterNo is string =>
