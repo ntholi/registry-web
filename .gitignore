@@ -51,6 +51,5 @@ webtest.db
 /.windsurf
 /.idea
 /.agent
-/docs
 /.kiro
 /backup_db
