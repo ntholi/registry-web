@@ -85,15 +85,17 @@ FLUSH PRIVILEGES;
 EXIT;
 ```
 
-## 4) Download and place Moodle
+## 4) Download and install Moodle (via GitHub)
 
-Use the latest stable package from Moodle downloads. This is the recommended approach for production. The GitHub repo is best for development or if you need a specific unreleased fix.
+Using GitHub is the recommended approach for production as it makes future upgrades significantly easier.
 
 ```bash
-cd /tmp
-wget https://download.moodle.org/latest.tgz
-sudo tar -xzf latest.tgz
-sudo mv moodle /var/www/moodle
+# Install git if not present
+sudo apt-get install git -y
+
+# Clone the stable branch (e.g., MOODLE_405_STABLE)
+# Note: Check Moodle.org for the current latest stable branch name
+sudo git clone -b MOODLE_405_STABLE git://github.com/moodle/moodle.git /var/www/moodle
 ```
 
 Create Moodle data directory and set permissions:
@@ -104,16 +106,16 @@ sudo chown -R www-data:www-data /var/moodledata /var/www/moodle
 sudo chmod -R 2770 /var/moodledata
 ```
 
-## 4.1) Should you use GitHub instead of the release download?
+## 4.1) Why we use GitHub instead of the release download
 
-Recommendation: use the official release package for production.
+**Recommendation: Use GitHub.**
 
-Use GitHub only when you need one of the following:
-- A specific unreleased patch or branch.
-- Contributing or developing plugins with a matching core branch.
-- Tracking a stable branch for controlled updates.
+Advantages of GitHub:
+- **Easy Upgrades**: Just run `git pull` to get security updates and minor versions.
+- **Rollbacks**: If an update breaks something, you can immediately revert to the previous commit.
+- **Plugin Management**: Better for tracking custom modifications if you use a child branch.
 
-If you choose GitHub, use a stable branch (for example, MOODLE_405_STABLE) and keep updates deliberate.
+If you strictly prefer the `.tgz` download, you can find it at `https://download.moodle.org/latest.tgz`, but you will need to repeat the extraction and permission steps for every update.
 
 ## 5) Apache site configuration
 
