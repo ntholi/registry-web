@@ -50,11 +50,14 @@ ssh -i /path/to/LightsailDefaultKey.pem ubuntu@PUBLIC_IP
 
 ## 2) OS update and LAMP install
 
-Update packages, then install the default LAMP stack.
+Update packages, then install Apache, MariaDB, PHP, and the PHP extensions Moodle requires.
+
+> **Do not use `lamp-server^`** — it installs MySQL, not MariaDB. Moodle recommends MariaDB and the guide uses `--dbtype=mariadb`, so we install `mariadb-server` explicitly.
 
 ```bash
 sudo apt-get update
-sudo apt-get install lamp-server^
+sudo apt-get install -y apache2 mariadb-server php libapache2-mod-php \
+  php-mysql php-xml php-mbstring php-curl php-zip php-gd php-intl php-soap php-sodium
 ```
 
 Verify Apache is up:
@@ -63,9 +66,15 @@ Verify Apache is up:
 curl -I http://localhost
 ```
 
+Verify MariaDB is running:
+
+```bash
+sudo systemctl status mariadb
+```
+
 ## 3) Secure the database
 
-MariaDB on Ubuntu uses the secure installation helper. Depending on version, the command is either `mariadb-secure-installation` or the legacy name.
+Run the secure installation helper to remove test databases, anonymous users, and disable remote root login. From MariaDB 10.4+, root authenticates via unix socket by default, so you will likely not need to set a root password — just press Enter if prompted for the current root password.
 
 ```bash
 sudo mariadb-secure-installation
@@ -95,7 +104,7 @@ sudo apt-get install git -y
 
 # Clone the stable branch (e.g., MOODLE_405_STABLE)
 # Note: Check Moodle.org for the current latest stable branch name
-sudo git clone -b MOODLE_405_STABLE git://github.com/moodle/moodle.git /var/www/moodle
+sudo git clone -b MOODLE_405_STABLE https://github.com/moodle/moodle.git /var/www/moodle
 ```
 
 Create Moodle data directory and set permissions:
