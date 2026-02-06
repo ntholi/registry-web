@@ -1,4 +1,3 @@
-import { getApplication } from '@admissions/applications';
 import {
 	Badge,
 	Container,
@@ -10,8 +9,13 @@ import {
 	ThemeIcon,
 	Title,
 } from '@mantine/core';
-import { IconAlertTriangle, IconCheck } from '@tabler/icons-react';
+import {
+	IconAlertTriangle,
+	IconCheck,
+	IconCreditCard,
+} from '@tabler/icons-react';
 import LinkButton from '@/shared/ui/ButtonLink';
+import { getPaymentPageData } from '../(wizard)/payment/_server/actions';
 
 type Props = {
 	params: Promise<{ id: string }>;
@@ -19,9 +23,12 @@ type Props = {
 
 export default async function ThankYouPage({ params }: Props) {
 	const { id } = await params;
-	const application = await getApplication(id);
-
-	const isPaid = application?.paymentStatus === 'paid';
+	const data = await getPaymentPageData(id);
+	const application = data?.application ?? null;
+	const isPaid = data?.isPaid ?? false;
+	const hasPendingDeposit = data?.hasPendingDeposit ?? false;
+	const showPending = !isPaid && hasPendingDeposit;
+	const gridCols = isPaid || showPending ? 1 : 2;
 
 	return (
 		<Container size='sm' py='xl'>
@@ -30,20 +37,32 @@ export default async function ThankYouPage({ params }: Props) {
 					<ThemeIcon
 						size={80}
 						radius={50}
-						color={isPaid ? 'green' : 'orange'}
+						color={isPaid ? 'green' : showPending ? 'blue' : 'orange'}
 						variant='light'
 					>
-						{isPaid ? <IconCheck size={48} /> : <IconAlertTriangle size={48} />}
+						{isPaid ? (
+							<IconCheck size={48} />
+						) : showPending ? (
+							<IconCreditCard size={48} />
+						) : (
+							<IconAlertTriangle size={48} />
+						)}
 					</ThemeIcon>
 
 					<Stack align='center' gap='xs'>
 						<Title order={2}>
-							{isPaid ? 'Application Submitted' : 'Payment Required'}
+							{isPaid
+								? 'Submitted'
+								: showPending
+									? 'Submitted'
+									: 'Payment Required'}
 						</Title>
 						<Text c='dimmed' ta='center'>
 							{isPaid
 								? 'Thank you for applying to Limkokwing University'
-								: 'Your application has been saved but requires payment to be processed'}
+								: showPending
+									? 'Your bank deposit has been received and is under verification.'
+									: 'Your application has been saved but requires payment to be processed'}
 						</Text>
 					</Stack>
 
@@ -62,22 +81,22 @@ export default async function ThankYouPage({ params }: Props) {
 									<Text size='sm' c='dimmed'>
 										Payment Status
 									</Text>
-									<Badge color={isPaid ? 'green' : 'yellow'} variant='light'>
-										{isPaid ? 'Paid' : 'Pending'}
+									<Badge
+										size='xs'
+										color={isPaid ? 'green' : showPending ? 'blue' : 'yellow'}
+										variant='light'
+									>
+										{isPaid ? 'Paid' : showPending ? 'Submitted' : 'Pending'}
 									</Badge>
 								</Group>
 							</Stack>
 						</Paper>
 					)}
 
-					<Text size='sm' c='dimmed' ta='center'>
-						{isPaid
-							? 'Your application is being reviewed. You will be notified of the outcome via email.'
-							: 'Please complete your payment to finalize your application.'}
-					</Text>
-
-					<SimpleGrid cols={2} mt='md'>
+					<SimpleGrid cols={gridCols} mt='md'>
 						{isPaid ? (
+							<LinkButton href='/apply/profile'>My Profile</LinkButton>
+						) : showPending ? (
 							<LinkButton href='/apply/profile'>My Profile</LinkButton>
 						) : (
 							<>
