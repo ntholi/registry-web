@@ -9,7 +9,7 @@ type Props = {
 
 export default async function EditBookCopyPage({ params }: Props) {
 	const { id } = await params;
-	const copy = await getBookCopy(Number(id));
+	const copy = await getBookCopy(id);
 
 	if (!copy) return notFound();
 
@@ -22,7 +22,7 @@ export default async function EditBookCopyPage({ params }: Props) {
 				returnPath={`/library/book-copies/${id}`}
 				onSubmit={async (value) => {
 					'use server';
-					return updateBookCopy(Number(id), value);
+					return updateBookCopy(id, value);
 				}}
 			/>
 		</Box>

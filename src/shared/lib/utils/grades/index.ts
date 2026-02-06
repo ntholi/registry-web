@@ -1,4 +1,5 @@
 import { getVisibleModulesForStructure } from '@academic/semester-modules';
+import type { ResultClassification } from '@admissions/academic-records/_schema/academicRecords';
 import type { grade } from '@/core/database';
 import { isActiveModule, isActiveSemester } from '../utils';
 import type { GradePoint, Program, StudentModule } from './type';
@@ -220,6 +221,48 @@ export function getGradePoints(grade: string) {
 	return gradeDefinition?.points ?? 0;
 }
 
+function getClassificationThresholds() {
+	const distinction = grades
+		.filter(
+			(g) =>
+				g.points !== null && g.description.toLowerCase().includes('distinction')
+		)
+		.reduce(
+			(min, g) => Math.min(min, g.points ?? min),
+			Number.POSITIVE_INFINITY
+		);
+	const merit = grades
+		.filter(
+			(g) => g.points !== null && g.description.toLowerCase().includes('merit')
+		)
+		.reduce(
+			(min, g) => Math.min(min, g.points ?? min),
+			Number.POSITIVE_INFINITY
+		);
+	const pass = grades
+		.filter((g) => g.points !== null && g.description === 'Pass')
+		.reduce(
+			(min, g) => Math.min(min, g.points ?? min),
+			Number.POSITIVE_INFINITY
+		);
+
+	return {
+		distinction: Number.isFinite(distinction) ? distinction : 0,
+		merit: Number.isFinite(merit) ? merit : 0,
+		pass: Number.isFinite(pass) ? pass : 0,
+	};
+}
+
+export function getResultClassificationFromCgpa(
+	cgpa: number
+): ResultClassification {
+	const thresholds = getClassificationThresholds();
+	if (cgpa >= thresholds.distinction) return 'Distinction';
+	if (cgpa >= thresholds.merit) return 'Merit';
+	if (cgpa >= thresholds.pass) return 'Pass';
+	return 'Fail';
+}
+
 export function isFailingGrade(grade: string) {
 	return ['F', 'X', 'GNS', 'ANN', 'FIN', 'FX', 'DNC', 'DNA', 'DNS'].includes(
 		normalizeGradeSymbol(grade)
@@ -354,12 +397,18 @@ export function getAcademicRemarks(
 		};
 	}
 
-	const latestFailedModules =
-		semesters.length > 0
-			? semesters[semesters.length - 1].studentModules.filter((m) =>
-					isFailingGrade(m.grade)
-				)
-			: [];
+	const latestSemester = semesters[semesters.length - 1];
+	const latestSemesterModules = latestSemester
+		? latestSemester.studentModules.filter((m) => isActiveModule(m.status))
+		: [];
+
+	const latestFailedModules = latestSemesterModules.filter((m) =>
+		isFailingGrade(m.grade)
+	);
+	const latestSupplementaryModules = latestSemesterModules.filter((m) =>
+		isSupplementaryGrade(m.grade)
+	);
+
 	const failedModules = studentModules.filter((m) => {
 		if (!isFailingGrade(m.grade)) return false;
 
@@ -388,12 +437,31 @@ export function getAcademicRemarks(
 		return !hasPassedLater;
 	});
 
-	const remainInSemester = latestFailedModules.length >= 3;
+	const uniqueSupplementaryModules = getUniqueModules(supplementary);
+	const uniqueFailedModules = getUniqueModules(failedModules);
+
+	const activeProgram = programs.find((p) => p.status === 'Active');
+	const latestSemesterNumber = Number.parseInt(
+		latestSemester?.structureSemester?.semesterNumber || '0',
+		10
+	);
+	const isDiplomaSem5 =
+		activeProgram?.structure.program.level === 'diploma' &&
+		latestSemesterNumber === 5;
+
+	const latestHasFailOrPP =
+		latestFailedModules.length > 0 || latestSupplementaryModules.length > 0;
+
+	const latestHasTwoFailsWithSupp =
+		latestFailedModules.length === 2 && latestSupplementaryModules.length > 0;
+
+	const remainInSemester =
+		latestFailedModules.length >= 3 ||
+		latestHasTwoFailsWithSupp ||
+		(isDiplomaSem5 && latestHasFailOrPP);
 	const status = remainInSemester ? 'Remain in Semester' : 'Proceed';
 
 	const messageParts: string[] = [status];
-	const uniqueSupplementaryModules = getUniqueModules(supplementary);
-	const uniqueFailedModules = getUniqueModules(failedModules);
 
 	if (uniqueSupplementaryModules.length > 0) {
 		messageParts.push(
@@ -409,8 +477,12 @@ export function getAcademicRemarks(
 	const message = messageParts.join(', ');
 
 	let details = '';
-	if (remainInSemester) {
+	if (latestFailedModules.length >= 3) {
 		details = `Failed ${latestFailedModules.length} modules in latest semester`;
+	} else if (latestHasTwoFailsWithSupp) {
+		details = 'To Proceed if supplementary exams passed';
+	} else if (remainInSemester) {
+		details = 'Has outstanding modules';
 	} else {
 		details = 'Student is eligible to proceed';
 	}

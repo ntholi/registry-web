@@ -1,14 +1,21 @@
 import type { AcademicRemarks, Student } from '@registry/students';
+import { getSponsor } from '@/app/finance/sponsors';
 import { getActiveTerm } from '@/app/registry/terms';
 import {
 	dashboardUsers,
+	type ReceiptType,
 	type registrationRequests,
 	type StudentModuleStatus,
 } from '@/core/database';
 import type { QueryOptions } from '@/core/platform/BaseRepository';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
 import withAuth from '@/core/platform/withAuth';
+import { getStudentSemesterModulesLogic } from './getStudentSemesterModules';
 import RegistrationRequestRepository from './repository';
+
+type RegistrationRequestQuery = QueryOptions<typeof registrationRequests> & {
+	includeDeleted?: boolean;
+};
 
 class RegistrationRequestService {
 	constructor(
@@ -22,10 +29,7 @@ class RegistrationRequestService {
 		);
 	}
 
-	async findAll(
-		params: QueryOptions<typeof registrationRequests>,
-		termId?: number
-	) {
+	async findAll(params: RegistrationRequestQuery, termId?: number) {
 		return withAuth(
 			async () => this.repository.findAllPaginated(params, termId),
 			['registry', 'finance', 'library']
@@ -81,7 +85,13 @@ class RegistrationRequestService {
 	}
 
 	async delete(id: number) {
-		return withAuth(async () => this.repository.delete(id), []);
+		return withAuth(
+			async (session) => {
+				const userId = session?.user?.id ?? null;
+				return this.repository.softDelete(id, userId);
+			},
+			['registry']
+		);
 	}
 
 	async createWithModules(data: {
@@ -94,7 +104,25 @@ class RegistrationRequestService {
 		borrowerNo?: string;
 		bankName?: string;
 		accountNumber?: string;
+		receipts?: { receiptNo: string; receiptType: ReceiptType }[];
 	}) {
+		const sponsor = await getSponsor(data.sponsorId);
+		const isSelfSponsored = sponsor?.code === 'PRV';
+
+		if (!isSelfSponsored) {
+			const repeatModules = data.modules.filter((m) =>
+				m.moduleStatus.startsWith('Repeat')
+			);
+			const repeatReceipts =
+				data.receipts?.filter((r) => r.receiptType === 'repeat_module') || [];
+
+			if (repeatModules.length > 0 && repeatReceipts.length === 0) {
+				throw new Error(
+					'A receipt is required for repeat modules. Please ensure all repeat modules have a receipt number attached.'
+				);
+			}
+		}
+
 		return withAuth(
 			async () => {
 				return this.repository.createWithModules(data);
@@ -106,7 +134,11 @@ class RegistrationRequestService {
 
 	async updateWithModules(
 		registrationRequestId: number,
-		modules: { id: number; status: StudentModuleStatus }[],
+		modules: {
+			id: number;
+			status: StudentModuleStatus;
+			receiptNumber?: string;
+		}[],
 		sponsorshipData?: {
 			sponsorId: number;
 			borrowerNo?: string;
@@ -115,7 +147,8 @@ class RegistrationRequestService {
 		},
 		semesterNumber?: string,
 		semesterStatus?: 'Active' | 'Repeat',
-		termId?: number
+		termId?: number,
+		receipts?: { receiptNo: string; receiptType: ReceiptType }[]
 	) {
 		return withAuth(async () => {
 			return this.repository.updateWithModules(
@@ -124,18 +157,61 @@ class RegistrationRequestService {
 				sponsorshipData,
 				semesterNumber,
 				semesterStatus,
-				termId
+				termId,
+				receipts
 			);
 		}, ['student', 'registry']);
 	}
 
-	async getStudentSemesterModules(student: Student, remarks: AcademicRemarks) {
+	async getStudentSemesterModules(
+		student: Student,
+		remarks: AcademicRemarks,
+		termCode?: string
+	) {
 		return withAuth(async () => {
-			const { getStudentSemesterModulesLogic } = await import(
-				'./getStudentSemesterModules'
-			);
-			return getStudentSemesterModulesLogic(student, remarks);
+			return getStudentSemesterModulesLogic(student, remarks, termCode);
 		}, ['student', 'registry']);
+	}
+
+	async getExistingRegistrationSponsorship(stdNo: number, termId: number) {
+		return withAuth(
+			async () =>
+				this.repository.getExistingRegistrationSponsorship(stdNo, termId),
+			async (session) =>
+				session.user?.stdNo === stdNo || session.user?.role === 'registry'
+		);
+	}
+
+	async checkIsAdditionalRequest(stdNo: number, termId: number) {
+		return withAuth(
+			async () => {
+				const existingSemester =
+					await this.repository.findExistingStudentSemester(stdNo, termId);
+				return !!existingSemester;
+			},
+			async (session) =>
+				session.user?.stdNo === stdNo || session.user?.role === 'registry'
+		);
+	}
+
+	async getExistingSemesterStatus(stdNo: number, termId: number) {
+		return withAuth(
+			async () => {
+				const existingSemester =
+					await this.repository.findExistingStudentSemester(stdNo, termId);
+				if (!existingSemester) return null;
+				const semesterNo =
+					existingSemester.structureSemester?.semesterNumber ?? '01';
+				const status =
+					existingSemester.status === 'Repeat' ? 'Repeat' : 'Active';
+				return {
+					semesterNo,
+					status: status as 'Active' | 'Repeat',
+				};
+			},
+			async (session) =>
+				session.user?.stdNo === stdNo || session.user?.role === 'registry'
+		);
 	}
 
 	async getForProofOfRegistration(registrationId: number) {

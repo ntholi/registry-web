@@ -1,4 +1,4 @@
-import { and, desc, eq, isNull, lt, or, sql } from 'drizzle-orm';
+import { and, desc, eq, exists, isNull, lt, or, sql } from 'drizzle-orm';
 import {
 	bookCopies,
 	books,
@@ -8,14 +8,14 @@ import {
 	students,
 } from '@/core/database';
 import BaseRepository from '@/core/platform/BaseRepository';
-import type { LoanFilters } from '../_lib/types';
+import type { AvailableCopy, LoanFilters } from '../_lib/types';
 
 export default class LoanRepository extends BaseRepository<typeof loans, 'id'> {
 	constructor() {
 		super(loans, loans.id);
 	}
 
-	async findByIdWithRelations(id: number) {
+	async findByIdWithRelations(id: string) {
 		const loan = await db.query.loans.findFirst({
 			where: eq(loans.id, id),
 			with: {
@@ -109,7 +109,7 @@ export default class LoanRepository extends BaseRepository<typeof loans, 'id'> {
 	}
 
 	async createLoan(data: {
-		bookCopyId: number;
+		bookCopyId: string;
 		stdNo: number;
 		dueDate: Date;
 		issuedBy: string;
@@ -135,7 +135,7 @@ export default class LoanRepository extends BaseRepository<typeof loans, 'id'> {
 		});
 	}
 
-	async processReturn(id: number, returnedTo: string) {
+	async processReturn(id: string, returnedTo: string) {
 		return db.transaction(async (tx) => {
 			const loan = await tx.query.loans.findFirst({
 				where: eq(loans.id, id),
@@ -162,16 +162,18 @@ export default class LoanRepository extends BaseRepository<typeof loans, 'id'> {
 				.where(eq(loans.id, id))
 				.returning();
 
-			await tx
-				.update(bookCopies)
-				.set({ status: 'Available' })
-				.where(eq(bookCopies.id, loan.bookCopyId));
+			if (updated) {
+				await tx
+					.update(bookCopies)
+					.set({ status: 'Available' })
+					.where(eq(bookCopies.id, updated.bookCopyId));
+			}
 
 			return { ...updated, daysOverdue };
 		});
 	}
 
-	async renewLoan(loanId: number, newDueDate: Date, renewedBy: string) {
+	async renewLoan(loanId: string, newDueDate: Date, renewedBy: string) {
 		return db.transaction(async (tx) => {
 			const loan = await tx.query.loans.findFirst({
 				where: eq(loans.id, loanId),
@@ -334,26 +336,57 @@ export default class LoanRepository extends BaseRepository<typeof loans, 'id'> {
 			.where(
 				or(
 					sql`${books.title} ILIKE ${`%${query}%`}`,
-					sql`${books.isbn} ILIKE ${`%${query}%`}`
+					sql`${books.isbn} ILIKE ${`%${query}%`}`,
+					exists(
+						db
+							.select()
+							.from(bookCopies)
+							.where(
+								and(
+									eq(bookCopies.bookId, books.id),
+									or(
+										sql`${bookCopies.location} ILIKE ${`%${query}%`}`,
+										sql`${bookCopies.serialNumber} ILIKE ${`%${query}%`}`
+									)
+								)
+							)
+					)
 				)
 			)
 			.limit(10);
 
 		const resultsWithCopies = await Promise.all(
 			searchResults.map(async (book) => {
-				const availableCopiesResult = await db
-					.select({ count: sql<number>`count(*)` })
+				const copiesData = await db
+					.select({
+						id: bookCopies.id,
+						status: bookCopies.status,
+						condition: bookCopies.condition,
+						location: bookCopies.location,
+						serialNumber: bookCopies.serialNumber,
+					})
 					.from(bookCopies)
-					.where(
-						and(
-							eq(bookCopies.bookId, book.id),
-							eq(bookCopies.status, 'Available')
-						)
-					);
+					.where(eq(bookCopies.bookId, book.id));
+
+				const availableCopies = copiesData.filter(
+					(c) => c.status === 'Available'
+				).length;
+
+				const uniqueLocations = Array.from(
+					new Set(copiesData.map((c) => c.location).filter(Boolean) as string[])
+				);
+
+				const matchedCopy = copiesData.find(
+					(c) =>
+						c.status === 'Available' &&
+						c.serialNumber.toLowerCase().includes(query.toLowerCase())
+				);
 
 				return {
 					...book,
-					availableCopies: Number(availableCopiesResult[0]?.count || 0),
+					availableCopies,
+					locations: uniqueLocations,
+					matchedCopy: matchedCopy as AvailableCopy | undefined,
 				};
 			})
 		);
@@ -361,7 +394,7 @@ export default class LoanRepository extends BaseRepository<typeof loans, 'id'> {
 		return resultsWithCopies.filter((b) => b.availableCopies > 0);
 	}
 
-	async getAvailableCopies(bookId: number) {
+	async getAvailableCopies(bookId: string) {
 		return db
 			.select({
 				id: bookCopies.id,

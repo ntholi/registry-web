@@ -5,9 +5,11 @@ export type ModuleKey =
 	| 'lms'
 	| 'finance'
 	| 'registry'
+	| 'reports'
 	| 'timetable'
 	| 'student-portal'
-	| 'audit-logs';
+	| 'audit-logs'
+	| 'library';
 
 const moduleEnvKeys: Record<ModuleKey, string> = {
 	academic: 'ENABLE_MODULE_ACADEMIC',
@@ -16,9 +18,11 @@ const moduleEnvKeys: Record<ModuleKey, string> = {
 	lms: 'ENABLE_MODULE_LMS',
 	finance: 'ENABLE_MODULE_FINANCE',
 	registry: 'ENABLE_MODULE_REGISTRY',
+	reports: 'ENABLE_MODULE_REPORTS',
 	timetable: 'ENABLE_MODULE_TIMETABLE',
 	'student-portal': 'ENABLE_MODULE_STUDENT_PORTAL',
 	'audit-logs': 'ENABLE_MODULE_AUDIT_LOGS',
+	library: 'ENABLE_MODULE_LIBRARY',
 };
 
 function isModuleEnabled(moduleKey: ModuleKey): boolean {
@@ -39,9 +43,11 @@ export const moduleConfig = {
 	lms: isModuleEnabled('lms'),
 	finance: isModuleEnabled('finance'),
 	registry: isModuleEnabled('registry'),
+	reports: isModuleEnabled('reports'),
 	timetable: isModuleEnabled('timetable'),
 	studentPortal: isModuleEnabled('student-portal'),
 	auditLogs: isModuleEnabled('audit-logs'),
+	library: isModuleEnabled('library'),
 };
 
 export function getModuleConfig() {
@@ -52,9 +58,11 @@ export function getModuleConfig() {
 		lms: moduleConfig.lms,
 		finance: moduleConfig.finance,
 		registry: moduleConfig.registry,
+		reports: moduleConfig.reports,
 		timetable: moduleConfig.timetable,
 		studentPortal: moduleConfig.studentPortal,
 		auditLogs: moduleConfig.auditLogs,
+		library: moduleConfig.library,
 	};
 }
 

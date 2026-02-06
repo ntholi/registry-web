@@ -5,6 +5,11 @@ import type {
 	venues,
 	venueTypes,
 } from '@/core/database';
+import {
+	type AllocationInfo,
+	type OverflowOption,
+	TimetablePlanningError,
+} from './errors';
 import type { PlannedSlotInput } from './repository';
 
 export type DayOfWeek = (typeof timetableSlots.dayOfWeek.enumValues)[number];
@@ -13,11 +18,16 @@ export type AllocationRecord = typeof timetableAllocations.$inferSelect & {
 	timetableAllocationVenueTypes: {
 		venueTypeId: string;
 	}[];
+	timetableAllocationAllowedVenues: {
+		venueId: string;
+		allowOverflow: boolean;
+	}[];
 	semesterModule: {
 		id: number;
 		semesterId: number | null;
 		module: {
 			id: number;
+			code: string;
 			name: string;
 		};
 	};
@@ -45,7 +55,7 @@ interface PlanSlot {
 	allocationIds: Set<number>;
 	lecturerIds: Set<string>;
 	semesterIds: Set<number>;
-	moduleName: string;
+	moduleCode: string;
 	semesterModuleId: number;
 	classType: string;
 }
@@ -57,6 +67,7 @@ interface LecturerSchedule {
 
 interface ClassSchedule {
 	semesterId: number;
+	groupName: string | null;
 	slotsByDay: Map<DayOfWeek, PlanSlot[]>;
 }
 
@@ -64,10 +75,12 @@ interface PlanningState {
 	slots: Map<string, PlanSlot>;
 	daySchedules: Map<string, PlanSlot[]>;
 	lecturerSchedules: Map<string, LecturerSchedule>;
-	classSchedules: Map<number, ClassSchedule>;
+	classSchedules: Map<string, ClassSchedule>;
+	classScheduleKeys: Map<number, Set<string>>;
 	venueLoad: Map<string, number>;
 	allocationPlacements: Map<number, string>;
 	maxSlotsPerDay: number;
+	warn: (message: string) => void;
 }
 
 interface PlacementCandidate {
@@ -116,21 +129,32 @@ function generateValidStartTimes(
 	return validTimes;
 }
 
+interface BuildTermPlanOptions {
+	maxSlotsPerDay?: number;
+	warn?: (message: string) => void;
+	skipOnFailure?: boolean;
+}
+
+export type { BuildTermPlanOptions };
+
 export function buildTermPlan(
 	termId: number,
 	allocations: AllocationRecord[],
 	venues: VenueRecord[],
-	maxSlotsPerDay?: number
+	options?: BuildTermPlanOptions
 ): PlannedSlotInput[] {
+	const { maxSlotsPerDay, warn, skipOnFailure = false } = options ?? {};
 	const planningState: PlanningState = {
 		slots: new Map(),
 		daySchedules: new Map(),
 		lecturerSchedules: new Map(),
 		classSchedules: new Map(),
+		classScheduleKeys: new Map(),
 		venueLoad: new Map(),
 		allocationPlacements: new Map(),
 		maxSlotsPerDay:
 			maxSlotsPerDay ?? config.timetable.timetableAllocations.maxSlotsPerDay,
+		warn: warn ?? console.warn,
 	};
 
 	const sortedAllocations = sortAllocationsByConstraints(allocations);
@@ -155,13 +179,30 @@ export function buildTermPlan(
 		);
 
 		if (!placed) {
-			throw new Error(
-				`Unable to allocate slot for allocation ${allocation.id} with provided constraints. Try relaxing constraints or adding more venues/time slots.`
+			if (skipOnFailure) {
+				planningState.warn(
+					`Skipped allocation ${allocation.id}: unable to place with current constraints`
+				);
+				continue;
+			}
+			const diagnosis = diagnoseAllocationFailure(allocation, venues);
+			const overflowOptions = collectOverflowOptions(allocation, venues);
+			const allocationInfo: AllocationInfo = {
+				id: allocation.id,
+				moduleCode: allocation.semesterModule.module.code,
+				moduleName: allocation.semesterModule.module.name,
+			};
+			throw new TimetablePlanningError(
+				diagnosis,
+				allocationInfo,
+				overflowOptions
 			);
 		}
 	}
 
-	validateFinalPlan(planningState, allocations);
+	if (!skipOnFailure) {
+		validateFinalPlan(planningState, allocations);
+	}
 
 	return convertPlanToOutput(termId, planningState);
 }
@@ -284,6 +325,9 @@ function attemptPlaceAllocation(
 	);
 
 	if (relaxedConsecutivePlacements.length > 0) {
+		planningState.warn(
+			`Relaxed consecutive slots constraint for allocation ${allocation.id}`
+		);
 		relaxedConsecutivePlacements.sort((a, b) => a.score - b.score);
 		const best = relaxedConsecutivePlacements[0];
 		applyPlacement(allocation, best, planningState);
@@ -297,6 +341,9 @@ function attemptPlaceAllocation(
 	);
 
 	if (relaxedMaxSlotsPlacements.length > 0) {
+		planningState.warn(
+			`Relaxed max slots per day constraint for allocation ${allocation.id}`
+		);
 		relaxedMaxSlotsPlacements.sort((a, b) => a.score - b.score);
 		const best = relaxedMaxSlotsPlacements[0];
 		applyPlacement(allocation, best, planningState);
@@ -385,6 +432,14 @@ function collectCandidateVenues(
 	venues: VenueRecord[]
 ): VenueRecord[] {
 	const requiredCapacity = allocation.numberOfStudents ?? 0;
+	const allowedVenueIds = allocation.timetableAllocationAllowedVenues.map(
+		(item) => item.venueId
+	);
+	const overflowVenueIds = new Set(
+		allocation.timetableAllocationAllowedVenues
+			.filter((item) => item.allowOverflow)
+			.map((item) => item.venueId)
+	);
 	const requiredTypes = allocation.timetableAllocationVenueTypes.map(
 		(item) => item.venueTypeId
 	);
@@ -395,13 +450,24 @@ function collectCandidateVenues(
 	const candidates: VenueRecord[] = [];
 
 	for (const venue of venues) {
-		if (requiredTypes.length > 0 && !requiredTypes.includes(venue.typeId)) {
+		if (allowedVenueIds.length > 0 && !allowedVenueIds.includes(venue.id)) {
 			continue;
 		}
 
-		const maxCapacity = Math.floor(venue.capacity * 1.1);
-		if (requiredCapacity > maxCapacity) {
+		if (
+			allowedVenueIds.length === 0 &&
+			requiredTypes.length > 0 &&
+			!requiredTypes.includes(venue.typeId)
+		) {
 			continue;
+		}
+
+		const hasOverflow = overflowVenueIds.has(venue.id);
+		if (!hasOverflow) {
+			const maxCapacity = Math.floor(venue.capacity * 1.1);
+			if (requiredCapacity > maxCapacity) {
+				continue;
+			}
 		}
 
 		const venueSchoolIds = venue.venueSchools.map((vs) => vs.schoolId);
@@ -419,7 +485,10 @@ function collectCandidateVenues(
 	candidates.sort((a, b) => {
 		const capacityDiffA = Math.abs(a.capacity - requiredCapacity);
 		const capacityDiffB = Math.abs(b.capacity - requiredCapacity);
-		return capacityDiffA - capacityDiffB;
+		if (capacityDiffA !== capacityDiffB) {
+			return capacityDiffA - capacityDiffB;
+		}
+		return Math.random() - 0.5;
 	});
 
 	return candidates;
@@ -546,9 +615,16 @@ function findCombinableSlot(
 	const earliestStart = toMinutes(allocation.startTime);
 	const latestEnd = toMinutes(allocation.endTime);
 
+	const overflowVenueIds = new Set(
+		allocation.timetableAllocationAllowedVenues
+			.filter((item) => item.allowOverflow)
+			.map((item) => item.venueId)
+	);
+	const hasOverflow = overflowVenueIds.has(venue.id);
+
 	for (const slot of daySlots) {
 		if (
-			slot.moduleName !== allocation.semesterModule.module.name ||
+			slot.moduleCode !== allocation.semesterModule.module.code ||
 			!slot.lecturerIds.has(allocation.userId) ||
 			slot.classType !== allocation.classType
 		) {
@@ -563,10 +639,13 @@ function findCombinableSlot(
 			continue;
 		}
 
-		const maxCapacity = Math.floor(venue.capacity * 1.1);
-		const newCapacity = slot.capacityUsed + (allocation.numberOfStudents ?? 0);
-		if (newCapacity > maxCapacity) {
-			continue;
+		if (!hasOverflow) {
+			const maxCapacity = Math.floor(venue.capacity * 1.1);
+			const newCapacity =
+				slot.capacityUsed + (allocation.numberOfStudents ?? 0);
+			if (newCapacity > maxCapacity) {
+				continue;
+			}
 		}
 
 		return slot;
@@ -624,7 +703,7 @@ function findAvailableTimeWindows(
 
 function validatePlacement(
 	allocation: AllocationRecord,
-	_venueId: string,
+	venueId: string,
 	day: DayOfWeek,
 	startMinutes: number,
 	endMinutes: number,
@@ -637,6 +716,7 @@ function validatePlacement(
 
 	const lecturerCheck = checkLecturerConflicts(
 		allocation,
+		venueId,
 		day,
 		startMinutes,
 		endMinutes,
@@ -657,12 +737,14 @@ function validatePlacement(
 		return classCheck;
 	}
 
+	const lecturerDaySlots =
+		planningState.lecturerSchedules
+			.get(allocation.userId)
+			?.slotsByDay.get(day) ?? [];
 	const consecutiveCheckLecturer = checkConsecutiveSlots(
-		allocation.userId,
-		day,
 		startMinutes,
 		endMinutes,
-		planningState.lecturerSchedules.get(allocation.userId),
+		lecturerDaySlots,
 		'lecturer'
 	);
 	if (!consecutiveCheckLecturer.valid) {
@@ -671,12 +753,15 @@ function validatePlacement(
 
 	const semesterId = allocation.semesterModule.semesterId;
 	if (semesterId !== null) {
-		const consecutiveCheckClass = checkConsecutiveSlots(
-			String(semesterId),
+		const classDaySlots = getClassSlotsForLimits(
+			allocation,
 			day,
+			planningState
+		);
+		const consecutiveCheckClass = checkConsecutiveSlots(
 			startMinutes,
 			endMinutes,
-			planningState.classSchedules.get(semesterId),
+			classDaySlots,
 			'class'
 		);
 		if (!consecutiveCheckClass.valid) {
@@ -685,9 +770,8 @@ function validatePlacement(
 	}
 
 	const maxSlotsCheckLecturer = checkMaxSlotsPerDay(
-		allocation.userId,
 		day,
-		planningState.lecturerSchedules.get(allocation.userId),
+		lecturerDaySlots,
 		planningState.maxSlotsPerDay,
 		'lecturer'
 	);
@@ -696,10 +780,14 @@ function validatePlacement(
 	}
 
 	if (semesterId !== null) {
-		const maxSlotsCheckClass = checkMaxSlotsPerDay(
-			String(semesterId),
+		const classDaySlots = getClassSlotsForLimits(
+			allocation,
 			day,
-			planningState.classSchedules.get(semesterId),
+			planningState
+		);
+		const maxSlotsCheckClass = checkMaxSlotsPerDay(
+			day,
+			classDaySlots,
 			planningState.maxSlotsPerDay,
 			'class'
 		);
@@ -713,6 +801,7 @@ function validatePlacement(
 
 function checkLecturerConflicts(
 	allocation: AllocationRecord,
+	venueId: string,
 	day: DayOfWeek,
 	startMinutes: number,
 	endMinutes: number,
@@ -735,7 +824,7 @@ function checkLecturerConflicts(
 			(startMinutes <= slot.startMinutes && endMinutes >= slot.endMinutes);
 
 		if (overlaps) {
-			if (slot.moduleName !== allocation.semesterModule.module.name) {
+			if (slot.moduleCode !== allocation.semesterModule.module.code) {
 				return {
 					valid: false,
 					reason: `Lecturer conflict: lecturer has another module at this time`,
@@ -746,6 +835,13 @@ function checkLecturerConflicts(
 				return {
 					valid: false,
 					reason: `Lecturer conflict: lecturer cannot have different class types (${slot.classType} and ${allocation.classType}) at overlapping times`,
+				};
+			}
+
+			if (slot.venueId !== venueId) {
+				return {
+					valid: false,
+					reason: `Lecturer conflict: lecturer cannot have overlapping slots in different venues`,
 				};
 			}
 		}
@@ -767,25 +863,25 @@ function checkClassConflicts(
 		return { valid: true };
 	}
 
-	const classSchedule = planningState.classSchedules.get(semesterId);
-
-	if (!classSchedule) {
+	const schedules = getClassSchedulesForConflicts(allocation, planningState);
+	if (schedules.length === 0) {
 		return { valid: true };
 	}
 
-	const daySlots = classSchedule.slotsByDay.get(day) ?? [];
+	for (const schedule of schedules) {
+		const daySlots = schedule.slotsByDay.get(day) ?? [];
+		for (const slot of daySlots) {
+			const overlaps =
+				(startMinutes >= slot.startMinutes && startMinutes < slot.endMinutes) ||
+				(endMinutes > slot.startMinutes && endMinutes <= slot.endMinutes) ||
+				(startMinutes <= slot.startMinutes && endMinutes >= slot.endMinutes);
 
-	for (const slot of daySlots) {
-		const overlaps =
-			(startMinutes >= slot.startMinutes && startMinutes < slot.endMinutes) ||
-			(endMinutes > slot.startMinutes && endMinutes <= slot.endMinutes) ||
-			(startMinutes <= slot.startMinutes && endMinutes >= slot.endMinutes);
-
-		if (overlaps) {
-			return {
-				valid: false,
-				reason: `Class conflict: class has another module at this time`,
-			};
+			if (overlaps) {
+				return {
+					valid: false,
+					reason: `Class conflict: class has another module at this time`,
+				};
+			}
 		}
 	}
 
@@ -793,19 +889,11 @@ function checkClassConflicts(
 }
 
 function checkConsecutiveSlots(
-	_entityId: string,
-	day: DayOfWeek,
 	startMinutes: number,
 	endMinutes: number,
-	schedule: LecturerSchedule | ClassSchedule | undefined,
+	daySlots: PlanSlot[],
 	entityType: 'lecturer' | 'class'
 ): ConstraintCheck {
-	if (!schedule) {
-		return { valid: true };
-	}
-
-	const daySlots = schedule.slotsByDay.get(day) ?? [];
-
 	if (daySlots.length === 0) {
 		return { valid: true };
 	}
@@ -855,18 +943,11 @@ function checkConsecutiveSlots(
 }
 
 function checkMaxSlotsPerDay(
-	_entityId: string,
 	day: DayOfWeek,
-	schedule: LecturerSchedule | ClassSchedule | undefined,
+	daySlots: PlanSlot[],
 	maxSlots: number,
 	entityType: 'lecturer' | 'class'
 ): ConstraintCheck {
-	if (!schedule) {
-		return { valid: true };
-	}
-
-	const daySlots = schedule.slotsByDay.get(day) ?? [];
-
 	if (daySlots.length >= maxSlots) {
 		return {
 			valid: false,
@@ -928,7 +1009,7 @@ function applyPlacement(
 			allocationIds: new Set([allocation.id]),
 			lecturerIds: new Set([allocation.userId]),
 			semesterIds: new Set(semesterId !== null ? [semesterId] : []),
-			moduleName: allocation.semesterModule.module.name,
+			moduleCode: allocation.semesterModule.module.code,
 			semesterModuleId: allocation.semesterModuleId,
 			classType: allocation.classType,
 		};
@@ -957,6 +1038,7 @@ function applyPlacement(
 		if (semesterId !== null) {
 			existing.semesterIds.add(semesterId);
 		}
+		updateScheduleTracking(existing, allocation, planningState);
 	}
 
 	planningState.allocationPlacements.set(allocation.id, placement.slotKey);
@@ -975,28 +1057,22 @@ function updateScheduleTracking(
 		};
 		planningState.lecturerSchedules.set(allocation.userId, lecturerSchedule);
 	}
-
-	const lecturerDaySlots =
-		lecturerSchedule.slotsByDay.get(slot.dayOfWeek) ?? [];
-	lecturerDaySlots.push(slot);
-	lecturerDaySlots.sort((a, b) => a.startMinutes - b.startMinutes);
-	lecturerSchedule.slotsByDay.set(slot.dayOfWeek, lecturerDaySlots);
+	addSlotToSchedule(lecturerSchedule.slotsByDay, slot.dayOfWeek, slot);
 
 	const semesterId = allocation.semesterModule.semesterId;
 	if (semesterId !== null) {
-		let classSchedule = planningState.classSchedules.get(semesterId);
+		const classKey = buildClassKey(semesterId, allocation.groupName ?? null);
+		let classSchedule = planningState.classSchedules.get(classKey);
 		if (!classSchedule) {
 			classSchedule = {
 				semesterId,
+				groupName: allocation.groupName ?? null,
 				slotsByDay: new Map(),
 			};
-			planningState.classSchedules.set(semesterId, classSchedule);
+			planningState.classSchedules.set(classKey, classSchedule);
+			registerClassScheduleKey(semesterId, classKey, planningState);
 		}
-
-		const classDaySlots = classSchedule.slotsByDay.get(slot.dayOfWeek) ?? [];
-		classDaySlots.push(slot);
-		classDaySlots.sort((a, b) => a.startMinutes - b.startMinutes);
-		classSchedule.slotsByDay.set(slot.dayOfWeek, classDaySlots);
+		addSlotToSchedule(classSchedule.slotsByDay, slot.dayOfWeek, slot);
 	}
 }
 
@@ -1051,9 +1127,11 @@ function clonePlanningState(state: PlanningState): PlanningState {
 		daySchedules: new Map(),
 		lecturerSchedules: new Map(),
 		classSchedules: new Map(),
+		classScheduleKeys: new Map(),
 		venueLoad: new Map(state.venueLoad),
 		allocationPlacements: new Map(state.allocationPlacements),
 		maxSlotsPerDay: state.maxSlotsPerDay,
+		warn: state.warn,
 	};
 
 	for (const [key, slot] of state.slots.entries()) {
@@ -1083,12 +1161,17 @@ function clonePlanningState(state: PlanningState): PlanningState {
 	for (const [key, schedule] of state.classSchedules.entries()) {
 		const newSchedule: ClassSchedule = {
 			semesterId: schedule.semesterId,
+			groupName: schedule.groupName,
 			slotsByDay: new Map(),
 		};
 		for (const [day, slots] of schedule.slotsByDay.entries()) {
 			newSchedule.slotsByDay.set(day, [...slots]);
 		}
 		cloned.classSchedules.set(key, newSchedule);
+	}
+
+	for (const [semesterId, keys] of state.classScheduleKeys.entries()) {
+		cloned.classScheduleKeys.set(semesterId, new Set(keys));
 	}
 
 	return cloned;
@@ -1102,9 +1185,11 @@ function restorePlanningState(
 	target.daySchedules = backup.daySchedules;
 	target.lecturerSchedules = backup.lecturerSchedules;
 	target.classSchedules = backup.classSchedules;
+	target.classScheduleKeys = backup.classScheduleKeys;
 	target.venueLoad = backup.venueLoad;
 	target.allocationPlacements = backup.allocationPlacements;
 	target.maxSlotsPerDay = backup.maxSlotsPerDay;
+	target.warn = backup.warn;
 }
 
 function validateFinalPlan(
@@ -1160,6 +1245,106 @@ function buildSlotKey(
 	return `${venueId}-${day}-${start}-${end}`;
 }
 
+function buildClassKey(semesterId: number, groupName: string | null): string {
+	const groupKey = groupName ?? 'all';
+	return `${semesterId}-${groupKey}`;
+}
+
+function registerClassScheduleKey(
+	semesterId: number,
+	classKey: string,
+	planningState: PlanningState
+): void {
+	const keys = planningState.classScheduleKeys.get(semesterId) ?? new Set();
+	keys.add(classKey);
+	planningState.classScheduleKeys.set(semesterId, keys);
+}
+
+function getClassSchedulesForSemester(
+	semesterId: number,
+	planningState: PlanningState
+): ClassSchedule[] {
+	const keys = planningState.classScheduleKeys.get(semesterId);
+	if (!keys) {
+		return [];
+	}
+
+	const schedules: ClassSchedule[] = [];
+	for (const key of keys) {
+		const schedule = planningState.classSchedules.get(key);
+		if (schedule) {
+			schedules.push(schedule);
+		}
+	}
+	return schedules;
+}
+
+function getClassSchedulesForConflicts(
+	allocation: AllocationRecord,
+	planningState: PlanningState
+): ClassSchedule[] {
+	const semesterId = allocation.semesterModule.semesterId;
+	if (semesterId === null) {
+		return [];
+	}
+	const groupName = allocation.groupName ?? null;
+
+	const schedules = getClassSchedulesForSemester(semesterId, planningState);
+	if (groupName === null) {
+		return schedules;
+	}
+
+	return schedules.filter(
+		(schedule) =>
+			schedule.groupName === null || schedule.groupName === groupName
+	);
+}
+
+function getClassSlotsForLimits(
+	allocation: AllocationRecord,
+	day: DayOfWeek,
+	planningState: PlanningState
+): PlanSlot[] {
+	const semesterId = allocation.semesterModule.semesterId;
+	if (semesterId === null) {
+		return [];
+	}
+	const groupName = allocation.groupName ?? null;
+
+	const slots: PlanSlot[] = [];
+	const allSchedule = planningState.classSchedules.get(
+		buildClassKey(semesterId, null)
+	);
+	if (allSchedule) {
+		slots.push(...(allSchedule.slotsByDay.get(day) ?? []));
+	}
+
+	if (groupName !== null) {
+		const groupSchedule = planningState.classSchedules.get(
+			buildClassKey(semesterId, groupName)
+		);
+		if (groupSchedule) {
+			slots.push(...(groupSchedule.slotsByDay.get(day) ?? []));
+		}
+	}
+
+	return slots;
+}
+
+function addSlotToSchedule(
+	slotsByDay: Map<DayOfWeek, PlanSlot[]>,
+	day: DayOfWeek,
+	slot: PlanSlot
+): void {
+	const daySlots = slotsByDay.get(day) ?? [];
+	if (daySlots.some((item) => item.key === slot.key)) {
+		return;
+	}
+	daySlots.push(slot);
+	daySlots.sort((a, b) => a.startMinutes - b.startMinutes);
+	slotsByDay.set(day, daySlots);
+}
+
 function toMinutes(time: string): number {
 	const [hours, minutes] = time.split(':');
 	const parsedHours = Number(hours);
@@ -1174,4 +1359,140 @@ function minutesToTime(minutesValue: number): string {
 	const hoursText = hoursPart.toString().padStart(2, '0');
 	const minutesText = minutesPart.toString().padStart(2, '0');
 	return `${hoursText}:${minutesText}:00`;
+}
+
+function diagnoseAllocationFailure(
+	allocation: AllocationRecord,
+	venues: VenueRecord[]
+): string {
+	const issues: string[] = [];
+	const requiredCapacity = allocation.numberOfStudents ?? 0;
+	const lecturerSchoolIds = allocation.user.userSchools.map(
+		(us) => us.schoolId
+	);
+	const requiredTypes = allocation.timetableAllocationVenueTypes.map(
+		(vt) => vt.venueTypeId
+	);
+	const allowedVenueIds = allocation.timetableAllocationAllowedVenues.map(
+		(av) => av.venueId
+	);
+
+	const venuesWithSchoolMatch = venues.filter((venue) => {
+		const venueSchoolIds = venue.venueSchools.map((vs) => vs.schoolId);
+		return lecturerSchoolIds.some((id) => venueSchoolIds.includes(id));
+	});
+
+	if (venuesWithSchoolMatch.length === 0) {
+		issues.push(
+			`No venues assigned to the lecturer's school(s). Assign venues to the lecturer's faculty.`
+		);
+	} else {
+		const venuesWithCapacity = venuesWithSchoolMatch.filter(
+			(v) => Math.floor(v.capacity * 1.1) >= requiredCapacity
+		);
+
+		if (venuesWithCapacity.length === 0) {
+			const maxCapacity = Math.max(
+				...venuesWithSchoolMatch.map((v) => v.capacity)
+			);
+			issues.push(
+				`NO_VENUE_CAPACITY:No venue can fit ${requiredCapacity} students. Largest venue holds ${maxCapacity}. You can allow overflow for a specific venue to bypass capacity limits.`
+			);
+		} else if (requiredTypes.length > 0) {
+			const venuesWithType = venuesWithCapacity.filter((v) =>
+				requiredTypes.includes(v.typeId)
+			);
+			if (venuesWithType.length === 0) {
+				issues.push(
+					`No suitable venue matches the required type. Remove venue type constraint or assign appropriate venues to the faculty.`
+				);
+			}
+		}
+	}
+
+	if (allowedVenueIds.length > 0) {
+		const allowedAvailable = venues.filter((v) =>
+			allowedVenueIds.includes(v.id)
+		);
+		if (allowedAvailable.length === 0) {
+			issues.push(`Specified allowed venues are not available.`);
+		}
+	}
+
+	const windowStart = toMinutes(allocation.startTime);
+	const windowEnd = toMinutes(allocation.endTime);
+	const windowDuration = windowEnd - windowStart;
+
+	if (windowDuration < allocation.duration) {
+		issues.push(
+			`Time window (${allocation.startTime}-${allocation.endTime}) is shorter than the required duration (${allocation.duration} min).`
+		);
+	} else if (windowDuration === allocation.duration) {
+		const baseStart = toMinutes(
+			config.timetable.timetableAllocations.startTime
+		);
+		const slotDuration = config.timetable.timetableAllocations.duration;
+		let candidateTime = baseStart;
+		let hasValidSlot = false;
+
+		while (candidateTime < windowEnd) {
+			if (
+				candidateTime >= windowStart &&
+				candidateTime + allocation.duration <= windowEnd
+			) {
+				hasValidSlot = true;
+				break;
+			}
+			candidateTime += slotDuration;
+		}
+
+		if (!hasValidSlot) {
+			const validSlots: string[] = [];
+			candidateTime = baseStart;
+			while (candidateTime < toMinutes('18:00:00')) {
+				validSlots.push(minutesToTime(candidateTime).slice(0, 5));
+				candidateTime += slotDuration;
+			}
+			issues.push(
+				`Time window doesn't align with slot grid. Valid start times: ${validSlots.join(', ')}. Adjust start/end time to align with these slots.`
+			);
+		}
+	}
+
+	if (allocation.allowedDays.length === 0) {
+		issues.push(`No allowed days specified.`);
+	} else if (allocation.allowedDays.length === 1) {
+		issues.push(
+			`Only one day (${allocation.allowedDays[0]}) is allowed. Allow more days for flexibility.`
+		);
+	}
+
+	if (issues.length === 0) {
+		return `Could not determine specific cause. Try relaxing constraints or adding more venues/time slots.`;
+	}
+
+	return issues.join(' ');
+}
+
+function collectOverflowOptions(
+	allocation: AllocationRecord,
+	venues: VenueRecord[]
+): OverflowOption[] {
+	const lecturerSchoolIds = allocation.user.userSchools.map(
+		(us) => us.schoolId
+	);
+
+	const venuesWithSchoolMatch = venues.filter((venue) => {
+		const venueSchoolIds = venue.venueSchools.map((vs) => vs.schoolId);
+		return lecturerSchoolIds.some((id) => venueSchoolIds.includes(id));
+	});
+
+	return venuesWithSchoolMatch
+		.sort((a, b) => b.capacity - a.capacity)
+		.slice(0, 10)
+		.map((v) => ({
+			venueId: v.id,
+			venueName: v.name,
+			capacity: v.capacity,
+		}));
 }

@@ -1,0 +1,190 @@
+'use client';
+
+import { useApplicant } from '@apply/_lib/useApplicant';
+import { Alert, Paper, SimpleGrid, Stack, Text, Title } from '@mantine/core';
+import { useMediaQuery } from '@mantine/hooks';
+import { notifications } from '@mantine/notifications';
+import { IconAlertTriangle, IconBan } from '@tabler/icons-react';
+import { useRouter } from 'nextjs-toploader/app';
+import { useState } from 'react';
+import {
+	DocumentUpload,
+	type DocumentUploadResult,
+} from '@/app/apply/_components/DocumentUpload';
+import { MobileDocumentUpload } from '@/app/apply/_components/MobileDocumentUpload';
+import { DocumentCardSkeleton } from '@/shared/ui/DocumentCardShell';
+import WizardNavigation from '../../_components/WizardNavigation';
+import {
+	removeAcademicRecord,
+	uploadCertificateDocument,
+} from '../_server/actions';
+import { AcademicRecordCard } from './AcademicRecordCard';
+
+type Props = {
+	applicationId: string;
+};
+
+export default function QualificationsUploadForm({ applicationId }: Props) {
+	const router = useRouter();
+	const isMobile = useMediaQuery('(max-width: 768px)');
+	const [uploading, setUploading] = useState(false);
+	const [uploadKey, setUploadKey] = useState(0);
+	const [pendingUploads, setPendingUploads] = useState(0);
+
+	const { applicant, refetch, documentLimits, isLoading } = useApplicant();
+	const applicantId = applicant?.id ?? '';
+
+	const records = applicant?.academicRecords ?? [];
+	const hasRecords = records.length > 0;
+
+	async function handleUploadComplete(
+		result: DocumentUploadResult<'certificate'>
+	) {
+		if (!applicantId) {
+			notifications.show({
+				title: 'Upload failed',
+				message: 'Applicant data not loaded yet. Please try again.',
+				color: 'red',
+			});
+			return;
+		}
+		setUploading(true);
+		setPendingUploads((prev) => prev + 1);
+		const res = await uploadCertificateDocument(
+			applicantId,
+			result.file,
+			result.analysis
+		);
+		if (!res.success) {
+			notifications.show({
+				title: 'Upload failed',
+				message: res.error,
+				color: 'red',
+			});
+		} else {
+			await refetch();
+			setUploadKey((prev) => prev + 1);
+			notifications.show({
+				title: 'Document uploaded',
+				message: 'Academic document processed successfully',
+				color: 'green',
+			});
+		}
+		setUploading(false);
+		setPendingUploads((prev) => Math.max(0, prev - 1));
+	}
+
+	async function handleDelete(id: string) {
+		const res = await removeAcademicRecord(id);
+		if (!res.success) {
+			notifications.show({
+				title: 'Delete failed',
+				message: res.error,
+				color: 'red',
+			});
+			return;
+		}
+		await refetch();
+	}
+
+	function handleContinue() {
+		router.push(`/apply/${applicationId}/program`);
+	}
+
+	const showUploadedSection = records.length > 0 || pendingUploads > 0;
+	const uploadDisabled =
+		isLoading ||
+		!applicantId ||
+		uploading ||
+		documentLimits.isAtLimit ||
+		pendingUploads > 0;
+
+	return (
+		<Paper withBorder radius='md' p='lg'>
+			<Stack gap='lg'>
+				<Stack gap='xs'>
+					<Title order={3}>Academic Qualifications</Title>
+					<Text c='dimmed' size='sm'>
+						Upload{' '}
+						<Text c='cyan.5' component='span'>
+							LGCSE
+						</Text>{' '}
+						equivalent or higher qualifications (multiple documents allowed).
+						Documents must be certified.
+					</Text>
+				</Stack>
+
+				{documentLimits.isAtLimit && (
+					<Alert
+						color='red'
+						icon={<IconBan size={16} />}
+						title='Document limit reached'
+					>
+						You have uploaded the maximum of {documentLimits.max} documents.
+						Remove some documents to upload more.
+					</Alert>
+				)}
+
+				{documentLimits.isNearLimit && !documentLimits.isAtLimit && (
+					<Alert
+						color='yellow'
+						icon={<IconAlertTriangle size={16} />}
+						title='Approaching document limit'
+					>
+						You have uploaded {documentLimits.current} documents and are nearing
+						your maximum limit. Be careful to only upload what is necessary.
+					</Alert>
+				)}
+
+				{isMobile ? (
+					<MobileDocumentUpload
+						key={`mobile-${uploadKey}`}
+						type='certificate'
+						onUploadComplete={handleUploadComplete}
+						disabled={uploadDisabled}
+						title='Upload Academic Document'
+						description='LGCSE equivalent or higher - Image or PDF'
+						applicantName={applicant?.fullName ?? undefined}
+					/>
+				) : (
+					<DocumentUpload
+						key={uploadKey}
+						type='certificate'
+						onUploadComplete={handleUploadComplete}
+						disabled={uploadDisabled}
+						applicantName={applicant?.fullName ?? undefined}
+						title='Upload Academic Document'
+						description='LGCSE equivalent or higher - Image or PDF, max 2MB'
+					/>
+				)}
+
+				{showUploadedSection && (
+					<Stack gap='sm'>
+						<Text fw={500} size='sm'>
+							Uploaded Qualifications
+						</Text>
+						<SimpleGrid cols={{ base: 1, sm: 2 }} spacing='md'>
+							{records.map((record) => (
+								<AcademicRecordCard
+									key={record.id}
+									record={record}
+									onDelete={() => handleDelete(record.id)}
+								/>
+							))}
+							{Array.from({ length: pendingUploads }).map((_, i) => (
+								<DocumentCardSkeleton key={`skeleton-${i}`} />
+							))}
+						</SimpleGrid>
+					</Stack>
+				)}
+
+				<WizardNavigation
+					applicationId={applicationId}
+					backPath='identity'
+					onNext={handleContinue}
+					nextDisabled={!hasRecords}
+				/>
+			</Stack>
+		</Paper>
+	);
+}

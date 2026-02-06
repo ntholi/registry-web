@@ -9,7 +9,7 @@ import { formatDateTime } from '@/shared/lib/utils/dates';
 import { addApplicationNote } from '../_server/actions';
 
 type NoteEntry = {
-	id: number;
+	id: string;
 	content: string;
 	createdBy: string | null;
 	createdByUser: { id: string; name: string | null } | null;
@@ -17,7 +17,7 @@ type NoteEntry = {
 };
 
 type Props = {
-	applicationId: number;
+	applicationId: string;
 	notes: NoteEntry[];
 };
 

@@ -16,7 +16,7 @@ export default class CertificateTypeRepository extends BaseRepository<
 		super(certificateTypes, certificateTypes.id);
 	}
 
-	override async findById(id: number) {
+	override async findById(id: string) {
 		return db.query.certificateTypes.findFirst({
 			where: eq(certificateTypes.id, id),
 			with: { gradeMappings: true },
@@ -61,7 +61,7 @@ export default class CertificateTypeRepository extends BaseRepository<
 		};
 	}
 
-	async isInUse(id: number): Promise<boolean> {
+	async isInUse(id: string): Promise<boolean> {
 		const [academicRecordCount, entryRequirementCount] = await Promise.all([
 			db
 				.select({ total: count() })
@@ -108,7 +108,7 @@ export default class CertificateTypeRepository extends BaseRepository<
 	}
 
 	async updateWithMappings(
-		id: number,
+		id: string,
 		data: Partial<typeof certificateTypes.$inferInsert>,
 		mappings?: Array<{
 			originalGrade: string;
@@ -144,7 +144,18 @@ export default class CertificateTypeRepository extends BaseRepository<
 		});
 	}
 
-	async removeById(id: number) {
+	async removeById(id: string) {
 		await db.delete(certificateTypes).where(eq(certificateTypes.id, id));
+	}
+
+	async mapGrade(certificateTypeId: string, originalGrade: string) {
+		const mapping = await db.query.gradeMappings.findFirst({
+			where: (gm, { and, eq: e }) =>
+				and(
+					e(gm.certificateTypeId, certificateTypeId),
+					e(gm.originalGrade, originalGrade)
+				),
+		});
+		return mapping?.standardGrade ?? null;
 	}
 }

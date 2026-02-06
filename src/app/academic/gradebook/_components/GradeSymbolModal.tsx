@@ -1,6 +1,5 @@
 'use client';
 
-import type { grade } from '@academic/_database';
 import { updateGradeByStudentModuleId } from '@academic/semester-modules';
 import {
 	ActionIcon,
@@ -20,6 +19,7 @@ import {
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
+import type { grade } from '@registry/_database';
 import { IconEdit } from '@tabler/icons-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';

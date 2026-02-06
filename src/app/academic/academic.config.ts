@@ -3,11 +3,9 @@ import {
 	IconClipboardData,
 	IconListCheck,
 	IconPresentation,
-	IconReportAnalytics,
 } from '@tabler/icons-react';
 import type { ModuleConfig } from '@/app/dashboard/module-config.types';
 import { moduleConfig } from '@/config/modules.config';
-import type { UserPosition, UserRole } from '../auth/_database';
 
 export const academicConfig: ModuleConfig = {
 	id: 'academic',
@@ -57,33 +55,6 @@ export const academicConfig: ModuleConfig = {
 				children: [],
 				isVisible: (session) => {
 					return session?.user?.position !== 'admin';
-				},
-			},
-			{
-				label: 'Course Summary',
-				href: '/academic/reports/course-summary',
-				icon: IconReportAnalytics,
-				roles: ['academic'],
-				isVisible: (session) => {
-					return session?.user?.position !== 'admin';
-				},
-			},
-			{
-				label: 'Attendance Report',
-				href: '/academic/reports/attendance',
-				icon: IconReportAnalytics,
-				isVisible: (session) => {
-					if (
-						['admin', 'registry', 'finance', 'student_services'].includes(
-							session?.user?.role as UserRole
-						)
-					)
-						return true;
-					const academicRole = session?.user?.position as UserPosition;
-					return !!(
-						academicRole &&
-						['manager', 'admin', 'program_leader'].includes(academicRole)
-					);
 				},
 			},
 		],

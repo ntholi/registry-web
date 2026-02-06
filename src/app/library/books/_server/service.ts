@@ -16,7 +16,7 @@ class BookService extends BaseService<typeof books, 'id'> {
 		});
 	}
 
-	async getWithRelations(id: number) {
+	async getWithRelations(id: string) {
 		return this.repository.findByIdWithRelations(id);
 	}
 
@@ -26,17 +26,17 @@ class BookService extends BaseService<typeof books, 'id'> {
 
 	async createWithRelations(
 		book: typeof books.$inferInsert,
-		authorIds: number[],
-		categoryIds: number[]
+		authorIds: string[],
+		categoryIds: string[]
 	) {
 		return this.repository.createWithRelations(book, authorIds, categoryIds);
 	}
 
 	async updateWithRelations(
-		id: number,
+		id: string,
 		book: Partial<typeof books.$inferInsert>,
-		authorIds: number[],
-		categoryIds: number[]
+		authorIds: string[],
+		categoryIds: string[]
 	) {
 		return this.repository.updateWithRelations(
 			id,

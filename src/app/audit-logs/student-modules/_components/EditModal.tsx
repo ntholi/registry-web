@@ -1,6 +1,5 @@
 'use client';
 
-import { type Grade, grade } from '@academic/_database/schema/enums';
 import {
 	ActionIcon,
 	type ActionIconProps,
@@ -20,9 +19,11 @@ import { useForm } from '@mantine/form';
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import {
+	type Grade,
+	grade,
 	type StudentModuleStatus,
 	studentModuleStatus,
-} from '@registry/_database/schema/enums';
+} from '@registry/_database';
 import { IconAlertCircle, IconEdit } from '@tabler/icons-react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect, useState } from 'react';
@@ -107,8 +108,9 @@ export default function EditStudentModuleModal({ module, ...rest }: Props) {
 				numericMarks >= 0 &&
 				numericMarks <= 100
 			) {
-				const determinedGrade = getLetterGrade(numericMarks);
-				form.setFieldValue('grade', determinedGrade);
+				const determinedGrade =
+					numericMarks === 50 ? 'PX' : getLetterGrade(numericMarks);
+				form.setFieldValue('grade', determinedGrade as Grade);
 			}
 		},
 		[form]

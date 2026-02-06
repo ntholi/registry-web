@@ -3,8 +3,8 @@
 import {
 	Alert,
 	Badge,
-	Card,
 	Group,
+	Paper,
 	ScrollArea,
 	Stack,
 	Table,
@@ -82,7 +82,7 @@ export default function ModulesView({ registration }: Props) {
 		);
 
 	return (
-		<Card withBorder p='md' radius='md'>
+		<Paper withBorder p='md' radius='md'>
 			<Stack gap='md'>
 				<Group justify='space-between' align='flex-start' wrap='wrap'>
 					<Group gap='sm'>
@@ -121,6 +121,6 @@ export default function ModulesView({ registration }: Props) {
 					</Alert>
 				)}
 			</Stack>
-		</Card>
+		</Paper>
 	);
 }

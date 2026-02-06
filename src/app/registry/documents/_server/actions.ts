@@ -1,16 +1,19 @@
 'use server';
 
-import type { documents } from '@/core/database';
+import type { DocumentType } from '../_schema/documents';
 import { documentsService as service } from './service';
-
-type Document = typeof documents.$inferInsert;
 
 export async function getStudentDocuments(stdNo: number) {
 	return service.getByStudent(stdNo);
 }
 
-export async function createDocument(document: Document) {
-	return service.create(document);
+export async function createDocument(data: {
+	fileName: string;
+	fileUrl: string;
+	type: DocumentType;
+	stdNo: number;
+}) {
+	return service.create(data);
 }
 
 export async function deleteDocument(id: string) {

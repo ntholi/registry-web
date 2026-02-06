@@ -63,7 +63,6 @@ class SponsorService {
 		borrowerNo?: string;
 		bankName?: string;
 		accountNumber?: string;
-		confirmed?: boolean;
 	}) {
 		return withAuth(
 			async () => this.repository.upsertSponsoredStudent(data),
@@ -100,7 +99,6 @@ class SponsorService {
 		search?: string;
 		sponsorId?: string;
 		programId?: string;
-		confirmed?: boolean;
 		termId?: string;
 		clearedOnly?: boolean;
 	}) {
@@ -135,25 +133,6 @@ class SponsorService {
 		);
 	}
 
-	async confirmAccountDetails(stdNo: number, termId: number) {
-		return withAuth(
-			async () => this.repository.confirmSponsoredStudent(stdNo, termId),
-			async (session) => {
-				const allowedRoles = ['registry', 'finance', 'admin'];
-
-				if (allowedRoles.includes(session.user?.role || '')) {
-					return true;
-				}
-
-				if (session.user?.role === 'student') {
-					return session.user.stdNo === stdNo;
-				}
-
-				return false;
-			}
-		);
-	}
-
 	async getStudentSponsors(stdNo: number) {
 		return withAuth(
 			async () => this.repository.findStudentSponsors(stdNo),
@@ -181,7 +160,6 @@ class SponsorService {
 			borrowerNo?: string | null;
 			bankName?: string | null;
 			accountNumber?: string | null;
-			confirmed?: boolean;
 		}
 	) {
 		return withAuth(

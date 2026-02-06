@@ -1,6 +1,6 @@
 'use client';
 
-import { Autocomplete, Badge, Group, Loader, Stack, Text } from '@mantine/core';
+import { Autocomplete, Box, Loader, Stack, Text } from '@mantine/core';
 import { useDebouncedValue } from '@mantine/hooks';
 import { IconSearch } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
@@ -24,7 +24,7 @@ export default function StudentSearch({ onSelect, selectedStudent }: Props) {
 	});
 
 	const options = students.map((s) => ({
-		value: `${s.stdNo} - ${s.name}`,
+		value: String(s.stdNo),
 		student: s,
 	}));
 
@@ -37,7 +37,7 @@ export default function StudentSearch({ onSelect, selectedStudent }: Props) {
 	}
 
 	return (
-		<Stack gap='xs'>
+		<Box>
 			<Autocomplete
 				label='Search Student'
 				placeholder='Enter student number or name'
@@ -49,31 +49,36 @@ export default function StudentSearch({ onSelect, selectedStudent }: Props) {
 					isLoading ? <Loader size={16} /> : <IconSearch size={16} />
 				}
 				filter={({ options }) => options}
+				renderOption={({ option }) => {
+					const student = students.find(
+						(s) => String(s.stdNo) === option.value
+					);
+					return (
+						<Stack gap={0}>
+							<Text size='sm' fw={500}>
+								{student?.stdNo}
+							</Text>
+							<Text size='xs' c='dimmed'>
+								{student?.name}
+							</Text>
+						</Stack>
+					);
+				}}
 			/>
 			{selectedStudent && (
-				<Group
-					gap='xs'
-					p='sm'
-					style={{
-						border: '1px solid var(--mantine-color-default-border)',
-						borderRadius: 'var(--mantine-radius-md)',
-					}}
+				<Text
+					mt={'xs'}
+					size='xs'
+					pl={2}
+					c={selectedStudent.activeLoansCount > 0 ? 'red' : 'blue'}
 				>
-					<Stack gap={2} flex={1}>
-						<Text fw={500}>{selectedStudent.name}</Text>
-						<Text size='sm' c='dimmed'>
-							Student No: {selectedStudent.stdNo}
-						</Text>
-					</Stack>
-					<Badge
-						variant='light'
-						color={selectedStudent.activeLoansCount > 0 ? 'blue' : 'gray'}
-					>
-						{selectedStudent.activeLoansCount} active loan
-						{selectedStudent.activeLoansCount !== 1 ? 's' : ''}
-					</Badge>
-				</Group>
+					{selectedStudent.activeLoansCount > 0
+						? selectedStudent.activeLoansCount
+						: 'No '}{' '}
+					active loan
+					{selectedStudent.activeLoansCount !== 1 ? 's' : ''}
+				</Text>
 			)}
-		</Stack>
+		</Box>
 	);
 }

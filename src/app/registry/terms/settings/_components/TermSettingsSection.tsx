@@ -15,8 +15,8 @@ import { getTermSettings } from '../_server/actions';
 import GradebookAccessButton from './GradebookAccessButton';
 import MoveRejectedButton from './MoveRejectedButton';
 import PublishResultsButton from './PublishResultsButton';
-import RegistrationDates from './RegistrationDates';
 import ResultsPublicationAttachments from './ResultsPublicationAttachments';
+import TermRegistrationsTab from './TermRegistrationsTab';
 
 interface Props {
 	termId: number;
@@ -81,17 +81,7 @@ export default function TermSettingsSection({ termId, termCode }: Props) {
 
 				<Tabs.Panel value='registration' pt='md'>
 					<Paper withBorder p='md'>
-						<Stack gap='xs'>
-							<Text fw={500}>Registration Period</Text>
-							<Text size='xs' c='dimmed'>
-								Set the window when students can register for this term
-							</Text>
-							<RegistrationDates
-								termId={termId}
-								startDate={settings?.registrationStartDate ?? null}
-								endDate={settings?.registrationEndDate ?? null}
-							/>
-						</Stack>
+						<TermRegistrationsTab termId={termId} />
 					</Paper>
 				</Tabs.Panel>
 

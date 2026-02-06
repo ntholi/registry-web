@@ -5,6 +5,7 @@ import { Select, Textarea, TextInput } from '@mantine/core';
 import { DateInput } from '@mantine/dates';
 import { createInsertSchema } from 'drizzle-zod';
 import { useRouter } from 'nextjs-toploader/app';
+import type { RefObject } from 'react';
 import { Form } from '@/shared/ui/adease';
 import type { Applicant } from '../_lib/types';
 
@@ -14,6 +15,8 @@ type Props = {
 	onSubmit: (values: ApplicantInput) => Promise<ApplicantInput>;
 	defaultValues?: Applicant;
 	title?: string;
+	formRef?: RefObject<HTMLFormElement | null>;
+	hideHeader?: boolean;
 };
 
 const genderOptions = [
@@ -25,6 +28,8 @@ export default function ApplicantForm({
 	onSubmit,
 	defaultValues,
 	title,
+	formRef,
+	hideHeader,
 }: Props) {
 	const router = useRouter();
 
@@ -36,6 +41,8 @@ export default function ApplicantForm({
 			schema={createInsertSchema(applicants)}
 			defaultValues={defaultValues}
 			onSuccess={({ id }) => router.push(`/admissions/applicants/${id}`)}
+			formRef={formRef}
+			hideHeader={hideHeader}
 		>
 			{(form) => (
 				<>

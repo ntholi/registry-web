@@ -14,7 +14,7 @@ import type { Application } from '../_lib/types';
 
 type Props = {
 	onSubmit: (values: typeof applications.$inferInsert) => Promise<Application>;
-	defaultValues?: Application;
+	defaultValues?: Partial<typeof applications.$inferInsert>;
 	title?: string;
 };
 
@@ -48,8 +48,8 @@ export default function ApplicationForm({
 
 	const intakePeriodOptions =
 		intakePeriodsData?.map((ip) => ({
-			value: ip.id.toString(),
-			label: `${ip.name} (${ip.startDate} - ${ip.endDate})`,
+			value: ip.id,
+			label: ip.name,
 		})) || [];
 
 	const programOptions =
@@ -61,7 +61,7 @@ export default function ApplicationForm({
 	const schema = z.object({
 		...createInsertSchema(applications).shape,
 		applicantId: z.string().min(1, 'Applicant is required'),
-		intakePeriodId: z.coerce.number().min(1, 'Intake period is required'),
+		intakePeriodId: z.string().min(1, 'Intake period is required'),
 		firstChoiceProgramId: z.coerce.number().min(1, 'First choice is required'),
 		secondChoiceProgramId: z.coerce.number().optional().nullable(),
 	});
@@ -76,9 +76,11 @@ export default function ApplicationForm({
 				defaultValues
 					? {
 							...defaultValues,
-							intakePeriodId: defaultValues.intakePeriodId,
-							firstChoiceProgramId: defaultValues.firstChoiceProgramId,
-							secondChoiceProgramId: defaultValues.secondChoiceProgramId,
+							intakePeriodId: defaultValues.intakePeriodId ?? undefined,
+							firstChoiceProgramId:
+								defaultValues.firstChoiceProgramId ?? undefined,
+							secondChoiceProgramId:
+								defaultValues.secondChoiceProgramId ?? undefined,
 						}
 					: undefined
 			}
@@ -100,10 +102,8 @@ export default function ApplicationForm({
 						placeholder='Select intake period'
 						data={intakePeriodOptions}
 						required
-						value={form.values.intakePeriodId?.toString() || ''}
-						onChange={(val) =>
-							form.setFieldValue('intakePeriodId', val ? Number(val) : 0)
-						}
+						value={form.values.intakePeriodId || ''}
+						onChange={(val) => form.setFieldValue('intakePeriodId', val || '')}
 						error={form.errors.intakePeriodId}
 					/>
 

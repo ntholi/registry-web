@@ -36,7 +36,7 @@ type Props = {
 };
 
 type CertificateType = {
-	id: number;
+	id: string;
 	name: string;
 	lqfLevel: number;
 	gradeMappings: { originalGrade: string; standardGrade: string }[];
@@ -70,6 +70,7 @@ export default function AcademicRecordsList({ applicantId, records }: Props) {
 			examYear: new Date().getFullYear(),
 			institutionName: '',
 			qualificationName: '',
+			candidateNumber: '',
 			resultClassification: '',
 		},
 	});
@@ -77,17 +78,19 @@ export default function AcademicRecordsList({ applicantId, records }: Props) {
 	const createMutation = useMutation({
 		mutationFn: async (values: typeof form.values) => {
 			const isLevel4 = selectedCertType?.lqfLevel === 4;
+			const hasSubjectGrades = subjectGrades.length > 0;
 			return createAcademicRecord(
 				applicantId,
 				{
-					certificateTypeId: Number(values.certificateTypeId),
+					certificateTypeId: values.certificateTypeId,
 					examYear: values.examYear,
 					institutionName: values.institutionName,
 					qualificationName: values.qualificationName || null,
+					candidateNumber: values.candidateNumber || null,
 					resultClassification: values.resultClassification
 						? (values.resultClassification as (typeof resultClassificationEnum.enumValues)[number])
 						: null,
-					subjectGrades: isLevel4 ? subjectGrades : undefined,
+					subjectGrades: hasSubjectGrades ? subjectGrades : undefined,
 				},
 				isLevel4
 			);
@@ -134,7 +137,7 @@ export default function AcademicRecordsList({ applicantId, records }: Props) {
 
 	function handleCertTypeChange(value: string | null) {
 		form.setFieldValue('certificateTypeId', value || '');
-		const certType = certificateTypes.find((ct) => ct.id === Number(value)) as
+		const certType = certificateTypes.find((ct) => ct.id === value) as
 			| CertificateType
 			| undefined;
 		setSelectedCertType(certType || null);
@@ -142,7 +145,7 @@ export default function AcademicRecordsList({ applicantId, records }: Props) {
 	}
 
 	function addSubjectGrade() {
-		setSubjectGrades([...subjectGrades, { subjectId: 0, originalGrade: '' }]);
+		setSubjectGrades([...subjectGrades, { subjectId: '', originalGrade: '' }]);
 	}
 
 	function removeSubjectGrade(index: number) {
@@ -152,7 +155,7 @@ export default function AcademicRecordsList({ applicantId, records }: Props) {
 	function updateSubjectGrade(
 		index: number,
 		field: keyof SubjectGradeInput,
-		value: string | number
+		value: string
 	) {
 		const updated = [...subjectGrades];
 		updated[index] = { ...updated[index], [field]: value };
@@ -210,14 +213,15 @@ export default function AcademicRecordsList({ applicantId, records }: Props) {
 							{record.institutionName}
 						</Text>
 
-						{record.certificateType.lqfLevel === 4 &&
-						record.subjectGrades.length > 0 ? (
+						{record.subjectGrades.length > 0 ? (
 							<Table>
 								<Table.Thead>
 									<Table.Tr>
 										<Table.Th>Subject</Table.Th>
-										<Table.Th>Original Grade</Table.Th>
-										<Table.Th>Standard Grade</Table.Th>
+										<Table.Th>Grade</Table.Th>
+										{record.certificateType.lqfLevel === 4 && (
+											<Table.Th>Standard Grade</Table.Th>
+										)}
 									</Table.Tr>
 								</Table.Thead>
 								<Table.Tbody>
@@ -225,11 +229,13 @@ export default function AcademicRecordsList({ applicantId, records }: Props) {
 										<Table.Tr key={sg.id}>
 											<Table.Td>{sg.subject.name}</Table.Td>
 											<Table.Td>{sg.originalGrade}</Table.Td>
-											<Table.Td>
-												<Badge variant='outline' size='sm'>
-													{sg.standardGrade}
-												</Badge>
-											</Table.Td>
+											{record.certificateType.lqfLevel === 4 && (
+												<Table.Td>
+													<Badge variant='outline' size='sm'>
+														{sg.standardGrade}
+													</Badge>
+												</Table.Td>
+											)}
 										</Table.Tr>
 									))}
 								</Table.Tbody>
@@ -292,6 +298,11 @@ export default function AcademicRecordsList({ applicantId, records }: Props) {
 							placeholder='Enter institution name'
 							{...form.getInputProps('institutionName')}
 						/>
+						<TextInput
+							label='Candidate Number'
+							placeholder='Center/Candidate Number'
+							{...form.getInputProps('candidateNumber')}
+						/>
 
 						{selectedCertType && !isLevel4 && (
 							<>
@@ -308,10 +319,15 @@ export default function AcademicRecordsList({ applicantId, records }: Props) {
 							</>
 						)}
 
-						{selectedCertType && isLevel4 && (
+						{selectedCertType && (
 							<Stack gap='xs'>
 								<Text fw={500} size='sm'>
 									Subject Grades
+									{!isLevel4 && (
+										<Text span size='xs' c='dimmed' ml='xs'>
+											(optional - grades stored as entered)
+										</Text>
+									)}
 								</Text>
 								{subjectGrades.map((sg, index) => (
 									<Group key={index} gap='xs'>
@@ -320,19 +336,34 @@ export default function AcademicRecordsList({ applicantId, records }: Props) {
 											data={subjectOptions}
 											value={sg.subjectId ? String(sg.subjectId) : ''}
 											onChange={(v) =>
-												updateSubjectGrade(index, 'subjectId', Number(v))
+												updateSubjectGrade(index, 'subjectId', v || '')
 											}
 											style={{ flex: 2 }}
 										/>
-										<Select
-											placeholder='Grade'
-											data={gradeOptions}
-											value={sg.originalGrade}
-											onChange={(v) =>
-												updateSubjectGrade(index, 'originalGrade', v || '')
-											}
-											style={{ flex: 1 }}
-										/>
+										{isLevel4 ? (
+											<Select
+												placeholder='Grade'
+												data={gradeOptions}
+												value={sg.originalGrade}
+												onChange={(v) =>
+													updateSubjectGrade(index, 'originalGrade', v || '')
+												}
+												style={{ flex: 1 }}
+											/>
+										) : (
+											<TextInput
+												placeholder='Grade (e.g., A+, 85%)'
+												value={sg.originalGrade}
+												onChange={(e) =>
+													updateSubjectGrade(
+														index,
+														'originalGrade',
+														e.currentTarget.value
+													)
+												}
+												style={{ flex: 1 }}
+											/>
+										)}
 										<ActionIcon
 											color='red'
 											variant='subtle'

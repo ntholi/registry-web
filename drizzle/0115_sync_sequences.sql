@@ -1,0 +1,41 @@
+-- Custom SQL migration file
+-- Synchronize sequences for core tables to prevent unique constraint violations
+
+SELECT setval('assessment_marks_audit_id_seq', (SELECT COALESCE(MAX(id), 1) FROM assessment_marks_audit));
+SELECT setval('assessment_marks_id_seq', (SELECT COALESCE(MAX(id), 1) FROM assessment_marks));
+SELECT setval('assessments_audit_id_seq', (SELECT COALESCE(MAX(id), 1) FROM assessments_audit));
+SELECT setval('assessments_id_seq', (SELECT COALESCE(MAX(id), 1) FROM assessments));
+SELECT setval('assigned_modules_id_seq', (SELECT COALESCE(MAX(id), 1) FROM assigned_modules));
+SELECT setval('blocked_students_id_seq', (SELECT COALESCE(MAX(id), 1) FROM blocked_students));
+SELECT setval('clearance_audit_id_seq', (SELECT COALESCE(MAX(id), 1) FROM clearance_audit));
+SELECT setval('clearance_id_seq', (SELECT COALESCE(MAX(id), 1) FROM clearance));
+SELECT setval('fortinet_registrations_id_seq', (SELECT COALESCE(MAX(id), 1) FROM fortinet_registrations));
+SELECT setval('graduation_clearance_id_seq', (SELECT COALESCE(MAX(id), 1) FROM graduation_clearance));
+SELECT setval('graduation_requests_id_seq', (SELECT COALESCE(MAX(id), 1) FROM graduation_requests));
+SELECT setval('module_prerequisites_id_seq', (SELECT COALESCE(MAX(id), 1) FROM module_prerequisites));
+SELECT setval('modules_id_seq', (SELECT COALESCE(MAX(id), 1) FROM modules));
+SELECT setval('next_of_kins_id_seq', (SELECT COALESCE(MAX(id), 1) FROM next_of_kins));
+SELECT setval('notification_dismissals_id_seq', (SELECT COALESCE(MAX(id), 1) FROM notification_dismissals));
+SELECT setval('notifications_id_seq', (SELECT COALESCE(MAX(id), 1) FROM notifications));
+SELECT setval('programs_id_seq', (SELECT COALESCE(MAX(id), 1) FROM programs));
+SELECT setval('registration_clearance_id_seq', (SELECT COALESCE(MAX(id), 1) FROM registration_clearance));
+SELECT setval('registration_requests_id_seq', (SELECT COALESCE(MAX(id), 1) FROM registration_requests));
+SELECT setval('requested_modules_id_seq', (SELECT COALESCE(MAX(id), 1) FROM requested_modules));
+SELECT setval('schools_id_seq', (SELECT COALESCE(MAX(id), 1) FROM schools));
+SELECT setval('semester_modules_id_seq', (SELECT COALESCE(MAX(id), 1) FROM semester_modules));
+SELECT setval('sponsored_students_id_seq', (SELECT COALESCE(MAX(id), 1) FROM sponsored_students));
+SELECT setval('sponsored_terms_id_seq', (SELECT COALESCE(MAX(id), 1) FROM sponsored_terms));
+SELECT setval('sponsors_id_seq', (SELECT COALESCE(MAX(id), 1) FROM sponsors));
+SELECT setval('structure_semesters_id_seq', (SELECT COALESCE(MAX(id), 1) FROM structure_semesters));
+SELECT setval('structures_id_seq', (SELECT COALESCE(MAX(id), 1) FROM structures));
+SELECT setval('student_audit_logs_id_seq', (SELECT COALESCE(MAX(id), 1) FROM student_audit_logs));
+SELECT setval('student_education_id_seq', (SELECT COALESCE(MAX(id), 1) FROM student_education));
+SELECT setval('student_module_audit_logs_id_seq', (SELECT COALESCE(MAX(id), 1) FROM student_module_audit_logs));
+SELECT setval('student_modules_id_seq', (SELECT COALESCE(MAX(id), 1) FROM student_modules));
+SELECT setval('student_program_audit_logs_id_seq', (SELECT COALESCE(MAX(id), 1) FROM student_program_audit_logs));
+SELECT setval('student_programs_id_seq', (SELECT COALESCE(MAX(id), 1) FROM student_programs));
+SELECT setval('student_semesters_id_seq', (SELECT COALESCE(MAX(id), 1) FROM student_semesters));
+SELECT setval('term_settings_id_seq', (SELECT COALESCE(MAX(id), 1) FROM term_settings));
+SELECT setval('terms_id_seq', (SELECT COALESCE(MAX(id), 1) FROM terms));
+SELECT setval('timetable_slots_id_seq', (SELECT COALESCE(MAX(id), 1) FROM timetable_slots));
+SELECT setval('user_schools_id_seq', (SELECT COALESCE(MAX(id), 1) FROM user_schools));

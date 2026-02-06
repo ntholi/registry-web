@@ -30,6 +30,8 @@ import Link from '@/shared/ui/Link';
 import EditButton from '../../_components/EditButton';
 import HideButton from '../../_components/HideButton';
 import PrerequisiteDisplay from '../../_components/PrerequisiteDisplay';
+import AddSemesterModal from '../_components/AddSemesterModal';
+import AddSemesterModuleModal from '../_components/AddSemesterModuleModal';
 import { getStructure } from '../_server/actions';
 
 export default function StructureDetailsPage() {
@@ -116,15 +118,23 @@ export default function StructureDetailsPage() {
 							{breadcrumbItems}
 						</Breadcrumbs>
 
-						<Group>
-							<ThemeIcon variant='light' color='gray' size='xl'>
-								<IconBook size='1.1rem' />
-							</ThemeIcon>
-							<Box>
-								<Group gap='md' align='baseline'>
-									<Title order={2}>{structure.code}</Title>
-								</Group>
-							</Box>
+						<Group justify='space-between' align='center'>
+							<Group>
+								<ThemeIcon variant='light' color='gray' size='xl'>
+									<IconBook size='1.1rem' />
+								</ThemeIcon>
+								<Box>
+									<Group gap='md' align='baseline'>
+										<Title order={2}>{structure.code}</Title>
+									</Group>
+								</Box>
+							</Group>
+							{canEditModule(session) && (
+								<AddSemesterModal
+									structureId={structureId}
+									existingSemesterCount={structure.semesters?.length ?? 0}
+								/>
+							)}
 						</Group>
 					</Stack>
 				</Paper>
@@ -139,9 +149,17 @@ export default function StructureDetailsPage() {
 											{formatSemester(semester.semesterNumber)}
 										</Title>
 									</Group>
-									<Text size='sm' c='dimmed'>
-										{semester.semesterModules?.length || 0} modules
-									</Text>
+									<Group gap='xs'>
+										<Text size='sm' c='dimmed'>
+											{semester.semesterModules?.length || 0} modules
+										</Text>
+										{canEditModule(session) && (
+											<AddSemesterModuleModal
+												semesterId={semester.id}
+												structureId={structureId}
+											/>
+										)}
+									</Group>
 								</Group>
 
 								{semester.semesterModules &&
@@ -257,9 +275,20 @@ export default function StructureDetailsPage() {
 
 function canEditModule(session: Session | null) {
 	if (!session) return false;
-	return (
-		['admin', 'registry'].includes(session?.user?.role ?? '') ||
-		(session?.user?.role === 'academic' &&
-			['manager', 'program_leader'].includes(session.user.position ?? ''))
-	);
+	if (session?.user?.role === 'admin') {
+		return true;
+	}
+	if (
+		session.user?.role === 'registry' &&
+		session.user.position === 'manager'
+	) {
+		return true;
+	}
+	if (
+		session.user?.role === 'academic' &&
+		['manager', 'program_leader'].includes(session.user.position || '')
+	) {
+		return true;
+	}
+	return false;
 }

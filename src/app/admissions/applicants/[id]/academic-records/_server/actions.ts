@@ -6,7 +6,7 @@ import { academicRecordsService } from './service';
 
 type AcademicRecord = typeof academicRecords.$inferInsert;
 
-export async function getAcademicRecord(id: number) {
+export async function getAcademicRecord(id: string) {
 	return academicRecordsService.get(id);
 }
 
@@ -20,7 +20,8 @@ export async function findAcademicRecordsByApplicant(
 export async function createAcademicRecord(
 	applicantId: string,
 	input: CreateAcademicRecordInput,
-	isLevel4: boolean
+	isLevel4: boolean,
+	applicantDocumentId?: string
 ) {
 	const data: AcademicRecord = {
 		applicantId,
@@ -28,7 +29,10 @@ export async function createAcademicRecord(
 		examYear: input.examYear,
 		institutionName: input.institutionName,
 		qualificationName: input.qualificationName,
+		certificateNumber: input.certificateNumber,
+		candidateNumber: input.candidateNumber,
 		resultClassification: input.resultClassification,
+		applicantDocumentId,
 	};
 
 	return academicRecordsService.createWithGrades(
@@ -39,7 +43,7 @@ export async function createAcademicRecord(
 }
 
 export async function updateAcademicRecord(
-	id: number,
+	id: string,
 	input: CreateAcademicRecordInput,
 	isLevel4: boolean
 ) {
@@ -48,6 +52,8 @@ export async function updateAcademicRecord(
 		examYear: input.examYear,
 		institutionName: input.institutionName,
 		qualificationName: input.qualificationName,
+		certificateNumber: input.certificateNumber,
+		candidateNumber: input.candidateNumber,
 		resultClassification: input.resultClassification,
 	};
 
@@ -59,6 +65,22 @@ export async function updateAcademicRecord(
 	);
 }
 
-export async function deleteAcademicRecord(id: number) {
+export async function deleteAcademicRecord(id: string) {
 	return academicRecordsService.delete(id);
+}
+
+export async function findAcademicRecordByCertificateNumber(
+	certificateNumber: string
+) {
+	return academicRecordsService.findByCertificateNumber(certificateNumber);
+}
+
+export async function linkDocumentToAcademicRecord(
+	academicRecordId: string,
+	applicantDocumentId: string
+) {
+	return academicRecordsService.linkDocument(
+		academicRecordId,
+		applicantDocumentId
+	);
 }

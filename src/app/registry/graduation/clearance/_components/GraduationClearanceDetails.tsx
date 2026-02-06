@@ -11,10 +11,10 @@ import {
 	Group,
 	Paper,
 	Stack,
-	Textarea,
 	Tooltip,
 } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
+import ClearanceComments from '@registry/_components/ClearanceComments';
 import { IconCopy } from '@tabler/icons-react';
 import { useSession } from 'next-auth/react';
 import { useState } from 'react';
@@ -100,13 +100,7 @@ export default function GraduationClearanceDetails({ request }: Props) {
 				<AccordionItem value='comments'>
 					<AccordionControl>Comments</AccordionControl>
 					<AccordionPanel>
-						<Textarea
-							value={comment}
-							rows={4}
-							description='Optional comments or notes'
-							onChange={(e) => setComment(e.currentTarget.value)}
-							placeholder='Add any relevant comments about the clearance...'
-						/>
+						<ClearanceComments value={comment} onChange={setComment} />
 					</AccordionPanel>
 				</AccordionItem>
 			</Accordion>

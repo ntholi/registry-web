@@ -18,23 +18,26 @@ class CertificateTypeService extends BaseService<
 	constructor() {
 		const repo = new CertificateTypeRepository();
 		super(repo, {
-			byIdRoles: ['registry', 'admin'],
-			findAllRoles: ['registry', 'admin'],
-			createRoles: ['registry', 'admin'],
-			updateRoles: ['registry', 'admin'],
-			deleteRoles: ['registry', 'admin'],
+			byIdRoles: ['registry', 'marketing', 'admin'],
+			findAllRoles: ['registry', 'marketing', 'admin'],
+			createRoles: ['registry', 'marketing', 'admin'],
+			updateRoles: ['registry', 'marketing', 'admin'],
+			deleteRoles: ['registry', 'marketing', 'admin'],
 		});
 		this.repo = repo;
 	}
 
-	override async get(id: number) {
-		return withAuth(async () => this.repo.findById(id), ['registry', 'admin']);
+	override async get(id: string) {
+		return withAuth(
+			async () => this.repo.findById(id),
+			['registry', 'marketing', 'admin', 'applicant']
+		);
 	}
 
 	async search(page: number, search: string) {
 		return withAuth(
 			async () => this.repo.search(page, search),
-			['registry', 'admin']
+			['registry', 'marketing', 'admin', 'applicant']
 		);
 	}
 
@@ -48,11 +51,15 @@ class CertificateTypeService extends BaseService<
 			}
 
 			return this.repo.createWithMappings(data, mappings);
-		}, ['registry', 'admin']);
+		}, ['registry', 'marketing', 'admin']);
+	}
+
+	async findByName(name: string) {
+		return this.repo.findByName(name);
 	}
 
 	async updateWithMappings(
-		id: number,
+		id: string,
 		data: Partial<typeof certificateTypes.$inferInsert>,
 		mappings?: GradeMapping[]
 	) {
@@ -62,10 +69,10 @@ class CertificateTypeService extends BaseService<
 			}
 
 			return this.repo.updateWithMappings(id, data, mappings);
-		}, ['registry', 'admin']);
+		}, ['registry', 'marketing', 'admin']);
 	}
 
-	override async delete(id: number) {
+	override async delete(id: string) {
 		return withAuth(async () => {
 			const isInUse = await this.repo.isInUse(id);
 			if (isInUse) {
@@ -75,11 +82,21 @@ class CertificateTypeService extends BaseService<
 			}
 
 			await this.repo.removeById(id);
-		}, ['registry', 'admin']);
+		}, ['registry', 'marketing', 'admin']);
 	}
 
-	async isInUse(id: number) {
-		return withAuth(async () => this.repo.isInUse(id), ['registry', 'admin']);
+	async isInUse(id: string) {
+		return withAuth(
+			async () => this.repo.isInUse(id),
+			['registry', 'marketing', 'admin']
+		);
+	}
+
+	async mapGrade(certificateTypeId: string, originalGrade: string) {
+		return withAuth(
+			async () => this.repo.mapGrade(certificateTypeId, originalGrade),
+			['registry', 'marketing', 'admin']
+		);
 	}
 }
 

@@ -1,9 +1,11 @@
 import type {
 	ApplicationStatus,
+	admissionReceipts,
 	applicationNotes,
-	applicationReceipts,
 	applicationStatusHistory,
 	applications,
+	bankDeposits,
+	mobileDeposits,
 	PaymentStatus,
 } from '@/core/database';
 
@@ -13,8 +15,9 @@ export type ApplicationInsert = typeof applications.$inferInsert;
 export type ApplicationNote = typeof applicationNotes.$inferSelect;
 export type ApplicationNoteInsert = typeof applicationNotes.$inferInsert;
 
-export type ApplicationReceipt = typeof applicationReceipts.$inferSelect;
-export type ApplicationReceiptInsert = typeof applicationReceipts.$inferInsert;
+export type BankDeposit = typeof bankDeposits.$inferSelect;
+export type MobileDeposit = typeof mobileDeposits.$inferSelect;
+export type AdmissionReceipt = typeof admissionReceipts.$inferSelect;
 
 export type ApplicationStatusHistoryEntry =
 	typeof applicationStatusHistory.$inferSelect;
@@ -26,7 +29,7 @@ export type ApplicationWithRelations = Application & {
 		nationalId: string | null;
 	};
 	intakePeriod: {
-		id: number;
+		id: string;
 		name: string;
 		applicationFee: string;
 		startDate: string;
@@ -36,15 +39,18 @@ export type ApplicationWithRelations = Application & {
 		id: number;
 		name: string;
 		code: string;
-	};
+	} | null;
 	secondChoiceProgram: {
 		id: number;
 		name: string;
 		code: string;
 	} | null;
 	createdByUser: { id: string; name: string | null } | null;
-	receipts: (ApplicationReceipt & {
-		receipt: { id: string; receiptNo: string; createdAt: Date | null };
+	bankDeposits: (BankDeposit & {
+		receipt: { id: string; receiptNo: string; createdAt: Date | null } | null;
+	})[];
+	mobileDeposits: (MobileDeposit & {
+		receipt: { id: string; receiptNo: string; createdAt: Date | null } | null;
 	})[];
 	statusHistory: (ApplicationStatusHistoryEntry & {
 		changedByUser: { id: string; name: string | null } | null;
@@ -57,7 +63,7 @@ export type ApplicationWithRelations = Application & {
 export type ApplicationFilters = {
 	status?: ApplicationStatus;
 	paymentStatus?: PaymentStatus;
-	intakePeriodId?: number;
+	intakePeriodId?: string;
 };
 
 export type { ApplicationStatus, PaymentStatus };

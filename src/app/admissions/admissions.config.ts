@@ -1,15 +1,14 @@
 import {
 	IconBook,
+	IconBuildingCommunity,
 	IconCalendarEvent,
 	IconCertificate,
 	IconChecklist,
 	IconClipboardList,
+	IconCreditCard,
 	IconUsers,
 } from '@tabler/icons-react';
-import type {
-	ModuleConfig,
-	NavItem,
-} from '@/app/dashboard/module-config.types';
+import type { ModuleConfig } from '@/app/dashboard/module-config.types';
 import { moduleConfig } from '@/config/modules.config';
 import { countPendingApplications } from './applications/_server/actions';
 
@@ -22,54 +21,59 @@ export const admissionsConfig: ModuleConfig = {
 	navigation: {
 		dashboard: [
 			{
-				label: 'Admissions',
-				icon: IconUsers,
-				roles: ['registry', 'admin'],
-				children: [
-					{
-						label: 'Intake Periods',
-						href: '/admissions/intake-periods',
-						icon: IconCalendarEvent,
-						roles: ['registry', 'admin'],
-					},
-					{
-						label: 'Certificate Types',
-						href: '/admissions/certificate-types',
-						icon: IconCertificate,
-						roles: ['registry', 'admin'],
-					},
-					{
-						label: 'Subjects',
-						href: '/admissions/subjects',
-						icon: IconBook,
-						roles: ['registry', 'admin'],
-					},
-					{
-						label: 'Entry Requirements',
-						href: '/admissions/entry-requirements',
-						icon: IconChecklist,
-						roles: ['registry', 'admin'],
-					},
-					{
-						label: 'Applicants',
-						href: '/admissions/applicants',
-						icon: IconUsers,
-						roles: ['registry', 'admin'],
-					},
-					{
-						label: 'Applications',
-						href: '/admissions/applications',
-						icon: IconClipboardList,
-						roles: ['registry', 'admin'],
-						notificationCount: {
-							queryKey: ['applications', 'pending-count'],
-							queryFn: countPendingApplications,
-							color: 'red',
-						},
-					},
-				],
+				label: 'Intake Periods',
+				href: '/admissions/intake-periods',
+				icon: IconCalendarEvent,
+				roles: ['registry', 'marketing', 'admin'],
 			},
-		] as NavItem[],
+			{
+				label: 'Certificate Types',
+				href: '/admissions/certificate-types',
+				icon: IconCertificate,
+				roles: ['registry', 'marketing', 'admin'],
+			},
+			{
+				label: 'Subjects',
+				href: '/admissions/subjects',
+				icon: IconBook,
+				roles: ['registry', 'marketing', 'admin'],
+			},
+			{
+				label: 'Recognized Schools',
+				href: '/admissions/recognized-schools',
+				icon: IconBuildingCommunity,
+				roles: ['registry', 'marketing', 'admin'],
+			},
+			{
+				label: 'Entry Requirements',
+				href: '/admissions/entry-requirements',
+				icon: IconChecklist,
+				roles: ['registry', 'marketing', 'admin'],
+			},
+			{
+				label: 'Applicants',
+				href: '/admissions/applicants',
+				icon: IconUsers,
+				roles: ['registry', 'marketing', 'admin'],
+			},
+			{
+				label: 'Applications',
+				href: '/admissions/applications',
+				icon: IconClipboardList,
+				roles: ['registry', 'marketing', 'admin'],
+				notificationCount: {
+					queryKey: ['applications', 'pending-count'],
+					queryFn: countPendingApplications,
+					color: 'red',
+				},
+			},
+			{
+				label: 'Payments',
+				href: '/admissions/payments',
+				icon: IconCreditCard,
+				roles: ['registry', 'finance', 'admin', 'marketing'],
+			},
+		],
 	},
 
 	flags: {

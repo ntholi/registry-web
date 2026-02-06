@@ -1,12 +1,14 @@
-import { eq } from 'drizzle-orm';
+import { eq, inArray } from 'drizzle-orm';
 import {
 	db,
+	timetableAllocationAllowedVenues,
 	timetableAllocations,
 	timetableAllocationVenueTypes,
 } from '@/core/database';
 import BaseRepository, {
 	type QueryOptions,
 } from '@/core/platform/BaseRepository';
+import { TimetablePlanningError } from '../../slots/_server/errors';
 import {
 	type AllocationRecord,
 	buildTermPlan,
@@ -58,6 +60,11 @@ export default class TimetableAllocationRepository extends BaseRepository<
 						venueType: true,
 					},
 				},
+				timetableAllocationAllowedVenues: {
+					with: {
+						venue: true,
+					},
+				},
 			},
 		});
 	}
@@ -85,6 +92,20 @@ export default class TimetableAllocationRepository extends BaseRepository<
 				timetableAllocationVenueTypes: {
 					with: {
 						venueType: true,
+					},
+				},
+				timetableAllocationAllowedVenues: {
+					with: {
+						venue: true,
+					},
+				},
+				timetableSlotAllocations: {
+					with: {
+						slot: {
+							with: {
+								venue: true,
+							},
+						},
 					},
 				},
 			},
@@ -137,7 +158,8 @@ export default class TimetableAllocationRepository extends BaseRepository<
 
 	async createWithVenueTypes(
 		allocation: TimetableAllocationInsert,
-		venueTypeIds: string[]
+		venueTypeIds: string[],
+		allowedVenueIds: string[]
 	) {
 		return db.transaction(async (tx) => {
 			const [created] = await tx
@@ -154,6 +176,15 @@ export default class TimetableAllocationRepository extends BaseRepository<
 				);
 			}
 
+			if (allowedVenueIds.length > 0) {
+				await tx.insert(timetableAllocationAllowedVenues).values(
+					allowedVenueIds.map((venueId) => ({
+						timetableAllocationId: created.id,
+						venueId,
+					}))
+				);
+			}
+
 			await this.rebuildTermSlots(tx, created.termId);
 			return created;
 		});
@@ -161,7 +192,8 @@ export default class TimetableAllocationRepository extends BaseRepository<
 
 	async createManyWithVenueTypes(
 		allocations: TimetableAllocationInsert[],
-		venueTypeIds: string[]
+		venueTypeIds: string[],
+		allowedVenueIds: string[]
 	) {
 		if (allocations.length === 0) {
 			return [] as (typeof timetableAllocations.$inferSelect)[];
@@ -181,6 +213,14 @@ export default class TimetableAllocationRepository extends BaseRepository<
 						venueTypeIds.map((venueTypeId) => ({
 							timetableAllocationId: entry.id,
 							venueTypeId,
+						}))
+					);
+				}
+				if (allowedVenueIds.length > 0) {
+					await tx.insert(timetableAllocationAllowedVenues).values(
+						allowedVenueIds.map((venueId) => ({
+							timetableAllocationId: entry.id,
+							venueId,
 						}))
 					);
 				}
@@ -205,7 +245,7 @@ export default class TimetableAllocationRepository extends BaseRepository<
 			if (!updated) {
 				throw new Error('Timetable allocation not found');
 			}
-			await this.rebuildTermSlots(tx, updated.termId);
+			await this.rebuildTermSlots(tx, updated.termId, true);
 			return updated;
 		});
 	}
@@ -221,7 +261,25 @@ export default class TimetableAllocationRepository extends BaseRepository<
 			await tx
 				.delete(timetableAllocations)
 				.where(eq(timetableAllocations.id, id));
-			await this.rebuildTermSlots(tx, existing.termId);
+			await this.rebuildTermSlots(tx, existing.termId, true);
+		});
+	}
+
+	async deleteAllocations(ids: number[]) {
+		if (ids.length === 0) return;
+		return db.transaction(async (tx) => {
+			const existing = await tx.query.timetableAllocations.findMany({
+				where: inArray(timetableAllocations.id, ids),
+			});
+			if (existing.length === 0) return;
+
+			const affectedTerms = new Set(existing.map((a) => a.termId));
+			await tx
+				.delete(timetableAllocations)
+				.where(inArray(timetableAllocations.id, ids));
+			for (const termId of affectedTerms) {
+				await this.rebuildTermSlots(tx, termId, true);
+			}
 		});
 	}
 
@@ -247,15 +305,76 @@ export default class TimetableAllocationRepository extends BaseRepository<
 			if (!allocation) {
 				throw new Error('Timetable allocation not found');
 			}
+			await this.rebuildTermSlots(tx, allocation.termId, true);
+		});
+	}
+
+	async updateAllowedVenues(allocationId: number, venueIds: string[]) {
+		return db.transaction(async (tx) => {
+			await tx
+				.delete(timetableAllocationAllowedVenues)
+				.where(
+					eq(
+						timetableAllocationAllowedVenues.timetableAllocationId,
+						allocationId
+					)
+				);
+
+			if (venueIds.length > 0) {
+				await tx.insert(timetableAllocationAllowedVenues).values(
+					venueIds.map((venueId) => ({
+						timetableAllocationId: allocationId,
+						venueId,
+					}))
+				);
+			}
+			const allocation = await tx.query.timetableAllocations.findFirst({
+				where: eq(timetableAllocations.id, allocationId),
+			});
+			if (!allocation) {
+				throw new Error('Timetable allocation not found');
+			}
+			await this.rebuildTermSlots(tx, allocation.termId, true);
+		});
+	}
+
+	async setOverflowVenue(allocationId: number, venueId: string) {
+		return db.transaction(async (tx) => {
+			await tx
+				.delete(timetableAllocationAllowedVenues)
+				.where(
+					eq(
+						timetableAllocationAllowedVenues.timetableAllocationId,
+						allocationId
+					)
+				);
+
+			await tx.insert(timetableAllocationAllowedVenues).values({
+				timetableAllocationId: allocationId,
+				venueId,
+				allowOverflow: true,
+			});
+
+			const allocation = await tx.query.timetableAllocations.findFirst({
+				where: eq(timetableAllocations.id, allocationId),
+			});
+			if (!allocation) {
+				throw new Error('Timetable allocation not found');
+			}
 			await this.rebuildTermSlots(tx, allocation.termId);
 		});
 	}
 
-	private async rebuildTermSlots(tx: TransactionClient, termId: number) {
+	private async rebuildTermSlots(
+		tx: TransactionClient,
+		termId: number,
+		skipOnFailure = false
+	) {
 		const allocations = (await tx.query.timetableAllocations.findMany({
 			where: eq(timetableAllocations.termId, termId),
 			with: {
 				timetableAllocationVenueTypes: true,
+				timetableAllocationAllowedVenues: true,
 				semesterModule: {
 					with: {
 						module: true,
@@ -279,10 +398,23 @@ export default class TimetableAllocationRepository extends BaseRepository<
 			},
 		})) as VenueRecord[];
 		if (venues.length === 0) {
-			throw new Error('No venues available for timetable planning');
+			throw new TimetablePlanningError(
+				'No venues available for timetable planning'
+			);
 		}
-		const plan = buildTermPlan(termId, allocations, venues);
-		await this.slotRepository.replaceTermSlots(termId, plan, tx);
+		try {
+			const plan = buildTermPlan(termId, allocations, venues, {
+				skipOnFailure,
+			});
+			await this.slotRepository.replaceTermSlots(termId, plan, tx);
+		} catch (error) {
+			if (error instanceof TimetablePlanningError) {
+				throw error;
+			}
+			throw new TimetablePlanningError(
+				error instanceof Error ? error.message : 'Unknown planning error'
+			);
+		}
 	}
 }
 

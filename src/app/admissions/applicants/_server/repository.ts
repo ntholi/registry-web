@@ -1,12 +1,42 @@
 import { count, eq, ilike, or } from 'drizzle-orm';
 import {
+	academicRecords,
+	applicantDocuments,
 	applicantPhones,
 	applicants,
 	db,
+	documents,
 	guardianPhones,
 	guardians,
+	students,
+	subjectGrades,
+	users,
 } from '@/core/database';
+import type { DocumentAnalysisResult } from '@/core/integrations/ai/documents';
 import BaseRepository from '@/core/platform/BaseRepository';
+
+type DocumentInput = {
+	fileName: string;
+	fileUrl: string;
+	type: (typeof documents.$inferInsert)['type'];
+	analysisResult: DocumentAnalysisResult;
+};
+
+type AcademicRecordInput = {
+	certificateTypeId: string;
+	examYear: number;
+	institutionName: string;
+	qualificationName?: string | null;
+	certificateNumber?: string | null;
+	candidateNumber?: string | null;
+	resultClassification?: (typeof academicRecords.$inferInsert)['resultClassification'];
+	subjectGrades?: {
+		subjectId: string;
+		originalGrade: string;
+		standardGrade: (typeof subjectGrades.$inferInsert)['standardGrade'];
+	}[];
+	sourceFileName?: string;
+};
 
 export default class ApplicantRepository extends BaseRepository<
 	typeof applicants,
@@ -20,15 +50,25 @@ export default class ApplicantRepository extends BaseRepository<
 		return db.query.applicants.findFirst({
 			where: eq(applicants.id, id),
 			with: {
+				user: true,
+				student: true,
 				phones: true,
 				guardians: { with: { phones: true } },
 				academicRecords: {
 					with: {
 						certificateType: true,
 						subjectGrades: { with: { subject: true } },
+						applicantDocument: { with: { document: true } },
 					},
 				},
-				documents: true,
+				documents: { with: { document: true } },
+				applications: {
+					with: {
+						intakePeriod: true,
+						firstChoiceProgram: true,
+						secondChoiceProgram: true,
+					},
+				},
 			},
 		});
 	}
@@ -36,6 +76,77 @@ export default class ApplicantRepository extends BaseRepository<
 	async findByNationalId(nationalId: string) {
 		return db.query.applicants.findFirst({
 			where: eq(applicants.nationalId, nationalId),
+		});
+	}
+
+	async findByUserId(userId: string) {
+		return db.query.applicants.findFirst({
+			where: eq(applicants.userId, userId),
+			with: {
+				user: true,
+				student: true,
+				phones: true,
+				guardians: { with: { phones: true } },
+				academicRecords: {
+					with: {
+						certificateType: true,
+						subjectGrades: { with: { subject: true } },
+						applicantDocument: { with: { document: true } },
+					},
+				},
+				documents: { with: { document: true } },
+				applications: {
+					with: {
+						intakePeriod: true,
+						firstChoiceProgram: true,
+						secondChoiceProgram: true,
+					},
+				},
+			},
+		});
+	}
+
+	async findOrCreateByUserId(userId: string, fullName: string) {
+		const student = await db.query.students.findFirst({
+			where: eq(students.userId, userId),
+			columns: {
+				stdNo: true,
+			},
+		});
+
+		const existing = await this.findByUserId(userId);
+		if (existing) {
+			let needsRefresh = false;
+			if (student?.stdNo && !existing.stdNo) {
+				await db
+					.update(applicants)
+					.set({ stdNo: student.stdNo })
+					.where(eq(applicants.id, existing.id));
+				needsRefresh = true;
+			}
+
+			await db
+				.update(users)
+				.set({ role: 'applicant' })
+				.where(eq(users.id, userId));
+
+			if (needsRefresh) return this.findByUserId(userId);
+			return existing;
+		}
+
+		return db.transaction(async (tx) => {
+			await tx.insert(applicants).values({
+				userId,
+				fullName,
+				stdNo: student?.stdNo ?? null,
+			});
+
+			await tx
+				.update(users)
+				.set({ role: 'applicant' })
+				.where(eq(users.id, userId));
+
+			return this.findByUserId(userId);
 		});
 	}
 
@@ -78,32 +189,64 @@ export default class ApplicantRepository extends BaseRepository<
 		return phone;
 	}
 
-	async removePhone(phoneId: number) {
+	async removePhone(phoneId: string) {
 		await db.delete(applicantPhones).where(eq(applicantPhones.id, phoneId));
 	}
 
-	async createGuardian(data: typeof guardians.$inferInsert) {
-		const [guardian] = await db.insert(guardians).values(data).returning();
-		return guardian;
+	async createGuardian(
+		data: typeof guardians.$inferInsert,
+		phoneNumbers?: string[]
+	) {
+		return db.transaction(async (tx) => {
+			const [guardian] = await tx.insert(guardians).values(data).returning();
+			if (phoneNumbers && phoneNumbers.length > 0) {
+				for (const phoneNumber of phoneNumbers) {
+					if (phoneNumber) {
+						await tx
+							.insert(guardianPhones)
+							.values({ guardianId: guardian.id, phoneNumber });
+					}
+				}
+			}
+			return guardian;
+		});
 	}
 
 	async updateGuardian(
-		id: number,
-		data: Partial<typeof guardians.$inferInsert>
+		id: string,
+		data: Partial<typeof guardians.$inferInsert>,
+		phoneNumbers?: string[]
 	) {
-		const [guardian] = await db
-			.update(guardians)
-			.set(data)
-			.where(eq(guardians.id, id))
-			.returning();
-		return guardian;
+		return db.transaction(async (tx) => {
+			const [guardian] = await tx
+				.update(guardians)
+				.set(data)
+				.where(eq(guardians.id, id))
+				.returning();
+
+			if (phoneNumbers) {
+				// Simple sync: delete all and re-add
+				await tx
+					.delete(guardianPhones)
+					.where(eq(guardianPhones.guardianId, id));
+
+				for (const phoneNumber of phoneNumbers) {
+					if (phoneNumber) {
+						await tx
+							.insert(guardianPhones)
+							.values({ guardianId: id, phoneNumber });
+					}
+				}
+			}
+			return guardian;
+		});
 	}
 
-	async deleteGuardian(id: number) {
+	async deleteGuardian(id: string) {
 		await db.delete(guardians).where(eq(guardians.id, id));
 	}
 
-	async addGuardianPhone(guardianId: number, phoneNumber: string) {
+	async addGuardianPhone(guardianId: string, phoneNumber: string) {
 		const [phone] = await db
 			.insert(guardianPhones)
 			.values({ guardianId, phoneNumber })
@@ -111,7 +254,77 @@ export default class ApplicantRepository extends BaseRepository<
 		return phone;
 	}
 
-	async removeGuardianPhone(phoneId: number) {
+	async removeGuardianPhone(phoneId: string) {
 		await db.delete(guardianPhones).where(eq(guardianPhones.id, phoneId));
+	}
+
+	async createWithDocumentsAndRecords(
+		applicantData: typeof applicants.$inferInsert,
+		documentInputs: DocumentInput[],
+		academicRecordInputs: AcademicRecordInput[]
+	) {
+		return db.transaction(async (tx) => {
+			const [applicant] = await tx
+				.insert(applicants)
+				.values(applicantData)
+				.returning();
+
+			const applicantDocIdMap = new Map<string, string>();
+
+			for (const docInput of documentInputs) {
+				const [doc] = await tx
+					.insert(documents)
+					.values({
+						fileName: docInput.fileName,
+						fileUrl: docInput.fileUrl,
+						type: docInput.type,
+					})
+					.returning();
+
+				const [appDoc] = await tx
+					.insert(applicantDocuments)
+					.values({
+						documentId: doc.id,
+						applicantId: applicant.id,
+					})
+					.returning();
+
+				applicantDocIdMap.set(docInput.fileName, appDoc.id);
+			}
+
+			for (const recordInput of academicRecordInputs) {
+				const applicantDocumentId = recordInput.sourceFileName
+					? applicantDocIdMap.get(recordInput.sourceFileName)
+					: undefined;
+
+				const [record] = await tx
+					.insert(academicRecords)
+					.values({
+						applicantId: applicant.id,
+						certificateTypeId: recordInput.certificateTypeId,
+						examYear: recordInput.examYear,
+						institutionName: recordInput.institutionName,
+						qualificationName: recordInput.qualificationName,
+						certificateNumber: recordInput.certificateNumber,
+						candidateNumber: recordInput.candidateNumber,
+						resultClassification: recordInput.resultClassification,
+						applicantDocumentId,
+					})
+					.returning();
+
+				if (recordInput.subjectGrades && recordInput.subjectGrades.length > 0) {
+					await tx.insert(subjectGrades).values(
+						recordInput.subjectGrades.map((sg) => ({
+							academicRecordId: record.id,
+							subjectId: sg.subjectId,
+							originalGrade: sg.originalGrade,
+							standardGrade: sg.standardGrade,
+						}))
+					);
+				}
+			}
+
+			return applicant;
+		});
 	}
 }

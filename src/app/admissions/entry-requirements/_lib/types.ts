@@ -1,30 +1,125 @@
+import type { ProgramLevel } from '@academic/_database';
 import type { entryRequirements } from '@/core/database';
 
 export type EntryRequirement = typeof entryRequirements.$inferSelect;
 export type EntryRequirementInsert = typeof entryRequirements.$inferInsert;
 
+export type MinimumGradeRequirement = { count: number; grade: string };
+
+export type GradeRequirementOption = MinimumGradeRequirement[];
+
 export type SubjectGradeRules = {
 	type: 'subject-grades';
-	minimumGrades: { count: number; grade: string };
-	requiredSubjects: { subjectId: number; minimumGrade: string }[];
-	optionalSubjectGroups?: {
+	gradeOptions: GradeRequirementOption[];
+	subjects: { subjectId: string; minimumGrade: string; required: boolean }[];
+	subjectGroups?: {
 		name: string;
-		subjectIds: number[];
+		subjectIds: string[];
 		minimumGrade: string;
 		required: boolean;
 	}[];
-	alternatives?: SubjectGradeRules[];
 };
+
+type LegacySubjectGradeRules = Omit<
+	SubjectGradeRules,
+	'gradeOptions' | 'subjects'
+> & {
+	minimumGrades?: MinimumGradeRequirement[];
+	gradeOptions?: GradeRequirementOption[];
+	subjects?: SubjectGradeRules['subjects'];
+};
+
+type GradeOptionLike = GradeRequirementOption | MinimumGradeRequirement;
+
+export function normalizeSubjectGradeRules(
+	rules: LegacySubjectGradeRules
+): SubjectGradeRules {
+	const rawOptions = (rules.gradeOptions ??
+		(rules.minimumGrades ? [rules.minimumGrades] : undefined)) as
+		| GradeOptionLike[]
+		| undefined;
+	const gradeOptions =
+		rawOptions?.map((opt) => (Array.isArray(opt) ? opt : [opt])) ?? [];
+	return {
+		type: 'subject-grades',
+		gradeOptions,
+		subjects: rules.subjects ?? [],
+		subjectGroups: rules.subjectGroups,
+	};
+}
 
 export type ClassificationRules = {
 	type: 'classification';
-	minimumClassification: 'Distinction' | 'Merit' | 'Credit' | 'Pass';
-	requiredQualificationName?: string;
+	minimumClassification?: 'Distinction' | 'Merit' | 'Credit' | 'Pass';
+	courses: string[];
 };
 
 export type EntryRules = SubjectGradeRules | ClassificationRules;
 
+export type EntryRequirementSummary = {
+	id: string;
+	rules: EntryRules;
+	certificateType: { id: string; name: string; lqfLevel: number } | null;
+};
+
 export type EntryRequirementWithRelations = EntryRequirement & {
-	program: { id: number; code: string; name: string };
-	certificateType: { id: number; name: string; lqfLevel: number };
+	program: {
+		id: number;
+		code: string;
+		name: string;
+		level: ProgramLevel;
+		schoolId: number;
+		school: {
+			id: number;
+			code: string;
+			name: string;
+			shortName: string | null;
+		};
+	};
+	certificateType: { id: string; name: string; lqfLevel: number };
+};
+
+export type ProgramWithSchool = {
+	id: number;
+	code: string;
+	name: string;
+	level: ProgramLevel;
+	schoolId: number;
+	school: {
+		id: number;
+		code: string;
+		name: string;
+		shortName: string | null;
+	};
+};
+
+export type ProgramWithRequirements = ProgramWithSchool & {
+	entryRequirements: EntryRequirementSummary[];
+};
+
+export type SchoolSummary = {
+	id: number;
+	code: string;
+	name: string;
+	shortName: string | null;
+};
+
+export type EntryRequirementFilter = {
+	schoolId?: number;
+	level?: ProgramLevel;
+};
+
+export type SubjectRef = {
+	id: string;
+	name: string;
+};
+
+export type PublicCoursesData = {
+	programs: {
+		items: ProgramWithRequirements[];
+		totalPages: number;
+		totalItems: number;
+	};
+	schools: SchoolSummary[];
+	subjects: SubjectRef[];
 };

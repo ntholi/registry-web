@@ -1,17 +1,35 @@
 import {
+	IconBan,
+	IconBook,
+	IconBooks,
 	IconCalendarDue,
 	IconCalendarEvent,
 	IconCertificate,
-	IconGavel,
-	IconReportAnalytics,
+	IconCircleCheck,
+	IconClipboardCheck,
+	IconHourglass,
+	IconRobot,
 	IconSchool,
 	IconUserOff,
 	IconUserPlus,
 	IconUsers,
 } from '@tabler/icons-react';
-import type { ModuleConfig } from '@/app/dashboard/module-config.types';
+import type {
+	ModuleConfig,
+	NavItem,
+} from '@/app/dashboard/module-config.types';
 import { moduleConfig } from '@/config/modules.config';
-import type { UserPosition, UserRole } from '@/core/database';
+import type { UserPosition, UserRole } from '../auth/_database';
+import {
+	countApprovedGraduationClearances,
+	countPendingGraduationClearances,
+	countRejectedGraduationClearances,
+} from './graduation';
+import {
+	countApprovedClearances,
+	countPendingClearances,
+	countRejectedClearances,
+} from './registration';
 
 export const registryConfig: ModuleConfig = {
 	id: 'registry',
@@ -27,9 +45,13 @@ export const registryConfig: ModuleConfig = {
 				icon: IconUsers,
 				isVisible: (session) => {
 					if (
-						['registry', 'finance', 'admin', 'student_services'].includes(
-							session?.user?.role || ''
-						)
+						[
+							'registry',
+							'finance',
+							'admin',
+							'student_services',
+							'marketing',
+						].includes(session?.user?.role || '')
 					) {
 						return true;
 					}
@@ -69,6 +91,98 @@ export const registryConfig: ModuleConfig = {
 				],
 			},
 			{
+				label: 'Registration Clearance',
+				icon: IconClipboardCheck,
+
+				children: [
+					{
+						label: 'Requests',
+						href: '/registry/registration/clearance/pending',
+						icon: IconHourglass,
+						notificationCount: {
+							queryKey: ['clearances', 'pending'],
+							queryFn: () => countPendingClearances(),
+							color: 'red',
+						},
+						roles: ['finance', 'library', 'resource'],
+					},
+					{
+						label: 'Approved',
+						href: '/registry/registration/clearance/approved',
+						icon: IconCircleCheck,
+						notificationCount: {
+							queryKey: ['clearances', 'approved'],
+							queryFn: () => countApprovedClearances(),
+							color: 'gray',
+						},
+						roles: ['finance', 'library', 'resource'],
+					},
+					{
+						label: 'Rejected',
+						href: '/registry/registration/clearance/rejected',
+						icon: IconBan,
+						notificationCount: {
+							queryKey: ['clearances', 'rejected'],
+							queryFn: () => countRejectedClearances(),
+							color: 'gray',
+						},
+						roles: ['finance', 'library', 'resource'],
+					},
+					{
+						label: 'Auto-Approvals',
+						href: '/registry/registration/clearance/auto-approve',
+						icon: IconRobot,
+						roles: ['finance', 'library', 'resource', 'admin'],
+					},
+				] as NavItem[],
+			},
+			{
+				label: 'Graduation Clearance',
+				icon: IconCertificate,
+				isVisible: (session) => {
+					if (['finance', 'library'].includes(session?.user?.role as UserRole))
+						return true;
+					const academicRole = session?.user?.position as UserPosition;
+					return !!(
+						academicRole &&
+						['manager', 'admin', 'program_leader'].includes(academicRole)
+					);
+				},
+				collapsed: true,
+				children: [
+					{
+						label: 'Requests',
+						href: '/registry/graduation/clearance/pending',
+						icon: IconHourglass,
+						notificationCount: {
+							queryKey: ['graduation-clearances', 'pending'],
+							queryFn: () => countPendingGraduationClearances(),
+							color: 'red',
+						},
+					},
+					{
+						label: 'Approved',
+						href: '/registry/graduation/clearance/approved',
+						icon: IconCircleCheck,
+						notificationCount: {
+							queryKey: ['graduation-clearances', 'approved'],
+							queryFn: () => countApprovedGraduationClearances(),
+							color: 'gray',
+						},
+					},
+					{
+						label: 'Rejected',
+						href: '/registry/graduation/clearance/rejected',
+						icon: IconBan,
+						notificationCount: {
+							queryKey: ['graduation-clearances', 'rejected'],
+							queryFn: () => countRejectedGraduationClearances(),
+							color: 'gray',
+						},
+					},
+				] as NavItem[],
+			},
+			{
 				label: 'Blocked Students',
 				href: '/registry/blocked-students',
 				icon: IconUserOff,
@@ -80,44 +194,32 @@ export const registryConfig: ModuleConfig = {
 				icon: IconCalendarDue,
 				roles: ['admin', 'registry'],
 			},
+
 			{
-				label: 'Board of Examination',
-				href: '/academic/reports/boe',
-				icon: IconGavel,
-				roles: ['academic', 'registry', 'admin'],
-				isVisible: (session) => {
-					if (['admin', 'registry'].includes(session?.user?.role as UserRole))
-						return true;
-					const academicRole = session?.user?.position as UserPosition;
-					return !!(
-						academicRole &&
-						['manager', 'admin', 'program_leader'].includes(academicRole)
-					);
-				},
+				label: 'Modules',
+				href: '/academic/modules',
+				icon: IconBook,
+				roles: ['admin'],
 			},
 			{
-				label: 'Student Enrollments',
-				href: '/registry/reports/student-enrollments',
-				icon: IconReportAnalytics,
-				isVisible: (session) => {
-					if (
-						['admin', 'registry', 'finance'].includes(
-							session?.user?.role as UserRole
-						)
-					)
-						return true;
-					const academicRole = session?.user?.position as UserPosition;
-					return !!(
-						academicRole &&
-						['manager', 'admin', 'program_leader'].includes(academicRole)
-					);
-				},
+				label: 'Semester Modules',
+				href: '/academic/semester-modules',
+				icon: IconBooks,
+				roles: ['registry', 'admin', 'academic', 'finance'],
 			},
+
 			{
-				label: 'Graduation Reports',
-				href: '/registry/reports/graduations',
+				label: 'Schools',
+				href: '/academic/schools',
 				icon: IconSchool,
-				roles: ['registry', 'admin'],
+				roles: [
+					'registry',
+					'admin',
+					'academic',
+					'finance',
+					'student_services',
+					'marketing',
+				],
 			},
 		],
 	},

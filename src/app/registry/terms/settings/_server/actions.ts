@@ -68,14 +68,6 @@ export async function updateGradebookAccess(termId: number, access: boolean) {
 	return service.updateGradebookAccess(termId, access);
 }
 
-export async function updateRegistrationDates(
-	termId: number,
-	startDate: string | null,
-	endDate: string | null
-) {
-	return service.updateRegistrationDates(termId, startDate, endDate);
-}
-
 export async function moveRejectedToBlocked(termId: number) {
 	return service.moveRejectedToBlocked(termId);
 }

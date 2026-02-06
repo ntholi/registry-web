@@ -1,6 +1,6 @@
 'use client';
 
-import { Divider, Group, Paper, Stack, Text } from '@mantine/core';
+import { Badge, Box, Divider, Group, Paper, Stack, Text } from '@mantine/core';
 import { type AllStatusType, getStatusColor } from '@/shared/lib/utils/colors';
 import type { getAcademicRemarks } from '@/shared/lib/utils/grades';
 
@@ -15,16 +15,22 @@ export default function AcademicRemarksSummary({ remarks }: Props) {
 	return (
 		<Paper p='md' radius='md' withBorder>
 			<Stack gap='sm'>
-				<Group justify='space-between'>
-					<Text size='sm'>Academic Status</Text>
-					<Text
-						size='sm'
-						fw={600}
-						c={getStatusColor(remarks.status.toLowerCase() as AllStatusType)}
-					>
-						{remarks.status}
+				<Box>
+					<Group justify='space-between'>
+						<Text size='sm'>Academic Status</Text>
+						<Badge
+							variant='light'
+							radius={'xs'}
+							c={getStatusColor(remarks.status.toLowerCase() as AllStatusType)}
+						>
+							{remarks.status}
+						</Badge>
+					</Group>
+
+					<Text size='sm' c='dimmed'>
+						{remarks.details}
 					</Text>
-				</Group>
+				</Box>
 
 				{hasOutstanding && (
 					<>
@@ -35,11 +41,9 @@ export default function AcademicRemarksSummary({ remarks }: Props) {
 									Modules to Repeat
 								</Text>
 								{remarks.failedModules.map((mod, idx) => (
-									<Group key={`failed-${mod.code}-${idx}`} gap='xs'>
-										<Text size='sm'>
-											{mod.code} - {mod.name}
-										</Text>
-									</Group>
+									<Text key={`failed-${mod.code}-${idx}`} size='sm' c='red'>
+										{mod.code} - {mod.name}
+									</Text>
 								))}
 							</Stack>
 						)}
@@ -49,11 +53,9 @@ export default function AcademicRemarksSummary({ remarks }: Props) {
 									Modules to Supplement
 								</Text>
 								{remarks.supplementaryModules.map((mod, idx) => (
-									<Group key={`supp-${mod.code}-${idx}`} gap='xs'>
-										<Text size='sm'>
-											{mod.code} - {mod.name}
-										</Text>
-									</Group>
+									<Text key={`supp-${mod.code}-${idx}`} size='sm' c='orange'>
+										{mod.code} - {mod.name}
+									</Text>
 								))}
 							</Stack>
 						)}

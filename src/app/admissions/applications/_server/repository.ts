@@ -2,7 +2,6 @@ import { and, count, eq, inArray } from 'drizzle-orm';
 import {
 	type ApplicationStatus,
 	applicationNotes,
-	applicationReceipts,
 	applicationStatusHistory,
 	applications,
 	db,
@@ -19,7 +18,7 @@ export default class ApplicationRepository extends BaseRepository<
 		super(applications, applications.id);
 	}
 
-	override async findById(id: number) {
+	override async findById(id: string) {
 		return db.query.applications.findFirst({
 			where: eq(applications.id, id),
 			with: {
@@ -37,19 +36,30 @@ export default class ApplicationRepository extends BaseRepository<
 				},
 				firstChoiceProgram: {
 					columns: { id: true, name: true, code: true },
+					with: { school: { columns: { shortName: true } } },
 				},
 				secondChoiceProgram: {
 					columns: { id: true, name: true, code: true },
+					with: { school: { columns: { shortName: true } } },
 				},
 				createdByUser: {
 					columns: { id: true, name: true },
 				},
-				receipts: {
+				bankDeposits: {
 					with: {
 						receipt: {
 							columns: { id: true, receiptNo: true, createdAt: true },
 						},
 					},
+					orderBy: (bd, { desc }) => [desc(bd.createdAt)],
+				},
+				mobileDeposits: {
+					with: {
+						receipt: {
+							columns: { id: true, receiptNo: true, createdAt: true },
+						},
+					},
+					orderBy: (md, { desc }) => [desc(md.createdAt)],
 				},
 				statusHistory: {
 					with: {
@@ -111,12 +121,14 @@ export default class ApplicationRepository extends BaseRepository<
 
 		if (search) {
 			const searchLower = search.toLowerCase();
-			const filtered = items.filter(
-				(item) =>
+			const filtered = items.filter((item) => {
+				const programName = item.firstChoiceProgram?.name?.toLowerCase() ?? '';
+				return (
 					item.applicant.fullName.toLowerCase().includes(searchLower) ||
 					item.applicant.nationalId?.toLowerCase().includes(searchLower) ||
-					item.firstChoiceProgram.name.toLowerCase().includes(searchLower)
-			);
+					programName.includes(searchLower)
+				);
+			});
 			return {
 				items: filtered,
 				totalPages: Math.ceil(filtered.length / pageSize),
@@ -140,6 +152,17 @@ export default class ApplicationRepository extends BaseRepository<
 				},
 				firstChoiceProgram: {
 					columns: { id: true, name: true, code: true },
+					with: { school: { columns: { shortName: true } } },
+				},
+				secondChoiceProgram: {
+					columns: { id: true, name: true, code: true },
+					with: { school: { columns: { shortName: true } } },
+				},
+				bankDeposits: {
+					columns: { id: true, status: true },
+				},
+				mobileDeposits: {
+					columns: { id: true, status: true },
 				},
 			},
 			orderBy: (a, { desc }) => [desc(a.applicationDate)],
@@ -162,13 +185,20 @@ export default class ApplicationRepository extends BaseRepository<
 		return result.total;
 	}
 
-	async existsForIntake(applicantId: string, intakePeriodId: number) {
-		const existing = await db.query.applications.findFirst({
+	async findByApplicantAndIntake(applicantId: string, intakePeriodId: string) {
+		return db.query.applications.findFirst({
 			where: and(
 				eq(applications.applicantId, applicantId),
 				eq(applications.intakePeriodId, intakePeriodId)
 			),
 		});
+	}
+
+	async existsForIntake(applicantId: string, intakePeriodId: string) {
+		const existing = await this.findByApplicantAndIntake(
+			applicantId,
+			intakePeriodId
+		);
 		return !!existing;
 	}
 
@@ -180,7 +210,7 @@ export default class ApplicationRepository extends BaseRepository<
 		return entry;
 	}
 
-	async updateStatus(id: number, status: ApplicationStatus) {
+	async updateStatus(id: string, status: ApplicationStatus) {
 		const [updated] = await db
 			.update(applications)
 			.set({ status, updatedAt: new Date() })
@@ -194,7 +224,7 @@ export default class ApplicationRepository extends BaseRepository<
 		return note;
 	}
 
-	async getNotes(applicationId: number) {
+	async getNotes(applicationId: string) {
 		return db.query.applicationNotes.findMany({
 			where: eq(applicationNotes.applicationId, applicationId),
 			with: {
@@ -204,15 +234,7 @@ export default class ApplicationRepository extends BaseRepository<
 		});
 	}
 
-	async linkReceipt(applicationId: number, receiptId: string) {
-		const [link] = await db
-			.insert(applicationReceipts)
-			.values({ applicationId, receiptId })
-			.returning();
-		return link;
-	}
-
-	async updatePaymentStatus(id: number, paymentStatus: PaymentStatus) {
+	async updatePaymentStatus(id: string, paymentStatus: PaymentStatus) {
 		const [updated] = await db
 			.update(applications)
 			.set({ paymentStatus, updatedAt: new Date() })
@@ -221,11 +243,23 @@ export default class ApplicationRepository extends BaseRepository<
 		return updated;
 	}
 
-	async getLinkedReceipts(applicationId: number) {
-		return db.query.applicationReceipts.findMany({
-			where: eq(applicationReceipts.applicationId, applicationId),
+	async findForPayment(id: string) {
+		return db.query.applications.findFirst({
+			where: eq(applications.id, id),
+			columns: {
+				id: true,
+				applicantId: true,
+				paymentStatus: true,
+			},
 			with: {
-				receipt: true,
+				intakePeriod: {
+					columns: {
+						id: true,
+						applicationFee: true,
+						startDate: true,
+						endDate: true,
+					},
+				},
 			},
 		});
 	}

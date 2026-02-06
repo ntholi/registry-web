@@ -12,16 +12,19 @@ import {
 	Select,
 	Stack,
 	Text,
+	Tooltip,
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
-import { IconFilter } from '@tabler/icons-react';
-import { useQuery } from '@tanstack/react-query';
+import { IconFilter, IconFocus2 } from '@tabler/icons-react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useParams } from 'next/navigation';
 import { useQueryState } from 'nuqs';
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { getAllTerms } from '@/app/registry/terms';
+import { useCallback, useMemo, useState } from 'react';
+import { getAllTerms, getTermByCode } from '@/app/registry/terms';
 import type { Term } from '@/core/database';
 import { getBooleanColor } from '@/shared/lib/utils/colors';
 import { formatSemester } from '@/shared/lib/utils/utils';
+import { getStudentFilterInfo } from '../_server/actions';
 
 const semesterOptions = Array.from({ length: 8 }, (_, i) => {
 	const semesterNumber = (i + 1).toString().padStart(2, '0');
@@ -33,6 +36,9 @@ const semesterOptions = Array.from({ length: 8 }, (_, i) => {
 
 export default function StudentsFilter() {
 	const [opened, { toggle, close }] = useDisclosure(false);
+	const params = useParams();
+	const stdNo = params.id ? Number(params.id) : null;
+	const queryClient = useQueryClient();
 
 	const [schoolId, setSchoolId] = useQueryState('schoolId');
 	const [programId, setProgramId] = useQueryState('programId');
@@ -45,15 +51,6 @@ export default function StudentsFilter() {
 		termId: termId || '',
 		semesterNumber: semesterNumber || '',
 	});
-
-	useEffect(() => {
-		setFilters({
-			schoolId: schoolId || '',
-			programId: programId || '',
-			termId: termId || '',
-			semesterNumber: semesterNumber || '',
-		});
-	}, [schoolId, programId, termId, semesterNumber]);
 
 	const { data: schools = [], isLoading: schoolLoading } = useQuery({
 		queryKey: ['schools'],
@@ -73,11 +70,30 @@ export default function StudentsFilter() {
 		queryFn: getAllTerms,
 	});
 
-	useEffect(() => {
-		if (filters.schoolId !== schoolId) {
-			setFilters((prev) => ({ ...prev, programId: '' }));
-		}
-	}, [filters.schoolId, schoolId]);
+	const handleAutoFill = useCallback(async () => {
+		if (!stdNo) return;
+		const info = await getStudentFilterInfo(stdNo);
+		if (!info) return;
+
+		await queryClient.prefetchQuery({
+			queryKey: ['schools'],
+			queryFn: getAllSchools,
+		});
+
+		await queryClient.prefetchQuery({
+			queryKey: ['programs', info.schoolId.toString()],
+			queryFn: () => getProgramsBySchoolId(info.schoolId),
+		});
+
+		const term = info.termCode ? await getTermByCode(info.termCode) : undefined;
+
+		setFilters({
+			schoolId: info.schoolId.toString(),
+			programId: info.programId.toString(),
+			termId: term?.id?.toString() || '',
+			semesterNumber: info.semesterNumber || '',
+		});
+	}, [stdNo, queryClient]);
 
 	const addSemesterDescription = useCallback(
 		(
@@ -275,11 +291,20 @@ export default function StudentsFilter() {
 						<Text size='sm'>{previewDescription}</Text>
 					</Fieldset>
 
-					<Group justify='flex-end' gap='sm'>
-						<Button variant='outline' onClick={handleClearFilters}>
-							Clear All
-						</Button>
-						<Button onClick={handleApplyFilters}>Apply Filters</Button>
+					<Group justify='space-between' gap='sm'>
+						{stdNo && (
+							<Tooltip label='Fill from current student'>
+								<ActionIcon variant='light' onClick={handleAutoFill}>
+									<IconFocus2 size='1rem' />
+								</ActionIcon>
+							</Tooltip>
+						)}
+						<Group gap='sm' ml='auto'>
+							<Button variant='outline' onClick={handleClearFilters}>
+								Clear All
+							</Button>
+							<Button onClick={handleApplyFilters}>Apply Filters</Button>
+						</Group>
 					</Group>
 				</Stack>
 			</Modal>

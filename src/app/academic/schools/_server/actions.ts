@@ -25,6 +25,10 @@ export async function getAllPrograms() {
 	return service.getAllPrograms();
 }
 
+export async function getAllProgramsWithLevel() {
+	return service.getAllProgramsWithLevel();
+}
+
 export async function getProgramsBySchoolIds(schoolIds?: number[]) {
 	return service.getProgramsBySchoolIds(schoolIds);
 }

@@ -47,17 +47,20 @@ class TimetableSlotService extends BaseService<typeof timetableSlots, 'id'> {
 		}, ['academic', 'registry']);
 	}
 
-	async createAllocationWithSlot(
-		allocation: AllocationInsert,
-		slot: {
-			venueId: string;
-			dayOfWeek: DayOfWeek;
-			startTime: string;
-			endTime: string;
-		}
+	async createAllocationsWithSlots(
+		items: Array<{
+			allocation: AllocationInsert;
+			slot: {
+				venueId: string;
+				dayOfWeek: DayOfWeek;
+				startTime: string;
+				endTime: string;
+				allowOverflow?: boolean;
+			};
+		}>
 	) {
 		return withAuth(async () => {
-			return this.slotRepository.createAllocationWithSlot(allocation, slot);
+			return this.slotRepository.createAllocationsWithSlots(items);
 		}, ['academic', 'registry']);
 	}
 

@@ -56,7 +56,7 @@ export default function RenewalModal({ loan }: Props) {
 		<>
 			<Button
 				onClick={open}
-				variant='light'
+				variant='default'
 				color='blue'
 				leftSection={<IconRefresh size={16} />}
 			>

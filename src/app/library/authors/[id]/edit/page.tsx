@@ -9,7 +9,7 @@ type Props = {
 
 export default async function EditAuthorPage({ params }: Props) {
 	const { id } = await params;
-	const item = await getAuthor(Number(id));
+	const item = await getAuthor(id);
 
 	if (!item) return notFound();
 
@@ -20,7 +20,7 @@ export default async function EditAuthorPage({ params }: Props) {
 				defaultValues={item}
 				onSubmit={async (value) => {
 					'use server';
-					return updateAuthor(Number(id), value);
+					return updateAuthor(id, value);
 				}}
 			/>
 		</Box>

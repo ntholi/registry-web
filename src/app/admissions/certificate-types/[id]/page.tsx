@@ -1,4 +1,14 @@
-import { Badge, Group, Table, Text } from '@mantine/core';
+import {
+	Badge,
+	Group,
+	Table,
+	TableTbody,
+	TableTd,
+	TableTh,
+	TableThead,
+	TableTr,
+	Text,
+} from '@mantine/core';
 import { notFound } from 'next/navigation';
 import {
 	DetailsView,
@@ -14,7 +24,7 @@ type Props = {
 
 export default async function CertificateTypeDetails({ params }: Props) {
 	const { id } = await params;
-	const item = await getCertificateType(Number(id));
+	const item = await getCertificateType(id);
 
 	if (!item) {
 		return notFound();
@@ -27,7 +37,7 @@ export default async function CertificateTypeDetails({ params }: Props) {
 				queryKey={['certificate-types']}
 				handleDelete={async () => {
 					'use server';
-					await deleteCertificateType(Number(id));
+					await deleteCertificateType(id);
 				}}
 			/>
 			<DetailsViewBody>
@@ -47,22 +57,22 @@ export default async function CertificateTypeDetails({ params }: Props) {
 					<FieldView label='Grade Mappings'>
 						{item.gradeMappings && item.gradeMappings.length > 0 ? (
 							<Table>
-								<Table.Thead>
-									<Table.Tr>
-										<Table.Th>Original Grade</Table.Th>
-										<Table.Th>Standard Grade (LGCSE)</Table.Th>
-									</Table.Tr>
-								</Table.Thead>
-								<Table.Tbody>
+								<TableThead>
+									<TableTr>
+										<TableTh>Original Grade</TableTh>
+										<TableTh>Standard Grade (LGCSE)</TableTh>
+									</TableTr>
+								</TableThead>
+								<TableTbody>
 									{item.gradeMappings.map((mapping) => (
-										<Table.Tr key={mapping.id}>
-											<Table.Td>{mapping.originalGrade}</Table.Td>
-											<Table.Td>
-												<Badge variant='outline'>{mapping.standardGrade}</Badge>
-											</Table.Td>
-										</Table.Tr>
+										<TableTr key={mapping.id}>
+											<TableTd>{mapping.originalGrade}</TableTd>
+											<TableTd>
+												<Badge variant='default'>{mapping.standardGrade}</Badge>
+											</TableTd>
+										</TableTr>
 									))}
-								</Table.Tbody>
+								</TableTbody>
 							</Table>
 						) : (
 							<Text size='sm' c='dimmed'>
@@ -76,7 +86,7 @@ export default async function CertificateTypeDetails({ params }: Props) {
 							<Text size='sm'>Uses result classifications:</Text>
 							{['Distinction', 'Merit', 'Credit', 'Pass', 'Fail'].map(
 								(classification) => (
-									<Badge key={classification} variant='outline' size='sm'>
+									<Badge key={classification} variant='default' size='sm'>
 										{classification}
 									</Badge>
 								)

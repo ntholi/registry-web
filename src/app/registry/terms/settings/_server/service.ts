@@ -1,6 +1,5 @@
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
 import withAuth from '@/core/platform/withAuth';
-import { registrationDatesSchema } from '../_lib/registration-dates';
 import TermSettingsRepository from './repository';
 
 class TermSettingsService {
@@ -47,43 +46,6 @@ class TermSettingsService {
 				return this.repository.updateGradebookAccess(
 					termId,
 					access,
-					session.user.id!
-				);
-			},
-			['admin', 'registry']
-		);
-	}
-
-	async updateRegistrationDates(
-		termId: number,
-		startDate: string | null,
-		endDate: string | null
-	) {
-		const parsedResult = registrationDatesSchema.safeParse({
-			startDate,
-			endDate,
-		});
-		if (!parsedResult.success) {
-			throw new Error(
-				parsedResult.error.issues[0]?.message || 'Invalid registration dates'
-			);
-		}
-
-		return withAuth(
-			async (session) => {
-				if (
-					session?.user?.role !== 'admin' &&
-					!(
-						session?.user?.role === 'registry' &&
-						session?.user?.position === 'manager'
-					)
-				) {
-					throw new Error('Unauthorized');
-				}
-				return this.repository.updateRegistrationDates(
-					termId,
-					parsedResult.data.startDate,
-					parsedResult.data.endDate,
 					session.user.id!
 				);
 			},

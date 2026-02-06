@@ -17,23 +17,26 @@ class ApplicationService extends BaseService<typeof applications, 'id'> {
 	constructor() {
 		const repo = new ApplicationRepository();
 		super(repo, {
-			byIdRoles: ['registry', 'admin'],
-			findAllRoles: ['registry', 'admin'],
-			createRoles: ['registry', 'admin'],
-			updateRoles: ['registry', 'admin'],
-			deleteRoles: ['registry', 'admin'],
+			byIdRoles: ['registry', 'marketing', 'admin'],
+			findAllRoles: ['registry', 'marketing', 'admin'],
+			createRoles: ['registry', 'marketing', 'admin'],
+			updateRoles: ['registry', 'marketing', 'admin'],
+			deleteRoles: ['admin'],
 		});
 		this.repo = repo;
 	}
 
-	override async get(id: number) {
-		return withAuth(async () => this.repo.findById(id), ['registry', 'admin']);
+	override async get(id: string) {
+		return withAuth(
+			async () => this.repo.findById(id),
+			['registry', 'marketing', 'admin', 'applicant']
+		);
 	}
 
 	async search(page: number, search: string, filters?: ApplicationFilters) {
 		return withAuth(
 			async () => this.repo.search(page, search, filters),
-			['registry', 'admin']
+			['registry', 'marketing', 'admin']
 		);
 	}
 
@@ -85,12 +88,58 @@ class ApplicationService extends BaseService<typeof applications, 'id'> {
 
 				return application;
 			},
-			['registry', 'admin']
+			['registry', 'marketing', 'admin']
+		);
+	}
+
+	async createOrUpdate(data: typeof applications.$inferInsert) {
+		return withAuth(
+			async (session) => {
+				const existing = await this.repo.findByApplicantAndIntake(
+					data.applicantId,
+					data.intakePeriodId
+				);
+
+				if (existing) {
+					return this.repo.update(existing.id, {
+						...data,
+						updatedAt: new Date(),
+					});
+				}
+
+				const intake = await db.query.intakePeriods.findFirst({
+					where: eq(intakePeriods.id, data.intakePeriodId),
+				});
+
+				if (!intake) {
+					throw new Error('Intake period not found');
+				}
+
+				const today = new Date().toISOString().split('T')[0];
+				const isActive = intake.startDate <= today && intake.endDate >= today;
+
+				if (!isActive) {
+					throw new Error(
+						'INACTIVE_INTAKE_PERIOD: Cannot create application for inactive intake'
+					);
+				}
+
+				const application = await this.repo.create({
+					...data,
+					status: data.status ?? 'draft',
+					paymentStatus: 'unpaid',
+					createdBy: session?.user?.id,
+					applicationDate: new Date(),
+				});
+
+				return application;
+			},
+			['registry', 'marketing', 'admin', 'applicant']
 		);
 	}
 
 	async changeStatus(
-		applicationId: number,
+		applicationId: string,
 		newStatus: ApplicationStatus,
 		notes?: string,
 		rejectionReason?: string
@@ -120,11 +169,11 @@ class ApplicationService extends BaseService<typeof applications, 'id'> {
 
 				return this.repo.updateStatus(applicationId, newStatus);
 			},
-			['registry', 'admin']
+			['registry', 'marketing', 'admin', 'applicant']
 		);
 	}
 
-	async addNote(applicationId: number, content: string) {
+	async addNote(applicationId: string, content: string) {
 		return withAuth(
 			async (session) => {
 				return this.repo.addNote({
@@ -133,57 +182,42 @@ class ApplicationService extends BaseService<typeof applications, 'id'> {
 					createdBy: session?.user?.id,
 				});
 			},
-			['registry', 'admin']
+			['registry', 'marketing', 'admin']
 		);
 	}
 
-	async getNotes(applicationId: number) {
+	async getNotes(applicationId: string) {
 		return withAuth(
 			async () => this.repo.getNotes(applicationId),
-			['registry', 'admin']
+			['registry', 'marketing', 'admin']
 		);
-	}
-
-	async recordPayment(applicationId: number, receiptId: string) {
-		return withAuth(async () => {
-			await this.repo.linkReceipt(applicationId, receiptId);
-			return this.repo.updatePaymentStatus(applicationId, 'paid');
-		}, ['registry', 'admin']);
-	}
-
-	async getPaymentInfo(applicationId: number) {
-		return withAuth(async () => {
-			const application = await this.repo.findById(applicationId);
-			if (!application) {
-				throw new Error('Application not found');
-			}
-			const receipts = await this.repo.getLinkedReceipts(applicationId);
-			return {
-				feeAmount: application.intakePeriod.applicationFee,
-				paymentStatus: application.paymentStatus,
-				receipts,
-			};
-		}, ['registry', 'admin']);
 	}
 
 	async findByApplicant(applicantId: string) {
 		return withAuth(
 			async () => this.repo.findByApplicant(applicantId),
-			['registry', 'admin']
+			['registry', 'marketing', 'admin', 'applicant']
 		);
 	}
 
 	async countByStatus(status: ApplicationStatus) {
 		return withAuth(
 			async () => this.repo.countByStatus(status),
-			['registry', 'admin']
+			['registry', 'marketing', 'admin']
 		);
 	}
 
 	async countPending() {
 		return withAuth(
 			async () => this.repo.countPending(),
-			['registry', 'admin']
+			['registry', 'marketing', 'admin']
+		);
+	}
+
+	async getForPayment(applicationId: string) {
+		return withAuth(
+			async () => this.repo.findForPayment(applicationId),
+			['all']
 		);
 	}
 }

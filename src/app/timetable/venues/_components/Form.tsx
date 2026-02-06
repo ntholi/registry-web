@@ -7,6 +7,7 @@ import { venues } from '@timetable/_database';
 import { getAllVenueTypes } from '@timetable/venue-types';
 import { createInsertSchema } from 'drizzle-zod';
 import { useRouter } from 'nextjs-toploader/app';
+import { z } from 'zod';
 import { useUserSchools } from '@/shared/lib/hooks/use-user-schools';
 import { Form } from '@/shared/ui/adease';
 
@@ -49,7 +50,7 @@ export default function VenueForm({ onSubmit, defaultValues, title }: Props) {
 			action={onSubmit}
 			queryKey={['venues']}
 			schema={createInsertSchema(venues).extend({
-				schoolIds: createInsertSchema(venues).shape.typeId.array(),
+				schoolIds: z.number().array(),
 			})}
 			key={formKey}
 			defaultValues={computedDefaultValues}
@@ -57,39 +58,41 @@ export default function VenueForm({ onSubmit, defaultValues, title }: Props) {
 				router.push(`/timetable/venues/${id}`);
 			}}
 		>
-			{(form) => (
-				<>
-					<TextInput label='Name' {...form.getInputProps('name')} />
-					<NumberInput label='Capacity' {...form.getInputProps('capacity')} />
-					<Select
-						label='Venue Type'
-						data={venueTypes.map((vt) => ({
-							value: vt.id,
-							label: vt.name,
-						}))}
-						{...form.getInputProps('typeId')}
-						onChange={(value) => {
-							form.setFieldValue('typeId', value ?? '');
-						}}
-						value={form.values.typeId || ''}
-					/>
-					<MultiSelect
-						label='Schools'
-						data={schools.map((s: { id: number; name: string }) => ({
-							value: String(s.id),
-							label: s.name,
-						}))}
-						{...form.getInputProps('schoolIds')}
-						onChange={(values) => {
-							form.setFieldValue(
-								'schoolIds',
-								values.map((v) => Number(v))
-							);
-						}}
-						value={form.values.schoolIds?.map((id) => String(id)) || []}
-					/>
-				</>
-			)}
+			{(form) => {
+				return (
+					<>
+						<TextInput label='Name' {...form.getInputProps('name')} />
+						<NumberInput label='Capacity' {...form.getInputProps('capacity')} />
+						<Select
+							label='Venue Type'
+							data={venueTypes.map((vt) => ({
+								value: vt.id,
+								label: vt.name,
+							}))}
+							{...form.getInputProps('typeId')}
+							onChange={(value) => {
+								form.setFieldValue('typeId', value ?? '');
+							}}
+							value={form.values.typeId || ''}
+						/>
+						<MultiSelect
+							label='Schools'
+							data={schools.map((s: { id: number; name: string }) => ({
+								value: String(s.id),
+								label: s.name,
+							}))}
+							{...form.getInputProps('schoolIds')}
+							onChange={(values) => {
+								form.setFieldValue(
+									'schoolIds',
+									values.map((v) => Number(v))
+								);
+							}}
+							value={form.values.schoolIds?.map((id) => String(id)) || []}
+						/>
+					</>
+				);
+			}}
 		</Form>
 	);
 }

@@ -33,6 +33,7 @@ interface ModuleSelectionProps {
 	selectedModules: SelectedModule[];
 	onSelectionChange: (modules: SelectedModule[]) => void;
 	loading: boolean;
+	error?: string | null;
 }
 
 export default function ModuleSelection({
@@ -40,6 +41,7 @@ export default function ModuleSelection({
 	selectedModules,
 	onSelectionChange,
 	loading,
+	error,
 }: ModuleSelectionProps) {
 	const handleModuleToggle = (module: ModuleWithStatus, checked: boolean) => {
 		if (checked) {
@@ -83,7 +85,7 @@ export default function ModuleSelection({
 				title='No Modules Available'
 				color='orange'
 			>
-				No modules are available for registration at this time.
+				{error || 'No modules are available for registration at this time.'}
 			</Alert>
 		);
 	}
@@ -181,7 +183,7 @@ export default function ModuleSelection({
 					)}
 				>
 					You have selected {selectedModules.length} module
-					{selectedModules.length !== 1 ? 's' : ''}
+					{selectedModules.length !== 1 ? 's ' : ' '}
 					for registration.
 					{selectedModules.length > config.registry.maxRegModules && (
 						<Text size='sm' mt='xs'>

@@ -92,6 +92,15 @@ export async function updateStudentUserId(
 	return res;
 }
 
+export async function updateStudentProgramStructure(
+	stdNo: number,
+	structureId: number
+) {
+	const res = await service.updateProgramStructure(stdNo, structureId);
+	revalidatePath(`/registry/students/${stdNo}`);
+	return res;
+}
+
 export async function getStudentPhoto(
 	studentNumber: number | undefined | null
 ): Promise<string | null> {
@@ -125,4 +134,23 @@ export async function getStudentPhoto(
 		console.error('Error checking student photo:', error);
 		return null;
 	}
+}
+
+export async function getStudentFilterInfo(stdNo: number) {
+	const student = await service.get(stdNo);
+	if (!student) return null;
+
+	const activeProgram = student.programs.find((p) => p.status === 'Active');
+	if (!activeProgram) return null;
+
+	const latestSemester = activeProgram.semesters
+		.slice()
+		.sort((a, b) => b.termCode.localeCompare(a.termCode))[0];
+
+	return {
+		schoolId: activeProgram.structure.program.school.id,
+		programId: activeProgram.structure.program.id,
+		termCode: latestSemester?.termCode,
+		semesterNumber: latestSemester?.structureSemester.semesterNumber,
+	};
 }

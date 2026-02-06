@@ -11,11 +11,15 @@ import {
 	TableTr,
 	Text,
 } from '@mantine/core';
-import { useQueryClient } from '@tanstack/react-query';
-import { DeleteButton } from '@/shared/ui/adease';
-import { formatDuration, toClassName } from '../../_lib/utils';
-import { deleteTimetableAllocation } from '../_server/actions';
+import { getStudentClassName } from '@/shared/lib/utils/utils';
+import DeleteAllocationButton from './DeleteAllocationButton';
 import EditAllocationModal from './EditAllocationModal';
+
+function formatTimePeriod(start: string | null, end: string | null) {
+	if (!start || !end) return null;
+	const fmt = (t: string) => t.slice(0, 5);
+	return `${fmt(start)} - ${fmt(end)}`;
+}
 
 export type AllocationData = {
 	id: number;
@@ -56,6 +60,21 @@ export type AllocationData = {
 			name: string;
 		};
 	}[];
+	timetableAllocationAllowedVenues?: {
+		venueId: string;
+		venue: {
+			id: string;
+			name: string;
+		};
+	}[];
+	timetableSlotAllocations?: {
+		slot: {
+			venue: {
+				id: string;
+				name: string;
+			};
+		};
+	}[];
 };
 
 type Defaults = {
@@ -88,8 +107,6 @@ export default function AllocationTable({
 	showEdit = true,
 	emptyMessage = 'No allocations found.',
 }: Props) {
-	const queryClient = useQueryClient();
-
 	if (allocations.length === 0) {
 		return (
 			<Center h={200}>
@@ -106,7 +123,7 @@ export default function AllocationTable({
 				<TableTr>
 					<TableTh>Module</TableTh>
 					<TableTh>Class</TableTh>
-					<TableTh>Duration</TableTh>
+					<TableTh>Time</TableTh>
 					<TableTh>Students</TableTh>
 					<TableTh>Venue</TableTh>
 					<TableTh>Actions</TableTh>
@@ -120,22 +137,33 @@ export default function AllocationTable({
 							{allocation.semesterModule?.module?.code})
 						</TableTd>
 						<TableTd>
-							{toClassName(allocation.semesterModule, allocation.groupName)}
+							{getStudentClassName(
+								allocation.semesterModule.semester,
+								allocation.groupName
+							)}
 						</TableTd>
-						<TableTd>{formatDuration(allocation.duration || 0)}</TableTd>
+						<TableTd>
+							{formatTimePeriod(allocation.startTime, allocation.endTime) || (
+								<Text size='sm' c='dimmed'>
+									-
+								</Text>
+							)}
+						</TableTd>
 						<TableTd>
 							<Text size='sm'>{allocation.numberOfStudents}</Text>
 						</TableTd>
 						<TableTd>
-							{allocation.timetableAllocationVenueTypes &&
-							allocation.timetableAllocationVenueTypes.length > 0 ? (
-								<Group gap='xs'>
-									{allocation.timetableAllocationVenueTypes.map((avt) => (
-										<Text key={avt.venueTypeId} size='sm'>
-											{avt.venueType?.name}
-										</Text>
-									))}
-								</Group>
+							{allocation.timetableSlotAllocations &&
+							allocation.timetableSlotAllocations.length > 0 ? (
+								<Text size='sm'>
+									{[
+										...new Set(
+											allocation.timetableSlotAllocations.map(
+												(sa) => sa.slot.venue.name
+											)
+										),
+									].join(', ')}
+								</Text>
 							) : (
 								<Text size='sm' c='dimmed'>
 									-
@@ -174,22 +202,17 @@ export default function AllocationTable({
 										currentEndTime={
 											allocation.endTime || defaults?.endTime || '17:30:00'
 										}
+										currentAllowedVenueIds={
+											allocation.timetableAllocationAllowedVenues?.map(
+												(av) => av.venueId
+											) || []
+										}
 									/>
 								)}
-								<DeleteButton
-									variant='subtle'
-									size='sm'
-									handleDelete={async () => {
-										await deleteTimetableAllocation(allocation.id);
-									}}
-									queryKey={['timetable-allocations', userId]}
-									message='Are you sure you want to delete this allocation?'
-									onSuccess={async () => {
-										await queryClient.invalidateQueries({
-											queryKey: ['timetable-slots'],
-											refetchType: 'all',
-										});
-									}}
+								<DeleteAllocationButton
+									allocation={allocation}
+									allAllocations={allocations}
+									userId={userId}
 								/>
 							</Group>
 						</TableTd>

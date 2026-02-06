@@ -1,0 +1,80 @@
+'use client';
+
+import { Paper, SimpleGrid, Stack, Text, ThemeIcon } from '@mantine/core';
+import { useDisclosure } from '@mantine/hooks';
+import { documentTypeEnum } from '@registry/_database';
+import { IconFile } from '@tabler/icons-react';
+import { useState } from 'react';
+import { DocumentCard } from '../documents/_components/DocumentCard';
+import { DocumentPreviewModal } from '../documents/_components/DocumentPreviewModal';
+import type { ApplicantDocument } from '../documents/_lib/types';
+
+type Props = {
+	documents: ApplicantDocument[];
+};
+
+export default function DocumentsTab({ documents }: Props) {
+	const [selectedDoc, setSelectedDoc] = useState<ApplicantDocument | null>(
+		null
+	);
+	const [previewOpened, { open: openPreview, close: closePreview }] =
+		useDisclosure(false);
+
+	const groupedDocs = documentTypeEnum.enumValues.reduce(
+		(acc, type) => {
+			const docs = documents.filter((d) => d.document.type === type);
+			if (docs.length > 0) {
+				acc[type] = docs;
+			}
+			return acc;
+		},
+		{} as Record<string, ApplicantDocument[]>
+	);
+
+	const hasDocuments = Object.keys(groupedDocs).length > 0;
+
+	function handlePreview(doc: ApplicantDocument) {
+		setSelectedDoc(doc);
+		openPreview();
+	}
+
+	return (
+		<Stack gap='md'>
+			{!hasDocuments && (
+				<Paper withBorder p='xl'>
+					<Stack align='center' gap='xs'>
+						<ThemeIcon size={60} variant='light' color='gray'>
+							<IconFile size={30} />
+						</ThemeIcon>
+						<Text c='dimmed' size='sm'>
+							No documents uploaded
+						</Text>
+					</Stack>
+				</Paper>
+			)}
+
+			{Object.entries(groupedDocs).map(([type, docs]) => (
+				<Stack key={type} gap='xs'>
+					<Text size='sm' fw={500} c='dimmed' tt='capitalize'>
+						{type.replace(/_/g, ' ')}
+					</Text>
+					<SimpleGrid cols={{ base: 1, sm: 2, md: 3 }} spacing='md'>
+						{docs.map((doc) => (
+							<DocumentCard
+								key={doc.id}
+								doc={doc}
+								onPreview={() => handlePreview(doc)}
+							/>
+						))}
+					</SimpleGrid>
+				</Stack>
+			))}
+
+			<DocumentPreviewModal
+				opened={previewOpened}
+				onClose={closePreview}
+				applicantDoc={selectedDoc}
+			/>
+		</Stack>
+	);
+}

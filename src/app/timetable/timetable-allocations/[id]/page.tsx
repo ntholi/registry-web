@@ -50,9 +50,9 @@ export default function LecturerAllocationDetails({ params }: Props) {
 
 	useEffect(() => {
 		if (!selectedTermId && terms.length > 0) {
-			const activeTerm = terms.find((term) => term.isActive);
-			if (activeTerm) {
-				setSelectedTermId(activeTerm.id);
+			const latestTerm = terms[0];
+			if (latestTerm) {
+				setSelectedTermId(latestTerm.id);
 			}
 		}
 	}, [selectedTermId, terms, setSelectedTermId]);

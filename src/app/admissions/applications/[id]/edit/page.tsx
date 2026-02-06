@@ -8,7 +8,7 @@ type Props = {
 
 export default async function EditApplicationPage({ params }: Props) {
 	const { id } = await params;
-	const item = await getApplication(Number(id));
+	const item = await getApplication(id);
 
 	if (!item) {
 		return notFound();
@@ -20,7 +20,7 @@ export default async function EditApplicationPage({ params }: Props) {
 			defaultValues={item}
 			onSubmit={async (values) => {
 				'use server';
-				return updateApplication(Number(id), values);
+				return updateApplication(id, values);
 			}}
 		/>
 	);

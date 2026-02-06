@@ -2,11 +2,10 @@
 
 import type { assessments } from '@academic/_database';
 import { ActionIcon, Tooltip } from '@mantine/core';
-import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import { IconTrash } from '@tabler/icons-react';
 import { useQueryClient } from '@tanstack/react-query';
-import { DeleteModal } from '@/shared/ui/adease';
+import { DeleteButton } from '@/shared/ui/adease';
 import { getAssessmentTypeLabel } from '../_lib/utils';
 import { deleteAssessment } from '../_server/actions';
 
@@ -15,7 +14,6 @@ type Props = {
 };
 
 export default function AssessmentDelete({ assessment }: Props) {
-	const [opened, { open, close }] = useDisclosure(false);
 	const queryClient = useQueryClient();
 
 	async function handleDelete() {
@@ -40,21 +38,17 @@ export default function AssessmentDelete({ assessment }: Props) {
 	}
 
 	return (
-		<>
-			<Tooltip label='Delete'>
-				<ActionIcon variant='subtle' color='red' onClick={open}>
-					<IconTrash size={16} />
-				</ActionIcon>
-			</Tooltip>
-
-			<DeleteModal
-				opened={opened}
-				onClose={close}
-				onDelete={handleDelete}
+		<Tooltip label='Delete'>
+			<DeleteButton
+				handleDelete={handleDelete}
 				itemName={getAssessmentTypeLabel(assessment.assessmentType)}
 				itemType='assessment'
 				warningMessage='This will permanently remove all student marks for this assessment. This action cannot be undone.'
-			/>
-		</>
+			>
+				<ActionIcon variant='subtle' color='red'>
+					<IconTrash size={16} />
+				</ActionIcon>
+			</DeleteButton>
+		</Tooltip>
 	);
 }

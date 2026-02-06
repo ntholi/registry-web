@@ -14,7 +14,7 @@ import {
 	Title,
 } from '@mantine/core';
 import { modals } from '@mantine/modals';
-import { IconLogout, IconMail } from '@tabler/icons-react';
+import { IconArrowRight, IconLogout, IconMail } from '@tabler/icons-react';
 import { useRouter } from 'next/navigation';
 import { signOut, useSession } from 'next-auth/react';
 import Logo from '@/shared/ui/Logo';
@@ -34,6 +34,23 @@ export default function AccountSetupPage() {
 	if (session?.user?.role !== 'user') {
 		router.push('/');
 	}
+
+	const handleApply = () => {
+		modals.openConfirmModal({
+			centered: true,
+			title: 'Start Application',
+			children: (
+				<Text size='sm'>
+					You are about to start a new application to Limkokwing University. If
+					you are not currently a student and wish to become one, please
+					proceed. Do not proceed if you are already a student!
+				</Text>
+			),
+			confirmProps: { color: 'blue' },
+			labels: { confirm: 'Proceed Application', cancel: 'Cancel' },
+			onConfirm: () => router.push('/apply/welcome'),
+		});
+	};
 
 	const handleLogout = () => {
 		modals.openConfirmModal({
@@ -58,9 +75,6 @@ export default function AccountSetupPage() {
 								<Title order={2} size='h3' fw={600} ta='center'>
 									Account Not Found
 								</Title>
-								<Text c='dimmed' ta='center' size='md'>
-									Your email is not associated with any account
-								</Text>
 							</Stack>
 						</Stack>
 
@@ -80,19 +94,19 @@ export default function AccountSetupPage() {
 								This email address is not registered in our system. Please
 								contact the Registry Department for assistance.
 							</Text>
+						</Stack>
 
-							<Center>
-								<Text
-									size='sm'
-									c='blue'
-									component='a'
-									href='mailto:registry@limkokwing.ac.ls'
-									td='underline'
-									fw={500}
-								>
-									registry@limkokwing.ac.ls
-								</Text>
-							</Center>
+						<Divider w='100%' label='Want to Apply?' labelPosition='center' />
+
+						<Stack gap='md' w='100%' align='center'>
+							<Button
+								variant='gradient'
+								rightSection={<IconArrowRight size={16} />}
+								onClick={handleApply}
+								fullWidth
+							>
+								I am a New Applicant
+							</Button>
 						</Stack>
 
 						<Divider w='100%' />
@@ -105,10 +119,6 @@ export default function AccountSetupPage() {
 						>
 							Sign Out
 						</Button>
-
-						<Text size='xs' c='dimmed' ta='center' mt='md'>
-							Limkokwing University Registry System
-						</Text>
 					</Stack>
 				</Paper>
 			</Center>

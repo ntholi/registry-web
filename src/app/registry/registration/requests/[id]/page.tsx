@@ -1,4 +1,3 @@
-import { getSponsoredStudent } from '@finance/sponsors';
 import {
 	Divider,
 	Group,
@@ -64,10 +63,7 @@ export default async function RegistrationRequestDetails({
 		return notFound();
 	}
 
-	const sponsorship = await getSponsoredStudent(
-		registrationRequest.stdNo,
-		registrationRequest.termId
-	);
+	const sponsorship = registrationRequest.sponsoredStudent;
 
 	return (
 		<DetailsView>
@@ -75,6 +71,8 @@ export default async function RegistrationRequestDetails({
 				title={registrationRequest.student.name}
 				queryKey={['registration-requests']}
 				editRoles={['registry']}
+				deleteRoles={['registry']}
+				typedConfirmation={false}
 				handleDelete={async () => {
 					'use server';
 					await deleteRegistrationRequest(Number(id));

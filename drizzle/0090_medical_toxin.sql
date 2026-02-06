@@ -1,0 +1,1 @@
+ALTER TYPE "public"."user_roles" ADD VALUE 'applicant' BEFORE 'student';

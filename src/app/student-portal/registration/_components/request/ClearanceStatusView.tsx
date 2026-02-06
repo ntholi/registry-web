@@ -4,9 +4,9 @@ import {
 	Alert,
 	Badge,
 	Box,
-	Card,
 	Divider,
 	Group,
+	Paper,
 	Stack,
 	Text,
 	Timeline,
@@ -19,7 +19,6 @@ import { getStatusColor } from '@/shared/lib/utils/colors';
 import { formatDateTime } from '@/shared/lib/utils/dates';
 import { getStatusIcon } from '@/shared/lib/utils/status';
 import { toTitleCase } from '@/shared/lib/utils/utils';
-import { getRegistrationOverallClearanceStatus as getOverallClearanceStatus } from '../../_lib/status';
 
 type Props = {
 	registration: NonNullable<Awaited<ReturnType<typeof getRegistrationRequest>>>;
@@ -28,11 +27,10 @@ type Props = {
 export default function ClearanceStatusView({ registration }: Props) {
 	const { clearances = [] } = registration;
 
-	const _overallStatus = getOverallClearanceStatus(registration);
 	const departments = ['finance', 'library'];
 
 	return (
-		<Card withBorder p='md' radius='md'>
+		<Paper withBorder p='md' radius='md'>
 			<Stack gap='md'>
 				<Box pos='relative'>
 					<Title order={2} size='h4' fw={600}>
@@ -49,8 +47,7 @@ export default function ClearanceStatusView({ registration }: Props) {
 						variant='light'
 					>
 						<Text size='sm'>
-							Clearance requests are being prepared. You will see the status
-							here once departments begin processing your request.
+							No clearance requests were created for this registration.
 						</Text>
 					</Alert>
 				) : (
@@ -102,7 +99,7 @@ export default function ClearanceStatusView({ registration }: Props) {
 										{clearance?.status === 'pending' && (
 											<Text size='sm' c='dimmed' fs='italic'>
 												Waiting for {toTitleCase(dept)} Department to process
-												your graduation request...
+												your registration request...
 											</Text>
 										)}
 									</Stack>
@@ -112,7 +109,7 @@ export default function ClearanceStatusView({ registration }: Props) {
 					</Timeline>
 				)}
 			</Stack>
-		</Card>
+		</Paper>
 	);
 }
 

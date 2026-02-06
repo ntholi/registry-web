@@ -1,7 +1,8 @@
 'use server';
 
 import type { AcademicRemarks, Student } from '@registry/students';
-import type { StudentModuleStatus } from '@/core/database';
+import type { ReceiptType, StudentModuleStatus } from '@/core/database';
+import { isActiveSemester } from '@/shared/lib/utils/utils';
 import { registrationRequestsService as service } from './service';
 
 type ModuleWithStatus = {
@@ -28,16 +29,33 @@ export async function countByStatus(
 export async function findAllRegistrationRequests(
 	page = 1,
 	search = '',
-	termId?: number
+	termId?: number,
+	includeDeleted = false
 ) {
-	return service.findAll({ page, search }, termId);
+	return service.findAll({ page, search, includeDeleted }, termId);
 }
 
 export async function getStudentSemesterModules(
 	student: Student,
-	remarks: AcademicRemarks
+	remarks: AcademicRemarks,
+	termCode?: string
 ) {
-	return service.getStudentSemesterModules(student, remarks);
+	return service.getStudentSemesterModules(student, remarks, termCode);
+}
+
+export async function getExistingRegistrationSponsorship(
+	stdNo: number,
+	termId: number
+) {
+	return service.getExistingRegistrationSponsorship(stdNo, termId);
+}
+
+export async function checkIsAdditionalRequest(stdNo: number, termId: number) {
+	return service.checkIsAdditionalRequest(stdNo, termId);
+}
+
+export async function getExistingSemesterStatus(stdNo: number, termId: number) {
+	return service.getExistingSemesterStatus(stdNo, termId);
 }
 
 export async function determineSemesterStatus(
@@ -47,7 +65,9 @@ export async function determineSemesterStatus(
 	const semesterNo = commonSemesterNo(modules);
 	const completedSemesters =
 		student?.programs
+			.filter((p) => p.status === 'Active')
 			.flatMap((program) => program.semesters)
+			.filter((s) => isActiveSemester(s.status))
 			.map((semester) => semester.structureSemester?.semesterNumber)
 			.filter(
 				(semesterNo): semesterNo is string =>
@@ -78,13 +98,18 @@ export async function createRegistration(data: {
 	borrowerNo?: string;
 	bankName?: string;
 	accountNumber?: string;
+	receipts?: { receiptNo: string; receiptType: ReceiptType }[];
 }) {
 	return service.createWithModules(data);
 }
 
 export async function updateRegistration(
 	registrationRequestId: number,
-	modules: { id: number; status: StudentModuleStatus }[],
+	modules: {
+		id: number;
+		status: StudentModuleStatus;
+		receiptNumber?: string;
+	}[],
 	sponsorshipData?: {
 		sponsorId: number;
 		borrowerNo?: string;
@@ -93,7 +118,8 @@ export async function updateRegistration(
 	},
 	semesterNumber?: string,
 	semesterStatus?: 'Active' | 'Repeat',
-	termId?: number
+	termId?: number,
+	receipts?: { receiptNo: string; receiptType: ReceiptType }[]
 ) {
 	return service.updateWithModules(
 		registrationRequestId,
@@ -101,7 +127,8 @@ export async function updateRegistration(
 		sponsorshipData,
 		semesterNumber,
 		semesterStatus,
-		termId
+		termId,
+		receipts
 	);
 }
 

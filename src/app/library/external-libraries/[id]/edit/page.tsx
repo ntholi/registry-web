@@ -12,7 +12,7 @@ type Props = {
 
 export default async function EditExternalLibraryPage({ params }: Props) {
 	const { id } = await params;
-	const library = await getExternalLibrary(Number(id));
+	const library = await getExternalLibrary(id);
 
 	if (!library) return notFound();
 
@@ -22,7 +22,7 @@ export default async function EditExternalLibraryPage({ params }: Props) {
 			defaultValues={library}
 			onSubmit={async (values: ExternalLibraryInsert) => {
 				'use server';
-				const updated = await updateExternalLibrary(Number(id), values);
+				const updated = await updateExternalLibrary(id, values);
 				if (!updated) throw new Error('Failed to update');
 				return updated;
 			}}

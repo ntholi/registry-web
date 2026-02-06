@@ -21,6 +21,7 @@ import { IconInfoCircle, IconPlus, IconTrash } from '@tabler/icons-react';
 import { createInsertSchema } from 'drizzle-zod';
 import { useRouter } from 'nextjs-toploader/app';
 import { z } from 'zod';
+import type { ActionResult } from '@/shared/lib/utils/actionResult';
 import { Form } from '@/shared/ui/adease';
 import type { CertificateTypeWithMappings } from '../_lib/types';
 
@@ -34,7 +35,9 @@ type FormValues = typeof certificateTypes.$inferInsert & {
 };
 
 type Props = {
-	onSubmit: (values: FormValues) => Promise<CertificateTypeWithMappings>;
+	onSubmit: (
+		values: FormValues
+	) => Promise<ActionResult<CertificateTypeWithMappings>>;
 	defaultValues?: CertificateTypeWithMappings;
 	title?: string;
 };
@@ -193,8 +196,10 @@ function GradeMappingEditor({ form }: GradeMappingEditorProps) {
 						</Table.Tr>
 					</Table.Thead>
 					<Table.Tbody>
-						{mappings.map((_, index) => (
-							<Table.Tr key={index}>
+						{mappings.map((mapping, index) => (
+							<Table.Tr
+								key={`${mapping.originalGrade}-${mapping.standardGrade}-${index}`}
+							>
 								<Table.Td>
 									<TextInput
 										placeholder='e.g., 1, A, Pass'

@@ -7,7 +7,7 @@ const nextConfig: NextConfig = {
 		authInterrupts: true,
 		isolatedDevBuild: true,
 		serverActions: {
-			bodySizeLimit: '3MB',
+			bodySizeLimit: '6MB',
 		},
 	},
 	transpilePackages: ['rimraf'],

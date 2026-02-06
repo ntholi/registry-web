@@ -181,7 +181,7 @@ export default function StatementOfResultsPDF({
 												</View>
 												<View>
 													<Text style={tw('text-[8pt] text-gray-666')}>
-														GPA:
+														GPA
 													</Text>
 													<Text
 														style={tw('text-[9pt] font-semibold text-gray-333')}

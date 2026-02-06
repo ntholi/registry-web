@@ -1,17 +1,20 @@
 'use client';
 
 import { intakePeriods } from '@admissions/_database';
-import { Group, NumberInput, TextInput } from '@mantine/core';
+import { Divider, Group, NumberInput, TextInput } from '@mantine/core';
 import { DateInput } from '@mantine/dates';
 import { createInsertSchema } from 'drizzle-zod';
 import { useRouter } from 'nextjs-toploader/app';
 import { z } from 'zod';
 import { Form } from '@/shared/ui/adease';
 import type { IntakePeriod } from '../_lib/types';
+import ProgramSelector from './ProgramSelector';
+
+type FormValues = IntakePeriod & { programIds?: number[] };
 
 type Props = {
-	onSubmit: (values: IntakePeriod) => Promise<IntakePeriod>;
-	defaultValues?: IntakePeriod;
+	onSubmit: (values: FormValues) => Promise<IntakePeriod>;
+	defaultValues?: Partial<FormValues>;
 	title?: string;
 };
 
@@ -28,6 +31,8 @@ export default function IntakePeriodForm({
 		startDate: z.string().min(1, 'Start date is required'),
 		endDate: z.string().min(1, 'End date is required'),
 		applicationFee: z.string().min(1, 'Application fee is required'),
+		maxDocuments: z.number().min(1, 'Max documents must be at least 1'),
+		programIds: z.number().array().optional(),
 	});
 
 	return (
@@ -36,7 +41,10 @@ export default function IntakePeriodForm({
 			action={onSubmit}
 			queryKey={['intake-periods']}
 			schema={schema}
-			defaultValues={defaultValues}
+			defaultValues={{
+				maxDocuments: 18,
+				...defaultValues,
+			}}
 			onSuccess={({ id }) => router.push(`/admissions/intake-periods/${id}`)}
 		>
 			{(form) => (
@@ -61,22 +69,38 @@ export default function IntakePeriodForm({
 							{...form.getInputProps('endDate')}
 						/>
 					</Group>
-					<NumberInput
-						label='Application Fee'
-						required
-						min={0}
-						decimalScale={2}
-						fixedDecimalScale
-						prefix='M'
-						value={
-							form.values.applicationFee
-								? Number(form.values.applicationFee)
-								: undefined
-						}
-						onChange={(val) =>
-							form.setFieldValue('applicationFee', val?.toString() || '')
-						}
-						error={form.errors.applicationFee}
+					<Group grow align='end'>
+						<NumberInput
+							label='Application Fee'
+							required
+							min={0}
+							decimalScale={2}
+							fixedDecimalScale
+							prefix='M'
+							value={
+								form.values.applicationFee
+									? Number(form.values.applicationFee)
+									: undefined
+							}
+							onChange={(val) =>
+								form.setFieldValue('applicationFee', val?.toString() || '')
+							}
+							error={form.errors.applicationFee}
+						/>
+						<NumberInput
+							label='Max Documents per Application'
+							description='Total documents an applicant can upload'
+							required
+							min={1}
+							max={100}
+							{...form.getInputProps('maxDocuments')}
+						/>
+					</Group>
+					<Divider my='sm' />
+					<ProgramSelector
+						value={form.values.programIds ?? []}
+						onChange={(ids) => form.setFieldValue('programIds', ids)}
+						error={form.errors.programIds as string | undefined}
 					/>
 				</>
 			)}

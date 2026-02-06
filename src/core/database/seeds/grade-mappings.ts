@@ -41,7 +41,7 @@ export async function seedGradeMappings() {
 		addMapping(cert, 'U', 'U');
 	}
 
-	addMapping('COSC', '1', 'A');
+	addMapping('COSC', '1', 'A*');
 	addMapping('COSC', '2', 'A');
 	addMapping('COSC', '3', 'B');
 	addMapping('COSC', '4', 'B');

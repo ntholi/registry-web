@@ -1,9 +1,5 @@
 import { schools } from '@academic/_database';
-import {
-	venueSchools,
-	venues,
-	venueTypes,
-} from '@timetable/_database/schema/venues';
+import { venueSchools, venues, venueTypes } from '@timetable/_database';
 import { inArray } from 'drizzle-orm';
 import { db } from '../index';
 

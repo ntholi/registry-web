@@ -1,5 +1,5 @@
 import type { StandardGrade } from '@admissions/_database';
-import { count, eq } from 'drizzle-orm';
+import { and, count, eq, isNotNull } from 'drizzle-orm';
 import { academicRecords, db, subjectGrades } from '@/core/database';
 import BaseRepository from '@/core/platform/BaseRepository';
 
@@ -11,12 +11,13 @@ export default class AcademicRecordRepository extends BaseRepository<
 		super(academicRecords, academicRecords.id);
 	}
 
-	override async findById(id: number) {
+	override async findById(id: string) {
 		return db.query.academicRecords.findFirst({
 			where: eq(academicRecords.id, id),
 			with: {
 				certificateType: true,
 				subjectGrades: { with: { subject: true } },
+				applicantDocument: { with: { document: true } },
 			},
 		});
 	}
@@ -34,6 +35,7 @@ export default class AcademicRecordRepository extends BaseRepository<
 				with: {
 					certificateType: true,
 					subjectGrades: { with: { subject: true } },
+					applicantDocument: { with: { document: true } },
 				},
 			}),
 			db
@@ -52,9 +54,9 @@ export default class AcademicRecordRepository extends BaseRepository<
 	async createWithGrades(
 		data: typeof academicRecords.$inferInsert,
 		grades?: {
-			subjectId: number;
+			subjectId: string;
 			originalGrade: string;
-			standardGrade: StandardGrade;
+			standardGrade: StandardGrade | null;
 		}[]
 	) {
 		return db.transaction(async (tx) => {
@@ -64,8 +66,11 @@ export default class AcademicRecordRepository extends BaseRepository<
 				.returning();
 
 			if (grades && grades.length > 0) {
+				const unique = [
+					...new Map(grades.map((g) => [g.subjectId, g])).values(),
+				];
 				await tx.insert(subjectGrades).values(
-					grades.map((g) => ({
+					unique.map((g) => ({
 						academicRecordId: record.id,
 						subjectId: g.subjectId,
 						originalGrade: g.originalGrade,
@@ -79,18 +84,19 @@ export default class AcademicRecordRepository extends BaseRepository<
 				with: {
 					certificateType: true,
 					subjectGrades: { with: { subject: true } },
+					applicantDocument: { with: { document: true } },
 				},
 			});
 		});
 	}
 
 	async updateWithGrades(
-		id: number,
+		id: string,
 		data: Partial<typeof academicRecords.$inferInsert>,
 		grades?: {
-			subjectId: number;
+			subjectId: string;
 			originalGrade: string;
-			standardGrade: StandardGrade;
+			standardGrade: StandardGrade | null;
 		}[]
 	) {
 		return db.transaction(async (tx) => {
@@ -105,8 +111,11 @@ export default class AcademicRecordRepository extends BaseRepository<
 					.where(eq(subjectGrades.academicRecordId, id));
 
 				if (grades.length > 0) {
+					const unique = [
+						...new Map(grades.map((g) => [g.subjectId, g])).values(),
+					];
 					await tx.insert(subjectGrades).values(
-						grades.map((g) => ({
+						unique.map((g) => ({
 							academicRecordId: id,
 							subjectId: g.subjectId,
 							originalGrade: g.originalGrade,
@@ -121,12 +130,36 @@ export default class AcademicRecordRepository extends BaseRepository<
 				with: {
 					certificateType: true,
 					subjectGrades: { with: { subject: true } },
+					applicantDocument: { with: { document: true } },
 				},
 			});
 		});
 	}
 
-	async removeById(id: number) {
+	async removeById(id: string) {
 		await db.delete(academicRecords).where(eq(academicRecords.id, id));
+	}
+
+	async findByCertificateNumber(certificateNumber: string) {
+		return db.query.academicRecords.findFirst({
+			where: and(
+				eq(academicRecords.certificateNumber, certificateNumber),
+				isNotNull(academicRecords.certificateNumber)
+			),
+			with: {
+				certificateType: true,
+				subjectGrades: { with: { subject: true } },
+				applicantDocument: { with: { document: true } },
+			},
+		});
+	}
+
+	async linkDocument(academicRecordId: string, applicantDocumentId: string) {
+		const [record] = await db
+			.update(academicRecords)
+			.set({ applicantDocumentId, updatedAt: new Date() })
+			.where(eq(academicRecords.id, academicRecordId))
+			.returning();
+		return record;
 	}
 }

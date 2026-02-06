@@ -1,14 +1,38 @@
 'use server';
 
-import type {
-	DocumentCategory,
-	DocumentVerificationStatus,
-} from '@/core/database';
+import { getApplicant, updateApplicant } from '@admissions/applicants';
+import { findAllCertificateTypes } from '@admissions/certificate-types';
+import { findOrCreateSubjectByName } from '@admissions/subjects';
+import type { DocumentType, DocumentVerificationStatus } from '@/core/database';
 import {
-	deleteDocument,
-	uploadDocument as uploadToStorage,
-} from '@/core/integrations/storage';
+	type AnalysisResult,
+	analyzeDocument,
+	type DocumentAnalysisResult,
+} from '@/core/integrations/ai/documents';
+import { deleteDocument } from '@/core/integrations/storage';
+import {
+	type ActionResult,
+	failure,
+	success,
+} from '@/shared/lib/utils/actionResult';
+import type { SubjectGradeInput } from '../../academic-records/_lib/types';
+import {
+	createAcademicRecord,
+	findAcademicRecordByCertificateNumber,
+	linkDocumentToAcademicRecord,
+	updateAcademicRecord,
+} from '../../academic-records/_server/actions';
+import type {
+	ExtractedAcademicData,
+	ExtractedIdentityData,
+} from '../_lib/types';
 import { applicantDocumentsService } from './service';
+
+const BASE_URL = 'https://pub-2b37ce26bd70421e9e59e4fe805c6873.r2.dev';
+
+export async function getDocumentFolder(_applicantId: string) {
+	return 'documents/admissions';
+}
 
 export async function getApplicantDocument(id: string) {
 	return applicantDocumentsService.get(id);
@@ -18,34 +42,29 @@ export async function findDocumentsByApplicant(applicantId: string, page = 1) {
 	return applicantDocumentsService.findByApplicant(applicantId, page);
 }
 
-export async function findDocumentsByCategory(
+export async function findDocumentsByType(
 	applicantId: string,
-	category: DocumentCategory
+	type: DocumentType
 ) {
-	return applicantDocumentsService.findByCategory(applicantId, category);
+	return applicantDocumentsService.findByType(applicantId, type);
 }
 
-export async function uploadApplicantDocument(
-	applicantId: string,
-	file: File,
-	category: DocumentCategory
-) {
-	const fileName = await uploadToStorage(
-		file,
-		`${applicantId}-${Date.now()}-${file.name}`,
-		'applicant-documents'
-	);
-
-	const fileUrl = `${process.env.R2_PUBLIC_URL}/applicant-documents/${fileName}`;
+export async function saveApplicantDocument(data: {
+	applicantId: string;
+	fileName: string;
+	type: DocumentType;
+}) {
+	const folder = await getDocumentFolder(data.applicantId);
+	const fileUrl = `${BASE_URL}/${folder}/${data.fileName}`;
 
 	return applicantDocumentsService.uploadDocument(
 		{
-			applicantId,
-			fileName: file.name,
+			fileName: data.fileName,
 			fileUrl,
-			category,
+			type: data.type,
 		},
-		file.size
+		data.applicantId,
+		0
 	);
 }
 
@@ -58,9 +77,246 @@ export async function verifyApplicantDocument(
 }
 
 export async function deleteApplicantDocument(id: string, fileUrl: string) {
-	const urlParts = fileUrl.split('/');
-	const key = `applicant-documents/${urlParts[urlParts.length - 1]}`;
-
+	const key = fileUrl.replace(`${BASE_URL}/`, '');
 	await deleteDocument(key);
 	return applicantDocumentsService.delete(id);
+}
+
+export async function analyzeDocumentWithAI(
+	fileBase64: string,
+	mediaType: string
+): Promise<AnalysisResult<DocumentAnalysisResult>> {
+	return analyzeDocument(fileBase64, mediaType);
+}
+
+function normalizeFileUrl(fileUrl: string): ActionResult<string> {
+	if (!fileUrl) {
+		return failure('Document URL is missing');
+	}
+
+	try {
+		return success(new URL(fileUrl).toString());
+	} catch {
+		return success(encodeURI(fileUrl));
+	}
+}
+
+export async function reanalyzeDocumentFromUrl(
+	fileUrl: string,
+	applicantId: string,
+	documentType: DocumentType
+): Promise<ActionResult<DocumentAnalysisResult>> {
+	const normalizedUrl = normalizeFileUrl(fileUrl);
+	if (!normalizedUrl.success) {
+		return failure(normalizedUrl.error);
+	}
+	const response = await fetch(normalizedUrl.data, { cache: 'no-store' });
+	if (!response.ok) {
+		return failure(`Failed to fetch document (${response.status})`);
+	}
+	const buffer = await response.arrayBuffer();
+	const base64 = Buffer.from(buffer).toString('base64');
+	const contentType = response.headers.get('content-type') ?? 'application/pdf';
+	const result = await analyzeDocument(base64, contentType);
+	if (!result.success) {
+		return failure(result.error);
+	}
+	const data = result.data;
+
+	if (data.category === 'identity' && documentType === 'identity') {
+		const updateResult = await updateApplicantFromIdentity(applicantId, {
+			fullName: data.fullName,
+			dateOfBirth: data.dateOfBirth,
+			nationalId: data.nationalId,
+			nationality: data.nationality,
+			gender: data.gender,
+			birthPlace: data.birthPlace,
+			address: data.address,
+		});
+		if (!updateResult.success) {
+			return failure(updateResult.error);
+		}
+	}
+
+	if (
+		data.category === 'academic' &&
+		(documentType === 'certificate' || documentType === 'academic_record') &&
+		data.examYear &&
+		data.institutionName
+	) {
+		const recordResult = await createAcademicRecordFromDocument(applicantId, {
+			institutionName: data.institutionName,
+
+			examYear: data.examYear,
+			certificateType: data.certificateType,
+			certificateNumber: data.certificateNumber,
+			candidateNumber: data.candidateNumber,
+			subjects: data.subjects,
+			overallClassification: data.overallClassification,
+		});
+		if (!recordResult.success) {
+			return failure(recordResult.error);
+		}
+	}
+
+	return success(data);
+}
+
+export async function updateApplicantFromIdentity(
+	applicantId: string,
+	data: ExtractedIdentityData
+): Promise<
+	ActionResult<NonNullable<Awaited<ReturnType<typeof getApplicant>>>>
+> {
+	const applicant = await getApplicant(applicantId);
+	if (!applicant) {
+		return failure('Applicant not found');
+	}
+
+	const updateData: Partial<ExtractedIdentityData> = {};
+
+	if (data.fullName && data.fullName !== applicant.fullName) {
+		updateData.fullName = data.fullName;
+	}
+	if (data.dateOfBirth && data.dateOfBirth !== applicant.dateOfBirth) {
+		updateData.dateOfBirth = data.dateOfBirth;
+	}
+	if (data.nationalId && data.nationalId !== applicant.nationalId) {
+		updateData.nationalId = data.nationalId;
+	}
+	if (data.nationality && data.nationality !== applicant.nationality) {
+		updateData.nationality = data.nationality;
+	}
+	if (data.gender && data.gender !== applicant.gender) {
+		updateData.gender = data.gender;
+	}
+	if (data.birthPlace && data.birthPlace !== applicant.birthPlace) {
+		updateData.birthPlace = data.birthPlace;
+	}
+	if (data.address && data.address !== applicant.address) {
+		updateData.address = data.address;
+	}
+
+	if (Object.keys(updateData).length > 0) {
+		await updateApplicant(applicantId, {
+			id: applicant.id,
+			userId: applicant.userId,
+			fullName: updateData.fullName ?? applicant.fullName,
+			dateOfBirth: updateData.dateOfBirth ?? applicant.dateOfBirth,
+			nationalId: updateData.nationalId ?? applicant.nationalId,
+			nationality: updateData.nationality ?? applicant.nationality,
+			birthPlace: updateData.birthPlace ?? applicant.birthPlace,
+			religion: applicant.religion,
+			address: updateData.address ?? applicant.address,
+			gender: updateData.gender ?? applicant.gender,
+			createdAt: applicant.createdAt,
+			updatedAt: applicant.updatedAt,
+		});
+		const refreshed = await getApplicant(applicantId);
+		if (!refreshed) {
+			return failure('Applicant not found');
+		}
+		return success(refreshed);
+	}
+
+	return success(applicant);
+}
+
+export async function createAcademicRecordFromDocument(
+	applicantId: string,
+	data: ExtractedAcademicData,
+	applicantDocumentId?: string
+): Promise<ActionResult<Awaited<ReturnType<typeof createAcademicRecord>>>> {
+	const examYear = data.examYear ?? new Date().getFullYear();
+	const institutionName = data.institutionName ?? 'Unknown Institution';
+
+	let certificateTypeId: string | null = null;
+	let certLqfLevel = 4;
+
+	const { items: certTypes } = await findAllCertificateTypes(1, '');
+
+	if (data.certificateType) {
+		const normalizedSearchType = data.certificateType.toLowerCase().trim();
+
+		const matchedType = certTypes.find((ct) => {
+			const normalizedName = ct.name.toLowerCase().trim();
+			return (
+				normalizedName === normalizedSearchType ||
+				normalizedName.includes(normalizedSearchType) ||
+				normalizedSearchType.includes(normalizedName)
+			);
+		});
+
+		if (matchedType) {
+			certificateTypeId = matchedType.id;
+			certLqfLevel = matchedType.lqfLevel;
+		}
+	}
+
+	if (!certificateTypeId) {
+		if (certTypes.length > 0) {
+			certificateTypeId = certTypes[0].id;
+			certLqfLevel = certTypes[0].lqfLevel;
+		} else {
+			return failure('No certificate types found in the system');
+		}
+	}
+
+	let subjectGrades: SubjectGradeInput[] | undefined;
+	if (data.subjects && data.subjects.length > 0) {
+		subjectGrades = await Promise.all(
+			data.subjects.map(async (sub) => {
+				const subject = await findOrCreateSubjectByName(sub.name);
+				return {
+					subjectId: subject.id,
+					originalGrade: sub.grade,
+				};
+			})
+		);
+	}
+
+	const isLevel4 = certLqfLevel === 4;
+
+	if (data.certificateNumber) {
+		const existing = await findAcademicRecordByCertificateNumber(
+			data.certificateNumber
+		);
+		if (existing) {
+			const record = await updateAcademicRecord(
+				existing.id,
+				{
+					certificateTypeId,
+					examYear,
+					institutionName,
+					qualificationName: data.qualificationName,
+					certificateNumber: data.certificateNumber,
+					resultClassification: data.overallClassification,
+					subjectGrades,
+					candidateNumber: data.candidateNumber,
+				},
+				isLevel4
+			);
+			if (applicantDocumentId && record) {
+				await linkDocumentToAcademicRecord(record.id, applicantDocumentId);
+			}
+			return success(record);
+		}
+	}
+
+	const record = await createAcademicRecord(
+		applicantId,
+		{
+			certificateTypeId,
+			examYear,
+			institutionName,
+			qualificationName: data.qualificationName,
+			certificateNumber: data.certificateNumber,
+			resultClassification: data.overallClassification,
+			subjectGrades,
+			candidateNumber: data.candidateNumber,
+		},
+		isLevel4,
+		applicantDocumentId
+	);
+	return success(record);
 }

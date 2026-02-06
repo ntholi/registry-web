@@ -1,21 +1,42 @@
-import { and, count, desc, eq, exists, ilike, ne, not, sql } from 'drizzle-orm';
+import {
+	and,
+	count,
+	desc,
+	eq,
+	exists,
+	inArray,
+	isNull,
+	ne,
+	not,
+	sql,
+} from 'drizzle-orm';
 import { config } from '@/config';
 import {
+	autoApprovals,
 	clearance,
 	db,
+	paymentReceipts,
+	type ReceiptType,
 	registrationClearance,
+	registrationRequestReceipts,
 	registrationRequests,
 	requestedModules,
 	type StudentModuleStatus,
 	sponsoredStudents,
 	sponsoredTerms,
+	studentModules,
 	studentPrograms,
+	studentSemesters,
+	terms,
 } from '@/core/database';
 import BaseRepository, {
 	type QueryOptions,
 } from '@/core/platform/BaseRepository';
 
 type RegistrationRequestInsert = typeof registrationRequests.$inferInsert;
+type RegistrationRequestQuery = QueryOptions<typeof registrationRequests> & {
+	includeDeleted?: boolean;
+};
 
 export default class RegistrationRequestRepository extends BaseRepository<
 	typeof registrationRequests,
@@ -28,9 +49,11 @@ export default class RegistrationRequestRepository extends BaseRepository<
 	override async query(params: QueryOptions<typeof registrationRequests>) {
 		const { orderBy, offset, limit } = this.buildQueryCriteria(params);
 
-		const whereCondition = ilike(
-			registrationRequests.stdNo,
-			`%${params.search}%`
+		const whereCondition = and(
+			params.search
+				? sql`${registrationRequests.stdNo}::text LIKE ${`%${params.search}%`}`
+				: undefined,
+			isNull(registrationRequests.deletedAt)
 		);
 
 		const data = await db.query.registrationRequests.findMany({
@@ -93,21 +116,25 @@ export default class RegistrationRequestRepository extends BaseRepository<
 						},
 					},
 				},
+				registrationRequestReceipts: {
+					with: {
+						receipt: true,
+					},
+				},
 			},
 		});
 	}
 
-	async findAllPaginated(
-		params: QueryOptions<typeof registrationRequests>,
-		termId?: number
-	) {
+	async findAllPaginated(params: RegistrationRequestQuery, termId?: number) {
 		const { offset, limit } = this.buildQueryCriteria(params);
+		const includeDeleted = params.includeDeleted === true;
 
 		const whereCondition = and(
 			params.search
 				? sql`${registrationRequests.stdNo}::text LIKE ${`%${params.search}%`}`
 				: undefined,
-			termId ? eq(registrationRequests.termId, termId) : undefined
+			termId ? eq(registrationRequests.termId, termId) : undefined,
+			includeDeleted ? undefined : isNull(registrationRequests.deletedAt)
 		);
 
 		const [total, items] = await Promise.all([
@@ -142,6 +169,7 @@ export default class RegistrationRequestRepository extends BaseRepository<
 		status: 'pending' | 'registered' | 'rejected' | 'approved',
 		termId?: number
 	) {
+		const notDeleted = isNull(registrationRequests.deletedAt);
 		if (status === 'registered') {
 			const [result] = await db
 				.select({ value: count() })
@@ -149,6 +177,7 @@ export default class RegistrationRequestRepository extends BaseRepository<
 				.where(
 					and(
 						eq(registrationRequests.status, status),
+						notDeleted,
 						termId ? eq(registrationRequests.termId, termId) : undefined
 					)
 				);
@@ -190,6 +219,7 @@ export default class RegistrationRequestRepository extends BaseRepository<
 									)
 								)
 						),
+						notDeleted,
 						ne(registrationRequests.status, 'registered'),
 						termId ? eq(registrationRequests.termId, termId) : undefined
 					)
@@ -219,6 +249,7 @@ export default class RegistrationRequestRepository extends BaseRepository<
 									)
 								)
 						),
+						notDeleted,
 						termId ? eq(registrationRequests.termId, termId) : undefined
 					)
 				);
@@ -250,6 +281,224 @@ export default class RegistrationRequestRepository extends BaseRepository<
 		return tx.insert(requestedModules).values(modulesToCreate).returning();
 	}
 
+	private async finalizeRegistration(
+		// biome-ignore lint/suspicious/noExplicitAny: transaction type from drizzle
+		tx: any,
+		registrationRequestId: number,
+		existingSemesterId?: number
+	) {
+		const request = await tx.query.registrationRequests.findFirst({
+			where: eq(registrationRequests.id, registrationRequestId),
+			with: {
+				term: true,
+				student: {
+					with: {
+						programs: {
+							where: eq(studentPrograms.status, 'Active'),
+							limit: 1,
+							with: {
+								structure: {
+									with: {
+										semesters: true,
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		});
+
+		if (!request) throw new Error('Registration request not found');
+		if (request.status === 'registered') return;
+
+		const activeProgram = request.student.programs[0];
+		if (!activeProgram) throw new Error('No active program found');
+
+		const structureSemester = activeProgram.structure.semesters.find(
+			(s: { semesterNumber: string }) =>
+				s.semesterNumber === request.semesterNumber
+		);
+		if (!structureSemester)
+			throw new Error(
+				`Structure semester not found for semester ${request.semesterNumber}`
+			);
+
+		const pendingModules = await tx.query.requestedModules.findMany({
+			where: and(
+				eq(requestedModules.registrationRequestId, registrationRequestId),
+				eq(requestedModules.status, 'pending')
+			),
+			with: {
+				semesterModule: true,
+			},
+		});
+
+		let semesterId: number;
+
+		if (existingSemesterId) {
+			semesterId = existingSemesterId;
+		} else {
+			const [semester] = await tx
+				.insert(studentSemesters)
+				.values({
+					termCode: request.term.code,
+					structureSemesterId: structureSemester.id,
+					status: request.semesterStatus,
+					studentProgramId: activeProgram.id,
+					sponsorId: request.sponsoredStudentId,
+				})
+				.returning();
+			semesterId = semester.id;
+
+			await tx
+				.update(registrationRequests)
+				.set({ studentSemesterId: semesterId })
+				.where(eq(registrationRequests.id, registrationRequestId));
+		}
+
+		if (pendingModules.length > 0) {
+			await tx.insert(studentModules).values(
+				pendingModules.map(
+					(rm: {
+						semesterModuleId: number;
+						moduleStatus: StudentModuleStatus;
+						semesterModule: { credits: number };
+					}) => ({
+						semesterModuleId: rm.semesterModuleId,
+						status: rm.moduleStatus,
+						marks: 'NM',
+						grade: 'NM' as const,
+						credits: rm.semesterModule.credits,
+						studentSemesterId: semesterId,
+					})
+				)
+			);
+		}
+
+		await tx
+			.update(requestedModules)
+			.set({ status: 'registered' })
+			.where(
+				and(
+					eq(requestedModules.registrationRequestId, registrationRequestId),
+					eq(requestedModules.status, 'pending')
+				)
+			);
+
+		await tx
+			.update(registrationRequests)
+			.set({ status: 'registered', dateRegistered: new Date() })
+			.where(eq(registrationRequests.id, registrationRequestId));
+	}
+
+	async findExistingStudentSemester(stdNo: number, termId: number) {
+		const term = await db.query.terms.findFirst({
+			where: eq(terms.id, termId),
+		});
+		if (!term) return null;
+
+		const activeProgram = await db.query.studentPrograms.findFirst({
+			where: and(
+				eq(studentPrograms.stdNo, stdNo),
+				eq(studentPrograms.status, 'Active')
+			),
+		});
+		if (!activeProgram) return null;
+
+		const inactiveStatuses = [
+			'Deleted',
+			'Deferred',
+			'DroppedOut',
+			'Withdrawn',
+			'Inactive',
+		] as const;
+
+		return db.query.studentSemesters.findFirst({
+			where: and(
+				eq(studentSemesters.studentProgramId, activeProgram.id),
+				eq(studentSemesters.termCode, term.code),
+				not(inArray(studentSemesters.status, [...inactiveStatuses]))
+			),
+			with: {
+				studentModules: true,
+				structureSemester: true,
+			},
+		});
+	}
+
+	async getExistingRegistrationSponsorship(stdNo: number, termId: number) {
+		const existingRequest = await db.query.registrationRequests.findFirst({
+			where: and(
+				eq(registrationRequests.stdNo, stdNo),
+				eq(registrationRequests.termId, termId),
+				isNull(registrationRequests.deletedAt)
+			),
+			with: {
+				sponsoredStudent: {
+					with: {
+						sponsor: true,
+					},
+				},
+			},
+			orderBy: desc(registrationRequests.createdAt),
+		});
+
+		if (!existingRequest?.sponsoredStudent) return null;
+
+		const { sponsoredStudent } = existingRequest;
+		return {
+			sponsorId: sponsoredStudent.sponsorId,
+			sponsorName: sponsoredStudent.sponsor?.name ?? null,
+			sponsorCode: sponsoredStudent.sponsor?.code ?? null,
+			borrowerNo: sponsoredStudent.borrowerNo,
+			bankName: sponsoredStudent.bankName,
+			accountNumber: sponsoredStudent.accountNumber,
+		};
+	}
+
+	async getAlreadyRegisteredModuleIds(
+		studentSemesterId: number,
+		moduleIds: number[]
+	) {
+		const existing = await db.query.studentModules.findMany({
+			where: and(
+				eq(studentModules.studentSemesterId, studentSemesterId),
+				inArray(studentModules.semesterModuleId, moduleIds)
+			),
+			columns: { semesterModuleId: true },
+		});
+		return existing.map((m) => m.semesterModuleId);
+	}
+
+	async findPreviousClearedRequest(stdNo: number, termId: number) {
+		const requests = await db.query.registrationRequests.findMany({
+			where: and(
+				eq(registrationRequests.stdNo, stdNo),
+				eq(registrationRequests.termId, termId),
+				isNull(registrationRequests.deletedAt)
+			),
+			with: {
+				clearances: {
+					with: {
+						clearance: true,
+					},
+				},
+			},
+			orderBy: [desc(registrationRequests.createdAt)],
+		});
+
+		for (const request of requests) {
+			if (request.clearances.length === 0) continue;
+			const allApproved = request.clearances.every(
+				(c) => c.clearance.status === 'approved'
+			);
+			if (allApproved) return request;
+		}
+
+		return null;
+	}
+
 	async createWithModules(data: {
 		stdNo: number;
 		termId: number;
@@ -260,7 +509,50 @@ export default class RegistrationRequestRepository extends BaseRepository<
 		borrowerNo?: string;
 		bankName?: string;
 		accountNumber?: string;
+		receipts?: { receiptNo: string; receiptType: ReceiptType }[];
 	}) {
+		const existingSemester = await this.findExistingStudentSemester(
+			data.stdNo,
+			data.termId
+		);
+		const isAdditionalRequest = !!existingSemester;
+
+		const hasRepeatModules = data.modules.some((m) =>
+			m.moduleStatus.startsWith('Repeat')
+		);
+		const previousClearedRequest = await this.findPreviousClearedRequest(
+			data.stdNo,
+			data.termId
+		);
+		const skipClearance =
+			!!previousClearedRequest && !hasRepeatModules && isAdditionalRequest;
+
+		if (existingSemester) {
+			const moduleIds = data.modules.map((m) => m.moduleId);
+			const alreadyRegistered = await this.getAlreadyRegisteredModuleIds(
+				existingSemester.id,
+				moduleIds
+			);
+			if (alreadyRegistered.length > 0) {
+				throw new Error(
+					`Some modules are already registered for this term. Remove duplicates and try again.`
+				);
+			}
+		}
+
+		let existingSponsoredStudentId: number | null = null;
+		if (isAdditionalRequest) {
+			const existingRequest = await db.query.registrationRequests.findFirst({
+				where: and(
+					eq(registrationRequests.stdNo, data.stdNo),
+					eq(registrationRequests.termId, data.termId),
+					isNull(registrationRequests.deletedAt)
+				),
+				columns: { sponsoredStudentId: true },
+			});
+			existingSponsoredStudentId = existingRequest?.sponsoredStudentId ?? null;
+		}
+
 		return db.transaction(async (tx) => {
 			const student = await tx.query.students.findFirst({
 				where: (students, { eq }) => eq(students.stdNo, data.stdNo),
@@ -270,53 +562,61 @@ export default class RegistrationRequestRepository extends BaseRepository<
 				throw new Error('Student not found');
 			}
 
-			let sponsoredStudent = await tx.query.sponsoredStudents.findFirst({
-				where: and(
-					eq(sponsoredStudents.sponsorId, data.sponsorId),
-					eq(sponsoredStudents.stdNo, data.stdNo)
-				),
-			});
+			let sponsoredStudentId: number;
 
-			if (!sponsoredStudent) {
-				sponsoredStudent = await tx.query.sponsoredStudents.findFirst({
-					where: eq(sponsoredStudents.stdNo, data.stdNo),
-				});
-			}
-
-			if (sponsoredStudent) {
-				const [updated] = await tx
-					.update(sponsoredStudents)
-					.set({
-						sponsorId: data.sponsorId,
-						borrowerNo: data.borrowerNo,
-						bankName: data.bankName,
-						accountNumber: data.accountNumber,
-						updatedAt: new Date(),
-					})
-					.where(eq(sponsoredStudents.id, sponsoredStudent.id))
-					.returning();
-				sponsoredStudent = updated;
+			if (isAdditionalRequest && existingSponsoredStudentId) {
+				sponsoredStudentId = existingSponsoredStudentId;
 			} else {
-				const [created] = await tx
-					.insert(sponsoredStudents)
-					.values({
-						sponsorId: data.sponsorId,
-						stdNo: data.stdNo,
-						borrowerNo: data.borrowerNo,
-						bankName: data.bankName,
-						accountNumber: data.accountNumber,
-					})
-					.returning();
-				sponsoredStudent = created;
-			}
+				let sponsoredStudent = await tx.query.sponsoredStudents.findFirst({
+					where: and(
+						eq(sponsoredStudents.sponsorId, data.sponsorId),
+						eq(sponsoredStudents.stdNo, data.stdNo)
+					),
+				});
 
-			await tx
-				.insert(sponsoredTerms)
-				.values({
-					sponsoredStudentId: sponsoredStudent.id,
-					termId: data.termId,
-				})
-				.onConflictDoNothing();
+				if (!sponsoredStudent) {
+					sponsoredStudent = await tx.query.sponsoredStudents.findFirst({
+						where: eq(sponsoredStudents.stdNo, data.stdNo),
+					});
+				}
+
+				if (sponsoredStudent) {
+					const [updated] = await tx
+						.update(sponsoredStudents)
+						.set({
+							sponsorId: data.sponsorId,
+							borrowerNo: data.borrowerNo,
+							bankName: data.bankName,
+							accountNumber: data.accountNumber,
+							updatedAt: new Date(),
+						})
+						.where(eq(sponsoredStudents.id, sponsoredStudent.id))
+						.returning();
+					sponsoredStudent = updated;
+				} else {
+					const [created] = await tx
+						.insert(sponsoredStudents)
+						.values({
+							sponsorId: data.sponsorId,
+							stdNo: data.stdNo,
+							borrowerNo: data.borrowerNo,
+							bankName: data.bankName,
+							accountNumber: data.accountNumber,
+						})
+						.returning();
+					sponsoredStudent = created;
+				}
+
+				await tx
+					.insert(sponsoredTerms)
+					.values({
+						sponsoredStudentId: sponsoredStudent.id,
+						termId: data.termId,
+					})
+					.onConflictDoNothing();
+
+				sponsoredStudentId = sponsoredStudent.id;
+			}
 
 			const [request] = await tx
 				.insert(registrationRequests)
@@ -326,15 +626,36 @@ export default class RegistrationRequestRepository extends BaseRepository<
 					status: 'pending',
 					semesterNumber: data.semesterNumber,
 					semesterStatus: data.semesterStatus,
-					sponsoredStudentId: sponsoredStudent.id,
+					sponsoredStudentId: sponsoredStudentId,
+					studentSemesterId: existingSemester?.id ?? null,
 				})
 				.returning();
 
-			for (const department of ['finance', 'library']) {
+			const matchingRules = await tx.query.autoApprovals.findMany({
+				where: and(
+					eq(autoApprovals.stdNo, data.stdNo),
+					eq(autoApprovals.termId, data.termId)
+				),
+			});
+
+			const autoApprovedDepts = new Set(matchingRules.map((r) => r.department));
+
+			let departments: ('finance' | 'library')[] = [];
+			if (!skipClearance) {
+				departments = isAdditionalRequest
+					? ['finance']
+					: ['finance', 'library'];
+			}
+
+			for (const department of departments) {
+				const isAutoApproved = autoApprovedDepts.has(department);
 				const [clearanceRecord] = await tx
 					.insert(clearance)
 					.values({
-						department: department as 'finance' | 'library',
+						department,
+						status: isAutoApproved ? 'approved' : 'pending',
+						message: isAutoApproved ? 'Auto-approved' : null,
+						responseDate: isAutoApproved ? new Date() : null,
 					})
 					.returning();
 
@@ -350,13 +671,43 @@ export default class RegistrationRequestRepository extends BaseRepository<
 				data.modules
 			);
 
-			return { request, modules };
+			if (data.receipts && data.receipts.length > 0) {
+				for (const receipt of data.receipts) {
+					const [newReceipt] = await tx
+						.insert(paymentReceipts)
+						.values({
+							receiptNo: receipt.receiptNo,
+							receiptType: receipt.receiptType,
+							stdNo: data.stdNo,
+						})
+						.returning();
+
+					await tx.insert(registrationRequestReceipts).values({
+						registrationRequestId: request.id,
+						receiptId: newReceipt.id,
+					});
+				}
+			}
+
+			const allAutoApproved =
+				skipClearance ||
+				departments.every((dept) => autoApprovedDepts.has(dept));
+
+			if (allAutoApproved) {
+				await this.finalizeRegistration(tx, request.id, existingSemester?.id);
+			}
+
+			return { request, modules, isAdditionalRequest };
 		});
 	}
 
 	async updateWithModules(
 		registrationRequestId: number,
-		modules: { id: number; status: StudentModuleStatus }[],
+		modules: {
+			id: number;
+			status: StudentModuleStatus;
+			receiptNumber?: string;
+		}[],
 		sponsorshipData?: {
 			sponsorId: number;
 			borrowerNo?: string;
@@ -365,7 +716,8 @@ export default class RegistrationRequestRepository extends BaseRepository<
 		},
 		semesterNumber?: string,
 		semesterStatus?: 'Active' | 'Repeat',
-		termId?: number
+		termId?: number,
+		receipts?: { receiptNo: string; receiptType: ReceiptType }[]
 	) {
 		return db.transaction(async (tx) => {
 			const registration = await tx.query.registrationRequests.findFirst({
@@ -511,6 +863,47 @@ export default class RegistrationRequestRepository extends BaseRepository<
 				registrationRequestId,
 				convertedModules
 			);
+
+			if (receipts && receipts.length > 0 && registration.stdNo) {
+				await tx
+					.delete(registrationRequestReceipts)
+					.where(
+						eq(
+							registrationRequestReceipts.registrationRequestId,
+							registrationRequestId
+						)
+					);
+
+				for (const receipt of receipts) {
+					const existingReceipt = await tx.query.paymentReceipts.findFirst({
+						where: eq(paymentReceipts.receiptNo, receipt.receiptNo),
+					});
+
+					let receiptId: string;
+					if (existingReceipt) {
+						receiptId = existingReceipt.id;
+					} else {
+						const [newReceipt] = await tx
+							.insert(paymentReceipts)
+							.values({
+								receiptNo: receipt.receiptNo,
+								receiptType: receipt.receiptType,
+								stdNo: registration.stdNo,
+							})
+							.returning();
+						receiptId = newReceipt.id;
+					}
+
+					await tx
+						.insert(registrationRequestReceipts)
+						.values({
+							registrationRequestId,
+							receiptId,
+						})
+						.onConflictDoNothing();
+				}
+			}
+
 			return { request: updated, modules: updatedModules };
 		});
 	}
@@ -523,6 +916,7 @@ export default class RegistrationRequestRepository extends BaseRepository<
 			return db.query.registrationRequests.findMany({
 				where: and(
 					eq(registrationRequests.status, status),
+					isNull(registrationRequests.deletedAt),
 					termId ? eq(registrationRequests.termId, termId) : undefined
 				),
 				with: {
@@ -553,7 +947,10 @@ export default class RegistrationRequestRepository extends BaseRepository<
 
 	async getHistory(stdNo: number) {
 		return db.query.registrationRequests.findMany({
-			where: eq(registrationRequests.stdNo, stdNo),
+			where: and(
+				eq(registrationRequests.stdNo, stdNo),
+				isNull(registrationRequests.deletedAt)
+			),
 			with: {
 				term: true,
 				requestedModules: {
@@ -568,6 +965,19 @@ export default class RegistrationRequestRepository extends BaseRepository<
 			},
 			orderBy: [desc(registrationRequests.createdAt)],
 		});
+	}
+
+	async softDelete(id: number, deletedBy: string | null) {
+		const [updated] = await db
+			.update(registrationRequests)
+			.set({
+				deletedAt: new Date(),
+				deletedBy,
+				updatedAt: new Date(),
+			})
+			.where(eq(registrationRequests.id, id))
+			.returning();
+		return updated;
 	}
 }
 

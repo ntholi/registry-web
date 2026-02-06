@@ -1,9 +1,7 @@
-import type { documents } from '@/core/database';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
 import withAuth from '@/core/platform/withAuth';
+import type { DocumentType } from '../_schema/documents';
 import DocumentRepository from './repository';
-
-type Document = typeof documents.$inferInsert;
 
 class DocumentService {
 	constructor(private readonly repository = new DocumentRepository()) {}
@@ -28,16 +26,21 @@ class DocumentService {
 		);
 	}
 
-	async create(data: Document) {
+	async create(data: {
+		fileName: string;
+		fileUrl: string;
+		type: DocumentType;
+		stdNo: number;
+	}) {
 		return withAuth(
-			async () => this.repository.create(data),
+			async () => this.repository.createWithDocument(data),
 			['admin', 'registry', 'student_services']
 		);
 	}
 
 	async delete(id: string) {
 		return withAuth(
-			async () => this.repository.delete(id),
+			async () => this.repository.removeById(id),
 			['admin', 'registry', 'student_services']
 		);
 	}

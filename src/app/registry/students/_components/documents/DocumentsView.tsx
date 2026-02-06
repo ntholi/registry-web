@@ -105,9 +105,9 @@ export default function DocumentsView({ stdNo, isActive }: DocumentsViewProps) {
 						<DocumentCard
 							key={doc.id}
 							id={doc.id}
-							fileName={doc.fileName}
-							type={doc.type}
-							createdAt={doc.createdAt}
+							fileName={doc.document.fileName}
+							type={doc.document.type}
+							createdAt={doc.document.createdAt}
 							canEdit={canEdit}
 							onDelete={handleDelete}
 						/>

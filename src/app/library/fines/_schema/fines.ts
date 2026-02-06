@@ -1,0 +1,46 @@
+import { paymentReceipts } from '@finance/payment-receipts/_schema/paymentReceipts';
+import { loans } from '@library/loans/_schema/loans';
+import { students } from '@registry/students/_schema/students';
+import {
+	bigint,
+	index,
+	integer,
+	pgEnum,
+	pgTable,
+	real,
+	text,
+	timestamp,
+} from 'drizzle-orm/pg-core';
+import { nanoid } from 'nanoid';
+
+export const fineStatus = pgEnum('fine_status', ['Unpaid', 'Paid']);
+export type FineStatus = (typeof fineStatus.enumValues)[number];
+
+export const fines = pgTable(
+	'fines',
+	{
+		id: text()
+			.primaryKey()
+			.$defaultFn(() => nanoid()),
+		loanId: text()
+			.references(() => loans.id, { onDelete: 'cascade' })
+			.notNull(),
+		stdNo: bigint({ mode: 'number' })
+			.references(() => students.stdNo, { onDelete: 'cascade' })
+			.notNull(),
+		amount: real().notNull(),
+		daysOverdue: integer().notNull(),
+		status: fineStatus().notNull().default('Unpaid'),
+		receiptId: text().references(() => paymentReceipts.id, {
+			onDelete: 'set null',
+		}),
+		createdAt: timestamp().defaultNow(),
+		paidAt: timestamp(),
+	},
+	(table) => ({
+		loanIdIdx: index('idx_fines_loan_id').on(table.loanId),
+		stdNoIdx: index('idx_fines_std_no').on(table.stdNo),
+		statusIdx: index('idx_fines_status').on(table.status),
+		receiptIdIdx: index('idx_fines_receipt_id').on(table.receiptId),
+	})
+);

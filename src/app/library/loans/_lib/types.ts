@@ -14,12 +14,12 @@ export interface LoanFilters {
 
 export interface LoanWithRelations extends Loan {
 	bookCopy: {
-		id: number;
+		id: string;
 		serialNumber: string;
 		condition: string;
 		location: string | null;
 		book: {
-			id: number;
+			id: string;
 			isbn: string;
 			title: string;
 			coverUrl: string | null;
@@ -48,15 +48,17 @@ export interface StudentSearchResult {
 }
 
 export interface BookSearchResult {
-	id: number;
+	id: string;
 	isbn: string;
 	title: string;
 	coverUrl: string | null;
 	availableCopies: number;
+	locations?: string[];
+	matchedCopy?: AvailableCopy;
 }
 
 export interface AvailableCopy {
-	id: number;
+	id: string;
 	serialNumber: string;
 	condition: string;
 	location: string | null;

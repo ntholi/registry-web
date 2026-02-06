@@ -11,20 +11,22 @@ type Props = {
 	params: Promise<{ id: string }>;
 };
 
-export default async function CategoryDetailsPage({ params }: Props) {
+export default async function CategoryDetails({ params }: Props) {
 	const { id } = await params;
-	const item = await getCategory(Number(id));
+	const item = await getCategory(id);
 
-	if (!item) return notFound();
+	if (!item) {
+		return notFound();
+	}
 
 	return (
 		<DetailsView>
 			<DetailsViewHeader
-				title='Category'
+				title={'Category'}
 				queryKey={['categories']}
 				handleDelete={async () => {
 					'use server';
-					await deleteCategory(Number(id));
+					await deleteCategory(id);
 				}}
 			/>
 			<DetailsViewBody>

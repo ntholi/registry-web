@@ -20,15 +20,15 @@ import { useForm } from '@mantine/form';
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { createAllocationWithSlot } from '@timetable/slots';
+import { createAllocationsWithSlots } from '@timetable/slots';
 import { ModuleSearchInput } from '@timetable/timetable-allocations';
 import { getAllVenues } from '@timetable/venues';
 import { zod4Resolver as zodResolver } from 'mantine-form-zod-resolver';
 import { useCallback, useState } from 'react';
 import { z } from 'zod';
+import { addMinutesToTime } from '@/shared/lib/utils/dates';
 import { toClassName as toClassNameShared } from '@/shared/lib/utils/utils';
 import DurationInput from '@/shared/ui/DurationInput';
-import { addMinutesToTime } from '../../_lib/utils';
 
 const daysOfWeek = [
 	{ value: 'monday', label: 'Mon' },
@@ -130,31 +130,31 @@ export default function AddSlotAllocationModal({
 				values.numberOfStudents / groups.length
 			);
 
-			const results = [];
-			for (const groupName of groups) {
-				const result = await createAllocationWithSlot(
-					{
-						userId,
-						termId,
-						semesterModuleId: values.semesterModuleId,
-						duration: values.duration,
-						classType: 'lecture',
-						numberOfStudents: studentsPerGroup,
-						groupName,
-						allowedDays: [values.dayOfWeek],
-						startTime: `${values.startTime}:00`,
-						endTime: endTime,
-					},
-					{
-						venueId: values.venueId,
-						dayOfWeek: values.dayOfWeek,
-						startTime: `${values.startTime}:00`,
-						endTime: endTime,
-					}
-				);
-				results.push(result);
+			const items = groups.map((groupName) => ({
+				allocation: {
+					userId,
+					termId,
+					semesterModuleId: values.semesterModuleId,
+					duration: values.duration,
+					classType: 'lecture' as const,
+					numberOfStudents: studentsPerGroup,
+					groupName,
+					allowedDays: [values.dayOfWeek],
+					startTime: `${values.startTime}:00`,
+					endTime: endTime,
+				},
+				slot: {
+					venueId: values.venueId,
+					dayOfWeek: values.dayOfWeek,
+					startTime: `${values.startTime}:00`,
+					endTime: endTime,
+				},
+			}));
+
+			const result = await createAllocationsWithSlots(items);
+			if (!result.success) {
+				throw new Error(result.error);
 			}
-			return results;
 		},
 		onSuccess: async () => {
 			await queryClient.invalidateQueries({
@@ -344,6 +344,8 @@ export default function AddSlotAllocationModal({
 						<Grid.Col span={6}>
 							<TimeInput
 								label='Start Time'
+								description='24hr format'
+								placeholder='HH:mm'
 								value={form.values.startTime}
 								onChange={(e) =>
 									form.setFieldValue('startTime', e.currentTarget.value)
@@ -353,7 +355,13 @@ export default function AddSlotAllocationModal({
 							/>
 						</Grid.Col>
 						<Grid.Col span={6}>
-							<TimeInput label='End Time' value={endTime} disabled />
+							<TimeInput
+								label='End Time'
+								description='24hr format'
+								placeholder='HH:mm'
+								value={endTime}
+								disabled
+							/>
 						</Grid.Col>
 					</Grid>
 

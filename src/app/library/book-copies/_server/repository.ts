@@ -10,14 +10,14 @@ export default class BookCopyRepository extends BaseRepository<
 		super(bookCopies, bookCopies.id);
 	}
 
-	async findByIdWithBook(id: number) {
+	async findByIdWithBook(id: string) {
 		return db.query.bookCopies.findFirst({
 			where: eq(bookCopies.id, id),
 			with: { book: true },
 		});
 	}
 
-	async findByBookId(bookId: number) {
+	async findByBookId(bookId: string) {
 		return db.query.bookCopies.findMany({
 			where: eq(bookCopies.bookId, bookId),
 			orderBy: bookCopies.serialNumber,
@@ -31,7 +31,7 @@ export default class BookCopyRepository extends BaseRepository<
 		});
 	}
 
-	async updateStatus(id: number, status: 'Available' | 'OnLoan' | 'Withdrawn') {
+	async updateStatus(id: string, status: 'Available' | 'OnLoan' | 'Withdrawn') {
 		const [updated] = await db
 			.update(bookCopies)
 			.set({ status })

@@ -6,18 +6,23 @@ import {
 	AccordionItem,
 	AccordionPanel,
 	ActionIcon,
+	Box,
+	Card,
+	Divider,
 	Grid,
 	GridCol,
 	Group,
 	Paper,
 	Stack,
-	Textarea,
+	Text,
 	Tooltip,
 } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
+import ClearanceComments from '@registry/_components/ClearanceComments';
 import { IconCopy } from '@tabler/icons-react';
 import { useState } from 'react';
 import { formatDateTime } from '@/shared/lib/utils/dates';
+import { formatSemester, toTitleCase } from '@/shared/lib/utils/utils';
 import { FieldView } from '@/shared/ui/adease';
 import Link from '@/shared/ui/Link';
 import type { getClearance } from '../../requests/_server/clearance/actions';
@@ -39,7 +44,7 @@ export default function ClearanceDetails({ request }: Props) {
 		<Stack p='lg'>
 			<Grid>
 				<GridCol span={{ base: 12, md: 7 }}>
-					<Paper withBorder p='md'>
+					<Paper withBorder p='md' pb={'xl'}>
 						<Stack>
 							<FieldView label='Student Number' underline={false}>
 								<Group justify='space-between'>
@@ -70,9 +75,11 @@ export default function ClearanceDetails({ request }: Props) {
 								{request.programName}
 							</FieldView>
 							<SponsorInfo
-								stdNo={request.registrationRequest.stdNo}
-								termId={request.registrationRequest.termId}
+								sponsorship={request.registrationRequest.sponsoredStudent}
 							/>
+							<FieldView label='Semester' underline={false}>
+								{formatSemester(request.registrationRequest.semesterNumber)}
+							</FieldView>
 						</Stack>
 					</Paper>
 				</GridCol>
@@ -82,6 +89,28 @@ export default function ClearanceDetails({ request }: Props) {
 						setAccordion={setAccordion}
 						comment={comment}
 					/>
+
+					{request.registrationRequest.registrationRequestReceipts.length >
+						0 && (
+						<Paper withBorder p='md' mt='md'>
+							<Text>Receipts</Text>
+							<Divider mb='xs' />
+							<Box>
+								{request.registrationRequest.registrationRequestReceipts.map(
+									(rr) => (
+										<Card key={rr.receiptId}>
+											<Text size='sm' c={'teal'}>
+												{rr.receipt.receiptNo}
+											</Text>
+											<Text size='xs' c='dimmed'>
+												{toTitleCase(rr.receipt.receiptType)}
+											</Text>
+										</Card>
+									)
+								)}
+							</Box>
+						</Paper>
+					)}
 				</GridCol>
 			</Grid>
 			<Accordion
@@ -92,12 +121,7 @@ export default function ClearanceDetails({ request }: Props) {
 				<AccordionItem value='comments'>
 					<AccordionControl>Comments</AccordionControl>
 					<AccordionPanel>
-						<Textarea
-							value={comment}
-							description='Optional '
-							onChange={(e) => setComment(e.currentTarget.value)}
-							placeholder='Why is the student not cleared?'
-						/>
+						<ClearanceComments value={comment} onChange={setComment} />
 					</AccordionPanel>
 				</AccordionItem>
 				<AccordionItem value='modules'>

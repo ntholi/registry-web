@@ -40,6 +40,13 @@ class SchoolService {
 		);
 	}
 
+	async getAllProgramsWithLevel() {
+		return withAuth(
+			async () => this.repository.getAllProgramsWithLevel(),
+			['dashboard']
+		);
+	}
+
 	async getProgramsBySchoolIds(schoolIds?: number[]) {
 		return withAuth(
 			async () => this.repository.getProgramsBySchoolIds(schoolIds),

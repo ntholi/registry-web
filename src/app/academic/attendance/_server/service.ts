@@ -2,6 +2,7 @@ import { getActiveTerm } from '@/app/registry/terms';
 import type { AttendanceStatus } from '@/core/database';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
 import withAuth from '@/core/platform/withAuth';
+import { createAttendanceExcel } from './excel';
 import AttendanceRepository from './repository';
 
 class AttendanceService {
@@ -71,8 +72,10 @@ class AttendanceService {
 	}
 
 	async getAssignedModulesForCurrentUser(userId: string) {
+		const term = await getActiveTerm();
 		return withAuth(
-			async () => this.repository.getAssignedModulesWithDetails(userId),
+			async () =>
+				this.repository.getAssignedModulesWithDetails(userId, term.id),
 			['academic']
 		);
 	}
@@ -91,6 +94,39 @@ class AttendanceService {
 				),
 			['academic']
 		);
+	}
+
+	async exportAttendanceForm(
+		semesterModuleId: number,
+		termId: number,
+		moduleCode: string,
+		moduleName: string,
+		className: string,
+		lecturerName: string
+	) {
+		return withAuth(async () => {
+			const term = await this.repository.getTermInfo(termId);
+			if (!term) {
+				throw new Error('Term not found');
+			}
+			const weeks = await this.repository.getWeeksForTerm(termId);
+			const summary = await this.repository.getAttendanceSummaryForModule(
+				semesterModuleId,
+				termId,
+				term.code
+			);
+			const buffer = await createAttendanceExcel({
+				moduleCode,
+				moduleName,
+				className,
+				lecturerName,
+				termName: term.name ?? term.code,
+				termCode: term.code,
+				weeks,
+				students: summary,
+			});
+			return { buffer, termCode: term.code };
+		}, ['academic']);
 	}
 }
 

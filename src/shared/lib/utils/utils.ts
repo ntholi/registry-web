@@ -125,13 +125,20 @@ export function toClassName(programCode: string, semesterName: string) {
 	return `${programCode}Y${year}S${semester}`;
 }
 
-export function getStudentClassName(structureSemester: {
-	semesterNumber: string;
-	structure: { program: { code: string } };
-}) {
+export function getStudentClassName(
+	structureSemester:
+		| {
+				semesterNumber: string;
+				structure?: { program: { code: string } } | null;
+		  }
+		| null
+		| undefined,
+	groupName?: string | null
+) {
+	if (!structureSemester?.structure) return 'Unknown Class';
 	const code = structureSemester.structure.program.code;
 	const num = structureSemester.semesterNumber;
-	return `${code}${formatSemester(num, 'mini')}`;
+	return `${code}${formatSemester(num, 'mini')}${groupName ?? ''}`;
 }
 
 export function formatPhoneNumber(phone: string | null | undefined) {
@@ -216,4 +223,32 @@ export function formatCurrency(
 ) {
 	if (amount === null || amount === undefined) return `${currency} 0.00`;
 	return `${currency} ${amount.toFixed(2)}`;
+}
+
+function normalizeNameParts(name: string): string[] {
+	return name
+		.toLowerCase()
+		.replace(/[^a-z\s]/g, '')
+		.split(/\s+/)
+		.filter((part) => part.length > 0);
+}
+
+export function namesMatch(
+	applicantName: string,
+	documentName: string
+): boolean {
+	const applicantParts = normalizeNameParts(applicantName);
+	const documentParts = normalizeNameParts(documentName);
+
+	if (applicantParts.length === 0 || documentParts.length === 0) {
+		return false;
+	}
+
+	const applicantSet = new Set(applicantParts);
+	const documentSet = new Set(documentParts);
+
+	const matchingParts = applicantParts.filter((part) => documentSet.has(part));
+	const minRequiredMatches = Math.min(applicantSet.size, documentSet.size, 2);
+
+	return matchingParts.length >= minRequiredMatches;
 }

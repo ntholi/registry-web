@@ -1,0 +1,1 @@
+ALTER TABLE "library_resources" DROP COLUMN "is_downloadable";

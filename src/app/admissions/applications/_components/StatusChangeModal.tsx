@@ -11,7 +11,7 @@ import type { ApplicationStatus } from '../_lib/types';
 import { changeApplicationStatus } from '../_server/actions';
 
 type Props = {
-	applicationId: number;
+	applicationId: string;
 	currentStatus: ApplicationStatus;
 };
 

@@ -1,0 +1,1 @@
+ALTER TABLE "academic_records" ADD COLUMN "certificate_number" text;

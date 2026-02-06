@@ -20,7 +20,7 @@ export async function findAllVenues(page = 1, search = '') {
 }
 
 export async function getAllVenues() {
-	return service.getAll();
+	return service.getAllWithRelations();
 }
 
 export async function createVenue(venue: VenueInsert, schoolIds: number[]) {

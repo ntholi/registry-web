@@ -68,6 +68,7 @@ export default class StudentRepository extends BaseRepository<
 										id: true,
 										name: true,
 										code: true,
+										level: true,
 									},
 									with: {
 										school: {
@@ -96,12 +97,14 @@ export default class StudentRepository extends BaseRepository<
 										semesterNumber: true,
 									},
 								},
-								registrationRequest: {
+								registrationRequests: {
 									columns: {
 										id: true,
 										createdAt: true,
 										dateRegistered: true,
 									},
+									orderBy: (rr, { desc }) => [desc(rr.createdAt)],
+									limit: 1,
 								},
 								studentModules: {
 									columns: {
@@ -164,6 +167,7 @@ export default class StudentRepository extends BaseRepository<
 										id: true,
 										name: true,
 										code: true,
+										level: true,
 									},
 									with: {
 										school: {
@@ -191,12 +195,14 @@ export default class StudentRepository extends BaseRepository<
 										semesterNumber: true,
 									},
 								},
-								registrationRequest: {
+								registrationRequests: {
 									columns: {
 										id: true,
 										createdAt: true,
 										dateRegistered: true,
 									},
+									orderBy: (rr, { desc }) => [desc(rr.createdAt)],
+									limit: 1,
 								},
 								studentModules: {
 									columns: {
@@ -514,6 +520,7 @@ export default class StudentRepository extends BaseRepository<
 										id: true,
 										name: true,
 										code: true,
+										level: true,
 									},
 									with: {
 										school: {

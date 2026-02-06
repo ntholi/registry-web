@@ -12,23 +12,26 @@ class AcademicRecordService extends BaseService<typeof academicRecords, 'id'> {
 	constructor() {
 		const repo = new AcademicRecordRepository();
 		super(repo, {
-			byIdRoles: ['registry', 'admin'],
-			findAllRoles: ['registry', 'admin'],
-			createRoles: ['registry', 'admin'],
-			updateRoles: ['registry', 'admin'],
-			deleteRoles: ['registry', 'admin'],
+			byIdRoles: ['registry', 'marketing', 'admin'],
+			findAllRoles: ['registry', 'marketing', 'admin'],
+			createRoles: ['registry', 'marketing', 'admin'],
+			updateRoles: ['registry', 'marketing', 'admin'],
+			deleteRoles: ['registry', 'marketing', 'admin'],
 		});
 		this.repo = repo;
 	}
 
-	override async get(id: number) {
-		return withAuth(async () => this.repo.findById(id), ['registry', 'admin']);
+	override async get(id: string) {
+		return withAuth(
+			async () => this.repo.findById(id),
+			['registry', 'marketing', 'admin', 'applicant']
+		);
 	}
 
 	async findByApplicant(applicantId: string, page = 1) {
 		return withAuth(
 			async () => this.repo.findByApplicant(applicantId, page),
-			['registry', 'admin']
+			['registry', 'marketing', 'admin', 'applicant']
 		);
 	}
 
@@ -38,55 +41,85 @@ class AcademicRecordService extends BaseService<typeof academicRecords, 'id'> {
 		grades?: SubjectGradeInput[]
 	) {
 		return withAuth(async () => {
-			let mappedGrades:
+			let preparedGrades:
 				| {
-						subjectId: number;
+						subjectId: string;
 						originalGrade: string;
-						standardGrade: StandardGrade;
+						standardGrade: StandardGrade | null;
 				  }[]
 				| undefined;
 
-			if (isLevel4 && grades && grades.length > 0) {
-				mappedGrades = await mapGradesToStandard(
-					grades,
-					data.certificateTypeId
-				);
+			if (grades && grades.length > 0) {
+				if (isLevel4) {
+					preparedGrades = await mapGradesToStandard(
+						grades,
+						data.certificateTypeId
+					);
+				} else {
+					preparedGrades = grades.map((g) => ({
+						subjectId: g.subjectId,
+						originalGrade: g.originalGrade,
+						standardGrade: null,
+					}));
+				}
 			}
 
-			return this.repo.createWithGrades(data, mappedGrades);
-		}, ['registry', 'admin']);
+			return this.repo.createWithGrades(data, preparedGrades);
+		}, ['registry', 'marketing', 'admin', 'applicant']);
 	}
 
 	async updateWithGrades(
-		id: number,
+		id: string,
 		data: Partial<typeof academicRecords.$inferInsert>,
 		isLevel4: boolean,
 		grades?: SubjectGradeInput[]
 	) {
 		return withAuth(async () => {
-			let mappedGrades:
+			let preparedGrades:
 				| {
-						subjectId: number;
+						subjectId: string;
 						originalGrade: string;
-						standardGrade: StandardGrade;
+						standardGrade: StandardGrade | null;
 				  }[]
 				| undefined;
 
-			if (isLevel4 && grades !== undefined && data.certificateTypeId) {
-				mappedGrades =
-					grades.length > 0
-						? await mapGradesToStandard(grades, data.certificateTypeId)
-						: [];
+			if (grades !== undefined && data.certificateTypeId) {
+				if (isLevel4) {
+					preparedGrades =
+						grades.length > 0
+							? await mapGradesToStandard(grades, data.certificateTypeId)
+							: [];
+				} else {
+					preparedGrades = grades.map((g) => ({
+						subjectId: g.subjectId,
+						originalGrade: g.originalGrade,
+						standardGrade: null,
+					}));
+				}
 			}
 
-			return this.repo.updateWithGrades(id, data, mappedGrades);
-		}, ['registry', 'admin']);
+			return this.repo.updateWithGrades(id, data, preparedGrades);
+		}, ['registry', 'marketing', 'admin']);
 	}
 
-	override async delete(id: number) {
+	override async delete(id: string) {
 		return withAuth(
 			async () => this.repo.removeById(id),
-			['registry', 'admin']
+			['registry', 'marketing', 'admin', 'applicant']
+		);
+	}
+
+	async findByCertificateNumber(certificateNumber: string) {
+		return withAuth(
+			async () => this.repo.findByCertificateNumber(certificateNumber),
+			['registry', 'marketing', 'admin', 'applicant']
+		);
+	}
+
+	async linkDocument(academicRecordId: string, applicantDocumentId: string) {
+		return withAuth(
+			async () => this.repo.linkDocument(academicRecordId, applicantDocumentId),
+			['registry', 'marketing', 'admin', 'applicant']
 		);
 	}
 }

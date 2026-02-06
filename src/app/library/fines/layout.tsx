@@ -11,8 +11,8 @@ import type { FineStatus } from './_lib/types';
 import { getFines } from './_server/actions';
 
 type FineListItem = {
-	id: number;
-	loanId: number;
+	id: string;
+	loanId: string;
 	stdNo: number;
 	amount: number;
 	daysOverdue: number;
@@ -52,7 +52,7 @@ export default function FinesLayout({ children }: PropsWithChildren) {
 				<Select
 					key='status-filter'
 					size='xs'
-					w={120}
+					w={80}
 					placeholder='Filter'
 					value={statusFilter || 'all'}
 					onChange={handleStatusChange}

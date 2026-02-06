@@ -149,11 +149,12 @@ export default class AssignedModuleRepository extends BaseRepository<
 		return Array.from(groupedResults.values());
 	}
 
-	async findByUser(userId: string) {
+	async findByUser(userId: string, termId?: number) {
 		return await db.query.assignedModules.findMany({
 			where: and(
 				eq(assignedModules.userId, userId),
-				eq(assignedModules.active, true)
+				eq(assignedModules.active, true),
+				eq(assignedModules.termId, termId ?? assignedModules.termId)
 			),
 			with: {
 				semesterModule: {

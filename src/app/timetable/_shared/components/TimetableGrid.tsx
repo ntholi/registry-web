@@ -79,24 +79,6 @@ const DAY_LABELS: Record<(typeof DAYS)[number], string> = {
 	friday: 'Friday',
 };
 
-function toClassName(
-	semesterModule: {
-		semester?: {
-			semesterNumber: string;
-			structure?: {
-				program: {
-					code: string;
-				};
-			};
-		} | null;
-	},
-	groupName: string | null
-) {
-	if (!semesterModule.semester || !semesterModule.semester.structure)
-		return 'Unknown';
-	return `${getStudentClassName(semesterModule.semester as { semesterNumber: string; structure: { program: { code: string } } })}${groupName ? `${groupName}` : ''}`;
-}
-
 type GroupedModule = {
 	moduleCode: string;
 	moduleName: string;
@@ -116,8 +98,8 @@ function groupAllocationsByModule(slot: TimetableSlotData): GroupedModule[] {
 		const moduleName = allocation.semesterModule.module.name;
 		const moduleCode = allocation.semesterModule.module.code;
 		const classType = allocation.classType;
-		const className = toClassName(
-			allocation.semesterModule,
+		const className = getStudentClassName(
+			allocation.semesterModule.semester,
 			allocation.groupName
 		);
 		const lecturerName = allocation.user.name || 'Unknown';
@@ -195,7 +177,7 @@ export default function TimetableGrid({
 	}
 
 	return (
-		<Box p='md'>
+		<Box p='xl' pt={'xs'}>
 			<Table
 				withTableBorder
 				withColumnBorders

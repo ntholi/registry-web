@@ -1,11 +1,12 @@
 'use server';
 
 import type { entryRequirements } from '@/core/database';
+import type { EntryRequirementFilter } from '../_lib/types';
 import { entryRequirementsService } from './service';
 
 type EntryRequirement = typeof entryRequirements.$inferInsert;
 
-export async function getEntryRequirement(id: number) {
+export async function getEntryRequirement(id: string) {
 	return entryRequirementsService.get(id);
 }
 
@@ -13,8 +14,32 @@ export async function findAllEntryRequirements(page = 1, search = '') {
 	return entryRequirementsService.findAllWithRelations(page, search);
 }
 
+export async function findProgramsWithRequirements(
+	page = 1,
+	search = '',
+	filter?: EntryRequirementFilter
+) {
+	return entryRequirementsService.findProgramsWithRequirements(
+		page,
+		search,
+		filter
+	);
+}
+
 export async function findEntryRequirementsByProgram(programId: number) {
 	return entryRequirementsService.findByProgram(programId);
+}
+
+export async function findEntryRequirementsForEligibility() {
+	return entryRequirementsService.findAllForEligibility();
+}
+
+export async function getPublicCoursesData(
+	page = 1,
+	search = '',
+	filter?: EntryRequirementFilter
+) {
+	return entryRequirementsService.findPublicCoursesData(page, search, filter);
 }
 
 export async function createEntryRequirement(data: EntryRequirement) {
@@ -22,12 +47,12 @@ export async function createEntryRequirement(data: EntryRequirement) {
 }
 
 export async function updateEntryRequirement(
-	id: number,
+	id: string,
 	data: EntryRequirement
 ) {
 	return entryRequirementsService.update(id, data);
 }
 
-export async function deleteEntryRequirement(id: number) {
+export async function deleteEntryRequirement(id: string) {
 	return entryRequirementsService.delete(id);
 }

@@ -1,16 +1,11 @@
 import { countUncompletedTasks } from '@admin/tasks';
 import {
 	IconBell,
-	IconBook,
-	IconBooks,
-	IconBuildingBank,
 	IconCalculator,
-	IconChartBar,
 	IconChecklist,
 	IconFileExport,
 	IconFlask,
 	IconPackage,
-	IconSchool,
 	IconSearch,
 	IconSettings,
 	IconUserShield,
@@ -53,31 +48,6 @@ export const adminConfig: ModuleConfig = {
 				roles: ['admin'],
 			},
 			{
-				label: 'Modules',
-				href: '/academic/modules',
-				icon: IconBook,
-				roles: ['admin'],
-			},
-			{
-				label: 'Semester Modules',
-				href: '/academic/semester-modules',
-				icon: IconBooks,
-				roles: ['admin'],
-			},
-
-			{
-				label: 'Sponsors',
-				href: '/finance/sponsors',
-				icon: IconBuildingBank,
-				roles: ['admin', 'finance'],
-			},
-			{
-				label: 'Schools',
-				href: '/academic/schools',
-				icon: IconSchool,
-				roles: ['registry', 'admin', 'academic', 'finance', 'student_services'],
-			},
-			{
 				label: 'Tools',
 				icon: IconSettings,
 				collapsed: true,
@@ -111,11 +81,6 @@ export const adminConfig: ModuleConfig = {
 						icon: IconFileExport,
 					},
 				] as NavItem[],
-			},
-			{
-				label: 'Reports',
-				icon: IconChartBar,
-				children: [] as NavItem[],
 			},
 		],
 	},

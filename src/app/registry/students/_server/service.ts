@@ -83,6 +83,7 @@ class StudentService {
 						'student_services',
 						'academic',
 						'resource',
+						'marketing',
 					].includes(session.user.role)
 				) {
 					return true;

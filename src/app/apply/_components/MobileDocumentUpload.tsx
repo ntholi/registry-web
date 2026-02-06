@@ -1,0 +1,550 @@
+'use client';
+
+import {
+	Button,
+	Grid,
+	Paper,
+	Progress,
+	rem,
+	Stack,
+	Text,
+	ThemeIcon,
+} from '@mantine/core';
+import { useDisclosure } from '@mantine/hooks';
+import { notifications } from '@mantine/notifications';
+import {
+	IconCamera,
+	IconFile,
+	IconFileTypePdf,
+	IconFileUpload,
+	IconId,
+	IconPhoto,
+	IconSchool,
+	IconTrash,
+} from '@tabler/icons-react';
+import { useRef, useState } from 'react';
+import type {
+	CertificateDocumentResult,
+	DocumentAnalysisResult,
+	IdentityDocumentResult,
+	ReceiptResult,
+} from '@/core/integrations/ai/documents';
+import { CameraCapture } from '../../../shared/ui/CameraModal';
+import { CertificateConfirmationModal } from './CertificateConfirmationModal';
+import { IdentityConfirmationModal } from './IdentityConfirmationModal';
+import { ReceiptConfirmationModal } from './ReceiptConfirmationModal';
+
+export type DocumentUploadType = 'identity' | 'certificate' | 'receipt' | 'any';
+
+export type UploadState = 'idle' | 'uploading' | 'reading' | 'ready' | 'error';
+
+type AnalysisResultMap = {
+	identity: IdentityDocumentResult;
+	certificate: CertificateDocumentResult;
+	receipt: ReceiptResult;
+	any: DocumentAnalysisResult;
+};
+
+export type DocumentUploadResult<T extends DocumentUploadType> = {
+	file: File;
+	base64: string;
+	analysis: AnalysisResultMap[T];
+};
+
+type BaseProps = {
+	onRemove?: () => void;
+	disabled?: boolean;
+	maxSize?: number;
+	title?: string;
+	description?: string;
+};
+
+type IdentityProps = BaseProps & {
+	type: 'identity';
+	onUploadComplete: (result: DocumentUploadResult<'identity'>) => void;
+	certificateTypes?: never;
+	applicantName?: never;
+};
+
+type CertificateProps = BaseProps & {
+	type: 'certificate';
+	onUploadComplete: (result: DocumentUploadResult<'certificate'>) => void;
+	certificateTypes?: string[];
+	applicantName?: string;
+};
+
+type ReceiptProps = BaseProps & {
+	type: 'receipt';
+	onUploadComplete: (result: DocumentUploadResult<'receipt'>) => void;
+	certificateTypes?: never;
+	applicantName?: never;
+};
+
+type AnyProps = BaseProps & {
+	type: 'any';
+	onUploadComplete: (result: DocumentUploadResult<'any'>) => void;
+	certificateTypes?: string[];
+	applicantName?: string;
+};
+
+type Props = IdentityProps | CertificateProps | ReceiptProps | AnyProps;
+
+const ACCEPTED_TYPES = 'image/*,application/pdf';
+const MAX_FILE_SIZE = 2 * 1024 * 1024;
+
+function formatFileSize(bytes: number): string {
+	if (bytes === 0) return '0 B';
+	const units = ['B', 'KB', 'MB', 'GB'];
+	const exp = Math.min(
+		Math.floor(Math.log(bytes) / Math.log(1024)),
+		units.length - 1
+	);
+	const val = bytes / 1024 ** exp;
+	return `${val.toFixed(val < 10 && exp > 0 ? 1 : 0)} ${units[exp]}`;
+}
+
+const ICON_MAP = {
+	identity: IconId,
+	certificate: IconSchool,
+	receipt: IconFileUpload,
+	any: IconFileUpload,
+} as const;
+
+export function MobileDocumentUpload({
+	type,
+	onUploadComplete,
+	onRemove,
+	disabled,
+	maxSize = MAX_FILE_SIZE,
+	certificateTypes,
+	title,
+	description,
+	applicantName,
+}: Props) {
+	const [file, setFile] = useState<File | null>(null);
+	const [uploadState, setUploadState] = useState<UploadState>('idle');
+	const [errorMessage, setErrorMessage] = useState<string | null>(null);
+	const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+	const [pendingResult, setPendingResult] = useState<DocumentUploadResult<
+		typeof type
+	> | null>(null);
+	const [
+		confirmModalOpened,
+		{ open: openConfirmModal, close: closeConfirmModal },
+	] = useDisclosure(false);
+	const galleryInputRef = useRef<HTMLInputElement>(null);
+
+	const IdleIcon = ICON_MAP[type];
+
+	async function processFile(selectedFile: File, skipEarlyState = false) {
+		if (selectedFile.size > maxSize) {
+			notifications.show({
+				title: 'File too large',
+				message: `Please upload a file under ${formatFileSize(maxSize)}`,
+				color: 'red',
+			});
+			return;
+		}
+
+		const isValidType =
+			selectedFile.type.startsWith('image/') ||
+			selectedFile.type === 'application/pdf';
+		if (!isValidType) {
+			notifications.show({
+				title: 'Invalid file type',
+				message: 'Please upload a PDF or image file',
+				color: 'red',
+			});
+			return;
+		}
+
+		if (!skipEarlyState) {
+			setFile(selectedFile);
+			setUploadState('uploading');
+			setErrorMessage(null);
+
+			if (selectedFile.type.startsWith('image/')) {
+				setPreviewUrl(URL.createObjectURL(selectedFile));
+			} else {
+				setPreviewUrl(null);
+			}
+		}
+
+		const arrayBuffer = await selectedFile.arrayBuffer();
+		const uint8Array = new Uint8Array(arrayBuffer);
+		const charArray = Array.from(uint8Array, (byte) =>
+			String.fromCharCode(byte)
+		);
+		const binaryString = charArray.join('');
+		const base64 = btoa(binaryString);
+
+		if (!skipEarlyState) {
+			setUploadState('reading');
+		}
+
+		if (type === 'identity') {
+			const response = await fetch('/api/documents/analyze', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({
+					type: 'identity',
+					base64,
+					mediaType: selectedFile.type,
+				}),
+			});
+			const result = await response.json();
+			if (!result.success) {
+				setFile(selectedFile);
+				setErrorMessage(result.error);
+				setUploadState('error');
+				notifications.show({
+					title: 'Processing Failed',
+					message: result.error,
+					color: 'red',
+				});
+				return;
+			}
+			setFile(selectedFile);
+			setUploadState('ready');
+			const uploadResult: DocumentUploadResult<'identity'> = {
+				file: selectedFile,
+				base64,
+				analysis: result.data,
+			};
+			setPendingResult(uploadResult as DocumentUploadResult<typeof type>);
+			openConfirmModal();
+		} else if (type === 'certificate') {
+			const response = await fetch('/api/documents/analyze', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({
+					type: 'academic',
+					base64,
+					mediaType: selectedFile.type,
+					certificateTypes,
+					applicantName,
+				}),
+			});
+			const result = await response.json();
+			if (!result.success) {
+				setFile(selectedFile);
+				setErrorMessage(result.error);
+				setUploadState('error');
+				notifications.show({
+					title: 'Processing Failed',
+					message: result.error,
+					color: 'red',
+				});
+				return;
+			}
+			setFile(selectedFile);
+			setUploadState('ready');
+			const uploadResult: DocumentUploadResult<'certificate'> = {
+				file: selectedFile,
+				base64,
+				analysis: result.data,
+			};
+			setPendingResult(uploadResult as DocumentUploadResult<typeof type>);
+			openConfirmModal();
+		} else if (type === 'receipt') {
+			const response = await fetch('/api/documents/analyze', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({
+					type: 'receipt',
+					base64,
+					mediaType: selectedFile.type,
+				}),
+			});
+			const result = await response.json();
+			if (!result.success) {
+				setFile(selectedFile);
+				setErrorMessage(result.error);
+				setUploadState('error');
+				notifications.show({
+					title: 'Processing Failed',
+					message: result.error,
+					color: 'red',
+				});
+				return;
+			}
+			setFile(selectedFile);
+			setUploadState('ready');
+			const uploadResult: DocumentUploadResult<'receipt'> = {
+				file: selectedFile,
+				base64,
+				analysis: result.data,
+			};
+			setPendingResult(uploadResult as DocumentUploadResult<typeof type>);
+			openConfirmModal();
+		} else {
+			const response = await fetch('/api/documents/analyze', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({
+					type: 'any',
+					base64,
+					mediaType: selectedFile.type,
+				}),
+			});
+			const result = await response.json();
+			if (!result.success) {
+				setFile(selectedFile);
+				setErrorMessage(result.error);
+				setUploadState('error');
+				notifications.show({
+					title: 'Processing Failed',
+					message: result.error,
+					color: 'red',
+				});
+				return;
+			}
+			setFile(selectedFile);
+			setUploadState('ready');
+			(onUploadComplete as (r: DocumentUploadResult<'any'>) => void)({
+				file: selectedFile,
+				base64,
+				analysis: result.data,
+			});
+		}
+	}
+
+	async function handleCameraCapture(capturedFile: File) {
+		await processFile(capturedFile, true);
+	}
+
+	function handleConfirm() {
+		if (!pendingResult) return;
+		if (type === 'identity') {
+			(onUploadComplete as (r: DocumentUploadResult<'identity'>) => void)(
+				pendingResult as DocumentUploadResult<'identity'>
+			);
+		} else if (type === 'certificate') {
+			(onUploadComplete as (r: DocumentUploadResult<'certificate'>) => void)(
+				pendingResult as DocumentUploadResult<'certificate'>
+			);
+		} else if (type === 'receipt') {
+			(onUploadComplete as (r: DocumentUploadResult<'receipt'>) => void)(
+				pendingResult as DocumentUploadResult<'receipt'>
+			);
+		}
+		closeConfirmModal();
+		setPendingResult(null);
+	}
+
+	function handleCancelConfirm() {
+		closeConfirmModal();
+		setPendingResult(null);
+		handleRemove();
+	}
+
+	function handleFileChange(event: React.ChangeEvent<HTMLInputElement>) {
+		const files = event.target.files;
+		if (files && files.length > 0) {
+			processFile(files[0], false);
+		}
+		event.target.value = '';
+	}
+
+	function handleGalleryClick() {
+		galleryInputRef.current?.click();
+	}
+
+	function handleRemove() {
+		if (previewUrl) {
+			URL.revokeObjectURL(previewUrl);
+		}
+		setFile(null);
+		setUploadState('idle');
+		setErrorMessage(null);
+		setPreviewUrl(null);
+		onRemove?.();
+	}
+
+	function getFileIcon() {
+		if (!file) return <IdleIcon size={52} stroke={1.5} />;
+		if (file.type === 'application/pdf')
+			return <IconFileTypePdf size={40} stroke={1.5} />;
+		if (file.type.startsWith('image/'))
+			return <IconPhoto size={40} stroke={1.5} />;
+		return <IconFile size={40} stroke={1.5} />;
+	}
+
+	function getStatusMessage(): string {
+		switch (uploadState) {
+			case 'uploading':
+				return 'Uploading document...';
+			case 'reading':
+				return 'Reading document...';
+			case 'ready':
+				return 'Document processed successfully';
+			case 'error':
+				return errorMessage ?? 'An error occurred';
+			default:
+				return '';
+		}
+	}
+
+	function getStatusColor(): string {
+		switch (uploadState) {
+			case 'ready':
+				return 'green';
+			case 'error':
+				return 'red';
+			default:
+				return 'blue';
+		}
+	}
+
+	const isProcessing = uploadState === 'uploading' || uploadState === 'reading';
+
+	const identityAnalysis =
+		type === 'identity' && pendingResult
+			? (pendingResult as DocumentUploadResult<'identity'>).analysis
+			: null;
+	const certificateAnalysis =
+		type === 'certificate' && pendingResult
+			? (pendingResult as DocumentUploadResult<'certificate'>).analysis
+			: null;
+	const receiptAnalysis =
+		type === 'receipt' && pendingResult
+			? (pendingResult as DocumentUploadResult<'receipt'>).analysis
+			: null;
+
+	if (file) {
+		return (
+			<>
+				<IdentityConfirmationModal
+					opened={confirmModalOpened && type === 'identity'}
+					onClose={handleCancelConfirm}
+					onConfirm={handleConfirm}
+					analysis={identityAnalysis}
+				/>
+				<CertificateConfirmationModal
+					opened={confirmModalOpened && type === 'certificate'}
+					onClose={handleCancelConfirm}
+					onConfirm={handleConfirm}
+					analysis={certificateAnalysis}
+				/>
+				<ReceiptConfirmationModal
+					opened={confirmModalOpened && type === 'receipt'}
+					onClose={handleCancelConfirm}
+					onConfirm={handleConfirm}
+					analysis={receiptAnalysis}
+				/>
+				<Paper withBorder radius='md' p='xl'>
+					<Stack gap='md' align='center' mih={rem(180)} justify='center'>
+						<ThemeIcon
+							variant='light'
+							size={80}
+							radius='md'
+							color={getStatusColor()}
+						>
+							{getFileIcon()}
+						</ThemeIcon>
+
+						<Stack gap={4} align='center'>
+							<Text size='sm' fw={600} ta='center' maw={300} truncate='end'>
+								{file.name}
+							</Text>
+							<Text size='sm' c='dimmed'>
+								{formatFileSize(file.size)}
+							</Text>
+						</Stack>
+
+						{isProcessing && (
+							<Stack gap='xs' w='100%'>
+								<Progress radius='xs' value={100} animated />
+								<Text size='xs' c='dimmed' ta='center'>
+									{getStatusMessage()}
+								</Text>
+							</Stack>
+						)}
+
+						{(uploadState === 'ready' || uploadState === 'error') && (
+							<Text size='xs' c={getStatusColor()} ta='center'>
+								{getStatusMessage()}
+							</Text>
+						)}
+
+						{!isProcessing && uploadState === 'error' && (
+							<Button
+								variant='light'
+								color='red'
+								size='sm'
+								leftSection={<IconTrash size={16} />}
+								onClick={handleRemove}
+								mt='xs'
+							>
+								Remove File
+							</Button>
+						)}
+					</Stack>
+				</Paper>
+			</>
+		);
+	}
+
+	return (
+		<Paper withBorder radius='md' p='md'>
+			<Stack gap='md'>
+				<Stack gap={4} ta='center'>
+					<ThemeIcon
+						variant='light'
+						size={60}
+						radius='md'
+						color='var(--mantine-color-dimmed)'
+						mx='auto'
+					>
+						<IdleIcon size={32} stroke={1.5} />
+					</ThemeIcon>
+					<Text size='md' fw={500}>
+						{title ?? 'Upload Document'}
+					</Text>
+					<Text size='sm' c='dimmed'>
+						{description ?? `PDF or images • Max ${formatFileSize(maxSize)}`}
+					</Text>
+				</Stack>
+
+				<Grid>
+					<Grid.Col span={5}>
+						<Button
+							variant='default'
+							fullWidth
+							size='md'
+							onClick={handleGalleryClick}
+							disabled={disabled || isProcessing}
+						>
+							Phone
+						</Button>
+					</Grid.Col>
+					<Grid.Col span={7}>
+						<CameraCapture onCapture={handleCameraCapture} disabled={disabled}>
+							{({ openCamera, isProcessing: cameraProcessing }) => (
+								<Button
+									fullWidth
+									variant='light'
+									size='md'
+									leftSection={<IconCamera size={'1rem'} />}
+									onClick={openCamera}
+									disabled={disabled || isProcessing || cameraProcessing}
+									loading={cameraProcessing}
+								>
+									Camera
+								</Button>
+							)}
+						</CameraCapture>
+					</Grid.Col>
+				</Grid>
+
+				<input
+					ref={galleryInputRef}
+					type='file'
+					accept={ACCEPTED_TYPES}
+					onChange={handleFileChange}
+					style={{ display: 'none' }}
+				/>
+			</Stack>
+		</Paper>
+	);
+}

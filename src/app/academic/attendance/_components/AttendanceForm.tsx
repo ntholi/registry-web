@@ -1,47 +1,47 @@
 'use client';
 
 import {
-	ActionIcon,
-	Button,
+	Anchor,
+	Flex,
 	Group,
-	Menu,
 	Paper,
 	SegmentedControl,
+	Skeleton,
 	Stack,
 	Table,
 	Text,
 	TextInput,
-	Tooltip,
 } from '@mantine/core';
 import { useDebouncedValue } from '@mantine/hooks';
-import { modals } from '@mantine/modals';
 import { notifications } from '@mantine/notifications';
 import {
 	IconCalendarOff,
-	IconChevronDown,
 	IconCircleCheck,
 	IconCircleMinus,
 	IconCircleX,
 	IconClock,
 	IconQuestionMark,
 	IconSearch,
-	IconTrash,
 } from '@tabler/icons-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useMemo, useState } from 'react';
 import type { AttendanceStatus } from '@/core/database';
 import { getStatusColor } from '@/shared/lib/utils/colors';
-import {
-	deleteAttendanceForWeek,
-	getAttendanceForWeek,
-	markAttendance,
-} from '../_server/actions';
+import Link from '@/shared/ui/Link';
+import { getAttendanceForWeek, markAttendance } from '../_server/actions';
 
 type Props = {
 	semesterModuleId: number;
 	termId: number;
 	weekNumber: number;
 	assignedModuleId: number;
+};
+
+type AttendanceStudent = {
+	stdNo: number;
+	name: string;
+	attendanceId: number | null;
+	status: AttendanceStatus;
 };
 
 const statusOptions: {
@@ -66,9 +66,21 @@ export default function AttendanceForm({
 	const queryClient = useQueryClient();
 	const [searchQuery, setSearchQuery] = useState('');
 	const [debouncedSearch] = useDebouncedValue(searchQuery, 300);
+	const [bulkStatus, setBulkStatus] = useState<AttendanceStatus>('not_marked');
+	const attendanceWeekKey = [
+		'attendance-week',
+		semesterModuleId,
+		termId,
+		weekNumber,
+	] as const;
+	const attendanceSummaryKey = [
+		'attendance-summary',
+		semesterModuleId,
+		termId,
+	] as const;
 
 	const { data: students, isLoading } = useQuery({
-		queryKey: ['attendance-week', semesterModuleId, termId, weekNumber],
+		queryKey: attendanceWeekKey,
 		queryFn: () => getAttendanceForWeek(semesterModuleId, termId, weekNumber),
 	});
 
@@ -83,45 +95,38 @@ export default function AttendanceForm({
 				assignedModuleId,
 				records
 			),
-		onSuccess: () => {
-			queryClient.invalidateQueries({
-				queryKey: ['attendance-week', semesterModuleId, termId, weekNumber],
-			});
-			queryClient.invalidateQueries({
-				queryKey: ['attendance-summary', semesterModuleId, termId],
-			});
+		onMutate: async (records) => {
+			await queryClient.cancelQueries({ queryKey: attendanceWeekKey });
+			const previous =
+				queryClient.getQueryData<AttendanceStudent[]>(attendanceWeekKey);
+			if (previous) {
+				const statusMap = new Map(
+					records.map((record) => [record.stdNo, record.status])
+				);
+				queryClient.setQueryData<AttendanceStudent[]>(
+					attendanceWeekKey,
+					previous.map((student) => {
+						const nextStatus = statusMap.get(student.stdNo);
+						if (!nextStatus) return student;
+						return { ...student, status: nextStatus };
+					})
+				);
+			}
+			return { previous };
 		},
-		onError: () => {
+		onError: (_error, _records, context) => {
+			if (context?.previous) {
+				queryClient.setQueryData(attendanceWeekKey, context.previous);
+			}
 			notifications.show({
 				title: 'Error',
 				message: 'Failed to save attendance',
 				color: 'red',
 			});
 		},
-	});
-
-	const deleteMutation = useMutation({
-		mutationFn: async () =>
-			deleteAttendanceForWeek(semesterModuleId, termId, weekNumber),
-		onSuccess: () => {
-			queryClient.invalidateQueries({
-				queryKey: ['attendance-week', semesterModuleId, termId, weekNumber],
-			});
-			queryClient.invalidateQueries({
-				queryKey: ['attendance-summary', semesterModuleId, termId],
-			});
-			notifications.show({
-				title: 'Deleted',
-				message: 'Attendance records have been deleted',
-				color: 'green',
-			});
-		},
-		onError: () => {
-			notifications.show({
-				title: 'Error',
-				message: 'Failed to delete attendance records',
-				color: 'red',
-			});
+		onSettled: () => {
+			queryClient.invalidateQueries({ queryKey: attendanceWeekKey });
+			queryClient.invalidateQueries({ queryKey: attendanceSummaryKey });
 		},
 	});
 
@@ -136,26 +141,12 @@ export default function AttendanceForm({
 			status,
 		}));
 		saveMutation.mutate(records);
-		notifications.show({
-			title: 'Saving',
-			message: `Setting all students to ${status}...`,
-			color: 'blue',
-		});
 	};
 
-	const handleDelete = () => {
-		modals.openConfirmModal({
-			title: 'Delete Attendance',
-			children: (
-				<Text size='sm'>
-					Are you sure you want to delete all attendance records for this week?
-					This action cannot be undone.
-				</Text>
-			),
-			labels: { confirm: 'Delete', cancel: 'Cancel' },
-			confirmProps: { color: 'red' },
-			onConfirm: () => deleteMutation.mutate(),
-		});
+	const handleBulkChange = (value: string) => {
+		const status = value as AttendanceStatus;
+		setBulkStatus(status);
+		handleBulkSetStatus(status);
 	};
 
 	const filteredStudents = useMemo(() => {
@@ -172,9 +163,43 @@ export default function AttendanceForm({
 
 	if (isLoading) {
 		return (
-			<Paper p='md' withBorder>
-				<Text c='dimmed'>Loading students...</Text>
-			</Paper>
+			<Stack gap='md'>
+				<Flex justify='space-between' w={'100%'} align='flex-end' mb='sm'>
+					<Skeleton h={36} w={400} radius='md' />
+					<Stack align='flex-start' gap={5}>
+						<Skeleton h={14} w={240} radius='md' />
+						<Skeleton h={36} w={560} radius='md' />
+					</Stack>
+				</Flex>
+				<Paper withBorder>
+					<Table striped>
+						<Table.Thead>
+							<Table.Tr>
+								<Table.Th>Student No</Table.Th>
+								<Table.Th>Name</Table.Th>
+								<Table.Th style={{ textAlign: 'right' }}>Status</Table.Th>
+							</Table.Tr>
+						</Table.Thead>
+						<Table.Tbody>
+							{Array.from({ length: 10 }).map((_, index) => (
+								<Table.Tr key={`skeleton-${index}`}>
+									<Table.Td>
+										<Skeleton h={16} w={80} />
+									</Table.Td>
+									<Table.Td>
+										<Skeleton h={16} w='70%' />
+									</Table.Td>
+									<Table.Td>
+										<Group justify='flex-end'>
+											<Skeleton h={36} w={220} radius='md' />
+										</Group>
+									</Table.Td>
+								</Table.Tr>
+							))}
+						</Table.Tbody>
+					</Table>
+				</Paper>
+			</Stack>
 		);
 	}
 
@@ -190,51 +215,37 @@ export default function AttendanceForm({
 
 	return (
 		<Stack gap='md'>
-			<Group justify='space-between'>
+			<Flex justify='space-between' w={'100%'} align='flex-end' mb='sm'>
 				<TextInput
 					placeholder='Search by name or student number...'
 					leftSection={<IconSearch size={16} />}
 					value={searchQuery}
 					onChange={(e) => setSearchQuery(e.currentTarget.value)}
-					style={{ flex: 1, maxWidth: 400 }}
+					style={{ flex: 1, maxWidth: 450 }}
 				/>
-				<Group gap='xs'>
-					<Menu shadow='md' width={200}>
-						<Menu.Target>
-							<Button
-								variant='default'
-								w={150}
-								rightSection={<IconChevronDown size={16} />}
-								loading={saveMutation.isPending}
-							>
-								Bulk Action
-							</Button>
-						</Menu.Target>
-						<Menu.Dropdown>
-							{statusOptions.map((opt) => (
-								<Menu.Item
-									key={opt.value}
-									leftSection={<opt.icon size={16} />}
-									onClick={() => handleBulkSetStatus(opt.value)}
-								>
-									Mark all as {opt.label}
-								</Menu.Item>
-							))}
-						</Menu.Dropdown>
-					</Menu>
-					<Tooltip label='Delete all attendance for this week'>
-						<ActionIcon
-							variant='light'
-							color='red'
-							size='lg'
-							onClick={handleDelete}
-							loading={deleteMutation.isPending}
-						>
-							<IconTrash size={18} />
-						</ActionIcon>
-					</Tooltip>
-				</Group>
-			</Group>
+				<Stack align='flex-start' gap={5}>
+					<Text size='xs' c='dimmed' pl={2}>
+						Mark all students or edit individually.
+					</Text>
+					<SegmentedControl
+						bg={'dark.7'}
+						value={bulkStatus}
+						onChange={handleBulkChange}
+						data={statusOptions.map((opt) => ({
+							value: opt.value,
+							label: (
+								<Group gap={6} wrap='nowrap'>
+									<opt.icon size={16} />
+									<span>{opt.label}</span>
+								</Group>
+							),
+						}))}
+						disabled={saveMutation.isPending}
+						color={getStatusColor(bulkStatus)}
+						size='sm'
+					/>
+				</Stack>
+			</Flex>
 
 			<Paper withBorder>
 				<Table striped>
@@ -248,11 +259,17 @@ export default function AttendanceForm({
 					<Table.Tbody>
 						{filteredStudents.map((student) => (
 							<Table.Tr key={student.stdNo}>
-								<Table.Td>{student.stdNo}</Table.Td>
+								<Table.Td>
+									<Anchor
+										component={Link}
+										href={`/registry/students/${student.stdNo}`}
+									>
+										{student.stdNo}
+									</Anchor>
+								</Table.Td>
 								<Table.Td>{student.name}</Table.Td>
 								<Table.Td style={{ textAlign: 'right' }}>
 									<SegmentedControl
-										size='xs'
 										value={student.status}
 										onChange={(value) =>
 											handleStatusChange(
@@ -264,17 +281,12 @@ export default function AttendanceForm({
 											value: opt.value,
 											label: (
 												<Group gap={4} wrap='nowrap'>
-													<opt.icon size={14} />
-													<span>{opt.label}</span>
+													<opt.icon size={18} />
 												</Group>
 											),
 										}))}
 										color={getStatusColor(student.status)}
-										styles={{
-											root: {
-												backgroundColor: 'transparent',
-											},
-										}}
+										size='sm'
 									/>
 								</Table.Td>
 							</Table.Tr>

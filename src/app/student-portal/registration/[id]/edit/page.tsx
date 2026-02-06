@@ -36,6 +36,7 @@ import { useActiveTerm } from '@/shared/lib/hooks/use-active-term';
 import useUserStudent from '@/shared/lib/hooks/use-user-student';
 import {
 	ModuleSelection,
+	RemainInSemesterAlert,
 	SemesterConfirmation,
 	SponsorshipDetailsEdit,
 } from '../../_components';
@@ -103,14 +104,18 @@ export default function EditRegistrationPage() {
 		});
 
 	const { data: moduleResult, isLoading: modulesLoading } = useQuery({
-		queryKey: ['student-semester-modules', student?.stdNo],
+		queryKey: ['student-semester-modules', student?.stdNo, activeTerm?.code],
 		queryFn: async () => {
 			if (!student || !remarks) {
 				return { error: 'Missing student or remarks data', modules: [] };
 			}
-			return await getStudentSemesterModules(student, remarks);
+			return await getStudentSemesterModules(
+				student,
+				remarks,
+				activeTerm?.code
+			);
 		},
-		enabled: !!student && !!remarks,
+		enabled: !!student && !!remarks && !!activeTerm,
 	});
 
 	const availableModules = moduleResult?.modules || [];
@@ -202,8 +207,11 @@ export default function EditRegistrationPage() {
 
 	const nextStep = () => {
 		if (activeStep === 0 && selectedModules.length > 0) {
-			if (semesterStatus) {
-				setSemesterData(semesterStatus);
+			if (semesterStatus && semesterData) {
+				setSemesterData({
+					semesterNo: semesterData.semesterNo,
+					status: semesterStatus.status,
+				});
 			}
 			setActiveStep(1);
 		} else if (activeStep === 1 && semesterData) {
@@ -291,15 +299,37 @@ export default function EditRegistrationPage() {
 		);
 	}
 
+	const isRemainInSemester = remarks?.status === 'Remain in Semester';
+
 	const renderStepContent = () => {
 		switch (activeStep) {
 			case 0:
+				if (isRemainInSemester && !modulesLoading) {
+					return (
+						<Stack gap='lg'>
+							<RemainInSemesterAlert
+								failedModules={remarks.failedModules}
+								supplementaryModules={remarks.supplementaryModules}
+								details={remarks.details}
+							/>
+							{availableModules.length > 0 && (
+								<ModuleSelection
+									modules={availableModules}
+									selectedModules={selectedModules}
+									onSelectionChange={setSelectedModules}
+									loading={modulesLoading}
+								/>
+							)}
+						</Stack>
+					);
+				}
 				return (
 					<ModuleSelection
 						modules={availableModules}
 						selectedModules={selectedModules}
 						onSelectionChange={setSelectedModules}
 						loading={modulesLoading}
+						error={moduleResult?.error}
 					/>
 				);
 			case 1:

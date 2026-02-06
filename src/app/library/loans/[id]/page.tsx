@@ -1,13 +1,19 @@
 import {
 	Badge,
 	Divider,
+	Grid,
+	GridCol,
 	Group,
 	Image,
 	Stack,
 	Table,
+	TableTbody,
+	TableTd,
+	TableTh,
+	TableThead,
+	TableTr,
 	Text,
 } from '@mantine/core';
-import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getLoanStatusColor } from '@/shared/lib/utils/colors';
 import { formatDate } from '@/shared/lib/utils/dates';
@@ -17,6 +23,7 @@ import {
 	DetailsViewHeader,
 	FieldView,
 } from '@/shared/ui/adease';
+import Link from '@/shared/ui/Link';
 import RenewalModal from '../_components/RenewalModal';
 import ReturnModal from '../_components/ReturnModal';
 import { deleteLoan, getLoan } from '../_server/actions';
@@ -27,7 +34,7 @@ type Props = {
 
 export default async function LoanDetailsPage({ params }: Props) {
 	const { id } = await params;
-	const loan = await getLoan(Number(id));
+	const loan = await getLoan(id);
 
 	if (!loan) return notFound();
 
@@ -43,25 +50,19 @@ export default async function LoanDetailsPage({ params }: Props) {
 				queryKey={['loans']}
 				handleDelete={async () => {
 					'use server';
-					await deleteLoan(Number(id));
+					await deleteLoan(id);
 				}}
 				hideEdit
 			/>
 
 			<DetailsViewBody>
 				<Stack gap='md'>
-					{isActive && (
-						<Group justify='flex-end' gap='xs'>
-							<RenewalModal loan={loan} />
-							<ReturnModal loan={loan} />
-						</Group>
-					)}
-
 					<Group justify='space-between' align='flex-start'>
 						<Stack gap='xs' flex={1}>
 							<Text size='lg' fw={600}>
 								Book Information
 							</Text>
+							<Divider />
 							<Group align='flex-start'>
 								{loan.bookCopy.book.coverUrl && (
 									<Image
@@ -74,23 +75,29 @@ export default async function LoanDetailsPage({ params }: Props) {
 									/>
 								)}
 								<Stack gap='xs'>
-									<FieldView label='Title'>
+									<FieldView label='Title' underline={false}>
 										<Link href={`/library/books/${loan.bookCopy.book.id}`}>
 											{loan.bookCopy.book.title}
 										</Link>
 									</FieldView>
-									<FieldView label='ISBN'>{loan.bookCopy.book.isbn}</FieldView>
+									<FieldView label='ISBN' underline={false}>
+										{loan.bookCopy.book.isbn}
+									</FieldView>
 								</Stack>
 							</Group>
 						</Stack>
 
-						<Badge
-							size='lg'
-							variant='light'
-							color={getLoanStatusColor(displayStatus)}
-						>
-							{displayStatus}
-						</Badge>
+						<Stack align='flex-end' gap='md'>
+							<Badge variant='light' color={getLoanStatusColor(displayStatus)}>
+								{displayStatus}
+							</Badge>
+							{isActive && (
+								<Group justify='flex-end' gap='xs'>
+									<RenewalModal loan={loan} />
+									<ReturnModal loan={loan} />
+								</Group>
+							)}
+						</Stack>
 					</Group>
 
 					<Divider />
@@ -99,15 +106,23 @@ export default async function LoanDetailsPage({ params }: Props) {
 						<Text size='lg' fw={600}>
 							Copy Information
 						</Text>
-						<Group>
-							<FieldView label='Serial Number'>
-								{loan.bookCopy.serialNumber}
-							</FieldView>
-							<FieldView label='Condition'>{loan.bookCopy.condition}</FieldView>
-							<FieldView label='Location'>
-								{loan.bookCopy.location || '-'}
-							</FieldView>
-						</Group>
+						<Grid>
+							<GridCol span={4}>
+								<FieldView label='Serial Number' underline={false}>
+									{loan.bookCopy.serialNumber}
+								</FieldView>
+							</GridCol>
+							<GridCol span={4}>
+								<FieldView label='Condition' underline={false}>
+									{loan.bookCopy.condition}
+								</FieldView>
+							</GridCol>
+							<GridCol span={4}>
+								<FieldView label='Location' underline={false}>
+									{loan.bookCopy.location || '-'}
+								</FieldView>
+							</GridCol>
+						</Grid>
 					</Stack>
 
 					<Divider />
@@ -116,14 +131,20 @@ export default async function LoanDetailsPage({ params }: Props) {
 						<Text size='lg' fw={600}>
 							Borrower
 						</Text>
-						<Group>
-							<FieldView label='Student Number'>
-								<Link href={`/registry/students/${loan.student.stdNo}`}>
-									{loan.student.stdNo}
-								</Link>
-							</FieldView>
-							<FieldView label='Name'>{loan.student.name}</FieldView>
-						</Group>
+						<Grid>
+							<GridCol span={4}>
+								<FieldView label='Student Number' underline={false}>
+									<Link href={`/registry/students/${loan.student.stdNo}`}>
+										{loan.student.stdNo}
+									</Link>
+								</FieldView>
+							</GridCol>
+							<GridCol span={4}>
+								<FieldView label='Name' underline={false}>
+									{loan.student.name}
+								</FieldView>
+							</GridCol>
+						</Grid>
 					</Stack>
 
 					<Divider />
@@ -132,28 +153,36 @@ export default async function LoanDetailsPage({ params }: Props) {
 						<Text size='lg' fw={600}>
 							Dates
 						</Text>
-						<Group>
-							<FieldView label='Loan Date'>
-								{formatDate(loan.loanDate)}
-							</FieldView>
-							<FieldView label='Due Date'>
-								<Text c={isOverdue ? 'red' : undefined}>
-									{formatDate(loan.dueDate)}
-								</Text>
-							</FieldView>
-							{loan.returnDate && (
-								<FieldView label='Return Date'>
-									{formatDate(loan.returnDate)}
+						<Grid>
+							<GridCol span={4}>
+								<FieldView label='Loan Date' underline={false}>
+									{formatDate(loan.loanDate)}
 								</FieldView>
-							)}
-							{isOverdue && (
-								<FieldView label='Days Overdue'>
-									<Text c='red' fw={500}>
-										{loan.daysOverdue} day{loan.daysOverdue !== 1 ? 's' : ''}
+							</GridCol>
+							<GridCol span={4}>
+								<FieldView label='Due Date' underline={false}>
+									<Text c={isOverdue ? 'red' : undefined}>
+										{formatDate(loan.dueDate)}
 									</Text>
 								</FieldView>
-							)}
-						</Group>
+							</GridCol>
+							<GridCol span={4}>
+								{loan.returnDate && (
+									<FieldView label='Return Date' underline={false}>
+										{formatDate(loan.returnDate)}
+									</FieldView>
+								)}
+							</GridCol>
+							<GridCol span={4}>
+								{isOverdue && (
+									<FieldView label='Days Overdue ' underline={false}>
+										<Text c='red' fw={500}>
+											{loan.daysOverdue} day{loan.daysOverdue !== 1 ? 's' : ''}
+										</Text>
+									</FieldView>
+								)}
+							</GridCol>
+						</Grid>
 					</Stack>
 
 					{isOverdue && (
@@ -172,6 +201,28 @@ export default async function LoanDetailsPage({ params }: Props) {
 						</>
 					)}
 
+					<Divider />
+
+					<Stack gap='xs'>
+						<Text size='lg' fw={600}>
+							Staff
+						</Text>
+						<Grid>
+							<GridCol span={4}>
+								<FieldView label='Issued By' underline={false}>
+									{loan.issuedByUser?.name || '-'}
+								</FieldView>
+							</GridCol>
+							<GridCol span={4}>
+								{loan.returnedToUser && (
+									<FieldView label='Returned To' underline={false}>
+										{loan.returnedToUser.name || '-'}
+									</FieldView>
+								)}
+							</GridCol>
+						</Grid>
+					</Stack>
+
 					{loan.renewals.length > 0 && (
 						<>
 							<Divider />
@@ -180,49 +231,31 @@ export default async function LoanDetailsPage({ params }: Props) {
 									Renewal History
 								</Text>
 								<Table striped highlightOnHover withTableBorder>
-									<Table.Thead>
-										<Table.Tr>
-											<Table.Th>Previous Due</Table.Th>
-											<Table.Th>New Due</Table.Th>
-											<Table.Th>Renewed By</Table.Th>
-											<Table.Th>Date</Table.Th>
-										</Table.Tr>
-									</Table.Thead>
-									<Table.Tbody>
+									<TableThead>
+										<TableTr>
+											<TableTh>Previous Due</TableTh>
+											<TableTh>New Due</TableTh>
+											<TableTh>Renewed By</TableTh>
+											<TableTh>Date</TableTh>
+										</TableTr>
+									</TableThead>
+									<TableTbody>
 										{loan.renewals.map((r) => (
-											<Table.Tr key={r.id}>
-												<Table.Td>{formatDate(r.previousDueDate)}</Table.Td>
-												<Table.Td>{formatDate(r.newDueDate)}</Table.Td>
-												<Table.Td>
+											<TableTr key={r.id}>
+												<TableTd>{formatDate(r.previousDueDate)}</TableTd>
+												<TableTd>{formatDate(r.newDueDate)}</TableTd>
+												<TableTd>
 													{(r as { renewedByUser?: { name: string | null } })
 														.renewedByUser?.name || '-'}
-												</Table.Td>
-												<Table.Td>{formatDate(r.renewedAt)}</Table.Td>
-											</Table.Tr>
+												</TableTd>
+												<TableTd>{formatDate(r.renewedAt)}</TableTd>
+											</TableTr>
 										))}
-									</Table.Tbody>
+									</TableTbody>
 								</Table>
 							</Stack>
 						</>
 					)}
-
-					<Divider />
-
-					<Stack gap='xs'>
-						<Text size='lg' fw={600}>
-							Staff
-						</Text>
-						<Group>
-							<FieldView label='Issued By'>
-								{loan.issuedByUser?.name || '-'}
-							</FieldView>
-							{loan.returnedToUser && (
-								<FieldView label='Returned To'>
-									{loan.returnedToUser.name || '-'}
-								</FieldView>
-							)}
-						</Group>
-					</Stack>
 				</Stack>
 			</DetailsViewBody>
 		</DetailsView>

@@ -13,6 +13,7 @@ import type {
 } from '@/core/database';
 import {
 	db,
+	timetableAllocationAllowedVenues,
 	timetableAllocations as timetableAllocationsTable,
 	timetableSlotAllocations,
 	timetableSlots,
@@ -401,6 +402,7 @@ export default class TimetableSlotRepository extends BaseRepository<
 			where: (tbl, { eq }) => eq(tbl.id, allocationId),
 			with: {
 				timetableAllocationVenueTypes: true,
+				timetableAllocationAllowedVenues: true,
 				semesterModule: {
 					columns: {
 						id: true,
@@ -410,6 +412,7 @@ export default class TimetableSlotRepository extends BaseRepository<
 						module: {
 							columns: {
 								id: true,
+								code: true,
 								name: true,
 							},
 						},
@@ -437,6 +440,7 @@ export default class TimetableSlotRepository extends BaseRepository<
 			where: (tbl, { eq }) => eq(tbl.termId, termId),
 			with: {
 				timetableAllocationVenueTypes: true,
+				timetableAllocationAllowedVenues: true,
 				semesterModule: {
 					columns: {
 						id: true,
@@ -446,6 +450,7 @@ export default class TimetableSlotRepository extends BaseRepository<
 						module: {
 							columns: {
 								id: true,
+								code: true,
 								name: true,
 							},
 						},
@@ -479,41 +484,87 @@ export default class TimetableSlotRepository extends BaseRepository<
 		return venues as VenueRecord[];
 	}
 
-	async createAllocationWithSlot(
-		allocation: typeof timetableAllocations.$inferInsert,
-		slot: {
-			venueId: string;
-			dayOfWeek: (typeof timetableSlots.dayOfWeek.enumValues)[number];
-			startTime: string;
-			endTime: string;
-		}
-	) {
-		return db.transaction(async (tx) => {
-			const [created] = await tx
-				.insert(timetableAllocationsTable)
-				.values(allocation)
-				.returning();
-
-			const slotData: TimetableSlotInsert = {
-				termId: created.termId,
-				venueId: slot.venueId,
-				dayOfWeek: slot.dayOfWeek,
-				startTime: slot.startTime,
-				endTime: slot.endTime,
-				capacityUsed: allocation.numberOfStudents ?? 0,
+	async createAllocationsWithSlots(
+		items: Array<{
+			allocation: typeof timetableAllocations.$inferInsert;
+			slot: {
+				venueId: string;
+				dayOfWeek: (typeof timetableSlots.dayOfWeek.enumValues)[number];
+				startTime: string;
+				endTime: string;
+				allowOverflow?: boolean;
 			};
+		}>
+	) {
+		if (items.length === 0) {
+			return [];
+		}
 
-			const [createdSlot] = await tx
-				.insert(timetableSlots)
-				.values(slotData)
-				.returning();
+		return db.transaction(async (tx) => {
+			const results: Array<{
+				allocation: typeof timetableAllocations.$inferSelect;
+				slot: typeof timetableSlots.$inferSelect;
+			}> = [];
 
-			await tx.insert(timetableSlotAllocations).values({
-				slotId: createdSlot.id,
-				timetableAllocationId: created.id,
-			});
+			for (const item of items) {
+				const existingSlot = await tx.query.timetableSlots.findFirst({
+					where: and(
+						eq(timetableSlots.venueId, item.slot.venueId),
+						eq(timetableSlots.dayOfWeek, item.slot.dayOfWeek),
+						eq(timetableSlots.startTime, item.slot.startTime),
+						eq(timetableSlots.endTime, item.slot.endTime)
+					),
+					with: {
+						venue: true,
+					},
+				});
 
-			return { allocation: created, slot: createdSlot };
+				if (existingSlot) {
+					const day =
+						item.slot.dayOfWeek.charAt(0).toUpperCase() +
+						item.slot.dayOfWeek.slice(1);
+					const start = item.slot.startTime.slice(0, 5);
+					const end = item.slot.endTime.slice(0, 5);
+					const venueName = existingSlot.venue?.name ?? 'the selected venue';
+					throw new Error(
+						`This time slot is already booked. ${venueName} is not available on ${day} from ${start} to ${end}. Please choose a different time or venue.`
+					);
+				}
+
+				const [created] = await tx
+					.insert(timetableAllocationsTable)
+					.values(item.allocation)
+					.returning();
+
+				const slotData: TimetableSlotInsert = {
+					termId: created.termId,
+					venueId: item.slot.venueId,
+					dayOfWeek: item.slot.dayOfWeek,
+					startTime: item.slot.startTime,
+					endTime: item.slot.endTime,
+					capacityUsed: item.allocation.numberOfStudents ?? 0,
+				};
+
+				const [createdSlot] = await tx
+					.insert(timetableSlots)
+					.values(slotData)
+					.returning();
+
+				await tx.insert(timetableSlotAllocations).values({
+					slotId: createdSlot.id,
+					timetableAllocationId: created.id,
+				});
+
+				await tx.insert(timetableAllocationAllowedVenues).values({
+					timetableAllocationId: created.id,
+					venueId: item.slot.venueId,
+					allowOverflow: item.slot.allowOverflow ?? false,
+				});
+
+				results.push({ allocation: created, slot: createdSlot });
+			}
+
+			return results;
 		});
 	}
 }

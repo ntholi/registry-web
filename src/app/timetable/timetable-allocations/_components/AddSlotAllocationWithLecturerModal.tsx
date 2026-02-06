@@ -11,17 +11,20 @@ import {
 	Badge,
 	Box,
 	Button,
+	Checkbox,
 	Grid,
 	Group,
 	Loader,
 	Modal,
 	NumberInput,
+	Paper,
 	SegmentedControl,
 	Select,
 	SimpleGrid,
 	Stack,
 	Tabs,
 	Text,
+	Title,
 } from '@mantine/core';
 import { TimeInput } from '@mantine/dates';
 import { useForm } from '@mantine/form';
@@ -29,19 +32,24 @@ import { useDebouncedValue, useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import { IconListDetails, IconPlus } from '@tabler/icons-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { createAllocationWithSlot } from '@timetable/slots';
+import { createAllocationsWithSlots } from '@timetable/slots';
 import { ModuleSearchInput } from '@timetable/timetable-allocations';
 import { getAllVenues } from '@timetable/venues';
 import { zod4Resolver as zodResolver } from 'mantine-form-zod-resolver';
 import { useCallback, useState } from 'react';
 import { z } from 'zod';
 import { getAllTerms } from '@/app/registry/terms';
+import { calculateDuration } from '@/shared/lib/utils/dates';
 import { toClassName as toClassNameShared } from '@/shared/lib/utils/utils';
-import { calculateDuration } from '../../_lib/utils';
+import {
+	type DayOfWeek,
+	type GroupSlot,
+	groupSlotSchema,
+} from '../_lib/schemas';
 import { getTimetableAllocationsByUserId } from '../_server/actions';
 import AllocationTable from './AllocationTable';
 
-const daysOfWeek = [
+const daysOfWeekOptions = [
 	{ value: 'monday', label: 'Mon' },
 	{ value: 'tuesday', label: 'Tue' },
 	{ value: 'wednesday', label: 'Wed' },
@@ -51,47 +59,14 @@ const daysOfWeek = [
 	{ value: 'sunday', label: 'Sun' },
 ];
 
-type DayOfWeek =
-	| 'monday'
-	| 'tuesday'
-	| 'wednesday'
-	| 'thursday'
-	| 'friday'
-	| 'saturday'
-	| 'sunday';
-
-const schema = z
-	.object({
-		userId: z.string().min(1, 'Please select a lecturer'),
-		termId: z.number().min(1, 'Please select a term'),
-		semesterModuleId: z.number().min(1, 'Please select a semester module'),
-		numberOfStudents: z
-			.number()
-			.min(1, 'A class should have at least 1 student'),
-		numberOfGroups: z.number().min(1, 'Must have at least 1 group'),
-		dayOfWeek: z.enum([
-			'monday',
-			'tuesday',
-			'wednesday',
-			'thursday',
-			'friday',
-			'saturday',
-			'sunday',
-		]),
-		startTime: z.string().min(1, 'Please enter a start time'),
-		endTime: z.string().min(1, 'Please enter an end time'),
-		venueId: z.string().min(1, 'Please select a venue'),
-	})
-	.refine(
-		(data) => {
-			const duration = calculateDuration(data.startTime, data.endTime);
-			return duration > 0;
-		},
-		{
-			message: 'End time must be after start time',
-			path: ['endTime'],
-		}
-	);
+const schema = z.object({
+	userId: z.string().min(1, 'Please select a lecturer'),
+	termId: z.number().min(1, 'Please select a term'),
+	semesterModuleId: z.number().min(1, 'Please select a semester module'),
+	numberOfStudents: z.number().min(1, 'A class should have at least 1 student'),
+	numberOfGroups: z.number().min(1, 'Must have at least 1 group'),
+	groupSlots: z.array(groupSlotSchema).min(1),
+});
 
 type FormValues = z.infer<typeof schema>;
 
@@ -104,11 +79,20 @@ type SemesterOption = {
 	searchValue: string;
 };
 
+function createDefaultGroupSlot(): GroupSlot {
+	return {
+		dayOfWeek: 'monday',
+		startTime: '08:30',
+		endTime: '10:30',
+		venueId: '',
+		allowOverflow: false,
+	};
+}
+
 export default function AddSlotAllocationWithLecturerModal() {
 	const [opened, { open, close }] = useDisclosure(false);
 	const queryClient = useQueryClient();
 	const [selectedModule, setSelectedModule] = useState<Module | null>(null);
-	const [className, setClassName] = useState<string>('');
 	const [lecturerSearch, setLecturerSearch] = useState('');
 	const [debouncedSearch] = useDebouncedValue(lecturerSearch, 300);
 	const [activeTab, setActiveTab] = useState<string | null>('form');
@@ -129,22 +113,37 @@ export default function AddSlotAllocationWithLecturerModal() {
 		queryFn: getAllVenues,
 	});
 
-	const activeTerm = terms.find((t) => t.isActive);
+	const latestTerm = terms[0];
 
 	const form = useForm<FormValues>({
 		validate: zodResolver(schema),
 		initialValues: {
 			userId: '',
-			termId: activeTerm?.id ?? 0,
+			termId: latestTerm?.id ?? 0,
 			semesterModuleId: 0,
 			numberOfStudents: 0,
 			numberOfGroups: 1,
-			dayOfWeek: 'monday' as DayOfWeek,
-			startTime: '08:30',
-			endTime: '10:30',
-			venueId: '',
+			groupSlots: [createDefaultGroupSlot()],
 		},
 	});
+
+	const handleGroupsChange = (value: number | string) => {
+		const newCount = typeof value === 'number' ? value : 1;
+		form.setFieldValue('numberOfGroups', newCount);
+
+		const currentSlots = form.values.groupSlots;
+		if (newCount > currentSlots.length) {
+			const newSlots = [
+				...currentSlots,
+				...Array.from({ length: newCount - currentSlots.length }, () =>
+					createDefaultGroupSlot()
+				),
+			];
+			form.setFieldValue('groupSlots', newSlots);
+		} else if (newCount < currentSlots.length) {
+			form.setFieldValue('groupSlots', currentSlots.slice(0, newCount));
+		}
+	};
 
 	const selectedUserId = form.values.userId;
 	const selectedTermId = form.values.termId;
@@ -159,17 +158,8 @@ export default function AddSlotAllocationWithLecturerModal() {
 		(a) => a.termId === selectedTermId
 	);
 
-	const duration = calculateDuration(
-		form.values.startTime,
-		form.values.endTime
-	);
-
 	const mutation = useMutation({
 		mutationFn: async (values: FormValues) => {
-			const calculatedDuration = calculateDuration(
-				values.startTime,
-				values.endTime
-			);
 			const groups =
 				values.numberOfGroups === 1
 					? [null]
@@ -181,31 +171,40 @@ export default function AddSlotAllocationWithLecturerModal() {
 				values.numberOfStudents / groups.length
 			);
 
-			const results = [];
-			for (const groupName of groups) {
-				const result = await createAllocationWithSlot(
-					{
+			const items = groups.map((groupName, index) => {
+				const slot = values.groupSlots[index];
+				const calculatedDuration = calculateDuration(
+					slot.startTime,
+					slot.endTime
+				);
+
+				return {
+					allocation: {
 						userId: values.userId,
 						termId: values.termId,
 						semesterModuleId: values.semesterModuleId,
 						duration: calculatedDuration,
-						classType: 'lecture',
+						classType: 'lecture' as const,
 						numberOfStudents: studentsPerGroup,
 						groupName,
-						allowedDays: [values.dayOfWeek],
-						startTime: `${values.startTime}:00`,
-						endTime: `${values.endTime}:00`,
+						allowedDays: [slot.dayOfWeek],
+						startTime: `${slot.startTime}:00`,
+						endTime: `${slot.endTime}:00`,
 					},
-					{
-						venueId: values.venueId,
-						dayOfWeek: values.dayOfWeek,
-						startTime: `${values.startTime}:00`,
-						endTime: `${values.endTime}:00`,
-					}
-				);
-				results.push(result);
+					slot: {
+						venueId: slot.venueId,
+						dayOfWeek: slot.dayOfWeek,
+						startTime: `${slot.startTime}:00`,
+						endTime: `${slot.endTime}:00`,
+						allowOverflow: slot.allowOverflow,
+					},
+				};
+			});
+
+			const result = await createAllocationsWithSlots(items);
+			if (!result.success) {
+				throw new Error(result.error);
 			}
-			return results;
 		},
 		onSuccess: async () => {
 			await queryClient.invalidateQueries({
@@ -223,15 +222,40 @@ export default function AddSlotAllocationWithLecturerModal() {
 			});
 			form.reset();
 			setSelectedModule(null);
-			setClassName('');
 			setLecturerSearch('');
 			close();
 		},
 		onError: (error: Error) => {
+			let message = error.message || 'Failed to create allocation';
+			let title = 'Error';
+
+			const lowerMsg = message.toLowerCase();
+			if (
+				lowerMsg.includes('not available') ||
+				lowerMsg.includes('booked') ||
+				lowerMsg.includes('time slot')
+			) {
+				title = 'Venue/Time Conflict';
+			} else if (
+				lowerMsg.includes('already') ||
+				lowerMsg.includes('duplicate') ||
+				lowerMsg.includes('exists')
+			) {
+				title = 'Duplicate Allocation';
+			} else if (
+				lowerMsg.includes('failed query') ||
+				lowerMsg.includes('insert into')
+			) {
+				message =
+					'Unable to save the allocation. The venue might already be booked for this time. Please choose a different time or venue.';
+				title = 'Save Failed';
+			}
+
 			notifications.show({
-				title: 'Error',
-				message: error.message || 'Failed to create allocation',
+				title,
+				message,
 				color: 'red',
+				autoClose: 8000,
 			});
 		},
 	});
@@ -242,11 +266,11 @@ export default function AddSlotAllocationWithLecturerModal() {
 
 	const handleOpen = () => {
 		form.reset();
-		if (activeTerm) {
-			form.setFieldValue('termId', activeTerm.id);
+		if (latestTerm) {
+			form.setFieldValue('termId', latestTerm.id);
 		}
+		form.setFieldValue('groupSlots', [createDefaultGroupSlot()]);
 		setSelectedModule(null);
-		setClassName('');
 		setLecturerSearch('');
 		setActiveTab('form');
 		open();
@@ -256,7 +280,6 @@ export default function AddSlotAllocationWithLecturerModal() {
 		setSelectedModule(module);
 		if (module && module.semesters.length > 0) {
 			form.setFieldValue('semesterModuleId', 0);
-			setClassName('');
 		}
 	};
 
@@ -269,16 +292,12 @@ export default function AddSlotAllocationWithLecturerModal() {
 					(s) => s.semesterModuleId === val
 				);
 				if (semester) {
-					setClassName(
-						toClassNameShared(semester.programCode, semester.semesterName)
-					);
 					getStudentCountForModule(val).then((count) => {
 						form.setFieldValue('numberOfStudents', count);
 					});
 				}
 			} else {
 				form.setFieldValue('numberOfStudents', 0);
-				setClassName('');
 			}
 		},
 		[form, selectedModule]
@@ -313,9 +332,9 @@ export default function AddSlotAllocationWithLecturerModal() {
 				opened={opened}
 				onClose={close}
 				title='Add Allocation to Slot'
-				size='xl'
+				size='60vw'
 			>
-				<Stack gap='md'>
+				<Stack gap='xl'>
 					<Alert color='red' variant='light' title='Proceed with Caution'>
 						<Text size='sm'>
 							This is not the recommended way to add timetable slots and might
@@ -388,8 +407,8 @@ export default function AddSlotAllocationWithLecturerModal() {
 											/>
 
 											<Select
-												label='Semester Module'
-												placeholder='Select a semester module'
+												label='Class'
+												placeholder='Select a Student Class'
 												data={semesterOptions}
 												value={
 													form.values.semesterModuleId
@@ -417,12 +436,6 @@ export default function AddSlotAllocationWithLecturerModal() {
 											/>
 										</SimpleGrid>
 
-										{className && (
-											<Text size='sm' c='dimmed'>
-												Class: <strong>{className}</strong>
-											</Text>
-										)}
-
 										<Grid>
 											<Grid.Col span={6}>
 												<NumberInput
@@ -445,12 +458,7 @@ export default function AddSlotAllocationWithLecturerModal() {
 													label='Number of Groups'
 													placeholder='Groups'
 													value={form.values.numberOfGroups}
-													onChange={(value) =>
-														form.setFieldValue(
-															'numberOfGroups',
-															typeof value === 'number' ? value : 1
-														)
-													}
+													onChange={handleGroupsChange}
 													error={form.errors.numberOfGroups}
 													min={1}
 													max={10}
@@ -459,69 +467,125 @@ export default function AddSlotAllocationWithLecturerModal() {
 											</Grid.Col>
 										</Grid>
 
-										<Stack gap='xs'>
-											<Text size='sm' fw={500}>
-												Day
-											</Text>
-											<SegmentedControl
-												fullWidth
-												data={daysOfWeek}
-												value={form.values.dayOfWeek}
-												onChange={(value) =>
-													form.setFieldValue('dayOfWeek', value as DayOfWeek)
-												}
-											/>
-										</Stack>
+										<SimpleGrid
+											cols={{
+												base: 1,
+												md: form.values.groupSlots.length > 1 ? 2 : 1,
+											}}
+											spacing='md'
+										>
+											{form.values.groupSlots.map((slot, index) => {
+												const groupLabel =
+													form.values.numberOfGroups === 1
+														? ''
+														: `Group ${String.fromCharCode(65 + index)}`;
+												const duration = calculateDuration(
+													slot.startTime,
+													slot.endTime
+												);
 
-										<Grid>
-											<Grid.Col span={6}>
-												<TimeInput
-													label='Start Time'
-													value={form.values.startTime}
-													onChange={(e) =>
-														form.setFieldValue(
-															'startTime',
-															e.currentTarget.value
-														)
-													}
-													error={form.errors.startTime}
-													required
-												/>
-											</Grid.Col>
-											<Grid.Col span={6}>
-												<TimeInput
-													label='End Time'
-													value={form.values.endTime}
-													onChange={(e) =>
-														form.setFieldValue('endTime', e.currentTarget.value)
-													}
-													error={form.errors.endTime}
-													required
-												/>
-											</Grid.Col>
-										</Grid>
+												return (
+													<Paper key={index} withBorder p='md'>
+														<Stack gap='sm'>
+															<Title order={6}>{groupLabel}</Title>
 
-										{duration > 0 && (
-											<Text size='xs' c='dimmed'>
-												Duration: {Math.floor(duration / 60)}h {duration % 60}m
-											</Text>
-										)}
+															<Stack gap='xs'>
+																<SegmentedControl
+																	fullWidth
+																	size='xs'
+																	data={daysOfWeekOptions}
+																	value={slot.dayOfWeek}
+																	onChange={(value) =>
+																		form.setFieldValue(
+																			`groupSlots.${index}.dayOfWeek`,
+																			value as DayOfWeek
+																		)
+																	}
+																/>
+															</Stack>
 
-										<Select
-											label='Venue'
-											placeholder='Select a venue'
-											data={venues.map((v) => ({
-												value: v.id,
-												label: v.name,
-											}))}
-											value={form.values.venueId || null}
-											onChange={(value) =>
-												form.setFieldValue('venueId', value ?? '')
-											}
-											error={form.errors.venueId}
-											searchable
-											required
-										/>
+															<Grid>
+																<Grid.Col span={4}>
+																	<TimeInput
+																		label='Start'
+																		value={slot.startTime}
+																		onChange={(e) =>
+																			form.setFieldValue(
+																				`groupSlots.${index}.startTime`,
+																				e.currentTarget.value
+																			)
+																		}
+																		error={
+																			form.errors[
+																				`groupSlots.${index}.startTime`
+																			]
+																		}
+																		required
+																	/>
+																</Grid.Col>
+																<Grid.Col span={4}>
+																	<TimeInput
+																		label='End'
+																		value={slot.endTime}
+																		onChange={(e) =>
+																			form.setFieldValue(
+																				`groupSlots.${index}.endTime`,
+																				e.currentTarget.value
+																			)
+																		}
+																		error={
+																			form.errors[`groupSlots.${index}.endTime`]
+																		}
+																		required
+																	/>
+																</Grid.Col>
+																<Grid.Col span={4}>
+																	<Select
+																		label='Venue'
+																		placeholder='Select venue'
+																		data={venues.map((v) => ({
+																			value: v.id,
+																			label: v.name,
+																		}))}
+																		value={slot.venueId || null}
+																		onChange={(value) =>
+																			form.setFieldValue(
+																				`groupSlots.${index}.venueId`,
+																				value ?? ''
+																			)
+																		}
+																		error={
+																			form.errors[`groupSlots.${index}.venueId`]
+																		}
+																		searchable
+																		required
+																	/>
+																</Grid.Col>
+															</Grid>
+
+															{duration > 0 && (
+																<Text size='xs' c='dimmed'>
+																	Duration: {Math.floor(duration / 60)}h{' '}
+																	{duration % 60}m
+																</Text>
+															)}
+
+															<Checkbox
+																label='Allow overflow (bypass capacity limit)'
+																checked={slot.allowOverflow}
+																onChange={(e) =>
+																	form.setFieldValue(
+																		`groupSlots.${index}.allowOverflow`,
+																		e.currentTarget.checked
+																	)
+																}
+																size='xs'
+															/>
+														</Stack>
+													</Paper>
+												);
+											})}
+										</SimpleGrid>
 									</Stack>
 
 									<Group justify='flex-end' mt='md'>
@@ -544,7 +608,7 @@ export default function AddSlotAllocationWithLecturerModal() {
 									<AllocationTable
 										allocations={filteredAllocations}
 										userId={selectedUserId}
-										showEdit={false}
+										showEdit={true}
 										emptyMessage='No allocations found for this lecturer in the selected term.'
 									/>
 								)}

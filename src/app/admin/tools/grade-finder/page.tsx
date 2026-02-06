@@ -1,6 +1,5 @@
 'use client';
 
-import type { Grade } from '@academic/_database';
 import {
 	Box,
 	Container,
@@ -12,6 +11,7 @@ import {
 	ThemeIcon,
 	Title,
 } from '@mantine/core';
+import type { Grade } from '@registry/_database';
 import { IconChartBar, IconSearch } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import {

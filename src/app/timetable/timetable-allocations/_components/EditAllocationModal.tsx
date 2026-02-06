@@ -7,22 +7,27 @@ import { notifications } from '@mantine/notifications';
 import { IconEdit } from '@tabler/icons-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { getAllVenueTypes } from '@timetable/venue-types';
+import { getAllVenues } from '@timetable/venues';
 import { zod4Resolver as zodResolver } from 'mantine-form-zod-resolver';
 import { z } from 'zod';
 import { getActionColor, getAlertColor } from '@/shared/lib/utils/colors';
 import {
+	applyTimeRefinements,
+	baseAllocationSchemaInner,
+	type DayOfWeek,
+} from '../_lib/schemas';
+import {
 	updateTimetableAllocation,
+	updateTimetableAllocationAllowedVenues,
 	updateTimetableAllocationVenueTypes,
 } from '../_server/actions';
-import {
-	AllocationForm,
-	baseAllocationSchema,
-	type DayOfWeek,
-} from './AllocationForm';
+import { AllocationForm } from './AllocationForm';
 
-const schema = baseAllocationSchema.extend({
-	numberOfStudents: z.number().min(0),
-});
+const schema = applyTimeRefinements(
+	baseAllocationSchemaInner.extend({
+		numberOfStudents: z.number().min(0),
+	})
+);
 
 type FormValues = z.infer<typeof schema>;
 
@@ -35,6 +40,7 @@ type Props = {
 	currentAllowedDays: DayOfWeek[];
 	currentStartTime: string;
 	currentEndTime: string;
+	currentAllowedVenueIds: string[];
 };
 
 export default function EditAllocationModal({
@@ -46,6 +52,7 @@ export default function EditAllocationModal({
 	currentAllowedDays,
 	currentStartTime,
 	currentEndTime,
+	currentAllowedVenueIds,
 }: Props) {
 	const [opened, { open, close }] = useDisclosure(false);
 	const queryClient = useQueryClient();
@@ -53,6 +60,11 @@ export default function EditAllocationModal({
 	const { data: venueTypes = [] } = useQuery({
 		queryKey: ['venue-types'],
 		queryFn: getAllVenueTypes,
+	});
+
+	const { data: venues = [] } = useQuery({
+		queryKey: ['venues'],
+		queryFn: getAllVenues,
 	});
 
 	const form = useForm<FormValues>({
@@ -65,12 +77,13 @@ export default function EditAllocationModal({
 			allowedDays: currentAllowedDays,
 			startTime: currentStartTime,
 			endTime: currentEndTime,
+			allowedVenueIds: currentAllowedVenueIds,
 		},
 	});
 
 	const mutation = useMutation({
 		mutationFn: async (values: FormValues) => {
-			await updateTimetableAllocation(allocationId, {
+			const result = await updateTimetableAllocation(allocationId, {
 				duration: values.duration,
 				classType: values.classType,
 				numberOfStudents: values.numberOfStudents,
@@ -78,10 +91,23 @@ export default function EditAllocationModal({
 				startTime: values.startTime,
 				endTime: values.endTime,
 			});
-			await updateTimetableAllocationVenueTypes(
+			if (!result.success) {
+				throw new Error(result.error);
+			}
+			const venueTypesResult = await updateTimetableAllocationVenueTypes(
 				allocationId,
 				values.venueTypeIds
 			);
+			if (!venueTypesResult.success) {
+				throw new Error(venueTypesResult.error);
+			}
+			const venuesResult = await updateTimetableAllocationAllowedVenues(
+				allocationId,
+				values.allowedVenueIds
+			);
+			if (!venuesResult.success) {
+				throw new Error(venuesResult.error);
+			}
 		},
 		onSuccess: async () => {
 			await queryClient.invalidateQueries({
@@ -121,6 +147,7 @@ export default function EditAllocationModal({
 			allowedDays: currentAllowedDays,
 			startTime: currentStartTime,
 			endTime: currentEndTime,
+			allowedVenueIds: currentAllowedVenueIds,
 		});
 		open();
 	};
@@ -136,9 +163,9 @@ export default function EditAllocationModal({
 				<IconEdit size={16} />
 			</ActionIcon>
 
-			<Modal opened={opened} onClose={close} title='Edit Allocation' size='md'>
+			<Modal opened={opened} onClose={close} title='Edit Allocation' size='lg'>
 				<form onSubmit={form.onSubmit(handleSubmit)}>
-					<AllocationForm form={form} venueTypes={venueTypes} />
+					<AllocationForm form={form} venueTypes={venueTypes} venues={venues} />
 
 					<Group justify='flex-end' mt='md'>
 						<Button variant='subtle' onClick={close}>

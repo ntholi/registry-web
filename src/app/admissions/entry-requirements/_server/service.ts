@@ -2,7 +2,9 @@ import type { entryRequirements } from '@/core/database';
 import BaseService from '@/core/platform/BaseService';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
 import withAuth from '@/core/platform/withAuth';
-import EntryRequirementRepository from './repository';
+import EntryRequirementRepository, {
+	type EntryRequirementsFilter,
+} from './repository';
 
 class EntryRequirementService extends BaseService<
 	typeof entryRequirements,
@@ -13,42 +15,71 @@ class EntryRequirementService extends BaseService<
 	constructor() {
 		const repo = new EntryRequirementRepository();
 		super(repo, {
-			byIdRoles: ['registry', 'admin'],
-			findAllRoles: ['registry', 'admin'],
-			createRoles: ['registry', 'admin'],
-			updateRoles: ['registry', 'admin'],
-			deleteRoles: ['registry', 'admin'],
+			byIdRoles: ['registry', 'marketing', 'admin'],
+			findAllRoles: ['registry', 'marketing', 'admin'],
+			createRoles: ['registry', 'marketing', 'admin'],
+			updateRoles: ['registry', 'marketing', 'admin'],
+			deleteRoles: ['registry', 'marketing', 'admin'],
 		});
 		this.repo = repo;
 	}
 
-	override async get(id: number) {
-		return withAuth(async () => this.repo.findById(id), ['registry', 'admin']);
+	override async get(id: string) {
+		return withAuth(
+			async () => this.repo.findById(id),
+			['registry', 'marketing', 'admin', 'applicant']
+		);
 	}
 
 	async findAllWithRelations(page: number, search: string) {
 		return withAuth(
 			async () => this.repo.findAllWithRelations(page, search),
-			['registry', 'admin']
+			['registry', 'marketing', 'admin']
+		);
+	}
+
+	async findProgramsWithRequirements(
+		page: number,
+		search: string,
+		filter?: EntryRequirementsFilter
+	) {
+		return withAuth(
+			async () => this.repo.findProgramsWithRequirements(page, search, filter),
+			['registry', 'marketing', 'admin']
 		);
 	}
 
 	async findByProgram(programId: number) {
 		return withAuth(
 			async () => this.repo.findByProgram(programId),
-			['registry', 'admin']
+			['registry', 'marketing', 'admin']
 		);
 	}
 
 	async findByProgramAndCertificate(
 		programId: number,
-		certificateTypeId: number
+		certificateTypeId: string
 	) {
 		return withAuth(
 			async () =>
 				this.repo.findByProgramAndCertificate(programId, certificateTypeId),
-			['registry', 'admin']
+			['registry', 'marketing', 'admin']
 		);
+	}
+
+	async findAllForEligibility() {
+		return withAuth(
+			async () => this.repo.findAllForEligibility(),
+			['registry', 'marketing', 'admin', 'applicant']
+		);
+	}
+
+	async findPublicCoursesData(
+		page: number,
+		search: string,
+		filter?: EntryRequirementsFilter
+	) {
+		return this.repo.findPublicCoursesData(page, search, filter);
 	}
 
 	override async create(data: typeof entryRequirements.$inferInsert) {
@@ -63,7 +94,7 @@ class EntryRequirementService extends BaseService<
 				);
 			}
 			return this.repo.create(data);
-		}, ['registry', 'admin']);
+		}, ['registry', 'marketing', 'admin']);
 	}
 }
 

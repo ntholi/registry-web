@@ -14,7 +14,7 @@ import {
 import { formatDateTime } from '@/shared/lib/utils/dates';
 
 type HistoryEntry = {
-	id: number;
+	id: string;
 	fromStatus: string | null;
 	toStatus: string;
 	changedBy: string | null;

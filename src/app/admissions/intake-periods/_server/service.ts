@@ -10,23 +10,51 @@ class IntakePeriodService extends BaseService<typeof intakePeriods, 'id'> {
 	constructor() {
 		const repo = new IntakePeriodRepository();
 		super(repo, {
-			byIdRoles: ['registry', 'admin'],
-			findAllRoles: ['registry', 'admin'],
-			createRoles: ['registry', 'admin'],
-			updateRoles: ['registry', 'admin'],
-			deleteRoles: ['registry', 'admin'],
+			byIdRoles: ['registry', 'marketing', 'admin'],
+			findAllRoles: ['registry', 'marketing', 'admin'],
+			createRoles: ['registry', 'marketing', 'admin'],
+			updateRoles: ['registry', 'marketing', 'admin'],
+			deleteRoles: ['registry', 'marketing', 'admin'],
 		});
 		this.repo = repo;
 	}
 
 	async findActive() {
-		return withAuth(async () => this.repo.findActive(), ['registry', 'admin']);
+		return withAuth(async () => this.repo.findActive(), ['all']);
 	}
 
 	async findAllActive() {
 		return withAuth(
 			async () => this.repo.findAllActive(),
-			['registry', 'admin']
+			['registry', 'marketing', 'admin']
+		);
+	}
+
+	async findWithPrograms(id: string) {
+		return withAuth(
+			async () => this.repo.findWithPrograms(id),
+			['registry', 'marketing', 'admin']
+		);
+	}
+
+	async getProgramIds(intakePeriodId: string) {
+		return withAuth(
+			async () => this.repo.getProgramIds(intakePeriodId),
+			['registry', 'marketing', 'admin']
+		);
+	}
+
+	async setProgramIds(intakePeriodId: string, programIds: number[]) {
+		return withAuth(
+			async () => this.repo.setProgramIds(intakePeriodId, programIds),
+			['registry', 'marketing', 'admin']
+		);
+	}
+
+	async getOpenProgramIds(intakePeriodId: string) {
+		return withAuth(
+			async () => this.repo.getOpenProgramIds(intakePeriodId),
+			['registry', 'marketing', 'admin', 'applicant']
 		);
 	}
 
@@ -42,11 +70,11 @@ class IntakePeriodService extends BaseService<typeof intakePeriods, 'id'> {
 				);
 			}
 			return this.repo.create(data);
-		}, ['registry', 'admin']);
+		}, ['registry', 'marketing', 'admin']);
 	}
 
 	override async update(
-		id: number,
+		id: string,
 		data: Partial<typeof intakePeriods.$inferInsert>
 	) {
 		return withAuth(async () => {
@@ -63,10 +91,10 @@ class IntakePeriodService extends BaseService<typeof intakePeriods, 'id'> {
 				}
 			}
 			return this.repo.update(id, data);
-		}, ['registry', 'admin']);
+		}, ['registry', 'marketing', 'admin']);
 	}
 
-	override async delete(id: number) {
+	override async delete(id: string) {
 		return withAuth(async () => {
 			const hasApps = await this.repo.hasApplications(id);
 			if (hasApps) {
@@ -75,7 +103,7 @@ class IntakePeriodService extends BaseService<typeof intakePeriods, 'id'> {
 				);
 			}
 			return this.repo.delete(id);
-		}, ['registry', 'admin']);
+		}, ['registry', 'marketing', 'admin']);
 	}
 }
 

@@ -1,18 +1,39 @@
+import type { ProgramLevel } from '@academic/_database';
 import { and, asc, count, desc, eq, inArray, sql } from 'drizzle-orm';
 import { auth } from '@/core/auth';
 import {
+	autoApprovals,
 	clearance,
 	clearanceAudit,
 	type DashboardUser,
 	db,
+	programs,
 	registrationClearance,
+	registrationRequestReceipts,
 	registrationRequests,
 	requestedModules,
+	structures,
+	studentModules,
 	studentPrograms,
+	studentSemesters,
 } from '@/core/database';
 import BaseRepository, {
 	type QueryOptions,
 } from '@/core/platform/BaseRepository';
+
+type Transaction = Parameters<(typeof db)['transaction']>[0] extends (
+	tx: infer T
+) => Promise<unknown>
+	? T
+	: never;
+
+export interface ClearanceFilterOptions {
+	termId?: number;
+	schoolId?: number;
+	programId?: number;
+	programLevel?: ProgramLevel;
+	semester?: string;
+}
 
 type Model = typeof clearance.$inferInsert;
 
@@ -123,6 +144,13 @@ export default class ClearanceRepository extends BaseRepository<
 						message: data.message,
 						modules: modulesList.map((rm) => rm.semesterModule.module!.code),
 					});
+
+					if (data.status === 'approved') {
+						await this.finalizeIfAllApproved(
+							tx,
+							regClearance.registrationRequestId
+						);
+					}
 				}
 			}
 
@@ -130,6 +158,121 @@ export default class ClearanceRepository extends BaseRepository<
 		});
 
 		return updated;
+	}
+
+	private async finalizeIfAllApproved(
+		tx: Transaction,
+		registrationRequestId: number
+	) {
+		const allClearances = await tx.query.registrationClearance.findMany({
+			where: eq(
+				registrationClearance.registrationRequestId,
+				registrationRequestId
+			),
+			with: { clearance: true },
+		});
+
+		const allApproved = allClearances.every(
+			(c) => c.clearance.status === 'approved'
+		);
+		if (!allApproved) return;
+
+		const request = await tx.query.registrationRequests.findFirst({
+			where: eq(registrationRequests.id, registrationRequestId),
+			with: {
+				term: true,
+				student: {
+					with: {
+						programs: {
+							where: eq(studentPrograms.status, 'Active'),
+							limit: 1,
+							with: {
+								structure: {
+									with: {
+										semesters: true,
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		});
+
+		if (!request) throw new Error('Registration request not found');
+		if (request.status === 'registered') return;
+
+		const activeProgram = request.student.programs[0];
+		if (!activeProgram) throw new Error('No active program found for student');
+
+		const structureSemester = activeProgram.structure.semesters.find(
+			(s) => s.semesterNumber === request.semesterNumber
+		);
+		if (!structureSemester)
+			throw new Error(
+				`Structure semester not found for semester ${request.semesterNumber}`
+			);
+
+		const pendingModules = await tx.query.requestedModules.findMany({
+			where: and(
+				eq(requestedModules.registrationRequestId, registrationRequestId),
+				eq(requestedModules.status, 'pending')
+			),
+			with: {
+				semesterModule: true,
+			},
+		});
+
+		let semesterId: number;
+
+		if (request.studentSemesterId) {
+			semesterId = request.studentSemesterId;
+		} else {
+			const [semester] = await tx
+				.insert(studentSemesters)
+				.values({
+					termCode: request.term.code,
+					structureSemesterId: structureSemester.id,
+					status: request.semesterStatus,
+					studentProgramId: activeProgram.id,
+					sponsorId: request.sponsoredStudentId,
+				})
+				.returning();
+			semesterId = semester.id;
+
+			await tx
+				.update(registrationRequests)
+				.set({ studentSemesterId: semesterId })
+				.where(eq(registrationRequests.id, registrationRequestId));
+		}
+
+		if (pendingModules.length > 0) {
+			await tx.insert(studentModules).values(
+				pendingModules.map((rm) => ({
+					semesterModuleId: rm.semesterModuleId,
+					status: rm.moduleStatus,
+					marks: 'NM',
+					grade: 'NM' as const,
+					credits: rm.semesterModule.credits,
+					studentSemesterId: semesterId,
+				}))
+			);
+		}
+
+		await tx
+			.update(requestedModules)
+			.set({ status: 'registered' })
+			.where(
+				and(
+					eq(requestedModules.registrationRequestId, registrationRequestId),
+					eq(requestedModules.status, 'pending')
+				)
+			);
+
+		await tx
+			.update(registrationRequests)
+			.set({ status: 'registered', dateRegistered: new Date() })
+			.where(eq(registrationRequests.id, registrationRequestId));
 	}
 
 	async findByIdWithRelations(id: number) {
@@ -145,6 +288,11 @@ export default class ClearanceRepository extends BaseRepository<
 					with: {
 						student: true,
 						term: true,
+						sponsoredStudent: {
+							with: {
+								sponsor: true,
+							},
+						},
 					},
 				},
 			},
@@ -152,7 +300,7 @@ export default class ClearanceRepository extends BaseRepository<
 
 		if (!rc) return null;
 
-		const [studentProgram, modules] = await Promise.all([
+		const [studentProgram, modules, receipts] = await Promise.all([
 			db.query.studentPrograms.findFirst({
 				where: and(
 					eq(studentPrograms.stdNo, rc.registrationRequest.stdNo),
@@ -180,6 +328,15 @@ export default class ClearanceRepository extends BaseRepository<
 					},
 				},
 			}),
+			db.query.registrationRequestReceipts.findMany({
+				where: eq(
+					registrationRequestReceipts.registrationRequestId,
+					rc.registrationRequest.id
+				),
+				with: {
+					receipt: true,
+				},
+			}),
 		]);
 
 		return {
@@ -191,6 +348,7 @@ export default class ClearanceRepository extends BaseRepository<
 					programs: studentProgram ? [studentProgram] : [],
 				},
 				requestedModules: modules,
+				registrationRequestReceipts: receipts,
 			},
 		};
 	}
@@ -199,20 +357,41 @@ export default class ClearanceRepository extends BaseRepository<
 		department: DashboardUser,
 		params: QueryOptions<typeof clearance>,
 		status?: 'pending' | 'approved' | 'rejected',
-		termId?: number
+		filter?: ClearanceFilterOptions
 	) {
 		const { offset, limit } = this.buildQueryCriteria(params);
 
-		const whereJoin = and(
+		const hasAdvancedFilter =
+			filter?.schoolId || filter?.programId || filter?.programLevel;
+		const hasSemesterFilter = filter?.semester;
+
+		const baseConditions = and(
 			params.search
 				? sql`${registrationRequests.stdNo}::text LIKE ${`%${params.search}%`}`
 				: undefined,
-			termId ? eq(registrationRequests.termId, termId) : undefined,
+			filter?.termId
+				? eq(registrationRequests.termId, filter.termId)
+				: undefined,
 			eq(clearance.department, department),
 			status ? eq(clearance.status, status) : undefined
 		);
 
-		const [{ total }] = await db
+		const programConditions = hasAdvancedFilter
+			? and(
+					filter.schoolId ? eq(programs.schoolId, filter.schoolId) : undefined,
+					filter.programId ? eq(programs.id, filter.programId) : undefined,
+					filter.programLevel
+						? eq(programs.level, filter.programLevel)
+						: undefined,
+					eq(studentPrograms.status, 'Active')
+				)
+			: undefined;
+
+		const semesterCondition = hasSemesterFilter
+			? eq(registrationRequests.semesterNumber, filter.semester!)
+			: undefined;
+
+		let countQuery = db
 			.select({ total: count() })
 			.from(registrationClearance)
 			.innerJoin(
@@ -220,13 +399,26 @@ export default class ClearanceRepository extends BaseRepository<
 				eq(registrationClearance.registrationRequestId, registrationRequests.id)
 			)
 			.innerJoin(clearance, eq(registrationClearance.clearanceId, clearance.id))
-			.where(whereJoin);
+			.$dynamic();
+
+		if (hasAdvancedFilter) {
+			countQuery = countQuery
+				.innerJoin(
+					studentPrograms,
+					eq(studentPrograms.stdNo, registrationRequests.stdNo)
+				)
+				.innerJoin(structures, eq(studentPrograms.structureId, structures.id))
+				.innerJoin(programs, eq(structures.programId, programs.id));
+		}
+
+		const whereJoin = and(baseConditions, programConditions, semesterCondition);
+		const [{ total }] = await countQuery.where(whereJoin);
 
 		if (total === 0) {
 			return { items: [], totalPages: 0, totalItems: 0 };
 		}
 
-		const idRows = await db
+		let idQuery = db
 			.select({ id: registrationClearance.id })
 			.from(registrationClearance)
 			.innerJoin(
@@ -234,6 +426,19 @@ export default class ClearanceRepository extends BaseRepository<
 				eq(registrationClearance.registrationRequestId, registrationRequests.id)
 			)
 			.innerJoin(clearance, eq(registrationClearance.clearanceId, clearance.id))
+			.$dynamic();
+
+		if (hasAdvancedFilter) {
+			idQuery = idQuery
+				.innerJoin(
+					studentPrograms,
+					eq(studentPrograms.stdNo, registrationRequests.stdNo)
+				)
+				.innerJoin(structures, eq(studentPrograms.structureId, structures.id))
+				.innerJoin(programs, eq(structures.programId, programs.id));
+		}
+
+		const idRows = await idQuery
 			.where(whereJoin)
 			.orderBy(asc(clearance.createdAt))
 			.limit(limit)
@@ -339,28 +544,85 @@ export default class ClearanceRepository extends BaseRepository<
 			);
 
 		const ids = idRows.map((r) => r.id);
-		if (ids.length === 0) return [];
 
-		const rows = await db.query.registrationClearance.findMany({
-			where: inArray(registrationClearance.id, ids),
-			with: {
-				registrationRequest: { with: { term: true } },
-				clearance: {
-					with: {
-						audits: {
-							orderBy: desc(clearanceAudit.date),
-							with: { user: true },
+		const [clearanceRows, autoApprovalRows] = await Promise.all([
+			ids.length > 0
+				? db.query.registrationClearance.findMany({
+						where: inArray(registrationClearance.id, ids),
+						with: {
+							registrationRequest: { with: { term: true } },
+							clearance: {
+								with: {
+									audits: {
+										orderBy: desc(clearanceAudit.date),
+										with: { user: true },
+									},
+								},
+							},
 						},
-					},
+						orderBy: (rcs, { desc: d }) => [d(rcs.createdAt)],
+					})
+				: Promise.resolve([]),
+			db.query.autoApprovals.findMany({
+				where: and(
+					eq(autoApprovals.stdNo, stdNo),
+					eq(autoApprovals.department, department)
+				),
+				with: {
+					term: true,
+					createdByUser: true,
 				},
-			},
-			orderBy: (rcs, { desc: d }) => [d(rcs.createdAt)],
-		});
+				orderBy: (aa, { desc: d }) => [d(aa.createdAt)],
+			}),
+		]);
 
-		return rows.map((rc) => ({
-			...rc.clearance,
-			registrationRequest: rc.registrationRequest,
+		const autoApprovalTermIds = new Set(
+			autoApprovalRows.map((aa) => aa.termId)
+		);
+
+		const clearanceHistory = clearanceRows
+			.filter((rc) => !autoApprovalTermIds.has(rc.registrationRequest.termId))
+			.map((rc) => ({
+				...rc.clearance,
+				registrationRequest: rc.registrationRequest,
+				isAutoApproval: false as const,
+			}));
+
+		const autoApprovalHistory = autoApprovalRows.map((aa) => ({
+			id: aa.id,
+			department: aa.department,
+			status: 'approved' as const,
+			message: 'Auto-approved',
+			emailSent: null,
+			respondedBy: aa.createdBy,
+			responseDate: aa.createdAt,
+			createdAt: aa.createdAt,
+			registrationRequest: { term: aa.term },
+			audits: [
+				{
+					id: aa.id,
+					clearanceId: aa.id,
+					previousStatus: null,
+					newStatus: 'approved' as const,
+					createdBy: aa.createdBy,
+					date: aa.createdAt,
+					message: 'Auto-approved',
+					modules: null,
+					user: aa.createdByUser,
+				},
+			],
+			isAutoApproval: true as const,
 		}));
+
+		const combined = [...clearanceHistory, ...autoApprovalHistory].sort(
+			(a, b) => {
+				const dateA = a.createdAt ?? new Date(0);
+				const dateB = b.createdAt ?? new Date(0);
+				return new Date(dateB).getTime() - new Date(dateA).getTime();
+			}
+		);
+
+		return combined;
 	}
 
 	async findNextPending(department: DashboardUser) {

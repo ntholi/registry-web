@@ -9,6 +9,7 @@ import { Form } from '@registry/registration/requests';
 import { notFound } from 'next/navigation';
 import type {
 	modules,
+	ReceiptType,
 	StudentModuleStatus,
 	semesterModules,
 } from '@/core/database';
@@ -25,6 +26,7 @@ type SemesterModule = typeof semesterModules.$inferSelect & {
 };
 interface SelectedModule extends SemesterModule {
 	status: StudentModuleStatus;
+	receiptNumber?: string;
 }
 
 type RegistrationRequest = {
@@ -38,6 +40,7 @@ type RegistrationRequest = {
 	semesterNumber: string;
 	termId: number;
 	selectedModules?: Array<SelectedModule>;
+	tuitionFeeReceipts?: string[];
 };
 
 export default async function RegistrationRequestEdit({ params }: Props) {
@@ -52,10 +55,29 @@ export default async function RegistrationRequestEdit({ params }: Props) {
 		registrationRequest.termId
 	);
 
-	const selectedModules = registrationRequest.requestedModules.map((rm) => ({
-		...rm.semesterModule,
-		status: rm.moduleStatus,
-	})) as SelectedModule[];
+	const existingReceipts =
+		registrationRequest.registrationRequestReceipts || [];
+	const repeatModuleReceipts = existingReceipts
+		.filter((r) => r.receipt?.receiptType === 'repeat_module')
+		.map((r) => r.receipt?.receiptNo)
+		.filter((r): r is string => !!r);
+	const tuitionFeeReceipts = existingReceipts
+		.filter((r) => r.receipt?.receiptType === 'tuition_fee')
+		.map((r) => r.receipt?.receiptNo)
+		.filter((r): r is string => !!r);
+
+	let repeatReceiptIdx = 0;
+	const selectedModules = registrationRequest.requestedModules.map((rm) => {
+		const isRepeat = rm.moduleStatus.startsWith('Repeat');
+		const receiptNumber = isRepeat
+			? repeatModuleReceipts[repeatReceiptIdx++] || ''
+			: undefined;
+		return {
+			...rm.semesterModule,
+			status: rm.moduleStatus,
+			receiptNumber,
+		};
+	}) as SelectedModule[];
 
 	const structureModules = registrationRequest.structureId
 		? await getModulesForStructure(registrationRequest.structureId)
@@ -63,15 +85,36 @@ export default async function RegistrationRequestEdit({ params }: Props) {
 
 	async function handleSubmit(values: RegistrationRequest) {
 		'use server';
-		const { selectedModules } = values;
+		const { selectedModules, tuitionFeeReceipts: formTuitionReceipts } = values;
 		if (!values.id) {
 			throw new Error('Registration request ID is required');
 		}
+
+		const receipts: { receiptNo: string; receiptType: ReceiptType }[] = [];
+
+		if (selectedModules) {
+			for (const mod of selectedModules) {
+				if (mod.status.startsWith('Repeat') && mod.receiptNumber) {
+					receipts.push({
+						receiptNo: mod.receiptNumber,
+						receiptType: 'repeat_module',
+					});
+				}
+			}
+		}
+
+		if (formTuitionReceipts) {
+			for (const receiptNo of formTuitionReceipts.filter(Boolean)) {
+				receipts.push({ receiptNo, receiptType: 'tuition_fee' });
+			}
+		}
+
 		const res = await updateRegistration(
 			values.id,
 			selectedModules?.map((module) => ({
 				id: module.id,
 				status: module.status,
+				receiptNumber: module.receiptNumber,
 			})) || [],
 			{
 				sponsorId: values.sponsorId,
@@ -81,7 +124,8 @@ export default async function RegistrationRequestEdit({ params }: Props) {
 			},
 			values.semesterNumber,
 			values.semesterStatus,
-			values.termId
+			values.termId,
+			receipts
 		);
 		return {
 			...values,
@@ -120,6 +164,7 @@ export default async function RegistrationRequestEdit({ params }: Props) {
 					semesterNumber: registrationRequest.semesterNumber,
 					termId: registrationRequest.termId,
 					selectedModules,
+					tuitionFeeReceipts,
 				}}
 				onSubmit={handleSubmit}
 				structureModules={structureModules}

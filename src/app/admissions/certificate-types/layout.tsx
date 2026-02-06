@@ -1,6 +1,5 @@
 'use client';
 
-import { Badge, Group } from '@mantine/core';
 import type { PropsWithChildren } from 'react';
 import { ListItem, ListLayout, NewLink } from '@/shared/ui/adease';
 import type { CertificateTypeWithMappings } from './_lib/types';
@@ -18,14 +17,7 @@ export default function Layout({ children }: PropsWithChildren) {
 			renderItem={(item) => (
 				<ListItem
 					id={item.id}
-					label={
-						<Group gap='xs'>
-							{item.name}
-							<Badge size='xs' variant='light'>
-								LQF {item.lqfLevel}
-							</Badge>
-						</Group>
-					}
+					label={item.name}
 					description={item.description || undefined}
 				/>
 			)}

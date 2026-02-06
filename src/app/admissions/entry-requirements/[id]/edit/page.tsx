@@ -1,48 +1,80 @@
-import { getAllPrograms } from '@academic/schools/_server/actions';
-import { Box } from '@mantine/core';
+import {
+	Badge,
+	Box,
+	CloseButton,
+	Divider,
+	Flex,
+	Group,
+	Stack,
+	Text,
+	Title,
+} from '@mantine/core';
 import { notFound } from 'next/navigation';
+import { DetailsView, DetailsViewBody } from '@/shared/ui/adease';
 import { findAllCertificateTypes } from '../../../certificate-types/_server/actions';
 import { findActiveSubjects } from '../../../subjects/_server/actions';
-import Form from '../../_components/Form';
-import {
-	getEntryRequirement,
-	updateEntryRequirement,
-} from '../../_server/actions';
+import EditRequirementsList from '../../_components/EditRequirementsList';
+import { findEntryRequirementsByProgram } from '../../_server/actions';
 
 type Props = {
 	params: Promise<{ id: string }>;
 };
 
-export default async function EntryRequirementEdit({ params }: Props) {
+export default async function ProgramEntryRequirementsEdit({ params }: Props) {
 	const { id } = await params;
-	const [item, programsData, certificateTypesData, subjects] =
-		await Promise.all([
-			getEntryRequirement(Number(id)),
-			getAllPrograms(),
-			findAllCertificateTypes(1, ''),
-			findActiveSubjects(),
-		]);
+	const programId = Number(id);
 
-	if (!item) {
+	const [requirements, certificateTypesData, subjects] = await Promise.all([
+		findEntryRequirementsByProgram(programId),
+		findAllCertificateTypes(1, ''),
+		findActiveSubjects(),
+	]);
+
+	if (!requirements || requirements.length === 0) {
 		return notFound();
 	}
 
-	const programs = programsData || [];
+	const program = requirements[0]?.program;
+	if (!program) {
+		return notFound();
+	}
+
 	const certificateTypes = certificateTypesData?.items || [];
 
 	return (
-		<Box p='lg'>
-			<Form
-				title='Edit Entry Requirement'
-				defaultValues={item}
-				programs={programs}
-				certificateTypes={certificateTypes}
-				subjects={subjects}
-				onSubmit={async (value) => {
-					'use server';
-					return await updateEntryRequirement(Number(id), value);
-				}}
-			/>
-		</Box>
+		<DetailsView>
+			<Flex justify='space-between' align={'center'}>
+				<Title order={3} fw={100}>
+					Entry Requirements for {program.name}
+				</Title>
+				<CloseButton size={'lg'} />
+			</Flex>
+			<Divider my={15} />
+			<DetailsViewBody>
+				<Stack gap='lg'>
+					<Group gap='md' align='flex-start'>
+						<Box>
+							<Group gap='xs'>
+								<Title order={4}>{program.code}</Title>
+								<Badge variant='default'>{program.level}</Badge>
+							</Group>
+							<Text>{program.name}</Text>
+							{program.school && (
+								<Text size='xs' c='dimmed'>
+									{program.school.name}
+								</Text>
+							)}
+						</Box>
+					</Group>
+
+					<EditRequirementsList
+						programId={programId}
+						requirements={requirements}
+						certificateTypes={certificateTypes}
+						subjects={subjects}
+					/>
+				</Stack>
+			</DetailsViewBody>
+		</DetailsView>
 	);
 }

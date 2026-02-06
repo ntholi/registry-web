@@ -1,0 +1,262 @@
+'use client';
+
+import {
+	Accordion,
+	Badge,
+	Box,
+	Group,
+	Paper,
+	Stack,
+	Text,
+	ThemeIcon,
+} from '@mantine/core';
+import { IconCertificate, IconChecklist } from '@tabler/icons-react';
+import { FieldView } from '@/shared/ui/adease';
+import {
+	type ClassificationRules,
+	normalizeSubjectGradeRules,
+	type SubjectGradeRules,
+} from '../_lib/types';
+
+type EntryRequirementItem = {
+	id: string;
+	rules: unknown;
+	certificateType: {
+		id: string;
+		name: string;
+		lqfLevel: number;
+	} | null;
+};
+
+type Subject = { id: string; name: string };
+
+type Props = {
+	requirements: EntryRequirementItem[];
+	subjects: Subject[];
+};
+
+export default function RequirementsAccordion({
+	requirements,
+	subjects,
+}: Props) {
+	return (
+		<Accordion variant='separated' radius='md'>
+			{requirements.map((req, index) => {
+				const rawRules = req.rules as SubjectGradeRules | ClassificationRules;
+				const isSubjectBased = rawRules?.type === 'subject-grades';
+				const rules = isSubjectBased
+					? normalizeSubjectGradeRules(
+							rawRules as Parameters<typeof normalizeSubjectGradeRules>[0]
+						)
+					: rawRules;
+				const certType = req.certificateType;
+
+				const formatGradeOptions = (opts: SubjectGradeRules['gradeOptions']) =>
+					opts
+						.map((opt) => opt.map((g) => `${g.count} at ${g.grade}`).join(', '))
+						.join(' OR ');
+
+				return (
+					<Accordion.Item key={req.id} value={req.id.toString()}>
+						<Accordion.Control>
+							<Group gap='md'>
+								<ThemeIcon
+									size='md'
+									radius='xl'
+									variant='light'
+									color={index === 0 ? 'green' : 'blue'}
+								>
+									<IconCertificate size='1rem' />
+								</ThemeIcon>
+								<Box>
+									<Group gap='xs'>
+										<Text fw={500}>{certType?.name || 'Unknown'}</Text>
+									</Group>
+									<Text size='xs' c='dimmed'>
+										{isSubjectBased
+											? formatGradeOptions(
+													(rules as SubjectGradeRules).gradeOptions
+												)
+											: `Minimum ${(rules as ClassificationRules).minimumClassification} classification`}
+									</Text>
+								</Box>
+							</Group>
+						</Accordion.Control>
+						<Accordion.Panel>
+							<RequirementDetails rules={rules} subjects={subjects} />
+						</Accordion.Panel>
+					</Accordion.Item>
+				);
+			})}
+		</Accordion>
+	);
+}
+
+type RequirementDetailsProps = {
+	rules: SubjectGradeRules | ClassificationRules;
+	subjects: Subject[];
+};
+
+function RequirementDetails({ rules, subjects }: RequirementDetailsProps) {
+	const isSubjectBased = rules?.type === 'subject-grades';
+	const subjectMap = new Map(subjects.map((s) => [s.id, s.name]));
+
+	if (isSubjectBased) {
+		const sgRules = rules as SubjectGradeRules;
+		const ruleSubjects = sgRules.subjects ?? [];
+		const requiredSubjects = ruleSubjects.filter((s) => s.required);
+		const advantageSubjects = ruleSubjects.filter((s) => !s.required);
+		return (
+			<Stack gap='md'>
+				<Paper withBorder p='md' bg='var(--mantine-color-dark-7)'>
+					<Group gap='xs' mb='xs'>
+						<IconChecklist size='1rem' />
+						<Text fw={500} size='sm'>
+							General Requirements
+						</Text>
+					</Group>
+					<Stack gap={4}>
+						{sgRules.gradeOptions.map((option, optIdx) => (
+							<Box key={optIdx}>
+								{optIdx > 0 && (
+									<Text size='sm' c='blue' fw={500} my='xs'>
+										OR
+									</Text>
+								)}
+								{option.map((rule, ruleIdx) => (
+									<Text key={ruleIdx} size='sm'>
+										{ruleIdx > 0 && 'and '}Minimum of{' '}
+										<strong>{rule.count}</strong> subjects passed at grade{' '}
+										<strong>{rule.grade}</strong> or better
+									</Text>
+								))}
+							</Box>
+						))}
+					</Stack>
+				</Paper>
+
+				{requiredSubjects.length > 0 && (
+					<Box>
+						<Text fw={500} size='sm' mb='xs'>
+							Required Subjects
+						</Text>
+						<Stack gap='xs'>
+							{requiredSubjects.map((rs, idx) => (
+								<Paper
+									key={idx}
+									withBorder
+									p='sm'
+									bg='var(--mantine-color-dark-7)'
+								>
+									<Group justify='space-between'>
+										<Text size='sm'>
+											{subjectMap.get(rs.subjectId) ||
+												`Subject #${rs.subjectId}`}
+										</Text>
+										<Badge size='sm'>Min: {rs.minimumGrade}</Badge>
+									</Group>
+								</Paper>
+							))}
+						</Stack>
+					</Box>
+				)}
+
+				{advantageSubjects.length > 0 && (
+					<Box>
+						<Text fw={500} size='sm' mb='xs'>
+							Advantage Subjects
+						</Text>
+						<Stack gap='xs'>
+							{advantageSubjects.map((rs, idx) => (
+								<Paper
+									key={idx}
+									withBorder
+									p='sm'
+									bg='var(--mantine-color-dark-7)'
+								>
+									<Group justify='space-between'>
+										<Text size='sm'>
+											{subjectMap.get(rs.subjectId) ||
+												`Subject #${rs.subjectId}`}
+										</Text>
+										<Badge size='sm' variant='light'>
+											Min: {rs.minimumGrade}
+										</Badge>
+									</Group>
+								</Paper>
+							))}
+						</Stack>
+					</Box>
+				)}
+
+				{sgRules.subjectGroups && sgRules.subjectGroups.length > 0 && (
+					<Box>
+						<Text fw={500} size='sm' mb='xs'>
+							Optional Subject Groups
+						</Text>
+						<Stack gap='xs'>
+							{sgRules.subjectGroups.map((group, idx) => (
+								<Paper
+									key={idx}
+									withBorder
+									p='sm'
+									bg='var(--mantine-color-dark-7)'
+								>
+									<Group justify='space-between' mb='xs'>
+										<Text size='sm' fw={500}>
+											{group.name}
+										</Text>
+										{group.required && (
+											<Badge size='xs' color='red'>
+												Required
+											</Badge>
+										)}
+									</Group>
+									<Stack gap={4}>
+										<Text size='xs' c='dimmed'>
+											Min grade: {group.minimumGrade}
+										</Text>
+										<Text size='xs' c='dimmed'>
+											Subjects:{' '}
+											{group.subjectIds
+												.map((id) => subjectMap.get(id) || `#${id}`)
+												.join(', ')}
+										</Text>
+									</Stack>
+								</Paper>
+							))}
+						</Stack>
+					</Box>
+				)}
+			</Stack>
+		);
+	}
+
+	const classRules = rules as ClassificationRules;
+	const courses = classRules.courses ?? [];
+	return (
+		<Stack gap='md'>
+			<Paper withBorder p='md' bg='var(--mantine-color-dark-7)'>
+				<FieldView label='Minimum Classification'>
+					<Badge size='lg' color='blue'>
+						{classRules.minimumClassification}
+					</Badge>
+				</FieldView>
+			</Paper>
+
+			{courses.length > 0 && (
+				<Paper withBorder p='md' bg='var(--mantine-color-dark-7)'>
+					<FieldView label='Eligible Courses'>
+						<Group gap='xs'>
+							{courses.map((course) => (
+								<Badge key={course} size='sm' variant='light'>
+									{course}
+								</Badge>
+							))}
+						</Group>
+					</FieldView>
+				</Paper>
+			)}
+		</Stack>
+	);
+}

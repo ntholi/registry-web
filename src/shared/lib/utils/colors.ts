@@ -1,16 +1,17 @@
-import type { Grade, ModuleType } from '@academic/_database';
-import type { programLevelEnum } from '@academic/_database/schema/enums';
+import type { ModuleType, programLevelEnum } from '@academic/_database';
 import type { taskPriority, taskStatus } from '@admin/_database';
 import type {
 	QuestionType as LmsQuestionType,
 	QuestionState,
 } from '@lms/quizzes';
 import type {
+	Grade,
+	gender,
 	SemesterStatus,
 	StudentModuleStatus,
 	StudentProgramStatus,
+	studentStatus,
 } from '@registry/_database';
-import type { gender, studentStatus } from '@registry/_database/schema/enums';
 import type { classTypeEnum } from '@timetable/_database';
 
 type Gender = (typeof gender.enumValues)[number];
@@ -224,6 +225,11 @@ export const statusColors = {
 		active: semantic.info,
 		returned: semantic.success,
 		overdue: semantic.error,
+	},
+	transactionStatus: {
+		pending: semantic.warning,
+		success: semantic.success,
+		failed: semantic.error,
 	},
 } as const;
 
@@ -530,4 +536,16 @@ export type BookCopyStatusType = keyof typeof statusColors.bookCopyStatus;
 
 export function getBookCopyStatusColor(status: BookCopyStatusType | string) {
 	return getColorFromMap(status, statusColors.bookCopyStatus);
+}
+
+export type TransactionStatusType = keyof typeof statusColors.transactionStatus;
+
+export function getTransactionStatusColor(status: TransactionStatusType) {
+	return getColorFromMap(status, statusColors.transactionStatus);
+}
+
+export type DepositStatusType = 'pending' | 'verified' | 'rejected';
+
+export function getDepositStatusColor(status: DepositStatusType) {
+	return getColorFromMap(status, statusColors.documentVerificationStatus);
 }

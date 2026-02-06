@@ -1,4 +1,4 @@
-import type { Grade } from '@academic/_database';
+import type { Grade } from '@registry/_database';
 import type { semesterModules } from '@/core/database';
 import type { QueryOptions } from '@/core/platform/BaseRepository';
 import BaseService from '@/core/platform/BaseService';

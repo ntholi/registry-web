@@ -359,9 +359,7 @@ export default class SemesterModuleRepository extends BaseRepository<
 	async getStudentCountForPreviousSemester(semesterModuleId: number) {
 		const semesterModule = await db.query.semesterModules.findFirst({
 			where: eq(semesterModules.id, semesterModuleId),
-			with: {
-				semester: true,
-			},
+			with: { semester: true },
 		});
 
 		if (!semesterModule?.semester) {
@@ -381,36 +379,24 @@ export default class SemesterModuleRepository extends BaseRepository<
 		const previousSemester = await db.query.structureSemesters.findFirst({
 			where: and(
 				eq(structureSemesters.structureId, semesterModule.semester.structureId),
-				or(
-					eq(
-						structureSemesters.semesterNumber,
-						previousSemesterNumber.toString().padStart(2, '0')
-					)
+				eq(
+					structureSemesters.semesterNumber,
+					previousSemesterNumber.toString().padStart(2, '0')
 				)
 			),
+			columns: { id: true },
 		});
 
 		if (!previousSemester) {
 			return 0;
 		}
 
-		const studentSemesterTerms = await db
-			.selectDistinct({ termCode: studentSemesters.termCode })
-			.from(studentSemesters)
-			.where(eq(studentSemesters.structureSemesterId, previousSemester.id));
-
-		if (studentSemesterTerms.length === 0) {
-			return 0;
-		}
-
-		const termCodes = studentSemesterTerms.map((t) => t.termCode);
-
-		const mostRecentTerm = await db.query.terms.findFirst({
-			where: inArray(terms.code, termCodes),
-			orderBy: [desc(terms.id)],
+		const activeTerm = await db.query.terms.findFirst({
+			where: eq(terms.isActive, true),
+			columns: { code: true },
 		});
 
-		if (!mostRecentTerm) {
+		if (!activeTerm) {
 			return 0;
 		}
 
@@ -420,7 +406,7 @@ export default class SemesterModuleRepository extends BaseRepository<
 			.where(
 				and(
 					eq(studentSemesters.structureSemesterId, previousSemester.id),
-					eq(studentSemesters.termCode, mostRecentTerm.code)
+					eq(studentSemesters.termCode, activeTerm.code)
 				)
 			);
 

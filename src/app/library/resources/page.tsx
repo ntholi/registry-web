@@ -1,5 +1,5 @@
-import { NothingSelected } from '@/shared/ui/adease';
+import { redirect } from 'next/navigation';
 
 export default function ResourcesPage() {
-	return <NothingSelected title='Digital Resources' />;
+	redirect('/library/resources/publications');
 }

@@ -20,20 +20,18 @@ import { IconEdit, IconPlus, IconTrash } from '@tabler/icons-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import {
-	addGuardianPhone,
 	createGuardian,
 	deleteGuardian,
-	removeGuardianPhone,
 	updateGuardian,
 } from '../_server/actions';
 
 type GuardianPhone = {
-	id: number;
+	id: string;
 	phoneNumber: string;
 };
 
 type Guardian = {
-	id: number;
+	id: string;
 	name: string;
 	relationship: string;
 	address: string | null;
@@ -59,8 +57,6 @@ export default function GuardianManager({ applicantId, guardians }: Props) {
 	const queryClient = useQueryClient();
 	const [opened, { open, close }] = useDisclosure(false);
 	const [editingGuardian, setEditingGuardian] = useState<Guardian | null>(null);
-	const [addingPhoneFor, setAddingPhoneFor] = useState<number | null>(null);
-	const [newPhone, setNewPhone] = useState('');
 
 	const form = useForm({
 		initialValues: {
@@ -69,12 +65,23 @@ export default function GuardianManager({ applicantId, guardians }: Props) {
 			address: '',
 			occupation: '',
 			companyName: '',
+			phoneNumber1: '',
+			phoneNumber2: '',
+		},
+		validate: {
+			name: (value) => (value ? null : 'Name is required'),
+			relationship: (value) => (value ? null : 'Relationship is required'),
 		},
 	});
 
 	const createMutation = useMutation({
-		mutationFn: (data: typeof form.values) =>
-			createGuardian({ ...data, applicantId }),
+		mutationFn: (values: typeof form.values) => {
+			const { phoneNumber1, phoneNumber2, ...data } = values;
+			return createGuardian(
+				{ ...data, applicantId },
+				[phoneNumber1, phoneNumber2].filter(Boolean)
+			);
+		},
 		onSuccess: async () => {
 			await queryClient.invalidateQueries({ queryKey: ['applicants'] });
 			form.reset();
@@ -95,8 +102,20 @@ export default function GuardianManager({ applicantId, guardians }: Props) {
 	});
 
 	const updateMutation = useMutation({
-		mutationFn: ({ id, data }: { id: number; data: typeof form.values }) =>
-			updateGuardian(id, data),
+		mutationFn: ({
+			id,
+			values,
+		}: {
+			id: string;
+			values: typeof form.values;
+		}) => {
+			const { phoneNumber1, phoneNumber2, ...data } = values;
+			return updateGuardian(
+				id,
+				data,
+				[phoneNumber1, phoneNumber2].filter(Boolean)
+			);
+		},
 		onSuccess: async () => {
 			await queryClient.invalidateQueries({ queryKey: ['applicants'] });
 			form.reset();
@@ -136,52 +155,6 @@ export default function GuardianManager({ applicantId, guardians }: Props) {
 		},
 	});
 
-	const addPhoneMutation = useMutation({
-		mutationFn: ({
-			guardianId,
-			phone,
-		}: {
-			guardianId: number;
-			phone: string;
-		}) => addGuardianPhone(guardianId, phone),
-		onSuccess: async () => {
-			await queryClient.invalidateQueries({ queryKey: ['applicants'] });
-			setAddingPhoneFor(null);
-			setNewPhone('');
-			notifications.show({
-				title: 'Success',
-				message: 'Phone added',
-				color: 'green',
-			});
-		},
-		onError: (error: Error) => {
-			notifications.show({
-				title: 'Error',
-				message: error.message,
-				color: 'red',
-			});
-		},
-	});
-
-	const removePhoneMutation = useMutation({
-		mutationFn: removeGuardianPhone,
-		onSuccess: async () => {
-			await queryClient.invalidateQueries({ queryKey: ['applicants'] });
-			notifications.show({
-				title: 'Success',
-				message: 'Phone removed',
-				color: 'green',
-			});
-		},
-		onError: (error: Error) => {
-			notifications.show({
-				title: 'Error',
-				message: error.message,
-				color: 'red',
-			});
-		},
-	});
-
 	function handleEdit(guardian: Guardian) {
 		setEditingGuardian(guardian);
 		form.setValues({
@@ -190,13 +163,15 @@ export default function GuardianManager({ applicantId, guardians }: Props) {
 			address: guardian.address || '',
 			occupation: guardian.occupation || '',
 			companyName: guardian.companyName || '',
+			phoneNumber1: guardian.phones[0]?.phoneNumber || '',
+			phoneNumber2: guardian.phones[1]?.phoneNumber || '',
 		});
 		open();
 	}
 
 	function handleSubmit(values: typeof form.values) {
 		if (editingGuardian) {
-			updateMutation.mutate({ id: editingGuardian.id, data: values });
+			updateMutation.mutate({ id: editingGuardian.id, values });
 		} else {
 			createMutation.mutate(values);
 		}
@@ -250,79 +225,13 @@ export default function GuardianManager({ applicantId, guardians }: Props) {
 							</Text>
 						)}
 
-						<Stack gap='xs' mt='sm'>
-							<Text size='sm' fw={500}>
-								Phone Numbers
-							</Text>
-							{guardian.phones.length > 0 ? (
-								<Group gap='xs'>
-									{guardian.phones.map((phone) => (
-										<Badge
-											key={phone.id}
-											variant='outline'
-											rightSection={
-												<ActionIcon
-													size='xs'
-													variant='transparent'
-													color='red'
-													onClick={() => removePhoneMutation.mutate(phone.id)}
-												>
-													<IconTrash size={12} />
-												</ActionIcon>
-											}
-										>
-											{phone.phoneNumber}
-										</Badge>
-									))}
-								</Group>
-							) : (
-								<Text size='sm' c='dimmed'>
-									No phone numbers
-								</Text>
-							)}
-
-							{addingPhoneFor === guardian.id ? (
-								<Group gap='xs'>
-									<TextInput
-										size='xs'
-										placeholder='Phone number'
-										value={newPhone}
-										onChange={(e) => setNewPhone(e.target.value)}
-									/>
-									<Button
-										size='xs'
-										onClick={() =>
-											addPhoneMutation.mutate({
-												guardianId: guardian.id,
-												phone: newPhone,
-											})
-										}
-										loading={addPhoneMutation.isPending}
-									>
-										Add
-									</Button>
-									<Button
-										size='xs'
-										variant='subtle'
-										onClick={() => {
-											setAddingPhoneFor(null);
-											setNewPhone('');
-										}}
-									>
-										Cancel
-									</Button>
-								</Group>
-							) : (
-								<Button
-									size='xs'
-									variant='light'
-									leftSection={<IconPlus size={14} />}
-									onClick={() => setAddingPhoneFor(guardian.id)}
-								>
-									Add Phone
-								</Button>
-							)}
-						</Stack>
+						<Group gap='xs' mt='sm'>
+							{guardian.phones.map((phone) => (
+								<Badge key={phone.id} variant='outline'>
+									{phone.phoneNumber}
+								</Badge>
+							))}
+						</Group>
 					</Card>
 				))
 			) : (
@@ -353,6 +262,18 @@ export default function GuardianManager({ applicantId, guardians }: Props) {
 							data={relationshipOptions}
 							{...form.getInputProps('relationship')}
 						/>
+						<Group grow>
+							<TextInput
+								label='Phone 1'
+								placeholder='Enter phone number'
+								{...form.getInputProps('phoneNumber1')}
+							/>
+							<TextInput
+								label='Phone 2'
+								placeholder='Enter phone number'
+								{...form.getInputProps('phoneNumber2')}
+							/>
+						</Group>
 						<TextInput
 							label='Occupation'
 							{...form.getInputProps('occupation')}

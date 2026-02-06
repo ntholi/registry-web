@@ -7,20 +7,21 @@ type Props = {
 	params: Promise<{ id: string }>;
 };
 
-export default async function EditCategoryPage({ params }: Props) {
+export default async function CategoryEdit({ params }: Props) {
 	const { id } = await params;
-	const item = await getCategory(Number(id));
-
-	if (!item) return notFound();
+	const item = await getCategory(id);
+	if (!item) {
+		return notFound();
+	}
 
 	return (
-		<Box p='lg'>
+		<Box p={'lg'}>
 			<Form
-				title='Edit Category'
+				title={'Edit Category'}
 				defaultValues={item}
 				onSubmit={async (value) => {
 					'use server';
-					return updateCategory(Number(id), value);
+					return await updateCategory(id, value);
 				}}
 			/>
 		</Box>

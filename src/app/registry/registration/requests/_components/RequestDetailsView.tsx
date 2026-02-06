@@ -1,6 +1,5 @@
 'use client';
 
-import type { getSponsoredStudent } from '@finance/sponsors';
 import {
 	ActionIcon,
 	Badge,
@@ -21,7 +20,14 @@ import type { getRegistrationRequest } from '../_server/requests/actions';
 
 type Props = {
 	value: NonNullable<Awaited<ReturnType<typeof getRegistrationRequest>>>;
-	sponsorship?: Awaited<ReturnType<typeof getSponsoredStudent>> | null;
+	sponsorship?: {
+		sponsor?: {
+			name?: string | null;
+		} | null;
+		borrowerNo?: string | null;
+		bankName?: string | null;
+		accountNumber?: string | null;
+	} | null;
 };
 
 export default function RequestDetailsView({ value, sponsorship }: Props) {

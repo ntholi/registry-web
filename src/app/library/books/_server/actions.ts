@@ -1,12 +1,11 @@
 'use server';
 
 import type { books } from '@/core/database';
-import { fetchBookCoverByIsbn } from '../../_lib/google-books';
 import { booksService } from './service';
 
 type Book = typeof books.$inferInsert;
 
-export async function getBook(id: number) {
+export async function getBook(id: string) {
 	return booksService.getWithRelations(id);
 }
 
@@ -21,25 +20,21 @@ export async function getBooks(page = 1, search = '') {
 
 export async function createBook(
 	book: Book,
-	authorIds: number[],
-	categoryIds: number[]
+	authorIds: string[],
+	categoryIds: string[]
 ) {
 	return booksService.createWithRelations(book, authorIds, categoryIds);
 }
 
 export async function updateBook(
-	id: number,
+	id: string,
 	book: Book,
-	authorIds: number[],
-	categoryIds: number[]
+	authorIds: string[],
+	categoryIds: string[]
 ) {
 	return booksService.updateWithRelations(id, book, authorIds, categoryIds);
 }
 
-export async function deleteBook(id: number) {
+export async function deleteBook(id: string) {
 	return booksService.delete(id);
-}
-
-export async function fetchBookCover(isbn: string) {
-	return fetchBookCoverByIsbn(isbn);
 }

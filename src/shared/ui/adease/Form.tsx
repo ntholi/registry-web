@@ -6,28 +6,43 @@ import { notifications } from '@mantine/notifications';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { zod4Resolver as zodResolver } from 'mantine-form-zod-resolver';
 import { useRouter } from 'nextjs-toploader/app';
-import type { JSX } from 'react';
+import type { JSX, RefObject } from 'react';
 import type { ZodObject, ZodTypeAny } from 'zod';
+import type { ActionResult } from '@/shared/lib/utils/actionResult';
 import FormHeader from './FormHeader';
 
 type ZodSchema = ZodObject<Record<string, ZodTypeAny>>;
 
-export type FormProps<T extends Record<string, unknown>, V> = Omit<
+export type FormProps<T extends Record<string, unknown>, V, R = T> = Omit<
 	StackProps,
 	'children'
 > & {
-	children: (form: ReturnType<typeof useForm<T>>) => JSX.Element;
+	children: (
+		form: ReturnType<typeof useForm<T>>,
+		state: { isSubmitting: boolean }
+	) => JSX.Element;
 	beforeSubmit?: (form: ReturnType<typeof useForm<T>>) => void;
-	action: (values: T) => Promise<T>;
+	action: (values: T) => Promise<R | ActionResult<R>>;
 	schema?: ZodSchema;
 	defaultValues?: V;
 	title?: string;
-	onSuccess?: (values: T) => void;
+	onSuccess?: (values: R) => void;
 	onError?: (error: Error) => void;
 	queryKey: string[];
+	formRef?: RefObject<HTMLFormElement | null>;
+	hideHeader?: boolean;
 };
 
-export function Form<T extends Record<string, unknown>, V>({
+function isActionResult(value: unknown): value is ActionResult<unknown> {
+	return (
+		typeof value === 'object' &&
+		value !== null &&
+		'success' in value &&
+		typeof (value as { success: unknown }).success === 'boolean'
+	);
+}
+
+export function Form<T extends Record<string, unknown>, V, R = T>({
 	schema,
 	beforeSubmit,
 	defaultValues,
@@ -37,8 +52,10 @@ export function Form<T extends Record<string, unknown>, V>({
 	onSuccess,
 	onError,
 	queryKey,
+	formRef,
+	hideHeader,
 	...props
-}: FormProps<T, V>) {
+}: FormProps<T, V, R>) {
 	const router = useRouter();
 	const queryClient = useQueryClient();
 
@@ -50,6 +67,28 @@ export function Form<T extends Record<string, unknown>, V>({
 	const mutation = useMutation({
 		mutationFn: action,
 		onSuccess: async (data) => {
+			if (isActionResult(data)) {
+				if (!data.success) {
+					notifications.show({
+						title: 'Error',
+						message: data.error,
+						color: 'red',
+					});
+					onError?.({ message: data.error } as Error);
+					return;
+				}
+				await queryClient.invalidateQueries({
+					queryKey,
+					refetchType: 'all',
+				});
+				onSuccess?.(data.data as R);
+				notifications.show({
+					title: 'Success',
+					message: 'Record saved successfully',
+					color: 'green',
+				});
+				return;
+			}
 			await queryClient.invalidateQueries({
 				queryKey,
 				refetchType: 'all',
@@ -78,20 +117,23 @@ export function Form<T extends Record<string, unknown>, V>({
 
 	return (
 		<form
+			ref={formRef}
 			onSubmit={(e) => {
 				beforeSubmit?.(form);
 				form.onSubmit(handleSubmit)(e);
 			}}
 		>
-			<FormHeader
-				title={title}
-				isLoading={mutation.isPending}
-				onClose={() => {
-					router.back();
-				}}
-			/>
-			<Stack p='xl' {...props}>
-				{children(form)}
+			{!hideHeader && (
+				<FormHeader
+					title={title}
+					isLoading={mutation.isPending}
+					onClose={() => {
+						router.back();
+					}}
+				/>
+			)}
+			<Stack p={hideHeader ? undefined : 'xl'} {...props}>
+				{children(form, { isSubmitting: mutation.isPending })}
 			</Stack>
 		</form>
 	);

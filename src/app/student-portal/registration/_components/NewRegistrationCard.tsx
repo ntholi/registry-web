@@ -10,6 +10,7 @@ import {
 	ThemeIcon,
 } from '@mantine/core';
 import { getStudentRegistrationHistory } from '@registry/registration';
+import { canStudentRegister } from '@registry/terms/settings/_server/termRegistrationsActions';
 import { IconInfoCircle, IconPlus } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
@@ -19,19 +20,21 @@ import useUserStudent from '@/shared/lib/hooks/use-user-student';
 import { isActiveSemester } from '@/shared/lib/utils/utils';
 
 export default function NewRegistrationCard() {
-	const { student, isLoading: studentLoading } = useUserStudent();
+	const { student, program, isLoading: studentLoading } = useUserStudent();
 	const { activeTerm } = useActiveTerm();
 
-	const hasExistingSemester =
-		student?.programs
-			.flatMap((program) => program.semesters)
-			.some(
-				(semester) =>
-					semester.termCode === activeTerm?.code &&
-					isActiveSemester(semester.status)
-			) || false;
+	const existingSemester = student?.programs
+		.filter((p) => p.status === 'Active')
+		.flatMap((p) => p.semesters)
+		.find(
+			(semester) =>
+				semester.termCode === activeTerm?.code &&
+				isActiveSemester(semester.status)
+		);
 
-	const shouldFetchData = !!student?.stdNo && !hasExistingSemester;
+	const hasExistingSemester = !!existingSemester;
+
+	const shouldFetchData = !!student?.stdNo && !!activeTerm?.id && !!program;
 
 	const { data: registrationHistory, isLoading: registrationLoading } =
 		useQuery({
@@ -46,7 +49,24 @@ export default function NewRegistrationCard() {
 		enabled: shouldFetchData,
 	});
 
-	const isLoading = studentLoading || registrationLoading || blockedLoading;
+	const { data: regAccess, isLoading: regAccessLoading } = useQuery({
+		queryKey: [
+			'can-register',
+			activeTerm?.id,
+			program?.schoolId,
+			program?.structure?.program?.id,
+		],
+		queryFn: () =>
+			canStudentRegister(
+				activeTerm!.id,
+				program!.schoolId,
+				program!.structure.program.id
+			),
+		enabled: shouldFetchData,
+	});
+
+	const isLoading =
+		studentLoading || registrationLoading || blockedLoading || regAccessLoading;
 
 	if (isLoading) {
 		return (
@@ -64,18 +84,18 @@ export default function NewRegistrationCard() {
 		);
 	}
 
-	if (hasExistingSemester) {
+	if (!regAccess?.allowed) {
 		return null;
 	}
 
-	const hasActiveRegistration =
-		registrationHistory?.some(
-			(request) => request.term.id === activeTerm?.id
-		) || false;
+	const hasPendingRegistration = registrationHistory?.some(
+		(request) =>
+			request.term.id === activeTerm?.id && request.status === 'pending'
+	);
 
 	const isBlocked = blockedStudent && blockedStudent.status === 'blocked';
 
-	if (hasActiveRegistration) {
+	if (hasPendingRegistration) {
 		return null;
 	}
 
@@ -97,11 +117,43 @@ export default function NewRegistrationCard() {
 		);
 	}
 
+	if (hasExistingSemester) {
+		return (
+			<Card withBorder>
+				<Stack align='center' gap='md'>
+					<ThemeIcon variant='light' color='teal' size='xl'>
+						<IconPlus size='1.5rem' />
+					</ThemeIcon>
+					<Stack align='center' gap='xs'>
+						<Text fw={500} size='lg'>
+							Add More Modules
+						</Text>
+						<Text size='sm' c='dimmed' ta='center'>
+							You are already registered for
+							<Text span fw={600}>
+								{` ${activeTerm?.code} `}
+							</Text>
+							but you can add additional modules to your registration.
+						</Text>
+					</Stack>
+					<Button
+						component={Link}
+						href='/student-portal/registration/new'
+						variant='light'
+						color='teal'
+					>
+						Add Modules
+					</Button>
+				</Stack>
+			</Card>
+		);
+	}
+
 	return (
 		<Card withBorder>
 			<Stack align='center' gap='md'>
 				<ThemeIcon variant='light' color='gray' size='xl'>
-					<IconPlus size={'1.5rem'} />
+					<IconPlus size='1.5rem' />
 				</ThemeIcon>
 				<Stack align='center' gap='xs'>
 					<Text fw={500} size='lg'>
@@ -110,7 +162,7 @@ export default function NewRegistrationCard() {
 					<Text size='sm' c='dimmed' ta='center'>
 						You don&apos;t have a registration request for
 						<Text span fw={600}>
-							{activeTerm?.code}
+							{` ${activeTerm?.code} `}
 						</Text>
 						yet. Click below to start your registration process.
 					</Text>

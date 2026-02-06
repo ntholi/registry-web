@@ -9,7 +9,7 @@ type Props = {
 
 export default async function EditBookPage({ params }: Props) {
 	const { id } = await params;
-	const book = await getBook(Number(id));
+	const book = await getBook(id);
 
 	if (!book) return notFound();
 
@@ -20,7 +20,7 @@ export default async function EditBookPage({ params }: Props) {
 				defaultValues={book}
 				onSubmit={async (value, authorIds, categoryIds) => {
 					'use server';
-					return updateBook(Number(id), value, authorIds, categoryIds);
+					return updateBook(id, value, authorIds, categoryIds);
 				}}
 			/>
 		</Box>

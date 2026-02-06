@@ -19,6 +19,7 @@ import {
 } from '@mantine/dropzone';
 import { notifications } from '@mantine/notifications';
 import { createDocument } from '@registry/documents';
+import type { DocumentType } from '@registry/documents/_schema/documents';
 import {
 	IconFile,
 	IconFileUpload,
@@ -58,7 +59,7 @@ export default function AddDocumentModal({
 	onSuccess,
 }: AddDocumentModalProps) {
 	const [files, setFiles] = useState<FileWithPath[]>([]);
-	const [type, setType] = useState<string | null>(null);
+	const [type, setType] = useState<DocumentType | null>(null);
 	const [loading, setLoading] = useState(false);
 	const maxFileSize = 10 * 1024 * 1024;
 
@@ -83,7 +84,7 @@ export default function AddDocumentModal({
 	}
 
 	function handleTypeChange(selected: string | null): void {
-		setType(selected);
+		setType(selected as DocumentType | null);
 	}
 
 	async function handleSubmit(): Promise<void> {
@@ -96,22 +97,33 @@ export default function AddDocumentModal({
 			return;
 		}
 
+		if (!type) {
+			notifications.show({
+				title: 'Error',
+				message: 'Please select a document type',
+				color: 'red',
+			});
+			return;
+		}
+
 		try {
 			setLoading(true);
 
 			const file = files[0];
 			const ext = file.name.split('.').pop()?.toLowerCase() || 'pdf';
 			const generatedFileName = `${nanoid()}.${ext}`;
+			const uploadPath = `documents/registry/students/${stdNo}`;
 
 			const uploadedPath = await uploadDocument(
 				file,
 				generatedFileName,
-				'documents'
+				uploadPath
 			);
 
 			await createDocument({
-				fileName: uploadedPath,
-				type: type || undefined,
+				fileName: file.name,
+				fileUrl: uploadedPath,
+				type,
 				stdNo,
 			});
 

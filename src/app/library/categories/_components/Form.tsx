@@ -1,7 +1,7 @@
 'use client';
 
 import { categories } from '@library/_database';
-import { Textarea, TextInput } from '@mantine/core';
+import { Stack, Textarea, TextInput } from '@mantine/core';
 import { createInsertSchema } from 'drizzle-zod';
 import { useRouter } from 'nextjs-toploader/app';
 import { Form } from '@/shared/ui/adease';
@@ -31,13 +31,16 @@ export default function CategoryForm({
 			onSuccess={({ id }) => router.push(`/library/categories/${id}`)}
 		>
 			{(form) => (
-				<>
+				<Stack>
 					<TextInput label='Name' {...form.getInputProps('name')} required />
 					<Textarea
 						label='Description'
 						{...form.getInputProps('description')}
+						autosize
+						minRows={2}
+						maxRows={4}
 					/>
-				</>
+				</Stack>
 			)}
 		</Form>
 	);

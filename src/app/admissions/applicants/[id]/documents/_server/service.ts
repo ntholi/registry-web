@@ -1,7 +1,8 @@
 import type {
 	applicantDocuments,
-	DocumentCategory,
+	DocumentType,
 	DocumentVerificationStatus,
+	documents,
 } from '@/core/database';
 import BaseService from '@/core/platform/BaseService';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
@@ -19,11 +20,11 @@ class ApplicantDocumentService extends BaseService<
 	constructor() {
 		const repo = new ApplicantDocumentRepository();
 		super(repo, {
-			byIdRoles: ['registry', 'admin'],
-			findAllRoles: ['registry', 'admin'],
-			createRoles: ['registry', 'admin'],
-			updateRoles: ['registry', 'admin'],
-			deleteRoles: ['registry', 'admin'],
+			byIdRoles: ['registry', 'marketing', 'admin'],
+			findAllRoles: ['registry', 'marketing', 'admin'],
+			createRoles: ['registry', 'marketing', 'admin'],
+			updateRoles: ['registry', 'marketing', 'admin'],
+			deleteRoles: ['registry', 'marketing', 'admin'],
 		});
 		this.repo = repo;
 	}
@@ -31,27 +32,28 @@ class ApplicantDocumentService extends BaseService<
 	async findByApplicant(applicantId: string, page = 1) {
 		return withAuth(
 			async () => this.repo.findByApplicant(applicantId, page),
-			['registry', 'admin']
+			['registry', 'marketing', 'admin', 'applicant']
 		);
 	}
 
-	async findByCategory(applicantId: string, category: DocumentCategory) {
+	async findByType(applicantId: string, type: DocumentType) {
 		return withAuth(
-			async () => this.repo.findByCategory(applicantId, category),
-			['registry', 'admin']
+			async () => this.repo.findByType(applicantId, type),
+			['registry', 'marketing', 'admin', 'applicant']
 		);
 	}
 
 	async uploadDocument(
-		data: typeof applicantDocuments.$inferInsert,
+		documentData: typeof documents.$inferInsert,
+		applicantId: string,
 		fileSize: number
 	) {
 		return withAuth(async () => {
 			if (fileSize > MAX_FILE_SIZE) {
 				throw new Error('FILE_TOO_LARGE: Document exceeds 5MB limit');
 			}
-			return this.repo.create(data);
-		}, ['registry', 'admin']);
+			return this.repo.createWithDocument(documentData, applicantId);
+		}, ['registry', 'marketing', 'admin', 'applicant']);
 	}
 
 	async verifyDocument(
@@ -64,13 +66,13 @@ class ApplicantDocumentService extends BaseService<
 				throw new Error('Rejection reason is required');
 			}
 			return this.repo.updateVerificationStatus(id, status, rejectionReason);
-		}, ['registry', 'admin']);
+		}, ['registry', 'marketing', 'admin', 'applicant']);
 	}
 
 	override async delete(id: string) {
 		return withAuth(
 			async () => this.repo.removeById(id),
-			['registry', 'admin']
+			['registry', 'marketing', 'admin', 'applicant']
 		);
 	}
 }

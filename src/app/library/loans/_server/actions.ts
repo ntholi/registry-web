@@ -5,7 +5,7 @@ import { createFineForLoan } from '../../fines/_server/actions';
 import type { LoanFilters } from '../_lib/types';
 import { loansService } from './service';
 
-export async function getLoan(id: number) {
+export async function getLoan(id: string) {
 	return loansService.getWithRelations(id);
 }
 
@@ -26,7 +26,7 @@ export async function getStudentLoans(stdNo: number, status?: string) {
 }
 
 export async function createLoan(
-	bookCopyId: number,
+	bookCopyId: string,
 	stdNo: number,
 	dueDate: Date
 ) {
@@ -35,7 +35,7 @@ export async function createLoan(
 	return loansService.issueLoan(bookCopyId, stdNo, dueDate, session.user.id);
 }
 
-export async function returnLoan(id: number) {
+export async function returnLoan(id: string) {
 	const session = await auth();
 	if (!session?.user?.id) throw new Error('Unauthorized');
 
@@ -48,7 +48,7 @@ export async function returnLoan(id: number) {
 	return result;
 }
 
-export async function renewLoan(id: number, newDueDate: Date) {
+export async function renewLoan(id: string, newDueDate: Date) {
 	const session = await auth();
 	if (!session?.user?.id) throw new Error('Unauthorized');
 	return loansService.renewLoan(id, newDueDate, session.user.id);
@@ -64,10 +64,10 @@ export async function searchBooks(query: string) {
 	return loansService.searchBooks(query);
 }
 
-export async function getAvailableCopies(bookId: number) {
+export async function getAvailableCopies(bookId: string) {
 	return loansService.getAvailableCopies(bookId);
 }
 
-export async function deleteLoan(id: number) {
+export async function deleteLoan(id: string) {
 	return loansService.delete(id);
 }

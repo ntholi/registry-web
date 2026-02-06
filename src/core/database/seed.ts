@@ -1,29 +1,21 @@
-import fs from 'node:fs';
-import path from 'node:path';
-import dotenv from 'dotenv';
-
-const envLocalPath = path.resolve(process.cwd(), '.env.local');
-if (fs.existsSync(envLocalPath)) {
-	dotenv.config({ path: envLocalPath });
-	console.log(`Loaded environment from ${envLocalPath}`);
-} else {
-	dotenv.config();
-	console.log('Loaded environment from .env');
-}
+import './env-load';
+import { seedCertificateTypes } from './seeds/certificate-types';
+import { seedEntryRequirements } from './seeds/entry-requirements';
+import { seedGradeMappings } from './seeds/grade-mappings';
+import { seedRecognizedSchools } from './seeds/recognized-schools';
+import { seedSchools } from './seeds/schools';
+import { seedSubjects } from './seeds/subjects';
 
 async function main() {
 	console.log('🚀 Starting database seed...');
 
 	try {
-		const { seedSubjects } = await import('./seeds/subjects');
-		const { seedCertificateTypes } = await import('./seeds/certificate-types');
-		const { seedGradeMappings } = await import('./seeds/grade-mappings');
-		const { seedVenues } = await import('./seeds/venues');
-
 		await seedSubjects();
+		await seedRecognizedSchools();
 		await seedCertificateTypes();
 		await seedGradeMappings();
-		await seedVenues();
+		await seedEntryRequirements();
+		await seedSchools();
 
 		console.log('🎉 Database seeding completed successfully.');
 	} catch (error) {

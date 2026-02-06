@@ -19,32 +19,39 @@ import { notifications } from '@mantine/notifications';
 import { IconPlus } from '@tabler/icons-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { getAllVenueTypes } from '@timetable/venue-types';
+import { getAllVenues } from '@timetable/venues';
 import { zod4Resolver as zodResolver } from 'mantine-form-zod-resolver';
 import { useState } from 'react';
 import { z } from 'zod';
 import { toClassName } from '@/shared/lib/utils/utils';
 import {
+	applyTimeRefinements,
+	baseAllocationSchemaInner,
+	type DayOfWeek,
+} from '../_lib/schemas';
+import {
 	createTimetableAllocationsWithVenueTypes,
 	createTimetableAllocationWithVenueTypes,
 } from '../_server/actions';
-import {
-	AllocationForm,
-	baseAllocationSchema,
-	type DayOfWeek,
-} from './AllocationForm';
+import { AllocationForm } from './AllocationForm';
 import { ModuleSearchInput } from './ModuleSearchInput';
 
-const schema = z
-	.object({
-		semesterModuleId: z.number().min(1, 'Please select a semester module'),
-		numberOfGroups: z
-			.number()
-			.min(0)
-			.max(10)
-			.refine((val) => val !== 1, 'Number of groups must be 0 or at least 2'),
-		groups: z.array(z.string()),
-	})
-	.merge(baseAllocationSchema);
+const schema = applyTimeRefinements(
+	z
+		.object({
+			semesterModuleId: z.number().min(1, 'Please select a student class'),
+			numberOfGroups: z
+				.number()
+				.min(1)
+				.max(10)
+				.refine(
+					(val) => val === 1 || val >= 2,
+					'Number of groups must be 1 or at least 2'
+				),
+			groups: z.array(z.string()),
+		})
+		.merge(baseAllocationSchemaInner)
+);
 
 type FormValues = z.infer<typeof schema>;
 
@@ -83,6 +90,11 @@ export default function AddAllocationModal({
 		queryFn: getAllVenueTypes,
 	});
 
+	const { data: venues = [] } = useQuery({
+		queryKey: ['venues'],
+		queryFn: getAllVenues,
+	});
+
 	const form = useForm<FormValues>({
 		validate: zodResolver(schema),
 		initialValues: {
@@ -91,29 +103,31 @@ export default function AddAllocationModal({
 			classType: 'lecture',
 			numberOfStudents: 0,
 			venueTypeIds: [],
-			numberOfGroups: 0,
+			numberOfGroups: 1,
 			groups: [],
 			allowedDays: defaultAllowedDays,
 			startTime: defaultStartTime,
 			endTime: defaultEndTime,
+			allowedVenueIds: [],
 		},
 	});
 
 	function generateGroupNames(count: number): string[] {
-		if (count === 0) return [];
+		if (count <= 1) return [];
 		const letters = 'ABCDEFGHIJ'.split('');
 		return letters.slice(0, count);
 	}
 
 	function handleGroupCountChange(value: number) {
+		const groupNames = generateGroupNames(value);
 		form.setFieldValue('numberOfGroups', value);
-		form.setFieldValue('groups', generateGroupNames(value));
+		form.setFieldValue('groups', groupNames);
 	}
 
 	const mutation = useMutation({
 		mutationFn: async (values: FormValues) => {
 			if (values.groups.length === 0) {
-				return createTimetableAllocationWithVenueTypes(
+				const result = await createTimetableAllocationWithVenueTypes(
 					{
 						userId,
 						termId,
@@ -125,11 +139,16 @@ export default function AddAllocationModal({
 						startTime: values.startTime,
 						endTime: values.endTime,
 					},
-					values.venueTypeIds
+					values.venueTypeIds,
+					values.allowedVenueIds
 				);
+				if (!result.success) {
+					throw new Error(result.error);
+				}
+				return result.data;
 			}
 
-			const allocations = values.groups.map((groupName) => ({
+			const allocations = values.groups.map((groupName: string) => ({
 				userId,
 				termId,
 				semesterModuleId: values.semesterModuleId,
@@ -144,10 +163,15 @@ export default function AddAllocationModal({
 				endTime: values.endTime,
 			}));
 
-			return createTimetableAllocationsWithVenueTypes(
+			const result = await createTimetableAllocationsWithVenueTypes(
 				allocations,
-				values.venueTypeIds
+				values.venueTypeIds,
+				values.allowedVenueIds
 			);
+			if (!result.success) {
+				throw new Error(result.error);
+			}
+			return result.data;
 		},
 		onSuccess: async () => {
 			await queryClient.invalidateQueries({
@@ -168,10 +192,44 @@ export default function AddAllocationModal({
 			close();
 		},
 		onError: (error: Error) => {
+			let message = error.message || 'Failed to add allocation';
+			let title = 'Error';
+
+			const lowerMsg = message.toLowerCase();
+			if (
+				lowerMsg.includes('already') ||
+				lowerMsg.includes('duplicate') ||
+				lowerMsg.includes('exists')
+			) {
+				title = 'Duplicate Allocation';
+			} else if (
+				lowerMsg.includes('unable to allocate') ||
+				lowerMsg.includes('no venue') ||
+				lowerMsg.includes('students') ||
+				lowerMsg.includes('slot grid') ||
+				lowerMsg.includes('time window')
+			) {
+				title = 'Scheduling Constraint';
+			} else if (
+				lowerMsg.includes('not available') ||
+				lowerMsg.includes('booked') ||
+				lowerMsg.includes('conflict')
+			) {
+				title = 'Scheduling Conflict';
+			} else if (
+				lowerMsg.includes('failed query') ||
+				lowerMsg.includes('insert into')
+			) {
+				message =
+					'Unable to save the allocation. Please try again or contact support if the issue persists.';
+				title = 'Save Failed';
+			}
+
 			notifications.show({
-				title: 'Error',
-				message: error.message || 'Failed to add allocation',
+				title,
+				message,
 				color: 'red',
+				autoClose: 8000,
 			});
 		},
 	});
@@ -223,6 +281,7 @@ export default function AddAllocationModal({
 					<AllocationForm
 						form={form}
 						venueTypes={venueTypes}
+						venues={venues}
 						renderTopDetails={() => (
 							<>
 								<ModuleSearchInput
@@ -230,8 +289,8 @@ export default function AddAllocationModal({
 									required
 								/>
 								<Select
-									label='Semester Module'
-									placeholder='Select a semester module'
+									label='Class'
+									placeholder='Select a Student Class'
 									data={semesterOptions}
 									value={
 										form.values.semesterModuleId
@@ -274,12 +333,15 @@ export default function AddAllocationModal({
 								</Text>
 								<Slider
 									value={form.values.numberOfGroups}
-									onChange={handleGroupCountChange}
-									min={0}
+									onChange={(value) =>
+										form.setFieldValue('numberOfGroups', value)
+									}
+									onChangeEnd={handleGroupCountChange}
+									min={1}
 									max={10}
 									step={1}
 									marks={[
-										{ value: 0, label: '0' },
+										{ value: 1, label: '1' },
 										{ value: 2, label: '2' },
 										{ value: 3, label: '3' },
 										{ value: 4, label: '4' },
@@ -291,15 +353,13 @@ export default function AddAllocationModal({
 										{ value: 10, label: '10' },
 									]}
 									label={(value) =>
-										value === 0
-											? 'All Students'
-											: `${value} Group${value === 1 ? '' : 's'}`
+										value === 1 ? 'All Students' : `${value} Groups`
 									}
 								/>
 								<Text size='xs' c='dimmed' mt='md'>
-									{form.values.numberOfGroups === 0
+									{form.values.numberOfGroups === 1
 										? 'Assign the entire class to this lecturer'
-										: `Split the class into ${form.values.numberOfGroups} group${form.values.numberOfGroups === 1 ? '' : 's'}`}
+										: `Split the class into ${form.values.numberOfGroups} groups`}
 								</Text>
 							</Stack>
 						)}

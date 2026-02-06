@@ -36,10 +36,21 @@ export default class VenueRepository extends BaseRepository<
 			...citeria,
 			with: {
 				type: true,
+				venueSchools: true,
 			},
 		});
 
 		return this.createPaginatedResult(items, citeria);
+	}
+
+	async getAllWithRelations() {
+		return db.query.venues.findMany({
+			with: {
+				type: true,
+				venueSchools: true,
+			},
+			orderBy: (venues, { asc }) => [asc(venues.name)],
+		});
 	}
 
 	async createWithSchools(

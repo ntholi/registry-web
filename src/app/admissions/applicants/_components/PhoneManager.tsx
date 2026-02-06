@@ -17,7 +17,7 @@ import { useState } from 'react';
 import { addApplicantPhone, removeApplicantPhone } from '../_server/actions';
 
 type Phone = {
-	id: number;
+	id: string;
 	phoneNumber: string;
 };
 

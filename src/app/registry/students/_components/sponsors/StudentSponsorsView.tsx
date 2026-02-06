@@ -94,11 +94,6 @@ function SponsorCard({ sponsoredStudent, canEdit }: SponsorCardProps) {
 							<Text fw={500} size='sm'>
 								{sponsoredStudent.sponsor?.name || 'Unknown Sponsor'}
 							</Text>
-							{sponsoredStudent.confirmed && (
-								<Badge size='xs' variant='light' color='green'>
-									Confirmed
-								</Badge>
-							)}
 						</Group>
 						{sponsoredStudent.borrowerNo && (
 							<Text size='xs' c='dimmed'>
