@@ -4,17 +4,13 @@ import {
 	Container,
 	Group,
 	Paper,
+	SimpleGrid,
 	Stack,
 	Text,
 	ThemeIcon,
 	Title,
 } from '@mantine/core';
-import {
-	IconAlertTriangle,
-	IconCheck,
-	IconCreditCard,
-	IconHome,
-} from '@tabler/icons-react';
+import { IconAlertTriangle, IconCheck } from '@tabler/icons-react';
 import LinkButton from '@/shared/ui/ButtonLink';
 
 type Props = {
@@ -80,33 +76,23 @@ export default async function ThankYouPage({ params }: Props) {
 							: 'Please complete your payment to finalize your application.'}
 					</Text>
 
-					<Group mt='md'>
+					<SimpleGrid cols={2} mt='md'>
 						{isPaid ? (
-							<LinkButton
-								href='/apply/profile'
-								leftSection={<IconHome size={16} />}
-							>
-								My Profile
-							</LinkButton>
+							<LinkButton href='/apply/profile'>My Profile</LinkButton>
 						) : (
 							<>
-								<LinkButton
-									href='/apply/profile'
-									variant='light'
-									leftSection={<IconHome size={16} />}
-								>
+								<LinkButton href='/apply/profile' variant='light'>
 									My Profile
 								</LinkButton>
 								<LinkButton
 									href={`/apply/${id}/payment?method=receipt`}
 									color='orange'
-									leftSection={<IconCreditCard size={16} />}
 								>
 									Pay Now
 								</LinkButton>
 							</>
 						)}
-					</Group>
+					</SimpleGrid>
 				</Stack>
 			</Paper>
 		</Container>
