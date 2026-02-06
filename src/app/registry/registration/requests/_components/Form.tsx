@@ -2,21 +2,17 @@
 
 import type { modules, semesterModules } from '@academic/_database';
 import { getModulesForStructure } from '@academic/semester-modules';
-import { findAllSponsors } from '@finance/sponsors';
 import {
 	ActionIcon,
 	Box,
-	Button,
 	Divider,
 	Group,
-	Modal,
 	Paper,
 	Select,
 	Stack,
 	Table,
 	Text,
 } from '@mantine/core';
-import { useDisclosure } from '@mantine/hooks';
 import type { StudentModuleStatus } from '@registry/_database';
 import { studentModuleStatus } from '@registry/_database';
 import { getStudentRegistrationData } from '@registry/students';
@@ -34,7 +30,7 @@ import {
 	isActiveModule,
 	isActiveSemester,
 } from '@/shared/lib/utils/utils';
-import { Form, ReceiptInput } from '@/shared/ui/adease';
+import { Form } from '@/shared/ui/adease';
 import {
 	determineSemesterStatus,
 	getStudentSemesterModules,
@@ -54,7 +50,6 @@ interface SelectedModule extends SemesterModule {
 	status: StudentModuleStatus;
 	semesterNumber?: string;
 	semesterName?: string;
-	receiptNumber?: string;
 }
 
 type RegistrationRequest = {
@@ -114,16 +109,7 @@ export default function RegistrationRequestForm({
 	const [structureId, setStructureId] = useState<number | null>(
 		initialStructureId ?? null
 	);
-	const [pendingRepeatModule, setPendingRepeatModule] = useState<{
-		module: SemesterModule;
-		status: StudentModuleStatus;
-	} | null>(null);
-	const [repeatReceipt, setRepeatReceipt] = useState('');
 	const [isTuitionFeeValid, setIsTuitionFeeValid] = useState(true);
-	const [
-		repeatModalOpened,
-		{ open: openRepeatModal, close: closeRepeatModal },
-	] = useDisclosure(false);
 
 	const { activeTerm } = useActiveTerm();
 	const { data: allTerms = [] } = useQuery({
@@ -142,17 +128,6 @@ export default function RegistrationRequestForm({
 		enabled: !!structureId && !initialStructureModules,
 		initialData: initialStructureModules,
 	});
-
-	const { data: sponsors } = useQuery({
-		queryKey: ['sponsors'],
-		queryFn: () => findAllSponsors(1),
-		select: ({ items }) => items,
-	});
-
-	const isSelfSponsored = (sponsorId: number) => {
-		if (!sponsors) return false;
-		return sponsors.find((s) => s.id === sponsorId)?.code === 'PRV';
-	};
 
 	const semesterOptions = structureModules
 		? [...new Set(structureModules.map((sem) => sem.id.toString()))]
@@ -293,7 +268,7 @@ export default function RegistrationRequestForm({
 			title={title}
 			action={(values: RegistrationRequest) => {
 				if (!isTuitionFeeValid) {
-					throw new Error('Please add at least one tuition fee receipt');
+					throw new Error('Please add at least one payment receipt');
 				}
 				return onSubmit(values);
 			}}
@@ -355,16 +330,6 @@ export default function RegistrationRequestForm({
 						}
 					}
 
-					const sponsorId = Number(form.values.sponsorId);
-					const selfSponsored = isSelfSponsored(sponsorId);
-
-					if (moduleStatus.startsWith('Repeat') && !selfSponsored) {
-						setPendingRepeatModule({ module, status: moduleStatus });
-						setRepeatReceipt('');
-						openRepeatModal();
-						return;
-					}
-
 					const newModule: SelectedModule = {
 						...module,
 						status: moduleStatus,
@@ -375,25 +340,6 @@ export default function RegistrationRequestForm({
 							newModule,
 						]);
 					}
-				};
-
-				const handleConfirmRepeatModule = () => {
-					if (!pendingRepeatModule || !repeatReceipt.trim()) return;
-
-					const newModule: SelectedModule = {
-						...pendingRepeatModule.module,
-						status: pendingRepeatModule.status,
-						receiptNumber: repeatReceipt.trim(),
-					};
-					if (!selectedModules.some((m) => m.id === newModule.id)) {
-						form.setFieldValue('selectedModules', [
-							...selectedModules,
-							newModule,
-						]);
-					}
-					closeRepeatModal();
-					setPendingRepeatModule(null);
-					setRepeatReceipt('');
 				};
 
 				const handleRemoveModule = (moduleId: number) => {
@@ -411,18 +357,6 @@ export default function RegistrationRequestForm({
 						'selectedModules',
 						selectedModules.map((module: SelectedModule) =>
 							module.id === moduleId ? { ...module, status: newStatus } : module
-						)
-					);
-				};
-
-				const handleModuleReceiptChange = (
-					moduleId: number,
-					receiptNumber: string
-				) => {
-					form.setFieldValue(
-						'selectedModules',
-						selectedModules.map((module: SelectedModule) =>
-							module.id === moduleId ? { ...module, receiptNumber } : module
 						)
 					);
 				};
@@ -515,6 +449,9 @@ export default function RegistrationRequestForm({
 								form.setFieldValue('tuitionFeeReceipts', receipts)
 							}
 							onReceiptValidationChange={setIsTuitionFeeValid}
+							hasRepeatModules={selectedModules.some((m: SelectedModule) =>
+								m.status.startsWith('Repeat')
+							)}
 							disabled={!structureId}
 						/>
 
@@ -539,14 +476,14 @@ export default function RegistrationRequestForm({
 										<Table.Th>Name</Table.Th>
 										<Table.Th>Type</Table.Th>
 										<Table.Th>Credits</Table.Th>
-										<Table.Th>Status</Table.Th> <Table.Th>Receipt</Table.Th>{' '}
+										<Table.Th>Status</Table.Th>
 										<Table.Th>Action</Table.Th>
 									</Table.Tr>
 								</Table.Thead>
 								<Table.Tbody>
 									{selectedModules.length === 0 ? (
 										<Table.Tr>
-											<Table.Td colSpan={7} align='center'>
+											<Table.Td colSpan={6} align='center'>
 												<Text c='dimmed' size='sm'>
 													No modules selected
 												</Text>
@@ -580,17 +517,6 @@ export default function RegistrationRequestForm({
 													/>
 												</Table.Td>
 												<Table.Td>
-													{semModule.status.startsWith('Repeat') &&
-													!isSelfSponsored(Number(form.values.sponsorId)) ? (
-														<ReceiptInput
-															value={semModule.receiptNumber || ''}
-															onChange={(value) =>
-																handleModuleReceiptChange(semModule.id, value)
-															}
-														/>
-													) : null}
-												</Table.Td>
-												<Table.Td>
 													<ActionIcon
 														color='red'
 														onClick={() => handleRemoveModule(semModule.id)}
@@ -605,38 +531,6 @@ export default function RegistrationRequestForm({
 								</Table.Tbody>
 							</Table>
 						</Paper>
-
-						<Modal
-							opened={repeatModalOpened}
-							onClose={closeRepeatModal}
-							title='Repeat Module Receipt'
-							centered
-						>
-							<Stack gap='md'>
-								<Text size='sm'>
-									This module is a repeat ({pendingRepeatModule?.status}).
-									Please enter the payment receipt number to continue.
-								</Text>
-								<Text fw={500}>{pendingRepeatModule?.module.module.name}</Text>
-								<ReceiptInput
-									label='Receipt Number'
-									value={repeatReceipt}
-									onChange={setRepeatReceipt}
-									required
-								/>
-								<Group justify='flex-end' gap='sm'>
-									<Button variant='default' onClick={closeRepeatModal}>
-										Cancel
-									</Button>
-									<Button
-										onClick={handleConfirmRepeatModule}
-										disabled={!repeatReceipt.trim()}
-									>
-										Add Module
-									</Button>
-								</Group>
-							</Stack>
-						</Modal>
 					</Stack>
 				);
 			}}

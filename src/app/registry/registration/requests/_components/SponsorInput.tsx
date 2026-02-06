@@ -34,6 +34,7 @@ interface SponsorInputProps {
 	tuitionFeeReceipts?: string[];
 	onTuitionFeeReceiptsChange?: (receipts: string[]) => void;
 	onReceiptValidationChange?: (isValid: boolean) => void;
+	hasRepeatModules?: boolean;
 	disabled?: boolean;
 }
 
@@ -49,6 +50,7 @@ export default function SponsorInput({
 	tuitionFeeReceipts = [],
 	onTuitionFeeReceiptsChange,
 	onReceiptValidationChange,
+	hasRepeatModules = false,
 	disabled,
 }: SponsorInputProps) {
 	const [receiptValue, setReceiptValue] = useState('');
@@ -76,7 +78,9 @@ export default function SponsorInput({
 		return sponsors.find((s) => s.id === id)?.code === 'PRV';
 	};
 
-	const requiresReceipt = sponsorId && isPRV(sponsorId);
+	const selfSponsored = sponsorId && isPRV(sponsorId);
+	const showReceipts = selfSponsored || hasRepeatModules;
+	const requiresReceipt = selfSponsored || hasRepeatModules;
 	const hasValidReceipts = tuitionFeeReceipts.filter(Boolean).length > 0;
 
 	useEffect(() => {
@@ -160,13 +164,15 @@ export default function SponsorInput({
 				</Grid>
 			</Paper>
 
-			{sponsorId && isPRV(sponsorId) && (
+			{showReceipts && (
 				<Paper withBorder p='md'>
 					<Stack gap='md'>
 						<div>
-							<Title order={5}>Payment Receipt</Title>
+							<Title order={5}>Payment Receipts</Title>
 							<Text size='sm' c='dimmed'>
-								Tuition fee payment receipts (required).
+								{selfSponsored
+									? 'Payment receipts for tuition and/or repeat modules (required).'
+									: 'Payment receipts for repeat modules (required).'}
 							</Text>
 						</div>
 

@@ -26,7 +26,6 @@ type SemesterModule = typeof semesterModules.$inferSelect & {
 };
 interface SelectedModule extends SemesterModule {
 	status: StudentModuleStatus;
-	receiptNumber?: string;
 }
 
 type RegistrationRequest = {
@@ -57,27 +56,14 @@ export default async function RegistrationRequestEdit({ params }: Props) {
 
 	const existingReceipts =
 		registrationRequest.registrationRequestReceipts || [];
-	const repeatModuleReceipts = existingReceipts
-		.filter((r) => r.receipt?.receiptType === 'repeat_module')
-		.map((r) => r.receipt?.receiptNo)
-		.filter((r): r is string => !!r);
 	const tuitionFeeReceipts = existingReceipts
-		.filter((r) => r.receipt?.receiptType === 'tuition_fee')
 		.map((r) => r.receipt?.receiptNo)
 		.filter((r): r is string => !!r);
 
-	let repeatReceiptIdx = 0;
-	const selectedModules = registrationRequest.requestedModules.map((rm) => {
-		const isRepeat = rm.moduleStatus.startsWith('Repeat');
-		const receiptNumber = isRepeat
-			? repeatModuleReceipts[repeatReceiptIdx++] || ''
-			: undefined;
-		return {
-			...rm.semesterModule,
-			status: rm.moduleStatus,
-			receiptNumber,
-		};
-	}) as SelectedModule[];
+	const selectedModules = registrationRequest.requestedModules.map((rm) => ({
+		...rm.semesterModule,
+		status: rm.moduleStatus,
+	})) as SelectedModule[];
 
 	const structureModules = registrationRequest.structureId
 		? await getModulesForStructure(registrationRequest.structureId)
@@ -92,21 +78,19 @@ export default async function RegistrationRequestEdit({ params }: Props) {
 
 		const receipts: { receiptNo: string; receiptType: ReceiptType }[] = [];
 
-		if (selectedModules) {
-			for (const mod of selectedModules) {
-				if (mod.status.startsWith('Repeat') && mod.receiptNumber) {
-					receipts.push({
-						receiptNo: mod.receiptNumber,
-						receiptType: 'repeat_module',
-					});
-				}
-			}
-		}
+		const hasRepeatModules = selectedModules?.some((m) =>
+			m.status.startsWith('Repeat')
+		);
 
-		if (formTuitionReceipts) {
-			for (const receiptNo of formTuitionReceipts.filter(Boolean)) {
-				receipts.push({ receiptNo, receiptType: 'tuition_fee' });
-			}
+		const uniqueReceipts = [
+			...new Set((formTuitionReceipts || []).filter(Boolean)),
+		];
+
+		for (const receiptNo of uniqueReceipts) {
+			receipts.push({
+				receiptNo,
+				receiptType: hasRepeatModules ? 'repeat_module' : 'tuition_fee',
+			});
 		}
 
 		const res = await updateRegistration(
@@ -114,7 +98,6 @@ export default async function RegistrationRequestEdit({ params }: Props) {
 			selectedModules?.map((module) => ({
 				id: module.id,
 				status: module.status,
-				receiptNumber: module.receiptNumber,
 			})) || [],
 			{
 				sponsorId: values.sponsorId,
