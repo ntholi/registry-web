@@ -194,6 +194,26 @@ class RegistrationRequestService {
 		);
 	}
 
+	async getExistingSemesterStatus(stdNo: number, termId: number) {
+		return withAuth(
+			async () => {
+				const existingSemester =
+					await this.repository.findExistingStudentSemester(stdNo, termId);
+				if (!existingSemester) return null;
+				const semesterNo =
+					existingSemester.structureSemester?.semesterNumber ?? '01';
+				const status =
+					existingSemester.status === 'Repeat' ? 'Repeat' : 'Active';
+				return {
+					semesterNo,
+					status: status as 'Active' | 'Repeat',
+				};
+			},
+			async (session) =>
+				session.user?.stdNo === stdNo || session.user?.role === 'registry'
+		);
+	}
+
 	async getForProofOfRegistration(registrationId: number) {
 		return withAuth(async () => {
 			const result = await this.repository.findById(registrationId);

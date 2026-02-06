@@ -422,6 +422,7 @@ export default class RegistrationRequestRepository extends BaseRepository<
 			),
 			with: {
 				studentModules: true,
+				structureSemester: true,
 			},
 		});
 	}

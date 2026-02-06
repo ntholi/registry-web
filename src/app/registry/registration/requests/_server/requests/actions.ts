@@ -54,6 +54,10 @@ export async function checkIsAdditionalRequest(stdNo: number, termId: number) {
 	return service.checkIsAdditionalRequest(stdNo, termId);
 }
 
+export async function getExistingSemesterStatus(stdNo: number, termId: number) {
+	return service.getExistingSemesterStatus(stdNo, termId);
+}
+
 export async function determineSemesterStatus(
 	modules: ModuleWithStatus[],
 	student: Student

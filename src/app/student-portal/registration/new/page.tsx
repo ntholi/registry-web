@@ -20,6 +20,7 @@ import {
 	createRegistration,
 	determineSemesterStatus,
 	getExistingRegistrationSponsorship,
+	getExistingSemesterStatus,
 	getStudentSemesterModules,
 } from '@registry/registration/requests';
 import { canStudentRegister } from '@registry/terms/settings/_server/termRegistrationsActions';
@@ -218,10 +219,13 @@ export default function NewRegistrationPage() {
 	const availableModules = moduleResult?.modules || [];
 
 	const { data: semesterStatus, isLoading: semesterStatusLoading } = useQuery({
-		queryKey: ['semester-status', selectedModules],
+		queryKey: ['semester-status', selectedModules, isAdditionalRequest],
 		queryFn: async () => {
 			if (!student || !availableModules || selectedModules.length === 0) {
 				return null;
+			}
+			if (isAdditionalRequest && activeTerm?.id) {
+				return await getExistingSemesterStatus(student.stdNo, activeTerm.id);
 			}
 			const modulesWithStatus = availableModules.filter((module) =>
 				selectedModules.some(
