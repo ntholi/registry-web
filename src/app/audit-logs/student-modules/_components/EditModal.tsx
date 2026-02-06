@@ -108,8 +108,9 @@ export default function EditStudentModuleModal({ module, ...rest }: Props) {
 				numericMarks >= 0 &&
 				numericMarks <= 100
 			) {
-				const determinedGrade = getLetterGrade(numericMarks);
-				form.setFieldValue('grade', determinedGrade);
+				const determinedGrade =
+					numericMarks === 50 ? 'PX' : getLetterGrade(numericMarks);
+				form.setFieldValue('grade', determinedGrade as Grade);
 			}
 		},
 		[form]
