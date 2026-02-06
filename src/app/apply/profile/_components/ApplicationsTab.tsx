@@ -1,19 +1,9 @@
 'use client';
 
 import type { findApplicationsByApplicant } from '@admissions/applications';
-import {
-	Badge,
-	Box,
-	Card,
-	Flex,
-	Group,
-	SimpleGrid,
-	Stack,
-	Text,
-} from '@mantine/core';
+import { Box, Card, Flex, Group, SimpleGrid, Stack, Text } from '@mantine/core';
 import { IconCalendar, IconSchool } from '@tabler/icons-react';
 import Link from 'next/link';
-import { getOverallStatusColor, getStatusLabel } from '../_lib/status';
 
 type Application = Awaited<
 	ReturnType<typeof findApplicationsByApplicant>
@@ -58,15 +48,6 @@ function ApplicationCard({ application }: { application: Application }) {
 			? `/apply/${application.id}/identity`
 			: `/apply/${application.id}/review`;
 
-	const combinedStatusColor = getOverallStatusColor(
-		application.status,
-		application.paymentStatus,
-		{
-			bankDeposits: application.bankDeposits,
-			mobileDeposits: application.mobileDeposits,
-		}
-	);
-
 	return (
 		<Card component={Link} href={href} withBorder p={0}>
 			<Stack gap='md' p='lg'>
@@ -83,14 +64,6 @@ function ApplicationCard({ application }: { application: Application }) {
 								{schoolLabel}
 							</Text>
 						</Group>
-						<Badge
-							color={combinedStatusColor}
-							variant='light'
-							size='sm'
-							radius='xs'
-						>
-							{getStatusLabel(application.status)}
-						</Badge>
 					</Flex>
 				</Stack>
 

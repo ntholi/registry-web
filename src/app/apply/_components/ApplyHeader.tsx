@@ -42,7 +42,6 @@ export default function ApplyHeader({ redirectIfRestricted = true }: Props) {
 		<Box
 			component='header'
 			py='sm'
-			px='xl'
 			style={{
 				position: 'fixed',
 				top: 0,
@@ -58,7 +57,7 @@ export default function ApplyHeader({ redirectIfRestricted = true }: Props) {
 				}`,
 			}}
 		>
-			<Container size='xl'>
+			<Container size={'xl'}>
 				<Box
 					style={{
 						display: 'flex',

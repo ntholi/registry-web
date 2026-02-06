@@ -60,9 +60,9 @@ export function getOverallStatusSummary(
 
 	if (status === 'submitted' && paymentStatus === 'unpaid') {
 		if (hasDeposits) {
-			return 'Payment submitted — pending approval';
+			return 'Application submitted — payment under review';
 		}
-		return 'Application submitted — payment required';
+		return 'Payment required';
 	}
 
 	if (status === 'submitted' && paymentStatus === 'paid') {
@@ -88,7 +88,7 @@ export function getOverallStatusColor(
 		deposits.bankDeposits.length > 0 || deposits.mobileDeposits.length > 0;
 
 	if (status === 'submitted' && paymentStatus === 'unpaid') {
-		return hasDeposits ? 'yellow' : 'red';
+		return hasDeposits ? 'blue' : 'red';
 	}
 	if (status === 'submitted' && paymentStatus === 'paid') {
 		return 'teal';
