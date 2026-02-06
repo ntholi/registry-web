@@ -47,8 +47,7 @@ export default function ClearanceStatusView({ registration }: Props) {
 						variant='light'
 					>
 						<Text size='sm'>
-							Clearance requests are being prepared. You will see the status
-							here once departments begin processing your request.
+							No clearance requests were created for this registration.
 						</Text>
 					</Alert>
 				) : (
