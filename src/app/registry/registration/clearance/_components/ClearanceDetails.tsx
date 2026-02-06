@@ -15,10 +15,10 @@ import {
 	Paper,
 	Stack,
 	Text,
-	Textarea,
 	Tooltip,
 } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
+import ClearanceComments from '@registry/_components/ClearanceComments';
 import { IconCopy } from '@tabler/icons-react';
 import { useState } from 'react';
 import { formatDateTime } from '@/shared/lib/utils/dates';
@@ -121,12 +121,7 @@ export default function ClearanceDetails({ request }: Props) {
 				<AccordionItem value='comments'>
 					<AccordionControl>Comments</AccordionControl>
 					<AccordionPanel>
-						<Textarea
-							value={comment}
-							description='Optional '
-							onChange={(e) => setComment(e.currentTarget.value)}
-							placeholder='Why is the student not cleared?'
-						/>
+						<ClearanceComments value={comment} onChange={setComment} />
 					</AccordionPanel>
 				</AccordionItem>
 				<AccordionItem value='modules'>
