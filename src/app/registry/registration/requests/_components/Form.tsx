@@ -314,9 +314,8 @@ export default function RegistrationRequestForm({
 								);
 
 								if (attempts.length > 0) {
-									const nextAttemptNumber = attempts.length + 1;
 									moduleStatus =
-										`Repeat${nextAttemptNumber}` as StudentModuleStatus;
+										`Repeat${attempts.length}` as StudentModuleStatus;
 								} else {
 									moduleStatus = 'Compulsory';
 								}
