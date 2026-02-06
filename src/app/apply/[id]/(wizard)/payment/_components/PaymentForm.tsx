@@ -78,7 +78,7 @@ export default function PaymentForm({
 				notifications.show({
 					title: 'Payment Submitted',
 					message:
-						'Your deposit slip has been submitted and is pending verification by finance.',
+						'Excellent! Your payment is safely received. Verification typically takes a few weeks, but your application is secure and moving forward!',
 					color: 'blue',
 				});
 				router.push(`/apply/${applicationId}/thank-you`);
@@ -117,10 +117,8 @@ export default function PaymentForm({
 						</ThemeIcon>
 						<Title order={3}>Payment Complete</Title>
 						<Text c='dimmed'>Your application fee has been paid</Text>
-						<Button
-							onClick={() => router.push(`/apply/${applicationId}/thank-you`)}
-						>
-							Continue
+						<Button onClick={() => router.push(`/apply/profile`)}>
+							My Profile
 						</Button>
 					</Stack>
 				</Paper>
@@ -136,15 +134,17 @@ export default function PaymentForm({
 						<ThemeIcon size={60} radius='xl' color='blue'>
 							<IconCreditCard size={32} />
 						</ThemeIcon>
-						<Title order={3}>Payment Pending Verification</Title>
-						<Text c='dimmed' ta='center'>
-							Your bank deposit slip has been submitted and is being reviewed by
-							our finance team. You will be notified once verified.
+						<Title order={3} ta={'center'}>
+							Payment Submitted
+						</Title>
+						<Text c='dimmed' ta='center' size='sm' maw={500}>
+							Your deposit slip has been received and is being carefully
+							reviewed by our finance team. The verification can take a few
+							weeks, please rest assured that your application and payment have
+							been received and are being processed.
 						</Text>
-						<Button
-							onClick={() => router.push(`/apply/${applicationId}/thank-you`)}
-						>
-							Continue
+						<Button onClick={() => router.push(`/apply/profile`)}>
+							My Profile
 						</Button>
 					</Stack>
 				</Paper>
