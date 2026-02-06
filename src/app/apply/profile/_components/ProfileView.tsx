@@ -5,6 +5,7 @@ import { findApplicationsByApplicant } from '@admissions/applications';
 import {
 	Avatar,
 	Box,
+	Button,
 	Container,
 	Group,
 	SimpleGrid,
@@ -14,10 +15,18 @@ import {
 	Text,
 	useMantineColorScheme,
 } from '@mantine/core';
-import { IconFileText, IconGridDots, IconUser } from '@tabler/icons-react';
+import {
+	IconArrowRight,
+	IconCreditCard,
+	IconFileText,
+	IconGridDots,
+	IconUser,
+} from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
+import Link from 'next/link';
 import { useState } from 'react';
 import ApplyHeader from '../../_components/ApplyHeader';
+import { getOverallStatusColor, getOverallStatusSummary } from '../_lib/status';
 import { ApplicationsTab } from './ApplicationsTab';
 import { DocumentsTab } from './DocumentsTab';
 import { InfoTab } from './InfoTab';
@@ -48,11 +57,33 @@ export function ProfileView({ applicant }: Props) {
 	const appCount = applications?.length ?? 0;
 	const docCount = applicant.documents.length;
 
+	const primaryApp = applications?.[0];
+	const statusSummary = primaryApp
+		? getOverallStatusSummary(primaryApp.status, primaryApp.paymentStatus, {
+				bankDeposits: primaryApp.bankDeposits,
+				mobileDeposits: primaryApp.mobileDeposits,
+			})
+		: 'No applications yet';
+	const statusColor = primaryApp
+		? getOverallStatusColor(primaryApp.status, primaryApp.paymentStatus, {
+				bankDeposits: primaryApp.bankDeposits,
+				mobileDeposits: primaryApp.mobileDeposits,
+			})
+		: 'gray';
+
+	const showPaymentButton =
+		primaryApp?.status === 'submitted' &&
+		primaryApp.paymentStatus === 'unpaid' &&
+		primaryApp.bankDeposits.length === 0 &&
+		primaryApp.mobileDeposits.length === 0;
+
+	const showContinueButton = primaryApp?.status === 'draft';
+
 	return (
 		<Box mih='100vh'>
 			<ApplyHeader />
 			<Container size='md' py='xl' pt={120}>
-				<Stack gap={40}>
+				<Stack gap={'xl'}>
 					{/* Profile Header */}
 					<Group align='flex-start' gap={60} wrap='nowrap' visibleFrom='sm'>
 						<Avatar
@@ -71,12 +102,22 @@ export function ProfileView({ applicant }: Props) {
 							{initials}
 						</Avatar>
 
-						<Stack gap='xl' style={{ flex: 1 }}>
-							<Group justify='space-between' align='center'>
-								<Text size='24px' fw={300}>
-									{applicant.fullName || 'Applicant'}
+						<Stack gap='md' style={{ flex: 1 }}>
+							<Stack gap={4}>
+								<Group justify='space-between' align='center'>
+									<Text size='24px' fw={300}>
+										{applicant.fullName || 'Applicant'}
+									</Text>
+									<ProfileActionButton
+										app={primaryApp}
+										showPayment={showPaymentButton}
+										showContinue={showContinueButton}
+									/>
+								</Group>
+								<Text c={statusColor} variant='light' size='sm'>
+									{statusSummary}
 								</Text>
-							</Group>
+							</Stack>
 
 							<Group gap={40}>
 								<Group gap={6}>
@@ -117,14 +158,22 @@ export function ProfileView({ applicant }: Props) {
 							</Group>
 						</Group>
 
-						<Box>
-							<Text fw={700} size='sm'>
-								{applicant.fullName || 'Applicant'}
+						<Stack gap={6}>
+							<Group justify='space-between' align='center'>
+								<Text fw={700} size='sm'>
+									{applicant.fullName || 'Applicant'}
+								</Text>
+								<ProfileActionButton
+									app={primaryApp}
+									showPayment={showPaymentButton}
+									showContinue={showContinueButton}
+									compact
+								/>
+							</Group>
+							<Text c={statusColor} mt='sm' variant='light' size='sm'>
+								{statusSummary}
 							</Text>
-							<Text size='xs' c='dimmed'>
-								Limkokwing University Applicant
-							</Text>
-						</Box>
+						</Stack>
 					</Stack>
 
 					{/* Tabs */}
@@ -247,4 +296,55 @@ export function ProfileView({ applicant }: Props) {
 			</Container>
 		</Box>
 	);
+}
+
+type ActionButtonProps = {
+	app:
+		| {
+				id: string;
+				status: string;
+		  }
+		| undefined;
+	showPayment: boolean;
+	showContinue: boolean;
+	compact?: boolean;
+};
+
+function ProfileActionButton({
+	app,
+	showPayment,
+	showContinue,
+	compact,
+}: ActionButtonProps) {
+	if (!app) return null;
+
+	if (showContinue) {
+		return (
+			<Button
+				component={Link}
+				href={`/apply/${app.id}/identity`}
+				size={compact ? 'xs' : 'sm'}
+				variant='light'
+				rightSection={<IconArrowRight size={14} />}
+			>
+				Continue Application
+			</Button>
+		);
+	}
+
+	if (showPayment) {
+		return (
+			<Button
+				component={Link}
+				href={`/apply/${app.id}/payment`}
+				size={compact ? 'xs' : 'sm'}
+				variant='filled'
+				rightSection={<IconCreditCard size={14} />}
+			>
+				Submit Payment
+			</Button>
+		);
+	}
+
+	return null;
 }

@@ -158,6 +158,12 @@ export default class ApplicationRepository extends BaseRepository<
 					columns: { id: true, name: true, code: true },
 					with: { school: { columns: { shortName: true } } },
 				},
+				bankDeposits: {
+					columns: { id: true, status: true },
+				},
+				mobileDeposits: {
+					columns: { id: true, status: true },
+				},
 			},
 			orderBy: (a, { desc }) => [desc(a.applicationDate)],
 		});

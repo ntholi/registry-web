@@ -5,6 +5,7 @@ import {
 	Badge,
 	Box,
 	Card,
+	Flex,
 	Group,
 	SimpleGrid,
 	Stack,
@@ -12,7 +13,7 @@ import {
 } from '@mantine/core';
 import { IconCalendar, IconSchool } from '@tabler/icons-react';
 import Link from 'next/link';
-import { getStatusColor, getStatusLabel } from '../_lib/status';
+import { getOverallStatusColor, getStatusLabel } from '../_lib/status';
 
 type Application = Awaited<
 	ReturnType<typeof findApplicationsByApplicant>
@@ -52,37 +53,45 @@ function ApplicationCard({ application }: { application: Application }) {
 		application.firstChoiceProgram?.code ??
 		'Select a program';
 
+	const href =
+		application.status === 'draft'
+			? `/apply/${application.id}/identity`
+			: `/apply/${application.id}/review`;
+
+	const combinedStatusColor = getOverallStatusColor(
+		application.status,
+		application.paymentStatus,
+		{
+			bankDeposits: application.bankDeposits,
+			mobileDeposits: application.mobileDeposits,
+		}
+	);
+
 	return (
-		<Card
-			component={Link}
-			href={`/apply/${application.id}/review`}
-			withBorder
-			p={0}
-		>
+		<Card component={Link} href={href} withBorder p={0}>
 			<Stack gap='md' p='lg'>
 				<Stack gap={4} style={{ flex: 1 }}>
 					<Box pos={'relative'}>
 						<Text size='lg' lineClamp={1}>
 							{programLabel}
 						</Text>
+					</Box>
+					<Flex justify='space-between' align='center'>
+						<Group gap='xs'>
+							<IconSchool size={16} color='var(--mantine-color-dimmed)' />
+							<Text size='sm' c='dimmed' fw={500}>
+								{schoolLabel}
+							</Text>
+						</Group>
 						<Badge
-							pos='absolute'
-							top={-8}
-							right={-8}
-							color={getStatusColor(application.status)}
+							color={combinedStatusColor}
 							variant='light'
 							size='sm'
 							radius='xs'
 						>
 							{getStatusLabel(application.status)}
 						</Badge>
-					</Box>
-					<Group gap='xs'>
-						<IconSchool size={16} color='var(--mantine-color-dimmed)' />
-						<Text size='sm' c='dimmed' fw={500}>
-							{schoolLabel}
-						</Text>
-					</Group>
+					</Flex>
 				</Stack>
 
 				<Group justify='space-between' align='flex-end' mt='xs'>
