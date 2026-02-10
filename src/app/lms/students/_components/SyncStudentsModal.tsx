@@ -15,7 +15,13 @@ import {
 	ThemeIcon,
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
-import { IconCheck, IconRefresh, IconUser, IconUserPlus, IconX } from '@tabler/icons-react';
+import {
+	IconCheck,
+	IconRefresh,
+	IconUser,
+	IconUserPlus,
+	IconX,
+} from '@tabler/icons-react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useRef, useState } from 'react';
 import {
@@ -59,13 +65,11 @@ export default function SyncStudentsModal({
 		abortRef.current = false;
 		setSyncStatus('syncing');
 
-		const initialResults: StudentSyncResult[] = registeredStudents.map(
-			(s) => ({
-				stdNo: s.stdNo,
-				name: s.name,
-				status: 'pending' as const,
-			})
-		);
+		const initialResults: StudentSyncResult[] = registeredStudents.map((s) => ({
+			stdNo: s.stdNo,
+			name: s.name,
+			status: 'pending' as const,
+		}));
 		setResults(initialResults);
 
 		for (let i = 0; i < registeredStudents.length; i++) {
@@ -105,9 +109,7 @@ export default function SyncStudentsModal({
 									...r,
 									status: 'error' as const,
 									message:
-										error instanceof Error
-											? error.message
-											: 'Unknown error',
+										error instanceof Error ? error.message : 'Unknown error',
 								}
 							: r
 					)
@@ -183,16 +185,14 @@ export default function SyncStudentsModal({
 			>
 				<Stack gap='md'>
 					{syncStatus === 'idle' && (
-						<>
-							{isLoading ? (
+						isLoading ? (
 								<Box ta='center' py='xl'>
 									<Loader size='sm' />
 									<Text size='sm' c='dimmed' mt='sm'>
 										Loading registered students...
 									</Text>
 								</Box>
-							) : !registeredStudents ||
-							  registeredStudents.length === 0 ? (
+							) : !registeredStudents || registeredStudents.length === 0 ? (
 								<Box ta='center' py='xl'>
 									<Text size='sm' c='dimmed'>
 										No registered students found for your assigned semester
@@ -201,16 +201,10 @@ export default function SyncStudentsModal({
 								</Box>
 							) : (
 								<>
-									<Group justify='space-between'>
-										<Text size='sm' fw={500}>
-											{registeredStudents.length} student
-											{registeredStudents.length !== 1 ? 's' : ''} registered
-										</Text>
-										<Badge variant='light' color='blue'>
-											Ready to sync
-										</Badge>
-									</Group>
-
+									<Text size='sm' fw={500}>
+										{registeredStudents.length} student
+										{registeredStudents.length !== 1 ? 's' : ''} registered
+									</Text>
 									<ScrollArea.Autosize mah={400}>
 										<Stack gap='xs'>
 											{registeredStudents.map((student) => (
@@ -246,8 +240,7 @@ export default function SyncStudentsModal({
 										</Stack>
 									</ScrollArea.Autosize>
 								</>
-							)}
-						</>
+							)
 					)}
 
 					{(syncStatus === 'syncing' || syncStatus === 'done') && (
@@ -290,10 +283,8 @@ export default function SyncStudentsModal({
 											py='xs'
 											style={{
 												borderRadius: 'var(--mantine-radius-sm)',
-												border:
-													'1px solid var(--mantine-color-default-border)',
-												opacity:
-													result.status === 'pending' ? 0.5 : 1,
+												border: '1px solid var(--mantine-color-default-border)',
+												opacity: result.status === 'pending' ? 0.5 : 1,
 											}}
 										>
 											{getStatusIcon(result.status)}
@@ -308,11 +299,7 @@ export default function SyncStudentsModal({
 											{result.message && (
 												<Text
 													size='xs'
-													c={
-														result.status === 'success'
-															? 'green'
-															: 'red'
-													}
+													c={result.status === 'success' ? 'green' : 'red'}
 													maw={200}
 													ta='right'
 													lineClamp={1}

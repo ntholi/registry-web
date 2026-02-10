@@ -57,8 +57,8 @@ function EmptyState() {
 			<Stack gap='sm' align='center'>
 				<Text c='dimmed'>
 					<FiveDaysLogo fw={500} inline /> is a Learning Management System
-					powered by Moodle. Click the "New Course" button above to create
-					your first course.
+					powered by Moodle. Click the "New Course" button above to create your
+					first course.
 				</Text>
 				<Anchor
 					href={process.env.NEXT_PUBLIC_MOODLE_URL}

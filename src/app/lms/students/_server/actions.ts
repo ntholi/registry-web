@@ -7,7 +7,10 @@ import { MoodleError, moodleGet, moodlePost } from '@/core/integrations/moodle';
 import { splitShortName } from '../../courses/_lib/utils';
 import type { MoodleEnrolledUser, StudentSearchResult } from '../types';
 import { studentRepository } from './repository';
-import { getAssignedModuleByLmsCourseId, getAssignedModulesByCurrentUser } from '@/app/academic/assigned-modules';
+import {
+	getAssignedModuleByLmsCourseId,
+	getAssignedModulesByCurrentUser,
+} from '@/app/academic/assigned-modules';
 import { getStudentsBySemesterModules } from '@/app/registry/students';
 
 async function enrollUserInMoodleCourse(
