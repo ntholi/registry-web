@@ -1,5 +1,5 @@
 'use client';
-import { Badge, Box, Card, Flex, Text } from '@mantine/core';
+import { Badge, Box, Card, Flex, Stack, Text } from '@mantine/core';
 import Link from 'next/link';
 import { splitShortName } from '../_lib/utils';
 import type { MoodleCourse } from '../types';
@@ -157,16 +157,23 @@ export default function CourseItem({ course }: Props) {
 				</Box>
 			</Card.Section>
 
-			<Flex justify={'space-between'} align={'baseline'} px={'sx'} pt={'md'}>
-				<Text size='md' fw={600} lineClamp={2}>
-					{course.fullname}
-				</Text>
-				{course.shortname && (
-					<Badge variant='default' radius={'sm'}>
-						{splitShortName(course.shortname).code}
+			<Stack gap={4} px={'sx'} pt={'md'}>
+				<Flex justify={'space-between'} align={'baseline'}>
+					<Text size='md' fw={600} lineClamp={2}>
+						{course.fullname}
+					</Text>
+					{course.shortname && (
+						<Badge variant='default' radius={'sm'}>
+							{splitShortName(course.shortname).code}
+						</Badge>
+					)}
+				</Flex>
+				{splitShortName(course.shortname).studentClass && (
+					<Badge variant='light' color='blue' size='sm'>
+						{splitShortName(course.shortname).studentClass}
 					</Badge>
 				)}
-			</Flex>
+			</Stack>
 		</Card>
 	);
 }

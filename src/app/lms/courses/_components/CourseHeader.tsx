@@ -22,14 +22,12 @@ import { splitShortName } from '../_lib/utils';
 type Props = {
 	fullname: string;
 	shortname: string;
-	categoryName?: string;
 	courseId: number;
 };
 
 export default function CourseHeader({
 	fullname,
 	shortname,
-	categoryName,
 	courseId,
 }: Props) {
 	return (
@@ -50,12 +48,12 @@ export default function CourseHeader({
 						</ThemeIcon>
 						<Stack gap={1}>
 							<Group gap={'xs'}>
-								<Badge radius={'xs'} variant='light' color='blue'>
+								<Badge radius={'xs'} variant='default' color='blue'>
 									{splitShortName(shortname).code}
 								</Badge>
-								{categoryName && (
-									<Badge radius={'xs'} variant='light' color='gray'>
-										{categoryName}
+								{splitShortName(shortname).studentClass && (
+									<Badge radius={'xs'} variant='light' >
+										{splitShortName(shortname).studentClass}
 									</Badge>
 								)}
 							</Group>
