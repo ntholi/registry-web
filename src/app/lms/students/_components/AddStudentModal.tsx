@@ -113,7 +113,7 @@ export default function AddStudentModal({
 				leftSection={<IconPlus size={16} />}
 				onClick={open}
 			>
-				Add Student
+				Add
 			</Button>
 
 			<Modal

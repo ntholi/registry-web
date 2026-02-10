@@ -7,6 +7,8 @@ import { MoodleError, moodleGet, moodlePost } from '@/core/integrations/moodle';
 import { splitShortName } from '../../courses/_lib/utils';
 import type { MoodleEnrolledUser, StudentSearchResult } from '../types';
 import { studentRepository } from './repository';
+import { getAssignedModuleByLmsCourseId, getAssignedModulesByCurrentUser } from '@/app/academic/assigned-modules';
+import { getStudentsBySemesterModules } from '@/app/registry/students';
 
 async function enrollUserInMoodleCourse(
 	userId: number,
@@ -99,6 +101,34 @@ export async function findStudentsByLmsUserIdsForSubmissions(
 	}
 
 	return studentRepository.findStudentsByLmsUserIdsForSubmissions(lmsUserIds);
+}
+
+export async function getRegisteredStudentsForSync(courseId: number) {
+	const session = await auth();
+	if (!session?.user?.id) {
+		throw new Error('Unauthorized');
+	}
+
+	const [assignedModules, courseAssignment] = await Promise.all([
+		getAssignedModulesByCurrentUser(),
+		getAssignedModuleByLmsCourseId(courseId.toString()),
+	]);
+
+	if (!courseAssignment?.semesterModule?.moduleId) {
+		return [];
+	}
+
+	const moduleId = courseAssignment.semesterModule.moduleId;
+
+	const semesterModuleIds = assignedModules
+		.filter((am) => am.semesterModule?.moduleId === moduleId)
+		.map((am) => am.semesterModule!.id);
+
+	if (semesterModuleIds.length === 0) {
+		return [];
+	}
+
+	return getStudentsBySemesterModules(semesterModuleIds);
 }
 
 export async function enrollStudentInCourse(

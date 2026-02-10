@@ -10,11 +10,12 @@ import { QuizForm, QuizzesList } from '@lms/quizzes';
 import { getEnrolledStudentsFromDB } from '@lms/students';
 import AddStudentModal from '@lms/students/_components/AddStudentModal';
 import StudentsList from '@lms/students/_components/StudentsList';
+import SyncStudentsModal from '@lms/students/_components/SyncStudentsModal';
 import {
 	VirtualClassroomForm,
 	VirtualClassroomList,
 } from '@lms/virtual-classroom';
-import { Badge, Box, Tabs } from '@mantine/core';
+import { Badge, Box, Group, Tabs } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
 import { useQueryState } from 'nuqs';
 import type { MoodleCourse } from '../types';
@@ -82,7 +83,12 @@ export default function CourseTabs({ course }: CourseTabsProps) {
 							courseCode={course.shortname}
 						/>
 					)}
-					{activeTab === 'students' && <AddStudentModal course={course} />}
+					{activeTab === 'students' && (
+						<Group gap='xs'>
+							<SyncStudentsModal course={course} />
+							<AddStudentModal course={course} />
+						</Group>
+					)}
 					{activeTab === 'virtual-classroom' && (
 						<VirtualClassroomForm courseId={course.id} />
 					)}
