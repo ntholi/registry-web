@@ -1,7 +1,7 @@
-import { Text } from '@mantine/core';
 import { IconDeviceDesktopAnalytics } from '@tabler/icons-react';
 import type { ModuleConfig } from '@/app/dashboard/module-config.types';
 import { moduleConfig } from '@/config/modules.config';
+import FiveDaysLogo from '@/shared/ui/FiveDaysLogo';
 
 export const lmsConfig: ModuleConfig = {
 	id: 'lms',
@@ -12,16 +12,7 @@ export const lmsConfig: ModuleConfig = {
 	navigation: {
 		dashboard: [
 			{
-				label: (
-					<Text>
-						<Text component='span' size='sm' c='blue'>
-							Five
-						</Text>
-						<Text component='span' size='sm'>
-							Days
-						</Text>
-					</Text>
-				),
+				label: <FiveDaysLogo size='sm' />,
 				description: 'Learning Management System',
 				icon: IconDeviceDesktopAnalytics,
 				roles: ['academic'],

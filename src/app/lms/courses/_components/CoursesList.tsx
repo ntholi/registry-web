@@ -19,6 +19,7 @@ import { useQuery } from '@tanstack/react-query';
 import { getUserCourses } from '../_server/actions';
 import CourseItem from './CourseItem';
 import CreateCourseModal from './CreateCourseModal';
+import FiveDaysLogo from '@/shared/ui/FiveDaysLogo';
 
 export default function CoursesList() {
 	const { data: courses, isLoading } = useQuery({
@@ -29,12 +30,7 @@ export default function CoursesList() {
 	return (
 		<Container mt='lg' size='xl'>
 			<Flex justify='space-between' align='center' mb='md'>
-				<Text size='1.8rem' fw={500}>
-					<Text component='span' fw={500} c='blue'>
-						Five
-					</Text>
-					Days
-				</Text>
+				<FiveDaysLogo size='1.8rem' fw={500} />
 				<CreateCourseModal />
 			</Flex>
 
@@ -60,14 +56,9 @@ function EmptyState() {
 		<Container ta='center' py='xl' size={'sm'}>
 			<Stack gap='sm' align='center'>
 				<Text c='dimmed'>
-					<Text component='span' fw={500} mb='md'>
-						<Text component='span' c='blue'>
-							Five
-						</Text>
-						Days
-					</Text>{' '}
-					is a Learning Management System powered by Moodle. Click the "New
-					Course" button above to create your first course.
+					<FiveDaysLogo fw={500} inline /> is a Learning Management System
+					powered by Moodle. Click the "New Course" button above to create
+					your first course.
 				</Text>
 				<Anchor
 					href={process.env.NEXT_PUBLIC_MOODLE_URL}
