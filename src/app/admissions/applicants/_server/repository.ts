@@ -79,6 +79,15 @@ export default class ApplicantRepository extends BaseRepository<
 		});
 	}
 
+	async findByNationalIdWithUser(nationalId: string) {
+		return db.query.applicants.findFirst({
+			where: eq(applicants.nationalId, nationalId),
+			with: {
+				user: true,
+			},
+		});
+	}
+
 	async findByUserId(userId: string) {
 		return db.query.applicants.findFirst({
 			where: eq(applicants.userId, userId),
