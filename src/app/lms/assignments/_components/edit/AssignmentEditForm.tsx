@@ -1,9 +1,11 @@
 'use client';
 
 import {
+	ActionIcon,
 	Box,
 	Button,
 	Divider,
+	FileButton,
 	Grid,
 	Group,
 	NumberInput,
@@ -23,8 +25,11 @@ import {
 	IconCalendarEvent,
 	IconCheck,
 	IconFileDescription,
+	IconPaperclip,
 	IconSettings,
 	IconStar,
+	IconTrash,
+	IconUpload,
 } from '@tabler/icons-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
@@ -40,13 +45,14 @@ type Props = {
 };
 
 type EditFormValues = {
-	assessmentType: string;
+	name: string;
 	description: string;
 	instructions: string;
 	allowsubmissionsfromdate: Date | null;
 	duedate: Date | null;
 	grademax: number;
 	visible: boolean;
+	attachments: File[];
 };
 
 export default function AssignmentEditForm({ assignment, courseId }: Props) {
@@ -56,12 +62,13 @@ export default function AssignmentEditForm({ assignment, courseId }: Props) {
 		defaultValue: 'general',
 	});
 
-	const initialType =
-		ASSESSMENT_TYPES.find((t) => t.label === assignment.name)?.value || '';
+	const assignmentType = ASSESSMENT_TYPES.find(
+		(t) => t.label === assignment.name
+	)?.value;
 
 	const form = useForm<EditFormValues>({
 		initialValues: {
-			assessmentType: initialType,
+			name: assignmentType || assignment.name || '',
 			description: assignment.intro || '',
 			instructions: '',
 			allowsubmissionsfromdate: assignment.allowsubmissionsfromdate
@@ -72,21 +79,22 @@ export default function AssignmentEditForm({ assignment, courseId }: Props) {
 				: null,
 			grademax: assignment.grade > 0 ? assignment.grade : 100,
 			visible: assignment.visible !== 0,
+			attachments: [],
 		},
 		validate: {
-			assessmentType: (v) => (!v ? 'Assignment type is required' : null),
+			name: (v) => (!v?.trim() ? 'Assignment type is required' : null),
 			grademax: (v) => (v < 1 ? 'Grade must be at least 1' : null),
 		},
 	});
 
 	const updateMutation = useMutation({
 		mutationFn: async (values: EditFormValues) => {
-			const name =
-				ASSESSMENT_TYPES.find((t) => t.value === values.assessmentType)
-					?.label || assignment.name;
+			const typeLabel =
+				ASSESSMENT_TYPES.find((t) => t.value === values.name)?.label ||
+				values.name;
 
 			await updateAssignment(assignment.id, {
-				name,
+				name: typeLabel,
 				intro: values.description,
 				activity: values.instructions || undefined,
 				allowsubmissionsfromdate: values.allowsubmissionsfromdate
@@ -121,6 +129,20 @@ export default function AssignmentEditForm({ assignment, courseId }: Props) {
 	const handleSubmit = form.onSubmit((values) => {
 		updateMutation.mutate(values);
 	});
+
+	function handleFilesSelect(files: File[]) {
+		form.setFieldValue('attachments', [
+			...form.values.attachments,
+			...files,
+		]);
+	}
+
+	function handleFileRemove(index: number) {
+		form.setFieldValue(
+			'attachments',
+			form.values.attachments.filter((_, i) => i !== index)
+		);
+	}
 
 	return (
 		<form onSubmit={handleSubmit}>
@@ -162,93 +184,134 @@ export default function AssignmentEditForm({ assignment, courseId }: Props) {
 				</Tabs.List>
 
 				<Tabs.Panel value='general' pt='lg'>
-					<Grid gutter='lg'>
-						<Grid.Col span={{ base: 12, md: 8 }}>
-							<Stack gap='lg'>
-								<Select
-									label='Assignment Type'
-									placeholder='Select assignment type'
-									searchable
-									data={ASSESSMENT_TYPES}
-									{...form.getInputProps('assessmentType')}
-								/>
-
-								<Tabs defaultValue='description'>
-									<Tabs.List>
-										<Tabs.Tab value='description'>Description</Tabs.Tab>
-										<Tabs.Tab value='instructions'>Instructions</Tabs.Tab>
-									</Tabs.List>
-
-									<Tabs.Panel value='description'>
-										<RichTextField
-											showFullScreenButton={false}
-											height={320}
-											toolbar='full'
-											{...form.getInputProps('description')}
+					<Stack gap='lg'>
+						<Grid gutter='lg'>
+							<Grid.Col span={{ base: 12, md: 6 }}>
+								<Paper p='lg' withBorder h='100%'>
+									<Stack gap='md'>
+										<Title order={5}>Assignment Information</Title>
+										<Divider />
+										<Select
+											label='Assignment Type'
+											placeholder='Select assignment type'
+											searchable
+											data={ASSESSMENT_TYPES}
+											{...form.getInputProps('name')}
 										/>
-									</Tabs.Panel>
-
-									<Tabs.Panel value='instructions'>
-										<RichTextField
-											showFullScreenButton={false}
-											height={320}
-											{...form.getInputProps('instructions')}
+										<NumberInput
+											label='Marks'
+											placeholder='100'
+											min={1}
+											{...form.getInputProps('grademax')}
 										/>
-									</Tabs.Panel>
-								</Tabs>
-
-								<Switch
-									label='Visible to students'
-									{...form.getInputProps('visible', { type: 'checkbox' })}
-								/>
-							</Stack>
-						</Grid.Col>
-
-						<Grid.Col span={{ base: 12, md: 4 }}>
-							<Paper p='lg' withBorder>
-								<Stack gap='md'>
-									<Group gap='xs'>
-										<ThemeIcon size='sm' variant='light' color='gray'>
-											<IconStar size={14} />
-										</ThemeIcon>
-										<Title order={5}>Summary</Title>
-									</Group>
-									<Divider />
-
-									<Stack gap='sm'>
-										<Group justify='space-between'>
-											<Text size='sm' c='dimmed'>
-												Maximum Grade
-											</Text>
-											<Text fw={600}>
-												{form.values.grademax}
-											</Text>
-										</Group>
-
-										<Group justify='space-between'>
-											<Text size='sm' c='dimmed'>
-												Visibility
-											</Text>
-											<Text fw={500} size='sm' c={form.values.visible ? 'green' : 'orange'}>
-												{form.values.visible ? 'Visible' : 'Hidden'}
-											</Text>
-										</Group>
-
-										<Group justify='space-between'>
-											<Text size='sm' c='dimmed'>
-												Due Date
-											</Text>
-											<Text size='sm'>
-												{form.values.duedate
-													? form.values.duedate.toLocaleDateString()
-													: 'Not set'}
-											</Text>
-										</Group>
+										<DateTimePicker
+											label='Due Date'
+											placeholder='Select due date'
+											clearable
+											{...form.getInputProps('duedate')}
+										/>
 									</Stack>
-								</Stack>
-							</Paper>
-						</Grid.Col>
-					</Grid>
+								</Paper>
+							</Grid.Col>
+
+							<Grid.Col span={{ base: 12, md: 6 }}>
+								<Paper p='lg' withBorder h='100%'>
+									<Stack gap='md'>
+										<Group gap='xs' justify='space-between'>
+											<Group gap='xs'>
+												<ThemeIcon size='sm' variant='light' color='gray'>
+													<IconPaperclip size={14} />
+												</ThemeIcon>
+												<Title order={5}>Files</Title>
+											</Group>
+											<FileButton onChange={handleFilesSelect} multiple>
+												{(props) => (
+													<Button
+														variant='light'
+														size='xs'
+														leftSection={<IconUpload size={14} />}
+														{...props}
+													>
+														Upload
+													</Button>
+												)}
+											</FileButton>
+										</Group>
+										<Divider />
+										{form.values.attachments.length === 0 ? (
+											<Text size='sm' c='dimmed' ta='center' py='md'>
+												No files attached
+											</Text>
+										) : (
+											<Stack gap='xs'>
+												{form.values.attachments.map((file, index) => (
+													<Paper
+														key={`${file.name}-${index}`}
+														withBorder
+														p='xs'
+													>
+														<Group
+															justify='space-between'
+															wrap='nowrap'
+														>
+															<Group
+																gap='xs'
+																style={{ flex: 1, minWidth: 0 }}
+															>
+																<IconPaperclip size={14} />
+																<Text
+																	size='sm'
+																	truncate
+																	style={{ flex: 1 }}
+																>
+																	{file.name}
+																</Text>
+																<Text size='xs' c='dimmed'>
+																	{(file.size / 1024).toFixed(1)} KB
+																</Text>
+															</Group>
+															<ActionIcon
+																variant='subtle'
+																color='red'
+																size='sm'
+																onClick={() => handleFileRemove(index)}
+															>
+																<IconTrash size={14} />
+															</ActionIcon>
+														</Group>
+													</Paper>
+												))}
+											</Stack>
+										)}
+									</Stack>
+								</Paper>
+							</Grid.Col>
+						</Grid>
+
+						<Tabs defaultValue='description'>
+							<Tabs.List>
+								<Tabs.Tab value='description'>Description</Tabs.Tab>
+								<Tabs.Tab value='instructions'>Instructions</Tabs.Tab>
+							</Tabs.List>
+
+							<Tabs.Panel value='description'>
+								<RichTextField
+									showFullScreenButton={false}
+									height={320}
+									toolbar='full'
+									{...form.getInputProps('description')}
+								/>
+							</Tabs.Panel>
+
+							<Tabs.Panel value='instructions'>
+								<RichTextField
+									showFullScreenButton={false}
+									height={320}
+									{...form.getInputProps('instructions')}
+								/>
+							</Tabs.Panel>
+						</Tabs>
+					</Stack>
 				</Tabs.Panel>
 
 				<Tabs.Panel value='settings' pt='lg'>
@@ -282,24 +345,39 @@ export default function AssignmentEditForm({ assignment, courseId }: Props) {
 						</Grid.Col>
 
 						<Grid.Col span={{ base: 12, md: 6 }}>
-							<Paper p='lg' withBorder>
-								<Stack gap='md'>
-									<Group gap='xs'>
-										<ThemeIcon size='sm' variant='light' color='gray'>
-											<IconStar size={14} />
-										</ThemeIcon>
-										<Title order={5}>Grading</Title>
-									</Group>
-									<Divider />
+							<Stack gap='lg'>
+								<Paper p='lg' withBorder>
+									<Stack gap='md'>
+										<Group gap='xs'>
+											<ThemeIcon size='sm' variant='light' color='gray'>
+												<IconStar size={14} />
+											</ThemeIcon>
+											<Title order={5}>Grading</Title>
+										</Group>
+										<Divider />
 
-									<NumberInput
-										label='Maximum Grade'
-										placeholder='100'
-										min={1}
-										{...form.getInputProps('grademax')}
-									/>
-								</Stack>
-							</Paper>
+										<NumberInput
+											label='Maximum Grade'
+											placeholder='100'
+											min={1}
+											{...form.getInputProps('grademax')}
+										/>
+									</Stack>
+								</Paper>
+
+								<Paper p='lg' withBorder>
+									<Stack gap='md'>
+										<Title order={5}>Visibility</Title>
+										<Divider />
+										<Switch
+											label='Visible to students'
+											{...form.getInputProps('visible', {
+												type: 'checkbox',
+											})}
+										/>
+									</Stack>
+								</Paper>
+							</Stack>
 						</Grid.Col>
 					</Grid>
 				</Tabs.Panel>

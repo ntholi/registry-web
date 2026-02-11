@@ -20,6 +20,7 @@ import {
 	IconArrowNarrowLeft,
 	IconEdit,
 	IconFileDescription,
+	IconPaperclip,
 	IconSettings,
 } from '@tabler/icons-react';
 
@@ -75,55 +76,56 @@ export default function AssignmentEditLoading() {
 				</TabsList>
 
 				<TabsPanel value='general' pt='lg'>
-					<Grid gutter='lg'>
-						<GridCol span={{ base: 12, md: 8 }}>
-							<Paper p='lg' withBorder>
-								<Stack gap='md'>
-									<Title order={5}>Assignment Information</Title>
-									<Divider />
-									<Stack gap='sm'>
-										<Skeleton height={14} width={120} />
-										<Skeleton height={36} width='100%' />
+					<Stack gap='lg'>
+						<Grid gutter='lg'>
+							<GridCol span={{ base: 12, md: 6 }}>
+								<Paper p='lg' withBorder h='100%'>
+									<Stack gap='md'>
+										<Title order={5}>Assignment Information</Title>
+										<Divider />
+										<Stack gap='sm'>
+											<Skeleton height={14} width={110} />
+											<Skeleton height={36} width='100%' />
+										</Stack>
+										<Stack gap='sm'>
+											<Skeleton height={14} width={50} />
+											<Skeleton height={36} width='100%' />
+										</Stack>
+										<Stack gap='sm'>
+											<Skeleton height={14} width={70} />
+											<Skeleton height={36} width='100%' />
+										</Stack>
 									</Stack>
-									<Stack gap='sm'>
-										<Skeleton height={14} width={80} />
-										<Skeleton height={120} width='100%' />
-									</Stack>
-									<Stack gap='sm'>
-										<Skeleton height={14} width={140} />
-										<Skeleton height={80} width='100%' />
-									</Stack>
-									<Skeleton height={24} width={160} />
-								</Stack>
-							</Paper>
-						</GridCol>
+								</Paper>
+							</GridCol>
 
-						<GridCol span={{ base: 12, md: 4 }}>
-							<Paper p='lg' withBorder>
-								<Stack gap='md'>
-									<Group gap='xs'>
-										<Skeleton height={20} circle />
-										<Title order={5}>Summary</Title>
-									</Group>
-									<Divider />
-									<Stack gap='sm'>
-										<Group justify='space-between'>
-											<Skeleton height={16} width={100} />
-											<Skeleton height={16} width={40} />
+							<GridCol span={{ base: 12, md: 6 }}>
+								<Paper p='lg' withBorder h='100%'>
+									<Stack gap='md'>
+										<Group gap='xs' justify='space-between'>
+											<Group gap='xs'>
+												<ThemeIcon size='sm' variant='light' color='gray'>
+													<IconPaperclip size={14} />
+												</ThemeIcon>
+												<Title order={5}>Files</Title>
+											</Group>
+											<Skeleton height={28} width={80} radius='sm' />
 										</Group>
-										<Group justify='space-between'>
-											<Skeleton height={16} width={70} />
-											<Skeleton height={16} width={50} />
-										</Group>
-										<Group justify='space-between'>
-											<Skeleton height={16} width={60} />
-											<Skeleton height={16} width={80} />
-										</Group>
+										<Divider />
+										<Skeleton height={16} width={120} mx='auto' />
 									</Stack>
-								</Stack>
-							</Paper>
-						</GridCol>
-					</Grid>
+								</Paper>
+							</GridCol>
+						</Grid>
+
+						<Stack gap='xs'>
+							<Group gap='xs'>
+								<Skeleton height={36} width={100} />
+								<Skeleton height={36} width={100} />
+							</Group>
+							<Skeleton height={320} width='100%' />
+						</Stack>
+					</Stack>
 				</TabsPanel>
 			</Tabs>
 		</Container>
