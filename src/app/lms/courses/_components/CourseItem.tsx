@@ -32,36 +32,10 @@ function getCourseGradient(courseId?: number | null): string {
 	return gradients[gradientIndex];
 }
 
-function getCourseMonogram(name?: string | null): string {
-	if (!name) {
-		return 'CL';
-	}
-
-	const trimmed = name.trim();
-	if (trimmed.length === 0) {
-		return 'CL';
-	}
-
-	const parts = trimmed.split(/\s+/);
-	let letters = '';
-
-	for (let index = 0; index < parts.length && index < 2; index += 1) {
-		const segment = parts[index];
-		if (segment.length > 0) {
-			letters += segment[0];
-		}
-	}
-
-	if (letters.length === 0) {
-		return 'CL';
-	}
-
-	return letters.toUpperCase();
-}
 
 export default function CourseItem({ course }: Props) {
 	const gradient = getCourseGradient(course.id);
-	const monogram = getCourseMonogram(course.fullname);
+	const { code, studentClass } = splitShortName(course.shortname);
 
 	return (
 		<Card
@@ -142,16 +116,15 @@ export default function CourseItem({ course }: Props) {
 							display: 'flex',
 							alignItems: 'center',
 							justifyContent: 'center',
-							width: '4.5rem',
-							height: '4.5rem',
-							borderRadius: '1.5rem',
+							padding: '0.8rem 1.5rem',
+							borderRadius: '0.2rem',
 							background: 'rgba(255, 255, 255, 0.22)',
 							backdropFilter: 'blur(8px)',
 							boxShadow: '0 18px 30px rgba(0, 0, 0, 0.18)',
 						}}
 					>
-						<Text size='xl' fw={700} c='white'>
-							{monogram}
+						<Text size='sm' fw={700} c='white' style={{ letterSpacing: '0.05em' }}>
+							{code}
 						</Text>
 					</Box>
 				</Box>
@@ -162,17 +135,12 @@ export default function CourseItem({ course }: Props) {
 					<Text size='md' fw={600} lineClamp={2}>
 						{course.fullname}
 					</Text>
-					{course.shortname && (
-						<Badge variant='default' radius={'sm'}>
-							{splitShortName(course.shortname).code}
+					{studentClass && (
+						<Badge variant='light' color='blue' radius={'xs'}>
+							{studentClass}
 						</Badge>
 					)}
 				</Flex>
-				{splitShortName(course.shortname).studentClass && (
-					<Badge variant='light' color='blue' size='sm'>
-						{splitShortName(course.shortname).studentClass}
-					</Badge>
-				)}
 			</Stack>
 		</Card>
 	);

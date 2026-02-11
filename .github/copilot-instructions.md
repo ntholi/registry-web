@@ -252,7 +252,7 @@ src/
 
 ## 📦 Special Modules Support
 
-- **Moodle/LMS**: Before editing `src/app/lms/`, YOU MUST READ `C:\Users\nthol\Documents\Projects\Limkokwing\Registry\moodle-plugins\moodle-local_activity_utils\README.md`. Ask for approval before modifying.
+- **Moodle/LMS**: Before editing `src/app/lms/`, YOU MUST READ `C:\Users\nthol\Documents\Projects\Limkokwing\moodle-plugins\moodle-local_activity_utils\README.md`. Ask for approval before modifying.
 - **Student Portal**: `src/app/student-portal` uses a unique layout different from dashboard modules and does NOT follow `adease` patterns.
 
 ## 🗄️ Database & Verification
