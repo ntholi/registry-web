@@ -19,7 +19,7 @@ import {
 	IconSend,
 	IconTrash,
 } from '@tabler/icons-react';
-import { useQueryClient } from '@tanstack/react-query';
+import { useQueryClient, useMutation } from '@tanstack/react-query';
 import dayjs from 'dayjs';
 import Link from 'next/link';
 import {
@@ -27,6 +27,7 @@ import {
 	getAssessmentByLmsId,
 } from '@/app/academic/assessments/_server/actions';
 import { getBooleanColor, getQuizStatusColor } from '@/shared/lib/utils/colors';
+import { notifications } from '@mantine/notifications';
 import { DeleteButton } from '@/shared/ui/adease';
 import { deleteQuiz, updateQuiz } from '../../_server/actions';
 import type { MoodleQuiz } from '../../types';
@@ -74,10 +75,19 @@ export default function QuizCard({ quiz, courseId }: Props) {
 		queryClient.invalidateQueries({ queryKey: ['course-quizzes'] });
 	}
 
-	async function handlePublish() {
-		await updateQuiz(quiz.id, { visible: true });
-		queryClient.invalidateQueries({ queryKey: ['course-quizzes'] });
-	}
+	const publishMutation = useMutation({
+		mutationFn: () => updateQuiz(quiz.id, { visible: true }),
+		onSuccess: () => {
+			notifications.show({ message: 'Quiz published', color: 'green' });
+			queryClient.invalidateQueries({ queryKey: ['course-quizzes'] });
+		},
+		onError: (error) => {
+			notifications.show({
+				message: error.message || 'Failed to publish quiz',
+				color: 'red',
+			});
+		},
+	});
 
 	function handleViewInMoodle() {
 		const moodleUrl = process.env.NEXT_PUBLIC_MOODLE_URL;
@@ -134,9 +144,10 @@ export default function QuizCard({ quiz, courseId }: Props) {
 										<Menu.Item
 											leftSection={<IconSend size={14} />}
 											color='green'
-											onClick={handlePublish}
+											onClick={() => publishMutation.mutate()}
+											disabled={publishMutation.isPending}
 										>
-											Publish
+											{publishMutation.isPending ? 'Publishing...' : 'Publish'}
 										</Menu.Item>
 									)}
 									<Menu.Divider />

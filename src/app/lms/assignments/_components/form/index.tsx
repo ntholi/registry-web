@@ -25,6 +25,7 @@ import {
 import { getAssessmentByModuleId } from '@/app/academic/assessments/_server/actions';
 import {
 	createDraftAssignment,
+	publishAssignment,
 	updateAssignment,
 } from '../../_server/actions';
 import AttachmentsSection from './AttachmentsSection';
@@ -56,6 +57,17 @@ type AssignmentFormProps = {
 };
 
 type SaveState = 'idle' | 'saving' | 'saved';
+
+const ASSIGNMENT_TYPES = ASSESSMENT_TYPES.filter((t) =>
+	/^Assignment \d+$/.test(t.label)
+);
+
+function getNextAssignmentType(
+	used: string[]
+): { value: string; label: string } | undefined {
+	const usedLabels = new Set(used);
+	return ASSIGNMENT_TYPES.find((t) => !usedLabels.has(t.label));
+}
 
 export default function AssignmentForm({
 	courseId,
@@ -119,9 +131,23 @@ export default function AssignmentForm({
 			} else {
 				formSetFieldValueRef.current('assessmentNumber', 'CW1');
 			}
+
+			const usedTypes = assessments.map((a) => a.assessmentType);
+			const nextAssignment = getNextAssignmentType(usedTypes);
+			if (nextAssignment) {
+				formSetFieldValueRef.current('assessmentType', nextAssignment.value);
+			}
 		} else {
 			formSetFieldValueRef.current('assessmentNumber', 'CW1');
+			const firstAssignment = ASSIGNMENT_TYPES[0];
+			if (firstAssignment) {
+				formSetFieldValueRef.current('assessmentType', firstAssignment.value);
+			}
 		}
+
+		const oneWeek = new Date();
+		oneWeek.setDate(oneWeek.getDate() + 7);
+		formSetFieldValueRef.current('dueDate', oneWeek.toISOString());
 	}, [opened, assessments]);
 
 	const canCreateDraft =
@@ -241,6 +267,33 @@ export default function AssignmentForm({
 		debouncedSave,
 	]);
 
+	const publishMutation = useMutation({
+		mutationFn: async () => {
+			if (!draftId) throw new Error('No draft assignment to publish');
+			return publishAssignment({
+				assignmentId: draftId,
+				courseId,
+				moduleId,
+				assessmentNumber: form.values.assessmentNumber,
+				weight: form.values.weight,
+				totalMarks: form.values.totalMarks,
+			});
+		},
+		onSuccess: () => {
+			notifications.show({ message: 'Assignment published', color: 'green' });
+			queryClient.invalidateQueries({ queryKey: ['course-assignments', courseId] });
+			queryClient.invalidateQueries({ queryKey: ['module-assessments', moduleId] });
+			form.reset();
+			close();
+		},
+		onError: (error) => {
+			notifications.show({
+				message: error.message || 'Failed to publish assignment',
+				color: 'red',
+			});
+		},
+	});
+
 	function handleClose() {
 		if (draftId) {
 			queryClient.invalidateQueries({
@@ -302,14 +355,27 @@ export default function AssignmentForm({
 							</Grid>
 						</Grid.Col>
 						<Grid.Col span={{ base: 12, md: 4 }}>
-							<Button
-								mt={25}
-								variant='default'
-								onClick={handleClose}
-								fullWidth
-							>
-								Done
-							</Button>
+							<Grid mt={25}>
+								<Grid.Col span={5}>
+									<Button
+										fullWidth
+										variant='default'
+										onClick={handleClose}
+									>
+										Save
+									</Button>
+								</Grid.Col>
+								<Grid.Col span={7}>
+									<Button
+										fullWidth
+										onClick={() => publishMutation.mutate()}
+										loading={publishMutation.isPending}
+										disabled={!draftId}
+									>
+										Publish
+									</Button>
+								</Grid.Col>
+							</Grid>
 						</Grid.Col>
 					</Grid>
 

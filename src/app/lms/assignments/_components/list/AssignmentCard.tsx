@@ -9,7 +9,7 @@ import {
 	IconSend,
 	IconTrash,
 } from '@tabler/icons-react';
-import { useQueryClient } from '@tanstack/react-query';
+import { useQueryClient, useMutation } from '@tanstack/react-query';
 import Link from 'next/link';
 import {
 	deleteAssessment,
@@ -17,6 +17,7 @@ import {
 } from '@/app/academic/assessments/_server/actions';
 import { getBooleanColor } from '@/shared/lib/utils/colors';
 import { formatMoodleDate } from '@/shared/lib/utils/dates';
+import { notifications } from '@mantine/notifications';
 import { DeleteButton } from '@/shared/ui/adease';
 import { deleteAssignment, updateAssignment } from '../../_server/actions';
 import type { MoodleAssignment } from '../../types';
@@ -35,10 +36,19 @@ export default function AssignmentCard({ assignment, courseId }: Props) {
 	const isDraft = assignment.visible === 0;
 	const queryClient = useQueryClient();
 
-	async function handlePublish() {
-		await updateAssignment(assignment.id, { visible: 1 });
-		queryClient.invalidateQueries({ queryKey: ['course-assignments'] });
-	}
+	const publishMutation = useMutation({
+		mutationFn: () => updateAssignment(assignment.id, { visible: 1 }),
+		onSuccess: () => {
+			notifications.show({ message: 'Assignment published', color: 'green' });
+			queryClient.invalidateQueries({ queryKey: ['course-assignments'] });
+		},
+		onError: (error) => {
+			notifications.show({
+				message: error.message || 'Failed to publish assignment',
+				color: 'red',
+			});
+		},
+	});
 
 	async function handleDelete() {
 		const assessment = await getAssessmentByLmsId(assignment.id);
@@ -106,9 +116,10 @@ export default function AssignmentCard({ assignment, courseId }: Props) {
 										<Menu.Item
 											leftSection={<IconSend size={14} />}
 											color='green'
-											onClick={handlePublish}
+											onClick={() => publishMutation.mutate()}
+											disabled={publishMutation.isPending}
 										>
-											Publish
+											{publishMutation.isPending ? 'Publishing...' : 'Publish'}
 										</Menu.Item>
 									)}
 									<Menu.Divider />
