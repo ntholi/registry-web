@@ -8,12 +8,11 @@ import {
 	Group,
 	NumberInput,
 	Paper,
+	Select,
 	Stack,
 	Switch,
 	Tabs,
 	Text,
-	Textarea,
-	TextInput,
 	ThemeIcon,
 	Title,
 } from '@mantine/core';
@@ -30,6 +29,8 @@ import {
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { useQueryState } from 'nuqs';
+import { ASSESSMENT_TYPES } from '@/app/academic/assessments/_lib/utils';
+import RichTextField from '@/shared/ui/adease/RichTextField';
 import { updateAssignment } from '../../_server/actions';
 import type { MoodleAssignment } from '../../types';
 
@@ -39,9 +40,9 @@ type Props = {
 };
 
 type EditFormValues = {
-	name: string;
-	intro: string;
-	activity: string;
+	assessmentType: string;
+	description: string;
+	instructions: string;
 	allowsubmissionsfromdate: Date | null;
 	duedate: Date | null;
 	grademax: number;
@@ -55,11 +56,14 @@ export default function AssignmentEditForm({ assignment, courseId }: Props) {
 		defaultValue: 'general',
 	});
 
+	const initialType =
+		ASSESSMENT_TYPES.find((t) => t.label === assignment.name)?.value || '';
+
 	const form = useForm<EditFormValues>({
 		initialValues: {
-			name: assignment.name || '',
-			intro: assignment.intro || '',
-			activity: '',
+			assessmentType: initialType,
+			description: assignment.intro || '',
+			instructions: '',
 			allowsubmissionsfromdate: assignment.allowsubmissionsfromdate
 				? new Date(assignment.allowsubmissionsfromdate * 1000)
 				: null,
@@ -70,17 +74,21 @@ export default function AssignmentEditForm({ assignment, courseId }: Props) {
 			visible: assignment.visible !== 0,
 		},
 		validate: {
-			name: (v) => (!v?.trim() ? 'Assignment name is required' : null),
+			assessmentType: (v) => (!v ? 'Assignment type is required' : null),
 			grademax: (v) => (v < 1 ? 'Grade must be at least 1' : null),
 		},
 	});
 
 	const updateMutation = useMutation({
 		mutationFn: async (values: EditFormValues) => {
+			const name =
+				ASSESSMENT_TYPES.find((t) => t.value === values.assessmentType)
+					?.label || assignment.name;
+
 			await updateAssignment(assignment.id, {
-				name: values.name,
-				intro: values.intro,
-				activity: values.activity || undefined,
+				name,
+				intro: values.description,
+				activity: values.instructions || undefined,
 				allowsubmissionsfromdate: values.allowsubmissionsfromdate
 					? Math.floor(values.allowsubmissionsfromdate.getTime() / 1000)
 					: undefined,
@@ -157,41 +165,42 @@ export default function AssignmentEditForm({ assignment, courseId }: Props) {
 					<Grid gutter='lg'>
 						<Grid.Col span={{ base: 12, md: 8 }}>
 							<Stack gap='lg'>
-								<Paper p='lg' withBorder>
-									<Stack gap='md'>
-										<Title order={5}>Assignment Information</Title>
-										<Divider />
+								<Select
+									label='Assignment Type'
+									placeholder='Select assignment type'
+									searchable
+									data={ASSESSMENT_TYPES}
+									{...form.getInputProps('assessmentType')}
+								/>
 
-										<TextInput
-											label='Assignment Name'
-											placeholder='Enter assignment name'
-											{...form.getInputProps('name')}
-										/>
+								<Tabs defaultValue='description'>
+									<Tabs.List>
+										<Tabs.Tab value='description'>Description</Tabs.Tab>
+										<Tabs.Tab value='instructions'>Instructions</Tabs.Tab>
+									</Tabs.List>
 
-										<Textarea
-											label='Description'
-											placeholder='Enter assignment description (optional)'
-											{...form.getInputProps('intro')}
-											autosize
-											minRows={4}
-											maxRows={10}
+									<Tabs.Panel value='description'>
+										<RichTextField
+											showFullScreenButton={false}
+											height={320}
+											toolbar='full'
+											{...form.getInputProps('description')}
 										/>
+									</Tabs.Panel>
 
-										<Textarea
-											label='Activity Instructions'
-											placeholder='Instructions shown to students when submitting (optional)'
-											{...form.getInputProps('activity')}
-											autosize
-											minRows={3}
-											maxRows={8}
+									<Tabs.Panel value='instructions'>
+										<RichTextField
+											showFullScreenButton={false}
+											height={320}
+											{...form.getInputProps('instructions')}
 										/>
+									</Tabs.Panel>
+								</Tabs>
 
-										<Switch
-											label='Visible to students'
-											{...form.getInputProps('visible', { type: 'checkbox' })}
-										/>
-									</Stack>
-								</Paper>
+								<Switch
+									label='Visible to students'
+									{...form.getInputProps('visible', { type: 'checkbox' })}
+								/>
 							</Stack>
 						</Grid.Col>
 
