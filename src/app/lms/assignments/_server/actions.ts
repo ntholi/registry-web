@@ -27,7 +27,11 @@ export async function getCourseAssignments(
 		),
 	]);
 
-	if (!assignResult || !assignResult.courses || assignResult.courses.length === 0) {
+	if (
+		!assignResult ||
+		!assignResult.courses ||
+		assignResult.courses.length === 0
+	) {
 		return [];
 	}
 
@@ -71,7 +75,9 @@ type CreateDraftAssignmentInput = {
 	grademax: number;
 };
 
-export async function createDraftAssignment(params: CreateDraftAssignmentInput) {
+export async function createDraftAssignment(
+	params: CreateDraftAssignmentInput
+) {
 	const session = await auth();
 	if (!session?.user) {
 		throw new Error('Unauthorized');

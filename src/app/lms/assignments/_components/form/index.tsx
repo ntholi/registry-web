@@ -160,9 +160,8 @@ export default function AssignmentForm({
 			if (!form.values.dueDate) throw new Error('Due date is required');
 
 			const typeLabel =
-				ASSESSMENT_TYPES.find(
-					(t) => t.value === form.values.assessmentType
-				)?.label || '';
+				ASSESSMENT_TYPES.find((t) => t.value === form.values.assessmentType)
+					?.label || '';
 
 			return createDraftAssignment({
 				courseid: courseId,
@@ -171,9 +170,7 @@ export default function AssignmentForm({
 				allowsubmissionsfromdate: form.values.availableFrom
 					? Math.floor(new Date(form.values.availableFrom).getTime() / 1000)
 					: 0,
-				duedate: Math.floor(
-					new Date(form.values.dueDate).getTime() / 1000
-				),
+				duedate: Math.floor(new Date(form.values.dueDate).getTime() / 1000),
 				activityinstructions: form.values.instructions,
 				grademax: form.values.totalMarks,
 			});
@@ -199,9 +196,8 @@ export default function AssignmentForm({
 			if (!draftId) return;
 
 			const typeLabel =
-				ASSESSMENT_TYPES.find(
-					(t) => t.value === form.values.assessmentType
-				)?.label || '';
+				ASSESSMENT_TYPES.find((t) => t.value === form.values.assessmentType)
+					?.label || '';
 
 			await updateAssignment(draftId, {
 				name: typeLabel,
@@ -281,8 +277,12 @@ export default function AssignmentForm({
 		},
 		onSuccess: () => {
 			notifications.show({ message: 'Assignment published', color: 'green' });
-			queryClient.invalidateQueries({ queryKey: ['course-assignments', courseId] });
-			queryClient.invalidateQueries({ queryKey: ['module-assessments', moduleId] });
+			queryClient.invalidateQueries({
+				queryKey: ['course-assignments', courseId],
+			});
+			queryClient.invalidateQueries({
+				queryKey: ['module-assessments', moduleId],
+			});
 			form.reset();
 			close();
 		},
@@ -357,11 +357,7 @@ export default function AssignmentForm({
 						<Grid.Col span={{ base: 12, md: 4 }}>
 							<Grid mt={25}>
 								<Grid.Col span={5}>
-									<Button
-										fullWidth
-										variant='default'
-										onClick={handleClose}
-									>
+									<Button fullWidth variant='default' onClick={handleClose}>
 										Save
 									</Button>
 								</Grid.Col>

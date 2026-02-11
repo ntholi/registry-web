@@ -134,12 +134,6 @@ export default function QuizCard({ quiz, courseId }: Props) {
 									>
 										Edit
 									</Menu.Item>
-									<Menu.Item
-										leftSection={<IconExternalLink size={14} />}
-										onClick={handleViewInMoodle}
-									>
-										View in Moodle
-									</Menu.Item>
 									{isDraft && (
 										<Menu.Item
 											leftSection={<IconSend size={14} />}
@@ -150,6 +144,12 @@ export default function QuizCard({ quiz, courseId }: Props) {
 											{publishMutation.isPending ? 'Publishing...' : 'Publish'}
 										</Menu.Item>
 									)}
+									<Menu.Item
+										leftSection={<IconExternalLink size={14} />}
+										onClick={handleViewInMoodle}
+									>
+										View in Moodle
+									</Menu.Item>
 									<Menu.Divider />
 									<DeleteButton
 										handleDelete={handleDelete}

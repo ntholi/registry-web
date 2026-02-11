@@ -531,8 +531,7 @@ export async function getCourseQuizzes(
 			MoodleQuiz & { cmid?: number; coursemodule?: number }
 		>
 	).map((quiz) => {
-		const cmid =
-			quiz.coursemoduleid ?? quiz.coursemodule ?? quiz.cmid ?? 0;
+		const cmid = quiz.coursemoduleid ?? quiz.coursemodule ?? quiz.cmid ?? 0;
 		return {
 			...quiz,
 			coursemoduleid: cmid,

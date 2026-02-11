@@ -45,9 +45,7 @@ type QuizFormProps = {
 
 type SaveState = 'idle' | 'saving' | 'saved';
 
-const QUIZ_TYPES = ASSESSMENT_TYPES.filter((t) =>
-	/^Quiz \d+$/.test(t.label)
-);
+const QUIZ_TYPES = ASSESSMENT_TYPES.filter((t) => /^Quiz \d+$/.test(t.label));
 
 function getNextQuizType(
 	used: string[]
@@ -150,9 +148,8 @@ export default function QuizForm({ courseId, moduleId }: QuizFormProps) {
 	const createDraftMutation = useMutation({
 		mutationFn: async () => {
 			const typeLabel =
-				ASSESSMENT_TYPES.find(
-					(t) => t.value === form.values.assessmentType
-				)?.label || 'Quiz';
+				ASSESSMENT_TYPES.find((t) => t.value === form.values.assessmentType)
+					?.label || 'Quiz';
 
 			return createDraftQuiz({
 				courseId,
@@ -163,7 +160,7 @@ export default function QuizForm({ courseId, moduleId }: QuizFormProps) {
 			});
 		},
 		onSuccess: (result) => {
-				setDraftQuizId(result.quizId);
+			setDraftQuizId(result.quizId);
 			setSaveState('saved');
 			queryClient.invalidateQueries({
 				queryKey: ['course-quizzes', courseId],
@@ -182,9 +179,8 @@ export default function QuizForm({ courseId, moduleId }: QuizFormProps) {
 		mutationFn: async () => {
 			if (!draftQuizId) return;
 			const typeLabel =
-				ASSESSMENT_TYPES.find(
-					(t) => t.value === form.values.assessmentType
-				)?.label || 'Quiz';
+				ASSESSMENT_TYPES.find((t) => t.value === form.values.assessmentType)
+					?.label || 'Quiz';
 
 			await updateQuiz(draftQuizId, {
 				name: typeLabel,
@@ -226,12 +222,7 @@ export default function QuizForm({ courseId, moduleId }: QuizFormProps) {
 				savingRef.current = false;
 			},
 		});
-	}, [
-		draftQuizId,
-		canCreateDraft,
-		createDraftMutation,
-		saveSettingsMutation,
-	]);
+	}, [draftQuizId, canCreateDraft, createDraftMutation, saveSettingsMutation]);
 
 	const debouncedSave = useDebouncedCallback(triggerAutoSave, 1500);
 
@@ -254,7 +245,10 @@ export default function QuizForm({ courseId, moduleId }: QuizFormProps) {
 		mutationFn: async ({
 			question,
 			page,
-		}: { question: Question; page: number }) => {
+		}: {
+			question: Question;
+			page: number;
+		}) => {
 			if (!draftQuizId) throw new Error('No draft quiz');
 			return saveDraftQuizQuestion(courseId, draftQuizId, question, page);
 		},
@@ -324,7 +318,9 @@ export default function QuizForm({ courseId, moduleId }: QuizFormProps) {
 		onSuccess: () => {
 			notifications.show({ message: 'Quiz published', color: 'green' });
 			queryClient.invalidateQueries({ queryKey: ['course-quizzes', courseId] });
-			queryClient.invalidateQueries({ queryKey: ['module-assessments', moduleId] });
+			queryClient.invalidateQueries({
+				queryKey: ['module-assessments', moduleId],
+			});
 			form.reset();
 			close();
 		},

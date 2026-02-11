@@ -21,7 +21,11 @@ export default function AssignmentStatus({ assignment, ...badgeProps }: Props) {
 	const isUpcoming = !!(availableFrom && availableFrom > now);
 	const isDraft = assignment.visible === 0;
 
-	const { label, color } = getAssignmentStatusColor(isOverdue, isUpcoming, isDraft);
+	const { label, color } = getAssignmentStatusColor(
+		isOverdue,
+		isUpcoming,
+		isDraft
+	);
 
 	return (
 		<Badge color={color} {...badgeProps}>

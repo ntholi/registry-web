@@ -32,7 +32,6 @@ function getCourseGradient(courseId?: number | null): string {
 	return gradients[gradientIndex];
 }
 
-
 export default function CourseItem({ course }: Props) {
 	const gradient = getCourseGradient(course.id);
 	const { code, studentClass } = splitShortName(course.shortname);
@@ -123,7 +122,12 @@ export default function CourseItem({ course }: Props) {
 							boxShadow: '0 18px 30px rgba(0, 0, 0, 0.18)',
 						}}
 					>
-						<Text size='sm' fw={700} c='white' style={{ letterSpacing: '0.05em' }}>
+						<Text
+							size='sm'
+							fw={700}
+							c='white'
+							style={{ letterSpacing: '0.05em' }}
+						>
 							{code}
 						</Text>
 					</Box>

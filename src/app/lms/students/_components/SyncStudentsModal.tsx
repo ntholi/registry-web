@@ -184,64 +184,63 @@ export default function SyncStudentsModal({
 				size='lg'
 			>
 				<Stack gap='md'>
-					{syncStatus === 'idle' && (
-						isLoading ? (
-								<Box ta='center' py='xl'>
-									<Loader size='sm' />
-									<Text size='sm' c='dimmed' mt='sm'>
-										Loading registered students...
-									</Text>
-								</Box>
-							) : !registeredStudents || registeredStudents.length === 0 ? (
-								<Box ta='center' py='xl'>
-									<Text size='sm' c='dimmed'>
-										No registered students found for your assigned semester
-										modules
-									</Text>
-								</Box>
-							) : (
-								<>
-									<Text size='sm' fw={500}>
-										{registeredStudents.length} student
-										{registeredStudents.length !== 1 ? 's' : ''} registered
-									</Text>
-									<ScrollArea.Autosize mah={400}>
-										<Stack gap='xs'>
-											{registeredStudents.map((student) => (
-												<Group
-													key={student.stdNo}
-													gap='sm'
-													px='sm'
-													py='xs'
-													style={{
-														borderRadius: 'var(--mantine-radius-sm)',
-														border:
-															'1px solid var(--mantine-color-default-border)',
-													}}
+					{syncStatus === 'idle' &&
+						(isLoading ? (
+							<Box ta='center' py='xl'>
+								<Loader size='sm' />
+								<Text size='sm' c='dimmed' mt='sm'>
+									Loading registered students...
+								</Text>
+							</Box>
+						) : !registeredStudents || registeredStudents.length === 0 ? (
+							<Box ta='center' py='xl'>
+								<Text size='sm' c='dimmed'>
+									No registered students found for your assigned semester
+									modules
+								</Text>
+							</Box>
+						) : (
+							<>
+								<Text size='sm' fw={500}>
+									{registeredStudents.length} student
+									{registeredStudents.length !== 1 ? 's' : ''} registered
+								</Text>
+								<ScrollArea.Autosize mah={400}>
+									<Stack gap='xs'>
+										{registeredStudents.map((student) => (
+											<Group
+												key={student.stdNo}
+												gap='sm'
+												px='sm'
+												py='xs'
+												style={{
+													borderRadius: 'var(--mantine-radius-sm)',
+													border:
+														'1px solid var(--mantine-color-default-border)',
+												}}
+											>
+												<ThemeIcon
+													size='sm'
+													color='blue'
+													variant='light'
+													radius='xl'
 												>
-													<ThemeIcon
-														size='sm'
-														color='blue'
-														variant='light'
-														radius='xl'
-													>
-														<IconUser size={12} />
-													</ThemeIcon>
-													<Stack gap={0} style={{ flex: 1 }}>
-														<Text size='sm' fw={500}>
-															{student.name}
-														</Text>
-														<Text size='xs' c='dimmed'>
-															{student.stdNo}
-														</Text>
-													</Stack>
-												</Group>
-											))}
-										</Stack>
-									</ScrollArea.Autosize>
-								</>
-							)
-					)}
+													<IconUser size={12} />
+												</ThemeIcon>
+												<Stack gap={0} style={{ flex: 1 }}>
+													<Text size='sm' fw={500}>
+														{student.name}
+													</Text>
+													<Text size='xs' c='dimmed'>
+														{student.stdNo}
+													</Text>
+												</Stack>
+											</Group>
+										))}
+									</Stack>
+								</ScrollArea.Autosize>
+							</>
+						))}
 
 					{(syncStatus === 'syncing' || syncStatus === 'done') && (
 						<>

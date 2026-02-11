@@ -25,11 +25,7 @@ type Props = {
 	courseId: number;
 };
 
-export default function CourseHeader({
-	fullname,
-	shortname,
-	courseId,
-}: Props) {
+export default function CourseHeader({ fullname, shortname, courseId }: Props) {
 	return (
 		<Stack>
 			<Link c='gray' href='/lms/courses'>
@@ -52,7 +48,7 @@ export default function CourseHeader({
 									{splitShortName(shortname).code}
 								</Badge>
 								{splitShortName(shortname).studentClass && (
-									<Badge radius={'xs'} variant='light' >
+									<Badge radius={'xs'} variant='light'>
 										{splitShortName(shortname).studentClass}
 									</Badge>
 								)}
