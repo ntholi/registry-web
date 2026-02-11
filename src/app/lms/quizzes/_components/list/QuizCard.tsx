@@ -16,6 +16,7 @@ import {
 	IconDotsVertical,
 	IconEdit,
 	IconExternalLink,
+	IconSend,
 	IconTrash,
 } from '@tabler/icons-react';
 import { useQueryClient } from '@tanstack/react-query';
@@ -27,7 +28,7 @@ import {
 } from '@/app/academic/assessments/_server/actions';
 import { getBooleanColor, getQuizStatusColor } from '@/shared/lib/utils/colors';
 import { DeleteButton } from '@/shared/ui/adease';
-import { deleteQuiz } from '../../_server/actions';
+import { deleteQuiz, updateQuiz } from '../../_server/actions';
 import type { MoodleQuiz } from '../../types';
 
 type Props = {
@@ -51,7 +52,8 @@ function getQuizStatus(quiz: MoodleQuiz): {
 	const now = Date.now() / 1000;
 	const isNotYetOpen = quiz.timeopen > 0 && now < quiz.timeopen;
 	const isClosed = quiz.timeclose > 0 && now > quiz.timeclose;
-	return getQuizStatusColor(isNotYetOpen, isClosed);
+	const isDraft = quiz.visible === 0;
+	return getQuizStatusColor(isNotYetOpen, isClosed, isDraft);
 }
 
 export default function QuizCard({ quiz, courseId }: Props) {
@@ -61,12 +63,19 @@ export default function QuizCard({ quiz, courseId }: Props) {
 	const isOverdue = closeDate && closeDate < new Date();
 	const queryClient = useQueryClient();
 
+	const isDraft = quiz.visible === 0;
+
 	async function handleDelete() {
 		const assessment = await getAssessmentByLmsId(quiz.id);
 		if (assessment) {
 			await deleteAssessment(assessment.id);
 		}
 		await deleteQuiz(quiz.coursemoduleid);
+		queryClient.invalidateQueries({ queryKey: ['course-quizzes'] });
+	}
+
+	async function handlePublish() {
+		await updateQuiz(quiz.id, { visible: true });
 		queryClient.invalidateQueries({ queryKey: ['course-quizzes'] });
 	}
 
@@ -121,6 +130,15 @@ export default function QuizCard({ quiz, courseId }: Props) {
 									>
 										View in Moodle
 									</Menu.Item>
+									{isDraft && (
+										<Menu.Item
+											leftSection={<IconSend size={14} />}
+											color='green'
+											onClick={handlePublish}
+										>
+											Publish
+										</Menu.Item>
+									)}
 									<Menu.Divider />
 									<DeleteButton
 										handleDelete={handleDelete}

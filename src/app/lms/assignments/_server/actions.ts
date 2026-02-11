@@ -16,15 +16,35 @@ export async function getCourseAssignments(
 		throw new Error('Unauthorized');
 	}
 
-	const result = await moodleGet('mod_assign_get_assignments', {
-		'courseids[0]': courseId,
-	});
+	const [assignResult, sectionsResult] = await Promise.all([
+		moodleGet('mod_assign_get_assignments', {
+			'courseids[0]': courseId,
+		}),
+		moodleGet(
+			'core_course_get_contents',
+			{ courseid: courseId },
+			process.env.MOODLE_TOKEN
+		),
+	]);
 
-	if (!result || !result.courses || result.courses.length === 0) {
+	if (!assignResult || !assignResult.courses || assignResult.courses.length === 0) {
 		return [];
 	}
 
-	return result.courses[0].assignments as MoodleAssignment[];
+	const visibilityMap = new Map<number, number>();
+	if (Array.isArray(sectionsResult)) {
+		for (const section of sectionsResult) {
+			for (const mod of section.modules || []) {
+				visibilityMap.set(mod.id, mod.visible ?? 1);
+			}
+		}
+	}
+
+	const assignments = assignResult.courses[0].assignments as MoodleAssignment[];
+	return assignments.map((a) => ({
+		...a,
+		visible: (a.cmid ? visibilityMap.get(a.cmid) : undefined) ?? a.visible ?? 1,
+	}));
 }
 
 export async function getAssignment(
@@ -39,6 +59,139 @@ async function fileToBase64(file: File): Promise<string> {
 	const bytes = await file.arrayBuffer();
 	const buffer = Buffer.from(bytes);
 	return buffer.toString('base64');
+}
+
+type CreateDraftAssignmentInput = {
+	courseid: number;
+	name: string;
+	intro?: string;
+	allowsubmissionsfromdate: number;
+	duedate: number;
+	activityinstructions?: string;
+	grademax: number;
+};
+
+export async function createDraftAssignment(params: CreateDraftAssignmentInput) {
+	const session = await auth();
+	if (!session?.user) {
+		throw new Error('Unauthorized');
+	}
+
+	if (!params.name?.trim()) {
+		throw new Error('Assignment name is required');
+	}
+
+	const sectionNumber = await getOrReuseSection({
+		courseId: params.courseid,
+		sectionName: 'Assignments',
+		summary: 'Course assignments and submissions',
+		matchFn: (name) =>
+			name.toLowerCase() === 'assignments' ||
+			name.toLowerCase() === 'assignment',
+	});
+
+	const requestParams: Record<string, string | number> = {
+		courseid: params.courseid,
+		name: params.name,
+		duedate: params.duedate,
+		allowsubmissionsfromdate: params.allowsubmissionsfromdate,
+		section: sectionNumber,
+		grademax: params.grademax,
+		visible: 0,
+	};
+
+	if (params.intro) {
+		requestParams.intro = params.intro;
+	}
+	if (params.activityinstructions) {
+		requestParams.activity = params.activityinstructions;
+	}
+
+	const result = await moodlePost(
+		'local_activity_utils_create_assignment',
+		requestParams
+	);
+
+	return {
+		assignmentId: result.id as number,
+		courseModuleId: result.coursemoduleid as number,
+	};
+}
+
+export async function updateAssignment(
+	assignmentId: number,
+	params: {
+		name?: string;
+		intro?: string;
+		activity?: string;
+		allowsubmissionsfromdate?: number;
+		duedate?: number;
+		grademax?: number;
+		visible?: number;
+	}
+) {
+	const session = await auth();
+	if (!session?.user) {
+		throw new Error('Unauthorized');
+	}
+
+	const updateParams: Record<string, string | number | undefined> = {
+		assignmentid: assignmentId,
+	};
+
+	if (params.name !== undefined) updateParams.name = params.name;
+	if (params.intro !== undefined) updateParams.intro = params.intro;
+	if (params.activity !== undefined) updateParams.activity = params.activity;
+	if (params.allowsubmissionsfromdate !== undefined)
+		updateParams.allowsubmissionsfromdate = params.allowsubmissionsfromdate;
+	if (params.duedate !== undefined) updateParams.duedate = params.duedate;
+	if (params.grademax !== undefined) updateParams.grademax = params.grademax;
+	if (params.visible !== undefined) updateParams.visible = params.visible;
+
+	await moodlePost('local_activity_utils_update_assignment', updateParams);
+}
+
+export async function publishAssignment(input: {
+	assignmentId: number;
+	courseId: number;
+	moduleId: number;
+	assessmentNumber: string;
+	weight: number;
+	totalMarks: number;
+}) {
+	const session = await auth();
+	if (!session?.user) {
+		throw new Error('Unauthorized');
+	}
+
+	const term = await getActiveTerm();
+	if (!term) {
+		throw new Error('No active term found');
+	}
+
+	const assignment = await getAssignment(input.courseId, input.assignmentId);
+	if (!assignment) {
+		throw new Error('Assignment not found');
+	}
+
+	await updateAssignment(input.assignmentId, { visible: 1 });
+
+	await createAcademicAssessment(
+		{
+			moduleId: input.moduleId,
+			assessmentNumber: input.assessmentNumber as AssessmentNumber,
+			assessmentType: assignment.name,
+			totalMarks: input.totalMarks,
+			weight: input.weight,
+			termId: term.id,
+		},
+		{
+			lmsId: input.assignmentId,
+			activityType: 'assignment',
+		}
+	);
+
+	return { success: true };
 }
 
 export async function createAssignment(params: CreateAssignmentParams) {

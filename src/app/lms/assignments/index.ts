@@ -38,9 +38,12 @@ export {
 
 export {
 	createAssignment,
+	createDraftAssignment,
 	deleteAssignment,
 	getAssignment,
 	getCourseAssignments,
+	publishAssignment,
+	updateAssignment,
 } from './_server/actions';
 
 export type {

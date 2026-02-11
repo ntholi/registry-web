@@ -6,6 +6,7 @@ import {
 	IconDotsVertical,
 	IconEdit,
 	IconExternalLink,
+	IconSend,
 	IconTrash,
 } from '@tabler/icons-react';
 import { useQueryClient } from '@tanstack/react-query';
@@ -17,7 +18,7 @@ import {
 import { getBooleanColor } from '@/shared/lib/utils/colors';
 import { formatMoodleDate } from '@/shared/lib/utils/dates';
 import { DeleteButton } from '@/shared/ui/adease';
-import { deleteAssignment } from '../../_server/actions';
+import { deleteAssignment, updateAssignment } from '../../_server/actions';
 import type { MoodleAssignment } from '../../types';
 import AssignmentStatus from '../details/AssignmentStatus';
 
@@ -31,7 +32,13 @@ export default function AssignmentCard({ assignment, courseId }: Props) {
 		? new Date(assignment.duedate * 1000)
 		: null;
 	const isOverdue = dueDate && dueDate < new Date();
+	const isDraft = assignment.visible === 0;
 	const queryClient = useQueryClient();
+
+	async function handlePublish() {
+		await updateAssignment(assignment.id, { visible: 1 });
+		queryClient.invalidateQueries({ queryKey: ['course-assignments'] });
+	}
 
 	async function handleDelete() {
 		const assessment = await getAssessmentByLmsId(assignment.id);
@@ -95,6 +102,15 @@ export default function AssignmentCard({ assignment, courseId }: Props) {
 									>
 										View in Moodle
 									</Menu.Item>
+									{isDraft && (
+										<Menu.Item
+											leftSection={<IconSend size={14} />}
+											color='green'
+											onClick={handlePublish}
+										>
+											Publish
+										</Menu.Item>
+									)}
 									<Menu.Divider />
 									<DeleteButton
 										handleDelete={handleDelete}

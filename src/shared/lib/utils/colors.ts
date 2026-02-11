@@ -88,6 +88,7 @@ export const statusColors = {
 		notyetopen: semantic.neutral,
 		overdue: semantic.error,
 		upcoming: semantic.accent,
+		draft: semantic.warning,
 	},
 	assignment: {
 		assigned: semantic.info,
@@ -374,7 +375,14 @@ export function getModuleTypeColor(
 	return semantic.neutral;
 }
 
-export function getQuizStatusColor(isNotYetOpen: boolean, isClosed: boolean) {
+export function getQuizStatusColor(
+	isNotYetOpen: boolean,
+	isClosed: boolean,
+	isDraft?: boolean
+) {
+	if (isDraft) {
+		return { label: 'Draft', color: statusColors.availability.draft };
+	}
 	if (isNotYetOpen) {
 		return {
 			label: 'Not yet open',
@@ -389,8 +397,12 @@ export function getQuizStatusColor(isNotYetOpen: boolean, isClosed: boolean) {
 
 export function getAssignmentStatusColor(
 	isOverdue: boolean,
-	isUpcoming: boolean
+	isUpcoming: boolean,
+	isDraft?: boolean
 ) {
+	if (isDraft) {
+		return { label: 'Draft', color: statusColors.availability.draft };
+	}
 	if (isOverdue) {
 		return { label: 'Overdue', color: statusColors.availability.overdue };
 	}

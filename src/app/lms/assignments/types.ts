@@ -52,6 +52,7 @@ export type MoodleAssignment = {
 		value: string;
 	}>;
 	cmid?: number;
+	visible?: number;
 };
 
 export type CreateAssignmentParams = {
