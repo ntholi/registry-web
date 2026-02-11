@@ -31,6 +31,7 @@ import { useQueryState } from 'nuqs';
 import { useRef, useState } from 'react';
 import { formatMoodleDate } from '@/shared/lib/utils/dates';
 import { DeleteButton } from '@/shared/ui/adease';
+import Link from '@/shared/ui/Link';
 import { deleteRubric, getRubric, RubricView } from '../../_features/rubric';
 import { SubmissionsView } from '../../_features/submissions';
 import type { MoodleAssignment } from '../../types';
@@ -72,6 +73,8 @@ export default function AssignmentTabs({ assignment, courseId }: Props) {
 				{activeTab === 'details' && (
 					<Box ml='auto' mt={-5}>
 						<Button
+							component={Link}
+							href={`/lms/courses/${courseId}/assignments/${assignment.id}/edit`}
 							variant='light'
 							leftSection={<IconEdit size={16} />}
 							size='xs'

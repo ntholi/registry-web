@@ -1,4 +1,6 @@
 export { AssignmentHeader, AssignmentTabs } from './_components/details';
+export { default as AssignmentEditForm } from './_components/edit/AssignmentEditForm';
+export { default as AssignmentEditHeader } from './_components/edit/AssignmentEditHeader';
 export { default as AssignmentForm } from './_components/form';
 export { AssignmentCard, AssignmentsList } from './_components/list';
 export {
