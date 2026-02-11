@@ -74,9 +74,7 @@ export default function AssignmentEditForm({ assignment, courseId }: Props) {
 			allowsubmissionsfromdate: assignment.allowsubmissionsfromdate
 				? new Date(assignment.allowsubmissionsfromdate * 1000)
 				: null,
-			duedate: assignment.duedate
-				? new Date(assignment.duedate * 1000)
-				: null,
+			duedate: assignment.duedate ? new Date(assignment.duedate * 1000) : null,
 			grademax: assignment.grade > 0 ? assignment.grade : 100,
 			visible: assignment.visible !== 0,
 			attachments: [],
@@ -131,10 +129,7 @@ export default function AssignmentEditForm({ assignment, courseId }: Props) {
 	});
 
 	function handleFilesSelect(files: File[]) {
-		form.setFieldValue('attachments', [
-			...form.values.attachments,
-			...files,
-		]);
+		form.setFieldValue('attachments', [...form.values.attachments, ...files]);
 	}
 
 	function handleFileRemove(index: number) {
@@ -250,20 +245,10 @@ export default function AssignmentEditForm({ assignment, courseId }: Props) {
 														withBorder
 														p='xs'
 													>
-														<Group
-															justify='space-between'
-															wrap='nowrap'
-														>
-															<Group
-																gap='xs'
-																style={{ flex: 1, minWidth: 0 }}
-															>
+														<Group justify='space-between' wrap='nowrap'>
+															<Group gap='xs' style={{ flex: 1, minWidth: 0 }}>
 																<IconPaperclip size={14} />
-																<Text
-																	size='sm'
-																	truncate
-																	style={{ flex: 1 }}
-																>
+																<Text size='sm' truncate style={{ flex: 1 }}>
 																	{file.name}
 																</Text>
 																<Text size='xs' c='dimmed'>

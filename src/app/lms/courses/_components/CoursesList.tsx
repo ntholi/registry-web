@@ -16,10 +16,10 @@ import {
 } from '@mantine/core';
 import { IconBrandGithub } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
+import FiveDaysLogo from '@/shared/ui/FiveDaysLogo';
 import { getUserCourses } from '../_server/actions';
 import CourseItem from './CourseItem';
 import CreateCourseModal from './CreateCourseModal';
-import FiveDaysLogo from '@/shared/ui/FiveDaysLogo';
 
 export default function CoursesList() {
 	const { data: courses, isLoading } = useQuery({

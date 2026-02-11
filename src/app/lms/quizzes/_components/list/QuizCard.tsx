@@ -11,6 +11,7 @@ import {
 	Stack,
 	Text,
 } from '@mantine/core';
+import { notifications } from '@mantine/notifications';
 import {
 	IconClock,
 	IconDotsVertical,
@@ -19,7 +20,7 @@ import {
 	IconSend,
 	IconTrash,
 } from '@tabler/icons-react';
-import { useQueryClient, useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import dayjs from 'dayjs';
 import Link from 'next/link';
 import {
@@ -27,7 +28,6 @@ import {
 	getAssessmentByLmsId,
 } from '@/app/academic/assessments/_server/actions';
 import { getBooleanColor, getQuizStatusColor } from '@/shared/lib/utils/colors';
-import { notifications } from '@mantine/notifications';
 import { DeleteButton } from '@/shared/ui/adease';
 import { deleteQuiz, updateQuiz } from '../../_server/actions';
 import type { MoodleQuiz } from '../../types';

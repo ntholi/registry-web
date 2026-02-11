@@ -1,6 +1,7 @@
 'use client';
 
 import { ActionIcon, Box, Card, Group, Menu, Stack, Text } from '@mantine/core';
+import { notifications } from '@mantine/notifications';
 import {
 	IconClock,
 	IconDotsVertical,
@@ -9,7 +10,7 @@ import {
 	IconSend,
 	IconTrash,
 } from '@tabler/icons-react';
-import { useQueryClient, useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import Link from 'next/link';
 import {
 	deleteAssessment,
@@ -17,7 +18,6 @@ import {
 } from '@/app/academic/assessments/_server/actions';
 import { getBooleanColor } from '@/shared/lib/utils/colors';
 import { formatMoodleDate } from '@/shared/lib/utils/dates';
-import { notifications } from '@mantine/notifications';
 import { DeleteButton } from '@/shared/ui/adease';
 import { deleteAssignment, updateAssignment } from '../../_server/actions';
 import type { MoodleAssignment } from '../../types';

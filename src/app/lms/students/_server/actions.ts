@@ -1,17 +1,17 @@
 'use server';
 
 import { ilike, or, type SQL, sql } from 'drizzle-orm';
+import {
+	getAssignedModuleByLmsCourseId,
+	getAssignedModulesByCurrentUser,
+} from '@/app/academic/assigned-modules';
+import { getStudentsBySemesterModules } from '@/app/registry/students';
 import { auth } from '@/core/auth';
 import { students } from '@/core/database';
 import { MoodleError, moodleGet, moodlePost } from '@/core/integrations/moodle';
 import { splitShortName } from '../../courses/_lib/utils';
 import type { MoodleEnrolledUser, StudentSearchResult } from '../types';
 import { studentRepository } from './repository';
-import {
-	getAssignedModuleByLmsCourseId,
-	getAssignedModulesByCurrentUser,
-} from '@/app/academic/assigned-modules';
-import { getStudentsBySemesterModules } from '@/app/registry/students';
 
 async function enrollUserInMoodleCourse(
 	userId: number,

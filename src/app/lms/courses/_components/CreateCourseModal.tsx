@@ -1,7 +1,6 @@
 'use client';
 
 import { getAllAssignedModulesByCurrentUser } from '@academic/assigned-modules';
-import { getStudentClassName } from '@/shared/lib/utils/utils';
 import {
 	Alert,
 	Badge,
@@ -19,6 +18,7 @@ import { IconPlus } from '@tabler/icons-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { useActiveTerm } from '@/shared/lib/hooks/use-active-term';
+import { getStudentClassName } from '@/shared/lib/utils/utils';
 import { createMoodleCourse, getMoodleCategories } from '../_server/actions';
 
 type AssignedModule = Awaited<

@@ -91,7 +91,7 @@ class BaseRepository<
 			const searchCondition = or(
 				...searchColumns.map(
 					(column) =>
-						sql`${this.getColumn(column as keyof ModelSelect<T>)}::text LIKE ${`%${search}%`}`
+						sql`${this.getColumn(column as keyof ModelSelect<T>)}::text ILIKE ${`%${search}%`}`
 				)
 			);
 
