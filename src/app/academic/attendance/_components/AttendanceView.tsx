@@ -1,7 +1,6 @@
 'use client';
 
 import {
-	Box,
 	Button,
 	Card,
 	Grid,
@@ -20,6 +19,7 @@ import { parseAsInteger, parseAsString, useQueryState } from 'nuqs';
 import { toClassName } from '@/shared/lib/utils/utils';
 import {
 	getAssignedModulesForCurrentUser,
+	getAttendanceForWeek,
 	getWeeksForTerm,
 } from '../_server/actions';
 import AttendanceDownload from './AttendanceDownload';
@@ -31,6 +31,7 @@ type WeeksResult = Awaited<ReturnType<typeof getWeeksForTerm>>;
 type ModulesResult = Awaited<
 	ReturnType<typeof getAssignedModulesForCurrentUser>
 >;
+type AttendanceWeekResult = Awaited<ReturnType<typeof getAttendanceForWeek>>;
 
 export default function AttendanceView() {
 	const [selectedModuleCode] = useQueryState('module', parseAsString);
@@ -56,10 +57,32 @@ export default function AttendanceView() {
 
 	const currentWeek = weeks?.find((w) => w.isCurrent);
 	const effectiveWeek = selectedWeek ?? currentWeek?.weekNumber ?? null;
+	const attendanceWeekKey = [
+		'attendance-week',
+		selectedModule?.semesterModuleId,
+		selectedModule?.termId,
+		effectiveWeek,
+	] as const;
+
+	const { data: students } = useQuery<AttendanceWeekResult>({
+		queryKey: attendanceWeekKey,
+		queryFn: () =>
+			getAttendanceForWeek(
+				selectedModule!.semesterModuleId,
+				selectedModule!.termId,
+				effectiveWeek!
+			),
+		enabled:
+			!!selectedModule?.semesterModuleId &&
+			!!selectedModule?.termId &&
+			effectiveWeek !== null,
+	});
+
 	const selectedClassName = selectedModule
 		? (selectedClass ??
 			toClassName(selectedModule.programCode, selectedModule.semesterName))
 		: null;
+	const studentCount = students?.length ?? 0;
 
 	if (modulesLoading) {
 		return (
@@ -141,7 +164,10 @@ export default function AttendanceView() {
 							<Tabs.Tab value='summary' leftSection={<IconTable size={16} />}>
 								Summary
 							</Tabs.Tab>
-							<Box ml='auto' mb={5}>
+							<Group ml='auto' mb={5}>
+								<Text size='sm' c='dimmed'>
+									{studentCount} Student{studentCount === 1 ? '' : 's'}{' '}
+								</Text>
 								<AttendanceDownload
 									semesterModuleId={selectedModule.semesterModuleId}
 									termId={selectedModule.termId}
@@ -149,7 +175,7 @@ export default function AttendanceView() {
 									moduleName={selectedModule.moduleName}
 									className={selectedClassName ?? ''}
 								/>
-							</Box>
+							</Group>
 						</Tabs.List>
 
 						<Tabs.Panel value='mark' pt='md'>

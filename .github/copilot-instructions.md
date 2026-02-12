@@ -5,16 +5,17 @@ University student registration portal managing academic records, course registr
 > [!IMPORTANT]
 > Read this entire document before starting any task. Adhere to all guidelines strictly.
 
-## 🚨 ABSOLUTE PRIORITY: NO CODE DUPLICATION
+## 🚨 ABSOLUTE PRIORITY: NO DUPLICATION & PERFORMANCE
 
 > [!CAUTION]
-> **This is your #1 priority above everything else. Violating this rule is unacceptable.**
+> **This is your #1 priority above everything else: NO CODE DUPLICATION and OPTIMIZING FOR PERFORMANCE (strictly avoid hitting the database multiple times). Violating these rules is unacceptable.**
 
 Before writing ANY code, you MUST:
 1. **SEARCH** the codebase for similar implementations using `grep_search` or `semantic_search`
 2. **IDENTIFY** if any existing component, function, or pattern can be reused or extended
 3. **EXTRACT** shared logic into `src/shared/ui/` or `src/shared/lib/utils/` or the relevant module's shared folder, if creating something reusable
 4. **IMPORT** from existing modules instead of re-implementing
+5. **MINIMIZE** database round-trips. Prefer complex queries with joins over multiple sequential queries.
 
 ### What Constitutes Duplication (Examples)
 - ❌ Writing a Google Sign-In button when one already exists in another page
