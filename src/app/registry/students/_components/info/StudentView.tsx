@@ -19,6 +19,7 @@ import {
 import { notifications } from '@mantine/notifications';
 import { IconCheck, IconCopy } from '@tabler/icons-react';
 import { useSession } from 'next-auth/react';
+import { EditStudentProgramModal } from '@/app/audit-logs/student-programs';
 import type { UserRole } from '@/core/database';
 import { getBooleanColor, getStatusColor } from '@/shared/lib/utils/colors';
 import { calculateAge, formatDate } from '@/shared/lib/utils/dates';
@@ -41,6 +42,10 @@ export default function StudentView({ student }: Props) {
 	const activePrograms = student.programs?.filter((p) =>
 		['Active', 'Completed'].includes(p.status)
 	);
+
+	const canEdit =
+		session?.user?.role &&
+		(['admin', 'registry'] as UserRole[]).includes(session.user.role);
 
 	const getLatestSemesterNumber = () => {
 		if (!activePrograms || activePrograms.length === 0) return null;
@@ -105,15 +110,12 @@ export default function StudentView({ student }: Props) {
 								</ActionIcon>
 							</Tooltip>
 						)}
-						{session?.user?.role &&
-							(['admin', 'registry'] as UserRole[]).includes(
-								session.user.role
-							) && (
-								<EditStudentUserModal
-									studentStdNo={student.stdNo}
-									currentUser={student.user}
-								/>
-							)}
+						{canEdit && (
+							<EditStudentUserModal
+								studentStdNo={student.stdNo}
+								currentUser={student.user}
+							/>
+						)}
 					</Group>
 				</Card>
 			</Group>
@@ -124,10 +126,7 @@ export default function StudentView({ student }: Props) {
 						<Title order={4} fw={100}>
 							Student
 						</Title>
-						{session?.user?.role &&
-							(['admin', 'registry'] as UserRole[]).includes(
-								session.user.role
-							) && <EditStudentModal student={student} />}
+						{canEdit && <EditStudentModal student={student} />}
 					</Group>
 					<Badge
 						radius='sm'
@@ -173,9 +172,26 @@ export default function StudentView({ student }: Props) {
 			{activePrograms && activePrograms.length > 0 && (
 				<div>
 					<Flex justify='space-between'>
-						<Title order={4} mb='xs' fw={100}>
-							Program
-						</Title>
+						<Group align='flex-start'>
+							<Title order={4} mb='xs' fw={100}>
+								Program
+							</Title>
+							{canEdit && (
+								<EditStudentProgramModal
+									program={{
+										id: activePrograms[0].id,
+										stdNo: student.stdNo,
+										intakeDate: activePrograms[0].intakeDate,
+										regDate: activePrograms[0].regDate,
+										startTerm: activePrograms[0].startTerm,
+										structureId: activePrograms[0].structureId,
+										programId: activePrograms[0].structure.program.id,
+										graduationDate: activePrograms[0].graduationDate,
+										status: activePrograms[0].status,
+									}}
+								/>
+							)}
+						</Group>
 						<Badge
 							radius={'sm'}
 							color={getStatusColor(activePrograms[0].status)}
