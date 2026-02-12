@@ -11,7 +11,6 @@ import {
 	Modal,
 	Select,
 	Stack,
-	Tabs,
 	Textarea,
 } from '@mantine/core';
 import { DateInput } from '@mantine/dates';
@@ -211,131 +210,113 @@ export default function CreateStudentProgramModal({
 				onClick={(e) => e.stopPropagation()}
 			>
 				<form onSubmit={form.onSubmit(handleSubmit)}>
-					<Tabs defaultValue='details'>
-						<Tabs.List>
-							<Tabs.Tab value='details'>Details</Tabs.Tab>
-							<Tabs.Tab value='reasons'>Reasons</Tabs.Tab>
-						</Tabs.List>
+					<Stack pt='md'>
+						<Select
+							label='School'
+							placeholder='Select school'
+							searchable
+							clearable
+							data={schoolsData}
+							disabled={isLoadingSchools}
+							{...form.getInputProps('schoolId')}
+							onChange={(value) => {
+								form.setFieldValue('schoolId', value || '');
+								form.setFieldValue('programId', '');
+								form.setFieldValue('structureId', '');
+							}}
+							rightSection={isLoadingSchools ? <Loader size='xs' /> : undefined}
+						/>
 
-						<Tabs.Panel value='details' pt='md'>
-							<Stack>
-								<Select
-									label='School'
-									placeholder='Select school'
-									searchable
-									clearable
-									data={schoolsData}
-									disabled={isLoadingSchools}
-									{...form.getInputProps('schoolId')}
-									onChange={(value) => {
-										form.setFieldValue('schoolId', value || '');
-										form.setFieldValue('programId', '');
-										form.setFieldValue('structureId', '');
-									}}
-									rightSection={
-										isLoadingSchools ? <Loader size='xs' /> : undefined
-									}
-								/>
+						<Select
+							label='Program'
+							placeholder='Select program'
+							searchable
+							clearable
+							data={programsData}
+							disabled={!selectedSchoolId || isLoadingPrograms}
+							{...form.getInputProps('programId')}
+							onChange={(value) => {
+								form.setFieldValue('programId', value || '');
+								form.setFieldValue('structureId', '');
+								const programId = value ? Number(value) : null;
+								if (!programId) return;
+								void queryClient
+									.fetchQuery({
+										queryKey: ['structures', programId],
+										queryFn: () => getStructuresByProgramId(programId),
+									})
+									.then((structures) => {
+										const latest = structures.at(-1);
+										if (latest?.id) {
+											form.setFieldValue('structureId', latest.id.toString());
+										}
+									});
+							}}
+							rightSection={
+								isLoadingPrograms ? <Loader size='xs' /> : undefined
+							}
+						/>
 
-								<Select
-									label='Program'
-									placeholder='Select program'
-									searchable
-									clearable
-									data={programsData}
-									disabled={!selectedSchoolId || isLoadingPrograms}
-									{...form.getInputProps('programId')}
-									onChange={(value) => {
-										form.setFieldValue('programId', value || '');
-										form.setFieldValue('structureId', '');
-										const programId = value ? Number(value) : null;
-										if (!programId) return;
-										void queryClient
-											.fetchQuery({
-												queryKey: ['structures', programId],
-												queryFn: () => getStructuresByProgramId(programId),
-											})
-											.then((structures) => {
-												const latest = structures.at(-1);
-												if (latest?.id) {
-													form.setFieldValue(
-														'structureId',
-														latest.id.toString()
-													);
-												}
-											});
-									}}
-									rightSection={
-										isLoadingPrograms ? <Loader size='xs' /> : undefined
-									}
-								/>
+						<Select
+							label='Status'
+							placeholder='Select status'
+							searchable
+							clearable
+							data={programStatus.enumValues.map((s) => ({
+								value: s,
+								label: s,
+							}))}
+							required
+							{...form.getInputProps('status')}
+						/>
 
-								<Select
-									label='Status'
-									placeholder='Select status'
-									searchable
-									clearable
-									data={programStatus.enumValues.map((s) => ({
-										value: s,
-										label: s,
-									}))}
-									required
-									{...form.getInputProps('status')}
-								/>
+						<Select
+							label='Structure'
+							placeholder='Select structure'
+							searchable
+							clearable
+							data={structuresData}
+							required
+							disabled={!selectedProgramId || isLoadingStructures}
+							{...form.getInputProps('structureId')}
+							rightSection={
+								isLoadingStructures ? <Loader size='xs' /> : undefined
+							}
+						/>
 
-								<Select
-									label='Structure'
-									placeholder='Select structure'
-									searchable
-									clearable
-									data={structuresData}
-									required
-									disabled={!selectedProgramId || isLoadingStructures}
-									{...form.getInputProps('structureId')}
-									rightSection={
-										isLoadingStructures ? <Loader size='xs' /> : undefined
-									}
-								/>
-
-								<Group grow>
-									<DateInput
-										label='Intake Date'
-										placeholder='Select intake date'
-										clearable
-										{...form.getInputProps('intakeDate')}
-									/>
-									<DateInput
-										label='Registration Date'
-										placeholder='Select registration date'
-										clearable
-										{...form.getInputProps('regDate')}
-									/>
-								</Group>
-
-								<Select
-									label='Start Term'
-									placeholder='Select start term'
-									searchable
-									clearable
-									data={termsData}
-									disabled={isLoadingTerms}
-									{...form.getInputProps('startTerm')}
-									rightSection={
-										isLoadingTerms ? <Loader size='xs' /> : undefined
-									}
-								/>
-							</Stack>
-						</Tabs.Panel>
-
-						<Tabs.Panel value='reasons' pt='md'>
-							<Textarea
-								label='Reasons'
-								placeholder='Enter the reason for this change (optional)'
-								rows={6}
-								{...form.getInputProps('reasons')}
+						<Group grow>
+							<DateInput
+								label='Intake Date'
+								placeholder='Select intake date'
+								clearable
+								{...form.getInputProps('intakeDate')}
 							/>
-						</Tabs.Panel>
-					</Tabs>
+							<DateInput
+								label='Registration Date'
+								placeholder='Select registration date'
+								clearable
+								{...form.getInputProps('regDate')}
+							/>
+						</Group>
+
+						<Select
+							label='Start Term'
+							placeholder='Select start term'
+							searchable
+							clearable
+							data={termsData}
+							disabled={isLoadingTerms}
+							{...form.getInputProps('startTerm')}
+							rightSection={isLoadingTerms ? <Loader size='xs' /> : undefined}
+						/>
+
+						<Textarea
+							label='Reasons'
+							placeholder='Enter the reason for this change (optional)'
+							rows={6}
+							{...form.getInputProps('reasons')}
+						/>
+					</Stack>
 
 					{showReasonWarning && (
 						<Alert

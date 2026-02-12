@@ -192,10 +192,12 @@ export default function StudentView({ student }: Props) {
 								Program
 							</Title>
 							{canEdit && !hasActiveProgram && (
-								<CreateStudentProgramModal
-									stdNo={student.stdNo}
-									defaultSchoolId={latestProgramSchoolId}
-								/>
+								<Box mt={3}>
+									<CreateStudentProgramModal
+										stdNo={student.stdNo}
+										defaultSchoolId={latestProgramSchoolId}
+									/>
+								</Box>
 							)}
 							{canEdit && hasActiveProgram && programForView && (
 								<EditStudentProgramModal
