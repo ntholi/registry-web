@@ -257,32 +257,33 @@ export default function CreateStudentProgramModal({
 							}
 						/>
 
-						<Select
-							label='Status'
-							placeholder='Select status'
-							searchable
-							clearable
-							data={programStatus.enumValues.map((s) => ({
-								value: s,
-								label: s,
-							}))}
-							required
-							{...form.getInputProps('status')}
-						/>
-
-						<Select
-							label='Structure'
-							placeholder='Select structure'
-							searchable
-							clearable
-							data={structuresData}
-							required
-							disabled={!selectedProgramId || isLoadingStructures}
-							{...form.getInputProps('structureId')}
-							rightSection={
-								isLoadingStructures ? <Loader size='xs' /> : undefined
-							}
-						/>
+						<Group grow>
+							<Select
+								label='Structure'
+								placeholder='Select structure'
+								searchable
+								clearable
+								data={structuresData}
+								required
+								disabled={!selectedProgramId || isLoadingStructures}
+								{...form.getInputProps('structureId')}
+								rightSection={
+									isLoadingStructures ? <Loader size='xs' /> : undefined
+								}
+							/>
+							<Select
+								label='Status'
+								placeholder='Select status'
+								searchable
+								clearable
+								data={programStatus.enumValues.map((s) => ({
+									value: s,
+									label: s,
+								}))}
+								required
+								{...form.getInputProps('status')}
+							/>
+						</Group>
 
 						<Group grow>
 							<DateInput
