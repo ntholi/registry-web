@@ -189,7 +189,6 @@ export default function AttendanceForm({
 							<Table.Tr>
 								<Table.Th>Student No</Table.Th>
 								<Table.Th>Student</Table.Th>
-								<Table.Th>Contact</Table.Th>
 								<Table.Th style={{ textAlign: 'right' }}>Status</Table.Th>
 							</Table.Tr>
 						</Table.Thead>
@@ -204,9 +203,6 @@ export default function AttendanceForm({
 									</Table.Td>
 									<Table.Td>
 										<Skeleton h={16} w='70%' />
-									</Table.Td>
-									<Table.Td>
-										<Skeleton h={16} w={120} />
 									</Table.Td>
 									<Table.Td>
 										<Group justify='flex-end'>
@@ -272,7 +268,6 @@ export default function AttendanceForm({
 						<Table.Tr>
 							<Table.Th>Student No</Table.Th>
 							<Table.Th>Student</Table.Th>
-							<Table.Th>Contact</Table.Th>
 							<Table.Th style={{ textAlign: 'right' }}>Status</Table.Th>
 						</Table.Tr>
 					</Table.Thead>
@@ -285,10 +280,10 @@ export default function AttendanceForm({
 											stdNo={student.stdNo}
 											name={student.name}
 											email={student.email}
+											phone={student.phone}
 										/>
 										<Anchor
 											component={Link}
-											size='sm'
 											href={`/registry/students/${student.stdNo}`}
 										>
 											{student.stdNo}
@@ -296,21 +291,7 @@ export default function AttendanceForm({
 									</Group>
 								</Table.Td>
 								<Table.Td>
-									<Text size='sm'>{student.name}</Text>
-								</Table.Td>
-								<Table.Td>
-									<Stack gap={2}>
-										<ContactValue
-											label='Phone'
-											value={
-												student.phone ? formatPhoneNumber(student.phone) : null
-											}
-											copyValue={student.phone}
-											href={student.phone ? `tel:${student.phone}` : undefined}
-											showLabel={false}
-											copyable={false}
-										/>
-									</Stack>
+									<Text>{student.name}</Text>
 								</Table.Td>
 								<Table.Td style={{ textAlign: 'right' }}>
 									<SegmentedControl
@@ -351,9 +332,10 @@ type StudentAvatarProps = {
 	stdNo: number;
 	name: string;
 	email: string | null;
+	phone: string | null;
 };
 
-function StudentAvatar({ stdNo, name, email }: StudentAvatarProps) {
+function StudentAvatar({ stdNo, name, email, phone }: StudentAvatarProps) {
 	const { data: photoUrl } = useQuery({
 		queryKey: ['attendance-student-photo', stdNo],
 		queryFn: () => getStudentPhoto(stdNo),
@@ -401,6 +383,13 @@ function StudentAvatar({ stdNo, name, email }: StudentAvatarProps) {
 						value={email}
 						copyValue={email}
 						href={email ? `mailto:${email}` : undefined}
+						showLabel={false}
+					/>
+					<ContactValue
+						label='Phone'
+						value={phone ? formatPhoneNumber(phone) : null}
+						copyValue={phone}
+						href={phone ? `tel:${phone}` : undefined}
 						showLabel={false}
 					/>
 				</Stack>
