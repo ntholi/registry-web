@@ -57,7 +57,6 @@ export default function CreateStudentProgramModal({
 			intakeDate: null as Date | null,
 			regDate: null as Date | null,
 			startTerm: '',
-			graduationDate: null as Date | null,
 			status: 'Active' as StudentProgramStatus,
 			reasons: '',
 		},
@@ -131,7 +130,6 @@ export default function CreateStudentProgramModal({
 						regDate: formatDateToISO(values.regDate) || null,
 						startTerm: values.startTerm || null,
 						structureId: Number(values.structureId),
-						graduationDate: formatDateToISO(values.graduationDate) || null,
 						status: values.status as StudentProgramStatus,
 					},
 					values.reasons
@@ -190,6 +188,7 @@ export default function CreateStudentProgramModal({
 						defaultSchoolId ? defaultSchoolId.toString() : ''
 					);
 					form.setFieldValue('intakeDate', new Date());
+					form.setFieldValue('regDate', new Date());
 					void refetchActiveTerm().then((res) => {
 						if (res.data?.code) {
 							form.setFieldValue('startTerm', res.data.code);
@@ -249,6 +248,22 @@ export default function CreateStudentProgramModal({
 									onChange={(value) => {
 										form.setFieldValue('programId', value || '');
 										form.setFieldValue('structureId', '');
+										const programId = value ? Number(value) : null;
+										if (!programId) return;
+										void queryClient
+											.fetchQuery({
+												queryKey: ['structures', programId],
+												queryFn: () => getStructuresByProgramId(programId),
+											})
+											.then((structures) => {
+												const latest = structures.at(-1);
+												if (latest?.id) {
+													form.setFieldValue(
+														'structureId',
+														latest.id.toString()
+													);
+												}
+											});
 									}}
 									rightSection={
 										isLoadingPrograms ? <Loader size='xs' /> : undefined
@@ -308,13 +323,6 @@ export default function CreateStudentProgramModal({
 									rightSection={
 										isLoadingTerms ? <Loader size='xs' /> : undefined
 									}
-								/>
-
-								<DateInput
-									label='Graduation Date'
-									placeholder='Select graduation date'
-									clearable
-									{...form.getInputProps('graduationDate')}
 								/>
 							</Stack>
 						</Tabs.Panel>
