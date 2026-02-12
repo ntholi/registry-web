@@ -84,6 +84,13 @@ GRADE ACCURACY (CRITICAL - FOR ACADEMIC DOCUMENTS):
 - If confidence < 100 for ANY subject, you MUST add that subject to "unreadableGrades".
 - DO NOT guess grades. Accuracy is more important than completeness.
 
+GRADE FORMAT VERIFICATION (CRITICAL):
+- LGCSE/IGCSE grades are often displayed as a letter followed by the same letter in parentheses, e.g., C(c), B(b), E(e), F(f), G(g).
+- The uppercase letter BEFORE the parentheses and the lowercase letter INSIDE the parentheses represent the SAME grade. Use BOTH symbols to cross-verify the grade.
+- If the letter before the brackets does NOT match the letter inside the brackets, flag the grade as unreadable (add to "unreadableGrades").
+- Example: "C(c)" → grade is C (verified: both symbols agree). "B(d)" → mismatch, flag as unreadable.
+- Always extract only the single letter grade (e.g., "C"), not the full bracket notation.
+
 ${CERTIFICATION_RULES}`;
 
 const IDENTITY_PROMPT = `Analyze this identity document and extract structured information.
@@ -132,6 +139,13 @@ GRADE ACCURACY (CRITICAL - ZERO TOLERANCE FOR ERRORS):
 - 100 = absolutely certain, crystal clear, no doubt whatsoever
 - 99 = very confident, minor image quality issues but grade is distinguishable
 - <99 = uncertain, ambiguous, blurry, or could be misread
+
+GRADE FORMAT VERIFICATION (CRITICAL):
+- LGCSE/IGCSE grades are often displayed as a letter followed by the same letter in parentheses, e.g., C(c), B(b), E(e), F(f), G(g).
+- The uppercase letter BEFORE the parentheses and the lowercase letter INSIDE the parentheses represent the SAME grade. Use BOTH symbols to cross-verify the grade.
+- If the letter before the brackets does NOT match the letter inside the brackets, flag the grade as unreadable (add to "unreadableGrades").
+- Example: "C(c)" → grade is C (verified: both symbols agree). "B(d)" → mismatch, flag as unreadable.
+- Always extract only the single letter grade (e.g., "C"), not the full bracket notation.
 
 MANDATORY RULES:
 1. If confidence < 100 for ANY subject, you MUST add that subject name to "unreadableGrades".
