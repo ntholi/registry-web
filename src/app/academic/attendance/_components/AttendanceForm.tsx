@@ -288,6 +288,7 @@ export default function AttendanceForm({
 										/>
 										<Anchor
 											component={Link}
+											size='sm'
 											href={`/registry/students/${student.stdNo}`}
 										>
 											{student.stdNo}
@@ -295,7 +296,7 @@ export default function AttendanceForm({
 									</Group>
 								</Table.Td>
 								<Table.Td>
-									<Text>{student.name}</Text>
+									<Text size='sm'>{student.name}</Text>
 								</Table.Td>
 								<Table.Td>
 									<Stack gap={2}>

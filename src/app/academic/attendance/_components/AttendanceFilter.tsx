@@ -1,6 +1,7 @@
 'use client';
 
 import {
+	Divider,
 	Flex,
 	Grid,
 	Group,
@@ -9,8 +10,9 @@ import {
 	Select,
 	Stack,
 	Text,
+	Title,
 } from '@mantine/core';
-import { IconFilter } from '@tabler/icons-react';
+import { IconCalendarDot } from '@tabler/icons-react';
 import { parseAsInteger, parseAsString, useQueryState } from 'nuqs';
 import { toClassName } from '@/shared/lib/utils/utils';
 
@@ -114,9 +116,12 @@ export default function AttendanceFilter({
 	return (
 		<Paper p='lg' withBorder>
 			<Group mb='md'>
-				<IconFilter size={18} />
-				<Text fw={600}>Filters</Text>
+				<IconCalendarDot size={'1.5rem'} />
+				<Title order={4} fw={400}>
+					Student Attendance
+				</Title>
 			</Group>
+			<Divider mb='lg' />
 			<Flex align='flex-end' gap='sm'>
 				<Grid gutter='md' flex={1}>
 					<Grid.Col span={{ base: 12, sm: 6, md: 5 }}>
