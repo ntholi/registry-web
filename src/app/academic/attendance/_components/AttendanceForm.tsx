@@ -187,8 +187,8 @@ export default function AttendanceForm({
 					<Table striped>
 						<Table.Thead>
 							<Table.Tr>
-								<Table.Th>Student</Table.Th>
 								<Table.Th>Student No</Table.Th>
+								<Table.Th>Student</Table.Th>
 								<Table.Th>Contact</Table.Th>
 								<Table.Th style={{ textAlign: 'right' }}>Status</Table.Th>
 							</Table.Tr>
@@ -199,11 +199,11 @@ export default function AttendanceForm({
 									<Table.Td>
 										<Group gap='sm'>
 											<Skeleton h={32} w={32} circle />
-											<Skeleton h={16} w='70%' />
+											<Skeleton h={16} w={80} />
 										</Group>
 									</Table.Td>
 									<Table.Td>
-										<Skeleton h={16} w={80} />
+										<Skeleton h={16} w='70%' />
 									</Table.Td>
 									<Table.Td>
 										<Skeleton h={16} w={120} />
@@ -270,8 +270,8 @@ export default function AttendanceForm({
 				<Table striped>
 					<Table.Thead>
 						<Table.Tr>
-							<Table.Th>Student</Table.Th>
 							<Table.Th>Student No</Table.Th>
+							<Table.Th>Student</Table.Th>
 							<Table.Th>Contact</Table.Th>
 							<Table.Th style={{ textAlign: 'right' }}>Status</Table.Th>
 						</Table.Tr>
@@ -286,16 +286,16 @@ export default function AttendanceForm({
 											name={student.name}
 											email={student.email}
 										/>
-										<Text>{student.name}</Text>
+										<Anchor
+											component={Link}
+											href={`/registry/students/${student.stdNo}`}
+										>
+											{student.stdNo}
+										</Anchor>
 									</Group>
 								</Table.Td>
 								<Table.Td>
-									<Anchor
-										component={Link}
-										href={`/registry/students/${student.stdNo}`}
-									>
-										{student.stdNo}
-									</Anchor>
+									<Text>{student.name}</Text>
 								</Table.Td>
 								<Table.Td>
 									<Stack gap={2}>
