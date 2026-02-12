@@ -54,6 +54,13 @@ const identitySchema = z.object({
 	certification: certificationSchema
 		.nullable()
 		.describe('Certification details if document is certified'),
+	confidence: z
+		.number()
+		.min(0)
+		.max(100)
+		.describe(
+			'Overall confidence level (0-100) in the accuracy of extraction. 100 = absolutely certain, <100 = uncertain/blurry.'
+		),
 });
 
 const academicSchema = z

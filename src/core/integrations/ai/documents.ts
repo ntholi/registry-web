@@ -67,6 +67,12 @@ ${COMMON_RULES}
 - Determine if the document is issued by Cambridge and set isCambridge accordingly (true/false). Search for any mention of "Cambridge", "CAIE", "CIE", or "UCLES".
 - candidateNumber: Extract if present, commonly labeled "Center/Candidate Number", "Centre/Candidate Number", or "Center / Cand. No.".
 
+IDENTITY EXTRACTION QUALITY (CRITICAL):
+- For identity documents, provide a confidence score (0-100).
+- 100 = absolutely certain, text is crystal clear, no doubt about any field.
+- <100 = uncertain, text is blurry, faded, partially obscured, or ambiguous.
+- If you are NOT 100% sure about any field, you MUST set confidence < 100.
+
 GRADE ACCURACY (CRITICAL - FOR ACADEMIC DOCUMENTS):
 - For each subject think extra, provide a confidence score (0-100) for the grade reading.
 - 100 = absolutely certain the grade is correct
@@ -81,6 +87,12 @@ const IDENTITY_PROMPT = `Analyze this identity document and extract structured i
 
 RULES:
 ${COMMON_RULES}
+
+EXTRACTION QUALITY (CRITICAL):
+- Provide a confidence score (0-100) for the overall extraction.
+- 100 = absolutely certain, text is crystal clear, no doubt about any field.
+- <100 = uncertain, text is blurry, faded, partially obscured, or ambiguous.
+- If you are NOT 100% sure about any field, you MUST set confidence < 100.
 
 ${CERTIFICATION_RULES}`;
 
@@ -189,6 +201,13 @@ export async function analyzeDocument(
 		const { category, identity, academic, other } = output;
 
 		if (category === 'identity' && identity) {
+			if (identity.confidence < 100) {
+				return {
+					success: false,
+					error:
+						'The document text is not clear enough. Please upload a clearer image.',
+				};
+			}
 			return { success: true, data: { category: 'identity', ...identity } };
 		}
 
@@ -291,6 +310,14 @@ export async function analyzeIdentityDocument(
 
 		if (output.documentType === 'other') {
 			return { success: false, error: 'Invalid identity document' };
+		}
+
+		if (output.confidence < 100) {
+			return {
+				success: false,
+				error:
+					'The document text is not clear enough. Please upload a clearer image.',
+			};
 		}
 
 		const missing: string[] = [];
