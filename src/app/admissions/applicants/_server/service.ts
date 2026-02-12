@@ -7,6 +7,7 @@ import type { DocumentAnalysisResult } from '@/core/integrations/ai/documents';
 import BaseService from '@/core/platform/BaseService';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
 import withAuth from '@/core/platform/withAuth';
+import { normalizeResultClassification } from '@/shared/lib/utils/resultClassification';
 import { getEligiblePrograms } from '../_lib/eligibility';
 import {
 	findCertificateTypeByName,
@@ -213,7 +214,9 @@ class ApplicantService extends BaseService<typeof applicants, 'id'> {
 					institutionName: result.institutionName,
 					certificateNumber: result.certificateNumber,
 					candidateNumber: result.candidateNumber,
-					resultClassification: result.overallClassification,
+					resultClassification: normalizeResultClassification(
+						result.overallClassification
+					),
 					subjectGrades: grades.length > 0 ? grades : undefined,
 					sourceFileName: doc.fileName,
 				});

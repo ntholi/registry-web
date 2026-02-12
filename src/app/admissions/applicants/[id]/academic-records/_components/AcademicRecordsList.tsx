@@ -20,6 +20,7 @@ import { notifications } from '@mantine/notifications';
 import { IconPlus, IconTrash } from '@tabler/icons-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
+import { normalizeResultClassification } from '@/shared/lib/utils/resultClassification';
 import type {
 	AcademicRecordWithRelations,
 	SubjectGradeInput,
@@ -79,6 +80,9 @@ export default function AcademicRecordsList({ applicantId, records }: Props) {
 		mutationFn: async (values: typeof form.values) => {
 			const isLevel4 = selectedCertType?.lqfLevel === 4;
 			const hasSubjectGrades = subjectGrades.length > 0;
+			const resultClassification = normalizeResultClassification(
+				values.resultClassification
+			);
 			return createAcademicRecord(
 				applicantId,
 				{
@@ -87,9 +91,7 @@ export default function AcademicRecordsList({ applicantId, records }: Props) {
 					institutionName: values.institutionName,
 					qualificationName: values.qualificationName || null,
 					candidateNumber: values.candidateNumber || null,
-					resultClassification: values.resultClassification
-						? (values.resultClassification as (typeof resultClassificationEnum.enumValues)[number])
-						: null,
+					resultClassification,
 					subjectGrades: hasSubjectGrades ? subjectGrades : undefined,
 				},
 				isLevel4

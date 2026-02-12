@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { normalizeResultClassification } from '@/shared/lib/utils/resultClassification';
 
 const gradeConfidenceMin = 99;
 const lgcseIgcseGrades = new Set([
@@ -142,8 +143,17 @@ const academicSchema = z
 				`List of subject names where the grade symbol is not clearly legible or uncertain (confidence < ${gradeConfidenceMin}).`
 			),
 		overallClassification: z
-			.enum(['Distinction', 'Merit', 'Credit', 'Pass', 'Fail'])
+			.string()
 			.nullable()
+			.refine(
+				(value) =>
+					value === null || normalizeResultClassification(value) !== null,
+				{
+					message:
+						'Invalid classification. Use Distinction, Merit, Credit, Pass, Fail, First Class, Second Class (Upper/Lower), or Third Class.',
+				}
+			)
+			.transform((value) => normalizeResultClassification(value))
 			.describe('Overall qualification grade classification'),
 		certificateNumber: z
 			.string()

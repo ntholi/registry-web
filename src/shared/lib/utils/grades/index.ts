@@ -4,6 +4,8 @@ import type { grade } from '@/core/database';
 import { isActiveModule, isActiveSemester } from '../utils';
 import type { GradePoint, Program, StudentModule } from './type';
 
+export { normalizeResultClassification } from '../resultClassification';
+
 export type GradeDefinition = {
 	grade: (typeof grade.enumValues)[number];
 	points: number | null;

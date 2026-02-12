@@ -1,6 +1,7 @@
 'use server';
 
 import type { academicRecords } from '@/core/database';
+import { normalizeResultClassification } from '@/shared/lib/utils/resultClassification';
 import type { CreateAcademicRecordInput } from '../_lib/types';
 import { academicRecordsService } from './service';
 
@@ -31,7 +32,9 @@ export async function createAcademicRecord(
 		qualificationName: input.qualificationName,
 		certificateNumber: input.certificateNumber,
 		candidateNumber: input.candidateNumber,
-		resultClassification: input.resultClassification,
+		resultClassification: normalizeResultClassification(
+			input.resultClassification
+		),
 		applicantDocumentId,
 	};
 
@@ -54,7 +57,9 @@ export async function updateAcademicRecord(
 		qualificationName: input.qualificationName,
 		certificateNumber: input.certificateNumber,
 		candidateNumber: input.candidateNumber,
-		resultClassification: input.resultClassification,
+		resultClassification: normalizeResultClassification(
+			input.resultClassification
+		),
 	};
 
 	return academicRecordsService.updateWithGrades(
