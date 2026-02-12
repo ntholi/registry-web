@@ -29,6 +29,7 @@ type PhotoSelectionProps = {
 	onPhotoChange: (file: File | null, preview: string | null) => void;
 	studentNumber: number;
 	existingPhotoUrl: string | null | undefined;
+	compact?: boolean;
 };
 
 export default function PhotoSelection({
@@ -37,6 +38,7 @@ export default function PhotoSelection({
 	onPhotoChange,
 	studentNumber,
 	existingPhotoUrl,
+	compact = false,
 }: PhotoSelectionProps) {
 	const [cameraOpened, { open: openCamera, close: closeCamera }] =
 		useDisclosure(false);
@@ -92,6 +94,41 @@ export default function PhotoSelection({
 		}
 		closeCamera();
 	};
+
+	if (compact) {
+		return (
+			<Group gap='xs'>
+				<PhotoInputModal
+					onPhotoSubmit={handlePhotoSubmit}
+					title={`Upload Photo for Student ${studentNumber}`}
+					renderTrigger={({ open }) => (
+						<ActionIcon
+							variant='light'
+							size='lg'
+							onClick={open}
+							disabled={isUploading}
+						>
+							<IconPhoto size={18} />
+						</ActionIcon>
+					)}
+				/>
+				<ActionIcon
+					variant='light'
+					size='lg'
+					color='teal'
+					onClick={openCamera}
+					disabled={isUploading}
+				>
+					<IconCamera size={18} />
+				</ActionIcon>
+				<CameraModal
+					opened={cameraOpened}
+					onClose={closeCamera}
+					onCapture={handleCameraCapture}
+				/>
+			</Group>
+		);
+	}
 
 	return (
 		<Paper p='lg' withBorder>
