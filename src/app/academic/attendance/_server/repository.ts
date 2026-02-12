@@ -14,6 +14,7 @@ import {
 	studentSemesters,
 	students,
 	terms,
+	users,
 } from '@/core/database';
 import BaseRepository from '@/core/platform/BaseRepository';
 
@@ -22,6 +23,8 @@ export type AttendanceRecord = typeof attendance.$inferInsert;
 export type StudentAttendance = {
 	stdNo: number;
 	name: string;
+	phone: string | null;
+	email: string | null;
 	attendanceId: number | null;
 	status: AttendanceStatus;
 };
@@ -109,14 +112,25 @@ export default class AttendanceRepository extends BaseRepository<
 	async getStudentsForModule(
 		semesterModuleId: number,
 		termCode: string
-	): Promise<{ stdNo: number; name: string; studentModuleId: number }[]> {
+	): Promise<
+		{
+			stdNo: number;
+			name: string;
+			phone: string | null;
+			email: string | null;
+			studentModuleId: number;
+		}[]
+	> {
 		return await db
 			.select({
 				stdNo: students.stdNo,
 				name: students.name,
+				phone: students.phone1,
+				email: users.email,
 				studentModuleId: studentModules.id,
 			})
 			.from(students)
+			.leftJoin(users, eq(users.id, students.userId))
 			.innerJoin(studentPrograms, eq(studentPrograms.stdNo, students.stdNo))
 			.innerJoin(structures, eq(studentPrograms.structureId, structures.id))
 			.innerJoin(
@@ -134,7 +148,13 @@ export default class AttendanceRepository extends BaseRepository<
 					sql`${studentModules.status} NOT IN ('Delete', 'Drop')`
 				)
 			)
-			.groupBy(students.stdNo, students.name, studentModules.id)
+			.groupBy(
+				students.stdNo,
+				students.name,
+				students.phone1,
+				users.email,
+				studentModules.id
+			)
 			.orderBy(students.name);
 	}
 
@@ -173,6 +193,8 @@ export default class AttendanceRepository extends BaseRepository<
 			return {
 				stdNo: student.stdNo,
 				name: student.name,
+				phone: student.phone,
+				email: student.email,
 				attendanceId: existing?.id ?? null,
 				status: existing?.status ?? 'not_marked',
 			};

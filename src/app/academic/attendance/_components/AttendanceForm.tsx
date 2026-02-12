@@ -1,9 +1,14 @@
 'use client';
 
 import {
+	ActionIcon,
 	Anchor,
+	Avatar,
+	CopyButton,
 	Flex,
 	Group,
+	HoverCard,
+	Image,
 	Paper,
 	SegmentedControl,
 	Skeleton,
@@ -11,15 +16,19 @@ import {
 	Table,
 	Text,
 	TextInput,
+	Tooltip,
 } from '@mantine/core';
 import { useDebouncedValue } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
+import { getStudentPhoto } from '@registry/students';
 import {
 	IconCalendarOff,
+	IconCheck,
 	IconCircleCheck,
 	IconCircleMinus,
 	IconCircleX,
 	IconClock,
+	IconCopy,
 	IconQuestionMark,
 	IconSearch,
 } from '@tabler/icons-react';
@@ -27,6 +36,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useMemo, useState } from 'react';
 import type { AttendanceStatus } from '@/core/database';
 import { getStatusColor } from '@/shared/lib/utils/colors';
+import { formatPhoneNumber } from '@/shared/lib/utils/utils';
 import Link from '@/shared/ui/Link';
 import { getAttendanceForWeek, markAttendance } from '../_server/actions';
 
@@ -40,6 +50,8 @@ type Props = {
 type AttendanceStudent = {
 	stdNo: number;
 	name: string;
+	phone: string | null;
+	email: string | null;
 	attendanceId: number | null;
 	status: AttendanceStatus;
 };
@@ -175,8 +187,9 @@ export default function AttendanceForm({
 					<Table striped>
 						<Table.Thead>
 							<Table.Tr>
+								<Table.Th>Student</Table.Th>
 								<Table.Th>Student No</Table.Th>
-								<Table.Th>Name</Table.Th>
+								<Table.Th>Contact</Table.Th>
 								<Table.Th style={{ textAlign: 'right' }}>Status</Table.Th>
 							</Table.Tr>
 						</Table.Thead>
@@ -184,10 +197,16 @@ export default function AttendanceForm({
 							{Array.from({ length: 10 }).map((_, index) => (
 								<Table.Tr key={`skeleton-${index}`}>
 									<Table.Td>
+										<Group gap='sm'>
+											<Skeleton h={32} w={32} circle />
+											<Skeleton h={16} w='70%' />
+										</Group>
+									</Table.Td>
+									<Table.Td>
 										<Skeleton h={16} w={80} />
 									</Table.Td>
 									<Table.Td>
-										<Skeleton h={16} w='70%' />
+										<Skeleton h={16} w={120} />
 									</Table.Td>
 									<Table.Td>
 										<Group justify='flex-end'>
@@ -251,14 +270,25 @@ export default function AttendanceForm({
 				<Table striped>
 					<Table.Thead>
 						<Table.Tr>
+							<Table.Th>Student</Table.Th>
 							<Table.Th>Student No</Table.Th>
-							<Table.Th>Name</Table.Th>
+							<Table.Th>Contact</Table.Th>
 							<Table.Th style={{ textAlign: 'right' }}>Status</Table.Th>
 						</Table.Tr>
 					</Table.Thead>
 					<Table.Tbody>
 						{filteredStudents.map((student) => (
 							<Table.Tr key={student.stdNo}>
+								<Table.Td>
+									<Group gap='sm' wrap='nowrap'>
+										<StudentAvatar
+											stdNo={student.stdNo}
+											name={student.name}
+											email={student.email}
+										/>
+										<Text>{student.name}</Text>
+									</Group>
+								</Table.Td>
 								<Table.Td>
 									<Anchor
 										component={Link}
@@ -267,7 +297,20 @@ export default function AttendanceForm({
 										{student.stdNo}
 									</Anchor>
 								</Table.Td>
-								<Table.Td>{student.name}</Table.Td>
+								<Table.Td>
+									<Stack gap={2}>
+										<ContactValue
+											label='Phone'
+											value={
+												student.phone ? formatPhoneNumber(student.phone) : null
+											}
+											copyValue={student.phone}
+											href={student.phone ? `tel:${student.phone}` : undefined}
+											showLabel={false}
+											copyable={false}
+										/>
+									</Stack>
+								</Table.Td>
 								<Table.Td style={{ textAlign: 'right' }}>
 									<SegmentedControl
 										value={student.status}
@@ -300,5 +343,133 @@ export default function AttendanceForm({
 				)}
 			</Paper>
 		</Stack>
+	);
+}
+
+type StudentAvatarProps = {
+	stdNo: number;
+	name: string;
+	email: string | null;
+};
+
+function StudentAvatar({ stdNo, name, email }: StudentAvatarProps) {
+	const { data: photoUrl } = useQuery({
+		queryKey: ['attendance-student-photo', stdNo],
+		queryFn: () => getStudentPhoto(stdNo),
+		staleTime: 1000 * 60 * 3,
+	});
+
+	return (
+		<HoverCard withArrow openDelay={150} closeDelay={100} position='right'>
+			<HoverCard.Target>
+				<Avatar src={photoUrl} size='md' radius='xl'>
+					{name
+						.split(' ')
+						.map((part) => part[0])
+						.join('')
+						.slice(0, 2)
+						.toUpperCase()}
+				</Avatar>
+			</HoverCard.Target>
+			<HoverCard.Dropdown p='xs'>
+				<Stack gap='xs' align='center'>
+					{photoUrl ? (
+						<Image
+							src={photoUrl}
+							alt={name}
+							w={180}
+							h={180}
+							fit='cover'
+							radius='md'
+						/>
+					) : (
+						<Avatar size={180} radius='md'>
+							{name
+								.split(' ')
+								.map((part) => part[0])
+								.join('')
+								.slice(0, 2)
+								.toUpperCase()}
+						</Avatar>
+					)}
+					<Text size='xs' c='dimmed' ta='center'>
+						{name}
+					</Text>
+					<ContactValue
+						label='Email'
+						value={email}
+						copyValue={email}
+						href={email ? `mailto:${email}` : undefined}
+						showLabel={false}
+					/>
+				</Stack>
+			</HoverCard.Dropdown>
+		</HoverCard>
+	);
+}
+
+type ContactValueProps = {
+	label: string;
+	value: string | null;
+	copyValue: string | null;
+	href?: string;
+	showLabel?: boolean;
+	copyable?: boolean;
+};
+
+function ContactValue({
+	label,
+	value,
+	copyValue,
+	href,
+	showLabel = true,
+	copyable = true,
+}: ContactValueProps) {
+	if (!value) {
+		return (
+			<Group gap={4} wrap='nowrap'>
+				{showLabel && (
+					<Text size='xs' c='dimmed' w={42}>
+						{label}
+					</Text>
+				)}
+				<Text size='sm' c='dimmed'>
+					N/A
+				</Text>
+			</Group>
+		);
+	}
+
+	return (
+		<Group gap={4} wrap='nowrap'>
+			{showLabel && (
+				<Text size='xs' c='dimmed' w={42}>
+					{label}
+				</Text>
+			)}
+			{href ? (
+				<Anchor component={Link} href={href} size='sm'>
+					{value}
+				</Anchor>
+			) : (
+				<Text size='sm'>{value}</Text>
+			)}
+			{copyable && (
+				<CopyButton value={copyValue ?? ''}>
+					{({ copied, copy }) => (
+						<Tooltip label={copied ? 'Copied' : `Copy ${label.toLowerCase()}`}>
+							<ActionIcon
+								variant='subtle'
+								size='sm'
+								color={copied ? 'green' : 'gray'}
+								onClick={copy}
+							>
+								{copied ? <IconCheck size={14} /> : <IconCopy size={14} />}
+							</ActionIcon>
+						</Tooltip>
+					)}
+				</CopyButton>
+			)}
+		</Group>
 	);
 }

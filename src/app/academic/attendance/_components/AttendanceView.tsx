@@ -20,7 +20,6 @@ import {
 import { IconCalendarWeek, IconFilter, IconTable } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { parseAsInteger, parseAsString, useQueryState } from 'nuqs';
-import { formatDate } from '@/shared/lib/utils/dates';
 import { toClassName } from '@/shared/lib/utils/utils';
 import {
 	getAssignedModulesForCurrentUser,
@@ -184,7 +183,6 @@ export default function AttendanceView() {
 		weeks?.map((w) => ({
 			value: w.weekNumber.toString(),
 			label: `Week ${w.weekNumber}${w.isCurrent ? ' (Current)' : ''}`,
-			description: `${formatDate(w.startDate, 'short')} - ${formatDate(w.endDate, 'short')}`,
 		})) ?? [];
 
 	return (
