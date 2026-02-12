@@ -4,21 +4,19 @@ import { getAllSchools, getProgramsBySchoolId } from '@academic/schools';
 import { getStructuresByProgramId } from '@academic/structures';
 import {
 	ActionIcon,
-	Alert,
 	Button,
 	Group,
 	Loader,
 	Modal,
 	Select,
 	Stack,
-	Textarea,
 } from '@mantine/core';
 import { DateInput } from '@mantine/dates';
 import { useForm } from '@mantine/form';
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import { programStatus, type StudentProgramStatus } from '@registry/_database';
-import { IconAlertCircle, IconPlus } from '@tabler/icons-react';
+import { IconPlus } from '@tabler/icons-react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useMemo, useState } from 'react';
 import { getActiveTerm, getAllTerms } from '@/app/registry/terms';
@@ -39,8 +37,6 @@ export default function CreateStudentProgramModal({
 	const queryClient = useQueryClient();
 	const [opened, { open, close }] = useDisclosure(false);
 	const [isSubmitting, setIsSubmitting] = useState(false);
-	const [showReasonWarning, setShowReasonWarning] = useState(false);
-	const [pendingSubmit, setPendingSubmit] = useState(false);
 
 	const { refetch: refetchActiveTerm } = useQuery({
 		queryKey: ['active-term'],
@@ -57,7 +53,6 @@ export default function CreateStudentProgramModal({
 			regDate: null as Date | null,
 			startTerm: '',
 			status: 'Active' as StudentProgramStatus,
-			reasons: '',
 		},
 	});
 
@@ -122,17 +117,14 @@ export default function CreateStudentProgramModal({
 		async (values: typeof form.values) => {
 			setIsSubmitting(true);
 			try {
-				await createStudentProgram(
-					{
-						stdNo,
-						intakeDate: formatDateToISO(values.intakeDate) || null,
-						regDate: formatDateToISO(values.regDate) || null,
-						startTerm: values.startTerm || null,
-						structureId: Number(values.structureId),
-						status: values.status as StudentProgramStatus,
-					},
-					values.reasons
-				);
+				await createStudentProgram({
+					stdNo,
+					intakeDate: formatDateToISO(values.intakeDate) || null,
+					regDate: formatDateToISO(values.regDate) || null,
+					startTerm: values.startTerm || null,
+					structureId: Number(values.structureId),
+					status: values.status as StudentProgramStatus,
+				});
 
 				notifications.show({
 					title: 'Success',
@@ -151,23 +143,9 @@ export default function CreateStudentProgramModal({
 				});
 			} finally {
 				setIsSubmitting(false);
-				setShowReasonWarning(false);
-				setPendingSubmit(false);
 			}
 		},
 		[stdNo, form, close, queryClient]
-	);
-
-	const handleSubmit = useCallback(
-		async (values: typeof form.values) => {
-			if (!values.reasons.trim() && !pendingSubmit) {
-				setShowReasonWarning(true);
-				setPendingSubmit(true);
-				return;
-			}
-			await executeSubmit(values);
-		},
-		[executeSubmit, pendingSubmit]
 	);
 
 	return (
@@ -180,8 +158,6 @@ export default function CreateStudentProgramModal({
 				onClick={(e) => {
 					e.stopPropagation();
 					form.reset();
-					setShowReasonWarning(false);
-					setPendingSubmit(false);
 					form.setFieldValue(
 						'schoolId',
 						defaultSchoolId ? defaultSchoolId.toString() : ''
@@ -209,7 +185,7 @@ export default function CreateStudentProgramModal({
 				size='lg'
 				onClick={(e) => e.stopPropagation()}
 			>
-				<form onSubmit={form.onSubmit(handleSubmit)}>
+				<form onSubmit={form.onSubmit(executeSubmit)}>
 					<Stack pt='md'>
 						<Select
 							label='School'
@@ -310,26 +286,7 @@ export default function CreateStudentProgramModal({
 							{...form.getInputProps('startTerm')}
 							rightSection={isLoadingTerms ? <Loader size='xs' /> : undefined}
 						/>
-
-						<Textarea
-							label='Reasons'
-							placeholder='Enter the reason for this change (optional)'
-							rows={6}
-							{...form.getInputProps('reasons')}
-						/>
 					</Stack>
-
-					{showReasonWarning && (
-						<Alert
-							icon={<IconAlertCircle size={16} />}
-							color='yellow'
-							mt='md'
-							variant='light'
-						>
-							You have not provided a reason for this change. Provide the reason
-							then click Create to proceed.
-						</Alert>
-					)}
 
 					<Group justify='flex-end' mt='md'>
 						<Button
