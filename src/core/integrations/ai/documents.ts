@@ -40,6 +40,19 @@ const identityConfidenceMin = 90;
 const CERTIFICATION_RULES = `CERTIFICATION:
 - isCertified: true if document shows any official certification (stamp, seal, or official mark)`;
 
+const ACADEMIC_RULES = `- institutionName: Student's school (not examining body like Cambridge/ECoL)
+- LGCSE grades: Use letter (A*, A, B, C, D, E, F, G, U)
+- Extract ALL subjects with grades
+- Only accept LGCSE (or equivalent) or higher certificates/result slips. If lower than LGCSE, classify as "other" and set certificateType to null.
+- candidateNumber: Extract if present, commonly labeled "Center/Candidate Number", "Centre/Candidate Number", or "Center / Cand. No.".`;
+
+const GRADE_FORMAT_RULES = `GRADE FORMAT VERIFICATION (CRITICAL):
+- LGCSE/IGCSE grades are often displayed as a letter followed by the same letter in parentheses, e.g., C(c), B(b), E(e), F(f), G(g).
+- The uppercase letter BEFORE the parentheses and the lowercase letter INSIDE the parentheses represent the SAME grade. Use BOTH symbols to cross-verify.
+- If the letter before the brackets does NOT match the letter inside, flag as unreadable (add to "unreadableGrades").
+- Example: "C(c)" → grade is C (verified). "B(d)" → mismatch, flag as unreadable.
+- Always extract only the single letter grade (e.g., "C"), not the full bracket notation.`;
+
 const ANALYSIS_PROMPT = `Analyze this document and extract information.
 
 CATEGORIES:
@@ -61,35 +74,19 @@ DOCUMENT TYPE CLASSIFICATION (CRITICAL FOR ACADEMIC):
 
 RULES:
 ${COMMON_RULES}
-- institutionName: Student's school (not examining body like Cambridge/ECoL)
-- LGCSE grades: Use letter (A*, A, B, C, D, E, F, G, U)
-- Extract ALL subjects with grades
-- Only accept LGCSE (or equivalent) or higher certificates/result slips. If lower than LGCSE, classify as "other" and set certificateType to null.
-- Determine if the document explicitly mentions ECoL as issuing authority and set isEcol accordingly (true/false). Search for any mention of "ECoL" or "Examinations Council of Lesotho".
-- Determine if the document is issued by Cambridge and set isCambridge accordingly (true/false). Search for any mention of "Cambridge", "CAIE", "CIE", or "UCLES".
-- candidateNumber: Extract if present, commonly labeled "Center/Candidate Number", "Centre/Candidate Number", or "Center / Cand. No.".
+${ACADEMIC_RULES}
+- isEcol: true if document mentions ECoL/Examinations Council of Lesotho, else false.
+- isCambridge: true if document mentions Cambridge/CAIE/CIE/UCLES, else false.
 
 IDENTITY EXTRACTION QUALITY (CRITICAL):
-- For identity documents, provide a confidence score (0-100).
-- 100 = absolutely certain, text is crystal clear, no doubt about any field.
-- 90-99 = confident enough to proceed, minor quality issues but still clearly readable.
-- <90 = the text is not clear enough (blurry, faded, partially obscured, ambiguous).
-- If you are NOT at least 90% sure about ANY required field, you MUST set confidence < 90.
+- Confidence score (0-100): 100 = crystal clear, 90-99 = readable, <90 = too unclear.
+- If NOT 90%+ sure about ANY required field, set confidence < 90.
 
-GRADE ACCURACY (CRITICAL - FOR ACADEMIC DOCUMENTS):
-- For each subject think extra, provide a confidence score (0-100) for the grade reading.
-- 100 = absolutely certain the grade is correct
-- 90 = very confident, minor image quality issues
-- <90 = uncertain, add subject name to "unreadableGrades" list
-- If confidence < 100 for ANY subject, you MUST add that subject to "unreadableGrades".
-- DO NOT guess grades. Accuracy is more important than completeness.
+GRADE ACCURACY (CRITICAL):
+- Per-subject confidence (0-100). If <100, add to "unreadableGrades".
+- DO NOT guess grades. Accuracy > completeness.
 
-GRADE FORMAT VERIFICATION (CRITICAL):
-- LGCSE/IGCSE grades are often displayed as a letter followed by the same letter in parentheses, e.g., C(c), B(b), E(e), F(f), G(g).
-- The uppercase letter BEFORE the parentheses and the lowercase letter INSIDE the parentheses represent the SAME grade. Use BOTH symbols to cross-verify the grade.
-- If the letter before the brackets does NOT match the letter inside the brackets, flag the grade as unreadable (add to "unreadableGrades").
-- Example: "C(c)" → grade is C (verified: both symbols agree). "B(d)" → mismatch, flag as unreadable.
-- Always extract only the single letter grade (e.g., "C"), not the full bracket notation.
+${GRADE_FORMAT_RULES}
 
 ${CERTIFICATION_RULES}`;
 
@@ -122,37 +119,17 @@ DOCUMENT TYPE CLASSIFICATION (CRITICAL):
   * Can be preliminary or final results
   * Examples: LGCSE results slip, IGCSE statement of results, NSC results, university transcripts, diploma transcripts
 
-Note: Different institutions (LGCSE, IGCSE, NSC, universities, technicons) have different formats but the distinction is:
-- certificate = formal credential proving qualification completion
-- academic_record = document showing grades/results (results slips, transcripts, statements of results)
 
 RULES:
 ${COMMON_RULES}
-- institutionName: Student's school (not examining body like Cambridge/ECoL)
-- LGCSE grades: Use letter (A*, A, B, C, D, E, F, G, U)
-- Extract ALL subjects with grades
-- Only accept LGCSE (or equivalent) or higher certificates/result slips. If lower than LGCSE, classify as "other" and set certificateType to null.
-- candidateNumber: Extract if present, commonly labeled "Center/Candidate Number", "Centre/Candidate Number", or "Center / Cand. No.".
+${ACADEMIC_RULES}
 
-GRADE ACCURACY (CRITICAL - ZERO TOLERANCE FOR ERRORS):
-- For EACH subject, you MUST provide a confidence score (0-100) for the grade reading.
-- 100 = absolutely certain, crystal clear, no doubt whatsoever
-- 99 = very confident, minor image quality issues but grade is distinguishable
-- <99 = uncertain, ambiguous, blurry, or could be misread
+GRADE ACCURACY (CRITICAL - ZERO TOLERANCE):
+- Per-subject confidence (0-100): 100 = certain, 99 = distinguishable, <99 = uncertain.
+- If confidence < 100 for ANY subject, add to "unreadableGrades".
+- DO NOT guess. If "B" could be "D" or "8", that is <90. Better unreadable than wrong.
 
-GRADE FORMAT VERIFICATION (CRITICAL):
-- LGCSE/IGCSE grades are often displayed as a letter followed by the same letter in parentheses, e.g., C(c), B(b), E(e), F(f), G(g).
-- The uppercase letter BEFORE the parentheses and the lowercase letter INSIDE the parentheses represent the SAME grade. Use BOTH symbols to cross-verify the grade.
-- If the letter before the brackets does NOT match the letter inside the brackets, flag the grade as unreadable (add to "unreadableGrades").
-- Example: "C(c)" → grade is C (verified: both symbols agree). "B(d)" → mismatch, flag as unreadable.
-- Always extract only the single letter grade (e.g., "C"), not the full bracket notation.
-
-MANDATORY RULES:
-1. If confidence < 100 for ANY subject, you MUST add that subject name to "unreadableGrades".
-2. DO NOT guess grades. If "B" could be "D" or "8", that is <90 confidence.
-3. If the document is blurry, faded, or partially obscured, report ALL affected subjects.
-4. It is BETTER to report a grade as unreadable than to guess incorrectly.
-5. Example: "Mathematics" grade looks like "B" but might be "D" → confidence: 70, add "Mathematics" to "unreadableGrades".
+${GRADE_FORMAT_RULES}
 
 ISSUING AUTHORITY:
 - issuingAuthority: Extract examining body (ECoL, Cambridge, IEB, Umalusi)
