@@ -150,7 +150,7 @@ const academicSchema = z
 					value === null || normalizeResultClassification(value) !== null,
 				{
 					message:
-						'Invalid classification. Use Distinction, Merit, Credit, Pass, Fail, First Class, Second Class (Upper/Lower), or Third Class.',
+						'Invalid classification. Use Distinction, Merit (or Marit), Credit, Pass, Fail, First Class (A/B), Second Class (Upper/Lower/A/B), or Third Class (A/B).',
 				}
 			)
 			.transform((value) => normalizeResultClassification(value))

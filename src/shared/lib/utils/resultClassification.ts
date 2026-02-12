@@ -16,17 +16,37 @@ export function normalizeResultClassification(
 
 	const raw = normalizeClassificationText(value);
 	if (!raw) return null;
+	const compact = raw.replace(/\s+/g, '');
 
 	if (raw.includes('first class')) return 'Merit';
 	if (raw.includes('second class')) {
-		if (raw.includes('upper') || raw.includes('2 1')) return 'Merit';
-		if (raw.includes('lower') || raw.includes('2 2')) return 'Credit';
+		if (
+			raw.includes('upper') ||
+			raw.includes('2 1') ||
+			raw.includes('class a') ||
+			raw.includes('division a') ||
+			compact.includes('secondclassa') ||
+			compact.includes('2a')
+		) {
+			return 'Merit';
+		}
+		if (
+			raw.includes('lower') ||
+			raw.includes('2 2') ||
+			raw.includes('class b') ||
+			raw.includes('division b') ||
+			compact.includes('secondclassb') ||
+			compact.includes('2b')
+		) {
+			return 'Credit';
+		}
 		return 'Credit';
 	}
 	if (raw.includes('third class')) return 'Pass';
 
 	if (raw === 'distinction') return 'Distinction';
 	if (raw === 'merit') return 'Merit';
+	if (raw === 'marit') return 'Merit';
 	if (raw === 'credit') return 'Credit';
 	if (raw === 'pass') return 'Pass';
 	if (raw === 'fail') return 'Fail';
