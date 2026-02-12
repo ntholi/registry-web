@@ -35,6 +35,8 @@ const SYSTEM_PROMPT =
 const COMMON_RULES = `- Dates: YYYY-MM-DD format
 - Use null for missing/illegible data`;
 
+const identityConfidenceMin = 90;
+
 const CERTIFICATION_RULES = `CERTIFICATION:
 - isCertified: true if document shows any official certification (stamp, seal, or official mark)`;
 
@@ -70,8 +72,9 @@ ${COMMON_RULES}
 IDENTITY EXTRACTION QUALITY (CRITICAL):
 - For identity documents, provide a confidence score (0-100).
 - 100 = absolutely certain, text is crystal clear, no doubt about any field.
-- <100 = uncertain, text is blurry, faded, partially obscured, or ambiguous.
-- If you are NOT 100% sure about any field, you MUST set confidence < 100.
+- 90-99 = confident enough to proceed, minor quality issues but still clearly readable.
+- <90 = the text is not clear enough (blurry, faded, partially obscured, ambiguous).
+- If you are NOT at least 90% sure about ANY required field, you MUST set confidence < 90.
 
 GRADE ACCURACY (CRITICAL - FOR ACADEMIC DOCUMENTS):
 - For each subject think extra, provide a confidence score (0-100) for the grade reading.
@@ -91,8 +94,9 @@ ${COMMON_RULES}
 EXTRACTION QUALITY (CRITICAL):
 - Provide a confidence score (0-100) for the overall extraction.
 - 100 = absolutely certain, text is crystal clear, no doubt about any field.
-- <100 = uncertain, text is blurry, faded, partially obscured, or ambiguous.
-- If you are NOT 100% sure about any field, you MUST set confidence < 100.
+- 90-99 = confident enough to proceed, minor quality issues but still clearly readable.
+- <90 = the text is not clear enough (blurry, faded, partially obscured, ambiguous).
+- If you are NOT at least 90% sure about ANY required field, you MUST set confidence < 90.
 
 ${CERTIFICATION_RULES}`;
 
@@ -201,7 +205,7 @@ export async function analyzeDocument(
 		const { category, identity, academic, other } = output;
 
 		if (category === 'identity' && identity) {
-			if (identity.confidence < 100) {
+			if (identity.confidence < identityConfidenceMin) {
 				return {
 					success: false,
 					error:
@@ -312,7 +316,7 @@ export async function analyzeIdentityDocument(
 			return { success: false, error: 'Invalid identity document' };
 		}
 
-		if (output.confidence < 100) {
+		if (output.confidence < identityConfidenceMin) {
 			return {
 				success: false,
 				error:
