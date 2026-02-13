@@ -7,6 +7,7 @@ import {
 	Grid,
 	Group,
 	Paper,
+	SegmentedControl,
 	Stack,
 	Tabs,
 	Text,
@@ -41,12 +42,35 @@ type Props = {
 	courseId: number;
 };
 
+type ContentView = 'description' | 'instructions';
+
+function getInstructionsContent(assignment: MoodleAssignment): string {
+	const assignmentWithActivity = assignment as MoodleAssignment & {
+		activity?: string;
+		activityinstructions?: string;
+	};
+
+	const configActivity = assignment.configs?.find(
+		(config) =>
+			config.name === 'activity' || config.name === 'activityinstructions'
+	)?.value;
+
+	return (
+		assignmentWithActivity.activityinstructions ||
+		assignmentWithActivity.activity ||
+		configActivity ||
+		''
+	);
+}
+
 export default function AssignmentTabs({ assignment, courseId }: Props) {
 	const [activeTab, setActiveTab] = useQueryState('tab', {
 		defaultValue: 'details',
 	});
+	const [contentView, setContentView] = useState<ContentView>('description');
 	const [isEditingRubric, setIsEditingRubric] = useState(false);
 	const rubricFormRef = useRef<{ submit: () => void } | null>(null);
+	const instructions = getInstructionsContent(assignment);
 
 	const { data: rubric } = useQuery({
 		queryKey: ['rubric', assignment.cmid],
@@ -144,21 +168,47 @@ export default function AssignmentTabs({ assignment, courseId }: Props) {
 					<Grid.Col span={{ base: 12, md: 8 }}>
 						<Paper p='lg' withBorder>
 							<Stack gap='md'>
-								<Group gap='xs'>
-									<ThemeIcon size='sm' variant='light' color='gray'>
-										<IconFileDescription size={14} />
-									</ThemeIcon>
-									<Title order={5}>Description</Title>
+								<Group justify='space-between' align='center'>
+									<Group gap='xs'>
+										<ThemeIcon size='sm' variant='light' color='gray'>
+											<IconFileDescription size={14} />
+										</ThemeIcon>
+										<Title order={5}>
+											{contentView === 'description'
+												? 'Description'
+												: 'Instructions'}
+										</Title>
+									</Group>
+									<SegmentedControl
+										size='xs'
+										value={contentView}
+										onChange={(value) => setContentView(value as ContentView)}
+										data={[
+											{ label: 'Description', value: 'description' },
+											{ label: 'Instructions', value: 'instructions' },
+										]}
+									/>
 								</Group>
 								<Divider />
-								{assignment.intro ? (
+								{contentView === 'description' ? (
+									assignment.intro ? (
+										<Box
+											dangerouslySetInnerHTML={{ __html: assignment.intro }}
+											style={{ fontSize: '0.875rem' }}
+										/>
+									) : (
+										<Text c='dimmed' size='sm'>
+											No description provided for this assignment.
+										</Text>
+									)
+								) : instructions ? (
 									<Box
-										dangerouslySetInnerHTML={{ __html: assignment.intro }}
+										dangerouslySetInnerHTML={{ __html: instructions }}
 										style={{ fontSize: '0.875rem' }}
 									/>
 								) : (
 									<Text c='dimmed' size='sm'>
-										No description provided for this assignment.
+										No instructions provided for this assignment.
 									</Text>
 								)}
 							</Stack>
