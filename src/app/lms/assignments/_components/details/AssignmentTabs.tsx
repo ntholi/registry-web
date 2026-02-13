@@ -231,7 +231,11 @@ export default function AssignmentTabs({ assignment, courseId }: Props) {
 										<Title order={5}>Files</Title>
 									</Group>
 									<Divider />
-									<FileList files={paperFiles} emptyText='No files uploaded' />
+									<FileList
+										files={paperFiles}
+										emptyText='No files uploaded'
+										enableModalPreview
+									/>
 								</Stack>
 							</Paper>
 						</Stack>
