@@ -19,7 +19,7 @@ export async function getRubric(cmid: number): Promise<Rubric | null> {
 			cmid,
 		});
 
-		if (!result?.success) {
+		if (!result?.success || !result.definitionid) {
 			return null;
 		}
 
