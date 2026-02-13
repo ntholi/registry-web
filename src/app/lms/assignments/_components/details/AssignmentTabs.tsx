@@ -35,6 +35,7 @@ import { DeleteButton } from '@/shared/ui/adease';
 import Link from '@/shared/ui/Link';
 import { deleteRubric, getRubric, RubricView } from '../../_features/rubric';
 import { SubmissionsView } from '../../_features/submissions';
+import FileList from '../../_features/submissions/components/FileList';
 import type { MoodleAssignment } from '../../types';
 
 type Props = {
@@ -63,6 +64,10 @@ function getInstructionsContent(assignment: MoodleAssignment): string {
 	);
 }
 
+function getPaperFiles(assignment: MoodleAssignment) {
+	return assignment.introattachments ?? assignment.introfiles ?? [];
+}
+
 export default function AssignmentTabs({ assignment, courseId }: Props) {
 	const [activeTab, setActiveTab] = useQueryState('tab', {
 		defaultValue: 'details',
@@ -71,6 +76,7 @@ export default function AssignmentTabs({ assignment, courseId }: Props) {
 	const [isEditingRubric, setIsEditingRubric] = useState(false);
 	const rubricFormRef = useRef<{ submit: () => void } | null>(null);
 	const instructions = getInstructionsContent(assignment);
+	const paperFiles = getPaperFiles(assignment);
 
 	const { data: rubric } = useQuery({
 		queryKey: ['rubric', assignment.cmid],
@@ -166,53 +172,69 @@ export default function AssignmentTabs({ assignment, courseId }: Props) {
 			<Tabs.Panel value='details' pt='lg'>
 				<Grid gutter='lg'>
 					<Grid.Col span={{ base: 12, md: 8 }}>
-						<Paper p='lg' withBorder>
-							<Stack gap='md'>
-								<Group justify='space-between' align='center'>
-									<Group gap='xs'>
-										<ThemeIcon size='sm' variant='light' color='gray'>
-											<IconFileDescription size={14} />
-										</ThemeIcon>
-										<Title order={5}>
-											{contentView === 'description'
-												? 'Description'
-												: 'Instructions'}
-										</Title>
+						<Stack gap='md'>
+							<Paper p='lg' withBorder>
+								<Stack gap='md'>
+									<Group justify='space-between' align='center'>
+										<Group gap='xs'>
+											<ThemeIcon size='sm' variant='light' color='gray'>
+												<IconFileDescription size={14} />
+											</ThemeIcon>
+											<Title order={5}>
+												{contentView === 'description'
+													? 'Description'
+													: 'Instructions'}
+											</Title>
+										</Group>
+										<SegmentedControl
+											size='sm'
+											color='blue'
+											value={contentView}
+											onChange={(value) => setContentView(value as ContentView)}
+											data={[
+												{ label: 'Description', value: 'description' },
+												{ label: 'Instructions', value: 'instructions' },
+											]}
+										/>
 									</Group>
-									<SegmentedControl
-										size='xs'
-										value={contentView}
-										onChange={(value) => setContentView(value as ContentView)}
-										data={[
-											{ label: 'Description', value: 'description' },
-											{ label: 'Instructions', value: 'instructions' },
-										]}
-									/>
-								</Group>
-								<Divider />
-								{contentView === 'description' ? (
-									assignment.intro ? (
+									<Divider />
+									{contentView === 'description' ? (
+										assignment.intro ? (
+											<Box
+												dangerouslySetInnerHTML={{ __html: assignment.intro }}
+												style={{ fontSize: '0.875rem' }}
+											/>
+										) : (
+											<Text c='dimmed' size='sm'>
+												No description provided for this assignment.
+											</Text>
+										)
+									) : instructions ? (
 										<Box
-											dangerouslySetInnerHTML={{ __html: assignment.intro }}
+											dangerouslySetInnerHTML={{ __html: instructions }}
 											style={{ fontSize: '0.875rem' }}
 										/>
 									) : (
 										<Text c='dimmed' size='sm'>
-											No description provided for this assignment.
+											No instructions provided for this assignment.
 										</Text>
-									)
-								) : instructions ? (
-									<Box
-										dangerouslySetInnerHTML={{ __html: instructions }}
-										style={{ fontSize: '0.875rem' }}
-									/>
-								) : (
-									<Text c='dimmed' size='sm'>
-										No instructions provided for this assignment.
-									</Text>
-								)}
-							</Stack>
-						</Paper>
+									)}
+								</Stack>
+							</Paper>
+
+							<Paper p='lg' withBorder>
+								<Stack gap='md'>
+									<Group gap='xs'>
+										<ThemeIcon size='sm' variant='light' color='gray'>
+											<IconFileDescription size={14} />
+										</ThemeIcon>
+										<Title order={5}>Files</Title>
+									</Group>
+									<Divider />
+									<FileList files={paperFiles} emptyText='No files uploaded' />
+								</Stack>
+							</Paper>
+						</Stack>
 					</Grid.Col>
 
 					<Grid.Col span={{ base: 12, md: 4 }}>

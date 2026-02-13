@@ -16,6 +16,15 @@ export type SubmissionStatus = 'new' | 'draft' | 'submitted' | 'reopened';
 
 export type GradingMethod = 'simple' | 'rubric' | 'guide';
 
+export type AssignmentFile = {
+	filename: string;
+	filepath: string;
+	filesize: number;
+	fileurl: string;
+	timemodified: number;
+	mimetype: string;
+};
+
 export type MoodleAssignment = {
 	id: number;
 	course: number;
@@ -51,6 +60,8 @@ export type MoodleAssignment = {
 		name: string;
 		value: string;
 	}>;
+	introattachments?: AssignmentFile[];
+	introfiles?: AssignmentFile[];
 	cmid?: number;
 	visible?: number;
 };

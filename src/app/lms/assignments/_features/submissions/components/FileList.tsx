@@ -18,9 +18,14 @@ import FileIcon from './FileIcon';
 type Props = {
 	files: SubmissionFile[];
 	viewerUrl?: string;
+	emptyText?: string;
 };
 
-export default function FileList({ files, viewerUrl }: Props) {
+export default function FileList({
+	files,
+	viewerUrl,
+	emptyText = 'No files submitted',
+}: Props) {
 	if (files.length === 0) {
 		return (
 			<Box py='xl' ta='center'>
@@ -29,7 +34,7 @@ export default function FileList({ files, viewerUrl }: Props) {
 						<IconFile size={24} />
 					</ThemeIcon>
 					<Text c='dimmed' size='sm'>
-						No files submitted
+						{emptyText}
 					</Text>
 				</Stack>
 			</Box>
