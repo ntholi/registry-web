@@ -1,5 +1,6 @@
 'use server';
 
+import { usersRepository } from '@admin/users/_server/repository';
 import { ilike, or, type SQL, sql } from 'drizzle-orm';
 import {
 	getAssignedModuleByLmsCourseId,
@@ -200,7 +201,7 @@ export async function enrollStudentInCourse(
 		}
 
 		const moodleUserId = moodleUserResult.users[0].id;
-		await studentRepository.updateUserLmsUserId(student.user.id, moodleUserId);
+		await usersRepository.updateUserLmsUserId(student.user.id, moodleUserId);
 
 		return enrollUserInMoodleCourse(moodleUserId, courseId);
 	}

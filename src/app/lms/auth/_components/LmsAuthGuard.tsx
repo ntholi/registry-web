@@ -69,9 +69,6 @@ export default function LmsAuthGuard({ children }: PropsWithChildren) {
 											<Text size='xs' c='dimmed'>
 												Moodle Account: {moodleCheck.user.email}
 											</Text>
-											<Text size='xs' c='dimmed'>
-												Moodle User ID: {moodleCheck.user.id}
-											</Text>
 										</Stack>
 									)}
 								</Stack>
