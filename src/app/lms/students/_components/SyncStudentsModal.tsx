@@ -39,6 +39,7 @@ type SyncStatus = 'idle' | 'syncing' | 'done';
 type StudentSyncResult = {
 	stdNo: number;
 	name: string;
+	email: string | null;
 	status: 'pending' | 'syncing' | 'success' | 'error' | 'skipped';
 	message?: string;
 };
@@ -68,6 +69,7 @@ export default function SyncStudentsModal({
 		const initialResults: StudentSyncResult[] = registeredStudents.map((s) => ({
 			stdNo: s.stdNo,
 			name: s.name,
+			email: s.email,
 			status: 'pending' as const,
 		}));
 		setResults(initialResults);
@@ -232,7 +234,7 @@ export default function SyncStudentsModal({
 														{student.name}
 													</Text>
 													<Text size='xs' c='dimmed'>
-														{student.stdNo}
+														{student.email || 'No email'}
 													</Text>
 												</Stack>
 											</Group>
@@ -292,7 +294,7 @@ export default function SyncStudentsModal({
 													{result.name}
 												</Text>
 												<Text size='xs' c='dimmed'>
-													{result.stdNo}
+													{result.email || 'No email'}
 												</Text>
 											</Stack>
 											{result.message && (

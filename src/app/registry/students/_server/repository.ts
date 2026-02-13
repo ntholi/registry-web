@@ -265,10 +265,12 @@ export default class StudentRepository extends BaseRepository<
 			.select({
 				stdNo: students.stdNo,
 				name: students.name,
+				email: users.email,
 				programId: structures.programId,
 				studentModuleId: studentModules.id,
 			})
 			.from(students)
+			.leftJoin(users, eq(students.userId, users.id))
 			.innerJoin(studentPrograms, eq(studentPrograms.stdNo, students.stdNo))
 			.innerJoin(structures, eq(studentPrograms.structureId, structures.id))
 			.innerJoin(
@@ -294,6 +296,7 @@ export default class StudentRepository extends BaseRepository<
 			.groupBy(
 				students.stdNo,
 				students.name,
+				users.email,
 				structures.programId,
 				studentModules.id
 			);
