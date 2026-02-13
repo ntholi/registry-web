@@ -1,5 +1,6 @@
 'use client';
 
+import PublishActivityModal from '@lms/_shared/PublishActivityModal';
 import { ActionIcon, Box, Card, Group, Menu, Stack, Text } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import {
@@ -19,10 +20,9 @@ import {
 import { getBooleanColor } from '@/shared/lib/utils/colors';
 import { formatMoodleDate } from '@/shared/lib/utils/dates';
 import { DeleteButton } from '@/shared/ui/adease';
-import { deleteAssignment } from '../../_server/actions';
+import { deleteAssignment, publishAssignment } from '../../_server/actions';
 import type { MoodleAssignment } from '../../types';
 import AssignmentStatus from '../details/AssignmentStatus';
-import PublishAssignmentModal from './PublishAssignmentModal';
 
 type Props = {
 	assignment: MoodleAssignment;
@@ -168,12 +168,21 @@ export default function AssignmentCard({
 				</Stack>
 			</Card>
 			{moduleId && (
-				<PublishAssignmentModal
-					assignment={assignment}
-					courseId={courseId}
+				<PublishActivityModal
+					title='Publish Assignment'
 					moduleId={moduleId}
+					defaultTotalMarks={Math.abs(assignment.grade) || 100}
 					opened={publishOpened}
 					onClose={closePublish}
+					publishFn={(values) =>
+						publishAssignment({
+							assignmentId: assignment.id,
+							courseId,
+							moduleId,
+							...values,
+						})
+					}
+					invalidateKeys={[['course-assignments']]}
 				/>
 			)}
 		</>

@@ -1,5 +1,6 @@
 'use client';
 
+import PublishActivityModal from '@lms/_shared/PublishActivityModal';
 import {
 	ActionIcon,
 	Badge,
@@ -29,9 +30,8 @@ import {
 } from '@/app/academic/assessments/_server/actions';
 import { getBooleanColor, getQuizStatusColor } from '@/shared/lib/utils/colors';
 import { DeleteButton } from '@/shared/ui/adease';
-import { deleteQuiz } from '../../_server/actions';
+import { deleteQuiz, publishQuiz } from '../../_server/actions';
 import type { MoodleQuiz } from '../../types';
-import PublishQuizModal from './PublishQuizModal';
 
 type Props = {
 	quiz: MoodleQuiz;
@@ -197,12 +197,21 @@ export default function QuizCard({ quiz, courseId, moduleId }: Props) {
 				</Stack>
 			</Card>
 			{moduleId && (
-				<PublishQuizModal
-					quiz={quiz}
-					courseId={courseId}
+				<PublishActivityModal
+					title='Publish Quiz'
 					moduleId={moduleId}
+					defaultTotalMarks={quiz.grade || 100}
 					opened={publishOpened}
 					onClose={closePublish}
+					publishFn={(values) =>
+						publishQuiz({
+							quizId: quiz.id,
+							courseId,
+							moduleId,
+							...values,
+						})
+					}
+					invalidateKeys={[['course-quizzes']]}
 				/>
 			)}
 		</>

@@ -23,11 +23,20 @@ Before writing ANY code, you MUST:
 - ❌ Implementing date formatting logic instead of using `@/shared/lib/utils/dates`
 - ❌ Re-implementing form validation when `Form` component handles it
 - ❌ Creating status display logic instead of using `@/shared/lib/utils/status.tsx`
+- ❌ Creating near-identical components for different entity types. Instead, create ONE parameterized shared component and pass entity-specific logic via props/callbacks.
+
+### Cross-Feature Duplication Rule
+When implementing similar functionality across multiple entity types (e.g., assignments/quizzes, students/lecturers) or across any parallel features:
+1. **ALWAYS** check if an equivalent component/function already exists for a sibling feature
+2. If it does, **extract** the shared logic into the parent module's `_shared/` folder or `src/shared/` (for app-wide)
+3. Make the shared component accept entity-specific differences via props (callbacks, labels, default values)
+4. Both features should import and use the single shared component
 
 ### Mandatory Pre-Implementation Checklist
 Before implementing ANY feature:
 - [ ] Searched for similar patterns in `src/shared/ui/`
 - [ ] Searched for similar patterns in the target module `_components/`
+- [ ] Searched for similar patterns in **sibling feature modules** (e.g., if editing `assignments/`, check `quizzes/`)
 - [ ] Searched for utility functions in `src/shared/lib/utils/`
 - [ ] If similar code exists: REFACTOR to make it reusable, then use it
 - [ ] If creating new reusable code: Place it in `src/shared/ui/` or `src/shared/lib/utils/`

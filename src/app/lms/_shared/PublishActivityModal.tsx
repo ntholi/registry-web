@@ -8,16 +8,6 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useRef } from 'react';
 import { COURSE_WORK_OPTIONS } from '@/app/academic/assessments/_lib/utils';
 import { getAssessmentByModuleId } from '@/app/academic/assessments/_server/actions';
-import { publishQuiz } from '../../_server/actions';
-import type { MoodleQuiz } from '../../types';
-
-type Props = {
-	quiz: MoodleQuiz;
-	courseId: number;
-	moduleId: number;
-	opened: boolean;
-	onClose: () => void;
-};
 
 type FormValues = {
 	assessmentNumber: string;
@@ -25,12 +15,24 @@ type FormValues = {
 	totalMarks: number;
 };
 
-export default function PublishQuizModal({
-	quiz,
-	courseId,
+type Props = {
+	title: string;
+	moduleId: number;
+	defaultTotalMarks: number;
+	opened: boolean;
+	onClose: () => void;
+	publishFn: (values: FormValues) => Promise<{ success: boolean }>;
+	invalidateKeys: string[][];
+};
+
+export default function PublishActivityModal({
+	title,
 	moduleId,
+	defaultTotalMarks,
 	opened,
 	onClose,
+	publishFn,
+	invalidateKeys,
 }: Props) {
 	const queryClient = useQueryClient();
 
@@ -51,7 +53,7 @@ export default function PublishQuizModal({
 		initialValues: {
 			assessmentNumber: '',
 			weight: 0,
-			totalMarks: quiz.grade || 100,
+			totalMarks: defaultTotalMarks,
 		},
 	});
 
@@ -75,18 +77,12 @@ export default function PublishQuizModal({
 	}, [assessments]);
 
 	const mutation = useMutation({
-		mutationFn: () =>
-			publishQuiz({
-				quizId: quiz.id,
-				courseId,
-				moduleId,
-				assessmentNumber: form.values.assessmentNumber,
-				weight: form.values.weight,
-				totalMarks: form.values.totalMarks,
-			}),
+		mutationFn: () => publishFn(form.values),
 		onSuccess: () => {
-			notifications.show({ message: 'Quiz published', color: 'green' });
-			queryClient.invalidateQueries({ queryKey: ['course-quizzes'] });
+			notifications.show({ message: `${title} successful`, color: 'green' });
+			for (const key of invalidateKeys) {
+				queryClient.invalidateQueries({ queryKey: key });
+			}
 			queryClient.invalidateQueries({
 				queryKey: ['module-assessments', moduleId],
 			});
@@ -95,7 +91,7 @@ export default function PublishQuizModal({
 		},
 		onError: (error) => {
 			notifications.show({
-				message: error.message || 'Failed to publish quiz',
+				message: error.message || `Failed to publish`,
 				color: 'red',
 			});
 		},
@@ -110,7 +106,7 @@ export default function PublishQuizModal({
 	}
 
 	return (
-		<Modal opened={opened} onClose={onClose} title='Publish Quiz'>
+		<Modal opened={opened} onClose={onClose} title={title}>
 			<Stack>
 				<Select
 					label='Assessment Number'
