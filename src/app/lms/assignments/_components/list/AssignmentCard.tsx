@@ -1,7 +1,7 @@
 'use client';
 
 import { ActionIcon, Box, Card, Group, Menu, Stack, Text } from '@mantine/core';
-import { notifications } from '@mantine/notifications';
+import { useDisclosure } from '@mantine/hooks';
 import {
 	IconClock,
 	IconDotsVertical,
@@ -10,7 +10,7 @@ import {
 	IconSend,
 	IconTrash,
 } from '@tabler/icons-react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import Link from 'next/link';
 import {
 	deleteAssessment,
@@ -19,36 +19,30 @@ import {
 import { getBooleanColor } from '@/shared/lib/utils/colors';
 import { formatMoodleDate } from '@/shared/lib/utils/dates';
 import { DeleteButton } from '@/shared/ui/adease';
-import { deleteAssignment, updateAssignment } from '../../_server/actions';
+import { deleteAssignment } from '../../_server/actions';
 import type { MoodleAssignment } from '../../types';
 import AssignmentStatus from '../details/AssignmentStatus';
+import PublishAssignmentModal from './PublishAssignmentModal';
 
 type Props = {
 	assignment: MoodleAssignment;
 	courseId: number;
+	moduleId?: number;
 };
 
-export default function AssignmentCard({ assignment, courseId }: Props) {
+export default function AssignmentCard({
+	assignment,
+	courseId,
+	moduleId,
+}: Props) {
 	const dueDate = assignment.duedate
 		? new Date(assignment.duedate * 1000)
 		: null;
 	const isOverdue = dueDate && dueDate < new Date();
 	const isDraft = assignment.visible === 0;
 	const queryClient = useQueryClient();
-
-	const publishMutation = useMutation({
-		mutationFn: () => updateAssignment(assignment.id, { visible: 1 }),
-		onSuccess: () => {
-			notifications.show({ message: 'Assignment published', color: 'green' });
-			queryClient.invalidateQueries({ queryKey: ['course-assignments'] });
-		},
-		onError: (error) => {
-			notifications.show({
-				message: error.message || 'Failed to publish assignment',
-				color: 'red',
-			});
-		},
-	});
+	const [publishOpened, { open: openPublish, close: closePublish }] =
+		useDisclosure(false);
 
 	async function handleDelete() {
 		const assessment = await getAssessmentByLmsId(assignment.id);
@@ -68,111 +62,121 @@ export default function AssignmentCard({ assignment, courseId }: Props) {
 	}
 
 	return (
-		<Card padding='md' withBorder>
-			<Stack gap='sm'>
-				<Card.Section withBorder inheritPadding py='xs'>
-					<Group justify='space-between' wrap='nowrap'>
-						<Box
-							component={Link}
-							href={`/lms/courses/${courseId}/assignments/${assignment.id}`}
-							style={{ textDecoration: 'none', color: 'inherit', flex: 1 }}
-						>
-							<Text fw={500} size='md'>
-								{assignment.name}
-							</Text>
-						</Box>
-						<Group gap='xs' wrap='nowrap'>
-							<AssignmentStatus
-								assignment={assignment}
-								size='sm'
-								variant='light'
-							/>
-							<Menu position='bottom-end' withArrow shadow='md'>
-								<Menu.Target>
-									<ActionIcon
-										variant='subtle'
-										color='gray'
-										size='sm'
-										onClick={(event) => event.preventDefault()}
-									>
-										<IconDotsVertical size={16} />
-									</ActionIcon>
-								</Menu.Target>
-								<Menu.Dropdown>
-									<Menu.Item
-										leftSection={<IconEdit size={14} />}
-										component={Link}
-										href={`/lms/courses/${courseId}/assignments/${assignment.id}/edit`}
-									>
-										Edit
-									</Menu.Item>
-									{isDraft && (
-										<Menu.Item
-											leftSection={<IconSend size={14} />}
-											color='green'
-											onClick={() => publishMutation.mutate()}
-											disabled={publishMutation.isPending}
-										>
-											{publishMutation.isPending ? 'Publishing...' : 'Publish'}
-										</Menu.Item>
-									)}
-									<Menu.Item
-										leftSection={<IconExternalLink size={14} />}
-										onClick={handleViewInMoodle}
-									>
-										View in Moodle
-									</Menu.Item>
-
-									<Menu.Divider />
-									<DeleteButton
-										handleDelete={handleDelete}
-										itemName={assignment.name}
-										itemType='assignment'
-										warningMessage='This will also delete the associated assessment and all student marks. This action cannot be undone.'
-									>
-										<Menu.Item
-											leftSection={<IconTrash size={14} />}
-											color='red'
-										>
-											Delete
-										</Menu.Item>
-									</DeleteButton>
-								</Menu.Dropdown>
-							</Menu>
-						</Group>
-					</Group>
-				</Card.Section>
-
-				<Box
-					component={Link}
-					href={`/lms/courses/${courseId}/assignments/${assignment.id}`}
-					style={{ textDecoration: 'none', color: 'inherit' }}
-				>
-					{assignment.intro ? (
-						<Text py='xs' size='sm' lineClamp={2}>
-							{shorten(assignment.intro)}
-						</Text>
-					) : (
-						<Text py='xs' size='sm' c='dimmed'>
-							No Description
-						</Text>
-					)}
-				</Box>
-
-				<Card.Section withBorder inheritPadding py='xs'>
-					<Group gap='xl'>
-						{assignment.duedate && (
-							<Group gap='xs'>
-								<IconClock size={16} />
-								<Text size='xs' c={getBooleanColor(!!isOverdue, 'negative')}>
-									Due: {formatMoodleDate(assignment.duedate)}
+		<>
+			<Card padding='md' withBorder>
+				<Stack gap='sm'>
+					<Card.Section withBorder inheritPadding py='xs'>
+						<Group justify='space-between' wrap='nowrap'>
+							<Box
+								component={Link}
+								href={`/lms/courses/${courseId}/assignments/${assignment.id}`}
+								style={{ textDecoration: 'none', color: 'inherit', flex: 1 }}
+							>
+								<Text fw={500} size='md'>
+									{assignment.name}
 								</Text>
+							</Box>
+							<Group gap='xs' wrap='nowrap'>
+								<AssignmentStatus
+									assignment={assignment}
+									size='sm'
+									variant='light'
+								/>
+								<Menu position='bottom-end' withArrow shadow='md'>
+									<Menu.Target>
+										<ActionIcon
+											variant='subtle'
+											color='gray'
+											size='sm'
+											onClick={(event) => event.preventDefault()}
+										>
+											<IconDotsVertical size={16} />
+										</ActionIcon>
+									</Menu.Target>
+									<Menu.Dropdown>
+										<Menu.Item
+											leftSection={<IconEdit size={14} />}
+											component={Link}
+											href={`/lms/courses/${courseId}/assignments/${assignment.id}/edit`}
+										>
+											Edit
+										</Menu.Item>
+										{isDraft && moduleId && (
+											<Menu.Item
+												leftSection={<IconSend size={14} />}
+												color='green'
+												onClick={openPublish}
+											>
+												Publish
+											</Menu.Item>
+										)}
+										<Menu.Item
+											leftSection={<IconExternalLink size={14} />}
+											onClick={handleViewInMoodle}
+										>
+											View in Moodle
+										</Menu.Item>
+
+										<Menu.Divider />
+										<DeleteButton
+											handleDelete={handleDelete}
+											itemName={assignment.name}
+											itemType='assignment'
+											warningMessage='This will also delete the associated assessment and all student marks. This action cannot be undone.'
+										>
+											<Menu.Item
+												leftSection={<IconTrash size={14} />}
+												color='red'
+											>
+												Delete
+											</Menu.Item>
+										</DeleteButton>
+									</Menu.Dropdown>
+								</Menu>
 							</Group>
+						</Group>
+					</Card.Section>
+
+					<Box
+						component={Link}
+						href={`/lms/courses/${courseId}/assignments/${assignment.id}`}
+						style={{ textDecoration: 'none', color: 'inherit' }}
+					>
+						{assignment.intro ? (
+							<Text py='xs' size='sm' lineClamp={2}>
+								{shorten(assignment.intro)}
+							</Text>
+						) : (
+							<Text py='xs' size='sm' c='dimmed'>
+								No Description
+							</Text>
 						)}
-					</Group>
-				</Card.Section>
-			</Stack>
-		</Card>
+					</Box>
+
+					<Card.Section withBorder inheritPadding py='xs'>
+						<Group gap='xl'>
+							{assignment.duedate && (
+								<Group gap='xs'>
+									<IconClock size={16} />
+									<Text size='xs' c={getBooleanColor(!!isOverdue, 'negative')}>
+										Due: {formatMoodleDate(assignment.duedate)}
+									</Text>
+								</Group>
+							)}
+						</Group>
+					</Card.Section>
+				</Stack>
+			</Card>
+			{moduleId && (
+				<PublishAssignmentModal
+					assignment={assignment}
+					courseId={courseId}
+					moduleId={moduleId}
+					opened={publishOpened}
+					onClose={closePublish}
+				/>
+			)}
+		</>
 	);
 }
 
