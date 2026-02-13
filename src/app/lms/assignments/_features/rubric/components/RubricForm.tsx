@@ -1,13 +1,13 @@
 'use client';
 
 import {
+	Accordion,
 	ActionIcon,
 	Box,
 	Button,
 	Group,
 	NumberInput,
 	Paper,
-	SimpleGrid,
 	Stack,
 	Text,
 	Textarea,
@@ -16,7 +16,7 @@ import {
 import { useForm } from '@mantine/form';
 import { IconPlus, IconTrash } from '@tabler/icons-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useImperativeHandle } from 'react';
+import { useImperativeHandle, useState } from 'react';
 import type { Rubric } from '../../../types';
 import { createRubric, updateRubric } from '../server/actions';
 
@@ -55,6 +55,7 @@ export default function RubricForm({
 	formRef,
 }: Props) {
 	const queryClient = useQueryClient();
+	const [openItems, setOpenItems] = useState<string[]>(['criterion-0']);
 
 	const maxScorePerCriterion = Math.floor(maxGrade / 4);
 	const levelScores = [
@@ -64,9 +65,11 @@ export default function RubricForm({
 		maxScorePerCriterion,
 	];
 
+	const rubricName = existingRubric?.name ?? `${assignmentName} Rubric`;
+
 	const form = useForm<FormValues>({
 		initialValues: {
-			name: existingRubric?.name ?? `${assignmentName} Rubric`,
+			name: rubricName,
 			description: existingRubric?.description ?? '',
 			criteria: existingRubric?.criteria ?? [
 				{
@@ -81,7 +84,6 @@ export default function RubricForm({
 			],
 		},
 		validate: {
-			name: (value) => (!value.trim() ? 'Name is required' : null),
 			criteria: {
 				description: (value) =>
 					!value.trim() ? 'Criterion description is required' : null,
@@ -142,6 +144,7 @@ export default function RubricForm({
 	}));
 
 	function addCriterion() {
+		const newIndex = form.values.criteria.length;
 		form.insertListItem('criteria', {
 			description: '',
 			levels: [
@@ -151,10 +154,14 @@ export default function RubricForm({
 				{ score: levelScores[3], definition: 'Excellent' },
 			],
 		});
+		setOpenItems((prev) => [...prev, `criterion-${newIndex}`]);
 	}
 
 	function removeCriterion(index: number) {
 		form.removeListItem('criteria', index);
+		setOpenItems((prev) =>
+			prev.filter((item) => item !== `criterion-${index}`)
+		);
 	}
 
 	function addLevel(criterionIndex: number) {
@@ -182,19 +189,6 @@ export default function RubricForm({
 	return (
 		<form onSubmit={form.onSubmit((values) => saveMutation.mutate(values))}>
 			<Stack gap='md'>
-				<SimpleGrid cols={2} spacing='md'>
-					<TextInput
-						label='Rubric Name'
-						placeholder='Enter rubric name'
-						{...form.getInputProps('name')}
-					/>
-					<TextInput
-						label='Description'
-						placeholder='Enter rubric description (optional)'
-						{...form.getInputProps('description')}
-					/>
-				</SimpleGrid>
-
 				<Paper p='sm' withBorder bg={isOverLimit ? 'red.0' : undefined}>
 					<Group justify='space-between'>
 						<Text size='sm' fw={500}>
@@ -222,87 +216,110 @@ export default function RubricForm({
 					)}
 				</Paper>
 
-				<SimpleGrid cols={2} spacing='md'>
+				<Accordion
+					multiple
+					value={openItems}
+					onChange={setOpenItems}
+					variant='separated'
+				>
 					{form.values.criteria.map((criterion, criterionIndex) => (
-						<Paper key={criterion.id ?? criterionIndex} p='md' withBorder>
-							<Stack gap='md'>
-								<Group justify='space-between'>
+						<Accordion.Item
+							key={criterion.id ?? criterionIndex}
+							value={`criterion-${criterionIndex}`}
+							pos='relative'
+						>
+							<Accordion.Control>
+								<Stack gap={2}>
 									<Text size='sm' fw={500}>
 										Criterion {criterionIndex + 1}
 									</Text>
-									{form.values.criteria.length > 1 && (
-										<ActionIcon
-											variant='subtle'
-											color='red'
-											onClick={() => removeCriterion(criterionIndex)}
+									{criterion.description && (
+										<Text size='xs' c='dimmed' lineClamp={1}>
+											{criterion.description}
+										</Text>
+									)}
+								</Stack>
+							</Accordion.Control>
+							{form.values.criteria.length > 1 && (
+								<ActionIcon
+									variant='subtle'
+									color='red'
+									pos='absolute'
+									top={8}
+									right={48}
+									style={{ zIndex: 1 }}
+									onClick={() => removeCriterion(criterionIndex)}
+								>
+									<IconTrash size={16} />
+								</ActionIcon>
+							)}
+							<Accordion.Panel>
+								<Stack gap='md'>
+									<Textarea
+										placeholder='Enter criterion description'
+										autosize
+										minRows={1}
+										{...form.getInputProps(
+											`criteria.${criterionIndex}.description`
+										)}
+									/>
+
+									<Text size='xs' c='dimmed'>
+										Levels
+									</Text>
+
+									{criterion.levels.map((level, levelIndex) => (
+										<Group
+											key={level.id ?? `level-${criterionIndex}-${levelIndex}`}
+											align='flex-start'
+											gap='sm'
 										>
-											<IconTrash size={16} />
-										</ActionIcon>
-									)}
-								</Group>
-
-								<Textarea
-									placeholder='Enter criterion description'
-									autosize
-									minRows={1}
-									{...form.getInputProps(
-										`criteria.${criterionIndex}.description`
-									)}
-								/>
-
-								<Text size='xs' c='dimmed'>
-									Levels
-								</Text>
-
-								{criterion.levels.map((level, levelIndex) => (
-									<Group
-										key={level.id ?? `level-${criterionIndex}-${levelIndex}`}
-										align='flex-start'
-										gap='sm'
-									>
-										<NumberInput
-											w={80}
-											size='xs'
-											placeholder='Score'
-											min={0}
-											{...form.getInputProps(
-												`criteria.${criterionIndex}.levels.${levelIndex}.score`
-											)}
-										/>
-										<Box style={{ flex: 1 }}>
-											<TextInput
+											<NumberInput
+												w={80}
 												size='xs'
-												placeholder='Level definition'
+												placeholder='Score'
+												min={0}
 												{...form.getInputProps(
-													`criteria.${criterionIndex}.levels.${levelIndex}.definition`
+													`criteria.${criterionIndex}.levels.${levelIndex}.score`
 												)}
 											/>
-										</Box>
-										{criterion.levels.length > 1 && (
-											<ActionIcon
-												variant='subtle'
-												color='red'
-												size='sm'
-												onClick={() => removeLevel(criterionIndex, levelIndex)}
-											>
-												<IconTrash size={14} />
-											</ActionIcon>
-										)}
-									</Group>
-								))}
+											<Box style={{ flex: 1 }}>
+												<TextInput
+													size='xs'
+													placeholder='Level definition'
+													{...form.getInputProps(
+														`criteria.${criterionIndex}.levels.${levelIndex}.definition`
+													)}
+												/>
+											</Box>
+											{criterion.levels.length > 1 && (
+												<ActionIcon
+													variant='subtle'
+													color='red'
+													size='sm'
+													onClick={() =>
+														removeLevel(criterionIndex, levelIndex)
+													}
+												>
+													<IconTrash size={14} />
+												</ActionIcon>
+											)}
+										</Group>
+									))}
 
-								<Button
-									variant='subtle'
-									size='xs'
-									leftSection={<IconPlus size={14} />}
-									onClick={() => addLevel(criterionIndex)}
-								>
-									Add Level
-								</Button>
-							</Stack>
-						</Paper>
+									<Button
+										variant='subtle'
+										size='xs'
+										leftSection={<IconPlus size={14} />}
+										onClick={() => addLevel(criterionIndex)}
+									>
+										Add Level
+									</Button>
+								</Stack>
+							</Accordion.Panel>
+						</Accordion.Item>
 					))}
-				</SimpleGrid>
+				</Accordion>
 
 				<Button
 					variant='light'
