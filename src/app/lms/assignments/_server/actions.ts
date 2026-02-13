@@ -65,6 +65,18 @@ async function fileToBase64(file: File): Promise<string> {
 	return buffer.toString('base64');
 }
 
+async function buildIntroFilesParam(files: File[]): Promise<string> {
+	const introfiles = await Promise.all(
+		files.map(async (file) => ({
+			filename: file.name,
+			content: await fileToBase64(file),
+			base64: true,
+		}))
+	);
+
+	return JSON.stringify(introfiles);
+}
+
 type CreateDraftAssignmentInput = {
 	courseid: number;
 	name: string;
@@ -134,6 +146,7 @@ export async function updateAssignment(
 		duedate?: number;
 		grademax?: number;
 		visible?: number;
+		attachments?: File[];
 	}
 ) {
 	const session = await auth();
@@ -153,6 +166,9 @@ export async function updateAssignment(
 	if (params.duedate !== undefined) updateParams.duedate = params.duedate;
 	if (params.grademax !== undefined) updateParams.grademax = params.grademax;
 	if (params.visible !== undefined) updateParams.visible = params.visible;
+	if (params.attachments && params.attachments.length > 0) {
+		updateParams.introfiles = await buildIntroFilesParam(params.attachments);
+	}
 
 	await moodlePost('local_activity_utils_update_assignment', updateParams);
 }
@@ -250,14 +266,7 @@ export async function createAssignment(params: CreateAssignmentParams) {
 	}
 
 	if (params.attachments && params.attachments.length > 0) {
-		const introfiles = await Promise.all(
-			params.attachments.map(async (file) => ({
-				filename: file.name,
-				content: await fileToBase64(file),
-				base64: true,
-			}))
-		);
-		requestParams.introfiles = JSON.stringify(introfiles);
+		requestParams.introfiles = await buildIntroFilesParam(params.attachments);
 	}
 
 	const result = await moodlePost(

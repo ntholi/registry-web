@@ -103,6 +103,7 @@ export default function AssignmentEditForm({ assignment, courseId }: Props) {
 					: undefined,
 				grademax: values.grademax,
 				visible: values.visible ? 1 : 0,
+				attachments: values.attachments,
 			});
 		},
 		onSuccess: () => {
