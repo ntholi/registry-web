@@ -109,7 +109,7 @@ export default function CourseTabs({ course }: CourseTabsProps) {
 			</Tabs.Panel>
 			<Tabs.Panel value='quizzes' pt='lg'>
 				<Box p='sm'>
-					<QuizzesList courseId={course.id} />
+					<QuizzesList courseId={course.id} moduleId={moduleId} />
 				</Box>
 			</Tabs.Panel>
 			<Tabs.Panel value='material' pt='lg'>
