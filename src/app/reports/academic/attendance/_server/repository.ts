@@ -48,6 +48,10 @@ export interface ModuleAttendanceSummary {
 	semesterNumber: string;
 	totalStudents: number;
 	avgAttendanceRate: number;
+	totalPresent: number;
+	totalAbsent: number;
+	totalLate: number;
+	totalExcused: number;
 	atRiskCount: number;
 }
 
@@ -722,7 +726,13 @@ export class AttendanceReportRepository {
 			number,
 			Map<
 				number,
-				{ present: number; absent: number; late: number; total: number }
+				{
+					present: number;
+					absent: number;
+					late: number;
+					excused: number;
+					total: number;
+				}
 			>
 		>();
 
@@ -737,6 +747,7 @@ export class AttendanceReportRepository {
 					present: 0,
 					absent: 0,
 					late: 0,
+					excused: 0,
 					total: 0,
 				});
 			}
@@ -750,6 +761,9 @@ export class AttendanceReportRepository {
 				stats.total++;
 			} else if (record.status === 'late') {
 				stats.late++;
+				stats.total++;
+			} else if (record.status === 'excused') {
+				stats.excused++;
 				stats.total++;
 			}
 		}
@@ -786,6 +800,10 @@ export class AttendanceReportRepository {
 			const moduleAttendance = moduleAttendanceMap.get(semesterModuleId);
 			let totalRate = 0;
 			let studentsWithAttendance = 0;
+			let totalPresent = 0;
+			let totalAbsent = 0;
+			let totalLate = 0;
+			let totalExcused = 0;
 			let atRiskCount = 0;
 
 			for (const stdNo of group.students) {
@@ -795,6 +813,10 @@ export class AttendanceReportRepository {
 						((stats.present + stats.late) / stats.total) * 100
 					);
 					totalRate += rate;
+					totalPresent += stats.present;
+					totalAbsent += stats.absent;
+					totalLate += stats.late;
+					totalExcused += stats.excused;
 					studentsWithAttendance++;
 					if (rate < AT_RISK_THRESHOLD) {
 						atRiskCount++;
@@ -826,6 +848,10 @@ export class AttendanceReportRepository {
 					studentsWithAttendance > 0
 						? Math.round(totalRate / studentsWithAttendance)
 						: 0,
+				totalPresent,
+				totalAbsent,
+				totalLate,
+				totalExcused,
 				atRiskCount,
 			});
 		}

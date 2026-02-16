@@ -140,7 +140,10 @@ export default function AttendanceReportPage() {
 									<Title order={3} size='h4' mb='md'>
 										School & Class Breakdown
 									</Title>
-									<SchoolBreakdown data={reportData.schools} />
+									<SchoolBreakdown
+										data={reportData.schools}
+										moduleBreakdown={reportData.moduleBreakdown}
+									/>
 								</Box>
 							</Stack>
 						</Tabs.Panel>
