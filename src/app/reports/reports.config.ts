@@ -39,7 +39,9 @@ export const reportsConfig: ModuleConfig = {
 					const academicRole = session?.user?.position as UserPosition;
 					return !!(
 						academicRole &&
-						['manager', 'admin', 'program_leader'].includes(academicRole)
+						['manager', 'admin', 'program_leader', 'year_leader'].includes(
+							academicRole
+						)
 					);
 				},
 			},

@@ -203,7 +203,13 @@ function ProgramAccordion({
 																	}}
 																/>
 															</ActionIcon>
-															<Text fw={500}>{cls.className}</Text>
+															<Text
+																fw={500}
+																onClick={() => toggleClassRow(rowKey)}
+																style={{ cursor: 'pointer' }}
+															>
+																{cls.className}
+															</Text>
 														</Group>
 													</Table.Td>
 													<Table.Td ta='center'>{cls.totalStudents}</Table.Td>
