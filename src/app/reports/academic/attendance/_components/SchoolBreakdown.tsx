@@ -289,10 +289,6 @@ function ProgramAccordion({
 																				<Table.Th ta='center'>
 																					Attendance
 																				</Table.Th>
-																				<Table.Th ta='center'>Present</Table.Th>
-																				<Table.Th ta='center'>Absent</Table.Th>
-																				<Table.Th ta='center'>Late</Table.Th>
-																				<Table.Th ta='center'>Excused</Table.Th>
 																				<Table.Th ta='center'>At Risk</Table.Th>
 																			</Table.Tr>
 																		</Table.Thead>
@@ -324,39 +320,13 @@ function ProgramAccordion({
 																						{mod.totalStudents}
 																					</Table.Td>
 																					<Table.Td ta='center'>
-																						<Group gap={6} justify='center'>
-																							<Progress
-																								value={mod.avgAttendanceRate}
-																								color={getAttendanceColor(
-																									mod.avgAttendanceRate
-																								)}
-																								size='sm'
-																								w={40}
-																								radius='xl'
-																							/>
-																							<Text size='xs' fw={500}>
-																								{mod.avgAttendanceRate}%
-																							</Text>
-																						</Group>
-																					</Table.Td>
-																					<Table.Td ta='center'>
-																						<Text c='green' fw={500}>
-																							{mod.totalPresent}
-																						</Text>
-																					</Table.Td>
-																					<Table.Td ta='center'>
-																						<Text c='red' fw={500}>
-																							{mod.totalAbsent}
-																						</Text>
-																					</Table.Td>
-																					<Table.Td ta='center'>
-																						<Text c='yellow' fw={500}>
-																							{mod.totalLate}
-																						</Text>
-																					</Table.Td>
-																					<Table.Td ta='center'>
-																						<Text c='blue' fw={500}>
-																							{mod.totalExcused}
+																						<Text size='xs' fw={600}>
+																							{mod.totalPresent + mod.totalLate}
+																							/
+																							{mod.totalPresent +
+																								mod.totalAbsent +
+																								mod.totalLate +
+																								mod.totalExcused}
 																						</Text>
 																					</Table.Td>
 																					<Table.Td ta='center'>
