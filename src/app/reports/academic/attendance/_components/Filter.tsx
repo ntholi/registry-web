@@ -84,6 +84,19 @@ export default function AttendanceFilter({ onFilterChange }: Props) {
 		queryFn: getAllTerms,
 	});
 
+	useEffect(() => {
+		if (localFilter.termId || termsLoading || terms.length === 0) {
+			return;
+		}
+
+		const activeTerm = terms.find((term) => term.isActive);
+		if (!activeTerm) {
+			return;
+		}
+
+		setLocalFilter({ termId: activeTerm.id });
+	}, [localFilter.termId, terms, termsLoading, setLocalFilter]);
+
 	const { data: schools = [], isLoading: schoolsLoading } = useQuery({
 		queryKey: ['active-schools'],
 		queryFn: getActiveSchools,

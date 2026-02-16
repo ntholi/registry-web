@@ -119,7 +119,7 @@ function ProgramAccordion({ programs }: ProgramAccordionProps) {
 					</Accordion.Control>
 					<Accordion.Panel>
 						<ScrollArea>
-							<Table striped highlightOnHover withTableBorder fz='xs'>
+							<Table highlightOnHover withTableBorder fz='xs'>
 								<Table.Thead>
 									<Table.Tr>
 										<Table.Th>Class</Table.Th>
