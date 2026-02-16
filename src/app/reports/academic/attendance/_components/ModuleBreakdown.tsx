@@ -25,7 +25,7 @@ type Props = {
 const PAGE_SIZE = 15;
 
 function getAttendanceColor(rate: number) {
-	if (rate >= 75) return 'green';
+	if (rate >= 80) return 'green';
 	if (rate >= 50) return 'yellow';
 	return 'red';
 }
@@ -69,7 +69,7 @@ export default function ModuleBreakdown({ data }: Props) {
 		);
 	}
 
-	const lowAttendanceModules = data.filter((m) => m.avgAttendanceRate < 75);
+	const lowAttendanceModules = data.filter((m) => m.avgAttendanceRate < 80);
 	const criticalModules = data.filter((m) => m.avgAttendanceRate < 50);
 
 	return (
@@ -81,7 +81,7 @@ export default function ModuleBreakdown({ data }: Props) {
 					</Text>
 					{lowAttendanceModules.length > 0 && (
 						<Badge color='yellow' variant='light'>
-							{lowAttendanceModules.length} below 75%
+							{lowAttendanceModules.length} below 80%
 						</Badge>
 					)}
 					{criticalModules.length > 0 && (
@@ -167,7 +167,7 @@ export default function ModuleBreakdown({ data }: Props) {
 												<Badge size='sm' color='red' variant='filled'>
 													Critical
 												</Badge>
-											) : mod.avgAttendanceRate < 75 ? (
+											) : mod.avgAttendanceRate < 80 ? (
 												<Badge size='sm' color='yellow' variant='light'>
 													Needs Attention
 												</Badge>

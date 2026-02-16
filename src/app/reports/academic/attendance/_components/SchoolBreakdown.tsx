@@ -16,12 +16,7 @@ import {
 	Text,
 	ThemeIcon,
 } from '@mantine/core';
-import {
-	IconChevronRight,
-	IconSchool,
-	IconUserExclamation,
-	IconUsers,
-} from '@tabler/icons-react';
+import { IconChevronRight, IconSchool, IconUsers } from '@tabler/icons-react';
 import { Fragment, useState } from 'react';
 import type {
 	ModuleAttendanceSummary,
@@ -34,7 +29,7 @@ type Props = {
 };
 
 function getAttendanceColor(rate: number) {
-	if (rate >= 75) return 'green';
+	if (rate >= 80) return 'green';
 	if (rate >= 50) return 'yellow';
 	return 'red';
 }
@@ -161,17 +156,6 @@ function ProgramAccordion({
 									</Text>
 								</Group>
 								<AttendanceRateBadge rate={program.avgAttendanceRate} />
-								{program.atRiskCount > 0 && (
-									<Group gap={4}>
-										<IconUserExclamation
-											size={14}
-											color='var(--mantine-color-red-6)'
-										/>
-										<Text size='xs' c='red' fw={500}>
-											{program.atRiskCount}
-										</Text>
-									</Group>
-								)}
 							</Group>
 						</Group>
 					</Accordion.Control>
@@ -187,7 +171,6 @@ function ProgramAccordion({
 										<Table.Th ta='center'>Absent</Table.Th>
 										<Table.Th ta='center'>Late</Table.Th>
 										<Table.Th ta='center'>Excused</Table.Th>
-										<Table.Th ta='center'>At Risk</Table.Th>
 									</Table.Tr>
 								</Table.Thead>
 								<Table.Tbody>
@@ -261,20 +244,9 @@ function ProgramAccordion({
 															{cls.totalExcused}
 														</Text>
 													</Table.Td>
-													<Table.Td ta='center'>
-														{cls.atRiskCount > 0 ? (
-															<Badge size='xs' color='red' variant='filled'>
-																{cls.atRiskCount}
-															</Badge>
-														) : (
-															<Text size='xs' c='dimmed'>
-																—
-															</Text>
-														)}
-													</Table.Td>
 												</Table.Tr>
 												<Table.Tr>
-													<Table.Td colSpan={8} p={0}>
+													<Table.Td colSpan={7} p={0}>
 														<Collapse in={isOpen}>
 															<Box p='sm'>
 																{classModules.length > 0 ? (
@@ -289,7 +261,6 @@ function ProgramAccordion({
 																				<Table.Th ta='center'>
 																					Attendance
 																				</Table.Th>
-																				<Table.Th ta='center'>At Risk</Table.Th>
 																			</Table.Tr>
 																		</Table.Thead>
 																		<Table.Tbody>
@@ -328,21 +299,6 @@ function ProgramAccordion({
 																								mod.totalLate +
 																								mod.totalExcused}
 																						</Text>
-																					</Table.Td>
-																					<Table.Td ta='center'>
-																						{mod.atRiskCount > 0 ? (
-																							<Badge
-																								size='xs'
-																								color='red'
-																								variant='filled'
-																							>
-																								{mod.atRiskCount}
-																							</Badge>
-																						) : (
-																							<Text size='xs' c='dimmed'>
-																								—
-																							</Text>
-																						)}
 																					</Table.Td>
 																				</Table.Tr>
 																			))}

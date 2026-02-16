@@ -25,7 +25,7 @@ type Props = {
 const PAGE_SIZE = 15;
 
 function getAttendanceColor(rate: number) {
-	if (rate >= 75) return 'green';
+	if (rate >= 80) return 'green';
 	if (rate >= 50) return 'yellow';
 	if (rate >= 25) return 'orange';
 	return 'red';
@@ -34,7 +34,7 @@ function getAttendanceColor(rate: number) {
 function getSeverityLabel(rate: number) {
 	if (rate < 25) return { label: 'Critical', color: 'red' };
 	if (rate < 50) return { label: 'Severe', color: 'orange' };
-	if (rate < 75) return { label: 'At Risk', color: 'yellow' };
+	if (rate < 80) return { label: 'At Risk', color: 'yellow' };
 	return { label: 'Good', color: 'green' };
 }
 
@@ -71,7 +71,7 @@ export default function AtRiskStudentsTable({ data }: Props) {
 					</ThemeIcon>
 					<Text c='dimmed'>No at-risk students found</Text>
 					<Text size='sm' c='dimmed'>
-						All students have attendance rates above 75%
+						All students have attendance rates above 80%
 					</Text>
 				</Stack>
 			</Card>
@@ -83,7 +83,7 @@ export default function AtRiskStudentsTable({ data }: Props) {
 		(s) => s.attendanceRate >= 25 && s.attendanceRate < 50
 	).length;
 	const atRiskCount = data.filter(
-		(s) => s.attendanceRate >= 50 && s.attendanceRate < 75
+		(s) => s.attendanceRate >= 50 && s.attendanceRate < 80
 	).length;
 
 	return (
@@ -97,7 +97,7 @@ export default function AtRiskStudentsTable({ data }: Props) {
 						{severeCount} Severe (25-50%)
 					</Badge>
 					<Badge color='yellow' size='lg' variant='light'>
-						{atRiskCount} At Risk (50-75%)
+						{atRiskCount} At Risk (50-80%)
 					</Badge>
 				</Group>
 				<TextInput

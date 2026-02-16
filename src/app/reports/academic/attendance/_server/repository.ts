@@ -146,7 +146,7 @@ export interface AttendanceReportData {
 	moduleBreakdown: ModuleAttendanceSummary[];
 }
 
-const AT_RISK_THRESHOLD = 75;
+const AT_RISK_THRESHOLD = 80;
 
 export class AttendanceReportRepository {
 	async getTermById(termId: number) {

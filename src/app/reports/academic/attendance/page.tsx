@@ -115,6 +115,12 @@ export default function AttendanceReportPage() {
 							>
 								Attendance
 							</Tabs.Tab>
+							<Tabs.Tab value='modules' leftSection={<IconBook2 size={16} />}>
+								Modules
+							</Tabs.Tab>
+							<Tabs.Tab value='students' leftSection={<IconUsers size={16} />}>
+								Students
+							</Tabs.Tab>
 							<Tabs.Tab
 								value='at-risk'
 								leftSection={<IconUserExclamation size={16} />}
@@ -125,12 +131,6 @@ export default function AttendanceReportPage() {
 										({reportData.atRiskStudents.length})
 									</Text>
 								)}
-							</Tabs.Tab>
-							<Tabs.Tab value='modules' leftSection={<IconBook2 size={16} />}>
-								Modules
-							</Tabs.Tab>
-							<Tabs.Tab value='students' leftSection={<IconUsers size={16} />}>
-								Students
 							</Tabs.Tab>
 						</Tabs.List>
 
@@ -145,20 +145,6 @@ export default function AttendanceReportPage() {
 										moduleBreakdown={reportData.moduleBreakdown}
 									/>
 								</Box>
-							</Stack>
-						</Tabs.Panel>
-
-						<Tabs.Panel value='at-risk' pt='xl'>
-							<Stack gap='md'>
-								<Box>
-									<Title order={3} size='h4'>
-										Students with Poor Attendance
-									</Title>
-									<Text size='sm' c='dimmed'>
-										Students with attendance rate below 75%
-									</Text>
-								</Box>
-								<AtRiskStudentsTable data={reportData.atRiskStudents} />
 							</Stack>
 						</Tabs.Panel>
 
@@ -189,6 +175,20 @@ export default function AttendanceReportPage() {
 									</Text>
 								</Box>
 								<StudentAttendanceTab filter={filter} />
+							</Stack>
+						</Tabs.Panel>
+
+						<Tabs.Panel value='at-risk' pt='xl'>
+							<Stack gap='md'>
+								<Box>
+									<Title order={3} size='h4'>
+										Students with Poor Attendance
+									</Title>
+									<Text size='sm' c='dimmed'>
+										Students with attendance rate below 80%
+									</Text>
+								</Box>
+								<AtRiskStudentsTable data={reportData.atRiskStudents} />
 							</Stack>
 						</Tabs.Panel>
 					</Tabs>

@@ -31,7 +31,7 @@ type Props = {
 const PAGE_SIZE = 20;
 
 function getAttendanceColor(rate: number) {
-	if (rate >= 75) return 'green';
+	if (rate >= 80) return 'green';
 	if (rate >= 50) return 'yellow';
 	if (rate >= 25) return 'orange';
 	return 'red';

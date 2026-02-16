@@ -27,7 +27,7 @@ type Props = {
 
 export default function OverviewStats({ data }: Props) {
 	const attendanceColor =
-		data.avgAttendanceRate >= 75
+		data.avgAttendanceRate >= 80
 			? 'green'
 			: data.avgAttendanceRate >= 50
 				? 'yellow'
@@ -116,7 +116,7 @@ export default function OverviewStats({ data }: Props) {
 							</Badge>
 						</Group>
 						<Text size='xs' c='dimmed'>
-							Below 75% attendance rate
+							Below 80% attendance rate
 						</Text>
 					</Stack>
 				</Card>
