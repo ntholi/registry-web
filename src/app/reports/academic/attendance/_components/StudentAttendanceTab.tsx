@@ -226,11 +226,6 @@ export default function StudentAttendanceTab({ filter }: Props) {
 	return (
 		<Stack gap='md'>
 			<Group justify='space-between' align='flex-end'>
-				<Group gap='md'>
-					<Text size='sm' c='dimmed'>
-						{data.total} student{data.total !== 1 ? 's' : ''} total
-					</Text>
-				</Group>
 				<TextInput
 					placeholder='Search by name, ID, program...'
 					leftSection={<IconSearch size={16} />}
@@ -239,8 +234,11 @@ export default function StudentAttendanceTab({ filter }: Props) {
 						setSearch(e.target.value);
 						setPage(1);
 					}}
-					w={280}
+					w={350}
 				/>
+				<Badge variant='default' radius={'xs'} size='lg'>
+					{data.total} student{data.total !== 1 ? 's' : ''}
+				</Badge>
 			</Group>
 
 			<Accordion variant='separated' radius='md' multiple>

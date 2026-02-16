@@ -130,61 +130,22 @@ export default function AttendanceReportPage() {
 						</Tabs.List>
 
 						<Tabs.Panel value='attendance' pt='xl'>
-							<Stack gap='lg'>
-								<Box>
-									<Title order={3} size='h4' mb='md'>
-										School & Class Breakdown
-									</Title>
-									<SchoolBreakdown
-										data={reportData.schools}
-										moduleBreakdown={reportData.moduleBreakdown}
-									/>
-								</Box>
-							</Stack>
+							<SchoolBreakdown
+								data={reportData.schools}
+								moduleBreakdown={reportData.moduleBreakdown}
+							/>
 						</Tabs.Panel>
 
 						<Tabs.Panel value='modules' pt='xl'>
-							<Stack gap='md'>
-								<Box>
-									<Title order={3} size='h4'>
-										Attendance by Module
-									</Title>
-									<Text size='sm' c='dimmed'>
-										Module-level attendance analysis sorted by lowest attendance
-										first
-									</Text>
-								</Box>
-								<ModuleBreakdown data={reportData.moduleBreakdown} />
-							</Stack>
+							<ModuleBreakdown data={reportData.moduleBreakdown} />
 						</Tabs.Panel>
 
 						<Tabs.Panel value='students' pt='xl'>
-							<Stack gap='md'>
-								<Box>
-									<Title order={3} size='h4'>
-										Student Attendance by Module
-									</Title>
-									<Text size='sm' c='dimmed'>
-										Browse all students and their attendance breakdown per
-										module
-									</Text>
-								</Box>
-								<StudentAttendanceTab filter={filter} />
-							</Stack>
+							<StudentAttendanceTab filter={filter} />
 						</Tabs.Panel>
 
 						<Tabs.Panel value='at-risk' pt='xl'>
-							<Stack gap='md'>
-								<Box>
-									<Title order={3} size='h4'>
-										Students with Poor Attendance
-									</Title>
-									<Text size='sm' c='dimmed'>
-										Students with attendance rate below 80%
-									</Text>
-								</Box>
-								<AtRiskStudentsTable data={reportData.atRiskStudents} />
-							</Stack>
+							<AtRiskStudentsTable data={reportData.atRiskStudents} />
 						</Tabs.Panel>
 					</Tabs>
 				)}

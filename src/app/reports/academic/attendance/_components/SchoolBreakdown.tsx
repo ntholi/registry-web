@@ -7,7 +7,6 @@ import {
 	Box,
 	Card,
 	Collapse,
-	Divider,
 	Group,
 	Progress,
 	ScrollArea,
@@ -337,14 +336,13 @@ export default function SchoolBreakdown({ data, moduleBreakdown }: Props) {
 
 	return (
 		<Stack gap='xl'>
-			{data.map((school, index) => (
+			{data.map((school) => (
 				<Box key={school.schoolCode}>
 					<SchoolHeader school={school} />
 					<ProgramAccordion
 						programs={school.programs}
 						moduleBreakdown={moduleBreakdown}
 					/>
-					{index < data.length - 1 && <Divider my='xl' />}
 				</Box>
 			))}
 		</Stack>

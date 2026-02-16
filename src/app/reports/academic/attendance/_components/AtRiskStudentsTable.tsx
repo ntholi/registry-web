@@ -5,6 +5,7 @@ import {
 	Card,
 	Group,
 	Pagination,
+	Paper,
 	Progress,
 	ScrollArea,
 	Stack,
@@ -83,9 +84,6 @@ export default function AtRiskStudentsTable({ data }: Props) {
 	return (
 		<Stack gap='md'>
 			<Group justify='space-between' align='flex-end'>
-				<Text size='sm' c='dimmed'>
-					{atRiskCount} student{atRiskCount !== 1 ? 's' : ''} at risk
-				</Text>
 				<TextInput
 					placeholder='Search by name, ID, class...'
 					leftSection={<IconSearch size={16} />}
@@ -94,13 +92,16 @@ export default function AtRiskStudentsTable({ data }: Props) {
 						setSearch(e.target.value);
 						setPage(1);
 					}}
-					w={250}
+					w={350}
 				/>
+				<Badge variant='default' radius={'xs'} size='lg'>
+					{atRiskCount} student{atRiskCount !== 1 ? 's' : ''}
+				</Badge>
 			</Group>
 
-			<Card withBorder p={0}>
+			<Paper withBorder>
 				<ScrollArea>
-					<Table striped highlightOnHover withTableBorder>
+					<Table highlightOnHover withTableBorder>
 						<Table.Thead>
 							<Table.Tr>
 								<Table.Th>Student</Table.Th>
@@ -182,13 +183,7 @@ export default function AtRiskStudentsTable({ data }: Props) {
 											</Text>
 										</Table.Td>
 										<Table.Td ta='center'>
-											<Badge
-												color={severity.color}
-												size='sm'
-												variant={
-													severity.label === 'Critical' ? 'filled' : 'light'
-												}
-											>
+											<Badge color={severity.color} size='sm' variant={'light'}>
 												{severity.label}
 											</Badge>
 										</Table.Td>
@@ -198,7 +193,7 @@ export default function AtRiskStudentsTable({ data }: Props) {
 						</Table.Tbody>
 					</Table>
 				</ScrollArea>
-			</Card>
+			</Paper>
 
 			{totalPages > 1 && (
 				<Group justify='space-between'>

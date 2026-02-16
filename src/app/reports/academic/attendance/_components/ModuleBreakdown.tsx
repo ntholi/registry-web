@@ -1,10 +1,10 @@
 'use client';
 
 import {
-	Badge,
 	Card,
 	Group,
 	Pagination,
+	Paper,
 	Progress,
 	ScrollArea,
 	Stack,
@@ -69,50 +69,28 @@ export default function ModuleBreakdown({ data }: Props) {
 		);
 	}
 
-	const lowAttendanceModules = data.filter((m) => m.avgAttendanceRate < 80);
-	const criticalModules = data.filter((m) => m.avgAttendanceRate < 50);
-
 	return (
 		<Stack gap='md'>
-			<Group justify='space-between' align='flex-end'>
-				<Group gap='md'>
-					<Text size='sm' c='dimmed'>
-						{data.length} module{data.length !== 1 ? 's' : ''} total
-					</Text>
-					{lowAttendanceModules.length > 0 && (
-						<Badge color='yellow' variant='light'>
-							{lowAttendanceModules.length} below 80%
-						</Badge>
-					)}
-					{criticalModules.length > 0 && (
-						<Badge color='red' variant='light'>
-							{criticalModules.length} below 50%
-						</Badge>
-					)}
-				</Group>
-				<TextInput
-					placeholder='Search modules...'
-					leftSection={<IconSearch size={16} />}
-					value={search}
-					onChange={(e) => {
-						setSearch(e.target.value);
-						setPage(1);
-					}}
-					w={250}
-				/>
-			</Group>
+			<TextInput
+				placeholder='Search modules...'
+				leftSection={<IconSearch size={16} />}
+				value={search}
+				onChange={(e) => {
+					setSearch(e.target.value);
+					setPage(1);
+				}}
+				w={350}
+			/>
 
-			<Card withBorder p={0}>
+			<Paper withBorder>
 				<ScrollArea>
-					<Table striped highlightOnHover withTableBorder>
+					<Table withTableBorder>
 						<Table.Thead>
 							<Table.Tr>
 								<Table.Th>Module</Table.Th>
 								<Table.Th>Class</Table.Th>
 								<Table.Th ta='center'>Students</Table.Th>
 								<Table.Th ta='center'>Avg. Attendance</Table.Th>
-								<Table.Th ta='center'>At Risk</Table.Th>
-								<Table.Th ta='center'>Status</Table.Th>
 							</Table.Tr>
 						</Table.Thead>
 						<Table.Tbody>
@@ -151,39 +129,13 @@ export default function ModuleBreakdown({ data }: Props) {
 												</Text>
 											</Group>
 										</Table.Td>
-										<Table.Td ta='center'>
-											{mod.atRiskCount > 0 ? (
-												<Badge size='sm' color='red' variant='filled'>
-													{mod.atRiskCount}
-												</Badge>
-											) : (
-												<Badge size='sm' color='green' variant='light'>
-													0
-												</Badge>
-											)}
-										</Table.Td>
-										<Table.Td ta='center'>
-											{mod.avgAttendanceRate < 50 ? (
-												<Badge size='sm' color='red' variant='filled'>
-													Critical
-												</Badge>
-											) : mod.avgAttendanceRate < 80 ? (
-												<Badge size='sm' color='yellow' variant='light'>
-													Needs Attention
-												</Badge>
-											) : (
-												<Badge size='sm' color='green' variant='light'>
-													Good
-												</Badge>
-											)}
-										</Table.Td>
 									</Table.Tr>
 								);
 							})}
 						</Table.Tbody>
 					</Table>
 				</ScrollArea>
-			</Card>
+			</Paper>
 
 			{totalPages > 1 && (
 				<Group justify='space-between'>
