@@ -78,28 +78,14 @@ export default function AtRiskStudentsTable({ data }: Props) {
 		);
 	}
 
-	const criticalCount = data.filter((s) => s.attendanceRate < 25).length;
-	const severeCount = data.filter(
-		(s) => s.attendanceRate >= 25 && s.attendanceRate < 50
-	).length;
-	const atRiskCount = data.filter(
-		(s) => s.attendanceRate >= 50 && s.attendanceRate < 80
-	).length;
+	const atRiskCount = data.length;
 
 	return (
 		<Stack gap='md'>
 			<Group justify='space-between' align='flex-end'>
-				<Group gap='md'>
-					<Badge color='red' size='lg' variant='filled'>
-						{criticalCount} Critical (&lt;25%)
-					</Badge>
-					<Badge color='orange' size='lg' variant='light'>
-						{severeCount} Severe (25-50%)
-					</Badge>
-					<Badge color='yellow' size='lg' variant='light'>
-						{atRiskCount} At Risk (50-80%)
-					</Badge>
-				</Group>
+				<Text size='sm' c='dimmed'>
+					{atRiskCount} student{atRiskCount !== 1 ? 's' : ''} at risk
+				</Text>
 				<TextInput
 					placeholder='Search by name, ID, class...'
 					leftSection={<IconSearch size={16} />}

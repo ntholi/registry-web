@@ -125,12 +125,7 @@ export default function AttendanceReportPage() {
 								value='at-risk'
 								leftSection={<IconUserExclamation size={16} />}
 							>
-								At-Risk Students
-								{reportData.atRiskStudents.length > 0 && (
-									<Text span c='red' fw={600} ml={4}>
-										({reportData.atRiskStudents.length})
-									</Text>
-								)}
+								At-Risk
 							</Tabs.Tab>
 						</Tabs.List>
 
