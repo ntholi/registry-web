@@ -23,6 +23,7 @@ import {
 } from 'nuqs';
 import { useEffect } from 'react';
 import { getAllTerms } from '@/app/registry/terms/_server/actions';
+import { useUserSchools } from '@/shared/lib/hooks/use-user-schools';
 import { formatSemester } from '@/shared/lib/utils/utils';
 
 const semesterOptions = Array.from({ length: 8 }, (_, i) => {
@@ -96,6 +97,21 @@ export default function AttendanceFilter({ onFilterChange }: Props) {
 
 		setLocalFilter({ termId: activeTerm.id });
 	}, [localFilter.termId, terms, termsLoading, setLocalFilter]);
+
+	const { userSchools, isLoading: userSchoolsLoading } = useUserSchools();
+
+	useEffect(() => {
+		if (
+			localFilter.schoolIds ||
+			userSchoolsLoading ||
+			userSchools.length === 0
+		) {
+			return;
+		}
+		setLocalFilter({
+			schoolIds: userSchools.map((s) => s.schoolId),
+		});
+	}, [localFilter.schoolIds, userSchools, userSchoolsLoading, setLocalFilter]);
 
 	const { data: schools = [], isLoading: schoolsLoading } = useQuery({
 		queryKey: ['active-schools'],
