@@ -45,6 +45,7 @@ export interface ModuleAttendanceSummary {
 	moduleCode: string;
 	moduleName: string;
 	semesterModuleId: number;
+	schoolCode: string;
 	className: string;
 	programCode: string;
 	semesterNumber: string;
@@ -678,6 +679,7 @@ export class AttendanceReportRepository {
 				semesterModuleId: semesterModules.id,
 				moduleCode: modules.code,
 				moduleName: modules.name,
+				schoolCode: schools.code,
 				programCode: programs.code,
 				semesterNumber: structureSemesters.semesterNumber,
 				stdNo: students.stdNo,
@@ -786,6 +788,7 @@ export class AttendanceReportRepository {
 			{
 				moduleCode: string;
 				moduleName: string;
+				schoolCode: string;
 				programCode: string;
 				semesterNumber: string;
 				students: Set<number>;
@@ -798,6 +801,7 @@ export class AttendanceReportRepository {
 				moduleGroups.set(enrollment.semesterModuleId, {
 					moduleCode: enrollment.moduleCode,
 					moduleName: enrollment.moduleName,
+					schoolCode: enrollment.schoolCode,
 					programCode: enrollment.programCode,
 					semesterNumber: enrollment.semesterNumber || '',
 					students: new Set(),
@@ -858,6 +862,7 @@ export class AttendanceReportRepository {
 				moduleCode: group.moduleCode,
 				moduleName: group.moduleName,
 				semesterModuleId,
+				schoolCode: group.schoolCode,
 				className,
 				programCode: group.programCode,
 				semesterNumber: group.semesterNumber,
