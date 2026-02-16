@@ -110,7 +110,32 @@ function ProgramAccordion({
 	}
 
 	return (
-		<Accordion variant='contained' radius='md'>
+		<Accordion
+			variant='contained'
+			radius='md'
+			styles={{
+				item: {
+					'&[data-active]': {
+						backgroundColor:
+							'light-dark(var(--mantine-color-gray-0), var(--mantine-color-dark-7))',
+					},
+				},
+				control: {
+					'&[aria-expanded="true"]': {
+						backgroundColor:
+							'light-dark(var(--mantine-color-gray-1), var(--mantine-color-dark-6))',
+					},
+					'&[aria-expanded="true"]:hover': {
+						backgroundColor:
+							'light-dark(var(--mantine-color-gray-2), var(--mantine-color-dark-5))',
+					},
+				},
+				panel: {
+					backgroundColor:
+						'light-dark(var(--mantine-color-white), var(--mantine-color-dark-8))',
+				},
+			}}
+		>
 			{programs.map((program) => (
 				<Accordion.Item key={program.programCode} value={program.programCode}>
 					<Accordion.Control>
@@ -152,7 +177,7 @@ function ProgramAccordion({
 					</Accordion.Control>
 					<Accordion.Panel>
 						<ScrollArea>
-							<Table highlightOnHover withTableBorder fz='xs'>
+							<Table withTableBorder fz='xs'>
 								<Table.Thead>
 									<Table.Tr>
 										<Table.Th>Class</Table.Th>
@@ -257,6 +282,7 @@ function ProgramAccordion({
 																		<Table.Thead>
 																			<Table.Tr>
 																				<Table.Th>Module</Table.Th>
+																				<Table.Th>Lecturer(s)</Table.Th>
 																				<Table.Th ta='center'>
 																					Students
 																				</Table.Th>
@@ -282,6 +308,17 @@ function ProgramAccordion({
 																								{mod.moduleName}
 																							</Text>
 																						</Group>
+																					</Table.Td>
+																					<Table.Td>
+																						{mod.lecturerNames.length > 0 ? (
+																							<Text size='xs'>
+																								{mod.lecturerNames.join(', ')}
+																							</Text>
+																						) : (
+																							<Text size='xs' c='dimmed'>
+																								—
+																							</Text>
+																						)}
 																					</Table.Td>
 																					<Table.Td ta='center'>
 																						{mod.totalStudents}

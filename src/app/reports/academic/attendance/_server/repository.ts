@@ -1,5 +1,6 @@
 import { and, eq, inArray, sql } from 'drizzle-orm';
 import {
+	assignedModules,
 	attendance,
 	db,
 	modules,
@@ -13,6 +14,7 @@ import {
 	studentSemesters,
 	students,
 	terms,
+	users,
 } from '@/core/database';
 
 export interface AttendanceReportFilter {
@@ -46,6 +48,7 @@ export interface ModuleAttendanceSummary {
 	className: string;
 	programCode: string;
 	semesterNumber: string;
+	lecturerNames: string[];
 	totalStudents: number;
 	avgAttendanceRate: number;
 	totalPresent: number;
@@ -678,6 +681,7 @@ export class AttendanceReportRepository {
 				programCode: programs.code,
 				semesterNumber: structureSemesters.semesterNumber,
 				stdNo: students.stdNo,
+				lecturerName: users.name,
 			})
 			.from(studentModules)
 			.innerJoin(
@@ -701,6 +705,15 @@ export class AttendanceReportRepository {
 			.innerJoin(programs, eq(structures.programId, programs.id))
 			.innerJoin(schools, eq(programs.schoolId, schools.id))
 			.innerJoin(students, eq(studentPrograms.stdNo, students.stdNo))
+			.leftJoin(
+				assignedModules,
+				and(
+					eq(assignedModules.semesterModuleId, semesterModules.id),
+					eq(assignedModules.termId, term[0].id),
+					eq(assignedModules.active, true)
+				)
+			)
+			.leftJoin(users, eq(assignedModules.userId, users.id))
 			.where(
 				and(
 					...conditions,
@@ -776,6 +789,7 @@ export class AttendanceReportRepository {
 				programCode: string;
 				semesterNumber: string;
 				students: Set<number>;
+				lecturers: Set<string>;
 			}
 		>();
 
@@ -787,11 +801,15 @@ export class AttendanceReportRepository {
 					programCode: enrollment.programCode,
 					semesterNumber: enrollment.semesterNumber || '',
 					students: new Set(),
+					lecturers: new Set(),
 				});
 			}
-			moduleGroups
-				.get(enrollment.semesterModuleId)!
-				.students.add(enrollment.stdNo);
+
+			const group = moduleGroups.get(enrollment.semesterModuleId)!;
+			group.students.add(enrollment.stdNo);
+			if (enrollment.lecturerName) {
+				group.lecturers.add(enrollment.lecturerName);
+			}
 		}
 
 		const result: ModuleAttendanceSummary[] = [];
@@ -843,6 +861,9 @@ export class AttendanceReportRepository {
 				className,
 				programCode: group.programCode,
 				semesterNumber: group.semesterNumber,
+				lecturerNames: Array.from(group.lecturers).sort((a, b) =>
+					a.localeCompare(b)
+				),
 				totalStudents: group.students.size,
 				avgAttendanceRate:
 					studentsWithAttendance > 0
