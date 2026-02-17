@@ -1,4 +1,4 @@
-import { and, eq, sql } from 'drizzle-orm';
+import { and, eq, inArray, sql } from 'drizzle-orm';
 import {
 	type AttendanceStatus,
 	assignedModules,
@@ -109,6 +109,49 @@ export default class AttendanceRepository extends BaseRepository<
 		);
 	}
 
+	private async getEquivalentSemesterModuleIds(
+		semesterModuleId: number
+	): Promise<number[]> {
+		const source = await db
+			.select({
+				moduleId: semesterModules.moduleId,
+				programId: structures.programId,
+				semesterName: structureSemesters.name,
+			})
+			.from(semesterModules)
+			.innerJoin(
+				structureSemesters,
+				eq(structureSemesters.id, semesterModules.semesterId)
+			)
+			.innerJoin(structures, eq(structures.id, structureSemesters.structureId))
+			.where(eq(semesterModules.id, semesterModuleId))
+			.limit(1);
+
+		if (source.length === 0) return [semesterModuleId];
+
+		const { moduleId, programId, semesterName } = source[0];
+
+		const equivalents = await db
+			.select({ id: semesterModules.id })
+			.from(semesterModules)
+			.innerJoin(
+				structureSemesters,
+				eq(structureSemesters.id, semesterModules.semesterId)
+			)
+			.innerJoin(structures, eq(structures.id, structureSemesters.structureId))
+			.where(
+				and(
+					eq(semesterModules.moduleId, moduleId),
+					eq(structures.programId, programId),
+					eq(structureSemesters.name, semesterName)
+				)
+			);
+
+		return equivalents.length > 0
+			? equivalents.map((e) => e.id)
+			: [semesterModuleId];
+	}
+
 	async getStudentsForModule(
 		semesterModuleId: number,
 		termCode: string
@@ -121,6 +164,8 @@ export default class AttendanceRepository extends BaseRepository<
 			studentModuleId: number;
 		}[]
 	> {
+		const ids = await this.getEquivalentSemesterModuleIds(semesterModuleId);
+
 		return await db
 			.select({
 				stdNo: students.stdNo,
@@ -143,7 +188,9 @@ export default class AttendanceRepository extends BaseRepository<
 			)
 			.where(
 				and(
-					eq(studentModules.semesterModuleId, semesterModuleId),
+					ids.length === 1
+						? eq(studentModules.semesterModuleId, ids[0])
+						: inArray(studentModules.semesterModuleId, ids),
 					eq(studentSemesters.termCode, termCode),
 					sql`${studentModules.status} NOT IN ('Delete', 'Drop')`
 				)
@@ -169,6 +216,8 @@ export default class AttendanceRepository extends BaseRepository<
 			termCode
 		);
 
+		const ids = await this.getEquivalentSemesterModuleIds(semesterModuleId);
+
 		const existingAttendance = await db
 			.select({
 				stdNo: attendance.stdNo,
@@ -178,7 +227,9 @@ export default class AttendanceRepository extends BaseRepository<
 			.from(attendance)
 			.where(
 				and(
-					eq(attendance.semesterModuleId, semesterModuleId),
+					ids.length === 1
+						? eq(attendance.semesterModuleId, ids[0])
+						: inArray(attendance.semesterModuleId, ids),
 					eq(attendance.termId, termId),
 					eq(attendance.weekNumber, weekNumber)
 				)
@@ -274,6 +325,8 @@ export default class AttendanceRepository extends BaseRepository<
 		);
 		const weeks = await this.getWeeksForTerm(termId);
 
+		const ids = await this.getEquivalentSemesterModuleIds(semesterModuleId);
+
 		const allAttendance = await db
 			.select({
 				stdNo: attendance.stdNo,
@@ -283,7 +336,9 @@ export default class AttendanceRepository extends BaseRepository<
 			.from(attendance)
 			.where(
 				and(
-					eq(attendance.semesterModuleId, semesterModuleId),
+					ids.length === 1
+						? eq(attendance.semesterModuleId, ids[0])
+						: inArray(attendance.semesterModuleId, ids),
 					eq(attendance.termId, termId)
 				)
 			);
@@ -342,11 +397,15 @@ export default class AttendanceRepository extends BaseRepository<
 		termId: number,
 		weekNumber: number
 	) {
+		const ids = await this.getEquivalentSemesterModuleIds(semesterModuleId);
+
 		return await db
 			.delete(attendance)
 			.where(
 				and(
-					eq(attendance.semesterModuleId, semesterModuleId),
+					ids.length === 1
+						? eq(attendance.semesterModuleId, ids[0])
+						: inArray(attendance.semesterModuleId, ids),
 					eq(attendance.termId, termId),
 					eq(attendance.weekNumber, weekNumber)
 				)
