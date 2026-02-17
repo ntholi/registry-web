@@ -11,6 +11,7 @@ import {
 	Stack,
 	Text,
 } from '@mantine/core';
+import { IconUsers } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { getStudentClassName } from '@/shared/lib/utils/utils';
 import DeleteModuleButton from './DeleteModuleButton';
@@ -68,11 +69,19 @@ export default function AssignedModules({ user }: Props) {
 								{assignment.semesterModule?.module?.name || 'Unknown Module'}
 							</Text>
 
-							{assignment.semesterModule?.semester && (
-								<Badge variant='light' color='gray' size='sm'>
-									{getStudentClassName(assignment.semesterModule.semester)}
-								</Badge>
-							)}
+							<Group>
+								{assignment.semesterModule?.semester && (
+									<Badge variant='light' color='gray' size='sm'>
+										{getStudentClassName(assignment.semesterModule.semester)}
+									</Badge>
+								)}
+								<Group gap={4}>
+									<IconUsers size={14} />
+									<Text size='xs' c='dimmed'>
+										{assignment.studentCount} students
+									</Text>
+								</Group>
+							</Group>
 						</Stack>
 					</Group>
 				</Card>

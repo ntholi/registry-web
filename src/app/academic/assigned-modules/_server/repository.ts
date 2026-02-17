@@ -1,4 +1,4 @@
-import { and, eq, inArray } from 'drizzle-orm';
+import { and, count, eq, inArray, sql } from 'drizzle-orm';
 import {
 	assignedModules,
 	db,
@@ -6,6 +6,8 @@ import {
 	semesterModules,
 	structureSemesters,
 	structures,
+	studentModules,
+	studentSemesters,
 	users,
 } from '@/core/database';
 import BaseRepository from '@/core/platform/BaseRepository';
@@ -150,7 +152,7 @@ export default class AssignedModuleRepository extends BaseRepository<
 	}
 
 	async findByUser(userId: string, termId?: number) {
-		return await db.query.assignedModules.findMany({
+		const assignments = await db.query.assignedModules.findMany({
 			where: and(
 				eq(assignedModules.userId, userId),
 				eq(assignedModules.active, true),
@@ -177,6 +179,47 @@ export default class AssignedModuleRepository extends BaseRepository<
 				},
 			},
 		});
+
+		const smIds = assignments
+			.map((a) => a.semesterModuleId)
+			.filter((id): id is number => id != null);
+
+		if (smIds.length === 0)
+			return assignments.map((a) => ({ ...a, studentCount: 0 }));
+
+		const baseQuery = db
+			.select({
+				semesterModuleId: studentModules.semesterModuleId,
+				count: count().as('count'),
+			})
+			.from(studentModules)
+			.innerJoin(
+				studentSemesters,
+				eq(studentSemesters.id, studentModules.studentSemesterId)
+			)
+			.where(
+				and(
+					inArray(studentModules.semesterModuleId, smIds),
+					termId
+						? eq(
+								studentSemesters.termCode,
+								sql`(SELECT code FROM terms WHERE id = ${termId})`
+							)
+						: undefined
+				)
+			)
+			.groupBy(studentModules.semesterModuleId);
+
+		const counts = await baseQuery;
+		const countMap = new Map<number, number>();
+		for (const row of counts) {
+			countMap.set(row.semesterModuleId, row.count);
+		}
+
+		return assignments.map((a) => ({
+			...a,
+			studentCount: countMap.get(a.semesterModuleId) ?? 0,
+		}));
 	}
 
 	async linkCourseToAssignment(
