@@ -74,7 +74,7 @@ const academicSchema = z
 				'other',
 			])
 			.describe(
-				'Academic document classification: certificate (formal credential upon completion) or academic_record (results slips, transcripts, statements of results)'
+				'Academic document classification: certificate (formal credential upon completion) or academic_record (results slips, transcripts, statements of results, verification letters, equivalence letters)'
 			),
 		institutionName: z
 			.string()

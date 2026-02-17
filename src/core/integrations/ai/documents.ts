@@ -44,7 +44,8 @@ const ACADEMIC_RULES = `- institutionName: Student's school (not examining body 
 - LGCSE grades: Use letter (A*, A, B, C, D, E, F, G, U)
 - Extract ALL subjects with grades
 - Only accept LGCSE (or equivalent) or higher certificates/result slips. If lower than LGCSE, classify as "other" and set certificateType to null.
-- candidateNumber: Extract if present, commonly labeled "Center/Candidate Number", "Centre/Candidate Number", or "Center / Cand. No.".`;
+- candidateNumber: Extract if present, commonly labeled "Center/Candidate Number", "Centre/Candidate Number", or "Center / Cand. No.".
+- NSC VERIFICATION LETTERS: Documents from ECoL verifying NSC results often provide COSC/LGCSE equivalent grades at the bottom. When present, extract those COSC/LGCSE letter grades (A-G, U) as the subjects. Set certificateType to "NSC". These are valid academic documents.`;
 
 const GRADE_FORMAT_RULES = `GRADE FORMAT VERIFICATION (CRITICAL):
 - LGCSE/IGCSE grades are often displayed as a letter followed by the same letter in parentheses, e.g., C(c), B(b), E(e), F(f), G(g).
@@ -70,7 +71,9 @@ DOCUMENT TYPE CLASSIFICATION (CRITICAL FOR ACADEMIC):
   * Results/grades language: "Statement of Results", "Results Slip", "Transcript", "Academic Record"
   * Shows subject list with grades/marks
   * May show GPA, cumulative average, or individual subject scores
-  * Examples: LGCSE results slip, IGCSE statement of results, NSC results, university transcripts
+  * Verification or equivalence letters from examining bodies (e.g., ECoL) that confirm results and/or provide grade equivalences
+  * "To Whom It May Concern" letters from examining councils that list subjects with grades
+  * Examples: LGCSE results slip, IGCSE statement of results, NSC results, university transcripts, ECoL verification letters, NSC equivalence letters
 
 RULES:
 ${COMMON_RULES}
@@ -117,7 +120,9 @@ DOCUMENT TYPE CLASSIFICATION (CRITICAL):
   * Shows subject/course list with grades/marks
   * May show GPA, cumulative average, or individual subject scores
   * Can be preliminary or final results
-  * Examples: LGCSE results slip, IGCSE statement of results, NSC results, university transcripts, diploma transcripts
+  * Verification or equivalence letters from examining bodies (e.g., ECoL) that confirm results and/or provide grade equivalences
+  * "To Whom It May Concern" letters from examining councils that list subjects with grades
+  * Examples: LGCSE results slip, IGCSE statement of results, NSC results, university transcripts, diploma transcripts, ECoL verification letters, NSC equivalence letters
 
 
 RULES:
