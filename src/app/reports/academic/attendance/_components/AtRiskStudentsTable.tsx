@@ -2,8 +2,11 @@
 
 import {
 	Badge,
+	Box,
 	Card,
+	Collapse,
 	Group,
+	Loader,
 	Pagination,
 	Paper,
 	Progress,
@@ -16,11 +19,17 @@ import {
 } from '@mantine/core';
 import { useDebouncedValue } from '@mantine/hooks';
 import { IconSearch, IconUserExclamation } from '@tabler/icons-react';
-import { useMemo, useState } from 'react';
-import type { AtRiskStudent } from '../_server/repository';
+import { useQuery } from '@tanstack/react-query';
+import { Fragment, useMemo, useState } from 'react';
+import { getPaginatedStudentsWithModuleAttendance } from '../_server/actions';
+import type {
+	AtRiskStudent,
+	AttendanceReportFilter,
+} from '../_server/repository';
 
 type Props = {
 	data: AtRiskStudent[];
+	filter: AttendanceReportFilter;
 };
 
 const PAGE_SIZE = 15;
@@ -39,10 +48,129 @@ function getSeverityLabel(rate: number) {
 	return { label: 'Good', color: 'green' };
 }
 
-export default function AtRiskStudentsTable({ data }: Props) {
+type ModuleDetailsProps = {
+	stdNo: number;
+	filter: AttendanceReportFilter;
+};
+
+function ModuleDetails({ stdNo, filter }: ModuleDetailsProps) {
+	const { data, isLoading } = useQuery({
+		queryKey: ['at-risk-student-modules', stdNo, filter],
+		queryFn: async () => {
+			const result = await getPaginatedStudentsWithModuleAttendance(
+				filter,
+				1,
+				1,
+				stdNo.toString()
+			);
+			if (result.success && result.data && result.data.students.length > 0) {
+				return result.data.students[0].modules;
+			}
+			return [];
+		},
+	});
+
+	if (isLoading) {
+		return (
+			<Group justify='center' py='sm'>
+				<Loader size='xs' />
+				<Text size='xs' c='dimmed'>
+					Loading modules...
+				</Text>
+			</Group>
+		);
+	}
+
+	if (!data || data.length === 0) {
+		return (
+			<Text size='xs' c='dimmed' ta='center' py='sm'>
+				No module data available
+			</Text>
+		);
+	}
+
+	return (
+		<Table withTableBorder withColumnBorders fz='xs'>
+			<Table.Thead>
+				<Table.Tr>
+					<Table.Th>Module</Table.Th>
+					<Table.Th ta='center' w={90}>
+						Rate
+					</Table.Th>
+					<Table.Th ta='center' w={60}>
+						Present
+					</Table.Th>
+					<Table.Th ta='center' w={60}>
+						Absent
+					</Table.Th>
+					<Table.Th ta='center' w={60}>
+						Late
+					</Table.Th>
+					<Table.Th ta='center' w={60}>
+						Excused
+					</Table.Th>
+				</Table.Tr>
+			</Table.Thead>
+			<Table.Tbody>
+				{data.map((mod) => {
+					const modColor = getAttendanceColor(mod.attendanceRate);
+					return (
+						<Table.Tr key={mod.moduleCode}>
+							<Table.Td>
+								<Group gap='xs' wrap='nowrap'>
+									<Text fw={500}>{mod.moduleCode}</Text>
+									<Text c='dimmed' size='xs' truncate>
+										{mod.moduleName}
+									</Text>
+								</Group>
+							</Table.Td>
+							<Table.Td>
+								<Group gap={6} justify='center' wrap='nowrap'>
+									<Progress
+										value={mod.attendanceRate}
+										color={modColor}
+										size='sm'
+										w={30}
+										radius='xl'
+									/>
+									<Text fw={600} c={modColor} size='xs'>
+										{mod.attendanceRate}%
+									</Text>
+								</Group>
+							</Table.Td>
+							<Table.Td ta='center'>
+								<Text c='green' fw={500}>
+									{mod.present}
+								</Text>
+							</Table.Td>
+							<Table.Td ta='center'>
+								<Text c='red' fw={500}>
+									{mod.absent}
+								</Text>
+							</Table.Td>
+							<Table.Td ta='center'>
+								<Text c='yellow' fw={500}>
+									{mod.late}
+								</Text>
+							</Table.Td>
+							<Table.Td ta='center'>
+								<Text c='blue' fw={500}>
+									{mod.excused}
+								</Text>
+							</Table.Td>
+						</Table.Tr>
+					);
+				})}
+			</Table.Tbody>
+		</Table>
+	);
+}
+
+export default function AtRiskStudentsTable({ data, filter }: Props) {
 	const [search, setSearch] = useState('');
 	const [debouncedSearch] = useDebouncedValue(search, 300);
 	const [page, setPage] = useState(1);
+	const [expandedStdNo, setExpandedStdNo] = useState<number | null>(null);
 
 	const filteredData = useMemo(() => {
 		if (!debouncedSearch) return data;
@@ -118,76 +246,102 @@ export default function AtRiskStudentsTable({ data }: Props) {
 						<Table.Tbody>
 							{paginatedData.map((student) => {
 								const severity = getSeverityLabel(student.attendanceRate);
+								const isExpanded = expandedStdNo === student.stdNo;
 								return (
-									<Table.Tr key={`${student.stdNo}-${student.className}`}>
-										<Table.Td>
-											<Stack gap={0}>
-												<Text size='sm' fw={500} lineClamp={1}>
-													{student.name}
+									<Fragment key={`${student.stdNo}-${student.className}`}>
+										<Table.Tr
+											style={{ cursor: 'pointer' }}
+											onClick={() =>
+												setExpandedStdNo(isExpanded ? null : student.stdNo)
+											}
+										>
+											<Table.Td>
+												<Stack gap={0}>
+													<Text size='sm' fw={500} lineClamp={1}>
+														{student.name}
+													</Text>
+													<Text size='xs' c='dimmed'>
+														{student.stdNo}
+													</Text>
+												</Stack>
+											</Table.Td>
+											<Table.Td>
+												<Stack gap={0}>
+													<Text size='sm' fw={500}>
+														{student.className}
+													</Text>
+													<Text size='xs' c='dimmed' lineClamp={1}>
+														{student.programName}
+													</Text>
+												</Stack>
+											</Table.Td>
+											<Table.Td ta='center'>
+												<Group gap={4} justify='center'>
+													<Progress
+														value={student.attendanceRate}
+														color={getAttendanceColor(student.attendanceRate)}
+														size='sm'
+														w={60}
+													/>
+													<Text
+														size='sm'
+														fw={600}
+														c={getAttendanceColor(student.attendanceRate)}
+													>
+														{student.attendanceRate}%
+													</Text>
+												</Group>
+											</Table.Td>
+											<Table.Td ta='center'>
+												<Text size='sm' c='green' fw={500}>
+													{student.presentCount}
 												</Text>
-												<Text size='xs' c='dimmed'>
-													{student.stdNo}
+											</Table.Td>
+											<Table.Td ta='center'>
+												<Text size='sm' c='red' fw={500}>
+													{student.absentCount}
 												</Text>
-											</Stack>
-										</Table.Td>
-										<Table.Td>
-											<Stack gap={0}>
-												<Text size='sm' fw={500}>
-													{student.className}
+											</Table.Td>
+											<Table.Td ta='center'>
+												<Text size='sm' c='yellow' fw={500}>
+													{student.lateCount}
 												</Text>
-												<Text size='xs' c='dimmed' lineClamp={1}>
-													{student.programName}
+											</Table.Td>
+											<Table.Td ta='center'>
+												<Text size='sm' c='blue' fw={500}>
+													{student.excusedCount}
 												</Text>
-											</Stack>
-										</Table.Td>
-										<Table.Td ta='center'>
-											<Group gap={4} justify='center'>
-												<Progress
-													value={student.attendanceRate}
-													color={getAttendanceColor(student.attendanceRate)}
+											</Table.Td>
+											<Table.Td ta='center'>
+												<Text size='sm' c='dimmed'>
+													{student.totalMarkedWeeks}
+												</Text>
+											</Table.Td>
+											<Table.Td ta='center'>
+												<Badge
+													color={severity.color}
 													size='sm'
-													w={60}
-												/>
-												<Text
-													size='sm'
-													fw={600}
-													c={getAttendanceColor(student.attendanceRate)}
+													variant={'light'}
 												>
-													{student.attendanceRate}%
-												</Text>
-											</Group>
-										</Table.Td>
-										<Table.Td ta='center'>
-											<Text size='sm' c='green' fw={500}>
-												{student.presentCount}
-											</Text>
-										</Table.Td>
-										<Table.Td ta='center'>
-											<Text size='sm' c='red' fw={500}>
-												{student.absentCount}
-											</Text>
-										</Table.Td>
-										<Table.Td ta='center'>
-											<Text size='sm' c='yellow' fw={500}>
-												{student.lateCount}
-											</Text>
-										</Table.Td>
-										<Table.Td ta='center'>
-											<Text size='sm' c='blue' fw={500}>
-												{student.excusedCount}
-											</Text>
-										</Table.Td>
-										<Table.Td ta='center'>
-											<Text size='sm' c='dimmed'>
-												{student.totalMarkedWeeks}
-											</Text>
-										</Table.Td>
-										<Table.Td ta='center'>
-											<Badge color={severity.color} size='sm' variant={'light'}>
-												{severity.label}
-											</Badge>
-										</Table.Td>
-									</Table.Tr>
+													{severity.label}
+												</Badge>
+											</Table.Td>
+										</Table.Tr>
+										<Table.Tr>
+											<Table.Td colSpan={9} p={0}>
+												<Collapse in={isExpanded}>
+													<Box p='sm'>
+														{isExpanded && (
+															<ModuleDetails
+																stdNo={student.stdNo}
+																filter={filter}
+															/>
+														)}
+													</Box>
+												</Collapse>
+											</Table.Td>
+										</Table.Tr>
+									</Fragment>
 								);
 							})}
 						</Table.Tbody>

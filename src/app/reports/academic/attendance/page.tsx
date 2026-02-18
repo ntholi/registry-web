@@ -145,7 +145,10 @@ export default function AttendanceReportPage() {
 						</Tabs.Panel>
 
 						<Tabs.Panel value='at-risk' pt='xl'>
-							<AtRiskStudentsTable data={reportData.atRiskStudents} />
+							<AtRiskStudentsTable
+								data={reportData.atRiskStudents}
+								filter={filter}
+							/>
 						</Tabs.Panel>
 					</Tabs>
 				)}
