@@ -1,7 +1,6 @@
 'use client';
 
 import {
-	ActionIcon,
 	Box,
 	Card,
 	Flex,
@@ -11,12 +10,12 @@ import {
 	Text,
 	TextInput,
 	Title,
-	Tooltip,
 } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
-import { IconSearch, IconTrash } from '@tabler/icons-react';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { IconSearch } from '@tabler/icons-react';
+import { useQuery } from '@tanstack/react-query';
 import { useMemo, useState } from 'react';
+import { DeleteButton } from '@/shared/ui/adease';
 import {
 	deleteQuestion,
 	getAllQuestionsWithCategories,
@@ -34,7 +33,6 @@ type GroupedQuestions = {
 };
 
 export default function QuestionsList() {
-	const queryClient = useQueryClient();
 	const [search, setSearch] = useState('');
 
 	const { data: questions = [], isLoading } = useQuery({
@@ -63,20 +61,6 @@ export default function QuestionsList() {
 			}))
 			.sort((a, b) => a.categoryName.localeCompare(b.categoryName));
 	}, [questions, search]);
-
-	const deleteMutation = useMutation({
-		mutationFn: async (id: number) => {
-			return deleteQuestion(id);
-		},
-		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: ['feedback-questions'] });
-			notifications.show({
-				title: 'Question Deleted',
-				message: 'The question has been removed',
-				color: 'red',
-			});
-		},
-	});
 
 	if (isLoading) {
 		return (
@@ -110,11 +94,7 @@ export default function QuestionsList() {
 			)}
 
 			{grouped.map((group) => (
-				<CategoryGroup
-					key={group.categoryName}
-					group={group}
-					onDelete={(id) => deleteMutation.mutate(id)}
-				/>
+				<CategoryGroup key={group.categoryName} group={group} />
 			))}
 		</Stack>
 	);
@@ -122,10 +102,9 @@ export default function QuestionsList() {
 
 type CategoryGroupProps = {
 	group: GroupedQuestions;
-	onDelete: (id: number) => void;
 };
 
-function CategoryGroup({ group, onDelete }: CategoryGroupProps) {
+function CategoryGroup({ group }: CategoryGroupProps) {
 	return (
 		<Box>
 			<Group gap='xs' mb='xs'>
@@ -135,7 +114,7 @@ function CategoryGroup({ group, onDelete }: CategoryGroupProps) {
 			</Group>
 			<Stack gap='xs'>
 				{group.questions.map((q) => (
-					<QuestionCard key={q.id} question={q} onDelete={onDelete} />
+					<QuestionCard key={q.id} question={q} />
 				))}
 			</Stack>
 		</Box>
@@ -144,10 +123,9 @@ function CategoryGroup({ group, onDelete }: CategoryGroupProps) {
 
 type QuestionCardProps = {
 	question: QuestionWithCategory;
-	onDelete: (id: number) => void;
 };
 
-function QuestionCard({ question, onDelete }: QuestionCardProps) {
+function QuestionCard({ question }: QuestionCardProps) {
 	return (
 		<Card withBorder padding='sm' radius='md'>
 			<Group justify='space-between' wrap='nowrap' align='flex-start'>
@@ -162,16 +140,22 @@ function QuestionCard({ question, onDelete }: QuestionCardProps) {
 							text: question.text,
 						}}
 					/>
-					<Tooltip label='Delete'>
-						<ActionIcon
-							variant='subtle'
-							color='red'
-							size='sm'
-							onClick={() => onDelete(question.id)}
-						>
-							<IconTrash size={16} />
-						</ActionIcon>
-					</Tooltip>
+					<DeleteButton
+						size='sm'
+						handleDelete={async () => {
+							await deleteQuestion(question.id);
+						}}
+						queryKey={['feedback-questions']}
+						itemName={question.text}
+						itemType='question'
+						onSuccess={() => {
+							notifications.show({
+								title: 'Question Deleted',
+								message: 'The question has been removed',
+								color: 'red',
+							});
+						}}
+					/>
 				</Group>
 			</Group>
 		</Card>
