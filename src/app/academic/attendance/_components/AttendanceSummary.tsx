@@ -4,7 +4,6 @@ import {
 	Badge,
 	Group,
 	Paper,
-	Progress,
 	ScrollArea,
 	Skeleton,
 	Stack,
@@ -264,41 +263,6 @@ export default function AttendanceSummary({ semesterModuleId, termId }: Props) {
 					</Table.Tbody>
 				</Table>
 			</ScrollArea>
-
-			<Paper p='md' withBorder>
-				<Group justify='space-between'>
-					<Text size='sm' c='dimmed'>
-						Class Average Attendance
-					</Text>
-					<Text fw={500}>
-						{summary.length > 0
-							? Math.round(
-									summary.reduce((acc, s) => acc + s.attendanceRate, 0) /
-										summary.length
-								)
-							: 0}
-						%
-					</Text>
-				</Group>
-				<Progress
-					value={
-						summary.length > 0
-							? summary.reduce((acc, s) => acc + s.attendanceRate, 0) /
-								summary.length
-							: 0
-					}
-					mt='xs'
-					size='lg'
-					radius='xl'
-					color={
-						summary.reduce((acc, s) => acc + s.attendanceRate, 0) /
-							summary.length >=
-						75
-							? 'green'
-							: 'orange'
-					}
-				/>
-			</Paper>
 		</Stack>
 	);
 }
