@@ -2,6 +2,7 @@ import {
 	IconCalendarEvent,
 	IconClipboardData,
 	IconListCheck,
+	IconMessageStar,
 	IconPresentation,
 } from '@tabler/icons-react';
 import type { ModuleConfig } from '@/app/dashboard/module-config.types';
@@ -55,6 +56,19 @@ export const academicConfig: ModuleConfig = {
 				children: [],
 				isVisible: (session) => {
 					return session?.user?.position !== 'admin';
+				},
+			},
+			{
+				label: 'Feedback',
+				href: '/academic/feedback',
+				icon: IconMessageStar,
+				roles: ['academic', 'admin'],
+				isVisible: (session) => {
+					const position = session?.user?.position;
+					return !!(
+						position &&
+						['manager', 'admin', 'program_leader'].includes(position)
+					);
 				},
 			},
 		],
