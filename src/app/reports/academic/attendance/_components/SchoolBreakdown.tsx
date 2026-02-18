@@ -90,6 +90,38 @@ function getClassModules(
 		.sort((a, b) => a.moduleCode.localeCompare(b.moduleCode));
 }
 
+function getClassSessionAverages(classModules: ModuleAttendanceSummary[]) {
+	if (classModules.length === 0) return null;
+
+	let totalSessions = 0;
+	let totalPresent = 0;
+	let totalAbsent = 0;
+	let totalLate = 0;
+	let totalExcused = 0;
+
+	for (const mod of classModules) {
+		const marks =
+			mod.totalPresent + mod.totalAbsent + mod.totalLate + mod.totalExcused;
+		if (mod.totalStudents > 0 && marks > 0) {
+			const sessions = marks / mod.totalStudents;
+			totalSessions += sessions;
+			totalPresent += mod.totalPresent;
+			totalAbsent += mod.totalAbsent;
+			totalLate += mod.totalLate;
+			totalExcused += mod.totalExcused;
+		}
+	}
+
+	if (totalSessions === 0) return null;
+
+	return {
+		present: Math.round(totalPresent / totalSessions),
+		absent: Math.round(totalAbsent / totalSessions),
+		late: Math.round(totalLate / totalSessions),
+		excused: Math.round(totalExcused / totalSessions),
+	};
+}
+
 function ProgramAccordion({
 	programs,
 	moduleBreakdown,
@@ -166,10 +198,10 @@ function ProgramAccordion({
 										<Table.Th>Class</Table.Th>
 										<Table.Th ta='center'>Students</Table.Th>
 										<Table.Th ta='center'>Attendance</Table.Th>
-										<Table.Th ta='center'>Present</Table.Th>
-										<Table.Th ta='center'>Absent</Table.Th>
-										<Table.Th ta='center'>Late</Table.Th>
-										<Table.Th ta='center'>Excused</Table.Th>
+										<Table.Th ta='center'>Avg Present</Table.Th>
+										<Table.Th ta='center'>Avg Absent</Table.Th>
+										<Table.Th ta='center'>Avg Late</Table.Th>
+										<Table.Th ta='center'>Avg Excused</Table.Th>
 									</Table.Tr>
 								</Table.Thead>
 								<Table.Tbody>
@@ -181,6 +213,7 @@ function ProgramAccordion({
 											cls.className,
 											program.programCode
 										);
+										const sessionAvg = getClassSessionAverages(classModules);
 
 										return (
 											<Fragment key={rowKey}>
@@ -231,22 +264,22 @@ function ProgramAccordion({
 													</Table.Td>
 													<Table.Td ta='center'>
 														<Text c='green' fw={500}>
-															{cls.totalPresent}
+															{sessionAvg?.present ?? cls.totalPresent}
 														</Text>
 													</Table.Td>
 													<Table.Td ta='center'>
 														<Text c='red' fw={500}>
-															{cls.totalAbsent}
+															{sessionAvg?.absent ?? cls.totalAbsent}
 														</Text>
 													</Table.Td>
 													<Table.Td ta='center'>
 														<Text c='yellow' fw={500}>
-															{cls.totalLate}
+															{sessionAvg?.late ?? cls.totalLate}
 														</Text>
 													</Table.Td>
 													<Table.Td ta='center'>
 														<Text c='blue' fw={500}>
-															{cls.totalExcused}
+															{sessionAvg?.excused ?? cls.totalExcused}
 														</Text>
 													</Table.Td>
 												</Table.Tr>
@@ -297,12 +330,21 @@ function ProgramAccordion({
 																					</Table.Td>
 																					<Table.Td ta='center'>
 																						<Text size='xs' fw={600}>
-																							{mod.totalPresent + mod.totalLate}
-																							/
-																							{mod.totalPresent +
-																								mod.totalAbsent +
-																								mod.totalLate +
-																								mod.totalExcused}
+																							{mod.totalStudents > 0
+																								? Math.round(
+																										(mod.totalPresent +
+																											mod.totalLate) /
+																											Math.max(
+																												(mod.totalPresent +
+																													mod.totalAbsent +
+																													mod.totalLate +
+																													mod.totalExcused) /
+																													mod.totalStudents,
+																												1
+																											)
+																									)
+																								: 0}
+																							/{mod.totalStudents}
 																						</Text>
 																					</Table.Td>
 																				</Table.Tr>
