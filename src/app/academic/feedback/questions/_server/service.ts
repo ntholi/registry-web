@@ -32,6 +32,14 @@ class FeedbackQuestionService extends BaseService<
 			['academic', 'admin']
 		);
 	}
+
+	async findQuestionBoard() {
+		return withAuth(
+			async () =>
+				(this.repository as FeedbackQuestionRepository).findQuestionBoard(),
+			['academic', 'admin']
+		);
+	}
 }
 
 export const feedbackQuestionsService = serviceWrapper(

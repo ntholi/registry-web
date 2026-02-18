@@ -17,6 +17,10 @@ export async function getAllQuestionsWithCategories() {
 	return service.findAllWithCategories();
 }
 
+export async function getQuestionBoard() {
+	return service.findQuestionBoard();
+}
+
 export async function getQuestion(id: number) {
 	return service.get(id);
 }

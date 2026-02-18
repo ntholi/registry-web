@@ -1,23 +1,21 @@
 'use client';
 
-import { Button, Group, Stack, Textarea } from '@mantine/core';
+import { Button, Group, Stack, TextInput } from '@mantine/core';
 import { useForm } from '@mantine/form';
 
 type FormValues = {
-	text: string;
+	name: string;
 };
 
 type Props = {
-	categoryId: number;
 	initialValues?: FormValues;
-	onSubmit: (values: { categoryId: number; text: string }) => void;
+	onSubmit: (values: FormValues) => void;
 	loading?: boolean;
 	submitLabel: string;
 	onCancel: () => void;
 };
 
-export default function QuestionForm({
-	categoryId,
+export default function CategoryForm({
 	initialValues,
 	onSubmit,
 	loading,
@@ -26,26 +24,20 @@ export default function QuestionForm({
 }: Props) {
 	const form = useForm<FormValues>({
 		initialValues: initialValues ?? {
-			text: '',
+			name: '',
 		},
 		validate: {
-			text: (v) => (!v.trim() ? 'Question text is required' : null),
+			name: (v) => (!v.trim() ? 'Category name is required' : null),
 		},
 	});
 
-	async function handleSubmit(values: FormValues) {
-		onSubmit({ categoryId, text: values.text });
-	}
-
 	return (
-		<form onSubmit={form.onSubmit(handleSubmit)}>
+		<form onSubmit={form.onSubmit(onSubmit)}>
 			<Stack>
-				<Textarea
-					label='Question Text'
-					placeholder='Enter the feedback question...'
-					minRows={3}
-					autosize
-					{...form.getInputProps('text')}
+				<TextInput
+					label='Category Name'
+					placeholder='Enter category name...'
+					{...form.getInputProps('name')}
 				/>
 				<Group justify='flex-end'>
 					<Button variant='default' onClick={onCancel}>

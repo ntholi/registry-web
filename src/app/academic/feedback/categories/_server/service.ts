@@ -1,6 +1,7 @@
 import type { feedbackCategories } from '@/core/database';
 import BaseService from '@/core/platform/BaseService';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
+import withAuth from '@/core/platform/withAuth';
 import FeedbackCategoryRepository from './repository';
 
 class FeedbackCategoryService extends BaseService<
@@ -15,6 +16,21 @@ class FeedbackCategoryService extends BaseService<
 			updateRoles: ['academic', 'admin'],
 			deleteRoles: ['academic', 'admin'],
 		});
+	}
+
+	override async delete(id: number) {
+		return withAuth(async () => {
+			const repo = this.repository as FeedbackCategoryRepository;
+			const hasQuestions = await repo.hasQuestions(id);
+
+			if (hasQuestions) {
+				throw new Error(
+					'Category cannot be deleted because it contains questions'
+				);
+			}
+
+			await repo.delete(id);
+		}, ['academic', 'admin']);
 	}
 }
 
