@@ -995,13 +995,6 @@
 			"when": 1770291445627,
 			"tag": "0141_fine_old_lace",
 			"breakpoints": true
-		},
-		{
-			"idx": 142,
-			"version": "7",
-			"when": 1771398525575,
-			"tag": "0142_absent_crystal",
-			"breakpoints": true
 		}
 	]
 }
