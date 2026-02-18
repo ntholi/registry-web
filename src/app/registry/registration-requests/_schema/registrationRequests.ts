@@ -1,8 +1,10 @@
 import { users } from '@auth/users/_schema/users';
+import { sql } from 'drizzle-orm';
 import {
 	bigint,
 	boolean,
 	char,
+	check,
 	index,
 	integer,
 	pgEnum,
@@ -64,5 +66,9 @@ export const registrationRequests = pgTable(
 		studentSemesterIdIdx: index(
 			'fk_registration_requests_student_semester_id'
 		).on(table.studentSemesterId),
+		semesterNumberNotBlank: check(
+			'chk_registration_requests_semester_number_not_blank',
+			sql`trim(${table.semesterNumber}) <> ''`
+		),
 	})
 );

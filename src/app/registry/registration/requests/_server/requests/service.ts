@@ -106,6 +106,9 @@ class RegistrationRequestService {
 		accountNumber?: string;
 		receipts?: { receiptNo: string; receiptType: ReceiptType }[];
 	}) {
+		if (!data.semesterNumber?.trim()) {
+			throw new Error('Semester number is required and cannot be blank.');
+		}
 		const sponsor = await getSponsor(data.sponsorId);
 		const isSelfSponsored = sponsor?.code === 'PRV';
 
