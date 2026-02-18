@@ -16,6 +16,13 @@ export default class FeedbackQuestionRepository extends BaseRepository<
 			with: { category: true },
 		});
 	}
+
+	async findAllWithCategories() {
+		return db.query.feedbackQuestions.findMany({
+			with: { category: true },
+			orderBy: (q, { desc }) => [desc(q.createdAt)],
+		});
+	}
 }
 
 export const feedbackQuestionRepository = new FeedbackQuestionRepository();

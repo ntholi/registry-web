@@ -13,6 +13,10 @@ export async function getQuestions(page = 1, search = '') {
 	});
 }
 
+export async function getAllQuestionsWithCategories() {
+	return service.findAllWithCategories();
+}
+
 export async function getQuestion(id: number) {
 	return service.get(id);
 }
@@ -21,7 +25,7 @@ export async function createQuestion(data: Question) {
 	return service.create(data);
 }
 
-export async function updateQuestion(id: number, data: Question) {
+export async function updateQuestion(id: number, data: Partial<Question>) {
 	return service.update(id, data);
 }
 

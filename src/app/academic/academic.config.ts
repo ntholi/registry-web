@@ -2,6 +2,7 @@ import {
 	IconCalendarEvent,
 	IconClipboardData,
 	IconListCheck,
+	IconMessageQuestion,
 	IconMessageStar,
 	IconPresentation,
 } from '@tabler/icons-react';
@@ -60,9 +61,9 @@ export const academicConfig: ModuleConfig = {
 			},
 			{
 				label: 'Feedback',
-				href: '/academic/feedback',
 				icon: IconMessageStar,
 				roles: ['academic', 'admin'],
+				collapsed: false,
 				isVisible: (session) => {
 					const position = session?.user?.position;
 					return !!(
@@ -70,6 +71,20 @@ export const academicConfig: ModuleConfig = {
 						['manager', 'admin', 'program_leader'].includes(position)
 					);
 				},
+				children: [
+					{
+						label: 'Questions',
+						href: '/academic/feedback/questions',
+						icon: IconMessageQuestion,
+						roles: ['academic', 'admin'],
+					},
+					{
+						label: 'Periods',
+						href: '/academic/feedback/periods',
+						icon: IconCalendarEvent,
+						roles: ['academic', 'admin'],
+					},
+				],
 			},
 		],
 	},
