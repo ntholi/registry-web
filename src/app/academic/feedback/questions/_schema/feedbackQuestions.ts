@@ -1,11 +1,4 @@
-import {
-	boolean,
-	integer,
-	pgTable,
-	serial,
-	text,
-	timestamp,
-} from 'drizzle-orm/pg-core';
+import { integer, pgTable, serial, text, timestamp } from 'drizzle-orm/pg-core';
 import { feedbackCategories } from '../../categories/_schema/feedbackCategories';
 
 export const feedbackQuestions = pgTable('feedback_questions', {
@@ -14,6 +7,5 @@ export const feedbackQuestions = pgTable('feedback_questions', {
 		.references(() => feedbackCategories.id, { onDelete: 'cascade' })
 		.notNull(),
 	text: text().notNull(),
-	active: boolean().notNull().default(true),
 	createdAt: timestamp().defaultNow(),
 });

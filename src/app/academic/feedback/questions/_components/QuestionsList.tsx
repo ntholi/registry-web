@@ -2,7 +2,6 @@
 
 import {
 	ActionIcon,
-	Badge,
 	Box,
 	Card,
 	Flex,
@@ -21,7 +20,6 @@ import { useMemo, useState } from 'react';
 import {
 	deleteQuestion,
 	getAllQuestionsWithCategories,
-	updateQuestion,
 } from '../_server/actions';
 import CreateQuestionModal from './CreateQuestionModal';
 import EditQuestionModal from './EditQuestionModal';
@@ -65,15 +63,6 @@ export default function QuestionsList() {
 			}))
 			.sort((a, b) => a.categoryName.localeCompare(b.categoryName));
 	}, [questions, search]);
-
-	const toggleMutation = useMutation({
-		mutationFn: async ({ id, active }: { id: number; active: boolean }) => {
-			return updateQuestion(id, { active });
-		},
-		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: ['feedback-questions'] });
-		},
-	});
 
 	const deleteMutation = useMutation({
 		mutationFn: async (id: number) => {
@@ -124,7 +113,6 @@ export default function QuestionsList() {
 				<CategoryGroup
 					key={group.categoryName}
 					group={group}
-					onToggle={(id, active) => toggleMutation.mutate({ id, active })}
 					onDelete={(id) => deleteMutation.mutate(id)}
 				/>
 			))}
@@ -134,31 +122,20 @@ export default function QuestionsList() {
 
 type CategoryGroupProps = {
 	group: GroupedQuestions;
-	onToggle: (id: number, active: boolean) => void;
 	onDelete: (id: number) => void;
 };
 
-function CategoryGroup({ group, onToggle, onDelete }: CategoryGroupProps) {
-	const activeCount = group.questions.filter((q) => q.active).length;
-
+function CategoryGroup({ group, onDelete }: CategoryGroupProps) {
 	return (
 		<Box>
 			<Group gap='xs' mb='xs'>
 				<Title order={5} fw={600}>
 					{group.categoryName}
 				</Title>
-				<Badge variant='light' size='sm'>
-					{activeCount}/{group.questions.length} active
-				</Badge>
 			</Group>
 			<Stack gap='xs'>
 				{group.questions.map((q) => (
-					<QuestionCard
-						key={q.id}
-						question={q}
-						onToggle={onToggle}
-						onDelete={onDelete}
-					/>
+					<QuestionCard key={q.id} question={q} onDelete={onDelete} />
 				))}
 			</Stack>
 		</Box>
@@ -167,11 +144,10 @@ function CategoryGroup({ group, onToggle, onDelete }: CategoryGroupProps) {
 
 type QuestionCardProps = {
 	question: QuestionWithCategory;
-	onToggle: (id: number, active: boolean) => void;
 	onDelete: (id: number) => void;
 };
 
-function QuestionCard({ question, onToggle, onDelete }: QuestionCardProps) {
+function QuestionCard({ question, onDelete }: QuestionCardProps) {
 	return (
 		<Card withBorder padding='sm' radius='md'>
 			<Group justify='space-between' wrap='nowrap' align='flex-start'>
@@ -179,22 +155,11 @@ function QuestionCard({ question, onToggle, onDelete }: QuestionCardProps) {
 					<Text size='sm'>{question.text}</Text>
 				</Box>
 				<Group gap='xs' wrap='nowrap'>
-					<Tooltip label={question.active ? 'Active' : 'Inactive'}>
-						<Badge
-							variant='dot'
-							color={question.active ? 'green' : 'gray'}
-							style={{ cursor: 'pointer' }}
-							onClick={() => onToggle(question.id, !question.active)}
-						>
-							{question.active ? 'Active' : 'Inactive'}
-						</Badge>
-					</Tooltip>
 					<EditQuestionModal
 						question={{
 							id: question.id,
 							categoryId: question.categoryId,
 							text: question.text,
-							active: question.active,
 						}}
 					/>
 					<Tooltip label='Delete'>

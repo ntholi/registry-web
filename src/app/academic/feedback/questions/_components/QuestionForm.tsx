@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Group, Select, Stack, Switch, Textarea } from '@mantine/core';
+import { Button, Group, Select, Stack, Textarea } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
@@ -12,16 +12,11 @@ import {
 type FormValues = {
 	categoryId: string;
 	text: string;
-	active: boolean;
 };
 
 type Props = {
 	initialValues?: FormValues;
-	onSubmit: (values: {
-		categoryId: number;
-		text: string;
-		active: boolean;
-	}) => void;
+	onSubmit: (values: { categoryId: number; text: string }) => void;
 	loading?: boolean;
 	submitLabel: string;
 	onCancel: () => void;
@@ -55,7 +50,6 @@ export default function QuestionForm({
 		initialValues: initialValues ?? {
 			categoryId: '',
 			text: '',
-			active: true,
 		},
 		validate: {
 			categoryId: (v) => (!v ? 'Category is required' : null),
@@ -75,7 +69,7 @@ export default function QuestionForm({
 			categoryId = Number(values.categoryId);
 		}
 
-		onSubmit({ categoryId, text: values.text, active: values.active });
+		onSubmit({ categoryId, text: values.text });
 	}
 
 	return (
@@ -105,10 +99,6 @@ export default function QuestionForm({
 					minRows={3}
 					autosize
 					{...form.getInputProps('text')}
-				/>
-				<Switch
-					label='Active'
-					{...form.getInputProps('active', { type: 'checkbox' })}
 				/>
 				<Group justify='flex-end'>
 					<Button variant='default' onClick={onCancel}>

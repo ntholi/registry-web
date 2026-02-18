@@ -13,11 +13,7 @@ export default function CreateQuestionModal() {
 	const queryClient = useQueryClient();
 
 	const mutation = useMutation({
-		mutationFn: async (values: {
-			categoryId: number;
-			text: string;
-			active: boolean;
-		}) => {
+		mutationFn: async (values: { categoryId: number; text: string }) => {
 			return createQuestion(values);
 		},
 		onSuccess: () => {

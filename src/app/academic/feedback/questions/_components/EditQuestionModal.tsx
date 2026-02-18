@@ -13,7 +13,6 @@ type Props = {
 		id: number;
 		categoryId: number;
 		text: string;
-		active: boolean;
 	};
 };
 
@@ -22,11 +21,7 @@ export default function EditQuestionModal({ question }: Props) {
 	const queryClient = useQueryClient();
 
 	const mutation = useMutation({
-		mutationFn: async (values: {
-			categoryId: number;
-			text: string;
-			active: boolean;
-		}) => {
+		mutationFn: async (values: { categoryId: number; text: string }) => {
 			return updateQuestion(question.id, values);
 		},
 		onSuccess: () => {
@@ -62,7 +57,6 @@ export default function EditQuestionModal({ question }: Props) {
 					initialValues={{
 						categoryId: String(question.categoryId),
 						text: question.text,
-						active: question.active,
 					}}
 					onSubmit={(v) => mutation.mutate(v)}
 					loading={mutation.isPending}
