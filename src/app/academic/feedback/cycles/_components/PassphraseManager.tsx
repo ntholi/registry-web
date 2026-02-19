@@ -1,6 +1,7 @@
 'use client';
 
 import {
+	ActionIcon,
 	Badge,
 	Box,
 	Button,
@@ -15,9 +16,13 @@ import {
 	Text,
 } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
-import { IconPlus } from '@tabler/icons-react';
+import {
+	IconChevronLeft,
+	IconChevronRight,
+	IconPlus,
+} from '@tabler/icons-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { getStudentClassName } from '@/shared/lib/utils/utils';
 import {
 	generatePassphrases,
@@ -54,6 +59,17 @@ export default function PassphraseManager({
 	const queryClient = useQueryClient();
 	const [yearFilter, setYearFilter] = useState('');
 	const [programFilter, setProgramFilter] = useState('');
+	const [chipsHovered, setChipsHovered] = useState(false);
+	const [canScrollLeft, setCanScrollLeft] = useState(false);
+	const [canScrollRight, setCanScrollRight] = useState(false);
+	const chipViewport = useRef<HTMLDivElement>(null);
+
+	function checkScrollEdges() {
+		const el = chipViewport.current;
+		if (!el) return;
+		setCanScrollLeft(el.scrollLeft > 0);
+		setCanScrollRight(el.scrollLeft < el.scrollWidth - el.clientWidth - 1);
+	}
 	const [generateTarget, setGenerateTarget] = useState<{
 		structureSemesterId: number;
 		className: string;
@@ -97,7 +113,8 @@ export default function PassphraseManager({
 	const filtered = useMemo(() => {
 		const flat: ClassItem[] = schoolGroups.flatMap((g) => g.classes);
 		return flat.filter((cls) => {
-			if (yearFilter && getYear(cls.semesterNumber) !== Number(yearFilter)) return false;
+			if (yearFilter && getYear(cls.semesterNumber) !== Number(yearFilter))
+				return false;
 			if (programFilter && cls.programCode !== programFilter) return false;
 			return true;
 		});
@@ -214,37 +231,105 @@ export default function PassphraseManager({
 				)}
 			</Modal>
 
-			<ScrollArea type='auto' offsetScrollbars scrollbarSize={4}>
-				<Group gap={6} wrap='nowrap' pb={4}>
-					<Chip
-						size='xs'
-						checked={!yearFilter && !programFilter}
-						onChange={() => { setYearFilter(''); setProgramFilter(''); }}
+			<Box
+				pos='relative'
+				onMouseEnter={() => {
+					setChipsHovered(true);
+					checkScrollEdges();
+				}}
+				onMouseLeave={() => setChipsHovered(false)}
+			>
+				{chipsHovered && canScrollLeft && (
+					<ActionIcon
+						pos='absolute'
+						left={0}
+						size='lg'
+						radius='xl'
+						variant='default'
+						style={{
+							top: '50%',
+							transform: 'translateY(-50%)',
+							zIndex: 2,
+							opacity: 0.85,
+						}}
+						onClick={() =>
+							chipViewport.current?.scrollBy({ left: -120, behavior: 'smooth' })
+						}
 					>
-						All
-					</Chip>
-					{years.map((y) => (
+						<IconChevronLeft size={12} />
+					</ActionIcon>
+				)}
+				<ScrollArea
+					type='never'
+					py={4}
+					viewportRef={chipViewport}
+					onScrollPositionChange={checkScrollEdges}
+				>
+					<Group gap={6} wrap='nowrap'>
 						<Chip
-							key={y}
 							size='xs'
-							checked={yearFilter === String(y)}
-							onChange={() => setYearFilter((prev) => (prev === String(y) ? '' : String(y)))}
+							variant='filled'
+							checked={!yearFilter && !programFilter}
+							onChange={() => {
+								setYearFilter('');
+								setProgramFilter('');
+							}}
 						>
-							Year {y}
+							All
 						</Chip>
-					))}
-					{programs.map((p) => (
-						<Chip
-							key={p.code}
-							size='xs'
-							checked={programFilter === p.code}
-							onChange={() => setProgramFilter((prev) => (prev === p.code ? '' : p.code))}
-						>
-							{p.code}
-						</Chip>
-					))}
-				</Group>
-			</ScrollArea>
+						<Text size='xs' c='dimmed' px={2} style={{ userSelect: 'none' }}>
+							·
+						</Text>
+						{years.map((y) => (
+							<Chip
+								key={y}
+								size='xs'
+								checked={yearFilter === String(y)}
+								onChange={() =>
+									setYearFilter((prev) => (prev === String(y) ? '' : String(y)))
+								}
+							>
+								Year {y}
+							</Chip>
+						))}
+						<Text size='xs' c='dimmed' px={2} style={{ userSelect: 'none' }}>
+							·
+						</Text>
+						{programs.map((p) => (
+							<Chip
+								key={p.code}
+								size='xs'
+								checked={programFilter === p.code}
+								onChange={() =>
+									setProgramFilter((prev) => (prev === p.code ? '' : p.code))
+								}
+							>
+								{p.code}
+							</Chip>
+						))}
+					</Group>
+				</ScrollArea>
+				{chipsHovered && canScrollRight && (
+					<ActionIcon
+						pos='absolute'
+						right={0}
+						size='lg'
+						radius='xl'
+						variant='default'
+						style={{
+							top: '50%',
+							transform: 'translateY(-50%)',
+							zIndex: 2,
+							opacity: 0.85,
+						}}
+						onClick={() =>
+							chipViewport.current?.scrollBy({ left: 120, behavior: 'smooth' })
+						}
+					>
+						<IconChevronRight size={12} />
+					</ActionIcon>
+				)}
+			</Box>
 
 			<Text size='xs' c='dimmed'>
 				{filtered.length} class{filtered.length !== 1 ? 'es' : ''} shown
