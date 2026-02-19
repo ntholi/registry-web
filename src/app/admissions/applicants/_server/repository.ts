@@ -1,4 +1,4 @@
-import { count, eq, ilike, or } from 'drizzle-orm';
+import { and, count, eq, exists, ilike, or } from 'drizzle-orm';
 import {
 	academicRecords,
 	applicantDocuments,
@@ -166,7 +166,29 @@ export default class ApplicantRepository extends BaseRepository<
 		const where = search
 			? or(
 					ilike(applicants.fullName, `%${search}%`),
-					ilike(applicants.nationalId, `%${search}%`)
+					ilike(applicants.nationalId, `%${search}%`),
+					exists(
+						db
+							.select({ id: users.id })
+							.from(users)
+							.where(
+								and(
+									eq(users.id, applicants.userId),
+									ilike(users.email, `%${search}%`)
+								)
+							)
+					),
+					exists(
+						db
+							.select({ id: applicantPhones.id })
+							.from(applicantPhones)
+							.where(
+								and(
+									eq(applicantPhones.applicantId, applicants.id),
+									ilike(applicantPhones.phoneNumber, `%${search}%`)
+								)
+							)
+					)
 				)
 			: undefined;
 
