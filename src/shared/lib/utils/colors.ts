@@ -348,7 +348,9 @@ export function getGradeColor(grade: Grade) {
 	const g = grade.toUpperCase();
 
 	if (g === 'ANN') return semantic.error;
-	if (['A+', 'A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C-', 'PX'].includes(g))
+	if (
+		['A+', 'A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C-', 'PX', 'EXP'].includes(g)
+	)
 		return statusColors.grade.excellent;
 	if (['PP', 'DEF', 'NM'].includes(g)) return statusColors.grade.incomplete;
 	if (['F', 'FX', 'FIN', 'D', 'D+', 'D-', 'E', 'E+', 'E-'].includes(g))
