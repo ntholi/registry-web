@@ -13,7 +13,7 @@ export async function getCategories(page = 1, search = '') {
 	});
 }
 
-export async function getCategory(id: number) {
+export async function getCategory(id: string) {
 	return service.get(id);
 }
 
@@ -21,11 +21,11 @@ export async function createCategory(data: Category) {
 	return service.create(data);
 }
 
-export async function updateCategory(id: number, data: Category) {
+export async function updateCategory(id: string, data: Category) {
 	return service.update(id, data);
 }
 
-export async function deleteCategory(id: number) {
+export async function deleteCategory(id: string) {
 	return service.delete(id);
 }
 

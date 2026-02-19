@@ -10,8 +10,8 @@ import QuestionForm from './QuestionForm';
 
 type Props = {
 	question: {
-		id: number;
-		categoryId: number;
+		id: string;
+		categoryId: string;
 		categoryName: string;
 		text: string;
 	};
@@ -22,7 +22,7 @@ export default function EditQuestionModal({ question }: Props) {
 	const queryClient = useQueryClient();
 
 	const mutation = useMutation({
-		mutationFn: async (values: { categoryId: number; text: string }) => {
+		mutationFn: async (values: { categoryId: string; text: string }) => {
 			return updateQuestion(question.id, values);
 		},
 		onSuccess: () => {

@@ -10,7 +10,7 @@ import CategoryForm from './CategoryForm';
 
 type Props = {
 	category: {
-		id: number;
+		id: string;
 		name: string;
 	};
 };

@@ -9,7 +9,7 @@ type Props = {
 
 export default async function CycleEdit({ params }: Props) {
 	const { id } = await params;
-	const cycle = await getCycle(Number(id));
+	const cycle = await getCycle(id);
 
 	if (!cycle) {
 		return notFound();
@@ -27,7 +27,7 @@ export default async function CycleEdit({ params }: Props) {
 				defaultValues={{ ...cycle, schoolIds }}
 				onSubmit={async (value) => {
 					'use server';
-					return await updateCycle(Number(id), value);
+					return await updateCycle(id, value);
 				}}
 			/>
 		</Box>

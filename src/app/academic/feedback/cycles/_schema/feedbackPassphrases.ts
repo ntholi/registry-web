@@ -4,17 +4,19 @@ import {
 	index,
 	integer,
 	pgTable,
-	serial,
 	text,
 	timestamp,
 } from 'drizzle-orm/pg-core';
+import { nanoid } from 'nanoid';
 import { feedbackCycles } from './feedbackCycles';
 
 export const feedbackPassphrases = pgTable(
 	'feedback_passphrases',
 	{
-		id: serial().primaryKey(),
-		cycleId: integer()
+		id: text()
+			.primaryKey()
+			.$defaultFn(() => nanoid()),
+		cycleId: text()
 			.references(() => feedbackCycles.id, { onDelete: 'cascade' })
 			.notNull(),
 		structureSemesterId: integer()

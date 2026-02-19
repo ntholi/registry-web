@@ -18,7 +18,7 @@ class FeedbackCategoryService extends BaseService<
 		});
 	}
 
-	override async delete(id: number) {
+	override async delete(id: string) {
 		return withAuth(async () => {
 			const repo = this.repository as FeedbackCategoryRepository;
 			const hasQuestions = await repo.hasQuestions(id);

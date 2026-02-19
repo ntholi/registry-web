@@ -1,26 +1,22 @@
 import { assignedModules } from '@academic/assigned-modules/_schema/assignedModules';
-import {
-	integer,
-	pgTable,
-	serial,
-	text,
-	timestamp,
-	unique,
-} from 'drizzle-orm/pg-core';
+import { integer, pgTable, text, timestamp, unique } from 'drizzle-orm/pg-core';
+import { nanoid } from 'nanoid';
 import { feedbackPassphrases } from '../cycles/_schema/feedbackPassphrases';
 import { feedbackQuestions } from '../questions/_schema/feedbackQuestions';
 
 export const feedbackResponses = pgTable(
 	'feedback_responses',
 	{
-		id: serial().primaryKey(),
-		passphraseId: integer()
+		id: text()
+			.primaryKey()
+			.$defaultFn(() => nanoid()),
+		passphraseId: text()
 			.references(() => feedbackPassphrases.id, { onDelete: 'cascade' })
 			.notNull(),
 		assignedModuleId: integer()
 			.references(() => assignedModules.id, { onDelete: 'cascade' })
 			.notNull(),
-		questionId: integer()
+		questionId: text()
 			.references(() => feedbackQuestions.id)
 			.notNull(),
 		rating: integer().notNull(),

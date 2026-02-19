@@ -16,7 +16,7 @@ import { useQuery } from '@tanstack/react-query';
 import { getPassphrasesForClass } from '../_server/actions';
 
 type Props = {
-	cycleId: number;
+	cycleId: string;
 	structureSemesterId: number;
 	cycleName: string;
 	className: string;

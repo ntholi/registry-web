@@ -3,19 +3,19 @@ import { db, feedbackCategories, feedbackQuestions } from '@/core/database';
 import BaseRepository from '@/core/platform/BaseRepository';
 
 interface QuestionBoardRow {
-	categoryId: number;
+	categoryId: string;
 	categoryName: string;
-	questionId: number | null;
+	questionId: string | null;
 	questionText: string | null;
 }
 
 interface CategoryQuestionBoard {
-	id: number;
+	id: string;
 	name: string;
 	questionCount: number;
 	questions: Array<{
-		id: number;
-		categoryId: number;
+		id: string;
+		categoryId: string;
 		text: string;
 	}>;
 }
@@ -28,7 +28,7 @@ export default class FeedbackQuestionRepository extends BaseRepository<
 		super(feedbackQuestions, feedbackQuestions.id);
 	}
 
-	override async findById(id: number) {
+	override async findById(id: string) {
 		return db.query.feedbackQuestions.findFirst({
 			where: eq(feedbackQuestions.id, id),
 			with: { category: true },
@@ -57,7 +57,7 @@ export default class FeedbackQuestionRepository extends BaseRepository<
 			)
 			.orderBy(asc(feedbackCategories.name), asc(feedbackQuestions.createdAt));
 
-		const resultMap = new Map<number, CategoryQuestionBoard>();
+		const resultMap = new Map<string, CategoryQuestionBoard>();
 
 		for (const row of rows as QuestionBoardRow[]) {
 			const existing = resultMap.get(row.categoryId);

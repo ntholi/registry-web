@@ -10,7 +10,7 @@ export default class FeedbackCategoryRepository extends BaseRepository<
 		super(feedbackCategories, feedbackCategories.id);
 	}
 
-	async hasQuestions(id: number): Promise<boolean> {
+	async hasQuestions(id: string): Promise<boolean> {
 		const [result] = await db
 			.select({ count: count() })
 			.from(feedbackQuestions)

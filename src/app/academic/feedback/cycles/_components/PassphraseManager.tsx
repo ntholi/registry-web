@@ -25,7 +25,7 @@ import {
 import PassphraseSlips from './PassphraseSlips';
 
 type Props = {
-	cycleId: number;
+	cycleId: string;
 	termId: number;
 	cycleName: string;
 };

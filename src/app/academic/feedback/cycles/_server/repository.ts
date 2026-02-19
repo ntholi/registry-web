@@ -21,7 +21,7 @@ export default class FeedbackCycleRepository extends BaseRepository<
 		super(feedbackCycles, feedbackCycles.id);
 	}
 
-	override async findById(id: number) {
+	override async findById(id: string) {
 		return db.query.feedbackCycles.findFirst({
 			where: eq(feedbackCycles.id, id),
 			with: {
@@ -49,7 +49,7 @@ export default class FeedbackCycleRepository extends BaseRepository<
 	}
 
 	async updateWithSchools(
-		id: number,
+		id: string,
 		data: Partial<typeof feedbackCycles.$inferInsert>,
 		schoolIds: number[]
 	) {
@@ -143,7 +143,7 @@ export default class FeedbackCycleRepository extends BaseRepository<
 		return Array.from(grouped.values());
 	}
 
-	async getPassphraseStats(cycleId: number) {
+	async getPassphraseStats(cycleId: string) {
 		const rows = await db
 			.select({
 				structureSemesterId: feedbackPassphrases.structureSemesterId,
@@ -170,7 +170,7 @@ export default class FeedbackCycleRepository extends BaseRepository<
 		return result;
 	}
 
-	async getExistingPassphrases(cycleId: number) {
+	async getExistingPassphrases(cycleId: string) {
 		const rows = await db
 			.select({ passphrase: feedbackPassphrases.passphrase })
 			.from(feedbackPassphrases)
@@ -181,7 +181,7 @@ export default class FeedbackCycleRepository extends BaseRepository<
 
 	async createPassphrases(
 		passphrases: {
-			cycleId: number;
+			cycleId: string;
 			structureSemesterId: number;
 			passphrase: string;
 		}[]
@@ -190,7 +190,7 @@ export default class FeedbackCycleRepository extends BaseRepository<
 		await db.insert(feedbackPassphrases).values(passphrases);
 	}
 
-	async getPassphrasesForClass(cycleId: number, structureSemesterId: number) {
+	async getPassphrasesForClass(cycleId: string, structureSemesterId: number) {
 		return db
 			.select({ passphrase: feedbackPassphrases.passphrase })
 			.from(feedbackPassphrases)

@@ -8,9 +8,9 @@ type FormValues = {
 };
 
 type Props = {
-	categoryId: number;
+	categoryId: string;
 	initialValues?: FormValues;
-	onSubmit: (values: { categoryId: number; text: string }) => void;
+	onSubmit: (values: { categoryId: string; text: string }) => void;
 	loading?: boolean;
 	submitLabel: string;
 	onCancel: () => void;

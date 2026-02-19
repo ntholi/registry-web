@@ -9,7 +9,7 @@ import { createQuestion } from '../_server/actions';
 import QuestionForm from './QuestionForm';
 
 type Props = {
-	categoryId: number;
+	categoryId: string;
 	categoryName: string;
 };
 
@@ -21,7 +21,7 @@ export default function CreateQuestionModal({
 	const queryClient = useQueryClient();
 
 	const mutation = useMutation({
-		mutationFn: async (values: { categoryId: number; text: string }) => {
+		mutationFn: async (values: { categoryId: string; text: string }) => {
 			return createQuestion(values);
 		},
 		onSuccess: () => {

@@ -24,7 +24,7 @@ function getCycleStatus(startDate: string, endDate: string) {
 
 export default async function CycleDetails({ params }: Props) {
 	const { id } = await params;
-	const cycle = await getCycle(Number(id));
+	const cycle = await getCycle(id);
 
 	if (!cycle) {
 		return notFound();
@@ -52,7 +52,7 @@ export default async function CycleDetails({ params }: Props) {
 				queryKey={['feedback-cycles']}
 				handleDelete={async () => {
 					'use server';
-					await deleteCycle(Number(id));
+					await deleteCycle(id);
 				}}
 			/>
 			<DetailsViewBody>

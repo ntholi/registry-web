@@ -17,7 +17,7 @@ export async function getCycles(page = 1, search = '') {
 	});
 }
 
-export async function getCycle(id: number) {
+export async function getCycle(id: string) {
 	return service.get(id);
 }
 
@@ -26,12 +26,12 @@ export async function createCycle(data: CycleWithSchools) {
 	return service.createWithSchools(cycleData, schoolIds);
 }
 
-export async function updateCycle(id: number, data: CycleWithSchools) {
+export async function updateCycle(id: string, data: CycleWithSchools) {
 	const { schoolIds = [], ...cycleData } = data;
 	return service.updateWithSchools(id, cycleData, schoolIds);
 }
 
-export async function deleteCycle(id: number) {
+export async function deleteCycle(id: string) {
 	return service.delete(id);
 }
 
@@ -39,12 +39,12 @@ export async function getClassesForTerm(termId: number) {
 	return service.getClassesForTerm(termId);
 }
 
-export async function getPassphraseStats(cycleId: number) {
+export async function getPassphraseStats(cycleId: string) {
 	return service.getPassphraseStats(cycleId);
 }
 
 export async function generatePassphrases(
-	cycleId: number,
+	cycleId: string,
 	structureSemesterId: number,
 	studentCount: number
 ) {
@@ -56,7 +56,7 @@ export async function generatePassphrases(
 }
 
 export async function getPassphrasesForClass(
-	cycleId: number,
+	cycleId: string,
 	structureSemesterId: number
 ) {
 	return service.getPassphrasesForClass(cycleId, structureSemesterId);

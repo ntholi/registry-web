@@ -31,7 +31,7 @@ class FeedbackCycleService extends BaseService<typeof feedbackCycles, 'id'> {
 	}
 
 	async updateWithSchools(
-		id: number,
+		id: string,
 		data: typeof feedbackCycles.$inferInsert,
 		schoolIds: number[]
 	) {
@@ -48,7 +48,7 @@ class FeedbackCycleService extends BaseService<typeof feedbackCycles, 'id'> {
 		);
 	}
 
-	async getPassphraseStats(cycleId: number) {
+	async getPassphraseStats(cycleId: string) {
 		return withAuth(
 			async () => this.repo.getPassphraseStats(cycleId),
 			['academic', 'admin']
@@ -56,7 +56,7 @@ class FeedbackCycleService extends BaseService<typeof feedbackCycles, 'id'> {
 	}
 
 	async generatePassphrases(
-		cycleId: number,
+		cycleId: string,
 		structureSemesterId: number,
 		studentCount: number
 	) {
@@ -75,7 +75,7 @@ class FeedbackCycleService extends BaseService<typeof feedbackCycles, 'id'> {
 		}, ['academic', 'admin']);
 	}
 
-	async getPassphrasesForClass(cycleId: number, structureSemesterId: number) {
+	async getPassphrasesForClass(cycleId: string, structureSemesterId: number) {
 		return withAuth(
 			async () =>
 				this.repo.getPassphrasesForClass(cycleId, structureSemesterId),

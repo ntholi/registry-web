@@ -1,8 +1,11 @@
 import { terms } from '@registry/terms/_schema/terms';
-import { integer, pgTable, serial, text, timestamp } from 'drizzle-orm/pg-core';
+import { integer, pgTable, text, timestamp } from 'drizzle-orm/pg-core';
+import { nanoid } from 'nanoid';
 
 export const feedbackCycles = pgTable('feedback_cycles', {
-	id: serial().primaryKey(),
+	id: text()
+		.primaryKey()
+		.$defaultFn(() => nanoid()),
 	name: text().notNull(),
 	termId: integer()
 		.references(() => terms.id)

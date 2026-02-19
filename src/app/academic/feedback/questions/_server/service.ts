@@ -18,7 +18,7 @@ class FeedbackQuestionService extends BaseService<
 		});
 	}
 
-	override async get(id: number) {
+	override async get(id: string) {
 		return withAuth(
 			async () => (this.repository as FeedbackQuestionRepository).findById(id),
 			['academic', 'admin']
