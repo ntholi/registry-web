@@ -60,7 +60,7 @@ export const academicConfig: ModuleConfig = {
 				},
 			},
 			{
-				label: 'Feedback',
+				label: 'Student Feedback',
 				icon: IconMessageStar,
 				roles: ['academic', 'admin'],
 				collapsed: false,
