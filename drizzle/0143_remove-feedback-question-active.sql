@@ -1,1 +1,0 @@
-ALTER TABLE "feedback_questions" DROP COLUMN IF EXISTS "active";
