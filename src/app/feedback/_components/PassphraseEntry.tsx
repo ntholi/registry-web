@@ -2,15 +2,16 @@
 
 import {
 	Alert,
-	Badge,
 	Button,
 	Combobox,
 	Container,
 	Group,
 	Image,
+	Input,
+	Pill,
+	PillsInput,
 	Stack,
 	Text,
-	TextInput,
 	Title,
 	useCombobox,
 	useComputedColorScheme,
@@ -18,10 +19,11 @@ import {
 import { IconArrowRight, IconShieldCheck } from '@tabler/icons-react';
 import NextImage from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useRef, useState, useTransition } from 'react';
+import { useEffect, useState, useTransition } from 'react';
 import { wordList } from '../_lib/wordList';
 
 const MAX_WORDS = 3;
+const MIN_CHARS = 3;
 
 type Props = {
 	error?: string;
@@ -32,9 +34,9 @@ export default function PassphraseEntry({ error }: Props) {
 	const searchParams = useSearchParams();
 	const colorScheme = useComputedColorScheme('dark');
 	const isDark = colorScheme === 'dark';
-	const inputRef = useRef<HTMLInputElement>(null);
 
-	const [value, setValue] = useState('');
+	const [words, setWords] = useState<string[]>([]);
+	const [search, setSearch] = useState('');
 	const [validationError, setValidationError] = useState(error || '');
 	const [isPending, startTransition] = useTransition();
 
@@ -51,45 +53,37 @@ export default function PassphraseEntry({ error }: Props) {
 	useEffect(() => {
 		const p = searchParams.get('passphrase');
 		if (p) {
-			setValue(p);
+			const parts = p.split(' ').filter(Boolean);
+			if (parts.length === MAX_WORDS) {
+				setWords(parts);
+			}
 		} else if (cachedPassphrase) {
 			setShowResume(true);
 		}
 	}, [searchParams, cachedPassphrase]);
 
-	const parts = value.split(/\s+/).filter(Boolean);
-	const currentWord = value.endsWith(' ') ? '' : (parts.at(-1) ?? '');
-	const validCount = parts.filter((w) => wordList.includes(w)).length;
-
 	const suggestions =
-		currentWord.length > 0 && parts.length <= MAX_WORDS
-			? wordList
-					.filter((w) => w.startsWith(currentWord.toLowerCase()))
-					.slice(0, 8)
+		search.length >= MIN_CHARS && words.length < MAX_WORDS
+			? wordList.filter((w) => w.startsWith(search.toLowerCase())).slice(0, 8)
 			: [];
 
-	function selectWord(word: string) {
-		const updated = [...parts];
-		if (value.endsWith(' ') || updated.length === 0) {
-			updated.push(word);
-		} else {
-			updated[updated.length - 1] = word;
-		}
-		const next =
-			updated.length < MAX_WORDS ? `${updated.join(' ')} ` : updated.join(' ');
-		setValue(next);
+	function handleSelect(word: string) {
+		setWords((prev) => [...prev, word]);
+		setSearch('');
 		setValidationError('');
 		combobox.closeDropdown();
-		inputRef.current?.focus();
 	}
 
-	function handleChange(val: string) {
-		const typed = val.split(/\s+/).filter(Boolean);
-		if (typed.length > MAX_WORDS) return;
-		if (typed.length === MAX_WORDS && val.endsWith(' ')) return;
-		setValue(val.toLowerCase());
+	function handleRemove(word: string) {
+		setWords((prev) => prev.filter((w) => w !== word));
 		setValidationError('');
-		if (val && !val.endsWith(' ')) {
+	}
+
+	function handleSearchChange(val: string) {
+		const cleaned = val.toLowerCase().replace(/\s/g, '');
+		setSearch(cleaned);
+		setValidationError('');
+		if (cleaned.length >= MIN_CHARS && words.length < MAX_WORDS) {
 			combobox.openDropdown();
 			combobox.resetSelectedOption();
 		} else {
@@ -98,17 +92,16 @@ export default function PassphraseEntry({ error }: Props) {
 	}
 
 	function handleSubmit() {
-		const trimmed = value.trim().split(/\s+/).filter(Boolean);
-		if (trimmed.length !== MAX_WORDS) {
+		if (words.length !== MAX_WORDS) {
 			setValidationError(`Please enter exactly ${MAX_WORDS} words.`);
 			return;
 		}
-		const allValid = trimmed.every((w) => wordList.includes(w));
+		const allValid = words.every((w) => wordList.includes(w));
 		if (!allValid) {
-			setValidationError('Please enter valid words from the word list.');
+			setValidationError('One or more words are not in the word list.');
 			return;
 		}
-		const passphrase = trimmed.join(' ');
+		const passphrase = words.join(' ');
 		localStorage.setItem('feedback-passphrase', passphrase);
 		startTransition(() => {
 			router.push(`/feedback?passphrase=${encodeURIComponent(passphrase)}`);
@@ -117,7 +110,8 @@ export default function PassphraseEntry({ error }: Props) {
 
 	function handleResume() {
 		if (!cachedPassphrase) return;
-		setValue(cachedPassphrase);
+		const parts = cachedPassphrase.split(' ').filter(Boolean);
+		setWords(parts);
 		setShowResume(false);
 		localStorage.setItem('feedback-passphrase', cachedPassphrase);
 		startTransition(() => {
@@ -126,6 +120,12 @@ export default function PassphraseEntry({ error }: Props) {
 			);
 		});
 	}
+
+	const pills = words.map((word) => (
+		<Pill key={word} withRemoveButton onRemove={() => handleRemove(word)}>
+			{word}
+		</Pill>
+	));
 
 	const options = suggestions.map((word) => (
 		<Combobox.Option value={word} key={word}>
@@ -190,55 +190,92 @@ export default function PassphraseEntry({ error }: Props) {
 				)}
 
 				<Stack w='100%' gap='md'>
-					<Combobox
-						store={combobox}
-						onOptionSubmit={selectWord}
-						withinPortal={false}
+					<Input.Wrapper
+						label='Passphrase'
+						description={`Enter ${MAX_WORDS} words (${words.length}/${MAX_WORDS})`}
+						error={validationError || undefined}
 					>
-						<Combobox.Target>
-							<TextInput
-								ref={inputRef}
-								label='Passphrase'
-								description={`Enter ${MAX_WORDS} words separated by spaces`}
-								placeholder='word1 word2 word3'
-								value={value}
-								onChange={(e) => handleChange(e.currentTarget.value)}
-								onKeyDown={(e) => {
-									if (e.key === 'Enter' && !combobox.dropdownOpened) {
-										handleSubmit();
-									}
-								}}
-								onFocus={() => {
-									if (currentWord) combobox.openDropdown();
-								}}
-								onBlur={() => combobox.closeDropdown()}
-								size='lg'
-								error={validationError || undefined}
-								rightSection={
-									<Badge size='sm' variant='light' circle>
-										{validCount}
-									</Badge>
-								}
-								rightSectionWidth={42}
-							/>
-						</Combobox.Target>
-						<Combobox.Dropdown>
-							<Combobox.Options>
-								{options.length > 0 ? (
-									options
-								) : (
-									<Combobox.Empty>No matches</Combobox.Empty>
-								)}
-							</Combobox.Options>
-						</Combobox.Dropdown>
-					</Combobox>
+						<Combobox
+							store={combobox}
+							onOptionSubmit={handleSelect}
+							withinPortal={false}
+						>
+							<Combobox.DropdownTarget>
+								<PillsInput
+									onClick={() => {
+										if (search.length >= MIN_CHARS) combobox.openDropdown();
+									}}
+									size='lg'
+									error={!!validationError}
+								>
+									<Pill.Group>
+										{pills}
+										{words.length < MAX_WORDS && (
+											<Combobox.EventsTarget>
+												<PillsInput.Field
+													value={search}
+													placeholder={
+														words.length === 0
+															? 'Start typing a word...'
+															: `Word ${words.length + 1}...`
+													}
+													onChange={(e) =>
+														handleSearchChange(e.currentTarget.value)
+													}
+													onFocus={() => {
+														if (search.length >= MIN_CHARS)
+															combobox.openDropdown();
+													}}
+													onBlur={() => combobox.closeDropdown()}
+													onKeyDown={(e) => {
+														if (
+															e.key === 'Backspace' &&
+															search.length === 0 &&
+															words.length > 0
+														) {
+															e.preventDefault();
+															setWords((prev) => prev.slice(0, -1));
+														}
+														if (
+															(e.key === 'Enter' || e.key === ' ') &&
+															suggestions.length === 1
+														) {
+															e.preventDefault();
+															handleSelect(suggestions[0]);
+															return;
+														}
+														if (
+															e.key === 'Enter' &&
+															!combobox.dropdownOpened &&
+															words.length === MAX_WORDS
+														) {
+															handleSubmit();
+														}
+													}}
+												/>
+											</Combobox.EventsTarget>
+										)}
+									</Pill.Group>
+								</PillsInput>
+							</Combobox.DropdownTarget>
+							<Combobox.Dropdown>
+								<Combobox.Options>
+									{options.length > 0 ? (
+										options
+									) : (
+										<Combobox.Empty>No matches</Combobox.Empty>
+									)}
+								</Combobox.Options>
+							</Combobox.Dropdown>
+						</Combobox>
+					</Input.Wrapper>
 
 					<Button
 						fullWidth
 						size='md'
 						onClick={handleSubmit}
 						loading={isPending}
-						disabled={validCount < MAX_WORDS}
+						disabled={words.length < MAX_WORDS}
 						rightSection={<IconArrowRight size={18} />}
 					>
 						Continue
