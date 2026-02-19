@@ -72,7 +72,7 @@ export default async function CycleDetails({ params }: Props) {
 				</TabsList>
 
 				<TabsPanel value='details'>
-					<Stack mt={'md'} p={'sm'}>
+					<Stack mt={'md'} p={'sm'} gap={'lg'}>
 						<FieldView label='Name'>{cycle.name}</FieldView>
 						<FieldView label='Term'>{termName}</FieldView>
 						<FieldView label='Dates'>

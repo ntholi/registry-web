@@ -52,8 +52,8 @@ export default function PassphraseManager({
 	cycleName,
 }: Props) {
 	const queryClient = useQueryClient();
-	const [yearFilter, setYearFilter] = useState<string[]>([]);
-	const [programFilter, setProgramFilter] = useState<string[]>([]);
+	const [yearFilter, setYearFilter] = useState('');
+	const [programFilter, setProgramFilter] = useState('');
 	const [generateTarget, setGenerateTarget] = useState<{
 		structureSemesterId: number;
 		className: string;
@@ -97,13 +97,8 @@ export default function PassphraseManager({
 	const filtered = useMemo(() => {
 		const flat: ClassItem[] = schoolGroups.flatMap((g) => g.classes);
 		return flat.filter((cls) => {
-			if (yearFilter.length > 0) {
-				const y = getYear(cls.semesterNumber);
-				if (!yearFilter.includes(String(y))) return false;
-			}
-			if (programFilter.length > 0) {
-				if (!programFilter.includes(cls.programCode)) return false;
-			}
+			if (yearFilter && getYear(cls.semesterNumber) !== Number(yearFilter)) return false;
+			if (programFilter && cls.programCode !== programFilter) return false;
 			return true;
 		});
 	}, [schoolGroups, yearFilter, programFilter]);
@@ -162,8 +157,6 @@ export default function PassphraseManager({
 		return studentCount + Math.ceil(studentCount * 0.1);
 	}
 
-	const activeFilterCount = yearFilter.length + programFilter.length;
-
 	return (
 		<Stack gap='md'>
 			<Modal
@@ -221,84 +214,37 @@ export default function PassphraseManager({
 				)}
 			</Modal>
 
-
-
-			<Stack gap={6}>
-				<ScrollArea type='auto' offsetScrollbars scrollbarSize={4}>
-					<Group gap={6} wrap='nowrap'>
-						{years.map((y) => (
-							<Chip
-								key={y}
-								size='xs'
-								checked={yearFilter.includes(String(y))}
-								onChange={() =>
-									setYearFilter((prev) =>
-										prev.includes(String(y))
-											? prev.filter((v) => v !== String(y))
-											: [...prev, String(y)]
-									)
-								}
-							>
-								Year {y}
-							</Chip>
-						))}
-					</Group>
-				</ScrollArea>
-				{programs.length > 5 ? (
-					<ScrollArea type='auto' offsetScrollbars scrollbarSize={4}>
-						<Group gap={6} wrap='nowrap'>
-							{programs.map((p) => (
-								<Chip
-									key={p.code}
-									size='xs'
-									checked={programFilter.includes(p.code)}
-									onChange={() =>
-										setProgramFilter((prev) =>
-											prev.includes(p.code)
-												? prev.filter((v) => v !== p.code)
-												: [...prev, p.code]
-										)
-									}
-								>
-									{p.code}
-								</Chip>
-							))}
-						</Group>
-					</ScrollArea>
-				) : (
-					<Group gap={6}>
-						{programs.map((p) => (
-							<Chip
-								key={p.code}
-								size='xs'
-								checked={programFilter.includes(p.code)}
-								onChange={() =>
-									setProgramFilter((prev) =>
-										prev.includes(p.code)
-											? prev.filter((v) => v !== p.code)
-											: [...prev, p.code]
-									)
-								}
-							>
-								{p.code}
-							</Chip>
-						))}
-					</Group>
-				)}
-				{activeFilterCount > 0 && (
-					<Button
-						size='compact-xs'
-						variant='subtle'
-						onClick={() => {
-							setYearFilter([]);
-							setProgramFilter([]);
-						}}
-						w='fit-content'
+			<ScrollArea type='auto' offsetScrollbars scrollbarSize={4}>
+				<Group gap={6} wrap='nowrap' pb={4}>
+					<Chip
+						size='xs'
+						checked={!yearFilter && !programFilter}
+						onChange={() => { setYearFilter(''); setProgramFilter(''); }}
 					>
-						Clear filters ({activeFilterCount})
-					</Button>
-				)}
-			</Stack>
+						All
+					</Chip>
+					{years.map((y) => (
+						<Chip
+							key={y}
+							size='xs'
+							checked={yearFilter === String(y)}
+							onChange={() => setYearFilter((prev) => (prev === String(y) ? '' : String(y)))}
+						>
+							Year {y}
+						</Chip>
+					))}
+					{programs.map((p) => (
+						<Chip
+							key={p.code}
+							size='xs'
+							checked={programFilter === p.code}
+							onChange={() => setProgramFilter((prev) => (prev === p.code ? '' : p.code))}
+						>
+							{p.code}
+						</Chip>
+					))}
+				</Group>
+			</ScrollArea>
 
 			<Text size='xs' c='dimmed'>
 				{filtered.length} class{filtered.length !== 1 ? 'es' : ''} shown
