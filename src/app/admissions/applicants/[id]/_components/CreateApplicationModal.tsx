@@ -20,8 +20,8 @@ import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import {
 	IconExternalLink,
-	IconFilePlus,
 	IconInfoCircle,
+	IconPlus,
 } from '@tabler/icons-react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
@@ -165,17 +165,9 @@ export default function CreateApplicationModal({ applicantId }: Props) {
 	return (
 		<>
 			<Group gap='xs'>
-				<Button
-					variant='light'
-					size='xs'
-					leftSection={<IconFilePlus size={16} />}
-					onClick={open}
-				>
-					New Application
-				</Button>
 				{latestApplication && (
 					<Button
-						variant='subtle'
+						variant='solid'
 						size='xs'
 						leftSection={<IconExternalLink size={16} />}
 						component={Link}
@@ -184,6 +176,14 @@ export default function CreateApplicationModal({ applicantId }: Props) {
 						Go to Application
 					</Button>
 				)}
+				<Button
+					variant='default'
+					size='xs'
+					leftSection={<IconPlus size={16} />}
+					onClick={open}
+				>
+					Apply
+				</Button>
 			</Group>
 
 			<Modal
