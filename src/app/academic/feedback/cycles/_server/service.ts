@@ -20,6 +20,15 @@ class FeedbackCycleService extends BaseService<typeof feedbackCycles, 'id'> {
 		this.repo = repo;
 	}
 
+	async findAllWithSchoolCodes(
+		params: Parameters<typeof this.repo.queryWithSchoolCodes>[0]
+	) {
+		return withAuth(
+			() => this.repo.queryWithSchoolCodes(params),
+			['academic', 'admin']
+		);
+	}
+
 	async createWithSchools(
 		data: typeof feedbackCycles.$inferInsert,
 		schoolIds: number[]

@@ -10,7 +10,7 @@ type Cycle = typeof feedbackCycles.$inferInsert;
 type CycleWithSchools = Cycle & { schoolIds?: number[] };
 
 export async function getCycles(page = 1, search = '') {
-	return service.findAll({
+	return service.findAllWithSchoolCodes({
 		page,
 		search: search.trim(),
 		searchColumns: ['name'],

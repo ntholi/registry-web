@@ -1,6 +1,6 @@
 'use client';
 
-import { Badge, Group, Text } from '@mantine/core';
+import { Badge } from '@mantine/core';
 import type { PropsWithChildren } from 'react';
 import { getStatusColor } from '@/shared/lib/utils/colors';
 import { ListItem, ListLayout, NewLink } from '@/shared/ui/adease';
@@ -27,15 +27,12 @@ export default function Layout({ children }: PropsWithChildren) {
 				return (
 					<ListItem
 						id={it.id}
-						label={
-							<Group gap='xs' wrap='nowrap'>
-								<Text size='sm' truncate>
-									{it.name}
-								</Text>
-								<Badge size='xs' variant='light' color={getStatusColor(status)}>
-									{status}
-								</Badge>
-							</Group>
+						label={it.name}
+						description={it.schoolCodes.join(', ')}
+						rightSection={
+							<Badge size='sm' variant='light' color={getStatusColor(status)}>
+								{status}
+							</Badge>
 						}
 					/>
 				);

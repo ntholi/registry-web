@@ -1,4 +1,4 @@
-import { and, count, eq, sql } from 'drizzle-orm';
+import { and, count, eq, getTableColumns, sql } from 'drizzle-orm';
 import {
 	db,
 	feedbackCycleSchools,
@@ -11,7 +11,9 @@ import {
 	studentSemesters,
 	terms,
 } from '@/core/database';
-import BaseRepository from '@/core/platform/BaseRepository';
+import BaseRepository, {
+	type QueryOptions,
+} from '@/core/platform/BaseRepository';
 
 export default class FeedbackCycleRepository extends BaseRepository<
 	typeof feedbackCycles,
@@ -29,6 +31,29 @@ export default class FeedbackCycleRepository extends BaseRepository<
 				cycleSchools: { with: { school: true } },
 			},
 		});
+	}
+
+	async queryWithSchoolCodes(options: QueryOptions<typeof feedbackCycles>) {
+		const { orderBy, where, offset, limit } = this.buildQueryCriteria(options);
+		const items = await db
+			.select({
+				...getTableColumns(feedbackCycles),
+				schoolCodes: sql<
+					string[]
+				>`coalesce(array_agg(${schools.code} order by ${schools.code}) filter (where ${schools.code} is not null), '{}')`,
+			})
+			.from(feedbackCycles)
+			.leftJoin(
+				feedbackCycleSchools,
+				eq(feedbackCycleSchools.cycleId, feedbackCycles.id)
+			)
+			.leftJoin(schools, eq(schools.id, feedbackCycleSchools.schoolId))
+			.groupBy(feedbackCycles.id)
+			.orderBy(...orderBy)
+			.where(where)
+			.limit(limit)
+			.offset(offset);
+		return this.createPaginatedResult(items, { where, limit });
 	}
 
 	async createWithSchools(

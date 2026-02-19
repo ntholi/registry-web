@@ -9,9 +9,9 @@ import {
 	Modal,
 	NumberInput,
 	Paper,
+	SimpleGrid,
 	Stack,
 	Text,
-	Title,
 } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { IconPlus } from '@tabler/icons-react';
@@ -167,10 +167,7 @@ export default function PassphraseManager({
 
 			{schoolGroups.map((school) => (
 				<Box key={school.schoolId}>
-					<Title order={5} mb='xs'>
-						{school.schoolName}
-					</Title>
-					<Stack gap='xs'>
+					<SimpleGrid cols={{ base: 1 }}>
 						{school.classes.map((cls) => {
 							const stats = statsMap?.[cls.structureSemesterId];
 							const total = stats?.total ?? 0;
@@ -236,7 +233,7 @@ export default function PassphraseManager({
 								</Paper>
 							);
 						})}
-					</Stack>
+					</SimpleGrid>
 				</Box>
 			))}
 		</Stack>
