@@ -94,11 +94,12 @@ export default function LecturerStep({
 						</div>
 					</Group>
 					<Button
-						variant='subtle'
-						color='gray'
-						size='xs'
+						variant='light'
+						color='red'
+						size='compact-sm'
 						onClick={onSkip}
 						loading={isPending}
+						ml='auto'
 					>
 						Skip lecturer
 					</Button>
