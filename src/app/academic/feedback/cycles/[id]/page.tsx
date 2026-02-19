@@ -1,4 +1,13 @@
-import { Badge, Divider, Group, Stack, Text } from '@mantine/core';
+import {
+	Badge,
+	Group,
+	Tabs,
+	TabsList,
+	TabsPanel,
+	TabsTab,
+	Text,
+} from '@mantine/core';
+import { IconInfoCircle, IconKey } from '@tabler/icons-react';
 import { notFound } from 'next/navigation';
 import { getStatusColor } from '@/shared/lib/utils/colors';
 import { formatDate } from '@/shared/lib/utils/dates';
@@ -56,35 +65,48 @@ export default async function CycleDetails({ params }: Props) {
 				}}
 			/>
 			<DetailsViewBody>
-				<FieldView label='Name'>{cycle.name}</FieldView>
-				<FieldView label='Term'>{termName}</FieldView>
-				<FieldView label='Dates'>
-					{formatDate(cycle.startDate)} — {formatDate(cycle.endDate)}
-				</FieldView>
-				<FieldView label='Status'>
-					<Badge color={getStatusColor(status)} variant='light'>
-						{status.charAt(0).toUpperCase() + status.slice(1)}
-					</Badge>
-				</FieldView>
-				{cycleSchools.length > 0 && (
-					<FieldView label='Schools'>
-						<Group gap='xs'>
-							{cycleSchools.map((cs) => (
-								<Text key={cs.school.id} size='sm'>
-									{cs.school.code}
-								</Text>
-							))}
-						</Group>
-					</FieldView>
-				)}
-				<Divider label='Passphrase Management' labelPosition='left' mt='xl' />
-				<Stack>
-					<PassphraseManager
-						cycleId={cycle.id}
-						termId={cycle.termId}
-						cycleName={cycle.name}
-					/>
-				</Stack>
+				<Tabs defaultValue='details'>
+					<TabsList>
+						<TabsTab value='details' leftSection={<IconInfoCircle size={16} />}>
+							Details
+						</TabsTab>
+						<TabsTab value='passphrases' leftSection={<IconKey size={16} />}>
+							Passphrases
+						</TabsTab>
+					</TabsList>
+
+					<TabsPanel value='details' pt='md'>
+						<FieldView label='Name'>{cycle.name}</FieldView>
+						<FieldView label='Term'>{termName}</FieldView>
+						<FieldView label='Dates'>
+							{formatDate(cycle.startDate)} — {formatDate(cycle.endDate)}
+						</FieldView>
+						<FieldView label='Status'>
+							<Badge color={getStatusColor(status)} variant='light'>
+								{status.charAt(0).toUpperCase() + status.slice(1)}
+							</Badge>
+						</FieldView>
+						{cycleSchools.length > 0 && (
+							<FieldView label='Schools'>
+								<Group gap='xs'>
+									{cycleSchools.map((cs) => (
+										<Text key={cs.school.id} size='sm'>
+											{cs.school.code}
+										</Text>
+									))}
+								</Group>
+							</FieldView>
+						)}
+					</TabsPanel>
+
+					<TabsPanel value='passphrases' pt='md'>
+						<PassphraseManager
+							cycleId={cycle.id}
+							termId={cycle.termId}
+							cycleName={cycle.name}
+						/>
+					</TabsPanel>
+				</Tabs>
 			</DetailsViewBody>
 		</DetailsView>
 	);
