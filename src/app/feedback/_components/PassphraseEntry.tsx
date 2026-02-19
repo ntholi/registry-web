@@ -37,7 +37,8 @@ export default function PassphraseEntry({ error }: Props) {
 
 	const [words, setWords] = useState<string[]>([]);
 	const [search, setSearch] = useState('');
-	const [validationError, setValidationError] = useState(error || '');
+	const [validationError, setValidationError] = useState('');
+	const [serverError, setServerError] = useState(error || '');
 	const [isPending, startTransition] = useTransition();
 
 	const combobox = useCombobox({
@@ -57,10 +58,13 @@ export default function PassphraseEntry({ error }: Props) {
 			if (parts.length === MAX_WORDS) {
 				setWords(parts);
 			}
+			if (error) {
+				localStorage.removeItem('feedback-passphrase');
+			}
 		} else if (cachedPassphrase) {
 			setShowResume(true);
 		}
-	}, [searchParams, cachedPassphrase]);
+	}, [searchParams, cachedPassphrase, error]);
 
 	const suggestions =
 		search.length >= MIN_CHARS && words.length < MAX_WORDS
@@ -71,12 +75,14 @@ export default function PassphraseEntry({ error }: Props) {
 		setWords((prev) => [...prev, word]);
 		setSearch('');
 		setValidationError('');
+		setServerError('');
 		combobox.closeDropdown();
 	}
 
 	function handleRemove(word: string) {
 		setWords((prev) => prev.filter((w) => w !== word));
 		setValidationError('');
+		setServerError('');
 	}
 
 	function handleSearchChange(val: string) {
@@ -193,7 +199,6 @@ export default function PassphraseEntry({ error }: Props) {
 					<Input.Wrapper
 						label='Passphrase'
 						description={`Enter ${MAX_WORDS} words (${words.length}/${MAX_WORDS})`}
-						error={validationError || undefined}
 					>
 						<Combobox
 							store={combobox}
@@ -206,7 +211,7 @@ export default function PassphraseEntry({ error }: Props) {
 										if (search.length >= MIN_CHARS) combobox.openDropdown();
 									}}
 									size='lg'
-									error={!!validationError}
+									error={!!(validationError || serverError)}
 								>
 									<Pill.Group>
 										{pills}
@@ -269,6 +274,12 @@ export default function PassphraseEntry({ error }: Props) {
 							</Combobox.Dropdown>
 						</Combobox>
 					</Input.Wrapper>
+
+					{(validationError || serverError) && (
+						<Text c='red' size='sm'>
+							{validationError || serverError}
+						</Text>
+					)}
 
 					<Button
 						fullWidth
