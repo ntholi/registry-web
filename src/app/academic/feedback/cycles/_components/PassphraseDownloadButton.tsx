@@ -42,13 +42,13 @@ export default function PassphraseDownloadButton({
 			}
 
 			const baseUrl = window.location.origin;
+			const feedbackPath = `${window.location.host}/feedback`;
 			const entries = await Promise.all(
 				passphrases.map(async (item) => {
 					const feedbackUrl = new URL('/feedback', baseUrl);
 					feedbackUrl.searchParams.set('passphrase', item.passphrase);
-					const feedbackLink = feedbackUrl.toString();
-					const qrCodeDataUrl = await QRCode.toDataURL(feedbackLink, {
-						width: 64,
+					const qrCodeDataUrl = await QRCode.toDataURL(feedbackUrl.toString(), {
+						width: 80,
 						margin: 1,
 						color: {
 							dark: '#000000',
@@ -58,7 +58,6 @@ export default function PassphraseDownloadButton({
 
 					return {
 						passphrase: item.passphrase,
-						feedbackUrl: feedbackLink,
 						qrCodeDataUrl,
 					};
 				})
@@ -68,6 +67,7 @@ export default function PassphraseDownloadButton({
 				<PassphraseSlipsPDF
 					cycleName={cycleName}
 					className={className}
+					feedbackPath={feedbackPath}
 					entries={entries}
 				/>
 			).toBlob();
