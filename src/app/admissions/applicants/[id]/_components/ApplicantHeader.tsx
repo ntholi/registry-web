@@ -1,6 +1,14 @@
 'use client';
 
-import { ActionIcon, Avatar, Group, Paper, Stack, Title } from '@mantine/core';
+import {
+	ActionIcon,
+	Avatar,
+	Flex,
+	Group,
+	Paper,
+	Stack,
+	Title,
+} from '@mantine/core';
 import { IconEdit } from '@tabler/icons-react';
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
@@ -46,15 +54,17 @@ export default function ApplicantHeader({ id, fullName, gender, user }: Props) {
 						{initials}
 					</Avatar>
 					<Stack gap={4}>
-						<Title order={2} fw={600}>
-							{fullName}
-						</Title>
+						<Flex justify={'space-between'}>
+							<Title order={2} fw={600}>
+								{fullName}
+							</Title>
+						</Flex>
 						<Group gap='xs' mt={4}>
 							<ApplicantEmailModal applicantId={id} currentUser={user} />
 						</Group>
 					</Stack>
 				</Group>
-				<Stack justify='space-between' align='end'>
+				<Stack align='flex-end'>
 					<Group gap='xs'>
 						<ActionIcon
 							variant='subtle'
