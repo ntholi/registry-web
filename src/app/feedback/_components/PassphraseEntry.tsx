@@ -5,7 +5,7 @@ import {
 	Button,
 	Combobox,
 	Container,
-	Group,
+	Flex,
 	Image,
 	Input,
 	Pill,
@@ -154,7 +154,7 @@ export default function PassphraseEntry({ error }: Props) {
 				/>
 				<Stack align='center' gap={4}>
 					<Title order={2} ta='center'>
-						Student Feedback Portal
+						Student Feedback
 					</Title>
 					<Text c='dimmed' ta='center' size='sm'>
 						Enter your passphrase to provide anonymous feedback
@@ -178,19 +178,19 @@ export default function PassphraseEntry({ error }: Props) {
 								You have an unfinished feedback session. Would you like to
 								resume?
 							</Text>
-							<Group>
-								<Button size='xs' variant='light' onClick={handleResume}>
-									Resume
-								</Button>
+							<Flex justify={'space-between'}>
 								<Button
 									size='xs'
-									variant='subtle'
-									color='gray'
+									variant='light'
+									color='red'
 									onClick={() => setShowResume(false)}
 								>
 									Start fresh
 								</Button>
-							</Group>
+								<Button size='xs' variant='light' onClick={handleResume}>
+									Resume
+								</Button>
+							</Flex>
 						</Stack>
 					</Alert>
 				)}

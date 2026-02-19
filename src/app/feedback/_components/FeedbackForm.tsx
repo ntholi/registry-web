@@ -102,6 +102,9 @@ export default function FeedbackForm({
 	);
 	const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
 	const [isFinalized, setIsFinalized] = useState(false);
+	const [pendingAction, setPendingAction] = useState<'next' | 'skip' | null>(
+		null
+	);
 	const [isPending, startTransition] = useTransition();
 
 	const currentLecturer = lecturers[currentLecturerIndex];
@@ -140,6 +143,7 @@ export default function FeedbackForm({
 			})
 			.filter((r) => r.rating > 0);
 
+		setPendingAction('next');
 		startTransition(async () => {
 			if (lecturerResponses.length > 0) {
 				await submitLecturerFeedback(
@@ -164,6 +168,7 @@ export default function FeedbackForm({
 		if (!currentLecturer) return;
 		const qIds = questions.map((q) => q.questionId);
 
+		setPendingAction('skip');
 		startTransition(async () => {
 			await skipLecturer(passphraseId, currentLecturer.assignedModuleId, qIds);
 
@@ -221,6 +226,7 @@ export default function FeedbackForm({
 					onSkip={handleSkipLecturer}
 					isLast={currentLecturerIndex === lecturers.length - 1}
 					isPending={isPending}
+					pendingAction={pendingAction}
 				/>
 			</Stack>
 		</Container>

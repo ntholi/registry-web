@@ -53,6 +53,7 @@ type Props = {
 	onSkip: () => void;
 	isLast: boolean;
 	isPending: boolean;
+	pendingAction: 'next' | 'skip' | null;
 };
 
 export default function LecturerStep({
@@ -66,6 +67,7 @@ export default function LecturerStep({
 	onSkip,
 	isLast,
 	isPending,
+	pendingAction,
 }: Props) {
 	const question = questions[currentQuestionIndex];
 	const isLastQuestion = currentQuestionIndex === questions.length - 1;
@@ -100,7 +102,8 @@ export default function LecturerStep({
 								color='red'
 								size='compact-sm'
 								onClick={onSkip}
-								loading={isPending}
+								loading={isPending && pendingAction === 'skip'}
+								disabled={isPending && pendingAction !== 'skip'}
 								ml='auto'
 							>
 								Skip lecturer
@@ -158,7 +161,8 @@ export default function LecturerStep({
 				{isLastQuestion ? (
 					<Button
 						onClick={onNext}
-						loading={isPending}
+						loading={isPending && pendingAction === 'next'}
+						disabled={isPending && pendingAction !== 'next'}
 						rightSection={<IconChevronRight size={16} />}
 					>
 						{isLast ? 'Submit All' : 'Next Lecturer'}
