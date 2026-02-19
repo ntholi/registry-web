@@ -1,5 +1,11 @@
-import { Document, Image, Page, Text, View } from '@react-pdf/renderer';
-import { createTw } from 'react-pdf-tailwind';
+import {
+	Document,
+	Image,
+	Page,
+	StyleSheet,
+	Text,
+	View,
+} from '@react-pdf/renderer';
 
 type PassphraseSlipEntry = {
 	passphrase: string;
@@ -13,7 +19,79 @@ type Props = {
 	entries: PassphraseSlipEntry[];
 };
 
-const tw = createTw({});
+const s = StyleSheet.create({
+	page: {
+		backgroundColor: '#ffffff',
+		paddingHorizontal: 28,
+		paddingVertical: 24,
+	},
+	header: {
+		marginBottom: 14,
+		paddingBottom: 8,
+		borderBottomWidth: 1.5,
+		borderBottomColor: '#e5e7eb',
+	},
+	headerTitle: {
+		fontSize: 14,
+		fontFamily: 'Helvetica-Bold',
+		color: '#111827',
+	},
+	headerSub: {
+		fontSize: 10,
+		color: '#6b7280',
+		marginTop: 2,
+	},
+	row: {
+		flexDirection: 'row',
+		gap: 12,
+		marginBottom: 10,
+	},
+	slip: {
+		width: '48%',
+		flexDirection: 'row',
+		borderWidth: 1,
+		borderColor: '#e5e7eb',
+		overflow: 'hidden',
+	},
+	qrPanel: {
+		paddingVertical: 5,
+		paddingHorizontal: 6,
+		justifyContent: 'center',
+		alignItems: 'center',
+		borderRightWidth: 1,
+		borderRightColor: '#e5e7eb',
+	},
+	qr: { width: 50, height: 50 },
+	textPanel: {
+		flex: 1,
+		paddingVertical: 5,
+		paddingHorizontal: 10,
+		justifyContent: 'center',
+	},
+	url: {
+		fontSize: 8,
+		color: '#000000',
+		lineHeight: 1.3,
+	},
+	divider: {
+		height: 1,
+		backgroundColor: '#e5e7eb',
+		marginVertical: 5,
+	},
+	passphraseLabel: {
+		fontSize: 6,
+		color: '#9ca3af',
+		textTransform: 'uppercase',
+		letterSpacing: 0.5,
+		marginBottom: 1,
+	},
+	passphrase: {
+		fontSize: 12,
+		fontFamily: 'Helvetica-Bold',
+		color: '#000000',
+		letterSpacing: 1.5,
+	},
+});
 
 export default function PassphraseSlipsPDF({
 	cycleName,
@@ -21,20 +99,20 @@ export default function PassphraseSlipsPDF({
 	feedbackPath,
 	entries,
 }: Props) {
-	const cols: PassphraseSlipEntry[][] = [];
-	for (let i = 0; i < entries.length; i += 3) {
-		cols.push(entries.slice(i, i + 3));
+	const rows: PassphraseSlipEntry[][] = [];
+	for (let i = 0; i < entries.length; i += 2) {
+		rows.push(entries.slice(i, i + 2));
 	}
 
 	return (
 		<Document>
-			<Page size='A4' style={tw('bg-white p-5 text-[10px]')}>
-				<View style={tw('mb-3 border-b border-gray-300 pb-2')}>
-					<Text style={tw('text-[14px] font-bold')}>{cycleName}</Text>
-					<Text style={tw('text-[11px] text-gray-700')}>{className}</Text>
+			<Page size='A4' style={s.page}>
+				<View style={s.header}>
+					<Text style={s.headerTitle}>{cycleName}</Text>
+					<Text style={s.headerSub}>{className}</Text>
 				</View>
-				{cols.map((row, idx) => (
-					<View key={idx} wrap={false} style={tw('flex-row gap-2 mb-2')}>
+				{rows.map((row, idx) => (
+					<View key={idx} wrap={false} style={s.row}>
 						{row.map((entry) => (
 							<Slip
 								key={entry.passphrase}
@@ -56,19 +134,17 @@ type SlipProps = {
 
 function Slip({ entry, feedbackPath }: SlipProps) {
 	return (
-		<View
-			style={tw(
-				'w-[32%] border border-gray-300 rounded p-2 flex-row items-center gap-2'
-			)}
-		>
-			<Image src={entry.qrCodeDataUrl} style={tw('w-10 h-10')} />
-			<View style={tw('flex-1')}>
-				<Text style={tw('text-[8px] font-bold mb-0.5')}>Student Feedback</Text>
-				<Text style={tw('text-[7px] text-gray-600 mb-1')}>
-					Visit {feedbackPath}
-				</Text>
-				<Text style={tw('text-[7px] text-gray-500')}>Passphrase</Text>
-				<Text style={tw('text-[11px] font-bold')}>{entry.passphrase}</Text>
+		<View style={s.slip}>
+			<View style={s.qrPanel}>
+				<Image src={entry.qrCodeDataUrl} style={s.qr} />
+			</View>
+			<View style={s.textPanel}>
+				<Text style={s.url}>{feedbackPath}</Text>
+				<View style={s.divider} />
+				<View>
+					<Text style={s.passphraseLabel}>Passphrase</Text>
+					<Text style={s.passphrase}>{entry.passphrase}</Text>
+				</View>
 			</View>
 		</View>
 	);
