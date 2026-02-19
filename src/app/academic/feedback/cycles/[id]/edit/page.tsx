@@ -15,11 +15,16 @@ export default async function CycleEdit({ params }: Props) {
 		return notFound();
 	}
 
+	const schoolIds =
+		'cycleSchools' in cycle
+			? (cycle.cycleSchools as { schoolId: number }[]).map((cs) => cs.schoolId)
+			: [];
+
 	return (
 		<Box p='lg'>
 			<Form
 				title='Edit Feedback Cycle'
-				defaultValues={cycle}
+				defaultValues={{ ...cycle, schoolIds }}
 				onSubmit={async (value) => {
 					'use server';
 					return await updateCycle(Number(id), value);

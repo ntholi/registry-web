@@ -1,10 +1,13 @@
 'use server';
 
+import { getAllSchools } from '@academic/schools/_server/actions';
+import { getUserSchools } from '@admin/users/_server/actions';
 import { getAllTerms } from '@registry/terms/_server/actions';
 import type { feedbackCycles } from '@/core/database';
 import { feedbackCyclesService as service } from './service';
 
 type Cycle = typeof feedbackCycles.$inferInsert;
+type CycleWithSchools = Cycle & { schoolIds?: number[] };
 
 export async function getCycles(page = 1, search = '') {
 	return service.findAll({
@@ -18,12 +21,14 @@ export async function getCycle(id: number) {
 	return service.get(id);
 }
 
-export async function createCycle(data: Cycle) {
-	return service.create(data);
+export async function createCycle(data: CycleWithSchools) {
+	const { schoolIds = [], ...cycleData } = data;
+	return service.createWithSchools(cycleData, schoolIds);
 }
 
-export async function updateCycle(id: number, data: Cycle) {
-	return service.update(id, data);
+export async function updateCycle(id: number, data: CycleWithSchools) {
+	const { schoolIds = [], ...cycleData } = data;
+	return service.updateWithSchools(id, cycleData, schoolIds);
 }
 
 export async function deleteCycle(id: number) {
@@ -59,4 +64,12 @@ export async function getPassphrasesForClass(
 
 export async function getTerms() {
 	return getAllTerms();
+}
+
+export async function getSchools() {
+	return getAllSchools();
+}
+
+export async function getSchoolsForUser(userId?: string) {
+	return getUserSchools(userId);
 }

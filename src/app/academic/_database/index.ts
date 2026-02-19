@@ -12,6 +12,7 @@ export * from '../feedback/_schema/feedbackResponses';
 export * from '../feedback/_schema/relations';
 export * from '../feedback/categories/_schema/feedbackCategories';
 export * from '../feedback/categories/_schema/relations';
+export * from '../feedback/cycles/_schema/feedbackCycleSchools';
 export * from '../feedback/cycles/_schema/feedbackCycles';
 export * from '../feedback/cycles/_schema/feedbackPassphrases';
 export * from '../feedback/cycles/_schema/relations';

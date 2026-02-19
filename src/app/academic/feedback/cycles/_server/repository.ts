@@ -1,6 +1,7 @@
 import { and, count, eq, sql } from 'drizzle-orm';
 import {
 	db,
+	feedbackCycleSchools,
 	feedbackCycles,
 	feedbackPassphrases,
 	programs,
@@ -23,7 +24,50 @@ export default class FeedbackCycleRepository extends BaseRepository<
 	override async findById(id: number) {
 		return db.query.feedbackCycles.findFirst({
 			where: eq(feedbackCycles.id, id),
-			with: { term: true },
+			with: {
+				term: true,
+				cycleSchools: { with: { school: true } },
+			},
+		});
+	}
+
+	async createWithSchools(
+		data: typeof feedbackCycles.$inferInsert,
+		schoolIds: number[]
+	) {
+		return db.transaction(async (tx) => {
+			const [cycle] = await tx.insert(feedbackCycles).values(data).returning();
+			if (schoolIds.length > 0) {
+				await tx
+					.insert(feedbackCycleSchools)
+					.values(
+						schoolIds.map((schoolId) => ({ cycleId: cycle.id, schoolId }))
+					);
+			}
+			return cycle;
+		});
+	}
+
+	async updateWithSchools(
+		id: number,
+		data: Partial<typeof feedbackCycles.$inferInsert>,
+		schoolIds: number[]
+	) {
+		return db.transaction(async (tx) => {
+			const [cycle] = await tx
+				.update(feedbackCycles)
+				.set(data)
+				.where(eq(feedbackCycles.id, id))
+				.returning();
+			await tx
+				.delete(feedbackCycleSchools)
+				.where(eq(feedbackCycleSchools.cycleId, id));
+			if (schoolIds.length > 0) {
+				await tx
+					.insert(feedbackCycleSchools)
+					.values(schoolIds.map((schoolId) => ({ cycleId: id, schoolId })));
+			}
+			return cycle;
 		});
 	}
 

@@ -20,6 +20,27 @@ class FeedbackCycleService extends BaseService<typeof feedbackCycles, 'id'> {
 		this.repo = repo;
 	}
 
+	async createWithSchools(
+		data: typeof feedbackCycles.$inferInsert,
+		schoolIds: number[]
+	) {
+		return withAuth(
+			async () => this.repo.createWithSchools(data, schoolIds),
+			['academic', 'admin']
+		);
+	}
+
+	async updateWithSchools(
+		id: number,
+		data: typeof feedbackCycles.$inferInsert,
+		schoolIds: number[]
+	) {
+		return withAuth(
+			async () => this.repo.updateWithSchools(id, data, schoolIds),
+			['academic', 'admin']
+		);
+	}
+
 	async getClassesForTerm(termId: number) {
 		return withAuth(
 			async () => this.repo.getClassesForTerm(termId),

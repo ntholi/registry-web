@@ -1,4 +1,4 @@
-import { Badge, Divider, Stack, Title } from '@mantine/core';
+import { Badge, Divider, Group, Stack, Title } from '@mantine/core';
 import { notFound } from 'next/navigation';
 import { getStatusColor } from '@/shared/lib/utils/colors';
 import { formatDate } from '@/shared/lib/utils/dates';
@@ -40,6 +40,11 @@ export default async function CycleDetails({ params }: Props) {
 				}`
 			: String(cycle.termId);
 
+	const cycleSchools =
+		'cycleSchools' in cycle
+			? (cycle.cycleSchools as { school: { id: number; name: string } }[])
+			: [];
+
 	return (
 		<DetailsView>
 			<DetailsViewHeader
@@ -61,6 +66,17 @@ export default async function CycleDetails({ params }: Props) {
 						{status.charAt(0).toUpperCase() + status.slice(1)}
 					</Badge>
 				</FieldView>
+				{cycleSchools.length > 0 && (
+					<FieldView label='Schools'>
+						<Group gap='xs'>
+							{cycleSchools.map((cs) => (
+								<Badge key={cs.school.id} variant='light'>
+									{cs.school.name}
+								</Badge>
+							))}
+						</Group>
+					</FieldView>
+				)}
 				<Divider my='md' />
 				<Stack>
 					<Title order={4}>Passphrase Management</Title>
