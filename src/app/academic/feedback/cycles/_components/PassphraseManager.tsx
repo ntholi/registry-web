@@ -1,7 +1,6 @@
 'use client';
 
 import {
-	Accordion,
 	Badge,
 	Box,
 	Button,
@@ -12,12 +11,11 @@ import {
 	NumberInput,
 	Paper,
 	ScrollArea,
-	SegmentedControl,
 	Stack,
 	Text,
 } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
-import { IconFilter, IconPlus } from '@tabler/icons-react';
+import { IconPlus } from '@tabler/icons-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useMemo, useState } from 'react';
 import { getStudentClassName } from '@/shared/lib/utils/utils';
@@ -42,41 +40,10 @@ type ClassItem = {
 	studentCount: number;
 };
 
-type SchoolGroup = {
-	schoolId: number;
-	schoolName: string;
-	classes: ClassItem[];
-};
-
 function getYear(semesterNumber: string) {
 	const num = Number.parseInt(semesterNumber, 10);
 	if (Number.isNaN(num)) return 0;
 	return Math.ceil(num / 2);
-}
-
-function getUniqueYears(groups: SchoolGroup[]) {
-	const years = new Set<number>();
-	for (const g of groups) {
-		for (const c of g.classes) {
-			const y = getYear(c.semesterNumber);
-			if (y > 0) years.add(y);
-		}
-	}
-	return Array.from(years).sort((a, b) => a - b);
-}
-
-function getUniquePrograms(groups: SchoolGroup[]) {
-	const map = new Map<string, string>();
-	for (const g of groups) {
-		for (const c of g.classes) {
-			if (!map.has(c.programCode)) {
-				map.set(c.programCode, c.programName);
-			}
-		}
-	}
-	return Array.from(map.entries())
-		.map(([code, name]) => ({ code, name }))
-		.sort((a, b) => a.code.localeCompare(b.code));
 }
 
 export default function PassphraseManager({
@@ -85,12 +52,8 @@ export default function PassphraseManager({
 	cycleName,
 }: Props) {
 	const queryClient = useQueryClient();
-	const [search, setSearch] = useState('');
 	const [yearFilter, setYearFilter] = useState<string[]>([]);
 	const [programFilter, setProgramFilter] = useState<string[]>([]);
-	const [groupBy, setGroupBy] = useState<'school' | 'year' | 'program'>(
-		'school'
-	);
 	const [generateTarget, setGenerateTarget] = useState<{
 		structureSemesterId: number;
 		className: string;
@@ -108,25 +71,32 @@ export default function PassphraseManager({
 		queryFn: () => getPassphraseStats(cycleId),
 	});
 
-	const years = useMemo(() => getUniqueYears(schoolGroups), [schoolGroups]);
-	const programs = useMemo(
-		() => getUniquePrograms(schoolGroups),
-		[schoolGroups]
-	);
-
-	const allClasses = useMemo(() => {
-		const list: (ClassItem & { schoolId: number; schoolName: string })[] = [];
+	const years = useMemo(() => {
+		const set = new Set<number>();
 		for (const g of schoolGroups) {
 			for (const c of g.classes) {
-				list.push({ ...c, schoolId: g.schoolId, schoolName: g.schoolName });
+				const y = getYear(c.semesterNumber);
+				if (y > 0) set.add(y);
 			}
 		}
-		return list;
+		return Array.from(set).sort((a, b) => a - b);
+	}, [schoolGroups]);
+
+	const programs = useMemo(() => {
+		const map = new Map<string, string>();
+		for (const g of schoolGroups) {
+			for (const c of g.classes) {
+				if (!map.has(c.programCode)) map.set(c.programCode, c.programName);
+			}
+		}
+		return Array.from(map.entries())
+			.map(([code, name]) => ({ code, name }))
+			.sort((a, b) => a.code.localeCompare(b.code));
 	}, [schoolGroups]);
 
 	const filtered = useMemo(() => {
-		const q = search.toLowerCase().trim();
-		return allClasses.filter((cls) => {
+		const flat: ClassItem[] = schoolGroups.flatMap((g) => g.classes);
+		return flat.filter((cls) => {
 			if (yearFilter.length > 0) {
 				const y = getYear(cls.semesterNumber);
 				if (!yearFilter.includes(String(y))) return false;
@@ -134,45 +104,9 @@ export default function PassphraseManager({
 			if (programFilter.length > 0) {
 				if (!programFilter.includes(cls.programCode)) return false;
 			}
-			if (q) {
-				const className = getStudentClassName({
-					semesterNumber: cls.semesterNumber,
-					structure: { program: { code: cls.programCode } },
-				});
-				const searchable =
-					`${cls.programCode} ${cls.programName} ${className}`.toLowerCase();
-				if (!searchable.includes(q)) return false;
-			}
 			return true;
 		});
-	}, [allClasses, yearFilter, programFilter, search]);
-
-	const grouped = useMemo(() => {
-		const map = new Map<string, { label: string; classes: typeof filtered }>();
-		for (const cls of filtered) {
-			let key: string;
-			let label: string;
-			if (groupBy === 'year') {
-				const y = getYear(cls.semesterNumber);
-				key = `y-${y}`;
-				label = `Year ${y}`;
-			} else if (groupBy === 'program') {
-				key = `p-${cls.programCode}`;
-				label = `${cls.programCode} — ${cls.programName}`;
-			} else {
-				key = `s-${cls.schoolId}`;
-				label = cls.schoolName;
-			}
-			if (!map.has(key)) {
-				map.set(key, { label, classes: [] });
-			}
-			map.get(key)!.classes.push(cls);
-		}
-		return Array.from(map.entries()).map(([key, val]) => ({
-			key,
-			...val,
-		}));
-	}, [filtered, groupBy]);
+	}, [schoolGroups, yearFilter, programFilter]);
 
 	const mutation = useMutation({
 		mutationFn: ({
@@ -287,21 +221,7 @@ export default function PassphraseManager({
 				)}
 			</Modal>
 
-			<Group justify='space-between' align='flex-end'>
-				<Group gap='xs' align='center'>
-					<IconFilter size={16} opacity={0.5} />
-					<SegmentedControl
-						size='xs'
-						value={groupBy}
-						onChange={(v) => setGroupBy(v as 'school' | 'year' | 'program')}
-						data={[
-							{ label: 'School', value: 'school' },
-							{ label: 'Year', value: 'year' },
-							{ label: 'Program', value: 'program' },
-						]}
-					/>
-				</Group>
-			</Group>
+
 
 			<Stack gap={6}>
 				<ScrollArea type='auto' offsetScrollbars scrollbarSize={4}>
@@ -372,7 +292,6 @@ export default function PassphraseManager({
 						onClick={() => {
 							setYearFilter([]);
 							setProgramFilter([]);
-							setSearch('');
 						}}
 						w='fit-content'
 					>
@@ -385,100 +304,77 @@ export default function PassphraseManager({
 				{filtered.length} class{filtered.length !== 1 ? 'es' : ''} shown
 			</Text>
 
-			{grouped.length === 0 ? (
+			{filtered.length === 0 ? (
 				<Text c='dimmed' ta='center' py='lg'>
 					No classes match the current filters.
 				</Text>
 			) : (
-				<Accordion
-					variant='separated'
-					multiple
-					defaultValue={grouped.map((g) => g.key)}
-				>
-					{grouped.map((group) => (
-						<Accordion.Item key={group.key} value={group.key}>
-							<Accordion.Control>
-								<Group gap='xs'>
-									<Text fw={600} size='sm'>
-										{group.label}
-									</Text>
-									<Badge size='xs' variant='light' color='gray'>
-										{group.classes.length}
-									</Badge>
-								</Group>
-							</Accordion.Control>
-							<Accordion.Panel>
-								<Stack gap='xs'>
-									{group.classes.map((cls) => {
-										const stats = statsMap?.[cls.structureSemesterId];
-										const total = stats?.total ?? 0;
-										const used = stats?.used ?? 0;
-										const remaining = stats?.remaining ?? 0;
-										const className = getStudentClassName({
-											semesterNumber: cls.semesterNumber,
-											structure: { program: { code: cls.programCode } },
-										});
+				<Stack gap='xs'>
+					{filtered.map((cls) => {
+						const stats = statsMap?.[cls.structureSemesterId];
+						const total = stats?.total ?? 0;
+						const used = stats?.used ?? 0;
+						const remaining = stats?.remaining ?? 0;
+						const className = getStudentClassName({
+							semesterNumber: cls.semesterNumber,
+							structure: { program: { code: cls.programCode } },
+						});
 
-										return (
-											<Paper
-												key={cls.structureSemesterId}
-												withBorder
-												p='sm'
-												radius='sm'
-											>
-												<Group justify='space-between' wrap='nowrap'>
-													<Box>
-														<Group gap='xs'>
-															<Text fw={600} size='sm'>
-																{className}
-															</Text>
-															<Badge size='sm' variant='light'>
-																{cls.studentCount} students
-															</Badge>
-														</Group>
-														{total > 0 && (
-															<Text size='xs' c='dimmed' mt={2}>
-																{total} generated · {used} used · {remaining}{' '}
-																remaining
-															</Text>
-														)}
-													</Box>
-													<Group gap='xs' wrap='nowrap'>
-														<Button
-															size='xs'
-															variant='light'
-															leftSection={<IconPlus size={14} />}
-															onClick={() =>
-																setGenerateTarget({
-																	structureSemesterId: cls.structureSemesterId,
-																	className,
-																	studentCount: cls.studentCount,
-																	passphraseCount: getDefaultPassphraseCount(
-																		cls.studentCount
-																	),
-																})
-															}
-														>
-															{total > 0 ? 'Regenerate' : 'Generate'}
-														</Button>
-														{total > 0 && (
-															<PassphraseDownloadButton
-																cycleId={cycleId}
-																structureSemesterId={cls.structureSemesterId}
-																cycleName={cycleName}
-																className={className}
-															/>
-														)}
-													</Group>
-												</Group>
-											</Paper>
-										);
-									})}
-								</Stack>
-							</Accordion.Panel>
-						</Accordion.Item>
-					))}
-				</Accordion>
+						return (
+							<Paper
+								key={cls.structureSemesterId}
+								withBorder
+								p='sm'
+								radius='sm'
+							>
+								<Group justify='space-between' wrap='nowrap'>
+									<Box>
+										<Group gap='xs'>
+											<Text fw={600} size='sm'>
+												{className}
+											</Text>
+											<Badge size='sm' variant='light'>
+												{cls.studentCount} students
+											</Badge>
+										</Group>
+										{total > 0 && (
+											<Text size='xs' c='dimmed' mt={2}>
+												{total} generated · {used} used · {remaining} remaining
+											</Text>
+										)}
+									</Box>
+									<Group gap='xs' wrap='nowrap'>
+										<Button
+											size='xs'
+											variant='light'
+											leftSection={<IconPlus size={14} />}
+											onClick={() =>
+												setGenerateTarget({
+													structureSemesterId: cls.structureSemesterId,
+													className,
+													studentCount: cls.studentCount,
+													passphraseCount: getDefaultPassphraseCount(
+														cls.studentCount
+													),
+												})
+											}
+										>
+											{total > 0 ? 'Regenerate' : 'Generate'}
+										</Button>
+										{total > 0 && (
+											<PassphraseDownloadButton
+												cycleId={cycleId}
+												structureSemesterId={cls.structureSemesterId}
+												cycleName={cycleName}
+												className={className}
+											/>
+										)}
+									</Group>
+								</Group>
+							</Paper>
+						);
+					})}
+				</Stack>
 			)}
 		</Stack>
 	);
