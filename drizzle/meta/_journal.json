@@ -1030,6 +1030,13 @@
 			"when": 1771508860518,
 			"tag": "0146_nifty_pepper_potts",
 			"breakpoints": true
+		},
+		{
+			"idx": 147,
+			"version": "7",
+			"when": 1771514105614,
+			"tag": "0147_third_spot",
+			"breakpoints": true
 		}
 	]
 }

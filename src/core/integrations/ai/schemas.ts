@@ -14,6 +14,19 @@ const lgcseIgcseGrades = new Set([
 	'U',
 ]);
 
+const edexcelIgcseGrades = new Set([
+	'9',
+	'8',
+	'7',
+	'6',
+	'5',
+	'4',
+	'3',
+	'2',
+	'1',
+	'U',
+]);
+
 const certificationSchema = z.object({
 	isCertified: z
 		.boolean()
@@ -93,7 +106,7 @@ const academicSchema = z
 			.string()
 			.nullable()
 			.describe(
-				'Certificate standard: LGCSE, COSC, IGCSE, NSC, GCE O-Level, GCE AS Level, GCE A-Level, Certificate, Diploma, Degree'
+				'Certificate standard: LGCSE, COSC, IGCSE, Edexcel IGCSE, NSC, GCE O-Level, GCE AS Level, GCE A-Level, Certificate, Diploma, Degree'
 			),
 		qualificationName: z
 			.string()
@@ -121,6 +134,9 @@ const academicSchema = z
 			.describe(
 				'Whether the document is issued by Cambridge Assessment International Education (Cambridge, CAIE, CIE, or UCLES)'
 			),
+		isPearson: z
+			.boolean()
+			.describe('Whether the document is issued by Pearson/Edexcel'),
 		subjects: z
 			.array(
 				z.object({
@@ -128,7 +144,7 @@ const academicSchema = z
 					grade: z
 						.string()
 						.describe(
-							'Grade value as shown. LGCSE grades must be A*, A, B, C, D, E, F, G, or U.'
+							'Grade value as shown. LGCSE/IGCSE: A*, A, B, C, D, E, F, G, or U. Edexcel IGCSE: 9, 8, 7, 6, 5, 4, 3, 2, 1, or U.'
 						),
 					confidence: z
 						.number()
@@ -226,10 +242,19 @@ const academicSchema = z
 			}
 		}
 
+		const isEdexcelIgcse = certificateType.includes('edexcel');
 		const isLgcseIgcse =
-			certificateType.includes('lgcse') || certificateType.includes('igcse');
+			certificateType.includes('lgcse') ||
+			(certificateType.includes('igcse') && !isEdexcelIgcse);
 		for (const subject of subjects) {
 			const grade = subject.grade.trim().toUpperCase();
+			if (isEdexcelIgcse && !edexcelIgcseGrades.has(grade)) {
+				ctx.addIssue({
+					code: z.ZodIssueCode.custom,
+					path: ['subjects'],
+					message: `Edexcel IGCSE grades must be 9, 8, 7, 6, 5, 4, 3, 2, 1, or U. Invalid grade for ${subject.name}.`,
+				});
+			}
 			if (isLgcseIgcse && !lgcseIgcseGrades.has(grade)) {
 				ctx.addIssue({
 					code: z.ZodIssueCode.custom,

@@ -42,6 +42,7 @@ const CERTIFICATION_RULES = `CERTIFICATION:
 
 const ACADEMIC_RULES = `- institutionName: Student's school (not examining body like Cambridge/ECoL)
 - LGCSE grades: Use letter (A*, A, B, C, D, E, F, G, U)
+- Pearson Edexcel International GCSE: Use numeric grades (9, 8, 7, 6, 5, 4, 3, 2, 1, U). Set certificateType to "Edexcel IGCSE".
 - Extract ALL subjects with grades
 - Only accept LGCSE (or equivalent) or higher certificates/result slips. If lower than LGCSE, classify as "other" and set certificateType to null.
 - candidateNumber: Extract if present, commonly labeled "Center/Candidate Number", "Centre/Candidate Number", or "Center / Cand. No.".
@@ -80,6 +81,7 @@ ${COMMON_RULES}
 ${ACADEMIC_RULES}
 - isEcol: true if document mentions ECoL/Examinations Council of Lesotho, else false.
 - isCambridge: true if document mentions Cambridge/CAIE/CIE/UCLES, else false.
+- isPearson: true if document mentions Pearson/Edexcel, else false.
 
 IDENTITY EXTRACTION QUALITY (CRITICAL):
 - Confidence score (0-100): 100 = crystal clear, 90-99 = readable, <90 = too unclear.
@@ -137,10 +139,11 @@ GRADE ACCURACY (CRITICAL - ZERO TOLERANCE):
 ${GRADE_FORMAT_RULES}
 
 ISSUING AUTHORITY:
-- issuingAuthority: Extract examining body (ECoL, Cambridge, IEB, Umalusi)
+- issuingAuthority: Extract examining body (ECoL, Cambridge, Pearson/Edexcel, IEB, Umalusi)
 - "Examinations Council of Lesotho" → record as "ECoL"
 - isEcol: true if the document somehow indicates ECoL/Examinations Council of Lesotho in the document, otherwise false. Always set true or false; do not leave null.
 - isCambridge: true if the document is issued by Cambridge Assessment International Education (Cambridge, CAIE, CIE, UCLES), otherwise false. Always set true or false; do not leave null.
+- isPearson: true if the document is issued by Pearson/Edexcel, otherwise false. Always set true or false; do not leave null.
 
 ${CERTIFICATION_RULES}`;
 
@@ -148,6 +151,7 @@ const DEFAULT_CERTIFICATE_TYPES = [
 	'LGCSE',
 	'COSC',
 	'IGCSE',
+	'Edexcel IGCSE',
 	'NSC',
 	'GCE O-Level',
 	'GCE AS Level',
@@ -507,12 +511,12 @@ Scoring guide:
 
 			const isIGCSE =
 				output.certificateType?.toLowerCase().includes('igcse') &&
-				output.isCambridge;
+				(output.isCambridge || output.isPearson);
 			if (dbCertType.lqfLevel === 4 && !output.isEcol && !isIGCSE) {
 				return {
 					success: false,
 					error:
-						'LQF Level 4 certificates and result slips must be issued by the Examinations Council of Lesotho (ECoL) or Cambridge (for IGCSE).',
+						'LQF Level 4 certificates and result slips must be issued by the Examinations Council of Lesotho (ECoL), Cambridge (for IGCSE), or Pearson/Edexcel (for Edexcel IGCSE).',
 				};
 			}
 		}
