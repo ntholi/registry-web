@@ -41,9 +41,9 @@ class FeedbackCycleService extends BaseService<typeof feedbackCycles, 'id'> {
 		);
 	}
 
-	async getClassesForTerm(termId: number) {
+	async getClassesForCycle(cycleId: string, termId: number) {
 		return withAuth(
-			async () => this.repo.getClassesForTerm(termId),
+			async () => this.repo.getClassesForCycle(cycleId, termId),
 			['academic', 'admin']
 		);
 	}
@@ -58,10 +58,10 @@ class FeedbackCycleService extends BaseService<typeof feedbackCycles, 'id'> {
 	async generatePassphrases(
 		cycleId: string,
 		structureSemesterId: number,
-		studentCount: number
+		passphraseCount: number
 	) {
 		return withAuth(async () => {
-			const count = studentCount + Math.ceil(studentCount * 0.1);
+			const count = Math.max(1, Math.floor(passphraseCount));
 			const existing = await this.repo.getExistingPassphrases(cycleId);
 			const passphrases = generateUniquePassphrases(count, existing);
 			await this.repo.createPassphrases(

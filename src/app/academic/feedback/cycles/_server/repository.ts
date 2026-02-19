@@ -71,7 +71,7 @@ export default class FeedbackCycleRepository extends BaseRepository<
 		});
 	}
 
-	async getClassesForTerm(termId: number) {
+	async getClassesForCycle(cycleId: string, termId: number) {
 		const term = await db.query.terms.findFirst({
 			where: eq(terms.id, termId),
 		});
@@ -96,6 +96,13 @@ export default class FeedbackCycleRepository extends BaseRepository<
 			.innerJoin(structures, eq(structureSemesters.structureId, structures.id))
 			.innerJoin(programs, eq(structures.programId, programs.id))
 			.innerJoin(schools, eq(programs.schoolId, schools.id))
+			.innerJoin(
+				feedbackCycleSchools,
+				and(
+					eq(feedbackCycleSchools.schoolId, schools.id),
+					eq(feedbackCycleSchools.cycleId, cycleId)
+				)
+			)
 			.where(eq(studentSemesters.termCode, term.code))
 			.groupBy(
 				structureSemesters.id,

@@ -1,28 +1,29 @@
 'use client';
 
 import {
-	ActionIcon,
 	Badge,
 	Box,
 	Button,
 	Group,
 	Loader,
+	Modal,
+	NumberInput,
 	Paper,
 	Stack,
 	Text,
 	Title,
 } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
-import { IconPrinter } from '@tabler/icons-react';
+import { IconPlus } from '@tabler/icons-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { getStudentClassName } from '@/shared/lib/utils/utils';
 import {
 	generatePassphrases,
-	getClassesForTerm,
+	getClassesForCycle,
 	getPassphraseStats,
 } from '../_server/actions';
-import PassphraseSlips from './PassphraseSlips';
+import PassphraseDownloadButton from './PassphraseDownloadButton';
 
 type Props = {
 	cycleId: string;
@@ -36,14 +37,16 @@ export default function PassphraseManager({
 	cycleName,
 }: Props) {
 	const queryClient = useQueryClient();
-	const [printTarget, setPrintTarget] = useState<{
+	const [generateTarget, setGenerateTarget] = useState<{
 		structureSemesterId: number;
 		className: string;
+		studentCount: number;
+		passphraseCount: number;
 	} | null>(null);
 
 	const { data: schoolGroups = [], isLoading: classesLoading } = useQuery({
-		queryKey: ['feedback-classes', termId],
-		queryFn: () => getClassesForTerm(termId),
+		queryKey: ['feedback-classes', cycleId, termId],
+		queryFn: () => getClassesForCycle(cycleId, termId),
 	});
 
 	const { data: statsMap, isLoading: statsLoading } = useQuery({
@@ -54,19 +57,23 @@ export default function PassphraseManager({
 	const mutation = useMutation({
 		mutationFn: ({
 			structureSemesterId,
-			studentCount,
+			passphraseCount,
 		}: {
 			structureSemesterId: number;
-			studentCount: number;
-		}) => generatePassphrases(cycleId, structureSemesterId, studentCount),
+			passphraseCount: number;
+		}) => generatePassphrases(cycleId, structureSemesterId, passphraseCount),
 		onSuccess: (count) => {
 			notifications.show({
 				title: 'Passphrases Generated',
 				message: `${count} passphrases created`,
 				color: 'green',
 			});
+			setGenerateTarget(null);
 			queryClient.invalidateQueries({
 				queryKey: ['feedback-passphrase-stats', cycleId],
+			});
+			queryClient.invalidateQueries({
+				queryKey: ['feedback-passphrase-slips', cycleId],
 			});
 		},
 		onError: (err: Error) => {
@@ -97,17 +104,66 @@ export default function PassphraseManager({
 		);
 	}
 
+	function getDefaultPassphraseCount(studentCount: number) {
+		return studentCount + Math.ceil(studentCount * 0.1);
+	}
+
 	return (
 		<Stack gap='lg'>
-			{printTarget && (
-				<PassphraseSlips
-					cycleId={cycleId}
-					structureSemesterId={printTarget.structureSemesterId}
-					cycleName={cycleName}
-					className={printTarget.className}
-					onClose={() => setPrintTarget(null)}
-				/>
-			)}
+			<Modal
+				opened={Boolean(generateTarget)}
+				onClose={() => setGenerateTarget(null)}
+				title='Generate Passphrases'
+				centered
+			>
+				{generateTarget && (
+					<Stack>
+						<Text size='sm'>
+							Class:{' '}
+							<Text span fw={600}>
+								{generateTarget.className}
+							</Text>
+						</Text>
+						<Text size='sm'>
+							Students:{' '}
+							<Text span fw={600}>
+								{generateTarget.studentCount}
+							</Text>
+						</Text>
+						<NumberInput
+							label='Passphrases to generate'
+							min={1}
+							value={generateTarget.passphraseCount}
+							onChange={(value) => {
+								const next =
+									typeof value === 'number' && Number.isFinite(value)
+										? Math.max(1, Math.floor(value))
+										: 1;
+								setGenerateTarget({
+									...generateTarget,
+									passphraseCount: next,
+								});
+							}}
+						/>
+						<Group justify='flex-end'>
+							<Button variant='light' onClick={() => setGenerateTarget(null)}>
+								Cancel
+							</Button>
+							<Button
+								loading={mutation.isPending}
+								onClick={() =>
+									mutation.mutate({
+										structureSemesterId: generateTarget.structureSemesterId,
+										passphraseCount: generateTarget.passphraseCount,
+									})
+								}
+							>
+								Generate
+							</Button>
+						</Group>
+					</Stack>
+				)}
+			</Modal>
 
 			{schoolGroups.map((school) => (
 				<Box key={school.schoolId}>
@@ -153,33 +209,27 @@ export default function PassphraseManager({
 											<Button
 												size='xs'
 												variant='light'
-												loading={
-													mutation.isPending &&
-													mutation.variables?.structureSemesterId ===
-														cls.structureSemesterId
-												}
+												leftSection={<IconPlus size={14} />}
 												onClick={() =>
-													mutation.mutate({
+													setGenerateTarget({
 														structureSemesterId: cls.structureSemesterId,
+														className,
 														studentCount: cls.studentCount,
+														passphraseCount: getDefaultPassphraseCount(
+															cls.studentCount
+														),
 													})
 												}
 											>
 												{total > 0 ? 'Regenerate' : 'Generate'}
 											</Button>
 											{total > 0 && (
-												<ActionIcon
-													variant='light'
-													size='md'
-													onClick={() =>
-														setPrintTarget({
-															structureSemesterId: cls.structureSemesterId,
-															className,
-														})
-													}
-												>
-													<IconPrinter size={16} />
-												</ActionIcon>
+												<PassphraseDownloadButton
+													cycleId={cycleId}
+													structureSemesterId={cls.structureSemesterId}
+													cycleName={cycleName}
+													className={className}
+												/>
 											)}
 										</Group>
 									</Group>

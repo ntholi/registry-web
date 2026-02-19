@@ -35,8 +35,8 @@ export async function deleteCycle(id: string) {
 	return service.delete(id);
 }
 
-export async function getClassesForTerm(termId: number) {
-	return service.getClassesForTerm(termId);
+export async function getClassesForCycle(cycleId: string, termId: number) {
+	return service.getClassesForCycle(cycleId, termId);
 }
 
 export async function getPassphraseStats(cycleId: string) {
@@ -46,12 +46,12 @@ export async function getPassphraseStats(cycleId: string) {
 export async function generatePassphrases(
 	cycleId: string,
 	structureSemesterId: number,
-	studentCount: number
+	passphraseCount: number
 ) {
 	return service.generatePassphrases(
 		cycleId,
 		structureSemesterId,
-		studentCount
+		passphraseCount
 	);
 }
 
