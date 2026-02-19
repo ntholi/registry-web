@@ -21,7 +21,10 @@ export default class SubjectRepository extends BaseRepository<
 		const trimmedName = name.trim();
 
 		const byName = await db.query.subjects.findFirst({
-			where: ilike(subjects.name, trimmedName),
+			where: and(
+				ilike(subjects.name, trimmedName),
+				eq(subjects.isActive, true)
+			),
 		});
 		if (byName) return byName;
 

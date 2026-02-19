@@ -22,3 +22,7 @@ export async function createStudentCardPrintWithReceipt(
 ) {
 	return service.createWithReceipt(data);
 }
+
+export async function getStudentCardPrints(stdNo: number) {
+	return service.findByStdNo(stdNo);
+}

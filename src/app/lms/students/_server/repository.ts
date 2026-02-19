@@ -130,10 +130,6 @@ export default class StudentRepository extends BaseRepository<
 		});
 	}
 
-	async updateUserLmsUserId(userId: string, lmsUserId: number) {
-		return db.update(users).set({ lmsUserId }).where(eq(users.id, userId));
-	}
-
 	async findStudentsByLmsUserIdsForSubmissions(lmsUserIds: number[]) {
 		if (lmsUserIds.length === 0) return [];
 		return db

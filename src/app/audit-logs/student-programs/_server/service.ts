@@ -42,6 +42,26 @@ class StudentProgramAuditService extends BaseService<
 		}, ['registry', 'admin']);
 	}
 
+	async createStudentProgram(
+		data: Parameters<
+			StudentProgramAuditRepository['createStudentProgramWithAudit']
+		>[0],
+		reasons?: string
+	) {
+		return withAuth(async () => {
+			const session = await auth();
+			if (!session?.user?.id) {
+				throw new Error('User not authenticated');
+			}
+
+			return this.repository.createStudentProgramWithAudit(
+				data,
+				session.user.id,
+				reasons
+			);
+		}, ['registry', 'admin']);
+	}
+
 	async getHistoryByStudentProgramId(studentProgramId: number) {
 		return withAuth(async () => {
 			return this.repository.findByStudentProgramIdWithUser(studentProgramId);

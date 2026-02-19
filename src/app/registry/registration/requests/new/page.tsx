@@ -29,7 +29,6 @@ type SemesterModule = typeof semesterModules.$inferSelect & {
 };
 interface SelectedModule extends SemesterModule {
 	status: StudentModuleStatus;
-	receiptNumber?: string;
 }
 
 type RegistrationRequest = {
@@ -142,26 +141,19 @@ export default async function NewRegistrationRequestPage({
 		'use server';
 		const { selectedModules, tuitionFeeReceipts } = values;
 
-		const receipts: { receiptNo: string; receiptType: ReceiptType }[] = [];
+		const hasRepeatModules = selectedModules?.some((m) =>
+			m.status.startsWith('Repeat')
+		);
 
-		if (selectedModules) {
-			for (const module of selectedModules) {
-				if (module.status.startsWith('Repeat') && module.receiptNumber) {
-					receipts.push({
-						receiptNo: module.receiptNumber,
-						receiptType: 'repeat_module',
-					});
-				}
-			}
-		}
+		const uniqueReceipts = [
+			...new Set((tuitionFeeReceipts || []).filter(Boolean)),
+		];
 
-		if (tuitionFeeReceipts) {
-			for (const receiptNo of tuitionFeeReceipts) {
-				if (receiptNo) {
-					receipts.push({ receiptNo, receiptType: 'tuition_fee' });
-				}
-			}
-		}
+		const receipts: { receiptNo: string; receiptType: ReceiptType }[] =
+			uniqueReceipts.map((receiptNo) => ({
+				receiptNo,
+				receiptType: hasRepeatModules ? 'repeat_module' : 'tuition_fee',
+			}));
 
 		const result = await createRegistration({
 			stdNo: values.stdNo,

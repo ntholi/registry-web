@@ -7,6 +7,7 @@ import {
 	Grid,
 	Group,
 	Paper,
+	SegmentedControl,
 	Stack,
 	Tabs,
 	Text,
@@ -31,8 +32,10 @@ import { useQueryState } from 'nuqs';
 import { useRef, useState } from 'react';
 import { formatMoodleDate } from '@/shared/lib/utils/dates';
 import { DeleteButton } from '@/shared/ui/adease';
+import Link from '@/shared/ui/Link';
 import { deleteRubric, getRubric, RubricView } from '../../_features/rubric';
 import { SubmissionsView } from '../../_features/submissions';
+import FileList from '../../_features/submissions/components/FileList';
 import type { MoodleAssignment } from '../../types';
 
 type Props = {
@@ -40,12 +43,40 @@ type Props = {
 	courseId: number;
 };
 
+type ContentView = 'description' | 'instructions';
+
+function getInstructionsContent(assignment: MoodleAssignment): string {
+	const assignmentWithActivity = assignment as MoodleAssignment & {
+		activity?: string;
+		activityinstructions?: string;
+	};
+
+	const configActivity = assignment.configs?.find(
+		(config) =>
+			config.name === 'activity' || config.name === 'activityinstructions'
+	)?.value;
+
+	return (
+		assignmentWithActivity.activityinstructions ||
+		assignmentWithActivity.activity ||
+		configActivity ||
+		''
+	);
+}
+
+function getPaperFiles(assignment: MoodleAssignment) {
+	return assignment.introattachments ?? assignment.introfiles ?? [];
+}
+
 export default function AssignmentTabs({ assignment, courseId }: Props) {
 	const [activeTab, setActiveTab] = useQueryState('tab', {
 		defaultValue: 'details',
 	});
+	const [contentView, setContentView] = useState<ContentView>('description');
 	const [isEditingRubric, setIsEditingRubric] = useState(false);
 	const rubricFormRef = useRef<{ submit: () => void } | null>(null);
+	const instructions = getInstructionsContent(assignment);
+	const paperFiles = getPaperFiles(assignment);
 
 	const { data: rubric } = useQuery({
 		queryKey: ['rubric', assignment.cmid],
@@ -72,6 +103,8 @@ export default function AssignmentTabs({ assignment, courseId }: Props) {
 				{activeTab === 'details' && (
 					<Box ml='auto' mt={-5}>
 						<Button
+							component={Link}
+							href={`/lms/courses/${courseId}/assignments/${assignment.id}/edit`}
 							variant='light'
 							leftSection={<IconEdit size={16} />}
 							size='xs'
@@ -139,27 +172,73 @@ export default function AssignmentTabs({ assignment, courseId }: Props) {
 			<Tabs.Panel value='details' pt='lg'>
 				<Grid gutter='lg'>
 					<Grid.Col span={{ base: 12, md: 8 }}>
-						<Paper p='lg' withBorder>
-							<Stack gap='md'>
-								<Group gap='xs'>
-									<ThemeIcon size='sm' variant='light' color='gray'>
-										<IconFileDescription size={14} />
-									</ThemeIcon>
-									<Title order={5}>Description</Title>
-								</Group>
-								<Divider />
-								{assignment.intro ? (
-									<Box
-										dangerouslySetInnerHTML={{ __html: assignment.intro }}
-										style={{ fontSize: '0.875rem' }}
+						<Stack gap='md'>
+							<Paper p='lg' withBorder>
+								<Stack gap='md'>
+									<Group justify='space-between' align='center'>
+										<Group gap='xs'>
+											<ThemeIcon size='sm' variant='light' color='gray'>
+												<IconFileDescription size={14} />
+											</ThemeIcon>
+											<Title order={5}>
+												{contentView === 'description'
+													? 'Description'
+													: 'Instructions'}
+											</Title>
+										</Group>
+										<SegmentedControl
+											size='sm'
+											color='blue'
+											value={contentView}
+											onChange={(value) => setContentView(value as ContentView)}
+											data={[
+												{ label: 'Description', value: 'description' },
+												{ label: 'Instructions', value: 'instructions' },
+											]}
+										/>
+									</Group>
+									<Divider />
+									{contentView === 'description' ? (
+										assignment.intro ? (
+											<Box
+												dangerouslySetInnerHTML={{ __html: assignment.intro }}
+												style={{ fontSize: '0.875rem' }}
+											/>
+										) : (
+											<Text c='dimmed' size='sm'>
+												No description provided for this assignment.
+											</Text>
+										)
+									) : instructions ? (
+										<Box
+											dangerouslySetInnerHTML={{ __html: instructions }}
+											style={{ fontSize: '0.875rem' }}
+										/>
+									) : (
+										<Text c='dimmed' size='sm'>
+											No instructions provided for this assignment.
+										</Text>
+									)}
+								</Stack>
+							</Paper>
+
+							<Paper p='lg' withBorder>
+								<Stack gap='md'>
+									<Group gap='xs'>
+										<ThemeIcon size='sm' variant='light' color='gray'>
+											<IconFileDescription size={14} />
+										</ThemeIcon>
+										<Title order={5}>Files</Title>
+									</Group>
+									<Divider />
+									<FileList
+										files={paperFiles}
+										emptyText='No files uploaded'
+										enableModalPreview
 									/>
-								) : (
-									<Text c='dimmed' size='sm'>
-										No description provided for this assignment.
-									</Text>
-								)}
-							</Stack>
-						</Paper>
+								</Stack>
+							</Paper>
+						</Stack>
 					</Grid.Col>
 
 					<Grid.Col span={{ base: 12, md: 4 }}>

@@ -86,6 +86,41 @@ export default class StudentProgramAuditRepository extends BaseRepository<
 			return updatedRecord;
 		});
 	}
+
+	async createStudentProgramWithAudit(
+		data: typeof studentPrograms.$inferInsert,
+		userId: string,
+		reasons?: string
+	) {
+		return db.transaction(async (tx) => {
+			const existingActive = await tx.query.studentPrograms.findFirst({
+				where: (programs, { and, eq }) =>
+					and(eq(programs.stdNo, data.stdNo), eq(programs.status, 'Active')),
+				columns: { id: true },
+			});
+
+			if (existingActive) {
+				throw new Error('Student already has an active program');
+			}
+
+			const [createdRecord] = await tx
+				.insert(studentPrograms)
+				.values(data)
+				.returning();
+
+			await tx.insert(studentProgramAuditLogs).values({
+				studentProgramId: createdRecord.id,
+				studentProgramCmsId: createdRecord.cmsId,
+				oldValues: createdRecord,
+				newValues: createdRecord,
+				operation: 'create',
+				reasons: reasons || null,
+				updatedBy: userId,
+			});
+
+			return createdRecord;
+		});
+	}
 }
 
 export const studentProgramAuditRepository =

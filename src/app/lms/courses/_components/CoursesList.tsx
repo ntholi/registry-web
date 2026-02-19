@@ -16,6 +16,7 @@ import {
 } from '@mantine/core';
 import { IconBrandGithub } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
+import FiveDaysLogo from '@/shared/ui/FiveDaysLogo';
 import { getUserCourses } from '../_server/actions';
 import CourseItem from './CourseItem';
 import CreateCourseModal from './CreateCourseModal';
@@ -29,12 +30,7 @@ export default function CoursesList() {
 	return (
 		<Container mt='lg' size='xl'>
 			<Flex justify='space-between' align='center' mb='md'>
-				<Text size='1.8rem' fw={500}>
-					<Text component='span' fw={500} c='blue'>
-						Five
-					</Text>
-					Days
-				</Text>
+				<FiveDaysLogo size='1.8rem' fw={500} />
 				<CreateCourseModal />
 			</Flex>
 
@@ -58,40 +54,36 @@ export default function CoursesList() {
 function EmptyState() {
 	return (
 		<Container ta='center' py='xl' size={'sm'}>
-			<Stack gap='sm' align='center'>
+			<Stack gap='xl' align='center'>
 				<Text c='dimmed'>
-					<Text component='span' fw={500} mb='md'>
-						<Text component='span' c='blue'>
-							Five
-						</Text>
-						Days
-					</Text>{' '}
-					is a Learning Management System powered by Moodle. Click the "New
+					This Learning Management System is powered by Moodle. Click the "New
 					Course" button above to create your first course.
 				</Text>
-				<Anchor
-					href={process.env.NEXT_PUBLIC_MOODLE_URL}
-					target='_blank'
-					size='sm'
-				>
-					Click here to view the Moodle instance
-				</Anchor>
-				<Group gap='xs' mt={'lg'}>
-					<Text size='xs' c='dimmed'>
-						View source code on
-					</Text>
+				<Stack gap={1} align='center'>
 					<Anchor
-						href='https://github.com/ntholi/registry-web'
+						href={process.env.NEXT_PUBLIC_MOODLE_URL}
 						target='_blank'
-						c='dimmed'
-						size='xs'
+						size='sm'
 					>
-						<Group gap={4}>
-							<IconBrandGithub size={14} />
-							GitHub
-						</Group>
+						Click here to view the Moodle instance
 					</Anchor>
-				</Group>
+					<Group gap='xs'>
+						<Text size='xs' c='dimmed'>
+							View source code on
+						</Text>
+						<Anchor
+							href='https://github.com/ntholi/registry-web'
+							target='_blank'
+							c='dimmed'
+							size='xs'
+						>
+							<Group gap={4}>
+								<IconBrandGithub size={14} />
+								GitHub
+							</Group>
+						</Anchor>
+					</Group>
+				</Stack>
 			</Stack>
 		</Container>
 	);

@@ -19,6 +19,10 @@ import {
 import { notifications } from '@mantine/notifications';
 import { IconCheck, IconCopy } from '@tabler/icons-react';
 import { useSession } from 'next-auth/react';
+import {
+	CreateStudentProgramModal,
+	EditStudentProgramModal,
+} from '@/app/audit-logs/student-programs';
 import type { UserRole } from '@/core/database';
 import { getBooleanColor, getStatusColor } from '@/shared/lib/utils/colors';
 import { calculateAge, formatDate } from '@/shared/lib/utils/dates';
@@ -42,6 +46,21 @@ export default function StudentView({ student }: Props) {
 		['Active', 'Completed'].includes(p.status)
 	);
 
+	const hasActiveProgram = !!student.programs?.some(
+		(p) => p.status === 'Active'
+	);
+
+	const programForView =
+		student.programs?.find((p) => p.status === 'Active') ?? activePrograms?.[0];
+
+	const latestProgramSchoolId =
+		student.programs?.slice().sort((a, b) => b.id - a.id)[0]?.structure.program
+			.school.id ?? null;
+
+	const canEdit =
+		session?.user?.role &&
+		(['admin', 'registry'] as UserRole[]).includes(session.user.role);
+
 	const getLatestSemesterNumber = () => {
 		if (!activePrograms || activePrograms.length === 0) return null;
 
@@ -63,6 +82,7 @@ export default function StudentView({ student }: Props) {
 	};
 
 	const latestSemester = getLatestSemesterNumber();
+	const showProgramSection = !!programForView || (canEdit && !hasActiveProgram);
 
 	return (
 		<Stack gap='xl'>
@@ -105,15 +125,12 @@ export default function StudentView({ student }: Props) {
 								</ActionIcon>
 							</Tooltip>
 						)}
-						{session?.user?.role &&
-							(['admin', 'registry'] as UserRole[]).includes(
-								session.user.role
-							) && (
-								<EditStudentUserModal
-									studentStdNo={student.stdNo}
-									currentUser={student.user}
-								/>
-							)}
+						{canEdit && (
+							<EditStudentUserModal
+								studentStdNo={student.stdNo}
+								currentUser={student.user}
+							/>
+						)}
 					</Group>
 				</Card>
 			</Group>
@@ -124,10 +141,7 @@ export default function StudentView({ student }: Props) {
 						<Title order={4} fw={100}>
 							Student
 						</Title>
-						{session?.user?.role &&
-							(['admin', 'registry'] as UserRole[]).includes(
-								session.user.role
-							) && <EditStudentModal student={student} />}
+						{canEdit && <EditStudentModal student={student} />}
 					</Group>
 					<Badge
 						radius='sm'
@@ -170,70 +184,101 @@ export default function StudentView({ student }: Props) {
 				</Paper>
 			</div>
 
-			{activePrograms && activePrograms.length > 0 && (
+			{showProgramSection && (
 				<div>
 					<Flex justify='space-between'>
-						<Title order={4} mb='xs' fw={100}>
-							Program
-						</Title>
-						<Badge
-							radius={'sm'}
-							color={getStatusColor(activePrograms[0].status)}
-							variant='light'
-						>
-							{activePrograms[0].status}
-						</Badge>
+						<Group align='flex-start'>
+							<Title order={4} mb='xs' fw={100}>
+								Program
+							</Title>
+							{canEdit && !hasActiveProgram && (
+								<Box mt={3}>
+									<CreateStudentProgramModal
+										stdNo={student.stdNo}
+										defaultSchoolId={latestProgramSchoolId}
+									/>
+								</Box>
+							)}
+							{canEdit && hasActiveProgram && programForView && (
+								<EditStudentProgramModal
+									program={{
+										id: programForView.id,
+										stdNo: student.stdNo,
+										intakeDate: programForView.intakeDate,
+										regDate: programForView.regDate,
+										startTerm: programForView.startTerm,
+										structureId: programForView.structureId,
+										programId: programForView.structure.program.id,
+										graduationDate: programForView.graduationDate,
+										status: programForView.status,
+									}}
+								/>
+							)}
+						</Group>
+						{programForView && (
+							<Badge
+								radius={'sm'}
+								color={getStatusColor(programForView.status)}
+								variant='light'
+							>
+								{programForView.status}
+							</Badge>
+						)}
 					</Flex>
 					<Paper p='md' radius='md' withBorder>
-						<Grid gutter='xl'>
-							<Grid.Col span={{ base: 12 }}>
-								<Group>
-									<InfoItem
-										label='Program/Class'
-										value={activePrograms[0].structure.program.name}
-										displayValue={`${activePrograms[0].structure.program.name} (${activePrograms[0].structure.program.code}${formatSemester(latestSemester, 'mini')})`}
-									/>
-								</Group>
-							</Grid.Col>
+						{programForView ? (
+							<Grid gutter='xl'>
+								<Grid.Col span={{ base: 12 }}>
+									<Group>
+										<InfoItem
+											label='Program/Class'
+											value={programForView.structure.program.name}
+											displayValue={`${programForView.structure.program.name} (${programForView.structure.program.code}${formatSemester(latestSemester, 'mini')})`}
+										/>
+									</Group>
+								</Grid.Col>
 
-							<Grid.Col span={{ base: 12, sm: 6 }}>
-								<InfoItem
-									label='Intake Date'
-									value={activePrograms[0].intakeDate}
-								/>
-							</Grid.Col>
-							<Grid.Col span={{ base: 12, sm: 3 }}>
-								<InfoItem
-									label='Graduation Date'
-									value={activePrograms[0].graduationDate}
-								/>
-							</Grid.Col>
-							<Grid.Col span={{ base: 12, sm: 3 }}>
-								<Flex justify='flex-end' gap='xs'>
+								<Grid.Col span={{ base: 12, sm: 6 }}>
 									<InfoItem
-										label='Structure'
-										value={activePrograms[0].structure.code}
-										href={`/academic/schools/structures/${activePrograms[0].structureId}`}
-										copyable={false}
+										label='Intake Date'
+										value={programForView.intakeDate}
 									/>
-									{session?.user?.role &&
-										(['admin', 'registry'] as UserRole[]).includes(
-											session.user.role
-										) && (
-											<Box pt={15}>
-												<EditStructureModal
-													stdNo={student.stdNo}
-													programId={activePrograms[0].structure.programId}
-													currentStructureId={activePrograms[0].structureId}
-													currentStructureCode={
-														activePrograms[0].structure.code
-													}
-												/>
-											</Box>
-										)}
-								</Flex>
-							</Grid.Col>
-						</Grid>
+								</Grid.Col>
+								<Grid.Col span={{ base: 12, sm: 3 }}>
+									<InfoItem
+										label='Graduation Date'
+										value={programForView.graduationDate}
+									/>
+								</Grid.Col>
+								<Grid.Col span={{ base: 12, sm: 3 }}>
+									<Flex justify='flex-end' gap='xs'>
+										<InfoItem
+											label='Structure'
+											value={programForView.structure.code}
+											href={`/academic/schools/structures/${programForView.structureId}`}
+											copyable={false}
+										/>
+										{session?.user?.role &&
+											(['admin', 'registry'] as UserRole[]).includes(
+												session.user.role
+											) && (
+												<Box pt={15}>
+													<EditStructureModal
+														stdNo={student.stdNo}
+														programId={programForView.structure.programId}
+														currentStructureId={programForView.structureId}
+														currentStructureCode={programForView.structure.code}
+													/>
+												</Box>
+											)}
+									</Flex>
+								</Grid.Col>
+							</Grid>
+						) : (
+							<Text size='sm' c='dimmed'>
+								No program assigned
+							</Text>
+						)}
 					</Paper>
 				</div>
 			)}

@@ -5,16 +5,17 @@ University student registration portal managing academic records, course registr
 > [!IMPORTANT]
 > Read this entire document before starting any task. Adhere to all guidelines strictly.
 
-## 🚨 ABSOLUTE PRIORITY: NO CODE DUPLICATION
+## 🚨 ABSOLUTE PRIORITY: NO DUPLICATION & PERFORMANCE
 
 > [!CAUTION]
-> **This is your #1 priority above everything else. Violating this rule is unacceptable.**
+> **This is your #1 priority above everything else: NO CODE DUPLICATION and OPTIMIZING FOR PERFORMANCE (strictly avoid hitting the database multiple times). Violating these rules is unacceptable.**
 
 Before writing ANY code, you MUST:
 1. **SEARCH** the codebase for similar implementations using `grep_search` or `semantic_search`
 2. **IDENTIFY** if any existing component, function, or pattern can be reused or extended
 3. **EXTRACT** shared logic into `src/shared/ui/` or `src/shared/lib/utils/` or the relevant module's shared folder, if creating something reusable
 4. **IMPORT** from existing modules instead of re-implementing
+5. **MINIMIZE** database round-trips. Prefer complex queries with joins over multiple sequential queries.
 
 ### What Constitutes Duplication (Examples)
 - ❌ Writing a Google Sign-In button when one already exists in another page
@@ -22,11 +23,20 @@ Before writing ANY code, you MUST:
 - ❌ Implementing date formatting logic instead of using `@/shared/lib/utils/dates`
 - ❌ Re-implementing form validation when `Form` component handles it
 - ❌ Creating status display logic instead of using `@/shared/lib/utils/status.tsx`
+- ❌ Creating near-identical components for different entity types. Instead, create ONE parameterized shared component and pass entity-specific logic via props/callbacks.
+
+### Cross-Feature Duplication Rule
+When implementing similar functionality across multiple entity types (e.g., assignments/quizzes, students/lecturers) or across any parallel features:
+1. **ALWAYS** check if an equivalent component/function already exists for a sibling feature
+2. If it does, **extract** the shared logic into the parent module's `_shared/` folder or `src/shared/` (for app-wide)
+3. Make the shared component accept entity-specific differences via props (callbacks, labels, default values)
+4. Both features should import and use the single shared component
 
 ### Mandatory Pre-Implementation Checklist
 Before implementing ANY feature:
 - [ ] Searched for similar patterns in `src/shared/ui/`
 - [ ] Searched for similar patterns in the target module `_components/`
+- [ ] Searched for similar patterns in **sibling feature modules** (e.g., if editing `assignments/`, check `quizzes/`)
 - [ ] Searched for utility functions in `src/shared/lib/utils/`
 - [ ] If similar code exists: REFACTOR to make it reusable, then use it
 - [ ] If creating new reusable code: Place it in `src/shared/ui/` or `src/shared/lib/utils/`
@@ -162,7 +172,7 @@ You are a **Senior Principal Software Engineer** and **System Architect** specia
 - **NEVER** use the `pages` router; use the `app` router exclusively.
 - **NEVER** import `db` outside of `repository.ts` files.
 - **NEVER** import from `@/core/database` in schema files (`_schema/*.ts`). Use specific module paths instead.
-- **NEVER** create new .sql migration files manually; it corrupts the _journal. Always use `pnpm db:generate --custom`.
+- **NEVER** create new .sql migration files manually; it corrupts the _journal. Always use `pnpm db:generate`. But if you want to create a custom migration use  `pnpm db:generate --custom`.
     - *Exception*: You may edit the .sql content *after* generation for custom logic, then update snapshots.
 - **NEVER** use pnpm db:push
 - **NEVER** implement grade/marks/GPA/CGPA calculations locally.
@@ -252,7 +262,7 @@ src/
 
 ## 📦 Special Modules Support
 
-- **Moodle/LMS**: Before editing `src/app/lms/`, YOU MUST READ `C:\Users\nthol\Documents\Projects\Limkokwing\Registry\moodle-plugins\moodle-local_activity_utils\README.md`. Ask for approval before modifying.
+- **Moodle/LMS**: Before editing `src/app/lms/`, YOU MUST READ `C:\Users\nthol\Documents\Projects\Limkokwing\moodle-plugins\moodle-local_activity_utils\README.md`. Ask for approval before modifying.
 - **Student Portal**: `src/app/student-portal` uses a unique layout different from dashboard modules and does NOT follow `adease` patterns.
 
 ## 🗄️ Database & Verification

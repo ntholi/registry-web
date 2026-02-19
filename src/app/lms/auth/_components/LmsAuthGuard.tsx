@@ -69,9 +69,6 @@ export default function LmsAuthGuard({ children }: PropsWithChildren) {
 											<Text size='xs' c='dimmed'>
 												Moodle Account: {moodleCheck.user.email}
 											</Text>
-											<Text size='xs' c='dimmed'>
-												Moodle User ID: {moodleCheck.user.id}
-											</Text>
 										</Stack>
 									)}
 								</Stack>
@@ -103,7 +100,7 @@ export default function LmsAuthGuard({ children }: PropsWithChildren) {
 						<Stack w='100%' gap='xs'>
 							<Button
 								component='a'
-								href={`${process.env.NEXT_PUBLIC_MOODLE_URL}/login/signup.php`}
+								href={`${process.env.NEXT_PUBLIC_MOODLE_URL}/login/index.php`}
 								target='_blank'
 								rel='noopener noreferrer'
 								variant='filled'

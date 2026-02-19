@@ -20,6 +20,7 @@ export {
 export {
 	addExistingQuestionToQuiz,
 	addQuizAttemptFeedback,
+	createDraftQuiz,
 	createQuiz,
 	deleteQuestion,
 	deleteQuiz,
@@ -31,8 +32,10 @@ export {
 	getQuizAttemptFeedback,
 	getQuizSubmissions,
 	gradeEssayQuestion,
+	publishQuiz,
 	removeQuestionFromQuiz,
 	reorderQuizQuestions,
+	saveDraftQuizQuestion,
 	updateQuiz,
 } from './_server/actions';
 export type {

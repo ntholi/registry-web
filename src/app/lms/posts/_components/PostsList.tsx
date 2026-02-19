@@ -225,22 +225,7 @@ function PostCard({ post, type, courseId }: PostCardProps) {
 						<Text fw={600} size='sm'>
 							{post.userfullname}
 						</Text>
-						<Badge
-							size='xs'
-							variant='light'
-							color={getPostTypeColor(
-								isAnnouncement ? 'announcement' : 'discussion'
-							)}
-							leftSection={
-								isAnnouncement ? (
-									<IconBellRinging size={10} />
-								) : (
-									<IconMessages size={10} />
-								)
-							}
-						>
-							{isAnnouncement ? 'Announcement' : 'Discussion'}
-						</Badge>
+
 						{post.pinned && (
 							<Badge
 								size='xs'
@@ -252,11 +237,29 @@ function PostCard({ post, type, courseId }: PostCardProps) {
 							</Badge>
 						)}
 					</Group>
-					<Text size='xs' c='dimmed'>
-						{formatDistanceToNow(new Date(post.created * 1000), {
-							addSuffix: true,
-						})}
-					</Text>
+					<Group>
+						<Text size='xs' c='dimmed'>
+							{formatDistanceToNow(new Date(post.created * 1000), {
+								addSuffix: true,
+							})}
+						</Text>
+						<Badge
+							size='xs'
+							variant='transparent'
+							c={'gray'}
+							radius={'xs'}
+							color={getPostTypeColor(type)}
+							leftSection={
+								isAnnouncement ? (
+									<IconBellRinging size={10} />
+								) : (
+									<IconMessages size={10} />
+								)
+							}
+						>
+							{isAnnouncement ? 'Announcement' : 'Discussion'}
+						</Badge>
+					</Group>
 				</Stack>
 				<Menu position='bottom-end' withArrow shadow='md'>
 					<Menu.Target>

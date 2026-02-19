@@ -2,10 +2,11 @@
 
 import {
 	Accordion,
+	ActionIcon,
 	Badge,
 	Box,
 	Card,
-	Divider,
+	Collapse,
 	Group,
 	Progress,
 	ScrollArea,
@@ -14,19 +15,20 @@ import {
 	Text,
 	ThemeIcon,
 } from '@mantine/core';
-import {
-	IconSchool,
-	IconUserExclamation,
-	IconUsers,
-} from '@tabler/icons-react';
-import type { SchoolAttendanceSummary } from '../_server/repository';
+import { IconChevronRight, IconSchool, IconUsers } from '@tabler/icons-react';
+import { Fragment, useState } from 'react';
+import type {
+	ModuleAttendanceSummary,
+	SchoolAttendanceSummary,
+} from '../_server/repository';
 
 type Props = {
 	data: SchoolAttendanceSummary[];
+	moduleBreakdown: ModuleAttendanceSummary[];
 };
 
 function getAttendanceColor(rate: number) {
-	if (rate >= 75) return 'green';
+	if (rate >= 80) return 'green';
 	if (rate >= 50) return 'yellow';
 	return 'red';
 }
@@ -73,11 +75,93 @@ function SchoolHeader({ school }: SchoolHeaderProps) {
 
 type ProgramAccordionProps = {
 	programs: SchoolAttendanceSummary['programs'];
+	moduleBreakdown: ModuleAttendanceSummary[];
 };
 
-function ProgramAccordion({ programs }: ProgramAccordionProps) {
+function getClassModules(
+	moduleBreakdown: ModuleAttendanceSummary[],
+	className: string,
+	programCode: string
+) {
+	return moduleBreakdown
+		.filter(
+			(mod) => mod.className === className && mod.programCode === programCode
+		)
+		.sort((a, b) => a.moduleCode.localeCompare(b.moduleCode));
+}
+
+function getClassSessionAverages(classModules: ModuleAttendanceSummary[]) {
+	if (classModules.length === 0) return null;
+
+	let totalSessions = 0;
+	let totalPresent = 0;
+	let totalAbsent = 0;
+	let totalLate = 0;
+	let totalExcused = 0;
+
+	for (const mod of classModules) {
+		const marks =
+			mod.totalPresent + mod.totalAbsent + mod.totalLate + mod.totalExcused;
+		if (mod.totalStudents > 0 && marks > 0) {
+			const sessions = marks / mod.totalStudents;
+			totalSessions += sessions;
+			totalPresent += mod.totalPresent;
+			totalAbsent += mod.totalAbsent;
+			totalLate += mod.totalLate;
+			totalExcused += mod.totalExcused;
+		}
+	}
+
+	if (totalSessions === 0) return null;
+
+	return {
+		present: Math.round(totalPresent / totalSessions),
+		absent: Math.round(totalAbsent / totalSessions),
+		late: Math.round(totalLate / totalSessions),
+		excused: Math.round(totalExcused / totalSessions),
+	};
+}
+
+function ProgramAccordion({
+	programs,
+	moduleBreakdown,
+}: ProgramAccordionProps) {
+	const [openedRows, setOpenedRows] = useState<Record<string, boolean>>({});
+
+	function toggleClassRow(rowKey: string) {
+		setOpenedRows((prev) => ({
+			...prev,
+			[rowKey]: !prev[rowKey],
+		}));
+	}
+
 	return (
-		<Accordion variant='contained' radius='md'>
+		<Accordion
+			variant='contained'
+			radius='md'
+			styles={{
+				item: {
+					'&[data-active]': {
+						backgroundColor:
+							'light-dark(var(--mantine-color-gray-0), var(--mantine-color-dark-7))',
+					},
+				},
+				control: {
+					'&[aria-expanded="true"]': {
+						backgroundColor:
+							'light-dark(var(--mantine-color-gray-1), var(--mantine-color-dark-6))',
+					},
+					'&[aria-expanded="true"]:hover': {
+						backgroundColor:
+							'light-dark(var(--mantine-color-gray-2), var(--mantine-color-dark-5))',
+					},
+				},
+				panel: {
+					backgroundColor:
+						'light-dark(var(--mantine-color-white), var(--mantine-color-dark-8))',
+				},
+			}}
+		>
 			{programs.map((program) => (
 				<Accordion.Item key={program.programCode} value={program.programCode}>
 					<Accordion.Control>
@@ -103,89 +187,182 @@ function ProgramAccordion({ programs }: ProgramAccordionProps) {
 									</Text>
 								</Group>
 								<AttendanceRateBadge rate={program.avgAttendanceRate} />
-								{program.atRiskCount > 0 && (
-									<Group gap={4}>
-										<IconUserExclamation
-											size={14}
-											color='var(--mantine-color-red-6)'
-										/>
-										<Text size='xs' c='red' fw={500}>
-											{program.atRiskCount}
-										</Text>
-									</Group>
-								)}
 							</Group>
 						</Group>
 					</Accordion.Control>
 					<Accordion.Panel>
 						<ScrollArea>
-							<Table striped highlightOnHover withTableBorder fz='xs'>
+							<Table withTableBorder fz='xs'>
 								<Table.Thead>
 									<Table.Tr>
 										<Table.Th>Class</Table.Th>
 										<Table.Th ta='center'>Students</Table.Th>
 										<Table.Th ta='center'>Attendance</Table.Th>
-										<Table.Th ta='center'>Present</Table.Th>
-										<Table.Th ta='center'>Absent</Table.Th>
-										<Table.Th ta='center'>Late</Table.Th>
-										<Table.Th ta='center'>Excused</Table.Th>
-										<Table.Th ta='center'>At Risk</Table.Th>
+										<Table.Th ta='center'>Avg Present</Table.Th>
+										<Table.Th ta='center'>Avg Absent</Table.Th>
+										<Table.Th ta='center'>Avg Late</Table.Th>
+										<Table.Th ta='center'>Avg Excused</Table.Th>
 									</Table.Tr>
 								</Table.Thead>
 								<Table.Tbody>
-									{program.classes.map((cls) => (
-										<Table.Tr key={cls.className}>
-											<Table.Td>
-												<Text fw={500}>{cls.className}</Text>
-											</Table.Td>
-											<Table.Td ta='center'>{cls.totalStudents}</Table.Td>
-											<Table.Td ta='center'>
-												<Group gap={6} justify='center'>
-													<Progress
-														value={cls.avgAttendanceRate}
-														color={getAttendanceColor(cls.avgAttendanceRate)}
-														size='sm'
-														w={40}
-														radius='xl'
-													/>
-													<Text size='xs' fw={500}>
-														{cls.avgAttendanceRate}%
-													</Text>
-												</Group>
-											</Table.Td>
-											<Table.Td ta='center'>
-												<Text c='green' fw={500}>
-													{cls.totalPresent}
-												</Text>
-											</Table.Td>
-											<Table.Td ta='center'>
-												<Text c='red' fw={500}>
-													{cls.totalAbsent}
-												</Text>
-											</Table.Td>
-											<Table.Td ta='center'>
-												<Text c='yellow' fw={500}>
-													{cls.totalLate}
-												</Text>
-											</Table.Td>
-											<Table.Td ta='center'>
-												<Text c='blue' fw={500}>
-													{cls.totalExcused}
-												</Text>
-											</Table.Td>
-											<Table.Td ta='center'>
-												{cls.atRiskCount > 0 ? (
-													<Badge size='xs' color='red' variant='filled'>
-														{cls.atRiskCount}
-													</Badge>
-												) : (
-													<Text size='xs' c='dimmed'>
-														—
-													</Text>
-												)}
-											</Table.Td>
-										</Table.Tr>
-									))}
+									{program.classes.map((cls) => {
+										const rowKey = `${program.programCode}-${cls.className}`;
+										const isOpen = openedRows[rowKey] === true;
+										const classModules = getClassModules(
+											moduleBreakdown,
+											cls.className,
+											program.programCode
+										);
+										const sessionAvg = getClassSessionAverages(classModules);
+
+										return (
+											<Fragment key={rowKey}>
+												<Table.Tr>
+													<Table.Td>
+														<Group gap='xs' wrap='nowrap'>
+															<ActionIcon
+																size='sm'
+																variant='subtle'
+																onClick={() => toggleClassRow(rowKey)}
+																aria-label={`Toggle modules for ${cls.className}`}
+															>
+																<IconChevronRight
+																	size={14}
+																	style={{
+																		transform: isOpen
+																			? 'rotate(90deg)'
+																			: 'rotate(0deg)',
+																		transition: 'transform 150ms ease',
+																	}}
+																/>
+															</ActionIcon>
+															<Text
+																fw={500}
+																onClick={() => toggleClassRow(rowKey)}
+																style={{ cursor: 'pointer' }}
+															>
+																{cls.className}
+															</Text>
+														</Group>
+													</Table.Td>
+													<Table.Td ta='center'>{cls.totalStudents}</Table.Td>
+													<Table.Td ta='center'>
+														<Group gap={6} justify='center'>
+															<Progress
+																value={cls.avgAttendanceRate}
+																color={getAttendanceColor(
+																	cls.avgAttendanceRate
+																)}
+																size='sm'
+																w={40}
+																radius='xl'
+															/>
+															<Text size='xs' fw={500}>
+																{cls.avgAttendanceRate}%
+															</Text>
+														</Group>
+													</Table.Td>
+													<Table.Td ta='center'>
+														<Text c='green' fw={500}>
+															{sessionAvg?.present ?? cls.totalPresent}
+														</Text>
+													</Table.Td>
+													<Table.Td ta='center'>
+														<Text c='red' fw={500}>
+															{sessionAvg?.absent ?? cls.totalAbsent}
+														</Text>
+													</Table.Td>
+													<Table.Td ta='center'>
+														<Text c='yellow' fw={500}>
+															{sessionAvg?.late ?? cls.totalLate}
+														</Text>
+													</Table.Td>
+													<Table.Td ta='center'>
+														<Text c='blue' fw={500}>
+															{sessionAvg?.excused ?? cls.totalExcused}
+														</Text>
+													</Table.Td>
+												</Table.Tr>
+												<Table.Tr>
+													<Table.Td colSpan={7} p={0}>
+														<Collapse in={isOpen}>
+															<Box p='sm'>
+																{classModules.length > 0 ? (
+																	<Table withTableBorder fz='xs'>
+																		<Table.Thead>
+																			<Table.Tr>
+																				<Table.Th>Module</Table.Th>
+																				<Table.Th>Lecturer(s)</Table.Th>
+																				<Table.Th ta='center'>
+																					Students
+																				</Table.Th>
+																				<Table.Th ta='center'>
+																					Attendance
+																				</Table.Th>
+																			</Table.Tr>
+																		</Table.Thead>
+																		<Table.Tbody>
+																			{classModules.map((mod) => (
+																				<Table.Tr key={mod.semesterModuleId}>
+																					<Table.Td>
+																						<Group gap='xs'>
+																							<Text fw={500}>
+																								{mod.moduleCode}
+																							</Text>
+																							<Text c='dimmed' size='xs'>
+																								{mod.moduleName}
+																							</Text>
+																						</Group>
+																					</Table.Td>
+																					<Table.Td>
+																						{mod.lecturerNames.length > 0 ? (
+																							<Text size='xs'>
+																								{mod.lecturerNames.join(', ')}
+																							</Text>
+																						) : (
+																							<Text size='xs' c='dimmed'>
+																								—
+																							</Text>
+																						)}
+																					</Table.Td>
+																					<Table.Td ta='center'>
+																						{mod.totalStudents}
+																					</Table.Td>
+																					<Table.Td ta='center'>
+																						<Text size='xs' fw={600}>
+																							{mod.totalStudents > 0
+																								? Math.round(
+																										(mod.totalPresent +
+																											mod.totalLate) /
+																											Math.max(
+																												(mod.totalPresent +
+																													mod.totalAbsent +
+																													mod.totalLate +
+																													mod.totalExcused) /
+																													mod.totalStudents,
+																												1
+																											)
+																									)
+																								: 0}
+																							/{mod.totalStudents}
+																						</Text>
+																					</Table.Td>
+																				</Table.Tr>
+																			))}
+																		</Table.Tbody>
+																	</Table>
+																) : (
+																	<Text size='sm' c='dimmed'>
+																		No modules found for this class.
+																	</Text>
+																)}
+															</Box>
+														</Collapse>
+													</Table.Td>
+												</Table.Tr>
+											</Fragment>
+										);
+									})}
 								</Table.Tbody>
 							</Table>
 						</ScrollArea>
@@ -196,7 +373,7 @@ function ProgramAccordion({ programs }: ProgramAccordionProps) {
 	);
 }
 
-export default function SchoolBreakdown({ data }: Props) {
+export default function SchoolBreakdown({ data, moduleBreakdown }: Props) {
 	if (data.length === 0) {
 		return (
 			<Card withBorder p='xl' ta='center'>
@@ -207,11 +384,13 @@ export default function SchoolBreakdown({ data }: Props) {
 
 	return (
 		<Stack gap='xl'>
-			{data.map((school, index) => (
+			{data.map((school) => (
 				<Box key={school.schoolCode}>
 					<SchoolHeader school={school} />
-					<ProgramAccordion programs={school.programs} />
-					{index < data.length - 1 && <Divider my='xl' />}
+					<ProgramAccordion
+						programs={school.programs}
+						moduleBreakdown={moduleBreakdown}
+					/>
 				</Box>
 			))}
 		</Stack>

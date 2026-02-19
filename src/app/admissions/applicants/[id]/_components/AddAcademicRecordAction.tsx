@@ -20,6 +20,7 @@ import { IconPlus, IconTrash } from '@tabler/icons-react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useRouter } from 'nextjs-toploader/app';
 import { useState } from 'react';
+import { normalizeResultClassification } from '@/shared/lib/utils/resultClassification';
 import type { SubjectGradeInput } from '../academic-records/_lib/types';
 import { createAcademicRecord } from '../academic-records/_server/actions';
 import {
@@ -73,6 +74,9 @@ export default function AddAcademicRecordAction({ applicantId }: Props) {
 	const createMutation = useMutation({
 		mutationFn: async (values: typeof form.values) => {
 			const isLevel4 = selectedCertType?.lqfLevel === 4;
+			const resultClassification = normalizeResultClassification(
+				values.resultClassification
+			);
 			return createAcademicRecord(
 				applicantId,
 				{
@@ -80,9 +84,7 @@ export default function AddAcademicRecordAction({ applicantId }: Props) {
 					examYear: values.examYear,
 					institutionName: values.institutionName,
 					qualificationName: values.qualificationName || null,
-					resultClassification: values.resultClassification
-						? (values.resultClassification as (typeof resultClassificationEnum.enumValues)[number])
-						: null,
+					resultClassification,
 					subjectGrades: isLevel4 ? subjectGrades : undefined,
 				},
 				isLevel4

@@ -2,20 +2,25 @@
 
 import {
 	Box,
+	Card,
 	Flex,
-	Grid,
 	Group,
 	Image,
 	Paper,
+	Skeleton,
 	Stack,
+	Tabs,
+	TabsList,
+	TabsPanel,
+	TabsTab,
 	Text,
 } from '@mantine/core';
 import { IconCamera } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 import { type getStudent, getStudentPhoto } from '../../_server/actions';
-
 import PhotoSelection from './PhotoSelection';
+import PrintHistoryView from './PrintHistoryView';
 
 type StudentCardViewProps = {
 	student: NonNullable<Awaited<ReturnType<typeof getStudent>>>;
@@ -26,10 +31,11 @@ export default function StudentCardView({
 	student,
 	isActive,
 }: StudentCardViewProps) {
+	const [activeTab, setActiveTab] = useState<string | null>('preview');
 	const [selectedPhoto, setSelectedPhoto] = useState<File | null>(null);
 	const [photoPreview, setPhotoPreview] = useState<string | null>(null);
 
-	const { data: existingPhotoUrl } = useQuery({
+	const { data: existingPhotoUrl, isLoading } = useQuery({
 		queryKey: ['student-photo', student.stdNo],
 		queryFn: () => getStudentPhoto(student.stdNo),
 		staleTime: 1000 * 60 * 3,
@@ -43,29 +49,59 @@ export default function StudentCardView({
 		setPhotoPreview(preview);
 	};
 
-	if (!isActive) {
-		return null;
-	}
+	if (!isActive) return null;
 
 	return (
-		<Box>
-			<Grid gutter='xl'>
-				<Grid.Col span={6}>
-					<PhotoSelection
-						selectedPhoto={selectedPhoto}
-						photoPreview={photoPreview}
-						onPhotoChange={handlePhotoChange}
-						studentNumber={student.stdNo}
-						existingPhotoUrl={existingPhotoUrl}
+		<Stack>
+			<Card withBorder p='md'>
+				<Group justify='space-between' align='center'>
+					<Stack gap={4}>
+						<Group gap='xs'>
+							{isLoading ? (
+								<Skeleton height={20} width={100} />
+							) : finalPhotoUrl ? (
+								<Text fw={500} size='sm'>
+									Student Card
+								</Text>
+							) : (
+								<Text size='xs' c='dimmed' fs='italic'>
+									(No photo)
+								</Text>
+							)}
+						</Group>
+						<Text size='xs' c='dimmed'>
+							Manage student card photo and print history
+						</Text>
+					</Stack>
+					<Group gap='xs'>
+						<PhotoSelection
+							selectedPhoto={selectedPhoto}
+							photoPreview={photoPreview}
+							onPhotoChange={handlePhotoChange}
+							studentNumber={student.stdNo}
+							existingPhotoUrl={existingPhotoUrl}
+							compact
+						/>
+					</Group>
+				</Group>
+			</Card>
+
+			<Tabs value={activeTab} onChange={setActiveTab} variant='default'>
+				<TabsList>
+					<TabsTab value='preview'>Preview</TabsTab>
+					<TabsTab value='history'>History</TabsTab>
+				</TabsList>
+				<TabsPanel value='preview' pt='xl'>
+					<StudentCardPreview student={student} photoUrl={finalPhotoUrl} />
+				</TabsPanel>
+				<TabsPanel value='history' pt='xl'>
+					<PrintHistoryView
+						stdNo={student.stdNo}
+						isActive={isActive && activeTab === 'history'}
 					/>
-				</Grid.Col>
-				<Grid.Col span={6}>
-					<Paper>
-						<StudentCardPreview student={student} photoUrl={finalPhotoUrl} />
-					</Paper>
-				</Grid.Col>
-			</Grid>
-		</Box>
+				</TabsPanel>
+			</Tabs>
+		</Stack>
 	);
 }
 
@@ -173,7 +209,7 @@ function StudentCardPreview({ student, photoUrl }: StudentCardPreviewProps) {
 					right: '8px',
 				}}
 			>
-				<Flex justify={'space-between'} align={'end'}>
+				<Flex justify='space-between' align='end'>
 					<Box>
 						<Text size='6px' c='black' lh={1.2}>
 							If found please return to:

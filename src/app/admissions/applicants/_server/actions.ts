@@ -56,6 +56,10 @@ export async function findApplicantByUserId(userId: string) {
 	return applicantsService.findByUserId(userId);
 }
 
+export async function findApplicantByNationalIdWithUser(nationalId: string) {
+	return applicantsService.findByNationalIdWithUser(nationalId);
+}
+
 export async function getOrCreateApplicantForCurrentUser() {
 	return applicantsService.getOrCreateForCurrentUser();
 }

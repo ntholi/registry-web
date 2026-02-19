@@ -41,6 +41,15 @@ export async function getAssignedModulesByCurrentUser() {
 	return service.getByUserGroupedByModule(session.user.id, termId.id);
 }
 
+export async function getAllAssignedModulesByCurrentUser() {
+	const session = await auth();
+	if (!session?.user?.id) {
+		return [];
+	}
+	const termId = await getActiveTerm();
+	return service.getByUser(session.user.id, termId.id);
+}
+
 export async function getAssignedModuleByLmsCourseId(lmsCourseId: string) {
 	return service.getByLmsCourseId(lmsCourseId);
 }

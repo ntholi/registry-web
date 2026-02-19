@@ -1,5 +1,6 @@
 'use client';
 
+import PublishActivityModal from '@lms/_shared/PublishActivityModal';
 import {
 	ActionIcon,
 	Badge,
@@ -11,11 +12,13 @@ import {
 	Stack,
 	Text,
 } from '@mantine/core';
+import { useDisclosure } from '@mantine/hooks';
 import {
 	IconClock,
 	IconDotsVertical,
 	IconEdit,
 	IconExternalLink,
+	IconSend,
 	IconTrash,
 } from '@tabler/icons-react';
 import { useQueryClient } from '@tanstack/react-query';
@@ -27,12 +30,13 @@ import {
 } from '@/app/academic/assessments/_server/actions';
 import { getBooleanColor, getQuizStatusColor } from '@/shared/lib/utils/colors';
 import { DeleteButton } from '@/shared/ui/adease';
-import { deleteQuiz } from '../../_server/actions';
+import { deleteQuiz, publishQuiz } from '../../_server/actions';
 import type { MoodleQuiz } from '../../types';
 
 type Props = {
 	quiz: MoodleQuiz;
 	courseId: number;
+	moduleId?: number;
 };
 
 function formatDuration(seconds: number): string {
@@ -51,15 +55,20 @@ function getQuizStatus(quiz: MoodleQuiz): {
 	const now = Date.now() / 1000;
 	const isNotYetOpen = quiz.timeopen > 0 && now < quiz.timeopen;
 	const isClosed = quiz.timeclose > 0 && now > quiz.timeclose;
-	return getQuizStatusColor(isNotYetOpen, isClosed);
+	const isDraft = quiz.visible === 0;
+	return getQuizStatusColor(isNotYetOpen, isClosed, isDraft);
 }
 
-export default function QuizCard({ quiz, courseId }: Props) {
+export default function QuizCard({ quiz, courseId, moduleId }: Props) {
 	const status = getQuizStatus(quiz);
 	const openDate = quiz.timeopen ? new Date(quiz.timeopen * 1000) : null;
 	const closeDate = quiz.timeclose ? new Date(quiz.timeclose * 1000) : null;
 	const isOverdue = closeDate && closeDate < new Date();
 	const queryClient = useQueryClient();
+	const [publishOpened, { open: openPublish, close: closePublish }] =
+		useDisclosure(false);
+
+	const isDraft = quiz.visible === 0;
 
 	async function handleDelete() {
 		const assessment = await getAssessmentByLmsId(quiz.id);
@@ -79,103 +88,132 @@ export default function QuizCard({ quiz, courseId }: Props) {
 	}
 
 	return (
-		<Card padding='md' withBorder>
-			<Stack gap='sm'>
-				<Card.Section withBorder inheritPadding py='xs'>
-					<Group justify='space-between' wrap='nowrap'>
-						<Box
-							component={Link}
-							href={`/lms/courses/${courseId}/quizzes/${quiz.id}`}
-							style={{ textDecoration: 'none', color: 'inherit', flex: 1 }}
-						>
-							<Text fw={500} size='md'>
-								{quiz.name}
-							</Text>
-						</Box>
-						<Group gap='xs' wrap='nowrap'>
-							<Badge size='sm' variant='light' color={status.color}>
-								{status.label}
-							</Badge>
-							<Menu position='bottom-end' withArrow shadow='md'>
-								<Menu.Target>
-									<ActionIcon
-										variant='subtle'
-										color='gray'
-										size='sm'
-										onClick={(e) => e.preventDefault()}
-									>
-										<IconDotsVertical size={16} />
-									</ActionIcon>
-								</Menu.Target>
-								<Menu.Dropdown>
-									<Menu.Item
-										leftSection={<IconEdit size={14} />}
-										component={Link}
-										href={`/lms/courses/${courseId}/quizzes/${quiz.id}/edit`}
-									>
-										Edit
-									</Menu.Item>
-									<Menu.Item
-										leftSection={<IconExternalLink size={14} />}
-										onClick={handleViewInMoodle}
-									>
-										View in Moodle
-									</Menu.Item>
-									<Menu.Divider />
-									<DeleteButton
-										handleDelete={handleDelete}
-										itemName={quiz.name}
-										itemType='quiz'
-										warningMessage='This will also delete the associated assessment and all student marks. This action cannot be undone.'
-									>
-										<Menu.Item
-											leftSection={<IconTrash size={14} />}
-											color='red'
+		<>
+			<Card padding='md' withBorder>
+				<Stack gap='sm'>
+					<Card.Section withBorder inheritPadding py='xs'>
+						<Group justify='space-between' wrap='nowrap'>
+							<Box
+								component={Link}
+								href={`/lms/courses/${courseId}/quizzes/${quiz.id}`}
+								style={{ textDecoration: 'none', color: 'inherit', flex: 1 }}
+							>
+								<Text fw={500} size='md'>
+									{quiz.name}
+								</Text>
+							</Box>
+							<Group gap='xs' wrap='nowrap'>
+								<Badge size='sm' variant='light' color={status.color}>
+									{status.label}
+								</Badge>
+								<Menu position='bottom-end' withArrow shadow='md'>
+									<Menu.Target>
+										<ActionIcon
+											variant='subtle'
+											color='gray'
+											size='sm'
+											onClick={(e) => e.preventDefault()}
 										>
-											Delete
+											<IconDotsVertical size={16} />
+										</ActionIcon>
+									</Menu.Target>
+									<Menu.Dropdown>
+										<Menu.Item
+											leftSection={<IconEdit size={14} />}
+											component={Link}
+											href={`/lms/courses/${courseId}/quizzes/${quiz.id}/edit`}
+										>
+											Edit
 										</Menu.Item>
-									</DeleteButton>
-								</Menu.Dropdown>
-							</Menu>
+										{isDraft && moduleId && (
+											<Menu.Item
+												leftSection={<IconSend size={14} />}
+												color='green'
+												onClick={openPublish}
+											>
+												Publish
+											</Menu.Item>
+										)}
+										<Menu.Item
+											leftSection={<IconExternalLink size={14} />}
+											onClick={handleViewInMoodle}
+										>
+											View in Moodle
+										</Menu.Item>
+										<Menu.Divider />
+										<DeleteButton
+											handleDelete={handleDelete}
+											itemName={quiz.name}
+											itemType='quiz'
+											warningMessage='This will also delete the associated assessment and all student marks. This action cannot be undone.'
+										>
+											<Menu.Item
+												leftSection={<IconTrash size={14} />}
+												color='red'
+											>
+												Delete
+											</Menu.Item>
+										</DeleteButton>
+									</Menu.Dropdown>
+								</Menu>
+							</Group>
 						</Group>
-					</Group>
-				</Card.Section>
+					</Card.Section>
 
-				<Box
-					component={Link}
-					href={`/lms/courses/${courseId}/quizzes/${quiz.id}`}
-					style={{ textDecoration: 'none', color: 'inherit' }}
-				>
-					<Group justify='s' gap='lg' py='xs'>
-						{quiz.timelimit > 0 && (
-							<Text size='sm' c='dimmed'>
-								Duration:{' '}
-								<Text component='span' c='bright'>
-									{formatDuration(quiz.timelimit)}
-								</Text>
-							</Text>
-						)}
-					</Group>
-				</Box>
-
-				<Card.Section withBorder inheritPadding py='xs'>
-					<Group>
-						<IconClock size={16} />
-						<Flex flex={1} gap='xl' justify={'space-between'}>
-							{openDate && (
-								<Text size='xs' c='dimmed'>
-									Opens: {dayjs(openDate).format('DD MMM [at] HH:mm')}
+					<Box
+						component={Link}
+						href={`/lms/courses/${courseId}/quizzes/${quiz.id}`}
+						style={{ textDecoration: 'none', color: 'inherit' }}
+					>
+						<Group justify='s' gap='lg' py='xs'>
+							{quiz.timelimit > 0 && (
+								<Text size='sm' c='dimmed'>
+									Duration:{' '}
+									<Text component='span' c='bright'>
+										{formatDuration(quiz.timelimit)}
+									</Text>
 								</Text>
 							)}
-							{closeDate && (
-								<Text size='xs' c={getBooleanColor(!!isOverdue, 'negative')}>
-									Closes: {dayjs(closeDate).format('DD MMM [at] HH:mm')}
-								</Text>
-							)}
-						</Flex>
-					</Group>
-				</Card.Section>
-			</Stack>
-		</Card>
+						</Group>
+					</Box>
+
+					<Card.Section withBorder inheritPadding py='xs'>
+						<Group>
+							<IconClock size={16} />
+							<Flex flex={1} gap='xl' justify={'space-between'}>
+								{openDate && (
+									<Text size='xs' c='dimmed'>
+										Opens: {dayjs(openDate).format('DD MMM [at] HH:mm')}
+									</Text>
+								)}
+								{closeDate && (
+									<Text size='xs' c={getBooleanColor(!!isOverdue, 'negative')}>
+										Closes: {dayjs(closeDate).format('DD MMM [at] HH:mm')}
+									</Text>
+								)}
+							</Flex>
+						</Group>
+					</Card.Section>
+				</Stack>
+			</Card>
+			{moduleId && (
+				<PublishActivityModal
+					title='Publish Quiz'
+					moduleId={moduleId}
+					defaultTotalMarks={quiz.grade || 100}
+					opened={publishOpened}
+					onClose={closePublish}
+					publishFn={(values) =>
+						publishQuiz({
+							quizId: quiz.id,
+							courseId,
+							moduleId,
+							...values,
+						})
+					}
+					invalidateKeys={[['course-quizzes']]}
+				/>
+			)}
+		</>
 	);
 }

@@ -6,7 +6,9 @@ import {
 	Box,
 	Button,
 	Divider,
+	Grid,
 	Group,
+	Loader,
 	Modal,
 	NumberInput,
 	Paper,
@@ -17,17 +19,22 @@ import {
 } from '@mantine/core';
 import { DateTimePicker } from '@mantine/dates';
 import { useForm } from '@mantine/form';
-import { useDisclosure } from '@mantine/hooks';
+import { useDebouncedCallback, useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
-import { IconPlus } from '@tabler/icons-react';
+import { IconCheck, IconPlus } from '@tabler/icons-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import {
 	ASSESSMENT_TYPES,
 	COURSE_WORK_OPTIONS,
 } from '@/app/academic/assessments/_lib/utils';
 import { getAssessmentByModuleId } from '@/app/academic/assessments/_server/actions';
-import { createQuiz } from '../../_server/actions';
+import {
+	createDraftQuiz,
+	publishQuiz,
+	saveDraftQuizQuestion,
+	updateQuiz,
+} from '../../_server/actions';
 import type { Question, QuizFormValues } from '../../types';
 import QuestionCard, { createDefaultQuestion } from './QuestionCard';
 
@@ -36,10 +43,25 @@ type QuizFormProps = {
 	moduleId: number;
 };
 
+type SaveState = 'idle' | 'saving' | 'saved';
+
+const QUIZ_TYPES = ASSESSMENT_TYPES.filter((t) => /^Quiz \d+$/.test(t.label));
+
+function getNextQuizType(
+	used: string[]
+): { value: string; label: string } | undefined {
+	const usedLabels = new Set(used);
+	return QUIZ_TYPES.find((t) => !usedLabels.has(t.label));
+}
+
 export default function QuizForm({ courseId, moduleId }: QuizFormProps) {
 	const [opened, { open, close }] = useDisclosure(false);
 	const queryClient = useQueryClient();
 	const [openedQuestion, setOpenedQuestion] = useState<string | null>(null);
+	const [draftQuizId, setDraftQuizId] = useState<number | null>(null);
+	const [saveState, setSaveState] = useState<SaveState>('idle');
+	const [savedQuestionCount, setSavedQuestionCount] = useState(0);
+	const savingRef = useRef(false);
 
 	const { data: assessments } = useQuery({
 		queryKey: ['module-assessments', moduleId],
@@ -57,14 +79,6 @@ export default function QuizForm({ courseId, moduleId }: QuizFormProps) {
 			attempts: 1,
 			questions: [],
 		},
-		validate: {
-			assessmentNumber: (v) => (!v ? 'Assessment number is required' : null),
-			assessmentType: (v) => (!v ? 'Quiz type is required' : null),
-			weight: (v) =>
-				v < 1 || v > 100 ? 'Weight must be between 1 and 100' : null,
-			questions: (v) =>
-				v.length === 0 ? 'At least one question is required' : null,
-		},
 	});
 
 	const formResetRef = useRef(form.reset);
@@ -79,6 +93,9 @@ export default function QuizForm({ courseId, moduleId }: QuizFormProps) {
 		if (!opened) return;
 
 		formResetRef.current();
+		setDraftQuizId(null);
+		setSaveState('idle');
+		setSavedQuestionCount(0);
 
 		if (assessments && assessments.length > 0) {
 			const assessmentNumbers = assessments
@@ -97,9 +114,27 @@ export default function QuizForm({ courseId, moduleId }: QuizFormProps) {
 			} else {
 				formSetFieldValueRef.current('assessmentNumber', 'CW1');
 			}
+
+			const usedTypes = assessments.map((a) => a.assessmentType);
+			const nextQuiz = getNextQuizType(usedTypes);
+			if (nextQuiz) {
+				formSetFieldValueRef.current('assessmentType', nextQuiz.value);
+			}
 		} else {
 			formSetFieldValueRef.current('assessmentNumber', 'CW1');
+			const firstQuiz = QUIZ_TYPES[0];
+			if (firstQuiz) {
+				formSetFieldValueRef.current('assessmentType', firstQuiz.value);
+			}
 		}
+
+		const tomorrow = new Date();
+		tomorrow.setDate(tomorrow.getDate() + 1);
+		formSetFieldValueRef.current('startDateTime', tomorrow);
+
+		const endTime = new Date(tomorrow);
+		endTime.setHours(endTime.getHours() + 1);
+		formSetFieldValueRef.current('endDateTime', endTime);
 	}, [opened, assessments]);
 
 	const totalMarks = form.values.questions.reduce(
@@ -107,48 +142,130 @@ export default function QuizForm({ courseId, moduleId }: QuizFormProps) {
 		0
 	);
 
-	const mutation = useMutation({
-		mutationFn: async (values: QuizFormValues) => {
+	const canCreateDraft =
+		!!form.values.assessmentNumber && !!form.values.assessmentType;
+
+	const createDraftMutation = useMutation({
+		mutationFn: async () => {
 			const typeLabel =
-				ASSESSMENT_TYPES.find((t) => t.value === values.assessmentType)
+				ASSESSMENT_TYPES.find((t) => t.value === form.values.assessmentType)
 					?.label || 'Quiz';
 
-			return createQuiz({
+			return createDraftQuiz({
 				courseId,
-				moduleId,
 				name: typeLabel,
-				assessmentNumber: values.assessmentNumber,
-				weight: values.weight,
-				startDateTime: values.startDateTime,
-				endDateTime: values.endDateTime,
-				attempts: values.attempts,
-				questions: values.questions,
+				startDateTime: form.values.startDateTime,
+				endDateTime: form.values.endDateTime,
+				attempts: form.values.attempts,
 			});
 		},
-		onSuccess: () => {
-			notifications.show({
-				message: 'Quiz created successfully',
-				color: 'green',
-			});
+		onSuccess: (result) => {
+			setDraftQuizId(result.quizId);
+			setSaveState('saved');
 			queryClient.invalidateQueries({
 				queryKey: ['course-quizzes', courseId],
 			});
-			queryClient.invalidateQueries({
-				queryKey: ['module-assessments', moduleId],
-			});
-			form.reset();
-			close();
 		},
 		onError: (error) => {
+			setSaveState('idle');
 			notifications.show({
-				message: error.message || 'Failed to create an assessment',
+				message: error.message || 'Failed to create draft',
 				color: 'red',
 			});
 		},
 	});
 
-	const handleSubmit = form.onSubmit((values) => {
-		mutation.mutate(values);
+	const saveSettingsMutation = useMutation({
+		mutationFn: async () => {
+			if (!draftQuizId) return;
+			const typeLabel =
+				ASSESSMENT_TYPES.find((t) => t.value === form.values.assessmentType)
+					?.label || 'Quiz';
+
+			await updateQuiz(draftQuizId, {
+				name: typeLabel,
+				timeopen: form.values.startDateTime
+					? Math.floor(form.values.startDateTime.getTime() / 1000)
+					: undefined,
+				timeclose: form.values.endDateTime
+					? Math.floor(form.values.endDateTime.getTime() / 1000)
+					: undefined,
+				attempts: form.values.attempts,
+			});
+		},
+		onSuccess: () => {
+			setSaveState('saved');
+		},
+		onError: () => {
+			setSaveState('saved');
+		},
+	});
+
+	const triggerAutoSave = useCallback(() => {
+		if (savingRef.current) return;
+		if (!draftQuizId) {
+			if (canCreateDraft && !createDraftMutation.isPending) {
+				setSaveState('saving');
+				savingRef.current = true;
+				createDraftMutation.mutate(undefined, {
+					onSettled: () => {
+						savingRef.current = false;
+					},
+				});
+			}
+			return;
+		}
+		setSaveState('saving');
+		savingRef.current = true;
+		saveSettingsMutation.mutate(undefined, {
+			onSettled: () => {
+				savingRef.current = false;
+			},
+		});
+	}, [draftQuizId, canCreateDraft, createDraftMutation, saveSettingsMutation]);
+
+	const debouncedSave = useDebouncedCallback(triggerAutoSave, 1500);
+
+	useEffect(() => {
+		if (!opened) return;
+		if (!canCreateDraft) return;
+		debouncedSave();
+	}, [
+		form.values.assessmentType,
+		form.values.assessmentNumber,
+		form.values.startDateTime,
+		form.values.endDateTime,
+		form.values.attempts,
+		opened,
+		canCreateDraft,
+		debouncedSave,
+	]);
+
+	const saveQuestionMutation = useMutation({
+		mutationFn: async ({
+			question,
+			page,
+		}: {
+			question: Question;
+			page: number;
+		}) => {
+			if (!draftQuizId) throw new Error('No draft quiz');
+			return saveDraftQuizQuestion(courseId, draftQuizId, question, page);
+		},
+		onSuccess: () => {
+			setSavedQuestionCount((c) => c + 1);
+			setSaveState('saved');
+			queryClient.invalidateQueries({
+				queryKey: ['course-quizzes', courseId],
+			});
+		},
+		onError: (error) => {
+			setSaveState('saved');
+			notifications.show({
+				message: error.message || 'Failed to save question',
+				color: 'red',
+			});
+		},
 	});
 
 	const addQuestion = () => {
@@ -165,6 +282,18 @@ export default function QuizForm({ courseId, moduleId }: QuizFormProps) {
 		const newQuestions = [...form.values.questions];
 		newQuestions[index] = question;
 		form.setFieldValue('questions', newQuestions);
+
+		if (draftQuizId && index >= savedQuestionCount) {
+			const isComplete =
+				question.name.trim() !== '' && question.questionText.trim() !== '';
+			if (isComplete) {
+				setSaveState('saving');
+				saveQuestionMutation.mutate({
+					question,
+					page: index + 1,
+				});
+			}
+		}
 	};
 
 	const deleteQuestion = (index: number) => {
@@ -173,6 +302,47 @@ export default function QuizForm({ courseId, moduleId }: QuizFormProps) {
 			form.values.questions.filter((_, i) => i !== index)
 		);
 	};
+
+	const publishMutation = useMutation({
+		mutationFn: async () => {
+			if (!draftQuizId) throw new Error('No draft quiz to publish');
+			return publishQuiz({
+				quizId: draftQuizId,
+				courseId,
+				moduleId,
+				assessmentNumber: form.values.assessmentNumber,
+				weight: form.values.weight,
+				totalMarks: totalMarks || 100,
+			});
+		},
+		onSuccess: () => {
+			notifications.show({ message: 'Quiz published', color: 'green' });
+			queryClient.invalidateQueries({ queryKey: ['course-quizzes', courseId] });
+			queryClient.invalidateQueries({
+				queryKey: ['module-assessments', moduleId],
+			});
+			form.reset();
+			close();
+		},
+		onError: (error) => {
+			notifications.show({
+				message: error.message || 'Failed to publish quiz',
+				color: 'red',
+			});
+		},
+	});
+
+	function handleClose() {
+		if (draftQuizId) {
+			queryClient.invalidateQueries({
+				queryKey: ['course-quizzes', courseId],
+			});
+			queryClient.invalidateQueries({
+				queryKey: ['module-assessments', moduleId],
+			});
+		}
+		close();
+	}
 
 	return (
 		<>
@@ -187,8 +357,13 @@ export default function QuizForm({ courseId, moduleId }: QuizFormProps) {
 
 			<Modal
 				opened={opened}
-				onClose={close}
-				title='Create Test/Quiz Assessment'
+				onClose={handleClose}
+				title={
+					<Group gap='sm'>
+						<Text fw={600}>Create Test/Quiz Assessment</Text>
+						<DraftSaveBadge state={saveState} />
+					</Group>
+				}
 				fullScreen
 				styles={{
 					content: { display: 'flex', flexDirection: 'column' },
@@ -208,8 +383,7 @@ export default function QuizForm({ courseId, moduleId }: QuizFormProps) {
 						minHeight: 0,
 					}}
 				>
-					<form
-						onSubmit={handleSubmit}
+					<div
 						style={{
 							flex: 1,
 							display: 'flex',
@@ -241,6 +415,7 @@ export default function QuizForm({ courseId, moduleId }: QuizFormProps) {
 										size='xs'
 										leftSection={<IconPlus size={14} />}
 										onClick={addQuestion}
+										disabled={!draftQuizId}
 									>
 										Add Question
 									</Button>
@@ -251,16 +426,20 @@ export default function QuizForm({ courseId, moduleId }: QuizFormProps) {
 										<Paper withBorder p='xl' ta='center'>
 											<Stack align='center' gap='sm'>
 												<Text c='dimmed' size='sm'>
-													No questions added yet
+													{!draftQuizId
+														? 'Fill in the assessment details to start adding questions'
+														: 'No questions added yet'}
 												</Text>
-												<Button
-													variant='default'
-													size='sm'
-													leftSection={<IconPlus size={16} />}
-													onClick={addQuestion}
-												>
-													Add Your First Question
-												</Button>
+												{draftQuizId && (
+													<Button
+														variant='default'
+														size='sm'
+														leftSection={<IconPlus size={16} />}
+														onClick={addQuestion}
+													>
+														Add Your First Question
+													</Button>
+												)}
 											</Stack>
 										</Paper>
 									) : (
@@ -360,21 +539,66 @@ export default function QuizForm({ courseId, moduleId }: QuizFormProps) {
 
 										<Divider />
 
-										<Button
-											type='submit'
-											fullWidth
-											loading={mutation.isPending}
-											disabled={form.values.questions.length === 0}
-										>
-											Create Assessment
-										</Button>
+										<Grid>
+											<Grid.Col span={5}>
+												<Button
+													fullWidth
+													variant='default'
+													onClick={handleClose}
+												>
+													Save
+												</Button>
+											</Grid.Col>
+											<Grid.Col span={7}>
+												<Button
+													fullWidth
+													onClick={() => publishMutation.mutate()}
+													loading={publishMutation.isPending}
+													disabled={!draftQuizId}
+												>
+													Publish
+												</Button>
+											</Grid.Col>
+										</Grid>
 									</Stack>
 								</Paper>
 							</div>
 						</div>
-					</form>
+					</div>
 				</Box>
 			</Modal>
 		</>
+	);
+}
+
+type DraftSaveBadgeProps = {
+	state: SaveState;
+};
+
+function DraftSaveBadge({ state }: DraftSaveBadgeProps) {
+	if (state === 'idle') return null;
+
+	if (state === 'saving') {
+		return (
+			<Badge
+				variant='light'
+				color='blue'
+				size='sm'
+				leftSection={<Loader size={10} color='blue' />}
+			>
+				Saving...
+			</Badge>
+		);
+	}
+
+	return (
+		<Badge
+			variant='light'
+			color='green'
+			size='sm'
+			leftSection={<IconCheck size={12} />}
+		>
+			Saved as Draft
+		</Badge>
 	);
 }

@@ -5,6 +5,7 @@ import { createOrUpdateApplication } from '@admissions/applications';
 import { useApplicant } from '@apply/_lib/useApplicant';
 import {
 	Box,
+	Button,
 	Divider,
 	Paper,
 	SegmentedControl,
@@ -17,7 +18,7 @@ import {
 } from '@mantine/core';
 import { modals } from '@mantine/modals';
 import { notifications } from '@mantine/notifications';
-import { IconSchool } from '@tabler/icons-react';
+import { IconRefresh, IconSchool } from '@tabler/icons-react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useRouter } from 'nextjs-toploader/app';
 import {
@@ -71,10 +72,17 @@ export default function CourseSelectionForm({ applicationId }: Props) {
 	} = useApplicant();
 	const applicantId = applicant?.id ?? '';
 
-	const { data: eligiblePrograms = [], isLoading: loadingPrograms } = useQuery({
+	const {
+		data: eligiblePrograms = [],
+		isLoading: loadingPrograms,
+		isSuccess: programsLoaded,
+		refetch: refetchPrograms,
+		isFetching: fetchingPrograms,
+	} = useQuery({
 		queryKey: ['eligible-programs', applicantId],
 		queryFn: () => getEligiblePrograms(applicantId),
 		enabled: !!applicantId,
+		retry: 2,
 	});
 
 	const { data: activeIntake, isLoading: loadingIntake } = useQuery({
@@ -227,7 +235,8 @@ export default function CourseSelectionForm({ applicationId }: Props) {
 		setSecondChoice(sel ? String(program.id) : null);
 	}
 
-	const isLoading = !applicantId || loadingPrograms || loadingIntake;
+	const isLoading =
+		!applicantId || loadingPrograms || loadingIntake || !programsLoaded;
 	const canContinue = firstChoice && activeIntake?.id;
 
 	return (
@@ -268,6 +277,14 @@ export default function CourseSelectionForm({ applicationId }: Props) {
 							<Text c='dimmed'>
 								No eligible courses found based on your qualifications
 							</Text>
+							<Button
+								variant='light'
+								leftSection={<IconRefresh size={16} />}
+								loading={fetchingPrograms}
+								onClick={() => refetchPrograms()}
+							>
+								Retry
+							</Button>
 						</Stack>
 					</Paper>
 				)}

@@ -16,6 +16,7 @@ import AssignmentCard from './AssignmentCard';
 
 type AssignmentsListProps = {
 	courseId: number;
+	moduleId?: number;
 };
 
 function AssignmentCardSkeleton() {
@@ -45,7 +46,10 @@ function AssignmentCardSkeleton() {
 	);
 }
 
-export default function AssignmentsList({ courseId }: AssignmentsListProps) {
+export default function AssignmentsList({
+	courseId,
+	moduleId,
+}: AssignmentsListProps) {
 	const { data: assignments, isLoading } = useQuery({
 		queryKey: ['course-assignments', courseId],
 		queryFn: () => getCourseAssignments(courseId),
@@ -77,6 +81,7 @@ export default function AssignmentsList({ courseId }: AssignmentsListProps) {
 						key={assignment.id}
 						assignment={assignment}
 						courseId={courseId}
+						moduleId={moduleId}
 					/>
 				);
 			})}

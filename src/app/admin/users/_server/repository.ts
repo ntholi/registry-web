@@ -45,6 +45,10 @@ export default class UserRepository extends BaseRepository<typeof users, 'id'> {
 		return db.select().from(users).where(inArray(users.role, roles));
 	}
 
+	async updateUserLmsUserId(userId: string, lmsUserId: number) {
+		return db.update(users).set({ lmsUserId }).where(eq(users.id, userId));
+	}
+
 	async searchLecturersWithSchools(search: string, limit = 20) {
 		return db.query.users.findMany({
 			where: and(

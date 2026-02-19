@@ -15,6 +15,7 @@ import {
 	failure,
 	success,
 } from '@/shared/lib/utils/actionResult';
+import { normalizeResultClassification } from '@/shared/lib/utils/resultClassification';
 import type { SubjectGradeInput } from '../../academic-records/_lib/types';
 import {
 	createAcademicRecord,
@@ -276,6 +277,9 @@ export async function createAcademicRecordFromDocument(
 	}
 
 	const isLevel4 = certLqfLevel === 4;
+	const normalizedClassification = normalizeResultClassification(
+		data.overallClassification
+	);
 
 	if (data.certificateNumber) {
 		const existing = await findAcademicRecordByCertificateNumber(
@@ -290,7 +294,7 @@ export async function createAcademicRecordFromDocument(
 					institutionName,
 					qualificationName: data.qualificationName,
 					certificateNumber: data.certificateNumber,
-					resultClassification: data.overallClassification,
+					resultClassification: normalizedClassification,
 					subjectGrades,
 					candidateNumber: data.candidateNumber,
 				},
@@ -311,7 +315,7 @@ export async function createAcademicRecordFromDocument(
 			institutionName,
 			qualificationName: data.qualificationName,
 			certificateNumber: data.certificateNumber,
-			resultClassification: data.overallClassification,
+			resultClassification: normalizedClassification,
 			subjectGrades,
 			candidateNumber: data.candidateNumber,
 		},

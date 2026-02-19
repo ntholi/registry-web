@@ -1,6 +1,12 @@
 'use server';
 
+import { usersRepository } from '@admin/users/_server/repository';
 import { ilike, or, type SQL, sql } from 'drizzle-orm';
+import {
+	getAssignedModuleByLmsCourseId,
+	getAssignedModulesByCurrentUser,
+} from '@/app/academic/assigned-modules';
+import { getStudentsBySemesterModules } from '@/app/registry/students';
 import { auth } from '@/core/auth';
 import { students } from '@/core/database';
 import { MoodleError, moodleGet, moodlePost } from '@/core/integrations/moodle';
@@ -101,6 +107,34 @@ export async function findStudentsByLmsUserIdsForSubmissions(
 	return studentRepository.findStudentsByLmsUserIdsForSubmissions(lmsUserIds);
 }
 
+export async function getRegisteredStudentsForSync(courseId: number) {
+	const session = await auth();
+	if (!session?.user?.id) {
+		throw new Error('Unauthorized');
+	}
+
+	const [assignedModules, courseAssignment] = await Promise.all([
+		getAssignedModulesByCurrentUser(),
+		getAssignedModuleByLmsCourseId(courseId.toString()),
+	]);
+
+	if (!courseAssignment?.semesterModule?.moduleId) {
+		return [];
+	}
+
+	const moduleId = courseAssignment.semesterModule.moduleId;
+
+	const semesterModuleIds = assignedModules
+		.filter((am) => am.semesterModule?.moduleId === moduleId)
+		.map((am) => am.semesterModule!.id);
+
+	if (semesterModuleIds.length === 0) {
+		return [];
+	}
+
+	return getStudentsBySemesterModules(semesterModuleIds);
+}
+
 export async function enrollStudentInCourse(
 	courseId: number,
 	studentStdNo: number,
@@ -167,7 +201,7 @@ export async function enrollStudentInCourse(
 		}
 
 		const moodleUserId = moodleUserResult.users[0].id;
-		await studentRepository.updateUserLmsUserId(student.user.id, moodleUserId);
+		await usersRepository.updateUserLmsUserId(student.user.id, moodleUserId);
 
 		return enrollUserInMoodleCourse(moodleUserId, courseId);
 	}

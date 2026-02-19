@@ -1,6 +1,6 @@
 'use client';
 
-import { getAssignedModulesByCurrentUser } from '@academic/assigned-modules';
+import { getAllAssignedModulesByCurrentUser } from '@academic/assigned-modules';
 import {
 	Alert,
 	Badge,
@@ -18,10 +18,11 @@ import { IconPlus } from '@tabler/icons-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { useActiveTerm } from '@/shared/lib/hooks/use-active-term';
+import { getStudentClassName } from '@/shared/lib/utils/utils';
 import { createMoodleCourse, getMoodleCategories } from '../_server/actions';
 
 type AssignedModule = Awaited<
-	ReturnType<typeof getAssignedModulesByCurrentUser>
+	ReturnType<typeof getAllAssignedModulesByCurrentUser>
 >[number];
 
 export default function CreateCourseModal() {
@@ -32,8 +33,8 @@ export default function CreateCourseModal() {
 	const queryClient = useQueryClient();
 
 	const { data: assignedModules, isLoading: modulesLoading } = useQuery({
-		queryKey: ['assigned-modules-current-user'],
-		queryFn: getAssignedModulesByCurrentUser,
+		queryKey: ['all-assigned-modules-current-user'],
+		queryFn: getAllAssignedModulesByCurrentUser,
 		enabled: opened,
 	});
 
@@ -52,10 +53,10 @@ export default function CreateCourseModal() {
 			}
 
 			const module = selectedModule.semesterModule?.module;
-			const school =
-				selectedModule.semesterModule?.semester?.structure.program.school;
+			const semester = selectedModule.semesterModule?.semester;
+			const school = semester?.structure.program.school;
 
-			if (!module || !school) {
+			if (!module || !semester || !school) {
 				throw new Error('Module or school information is missing');
 			}
 
@@ -74,10 +75,11 @@ export default function CreateCourseModal() {
 			}
 
 			const categoryId = category?.id ?? 1;
+			const className = getStudentClassName(semester);
 
 			return createMoodleCourse({
 				fullname: module.name,
-				shortname: `${module.code}_${activeTerm.code}`,
+				shortname: `${activeTerm.code}_${module.code}_${className}`,
 				categoryid: categoryId,
 				semesterModuleId: selectedModule.semesterModuleId,
 			});
@@ -90,7 +92,7 @@ export default function CreateCourseModal() {
 			});
 			queryClient.invalidateQueries({ queryKey: ['courses'] });
 			queryClient.invalidateQueries({
-				queryKey: ['assigned-modules-current-user'],
+				queryKey: ['all-assigned-modules-current-user'],
 			});
 			handleClose();
 		},
@@ -171,19 +173,26 @@ export default function CreateCourseModal() {
 										>
 											<Group wrap='nowrap' align='flex-start'>
 												<Radio.Indicator />
-												<Group gap='md' align='flex-start' style={{ flex: 1 }}>
-													<Stack gap={4} style={{ flex: 1 }}>
-														<Text fw={500} size='sm'>
-															{assignment.semesterModule?.module?.name ||
-																'Unknown Module'}
-														</Text>
-														{assignment.semesterModule?.semester?.name && (
-															<Badge variant='light' color='gray'>
+												<Stack gap={4} style={{ flex: 1 }}>
+													<Text fw={500} size='sm'>
+														{assignment.semesterModule?.module?.name ||
+															'Unknown Module'}
+													</Text>
+													<Group gap='xs'>
+														{assignment.semesterModule?.module?.code && (
+															<Badge variant='light' color='gray' size='sm'>
 																{assignment.semesterModule.module.code}
 															</Badge>
 														)}
-													</Stack>
-												</Group>
+														{assignment.semesterModule?.semester && (
+															<Badge variant='light' color='blue' size='sm'>
+																{getStudentClassName(
+																	assignment.semesterModule.semester
+																)}
+															</Badge>
+														)}
+													</Group>
+												</Stack>
 											</Group>
 										</Radio.Card>
 									))}

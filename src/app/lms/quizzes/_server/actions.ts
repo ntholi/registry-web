@@ -206,6 +206,162 @@ type CreateQuizInput = {
 	questions: Question[];
 };
 
+type CreateDraftQuizInput = {
+	courseId: number;
+	name: string;
+	startDateTime: Date | null;
+	endDateTime: Date | null;
+	attempts: number;
+};
+
+export async function createDraftQuiz(input: CreateDraftQuizInput) {
+	const session = await auth();
+	if (!session?.user) {
+		throw new Error('Unauthorized');
+	}
+
+	if (!input.name?.trim()) {
+		throw new Error('Quiz name is required');
+	}
+
+	const sectionNumber = await getOrReuseSection({
+		courseId: input.courseId,
+		sectionName: 'Tests & Quizzes',
+		summary: 'Course tests and quizzes',
+		matchFn: isTestsQuizzesSection,
+	});
+
+	const quizParams: Record<string, string | number | boolean> = {
+		courseid: input.courseId,
+		name: input.name,
+		section: sectionNumber,
+		grade: 0,
+		questionsperpage: 1,
+		preferredbehaviour: 'deferredfeedback',
+		navmethod: 'free',
+		shuffleanswers: 1,
+		visible: 0,
+	};
+
+	const startDate = input.startDateTime ? new Date(input.startDateTime) : null;
+	const endDate = input.endDateTime ? new Date(input.endDateTime) : null;
+
+	if (startDate) {
+		quizParams.timeopen = Math.floor(startDate.getTime() / 1000);
+	}
+	if (endDate) {
+		quizParams.timeclose = Math.floor(endDate.getTime() / 1000);
+	}
+	if (startDate && endDate) {
+		const timeLimitSeconds = Math.floor(
+			(endDate.getTime() - startDate.getTime()) / 1000
+		);
+		if (timeLimitSeconds > 0) {
+			quizParams.timelimit = timeLimitSeconds;
+		}
+	}
+	if (input.attempts && input.attempts > 0) {
+		quizParams.attempts = input.attempts;
+	} else {
+		quizParams.attempts = 0;
+	}
+
+	const quizResult = (await moodlePost(
+		'local_activity_utils_create_quiz',
+		quizParams
+	)) as CreateQuizResponse;
+
+	if (!quizResult.id) {
+		throw new Error('Failed to create draft quiz');
+	}
+
+	return {
+		quizId: quizResult.id,
+		courseModuleId: quizResult.coursemoduleid,
+	};
+}
+
+export async function saveDraftQuizQuestion(
+	courseId: number,
+	quizId: number,
+	question: Question,
+	page: number
+) {
+	const session = await auth();
+	if (!session?.user) {
+		throw new Error('Unauthorized');
+	}
+
+	const categoryId = await getOrCreateQuestionCategory(courseId);
+	const questionResult = await createQuestionInMoodle(categoryId, question);
+
+	if (!questionResult.questionbankentryid) {
+		throw new Error(`Failed to create question: ${question.name}`);
+	}
+
+	const addResult = (await moodlePost(
+		'local_activity_utils_add_question_to_quiz',
+		{
+			quizid: quizId,
+			questionbankentryid: questionResult.questionbankentryid,
+			page,
+			maxmark: question.defaultMark,
+		}
+	)) as AddQuestionToQuizResponse;
+
+	if (!addResult.success) {
+		throw new Error(`Failed to add question to quiz: ${addResult.message}`);
+	}
+
+	return questionResult;
+}
+
+export async function publishQuiz(input: {
+	quizId: number;
+	courseId: number;
+	moduleId: number;
+	assessmentNumber: string;
+	weight: number;
+	totalMarks: number;
+}) {
+	const session = await auth();
+	if (!session?.user) {
+		throw new Error('Unauthorized');
+	}
+
+	const term = await getActiveTerm();
+	if (!term) {
+		throw new Error('No active term found');
+	}
+
+	const quiz = await getQuiz(input.quizId);
+	if (!quiz) {
+		throw new Error('Quiz not found');
+	}
+
+	await updateQuiz(input.quizId, {
+		visible: true,
+		grade: input.totalMarks,
+	});
+
+	await createAcademicAssessment(
+		{
+			moduleId: input.moduleId,
+			assessmentNumber: input.assessmentNumber as AssessmentNumber,
+			assessmentType: quiz.name,
+			totalMarks: input.totalMarks,
+			weight: input.weight,
+			termId: term.id,
+		},
+		{
+			lmsId: input.quizId,
+			activityType: 'quiz',
+		}
+	);
+
+	return { success: true };
+}
+
 export async function createQuiz(input: CreateQuizInput) {
 	const session = await auth();
 	if (!session?.user) {
@@ -346,22 +502,42 @@ export async function getCourseQuizzes(
 		throw new Error('Unauthorized');
 	}
 
-	const result = await moodleGet('mod_quiz_get_quizzes_by_courses', {
-		'courseids[0]': courseId,
-	});
+	const [quizResult, sectionsResult] = await Promise.all([
+		moodleGet('mod_quiz_get_quizzes_by_courses', {
+			'courseids[0]': courseId,
+		}),
+		moodleGet(
+			'core_course_get_contents',
+			{ courseid: courseId },
+			process.env.MOODLE_TOKEN
+		),
+	]);
 
-	if (!result || !result.quizzes) {
+	if (!quizResult || !quizResult.quizzes) {
 		return [];
 	}
 
+	const visibilityMap = new Map<number, number>();
+	if (Array.isArray(sectionsResult)) {
+		for (const section of sectionsResult) {
+			for (const mod of section.modules || []) {
+				visibilityMap.set(mod.id, mod.visible ?? 1);
+			}
+		}
+	}
+
 	return (
-		result.quizzes as Array<
+		quizResult.quizzes as Array<
 			MoodleQuiz & { cmid?: number; coursemodule?: number }
 		>
-	).map((quiz) => ({
-		...quiz,
-		coursemoduleid: quiz.coursemoduleid ?? quiz.coursemodule ?? quiz.cmid ?? 0,
-	}));
+	).map((quiz) => {
+		const cmid = quiz.coursemoduleid ?? quiz.coursemodule ?? quiz.cmid ?? 0;
+		return {
+			...quiz,
+			coursemoduleid: cmid,
+			visible: visibilityMap.get(cmid) ?? quiz.visible ?? 1,
+		};
+	});
 }
 
 export async function getQuiz(quizId: number): Promise<MoodleQuiz | null> {

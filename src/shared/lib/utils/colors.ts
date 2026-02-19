@@ -88,6 +88,7 @@ export const statusColors = {
 		notyetopen: semantic.neutral,
 		overdue: semantic.error,
 		upcoming: semantic.accent,
+		draft: semantic.warning,
 	},
 	assignment: {
 		assigned: semantic.info,
@@ -347,7 +348,9 @@ export function getGradeColor(grade: Grade) {
 	const g = grade.toUpperCase();
 
 	if (g === 'ANN') return semantic.error;
-	if (['A+', 'A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C-', 'PX'].includes(g))
+	if (
+		['A+', 'A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C-', 'PX', 'EXP'].includes(g)
+	)
 		return statusColors.grade.excellent;
 	if (['PP', 'DEF', 'NM'].includes(g)) return statusColors.grade.incomplete;
 	if (['F', 'FX', 'FIN', 'D', 'D+', 'D-', 'E', 'E+', 'E-'].includes(g))
@@ -374,7 +377,14 @@ export function getModuleTypeColor(
 	return semantic.neutral;
 }
 
-export function getQuizStatusColor(isNotYetOpen: boolean, isClosed: boolean) {
+export function getQuizStatusColor(
+	isNotYetOpen: boolean,
+	isClosed: boolean,
+	isDraft?: boolean
+) {
+	if (isDraft) {
+		return { label: 'Draft', color: statusColors.availability.draft };
+	}
 	if (isNotYetOpen) {
 		return {
 			label: 'Not yet open',
@@ -389,8 +399,12 @@ export function getQuizStatusColor(isNotYetOpen: boolean, isClosed: boolean) {
 
 export function getAssignmentStatusColor(
 	isOverdue: boolean,
-	isUpcoming: boolean
+	isUpcoming: boolean,
+	isDraft?: boolean
 ) {
+	if (isDraft) {
+		return { label: 'Draft', color: statusColors.availability.draft };
+	}
 	if (isOverdue) {
 		return { label: 'Overdue', color: statusColors.availability.overdue };
 	}

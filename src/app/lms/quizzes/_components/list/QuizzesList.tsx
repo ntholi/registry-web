@@ -16,6 +16,7 @@ import QuizCard from './QuizCard';
 
 type QuizzesListProps = {
 	courseId: number;
+	moduleId?: number;
 };
 
 function QuizCardSkeleton() {
@@ -47,7 +48,7 @@ function QuizCardSkeleton() {
 	);
 }
 
-export default function QuizzesList({ courseId }: QuizzesListProps) {
+export default function QuizzesList({ courseId, moduleId }: QuizzesListProps) {
 	const { data: quizzes, isLoading } = useQuery({
 		queryKey: ['course-quizzes', courseId],
 		queryFn: () => getCourseQuizzes(courseId),
@@ -74,7 +75,12 @@ export default function QuizzesList({ courseId }: QuizzesListProps) {
 	return (
 		<SimpleGrid cols={{ base: 1, sm: 3 }}>
 			{quizzes.map((quiz) => (
-				<QuizCard key={quiz.id} quiz={quiz} courseId={courseId} />
+				<QuizCard
+					key={quiz.id}
+					quiz={quiz}
+					courseId={courseId}
+					moduleId={moduleId}
+				/>
 			))}
 		</SimpleGrid>
 	);

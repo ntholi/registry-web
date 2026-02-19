@@ -1,6 +1,9 @@
 'use server';
 
-import { getApplicant } from '@admissions/applicants';
+import {
+	findApplicantByNationalIdWithUser,
+	getApplicant,
+} from '@admissions/applicants';
 import {
 	deleteApplicantDocument,
 	findDocumentsByType,
@@ -47,6 +50,20 @@ export async function uploadIdentityDocument(
 				success: false,
 				error: 'A valid identity document is already attached',
 			};
+		}
+
+		const nationalId = analysis.nationalId?.trim();
+		if (nationalId) {
+			const existing = await findApplicantByNationalIdWithUser(nationalId);
+			if (existing && existing.id !== applicantId) {
+				const email = existing.user?.email;
+				return {
+					success: false,
+					error: email
+						? `ID document is already registered with ${email}`
+						: 'ID document is already registered with another account',
+				};
+			}
 		}
 
 		if (file.size > MAX_FILE_SIZE) {

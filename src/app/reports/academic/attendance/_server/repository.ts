@@ -1,5 +1,6 @@
 import { and, eq, inArray, sql } from 'drizzle-orm';
 import {
+	assignedModules,
 	attendance,
 	db,
 	modules,
@@ -13,6 +14,7 @@ import {
 	studentSemesters,
 	students,
 	terms,
+	users,
 } from '@/core/database';
 
 export interface AttendanceReportFilter {
@@ -43,11 +45,17 @@ export interface ModuleAttendanceSummary {
 	moduleCode: string;
 	moduleName: string;
 	semesterModuleId: number;
+	schoolCode: string;
 	className: string;
 	programCode: string;
 	semesterNumber: string;
+	lecturerNames: string[];
 	totalStudents: number;
 	avgAttendanceRate: number;
+	totalPresent: number;
+	totalAbsent: number;
+	totalLate: number;
+	totalExcused: number;
 	atRiskCount: number;
 }
 
@@ -139,7 +147,7 @@ export interface AttendanceReportData {
 	moduleBreakdown: ModuleAttendanceSummary[];
 }
 
-const AT_RISK_THRESHOLD = 75;
+const AT_RISK_THRESHOLD = 80;
 
 export class AttendanceReportRepository {
 	async getTermById(termId: number) {
@@ -671,9 +679,11 @@ export class AttendanceReportRepository {
 				semesterModuleId: semesterModules.id,
 				moduleCode: modules.code,
 				moduleName: modules.name,
+				schoolCode: schools.code,
 				programCode: programs.code,
 				semesterNumber: structureSemesters.semesterNumber,
 				stdNo: students.stdNo,
+				lecturerName: users.name,
 			})
 			.from(studentModules)
 			.innerJoin(
@@ -697,6 +707,15 @@ export class AttendanceReportRepository {
 			.innerJoin(programs, eq(structures.programId, programs.id))
 			.innerJoin(schools, eq(programs.schoolId, schools.id))
 			.innerJoin(students, eq(studentPrograms.stdNo, students.stdNo))
+			.leftJoin(
+				assignedModules,
+				and(
+					eq(assignedModules.semesterModuleId, semesterModules.id),
+					eq(assignedModules.termId, term[0].id),
+					eq(assignedModules.active, true)
+				)
+			)
+			.leftJoin(users, eq(assignedModules.userId, users.id))
 			.where(
 				and(
 					...conditions,
@@ -722,7 +741,13 @@ export class AttendanceReportRepository {
 			number,
 			Map<
 				number,
-				{ present: number; absent: number; late: number; total: number }
+				{
+					present: number;
+					absent: number;
+					late: number;
+					excused: number;
+					total: number;
+				}
 			>
 		>();
 
@@ -737,6 +762,7 @@ export class AttendanceReportRepository {
 					present: 0,
 					absent: 0,
 					late: 0,
+					excused: 0,
 					total: 0,
 				});
 			}
@@ -751,6 +777,9 @@ export class AttendanceReportRepository {
 			} else if (record.status === 'late') {
 				stats.late++;
 				stats.total++;
+			} else if (record.status === 'excused') {
+				stats.excused++;
+				stats.total++;
 			}
 		}
 
@@ -759,9 +788,11 @@ export class AttendanceReportRepository {
 			{
 				moduleCode: string;
 				moduleName: string;
+				schoolCode: string;
 				programCode: string;
 				semesterNumber: string;
 				students: Set<number>;
+				lecturers: Set<string>;
 			}
 		>();
 
@@ -770,14 +801,19 @@ export class AttendanceReportRepository {
 				moduleGroups.set(enrollment.semesterModuleId, {
 					moduleCode: enrollment.moduleCode,
 					moduleName: enrollment.moduleName,
+					schoolCode: enrollment.schoolCode,
 					programCode: enrollment.programCode,
 					semesterNumber: enrollment.semesterNumber || '',
 					students: new Set(),
+					lecturers: new Set(),
 				});
 			}
-			moduleGroups
-				.get(enrollment.semesterModuleId)!
-				.students.add(enrollment.stdNo);
+
+			const group = moduleGroups.get(enrollment.semesterModuleId)!;
+			group.students.add(enrollment.stdNo);
+			if (enrollment.lecturerName) {
+				group.lecturers.add(enrollment.lecturerName);
+			}
 		}
 
 		const result: ModuleAttendanceSummary[] = [];
@@ -786,6 +822,10 @@ export class AttendanceReportRepository {
 			const moduleAttendance = moduleAttendanceMap.get(semesterModuleId);
 			let totalRate = 0;
 			let studentsWithAttendance = 0;
+			let totalPresent = 0;
+			let totalAbsent = 0;
+			let totalLate = 0;
+			let totalExcused = 0;
 			let atRiskCount = 0;
 
 			for (const stdNo of group.students) {
@@ -795,6 +835,10 @@ export class AttendanceReportRepository {
 						((stats.present + stats.late) / stats.total) * 100
 					);
 					totalRate += rate;
+					totalPresent += stats.present;
+					totalAbsent += stats.absent;
+					totalLate += stats.late;
+					totalExcused += stats.excused;
 					studentsWithAttendance++;
 					if (rate < AT_RISK_THRESHOLD) {
 						atRiskCount++;
@@ -818,14 +862,22 @@ export class AttendanceReportRepository {
 				moduleCode: group.moduleCode,
 				moduleName: group.moduleName,
 				semesterModuleId,
+				schoolCode: group.schoolCode,
 				className,
 				programCode: group.programCode,
 				semesterNumber: group.semesterNumber,
+				lecturerNames: Array.from(group.lecturers).sort((a, b) =>
+					a.localeCompare(b)
+				),
 				totalStudents: group.students.size,
 				avgAttendanceRate:
 					studentsWithAttendance > 0
 						? Math.round(totalRate / studentsWithAttendance)
 						: 0,
+				totalPresent,
+				totalAbsent,
+				totalLate,
+				totalExcused,
 				atRiskCount,
 			});
 		}

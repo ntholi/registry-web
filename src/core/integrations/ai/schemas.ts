@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { normalizeResultClassification } from '@/shared/lib/utils/resultClassification';
 
 const gradeConfidenceMin = 99;
 const lgcseIgcseGrades = new Set([
@@ -54,6 +55,13 @@ const identitySchema = z.object({
 	certification: certificationSchema
 		.nullable()
 		.describe('Certification details if document is certified'),
+	confidence: z
+		.number()
+		.min(0)
+		.max(100)
+		.describe(
+			'Overall confidence level (0-100) in the accuracy of extraction. 100 = absolutely certain, <100 = uncertain/blurry.'
+		),
 });
 
 const academicSchema = z
@@ -66,7 +74,7 @@ const academicSchema = z
 				'other',
 			])
 			.describe(
-				'Academic document classification: certificate (formal credential upon completion) or academic_record (results slips, transcripts, statements of results)'
+				'Academic document classification: certificate (formal credential upon completion) or academic_record (results slips, transcripts, statements of results, verification letters, equivalence letters)'
 			),
 		institutionName: z
 			.string()
@@ -135,8 +143,17 @@ const academicSchema = z
 				`List of subject names where the grade symbol is not clearly legible or uncertain (confidence < ${gradeConfidenceMin}).`
 			),
 		overallClassification: z
-			.enum(['Distinction', 'Merit', 'Credit', 'Pass', 'Fail'])
+			.string()
 			.nullable()
+			.refine(
+				(value) =>
+					value === null || normalizeResultClassification(value) !== null,
+				{
+					message:
+						'Invalid classification. Use Distinction, Merit (or Marit), Credit, Pass, Fail, First Class (A/B), Second Class (Upper/Lower/A/B), or Third Class (A/B).',
+				}
+			)
+			.transform((value) => normalizeResultClassification(value))
 			.describe('Overall qualification grade classification'),
 		certificateNumber: z
 			.string()

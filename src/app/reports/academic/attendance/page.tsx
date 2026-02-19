@@ -115,78 +115,40 @@ export default function AttendanceReportPage() {
 							>
 								Attendance
 							</Tabs.Tab>
-							<Tabs.Tab
-								value='at-risk'
-								leftSection={<IconUserExclamation size={16} />}
-							>
-								At-Risk Students
-								{reportData.atRiskStudents.length > 0 && (
-									<Text span c='red' fw={600} ml={4}>
-										({reportData.atRiskStudents.length})
-									</Text>
-								)}
-							</Tabs.Tab>
 							<Tabs.Tab value='modules' leftSection={<IconBook2 size={16} />}>
 								Modules
 							</Tabs.Tab>
 							<Tabs.Tab value='students' leftSection={<IconUsers size={16} />}>
 								Students
 							</Tabs.Tab>
+							<Tabs.Tab
+								value='at-risk'
+								leftSection={<IconUserExclamation size={16} />}
+							>
+								At-Risk
+							</Tabs.Tab>
 						</Tabs.List>
 
 						<Tabs.Panel value='attendance' pt='xl'>
-							<Stack gap='lg'>
-								<Box>
-									<Title order={3} size='h4' mb='md'>
-										School & Class Breakdown
-									</Title>
-									<SchoolBreakdown data={reportData.schools} />
-								</Box>
-							</Stack>
-						</Tabs.Panel>
-
-						<Tabs.Panel value='at-risk' pt='xl'>
-							<Stack gap='md'>
-								<Box>
-									<Title order={3} size='h4'>
-										Students with Poor Attendance
-									</Title>
-									<Text size='sm' c='dimmed'>
-										Students with attendance rate below 75%
-									</Text>
-								</Box>
-								<AtRiskStudentsTable data={reportData.atRiskStudents} />
-							</Stack>
+							<SchoolBreakdown
+								data={reportData.schools}
+								moduleBreakdown={reportData.moduleBreakdown}
+							/>
 						</Tabs.Panel>
 
 						<Tabs.Panel value='modules' pt='xl'>
-							<Stack gap='md'>
-								<Box>
-									<Title order={3} size='h4'>
-										Attendance by Module
-									</Title>
-									<Text size='sm' c='dimmed'>
-										Module-level attendance analysis sorted by lowest attendance
-										first
-									</Text>
-								</Box>
-								<ModuleBreakdown data={reportData.moduleBreakdown} />
-							</Stack>
+							<ModuleBreakdown data={reportData.moduleBreakdown} />
 						</Tabs.Panel>
 
 						<Tabs.Panel value='students' pt='xl'>
-							<Stack gap='md'>
-								<Box>
-									<Title order={3} size='h4'>
-										Student Attendance by Module
-									</Title>
-									<Text size='sm' c='dimmed'>
-										Browse all students and their attendance breakdown per
-										module
-									</Text>
-								</Box>
-								<StudentAttendanceTab filter={filter} />
-							</Stack>
+							<StudentAttendanceTab filter={filter} />
+						</Tabs.Panel>
+
+						<Tabs.Panel value='at-risk' pt='xl'>
+							<AtRiskStudentsTable
+								data={reportData.atRiskStudents}
+								filter={filter}
+							/>
 						</Tabs.Panel>
 					</Tabs>
 				)}

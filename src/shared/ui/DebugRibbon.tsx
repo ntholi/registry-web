@@ -16,32 +16,30 @@ export function DebugRibbon({ isLocal }: Props) {
 			style={{
 				position: 'fixed',
 				top: 0,
-				right: 0,
-				width: '200px',
-				height: '200px',
-				overflow: 'hidden',
+				left: 0,
+				width: '100%',
+				height: '22px',
 				pointerEvents: 'none',
 				zIndex: 9999,
 			}}
 		>
 			<Box
 				style={{
-					position: 'absolute',
-					top: '30px',
-					right: '-80px',
-					width: '250px',
-					transform: 'rotate(45deg)',
+					display: 'flex',
+					alignItems: 'center',
+					justifyContent: 'center',
+					height: '100%',
+					width: '100%',
 					backgroundColor,
 					color: 'white',
 					textAlign: 'center',
-					fontSize: '0.6rem',
+					fontSize: '0.65rem',
 					fontWeight: 'bold',
-					padding: '6px 0',
 					letterSpacing: '1px',
 					textTransform: 'uppercase',
 				}}
 			>
-				Debug
+				{isLocal ? 'Test/Debug' : '⚠️ Warning!!! ⚠️ Production ⚠️'} Environment
 			</Box>
 		</Box>
 	);

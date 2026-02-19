@@ -18,6 +18,13 @@ class StudentCardPrintService {
 		return withAuth(async () => this.repository.create(data), ['registry']);
 	}
 
+	async findByStdNo(stdNo: number) {
+		return withAuth(
+			async () => this.repository.findByStdNo(stdNo),
+			['registry']
+		);
+	}
+
 	async createWithReceipt(data: CreateStudentCardPrintData) {
 		return withAuth(async () => {
 			return db.transaction(async (tx) => {

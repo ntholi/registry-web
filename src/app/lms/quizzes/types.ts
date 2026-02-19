@@ -205,6 +205,7 @@ export type MoodleQuiz = {
 	questiondecimalpoints: number;
 	sumgrades: number;
 	grade: number;
+	visible?: number;
 	sections?: MoodleQuizSection[];
 	questions?: MoodleQuizQuestion[];
 	attemptcount?: number;

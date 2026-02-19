@@ -14,13 +14,13 @@ class AttendanceReportService {
 				programId,
 				semesterNumber
 			);
-		}, ['academic']);
+		}, ['academic', 'registry']);
 	}
 
 	async getAttendanceReportData(filter: AttendanceReportFilter) {
 		return withAuth(async () => {
 			return attendanceReportRepository.getAttendanceReportData(filter);
-		}, ['academic']);
+		}, ['academic', 'registry']);
 	}
 
 	async getPaginatedStudentsWithModuleAttendance(
@@ -36,7 +36,7 @@ class AttendanceReportService {
 				pageSize,
 				search
 			);
-		}, ['academic']);
+		}, ['academic', 'registry']);
 	}
 }
 

@@ -1,5 +1,6 @@
 'use server';
 
+import { usersRepository } from '@admin/users/_server/repository';
 import { auth } from '@/core/auth';
 import { moodleGet } from '@/core/integrations/moodle';
 
@@ -20,9 +21,24 @@ export async function checkMoodleUserExists() {
 		);
 
 		if (response?.users && Array.isArray(response.users)) {
+			const moodleUser = response.users[0] as
+				| { id?: number; email?: string }
+				| undefined;
+
+			if (
+				moodleUser?.id &&
+				session.user.id &&
+				session.user.lmsUserId !== moodleUser.id
+			) {
+				await usersRepository.updateUserLmsUserId(
+					session.user.id,
+					moodleUser.id
+				);
+			}
+
 			return {
 				exists: response.users.length > 0,
-				user: response.users[0] || null,
+				user: moodleUser || null,
 			};
 		}
 

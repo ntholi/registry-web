@@ -1,0 +1,1 @@
+ALTER TABLE "feedback_responses" ALTER COLUMN "rating" DROP NOT NULL;
