@@ -19,7 +19,7 @@ export const feedbackResponses = pgTable(
 		questionId: text()
 			.references(() => feedbackQuestions.id)
 			.notNull(),
-		rating: integer().notNull(),
+		rating: integer(),
 		comment: text(),
 		createdAt: timestamp().defaultNow(),
 	},

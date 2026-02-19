@@ -1016,6 +1016,13 @@
 			"when": 1771488135178,
 			"tag": "0144_sloppy_hannibal_king",
 			"breakpoints": true
+		},
+		{
+			"idx": 145,
+			"version": "7",
+			"when": 1771497357969,
+			"tag": "0145_nappy_celestials",
+			"breakpoints": true
 		}
 	]
 }
