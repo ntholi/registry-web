@@ -1,6 +1,6 @@
 import { assignedModules } from '@academic/assigned-modules/_schema/assignedModules';
 import { relations } from 'drizzle-orm';
-import { feedbackPassphrases } from '../periods/_schema/feedbackPassphrases';
+import { feedbackPassphrases } from '../cycles/_schema/feedbackPassphrases';
 import { feedbackQuestions } from '../questions/_schema/feedbackQuestions';
 import { feedbackResponses } from './feedbackResponses';
 

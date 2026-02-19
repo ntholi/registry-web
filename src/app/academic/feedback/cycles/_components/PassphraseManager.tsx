@@ -25,15 +25,15 @@ import {
 import PassphraseSlips from './PassphraseSlips';
 
 type Props = {
-	periodId: number;
+	cycleId: number;
 	termId: number;
-	periodName: string;
+	cycleName: string;
 };
 
 export default function PassphraseManager({
-	periodId,
+	cycleId,
 	termId,
-	periodName,
+	cycleName,
 }: Props) {
 	const queryClient = useQueryClient();
 	const [printTarget, setPrintTarget] = useState<{
@@ -47,8 +47,8 @@ export default function PassphraseManager({
 	});
 
 	const { data: statsMap, isLoading: statsLoading } = useQuery({
-		queryKey: ['feedback-passphrase-stats', periodId],
-		queryFn: () => getPassphraseStats(periodId),
+		queryKey: ['feedback-passphrase-stats', cycleId],
+		queryFn: () => getPassphraseStats(cycleId),
 	});
 
 	const mutation = useMutation({
@@ -58,7 +58,7 @@ export default function PassphraseManager({
 		}: {
 			structureSemesterId: number;
 			studentCount: number;
-		}) => generatePassphrases(periodId, structureSemesterId, studentCount),
+		}) => generatePassphrases(cycleId, structureSemesterId, studentCount),
 		onSuccess: (count) => {
 			notifications.show({
 				title: 'Passphrases Generated',
@@ -66,7 +66,7 @@ export default function PassphraseManager({
 				color: 'green',
 			});
 			queryClient.invalidateQueries({
-				queryKey: ['feedback-passphrase-stats', periodId],
+				queryKey: ['feedback-passphrase-stats', cycleId],
 			});
 		},
 		onError: (err: Error) => {
@@ -101,9 +101,9 @@ export default function PassphraseManager({
 		<Stack gap='lg'>
 			{printTarget && (
 				<PassphraseSlips
-					periodId={periodId}
+					cycleId={cycleId}
 					structureSemesterId={printTarget.structureSemesterId}
-					periodName={periodName}
+					cycleName={cycleName}
 					className={printTarget.className}
 					onClose={() => setPrintTarget(null)}
 				/>

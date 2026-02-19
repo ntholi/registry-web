@@ -7,7 +7,7 @@ import {
 	timestamp,
 	unique,
 } from 'drizzle-orm/pg-core';
-import { feedbackPassphrases } from '../periods/_schema/feedbackPassphrases';
+import { feedbackPassphrases } from '../cycles/_schema/feedbackPassphrases';
 import { feedbackQuestions } from '../questions/_schema/feedbackQuestions';
 
 export const feedbackResponses = pgTable(

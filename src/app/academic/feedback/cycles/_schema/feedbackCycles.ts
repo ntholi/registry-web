@@ -1,7 +1,7 @@
 import { terms } from '@registry/terms/_schema/terms';
 import { integer, pgTable, serial, text, timestamp } from 'drizzle-orm/pg-core';
 
-export const feedbackPeriods = pgTable('feedback_periods', {
+export const feedbackCycles = pgTable('feedback_cycles', {
 	id: serial().primaryKey(),
 	name: text().notNull(),
 	termId: integer()

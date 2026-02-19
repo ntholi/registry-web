@@ -8,14 +8,14 @@ import {
 	text,
 	timestamp,
 } from 'drizzle-orm/pg-core';
-import { feedbackPeriods } from './feedbackPeriods';
+import { feedbackCycles } from './feedbackCycles';
 
 export const feedbackPassphrases = pgTable(
 	'feedback_passphrases',
 	{
 		id: serial().primaryKey(),
-		periodId: integer()
-			.references(() => feedbackPeriods.id, { onDelete: 'cascade' })
+		cycleId: integer()
+			.references(() => feedbackCycles.id, { onDelete: 'cascade' })
 			.notNull(),
 		structureSemesterId: integer()
 			.references(() => structureSemesters.id)
@@ -29,8 +29,8 @@ export const feedbackPassphrases = pgTable(
 		passphraseIdx: index('idx_feedback_passphrases_passphrase').on(
 			table.passphrase
 		),
-		periodClassIdx: index('idx_feedback_passphrases_period_class').on(
-			table.periodId,
+		cycleClassIdx: index('idx_feedback_passphrases_cycle_class').on(
+			table.cycleId,
 			table.structureSemesterId
 		),
 	})

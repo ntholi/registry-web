@@ -1,6 +1,6 @@
 'use client';
 
-import { feedbackPeriods } from '@academic/_database';
+import { feedbackCycles } from '@academic/_database';
 import { Select, TextInput } from '@mantine/core';
 import { DateInput } from '@mantine/dates';
 import { useQuery } from '@tanstack/react-query';
@@ -10,15 +10,15 @@ import { formatDateToISO } from '@/shared/lib/utils/dates';
 import { Form } from '@/shared/ui/adease';
 import { getTerms } from '../_server/actions';
 
-type Period = typeof feedbackPeriods.$inferInsert;
+type Cycle = typeof feedbackCycles.$inferInsert;
 
 type Props = {
-	onSubmit: (values: Period) => Promise<Period>;
-	defaultValues?: Period;
+	onSubmit: (values: Cycle) => Promise<Cycle>;
+	defaultValues?: Cycle;
 	title?: string;
 };
 
-export default function PeriodForm({ onSubmit, defaultValues, title }: Props) {
+export default function CycleForm({ onSubmit, defaultValues, title }: Props) {
 	const router = useRouter();
 	const { data: terms = [] } = useQuery({
 		queryKey: ['terms'],
@@ -29,11 +29,11 @@ export default function PeriodForm({ onSubmit, defaultValues, title }: Props) {
 		<Form
 			title={title}
 			action={onSubmit}
-			queryKey={['feedback-periods']}
-			schema={createInsertSchema(feedbackPeriods)}
+			queryKey={['feedback-cycles']}
+			schema={createInsertSchema(feedbackCycles)}
 			defaultValues={defaultValues}
 			onSuccess={({ id }) => {
-				router.push(`/academic/feedback/periods/${id}`);
+				router.push(`/academic/feedback/cycles/${id}`);
 			}}
 		>
 			{(form) => (

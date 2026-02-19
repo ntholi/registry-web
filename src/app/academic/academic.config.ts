@@ -79,8 +79,8 @@ export const academicConfig: ModuleConfig = {
 						roles: ['academic', 'admin'],
 					},
 					{
-						label: 'Periods',
-						href: '/academic/feedback/periods',
+						label: 'Cycles',
+						href: '/academic/feedback/cycles',
 						icon: IconCalendarEvent,
 						roles: ['academic', 'admin'],
 					},

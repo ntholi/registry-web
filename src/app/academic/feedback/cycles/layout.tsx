@@ -4,9 +4,9 @@ import { Badge, Group, Text } from '@mantine/core';
 import type { PropsWithChildren } from 'react';
 import { getStatusColor } from '@/shared/lib/utils/colors';
 import { ListItem, ListLayout, NewLink } from '@/shared/ui/adease';
-import { getPeriods } from './_server/actions';
+import { getCycles } from './_server/actions';
 
-function getPeriodStatus(startDate: string, endDate: string) {
+function getCycleStatus(startDate: string, endDate: string) {
 	const today = new Date().toISOString().slice(0, 10);
 	if (today < startDate) return 'upcoming';
 	if (today > endDate) return 'closed';
@@ -16,14 +16,14 @@ function getPeriodStatus(startDate: string, endDate: string) {
 export default function Layout({ children }: PropsWithChildren) {
 	return (
 		<ListLayout
-			path='/academic/feedback/periods'
-			queryKey={['feedback-periods']}
-			getData={getPeriods}
+			path='/academic/feedback/cycles'
+			queryKey={['feedback-cycles']}
+			getData={getCycles}
 			actionIcons={[
-				<NewLink key='new-link' href='/academic/feedback/periods/new' />,
+				<NewLink key='new-link' href='/academic/feedback/cycles/new' />,
 			]}
 			renderItem={(it) => {
-				const status = getPeriodStatus(it.startDate, it.endDate);
+				const status = getCycleStatus(it.startDate, it.endDate);
 				return (
 					<ListItem
 						id={it.id}

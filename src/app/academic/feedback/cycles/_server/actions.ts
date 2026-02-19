@@ -1,12 +1,12 @@
 'use server';
 
 import { getAllTerms } from '@registry/terms/_server/actions';
-import type { feedbackPeriods } from '@/core/database';
-import { feedbackPeriodsService as service } from './service';
+import type { feedbackCycles } from '@/core/database';
+import { feedbackCyclesService as service } from './service';
 
-type Period = typeof feedbackPeriods.$inferInsert;
+type Cycle = typeof feedbackCycles.$inferInsert;
 
-export async function getPeriods(page = 1, search = '') {
+export async function getCycles(page = 1, search = '') {
 	return service.findAll({
 		page,
 		search: search.trim(),
@@ -14,19 +14,19 @@ export async function getPeriods(page = 1, search = '') {
 	});
 }
 
-export async function getPeriod(id: number) {
+export async function getCycle(id: number) {
 	return service.get(id);
 }
 
-export async function createPeriod(data: Period) {
+export async function createCycle(data: Cycle) {
 	return service.create(data);
 }
 
-export async function updatePeriod(id: number, data: Period) {
+export async function updateCycle(id: number, data: Cycle) {
 	return service.update(id, data);
 }
 
-export async function deletePeriod(id: number) {
+export async function deleteCycle(id: number) {
 	return service.delete(id);
 }
 
@@ -34,27 +34,27 @@ export async function getClassesForTerm(termId: number) {
 	return service.getClassesForTerm(termId);
 }
 
-export async function getPassphraseStats(periodId: number) {
-	return service.getPassphraseStats(periodId);
+export async function getPassphraseStats(cycleId: number) {
+	return service.getPassphraseStats(cycleId);
 }
 
 export async function generatePassphrases(
-	periodId: number,
+	cycleId: number,
 	structureSemesterId: number,
 	studentCount: number
 ) {
 	return service.generatePassphrases(
-		periodId,
+		cycleId,
 		structureSemesterId,
 		studentCount
 	);
 }
 
 export async function getPassphrasesForClass(
-	periodId: number,
+	cycleId: number,
 	structureSemesterId: number
 ) {
-	return service.getPassphrasesForClass(periodId, structureSemesterId);
+	return service.getPassphrasesForClass(cycleId, structureSemesterId);
 }
 
 export async function getTerms() {

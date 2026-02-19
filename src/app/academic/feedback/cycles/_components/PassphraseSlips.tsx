@@ -16,23 +16,23 @@ import { useQuery } from '@tanstack/react-query';
 import { getPassphrasesForClass } from '../_server/actions';
 
 type Props = {
-	periodId: number;
+	cycleId: number;
 	structureSemesterId: number;
-	periodName: string;
+	cycleName: string;
 	className: string;
 	onClose: () => void;
 };
 
 export default function PassphraseSlips({
-	periodId,
+	cycleId,
 	structureSemesterId,
-	periodName,
+	cycleName,
 	className,
 	onClose,
 }: Props) {
 	const { data: passphrases = [], isLoading } = useQuery({
-		queryKey: ['feedback-passphrase-slips', periodId, structureSemesterId],
-		queryFn: () => getPassphrasesForClass(periodId, structureSemesterId),
+		queryKey: ['feedback-passphrase-slips', cycleId, structureSemesterId],
+		queryFn: () => getPassphrasesForClass(cycleId, structureSemesterId),
 	});
 
 	function handlePrint() {
@@ -79,7 +79,7 @@ export default function PassphraseSlips({
 							>
 								<Stack gap={4} ta='center'>
 									<Text size='xs' c='dimmed' fw={500}>
-										{periodName}
+										{cycleName}
 									</Text>
 									<Title order={4} ff='monospace'>
 										{p.passphrase}

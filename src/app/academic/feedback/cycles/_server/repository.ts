@@ -1,8 +1,8 @@
 import { and, count, eq, sql } from 'drizzle-orm';
 import {
 	db,
+	feedbackCycles,
 	feedbackPassphrases,
-	feedbackPeriods,
 	programs,
 	schools,
 	structureSemesters,
@@ -12,17 +12,17 @@ import {
 } from '@/core/database';
 import BaseRepository from '@/core/platform/BaseRepository';
 
-export default class FeedbackPeriodRepository extends BaseRepository<
-	typeof feedbackPeriods,
+export default class FeedbackCycleRepository extends BaseRepository<
+	typeof feedbackCycles,
 	'id'
 > {
 	constructor() {
-		super(feedbackPeriods, feedbackPeriods.id);
+		super(feedbackCycles, feedbackCycles.id);
 	}
 
 	override async findById(id: number) {
-		return db.query.feedbackPeriods.findFirst({
-			where: eq(feedbackPeriods.id, id),
+		return db.query.feedbackCycles.findFirst({
+			where: eq(feedbackCycles.id, id),
 			with: { term: true },
 		});
 	}
@@ -99,7 +99,7 @@ export default class FeedbackPeriodRepository extends BaseRepository<
 		return Array.from(grouped.values());
 	}
 
-	async getPassphraseStats(periodId: number) {
+	async getPassphraseStats(cycleId: number) {
 		const rows = await db
 			.select({
 				structureSemesterId: feedbackPassphrases.structureSemesterId,
@@ -109,7 +109,7 @@ export default class FeedbackPeriodRepository extends BaseRepository<
 				),
 			})
 			.from(feedbackPassphrases)
-			.where(eq(feedbackPassphrases.periodId, periodId))
+			.where(eq(feedbackPassphrases.cycleId, cycleId))
 			.groupBy(feedbackPassphrases.structureSemesterId);
 
 		const result: Record<
@@ -126,18 +126,18 @@ export default class FeedbackPeriodRepository extends BaseRepository<
 		return result;
 	}
 
-	async getExistingPassphrases(periodId: number) {
+	async getExistingPassphrases(cycleId: number) {
 		const rows = await db
 			.select({ passphrase: feedbackPassphrases.passphrase })
 			.from(feedbackPassphrases)
-			.where(eq(feedbackPassphrases.periodId, periodId));
+			.where(eq(feedbackPassphrases.cycleId, cycleId));
 
 		return new Set(rows.map((r) => r.passphrase));
 	}
 
 	async createPassphrases(
 		passphrases: {
-			periodId: number;
+			cycleId: number;
 			structureSemesterId: number;
 			passphrase: string;
 		}[]
@@ -146,13 +146,13 @@ export default class FeedbackPeriodRepository extends BaseRepository<
 		await db.insert(feedbackPassphrases).values(passphrases);
 	}
 
-	async getPassphrasesForClass(periodId: number, structureSemesterId: number) {
+	async getPassphrasesForClass(cycleId: number, structureSemesterId: number) {
 		return db
 			.select({ passphrase: feedbackPassphrases.passphrase })
 			.from(feedbackPassphrases)
 			.where(
 				and(
-					eq(feedbackPassphrases.periodId, periodId),
+					eq(feedbackPassphrases.cycleId, cycleId),
 					eq(feedbackPassphrases.structureSemesterId, structureSemesterId)
 				)
 			)
@@ -160,4 +160,4 @@ export default class FeedbackPeriodRepository extends BaseRepository<
 	}
 }
 
-export const feedbackPeriodRepository = new FeedbackPeriodRepository();
+export const feedbackCycleRepository = new FeedbackCycleRepository();

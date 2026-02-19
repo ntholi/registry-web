@@ -2,14 +2,14 @@ import { structureSemesters } from '@academic/structures/_schema/structureSemest
 import { terms } from '@registry/terms/_schema/terms';
 import { relations } from 'drizzle-orm';
 import { feedbackResponses } from '../../_schema/feedbackResponses';
+import { feedbackCycles } from './feedbackCycles';
 import { feedbackPassphrases } from './feedbackPassphrases';
-import { feedbackPeriods } from './feedbackPeriods';
 
-export const feedbackPeriodsRelations = relations(
-	feedbackPeriods,
+export const feedbackCyclesRelations = relations(
+	feedbackCycles,
 	({ one, many }) => ({
 		term: one(terms, {
-			fields: [feedbackPeriods.termId],
+			fields: [feedbackCycles.termId],
 			references: [terms.id],
 		}),
 		passphrases: many(feedbackPassphrases),
@@ -19,9 +19,9 @@ export const feedbackPeriodsRelations = relations(
 export const feedbackPassphrasesRelations = relations(
 	feedbackPassphrases,
 	({ one, many }) => ({
-		period: one(feedbackPeriods, {
-			fields: [feedbackPassphrases.periodId],
-			references: [feedbackPeriods.id],
+		cycle: one(feedbackCycles, {
+			fields: [feedbackPassphrases.cycleId],
+			references: [feedbackCycles.id],
 		}),
 		structureSemester: one(structureSemesters, {
 			fields: [feedbackPassphrases.structureSemesterId],

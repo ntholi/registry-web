@@ -9,52 +9,52 @@ import {
 	FieldView,
 } from '@/shared/ui/adease';
 import PassphraseManager from '../_components/PassphraseManager';
-import { deletePeriod, getPeriod } from '../_server/actions';
+import { deleteCycle, getCycle } from '../_server/actions';
 
 type Props = {
 	params: Promise<{ id: string }>;
 };
 
-function getPeriodStatus(startDate: string, endDate: string) {
+function getCycleStatus(startDate: string, endDate: string) {
 	const today = new Date().toISOString().slice(0, 10);
 	if (today < startDate) return 'upcoming';
 	if (today > endDate) return 'closed';
 	return 'open';
 }
 
-export default async function PeriodDetails({ params }: Props) {
+export default async function CycleDetails({ params }: Props) {
 	const { id } = await params;
-	const period = await getPeriod(Number(id));
+	const cycle = await getCycle(Number(id));
 
-	if (!period) {
+	if (!cycle) {
 		return notFound();
 	}
 
-	const status = getPeriodStatus(period.startDate, period.endDate);
+	const status = getCycleStatus(cycle.startDate, cycle.endDate);
 	const termName =
-		'term' in period && period.term
-			? `${(period.term as { code: string; name?: string | null }).code}${
-					(period.term as { name?: string | null }).name
-						? ` — ${(period.term as { name?: string | null }).name}`
+		'term' in cycle && cycle.term
+			? `${(cycle.term as { code: string; name?: string | null }).code}${
+					(cycle.term as { name?: string | null }).name
+						? ` — ${(cycle.term as { name?: string | null }).name}`
 						: ''
 				}`
-			: String(period.termId);
+			: String(cycle.termId);
 
 	return (
 		<DetailsView>
 			<DetailsViewHeader
-				title='Period'
-				queryKey={['feedback-periods']}
+				title='Feedback Cycle'
+				queryKey={['feedback-cycles']}
 				handleDelete={async () => {
 					'use server';
-					await deletePeriod(Number(id));
+					await deleteCycle(Number(id));
 				}}
 			/>
 			<DetailsViewBody>
-				<FieldView label='Name'>{period.name}</FieldView>
+				<FieldView label='Name'>{cycle.name}</FieldView>
 				<FieldView label='Term'>{termName}</FieldView>
 				<FieldView label='Dates'>
-					{formatDate(period.startDate)} — {formatDate(period.endDate)}
+					{formatDate(cycle.startDate)} — {formatDate(cycle.endDate)}
 				</FieldView>
 				<FieldView label='Status'>
 					<Badge color={getStatusColor(status)} variant='light'>
@@ -65,9 +65,9 @@ export default async function PeriodDetails({ params }: Props) {
 				<Stack>
 					<Title order={4}>Passphrase Management</Title>
 					<PassphraseManager
-						periodId={period.id}
-						termId={period.termId}
-						periodName={period.name}
+						cycleId={cycle.id}
+						termId={cycle.termId}
+						cycleName={cycle.name}
 					/>
 				</Stack>
 			</DetailsViewBody>
