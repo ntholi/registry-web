@@ -1,5 +1,6 @@
 'use server';
 
+import { resolveApplicationFee } from '@admissions/_lib/fees';
 import { getApplicant } from '@admissions/applicants';
 import { getApplicationForPayment } from '@admissions/applications';
 import {
@@ -123,11 +124,13 @@ export async function getPaymentPageData(applicationId: string) {
 	);
 
 	const intake = application.intakePeriod;
+	const isMosotho = application.applicant?.isMosotho ?? null;
+	const fee = intake ? resolveApplicationFee(intake, isMosotho) : null;
 
 	return {
 		applicant,
 		application,
-		fee: intake?.applicationFee ?? null,
+		fee,
 		bankDeposits: deposits ?? [],
 		isPaid: !!verifiedDeposit || application.paymentStatus === 'paid',
 		hasPendingDeposit: !!pendingDeposit,

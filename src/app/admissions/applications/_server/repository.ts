@@ -27,13 +27,19 @@ export default class ApplicationRepository extends BaseRepository<
 			where: eq(applications.id, id),
 			with: {
 				applicant: {
-					columns: { id: true, fullName: true, nationalId: true },
+					columns: {
+						id: true,
+						fullName: true,
+						nationalId: true,
+						isMosotho: true,
+					},
 				},
 				intakePeriod: {
 					columns: {
 						id: true,
 						name: true,
-						applicationFee: true,
+						localApplicationFee: true,
+						internationalApplicationFee: true,
 						startDate: true,
 						endDate: true,
 					},
@@ -166,10 +172,20 @@ export default class ApplicationRepository extends BaseRepository<
 				orderBy: (a, { desc }) => [desc(a.applicationDate)],
 				with: {
 					applicant: {
-						columns: { id: true, fullName: true, nationalId: true },
+						columns: {
+							id: true,
+							fullName: true,
+							nationalId: true,
+							isMosotho: true,
+						},
 					},
 					intakePeriod: {
-						columns: { id: true, name: true, applicationFee: true },
+						columns: {
+							id: true,
+							name: true,
+							localApplicationFee: true,
+							internationalApplicationFee: true,
+						},
 					},
 					firstChoiceProgram: {
 						columns: { id: true, name: true, code: true },
@@ -298,10 +314,14 @@ export default class ApplicationRepository extends BaseRepository<
 				paymentStatus: true,
 			},
 			with: {
+				applicant: {
+					columns: { isMosotho: true },
+				},
 				intakePeriod: {
 					columns: {
 						id: true,
-						applicationFee: true,
+						localApplicationFee: true,
+						internationalApplicationFee: true,
 						startDate: true,
 						endDate: true,
 					},

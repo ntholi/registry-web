@@ -46,10 +46,20 @@ export default class PaymentRepository extends BaseRepository<
 					columns: { id: true, status: true, paymentStatus: true },
 					with: {
 						applicant: {
-							columns: { id: true, fullName: true, nationalId: true },
+							columns: {
+								id: true,
+								fullName: true,
+								nationalId: true,
+								isMosotho: true,
+							},
 						},
 						intakePeriod: {
-							columns: { id: true, name: true, applicationFee: true },
+							columns: {
+								id: true,
+								name: true,
+								localApplicationFee: true,
+								internationalApplicationFee: true,
+							},
 						},
 					},
 				},

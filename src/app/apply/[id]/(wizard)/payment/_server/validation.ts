@@ -1,8 +1,9 @@
 'use server';
 
+import { resolveApplicationFee } from '@admissions/_lib/fees';
 import { getApplication } from '@admissions/applications';
 import { eq } from 'drizzle-orm';
-import { db, intakePeriods } from '@/core/database';
+import { applicants, db, intakePeriods } from '@/core/database';
 import {
 	analyzeReceipt,
 	type ReceiptResult,
@@ -128,7 +129,14 @@ export async function validateReceipts(
 		};
 	}
 
-	const requiredAmount = parseFloat(intake.applicationFee);
+	const applicant = await db.query.applicants.findFirst({
+		where: eq(applicants.id, application.applicantId),
+		columns: { isMosotho: true },
+	});
+
+	const requiredAmount = parseFloat(
+		resolveApplicationFee(intake, applicant?.isMosotho ?? null)
+	);
 	const validatedReceipts: ReceiptsValidationResult['receipts'] = [];
 	const globalErrors: string[] = [];
 	let totalAmount = 0;

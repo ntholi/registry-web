@@ -1,3 +1,4 @@
+import { resolveApplicationFee } from '@admissions/_lib/fees';
 import {
 	Badge,
 	Divider,
@@ -158,7 +159,12 @@ export default async function DepositDetailsPage({ params }: Props) {
 								<GridCol span={6}>
 									<FieldView label='Application Fee' underline={false}>
 										M{' '}
-										{deposit.application.intakePeriod?.applicationFee || '0.00'}
+										{deposit.application.intakePeriod
+											? resolveApplicationFee(
+													deposit.application.intakePeriod,
+													deposit.application.applicant?.isMosotho ?? null
+												)
+											: '0.00'}
 									</FieldView>
 								</GridCol>
 								<GridCol span={6}>

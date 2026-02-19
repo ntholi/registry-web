@@ -1,3 +1,4 @@
+import { resolveApplicationFee } from '@admissions/_lib/fees';
 import {
 	Badge,
 	Card,
@@ -174,7 +175,10 @@ export default async function ApplicationDetails({ params }: Props) {
 
 					<TabsPanel value='payment' pt='md'>
 						<PaymentSection
-							feeAmount={item.intakePeriod.applicationFee}
+							feeAmount={resolveApplicationFee(
+								item.intakePeriod,
+								item.applicant.isMosotho
+							)}
 							paymentStatus={item.paymentStatus as PaymentStatus}
 							bankDeposits={item.bankDeposits}
 						/>
