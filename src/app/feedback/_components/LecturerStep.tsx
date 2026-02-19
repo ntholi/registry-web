@@ -3,7 +3,9 @@
 import {
 	Avatar,
 	Badge,
+	Box,
 	Button,
+	Flex,
 	Group,
 	Paper,
 	Stack,
@@ -76,33 +78,35 @@ export default function LecturerStep({
 	return (
 		<Stack gap='md'>
 			<Paper withBorder p='md' radius='md'>
-				<Group justify='space-between' align='flex-start'>
-					<Group gap='sm'>
-						<Avatar src={lecturer.lecturerImage} size='lg' radius='xl'>
-							{lecturer.lecturerName
-								?.split(' ')
-								.map((n) => n[0])
-								.join('')
-								.slice(0, 2)
-								.toUpperCase()}
-						</Avatar>
-						<div>
+				<Group align='flex-start' wrap='nowrap'>
+					<Avatar src={lecturer.lecturerImage} size='lg' radius='xl'>
+						{lecturer.lecturerName
+							?.split(' ')
+							.map((n) => n[0])
+							.join('')
+							.slice(0, 2)
+							.toUpperCase()}
+					</Avatar>
+					<Stack w={'100%'}>
+						<Box>
 							<Title order={4}>{lecturer.lecturerName}</Title>
-							<Text size='sm' c='dimmed'>
-								{lecturer.moduleCode} — {lecturer.moduleName}
+							<Text mt='xs' size='sm' c='dimmed'>
+								{lecturer.moduleCode} - {lecturer.moduleName}
 							</Text>
-						</div>
-					</Group>
-					<Button
-						variant='light'
-						color='red'
-						size='compact-sm'
-						onClick={onSkip}
-						loading={isPending}
-						ml='auto'
-					>
-						Skip lecturer
-					</Button>
+						</Box>
+						<Flex justify={'flex-end'}>
+							<Button
+								variant='light'
+								color='red'
+								size='compact-sm'
+								onClick={onSkip}
+								loading={isPending}
+								ml='auto'
+							>
+								Skip lecturer
+							</Button>
+						</Flex>
+					</Stack>
 				</Group>
 			</Paper>
 
