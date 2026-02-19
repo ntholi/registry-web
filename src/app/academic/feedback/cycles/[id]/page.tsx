@@ -1,6 +1,7 @@
 import {
 	Badge,
 	Group,
+	Stack,
 	Tabs,
 	TabsList,
 	TabsPanel,
@@ -11,12 +12,7 @@ import { IconInfoCircle, IconKey } from '@tabler/icons-react';
 import { notFound } from 'next/navigation';
 import { getStatusColor } from '@/shared/lib/utils/colors';
 import { formatDate } from '@/shared/lib/utils/dates';
-import {
-	DetailsView,
-	DetailsViewBody,
-	DetailsViewHeader,
-	FieldView,
-} from '@/shared/ui/adease';
+import { DetailsView, DetailsViewHeader, FieldView } from '@/shared/ui/adease';
 import PassphraseManager from '../_components/PassphraseManager';
 import { deleteCycle, getCycle } from '../_server/actions';
 
@@ -64,18 +60,19 @@ export default async function CycleDetails({ params }: Props) {
 					await deleteCycle(id);
 				}}
 			/>
-			<DetailsViewBody>
-				<Tabs defaultValue='details'>
-					<TabsList>
-						<TabsTab value='details' leftSection={<IconInfoCircle size={16} />}>
-							Details
-						</TabsTab>
-						<TabsTab value='passphrases' leftSection={<IconKey size={16} />}>
-							Passphrases
-						</TabsTab>
-					</TabsList>
 
-					<TabsPanel value='details' pt='md'>
+			<Tabs defaultValue='details'>
+				<TabsList>
+					<TabsTab value='details' leftSection={<IconInfoCircle size={16} />}>
+						Details
+					</TabsTab>
+					<TabsTab value='passphrases' leftSection={<IconKey size={16} />}>
+						Passphrases
+					</TabsTab>
+				</TabsList>
+
+				<TabsPanel value='details'>
+					<Stack mt={'md'} p={'sm'}>
 						<FieldView label='Name'>{cycle.name}</FieldView>
 						<FieldView label='Term'>{termName}</FieldView>
 						<FieldView label='Dates'>
@@ -97,17 +94,17 @@ export default async function CycleDetails({ params }: Props) {
 								</Group>
 							</FieldView>
 						)}
-					</TabsPanel>
+					</Stack>
+				</TabsPanel>
 
-					<TabsPanel value='passphrases' pt='md'>
-						<PassphraseManager
-							cycleId={cycle.id}
-							termId={cycle.termId}
-							cycleName={cycle.name}
-						/>
-					</TabsPanel>
-				</Tabs>
-			</DetailsViewBody>
+				<TabsPanel value='passphrases' pt='md'>
+					<PassphraseManager
+						cycleId={cycle.id}
+						termId={cycle.termId}
+						cycleName={cycle.name}
+					/>
+				</TabsPanel>
+			</Tabs>
 		</DetailsView>
 	);
 }

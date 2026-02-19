@@ -15,10 +15,9 @@ import {
 	SegmentedControl,
 	Stack,
 	Text,
-	TextInput,
 } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
-import { IconFilter, IconPlus, IconSearch } from '@tabler/icons-react';
+import { IconFilter, IconPlus } from '@tabler/icons-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useMemo, useState } from 'react';
 import { getStudentClassName } from '@/shared/lib/utils/utils';
@@ -289,13 +288,6 @@ export default function PassphraseManager({
 			</Modal>
 
 			<Group justify='space-between' align='flex-end'>
-				<TextInput
-					placeholder='Search classes...'
-					leftSection={<IconSearch size={16} />}
-					value={search}
-					onChange={(e) => setSearch(e.currentTarget.value)}
-					style={{ flex: 1, maxWidth: 300 }}
-				/>
 				<Group gap='xs' align='center'>
 					<IconFilter size={16} opacity={0.5} />
 					<SegmentedControl
