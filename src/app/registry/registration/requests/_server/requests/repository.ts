@@ -642,9 +642,7 @@ export default class RegistrationRequestRepository extends BaseRepository<
 
 			let departments: ('finance' | 'library')[] = [];
 			if (!skipClearance) {
-				departments = isAdditionalRequest
-					? ['finance']
-					: ['finance', 'library'];
+				departments = ['finance', 'library'];
 			}
 
 			for (const department of departments) {
