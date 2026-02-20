@@ -1,5 +1,6 @@
 import {
 	IconCalendarEvent,
+	IconChartBar,
 	IconClipboardData,
 	IconListCheck,
 	IconMessageQuestion,
@@ -82,6 +83,12 @@ export const academicConfig: ModuleConfig = {
 						label: 'Cycles',
 						href: '/academic/feedback/cycles',
 						icon: IconCalendarEvent,
+						roles: ['academic', 'admin'],
+					},
+					{
+						label: 'Reports',
+						href: '/academic/feedback/reports',
+						icon: IconChartBar,
 						roles: ['academic', 'admin'],
 					},
 				],
