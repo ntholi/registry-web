@@ -60,7 +60,7 @@ export function getOverallStatusSummary(
 
 	if (status === 'submitted' && paymentStatus === 'unpaid') {
 		if (hasDeposits) {
-			return 'Application submitted — payment under review';
+			return 'Application submitted';
 		}
 		return 'Payment required';
 	}
