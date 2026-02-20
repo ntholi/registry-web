@@ -1051,6 +1051,13 @@
 			"when": 1771570217463,
 			"tag": "0149_fixed_aaron_stack",
 			"breakpoints": true
+		},
+		{
+			"idx": 150,
+			"version": "7",
+			"when": 1771573293261,
+			"tag": "0150_whole_wither",
+			"breakpoints": true
 		}
 	]
 }
