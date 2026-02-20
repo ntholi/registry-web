@@ -25,6 +25,7 @@ import {
 	skipLecturer,
 	submitLecturerFeedback,
 } from '../_server/actions';
+import LecturerNav from './LecturerNav';
 import LecturerProgress from './LecturerProgress';
 import LecturerStep from './LecturerStep';
 import ThankYou from './ThankYou';
@@ -207,6 +208,11 @@ export default function FeedbackForm({
 
 	const completedCount = Array.from(completedLecturers).length;
 
+	function handleNavigateTo(index: number) {
+		setCurrentLecturerIndex(index);
+		setCurrentQuestionIndex(0);
+	}
+
 	return (
 		<Container size='xs' py='md'>
 			<Stack gap='md'>
@@ -222,8 +228,17 @@ export default function FeedbackForm({
 					onQuestionIndexChange={setCurrentQuestionIndex}
 					getResponse={getResponse}
 					setResponse={setResponse}
-					onNext={handleNextLecturer}
 					onSkip={handleSkipLecturer}
+					isPending={isPending}
+					pendingAction={pendingAction}
+				/>
+				<LecturerNav
+					lecturers={lecturers}
+					currentIndex={currentLecturerIndex}
+					questions={questions}
+					getResponse={getResponse}
+					onNavigate={handleNavigateTo}
+					onSubmit={handleNextLecturer}
 					isLast={currentLecturerIndex === lecturers.length - 1}
 					isPending={isPending}
 					pendingAction={pendingAction}
