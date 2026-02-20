@@ -7,7 +7,10 @@ class AssignedModuleService {
 	constructor(private readonly repository = new AssignedModuleRepository()) {}
 
 	async delete(id: number) {
-		return withAuth(async () => this.repository.delete(id), ['academic']);
+		return withAuth(
+			async () => this.repository.delete(id),
+			['academic', 'leap']
+		);
 	}
 
 	async assignModulesToLecturer(userId: string, semesterModuleIds: number[]) {
@@ -21,26 +24,26 @@ class AssignedModuleService {
 			}));
 
 			return this.repository.createMany(assignments);
-		}, ['academic']);
+		}, ['academic', 'leap']);
 	}
 
 	async getByUserAndModule(userId: string, moduleId: number) {
 		return withAuth(
 			async () => this.repository.findByUserAndModule(userId, moduleId),
-			['academic']
+			['academic', 'leap']
 		);
 	}
 	async getLecturersByModule(moduleId: number) {
 		return withAuth(
 			async () => this.repository.findByModule(moduleId),
-			['academic']
+			['academic', 'leap']
 		);
 	}
 
 	async getByUser(userId: string, termId?: number) {
 		return withAuth(
 			async () => this.repository.findByUser(userId, termId),
-			['academic']
+			['academic', 'leap']
 		);
 	}
 
@@ -61,7 +64,7 @@ class AssignedModuleService {
 	async checkAssignment(userId: string, semesterModuleId: number) {
 		return withAuth(
 			async () => this.repository.findByUserAndModule(userId, semesterModuleId),
-			['academic']
+			['academic', 'leap']
 		);
 	}
 

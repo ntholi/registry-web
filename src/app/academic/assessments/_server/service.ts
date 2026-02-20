@@ -7,12 +7,12 @@ import AssessmentRepository from './repository';
 class AssessmentService extends BaseService<typeof assessments, 'id'> {
 	constructor() {
 		super(new AssessmentRepository(), {
-			byIdRoles: ['academic'],
-			findAllRoles: ['academic'],
-			createRoles: ['academic'],
-			updateRoles: ['academic'],
-			deleteRoles: ['academic'],
-			countRoles: ['academic'],
+			byIdRoles: ['academic', 'leap'],
+			findAllRoles: ['academic', 'leap'],
+			createRoles: ['academic', 'leap'],
+			updateRoles: ['academic', 'leap'],
+			deleteRoles: ['academic', 'leap'],
+			countRoles: ['academic', 'leap'],
 		});
 	}
 
@@ -23,7 +23,7 @@ class AssessmentService extends BaseService<typeof assessments, 'id'> {
 		return withAuth(
 			async () =>
 				(this.repository as AssessmentRepository).create(data, lmsData),
-			['academic']
+			['academic', 'leap']
 		);
 	}
 
@@ -34,14 +34,14 @@ class AssessmentService extends BaseService<typeof assessments, 'id'> {
 					moduleId,
 					termId
 				),
-			['academic']
+			['academic', 'leap']
 		);
 	}
 
 	async getByLmsId(lmsId: number) {
 		return withAuth(
 			async () => (this.repository as AssessmentRepository).findByLmsId(lmsId),
-			['academic']
+			['academic', 'leap']
 		);
 	}
 
@@ -49,7 +49,7 @@ class AssessmentService extends BaseService<typeof assessments, 'id'> {
 		return withAuth(
 			async () =>
 				(this.repository as AssessmentRepository).getAuditHistory(assessmentId),
-			['academic']
+			['academic', 'leap']
 		);
 	}
 
@@ -65,7 +65,7 @@ class AssessmentService extends BaseService<typeof assessments, 'id'> {
 					data,
 					lmsData
 				),
-			['academic']
+			['academic', 'leap']
 		);
 	}
 }

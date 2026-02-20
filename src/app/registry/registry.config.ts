@@ -51,6 +51,7 @@ export const registryConfig: ModuleConfig = {
 							'admin',
 							'student_services',
 							'marketing',
+							'leap',
 						].includes(session?.user?.role || '')
 					) {
 						return true;
@@ -104,7 +105,7 @@ export const registryConfig: ModuleConfig = {
 							queryFn: () => countPendingClearances(),
 							color: 'red',
 						},
-						roles: ['finance', 'library', 'resource'],
+						roles: ['finance', 'library', 'resource', 'leap'],
 					},
 					{
 						label: 'Approved',
@@ -115,7 +116,7 @@ export const registryConfig: ModuleConfig = {
 							queryFn: () => countApprovedClearances(),
 							color: 'gray',
 						},
-						roles: ['finance', 'library', 'resource'],
+						roles: ['finance', 'library', 'resource', 'leap'],
 					},
 					{
 						label: 'Rejected',
@@ -126,7 +127,7 @@ export const registryConfig: ModuleConfig = {
 							queryFn: () => countRejectedClearances(),
 							color: 'gray',
 						},
-						roles: ['finance', 'library', 'resource'],
+						roles: ['finance', 'library', 'resource', 'leap'],
 					},
 					{
 						label: 'Auto-Approvals',

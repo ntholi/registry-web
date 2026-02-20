@@ -66,7 +66,7 @@ export const reportsConfig: ModuleConfig = {
 				icon: IconReportAnalytics,
 				isVisible: (session) => {
 					if (
-						['admin', 'registry', 'finance'].includes(
+						['admin', 'registry', 'finance', 'leap'].includes(
 							session?.user?.role as UserRole
 						)
 					)

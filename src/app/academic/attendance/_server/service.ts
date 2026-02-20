@@ -11,7 +11,7 @@ class AttendanceService {
 	async getWeeksForTerm(termId: number) {
 		return withAuth(
 			async () => this.repository.getWeeksForTerm(termId),
-			['academic']
+			['academic', 'leap']
 		);
 	}
 
@@ -19,7 +19,7 @@ class AttendanceService {
 		return withAuth(async () => {
 			const term = await getActiveTerm();
 			return this.repository.getStudentsForModule(semesterModuleId, term.code);
-		}, ['academic']);
+		}, ['academic', 'leap']);
 	}
 
 	async getAttendanceForWeek(
@@ -35,7 +35,7 @@ class AttendanceService {
 				weekNumber,
 				term.code
 			);
-		}, ['academic']);
+		}, ['academic', 'leap']);
 	}
 
 	async markAttendance(
@@ -57,7 +57,7 @@ class AttendanceService {
 				markedBy,
 			}));
 			return this.repository.upsertAttendance(attendanceRecords);
-		}, ['academic']);
+		}, ['academic', 'leap']);
 	}
 
 	async getAttendanceSummary(semesterModuleId: number, termId: number) {
@@ -68,7 +68,7 @@ class AttendanceService {
 				termId,
 				term.code
 			);
-		}, ['academic']);
+		}, ['academic', 'leap']);
 	}
 
 	async getAssignedModulesForCurrentUser(userId: string) {
@@ -76,7 +76,7 @@ class AttendanceService {
 		return withAuth(
 			async () =>
 				this.repository.getAssignedModulesWithDetails(userId, term.id),
-			['academic']
+			['academic', 'leap']
 		);
 	}
 
@@ -92,7 +92,7 @@ class AttendanceService {
 					termId,
 					weekNumber
 				),
-			['academic']
+			['academic', 'leap']
 		);
 	}
 
@@ -126,7 +126,7 @@ class AttendanceService {
 				students: summary,
 			});
 			return { buffer, termCode: term.code };
-		}, ['academic']);
+		}, ['academic', 'leap']);
 	}
 }
 

@@ -1065,6 +1065,13 @@
 			"when": 1771582612498,
 			"tag": "0151_smiling_jackpot",
 			"breakpoints": true
+		},
+		{
+			"idx": 152,
+			"version": "7",
+			"when": 1771592569519,
+			"tag": "0152_new_trauma",
+			"breakpoints": true
 		}
 	]
 }

@@ -840,6 +840,19 @@ export default class RegistrationRequestRepository extends BaseRepository<
 							status: 'pending',
 						})
 						.where(eq(clearance.id, financeClearances[0].clearanceId));
+				} else {
+					const [newClearance] = await tx
+						.insert(clearance)
+						.values({
+							department: 'finance',
+							status: 'pending',
+						})
+						.returning();
+
+					await tx.insert(registrationClearance).values({
+						registrationRequestId,
+						clearanceId: newClearance.id,
+					});
 				}
 			}
 
