@@ -1,3 +1,6 @@
+import '@mantine/dates/styles.css';
+import '@mantine/dropzone/styles.css';
+import '@mantine/notifications/styles.css';
 import type { Metadata } from 'next';
 import type { PropsWithChildren } from 'react';
 

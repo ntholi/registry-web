@@ -1,3 +1,4 @@
+import '@mantine/notifications/styles.css';
 import { Space } from '@mantine/core';
 import type { Metadata } from 'next';
 import type React from 'react';
