@@ -343,6 +343,12 @@ const receiptSchema = z.object({
 		.string()
 		.nullable()
 		.describe('Terminal or teller ID number'),
+	accountNumber: z
+		.string()
+		.nullable()
+		.describe(
+			'Beneficiary/destination bank account number the deposit was made to'
+		),
 });
 
 const documentAnalysisSchema = z.object({

@@ -10,6 +10,7 @@ import {
 } from '@/core/integrations/ai/documents';
 
 const BENEFICIARY_NAME = 'Limkokwing University of Creative Technology';
+const BENEFICIARY_ACCOUNT = '9080003987813';
 const BENEFICIARY_VARIATIONS = [
 	'limkokwing university of creative technology',
 	'limkokwing university',
@@ -44,27 +45,33 @@ export type ReceiptsValidationResult = {
 	}>;
 };
 
-function validateBeneficiary(beneficiaryName: string | null): {
+function validateBeneficiary(
+	beneficiaryName: string | null,
+	accountNumber: string | null
+): {
 	valid: boolean;
 	error?: string;
 } {
-	if (!beneficiaryName) {
+	if (!beneficiaryName && !accountNumber) {
 		return { valid: false, error: 'Beneficiary name not found on receipt' };
 	}
 
-	const normalizedName = beneficiaryName.toLowerCase().trim();
-	const isValid = BENEFICIARY_VARIATIONS.some(
+	const normalizedName = (beneficiaryName ?? '').toLowerCase().trim();
+	const nameValid = BENEFICIARY_VARIATIONS.some(
 		(variation) =>
 			normalizedName.includes(variation) || variation.includes(normalizedName)
 	);
 
-	if (!isValid) {
-		return {
-			valid: false,
-			error: `Deposit must be made to "${BENEFICIARY_NAME}". Found: "${beneficiaryName}"`,
-		};
-	}
-	return { valid: true };
+	if (nameValid) return { valid: true };
+
+	const accountValid =
+		accountNumber?.replace(/\s/g, '') === BENEFICIARY_ACCOUNT;
+	if (accountValid) return { valid: true };
+
+	return {
+		valid: false,
+		error: `Deposit must be made to "${BENEFICIARY_NAME}" (Account: ${BENEFICIARY_ACCOUNT}). Found: "${beneficiaryName ?? 'Unknown'}"`,
+	};
 }
 
 function validateReference(reference: string | null): {
@@ -125,7 +132,10 @@ export async function validateAnalyzedReceipt(
 			errors.push('Receipt number not found on sales receipt');
 		}
 	} else {
-		const beneficiaryValidation = validateBeneficiary(analysis.beneficiaryName);
+		const beneficiaryValidation = validateBeneficiary(
+			analysis.beneficiaryName,
+			analysis.accountNumber
+		);
 		if (!beneficiaryValidation.valid && beneficiaryValidation.error) {
 			errors.push(beneficiaryValidation.error);
 		}
