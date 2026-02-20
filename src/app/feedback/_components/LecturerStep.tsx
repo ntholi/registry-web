@@ -1,8 +1,8 @@
 'use client';
 
 import {
+	ActionIcon,
 	Avatar,
-	Badge,
 	Box,
 	Button,
 	Flex,
@@ -12,7 +12,11 @@ import {
 	Text,
 	Title,
 } from '@mantine/core';
-import { IconChevronLeft, IconChevronRight } from '@tabler/icons-react';
+import {
+	IconChevronLeft,
+	IconChevronRight,
+	IconSend,
+} from '@tabler/icons-react';
 import QuestionCard from './QuestionCard';
 
 type Lecturer = {
@@ -78,10 +82,22 @@ export default function LecturerStep({
 		: undefined;
 
 	return (
-		<Stack gap='md'>
-			<Paper withBorder p='md' radius='md'>
-				<Group align='flex-start' wrap='nowrap'>
-					<Avatar src={lecturer.lecturerImage} size='lg' radius='xl'>
+		<Stack gap='lg'>
+			<Paper
+				withBorder
+				p='md'
+				radius='lg'
+				style={{
+					borderColor: 'var(--mantine-color-default-border)',
+				}}
+			>
+				<Group align='center' wrap='nowrap'>
+					<Avatar
+						src={lecturer.lecturerImage}
+						size={52}
+						radius='xl'
+						color='blue'
+					>
 						{lecturer.lecturerName
 							?.split(' ')
 							.map((n) => n[0])
@@ -89,93 +105,114 @@ export default function LecturerStep({
 							.slice(0, 2)
 							.toUpperCase()}
 					</Avatar>
-					<Stack w={'100%'}>
-						<Box>
-							<Title order={4}>{lecturer.lecturerName}</Title>
-							<Text mt='xs' size='sm' c='dimmed'>
-								{lecturer.moduleCode} - {lecturer.moduleName}
-							</Text>
-						</Box>
-						<Flex justify={'flex-end'}>
-							<Button
-								variant='light'
-								color='red'
-								size='compact-sm'
-								onClick={onSkip}
-								loading={isPending && pendingAction === 'skip'}
-								disabled={isPending && pendingAction !== 'skip'}
-								ml='auto'
-							>
-								Skip lecturer
-							</Button>
-						</Flex>
-					</Stack>
+					<Box style={{ flex: 1, minWidth: 0 }}>
+						<Title order={4} lh={1.3}>
+							{lecturer.lecturerName}
+						</Title>
+						<Text size='sm' c='dimmed' truncate>
+							{lecturer.moduleCode} — {lecturer.moduleName}
+						</Text>
+					</Box>
 				</Group>
 			</Paper>
 
 			{question && (
-				<QuestionCard
-					categoryName={question.categoryName}
-					questionText={question.questionText}
-					rating={currentResponse?.rating ?? null}
-					comment={currentResponse?.comment ?? ''}
-					onRatingChange={(rating) =>
-						setResponse(lecturer.assignedModuleId, question.questionId, {
-							rating,
-							comment: currentResponse?.comment ?? null,
-						})
-					}
-					onCommentChange={(comment) =>
-						setResponse(lecturer.assignedModuleId, question.questionId, {
-							rating: currentResponse?.rating ?? null,
-							comment: comment || null,
-						})
-					}
-				/>
+				<Flex align='center' gap='xs'>
+					<ActionIcon
+						variant='subtle'
+						size='xl'
+						radius='xl'
+						onClick={() => onQuestionIndexChange(currentQuestionIndex - 1)}
+						disabled={isFirstQuestion}
+						style={{
+							opacity: isFirstQuestion ? 0.25 : 0.7,
+							transition: 'opacity 150ms ease, transform 150ms ease',
+						}}
+						onMouseEnter={(e) => {
+							if (!isFirstQuestion) {
+								e.currentTarget.style.opacity = '1';
+								e.currentTarget.style.transform = 'scale(1.1)';
+							}
+						}}
+						onMouseLeave={(e) => {
+							e.currentTarget.style.opacity = isFirstQuestion ? '0.25' : '0.7';
+							e.currentTarget.style.transform = 'scale(1)';
+						}}
+					>
+						<IconChevronLeft size={22} />
+					</ActionIcon>
+
+					<Box style={{ flex: 1, minWidth: 0 }}>
+						<QuestionCard
+							categoryName={question.categoryName}
+							questionText={question.questionText}
+							rating={currentResponse?.rating ?? null}
+							comment={currentResponse?.comment ?? ''}
+							questionIndex={currentQuestionIndex}
+							totalQuestions={questions.length}
+							onRatingChange={(rating) =>
+								setResponse(lecturer.assignedModuleId, question.questionId, {
+									rating,
+									comment: currentResponse?.comment ?? null,
+								})
+							}
+							onCommentChange={(comment) =>
+								setResponse(lecturer.assignedModuleId, question.questionId, {
+									rating: currentResponse?.rating ?? null,
+									comment: comment || null,
+								})
+							}
+						/>
+					</Box>
+
+					<ActionIcon
+						variant='subtle'
+						size='xl'
+						radius='xl'
+						onClick={() => onQuestionIndexChange(currentQuestionIndex + 1)}
+						disabled={isLastQuestion}
+						style={{
+							opacity: isLastQuestion ? 0.25 : 0.7,
+							transition: 'opacity 150ms ease, transform 150ms ease',
+						}}
+						onMouseEnter={(e) => {
+							if (!isLastQuestion) {
+								e.currentTarget.style.opacity = '1';
+								e.currentTarget.style.transform = 'scale(1.1)';
+							}
+						}}
+						onMouseLeave={(e) => {
+							e.currentTarget.style.opacity = isLastQuestion ? '0.25' : '0.7';
+							e.currentTarget.style.transform = 'scale(1)';
+						}}
+					>
+						<IconChevronRight size={22} />
+					</ActionIcon>
+				</Flex>
 			)}
 
-			<Group justify='space-between' align='center'>
-				<Text size='sm' c='dimmed'>
-					Question {currentQuestionIndex + 1} of {questions.length}
-				</Text>
-				<Badge variant='dot' size='sm'>
-					{
-						questions.filter((q) =>
-							getResponse(lecturer.assignedModuleId, q.questionId)
-						).length
-					}{' '}
-					/ {questions.length} answered
-				</Badge>
-			</Group>
-
-			<Group justify='space-between'>
+			<Group justify='space-between' mt='xs'>
 				<Button
-					variant='default'
-					leftSection={<IconChevronLeft size={16} />}
-					onClick={() => onQuestionIndexChange(currentQuestionIndex - 1)}
-					disabled={isFirstQuestion}
+					variant='subtle'
+					color='red'
+					size='compact-sm'
+					onClick={onSkip}
+					loading={isPending && pendingAction === 'skip'}
+					disabled={isPending && pendingAction !== 'skip'}
 				>
-					Previous
+					Skip lecturer
 				</Button>
 
-				{isLastQuestion ? (
-					<Button
-						onClick={onNext}
-						loading={isPending && pendingAction === 'next'}
-						disabled={isPending && pendingAction !== 'next'}
-						rightSection={<IconChevronRight size={16} />}
-					>
-						{isLast ? 'Submit All' : 'Next Lecturer'}
-					</Button>
-				) : (
-					<Button
-						variant='light'
-						rightSection={<IconChevronRight size={16} />}
-						onClick={() => onQuestionIndexChange(currentQuestionIndex + 1)}
-					>
-						Next
-					</Button>
-				)}
+				<Button
+					onClick={onNext}
+					loading={isPending && pendingAction === 'next'}
+					disabled={isPending && pendingAction !== 'next'}
+					rightSection={<IconSend size={16} />}
+					radius='xl'
+					variant='filled'
+				>
+					{isLast ? 'Submit All' : 'Next Lecturer'}
+				</Button>
 			</Group>
 		</Stack>
 	);
