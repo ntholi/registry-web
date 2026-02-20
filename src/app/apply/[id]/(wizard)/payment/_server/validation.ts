@@ -17,6 +17,13 @@ const BENEFICIARY_VARIATIONS = [
 	'limkokwing',
 ];
 
+const SALES_RECEIPT_ISSUERS = [
+	'limkokwing university of creative technology',
+	'limkokwing university',
+	'luct',
+	'limkokwing',
+];
+
 export type ReceiptValidation = {
 	isValid: boolean;
 	errors: string[];
@@ -70,27 +77,67 @@ function validateReference(reference: string | null): {
 	return { valid: true };
 }
 
+function validateSalesReceiptIssuer(issuerName: string | null): {
+	valid: boolean;
+	error?: string;
+} {
+	if (!issuerName) {
+		return { valid: false, error: 'Issuer name not found on sales receipt' };
+	}
+
+	const normalized = issuerName.toLowerCase().trim();
+	const isValid = SALES_RECEIPT_ISSUERS.some(
+		(variation) =>
+			normalized.includes(variation) || variation.includes(normalized)
+	);
+
+	if (!isValid) {
+		return {
+			valid: false,
+			error: `Sales receipt must be issued by Limkokwing University. Found: "${issuerName}"`,
+		};
+	}
+	return { valid: true };
+}
+
 export async function validateAnalyzedReceipt(
 	analysis: ReceiptResult
 ): Promise<ReceiptValidation> {
 	const errors: string[] = [];
 
-	if (!analysis.isBankDeposit) {
-		errors.push('This does not appear to be a bank deposit slip');
+	const isSalesReceipt = analysis.receiptType === 'sales_receipt';
+
+	if (!isSalesReceipt && !analysis.isBankDeposit) {
+		errors.push(
+			'This does not appear to be a bank deposit slip or university sales receipt'
+		);
 	}
 
-	const beneficiaryValidation = validateBeneficiary(analysis.beneficiaryName);
-	if (!beneficiaryValidation.valid && beneficiaryValidation.error) {
-		errors.push(beneficiaryValidation.error);
-	}
+	if (isSalesReceipt) {
+		const issuerValidation = validateSalesReceiptIssuer(
+			analysis.beneficiaryName
+		);
+		if (!issuerValidation.valid && issuerValidation.error) {
+			errors.push(issuerValidation.error);
+		}
 
-	const referenceValidation = validateReference(analysis.reference);
-	if (!referenceValidation.valid && referenceValidation.error) {
-		errors.push(referenceValidation.error);
+		if (!analysis.receiptNumber && !analysis.reference) {
+			errors.push('Receipt number not found on sales receipt');
+		}
+	} else {
+		const beneficiaryValidation = validateBeneficiary(analysis.beneficiaryName);
+		if (!beneficiaryValidation.valid && beneficiaryValidation.error) {
+			errors.push(beneficiaryValidation.error);
+		}
+
+		const referenceValidation = validateReference(analysis.reference);
+		if (!referenceValidation.valid && referenceValidation.error) {
+			errors.push(referenceValidation.error);
+		}
 	}
 
 	if (analysis.amountDeposited === null || analysis.amountDeposited <= 0) {
-		errors.push('Could not extract a valid deposit amount from the receipt');
+		errors.push('Could not extract a valid amount from the receipt');
 	}
 
 	return {

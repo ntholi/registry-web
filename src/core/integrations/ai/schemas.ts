@@ -281,27 +281,40 @@ const otherSchema = z.object({
 });
 
 const receiptSchema = z.object({
+	receiptType: z
+		.enum(['bank_deposit', 'sales_receipt', 'unknown'])
+		.describe(
+			'Type of receipt: bank_deposit (bank deposit slip), sales_receipt (university-issued sales receipt), unknown (unrecognizable)'
+		),
 	isBankDeposit: z
 		.boolean()
 		.describe('Whether this is a bank deposit slip or proof of payment'),
+	receiptNumber: z
+		.string()
+		.nullable()
+		.describe(
+			'Sales receipt number (e.g., SR-19046) for university-issued receipts'
+		),
 	beneficiaryName: z
 		.string()
 		.nullable()
 		.describe(
-			'Name of the account holder/beneficiary the money was deposited to'
+			'For bank deposits: account holder name. For sales receipts: the issuing organization name'
 		),
 	reference: z
 		.string()
 		.nullable()
-		.describe('Bank reference number or transaction ID'),
+		.describe(
+			'For bank deposits: bank reference/transaction ID. For sales receipts: the receipt number (SR-xxxxx)'
+		),
 	dateDeposited: z
 		.string()
 		.nullable()
-		.describe('Date the deposit was made in YYYY-MM-DD format'),
+		.describe('Date of deposit or receipt in YYYY-MM-DD format'),
 	amountDeposited: z
 		.number()
 		.nullable()
-		.describe('Total amount deposited as shown on the receipt'),
+		.describe('Total amount paid/deposited as shown on the receipt'),
 	currency: z
 		.string()
 		.nullable()
@@ -309,11 +322,19 @@ const receiptSchema = z.object({
 	depositorName: z
 		.string()
 		.nullable()
-		.describe('Name of the person who made the deposit'),
+		.describe(
+			'For bank deposits: person who made the deposit. For sales receipts: the reference name / person the receipt is issued to'
+		),
 	bankName: z
 		.string()
 		.nullable()
 		.describe('Name of the bank where the deposit was made'),
+	paymentMode: z
+		.string()
+		.nullable()
+		.describe(
+			'Payment method shown on receipt (e.g., Bank Remittance, Cash, EFT)'
+		),
 	transactionNumber: z
 		.string()
 		.nullable()

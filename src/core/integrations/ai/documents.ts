@@ -564,26 +564,48 @@ function getAcademicDocumentErrorMessage(
 	return 'Could not analyze this academic document. Please ensure the image is clear and shows a valid academic certificate, results slip, or transcript.';
 }
 
-const RECEIPT_PROMPT = `Analyze this bank deposit slip or proof of payment document.
+const RECEIPT_PROMPT = `Analyze this payment document. It can be either a BANK DEPOSIT SLIP or a UNIVERSITY-ISSUED SALES RECEIPT.
 
 DOCUMENT TYPE IDENTIFICATION:
-A bank deposit slip is a document issued by a bank confirming a cash or cheque deposit. Key indicators:
+
+TYPE 1 - BANK DEPOSIT SLIP (receiptType: "bank_deposit"):
+A document issued by a bank confirming a cash or cheque deposit. Key indicators:
 - Bank name/logo present (e.g., Standard Lesotho Bank, FNB, Nedbank)
 - Transaction/reference number
 - Account name and/or account number
 - Deposit amount
 - Date of transaction
 - May show "Deposit", "Transaction", "Receipt" terminology
+Set isBankDeposit to TRUE.
+- reference: The bank reference number or transaction ID
+- beneficiaryName: The account holder/beneficiary (who received the deposit)
+- depositorName: The person who made the deposit
+- bankName: The bank name
 
-Set isBankDeposit to TRUE if this document is a bank-issued deposit confirmation, regardless of who the beneficiary is.
-Set isBankDeposit to FALSE only if this is NOT a bank deposit slip (e.g., invoice, quotation, handwritten note).
+TYPE 2 - UNIVERSITY SALES RECEIPT (receiptType: "sales_receipt"):
+A receipt issued by a university (e.g., Limkokwing University) confirming a payment was received. Key indicators:
+- "SALES RECEIPT" title
+- Sales Receipt number (e.g., SR-19046)
+- "Bill To" field
+- Item description (e.g., "Application fees")
+- Payment Details section with Payment Mode (e.g., "Bank Remittance", "Cash")
+- University branding/logo/stamp
+- May have "Finance Department" stamp
+Set isBankDeposit to FALSE.
+- receiptNumber: The sales receipt number (e.g., SR-19046)
+- reference: Same as receiptNumber (SR-19046)
+- beneficiaryName: The organization that issued the receipt (e.g., "Limkokwing University of Creative Technology")
+- depositorName: The "Reference" or name of the person who paid
+- paymentMode: The payment method (e.g., "Bank Remittance", "Cash")
+- bankName: null (not a bank document)
+
+If the document is neither, set receiptType to "unknown" and isBankDeposit to FALSE.
 
 RULES:
 ${COMMON_RULES}
-- beneficiaryName: Extract account holder/beneficiary name exactly as shown (this is who received the deposit)
-- reference: Bank reference number, transaction number, or transaction ID
-- amountDeposited: Numeric value only (no currency symbols)
-- dateDeposited: Date of the transaction in YYYY-MM-DD format`;
+- amountDeposited: Numeric value only (no currency symbols). Use the total amount.
+- dateDeposited: Date of the transaction/receipt in YYYY-MM-DD format
+- currency: Extract currency code (LSL, ZAR, USD, etc.)`;
 
 export async function analyzeReceipt(
 	fileBase64: string,

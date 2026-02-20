@@ -32,12 +32,15 @@ type DepositSubmission = {
 	base64: string;
 	mediaType: string;
 	reference: string;
+	receiptType: 'bank_deposit' | 'sales_receipt';
+	receiptNumber: string | null;
 	beneficiaryName: string | null;
 	dateDeposited: string | null;
 	amountDeposited: number | null;
 	currency: string | null;
 	depositorName: string | null;
 	bankName: string | null;
+	paymentMode: string | null;
 	transactionNumber: string | null;
 	terminalNumber: string | null;
 };
@@ -83,6 +86,11 @@ export default function ReceiptUploadForm({
 
 			const newReceipt: UploadedReceipt = {
 				id: generateId(),
+				receiptType:
+					result.analysis.receiptType === 'sales_receipt'
+						? 'sales_receipt'
+						: 'bank_deposit',
+				receiptNumber: result.analysis.receiptNumber ?? null,
 				reference: result.analysis.reference ?? null,
 				amount: result.analysis.amountDeposited ?? null,
 				dateDeposited: result.analysis.dateDeposited ?? null,
@@ -90,6 +98,7 @@ export default function ReceiptUploadForm({
 				currency: result.analysis.currency ?? null,
 				depositorName: result.analysis.depositorName ?? null,
 				bankName: result.analysis.bankName ?? null,
+				paymentMode: result.analysis.paymentMode ?? null,
 				transactionNumber: result.analysis.transactionNumber ?? null,
 				terminalNumber: result.analysis.terminalNumber ?? null,
 				isValid: validation.isValid,
@@ -137,12 +146,15 @@ export default function ReceiptUploadForm({
 				base64: r.base64,
 				mediaType: r.mediaType,
 				reference: r.reference!,
+				receiptType: r.receiptType,
+				receiptNumber: r.receiptNumber,
 				beneficiaryName: r.beneficiaryName,
 				dateDeposited: r.dateDeposited,
 				amountDeposited: r.amount,
 				currency: r.currency,
 				depositorName: r.depositorName,
 				bankName: r.bankName,
+				paymentMode: r.paymentMode,
 				transactionNumber: r.transactionNumber,
 				terminalNumber: r.terminalNumber,
 			}))
@@ -217,8 +229,8 @@ export default function ReceiptUploadForm({
 					type='receipt'
 					onUploadComplete={handleUploadComplete}
 					disabled={disabled}
-					title='Upload Deposit Slip'
-					description='Bank deposit slip showing payment to Limkokwing'
+					title='Upload Payment Receipt'
+					description='Bank deposit slip or university sales receipt'
 				/>
 			) : (
 				<DocumentUpload
@@ -226,8 +238,8 @@ export default function ReceiptUploadForm({
 					type='receipt'
 					onUploadComplete={handleUploadComplete}
 					disabled={disabled}
-					title='Drop bank deposit slip here or click to browse'
-					description='Upload your bank deposit slip'
+					title='Drop payment receipt here or click to browse'
+					description='Upload your bank deposit slip or university sales receipt'
 				/>
 			)}
 
@@ -279,7 +291,8 @@ export default function ReceiptUploadForm({
 							title='Invalid Receipts'
 						>
 							Some receipts failed validation. Please remove them and upload
-							valid bank deposit slips showing payment to Limkokwing University.
+							valid bank deposit slips or university sales receipts showing
+							payment to Limkokwing University.
 						</Alert>
 					)}
 				</Stack>
