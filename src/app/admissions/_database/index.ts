@@ -1,6 +1,7 @@
 export * from '../academic-records/_schema/academicRecords';
 export * from '../academic-records/_schema/relations';
 export * from '../academic-records/_schema/subjectGrades';
+export * from '../applicants/_schema/applicantLocations';
 export * from '../applicants/_schema/applicantPhones';
 export * from '../applicants/_schema/applicants';
 export * from '../applicants/_schema/guardianPhones';

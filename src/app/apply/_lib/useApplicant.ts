@@ -4,11 +4,12 @@ import type { getApplicant } from '@admissions/applicants';
 import {
 	canCurrentUserApply,
 	getOrCreateApplicantForCurrentUser,
+	saveApplicantLocation,
 } from '@admissions/applicants';
 import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { computeWizardStep } from './wizard-utils';
 
 export type ApplicantWithRelations = NonNullable<
@@ -149,6 +150,23 @@ export function useApplicant({
 		staleTime: 30_000,
 		enabled: !!userId && eligibilityQuery.data?.canApply === true,
 	});
+
+	const locationCaptured = useRef(false);
+	useEffect(() => {
+		if (locationCaptured.current || !query.data?.id) return;
+		if (!navigator.geolocation) return;
+		locationCaptured.current = true;
+		navigator.geolocation.getCurrentPosition(
+			(pos) => {
+				saveApplicantLocation(
+					query.data!.id,
+					pos.coords.latitude,
+					pos.coords.longitude
+				);
+			},
+			() => {}
+		);
+	}, [query.data?.id]);
 
 	const completeness = useMemo(
 		() => computeCompleteness(query.data),
