@@ -38,8 +38,8 @@ export default function QuestionCard({
 	const labelColor = rating ? RATING_COLORS[rating - 1] : undefined;
 
 	return (
-		<Paper p='xl' radius='lg' bg='transparent'>
-			<Stack gap='lg'>
+		<Paper p='md' px={0} radius='lg' bg='transparent'>
+			<Stack gap='md'>
 				<Group justify='space-between' align='center'>
 					<Text size='xs' tt='uppercase' fw={700} c='dimmed' lts={1}>
 						{categoryName}
@@ -49,11 +49,11 @@ export default function QuestionCard({
 					</Text>
 				</Group>
 
-				<Text size='xl' fw={600} lh={1.4} ta='center' py='md'>
+				<Text size='lg' fw={600} lh={1.4} ta='center' py='xs'>
 					{questionText}
 				</Text>
 
-				<Stack gap={6} align='center' py='sm'>
+				<Stack gap={6} align='center'>
 					<Popover opened={!!label} position='top' withArrow shadow='md'>
 						<Popover.Target>
 							<Rating

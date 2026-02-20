@@ -20,11 +20,7 @@ function computeInitialIndex(
 	return lecturers.length;
 }
 
-import {
-	finalizeFeedback,
-	skipLecturer,
-	submitLecturerFeedback,
-} from '../_server/actions';
+import { submitLecturerFeedback } from '../_server/actions';
 import LecturerNav from './LecturerNav';
 import LecturerProgress from './LecturerProgress';
 import LecturerStep from './LecturerStep';
@@ -102,11 +98,7 @@ export default function FeedbackForm({
 		computeInitialIndex(lecturers, questions, existingResponses)
 	);
 	const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-	const [isFinalized, setIsFinalized] = useState(false);
-	const [pendingAction, setPendingAction] = useState<'next' | 'skip' | null>(
-		null
-	);
-	const [isPending, startTransition] = useTransition();
+	const startTransition = useTransition()[1];
 
 	const currentLecturer = lecturers[currentLecturerIndex];
 
@@ -127,43 +119,6 @@ export default function FeedbackForm({
 		},
 		[responses]
 	);
-
-	function handleSkipLecturer() {
-		if (!currentLecturer) return;
-		const qIds = questions.map((q) => q.questionId);
-
-		setPendingAction('skip');
-		startTransition(async () => {
-			await skipLecturer(passphraseId, currentLecturer.assignedModuleId, qIds);
-
-			for (const qId of qIds) {
-				setResponse(currentLecturer.assignedModuleId, qId, {
-					rating: null,
-					comment: null,
-				});
-			}
-
-			if (currentLecturerIndex < lecturers.length - 1) {
-				setCurrentLecturerIndex((prev) => prev + 1);
-				setCurrentQuestionIndex(0);
-			} else {
-				await finalizeFeedback(passphraseId);
-				localStorage.removeItem('feedback-passphrase');
-				setIsFinalized(true);
-			}
-		});
-	}
-
-	if (isFinalized) {
-		const ratedCount = lecturers.filter((l) => {
-			return questions.some((q) => {
-				const r = responses.get(responseKey(l.assignedModuleId, q.questionId));
-				return r && r.rating !== null;
-			});
-		}).length;
-
-		return <ThankYou cycleName={cycleName} ratedCount={ratedCount} />;
-	}
 
 	if (!currentLecturer) {
 		return <ThankYou cycleName={cycleName} ratedCount={lecturers.length} />;
@@ -191,7 +146,6 @@ export default function FeedbackForm({
 			})
 			.filter((r) => r.rating > 0);
 
-		setPendingAction('next');
 		startTransition(async () => {
 			if (lecturerResponses.length > 0) {
 				await submitLecturerFeedback(
@@ -206,8 +160,8 @@ export default function FeedbackForm({
 	}
 
 	return (
-		<Container size='xs' py='md'>
-			<Stack gap='md'>
+		<Container size='xs' py='sm' px='sm'>
+			<Stack gap='sm'>
 				<LecturerProgress
 					current={currentLecturerIndex + 1}
 					total={lecturers.length}
@@ -220,9 +174,6 @@ export default function FeedbackForm({
 					onQuestionIndexChange={setCurrentQuestionIndex}
 					getResponse={getResponse}
 					setResponse={setResponse}
-					onSkip={handleSkipLecturer}
-					isPending={isPending}
-					pendingAction={pendingAction}
 				/>
 				<LecturerNav
 					lecturers={lecturers}

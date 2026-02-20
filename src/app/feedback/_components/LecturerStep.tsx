@@ -4,13 +4,11 @@ import {
 	ActionIcon,
 	Avatar,
 	Box,
-	Button,
 	Flex,
 	Group,
 	Paper,
 	Stack,
 	Text,
-	Title,
 } from '@mantine/core';
 import { IconChevronLeft, IconChevronRight } from '@tabler/icons-react';
 import QuestionCard from './QuestionCard';
@@ -49,9 +47,6 @@ type Props = {
 		questionId: string,
 		entry: ResponseEntry
 	) => void;
-	onSkip: () => void;
-	isPending: boolean;
-	pendingAction: 'next' | 'skip' | null;
 };
 
 export default function LecturerStep({
@@ -61,9 +56,6 @@ export default function LecturerStep({
 	onQuestionIndexChange,
 	getResponse,
 	setResponse,
-	onSkip,
-	isPending,
-	pendingAction,
 }: Props) {
 	const question = questions[currentQuestionIndex];
 	const isLastQuestion = currentQuestionIndex === questions.length - 1;
@@ -74,10 +66,10 @@ export default function LecturerStep({
 		: undefined;
 
 	return (
-		<Stack gap='lg'>
+		<Stack gap='md'>
 			<Paper
 				withBorder
-				p='md'
+				p='sm'
 				radius='lg'
 				style={{
 					borderColor: 'var(--mantine-color-default-border)',
@@ -87,7 +79,7 @@ export default function LecturerStep({
 					<Group align='center' wrap='nowrap' gap='sm'>
 						<Avatar
 							src={lecturer.lecturerImage}
-							size={52}
+							size={48}
 							radius='xl'
 							color='blue'
 						>
@@ -99,24 +91,14 @@ export default function LecturerStep({
 								.toUpperCase()}
 						</Avatar>
 						<Box style={{ minWidth: 0 }}>
-							<Title order={4} lh={1.3}>
+							<Text fw={600} size='md' lh={1.3}>
 								{lecturer.lecturerName}
-							</Title>
-							<Text size='sm' c='dimmed' truncate>
+							</Text>
+							<Text size='xs' c='dimmed' truncate>
 								{lecturer.moduleCode} — {lecturer.moduleName}
 							</Text>
 						</Box>
 					</Group>
-					<Button
-						variant='subtle'
-						color='red'
-						size='compact-xs'
-						onClick={onSkip}
-						loading={isPending && pendingAction === 'skip'}
-						disabled={isPending && pendingAction !== 'skip'}
-					>
-						Skip
-					</Button>
 				</Group>
 			</Paper>
 
