@@ -40,6 +40,22 @@ class FeedbackQuestionService extends BaseService<
 			['academic', 'admin']
 		);
 	}
+
+	async reorderQuestions(ids: string[]) {
+		return withAuth(
+			async () =>
+				(this.repository as FeedbackQuestionRepository).reorderQuestions(ids),
+			['academic', 'admin']
+		);
+	}
+
+	async reorderCategories(ids: string[]) {
+		return withAuth(
+			async () =>
+				(this.repository as FeedbackQuestionRepository).reorderCategories(ids),
+			['academic', 'admin']
+		);
+	}
 }
 
 export const feedbackQuestionsService = serviceWrapper(

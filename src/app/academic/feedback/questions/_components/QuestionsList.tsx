@@ -1,6 +1,22 @@
 'use client';
 
 import {
+	closestCenter,
+	DndContext,
+	type DragEndEvent,
+	PointerSensor,
+	useSensor,
+	useSensors,
+} from '@dnd-kit/core';
+import {
+	arrayMove,
+	SortableContext,
+	useSortable,
+	verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+import {
+	ActionIcon,
 	Box,
 	Card,
 	Divider,
@@ -14,12 +30,17 @@ import {
 	Tooltip,
 } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
-import { IconSearch } from '@tabler/icons-react';
-import { useQuery } from '@tanstack/react-query';
+import { IconGripVertical, IconSearch } from '@tabler/icons-react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useMemo, useState } from 'react';
 import { DeleteButton } from '@/shared/ui/adease';
 import { deleteCategory } from '../../categories/_server/actions';
-import { deleteQuestion, getQuestionBoard } from '../_server/actions';
+import {
+	deleteQuestion,
+	getQuestionBoard,
+	reorderCategories,
+	reorderQuestions,
+} from '../_server/actions';
 import CreateCategoryModal from './CreateCategoryModal';
 import CreateQuestionModal from './CreateQuestionModal';
 import EditCategoryModal from './EditCategoryModal';
@@ -29,11 +50,24 @@ type CategoryBoard = Awaited<ReturnType<typeof getQuestionBoard>>[number];
 
 export default function QuestionsList() {
 	const [search, setSearch] = useState('');
+	const queryClient = useQueryClient();
 
 	const { data: board = [], isLoading } = useQuery({
 		queryKey: ['feedback-question-board'],
 		queryFn: () => getQuestionBoard(),
 	});
+
+	const reorderCatMutation = useMutation({
+		mutationFn: (ids: string[]) => reorderCategories(ids),
+		onSuccess: () =>
+			queryClient.invalidateQueries({
+				queryKey: ['feedback-question-board'],
+			}),
+	});
+
+	const sensors = useSensors(
+		useSensor(PointerSensor, { activationConstraint: { distance: 5 } })
+	);
 
 	const grouped = useMemo(() => {
 		const searchValue = search.trim().toLowerCase();
@@ -64,6 +98,18 @@ export default function QuestionsList() {
 			})
 			.filter((category) => category !== null);
 	}, [board, search]);
+
+	const isSearching = search.trim().length > 0;
+
+	function handleCategoryDragEnd(event: DragEndEvent) {
+		const { active, over } = event;
+		if (!over || active.id === over.id) return;
+
+		const oldIndex = grouped.findIndex((c) => c.id === active.id);
+		const newIndex = grouped.findIndex((c) => c.id === over.id);
+		const reordered = arrayMove(grouped, oldIndex, newIndex);
+		reorderCatMutation.mutate(reordered.map((c) => c.id));
+	}
 
 	if (isLoading) {
 		return (
@@ -96,9 +142,24 @@ export default function QuestionsList() {
 				</Flex>
 			)}
 
-			{grouped.map((group) => (
-				<CategoryGroup key={group.id} group={group} />
-			))}
+			{isSearching ? (
+				grouped.map((group) => <CategoryGroup key={group.id} group={group} />)
+			) : (
+				<DndContext
+					sensors={sensors}
+					collisionDetection={closestCenter}
+					onDragEnd={handleCategoryDragEnd}
+				>
+					<SortableContext
+						items={grouped.map((g) => g.id)}
+						strategy={verticalListSortingStrategy}
+					>
+						{grouped.map((group) => (
+							<SortableCategoryGroup key={group.id} group={group} />
+						))}
+					</SortableContext>
+				</DndContext>
+			)}
 		</Stack>
 	);
 }
@@ -107,15 +168,69 @@ type CategoryGroupProps = {
 	group: CategoryBoard;
 };
 
-function CategoryGroup({ group }: CategoryGroupProps) {
+function SortableCategoryGroup({ group }: CategoryGroupProps) {
+	const { attributes, listeners, setNodeRef, transform, transition } =
+		useSortable({ id: group.id });
+
+	const style: React.CSSProperties = {
+		transform: CSS.Transform.toString(transform),
+		transition,
+	};
+
+	return (
+		<div ref={setNodeRef} style={style} {...attributes}>
+			<CategoryGroup group={group} dragListeners={listeners} />
+		</div>
+	);
+}
+
+type CategoryGroupInnerProps = {
+	group: CategoryBoard;
+	dragListeners?: ReturnType<typeof useSortable>['listeners'];
+};
+
+function CategoryGroup({ group, dragListeners }: CategoryGroupInnerProps) {
+	const queryClient = useQueryClient();
 	const hasQuestions = group.questionCount > 0;
+
+	const sensors = useSensors(
+		useSensor(PointerSensor, { activationConstraint: { distance: 5 } })
+	);
+
+	const reorderMutation = useMutation({
+		mutationFn: (ids: string[]) => reorderQuestions(ids),
+		onSuccess: () =>
+			queryClient.invalidateQueries({
+				queryKey: ['feedback-question-board'],
+			}),
+	});
+
+	function handleQuestionDragEnd(event: DragEndEvent) {
+		const { active, over } = event;
+		if (!over || active.id === over.id) return;
+
+		const oldIndex = group.questions.findIndex((q) => q.id === active.id);
+		const newIndex = group.questions.findIndex((q) => q.id === over.id);
+		const reordered = arrayMove(group.questions, oldIndex, newIndex);
+		reorderMutation.mutate(reordered.map((q) => q.id));
+	}
 
 	return (
 		<Paper withBorder radius='md' p='md'>
 			<Group justify='space-between' align='center' mb='sm'>
 				<Group gap='xs'>
+					{dragListeners && (
+						<ActionIcon
+							variant='subtle'
+							color='gray'
+							size='sm'
+							style={{ cursor: 'grab' }}
+							{...dragListeners}
+						>
+							<IconGripVertical size={16} />
+						</ActionIcon>
+					)}
 					<Text fw={600}>{group.name}</Text>
-
 					<EditCategoryModal category={{ id: group.id, name: group.name }} />
 				</Group>
 				<Group gap='xs' wrap='nowrap'>
@@ -123,7 +238,6 @@ function CategoryGroup({ group }: CategoryGroupProps) {
 						categoryId={group.id}
 						categoryName={group.name}
 					/>
-
 					<Tooltip
 						label={
 							hasQuestions
@@ -161,9 +275,24 @@ function CategoryGroup({ group }: CategoryGroupProps) {
 						No questions in this category yet.
 					</Text>
 				) : (
-					group.questions.map((q) => (
-						<QuestionCard key={q.id} question={q} categoryName={group.name} />
-					))
+					<DndContext
+						sensors={sensors}
+						collisionDetection={closestCenter}
+						onDragEnd={handleQuestionDragEnd}
+					>
+						<SortableContext
+							items={group.questions.map((q) => q.id)}
+							strategy={verticalListSortingStrategy}
+						>
+							{group.questions.map((q) => (
+								<SortableQuestionCard
+									key={q.id}
+									question={q}
+									categoryName={group.name}
+								/>
+							))}
+						</SortableContext>
+					</DndContext>
 				)}
 			</Stack>
 		</Paper>
@@ -175,13 +304,46 @@ type QuestionCardProps = {
 	categoryName: string;
 };
 
-function QuestionCard({ question, categoryName }: QuestionCardProps) {
+function SortableQuestionCard({ question, categoryName }: QuestionCardProps) {
+	const {
+		attributes,
+		listeners,
+		setNodeRef,
+		transform,
+		transition,
+		isDragging,
+	} = useSortable({ id: question.id });
+
+	const style: React.CSSProperties = {
+		transform: CSS.Transform.toString(transform),
+		transition,
+		opacity: isDragging ? 0.5 : 1,
+	};
+
 	return (
-		<Card withBorder padding='sm' radius='md'>
+		<Card
+			ref={setNodeRef}
+			style={style}
+			withBorder
+			padding='sm'
+			radius='md'
+			{...attributes}
+		>
 			<Group justify='space-between' wrap='nowrap' align='flex-start'>
-				<Box style={{ flex: 1 }}>
-					<Text size='sm'>{question.text}</Text>
-				</Box>
+				<Group gap='xs' wrap='nowrap' style={{ flex: 1 }}>
+					<ActionIcon
+						variant='subtle'
+						color='gray'
+						size='sm'
+						style={{ cursor: 'grab' }}
+						{...listeners}
+					>
+						<IconGripVertical size={16} />
+					</ActionIcon>
+					<Box style={{ flex: 1 }}>
+						<Text size='sm'>{question.text}</Text>
+					</Box>
+				</Group>
 				<Group gap='xs' wrap='nowrap'>
 					<EditQuestionModal
 						question={{
