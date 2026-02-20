@@ -70,7 +70,6 @@ export default function LecturerStep({
 			<Paper
 				withBorder
 				p='sm'
-				radius='lg'
 				style={{
 					borderColor: 'var(--mantine-color-default-border)',
 				}}
