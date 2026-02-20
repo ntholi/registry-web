@@ -11,7 +11,6 @@ import {
 } from '@mantine/core';
 
 const RATING_LABELS = ['Poor', 'Fair', 'Satisfactory', 'Good', 'Excellent'];
-const RATING_COLORS = ['red.6', 'orange.5', 'yellow.5', 'teal.5', 'green.6'];
 
 type Props = {
 	categoryName: string;
@@ -35,16 +34,15 @@ export default function QuestionCard({
 	onCommentChange,
 }: Props) {
 	const label = rating ? RATING_LABELS[rating - 1] : undefined;
-	const labelColor = rating ? RATING_COLORS[rating - 1] : undefined;
 
 	return (
 		<Paper p='md' px={0} radius='lg' bg='transparent'>
-			<Stack gap='md'>
+			<Stack gap='xl'>
 				<Group justify='space-between' align='center'>
 					<Text size='xs' tt='uppercase' fw={700} c='dimmed' lts={1}>
 						{categoryName}
 					</Text>
-					<Text size='xs' fw={600} c='dimmed'>
+					<Text size='xs' fw={600}>
 						{questionIndex + 1} / {totalQuestions}
 					</Text>
 				</Group>
@@ -64,7 +62,7 @@ export default function QuestionCard({
 							/>
 						</Popover.Target>
 						<Popover.Dropdown px='md' py={6}>
-							<Text size='sm' fw={600} ta='center' c={labelColor}>
+							<Text size='sm' fw={600} ta='center'>
 								{label}
 							</Text>
 						</Popover.Dropdown>
@@ -75,10 +73,9 @@ export default function QuestionCard({
 					placeholder='Add a comment (optional)'
 					autosize
 					minRows={2}
-					maxRows={4}
+					maxRows={5}
 					value={comment}
 					onChange={(e) => onCommentChange(e.currentTarget.value)}
-					radius='md'
 					variant='filled'
 				/>
 			</Stack>

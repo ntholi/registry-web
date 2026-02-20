@@ -66,7 +66,7 @@ export default function LecturerStep({
 		: undefined;
 
 	return (
-		<Stack gap='md'>
+		<Stack gap='xl'>
 			<Paper
 				withBorder
 				p='sm'
