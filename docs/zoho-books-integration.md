@@ -74,47 +74,57 @@ GET /contacts?cf_account_code=901017723&organization_id=823788793
 
 > **Confirmed**: The Account Code custom field is populated for **all** students in Zoho Books.
 
-### 1.2 Find Out How Payment Types Are Identified
+### 1.2 Find Out How Payment Types Are Identified ✅ (partial)
 
-1. While viewing the student's contact, click the **Invoices** tab (or go to **Sales → Invoices** and filter by this customer).
-2. Find an invoice for a "Student Card" payment. Open it and note:
+> **Verified on 2026-02-20** using invoice INV-001651 (Student Card).
 
-| Question | Where to look | Write down the answer |
-|----------|---------------|----------------------|
-| What is the **Item Name** on the invoice line item? (e.g., "Student Card", "Student Card Fee") | Under "Item Details" in the invoice | _________________ |
-| What is the **Invoice Number** format? | Top of the invoice (e.g., `INV-00042`) | _________________ |
-| Is the invoice **status** "Paid"? | Status badge on the invoice | _________________ |
-| What is the **Item ID** in Zoho? | Click on the item name → check the URL | _________________ |
+#### Invoice Structure
 
-3. **Repeat for other payment types** if you can find them:
-   - Graduation Gown
-   - Graduation Fee
-   - Repeat Module
-   - Late Registration
-   - Tuition Fee
-   - Library Fine
-   - Application Fee
+| Detail | Value |
+|--------|-------|
+| **Invoice Number Format** | `INV-XXXXXX` (6-digit zero-padded, e.g., `INV-001651`) |
+| **Invoice ID (from URL)** | `4172689000003411056` |
+| **Currency** | LSL (Lesotho Loti) |
+| **Terms** | Due on Receipt |
+| **Status Values** | `paid`, `overdue` (confirmed from sidebar) |
+| **Bill To** | Student's display name (e.g., `Reitumetse Motia`) |
 
-4. Go to **Settings → Items** to see the full list of items. Note down IDs and exact names of items that correspond to your receipt types.
+#### Student Card Invoice Details
+
+| Field | Value |
+|-------|-------|
+| **Item Name** | `Student Card` |
+| **Item Description** | `student card` |
+| **Item ID** | `4172689000000628015` |
+| **Account Code** | `6010/SC01` |
+| **Rate** | LSL 250.00 |
+| **Qty Unit** | pcs |
+
+#### Invoice Search Notes
+
+- Searching "Student Card" in Invoices returns matches across Item Names, Contacts, Custom Fields
+- Invoices can contain **multiple items** (e.g., INV-004897 for LSL3,050.00 likely combines Student Card + other fees)
+- Paid invoices show Balance Due = LSL0.00 and a "Paid" stamp
+- Payments Received count is shown on the invoice detail
 
 ### 1.3 Record Your Findings
 
-Create a mapping table based on what you found:
+> **TODO**: Screenshot the **Items** list (left sidebar → Items) to complete remaining mappings.
 
 ```
 Registry Web Receipt Type  →  Zoho Books Item Name  →  Zoho Item ID
 ─────────────────────────────────────────────────────────────────────
-student_card               →  "Student Card"         →  XXXXXXXXXX
-graduation_gown            →  "Graduation Gown"      →  XXXXXXXXXX
-graduation_fee             →  "Graduation Fee"       →  XXXXXXXXXX
-repeat_module              →  "Repeat Module"        →  XXXXXXXXXX
-late_registration          →  "Late Registration"    →  XXXXXXXXXX
-tuition_fee                →  "Tuition Fee"          →  XXXXXXXXXX
-library_fine               →  "Library Fine"         →  XXXXXXXXXX
-application_fee            →  "Application Fee"      →  XXXXXXXXXX
+student_card               →  "Student Card"         →  4172689000000628015
+graduation_gown            →  ________________       →  ________________
+graduation_fee             →  ________________       →  ________________
+repeat_module              →  ________________       →  ________________
+late_registration          →  ________________       →  ________________
+tuition_fee                →  ________________       →  ________________
+library_fine               →  ________________       →  ________________
+application_fee            →  ________________       →  ________________
 ```
 
-> **IMPORTANT**: The exact names and IDs will be needed in Step 5 and Step 6. Do NOT guess — verify in Zoho Books.
+> **IMPORTANT**: Share Items list screenshot to fill remaining rows. The exact names and IDs will be needed in Step 5 and Step 6.
 
 ---
 
