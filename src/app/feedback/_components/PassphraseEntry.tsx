@@ -221,7 +221,7 @@ export default function PassphraseEntry({ error }: Props) {
 													value={search}
 													placeholder={
 														words.length === 0
-															? 'Start typing a word...'
+															? 'Passphrase...'
 															: `Word ${words.length + 1}...`
 													}
 													onChange={(e) =>

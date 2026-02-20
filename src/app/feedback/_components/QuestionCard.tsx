@@ -1,22 +1,17 @@
 'use client';
 
 import {
-	Badge,
-	Group,
+	Box,
+	Divider,
 	Paper,
+	Popover,
 	Rating,
 	Stack,
 	Text,
 	Textarea,
 } from '@mantine/core';
 
-const LIKERT_LABELS = [
-	'Strongly Disagree',
-	'Disagree',
-	'Neutral',
-	'Agree',
-	'Strongly Agree',
-];
+const RATING_LABELS = ['Poor', 'Fair', 'Satisfactory', 'Good', 'Excellent'];
 
 type Props = {
 	categoryName: string;
@@ -35,32 +30,36 @@ export default function QuestionCard({
 	onRatingChange,
 	onCommentChange,
 }: Props) {
+	const label = rating ? RATING_LABELS[rating - 1] : undefined;
+
 	return (
 		<Paper withBorder p='lg' radius='md'>
 			<Stack gap='md'>
-				<Badge variant='light' size='sm' w='fit-content'>
-					{categoryName}
-				</Badge>
+				<Box>
+					<Text size='sm'>{categoryName}</Text>
+					<Divider my='xs' />
+				</Box>
 
 				<Text size='lg' fw={500}>
 					{questionText}
 				</Text>
 
 				<Stack gap={4} align='center'>
-					<Rating
-						size='xl'
-						count={5}
-						value={rating ?? 0}
-						onChange={onRatingChange}
-					/>
-					<Group justify='space-between' w='100%' mt={4}>
-						<Text size='xs' c='dimmed'>
-							{LIKERT_LABELS[0]}
-						</Text>
-						<Text size='xs' c='dimmed'>
-							{LIKERT_LABELS[4]}
-						</Text>
-					</Group>
+					<Popover opened={!!label} position='top' withArrow shadow='sm'>
+						<Popover.Target>
+							<Rating
+								size='xl'
+								count={5}
+								value={rating ?? 0}
+								onChange={onRatingChange}
+							/>
+						</Popover.Target>
+						<Popover.Dropdown p='xs'>
+							<Text size='sm' fw={500} ta='center'>
+								{label}
+							</Text>
+						</Popover.Dropdown>
+					</Popover>
 				</Stack>
 
 				<Textarea
