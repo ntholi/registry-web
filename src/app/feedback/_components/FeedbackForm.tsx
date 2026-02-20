@@ -1,7 +1,7 @@
 'use client';
 
 import { Container, Stack } from '@mantine/core';
-import { useCallback, useMemo, useState, useTransition } from 'react';
+import { useCallback, useMemo, useRef, useState, useTransition } from 'react';
 
 function computeInitialIndex(
 	lecturers: Lecturer[],
@@ -102,6 +102,35 @@ export default function FeedbackForm({
 
 	const currentLecturer = lecturers[currentLecturerIndex];
 
+	const isFirstQuestion = currentQuestionIndex === 0;
+	const isLastQuestion = currentQuestionIndex === questions.length - 1;
+
+	const touchStart = useRef<{ x: number; y: number } | null>(null);
+
+	const onTouchStart = useCallback((e: React.TouchEvent) => {
+		const touch = e.touches[0];
+		touchStart.current = { x: touch.clientX, y: touch.clientY };
+	}, []);
+
+	const onTouchEnd = useCallback(
+		(e: React.TouchEvent) => {
+			if (!touchStart.current) return;
+			const touch = e.changedTouches[0];
+			const dx = touch.clientX - touchStart.current.x;
+			const dy = touch.clientY - touchStart.current.y;
+			const MIN_SWIPE = 50;
+			if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > MIN_SWIPE) {
+				if (dx < 0 && !isLastQuestion) {
+					setCurrentQuestionIndex((i) => i + 1);
+				} else if (dx > 0 && !isFirstQuestion) {
+					setCurrentQuestionIndex((i) => i - 1);
+				}
+			}
+			touchStart.current = null;
+		},
+		[isFirstQuestion, isLastQuestion]
+	);
+
 	const setResponse = useCallback(
 		(assignedModuleId: number, questionId: string, entry: ResponseEntry) => {
 			setResponses((prev) => {
@@ -160,7 +189,14 @@ export default function FeedbackForm({
 	}
 
 	return (
-		<Container size='xs' py='sm' px='sm'>
+		<Container
+			size='xs'
+			py='sm'
+			px='sm'
+			onTouchStart={onTouchStart}
+			onTouchEnd={onTouchEnd}
+			style={{ minHeight: '100dvh' }}
+		>
 			<Stack gap='sm'>
 				<LecturerProgress
 					current={currentLecturerIndex + 1}
