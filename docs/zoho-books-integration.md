@@ -46,22 +46,33 @@ Before you begin, make sure you have:
 
 > **Why**: Before writing any code, you need to understand how Zoho Books stores student data and payment information. This step is 100% manual exploration — no coding yet.
 
-### 1.1 Find Out How Students Are Identified
+### 1.1 Find Out How Students Are Identified ✅
 
-1. Open [Zoho Books](https://books.zoho.com) and log in with admin credentials.
-2. Go to **Sales → Customers** (or **Contacts** in the left sidebar).
-3. Search for a student you know (e.g., by name or student number like `901234567`).
-4. Click on the student's contact record and note:
+> **Verified on 2026-02-20** using student `901017723` (Mathapelo Letsoela).
 
-| Question | Where to look | Write down the answer |
-|----------|---------------|----------------------|
-| Is the student number (`stdNo`) the **Contact Name**? | The main name displayed | _________________ |
-| Is the student number in the **Contact Number** field? | Under "Other Details" section | _________________ |
-| Is it in a **Custom Field** (e.g., "Student ID")? | Scroll down to "Custom Fields" | _________________ |
-| Is the student number in the **Company Name**? | Near the top of the contact | _________________ |
-| What is the Zoho **Contact ID** for this student? | In the URL when viewing: `contacts/XXXXXXXXX` | _________________ |
+Students are stored as **Business** contacts in Zoho Books with the following structure:
 
-5. **Write down exactly which field contains the student number.** This is critical for the API integration.
+| Field | Value | Notes |
+|-------|-------|-------|
+| **Customer Type** | Business | All students are "Business" type |
+| **Primary Contact (First Name)** | `901017723` | Student number used as first name |
+| **Company Name** | `Diploma in Information Technology` | Contains the **program name** |
+| **Display Name** | `Mathapelo Letsoela` | Student's actual name |
+| **Custom Field: "Account Code"** | `901017723` | **Primary lookup field** — populated for all students |
+| **Contact ID** | `4172689000000568209` | From URL: `contacts/4172689000000568209` |
+| **Organization ID** | `823788793` | From URL: `app/823788793` |
+| **Zoho Domain** | `zoho.com` | US / Global data center |
+
+#### API Lookup Strategy
+
+1. **Primary**: Search by custom field `cf_account_code` (Account Code = student number)
+2. **Fallback**: Search by `contact_name` (Primary Contact first name = student number)
+
+```
+GET /contacts?cf_account_code=901017723&organization_id=823788793
+```
+
+> **Confirmed**: The Account Code custom field is populated for **all** students in Zoho Books.
 
 ### 1.2 Find Out How Payment Types Are Identified
 
