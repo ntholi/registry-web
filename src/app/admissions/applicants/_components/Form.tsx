@@ -1,7 +1,7 @@
 'use client';
 
 import { applicants } from '@admissions/_database';
-import { Select, Switch, Textarea, TextInput } from '@mantine/core';
+import { Select, Textarea, TextInput } from '@mantine/core';
 import { DateInput } from '@mantine/dates';
 import { createInsertSchema } from 'drizzle-zod';
 import { useRouter } from 'nextjs-toploader/app';
@@ -69,10 +69,6 @@ export default function ApplicantForm({
 						placeholder='Enter nationality'
 						required
 						{...form.getInputProps('nationality')}
-					/>
-					<Switch
-						label='Is Mosotho (Lesotho National)'
-						{...form.getInputProps('isMosotho', { type: 'checkbox' })}
 					/>
 					<Select
 						label='Gender'

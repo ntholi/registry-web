@@ -5,9 +5,10 @@ type IntakePeriodFees = {
 
 export function resolveApplicationFee(
 	intakePeriod: IntakePeriodFees,
-	isMosotho: boolean | null
+	nationality: string | null
 ): string {
-	if (isMosotho === false) {
+	const value = nationality?.trim().toLowerCase();
+	if (value !== 'lesotho' && value !== 'mosotho') {
 		return intakePeriod.internationalApplicationFee;
 	}
 	return intakePeriod.localApplicationFee;

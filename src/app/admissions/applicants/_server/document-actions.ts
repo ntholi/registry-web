@@ -61,7 +61,6 @@ export async function createApplicantFromDocuments(
 			dateOfBirth: identity.dateOfBirth,
 			nationalId: identity.nationalId ?? undefined,
 			nationality: identity.nationality,
-			isMosotho: identity.isMosotho,
 			gender: identity.gender,
 			birthPlace: identity.birthPlace ?? undefined,
 			address: identity.address ?? undefined,

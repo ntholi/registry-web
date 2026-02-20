@@ -50,7 +50,7 @@ export default class PaymentRepository extends BaseRepository<
 								id: true,
 								fullName: true,
 								nationalId: true,
-								isMosotho: true,
+								nationality: true,
 							},
 						},
 						intakePeriod: {

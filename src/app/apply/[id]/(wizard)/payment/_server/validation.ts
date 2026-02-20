@@ -131,11 +131,11 @@ export async function validateReceipts(
 
 	const applicant = await db.query.applicants.findFirst({
 		where: eq(applicants.id, application.applicantId),
-		columns: { isMosotho: true },
+		columns: { nationality: true },
 	});
 
 	const requiredAmount = parseFloat(
-		resolveApplicationFee(intake, applicant?.isMosotho ?? null)
+		resolveApplicationFee(intake, applicant?.nationality ?? null)
 	);
 	const validatedReceipts: ReceiptsValidationResult['receipts'] = [];
 	const globalErrors: string[] = [];

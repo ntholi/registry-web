@@ -162,7 +162,7 @@ export default async function DepositDetailsPage({ params }: Props) {
 										{deposit.application.intakePeriod
 											? resolveApplicationFee(
 													deposit.application.intakePeriod,
-													deposit.application.applicant?.isMosotho ?? null
+													deposit.application.applicant?.nationality ?? null
 												)
 											: '0.00'}
 									</FieldView>

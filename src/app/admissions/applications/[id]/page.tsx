@@ -177,7 +177,7 @@ export default async function ApplicationDetails({ params }: Props) {
 						<PaymentSection
 							feeAmount={resolveApplicationFee(
 								item.intakePeriod,
-								item.applicant.isMosotho
+								item.applicant.nationality
 							)}
 							paymentStatus={item.paymentStatus as PaymentStatus}
 							bankDeposits={item.bankDeposits}

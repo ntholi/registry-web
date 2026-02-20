@@ -124,8 +124,8 @@ export async function getPaymentPageData(applicationId: string) {
 	);
 
 	const intake = application.intakePeriod;
-	const isMosotho = application.applicant?.isMosotho ?? null;
-	const fee = intake ? resolveApplicationFee(intake, isMosotho) : null;
+	const nationality = application.applicant?.nationality ?? null;
+	const fee = intake ? resolveApplicationFee(intake, nationality) : null;
 
 	return {
 		applicant,

@@ -2,7 +2,6 @@ import { users } from '@auth/users/_schema/users';
 import { students } from '@registry/students/_schema/students';
 import {
 	bigint,
-	boolean,
 	date,
 	index,
 	pgTable,
@@ -27,7 +26,6 @@ export const applicants = pgTable(
 		dateOfBirth: date({ mode: 'string' }),
 		nationalId: text().unique(),
 		nationality: text(),
-		isMosotho: boolean(),
 		birthPlace: text(),
 		religion: text(),
 		address: text(),

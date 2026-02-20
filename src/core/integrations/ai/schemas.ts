@@ -55,11 +55,6 @@ const identitySchema = z.object({
 		.string()
 		.nullable()
 		.describe('Country of citizenship (e.g., Lesotho, South Africa)'),
-	isMosotho: z
-		.boolean()
-		.describe(
-			'Whether the document holder is a Lesotho national (Mosotho/Basotho). Determine from nationality, issuing country, or ID format.'
-		),
 	gender: z
 		.enum(['Male', 'Female'])
 		.nullable()

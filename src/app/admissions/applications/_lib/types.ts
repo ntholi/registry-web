@@ -27,7 +27,7 @@ export type ApplicationWithRelations = Application & {
 		id: string;
 		fullName: string;
 		nationalId: string | null;
-		isMosotho: boolean | null;
+		nationality: string | null;
 	};
 	intakePeriod: {
 		id: string;

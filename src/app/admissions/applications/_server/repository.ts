@@ -31,7 +31,7 @@ export default class ApplicationRepository extends BaseRepository<
 						id: true,
 						fullName: true,
 						nationalId: true,
-						isMosotho: true,
+						nationality: true,
 					},
 				},
 				intakePeriod: {
@@ -176,7 +176,7 @@ export default class ApplicationRepository extends BaseRepository<
 							id: true,
 							fullName: true,
 							nationalId: true,
-							isMosotho: true,
+							nationality: true,
 						},
 					},
 					intakePeriod: {
@@ -315,7 +315,7 @@ export default class ApplicationRepository extends BaseRepository<
 			},
 			with: {
 				applicant: {
-					columns: { isMosotho: true },
+					columns: { nationality: true },
 				},
 				intakePeriod: {
 					columns: {
