@@ -128,43 +128,6 @@ export default function FeedbackForm({
 		[responses]
 	);
 
-	function handleNextLecturer() {
-		if (!currentLecturer) return;
-
-		const lecturerResponses = questions
-			.map((q) => {
-				const r = responses.get(
-					responseKey(currentLecturer.assignedModuleId, q.questionId)
-				);
-				return {
-					questionId: q.questionId,
-					rating: r?.rating ?? 0,
-					comment: r?.comment ?? null,
-				};
-			})
-			.filter((r) => r.rating > 0);
-
-		setPendingAction('next');
-		startTransition(async () => {
-			if (lecturerResponses.length > 0) {
-				await submitLecturerFeedback(
-					passphraseId,
-					currentLecturer.assignedModuleId,
-					lecturerResponses
-				);
-			}
-
-			if (currentLecturerIndex < lecturers.length - 1) {
-				setCurrentLecturerIndex((prev) => prev + 1);
-				setCurrentQuestionIndex(0);
-			} else {
-				await finalizeFeedback(passphraseId);
-				localStorage.removeItem('feedback-passphrase');
-				setIsFinalized(true);
-			}
-		});
-	}
-
 	function handleSkipLecturer() {
 		if (!currentLecturer) return;
 		const qIds = questions.map((q) => q.questionId);
@@ -209,8 +172,37 @@ export default function FeedbackForm({
 	const completedCount = Array.from(completedLecturers).length;
 
 	function handleNavigateTo(index: number) {
-		setCurrentLecturerIndex(index);
-		setCurrentQuestionIndex(0);
+		if (!currentLecturer) {
+			setCurrentLecturerIndex(index);
+			setCurrentQuestionIndex(0);
+			return;
+		}
+
+		const lecturerResponses = questions
+			.map((q) => {
+				const r = responses.get(
+					responseKey(currentLecturer.assignedModuleId, q.questionId)
+				);
+				return {
+					questionId: q.questionId,
+					rating: r?.rating ?? 0,
+					comment: r?.comment ?? null,
+				};
+			})
+			.filter((r) => r.rating > 0);
+
+		setPendingAction('next');
+		startTransition(async () => {
+			if (lecturerResponses.length > 0) {
+				await submitLecturerFeedback(
+					passphraseId,
+					currentLecturer.assignedModuleId,
+					lecturerResponses
+				);
+			}
+			setCurrentLecturerIndex(index);
+			setCurrentQuestionIndex(0);
+		});
 	}
 
 	return (
@@ -238,10 +230,6 @@ export default function FeedbackForm({
 					questions={questions}
 					getResponse={getResponse}
 					onNavigate={handleNavigateTo}
-					onSubmit={handleNextLecturer}
-					isLast={currentLecturerIndex === lecturers.length - 1}
-					isPending={isPending}
-					pendingAction={pendingAction}
 				/>
 			</Stack>
 		</Container>

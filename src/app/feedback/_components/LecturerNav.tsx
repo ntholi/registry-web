@@ -4,8 +4,6 @@ import {
 	ActionIcon,
 	Avatar,
 	Box,
-	Button,
-	Divider,
 	Group,
 	Indicator,
 	Popover,
@@ -16,7 +14,7 @@ import {
 	UnstyledButton,
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
-import { IconCheck, IconSend, IconUsers } from '@tabler/icons-react';
+import { IconCheck, IconUsers } from '@tabler/icons-react';
 
 type Lecturer = {
 	assignedModuleId: number;
@@ -44,10 +42,6 @@ type Props = {
 		questionId: string
 	) => ResponseEntry | undefined;
 	onNavigate: (index: number) => void;
-	onSubmit: () => void;
-	isLast: boolean;
-	isPending: boolean;
-	pendingAction: 'next' | 'skip' | null;
 };
 
 export default function LecturerNav({
@@ -56,10 +50,6 @@ export default function LecturerNav({
 	questions,
 	getResponse,
 	onNavigate,
-	onSubmit,
-	isLast,
-	isPending,
-	pendingAction,
 }: Props) {
 	const [opened, { toggle, close }] = useDisclosure(false);
 
@@ -100,6 +90,7 @@ export default function LecturerNav({
 							label={`${currentIndex + 1}/${lecturers.length}`}
 							size={18}
 							offset={4}
+							color='dark'
 							position='top-end'
 						>
 							<ActionIcon
@@ -197,21 +188,6 @@ export default function LecturerNav({
 								</UnstyledButton>
 							);
 						})}
-						<Divider my={4} />
-						<Button
-							onClick={() => {
-								close();
-								onSubmit();
-							}}
-							loading={isPending && pendingAction === 'next'}
-							disabled={isPending && pendingAction !== 'next'}
-							rightSection={<IconSend size={16} />}
-							radius='xl'
-							variant='filled'
-							fullWidth
-						>
-							{isLast ? 'Submit All' : 'Next Lecturer'}
-						</Button>
 					</Stack>
 				</Popover.Dropdown>
 			</Popover>
