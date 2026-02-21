@@ -24,6 +24,7 @@ Create `src/app/audit-logs/_schema/auditLogs.ts`:
 | `newValues` | `jsonb` | nullable | Full row snapshot after the change (NULL on DELETE) |
 | `changedBy` | `text` | FK → users.id, nullable | User who performed the operation (NULL if system/migration) |
 | `changedAt` | `timestamptz` | NOT NULL, DEFAULT NOW() | When the change occurred |
+| `metadata` | `jsonb` | nullable | Optional context: reasons, IP address, etc. |
 
 **Indexes:**
 
@@ -43,11 +44,19 @@ CREATE OR REPLACE FUNCTION audit_trigger_func()
 RETURNS TRIGGER AS $$
 DECLARE
   current_user_id TEXT;
+  audit_metadata JSONB;
   record_pk TEXT;
   pk_column TEXT;
 BEGIN
   -- Read user ID from session variable (set by application)
   current_user_id := current_setting('app.current_user_id', true);
+
+  -- Read optional metadata from session variable (reasons, IP, etc.)
+  BEGIN
+    audit_metadata := current_setting('app.audit_metadata', true)::jsonb;
+  EXCEPTION WHEN OTHERS THEN
+    audit_metadata := NULL;
+  END;
 
   -- Determine primary key column name (convention: first column or 'id')
   pk_column := TG_ARGV[0];  -- passed as trigger argument
@@ -60,21 +69,21 @@ BEGIN
   END IF;
 
   IF (TG_OP = 'INSERT') THEN
-    INSERT INTO audit_logs (table_name, record_id, operation, old_values, new_values, changed_by)
-    VALUES (TG_TABLE_NAME, record_pk, 'INSERT', NULL, to_jsonb(NEW), current_user_id);
+    INSERT INTO audit_logs (table_name, record_id, operation, old_values, new_values, changed_by, metadata)
+    VALUES (TG_TABLE_NAME, record_pk, 'INSERT', NULL, to_jsonb(NEW), current_user_id, audit_metadata);
     RETURN NEW;
 
   ELSIF (TG_OP = 'UPDATE') THEN
     -- Only log if something actually changed
     IF OLD IS DISTINCT FROM NEW THEN
-      INSERT INTO audit_logs (table_name, record_id, operation, old_values, new_values, changed_by)
-      VALUES (TG_TABLE_NAME, record_pk, 'UPDATE', to_jsonb(OLD), to_jsonb(NEW), current_user_id);
+      INSERT INTO audit_logs (table_name, record_id, operation, old_values, new_values, changed_by, metadata)
+      VALUES (TG_TABLE_NAME, record_pk, 'UPDATE', to_jsonb(OLD), to_jsonb(NEW), current_user_id, audit_metadata);
     END IF;
     RETURN NEW;
 
   ELSIF (TG_OP = 'DELETE') THEN
-    INSERT INTO audit_logs (table_name, record_id, operation, old_values, new_values, changed_by)
-    VALUES (TG_TABLE_NAME, record_pk, 'DELETE', to_jsonb(OLD), NULL, current_user_id);
+    INSERT INTO audit_logs (table_name, record_id, operation, old_values, new_values, changed_by, metadata)
+    VALUES (TG_TABLE_NAME, record_pk, 'DELETE', to_jsonb(OLD), NULL, current_user_id, audit_metadata);
     RETURN OLD;
   END IF;
 
@@ -110,3 +119,5 @@ Add the new schema to `src/app/audit-logs/_database/index.ts`.
 - Use `timestamptz` (not `timestamp`) for `changedAt` to handle timezone-aware logging
 - The trigger function accepts the PK column name as an argument (`TG_ARGV[0]`) to support tables with different primary key conventions (e.g., `id`, `std_no`)
 - `OLD IS DISTINCT FROM NEW` prevents logging no-op updates
+- The `metadata` column stores optional context (reasons, IP address, etc.) read from the `app.audit_metadata` session variable
+- Tables with composite PKs or no PK are excluded from triggers (see Step 003)

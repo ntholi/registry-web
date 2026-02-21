@@ -118,7 +118,7 @@ Evaluate `src/app/audit-logs/_components/AuditHistoryTab.tsx`:
 2. `pnpm lint:fix` passes
 3. No imports reference deleted files
 4. Legacy tables are dropped from the database
-5. Audit triggers still fire correctly on all 97 audited tables
+5. Audit triggers still fire correctly on all 87 audited tables
 6. The new audit UI shows both migrated historical data and new trigger-generated data
 7. All CRUD operations across the app still work correctly
 

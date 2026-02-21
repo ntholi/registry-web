@@ -73,6 +73,7 @@ A reusable component that can be embedded in any entity's detail page to show it
 - Renders a Timeline (same pattern as existing `AuditHistoryTab`)
 - Shows old → new value diffs per field
 - Shows the user who made the change
+- Displays `metadata.reasons` if present (migrated from legacy `reasons` field)
 - Handles INSERT (show all new values), UPDATE (show diffs), DELETE (show all old values)
 
 ### 4. Integration into Existing Detail Pages

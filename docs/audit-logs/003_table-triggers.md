@@ -2,7 +2,7 @@
 
 ## Introduction
 
-This step creates PostgreSQL triggers for all 92 auditable tables. Each trigger calls `audit_trigger_func()` (created in Step 1) on INSERT, UPDATE, and DELETE, passing the table's primary key column name as an argument.
+This step creates PostgreSQL triggers for all 87 auditable tables. Each trigger calls `audit_trigger_func()` (created in Step 1) on INSERT, UPDATE, and DELETE, passing the table's primary key column name as an argument.
 
 ## Context
 
@@ -21,7 +21,7 @@ CREATE TRIGGER audit_<table_name>
   FOR EACH ROW EXECUTE FUNCTION audit_trigger_func('<pk_column>');
 ```
 
-### 2. Complete Auditable Tables List (92 tables)
+### 2. Complete Auditable Tables List (87 tables)
 
 #### Academic Module (16 tables)
 
@@ -44,7 +44,7 @@ CREATE TRIGGER audit_<table_name>
 | 15 | `structure_semesters` | `id` | Semesters within a program structure |
 | 16 | `structures` | `id` | Program curriculum structures |
 
-#### Admin Module (4 tables)
+#### Admin Module (5 tables)
 
 | # | Table | PK Column | Description |
 |---|-------|-----------|-------------|
@@ -52,12 +52,9 @@ CREATE TRIGGER audit_<table_name>
 | 18 | `notifications` | `id` | System notifications |
 | 19 | `tasks` | `id` | Administrative tasks |
 | 20 | `task_assignees` | `id` | Task assignment tracking |
-
-> Note: `task_students` is a join table that links tasks to students. Include it for auditing since task-student assignments are business-critical.
-
 | 21 | `task_students` | `id` | Students linked to tasks |
 
-#### Admissions Module (18 tables)
+#### Admissions Module (20 tables)
 
 | # | Table | PK Column | Description |
 |---|-------|-----------|-------------|
@@ -89,9 +86,7 @@ CREATE TRIGGER audit_<table_name>
 | 42 | `users` | `id` | System user accounts |
 | 43 | `user_schools` | `id` | User-to-school access assignments |
 
-> Excluded: `sessions`, `verification_tokens`, `accounts`, `authenticators` (Auth.js-managed ephemeral data)
-
-#### Finance Module (5 tables)
+#### Finance Module (4 tables)
 
 | # | Table | PK Column | Description |
 |---|-------|-----------|-------------|
@@ -100,9 +95,7 @@ CREATE TRIGGER audit_<table_name>
 | 46 | `sponsored_students` | `id` | Students under sponsorship |
 | 47 | `sponsored_terms` | `id` | Terms covered by sponsorship |
 
-> Note: Check if `payment_receipts` uses `id` or `receiptNo` as PK.
-
-#### Library Module (14 tables)
+#### Library Module (13 tables)
 
 | # | Table | PK Column | Description |
 |---|-------|-----------|-------------|
@@ -117,54 +110,47 @@ CREATE TRIGGER audit_<table_name>
 | 56 | `loans` | `id` | Book loans |
 | 57 | `publications` | `id` | Academic publications |
 | 58 | `publication_authors` | `id` | Publication-author links |
-| 59 | `publication_attachments` | `id` | Publication file attachments |
-| 60 | `question_papers` | `id` | Past exam papers |
-| 61 | `library_settings` | `id` | Library configuration |
+| 59 | `question_papers` | `id` | Past exam papers |
+| 60 | `library_settings` | `id` | Library configuration |
 
-#### Registry Module (32 tables)
-
-| # | Table | PK Column | Description |
-|---|-------|-----------|-------------|
-| 62 | `students` | `std_no` | Student master records |
-| 63 | `student_programs` | `id` | Student program enrollments |
-| 64 | `student_semesters` | `id` | Student semester registrations |
-| 65 | `student_modules` | `id` | Student module enrollments |
-| 66 | `student_education` | `id` | Student prior education records |
-| 67 | `next_of_kins` | `id` | Student emergency contacts |
-| 68 | `blocked_students` | `id` | Student registration blocks |
-| 69 | `certificate_reprints` | `id` | Certificate reprint requests |
-| 70 | `clearance` | `id` | Registration clearance records |
-| 71 | `registration_clearance` | `id` | Clearance-registration links |
-| 72 | `documents` | `id` | Document type definitions |
-| 73 | `student_documents` | `id` | Documents uploaded by/for students |
-| 74 | `graduation_clearance` | `id` | Graduation clearance records |
-| 75 | `graduation_request_receipts` | `id` | Graduation request payment receipts |
-| 76 | `graduation_dates` | `id` | Graduation ceremony dates |
-| 77 | `graduation_requests` | `id` | Student graduation requests |
-| 78 | `auto_approvals` | `id` | Auto-approval rules for clearance |
-| 79 | `registration_requests` | `id` | Student registration requests |
-| 80 | `registration_request_receipts` | `id` | Registration request payment receipts |
-| 81 | `requested_modules` | `id` | Modules requested in a registration |
-| 82 | `terms` | `id` | Academic terms/semesters |
-| 83 | `term_settings` | `id` | Term configuration settings |
-| 84 | `term_registrations` | `id` | Term registration windows |
-| 85 | `term_registration_programs` | `id` | Programs active for a term registration |
-| 86 | `publication_attachments` | `id` | Term publication file attachments |
-
-#### Timetable Module (8 tables)
+#### Registry Module (23 tables)
 
 | # | Table | PK Column | Description |
 |---|-------|-----------|-------------|
-| 87 | `timetable_slots` | `id` | Time slots in the schedule |
-| 88 | `timetable_slot_allocations` | `id` | Slot-to-class assignments |
-| 89 | `timetable_allocations` | `id` | Module-lecturer-venue allocations |
-| 90 | `timetable_allocation_allowed_venues` | `id` | Allowed venues for allocations |
-| 91 | `timetable_allocation_venue_types` | `id` | Venue type preferences for allocations |
-| 92 | `venues` | `id` | Physical venue/room definitions |
-| 93 | `venue_schools` | `id` | Venue-to-school assignments |
-| 94 | `venue_types` | `id` | Venue type catalog |
+| 61 | `students` | `std_no` | Student master records |
+| 62 | `student_programs` | `id` | Student program enrollments |
+| 63 | `student_semesters` | `id` | Student semester registrations |
+| 64 | `student_modules` | `id` | Student module enrollments |
+| 65 | `student_education` | `id` | Student prior education records |
+| 66 | `next_of_kins` | `id` | Student emergency contacts |
+| 67 | `blocked_students` | `id` | Student registration blocks |
+| 68 | `certificate_reprints` | `id` | Certificate reprint requests |
+| 69 | `clearance` | `id` | Registration clearance records |
+| 70 | `registration_clearance` | `id` | Clearance-registration links |
+| 71 | `documents` | `id` | Document type definitions |
+| 72 | `student_documents` | `id` | Documents uploaded by/for students |
+| 73 | `graduation_clearance` | `id` | Graduation clearance records |
+| 74 | `graduation_dates` | `id` | Graduation ceremony dates |
+| 75 | `graduation_requests` | `id` | Student graduation requests |
+| 76 | `auto_approvals` | `id` | Auto-approval rules for clearance |
+| 77 | `registration_requests` | `id` | Student registration requests |
+| 78 | `requested_modules` | `id` | Modules requested in a registration |
+| 79 | `terms` | `id` | Academic terms/semesters |
+| 80 | `term_settings` | `id` | Term configuration settings |
+| 81 | `term_registrations` | `id` | Term registration windows |
+| 82 | `term_registration_programs` | `id` | Programs active for a term registration |
+| 83 | `publication_attachments` | `id` | Term publication file attachments |
 
-### 3. Excluded Tables (22 tables)
+#### Timetable Module (4 tables)
+
+| # | Table | PK Column | Description |
+|---|-------|-----------|-------------|
+| 84 | `timetable_slots` | `id` | Time slots in the schedule |
+| 85 | `timetable_allocations` | `id` | Module-lecturer-venue allocations |
+| 86 | `venues` | `id` | Physical venue/room definitions |
+| 87 | `venue_types` | `id` | Venue type catalog |
+
+### 3. Excluded Tables (28 tables)
 
 | Table | Module | Reason |
 |-------|--------|--------|
@@ -190,17 +176,23 @@ CREATE TRIGGER audit_<table_name>
 | `statement_of_results_prints` | registry | Operational print log, high-volume low-value for audit trail |
 | `student_card_prints` | registry | Operational print log, high-volume low-value for audit trail |
 | `transcript_prints` | registry | Operational print log, high-volume low-value for audit trail |
+| `venue_schools` | timetable | Composite PK `(venueId, schoolId)` — no single record identifier |
+| `timetable_slot_allocations` | timetable | Composite PK `(slotId, timetableAllocationId)` — no single record identifier |
+| `timetable_allocation_allowed_venues` | timetable | Composite PK `(timetableAllocationId, venueId)` — no single record identifier |
+| `timetable_allocation_venue_types` | timetable | Composite PK `(timetableAllocationId, venueTypeId)` — no single record identifier |
+| `registration_request_receipts` | registry | No primary key — unique constraint only `(registrationRequestId, receiptId)` |
+| `graduation_request_receipts` | registry | No primary key — unique constraint only `(graduationRequestId, receiptId)` |
 
 ## Expected Files
 
 | File | Purpose |
 |------|---------|
-| `drizzle/XXXX_custom_audit_triggers.sql` | Custom migration creating all 92 triggers |
+| `drizzle/XXXX_custom_audit_triggers.sql` | Custom migration creating all 87 triggers |
 
 ## Validation Criteria
 
 1. Migration runs successfully
-2. All 92 triggers exist in the database: `SELECT tgname FROM pg_trigger WHERE tgname LIKE 'audit_%';`
+2. All 87 triggers exist in the database: `SELECT tgname FROM pg_trigger WHERE tgname LIKE 'audit_%';`
 3. Inserting a row into any audited table creates a corresponding row in `audit_logs`
 4. Updating a row creates an `UPDATE` audit entry with old and new values
 5. Deleting a row creates a `DELETE` audit entry with old values
@@ -209,7 +201,6 @@ CREATE TRIGGER audit_<table_name>
 ## Notes
 
 - Generate triggers in alphabetical order for maintainability
-- If a table has a composite primary key, use the first column as the PK argument to the trigger
 - The `students` table uses `std_no` as PK, not `id` — the trigger argument must reflect this
-- `publication_attachments` appears in both registry and library barrel exports — only create one trigger
-- Review any tables with `id` vs auto-generated PKs to ensure the correct column is referenced
+- All other auditable tables use `id` as PK (whether serial integer or text nanoid)
+- Tables with composite PKs or no PK are excluded — they are junction/link tables with low audit value

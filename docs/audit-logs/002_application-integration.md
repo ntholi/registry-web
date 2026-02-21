@@ -2,82 +2,116 @@
 
 ## Introduction
 
-With the audit table and trigger function created in Step 1, this step integrates user attribution into the application layer. Every database operation must set `app.current_user_id` as a PostgreSQL session variable so triggers can record _who_ made the change.
+With the audit table and trigger function created in Step 1, this step integrates user attribution into the application layer. Every database write that should be attributed to a user must set `app.current_user_id` as a PostgreSQL session variable so triggers can record _who_ made the change.
 
 ## Context
 
-PostgreSQL triggers execute at the database level and don't have access to the application's auth session. The standard solution is to inject a session variable via `SET LOCAL app.current_user_id = '...'` before each operation. `SET LOCAL` scopes the variable to the current transaction, so it's safe for connection pooling.
+PostgreSQL triggers execute at the database level and don't have access to the application's auth session. The solution is to inject a session variable via `SET LOCAL app.current_user_id = '...'` inside a transaction before the operation. `SET LOCAL` scopes the variable to the current transaction, so it's safe for connection pooling.
+
+This step uses a **lightweight transaction wrapper utility** — `BaseRepository` and `BaseService` are NOT modified. Services that need audit attribution use the wrapper explicitly.
 
 ## Requirements
 
-### 1. Database Utility: `setAuditUser`
+### 1. Audit Utility: `withAudit`
 
-Create a utility function in `src/core/database/audit.ts`:
+Create `src/core/database/audit.ts`:
+
+```
+function withAudit<R>(
+  userId: string,
+  fn: (tx: Transaction) => Promise<R>,
+  metadata?: Record<string, unknown>
+): Promise<R>
+```
+
+**Behavior:**
+1. Opens a `db.transaction()`
+2. Executes `SET LOCAL app.current_user_id = '<userId>'`
+3. If `metadata` is provided, executes `SET LOCAL app.audit_metadata = '<JSON>'`
+4. Calls `fn(tx)` — the caller performs their write operations using `tx`
+5. Returns the result
+
+Also export a lower-level helper for code that already has a transaction:
 
 ```
 function setAuditUser(tx: Transaction, userId: string): Promise<void>
+function setAuditMetadata(tx: Transaction, metadata: Record<string, unknown>): Promise<void>
 ```
 
-- Executes `SET LOCAL app.current_user_id = '<userId>'` on the given transaction
-- Used inside `db.transaction(async (tx) => { ... })` blocks
+### 2. Usage Pattern
 
-### 2. Modify `BaseRepository`
+Services that need audit attribution wrap their write operations:
 
-Update `src/core/platform/BaseRepository.ts` to support audit context:
-
-**Changes to `create()`, `update()`, `delete()` methods:**
-- Wrap each in a `db.transaction()` call
-- Call `setAuditUser(tx, userId)` at the start of the transaction
-- The `userId` comes from a new optional parameter or a context mechanism
-
-**Approach — Audit Context via class method:**
-
-Add a protected method:
-```
-protected async withAuditContext<R>(userId: string, fn: (tx) => Promise<R>): Promise<R>
+```ts
+// In a service method (inside withAuth callback where session is available)
+async create(data: NewEntity) {
+  return withAuth(async (session) => {
+    return withAudit(session.user.id, async (tx) => {
+      const [created] = await tx.insert(entities).values(data).returning();
+      return created;
+    });
+  }, this.config.createRoles);
+}
 ```
 
-This wraps a transaction, sets the audit user, and executes the callback.
+For operations that need to pass reasons/metadata:
 
-Modify `create`, `update`, `delete` to use `withAuditContext` when a session is available.
+```ts
+async update(id: number, data: Partial<Entity>, reasons?: string) {
+  return withAuth(async (session) => {
+    return withAudit(session.user.id, async (tx) => {
+      const [updated] = await tx.update(entities).set(data).where(eq(entities.id, id)).returning();
+      return updated;
+    }, reasons ? { reasons } : undefined);
+  }, this.config.updateRoles);
+}
+```
 
-### 3. Modify `BaseService` 
+### 3. When to Use `withAudit`
 
-Update `src/core/platform/BaseService.ts`:
+| Scenario | Use `withAudit`? | Reason |
+|----------|-----------------|--------|
+| Standard CRUD via BaseService | **Yes** — wrap the repo call | Attribute the change to the logged-in user |
+| System/migration operations | **No** | `changedBy` will be NULL — acceptable |
+| Read operations | **No** | Triggers only fire on writes |
+| Custom transaction logic | Use `setAuditUser(tx, userId)` | Already in a transaction — use the lower-level helper |
 
-The `create`, `update`, and `delete` methods already use `withAuth` which has the session. Pass the `session.user.id` down to the repository's audit-aware methods.
+### 4. Adopting `withAudit` in Existing Services
 
-**Changes:**
-- `create(data)` → gets session from `withAuth`, calls `repository.create(data, session.user.id)`
-- `update(id, data)` → gets session from `withAuth`, calls `repository.update(id, data, session.user.id)`
-- `delete(id)` → gets session from `withAuth`, calls `repository.delete(id, session.user.id)`
+This step does NOT require modifying every service immediately. The triggers will fire regardless — `changedBy` will simply be NULL if `withAudit` is not used.
 
-### 4. Fallback for System Operations
+**Priority adoption** (services handling sensitive data):
+- Student-related services (registry)
+- Assessment/marks services (academic)
+- Payment/finance services (finance)
+- User management services (admin)
+
+Other services can adopt `withAudit` incrementally over time.
+
+### 5. Fallback for System Operations
 
 Some operations run without a user session (e.g., migrations, cron jobs, seed scripts). In these cases:
-- `changedBy` should be `NULL`
+- `changedBy` will be `NULL`
 - The trigger function already handles this: `current_setting('app.current_user_id', true)` returns NULL if not set
 
 ## Expected Files
 
 | File | Purpose |
 |------|---------|
-| `src/core/database/audit.ts` | `setAuditUser` utility function |
-| `src/core/platform/BaseRepository.ts` | Modified to support audit context |
-| `src/core/platform/BaseService.ts` | Modified to pass user ID from session |
+| `src/core/database/audit.ts` | `withAudit`, `setAuditUser`, `setAuditMetadata` utility functions |
 
 ## Validation Criteria
 
-1. `BaseRepository.create()` sets `app.current_user_id` in the transaction
-2. `BaseRepository.update()` sets `app.current_user_id` in the transaction
-3. `BaseRepository.delete()` sets `app.current_user_id` in the transaction
-4. Operations without a session still work (user ID is NULL in audit log)
-5. All existing tests/features continue to work (backward compatible)
-6. `pnpm tsc --noEmit` passes
+1. `withAudit` correctly sets `app.current_user_id` within a transaction
+2. `setAuditMetadata` correctly sets `app.audit_metadata` as JSON
+3. Operations without `withAudit` still work (user ID is NULL in audit log)
+4. All existing tests/features continue to work (no breaking changes)
+5. `pnpm tsc --noEmit` passes
 
 ## Notes
 
 - `SET LOCAL` is scoped to the current transaction. This is critical — it doesn't leak across requests sharing the same connection pool
-- The `withAuditContext` method should be used internally; external callers continue using the same API
-- Repositories that override `create`/`update`/`delete` with custom transaction logic should call `setAuditUser(tx, userId)` at the start of their transaction
-- After this step, ANY table with an audit trigger will automatically log the user who performed the operation — zero per-feature code needed
+- `BaseRepository` and `BaseService` are NOT modified — this approach is non-invasive
+- The `withAudit` wrapper is used explicitly by service methods that need attribution, giving full control over when audit context is set
+- After this step, ANY table with an audit trigger will automatically log the user who performed the operation — zero per-feature audit code needed
+- Services that already use custom transactions should use `setAuditUser(tx, userId)` at the start of their existing transaction instead of wrapping with `withAudit`

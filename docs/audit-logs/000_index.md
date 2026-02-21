@@ -30,7 +30,7 @@ The app currently has **7 fragmented audit tables** using two different patterns
 ┌────────────────────────────────────────────────────────────┐
 │                    Application Layer                        │
 │                                                            │
-│  BaseRepository ──► SET LOCAL app.current_user_id = '...'  │
+│  withAudit(userId, fn) ──► SET LOCAL app.current_user_id   │
 │                                                            │
 ├────────────────────────────────────────────────────────────┤
 │                    PostgreSQL Layer                         │
@@ -54,17 +54,18 @@ The app currently has **7 fragmented audit tables** using two different patterns
 | Unified audit table | Single `audit_logs` table with JSONB for all entities |
 | DB triggers | PostgreSQL triggers fire on INSERT/UPDATE/DELETE automatically |
 | User attribution | Session variable `app.current_user_id` passed from app layer |
+| Metadata support | Optional `metadata` JSONB column for reasons, context, etc. |
 | Migration | Existing 7 audit tables migrated to the new unified table |
 | Query UI | Audit history viewable per-entity and globally |
-| 92 tables audited | All meaningful tables tracked (22 excluded) |
+| 87 tables audited | All meaningful tables tracked (28 excluded) |
 
 ## Implementation Steps
 
 | Step | File | Description |
 |------|------|-------------|
 | 1 | [001_unified-audit-schema.md](001_unified-audit-schema.md) | Create the unified `audit_logs` table schema and PG trigger function |
-| 2 | [002_application-integration.md](002_application-integration.md) | Integrate session variable injection into BaseRepository |
-| 3 | [003_table-triggers.md](003_table-triggers.md) | Create triggers for all 92 auditable tables |
+| 2 | [002_application-integration.md](002_application-integration.md) | Create `withAudit` transaction wrapper utility for user attribution |
+| 3 | [003_table-triggers.md](003_table-triggers.md) | Create triggers for all 87 auditable tables |
 | 4 | [004_migration.md](004_migration.md) | Migrate existing 7 audit tables into the new unified table |
 | 5 | [005_audit-ui.md](005_audit-ui.md) | Build query UI for viewing audit logs per entity and globally |
 | 6 | [006_cleanup.md](006_cleanup.md) | Remove old audit code paths and deprecated tables |
@@ -84,7 +85,7 @@ The app currently has **7 fragmented audit tables** using two different patterns
 │ new_values    JSONB                   │
 │ changed_by    TEXT (FK → users.id)    │
 │ changed_at    TIMESTAMPTZ NOT NULL    │
-│ ip_address    TEXT                    │
+│ metadata      JSONB                   │
 └──────────────────────────────────────┘
     │
     │ Indexes:
@@ -96,11 +97,11 @@ The app currently has **7 fragmented audit tables** using two different patterns
 
 ## Tables Audit Classification
 
-### Audited Tables (92 tables)
+### Audited Tables (87 tables)
 
 See [003_table-triggers.md](003_table-triggers.md) for the complete list organized by module.
 
-### Excluded Tables (22 tables)
+### Excluded Tables (28 tables)
 
 | Table | Reason |
 |-------|--------|
@@ -126,6 +127,12 @@ See [003_table-triggers.md](003_table-triggers.md) for the complete list organiz
 | `statement_of_results_prints` | Operational print log, high-volume low-value for audit trail |
 | `student_card_prints` | Operational print log, high-volume low-value for audit trail |
 | `transcript_prints` | Operational print log, high-volume low-value for audit trail |
+| `venue_schools` | Composite PK junction table — no single record identifier |
+| `timetable_slot_allocations` | Composite PK junction table — no single record identifier |
+| `timetable_allocation_allowed_venues` | Composite PK junction table — no single record identifier |
+| `timetable_allocation_venue_types` | Composite PK junction table — no single record identifier |
+| `registration_request_receipts` | No primary key (unique constraint only) |
+| `graduation_request_receipts` | No primary key (unique constraint only) |
 
 ## Access Control
 

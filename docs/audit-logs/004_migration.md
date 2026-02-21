@@ -20,11 +20,12 @@ Create a custom migration via `pnpm db:generate --custom` that copies data from 
 |--------------|---------------|-----------|
 | — | `table_name` | `'students'` (literal) |
 | `std_no` | `record_id` | `std_no::text` |
-| `operation` | `operation` | `UPPER(operation)` → `'CREATE'`→`'INSERT'`, `'update'`→`'UPDATE'` |
+| `operation` | `operation` | `UPPER(operation)` → `'create'`→`'INSERT'`, `'update'`→`'UPDATE'` |
 | `old_values` | `old_values` | Direct copy |
 | `new_values` | `new_values` | Direct copy |
 | `updated_by` | `changed_by` | Direct copy |
 | `updated_at` | `changed_at` | Direct copy |
+| `reasons` | `metadata` | `jsonb_build_object('reasons', reasons)` when not null |
 
 #### Mapping: `student_program_audit_logs` → `audit_logs`
 
@@ -36,8 +37,7 @@ Create a custom migration via `pnpm db:generate --custom` that copies data from 
 | `old_values` | `old_values` | Direct copy |
 | `new_values` | `new_values` | Direct copy |
 | `updated_by` | `changed_by` | Direct copy |
-| `updated_at` | `changed_at` | Direct copy |
-
+| `updated_at` | `changed_at` | Direct copy || `reasons` | `metadata` | `jsonb_build_object('reasons', reasons)` when not null |
 #### Mapping: `student_semester_audit_logs` → `audit_logs`
 
 | Source Column | Target Column | Transform |
@@ -48,8 +48,7 @@ Create a custom migration via `pnpm db:generate --custom` that copies data from 
 | `old_values` | `old_values` | Direct copy |
 | `new_values` | `new_values` | Direct copy |
 | `updated_by` | `changed_by` | Direct copy |
-| `updated_at` | `changed_at` | Direct copy |
-
+| `updated_at` | `changed_at` | Direct copy || `reasons` | `metadata` | `jsonb_build_object('reasons', reasons)` when not null |
 #### Mapping: `student_module_audit_logs` → `audit_logs`
 
 | Source Column | Target Column | Transform |
@@ -60,8 +59,7 @@ Create a custom migration via `pnpm db:generate --custom` that copies data from 
 | `old_values` | `old_values` | Direct copy |
 | `new_values` | `new_values` | Direct copy |
 | `updated_by` | `changed_by` | Direct copy |
-| `updated_at` | `changed_at` | Direct copy |
-
+| `updated_at` | `changed_at` | Direct copy || `reasons` | `metadata` | `jsonb_build_object('reasons', reasons)` when not null |
 #### Mapping: `assessments_audit` → `audit_logs`
 
 | Source Column | Target Column | Transform |
@@ -97,6 +95,7 @@ Create a custom migration via `pnpm db:generate --custom` that copies data from 
 | — | `new_values` | `jsonb_build_object('status', new_status, 'message', message, 'modules', modules)` |
 | `created_by` | `changed_by` | Direct copy |
 | `date` | `changed_at` | Direct copy |
+| `message` | `metadata` | `jsonb_build_object('reasons', message)` when message is not null |
 
 ### 2. Verification Query
 
