@@ -92,11 +92,21 @@ SELECT
   'assessments',
   assessment_id::text,
   CASE action WHEN 'create' THEN 'INSERT' WHEN 'update' THEN 'UPDATE' WHEN 'delete' THEN 'DELETE' ELSE UPPER(action) END,
-  CASE WHEN previous_total IS NOT NULL THEN
-    jsonb_build_object('total', previous_total, 'weight', previous_weight, 'name', previous_name)
+  CASE WHEN previous_total_marks IS NOT NULL OR previous_weight IS NOT NULL THEN
+    jsonb_build_object(
+      'assessmentNumber', previous_assessment_number,
+      'assessmentType', previous_assessment_type,
+      'totalMarks', previous_total_marks,
+      'weight', previous_weight
+    )
   ELSE NULL END,
-  CASE WHEN new_total IS NOT NULL THEN
-    jsonb_build_object('total', new_total, 'weight', new_weight, 'name', new_name)
+  CASE WHEN new_total_marks IS NOT NULL OR new_weight IS NOT NULL THEN
+    jsonb_build_object(
+      'assessmentNumber', new_assessment_number,
+      'assessmentType', new_assessment_type,
+      'totalMarks', new_total_marks,
+      'weight', new_weight
+    )
   ELSE NULL END,
   created_by,
   COALESCE(date, NOW()),
@@ -127,14 +137,19 @@ INSERT INTO audit_logs (table_name, record_id, operation, old_values, new_values
 SELECT
   'clearance',
   clearance_id::text,
-  'UPDATE',
-  jsonb_build_object('status', previous_status),
+  CASE WHEN previous_status IS NULL THEN 'INSERT' ELSE 'UPDATE' END,
+  CASE WHEN previous_status IS NOT NULL THEN jsonb_build_object('status', previous_status) ELSE NULL END,
   jsonb_build_object('status', new_status, 'message', message),
   created_by,
   COALESCE(date, NOW()),
-  CASE WHEN message IS NOT NULL THEN jsonb_build_object('reasons', message) ELSE NULL END
+  jsonb_strip_nulls(jsonb_build_object(
+    'reasons', message,
+    'modules', CASE WHEN modules IS NOT NULL AND modules != '[]'::jsonb THEN modules ELSE NULL END
+  ))
 FROM clearance_audit;
 ```
+
+> **Note**: The clearance audit table has a `modules` JSONB column (array of module codes) that records which modules were being registered. This is preserved in `metadata.modules`.
 
 ### 3. Verification
 

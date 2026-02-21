@@ -4,6 +4,17 @@
 
 This is the core step. Modify `BaseRepository` to automatically write audit log entries when `create`, `update`, or `delete` is called with an `AuditOptions` parameter. Operations are wrapped in a transaction for atomicity.
 
+## CRITICAL: Custom Repository Override Strategy
+
+Several repositories override `create`/`update`/`delete` with **different signatures** (e.g., `AssessmentRepository.create(data, lmsData?)`, `ClearanceRepository.create(data & { registrationRequestId })`). These custom overrides:
+
+1. **Bypass BaseRepository's automatic audit** — they have their own `db.transaction()` blocks
+2. **Should NOT be forced to match** the `(entity, audit?)` signature
+3. **Use `this.writeAuditLog(tx, ...)` directly** inside their own transaction blocks instead
+4. **Receive `userId` via `AuditOptions`** passed from the service layer (see Step 003), removing the need for `await auth()` in repositories
+
+The `audit?` parameter on base methods is strictly for **standard CRUD** that flows through BaseService. Custom overrides manage their own auditing.
+
 ## Requirements
 
 ### 1. AuditOptions Type
@@ -329,7 +340,7 @@ Add to the top of `BaseRepository.ts`:
 
 ```typescript
 import { getTableConfig } from 'drizzle-orm/pg-core';
-import { auditLogs } from '@audit-logs/_schema/auditLogs';
+import { auditLogs } from '@/core/database/schema/auditLogs';
 ```
 
 Also export the `TransactionClient` type and `AuditOptions` interface:
@@ -421,9 +432,10 @@ await repo.delete(id, { userId: 'user-123' });
 
 ## Notes
 
-- The `auditLogs` import in `BaseRepository.ts` is the ONLY schema import in this file. Since `BaseRepository` is server-only code (uses `db`), this is acceptable per the schema import rules.
+- The `auditLogs` import in `BaseRepository.ts` comes from `@/core/database/schema/auditLogs` — it's infrastructure-level code, not a feature module import.
 - The `update` method does an extra SELECT to capture old values. This is the inherent cost of application-level auditing. DB triggers have `OLD` and `NEW` built into the trigger context.
 - `deleteAll()` is NOT audited — it's a destructive bulk operation that should be used sparingly and manually logged if needed.
 - `writeAuditLog` is `protected` so subclass repositories can call it within their custom `db.transaction()` blocks. This is essential for complex repositories like `AssessmentRepository` and `ClearanceRepository` that override base methods and have multi-step transactions.
 - `writeAuditLogBatch` is `protected` for the same reason — subclasses doing batch writes (e.g., bulk marks update) can use a single batch INSERT instead of N individual audit INSERTs.
 - `TransactionClient` type is exported so subclasses can properly type their transaction parameters.
+- **Custom override strategy**: Repositories that override `create`/`update`/`delete` with different signatures (like `AssessmentRepository.create(data, lmsData?)`) do NOT use the base class `audit?` parameter. Instead, they call `this.writeAuditLog(tx, ...)` directly within their own transactions. The `audit?` parameter only applies to standard CRUD that flows through the unmodified base methods.

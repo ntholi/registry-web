@@ -85,7 +85,43 @@ class StudentModuleService extends BaseService<typeof studentModules, 'id'> {
 }
 ```
 
-### 5. Read-Only Methods — No Changes
+### 5. Custom Overrides: Threading AuditOptions to Repositories with Custom Signatures
+
+Repositories that override `create`/`update`/`delete` with different signatures (like `AssessmentRepository.create(data, lmsData?)`) do NOT receive audit options through the standard `BaseService.create()` call. Instead, their **service subclasses** must pass `AuditOptions` explicitly:
+
+```typescript
+class AssessmentService extends BaseService<typeof assessments, 'id'> {
+  async create(
+    data: typeof assessments.$inferInsert,
+    lmsData?: Omit<typeof lmsAssessments.$inferInsert, 'assessmentId'>
+  ) {
+    const roles = this.createRoles() as Role[] | AccessCheckFunction;
+    return withAuth(async (session) => {
+      const audit = this.buildAuditOptions(session);
+      return (this.repository as AssessmentRepository).create(data, lmsData, audit);
+    }, roles as Role[]);
+  }
+}
+```
+
+The corresponding repository method signature becomes:
+```typescript
+override async create(
+  data: typeof assessments.$inferInsert,
+  lmsData?: ...,
+  audit?: AuditOptions
+) { ... }
+```
+
+This pattern applies to:
+- `AssessmentService` → `AssessmentRepository.create(data, lmsData?, audit?)`
+- `AssessmentService` → `AssessmentRepository.updateWithGradeRecalculation(id, data, lmsData?, audit?)`
+- `ClearanceService` → `ClearanceRepository.create(data, audit?)`
+- `ClearanceService` → `ClearanceRepository.update(id, data, audit?)`
+- `AssessmentMarksService` → `AssessmentMarkRepository.createOrUpdateMarks(data, audit?)`
+- `AssessmentMarksService` → `AssessmentMarkRepository.createOrUpdateMarksInBulk(dataArray, batchSize?, audit?)`
+
+### 6. Read-Only Methods — No Changes
 
 These methods are NOT modified (no audit needed for reads):
 

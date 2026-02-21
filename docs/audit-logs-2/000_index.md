@@ -107,6 +107,7 @@ interface AuditOptions {
 │ new_values    JSONB                   │
 │ changed_by    TEXT (FK → users.id)    │
 │ changed_at    TIMESTAMPTZ NOT NULL    │
+│ synced_at     TIMESTAMPTZ            │
 │ metadata      JSONB                   │
 └──────────────────────────────────────┘
     │
@@ -114,19 +115,23 @@ interface AuditOptions {
     ├── idx_audit_logs_table_record (table_name, record_id)
     ├── idx_audit_logs_changed_by (changed_by)
     ├── idx_audit_logs_changed_at (changed_at)
-    └── idx_audit_logs_table_operation (table_name, operation)
+    ├── idx_audit_logs_table_operation (table_name, operation)
+    └── idx_audit_logs_synced_at (synced_at)
+```
+
+> **Schema location**: `src/core/database/schema/auditLogs.ts` — placed in `core/database/` because `BaseRepository` depends on it (core→core dependency, not core→feature).
 ```
 
 ## Implementation Steps
 
 | Step | File | Description |
 |------|------|-------------|
-| 1 | [001_unified-audit-schema.md](001_unified-audit-schema.md) | Create the unified `audit_logs` Drizzle schema |
+| 1 | [001_unified-audit-schema.md](001_unified-audit-schema.md) | Create the unified `audit_logs` Drizzle schema in `core/database/` |
 | 2 | [002_base-repository-audit.md](002_base-repository-audit.md) | Modify `BaseRepository` to support automatic audit logging |
 | 3 | [003_base-service-audit.md](003_base-service-audit.md) | Modify `BaseService` to thread `session.user.id` into audit options |
 | 4 | [004_migration.md](004_migration.md) | Migrate existing 7 legacy audit tables into the unified table |
-| 5 | [005_audit-ui.md](005_audit-ui.md) | Build unified audit log viewer and per-record history components |
-| 6 | [006_cleanup.md](006_cleanup.md) | Remove legacy audit code and tables |
+| 5 | [005_audit-ui.md](005_audit-ui.md) | Build unified audit log viewer, per-record history, and sync support |
+| 6 | [006_cleanup.md](006_cleanup.md) | Remove legacy audit code/tables, migrate edit modals to owning modules |
 
 ## Tables Audit Classification
 

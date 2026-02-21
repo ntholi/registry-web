@@ -22,6 +22,9 @@ class AuditLogRepository extends BaseRepository<typeof auditLogs, 'id'> {
   async findByUser(userId: string, page: number, size: number) { ... }
   async findByTable(tableName: string, page: number, size: number) { ... }
   async findDistinctTables(): Promise<string[]> { ... }
+  async findUnsynced() { ... }
+  async markAsSynced(id: bigint) { ... }
+  async findByStudentModule(studentModuleId: number) { ... }
 }
 ```
 
@@ -34,8 +37,13 @@ class AuditLogRepository extends BaseRepository<typeof auditLogs, 'id'> {
 | `findByUser` | `userId, page, size` | Paginated results | Changes by a user |
 | `findByTable` | `tableName, page, size` | Paginated results | Changes on a table |
 | `findDistinctTables` | — | `string[]` | Unique table names for filter dropdown |
+| `findUnsynced` | — | Audit entries[] | Entries with `syncedAt IS NULL` (for external sync) |
+| `markAsSynced` | `id` | Updated entry | Sets `syncedAt = NOW()` |
+| `findByStudentModule` | `studentModuleId` | Audit entries with user info | Replaces `AssessmentMarkRepository.getStudentAuditHistory()` — queries assessment_marks entries linked to a student module |
 
 All queries should join with `users` to include `name`, `email`, `image` for display.
+
+> **`findByStudentModule` implementation note**: This replaces the legacy `getStudentAuditHistory` which queried `assessment_marks_audit` joined with `assessment_marks` to find all audit entries for a student module. The new implementation queries `audit_logs WHERE table_name = 'assessment_marks' AND record_id IN (SELECT id::text FROM assessment_marks WHERE student_module_id = ?)`.  
 
 ### 2. Service Layer
 
@@ -53,6 +61,9 @@ Create `src/app/audit-logs/_server/actions.ts`:
 | `getRecordHistory` | `tableName, recordId` | History for a specific record |
 | `getAuditLog` | `id` | Single audit entry detail |
 | `getDistinctTables` | — | Table names for filter dropdown |
+| `getUnsyncedAuditLogs` | — | Entries not yet synced externally |
+| `markAuditLogSynced` | `id` | Mark a single entry as synced |
+| `getStudentModuleAuditHistory` | `studentModuleId` | Assessment marks audit for a student module (replaces legacy `getStudentAuditHistory`) |
 
 ### 4. Global Audit Log Page
 

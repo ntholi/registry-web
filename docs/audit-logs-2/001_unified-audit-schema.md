@@ -8,7 +8,9 @@ Create the single `audit_logs` Drizzle table that stores all audit entries as JS
 
 ### 1. Drizzle Schema
 
-Create `src/app/audit-logs/_schema/auditLogs.ts`:
+The `auditLogs` schema is **infrastructure-level** (used by `BaseRepository` in `core/platform/`), so it lives in `core/database/` — not in `app/audit-logs/`.
+
+Create `src/core/database/schema/auditLogs.ts`:
 
 ```typescript
 import { users } from '@auth/users/_schema/users';
@@ -32,6 +34,7 @@ export const auditLogs = pgTable(
     newValues: jsonb(),
     changedBy: text().references(() => users.id, { onDelete: 'set null' }),
     changedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+    syncedAt: timestamp({ withTimezone: true }),
     metadata: jsonb(),
   },
   (table) => [
@@ -39,13 +42,16 @@ export const auditLogs = pgTable(
     index('idx_audit_logs_changed_by').on(table.changedBy),
     index('idx_audit_logs_changed_at').on(table.changedAt),
     index('idx_audit_logs_table_operation').on(table.tableName, table.operation),
+    index('idx_audit_logs_synced_at').on(table.syncedAt),
   ]
 );
 ```
 
+> **Why `core/database/`?** `BaseRepository` (in `core/platform/`) imports this schema. Placing it in `app/audit-logs/` would create a core→feature dependency. The `auditLogs` table is comparable to `users` — it's foundational infrastructure, not a feature.
+
 ### 2. Relations
 
-Create `src/app/audit-logs/_schema/relations.ts`:
+Create `src/core/database/schema/auditLogsRelations.ts`:
 
 ```typescript
 import { relations } from 'drizzle-orm';
@@ -62,11 +68,17 @@ export const auditLogsRelations = relations(auditLogs, ({ one }) => ({
 
 ### 3. Update Barrel Export
 
-Add to `src/app/audit-logs/_database/index.ts`:
+Add to `src/core/database/index.ts`:
 
 ```typescript
-export * from '../_schema/auditLogs';
-export * from '../_schema/relations';
+export * from './schema/auditLogs';
+export * from './schema/auditLogsRelations';
+```
+
+Also add to `src/app/audit-logs/_database/index.ts` (re-export for convenience):
+
+```typescript
+export { auditLogs, auditLogsRelations } from '@/core/database';
 // ... existing legacy exports (removed in step 006)
 ```
 
@@ -86,6 +98,7 @@ Run `pnpm db:generate` to create the migration for the new table.
 | `newValues` | `jsonb` | nullable | Full row snapshot after change (NULL on DELETE) |
 | `changedBy` | `text` | FK → users.id, nullable | User who performed the operation |
 | `changedAt` | `timestamptz` | NOT NULL, DEFAULT NOW() | When the change occurred |
+| `syncedAt` | `timestamptz` | nullable | When this entry was synced to an external system (NULL = unsynced) |
 | `metadata` | `jsonb` | nullable | Optional context: reasons, IP address, custom data |
 
 ## Index Strategy
@@ -96,6 +109,7 @@ Run `pnpm db:generate` to create the migration for the new table.
 | `idx_audit_logs_changed_by` | `(changedBy)` | User activity queries |
 | `idx_audit_logs_changed_at` | `(changedAt)` | Time-range filtering, retention |
 | `idx_audit_logs_table_operation` | `(tableName, operation)` | Filter by table + operation type |
+| `idx_audit_logs_synced_at` | `(syncedAt)` | Efficiently find unsynced entries |
 
 ## Validation Criteria
 

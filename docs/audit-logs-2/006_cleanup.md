@@ -42,6 +42,17 @@ Delete:
 - `src/app/audit-logs/student-semesters/_components/`
 - `src/app/audit-logs/student-modules/_components/`
 
+> **IMPORTANT**: These components are actively used. See Section 12 (Edit Modal Migration) before deleting.
+
+### 3a. Remove Legacy Barrel Exports
+
+After migrating edit modals (Section 12), delete:
+
+- `src/app/audit-logs/students/index.ts`
+- `src/app/audit-logs/student-programs/index.ts`
+- `src/app/audit-logs/student-semesters/index.ts`
+- `src/app/audit-logs/student-modules/index.ts`
+
 ### 4. Update References
 
 #### 4a. Legacy `*WithAudit()` Methods → BaseRepository API
@@ -60,35 +71,41 @@ These repositories override `create`/`update`/`delete` or have custom methods th
 
 **`AssessmentRepository` (`src/app/academic/assessments/_server/repository.ts`)**
 
+These methods currently call `await auth()` inline — after refactoring, `userId` is passed explicitly via an `audit: AuditOptions` parameter from the service layer.
+
 | Method | Current | Replace With |
 |--------|---------|--------------|
-| `create()` | `tx.insert(assessmentsAudit).values({...})` | `this.writeAuditLog(tx, 'INSERT', String(assessment.id), null, assessment, { userId: session.user.id })` |
-| `delete()` | `tx.insert(assessmentsAudit).values({...})` | `this.writeAuditLog(tx, 'DELETE', String(id), current, null, { userId: session.user.id })` |
-| `updateWithGradeRecalculation()` | `tx.insert(assessmentsAudit).values({...})` | `this.writeAuditLog(tx, 'UPDATE', String(id), current, assessment, { userId: session.user.id })` |
+| `create(data, lmsData?)` | `await auth()` + `tx.insert(assessmentsAudit)` | Add `audit?: AuditOptions` param; use `this.writeAuditLog(tx, 'INSERT', String(assessment.id), null, assessment, audit)` |
+| `delete(id)` | `await auth()` + `tx.insert(assessmentsAudit)` | Add `audit?: AuditOptions` param; use `this.writeAuditLog(tx, 'DELETE', String(id), current, null, audit)` |
+| `updateWithGradeRecalculation(id, data, lmsData?)` | `await auth()` + `tx.insert(assessmentsAudit)` | Add `audit?: AuditOptions` param; use `this.writeAuditLog(tx, 'UPDATE', String(id), current, assessment, audit)` |
 
 **`AssessmentMarksRepository` (`src/app/academic/assessment-marks/_server/repository.ts`)**
 
+Same pattern — replace `await auth()` + legacy audit insert with `AuditOptions` param + `this.writeAuditLog()`.
+
 | Method | Current | Replace With |
 |--------|---------|--------------|
-| `create()` | `tx.insert(assessmentMarksAudit).values({...})` | `this.writeAuditLog(tx, 'INSERT', String(mark.id), null, mark, { userId: session.user.id })` |
-| `update()` | `tx.insert(assessmentMarksAudit).values({...})` | `this.writeAuditLog(tx, 'UPDATE', String(id), current, mark, { userId: session.user.id })` |
-| `delete()` | `tx.insert(assessmentMarksAudit).values({...})` | `this.writeAuditLog(tx, 'DELETE', String(id), current, null, { userId: session.user.id })` |
-| `createOrUpdateMarks()` | `tx.insert(assessmentMarksAudit).values({...})` (×2) | `this.writeAuditLog(tx, 'INSERT'/'UPDATE', ...)` per branch |
-| `createOrUpdateMarksInBulk()` | `tx.insert(assessmentMarksAudit).values(batchAuditEntries)` | `this.writeAuditLogBatch(tx, entries, { userId: session.user.id })` |
+| `create(data)` | `await auth()` + `tx.insert(assessmentMarksAudit)` | Add `audit?: AuditOptions` param; use `this.writeAuditLog(tx, 'INSERT', String(mark.id), null, mark, audit)` |
+| `update(id, data)` | `await auth()` + `tx.insert(assessmentMarksAudit)` | Add `audit?: AuditOptions` param; use `this.writeAuditLog(tx, 'UPDATE', String(id), current, mark, audit)` |
+| `delete(id)` | `await auth()` + `tx.insert(assessmentMarksAudit)` | Add `audit?: AuditOptions` param; use `this.writeAuditLog(tx, 'DELETE', String(id), current, null, audit)` |
+| `createOrUpdateMarks(data)` | `await auth()` + `tx.insert(assessmentMarksAudit)` (×2) | Add `audit?: AuditOptions` param; use `this.writeAuditLog(tx, 'INSERT'/'UPDATE', ...)` per branch |
+| `createOrUpdateMarksInBulk(dataArray)` | `await auth()` + `tx.insert(assessmentMarksAudit).values(batchAuditEntries)` | Add `audit?: AuditOptions` param; use `this.writeAuditLogBatch(tx, entries, audit)` |
 
 **`ClearanceRepository` (registration) (`src/app/registry/registration/requests/_server/clearance/repository.ts`)**
 
 | Method | Current | Replace With |
 |--------|---------|--------------|
-| `create()` | `tx.insert(clearanceAudit).values({...})` | `this.writeAuditLog(tx, 'INSERT', String(clearanceRecord.id), null, clearanceRecord, { userId: session.user.id, metadata: { modules: modulesList.map(...) } })` |
-| `update()` | `tx.insert(clearanceAudit).values({...})` | `this.writeAuditLog(tx, 'UPDATE', String(id), current, clearanceRecord, { userId: session.user.id, metadata: { modules: modulesList.map(...) } })` |
+| `create(data)` | `await auth()` + `tx.insert(clearanceAudit)` | Add `audit?: AuditOptions` param; use `this.writeAuditLog(tx, 'INSERT', String(clearanceRecord.id), null, clearanceRecord, audit)` with `metadata: { modules: modulesList.map(...) }` |
+| `update(id, data)` | `await auth()` + `tx.insert(clearanceAudit)` | Add `audit?: AuditOptions` param; use `this.writeAuditLog(tx, 'UPDATE', String(id), current, clearanceRecord, audit)` with `metadata: { modules: modulesList.map(...) }` |
 
 **`ClearanceRepository` (graduation) (`src/app/registry/graduation/clearance/_server/clearance/repository.ts`)**
 
 | Method | Current | Replace With |
 |--------|---------|--------------|
-| `create()` | `tx.insert(clearanceAudit).values({...})` | `this.writeAuditLog(tx, 'INSERT', String(clearanceRecord.id), null, clearanceRecord, { userId: session.user.id })` |
-| `update()` | `tx.insert(clearanceAudit).values({...})` | `this.writeAuditLog(tx, 'UPDATE', String(id), current, clearanceRecord, { userId: session.user.id })` |
+| `create(data)` | `await auth()` + `tx.insert(clearanceAudit)` | Add `audit?: AuditOptions` param; use `this.writeAuditLog(tx, 'INSERT', String(clearanceRecord.id), null, clearanceRecord, audit)` |
+| `update(id, data)` | `await auth()` + `tx.insert(clearanceAudit)` | Add `audit?: AuditOptions` param; use `this.writeAuditLog(tx, 'UPDATE', String(id), current, clearanceRecord, audit)` |
+
+> **Note**: The `modules` context data currently stored in `clearance_audit.modules` should be passed as `metadata: { modules: [...] }` in the `AuditOptions`. The service layer needs to construct this metadata before calling the repository.
 
 #### 4c. Remove `auth()` Calls from Repository Methods
 
@@ -108,13 +125,16 @@ After migration, these repositories should NOT call `auth()` directly — sessio
 
 **`src/app/audit-logs/_database/index.ts`:**
 - Remove exports for all legacy schema files
-- Keep only `auditLogs` and `auditLogsRelations`
+- Keep only re-export of `auditLogs` and `auditLogsRelations` from `@/core/database`
 
 **`src/app/academic/_database/index.ts`:**
 - Remove exports for `assessmentsAudit` and `assessmentMarksAudit`
 
 **`src/app/registry/_database/index.ts`:**
 - Remove export for `clearanceAudit` (if present)
+
+**`src/core/database/index.ts`:**
+- Ensure `auditLogs` and `auditLogsRelations` are exported (added in Step 001)
 
 ### 6. Remove `operationType` pgEnum
 
@@ -157,15 +177,18 @@ protected auditEnabled = false;
 
 Repositories to update (see exclusion list in 000_index.md).
 
-### 10. Remove Legacy `getAuditHistory()` Methods
+### 10. Remove Legacy `getAuditHistory()` and `getStudentAuditHistory()` Methods
 
-These repositories have custom `getAuditHistory()` methods that query legacy audit tables. Replace them with the unified `getRecordHistory(tableName, recordId)` action from Step 005:
+These repositories have custom audit history methods that query legacy audit tables. Replace them with the unified actions from Step 005:
 
 | Repository | Method | Replacement |
 |-----------|--------|-------------|
 | `AssessmentRepository` | `getAuditHistory(assessmentId)` | `getRecordHistory('assessments', assessmentId)` |
 | `AssessmentMarksRepository` | `getAuditHistory(assessmentMarkId)` | `getRecordHistory('assessment_marks', assessmentMarkId)` |
+| `AssessmentMarksRepository` | `getStudentAuditHistory(studentModuleId)` | `getStudentModuleAuditHistory(studentModuleId)` (new action from Step 005) |
 | `StudentAuditLogRepository` | `findByStudentIdWithUser(stdNo)` | `getRecordHistory('students', stdNo)` |
+
+Services and actions that expose these methods (`AssessmentService.getAuditHistory`, `AssessmentMarksService.getStudentAuditHistory`, etc.) must also be updated to call the unified actions instead.
 
 ### 11. Remove Legacy Imports
 
@@ -175,6 +198,49 @@ Remove all imports of legacy audit schemas from repository files:
 - `import { assessmentMarksAudit } from '...'` in `AssessmentMarksRepository`
 - `import { clearanceAudit } from '...'` in both `ClearanceRepository` files
 - `import { studentAuditLogs } from '...'` in `StudentAuditLogRepository`
+
+### 12. Edit Modal Migration (CRITICAL)
+
+The legacy audit modules export edit modals and actions that are actively used by `registry/students` components:
+
+**Current consumer imports:**
+
+| Consumer File | Legacy Import |
+|--------------|---------------|
+| `registry/students/_components/info/StudentView.tsx` | `EditStudentModal` from `@audit-logs/students` |
+| `registry/students/_components/info/StudentView.tsx` | `EditStudentProgramModal`, `CreateStudentProgramModal` from `@audit-logs/student-programs` |
+| `registry/students/_components/academics/AcademicsView.tsx` | `EditStudentProgramModal` from `@audit-logs/student-programs` |
+| `registry/students/_components/academics/AcademicsView.tsx` | `EditStudentSemesterModal` from `@audit-logs/student-semesters` |
+| `registry/students/_components/academics/SemesterTable.tsx` | `EditStudentModuleModal` from `@audit-logs/student-modules` |
+| `registry/students/_components/sponsors/.../EditSemesterSponsorModal.tsx` | `updateStudentSemester` from `@audit-logs/student-semesters` |
+
+**Migration strategy: Move modals to their owning modules**
+
+These modals belong in the registry, not in audit-logs. After migration, `BaseService` handles audit automatically.
+
+| Current Location | New Location | Changes Required |
+|-----------------|--------------|-----------------|
+| `audit-logs/students/_components/EditModal.tsx` | `registry/students/_components/info/EditStudentModal.tsx` | Remove manual audit insert; use `studentService.update()` which auto-audits. Add `reasons` as metadata via a custom service method. |
+| `audit-logs/student-programs/_components/EditModal.tsx` | `registry/students/_components/academics/EditStudentProgramModal.tsx` | Same pattern — use auto-audit. |
+| `audit-logs/student-programs/_components/CreateModal.tsx` | `registry/students/_components/academics/CreateStudentProgramModal.tsx` | Same pattern — use auto-audit. |
+| `audit-logs/student-semesters/_components/EditModal.tsx` | `registry/students/_components/academics/EditStudentSemesterModal.tsx` | Same pattern — use auto-audit. |
+| `audit-logs/student-modules/_components/EditModal.tsx` | `registry/students/_components/academics/EditStudentModuleModal.tsx` | Same pattern — use auto-audit. |
+
+**For each migrated modal:**
+1. Remove the `AuditHistoryTab` and replace with `RecordAuditHistory` from Step 005
+2. Remove manual `updateStudentWithAudit()` calls — use the entity's own service/actions (e.g., `updateStudent()` from `registry/students`)
+3. If the modal includes a `reasons` text field, pass reasons via a custom service method that adds `metadata: { reasons }` to the audit options
+4. Update all consumer import paths
+
+**Actions to move or replace:**
+
+| Current Action | New Action | Module |
+|---------------|------------|--------|
+| `updateStudent` from `@audit-logs/students` | `updateStudent` from `@registry/students` | registry/students |
+| `updateStudentProgram` from `@audit-logs/student-programs` | `updateStudentProgram` from `@registry/students` (or `student-programs` feature) | registry |
+| `createStudentProgram` from `@audit-logs/student-programs` | `createStudentProgram` from the owning feature | registry |
+| `updateStudentSemester` from `@audit-logs/student-semesters` | `updateStudentSemester` from the owning feature | registry |
+| `updateStudentModule` from `@audit-logs/student-modules` | `updateStudentModule` from the owning feature | registry |
 
 ## Validation Criteria
 
@@ -192,6 +258,11 @@ Remove all imports of legacy audit schemas from repository files:
 12. Both migrated historical data and new entries appear in the audit UI
 13. Custom metadata (`reasons`) works for student/module operations
 14. Bulk marks update (`createOrUpdateMarksInBulk`) uses batch audit insert
+15. Edit modals for students/programs/semesters/modules work from their new locations in `registry/`
+16. All consumer components (`StudentView`, `AcademicsView`, `SemesterTable`, etc.) use updated import paths
+17. `RecordAuditHistory` replaces `AuditHistoryTab` in all migrated modals
+18. `findUnsynced()` and `markAsSynced()` work on the unified `audit_logs` table
+19. `getStudentModuleAuditHistory` correctly returns assessment mark audit entries for a student module
 
 ## Notes
 
