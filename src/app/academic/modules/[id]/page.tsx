@@ -2,6 +2,7 @@ import {
 	deleteModule,
 	getStructuresByModule,
 } from '@academic/semester-modules';
+import RecordAuditHistory from '@audit-logs/_components/RecordAuditHistory';
 import {
 	Box,
 	Skeleton,
@@ -54,6 +55,12 @@ export default async function ModuleDetails({ params }: Props) {
 				<Suspense fallback={<StructuresLoading />}>
 					<StructuresSection moduleId={Number(id)} />
 				</Suspense>
+				<Box mt='xl'>
+					<Text size='sm' fw={500} mb='sm'>
+						Audit History
+					</Text>
+					<RecordAuditHistory tableName='modules' recordId={id} />
+				</Box>
 			</DetailsViewBody>
 		</DetailsView>
 	);

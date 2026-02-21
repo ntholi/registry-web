@@ -1,4 +1,5 @@
 import { resolveApplicationFee } from '@admissions/_lib/fees';
+import RecordAuditHistory from '@audit-logs/_components/RecordAuditHistory';
 import {
 	Badge,
 	Card,
@@ -12,6 +13,7 @@ import {
 } from '@mantine/core';
 import {
 	IconCash,
+	IconClipboardList,
 	IconHistory,
 	IconInfoCircle,
 	IconNote,
@@ -81,6 +83,12 @@ export default async function ApplicationDetails({ params }: Props) {
 						</TabsTab>
 						<TabsTab value='notes' leftSection={<IconNote size={16} />}>
 							Notes
+						</TabsTab>
+						<TabsTab
+							value='audit'
+							leftSection={<IconClipboardList size={16} />}
+						>
+							Audit
 						</TabsTab>
 					</TabsList>
 
@@ -190,6 +198,10 @@ export default async function ApplicationDetails({ params }: Props) {
 
 					<TabsPanel value='notes' pt='md'>
 						<NotesSection applicationId={item.id} notes={item.notes} />
+					</TabsPanel>
+
+					<TabsPanel value='audit' pt='md'>
+						<RecordAuditHistory tableName='applications' recordId={item.id} />
 					</TabsPanel>
 				</Tabs>
 			</DetailsViewBody>

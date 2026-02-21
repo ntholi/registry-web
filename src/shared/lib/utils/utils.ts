@@ -233,6 +233,10 @@ function normalizeNameParts(name: string): string[] {
 		.filter((part) => part.length > 0);
 }
 
+export function formatTableName(tableName: string): string {
+	return tableName.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
 export function namesMatch(
 	applicantName: string,
 	documentName: string

@@ -1,5 +1,6 @@
 'use client';
 
+import RecordAuditHistory from '@audit-logs/_components/RecordAuditHistory';
 import { Tabs, TabsPanel, TabsTab } from '@mantine/core';
 import type { Session } from 'next-auth';
 import { useQueryState } from 'nuqs';
@@ -74,6 +75,10 @@ export default function StudentTabs({
 			session?.user?.role ?? ''
 		) || session?.user?.position === 'manager';
 
+	const showAuditHistory = ['admin', 'registry'].includes(
+		session?.user?.role ?? ''
+	);
+
 	const renderTabActions = () => {
 		if (showStatementOfResults && activeTab === 'academics') {
 			return (
@@ -107,6 +112,7 @@ export default function StudentTabs({
 				{showStudentCard && <TabsTab value='studentcard'>Card</TabsTab>}
 				{showGraduation && <TabsTab value='graduation'>Graduation</TabsTab>}
 				{showDocuments && <TabsTab value='documents'>Documents</TabsTab>}
+				{showAuditHistory && <TabsTab value='audit-history'>Audit</TabsTab>}
 			</ScrollableTabsList>
 			<TabsPanel value='academics' pt={'xl'} p={'sm'} key='academics'>
 				{blockedStudent ? (
@@ -153,6 +159,11 @@ export default function StudentTabs({
 					isActive={activeTab === 'documents'}
 				/>
 			</TabsPanel>
+			{showAuditHistory && (
+				<TabsPanel value='audit-history' pt='xl' p='sm' key='audit-history'>
+					<RecordAuditHistory tableName='students' recordId={student.stdNo} />
+				</TabsPanel>
+			)}
 		</Tabs>
 	);
 }
