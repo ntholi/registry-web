@@ -7,8 +7,7 @@ import type { PropsWithChildren } from 'react';
 import type { DocumentType, DocumentVerificationStatus } from '@/core/database';
 import { getDocumentVerificationStatusColor } from '@/shared/lib/utils/colors';
 import { ListItem, ListLayout } from '@/shared/ui/adease';
-import DocumentStatusFilter from './_components/DocumentStatusFilter';
-import DocumentTypeFilter from './_components/DocumentTypeFilter';
+import DocumentReviewFilter from './_components/DocumentReviewFilter';
 import { getDocumentsForReview } from './_server/actions';
 
 type ReviewItem = {
@@ -38,26 +37,26 @@ export default function DocumentsLayout({ children }: PropsWithChildren) {
 		return getDocumentsForReview(page, search, filters);
 	}
 
-	function handleStatusChange(value: string | null) {
+	function handleFilterApply(filters: { status: string; type: string }) {
 		const params = new URLSearchParams(searchParams);
-		if (value && value !== 'all') {
-			params.set('status', value);
+
+		if (filters.status !== 'all') {
+			params.set('status', filters.status);
 		} else {
 			params.delete('status');
 		}
-		params.delete('page');
-		router.push(`/admissions/documents?${params.toString()}`);
-	}
 
-	function handleTypeChange(value: string | null) {
-		const params = new URLSearchParams(searchParams);
-		if (value && value !== 'all') {
-			params.set('type', value);
+		if (filters.type !== 'all') {
+			params.set('type', filters.type);
 		} else {
 			params.delete('type');
 		}
+
 		params.delete('page');
-		router.push(`/admissions/documents?${params.toString()}`);
+		const query = params.toString();
+		router.push(
+			query ? `/admissions/documents?${query}` : '/admissions/documents'
+		);
 	}
 
 	return (
@@ -66,15 +65,11 @@ export default function DocumentsLayout({ children }: PropsWithChildren) {
 			queryKey={['documents-review', statusFilter, typeFilter]}
 			getData={fetchDocs}
 			actionIcons={[
-				<DocumentStatusFilter
-					key='status'
-					value={statusFilter}
-					onChange={handleStatusChange}
-				/>,
-				<DocumentTypeFilter
-					key='type'
-					value={typeFilter}
-					onChange={handleTypeChange}
+				<DocumentReviewFilter
+					key='documents-filter'
+					statusValue={statusFilter}
+					typeValue={typeFilter}
+					onApply={handleFilterApply}
 				/>,
 			]}
 			renderItem={(doc) => (
