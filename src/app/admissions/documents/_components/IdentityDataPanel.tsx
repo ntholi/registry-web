@@ -36,6 +36,7 @@ export default function IdentityDataPanel({ applicant }: Props) {
 				label='Date of Birth'
 				value={applicant.dateOfBirth}
 				onSave={(v) => handleSave('dateOfBirth', v)}
+				inputType='date'
 				placeholder='YYYY-MM-DD'
 			/>
 			<EditableField

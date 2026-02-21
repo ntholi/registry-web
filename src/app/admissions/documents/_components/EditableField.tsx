@@ -11,12 +11,13 @@ import {
 	TextInput,
 	Tooltip,
 } from '@mantine/core';
+import { DateInput } from '@mantine/dates';
 import { useDisclosure } from '@mantine/hooks';
 import { IconCheck, IconPencil, IconX } from '@tabler/icons-react';
 import { useMutation } from '@tanstack/react-query';
 import { useState } from 'react';
 
-type InputType = 'text' | 'select';
+type InputType = 'text' | 'select' | 'date';
 
 type Props = {
 	label: string;
@@ -117,6 +118,16 @@ export default function EditableField({
 							onChange={(v) => setEditValue(v ?? '')}
 							placeholder={placeholder || `Select ${label.toLowerCase()}`}
 							searchable
+							clearable={clearable}
+						/>
+					) : inputType === 'date' ? (
+						<DateInput
+							label='New Value'
+							value={editValue}
+							onChange={(v) => setEditValue(v ?? '')}
+							placeholder={placeholder || 'YYYY-MM-DD'}
+							valueFormat='YYYY-MM-DD'
+							firstDayOfWeek={0}
 							clearable={clearable}
 						/>
 					) : (
