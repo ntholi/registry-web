@@ -7,7 +7,6 @@ import {
 	Flex,
 	Group,
 	Menu,
-	Text,
 	Textarea,
 	Title,
 } from '@mantine/core';

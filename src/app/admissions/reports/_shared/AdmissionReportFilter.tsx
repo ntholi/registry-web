@@ -24,10 +24,10 @@ import {
 	parseAsString,
 	useQueryStates,
 } from 'nuqs';
-import type { AdmissionReportFilter } from './types';
+import type { AdmissionReportFilter as AdmissionReportFilterType } from './types';
 
 interface Props {
-	onFilterChange: (filter: AdmissionReportFilter) => void;
+	onFilterChange: (filter: AdmissionReportFilterType) => void;
 }
 
 export default function AdmissionReportFilter({ onFilterChange }: Props) {
@@ -64,10 +64,10 @@ export default function AdmissionReportFilter({ onFilterChange }: Props) {
 			schoolIds: filter.schoolIds ?? undefined,
 			programId: filter.programId ?? undefined,
 			programLevels:
-				(filter.programLevels as AdmissionReportFilter['programLevels']) ??
+				(filter.programLevels as AdmissionReportFilterType['programLevels']) ??
 				undefined,
 			applicationStatuses:
-				(filter.applicationStatuses as AdmissionReportFilter['applicationStatuses']) ??
+				(filter.applicationStatuses as AdmissionReportFilterType['applicationStatuses']) ??
 				undefined,
 		});
 	}

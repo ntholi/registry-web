@@ -1,7 +1,6 @@
 'use client';
 
 import { Popover, Stack, Text, useMantineColorScheme } from '@mantine/core';
-import { useState } from 'react';
 import { LESOTHO_TOWNS } from '../_lib/lesothoTowns';
 import { LESOTHO_DISTRICTS, LESOTHO_VIEWBOX } from '../_lib/mapPaths';
 import type { DistrictAggregation } from '../_server/repository';
@@ -13,7 +12,6 @@ type Props = {
 export default function LesothoMap({ data }: Props) {
 	const { colorScheme } = useMantineColorScheme();
 	const isDark = colorScheme === 'dark';
-	const [hovered, setHovered] = useState<string | null>(null);
 
 	const countMap = new Map(data.map((d) => [d.district, d.count]));
 	const maxCount = Math.max(...data.map((d) => d.count), 1);
@@ -27,26 +25,18 @@ export default function LesothoMap({ data }: Props) {
 			viewBox={LESOTHO_VIEWBOX}
 			width='100%'
 			height='100%'
+			role='img'
+			aria-label='Map of Lesotho districts and application counts'
 			style={{ maxHeight: 500 }}
 		>
+			<title>Lesotho districts application map</title>
 			{LESOTHO_DISTRICTS.map((district) => (
 				<path
 					key={district.name}
 					d={district.path}
-					fill={
-						hovered === district.name
-							? isDark
-								? 'rgba(77, 171, 247, 0.3)'
-								: 'rgba(34, 139, 230, 0.2)'
-							: isDark
-								? 'rgba(255, 255, 255, 0.08)'
-								: 'rgba(0, 0, 0, 0.06)'
-					}
+					fill={isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)'}
 					stroke={isDark ? 'rgba(255, 255, 255, 0.3)' : 'rgba(0, 0, 0, 0.2)'}
 					strokeWidth={1}
-					onMouseEnter={() => setHovered(district.name)}
-					onMouseLeave={() => setHovered(null)}
-					style={{ cursor: 'pointer' }}
 				/>
 			))}
 

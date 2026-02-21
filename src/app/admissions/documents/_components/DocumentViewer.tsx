@@ -8,6 +8,7 @@ import {
 	IconRotate,
 	IconRotateClockwise,
 } from '@tabler/icons-react';
+import Image from 'next/image';
 import { useCallback, useRef, useState } from 'react';
 
 type Props = {
@@ -158,11 +159,14 @@ export default function DocumentViewer({ src, alt = 'Document' }: Props) {
 					justifyContent: 'center',
 					minHeight: 500,
 					background: 'var(--mantine-color-dark-8)',
+					position: 'relative',
 				}}
 			>
-				<img
+				<Image
 					src={src}
 					alt={alt}
+					fill
+					unoptimized
 					draggable={false}
 					style={{
 						maxWidth: '100%',

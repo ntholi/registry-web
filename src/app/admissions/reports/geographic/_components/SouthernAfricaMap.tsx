@@ -1,7 +1,6 @@
 'use client';
 
 import { Popover, Stack, Text, useMantineColorScheme } from '@mantine/core';
-import { useState } from 'react';
 import {
 	SOUTHERN_AFRICA_COUNTRIES,
 	SOUTHERN_AFRICA_VIEWBOX,
@@ -15,7 +14,6 @@ type Props = {
 export default function SouthernAfricaMap({ data }: Props) {
 	const { colorScheme } = useMantineColorScheme();
 	const isDark = colorScheme === 'dark';
-	const [hovered, setHovered] = useState<string | null>(null);
 
 	const countMap = new Map(data.map((c) => [c.country, c.count]));
 	const maxCount = Math.max(...data.map((c) => c.count), 1);
@@ -29,26 +27,18 @@ export default function SouthernAfricaMap({ data }: Props) {
 			viewBox={SOUTHERN_AFRICA_VIEWBOX}
 			width='100%'
 			height='100%'
+			role='img'
+			aria-label='Map of Southern Africa countries and application counts'
 			style={{ maxHeight: 500 }}
 		>
+			<title>Southern Africa countries application map</title>
 			{SOUTHERN_AFRICA_COUNTRIES.map((country) => (
 				<path
 					key={country.name}
 					d={country.path}
-					fill={
-						hovered === country.name
-							? isDark
-								? 'rgba(77, 171, 247, 0.3)'
-								: 'rgba(34, 139, 230, 0.2)'
-							: isDark
-								? 'rgba(255, 255, 255, 0.08)'
-								: 'rgba(0, 0, 0, 0.06)'
-					}
+					fill={isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)'}
 					stroke={isDark ? 'rgba(255, 255, 255, 0.3)' : 'rgba(0, 0, 0, 0.2)'}
 					strokeWidth={1}
-					onMouseEnter={() => setHovered(country.name)}
-					onMouseLeave={() => setHovered(null)}
-					style={{ cursor: 'pointer' }}
 				/>
 			))}
 

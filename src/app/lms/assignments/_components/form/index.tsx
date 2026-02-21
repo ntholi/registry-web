@@ -249,19 +249,7 @@ export default function AssignmentForm({
 		if (!opened) return;
 		if (!canCreateDraft && !draftId) return;
 		debouncedSave();
-	}, [
-		form.values.assessmentType,
-		form.values.assessmentNumber,
-		form.values.dueDate,
-		form.values.availableFrom,
-		form.values.totalMarks,
-		form.values.description,
-		form.values.instructions,
-		opened,
-		canCreateDraft,
-		draftId,
-		debouncedSave,
-	]);
+	}, [opened, canCreateDraft, draftId, debouncedSave]);
 
 	const publishMutation = useMutation({
 		mutationFn: async () => {

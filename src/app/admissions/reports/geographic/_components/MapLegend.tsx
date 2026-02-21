@@ -24,7 +24,13 @@ export default function MapLegend({ maxCount }: Props) {
 			<Flex gap='md' align='end'>
 				{sizes.map((s) => (
 					<Stack key={s.label} gap={4} align='center'>
-						<svg width={s.radius * 2 + 4} height={s.radius * 2 + 4}>
+						<svg
+							width={s.radius * 2 + 4}
+							height={s.radius * 2 + 4}
+							role='img'
+							aria-label={`Legend bubble for ${s.label} applications`}
+						>
+							<title>{`Legend bubble for ${s.label} applications`}</title>
 							<circle
 								cx={s.radius + 2}
 								cy={s.radius + 2}
