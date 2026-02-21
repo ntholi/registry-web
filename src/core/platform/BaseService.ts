@@ -2,7 +2,7 @@ import type { PgTable as Table } from 'drizzle-orm/pg-core';
 import type { Session } from 'next-auth';
 import type { UserRole } from '@/core/database';
 import type BaseRepository from './BaseRepository';
-import type { QueryOptions } from './BaseRepository';
+import type { AuditOptions, QueryOptions } from './BaseRepository';
 import withAuth from './withAuth';
 
 type ModelInsert<T extends Table> = T['$inferInsert'];
@@ -68,6 +68,13 @@ abstract class BaseService<
 		return this.defaultCountRoles;
 	}
 
+	protected buildAuditOptions(
+		session?: Session | null
+	): AuditOptions | undefined {
+		if (!session?.user?.id) return undefined;
+		return { userId: session.user.id };
+	}
+
 	async get(id: ModelSelect<T>[PK]) {
 		const roles = this.byIdRoles() as Role[] | AccessCheckFunction;
 		return withAuth(async () => this.repository.findById(id), roles as Role[]);
@@ -90,20 +97,26 @@ abstract class BaseService<
 
 	async create(data: ModelInsert<T>) {
 		const roles = this.createRoles() as Role[] | AccessCheckFunction;
-		return withAuth(async () => this.repository.create(data), roles as Role[]);
+		return withAuth(async (session) => {
+			const audit = this.buildAuditOptions(session);
+			return this.repository.create(data, audit);
+		}, roles as Role[]);
 	}
 
 	async update(id: ModelSelect<T>[PK], data: Partial<ModelInsert<T>>) {
 		const roles = this.updateRoles() as Role[] | AccessCheckFunction;
-		return withAuth(
-			async () => this.repository.update(id, data),
-			roles as Role[]
-		);
+		return withAuth(async (session) => {
+			const audit = this.buildAuditOptions(session);
+			return this.repository.update(id, data, audit);
+		}, roles as Role[]);
 	}
 
 	async delete(id: ModelSelect<T>[PK]) {
 		const roles = this.deleteRoles() as Role[] | AccessCheckFunction;
-		return withAuth(async () => this.repository.delete(id), roles as Role[]);
+		return withAuth(async (session) => {
+			const audit = this.buildAuditOptions(session);
+			return this.repository.delete(id, audit);
+		}, roles as Role[]);
 	}
 
 	async count() {
