@@ -23,7 +23,7 @@ type ReviewItem = {
 export default function DocumentsLayout({ children }: PropsWithChildren) {
 	const router = useRouter();
 	const searchParams = useSearchParams();
-	const statusFilter = searchParams.get('status') || 'all';
+	const statusFilter = searchParams.get('status') || 'pending';
 	const typeFilter = searchParams.get('type') || 'all';
 
 	async function fetchDocs(page: number, search: string) {
@@ -40,7 +40,7 @@ export default function DocumentsLayout({ children }: PropsWithChildren) {
 	function handleFilterApply(filters: { status: string; type: string }) {
 		const params = new URLSearchParams(searchParams);
 
-		if (filters.status !== 'all') {
+		if (filters.status !== 'pending') {
 			params.set('status', filters.status);
 		} else {
 			params.delete('status');

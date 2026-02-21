@@ -14,13 +14,18 @@ import { useDisclosure } from '@mantine/hooks';
 import { IconFilter, IconX } from '@tabler/icons-react';
 import { useState } from 'react';
 
+const DEFAULT_STATUS = 'pending';
+const DEFAULT_TYPE = 'all';
+
 const statusOptions = [
+	{ value: 'all', label: 'All Status' },
 	{ value: 'pending', label: 'Pending' },
 	{ value: 'verified', label: 'Verified' },
 	{ value: 'rejected', label: 'Rejected' },
 ];
 
 const typeOptions = [
+	{ value: 'all', label: 'All Types' },
 	{ value: 'identity', label: 'Identity' },
 	{ value: 'certificate', label: 'Certificate' },
 	{ value: 'academic_record', label: 'Academic Record' },
@@ -41,11 +46,13 @@ export default function DocumentReviewFilter({
 	const [status, setStatus] = useState(statusValue);
 	const [type, setType] = useState(typeValue);
 
-	const activeFiltersCount = [statusValue, typeValue].filter(
-		(value) => value !== 'all'
-	).length;
+	const activeFiltersCount = [
+		statusValue !== DEFAULT_STATUS,
+		typeValue !== DEFAULT_TYPE,
+	].filter(Boolean).length;
 
-	const isDefaultFilter = statusValue === 'all' && typeValue === 'all';
+	const isDefaultFilter =
+		statusValue === DEFAULT_STATUS && typeValue === DEFAULT_TYPE;
 
 	function handleOpen() {
 		setStatus(statusValue);
@@ -54,9 +61,9 @@ export default function DocumentReviewFilter({
 	}
 
 	function handleClear() {
-		setStatus('all');
-		setType('all');
-		onApply({ status: 'all', type: 'all' });
+		setStatus(DEFAULT_STATUS);
+		setType(DEFAULT_TYPE);
+		onApply({ status: DEFAULT_STATUS, type: DEFAULT_TYPE });
 		close();
 	}
 
@@ -89,19 +96,19 @@ export default function DocumentReviewFilter({
 				<Stack gap='md'>
 					<Select
 						label='Verification Status'
-						placeholder='All statuses'
+						placeholder='Select status'
 						data={statusOptions}
-						value={status === 'all' ? null : status}
-						onChange={(value) => setStatus(value || 'all')}
+						value={status}
+						onChange={(value) => setStatus(value || DEFAULT_STATUS)}
 						clearable
 					/>
 
 					<Select
 						label='Document Type'
-						placeholder='All types'
+						placeholder='Select type'
 						data={typeOptions}
-						value={type === 'all' ? null : type}
-						onChange={(value) => setType(value || 'all')}
+						value={type}
+						onChange={(value) => setType(value || DEFAULT_TYPE)}
 						clearable
 					/>
 
