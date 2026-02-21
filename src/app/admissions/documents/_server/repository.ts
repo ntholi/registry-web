@@ -121,6 +121,15 @@ export default class DocumentReviewRepository extends BaseRepository<
 		return { ...appDoc, academicRecords: records };
 	}
 
+	async updateRotation(id: string, rotation: number) {
+		const [doc] = await db
+			.update(applicantDocuments)
+			.set({ rotation })
+			.where(eq(applicantDocuments.id, id))
+			.returning();
+		return doc;
+	}
+
 	async updateVerificationStatus(
 		id: string,
 		status: DocumentVerificationStatus,

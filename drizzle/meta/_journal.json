@@ -1072,6 +1072,13 @@
 			"when": 1771592569519,
 			"tag": "0152_new_trauma",
 			"breakpoints": true
+		},
+		{
+			"idx": 153,
+			"version": "7",
+			"when": 1771670979661,
+			"tag": "0153_daffy_starhawk",
+			"breakpoints": true
 		}
 	]
 }

@@ -4,7 +4,6 @@ import { ActionIcon, Box, Group, Paper, Text, Tooltip } from '@mantine/core';
 import {
 	IconMinus,
 	IconPlus,
-	IconRefresh,
 	IconRotate,
 	IconRotateClockwise,
 } from '@tabler/icons-react';
@@ -14,11 +13,18 @@ import { useCallback, useRef, useState } from 'react';
 type Props = {
 	src: string;
 	alt?: string;
+	initialRotation?: number;
+	onRotationChange?: (rotation: number) => void;
 };
 
-export default function DocumentViewer({ src, alt = 'Document' }: Props) {
+export default function DocumentViewer({
+	src,
+	alt = 'Document',
+	initialRotation = 0,
+	onRotationChange,
+}: Props) {
 	const [scale, setScale] = useState(1);
-	const [rotation, setRotation] = useState(0);
+	const [rotation, setRotation] = useState(initialRotation);
 	const [position, setPosition] = useState({ x: 0, y: 0 });
 	const [dragging, setDragging] = useState(false);
 	const dragStart = useRef({ x: 0, y: 0 });
@@ -31,18 +37,21 @@ export default function DocumentViewer({ src, alt = 'Document' }: Props) {
 		[]
 	);
 
-	const rotateRight = useCallback(() => setRotation((r) => (r + 90) % 360), []);
+	const rotateRight = useCallback(() => {
+		setRotation((r) => {
+			const next = (r + 90) % 360;
+			onRotationChange?.(next);
+			return next;
+		});
+	}, [onRotationChange]);
 
-	const rotateLeft = useCallback(
-		() => setRotation((r) => (r - 90 + 360) % 360),
-		[]
-	);
-
-	const reset = useCallback(() => {
-		setScale(1);
-		setRotation(0);
-		setPosition({ x: 0, y: 0 });
-	}, []);
+	const rotateLeft = useCallback(() => {
+		setRotation((r) => {
+			const next = (r - 90 + 360) % 360;
+			onRotationChange?.(next);
+			return next;
+		});
+	}, [onRotationChange]);
 
 	const handleWheel = useCallback(
 		(e: React.WheelEvent) => {
@@ -134,11 +143,6 @@ export default function DocumentViewer({ src, alt = 'Document' }: Props) {
 					<Tooltip label='Rotate right'>
 						<ActionIcon variant='subtle' size='sm' onClick={rotateRight}>
 							<IconRotateClockwise size={14} />
-						</ActionIcon>
-					</Tooltip>
-					<Tooltip label='Reset view'>
-						<ActionIcon variant='subtle' size='sm' onClick={reset}>
-							<IconRefresh size={14} />
 						</ActionIcon>
 					</Tooltip>
 				</Group>

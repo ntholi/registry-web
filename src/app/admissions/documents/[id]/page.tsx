@@ -6,7 +6,11 @@ import AcademicDataPanel from '../_components/AcademicDataPanel';
 import DocumentReviewHeader from '../_components/DocumentReviewHeader';
 import DocumentViewer from '../_components/DocumentViewer';
 import IdentityDataPanel from '../_components/IdentityDataPanel';
-import { deleteDocument, getDocumentForReview } from '../_server/actions';
+import {
+	deleteDocument,
+	getDocumentForReview,
+	updateDocumentRotation,
+} from '../_server/actions';
 
 type Props = {
 	params: Promise<{ id: string }>;
@@ -45,6 +49,11 @@ export default async function DocumentReviewPage({ params }: Props) {
 						<DocumentViewer
 							src={doc.document.fileUrl}
 							alt={doc.document.fileName}
+							initialRotation={doc.rotation}
+							onRotationChange={async (rotation) => {
+								'use server';
+								await updateDocumentRotation(id, rotation);
+							}}
 						/>
 					) : (
 						<Paper

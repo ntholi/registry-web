@@ -1,6 +1,6 @@
 import { applicants } from '@admissions/applicants/_schema/applicants';
 import { documents } from '@registry/documents/_schema/documents';
-import { index, pgEnum, pgTable, text } from 'drizzle-orm/pg-core';
+import { index, integer, pgEnum, pgTable, text } from 'drizzle-orm/pg-core';
 import { nanoid } from 'nanoid';
 
 export const documentVerificationStatusEnum = pgEnum(
@@ -26,6 +26,7 @@ export const applicantDocuments = pgTable(
 			.notNull()
 			.default('pending'),
 		rejectionReason: text(),
+		rotation: integer().notNull().default(0),
 	},
 	(table) => ({
 		documentIdx: index('fk_applicant_documents_document').on(table.documentId),

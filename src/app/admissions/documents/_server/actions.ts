@@ -18,6 +18,10 @@ export async function getDocumentForReview(id: string) {
 	return documentReviewService.findByIdWithRelations(id);
 }
 
+export async function updateDocumentRotation(id: string, rotation: number) {
+	return documentReviewService.updateRotation(id, rotation);
+}
+
 export async function updateDocumentStatus(
 	id: string,
 	status: DocumentVerificationStatus,

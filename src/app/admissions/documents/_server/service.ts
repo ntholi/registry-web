@@ -46,6 +46,13 @@ class DocumentReviewService extends BaseService<
 		);
 	}
 
+	async updateRotation(id: string, rotation: number) {
+		return withAuth(
+			async () => this.repo.updateRotation(id, rotation),
+			['registry', 'marketing', 'admin']
+		);
+	}
+
 	async updateVerificationStatus(
 		id: string,
 		status: DocumentVerificationStatus,
