@@ -131,7 +131,9 @@ interface AuditOptions {
 | 3 | [003_base-service-audit.md](003_base-service-audit.md) | Modify `BaseService` to thread `session.user.id` into audit options |
 | 4 | [004_migration.md](004_migration.md) | Migrate existing 7 legacy audit tables into the unified table |
 | 5 | [005_audit-ui.md](005_audit-ui.md) | Build unified audit log viewer, per-record history, and sync support |
-| 6 | [006_cleanup.md](006_cleanup.md) | Remove legacy audit code/tables, migrate edit modals to owning modules |
+| 6a | [006a_refactor-repositories.md](006a_refactor-repositories.md) | Refactor custom repos to use `writeAuditLog`, remove `auth()` calls, set `auditEnabled` |
+| 6b | [006b_migrate-modals.md](006b_migrate-modals.md) | Move edit modals from `audit-logs/` to `registry/`, replace `AuditHistoryTab` |
+| 6c | [006c_remove-legacy-and-drop-tables.md](006c_remove-legacy-and-drop-tables.md) | Delete all legacy code, schemas, barrel exports; DROP 7 tables + 3 pgEnum types |
 
 ## Tables Audit Classification
 
