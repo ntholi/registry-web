@@ -19,6 +19,7 @@ import {
 	IconX,
 } from '@tabler/icons-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useRouter } from 'nextjs-toploader/app';
 import { useState } from 'react';
 import type { DocumentVerificationStatus } from '@/core/database';
 import { useViewSelect } from '@/shared/lib/hooks/use-view-select';
@@ -48,6 +49,7 @@ export default function DocumentReviewHeader({
 	status,
 	handleDelete,
 }: Props) {
+	const router = useRouter();
 	const isMobile = useMediaQuery('(max-width: 768px)');
 	const [, setView] = useViewSelect();
 	const queryClient = useQueryClient();
@@ -66,6 +68,7 @@ export default function DocumentReviewHeader({
 		},
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: ['documents-review'] });
+			router.refresh();
 			setShowReject(false);
 			setRejectionReason('');
 		},

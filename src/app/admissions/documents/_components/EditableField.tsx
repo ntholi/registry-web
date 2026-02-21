@@ -15,6 +15,7 @@ import { DateInput } from '@mantine/dates';
 import { useDisclosure } from '@mantine/hooks';
 import { IconCheck, IconPencil, IconX } from '@tabler/icons-react';
 import { useMutation } from '@tanstack/react-query';
+import { useRouter } from 'nextjs-toploader/app';
 import { useState } from 'react';
 
 type InputType = 'text' | 'select' | 'date';
@@ -40,6 +41,7 @@ export default function EditableField({
 	clearable = true,
 	hideLabel = false,
 }: Props) {
+	const router = useRouter();
 	const [opened, { open, close }] = useDisclosure(false);
 	const [editValue, setEditValue] = useState(value ?? '');
 
@@ -49,6 +51,7 @@ export default function EditableField({
 		},
 		onSuccess: () => {
 			close();
+			router.refresh();
 		},
 	});
 
