@@ -6,6 +6,7 @@ import {
 	IconChecklist,
 	IconClipboardList,
 	IconCreditCard,
+	IconFileSearch,
 	IconReportAnalytics,
 	IconUsers,
 } from '@tabler/icons-react';
@@ -73,6 +74,12 @@ export const admissionsConfig: ModuleConfig = {
 				href: '/admissions/payments',
 				icon: IconCreditCard,
 				roles: ['registry', 'finance', 'admin', 'marketing'],
+			},
+			{
+				label: 'Document Review',
+				href: '/admissions/documents',
+				icon: IconFileSearch,
+				roles: ['registry', 'marketing', 'admin'],
 			},
 			{
 				label: 'Reports',
