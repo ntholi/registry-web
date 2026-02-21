@@ -7,6 +7,7 @@ import DocumentReviewHeader from '../_components/DocumentReviewHeader';
 import DocumentViewer from '../_components/DocumentViewer';
 import IdentityDataPanel from '../_components/IdentityDataPanel';
 import {
+	acquireReviewLock,
 	getDocumentForReview,
 	updateDocumentRotation,
 } from '../_server/actions';
@@ -17,7 +18,10 @@ type Props = {
 
 export default async function DocumentReviewPage({ params }: Props) {
 	const { id } = await params;
-	const doc = await getDocumentForReview(id);
+	const [doc] = await Promise.all([
+		getDocumentForReview(id),
+		acquireReviewLock(id),
+	]);
 
 	if (!doc) return notFound();
 

@@ -15,10 +15,14 @@ import { useDisclosure, useMediaQuery } from '@mantine/hooks';
 import { IconArrowNarrowLeft } from '@tabler/icons-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'nextjs-toploader/app';
-import { useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import type { DocumentVerificationStatus } from '@/core/database';
 import { useViewSelect } from '@/shared/lib/hooks/use-view-select';
-import { updateDocumentStatus } from '../_server/actions';
+import {
+	getNextDocument,
+	releaseReviewLock,
+	updateDocumentStatus,
+} from '../_server/actions';
 
 type Props = {
 	id: string;
@@ -43,15 +47,41 @@ export default function DocumentReviewHeader({ id, title, status }: Props) {
 
 	const isDirty = selected !== status;
 
+	const navigateToNext = useCallback(async () => {
+		const next = await getNextDocument(id, { status: 'pending' });
+		if (next) {
+			router.push(`/admissions/documents/${next.id}`);
+		} else {
+			router.push('/admissions/documents');
+		}
+	}, [id, router]);
+
 	const mutation = useMutation({
-		mutationFn: (reason?: string) => updateDocumentStatus(id, selected, reason),
-		onSuccess: () => {
+		mutationFn: async (reason?: string) => {
+			await updateDocumentStatus(id, selected, reason);
+			await releaseReviewLock(id);
+		},
+		onSuccess: async () => {
 			queryClient.invalidateQueries({ queryKey: ['documents-review'] });
-			router.refresh();
 			close();
 			setRejectionReason('');
+			await navigateToNext();
 		},
 	});
+
+	useEffect(() => {
+		const handleBeforeUnload = () => {
+			navigator.sendBeacon(
+				'/api/admissions/documents/release-lock',
+				JSON.stringify({ documentId: id })
+			);
+		};
+		window.addEventListener('beforeunload', handleBeforeUnload);
+		return () => {
+			window.removeEventListener('beforeunload', handleBeforeUnload);
+			releaseReviewLock(id);
+		};
+	}, [id]);
 
 	const handleSave = () => {
 		if (selected === 'rejected') {
@@ -111,6 +141,7 @@ export default function DocumentReviewHeader({ id, title, status }: Props) {
 					<SegmentedControl
 						size='sm'
 						value={selected}
+						color='teal'
 						onChange={(val) => setSelected(val as DocumentVerificationStatus)}
 						data={STATUS_OPTIONS}
 					/>

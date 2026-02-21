@@ -65,3 +65,25 @@ export async function updateSubjectGradeField(
 export async function deleteDocument(id: string) {
 	return documentReviewService.delete(id);
 }
+
+export async function acquireReviewLock(documentId: string) {
+	return documentReviewService.acquireLock(documentId);
+}
+
+export async function releaseReviewLock(documentId: string) {
+	return documentReviewService.releaseLock(documentId);
+}
+
+export async function releaseAllReviewLocks() {
+	return documentReviewService.releaseAllLocks();
+}
+
+export async function getNextDocument(
+	currentId: string,
+	filters?: {
+		status?: DocumentVerificationStatus;
+		type?: DocumentType;
+	}
+) {
+	return documentReviewService.findNextUnlocked(currentId, filters);
+}

@@ -1,4 +1,4 @@
-import { and, count, eq, or, type SQL, sql } from 'drizzle-orm';
+import { and, count, eq, isNull, or, type SQL, sql } from 'drizzle-orm';
 import type { DocumentType, DocumentVerificationStatus } from '@/core/database';
 import {
 	academicRecords,
@@ -11,6 +11,8 @@ import {
 	subjectGrades,
 } from '@/core/database';
 import BaseRepository from '@/core/platform/BaseRepository';
+
+const LOCK_EXPIRY_MS = 5 * 60 * 1000;
 
 export default class DocumentReviewRepository extends BaseRepository<
 	typeof applicantDocuments,
@@ -26,12 +28,22 @@ export default class DocumentReviewRepository extends BaseRepository<
 		filters?: {
 			status?: DocumentVerificationStatus;
 			type?: DocumentType;
-		}
+		},
+		currentUserId?: string
 	) {
 		const pageSize = 15;
 		const offset = (page - 1) * pageSize;
 
 		const conditions: SQL[] = [];
+
+		const notLockedByOthers = or(
+			isNull(applicantDocuments.reviewLockedBy),
+			currentUserId
+				? eq(applicantDocuments.reviewLockedBy, currentUserId)
+				: sql`false`,
+			sql`${applicantDocuments.reviewLockedAt} < NOW() - INTERVAL '${sql.raw(String(LOCK_EXPIRY_MS / 1000))} seconds'`
+		)!;
+		conditions.push(notLockedByOthers);
 
 		if (filters?.status) {
 			conditions.push(
@@ -263,5 +275,92 @@ export default class DocumentReviewRepository extends BaseRepository<
 
 			return updated;
 		});
+	}
+
+	async acquireLock(documentId: string, userId: string) {
+		const [doc] = await db
+			.update(applicantDocuments)
+			.set({
+				reviewLockedBy: userId,
+				reviewLockedAt: new Date(),
+			})
+			.where(
+				and(
+					eq(applicantDocuments.id, documentId),
+					or(
+						isNull(applicantDocuments.reviewLockedBy),
+						eq(applicantDocuments.reviewLockedBy, userId),
+						sql`${applicantDocuments.reviewLockedAt} < NOW() - INTERVAL '${sql.raw(String(LOCK_EXPIRY_MS / 1000))} seconds'`
+					)
+				)
+			)
+			.returning();
+		return doc ?? null;
+	}
+
+	async releaseLock(documentId: string, userId: string) {
+		const [doc] = await db
+			.update(applicantDocuments)
+			.set({
+				reviewLockedBy: null,
+				reviewLockedAt: null,
+			})
+			.where(
+				and(
+					eq(applicantDocuments.id, documentId),
+					eq(applicantDocuments.reviewLockedBy, userId)
+				)
+			)
+			.returning();
+		return doc ?? null;
+	}
+
+	async releaseAllLocks(userId: string) {
+		await db
+			.update(applicantDocuments)
+			.set({
+				reviewLockedBy: null,
+				reviewLockedAt: null,
+			})
+			.where(eq(applicantDocuments.reviewLockedBy, userId));
+	}
+
+	async findNextUnlocked(
+		currentId: string,
+		userId: string,
+		filters?: {
+			status?: DocumentVerificationStatus;
+			type?: DocumentType;
+		}
+	) {
+		const conditions: SQL[] = [
+			sql`${applicantDocuments.id} != ${currentId}`,
+			or(
+				isNull(applicantDocuments.reviewLockedBy),
+				eq(applicantDocuments.reviewLockedBy, userId),
+				sql`${applicantDocuments.reviewLockedAt} < NOW() - INTERVAL '${sql.raw(String(LOCK_EXPIRY_MS / 1000))} seconds'`
+			)!,
+		];
+
+		if (filters?.status) {
+			conditions.push(
+				eq(applicantDocuments.verificationStatus, filters.status)
+			);
+		}
+		if (filters?.type) {
+			conditions.push(eq(documents.type, filters.type));
+		}
+
+		const where = conditions.reduce((a, b) => sql`${a} AND ${b}`);
+
+		const [next] = await db
+			.select({ id: applicantDocuments.id })
+			.from(applicantDocuments)
+			.innerJoin(documents, eq(applicantDocuments.documentId, documents.id))
+			.where(where)
+			.orderBy(sql`${documents.createdAt} DESC`)
+			.limit(1);
+
+		return next ?? null;
 	}
 }

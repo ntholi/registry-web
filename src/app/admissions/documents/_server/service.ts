@@ -8,6 +8,8 @@ import { serviceWrapper } from '@/core/platform/serviceWrapper';
 import withAuth from '@/core/platform/withAuth';
 import DocumentReviewRepository from './repository';
 
+const ROLES = ['registry', 'marketing', 'admin'] as const;
+
 class DocumentReviewService extends BaseService<
 	typeof applicantDocuments,
 	'id'
@@ -17,10 +19,10 @@ class DocumentReviewService extends BaseService<
 	constructor() {
 		const repo = new DocumentReviewRepository();
 		super(repo, {
-			byIdRoles: ['registry', 'marketing', 'admin'],
-			findAllRoles: ['registry', 'marketing', 'admin'],
-			updateRoles: ['registry', 'marketing', 'admin'],
-			deleteRoles: ['registry', 'marketing', 'admin'],
+			byIdRoles: [...ROLES],
+			findAllRoles: [...ROLES],
+			updateRoles: [...ROLES],
+			deleteRoles: [...ROLES],
 		});
 		this.repo = repo;
 	}
@@ -34,22 +36,23 @@ class DocumentReviewService extends BaseService<
 		}
 	) {
 		return withAuth(
-			async () => this.repo.findAllForReview(page, search, filters),
-			['registry', 'marketing', 'admin']
+			async (session) =>
+				this.repo.findAllForReview(page, search, filters, session?.user?.id),
+			[...ROLES]
 		);
 	}
 
 	async findByIdWithRelations(id: string) {
 		return withAuth(
 			async () => this.repo.findByIdWithRelations(id),
-			['registry', 'marketing', 'admin']
+			[...ROLES]
 		);
 	}
 
 	async updateRotation(id: string, rotation: number) {
 		return withAuth(
 			async () => this.repo.updateRotation(id, rotation),
-			['registry', 'marketing', 'admin']
+			[...ROLES]
 		);
 	}
 
@@ -61,7 +64,7 @@ class DocumentReviewService extends BaseService<
 		return withAuth(
 			async () =>
 				this.repo.updateVerificationStatus(id, status, rejectionReason),
-			['registry', 'marketing', 'admin']
+			[...ROLES]
 		);
 	}
 
@@ -72,7 +75,7 @@ class DocumentReviewService extends BaseService<
 	) {
 		return withAuth(
 			async () => this.repo.updateApplicantField(applicantId, field, value),
-			['registry', 'marketing', 'admin']
+			[...ROLES]
 		);
 	}
 
@@ -83,7 +86,7 @@ class DocumentReviewService extends BaseService<
 	) {
 		return withAuth(
 			async () => this.repo.updateAcademicRecordField(recordId, field, value),
-			['registry', 'marketing', 'admin']
+			[...ROLES]
 		);
 	}
 
@@ -94,7 +97,57 @@ class DocumentReviewService extends BaseService<
 	) {
 		return withAuth(
 			async () => this.repo.updateSubjectGradeField(gradeId, field, value),
-			['registry', 'marketing', 'admin']
+			[...ROLES]
+		);
+	}
+
+	async acquireLock(documentId: string) {
+		return withAuth(
+			async (session) => {
+				const userId = session?.user?.id;
+				if (!userId) return null;
+				return this.repo.acquireLock(documentId, userId);
+			},
+			[...ROLES]
+		);
+	}
+
+	async releaseLock(documentId: string) {
+		return withAuth(
+			async (session) => {
+				const userId = session?.user?.id;
+				if (!userId) return null;
+				return this.repo.releaseLock(documentId, userId);
+			},
+			[...ROLES]
+		);
+	}
+
+	async releaseAllLocks() {
+		return withAuth(
+			async (session) => {
+				const userId = session?.user?.id;
+				if (!userId) return;
+				return this.repo.releaseAllLocks(userId);
+			},
+			[...ROLES]
+		);
+	}
+
+	async findNextUnlocked(
+		currentId: string,
+		filters?: {
+			status?: DocumentVerificationStatus;
+			type?: DocumentType;
+		}
+	) {
+		return withAuth(
+			async (session) => {
+				const userId = session?.user?.id;
+				if (!userId) return null;
+				return this.repo.findNextUnlocked(currentId, userId, filters);
+			},
+			[...ROLES]
 		);
 	}
 }
