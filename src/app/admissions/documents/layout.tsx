@@ -134,7 +134,6 @@ function getDocumentTypeColor(type: DocumentType | null) {
 			return 'lime';
 		case 'clearance_form':
 			return 'yellow';
-		case 'other':
 		default:
 			return 'gray';
 	}

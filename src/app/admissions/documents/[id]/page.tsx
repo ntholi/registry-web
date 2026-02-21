@@ -7,7 +7,6 @@ import DocumentReviewHeader from '../_components/DocumentReviewHeader';
 import DocumentViewer from '../_components/DocumentViewer';
 import IdentityDataPanel from '../_components/IdentityDataPanel';
 import {
-	deleteDocument,
 	getDocumentForReview,
 	updateDocumentRotation,
 } from '../_server/actions';
@@ -27,10 +26,10 @@ export default async function DocumentReviewPage({ params }: Props) {
 		doc.document.type === 'certificate' ||
 		doc.document.type === 'academic_record';
 	const title = isIdentity
-		? 'Identity Document Review'
+		? 'Identity Document'
 		: isAcademic
-			? 'Academic Document Review'
-			: 'Document Review';
+			? 'Academic Document'
+			: 'Document';
 
 	return (
 		<DetailsView>
@@ -38,10 +37,6 @@ export default async function DocumentReviewPage({ params }: Props) {
 				id={id}
 				title={title}
 				status={doc.verificationStatus}
-				handleDelete={async () => {
-					'use server';
-					await deleteDocument(id);
-				}}
 			/>
 			<Grid gutter='md'>
 				<GridCol span={{ base: 12, md: 7 }}>
