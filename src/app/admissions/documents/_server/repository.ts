@@ -1,11 +1,13 @@
-import { count, eq, or, type SQL, sql } from 'drizzle-orm';
+import { and, count, eq, or, type SQL, sql } from 'drizzle-orm';
 import type { DocumentType, DocumentVerificationStatus } from '@/core/database';
 import {
 	academicRecords,
 	applicantDocuments,
 	applicants,
+	certificateTypes,
 	db,
 	documents,
+	gradeMappings,
 	subjectGrades,
 } from '@/core/database';
 import BaseRepository from '@/core/platform/BaseRepository';
@@ -111,7 +113,7 @@ export default class DocumentReviewRepository extends BaseRepository<
 		const records = await db.query.academicRecords.findMany({
 			where: eq(academicRecords.applicantDocumentId, id),
 			with: {
-				certificateType: true,
+				certificateType: { with: { gradeMappings: true } },
 				subjectGrades: { with: { subject: true } },
 			},
 		});
@@ -163,14 +165,94 @@ export default class DocumentReviewRepository extends BaseRepository<
 
 	async updateSubjectGradeField(
 		gradeId: string,
-		field: string,
+		field: 'originalGrade' | 'standardGrade',
 		value: string | null
 	) {
-		const [updated] = await db
-			.update(subjectGrades)
-			.set({ [field]: value })
-			.where(eq(subjectGrades.id, gradeId))
-			.returning();
-		return updated;
+		return db.transaction(async (tx) => {
+			if (field === 'originalGrade') {
+				const originalGrade = (value ?? '').trim();
+
+				const [gradeCtx] = await tx
+					.select({
+						lqfLevel: certificateTypes.lqfLevel,
+						mappedStandardGrade: gradeMappings.standardGrade,
+					})
+					.from(subjectGrades)
+					.innerJoin(
+						academicRecords,
+						eq(academicRecords.id, subjectGrades.academicRecordId)
+					)
+					.innerJoin(
+						certificateTypes,
+						eq(certificateTypes.id, academicRecords.certificateTypeId)
+					)
+					.leftJoin(
+						gradeMappings,
+						and(
+							eq(
+								gradeMappings.certificateTypeId,
+								academicRecords.certificateTypeId
+							),
+							eq(gradeMappings.originalGrade, originalGrade)
+						)
+					)
+					.where(eq(subjectGrades.id, gradeId))
+					.limit(1);
+
+				if (!gradeCtx) {
+					return null;
+				}
+
+				const [updated] = await tx
+					.update(subjectGrades)
+					.set(
+						gradeCtx.lqfLevel === 4
+							? {
+									originalGrade,
+									standardGrade: gradeCtx.mappedStandardGrade,
+								}
+							: { originalGrade }
+					)
+					.where(eq(subjectGrades.id, gradeId))
+					.returning();
+
+				return updated;
+			}
+
+			const [gradeCtx] = await tx
+				.select({ lqfLevel: certificateTypes.lqfLevel })
+				.from(subjectGrades)
+				.innerJoin(
+					academicRecords,
+					eq(academicRecords.id, subjectGrades.academicRecordId)
+				)
+				.innerJoin(
+					certificateTypes,
+					eq(certificateTypes.id, academicRecords.certificateTypeId)
+				)
+				.where(eq(subjectGrades.id, gradeId))
+				.limit(1);
+
+			if (!gradeCtx) {
+				return null;
+			}
+
+			if (gradeCtx.lqfLevel === 4) {
+				return tx.query.subjectGrades.findFirst({
+					where: eq(subjectGrades.id, gradeId),
+				});
+			}
+
+			const [updated] = await tx
+				.update(subjectGrades)
+				.set({
+					standardGrade:
+						value as (typeof subjectGrades.$inferInsert)['standardGrade'],
+				})
+				.where(eq(subjectGrades.id, gradeId))
+				.returning();
+
+			return updated;
+		});
 	}
 }

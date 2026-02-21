@@ -82,7 +82,7 @@ class DocumentReviewService extends BaseService<
 
 	async updateSubjectGradeField(
 		gradeId: string,
-		field: string,
+		field: 'originalGrade' | 'standardGrade',
 		value: string | null
 	) {
 		return withAuth(

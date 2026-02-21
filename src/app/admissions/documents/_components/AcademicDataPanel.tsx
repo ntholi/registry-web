@@ -4,6 +4,7 @@ import { Badge, Divider, Group, Stack, Table, Text } from '@mantine/core';
 import type {
 	academicRecords,
 	certificateTypes,
+	gradeMappings,
 	subjectGrades,
 	subjects,
 } from '@/core/database';
@@ -18,24 +19,15 @@ type SubjectGrade = typeof subjectGrades.$inferSelect & {
 };
 
 type AcademicRecord = typeof academicRecords.$inferSelect & {
-	certificateType: typeof certificateTypes.$inferSelect;
+	certificateType: typeof certificateTypes.$inferSelect & {
+		gradeMappings?: (typeof gradeMappings.$inferSelect)[];
+	};
 	subjectGrades: SubjectGrade[];
 };
 
 type Props = {
 	records: AcademicRecord[];
 };
-
-const STANDARD_GRADE_OPTIONS = [
-	{ value: 'A*', label: 'A*' },
-	{ value: 'A', label: 'A' },
-	{ value: 'B', label: 'B' },
-	{ value: 'C', label: 'C' },
-	{ value: 'D', label: 'D' },
-	{ value: 'E', label: 'E' },
-	{ value: 'F', label: 'F' },
-	{ value: 'U', label: 'U' },
-];
 
 const CLASSIFICATION_OPTIONS = [
 	{ value: 'Distinction', label: 'Distinction' },
@@ -46,6 +38,74 @@ const CLASSIFICATION_OPTIONS = [
 ];
 
 export default function AcademicDataPanel({ records }: Props) {
+	function getOriginalGradeOptions(record: AcademicRecord) {
+		const values = new Set(
+			(record.certificateType?.gradeMappings ?? []).map((m) => m.originalGrade)
+		);
+		return Array.from(values).map((v) => ({ value: v, label: v }));
+	}
+
+	function renderSubjectGrades(record: AcademicRecord) {
+		if (record.subjectGrades.length === 0) {
+			return null;
+		}
+
+		const isLqf4 = record.certificateType?.lqfLevel === 4;
+		const originalGradeOptions = getOriginalGradeOptions(record);
+
+		return (
+			<Stack gap='xs' mt='xs'>
+				<Text size='xs' fw={600} c='dimmed' tt='uppercase'>
+					Subject Grades
+				</Text>
+				<Table
+					horizontalSpacing='xs'
+					verticalSpacing={6}
+					fz='sm'
+					striped
+					highlightOnHover
+				>
+					<Table.Thead>
+						<Table.Tr>
+							<Table.Th>Subject</Table.Th>
+							<Table.Th w={160}>Original Grade</Table.Th>
+						</Table.Tr>
+					</Table.Thead>
+					<Table.Tbody>
+						{record.subjectGrades.map((sg) => (
+							<Table.Tr key={sg.id}>
+								<Table.Td>
+									<Text size='sm'>{sg.subject?.name ?? 'Unknown'}</Text>
+								</Table.Td>
+								<Table.Td>
+									<EditableField
+										label='Original Grade'
+										hideLabel
+										value={sg.originalGrade}
+										onSave={async (v) => {
+											await updateSubjectGradeField(sg.id, 'originalGrade', v);
+										}}
+										inputType={
+											isLqf4 && originalGradeOptions.length > 0
+												? 'select'
+												: 'text'
+										}
+										selectOptions={
+											isLqf4 && originalGradeOptions.length > 0
+												? originalGradeOptions
+												: undefined
+										}
+										clearable={!isLqf4}
+									/>
+								</Table.Td>
+							</Table.Tr>
+						))}
+					</Table.Tbody>
+				</Table>
+			</Stack>
+		);
+	}
+
 	if (records.length === 0) {
 		return (
 			<Stack gap='md'>
@@ -73,6 +133,11 @@ export default function AcademicDataPanel({ records }: Props) {
 						</Badge>
 					</Group>
 					<Divider />
+					{record.certificateType?.lqfLevel === 4 && (
+						<>
+							{renderSubjectGrades(record)} <Divider />
+						</>
+					)}
 
 					<EditableField
 						label='Institution Name'
@@ -134,66 +199,8 @@ export default function AcademicDataPanel({ records }: Props) {
 						inputType='select'
 						selectOptions={CLASSIFICATION_OPTIONS}
 					/>
-
-					{record.subjectGrades.length > 0 && (
-						<Stack gap='xs' mt='xs'>
-							<Text size='xs' fw={600} c='dimmed' tt='uppercase'>
-								Subject Grades
-							</Text>
-							<Table
-								horizontalSpacing='xs'
-								verticalSpacing={6}
-								fz='sm'
-								striped
-								highlightOnHover
-							>
-								<Table.Thead>
-									<Table.Tr>
-										<Table.Th>Subject</Table.Th>
-										<Table.Th w={120}>Original</Table.Th>
-										<Table.Th w={120}>Standard</Table.Th>
-									</Table.Tr>
-								</Table.Thead>
-								<Table.Tbody>
-									{record.subjectGrades.map((sg) => (
-										<Table.Tr key={sg.id}>
-											<Table.Td>
-												<Text size='sm'>{sg.subject?.name ?? 'Unknown'}</Text>
-											</Table.Td>
-											<Table.Td>
-												<EditableField
-													label=''
-													value={sg.originalGrade}
-													onSave={async (v) => {
-														await updateSubjectGradeField(
-															sg.id,
-															'originalGrade',
-															v
-														);
-													}}
-												/>
-											</Table.Td>
-											<Table.Td>
-												<EditableField
-													label=''
-													value={sg.standardGrade}
-													onSave={async (v) => {
-														await updateSubjectGradeField(
-															sg.id,
-															'standardGrade',
-															v
-														);
-													}}
-													inputType='select'
-													selectOptions={STANDARD_GRADE_OPTIONS}
-												/>
-											</Table.Td>
-										</Table.Tr>
-									))}
-								</Table.Tbody>
-							</Table>
-						</Stack>
-					)}
+					{record.certificateType?.lqfLevel !== 4 &&
+						renderSubjectGrades(record)}
 				</Stack>
 			))}
 		</Stack>

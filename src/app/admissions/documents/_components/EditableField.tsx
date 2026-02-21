@@ -2,12 +2,16 @@
 
 import {
 	ActionIcon,
+	Button,
 	Group,
+	Modal,
 	Select,
+	Stack,
 	Text,
 	TextInput,
 	Tooltip,
 } from '@mantine/core';
+import { useDisclosure } from '@mantine/hooks';
 import { IconCheck, IconPencil, IconX } from '@tabler/icons-react';
 import { useMutation } from '@tanstack/react-query';
 import { useState } from 'react';
@@ -21,6 +25,8 @@ type Props = {
 	inputType?: InputType;
 	selectOptions?: { value: string; label: string }[];
 	placeholder?: string;
+	clearable?: boolean;
+	hideLabel?: boolean;
 };
 
 export default function EditableField({
@@ -30,8 +36,10 @@ export default function EditableField({
 	inputType = 'text',
 	selectOptions,
 	placeholder,
+	clearable = true,
+	hideLabel = false,
 }: Props) {
-	const [editing, setEditing] = useState(false);
+	const [opened, { open, close }] = useDisclosure(false);
 	const [editValue, setEditValue] = useState(value ?? '');
 
 	const mutation = useMutation({
@@ -39,7 +47,7 @@ export default function EditableField({
 			await onSave(newValue);
 		},
 		onSuccess: () => {
-			setEditing(false);
+			close();
 		},
 	});
 
@@ -50,39 +58,73 @@ export default function EditableField({
 
 	const handleCancel = () => {
 		setEditValue(value ?? '');
-		setEditing(false);
+		close();
 	};
 
 	const handleStartEdit = () => {
 		setEditValue(value ?? '');
-		setEditing(true);
+		open();
 	};
 
-	if (editing) {
-		return (
+	return (
+		<>
 			<div>
-				<Text size='xs' c='dimmed' mb={2}>
-					{label}
-				</Text>
-				<Group gap={4} align='flex-end'>
+				{!hideLabel && (
+					<Text size='xs' c='dimmed' mb={2}>
+						{label}
+					</Text>
+				)}
+				<Group gap={4} align='center' justify='space-between'>
+					<Text size='sm' fw={500} style={{ flex: 1 }}>
+						{value || (
+							<Text span fs='italic' c='dimmed'>
+								Empty
+							</Text>
+						)}
+					</Text>
+					<Tooltip label={`Edit ${label.toLowerCase()}`}>
+						<ActionIcon
+							size='xs'
+							variant='subtle'
+							c='dimmed'
+							onClick={handleStartEdit}
+						>
+							<IconPencil size={12} />
+						</ActionIcon>
+					</Tooltip>
+				</Group>
+			</div>
+			<Modal
+				opened={opened}
+				onClose={handleCancel}
+				title={`Edit ${label}`}
+				centered
+			>
+				<Stack gap='sm'>
+					<Stack gap={2}>
+						<Text size='xs' c='dimmed'>
+							Current Value
+						</Text>
+						<Text size='sm' fw={500}>
+							{value || 'Empty'}
+						</Text>
+					</Stack>
 					{inputType === 'select' && selectOptions ? (
 						<Select
+							label='New Value'
 							data={selectOptions}
 							value={editValue}
 							onChange={(v) => setEditValue(v ?? '')}
-							placeholder={placeholder}
+							placeholder={placeholder || `Select ${label.toLowerCase()}`}
 							searchable
-							size='xs'
-							style={{ flex: 1 }}
-							clearable
+							clearable={clearable}
 						/>
 					) : (
 						<TextInput
+							label='New Value'
 							value={editValue}
 							onChange={(e) => setEditValue(e.currentTarget.value)}
 							placeholder={placeholder || label}
-							size='xs'
-							style={{ flex: 1 }}
 							onKeyDown={(e) => {
 								if (e.key === 'Enter') handleSave();
 								if (e.key === 'Escape') handleCancel();
@@ -90,52 +132,25 @@ export default function EditableField({
 							autoFocus
 						/>
 					)}
-					<ActionIcon
-						size='sm'
-						color='green'
-						variant='light'
-						onClick={handleSave}
-						loading={mutation.isPending}
-					>
-						<IconCheck size={12} />
-					</ActionIcon>
-					<ActionIcon
-						size='sm'
-						variant='subtle'
-						onClick={handleCancel}
-						disabled={mutation.isPending}
-					>
-						<IconX size={12} />
-					</ActionIcon>
-				</Group>
-			</div>
-		);
-	}
-
-	return (
-		<div>
-			<Text size='xs' c='dimmed' mb={2}>
-				{label}
-			</Text>
-			<Group gap={4} align='center' justify='space-between'>
-				<Text size='sm' fw={500} style={{ flex: 1 }}>
-					{value || (
-						<Text span fs='italic' c='dimmed'>
-							Empty
-						</Text>
-					)}
-				</Text>
-				<Tooltip label={`Edit ${label.toLowerCase()}`}>
-					<ActionIcon
-						size='xs'
-						variant='subtle'
-						c='dimmed'
-						onClick={handleStartEdit}
-					>
-						<IconPencil size={12} />
-					</ActionIcon>
-				</Tooltip>
-			</Group>
-		</div>
+					<Group justify='flex-end'>
+						<Button
+							variant='default'
+							leftSection={<IconX size={14} />}
+							onClick={handleCancel}
+							disabled={mutation.isPending}
+						>
+							Cancel
+						</Button>
+						<Button
+							leftSection={<IconCheck size={14} />}
+							onClick={handleSave}
+							loading={mutation.isPending}
+						>
+							Update
+						</Button>
+					</Group>
+				</Stack>
+			</Modal>
+		</>
 	);
 }

@@ -52,7 +52,7 @@ export async function updateAcademicRecordField(
 
 export async function updateSubjectGradeField(
 	gradeId: string,
-	field: string,
+	field: 'originalGrade' | 'standardGrade',
 	value: string | null
 ) {
 	return documentReviewService.updateSubjectGradeField(gradeId, field, value);
