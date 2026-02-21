@@ -15,7 +15,7 @@ import { useDisclosure, useMediaQuery } from '@mantine/hooks';
 import { IconArrowNarrowLeft } from '@tabler/icons-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'nextjs-toploader/app';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 import type { DocumentVerificationStatus } from '@/core/database';
 import { useViewSelect } from '@/shared/lib/hooks/use-view-select';
 import {
@@ -68,20 +68,6 @@ export default function DocumentReviewHeader({ id, title, status }: Props) {
 			await navigateToNext();
 		},
 	});
-
-	useEffect(() => {
-		const handleBeforeUnload = () => {
-			navigator.sendBeacon(
-				'/api/admissions/documents/release-lock',
-				JSON.stringify({ documentId: id })
-			);
-		};
-		window.addEventListener('beforeunload', handleBeforeUnload);
-		return () => {
-			window.removeEventListener('beforeunload', handleBeforeUnload);
-			releaseReviewLock(id);
-		};
-	}, [id]);
 
 	const handleSave = () => {
 		if (selected === 'rejected') {
