@@ -11,7 +11,12 @@ import {
 	useMantineColorScheme,
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
-import { IconMoon, IconSun } from '@tabler/icons-react';
+import {
+	IconLayoutSidebarLeftCollapse,
+	IconMenu2,
+	IconMoon,
+	IconSun,
+} from '@tabler/icons-react';
 import React, { type PropsWithChildren } from 'react';
 import NotificationBell from '../NotificationBell';
 
@@ -69,12 +74,18 @@ const Shell: React.FC<PropsWithChildren> & ShellComposition = ({
 							hiddenFrom='md'
 							size='sm'
 						/>
-						<Burger
-							opened={desktopOpened}
+						<ActionIcon
 							onClick={toggleDesktop}
 							visibleFrom='md'
-							size='sm'
-						/>
+							color='gray'
+							variant='transparent'
+						>
+							{desktopOpened ? (
+								<IconLayoutSidebarLeftCollapse size='1.2rem' />
+							) : (
+								<IconMenu2 size='1.2rem' />
+							)}
+						</ActionIcon>
 						{Header}
 					</Group>
 					<Group gap='sm'>
