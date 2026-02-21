@@ -1,11 +1,12 @@
 'use client';
 
-import { Badge, Group, Text } from '@mantine/core';
+import { Badge, ThemeIcon } from '@mantine/core';
+import { IconAlertCircle, IconCheck, IconClock } from '@tabler/icons-react';
 import { useSearchParams } from 'next/navigation';
 import { useRouter } from 'nextjs-toploader/app';
 import type { PropsWithChildren } from 'react';
 import type { DocumentType, DocumentVerificationStatus } from '@/core/database';
-import { getDocumentVerificationStatusColor } from '@/shared/lib/utils/colors';
+import { getStatusColor } from '@/shared/lib/utils/colors';
 import { ListItem, ListLayout } from '@/shared/ui/adease';
 import DocumentReviewFilter from './_components/DocumentReviewFilter';
 import { getDocumentsForReview } from './_server/actions';
@@ -75,29 +76,23 @@ export default function DocumentsLayout({ children }: PropsWithChildren) {
 			renderItem={(doc) => (
 				<ListItem
 					id={doc.id}
-					label={
-						<Group gap='xs'>
-							<Text size='sm' truncate>
-								{doc.applicantName}
-							</Text>
-							{doc.verificationStatus && (
-								<Badge
-									size='xs'
-									variant='light'
-									color={getDocumentVerificationStatusColor(
-										doc.verificationStatus
-									)}
-								>
-									{doc.verificationStatus}
-								</Badge>
-							)}
-						</Group>
-					}
+					label={doc.applicantName}
 					description={
-						<Text size='xs' c='dimmed' truncate>
-							{doc.documentType?.replace('_', ' ') ?? 'Unknown'} •{' '}
-							{doc.fileName}
-						</Text>
+						<Badge
+							size='xs'
+							variant='light'
+							color={getDocumentTypeColor(doc.documentType)}
+						>
+							{doc.documentType?.replace('_', ' ') ?? 'Unknown'}
+						</Badge>
+					}
+					rightSection={
+						<ThemeIcon
+							variant='transparent'
+							c={getStatusColor(doc.verificationStatus || 'pending')}
+						>
+							{getStatusIcon(doc.verificationStatus || 'pending')}
+						</ThemeIcon>
 					}
 				/>
 			)}
@@ -105,4 +100,42 @@ export default function DocumentsLayout({ children }: PropsWithChildren) {
 			{children}
 		</ListLayout>
 	);
+}
+
+function getStatusIcon(status: 'pending' | 'verified' | 'rejected') {
+	switch (status) {
+		case 'pending':
+			return <IconClock size={'1rem'} />;
+		case 'verified':
+			return <IconCheck size={'1rem'} />;
+		case 'rejected':
+			return <IconAlertCircle size={'1rem'} />;
+	}
+}
+
+function getDocumentTypeColor(type: DocumentType | null) {
+	switch (type) {
+		case 'identity':
+			return 'blue';
+		case 'academic_record':
+		case 'certificate':
+			return 'green';
+		case 'proof_of_payment':
+			return 'cyan';
+		case 'passport_photo':
+			return 'violet';
+		case 'recommendation_letter':
+			return 'orange';
+		case 'personal_statement':
+			return 'indigo';
+		case 'medical_report':
+			return 'red';
+		case 'enrollment_letter':
+			return 'lime';
+		case 'clearance_form':
+			return 'yellow';
+		case 'other':
+		default:
+			return 'gray';
+	}
 }
