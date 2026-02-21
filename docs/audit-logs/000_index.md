@@ -56,7 +56,7 @@ The app currently has **7 fragmented audit tables** using two different patterns
 | User attribution | Session variable `app.current_user_id` passed from app layer |
 | Migration | Existing 7 audit tables migrated to the new unified table |
 | Query UI | Audit history viewable per-entity and globally |
-| 95 tables audited | All meaningful tables tracked (19 excluded) |
+| 92 tables audited | All meaningful tables tracked (22 excluded) |
 
 ## Implementation Steps
 
@@ -64,10 +64,11 @@ The app currently has **7 fragmented audit tables** using two different patterns
 |------|------|-------------|
 | 1 | [001_unified-audit-schema.md](001_unified-audit-schema.md) | Create the unified `audit_logs` table schema and PG trigger function |
 | 2 | [002_application-integration.md](002_application-integration.md) | Integrate session variable injection into BaseRepository |
-| 3 | [003_table-triggers.md](003_table-triggers.md) | Create triggers for all 95 auditable tables |
+| 3 | [003_table-triggers.md](003_table-triggers.md) | Create triggers for all 92 auditable tables |
 | 4 | [004_migration.md](004_migration.md) | Migrate existing 7 audit tables into the new unified table |
 | 5 | [005_audit-ui.md](005_audit-ui.md) | Build query UI for viewing audit logs per entity and globally |
 | 6 | [006_cleanup.md](006_cleanup.md) | Remove old audit code paths and deprecated tables |
+| 7 | [007_activity-dashboard.md](007_activity-dashboard.md) | Build department and user activity dashboard from audit logs |
 
 ## Database Entity
 
@@ -95,11 +96,11 @@ The app currently has **7 fragmented audit tables** using two different patterns
 
 ## Tables Audit Classification
 
-### Audited Tables (95 tables)
+### Audited Tables (92 tables)
 
 See [003_table-triggers.md](003_table-triggers.md) for the complete list organized by module.
 
-### Excluded Tables (19 tables)
+### Excluded Tables (22 tables)
 
 | Table | Reason |
 |-------|--------|
@@ -122,6 +123,9 @@ See [003_table-triggers.md](003_table-triggers.md) for the complete list organiz
 | `feedback_responses` | Anonymized survey data — auditing defeats anonymity |
 | `loan_renewals` | Already an append-only log of renewals |
 | `grade_mappings` | Reference/config data rarely changed, low risk |
+| `statement_of_results_prints` | Operational print log, high-volume low-value for audit trail |
+| `student_card_prints` | Operational print log, high-volume low-value for audit trail |
+| `transcript_prints` | Operational print log, high-volume low-value for audit trail |
 
 ## Access Control
 
@@ -143,6 +147,7 @@ See [003_table-triggers.md](003_table-triggers.md) for the complete list organiz
 | 4 | Migration | Steps 1, 3 |
 | 5 | Audit UI | Steps 1, 2 |
 | 6 | Cleanup | Steps 4, 5 |
+| 7 | Activity Dashboard | Steps 2, 5 |
 
 ## Validation Command
 

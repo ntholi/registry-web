@@ -2,7 +2,7 @@
 
 ## Introduction
 
-This step creates PostgreSQL triggers for all 95 auditable tables. Each trigger calls `audit_trigger_func()` (created in Step 1) on INSERT, UPDATE, and DELETE, passing the table's primary key column name as an argument.
+This step creates PostgreSQL triggers for all 92 auditable tables. Each trigger calls `audit_trigger_func()` (created in Step 1) on INSERT, UPDATE, and DELETE, passing the table's primary key column name as an argument.
 
 ## Context
 
@@ -21,7 +21,7 @@ CREATE TRIGGER audit_<table_name>
   FOR EACH ROW EXECUTE FUNCTION audit_trigger_func('<pk_column>');
 ```
 
-### 2. Complete Auditable Tables List (95 tables)
+### 2. Complete Auditable Tables List (92 tables)
 
 #### Academic Module (16 tables)
 
@@ -141,33 +141,30 @@ CREATE TRIGGER audit_<table_name>
 | 75 | `graduation_request_receipts` | `id` | Graduation request payment receipts |
 | 76 | `graduation_dates` | `id` | Graduation ceremony dates |
 | 77 | `graduation_requests` | `id` | Student graduation requests |
-| 78 | `statement_of_results_prints` | `id` | Print log for statements of results |
-| 79 | `student_card_prints` | `id` | Print log for student cards |
-| 80 | `transcript_prints` | `id` | Print log for transcripts |
-| 81 | `auto_approvals` | `id` | Auto-approval rules for clearance |
-| 82 | `registration_requests` | `id` | Student registration requests |
-| 83 | `registration_request_receipts` | `id` | Registration request payment receipts |
-| 84 | `requested_modules` | `id` | Modules requested in a registration |
-| 85 | `terms` | `id` | Academic terms/semesters |
-| 86 | `term_settings` | `id` | Term configuration settings |
-| 87 | `term_registrations` | `id` | Term registration windows |
-| 88 | `term_registration_programs` | `id` | Programs active for a term registration |
-| 89 | `publication_attachments` | `id` | Term publication file attachments |
+| 78 | `auto_approvals` | `id` | Auto-approval rules for clearance |
+| 79 | `registration_requests` | `id` | Student registration requests |
+| 80 | `registration_request_receipts` | `id` | Registration request payment receipts |
+| 81 | `requested_modules` | `id` | Modules requested in a registration |
+| 82 | `terms` | `id` | Academic terms/semesters |
+| 83 | `term_settings` | `id` | Term configuration settings |
+| 84 | `term_registrations` | `id` | Term registration windows |
+| 85 | `term_registration_programs` | `id` | Programs active for a term registration |
+| 86 | `publication_attachments` | `id` | Term publication file attachments |
 
 #### Timetable Module (8 tables)
 
 | # | Table | PK Column | Description |
 |---|-------|-----------|-------------|
-| 90 | `timetable_slots` | `id` | Time slots in the schedule |
-| 91 | `timetable_slot_allocations` | `id` | Slot-to-class assignments |
-| 92 | `timetable_allocations` | `id` | Module-lecturer-venue allocations |
-| 93 | `timetable_allocation_allowed_venues` | `id` | Allowed venues for allocations |
-| 94 | `timetable_allocation_venue_types` | `id` | Venue type preferences for allocations |
-| 95 | `venues` | `id` | Physical venue/room definitions |
-| 96 | `venue_schools` | `id` | Venue-to-school assignments |
-| 97 | `venue_types` | `id` | Venue type catalog |
+| 87 | `timetable_slots` | `id` | Time slots in the schedule |
+| 88 | `timetable_slot_allocations` | `id` | Slot-to-class assignments |
+| 89 | `timetable_allocations` | `id` | Module-lecturer-venue allocations |
+| 90 | `timetable_allocation_allowed_venues` | `id` | Allowed venues for allocations |
+| 91 | `timetable_allocation_venue_types` | `id` | Venue type preferences for allocations |
+| 92 | `venues` | `id` | Physical venue/room definitions |
+| 93 | `venue_schools` | `id` | Venue-to-school assignments |
+| 94 | `venue_types` | `id` | Venue type catalog |
 
-### 3. Excluded Tables (19 tables)
+### 3. Excluded Tables (22 tables)
 
 | Table | Module | Reason |
 |-------|--------|--------|
@@ -190,17 +187,20 @@ CREATE TRIGGER audit_<table_name>
 | `feedback_responses` | academic | Anonymous data — auditing undermines anonymity |
 | `loan_renewals` | library | Already append-only log |
 | `grade_mappings` | registry | Static reference data |
+| `statement_of_results_prints` | registry | Operational print log, high-volume low-value for audit trail |
+| `student_card_prints` | registry | Operational print log, high-volume low-value for audit trail |
+| `transcript_prints` | registry | Operational print log, high-volume low-value for audit trail |
 
 ## Expected Files
 
 | File | Purpose |
 |------|---------|
-| `drizzle/XXXX_custom_audit_triggers.sql` | Custom migration creating all 97 triggers |
+| `drizzle/XXXX_custom_audit_triggers.sql` | Custom migration creating all 92 triggers |
 
 ## Validation Criteria
 
 1. Migration runs successfully
-2. All 97 triggers exist in the database: `SELECT tgname FROM pg_trigger WHERE tgname LIKE 'audit_%';`
+2. All 92 triggers exist in the database: `SELECT tgname FROM pg_trigger WHERE tgname LIKE 'audit_%';`
 3. Inserting a row into any audited table creates a corresponding row in `audit_logs`
 4. Updating a row creates an `UPDATE` audit entry with old and new values
 5. Deleting a row creates a `DELETE` audit entry with old values
