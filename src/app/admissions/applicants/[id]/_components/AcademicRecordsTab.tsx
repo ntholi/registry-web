@@ -46,67 +46,58 @@ export default function AcademicRecordsTab({ records }: Props) {
 	}
 
 	const consolidatedGroups = useMemo(() => {
-		const groups = new Map<
+		const level4Records = records.filter(
+			(r) => r.certificateType.lqfLevel === 4
+		);
+		if (level4Records.length <= 1) return [];
+
+		const standardGradeOrder = ['A*', 'A', 'B', 'C', 'D', 'E', 'F', 'U'];
+		const bestGrades = new Map<
 			string,
 			{
-				type: AcademicRecordWithRelations['certificateType'];
-				records: AcademicRecordWithRelations[];
+				subject: AcademicRecordWithRelations['subjectGrades'][number]['subject'];
+				originalGrade: string;
+				standardGrade: string | null;
 			}
 		>();
 
-		for (const record of records) {
-			const typeId = record.certificateType.id;
-			if (!groups.has(typeId)) {
-				groups.set(typeId, { type: record.certificateType, records: [] });
-			}
-			groups.get(typeId)!.records.push(record);
-		}
+		for (const record of level4Records) {
+			for (const sg of record.subjectGrades) {
+				if (!sg.standardGrade) continue;
+				const existing = bestGrades.get(sg.subject.id);
+				const currentRank = standardGradeOrder.indexOf(sg.standardGrade);
 
-		const consolidated = [];
-		const standardGradeOrder = ['A*', 'A', 'B', 'C', 'D', 'E', 'F', 'U'];
-
-		for (const group of groups.values()) {
-			if (group.records.length > 1 && group.type.lqfLevel === 4) {
-				const bestGrades = new Map<
-					string,
-					{
-						subject: AcademicRecordWithRelations['subjectGrades'][number]['subject'];
-						originalGrade: string;
-						standardGrade: string | null;
-					}
-				>();
-
-				for (const record of group.records) {
-					for (const sg of record.subjectGrades) {
-						if (!sg.standardGrade) continue;
-						const existing = bestGrades.get(sg.subject.id);
-						const currentRank = standardGradeOrder.indexOf(sg.standardGrade);
-
-						if (
-							!existing ||
-							!existing.standardGrade ||
-							(currentRank !== -1 &&
-								currentRank <
-									standardGradeOrder.indexOf(existing.standardGrade))
-						) {
-							bestGrades.set(sg.subject.id, {
-								subject: sg.subject,
-								originalGrade: sg.originalGrade,
-								standardGrade: sg.standardGrade,
-							});
-						}
-					}
+				if (
+					!existing ||
+					!existing.standardGrade ||
+					(currentRank !== -1 &&
+						currentRank < standardGradeOrder.indexOf(existing.standardGrade))
+				) {
+					bestGrades.set(sg.subject.id, {
+						subject: sg.subject,
+						originalGrade: sg.originalGrade,
+						standardGrade: sg.standardGrade,
+					});
 				}
-
-				consolidated.push({
-					type: group.type,
-					grades: Array.from(bestGrades.values()).sort((a, b) =>
-						a.subject.name.localeCompare(b.subject.name)
-					),
-				});
 			}
 		}
-		return consolidated;
+
+		if (bestGrades.size === 0) return [];
+
+		const certTypeNames = [
+			...new Set(level4Records.map((r) => r.certificateType.name)),
+		];
+
+		return [
+			{
+				label: `LQF Level 4 (Combined)`,
+				certTypeNames,
+				recordCount: level4Records.length,
+				grades: Array.from(bestGrades.values()).sort((a, b) =>
+					a.subject.name.localeCompare(b.subject.name)
+				),
+			},
+		];
 	}, [records]);
 
 	const deleteMutation = useMutation({
@@ -136,22 +127,17 @@ export default function AcademicRecordsTab({ records }: Props) {
 						CONSOLIDATED VIEW
 					</Text>
 					{consolidatedGroups.map((group) => (
-						<Box key={group.type.id} px='md'>
+						<Box key='consolidated-lqf4' px='md'>
 							<Accordion variant='separated'>
-								<Accordion.Item value={`consolidated-${group.type.id}`}>
+								<Accordion.Item value='consolidated-lqf4'>
 									<Accordion.Control>
 										<Group gap='md'>
 											<IconBooks size={20} />
 											<Stack gap={2}>
-												<Text fw={600}>{group.type.name} (Combined)</Text>
+												<Text fw={600}>{group.label}</Text>
 												<Text size='xs' c='dimmed'>
-													Best performance across{' '}
-													{
-														records.filter(
-															(r) => r.certificateType.id === group.type.id
-														).length
-													}{' '}
-													sittings
+													Best performance across {group.recordCount} records (
+													{group.certTypeNames.join(' / ')})
 												</Text>
 											</Stack>
 										</Group>
