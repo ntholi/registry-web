@@ -40,63 +40,67 @@ const identityConfidenceMin = 90;
 const CERTIFICATION_RULES = `CERTIFICATION:
 - isCertified: true if document shows any official certification (stamp, seal, or official mark)`;
 
-const ACADEMIC_RULES = `- institutionName: Student's school (not examining body like Cambridge/ECoL)
-- LGCSE grades: Use letter (A*, A, B, C, D, E, F, G, U)
-- IGCSE vs Edexcel IGCSE DISAMBIGUATION (CRITICAL):
-  * Cambridge IGCSE ("International General Certificate of Secondary Education", issued by Cambridge Assessment International Education / CAIE / CIE / UCLES): Uses LETTER grades (A*, A, B, C, D, E, F, G, U). Set certificateType to "IGCSE". NEVER set to "Edexcel IGCSE".
-  * Pearson Edexcel International GCSE (issued by Pearson/Edexcel): Uses NUMERIC grades (9, 8, 7, 6, 5, 4, 3, 2, 1, U). Set certificateType to "Edexcel IGCSE". NEVER set to "IGCSE".
-  * If the document says "Cambridge" or "CAIE" or "University of Cambridge" → it is IGCSE (letter grades), NOT Edexcel.
-  * If the document says "Pearson" or "Edexcel" → it is Edexcel IGCSE (numeric grades), NOT Cambridge.
-- Extract ALL subjects with grades
-- Only accept LGCSE (or equivalent) or higher certificates/result slips. If lower than LGCSE, classify as "other" and set certificateType to null.
-- candidateNumber: Extract if present, commonly labeled "Center/Candidate Number", "Centre/Candidate Number", or "Center / Cand. No.".
-- NSC VERIFICATION LETTERS: Documents from ECoL verifying NSC results often provide COSC/LGCSE equivalent grades at the bottom. When present, extract those COSC/LGCSE letter grades (A-G, U) as the subjects. Set certificateType to "NSC". These are valid academic documents.`;
+const DOCUMENT_TYPE_RULES = `DOCUMENT TYPE CLASSIFICATION (CRITICAL):
+- certificate: Official credential issued upon COMPLETION. Indicators:
+  * Formal title: "Certificate", "Diploma Certificate", "Degree"
+  * Completion language: "This is to certify that...", "has successfully completed", "conferred upon", "awarded to"
+  * Has institution seal, signatures, formal certification
+  * Examples: LGCSE Certificate, Diploma Certificate, Degree Certificate, National Certificate
+- academic_record: Any document showing grades/results (NOT the final credential). Indicators:
+  * Results language: "Statement of Results", "Results Slip", "Transcript", "Academic Record", "Grade Report"
+  * Shows subject/course list with grades/marks
+  * May show GPA, cumulative average, or individual subject scores
+  * Can be preliminary or final results
+  * Verification/equivalence letters from examining bodies (e.g., ECoL) confirming results and/or providing grade equivalences
+  * "To Whom It May Concern" letters from examining councils listing subjects with grades
+  * Examples: LGCSE results slip, IGCSE statement of results, NSC results, university transcripts, diploma transcripts, ECoL verification letters`;
 
-const GRADE_FORMAT_RULES = `GRADE FORMAT VERIFICATION (CRITICAL):
-- LGCSE/Cambridge IGCSE grades are often displayed as a letter followed by the same letter in parentheses, e.g., C(c), B(b), E(e), F(f), G(g).
-- The uppercase letter BEFORE the parentheses and the lowercase letter INSIDE the parentheses represent the SAME grade. Use BOTH symbols to cross-verify.
-- If the letter before the brackets does NOT match the letter inside, flag as unreadable (add to "unreadableGrades").
-- Example: "C(c)" → grade is C (verified). "B(d)" → mismatch, flag as unreadable.
-- Always extract only the single letter grade (e.g., "C"), not the full bracket notation.
-- Edexcel IGCSE grades are displayed as a number followed by the word in parentheses, e.g., "6 (six)", "5 (five)". Extract only the numeric grade (e.g., "6").`;
+const ACADEMIC_RULES = `- institutionName: Student's school (not examining body like Cambridge/ECoL)
+- IGCSE vs Edexcel IGCSE DISAMBIGUATION (CRITICAL):
+  * Cambridge IGCSE (issued by CAIE / CIE / UCLES): Uses LETTER grades (A*, A, B, C, D, E, F, G, U). Set certificateType to "IGCSE". NEVER set to "Edexcel IGCSE".
+  * Pearson Edexcel International GCSE (issued by Pearson/Edexcel): Uses NUMERIC grades (9, 8, 7, 6, 5, 4, 3, 2, 1, U). Set certificateType to "Edexcel IGCSE". NEVER set to "IGCSE".
+  * "Cambridge"/"CAIE"/"University of Cambridge" → IGCSE (letter grades), NOT Edexcel.
+  * "Pearson"/"Edexcel" → Edexcel IGCSE (numeric grades), NOT Cambridge.
+- Extract ALL subjects with grades
+- Only accept LGCSE (or equivalent) or higher. If lower, classify as "other" with certificateType null.
+- candidateNumber: Extract if present (labeled "Center/Candidate Number", "Centre/Candidate Number", or "Center / Cand. No.").
+- NSC VERIFICATION LETTERS: ECoL documents verifying NSC results often provide COSC/LGCSE equivalent grades. Extract those letter grades (A-G, U) as subjects. Set certificateType to "NSC".
+
+ISSUING AUTHORITY:
+- issuingAuthority: Extract examining body (ECoL, Cambridge, Pearson/Edexcel, IEB, Umalusi). "Examinations Council of Lesotho" → "ECoL".
+- isEcol: true if document mentions ECoL/Examinations Council of Lesotho, else false.
+- isCambridge: true if issued by Cambridge/CAIE/CIE/UCLES, else false. When true and IGCSE-level → certificateType MUST be "IGCSE".
+- isPearson: true if issued by Pearson/Edexcel, else false. When true and IGCSE-level → certificateType MUST be "Edexcel IGCSE".`;
+
+const GRADE_RULES = `GRADE ACCURACY (CRITICAL - ZERO TOLERANCE):
+- Per-subject confidence (0-100): 100 = certain, <${gradeConfidenceMin} = uncertain.
+- If confidence < ${gradeConfidenceMin} for ANY subject, add to "unreadableGrades".
+- DO NOT guess. If "B" could be "D" or "8", that is <90. Better unreadable than wrong.
+
+GRADE FORMAT VERIFICATION:
+- LGCSE/Cambridge IGCSE grades often displayed as letter + same letter in parentheses: C(c), B(b), E(e).
+- Use BOTH symbols to cross-verify. Mismatch (e.g., "B(d)") → flag as unreadable.
+- Extract only the single letter grade (e.g., "C"), not the bracket notation.
+- Edexcel IGCSE: number + word in parentheses (e.g., "6 (six)"). Extract only the numeric grade.`;
 
 const ANALYSIS_PROMPT = `Analyze this document and extract information.
 
 CATEGORIES:
-- identity: IDs, passports, birth certificates  
+- identity: IDs, passports, birth certificates
 - academic: Certificates and academic records (results slips, transcripts, statements of results)
 - other: Receipts, statements, medical reports
 
-DOCUMENT TYPE CLASSIFICATION (CRITICAL FOR ACADEMIC):
-- certificate: Official credential document issued upon COMPLETION of a qualification. Key indicators:
-  * Formal title: "Certificate", "Diploma", "Degree"
-  * Completion language: "This is to certify that...", "has successfully completed", "conferred upon", "awarded to"
-  * Has institution seal, signatures, formal certification
-  * Examples: LGCSE Certificate, Diploma Certificate, Degree Certificate
-- academic_record: Any document showing grades/results (NOT the final credential). Key indicators:
-  * Results/grades language: "Statement of Results", "Results Slip", "Transcript", "Academic Record"
-  * Shows subject list with grades/marks
-  * May show GPA, cumulative average, or individual subject scores
-  * Verification or equivalence letters from examining bodies (e.g., ECoL) that confirm results and/or provide grade equivalences
-  * "To Whom It May Concern" letters from examining councils that list subjects with grades
-  * Examples: LGCSE results slip, IGCSE statement of results, NSC results, university transcripts, ECoL verification letters, NSC equivalence letters
+${DOCUMENT_TYPE_RULES}
 
 RULES:
 ${COMMON_RULES}
 ${ACADEMIC_RULES}
-- isEcol: true if document mentions ECoL/Examinations Council of Lesotho, else false.
-- isCambridge: true if document mentions Cambridge/CAIE/CIE/UCLES, else false.
-- isPearson: true if document mentions Pearson/Edexcel, else false.
 
 IDENTITY EXTRACTION QUALITY (CRITICAL):
 - Confidence score (0-100): 100 = crystal clear, 90-99 = readable, <90 = too unclear.
 - If NOT 90%+ sure about ANY required field, set confidence < 90.
 
-GRADE ACCURACY (CRITICAL):
-- Per-subject confidence (0-100). If <100, add to "unreadableGrades".
-- DO NOT guess grades. Accuracy > completeness.
-
-${GRADE_FORMAT_RULES}
+${GRADE_RULES}
 
 ${CERTIFICATION_RULES}`;
 
@@ -116,41 +120,13 @@ ${CERTIFICATION_RULES}`;
 
 const ACADEMIC_PROMPT = `Analyze this academic document and extract structured information.
 
-DOCUMENT TYPE CLASSIFICATION (CRITICAL):
-- certificate: Official credential document issued upon COMPLETION of a qualification. Key indicators:
-  * Formal title: "Certificate", "Diploma Certificate", "Degree"
-  * Completion language: "This is to certify that...", "has successfully completed", "conferred upon", "awarded to"
-  * Has institution seal, signatures, formal certification
-  * Examples: LGCSE Certificate, Diploma Certificate, Degree Certificate, National Certificate
-- academic_record: Any document showing grades/results (NOT the final credential). Key indicators:
-  * Results/grades language: "Statement of Results", "Results Slip", "Transcript", "Academic Record", "Grade Report"
-  * Shows subject/course list with grades/marks
-  * May show GPA, cumulative average, or individual subject scores
-  * Can be preliminary or final results
-  * Verification or equivalence letters from examining bodies (e.g., ECoL) that confirm results and/or provide grade equivalences
-  * "To Whom It May Concern" letters from examining councils that list subjects with grades
-  * Examples: LGCSE results slip, IGCSE statement of results, NSC results, university transcripts, diploma transcripts, ECoL verification letters, NSC equivalence letters
-
+${DOCUMENT_TYPE_RULES}
 
 RULES:
 ${COMMON_RULES}
 ${ACADEMIC_RULES}
 
-GRADE ACCURACY (CRITICAL - ZERO TOLERANCE):
-- Per-subject confidence (0-100): 100 = certain, 99 = distinguishable, <99 = uncertain.
-- If confidence < 100 for ANY subject, add to "unreadableGrades".
-- DO NOT guess. If "B" could be "D" or "8", that is <90. Better unreadable than wrong.
-
-${GRADE_FORMAT_RULES}
-
-ISSUING AUTHORITY:
-- issuingAuthority: Extract examining body (ECoL, Cambridge, Pearson/Edexcel, IEB, Umalusi)
-- "Examinations Council of Lesotho" → record as "ECoL"
-- isEcol: true if the document somehow indicates ECoL/Examinations Council of Lesotho in the document, otherwise false. Always set true or false; do not leave null.
-- isCambridge: true if the document is issued by Cambridge Assessment International Education (Cambridge, CAIE, CIE, UCLES), otherwise false. Always set true or false; do not leave null.
-  * When isCambridge is true and document is IGCSE-level, certificateType MUST be "IGCSE" (NOT "Edexcel IGCSE")
-- isPearson: true if the document is issued by Pearson/Edexcel, otherwise false. Always set true or false; do not leave null.
-  * When isPearson is true and document is IGCSE-level, certificateType MUST be "Edexcel IGCSE" (NOT "IGCSE")
+${GRADE_RULES}
 
 ${CERTIFICATION_RULES}`;
 

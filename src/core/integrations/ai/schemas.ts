@@ -101,7 +101,7 @@ const academicSchema = z
 			.string()
 			.nullable()
 			.describe(
-				'Certificate standard: LGCSE, COSC, IGCSE (Cambridge only - letter grades), Edexcel IGCSE (Pearson only - numeric grades), NSC, GCE O-Level, GCE AS Level, GCE A-Level, Certificate, Diploma, Degree. CRITICAL: Cambridge documents → "IGCSE", Pearson/Edexcel documents → "Edexcel IGCSE".'
+				'Certificate standard (e.g., LGCSE, COSC, IGCSE, Edexcel IGCSE, NSC, GCE O-Level, Certificate, Diploma, Degree)'
 			),
 		qualificationName: z
 			.string()
@@ -119,35 +119,21 @@ const academicSchema = z
 			.describe(
 				'Examining body or issuing authority (e.g., ECoL, Cambridge, IEB, Umalusi)'
 			),
-		isEcol: z
-			.boolean()
-			.describe(
-				'Whether the document somehow includes the Examinations Council of Lesotho (ECoL) in the document'
-			),
+		isEcol: z.boolean().describe('Whether ECoL is mentioned in the document'),
 		isCambridge: z
 			.boolean()
-			.describe(
-				'Whether the document is issued by Cambridge Assessment International Education (Cambridge, CAIE, CIE, or UCLES)'
-			),
-		isPearson: z
-			.boolean()
-			.describe('Whether the document is issued by Pearson/Edexcel'),
+			.describe('Whether issued by Cambridge/CAIE/CIE/UCLES'),
+		isPearson: z.boolean().describe('Whether issued by Pearson/Edexcel'),
 		subjects: z
 			.array(
 				z.object({
 					name: z.string().describe('Subject/course name'),
-					grade: z
-						.string()
-						.describe(
-							'Grade value as shown. LGCSE/Cambridge IGCSE: A*, A, B, C, D, E, F, G, or U (letter grades). Pearson Edexcel IGCSE: 9, 8, 7, 6, 5, 4, 3, 2, 1, or U (numeric grades).'
-						),
+					grade: z.string().describe('Grade value as shown on document'),
 					confidence: z
 						.number()
 						.min(0)
 						.max(100)
-						.describe(
-							`Confidence level (0-100) in the accuracy of this grade reading. 100 = absolutely certain, <${gradeConfidenceMin} = uncertain.`
-						),
+						.describe('Confidence (0-100) in grade accuracy'),
 				})
 			)
 			.nullable()
@@ -155,9 +141,7 @@ const academicSchema = z
 		unreadableGrades: z
 			.array(z.string())
 			.nullable()
-			.describe(
-				`List of subject names where the grade symbol is not clearly legible or uncertain (confidence < ${gradeConfidenceMin}).`
-			),
+			.describe('Subject names with illegible or uncertain grades'),
 		overallClassification: z
 			.string()
 			.nullable()
