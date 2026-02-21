@@ -35,7 +35,7 @@ export default class TermRepository extends BaseRepository<typeof terms, 'id'> {
 		});
 	}
 
-	async create(data: TermInsert, userId?: string) {
+	async createWithSettings(data: TermInsert, userId?: string) {
 		return db.transaction(async (tx) => {
 			await this.clearActiveIfNeeded(data.isActive, tx);
 			const [created] = await tx.insert(this.table).values(data).returning();

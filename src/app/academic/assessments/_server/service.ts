@@ -22,7 +22,7 @@ class AssessmentService extends BaseService<typeof assessments, 'id'> {
 	) {
 		return withAuth(
 			async () =>
-				(this.repository as AssessmentRepository).create(data, lmsData),
+				(this.repository as AssessmentRepository).createWithLms(data, lmsData),
 			['academic', 'leap']
 		);
 	}

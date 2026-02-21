@@ -11,8 +11,12 @@ import * as timetable from '@timetable/_database';
 import { drizzle as drizzleNeon } from 'drizzle-orm/neon-serverless';
 import { drizzle as drizzleNode } from 'drizzle-orm/node-postgres';
 import { Pool as NodePool } from 'pg';
+import * as coreSchema from './schema/auditLogs';
+import * as coreSchemaRelations from './schema/auditLogsRelations';
 
 const schema = {
+	...coreSchema,
+	...coreSchemaRelations,
 	...academic,
 	...admin,
 	...admissions,
@@ -53,4 +57,6 @@ export * from '@finance/_database';
 export * from '@library/_database';
 export * from '@registry/_database';
 export * from '@timetable/_database';
+export * from './schema/auditLogs';
+export * from './schema/auditLogsRelations';
 export * from './types';

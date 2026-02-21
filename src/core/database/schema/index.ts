@@ -7,3 +7,5 @@ export * from '@finance/_database';
 export * from '@library/_database';
 export * from '@registry/_database';
 export * from '@timetable/_database';
+export * from './auditLogs';
+export * from './auditLogsRelations';

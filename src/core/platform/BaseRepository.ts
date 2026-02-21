@@ -1,9 +1,20 @@
 import { count, eq, or, type SQL, sql } from 'drizzle-orm';
 import type { PgColumn as Column, PgTable as Table } from 'drizzle-orm/pg-core';
+import { getTableConfig } from 'drizzle-orm/pg-core';
 import { db } from '@/core/database';
+import { auditLogs } from '@/core/database/schema/auditLogs';
 
 type ModelInsert<T extends Table> = T['$inferInsert'];
 type ModelSelect<T extends Table> = T['$inferSelect'];
+
+export type TransactionClient = Parameters<
+	Parameters<typeof db.transaction>[0]
+>[0];
+
+export interface AuditOptions {
+	userId: string;
+	metadata?: Record<string, unknown>;
+}
 
 const DEFAULT_PAGE_SIZE = 15;
 
@@ -27,10 +38,98 @@ class BaseRepository<
 > {
 	protected table: T;
 	protected primaryKey: Column;
+	protected auditEnabled = true;
 
 	constructor(table: T, primaryKey: Column) {
 		this.table = table;
 		this.primaryKey = primaryKey;
+	}
+
+	private getTableName(): string {
+		return getTableConfig(this.table as unknown as Table).name;
+	}
+
+	private shouldAudit(audit?: AuditOptions): audit is AuditOptions {
+		return this.auditEnabled && audit != null;
+	}
+
+	private getRecordId(record: ModelSelect<T>): string {
+		for (const [key, col] of Object.entries(this.table)) {
+			if (col === this.primaryKey) {
+				return String((record as Record<string, unknown>)[key]);
+			}
+		}
+		throw new Error(
+			`Primary key column not found in table ${this.getTableName()}`
+		);
+	}
+
+	protected buildAuditMetadata(
+		_operation: 'INSERT' | 'UPDATE' | 'DELETE',
+		_oldValues: unknown,
+		_newValues: unknown
+	): Record<string, unknown> {
+		return {};
+	}
+
+	protected async writeAuditLog(
+		tx: TransactionClient,
+		operation: 'INSERT' | 'UPDATE' | 'DELETE',
+		recordId: string,
+		oldValues: unknown,
+		newValues: unknown,
+		audit: AuditOptions
+	): Promise<void> {
+		const meta = {
+			...this.buildAuditMetadata(operation, oldValues, newValues),
+			...audit.metadata,
+		};
+
+		await tx.insert(auditLogs).values({
+			tableName: this.getTableName(),
+			recordId,
+			operation,
+			oldValues: oldValues ?? null,
+			newValues: newValues ?? null,
+			changedBy: audit.userId,
+			metadata: Object.keys(meta).length > 0 ? meta : null,
+		});
+	}
+
+	protected async writeAuditLogBatch(
+		tx: TransactionClient,
+		entries: Array<{
+			operation: 'INSERT' | 'UPDATE' | 'DELETE';
+			recordId: string;
+			oldValues: unknown;
+			newValues: unknown;
+		}>,
+		audit: AuditOptions
+	): Promise<void> {
+		if (entries.length === 0) return;
+
+		const tableName = this.getTableName();
+		const values = entries.map((entry) => {
+			const meta = {
+				...this.buildAuditMetadata(
+					entry.operation,
+					entry.oldValues,
+					entry.newValues
+				),
+				...audit.metadata,
+			};
+			return {
+				tableName,
+				recordId: entry.recordId,
+				operation: entry.operation,
+				oldValues: entry.oldValues ?? null,
+				newValues: entry.newValues ?? null,
+				changedBy: audit.userId,
+				metadata: Object.keys(meta).length > 0 ? meta : null,
+			};
+		});
+
+		await tx.insert(auditLogs).values(values);
 	}
 
 	private getColumn<K extends keyof ModelSelect<T>>(key: K): Column {
@@ -150,52 +249,155 @@ class BaseRepository<
 		return result?.count > 0;
 	}
 
-	async create(entity: ModelInsert<T>): Promise<ModelSelect<T>> {
-		const result = await db.insert(this.table).values(entity).returning();
-		return (result as ModelSelect<T>[])[0];
+	async create(
+		entity: ModelInsert<T>,
+		audit?: AuditOptions
+	): Promise<ModelSelect<T>> {
+		if (!this.shouldAudit(audit)) {
+			const result = await db.insert(this.table).values(entity).returning();
+			return (result as ModelSelect<T>[])[0];
+		}
+
+		return db.transaction(async (tx) => {
+			const result = await tx.insert(this.table).values(entity).returning();
+			const created = (result as ModelSelect<T>[])[0];
+
+			await this.writeAuditLog(
+				tx,
+				'INSERT',
+				this.getRecordId(created),
+				null,
+				created,
+				audit
+			);
+
+			return created;
+		});
 	}
 
-	async createMany(entities: ModelInsert<T>[]): Promise<ModelSelect<T>[]> {
+	async createMany(
+		entities: ModelInsert<T>[],
+		audit?: AuditOptions
+	): Promise<ModelSelect<T>[]> {
 		if (entities.length === 0) {
 			return [];
 		}
-		const result = await db.insert(this.table).values(entities).returning();
-		return result as ModelSelect<T>[];
+
+		if (!this.shouldAudit(audit)) {
+			const result = await db.insert(this.table).values(entities).returning();
+			return result as ModelSelect<T>[];
+		}
+
+		return db.transaction(async (tx) => {
+			const result = await tx.insert(this.table).values(entities).returning();
+			const created = result as ModelSelect<T>[];
+
+			await this.writeAuditLogBatch(
+				tx,
+				created.map((record) => ({
+					operation: 'INSERT' as const,
+					recordId: this.getRecordId(record),
+					oldValues: null,
+					newValues: record,
+				})),
+				audit
+			);
+
+			return created;
+		});
 	}
 
 	async update(
 		id: ModelSelect<T>[PK],
-		entity: Partial<ModelInsert<T>>
+		entity: Partial<ModelInsert<T>>,
+		audit?: AuditOptions
 	): Promise<ModelSelect<T>> {
-		const [updated] = (await db
-			.update(this.table)
-			.set(entity)
-			.where(eq(this.primaryKey, id))
-			.returning()) as ModelSelect<T>[];
+		if (!this.shouldAudit(audit)) {
+			const [updated] = (await db
+				.update(this.table)
+				.set(entity)
+				.where(eq(this.primaryKey, id))
+				.returning()) as ModelSelect<T>[];
+			return updated;
+		}
 
-		return updated;
+		return db.transaction(async (tx) => {
+			const [old] = await tx
+				.select()
+				.from(this.table as unknown as Table)
+				.where(eq(this.primaryKey, id));
+
+			const [updated] = (await tx
+				.update(this.table)
+				.set(entity)
+				.where(eq(this.primaryKey, id))
+				.returning()) as ModelSelect<T>[];
+
+			if (old) {
+				await this.writeAuditLog(tx, 'UPDATE', String(id), old, updated, audit);
+			}
+
+			return updated;
+		});
 	}
 
-	async delete(id: ModelSelect<T>[PK]): Promise<void> {
-		await db.delete(this.table).where(eq(this.primaryKey, id));
+	async delete(id: ModelSelect<T>[PK], audit?: AuditOptions): Promise<void> {
+		if (!this.shouldAudit(audit)) {
+			await db.delete(this.table).where(eq(this.primaryKey, id));
+			return;
+		}
+
+		await db.transaction(async (tx) => {
+			const [old] = await tx
+				.select()
+				.from(this.table as unknown as Table)
+				.where(eq(this.primaryKey, id));
+
+			await tx.delete(this.table).where(eq(this.primaryKey, id));
+
+			if (old) {
+				await this.writeAuditLog(tx, 'DELETE', String(id), old, null, audit);
+			}
+		});
 	}
 
-	async deleteById(id: ModelSelect<T>[PK]): Promise<boolean> {
-		const result = await db
-			.delete(this.table)
-			.where(eq(this.primaryKey, id))
-			.returning();
-		return (result as ModelSelect<T>[]).length > 0;
+	async deleteById(
+		id: ModelSelect<T>[PK],
+		audit?: AuditOptions
+	): Promise<boolean> {
+		if (!this.shouldAudit(audit)) {
+			const result = await db
+				.delete(this.table)
+				.where(eq(this.primaryKey, id))
+				.returning();
+			return (result as ModelSelect<T>[]).length > 0;
+		}
+
+		return db.transaction(async (tx) => {
+			const [old] = await tx
+				.select()
+				.from(this.table as unknown as Table)
+				.where(eq(this.primaryKey, id));
+
+			const result = await tx
+				.delete(this.table)
+				.where(eq(this.primaryKey, id))
+				.returning();
+
+			if (old) {
+				await this.writeAuditLog(tx, 'DELETE', String(id), old, null, audit);
+			}
+
+			return (result as ModelSelect<T>[]).length > 0;
+		});
 	}
 
-	async updateById(id: ModelSelect<T>[PK], entity: Partial<ModelInsert<T>>) {
-		const [updated] = (await db
-			.update(this.table)
-			.set(entity)
-			.where(eq(this.primaryKey, id))
-			.returning()) as ModelSelect<T>[];
-
-		return updated;
+	async updateById(
+		id: ModelSelect<T>[PK],
+		entity: Partial<ModelInsert<T>>,
+		audit?: AuditOptions
+	) {
+		return this.update(id, entity, audit);
 	}
 
 	async count(filter?: SQL): Promise<number> {

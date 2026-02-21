@@ -52,7 +52,7 @@ export default class AssessmentRepository extends BaseRepository<
 		});
 	}
 
-	override async create(
+	async createWithLms(
 		data: typeof assessments.$inferInsert,
 		lmsData?: Omit<typeof lmsAssessments.$inferInsert, 'assessmentId'>
 	) {

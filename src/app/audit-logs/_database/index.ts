@@ -1,3 +1,5 @@
+export { auditLogs } from '@/core/database/schema/auditLogs';
+export { auditLogsRelations } from '@/core/database/schema/auditLogsRelations';
 export * from '../student-modules/_schema/relations';
 export * from '../student-modules/_schema/studentModuleAuditLogs';
 export * from '../student-programs/_schema/relations';

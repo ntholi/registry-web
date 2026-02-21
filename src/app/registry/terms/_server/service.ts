@@ -28,7 +28,10 @@ class TermService extends BaseService<typeof terms, 'id'> {
 	async create(data: TermInsert) {
 		return withAuth(
 			async (session) =>
-				(this.repository as TermRepository).create(data, session?.user?.id),
+				(this.repository as TermRepository).createWithSettings(
+					data,
+					session?.user?.id
+				),
 			[]
 		);
 	}
