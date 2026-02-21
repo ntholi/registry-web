@@ -27,6 +27,7 @@ const Shell: React.FC<PropsWithChildren> & ShellComposition = ({
 	children,
 }) => {
 	const [opened, { toggle, close }] = useDisclosure();
+	const [desktopOpened, { toggle: toggleDesktop }] = useDisclosure(true);
 	const colorScheme = useComputedColorScheme('dark');
 	const { setColorScheme } = useMantineColorScheme();
 
@@ -54,7 +55,7 @@ const Shell: React.FC<PropsWithChildren> & ShellComposition = ({
 			navbar={{
 				width: 300,
 				breakpoint: 'md',
-				collapsed: { mobile: !opened },
+				collapsed: { mobile: !opened, desktop: !desktopOpened },
 			}}
 			padding='md'
 			footer={{ height: footer ? 40 : 0 }}
@@ -66,6 +67,12 @@ const Shell: React.FC<PropsWithChildren> & ShellComposition = ({
 							opened={opened}
 							onClick={toggle}
 							hiddenFrom='md'
+							size='sm'
+						/>
+						<Burger
+							opened={desktopOpened}
+							onClick={toggleDesktop}
+							visibleFrom='md'
 							size='sm'
 						/>
 						{Header}
