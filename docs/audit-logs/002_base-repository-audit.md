@@ -154,22 +154,20 @@ private shouldAudit(audit?: AuditOptions): audit is AuditOptions {
 
 #### Helper: `getRecordId()`
 
-Extracts the primary key value as a string from a record:
+Extracts the primary key value as a string from a record. Since `BaseRepository` already stores `this.primaryKey` (a `Column`), and we know the constructor receives both `table` and `primaryKey`, we can derive the TypeScript property name by iterating the table's column map:
 
 ```typescript
 private getRecordId(record: ModelSelect<T>): string {
-  const pkName = getTableConfig(this.table as unknown as Table).columns
-    .find(col => col.name === this.primaryKey.name)?.name;
-  
-  // Access via the mapped TypeScript key
   for (const [key, col] of Object.entries(this.table)) {
-    if ((col as Column).name === this.primaryKey.name) {
+    if (col === this.primaryKey) {
       return String((record as Record<string, unknown>)[key]);
     }
   }
-  return String(Object.values(record as Record<string, unknown>)[0]);
+  throw new Error(`Primary key column not found in table ${this.getTableName()}`);
 }
 ```
+
+> **Why not just use `record[pkName]`?** The column's SQL name (e.g., `std_no`) may differ from the TypeScript property name (e.g., `stdNo`) because of `casing: 'snake_case'` in the Drizzle config. This approach matches by column object reference, which is always correct.
 
 ### 3. Modified Methods
 

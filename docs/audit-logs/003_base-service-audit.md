@@ -85,7 +85,49 @@ class StudentModuleService extends BaseService<typeof studentModules, 'id'> {
 }
 ```
 
-### 5. Custom Overrides: Threading AuditOptions to Repositories with Custom Signatures
+### 5. Reasons Flow: UI → Action → Service → Repository
+
+The edit modals for students, student programs, student semesters, and student modules collect a `reasons` text field. Here's the full flow for passing reasons through to audit metadata:
+
+**Action signature:**
+```typescript
+async function updateStudent(stdNo: number, data: Partial<typeof students.$inferInsert>, reasons: string) {
+  return service.updateWithReasons(stdNo, data, reasons);
+}
+```
+
+**Service method:**
+```typescript
+class StudentService extends BaseService<typeof students, 'stdNo'> {
+  async updateWithReasons(
+    stdNo: number,
+    data: Partial<typeof students.$inferInsert>,
+    reasons: string
+  ) {
+    const roles = this.updateRoles() as Role[] | AccessCheckFunction;
+    return withAuth(async (session) => {
+      return this.repository.update(stdNo, data, {
+        userId: session!.user.id,
+        metadata: { reasons },
+      });
+    }, roles as Role[]);
+  }
+}
+```
+
+**This pattern applies to ALL entities with reasons:**
+
+| Entity | Action | Service Method |
+|--------|--------|----------------|
+| Student | `updateStudent(stdNo, data, reasons)` | `studentService.updateWithReasons(stdNo, data, reasons)` |
+| Student Program | `updateStudentProgram(id, data, reasons)` | `studentProgramService.updateWithReasons(id, data, reasons)` |
+| Student Program | `createStudentProgram(data, reasons?)` | `studentProgramService.createWithReasons(data, reasons)` |
+| Student Semester | `updateStudentSemester(id, data, reasons)` | `studentSemesterService.updateWithReasons(id, data, reasons)` |
+| Student Module | `updateStudentModule(id, data, reasons)` | `studentModuleService.updateWithReasons(id, data, reasons)` |
+
+> **Key**: The `reasons` parameter is a first-class parameter on the action (not hidden in a generic object). The action calls a dedicated service method that constructs the `AuditOptions` with `metadata: { reasons }`. This keeps the API clean and type-safe.
+
+### 6. Custom Overrides: Threading AuditOptions to Repositories with Custom Signatures
 
 Repositories that override `create`/`update`/`delete` with different signatures (like `AssessmentRepository.create(data, lmsData?)`) do NOT receive audit options through the standard `BaseService.create()` call. Instead, their **service subclasses** must pass `AuditOptions` explicitly:
 
@@ -121,7 +163,7 @@ This pattern applies to:
 - `AssessmentMarksService` → `AssessmentMarkRepository.createOrUpdateMarks(data, audit?)`
 - `AssessmentMarksService` → `AssessmentMarkRepository.createOrUpdateMarksInBulk(dataArray, batchSize?, audit?)`
 
-### 6. Read-Only Methods — No Changes
+### 7. Read-Only Methods — No Changes
 
 These methods are NOT modified (no audit needed for reads):
 

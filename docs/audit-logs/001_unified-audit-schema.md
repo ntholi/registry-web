@@ -2,122 +2,150 @@
 
 ## Introduction
 
-This is the foundational step. We create a single `audit_logs` table and the PostgreSQL trigger function that will be reused by all table-specific triggers.
-
-## Context
-
-The current system has 7 scattered audit tables with inconsistent schemas. This step replaces them with one generic, JSONB-based audit table that can track changes on any table in the system.
+Create the single `audit_logs` Drizzle table that stores all audit entries as JSONB snapshots. This is the same table design as v1 — the difference is how entries are written (application-level vs triggers).
 
 ## Requirements
 
 ### 1. Drizzle Schema
 
-Create `src/app/audit-logs/_schema/auditLogs.ts`:
+The `auditLogs` schema is **infrastructure-level** (used by `BaseRepository` in `core/platform/`), so it lives in `core/database/` — not in `app/audit-logs/`.
+
+Create `src/core/database/schema/auditLogs.ts`:
+
+```typescript
+import { users } from '@auth/users/_schema/users';
+import {
+  bigserial,
+  index,
+  jsonb,
+  pgTable,
+  text,
+  timestamp,
+} from 'drizzle-orm/pg-core';
+
+export const auditLogs = pgTable(
+  'audit_logs',
+  {
+    id: bigserial({ mode: 'bigint' }).primaryKey(),
+    tableName: text().notNull(),
+    recordId: text().notNull(),
+    operation: text().notNull(), // 'INSERT' | 'UPDATE' | 'DELETE'
+    oldValues: jsonb(),
+    newValues: jsonb(),
+    changedBy: text().references(() => users.id, { onDelete: 'set null' }),
+    changedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+    syncedAt: timestamp({ withTimezone: true }),
+    metadata: jsonb(),
+  },
+  (table) => [
+    index('idx_audit_logs_table_record').on(table.tableName, table.recordId),
+    index('idx_audit_logs_changed_by').on(table.changedBy),
+    index('idx_audit_logs_changed_at').on(table.changedAt),
+    index('idx_audit_logs_table_operation').on(table.tableName, table.operation),
+    index('idx_audit_logs_synced_at').on(table.syncedAt),
+  ]
+);
+```
+
+> **Why `core/database/`?** `BaseRepository` (in `core/platform/`) imports this schema. Placing it in `app/audit-logs/` would create a core→feature dependency. The `auditLogs` table is comparable to `users` — it's foundational infrastructure, not a feature.
+
+> **Convention note**: `core/database/schema/` is reserved for infrastructure-only schemas that are consumed by `core/platform/`. Feature schemas continue to live in their respective `_schema/` folders. This file follows the same import rules as `_schema/` files — import from specific module paths (e.g., `@auth/users/_schema/users`), NEVER from `@/core/database`.
+
+### 2. Relations
+
+Create `src/core/database/schema/auditLogsRelations.ts`:
+
+```typescript
+import { relations } from 'drizzle-orm';
+import { users } from '@auth/users/_schema/users';
+import { auditLogs } from './auditLogs';
+
+export const auditLogsRelations = relations(auditLogs, ({ one }) => ({
+  changedByUser: one(users, {
+    fields: [auditLogs.changedBy],
+    references: [users.id],
+  }),
+}));
+```
+
+### 3. Update Barrel Export and Database Schema Registration
+
+**`src/core/database/schema/index.ts`** — Add re-exports:
+
+```typescript
+export * from './auditLogs';
+export * from './auditLogsRelations';
+```
+
+**`src/core/database/index.ts`** — Add to the `schema` const and exports:
+
+```typescript
+import * as coreSchema from './schema/auditLogs';
+// ... in the schema object:
+const schema = {
+  ...coreSchema,
+  ...academic,
+  // ...existing modules
+};
+```
+
+Also add to the bottom exports:  
+```typescript
+export * from './schema/auditLogs';
+export * from './schema/auditLogsRelations';
+```
+
+> **Why both?** The `schema` const is used by Drizzle's `drizzle()` initialization for relation inference. The `export *` is used by server code that needs to import `auditLogs` directly.
+
+**`src/app/audit-logs/_database/index.ts`** — Add re-export for convenience:
+
+```typescript
+export { auditLogs } from '@/core/database/schema/auditLogs';
+export { auditLogsRelations } from '@/core/database/schema/auditLogsRelations';
+// ... existing legacy exports (removed in step 006)
+```
+
+### 4. Generate Migration
+
+Run `pnpm db:generate` to create the migration for the new table.
+
+## Column Specifications
 
 | Column | Type | Constraints | Description |
 |--------|------|-------------|-------------|
-| `id` | `bigserial` | PK | Auto-increment ID |
-| `tableName` | `text` | NOT NULL | Name of the audited table (e.g., `students`) |
-| `recordId` | `text` | NOT NULL | Primary key value of the affected record (cast to text) |
-| `operation` | `text` | NOT NULL, CHECK IN ('INSERT', 'UPDATE', 'DELETE') | Type of operation |
-| `oldValues` | `jsonb` | nullable | Full row snapshot before the change (NULL on INSERT) |
-| `newValues` | `jsonb` | nullable | Full row snapshot after the change (NULL on DELETE) |
-| `changedBy` | `text` | FK → users.id, nullable | User who performed the operation (NULL if system/migration) |
+| `id` | `bigserial` | PK | Auto-increment ID (bigint for high volume) |
+| `tableName` | `text` | NOT NULL | Source table name (e.g., `students`) |
+| `recordId` | `text` | NOT NULL | Primary key of affected record (cast to text) |
+| `operation` | `text` | NOT NULL | `'INSERT'`, `'UPDATE'`, or `'DELETE'` |
+| `oldValues` | `jsonb` | nullable | Full row snapshot before change (NULL on INSERT) |
+| `newValues` | `jsonb` | nullable | Full row snapshot after change (NULL on DELETE) |
+| `changedBy` | `text` | FK → users.id, nullable | User who performed the operation |
 | `changedAt` | `timestamptz` | NOT NULL, DEFAULT NOW() | When the change occurred |
-| `metadata` | `jsonb` | nullable | Optional context: reasons, IP address, etc. |
+| `syncedAt` | `timestamptz` | nullable | When this entry was synced to an external system (NULL = unsynced) |
+| `metadata` | `jsonb` | nullable | Optional context: reasons, IP address, custom data |
 
-**Indexes:**
+## Index Strategy
 
 | Index | Columns | Purpose |
 |-------|---------|---------|
-| `idx_audit_logs_table_record` | `(tableName, recordId)` | Fast per-record history lookup |
-| `idx_audit_logs_changed_by` | `(changedBy)` | Query by user |
-| `idx_audit_logs_changed_at` | `(changedAt)` | Time-range queries |
+| `idx_audit_logs_table_record` | `(tableName, recordId)` | O(1) per-record history lookup |
+| `idx_audit_logs_changed_by` | `(changedBy)` | User activity queries |
+| `idx_audit_logs_changed_at` | `(changedAt)` | Time-range filtering, retention |
 | `idx_audit_logs_table_operation` | `(tableName, operation)` | Filter by table + operation type |
-
-### 2. PostgreSQL Trigger Function
-
-Create a custom migration with `pnpm db:generate --custom` containing:
-
-```sql
-CREATE OR REPLACE FUNCTION audit_trigger_func()
-RETURNS TRIGGER AS $$
-DECLARE
-  current_user_id TEXT;
-  audit_metadata JSONB;
-  record_pk TEXT;
-  pk_column TEXT;
-BEGIN
-  -- Read user ID from session variable (set by application)
-  current_user_id := current_setting('app.current_user_id', true);
-
-  -- Read optional metadata from session variable (reasons, IP, etc.)
-  BEGIN
-    audit_metadata := current_setting('app.audit_metadata', true)::jsonb;
-  EXCEPTION WHEN OTHERS THEN
-    audit_metadata := NULL;
-  END;
-
-  -- Determine primary key column name (convention: first column or 'id')
-  pk_column := TG_ARGV[0];  -- passed as trigger argument
-
-  -- Get the primary key value
-  IF (TG_OP = 'DELETE') THEN
-    EXECUTE format('SELECT ($1).%I::text', pk_column) INTO record_pk USING OLD;
-  ELSE
-    EXECUTE format('SELECT ($1).%I::text', pk_column) INTO record_pk USING NEW;
-  END IF;
-
-  IF (TG_OP = 'INSERT') THEN
-    INSERT INTO audit_logs (table_name, record_id, operation, old_values, new_values, changed_by, metadata)
-    VALUES (TG_TABLE_NAME, record_pk, 'INSERT', NULL, to_jsonb(NEW), current_user_id, audit_metadata);
-    RETURN NEW;
-
-  ELSIF (TG_OP = 'UPDATE') THEN
-    -- Only log if something actually changed
-    IF OLD IS DISTINCT FROM NEW THEN
-      INSERT INTO audit_logs (table_name, record_id, operation, old_values, new_values, changed_by, metadata)
-      VALUES (TG_TABLE_NAME, record_pk, 'UPDATE', to_jsonb(OLD), to_jsonb(NEW), current_user_id, audit_metadata);
-    END IF;
-    RETURN NEW;
-
-  ELSIF (TG_OP = 'DELETE') THEN
-    INSERT INTO audit_logs (table_name, record_id, operation, old_values, new_values, changed_by, metadata)
-    VALUES (TG_TABLE_NAME, record_pk, 'DELETE', to_jsonb(OLD), NULL, current_user_id, audit_metadata);
-    RETURN OLD;
-  END IF;
-
-  RETURN NULL;
-END;
-$$ LANGUAGE plpgsql;
-```
-
-### 3. Update Barrel Exports
-
-Add the new schema to `src/app/audit-logs/_database/index.ts`.
-
-## Expected Files
-
-| File | Purpose |
-|------|---------|
-| `src/app/audit-logs/_schema/auditLogs.ts` | Drizzle schema for unified `audit_logs` table |
-| `src/app/audit-logs/_schema/relations.ts` | Relations (changedBy → users) |
-| `drizzle/XXXX_custom_audit_trigger_func.sql` | Custom migration with trigger function |
-| `src/app/audit-logs/_database/index.ts` | Updated barrel export |
+| `idx_audit_logs_synced_at` | `(syncedAt)` | Efficiently find unsynced entries |
 
 ## Validation Criteria
 
-1. `pnpm db:generate` succeeds and creates the `audit_logs` table migration
-2. Custom migration with `audit_trigger_func()` is created
+1. `pnpm db:generate` creates the `audit_logs` table migration
+2. `pnpm db:migrate` applies successfully
 3. `pnpm tsc --noEmit` passes
-4. The `audit_logs` table exists in the database after migration
-5. The `audit_trigger_func()` function exists in PostgreSQL
+4. Table exists: `SELECT * FROM audit_logs LIMIT 0;`
 
 ## Notes
 
-- Use `bigserial` for `id` since this table will grow rapidly
-- Use `timestamptz` (not `timestamp`) for `changedAt` to handle timezone-aware logging
-- The trigger function accepts the PK column name as an argument (`TG_ARGV[0]`) to support tables with different primary key conventions (e.g., `id`, `std_no`)
-- `OLD IS DISTINCT FROM NEW` prevents logging no-op updates
-- The `metadata` column stores optional context (reasons, IP address, etc.) read from the `app.audit_metadata` session variable
-- Tables with composite PKs or no PK are excluded from triggers (see Step 003)
+- `bigserial` is used because this table will grow rapidly (every write across the app generates an entry)
+- `timestamptz` (not `timestamp`) for timezone-aware logging
+- `operation` is plain text rather than a pgEnum for simplicity — no migration needed to add new operation types
+- `metadata` is the extensibility point: reasons, IP addresses, request IDs, or any per-entity context
+- The `changedBy` FK uses `onDelete: 'set null'` so audit records survive user deletion
+- The `syncedAt` column supports future external sync workflows (e.g., syncing audit events to an external analytics/compliance system). Entries with `syncedAt IS NULL` are unsynced. This column is indexed for efficient batch queries. It is not used in the initial implementation — only the infrastructure is prepared.

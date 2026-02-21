@@ -1,75 +1,97 @@
-# Audit Logs - Comprehensive Implementation Plan
+# Audit Logs v2 — Application-Level Audit Logging
 
 ## Overview
 
-Implement a unified, database-trigger-based audit logging system that captures every **Create**, **Update**, and **Delete** operation across the application. The system uses a single `audit_logs` table with JSONB snapshots, PostgreSQL triggers for reliability, and session variables for user attribution.
+Implement a unified, application-level audit logging system embedded directly into `BaseRepository`. Every `create`, `update`, and `delete` operation is automatically audited to a single `audit_logs` table using JSONB snapshots, with user attribution passed explicitly via method parameters.
 
-## Current State
+## Why v2? (Comparison with v1)
 
-The app currently has **7 fragmented audit tables** using two different patterns:
+| Aspect | v1 (PG Triggers) | v2 (BaseRepository) |
+|--------|-------------------|----------------------|
+| Implementation | PostgreSQL trigger function + 87 triggers | TypeScript in `BaseRepository` |
+| User attribution | `SET LOCAL` session variable per transaction | Explicit `AuditOptions` parameter |
+| Catches raw SQL | Yes | No (only repo-based writes) |
+| Testability | Requires PG instance | Unit-testable in TypeScript |
+| Maintainability | SQL migrations for each new table | Zero config for new repos (inherit from `BaseRepository`) |
+| Custom metadata | Session variable + JSON parsing in PL/pgSQL | Native TypeScript object passed per operation |
+| Skip configuration | Centralized SQL trigger list | Per-repository `auditEnabled` flag |
+| Override mechanism | N/A (triggers are generic) | Template method pattern (`buildAuditMetadata`) |
+| New table onboarding | Create new SQL trigger migration | Automatic — inherits from `BaseRepository` |
+| Performance | PG-native (no extra app round-trip) | +1 SELECT for update/delete (to capture old values) |
+| Portability | PostgreSQL only | Any database Drizzle supports |
 
-| Table | Pattern | Module |
-|-------|---------|--------|
-| `student_audit_logs` | JSONB old/new values | audit-logs |
-| `student_program_audit_logs` | JSONB old/new values | audit-logs |
-| `student_semester_audit_logs` | JSONB old/new values | audit-logs |
-| `student_module_audit_logs` | JSONB old/new values | audit-logs |
-| `assessments_audit` | Column-specific diffs | academic |
-| `assessment_marks_audit` | Column-specific diffs | academic |
-| `clearance_audit` | Status change tracking | registry |
+## Design Decisions
 
-**Problems with current approach:**
-- Inconsistent patterns across entities
-- Only 7 of 114 tables are audited
-- Manual insertion in repositories — easy to forget
-- No unified query interface for audit history
+1. **Single unified `audit_logs` table** — JSONB old/new values, no per-table audit tables
+2. **Explicit `AuditOptions` parameter** — `create(entity, audit?)`, `update(id, entity, audit?)`, `delete(id, audit?)` — fully traceable, no hidden context
+3. **Per-repository opt-out** — `protected auditEnabled = true` by default; repositories for excluded tables set `false`
+4. **Template method for metadata** — `protected buildAuditMetadata()` can be overridden in subclasses for entity-specific context (e.g., `reasons`)
+5. **Transaction wrapping** — Audited operations are wrapped in `db.transaction()` for atomicity; non-audited operations remain unchanged (zero overhead)
+6. **Backward compatible** — All existing calls work without the audit parameter; they simply won't generate audit entries
 
-## Target Architecture
+## Architecture
 
 ```
-┌────────────────────────────────────────────────────────────┐
-│                    Application Layer                        │
-│                                                            │
-│  withAudit(userId, fn) ──► SET LOCAL app.current_user_id   │
-│                                                            │
-├────────────────────────────────────────────────────────────┤
-│                    PostgreSQL Layer                         │
-│                                                            │
-│  audit_trigger_func() ──► reads current_user_id            │
-│       │                    from session var                 │
-│       ▼                                                    │
-│  ┌──────────┐                                              │
-│  │audit_logs│  ◄── single unified table                    │
-│  └──────────┘                                              │
-│                                                            │
-│  Triggers on: INSERT / UPDATE / DELETE                      │
-│  Per audited table                                          │
-└────────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────┐
+│                    UI / Server Actions                    │
+│                                                          │
+│         ┌─────────────────────────────┐                  │
+│         │       BaseService           │                  │
+│         │                             │                  │
+│         │  create(data) {             │                  │
+│         │    withAuth(session => {    │                  │
+│         │      repo.create(data, {   │                  │
+│         │        userId: session.id  │                  │
+│         │      })                    │                  │
+│         │    })                       │                  │
+│         │  }                          │                  │
+│         └──────────┬──────────────────┘                  │
+│                    │                                     │
+│         ┌──────────▼──────────────────┐                  │
+│         │      BaseRepository         │                  │
+│         │                             │                  │
+│         │  create(entity, audit?) {   │                  │
+│         │    if (auditEnabled && audit)│                  │
+│         │      db.transaction(tx => { │                  │
+│         │        tx.insert(table)     │  ← Main write   │
+│         │        tx.insert(auditLogs) │  ← Audit write  │
+│         │      })                     │                  │
+│         │    else                      │                  │
+│         │      db.insert(table)       │  ← No audit     │
+│         │  }                          │                  │
+│         └──────────┬──────────────────┘                  │
+│                    │                                     │
+│         ┌──────────▼──────────────────┐                  │
+│         │    PostgreSQL Database       │                  │
+│         │                             │                  │
+│         │  ┌────────────┐ ┌─────────┐ │                  │
+│         │  │ entity_tbl │ │audit_logs│ │                  │
+│         │  └────────────┘ └─────────┘ │                  │
+│         └─────────────────────────────┘                  │
+└──────────────────────────────────────────────────────────┘
 ```
 
-## Features Summary
+## AuditOptions Type
 
-| Feature | Description |
-|---------|-------------|
-| Unified audit table | Single `audit_logs` table with JSONB for all entities |
-| DB triggers | PostgreSQL triggers fire on INSERT/UPDATE/DELETE automatically |
-| User attribution | Session variable `app.current_user_id` passed from app layer |
-| Metadata support | Optional `metadata` JSONB column for reasons, context, etc. |
-| Migration | Existing 7 audit tables migrated to the new unified table |
-| Query UI | Audit history viewable per-entity and globally |
-| 87 tables audited | All meaningful tables tracked (28 excluded) |
+```typescript
+interface AuditOptions {
+  userId: string;
+  metadata?: Record<string, unknown>;
+}
+```
 
-## Implementation Steps
+## Operation Behavior Matrix
 
-| Step | File | Description |
-|------|------|-------------|
-| 1 | [001_unified-audit-schema.md](001_unified-audit-schema.md) | Create the unified `audit_logs` table schema and PG trigger function |
-| 2 | [002_application-integration.md](002_application-integration.md) | Create `withAudit` transaction wrapper utility for user attribution |
-| 3 | [003_table-triggers.md](003_table-triggers.md) | Create triggers for all 87 auditable tables |
-| 4 | [004_migration.md](004_migration.md) | Migrate existing 7 audit tables into the new unified table |
-| 5 | [005_audit-ui.md](005_audit-ui.md) | Build query UI for viewing audit logs per entity and globally |
-| 6 | [006_cleanup.md](006_cleanup.md) | Remove old audit code paths and deprecated tables |
-| 7 | [007_activity-dashboard.md](007_activity-dashboard.md) | Build department and user activity dashboard from audit logs |
+| Scenario | audit param | auditEnabled | Result |
+|----------|------------|--------------|--------|
+| `create(entity)` | Not provided | true | Direct insert, NO audit log |
+| `create(entity, { userId })` | Provided | true | Transaction: insert + audit log |
+| `create(entity, { userId })` | Provided | false | Direct insert, NO audit log |
+| `update(id, entity)` | Not provided | true | Direct update, NO audit log |
+| `update(id, entity, { userId })` | Provided | true | Transaction: select old + update + audit log |
+| `delete(id)` | Not provided | true | Direct delete, NO audit log |
+| `delete(id, { userId })` | Provided | true | Transaction: select old + delete + audit log |
+| Custom method with `writeAuditLog` | Manual | true | Subclass calls `this.writeAuditLog(tx, ...)` within its own transaction |
 
 ## Database Entity
 
@@ -85,6 +107,7 @@ The app currently has **7 fragmented audit tables** using two different patterns
 │ new_values    JSONB                   │
 │ changed_by    TEXT (FK → users.id)    │
 │ changed_at    TIMESTAMPTZ NOT NULL    │
+│ synced_at     TIMESTAMPTZ            │
 │ metadata      JSONB                   │
 └──────────────────────────────────────┘
     │
@@ -92,72 +115,100 @@ The app currently has **7 fragmented audit tables** using two different patterns
     ├── idx_audit_logs_table_record (table_name, record_id)
     ├── idx_audit_logs_changed_by (changed_by)
     ├── idx_audit_logs_changed_at (changed_at)
-    └── idx_audit_logs_table_operation (table_name, operation)
+    ├── idx_audit_logs_table_operation (table_name, operation)
+    └── idx_audit_logs_synced_at (synced_at)
 ```
+
+> **Schema location**: `src/core/database/schema/auditLogs.ts` — placed in `core/database/` because `BaseRepository` depends on it (core→core dependency, not core→feature).
+```
+
+## Implementation Steps
+
+| Step | File | Description |
+|------|------|-------------|
+| 1 | [001_unified-audit-schema.md](001_unified-audit-schema.md) | Create the unified `audit_logs` Drizzle schema in `core/database/` |
+| 2 | [002_base-repository-audit.md](002_base-repository-audit.md) | Modify `BaseRepository` to support automatic audit logging |
+| 3 | [003_base-service-audit.md](003_base-service-audit.md) | Modify `BaseService` to thread `session.user.id` into audit options |
+| 4 | [004_migration.md](004_migration.md) | Migrate existing 7 legacy audit tables into the unified table |
+| 5 | [005_audit-ui.md](005_audit-ui.md) | Build unified audit log viewer, per-record history, and sync support |
+| 6 | [006_cleanup.md](006_cleanup.md) | Remove legacy audit code/tables, migrate edit modals to owning modules |
 
 ## Tables Audit Classification
 
-### Audited Tables (87 tables)
+### Audited Tables (default — `auditEnabled = true`)
 
-See [003_table-triggers.md](003_table-triggers.md) for the complete list organized by module.
+All repositories extending `BaseRepository` are audited by default. Only tables explicitly opted out (below) are skipped.
 
-### Excluded Tables (28 tables)
+### Excluded Tables (`auditEnabled = false`)
 
-| Table | Reason |
-|-------|--------|
-| `sessions` | Auth.js session management, high-frequency ephemeral data |
-| `verification_tokens` | Auth.js tokens, ephemeral |
-| `accounts` | Auth.js OAuth accounts, managed by Auth.js |
-| `authenticators` | Auth.js WebAuthn, managed externally |
-| `audit_logs` | The audit table itself — avoid recursion |
-| `student_audit_logs` | Legacy audit table (being migrated) |
-| `student_program_audit_logs` | Legacy audit table (being migrated) |
-| `student_semester_audit_logs` | Legacy audit table (being migrated) |
-| `student_module_audit_logs` | Legacy audit table (being migrated) |
-| `assessments_audit` | Legacy audit table (being migrated) |
-| `assessment_marks_audit` | Legacy audit table (being migrated) |
-| `clearance_audit` | Legacy audit table (being migrated) |
-| `application_status_history` | Already a history/log table by design |
-| `notification_dismissals` | UI state, not business-critical |
-| `notification_recipients` | Delivery tracking, not business data |
-| `feedback_passphrases` | Ephemeral access tokens for feedback |
-| `feedback_responses` | Anonymized survey data — auditing defeats anonymity |
-| `loan_renewals` | Already an append-only log of renewals |
-| `grade_mappings` | Reference/config data rarely changed, low risk |
-| `statement_of_results_prints` | Operational print log, high-volume low-value for audit trail |
-| `student_card_prints` | Operational print log, high-volume low-value for audit trail |
-| `transcript_prints` | Operational print log, high-volume low-value for audit trail |
-| `venue_schools` | Composite PK junction table — no single record identifier |
-| `timetable_slot_allocations` | Composite PK junction table — no single record identifier |
-| `timetable_allocation_allowed_venues` | Composite PK junction table — no single record identifier |
-| `timetable_allocation_venue_types` | Composite PK junction table — no single record identifier |
-| `registration_request_receipts` | No primary key (unique constraint only) |
-| `graduation_request_receipts` | No primary key (unique constraint only) |
+| Repository | Table | Reason |
+|-----------|-------|--------|
+| (Auth.js managed) | `sessions` | Ephemeral session data, not managed by BaseRepository |
+| (Auth.js managed) | `verification_tokens` | Ephemeral tokens |
+| (Auth.js managed) | `accounts` | OAuth provider accounts |
+| (Auth.js managed) | `authenticators` | WebAuthn data |
+| AuditLogRepository | `audit_logs` | Self-reference protection |
+| (Legacy — removed in step 6) | `student_audit_logs` | Being migrated |
+| (Legacy — removed in step 6) | `student_program_audit_logs` | Being migrated |
+| (Legacy — removed in step 6) | `student_semester_audit_logs` | Being migrated |
+| (Legacy — removed in step 6) | `student_module_audit_logs` | Being migrated |
+| (Legacy — removed in step 6) | `assessments_audit` | Being migrated |
+| (Legacy — removed in step 6) | `assessment_marks_audit` | Being migrated |
+| (Legacy — removed in step 6) | `clearance_audit` | Being migrated |
+| ApplicationStatusHistoryRepo | `application_status_history` | Already a history/log table |
+| NotificationDismissalRepo | `notification_dismissals` | UI state, not business data |
+| NotificationRecipientRepo | `notification_recipients` | Delivery tracking |
+| FeedbackPassphraseRepo | `feedback_passphrases` | Ephemeral tokens |
+| FeedbackResponseRepo | `feedback_responses` | Anonymous — auditing undermines anonymity |
+| LoanRenewalRepo | `loan_renewals` | Already append-only log |
+| GradeMappingRepo | `grade_mappings` | Static reference data |
+| StatementOfResultsPrintRepo | `statement_of_results_prints` | High-volume low-value |
+| StudentCardPrintRepo | `student_card_prints` | High-volume low-value |
+| TranscriptPrintRepo | `transcript_prints` | High-volume low-value |
 
-## Access Control
+**Note**: Tables with composite PKs (e.g., `venue_schools`, `timetable_slot_allocations`) that don't go through `BaseRepository` are naturally excluded since they won't have a repository with audit support.
 
-| Role | Permissions |
-|------|-------------|
-| `admin` | View all audit logs, global search |
-| `registry` | View audit logs for registry module tables |
-| `academic` | View audit logs for academic module tables |
-| `finance` | View audit logs for finance module tables |
-| `library` | View audit logs for library module tables |
+## Custom Transaction Auditing Strategy
 
-## Execution Order
+Many repositories override `create`/`update`/`delete` or have custom transactional methods (e.g., `AssessmentRepository.create()`, `ClearanceRepository.update()`, `AssessmentMarksRepository.updateMark()`). These bypass `BaseRepository`'s automatic audit and cannot simply be replaced by it because they contain additional business logic (grade recalculation, multi-table writes, etc.).
 
-| Order | Step | Dependencies |
-|-------|------|--------------|
-| 1 | Unified audit schema | None |
-| 2 | Application integration | Step 1 |
-| 3 | Table triggers | Step 1 |
-| 4 | Migration | Steps 1, 3 |
-| 5 | Audit UI | Steps 1, 2 |
-| 6 | Cleanup | Steps 4, 5 |
-| 7 | Activity Dashboard | Steps 2, 5 |
+### Strategy for Custom Methods
 
-## Validation Command
+1. **`writeAuditLog` is `protected`** — subclass repositories can call it within their own `db.transaction` blocks
+2. **Existing manual `tx.insert(assessmentsAudit)` calls** → Replace with `this.writeAuditLog(tx, ...)` using the unified format
+3. **Custom methods that don't currently audit** → Add `writeAuditLog` calls where appropriate
+4. **Methods that override `create`/`update`/`delete`** → Call `this.writeAuditLog(tx, ...)` within their transaction instead of relying on the base class auto-audit
 
-```bash
-pnpm tsc --noEmit && pnpm lint:fix
-```
+See Step 002 for the `writeAuditLog` API and Step 006 for the migration of each custom method.
+
+## Key Benefits
+
+1. **Zero config for new features**: Any new repository extending `BaseRepository` is automatically audited
+2. **Type-safe**: Full TypeScript — no SQL strings or PL/pgSQL functions to maintain
+3. **Testable**: Audit behavior can be unit-tested without a database
+4. **Extensible**: Override `buildAuditMetadata()` for entity-specific context
+5. **Backward compatible**: Existing code works unchanged; audit is opt-in per call via `AuditOptions`
+6. **Portable**: No PostgreSQL-specific features required
+
+## Transition Notes
+
+### Dual-Write Period (Steps 002–005)
+
+During the implementation of Steps 002–005, the system temporarily has **two audit paths** running simultaneously:
+
+- **New path**: `BaseRepository` auto-audit (for standard CRUD going through BaseService)
+- **Old path**: Manual `tx.insert(assessmentsAudit)` / `tx.insert(clearanceAudit)` etc. (for custom repositories)
+
+This is **expected and safe**. The old audit tables and the new `audit_logs` table are separate — no duplicate entries occur. Custom repositories continue writing to their legacy tables until Step 006 migrates them to `this.writeAuditLog()`.
+
+### Deploy Order
+
+Steps 001–003 **must be deployed together** (schema + BaseRepository + BaseService form a single functional unit). Steps 004–006 can be deployed incrementally.
+
+### Rollback Strategy
+
+If issues arise after deployment:
+- Steps 001–003: Revert the TypeScript changes. The `audit_logs` table can remain empty — it has no impact on existing functionality.
+- Step 004: Data migration is additive. Legacy tables are preserved. No data loss risk.
+- Step 005: UI is independent. Removing the UI pages has no impact on audit data collection.
+- Step 006: **This is the irreversible step.** Ensure thorough testing before executing table drops. Keep a database backup.
