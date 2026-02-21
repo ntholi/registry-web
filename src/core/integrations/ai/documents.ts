@@ -42,18 +42,23 @@ const CERTIFICATION_RULES = `CERTIFICATION:
 
 const ACADEMIC_RULES = `- institutionName: Student's school (not examining body like Cambridge/ECoL)
 - LGCSE grades: Use letter (A*, A, B, C, D, E, F, G, U)
-- Pearson Edexcel International GCSE: Use numeric grades (9, 8, 7, 6, 5, 4, 3, 2, 1, U). Set certificateType to "Edexcel IGCSE".
+- IGCSE vs Edexcel IGCSE DISAMBIGUATION (CRITICAL):
+  * Cambridge IGCSE ("International General Certificate of Secondary Education", issued by Cambridge Assessment International Education / CAIE / CIE / UCLES): Uses LETTER grades (A*, A, B, C, D, E, F, G, U). Set certificateType to "IGCSE". NEVER set to "Edexcel IGCSE".
+  * Pearson Edexcel International GCSE (issued by Pearson/Edexcel): Uses NUMERIC grades (9, 8, 7, 6, 5, 4, 3, 2, 1, U). Set certificateType to "Edexcel IGCSE". NEVER set to "IGCSE".
+  * If the document says "Cambridge" or "CAIE" or "University of Cambridge" → it is IGCSE (letter grades), NOT Edexcel.
+  * If the document says "Pearson" or "Edexcel" → it is Edexcel IGCSE (numeric grades), NOT Cambridge.
 - Extract ALL subjects with grades
 - Only accept LGCSE (or equivalent) or higher certificates/result slips. If lower than LGCSE, classify as "other" and set certificateType to null.
 - candidateNumber: Extract if present, commonly labeled "Center/Candidate Number", "Centre/Candidate Number", or "Center / Cand. No.".
 - NSC VERIFICATION LETTERS: Documents from ECoL verifying NSC results often provide COSC/LGCSE equivalent grades at the bottom. When present, extract those COSC/LGCSE letter grades (A-G, U) as the subjects. Set certificateType to "NSC". These are valid academic documents.`;
 
 const GRADE_FORMAT_RULES = `GRADE FORMAT VERIFICATION (CRITICAL):
-- LGCSE/IGCSE grades are often displayed as a letter followed by the same letter in parentheses, e.g., C(c), B(b), E(e), F(f), G(g).
+- LGCSE/Cambridge IGCSE grades are often displayed as a letter followed by the same letter in parentheses, e.g., C(c), B(b), E(e), F(f), G(g).
 - The uppercase letter BEFORE the parentheses and the lowercase letter INSIDE the parentheses represent the SAME grade. Use BOTH symbols to cross-verify.
 - If the letter before the brackets does NOT match the letter inside, flag as unreadable (add to "unreadableGrades").
 - Example: "C(c)" → grade is C (verified). "B(d)" → mismatch, flag as unreadable.
-- Always extract only the single letter grade (e.g., "C"), not the full bracket notation.`;
+- Always extract only the single letter grade (e.g., "C"), not the full bracket notation.
+- Edexcel IGCSE grades are displayed as a number followed by the word in parentheses, e.g., "6 (six)", "5 (five)". Extract only the numeric grade (e.g., "6").`;
 
 const ANALYSIS_PROMPT = `Analyze this document and extract information.
 
@@ -143,7 +148,9 @@ ISSUING AUTHORITY:
 - "Examinations Council of Lesotho" → record as "ECoL"
 - isEcol: true if the document somehow indicates ECoL/Examinations Council of Lesotho in the document, otherwise false. Always set true or false; do not leave null.
 - isCambridge: true if the document is issued by Cambridge Assessment International Education (Cambridge, CAIE, CIE, UCLES), otherwise false. Always set true or false; do not leave null.
+  * When isCambridge is true and document is IGCSE-level, certificateType MUST be "IGCSE" (NOT "Edexcel IGCSE")
 - isPearson: true if the document is issued by Pearson/Edexcel, otherwise false. Always set true or false; do not leave null.
+  * When isPearson is true and document is IGCSE-level, certificateType MUST be "Edexcel IGCSE" (NOT "IGCSE")
 
 ${CERTIFICATION_RULES}`;
 

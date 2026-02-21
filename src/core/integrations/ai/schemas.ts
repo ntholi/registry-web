@@ -101,7 +101,7 @@ const academicSchema = z
 			.string()
 			.nullable()
 			.describe(
-				'Certificate standard: LGCSE, COSC, IGCSE, Edexcel IGCSE, NSC, GCE O-Level, GCE AS Level, GCE A-Level, Certificate, Diploma, Degree'
+				'Certificate standard: LGCSE, COSC, IGCSE (Cambridge only - letter grades), Edexcel IGCSE (Pearson only - numeric grades), NSC, GCE O-Level, GCE AS Level, GCE A-Level, Certificate, Diploma, Degree. CRITICAL: Cambridge documents → "IGCSE", Pearson/Edexcel documents → "Edexcel IGCSE".'
 			),
 		qualificationName: z
 			.string()
@@ -139,7 +139,7 @@ const academicSchema = z
 					grade: z
 						.string()
 						.describe(
-							'Grade value as shown. LGCSE/IGCSE: A*, A, B, C, D, E, F, G, or U. Edexcel IGCSE: 9, 8, 7, 6, 5, 4, 3, 2, 1, or U.'
+							'Grade value as shown. LGCSE/Cambridge IGCSE: A*, A, B, C, D, E, F, G, or U (letter grades). Pearson Edexcel IGCSE: 9, 8, 7, 6, 5, 4, 3, 2, 1, or U (numeric grades).'
 						),
 					confidence: z
 						.number()
