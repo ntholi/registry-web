@@ -91,6 +91,7 @@ interface AuditOptions {
 | `update(id, entity, { userId })` | Provided | true | Transaction: select old + update + audit log |
 | `delete(id)` | Not provided | true | Direct delete, NO audit log |
 | `delete(id, { userId })` | Provided | true | Transaction: select old + delete + audit log |
+| Custom method with `writeAuditLog` | Manual | true | Subclass calls `this.writeAuditLog(tx, ...)` within its own transaction |
 
 ## Database Entity
 
@@ -161,6 +162,19 @@ All repositories extending `BaseRepository` are audited by default. Only tables 
 | TranscriptPrintRepo | `transcript_prints` | High-volume low-value |
 
 **Note**: Tables with composite PKs (e.g., `venue_schools`, `timetable_slot_allocations`) that don't go through `BaseRepository` are naturally excluded since they won't have a repository with audit support.
+
+## Custom Transaction Auditing Strategy
+
+Many repositories override `create`/`update`/`delete` or have custom transactional methods (e.g., `AssessmentRepository.create()`, `ClearanceRepository.update()`, `AssessmentMarksRepository.updateMark()`). These bypass `BaseRepository`'s automatic audit and cannot simply be replaced by it because they contain additional business logic (grade recalculation, multi-table writes, etc.).
+
+### Strategy for Custom Methods
+
+1. **`writeAuditLog` is `protected`** — subclass repositories can call it within their own `db.transaction` blocks
+2. **Existing manual `tx.insert(assessmentsAudit)` calls** → Replace with `this.writeAuditLog(tx, ...)` using the unified format
+3. **Custom methods that don't currently audit** → Add `writeAuditLog` calls where appropriate
+4. **Methods that override `create`/`update`/`delete`** → Call `this.writeAuditLog(tx, ...)` within their transaction instead of relying on the base class auto-audit
+
+See Step 002 for the `writeAuditLog` API and Step 006 for the migration of each custom method.
 
 ## Key Benefits
 

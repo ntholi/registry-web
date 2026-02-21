@@ -235,6 +235,22 @@ export default BaseService;
 | `withAuth` | No modifications needed |
 | `serviceWrapper` | No modifications needed |
 
+### What About `createMany`?
+
+`BaseService` does NOT currently expose a `createMany` method. Repositories that use `createMany` do so via direct repository calls in custom service methods. These custom methods need to be updated individually to pass `AuditOptions` — see Step 006 (Cleanup).
+
+If a `createMany` is added to `BaseService` in the future, it should follow the same pattern:
+
+```typescript
+async createMany(data: ModelInsert<T>[]) {
+  const roles = this.createRoles() as Role[] | AccessCheckFunction;
+  return withAuth(async (session) => {
+    const audit = this.buildAuditOptions(session);
+    return this.repository.createMany(data, audit);
+  }, roles as Role[]);
+}
+```
+
 ### Automatic Coverage
 
 After this step, every service extending `BaseService` that uses the standard `create`/`update`/`delete` methods will automatically audit with user attribution. No per-feature code changes needed.

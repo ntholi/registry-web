@@ -43,11 +43,21 @@ private getTableName(): string {
 }
 ```
 
-#### New Internal Method: `writeAuditLog()`
+#### Transaction Type Alias
 
 ```typescript
-private async writeAuditLog(
-  tx: Parameters<Parameters<typeof db.transaction>[0]>[0],
+type TransactionClient = Parameters<Parameters<typeof db.transaction>[0]>[0];
+```
+
+Export this type so subclasses and other code can reference it.
+
+#### New Protected Method: `writeAuditLog()`
+
+**This method is `protected`** so subclass repositories can call it within their own `db.transaction` blocks (e.g., `AssessmentRepository.create()` doing multi-table writes).
+
+```typescript
+protected async writeAuditLog(
+  tx: TransactionClient,
   operation: 'INSERT' | 'UPDATE' | 'DELETE',
   recordId: string,
   oldValues: unknown,
@@ -68,6 +78,44 @@ private async writeAuditLog(
     changedBy: audit.userId,
     metadata: Object.keys(meta).length > 0 ? meta : null,
   });
+}
+```
+
+#### New Protected Method: `writeAuditLogBatch()`
+
+For bulk operations, write multiple audit entries in a single INSERT:
+
+```typescript
+protected async writeAuditLogBatch(
+  tx: TransactionClient,
+  entries: Array<{
+    operation: 'INSERT' | 'UPDATE' | 'DELETE';
+    recordId: string;
+    oldValues: unknown;
+    newValues: unknown;
+  }>,
+  audit: AuditOptions
+): Promise<void> {
+  if (entries.length === 0) return;
+
+  const tableName = this.getTableName();
+  const values = entries.map((entry) => {
+    const meta = {
+      ...this.buildAuditMetadata(entry.operation, entry.oldValues, entry.newValues),
+      ...audit.metadata,
+    };
+    return {
+      tableName,
+      recordId: entry.recordId,
+      operation: entry.operation,
+      oldValues: entry.oldValues ?? null,
+      newValues: entry.newValues ?? null,
+      changedBy: audit.userId,
+      metadata: Object.keys(meta).length > 0 ? meta : null,
+    };
+  });
+
+  await tx.insert(auditLogs).values(values);
 }
 ```
 
@@ -244,7 +292,7 @@ async deleteById(id: ModelSelect<T>[PK], audit?: AuditOptions): Promise<boolean>
 
 #### `createMany(entities, audit?)`
 
-For bulk operations, write one audit entry per record:
+For bulk operations, uses batch audit insert (single INSERT for all audit entries):
 
 ```typescript
 async createMany(entities: ModelInsert<T>[], audit?: AuditOptions): Promise<ModelSelect<T>[]> {
@@ -259,9 +307,16 @@ async createMany(entities: ModelInsert<T>[], audit?: AuditOptions): Promise<Mode
     const result = await tx.insert(this.table).values(entities).returning();
     const created = result as ModelSelect<T>[];
 
-    for (const record of created) {
-      await this.writeAuditLog(tx, 'INSERT', this.getRecordId(record), null, record, audit);
-    }
+    await this.writeAuditLogBatch(
+      tx,
+      created.map((record) => ({
+        operation: 'INSERT' as const,
+        recordId: this.getRecordId(record),
+        oldValues: null,
+        newValues: record,
+      })),
+      audit
+    );
 
     return created;
   });
@@ -275,6 +330,17 @@ Add to the top of `BaseRepository.ts`:
 ```typescript
 import { getTableConfig } from 'drizzle-orm/pg-core';
 import { auditLogs } from '@audit-logs/_schema/auditLogs';
+```
+
+Also export the `TransactionClient` type and `AuditOptions` interface:
+
+```typescript
+export type TransactionClient = Parameters<Parameters<typeof db.transaction>[0]>[0];
+
+export interface AuditOptions {
+  userId: string;
+  metadata?: Record<string, unknown>;
+}
 ```
 
 ### 5. Opting Out of Audit
@@ -320,7 +386,7 @@ class StudentRepository extends BaseRepository<typeof students, 'stdNo'> {
 | `create` | 1 INSERT | Transaction: 1 INSERT entity + 1 INSERT audit |
 | `update` | 1 UPDATE | Transaction: 1 SELECT old + 1 UPDATE + 1 INSERT audit |
 | `delete` | 1 DELETE | Transaction: 1 SELECT old + 1 DELETE + 1 INSERT audit |
-| `createMany(N)` | 1 INSERT (batch) | Transaction: 1 INSERT batch + N INSERT audit |
+| `createMany(N)` | 1 INSERT (batch) | Transaction: 1 INSERT batch + 1 INSERT batch audit |
 
 The extra queries happen within the same transaction on the same connection — no additional network round-trips for local PostgreSQL storage.
 
@@ -348,12 +414,16 @@ await repo.delete(id, { userId: 'user-123' });
 4. Calling `delete(id, { userId })` captures old values in `audit_logs`
 5. Repositories with `auditEnabled = false` never write to `audit_logs`
 6. `buildAuditMetadata` overrides are merged into the `metadata` column
-7. `createMany` with audit writes one log entry per record
-8. `pnpm tsc --noEmit` passes
+7. `createMany` with audit writes one batch INSERT for all audit entries
+8. Subclass repositories can call `this.writeAuditLog(tx, ...)` within their own transactions
+9. Subclass repositories can call `this.writeAuditLogBatch(tx, ...)` for batch audit within their own transactions
+10. `pnpm tsc --noEmit` passes
 
 ## Notes
 
 - The `auditLogs` import in `BaseRepository.ts` is the ONLY schema import in this file. Since `BaseRepository` is server-only code (uses `db`), this is acceptable per the schema import rules.
 - The `update` method does an extra SELECT to capture old values. This is the inherent cost of application-level auditing. DB triggers have `OLD` and `NEW` built into the trigger context.
 - `deleteAll()` is NOT audited — it's a destructive bulk operation that should be used sparingly and manually logged if needed.
-- If a caller already has a transaction context and needs audit, they should use `writeAuditLog` directly (or we can add a `withTransaction` method in a future iteration).
+- `writeAuditLog` is `protected` so subclass repositories can call it within their custom `db.transaction()` blocks. This is essential for complex repositories like `AssessmentRepository` and `ClearanceRepository` that override base methods and have multi-step transactions.
+- `writeAuditLogBatch` is `protected` for the same reason — subclasses doing batch writes (e.g., bulk marks update) can use a single batch INSERT instead of N individual audit INSERTs.
+- `TransactionClient` type is exported so subclasses can properly type their transaction parameters.

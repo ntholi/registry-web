@@ -86,7 +86,27 @@ Create `src/app/audit-logs/_server/actions.ts`:
 
 **`src/app/audit-logs/_components/RecordAuditHistory.tsx`**
 
-Reusable component for embedding in any entity's detail page.
+Reusable component for embedding in any entity's detail page. **Must reuse logic from the existing `AuditHistoryTab.tsx`.**
+
+#### Reuse Strategy
+
+The existing `AuditHistoryTab.tsx` already contains solid logic that MUST be extracted and reused:
+
+| Existing Logic | Reuse In |
+|---------------|----------|
+| `getChangedFields()` | `RecordAuditHistory` — diff extraction |
+| `formatValue()` | `RecordAuditHistory` — value formatting |
+| `formatFieldName()` | `RecordAuditHistory` — field label formatting |
+| `ChangeItem` component | `RecordAuditHistory` — diff display |
+| `DEFAULT_EXCLUDE_FIELDS` | `RecordAuditHistory` — default exclusions |
+| Timeline layout | `RecordAuditHistory` — timeline UI |
+
+**Implementation approach:**
+1. Extract `getChangedFields`, `formatValue`, `formatFieldName`, and `DEFAULT_EXCLUDE_FIELDS` into `src/app/audit-logs/_lib/audit-utils.ts`
+2. Extract `ChangeItem` into `src/app/audit-logs/_components/ChangeItem.tsx` (or keep inline if small)
+3. Build `RecordAuditHistory` using these extracted utilities
+4. `RecordAuditHistory` fetches its own data via TanStack Query (unlike `AuditHistoryTab` which receives data via props)
+5. Deprecate `AuditHistoryTab` in Step 006 cleanup
 
 ```typescript
 type RecordAuditHistoryProps = {
@@ -136,6 +156,7 @@ Add `RecordAuditHistory` as a tab in key detail pages:
 | `src/app/audit-logs/_server/repository.ts` | Audit log repository |
 | `src/app/audit-logs/_server/service.ts` | Role-based audit service |
 | `src/app/audit-logs/_server/actions.ts` | Server actions |
+| `src/app/audit-logs/_lib/audit-utils.ts` | Extracted diff/format utilities from AuditHistoryTab |
 | `src/app/audit-logs/page.tsx` | Global audit log list |
 | `src/app/audit-logs/layout.tsx` | Audit logs layout |
 | `src/app/audit-logs/[id]/page.tsx` | Audit entry detail |
