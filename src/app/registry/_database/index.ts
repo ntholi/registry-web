@@ -3,7 +3,6 @@ export * from '../blocked-students/_schema/relations';
 export * from '../certificate-reprints/_schema/certificateReprints';
 export * from '../certificate-reprints/_schema/relations';
 export * from '../clearance/_schema/clearance';
-export * from '../clearance/_schema/clearanceAudit';
 export * from '../clearance/_schema/registrationClearance';
 export * from '../clearance/_schema/relations';
 export * from '../documents/_schema/documents';

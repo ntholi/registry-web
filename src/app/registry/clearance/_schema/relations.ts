@@ -3,7 +3,6 @@ import { graduationClearance } from '@registry/graduation/clearance/_schema/grad
 import { registrationRequests } from '@registry/registration-requests/_schema/registrationRequests';
 import { relations } from 'drizzle-orm';
 import { clearance } from './clearance';
-import { clearanceAudit } from './clearanceAudit';
 import { registrationClearance } from './registrationClearance';
 
 export const clearanceRelations = relations(clearance, ({ one, many }) => ({
@@ -11,7 +10,6 @@ export const clearanceRelations = relations(clearance, ({ one, many }) => ({
 		fields: [clearance.respondedBy],
 		references: [users.id],
 	}),
-	audits: many(clearanceAudit),
 	registrationClearances: many(registrationClearance),
 	graduationClearances: many(graduationClearance),
 }));
@@ -29,14 +27,3 @@ export const registrationClearanceRelations = relations(
 		}),
 	})
 );
-
-export const clearanceAuditRelations = relations(clearanceAudit, ({ one }) => ({
-	clearance: one(clearance, {
-		fields: [clearanceAudit.clearanceId],
-		references: [clearance.id],
-	}),
-	user: one(users, {
-		fields: [clearanceAudit.createdBy],
-		references: [users.id],
-	}),
-}));

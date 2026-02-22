@@ -1,7 +1,5 @@
 export * from '../assessments/_schema/assessmentMarks';
-export * from '../assessments/_schema/assessmentMarksAudit';
 export * from '../assessments/_schema/assessments';
-export * from '../assessments/_schema/assessmentsAudit';
 export * from '../assessments/_schema/lmsAssessments';
 export * from '../assessments/_schema/relations';
 export * from '../assigned-modules/_schema/assignedModules';

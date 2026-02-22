@@ -80,30 +80,25 @@ export default function GraduationClearanceHistory({ stdNo }: Props) {
 									</Table.Tr>
 								</Table.Thead>
 								<Table.Tbody>
-									{clearance.audits.map(
-										(audit: {
-											id: number;
-											date: Date;
-											newStatus: string;
-											message: string | null;
-											createdBy: string;
-											user: { name: string | null };
-										}) => (
-											<Table.Tr key={audit.id}>
-												<Table.Td>{formatDateTime(audit.date)}</Table.Td>
-												<Table.Td>{audit.newStatus}</Table.Td>
-												<Table.Td>{audit.message || '-'}</Table.Td>
-												<Table.Td>
+									{clearance.audits.map((audit) => (
+										<Table.Tr key={audit.id}>
+											<Table.Td>{formatDateTime(audit.date)}</Table.Td>
+											<Table.Td>{audit.newStatus}</Table.Td>
+											<Table.Td>{audit.message || '-'}</Table.Td>
+											<Table.Td>
+												{audit.user ? (
 													<Link
 														size='sm'
 														href={`/admin/users/${audit.createdBy}`}
 													>
 														{audit.user.name || 'Unknown User'}
 													</Link>
-												</Table.Td>
-											</Table.Tr>
-										)
-									)}
+												) : (
+													'-'
+												)}
+											</Table.Td>
+										</Table.Tr>
+									))}
 								</Table.Tbody>
 							</Table>
 						</Accordion.Panel>

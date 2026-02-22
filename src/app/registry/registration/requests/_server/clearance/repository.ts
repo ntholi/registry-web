@@ -1,9 +1,9 @@
 import type { ProgramLevel } from '@academic/_database';
 import { and, asc, count, desc, eq, inArray, sql } from 'drizzle-orm';
 import {
+	auditLogs,
 	autoApprovals,
 	clearance,
-	clearanceAudit,
 	type DashboardUser,
 	db,
 	programs,
@@ -529,23 +529,40 @@ export default class ClearanceRepository extends BaseRepository<
 				registrationRequest: {
 					with: { term: true },
 				},
-				clearance: {
-					with: {
-						audits: {
-							orderBy: desc(clearanceAudit.date),
-							with: { user: true },
-						},
-					},
-				},
+				clearance: true,
 			},
 		});
 
 		if (!rc) return [];
 
+		const audits = await db.query.auditLogs.findMany({
+			where: and(
+				eq(auditLogs.tableName, 'clearance'),
+				eq(auditLogs.recordId, String(clearanceId))
+			),
+			orderBy: desc(auditLogs.changedAt),
+			with: { changedByUser: true },
+		});
+
 		return [
 			{
 				...rc.clearance,
 				registrationRequest: rc.registrationRequest,
+				audits: audits.map((a) => ({
+					id: Number(a.id),
+					clearanceId,
+					previousStatus:
+						(a.oldValues as Record<string, string> | null)?.status ?? null,
+					newStatus:
+						(a.newValues as Record<string, string> | null)?.status ?? 'unknown',
+					createdBy: a.changedBy ?? '',
+					date: a.changedAt,
+					message:
+						(a.newValues as Record<string, string> | null)?.message ?? null,
+					modules:
+						(a.metadata as Record<string, string[]> | null)?.modules ?? [],
+					user: a.changedByUser,
+				})),
 			},
 		];
 	}
@@ -574,14 +591,7 @@ export default class ClearanceRepository extends BaseRepository<
 						where: inArray(registrationClearance.id, ids),
 						with: {
 							registrationRequest: { with: { term: true } },
-							clearance: {
-								with: {
-									audits: {
-										orderBy: desc(clearanceAudit.date),
-										with: { user: true },
-									},
-								},
-							},
+							clearance: true,
 						},
 						orderBy: (rcs, { desc: d }) => [d(rcs.createdAt)],
 					})
@@ -603,11 +613,49 @@ export default class ClearanceRepository extends BaseRepository<
 			autoApprovalRows.map((aa) => aa.termId)
 		);
 
+		const clearanceIds = clearanceRows.map((rc) => rc.clearance.id);
+		const allAudits =
+			clearanceIds.length > 0
+				? await db.query.auditLogs.findMany({
+						where: and(
+							eq(auditLogs.tableName, 'clearance'),
+							inArray(auditLogs.recordId, clearanceIds.map(String))
+						),
+						orderBy: desc(auditLogs.changedAt),
+						with: { changedByUser: true },
+					})
+				: [];
+
+		const auditsByRecordId = new Map<string, typeof allAudits>();
+		for (const a of allAudits) {
+			const list = auditsByRecordId.get(a.recordId) ?? [];
+			list.push(a);
+			auditsByRecordId.set(a.recordId, list);
+		}
+
 		const clearanceHistory = clearanceRows
 			.filter((rc) => !autoApprovalTermIds.has(rc.registrationRequest.termId))
 			.map((rc) => ({
 				...rc.clearance,
 				registrationRequest: rc.registrationRequest,
+				audits: (auditsByRecordId.get(String(rc.clearance.id)) ?? []).map(
+					(a) => ({
+						id: Number(a.id),
+						clearanceId: rc.clearance.id,
+						previousStatus:
+							(a.oldValues as Record<string, string> | null)?.status ?? null,
+						newStatus:
+							(a.newValues as Record<string, string> | null)?.status ??
+							'unknown',
+						createdBy: a.changedBy ?? '',
+						date: a.changedAt,
+						message:
+							(a.newValues as Record<string, string> | null)?.message ?? null,
+						modules:
+							(a.metadata as Record<string, string[]> | null)?.modules ?? [],
+						user: a.changedByUser,
+					})
+				),
 				isAutoApproval: false as const,
 			}));
 

@@ -2,8 +2,8 @@ import { and, asc, count, desc, eq, inArray, sql } from 'drizzle-orm';
 import { usersRepository } from '@/app/admin/users/_server/repository';
 import { auth } from '@/core/auth';
 import {
+	auditLogs,
 	clearance,
-	clearanceAudit,
 	type DashboardUser,
 	db,
 	graduationClearance,
@@ -282,23 +282,40 @@ export default class GraduationClearanceRepository extends BaseRepository<
 			where: eq(graduationClearance.clearanceId, clearanceId),
 			with: {
 				graduationRequest: true,
-				clearance: {
-					with: {
-						audits: {
-							orderBy: desc(clearanceAudit.date),
-							with: { user: true },
-						},
-					},
-				},
+				clearance: true,
 			},
 		});
 
 		if (!gc) return [];
 
+		const audits = await db.query.auditLogs.findMany({
+			where: and(
+				eq(auditLogs.tableName, 'clearance'),
+				eq(auditLogs.recordId, String(clearanceId))
+			),
+			orderBy: desc(auditLogs.changedAt),
+			with: { changedByUser: true },
+		});
+
 		return [
 			{
 				...gc.clearance,
 				graduationRequest: gc.graduationRequest,
+				audits: audits.map((a) => ({
+					id: Number(a.id),
+					clearanceId,
+					previousStatus:
+						(a.oldValues as Record<string, string> | null)?.status ?? null,
+					newStatus:
+						(a.newValues as Record<string, string> | null)?.status ?? 'unknown',
+					createdBy: a.changedBy ?? '',
+					date: a.changedAt,
+					message:
+						(a.newValues as Record<string, string> | null)?.message ?? null,
+					modules:
+						(a.metadata as Record<string, string[]> | null)?.modules ?? [],
+					user: a.changedByUser,
+				})),
 			},
 		];
 	}
@@ -330,21 +347,51 @@ export default class GraduationClearanceRepository extends BaseRepository<
 			where: inArray(graduationClearance.id, ids),
 			with: {
 				graduationRequest: true,
-				clearance: {
-					with: {
-						audits: {
-							orderBy: desc(clearanceAudit.date),
-							with: { user: true },
-						},
-					},
-				},
+				clearance: true,
 			},
 			orderBy: (gcs, { desc: d }) => [d(gcs.createdAt)],
 		});
 
+		const clearanceIds = rows.map((gc) => gc.clearance.id);
+		const allAudits =
+			clearanceIds.length > 0
+				? await db.query.auditLogs.findMany({
+						where: and(
+							eq(auditLogs.tableName, 'clearance'),
+							inArray(auditLogs.recordId, clearanceIds.map(String))
+						),
+						orderBy: desc(auditLogs.changedAt),
+						with: { changedByUser: true },
+					})
+				: [];
+
+		const auditsByRecordId = new Map<string, typeof allAudits>();
+		for (const a of allAudits) {
+			const list = auditsByRecordId.get(a.recordId) ?? [];
+			list.push(a);
+			auditsByRecordId.set(a.recordId, list);
+		}
+
 		return rows.map((gc) => ({
 			...gc.clearance,
 			graduationRequest: gc.graduationRequest,
+			audits: (auditsByRecordId.get(String(gc.clearance.id)) ?? []).map(
+				(a) => ({
+					id: Number(a.id),
+					clearanceId: gc.clearance.id,
+					previousStatus:
+						(a.oldValues as Record<string, string> | null)?.status ?? null,
+					newStatus:
+						(a.newValues as Record<string, string> | null)?.status ?? 'unknown',
+					createdBy: a.changedBy ?? '',
+					date: a.changedAt,
+					message:
+						(a.newValues as Record<string, string> | null)?.message ?? null,
+					modules:
+						(a.metadata as Record<string, string[]> | null)?.modules ?? [],
+					user: a.changedByUser,
+				})
+			),
 		}));
 	}
 
