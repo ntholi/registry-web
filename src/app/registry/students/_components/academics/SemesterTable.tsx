@@ -1,6 +1,5 @@
 'use client';
 
-import { EditStudentModuleModal } from '@audit-logs/student-modules';
 import {
 	Anchor,
 	Badge,
@@ -23,6 +22,7 @@ import {
 import { isFailingOrSupGrade as failed } from '@/shared/lib/utils/grades';
 import { formatSemester, isActiveModule } from '@/shared/lib/utils/utils';
 import AssessmentMarksModal from './AssessmentMarksModal';
+import EditStudentModuleModal from './EditStudentModuleModal';
 
 type ModuleTableProps = {
 	modules: {

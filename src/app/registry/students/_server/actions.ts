@@ -2,7 +2,13 @@
 
 import { revalidatePath } from 'next/cache';
 import { getUnpublishedTermCodes } from '@/app/registry/terms/settings/_server/actions';
-import type { students } from '@/core/database';
+import { auth } from '@/core/auth';
+import type {
+	studentModules,
+	studentPrograms,
+	studentSemesters,
+	students,
+} from '@/core/database';
 import type { QueryOptions } from '@/core/platform/BaseRepository';
 import { studentsService as service } from './service';
 
@@ -81,6 +87,63 @@ export async function createStudent(student: Student) {
 
 export async function updateStudent(stdNo: number, student: Student) {
 	return service.update(stdNo, student);
+}
+
+export async function updateStudentWithReasons(
+	stdNo: number,
+	data: Partial<Student>,
+	reasons?: string
+) {
+	const result = await service.updateWithReasons(stdNo, data, reasons);
+	revalidatePath(`/registry/students/${stdNo}`);
+	return result;
+}
+
+export async function updateStudentProgram(
+	id: number,
+	data: Partial<typeof studentPrograms.$inferInsert>,
+	reasons?: string
+) {
+	const result = await service.updateStudentProgram(id, data, reasons);
+	revalidatePath('/registry/students');
+	return result;
+}
+
+export async function createStudentProgram(
+	data: typeof studentPrograms.$inferInsert,
+	reasons?: string
+) {
+	const result = await service.createStudentProgram(data, reasons);
+	revalidatePath('/registry/students');
+	return result;
+}
+
+export async function updateStudentSemester(
+	id: number,
+	data: Partial<typeof studentSemesters.$inferInsert>,
+	reasons?: string
+) {
+	const result = await service.updateStudentSemester(id, data, reasons);
+	revalidatePath('/registry/students');
+	return result;
+}
+
+export async function updateStudentModule(
+	id: number,
+	data: Partial<typeof studentModules.$inferInsert>,
+	reasons?: string
+) {
+	const result = await service.updateStudentModule(id, data, reasons);
+	revalidatePath('/registry/students');
+	return result;
+}
+
+export async function canEditMarksAndGrades() {
+	const session = await auth();
+	const isAdmin = session?.user?.role === 'admin';
+	const isRegistryManager =
+		session?.user?.role === 'registry' && session?.user?.position === 'manager';
+	return isAdmin || isRegistryManager;
 }
 
 export async function updateStudentUserId(

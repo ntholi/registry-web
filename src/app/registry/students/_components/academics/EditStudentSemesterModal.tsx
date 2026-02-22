@@ -1,6 +1,7 @@
 'use client';
 
 import { getStructureSemestersByStructureId } from '@academic/schools/structures/_server/actions';
+import RecordAuditHistory from '@audit-logs/_components/RecordAuditHistory';
 import { getAllSponsors } from '@finance/sponsors';
 import {
 	ActionIcon,
@@ -21,8 +22,7 @@ import { IconAlertCircle, IconEdit } from '@tabler/icons-react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect, useState } from 'react';
 import { getAllTerms } from '@/app/registry/terms';
-import RecordAuditHistory from '../../_components/RecordAuditHistory';
-import { updateStudentSemester } from '../_server/actions';
+import { updateStudentSemester } from '../../_server/actions';
 
 interface StudentSemester {
 	id: number;
@@ -33,13 +33,13 @@ interface StudentSemester {
 	studentProgramId: number;
 }
 
-interface Props {
+type Props = {
 	semester: StudentSemester;
 	structureId: number;
 	visible?: boolean;
-}
+};
 
-const FIELD_LABELS = {
+const FIELD_LABELS: Record<string, string> = {
 	termCode: 'Term',
 	status: 'Status',
 	structureSemesterId: 'Structure Semester',
@@ -62,11 +62,7 @@ export default function EditStudentSemesterModal({
 		queryKey: ['terms'],
 		queryFn: getAllTerms,
 		enabled: opened,
-		select: (data) =>
-			data.map((t) => ({
-				value: t.code,
-				label: t.code,
-			})),
+		select: (data) => data.map((t) => ({ value: t.code, label: t.code })),
 	});
 
 	const { data: sponsorsData = [], isLoading: isLoadingSponsors } = useQuery({
@@ -74,10 +70,7 @@ export default function EditStudentSemesterModal({
 		queryFn: getAllSponsors,
 		enabled: opened,
 		select: (data) =>
-			data.map((s) => ({
-				value: s.id.toString(),
-				label: s.name,
-			})),
+			data.map((s) => ({ value: s.id.toString(), label: s.name })),
 	});
 
 	const {
@@ -88,10 +81,7 @@ export default function EditStudentSemesterModal({
 		queryFn: () => getStructureSemestersByStructureId(structureId),
 		enabled: opened,
 		select: (data) =>
-			data.map((s) => ({
-				value: s.id.toString(),
-				label: s.name,
-			})),
+			data.map((s) => ({ value: s.id.toString(), label: s.name })),
 	});
 
 	const form = useForm({
@@ -139,11 +129,9 @@ export default function EditStudentSemesterModal({
 					color: 'green',
 				});
 
+				queryClient.invalidateQueries({ queryKey: ['student'] });
 				queryClient.invalidateQueries({
-					queryKey: ['student'],
-				});
-				queryClient.invalidateQueries({
-					queryKey: ['student-semester-audit-history', semester.id],
+					queryKey: ['audit-history', 'student_semesters', String(semester.id)],
 				});
 
 				form.reset();
@@ -220,7 +208,6 @@ export default function EditStudentSemesterModal({
 								{...form.getInputProps('termCode')}
 								rightSection={isLoadingTerms ? <Loader size='xs' /> : undefined}
 							/>
-
 							<Select
 								label='Status'
 								placeholder='Select status'
@@ -234,7 +221,6 @@ export default function EditStudentSemesterModal({
 								mb='md'
 								{...form.getInputProps('status')}
 							/>
-
 							<Select
 								label='Structure Semester'
 								placeholder='Select structure semester'
@@ -249,7 +235,6 @@ export default function EditStudentSemesterModal({
 									isLoadingStructureSemesters ? <Loader size='xs' /> : undefined
 								}
 							/>
-
 							<Select
 								label='Sponsor'
 								placeholder='Select sponsor (optional)'

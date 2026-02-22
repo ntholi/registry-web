@@ -1,5 +1,6 @@
 'use client';
 
+import RecordAuditHistory from '@audit-logs/_components/RecordAuditHistory';
 import {
 	ActionIcon,
 	Alert,
@@ -19,8 +20,7 @@ import { gender, maritalStatusEnum, studentStatus } from '@registry/_database';
 import { IconAlertCircle, IconEdit } from '@tabler/icons-react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect, useState } from 'react';
-import RecordAuditHistory from '../../_components/RecordAuditHistory';
-import { updateStudent } from '../_server/actions';
+import { updateStudentWithReasons } from '../../_server/actions';
 
 interface Student {
 	stdNo: number;
@@ -39,11 +39,11 @@ interface Student {
 	religion: string | null;
 }
 
-interface Props {
+type Props = {
 	student: Student;
-}
+};
 
-const FIELD_LABELS = {
+const FIELD_LABELS: Record<string, string> = {
 	name: 'Full Name',
 	nationalId: 'National ID',
 	status: 'Status',
@@ -112,7 +112,7 @@ export default function EditStudentModal({ student }: Props) {
 		async (values: typeof form.values) => {
 			setIsSubmitting(true);
 			try {
-				await updateStudent(
+				await updateStudentWithReasons(
 					student.stdNo,
 					{
 						name: values.name,
@@ -140,11 +140,9 @@ export default function EditStudentModal({ student }: Props) {
 					color: 'green',
 				});
 
+				queryClient.invalidateQueries({ queryKey: ['student'] });
 				queryClient.invalidateQueries({
-					queryKey: ['student'],
-				});
-				queryClient.invalidateQueries({
-					queryKey: ['student-audit-history', student.stdNo],
+					queryKey: ['audit-history', 'students', String(student.stdNo)],
 				});
 
 				form.reset();
@@ -200,7 +198,6 @@ export default function EditStudentModal({ student }: Props) {
 								mb='md'
 								{...form.getInputProps('name')}
 							/>
-
 							<TextInput
 								label='National ID'
 								placeholder='Enter national ID'
@@ -208,7 +205,6 @@ export default function EditStudentModal({ student }: Props) {
 								mb='md'
 								{...form.getInputProps('nationalId')}
 							/>
-
 							<Select
 								label='Status'
 								placeholder='Select status'
@@ -222,7 +218,6 @@ export default function EditStudentModal({ student }: Props) {
 								mb='md'
 								{...form.getInputProps('status')}
 							/>
-
 							<DateInput
 								label='Date of Birth'
 								placeholder='Select date of birth'
@@ -239,14 +234,12 @@ export default function EditStudentModal({ student }: Props) {
 								mb='md'
 								{...form.getInputProps('phone1')}
 							/>
-
 							<TextInput
 								label='Secondary Phone'
 								placeholder='Enter secondary phone number'
 								mb='md'
 								{...form.getInputProps('phone2')}
 							/>
-
 							<TextInput
 								label='Country'
 								placeholder='Enter country'
@@ -268,7 +261,6 @@ export default function EditStudentModal({ student }: Props) {
 								mb='md'
 								{...form.getInputProps('gender')}
 							/>
-
 							<Select
 								label='Marital Status'
 								placeholder='Select marital status'
@@ -281,28 +273,24 @@ export default function EditStudentModal({ student }: Props) {
 								mb='md'
 								{...form.getInputProps('maritalStatus')}
 							/>
-
 							<TextInput
 								label='Nationality'
 								placeholder='Enter nationality'
 								mb='md'
 								{...form.getInputProps('nationality')}
 							/>
-
 							<TextInput
 								label='Birth Place'
 								placeholder='Enter birth place'
 								mb='md'
 								{...form.getInputProps('birthPlace')}
 							/>
-
 							<TextInput
 								label='Race'
 								placeholder='Enter race'
 								mb='md'
 								{...form.getInputProps('race')}
 							/>
-
 							<TextInput
 								label='Religion'
 								placeholder='Enter religion'

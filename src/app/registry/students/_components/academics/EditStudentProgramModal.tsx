@@ -1,6 +1,7 @@
 'use client';
 
 import { getStructuresByProgramId } from '@academic/structures';
+import RecordAuditHistory from '@audit-logs/_components/RecordAuditHistory';
 import {
 	ActionIcon,
 	Alert,
@@ -23,8 +24,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect, useState } from 'react';
 import { getAllTerms } from '@/app/registry/terms';
 import { formatDateToISO, parseDate } from '@/shared/lib/utils/dates';
-import RecordAuditHistory from '../../_components/RecordAuditHistory';
-import { updateStudentProgram } from '../_server/actions';
+import { updateStudentProgram } from '../../_server/actions';
 
 interface StudentProgram {
 	id: number;
@@ -38,12 +38,12 @@ interface StudentProgram {
 	status: StudentProgramStatus;
 }
 
-interface Props {
+type Props = {
 	program: StudentProgram;
 	visible?: boolean;
-}
+};
 
-const FIELD_LABELS = {
+const FIELD_LABELS: Record<string, string> = {
 	status: 'Status',
 	structureId: 'Structure',
 	intakeDate: 'Intake Date',
@@ -67,11 +67,7 @@ export default function EditStudentProgramModal({
 		queryKey: ['terms'],
 		queryFn: getAllTerms,
 		enabled: opened,
-		select: (data) =>
-			data.map((t) => ({
-				value: t.code,
-				label: t.code,
-			})),
+		select: (data) => data.map((t) => ({ value: t.code, label: t.code })),
 	});
 
 	const { data: structuresData = [], isLoading: isLoadingStructures } =
@@ -80,10 +76,7 @@ export default function EditStudentProgramModal({
 			queryFn: () => getStructuresByProgramId(program.programId),
 			enabled: opened,
 			select: (data) =>
-				data.map((s) => ({
-					value: s.id.toString(),
-					label: s.code,
-				})),
+				data.map((s) => ({ value: s.id.toString(), label: s.code })),
 		});
 
 	const form = useForm({
@@ -137,11 +130,9 @@ export default function EditStudentProgramModal({
 					color: 'green',
 				});
 
+				queryClient.invalidateQueries({ queryKey: ['student'] });
 				queryClient.invalidateQueries({
-					queryKey: ['student'],
-				});
-				queryClient.invalidateQueries({
-					queryKey: ['student-program-audit-history', program.id],
+					queryKey: ['audit-history', 'student_programs', String(program.id)],
 				});
 
 				form.reset();
@@ -220,7 +211,6 @@ export default function EditStudentProgramModal({
 									required
 									{...form.getInputProps('status')}
 								/>
-
 								<Select
 									label='Structure'
 									placeholder='Select structure'
@@ -234,7 +224,6 @@ export default function EditStudentProgramModal({
 										isLoadingStructures ? <Loader size='xs' /> : undefined
 									}
 								/>
-
 								<Group grow>
 									<DateInput
 										label='Intake Date'
@@ -261,7 +250,6 @@ export default function EditStudentProgramModal({
 										isLoadingTerms ? <Loader size='xs' /> : undefined
 									}
 								/>
-
 								<DateInput
 									label='Graduation Date'
 									placeholder='Select graduation date'

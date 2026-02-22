@@ -1,6 +1,5 @@
 'use client';
 
-import { updateStudentSemester } from '@audit-logs/student-semesters';
 import { getStudentSponsors } from '@finance/sponsors';
 import {
 	ActionIcon,
@@ -17,6 +16,7 @@ import { notifications } from '@mantine/notifications';
 import { IconAlertCircle, IconEdit } from '@tabler/icons-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
+import { updateStudentSemester } from '../../../_server/actions';
 
 type EditSemesterSponsorModalProps = {
 	semesterId: number;

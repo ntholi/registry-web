@@ -24,7 +24,9 @@ import {
 	terms,
 	users,
 } from '@/core/database';
+import { auditLogs } from '@/core/database/schema/auditLogs';
 import BaseRepository, {
+	type AuditOptions,
 	type QueryOptions,
 } from '@/core/platform/BaseRepository';
 import { INACTIVE_SEMESTER_STATUSES } from '@/shared/lib/utils/utils';
@@ -621,6 +623,153 @@ export default class StudentRepository extends BaseRepository<
 				)
 			)
 			.returning();
+	}
+
+	async updateStudentWithAudit(
+		stdNo: number,
+		data: Partial<typeof students.$inferInsert>,
+		audit: AuditOptions
+	) {
+		const processed = {
+			...data,
+			dateOfBirth: data.dateOfBirth
+				? new Date(data.dateOfBirth)
+				: data.dateOfBirth,
+		};
+		return this.update(stdNo, processed, audit);
+	}
+
+	async updateStudentProgram(
+		id: number,
+		data: Partial<typeof studentPrograms.$inferInsert>,
+		audit: AuditOptions
+	) {
+		return db.transaction(async (tx) => {
+			const [old] = await tx
+				.select()
+				.from(studentPrograms)
+				.where(eq(studentPrograms.id, id));
+
+			if (!old) throw new Error('Student program not found');
+
+			const [updated] = await tx
+				.update(studentPrograms)
+				.set(data)
+				.where(eq(studentPrograms.id, id))
+				.returning();
+
+			await tx.insert(auditLogs).values({
+				tableName: 'student_programs',
+				recordId: String(id),
+				operation: 'UPDATE',
+				oldValues: old,
+				newValues: updated,
+				changedBy: audit.userId,
+				metadata: audit.metadata ?? null,
+			});
+
+			return updated;
+		});
+	}
+
+	async createStudentProgram(
+		data: typeof studentPrograms.$inferInsert,
+		audit: AuditOptions
+	) {
+		return db.transaction(async (tx) => {
+			const existingActive = await tx.query.studentPrograms.findFirst({
+				where: (p, { and: a, eq: e }) =>
+					a(e(p.stdNo, data.stdNo), e(p.status, 'Active')),
+				columns: { id: true },
+			});
+
+			if (existingActive) {
+				throw new Error('Student already has an active program');
+			}
+
+			const [created] = await tx
+				.insert(studentPrograms)
+				.values(data)
+				.returning();
+
+			await tx.insert(auditLogs).values({
+				tableName: 'student_programs',
+				recordId: String(created.id),
+				operation: 'INSERT',
+				oldValues: null,
+				newValues: created,
+				changedBy: audit.userId,
+				metadata: audit.metadata ?? null,
+			});
+
+			return created;
+		});
+	}
+
+	async updateStudentSemester(
+		id: number,
+		data: Partial<typeof studentSemesters.$inferInsert>,
+		audit: AuditOptions
+	) {
+		return db.transaction(async (tx) => {
+			const [old] = await tx
+				.select()
+				.from(studentSemesters)
+				.where(eq(studentSemesters.id, id));
+
+			if (!old) throw new Error('Student semester not found');
+
+			const [updated] = await tx
+				.update(studentSemesters)
+				.set(data)
+				.where(eq(studentSemesters.id, id))
+				.returning();
+
+			await tx.insert(auditLogs).values({
+				tableName: 'student_semesters',
+				recordId: String(id),
+				operation: 'UPDATE',
+				oldValues: old,
+				newValues: updated,
+				changedBy: audit.userId,
+				metadata: audit.metadata ?? null,
+			});
+
+			return updated;
+		});
+	}
+
+	async updateStudentModule(
+		id: number,
+		data: Partial<typeof studentModules.$inferInsert>,
+		audit: AuditOptions
+	) {
+		return db.transaction(async (tx) => {
+			const [old] = await tx
+				.select()
+				.from(studentModules)
+				.where(eq(studentModules.id, id));
+
+			if (!old) throw new Error('Student module not found');
+
+			const [updated] = await tx
+				.update(studentModules)
+				.set(data)
+				.where(eq(studentModules.id, id))
+				.returning();
+
+			await tx.insert(auditLogs).values({
+				tableName: 'student_modules',
+				recordId: String(id),
+				operation: 'UPDATE',
+				oldValues: old,
+				newValues: updated,
+				changedBy: audit.userId,
+				metadata: audit.metadata ?? null,
+			});
+
+			return updated;
+		});
 	}
 }
 

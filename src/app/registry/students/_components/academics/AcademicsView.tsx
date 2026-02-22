@@ -1,7 +1,5 @@
 'use client';
 
-import { EditStudentProgramModal } from '@audit-logs/student-programs';
-import { EditStudentSemesterModal } from '@audit-logs/student-semesters';
 import {
 	Accordion,
 	Badge,
@@ -25,6 +23,8 @@ import { getStatusColor } from '@/shared/lib/utils/colors';
 import { getAcademicRemarks } from '@/shared/lib/utils/grades';
 import { formatSemester } from '@/shared/lib/utils/utils';
 import type { getStudent } from '../../_server/actions';
+import EditStudentProgramModal from './EditStudentProgramModal';
+import EditStudentSemesterModal from './EditStudentSemesterModal';
 import GpaDisplay from './GpaDisplay';
 import SemesterTable from './SemesterTable';
 

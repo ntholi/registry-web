@@ -1,5 +1,10 @@
 import { getActiveTerm } from '@/app/registry/terms';
-import type { students } from '@/core/database';
+import type {
+	studentModules,
+	studentPrograms,
+	studentSemesters,
+	students,
+} from '@/core/database';
 import type { QueryOptions } from '@/core/platform/BaseRepository';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
 import withAuth from '@/core/platform/withAuth';
@@ -127,6 +132,80 @@ class StudentService {
 			const student = await this.repository.findStudentByStdNo(stdNo);
 			return student?.programs || [];
 		}, ['dashboard', 'student']);
+	}
+
+	async updateWithReasons(
+		stdNo: number,
+		data: Partial<Student>,
+		reasons?: string
+	) {
+		return withAuth(
+			async (session) =>
+				this.repository.updateStudentWithAudit(stdNo, data, {
+					userId: session!.user!.id!,
+					metadata: reasons ? { reasons } : undefined,
+				}),
+			['registry', 'admin']
+		);
+	}
+
+	async updateStudentProgram(
+		id: number,
+		data: Partial<typeof studentPrograms.$inferInsert>,
+		reasons?: string
+	) {
+		return withAuth(
+			async (session) =>
+				this.repository.updateStudentProgram(id, data, {
+					userId: session!.user!.id!,
+					metadata: reasons ? { reasons } : undefined,
+				}),
+			['registry', 'admin']
+		);
+	}
+
+	async createStudentProgram(
+		data: typeof studentPrograms.$inferInsert,
+		reasons?: string
+	) {
+		return withAuth(
+			async (session) =>
+				this.repository.createStudentProgram(data, {
+					userId: session!.user!.id!,
+					metadata: reasons ? { reasons } : undefined,
+				}),
+			['registry', 'admin']
+		);
+	}
+
+	async updateStudentSemester(
+		id: number,
+		data: Partial<typeof studentSemesters.$inferInsert>,
+		reasons?: string
+	) {
+		return withAuth(
+			async (session) =>
+				this.repository.updateStudentSemester(id, data, {
+					userId: session!.user!.id!,
+					metadata: reasons ? { reasons } : undefined,
+				}),
+			['registry', 'admin']
+		);
+	}
+
+	async updateStudentModule(
+		id: number,
+		data: Partial<typeof studentModules.$inferInsert>,
+		reasons?: string
+	) {
+		return withAuth(
+			async (session) =>
+				this.repository.updateStudentModule(id, data, {
+					userId: session!.user!.id!,
+					metadata: reasons ? { reasons } : undefined,
+				}),
+			['registry', 'admin']
+		);
 	}
 }
 

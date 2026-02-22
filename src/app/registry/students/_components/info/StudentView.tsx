@@ -1,6 +1,5 @@
 'use client';
 
-import { EditStudentModal } from '@audit-logs/students';
 import {
 	ActionIcon,
 	Badge,
@@ -19,19 +18,18 @@ import {
 import { notifications } from '@mantine/notifications';
 import { IconCheck, IconCopy } from '@tabler/icons-react';
 import { useSession } from 'next-auth/react';
-import {
-	CreateStudentProgramModal,
-	EditStudentProgramModal,
-} from '@/app/audit-logs/student-programs';
 import type { UserRole } from '@/core/database';
 import { getBooleanColor, getStatusColor } from '@/shared/lib/utils/colors';
 import { calculateAge, formatDate } from '@/shared/lib/utils/dates';
 import { formatPhoneNumber, formatSemester } from '@/shared/lib/utils/utils';
 import Link from '@/shared/ui/Link';
 import type { getStudent } from '../../_server/actions';
+import CreateStudentProgramModal from '../academics/CreateStudentProgramModal';
+import EditStudentProgramModal from '../academics/EditStudentProgramModal';
 import EditStudentUserModal from '../academics/EditStudentUserModal';
 import AcademicSummary from './AcademicSummary';
 import EditStructureModal from './EditStructureModal';
+import EditStudentModal from './EditStudentModal';
 import PhotoView from './PhotoView';
 
 type Props = {

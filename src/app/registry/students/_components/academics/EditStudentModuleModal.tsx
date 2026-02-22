@@ -1,5 +1,6 @@
 'use client';
 
+import RecordAuditHistory from '@audit-logs/_components/RecordAuditHistory';
 import {
 	ActionIcon,
 	type ActionIconProps,
@@ -28,8 +29,10 @@ import { IconAlertCircle, IconEdit } from '@tabler/icons-react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect, useState } from 'react';
 import { getLetterGrade } from '@/shared/lib/utils/grades';
-import RecordAuditHistory from '../../_components/RecordAuditHistory';
-import { canEditMarksAndGrades, updateStudentModule } from '../_server/actions';
+import {
+	canEditMarksAndGrades,
+	updateStudentModule,
+} from '../../_server/actions';
 
 interface StudentModule {
 	id: number;
@@ -44,7 +47,7 @@ type Props = {
 	module: StudentModule;
 } & ActionIconProps;
 
-const FIELD_LABELS = {
+const FIELD_LABELS: Record<string, string> = {
 	status: 'Status',
 	marks: 'Marks',
 	grade: 'Grade',
@@ -130,11 +133,9 @@ export default function EditStudentModuleModal({ module, ...rest }: Props) {
 					color: 'green',
 				});
 
+				queryClient.invalidateQueries({ queryKey: ['student'] });
 				queryClient.invalidateQueries({
-					queryKey: ['student'],
-				});
-				queryClient.invalidateQueries({
-					queryKey: ['student-module-audit-history', module.id],
+					queryKey: ['audit-history', 'student_modules', String(module.id)],
 				});
 
 				form.reset();
@@ -216,7 +217,6 @@ export default function EditStudentModuleModal({ module, ...rest }: Props) {
 								mb='md'
 								{...form.getInputProps('status')}
 							/>
-
 							<TextInput
 								label='Marks'
 								placeholder='Enter marks'
@@ -232,7 +232,6 @@ export default function EditStudentModuleModal({ module, ...rest }: Props) {
 									isLoadingPermissions ? <Loader size='xs' /> : undefined
 								}
 							/>
-
 							<Select
 								label='Grade'
 								placeholder='Select grade'
