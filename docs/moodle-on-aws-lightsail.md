@@ -35,12 +35,15 @@ sudo apt-get install -y unzip mariadb-server mariadb-client ufw nano graphviz as
 
 Choose the Nginx option.
 
+Install Nginx:
+
 ```bash
 sudo apt-get install -y nginx
+```
 
-# Set up the configuration file including the fallback required for the router
-# Using tee allows the file to be written in a single (rather long command). This could also have been done with a text editor.
-# Be sure to copy and paste entire block from "sudo" to "EOF"
+Create the Nginx configuration file for Moodle. Copy and paste the entire block from `sudo` to `EOF`:
+
+```bash
 sudo tee /etc/nginx/sites-available/moodle.conf > /dev/null <<EOF
 server {
     listen 80;
@@ -66,13 +69,18 @@ server {
     }
 }
 EOF
+```
 
-# Recognise the new config file
+Enable the config and reload Nginx:
+
+```bash
 sudo ln -s /etc/nginx/sites-available/moodle.conf /etc/nginx/sites-enabled/moodle.conf
 sudo systemctl reload nginx
+```
 
-# Make necessary changes to the php configuration required by Moodle
-# Using sed finds and replaces text. This could have been done in a text editor
+Make necessary changes to the PHP configuration required by Moodle:
+
+```bash
 sudo sed -i 's/^;max_input_vars =.*/max_input_vars = 5000/' /etc/php/8.3/fpm/php.ini
 sudo sed -i 's/^;max_input_vars =.*/max_input_vars = 5000/' /etc/php/8.3/cli/php.ini
 sudo sed -i 's/^post_max_size =.*/post_max_size = 256M/' /etc/php/8.3/fpm/php.ini
@@ -133,16 +141,19 @@ echo "* * * * * /usr/bin/php $MOODLE_CODE_FOLDER/admin/cli/cron.php >/dev/null" 
 
 Moodle needs a database and a user with full privileges.
 
+Generate a random password for the database user:
+
 ```bash
-# Create a random password for the user who will access the moodle database
 MYSQL_MOODLEUSER_PASSWORD=$(openssl rand -base64 6)
-# Create a new database named moodle with the utf8mb4 character set and utf8mb4_unicode_ci collation
+echo "Moodle DB user password: $MYSQL_MOODLEUSER_PASSWORD"
+```
+
+Create the database and user:
+
+```bash
 sudo mysql -e "CREATE DATABASE moodle DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
-# Create a new MySQL user moodleuser with a password
 sudo mysql -e "CREATE USER 'moodleuser'@'localhost' IDENTIFIED BY '$MYSQL_MOODLEUSER_PASSWORD';"
-# Grant privileges on the moodle database to the moodleuser to allow localhost access
 sudo mysql -e "GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, CREATE TEMPORARY TABLES, DROP, INDEX, ALTER ON moodle.* TO 'moodleuser'@'localhost';"
-# Reload privilege tables
 sudo mysql -e "FLUSH PRIVILEGES;"
 ```
 
@@ -150,17 +161,27 @@ sudo mysql -e "FLUSH PRIVILEGES;"
 
 The last step can be done using the browser but we have all the information needed to complete the installation.
 
+Generate an admin password and temporarily open permissions for the installer:
+
 ```bash
 MOODLE_ADMIN_PASSWORD=$(openssl rand -base64 8)
 sudo chmod -R 0777 $MOODLE_CODE_FOLDER
+```
+
+Run the Moodle CLI installer:
+
+```bash
 cd $MOODLE_PATH
 sudo -u www-data /usr/bin/php $MOODLE_CODE_FOLDER/admin/cli/install.php --non-interactive --lang=en --wwwroot="$PROTOCOL$WEBSITE_ADDRESS" --dataroot=$MOODLE_DATA_FOLDER/moodledata --dbtype=mariadb --dbhost=localhost --dbname=moodle --dbuser=moodleuser --dbpass="$MYSQL_MOODLEUSER_PASSWORD" --fullname="Generic Moodle" --shortname="GM" --adminuser=admin --summary="" --adminpass="$MOODLE_ADMIN_PASSWORD" --adminemail=please@changeme.com --agree-license
 echo "Moodle installation completed successfully. You can now log on to your new Moodle at $PROTOCOL$WEBSITE_ADDRESS as admin with $MOODLE_ADMIN_PASSWORD and complete your site registration"
 echo "Remember to change the admin email, name and shortname using the browser in your new Moodle"
+```
+
+Lock down file permissions and configure Nginx slash arguments:
+
+```bash
 sudo find $MOODLE_CODE_FOLDER -type d -exec chmod 755 {} \;
 sudo find $MOODLE_CODE_FOLDER -type f -exec chmod 644 {} \;
-
-# Nginx needs slash arguments set
 sudo sed -i "/require_once(__DIR__ . '\/lib\/setup.php');/i \$CFG->slasharguments = false;" $MOODLE_CODE_FOLDER/config.php
 ```
 
@@ -241,11 +262,13 @@ ssh-copy-id user@server_address
 For security, you should always log in as a user with elevated privileges (a sudo user). You should never login as root on a production server and you should remove root SSH access from your server.
 
 ```bash
-# If you don't already have a sudo user, as root, create a new user 'user1' with home directory and prompt for password
-adduser user1
-# Enter and confirm a password for user1. User details are optional
-# Add user1 to the sudo group for administrative privileges
-usermod -aG sudo user1
+sudo adduser user1
+```
+
+Add user1 to the sudo group for administrative privileges:
+
+```bash
+sudo usermod -aG sudo user1
 ```
 
 **Check you can ssh into your server as your new sudo user!** Leave another terminal open until confirmed.
@@ -291,27 +314,47 @@ Check the log at `/var/log/unattended-upgrades/`.
 
 Daily automated date marked sql backups should be set up on a production Moodle. Dumps can be large and need to be deleted periodically.
 
+Generate a random password for the backup user:
+
 ```bash
-# Create MySQL backup user and grant privileges to lock tables (better security than using root or moodleuser roles)
 BACKUP_USER_PASSWORD=$(openssl rand -base64 6)
-mysql <<EOF
+echo "Backup user password: $BACKUP_USER_PASSWORD"
+```
+
+Create the backup database user with minimal privileges (better security than using root or moodleuser):
+
+```bash
+sudo mysql <<EOF
 CREATE USER 'backupuser'@'localhost' IDENTIFIED BY '${BACKUP_USER_PASSWORD}';
 GRANT LOCK TABLES, SELECT ON moodle.* TO 'backupuser'@'localhost';
 FLUSH PRIVILEGES;
 EOF
-# Create a configuration file for root with the backup user credentials (to avoid the password being visible in the SQL backup call)
-cat > /root/.my.cnf <<EOF
+```
+
+Create a credentials file so the password is not visible in the backup cron command:
+
+```bash
+sudo tee /root/.my.cnf > /dev/null <<EOF
 [client]
 user=backupuser
 password=${BACKUP_USER_PASSWORD}
 EOF
-# Set the configuration file permissions to read and write for root only
-chmod 600 /root/.my.cnf
-# Setup backup directory with read, write and execute permissions for root only
-mkdir -p /var/backups/moodle && chmod 700 /var/backups/moodle && chown root:root /var/backups/moodle
-# Set up two daily cron jobs, one to dump the database and the other to remove dumps more than a set number of days old (hardcoded to 7)
-(crontab -l 2>/dev/null; echo "0 2 * * * mysqldump --defaults-file=/root/.my.cnf moodle > /var/backups/moodle/moodle_backup_\$(date +\%F).sql") | crontab -
-(crontab -l 2>/dev/null; echo "0 3 * * * find /var/backups/moodle -name \"moodle_backup_*.sql\" -type f -mtime +7 -delete") | crontab -
+sudo chmod 600 /root/.my.cnf
+```
+
+Set up the backup directory:
+
+```bash
+sudo mkdir -p /var/backups/moodle
+sudo chmod 700 /var/backups/moodle
+sudo chown root:root /var/backups/moodle
+```
+
+Set up daily cron jobs: one to dump the database at 2am, another to delete dumps older than 7 days at 3am:
+
+```bash
+(sudo crontab -l 2>/dev/null; echo "0 2 * * * mysqldump --defaults-file=/root/.my.cnf moodle > /var/backups/moodle/moodle_backup_\$(date +\%F).sql") | sudo crontab -
+(sudo crontab -l 2>/dev/null; echo "0 3 * * * find /var/backups/moodle -name \"moodle_backup_*.sql\" -type f -mtime +7 -delete") | sudo crontab -
 ```
 
 ### 2.9 Setting up antivirus on the server
