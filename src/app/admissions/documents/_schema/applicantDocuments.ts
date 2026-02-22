@@ -1,6 +1,14 @@
 import { applicants } from '@admissions/applicants/_schema/applicants';
+import { users } from '@auth/users/_schema/users';
 import { documents } from '@registry/documents/_schema/documents';
-import { index, pgEnum, pgTable, text } from 'drizzle-orm/pg-core';
+import {
+	index,
+	integer,
+	pgEnum,
+	pgTable,
+	text,
+	timestamp,
+} from 'drizzle-orm/pg-core';
 import { nanoid } from 'nanoid';
 
 export const documentVerificationStatusEnum = pgEnum(
@@ -26,6 +34,11 @@ export const applicantDocuments = pgTable(
 			.notNull()
 			.default('pending'),
 		rejectionReason: text(),
+		rotation: integer().notNull().default(0),
+		reviewLockedBy: text().references(() => users.id, {
+			onDelete: 'set null',
+		}),
+		reviewLockedAt: timestamp({ mode: 'date' }),
 	},
 	(table) => ({
 		documentIdx: index('fk_applicant_documents_document').on(table.documentId),

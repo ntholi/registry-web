@@ -1,0 +1,1 @@
+ALTER TABLE "applicants" DROP COLUMN "is_mosotho";

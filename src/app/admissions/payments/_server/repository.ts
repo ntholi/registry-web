@@ -1,11 +1,14 @@
-import { and, desc, eq, sql } from 'drizzle-orm';
+import { and, desc, eq, exists, ilike, or, sql } from 'drizzle-orm';
 import {
 	admissionReceipts,
+	applicantPhones,
+	applicants,
 	applications,
 	bankDeposits,
 	type DepositStatus,
 	db,
 	mobileDeposits,
+	users,
 } from '@/core/database';
 import BaseRepository from '@/core/platform/BaseRepository';
 import type { DepositFilters } from '../_lib/types';
@@ -43,10 +46,20 @@ export default class PaymentRepository extends BaseRepository<
 					columns: { id: true, status: true, paymentStatus: true },
 					with: {
 						applicant: {
-							columns: { id: true, fullName: true, nationalId: true },
+							columns: {
+								id: true,
+								fullName: true,
+								nationalId: true,
+								nationality: true,
+							},
 						},
 						intakePeriod: {
-							columns: { id: true, name: true, applicationFee: true },
+							columns: {
+								id: true,
+								name: true,
+								localApplicationFee: true,
+								internationalApplicationFee: true,
+							},
 						},
 					},
 				},
@@ -74,10 +87,72 @@ export default class PaymentRepository extends BaseRepository<
 	) {
 		const pageSize = 15;
 		const offset = (page - 1) * pageSize;
-		const conditions: ReturnType<typeof eq>[] = [];
+		const conditions: (ReturnType<typeof eq> | ReturnType<typeof or>)[] = [];
 
 		if (filters?.status) {
 			conditions.push(eq(bankDeposits.status, filters.status));
+		}
+
+		if (search) {
+			conditions.push(
+				or(
+					ilike(bankDeposits.reference, `%${search}%`),
+					ilike(bankDeposits.depositorName, `%${search}%`),
+					exists(
+						db
+							.select({ id: applicants.id })
+							.from(applicants)
+							.innerJoin(
+								applications,
+								eq(applications.applicantId, applicants.id)
+							)
+							.where(
+								and(
+									eq(applications.id, bankDeposits.applicationId),
+									or(
+										ilike(applicants.fullName, `%${search}%`),
+										ilike(applicants.nationalId, `%${search}%`)
+									)
+								)
+							)
+					),
+					exists(
+						db
+							.select({ id: users.id })
+							.from(users)
+							.innerJoin(applicants, eq(applicants.userId, users.id))
+							.innerJoin(
+								applications,
+								eq(applications.applicantId, applicants.id)
+							)
+							.where(
+								and(
+									eq(applications.id, bankDeposits.applicationId),
+									ilike(users.email, `%${search}%`)
+								)
+							)
+					),
+					exists(
+						db
+							.select({ id: applicantPhones.id })
+							.from(applicantPhones)
+							.innerJoin(
+								applicants,
+								eq(applicantPhones.applicantId, applicants.id)
+							)
+							.innerJoin(
+								applications,
+								eq(applications.applicantId, applicants.id)
+							)
+							.where(
+								and(
+									eq(applications.id, bankDeposits.applicationId),
+									ilike(applicantPhones.phoneNumber, `%${search}%`)
+								)
+							)
+					)
+				)
+			);
 		}
 
 		const whereConditions =
@@ -103,25 +178,12 @@ export default class PaymentRepository extends BaseRepository<
 			depositIds.map((d) => this.findBankDepositById(d.id))
 		);
 
-		const filtered = search
-			? items.filter((item) => {
-					if (!item) return false;
-					const searchLower = search.toLowerCase();
-					return (
-						item.reference.toLowerCase().includes(searchLower) ||
-						item.application?.applicant?.fullName
-							?.toLowerCase()
-							.includes(searchLower)
-					);
-				})
-			: items;
-
 		return {
-			items: filtered.filter(
+			items: items.filter(
 				(item): item is NonNullable<typeof item> => item !== null
 			),
 			totalPages,
-			totalItems: search ? filtered.length : totalItems,
+			totalItems,
 		};
 	}
 

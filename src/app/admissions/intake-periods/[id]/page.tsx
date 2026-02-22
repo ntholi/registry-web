@@ -85,8 +85,15 @@ export default async function IntakePeriodDetails({ params }: Props) {
 						</FieldView>
 						<FieldView label='Start Date'>{item.startDate}</FieldView>
 						<FieldView label='End Date'>{item.endDate}</FieldView>
-						<FieldView label='Application Fee'>
-							<Text fw={500}>M{Number(item.applicationFee).toFixed(2)}</Text>
+						<FieldView label='Local Application Fee'>
+							<Text fw={500}>
+								M{Number(item.localApplicationFee).toFixed(2)}
+							</Text>
+						</FieldView>
+						<FieldView label='International Application Fee'>
+							<Text fw={500}>
+								M{Number(item.internationalApplicationFee).toFixed(2)}
+							</Text>
 						</FieldView>
 						<FieldView label='Max Documents'>
 							{item.maxDocuments} per application

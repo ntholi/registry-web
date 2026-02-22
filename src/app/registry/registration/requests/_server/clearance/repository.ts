@@ -367,7 +367,11 @@ export default class ClearanceRepository extends BaseRepository<
 
 		const baseConditions = and(
 			params.search
-				? sql`${registrationRequests.stdNo}::text LIKE ${`%${params.search}%`}`
+				? sql`(
+					${registrationRequests.stdNo}::text LIKE ${`%${params.search}%`}
+					OR ${registrationRequests.id}::text LIKE ${`%${params.search}%`}
+					OR ${clearance.id}::text LIKE ${`%${params.search}%`}
+				)`
 				: undefined,
 			filter?.termId
 				? eq(registrationRequests.termId, filter.termId)

@@ -18,6 +18,11 @@ export const depositStatus = pgEnum('deposit_status', [
 ]);
 export type DepositStatus = (typeof depositStatus.enumValues)[number];
 
+export const depositType = pgEnum('deposit_type', [
+	'bank_deposit',
+	'sales_receipt',
+]);
+
 export const bankDeposits = pgTable(
 	'bank_deposits',
 	{
@@ -33,14 +38,17 @@ export const bankDeposits = pgTable(
 		receiptId: text().references(() => admissionReceipts.id, {
 			onDelete: 'set null',
 		}),
+		type: depositType().notNull().default('bank_deposit'),
 		status: depositStatus().notNull().default('pending'),
 		reference: text().notNull(),
+		receiptNumber: text(),
 		beneficiaryName: text(),
 		dateDeposited: text(),
 		amountDeposited: decimal({ precision: 10, scale: 2 }),
 		currency: text(),
 		depositorName: text(),
 		bankName: text(),
+		paymentMode: text(),
 		transactionNumber: text(),
 		terminalNumber: text(),
 		createdAt: timestamp().defaultNow(),

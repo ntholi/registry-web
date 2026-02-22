@@ -10,6 +10,7 @@ export const dashboardUsers = pgEnum('dashboard_users', [
 	'marketing',
 	'student_services',
 	'admin',
+	'leap',
 ]);
 export type DashboardUser = (typeof dashboardUsers.enumValues)[number];
 
@@ -25,6 +26,7 @@ export const userRoles = pgEnum('user_roles', [
 	'marketing',
 	'student_services',
 	'admin',
+	'leap',
 ]);
 export type UserRole = (typeof userRoles.enumValues)[number];
 

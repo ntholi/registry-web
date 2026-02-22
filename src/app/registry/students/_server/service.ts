@@ -84,6 +84,7 @@ class StudentService {
 						'academic',
 						'resource',
 						'marketing',
+						'leap',
 					].includes(session.user.role)
 				) {
 					return true;

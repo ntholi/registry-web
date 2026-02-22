@@ -37,7 +37,7 @@ export class RegistrationReportService {
 			};
 			const buffer = await createFullRegistrationExcel(fullReport, summaryData);
 			return buffer;
-		}, ['registry', 'admin', 'finance', 'academic']);
+		}, ['registry', 'admin', 'finance', 'academic', 'leap']);
 	}
 
 	async generateSummaryRegistrationReport(
@@ -60,7 +60,7 @@ export class RegistrationReportService {
 			const document = createSummaryRegistrationDocument(reportData);
 			const buffer = await Packer.toBuffer(document);
 			return Buffer.from(buffer);
-		}, ['registry', 'admin', 'finance', 'academic']);
+		}, ['registry', 'admin', 'finance', 'academic', 'leap']);
 	}
 
 	async generateStudentsListReport(
@@ -97,7 +97,7 @@ export class RegistrationReportService {
 				filter
 			);
 			return buffer;
-		}, ['registry', 'admin', 'finance', 'academic']);
+		}, ['registry', 'admin', 'finance', 'academic', 'leap']);
 	}
 
 	async getRegistrationDataForTerms(
@@ -132,7 +132,7 @@ export class RegistrationReportService {
 				},
 				summaryData,
 			};
-		}, ['registry', 'admin', 'finance', 'academic']);
+		}, ['registry', 'admin', 'finance', 'academic', 'leap']);
 	}
 
 	async getPaginatedRegistrationStudents(
@@ -154,7 +154,7 @@ export class RegistrationReportService {
 				pageSize,
 				filter
 			);
-		}, ['registry', 'admin', 'finance', 'academic']);
+		}, ['registry', 'admin', 'finance', 'academic', 'leap']);
 	}
 
 	async getChartData(termIds: number[], filter?: RegistrationReportFilter) {
@@ -169,13 +169,13 @@ export class RegistrationReportService {
 				termCodes,
 				filter
 			);
-		}, ['registry', 'admin', 'finance', 'academic']);
+		}, ['registry', 'admin', 'finance', 'academic', 'leap']);
 	}
 
 	async getAvailableCountries() {
 		return withAuth(async () => {
 			return await this.repository.getAvailableCountries();
-		}, ['registry', 'admin', 'finance', 'academic']);
+		}, ['registry', 'admin', 'finance', 'academic', 'leap']);
 	}
 }
 

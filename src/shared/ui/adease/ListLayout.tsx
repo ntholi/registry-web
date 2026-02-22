@@ -1,10 +1,9 @@
 'use client';
 
 import {
+	Box,
 	Divider,
 	Flex,
-	Grid,
-	GridCol,
 	Group,
 	Paper,
 	ScrollArea,
@@ -12,10 +11,12 @@ import {
 	Stack,
 } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
+import { IconGripVertical } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useSearchParams } from 'next/navigation';
 import { useRouter } from 'nextjs-toploader/app';
 import React from 'react';
+import { useResizablePanel } from '@/shared/lib/hooks/use-resizable-panel';
 import { useViewSelect } from '@/shared/lib/hooks/use-view-select';
 import { ListItem } from './ListItem';
 import { Pagination } from './Pagination';
@@ -86,6 +87,8 @@ export function ListLayout<T>({
 		return itemElement;
 	};
 
+	const { widthPercent, containerRef, handleMouseDown } = useResizablePanel();
+
 	if (isMobile && view === 'details') {
 		return (
 			<Paper withBorder>
@@ -96,63 +99,89 @@ export function ListLayout<T>({
 		);
 	}
 
-	return (
-		<Grid columns={14} gutter='md'>
-			<GridCol span={isMobile ? 14 : 4} pb={0}>
-				<Paper withBorder h='88vh'>
-					<Flex direction='column' h='100%'>
-						<Stack p='md' gap='sm'>
-							<Flex justify='space-between' align='center' gap='xs'>
-								<Group style={{ width: '100%', flex: 1 }}>
-									<SearchField style={{ width: '100%' }} />
-								</Group>
-								{actionIcons?.map((component, _index) => (
-									<React.Fragment key={`action-${crypto.randomUUID()}`}>
-										{component}
-									</React.Fragment>
-								))}
-							</Flex>
-						</Stack>
-
-						<Divider />
-
-						<ScrollArea type='always' style={{ flex: 1 }} p='md'>
-							{isLoading ? (
-								<Stack gap='sm'>
-									{Array.from({ length: 5 }).map((_, _index) => (
-										<Skeleton
-											height={35}
-											key={`skeleton-${crypto.randomUUID()}`}
-										/>
-									))}
-								</Stack>
-							) : (
-								<Stack gap={3}>
-									{items.map((item: T, _index: number) => (
-										<React.Fragment key={`item-${crypto.randomUUID()}`}>
-											{renderListItem(item)}
-										</React.Fragment>
-									))}
-								</Stack>
-							)}
-						</ScrollArea>
-
-						<Divider />
-
-						<Pagination total={totalPages} totalItems={totalItems} />
+	const listPanel = (
+		<Paper withBorder h='88vh' style={{ flexShrink: 0 }}>
+			<Flex direction='column' h='100%'>
+				<Stack p='md' gap='sm'>
+					<Flex justify='space-between' align='center' gap='xs'>
+						<Group style={{ width: '100%', flex: 1 }}>
+							<SearchField style={{ width: '100%' }} />
+						</Group>
+						{actionIcons?.map((component, _index) => (
+							<React.Fragment key={`action-${crypto.randomUUID()}`}>
+								{component}
+							</React.Fragment>
+						))}
 					</Flex>
-				</Paper>
-			</GridCol>
+				</Stack>
 
-			{!isMobile && (
-				<GridCol span={10} pb={0} pr={5}>
-					<Paper withBorder>
-						<ScrollArea h='88vh' type='always'>
-							{children}
-						</ScrollArea>
-					</Paper>
-				</GridCol>
-			)}
-		</Grid>
+				<Divider />
+
+				<ScrollArea type='always' style={{ flex: 1 }} p='md'>
+					{isLoading ? (
+						<Stack gap='sm'>
+							{Array.from({ length: 5 }).map((_, _index) => (
+								<Skeleton height={35} key={`skeleton-${crypto.randomUUID()}`} />
+							))}
+						</Stack>
+					) : (
+						<Stack gap={3}>
+							{items.map((item: T, _index: number) => (
+								<React.Fragment key={`item-${crypto.randomUUID()}`}>
+									{renderListItem(item)}
+								</React.Fragment>
+							))}
+						</Stack>
+					)}
+				</ScrollArea>
+
+				<Divider />
+
+				<Pagination total={totalPages} totalItems={totalItems} />
+			</Flex>
+		</Paper>
+	);
+
+	if (isMobile) {
+		return listPanel;
+	}
+
+	return (
+		<Flex ref={containerRef} gap={0} h='88vh'>
+			<Box style={{ width: `${widthPercent}%`, flexShrink: 0 }}>
+				{listPanel}
+			</Box>
+
+			<ResizeHandle onMouseDown={handleMouseDown} />
+
+			<Box style={{ flex: 1, minWidth: 0 }}>
+				<Paper withBorder h='100%'>
+					<ScrollArea h='88vh' type='always'>
+						{children}
+					</ScrollArea>
+				</Paper>
+			</Box>
+		</Flex>
+	);
+}
+
+type ResizeHandleProps = {
+	onMouseDown: (e: React.MouseEvent) => void;
+};
+
+function ResizeHandle({ onMouseDown }: ResizeHandleProps) {
+	return (
+		<Flex
+			align='center'
+			justify='center'
+			onMouseDown={onMouseDown}
+			style={{
+				width: 12,
+				cursor: 'col-resize',
+				flexShrink: 0,
+			}}
+		>
+			<IconGripVertical size={14} opacity={0.4} />
+		</Flex>
 	);
 }

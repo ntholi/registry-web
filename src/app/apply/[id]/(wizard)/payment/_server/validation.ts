@@ -1,15 +1,24 @@
 'use server';
 
+import { resolveApplicationFee } from '@admissions/_lib/fees';
 import { getApplication } from '@admissions/applications';
 import { eq } from 'drizzle-orm';
-import { db, intakePeriods } from '@/core/database';
+import { applicants, db, intakePeriods } from '@/core/database';
 import {
 	analyzeReceipt,
 	type ReceiptResult,
 } from '@/core/integrations/ai/documents';
 
 const BENEFICIARY_NAME = 'Limkokwing University of Creative Technology';
+const BENEFICIARY_ACCOUNT = '9080003987813';
 const BENEFICIARY_VARIATIONS = [
+	'limkokwing university of creative technology',
+	'limkokwing university',
+	'luct',
+	'limkokwing',
+];
+
+const SALES_RECEIPT_ISSUERS = [
 	'limkokwing university of creative technology',
 	'limkokwing university',
 	'luct',
@@ -36,27 +45,33 @@ export type ReceiptsValidationResult = {
 	}>;
 };
 
-function validateBeneficiary(beneficiaryName: string | null): {
+function validateBeneficiary(
+	beneficiaryName: string | null,
+	accountNumber: string | null
+): {
 	valid: boolean;
 	error?: string;
 } {
-	if (!beneficiaryName) {
+	if (!beneficiaryName && !accountNumber) {
 		return { valid: false, error: 'Beneficiary name not found on receipt' };
 	}
 
-	const normalizedName = beneficiaryName.toLowerCase().trim();
-	const isValid = BENEFICIARY_VARIATIONS.some(
+	const normalizedName = (beneficiaryName ?? '').toLowerCase().trim();
+	const nameValid = BENEFICIARY_VARIATIONS.some(
 		(variation) =>
 			normalizedName.includes(variation) || variation.includes(normalizedName)
 	);
 
-	if (!isValid) {
-		return {
-			valid: false,
-			error: `Deposit must be made to "${BENEFICIARY_NAME}". Found: "${beneficiaryName}"`,
-		};
-	}
-	return { valid: true };
+	if (nameValid) return { valid: true };
+
+	const accountValid =
+		accountNumber?.replace(/\s/g, '') === BENEFICIARY_ACCOUNT;
+	if (accountValid) return { valid: true };
+
+	return {
+		valid: false,
+		error: `Deposit must be made to "${BENEFICIARY_NAME}" (Account: ${BENEFICIARY_ACCOUNT}). Found: "${beneficiaryName ?? 'Unknown'}"`,
+	};
 }
 
 function validateReference(reference: string | null): {
@@ -69,27 +84,70 @@ function validateReference(reference: string | null): {
 	return { valid: true };
 }
 
+function validateSalesReceiptIssuer(issuerName: string | null): {
+	valid: boolean;
+	error?: string;
+} {
+	if (!issuerName) {
+		return { valid: false, error: 'Issuer name not found on sales receipt' };
+	}
+
+	const normalized = issuerName.toLowerCase().trim();
+	const isValid = SALES_RECEIPT_ISSUERS.some(
+		(variation) =>
+			normalized.includes(variation) || variation.includes(normalized)
+	);
+
+	if (!isValid) {
+		return {
+			valid: false,
+			error: `Sales receipt must be issued by Limkokwing University. Found: "${issuerName}"`,
+		};
+	}
+	return { valid: true };
+}
+
 export async function validateAnalyzedReceipt(
 	analysis: ReceiptResult
 ): Promise<ReceiptValidation> {
 	const errors: string[] = [];
 
-	if (!analysis.isBankDeposit) {
-		errors.push('This does not appear to be a bank deposit slip');
+	const isSalesReceipt = analysis.receiptType === 'sales_receipt';
+
+	if (!isSalesReceipt && !analysis.isBankDeposit) {
+		errors.push(
+			'This does not appear to be a bank deposit slip or university sales receipt'
+		);
 	}
 
-	const beneficiaryValidation = validateBeneficiary(analysis.beneficiaryName);
-	if (!beneficiaryValidation.valid && beneficiaryValidation.error) {
-		errors.push(beneficiaryValidation.error);
-	}
+	if (isSalesReceipt) {
+		const issuerValidation = validateSalesReceiptIssuer(
+			analysis.beneficiaryName
+		);
+		if (!issuerValidation.valid && issuerValidation.error) {
+			errors.push(issuerValidation.error);
+		}
 
-	const referenceValidation = validateReference(analysis.reference);
-	if (!referenceValidation.valid && referenceValidation.error) {
-		errors.push(referenceValidation.error);
+		if (!analysis.receiptNumber && !analysis.reference) {
+			errors.push('Receipt number not found on sales receipt');
+		}
+	} else {
+		const beneficiaryValidation = validateBeneficiary(
+			analysis.beneficiaryName,
+			analysis.accountNumber
+		);
+		if (!beneficiaryValidation.valid && beneficiaryValidation.error) {
+			errors.push(beneficiaryValidation.error);
+		}
+
+		const referenceValidation = validateReference(analysis.reference);
+		if (!referenceValidation.valid && referenceValidation.error) {
+			errors.push(referenceValidation.error);
+		}
 	}
 
 	if (analysis.amountDeposited === null || analysis.amountDeposited <= 0) {
-		errors.push('Could not extract a valid deposit amount from the receipt');
+		errors.push('Could not extract a valid amount from the receipt');
 	}
 
 	return {
@@ -128,7 +186,14 @@ export async function validateReceipts(
 		};
 	}
 
-	const requiredAmount = parseFloat(intake.applicationFee);
+	const applicant = await db.query.applicants.findFirst({
+		where: eq(applicants.id, application.applicantId),
+		columns: { nationality: true },
+	});
+
+	const requiredAmount = parseFloat(
+		resolveApplicationFee(intake, applicant?.nationality ?? null)
+	);
 	const validatedReceipts: ReceiptsValidationResult['receipts'] = [];
 	const globalErrors: string[] = [];
 	let totalAmount = 0;

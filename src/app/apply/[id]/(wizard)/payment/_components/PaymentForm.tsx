@@ -63,12 +63,15 @@ export default function PaymentForm({
 				base64: string;
 				mediaType: string;
 				reference: string;
+				receiptType: 'bank_deposit' | 'sales_receipt';
+				receiptNumber: string | null;
 				beneficiaryName: string | null;
 				dateDeposited: string | null;
 				amountDeposited: number | null;
 				currency: string | null;
 				depositorName: string | null;
 				bankName: string | null;
+				paymentMode: string | null;
 				transactionNumber: string | null;
 				terminalNumber: string | null;
 			}>
@@ -180,7 +183,7 @@ export default function PaymentForm({
 								<PaymentOption
 									icon={<IconReceipt size={28} />}
 									title='Upload Receipt'
-									description='Upload Bank Deposit Slip'
+									description='Bank deposit slip or university sales receipt'
 									color='teal'
 									onClick={() => setView('receipt')}
 								/>

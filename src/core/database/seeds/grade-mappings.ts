@@ -59,6 +59,17 @@ export async function seedGradeMappings() {
 	addMapping('NSC', '2', 'F');
 	addMapping('NSC', '1', 'U');
 
+	addMapping('Edexcel IGCSE', '9', 'A*');
+	addMapping('Edexcel IGCSE', '8', 'A*');
+	addMapping('Edexcel IGCSE', '7', 'A');
+	addMapping('Edexcel IGCSE', '6', 'B');
+	addMapping('Edexcel IGCSE', '5', 'B');
+	addMapping('Edexcel IGCSE', '4', 'C');
+	addMapping('Edexcel IGCSE', '3', 'D');
+	addMapping('Edexcel IGCSE', '2', 'E');
+	addMapping('Edexcel IGCSE', '1', 'F');
+	addMapping('Edexcel IGCSE', 'U', 'U');
+
 	addMapping('GCE AS Level', 'a', 'A');
 	addMapping('GCE AS Level', 'A', 'A');
 	addMapping('GCE AS Level', 'b', 'B');

@@ -36,3 +36,11 @@ export async function updateQuestion(id: string, data: Partial<Question>) {
 export async function deleteQuestion(id: string) {
 	return service.delete(id);
 }
+
+export async function reorderQuestions(ids: string[]) {
+	return service.reorderQuestions(ids);
+}
+
+export async function reorderCategories(ids: string[]) {
+	return service.reorderCategories(ids);
+}

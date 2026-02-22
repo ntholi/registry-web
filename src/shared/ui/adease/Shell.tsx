@@ -11,7 +11,12 @@ import {
 	useMantineColorScheme,
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
-import { IconMoon, IconSun } from '@tabler/icons-react';
+import {
+	IconLayoutSidebarLeftCollapse,
+	IconMenu2,
+	IconMoon,
+	IconSun,
+} from '@tabler/icons-react';
 import React, { type PropsWithChildren } from 'react';
 import NotificationBell from '../NotificationBell';
 
@@ -27,6 +32,7 @@ const Shell: React.FC<PropsWithChildren> & ShellComposition = ({
 	children,
 }) => {
 	const [opened, { toggle, close }] = useDisclosure();
+	const [desktopOpened, { toggle: toggleDesktop }] = useDisclosure(true);
 	const colorScheme = useComputedColorScheme('dark');
 	const { setColorScheme } = useMantineColorScheme();
 
@@ -54,7 +60,7 @@ const Shell: React.FC<PropsWithChildren> & ShellComposition = ({
 			navbar={{
 				width: 300,
 				breakpoint: 'md',
-				collapsed: { mobile: !opened },
+				collapsed: { mobile: !opened, desktop: !desktopOpened },
 			}}
 			padding='md'
 			footer={{ height: footer ? 40 : 0 }}
@@ -68,6 +74,18 @@ const Shell: React.FC<PropsWithChildren> & ShellComposition = ({
 							hiddenFrom='md'
 							size='sm'
 						/>
+						<ActionIcon
+							onClick={toggleDesktop}
+							visibleFrom='md'
+							color='gray'
+							variant='transparent'
+						>
+							{desktopOpened ? (
+								<IconLayoutSidebarLeftCollapse size='1.2rem' />
+							) : (
+								<IconMenu2 size='1.2rem' />
+							)}
+						</ActionIcon>
 						{Header}
 					</Group>
 					<Group gap='sm'>

@@ -230,16 +230,7 @@ export default function QuizForm({ courseId, moduleId }: QuizFormProps) {
 		if (!opened) return;
 		if (!canCreateDraft) return;
 		debouncedSave();
-	}, [
-		form.values.assessmentType,
-		form.values.assessmentNumber,
-		form.values.startDateTime,
-		form.values.endDateTime,
-		form.values.attempts,
-		opened,
-		canCreateDraft,
-		debouncedSave,
-	]);
+	}, [opened, canCreateDraft, debouncedSave]);
 
 	const saveQuestionMutation = useMutation({
 		mutationFn: async ({

@@ -27,11 +27,13 @@ export type ApplicationWithRelations = Application & {
 		id: string;
 		fullName: string;
 		nationalId: string | null;
+		nationality: string | null;
 	};
 	intakePeriod: {
 		id: string;
 		name: string;
-		applicationFee: string;
+		localApplicationFee: string;
+		internationalApplicationFee: string;
 		startDate: string;
 		endDate: string;
 	};

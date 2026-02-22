@@ -68,7 +68,7 @@ class RegistrationRequestService {
 					return true;
 				}
 
-				const allowedRoles = ['admin', 'registry', 'student'];
+				const allowedRoles = ['admin', 'registry', 'student', 'leap'];
 				const allowedPositions = [
 					'admin',
 					'manager',

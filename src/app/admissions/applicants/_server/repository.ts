@@ -1,7 +1,8 @@
-import { count, eq, ilike, or } from 'drizzle-orm';
+import { and, count, eq, exists, ilike, or } from 'drizzle-orm';
 import {
 	academicRecords,
 	applicantDocuments,
+	applicantLocations,
 	applicantPhones,
 	applicants,
 	db,
@@ -166,7 +167,29 @@ export default class ApplicantRepository extends BaseRepository<
 		const where = search
 			? or(
 					ilike(applicants.fullName, `%${search}%`),
-					ilike(applicants.nationalId, `%${search}%`)
+					ilike(applicants.nationalId, `%${search}%`),
+					exists(
+						db
+							.select({ id: users.id })
+							.from(users)
+							.where(
+								and(
+									eq(users.id, applicants.userId),
+									ilike(users.email, `%${search}%`)
+								)
+							)
+					),
+					exists(
+						db
+							.select({ id: applicantPhones.id })
+							.from(applicantPhones)
+							.where(
+								and(
+									eq(applicantPhones.applicantId, applicants.id),
+									ilike(applicantPhones.phoneNumber, `%${search}%`)
+								)
+							)
+					)
 				)
 			: undefined;
 
@@ -334,6 +357,24 @@ export default class ApplicantRepository extends BaseRepository<
 			}
 
 			return applicant;
+		});
+	}
+
+	async saveLocation(data: typeof applicantLocations.$inferInsert) {
+		const existing = await db.query.applicantLocations.findFirst({
+			where: eq(applicantLocations.applicantId, data.applicantId),
+		});
+		if (existing) return existing;
+		const [location] = await db
+			.insert(applicantLocations)
+			.values(data)
+			.returning();
+		return location;
+	}
+
+	async findLocationByApplicantId(applicantId: string) {
+		return db.query.applicantLocations.findFirst({
+			where: eq(applicantLocations.applicantId, applicantId),
 		});
 	}
 }

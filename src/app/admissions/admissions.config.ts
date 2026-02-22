@@ -6,6 +6,8 @@ import {
 	IconChecklist,
 	IconClipboardList,
 	IconCreditCard,
+	IconFileSearch,
+	IconReportAnalytics,
 	IconUsers,
 } from '@tabler/icons-react';
 import type { ModuleConfig } from '@/app/dashboard/module-config.types';
@@ -72,6 +74,40 @@ export const admissionsConfig: ModuleConfig = {
 				href: '/admissions/payments',
 				icon: IconCreditCard,
 				roles: ['registry', 'finance', 'admin', 'marketing'],
+			},
+			{
+				label: 'Document Review',
+				href: '/admissions/documents',
+				icon: IconFileSearch,
+				roles: ['registry', 'marketing', 'admin'],
+			},
+			{
+				label: 'Reports',
+				icon: IconReportAnalytics,
+				collapsed: true,
+				roles: ['registry', 'marketing', 'admin'],
+				children: [
+					{
+						label: 'Application Summary',
+						href: '/admissions/reports/application-summary',
+					},
+					{
+						label: 'Demographics',
+						href: '/admissions/reports/demographics',
+					},
+					{
+						label: 'Geographic',
+						href: '/admissions/reports/geographic',
+					},
+					{
+						label: 'Program Demand',
+						href: '/admissions/reports/program-demand',
+					},
+					{
+						label: 'Academic Qualifications',
+						href: '/admissions/reports/academic-qualifications',
+					},
+				],
 			},
 		],
 	},

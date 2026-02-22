@@ -14,6 +14,19 @@ const lgcseIgcseGrades = new Set([
 	'U',
 ]);
 
+const edexcelIgcseGrades = new Set([
+	'9',
+	'8',
+	'7',
+	'6',
+	'5',
+	'4',
+	'3',
+	'2',
+	'1',
+	'U',
+]);
+
 const certificationSchema = z.object({
 	isCertified: z
 		.boolean()
@@ -88,7 +101,7 @@ const academicSchema = z
 			.string()
 			.nullable()
 			.describe(
-				'Certificate standard: LGCSE, COSC, IGCSE, NSC, GCE O-Level, GCE AS Level, GCE A-Level, Certificate, Diploma, Degree'
+				'Certificate standard (e.g., LGCSE, COSC, IGCSE, Edexcel IGCSE, NSC, GCE O-Level, Certificate, Diploma, Degree)'
 			),
 		qualificationName: z
 			.string()
@@ -106,32 +119,21 @@ const academicSchema = z
 			.describe(
 				'Examining body or issuing authority (e.g., ECoL, Cambridge, IEB, Umalusi)'
 			),
-		isEcol: z
-			.boolean()
-			.describe(
-				'Whether the document somehow includes the Examinations Council of Lesotho (ECoL) in the document'
-			),
+		isEcol: z.boolean().describe('Whether ECoL is mentioned in the document'),
 		isCambridge: z
 			.boolean()
-			.describe(
-				'Whether the document is issued by Cambridge Assessment International Education (Cambridge, CAIE, CIE, or UCLES)'
-			),
+			.describe('Whether issued by Cambridge/CAIE/CIE/UCLES'),
+		isPearson: z.boolean().describe('Whether issued by Pearson/Edexcel'),
 		subjects: z
 			.array(
 				z.object({
 					name: z.string().describe('Subject/course name'),
-					grade: z
-						.string()
-						.describe(
-							'Grade value as shown. LGCSE grades must be A*, A, B, C, D, E, F, G, or U.'
-						),
+					grade: z.string().describe('Grade value as shown on document'),
 					confidence: z
 						.number()
 						.min(0)
 						.max(100)
-						.describe(
-							`Confidence level (0-100) in the accuracy of this grade reading. 100 = absolutely certain, <${gradeConfidenceMin} = uncertain.`
-						),
+						.describe('Confidence (0-100) in grade accuracy'),
 				})
 			)
 			.nullable()
@@ -139,9 +141,7 @@ const academicSchema = z
 		unreadableGrades: z
 			.array(z.string())
 			.nullable()
-			.describe(
-				`List of subject names where the grade symbol is not clearly legible or uncertain (confidence < ${gradeConfidenceMin}).`
-			),
+			.describe('Subject names with illegible or uncertain grades'),
 		overallClassification: z
 			.string()
 			.nullable()
@@ -221,10 +221,19 @@ const academicSchema = z
 			}
 		}
 
+		const isEdexcelIgcse = certificateType.includes('edexcel');
 		const isLgcseIgcse =
-			certificateType.includes('lgcse') || certificateType.includes('igcse');
+			certificateType.includes('lgcse') ||
+			(certificateType.includes('igcse') && !isEdexcelIgcse);
 		for (const subject of subjects) {
 			const grade = subject.grade.trim().toUpperCase();
+			if (isEdexcelIgcse && !edexcelIgcseGrades.has(grade)) {
+				ctx.addIssue({
+					code: z.ZodIssueCode.custom,
+					path: ['subjects'],
+					message: `Edexcel IGCSE grades must be 9, 8, 7, 6, 5, 4, 3, 2, 1, or U. Invalid grade for ${subject.name}.`,
+				});
+			}
 			if (isLgcseIgcse && !lgcseIgcseGrades.has(grade)) {
 				ctx.addIssue({
 					code: z.ZodIssueCode.custom,
@@ -256,27 +265,40 @@ const otherSchema = z.object({
 });
 
 const receiptSchema = z.object({
+	receiptType: z
+		.enum(['bank_deposit', 'sales_receipt', 'unknown'])
+		.describe(
+			'Type of receipt: bank_deposit (bank deposit slip), sales_receipt (university-issued sales receipt), unknown (unrecognizable)'
+		),
 	isBankDeposit: z
 		.boolean()
 		.describe('Whether this is a bank deposit slip or proof of payment'),
+	receiptNumber: z
+		.string()
+		.nullable()
+		.describe(
+			'Sales receipt number (e.g., SR-19046) for university-issued receipts'
+		),
 	beneficiaryName: z
 		.string()
 		.nullable()
 		.describe(
-			'Name of the account holder/beneficiary the money was deposited to'
+			'For bank deposits: account holder name. For sales receipts: the issuing organization name'
 		),
 	reference: z
 		.string()
 		.nullable()
-		.describe('Bank reference number or transaction ID'),
+		.describe(
+			'For bank deposits: bank reference/transaction ID. For sales receipts: the receipt number (SR-xxxxx)'
+		),
 	dateDeposited: z
 		.string()
 		.nullable()
-		.describe('Date the deposit was made in YYYY-MM-DD format'),
+		.describe('Date of deposit or receipt in YYYY-MM-DD format'),
 	amountDeposited: z
 		.number()
 		.nullable()
-		.describe('Total amount deposited as shown on the receipt'),
+		.describe('Total amount paid/deposited as shown on the receipt'),
 	currency: z
 		.string()
 		.nullable()
@@ -284,11 +306,19 @@ const receiptSchema = z.object({
 	depositorName: z
 		.string()
 		.nullable()
-		.describe('Name of the person who made the deposit'),
+		.describe(
+			'For bank deposits: person who made the deposit. For sales receipts: the reference name / person the receipt is issued to'
+		),
 	bankName: z
 		.string()
 		.nullable()
 		.describe('Name of the bank where the deposit was made'),
+	paymentMode: z
+		.string()
+		.nullable()
+		.describe(
+			'Payment method shown on receipt (e.g., Bank Remittance, Cash, EFT)'
+		),
 	transactionNumber: z
 		.string()
 		.nullable()
@@ -297,6 +327,12 @@ const receiptSchema = z.object({
 		.string()
 		.nullable()
 		.describe('Terminal or teller ID number'),
+	accountNumber: z
+		.string()
+		.nullable()
+		.describe(
+			'Beneficiary/destination bank account number the deposit was made to'
+		),
 });
 
 const documentAnalysisSchema = z.object({

@@ -19,7 +19,7 @@ export class DistributionReportService {
 
 			const termCodes = terms.map((t) => t.code);
 			return await this.repository.getDistributionData(type, termCodes, filter);
-		}, ['registry', 'admin', 'finance', 'academic']);
+		}, ['registry', 'admin', 'finance', 'academic', 'leap']);
 	}
 }
 

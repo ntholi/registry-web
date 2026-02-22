@@ -1,7 +1,10 @@
 'use client';
 
 import { getEligibleProgramsForApplicant } from '@admissions/applicants/_server/actions';
-import { createApplication } from '@admissions/applications/_server/actions';
+import {
+	createApplication,
+	findApplicationsByApplicant,
+} from '@admissions/applications/_server/actions';
 import { findActiveIntakePeriod } from '@admissions/intake-periods/_server/actions';
 import {
 	Alert,
@@ -15,8 +18,13 @@ import {
 import { useForm } from '@mantine/form';
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
-import { IconFilePlus, IconInfoCircle } from '@tabler/icons-react';
+import {
+	IconExternalLink,
+	IconInfoCircle,
+	IconPlus,
+} from '@tabler/icons-react';
 import { useMutation, useQuery } from '@tanstack/react-query';
+import Link from 'next/link';
 import { useRouter } from 'nextjs-toploader/app';
 import { useEffect } from 'react';
 
@@ -45,6 +53,13 @@ type EligibleProgram = {
 export default function CreateApplicationModal({ applicantId }: Props) {
 	const router = useRouter();
 	const [opened, { open, close }] = useDisclosure(false);
+
+	const { data: existingApplications = [] } = useQuery({
+		queryKey: ['applications', 'by-applicant', applicantId],
+		queryFn: () => findApplicationsByApplicant(applicantId),
+	});
+
+	const latestApplication = existingApplications[0];
 
 	const form = useForm({
 		initialValues: {
@@ -149,14 +164,27 @@ export default function CreateApplicationModal({ applicantId }: Props) {
 
 	return (
 		<>
-			<Button
-				variant='light'
-				size='xs'
-				leftSection={<IconFilePlus size={16} />}
-				onClick={open}
-			>
-				New Application
-			</Button>
+			<Group gap='xs'>
+				{latestApplication && (
+					<Button
+						variant='solid'
+						size='xs'
+						leftSection={<IconExternalLink size={16} />}
+						component={Link}
+						href={`/admissions/applications/${latestApplication.id}`}
+					>
+						Go to Application
+					</Button>
+				)}
+				<Button
+					variant='default'
+					size='xs'
+					leftSection={<IconPlus size={16} />}
+					onClick={open}
+				>
+					Apply
+				</Button>
+			</Group>
 
 			<Modal
 				opened={opened}

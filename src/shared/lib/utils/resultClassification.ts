@@ -44,11 +44,16 @@ export function normalizeResultClassification(
 	}
 	if (raw.includes('third class')) return 'Pass';
 
-	if (raw === 'distinction') return 'Distinction';
-	if (raw === 'merit') return 'Merit';
-	if (raw === 'marit') return 'Merit';
-	if (raw === 'credit') return 'Credit';
-	if (raw === 'pass') return 'Pass';
+	if (compact.includes('withdistinction') || compact === 'distinction')
+		return 'Distinction';
+	if (
+		compact.includes('withmerit') ||
+		compact === 'merit' ||
+		compact === 'marit'
+	)
+		return 'Merit';
+	if (compact.includes('withcredit') || compact === 'credit') return 'Credit';
+	if (raw === 'pass' || compact === 'pass') return 'Pass';
 	if (raw === 'fail') return 'Fail';
 
 	return null;

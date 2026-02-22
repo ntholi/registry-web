@@ -3,6 +3,7 @@
 import type { UserRole } from '@auth/users/_schema/users';
 import { getStudentByUserId } from '@registry/students';
 import { getActiveProgram } from '@registry/students/_lib/utils';
+import { headers } from 'next/headers';
 import { auth } from '@/core/auth';
 import type { applicants, guardians } from '@/core/database';
 import { applicantsService } from './service';
@@ -127,4 +128,56 @@ export async function updateApplicantUserId(
 	userId: string | null
 ) {
 	return applicantsService.updateUserId(applicantId, userId);
+}
+
+type ReverseGeoResult = {
+	country: string | null;
+	city: string | null;
+	district: string | null;
+};
+
+async function reverseGeocode(
+	lat: number,
+	lng: number
+): Promise<ReverseGeoResult> {
+	try {
+		const url = `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&accept-language=en`;
+		const res = await fetch(url, {
+			headers: { 'User-Agent': 'LimkokwingRegistryWeb/1.0' },
+		});
+		if (!res.ok) return { country: null, city: null, district: null };
+		const data = await res.json();
+		const addr = data.address ?? {};
+		return {
+			country: addr.country ?? null,
+			city: addr.city ?? addr.town ?? addr.village ?? null,
+			district: addr.state_district ?? addr.county ?? addr.state ?? null,
+		};
+	} catch {
+		return { country: null, city: null, district: null };
+	}
+}
+
+export async function saveApplicantLocation(
+	applicantId: string,
+	latitude: number,
+	longitude: number
+) {
+	const hdrs = await headers();
+	const ipAddress =
+		hdrs.get('x-forwarded-for')?.split(',')[0]?.trim() ??
+		hdrs.get('x-real-ip') ??
+		null;
+
+	const geo = await reverseGeocode(latitude, longitude);
+
+	return applicantsService.saveLocation({
+		applicantId,
+		latitude,
+		longitude,
+		country: geo.country,
+		city: geo.city,
+		district: geo.district,
+		ipAddress,
+	});
 }

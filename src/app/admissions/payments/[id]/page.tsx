@@ -1,3 +1,4 @@
+import { resolveApplicationFee } from '@admissions/_lib/fees';
 import {
 	Badge,
 	Divider,
@@ -38,11 +39,15 @@ export default async function DepositDetailsPage({ params }: Props) {
 	const isPending = deposit.status === 'pending';
 	const isVerified = deposit.status === 'verified';
 	const applicantName = deposit.application?.applicant?.fullName || 'Unknown';
+	const isSalesReceipt = deposit.type === 'sales_receipt';
+	const pageTitle = isSalesReceipt
+		? 'Sales Receipt Details'
+		: 'Bank Deposit Details';
 
 	return (
 		<DetailsView>
 			<DetailsViewHeader
-				title='Bank Deposit Details'
+				title={pageTitle}
 				queryKey={['bank-deposits']}
 				handleDelete={async () => {
 					'use server';
@@ -56,7 +61,7 @@ export default async function DepositDetailsPage({ params }: Props) {
 					<Group justify='space-between' align='flex-start'>
 						<Stack gap='xs' flex={1}>
 							<Text size='lg' fw={600}>
-								Deposit Information
+								{isSalesReceipt ? 'Receipt Information' : 'Deposit Information'}
 							</Text>
 							<Divider />
 						</Stack>
@@ -92,36 +97,57 @@ export default async function DepositDetailsPage({ params }: Props) {
 							</FieldView>
 						</GridCol>
 						<GridCol span={4}>
-							<FieldView label='Reference' underline={false}>
-								<Text ff='monospace'>{deposit.reference}</Text>
+							<FieldView
+								label={isSalesReceipt ? 'Receipt #' : 'Reference'}
+								underline={false}
+							>
+								<Text ff='monospace'>
+									{isSalesReceipt
+										? (deposit.receiptNumber ?? deposit.reference)
+										: deposit.reference}
+								</Text>
 							</FieldView>
 						</GridCol>
 						<GridCol span={4}>
-							<FieldView label='Bank' underline={false}>
-								{deposit.bankName || '-'}
+							<FieldView
+								label={isSalesReceipt ? 'Payment Mode' : 'Bank'}
+								underline={false}
+							>
+								{isSalesReceipt
+									? deposit.paymentMode || '-'
+									: deposit.bankName || '-'}
 							</FieldView>
 						</GridCol>
 					</Grid>
 
 					<Grid>
 						<GridCol span={4}>
-							<FieldView label='Date Deposited' underline={false}>
+							<FieldView
+								label={isSalesReceipt ? 'Receipt Date' : 'Date Deposited'}
+								underline={false}
+							>
 								{deposit.dateDeposited || '-'}
 							</FieldView>
 						</GridCol>
 						<GridCol span={4}>
-							<FieldView label='Depositor Name' underline={false}>
+							<FieldView
+								label={isSalesReceipt ? 'Paid By' : 'Depositor Name'}
+								underline={false}
+							>
 								{deposit.depositorName || '-'}
 							</FieldView>
 						</GridCol>
 						<GridCol span={4}>
-							<FieldView label='Beneficiary' underline={false}>
+							<FieldView
+								label={isSalesReceipt ? 'Issuer' : 'Beneficiary'}
+								underline={false}
+							>
 								{deposit.beneficiaryName || '-'}
 							</FieldView>
 						</GridCol>
 					</Grid>
 
-					{deposit.transactionNumber && (
+					{!isSalesReceipt && deposit.transactionNumber && (
 						<Grid>
 							<GridCol span={6}>
 								<FieldView label='Transaction Number' underline={false}>
@@ -158,7 +184,12 @@ export default async function DepositDetailsPage({ params }: Props) {
 								<GridCol span={6}>
 									<FieldView label='Application Fee' underline={false}>
 										M{' '}
-										{deposit.application.intakePeriod?.applicationFee || '0.00'}
+										{deposit.application.intakePeriod
+											? resolveApplicationFee(
+													deposit.application.intakePeriod,
+													deposit.application.applicant?.nationality ?? null
+												)
+											: '0.00'}
 									</FieldView>
 								</GridCol>
 								<GridCol span={6}>
@@ -206,18 +237,18 @@ export default async function DepositDetailsPage({ params }: Props) {
 
 					<Stack gap='xs'>
 						<Text size='lg' fw={600}>
-							Deposit Slip
+							{isSalesReceipt ? 'Receipt Image' : 'Deposit Slip'}
 						</Text>
 						{deposit.document?.fileUrl ? (
 							<Image
 								src={deposit.document.fileUrl}
-								alt='Deposit Slip'
+								alt={isSalesReceipt ? 'Sales Receipt' : 'Deposit Slip'}
 								radius='md'
 								maw={600}
 								fit='contain'
 							/>
 						) : (
-							<Text c='dimmed'>No deposit slip image available</Text>
+							<Text c='dimmed'>No receipt image available</Text>
 						)}
 					</Stack>
 

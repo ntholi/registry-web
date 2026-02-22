@@ -1,11 +1,15 @@
-import { and, count, eq, inArray } from 'drizzle-orm';
+import { and, count, eq, exists, ilike, inArray, or } from 'drizzle-orm';
 import {
 	type ApplicationStatus,
+	applicantPhones,
+	applicants,
 	applicationNotes,
 	applicationStatusHistory,
 	applications,
 	db,
 	type PaymentStatus,
+	programs,
+	users,
 } from '@/core/database';
 import BaseRepository from '@/core/platform/BaseRepository';
 import type { ApplicationFilters } from '../_lib/types';
@@ -23,13 +27,19 @@ export default class ApplicationRepository extends BaseRepository<
 			where: eq(applications.id, id),
 			with: {
 				applicant: {
-					columns: { id: true, fullName: true, nationalId: true },
+					columns: {
+						id: true,
+						fullName: true,
+						nationalId: true,
+						nationality: true,
+					},
 				},
 				intakePeriod: {
 					columns: {
 						id: true,
 						name: true,
-						applicationFee: true,
+						localApplicationFee: true,
+						internationalApplicationFee: true,
 						startDate: true,
 						endDate: true,
 					},
@@ -93,6 +103,65 @@ export default class ApplicationRepository extends BaseRepository<
 			conditions.push(eq(applications.intakePeriodId, filters.intakePeriodId));
 		}
 
+		if (search) {
+			conditions.push(
+				or(
+					exists(
+						db
+							.select({ id: applicants.id })
+							.from(applicants)
+							.where(
+								and(
+									eq(applicants.id, applications.applicantId),
+									or(
+										ilike(applicants.fullName, `%${search}%`),
+										ilike(applicants.nationalId, `%${search}%`)
+									)
+								)
+							)
+					),
+					exists(
+						db
+							.select({ id: users.id })
+							.from(users)
+							.innerJoin(applicants, eq(applicants.userId, users.id))
+							.where(
+								and(
+									eq(applicants.id, applications.applicantId),
+									ilike(users.email, `%${search}%`)
+								)
+							)
+					),
+					exists(
+						db
+							.select({ id: applicantPhones.id })
+							.from(applicantPhones)
+							.innerJoin(
+								applicants,
+								eq(applicantPhones.applicantId, applicants.id)
+							)
+							.where(
+								and(
+									eq(applicants.id, applications.applicantId),
+									ilike(applicantPhones.phoneNumber, `%${search}%`)
+								)
+							)
+					),
+					exists(
+						db
+							.select({ id: programs.id })
+							.from(programs)
+							.where(
+								and(
+									eq(programs.id, applications.firstChoiceProgramId),
+									ilike(programs.name, `%${search}%`)
+								)
+							)
+					)
+				)!
+			);
+		}
+
 		const where = conditions.length > 0 ? and(...conditions) : undefined;
 
 		const [items, [{ total }]] = await Promise.all([
@@ -103,10 +172,20 @@ export default class ApplicationRepository extends BaseRepository<
 				orderBy: (a, { desc }) => [desc(a.applicationDate)],
 				with: {
 					applicant: {
-						columns: { id: true, fullName: true, nationalId: true },
+						columns: {
+							id: true,
+							fullName: true,
+							nationalId: true,
+							nationality: true,
+						},
 					},
 					intakePeriod: {
-						columns: { id: true, name: true, applicationFee: true },
+						columns: {
+							id: true,
+							name: true,
+							localApplicationFee: true,
+							internationalApplicationFee: true,
+						},
 					},
 					firstChoiceProgram: {
 						columns: { id: true, name: true, code: true },
@@ -118,23 +197,6 @@ export default class ApplicationRepository extends BaseRepository<
 				.from(applications)
 				.where(where ?? undefined),
 		]);
-
-		if (search) {
-			const searchLower = search.toLowerCase();
-			const filtered = items.filter((item) => {
-				const programName = item.firstChoiceProgram?.name?.toLowerCase() ?? '';
-				return (
-					item.applicant.fullName.toLowerCase().includes(searchLower) ||
-					item.applicant.nationalId?.toLowerCase().includes(searchLower) ||
-					programName.includes(searchLower)
-				);
-			});
-			return {
-				items: filtered,
-				totalPages: Math.ceil(filtered.length / pageSize),
-				totalItems: filtered.length,
-			};
-		}
 
 		return {
 			items,
@@ -252,10 +314,14 @@ export default class ApplicationRepository extends BaseRepository<
 				paymentStatus: true,
 			},
 			with: {
+				applicant: {
+					columns: { nationality: true },
+				},
 				intakePeriod: {
 					columns: {
 						id: true,
-						applicationFee: true,
+						localApplicationFee: true,
+						internationalApplicationFee: true,
 						startDate: true,
 						endDate: true,
 					},

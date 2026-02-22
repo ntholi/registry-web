@@ -251,7 +251,8 @@ export type AllStatusType =
 	| StudentProgramStatus
 	| SemesterStatus
 	| StudentModuleStatus
-	| ModuleType;
+	| ModuleType
+	| 'verified';
 export type QuizStateType = keyof typeof statusColors.quizState | QuestionState;
 export type QuestionType =
 	| keyof typeof statusColors.questionType
@@ -331,7 +332,10 @@ export function getStatusColor(status: AllStatusType) {
 	if (
 		normalized.includes('pass') ||
 		normalized.includes('success') ||
-		normalized.includes('proceed')
+		normalized.includes('proceed') ||
+		normalized.includes('complete') ||
+		normalized.includes('confirmed') ||
+		normalized.includes('verified')
 	)
 		return statusColors.activity.active;
 	if (normalized.includes('fail') || normalized.includes('remain'))

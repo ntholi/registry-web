@@ -1,5 +1,6 @@
 import {
 	IconCalendarEvent,
+	IconChartBar,
 	IconClipboardData,
 	IconListCheck,
 	IconMessageQuestion,
@@ -64,13 +65,6 @@ export const academicConfig: ModuleConfig = {
 				icon: IconMessageStar,
 				roles: ['academic', 'admin'],
 				collapsed: false,
-				isVisible: (session) => {
-					const position = session?.user?.position;
-					return !!(
-						position &&
-						['manager', 'admin', 'program_leader'].includes(position)
-					);
-				},
 				children: [
 					{
 						label: 'Questions',
@@ -83,6 +77,14 @@ export const academicConfig: ModuleConfig = {
 						href: '/academic/feedback/cycles',
 						icon: IconCalendarEvent,
 						roles: ['academic', 'admin'],
+					},
+					{
+						label: 'Reports',
+						href: '/academic/feedback/reports',
+						icon: IconChartBar,
+						isVisible: (session) => {
+							return session?.user?.position !== 'admin';
+						},
 					},
 				],
 			},

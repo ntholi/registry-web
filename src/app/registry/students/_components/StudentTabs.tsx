@@ -28,16 +28,20 @@ export default function StudentTabs({
 	session,
 	blockedStudent,
 }: StudentTabsProps) {
-	const showAcademics = ['academic', 'admin', 'registry', 'finance'].includes(
-		session?.user?.role ?? ''
-	);
+	const showAcademics = [
+		'academic',
+		'admin',
+		'registry',
+		'finance',
+		'leap',
+	].includes(session?.user?.role ?? '');
 
 	const [activeTab, setActiveTab] = useQueryState('tab', {
 		defaultValue: showAcademics ? 'academics' : 'info',
 	});
 
 	const showRegistration =
-		['admin', 'registry', 'finance', 'student_services'].includes(
+		['admin', 'registry', 'finance', 'student_services', 'leap'].includes(
 			session?.user?.role ?? ''
 		) ||
 		['admin', 'manager', 'program_leader', 'year_leader'].includes(

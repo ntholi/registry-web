@@ -102,7 +102,7 @@ export default function ReviewForm({ applicationId }: Props) {
 							variant='subtle'
 							size='xs'
 							leftSection={<IconEdit size={14} />}
-							onClick={() => handleEdit('profile')}
+							onClick={() => handleEdit('personal-info')}
 						>
 							Edit
 						</Button>

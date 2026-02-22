@@ -49,14 +49,13 @@ export function ReceiptConfirmationModal({
 }: Props) {
 	if (!analysis) return null;
 
+	const isSalesReceipt = analysis.receiptType === 'sales_receipt';
+	const title = isSalesReceipt
+		? 'Confirm Sales Receipt'
+		: 'Confirm Bank Deposit';
+
 	return (
-		<Modal
-			opened={opened}
-			onClose={onClose}
-			title='Confirm Bank Deposit'
-			centered
-			size='md'
-		>
+		<Modal opened={opened} onClose={onClose} title={title} centered size='md'>
 			<Stack gap='lg'>
 				<Paper
 					p='md'
@@ -73,7 +72,7 @@ export function ReceiptConfirmationModal({
 						<Group justify='space-between' align='flex-start'>
 							<Stack gap={4}>
 								<Text size='xs' c='dimmed' tt='uppercase' fw={600}>
-									Amount Deposited
+									{isSalesReceipt ? 'Amount Paid' : 'Amount Deposited'}
 								</Text>
 								<Text size='xl' fw={700} ff='monospace' c='green'>
 									{analysis.currency ?? 'M'}{' '}
@@ -98,16 +97,29 @@ export function ReceiptConfirmationModal({
 						</Text>
 
 						<Stack gap='xs'>
-							<ReceiptField label='Reference' value={analysis.reference} />
+							{isSalesReceipt && analysis.receiptNumber && (
+								<ReceiptField
+									label='Receipt #'
+									value={analysis.receiptNumber}
+								/>
+							)}
+							{!isSalesReceipt && (
+								<ReceiptField label='Reference' value={analysis.reference} />
+							)}
 							<ReceiptField label='Date' value={analysis.dateDeposited} />
-							<ReceiptField label='Bank' value={analysis.bankName} />
+							{!isSalesReceipt && (
+								<ReceiptField label='Bank' value={analysis.bankName} />
+							)}
+							{isSalesReceipt && analysis.paymentMode && (
+								<ReceiptField label='Payment' value={analysis.paymentMode} />
+							)}
 							{analysis.depositorName && (
 								<ReceiptField
-									label='Depositor'
+									label={isSalesReceipt ? 'Paid By' : 'Depositor'}
 									value={analysis.depositorName}
 								/>
 							)}
-							{analysis.transactionNumber && (
+							{!isSalesReceipt && analysis.transactionNumber && (
 								<ReceiptField
 									label='Trans No.'
 									value={analysis.transactionNumber}

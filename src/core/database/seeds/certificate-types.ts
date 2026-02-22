@@ -35,6 +35,13 @@ export async function seedCertificateTypes() {
 			gradingType: 'subject-grades',
 		},
 		{
+			name: 'Edexcel IGCSE',
+			description:
+				'Pearson Edexcel International General Certificate of Secondary Education',
+			lqfLevel: 4,
+			gradingType: 'subject-grades',
+		},
+		{
 			name: 'GCE O-Level',
 			description: 'General Certificate of Education Ordinary Level',
 			lqfLevel: 4,

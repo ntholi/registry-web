@@ -1,0 +1,1 @@
+ALTER TABLE "applicant_documents" ADD COLUMN "rotation" integer DEFAULT 0 NOT NULL;

@@ -1,5 +1,6 @@
 'use server';
 
+import { resolveApplicationFee } from '@admissions/_lib/fees';
 import { getApplicant } from '@admissions/applicants';
 import { getApplicationForPayment } from '@admissions/applications';
 import {
@@ -19,12 +20,15 @@ type DepositData = {
 	base64: string;
 	mediaType: string;
 	reference: string;
+	receiptType?: 'bank_deposit' | 'sales_receipt';
+	receiptNumber?: string | null;
 	beneficiaryName?: string | null;
 	dateDeposited?: string | null;
 	amountDeposited?: number | null;
 	currency?: string | null;
 	depositorName?: string | null;
 	bankName?: string | null;
+	paymentMode?: string | null;
 	transactionNumber?: string | null;
 	terminalNumber?: string | null;
 };
@@ -75,13 +79,16 @@ export async function submitReceiptPayment(
 					applicationId,
 					documentId: doc.id,
 					reference: receipt.reference,
+					type: receipt.receiptType ?? 'bank_deposit',
 					status: 'pending',
+					receiptNumber: receipt.receiptNumber,
 					beneficiaryName: receipt.beneficiaryName,
 					dateDeposited: receipt.dateDeposited,
 					amountDeposited: receipt.amountDeposited?.toString(),
 					currency: receipt.currency,
 					depositorName: receipt.depositorName,
 					bankName: receipt.bankName,
+					paymentMode: receipt.paymentMode,
 					transactionNumber: receipt.transactionNumber,
 					terminalNumber: receipt.terminalNumber,
 				});
@@ -123,11 +130,13 @@ export async function getPaymentPageData(applicationId: string) {
 	);
 
 	const intake = application.intakePeriod;
+	const nationality = application.applicant?.nationality ?? null;
+	const fee = intake ? resolveApplicationFee(intake, nationality) : null;
 
 	return {
 		applicant,
 		application,
-		fee: intake?.applicationFee ?? null,
+		fee,
 		bankDeposits: deposits ?? [],
 		isPaid: !!verifiedDeposit || application.paymentStatus === 'paid',
 		hasPendingDeposit: !!pendingDeposit,

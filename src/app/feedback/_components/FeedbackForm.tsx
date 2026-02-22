@@ -1,7 +1,7 @@
 'use client';
 
 import { Container, Stack } from '@mantine/core';
-import { useCallback, useMemo, useState, useTransition } from 'react';
+import { useCallback, useMemo, useRef, useState, useTransition } from 'react';
 
 function computeInitialIndex(
 	lecturers: Lecturer[],
@@ -20,11 +20,8 @@ function computeInitialIndex(
 	return lecturers.length;
 }
 
-import {
-	finalizeFeedback,
-	skipLecturer,
-	submitLecturerFeedback,
-} from '../_server/actions';
+import { submitLecturerFeedback } from '../_server/actions';
+import LecturerNav from './LecturerNav';
 import LecturerProgress from './LecturerProgress';
 import LecturerStep from './LecturerStep';
 import ThankYou from './ThankYou';
@@ -101,13 +98,38 @@ export default function FeedbackForm({
 		computeInitialIndex(lecturers, questions, existingResponses)
 	);
 	const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-	const [isFinalized, setIsFinalized] = useState(false);
-	const [pendingAction, setPendingAction] = useState<'next' | 'skip' | null>(
-		null
-	);
-	const [isPending, startTransition] = useTransition();
+	const startTransition = useTransition()[1];
 
 	const currentLecturer = lecturers[currentLecturerIndex];
+
+	const isFirstQuestion = currentQuestionIndex === 0;
+	const isLastQuestion = currentQuestionIndex === questions.length - 1;
+
+	const touchStart = useRef<{ x: number; y: number } | null>(null);
+
+	const onTouchStart = useCallback((e: React.TouchEvent) => {
+		const touch = e.touches[0];
+		touchStart.current = { x: touch.clientX, y: touch.clientY };
+	}, []);
+
+	const onTouchEnd = useCallback(
+		(e: React.TouchEvent) => {
+			if (!touchStart.current) return;
+			const touch = e.changedTouches[0];
+			const dx = touch.clientX - touchStart.current.x;
+			const dy = touch.clientY - touchStart.current.y;
+			const MIN_SWIPE = 50;
+			if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > MIN_SWIPE) {
+				if (dx < 0 && !isLastQuestion) {
+					setCurrentQuestionIndex((i) => i + 1);
+				} else if (dx > 0 && !isFirstQuestion) {
+					setCurrentQuestionIndex((i) => i - 1);
+				}
+			}
+			touchStart.current = null;
+		},
+		[isFirstQuestion, isLastQuestion]
+	);
 
 	const setResponse = useCallback(
 		(assignedModuleId: number, questionId: string, entry: ResponseEntry) => {
@@ -127,8 +149,18 @@ export default function FeedbackForm({
 		[responses]
 	);
 
-	function handleNextLecturer() {
-		if (!currentLecturer) return;
+	if (!currentLecturer) {
+		return <ThankYou cycleName={cycleName} ratedCount={lecturers.length} />;
+	}
+
+	const completedCount = Array.from(completedLecturers).length;
+
+	function handleNavigateTo(index: number) {
+		if (!currentLecturer) {
+			setCurrentLecturerIndex(index);
+			setCurrentQuestionIndex(0);
+			return;
+		}
 
 		const lecturerResponses = questions
 			.map((q) => {
@@ -143,7 +175,6 @@ export default function FeedbackForm({
 			})
 			.filter((r) => r.rating > 0);
 
-		setPendingAction('next');
 		startTransition(async () => {
 			if (lecturerResponses.length > 0) {
 				await submitLecturerFeedback(
@@ -152,64 +183,21 @@ export default function FeedbackForm({
 					lecturerResponses
 				);
 			}
-
-			if (currentLecturerIndex < lecturers.length - 1) {
-				setCurrentLecturerIndex((prev) => prev + 1);
-				setCurrentQuestionIndex(0);
-			} else {
-				await finalizeFeedback(passphraseId);
-				localStorage.removeItem('feedback-passphrase');
-				setIsFinalized(true);
-			}
+			setCurrentLecturerIndex(index);
+			setCurrentQuestionIndex(0);
 		});
 	}
-
-	function handleSkipLecturer() {
-		if (!currentLecturer) return;
-		const qIds = questions.map((q) => q.questionId);
-
-		setPendingAction('skip');
-		startTransition(async () => {
-			await skipLecturer(passphraseId, currentLecturer.assignedModuleId, qIds);
-
-			for (const qId of qIds) {
-				setResponse(currentLecturer.assignedModuleId, qId, {
-					rating: null,
-					comment: null,
-				});
-			}
-
-			if (currentLecturerIndex < lecturers.length - 1) {
-				setCurrentLecturerIndex((prev) => prev + 1);
-				setCurrentQuestionIndex(0);
-			} else {
-				await finalizeFeedback(passphraseId);
-				localStorage.removeItem('feedback-passphrase');
-				setIsFinalized(true);
-			}
-		});
-	}
-
-	if (isFinalized) {
-		const ratedCount = lecturers.filter((l) => {
-			return questions.some((q) => {
-				const r = responses.get(responseKey(l.assignedModuleId, q.questionId));
-				return r && r.rating !== null;
-			});
-		}).length;
-
-		return <ThankYou cycleName={cycleName} ratedCount={ratedCount} />;
-	}
-
-	if (!currentLecturer) {
-		return <ThankYou cycleName={cycleName} ratedCount={lecturers.length} />;
-	}
-
-	const completedCount = Array.from(completedLecturers).length;
 
 	return (
-		<Container size='xs' py='md'>
-			<Stack gap='md'>
+		<Container
+			size='xs'
+			py='sm'
+			px='sm'
+			onTouchStart={onTouchStart}
+			onTouchEnd={onTouchEnd}
+			style={{ minHeight: '100dvh' }}
+		>
+			<Stack gap='sm'>
 				<LecturerProgress
 					current={currentLecturerIndex + 1}
 					total={lecturers.length}
@@ -222,11 +210,13 @@ export default function FeedbackForm({
 					onQuestionIndexChange={setCurrentQuestionIndex}
 					getResponse={getResponse}
 					setResponse={setResponse}
-					onNext={handleNextLecturer}
-					onSkip={handleSkipLecturer}
-					isLast={currentLecturerIndex === lecturers.length - 1}
-					isPending={isPending}
-					pendingAction={pendingAction}
+				/>
+				<LecturerNav
+					lecturers={lecturers}
+					currentIndex={currentLecturerIndex}
+					questions={questions}
+					getResponse={getResponse}
+					onNavigate={handleNavigateTo}
 				/>
 			</Stack>
 		</Container>

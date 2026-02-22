@@ -30,7 +30,10 @@ export default function IntakePeriodForm({
 		name: z.string().min(1, 'Name is required'),
 		startDate: z.string().min(1, 'Start date is required'),
 		endDate: z.string().min(1, 'End date is required'),
-		applicationFee: z.string().min(1, 'Application fee is required'),
+		localApplicationFee: z.string().min(1, 'Local application fee is required'),
+		internationalApplicationFee: z
+			.string()
+			.min(1, 'International application fee is required'),
 		maxDocuments: z.number().min(1, 'Max documents must be at least 1'),
 		programIds: z.number().array().optional(),
 	});
@@ -71,31 +74,51 @@ export default function IntakePeriodForm({
 					</Group>
 					<Group grow align='end'>
 						<NumberInput
-							label='Application Fee'
+							label='Local Application Fee'
 							required
 							min={0}
 							decimalScale={2}
 							fixedDecimalScale
 							prefix='M'
 							value={
-								form.values.applicationFee
-									? Number(form.values.applicationFee)
+								form.values.localApplicationFee
+									? Number(form.values.localApplicationFee)
 									: undefined
 							}
 							onChange={(val) =>
-								form.setFieldValue('applicationFee', val?.toString() || '')
+								form.setFieldValue('localApplicationFee', val?.toString() || '')
 							}
-							error={form.errors.applicationFee}
+							error={form.errors.localApplicationFee}
 						/>
 						<NumberInput
-							label='Max Documents per Application'
-							description='Total documents an applicant can upload'
+							label='International Application Fee'
 							required
-							min={1}
-							max={100}
-							{...form.getInputProps('maxDocuments')}
+							min={0}
+							decimalScale={2}
+							fixedDecimalScale
+							prefix='M'
+							value={
+								form.values.internationalApplicationFee
+									? Number(form.values.internationalApplicationFee)
+									: undefined
+							}
+							onChange={(val) =>
+								form.setFieldValue(
+									'internationalApplicationFee',
+									val?.toString() || ''
+								)
+							}
+							error={form.errors.internationalApplicationFee}
 						/>
 					</Group>
+					<NumberInput
+						label='Max Documents per Application'
+						description='Total documents an applicant can upload'
+						required
+						min={1}
+						max={100}
+						{...form.getInputProps('maxDocuments')}
+					/>
 					<Divider my='sm' />
 					<ProgramSelector
 						value={form.values.programIds ?? []}

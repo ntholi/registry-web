@@ -2,7 +2,12 @@ import { mapGrade } from '@admissions/certificate-types/_server/actions';
 import { entryRequirementsService } from '@admissions/entry-requirements/_server/service';
 import { intakePeriodsService } from '@admissions/intake-periods/_server/service';
 import { recognizedSchoolsService } from '@admissions/recognized-schools/_server/service';
-import type { applicants, documents, guardians } from '@/core/database';
+import type {
+	applicantLocations,
+	applicants,
+	documents,
+	guardians,
+} from '@/core/database';
 import type { DocumentAnalysisResult } from '@/core/integrations/ai/documents';
 import BaseService from '@/core/platform/BaseService';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
@@ -271,6 +276,20 @@ class ApplicantService extends BaseService<typeof applicants, 'id'> {
 	async updateUserId(applicantId: string, userId: string | null) {
 		return withAuth(
 			async () => this.repo.update(applicantId, { userId }),
+			['registry', 'marketing', 'admin']
+		);
+	}
+
+	async saveLocation(data: typeof applicantLocations.$inferInsert) {
+		return withAuth(
+			async () => this.repo.saveLocation(data),
+			['registry', 'marketing', 'admin', 'applicant']
+		);
+	}
+
+	async findLocationByApplicantId(applicantId: string) {
+		return withAuth(
+			async () => this.repo.findLocationByApplicantId(applicantId),
 			['registry', 'marketing', 'admin']
 		);
 	}
