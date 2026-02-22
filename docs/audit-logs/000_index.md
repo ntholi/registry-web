@@ -134,6 +134,8 @@ interface AuditOptions {
 | 6a | [006a_refactor-repositories.md](006a_refactor-repositories.md) | Refactor custom repos to use `writeAuditLog`, remove `auth()` calls, set `auditEnabled` |
 | 6b | [006b_migrate-modals.md](006b_migrate-modals.md) | Move edit modals from `audit-logs/` to `registry/`, replace `AuditHistoryTab` |
 | 6c | [006c_remove-legacy-and-drop-tables.md](006c_remove-legacy-and-drop-tables.md) | Delete all legacy code, schemas, barrel exports; DROP 7 tables + 3 pgEnum types |
+| 7a | [007a_activity-tracker-backend.md](007a_activity-tracker-backend.md) | Backend: repository, service, actions for department-scoped employee activity analytics |
+| 7b | [007b_activity-tracker-frontend.md](007b_activity-tracker-frontend.md) | Frontend: dashboard with charts, employee list, drill-down detail, heatmap, timeline |
 
 ## Tables Audit Classification
 
