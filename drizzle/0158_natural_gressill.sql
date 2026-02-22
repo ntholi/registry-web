@@ -1,0 +1,1 @@
+CREATE INDEX "idx_audit_logs_user_date" ON "audit_logs" USING btree ("changed_by","changed_at");

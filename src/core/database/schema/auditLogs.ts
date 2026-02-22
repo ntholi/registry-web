@@ -31,5 +31,6 @@ export const auditLogs = pgTable(
 			table.operation
 		),
 		index('idx_audit_logs_synced_at').on(table.syncedAt),
+		index('idx_audit_logs_user_date').on(table.changedBy, table.changedAt),
 	]
 );
