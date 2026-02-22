@@ -6,13 +6,18 @@ const STORAGE_KEY = 'list-layout-panel-width';
 const DEFAULT_WIDTH_PERCENT = 28.57;
 
 export function useResizablePanel() {
-	const [widthPercent, setWidthPercent] = useState(() => {
-		if (typeof window === 'undefined') return DEFAULT_WIDTH_PERCENT;
-		const stored = localStorage.getItem(STORAGE_KEY);
-		return stored ? Number.parseFloat(stored) : DEFAULT_WIDTH_PERCENT;
-	});
+	const [widthPercent, setWidthPercent] = useState(DEFAULT_WIDTH_PERCENT);
 	const isDragging = useRef(false);
 	const containerRef = useRef<HTMLDivElement>(null);
+	const hydrated = useRef(false);
+
+	useEffect(() => {
+		const stored = localStorage.getItem(STORAGE_KEY);
+		if (stored) {
+			setWidthPercent(Number.parseFloat(stored));
+		}
+		hydrated.current = true;
+	}, []);
 
 	const handleMouseDown = useCallback((e: React.MouseEvent) => {
 		e.preventDefault();
@@ -46,7 +51,9 @@ export function useResizablePanel() {
 	}, []);
 
 	useEffect(() => {
-		localStorage.setItem(STORAGE_KEY, String(widthPercent));
+		if (hydrated.current) {
+			localStorage.setItem(STORAGE_KEY, String(widthPercent));
+		}
 	}, [widthPercent]);
 
 	return { widthPercent, containerRef, handleMouseDown };

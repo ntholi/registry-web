@@ -107,8 +107,8 @@ export function ListLayout<T>({
 						<Group style={{ width: '100%', flex: 1 }}>
 							<SearchField style={{ width: '100%' }} />
 						</Group>
-						{actionIcons?.map((component, _index) => (
-							<React.Fragment key={`action-${crypto.randomUUID()}`}>
+						{actionIcons?.map((component, index) => (
+							<React.Fragment key={`action-${index}`}>
 								{component}
 							</React.Fragment>
 						))}
@@ -120,14 +120,14 @@ export function ListLayout<T>({
 				<ScrollArea type='always' style={{ flex: 1 }} p='md'>
 					{isLoading ? (
 						<Stack gap='sm'>
-							{Array.from({ length: 5 }).map((_, _index) => (
-								<Skeleton height={35} key={`skeleton-${crypto.randomUUID()}`} />
+							{Array.from({ length: 5 }).map((_, index) => (
+								<Skeleton height={35} key={`skeleton-${index}`} />
 							))}
 						</Stack>
 					) : (
 						<Stack gap={3}>
-							{items.map((item: T, _index: number) => (
-								<React.Fragment key={`item-${crypto.randomUUID()}`}>
+							{items.map((item: T, index: number) => (
+								<React.Fragment key={`item-${index}`}>
 									{renderListItem(item)}
 								</React.Fragment>
 							))}
