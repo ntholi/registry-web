@@ -2,17 +2,22 @@
 
 import { activityTrackerService as service } from './service';
 
-export async function getDepartmentSummary(start: Date, end: Date) {
-	return service.getDepartmentSummary({ start, end });
+export async function getDepartmentSummary(
+	start: Date,
+	end: Date,
+	dept?: string
+) {
+	return service.getDepartmentSummary({ start, end }, dept);
 }
 
 export async function getEmployeeList(
 	start: Date,
 	end: Date,
 	page: number,
-	search: string
+	search: string,
+	dept?: string
 ) {
-	return service.getEmployeeList({ start, end }, page, search);
+	return service.getEmployeeList({ start, end }, page, search, dept);
 }
 
 export async function getEmployeeDetail(
@@ -40,8 +45,8 @@ export async function getActivityHeatmap(
 	return service.getActivityHeatmap(userId, { start, end });
 }
 
-export async function getDailyTrends(start: Date, end: Date) {
-	return service.getDailyTrends({ start, end });
+export async function getDailyTrends(start: Date, end: Date, dept?: string) {
+	return service.getDailyTrends({ start, end }, dept);
 }
 
 export async function getEntityBreakdown(
@@ -52,6 +57,6 @@ export async function getEntityBreakdown(
 	return service.getEntityBreakdown(userId, { start, end });
 }
 
-export async function getClearanceStats(start: Date, end: Date) {
-	return service.getClearanceStats({ start, end });
+export async function getClearanceStats(start: Date, end: Date, dept?: string) {
+	return service.getClearanceStats({ start, end }, dept);
 }

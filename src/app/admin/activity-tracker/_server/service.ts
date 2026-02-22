@@ -12,16 +12,21 @@ class ActivityTrackerService {
 		this.repository = new ActivityTrackerRepository();
 	}
 
-	async getDepartmentSummary(dateRange: DateRange) {
+	async getDepartmentSummary(dateRange: DateRange, overrideDept?: string) {
 		return withAuth(async (session) => {
-			const dept = this.resolveDepartment(session);
+			const dept = this.resolveDepartment(session, overrideDept);
 			return this.repository.getDepartmentSummary(dept, dateRange);
 		}, this.accessCheck);
 	}
 
-	async getEmployeeList(dateRange: DateRange, page: number, search: string) {
+	async getEmployeeList(
+		dateRange: DateRange,
+		page: number,
+		search: string,
+		overrideDept?: string
+	) {
 		return withAuth(async (session) => {
-			const dept = this.resolveDepartment(session);
+			const dept = this.resolveDepartment(session, overrideDept);
 			return this.repository.getEmployeeList(dept, dateRange, page, search);
 		}, this.accessCheck);
 	}
@@ -60,9 +65,9 @@ class ActivityTrackerService {
 		}, this.accessCheck);
 	}
 
-	async getDailyTrends(dateRange: DateRange) {
+	async getDailyTrends(dateRange: DateRange, overrideDept?: string) {
 		return withAuth(async (session) => {
-			const dept = this.resolveDepartment(session);
+			const dept = this.resolveDepartment(session, overrideDept);
 			return this.repository.getDailyTrends(dept, dateRange);
 		}, this.accessCheck);
 	}
@@ -77,9 +82,9 @@ class ActivityTrackerService {
 		}, this.accessCheck);
 	}
 
-	async getClearanceStats(dateRange: DateRange) {
+	async getClearanceStats(dateRange: DateRange, overrideDept?: string) {
 		return withAuth(async (session) => {
-			const dept = this.resolveDepartment(session);
+			const dept = this.resolveDepartment(session, overrideDept);
 			if (dept !== 'all' && !isClearanceDepartment(dept)) {
 				throw new Error('Clearance stats not available for this department');
 			}
@@ -93,9 +98,14 @@ class ActivityTrackerService {
 		return session.user.position === 'manager';
 	};
 
-	private resolveDepartment(session: Session | null | undefined): string {
+	private resolveDepartment(
+		session: Session | null | undefined,
+		overrideDept?: string
+	): string {
 		if (!session?.user) throw new Error('Unauthorized');
-		if (session.user.role === 'admin') return 'all';
+		if (session.user.role === 'admin') {
+			return overrideDept || 'all';
+		}
 		return session.user.role;
 	}
 

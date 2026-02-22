@@ -1,5 +1,6 @@
 import { countUncompletedTasks } from '@admin/tasks';
 import {
+	IconActivity,
 	IconBell,
 	IconCalculator,
 	IconChecklist,
@@ -46,6 +47,24 @@ export const adminConfig: ModuleConfig = {
 				href: '/admin/notifications',
 				icon: IconBell,
 				roles: ['admin'],
+			},
+			{
+				label: 'Activity Tracker',
+				href: '/admin/activity-tracker',
+				icon: IconActivity,
+				roles: [
+					'admin',
+					'registry',
+					'finance',
+					'library',
+					'resource',
+					'academic',
+					'marketing',
+					'student_services',
+				],
+				isVisible: (session) =>
+					session?.user?.position === 'manager' ||
+					session?.user?.role === 'admin',
 			},
 			{
 				label: 'Tools',
