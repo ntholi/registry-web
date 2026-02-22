@@ -12,6 +12,8 @@ export default class StudentAuditLogRepository extends BaseRepository<
 	typeof studentAuditLogs,
 	'id'
 > {
+	protected auditEnabled = false;
+
 	constructor() {
 		super(studentAuditLogs, studentAuditLogs.id);
 	}

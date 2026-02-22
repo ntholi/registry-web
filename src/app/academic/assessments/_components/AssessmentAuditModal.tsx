@@ -133,19 +133,30 @@ export default function AssessmentAuditModal({ assessment }: Props) {
 					>
 						{auditHistory.map(
 							(audit: NonNullable<typeof auditHistory>[number]) => {
-								const auditMessage = generateAssessmentAuditMessage(
-									audit.action,
-									{
-										previousAssessmentNumber: audit.previousAssessmentNumber,
-										newAssessmentNumber: audit.newAssessmentNumber,
-										previousAssessmentType: audit.previousAssessmentType,
-										newAssessmentType: audit.newAssessmentType,
-										previousTotalMarks: audit.previousTotalMarks,
-										newTotalMarks: audit.newTotalMarks,
-										previousWeight: audit.previousWeight,
-										newWeight: audit.newWeight,
-									}
-								);
+								const old = (audit.oldValues ?? {}) as Record<string, unknown>;
+								const cur = (audit.newValues ?? {}) as Record<string, unknown>;
+								const action = (audit.operation?.toLowerCase() ?? 'update') as
+									| 'create'
+									| 'update'
+									| 'delete';
+								const auditMessage = generateAssessmentAuditMessage(action, {
+									previousAssessmentNumber:
+										old.assessmentNumber != null
+											? String(old.assessmentNumber)
+											: undefined,
+									newAssessmentNumber:
+										cur.assessmentNumber != null
+											? String(cur.assessmentNumber)
+											: undefined,
+									previousAssessmentType: old.assessmentType as
+										| string
+										| undefined,
+									newAssessmentType: cur.assessmentType as string | undefined,
+									previousTotalMarks: old.totalMarks as number | undefined,
+									newTotalMarks: cur.totalMarks as number | undefined,
+									previousWeight: old.weight as number | undefined,
+									newWeight: cur.weight as number | undefined,
+								});
 								return (
 									<Timeline.Item
 										key={audit.id}
@@ -153,23 +164,23 @@ export default function AssessmentAuditModal({ assessment }: Props) {
 											<Avatar
 												size='sm'
 												radius='xl'
-												color={getAuditActionColor(audit.action)}
+												color={getAuditActionColor(action)}
 												variant='light'
 											>
-												{getActionIcon(audit.action)}
+												{getActionIcon(action)}
 											</Avatar>
 										}
 										title={
 											<Paper p='md' radius='md' withBorder shadow='xs' mb='md'>
 												<Stack gap={'xs'}>
 													<Badge
-														color={getAuditActionColor(audit.action)}
+														color={getAuditActionColor(action)}
 														variant='light'
 														size='md'
 														radius='md'
-														leftSection={getActionIcon(audit.action)}
+														leftSection={getActionIcon(action)}
 													>
-														{audit.action.toUpperCase()}
+														{action.toUpperCase()}
 													</Badge>
 													<Text size='sm' lh={1.5}>
 														{auditMessage}
@@ -181,15 +192,15 @@ export default function AssessmentAuditModal({ assessment }: Props) {
 																radius='xl'
 																color='blue'
 																variant='light'
-																src={audit.createdByUser?.image || undefined}
+																src={audit.changedByUser?.image || undefined}
 															/>
 															<Box>
 																<Text size='sm' fw={500}>
-																	{audit.createdByUser?.name || 'Unknown User'}
+																	{audit.changedByUser?.name || 'Unknown User'}
 																</Text>
 																<Text size='xs' c='dimmed'>
 																	{format(
-																		new Date(audit.date),
+																		new Date(audit.changedAt),
 																		"dd MMM yyyy 'at' HH:mm"
 																	)}
 																</Text>

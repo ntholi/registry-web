@@ -23,12 +23,20 @@ import {
 } from '../_lib/audit-utils';
 
 interface AuditEntry {
-	id: number;
-	oldValues: Record<string, unknown>;
-	newValues: Record<string, unknown>;
-	reasons: string | null;
-	updatedAt: Date | string;
-	updatedByUser: {
+	id: number | bigint;
+	oldValues: Record<string, unknown> | unknown;
+	newValues: Record<string, unknown> | unknown;
+	reasons?: string | null;
+	updatedAt?: Date | string;
+	updatedByUser?: {
+		id: string;
+		name: string | null;
+		email: string | null;
+		image: string | null;
+	} | null;
+	metadata?: unknown;
+	changedAt?: Date | string;
+	changedByUser?: {
 		id: string;
 		name: string | null;
 		email: string | null;
@@ -119,18 +127,18 @@ export default function AuditHistoryTab({
 		<ScrollArea.Autosize mah={400} offsetScrollbars>
 			<Timeline bulletSize={32} lineWidth={2} pt='sm'>
 				{data.map((entry) => {
-					const changes = getChangedFields(
-						entry.oldValues,
-						entry.newValues,
-						allExcludeFields
-					);
+					const oldVals = (entry.oldValues ?? {}) as Record<string, unknown>;
+					const newVals = (entry.newValues ?? {}) as Record<string, unknown>;
+					const meta = (entry.metadata ?? {}) as Record<string, unknown>;
+					const reasons = entry.reasons ?? (meta.reasons as string) ?? null;
+					const user = entry.changedByUser ?? entry.updatedByUser ?? null;
+					const timestamp = entry.changedAt ?? entry.updatedAt;
+
+					const changes = getChangedFields(oldVals, newVals, allExcludeFields);
 
 					if (changes.length === 0) return null;
 
-					const userName =
-						entry.updatedByUser?.name ||
-						entry.updatedByUser?.email ||
-						'Unknown';
+					const userName = user?.name || user?.email || 'Unknown';
 					const initials = userName
 						.split(' ')
 						.map((n) => n[0])
@@ -146,7 +154,7 @@ export default function AuditHistoryTab({
 									size={28}
 									radius='xl'
 									color='blue'
-									src={entry.updatedByUser?.image || undefined}
+									src={user?.image || undefined}
 								>
 									{initials}
 								</Avatar>
@@ -158,7 +166,7 @@ export default function AuditHistoryTab({
 										{userName}
 									</Text>
 									<Text size='xs' c='dimmed'>
-										{formatDateTime(entry.updatedAt)}
+										{timestamp ? formatDateTime(timestamp) : ''}
 									</Text>
 								</Group>
 
@@ -174,7 +182,7 @@ export default function AuditHistoryTab({
 									))}
 								</Stack>
 
-								{entry.reasons && (
+								{reasons && (
 									<Box
 										mt='sm'
 										p='xs'
@@ -186,7 +194,7 @@ export default function AuditHistoryTab({
 										<Text size='xs' c='dimmed' mb={2}>
 											Reason
 										</Text>
-										<Text size='sm'>{entry.reasons}</Text>
+										<Text size='sm'>{reasons}</Text>
 									</Box>
 								)}
 							</Box>

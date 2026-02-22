@@ -1,3 +1,4 @@
+import { getRecordHistory } from '@/app/audit-logs/_server/actions';
 import type { assessments, lmsAssessments } from '@/core/database';
 import BaseService from '@/core/platform/BaseService';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
@@ -21,8 +22,10 @@ class AssessmentService extends BaseService<typeof assessments, 'id'> {
 		lmsData?: Omit<typeof lmsAssessments.$inferInsert, 'assessmentId'>
 	) {
 		return withAuth(
-			async () =>
-				(this.repository as AssessmentRepository).createWithLms(data, lmsData),
+			async (session) =>
+				(this.repository as AssessmentRepository).createWithLms(data, lmsData, {
+					userId: session!.user!.id!,
+				}),
 			['academic', 'leap']
 		);
 	}
@@ -47,8 +50,7 @@ class AssessmentService extends BaseService<typeof assessments, 'id'> {
 
 	async getAuditHistory(assessmentId: number) {
 		return withAuth(
-			async () =>
-				(this.repository as AssessmentRepository).getAuditHistory(assessmentId),
+			async () => getRecordHistory('assessments', String(assessmentId)),
 			['academic', 'leap']
 		);
 	}
@@ -59,11 +61,12 @@ class AssessmentService extends BaseService<typeof assessments, 'id'> {
 		lmsData?: Partial<Omit<typeof lmsAssessments.$inferInsert, 'assessmentId'>>
 	) {
 		return withAuth(
-			async () =>
+			async (session) =>
 				(this.repository as AssessmentRepository).updateWithGradeRecalculation(
 					id,
 					data,
-					lmsData
+					lmsData,
+					{ userId: session!.user!.id! }
 				),
 			['academic', 'leap']
 		);

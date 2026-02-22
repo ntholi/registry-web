@@ -1,14 +1,14 @@
 import { and, eq, inArray } from 'drizzle-orm';
-import { auth } from '@/core/auth';
 import {
 	assessmentMarks,
 	assessments,
-	assessmentsAudit,
 	db,
 	lmsAssessments,
 	studentModules,
 } from '@/core/database';
-import BaseRepository from '@/core/platform/BaseRepository';
+import BaseRepository, {
+	type AuditOptions,
+} from '@/core/platform/BaseRepository';
 import { calculateModuleGrade } from '@/shared/lib/utils/gradeCalculations';
 
 export default class AssessmentRepository extends BaseRepository<
@@ -54,30 +54,25 @@ export default class AssessmentRepository extends BaseRepository<
 
 	async createWithLms(
 		data: typeof assessments.$inferInsert,
-		lmsData?: Omit<typeof lmsAssessments.$inferInsert, 'assessmentId'>
+		lmsData?: Omit<typeof lmsAssessments.$inferInsert, 'assessmentId'>,
+		audit?: AuditOptions
 	) {
-		const session = await auth();
-
 		const inserted = await db.transaction(async (tx) => {
-			if (!session?.user?.id) throw new Error('Unauthorized');
-
 			const [assessment] = await tx
 				.insert(assessments)
 				.values(data)
 				.returning();
-			await tx.insert(assessmentsAudit).values({
-				assessmentId: assessment.id,
-				action: 'create',
-				previousAssessmentNumber: null,
-				newAssessmentNumber: assessment.assessmentNumber,
-				previousAssessmentType: null,
-				newAssessmentType: assessment.assessmentType,
-				previousTotalMarks: null,
-				newTotalMarks: assessment.totalMarks,
-				previousWeight: null,
-				newWeight: assessment.weight,
-				createdBy: session.user.id,
-			});
+
+			if (audit) {
+				await this.writeAuditLog(
+					tx,
+					'INSERT',
+					String(assessment.id),
+					null,
+					assessment,
+					audit
+				);
+			}
 
 			if (lmsData) {
 				await tx.insert(lmsAssessments).values({
@@ -92,12 +87,8 @@ export default class AssessmentRepository extends BaseRepository<
 		return inserted;
 	}
 
-	override async delete(id: number): Promise<void> {
-		const session = await auth();
-
+	override async delete(id: number, audit?: AuditOptions): Promise<void> {
 		await db.transaction(async (tx) => {
-			if (!session?.user?.id) throw new Error('Unauthorized');
-
 			const current = await tx
 				.select()
 				.from(assessments)
@@ -107,50 +98,28 @@ export default class AssessmentRepository extends BaseRepository<
 
 			if (!current) throw new Error('Assessment not found');
 
-			await tx.insert(assessmentsAudit).values({
-				assessmentId: id,
-				action: 'delete',
-				previousAssessmentNumber: current.assessmentNumber,
-				newAssessmentNumber: null,
-				previousAssessmentType: current.assessmentType,
-				newAssessmentType: null,
-				previousTotalMarks: current.totalMarks,
-				newTotalMarks: null,
-				previousWeight: current.weight,
-				newWeight: null,
-				createdBy: session.user.id,
-			});
+			if (audit) {
+				await this.writeAuditLog(
+					tx,
+					'DELETE',
+					String(id),
+					current,
+					null,
+					audit
+				);
+			}
 
 			await tx.delete(assessments).where(eq(assessments.id, id));
-		});
-	}
-
-	async getAuditHistory(assessmentId: number) {
-		return db.query.assessmentsAudit.findMany({
-			where: eq(assessmentsAudit.assessmentId, assessmentId),
-			with: {
-				createdByUser: {
-					columns: {
-						id: true,
-						name: true,
-						image: true,
-					},
-				},
-			},
-			orderBy: (audit, { desc }) => [desc(audit.date)],
 		});
 	}
 
 	async updateWithGradeRecalculation(
 		id: number,
 		data: Partial<typeof assessments.$inferInsert>,
-		lmsData?: Partial<Omit<typeof lmsAssessments.$inferInsert, 'assessmentId'>>
+		lmsData?: Partial<Omit<typeof lmsAssessments.$inferInsert, 'assessmentId'>>,
+		audit?: AuditOptions
 	) {
-		const session = await auth();
-
 		const updated = await db.transaction(async (tx) => {
-			if (!session?.user?.id) throw new Error('Unauthorized');
-
 			const current = await tx
 				.select()
 				.from(assessments)
@@ -166,29 +135,15 @@ export default class AssessmentRepository extends BaseRepository<
 				.where(eq(assessments.id, id))
 				.returning();
 
-			const hasChanges =
-				(data.assessmentNumber !== undefined &&
-					data.assessmentNumber !== current.assessmentNumber) ||
-				(data.assessmentType !== undefined &&
-					data.assessmentType !== current.assessmentType) ||
-				(data.totalMarks !== undefined &&
-					data.totalMarks !== current.totalMarks) ||
-				(data.weight !== undefined && data.weight !== current.weight);
-
-			if (hasChanges) {
-				await tx.insert(assessmentsAudit).values({
-					assessmentId: id,
-					action: 'update',
-					previousAssessmentNumber: current.assessmentNumber,
-					newAssessmentNumber: assessment.assessmentNumber,
-					previousAssessmentType: current.assessmentType,
-					newAssessmentType: assessment.assessmentType,
-					previousTotalMarks: current.totalMarks,
-					newTotalMarks: assessment.totalMarks,
-					previousWeight: current.weight,
-					newWeight: assessment.weight,
-					createdBy: session.user.id,
-				});
+			if (audit) {
+				await this.writeAuditLog(
+					tx,
+					'UPDATE',
+					String(id),
+					current,
+					assessment,
+					audit
+				);
 			}
 
 			if (lmsData) {

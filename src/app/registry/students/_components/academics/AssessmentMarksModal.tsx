@@ -283,71 +283,74 @@ function AuditTabContent({ data, isLoading }: AuditTabContentProps) {
 
 	return (
 		<Timeline active={data.length} bulletSize={28} lineWidth={2}>
-			{data.map((audit) => (
-				<Timeline.Item
-					key={audit.id}
-					bullet={
-						<Avatar
-							src={audit.createdByUser?.image}
-							radius='xl'
-							size={24}
-							color='blue'
-						>
-							{audit.createdByUser?.name?.charAt(0)?.toUpperCase()}
-						</Avatar>
-					}
-				>
-					<Group justify='space-between' wrap='nowrap' align='flex-start'>
-						<Stack gap={2}>
-							<Group gap='xs'>
-								<Text size='sm' fw={500}>
-									{audit.createdByUser?.name || 'Unknown'}
-								</Text>
-								<Badge
-									size='xs'
-									variant='light'
-									color={getAuditActionColor(audit.action)}
-								>
-									{audit.action}
-								</Badge>
-							</Group>
-							<Text size='xs' c='dimmed'>
-								{audit.assessmentMark?.assessment
-									? `${getAssessmentTypeLabel(audit.assessmentMark.assessment.assessmentType)} (${audit.assessmentMark.assessment.assessmentNumber})`
-									: 'Assessment deleted'}
-							</Text>
-							<Group gap='xs'>
-								{audit.action === 'update' && (
-									<>
-										<Text size='xs' c='red'>
-											{audit.previousMarks?.toFixed(1) ?? '—'}
-										</Text>
-										<Text size='xs' c='dimmed'>
-											→
-										</Text>
+			{data.map((audit) => {
+				const old = (audit.oldValues ?? {}) as Record<string, unknown>;
+				const cur = (audit.newValues ?? {}) as Record<string, unknown>;
+				const action = (audit.operation?.toLowerCase() ?? 'update') as string;
+				const previousMarks = old.marks as number | null | undefined;
+				const newMarks = cur.marks as number | null | undefined;
+
+				return (
+					<Timeline.Item
+						key={audit.id}
+						bullet={
+							<Avatar
+								src={audit.changedByUser?.image}
+								radius='xl'
+								size={24}
+								color='blue'
+							>
+								{audit.changedByUser?.name?.charAt(0)?.toUpperCase()}
+							</Avatar>
+						}
+					>
+						<Group justify='space-between' wrap='nowrap' align='flex-start'>
+							<Stack gap={2}>
+								<Group gap='xs'>
+									<Text size='sm' fw={500}>
+										{audit.changedByUser?.name || 'Unknown'}
+									</Text>
+									<Badge
+										size='xs'
+										variant='light'
+										color={getAuditActionColor(action)}
+									>
+										{action}
+									</Badge>
+								</Group>
+								<Group gap='xs'>
+									{action === 'update' && (
+										<>
+											<Text size='xs' c='red'>
+												{previousMarks?.toFixed(1) ?? '—'}
+											</Text>
+											<Text size='xs' c='dimmed'>
+												→
+											</Text>
+											<Text size='xs' c='green'>
+												{newMarks?.toFixed(1) ?? '—'}
+											</Text>
+										</>
+									)}
+									{action === 'insert' && (
 										<Text size='xs' c='green'>
-											{audit.newMarks?.toFixed(1) ?? '—'}
+											{newMarks?.toFixed(1)}
 										</Text>
-									</>
-								)}
-								{audit.action === 'create' && (
-									<Text size='xs' c='green'>
-										{audit.newMarks?.toFixed(1)}
-									</Text>
-								)}
-								{audit.action === 'delete' && (
-									<Text size='xs' c='red' td='line-through'>
-										{audit.previousMarks?.toFixed(1)}
-									</Text>
-								)}
-							</Group>
-						</Stack>
-						<Text size='xs' c='dimmed'>
-							{formatDateTime(audit.date)}
-						</Text>
-					</Group>
-				</Timeline.Item>
-			))}
+									)}
+									{action === 'delete' && (
+										<Text size='xs' c='red' td='line-through'>
+											{previousMarks?.toFixed(1)}
+										</Text>
+									)}
+								</Group>
+							</Stack>
+							<Text size='xs' c='dimmed'>
+								{formatDateTime(audit.changedAt)}
+							</Text>
+						</Group>
+					</Timeline.Item>
+				);
+			})}
 		</Timeline>
 	);
 }

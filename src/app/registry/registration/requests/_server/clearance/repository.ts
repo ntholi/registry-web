@@ -1,6 +1,5 @@
 import type { ProgramLevel } from '@academic/_database';
 import { and, asc, count, desc, eq, inArray, sql } from 'drizzle-orm';
-import { auth } from '@/core/auth';
 import {
 	autoApprovals,
 	clearance,
@@ -18,6 +17,7 @@ import {
 	studentSemesters,
 } from '@/core/database';
 import BaseRepository, {
+	type AuditOptions,
 	type QueryOptions,
 } from '@/core/platform/BaseRepository';
 
@@ -45,11 +45,11 @@ export default class ClearanceRepository extends BaseRepository<
 		super(clearance, clearance.id);
 	}
 
-	override async create(data: Model & { registrationRequestId: number }) {
-		const session = await auth();
-
+	override async create(
+		data: Model & { registrationRequestId: number },
+		audit?: AuditOptions
+	) {
 		const [inserted] = await db.transaction(async (tx) => {
-			if (!session?.user?.id) throw new Error('Unauthorized');
 			const [clearanceRecord] = await tx
 				.insert(clearance)
 				.values({
@@ -67,28 +67,36 @@ export default class ClearanceRepository extends BaseRepository<
 				clearanceId: clearanceRecord.id,
 			});
 
-			const modulesList = await tx.query.requestedModules.findMany({
-				where: eq(
-					requestedModules.registrationRequestId,
-					data.registrationRequestId
-				),
-				with: {
-					semesterModule: {
-						with: {
-							module: true,
+			if (audit) {
+				const modulesList = await tx.query.requestedModules.findMany({
+					where: eq(
+						requestedModules.registrationRequestId,
+						data.registrationRequestId
+					),
+					with: {
+						semesterModule: {
+							with: {
+								module: true,
+							},
 						},
 					},
-				},
-			});
+				});
 
-			await tx.insert(clearanceAudit).values({
-				clearanceId: clearanceRecord.id,
-				previousStatus: null,
-				newStatus: clearanceRecord.status,
-				createdBy: session.user.id,
-				message: clearanceRecord.message,
-				modules: modulesList.map((rm) => rm.semesterModule.module!.code),
-			});
+				await this.writeAuditLog(
+					tx,
+					'INSERT',
+					String(clearanceRecord.id),
+					null,
+					clearanceRecord,
+					{
+						userId: audit.userId,
+						metadata: {
+							modules: modulesList.map((rm) => rm.semesterModule.module!.code),
+							...audit.metadata,
+						},
+					}
+				);
+			}
 
 			return [clearanceRecord];
 		});
@@ -96,11 +104,12 @@ export default class ClearanceRepository extends BaseRepository<
 		return inserted;
 	}
 
-	override async update(id: number, data: Partial<Model>) {
-		const session = await auth();
-
+	override async update(
+		id: number,
+		data: Partial<Model>,
+		audit?: AuditOptions
+	) {
 		const [updated] = await db.transaction(async (tx) => {
-			if (!session?.user?.id) throw new Error('Unauthorized');
 			const current = await tx
 				.select()
 				.from(clearance)
@@ -122,28 +131,38 @@ export default class ClearanceRepository extends BaseRepository<
 				});
 
 				if (regClearance) {
-					const modulesList = await tx.query.requestedModules.findMany({
-						where: eq(
-							requestedModules.registrationRequestId,
-							regClearance.registrationRequestId
-						),
-						with: {
-							semesterModule: {
-								with: {
-									module: true,
+					if (audit) {
+						const modulesList = await tx.query.requestedModules.findMany({
+							where: eq(
+								requestedModules.registrationRequestId,
+								regClearance.registrationRequestId
+							),
+							with: {
+								semesterModule: {
+									with: {
+										module: true,
+									},
 								},
 							},
-						},
-					});
+						});
 
-					await tx.insert(clearanceAudit).values({
-						clearanceId: id,
-						previousStatus: current.status,
-						newStatus: clearanceRecord.status,
-						createdBy: session.user.id,
-						message: data.message,
-						modules: modulesList.map((rm) => rm.semesterModule.module!.code),
-					});
+						await this.writeAuditLog(
+							tx,
+							'UPDATE',
+							String(id),
+							current,
+							clearanceRecord,
+							{
+								userId: audit.userId,
+								metadata: {
+									modules: modulesList.map(
+										(rm) => rm.semesterModule.module!.code
+									),
+									...audit.metadata,
+								},
+							}
+						);
+					}
 
 					if (data.status === 'approved') {
 						await this.finalizeIfAllApproved(

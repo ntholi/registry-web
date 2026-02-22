@@ -1,14 +1,14 @@
 import { and, eq, inArray } from 'drizzle-orm';
-import { auth } from '@/core/auth';
 import {
 	assessmentMarks,
-	assessmentMarksAudit,
 	assessments,
 	db,
 	studentModules,
 	terms,
 } from '@/core/database';
-import BaseRepository from '@/core/platform/BaseRepository';
+import BaseRepository, {
+	type AuditOptions,
+} from '@/core/platform/BaseRepository';
 
 type Mark = typeof assessmentMarks.$inferSelect;
 
@@ -152,20 +152,23 @@ export default class AssessmentMarkRepository extends BaseRepository<
 		});
 	}
 
-	override async create(data: typeof assessmentMarks.$inferInsert) {
-		const session = await auth();
-
+	override async create(
+		data: typeof assessmentMarks.$inferInsert,
+		audit?: AuditOptions
+	) {
 		const inserted = await db.transaction(async (tx) => {
-			if (!session?.user?.id) throw new Error('Unauthorized');
-
 			const [mark] = await tx.insert(assessmentMarks).values(data).returning();
-			await tx.insert(assessmentMarksAudit).values({
-				assessmentMarkId: mark.id,
-				action: 'create',
-				previousMarks: null,
-				newMarks: mark.marks,
-				createdBy: session.user.id,
-			});
+
+			if (audit) {
+				await this.writeAuditLog(
+					tx,
+					'INSERT',
+					String(mark.id),
+					null,
+					mark,
+					audit
+				);
+			}
 
 			return mark;
 		});
@@ -174,13 +177,10 @@ export default class AssessmentMarkRepository extends BaseRepository<
 	}
 	override async update(
 		id: number,
-		data: Partial<typeof assessmentMarks.$inferInsert>
+		data: Partial<typeof assessmentMarks.$inferInsert>,
+		audit?: AuditOptions
 	) {
-		const session = await auth();
-
 		const updated = await db.transaction(async (tx) => {
-			if (!session?.user?.id) throw new Error('Unauthorized');
-
 			const current = await tx
 				.select()
 				.from(assessmentMarks)
@@ -196,14 +196,15 @@ export default class AssessmentMarkRepository extends BaseRepository<
 				.where(eq(assessmentMarks.id, id))
 				.returning();
 
-			if (data.marks !== undefined && data.marks !== current.marks) {
-				await tx.insert(assessmentMarksAudit).values({
-					assessmentMarkId: id,
-					action: 'update',
-					previousMarks: current.marks,
-					newMarks: mark.marks,
-					createdBy: session.user.id,
-				});
+			if (audit && data.marks !== undefined && data.marks !== current.marks) {
+				await this.writeAuditLog(
+					tx,
+					'UPDATE',
+					String(id),
+					current,
+					mark,
+					audit
+				);
 			}
 
 			return mark;
@@ -212,12 +213,8 @@ export default class AssessmentMarkRepository extends BaseRepository<
 		return updated;
 	}
 
-	override async delete(id: number): Promise<void> {
-		const session = await auth();
-
+	override async delete(id: number, audit?: AuditOptions): Promise<void> {
 		await db.transaction(async (tx) => {
-			if (!session?.user?.id) throw new Error('Unauthorized');
-
 			const current = await tx
 				.select()
 				.from(assessmentMarks)
@@ -226,37 +223,27 @@ export default class AssessmentMarkRepository extends BaseRepository<
 				.then(([result]) => result);
 
 			if (!current) throw new Error('Assessment mark not found');
-			await tx.insert(assessmentMarksAudit).values({
-				assessmentMarkId: id,
-				action: 'delete',
-				previousMarks: current.marks,
-				newMarks: null,
-				createdBy: session.user.id,
-			});
+
+			if (audit) {
+				await this.writeAuditLog(
+					tx,
+					'DELETE',
+					String(id),
+					current,
+					null,
+					audit
+				);
+			}
 
 			await tx.delete(assessmentMarks).where(eq(assessmentMarks.id, id));
 		});
 	}
 
-	async getAuditHistory(assessmentMarkId: number) {
-		return db.query.assessmentMarksAudit.findMany({
-			where: eq(assessmentMarksAudit.assessmentMarkId, assessmentMarkId),
-			with: {
-				createdByUser: {
-					columns: {
-						id: true,
-						name: true,
-					},
-				},
-			},
-			orderBy: (audit, { desc }) => [desc(audit.date)],
-		});
-	}
-	async createOrUpdateMarks(data: typeof assessmentMarks.$inferInsert) {
-		const session = await auth();
-
+	async createOrUpdateMarks(
+		data: typeof assessmentMarks.$inferInsert,
+		audit?: AuditOptions
+	) {
 		const result = await db.transaction(async (tx) => {
-			if (!session?.user?.id) throw new Error('Unauthorized');
 			const existing = await tx
 				.select()
 				.from(assessmentMarks)
@@ -276,14 +263,15 @@ export default class AssessmentMarkRepository extends BaseRepository<
 					.where(eq(assessmentMarks.id, existing.id))
 					.returning();
 
-				if (data.marks !== existing.marks) {
-					await tx.insert(assessmentMarksAudit).values({
-						assessmentMarkId: existing.id,
-						action: 'update',
-						previousMarks: existing.marks,
-						newMarks: data.marks,
-						createdBy: session.user.id,
-					});
+				if (audit && data.marks !== existing.marks) {
+					await this.writeAuditLog(
+						tx,
+						'UPDATE',
+						String(existing.id),
+						existing,
+						updated,
+						audit
+					);
 				}
 
 				return { mark: updated, isNew: false };
@@ -293,13 +281,16 @@ export default class AssessmentMarkRepository extends BaseRepository<
 				.values(data)
 				.returning();
 
-			await tx.insert(assessmentMarksAudit).values({
-				assessmentMarkId: created.id,
-				action: 'create',
-				previousMarks: null,
-				newMarks: created.marks,
-				createdBy: session.user.id,
-			});
+			if (audit) {
+				await this.writeAuditLog(
+					tx,
+					'INSERT',
+					String(created.id),
+					null,
+					created,
+					audit
+				);
+			}
 
 			return { mark: created, isNew: true };
 		});
@@ -308,12 +299,9 @@ export default class AssessmentMarkRepository extends BaseRepository<
 
 	async createOrUpdateMarksInBulk(
 		dataArray: (typeof assessmentMarks.$inferInsert)[],
+		audit?: AuditOptions,
 		batchSize: number = 50
 	) {
-		const session = await auth();
-		if (!session?.user?.id) throw new Error('Unauthorized');
-
-		const userId = session.user.id;
 		const results: {
 			mark: Mark;
 			isNew: boolean;
@@ -329,8 +317,12 @@ export default class AssessmentMarkRepository extends BaseRepository<
 				isNew: boolean;
 				studentModuleId: number;
 			}[] = [];
-			const batchAuditEntries: (typeof assessmentMarksAudit.$inferInsert)[] =
-				[];
+			const auditEntries: Array<{
+				operation: 'INSERT' | 'UPDATE' | 'DELETE';
+				recordId: string;
+				oldValues: unknown;
+				newValues: unknown;
+			}> = [];
 
 			try {
 				await db.transaction(async (tx) => {
@@ -393,12 +385,14 @@ export default class AssessmentMarkRepository extends BaseRepository<
 								.where(eq(assessmentMarks.id, updateData.id))
 								.returning();
 
-							batchAuditEntries.push({
-								assessmentMarkId: updateData.id,
-								action: 'update',
-								previousMarks: updateData.existingMarks,
-								newMarks: updateData.marks,
-								createdBy: userId,
+							auditEntries.push({
+								operation: 'UPDATE' as const,
+								recordId: String(updateData.id),
+								oldValues: {
+									id: updateData.id,
+									marks: updateData.existingMarks,
+								},
+								newValues: updated,
 							});
 
 							const resultIndex = batchResults.findIndex(
@@ -423,18 +417,17 @@ export default class AssessmentMarkRepository extends BaseRepository<
 								studentModuleId: inserted.studentModuleId,
 							});
 
-							batchAuditEntries.push({
-								assessmentMarkId: inserted.id,
-								action: 'create',
-								previousMarks: null,
-								newMarks: inserted.marks,
-								createdBy: userId,
+							auditEntries.push({
+								operation: 'INSERT',
+								recordId: String(inserted.id),
+								oldValues: null,
+								newValues: inserted,
 							});
 						}
 					}
 
-					if (batchAuditEntries.length > 0) {
-						await tx.insert(assessmentMarksAudit).values(batchAuditEntries);
+					if (audit && auditEntries.length > 0) {
+						await this.writeAuditLogBatch(tx, auditEntries, audit);
 					}
 				});
 
@@ -457,54 +450,6 @@ export default class AssessmentMarkRepository extends BaseRepository<
 			successful: results.length,
 			failed: errors.length,
 		};
-	}
-
-	async getStudentAuditHistory(studentModuleId: number) {
-		const studentAssessmentMarks = await db
-			.select({ id: assessmentMarks.id })
-			.from(assessmentMarks)
-			.where(eq(assessmentMarks.studentModuleId, studentModuleId));
-
-		if (studentAssessmentMarks.length === 0) {
-			return [];
-		}
-
-		const assessmentMarkIds = studentAssessmentMarks.map((mark) => mark.id);
-
-		return db.query.assessmentMarksAudit.findMany({
-			where: inArray(assessmentMarksAudit.assessmentMarkId, assessmentMarkIds),
-			with: {
-				createdByUser: {
-					columns: {
-						id: true,
-						name: true,
-						image: true,
-					},
-				},
-				assessmentMark: {
-					with: {
-						assessment: {
-							with: {
-								module: {
-									columns: {
-										id: true,
-										code: true,
-										name: true,
-									},
-								},
-								term: {
-									columns: {
-										id: true,
-										code: true,
-									},
-								},
-							},
-						},
-					},
-				},
-			},
-			orderBy: (audit, { desc }) => [desc(audit.date)],
-		});
 	}
 }
 

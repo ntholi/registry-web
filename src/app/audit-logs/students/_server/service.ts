@@ -1,3 +1,5 @@
+import { getRecordHistory } from '@/app/audit-logs/_server/actions';
+import { studentsRepository } from '@/app/registry/students/_server/repository';
 import { auth } from '@/core/auth';
 import type { studentAuditLogs } from '@/core/database';
 import BaseService from '@/core/platform/BaseService';
@@ -27,18 +29,23 @@ class StudentAuditLogService extends BaseService<
 				throw new Error('User not authenticated');
 			}
 
-			return this.repository.updateStudentWithAudit(
-				stdNo,
-				updates,
-				session.user.id,
-				reasons
-			);
+			const processedUpdates = {
+				...updates,
+				dateOfBirth: updates.dateOfBirth
+					? new Date(updates.dateOfBirth)
+					: updates.dateOfBirth,
+			};
+
+			return studentsRepository.update(stdNo, processedUpdates, {
+				userId: session.user.id,
+				metadata: reasons ? { reasons } : undefined,
+			});
 		}, ['registry', 'admin']);
 	}
 
 	async getHistoryByStudentId(stdNo: number) {
 		return withAuth(async () => {
-			return this.repository.findByStudentIdWithUser(stdNo);
+			return getRecordHistory('students', String(stdNo));
 		}, ['registry', 'admin']);
 	}
 }

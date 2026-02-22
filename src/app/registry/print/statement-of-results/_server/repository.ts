@@ -5,6 +5,8 @@ export default class StatementOfResultsPrintRepository extends BaseRepository<
 	typeof statementOfResultsPrints,
 	'id'
 > {
+	protected auditEnabled = false;
+
 	constructor() {
 		super(statementOfResultsPrints, statementOfResultsPrints.id);
 	}

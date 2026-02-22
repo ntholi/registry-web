@@ -52,20 +52,26 @@ class GraduationClearanceService {
 				const current = await this.repository.findById(id);
 				if (!current) throw new Error('Clearance not found');
 
+				const audit = { userId: session!.user!.id! };
+
 				const shouldSetResponseTracking =
 					data.status &&
 					data.status !== current.status &&
 					!current.responseDate;
 
 				if (shouldSetResponseTracking) {
-					return this.repository.update(id, {
-						...data,
-						responseDate: new Date(),
-						respondedBy: session?.user?.id,
-					});
+					return this.repository.update(
+						id,
+						{
+							...data,
+							responseDate: new Date(),
+							respondedBy: session?.user?.id,
+						},
+						audit
+					);
 				}
 
-				return this.repository.update(id, data);
+				return this.repository.update(id, data, audit);
 			},
 			['dashboard']
 		);
@@ -75,11 +81,15 @@ class GraduationClearanceService {
 		return withAuth(
 			async (session) => {
 				if (!data.id) throw Error('Clearance id cannot be null/undefined');
-				return this.repository.update(data.id, {
-					...data,
-					responseDate: new Date(),
-					respondedBy: session?.user?.id,
-				});
+				return this.repository.update(
+					data.id,
+					{
+						...data,
+						responseDate: new Date(),
+						respondedBy: session?.user?.id,
+					},
+					{ userId: session!.user!.id! }
+				);
 			},
 			['dashboard']
 		);

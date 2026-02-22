@@ -1,3 +1,7 @@
+import {
+	getRecordHistory,
+	getStudentModuleAuditHistory,
+} from '@/app/audit-logs/_server/actions';
 import type { assessmentMarks } from '@/core/database';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
 import withAuth from '@/core/platform/withAuth';
@@ -9,11 +13,19 @@ class AssessmentMarkService {
 	constructor(private readonly repository = new AssessmentMarkRepository()) {}
 
 	async create(data: AssessmentMark) {
-		return withAuth(async () => this.repository.create(data), ['academic']);
+		return withAuth(
+			async (session) =>
+				this.repository.create(data, { userId: session!.user!.id! }),
+			['academic']
+		);
 	}
 
 	async update(id: number, data: AssessmentMark) {
-		return withAuth(async () => this.repository.update(id, data), ['academic']);
+		return withAuth(
+			async (session) =>
+				this.repository.update(id, data, { userId: session!.user!.id! }),
+			['academic']
+		);
 	}
 
 	async getByModuleId(moduleId: number, termId: number) {
@@ -54,28 +66,35 @@ class AssessmentMarkService {
 
 	async getAuditHistory(assessmentMarkId: number) {
 		return withAuth(
-			async () => this.repository.getAuditHistory(assessmentMarkId),
+			async () =>
+				getRecordHistory('assessment_marks', String(assessmentMarkId)),
 			['academic']
 		);
 	}
 
 	async createOrUpdateMarks(data: AssessmentMark) {
 		return withAuth(
-			async () => this.repository.createOrUpdateMarks(data),
+			async (session) =>
+				this.repository.createOrUpdateMarks(data, {
+					userId: session!.user!.id!,
+				}),
 			['academic']
 		);
 	}
 
 	async createOrUpdateMarksInBulk(dataArray: AssessmentMark[]) {
 		return withAuth(
-			async () => this.repository.createOrUpdateMarksInBulk(dataArray),
+			async (session) =>
+				this.repository.createOrUpdateMarksInBulk(dataArray, {
+					userId: session!.user!.id!,
+				}),
 			['academic']
 		);
 	}
 
 	async getStudentAuditHistory(studentModuleId: number) {
 		return withAuth(
-			async () => this.repository.getStudentAuditHistory(studentModuleId),
+			async () => getStudentModuleAuditHistory(studentModuleId),
 			['academic']
 		);
 	}

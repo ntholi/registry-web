@@ -16,6 +16,7 @@ import {
 	students,
 } from '@/core/database';
 import BaseRepository, {
+	type AuditOptions,
 	type QueryOptions,
 } from '@/core/platform/BaseRepository';
 
@@ -29,11 +30,11 @@ export default class GraduationClearanceRepository extends BaseRepository<
 		super(clearance, clearance.id);
 	}
 
-	override async create(data: Model & { graduationRequestId: number }) {
-		const session = await auth();
-
+	override async create(
+		data: Model & { graduationRequestId: number },
+		audit?: AuditOptions
+	) {
 		const [inserted] = await db.transaction(async (tx) => {
-			if (!session?.user?.id) throw new Error('Unauthorized');
 			const [clearanceRecord] = await tx
 				.insert(clearance)
 				.values({
@@ -51,14 +52,16 @@ export default class GraduationClearanceRepository extends BaseRepository<
 				clearanceId: clearanceRecord.id,
 			});
 
-			await tx.insert(clearanceAudit).values({
-				clearanceId: clearanceRecord.id,
-				previousStatus: null,
-				newStatus: clearanceRecord.status,
-				createdBy: session.user.id,
-				message: clearanceRecord.message,
-				modules: [],
-			});
+			if (audit) {
+				await this.writeAuditLog(
+					tx,
+					'INSERT',
+					String(clearanceRecord.id),
+					null,
+					clearanceRecord,
+					audit
+				);
+			}
 
 			return [clearanceRecord];
 		});
@@ -66,11 +69,12 @@ export default class GraduationClearanceRepository extends BaseRepository<
 		return inserted;
 	}
 
-	override async update(id: number, data: Partial<Model>) {
-		const session = await auth();
-
+	override async update(
+		id: number,
+		data: Partial<Model>,
+		audit?: AuditOptions
+	) {
 		const [updated] = await db.transaction(async (tx) => {
-			if (!session?.user?.id) throw new Error('Unauthorized');
 			const current = await tx
 				.select()
 				.from(clearance)
@@ -86,15 +90,15 @@ export default class GraduationClearanceRepository extends BaseRepository<
 				.where(eq(clearance.id, id))
 				.returning();
 
-			if (data.status && data.status !== current.status) {
-				await tx.insert(clearanceAudit).values({
-					clearanceId: id,
-					previousStatus: current.status,
-					newStatus: clearanceRecord.status,
-					createdBy: session.user.id,
-					message: data.message,
-					modules: [],
-				});
+			if (audit && data.status && data.status !== current.status) {
+				await this.writeAuditLog(
+					tx,
+					'UPDATE',
+					String(id),
+					current,
+					clearanceRecord,
+					audit
+				);
 			}
 
 			return [clearanceRecord];

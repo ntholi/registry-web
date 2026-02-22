@@ -6,6 +6,8 @@ export default class StudentCardPrintRepository extends BaseRepository<
 	typeof studentCardPrints,
 	'id'
 > {
+	protected auditEnabled = false;
+
 	constructor() {
 		super(studentCardPrints, studentCardPrints.id);
 	}
