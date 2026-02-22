@@ -60,3 +60,7 @@ export async function getEntityBreakdown(
 export async function getClearanceStats(start: Date, end: Date, dept?: string) {
 	return service.getClearanceStats({ start, end }, dept);
 }
+
+export async function getPrintStats(start: Date, end: Date, dept?: string) {
+	return service.getPrintStats({ start, end }, dept);
+}

@@ -76,6 +76,14 @@ type ClearanceEmployeeStats = {
 	approvalRate: number;
 };
 
+type PrintEmployeeStats = {
+	userId: string;
+	transcripts: number;
+	statements: number;
+	studentCards: number;
+	totalPrints: number;
+};
+
 export type {
 	ClearanceEmployeeStats,
 	DailyTrend,
@@ -85,5 +93,6 @@ export type {
 	EmployeeSummary,
 	EntityBreakdown,
 	HeatmapData,
+	PrintEmployeeStats,
 	TimePreset,
 };

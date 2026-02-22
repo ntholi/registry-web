@@ -4,6 +4,7 @@ import {
 	Avatar,
 	Center,
 	Group,
+	HoverCard,
 	Pagination,
 	Paper,
 	Progress,
@@ -20,8 +21,12 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { formatRelativeTime } from '@/shared/lib/utils/dates';
 import { isClearanceDepartment } from '../_lib/department-tables';
-import type { ClearanceEmployeeStats } from '../_lib/types';
-import { getClearanceStats, getEmployeeList } from '../_server/actions';
+import type { ClearanceEmployeeStats, PrintEmployeeStats } from '../_lib/types';
+import {
+	getClearanceStats,
+	getEmployeeList,
+	getPrintStats,
+} from '../_server/actions';
 
 type Props = {
 	start: Date;
@@ -67,6 +72,18 @@ export default function EmployeeList({ start, end, dept }: Props) {
 		}
 	}
 
+	const { data: printData } = useQuery({
+		queryKey: ['activity-tracker', 'prints', startISO, endISO, dept],
+		queryFn: () => getPrintStats(start, end, dept),
+	});
+
+	const printMap = new Map<string, PrintEmployeeStats>();
+	if (printData) {
+		for (const p of printData) {
+			printMap.set(p.userId, p);
+		}
+	}
+
 	if (isLoading) {
 		return (
 			<Paper p='md' radius='md' withBorder>
@@ -106,7 +123,7 @@ export default function EmployeeList({ start, end, dept }: Props) {
 					</Center>
 				) : (
 					<>
-						<Table.ScrollContainer minWidth={showClearance ? 900 : 700}>
+						<Table.ScrollContainer minWidth={showClearance ? 1000 : 800}>
 							<Table striped highlightOnHover>
 								<Table.Thead>
 									<Table.Tr>
@@ -122,12 +139,14 @@ export default function EmployeeList({ start, end, dept }: Props) {
 												<Table.Th>Approval Rate</Table.Th>
 											</>
 										)}
+										<Table.Th ta='right'>Prints</Table.Th>
 										<Table.Th>Last Active</Table.Th>
 									</Table.Tr>
 								</Table.Thead>
 								<Table.Tbody>
 									{data.items.map((emp) => {
 										const clr = clearanceMap.get(emp.userId);
+										const prt = printMap.get(emp.userId);
 										return (
 											<Table.Tr
 												key={emp.userId}
@@ -193,6 +212,45 @@ export default function EmployeeList({ start, end, dept }: Props) {
 														</Table.Td>
 													</>
 												)}
+												<Table.Td ta='right'>
+													{prt ? (
+														<HoverCard width={200} shadow='md'>
+															<HoverCard.Target>
+																<Text
+																	fw={600}
+																	style={{ cursor: 'default' }}
+																	onClick={(e) => e.stopPropagation()}
+																>
+																	{prt.totalPrints}
+																</Text>
+															</HoverCard.Target>
+															<HoverCard.Dropdown>
+																<Stack gap='xs'>
+																	<Group justify='space-between'>
+																		<Text size='sm'>Transcripts</Text>
+																		<Text size='sm' fw={600}>
+																			{prt.transcripts}
+																		</Text>
+																	</Group>
+																	<Group justify='space-between'>
+																		<Text size='sm'>Statements</Text>
+																		<Text size='sm' fw={600}>
+																			{prt.statements}
+																		</Text>
+																	</Group>
+																	<Group justify='space-between'>
+																		<Text size='sm'>Student Cards</Text>
+																		<Text size='sm' fw={600}>
+																			{prt.studentCards}
+																		</Text>
+																	</Group>
+																</Stack>
+															</HoverCard.Dropdown>
+														</HoverCard>
+													) : (
+														'—'
+													)}
+												</Table.Td>
 												<Table.Td>
 													<Text fz='sm' c='dimmed'>
 														{formatRelativeTime(emp.lastActiveAt)}

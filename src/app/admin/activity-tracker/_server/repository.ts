@@ -1,5 +1,13 @@
 import { and, between, count, eq, ilike, or, sql } from 'drizzle-orm';
-import { auditLogs, clearance, db, users } from '@/core/database';
+import {
+	auditLogs,
+	clearance,
+	db,
+	statementOfResultsPrints,
+	studentCardPrints,
+	transcriptPrints,
+	users,
+} from '@/core/database';
 import type {
 	ClearanceEmployeeStats,
 	DailyTrend,
@@ -9,6 +17,7 @@ import type {
 	EmployeeSummary,
 	EntityBreakdown,
 	HeatmapData,
+	PrintEmployeeStats,
 } from '../_lib/types';
 
 const PAGE_SIZE = 20;
@@ -383,6 +392,62 @@ class ActivityTrackerRepository {
 			.where(deptFilter)
 			.groupBy(users.id)
 			.orderBy(sql`COUNT(${clearance.id}) DESC`);
+	}
+
+	async getPrintStats(
+		dept: string,
+		dateRange: DateRange
+	): Promise<PrintEmployeeStats[]> {
+		const result = await db.execute<{
+			user_id: string;
+			transcripts: number;
+			statements: number;
+			student_cards: number;
+			total_prints: number;
+		}>(sql`
+			SELECT
+				u.id AS user_id,
+				COALESCE(p.transcripts, 0) AS transcripts,
+				COALESCE(p.statements, 0) AS statements,
+				COALESCE(p.student_cards, 0) AS student_cards,
+				COALESCE(p.transcripts, 0) + COALESCE(p.statements, 0) + COALESCE(p.student_cards, 0) AS total_prints
+			FROM ${users} u
+			LEFT JOIN (
+				SELECT
+					printed_by,
+					SUM(CASE WHEN source = 'transcript' THEN cnt ELSE 0 END)::int AS transcripts,
+					SUM(CASE WHEN source = 'statement' THEN cnt ELSE 0 END)::int AS statements,
+					SUM(CASE WHEN source = 'student_card' THEN cnt ELSE 0 END)::int AS student_cards
+				FROM (
+					SELECT printed_by, 'transcript' AS source, COUNT(*)::int AS cnt
+					FROM ${transcriptPrints}
+					WHERE ${transcriptPrints.printedAt} BETWEEN ${dateRange.start} AND ${dateRange.end}
+					GROUP BY printed_by
+					UNION ALL
+					SELECT printed_by, 'statement' AS source, COUNT(*)::int AS cnt
+					FROM ${statementOfResultsPrints}
+					WHERE ${statementOfResultsPrints.printedAt} BETWEEN ${dateRange.start} AND ${dateRange.end}
+					GROUP BY printed_by
+					UNION ALL
+					SELECT printed_by, 'student_card' AS source, COUNT(*)::int AS cnt
+					FROM ${studentCardPrints}
+					WHERE ${studentCardPrints.createdAt} BETWEEN ${dateRange.start} AND ${dateRange.end}
+					GROUP BY printed_by
+				) all_prints
+				GROUP BY printed_by
+			) p ON p.printed_by = u.id
+			WHERE ${dept === 'all' ? sql`TRUE` : sql`u.role = ${dept}`}
+				AND p.printed_by IS NOT NULL
+			ORDER BY total_prints DESC
+		`);
+
+		return result.rows.map((r) => ({
+			userId: r.user_id,
+			transcripts: Number(r.transcripts),
+			statements: Number(r.statements),
+			studentCards: Number(r.student_cards),
+			totalPrints: Number(r.total_prints),
+		}));
 	}
 }
 

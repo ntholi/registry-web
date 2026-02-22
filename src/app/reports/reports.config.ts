@@ -1,7 +1,6 @@
 import {
 	IconGavel,
 	IconReportAnalytics,
-	IconReportMoney,
 	IconSchool,
 } from '@tabler/icons-react';
 import type { ModuleConfig } from '@/app/dashboard/module-config.types';
@@ -89,19 +88,6 @@ export const reportsConfig: ModuleConfig = {
 				href: '/reports/finance/sponsored-students',
 				icon: IconReportAnalytics,
 				roles: ['finance', 'registry', 'admin'],
-			},
-			{
-				label: 'Clearance',
-				href: (department: string) => `/reports/clearance/${department}`,
-				icon: IconReportMoney,
-				isVisible: (session) => {
-					const userRole = session?.user?.role;
-					return !!(
-						session?.user?.position === 'manager' &&
-						userRole &&
-						['finance', 'library', 'resource'].includes(userRole)
-					);
-				},
 			},
 		],
 	},

@@ -92,6 +92,13 @@ class ActivityTrackerService {
 		}, this.accessCheck);
 	}
 
+	async getPrintStats(dateRange: DateRange, overrideDept?: string) {
+		return withAuth(async (session) => {
+			const dept = this.resolveDepartment(session, overrideDept);
+			return this.repository.getPrintStats(dept, dateRange);
+		}, this.accessCheck);
+	}
+
 	private accessCheck = async (session: Session): Promise<boolean> => {
 		if (!session.user) return false;
 		if (session.user.role === 'admin') return true;

@@ -9,6 +9,13 @@ Automates scaffolding a new feature within the Registry Web modular monolith arc
 
 ## Non-Negotiable Rules
 
+### Audit Baseline (CRITICAL)
+
+- Auditing is mandatory for all write operations.
+- `BaseRepository` is the only CRUD audit path (`AuditOptions`, `writeAuditLog` for custom transactions).
+- Service layer passes `userId` to repositories; repositories never call `auth()` and never create parallel audit flows.
+- If custom repository writes bypass base CRUD, include audit via `writeAuditLog` in the same transaction.
+
 ### Schema Import Rules (CRITICAL)
 
 Schema files (`_schema/*.ts`) must NEVER import from `@/core/database`. Instead, import from specific module paths:
@@ -92,7 +99,7 @@ src/app/{{module}}/{{feature}}/
 **Path:** `src/app/{{module}}/{{feature}}/_schema/{{table_file}}.ts`
 
 ```typescript
-import { boolean, integer, pgTable, serial, text, timestamp } from 'drizzle-orm/pg-core';
+import { boolean, pgTable, serial, text, timestamp } from 'drizzle-orm/pg-core';
 
 export const {{entities}} = pgTable('{{table_name}}', {
 	id: serial().primaryKey(),
@@ -120,7 +127,7 @@ export const {{entities}}Relations = relations({{entities}}, ({ many, one }) => 
 **Path:** `src/app/{{module}}/{{feature}}/_server/repository.ts`
 
 ```typescript
-import { db, {{entities}} } from '@/core/database';
+import { {{entities}} } from '@/core/database';
 import BaseRepository from '@/core/platform/BaseRepository';
 
 export default class {{Entity}}Repository extends BaseRepository<typeof {{entities}}, 'id'> {
