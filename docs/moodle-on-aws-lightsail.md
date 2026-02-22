@@ -1,132 +1,46 @@
-# Moodle on AWS Lightsail (Ubuntu 24 + PHP 8.3 + MariaDB)
+# Step-by-step Installation Guide for Ubuntu - MoodleDocs (Nginx + MariaDB)
 
-This guide walks through provisioning an AWS Lightsail Ubuntu instance using the Lightsail console and installing Moodle using the MoodleDocs step-by-step Ubuntu guide (Apache or Nginx, PHP-FPM, MariaDB, CLI installer, cron, and HTTPS).
+This guide reflects the MoodleDocs content for Ubuntu, using Nginx, PHP-FPM, and MariaDB.
 
-## Prerequisites
+## 1) Development Database Installation
 
-- AWS account with Lightsail access.
-- AWS CLI installed and configured on your local machine (optional, only if you want to automate provisioning).
-- A registered domain name (optional but recommended for HTTPS).
-- Local SSH client.
+This guide requires a Linux Ubuntu 24 server with sudo or root access. All commands on this page are text based so there is no need for a desktop with a graphical interface. Each step will tell you what you need to do and then give the commands that will accomplish that step. You can copy the entire coloured step or a line at a time but be careful with the word wrap, some commands will extend over multiple lines.
 
-## 1) Provision a Lightsail instance (UI)
+### 1.1 Update and install base packages
 
-Use the Lightsail console at https://lightsail.aws.amazon.com/ls/webapp/home/instances.
-
-### 1.1 Create instance
-
-1) Select Create instance.
-2) Choose a region and availability zone close to your users.
-3) Pick a blueprint: Ubuntu.
-4) Choose a plan size that fits your load.
-5) Name the instance and create it.
-
-### 1.2 Configure networking
-
-1) Open the instance.
-2) Go to Networking.
-3) Add or ensure inbound rules for:
-   - SSH 22
-   - HTTP 80
-   - HTTPS 443
-
-### 1.3 Allocate and attach a static IP
-
-1) Open the Networking tab.
-2) Create a static IP.
-3) Attach it to your instance.
-
-### 1.4 Find the public IP
-
-The public IP is shown on the instance card and in the Networking tab.
-
-### 1.5 SSH into the instance
-
-Download your Lightsail default key pair from the Lightsail console, then connect:
+Moodle requires a web server, database and the php scripting language as described in https://moodledev.io/general/releases/5.0#server-requirements.
 
 ```bash
-ssh -i /path/to/LightsailDefaultKey.pem ubuntu@PUBLIC_IP
-```
-
-## 2) Update and install base packages
-
-This guide assumes **Ubuntu 24** with `sudo` access.
-
-```bash
+# Set your domain name or IP address as a temporary variable as it will be needed several times in the installation
 PROTOCOL="http://";
 read -p "Enter the web address (without the http:// prefix, eg domain name mymoodle123.com or IP address 192.168.1.1.): " WEBSITE_ADDRESS
 
 MOODLE_PATH="/var/www/html/sites"
 MOODLE_CODE_FOLDER="$MOODLE_PATH/moodle"
 MOODLE_DATA_FOLDER="/var/www/data"
-
-sudo mkdir -p "$MOODLE_PATH"
-sudo mkdir -p "$MOODLE_DATA_FOLDER"
+sudo mkdir -p $MOODLE_PATH
+sudo mkdir -p $MOODLE_DATA_FOLDER
 ```
 
 ```bash
+# Refresh and download latest versions of all packages
 sudo apt-get update && sudo apt upgrade -y
+# Get php-fpn and required php extensions using the package manager apt-get
 sudo apt-get install -y php8.3-fpm php8.3-cli php8.3-curl php8.3-zip php8.3-gd php8.3-xml php8.3-intl php8.3-mbstring php8.3-xmlrpc php8.3-soap php8.3-bcmath php8.3-exif php8.3-ldap php8.3-mysql
+# Database and packgages required by Moodle
 sudo apt-get install -y unzip mariadb-server mariadb-client ufw nano graphviz aspell git clamav ghostscript composer
 ```
 
-## 3) Install a webserver (choose one)
+### 1.2 Install a Webserver
 
-Apache and Nginx are both valid options. **Install one or the other, not both.**
-
-### Option A: Apache
-
-```bash
-sudo apt-get install -y apache2 libapache2-mod-fcgid
-sudo a2enmod proxy_fcgi setenvif rewrite
-
-sudo tee /etc/apache2/sites-available/moodle.conf > /dev/null <<EOF
-<VirtualHost *:80>
-    ServerName $WEBSITE_ADDRESS
-    ServerAlias www.$WEBSITE_ADDRESS
-
-    DocumentRoot  $MOODLE_CODE_FOLDER/public
-
-    <Directory $MOODLE_PATH>
-        Options FollowSymLinks
-        AllowOverride None
-        Require all granted
-        DirectoryIndex index.php index.html
-        FallbackResource /r.php
-    </Directory>
-
-    <FilesMatch "\\.php$">
-        SetHandler "proxy:unix:/run/php/php8.3-fpm.sock|fcgi://localhost/"
-    </FilesMatch>
-
-    ErrorLog ${APACHE_LOG_DIR}/error.log
-    CustomLog ${APACHE_LOG_DIR}/access.log combined
-</VirtualHost>
-EOF
-
-sudo a2ensite moodle.conf
-sudo a2dissite 000-default.conf
-sudo systemctl reload apache2
-sudo systemctl enable --now php8.3-fpm
-
-php_ini_fpm="/etc/php/8.3/fpm/php.ini"
-php_ini_cli="/etc/php/8.3/cli/php.ini"
-
-sudo sed -i 's/^[[:space:]]*;*[[:space:]]*max_input_vars[[:space:]]*=.*/max_input_vars = 5000/' "$php_ini_fpm"
-sudo sed -i 's/^[[:space:]]*;*[[:space:]]*max_input_vars[[:space:]]*=.*/max_input_vars = 5000/' "$php_ini_cli"
-sudo sed -i 's/^\s*post_max_size\s*=.*/post_max_size = 256M/' "$php_ini_fpm"
-sudo sed -i 's/^\s*post_max_size\s*=.*/post_max_size = 256M/' "$php_ini_cli"
-sudo sed -i 's/^\s*upload_max_filesize\s*=.*/upload_max_filesize = 256M/' "$php_ini_fpm"
-sudo sed -i 's/^\s*upload_max_filesize\s*=.*/upload_max_filesize = 256M/' "$php_ini_cli"
-
-sudo systemctl reload php8.3-fpm
-```
-
-### Option B: Nginx
+Choose the Nginx option.
 
 ```bash
 sudo apt-get install -y nginx
 
+# Set up the configuration file including the fallback required for the router
+# Using tee allows the file to be written in a single (rather long command). This could also have been done with a text editor.
+# Be sure to copy and paste entire block from "sudo" to "EOF"
 sudo tee /etc/nginx/sites-available/moodle.conf > /dev/null <<EOF
 server {
     listen 80;
@@ -153,9 +67,12 @@ server {
 }
 EOF
 
+# Recognise the new config file
 sudo ln -s /etc/nginx/sites-available/moodle.conf /etc/nginx/sites-enabled/moodle.conf
 sudo systemctl reload nginx
 
+# Make necessary changes to the php configuration required by Moodle
+# Using sed finds and replaces text. This could have been done in a text editor
 sudo sed -i 's/^;max_input_vars =.*/max_input_vars = 5000/' /etc/php/8.3/fpm/php.ini
 sudo sed -i 's/^;max_input_vars =.*/max_input_vars = 5000/' /etc/php/8.3/cli/php.ini
 sudo sed -i 's/^post_max_size =.*/post_max_size = 256M/' /etc/php/8.3/fpm/php.ini
@@ -165,187 +82,283 @@ sudo sed -i 's/^upload_max_filesize =.*/upload_max_filesize = 256M/' /etc/php/8.
 sudo systemctl reload php8.3-fpm
 ```
 
-## 4) Obtain Moodle code using git
+### 1.3 Obtain Moodle code using git
+
+git is a version control system that is the easiest way to download the latest Moodle code and unpack it into a directory. It also makes keeping up to date with patches much easier.
 
 ```bash
-sudo git clone -b v5.1.0 https://github.com/moodle/moodle.git "$MOODLE_CODE_FOLDER"
-sudo chown -R www-data:www-data "$MOODLE_CODE_FOLDER"
-
-cd "$MOODLE_CODE_FOLDER"
+# Clone to the Moodle code folder
+sudo git clone -b v5.1.0 https://github.com/moodle/moodle.git $MOODLE_CODE_FOLDER
+sudo chown -R www-data:www-data $MOODLE_CODE_FOLDER
+cd $MOODLE_CODE_FOLDER
 CACHE_DIR="/var/www/.cache/composer"
 sudo mkdir -p "$CACHE_DIR"
 sudo chown -R www-data:www-data "$CACHE_DIR"
 sudo chmod -R 750 "$CACHE_DIR"
 sudo -u www-data COMPOSER_CACHE_DIR="$CACHE_DIR" composer install --no-dev --classmap-authoritative
-
 sudo chown -R www-data:www-data vendor
-sudo chmod -R 755 "$MOODLE_CODE_FOLDER"
+sudo chmod -R 755 $MOODLE_CODE_FOLDER
 ```
 
-## 5) Specific Moodle requirements
+### 1.4 Specific Moodle requirements
+
+Moodle needs to store files in a specific directory accessible only by the web server. It also needs to change some php configuration settings and set up a cron task.
 
 ```bash
-sudo mkdir -p "$MOODLE_DATA_FOLDER"/moodledata
-sudo chown -R www-data:www-data "$MOODLE_DATA_FOLDER"/moodledata
-sudo find "$MOODLE_DATA_FOLDER"/moodledata -type d -exec chmod 700 {} \;
-sudo find "$MOODLE_DATA_FOLDER"/moodledata -type f -exec chmod 600 {} \;
-
+# Create the moodledata directory outside your web server's document root
+sudo mkdir -p $MOODLE_DATA_FOLDER/moodledata
+# Set the webserver as the owner and group recursively (for both the files and contents)
+sudo chown -R www-data:www-data $MOODLE_DATA_FOLDER/moodledata
+# Set the moodledata directory permissions so only the web server can read, write, and access them
+sudo find $MOODLE_DATA_FOLDER/moodledata -type d -exec chmod 700 {} \;
+# Set the moodledata file permissions so only the web server can read and write them
+sudo find $MOODLE_DATA_FOLDER/moodledata -type f -exec chmod 600 {} \;
+# Call cron.php in the moodle admin directory to run every minute
 echo "* * * * * /usr/bin/php $MOODLE_CODE_FOLDER/admin/cli/cron.php >/dev/null" | sudo crontab -u www-data -
 ```
 
-## 6) Create database and user
+### 1.5 Create Database and User
+
+Moodle needs a database and a user with full privileges.
 
 ```bash
+# Create a random password for the user who will access the moodle database
 MYSQL_MOODLEUSER_PASSWORD=$(openssl rand -base64 6)
+# Create a new database named moodle with the utf8mb4 character set and utf8mb4_unicode_ci collation
 sudo mysql -e "CREATE DATABASE moodle DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+# Create a new MySQL user moodleuser with a password
 sudo mysql -e "CREATE USER 'moodleuser'@'localhost' IDENTIFIED BY '$MYSQL_MOODLEUSER_PASSWORD';"
+# Grant privileges on the moodle database to the moodleuser to allow localhost access
 sudo mysql -e "GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, CREATE TEMPORARY TABLES, DROP, INDEX, ALTER ON moodle.* TO 'moodleuser'@'localhost';"
+# Reload privilege tables
 sudo mysql -e "FLUSH PRIVILEGES;"
 ```
 
-## 7) Configure Moodle from the command line
+### 1.6 Configure Moodle from the command line
+
+The last step can be done using the browser but we have all the information needed to complete the installation.
 
 ```bash
 MOODLE_ADMIN_PASSWORD=$(openssl rand -base64 8)
-sudo chmod -R 0777 "$MOODLE_CODE_FOLDER"
-
-cd "$MOODLE_PATH"
-sudo -u www-data /usr/bin/php "$MOODLE_CODE_FOLDER"/admin/cli/install.php --non-interactive --lang=en --wwwroot="$PROTOCOL$WEBSITE_ADDRESS" --dataroot="$MOODLE_DATA_FOLDER"/moodledata --dbtype=mariadb --dbhost=localhost --dbname=moodle --dbuser=moodleuser --dbpass="$MYSQL_MOODLEUSER_PASSWORD" --fullname="Generic Moodle" --shortname="GM" --adminuser=admin --summary="" --adminpass="$MOODLE_ADMIN_PASSWORD" --adminemail=please@changeme.com --agree-license
-
+sudo chmod -R 0777 $MOODLE_CODE_FOLDER
+cd $MOODLE_PATH
+sudo -u www-data /usr/bin/php $MOODLE_CODE_FOLDER/admin/cli/install.php --non-interactive --lang=en --wwwroot="$PROTOCOL$WEBSITE_ADDRESS" --dataroot=$MOODLE_DATA_FOLDER/moodledata --dbtype=mariadb --dbhost=localhost --dbname=moodle --dbuser=moodleuser --dbpass="$MYSQL_MOODLEUSER_PASSWORD" --fullname="Generic Moodle" --shortname="GM" --adminuser=admin --summary="" --adminpass="$MOODLE_ADMIN_PASSWORD" --adminemail=please@changeme.com --agree-license
 echo "Moodle installation completed successfully. You can now log on to your new Moodle at $PROTOCOL$WEBSITE_ADDRESS as admin with $MOODLE_ADMIN_PASSWORD and complete your site registration"
 echo "Remember to change the admin email, name and shortname using the browser in your new Moodle"
+sudo find $MOODLE_CODE_FOLDER -type d -exec chmod 755 {} \;
+sudo find $MOODLE_CODE_FOLDER -type f -exec chmod 644 {} \;
 
-sudo find "$MOODLE_CODE_FOLDER" -type d -exec chmod 755 {} \;
-sudo find "$MOODLE_CODE_FOLDER" -type f -exec chmod 644 {} \;
+# Nginx needs slash arguments set
+sudo sed -i "/require_once(__DIR__ . '\/lib\/setup.php');/i \$CFG->slasharguments = false;" $MOODLE_CODE_FOLDER/config.php
 ```
 
-If you installed Nginx:
+## 2) Prepare Development Database for Production
+
+A production database contains student submissions. Extra steps are needed to ensure student data is secure from unauthorized access and safeguard against data loss.
+
+### 2.1 Check Permissions
+
+Permissions are used by Linux to control read, write and execute for directories and folders.
 
 ```bash
-sudo sed -i "/require_once(__DIR__ . '\\/lib\\/setup.php');/i \$CFG->slasharguments = false;" "$MOODLE_CODE_FOLDER"/config.php
+# Reset permissions on moodle directories to read, write and execute for the webserver; read and execute for group and others
+sudo find $MOODLE_CODE_FOLDER -type d -exec chmod 755 {} \;
+# Reset permissions on moodle files to read, write for the webserver; read only for group and others
+sudo find $MOODLE_CODE_FOLDER -type f -exec chmod 644 {} \;
 ```
 
-## 8) Prepare for production
-
-### 8.1 Check permissions
+### 2.2 Set a root password on the database
 
 ```bash
-sudo find "$MOODLE_CODE_FOLDER" -type d -exec chmod 755 {} \;
-sudo find "$MOODLE_CODE_FOLDER" -type f -exec chmod 644 {} \;
-```
-
-### 8.2 Set a root password on the database
-
-```bash
+# Run the mariadb-secure-installation script to strengthen security by setting a root password, removing anonymous users, disabling remote root login, deleting the test database, and reloading privileges
+# Don't forget to store the root database password in a safe place
 sudo mariadb-secure-installation
 ```
 
-### 8.3 Configure and enable a firewall
+### 2.3 Configure and enable a firewall
 
 ```bash
+# Allow SSH (port 22) for remote access
 sudo ufw allow 22/tcp
+# Enable the UFW firewall with confirmation
 sudo ufw --force enable
+# Set default policy to deny all incoming connections
 sudo ufw default deny incoming
+# Set default policy to allow all outgoing connections
 sudo ufw default allow outgoing
+# Allow HTTP traffic on port 80
 sudo ufw allow www
-```
-
-If you installed Apache:
-
-```bash
-sudo ufw allow 'Apache Full'
-```
-
-If you installed Nginx:
-
-```bash
+# Allow full access for Nginx (HTTP and HTTPS)
 sudo ufw allow 'Nginx Full'
 ```
 
-### 8.4 Convert http to https
+### 2.4 Convert http to the encrypted https protocol
 
-#### Apache
+NOTE: A domain name is required to get https in this step. Obtain one if you haven't already done so.
 
-```bash
-sudo apt-get install certbot python3-certbot-apache
-sudo certbot --apache
-sudo apache2ctl configtest
-sudo systemctl reload apache2
-```
-
-#### Nginx
+Using HTTPS over HTTP on a Moodle site provides the critical security benefits of encrypted data transmission and compliance with privacy regulations and some features in Moodle may not function properly or may be blocked if the site is using a HTTP connection.
 
 ```bash
 sudo apt-get update
+# Install needed packages
 sudo apt-get install certbot python3-certbot-nginx
+# Run the certbot script
 sudo certbot --nginx
+# Test your new configuration
 sudo nginx -t
+# Reload the webserver to allow changes to take effect
 sudo systemctl reload nginx
 ```
 
-After switching to HTTPS, update references:
+**You must update references after changing your protocol.**
 
 ```bash
-cd "$MOODLE_CODE_FOLDER"
+#Replace oldsitehost (ie http://yourdomain.com) with newsitehost (ie https://yourdomain.com)
+cd $MOODLE_CODE_FOLDER
 sudo php admin/tool/replace/cli/replace.php --search=//oldsitehost --replace=//newsitehost --shorten --non-interactive
 ```
 
-### 8.5 SSH keys
+### 2.5 SSH keys
 
-On your local machine:
+An SSH key consists of a public and private key pair used to securely authenticate using the Secure Shell (SSH) protocol without needing a password. The key is much longer and more complex than typical passwords, making them extremely resistant to brute-force attacks and guessing. Only the public key is copied (id_rsa.pub); never share your private key.
+
+For Windows Users:
+
+- Open Settings > Apps & Features > Optional Features. Look for "OpenSSH Client" in the list.
+- If it's not installed, click "Add a feature," find "OpenSSH Client," and install it.
+
+Linux Users:
+
+- Open a terminal on your home machine (not your server).
 
 ```bash
+# Generate the SSH key pair by running the key generation (without sudo so the keys are stored in ~/.ssh/)
 ssh-keygen
+# Press Enter to accept the default key save location (usually C:\Users\your_username\.ssh\id_rsa for Windows users, ~/.ssh\id_rsa for Linux)
+# When prompted, optionally enter a secure passphrase for extra protection or press Enter to leave it empty.
+# Copy your public key to the remote server's ~/.ssh/authorized_keys file, permissions will be sett automatically
 ssh-copy-id user@server_address
+# Try to log in, It should not ask you for a password.
 ```
 
-### 8.6 Remove SSH root access
+### 2.6 Remove SSH root access
+
+For security, you should always log in as a user with elevated privileges (a sudo user). You should never login as root on a production server and you should remove root SSH access from your server.
 
 ```bash
+# If you don't already have a sudo user, as root, create a new user 'user1' with home directory and prompt for password
 adduser user1
+# Enter and confirm a password for user1. User details are optional
+# Add user1 to the sudo group for administrative privileges
 usermod -aG sudo user1
+```
 
+**Check you can ssh into your server as your new sudo user!** Leave another terminal open until confirmed.
+
+```bash
+# Backup sshd_config before modifying
 sudo cp /etc/ssh/sshd_config /etc/ssh/sshd_config.bak
+# Open the ssh config file
 sudo nano /etc/ssh/sshd_config
+# Change the line containing PermitRootLogin to PermitRootLogin no
+# Restart SSH service to apply changes
 sudo systemctl restart ssh
 ```
 
-### 8.7 Keep Ubuntu up to date
+### 2.7 Keep Ubuntu up to date
+
+Applying security patches can be automated.
 
 ```bash
 sudo apt install unattended-upgrades
+# Edit or review /etc/apt/apt.conf.d/20auto-upgrades
 sudo nano /etc/apt/apt.conf.d/20auto-upgrades
+```
+
+These lines default to "1" for daily updates. Other values: "7" (weekly), "0" (disabled).
+
+- `APT::Periodic::Update-Package-Lists "1";`
+- `APT::Periodic::Unattended-Upgrade "1";`
+
+```bash
+# Edit config to customize what will be upgraded
+# Uncomment as needed
 sudo nano /etc/apt/apt.conf.d/50unattended-upgrades
 ```
 
-### 8.8 SQL backups
+- `Unattended-Upgrade::Remove-Unused-Kernel-Packages "true";`
+- `Unattended-Upgrade::Automatic-Reboot "true";`
+- `Unattended-Upgrade::Automatic-Reboot-Time "02:00";`
+
+Check the log at `/var/log/unattended-upgrades/`.
+
+### 2.8 SQL Backups
+
+Daily automated date marked sql backups should be set up on a production Moodle. Dumps can be large and need to be deleted periodically.
 
 ```bash
+# Create MySQL backup user and grant privileges to lock tables (better security than using root or moodleuser roles)
 BACKUP_USER_PASSWORD=$(openssl rand -base64 6)
 mysql <<EOF
 CREATE USER 'backupuser'@'localhost' IDENTIFIED BY '${BACKUP_USER_PASSWORD}';
 GRANT LOCK TABLES, SELECT ON moodle.* TO 'backupuser'@'localhost';
 FLUSH PRIVILEGES;
 EOF
-
+# Create a configuration file for root with the backup user credentials (to avoid the password being visible in the SQL backup call)
 cat > /root/.my.cnf <<EOF
 [client]
 user=backupuser
 password=${BACKUP_USER_PASSWORD}
 EOF
-
+# Set the configuration file permissions to read and write for root only
 chmod 600 /root/.my.cnf
+# Setup backup directory with read, write and execute permissions for root only
 mkdir -p /var/backups/moodle && chmod 700 /var/backups/moodle && chown root:root /var/backups/moodle
-
+# Set up two daily cron jobs, one to dump the database and the other to remove dumps more than a set number of days old (hardcoded to 7)
 (crontab -l 2>/dev/null; echo "0 2 * * * mysqldump --defaults-file=/root/.my.cnf moodle > /var/backups/moodle/moodle_backup_\$(date +\%F).sql") | crontab -
 (crontab -l 2>/dev/null; echo "0 3 * * * find /var/backups/moodle -name \"moodle_backup_*.sql\" -type f -mtime +7 -delete") | crontab -
 ```
 
-### 8.9 Antivirus
+### 2.9 Setting up antivirus on the server
 
-ClamAV is available on Ubuntu. Install and configure a Moodle antivirus plugin as needed.
+In order to have your Moodle server scan uploaded files for viruses, you can set up Antivirus plugins.
+
+ClamAV is available in Ubuntu:
+
+```bash
+# sudo apt install -y clamav
+```
+
+This installs the scanner for per-file uploads. To activate it, go to:
+
+`Site administration > Plugins > Antivirus plugins > Manage antivirus plugins > ClamAV antivirus`
+
+Enable the plugin, then set:
+
+```bash
+/usr/bin/clamscan
+```
+
+If you have many simultaneous uploads, consider the daemon mode:
+
+```bash
+# sudo apt install -y clamav-daemon
+```
+
+Then set:
+
+```bash
+/usr/bin/clamdscan
+```
+
+In previous Moodle branches:
+
+- Check `Use ClamAV on uploaded files`
+- `ClamAV Path`: `/usr/bin/clamscan`
+- `Quarantine Directory`: `/var/quarantine`
+
+Save changes.
 
 ## Sources
 
-- Lightsail console: https://lightsail.aws.amazon.com/ls/webapp/home/instances
 - MoodleDocs Ubuntu step-by-step: https://docs.moodle.org/en/Step-by-step_Installation_Guide_for_Ubuntu
