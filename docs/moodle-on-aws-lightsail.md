@@ -12,8 +12,8 @@ Moodle requires a web server, database and the php scripting language as describ
 
 ```bash
 # Set your domain name or IP address as a temporary variable as it will be needed several times in the installation
-PROTOCOL="http://";
-read -p "Enter the web address (without the http:// prefix, eg domain name mymoodle123.com or IP address 192.168.1.1.): " WEBSITE_ADDRESS
+PROTOCOL="https://";
+read -p "Enter the web address (without the protocol prefix, eg domain name mymoodle123.com or IP address 192.168.1.1.): " WEBSITE_ADDRESS
 
 MOODLE_PATH="/var/www/html/sites"
 MOODLE_CODE_FOLDER="$MOODLE_PATH/moodle"
@@ -28,7 +28,7 @@ sudo apt-get update && sudo apt upgrade -y
 # Get php-fpn and required php extensions using the package manager apt-get
 sudo apt-get install -y php8.3-fpm php8.3-cli php8.3-curl php8.3-zip php8.3-gd php8.3-xml php8.3-intl php8.3-mbstring php8.3-xmlrpc php8.3-soap php8.3-bcmath php8.3-exif php8.3-ldap php8.3-mysql
 # Database and packgages required by Moodle
-sudo apt-get install -y unzip mariadb-server mariadb-client ufw nano graphviz aspell git clamav ghostscript composer
+sudo apt-get install -y unzip mariadb-server mariadb-client ufw nano graphviz aspell git clamav ghostscript composer certbot python3-certbot-nginx
 ```
 
 ### 1.2 Install a Webserver
@@ -98,6 +98,18 @@ sudo chmod -R 750 "$CACHE_DIR"
 sudo -u www-data COMPOSER_CACHE_DIR="$CACHE_DIR" composer install --no-dev --classmap-authoritative
 sudo chown -R www-data:www-data vendor
 sudo chmod -R 755 $MOODLE_CODE_FOLDER
+```
+
+### 1.3a Set up HTTPS
+
+Certbot provisions a free Let's Encrypt SSL certificate and automatically configures Nginx for HTTPS. This must run after the Moodle code is cloned so the web root directory (`$MOODLE_CODE_FOLDER/public`) exists for Nginx.
+
+> **AWS Lightsail:** Before running certbot, ensure ports **80** and **443** are open in your Lightsail instance's **Networking** tab. The domain must already have a DNS A record pointing to the instance's static IP.
+
+```bash
+sudo certbot --nginx
+sudo nginx -t
+sudo systemctl reload nginx
 ```
 
 ### 1.4 Specific Moodle requirements
@@ -192,30 +204,13 @@ sudo ufw allow www
 sudo ufw allow 'Nginx Full'
 ```
 
-### 2.4 Convert http to the encrypted https protocol
+### 2.4 HTTPS certificate renewal
 
-NOTE: A domain name is required to get https in this step. Obtain one if you haven't already done so.
-
-Using HTTPS over HTTP on a Moodle site provides the critical security benefits of encrypted data transmission and compliance with privacy regulations and some features in Moodle may not function properly or may be blocked if the site is using a HTTP connection.
+HTTPS was configured during installation (section 1.3a). Let's Encrypt certificates expire every 90 days. Certbot installs a systemd timer that handles automatic renewal. Verify it is active:
 
 ```bash
-sudo apt-get update
-# Install needed packages
-sudo apt-get install certbot python3-certbot-nginx
-# Run the certbot script
-sudo certbot --nginx
-# Test your new configuration
-sudo nginx -t
-# Reload the webserver to allow changes to take effect
-sudo systemctl reload nginx
-```
-
-**You must update references after changing your protocol.**
-
-```bash
-#Replace oldsitehost (ie http://yourdomain.com) with newsitehost (ie https://yourdomain.com)
-cd $MOODLE_CODE_FOLDER
-sudo php admin/tool/replace/cli/replace.php --search=//oldsitehost --replace=//newsitehost --shorten --non-interactive
+sudo systemctl status certbot.timer
+sudo certbot renew --dry-run
 ```
 
 ### 2.5 SSH keys
