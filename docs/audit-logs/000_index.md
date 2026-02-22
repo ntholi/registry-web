@@ -136,6 +136,7 @@ interface AuditOptions {
 | 6c | [006c_remove-legacy-and-drop-tables.md](006c_remove-legacy-and-drop-tables.md) | Delete all legacy code, schemas, barrel exports; DROP 7 tables + 3 pgEnum types |
 | 7a | [007a_activity-tracker-backend.md](007a_activity-tracker-backend.md) | Backend: repository, service, actions for department-scoped employee activity analytics |
 | 7b | [007b_activity-tracker-frontend.md](007b_activity-tracker-frontend.md) | Frontend: dashboard with charts, employee list, drill-down detail, heatmap, timeline |
+| 7c | [007c_delete-clearance-reports.md](007c_delete-clearance-reports.md) | Delete `reports/clearance/` — functionality absorbed into activity tracker |
 
 ## Tables Audit Classification
 

@@ -93,6 +93,7 @@ This repository does NOT extend `BaseRepository` (it's a read-only analytics lay
 | `getActivityHeatmap` | `userId, dateRange` | `HeatmapData` | Hour-of-day × day-of-week activity distribution |
 | `getDailyTrends` | `dept, dateRange` | `DailyTrend[]` | Daily operation counts for trend charts |
 | `getEntityBreakdown` | `userId, dateRange` | `EntityBreakdown[]` | Operations grouped by table name |
+| `getClearanceStats` | `dept, dateRange` | `ClearanceEmployeeStats[]` | Per-employee clearance approved/rejected/pending counts (clearance departments only) |
 
 #### `getDepartmentSummary(dept, dateRange)`
 
@@ -246,6 +247,63 @@ type EntityBreakdown = {
 
 Paginated chronological feed of an employee's recent actions (reuses the same query pattern as `AuditLogRepository.findByUser` but with date range filtering).
 
+#### `getClearanceStats(dept, dateRange)`
+
+**Clearance departments only** (`finance`, `library`, `resource`). Returns per-employee clearance processing stats queried from the `clearance` table directly (not from `audit_logs`). This replaces the functionality in `reports/clearance/`.
+
+```typescript
+type ClearanceEmployeeStats = {
+  userId: string;
+  name: string | null;
+  email: string | null;
+  image: string | null;
+  approved: number;
+  rejected: number;
+  pending: number;
+  total: number;
+  approvalRate: number;
+};
+```
+
+**Query**:
+```sql
+SELECT 
+  u.id AS user_id,
+  u.name,
+  u.email,
+  u.image,
+  COUNT(*) FILTER (WHERE c.status = 'approved')::int AS approved,
+  COUNT(*) FILTER (WHERE c.status = 'rejected')::int AS rejected,
+  COUNT(*) FILTER (WHERE c.status = 'pending')::int AS pending,
+  COUNT(c.id)::int AS total,
+  CASE 
+    WHEN COUNT(c.id) > 0 
+    THEN ROUND(COUNT(*) FILTER (WHERE c.status = 'approved') * 100.0 / COUNT(c.id))::int 
+    ELSE 0 
+  END AS approval_rate
+FROM users u
+LEFT JOIN clearance c 
+  ON c.responded_by = u.id 
+  AND c.department = $dept
+  AND c.response_date BETWEEN $start AND $end
+WHERE u.role = $dept
+GROUP BY u.id
+ORDER BY total DESC
+```
+
+> **Why query clearance directly?** The `audit_logs` table tracks that a clearance record was created/updated, but does NOT capture the semantic outcome (approved vs. rejected vs. pending). That data lives in the `clearance` table's `status` column. This is a targeted domain query that complements the generic audit-based activity tracking.
+
+> **This replaces** `reports/clearance/_server/repository.ts` → `getClearanceStatsByDepartment()` and `reports/clearance/_server/service.ts` → `getDepartmentClearanceStats()`. The data shape is equivalent but integrated into the activity tracker context.
+
+**Clearance departments constant** (shared with frontend):
+```typescript
+const CLEARANCE_DEPARTMENTS: DashboardUser[] = ['finance', 'library', 'resource'];
+
+function isClearanceDepartment(dept: string): boolean {
+  return CLEARANCE_DEPARTMENTS.includes(dept as DashboardUser);
+}
+```
+
 ### 3. Types
 
 Create `src/app/admin/activity-tracker/_lib/types.ts`:
@@ -264,6 +322,7 @@ type EmployeeActivity = { ... };   // as above
 type HeatmapData = { ... };        // as above
 type DailyTrend = { ... };         // as above
 type EntityBreakdown = { ... };    // as above
+type ClearanceEmployeeStats = { ... };  // as above
 ```
 
 ### 4. Service Layer
@@ -324,6 +383,16 @@ class ActivityTrackerService {
     return withAuth(async (session) => {
       const dept = this.resolveDepartment(session);
       return this.repository.getEntityBreakdown(userId, dateRange);
+    }, this.accessCheck);
+  }
+
+  async getClearanceStats(dateRange: DateRange) {
+    return withAuth(async (session) => {
+      const dept = this.resolveDepartment(session);
+      if (dept !== 'all' && !isClearanceDepartment(dept)) {
+        throw new Error('Clearance stats not available for this department');
+      }
+      return this.repository.getClearanceStats(dept, dateRange);
     }, this.accessCheck);
   }
 
@@ -403,6 +472,10 @@ export async function getEntityBreakdown(
   end: Date
 ) {
   return service.getEntityBreakdown(userId, { start, end });
+}
+
+export async function getClearanceStats(start: Date, end: Date) {
+  return service.getClearanceStats({ start, end });
 }
 ```
 

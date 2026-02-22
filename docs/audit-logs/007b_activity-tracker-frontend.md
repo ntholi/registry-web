@@ -129,7 +129,18 @@ A Mantine `Table` (not `ListLayout` — this is a data table, not a master-detai
 | Creates | `inserts` | — |
 | Updates | `updates` | — |
 | Deletes | `deletes` | — |
+| Approved* | `clearanceStats.approved` | — |
+| Rejected* | `clearanceStats.rejected` | — |
+| Approval Rate* | `clearanceStats.approvalRate` (with `Progress` bar) | — |
 | Last Active | `lastActiveAt` (relative time) | Via query |
+
+> **\* Clearance columns**: Only shown when the current department is a clearance department (`finance`, `library`, `resource`). These columns are conditionally rendered based on `isClearanceDepartment(dept)`. The data comes from a separate `getClearanceStats(start, end)` query (not from the employee list query), merged client-side by `userId`.
+
+**Clearance column behavior:**
+- Fetch clearance stats via a separate TanStack Query: `['activity-tracker', 'clearance', startISO, endISO]`
+- Merge with employee list data by `userId` on the client
+- Show `Progress` bar in the Approval Rate column (similar to the existing `StatsTable` pattern from `reports/clearance`)
+- If an employee has no clearance activity, show `—` in clearance columns
 
 **Features:**
 - Search input at top (filters by name/email, debounced)
