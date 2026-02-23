@@ -22,6 +22,14 @@ export default class DocumentReviewRepository extends BaseRepository<
 		super(applicantDocuments, applicantDocuments.id);
 	}
 
+	async countPending() {
+		const [row] = await db
+			.select({ total: count() })
+			.from(applicantDocuments)
+			.where(eq(applicantDocuments.verificationStatus, 'pending'));
+		return row?.total ?? 0;
+	}
+
 	async findAllForReview(
 		page: number,
 		search: string,

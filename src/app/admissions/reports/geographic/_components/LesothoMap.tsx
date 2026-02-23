@@ -11,11 +11,28 @@ const OFFSET_X = -4485;
 const SCALE_Y = -192;
 const OFFSET_Y = -5434;
 
+const TOWN_COORDINATE_MAP = new Map(
+	LESOTHO_TOWNS.map((town) => [normalizeLocationKey(town.name), town])
+);
+
 function toSvg(lat: number, lon: number) {
 	return {
 		x: SCALE_X * lon + OFFSET_X,
 		y: SCALE_Y * lat + OFFSET_Y,
 	};
+}
+
+function normalizeLocationKey(value: string) {
+	return value.toLowerCase().replace(/[^a-z0-9]/g, '');
+}
+
+function getMapPosition(location: LocationAggregation) {
+	const town = TOWN_COORDINATE_MAP.get(normalizeLocationKey(location.city));
+	if (town) {
+		return { x: town.x, y: town.y };
+	}
+
+	return toSvg(location.latitude, location.longitude);
 }
 
 type Props = {
@@ -54,7 +71,7 @@ export default function LesothoMap({ data }: Props) {
 			))}
 
 			{data.map((loc) => {
-				const pos = toSvg(loc.latitude, loc.longitude);
+				const pos = getMapPosition(loc);
 				const r = getRadius(loc.count);
 				const isHovered = hovered === loc.city;
 				return (

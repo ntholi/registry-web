@@ -49,6 +49,10 @@ class DocumentReviewService extends BaseService<
 		);
 	}
 
+	async countPending() {
+		return withAuth(async () => this.repo.countPending(), [...ROLES]);
+	}
+
 	async updateRotation(id: string, rotation: number) {
 		return withAuth(
 			async () => this.repo.updateRotation(id, rotation),
