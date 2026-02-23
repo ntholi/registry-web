@@ -62,7 +62,7 @@ export class ApplicationSummaryRepository {
 
 		const rows = await db
 			.select({
-				schoolName: schools.name,
+				schoolName: schools.code,
 				schoolId: schools.id,
 				programName: programs.name,
 				programId: programs.id,
@@ -96,12 +96,12 @@ export class ApplicationSummaryRepository {
 			.where(conditions.length ? and(...conditions) : undefined)
 			.groupBy(
 				schools.id,
-				schools.name,
+				schools.code,
 				programs.id,
 				programs.name,
 				programs.level
 			)
-			.orderBy(schools.name, programs.name);
+			.orderBy(schools.code, programs.name);
 
 		return rows.map((r) => ({
 			schoolName: r.schoolName,
@@ -157,7 +157,7 @@ export class ApplicationSummaryRepository {
 
 		const schoolRows = await db
 			.select({
-				school: schools.name,
+				school: schools.code,
 				draft: count(
 					sql`CASE WHEN ${applications.status} = 'draft' THEN 1 END`
 				),
@@ -184,8 +184,8 @@ export class ApplicationSummaryRepository {
 			.innerJoin(programs, eq(applications.firstChoiceProgramId, programs.id))
 			.innerJoin(schools, eq(programs.schoolId, schools.id))
 			.where(whereClause)
-			.groupBy(schools.name)
-			.orderBy(schools.name);
+			.groupBy(schools.code)
+			.orderBy(schools.code);
 
 		return { statusDistribution, bySchool: schoolRows };
 	}

@@ -9,13 +9,13 @@ import {
 import type { AdmissionReportFilter } from '../../_shared/types';
 
 export const AGE_GROUPS = [
-	{ min: 0, max: 17, label: 'Under 18' },
-	{ min: 18, max: 20, label: '18-20' },
-	{ min: 21, max: 24, label: '21-24' },
-	{ min: 25, max: 29, label: '25-29' },
-	{ min: 30, max: 34, label: '30-34' },
-	{ min: 35, max: 39, label: '35-39' },
-	{ min: 40, max: 100, label: '40+' },
+	{ min: 12, max: 15, label: '12+' },
+	{ min: 16, max: 16, label: '16' },
+	{ min: 17, max: 17, label: '17' },
+	{ min: 18, max: 19, label: '18-19' },
+	{ min: 20, max: 25, label: '20-25' },
+	{ min: 26, max: 35, label: '26-35' },
+	{ min: 36, max: 200, label: '36+' },
 ];
 
 export interface DemographicsOverview {
@@ -145,7 +145,7 @@ export class DemographicsRepository {
 
 		const rows = await db
 			.select({
-				schoolName: schools.name,
+				schoolName: schools.code,
 				schoolId: schools.id,
 				gender: applicants.gender,
 				nationality: applicants.nationality,
@@ -158,7 +158,7 @@ export class DemographicsRepository {
 			.where(whereClause)
 			.groupBy(
 				schools.id,
-				schools.name,
+				schools.code,
 				applicants.gender,
 				applicants.nationality
 			);

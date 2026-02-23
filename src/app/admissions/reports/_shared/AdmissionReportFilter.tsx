@@ -8,15 +8,19 @@ import {
 import { applicationStatusEnum } from '@admissions/applications/_schema/applications';
 import { findActiveIntakePeriods } from '@admissions/intake-periods/_server/actions';
 import {
+	ActionIcon,
 	Button,
-	Flex,
-	Grid,
+	Group,
+	Indicator,
+	Modal,
 	MultiSelect,
 	Paper,
 	Select,
 	Stack,
+	Tooltip,
 } from '@mantine/core';
-import { IconFilter } from '@tabler/icons-react';
+import { useDisclosure } from '@mantine/hooks';
+import { IconAdjustments, IconFilter } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import {
 	parseAsArrayOf,
@@ -31,6 +35,7 @@ interface Props {
 }
 
 export default function AdmissionReportFilter({ onFilterChange }: Props) {
+	const [opened, { open, close }] = useDisclosure(false);
 	const [filter, setFilter] = useQueryStates(
 		{
 			intakePeriodId: parseAsString,
@@ -58,6 +63,10 @@ export default function AdmissionReportFilter({ onFilterChange }: Props) {
 		enabled: (filter.schoolIds ?? []).length > 0,
 	});
 
+	const modalFilterCount =
+		(filter.programLevels?.length ?? 0) +
+		(filter.applicationStatuses?.length ?? 0);
+
 	function handleApply() {
 		onFilterChange({
 			intakePeriodId: filter.intakePeriodId ?? undefined,
@@ -70,106 +79,113 @@ export default function AdmissionReportFilter({ onFilterChange }: Props) {
 				(filter.applicationStatuses as AdmissionReportFilterType['applicationStatuses']) ??
 				undefined,
 		});
+		close();
 	}
 
 	return (
-		<Paper withBorder p='md'>
-			<Stack gap='sm'>
-				<Grid>
-					<Grid.Col span={{ base: 12, sm: 6, md: 4 }}>
-						<Select
-							label='Intake Period'
-							placeholder='All intake periods'
-							clearable
-							data={
-								intakePeriods?.map((ip) => ({
-									value: ip.id,
-									label: ip.name,
-								})) ?? []
-							}
-							value={filter.intakePeriodId}
-							onChange={(val) => setFilter({ intakePeriodId: val })}
-						/>
-					</Grid.Col>
-					<Grid.Col span={{ base: 12, sm: 6, md: 4 }}>
-						<MultiSelect
-							label='School'
-							placeholder='All schools'
-							clearable
-							data={
-								schools?.map((s) => ({
-									value: s.id.toString(),
-									label: s.name,
-								})) ?? []
-							}
-							value={filter.schoolIds?.map(String) ?? []}
-							onChange={(vals) =>
-								setFilter({
-									schoolIds: vals.map(Number),
-									programId: null,
-								})
-							}
-						/>
-					</Grid.Col>
-					<Grid.Col span={{ base: 12, sm: 6, md: 4 }}>
-						<Select
-							label='Program'
-							placeholder='All programs'
-							clearable
-							searchable
-							data={
-								programs?.map((p) => ({
-									value: p.id.toString(),
-									label: p.name,
-								})) ?? []
-							}
-							value={filter.programId?.toString() ?? null}
-							onChange={(val) =>
-								setFilter({ programId: val ? Number(val) : null })
-							}
-							disabled={!filter.schoolIds?.length}
-						/>
-					</Grid.Col>
-					<Grid.Col span={{ base: 12, sm: 6, md: 4 }}>
-						<MultiSelect
-							label='Program Level'
-							placeholder='All levels'
-							clearable
-							data={programLevelEnum.enumValues.map((lv) => ({
-								value: lv,
-								label: lv.charAt(0).toUpperCase() + lv.slice(1),
-							}))}
-							value={filter.programLevels ?? []}
-							onChange={(vals) => setFilter({ programLevels: vals })}
-						/>
-					</Grid.Col>
-					<Grid.Col span={{ base: 12, sm: 6, md: 4 }}>
-						<MultiSelect
-							label='Application Status'
-							placeholder='All statuses'
-							clearable
-							data={applicationStatusEnum.enumValues.map((s) => ({
-								value: s,
-								label: s
-									.replace(/_/g, ' ')
-									.replace(/\b\w/g, (c) => c.toUpperCase()),
-							}))}
-							value={filter.applicationStatuses ?? []}
-							onChange={(vals) => setFilter({ applicationStatuses: vals })}
-						/>
-					</Grid.Col>
-					<Grid.Col span={{ base: 12, sm: 6, md: 4 }}>
-						<Flex align='end' h='100%'>
-							<Button
-								leftSection={<IconFilter size={16} />}
-								onClick={handleApply}
-							>
-								Apply Filters
-							</Button>
-						</Flex>
-					</Grid.Col>
-				</Grid>
-			</Stack>
-		</Paper>
+		<>
+			<Paper withBorder p='sm'>
+				<Group gap='sm' wrap='nowrap'>
+					<Select
+						flex={1}
+						placeholder='Intake Period'
+						clearable
+						data={
+							intakePeriods?.map((ip) => ({
+								value: ip.id,
+								label: ip.name,
+							})) ?? []
+						}
+						value={filter.intakePeriodId}
+						onChange={(val) => setFilter({ intakePeriodId: val })}
+					/>
+					<MultiSelect
+						flex={1}
+						placeholder='School'
+						clearable
+						data={
+							schools?.map((s) => ({
+								value: s.id.toString(),
+								label: s.code,
+							})) ?? []
+						}
+						value={filter.schoolIds?.map(String) ?? []}
+						onChange={(vals) =>
+							setFilter({
+								schoolIds: vals.map(Number),
+								programId: null,
+							})
+						}
+					/>
+					<Select
+						flex={1}
+						placeholder='Program'
+						clearable
+						searchable
+						data={
+							programs?.map((p) => ({
+								value: p.id.toString(),
+								label: p.name,
+							})) ?? []
+						}
+						value={filter.programId?.toString() ?? null}
+						onChange={(val) =>
+							setFilter({ programId: val ? Number(val) : null })
+						}
+						disabled={!filter.schoolIds?.length}
+					/>
+					<Tooltip label='More filters'>
+						<Indicator
+							size={16}
+							label={modalFilterCount}
+							disabled={modalFilterCount === 0}
+						>
+							<ActionIcon variant='default' size='input-sm' onClick={open}>
+								<IconAdjustments size={18} />
+							</ActionIcon>
+						</Indicator>
+					</Tooltip>
+					<Button leftSection={<IconFilter size={16} />} onClick={handleApply}>
+						Apply
+					</Button>
+				</Group>
+			</Paper>
+
+			<Modal opened={opened} onClose={close} title='Additional Filters'>
+				<Stack gap='md'>
+					<MultiSelect
+						label='Program Level'
+						placeholder='All levels'
+						clearable
+						data={programLevelEnum.enumValues.map((lv) => ({
+							value: lv,
+							label: lv.charAt(0).toUpperCase() + lv.slice(1),
+						}))}
+						value={filter.programLevels ?? []}
+						onChange={(vals) => setFilter({ programLevels: vals })}
+					/>
+					<MultiSelect
+						label='Application Status'
+						placeholder='All statuses'
+						clearable
+						data={applicationStatusEnum.enumValues.map((s) => ({
+							value: s,
+							label: s
+								.replace(/_/g, ' ')
+								.replace(/\b\w/g, (c) => c.toUpperCase()),
+						}))}
+						value={filter.applicationStatuses ?? []}
+						onChange={(vals) => setFilter({ applicationStatuses: vals })}
+					/>
+					<Button
+						leftSection={<IconFilter size={16} />}
+						onClick={handleApply}
+						fullWidth
+					>
+						Apply Filters
+					</Button>
+				</Stack>
+			</Modal>
+		</>
 	);
 }

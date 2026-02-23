@@ -51,7 +51,7 @@ export class ProgramDemandRepository {
 				programId: programs.id,
 				programName: programs.name,
 				programLevel: programs.level,
-				schoolName: schools.name,
+				schoolName: schools.code,
 				schoolId: schools.id,
 				cnt: count().as('cnt'),
 			})
@@ -69,7 +69,7 @@ export class ProgramDemandRepository {
 				programs.name,
 				programs.level,
 				schools.id,
-				schools.name
+				schools.code
 			);
 
 		const secondChoice = db
@@ -77,7 +77,7 @@ export class ProgramDemandRepository {
 				programId: programs.id,
 				programName: programs.name,
 				programLevel: programs.level,
-				schoolName: schools.name,
+				schoolName: schools.code,
 				schoolId: schools.id,
 				cnt: count().as('cnt'),
 			})
@@ -95,7 +95,7 @@ export class ProgramDemandRepository {
 				programs.name,
 				programs.level,
 				schools.id,
-				schools.name
+				schools.code
 			);
 
 		const [firstRows, secondRows] = await Promise.all([
@@ -155,7 +155,7 @@ export class ProgramDemandRepository {
 		const rows = await db
 			.select({
 				schoolId: schools.id,
-				schoolName: schools.name,
+				schoolName: schools.code,
 				count: count(),
 			})
 			.from(applications)
@@ -165,8 +165,8 @@ export class ProgramDemandRepository {
 				and(...conditions, ...[schoolFilter, levelFilter].filter(Boolean)) ||
 					undefined
 			)
-			.groupBy(schools.id, schools.name)
-			.orderBy(schools.name);
+			.groupBy(schools.id, schools.code)
+			.orderBy(schools.code);
 
 		return rows;
 	}
