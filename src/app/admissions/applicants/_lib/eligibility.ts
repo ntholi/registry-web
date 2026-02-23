@@ -1,3 +1,15 @@
+import {
+	type AcademicRecordForScoring,
+	classificationRanks,
+	filterRecognizedRecords,
+	getBestClassification,
+	getBestSubjectGrades,
+	getHighestLqfLevel,
+	getHighestLqfRecords,
+	gradeRank,
+	isGradeAtLeast,
+	matchesCourse,
+} from '@admissions/_lib/grading';
 import type { StandardGrade } from '@admissions/academic-records/_schema/subjectGrades';
 import type {
 	ClassificationRules,
@@ -8,74 +20,9 @@ import { normalizeSubjectGradeRules } from '@admissions/entry-requirements/_lib/
 import type { RecognizedSchool } from '@admissions/recognized-schools/_lib/types';
 import type { ApplicantWithRelations } from './types';
 
-type AcademicRecord = ApplicantWithRelations['academicRecords'][number];
-
 type EligibilityProgram = EntryRequirementWithRelations['program'];
 
 type GradeMap = Map<string, StandardGrade>;
-
-type ClassificationRank = 0 | 1 | 2 | 3 | 4;
-
-type GradeRank = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7;
-
-const gradeRanks: Record<StandardGrade, GradeRank> = {
-	'A*': 7,
-	A: 6,
-	B: 5,
-	C: 4,
-	D: 3,
-	E: 2,
-	F: 1,
-	U: 0,
-};
-
-const classificationRanks: Record<string, ClassificationRank> = {
-	Distinction: 4,
-	Merit: 3,
-	Credit: 2,
-	Pass: 1,
-	Fail: 0,
-};
-
-function getHighestLqfRecords(records: AcademicRecord[]) {
-	if (records.length === 0) return [];
-	const maxLqf = Math.max(
-		...records.map((record) => record.certificateType.lqfLevel)
-	);
-	return records.filter((record) => record.certificateType.lqfLevel === maxLqf);
-}
-
-function getHighestLqfLevel(records: AcademicRecord[]) {
-	if (records.length === 0) return null;
-	return Math.max(...records.map((record) => record.certificateType.lqfLevel));
-}
-
-function gradeRank(grade: StandardGrade | string | null | undefined): number {
-	if (!grade) return -1;
-	const key = grade.toUpperCase() as StandardGrade;
-	return gradeRanks[key] ?? -1;
-}
-
-function isGradeAtLeast(
-	grade: StandardGrade | string | null | undefined,
-	minimum: StandardGrade | string
-) {
-	return gradeRank(grade) >= gradeRank(minimum);
-}
-
-function getBestSubjectGrades(records: AcademicRecord[]): GradeMap {
-	const best = new Map<string, StandardGrade>();
-	for (const record of records) {
-		for (const grade of record.subjectGrades) {
-			if (!grade.standardGrade) continue;
-			const existing = best.get(grade.subjectId);
-			if (!existing || gradeRank(grade.standardGrade) > gradeRank(existing)) {
-				best.set(grade.subjectId, grade.standardGrade);
-			}
-		}
-	}
-	return best;
-}
 
 function meetsRequiredSubjects(
 	subjects: SubjectGradeRules['subjects'],
@@ -139,29 +86,9 @@ function meetsAnyGradeOption(
 	return gradeOptions.some((option) => meetsGradeOption(option, grades));
 }
 
-function matchesCourse(record: AcademicRecord, courses: string[]) {
-	if (courses.length === 0) return false;
-	if (!record.qualificationName) return false;
-	const recordCourse = record.qualificationName.trim().toLowerCase();
-	return courses.some((course) => course.trim().toLowerCase() === recordCourse);
-}
-
-function getBestClassification(records: AcademicRecord[]) {
-	let best: string | null = null;
-	let bestRank = -1;
-	for (const record of records) {
-		const rank = classificationRanks[record.resultClassification || ''] ?? -1;
-		if (rank > bestRank) {
-			bestRank = rank;
-			best = record.resultClassification || null;
-		}
-	}
-	return best;
-}
-
 function meetsClassificationRule(
 	rules: ClassificationRules,
-	records: AcademicRecord[]
+	records: AcademicRecordForScoring[]
 ) {
 	const relevant = records.filter((record) =>
 		matchesCourse(record, rules.courses)
@@ -176,32 +103,9 @@ function meetsClassificationRule(
 	);
 }
 
-function normalizeSchoolName(name: string) {
-	return name.trim().toLowerCase();
-}
-
-function filterRecognizedRecords(
-	records: AcademicRecord[],
-	recognizedSchools: RecognizedSchool[]
-) {
-	const normalizedRecognized = recognizedSchools.map((school) =>
-		normalizeSchoolName(school.name)
-	);
-	if (normalizedRecognized.length === 0) return [];
-
-	return records.filter((record) => {
-		const normalizedRecord = normalizeSchoolName(record.institutionName);
-		return normalizedRecognized.some(
-			(recognized) =>
-				normalizedRecord === recognized ||
-				normalizedRecord.startsWith(recognized)
-		);
-	});
-}
-
 function meetsSubjectGradeRule(
 	rules: SubjectGradeRules,
-	records: AcademicRecord[]
+	records: AcademicRecordForScoring[]
 ): boolean {
 	const grades = getBestSubjectGrades(records);
 	return (
@@ -211,9 +115,9 @@ function meetsSubjectGradeRule(
 	);
 }
 
-function meetsEntryRules(
+export function meetsEntryRules(
 	rules: SubjectGradeRules | ClassificationRules,
-	records: AcademicRecord[]
+	records: AcademicRecordForScoring[]
 ): boolean {
 	if (rules.type === 'subject-grades') {
 		const normalized = normalizeSubjectGradeRules(

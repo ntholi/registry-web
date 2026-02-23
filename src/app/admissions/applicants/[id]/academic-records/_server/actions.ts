@@ -1,5 +1,6 @@
 'use server';
 
+import { recalculateScoresForApplicant } from '@admissions/applications/_server/actions';
 import type { academicRecords } from '@/core/database';
 import { normalizeResultClassification } from '@/shared/lib/utils/resultClassification';
 import type { CreateAcademicRecordInput } from '../_lib/types';
@@ -38,11 +39,12 @@ export async function createAcademicRecord(
 		applicantDocumentId,
 	};
 
-	return academicRecordsService.createWithGrades(
-		data,
-		isLevel4,
-		input.subjectGrades
-	);
+	return academicRecordsService
+		.createWithGrades(data, isLevel4, input.subjectGrades)
+		.then((result) => {
+			recalculateScoresForApplicant(applicantId).catch(() => {});
+			return result;
+		});
 }
 
 export async function updateAcademicRecord(
@@ -62,16 +64,24 @@ export async function updateAcademicRecord(
 		),
 	};
 
-	return academicRecordsService.updateWithGrades(
-		id,
-		data,
-		isLevel4,
-		input.subjectGrades
-	);
+	return academicRecordsService
+		.updateWithGrades(id, data, isLevel4, input.subjectGrades)
+		.then(async (result) => {
+			if (result?.applicantId) {
+				recalculateScoresForApplicant(result.applicantId).catch(() => {});
+			}
+			return result;
+		});
 }
 
 export async function deleteAcademicRecord(id: string) {
-	return academicRecordsService.delete(id);
+	const record = await academicRecordsService.get(id);
+	const applicantId = record?.applicantId;
+	const result = await academicRecordsService.delete(id);
+	if (applicantId) {
+		recalculateScoresForApplicant(applicantId).catch(() => {});
+	}
+	return result;
 }
 
 export async function findAcademicRecordByCertificateNumber(

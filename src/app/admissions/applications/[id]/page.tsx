@@ -18,6 +18,7 @@ import {
 	IconInfoCircle,
 	IconNote,
 	IconSchool,
+	IconStars,
 } from '@tabler/icons-react';
 import { notFound } from 'next/navigation';
 import { formatDateTime, isIntakePeriodActive } from '@/shared/lib/utils/dates';
@@ -30,6 +31,7 @@ import {
 import Link from '@/shared/ui/Link';
 import NotesSection from '../_components/NotesSection';
 import PaymentSection from '../_components/PaymentSection';
+import ScoresSection from '../_components/ScoresSection';
 import StatusBadge from '../_components/StatusBadge';
 import StatusChangeModal from '../_components/StatusChangeModal';
 import StatusHistory from '../_components/StatusHistory';
@@ -74,6 +76,9 @@ export default async function ApplicationDetails({ params }: Props) {
 						</TabsTab>
 						<TabsTab value='programs' leftSection={<IconSchool size={16} />}>
 							Programs
+						</TabsTab>
+						<TabsTab value='scores' leftSection={<IconStars size={16} />}>
+							Scores
 						</TabsTab>
 						<TabsTab value='payment' leftSection={<IconCash size={16} />}>
 							Payment
@@ -179,6 +184,15 @@ export default async function ApplicationDetails({ params }: Props) {
 								</Text>
 							)}
 						</Stack>
+					</TabsPanel>
+
+					<TabsPanel value='scores' pt='md'>
+						<ScoresSection
+							applicationId={item.id}
+							scores={item.scores}
+							firstChoiceProgram={item.firstChoiceProgram}
+							secondChoiceProgram={item.secondChoiceProgram}
+						/>
 					</TabsPanel>
 
 					<TabsPanel value='payment' pt='md'>

@@ -8,6 +8,7 @@ export * from '../applicants/_schema/guardianPhones';
 export * from '../applicants/_schema/guardians';
 export * from '../applicants/_schema/relations';
 export * from '../applications/_schema/applicationNotes';
+export * from '../applications/_schema/applicationScores';
 export * from '../applications/_schema/applicationStatusHistory';
 export * from '../applications/_schema/applications';
 export * from '../applications/_schema/relations';

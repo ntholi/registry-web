@@ -6,6 +6,7 @@ import { mobileDeposits } from '@admissions/payments/_schema/mobileDeposits';
 import { users } from '@auth/users/_schema/users';
 import { relations } from 'drizzle-orm';
 import { applicationNotes } from './applicationNotes';
+import { applicationScores } from './applicationScores';
 import { applicationStatusHistory } from './applicationStatusHistory';
 import { applications } from './applications';
 
@@ -38,6 +39,20 @@ export const applicationsRelations = relations(
 		mobileDeposits: many(mobileDeposits),
 		statusHistory: many(applicationStatusHistory),
 		notes: many(applicationNotes),
+		scores: one(applicationScores, {
+			fields: [applications.id],
+			references: [applicationScores.applicationId],
+		}),
+	})
+);
+
+export const applicationScoresRelations = relations(
+	applicationScores,
+	({ one }) => ({
+		application: one(applications, {
+			fields: [applicationScores.applicationId],
+			references: [applications.id],
+		}),
 	})
 );
 

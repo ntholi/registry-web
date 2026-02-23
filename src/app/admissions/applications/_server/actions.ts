@@ -99,6 +99,14 @@ export async function getApplicationForPayment(applicationId: string) {
 	return applicationsService.getForPayment(applicationId);
 }
 
+export async function recalculateApplicationScores(applicationId: string) {
+	return applicationsService.recalculateScores(applicationId);
+}
+
+export async function recalculateScoresForApplicant(applicantId: string) {
+	return applicationsService.recalculateScoresForApplicant(applicantId);
+}
+
 function getFileExtension(name: string) {
 	const idx = name.lastIndexOf('.');
 	if (idx === -1 || idx === name.length - 1) return '';

@@ -1,6 +1,6 @@
 'use client';
 
-import { Group } from '@mantine/core';
+import { Badge, Group } from '@mantine/core';
 import { useSearchParams } from 'next/navigation';
 import type { PropsWithChildren } from 'react';
 import { ListItem, ListLayout, NewLink } from '@/shared/ui/adease';
@@ -16,6 +16,11 @@ type ApplicationListItem = {
 	applicant: { id: string; fullName: string; nationalId: string | null };
 	intakePeriod: { id: string; name: string };
 	firstChoiceProgram: { id: number; name: string; code: string } | null;
+	scores: {
+		overallScore: number | null;
+		firstChoiceScore: number | null;
+		secondChoiceScore: number | null;
+	} | null;
 };
 
 export default function Layout({ children }: PropsWithChildren) {
@@ -47,6 +52,11 @@ export default function Layout({ children }: PropsWithChildren) {
 						<Group gap='xs'>
 							{item.applicant.fullName}
 							<StatusBadge status={item.status} />
+							{item.scores?.overallScore != null && (
+								<Badge size='xs' variant='light' color='blue'>
+									{item.scores.overallScore.toFixed(1)}
+								</Badge>
+							)}
 						</Group>
 					}
 					description={`${

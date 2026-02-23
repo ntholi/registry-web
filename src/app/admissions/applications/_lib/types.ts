@@ -2,6 +2,7 @@ import type {
 	ApplicationStatus,
 	admissionReceipts,
 	applicationNotes,
+	applicationScores,
 	applicationStatusHistory,
 	applications,
 	bankDeposits,
@@ -14,6 +15,8 @@ export type ApplicationInsert = typeof applications.$inferInsert;
 
 export type ApplicationNote = typeof applicationNotes.$inferSelect;
 export type ApplicationNoteInsert = typeof applicationNotes.$inferInsert;
+
+export type ApplicationScore = typeof applicationScores.$inferSelect;
 
 export type BankDeposit = typeof bankDeposits.$inferSelect;
 export type MobileDeposit = typeof mobileDeposits.$inferSelect;
@@ -60,6 +63,7 @@ export type ApplicationWithRelations = Application & {
 	notes: (ApplicationNote & {
 		createdByUser: { id: string; name: string | null } | null;
 	})[];
+	scores: ApplicationScore | null;
 };
 
 export type ApplicationFilters = {

@@ -1,13 +1,19 @@
+import type {
+	ClassificationRules,
+	SubjectGradeRules,
+} from '@admissions/entry-requirements/_lib/types';
 import { eq } from 'drizzle-orm';
 import {
 	type ApplicationStatus,
-	type applications,
+	academicRecords,
+	applications,
 	db,
 	intakePeriods,
 } from '@/core/database';
 import BaseService from '@/core/platform/BaseService';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
 import withAuth from '@/core/platform/withAuth';
+import { calculateAllScores } from '../_lib/scoring';
 import type { ApplicationFilters } from '../_lib/types';
 import ApplicationRepository from './repository';
 
@@ -86,6 +92,13 @@ class ApplicationService extends BaseService<typeof applications, 'id'> {
 					notes: 'Application submitted',
 				});
 
+				this.computeAndUpsertScores({
+					id: application.id,
+					applicantId: data.applicantId,
+					firstChoiceProgramId: data.firstChoiceProgramId ?? null,
+					secondChoiceProgramId: data.secondChoiceProgramId ?? null,
+				}).catch(() => {});
+
 				return application;
 			},
 			['registry', 'marketing', 'admin']
@@ -101,10 +114,19 @@ class ApplicationService extends BaseService<typeof applications, 'id'> {
 				);
 
 				if (existing) {
-					return this.repo.update(existing.id, {
+					const updated = await this.repo.update(existing.id, {
 						...data,
 						updatedAt: new Date(),
 					});
+
+					this.computeAndUpsertScores({
+						id: existing.id,
+						applicantId: data.applicantId,
+						firstChoiceProgramId: data.firstChoiceProgramId ?? null,
+						secondChoiceProgramId: data.secondChoiceProgramId ?? null,
+					}).catch(() => {});
+
+					return updated;
 				}
 
 				const intake = await db.query.intakePeriods.findFirst({
@@ -131,6 +153,13 @@ class ApplicationService extends BaseService<typeof applications, 'id'> {
 					createdBy: session?.user?.id,
 					applicationDate: new Date(),
 				});
+
+				this.computeAndUpsertScores({
+					id: application.id,
+					applicantId: data.applicantId,
+					firstChoiceProgramId: data.firstChoiceProgramId ?? null,
+					secondChoiceProgramId: data.secondChoiceProgramId ?? null,
+				}).catch(() => {});
 
 				return application;
 			},
@@ -219,6 +248,82 @@ class ApplicationService extends BaseService<typeof applications, 'id'> {
 			async () => this.repo.findForPayment(applicationId),
 			['all']
 		);
+	}
+
+	async recalculateScores(applicationId: string) {
+		return withAuth(async () => {
+			const application = await db.query.applications.findFirst({
+				where: eq(applications.id, applicationId),
+				columns: {
+					id: true,
+					applicantId: true,
+					firstChoiceProgramId: true,
+					secondChoiceProgramId: true,
+				},
+			});
+			if (!application) throw new Error('Application not found');
+
+			return this.computeAndUpsertScores(application);
+		}, ['registry', 'marketing', 'admin']);
+	}
+
+	async recalculateScoresForApplicant(applicantId: string) {
+		return withAuth(async () => {
+			const apps = await this.repo.findApplicationIdsByApplicant(applicantId);
+			const results = [];
+			for (const app of apps) {
+				const result = await this.computeAndUpsertScores(app);
+				results.push(result);
+			}
+			return results;
+		}, ['registry', 'marketing', 'admin', 'applicant']);
+	}
+
+	private async computeAndUpsertScores(application: {
+		id: string;
+		applicantId: string;
+		firstChoiceProgramId: number | null;
+		secondChoiceProgramId: number | null;
+	}) {
+		const [records, requirements, schools] = await Promise.all([
+			db.query.academicRecords.findMany({
+				where: eq(academicRecords.applicantId, application.applicantId),
+				with: {
+					certificateType: {
+						columns: { id: true, name: true, lqfLevel: true },
+					},
+					subjectGrades: {
+						with: { subject: { columns: { id: true, name: true } } },
+					},
+				},
+			}),
+			db.query.entryRequirements.findMany({
+				with: {
+					certificateType: {
+						columns: { id: true, name: true, lqfLevel: true },
+					},
+				},
+			}),
+			db.query.recognizedSchools.findMany({
+				columns: { name: true },
+			}),
+		]);
+
+		const typedRequirements = requirements.map((er) => ({
+			programId: er.programId,
+			certificateType: er.certificateType,
+			rules: er.rules as SubjectGradeRules | ClassificationRules,
+		}));
+
+		const scores = calculateAllScores(
+			records,
+			application.firstChoiceProgramId,
+			application.secondChoiceProgramId,
+			typedRequirements,
+			schools
+		);
+
+		return this.repo.upsertScores(application.id, scores);
 	}
 }
 

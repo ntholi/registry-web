@@ -4,6 +4,7 @@ import {
 	applicantPhones,
 	applicants,
 	applicationNotes,
+	applicationScores,
 	applicationStatusHistory,
 	applications,
 	db,
@@ -83,6 +84,7 @@ export default class ApplicationRepository extends BaseRepository<
 					},
 					orderBy: (n, { desc }) => [desc(n.createdAt)],
 				},
+				scores: true,
 			},
 		});
 	}
@@ -190,6 +192,7 @@ export default class ApplicationRepository extends BaseRepository<
 					firstChoiceProgram: {
 						columns: { id: true, name: true, code: true },
 					},
+					scores: true,
 				},
 			}),
 			db
@@ -326,6 +329,50 @@ export default class ApplicationRepository extends BaseRepository<
 						endDate: true,
 					},
 				},
+			},
+		});
+	}
+
+	async upsertScores(
+		applicationId: string,
+		scores: {
+			overallScore: number | null;
+			firstChoiceScore: number | null;
+			secondChoiceScore: number | null;
+		}
+	) {
+		const [result] = await db
+			.insert(applicationScores)
+			.values({
+				applicationId,
+				...scores,
+				calculatedAt: new Date(),
+			})
+			.onConflictDoUpdate({
+				target: applicationScores.applicationId,
+				set: {
+					...scores,
+					calculatedAt: new Date(),
+				},
+			})
+			.returning();
+		return result;
+	}
+
+	async getScores(applicationId: string) {
+		return db.query.applicationScores.findFirst({
+			where: eq(applicationScores.applicationId, applicationId),
+		});
+	}
+
+	async findApplicationIdsByApplicant(applicantId: string) {
+		return db.query.applications.findMany({
+			where: eq(applications.applicantId, applicantId),
+			columns: {
+				id: true,
+				applicantId: true,
+				firstChoiceProgramId: true,
+				secondChoiceProgramId: true,
 			},
 		});
 	}
