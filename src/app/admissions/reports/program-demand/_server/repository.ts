@@ -1,4 +1,4 @@
-import { and, count, eq, inArray, type SQL } from 'drizzle-orm';
+import { and, count, desc, eq, inArray, type SQL } from 'drizzle-orm';
 import { applications, db, programs, schools } from '@/core/database';
 import type { AdmissionReportFilter } from '../../_shared/types';
 
@@ -173,7 +173,7 @@ export class ProgramDemandRepository {
 					undefined
 			)
 			.groupBy(schools.id, schools.code)
-			.orderBy(schools.code);
+			.orderBy(desc(count()), schools.code);
 
 		return rows;
 	}

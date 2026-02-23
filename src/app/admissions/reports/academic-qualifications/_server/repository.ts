@@ -1,4 +1,12 @@
-import { and, count, eq, inArray, isNotNull, type SQL } from 'drizzle-orm';
+import {
+	and,
+	count,
+	desc,
+	eq,
+	inArray,
+	isNotNull,
+	type SQL,
+} from 'drizzle-orm';
 import {
 	academicRecords,
 	applications,
@@ -71,7 +79,7 @@ export class AcademicQualificationsRepository {
 			)
 			.where(conditions.length ? and(...conditions) : undefined)
 			.groupBy(certificateTypes.id, certificateTypes.name)
-			.orderBy(certificateTypes.name);
+			.orderBy(desc(count()), certificateTypes.name);
 
 		return rows;
 	}
@@ -105,13 +113,10 @@ export class AcademicQualificationsRepository {
 			)
 			.groupBy(subjectGrades.standardGrade);
 
-		const gradeOrder = ['A*', 'A', 'B', 'C', 'D', 'E', 'F', 'U'];
 		return rows
 			.filter((r) => r.grade !== null)
 			.map((r) => ({ grade: r.grade!, count: r.count }))
-			.sort(
-				(a, b) => gradeOrder.indexOf(a.grade) - gradeOrder.indexOf(b.grade)
-			);
+			.sort((a, b) => b.count - a.count);
 	}
 
 	async getResultClassification(
@@ -139,14 +144,9 @@ export class AcademicQualificationsRepository {
 			)
 			.groupBy(academicRecords.resultClassification);
 
-		const classOrder = ['Distinction', 'Merit', 'Credit', 'Pass', 'Fail'];
 		return rows
 			.filter((r) => r.classification !== null)
 			.map((r) => ({ classification: r.classification!, count: r.count }))
-			.sort(
-				(a, b) =>
-					classOrder.indexOf(a.classification) -
-					classOrder.indexOf(b.classification)
-			);
+			.sort((a, b) => b.count - a.count);
 	}
 }

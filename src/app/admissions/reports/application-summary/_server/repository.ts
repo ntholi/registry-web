@@ -1,4 +1,4 @@
-import { and, count, eq, inArray, type SQL, sql } from 'drizzle-orm';
+import { and, count, desc, eq, inArray, type SQL, sql } from 'drizzle-orm';
 import { applications, db, programs, schools } from '@/core/database';
 import type { AdmissionReportFilter } from '../../_shared/types';
 
@@ -59,6 +59,7 @@ function buildConditions(filter: AdmissionReportFilter): SQL[] {
 export class ApplicationSummaryRepository {
 	async getSummaryData(filter: AdmissionReportFilter): Promise<SummaryRow[]> {
 		const conditions = buildConditions(filter);
+		const totalCount = count();
 
 		const rows = await db
 			.select({
@@ -88,7 +89,7 @@ export class ApplicationSummaryRepository {
 				waitlisted: count(
 					sql`CASE WHEN ${applications.status} = 'waitlisted' THEN 1 END`
 				),
-				total: count(),
+				total: totalCount,
 			})
 			.from(applications)
 			.innerJoin(programs, eq(applications.firstChoiceProgramId, programs.id))
@@ -101,7 +102,7 @@ export class ApplicationSummaryRepository {
 				programs.name,
 				programs.level
 			)
-			.orderBy(schools.code, programs.name);
+			.orderBy(desc(totalCount), schools.code, programs.name);
 
 		return rows.map((r) => ({
 			schoolName: r.schoolName,
@@ -158,6 +159,7 @@ export class ApplicationSummaryRepository {
 		const schoolRows = await db
 			.select({
 				school: schools.code,
+				total: count(),
 				draft: count(
 					sql`CASE WHEN ${applications.status} = 'draft' THEN 1 END`
 				),
@@ -185,8 +187,20 @@ export class ApplicationSummaryRepository {
 			.innerJoin(schools, eq(programs.schoolId, schools.id))
 			.where(whereClause)
 			.groupBy(schools.code)
-			.orderBy(schools.code);
+			.orderBy(desc(count()), schools.code);
 
-		return { statusDistribution, bySchool: schoolRows };
+		return {
+			statusDistribution,
+			bySchool: schoolRows.map((row) => ({
+				school: row.school,
+				draft: row.draft,
+				submitted: row.submitted,
+				under_review: row.under_review,
+				accepted_first_choice: row.accepted_first_choice,
+				accepted_second_choice: row.accepted_second_choice,
+				rejected: row.rejected,
+				waitlisted: row.waitlisted,
+			})),
+		};
 	}
 }

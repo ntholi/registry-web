@@ -203,8 +203,6 @@ export class DemographicsRepository {
 			}
 		}
 
-		return Array.from(schoolMap.values()).sort((a, b) =>
-			a.schoolName.localeCompare(b.schoolName)
-		);
+		return Array.from(schoolMap.values()).sort((a, b) => b.total - a.total);
 	}
 }
