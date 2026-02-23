@@ -1,7 +1,6 @@
 'use client';
 
-import { Badge, Table, Text } from '@mantine/core';
-import { getApplicationStatusColor } from '@/shared/lib/utils/colors';
+import { Table, Text } from '@mantine/core';
 import type { SummaryRow } from '../_server/repository';
 
 const STATUSES = [
@@ -22,6 +21,16 @@ const STATUS_LABELS: Record<string, string> = {
 	accepted_second_choice: '2nd Choice',
 	rejected: 'Rejected',
 	waitlisted: 'Waitlisted',
+};
+
+const STATUS_COLORS: Record<string, string> = {
+	draft: 'var(--mantine-color-gray-4)',
+	submitted: 'var(--mantine-color-blue-4)',
+	under_review: 'var(--mantine-color-yellow-4)',
+	accepted_first_choice: 'var(--mantine-color-green-4)',
+	accepted_second_choice: 'var(--mantine-color-teal-4)',
+	rejected: 'var(--mantine-color-red-4)',
+	waitlisted: 'var(--mantine-color-orange-4)',
 };
 
 type Props = {
@@ -46,16 +55,8 @@ export default function SummaryTable({ data }: Props) {
 						<Table.Th>School</Table.Th>
 						<Table.Th>Program</Table.Th>
 						{STATUSES.map((s) => (
-							<Table.Th key={s} ta='center'>
-								<Badge
-									size='xs'
-									color={getApplicationStatusColor(
-										s.replace(/_/g, '') as never
-									)}
-									variant='light'
-								>
-									{STATUS_LABELS[s]}
-								</Badge>
+							<Table.Th key={s} ta='center' fz='xs' c={STATUS_COLORS[s]}>
+								{STATUS_LABELS[s]}
 							</Table.Th>
 						))}
 						<Table.Th ta='center'>Total</Table.Th>
