@@ -3,7 +3,6 @@
 import DocumentViewer from '@admissions/documents/_components/DocumentViewer';
 import { Paper, SegmentedControl, Stack, Text } from '@mantine/core';
 import { useMemo, useState } from 'react';
-import type { DepositStatus } from '@/core/database';
 import { formatDateTime } from '@/shared/lib/utils/dates';
 import type { GroupedPaymentReviewDeposit } from '../_lib/types';
 import PaymentReviewSummary from './PaymentReviewSummary';
@@ -42,13 +41,18 @@ export default function PaymentReviewDocumentSwitcher({
 		<Stack gap='md'>
 			{deposits.length > 1 ? (
 				<SegmentedControl
+					color='blue'
 					fullWidth
 					size='sm'
 					value={selected.id}
 					onChange={setSelectedId}
 					data={deposits.map((item, idx) => ({
 						value: item.id,
-						label: `Doc ${idx + 1} • ${getStatusLabel(item.status)}`,
+						label:
+							item.transactionNumber ||
+							item.terminalNumber ||
+							item.reference ||
+							`Document ${idx + 1}`,
 					}))}
 				/>
 			) : null}
@@ -83,15 +87,4 @@ export default function PaymentReviewDocumentSwitcher({
 			)}
 		</Stack>
 	);
-}
-
-function getStatusLabel(status: DepositStatus) {
-	switch (status) {
-		case 'pending':
-			return 'Pending';
-		case 'verified':
-			return 'Verified';
-		case 'rejected':
-			return 'Rejected';
-	}
 }
