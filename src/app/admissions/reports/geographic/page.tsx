@@ -55,7 +55,8 @@ export default function GeographicPage() {
 			<Stack>
 				<Title order={2}>Geographic Distribution</Title>
 				<Text c='dimmed' size='sm'>
-					Application density maps for Southern Africa and Lesotho
+					Application density based on the geographic location from which
+					applicants accessed the application portal.
 				</Text>
 				<AdmissionReportFilterComponent onFilterChange={setFilter} />
 				<Tabs defaultValue='southern-africa'>
