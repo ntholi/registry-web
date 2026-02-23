@@ -5,14 +5,7 @@ import type {
 	SubjectGradeRules,
 } from '@admissions/entry-requirements/_lib/types';
 import { eq, isNull } from 'drizzle-orm';
-import {
-	academicRecords,
-	applicationScores,
-	applications,
-	db,
-	entryRequirements,
-	recognizedSchools,
-} from '@/core/database';
+import { applicationScores, applications, db } from '@/core/database';
 
 const BATCH_SIZE = 50;
 
