@@ -15,6 +15,7 @@ import {
 	failure,
 	success,
 } from '@/shared/lib/utils/actionResult';
+import { normalizeNationality } from '@/shared/lib/utils/countries';
 import { normalizeResultClassification } from '@/shared/lib/utils/resultClassification';
 import type { SubjectGradeInput } from '../../academic-records/_lib/types';
 import {
@@ -185,8 +186,9 @@ export async function updateApplicantFromIdentity(
 	if (data.nationalId && data.nationalId !== applicant.nationalId) {
 		updateData.nationalId = data.nationalId;
 	}
-	if (data.nationality && data.nationality !== applicant.nationality) {
-		updateData.nationality = data.nationality;
+	const normalized = normalizeNationality(data.nationality);
+	if (normalized && normalized !== applicant.nationality) {
+		updateData.nationality = normalized;
 	}
 	if (data.gender && data.gender !== applicant.gender) {
 		updateData.gender = data.gender;

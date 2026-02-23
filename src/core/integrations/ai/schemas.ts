@@ -54,7 +54,9 @@ const identitySchema = z.object({
 	nationality: z
 		.string()
 		.nullable()
-		.describe('Country of citizenship (e.g., Lesotho, South Africa)'),
+		.describe(
+			'Country name (NOT demonym). e.g., "Lesotho" not "Mosotho", "Eswatini" not "Swazi", "South Africa" not "South African"'
+		),
 	gender: z
 		.enum(['Male', 'Female'])
 		.nullable()

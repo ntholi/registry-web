@@ -8,6 +8,7 @@ import {
 	failure,
 	success,
 } from '@/shared/lib/utils/actionResult';
+import { normalizeNationality } from '@/shared/lib/utils/countries';
 import { applicantsService } from './service';
 
 export type PendingDocument = {
@@ -60,7 +61,8 @@ export async function createApplicantFromDocuments(
 			fullName: identity.fullName,
 			dateOfBirth: identity.dateOfBirth,
 			nationalId: identity.nationalId ?? undefined,
-			nationality: identity.nationality,
+			nationality:
+				normalizeNationality(identity.nationality) ?? identity.nationality,
 			gender: identity.gender,
 			birthPlace: identity.birthPlace ?? undefined,
 			address: identity.address ?? undefined,

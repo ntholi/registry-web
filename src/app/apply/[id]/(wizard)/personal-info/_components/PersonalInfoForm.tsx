@@ -16,6 +16,7 @@ import { useForm } from '@mantine/form';
 import { notifications } from '@mantine/notifications';
 import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'nextjs-toploader/app';
+import { getCountries } from '@/shared/lib/utils/countries';
 import WizardNavigation from '../../_components/WizardNavigation';
 import { updateApplicantInfo } from '../_server/actions';
 import GuardianManager from './GuardianManager';
@@ -112,9 +113,11 @@ export default function PersonalInfoForm({ applicationId }: Props) {
 								key={form.key('nationalId')}
 								{...form.getInputProps('nationalId')}
 							/>
-							<TextInput
+							<Select
 								label='Nationality'
-								placeholder='Enter nationality'
+								placeholder='Select nationality'
+								data={getCountries()}
+								searchable
 								key={form.key('nationality')}
 								{...form.getInputProps('nationality')}
 							/>

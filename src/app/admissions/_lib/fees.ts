@@ -8,7 +8,7 @@ export function resolveApplicationFee(
 	nationality: string | null
 ): string {
 	const value = nationality?.trim().toLowerCase();
-	if (value !== 'lesotho' && value !== 'mosotho') {
+	if (value !== 'lesotho') {
 		return intakePeriod.internationalApplicationFee;
 	}
 	return intakePeriod.localApplicationFee;

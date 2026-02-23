@@ -10,8 +10,7 @@ import type { AdmissionReportFilter } from '../../_shared/types';
 
 export const AGE_GROUPS = [
 	{ min: 12, max: 15, label: '12+' },
-	{ min: 16, max: 16, label: '16' },
-	{ min: 17, max: 17, label: '17' },
+	{ min: 16, max: 17, label: '16-17' },
 	{ min: 18, max: 19, label: '18-19' },
 	{ min: 20, max: 25, label: '20-25' },
 	{ min: 26, max: 35, label: '26-35' },
