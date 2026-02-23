@@ -1,10 +1,10 @@
 import DocumentViewer from '@admissions/documents/_components/DocumentViewer';
-import { Grid, GridCol, Paper, Stack, Text } from '@mantine/core';
+import { Paper, Stack, Text } from '@mantine/core';
 import { notFound } from 'next/navigation';
 import { formatDateTime } from '@/shared/lib/utils/dates';
 import { DetailsView } from '@/shared/ui/adease';
-import Link from '@/shared/ui/Link';
 import PaymentReviewHeader from '../_components/PaymentReviewHeader';
+import PaymentReviewSummary from '../_components/PaymentReviewSummary';
 import {
 	acquirePaymentReviewLock,
 	getBankDepositWithDocument,
@@ -28,70 +28,24 @@ export default async function DepositDetailsPage({ params }: Props) {
 		deposit.type === 'sales_receipt'
 			? 'Sales Receipt Review'
 			: 'Payment Review';
+	const transactionOrTerminal = deposit.transactionNumber || '-';
 
 	return (
 		<DetailsView>
 			<PaymentReviewHeader id={id} title={title} status={deposit.status} />
 
 			<Stack gap='md'>
-				<Paper withBorder radius='md' p='md'>
-					<Grid gutter='md'>
-						<GridCol span={{ base: 12, md: 4 }}>
-							<Text size='xs' c='dimmed'>
-								Applicant
-							</Text>
-							{applicant ? (
-								<Link href={`/admissions/applicants/${applicant.id}`}>
-									<Text size='sm' fw={500}>
-										{applicant.fullName}
-									</Text>
-								</Link>
-							) : (
-								<Text size='sm'>Unknown</Text>
-							)}
-						</GridCol>
-						<GridCol span={{ base: 12, md: 4 }}>
-							<Text size='xs' c='dimmed'>
-								Amount
-							</Text>
-							<Text size='sm' fw={500}>
-								{deposit.currency || 'M'} {deposit.amountDeposited || '0.00'}
-							</Text>
-						</GridCol>
-						<GridCol span={{ base: 12, md: 4 }}>
-							<Text size='xs' c='dimmed'>
-								Reference
-							</Text>
-							<Text size='sm' fw={500} ff='monospace'>
-								{deposit.reference}
-							</Text>
-						</GridCol>
-						<GridCol span={{ base: 12, md: 4 }}>
-							<Text size='xs' c='dimmed'>
-								Submitted
-							</Text>
-							<Text size='sm'>
-								{deposit.createdAt ? formatDateTime(deposit.createdAt) : '-'}
-							</Text>
-						</GridCol>
-						<GridCol span={{ base: 12, md: 4 }}>
-							<Text size='xs' c='dimmed'>
-								Depositor
-							</Text>
-							<Text size='sm'>{deposit.depositorName || '-'}</Text>
-						</GridCol>
-						<GridCol span={{ base: 12, md: 4 }}>
-							<Text size='xs' c='dimmed'>
-								Type
-							</Text>
-							<Text size='sm'>
-								{deposit.type === 'sales_receipt'
-									? 'Sales receipt'
-									: 'Bank deposit'}
-							</Text>
-						</GridCol>
-					</Grid>
-				</Paper>
+				<PaymentReviewSummary
+					applicantName={applicant?.fullName || 'Unknown'}
+					applicantId={applicant?.id || null}
+					amount={`${deposit.currency || 'M'} ${deposit.amountDeposited || '0.00'}`}
+					reference={deposit.reference}
+					submitted={
+						deposit.createdAt ? formatDateTime(deposit.createdAt) : '-'
+					}
+					depositor={deposit.depositorName || '-'}
+					transactionOrTerminal={transactionOrTerminal}
+				/>
 
 				{deposit.document?.fileUrl ? (
 					<DocumentViewer
