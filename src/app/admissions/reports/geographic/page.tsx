@@ -23,7 +23,7 @@ import SouthernAfricaMap from './_components/SouthernAfricaMap';
 import {
 	exportGeographicExcel,
 	getGeographicCountryData,
-	getGeographicDistrictData,
+	getGeographicLocationData,
 } from './_server/actions';
 
 export default function GeographicPage() {
@@ -34,9 +34,9 @@ export default function GeographicPage() {
 		queryFn: () => getGeographicCountryData(filter),
 	});
 
-	const { data: districts, isLoading: districtsLoading } = useQuery({
-		queryKey: ['geographic-districts', filter],
-		queryFn: () => getGeographicDistrictData(filter),
+	const { data: locations, isLoading: locationsLoading } = useQuery({
+		queryKey: ['geographic-locations', filter],
+		queryFn: () => getGeographicLocationData(filter),
 	});
 
 	async function handleExport() {
@@ -48,7 +48,7 @@ export default function GeographicPage() {
 	}
 
 	const maxCountry = Math.max(...(countries?.map((c) => c.count) ?? [1]));
-	const maxDistrict = Math.max(...(districts?.map((d) => d.count) ?? [1]));
+	const maxLocation = Math.max(...(locations?.map((l) => l.count) ?? [1]));
 
 	return (
 		<Container size='xl' p={{ base: 'sm', sm: 'xl' }}>
@@ -119,34 +119,34 @@ export default function GeographicPage() {
 						) : null}
 					</Tabs.Panel>
 					<Tabs.Panel value='lesotho' pt='md'>
-						{districtsLoading ? (
+						{locationsLoading ? (
 							<Loader />
-						) : districts ? (
+						) : locations ? (
 							<Grid>
 								<Grid.Col span={{ base: 12, md: 8 }}>
 									<Paper withBorder p='md'>
 										<Stack>
-											<LesothoMap data={districts} />
-											<MapLegend maxCount={maxDistrict} />
+											<LesothoMap data={locations} />
+											<MapLegend maxCount={maxLocation} />
 										</Stack>
 									</Paper>
 								</Grid.Col>
 								<Grid.Col span={{ base: 12, md: 4 }}>
 									<Paper withBorder p='md'>
 										<Stack>
-											<Title order={4}>By District</Title>
+											<Title order={4}>By Location</Title>
 											<Table striped highlightOnHover withTableBorder>
 												<Table.Thead>
 													<Table.Tr>
-														<Table.Th>District</Table.Th>
+														<Table.Th>Location</Table.Th>
 														<Table.Th ta='right'>Applications</Table.Th>
 													</Table.Tr>
 												</Table.Thead>
 												<Table.Tbody>
-													{districts.map((d) => (
-														<Table.Tr key={d.district}>
-															<Table.Td>{d.district}</Table.Td>
-															<Table.Td ta='right'>{d.count}</Table.Td>
+													{locations.map((l) => (
+														<Table.Tr key={l.city}>
+															<Table.Td>{l.city}</Table.Td>
+															<Table.Td ta='right'>{l.count}</Table.Td>
 														</Table.Tr>
 													))}
 												</Table.Tbody>

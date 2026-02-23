@@ -1,4 +1,13 @@
-import { and, count, eq, inArray, type SQL } from 'drizzle-orm';
+import {
+	and,
+	avg,
+	count,
+	desc,
+	eq,
+	inArray,
+	isNotNull,
+	type SQL,
+} from 'drizzle-orm';
 import {
 	applicantLocations,
 	applicants,
@@ -26,6 +35,13 @@ export interface CountryAggregation {
 export interface DistrictAggregation {
 	district: string;
 	count: number;
+}
+
+export interface LocationAggregation {
+	city: string;
+	count: number;
+	latitude: number;
+	longitude: number;
 }
 
 function buildConditions(filter: AdmissionReportFilter): SQL[] {
@@ -111,20 +127,22 @@ export class GeographicRepository {
 			}));
 	}
 
-	async getLocationData(
+	async getLocationAggregation(
 		filter: AdmissionReportFilter
-	): Promise<LocationData[]> {
+	): Promise<LocationAggregation[]> {
 		const conditions = buildConditions(filter);
-		const whereClause = conditions.length ? and(...conditions) : undefined;
+		conditions.push(eq(applicantLocations.country, 'Lesotho'));
+		conditions.push(isNotNull(applicantLocations.city));
+		conditions.push(isNotNull(applicantLocations.latitude));
+		conditions.push(isNotNull(applicantLocations.longitude));
+		const whereClause = and(...conditions);
 
 		const rows = await db
 			.select({
-				country: applicantLocations.country,
 				city: applicantLocations.city,
-				district: applicantLocations.district,
-				latitude: applicantLocations.latitude,
-				longitude: applicantLocations.longitude,
 				count: count(),
+				latitude: avg(applicantLocations.latitude),
+				longitude: avg(applicantLocations.longitude),
 			})
 			.from(applications)
 			.innerJoin(applicants, eq(applications.applicantId, applicants.id))
@@ -135,14 +153,17 @@ export class GeographicRepository {
 			.innerJoin(programs, eq(applications.firstChoiceProgramId, programs.id))
 			.innerJoin(schools, eq(programs.schoolId, schools.id))
 			.where(whereClause)
-			.groupBy(
-				applicantLocations.country,
-				applicantLocations.city,
-				applicantLocations.district,
-				applicantLocations.latitude,
-				applicantLocations.longitude
-			);
+			.groupBy(applicantLocations.city)
+			.orderBy(desc(count()))
+			.limit(10);
 
-		return rows;
+		return rows
+			.filter((r) => r.city && r.latitude && r.longitude)
+			.map((r) => ({
+				city: r.city!,
+				count: r.count,
+				latitude: Number(r.latitude),
+				longitude: Number(r.longitude),
+			}));
 	}
 }

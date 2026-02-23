@@ -1,23 +1,36 @@
 'use client';
 
-import { Popover, Stack, Text, useMantineColorScheme } from '@mantine/core';
+import { Tooltip, useMantineColorScheme } from '@mantine/core';
+import { useState } from 'react';
 import { LESOTHO_TOWNS } from '../_lib/lesothoTowns';
 import { LESOTHO_DISTRICTS, LESOTHO_VIEWBOX } from '../_lib/mapPaths';
-import type { DistrictAggregation } from '../_server/repository';
+import type { LocationAggregation } from '../_server/repository';
+
+const SCALE_X = 168;
+const OFFSET_X = -4485;
+const SCALE_Y = -192;
+const OFFSET_Y = -5434;
+
+function toSvg(lat: number, lon: number) {
+	return {
+		x: SCALE_X * lon + OFFSET_X,
+		y: SCALE_Y * lat + OFFSET_Y,
+	};
+}
 
 type Props = {
-	data: DistrictAggregation[];
+	data: LocationAggregation[];
 };
 
 export default function LesothoMap({ data }: Props) {
 	const { colorScheme } = useMantineColorScheme();
 	const isDark = colorScheme === 'dark';
+	const [hovered, setHovered] = useState<string | null>(null);
 
-	const countMap = new Map(data.map((d) => [d.district, d.count]));
 	const maxCount = Math.max(...data.map((d) => d.count), 1);
 
 	function getRadius(cnt: number) {
-		return 6 + (cnt / maxCount) * 20;
+		return 8 + (cnt / maxCount) * 18;
 	}
 
 	return (
@@ -26,10 +39,10 @@ export default function LesothoMap({ data }: Props) {
 			width='100%'
 			height='100%'
 			role='img'
-			aria-label='Map of Lesotho districts and application counts'
+			aria-label='Map of Lesotho locations and application counts'
 			style={{ maxHeight: 500 }}
 		>
-			<title>Lesotho districts application map</title>
+			<title>Lesotho locations application map</title>
 			{LESOTHO_DISTRICTS.map((district) => (
 				<path
 					key={district.name}
@@ -40,53 +53,51 @@ export default function LesothoMap({ data }: Props) {
 				/>
 			))}
 
-			{LESOTHO_DISTRICTS.map((district) => {
-				const cnt = countMap.get(district.name) ?? 0;
-				if (cnt === 0) return null;
-				const r = getRadius(cnt);
+			{data.map((loc) => {
+				const pos = toSvg(loc.latitude, loc.longitude);
+				const r = getRadius(loc.count);
+				const isHovered = hovered === loc.city;
 				return (
-					<Popover key={`bubble-${district.name}`} position='top' withArrow>
-						<Popover.Target>
-							<g style={{ cursor: 'pointer' }}>
-								<circle
-									cx={district.centroid.x}
-									cy={district.centroid.y}
-									r={r}
-									fill={
-										isDark
-											? 'rgba(56, 178, 172, 0.5)'
-											: 'rgba(18, 184, 134, 0.5)'
-									}
-									stroke={
-										isDark
-											? 'rgba(56, 178, 172, 0.8)'
-											: 'rgba(18, 184, 134, 0.8)'
-									}
-									strokeWidth={1.5}
-								/>
+					<Tooltip
+						key={loc.city}
+						label={`${loc.city}: ${loc.count} application${loc.count !== 1 ? 's' : ''}`}
+						withArrow
+						opened={isHovered}
+					>
+						{/* biome-ignore lint/a11y/noStaticElementInteractions: SVG group with hover */}
+						<g
+							aria-label={`${loc.city}: ${loc.count} applications`}
+							style={{ cursor: 'pointer' }}
+							onMouseEnter={() => setHovered(loc.city)}
+							onMouseLeave={() => setHovered(null)}
+						>
+							<circle
+								cx={pos.x}
+								cy={pos.y}
+								r={r}
+								fill={
+									isDark ? 'rgba(56, 178, 172, 0.5)' : 'rgba(18, 184, 134, 0.5)'
+								}
+								stroke={
+									isDark ? 'rgba(56, 178, 172, 0.8)' : 'rgba(18, 184, 134, 0.8)'
+								}
+								strokeWidth={1.5}
+								opacity={isHovered ? 0.9 : 0.7}
+							/>
+							{r >= 10 && (
 								<text
-									x={district.centroid.x}
-									y={district.centroid.y + 4}
+									x={pos.x}
+									y={pos.y + 4}
 									textAnchor='middle'
 									fontSize={10}
 									fill={isDark ? '#fff' : '#000'}
 									fontWeight={600}
 								>
-									{cnt}
+									{loc.count}
 								</text>
-							</g>
-						</Popover.Target>
-						<Popover.Dropdown>
-							<Stack gap={4}>
-								<Text size='sm' fw={600}>
-									{district.name}
-								</Text>
-								<Text size='xs' c='dimmed'>
-									{cnt} application{cnt !== 1 ? 's' : ''}
-								</Text>
-							</Stack>
-						</Popover.Dropdown>
-					</Popover>
+							)}
+						</g>
+					</Tooltip>
 				);
 			})}
 
@@ -113,12 +124,7 @@ export default function LesothoMap({ data }: Props) {
 				<text
 					key={`label-${district.name}`}
 					x={district.centroid.x}
-					y={
-						district.centroid.y -
-						(countMap.get(district.name)
-							? getRadius(countMap.get(district.name)!) + 8
-							: 0)
-					}
+					y={district.centroid.y}
 					textAnchor='middle'
 					fontSize={8}
 					fill={isDark ? 'rgba(255,255,255,0.7)' : 'rgba(0,0,0,0.6)'}

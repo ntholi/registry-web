@@ -1,6 +1,7 @@
 'use client';
 
-import { Popover, Stack, Text, useMantineColorScheme } from '@mantine/core';
+import { Tooltip, useMantineColorScheme } from '@mantine/core';
+import { useState } from 'react';
 import {
 	SOUTHERN_AFRICA_COUNTRIES,
 	SOUTHERN_AFRICA_VIEWBOX,
@@ -14,12 +15,13 @@ type Props = {
 export default function SouthernAfricaMap({ data }: Props) {
 	const { colorScheme } = useMantineColorScheme();
 	const isDark = colorScheme === 'dark';
+	const [hovered, setHovered] = useState<string | null>(null);
 
 	const countMap = new Map(data.map((c) => [c.country, c.count]));
 	const maxCount = Math.max(...data.map((c) => c.count), 1);
 
 	function getRadius(cnt: number) {
-		return 6 + (cnt / maxCount) * 24;
+		return 6 + (cnt / maxCount) * 20;
 	}
 
 	return (
@@ -46,26 +48,35 @@ export default function SouthernAfricaMap({ data }: Props) {
 				const cnt = countMap.get(country.name) ?? 0;
 				if (cnt === 0) return null;
 				const r = getRadius(cnt);
+				const isHovered = hovered === country.name;
 				return (
-					<Popover key={`bubble-${country.name}`} position='top' withArrow>
-						<Popover.Target>
-							<g style={{ cursor: 'pointer' }}>
-								<circle
-									cx={country.centroid.x}
-									cy={country.centroid.y}
-									r={r}
-									fill={
-										isDark
-											? 'rgba(77, 171, 247, 0.5)'
-											: 'rgba(34, 139, 230, 0.5)'
-									}
-									stroke={
-										isDark
-											? 'rgba(77, 171, 247, 0.8)'
-											: 'rgba(34, 139, 230, 0.8)'
-									}
-									strokeWidth={1.5}
-								/>
+					<Tooltip
+						key={`bubble-${country.name}`}
+						label={`${country.name}: ${cnt} application${cnt !== 1 ? 's' : ''}`}
+						withArrow
+						opened={isHovered}
+					>
+						{/* biome-ignore lint/a11y/noStaticElementInteractions: SVG group with hover */}
+						<g
+							aria-label={`${country.name}: ${cnt} applications`}
+							style={{ cursor: 'pointer' }}
+							onMouseEnter={() => setHovered(country.name)}
+							onMouseLeave={() => setHovered(null)}
+						>
+							<circle
+								cx={country.centroid.x}
+								cy={country.centroid.y}
+								r={r}
+								fill={
+									isDark ? 'rgba(77, 171, 247, 0.5)' : 'rgba(34, 139, 230, 0.5)'
+								}
+								stroke={
+									isDark ? 'rgba(77, 171, 247, 0.8)' : 'rgba(34, 139, 230, 0.8)'
+								}
+								strokeWidth={1.5}
+								opacity={isHovered ? 0.9 : 0.7}
+							/>
+							{r >= 10 && (
 								<text
 									x={country.centroid.x}
 									y={country.centroid.y + 4}
@@ -76,19 +87,9 @@ export default function SouthernAfricaMap({ data }: Props) {
 								>
 									{cnt}
 								</text>
-							</g>
-						</Popover.Target>
-						<Popover.Dropdown>
-							<Stack gap={4}>
-								<Text size='sm' fw={600}>
-									{country.name}
-								</Text>
-								<Text size='xs' c='dimmed'>
-									{cnt} application{cnt !== 1 ? 's' : ''}
-								</Text>
-							</Stack>
-						</Popover.Dropdown>
-					</Popover>
+							)}
+						</g>
+					</Tooltip>
 				);
 			})}
 

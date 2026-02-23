@@ -7,8 +7,8 @@ export async function getGeographicCountryData(filter: AdmissionReportFilter) {
 	return geographicService.getCountryData(filter);
 }
 
-export async function getGeographicDistrictData(filter: AdmissionReportFilter) {
-	return geographicService.getDistrictData(filter);
+export async function getGeographicLocationData(filter: AdmissionReportFilter) {
+	return geographicService.getLocationData(filter);
 }
 
 export async function exportGeographicExcel(filter: AdmissionReportFilter) {

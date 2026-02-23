@@ -1,9 +1,9 @@
 import ExcelJS from 'exceljs';
-import type { CountryAggregation, DistrictAggregation } from './repository';
+import type { CountryAggregation, LocationAggregation } from './repository';
 
 export async function createGeographicExcel(
 	countries: CountryAggregation[],
-	districts: DistrictAggregation[]
+	locations: LocationAggregation[]
 ): Promise<Buffer> {
 	const wb = new ExcelJS.Workbook();
 
@@ -23,20 +23,20 @@ export async function createGeographicExcel(
 		countrySheet.addRow(c);
 	}
 
-	const districtSheet = wb.addWorksheet('By District');
-	districtSheet.columns = [
-		{ header: 'District', key: 'district', width: 30 },
+	const locationSheet = wb.addWorksheet('By Location');
+	locationSheet.columns = [
+		{ header: 'Location', key: 'city', width: 30 },
 		{ header: 'Applications', key: 'count', width: 15 },
 	];
-	const districtHeader = districtSheet.getRow(1);
-	districtHeader.font = { bold: true, color: { argb: 'FFFFFFFF' } };
-	districtHeader.fill = {
+	const locationHeader = locationSheet.getRow(1);
+	locationHeader.font = { bold: true, color: { argb: 'FFFFFFFF' } };
+	locationHeader.fill = {
 		type: 'pattern' as const,
 		pattern: 'solid' as const,
 		fgColor: { argb: 'FF4472C4' },
 	};
-	for (const d of districts) {
-		districtSheet.addRow(d);
+	for (const l of locations) {
+		locationSheet.addRow({ city: l.city, count: l.count });
 	}
 
 	const buffer = await wb.xlsx.writeBuffer();

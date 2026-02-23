@@ -14,9 +14,9 @@ export class GeographicService {
 		);
 	}
 
-	async getDistrictData(filter: AdmissionReportFilter) {
+	async getLocationData(filter: AdmissionReportFilter) {
 		return withAuth(
-			async () => this.repository.getDistrictAggregation(filter),
+			async () => this.repository.getLocationAggregation(filter),
 			['registry', 'marketing', 'admin']
 		);
 	}
@@ -24,8 +24,8 @@ export class GeographicService {
 	async exportExcel(filter: AdmissionReportFilter): Promise<Buffer> {
 		return withAuth(async () => {
 			const countries = await this.repository.getCountryAggregation(filter);
-			const districts = await this.repository.getDistrictAggregation(filter);
-			return createGeographicExcel(countries, districts);
+			const locations = await this.repository.getLocationAggregation(filter);
+			return createGeographicExcel(countries, locations);
 		}, ['registry', 'marketing', 'admin']);
 	}
 }
