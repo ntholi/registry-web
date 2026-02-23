@@ -86,7 +86,7 @@ export class GeographicRepository {
 			.innerJoin(schools, eq(programs.schoolId, schools.id))
 			.where(whereClause)
 			.groupBy(applicantLocations.country)
-			.orderBy(count());
+			.orderBy(desc(count()));
 
 		return rows
 			.filter((r) => r.country)

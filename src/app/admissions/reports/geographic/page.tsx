@@ -59,16 +59,16 @@ export default function GeographicPage() {
 					applicants accessed the application portal.
 				</Text>
 				<AdmissionReportFilterComponent onFilterChange={setFilter} />
-				<Tabs defaultValue='southern-africa'>
+				<Tabs defaultValue='lesotho'>
 					<Tabs.List>
+						<Tabs.Tab value='lesotho' leftSection={<IconMap size={16} />}>
+							Lesotho
+						</Tabs.Tab>
 						<Tabs.Tab
 							value='southern-africa'
 							leftSection={<IconWorld size={16} />}
 						>
 							Southern Africa
-						</Tabs.Tab>
-						<Tabs.Tab value='lesotho' leftSection={<IconMap size={16} />}>
-							Lesotho
 						</Tabs.Tab>
 						<Button
 							variant='light'
