@@ -397,6 +397,103 @@ In previous Moodle branches:
 
 Save changes.
 
+## 3) Google OAuth2 Authentication
+
+Enable "Log in with Google" so users can authenticate using their Google accounts.
+
+### 3.1 Create Google OAuth2 Credentials
+
+1. Go to the [Google Cloud Console](https://console.cloud.google.com/).
+2. Select or create a project.
+3. Navigate to **APIs & Services > Credentials**.
+4. Click **Create Credentials > OAuth client ID**.
+5. If prompted, configure the **OAuth consent screen** first:
+   - User Type: **External** (or **Internal** if using Google Workspace and you only want org users).
+   - Fill in the app name, user support email, and developer contact email.
+   - Under **Scopes**, add `email`, `profile`, and `openid`.
+   - Save and continue.
+6. Back on **Create OAuth client ID**:
+   - Application type: **Web application**.
+   - Name: e.g. `Moodle OAuth`.
+   - **Authorized redirect URIs**: Add `https://<your-moodle-domain>/admin/oauth2callback.php`
+   - Click **Create**.
+7. Copy the **Client ID** and **Client Secret**. You will need them in the next step.
+
+### 3.2 Configure OAuth2 Service in Moodle
+
+1. Log in to Moodle as an admin.
+2. Go to **Site administration > Server > OAuth 2 services**.
+3. Click the **Google** button under "Create new service" to use the built-in Google template.
+4. Fill in the form:
+   - **Name**: `Google`
+   - **Client ID**: Paste the Client ID from step 3.1.
+   - **Client secret**: Paste the Client Secret from step 3.1.
+   - Leave the remaining fields at their defaults.
+5. Click **Save changes**.
+6. Verify the service shows a green checkmark indicating it is configured correctly.
+
+### 3.3 Enable OAuth2 Login Plugin
+
+1. Go to **Site administration > Plugins > Authentication > Manage authentication**.
+2. Find **OAuth 2** in the list and click the **eye icon** to enable it.
+3. Optionally, under the OAuth 2 settings on that page, check **Prevent account creation** if you only want existing Moodle users to log in with Google (no auto-registration).
+
+### 3.4 Link OAuth2 Service to Login
+
+1. Still on the **Manage authentication** page, click **Settings** next to **OAuth 2**.
+2. Ensure the Google service you created is listed and enabled.
+3. Save changes.
+
+### 3.5 Disable Email Confirmation for OAuth2 Users
+
+By default, Moodle requires email confirmation for new accounts created via OAuth2. Since Google already verifies email addresses, this is unnecessary and blocks users from logging in immediately.
+
+#### Option A: Via the OAuth2 Service Configuration
+
+1. Go to **Site administration > Server > OAuth 2 services**.
+2. Click the **gear/edit icon** next to your Google service.
+3. Uncheck **Require email verification** (if visible).
+4. Save changes.
+
+#### Option B: Via Database (if the UI option is not visible)
+
+The `requireconfirmation` flag lives on the OAuth2 issuer record. Set it to `0` to skip email confirmation:
+
+```bash
+sudo mysql -e "UPDATE moodle.mdl_oauth2_issuer SET requireconfirmation = 0 WHERE name = 'Google';"
+```
+
+Purge Moodle's caches after the change:
+
+```bash
+sudo -u www-data /usr/bin/php $MOODLE_CODE_FOLDER/admin/cli/purge_caches.php
+```
+
+#### Fix Users Already Stuck in "Pending Email Confirmation"
+
+If users have already signed in and are stuck with unconfirmed accounts, confirm them manually:
+
+```bash
+sudo mysql -e "UPDATE moodle.mdl_user SET confirmed = 1 WHERE confirmed = 0 AND auth = 'oauth2';"
+```
+
+### 3.6 Test Google Login
+
+1. Open your Moodle site in a private/incognito browser window.
+2. On the login page, you should see a **Log in with Google** button.
+3. Click it and authenticate with a Google account.
+4. Verify the user is logged in and their profile is created (or linked to an existing account).
+
+### 3.7 Restrict to Specific Email Domain (Optional)
+
+To limit Google login to a specific organization domain (e.g. `@limkokwing.ac.ls`):
+
+1. Go to **Site administration > Plugins > Authentication > Manage authentication**.
+2. Under **OAuth 2** settings, enter the allowed email domain(s) to restrict sign-ups.
+3. Alternatively, on the Google Cloud Console under your OAuth consent screen, set the app to **Internal** (Google Workspace only) so only your organization members can authenticate.
+
 ## Sources
 
 - MoodleDocs Ubuntu step-by-step: https://docs.moodle.org/en/Step-by-step_Installation_Guide_for_Ubuntu
+- MoodleDocs OAuth 2 authentication: https://docs.moodle.org/en/OAuth_2_authentication
+- MoodleDocs OAuth 2 Google service: https://docs.moodle.org/en/OAuth_2_Google_service
