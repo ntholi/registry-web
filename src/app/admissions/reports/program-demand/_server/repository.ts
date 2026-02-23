@@ -4,6 +4,7 @@ import type { AdmissionReportFilter } from '../../_shared/types';
 
 export interface ProgramDemandRow {
 	programId: number;
+	programCode: string;
 	programName: string;
 	programLevel: string;
 	schoolName: string;
@@ -49,6 +50,7 @@ export class ProgramDemandRepository {
 		const firstChoice = db
 			.select({
 				programId: programs.id,
+				programCode: programs.code,
 				programName: programs.name,
 				programLevel: programs.level,
 				schoolName: schools.code,
@@ -66,6 +68,7 @@ export class ProgramDemandRepository {
 			)
 			.groupBy(
 				programs.id,
+				programs.code,
 				programs.name,
 				programs.level,
 				schools.id,
@@ -75,6 +78,7 @@ export class ProgramDemandRepository {
 		const secondChoice = db
 			.select({
 				programId: programs.id,
+				programCode: programs.code,
 				programName: programs.name,
 				programLevel: programs.level,
 				schoolName: schools.code,
@@ -92,6 +96,7 @@ export class ProgramDemandRepository {
 			)
 			.groupBy(
 				programs.id,
+				programs.code,
 				programs.name,
 				programs.level,
 				schools.id,
@@ -108,6 +113,7 @@ export class ProgramDemandRepository {
 		for (const r of firstRows) {
 			map.set(r.programId, {
 				programId: r.programId,
+				programCode: r.programCode,
 				programName: r.programName,
 				programLevel: r.programLevel,
 				schoolName: r.schoolName,
@@ -126,6 +132,7 @@ export class ProgramDemandRepository {
 			} else {
 				map.set(r.programId, {
 					programId: r.programId,
+					programCode: r.programCode,
 					programName: r.programName,
 					programLevel: r.programLevel,
 					schoolName: r.schoolName,

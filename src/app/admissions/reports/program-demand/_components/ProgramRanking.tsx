@@ -9,12 +9,10 @@ type Props = {
 };
 
 export default function ProgramRanking({ data }: Props) {
-	const top = data.slice(0, 20);
+	const top = data.slice(0, 30);
 	const chartData = top.map((r) => ({
-		program:
-			r.programName.length > 30
-				? `${r.programName.slice(0, 27)}...`
-				: r.programName,
+		programCode: r.programCode,
+		programName: r.programName,
 		Applications: r.total,
 	}));
 
@@ -27,13 +25,21 @@ export default function ProgramRanking({ data }: Props) {
 				</Text>
 				{chartData.length > 0 ? (
 					<BarChart
-						h={Math.max(400, top.length * 35)}
+						h={420}
 						data={chartData}
-						dataKey='program'
-						orientation='vertical'
+						dataKey='programCode'
+						orientation='horizontal'
 						series={[{ name: 'Applications', color: 'blue.6' }]}
 						gridAxis='x'
 						tickLine='x'
+						xAxisProps={{
+							tick: { fontSize: 10, fill: 'var(--mantine-color-text)' },
+						}}
+						yAxisProps={{ width: 32 }}
+						tooltipProps={{
+							labelFormatter: (_, payload) =>
+								payload?.[0]?.payload?.programName ?? '',
+						}}
 					/>
 				) : (
 					<Text c='dimmed' ta='center' py='xl'>

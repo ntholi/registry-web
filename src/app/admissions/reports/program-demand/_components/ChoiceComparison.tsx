@@ -9,12 +9,10 @@ type Props = {
 };
 
 export default function ChoiceComparison({ data }: Props) {
-	const top = data.slice(0, 15);
+	const top = data.slice(0, 30);
 	const chartData = top.map((r) => ({
-		program:
-			r.programName.length > 25
-				? `${r.programName.slice(0, 22)}...`
-				: r.programName,
+		programCode: r.programCode,
+		programName: r.programName,
 		'1st Choice': r.firstChoice,
 		'2nd Choice': r.secondChoice,
 	}));
@@ -28,16 +26,24 @@ export default function ChoiceComparison({ data }: Props) {
 				</Text>
 				{chartData.length > 0 ? (
 					<BarChart
-						h={Math.max(400, top.length * 40)}
+						h={420}
 						data={chartData}
-						dataKey='program'
-						orientation='vertical'
+						dataKey='programCode'
+						orientation='horizontal'
 						series={[
 							{ name: '1st Choice', color: 'blue.6' },
 							{ name: '2nd Choice', color: 'cyan.6' },
 						]}
 						gridAxis='x'
 						tickLine='x'
+						xAxisProps={{
+							tick: { fontSize: 10, fill: 'var(--mantine-color-text)' },
+						}}
+						yAxisProps={{ width: 32 }}
+						tooltipProps={{
+							labelFormatter: (_, payload) =>
+								payload?.[0]?.payload?.programName ?? '',
+						}}
 					/>
 				) : (
 					<Text c='dimmed' ta='center' py='xl'>
