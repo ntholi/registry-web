@@ -19,6 +19,7 @@ import {
 import type { ModuleConfig } from '@/app/dashboard/module-config.types';
 import { moduleConfig } from '@/config/modules.config';
 import { countPendingDocumentsForReview } from './documents/_server/actions';
+import { countPendingPaymentsForReview } from './payments/_server/actions';
 
 export const admissionsConfig: ModuleConfig = {
 	id: 'admissions',
@@ -45,6 +46,11 @@ export const admissionsConfig: ModuleConfig = {
 				href: '/admissions/payments',
 				icon: IconCreditCard,
 				roles: ['finance', 'admin'],
+				notificationCount: {
+					queryKey: ['payments', 'pending-review-count'],
+					queryFn: countPendingPaymentsForReview,
+					color: 'red',
+				},
 			},
 			{
 				label: 'Document Review',

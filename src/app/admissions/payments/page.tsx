@@ -1,5 +1,5 @@
 import { NothingSelected } from '@/shared/ui/adease';
 
 export default function PaymentsPage() {
-	return <NothingSelected title='Bank Deposits' />;
+	return <NothingSelected title='Payment Review' />;
 }

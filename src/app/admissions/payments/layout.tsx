@@ -1,74 +1,94 @@
 'use client';
 
-import { Badge, Group } from '@mantine/core';
+import { ThemeIcon } from '@mantine/core';
+import { IconAlertCircle, IconCheck, IconClock } from '@tabler/icons-react';
 import { useSearchParams } from 'next/navigation';
 import { useRouter } from 'nextjs-toploader/app';
 import type { PropsWithChildren } from 'react';
 import { getDepositStatusColor } from '@/shared/lib/utils/colors';
 import { ListItem, ListLayout } from '@/shared/ui/adease';
 import DepositStatusFilter from './_components/DepositStatusFilter';
-import type {
-	BankDepositWithRelations,
-	DepositFilters,
-	DepositStatus,
-} from './_lib/types';
+import type { DepositFilters, DepositStatus } from './_lib/types';
 import { getBankDeposits } from './_server/actions';
+
+type PaymentReviewItem = {
+	id: string;
+	status: DepositStatus;
+	type: 'bank_deposit' | 'sales_receipt';
+	reference: string;
+	amountDeposited: string | null;
+	applicationId: string | null;
+	applicantId: string | null;
+	applicantName: string | null;
+	createdAt: Date | null;
+};
 
 export default function PaymentsLayout({ children }: PropsWithChildren) {
 	const router = useRouter();
 	const searchParams = useSearchParams();
 	const statusFilter =
-		(searchParams.get('status') as DepositStatus) || undefined;
+		(searchParams.get('status') as DepositStatus | 'all' | null) || 'pending';
 
 	async function fetchDeposits(page: number, search: string) {
 		const filters: DepositFilters = {};
-		if (statusFilter) filters.status = statusFilter;
+		if (statusFilter !== 'all') filters.status = statusFilter;
 		return getBankDeposits(page, search, filters);
 	}
 
 	function handleStatusChange(value: string | null) {
 		const params = new URLSearchParams(searchParams);
-		if (value && value !== 'all') {
+		if (value && value !== 'pending') {
 			params.set('status', value);
 		} else {
 			params.delete('status');
 		}
 		params.delete('page');
-		router.push(`/admissions/payments?${params.toString()}`);
+		const query = params.toString();
+		router.push(
+			query ? `/admissions/payments?${query}` : '/admissions/payments'
+		);
 	}
 
 	return (
-		<ListLayout<BankDepositWithRelations>
+		<ListLayout<PaymentReviewItem>
 			path='/admissions/payments'
-			queryKey={['bank-deposits', statusFilter || 'all']}
+			queryKey={['payments-review', statusFilter]}
 			getData={fetchDeposits}
 			actionIcons={[
 				<DepositStatusFilter
 					key='status-filter'
-					value={statusFilter || 'all'}
+					value={statusFilter}
 					onChange={handleStatusChange}
 				/>,
 			]}
 			renderItem={(deposit) => (
 				<ListItem
 					id={deposit.id}
-					label={
-						<Group gap='xs'>
-							{deposit.application?.applicant?.fullName || 'Unknown'}
-							<Badge
-								size='xs'
-								variant='light'
-								color={getDepositStatusColor(deposit.status)}
-							>
-								{deposit.status}
-							</Badge>
-						</Group>
+					label={deposit.applicantName || 'Unknown'}
+					description={`M ${deposit.amountDeposited || '0.00'} • ${deposit.reference}`}
+					rightSection={
+						<ThemeIcon
+							variant='transparent'
+							c={getDepositStatusColor(deposit.status)}
+						>
+							{getStatusIcon(deposit.status)}
+						</ThemeIcon>
 					}
-					description={`M ${deposit.amountDeposited || '0.00'} | ${deposit.reference}`}
 				/>
 			)}
 		>
 			{children}
 		</ListLayout>
 	);
+}
+
+function getStatusIcon(status: DepositStatus) {
+	switch (status) {
+		case 'pending':
+			return <IconClock size='1rem' />;
+		case 'verified':
+			return <IconCheck size='1rem' />;
+		case 'rejected':
+			return <IconAlertCircle size='1rem' />;
+	}
 }

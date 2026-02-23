@@ -11,32 +11,31 @@ import withAuth from '@/core/platform/withAuth';
 import type { DepositFilters } from '../_lib/types';
 import PaymentRepository from './repository';
 
+const ROLES = ['registry', 'marketing', 'admin', 'finance'] as const;
+
 class PaymentService extends BaseService<typeof bankDeposits, 'id'> {
 	private repo: PaymentRepository;
 
 	constructor() {
 		const repo = new PaymentRepository();
 		super(repo, {
-			byIdRoles: ['registry', 'marketing', 'admin', 'finance'],
-			findAllRoles: ['registry', 'marketing', 'admin', 'finance'],
+			byIdRoles: [...ROLES],
+			findAllRoles: [...ROLES],
 			createRoles: ['registry', 'marketing', 'admin', 'applicant'],
-			updateRoles: ['registry', 'marketing', 'admin', 'finance'],
+			updateRoles: [...ROLES],
 			deleteRoles: ['admin'],
 		});
 		this.repo = repo;
 	}
 
 	async getBankDeposit(id: string) {
-		return withAuth(
-			async () => this.repo.findBankDepositById(id),
-			['registry', 'marketing', 'admin', 'finance']
-		);
+		return withAuth(async () => this.repo.findBankDepositById(id), [...ROLES]);
 	}
 
 	async getBankDepositWithDocument(id: string) {
 		return withAuth(
 			async () => this.repo.findBankDepositWithDocument(id),
-			['registry', 'marketing', 'admin', 'finance']
+			[...ROLES]
 		);
 	}
 
@@ -46,15 +45,16 @@ class PaymentService extends BaseService<typeof bankDeposits, 'id'> {
 		filters?: DepositFilters
 	) {
 		return withAuth(
-			async () => this.repo.searchBankDeposits(page, search, filters),
-			['registry', 'marketing', 'admin', 'finance']
+			async (session) =>
+				this.repo.searchBankDeposits(page, search, filters, session?.user?.id),
+			[...ROLES]
 		);
 	}
 
 	async getBankDepositsByApplication(applicationId: string) {
 		return withAuth(
 			async () => this.repo.findBankDepositsByApplication(applicationId),
-			['registry', 'marketing', 'admin', 'finance', 'applicant']
+			[...ROLES, 'applicant']
 		);
 	}
 
@@ -98,11 +98,11 @@ class PaymentService extends BaseService<typeof bankDeposits, 'id'> {
 
 				return { deposit, receipt };
 			},
-			['registry', 'marketing', 'admin', 'finance']
+			[...ROLES]
 		);
 	}
 
-	async rejectBankDeposit(depositId: string) {
+	async rejectBankDeposit(depositId: string, rejectionReason?: string) {
 		return withAuth(async () => {
 			const deposit = await this.repo.findBankDepositById(depositId);
 			if (!deposit) {
@@ -113,7 +113,11 @@ class PaymentService extends BaseService<typeof bankDeposits, 'id'> {
 				throw new Error('Deposit is not pending');
 			}
 
-			await this.repo.updateBankDepositStatus(depositId, 'rejected');
+			await this.repo.updateBankDepositStatus(
+				depositId,
+				'rejected',
+				rejectionReason
+			);
 
 			if (deposit.application?.id) {
 				await this.repo.updateApplicationStatus(
@@ -123,13 +127,74 @@ class PaymentService extends BaseService<typeof bankDeposits, 'id'> {
 			}
 
 			return { success: true };
-		}, ['registry', 'marketing', 'admin', 'finance']);
+		}, [...ROLES]);
+	}
+
+	async updateReviewStatus(
+		depositId: string,
+		status: DepositStatus,
+		rejectionReason?: string
+	) {
+		return withAuth(
+			async () =>
+				this.repo.updateBankDepositStatus(depositId, status, rejectionReason),
+			[...ROLES]
+		);
 	}
 
 	async countBankDepositsByStatus(status: DepositStatus) {
 		return withAuth(
 			async () => this.repo.countBankDepositsByStatus(status),
-			['registry', 'marketing', 'admin', 'finance']
+			[...ROLES]
+		);
+	}
+
+	async acquireLock(depositId: string) {
+		return withAuth(
+			async (session) => {
+				const userId = session?.user?.id;
+				if (!userId) return null;
+				return this.repo.acquireLock(depositId, userId);
+			},
+			[...ROLES]
+		);
+	}
+
+	async releaseLock(depositId: string) {
+		return withAuth(
+			async (session) => {
+				const userId = session?.user?.id;
+				if (!userId) return null;
+				return this.repo.releaseLock(depositId, userId);
+			},
+			[...ROLES]
+		);
+	}
+
+	async releaseAllLocks() {
+		return withAuth(
+			async (session) => {
+				const userId = session?.user?.id;
+				if (!userId) return;
+				return this.repo.releaseAllLocks(userId);
+			},
+			[...ROLES]
+		);
+	}
+
+	async findNextUnlocked(
+		currentId: string,
+		filters?: {
+			status?: DepositStatus;
+		}
+	) {
+		return withAuth(
+			async (session) => {
+				const userId = session?.user?.id;
+				if (!userId) return null;
+				return this.repo.findNextUnlocked(currentId, userId, filters);
+			},
+			[...ROLES]
 		);
 	}
 

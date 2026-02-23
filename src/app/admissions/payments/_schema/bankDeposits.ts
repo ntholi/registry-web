@@ -1,4 +1,5 @@
 import { applications } from '@admissions/applications/_schema/applications';
+import { users } from '@auth/users/_schema/users';
 import { documents } from '@registry/documents/_schema/documents';
 import {
 	decimal,
@@ -42,6 +43,7 @@ export const bankDeposits = pgTable(
 		status: depositStatus().notNull().default('pending'),
 		reference: text().notNull(),
 		receiptNumber: text(),
+		rejectionReason: text(),
 		beneficiaryName: text(),
 		dateDeposited: text(),
 		amountDeposited: decimal({ precision: 10, scale: 2 }),
@@ -51,6 +53,10 @@ export const bankDeposits = pgTable(
 		paymentMode: text(),
 		transactionNumber: text(),
 		terminalNumber: text(),
+		reviewLockedBy: text().references(() => users.id, {
+			onDelete: 'set null',
+		}),
+		reviewLockedAt: timestamp({ mode: 'date' }),
 		createdAt: timestamp().defaultNow(),
 	},
 	(table) => ({
