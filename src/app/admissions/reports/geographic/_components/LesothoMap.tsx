@@ -6,10 +6,10 @@ import { LESOTHO_TOWNS } from '../_lib/lesothoTowns';
 import { LESOTHO_DISTRICTS, LESOTHO_VIEWBOX } from '../_lib/mapPaths';
 import type { LocationAggregation } from '../_server/repository';
 
-const SCALE_X = 168;
-const OFFSET_X = -4485;
-const SCALE_Y = -192;
-const OFFSET_Y = -5434;
+const SCALE_X = 162.8;
+const OFFSET_X = -4302.6;
+const SCALE_Y = -201.0;
+const OFFSET_Y = -5696.6;
 
 const TOWN_COORDINATE_MAP = new Map(
 	LESOTHO_TOWNS.map((town) => [normalizeLocationKey(town.name), town])
