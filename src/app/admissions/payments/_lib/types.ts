@@ -32,3 +32,56 @@ export interface BankDepositWithRelations extends BankDeposit {
 	} | null;
 	receipt: AdmissionReceipt | null;
 }
+
+export interface GroupedPaymentReviewItem {
+	id: string;
+	status: DepositStatus;
+	reference: string | null;
+	amountDeposited: string;
+	documentsCount: number;
+	applicationId: string | null;
+	applicantId: string | null;
+	applicantName: string | null;
+	createdAt: Date | null;
+}
+
+export interface GroupedPaymentReviewDeposit extends BankDeposit {
+	document: {
+		id: string;
+		fileName: string | null;
+		fileUrl: string | null;
+		type: string | null;
+		createdAt: Date | null;
+	} | null;
+	receipt: {
+		id: string;
+		receiptNo: string | null;
+		createdBy: string | null;
+		createdAt: Date | null;
+		createdByUser: {
+			id: string;
+			name: string | null;
+		} | null;
+	} | null;
+}
+
+export interface GroupedPaymentReviewDetail {
+	application: {
+		id: string;
+		status: string;
+		paymentStatus: string;
+		applicant: {
+			id: string;
+			fullName: string | null;
+			nationalId: string | null;
+			nationality: string | null;
+		} | null;
+		intakePeriod: {
+			id: string;
+			name: string | null;
+			localApplicationFee: string | null;
+			internationalApplicationFee: string | null;
+		} | null;
+	} | null;
+	deposits: GroupedPaymentReviewDeposit[];
+}

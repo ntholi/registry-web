@@ -1,11 +1,10 @@
 import {
 	and,
-	count,
+	asc,
 	desc,
 	eq,
 	exists,
 	ilike,
-	isNull,
 	or,
 	type SQL,
 	sql,
@@ -19,6 +18,7 @@ import {
 	type DepositStatus,
 	db,
 	documents,
+	intakePeriods,
 	mobileDeposits,
 	users,
 } from '@/core/database';
@@ -53,45 +53,148 @@ export default class PaymentRepository extends BaseRepository<
 	}
 
 	async findBankDepositWithDocument(id: string) {
-		const deposit = await db.query.bankDeposits.findFirst({
-			where: eq(bankDeposits.id, id),
-			with: {
-				application: {
-					columns: { id: true, status: true, paymentStatus: true },
-					with: {
-						applicant: {
-							columns: {
-								id: true,
-								fullName: true,
-								nationalId: true,
-								nationality: true,
-							},
-						},
-						intakePeriod: {
-							columns: {
-								id: true,
-								name: true,
-								localApplicationFee: true,
-								internationalApplicationFee: true,
-							},
-						},
-					},
-				},
-				receipt: {
-					with: {
-						createdByUser: { columns: { id: true, name: true } },
-					},
-				},
-			},
-		});
+		const rows = await db
+			.select({
+				applicationId: applications.id,
+				applicationStatus: applications.status,
+				applicationPaymentStatus: applications.paymentStatus,
+				applicantId: applicants.id,
+				applicantName: applicants.fullName,
+				applicantNationalId: applicants.nationalId,
+				applicantNationality: applicants.nationality,
+				intakePeriodId: intakePeriods.id,
+				intakePeriodName: intakePeriods.name,
+				intakePeriodLocalApplicationFee: intakePeriods.localApplicationFee,
+				intakePeriodInternationalApplicationFee:
+					intakePeriods.internationalApplicationFee,
+				depositId: bankDeposits.id,
+				depositApplicationId: bankDeposits.applicationId,
+				documentId: bankDeposits.documentId,
+				receiptId: bankDeposits.receiptId,
+				type: bankDeposits.type,
+				status: bankDeposits.status,
+				reference: bankDeposits.reference,
+				receiptNumber: bankDeposits.receiptNumber,
+				rejectionReason: bankDeposits.rejectionReason,
+				beneficiaryName: bankDeposits.beneficiaryName,
+				dateDeposited: bankDeposits.dateDeposited,
+				amountDeposited: bankDeposits.amountDeposited,
+				currency: bankDeposits.currency,
+				depositorName: bankDeposits.depositorName,
+				bankName: bankDeposits.bankName,
+				paymentMode: bankDeposits.paymentMode,
+				transactionNumber: bankDeposits.transactionNumber,
+				terminalNumber: bankDeposits.terminalNumber,
+				reviewLockedBy: bankDeposits.reviewLockedBy,
+				reviewLockedAt: bankDeposits.reviewLockedAt,
+				createdAt: bankDeposits.createdAt,
+				documentFileName: documents.fileName,
+				documentFileUrl: documents.fileUrl,
+				documentType: documents.type,
+				documentCreatedAt: documents.createdAt,
+				receiptNo: admissionReceipts.receiptNo,
+				receiptCreatedBy: admissionReceipts.createdBy,
+				receiptCreatedAt: admissionReceipts.createdAt,
+				receiptCreatedByUserId: users.id,
+				receiptCreatedByUserName: users.name,
+			})
+			.from(bankDeposits)
+			.innerJoin(applications, eq(applications.id, bankDeposits.applicationId))
+			.innerJoin(applicants, eq(applicants.id, applications.applicantId))
+			.leftJoin(
+				intakePeriods,
+				eq(intakePeriods.id, applications.intakePeriodId)
+			)
+			.leftJoin(documents, eq(documents.id, bankDeposits.documentId))
+			.leftJoin(
+				admissionReceipts,
+				eq(admissionReceipts.id, bankDeposits.receiptId)
+			)
+			.leftJoin(users, eq(users.id, admissionReceipts.createdBy))
+			.where(
+				eq(
+					bankDeposits.applicationId,
+					sql`(SELECT application_id FROM bank_deposits WHERE id = ${id})`
+				)
+			)
+			.orderBy(desc(bankDeposits.createdAt), asc(bankDeposits.id));
 
-		if (!deposit) return null;
+		if (!rows.length) return null;
 
-		const document = await db.query.documents.findFirst({
-			where: eq(documents.id, deposit.documentId),
-		});
+		const first = rows[0];
 
-		return { ...deposit, document };
+		return {
+			application: first.applicationId
+				? {
+						id: first.applicationId,
+						status: first.applicationStatus,
+						paymentStatus: first.applicationPaymentStatus,
+						applicant: first.applicantId
+							? {
+									id: first.applicantId,
+									fullName: first.applicantName,
+									nationalId: first.applicantNationalId,
+									nationality: first.applicantNationality,
+								}
+							: null,
+						intakePeriod: first.intakePeriodId
+							? {
+									id: first.intakePeriodId,
+									name: first.intakePeriodName,
+									localApplicationFee: first.intakePeriodLocalApplicationFee,
+									internationalApplicationFee:
+										first.intakePeriodInternationalApplicationFee,
+								}
+							: null,
+					}
+				: null,
+			deposits: rows.map((row) => ({
+				id: row.depositId,
+				applicationId: row.depositApplicationId,
+				documentId: row.documentId,
+				receiptId: row.receiptId,
+				type: row.type,
+				status: row.status,
+				reference: row.reference,
+				receiptNumber: row.receiptNumber,
+				rejectionReason: row.rejectionReason,
+				beneficiaryName: row.beneficiaryName,
+				dateDeposited: row.dateDeposited,
+				amountDeposited: row.amountDeposited,
+				currency: row.currency,
+				depositorName: row.depositorName,
+				bankName: row.bankName,
+				paymentMode: row.paymentMode,
+				transactionNumber: row.transactionNumber,
+				terminalNumber: row.terminalNumber,
+				reviewLockedBy: row.reviewLockedBy,
+				reviewLockedAt: row.reviewLockedAt,
+				createdAt: row.createdAt,
+				document: row.documentId
+					? {
+							id: row.documentId,
+							fileName: row.documentFileName,
+							fileUrl: row.documentFileUrl,
+							type: row.documentType,
+							createdAt: row.documentCreatedAt,
+						}
+					: null,
+				receipt: row.receiptId
+					? {
+							id: row.receiptId,
+							receiptNo: row.receiptNo,
+							createdBy: row.receiptCreatedBy,
+							createdAt: row.receiptCreatedAt,
+							createdByUser: row.receiptCreatedByUserId
+								? {
+										id: row.receiptCreatedByUserId,
+										name: row.receiptCreatedByUserName,
+									}
+								: null,
+						}
+					: null,
+			})),
+		};
 	}
 
 	async searchBankDeposits(
@@ -104,18 +207,23 @@ export default class PaymentRepository extends BaseRepository<
 		const offset = (page - 1) * pageSize;
 		const conditions: SQL[] = [];
 
-		const notLockedByOthers = or(
-			isNull(bankDeposits.reviewLockedBy),
-			currentUserId
-				? eq(bankDeposits.reviewLockedBy, currentUserId)
-				: sql`false`,
-			sql`${bankDeposits.reviewLockedAt} < NOW() - INTERVAL '${sql.raw(String(LOCK_EXPIRY_MS / 1000))} seconds'`
-		)!;
+		const notLockedByOthers = currentUserId
+			? sql`NOT EXISTS (
+				SELECT 1
+				FROM bank_deposits sibling
+				WHERE sibling.application_id = ${applications.id}
+					AND sibling.review_locked_by IS NOT NULL
+					AND sibling.review_locked_by <> ${currentUserId}
+					AND sibling.review_locked_at >= NOW() - INTERVAL '${sql.raw(String(LOCK_EXPIRY_MS / 1000))} seconds'
+			)`
+			: sql`NOT EXISTS (
+				SELECT 1
+				FROM bank_deposits sibling
+				WHERE sibling.application_id = ${applications.id}
+					AND sibling.review_locked_by IS NOT NULL
+					AND sibling.review_locked_at >= NOW() - INTERVAL '${sql.raw(String(LOCK_EXPIRY_MS / 1000))} seconds'
+			)`;
 		conditions.push(notLockedByOthers);
-
-		if (filters?.status) {
-			conditions.push(eq(bankDeposits.status, filters.status));
-		}
 
 		if (search) {
 			conditions.push(
@@ -168,41 +276,60 @@ export default class PaymentRepository extends BaseRepository<
 				? sql`${conditions.reduce((a, b) => sql`${a} AND ${b}`)}`
 				: undefined;
 
+		const statusHaving = filters?.status
+			? sql`SUM(CASE WHEN ${bankDeposits.status} = ${filters.status} THEN 1 ELSE 0 END) > 0`
+			: undefined;
+
 		const baseQuery = db
 			.select({
-				id: bankDeposits.id,
-				status: bankDeposits.status,
-				type: bankDeposits.type,
-				reference: bankDeposits.reference,
-				amountDeposited: bankDeposits.amountDeposited,
+				id: sql<string>`MIN(${bankDeposits.id})`,
+				status: sql<DepositStatus>`CASE
+					WHEN SUM(CASE WHEN ${bankDeposits.status} = 'pending' THEN 1 ELSE 0 END) > 0 THEN 'pending'
+					WHEN SUM(CASE WHEN ${bankDeposits.status} = 'rejected' THEN 1 ELSE 0 END) > 0 THEN 'rejected'
+					ELSE 'verified'
+				END`,
+				reference: sql<string | null>`MIN(${bankDeposits.reference})`,
+				amountDeposited: sql<string>`COALESCE(SUM(COALESCE(${bankDeposits.amountDeposited}, '0')::numeric), 0)::text`,
+				documentsCount: sql<number>`COUNT(${bankDeposits.id})`,
 				applicationId: applications.id,
 				applicantId: applicants.id,
 				applicantName: applicants.fullName,
-				createdAt: bankDeposits.createdAt,
+				createdAt: sql<Date | null>`MAX(${bankDeposits.createdAt})`,
 			})
 			.from(bankDeposits)
 			.leftJoin(applications, eq(applications.id, bankDeposits.applicationId))
-			.leftJoin(applicants, eq(applicants.id, applications.applicantId));
+			.leftJoin(applicants, eq(applicants.id, applications.applicantId))
+			.groupBy(applications.id, applicants.id, applicants.fullName);
 
-		const countQuery = db
-			.select({ total: count() })
+		const groupedCountQuery = db
+			.select({ applicationId: applications.id })
 			.from(bankDeposits)
 			.leftJoin(applications, eq(applications.id, bankDeposits.applicationId))
-			.leftJoin(applicants, eq(applicants.id, applications.applicantId));
+			.leftJoin(applicants, eq(applicants.id, applications.applicantId))
+			.groupBy(applications.id);
 
-		const [items, [{ total }]] = await Promise.all([
-			where
-				? baseQuery
-						.where(where)
-						.orderBy(desc(bankDeposits.createdAt))
-						.limit(pageSize)
-						.offset(offset)
-				: baseQuery
-						.orderBy(desc(bankDeposits.createdAt))
-						.limit(pageSize)
-						.offset(offset),
-			where ? countQuery.where(where) : countQuery,
+		const [items, countRows] = await Promise.all([
+			(() => {
+				const query = where ? baseQuery.where(where) : baseQuery;
+				const withHaving = statusHaving ? query.having(statusHaving) : query;
+				return withHaving
+					.orderBy(
+						desc(sql`MAX(${bankDeposits.createdAt})`),
+						asc(sql`MIN(${bankDeposits.id})`)
+					)
+					.limit(pageSize)
+					.offset(offset);
+			})(),
+			(() => {
+				const query = where
+					? groupedCountQuery.where(where)
+					: groupedCountQuery;
+				const withHaving = statusHaving ? query.having(statusHaving) : query;
+				return withHaving;
+			})(),
 		]);
+
+		const total = countRows.length;
 
 		return {
 			items,
@@ -212,7 +339,7 @@ export default class PaymentRepository extends BaseRepository<
 	}
 
 	async acquireLock(depositId: string, userId: string) {
-		const [deposit] = await db
+		const updated = await db
 			.update(bankDeposits)
 			.set({
 				reviewLockedBy: userId,
@@ -220,21 +347,27 @@ export default class PaymentRepository extends BaseRepository<
 			})
 			.where(
 				and(
-					eq(bankDeposits.id, depositId),
-					or(
-						isNull(bankDeposits.reviewLockedBy),
-						eq(bankDeposits.reviewLockedBy, userId),
-						sql`${bankDeposits.reviewLockedAt} < NOW() - INTERVAL '${sql.raw(String(LOCK_EXPIRY_MS / 1000))} seconds'`
-					)
+					eq(
+						bankDeposits.applicationId,
+						sql`(SELECT application_id FROM bank_deposits WHERE id = ${depositId})`
+					),
+					sql`NOT EXISTS (
+						SELECT 1
+						FROM bank_deposits sibling
+						WHERE sibling.application_id = ${bankDeposits.applicationId}
+							AND sibling.review_locked_by IS NOT NULL
+							AND sibling.review_locked_by <> ${userId}
+							AND sibling.review_locked_at >= NOW() - INTERVAL '${sql.raw(String(LOCK_EXPIRY_MS / 1000))} seconds'
+					)`
 				)
 			)
 			.returning();
 
-		return deposit ?? null;
+		return updated[0] ?? null;
 	}
 
 	async releaseLock(depositId: string, userId: string) {
-		const [deposit] = await db
+		const updated = await db
 			.update(bankDeposits)
 			.set({
 				reviewLockedBy: null,
@@ -242,13 +375,16 @@ export default class PaymentRepository extends BaseRepository<
 			})
 			.where(
 				and(
-					eq(bankDeposits.id, depositId),
+					eq(
+						bankDeposits.applicationId,
+						sql`(SELECT application_id FROM bank_deposits WHERE id = ${depositId})`
+					),
 					eq(bankDeposits.reviewLockedBy, userId)
 				)
 			)
 			.returning();
 
-		return deposit ?? null;
+		return updated[0] ?? null;
 	}
 
 	async releaseAllLocks(userId: string) {
@@ -269,25 +405,46 @@ export default class PaymentRepository extends BaseRepository<
 		}
 	) {
 		const conditions: SQL[] = [
-			sql`${bankDeposits.id} != ${currentId}`,
-			or(
-				isNull(bankDeposits.reviewLockedBy),
-				eq(bankDeposits.reviewLockedBy, userId),
-				sql`${bankDeposits.reviewLockedAt} < NOW() - INTERVAL '${sql.raw(String(LOCK_EXPIRY_MS / 1000))} seconds'`
-			)!,
+			sql`${applications.id} <> (SELECT application_id FROM bank_deposits WHERE id = ${currentId})`,
+			sql`NOT EXISTS (
+				SELECT 1
+				FROM bank_deposits sibling
+				WHERE sibling.application_id = ${applications.id}
+					AND sibling.review_locked_by IS NOT NULL
+					AND sibling.review_locked_by <> ${userId}
+					AND sibling.review_locked_at >= NOW() - INTERVAL '${sql.raw(String(LOCK_EXPIRY_MS / 1000))} seconds'
+			)`,
 		];
-
-		if (filters?.status) {
-			conditions.push(eq(bankDeposits.status, filters.status));
-		}
 
 		const where = conditions.reduce((a, b) => sql`${a} AND ${b}`);
 
-		const [next] = await db
-			.select({ id: bankDeposits.id })
+		const statusHaving = filters?.status
+			? sql`SUM(CASE WHEN ${bankDeposits.status} = ${filters.status} THEN 1 ELSE 0 END) > 0`
+			: undefined;
+
+		const baseQuery = db
+			.select({ id: sql<string>`MIN(${bankDeposits.id})` })
 			.from(bankDeposits)
+			.innerJoin(applications, eq(applications.id, bankDeposits.applicationId))
 			.where(where)
-			.orderBy(desc(bankDeposits.createdAt))
+			.groupBy(applications.id);
+
+		if (statusHaving) {
+			const [next] = await baseQuery
+				.having(statusHaving)
+				.orderBy(
+					desc(sql`MAX(${bankDeposits.createdAt})`),
+					asc(sql`MIN(${bankDeposits.id})`)
+				)
+				.limit(1);
+			return next ?? null;
+		}
+
+		const [next] = await baseQuery
+			.orderBy(
+				desc(sql`MAX(${bankDeposits.createdAt})`),
+				asc(sql`MIN(${bankDeposits.id})`)
+			)
 			.limit(1);
 
 		return next ?? null;
@@ -311,15 +468,20 @@ export default class PaymentRepository extends BaseRepository<
 		status: DepositStatus,
 		rejectionReason?: string
 	) {
-		const [updated] = await db
+		const updated = await db
 			.update(bankDeposits)
 			.set({
 				status,
 				rejectionReason: status === 'rejected' ? rejectionReason : null,
 			})
-			.where(eq(bankDeposits.id, id))
+			.where(
+				eq(
+					bankDeposits.applicationId,
+					sql`(SELECT application_id FROM bank_deposits WHERE id = ${id})`
+				)
+			)
 			.returning();
-		return updated;
+		return updated[0] ?? null;
 	}
 
 	async linkReceiptToBankDeposit(depositId: string, receiptId: string) {

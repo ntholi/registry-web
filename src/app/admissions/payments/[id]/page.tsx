@@ -1,10 +1,7 @@
-import DocumentViewer from '@admissions/documents/_components/DocumentViewer';
-import { Paper, Stack, Text } from '@mantine/core';
 import { notFound } from 'next/navigation';
-import { formatDateTime } from '@/shared/lib/utils/dates';
 import { DetailsView } from '@/shared/ui/adease';
+import PaymentReviewDocumentSwitcher from '../_components/PaymentReviewDocumentSwitcher';
 import PaymentReviewHeader from '../_components/PaymentReviewHeader';
-import PaymentReviewSummary from '../_components/PaymentReviewSummary';
 import {
 	acquirePaymentReviewLock,
 	getBankDepositWithDocument,
@@ -24,52 +21,27 @@ export default async function DepositDetailsPage({ params }: Props) {
 	if (!deposit) return notFound();
 
 	const applicant = deposit.application?.applicant;
-	const title =
-		deposit.type === 'sales_receipt'
-			? 'Sales Receipt Review'
-			: 'Payment Review';
-	const transactionOrTerminal = deposit.transactionNumber || '-';
+	const title = deposit.deposits.some((item) => item.type === 'sales_receipt')
+		? 'Sales Receipt Review'
+		: 'Payment Review';
+	const statuses = new Set(deposit.deposits.map((item) => item.status));
+	const baseStatus =
+		statuses.size === 1 ? deposit.deposits[0]?.status : 'pending';
 
 	return (
 		<DetailsView>
-			<PaymentReviewHeader id={id} title={title} status={deposit.status} />
+			<PaymentReviewHeader
+				id={id}
+				title={title}
+				status={baseStatus || 'pending'}
+			/>
 
-			<Stack gap='md'>
-				<PaymentReviewSummary
-					applicantName={applicant?.fullName || 'Unknown'}
-					applicantId={applicant?.id || null}
-					amount={`${deposit.currency || 'M'} ${deposit.amountDeposited || '0.00'}`}
-					reference={deposit.reference}
-					submitted={
-						deposit.createdAt ? formatDateTime(deposit.createdAt) : '-'
-					}
-					depositor={deposit.depositorName || '-'}
-					transactionOrTerminal={transactionOrTerminal}
-				/>
-
-				{deposit.document?.fileUrl ? (
-					<DocumentViewer
-						src={deposit.document.fileUrl}
-						alt={deposit.document.fileName || 'Payment proof'}
-					/>
-				) : (
-					<Paper
-						withBorder
-						radius='md'
-						p='xl'
-						style={{
-							minHeight: 500,
-							display: 'flex',
-							alignItems: 'center',
-							justifyContent: 'center',
-						}}
-					>
-						<Text c='dimmed' fs='italic'>
-							No payment proof image available
-						</Text>
-					</Paper>
-				)}
-			</Stack>
+			<PaymentReviewDocumentSwitcher
+				anchorId={id}
+				deposits={deposit.deposits}
+				applicantName={applicant?.fullName || 'Unknown'}
+				applicantId={applicant?.id || null}
+			/>
 		</DetailsView>
 	);
 }

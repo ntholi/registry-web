@@ -8,20 +8,12 @@ import type { PropsWithChildren } from 'react';
 import { getDepositStatusColor } from '@/shared/lib/utils/colors';
 import { ListItem, ListLayout } from '@/shared/ui/adease';
 import DepositStatusFilter from './_components/DepositStatusFilter';
-import type { DepositFilters, DepositStatus } from './_lib/types';
+import type {
+	DepositFilters,
+	DepositStatus,
+	GroupedPaymentReviewItem,
+} from './_lib/types';
 import { getBankDeposits } from './_server/actions';
-
-type PaymentReviewItem = {
-	id: string;
-	status: DepositStatus;
-	type: 'bank_deposit' | 'sales_receipt';
-	reference: string;
-	amountDeposited: string | null;
-	applicationId: string | null;
-	applicantId: string | null;
-	applicantName: string | null;
-	createdAt: Date | null;
-};
 
 export default function PaymentsLayout({ children }: PropsWithChildren) {
 	const router = useRouter();
@@ -50,7 +42,7 @@ export default function PaymentsLayout({ children }: PropsWithChildren) {
 	}
 
 	return (
-		<ListLayout<PaymentReviewItem>
+		<ListLayout<GroupedPaymentReviewItem>
 			path='/admissions/payments'
 			queryKey={['payments-review', statusFilter]}
 			getData={fetchDeposits}
@@ -65,7 +57,7 @@ export default function PaymentsLayout({ children }: PropsWithChildren) {
 				<ListItem
 					id={deposit.id}
 					label={deposit.applicantName || 'Unknown'}
-					description={`M ${deposit.amountDeposited || '0.00'} • ${deposit.reference}`}
+					description={`${deposit.documentsCount} document${deposit.documentsCount === 1 ? '' : 's'} • M ${deposit.amountDeposited} • ${deposit.reference || 'No reference'}`}
 					rightSection={
 						<ThemeIcon
 							variant='transparent'

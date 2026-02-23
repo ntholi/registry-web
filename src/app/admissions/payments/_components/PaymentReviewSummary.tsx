@@ -73,7 +73,7 @@ export default function PaymentReviewSummary({
 				</GridCol>
 				<GridCol span={{ base: 12, md: 4 }}>
 					<CopyableField
-						label='Transaction Number'
+						label='Transaction No.'
 						value={transactionOrTerminal}
 					/>
 				</GridCol>
