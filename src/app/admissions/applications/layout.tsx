@@ -81,7 +81,7 @@ function StatusText({
 	const label = statusLabels[status] || status;
 	return (
 		<Text c={'dimmed'} size='xs' variant='light'>
-			{`${programCode ?? 'Program pending'} • ${label}}`}
+			{`${programCode ?? 'Program pending'} • ${label}`}
 		</Text>
 	);
 }
