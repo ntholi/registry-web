@@ -4,10 +4,10 @@ import DocumentViewer from '@admissions/documents/_components/DocumentViewer';
 import {
 	ActionIcon,
 	Box,
+	Divider,
 	Group,
 	Modal,
 	Paper,
-	Stack,
 	Text,
 	ThemeIcon,
 	Tooltip,
@@ -46,47 +46,49 @@ export function DocumentPreviewModal({ opened, onClose, applicantDoc }: Props) {
 			size='xl'
 			centered
 		>
-			<Stack gap='md'>
-				<Paper
-					withBorder
-					p='sm'
-					pos='sticky'
-					top={0}
-					style={{ zIndex: 10, background: 'var(--mantine-color-body)' }}
-				>
-					<Group justify='space-between' wrap='wrap'>
-						<Group gap='md'>
-							{doc.type && (
-								<Group gap='xs'>
-									<ThemeIcon variant='light' size='sm' color='gray'>
-										<IconFile size={14} />
-									</ThemeIcon>
-									<Text size='sm' fw={500}>
-										{formatType(doc.type)}
-									</Text>
-								</Group>
-							)}
-							{doc.createdAt && (
-								<Group gap='xs'>
-									<ThemeIcon variant='light' size='sm' color='gray'>
-										<IconCalendar size={14} />
-									</ThemeIcon>
-									<Text size='sm' c='dimmed'>
-										{formatDate(doc.createdAt)}
-									</Text>
-								</Group>
-							)}
-						</Group>
+			<Box>
+				<Box>
+					<Paper
+						p='sm'
+						pos='sticky'
+						top={0}
+						style={{ zIndex: 10, background: 'var(--mantine-color-body)' }}
+					>
+						<Group justify='space-between' wrap='wrap'>
+							<Group gap='md'>
+								{doc.type && (
+									<Group gap='xs'>
+										<ThemeIcon variant='light' size='sm' color='gray'>
+											<IconFile size={14} />
+										</ThemeIcon>
+										<Text size='sm' fw={500}>
+											{formatType(doc.type)}
+										</Text>
+									</Group>
+								)}
+								{doc.createdAt && (
+									<Group gap='xs'>
+										<ThemeIcon variant='light' size='sm' color='gray'>
+											<IconCalendar size={14} />
+										</ThemeIcon>
+										<Text size='sm' c='dimmed'>
+											{formatDate(doc.createdAt)}
+										</Text>
+									</Group>
+								)}
+							</Group>
 
-						<Group gap='xs'>
-							<Tooltip label='Download'>
-								<ActionIcon variant='default' onClick={handleDownload}>
-									<IconDownload size={16} />
-								</ActionIcon>
-							</Tooltip>
+							<Group gap='xs'>
+								<Tooltip label='Download'>
+									<ActionIcon variant='default' onClick={handleDownload}>
+										<IconDownload size={16} />
+									</ActionIcon>
+								</Tooltip>
+							</Group>
 						</Group>
-					</Group>
-				</Paper>
+					</Paper>
+					<Divider m={0} />
+				</Box>
 
 				<Box h={550}>
 					{isPdf ? (
@@ -96,10 +98,14 @@ export function DocumentPreviewModal({ opened, onClose, applicantDoc }: Props) {
 							title='Document Preview'
 						/>
 					) : (
-						<DocumentViewer src={previewUrl} alt='Document Preview' />
+						<DocumentViewer
+							src={previewUrl}
+							alt='Document Preview'
+							withBorder={false}
+						/>
 					)}
 				</Box>
-			</Stack>
+			</Box>
 		</Modal>
 	);
 }

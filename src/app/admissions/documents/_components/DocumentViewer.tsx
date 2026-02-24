@@ -14,6 +14,7 @@ type Props = {
 	src: string;
 	alt?: string;
 	initialRotation?: number;
+	withBorder?: boolean;
 	onRotationChange?: (rotation: number) => void;
 };
 
@@ -21,6 +22,7 @@ export default function DocumentViewer({
 	src,
 	alt = 'Document',
 	initialRotation = 0,
+	withBorder = true,
 	onRotationChange,
 }: Props) {
 	const [scale, setScale] = useState(1);
@@ -91,8 +93,7 @@ export default function DocumentViewer({
 
 	return (
 		<Paper
-			radius='md'
-			withBorder
+			withBorder={withBorder}
 			style={{
 				overflow: 'hidden',
 				height: '100%',
