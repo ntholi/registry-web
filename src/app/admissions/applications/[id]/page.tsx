@@ -2,11 +2,11 @@ import { findAcademicRecordsByApplicant } from '@admissions/applicants/[id]/acad
 import { findDocumentsByApplicant } from '@admissions/applicants/[id]/documents/_server/actions';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { DetailsView, DetailsViewHeader } from '@/shared/ui/adease';
+import { DetailsView } from '@/shared/ui/adease';
 import ApplicationReviewHeader from '../_components/ApplicationReviewHeader';
 import ApplicationTabs from '../_components/ApplicationTabs';
 import type { ApplicationStatus } from '../_lib/types';
-import { deleteApplication, getApplication } from '../_server/actions';
+import { getApplication } from '../_server/actions';
 
 type Props = {
 	params: Promise<{ id: string }>;
@@ -35,19 +35,9 @@ export default async function ApplicationDetails({ params }: Props) {
 
 	return (
 		<DetailsView>
-			<DetailsViewHeader
-				title='Application'
-				queryKey={['applications']}
-				handleDelete={async () => {
-					'use server';
-					await deleteApplication(id);
-				}}
-				deleteRoles={['admin']}
-				itemName={`${item.applicant.fullName} - ${item.intakePeriod.name}`}
-				itemType='Application'
-			/>
 			<ApplicationReviewHeader
 				applicationId={item.id}
+				applicantId={item.applicant.id}
 				applicantName={item.applicant.fullName}
 				currentStatus={item.status as ApplicationStatus}
 			/>

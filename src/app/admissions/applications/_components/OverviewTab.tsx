@@ -44,37 +44,35 @@ export default function OverviewTab({
 			<Grid>
 				<GridCol span={7}>
 					<Card withBorder>
-						<Stack gap='xs'>
-							<Text size='xs' tt='uppercase'>
-								1st Choice
+						{firstChoiceProgram ? (
+							<Text fw={600} size='sm'>
+								{firstChoiceProgram.name}
 							</Text>
-							{firstChoiceProgram ? (
-								<Text fw={600} size='sm'>
-									{firstChoiceProgram.name}
-								</Text>
-							) : (
-								<Text size='sm' c='dimmed'>
-									Not selected
-								</Text>
-							)}
-						</Stack>
+						) : (
+							<Text size='sm' c='dimmed'>
+								Not selected
+							</Text>
+						)}
+						<Text size='xs' c={'dimmed'}>
+							1st Choice
+						</Text>
 					</Card>
 				</GridCol>
 
 				<GridCol span={5}>
 					<Card withBorder>
-						<Stack gap='xs'>
-							<Text size='xs' c='dimmed' tt='uppercase'>
-								2nd Choice
+						{secondChoiceProgram ? (
+							<Text fw={600} size='sm'>
+								{secondChoiceProgram.name}
 							</Text>
-							{secondChoiceProgram ? (
-								<Text size='sm'>{secondChoiceProgram.name}</Text>
-							) : (
-								<Text size='sm' c='dimmed'>
-									Not selected
-								</Text>
-							)}
-						</Stack>
+						) : (
+							<Text size='sm' c='dimmed'>
+								Not selected
+							</Text>
+						)}
+						<Text size='xs' c='dimmed'>
+							2nd Choice
+						</Text>
 					</Card>
 				</GridCol>
 			</Grid>

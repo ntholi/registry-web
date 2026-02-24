@@ -2,24 +2,28 @@
 
 import { applicationStatusEnum } from '@admissions/_database';
 import {
+	ActionIcon,
 	Button,
 	Divider,
 	Flex,
 	Group,
 	Modal,
-	SegmentedControl,
+	Select,
+	Text,
 	Textarea,
-	Title,
 } from '@mantine/core';
-import { useDisclosure, useMediaQuery } from '@mantine/hooks';
+import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
+import { IconExternalLink } from '@tabler/icons-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import Link from 'next/link';
 import { useState } from 'react';
 import type { ApplicationStatus } from '../_lib/types';
 import { changeApplicationStatus } from '../_server/actions';
 
 type Props = {
 	applicationId: string;
+	applicantId: string;
 	applicantName: string;
 	currentStatus: ApplicationStatus;
 };
@@ -37,10 +41,10 @@ const STATUS_OPTIONS = applicationStatusEnum.enumValues
 
 export default function ApplicationReviewHeader({
 	applicationId,
+	applicantId,
 	applicantName,
 	currentStatus,
 }: Props) {
-	const isMobile = useMediaQuery('(max-width: 768px)');
 	const queryClient = useQueryClient();
 	const [selected, setSelected] = useState<ApplicationStatus>(currentStatus);
 	const [rejectionReason, setRejectionReason] = useState('');
@@ -71,21 +75,17 @@ export default function ApplicationReviewHeader({
 		},
 	});
 
-	function handleSave() {
-		if (selected === 'rejected') {
-			open();
-		} else {
-			mutation.mutate(undefined);
-		}
-	}
-
-	function confirmReject() {
+	function handleSaveReview() {
 		if (!rejectionReason.trim()) {
-			notifications.show({
-				title: 'Error',
-				message: 'Rejection reason is required',
-				color: 'red',
-			});
+			if (selected === 'rejected') {
+				notifications.show({
+					title: 'Error',
+					message: 'Rejection reason is required',
+					color: 'red',
+				});
+				return;
+			}
+			mutation.mutate(undefined);
 			return;
 		}
 		mutation.mutate(rejectionReason);
@@ -93,51 +93,63 @@ export default function ApplicationReviewHeader({
 
 	return (
 		<>
-			<Modal opened={opened} onClose={close} title='Rejection Reason' centered>
-				<Textarea
-					placeholder='Reason for rejection...'
-					value={rejectionReason}
-					onChange={(e) => setRejectionReason(e.currentTarget.value)}
-					autosize
-					minRows={3}
-					maxRows={6}
+			<Modal
+				opened={opened}
+				onClose={close}
+				title='Review Application'
+				centered
+			>
+				<Select
+					label='Status'
+					value={selected}
+					checkIconPosition='right'
+					onChange={(val) =>
+						setSelected((val as ApplicationStatus | null) ?? selected)
+					}
+					data={STATUS_OPTIONS}
 					mb='md'
 				/>
+				{selected === 'rejected' ? (
+					<Textarea
+						placeholder='Reason for rejection...'
+						value={rejectionReason}
+						onChange={(e) => setRejectionReason(e.currentTarget.value)}
+						autosize
+						minRows={3}
+						maxRows={6}
+						mb='md'
+					/>
+				) : null}
 				<Group justify='flex-end'>
 					<Button variant='default' onClick={close}>
 						Cancel
 					</Button>
 					<Button
-						color='red'
 						loading={mutation.isPending}
-						onClick={confirmReject}
+						disabled={!isDirty}
+						onClick={handleSaveReview}
 					>
-						Confirm Rejection
+						Save
 					</Button>
 				</Group>
 			</Modal>
 
 			<Flex justify='space-between' align='center' gap='sm' wrap='wrap'>
-				<Title order={3} fw={100} size={isMobile ? '1rem' : undefined}>
-					{applicantName}
-				</Title>
 				<Group gap='xs'>
-					<SegmentedControl
-						size='xs'
-						value={selected}
-						color='teal'
-						onChange={(val) => setSelected(val as ApplicationStatus)}
-						data={STATUS_OPTIONS}
-					/>
-					<Button
-						size='sm'
-						disabled={!isDirty}
-						loading={mutation.isPending && selected !== 'rejected'}
-						onClick={handleSave}
+					<Text fw={500}>{applicantName}</Text>
+					<ActionIcon
+						variant='transparent'
+						color='gray'
+						component={Link}
+						href={`/admissions/applicants/${applicantId}`}
+						target='_blank'
 					>
-						Save
-					</Button>
+						<IconExternalLink size='1rem' />
+					</ActionIcon>
 				</Group>
+				<Button size='sm' onClick={open}>
+					Review
+				</Button>
 			</Flex>
 			<Divider my={15} />
 		</>
