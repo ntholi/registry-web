@@ -59,3 +59,13 @@ export async function updateTaskStatus(
 export async function countUncompletedTasks() {
 	return service.countUncompleted();
 }
+
+export async function getTodoTaskSummary(): Promise<{
+	todoCount: number;
+	hasUrgentTodo: boolean;
+}> {
+	return service.getTodoSummary() as Promise<{
+		todoCount: number;
+		hasUrgentTodo: boolean;
+	}>;
+}

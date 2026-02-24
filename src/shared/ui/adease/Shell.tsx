@@ -19,6 +19,7 @@ import {
 } from '@tabler/icons-react';
 import React, { type PropsWithChildren } from 'react';
 import NotificationBell from '../NotificationBell';
+import TaskBell from '../TaskBell';
 
 type ShellComposition = {
 	Header: React.FC<PropsWithChildren>;
@@ -89,6 +90,7 @@ const Shell: React.FC<PropsWithChildren> & ShellComposition = ({
 						{Header}
 					</Group>
 					<Group gap='sm'>
+						<TaskBell />
 						<NotificationBell />
 						<ActionIcon variant='default' size='lg'>
 							{colorScheme === 'dark' ? (

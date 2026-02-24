@@ -25,6 +25,25 @@ export default class TaskRepository extends BaseRepository<typeof tasks, 'id'> {
 		super(tasks, tasks.id);
 	}
 
+	private buildVisibilityFilter(
+		userId?: string,
+		isManager?: boolean
+	): SQL | undefined {
+		if (!isManager && userId) {
+			const assignedTaskIds = db
+				.select({ taskId: taskAssignees.taskId })
+				.from(taskAssignees)
+				.where(eq(taskAssignees.userId, userId));
+
+			return or(
+				eq(tasks.createdBy, userId),
+				inArray(tasks.id, assignedTaskIds)
+			);
+		}
+
+		return undefined;
+	}
+
 	async findByIdWithRelations(id: number): Promise<TaskWithRelations | null> {
 		const result = await db.query.tasks.findFirst({
 			where: eq(tasks.id, id),
@@ -62,19 +81,7 @@ export default class TaskRepository extends BaseRepository<typeof tasks, 'id'> {
 		} = options;
 		const offset = (page - 1) * size;
 
-		let baseFilter: SQL | undefined;
-
-		if (!isManager && userId) {
-			const assignedTaskIds = db
-				.select({ taskId: taskAssignees.taskId })
-				.from(taskAssignees)
-				.where(eq(taskAssignees.userId, userId));
-
-			baseFilter = or(
-				eq(tasks.createdBy, userId),
-				inArray(tasks.id, assignedTaskIds)
-			);
-		}
+		const baseFilter = this.buildVisibilityFilter(userId, isManager);
 
 		let searchFilter: SQL | undefined;
 		if (search) {
@@ -150,19 +157,7 @@ export default class TaskRepository extends BaseRepository<typeof tasks, 'id'> {
 	}
 
 	async countUncompleted(userId?: string, isManager?: boolean) {
-		let baseFilter: SQL | undefined;
-
-		if (!isManager && userId) {
-			const assignedTaskIds = db
-				.select({ taskId: taskAssignees.taskId })
-				.from(taskAssignees)
-				.where(eq(taskAssignees.userId, userId));
-
-			baseFilter = or(
-				eq(tasks.createdBy, userId),
-				inArray(tasks.id, assignedTaskIds)
-			);
-		}
+		const baseFilter = this.buildVisibilityFilter(userId, isManager);
 
 		const statusFilter = and(
 			sql`${tasks.status} != 'completed'`,
@@ -179,6 +174,26 @@ export default class TaskRepository extends BaseRepository<typeof tasks, 'id'> {
 			.where(whereClause);
 
 		return Number(result[0]?.count ?? 0);
+	}
+
+	async getTodoSummary(userId?: string, isManager?: boolean) {
+		const baseFilter = this.buildVisibilityFilter(userId, isManager);
+
+		const result = await db
+			.select({
+				todoCount: sql<number>`COALESCE(SUM(CASE WHEN ${tasks.status} = 'todo' THEN 1 ELSE 0 END), 0)`,
+				urgentTodoCount: sql<number>`COALESCE(SUM(CASE WHEN ${tasks.status} = 'todo' AND ${tasks.priority} = 'urgent' THEN 1 ELSE 0 END), 0)`,
+			})
+			.from(tasks)
+			.where(baseFilter);
+
+		const todoCount = Number(result[0]?.todoCount ?? 0);
+		const urgentTodoCount = Number(result[0]?.urgentTodoCount ?? 0);
+
+		return {
+			todoCount,
+			hasUrgentTodo: urgentTodoCount > 0,
+		};
 	}
 
 	async createWithRelations(
@@ -352,19 +367,7 @@ export default class TaskRepository extends BaseRepository<typeof tasks, 'id'> {
 	}
 
 	async getTaskCountsByStatus(userId?: string, isManager?: boolean) {
-		let whereClause: SQL | undefined;
-
-		if (!isManager && userId) {
-			const assignedTaskIds = db
-				.select({ taskId: taskAssignees.taskId })
-				.from(taskAssignees)
-				.where(eq(taskAssignees.userId, userId));
-
-			whereClause = or(
-				eq(tasks.createdBy, userId),
-				inArray(tasks.id, assignedTaskIds)
-			);
-		}
+		const whereClause = this.buildVisibilityFilter(userId, isManager);
 
 		const result = await db
 			.select({

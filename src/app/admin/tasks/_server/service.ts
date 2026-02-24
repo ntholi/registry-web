@@ -65,6 +65,16 @@ class TaskService {
 		}, ALLOWED_ROLES);
 	}
 
+	async getTodoSummary() {
+		return withAuth(async (session) => {
+			const userId = session?.user?.id;
+			const isManager = session?.user?.position === 'manager';
+			const isAdmin = session?.user?.role === 'admin';
+
+			return this.repository.getTodoSummary(userId, isManager || isAdmin);
+		}, ALLOWED_ROLES);
+	}
+
 	async create(
 		data: TaskInsert & { assigneeIds?: string[]; studentIds?: number[] },
 		session?: Session | null
