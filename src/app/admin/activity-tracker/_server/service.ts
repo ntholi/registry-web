@@ -1,8 +1,6 @@
 import type { Session } from 'next-auth';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
 import withAuth from '@/core/platform/withAuth';
-import { isClearanceDepartment } from '../_lib/department-tables';
-import type { DateRange } from '../_lib/types';
 import ActivityTrackerRepository from './repository';
 
 class ActivityTrackerService {
@@ -12,90 +10,85 @@ class ActivityTrackerService {
 		this.repository = new ActivityTrackerRepository();
 	}
 
-	async getDepartmentSummary(dateRange: DateRange, overrideDept?: string) {
+	async getDepartmentSummary(start: Date, end: Date, overrideDept?: string) {
 		return withAuth(async (session) => {
 			const dept = this.resolveDepartment(session, overrideDept);
-			return this.repository.getDepartmentSummary(dept, dateRange);
+			return this.repository.getDepartmentSummary(start, end, dept);
 		}, this.accessCheck);
 	}
 
 	async getEmployeeList(
-		dateRange: DateRange,
+		start: Date,
+		end: Date,
 		page: number,
 		search: string,
 		overrideDept?: string
 	) {
 		return withAuth(async (session) => {
 			const dept = this.resolveDepartment(session, overrideDept);
-			return this.repository.getEmployeeList(dept, dateRange, page, search);
+			return this.repository.getEmployeeList(start, end, page, search, dept);
 		}, this.accessCheck);
 	}
 
-	async getEmployeeActivity(userId: string, dateRange: DateRange) {
+	async getEmployeeActivityBreakdown(userId: string, start: Date, end: Date) {
 		return withAuth(async (session) => {
 			const dept = this.resolveDepartment(session);
-			if (dept !== 'all') {
+			if (dept) {
 				await this.verifyEmployeeBelongsToDept(userId, dept);
 			}
-			return this.repository.getEmployeeActivity(userId, dateRange);
+			return this.repository.getEmployeeActivityBreakdown(userId, start, end);
 		}, this.accessCheck);
 	}
 
 	async getEmployeeTimeline(
 		userId: string,
-		dateRange: DateRange,
+		start: Date,
+		end: Date,
 		page: number
 	) {
 		return withAuth(async (session) => {
 			const dept = this.resolveDepartment(session);
-			if (dept !== 'all') {
+			if (dept) {
 				await this.verifyEmployeeBelongsToDept(userId, dept);
 			}
-			return this.repository.getEmployeeTimeline(userId, dateRange, page);
+			return this.repository.getEmployeeTimeline(userId, start, end, page);
 		}, this.accessCheck);
 	}
 
-	async getActivityHeatmap(userId: string, dateRange: DateRange) {
+	async getActivityHeatmap(userId: string, start: Date, end: Date) {
 		return withAuth(async (session) => {
 			const dept = this.resolveDepartment(session);
-			if (dept !== 'all') {
+			if (dept) {
 				await this.verifyEmployeeBelongsToDept(userId, dept);
 			}
-			return this.repository.getActivityHeatmap(userId, dateRange);
+			return this.repository.getActivityHeatmap(userId, start, end);
 		}, this.accessCheck);
 	}
 
-	async getDailyTrends(dateRange: DateRange, overrideDept?: string) {
+	async getDailyTrends(start: Date, end: Date, overrideDept?: string) {
 		return withAuth(async (session) => {
 			const dept = this.resolveDepartment(session, overrideDept);
-			return this.repository.getDailyTrends(dept, dateRange);
+			return this.repository.getDailyTrends(start, end, dept);
 		}, this.accessCheck);
 	}
 
-	async getEntityBreakdown(userId: string, dateRange: DateRange) {
+	async getEmployeeUser(userId: string) {
 		return withAuth(async (session) => {
 			const dept = this.resolveDepartment(session);
-			if (dept !== 'all') {
+			if (dept) {
 				await this.verifyEmployeeBelongsToDept(userId, dept);
 			}
-			return this.repository.getEntityBreakdown(userId, dateRange);
+			return this.repository.getEmployeeUser(userId);
 		}, this.accessCheck);
 	}
 
-	async getClearanceStats(dateRange: DateRange, overrideDept?: string) {
+	async getEmployeeTotalActivities(userId: string, start: Date, end: Date) {
 		return withAuth(async (session) => {
-			const dept = this.resolveDepartment(session, overrideDept);
-			if (dept !== 'all' && !isClearanceDepartment(dept)) {
-				throw new Error('Clearance stats not available for this department');
+			const dept = this.resolveDepartment(session);
+			if (dept) {
+				await this.verifyEmployeeBelongsToDept(userId, dept);
 			}
-			return this.repository.getClearanceStats(dept, dateRange);
-		}, this.accessCheck);
-	}
-
-	async getPrintStats(dateRange: DateRange, overrideDept?: string) {
-		return withAuth(async (session) => {
-			const dept = this.resolveDepartment(session, overrideDept);
-			return this.repository.getPrintStats(dept, dateRange);
+			return this.repository.getEmployeeTotalActivities(userId, start, end);
 		}, this.accessCheck);
 	}
 
@@ -108,10 +101,10 @@ class ActivityTrackerService {
 	private resolveDepartment(
 		session: Session | null | undefined,
 		overrideDept?: string
-	): string {
+	): string | undefined {
 		if (!session?.user) throw new Error('Unauthorized');
 		if (session.user.role === 'admin') {
-			return overrideDept || 'all';
+			return overrideDept || undefined;
 		}
 		return session.user.role;
 	}

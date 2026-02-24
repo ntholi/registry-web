@@ -4,25 +4,18 @@ import { BarChart } from '@mantine/charts';
 import { Center, Paper, Skeleton, Stack, Text, Title } from '@mantine/core';
 import { IconDatabaseOff } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
-import { formatTableName } from '@/shared/lib/utils/utils';
-import { getEntityBreakdown } from '../_server/actions';
+import { getEmployeeActivityBreakdown } from '../_server/actions';
 
 type Props = {
 	userId: string;
-	start: Date;
-	end: Date;
+	start: string;
+	end: string;
 };
 
-export default function EntityBreakdownChart({ userId, start, end }: Props) {
+export default function ActivityBreakdownChart({ userId, start, end }: Props) {
 	const { data, isLoading } = useQuery({
-		queryKey: [
-			'activity-tracker',
-			'entity-breakdown',
-			userId,
-			start.toISOString(),
-			end.toISOString(),
-		],
-		queryFn: () => getEntityBreakdown(userId, start, end),
+		queryKey: ['activity-tracker', 'breakdown', userId, start, end],
+		queryFn: () => getEmployeeActivityBreakdown(userId, start, end),
 	});
 
 	if (isLoading) {
@@ -33,7 +26,7 @@ export default function EntityBreakdownChart({ userId, start, end }: Props) {
 		return (
 			<Paper p='md' radius='md' withBorder h='100%'>
 				<Title order={5} mb='md'>
-					Entity Breakdown
+					Activity Breakdown
 				</Title>
 				<Center py='xl'>
 					<Stack align='center' gap='xs'>
@@ -48,29 +41,21 @@ export default function EntityBreakdownChart({ userId, start, end }: Props) {
 	}
 
 	const chartData = data.slice(0, 10).map((d) => ({
-		table: formatTableName(d.tableName),
-		Inserts: d.inserts,
-		Updates: d.updates,
-		Deletes: d.deletes,
+		activity: d.label,
+		Count: d.count,
 	}));
 
 	return (
 		<Paper p='md' radius='md' withBorder h='100%'>
 			<Title order={5} mb='md'>
-				Entity Breakdown
+				Activity Breakdown
 			</Title>
 			<BarChart
 				h={300}
 				data={chartData}
-				dataKey='table'
+				dataKey='activity'
 				orientation='vertical'
-				series={[
-					{ name: 'Inserts', color: 'teal.6' },
-					{ name: 'Updates', color: 'indigo.6' },
-					{ name: 'Deletes', color: 'red.6' },
-				]}
-				type='stacked'
-				withLegend
+				series={[{ name: 'Count', color: 'blue.6' }]}
 			/>
 		</Paper>
 	);

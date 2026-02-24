@@ -49,8 +49,8 @@ export default function EmployeeDetailPage({ params }: Props) {
 		<Stack>
 			<EmployeeDetailView
 				userId={userId}
-				start={dateRange.start}
-				end={dateRange.end}
+				start={dateRange.start.toISOString()}
+				end={dateRange.end.toISOString()}
 				preset={preset}
 				onPresetChange={handlePresetChange}
 				onRangeChange={handleRangeChange}

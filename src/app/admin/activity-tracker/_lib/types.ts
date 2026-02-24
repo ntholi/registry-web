@@ -1,98 +1,67 @@
-type DateRange = {
-	start: Date;
-	end: Date;
-};
+interface ActivitySummary {
+	activityType: string;
+	label: string;
+	count: number;
+}
 
-type TimePreset = 'today' | '7d' | '30d' | 'custom';
-
-type DepartmentSummary = {
-	totalOperations: number;
-	totalEmployees: number;
-	activeEmployees: number;
-	operationsByType: {
-		inserts: number;
-		updates: number;
-		deletes: number;
-	};
-	topTables: Array<{ tableName: string; count: number }>;
-};
-
-type EmployeeSummary = {
+interface EmployeeSummary {
 	userId: string;
 	name: string | null;
-	email: string | null;
 	image: string | null;
-	totalOperations: number;
-	lastActiveAt: Date | null;
-	inserts: number;
-	updates: number;
-	deletes: number;
-};
+	totalActivities: number;
+	topActivity: string;
+}
 
-type EmployeeActivity = {
-	user: {
-		id: string;
-		name: string | null;
-		email: string | null;
-		image: string | null;
-	};
-	totalOperations: number;
-	operationsByType: { inserts: number; updates: number; deletes: number };
-	topTables: Array<{ tableName: string; count: number }>;
-	dailyActivity: Array<{ date: string; count: number }>;
-};
+interface EmployeeActivityBreakdown {
+	activityType: string;
+	label: string;
+	count: number;
+}
 
-type HeatmapData = Array<{
+interface TimelineEntry {
+	id: bigint;
+	activityType: string;
+	label: string;
+	timestamp: Date;
+	tableName: string;
+	recordId: string;
+}
+
+interface HeatmapCell {
 	dayOfWeek: number;
 	hour: number;
 	count: number;
-}>;
+}
 
-type DailyTrend = {
+interface DailyTrend {
 	date: string;
-	total: number;
-	inserts: number;
-	updates: number;
-	deletes: number;
-};
+	activityType: string;
+	count: number;
+}
 
-type EntityBreakdown = {
-	tableName: string;
-	total: number;
-	inserts: number;
-	updates: number;
-	deletes: number;
-};
+type TimePreset =
+	| 'today'
+	| '7d'
+	| '30d'
+	| 'this_month'
+	| 'last_month'
+	| 'this_quarter'
+	| 'this_year'
+	| 'custom';
 
-type ClearanceEmployeeStats = {
-	userId: string;
-	name: string | null;
-	email: string | null;
-	image: string | null;
-	approved: number;
-	rejected: number;
-	pending: number;
-	total: number;
-	approvalRate: number;
-};
-
-type PrintEmployeeStats = {
-	userId: string;
-	transcripts: number;
-	statements: number;
-	studentCards: number;
-	totalPrints: number;
-};
+interface DateRange {
+	start: Date;
+	end: Date;
+	preset: TimePreset;
+}
 
 export type {
-	ClearanceEmployeeStats,
+	ActivitySummary,
 	DailyTrend,
 	DateRange,
-	DepartmentSummary,
-	EmployeeActivity,
+	EmployeeActivityBreakdown,
 	EmployeeSummary,
-	EntityBreakdown,
-	HeatmapData,
-	PrintEmployeeStats,
+	HeatmapCell,
 	TimePreset,
+	TimelineEntry,
 };

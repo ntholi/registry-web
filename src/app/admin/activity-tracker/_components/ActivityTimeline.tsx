@@ -1,12 +1,6 @@
 'use client';
 
 import {
-	DEFAULT_EXCLUDE_FIELDS,
-	formatFieldName,
-	formatValue,
-	getChangedFields,
-} from '@audit-logs/_lib/audit-utils';
-import {
 	Badge,
 	Center,
 	Group,
@@ -18,42 +12,23 @@ import {
 	Timeline,
 	Title,
 } from '@mantine/core';
-import {
-	IconDatabaseOff,
-	IconPencil,
-	IconPlus,
-	IconTrash,
-} from '@tabler/icons-react';
+import { IconDatabaseOff } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 import { formatRelativeTime } from '@/shared/lib/utils/dates';
-import { formatTableName } from '@/shared/lib/utils/utils';
 import { getEmployeeTimeline } from '../_server/actions';
 
 type Props = {
 	userId: string;
-	start: Date;
-	end: Date;
-};
-
-const OP_CONFIG: Record<string, { color: string; icon: React.ReactNode }> = {
-	INSERT: { color: 'teal', icon: <IconPlus size={14} /> },
-	UPDATE: { color: 'indigo', icon: <IconPencil size={14} /> },
-	DELETE: { color: 'red', icon: <IconTrash size={14} /> },
+	start: string;
+	end: string;
 };
 
 export default function ActivityTimeline({ userId, start, end }: Props) {
 	const [page, setPage] = useState(1);
 
 	const { data, isLoading } = useQuery({
-		queryKey: [
-			'activity-tracker',
-			'timeline',
-			userId,
-			start.toISOString(),
-			end.toISOString(),
-			page,
-		],
+		queryKey: ['activity-tracker', 'timeline', userId, start, end, page],
 		queryFn: () => getEmployeeTimeline(userId, start, end, page),
 	});
 
@@ -93,58 +68,21 @@ export default function ActivityTimeline({ userId, start, end }: Props) {
 				Activity Timeline
 			</Title>
 			<Timeline active={data.items.length - 1} bulletSize={24} lineWidth={2}>
-				{data.items.map((item) => {
-					const cfg = OP_CONFIG[item.operation] ?? OP_CONFIG.UPDATE;
-					const oldVals = (item.oldValues as Record<string, unknown>) ?? {};
-					const newVals = (item.newValues as Record<string, unknown>) ?? {};
-					const changes =
-						item.operation === 'UPDATE'
-							? getChangedFields(oldVals, newVals, DEFAULT_EXCLUDE_FIELDS)
-							: [];
-
-					return (
-						<Timeline.Item key={item.id} bullet={cfg.icon} color={cfg.color}>
-							<Group gap='xs'>
-								<Badge variant='light' color={cfg.color} size='xs'>
-									{item.operation}
-								</Badge>
-								<Text fz='sm' fw={500}>
-									{formatTableName(item.tableName)}
-								</Text>
-								<Text fz='xs' c='dimmed'>
-									#{item.recordId}
-								</Text>
-							</Group>
-							<Text fz='xs' c='dimmed' mt={2}>
-								{formatRelativeTime(item.changedAt)}
+				{data.items.map((item) => (
+					<Timeline.Item key={String(item.id)} color='blue'>
+						<Group gap='xs'>
+							<Badge variant='light' size='xs'>
+								{item.label}
+							</Badge>
+							<Text fz='xs' c='dimmed'>
+								{item.tableName} #{item.recordId}
 							</Text>
-							{changes.length > 0 && (
-								<Stack gap={2} mt='xs'>
-									{changes.slice(0, 5).map((ch) => (
-										<Text fz='xs' key={ch.field}>
-											<Text span fw={500}>
-												{formatFieldName(ch.field)}
-											</Text>
-											:{' '}
-											<Text span c='red' td='line-through'>
-												{formatValue(ch.oldValue)}
-											</Text>{' '}
-											→{' '}
-											<Text span c='teal'>
-												{formatValue(ch.newValue)}
-											</Text>
-										</Text>
-									))}
-									{changes.length > 5 && (
-										<Text fz='xs' c='dimmed'>
-											+{changes.length - 5} more changes
-										</Text>
-									)}
-								</Stack>
-							)}
-						</Timeline.Item>
-					);
-				})}
+						</Group>
+						<Text fz='xs' c='dimmed' mt={2}>
+							{formatRelativeTime(item.timestamp)}
+						</Text>
+					</Timeline.Item>
+				))}
 			</Timeline>
 
 			{data.totalPages > 1 && (

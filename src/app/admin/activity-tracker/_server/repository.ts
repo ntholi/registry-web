@@ -1,247 +1,211 @@
-import { and, between, count, eq, ilike, or, sql } from 'drizzle-orm';
-import {
-	auditLogs,
-	clearance,
-	db,
-	statementOfResultsPrints,
-	studentCardPrints,
-	transcriptPrints,
-	users,
-} from '@/core/database';
+import { and, between, count, eq, ilike, isNotNull, sql } from 'drizzle-orm';
+import { auditLogs, db, users } from '@/core/database';
+import { getActivityLabel } from '../_lib/activity-catalog';
 import type {
-	ClearanceEmployeeStats,
+	ActivitySummary,
 	DailyTrend,
-	DateRange,
-	DepartmentSummary,
-	EmployeeActivity,
+	EmployeeActivityBreakdown,
 	EmployeeSummary,
-	EntityBreakdown,
-	HeatmapData,
-	PrintEmployeeStats,
+	HeatmapCell,
+	TimelineEntry,
 } from '../_lib/types';
 
 const PAGE_SIZE = 20;
 
 class ActivityTrackerRepository {
 	async getDepartmentSummary(
-		dept: string,
-		dateRange: DateRange
-	): Promise<DepartmentSummary> {
-		const deptFilter =
-			dept === 'all'
-				? undefined
-				: eq(users.role, dept as (typeof users.role.enumValues)[number]);
+		start: Date,
+		end: Date,
+		dept?: string
+	): Promise<ActivitySummary[]> {
+		const deptFilter = dept
+			? eq(users.role, dept as (typeof users.role.enumValues)[number])
+			: undefined;
 
-		const [stats] = await db
+		const rows = await db
 			.select({
-				totalOperations: count(auditLogs.id),
-				activeEmployees: sql<number>`COUNT(DISTINCT ${auditLogs.changedBy})::int`,
-				inserts: sql<number>`COUNT(*) FILTER (WHERE ${auditLogs.operation} = 'INSERT')::int`,
-				updates: sql<number>`COUNT(*) FILTER (WHERE ${auditLogs.operation} = 'UPDATE')::int`,
-				deletes: sql<number>`COUNT(*) FILTER (WHERE ${auditLogs.operation} = 'DELETE')::int`,
-			})
-			.from(auditLogs)
-			.innerJoin(users, eq(users.id, auditLogs.changedBy))
-			.where(
-				and(
-					deptFilter,
-					between(auditLogs.changedAt, dateRange.start, dateRange.end)
-				)
-			);
-
-		const [empCount] = await db
-			.select({ total: count(users.id) })
-			.from(users)
-			.where(deptFilter ? and(deptFilter) : undefined);
-
-		const topTables = await db
-			.select({
-				tableName: auditLogs.tableName,
+				activityType: auditLogs.activityType,
 				count: sql<number>`COUNT(*)::int`,
 			})
 			.from(auditLogs)
 			.innerJoin(users, eq(users.id, auditLogs.changedBy))
 			.where(
 				and(
-					deptFilter,
-					between(auditLogs.changedAt, dateRange.start, dateRange.end)
+					isNotNull(auditLogs.activityType),
+					between(auditLogs.changedAt, start, end),
+					deptFilter
 				)
 			)
-			.groupBy(auditLogs.tableName)
-			.orderBy(sql`COUNT(*) DESC`)
-			.limit(5);
+			.groupBy(auditLogs.activityType)
+			.orderBy(sql`COUNT(*) DESC`);
 
-		return {
-			totalOperations: stats?.totalOperations ?? 0,
-			totalEmployees: empCount?.total ?? 0,
-			activeEmployees: stats?.activeEmployees ?? 0,
-			operationsByType: {
-				inserts: stats?.inserts ?? 0,
-				updates: stats?.updates ?? 0,
-				deletes: stats?.deletes ?? 0,
-			},
-			topTables,
-		};
+		return rows.map((r) => ({
+			activityType: r.activityType!,
+			label: getActivityLabel(r.activityType!),
+			count: r.count,
+		}));
 	}
 
 	async getEmployeeList(
-		dept: string,
-		dateRange: DateRange,
+		start: Date,
+		end: Date,
 		page: number,
-		search: string
+		search: string,
+		dept?: string
 	): Promise<{
 		items: EmployeeSummary[];
 		totalPages: number;
 		totalItems: number;
 	}> {
 		const offset = (page - 1) * PAGE_SIZE;
-		const deptFilter =
-			dept === 'all'
-				? undefined
-				: eq(users.role, dept as (typeof users.role.enumValues)[number]);
-		const searchFilter = search
-			? or(ilike(users.name, `%${search}%`), ilike(users.email, `%${search}%`))
+		const deptFilter = dept
+			? eq(users.role, dept as (typeof users.role.enumValues)[number])
 			: undefined;
+		const searchFilter = search ? ilike(users.name, `%${search}%`) : undefined;
 
-		const baseWhere = and(deptFilter, searchFilter);
+		const activityCounts = db.$with('activity_counts').as(
+			db
+				.select({
+					userId: auditLogs.changedBy,
+					activityType: auditLogs.activityType,
+					cnt: sql<number>`COUNT(*)::int`.as('cnt'),
+				})
+				.from(auditLogs)
+				.where(
+					and(
+						isNotNull(auditLogs.activityType),
+						isNotNull(auditLogs.changedBy),
+						between(auditLogs.changedAt, start, end)
+					)
+				)
+				.groupBy(auditLogs.changedBy, auditLogs.activityType)
+		);
+
+		const ranked = db.$with('ranked').as(
+			db
+				.with(activityCounts)
+				.select({
+					userId: activityCounts.userId,
+					activityType: activityCounts.activityType,
+					cnt: activityCounts.cnt,
+					rn: sql<number>`ROW_NUMBER() OVER (PARTITION BY ${activityCounts.userId} ORDER BY ${activityCounts.cnt} DESC)`.as(
+						'rn'
+					),
+				})
+				.from(activityCounts)
+		);
+
+		const userTotals = db.$with('user_totals').as(
+			db
+				.with(ranked)
+				.select({
+					userId: ranked.userId,
+					totalActivities: sql<number>`SUM(${ranked.cnt})::int`.as(
+						'total_activities'
+					),
+					topActivity:
+						sql<string>`MAX(CASE WHEN ${ranked.rn} = 1 THEN ${ranked.activityType} END)`.as(
+							'top_activity'
+						),
+				})
+				.from(ranked)
+				.groupBy(ranked.userId)
+		);
 
 		const items = await db
+			.with(activityCounts, ranked, userTotals)
 			.select({
 				userId: users.id,
 				name: users.name,
-				email: users.email,
 				image: users.image,
-				totalOperations: sql<number>`COUNT(${auditLogs.id})::int`,
-				lastActiveAt: sql<Date | null>`MAX(${auditLogs.changedAt})`,
-				inserts: sql<number>`COUNT(*) FILTER (WHERE ${auditLogs.operation} = 'INSERT')::int`,
-				updates: sql<number>`COUNT(*) FILTER (WHERE ${auditLogs.operation} = 'UPDATE')::int`,
-				deletes: sql<number>`COUNT(*) FILTER (WHERE ${auditLogs.operation} = 'DELETE')::int`,
+				totalActivities: sql<number>`COALESCE(${userTotals.totalActivities}, 0)`,
+				topActivity: sql<string>`COALESCE(${userTotals.topActivity}, '')`,
 			})
 			.from(users)
-			.leftJoin(
-				auditLogs,
-				and(
-					eq(auditLogs.changedBy, users.id),
-					between(auditLogs.changedAt, dateRange.start, dateRange.end)
-				)
-			)
-			.where(baseWhere)
-			.groupBy(users.id)
-			.orderBy(sql`COUNT(${auditLogs.id}) DESC`)
+			.leftJoin(userTotals, eq(userTotals.userId, users.id))
+			.where(and(deptFilter, searchFilter))
+			.orderBy(sql`COALESCE(${userTotals.totalActivities}, 0) DESC`)
 			.limit(PAGE_SIZE)
 			.offset(offset);
 
 		const [totalResult] = await db
 			.select({ total: count(users.id) })
 			.from(users)
-			.where(baseWhere);
+			.where(and(deptFilter, searchFilter));
 		const totalItems = totalResult?.total ?? 0;
 
 		return {
-			items,
+			items: items.map((it) => ({
+				userId: it.userId,
+				name: it.name,
+				image: it.image,
+				totalActivities: it.totalActivities,
+				topActivity: it.topActivity,
+			})),
 			totalPages: Math.ceil(totalItems / PAGE_SIZE),
 			totalItems,
 		};
 	}
 
-	async getEmployeeActivity(
+	async getEmployeeActivityBreakdown(
 		userId: string,
-		dateRange: DateRange
-	): Promise<EmployeeActivity> {
-		const dateFilter = and(
-			eq(auditLogs.changedBy, userId),
-			between(auditLogs.changedAt, dateRange.start, dateRange.end)
-		);
+		start: Date,
+		end: Date
+	): Promise<EmployeeActivityBreakdown[]> {
+		const rows = await db
+			.select({
+				activityType: auditLogs.activityType,
+				count: sql<number>`COUNT(*)::int`,
+			})
+			.from(auditLogs)
+			.where(
+				and(
+					eq(auditLogs.changedBy, userId),
+					between(auditLogs.changedAt, start, end),
+					isNotNull(auditLogs.activityType)
+				)
+			)
+			.groupBy(auditLogs.activityType)
+			.orderBy(sql`COUNT(*) DESC`);
 
-		const [userResult, statsResult, topTablesResult, dailyResult] =
-			await Promise.all([
-				db
-					.select({
-						id: users.id,
-						name: users.name,
-						email: users.email,
-						image: users.image,
-					})
-					.from(users)
-					.where(eq(users.id, userId)),
-
-				db
-					.select({
-						totalOperations: count(auditLogs.id),
-						inserts: sql<number>`COUNT(*) FILTER (WHERE ${auditLogs.operation} = 'INSERT')::int`,
-						updates: sql<number>`COUNT(*) FILTER (WHERE ${auditLogs.operation} = 'UPDATE')::int`,
-						deletes: sql<number>`COUNT(*) FILTER (WHERE ${auditLogs.operation} = 'DELETE')::int`,
-					})
-					.from(auditLogs)
-					.where(dateFilter),
-
-				db
-					.select({
-						tableName: auditLogs.tableName,
-						count: sql<number>`COUNT(*)::int`,
-					})
-					.from(auditLogs)
-					.where(dateFilter)
-					.groupBy(auditLogs.tableName)
-					.orderBy(sql`COUNT(*) DESC`)
-					.limit(5),
-
-				db
-					.select({
-						date: sql<string>`DATE(${auditLogs.changedAt})::text`,
-						count: sql<number>`COUNT(*)::int`,
-					})
-					.from(auditLogs)
-					.where(dateFilter)
-					.groupBy(sql`DATE(${auditLogs.changedAt})`)
-					.orderBy(sql`DATE(${auditLogs.changedAt})`),
-			]);
-
-		const [user] = userResult;
-		const stats = statsResult[0];
-
-		return {
-			user: user ?? { id: userId, name: null, email: null, image: null },
-			totalOperations: stats?.totalOperations ?? 0,
-			operationsByType: {
-				inserts: stats?.inserts ?? 0,
-				updates: stats?.updates ?? 0,
-				deletes: stats?.deletes ?? 0,
-			},
-			topTables: topTablesResult,
-			dailyActivity: dailyResult,
-		};
+		return rows.map((r) => ({
+			activityType: r.activityType!,
+			label: getActivityLabel(r.activityType!),
+			count: r.count,
+		}));
 	}
 
 	async getEmployeeTimeline(
 		userId: string,
-		dateRange: DateRange,
+		start: Date,
+		end: Date,
 		page: number
-	) {
+	): Promise<{
+		items: TimelineEntry[];
+		totalPages: number;
+		totalItems: number;
+	}> {
 		const offset = (page - 1) * PAGE_SIZE;
 		const dateFilter = and(
 			eq(auditLogs.changedBy, userId),
-			between(auditLogs.changedAt, dateRange.start, dateRange.end)
+			between(auditLogs.changedAt, start, end),
+			isNotNull(auditLogs.activityType)
 		);
 
-		const [items, [totalResult]] = await Promise.all([
+		const [rows, [totalResult]] = await Promise.all([
 			db
 				.select({
 					id: auditLogs.id,
+					activityType: auditLogs.activityType,
 					tableName: auditLogs.tableName,
 					recordId: auditLogs.recordId,
-					operation: auditLogs.operation,
-					oldValues: auditLogs.oldValues,
-					newValues: auditLogs.newValues,
 					changedAt: auditLogs.changedAt,
-					metadata: auditLogs.metadata,
 				})
 				.from(auditLogs)
 				.where(dateFilter)
 				.orderBy(sql`${auditLogs.changedAt} DESC`)
 				.limit(PAGE_SIZE)
 				.offset(offset),
-
 			db
 				.select({ total: count(auditLogs.id) })
 				.from(auditLogs)
@@ -251,7 +215,14 @@ class ActivityTrackerRepository {
 		const totalItems = totalResult?.total ?? 0;
 
 		return {
-			items,
+			items: rows.map((r) => ({
+				id: r.id,
+				activityType: r.activityType!,
+				label: getActivityLabel(r.activityType!),
+				timestamp: r.changedAt,
+				tableName: r.tableName,
+				recordId: r.recordId,
+			})),
 			totalPages: Math.ceil(totalItems / PAGE_SIZE),
 			totalItems,
 		};
@@ -259,8 +230,9 @@ class ActivityTrackerRepository {
 
 	async getActivityHeatmap(
 		userId: string,
-		dateRange: DateRange
-	): Promise<HeatmapData> {
+		start: Date,
+		end: Date
+	): Promise<HeatmapCell[]> {
 		return db
 			.select({
 				dayOfWeek: sql<number>`EXTRACT(DOW FROM ${auditLogs.changedAt})::int`,
@@ -271,7 +243,8 @@ class ActivityTrackerRepository {
 			.where(
 				and(
 					eq(auditLogs.changedBy, userId),
-					between(auditLogs.changedAt, dateRange.start, dateRange.end)
+					between(auditLogs.changedAt, start, end),
+					isNotNull(auditLogs.activityType)
 				)
 			)
 			.groupBy(
@@ -285,55 +258,63 @@ class ActivityTrackerRepository {
 	}
 
 	async getDailyTrends(
-		dept: string,
-		dateRange: DateRange
+		start: Date,
+		end: Date,
+		dept?: string
 	): Promise<DailyTrend[]> {
-		const deptFilter =
-			dept === 'all'
-				? undefined
-				: eq(users.role, dept as (typeof users.role.enumValues)[number]);
+		const deptFilter = dept
+			? eq(users.role, dept as (typeof users.role.enumValues)[number])
+			: undefined;
 
 		return db
 			.select({
 				date: sql<string>`DATE(${auditLogs.changedAt})::text`,
-				total: sql<number>`COUNT(*)::int`,
-				inserts: sql<number>`COUNT(*) FILTER (WHERE ${auditLogs.operation} = 'INSERT')::int`,
-				updates: sql<number>`COUNT(*) FILTER (WHERE ${auditLogs.operation} = 'UPDATE')::int`,
-				deletes: sql<number>`COUNT(*) FILTER (WHERE ${auditLogs.operation} = 'DELETE')::int`,
+				activityType: sql<string>`COALESCE(${auditLogs.activityType}, 'unknown')`,
+				count: sql<number>`COUNT(*)::int`,
 			})
 			.from(auditLogs)
 			.innerJoin(users, eq(users.id, auditLogs.changedBy))
 			.where(
 				and(
-					deptFilter,
-					between(auditLogs.changedAt, dateRange.start, dateRange.end)
+					isNotNull(auditLogs.activityType),
+					between(auditLogs.changedAt, start, end),
+					deptFilter
 				)
 			)
-			.groupBy(sql`DATE(${auditLogs.changedAt})`)
+			.groupBy(sql`DATE(${auditLogs.changedAt})`, auditLogs.activityType)
 			.orderBy(sql`DATE(${auditLogs.changedAt})`);
 	}
 
-	async getEntityBreakdown(
-		userId: string,
-		dateRange: DateRange
-	): Promise<EntityBreakdown[]> {
-		return db
+	async getEmployeeUser(userId: string) {
+		const [user] = await db
 			.select({
-				tableName: auditLogs.tableName,
-				total: sql<number>`COUNT(*)::int`,
-				inserts: sql<number>`COUNT(*) FILTER (WHERE ${auditLogs.operation} = 'INSERT')::int`,
-				updates: sql<number>`COUNT(*) FILTER (WHERE ${auditLogs.operation} = 'UPDATE')::int`,
-				deletes: sql<number>`COUNT(*) FILTER (WHERE ${auditLogs.operation} = 'DELETE')::int`,
+				id: users.id,
+				name: users.name,
+				image: users.image,
+				role: users.role,
 			})
+			.from(users)
+			.where(eq(users.id, userId))
+			.limit(1);
+		return user ?? null;
+	}
+
+	async getEmployeeTotalActivities(
+		userId: string,
+		start: Date,
+		end: Date
+	): Promise<number> {
+		const [result] = await db
+			.select({ total: count(auditLogs.id) })
 			.from(auditLogs)
 			.where(
 				and(
 					eq(auditLogs.changedBy, userId),
-					between(auditLogs.changedAt, dateRange.start, dateRange.end)
+					between(auditLogs.changedAt, start, end),
+					isNotNull(auditLogs.activityType)
 				)
-			)
-			.groupBy(auditLogs.tableName)
-			.orderBy(sql`COUNT(*) DESC`);
+			);
+		return result?.total ?? 0;
 	}
 
 	async isUserInDepartment(userId: string, dept: string): Promise<boolean> {
@@ -348,106 +329,6 @@ class ActivityTrackerRepository {
 			)
 			.limit(1);
 		return !!result;
-	}
-
-	async getClearanceStats(
-		dept: string,
-		dateRange: DateRange
-	): Promise<ClearanceEmployeeStats[]> {
-		const deptFilter =
-			dept === 'all'
-				? undefined
-				: eq(users.role, dept as (typeof users.role.enumValues)[number]);
-
-		return db
-			.select({
-				userId: users.id,
-				name: users.name,
-				email: users.email,
-				image: users.image,
-				approved: sql<number>`COUNT(*) FILTER (WHERE ${clearance.status} = 'approved')::int`,
-				rejected: sql<number>`COUNT(*) FILTER (WHERE ${clearance.status} = 'rejected')::int`,
-				pending: sql<number>`COUNT(*) FILTER (WHERE ${clearance.status} = 'pending')::int`,
-				total: sql<number>`COUNT(${clearance.id})::int`,
-				approvalRate: sql<number>`CASE
-					WHEN COUNT(${clearance.id}) > 0
-					THEN ROUND(COUNT(*) FILTER (WHERE ${clearance.status} = 'approved') * 100.0 / COUNT(${clearance.id}))::int
-					ELSE 0
-				END`,
-			})
-			.from(users)
-			.leftJoin(
-				clearance,
-				and(
-					eq(clearance.respondedBy, users.id),
-					dept === 'all'
-						? undefined
-						: eq(
-								clearance.department,
-								dept as (typeof clearance.department.enumValues)[number]
-							),
-					between(clearance.responseDate, dateRange.start, dateRange.end)
-				)
-			)
-			.where(deptFilter)
-			.groupBy(users.id)
-			.orderBy(sql`COUNT(${clearance.id}) DESC`);
-	}
-
-	async getPrintStats(
-		dept: string,
-		dateRange: DateRange
-	): Promise<PrintEmployeeStats[]> {
-		const result = await db.execute<{
-			user_id: string;
-			transcripts: number;
-			statements: number;
-			student_cards: number;
-			total_prints: number;
-		}>(sql`
-			SELECT
-				u.id AS user_id,
-				COALESCE(p.transcripts, 0) AS transcripts,
-				COALESCE(p.statements, 0) AS statements,
-				COALESCE(p.student_cards, 0) AS student_cards,
-				COALESCE(p.transcripts, 0) + COALESCE(p.statements, 0) + COALESCE(p.student_cards, 0) AS total_prints
-			FROM ${users} u
-			LEFT JOIN (
-				SELECT
-					printed_by,
-					SUM(CASE WHEN source = 'transcript' THEN cnt ELSE 0 END)::int AS transcripts,
-					SUM(CASE WHEN source = 'statement' THEN cnt ELSE 0 END)::int AS statements,
-					SUM(CASE WHEN source = 'student_card' THEN cnt ELSE 0 END)::int AS student_cards
-				FROM (
-					SELECT printed_by, 'transcript' AS source, COUNT(*)::int AS cnt
-					FROM ${transcriptPrints}
-					WHERE ${transcriptPrints.printedAt} BETWEEN ${dateRange.start} AND ${dateRange.end}
-					GROUP BY printed_by
-					UNION ALL
-					SELECT printed_by, 'statement' AS source, COUNT(*)::int AS cnt
-					FROM ${statementOfResultsPrints}
-					WHERE ${statementOfResultsPrints.printedAt} BETWEEN ${dateRange.start} AND ${dateRange.end}
-					GROUP BY printed_by
-					UNION ALL
-					SELECT printed_by, 'student_card' AS source, COUNT(*)::int AS cnt
-					FROM ${studentCardPrints}
-					WHERE ${studentCardPrints.createdAt} BETWEEN ${dateRange.start} AND ${dateRange.end}
-					GROUP BY printed_by
-				) all_prints
-				GROUP BY printed_by
-			) p ON p.printed_by = u.id
-			WHERE ${dept === 'all' ? sql`TRUE` : sql`u.role = ${dept}`}
-				AND p.printed_by IS NOT NULL
-			ORDER BY total_prints DESC
-		`);
-
-		return result.rows.map((r) => ({
-			userId: r.user_id,
-			transcripts: Number(r.transcripts),
-			statements: Number(r.statements),
-			studentCards: Number(r.student_cards),
-			totalPrints: Number(r.total_prints),
-		}));
 	}
 }
 

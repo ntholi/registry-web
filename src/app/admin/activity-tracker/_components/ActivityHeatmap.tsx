@@ -17,8 +17,8 @@ import { getActivityHeatmap } from '../_server/actions';
 
 type Props = {
 	userId: string;
-	start: Date;
-	end: Date;
+	start: string;
+	end: string;
 };
 
 const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -26,13 +26,7 @@ const HOURS = Array.from({ length: 24 }, (_, i) => i);
 
 export default function ActivityHeatmap({ userId, start, end }: Props) {
 	const { data, isLoading } = useQuery({
-		queryKey: [
-			'activity-tracker',
-			'heatmap',
-			userId,
-			start.toISOString(),
-			end.toISOString(),
-		],
+		queryKey: ['activity-tracker', 'heatmap', userId, start, end],
 		queryFn: () => getActivityHeatmap(userId, start, end),
 	});
 
@@ -91,7 +85,7 @@ export default function ActivityHeatmap({ userId, start, end }: Props) {
 								return (
 									<Tooltip
 										key={`${dayIdx}-${hour}`}
-										label={`${day} ${hour}:00 — ${cnt} operations`}
+										label={`${day} ${hour}:00 — ${cnt} activities`}
 										withArrow
 									>
 										<Box

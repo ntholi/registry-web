@@ -3,64 +3,83 @@
 import { activityTrackerService as service } from './service';
 
 export async function getDepartmentSummary(
-	start: Date,
-	end: Date,
+	start: string,
+	end: string,
 	dept?: string
 ) {
-	return service.getDepartmentSummary({ start, end }, dept);
+	return service.getDepartmentSummary(new Date(start), new Date(end), dept);
 }
 
 export async function getEmployeeList(
-	start: Date,
-	end: Date,
+	start: string,
+	end: string,
 	page: number,
 	search: string,
 	dept?: string
 ) {
-	return service.getEmployeeList({ start, end }, page, search, dept);
+	return service.getEmployeeList(
+		new Date(start),
+		new Date(end),
+		page,
+		search,
+		dept
+	);
 }
 
-export async function getEmployeeDetail(
+export async function getEmployeeActivityBreakdown(
 	userId: string,
-	start: Date,
-	end: Date
+	start: string,
+	end: string
 ) {
-	return service.getEmployeeActivity(userId, { start, end });
+	return service.getEmployeeActivityBreakdown(
+		userId,
+		new Date(start),
+		new Date(end)
+	);
 }
 
 export async function getEmployeeTimeline(
 	userId: string,
-	start: Date,
-	end: Date,
+	start: string,
+	end: string,
 	page: number
 ) {
-	return service.getEmployeeTimeline(userId, { start, end }, page);
+	return service.getEmployeeTimeline(
+		userId,
+		new Date(start),
+		new Date(end),
+		page
+	);
 }
 
 export async function getActivityHeatmap(
 	userId: string,
-	start: Date,
-	end: Date
+	start: string,
+	end: string
 ) {
-	return service.getActivityHeatmap(userId, { start, end });
+	return service.getActivityHeatmap(userId, new Date(start), new Date(end));
 }
 
-export async function getDailyTrends(start: Date, end: Date, dept?: string) {
-	return service.getDailyTrends({ start, end }, dept);
+export async function getDailyTrends(
+	start: string,
+	end: string,
+	dept?: string
+) {
+	return service.getDailyTrends(new Date(start), new Date(end), dept);
 }
 
-export async function getEntityBreakdown(
+export async function getEmployeeUser(userId: string) {
+	return service.getEmployeeUser(userId);
+}
+
+export async function getEmployeeTotalActivities(
 	userId: string,
-	start: Date,
-	end: Date
+	start: string,
+	end: string
 ) {
-	return service.getEntityBreakdown(userId, { start, end });
-}
-
-export async function getClearanceStats(start: Date, end: Date, dept?: string) {
-	return service.getClearanceStats({ start, end }, dept);
-}
-
-export async function getPrintStats(start: Date, end: Date, dept?: string) {
-	return service.getPrintStats({ start, end }, dept);
+	return service.getEmployeeTotalActivities(
+		userId,
+		new Date(start),
+		new Date(end)
+	);
 }

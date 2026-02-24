@@ -11,7 +11,6 @@ import EmployeeList from './_components/EmployeeList';
 import type { TimePreset } from './_lib/types';
 
 const DEPARTMENTS = [
-	{ value: 'all', label: 'All Departments' },
 	{ value: 'registry', label: 'Registry' },
 	{ value: 'finance', label: 'Finance' },
 	{ value: 'academic', label: 'Academic' },
@@ -43,7 +42,10 @@ export default function ActivityTrackerPage() {
 		return getPresetRange(p as Exclude<TimePreset, 'custom'>);
 	}, [preset, params.start, params.end]);
 
-	const dept = isAdmin ? (params.dept ?? 'all') : undefined;
+	const dept = isAdmin ? (params.dept ?? undefined) : undefined;
+
+	const start = dateRange.start.toISOString();
+	const end = dateRange.end.toISOString();
 
 	function handlePresetChange(p: TimePreset) {
 		if (p === 'custom') {
@@ -61,7 +63,7 @@ export default function ActivityTrackerPage() {
 	}
 
 	function handleDeptChange(val: string | null) {
-		setParams({ dept: val ?? 'all' });
+		setParams({ dept: val ?? null });
 	}
 
 	return (
@@ -72,10 +74,12 @@ export default function ActivityTrackerPage() {
 					{isAdmin && (
 						<Select
 							data={DEPARTMENTS}
-							value={dept}
+							value={dept ?? null}
 							onChange={handleDeptChange}
 							size='xs'
 							w={180}
+							clearable
+							placeholder='All Departments'
 						/>
 					)}
 				</Group>
@@ -87,17 +91,9 @@ export default function ActivityTrackerPage() {
 				/>
 			</Group>
 
-			<DepartmentOverview
-				start={dateRange.start}
-				end={dateRange.end}
-				dept={dept}
-			/>
-			<DailyTrendsChart
-				start={dateRange.start}
-				end={dateRange.end}
-				dept={dept}
-			/>
-			<EmployeeList start={dateRange.start} end={dateRange.end} dept={dept} />
+			<DepartmentOverview start={start} end={end} dept={dept} />
+			<DailyTrendsChart start={start} end={end} dept={dept} />
+			<EmployeeList start={start} end={end} dept={dept} />
 		</Stack>
 	);
 }

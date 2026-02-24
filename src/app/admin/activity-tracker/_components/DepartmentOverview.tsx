@@ -7,72 +7,34 @@ import {
 	Skeleton,
 	Stack,
 	Text,
-	ThemeIcon,
 } from '@mantine/core';
-import {
-	IconActivity,
-	IconDatabaseOff,
-	IconPencil,
-	IconPlus,
-	IconUsers,
-} from '@tabler/icons-react';
+import { IconDatabaseOff } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { getDepartmentSummary } from '../_server/actions';
 
 type Props = {
-	start: Date;
-	end: Date;
+	start: string;
+	end: string;
 	dept?: string;
 };
 
-type StatCardProps = {
-	label: string;
-	value: string | number;
-	icon: React.ReactNode;
-	color: string;
-};
-
-function StatCard({ label, value, icon, color }: StatCardProps) {
-	return (
-		<Paper p='md' radius='md' withBorder>
-			<Stack gap={4} align='flex-start'>
-				<ThemeIcon variant='light' color={color} size='lg' radius='md'>
-					{icon}
-				</ThemeIcon>
-				<Text fz={28} fw={700} lh={1.2}>
-					{value}
-				</Text>
-				<Text fz='sm' c='dimmed'>
-					{label}
-				</Text>
-			</Stack>
-		</Paper>
-	);
-}
-
 export default function DepartmentOverview({ start, end, dept }: Props) {
 	const { data, isLoading } = useQuery({
-		queryKey: [
-			'activity-tracker',
-			'summary',
-			start.toISOString(),
-			end.toISOString(),
-			dept,
-		],
+		queryKey: ['activity-tracker', 'summary', start, end, dept],
 		queryFn: () => getDepartmentSummary(start, end, dept),
 	});
 
 	if (isLoading) {
 		return (
-			<SimpleGrid cols={{ base: 2, sm: 4 }}>
-				{Array.from({ length: 4 }).map((_, i) => (
-					<Skeleton key={`stat-skel-${i}`} h={120} radius='md' />
+			<SimpleGrid cols={{ base: 2, sm: 3, md: 4 }}>
+				{Array.from({ length: 8 }).map((_, i) => (
+					<Skeleton key={`stat-skel-${i}`} h={100} radius='md' />
 				))}
 			</SimpleGrid>
 		);
 	}
 
-	if (!data || data.totalOperations === 0) {
+	if (!data || data.length === 0) {
 		return (
 			<Center py='xl'>
 				<Stack align='center' gap='xs'>
@@ -83,32 +45,28 @@ export default function DepartmentOverview({ start, end, dept }: Props) {
 		);
 	}
 
+	const total = data.reduce((s, d) => s + d.count, 0);
+
 	return (
-		<SimpleGrid cols={{ base: 2, sm: 4 }}>
-			<StatCard
-				label='Total Operations'
-				value={data.totalOperations.toLocaleString()}
-				icon={<IconActivity size={20} />}
-				color='blue'
-			/>
-			<StatCard
-				label='Active Employees'
-				value={`${data.activeEmployees} / ${data.totalEmployees}`}
-				icon={<IconUsers size={20} />}
-				color='green'
-			/>
-			<StatCard
-				label='Creates'
-				value={data.operationsByType.inserts.toLocaleString()}
-				icon={<IconPlus size={20} />}
-				color='teal'
-			/>
-			<StatCard
-				label='Updates'
-				value={data.operationsByType.updates.toLocaleString()}
-				icon={<IconPencil size={20} />}
-				color='indigo'
-			/>
+		<SimpleGrid cols={{ base: 2, sm: 3, md: 4 }}>
+			{data.map((item) => {
+				const pct = total > 0 ? (item.count / total) * 100 : 0;
+				return (
+					<Paper key={item.activityType} p='md' radius='md' withBorder>
+						<Stack gap={4}>
+							<Text fz={28} fw={700} lh={1.2}>
+								{item.count.toLocaleString()}
+							</Text>
+							<Text fz='sm' c='dimmed' lineClamp={1}>
+								{item.label}
+							</Text>
+							<Text fz='xs' c='dimmed'>
+								{pct.toFixed(1)}%
+							</Text>
+						</Stack>
+					</Paper>
+				);
+			})}
 		</SimpleGrid>
 	);
 }
