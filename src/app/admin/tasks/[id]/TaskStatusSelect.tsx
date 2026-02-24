@@ -1,7 +1,7 @@
 'use client';
 
 import { updateTaskStatus } from '@admin/tasks';
-import { Select } from '@mantine/core';
+import { Button, Group, Select } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'nextjs-toploader/app';
@@ -29,15 +29,17 @@ const statusOptions = [
 
 export default function TaskStatusSelect({ taskId, currentStatus }: Props) {
 	const [isUpdating, setIsUpdating] = useState(false);
+	const [status, setStatus] = useState<TaskStatus>(currentStatus);
 	const queryClient = useQueryClient();
 	const router = useRouter();
+	const isStatusChanged = status !== currentStatus;
 
-	async function handleStatusChange(newStatus: string | null) {
-		if (!newStatus || newStatus === currentStatus) return;
+	async function handleStatusUpdate() {
+		if (!isStatusChanged) return;
 
 		setIsUpdating(true);
 		try {
-			await updateTaskStatus(taskId, newStatus as TaskStatus);
+			await updateTaskStatus(taskId, status);
 			await queryClient.invalidateQueries({ queryKey: ['tasks'] });
 			notifications.show({
 				title: 'Status Updated',
@@ -58,14 +60,27 @@ export default function TaskStatusSelect({ taskId, currentStatus }: Props) {
 	}
 
 	return (
-		<Select
-			size='sm'
-			placeholder='Change status'
-			data={statusOptions}
-			value={currentStatus}
-			onChange={handleStatusChange}
-			disabled={isUpdating}
-			w={150}
-		/>
+		<Group gap='xs'>
+			<Select
+				size='sm'
+				placeholder='Change status'
+				data={statusOptions}
+				value={status}
+				onChange={(value) => {
+					if (!value) return;
+					setStatus(value as TaskStatus);
+				}}
+				disabled={isUpdating}
+				w={150}
+			/>
+			<Button
+				size='sm'
+				onClick={handleStatusUpdate}
+				loading={isUpdating}
+				variant={isStatusChanged ? 'filled' : 'default'}
+			>
+				Update
+			</Button>
+		</Group>
 	);
 }
