@@ -1,6 +1,9 @@
 import { eq } from 'drizzle-orm';
 import { db, structureSemesters, structures } from '@/core/database';
-import BaseRepository from '@/core/platform/BaseRepository';
+import { auditLogs } from '@/core/database/schema/auditLogs';
+import BaseRepository, {
+	type AuditOptions,
+} from '@/core/platform/BaseRepository';
 
 export default class StructureRepository extends BaseRepository<
 	typeof structures,
@@ -134,12 +137,37 @@ export default class StructureRepository extends BaseRepository<
 		});
 	}
 
-	async createStructureSemester(data: typeof structureSemesters.$inferInsert) {
-		const [result] = await db
-			.insert(structureSemesters)
-			.values(data)
-			.returning();
-		return result;
+	async createStructureSemester(
+		data: typeof structureSemesters.$inferInsert,
+		audit?: AuditOptions
+	) {
+		if (!audit) {
+			const [result] = await db
+				.insert(structureSemesters)
+				.values(data)
+				.returning();
+			return result;
+		}
+
+		return db.transaction(async (tx) => {
+			const [result] = await tx
+				.insert(structureSemesters)
+				.values(data)
+				.returning();
+
+			await tx.insert(auditLogs).values({
+				tableName: 'structure_semesters',
+				recordId: String(result.id),
+				operation: 'INSERT',
+				oldValues: null,
+				newValues: result,
+				changedBy: audit.userId,
+				metadata: audit.metadata ?? null,
+				activityType: audit.activityType ?? null,
+			});
+
+			return result;
+		});
 	}
 }
 

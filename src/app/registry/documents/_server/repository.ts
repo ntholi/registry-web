@@ -1,6 +1,7 @@
 import { eq } from 'drizzle-orm';
 import { nanoid } from 'nanoid';
-import { db, documents, studentDocuments } from '@/core/database';
+import { auditLogs, db, documents, studentDocuments } from '@/core/database';
+import type { AuditOptions } from '@/core/platform/BaseRepository';
 import type { DocumentType } from '../_schema/documents';
 
 export default class DocumentRepository {
@@ -22,12 +23,15 @@ export default class DocumentRepository {
 		return result.find((sd) => sd.document.type === type);
 	}
 
-	async createWithDocument(data: {
-		fileName: string;
-		fileUrl: string;
-		type: DocumentType;
-		stdNo: number;
-	}) {
+	async createWithDocument(
+		data: {
+			fileName: string;
+			fileUrl: string;
+			type: DocumentType;
+			stdNo: number;
+		},
+		audit?: AuditOptions
+	) {
 		return this.db.transaction(async (tx) => {
 			const docId = nanoid();
 			await tx.insert(documents).values({
@@ -47,11 +51,23 @@ export default class DocumentRepository {
 				})
 				.returning();
 
+			if (audit) {
+				await tx.insert(auditLogs).values({
+					tableName: 'student_documents',
+					recordId: sdId,
+					operation: 'INSERT',
+					oldValues: null,
+					newValues: studentDoc,
+					changedBy: audit.userId,
+					activityType: audit.activityType ?? null,
+				});
+			}
+
 			return studentDoc;
 		});
 	}
 
-	async removeById(id: string) {
+	async removeById(id: string, audit?: AuditOptions) {
 		return this.db.transaction(async (tx) => {
 			const studentDoc = await tx.query.studentDocuments.findFirst({
 				where: eq(studentDocuments.id, id),
@@ -62,6 +78,18 @@ export default class DocumentRepository {
 				await tx
 					.delete(documents)
 					.where(eq(documents.id, studentDoc.documentId));
+
+				if (audit) {
+					await tx.insert(auditLogs).values({
+						tableName: 'student_documents',
+						recordId: id,
+						operation: 'DELETE',
+						oldValues: studentDoc,
+						newValues: null,
+						changedBy: audit.userId,
+						activityType: audit.activityType ?? null,
+					});
+				}
 			}
 
 			return studentDoc;

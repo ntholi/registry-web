@@ -1,6 +1,7 @@
 import { certificateReprints } from '@registry/_database';
 import { desc, eq } from 'drizzle-orm';
-import { db } from '@/core/database';
+import { auditLogs, db } from '@/core/database';
+import type { AuditOptions } from '@/core/platform/BaseRepository';
 
 type CertificateReprint = typeof certificateReprints.$inferInsert;
 
@@ -25,25 +26,91 @@ class CertificateReprintsRepository {
 		});
 	}
 
-	async create(data: CertificateReprint) {
-		const [result] = await db
-			.insert(certificateReprints)
-			.values(data)
-			.returning();
-		return result;
+	async create(data: CertificateReprint, audit?: AuditOptions) {
+		return db.transaction(async (tx) => {
+			const [result] = await tx
+				.insert(certificateReprints)
+				.values(data)
+				.returning();
+
+			if (audit) {
+				await tx.insert(auditLogs).values({
+					tableName: 'certificate_reprints',
+					recordId: String(result.id),
+					operation: 'INSERT',
+					oldValues: null,
+					newValues: result,
+					changedBy: audit.userId,
+					activityType: audit.activityType ?? null,
+				});
+			}
+
+			return result;
+		});
 	}
 
-	async update(id: number, data: Partial<CertificateReprint>) {
-		const [result] = await db
-			.update(certificateReprints)
-			.set({ ...data, updatedAt: new Date() })
-			.where(eq(certificateReprints.id, id))
-			.returning();
-		return result;
+	async update(
+		id: number,
+		data: Partial<CertificateReprint>,
+		audit?: AuditOptions
+	) {
+		return db.transaction(async (tx) => {
+			const existing = audit
+				? await tx
+						.select()
+						.from(certificateReprints)
+						.where(eq(certificateReprints.id, id))
+						.then((r) => r[0])
+				: undefined;
+
+			const [result] = await tx
+				.update(certificateReprints)
+				.set({ ...data, updatedAt: new Date() })
+				.where(eq(certificateReprints.id, id))
+				.returning();
+
+			if (audit && existing) {
+				await tx.insert(auditLogs).values({
+					tableName: 'certificate_reprints',
+					recordId: String(id),
+					operation: 'UPDATE',
+					oldValues: existing,
+					newValues: result,
+					changedBy: audit.userId,
+					activityType: audit.activityType ?? null,
+				});
+			}
+
+			return result;
+		});
 	}
 
-	async delete(id: number) {
-		return db.delete(certificateReprints).where(eq(certificateReprints.id, id));
+	async delete(id: number, audit?: AuditOptions) {
+		return db.transaction(async (tx) => {
+			const existing = audit
+				? await tx
+						.select()
+						.from(certificateReprints)
+						.where(eq(certificateReprints.id, id))
+						.then((r) => r[0])
+				: undefined;
+
+			await tx
+				.delete(certificateReprints)
+				.where(eq(certificateReprints.id, id));
+
+			if (audit && existing) {
+				await tx.insert(auditLogs).values({
+					tableName: 'certificate_reprints',
+					recordId: String(id),
+					operation: 'DELETE',
+					oldValues: existing,
+					newValues: null,
+					changedBy: audit.userId,
+					activityType: audit.activityType ?? null,
+				});
+			}
+		});
 	}
 }
 

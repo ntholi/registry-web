@@ -99,7 +99,8 @@ class TaskService {
 			return this.repository.createWithRelations(
 				taskData,
 				assigneeIds,
-				studentIds
+				studentIds,
+				{ userId: userId }
 			);
 		}, ALLOWED_ROLES);
 	}
@@ -143,7 +144,8 @@ class TaskService {
 				id,
 				taskData,
 				assigneeIds,
-				studentIds
+				studentIds,
+				{ userId: userId! }
 			);
 		}, ALLOWED_ROLES);
 	}
@@ -164,7 +166,7 @@ class TaskService {
 				throw new Error('Only the creator or admin can delete this task');
 			}
 
-			await this.repository.deleteTask(id);
+			await this.repository.deleteTask(id, { userId: userId! });
 			return existingTask;
 		}, ALLOWED_ROLES);
 	}
@@ -194,7 +196,7 @@ class TaskService {
 				);
 			}
 
-			return this.repository.updateStatus(id, status);
+			return this.repository.updateStatus(id, status, { userId: userId! });
 		}, ALLOWED_ROLES);
 	}
 

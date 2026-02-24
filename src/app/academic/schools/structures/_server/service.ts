@@ -49,8 +49,11 @@ class StructureService extends BaseService<typeof structures, 'id'> {
 
 	async createStructureSemester(data: typeof structureSemesters.$inferInsert) {
 		return withAuth(
-			async () =>
-				(this.repository as StructureRepository).createStructureSemester(data),
+			async (session) =>
+				(this.repository as StructureRepository).createStructureSemester(
+					data,
+					session?.user?.id ? { userId: session.user.id } : undefined
+				),
 			['registry', 'admin']
 		);
 	}

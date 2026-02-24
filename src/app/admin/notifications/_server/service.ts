@@ -25,21 +25,32 @@ class NotificationService {
 
 	async create(data: NotificationWithRecipients, createdBy: string) {
 		return withAuth(
-			() => this.repository.create({ ...data, createdBy }),
+			(session) =>
+				this.repository.create(
+					{ ...data, createdBy },
+					{ userId: session!.user!.id! }
+				),
 			['admin']
 		);
 	}
 
 	async update(id: number, data: Partial<NotificationWithRecipients>) {
-		return withAuth(() => this.repository.update(id, data), ['admin']);
+		return withAuth(
+			(session) =>
+				this.repository.update(id, data, { userId: session!.user!.id! }),
+			['admin']
+		);
 	}
 
 	async delete(id: number) {
-		return withAuth(async () => {
-			const notification = await this.repository.findById(id);
-			await this.repository.delete(id);
-			return notification;
-		}, ['admin']);
+		return withAuth(
+			async (session) => {
+				const notification = await this.repository.findById(id);
+				await this.repository.delete(id, { userId: session!.user!.id! });
+				return notification;
+			},
+			['admin']
+		);
 	}
 
 	async getActiveNotificationsForUser(

@@ -19,6 +19,11 @@ interface BaseServiceConfig {
 	updateRoles?: AuthConfig;
 	deleteRoles?: AuthConfig;
 	countRoles?: AuthConfig;
+	activityTypes?: {
+		create?: string;
+		update?: string;
+		delete?: string;
+	};
 }
 
 abstract class BaseService<
@@ -31,6 +36,7 @@ abstract class BaseService<
 	private defaultUpdateRoles: AuthConfig;
 	private defaultDeleteRoles: AuthConfig;
 	private defaultCountRoles: AuthConfig;
+	private activityTypes?: BaseServiceConfig['activityTypes'];
 
 	constructor(
 		protected readonly repository: BaseRepository<T, PK>,
@@ -42,6 +48,7 @@ abstract class BaseService<
 		this.defaultUpdateRoles = config.updateRoles ?? [];
 		this.defaultDeleteRoles = config.deleteRoles ?? [];
 		this.defaultCountRoles = config.countRoles ?? [];
+		this.activityTypes = config.activityTypes;
 	}
 
 	protected byIdRoles(): AuthConfig {
@@ -69,10 +76,14 @@ abstract class BaseService<
 	}
 
 	protected buildAuditOptions(
-		session?: Session | null
+		session?: Session | null,
+		operation?: 'create' | 'update' | 'delete'
 	): AuditOptions | undefined {
 		if (!session?.user?.id) return undefined;
-		return { userId: session.user.id };
+		return {
+			userId: session.user.id,
+			activityType: operation ? this.activityTypes?.[operation] : undefined,
+		};
 	}
 
 	async get(id: ModelSelect<T>[PK]) {
@@ -98,7 +109,7 @@ abstract class BaseService<
 	async create(data: ModelInsert<T>) {
 		const roles = this.createRoles() as Role[] | AccessCheckFunction;
 		return withAuth(async (session) => {
-			const audit = this.buildAuditOptions(session);
+			const audit = this.buildAuditOptions(session, 'create');
 			return this.repository.create(data, audit);
 		}, roles as Role[]);
 	}
@@ -106,7 +117,7 @@ abstract class BaseService<
 	async update(id: ModelSelect<T>[PK], data: Partial<ModelInsert<T>>) {
 		const roles = this.updateRoles() as Role[] | AccessCheckFunction;
 		return withAuth(async (session) => {
-			const audit = this.buildAuditOptions(session);
+			const audit = this.buildAuditOptions(session, 'update');
 			return this.repository.update(id, data, audit);
 		}, roles as Role[]);
 	}
@@ -114,7 +125,7 @@ abstract class BaseService<
 	async delete(id: ModelSelect<T>[PK]) {
 		const roles = this.deleteRoles() as Role[] | AccessCheckFunction;
 		return withAuth(async (session) => {
-			const audit = this.buildAuditOptions(session);
+			const audit = this.buildAuditOptions(session, 'delete');
 			return this.repository.delete(id, audit);
 		}, roles as Role[]);
 	}

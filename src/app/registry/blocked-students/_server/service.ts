@@ -30,11 +30,14 @@ class BlockedStudentService {
 	async create(data: BlockedStudent) {
 		return withAuth(
 			async (session) => {
-				return this.repository.create({
-					...data,
-					byDepartment: session?.user?.role as DashboardUser,
-					status: 'blocked',
-				});
+				return this.repository.create(
+					{
+						...data,
+						byDepartment: session?.user?.role as DashboardUser,
+						status: 'blocked',
+					},
+					{ userId: session!.user!.id! }
+				);
 			},
 			['finance', 'registry', 'library']
 		);
@@ -50,10 +53,14 @@ class BlockedStudentService {
 
 		return withAuth(
 			async (session) => {
-				return this.repository.update(id, {
-					...data,
-					byDepartment: session?.user?.role as DashboardUser,
-				});
+				return this.repository.update(
+					id,
+					{
+						...data,
+						byDepartment: session?.user?.role as DashboardUser,
+					},
+					{ userId: session!.user!.id! }
+				);
 			},
 			async (session) => {
 				if (session.user?.role === 'admin') return true;
@@ -69,7 +76,8 @@ class BlockedStudentService {
 
 	async delete(id: number) {
 		return withAuth(
-			async () => this.repository.delete(id),
+			async (session) =>
+				this.repository.delete(id, { userId: session!.user!.id! }),
 			['admin', 'finance', 'registry', 'library']
 		);
 	}
@@ -95,7 +103,9 @@ class BlockedStudentService {
 						byDepartment: deptToUse,
 					}));
 
-				await this.repository.bulkCreate(toCreate);
+				await this.repository.bulkCreate(toCreate, {
+					userId: session!.user!.id!,
+				});
 
 				return {
 					imported: toCreate.length,

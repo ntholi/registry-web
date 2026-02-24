@@ -6,7 +6,9 @@ import {
 	notificationRecipients,
 	notifications,
 } from '@/core/database';
-import BaseRepository from '@/core/platform/BaseRepository';
+import BaseRepository, {
+	type AuditOptions,
+} from '@/core/platform/BaseRepository';
 
 export type NotificationInsert = typeof notifications.$inferInsert;
 export type NotificationSelect = typeof notifications.$inferSelect;
@@ -65,7 +67,7 @@ export default class NotificationRepository extends BaseRepository<
 		});
 	}
 
-	async create(data: NotificationWithRecipients) {
+	async create(data: NotificationWithRecipients, audit?: AuditOptions) {
 		const { recipientUserIds, ...notificationData } = data;
 
 		return db.transaction(async (tx) => {
@@ -83,14 +85,37 @@ export default class NotificationRepository extends BaseRepository<
 				);
 			}
 
+			if (audit) {
+				await this.writeAuditLog(
+					tx,
+					'INSERT',
+					String(created.id),
+					null,
+					created,
+					audit
+				);
+			}
+
 			return created;
 		});
 	}
 
-	async update(id: number, data: Partial<NotificationWithRecipients>) {
+	async update(
+		id: number,
+		data: Partial<NotificationWithRecipients>,
+		audit?: AuditOptions
+	) {
 		const { recipientUserIds, ...notificationData } = data;
 
 		return db.transaction(async (tx) => {
+			const existing = audit
+				? await tx
+						.select()
+						.from(notifications)
+						.where(eq(notifications.id, id))
+						.then((r) => r[0])
+				: undefined;
+
 			const [updated] = await tx
 				.update(notifications)
 				.set({ ...notificationData, updatedAt: new Date() })
@@ -110,6 +135,17 @@ export default class NotificationRepository extends BaseRepository<
 						}))
 					);
 				}
+			}
+
+			if (audit && existing) {
+				await this.writeAuditLog(
+					tx,
+					'UPDATE',
+					String(id),
+					existing,
+					updated,
+					audit
+				);
 			}
 
 			return updated;

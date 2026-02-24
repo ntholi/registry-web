@@ -23,21 +23,24 @@ class SponsorService {
 
 	async create(data: Sponsor) {
 		return withAuth(
-			async () => this.repository.create(data),
+			async (session) =>
+				this.repository.create(data, { userId: session!.user!.id! }),
 			['admin', 'finance']
 		);
 	}
 
 	async update(id: number, data: Sponsor) {
 		return withAuth(
-			async () => this.repository.update(id, data),
+			async (session) =>
+				this.repository.update(id, data, { userId: session!.user!.id! }),
 			['admin', 'finance']
 		);
 	}
 
 	async delete(id: number) {
 		return withAuth(
-			async () => this.repository.delete(id),
+			async (session) =>
+				this.repository.delete(id, { userId: session!.user!.id! }),
 			['admin', 'finance']
 		);
 	}

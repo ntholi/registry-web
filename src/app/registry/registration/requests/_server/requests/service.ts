@@ -88,7 +88,9 @@ class RegistrationRequestService {
 		return withAuth(
 			async (session) => {
 				const userId = session?.user?.id ?? null;
-				return this.repository.softDelete(id, userId);
+				return this.repository.softDelete(id, userId, {
+					userId: session!.user!.id!,
+				});
 			},
 			['registry']
 		);
@@ -127,8 +129,10 @@ class RegistrationRequestService {
 		}
 
 		return withAuth(
-			async () => {
-				return this.repository.createWithModules(data);
+			async (session) => {
+				return this.repository.createWithModules(data, {
+					userId: session!.user!.id!,
+				});
 			},
 			async (session) =>
 				session.user?.stdNo === data.stdNo || session.user?.role === 'registry'
@@ -153,17 +157,21 @@ class RegistrationRequestService {
 		termId?: number,
 		receipts?: { receiptNo: string; receiptType: ReceiptType }[]
 	) {
-		return withAuth(async () => {
-			return this.repository.updateWithModules(
-				registrationRequestId,
-				modules,
-				sponsorshipData,
-				semesterNumber,
-				semesterStatus,
-				termId,
-				receipts
-			);
-		}, ['student', 'registry']);
+		return withAuth(
+			async (session) => {
+				return this.repository.updateWithModules(
+					registrationRequestId,
+					modules,
+					sponsorshipData,
+					semesterNumber,
+					semesterStatus,
+					termId,
+					receipts,
+					{ userId: session!.user!.id! }
+				);
+			},
+			['student', 'registry']
+		);
 	}
 
 	async getStudentSemesterModules(

@@ -46,13 +46,17 @@ class PaymentReceiptService extends BaseService<typeof paymentReceipts, 'id'> {
 	}
 
 	async createMany(data: PaymentReceipt[]) {
-		return withAuth(async () => {
-			const results = [];
-			for (const receipt of data) {
-				results.push(await this.repository.create(receipt));
-			}
-			return results;
-		}, ['student']);
+		return withAuth(
+			async (session) => {
+				const audit = { userId: session!.user!.id! };
+				const results = [];
+				for (const receipt of data) {
+					results.push(await this.repository.create(receipt, audit));
+				}
+				return results;
+			},
+			['student']
+		);
 	}
 
 	async updateGraduationPaymentReceipts(

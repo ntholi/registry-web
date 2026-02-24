@@ -1,6 +1,7 @@
 import { and, eq, inArray } from 'drizzle-orm';
 import { blockedStudents, db } from '@/core/database';
 import BaseRepository, {
+	type AuditOptions,
 	type QueryOptions,
 } from '@/core/platform/BaseRepository';
 
@@ -47,20 +48,40 @@ export default class BlockedStudentRepository extends BaseRepository<
 	}
 
 	async bulkCreate(
-		data: { stdNo: number; reason: string; byDepartment: string }[]
+		data: { stdNo: number; reason: string; byDepartment: string }[],
+		audit?: AuditOptions
 	) {
 		if (data.length === 0) return [];
-		return db
-			.insert(blockedStudents)
-			.values(
-				data.map((d) => ({
-					stdNo: d.stdNo,
-					reason: d.reason,
-					byDepartment: d.byDepartment as 'registry',
-					status: 'blocked' as const,
-				}))
-			)
-			.returning();
+		const values = data.map((d) => ({
+			stdNo: d.stdNo,
+			reason: d.reason,
+			byDepartment: d.byDepartment as 'registry',
+			status: 'blocked' as const,
+		}));
+
+		if (!audit) {
+			return db.insert(blockedStudents).values(values).returning();
+		}
+
+		return db.transaction(async (tx) => {
+			const created = await tx
+				.insert(blockedStudents)
+				.values(values)
+				.returning();
+
+			await this.writeAuditLogBatch(
+				tx,
+				created.map((record) => ({
+					operation: 'INSERT' as const,
+					recordId: String(record.id),
+					oldValues: null,
+					newValues: record,
+				})),
+				audit
+			);
+
+			return created;
+		});
 	}
 
 	async query(options: QueryOptions<typeof blockedStudents>) {

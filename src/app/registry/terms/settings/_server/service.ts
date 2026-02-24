@@ -24,7 +24,8 @@ class TermSettingsService {
 				return this.repository.updateResultsPublished(
 					termId,
 					published,
-					session.user.id!
+					session.user.id!,
+					{ userId: session.user.id! }
 				);
 			},
 			['admin', 'registry']
@@ -46,7 +47,8 @@ class TermSettingsService {
 				return this.repository.updateGradebookAccess(
 					termId,
 					access,
-					session.user.id!
+					session.user.id!,
+					{ userId: session.user.id! }
 				);
 			},
 			['admin', 'registry']

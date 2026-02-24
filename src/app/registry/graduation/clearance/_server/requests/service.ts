@@ -72,27 +72,45 @@ class GraduationRequestService {
 	}
 
 	async create(data: GraduationRequest) {
-		return withAuth(async () => this.repository.create(data), []);
+		return withAuth(
+			async (session) =>
+				this.repository.create(data, { userId: session!.user!.id! }),
+			[]
+		);
 	}
 
 	async createWithPaymentReceipts(data: CreateGraduationRequestData) {
-		return withAuth(async () => {
-			const { paymentReceipts, stdNo, ...graduationRequestData } = data;
+		return withAuth(
+			async (session) => {
+				const { paymentReceipts, stdNo, ...graduationRequestData } = data;
 
-			return this.repository.createWithPaymentReceipts({
-				graduationRequestData,
-				paymentReceipts,
-				stdNo,
-			});
-		}, ['student', 'registry', 'admin']);
+				return this.repository.createWithPaymentReceipts(
+					{
+						graduationRequestData,
+						paymentReceipts,
+						stdNo,
+					},
+					{ userId: session!.user!.id! }
+				);
+			},
+			['student', 'registry', 'admin']
+		);
 	}
 
 	async update(id: number, data: Partial<GraduationRequest>) {
-		return withAuth(async () => this.repository.update(id, data), []);
+		return withAuth(
+			async (session) =>
+				this.repository.update(id, data, { userId: session!.user!.id! }),
+			[]
+		);
 	}
 
 	async delete(id: number) {
-		return withAuth(async () => this.repository.delete(id), []);
+		return withAuth(
+			async (session) =>
+				this.repository.delete(id, { userId: session!.user!.id! }),
+			[]
+		);
 	}
 
 	async count() {

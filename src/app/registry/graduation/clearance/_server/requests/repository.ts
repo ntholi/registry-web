@@ -11,6 +11,7 @@ import {
 	studentPrograms,
 } from '@/core/database';
 import BaseRepository, {
+	type AuditOptions,
 	type QueryOptions,
 } from '@/core/platform/BaseRepository';
 import { getOutstandingFromStructure } from '@/shared/lib/utils/grades';
@@ -23,7 +24,10 @@ export default class GraduationRequestRepository extends BaseRepository<
 		super(graduationRequests, graduationRequests.id);
 	}
 
-	override async create(data: typeof graduationRequests.$inferInsert) {
+	override async create(
+		data: typeof graduationRequests.$inferInsert,
+		audit?: AuditOptions
+	) {
 		return db.transaction(async (tx) => {
 			const [request] = await tx
 				.insert(graduationRequests)
@@ -67,6 +71,17 @@ export default class GraduationRequestRepository extends BaseRepository<
 					graduationRequestId: request.id,
 					clearanceId: academicClearanceRecord.id,
 				});
+			}
+
+			if (audit) {
+				await this.writeAuditLog(
+					tx,
+					'INSERT',
+					String(request.id),
+					null,
+					request,
+					audit
+				);
 			}
 
 			return request;
@@ -259,14 +274,17 @@ export default class GraduationRequestRepository extends BaseRepository<
 		});
 	}
 
-	async createWithPaymentReceipts(data: {
-		graduationRequestData: typeof graduationRequests.$inferInsert;
-		paymentReceipts: Array<{
-			receiptType: ReceiptType;
-			receiptNo: string;
-		}>;
-		stdNo: number;
-	}) {
+	async createWithPaymentReceipts(
+		data: {
+			graduationRequestData: typeof graduationRequests.$inferInsert;
+			paymentReceipts: Array<{
+				receiptType: ReceiptType;
+				receiptNo: string;
+			}>;
+			stdNo: number;
+		},
+		audit?: AuditOptions
+	) {
 		return db.transaction(async (tx) => {
 			const { graduationRequestData, paymentReceipts: receipts, stdNo } = data;
 
@@ -328,6 +346,17 @@ export default class GraduationRequestRepository extends BaseRepository<
 					graduationRequestId: graduationRequest.id,
 					receiptId: newReceipt.id,
 				});
+			}
+
+			if (audit) {
+				await this.writeAuditLog(
+					tx,
+					'INSERT',
+					String(graduationRequest.id),
+					null,
+					graduationRequest,
+					audit
+				);
 			}
 
 			return graduationRequest;

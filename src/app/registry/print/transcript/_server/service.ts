@@ -9,7 +9,13 @@ class TranscriptPrintsService {
 	constructor(private readonly repository = new TranscriptPrintsRepository()) {}
 
 	async create(data: TranscriptPrint) {
-		return withAuth(async () => this.repository.create(data), ['dashboard']);
+		return withAuth(
+			async (session) =>
+				this.repository.create(data, {
+					userId: session!.user!.id!,
+				}),
+			['dashboard']
+		);
 	}
 
 	async get(id: string) {

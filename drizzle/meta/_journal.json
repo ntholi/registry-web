@@ -1135,6 +1135,13 @@
 			"when": 1771855243808,
 			"tag": "0161_brainy_roland_deschain",
 			"breakpoints": true
+		},
+		{
+			"idx": 162,
+			"version": "7",
+			"when": 1771913838572,
+			"tag": "0162_brainy_mandroid",
+			"breakpoints": true
 		}
 	]
 }

@@ -46,18 +46,23 @@ class AttendanceService {
 		markedBy: string,
 		records: { stdNo: number; status: AttendanceStatus }[]
 	) {
-		return withAuth(async () => {
-			const attendanceRecords = records.map((r) => ({
-				stdNo: r.stdNo,
-				semesterModuleId,
-				termId,
-				weekNumber,
-				status: r.status,
-				assignedModuleId,
-				markedBy,
-			}));
-			return this.repository.upsertAttendance(attendanceRecords);
-		}, ['academic', 'leap']);
+		return withAuth(
+			async (session) => {
+				const attendanceRecords = records.map((r) => ({
+					stdNo: r.stdNo,
+					semesterModuleId,
+					termId,
+					weekNumber,
+					status: r.status,
+					assignedModuleId,
+					markedBy,
+				}));
+				return this.repository.upsertAttendance(attendanceRecords, {
+					userId: session!.user!.id!,
+				});
+			},
+			['academic', 'leap']
+		);
 	}
 
 	async getAttendanceSummary(semesterModuleId: number, termId: number) {

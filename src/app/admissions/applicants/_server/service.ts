@@ -69,30 +69,39 @@ class ApplicantService extends BaseService<typeof applicants, 'id'> {
 	}
 
 	override async create(data: typeof applicants.$inferInsert) {
-		return withAuth(async () => {
-			if (data.nationalId) {
-				const existing = await this.repo.findByNationalId(data.nationalId);
-				if (existing) {
-					throw new Error('DUPLICATE_NATIONAL_ID: National ID already exists');
+		return withAuth(
+			async (session) => {
+				if (data.nationalId) {
+					const existing = await this.repo.findByNationalId(data.nationalId);
+					if (existing) {
+						throw new Error(
+							'DUPLICATE_NATIONAL_ID: National ID already exists'
+						);
+					}
 				}
-			}
-			return this.repo.create(data);
-		}, ['registry', 'marketing', 'admin', 'applicant']);
+				return this.repo.create(
+					data,
+					this.buildAuditOptions(session, 'create')
+				);
+			},
+			['registry', 'marketing', 'admin', 'applicant']
+		);
 	}
 
 	override async update(
 		id: string,
 		data: Partial<typeof applicants.$inferInsert>
 	) {
-		return withAuth(async () => {
-			// if (data.nationalId) {
-			// 	const existing = await this.repo.findByNationalId(data.nationalId);
-			// 	if (existing && existing.id !== id) {
-			// 		throw new Error('DUPLICATE_NATIONAL_ID: National ID already exists');
-			// 	}
-			// }
-			return this.repo.update(id, data);
-		}, ['registry', 'marketing', 'admin', 'applicant']);
+		return withAuth(
+			async (session) => {
+				return this.repo.update(
+					id,
+					data,
+					this.buildAuditOptions(session, 'update')
+				);
+			},
+			['registry', 'marketing', 'admin', 'applicant']
+		);
 	}
 
 	async addPhone(applicantId: string, phoneNumber: string) {

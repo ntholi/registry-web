@@ -58,6 +58,7 @@ export default class AuditLogRepository extends BaseRepository<
 				changedAt: auditLogs.changedAt,
 				syncedAt: auditLogs.syncedAt,
 				metadata: auditLogs.metadata,
+				activityType: auditLogs.activityType,
 				changedByUser: userColumns,
 			})
 			.from(auditLogs)

@@ -14,6 +14,7 @@ export type TransactionClient = Parameters<
 export interface AuditOptions {
 	userId: string;
 	metadata?: Record<string, unknown>;
+	activityType?: string;
 }
 
 const DEFAULT_PAGE_SIZE = 15;
@@ -93,6 +94,7 @@ class BaseRepository<
 			newValues: newValues ?? null,
 			changedBy: audit.userId,
 			metadata: Object.keys(meta).length > 0 ? meta : null,
+			activityType: audit.activityType ?? null,
 		});
 	}
 
@@ -126,6 +128,7 @@ class BaseRepository<
 				newValues: entry.newValues ?? null,
 				changedBy: audit.userId,
 				metadata: Object.keys(meta).length > 0 ? meta : null,
+				activityType: audit.activityType ?? null,
 			};
 		});
 

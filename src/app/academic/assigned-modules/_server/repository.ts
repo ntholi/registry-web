@@ -10,7 +10,9 @@ import {
 	studentSemesters,
 	users,
 } from '@/core/database';
-import BaseRepository from '@/core/platform/BaseRepository';
+import BaseRepository, {
+	type AuditOptions,
+} from '@/core/platform/BaseRepository';
 
 export default class AssignedModuleRepository extends BaseRepository<
 	typeof assignedModules,
@@ -60,10 +62,30 @@ export default class AssignedModuleRepository extends BaseRepository<
 			);
 	}
 
-	async createMany(data: (typeof assignedModules.$inferInsert)[]) {
+	async createMany(
+		data: (typeof assignedModules.$inferInsert)[],
+		audit?: AuditOptions
+	) {
 		if (data.length === 0) return [];
 
-		return db.insert(assignedModules).values(data).returning();
+		return db.transaction(async (tx) => {
+			const results = await tx.insert(assignedModules).values(data).returning();
+
+			if (audit && results.length > 0) {
+				await this.writeAuditLogBatch(
+					tx,
+					results.map((r) => ({
+						operation: 'INSERT' as const,
+						recordId: String(r.id),
+						oldValues: null,
+						newValues: r,
+					})),
+					audit
+				);
+			}
+
+			return results;
+		});
 	}
 
 	async findByUserAndModule(userId: string, moduleId: number) {

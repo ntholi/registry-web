@@ -39,15 +39,22 @@ class LoanService extends BaseService<typeof loans, 'id'> {
 		dueDate: Date,
 		issuedBy: string
 	) {
-		return this.repository.createLoan({ bookCopyId, stdNo, dueDate, issuedBy });
+		return this.repository.createLoan(
+			{ bookCopyId, stdNo, dueDate, issuedBy },
+			{ userId: issuedBy }
+		);
 	}
 
 	async returnBook(loanId: string, returnedTo: string) {
-		return this.repository.processReturn(loanId, returnedTo);
+		return this.repository.processReturn(loanId, returnedTo, {
+			userId: returnedTo,
+		});
 	}
 
 	async renewLoan(loanId: string, newDueDate: Date, renewedBy: string) {
-		return this.repository.renewLoan(loanId, newDueDate, renewedBy);
+		return this.repository.renewLoan(loanId, newDueDate, renewedBy, {
+			userId: renewedBy,
+		});
 	}
 
 	async getLoanHistory(page: number, search: string, filters?: LoanFilters) {

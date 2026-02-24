@@ -33,14 +33,20 @@ class DocumentService {
 		stdNo: number;
 	}) {
 		return withAuth(
-			async () => this.repository.createWithDocument(data),
+			async (session) =>
+				this.repository.createWithDocument(data, {
+					userId: session!.user!.id!,
+				}),
 			['admin', 'registry', 'student_services']
 		);
 	}
 
 	async delete(id: string) {
 		return withAuth(
-			async () => this.repository.removeById(id),
+			async (session) =>
+				this.repository.removeById(id, {
+					userId: session!.user!.id!,
+				}),
 			['admin', 'registry', 'student_services']
 		);
 	}

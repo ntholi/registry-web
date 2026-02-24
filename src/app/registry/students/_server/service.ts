@@ -106,11 +106,23 @@ class StudentService {
 	}
 
 	async create(data: Student) {
-		return withAuth(async () => this.repository.create(data), []);
+		return withAuth(
+			async (session) =>
+				this.repository.create(data, {
+					userId: session!.user!.id!,
+				}),
+			[]
+		);
 	}
 
 	async update(stdNo: number, data: Student) {
-		return withAuth(async () => this.repository.update(stdNo, data), []);
+		return withAuth(
+			async (session) =>
+				this.repository.update(stdNo, data, {
+					userId: session!.user!.id!,
+				}),
+			[]
+		);
 	}
 
 	async updateUserId(stdNo: number, userId: string | null) {

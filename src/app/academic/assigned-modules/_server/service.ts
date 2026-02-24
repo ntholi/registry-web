@@ -8,23 +8,32 @@ class AssignedModuleService {
 
 	async delete(id: number) {
 		return withAuth(
-			async () => this.repository.delete(id),
+			async (session) =>
+				this.repository.delete(id, { userId: session!.user!.id! }),
 			['academic', 'leap']
 		);
 	}
 
 	async assignModulesToLecturer(userId: string, semesterModuleIds: number[]) {
-		return withAuth(async () => {
-			await this.repository.removeModuleAssignments(userId, semesterModuleIds);
-			const term = await getActiveTerm();
-			const assignments = semesterModuleIds.map((semesterModuleId) => ({
-				userId,
-				semesterModuleId,
-				termId: term.id,
-			}));
+		return withAuth(
+			async (session) => {
+				await this.repository.removeModuleAssignments(
+					userId,
+					semesterModuleIds
+				);
+				const term = await getActiveTerm();
+				const assignments = semesterModuleIds.map((semesterModuleId) => ({
+					userId,
+					semesterModuleId,
+					termId: term.id,
+				}));
 
-			return this.repository.createMany(assignments);
-		}, ['academic', 'leap']);
+				return this.repository.createMany(assignments, {
+					userId: session!.user!.id!,
+				});
+			},
+			['academic', 'leap']
+		);
 	}
 
 	async getByUserAndModule(userId: string, moduleId: number) {

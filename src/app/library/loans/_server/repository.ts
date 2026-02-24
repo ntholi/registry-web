@@ -7,7 +7,9 @@ import {
 	loans,
 	students,
 } from '@/core/database';
-import BaseRepository from '@/core/platform/BaseRepository';
+import BaseRepository, {
+	type AuditOptions,
+} from '@/core/platform/BaseRepository';
 import type { AvailableCopy, LoanFilters } from '../_lib/types';
 
 export default class LoanRepository extends BaseRepository<typeof loans, 'id'> {
@@ -108,12 +110,15 @@ export default class LoanRepository extends BaseRepository<typeof loans, 'id'> {
 		});
 	}
 
-	async createLoan(data: {
-		bookCopyId: string;
-		stdNo: number;
-		dueDate: Date;
-		issuedBy: string;
-	}) {
+	async createLoan(
+		data: {
+			bookCopyId: string;
+			stdNo: number;
+			dueDate: Date;
+			issuedBy: string;
+		},
+		audit?: AuditOptions
+	) {
 		return db.transaction(async (tx) => {
 			const [loan] = await tx
 				.insert(loans)
@@ -131,11 +136,15 @@ export default class LoanRepository extends BaseRepository<typeof loans, 'id'> {
 				.set({ status: 'OnLoan' })
 				.where(eq(bookCopies.id, data.bookCopyId));
 
+			if (audit) {
+				await this.writeAuditLog(tx, 'INSERT', loan.id, null, loan, audit);
+			}
+
 			return loan;
 		});
 	}
 
-	async processReturn(id: string, returnedTo: string) {
+	async processReturn(id: string, returnedTo: string, audit?: AuditOptions) {
 		return db.transaction(async (tx) => {
 			const loan = await tx.query.loans.findFirst({
 				where: eq(loans.id, id),
@@ -169,11 +178,20 @@ export default class LoanRepository extends BaseRepository<typeof loans, 'id'> {
 					.where(eq(bookCopies.id, updated.bookCopyId));
 			}
 
+			if (audit) {
+				await this.writeAuditLog(tx, 'UPDATE', id, loan, updated, audit);
+			}
+
 			return { ...updated, daysOverdue };
 		});
 	}
 
-	async renewLoan(loanId: string, newDueDate: Date, renewedBy: string) {
+	async renewLoan(
+		loanId: string,
+		newDueDate: Date,
+		renewedBy: string,
+		audit?: AuditOptions
+	) {
 		return db.transaction(async (tx) => {
 			const loan = await tx.query.loans.findFirst({
 				where: eq(loans.id, loanId),
@@ -193,6 +211,10 @@ export default class LoanRepository extends BaseRepository<typeof loans, 'id'> {
 				.set({ dueDate: newDueDate })
 				.where(eq(loans.id, loanId))
 				.returning();
+
+			if (audit) {
+				await this.writeAuditLog(tx, 'UPDATE', loanId, loan, updated, audit);
+			}
 
 			return updated;
 		});

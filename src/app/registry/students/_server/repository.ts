@@ -666,6 +666,7 @@ export default class StudentRepository extends BaseRepository<
 				newValues: updated,
 				changedBy: audit.userId,
 				metadata: audit.metadata ?? null,
+				activityType: audit.activityType ?? null,
 			});
 
 			return updated;
@@ -700,6 +701,7 @@ export default class StudentRepository extends BaseRepository<
 				newValues: created,
 				changedBy: audit.userId,
 				metadata: audit.metadata ?? null,
+				activityType: audit.activityType ?? null,
 			});
 
 			return created;
@@ -733,6 +735,7 @@ export default class StudentRepository extends BaseRepository<
 				newValues: updated,
 				changedBy: audit.userId,
 				metadata: audit.metadata ?? null,
+				activityType: audit.activityType ?? null,
 			});
 
 			return updated;
@@ -766,6 +769,7 @@ export default class StudentRepository extends BaseRepository<
 				newValues: updated,
 				changedBy: audit.userId,
 				metadata: audit.metadata ?? null,
+				activityType: audit.activityType ?? null,
 			});
 
 			return updated;

@@ -38,10 +38,13 @@ class AutoApprovalService {
 				if (role !== 'admin' && data.department !== role) {
 					throw new Error('You can only create rules for your own department');
 				}
-				return this.repository.create({
-					...data,
-					createdBy: session?.user?.id,
-				});
+				return this.repository.create(
+					{
+						...data,
+						createdBy: session?.user?.id,
+					},
+					{ userId: session!.user!.id! }
+				);
 			},
 			['finance', 'library', 'admin']
 		);
@@ -57,7 +60,9 @@ class AutoApprovalService {
 				if (role !== 'admin' && existing.department !== role) {
 					throw new Error('You can only update rules for your own department');
 				}
-				return this.repository.update(id, data);
+				return this.repository.update(id, data, {
+					userId: session!.user!.id!,
+				});
 			},
 			['finance', 'library', 'admin']
 		);
@@ -73,7 +78,7 @@ class AutoApprovalService {
 				if (role !== 'admin' && existing.department !== role) {
 					throw new Error('You can only delete rules for your own department');
 				}
-				return this.repository.delete(id);
+				return this.repository.delete(id, { userId: session!.user!.id! });
 			},
 			['finance', 'library', 'admin']
 		);

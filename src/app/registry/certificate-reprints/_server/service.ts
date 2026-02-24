@@ -23,18 +23,25 @@ class CertificateReprintsService {
 	}
 
 	async create(data: CertificateReprint) {
-		return withAuth(() => this.repository.create(data), ['registry', 'admin']);
+		return withAuth(
+			(session) => this.repository.create(data, { userId: session!.user!.id! }),
+			['registry', 'admin']
+		);
 	}
 
 	async update(id: number, data: Partial<CertificateReprint>) {
 		return withAuth(
-			() => this.repository.update(id, data),
+			(session) =>
+				this.repository.update(id, data, { userId: session!.user!.id! }),
 			['registry', 'admin']
 		);
 	}
 
 	async delete(id: number) {
-		return withAuth(() => this.repository.delete(id), ['registry', 'admin']);
+		return withAuth(
+			(session) => this.repository.delete(id, { userId: session!.user!.id! }),
+			['registry', 'admin']
+		);
 	}
 }
 

@@ -30,6 +30,7 @@ import {
 	terms,
 } from '@/core/database';
 import BaseRepository, {
+	type AuditOptions,
 	type QueryOptions,
 } from '@/core/platform/BaseRepository';
 
@@ -499,18 +500,21 @@ export default class RegistrationRequestRepository extends BaseRepository<
 		return null;
 	}
 
-	async createWithModules(data: {
-		stdNo: number;
-		termId: number;
-		modules: { moduleId: number; moduleStatus: StudentModuleStatus }[];
-		sponsorId: number;
-		semesterStatus: 'Active' | 'Repeat';
-		semesterNumber: string;
-		borrowerNo?: string;
-		bankName?: string;
-		accountNumber?: string;
-		receipts?: { receiptNo: string; receiptType: ReceiptType }[];
-	}) {
+	async createWithModules(
+		data: {
+			stdNo: number;
+			termId: number;
+			modules: { moduleId: number; moduleStatus: StudentModuleStatus }[];
+			sponsorId: number;
+			semesterStatus: 'Active' | 'Repeat';
+			semesterNumber: string;
+			borrowerNo?: string;
+			bankName?: string;
+			accountNumber?: string;
+			receipts?: { receiptNo: string; receiptType: ReceiptType }[];
+		},
+		audit?: AuditOptions
+	) {
 		const existingSemester = await this.findExistingStudentSemester(
 			data.stdNo,
 			data.termId
@@ -695,6 +699,17 @@ export default class RegistrationRequestRepository extends BaseRepository<
 				await this.finalizeRegistration(tx, request.id, existingSemester?.id);
 			}
 
+			if (audit) {
+				await this.writeAuditLog(
+					tx,
+					'INSERT',
+					String(request.id),
+					null,
+					request,
+					audit
+				);
+			}
+
 			return { request, modules, isAdditionalRequest };
 		});
 	}
@@ -715,7 +730,8 @@ export default class RegistrationRequestRepository extends BaseRepository<
 		semesterNumber?: string,
 		semesterStatus?: 'Active' | 'Repeat',
 		termId?: number,
-		receipts?: { receiptNo: string; receiptType: ReceiptType }[]
+		receipts?: { receiptNo: string; receiptType: ReceiptType }[],
+		audit?: AuditOptions
 	) {
 		return db.transaction(async (tx) => {
 			const registration = await tx.query.registrationRequests.findFirst({
@@ -915,6 +931,17 @@ export default class RegistrationRequestRepository extends BaseRepository<
 				}
 			}
 
+			if (audit) {
+				await this.writeAuditLog(
+					tx,
+					'UPDATE',
+					String(registrationRequestId),
+					registration,
+					updated,
+					audit
+				);
+			}
+
 			return { request: updated, modules: updatedModules };
 		});
 	}
@@ -978,17 +1005,39 @@ export default class RegistrationRequestRepository extends BaseRepository<
 		});
 	}
 
-	async softDelete(id: number, deletedBy: string | null) {
-		const [updated] = await db
-			.update(registrationRequests)
-			.set({
-				deletedAt: new Date(),
-				deletedBy,
-				updatedAt: new Date(),
-			})
-			.where(eq(registrationRequests.id, id))
-			.returning();
-		return updated;
+	async softDelete(id: number, deletedBy: string | null, audit?: AuditOptions) {
+		return db.transaction(async (tx) => {
+			const existing = audit
+				? await tx
+						.select()
+						.from(registrationRequests)
+						.where(eq(registrationRequests.id, id))
+						.then((r) => r[0])
+				: undefined;
+
+			const [updated] = await tx
+				.update(registrationRequests)
+				.set({
+					deletedAt: new Date(),
+					deletedBy,
+					updatedAt: new Date(),
+				})
+				.where(eq(registrationRequests.id, id))
+				.returning();
+
+			if (audit && existing) {
+				await this.writeAuditLog(
+					tx,
+					'DELETE',
+					String(id),
+					existing,
+					updated,
+					audit
+				);
+			}
+
+			return updated;
+		});
 	}
 }
 

@@ -16,7 +16,9 @@ import {
 	terms,
 	users,
 } from '@/core/database';
-import BaseRepository from '@/core/platform/BaseRepository';
+import BaseRepository, {
+	type AuditOptions,
+} from '@/core/platform/BaseRepository';
 
 export type AttendanceRecord = typeof attendance.$inferInsert;
 
@@ -261,12 +263,19 @@ export default class AttendanceRepository extends BaseRepository<
 			status: AttendanceStatus;
 			assignedModuleId: number;
 			markedBy: string;
-		}[]
+		}[],
+		audit?: AuditOptions
 	) {
 		if (records.length === 0) return [];
 
 		return await db.transaction(async (tx) => {
 			const results = [];
+			const auditEntries: Array<{
+				operation: 'INSERT' | 'UPDATE';
+				recordId: string;
+				oldValues: unknown;
+				newValues: unknown;
+			}> = [];
 
 			for (const record of records) {
 				const existing = await tx
@@ -293,6 +302,14 @@ export default class AttendanceRepository extends BaseRepository<
 						.where(eq(attendance.id, existing[0].id))
 						.returning();
 					results.push(...updated);
+					if (audit) {
+						auditEntries.push({
+							operation: 'UPDATE',
+							recordId: String(existing[0].id),
+							oldValues: { status: record.status },
+							newValues: updated[0],
+						});
+					}
 				} else {
 					const inserted = await tx
 						.insert(attendance)
@@ -307,7 +324,19 @@ export default class AttendanceRepository extends BaseRepository<
 						})
 						.returning();
 					results.push(...inserted);
+					if (audit) {
+						auditEntries.push({
+							operation: 'INSERT',
+							recordId: String(inserted[0].id),
+							oldValues: null,
+							newValues: inserted[0],
+						});
+					}
 				}
+			}
+
+			if (audit && auditEntries.length > 0) {
+				await this.writeAuditLogBatch(tx, auditEntries, audit);
 			}
 
 			return results;

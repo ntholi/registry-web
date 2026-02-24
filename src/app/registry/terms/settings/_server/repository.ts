@@ -1,5 +1,6 @@
 import { and, eq, inArray, ne } from 'drizzle-orm';
 import {
+	auditLogs,
 	blockedStudents,
 	clearance,
 	db,
@@ -9,6 +10,7 @@ import {
 	termSettings,
 	terms,
 } from '@/core/database';
+import type { AuditOptions } from '@/core/platform/BaseRepository';
 
 export type TermSettingsInsert = typeof termSettings.$inferInsert;
 export type TermSettingsSelect = typeof termSettings.$inferSelect;
@@ -23,31 +25,79 @@ export default class TermSettingsRepository {
 	async updateResultsPublished(
 		termId: number,
 		published: boolean,
-		userId: string
+		userId: string,
+		audit?: AuditOptions
 	) {
-		const [updated] = await db
-			.update(termSettings)
-			.set({
-				resultsPublished: published,
-				updatedAt: new Date(),
-				updatedBy: userId,
-			})
-			.where(eq(termSettings.termId, termId))
-			.returning();
-		return updated;
+		return db.transaction(async (tx) => {
+			const existing = await tx
+				.select()
+				.from(termSettings)
+				.where(eq(termSettings.termId, termId))
+				.then((r) => r[0]);
+
+			const [updated] = await tx
+				.update(termSettings)
+				.set({
+					resultsPublished: published,
+					updatedAt: new Date(),
+					updatedBy: userId,
+				})
+				.where(eq(termSettings.termId, termId))
+				.returning();
+
+			if (audit && updated) {
+				await tx.insert(auditLogs).values({
+					tableName: 'term_settings',
+					recordId: String(updated.id),
+					operation: 'UPDATE',
+					oldValues: existing ?? null,
+					newValues: updated,
+					changedBy: audit.userId,
+					activityType: audit.activityType ?? null,
+				});
+			}
+
+			return updated;
+		});
 	}
 
-	async updateGradebookAccess(termId: number, access: boolean, userId: string) {
-		const [updated] = await db
-			.update(termSettings)
-			.set({
-				lecturerGradebookAccess: access,
-				updatedAt: new Date(),
-				updatedBy: userId,
-			})
-			.where(eq(termSettings.termId, termId))
-			.returning();
-		return updated;
+	async updateGradebookAccess(
+		termId: number,
+		access: boolean,
+		userId: string,
+		audit?: AuditOptions
+	) {
+		return db.transaction(async (tx) => {
+			const existing = await tx
+				.select()
+				.from(termSettings)
+				.where(eq(termSettings.termId, termId))
+				.then((r) => r[0]);
+
+			const [updated] = await tx
+				.update(termSettings)
+				.set({
+					lecturerGradebookAccess: access,
+					updatedAt: new Date(),
+					updatedBy: userId,
+				})
+				.where(eq(termSettings.termId, termId))
+				.returning();
+
+			if (audit && updated) {
+				await tx.insert(auditLogs).values({
+					tableName: 'term_settings',
+					recordId: String(updated.id),
+					operation: 'UPDATE',
+					oldValues: existing ?? null,
+					newValues: updated,
+					changedBy: audit.userId,
+					activityType: audit.activityType ?? null,
+				});
+			}
+
+			return updated;
+		});
 	}
 
 	async getRejectedStudentsForTerm(termId: number) {

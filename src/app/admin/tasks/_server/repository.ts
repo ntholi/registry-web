@@ -8,6 +8,7 @@ import {
 	type users,
 } from '@/core/database';
 import BaseRepository, {
+	type AuditOptions,
 	type QueryOptions,
 } from '@/core/platform/BaseRepository';
 
@@ -158,7 +159,8 @@ export default class TaskRepository extends BaseRepository<typeof tasks, 'id'> {
 	async createWithRelations(
 		task: TaskInsert,
 		assigneeIds: string[],
-		studentIds: number[]
+		studentIds: number[],
+		audit?: AuditOptions
 	): Promise<TaskSelect> {
 		return db.transaction(async (tx) => {
 			const [created] = await tx.insert(tasks).values(task).returning();
@@ -181,6 +183,17 @@ export default class TaskRepository extends BaseRepository<typeof tasks, 'id'> {
 				);
 			}
 
+			if (audit) {
+				await this.writeAuditLog(
+					tx,
+					'INSERT',
+					String(created.id),
+					null,
+					created,
+					audit
+				);
+			}
+
 			return created;
 		});
 	}
@@ -189,9 +202,18 @@ export default class TaskRepository extends BaseRepository<typeof tasks, 'id'> {
 		id: number,
 		task: Partial<TaskInsert>,
 		assigneeIds?: string[],
-		studentIds?: number[]
+		studentIds?: number[],
+		audit?: AuditOptions
 	): Promise<TaskSelect> {
 		return db.transaction(async (tx) => {
+			const existing = audit
+				? await tx
+						.select()
+						.from(tasks)
+						.where(eq(tasks.id, id))
+						.then((r) => r[0])
+				: undefined;
+
 			const [updated] = await tx
 				.update(tasks)
 				.set({ ...task, updatedAt: new Date() })
@@ -224,21 +246,52 @@ export default class TaskRepository extends BaseRepository<typeof tasks, 'id'> {
 				}
 			}
 
+			if (audit && existing) {
+				await this.writeAuditLog(
+					tx,
+					'UPDATE',
+					String(id),
+					existing,
+					updated,
+					audit
+				);
+			}
+
 			return updated;
 		});
 	}
 
-	async deleteTask(id: number): Promise<void> {
+	async deleteTask(id: number, audit?: AuditOptions): Promise<void> {
 		await db.transaction(async (tx) => {
+			const existing = audit
+				? await tx
+						.select()
+						.from(tasks)
+						.where(eq(tasks.id, id))
+						.then((r) => r[0])
+				: undefined;
+
 			await tx.delete(taskAssignees).where(eq(taskAssignees.taskId, id));
 			await tx.delete(taskStudents).where(eq(taskStudents.taskId, id));
 			await tx.delete(tasks).where(eq(tasks.id, id));
+
+			if (audit && existing) {
+				await this.writeAuditLog(
+					tx,
+					'DELETE',
+					String(id),
+					existing,
+					null,
+					audit
+				);
+			}
 		});
 	}
 
 	async updateStatus(
 		id: number,
-		status: TaskSelect['status']
+		status: TaskSelect['status'],
+		audit?: AuditOptions
 	): Promise<TaskSelect> {
 		const updateData: Partial<TaskInsert> = {
 			status,
@@ -249,13 +302,34 @@ export default class TaskRepository extends BaseRepository<typeof tasks, 'id'> {
 			updateData.completedAt = new Date();
 		}
 
-		const [updated] = await db
-			.update(tasks)
-			.set(updateData)
-			.where(eq(tasks.id, id))
-			.returning();
+		return db.transaction(async (tx) => {
+			const existing = audit
+				? await tx
+						.select()
+						.from(tasks)
+						.where(eq(tasks.id, id))
+						.then((r) => r[0])
+				: undefined;
 
-		return updated;
+			const [updated] = await tx
+				.update(tasks)
+				.set(updateData)
+				.where(eq(tasks.id, id))
+				.returning();
+
+			if (audit && existing) {
+				await this.writeAuditLog(
+					tx,
+					'UPDATE',
+					String(id),
+					existing,
+					updated,
+					audit
+				);
+			}
+
+			return updated;
+		});
 	}
 
 	async getTaskCountsByStatus(userId?: string, isManager?: boolean) {
