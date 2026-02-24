@@ -198,7 +198,7 @@ function LowerLqfRecordsSection({
 			{consolidatedGroups.length > 0 && (
 				<Stack gap='sm'>
 					{consolidatedGroups.map((group) => (
-						<Box key='consolidated-lqf4' px='md'>
+						<Box key='consolidated-lqf4'>
 							<Accordion variant='separated' defaultValue='consolidated-lqf4'>
 								<Accordion.Item value='consolidated-lqf4'>
 									<Accordion.Control>
@@ -305,7 +305,7 @@ function AcademicRecordCard({
 	const isLevel4 = record.certificateType.lqfLevel === 4;
 
 	return (
-		<Box px='md'>
+		<Box>
 			{hasGrades ? (
 				<Accordion
 					variant='separated'
