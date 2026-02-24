@@ -179,22 +179,37 @@ export default async function TaskDetails({ params }: Props) {
 									<Text size='sm' c='dimmed' w={80}>
 										Assigned to
 									</Text>
-									<AvatarGroup spacing='sm'>
-										{task.assignees.map(({ user }) => (
-											<Tooltip
-												key={user.id}
-												label={user.name || user.email}
-												withArrow
-											>
-												<Avatar
-													src={user.image}
-													alt={user.name || 'User'}
-													size='sm'
-													radius='xl'
-												/>
-											</Tooltip>
-										))}
-									</AvatarGroup>
+									{task.assignees.length === 1 ? (
+										<Group gap='xs'>
+											<Avatar
+												src={task.assignees[0]?.user.image}
+												alt={task.assignees[0]?.user.name || 'User'}
+												size='sm'
+												radius='xl'
+											/>
+											<Text size='sm'>
+												{task.assignees[0]?.user.name ||
+													task.assignees[0]?.user.email}
+											</Text>
+										</Group>
+									) : (
+										<AvatarGroup spacing='sm'>
+											{task.assignees.map(({ user }) => (
+												<Tooltip
+													key={user.id}
+													label={user.name || user.email}
+													withArrow
+												>
+													<Avatar
+														src={user.image}
+														alt={user.name || 'User'}
+														size='sm'
+														radius='xl'
+													/>
+												</Tooltip>
+											))}
+										</AvatarGroup>
+									)}
 								</Group>
 							)}
 						</Stack>
