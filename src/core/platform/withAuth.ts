@@ -1,5 +1,3 @@
-'use server';
-
 import { forbidden, unauthorized } from 'next/navigation';
 import type { Session } from 'next-auth';
 import { auth } from '@/core/auth';
