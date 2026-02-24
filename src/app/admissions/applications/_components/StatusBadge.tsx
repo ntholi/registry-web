@@ -10,7 +10,7 @@ type Props = {
 	status: ApplicationStatusType;
 };
 
-const statusLabels: Record<ApplicationStatusType, string> = {
+export const statusLabels: Record<ApplicationStatusType, string> = {
 	draft: 'Draft',
 	submitted: 'Submitted',
 	under_review: 'Under Review',

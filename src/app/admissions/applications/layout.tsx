@@ -1,11 +1,12 @@
 'use client';
 
-import { Badge, Group } from '@mantine/core';
+import { Badge, Text } from '@mantine/core';
 import { useSearchParams } from 'next/navigation';
 import type { PropsWithChildren } from 'react';
+import type { ApplicationStatusType } from '@/shared/lib/utils/colors';
 import { ListItem, ListLayout, NewLink } from '@/shared/ui/adease';
 import ApplicationsFilter from './_components/ApplicationsFilter';
-import StatusBadge from './_components/StatusBadge';
+import { statusLabels } from './_components/StatusBadge';
 import type { ApplicationStatus, PaymentStatus } from './_lib/types';
 import { findAllApplications } from './_server/actions';
 
@@ -48,24 +49,39 @@ export default function Layout({ children }: PropsWithChildren) {
 			renderItem={(item) => (
 				<ListItem
 					id={item.id}
-					label={
-						<Group gap='xs'>
-							{item.applicant.fullName}
-							<StatusBadge status={item.status} />
-							{item.scores?.overallScore != null && (
-								<Badge size='xs' variant='light' color='blue'>
-									{item.scores.overallScore.toFixed(1)}
-								</Badge>
-							)}
-						</Group>
+					label={item.applicant.fullName}
+					rightSection={
+						item?.scores?.overallScore ? (
+							<Badge size='xs' variant='light' color='blue'>
+								{item.scores.overallScore.toFixed(1)}
+							</Badge>
+						) : undefined
 					}
-					description={`${
-						item.firstChoiceProgram?.code ?? 'Program pending'
-					} • ${item.intakePeriod.name}`}
+					description={
+						<StatusText
+							programCode={item.firstChoiceProgram?.code}
+							status={item.status}
+						/>
+					}
 				/>
 			)}
 		>
 			{children}
 		</ListLayout>
+	);
+}
+
+function StatusText({
+	programCode,
+	status,
+}: {
+	programCode: string | null | undefined;
+	status: ApplicationStatusType;
+}) {
+	const label = statusLabels[status] || status;
+	return (
+		<Text c={'dimmed'} size='xs' variant='light'>
+			{`${programCode ?? 'Program pending'} • ${label}}`}
+		</Text>
 	);
 }
