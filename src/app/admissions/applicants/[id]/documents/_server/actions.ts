@@ -9,7 +9,10 @@ import {
 	analyzeDocument,
 	type DocumentAnalysisResult,
 } from '@/core/integrations/ai/documents';
-import { deleteDocument } from '@/core/integrations/storage';
+import {
+	deleteDocument,
+	getStorageKeyFromUrl,
+} from '@/core/integrations/storage';
 import {
 	type ActionResult,
 	failure,
@@ -20,6 +23,8 @@ import { normalizeResultClassification } from '@/shared/lib/utils/resultClassifi
 import type { SubjectGradeInput } from '../../academic-records/_lib/types';
 import {
 	createAcademicRecord,
+	deleteAcademicRecordInternal,
+	findAcademicRecordByApplicantDocumentId,
 	findAcademicRecordByCertificateNumber,
 	linkDocumentToAcademicRecord,
 	updateAcademicRecord,
@@ -30,7 +35,8 @@ import type {
 } from '../_lib/types';
 import { applicantDocumentsService } from './service';
 
-const BASE_URL = 'https://pub-2b37ce26bd70421e9e59e4fe805c6873.r2.dev';
+const ADMISSIONS_DOCUMENTS_BASE_URL =
+	'https://pub-2b37ce26bd70421e9e59e4fe805c6873.r2.dev';
 
 export async function getDocumentFolder(_applicantId: string) {
 	return 'documents/admissions';
@@ -57,7 +63,7 @@ export async function saveApplicantDocument(data: {
 	type: DocumentType;
 }) {
 	const folder = await getDocumentFolder(data.applicantId);
-	const fileUrl = `${BASE_URL}/${folder}/${data.fileName}`;
+	const fileUrl = `${ADMISSIONS_DOCUMENTS_BASE_URL}/${folder}/${data.fileName}`;
 
 	return applicantDocumentsService.uploadDocument(
 		{
@@ -79,8 +85,14 @@ export async function verifyApplicantDocument(
 }
 
 export async function deleteApplicantDocument(id: string, fileUrl: string) {
-	const key = fileUrl.replace(`${BASE_URL}/`, '');
-	await deleteDocument(key);
+	const linkedRecord = await findAcademicRecordByApplicantDocumentId(id);
+	if (linkedRecord) {
+		await deleteAcademicRecordInternal(linkedRecord.id, {
+			skipRelatedDocumentDelete: true,
+		});
+	}
+
+	await deleteDocument(await getStorageKeyFromUrl(fileUrl));
 	return applicantDocumentsService.delete(id);
 }
 

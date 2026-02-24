@@ -78,6 +78,16 @@ export async function deleteDocument(url: string | undefined | null) {
 	}
 }
 
+export async function getStorageKeyFromUrl(fileUrl: string): Promise<string> {
+	if (!fileUrl) return '';
+
+	try {
+		return new URL(fileUrl).pathname.replace(/^\//, '');
+	} catch {
+		return fileUrl;
+	}
+}
+
 function _formatUrl(url: string | undefined | null) {
 	if (!url) return null;
 	const parts = url.split('/');

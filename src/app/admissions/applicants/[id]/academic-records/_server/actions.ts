@@ -2,7 +2,12 @@
 
 import { recalculateScoresForApplicant } from '@admissions/applications/_server/actions';
 import type { academicRecords } from '@/core/database';
+import {
+	deleteDocument,
+	getStorageKeyFromUrl,
+} from '@/core/integrations/storage';
 import { normalizeResultClassification } from '@/shared/lib/utils/resultClassification';
+import { applicantDocumentsService } from '../../documents/_server/service';
 import type { CreateAcademicRecordInput } from '../_lib/types';
 import { academicRecordsService } from './service';
 
@@ -75,13 +80,36 @@ export async function updateAcademicRecord(
 }
 
 export async function deleteAcademicRecord(id: string) {
+	return deleteAcademicRecordInternal(id);
+}
+
+export async function deleteAcademicRecordInternal(
+	id: string,
+	options?: { skipRelatedDocumentDelete?: boolean }
+) {
 	const record = await academicRecordsService.get(id);
 	const applicantId = record?.applicantId;
+	const applicantDocumentId = record?.applicantDocumentId;
+	const documentFileUrl = record?.applicantDocument?.document?.fileUrl;
+
+	if (applicantDocumentId && !options?.skipRelatedDocumentDelete) {
+		if (documentFileUrl) {
+			await deleteDocument(await getStorageKeyFromUrl(documentFileUrl));
+		}
+		await applicantDocumentsService.delete(applicantDocumentId);
+	}
+
 	const result = await academicRecordsService.delete(id);
 	if (applicantId) {
 		recalculateScoresForApplicant(applicantId).catch(() => {});
 	}
 	return result;
+}
+
+export async function findAcademicRecordByApplicantDocumentId(
+	applicantDocumentId: string
+) {
+	return academicRecordsService.findByApplicantDocumentId(applicantDocumentId);
 }
 
 export async function findAcademicRecordByCertificateNumber(

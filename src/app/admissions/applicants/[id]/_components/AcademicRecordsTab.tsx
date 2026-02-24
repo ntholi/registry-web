@@ -16,15 +16,11 @@ import {
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
-import {
-	IconBooks,
-	IconCertificate,
-	IconFile,
-	IconTrash,
-} from '@tabler/icons-react';
+import { IconBooks, IconCertificate, IconFile } from '@tabler/icons-react';
 import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'nextjs-toploader/app';
 import { type MouseEvent, useMemo, useState } from 'react';
+import { DeleteButton } from '@/shared/ui/adease/DeleteButton';
 import type { AcademicRecordWithRelations } from '../academic-records/_lib/types';
 import { deleteAcademicRecord } from '../academic-records/_server/actions';
 import { DocumentPreviewModal } from '../documents/_components/DocumentPreviewModal';
@@ -37,7 +33,7 @@ type Props = {
 type SectionProps = {
 	records: AcademicRecordWithRelations[];
 	onOpenDocument: (doc: ApplicantDocument) => void;
-	onDelete: (id: string) => void;
+	onDelete: (id: string) => Promise<void>;
 	isDeleting: boolean;
 };
 
@@ -46,7 +42,7 @@ type CardProps = {
 	prioritizeQualification: boolean;
 	defaultOpen?: boolean;
 	onOpenDocument: (doc: ApplicantDocument) => void;
-	onDelete: (id: string) => void;
+	onDelete: (id: string) => Promise<void>;
 	isDeleting: boolean;
 };
 
@@ -97,7 +93,9 @@ export default function AcademicRecordsTab({ records }: Props) {
 						<LowerLqfRecordsSection
 							records={lowerLqfRecords}
 							onOpenDocument={openDocument}
-							onDelete={(id) => deleteMutation.mutate(id)}
+							onDelete={async (id) => {
+								await deleteMutation.mutateAsync(id);
+							}}
 							isDeleting={deleteMutation.isPending}
 						/>
 					)}
@@ -105,7 +103,9 @@ export default function AcademicRecordsTab({ records }: Props) {
 						<HigherLqfRecordsSection
 							records={higherLqfRecords}
 							onOpenDocument={openDocument}
-							onDelete={(id) => deleteMutation.mutate(id)}
+							onDelete={async (id) => {
+								await deleteMutation.mutateAsync(id);
+							}}
 							isDeleting={deleteMutation.isPending}
 						/>
 					)}
@@ -478,7 +478,7 @@ function RecordNumberBadges({
 type ActionProps = {
 	record: AcademicRecordWithRelations;
 	onOpenDocument: (doc: ApplicantDocument) => void;
-	onDelete: (id: string) => void;
+	onDelete: (id: string) => Promise<void>;
 	isDeleting: boolean;
 	isInsideAccordion?: boolean;
 };
@@ -509,18 +509,24 @@ function RecordActions({
 				</Tooltip>
 			)}
 			<Tooltip label='Delete'>
-				<ActionIcon
-					component={isInsideAccordion ? 'div' : 'button'}
-					color='red'
-					variant='subtle'
-					onClick={(event: MouseEvent<HTMLButtonElement | HTMLDivElement>) => {
+				<DeleteButton
+					handleDelete={() => onDelete(record.id)}
+					onClick={(event) => {
 						if (isInsideAccordion) event.stopPropagation();
-						onDelete(record.id);
 					}}
+					onSuccess={() => {}}
+					itemType='academic record'
+					itemName={`${record.certificateType.name} (${record.examYear})`}
+					warningMessage={
+						record.applicantDocument
+							? 'This will permanently delete this academic record and its related document. This action cannot be undone.'
+							: 'This will permanently delete this academic record. This action cannot be undone.'
+					}
+					confirmButtonText='Delete Record'
+					variant='subtle'
+					color='red'
 					loading={isDeleting}
-				>
-					<IconTrash size={16} />
-				</ActionIcon>
+				/>
 			</Tooltip>
 		</Group>
 	);

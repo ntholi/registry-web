@@ -123,6 +123,8 @@ export function DocumentPreviewModal({ opened, onClose, applicantDoc }: Props) {
 									onSuccess={handleDeleteSuccess}
 									itemType='document'
 									itemName={doc.fileName ?? undefined}
+									warningMessage='This will permanently delete this document. If it is linked to an academic record, that related academic record will also be deleted. This action cannot be undone.'
+									confirmButtonText='Delete Document'
 									typedConfirmation={false}
 									variant='light'
 								/>

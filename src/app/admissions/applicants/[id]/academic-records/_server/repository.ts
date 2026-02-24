@@ -154,6 +154,17 @@ export default class AcademicRecordRepository extends BaseRepository<
 		});
 	}
 
+	async findByApplicantDocumentId(applicantDocumentId: string) {
+		return db.query.academicRecords.findFirst({
+			where: eq(academicRecords.applicantDocumentId, applicantDocumentId),
+			with: {
+				certificateType: true,
+				subjectGrades: { with: { subject: true } },
+				applicantDocument: { with: { document: true } },
+			},
+		});
+	}
+
 	async linkDocument(academicRecordId: string, applicantDocumentId: string) {
 		const [record] = await db
 			.update(academicRecords)

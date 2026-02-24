@@ -116,6 +116,13 @@ class AcademicRecordService extends BaseService<typeof academicRecords, 'id'> {
 		);
 	}
 
+	async findByApplicantDocumentId(applicantDocumentId: string) {
+		return withAuth(
+			async () => this.repo.findByApplicantDocumentId(applicantDocumentId),
+			['registry', 'marketing', 'admin', 'applicant']
+		);
+	}
+
 	async linkDocument(academicRecordId: string, applicantDocumentId: string) {
 		return withAuth(
 			async () => this.repo.linkDocument(academicRecordId, applicantDocumentId),
