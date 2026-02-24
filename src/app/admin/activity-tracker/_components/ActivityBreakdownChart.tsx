@@ -58,13 +58,15 @@ export default function ActivityBreakdownChart({ userId, start, end }: Props) {
 		count: d.count,
 	}));
 
+	const chartHeight = Math.max(200, chartData.length * 40);
+
 	return (
 		<Paper p='md' radius='md' withBorder h='100%'>
 			<Title order={5} mb='md'>
 				Activity Breakdown
 			</Title>
 			<BarChart
-				h={340}
+				h={chartHeight}
 				data={chartData}
 				dataKey='activity'
 				orientation='vertical'
@@ -74,6 +76,7 @@ export default function ActivityBreakdownChart({ userId, start, end }: Props) {
 				valueFormatter={(value) => new Intl.NumberFormat('en-US').format(value)}
 				series={[{ name: 'count', label: 'Activities', color: 'blue.6' }]}
 				barProps={{ radius: 6 }}
+				tooltipProps={{ shared: false }}
 			/>
 		</Paper>
 	);

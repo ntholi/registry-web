@@ -10,7 +10,7 @@ import type {
 	TimelineEntry,
 } from '../_lib/types';
 
-const PAGE_SIZE = 20;
+const PAGE_SIZE = 10;
 
 class ActivityTrackerRepository {
 	async getDepartmentSummary(
