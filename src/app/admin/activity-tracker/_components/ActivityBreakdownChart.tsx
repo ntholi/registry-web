@@ -19,7 +19,20 @@ export default function ActivityBreakdownChart({ userId, start, end }: Props) {
 	});
 
 	if (isLoading) {
-		return <Skeleton h={300} radius='md' />;
+		return (
+			<Paper p='md' radius='md' withBorder h='100%'>
+				<Title order={5} mb='md'>
+					Activity Breakdown
+				</Title>
+				<Stack gap='xs'>
+					<Skeleton h={24} radius='sm' />
+					<Skeleton h={24} radius='sm' />
+					<Skeleton h={24} radius='sm' />
+					<Skeleton h={24} radius='sm' />
+					<Skeleton h={24} radius='sm' />
+				</Stack>
+			</Paper>
+		);
 	}
 
 	if (!data || data.length === 0) {
@@ -42,7 +55,7 @@ export default function ActivityBreakdownChart({ userId, start, end }: Props) {
 
 	const chartData = data.slice(0, 10).map((d) => ({
 		activity: d.label,
-		Count: d.count,
+		count: d.count,
 	}));
 
 	return (
@@ -51,11 +64,16 @@ export default function ActivityBreakdownChart({ userId, start, end }: Props) {
 				Activity Breakdown
 			</Title>
 			<BarChart
-				h={300}
+				h={340}
 				data={chartData}
 				dataKey='activity'
 				orientation='vertical'
-				series={[{ name: 'Count', color: 'blue.6' }]}
+				yAxisProps={{ width: 180 }}
+				tickLine='xy'
+				gridAxis='x'
+				valueFormatter={(value) => new Intl.NumberFormat('en-US').format(value)}
+				series={[{ name: 'count', label: 'Activities', color: 'blue.6' }]}
+				barProps={{ radius: 6 }}
 			/>
 		</Paper>
 	);

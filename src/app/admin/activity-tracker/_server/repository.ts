@@ -235,8 +235,7 @@ class ActivityTrackerRepository {
 	): Promise<HeatmapCell[]> {
 		return db
 			.select({
-				dayOfWeek: sql<number>`EXTRACT(DOW FROM ${auditLogs.changedAt})::int`,
-				hour: sql<number>`EXTRACT(HOUR FROM ${auditLogs.changedAt})::int`,
+				date: sql<string>`DATE(${auditLogs.changedAt})::text`,
 				count: sql<number>`COUNT(*)::int`,
 			})
 			.from(auditLogs)
@@ -247,14 +246,8 @@ class ActivityTrackerRepository {
 					isNotNull(auditLogs.activityType)
 				)
 			)
-			.groupBy(
-				sql`EXTRACT(DOW FROM ${auditLogs.changedAt})`,
-				sql`EXTRACT(HOUR FROM ${auditLogs.changedAt})`
-			)
-			.orderBy(
-				sql`EXTRACT(DOW FROM ${auditLogs.changedAt})`,
-				sql`EXTRACT(HOUR FROM ${auditLogs.changedAt})`
-			);
+			.groupBy(sql`DATE(${auditLogs.changedAt})`)
+			.orderBy(sql`DATE(${auditLogs.changedAt})`);
 	}
 
 	async getDailyTrends(

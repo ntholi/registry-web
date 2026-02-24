@@ -28,8 +28,7 @@ interface TimelineEntry {
 }
 
 interface HeatmapCell {
-	dayOfWeek: number;
-	hour: number;
+	date: string;
 	count: number;
 }
 

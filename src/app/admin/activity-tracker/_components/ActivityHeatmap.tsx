@@ -1,18 +1,19 @@
 'use client';
 
+import { Heatmap } from '@mantine/charts';
 import {
 	Box,
 	Center,
-	Group,
 	Paper,
 	Skeleton,
 	Stack,
 	Text,
 	Title,
-	Tooltip,
 } from '@mantine/core';
 import { IconDatabaseOff } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
+import { useMemo } from 'react';
+import { formatDateToISO } from '@/shared/lib/utils/dates';
 import { getActivityHeatmap } from '../_server/actions';
 
 type Props = {
@@ -21,22 +22,41 @@ type Props = {
 	end: string;
 };
 
-const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-const HOURS = Array.from({ length: 24 }, (_, i) => i);
-
 export default function ActivityHeatmap({ userId, start, end }: Props) {
 	const { data, isLoading } = useQuery({
 		queryKey: ['activity-tracker', 'heatmap', userId, start, end],
 		queryFn: () => getActivityHeatmap(userId, start, end),
 	});
 
+	const chartData = useMemo(() => {
+		if (!data || data.length === 0) return {};
+		return Object.fromEntries(data.map((item) => [item.date, item.count]));
+	}, [data]);
+
+	const yearRange = useMemo(() => {
+		const today = new Date();
+		const yearAgo = new Date(today);
+		yearAgo.setFullYear(yearAgo.getFullYear() - 1);
+		return {
+			start: formatDateToISO(yearAgo),
+			end: formatDateToISO(today),
+		};
+	}, []);
+
 	if (isLoading) {
-		return <Skeleton h={300} radius='md' />;
+		return (
+			<Paper p='md' radius='md' withBorder>
+				<Title order={5} mb='md'>
+					Activity Heatmap
+				</Title>
+				<Skeleton h={140} radius='md' />
+			</Paper>
+		);
 	}
 
 	if (!data || data.length === 0) {
 		return (
-			<Paper p='md' radius='md' withBorder h='100%'>
+			<Paper p='md' radius='md' withBorder>
 				<Title order={5} mb='md'>
 					Activity Heatmap
 				</Title>
@@ -52,59 +72,42 @@ export default function ActivityHeatmap({ userId, start, end }: Props) {
 		);
 	}
 
-	const countMap = new Map<string, number>();
-	let maxCount = 0;
-	for (const d of data) {
-		const key = `${d.dayOfWeek}-${d.hour}`;
-		countMap.set(key, d.count);
-		if (d.count > maxCount) maxCount = d.count;
-	}
-
 	return (
-		<Paper p='md' radius='md' withBorder h='100%'>
+		<Paper p='md' radius='md' withBorder>
 			<Title order={5} mb='md'>
 				Activity Heatmap
 			</Title>
 			<Box style={{ overflowX: 'auto' }}>
-				<Stack gap={2}>
-					<Group gap={2} ml={36}>
-						{HOURS.map((h) => (
-							<Text key={h} fz={10} c='dimmed' w={20} ta='center'>
-								{h}
-							</Text>
-						))}
-					</Group>
-					{DAYS.map((day, dayIdx) => (
-						<Group key={day} gap={2}>
-							<Text fz='xs' c='dimmed' w={32} ta='right'>
-								{day}
-							</Text>
-							{HOURS.map((hour) => {
-								const cnt = countMap.get(`${dayIdx}-${hour}`) ?? 0;
-								const opacity = maxCount > 0 ? cnt / maxCount : 0;
-								return (
-									<Tooltip
-										key={`${dayIdx}-${hour}`}
-										label={`${day} ${hour}:00 — ${cnt} activities`}
-										withArrow
-									>
-										<Box
-											w={20}
-											h={20}
-											style={{
-												borderRadius: 3,
-												backgroundColor:
-													cnt === 0
-														? 'var(--mantine-color-dark-6)'
-														: `color-mix(in srgb, var(--mantine-color-blue-6) ${Math.round(opacity * 100)}%, var(--mantine-color-dark-6))`,
-											}}
-										/>
-									</Tooltip>
-								);
-							})}
-						</Group>
-					))}
-				</Stack>
+				<Heatmap
+					data={chartData}
+					startDate={yearRange.start}
+					endDate={yearRange.end}
+					withMonthLabels
+					withWeekdayLabels
+					firstDayOfWeek={0}
+					weekdayLabels={['', 'Mon', '', 'Wed', '', 'Fri', '']}
+					withTooltip
+					rectSize={16}
+					rectRadius={3}
+					gap={4}
+					colors={[
+						'var(--mantine-color-green-2)',
+						'var(--mantine-color-green-4)',
+						'var(--mantine-color-green-6)',
+						'var(--mantine-color-green-9)',
+					]}
+					getTooltipLabel={({ date, value }) => {
+						const count = value ?? 0;
+						const formatted = new Date(date).toLocaleDateString('en-US', {
+							weekday: 'long',
+							month: 'long',
+							day: 'numeric',
+							year: 'numeric',
+						});
+						if (count === 0) return `No activities on ${formatted}`;
+						return `${count} activit${count === 1 ? 'y' : 'ies'} on ${formatted}`;
+					}}
+				/>
 			</Box>
 		</Paper>
 	);

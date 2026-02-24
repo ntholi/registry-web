@@ -4,7 +4,6 @@ import {
 	ActionIcon,
 	Avatar,
 	Center,
-	Grid,
 	Group,
 	Paper,
 	Skeleton,
@@ -57,15 +56,10 @@ export default function EmployeeDetailView({
 	if (userLoading) {
 		return (
 			<Stack>
-				<Skeleton h={60} />
-				<Grid>
-					<Grid.Col span={{ base: 12, md: 6 }}>
-						<Skeleton h={300} />
-					</Grid.Col>
-					<Grid.Col span={{ base: 12, md: 6 }}>
-						<Skeleton h={300} />
-					</Grid.Col>
-				</Grid>
+				<Skeleton h={64} radius='md' />
+				<Skeleton h={96} radius='md' />
+				<Skeleton h={340} radius='md' />
+				<Skeleton h={300} radius='md' />
 			</Stack>
 		);
 	}
@@ -126,14 +120,10 @@ export default function EmployeeDetailView({
 				</Text>
 			</Paper>
 
-			<Grid>
-				<Grid.Col span={{ base: 12, md: 6 }}>
-					<ActivityBreakdownChart userId={userId} start={start} end={end} />
-				</Grid.Col>
-				<Grid.Col span={{ base: 12, md: 6 }}>
-					<ActivityHeatmap userId={userId} start={start} end={end} />
-				</Grid.Col>
-			</Grid>
+			<Stack>
+				<ActivityBreakdownChart userId={userId} start={start} end={end} />
+				<ActivityHeatmap userId={userId} start={start} end={end} />
+			</Stack>
 
 			<ActivityTimeline userId={userId} start={start} end={end} />
 		</Stack>
