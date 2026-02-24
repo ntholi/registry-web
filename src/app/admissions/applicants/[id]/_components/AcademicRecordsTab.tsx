@@ -5,6 +5,7 @@ import {
 	ActionIcon,
 	Badge,
 	Box,
+	Card,
 	Divider,
 	Group,
 	Paper,
@@ -23,7 +24,7 @@ import {
 } from '@tabler/icons-react';
 import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'nextjs-toploader/app';
-import { useMemo, useState } from 'react';
+import { type MouseEvent, useMemo, useState } from 'react';
 import type { AcademicRecordWithRelations } from '../academic-records/_lib/types';
 import { deleteAcademicRecord } from '../academic-records/_server/actions';
 import { DocumentPreviewModal } from '../documents/_components/DocumentPreviewModal';
@@ -33,72 +34,40 @@ type Props = {
 	records: AcademicRecordWithRelations[];
 };
 
+type SectionProps = {
+	records: AcademicRecordWithRelations[];
+	onOpenDocument: (doc: ApplicantDocument) => void;
+	onDelete: (id: string) => void;
+	isDeleting: boolean;
+};
+
+type CardProps = {
+	record: AcademicRecordWithRelations;
+	prioritizeQualification: boolean;
+	onOpenDocument: (doc: ApplicantDocument) => void;
+	onDelete: (id: string) => void;
+	isDeleting: boolean;
+};
+
 export default function AcademicRecordsTab({ records }: Props) {
 	const router = useRouter();
 	const [opened, { open, close }] = useDisclosure(false);
 	const [selectedDoc, setSelectedDoc] = useState<ApplicantDocument | null>(
 		null
 	);
+	const lowerLqfRecords = useMemo(
+		() => records.filter((record) => record.certificateType.lqfLevel <= 4),
+		[records]
+	);
+	const higherLqfRecords = useMemo(
+		() => records.filter((record) => record.certificateType.lqfLevel >= 5),
+		[records]
+	);
 
 	function openDocument(doc: ApplicantDocument) {
 		setSelectedDoc(doc);
 		open();
 	}
-
-	const consolidatedGroups = useMemo(() => {
-		const level4Records = records.filter(
-			(r) => r.certificateType.lqfLevel === 4
-		);
-		if (level4Records.length <= 1) return [];
-
-		const standardGradeOrder = ['A*', 'A', 'B', 'C', 'D', 'E', 'F', 'U'];
-		const bestGrades = new Map<
-			string,
-			{
-				subject: AcademicRecordWithRelations['subjectGrades'][number]['subject'];
-				originalGrade: string;
-				standardGrade: string | null;
-			}
-		>();
-
-		for (const record of level4Records) {
-			for (const sg of record.subjectGrades) {
-				if (!sg.standardGrade) continue;
-				const existing = bestGrades.get(sg.subject.id);
-				const currentRank = standardGradeOrder.indexOf(sg.standardGrade);
-
-				if (
-					!existing ||
-					!existing.standardGrade ||
-					(currentRank !== -1 &&
-						currentRank < standardGradeOrder.indexOf(existing.standardGrade))
-				) {
-					bestGrades.set(sg.subject.id, {
-						subject: sg.subject,
-						originalGrade: sg.originalGrade,
-						standardGrade: sg.standardGrade,
-					});
-				}
-			}
-		}
-
-		if (bestGrades.size === 0) return [];
-
-		const certTypeNames = [
-			...new Set(level4Records.map((r) => r.certificateType.name)),
-		];
-
-		return [
-			{
-				label: `LQF Level 4 (Combined)`,
-				certTypeNames,
-				recordCount: level4Records.length,
-				grades: Array.from(bestGrades.values()).sort((a, b) =>
-					a.subject.name.localeCompare(b.subject.name)
-				),
-			},
-		];
-	}, [records]);
 
 	const deleteMutation = useMutation({
 		mutationFn: deleteAcademicRecord,
@@ -121,11 +90,107 @@ export default function AcademicRecordsTab({ records }: Props) {
 
 	return (
 		<Stack gap='md'>
+			{records.length > 0 ? (
+				<Stack gap='sm'>
+					{lowerLqfRecords.length > 0 && (
+						<LowerLqfRecordsSection
+							records={lowerLqfRecords}
+							onOpenDocument={openDocument}
+							onDelete={(id) => deleteMutation.mutate(id)}
+							isDeleting={deleteMutation.isPending}
+						/>
+					)}
+					{higherLqfRecords.length > 0 && (
+						<HigherLqfRecordsSection
+							records={higherLqfRecords}
+							onOpenDocument={openDocument}
+							onDelete={(id) => deleteMutation.mutate(id)}
+							isDeleting={deleteMutation.isPending}
+						/>
+					)}
+				</Stack>
+			) : (
+				<Paper p='xl' radius='md' withBorder>
+					<Stack align='center' gap='xs'>
+						<IconCertificate size={32} opacity={0.3} />
+						<Text size='sm' c='dimmed'>
+							No academic records added
+						</Text>
+					</Stack>
+				</Paper>
+			)}
+			<DocumentPreviewModal
+				opened={opened}
+				onClose={close}
+				applicantDoc={selectedDoc}
+			/>
+		</Stack>
+	);
+}
+
+function LowerLqfRecordsSection({
+	records,
+	onOpenDocument,
+	onDelete,
+	isDeleting,
+}: SectionProps) {
+	const consolidatedGroups = useMemo(() => {
+		const level4Records = records.filter(
+			(record) => record.certificateType.lqfLevel === 4
+		);
+		if (level4Records.length <= 1) return [];
+
+		const standardGradeOrder = ['A*', 'A', 'B', 'C', 'D', 'E', 'F', 'U'];
+		const bestGrades = new Map<
+			string,
+			{
+				subject: AcademicRecordWithRelations['subjectGrades'][number]['subject'];
+				standardGrade: string | null;
+			}
+		>();
+
+		for (const record of level4Records) {
+			for (const sg of record.subjectGrades) {
+				if (!sg.standardGrade) continue;
+				const existing = bestGrades.get(sg.subject.id);
+				const currentRank = standardGradeOrder.indexOf(sg.standardGrade);
+
+				if (
+					!existing ||
+					!existing.standardGrade ||
+					(currentRank !== -1 &&
+						currentRank < standardGradeOrder.indexOf(existing.standardGrade))
+				) {
+					bestGrades.set(sg.subject.id, {
+						subject: sg.subject,
+						standardGrade: sg.standardGrade,
+					});
+				}
+			}
+		}
+
+		if (bestGrades.size === 0) return [];
+
+		const certTypeNames = [
+			...new Set(level4Records.map((record) => record.certificateType.name)),
+		];
+
+		return [
+			{
+				label: `LQF Level 4 (Combined)`,
+				certTypeNames,
+				recordCount: level4Records.length,
+				grades: Array.from(bestGrades.values()).sort((a, b) =>
+					a.subject.name.localeCompare(b.subject.name)
+				),
+			},
+		];
+	}, [records]);
+
+	return (
+		<Stack gap='sm'>
 			{consolidatedGroups.length > 0 && (
 				<Stack gap='sm'>
-					<Text size='xs' fw={700} c='dimmed' px='md'>
-						CONSOLIDATED VIEW
-					</Text>
 					{consolidatedGroups.map((group) => (
 						<Box key='consolidated-lqf4' px='md'>
 							<Accordion variant='separated'>
@@ -153,16 +218,16 @@ export default function AcademicRecordsTab({ records }: Props) {
 												</Table.Tr>
 											</Table.Thead>
 											<Table.Tbody>
-												{group.grades.map((g) => (
-													<Table.Tr key={g.subject.id}>
-														<Table.Td>{g.subject.name}</Table.Td>
+												{group.grades.map((grade) => (
+													<Table.Tr key={grade.subject.id}>
+														<Table.Td>{grade.subject.name}</Table.Td>
 														<Table.Td ta='center'>
 															<Badge
 																variant='light'
 																size='sm'
-																color={getGradeColor(g.standardGrade)}
+																color={getGradeColor(grade.standardGrade)}
 															>
-																{g.standardGrade}
+																{grade.standardGrade}
 															</Badge>
 														</Table.Td>
 													</Table.Tr>
@@ -182,205 +247,268 @@ export default function AcademicRecordsTab({ records }: Props) {
 					/>
 				</Stack>
 			)}
-			{records.length > 0 ? (
-				<Stack gap='sm'>
-					{records.map((record) => {
-						const hasGrades = record.subjectGrades.length > 0;
-						const isLevel4 = record.certificateType.lqfLevel === 4;
-
-						return (
-							<Box key={record.id} px='md'>
-								{hasGrades ? (
-									<Accordion variant='separated'>
-										<Accordion.Item value={record.id.toString()}>
-											<Accordion.Control>
-												<Group justify='space-between' w='100%'>
-													<Group gap='md'>
-														<IconCertificate size={20} opacity={0.6} />
-														<Stack gap={2}>
-															<Group gap='xs'>
-																<Text fw={600}>
-																	{record.certificateType.name}
-																</Text>
-																{record.certificateNumber && (
-																	<Badge variant='default' size='sm'>
-																		{record.certificateNumber}
-																	</Badge>
-																)}
-																{record.candidateNumber && (
-																	<Badge variant='outline' size='sm'>
-																		{record.candidateNumber}
-																	</Badge>
-																)}
-															</Group>
-															<Text size='sm' c='dimmed'>
-																{record.institutionName} • {record.examYear}
-															</Text>
-														</Stack>
-													</Group>
-													<Group gap='xs'>
-														{record.applicantDocument && (
-															<Tooltip label='View Document'>
-																<ActionIcon
-																	component='div'
-																	variant='default'
-																	onClick={(event) => {
-																		event.stopPropagation();
-																		openDocument(record.applicantDocument!);
-																	}}
-																>
-																	<IconFile size={16} />
-																</ActionIcon>
-															</Tooltip>
-														)}
-														<Tooltip label='Delete'>
-															<ActionIcon
-																component='div'
-																color='red'
-																variant='subtle'
-																onClick={(event) => {
-																	event.stopPropagation();
-																	deleteMutation.mutate(record.id);
-																}}
-																loading={deleteMutation.isPending}
-															>
-																<IconTrash size={16} />
-															</ActionIcon>
-														</Tooltip>
-													</Group>
-												</Group>
-											</Accordion.Control>
-											<Accordion.Panel>
-												{record.certificateType.lqfLevel > 4 && (
-													<Group gap='xs' mb='sm'>
-														{record.qualificationName && (
-															<Text size='sm'>{record.qualificationName}</Text>
-														)}
-														{record.resultClassification && (
-															<Badge
-																variant='light'
-																color={getClassificationColor(
-																	record.resultClassification
-																)}
-															>
-																{record.resultClassification}
-															</Badge>
-														)}
-													</Group>
-												)}
-												<Table striped highlightOnHover withTableBorder>
-													<Table.Thead>
-														<Table.Tr>
-															<Table.Th>Subject</Table.Th>
-															<Table.Th w={80}>Grade</Table.Th>
-															{isLevel4 && <Table.Th w={80}>Standard</Table.Th>}
-														</Table.Tr>
-													</Table.Thead>
-													<Table.Tbody>
-														{record.subjectGrades.map((sg) => (
-															<Table.Tr key={sg.id}>
-																<Table.Td>{sg.subject.name}</Table.Td>
-																<Table.Td ta='center'>
-																	{sg.originalGrade}
-																</Table.Td>
-																{isLevel4 && (
-																	<Table.Td ta='center'>
-																		<Badge
-																			variant='light'
-																			size='sm'
-																			color={getGradeColor(sg.standardGrade)}
-																		>
-																			{sg.standardGrade}
-																		</Badge>
-																	</Table.Td>
-																)}
-															</Table.Tr>
-														))}
-													</Table.Tbody>
-												</Table>
-											</Accordion.Panel>
-										</Accordion.Item>
-									</Accordion>
-								) : (
-									<Group justify='space-between'>
-										<Group gap='md'>
-											<IconCertificate size={20} opacity={0.6} />
-											<Stack gap={2}>
-												<Group gap='xs'>
-													<Text fw={600}>{record.certificateType.name}</Text>
-													<Badge variant='light' size='sm'>
-														LQF {record.certificateType.lqfLevel}
-													</Badge>
-												</Group>
-												<Text size='sm' c='dimmed'>
-													{record.institutionName} • {record.examYear}
-												</Text>
-											</Stack>
-										</Group>
-										<Group gap='xs'>
-											{record.applicantDocument && (
-												<Tooltip label='View Document'>
-													<ActionIcon
-														variant='subtle'
-														onClick={() =>
-															openDocument(record.applicantDocument!)
-														}
-													>
-														<IconFile size={16} />
-													</ActionIcon>
-												</Tooltip>
-											)}
-											<Tooltip label='Delete'>
-												<ActionIcon
-													color='red'
-													variant='subtle'
-													onClick={() => deleteMutation.mutate(record.id)}
-													loading={deleteMutation.isPending}
-												>
-													<IconTrash size={16} />
-												</ActionIcon>
-											</Tooltip>
-										</Group>
-									</Group>
-								)}
-
-								{record.certificateType.lqfLevel > 4 && !hasGrades && (
-									<Group gap='xs'>
-										{record.qualificationName && (
-											<Text size='sm'>{record.qualificationName}</Text>
-										)}
-										{record.resultClassification && (
-											<Badge
-												variant='light'
-												color={getClassificationColor(
-													record.resultClassification
-												)}
-											>
-												{record.resultClassification}
-											</Badge>
-										)}
-									</Group>
-								)}
-							</Box>
-						);
-					})}
-				</Stack>
-			) : (
-				<Paper p='xl' radius='md' withBorder>
-					<Stack align='center' gap='xs'>
-						<IconCertificate size={32} opacity={0.3} />
-						<Text size='sm' c='dimmed'>
-							No academic records added
-						</Text>
-					</Stack>
-				</Paper>
-			)}
-			<DocumentPreviewModal
-				opened={opened}
-				onClose={close}
-				applicantDoc={selectedDoc}
-			/>
+			{records.map((record) => (
+				<AcademicRecordCard
+					key={record.id}
+					record={record}
+					prioritizeQualification={false}
+					onOpenDocument={onOpenDocument}
+					onDelete={onDelete}
+					isDeleting={isDeleting}
+				/>
+			))}
 		</Stack>
+	);
+}
+
+function HigherLqfRecordsSection({
+	records,
+	onOpenDocument,
+	onDelete,
+	isDeleting,
+}: SectionProps) {
+	return (
+		<Stack gap='sm'>
+			{records.map((record) => (
+				<AcademicRecordCard
+					key={record.id}
+					record={record}
+					prioritizeQualification
+					onOpenDocument={onOpenDocument}
+					onDelete={onDelete}
+					isDeleting={isDeleting}
+				/>
+			))}
+		</Stack>
+	);
+}
+
+function AcademicRecordCard({
+	record,
+	prioritizeQualification,
+	onOpenDocument,
+	onDelete,
+	isDeleting,
+}: CardProps) {
+	const hasGrades = record.subjectGrades.length > 0;
+	const isLevel4 = record.certificateType.lqfLevel === 4;
+
+	return (
+		<Box px='md'>
+			{hasGrades ? (
+				<Accordion variant='separated'>
+					<Accordion.Item value={record.id.toString()}>
+						<Accordion.Control>
+							<Group justify='space-between' w='100%'>
+								<RecordHeaderContent
+									record={record}
+									prioritizeQualification={prioritizeQualification}
+								/>
+								<RecordActions
+									record={record}
+									onOpenDocument={onOpenDocument}
+									onDelete={onDelete}
+									isDeleting={isDeleting}
+									isInsideAccordion
+								/>
+							</Group>
+						</Accordion.Control>
+						<Accordion.Panel>
+							<Table striped highlightOnHover withTableBorder>
+								<Table.Thead>
+									<Table.Tr>
+										<Table.Th>Subject</Table.Th>
+										<Table.Th w={80}>Grade</Table.Th>
+										{isLevel4 && <Table.Th w={80}>Standard</Table.Th>}
+									</Table.Tr>
+								</Table.Thead>
+								<Table.Tbody>
+									{record.subjectGrades.map((subjectGrade) => (
+										<Table.Tr key={subjectGrade.id}>
+											<Table.Td>{subjectGrade.subject.name}</Table.Td>
+											<Table.Td ta='center'>
+												{subjectGrade.originalGrade}
+											</Table.Td>
+											{isLevel4 && (
+												<Table.Td ta='center'>
+													<Badge
+														variant='light'
+														size='sm'
+														color={getGradeColor(subjectGrade.standardGrade)}
+													>
+														{subjectGrade.standardGrade}
+													</Badge>
+												</Table.Td>
+											)}
+										</Table.Tr>
+									))}
+								</Table.Tbody>
+							</Table>
+						</Accordion.Panel>
+					</Accordion.Item>
+				</Accordion>
+			) : (
+				<Card withBorder>
+					<Group justify='space-between' align='flex-start'>
+						<RecordHeaderContent
+							record={record}
+							prioritizeQualification={prioritizeQualification}
+						/>
+						<RecordActions
+							record={record}
+							onOpenDocument={onOpenDocument}
+							onDelete={onDelete}
+							isDeleting={isDeleting}
+						/>
+					</Group>
+				</Card>
+			)}
+		</Box>
+	);
+}
+
+type HeaderProps = {
+	record: AcademicRecordWithRelations;
+	prioritizeQualification: boolean;
+};
+
+function RecordHeaderContent({ record, prioritizeQualification }: HeaderProps) {
+	if (prioritizeQualification) {
+		return (
+			<Group gap='md' align='flex-start'>
+				<IconCertificate size={20} opacity={0.6} />
+				<Stack gap={2}>
+					<QualificationSummary record={record} />
+					<Text size='sm' c='dimmed'>
+						{record.institutionName} • {record.examYear}
+					</Text>
+					<Group gap='xs'>
+						<Text size='sm' ff={'monospace'} fw={600}>
+							{record.certificateType.name}
+						</Text>
+						<RecordNumberBadges record={record} />
+					</Group>
+				</Stack>
+			</Group>
+		);
+	}
+
+	return (
+		<Group gap='md'>
+			<IconCertificate size={20} opacity={0.6} />
+			<Stack gap={2}>
+				<Group gap='xs'>
+					<Text fw={600}>{record.certificateType.name}</Text>
+					<RecordNumberBadges record={record} />
+					{record.subjectGrades.length === 0 && (
+						<Badge variant='light' size='sm'>
+							LQF {record.certificateType.lqfLevel}
+						</Badge>
+					)}
+				</Group>
+				<Text size='sm' c='dimmed'>
+					{record.institutionName} • {record.examYear}
+				</Text>
+			</Stack>
+		</Group>
+	);
+}
+
+function QualificationSummary({
+	record,
+}: {
+	record: AcademicRecordWithRelations;
+}) {
+	if (!record.qualificationName && !record.resultClassification) {
+		return null;
+	}
+
+	return (
+		<Group gap='xs'>
+			{record.qualificationName && (
+				<Text size='sm'>{record.qualificationName}</Text>
+			)}
+			{record.resultClassification && (
+				<Badge
+					variant='light'
+					color={getClassificationColor(record.resultClassification)}
+				>
+					{record.resultClassification}
+				</Badge>
+			)}
+		</Group>
+	);
+}
+
+function RecordNumberBadges({
+	record,
+}: {
+	record: AcademicRecordWithRelations;
+}) {
+	return (
+		<>
+			{record.certificateNumber && (
+				<Badge variant='default' size='sm'>
+					{record.certificateNumber}
+				</Badge>
+			)}
+			{record.candidateNumber && (
+				<Badge variant='outline' size='sm'>
+					{record.candidateNumber}
+				</Badge>
+			)}
+		</>
+	);
+}
+
+type ActionProps = {
+	record: AcademicRecordWithRelations;
+	onOpenDocument: (doc: ApplicantDocument) => void;
+	onDelete: (id: string) => void;
+	isDeleting: boolean;
+	isInsideAccordion?: boolean;
+};
+
+function RecordActions({
+	record,
+	onOpenDocument,
+	onDelete,
+	isDeleting,
+	isInsideAccordion = false,
+}: ActionProps) {
+	return (
+		<Group gap='xs'>
+			{record.applicantDocument && (
+				<Tooltip label='View Document'>
+					<ActionIcon
+						component={isInsideAccordion ? 'div' : 'button'}
+						variant={isInsideAccordion ? 'default' : 'subtle'}
+						onClick={(
+							event: MouseEvent<HTMLButtonElement | HTMLDivElement>
+						) => {
+							if (isInsideAccordion) event.stopPropagation();
+							onOpenDocument(record.applicantDocument!);
+						}}
+					>
+						<IconFile size={16} />
+					</ActionIcon>
+				</Tooltip>
+			)}
+			<Tooltip label='Delete'>
+				<ActionIcon
+					component={isInsideAccordion ? 'div' : 'button'}
+					color='red'
+					variant='subtle'
+					onClick={(event: MouseEvent<HTMLButtonElement | HTMLDivElement>) => {
+						if (isInsideAccordion) event.stopPropagation();
+						onDelete(record.id);
+					}}
+					loading={isDeleting}
+				>
+					<IconTrash size={16} />
+				</ActionIcon>
+			</Tooltip>
+		</Group>
 	);
 }
 
