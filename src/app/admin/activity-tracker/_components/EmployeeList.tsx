@@ -7,6 +7,7 @@ import {
 	Group,
 	Pagination,
 	Paper,
+	Progress,
 	Skeleton,
 	Stack,
 	Table,
@@ -59,6 +60,9 @@ export default function EmployeeList({ start, end, dept }: Props) {
 		);
 	}
 
+	const totalShownActivities =
+		data?.items.reduce((sum, emp) => sum + emp.totalActivities, 0) ?? 0;
+
 	return (
 		<Paper p='md' radius='md' withBorder>
 			<Stack>
@@ -92,54 +96,75 @@ export default function EmployeeList({ start, end, dept }: Props) {
 										<Table.Th w={50}>#</Table.Th>
 										<Table.Th>Employee</Table.Th>
 										<Table.Th ta='right'>Total Activities</Table.Th>
+										<Table.Th w={220}>Work Share</Table.Th>
 										<Table.Th>Top Activity</Table.Th>
 									</Table.Tr>
 								</Table.Thead>
 								<Table.Tbody>
-									{data.items.map((emp, idx) => (
-										<Table.Tr
-											key={emp.userId}
-											style={{ cursor: 'pointer' }}
-											onClick={() =>
-												router.push(`/admin/activity-tracker/${emp.userId}`)
-											}
-										>
-											<Table.Td>
-												<Text fz='sm' c='dimmed'>
-													{(page - 1) * 20 + idx + 1}
-												</Text>
-											</Table.Td>
-											<Table.Td>
-												<Group gap='sm'>
-													<Avatar src={emp.image} size='sm' radius='xl'>
-														{emp.name
-															?.split(' ')
-															.map((n) => n[0])
-															.join('')
-															.slice(0, 2)
-															.toUpperCase()}
-													</Avatar>
-													<Text fz='sm' fw={500}>
-														{emp.name ?? '—'}
+									{data.items.map((emp, idx) => {
+										const pct =
+											totalShownActivities > 0
+												? (emp.totalActivities / totalShownActivities) * 100
+												: 0;
+
+										return (
+											<Table.Tr
+												key={emp.userId}
+												style={{ cursor: 'pointer' }}
+												onClick={() =>
+													router.push(`/admin/activity-tracker/${emp.userId}`)
+												}
+											>
+												<Table.Td>
+													<Text fz='sm' c='dimmed'>
+														{(page - 1) * 20 + idx + 1}
 													</Text>
-												</Group>
-											</Table.Td>
-											<Table.Td ta='right'>
-												<Text fw={600}>{emp.totalActivities}</Text>
-											</Table.Td>
-											<Table.Td>
-												{emp.topActivity ? (
-													<Badge variant='light' size='sm'>
-														{getActivityLabel(emp.topActivity)}
-													</Badge>
-												) : (
-													<Text fz='xs' c='dimmed'>
-														—
-													</Text>
-												)}
-											</Table.Td>
-										</Table.Tr>
-									))}
+												</Table.Td>
+												<Table.Td>
+													<Group gap='sm'>
+														<Avatar src={emp.image} size='sm' radius='xl'>
+															{emp.name
+																?.split(' ')
+																.map((n) => n[0])
+																.join('')
+																.slice(0, 2)
+																.toUpperCase()}
+														</Avatar>
+														<Text fz='sm' fw={500}>
+															{emp.name ?? '—'}
+														</Text>
+													</Group>
+												</Table.Td>
+												<Table.Td ta='right'>
+													<Text fw={600}>{emp.totalActivities}</Text>
+												</Table.Td>
+												<Table.Td>
+													<Group gap='xs' wrap='nowrap'>
+														<Progress
+															value={pct}
+															size='sm'
+															radius='xl'
+															style={{ flex: 1 }}
+														/>
+														<Text fz='xs' fw={600} miw={44} ta='right'>
+															{pct.toFixed(1)}%
+														</Text>
+													</Group>
+												</Table.Td>
+												<Table.Td>
+													{emp.topActivity ? (
+														<Badge variant='light' size='sm'>
+															{getActivityLabel(emp.topActivity)}
+														</Badge>
+													) : (
+														<Text fz='xs' c='dimmed'>
+															—
+														</Text>
+													)}
+												</Table.Td>
+											</Table.Tr>
+										);
+									})}
 								</Table.Tbody>
 							</Table>
 						</Table.ScrollContainer>
