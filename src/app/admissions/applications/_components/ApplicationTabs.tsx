@@ -45,7 +45,6 @@ export default function ApplicationTabs({
 
 			<TabsPanel value='overview' pt='xl' p='sm'>
 				<OverviewTab
-					applicant={application.applicant}
 					firstChoiceProgram={application.firstChoiceProgram}
 					secondChoiceProgram={application.secondChoiceProgram}
 					academicRecords={academicRecords}

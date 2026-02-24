@@ -3,15 +3,8 @@
 import AcademicRecordsTab from '@admissions/applicants/[id]/_components/AcademicRecordsTab';
 import type { AcademicRecordWithRelations } from '@admissions/applicants/[id]/academic-records/_lib/types';
 import { Card, Grid, GridCol, Stack, Text } from '@mantine/core';
-import { FieldView } from '@/shared/ui/adease';
-import Link from '@/shared/ui/Link';
 
 type Props = {
-	applicant: {
-		id: string;
-		fullName: string;
-		nationalId: string | null;
-	};
 	firstChoiceProgram: {
 		id: number;
 		name: string;
@@ -28,19 +21,12 @@ type Props = {
 };
 
 export default function OverviewTab({
-	applicant,
 	firstChoiceProgram,
 	secondChoiceProgram,
 	academicRecords,
 }: Props) {
 	return (
 		<Stack gap='lg'>
-			<FieldView label='Applicant'>
-				<Link href={`/admissions/applicants/${applicant.id}`}>
-					{applicant.fullName}
-				</Link>
-			</FieldView>
-
 			<Grid>
 				<GridCol span={7}>
 					<Card withBorder>

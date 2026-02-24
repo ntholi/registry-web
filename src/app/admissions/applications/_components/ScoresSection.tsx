@@ -1,9 +1,16 @@
 'use client';
 
-import { Button, Card, Group, Stack, Text, Tooltip } from '@mantine/core';
+import {
+	Button,
+	Card,
+	Group,
+	SimpleGrid,
+	Stack,
+	Text,
+	Tooltip,
+} from '@mantine/core';
 import { IconCalculator, IconRefresh } from '@tabler/icons-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { formatDateTime } from '@/shared/lib/utils/dates';
 import { recalculateApplicationScores } from '../_server/actions';
 
 type Props = {
@@ -86,29 +93,25 @@ export default function ScoresSection({
 				score={scores?.overallScore ?? null}
 			/>
 
-			<ScoreDisplay
-				label='First Choice Score'
-				score={scores?.firstChoiceScore ?? null}
-				subtitle={
-					firstChoiceProgram
-						? `${firstChoiceProgram.code} - ${firstChoiceProgram.name}`
-						: undefined
-				}
-			/>
-
-			{secondChoiceProgram && (
+			<SimpleGrid cols={2}>
 				<ScoreDisplay
-					label='Second Choice Score'
-					score={scores?.secondChoiceScore ?? null}
-					subtitle={`${secondChoiceProgram.code} - ${secondChoiceProgram.name}`}
+					label='First Choice Score'
+					score={scores?.firstChoiceScore ?? null}
+					subtitle={
+						firstChoiceProgram
+							? `${firstChoiceProgram.code} - ${firstChoiceProgram.name}`
+							: undefined
+					}
 				/>
-			)}
 
-			{scores?.calculatedAt && (
-				<Text size='xs' c='dimmed'>
-					Last calculated: {formatDateTime(scores.calculatedAt)}
-				</Text>
-			)}
+				{secondChoiceProgram && (
+					<ScoreDisplay
+						label='Second Choice Score'
+						score={scores?.secondChoiceScore ?? null}
+						subtitle={`${secondChoiceProgram.code} - ${secondChoiceProgram.name}`}
+					/>
+				)}
+			</SimpleGrid>
 
 			{!scores && (
 				<Text size='sm' c='dimmed'>
