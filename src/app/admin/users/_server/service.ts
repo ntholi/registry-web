@@ -39,6 +39,7 @@ class UserService {
 			const { schoolIds, ...userData } = data;
 			const user = await this.repository.create(userData, {
 				userId: session!.user!.id!,
+				role: session!.user!.role!,
 				activityType: 'user_created',
 			});
 
@@ -55,6 +56,7 @@ class UserService {
 			const { schoolIds, ...userData } = data;
 			const user = await this.repository.update(id, userData, {
 				userId: session!.user!.id!,
+				role: session!.user!.role!,
 				activityType: 'user_updated',
 			});
 
@@ -86,6 +88,7 @@ class UserService {
 			await db.delete(userSchools).where(eq(userSchools.userId, id));
 			return this.repository.delete(id, {
 				userId: session!.user!.id!,
+				role: session!.user!.role!,
 				activityType: 'user_deleted',
 			});
 		}, []);

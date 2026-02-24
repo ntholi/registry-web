@@ -26,6 +26,7 @@ class SponsorService {
 			async (session) =>
 				this.repository.create(data, {
 					userId: session!.user!.id!,
+					role: session!.user!.role!,
 					activityType: 'sponsor_created',
 				}),
 			['admin', 'finance']
@@ -37,6 +38,7 @@ class SponsorService {
 			async (session) =>
 				this.repository.update(id, data, {
 					userId: session!.user!.id!,
+					role: session!.user!.role!,
 					activityType: 'sponsor_updated',
 				}),
 			['admin', 'finance']
@@ -48,6 +50,7 @@ class SponsorService {
 			async (session) =>
 				this.repository.delete(id, {
 					userId: session!.user!.id!,
+					role: session!.user!.role!,
 					activityType: 'sponsor_updated',
 				}),
 			['admin', 'finance']

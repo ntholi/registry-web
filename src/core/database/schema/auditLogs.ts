@@ -1,5 +1,6 @@
 import { users } from '@auth/users/_schema/users';
 import {
+	bigint,
 	bigserial,
 	index,
 	jsonb,
@@ -22,6 +23,8 @@ export const auditLogs = pgTable(
 		syncedAt: timestamp({ withTimezone: true }),
 		metadata: jsonb(),
 		activityType: text('activity_type'),
+		stdNo: bigint('std_no', { mode: 'number' }),
+		changedByRole: text('changed_by_role'),
 	},
 	(table) => [
 		index('idx_audit_logs_table_record').on(table.tableName, table.recordId),
@@ -37,6 +40,15 @@ export const auditLogs = pgTable(
 		index('idx_audit_logs_user_activity').on(
 			table.changedBy,
 			table.activityType,
+			table.changedAt
+		),
+		index('idx_audit_logs_std_no').on(table.stdNo),
+		index('idx_audit_logs_changed_by_role').on(table.changedByRole),
+		index('idx_audit_logs_std_no_role').on(table.stdNo, table.changedByRole),
+		index('idx_audit_logs_std_no_date').on(table.stdNo, table.changedAt),
+		index('idx_audit_logs_std_no_role_date').on(
+			table.stdNo,
+			table.changedByRole,
 			table.changedAt
 		),
 	]

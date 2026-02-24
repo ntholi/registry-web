@@ -1,0 +1,43 @@
+export const STUDENT_AUDIT_TABLES = [
+	'students',
+	'student_programs',
+	'student_semesters',
+	'student_modules',
+	'assessment_marks',
+	'clearance',
+	'payment_receipts',
+	'blocked_students',
+	'student_documents',
+	'registration_requests',
+	'sponsored_students',
+	'attendance',
+	'loans',
+	'fines',
+	'transcript_prints',
+	'statement_of_results_prints',
+	'student_card_prints',
+	'certificate_reprints',
+] as const;
+
+export type StudentAuditTable = (typeof STUDENT_AUDIT_TABLES)[number];
+
+export const STUDENT_AUDIT_TABLE_LABELS: Record<StudentAuditTable, string> = {
+	students: 'Student Record',
+	student_programs: 'Program',
+	student_semesters: 'Semester',
+	student_modules: 'Module',
+	assessment_marks: 'Assessment Mark',
+	clearance: 'Clearance',
+	payment_receipts: 'Payment',
+	blocked_students: 'Block/Unblock',
+	student_documents: 'Document',
+	registration_requests: 'Registration',
+	sponsored_students: 'Sponsorship',
+	attendance: 'Attendance',
+	loans: 'Library Loan',
+	fines: 'Library Fine',
+	transcript_prints: 'Transcript Print',
+	statement_of_results_prints: 'Statement of Results Print',
+	student_card_prints: 'Student Card Print',
+	certificate_reprints: 'Certificate Reprint',
+};

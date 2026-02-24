@@ -43,7 +43,11 @@ class AutoApprovalService {
 						...data,
 						createdBy: session?.user?.id,
 					},
-					{ userId: session!.user!.id!, activityType: 'auto_approval_created' }
+					{
+						userId: session!.user!.id!,
+						role: session!.user!.role!,
+						activityType: 'auto_approval_created',
+					}
 				);
 			},
 			['finance', 'library', 'admin']
@@ -62,6 +66,7 @@ class AutoApprovalService {
 				}
 				return this.repository.update(id, data, {
 					userId: session!.user!.id!,
+					role: session!.user!.role!,
 					activityType: 'auto_approval_updated',
 				});
 			},
@@ -81,6 +86,7 @@ class AutoApprovalService {
 				}
 				return this.repository.delete(id, {
 					userId: session!.user!.id!,
+					role: session!.user!.role!,
 					activityType: 'auto_approval_deleted',
 				});
 			},

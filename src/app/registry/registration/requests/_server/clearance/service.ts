@@ -77,7 +77,11 @@ class ClearanceService {
 						responseDate: new Date(),
 						respondedBy: session?.user?.id,
 					},
-					{ userId: session!.user!.id!, activityType }
+					{
+						userId: session!.user!.id!,
+						role: session!.user!.role!,
+						activityType,
+					}
 				);
 			},
 			['dashboard']
@@ -94,7 +98,11 @@ class ClearanceService {
 					data.status === 'rejected'
 						? 'clearance_rejected'
 						: 'clearance_approved';
-				const audit = { userId: session!.user!.id!, activityType };
+				const audit = {
+					userId: session!.user!.id!,
+					role: session!.user!.role!,
+					activityType,
+				};
 
 				const shouldSetResponseTracking =
 					data.status &&

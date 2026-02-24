@@ -17,6 +17,7 @@ class AssessmentMarkService {
 			async (session) =>
 				this.repository.create(data, {
 					userId: session!.user!.id!,
+					role: session!.user!.role!,
 					activityType: 'mark_entered',
 				}),
 			['academic']
@@ -28,6 +29,7 @@ class AssessmentMarkService {
 			async (session) =>
 				this.repository.update(id, data, {
 					userId: session!.user!.id!,
+					role: session!.user!.role!,
 					activityType: 'mark_updated',
 				}),
 			['academic']
@@ -83,6 +85,7 @@ class AssessmentMarkService {
 			async (session) =>
 				this.repository.createOrUpdateMarks(data, {
 					userId: session!.user!.id!,
+					role: session!.user!.role!,
 					activityType: 'mark_entered',
 				}),
 			['academic']
@@ -94,6 +97,7 @@ class AssessmentMarkService {
 			async (session) =>
 				this.repository.createOrUpdateMarksInBulk(dataArray, {
 					userId: session!.user!.id!,
+					role: session!.user!.role!,
 					activityType: 'mark_entered',
 				}),
 			['academic']

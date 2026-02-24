@@ -11,6 +11,7 @@ class AssignedModuleService {
 			async (session) =>
 				this.repository.delete(id, {
 					userId: session!.user!.id!,
+					role: session!.user!.role!,
 					activityType: 'module_unassigned',
 				}),
 			['academic', 'leap']
@@ -33,6 +34,7 @@ class AssignedModuleService {
 
 				return this.repository.createMany(assignments, {
 					userId: session!.user!.id!,
+					role: session!.user!.role!,
 					activityType: 'module_assigned',
 				});
 			},

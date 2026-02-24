@@ -28,7 +28,11 @@ class NotificationService {
 			(session) =>
 				this.repository.create(
 					{ ...data, createdBy },
-					{ userId: session!.user!.id!, activityType: 'notification_created' }
+					{
+						userId: session!.user!.id!,
+						role: session!.user!.role!,
+						activityType: 'notification_created',
+					}
 				),
 			['admin']
 		);
@@ -39,6 +43,7 @@ class NotificationService {
 			(session) =>
 				this.repository.update(id, data, {
 					userId: session!.user!.id!,
+					role: session!.user!.role!,
 					activityType: 'notification_updated',
 				}),
 			['admin']
@@ -51,6 +56,7 @@ class NotificationService {
 				const notification = await this.repository.findById(id);
 				await this.repository.delete(id, {
 					userId: session!.user!.id!,
+					role: session!.user!.role!,
 					activityType: 'notification_updated',
 				});
 				return notification;

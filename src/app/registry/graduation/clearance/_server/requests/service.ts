@@ -76,6 +76,7 @@ class GraduationRequestService {
 			async (session) =>
 				this.repository.create(data, {
 					userId: session!.user!.id!,
+					role: session!.user!.role!,
 					activityType: 'graduation_request_submitted',
 				}),
 			[]
@@ -95,6 +96,7 @@ class GraduationRequestService {
 					},
 					{
 						userId: session!.user!.id!,
+						role: session!.user!.role!,
 						activityType: 'graduation_request_submitted',
 					}
 				);
@@ -108,6 +110,7 @@ class GraduationRequestService {
 			async (session) =>
 				this.repository.update(id, data, {
 					userId: session!.user!.id!,
+					role: session!.user!.role!,
 					activityType: 'graduation_request_updated',
 				}),
 			[]
@@ -119,6 +122,7 @@ class GraduationRequestService {
 			async (session) =>
 				this.repository.delete(id, {
 					userId: session!.user!.id!,
+					role: session!.user!.role!,
 					activityType: 'graduation_request_updated',
 				}),
 			[]

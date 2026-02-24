@@ -54,6 +54,7 @@ class GraduationClearanceService {
 
 				const audit = {
 					userId: session!.user!.id!,
+					role: session!.user!.role!,
 					activityType: 'graduation_clearance_decision' as const,
 				};
 
@@ -93,6 +94,7 @@ class GraduationClearanceService {
 					},
 					{
 						userId: session!.user!.id!,
+						role: session!.user!.role!,
 						activityType: 'graduation_clearance_decision',
 					}
 				);

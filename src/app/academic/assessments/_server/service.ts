@@ -30,6 +30,7 @@ class AssessmentService extends BaseService<typeof assessments, 'id'> {
 			async (session) =>
 				(this.repository as AssessmentRepository).createWithLms(data, lmsData, {
 					userId: session!.user!.id!,
+					role: session!.user!.role!,
 					activityType: 'assessment_created',
 				}),
 			['academic', 'leap']
@@ -72,7 +73,11 @@ class AssessmentService extends BaseService<typeof assessments, 'id'> {
 					id,
 					data,
 					lmsData,
-					{ userId: session!.user!.id!, activityType: 'assessment_updated' }
+					{
+						userId: session!.user!.id!,
+						role: session!.user!.role!,
+						activityType: 'assessment_updated',
+					}
 				),
 			['academic', 'leap']
 		);

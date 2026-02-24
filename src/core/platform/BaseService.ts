@@ -83,6 +83,7 @@ abstract class BaseService<
 		return {
 			userId: session.user.id,
 			activityType: operation ? this.activityTypes?.[operation] : undefined,
+			role: session.user.role ?? undefined,
 		};
 	}
 

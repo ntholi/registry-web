@@ -15,6 +15,8 @@ export interface AuditOptions {
 	userId: string;
 	metadata?: Record<string, unknown>;
 	activityType?: string;
+	stdNo?: number;
+	role?: string;
 }
 
 const DEFAULT_PAGE_SIZE = 15;
@@ -95,6 +97,8 @@ class BaseRepository<
 			changedBy: audit.userId,
 			metadata: Object.keys(meta).length > 0 ? meta : null,
 			activityType: audit.activityType ?? null,
+			stdNo: audit.stdNo ?? null,
+			changedByRole: audit.role ?? null,
 		});
 	}
 
@@ -121,6 +125,8 @@ class BaseRepository<
 			changedBy: audit.userId,
 			metadata: Object.keys(meta).length > 0 ? meta : null,
 			activityType: audit.activityType ?? null,
+			stdNo: audit.stdNo ?? null,
+			changedByRole: audit.role ?? null,
 		});
 	}
 
@@ -155,6 +161,8 @@ class BaseRepository<
 				changedBy: audit.userId,
 				metadata: Object.keys(meta).length > 0 ? meta : null,
 				activityType: audit.activityType ?? null,
+				stdNo: audit.stdNo ?? null,
+				changedByRole: audit.role ?? null,
 			};
 		});
 
