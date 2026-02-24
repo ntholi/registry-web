@@ -13,6 +13,7 @@ import {
 	Center,
 	Chip,
 	Group,
+	HoverCard,
 	Loader,
 	Pagination,
 	Stack,
@@ -25,6 +26,7 @@ import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 import { getRoleColor } from '@/shared/lib/utils/colors';
 import { formatDateTime, formatRelativeTime } from '@/shared/lib/utils/dates';
+import { toTitleCase } from '@/shared/lib/utils/utils';
 import {
 	STUDENT_AUDIT_TABLE_LABELS,
 	type StudentAuditTable,
@@ -204,21 +206,26 @@ function HistoryTimelineEntry({ entry }: HistoryTimelineEntryProps) {
 	return (
 		<Timeline.Item
 			bullet={
-				<Avatar
-					size={32}
-					radius='xl'
-					color={opColor}
-					src={entry.changedByImage ?? undefined}
-				>
-					{initials}
-				</Avatar>
+				<UserProfileHover entry={entry} initials={initials} opColor={opColor}>
+					<Avatar
+						size={32}
+						radius='xl'
+						color={opColor}
+						src={entry.changedByImage ?? undefined}
+						style={{ cursor: 'pointer' }}
+					>
+						{initials}
+					</Avatar>
+				</UserProfileHover>
 			}
 		>
 			<Box>
 				<Group gap='xs' mb={4} wrap='wrap'>
-					<Text size='sm' fw={500}>
-						{userName}
-					</Text>
+					<UserProfileHover entry={entry} initials={initials} opColor={opColor}>
+						<Text size='sm' fw={500} style={{ cursor: 'pointer' }}>
+							{userName}
+						</Text>
+					</UserProfileHover>
 				</Group>
 				<Group gap='xs' mb='xs'>
 					<Text size='xs' c='dimmed'>
@@ -284,4 +291,65 @@ function getTableLabel(tableName: string): string {
 		return STUDENT_AUDIT_TABLE_LABELS[tableName as StudentAuditTable];
 	}
 	return tableName.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
+type UserProfileHoverProps = {
+	entry: HistoryEntry;
+	initials: string;
+	opColor: string;
+	children: React.ReactNode;
+};
+
+function UserProfileHover({
+	entry,
+	initials,
+	opColor,
+	children,
+}: UserProfileHoverProps) {
+	const userName = entry.changedByName ?? 'System';
+	const role = entry.changedByUserRole;
+	const position = entry.changedByPosition;
+	const email = entry.changedByEmail;
+
+	return (
+		<HoverCard width={260} shadow='md' withArrow openDelay={300}>
+			<HoverCard.Target>{children}</HoverCard.Target>
+			<HoverCard.Dropdown>
+				<Stack gap='xs'>
+					<Group gap='sm' wrap='nowrap'>
+						<Avatar
+							size={52}
+							radius='xl'
+							color={opColor}
+							src={entry.changedByImage ?? undefined}
+						>
+							{initials}
+						</Avatar>
+						<Stack gap={2} style={{ minWidth: 0 }}>
+							<Text size='sm' fw={600} truncate>
+								{userName}
+							</Text>
+							{email && (
+								<Text size='xs' c='dimmed' truncate>
+									{email}
+								</Text>
+							)}
+							<Group gap={6}>
+								{role && (
+									<Badge size='xs' variant='light' color={getRoleColor(role)}>
+										{toTitleCase(role)}
+									</Badge>
+								)}
+								{position && (
+									<Badge size='xs' variant='outline' color='gray'>
+										{toTitleCase(position)}
+									</Badge>
+								)}
+							</Group>
+						</Stack>
+					</Group>
+				</Stack>
+			</HoverCard.Dropdown>
+		</HoverCard>
+	);
 }

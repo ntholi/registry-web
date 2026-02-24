@@ -13,6 +13,9 @@ interface StudentHistoryEntry {
 	changedByRole: string | null;
 	changedByName: string | null;
 	changedByImage: string | null;
+	changedByUserRole: string | null;
+	changedByPosition: string | null;
+	changedByEmail: string | null;
 	metadata: Record<string, unknown> | null;
 }
 
@@ -64,6 +67,9 @@ class StudentHistoryRepository {
 					metadata: auditLogs.metadata,
 					changedByName: users.name,
 					changedByImage: users.image,
+					changedByUserRole: users.role,
+					changedByPosition: users.position,
+					changedByEmail: users.email,
 				})
 				.from(auditLogs)
 				.leftJoin(users, eq(auditLogs.changedBy, users.id))
@@ -88,6 +94,9 @@ class StudentHistoryRepository {
 				changedByRole: row.changedByRole,
 				changedByName: row.changedByName,
 				changedByImage: row.changedByImage,
+				changedByUserRole: row.changedByUserRole,
+				changedByPosition: row.changedByPosition,
+				changedByEmail: row.changedByEmail,
 				metadata: row.metadata as Record<string, unknown> | null,
 			})),
 			totalPages: Math.ceil(totalItems / pageSize),
