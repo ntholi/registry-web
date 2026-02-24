@@ -17,6 +17,7 @@ class StatementOfResultsPrintsService {
 					userId: session!.user!.id!,
 					role: session!.user!.role!,
 					activityType: 'statement_of_results_print',
+					stdNo: data.stdNo,
 				}),
 			['dashboard']
 		);

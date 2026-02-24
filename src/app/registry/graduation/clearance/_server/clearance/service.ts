@@ -46,7 +46,7 @@ class GraduationClearanceService {
 		);
 	}
 
-	async update(id: number, data: Clearance) {
+	async update(id: number, data: Clearance, stdNo?: number) {
 		return withAuth(
 			async (session) => {
 				const current = await this.repository.findById(id);
@@ -56,6 +56,7 @@ class GraduationClearanceService {
 					userId: session!.user!.id!,
 					role: session!.user!.role!,
 					activityType: 'graduation_clearance_decision' as const,
+					stdNo,
 				};
 
 				const shouldSetResponseTracking =
@@ -81,7 +82,7 @@ class GraduationClearanceService {
 		);
 	}
 
-	async respond(data: Clearance) {
+	async respond(data: Clearance, stdNo?: number) {
 		return withAuth(
 			async (session) => {
 				if (!data.id) throw Error('Clearance id cannot be null/undefined');
@@ -96,6 +97,7 @@ class GraduationClearanceService {
 						userId: session!.user!.id!,
 						role: session!.user!.role!,
 						activityType: 'graduation_clearance_decision',
+						stdNo,
 					}
 				);
 			},

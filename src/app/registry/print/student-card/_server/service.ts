@@ -19,7 +19,9 @@ class StudentCardPrintService {
 			async (session) =>
 				this.repository.create(data, {
 					userId: requireSessionUserId(session),
+					role: session!.user!.role!,
 					activityType: 'student_card_print',
+					stdNo: data.stdNo,
 				}),
 			['registry']
 		);
@@ -37,7 +39,9 @@ class StudentCardPrintService {
 			async (session) =>
 				this.repository.createWithReceipt(data, {
 					userId: requireSessionUserId(session),
+					role: session!.user!.role!,
 					activityType: 'student_card_print',
+					stdNo: data.stdNo,
 				}),
 			['registry']
 		);

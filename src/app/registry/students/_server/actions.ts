@@ -102,9 +102,10 @@ export async function updateStudentWithReasons(
 export async function updateStudentProgram(
 	id: number,
 	data: Partial<typeof studentPrograms.$inferInsert>,
+	stdNo: number,
 	reasons?: string
 ) {
-	const result = await service.updateStudentProgram(id, data, reasons);
+	const result = await service.updateStudentProgram(id, data, stdNo, reasons);
 	revalidatePath('/registry/students');
 	return result;
 }
@@ -121,9 +122,10 @@ export async function createStudentProgram(
 export async function updateStudentSemester(
 	id: number,
 	data: Partial<typeof studentSemesters.$inferInsert>,
+	stdNo: number,
 	reasons?: string
 ) {
-	const result = await service.updateStudentSemester(id, data, reasons);
+	const result = await service.updateStudentSemester(id, data, stdNo, reasons);
 	revalidatePath('/registry/students');
 	return result;
 }
@@ -131,9 +133,10 @@ export async function updateStudentSemester(
 export async function updateStudentModule(
 	id: number,
 	data: Partial<typeof studentModules.$inferInsert>,
+	stdNo: number,
 	reasons?: string
 ) {
-	const result = await service.updateStudentModule(id, data, reasons);
+	const result = await service.updateStudentModule(id, data, stdNo, reasons);
 	revalidatePath('/registry/students');
 	return result;
 }

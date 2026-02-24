@@ -34,6 +34,17 @@ class PaymentReceiptService extends BaseService<typeof paymentReceipts, 'id'> {
 		});
 	}
 
+	override async create(data: PaymentReceipt) {
+		return withAuth(
+			async (session) => {
+				const audit = this.buildAuditOptions(session, 'create');
+				if (audit && data.stdNo) audit.stdNo = data.stdNo;
+				return this.repository.create(data, audit);
+			},
+			['student'] as never
+		);
+	}
+
 	async getByGraduationRequest(graduationRequestId: number) {
 		return withAuth(async () => {
 			const links = await db.query.graduationRequestReceipts.findMany({
@@ -52,13 +63,15 @@ class PaymentReceiptService extends BaseService<typeof paymentReceipts, 'id'> {
 	async createMany(data: PaymentReceipt[]) {
 		return withAuth(
 			async (session) => {
-				const audit = {
-					userId: session!.user!.id!,
-					role: session!.user!.role!,
-				};
 				const results = [];
 				for (const receipt of data) {
-					results.push(await this.repository.create(receipt, audit));
+					results.push(
+						await this.repository.create(receipt, {
+							userId: session!.user!.id!,
+							role: session!.user!.role!,
+							stdNo: receipt.stdNo,
+						})
+					);
 				}
 				return results;
 			},

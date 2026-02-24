@@ -35,6 +35,7 @@ type ModuleTableProps = {
 		grade: Grade;
 		credits: number;
 	}[];
+	stdNo: number;
 	showMarks?: boolean;
 	allSemesters?: {
 		termCode: string;
@@ -53,6 +54,7 @@ type ModuleTableProps = {
 
 export default function SemesterTable({
 	modules,
+	stdNo,
 	showMarks,
 	allSemesters,
 }: ModuleTableProps) {
@@ -249,6 +251,7 @@ export default function SemesterTable({
 											<EditStudentModuleModal
 												pos={'absolute'}
 												right={-13}
+												stdNo={stdNo}
 												module={{
 													id: module.id,
 													code: module.code,

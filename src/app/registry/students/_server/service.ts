@@ -110,7 +110,9 @@ class StudentService {
 			async (session) =>
 				this.repository.create(data, {
 					userId: requireSessionUserId(session),
+					role: session!.user!.role!,
 					activityType: 'student_creation',
+					stdNo: data.stdNo,
 				}),
 			[]
 		);
@@ -121,7 +123,9 @@ class StudentService {
 			async (session) =>
 				this.repository.update(stdNo, data, {
 					userId: requireSessionUserId(session),
+					role: session!.user!.role!,
 					activityType: 'student_update',
+					stdNo,
 				}),
 			[]
 		);
@@ -129,14 +133,26 @@ class StudentService {
 
 	async updateUserId(stdNo: number, userId: string | null) {
 		return withAuth(
-			async () => this.repository.updateUserId(stdNo, userId),
+			async (session) =>
+				this.repository.updateUserId(stdNo, userId, {
+					userId: requireSessionUserId(session),
+					role: session!.user!.role!,
+					activityType: 'student_update',
+					stdNo,
+				}),
 			['admin', 'registry']
 		);
 	}
 
 	async updateProgramStructure(stdNo: number, structureId: number) {
 		return withAuth(
-			async () => this.repository.updateProgramStructure(stdNo, structureId),
+			async (session) =>
+				this.repository.updateProgramStructure(stdNo, structureId, {
+					userId: requireSessionUserId(session),
+					role: session!.user!.role!,
+					activityType: 'program_structure_update',
+					stdNo,
+				}),
 			['admin', 'registry']
 		);
 	}
@@ -157,7 +173,9 @@ class StudentService {
 			async (session) =>
 				this.repository.updateStudentWithAudit(stdNo, data, {
 					userId: requireSessionUserId(session),
+					role: session!.user!.role!,
 					activityType: 'student_update',
+					stdNo,
 					metadata: reasons ? { reasons } : undefined,
 				}),
 			['registry', 'admin']
@@ -167,13 +185,16 @@ class StudentService {
 	async updateStudentProgram(
 		id: number,
 		data: Partial<typeof studentPrograms.$inferInsert>,
+		stdNo: number,
 		reasons?: string
 	) {
 		return withAuth(
 			async (session) =>
 				this.repository.updateStudentProgram(id, data, {
 					userId: requireSessionUserId(session),
+					role: session!.user!.role!,
 					activityType: resolveStudentProgramActivityType(data.status),
+					stdNo,
 					metadata: reasons ? { reasons } : undefined,
 				}),
 			['registry', 'admin']
@@ -188,7 +209,9 @@ class StudentService {
 			async (session) =>
 				this.repository.createStudentProgram(data, {
 					userId: requireSessionUserId(session),
+					role: session!.user!.role!,
 					activityType: 'program_enrollment',
+					stdNo: data.stdNo,
 					metadata: reasons ? { reasons } : undefined,
 				}),
 			['registry', 'admin']
@@ -198,13 +221,16 @@ class StudentService {
 	async updateStudentSemester(
 		id: number,
 		data: Partial<typeof studentSemesters.$inferInsert>,
+		stdNo: number,
 		reasons?: string
 	) {
 		return withAuth(
 			async (session) =>
 				this.repository.updateStudentSemester(id, data, {
 					userId: requireSessionUserId(session),
+					role: session!.user!.role!,
 					activityType: resolveStudentSemesterActivityType(data.status),
+					stdNo,
 					metadata: reasons ? { reasons } : undefined,
 				}),
 			['registry', 'admin']
@@ -214,13 +240,16 @@ class StudentService {
 	async updateStudentModule(
 		id: number,
 		data: Partial<typeof studentModules.$inferInsert>,
+		stdNo: number,
 		reasons?: string
 	) {
 		return withAuth(
 			async (session) =>
 				this.repository.updateStudentModule(id, data, {
 					userId: requireSessionUserId(session),
+					role: session!.user!.role!,
 					activityType: resolveStudentModuleActivityType(data.status),
+					stdNo,
 					metadata: reasons ? { reasons } : undefined,
 				}),
 			['registry', 'admin']

@@ -44,12 +44,16 @@ export default function ClearanceSwitch({
 				throw new Error('User not authenticated');
 			}
 
-			const result = await updateClearance(request.id, {
-				message: comment,
-				department: session.user
-					.role as (typeof dashboardUsers.enumValues)[number],
-				status,
-			});
+			const result = await updateClearance(
+				request.id,
+				{
+					message: comment,
+					department: session.user
+						.role as (typeof dashboardUsers.enumValues)[number],
+					status,
+				},
+				request.registrationRequest.stdNo
+			);
 			return { result };
 		},
 		onSuccess: () => {

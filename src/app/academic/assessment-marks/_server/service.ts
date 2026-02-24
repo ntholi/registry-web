@@ -12,25 +12,27 @@ type AssessmentMark = typeof assessmentMarks.$inferInsert;
 class AssessmentMarkService {
 	constructor(private readonly repository = new AssessmentMarkRepository()) {}
 
-	async create(data: AssessmentMark) {
+	async create(data: AssessmentMark, stdNo?: number) {
 		return withAuth(
 			async (session) =>
 				this.repository.create(data, {
 					userId: session!.user!.id!,
 					role: session!.user!.role!,
 					activityType: 'mark_entered',
+					stdNo,
 				}),
 			['academic']
 		);
 	}
 
-	async update(id: number, data: AssessmentMark) {
+	async update(id: number, data: AssessmentMark, stdNo?: number) {
 		return withAuth(
 			async (session) =>
 				this.repository.update(id, data, {
 					userId: session!.user!.id!,
 					role: session!.user!.role!,
 					activityType: 'mark_updated',
+					stdNo,
 				}),
 			['academic']
 		);
@@ -80,13 +82,14 @@ class AssessmentMarkService {
 		);
 	}
 
-	async createOrUpdateMarks(data: AssessmentMark) {
+	async createOrUpdateMarks(data: AssessmentMark, stdNo?: number) {
 		return withAuth(
 			async (session) =>
 				this.repository.createOrUpdateMarks(data, {
 					userId: session!.user!.id!,
 					role: session!.user!.role!,
 					activityType: 'mark_entered',
+					stdNo,
 				}),
 			['academic']
 		);

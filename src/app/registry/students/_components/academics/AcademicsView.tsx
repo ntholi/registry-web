@@ -125,6 +125,7 @@ export default function AcademicsView({ student, showMarks, ...props }: Props) {
 																			<EditStudentSemesterModal
 																				semester={semester as never}
 																				structureId={program.structure.id}
+																				stdNo={student.stdNo}
 																			/>
 																		)}
 																	</Group>
@@ -154,6 +155,7 @@ export default function AcademicsView({ student, showMarks, ...props }: Props) {
 
 														{semester.studentModules?.length ? (
 															<SemesterTable
+																stdNo={student.stdNo}
 																modules={semester.studentModules.map((sm) => ({
 																	id: sm.id,
 																	code:
@@ -310,6 +312,7 @@ export default function AcademicsView({ student, showMarks, ...props }: Props) {
 																		<EditStudentSemesterModal
 																			semester={semester as never}
 																			structureId={program.structure.id}
+																			stdNo={student.stdNo}
 																			visible={
 																				hoveredSemesterId ===
 																				(semester.id?.toString() ?? null)
@@ -330,6 +333,7 @@ export default function AcademicsView({ student, showMarks, ...props }: Props) {
 
 															{semester.studentModules?.length ? (
 																<SemesterTable
+																	stdNo={student.stdNo}
 																	modules={semester.studentModules.map(
 																		(sm) => ({
 																			id: sm.id,

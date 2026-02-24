@@ -44,12 +44,16 @@ export default function GraduationClearanceSwitch({
 				throw new Error('User not authenticated');
 			}
 
-			const result = await updateGraduationClearance(request.id, {
-				message: comment,
-				department: session.user
-					.role as (typeof dashboardUsers.enumValues)[number],
-				status,
-			});
+			const result = await updateGraduationClearance(
+				request.id,
+				{
+					message: comment,
+					department: session.user
+						.role as (typeof dashboardUsers.enumValues)[number],
+					status,
+				},
+				request.graduationRequest.studentProgram.stdNo
+			);
 			return { result };
 		},
 		onSuccess: () => {

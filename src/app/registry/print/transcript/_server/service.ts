@@ -15,6 +15,7 @@ class TranscriptPrintsService {
 					userId: session!.user!.id!,
 					role: session!.user!.role!,
 					activityType: 'transcript_print',
+					stdNo: data.stdNo,
 				}),
 			['dashboard']
 		);

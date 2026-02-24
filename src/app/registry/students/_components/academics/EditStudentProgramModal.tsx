@@ -57,7 +57,7 @@ export default function EditStudentProgramModal({
 	program,
 	visible = true,
 }: Props) {
-	const queryClient = useQueryClient();
+	const _queryClient = useQueryClient();
 	const [opened, { open, close }] = useDisclosure(false);
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const [showReasonWarning, setShowReasonWarning] = useState(false);
@@ -121,19 +121,8 @@ export default function EditStudentProgramModal({
 						graduationDate: formatDateToISO(values.graduationDate) || null,
 						status: values.status as StudentProgramStatus,
 					},
-					values.reasons
+					program.stdNo
 				);
-
-				notifications.show({
-					title: 'Success',
-					message: 'Student program updated successfully',
-					color: 'green',
-				});
-
-				queryClient.invalidateQueries({ queryKey: ['student'] });
-				queryClient.invalidateQueries({
-					queryKey: ['audit-history', 'student_programs', String(program.id)],
-				});
 
 				form.reset();
 				close();
@@ -149,7 +138,7 @@ export default function EditStudentProgramModal({
 				setPendingSubmit(false);
 			}
 		},
-		[program.id, form, close, queryClient]
+		[program.id, form, close, program.stdNo]
 	);
 
 	const handleSubmit = useCallback(

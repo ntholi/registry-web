@@ -36,7 +36,9 @@ class DocumentService {
 			async (session) =>
 				this.repository.createWithDocument(data, {
 					userId: requireSessionUserId(session),
+					role: session!.user!.role!,
 					activityType: 'document_uploaded',
+					stdNo: data.stdNo,
 				}),
 			['admin', 'registry', 'student_services']
 		);
@@ -47,6 +49,7 @@ class DocumentService {
 			async (session) =>
 				this.repository.removeById(id, {
 					userId: requireSessionUserId(session),
+					role: session!.user!.role!,
 					activityType: 'document_deleted',
 				}),
 			['admin', 'registry', 'student_services']

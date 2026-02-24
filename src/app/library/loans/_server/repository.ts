@@ -179,7 +179,10 @@ export default class LoanRepository extends BaseRepository<typeof loans, 'id'> {
 			}
 
 			if (audit) {
-				await this.writeAuditLog(tx, 'UPDATE', id, loan, updated, audit);
+				await this.writeAuditLog(tx, 'UPDATE', id, loan, updated, {
+					...audit,
+					stdNo: loan.stdNo,
+				});
 			}
 
 			return { ...updated, daysOverdue };
@@ -213,7 +216,10 @@ export default class LoanRepository extends BaseRepository<typeof loans, 'id'> {
 				.returning();
 
 			if (audit) {
-				await this.writeAuditLog(tx, 'UPDATE', loanId, loan, updated, audit);
+				await this.writeAuditLog(tx, 'UPDATE', loanId, loan, updated, {
+					...audit,
+					stdNo: loan.stdNo,
+				});
 			}
 
 			return updated;

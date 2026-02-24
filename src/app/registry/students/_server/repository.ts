@@ -587,8 +587,17 @@ export default class StudentRepository extends BaseRepository<
 		});
 	}
 
-	async updateUserId(stdNo: number, userId: string | null) {
+	async updateUserId(
+		stdNo: number,
+		userId: string | null,
+		audit?: AuditOptions
+	) {
 		return await db.transaction(async (tx) => {
+			const [old] = await tx
+				.select()
+				.from(students)
+				.where(eq(students.stdNo, stdNo));
+
 			if (userId) {
 				await tx
 					.update(students)
@@ -607,21 +616,63 @@ export default class StudentRepository extends BaseRepository<
 					.where(eq(users.id, userId));
 			}
 
+			if (audit) {
+				await this.writeAuditLogForTable(
+					tx,
+					'students',
+					'UPDATE',
+					String(stdNo),
+					{ userId: old?.userId },
+					{ userId },
+					audit
+				);
+			}
+
 			return updatedStudent;
 		});
 	}
 
-	async updateProgramStructure(stdNo: number, structureId: number) {
-		return await db
-			.update(studentPrograms)
-			.set({ structureId })
-			.where(
-				and(
-					eq(studentPrograms.stdNo, stdNo),
-					eq(studentPrograms.status, 'Active')
+	async updateProgramStructure(
+		stdNo: number,
+		structureId: number,
+		audit?: AuditOptions
+	) {
+		return await db.transaction(async (tx) => {
+			const [old] = await tx
+				.select()
+				.from(studentPrograms)
+				.where(
+					and(
+						eq(studentPrograms.stdNo, stdNo),
+						eq(studentPrograms.status, 'Active')
+					)
+				);
+
+			const result = await tx
+				.update(studentPrograms)
+				.set({ structureId })
+				.where(
+					and(
+						eq(studentPrograms.stdNo, stdNo),
+						eq(studentPrograms.status, 'Active')
+					)
 				)
-			)
-			.returning();
+				.returning();
+
+			if (audit && old) {
+				await this.writeAuditLogForTable(
+					tx,
+					'student_programs',
+					'UPDATE',
+					String(old.id),
+					{ structureId: old.structureId },
+					{ structureId },
+					audit
+				);
+			}
+
+			return result;
+		});
 	}
 
 	async updateStudentWithAudit(

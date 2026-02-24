@@ -45,6 +45,7 @@ interface StudentModule {
 
 type Props = {
 	module: StudentModule;
+	stdNo: number;
 } & ActionIconProps;
 
 const FIELD_LABELS: Record<string, string> = {
@@ -55,7 +56,11 @@ const FIELD_LABELS: Record<string, string> = {
 	moduleName: 'Module Name',
 };
 
-export default function EditStudentModuleModal({ module, ...rest }: Props) {
+export default function EditStudentModuleModal({
+	module,
+	stdNo,
+	...rest
+}: Props) {
 	const queryClient = useQueryClient();
 	const [opened, { open, close }] = useDisclosure(false);
 	const [isSubmitting, setIsSubmitting] = useState(false);
@@ -124,6 +129,7 @@ export default function EditStudentModuleModal({ module, ...rest }: Props) {
 						marks: values.marks,
 						grade: values.grade as Grade,
 					},
+					stdNo,
 					values.reasons
 				);
 
@@ -152,7 +158,7 @@ export default function EditStudentModuleModal({ module, ...rest }: Props) {
 				setPendingSubmit(false);
 			}
 		},
-		[module.id, form, close, queryClient]
+		[module.id, form, close, queryClient, stdNo]
 	);
 
 	const handleSubmit = useCallback(

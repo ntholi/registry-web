@@ -50,7 +50,7 @@ export function EditSemesterSponsorModal({
 
 	const updateMutation = useMutation({
 		mutationFn: async (sponsorId: number | null) =>
-			updateStudentSemester(semesterId, { sponsorId }),
+			updateStudentSemester(semesterId, { sponsorId }, stdNo),
 		onSuccess: () => {
 			notifications.show({
 				title: 'Success',

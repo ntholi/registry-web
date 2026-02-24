@@ -44,7 +44,7 @@ class LoanService extends BaseService<typeof loans, 'id'> {
 	) {
 		return this.repository.createLoan(
 			{ bookCopyId, stdNo, dueDate, issuedBy },
-			{ userId: issuedBy, activityType: 'book_loan_created' }
+			{ userId: issuedBy, activityType: 'book_loan_created', stdNo }
 		);
 	}
 

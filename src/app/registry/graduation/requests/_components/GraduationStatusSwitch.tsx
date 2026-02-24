@@ -19,10 +19,15 @@ type Props = {
 		id: number;
 		status: Status;
 	};
+	stdNo?: number;
 	comment?: string;
 };
 
-export default function GraduationStatusSwitch({ request, comment }: Props) {
+export default function GraduationStatusSwitch({
+	request,
+	stdNo,
+	comment,
+}: Props) {
 	const { data: session } = useSession();
 	const queryClient = useQueryClient();
 	const [status, setStatus] = useState<Status>(request.status);
@@ -38,12 +43,16 @@ export default function GraduationStatusSwitch({ request, comment }: Props) {
 				throw new Error('User not authenticated');
 			}
 
-			const result = await updateGraduationClearance(request.id, {
-				department: session.user
-					.role as (typeof dashboardUsers.enumValues)[number],
-				status,
-				message: comment,
-			});
+			const result = await updateGraduationClearance(
+				request.id,
+				{
+					department: session.user
+						.role as (typeof dashboardUsers.enumValues)[number],
+					status,
+					message: comment,
+				},
+				stdNo
+			);
 			return { result };
 		},
 		onSuccess: () => {

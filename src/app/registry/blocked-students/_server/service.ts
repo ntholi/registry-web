@@ -40,6 +40,7 @@ class BlockedStudentService {
 						userId: session!.user!.id!,
 						role: session!.user!.role!,
 						activityType: 'student_blocked',
+						stdNo: data.stdNo,
 					}
 				);
 			},
@@ -69,6 +70,7 @@ class BlockedStudentService {
 						userId: session!.user!.id!,
 						role: session!.user!.role!,
 						activityType,
+						stdNo: existing.stdNo,
 					}
 				);
 			},
@@ -85,12 +87,14 @@ class BlockedStudentService {
 	}
 
 	async delete(id: number) {
+		const existing = await this.repository.findById(id);
 		return withAuth(
 			async (session) =>
 				this.repository.delete(id, {
 					userId: session!.user!.id!,
 					role: session!.user!.role!,
 					activityType: 'student_unblocked',
+					stdNo: existing?.stdNo,
 				}),
 			['admin', 'finance', 'registry', 'library']
 		);

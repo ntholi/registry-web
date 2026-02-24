@@ -45,8 +45,12 @@ export async function graduationClearanceByStatus(
 	return { items: res.items, totalPages: res.totalPages };
 }
 
-export async function updateGraduationClearance(id: number, data: Clearance) {
-	return service.update(id, data);
+export async function updateGraduationClearance(
+	id: number,
+	data: Clearance,
+	stdNo?: number
+) {
+	return service.update(id, data, stdNo);
 }
 
 export async function getGraduationClearanceHistoryByStudentNo(stdNo: number) {

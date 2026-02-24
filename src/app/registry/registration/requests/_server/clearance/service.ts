@@ -62,7 +62,7 @@ class ClearanceService {
 		}, ['dashboard']);
 	}
 
-	async respond(data: Clearance) {
+	async respond(data: Clearance, stdNo?: number) {
 		return withAuth(
 			async (session) => {
 				if (!data.id) throw Error('Clearance id cannot be null/undefined');
@@ -81,6 +81,7 @@ class ClearanceService {
 						userId: session!.user!.id!,
 						role: session!.user!.role!,
 						activityType,
+						stdNo,
 					}
 				);
 			},
@@ -88,7 +89,7 @@ class ClearanceService {
 		);
 	}
 
-	async update(id: number, data: Clearance) {
+	async update(id: number, data: Clearance, stdNo?: number) {
 		return withAuth(
 			async (session) => {
 				const current = await this.repository.findById(id);
@@ -102,6 +103,7 @@ class ClearanceService {
 					userId: session!.user!.id!,
 					role: session!.user!.role!,
 					activityType,
+					stdNo,
 				};
 
 				const shouldSetResponseTracking =

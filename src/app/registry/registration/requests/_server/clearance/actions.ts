@@ -61,8 +61,12 @@ export async function clearanceByStatus(
 	};
 }
 
-export async function updateClearance(id: number, clearanceData: Clearance) {
-	return service.update(id, clearanceData);
+export async function updateClearance(
+	id: number,
+	clearanceData: Clearance,
+	stdNo?: number
+) {
+	return service.update(id, clearanceData, stdNo);
 }
 
 export async function getClearanceHistoryByStudentNo(stdNo: number) {

@@ -36,6 +36,7 @@ interface StudentSemester {
 type Props = {
 	semester: StudentSemester;
 	structureId: number;
+	stdNo: number;
 	visible?: boolean;
 };
 
@@ -50,6 +51,7 @@ const FIELD_LABELS: Record<string, string> = {
 export default function EditStudentSemesterModal({
 	semester,
 	structureId,
+	stdNo,
 	visible = true,
 }: Props) {
 	const queryClient = useQueryClient();
@@ -120,6 +122,7 @@ export default function EditStudentSemesterModal({
 						structureSemesterId: parseInt(values.structureSemesterId, 10),
 						sponsorId: values.sponsorId ? parseInt(values.sponsorId, 10) : null,
 					},
+					stdNo,
 					values.reasons
 				);
 
@@ -148,7 +151,7 @@ export default function EditStudentSemesterModal({
 				setPendingSubmit(false);
 			}
 		},
-		[semester.id, form, close, queryClient]
+		[semester.id, form, close, queryClient, stdNo]
 	);
 
 	const handleSubmit = useCallback(

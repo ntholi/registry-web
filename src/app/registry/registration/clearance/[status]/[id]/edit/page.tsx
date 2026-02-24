@@ -22,7 +22,11 @@ export default async function ClearanceEdit({ params }: Props) {
 				defaultValues={clearance}
 				onSubmit={async (value) => {
 					'use server';
-					return await updateClearance(Number(id), value);
+					return await updateClearance(
+						Number(id),
+						value,
+						clearance.registrationRequest.stdNo
+					);
 				}}
 			/>
 		</Box>
