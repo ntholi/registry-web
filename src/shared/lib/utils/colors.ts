@@ -183,11 +183,11 @@ export const statusColors = {
 		urgent: semantic.error,
 	},
 	taskStatus: {
-		todo: semantic.neutral,
+		todo: semantic.warning,
 		in_progress: semantic.info,
 		inprogress: semantic.info,
 		on_hold: semantic.warning,
-		onhold: semantic.warning,
+		onhold: semantic.caution,
 		completed: semantic.success,
 		cancelled: semantic.error,
 	},

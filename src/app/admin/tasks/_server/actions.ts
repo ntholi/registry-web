@@ -10,6 +10,7 @@ type TaskWithRelationsInput = Task & {
 	studentIds?: number[];
 };
 type TaskStatus = (typeof tasks.$inferSelect)['status'];
+type TaskStatusFilter = TaskStatus | 'all' | 'open';
 
 export async function getTask(id: number): Promise<TaskWithRelations | null> {
 	return service.get(id) as Promise<TaskWithRelations | null>;
@@ -17,13 +18,14 @@ export async function getTask(id: number): Promise<TaskWithRelations | null> {
 
 export async function findAllTasks(
 	page = 1,
-	search = ''
+	search = '',
+	statusFilter: TaskStatusFilter = 'open'
 ): Promise<{
 	items: TaskWithRelations[];
 	totalPages: number;
 	totalItems: number;
 }> {
-	return service.findAll({ page, search }) as Promise<{
+	return service.findAll({ page, search, statusFilter }) as Promise<{
 		items: TaskWithRelations[];
 		totalPages: number;
 		totalItems: number;

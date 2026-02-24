@@ -4,6 +4,9 @@ import { serviceWrapper } from '@/core/platform/serviceWrapper';
 import withAuth from '@/core/platform/withAuth';
 import TaskRepository, { type TaskInsert } from './repository';
 
+type TaskStatus = (typeof tasks.$inferSelect)['status'];
+type TaskStatusFilter = TaskStatus | 'all' | 'open';
+
 const ALLOWED_ROLES: UserRole[] = ['admin', 'registry', 'finance'];
 
 class TaskService {
@@ -33,7 +36,7 @@ class TaskService {
 	}
 
 	async findAll(
-		params: { page?: number; search?: string },
+		params: { page?: number; search?: string; statusFilter?: TaskStatusFilter },
 		session?: Session | null
 	) {
 		return withAuth(async (sess) => {
@@ -45,6 +48,7 @@ class TaskService {
 			return this.repository.findAllWithRelations({
 				page: params.page,
 				search: params.search,
+				statusFilter: params.statusFilter,
 				userId,
 				isManager: isManager || isAdmin,
 			});

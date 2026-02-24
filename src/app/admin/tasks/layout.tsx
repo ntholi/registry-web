@@ -3,6 +3,8 @@
 import { findAllTasks, type TaskWithRelations } from '@admin/tasks';
 import { Badge, Group, Stack, Text } from '@mantine/core';
 import { IconCalendar, IconSchool, IconUser } from '@tabler/icons-react';
+import { useSearchParams } from 'next/navigation';
+import { useRouter } from 'nextjs-toploader/app';
 import type { PropsWithChildren } from 'react';
 import {
 	getTaskPriorityColor,
@@ -10,6 +12,16 @@ import {
 } from '@/shared/lib/utils/colors';
 import { formatDate } from '@/shared/lib/utils/dates';
 import { ListItem, ListLayout, NewLink } from '@/shared/ui/adease';
+import TaskStatusFilter from './_components/TaskStatusFilter';
+
+type TaskStatusFilterValue =
+	| 'all'
+	| 'open'
+	| 'todo'
+	| 'in_progress'
+	| 'on_hold'
+	| 'completed'
+	| 'cancelled';
 
 const statusLabels: Record<string, string> = {
 	todo: 'To Do',
@@ -20,12 +32,40 @@ const statusLabels: Record<string, string> = {
 };
 
 export default function Layout({ children }: PropsWithChildren) {
+	const router = useRouter();
+	const searchParams = useSearchParams();
+	const statusFilter =
+		(searchParams.get('status') as TaskStatusFilterValue | null) || 'open';
+
+	async function fetchTasks(page: number, search: string) {
+		return findAllTasks(page, search, statusFilter);
+	}
+
+	function handleStatusChange(value: TaskStatusFilterValue) {
+		const params = new URLSearchParams(searchParams);
+		if (value === 'open') {
+			params.delete('status');
+		} else {
+			params.set('status', value);
+		}
+		params.delete('page');
+		const query = params.toString();
+		router.push(query ? `/admin/tasks?${query}` : '/admin/tasks');
+	}
+
 	return (
 		<ListLayout<TaskWithRelations>
 			path={'/admin/tasks'}
-			queryKey={['tasks']}
-			getData={findAllTasks}
-			actionIcons={[<NewLink key={'new-link'} href='/admin/tasks/new' />]}
+			queryKey={['tasks', statusFilter]}
+			getData={fetchTasks}
+			actionIcons={[
+				<TaskStatusFilter
+					key='status-filter'
+					value={statusFilter}
+					onChange={handleStatusChange}
+				/>,
+				<NewLink key={'new-link'} href='/admin/tasks/new' />,
+			]}
 			renderItem={(task) => (
 				<ListItem
 					id={task.id}

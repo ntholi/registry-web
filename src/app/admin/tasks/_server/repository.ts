@@ -47,11 +47,19 @@ export default class TaskRepository extends BaseRepository<typeof tasks, 'id'> {
 
 	async findAllWithRelations(
 		options: QueryOptions<typeof tasks> & {
+			statusFilter?: TaskSelect['status'] | 'all' | 'open';
 			userId?: string;
 			isManager?: boolean;
 		}
 	) {
-		const { page = 1, size = 15, search, userId, isManager } = options;
+		const {
+			page = 1,
+			size = 15,
+			search,
+			statusFilter = 'open',
+			userId,
+			isManager,
+		} = options;
 		const offset = (page - 1) * size;
 
 		let baseFilter: SQL | undefined;
@@ -76,10 +84,27 @@ export default class TaskRepository extends BaseRepository<typeof tasks, 'id'> {
 			);
 		}
 
+		let statusWhere: SQL | undefined;
+		if (statusFilter === 'open') {
+			statusWhere = and(
+				sql`${tasks.status} != 'completed'`,
+				sql`${tasks.status} != 'cancelled'`
+			);
+		} else if (statusFilter !== 'all') {
+			statusWhere = eq(tasks.status, statusFilter);
+		}
+
+		const filters: SQL[] = [];
+		if (baseFilter) filters.push(baseFilter);
+		if (searchFilter) filters.push(searchFilter);
+		if (statusWhere) filters.push(statusWhere);
+
 		const whereClause =
-			baseFilter && searchFilter
-				? and(baseFilter, searchFilter)
-				: baseFilter || searchFilter;
+			filters.length === 0
+				? undefined
+				: filters.length === 1
+					? filters[0]
+					: and(...filters);
 
 		const items = await db.query.tasks.findMany({
 			where: whereClause,
