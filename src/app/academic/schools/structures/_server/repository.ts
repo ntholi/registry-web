@@ -1,6 +1,5 @@
 import { eq } from 'drizzle-orm';
 import { db, structureSemesters, structures } from '@/core/database';
-import { auditLogs } from '@/core/database/schema/auditLogs';
 import BaseRepository, {
 	type AuditOptions,
 } from '@/core/platform/BaseRepository';
@@ -155,16 +154,15 @@ export default class StructureRepository extends BaseRepository<
 				.values(data)
 				.returning();
 
-			await tx.insert(auditLogs).values({
-				tableName: 'structure_semesters',
-				recordId: String(result.id),
-				operation: 'INSERT',
-				oldValues: null,
-				newValues: result,
-				changedBy: audit.userId,
-				metadata: audit.metadata ?? null,
-				activityType: audit.activityType ?? null,
-			});
+			await this.writeAuditLogForTable(
+				tx,
+				'structure_semesters',
+				'INSERT',
+				String(result.id),
+				null,
+				result,
+				audit
+			);
 
 			return result;
 		});

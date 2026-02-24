@@ -98,6 +98,32 @@ class BaseRepository<
 		});
 	}
 
+	protected async writeAuditLogForTable(
+		tx: TransactionClient,
+		tableName: string,
+		operation: 'INSERT' | 'UPDATE' | 'DELETE',
+		recordId: string,
+		oldValues: unknown,
+		newValues: unknown,
+		audit: AuditOptions
+	): Promise<void> {
+		const meta = {
+			...this.buildAuditMetadata(operation, oldValues, newValues),
+			...audit.metadata,
+		};
+
+		await tx.insert(auditLogs).values({
+			tableName,
+			recordId,
+			operation,
+			oldValues: oldValues ?? null,
+			newValues: newValues ?? null,
+			changedBy: audit.userId,
+			metadata: Object.keys(meta).length > 0 ? meta : null,
+			activityType: audit.activityType ?? null,
+		});
+	}
+
 	protected async writeAuditLogBatch(
 		tx: TransactionClient,
 		entries: Array<{

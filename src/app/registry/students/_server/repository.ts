@@ -24,7 +24,6 @@ import {
 	terms,
 	users,
 } from '@/core/database';
-import { auditLogs } from '@/core/database/schema/auditLogs';
 import BaseRepository, {
 	type AuditOptions,
 	type QueryOptions,
@@ -658,16 +657,15 @@ export default class StudentRepository extends BaseRepository<
 				.where(eq(studentPrograms.id, id))
 				.returning();
 
-			await tx.insert(auditLogs).values({
-				tableName: 'student_programs',
-				recordId: String(id),
-				operation: 'UPDATE',
-				oldValues: old,
-				newValues: updated,
-				changedBy: audit.userId,
-				metadata: audit.metadata ?? null,
-				activityType: audit.activityType ?? null,
-			});
+			await this.writeAuditLogForTable(
+				tx,
+				'student_programs',
+				'UPDATE',
+				String(id),
+				old,
+				updated,
+				audit
+			);
 
 			return updated;
 		});
@@ -693,16 +691,15 @@ export default class StudentRepository extends BaseRepository<
 				.values(data)
 				.returning();
 
-			await tx.insert(auditLogs).values({
-				tableName: 'student_programs',
-				recordId: String(created.id),
-				operation: 'INSERT',
-				oldValues: null,
-				newValues: created,
-				changedBy: audit.userId,
-				metadata: audit.metadata ?? null,
-				activityType: audit.activityType ?? null,
-			});
+			await this.writeAuditLogForTable(
+				tx,
+				'student_programs',
+				'INSERT',
+				String(created.id),
+				null,
+				created,
+				audit
+			);
 
 			return created;
 		});
@@ -727,16 +724,15 @@ export default class StudentRepository extends BaseRepository<
 				.where(eq(studentSemesters.id, id))
 				.returning();
 
-			await tx.insert(auditLogs).values({
-				tableName: 'student_semesters',
-				recordId: String(id),
-				operation: 'UPDATE',
-				oldValues: old,
-				newValues: updated,
-				changedBy: audit.userId,
-				metadata: audit.metadata ?? null,
-				activityType: audit.activityType ?? null,
-			});
+			await this.writeAuditLogForTable(
+				tx,
+				'student_semesters',
+				'UPDATE',
+				String(id),
+				old,
+				updated,
+				audit
+			);
 
 			return updated;
 		});
@@ -761,16 +757,15 @@ export default class StudentRepository extends BaseRepository<
 				.where(eq(studentModules.id, id))
 				.returning();
 
-			await tx.insert(auditLogs).values({
-				tableName: 'student_modules',
-				recordId: String(id),
-				operation: 'UPDATE',
-				oldValues: old,
-				newValues: updated,
-				changedBy: audit.userId,
-				metadata: audit.metadata ?? null,
-				activityType: audit.activityType ?? null,
-			});
+			await this.writeAuditLogForTable(
+				tx,
+				'student_modules',
+				'UPDATE',
+				String(id),
+				old,
+				updated,
+				audit
+			);
 
 			return updated;
 		});
