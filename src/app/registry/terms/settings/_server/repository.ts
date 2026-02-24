@@ -1,6 +1,5 @@
 import { and, eq, inArray, ne } from 'drizzle-orm';
 import {
-	auditLogs,
 	blockedStudents,
 	clearance,
 	db,
@@ -10,12 +9,19 @@ import {
 	termSettings,
 	terms,
 } from '@/core/database';
-import type { AuditOptions } from '@/core/platform/BaseRepository';
+import BaseRepository, { type AuditOptions } from '@/core/platform/BaseRepository';
 
 export type TermSettingsInsert = typeof termSettings.$inferInsert;
 export type TermSettingsSelect = typeof termSettings.$inferSelect;
 
-export default class TermSettingsRepository {
+export default class TermSettingsRepository extends BaseRepository<
+	typeof termSettings,
+	'id'
+> {
+	constructor() {
+		super(termSettings, termSettings.id);
+	}
+
 	async findByTermId(termId: number) {
 		return db.query.termSettings.findFirst({
 			where: eq(termSettings.termId, termId),
@@ -46,15 +52,14 @@ export default class TermSettingsRepository {
 				.returning();
 
 			if (audit && updated) {
-				await tx.insert(auditLogs).values({
-					tableName: 'term_settings',
-					recordId: String(updated.id),
-					operation: 'UPDATE',
-					oldValues: existing ?? null,
-					newValues: updated,
-					changedBy: audit.userId,
-					activityType: audit.activityType ?? null,
-				});
+				await this.writeAuditLog(
+					tx,
+					'UPDATE',
+					String(updated.id),
+					existing ?? null,
+					updated,
+					audit
+				);
 			}
 
 			return updated;
@@ -85,15 +90,14 @@ export default class TermSettingsRepository {
 				.returning();
 
 			if (audit && updated) {
-				await tx.insert(auditLogs).values({
-					tableName: 'term_settings',
-					recordId: String(updated.id),
-					operation: 'UPDATE',
-					oldValues: existing ?? null,
-					newValues: updated,
-					changedBy: audit.userId,
-					activityType: audit.activityType ?? null,
-				});
+				await this.writeAuditLog(
+					tx,
+					'UPDATE',
+					String(updated.id),
+					existing ?? null,
+					updated,
+					audit
+				);
 			}
 
 			return updated;
