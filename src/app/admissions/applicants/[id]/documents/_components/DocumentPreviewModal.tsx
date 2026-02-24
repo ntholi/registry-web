@@ -1,10 +1,10 @@
 'use client';
 
+import DocumentViewer from '@admissions/documents/_components/DocumentViewer';
 import {
 	ActionIcon,
 	Box,
 	Group,
-	Image,
 	Modal,
 	Paper,
 	Stack,
@@ -12,14 +12,9 @@ import {
 	ThemeIcon,
 	Tooltip,
 } from '@mantine/core';
-import { notifications } from '@mantine/notifications';
 import { IconCalendar, IconDownload, IconFile } from '@tabler/icons-react';
-import { useRouter } from 'nextjs-toploader/app';
 import { formatDate } from '@/shared/lib/utils/dates';
-import { DeleteButton } from '@/shared/ui/adease/DeleteButton';
 import type { ApplicantDocument } from '../_lib/types';
-import { deleteApplicantDocument } from '../_server/actions';
-import { ReviewModal } from './ReviewModal';
 
 type Props = {
 	opened: boolean;
@@ -33,36 +28,14 @@ function formatType(type: string | null | undefined): string {
 }
 
 export function DocumentPreviewModal({ opened, onClose, applicantDoc }: Props) {
-	const router = useRouter();
-
 	if (!applicantDoc) return null;
 
-	const { id: docId, verificationStatus, rejectionReason } = applicantDoc;
 	const doc = applicantDoc.document;
 	const previewUrl = doc.fileUrl ?? '';
 	const isPdf = previewUrl.toLowerCase().endsWith('.pdf');
 
-	async function handleDelete() {
-		await deleteApplicantDocument(docId, previewUrl);
-	}
-
-	function handleDeleteSuccess() {
-		notifications.show({
-			title: 'Success',
-			message: 'Document deleted',
-			color: 'green',
-		});
-		onClose();
-		router.refresh();
-	}
-
 	function handleDownload() {
 		window.open(previewUrl, '_blank');
-	}
-
-	function handleReviewSuccess() {
-		onClose();
-		router.refresh();
 	}
 
 	return (
@@ -111,24 +84,6 @@ export function DocumentPreviewModal({ opened, onClose, applicantDoc }: Props) {
 									<IconDownload size={16} />
 								</ActionIcon>
 							</Tooltip>
-							<ReviewModal
-								docId={docId}
-								initialStatus={verificationStatus}
-								initialReason={rejectionReason}
-								onSuccess={handleReviewSuccess}
-							/>
-							<Tooltip label='Delete'>
-								<DeleteButton
-									handleDelete={handleDelete}
-									onSuccess={handleDeleteSuccess}
-									itemType='document'
-									itemName={doc.fileName ?? undefined}
-									warningMessage='This will permanently delete this document. If it is linked to an academic record, that related academic record will also be deleted. This action cannot be undone.'
-									confirmButtonText='Delete Document'
-									typedConfirmation={false}
-									variant='light'
-								/>
-							</Tooltip>
 						</Group>
 					</Group>
 				</Paper>
@@ -141,12 +96,7 @@ export function DocumentPreviewModal({ opened, onClose, applicantDoc }: Props) {
 							title='Document Preview'
 						/>
 					) : (
-						<Image
-							src={previewUrl}
-							alt='Document Preview'
-							fit='contain'
-							mah='100%'
-						/>
+						<DocumentViewer src={previewUrl} alt='Document Preview' />
 					)}
 				</Box>
 			</Stack>

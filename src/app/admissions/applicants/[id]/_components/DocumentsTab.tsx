@@ -5,7 +5,7 @@ import { useDisclosure } from '@mantine/hooks';
 import { documentTypeEnum } from '@registry/_database';
 import { IconFile } from '@tabler/icons-react';
 import { useState } from 'react';
-import { DocumentCard } from '../documents/_components/DocumentCard';
+import { DocumentCardWithActions } from '../documents/_components/DocumentCardWithActions';
 import { DocumentPreviewModal } from '../documents/_components/DocumentPreviewModal';
 import type { ApplicantDocument } from '../documents/_lib/types';
 
@@ -60,7 +60,7 @@ export default function DocumentsTab({ documents }: Props) {
 					</Text>
 					<SimpleGrid cols={{ base: 1, sm: 2, md: 3 }} spacing='md'>
 						{docs.map((doc) => (
-							<DocumentCard
+							<DocumentCardWithActions
 								key={doc.id}
 								doc={doc}
 								onPreview={() => handlePreview(doc)}
