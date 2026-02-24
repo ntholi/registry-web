@@ -1,6 +1,5 @@
 'use client';
 
-import RecordAuditHistory from '@audit-logs/_components/RecordAuditHistory';
 import { Tabs, TabsPanel, TabsTab } from '@mantine/core';
 import type { Session } from 'next-auth';
 import { useQueryState } from 'nuqs';
@@ -14,6 +13,7 @@ import StudentCardPrinter from './card/StudentCardPrinter';
 import StudentCardView from './card/StudentCardView';
 import DocumentsView from './documents/DocumentsView';
 import GraduationView from './graduation/GraduationView';
+import StudentHistoryView from './history/StudentHistoryView';
 import StudentView from './info/StudentView';
 import RegistrationTabs from './registration/RegistrationTabs';
 import SponsorsView from './sponsors/SponsorsView';
@@ -75,9 +75,16 @@ export default function StudentTabs({
 			session?.user?.role ?? ''
 		) || session?.user?.position === 'manager';
 
-	const showAuditHistory = ['admin', 'registry'].includes(
-		session?.user?.role ?? ''
-	);
+	const showHistory = [
+		'admin',
+		'registry',
+		'finance',
+		'academic',
+		'library',
+		'student_services',
+		'marketing',
+		'leap',
+	].includes(session?.user?.role ?? '');
 
 	const renderTabActions = () => {
 		if (showStatementOfResults && activeTab === 'academics') {
@@ -112,7 +119,7 @@ export default function StudentTabs({
 				{showStudentCard && <TabsTab value='studentcard'>Card</TabsTab>}
 				{showGraduation && <TabsTab value='graduation'>Graduation</TabsTab>}
 				{showDocuments && <TabsTab value='documents'>Documents</TabsTab>}
-				{showAuditHistory && <TabsTab value='audit-history'>Audit</TabsTab>}
+				{showHistory && <TabsTab value='history'>History</TabsTab>}
 			</ScrollableTabsList>
 			<TabsPanel value='academics' pt={'xl'} p={'sm'} key='academics'>
 				{blockedStudent ? (
@@ -159,9 +166,12 @@ export default function StudentTabs({
 					isActive={activeTab === 'documents'}
 				/>
 			</TabsPanel>
-			{showAuditHistory && (
-				<TabsPanel value='audit-history' pt='xl' p='sm' key='audit-history'>
-					<RecordAuditHistory tableName='students' recordId={student.stdNo} />
+			{showHistory && (
+				<TabsPanel value='history' pt='xl' p='sm' key='history'>
+					<StudentHistoryView
+						stdNo={student.stdNo}
+						isActive={activeTab === 'history'}
+					/>
 				</TabsPanel>
 			)}
 		</Tabs>

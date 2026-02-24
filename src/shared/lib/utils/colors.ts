@@ -567,3 +567,21 @@ export type DepositStatusType = 'pending' | 'verified' | 'rejected';
 export function getDepositStatusColor(status: DepositStatusType) {
 	return getColorFromMap(status, statusColors.documentVerificationStatus);
 }
+
+const roleColors: Record<string, string> = {
+	admin: 'red',
+	user: 'blue',
+	student: 'teal',
+	finance: 'orange',
+	registry: 'grape',
+	library: 'indigo',
+	resource: 'cyan',
+	academic: 'yellow',
+	student_services: 'pink',
+	marketing: 'lime',
+	leap: 'violet',
+};
+
+export function getRoleColor(role: string) {
+	return roleColors[role] ?? 'gray';
+}

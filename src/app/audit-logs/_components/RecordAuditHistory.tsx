@@ -12,17 +12,12 @@ import {
 	ThemeIcon,
 	Timeline,
 } from '@mantine/core';
-import { IconArrowRight, IconHistory } from '@tabler/icons-react';
+import { IconHistory } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { formatDateTime } from '@/shared/lib/utils/dates';
-import {
-	DEFAULT_EXCLUDE_FIELDS,
-	type FieldLabelMap,
-	formatFieldName,
-	formatValue,
-	getChangedFields,
-} from '../_lib/audit-utils';
+import { DEFAULT_EXCLUDE_FIELDS, getChangedFields } from '../_lib/audit-utils';
 import { getRecordHistory } from '../_server/actions';
+import ChangeItem from './ChangeItem';
 
 type RecordAuditHistoryProps = {
 	tableName: string;
@@ -171,59 +166,5 @@ export default function RecordAuditHistory({
 				})}
 			</Timeline>
 		</ScrollArea.Autosize>
-	);
-}
-
-type ChangeItemProps = {
-	field: string;
-	oldValue: unknown;
-	newValue: unknown;
-	fieldLabels?: FieldLabelMap;
-	operation: string;
-};
-
-function ChangeItem({
-	field,
-	oldValue,
-	newValue,
-	fieldLabels,
-	operation,
-}: ChangeItemProps) {
-	const isInsert = operation === 'INSERT';
-	const isDelete = operation === 'DELETE';
-
-	return (
-		<Box>
-			<Text size='xs' c='dimmed' mb={4}>
-				{formatFieldName(field, fieldLabels)}
-			</Text>
-			<Group gap='xs' wrap='nowrap'>
-				{!isInsert && (
-					<Text
-						size='sm'
-						c='red.6'
-						td={isDelete ? undefined : 'line-through'}
-						style={{ wordBreak: 'break-word' }}
-					>
-						{formatValue(oldValue)}
-					</Text>
-				)}
-				{!isInsert && !isDelete && (
-					<ThemeIcon size='xs' variant='transparent' c='dimmed'>
-						<IconArrowRight size={12} />
-					</ThemeIcon>
-				)}
-				{!isDelete && (
-					<Text
-						size='sm'
-						c='green.6'
-						fw={500}
-						style={{ wordBreak: 'break-word' }}
-					>
-						{formatValue(newValue)}
-					</Text>
-				)}
-			</Group>
-		</Box>
 	);
 }

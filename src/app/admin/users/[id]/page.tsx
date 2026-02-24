@@ -9,6 +9,7 @@ import {
 	Stack,
 } from '@mantine/core';
 import { notFound } from 'next/navigation';
+import { getRoleColor } from '@/shared/lib/utils/colors';
 import { largeProfilePic, toTitleCase } from '@/shared/lib/utils/utils';
 import {
 	DetailsView,
@@ -73,27 +74,4 @@ export default async function UserDetails({ params }: Props) {
 			</DetailsViewBody>
 		</DetailsView>
 	);
-}
-
-function getRoleColor(role: string) {
-	switch (role) {
-		case 'admin':
-			return 'red';
-		case 'user':
-			return 'blue';
-		case 'student':
-			return 'teal';
-		case 'finance':
-			return 'orange';
-		case 'registry':
-			return 'grape';
-		case 'library':
-			return 'indigo';
-		case 'resource':
-			return 'cyan';
-		case 'academic':
-			return 'yellow';
-		default:
-			return 'gray';
-	}
 }
