@@ -13,7 +13,7 @@ import { useDebouncedValue } from '@mantine/hooks';
 import { findAllStudents } from '@registry/students';
 import { IconX } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 
 type StudentBasic = { stdNo: number; name: string };
 
@@ -36,6 +36,7 @@ export default function MultiStudentInput({
 	...props
 }: MultiStudentInputProps) {
 	const [inputValue, setInputValue] = useState('');
+	const skipNextInputChangeRef = useRef(false);
 	const [debounced] = useDebouncedValue(inputValue, 300);
 
 	const { data: searchResults = [], isLoading } = useQuery({
@@ -51,20 +52,29 @@ export default function MultiStudentInput({
 	});
 
 	const options = searchResults.map((student) => ({
-		value: `${student.stdNo}:${student.name}`,
+		value: String(student.stdNo),
 		label: `${student.name} (${student.stdNo})`,
 	}));
 
 	function handleSelect(option: string) {
-		const stdNo = Number(option.split(':')[0]);
+		const stdNo = Number(option);
 		const selectedStudent = searchResults.find((s) => s.stdNo === stdNo);
 		if (
 			selectedStudent &&
 			!value.some((s) => s.stdNo === selectedStudent.stdNo)
 		) {
 			onChange?.([...value, selectedStudent]);
-			setInputValue('');
 		}
+		skipNextInputChangeRef.current = true;
+		setInputValue('');
+	}
+
+	function handleInputChange(next: string) {
+		if (skipNextInputChangeRef.current) {
+			skipNextInputChangeRef.current = false;
+			return;
+		}
+		setInputValue(next);
 	}
 
 	function handleRemove(stdNo: number) {
@@ -77,12 +87,12 @@ export default function MultiStudentInput({
 				label={label}
 				placeholder={placeholder}
 				value={inputValue}
-				onChange={setInputValue}
+				onChange={handleInputChange}
 				onOptionSubmit={handleSelect}
 				data={options}
 				disabled={disabled}
 				renderOption={({ option }) => {
-					const stdNo = Number(option.value.split(':')[0]);
+					const stdNo = Number(option.value);
 					const student = searchResults.find((s) => s.stdNo === stdNo);
 					return (
 						<div>
