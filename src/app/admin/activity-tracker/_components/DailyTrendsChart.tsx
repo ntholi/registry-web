@@ -5,6 +5,7 @@ import { Center, Paper, Skeleton, Stack, Text, Title } from '@mantine/core';
 import { IconDatabaseOff } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useMemo } from 'react';
+import { formatDate } from '@/shared/lib/utils/dates';
 import { getActivityLabel } from '../_lib/activity-catalog';
 import { getDailyTrends } from '../_server/actions';
 
@@ -34,50 +35,61 @@ export default function DailyTrendsChart({ start, end, dept }: Props) {
 	const { chartData, series } = useMemo(() => {
 		if (!data || data.length === 0) return { chartData: [], series: [] };
 
-		const typeTotals = new Map<string, number>();
-		for (const d of data) {
-			typeTotals.set(
-				d.activityType,
-				(typeTotals.get(d.activityType) ?? 0) + d.count
+		const totalsByType = new Map<string, number>();
+		for (const item of data) {
+			totalsByType.set(
+				item.activityType,
+				(totalsByType.get(item.activityType) ?? 0) + item.count
 			);
 		}
 
-		const topTypes = [...typeTotals.entries()]
+		const topTypes = [...totalsByType.entries()]
 			.sort((a, b) => b[1] - a[1])
 			.slice(0, 5)
-			.map(([t]) => t);
+			.map(([type]) => type);
 
-		const dateMap = new Map<
-			string,
-			Record<string, number> & { date: string }
-		>();
-		for (const d of data) {
-			const label = new Date(d.date).toLocaleDateString('en-US', {
-				month: 'short',
-				day: 'numeric',
-			});
-			if (!dateMap.has(d.date)) {
-				const row = { date: label } as Record<string, number> & {
-					date: string;
-				};
-				for (const t of topTypes) {
-					row[getActivityLabel(t)] = 0;
-				}
-				dateMap.set(d.date, row);
-			}
-			const row = dateMap.get(d.date)!;
-			const actLabel = getActivityLabel(d.activityType);
-			if (topTypes.includes(d.activityType)) {
-				row[actLabel] = (row[actLabel] ?? 0) + d.count;
-			}
+		if (topTypes.length === 0) return { chartData: [], series: [] };
+
+		const topTypeSet = new Set(topTypes);
+		const dates = [...new Set(data.map((item) => item.date))].sort((a, b) =>
+			a.localeCompare(b)
+		);
+
+		const countsByDate = new Map<string, Map<string, number>>();
+		for (const date of dates) {
+			countsByDate.set(date, new Map<string, number>());
 		}
 
+		for (const item of data) {
+			if (!topTypeSet.has(item.activityType)) continue;
+			const row = countsByDate.get(item.date);
+			if (!row) continue;
+			row.set(
+				item.activityType,
+				(row.get(item.activityType) ?? 0) + item.count
+			);
+		}
+
+		const nextChartData = dates.map((date) => {
+			const row: Record<string, number | string> = {
+				date: formatDate(date, 'short'),
+			};
+			const values = countsByDate.get(date);
+			for (const type of topTypes) {
+				row[type] = values?.get(type) ?? 0;
+			}
+			return row;
+		});
+
+		const nextSeries = topTypes.map((type, index) => ({
+			name: type,
+			label: getActivityLabel(type),
+			color: COLORS[index % COLORS.length],
+		}));
+
 		return {
-			chartData: [...dateMap.values()],
-			series: topTypes.map((t, i) => ({
-				name: getActivityLabel(t),
-				color: COLORS[i % COLORS.length],
-			})),
+			chartData: nextChartData,
+			series: nextSeries,
 		};
 	}, [data]);
 
@@ -111,6 +123,11 @@ export default function DailyTrendsChart({ start, end, dept }: Props) {
 				dataKey='date'
 				series={series}
 				curveType='monotone'
+				connectNulls
+				tickLine='xy'
+				yAxisProps={{ allowDecimals: false }}
+				valueFormatter={(value) => new Intl.NumberFormat('en-US').format(value)}
+				tooltipAnimationDuration={200}
 				withLegend
 				legendProps={{ verticalAlign: 'bottom', height: 50 }}
 				withDots={false}
