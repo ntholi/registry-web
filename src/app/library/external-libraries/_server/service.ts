@@ -16,6 +16,11 @@ class ExternalLibraryService extends BaseService<
 			createRoles: ['dashboard'],
 			updateRoles: ['dashboard'],
 			deleteRoles: ['dashboard'],
+			activityTypes: {
+				create: 'external_library_added',
+				update: 'external_library_updated',
+				delete: 'external_library_deleted',
+			},
 		});
 	}
 }

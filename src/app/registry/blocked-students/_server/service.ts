@@ -36,7 +36,7 @@ class BlockedStudentService {
 						byDepartment: session?.user?.role as DashboardUser,
 						status: 'blocked',
 					},
-					{ userId: session!.user!.id! }
+					{ userId: session!.user!.id!, activityType: 'student_blocked' }
 				);
 			},
 			['finance', 'registry', 'library']
@@ -53,13 +53,15 @@ class BlockedStudentService {
 
 		return withAuth(
 			async (session) => {
+				const activityType =
+					data.status === 'unblocked' ? 'student_unblocked' : 'student_blocked';
 				return this.repository.update(
 					id,
 					{
 						...data,
 						byDepartment: session?.user?.role as DashboardUser,
 					},
-					{ userId: session!.user!.id! }
+					{ userId: session!.user!.id!, activityType }
 				);
 			},
 			async (session) => {
@@ -77,7 +79,10 @@ class BlockedStudentService {
 	async delete(id: number) {
 		return withAuth(
 			async (session) =>
-				this.repository.delete(id, { userId: session!.user!.id! }),
+				this.repository.delete(id, {
+					userId: session!.user!.id!,
+					activityType: 'student_unblocked',
+				}),
 			['admin', 'finance', 'registry', 'library']
 		);
 	}
@@ -105,6 +110,7 @@ class BlockedStudentService {
 
 				await this.repository.bulkCreate(toCreate, {
 					userId: session!.user!.id!,
+					activityType: 'student_blocked',
 				});
 
 				return {

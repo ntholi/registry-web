@@ -43,7 +43,7 @@ class AutoApprovalService {
 						...data,
 						createdBy: session?.user?.id,
 					},
-					{ userId: session!.user!.id! }
+					{ userId: session!.user!.id!, activityType: 'auto_approval_created' }
 				);
 			},
 			['finance', 'library', 'admin']
@@ -62,6 +62,7 @@ class AutoApprovalService {
 				}
 				return this.repository.update(id, data, {
 					userId: session!.user!.id!,
+					activityType: 'auto_approval_updated',
 				});
 			},
 			['finance', 'library', 'admin']
@@ -78,7 +79,10 @@ class AutoApprovalService {
 				if (role !== 'admin' && existing.department !== role) {
 					throw new Error('You can only delete rules for your own department');
 				}
-				return this.repository.delete(id, { userId: session!.user!.id! });
+				return this.repository.delete(id, {
+					userId: session!.user!.id!,
+					activityType: 'auto_approval_deleted',
+				});
 			},
 			['finance', 'library', 'admin']
 		);

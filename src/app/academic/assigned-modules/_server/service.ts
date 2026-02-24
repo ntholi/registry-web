@@ -9,7 +9,10 @@ class AssignedModuleService {
 	async delete(id: number) {
 		return withAuth(
 			async (session) =>
-				this.repository.delete(id, { userId: session!.user!.id! }),
+				this.repository.delete(id, {
+					userId: session!.user!.id!,
+					activityType: 'module_unassigned',
+				}),
 			['academic', 'leap']
 		);
 	}
@@ -30,6 +33,7 @@ class AssignedModuleService {
 
 				return this.repository.createMany(assignments, {
 					userId: session!.user!.id!,
+					activityType: 'module_assigned',
 				});
 			},
 			['academic', 'leap']

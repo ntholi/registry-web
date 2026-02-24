@@ -16,6 +16,10 @@ class VenueService extends BaseService<typeof venues, 'id'> {
 			deleteRoles: ['academic', 'registry'],
 			byIdRoles: ['dashboard'],
 			findAllRoles: ['dashboard'],
+			activityTypes: {
+				create: 'venue_created',
+				update: 'venue_updated',
+			},
 		});
 		this.venueRepository = repository;
 	}

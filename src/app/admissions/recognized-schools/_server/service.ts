@@ -18,6 +18,11 @@ class RecognizedSchoolService extends BaseService<
 			createRoles: ['registry', 'marketing', 'admin'],
 			updateRoles: ['registry', 'marketing', 'admin'],
 			deleteRoles: ['registry', 'marketing', 'admin'],
+			activityTypes: {
+				create: 'recognized_school_added',
+				update: 'recognized_school_updated',
+				delete: 'recognized_school_deleted',
+			},
 		});
 		this.repo = repo;
 	}

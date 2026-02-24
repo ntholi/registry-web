@@ -13,6 +13,11 @@ class BookService extends BaseService<typeof books, 'id'> {
 			createRoles: ['dashboard'],
 			updateRoles: ['dashboard'],
 			deleteRoles: ['dashboard'],
+			activityTypes: {
+				create: 'book_added',
+				update: 'book_updated',
+				delete: 'book_deleted',
+			},
 		});
 	}
 

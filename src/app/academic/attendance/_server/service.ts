@@ -59,6 +59,7 @@ class AttendanceService {
 				}));
 				return this.repository.upsertAttendance(attendanceRecords, {
 					userId: session!.user!.id!,
+					activityType: 'attendance_recorded',
 				});
 			},
 			['academic', 'leap']

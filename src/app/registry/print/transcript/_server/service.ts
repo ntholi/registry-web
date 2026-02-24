@@ -13,6 +13,7 @@ class TranscriptPrintsService {
 			async (session) =>
 				this.repository.create(data, {
 					userId: session!.user!.id!,
+					activityType: 'transcript_print',
 				}),
 			['dashboard']
 		);

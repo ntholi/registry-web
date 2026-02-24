@@ -11,6 +11,11 @@ class AuthorService extends BaseService<typeof authors, 'id'> {
 			createRoles: ['dashboard'],
 			updateRoles: ['dashboard'],
 			deleteRoles: ['dashboard'],
+			activityTypes: {
+				create: 'author_created',
+				update: 'author_updated',
+				delete: 'author_deleted',
+			},
 		});
 	}
 }

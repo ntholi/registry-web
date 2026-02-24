@@ -15,6 +15,11 @@ class IntakePeriodService extends BaseService<typeof intakePeriods, 'id'> {
 			createRoles: ['registry', 'marketing', 'admin'],
 			updateRoles: ['registry', 'marketing', 'admin'],
 			deleteRoles: ['registry', 'marketing', 'admin'],
+			activityTypes: {
+				create: 'intake_period_created',
+				update: 'intake_period_updated',
+				delete: 'intake_period_deleted',
+			},
 		});
 		this.repo = repo;
 	}

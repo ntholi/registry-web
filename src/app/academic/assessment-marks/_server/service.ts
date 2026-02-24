@@ -15,7 +15,10 @@ class AssessmentMarkService {
 	async create(data: AssessmentMark) {
 		return withAuth(
 			async (session) =>
-				this.repository.create(data, { userId: session!.user!.id! }),
+				this.repository.create(data, {
+					userId: session!.user!.id!,
+					activityType: 'mark_entered',
+				}),
 			['academic']
 		);
 	}
@@ -23,7 +26,10 @@ class AssessmentMarkService {
 	async update(id: number, data: AssessmentMark) {
 		return withAuth(
 			async (session) =>
-				this.repository.update(id, data, { userId: session!.user!.id! }),
+				this.repository.update(id, data, {
+					userId: session!.user!.id!,
+					activityType: 'mark_updated',
+				}),
 			['academic']
 		);
 	}
@@ -77,6 +83,7 @@ class AssessmentMarkService {
 			async (session) =>
 				this.repository.createOrUpdateMarks(data, {
 					userId: session!.user!.id!,
+					activityType: 'mark_entered',
 				}),
 			['academic']
 		);
@@ -87,6 +94,7 @@ class AssessmentMarkService {
 			async (session) =>
 				this.repository.createOrUpdateMarksInBulk(dataArray, {
 					userId: session!.user!.id!,
+					activityType: 'mark_entered',
 				}),
 			['academic']
 		);

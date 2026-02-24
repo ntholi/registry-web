@@ -9,6 +9,10 @@ class StructureService extends BaseService<typeof structures, 'id'> {
 		super(new StructureRepository(), {
 			byIdRoles: ['dashboard'],
 			findAllRoles: ['dashboard'],
+			activityTypes: {
+				create: 'structure_created',
+				update: 'structure_updated',
+			},
 		});
 	}
 

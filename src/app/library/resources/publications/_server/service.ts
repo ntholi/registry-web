@@ -14,6 +14,11 @@ class PublicationService extends BaseService<typeof publications, 'id'> {
 			createRoles: ['admin', 'library'],
 			updateRoles: ['admin', 'library'],
 			deleteRoles: ['admin', 'library'],
+			activityTypes: {
+				create: 'publication_added',
+				update: 'publication_updated',
+				delete: 'publication_deleted',
+			},
 		});
 	}
 

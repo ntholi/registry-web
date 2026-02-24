@@ -19,6 +19,11 @@ class TimetableAllocationService extends BaseService<
 			deleteRoles: ['academic'],
 			byIdRoles: ['dashboard'],
 			findAllRoles: ['dashboard'],
+			activityTypes: {
+				create: 'allocation_created',
+				update: 'allocation_updated',
+				delete: 'allocation_deleted',
+			},
 		});
 		this.repo = repository;
 	}

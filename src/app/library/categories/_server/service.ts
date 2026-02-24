@@ -11,6 +11,11 @@ class CategoryService extends BaseService<typeof categories, 'id'> {
 			createRoles: ['dashboard'],
 			updateRoles: ['dashboard'],
 			deleteRoles: ['dashboard'],
+			activityTypes: {
+				create: 'category_created',
+				update: 'category_updated',
+				delete: 'category_deleted',
+			},
 		});
 	}
 }

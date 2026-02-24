@@ -67,10 +67,6 @@ export const ACTIVITY_CATALOG = {
 		label: 'Graduation Clearance Decision',
 		department: 'registry',
 	},
-	certificate_generated: {
-		label: 'Certificate Generated',
-		department: 'registry',
-	},
 	certificate_reprint: { label: 'Certificate Reprint', department: 'registry' },
 	student_blocked: { label: 'Student Blocked', department: 'registry' },
 	student_unblocked: { label: 'Student Unblocked', department: 'registry' },

@@ -13,6 +13,11 @@ class QuestionPaperService extends BaseService<typeof questionPapers, 'id'> {
 			createRoles: ['admin', 'library'],
 			updateRoles: ['admin', 'library'],
 			deleteRoles: ['admin', 'library'],
+			activityTypes: {
+				create: 'question_paper_uploaded',
+				update: 'question_paper_updated',
+				delete: 'question_paper_deleted',
+			},
 		});
 	}
 

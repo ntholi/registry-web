@@ -15,6 +15,7 @@ class StatementOfResultsPrintsService {
 			async (session) =>
 				this.repository.create(data, {
 					userId: session!.user!.id!,
+					activityType: 'statement_of_results_print',
 				}),
 			['dashboard']
 		);

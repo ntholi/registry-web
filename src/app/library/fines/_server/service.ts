@@ -14,6 +14,10 @@ class FineService extends BaseService<typeof fines, 'id'> {
 			createRoles: ['dashboard'],
 			updateRoles: ['dashboard'],
 			deleteRoles: ['dashboard'],
+			activityTypes: {
+				create: 'fine_created',
+				update: 'fine_updated',
+			},
 		});
 	}
 

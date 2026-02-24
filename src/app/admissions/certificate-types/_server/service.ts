@@ -23,6 +23,11 @@ class CertificateTypeService extends BaseService<
 			createRoles: ['registry', 'marketing', 'admin'],
 			updateRoles: ['registry', 'marketing', 'admin'],
 			deleteRoles: ['registry', 'marketing', 'admin'],
+			activityTypes: {
+				create: 'certificate_type_created',
+				update: 'certificate_type_updated',
+				delete: 'certificate_type_deleted',
+			},
 		});
 		this.repo = repo;
 	}

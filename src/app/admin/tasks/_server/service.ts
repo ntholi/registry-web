@@ -100,7 +100,7 @@ class TaskService {
 				taskData,
 				assigneeIds,
 				studentIds,
-				{ userId: userId }
+				{ userId: userId, activityType: 'task_created' }
 			);
 		}, ALLOWED_ROLES);
 	}
@@ -145,7 +145,7 @@ class TaskService {
 				taskData,
 				assigneeIds,
 				studentIds,
-				{ userId: userId! }
+				{ userId: userId!, activityType: 'task_updated' }
 			);
 		}, ALLOWED_ROLES);
 	}
@@ -166,7 +166,10 @@ class TaskService {
 				throw new Error('Only the creator or admin can delete this task');
 			}
 
-			await this.repository.deleteTask(id, { userId: userId! });
+			await this.repository.deleteTask(id, {
+				userId: userId!,
+				activityType: 'task_updated',
+			});
 			return existingTask;
 		}, ALLOWED_ROLES);
 	}
@@ -196,7 +199,10 @@ class TaskService {
 				);
 			}
 
-			return this.repository.updateStatus(id, status, { userId: userId! });
+			return this.repository.updateStatus(id, status, {
+				userId: userId!,
+				activityType: 'task_updated',
+			});
 		}, ALLOWED_ROLES);
 	}
 

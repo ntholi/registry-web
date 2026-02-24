@@ -173,7 +173,7 @@ class StudentService {
 			async (session) =>
 				this.repository.updateStudentProgram(id, data, {
 					userId: requireSessionUserId(session),
-					activityType: 'program_change',
+					activityType: resolveStudentProgramActivityType(data.status),
 					metadata: reasons ? { reasons } : undefined,
 				}),
 			['registry', 'admin']
@@ -204,7 +204,7 @@ class StudentService {
 			async (session) =>
 				this.repository.updateStudentSemester(id, data, {
 					userId: requireSessionUserId(session),
-					activityType: 'semester_activated',
+					activityType: resolveStudentSemesterActivityType(data.status),
 					metadata: reasons ? { reasons } : undefined,
 				}),
 			['registry', 'admin']
@@ -220,11 +220,64 @@ class StudentService {
 			async (session) =>
 				this.repository.updateStudentModule(id, data, {
 					userId: requireSessionUserId(session),
-					activityType: 'module_update',
+					activityType: resolveStudentModuleActivityType(data.status),
 					metadata: reasons ? { reasons } : undefined,
 				}),
 			['registry', 'admin']
 		);
+	}
+}
+
+function resolveStudentProgramActivityType(status?: string): string {
+	switch (status) {
+		case 'Completed':
+			return 'program_completed';
+		case 'Active':
+			return 'program_activated';
+		case 'Changed':
+			return 'program_change';
+		case 'Deleted':
+			return 'program_deleted';
+		case 'Inactive':
+			return 'program_deactivated';
+		default:
+			return 'program_enrollment';
+	}
+}
+
+function resolveStudentSemesterActivityType(status?: string): string {
+	switch (status) {
+		case 'Active':
+			return 'semester_activated';
+		case 'Deferred':
+			return 'semester_deferred';
+		case 'DroppedOut':
+			return 'semester_dropout';
+		case 'Deleted':
+			return 'semester_deleted';
+		case 'Withdrawn':
+			return 'semester_withdrawal';
+		case 'Repeat':
+			return 'semester_repeat';
+		case 'Inactive':
+			return 'semester_deactivated';
+		default:
+			return 'semester_activated';
+	}
+}
+
+function resolveStudentModuleActivityType(status?: string): string {
+	switch (status) {
+		case 'Drop':
+			return 'module_dropped';
+		case 'Delete':
+			return 'module_deleted';
+		case 'Repeat1':
+		case 'Repeat2':
+		case 'Repeat3':
+			return 'module_repeated';
+		default:
+			return 'module_update';
 	}
 }
 

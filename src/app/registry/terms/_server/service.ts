@@ -8,6 +8,10 @@ class TermService extends BaseService<typeof terms, 'id'> {
 	constructor() {
 		super(new TermRepository(), {
 			findAllRoles: ['dashboard'],
+			activityTypes: {
+				create: 'term_created',
+				update: 'term_updated',
+			},
 		});
 	}
 

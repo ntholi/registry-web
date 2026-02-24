@@ -74,7 +74,10 @@ class GraduationRequestService {
 	async create(data: GraduationRequest) {
 		return withAuth(
 			async (session) =>
-				this.repository.create(data, { userId: session!.user!.id! }),
+				this.repository.create(data, {
+					userId: session!.user!.id!,
+					activityType: 'graduation_request_submitted',
+				}),
 			[]
 		);
 	}
@@ -90,7 +93,10 @@ class GraduationRequestService {
 						paymentReceipts,
 						stdNo,
 					},
-					{ userId: session!.user!.id! }
+					{
+						userId: session!.user!.id!,
+						activityType: 'graduation_request_submitted',
+					}
 				);
 			},
 			['student', 'registry', 'admin']
@@ -100,7 +106,10 @@ class GraduationRequestService {
 	async update(id: number, data: Partial<GraduationRequest>) {
 		return withAuth(
 			async (session) =>
-				this.repository.update(id, data, { userId: session!.user!.id! }),
+				this.repository.update(id, data, {
+					userId: session!.user!.id!,
+					activityType: 'graduation_request_updated',
+				}),
 			[]
 		);
 	}
@@ -108,7 +117,10 @@ class GraduationRequestService {
 	async delete(id: number) {
 		return withAuth(
 			async (session) =>
-				this.repository.delete(id, { userId: session!.user!.id! }),
+				this.repository.delete(id, {
+					userId: session!.user!.id!,
+					activityType: 'graduation_request_updated',
+				}),
 			[]
 		);
 	}

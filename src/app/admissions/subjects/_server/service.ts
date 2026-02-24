@@ -15,6 +15,11 @@ class SubjectService extends BaseService<typeof subjects, 'id'> {
 			createRoles: ['registry', 'marketing', 'admin'],
 			updateRoles: ['registry', 'marketing', 'admin'],
 			deleteRoles: ['registry', 'marketing', 'admin'],
+			activityTypes: {
+				create: 'subject_created',
+				update: 'subject_updated',
+				delete: 'subject_deleted',
+			},
 		});
 		this.repo = repo;
 	}

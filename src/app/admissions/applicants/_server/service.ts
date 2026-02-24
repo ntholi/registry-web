@@ -42,6 +42,10 @@ class ApplicantService extends BaseService<typeof applicants, 'id'> {
 			findAllRoles: ['registry', 'marketing', 'admin'],
 			createRoles: ['registry', 'marketing', 'admin'],
 			updateRoles: ['registry', 'marketing', 'admin'],
+			activityTypes: {
+				create: 'applicant_created',
+				update: 'applicant_updated',
+			},
 		});
 		this.repo = repo;
 	}

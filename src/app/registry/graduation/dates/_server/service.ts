@@ -8,6 +8,10 @@ class GraduationService extends BaseService<typeof graduationDates, 'id'> {
 	constructor() {
 		super(new GraduationRepository(), {
 			findAllRoles: ['dashboard'],
+			activityTypes: {
+				create: 'graduation_date_created',
+				update: 'graduation_date_updated',
+			},
 		});
 	}
 

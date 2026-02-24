@@ -24,6 +24,10 @@ class PaymentService extends BaseService<typeof bankDeposits, 'id'> {
 			createRoles: ['registry', 'marketing', 'admin', 'applicant'],
 			updateRoles: [...ROLES],
 			deleteRoles: ['admin'],
+			activityTypes: {
+				create: 'deposit_submitted',
+				update: 'deposit_verified',
+			},
 		});
 		this.repo = repo;
 	}

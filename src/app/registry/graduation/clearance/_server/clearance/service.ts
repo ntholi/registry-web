@@ -52,7 +52,10 @@ class GraduationClearanceService {
 				const current = await this.repository.findById(id);
 				if (!current) throw new Error('Clearance not found');
 
-				const audit = { userId: session!.user!.id! };
+				const audit = {
+					userId: session!.user!.id!,
+					activityType: 'graduation_clearance_decision' as const,
+				};
 
 				const shouldSetResponseTracking =
 					data.status &&
@@ -88,7 +91,10 @@ class GraduationClearanceService {
 						responseDate: new Date(),
 						respondedBy: session?.user?.id,
 					},
-					{ userId: session!.user!.id! }
+					{
+						userId: session!.user!.id!,
+						activityType: 'graduation_clearance_decision',
+					}
 				);
 			},
 			['dashboard']

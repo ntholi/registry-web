@@ -15,6 +15,10 @@ class FeedbackQuestionService extends BaseService<
 			createRoles: ['academic', 'admin'],
 			updateRoles: ['academic', 'admin'],
 			deleteRoles: ['academic', 'admin'],
+			activityTypes: {
+				create: 'feedback_question_created',
+				update: 'feedback_question_updated',
+			},
 		});
 	}
 

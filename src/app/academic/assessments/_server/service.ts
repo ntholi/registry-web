@@ -14,6 +14,11 @@ class AssessmentService extends BaseService<typeof assessments, 'id'> {
 			updateRoles: ['academic', 'leap'],
 			deleteRoles: ['academic', 'leap'],
 			countRoles: ['academic', 'leap'],
+			activityTypes: {
+				create: 'assessment_created',
+				update: 'assessment_updated',
+				delete: 'assessment_deleted',
+			},
 		});
 	}
 
@@ -25,6 +30,7 @@ class AssessmentService extends BaseService<typeof assessments, 'id'> {
 			async (session) =>
 				(this.repository as AssessmentRepository).createWithLms(data, lmsData, {
 					userId: session!.user!.id!,
+					activityType: 'assessment_created',
 				}),
 			['academic', 'leap']
 		);
@@ -66,7 +72,7 @@ class AssessmentService extends BaseService<typeof assessments, 'id'> {
 					id,
 					data,
 					lmsData,
-					{ userId: session!.user!.id! }
+					{ userId: session!.user!.id!, activityType: 'assessment_updated' }
 				),
 			['academic', 'leap']
 		);

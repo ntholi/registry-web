@@ -23,6 +23,10 @@ class DocumentReviewService extends BaseService<
 			findAllRoles: [...ROLES],
 			updateRoles: [...ROLES],
 			deleteRoles: [...ROLES],
+			activityTypes: {
+				create: 'applicant_document_uploaded',
+				update: 'applicant_document_reviewed',
+			},
 		});
 		this.repo = repo;
 	}

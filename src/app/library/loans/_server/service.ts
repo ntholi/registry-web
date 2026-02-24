@@ -14,6 +14,9 @@ class LoanService extends BaseService<typeof loans, 'id'> {
 			createRoles: ['dashboard'],
 			updateRoles: ['dashboard'],
 			deleteRoles: ['dashboard'],
+			activityTypes: {
+				delete: 'loan_deleted',
+			},
 		});
 	}
 
@@ -41,19 +44,21 @@ class LoanService extends BaseService<typeof loans, 'id'> {
 	) {
 		return this.repository.createLoan(
 			{ bookCopyId, stdNo, dueDate, issuedBy },
-			{ userId: issuedBy }
+			{ userId: issuedBy, activityType: 'book_loan_created' }
 		);
 	}
 
 	async returnBook(loanId: string, returnedTo: string) {
 		return this.repository.processReturn(loanId, returnedTo, {
 			userId: returnedTo,
+			activityType: 'book_returned',
 		});
 	}
 
 	async renewLoan(loanId: string, newDueDate: Date, renewedBy: string) {
 		return this.repository.renewLoan(loanId, newDueDate, renewedBy, {
 			userId: renewedBy,
+			activityType: 'book_loan_created',
 		});
 	}
 

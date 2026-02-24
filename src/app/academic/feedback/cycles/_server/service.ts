@@ -16,6 +16,10 @@ class FeedbackCycleService extends BaseService<typeof feedbackCycles, 'id'> {
 			createRoles: ['academic', 'admin'],
 			updateRoles: ['academic', 'admin'],
 			deleteRoles: ['academic', 'admin'],
+			activityTypes: {
+				create: 'feedback_cycle_created',
+				update: 'feedback_cycle_updated',
+			},
 		});
 		this.repo = repo;
 	}

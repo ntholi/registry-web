@@ -28,7 +28,7 @@ class NotificationService {
 			(session) =>
 				this.repository.create(
 					{ ...data, createdBy },
-					{ userId: session!.user!.id! }
+					{ userId: session!.user!.id!, activityType: 'notification_created' }
 				),
 			['admin']
 		);
@@ -37,7 +37,10 @@ class NotificationService {
 	async update(id: number, data: Partial<NotificationWithRecipients>) {
 		return withAuth(
 			(session) =>
-				this.repository.update(id, data, { userId: session!.user!.id! }),
+				this.repository.update(id, data, {
+					userId: session!.user!.id!,
+					activityType: 'notification_updated',
+				}),
 			['admin']
 		);
 	}
@@ -46,7 +49,10 @@ class NotificationService {
 		return withAuth(
 			async (session) => {
 				const notification = await this.repository.findById(id);
-				await this.repository.delete(id, { userId: session!.user!.id! });
+				await this.repository.delete(id, {
+					userId: session!.user!.id!,
+					activityType: 'notification_updated',
+				});
 				return notification;
 			},
 			['admin']

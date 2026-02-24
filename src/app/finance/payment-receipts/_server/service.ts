@@ -27,6 +27,10 @@ class PaymentReceiptService extends BaseService<typeof paymentReceipts, 'id'> {
 			updateRoles: ['student'],
 			deleteRoles: ['student'],
 			countRoles: ['student'],
+			activityTypes: {
+				create: 'payment_receipt_added',
+				delete: 'payment_receipt_removed',
+			},
 		});
 	}
 

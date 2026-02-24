@@ -13,6 +13,10 @@ class BookCopyService extends BaseService<typeof bookCopies, 'id'> {
 			createRoles: ['dashboard'],
 			updateRoles: ['dashboard'],
 			deleteRoles: ['dashboard'],
+			activityTypes: {
+				create: 'book_copy_added',
+				update: 'book_copy_updated',
+			},
 		});
 	}
 

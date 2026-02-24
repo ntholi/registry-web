@@ -20,6 +20,11 @@ class EntryRequirementService extends BaseService<
 			createRoles: ['registry', 'marketing', 'admin'],
 			updateRoles: ['registry', 'marketing', 'admin'],
 			deleteRoles: ['registry', 'marketing', 'admin'],
+			activityTypes: {
+				create: 'entry_requirement_created',
+				update: 'entry_requirement_updated',
+				delete: 'entry_requirement_deleted',
+			},
 		});
 		this.repo = repo;
 	}

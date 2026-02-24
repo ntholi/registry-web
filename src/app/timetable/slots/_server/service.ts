@@ -18,6 +18,11 @@ class TimetableSlotService extends BaseService<typeof timetableSlots, 'id'> {
 			deleteRoles: ['academic', 'registry'],
 			findAllRoles: ['dashboard'],
 			byIdRoles: ['dashboard'],
+			activityTypes: {
+				create: 'slot_created',
+				update: 'slot_updated',
+				delete: 'slot_deleted',
+			},
 		});
 		this.slotRepository = slotRepository;
 	}

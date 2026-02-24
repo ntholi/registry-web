@@ -39,6 +39,7 @@ class UserService {
 			const { schoolIds, ...userData } = data;
 			const user = await this.repository.create(userData, {
 				userId: session!.user!.id!,
+				activityType: 'user_created',
 			});
 
 			if (schoolIds && schoolIds.length > 0) {
@@ -54,6 +55,7 @@ class UserService {
 			const { schoolIds, ...userData } = data;
 			const user = await this.repository.update(id, userData, {
 				userId: session!.user!.id!,
+				activityType: 'user_updated',
 			});
 
 			if (schoolIds) {
@@ -82,7 +84,10 @@ class UserService {
 	async delete(id: string) {
 		return withAuth(async (session) => {
 			await db.delete(userSchools).where(eq(userSchools.userId, id));
-			return this.repository.delete(id, { userId: session!.user!.id! });
+			return this.repository.delete(id, {
+				userId: session!.user!.id!,
+				activityType: 'user_deleted',
+			});
 		}, []);
 	}
 

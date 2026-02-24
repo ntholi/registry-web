@@ -90,6 +90,7 @@ class RegistrationRequestService {
 				const userId = session?.user?.id ?? null;
 				return this.repository.softDelete(id, userId, {
 					userId: session!.user!.id!,
+					activityType: 'registration_cancelled',
 				});
 			},
 			['registry']
@@ -132,6 +133,7 @@ class RegistrationRequestService {
 			async (session) => {
 				return this.repository.createWithModules(data, {
 					userId: session!.user!.id!,
+					activityType: 'registration_submitted',
 				});
 			},
 			async (session) =>
@@ -167,7 +169,7 @@ class RegistrationRequestService {
 					semesterStatus,
 					termId,
 					receipts,
-					{ userId: session!.user!.id! }
+					{ userId: session!.user!.id!, activityType: 'registration_updated' }
 				);
 			},
 			['student', 'registry']

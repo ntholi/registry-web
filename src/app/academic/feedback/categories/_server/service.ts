@@ -15,6 +15,10 @@ class FeedbackCategoryService extends BaseService<
 			createRoles: ['academic', 'admin'],
 			updateRoles: ['academic', 'admin'],
 			deleteRoles: ['academic', 'admin'],
+			activityTypes: {
+				create: 'feedback_category_created',
+				update: 'feedback_category_updated',
+			},
 		});
 	}
 

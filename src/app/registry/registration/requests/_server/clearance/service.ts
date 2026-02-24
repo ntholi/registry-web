@@ -66,6 +66,10 @@ class ClearanceService {
 		return withAuth(
 			async (session) => {
 				if (!data.id) throw Error('Clearance id cannot be null/undefined');
+				const activityType =
+					data.status === 'rejected'
+						? 'clearance_rejected'
+						: 'clearance_approved';
 				return this.repository.update(
 					data.id,
 					{
@@ -73,7 +77,7 @@ class ClearanceService {
 						responseDate: new Date(),
 						respondedBy: session?.user?.id,
 					},
-					{ userId: session!.user!.id! }
+					{ userId: session!.user!.id!, activityType }
 				);
 			},
 			['dashboard']
@@ -86,7 +90,11 @@ class ClearanceService {
 				const current = await this.repository.findById(id);
 				if (!current) throw new Error('Clearance not found');
 
-				const audit = { userId: session!.user!.id! };
+				const activityType =
+					data.status === 'rejected'
+						? 'clearance_rejected'
+						: 'clearance_approved';
+				const audit = { userId: session!.user!.id!, activityType };
 
 				const shouldSetResponseTracking =
 					data.status &&

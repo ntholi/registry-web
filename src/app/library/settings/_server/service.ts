@@ -10,6 +10,9 @@ class LibrarySettingsService extends BaseService<typeof librarySettings, 'id'> {
 	constructor() {
 		super(new LibrarySettingsRepository(), {
 			updateRoles: ['admin', 'library'],
+			activityTypes: {
+				update: 'library_settings_updated',
+			},
 		});
 	}
 

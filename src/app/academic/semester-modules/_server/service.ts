@@ -13,6 +13,11 @@ class SemesterModuleService extends BaseService<typeof semesterModules, 'id'> {
 			findAllRoles: ['dashboard'],
 			createRoles: ['registry'],
 			updateRoles: ['registry'],
+			activityTypes: {
+				create: 'semester_module_created',
+				update: 'semester_module_updated',
+				delete: 'semester_module_deleted',
+			},
 		});
 	}
 

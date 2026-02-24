@@ -10,6 +10,10 @@ class ModuleService extends BaseService<typeof modules, 'id'> {
 			byIdRoles: ['dashboard'],
 			findAllRoles: ['dashboard'],
 			createRoles: ['registry'],
+			activityTypes: {
+				create: 'module_created',
+				update: 'module_updated',
+			},
 		});
 	}
 

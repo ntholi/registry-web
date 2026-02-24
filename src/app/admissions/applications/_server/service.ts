@@ -28,6 +28,10 @@ class ApplicationService extends BaseService<typeof applications, 'id'> {
 			createRoles: ['registry', 'marketing', 'admin'],
 			updateRoles: ['registry', 'marketing', 'admin'],
 			deleteRoles: ['admin'],
+			activityTypes: {
+				create: 'application_submitted',
+				update: 'application_updated',
+			},
 		});
 		this.repo = repo;
 	}
