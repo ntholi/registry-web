@@ -206,13 +206,11 @@ export default class TaskRepository extends BaseRepository<typeof tasks, 'id'> {
 		audit?: AuditOptions
 	): Promise<TaskSelect> {
 		return db.transaction(async (tx) => {
-			const existing = audit
-				? await tx
-						.select()
-						.from(tasks)
-						.where(eq(tasks.id, id))
-						.then((r) => r[0])
-				: undefined;
+			let existing: TaskSelect | undefined;
+			if (audit) {
+				const [row] = await tx.select().from(tasks).where(eq(tasks.id, id));
+				existing = row;
+			}
 
 			const [updated] = await tx
 				.update(tasks)
@@ -263,13 +261,11 @@ export default class TaskRepository extends BaseRepository<typeof tasks, 'id'> {
 
 	async deleteTask(id: number, audit?: AuditOptions): Promise<void> {
 		await db.transaction(async (tx) => {
-			const existing = audit
-				? await tx
-						.select()
-						.from(tasks)
-						.where(eq(tasks.id, id))
-						.then((r) => r[0])
-				: undefined;
+			let existing: TaskSelect | undefined;
+			if (audit) {
+				const [row] = await tx.select().from(tasks).where(eq(tasks.id, id));
+				existing = row;
+			}
 
 			await tx.delete(taskAssignees).where(eq(taskAssignees.taskId, id));
 			await tx.delete(taskStudents).where(eq(taskStudents.taskId, id));
@@ -303,13 +299,11 @@ export default class TaskRepository extends BaseRepository<typeof tasks, 'id'> {
 		}
 
 		return db.transaction(async (tx) => {
-			const existing = audit
-				? await tx
-						.select()
-						.from(tasks)
-						.where(eq(tasks.id, id))
-						.then((r) => r[0])
-				: undefined;
+			let existing: TaskSelect | undefined;
+			if (audit) {
+				const [row] = await tx.select().from(tasks).where(eq(tasks.id, id));
+				existing = row;
+			}
 
 			const [updated] = await tx
 				.update(tasks)

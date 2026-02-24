@@ -1,6 +1,6 @@
-import { studentCardPrints } from '@/core/database';
+import type { studentCardPrints } from '@/core/database';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
-import withAuth from '@/core/platform/withAuth';
+import withAuth, { requireSessionUserId } from '@/core/platform/withAuth';
 import StudentCardPrintRepository from './repository';
 
 type StudentCardPrint = typeof studentCardPrints.$inferInsert;
@@ -18,7 +18,8 @@ class StudentCardPrintService {
 		return withAuth(
 			async (session) =>
 				this.repository.create(data, {
-					userId: session!.user!.id!,
+					userId: requireSessionUserId(session),
+					activityType: 'student_card_print',
 				}),
 			['registry']
 		);
@@ -35,7 +36,8 @@ class StudentCardPrintService {
 		return withAuth(
 			async (session) =>
 				this.repository.createWithReceipt(data, {
-					userId: session!.user!.id!,
+					userId: requireSessionUserId(session),
+					activityType: 'student_card_print',
 				}),
 			['registry']
 		);

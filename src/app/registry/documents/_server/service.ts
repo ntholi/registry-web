@@ -1,5 +1,5 @@
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
-import withAuth from '@/core/platform/withAuth';
+import withAuth, { requireSessionUserId } from '@/core/platform/withAuth';
 import type { DocumentType } from '../_schema/documents';
 import DocumentRepository from './repository';
 
@@ -35,7 +35,8 @@ class DocumentService {
 		return withAuth(
 			async (session) =>
 				this.repository.createWithDocument(data, {
-					userId: session!.user!.id!,
+					userId: requireSessionUserId(session),
+					activityType: 'document_uploaded',
 				}),
 			['admin', 'registry', 'student_services']
 		);
@@ -45,7 +46,8 @@ class DocumentService {
 		return withAuth(
 			async (session) =>
 				this.repository.removeById(id, {
-					userId: session!.user!.id!,
+					userId: requireSessionUserId(session),
+					activityType: 'document_deleted',
 				}),
 			['admin', 'registry', 'student_services']
 		);

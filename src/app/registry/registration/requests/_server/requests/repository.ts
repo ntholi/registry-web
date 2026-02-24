@@ -1007,13 +1007,14 @@ export default class RegistrationRequestRepository extends BaseRepository<
 
 	async softDelete(id: number, deletedBy: string | null, audit?: AuditOptions) {
 		return db.transaction(async (tx) => {
-			const existing = audit
-				? await tx
-						.select()
-						.from(registrationRequests)
-						.where(eq(registrationRequests.id, id))
-						.then((r) => r[0])
-				: undefined;
+			let existing: typeof registrationRequests.$inferSelect | undefined;
+			if (audit) {
+				const [row] = await tx
+					.select()
+					.from(registrationRequests)
+					.where(eq(registrationRequests.id, id));
+				existing = row;
+			}
 
 			const [updated] = await tx
 				.update(registrationRequests)

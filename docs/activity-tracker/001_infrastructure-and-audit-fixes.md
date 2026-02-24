@@ -1,6 +1,6 @@
 # Step 1: Infrastructure & Audit Gap Fixes
 
-This step adds the `activity_type` column, updates the audit plumbing (BaseRepository + BaseService), and fixes **every** service that currently skips audit logging. This is the foundation — Phase 2 cannot work until every write operation produces an audit record.
+This step adds the `activity_type` column, updates the audit plumbing (BaseRepository + BaseService), and fixes **every** service that currently skips audit logging. This is the foundation — Phase 2 cannot work until every write operation produces an audit record. It includes `writeAuditLogForTable(...)` in `BaseRepository` for safe cross-table auditing from custom repository methods and `requireSessionUserId(...)` in `withAuth` to keep write-path auth extraction consistent.
 
 ---
 

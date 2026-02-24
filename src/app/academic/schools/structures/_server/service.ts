@@ -1,7 +1,7 @@
 import type { structureSemesters, structures } from '@/core/database';
 import BaseService from '@/core/platform/BaseService';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
-import withAuth from '@/core/platform/withAuth';
+import withAuth, { requireSessionUserId } from '@/core/platform/withAuth';
 import StructureRepository from './repository';
 
 class StructureService extends BaseService<typeof structures, 'id'> {
@@ -50,10 +50,10 @@ class StructureService extends BaseService<typeof structures, 'id'> {
 	async createStructureSemester(data: typeof structureSemesters.$inferInsert) {
 		return withAuth(
 			async (session) =>
-				(this.repository as StructureRepository).createStructureSemester(
-					data,
-					session?.user?.id ? { userId: session.user.id } : undefined
-				),
+				(this.repository as StructureRepository).createStructureSemester(data, {
+					userId: requireSessionUserId(session),
+					activityType: 'structure_semester_created',
+				}),
 			['registry', 'admin']
 		);
 	}

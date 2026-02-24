@@ -81,6 +81,7 @@ export const ACTIVITY_CATALOG = {
 		department: 'registry',
 	},
 	document_uploaded: { label: 'Document Uploaded', department: 'registry' },
+	document_deleted: { label: 'Document Deleted', department: 'registry' },
 	auto_approval_created: {
 		label: 'Auto Approval Created',
 		department: 'registry',

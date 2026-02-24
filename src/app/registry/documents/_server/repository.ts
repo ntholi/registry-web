@@ -1,11 +1,20 @@
 import { eq } from 'drizzle-orm';
 import { nanoid } from 'nanoid';
-import { auditLogs, db, documents, studentDocuments } from '@/core/database';
-import type { AuditOptions } from '@/core/platform/BaseRepository';
+import { db, documents, studentDocuments } from '@/core/database';
+import BaseRepository, {
+	type AuditOptions,
+} from '@/core/platform/BaseRepository';
 import type { DocumentType } from '../_schema/documents';
 
-export default class DocumentRepository {
+export default class DocumentRepository extends BaseRepository<
+	typeof studentDocuments,
+	'id'
+> {
 	protected readonly db = db;
+
+	constructor() {
+		super(studentDocuments, studentDocuments.id);
+	}
 
 	async findByStudent(stdNo: number) {
 		return this.db.query.studentDocuments.findMany({
@@ -52,15 +61,7 @@ export default class DocumentRepository {
 				.returning();
 
 			if (audit) {
-				await tx.insert(auditLogs).values({
-					tableName: 'student_documents',
-					recordId: sdId,
-					operation: 'INSERT',
-					oldValues: null,
-					newValues: studentDoc,
-					changedBy: audit.userId,
-					activityType: audit.activityType ?? null,
-				});
+				await this.writeAuditLog(tx, 'INSERT', sdId, null, studentDoc, audit);
 			}
 
 			return studentDoc;
@@ -80,15 +81,7 @@ export default class DocumentRepository {
 					.where(eq(documents.id, studentDoc.documentId));
 
 				if (audit) {
-					await tx.insert(auditLogs).values({
-						tableName: 'student_documents',
-						recordId: id,
-						operation: 'DELETE',
-						oldValues: studentDoc,
-						newValues: null,
-						changedBy: audit.userId,
-						activityType: audit.activityType ?? null,
-					});
+					await this.writeAuditLog(tx, 'DELETE', id, studentDoc, null, audit);
 				}
 			}
 

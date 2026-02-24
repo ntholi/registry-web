@@ -108,13 +108,14 @@ export default class NotificationRepository extends BaseRepository<
 		const { recipientUserIds, ...notificationData } = data;
 
 		return db.transaction(async (tx) => {
-			const existing = audit
-				? await tx
-						.select()
-						.from(notifications)
-						.where(eq(notifications.id, id))
-						.then((r) => r[0])
-				: undefined;
+			let existing: NotificationSelect | undefined;
+			if (audit) {
+				const [row] = await tx
+					.select()
+					.from(notifications)
+					.where(eq(notifications.id, id));
+				existing = row;
+			}
 
 			const [updated] = await tx
 				.update(notifications)

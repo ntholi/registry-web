@@ -1,5 +1,5 @@
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
-import withAuth from '@/core/platform/withAuth';
+import withAuth, { requireSessionUserId } from '@/core/platform/withAuth';
 import TermSettingsRepository from './repository';
 
 class TermSettingsService {
@@ -12,6 +12,7 @@ class TermSettingsService {
 	async updateResultsPublished(termId: number, published: boolean) {
 		return withAuth(
 			async (session) => {
+				const userId = requireSessionUserId(session);
 				if (
 					session?.user?.role !== 'admin' &&
 					!(
@@ -24,8 +25,8 @@ class TermSettingsService {
 				return this.repository.updateResultsPublished(
 					termId,
 					published,
-					session.user.id!,
-					{ userId: session.user.id! }
+					userId,
+					{ userId, activityType: 'term_settings_updated' }
 				);
 			},
 			['admin', 'registry']
@@ -35,6 +36,7 @@ class TermSettingsService {
 	async updateGradebookAccess(termId: number, access: boolean) {
 		return withAuth(
 			async (session) => {
+				const userId = requireSessionUserId(session);
 				if (
 					session?.user?.role !== 'admin' &&
 					!(
@@ -44,12 +46,10 @@ class TermSettingsService {
 				) {
 					throw new Error('Unauthorized');
 				}
-				return this.repository.updateGradebookAccess(
-					termId,
-					access,
-					session.user.id!,
-					{ userId: session.user.id! }
-				);
+				return this.repository.updateGradebookAccess(termId, access, userId, {
+					userId,
+					activityType: 'term_settings_updated',
+				});
 			},
 			['admin', 'registry']
 		);

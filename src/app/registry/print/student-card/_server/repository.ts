@@ -1,6 +1,8 @@
 import { desc, eq } from 'drizzle-orm';
 import { db, paymentReceipts, studentCardPrints, users } from '@/core/database';
-import BaseRepository, { type AuditOptions } from '@/core/platform/BaseRepository';
+import BaseRepository, {
+	type AuditOptions,
+} from '@/core/platform/BaseRepository';
 
 export default class StudentCardPrintRepository extends BaseRepository<
 	typeof studentCardPrints,

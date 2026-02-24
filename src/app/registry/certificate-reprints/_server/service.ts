@@ -1,5 +1,5 @@
 import type { certificateReprints } from '@registry/_database';
-import withAuth from '@/core/platform/withAuth';
+import withAuth, { requireSessionUserId } from '@/core/platform/withAuth';
 import CertificateReprintsRepository from './repository';
 
 type CertificateReprint = typeof certificateReprints.$inferInsert;
@@ -24,7 +24,11 @@ class CertificateReprintsService {
 
 	async create(data: CertificateReprint) {
 		return withAuth(
-			(session) => this.repository.create(data, { userId: session!.user!.id! }),
+			(session) =>
+				this.repository.create(data, {
+					userId: requireSessionUserId(session),
+					activityType: 'certificate_reprint',
+				}),
 			['registry', 'admin']
 		);
 	}
@@ -32,14 +36,21 @@ class CertificateReprintsService {
 	async update(id: number, data: Partial<CertificateReprint>) {
 		return withAuth(
 			(session) =>
-				this.repository.update(id, data, { userId: session!.user!.id! }),
+				this.repository.update(id, data, {
+					userId: requireSessionUserId(session),
+					activityType: 'certificate_reprint',
+				}),
 			['registry', 'admin']
 		);
 	}
 
 	async delete(id: number) {
 		return withAuth(
-			(session) => this.repository.delete(id, { userId: session!.user!.id! }),
+			(session) =>
+				this.repository.delete(id, {
+					userId: requireSessionUserId(session),
+					activityType: 'certificate_reprint',
+				}),
 			['registry', 'admin']
 		);
 	}

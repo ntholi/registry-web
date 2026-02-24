@@ -111,6 +111,14 @@ export default async function withAuth<T>(
 	}
 }
 
+export function requireSessionUserId(session?: Session | null): string {
+	const userId = session?.user?.id;
+	if (!userId) {
+		throw new Error('User not authenticated');
+	}
+	return userId;
+}
+
 function logAuthError(
 	message: string,
 	functionName: string,

@@ -163,8 +163,7 @@ class ActivityTrackerRepository {
 						image: users.image,
 					})
 					.from(users)
-					.where(eq(users.id, userId))
-					.then((r) => r[0]),
+					.where(eq(users.id, userId)),
 
 				db
 					.select({
@@ -198,10 +197,11 @@ class ActivityTrackerRepository {
 					.orderBy(sql`DATE(${auditLogs.changedAt})`),
 			]);
 
+		const [user] = userResult;
 		const stats = statsResult[0];
 
 		return {
-			user: userResult ?? { id: userId, name: null, email: null, image: null },
+			user: user ?? { id: userId, name: null, email: null, image: null },
 			totalOperations: stats?.totalOperations ?? 0,
 			operationsByType: {
 				inserts: stats?.inserts ?? 0,

@@ -7,7 +7,7 @@ import type {
 } from '@/core/database';
 import type { QueryOptions } from '@/core/platform/BaseRepository';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
-import withAuth from '@/core/platform/withAuth';
+import withAuth, { requireSessionUserId } from '@/core/platform/withAuth';
 import type { Program } from '@/shared/lib/utils/grades/type';
 import type { StudentFilter } from './actions';
 import StudentRepository from './repository';
@@ -60,7 +60,7 @@ class StudentService {
 	async findStudentByUserId(userId: string) {
 		return withAuth(async () => {
 			return await this.repository.findStudentByUserId(userId);
-		}, ['auth']);
+		}, ['dashboard']);
 	}
 
 	async findBySemesterModules(semesterModuleIds: number[]) {
@@ -109,7 +109,8 @@ class StudentService {
 		return withAuth(
 			async (session) =>
 				this.repository.create(data, {
-					userId: session!.user!.id!,
+					userId: requireSessionUserId(session),
+					activityType: 'student_creation',
 				}),
 			[]
 		);
@@ -119,7 +120,8 @@ class StudentService {
 		return withAuth(
 			async (session) =>
 				this.repository.update(stdNo, data, {
-					userId: session!.user!.id!,
+					userId: requireSessionUserId(session),
+					activityType: 'student_update',
 				}),
 			[]
 		);
@@ -154,7 +156,8 @@ class StudentService {
 		return withAuth(
 			async (session) =>
 				this.repository.updateStudentWithAudit(stdNo, data, {
-					userId: session!.user!.id!,
+					userId: requireSessionUserId(session),
+					activityType: 'student_update',
 					metadata: reasons ? { reasons } : undefined,
 				}),
 			['registry', 'admin']
@@ -169,7 +172,8 @@ class StudentService {
 		return withAuth(
 			async (session) =>
 				this.repository.updateStudentProgram(id, data, {
-					userId: session!.user!.id!,
+					userId: requireSessionUserId(session),
+					activityType: 'program_change',
 					metadata: reasons ? { reasons } : undefined,
 				}),
 			['registry', 'admin']
@@ -183,7 +187,8 @@ class StudentService {
 		return withAuth(
 			async (session) =>
 				this.repository.createStudentProgram(data, {
-					userId: session!.user!.id!,
+					userId: requireSessionUserId(session),
+					activityType: 'program_enrollment',
 					metadata: reasons ? { reasons } : undefined,
 				}),
 			['registry', 'admin']
@@ -198,7 +203,8 @@ class StudentService {
 		return withAuth(
 			async (session) =>
 				this.repository.updateStudentSemester(id, data, {
-					userId: session!.user!.id!,
+					userId: requireSessionUserId(session),
+					activityType: 'semester_activated',
 					metadata: reasons ? { reasons } : undefined,
 				}),
 			['registry', 'admin']
@@ -213,7 +219,8 @@ class StudentService {
 		return withAuth(
 			async (session) =>
 				this.repository.updateStudentModule(id, data, {
-					userId: session!.user!.id!,
+					userId: requireSessionUserId(session),
+					activityType: 'module_update',
 					metadata: reasons ? { reasons } : undefined,
 				}),
 			['registry', 'admin']

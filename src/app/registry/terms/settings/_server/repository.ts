@@ -9,7 +9,9 @@ import {
 	termSettings,
 	terms,
 } from '@/core/database';
-import BaseRepository, { type AuditOptions } from '@/core/platform/BaseRepository';
+import BaseRepository, {
+	type AuditOptions,
+} from '@/core/platform/BaseRepository';
 
 export type TermSettingsInsert = typeof termSettings.$inferInsert;
 export type TermSettingsSelect = typeof termSettings.$inferSelect;
@@ -35,11 +37,10 @@ export default class TermSettingsRepository extends BaseRepository<
 		audit?: AuditOptions
 	) {
 		return db.transaction(async (tx) => {
-			const existing = await tx
+			const [existing] = await tx
 				.select()
 				.from(termSettings)
-				.where(eq(termSettings.termId, termId))
-				.then((r) => r[0]);
+				.where(eq(termSettings.termId, termId));
 
 			const [updated] = await tx
 				.update(termSettings)
@@ -73,11 +74,10 @@ export default class TermSettingsRepository extends BaseRepository<
 		audit?: AuditOptions
 	) {
 		return db.transaction(async (tx) => {
-			const existing = await tx
+			const [existing] = await tx
 				.select()
 				.from(termSettings)
-				.where(eq(termSettings.termId, termId))
-				.then((r) => r[0]);
+				.where(eq(termSettings.termId, termId));
 
 			const [updated] = await tx
 				.update(termSettings)
