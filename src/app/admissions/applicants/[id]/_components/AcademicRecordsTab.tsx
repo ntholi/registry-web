@@ -44,6 +44,7 @@ type SectionProps = {
 type CardProps = {
 	record: AcademicRecordWithRelations;
 	prioritizeQualification: boolean;
+	defaultOpen?: boolean;
 	onOpenDocument: (doc: ApplicantDocument) => void;
 	onDelete: (id: string) => void;
 	isDeleting: boolean;
@@ -134,6 +135,11 @@ function LowerLqfRecordsSection({
 	onDelete,
 	isDeleting,
 }: SectionProps) {
+	const firstRecordWithGradesId = useMemo(
+		() => records.find((record) => record.subjectGrades.length > 0)?.id,
+		[records]
+	);
+
 	const consolidatedGroups = useMemo(() => {
 		const level4Records = records.filter(
 			(record) => record.certificateType.lqfLevel === 4
@@ -193,7 +199,7 @@ function LowerLqfRecordsSection({
 				<Stack gap='sm'>
 					{consolidatedGroups.map((group) => (
 						<Box key='consolidated-lqf4' px='md'>
-							<Accordion variant='separated'>
+							<Accordion variant='separated' defaultValue='consolidated-lqf4'>
 								<Accordion.Item value='consolidated-lqf4'>
 									<Accordion.Control>
 										<Group gap='md'>
@@ -252,6 +258,10 @@ function LowerLqfRecordsSection({
 					key={record.id}
 					record={record}
 					prioritizeQualification={false}
+					defaultOpen={
+						consolidatedGroups.length === 0 &&
+						record.id === firstRecordWithGradesId
+					}
 					onOpenDocument={onOpenDocument}
 					onDelete={onDelete}
 					isDeleting={isDeleting}
@@ -286,6 +296,7 @@ function HigherLqfRecordsSection({
 function AcademicRecordCard({
 	record,
 	prioritizeQualification,
+	defaultOpen = false,
 	onOpenDocument,
 	onDelete,
 	isDeleting,
@@ -296,7 +307,10 @@ function AcademicRecordCard({
 	return (
 		<Box px='md'>
 			{hasGrades ? (
-				<Accordion variant='separated'>
+				<Accordion
+					variant='separated'
+					defaultValue={defaultOpen ? record.id.toString() : undefined}
+				>
 					<Accordion.Item value={record.id.toString()}>
 						<Accordion.Control>
 							<Group justify='space-between' w='100%'>
