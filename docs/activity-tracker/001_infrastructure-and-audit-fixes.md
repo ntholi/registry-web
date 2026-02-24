@@ -10,6 +10,7 @@ In `src/core/database/schema/auditLogs.ts`, add a nullable `text` column `activi
 
 - `idx_audit_logs_activity_type` on `(activity_type)`
 - `idx_audit_logs_user_activity` on `(changedBy, activity_type, changedAt)` for efficient grouping queries
+- `idx_audit_logs_changed_at_user` on `(changedAt, changedBy)` with `WHERE activity_type IS NOT NULL` for date-window + user analytics queries
 
 ```typescript
 activityType: text('activity_type'),
@@ -23,6 +24,22 @@ index('idx_audit_logs_user_activity').on(table.changedBy, table.activityType, ta
 ```
 
 Run `pnpm db:generate` to create the migration.
+
+---
+
+## 1.1.1 Add canonical activity catalog scaffold (single source of truth)
+
+Create `src/app/admin/activity-tracker/_lib/activity-catalog.ts` and make it the only owner of activity identifiers.
+
+Catalog contents:
+
+1. `ACTIVITY_CATALOG` as `as const` object containing label + department + optional fallback mapping metadata
+2. `type ActivityType = keyof typeof ACTIVITY_CATALOG`
+3. `isActivityType(value: string): value is ActivityType`
+4. `getActivityLabel(activityType: string)` fallback helper
+5. Optional mapping helper for backfill generation (`tableName + operation + status -> activityType`)
+
+All service configs in later steps should import values from this catalog (or derived constants), not duplicate raw string literals.
 
 ---
 

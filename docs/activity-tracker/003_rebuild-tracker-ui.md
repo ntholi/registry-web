@@ -1,14 +1,21 @@
 # Step 3: Rebuild Activity Tracker UI
 
-This step replaces the existing activity tracker with a new business-activity-oriented UI. Delete all existing files in the activity tracker module and rebuild from scratch.
+This step replaces the existing activity tracker with a new business-activity-oriented UI. Migrate incrementally and keep compatibility while replacing components, instead of deleting everything at once.
 
 **Prerequisite**: Steps 1 and 2 must be complete — `activity_type` must be populated in `audit_logs`.
 
 ---
 
-## 3.1 Delete existing files
+## 3.1 Incremental migration strategy
 
-Delete the following files (they will all be rewritten):
+Do not mass-delete the module in one PR. Replace files in controlled slices with parity checks:
+
+1. Rewrite `_server/repository.ts`, `_server/service.ts`, `_server/actions.ts` first and keep existing UI wired temporarily
+2. Replace UI components one by one (overview, list, charts, detail blocks)
+3. Remove legacy components only after each replacement is verified in production-like data
+4. Keep route paths stable throughout
+
+Legacy files expected to be removed by the end:
 
 ```
 src/app/admin/activity-tracker/_lib/department-tables.ts     ← DELETE (department = user role now)
@@ -128,7 +135,7 @@ SELECT
   u.name,
   u.image,
   COUNT(*) as total_activities,
-  MODE() WITHIN GROUP (ORDER BY al.activity_type) as top_activity
+  -- top activity via pre-aggregated counts (prefer deterministic tie-break)
 FROM audit_logs al
 JOIN users u ON al.changed_by = u.id
 WHERE al.changed_at BETWEEN $start AND $end
@@ -139,6 +146,8 @@ GROUP BY u.id, u.name, u.image
 ORDER BY total_activities DESC
 LIMIT $limit OFFSET $offset
 ```
+
+Performance note: avoid expensive `MODE()` on large windows. Prefer a CTE that counts `(user_id, activity_type)`, ranks per user with `ROW_NUMBER()`, then joins the top-ranked activity.
 
 Returns: `{ items: EmployeeSummary[], totalPages: number, totalItems: number }`
 
@@ -456,3 +465,4 @@ After completing this step:
 6. Verify non-admin manager can only see their department's data
 7. Verify dark mode rendering for all components
 8. Verify time presets calculate correct date ranges
+9. Validate explain plans for main queries (`department summary`, `employee list`, `timeline`) on a realistic date window before release

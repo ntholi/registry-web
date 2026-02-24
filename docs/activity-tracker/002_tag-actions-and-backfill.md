@@ -6,12 +6,14 @@ This step creates the activity type registry, tags every service method with the
 
 ## 2.1 Create activity type registry
 
-Create `src/app/admin/activity-tracker/_lib/activity-types.ts` containing:
+Create `src/app/admin/activity-tracker/_lib/activity-types.ts` as a thin wrapper over `activity-catalog.ts` from Step 1.1.1 (do not duplicate definitions). It should re-export and derive:
 
 1. A const map of all `activityType` identifiers → display labels
 2. A `tableName + operation → activityType` mapping (for backfill and as a fallback)
 3. A helper function `getActivityLabel(activityType: string): string`
 4. A department grouping map (which activity types belong to which department/role)
+
+Implementation rule: activity identifiers must come from the shared `ActivityType` union. Avoid raw string literals in services and mappings.
 
 ```typescript
 export const ACTIVITY_LABELS: Record<string, string> = {
@@ -103,6 +105,11 @@ export function getActivityLabel(activityType: string): string {
   return ACTIVITY_LABELS[activityType] ?? activityType.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
 }
 ```
+
+Recommended hardening:
+
+- Export `ACTIVITY_KEYS` constants from the catalog and reference those constants in service configs
+- Add a CI-safe check script to fail on duplicate keys or labels and unknown department assignments
 
 ---
 
@@ -439,9 +446,9 @@ If these operations ARE needed in the future, add the service methods then and i
 
 ## 2.5 Backfill historical data
 
-Run `pnpm db:generate --custom` and write a SQL migration to backfill `activity_type` for existing rows.
+Run `pnpm db:generate --custom` and generate SQL from the shared activity catalog mapping (source-of-truth), then commit the generated CASE-based migration. Avoid maintaining a hand-written CASE as the long-term source.
 
-**Critical**: For status-dependent activity types, the CASE statement must inspect the JSONB `new_values` column, not just `table_name + operation`:
+**Critical**: For status-dependent activity types, generated rules must inspect `new_values` JSONB, not just `table_name + operation`:
 
 ```sql
 UPDATE audit_logs SET activity_type = CASE
@@ -645,6 +652,12 @@ UPDATE audit_logs SET activity_type = CASE
 END
 WHERE activity_type IS NULL;
 ```
+
+Backfill generation guardrails:
+
+1. Generator output must be deterministic (stable sort order)
+2. Include dry-run SQL preview in PR notes (`SELECT table_name, operation, count(*) ...`) before `UPDATE`
+3. Add post-backfill verification query for unknown/NULL activity types within known tracked tables
 
 ### Backfill limitations
 

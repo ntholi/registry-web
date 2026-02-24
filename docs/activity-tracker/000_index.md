@@ -18,6 +18,13 @@ Replace the raw CRUD tracking with a **business-activity-oriented tracking syste
 - Department = user's role
 - UI: Department summary + Employee ranking + Individual drill-down (stats + chart + heatmap + timeline)
 - Time presets: Today, 7 days, 30 days, This Month, Last Month, This Quarter, This Year, Custom
+- Single source of truth for activity definitions (`activity catalog`) used by labels, service tags, and backfill generation
+- Incremental UI migration (compatibility-first) instead of deleting the full module at once
+- Add coverage verification for activity mapping and tagged write paths before rollout
+
+## Maintainability Verdict
+
+The plan is directionally strong and aligned to the architecture, but in its original form it had high duplication risk (same activity keys repeated across many files), a high-risk big-bang UI rewrite, and a very large hand-written backfill CASE map. This index now reflects the hardened approach: centralize activity definitions, generate backfill SQL from the same source, and migrate UI incrementally.
 
 ## Steps
 
@@ -40,3 +47,4 @@ Replace the raw CRUD tracking with a **business-activity-oriented tracking syste
 4. Manually test: perform actions (register student, print transcript, approve clearance) → verify `activity_type` is written
 5. UI: verify department summary, employee list ranking, employee drill-down all display meaningful activity labels
 6. Verify non-admin manager can only see their department's data
+7. Run activity coverage verification: every tagged write path resolves to a catalog key; no orphan/unknown `activity_type` values are introduced
