@@ -6,7 +6,6 @@ import { parseAsString, useQueryStates } from 'nuqs';
 import { useMemo } from 'react';
 import DailyTrendsChart from './_components/DailyTrendsChart';
 import DateRangeFilter, { getPresetRange } from './_components/DateRangeFilter';
-import DepartmentOverview from './_components/DepartmentOverview';
 import EmployeeList from './_components/EmployeeList';
 import type { TimePreset } from './_lib/types';
 
@@ -90,8 +89,6 @@ export default function ActivityTrackerPage() {
 					onPresetChange={handlePresetChange}
 				/>
 			</Group>
-
-			<DepartmentOverview start={start} end={end} dept={dept} />
 			<DailyTrendsChart start={start} end={end} dept={dept} />
 			<EmployeeList start={start} end={end} dept={dept} />
 		</Stack>
