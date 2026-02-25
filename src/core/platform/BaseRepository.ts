@@ -1,10 +1,7 @@
 import { count, eq, or, type SQL, sql } from 'drizzle-orm';
 import type { PgColumn as Column, PgTable as Table } from 'drizzle-orm/pg-core';
 import { getTableConfig } from 'drizzle-orm/pg-core';
-import {
-	type ActivityType,
-	resolveTableActivity,
-} from '@/app/admin/activity-tracker/_lib/registry';
+import { resolveTableActivity } from '@/app/admin/activity-tracker/_lib/registry';
 import { db } from '@/core/database';
 import { auditLogs } from '@/core/database/schema/auditLogs';
 
@@ -18,7 +15,7 @@ export type TransactionClient = Parameters<
 export interface AuditOptions {
 	userId: string;
 	metadata?: Record<string, unknown>;
-	activityType?: ActivityType;
+	activityType?: string;
 	stdNo?: number;
 	role?: string;
 }

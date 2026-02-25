@@ -1,5 +1,5 @@
+import type { AdminActivityType } from '@admin/_lib/activities';
 import type { Session } from 'next-auth';
-import type { ActivityType } from '@/app/admin/activity-tracker/_lib/registry';
 import type { tasks, UserRole } from '@/core/database';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
 import withAuth from '@/core/platform/withAuth';
@@ -253,7 +253,7 @@ function resolveTaskUpdateIntent(
 	taskData: Partial<TaskInsert>,
 	assigneeIds?: string[],
 	studentIds?: number[]
-): ActivityType {
+): AdminActivityType {
 	if (assigneeIds !== undefined) {
 		const currentIds = existing.assignees.map((a) => a.user.id).sort();
 		const newIds = [...assigneeIds].sort();

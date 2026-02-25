@@ -1,4 +1,4 @@
-import type { ActivityType } from '@/app/admin/activity-tracker/_lib/registry';
+import type { AdminActivityType } from '@admin/_lib/activities';
 import type { UserPosition, UserRole } from '@/core/database';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
 import withAuth from '@/core/platform/withAuth';
@@ -115,7 +115,7 @@ const VISIBILITY_KEYS: (keyof NotificationWithRecipients)[] = [
 
 function resolveNotificationUpdateIntent(
 	data: Partial<NotificationWithRecipients>
-): ActivityType {
+): AdminActivityType {
 	if (data.recipientUserIds !== undefined)
 		return 'notification_recipients_changed';
 	if (VISIBILITY_KEYS.some((k) => k in data))
