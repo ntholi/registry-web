@@ -368,9 +368,8 @@ Follow the `BaseService` pattern. The service wraps the repository with role-bas
 import type { employees } from '@/core/database';
 import BaseService from '@/core/platform/BaseService';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
+import withAuth from '@/core/platform/withAuth';
 import EmployeeRepository from './repository';
-
-type Employee = typeof employees.$inferInsert;
 
 class EmployeeService extends BaseService<typeof employees, 'empNo'> {
   private repo: EmployeeRepository;
@@ -386,9 +385,16 @@ class EmployeeService extends BaseService<typeof employees, 'empNo'> {
     });
     this.repo = repository;
   }
+
+  override async get(empNo: string) {
+    return withAuth(
+      async () => this.repo.findByEmpNo(empNo),
+      ['human_resource', 'admin']
+    );
+  }
 }
 
-export const employeesService = serviceWrapper(new EmployeeService());
+export const employeesService = serviceWrapper(EmployeeService, 'EmployeeService');
 ```
 
 ### Employee Card Print Service
@@ -425,7 +431,8 @@ class EmployeeCardPrintService {
 }
 
 export const employeeCardPrintService = serviceWrapper(
-  new EmployeeCardPrintService()
+  EmployeeCardPrintService,
+  'EmployeeCardPrintService'
 );
 ```
 
@@ -459,6 +466,7 @@ export async function findAllEmployees(page: number = 1, search = '') {
     page,
     search,
     searchColumns: ['empNo', 'name'],
+    sort: [{ column: 'createdAt', order: 'desc' }],
   });
 }
 
@@ -532,7 +540,24 @@ export async function createEmployeeCardPrint(data: {
 
 ---
 
-## 1.8 — Barrel Exports
+## 1.8 — Types
+
+### Files to create
+
+| File | Purpose |
+|------|--------|
+| `src/app/human-resource/employees/_lib/types.ts` | Employee type definitions |
+
+```typescript
+import type { employees } from '@/core/database';
+
+export type Employee = typeof employees.$inferSelect;
+export type EmployeeInsert = typeof employees.$inferInsert;
+```
+
+---
+
+## 1.9 — Barrel Exports
 
 ### Files to create
 
@@ -555,7 +580,7 @@ export { getEmployeeCardPrints, createEmployeeCardPrint } from './_server/action
 
 ---
 
-## 1.9 — Module Configuration & Navigation
+## 1.10 — Module Configuration & Navigation
 
 ### Files to create
 
@@ -642,7 +667,7 @@ Add to `allConfigs` array in `getNavigation()`:
 
 ---
 
-## 1.10 — Layout
+## 1.11 — Layout
 
 ### Files to create
 
@@ -660,7 +685,7 @@ The layout mirrors the student layout: a `ListLayout` with search showing employ
 
 import { findAllEmployees } from '@human-resource/employees';
 import type { PropsWithChildren } from 'react';
-import { ListItem, ListLayout } from '@/shared/ui/adease';
+import { ListItem, ListLayout, NewLink } from '@/shared/ui/adease';
 
 export default function Layout({ children }: PropsWithChildren) {
   return (
@@ -668,6 +693,9 @@ export default function Layout({ children }: PropsWithChildren) {
       path='/human-resource/employees'
       queryKey={['employees']}
       getData={(page, search) => findAllEmployees(page, search)}
+      actionIcons={[
+        <NewLink key='new-link' href='/human-resource/employees/new' />,
+      ]}
       renderItem={(it) => (
         <ListItem id={it.empNo} label={it.name} description={it.empNo} />
       )}
@@ -724,6 +752,7 @@ export default function Page() {
 | `src/app/human-resource/employees/_server/repository.ts` | Employee repository |
 | `src/app/human-resource/employees/_server/service.ts` | Employee service |
 | `src/app/human-resource/employees/_server/actions.ts` | Employee server actions |
+| `src/app/human-resource/employees/_lib/types.ts` | Employee type definitions |
 | `src/app/human-resource/print/_server/repository.ts` | Print repository |
 | `src/app/human-resource/print/_server/service.ts` | Print service |
 | `src/app/human-resource/print/_server/actions.ts` | Print server actions |

@@ -395,7 +395,7 @@ export default function PhotoView({ employee }: Props) {
 }
 ```
 
-> Reuse `PhotoInputModal` and `PhotoPreviewModal` from `@registry/students/_components/info/` — or if they're generic enough, consider extracting them to `src/shared/ui/`.
+> **Mandatory Extraction**: Extract `PhotoInputModal` and `PhotoPreviewModal` from `@registry/students/_components/info/` to `src/shared/ui/PhotoInputModal.tsx` and `src/shared/ui/PhotoPreviewModal.tsx`. Both are already generic (no student-specific logic). Update student imports to use the shared versions.
 
 ---
 
@@ -673,9 +673,7 @@ Mirrors `PhotoSelection.tsx` from students, adapted for employee photos:
 - Uses the same camera capture and file upload patterns
 - Same crop/preview functionality
 
-> **Critical — No Duplication**: `PhotoSelection`, `PhotoInputModal`, `PhotoPreviewModal` components are very similar between students and employees. Evaluate whether they can be extracted to shared components:
-> - If the only difference is the storage path prefix, pass it as a prop
-> - `PhotoInputModal` and `PhotoPreviewModal` from student info/ may already be generic enough to import directly
+> **Mandatory Extraction**: `PhotoInputModal` and `PhotoPreviewModal` MUST be extracted to `src/shared/ui/` before implementing the employee card tab. Both are already generic with no student-specific logic. `PhotoSelection` remains feature-specific (different data sources/storage paths) but should import the shared modals. Update student components to import from `@/shared/ui/` after extraction.
 
 ---
 
@@ -704,7 +702,12 @@ Mirrors `PhotoSelection.tsx` from students, adapted for employee photos:
 | File | Change |
 |------|--------|
 | `src/shared/ui/InfoItem.tsx` (NEW) | Extract `InfoItem` from `StudentView.tsx` to shared |
+| `src/shared/ui/PhotoInputModal.tsx` (NEW) | Extract from `students/_components/info/PhotoInputModal.tsx` to shared |
+| `src/shared/ui/PhotoPreviewModal.tsx` (NEW) | Extract from `students/_components/info/PhotoPreviewModal.tsx` to shared |
 | `src/app/registry/students/_components/info/StudentView.tsx` | Refactor to import shared `InfoItem` |
+| `src/app/registry/students/_components/info/PhotoView.tsx` | Refactor to import from `@/shared/ui/` |
+| `src/app/registry/students/_components/card/PhotoSelection.tsx` | Refactor to import from `@/shared/ui/` |
+| `src/app/registry/students/index.ts` | Update re-exports to point to shared locations |
 
 ---
 
@@ -721,7 +724,10 @@ Mirrors `PhotoSelection.tsx` from students, adapted for employee photos:
 - [ ] Print button opens receipt modal and creates print record
 - [ ] Print history shows all previous prints
 - [ ] Photo upload works with R2 storage at `photos/employees/`
-- [ ] `InfoItem` extracted to shared and reused in both student and employee views
+- [ ] `InfoItem` extracted to `src/shared/ui/InfoItem.tsx` and reused in both student and employee views
+- [ ] `PhotoInputModal` extracted to `src/shared/ui/PhotoInputModal.tsx`
+- [ ] `PhotoPreviewModal` extracted to `src/shared/ui/PhotoPreviewModal.tsx`
+- [ ] Student components updated to import from shared locations
 - [ ] No code duplication between student and employee components
 - [ ] Run `pnpm tsc --noEmit && pnpm lint:fix` — clean
 
@@ -780,26 +786,44 @@ src/app/human-resource/
 
 ## Cross-Cutting Concerns
 
-### Shared Component Extraction Candidates
+### Shared Component Extractions (Mandatory)
 
-During implementation, evaluate and extract these if student/employee versions are near-identical:
+These components MUST be extracted to `src/shared/ui/` before implementing Part 2:
 
 | Component | Student Location | Shared Path | Parameterization |
-|-----------|-----------------|-------------|-----------------|
+|-----------|-----------------|-------------|------------------|
 | `InfoItem` | `students/_components/info/StudentView.tsx` (private) | `src/shared/ui/InfoItem.tsx` | None needed — already generic |
-| `PhotoInputModal` | `students/_components/info/PhotoInputModal.tsx` | Keep in students, import from there OR extract | Storage path via prop |
-| `PhotoPreviewModal` | `students/_components/info/PhotoPreviewModal.tsx` | Keep in students, import from there OR extract | None — already generic |
-| `PrintHistoryView` | `students/_components/card/PrintHistoryView.tsx` | Extract if identical structure | Query key, fetch function via props |
+| `PhotoInputModal` | `students/_components/info/PhotoInputModal.tsx` | `src/shared/ui/PhotoInputModal.tsx` | None needed — already generic |
+| `PhotoPreviewModal` | `students/_components/info/PhotoPreviewModal.tsx` | `src/shared/ui/PhotoPreviewModal.tsx` | None needed — already generic |
+
+These remain feature-specific (different data sources):
+
+| Component | Notes |
+|-----------|-------|
+| `PhotoSelection` | Employee-specific (different storage path, data source) |
+| `PrintHistoryView` | Employee-specific (different query key, fetch function) |
 
 ### Status Color Mapping
 
-Add employee statuses to `src/shared/lib/utils/colors.ts`:
+Add employee statuses to `src/shared/lib/utils/colors.ts`.
 
+**Add to `statusColors.enrollment`:**
 ```typescript
-// Add these mappings to getStatusColor()
-'Resigned': 'orange',
-'Retired': 'gray',
-'On Leave': 'yellow',
+resigned: semantic.caution,
+retired: semantic.neutral,
+onleave: semantic.warning,
 ```
 
-The existing mappings already cover: Active (green), Suspended (orange), Terminated (red), Deceased (gray).
+**Add employee status type to `AllStatusType` union:**
+```typescript
+import type { employeeStatus } from '@human-resource/_database';
+type EmployeeStatus = (typeof employeeStatus.enumValues)[number];
+
+export type AllStatusType =
+  | keyof typeof allStatuses
+  | StudentStatus
+  | EmployeeStatus  // ← ADD
+  | ...
+```
+
+The existing mappings already cover: Active → `activity.active`, Suspended → `enrollment.suspended`, Terminated → `enrollment.terminated`, Deceased → `enrollment.deceased`.
