@@ -154,6 +154,7 @@ You are a **Senior Principal Software Engineer** and **System Architect** specia
 - **Dark Mode**: Optimize all components for dark mode transparency and contrast.
 - **Modals**: Must be self-contained (include their own trigger button).
 - **Mantine Dates**: Use string values; Calendars must start on Sunday.
+- **Mantine Charts**: ALWAYS research and read documentation at https://mantine.dev/charts/* before generating any chart code.
 
 ### Centralized Utilities (Extensibility)
 *Never hardcode values. Use and extend these centralized files:*
