@@ -24,7 +24,7 @@ export async function countPendingClearances() {
 }
 
 export async function clearanceByStatus(
-	status: 'pending' | 'approved' | 'rejected',
+	status?: 'pending' | 'approved' | 'rejected',
 	page: number = 1,
 	search = '',
 	filter?: ClearanceFilter

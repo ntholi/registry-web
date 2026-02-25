@@ -13,11 +13,11 @@ import { ListItem, ListLayout } from '@/shared/ui/adease';
 import { selectedGraduationDateAtom } from '@/shared/ui/atoms/graduationAtoms';
 import GraduationDateFilter from '@/shared/ui/GraduationDateFilter';
 
-type Status = 'pending' | 'approved' | 'rejected';
+type Status = 'pending' | 'approved' | 'rejected' | 'all';
 
 type GraduationClearanceItem = {
 	id: number;
-	status: Status;
+	status: 'pending' | 'approved' | 'rejected';
 	graduationRequest: {
 		studentProgram: {
 			stdNo: number;
@@ -72,7 +72,7 @@ export default function Layout({ children }: PropsWithChildren) {
 			getData={async (page, search) => {
 				const dateToUse = selectedDate || latestDate?.id;
 				const response = await graduationClearanceByStatus(
-					statusFilter,
+					statusFilter === 'all' ? undefined : statusFilter,
 					page,
 					search,
 					dateToUse || undefined
@@ -106,7 +106,7 @@ export default function Layout({ children }: PropsWithChildren) {
 	);
 }
 
-function getStatusIcon(status: Status) {
+function getStatusIcon(status: 'pending' | 'approved' | 'rejected') {
 	const color = getStatusColor(status);
 	switch (status) {
 		case 'pending':

@@ -15,7 +15,7 @@ export async function countPendingGraduationClearances() {
 }
 
 export async function graduationClearanceByStatus(
-	status: 'pending' | 'approved' | 'rejected',
+	status?: 'pending' | 'approved' | 'rejected',
 	page: number = 1,
 	search = '',
 	graduationDateId?: number

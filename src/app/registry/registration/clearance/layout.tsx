@@ -17,11 +17,11 @@ import {
 } from '@/shared/ui/atoms/clearanceFilterAtoms';
 import RegistrationClearanceFilter from '@/shared/ui/RegistrationClearanceFilter';
 
-type Status = 'pending' | 'approved' | 'rejected';
+type Status = 'pending' | 'approved' | 'rejected' | 'all';
 
 type ClearanceItem = {
 	id: number;
-	status: Status;
+	status: 'pending' | 'approved' | 'rejected';
 	registrationRequest: {
 		student: {
 			stdNo: number;
@@ -70,7 +70,7 @@ export default function Layout({ children }: PropsWithChildren) {
 			queryKey={['clearances', statusFilter, getFilterKey(filter)]}
 			getData={async (page, search) => {
 				const response = await clearanceByStatus(
-					statusFilter,
+					statusFilter === 'all' ? undefined : statusFilter,
 					page,
 					search,
 					apiFilter
@@ -102,7 +102,7 @@ export default function Layout({ children }: PropsWithChildren) {
 	);
 }
 
-function getStatusIcon(status: Status) {
+function getStatusIcon(status: 'pending' | 'approved' | 'rejected') {
 	const color = getStatusColor(status);
 	switch (status) {
 		case 'pending':
