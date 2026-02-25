@@ -136,7 +136,7 @@ export class DemographicsRepository {
 			.where(whereClause)
 			.groupBy(academicRecords.institutionName)
 			.orderBy(desc(count()))
-			.limit(50);
+			.limit(100);
 
 		return rows;
 	}
