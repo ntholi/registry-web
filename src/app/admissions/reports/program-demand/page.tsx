@@ -58,7 +58,9 @@ export default function ProgramDemandPage() {
 				<Text c='dimmed' size='sm'>
 					Most popular programs, first vs second choice comparison
 				</Text>
-				<AdmissionReportFilterComponent onFilterChange={setFilter} />
+				<AdmissionReportFilterComponent
+					onFilterChange={setFilter}
+				/>
 				<Tabs defaultValue='ranking'>
 					<Tabs.List>
 						<Tabs.Tab

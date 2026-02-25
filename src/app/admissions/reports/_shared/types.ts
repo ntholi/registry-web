@@ -7,4 +7,5 @@ export interface AdmissionReportFilter {
 	programId?: number;
 	programLevels?: ProgramLevel[];
 	applicationStatuses?: ApplicationStatus[];
+	scoreRange?: [number, number];
 }

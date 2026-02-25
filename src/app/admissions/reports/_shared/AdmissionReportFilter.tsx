@@ -15,8 +15,10 @@ import {
 	Modal,
 	MultiSelect,
 	Paper,
+	RangeSlider,
 	Select,
 	Stack,
+	Text,
 	Tooltip,
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
@@ -28,14 +30,34 @@ import {
 	parseAsString,
 	useQueryStates,
 } from 'nuqs';
+import { useState } from 'react';
 import type { AdmissionReportFilter as AdmissionReportFilterType } from './types';
+
+const SCORE_MIN = 0;
+const SCORE_MAX = 7;
+const SCORE_MARKS = [
+	{ value: 0, label: '0' },
+	{ value: 1, label: '1' },
+	{ value: 2, label: '2' },
+	{ value: 3, label: '3' },
+	{ value: 4, label: '4' },
+	{ value: 5, label: '5' },
+	{ value: 6, label: '6' },
+	{ value: 7, label: '7' },
+];
 
 interface Props {
 	onFilterChange: (filter: AdmissionReportFilterType) => void;
 }
 
-export default function AdmissionReportFilter({ onFilterChange }: Props) {
+export default function AdmissionReportFilter({
+	onFilterChange,
+}: Props) {
 	const [opened, { open, close }] = useDisclosure(false);
+	const [scoreRange, setScoreRange] = useState<[number, number]>([
+		SCORE_MIN,
+		SCORE_MAX,
+	]);
 	const [filter, setFilter] = useQueryStates(
 		{
 			intakePeriodId: parseAsString,
@@ -63,11 +85,16 @@ export default function AdmissionReportFilter({ onFilterChange }: Props) {
 		enabled: (filter.schoolIds ?? []).length > 0,
 	});
 
+	const isScoreFiltered =
+		scoreRange[0] !== SCORE_MIN || scoreRange[1] !== SCORE_MAX;
+
 	const modalFilterCount =
 		(filter.programLevels?.length ?? 0) +
-		(filter.applicationStatuses?.length ?? 0);
+		(filter.applicationStatuses?.length ?? 0) +
+		(isScoreFiltered ? 1 : 0);
 
 	function handleApply() {
+		const scoreRangeValue = isScoreFiltered ? scoreRange : undefined;
 		onFilterChange({
 			intakePeriodId: filter.intakePeriodId ?? undefined,
 			schoolIds: filter.schoolIds ?? undefined,
@@ -78,6 +105,7 @@ export default function AdmissionReportFilter({ onFilterChange }: Props) {
 			applicationStatuses:
 				(filter.applicationStatuses as AdmissionReportFilterType['applicationStatuses']) ??
 				undefined,
+			scoreRange: scoreRangeValue,
 		});
 		close();
 	}
@@ -177,6 +205,23 @@ export default function AdmissionReportFilter({ onFilterChange }: Props) {
 						value={filter.applicationStatuses ?? []}
 						onChange={(vals) => setFilter({ applicationStatuses: vals })}
 					/>
+						<Stack gap='xs'>
+							<Text size='sm' fw={500}>
+								Overall Score: {scoreRange[0].toFixed(1)} –{' '}
+								{scoreRange[1].toFixed(1)}
+							</Text>
+							<RangeSlider
+								value={scoreRange}
+								onChange={setScoreRange}
+								min={SCORE_MIN}
+								max={SCORE_MAX}
+								step={0.25}
+								minRange={0.25}
+								marks={SCORE_MARKS}
+								label={(val) => val.toFixed(1)}
+								pb='lg'
+							/>
+						</Stack>
 					<Button
 						leftSection={<IconFilter size={16} />}
 						onClick={handleApply}
