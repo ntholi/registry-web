@@ -2,7 +2,7 @@
 
 ## Problem
 
-The activity catalog (`activity-catalog.ts`, ~330 lines) and its companion `activity-types.ts` (~175 lines) are monolithic God files living inside `src/app/admin/activity-tracker/_lib/`. Every module's activity definitions — registry, academic, finance, library, admissions, timetable, admin — are packed into a single centralized location.
+The activity catalog (`activity-catalog.ts`, ~409 lines) and its companion `activity-types.ts` (~193 lines) are monolithic God files living inside `src/app/admin/activity-tracker/_lib/`. Every module's activity definitions — registry, academic, finance, library, admissions, timetable, admin — are packed into a single centralized location.
 
 ### Pain Points
 
@@ -10,15 +10,16 @@ The activity catalog (`activity-catalog.ts`, ~330 lines) and its companion `acti
 2. **Scalability bottleneck**: Adding a new feature to *any* module requires editing files in `admin/activity-tracker/_lib/`. As the system grows, the catalog becomes unmanageable.
 3. **No type safety at point of use**: Services hardcode activity type strings (`'venue_created'`, `'book_added'`) without importing from the catalog. There is zero compile-time guarantee that a string literal matches a catalog key.
 4. **Merge conflicts**: Multiple developers working on different modules will frequently collide on the same two files.
-5. **`TABLE_OPERATION_MAP` is similarly centralized**: 130+ table-operation mappings for all modules live in one file.
+5. **`TABLE_OPERATION_MAP` is similarly centralized**: 147 table-operation mappings for all modules live in one file.
 6. **`DEPARTMENT_ACTIVITIES` is derived at runtime**: grouping by department is computed dynamically from the monolith instead of being declared by each module.
 
 ### Current Consumer Map
 
 | Consumer | What It Uses | Location |
 |----------|-------------|----------|
-| `BaseService` | `activityTypes: { create, update, delete }` plain strings | `src/core/platform/BaseService.ts` |
-| All module services | Hardcoded string literals (e.g., `'book_added'`) | `*/_server/service.ts` across all modules |
+| `BaseRepository` | `ActivityType` (type), `resolveTableActivity` (function) | `src/core/platform/BaseRepository.ts` |
+| `BaseService` | `ActivityType` (type) for `activityTypes: { create, update, delete }` config | `src/core/platform/BaseService.ts` |
+| All module services | `ActivityType` (type) + string literals (e.g., `'book_added'`) | `*/_server/service.ts` across all modules (~53 services) |
 | Activity Tracker UI | `getActivityLabel`, `ACTIVITY_CATALOG`, `DEPARTMENT_ACTIVITIES`, `ACTIVITY_LABELS` | `src/app/admin/activity-tracker/_components/` |
 | Activity Tracker Repository | `getActivityLabel` | `src/app/admin/activity-tracker/_server/repository.ts` |
 | Student History UI | `getActivityLabel` | `src/app/registry/students/_components/history/StudentHistoryView.tsx` |
@@ -64,4 +65,6 @@ Decentralize activity definitions into each owning module via a **fragment regis
 5. Activity Tracker UI renders identically (labels, department grouping, charts unchanged)
 6. Student History UI `getActivityLabel` works unchanged
 7. `BaseService.activityTypes` config in all services uses module-local constants
-8. Adding a new activity to any module only requires editing files within that module (+ the assembler import)
+8. `BaseRepository.ts` and `BaseService.ts` imports updated from monolith to shared utils
+9. Adding a new activity to any module only requires editing files within that module (+ the assembler import)
+10. Total activity count matches: registry (50) + academic (30) + finance (8) + library (29) + marketing (27) + admin (16) + resource (12) = 172 entries

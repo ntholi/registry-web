@@ -77,9 +77,9 @@ After this step + Step 5:
 
 | Before | After |
 |--------|-------|
-| `activity-catalog.ts`: ~330 lines | `registry.ts`: ~40 lines (imports + merge + exports) |
-| `activity-types.ts`: ~175 lines | Each module `activities.ts`: 20–80 lines depending on module size |
-| **Total: ~505 lines in 2 files** | **Total: ~350 lines across 9 files (7 fragments + 1 assembler + 1 shared contract)** |
+| `activity-catalog.ts`: ~409 lines | `registry.ts`: ~40 lines (imports + merge + exports) |
+| `activity-types.ts`: ~193 lines | Each module `activities.ts`: 20–100 lines depending on module size |
+| **Total: ~602 lines in 2 files** | **Total: ~450 lines across 9 files (7 fragments + 1 assembler + 1 shared contract)** |
 
 Line count drops slightly, but more importantly the ownership is distributed. Adding a new library activity only touches `src/app/library/_lib/activities.ts` and optionally the assembler import (if it's a new module).
 
@@ -87,6 +87,9 @@ Line count drops slightly, but more importantly the ownership is distributed. Ad
 
 | Current Import | New Import |
 |---------------|-----------|
-| `from '@admin/activity-tracker/_lib/activity-catalog'` | `from '@admin/activity-tracker/_lib/registry'` (tracker-internal) |
+| `from '@admin/activity-tracker/_lib/activity-catalog'` (tracker-internal) | `from '@admin/activity-tracker/_lib/registry'` |
 | `from '@admin/activity-tracker/_lib/activity-catalog'` (external, e.g., student history) | `from '@/shared/lib/utils/activities'` |
 | `from '@admin/activity-tracker/_lib/activity-types'` | `from '@admin/activity-tracker/_lib/registry'` |
+| `type { ActivityType } from '@/app/admin/activity-tracker/_lib/activity-catalog'` (BaseRepository, BaseService) | `from '@/shared/lib/utils/activities'` (or use `string`) |
+| `{ resolveTableActivity } from '@/app/admin/activity-tracker/_lib/activity-types'` (BaseRepository) | `from '@/shared/lib/utils/activities'` |
+| `type { ActivityType } from '@/app/admin/activity-tracker/_lib/activity-catalog'` (module services) | From own module's `_lib/activities` (e.g., `@registry/_lib/activities`) |

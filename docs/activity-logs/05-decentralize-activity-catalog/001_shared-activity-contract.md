@@ -25,11 +25,11 @@ interface ActivityEntry {
 
 interface ActivityFragment<T extends Record<string, ActivityEntry> = Record<string, ActivityEntry>> {
   catalog: T;
-  tableOperationMap?: Record<string, keyof T & string>;
+  tableOperationMap?: Record<string, string>;
 }
 ```
 
-Each module will export a const-typed `ActivityFragment`. The generic parameter `T` preserves the exact keys so the module gets a narrow type for its own activity keys.
+Each module will export a const-typed `ActivityFragment`. The generic parameter `T` preserves the exact keys so the module gets a narrow type for its own activity keys. The `tableOperationMap` uses `string` values (not `keyof T`) to support cross-module mappings where a table operation in one module maps to an activity key owned by another module (e.g., academic's `modules:DELETE` → registry's `module_deleted`).
 
 ### 1.2 — Assembly Utilities
 

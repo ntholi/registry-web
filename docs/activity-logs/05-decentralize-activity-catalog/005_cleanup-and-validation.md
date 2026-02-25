@@ -21,11 +21,23 @@ Remove the old monolithic files, update all remaining imports, and verify the sy
 | `_components/DailyTrendsChart.tsx` | `from '../_lib/activity-catalog'` | `from '../_lib/registry'` |
 | `_components/EmployeeList.tsx` | `from '../_lib/activity-catalog'` | `from '../_lib/registry'` |
 
+### Core Platform Imports (`src/core/platform/`)
+
+| File | Old Import | New Import |
+|------|-----------|------------|
+| `BaseRepository.ts` | `type { ActivityType } from '@/app/admin/activity-tracker/_lib/activity-catalog'` | `type { ActivityType } from '@/shared/lib/utils/activities'` (or use `string`) |
+| `BaseRepository.ts` | `{ resolveTableActivity } from '@/app/admin/activity-tracker/_lib/activity-types'` | `{ resolveTableActivity } from '@/shared/lib/utils/activities'` |
+| `BaseService.ts` | `type { ActivityType } from '@/app/admin/activity-tracker/_lib/activity-catalog'` | `type { ActivityType } from '@/shared/lib/utils/activities'` (or use `string`) |
+
 ### External Imports (outside `admin/activity-tracker/`)
 
 | File | Old Import | New Import |
-|------|-----------|-----------|
+|------|-----------|------------|
 | `registry/students/_components/history/StudentHistoryView.tsx` | `from '@admin/activity-tracker/_lib/activity-catalog'` | `from '@/shared/lib/utils/activities'` |
+| `registry/students/_server/service.ts` | `type { ActivityType } from '@/app/admin/activity-tracker/_lib/activity-catalog'` | `type { RegistryActivityType } from '@registry/_lib/activities'` |
+| `registry/registration/requests/_server/clearance/service.ts` | `type { ActivityType } from '@/app/admin/activity-tracker/_lib/activity-catalog'` | `type { RegistryActivityType } from '@registry/_lib/activities'` |
+| `admin/tasks/_server/service.ts` | `type { ActivityType } from '@/app/admin/activity-tracker/_lib/activity-catalog'` | `type { AdminActivityType } from '@admin/_lib/activities'` |
+| `admin/notifications/_server/service.ts` | `type { ActivityType } from '@/app/admin/activity-tracker/_lib/activity-catalog'` | `type { AdminActivityType } from '@admin/_lib/activities'` |
 
 ### Import What?
 
@@ -96,6 +108,7 @@ When a new module (e.g., `hostel/`) needs activities:
 |--------|-------|-------|
 | **Created** | 9 | 7 module fragments + 1 assembler + 1 shared contract |
 | **Deleted** | 2 | `activity-catalog.ts` + `activity-types.ts` |
-| **Modified (imports)** | 4 | 3 tracker components/server + 1 student history |
-| **Modified (services)** | ~30 | All services using `activityType` strings (type-safety upgrade) |
+| **Modified (core)** | 2 | `BaseRepository.ts` + `BaseService.ts` (import path changes) |
+| **Modified (imports)** | 8 | 3 tracker components/server + 1 student history + 4 services importing `ActivityType` directly |
+| **Modified (services)** | ~53 | All services using `activityType` strings (type-safety upgrade) |
 | **Net new files** | +7 | Better distributed across the codebase |
