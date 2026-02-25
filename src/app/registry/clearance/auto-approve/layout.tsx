@@ -17,15 +17,12 @@ type RuleItem = {
 export default function Layout({ children }: PropsWithChildren) {
 	return (
 		<ListLayout<RuleItem>
-			path='/registry/registration/clearance/auto-approve'
+			path='/registry/clearance/auto-approve'
 			queryKey={['auto-approvals']}
 			getData={findAllAutoApprovals}
 			actionIcons={[
 				<BulkImportModal key='bulk' />,
-				<NewLink
-					key='new'
-					href='/registry/registration/clearance/auto-approve/new'
-				/>,
+				<NewLink key='new' href='/registry/clearance/auto-approve/new' />,
 			]}
 			renderItem={(item) => (
 				<ListItem

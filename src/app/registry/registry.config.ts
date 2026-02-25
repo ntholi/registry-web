@@ -90,7 +90,7 @@ export const registryConfig: ModuleConfig = {
 			},
 			{
 				label: 'Auto-Approvals',
-				href: '/registry/registration/clearance/auto-approve',
+				href: '/registry/clearance/auto-approve',
 				icon: IconRobot,
 				roles: ['finance', 'library', 'resource', 'admin'],
 			},
