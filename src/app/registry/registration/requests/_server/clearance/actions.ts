@@ -32,8 +32,9 @@ export async function clearanceByStatus(
 	const session = await auth();
 	if (!session?.user?.role) {
 		return {
-			data: [],
-			pages: 0,
+			items: [],
+			totalPages: 0,
+			totalItems: 0,
 		};
 	}
 
@@ -50,6 +51,7 @@ export async function clearanceByStatus(
 	return {
 		items: res.items,
 		totalPages: res.totalPages,
+		totalItems: res.totalItems,
 	};
 }
 

@@ -80,6 +80,7 @@ export default function Layout({ children }: PropsWithChildren) {
 				return {
 					items: response.items || [],
 					totalPages: response.totalPages || 1,
+					totalItems: response.totalItems ?? 0,
 				};
 			}}
 			actionIcons={[

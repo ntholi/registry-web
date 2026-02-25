@@ -25,6 +25,7 @@ export async function graduationClearanceByStatus(
 		return {
 			items: [],
 			totalPages: 0,
+			totalItems: 0,
 		};
 	}
 
@@ -34,7 +35,11 @@ export async function graduationClearanceByStatus(
 		status,
 		graduationDateId
 	);
-	return { items: res.items, totalPages: res.totalPages };
+	return {
+		items: res.items,
+		totalPages: res.totalPages,
+		totalItems: res.totalItems,
+	};
 }
 
 export async function updateGraduationClearance(
