@@ -10,7 +10,7 @@ import {
 	Title,
 } from '@mantine/core';
 import {
-	IconAward,
+	IconBuildingCommunity,
 	IconCertificate,
 	IconDownload,
 	IconLetterA,
@@ -22,11 +22,13 @@ import type { AdmissionReportFilter } from '../_shared/types';
 import CertificateChart from './_components/CertificateChart';
 import ClassificationChart from './_components/ClassificationChart';
 import GradeChart from './_components/GradeChart';
+import OriginSchools from './_components/OriginSchools';
 import {
 	exportQualificationsExcel,
 	getCertificateDistribution,
 	getGradeDistribution,
 	getResultClassification,
+	getTopOriginSchools,
 } from './_server/actions';
 
 export default function AcademicQualificationsPage() {
@@ -45,6 +47,11 @@ export default function AcademicQualificationsPage() {
 	const { data: classifications, isLoading: classLoading } = useQuery({
 		queryKey: ['academic-classifications', filter],
 		queryFn: () => getResultClassification(filter),
+	});
+
+	const { data: originSchools, isLoading: originLoading } = useQuery({
+		queryKey: ['academic-origin-schools', filter],
+		queryFn: () => getTopOriginSchools(filter),
 	});
 
 	async function handleExport() {
@@ -71,14 +78,14 @@ export default function AcademicQualificationsPage() {
 						>
 							Certificates
 						</Tabs.Tab>
-						<Tabs.Tab value='grades' leftSection={<IconLetterA size={16} />}>
-							Grades
+						<Tabs.Tab value='results' leftSection={<IconLetterA size={16} />}>
+							Grades & Classifications
 						</Tabs.Tab>
 						<Tabs.Tab
-							value='classifications'
-							leftSection={<IconAward size={16} />}
+							value='origin-schools'
+							leftSection={<IconBuildingCommunity size={16} />}
 						>
-							Classifications
+							Origin Schools
 						</Tabs.Tab>
 						<Button
 							variant='light'
@@ -97,18 +104,21 @@ export default function AcademicQualificationsPage() {
 							<CertificateChart data={certs} />
 						) : null}
 					</Tabs.Panel>
-					<Tabs.Panel value='grades' pt='md'>
-						{gradesLoading ? (
+					<Tabs.Panel value='results' pt='md'>
+						{gradesLoading || classLoading ? (
 							<Loader />
-						) : grades ? (
-							<GradeChart data={grades} />
+						) : grades && classifications ? (
+							<Stack>
+								<GradeChart data={grades} />
+								<ClassificationChart data={classifications} />
+							</Stack>
 						) : null}
 					</Tabs.Panel>
-					<Tabs.Panel value='classifications' pt='md'>
-						{classLoading ? (
+					<Tabs.Panel value='origin-schools' pt='md'>
+						{originLoading ? (
 							<Loader />
-						) : classifications ? (
-							<ClassificationChart data={classifications} />
+						) : originSchools ? (
+							<OriginSchools data={originSchools} />
 						) : null}
 					</Tabs.Panel>
 				</Tabs>

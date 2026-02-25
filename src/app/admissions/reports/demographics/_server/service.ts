@@ -14,18 +14,10 @@ export class DemographicsService {
 		);
 	}
 
-	async getTopOriginSchools(filter: AdmissionReportFilter) {
-		return withAuth(
-			async () => this.repository.getTopOriginSchools(filter),
-			['registry', 'marketing', 'admin']
-		);
-	}
-
 	async exportExcel(filter: AdmissionReportFilter): Promise<Buffer> {
 		return withAuth(async () => {
 			const overview = await this.repository.getOverview(filter);
-			const originSchools = await this.repository.getTopOriginSchools(filter);
-			return createDemographicsExcel(overview, originSchools);
+			return createDemographicsExcel(overview);
 		}, ['registry', 'marketing', 'admin']);
 	}
 }

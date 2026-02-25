@@ -1,6 +1,5 @@
-import { and, count, desc, eq, sql } from 'drizzle-orm';
+import { and, count, eq, sql } from 'drizzle-orm';
 import {
-	academicRecords,
 	applicants,
 	applications,
 	db,
@@ -24,11 +23,6 @@ export interface DemographicsOverview {
 	nationality: Array<{ name: string; value: number }>;
 	ageGroup: Array<{ name: string; value: number }>;
 	total: number;
-}
-
-export interface OriginSchoolRow {
-	name: string;
-	count: number;
 }
 
 export class DemographicsRepository {
@@ -113,31 +107,5 @@ export class DemographicsRepository {
 		const total = gender.reduce((s, g) => s + g.value, 0);
 
 		return { gender, nationality, ageGroup, total };
-	}
-
-	async getTopOriginSchools(
-		filter: AdmissionReportFilter
-	): Promise<OriginSchoolRow[]> {
-		const conditions = buildAdmissionReportConditions(filter);
-		const whereClause = conditions.length ? and(...conditions) : undefined;
-
-		const rows = await db
-			.select({
-				name: academicRecords.institutionName,
-				count: count(),
-			})
-			.from(academicRecords)
-			.innerJoin(
-				applications,
-				eq(academicRecords.applicantId, applications.applicantId)
-			)
-			.innerJoin(programs, eq(applications.firstChoiceProgramId, programs.id))
-			.innerJoin(schools, eq(programs.schoolId, schools.id))
-			.where(whereClause)
-			.groupBy(academicRecords.institutionName)
-			.orderBy(desc(count()))
-			.limit(100);
-
-		return rows;
 	}
 }

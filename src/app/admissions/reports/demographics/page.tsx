@@ -9,21 +9,15 @@ import {
 	Text,
 	Title,
 } from '@mantine/core';
-import {
-	IconBuildingCommunity,
-	IconChartDonut,
-	IconDownload,
-} from '@tabler/icons-react';
+import { IconChartDonut, IconDownload } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 import AdmissionReportFilterComponent from '../_shared/AdmissionReportFilter';
 import type { AdmissionReportFilter } from '../_shared/types';
-import OriginSchools from './_components/OriginSchools';
 import OverviewCharts from './_components/OverviewCharts';
 import {
 	exportDemographicsExcel,
 	getDemographicsOverview,
-	getTopOriginSchools,
 } from './_server/actions';
 
 export default function DemographicsPage() {
@@ -32,11 +26,6 @@ export default function DemographicsPage() {
 	const { data: overview, isLoading: overviewLoading } = useQuery({
 		queryKey: ['demographics-overview', filter],
 		queryFn: () => getDemographicsOverview(filter),
-	});
-
-	const { data: originSchools, isLoading: originLoading } = useQuery({
-		queryKey: ['demographics-origin-schools', filter],
-		queryFn: () => getTopOriginSchools(filter),
 	});
 
 	async function handleExport() {
@@ -63,12 +52,6 @@ export default function DemographicsPage() {
 						>
 							Overview
 						</Tabs.Tab>
-						<Tabs.Tab
-							value='origin-schools'
-							leftSection={<IconBuildingCommunity size={16} />}
-						>
-							Origin Schools
-						</Tabs.Tab>
 						<Button
 							variant='light'
 							size='compact-sm'
@@ -84,13 +67,6 @@ export default function DemographicsPage() {
 							<Loader />
 						) : overview ? (
 							<OverviewCharts data={overview} />
-						) : null}
-					</Tabs.Panel>
-					<Tabs.Panel value='origin-schools' pt='md'>
-						{originLoading ? (
-							<Loader />
-						) : originSchools ? (
-							<OriginSchools data={originSchools} />
 						) : null}
 					</Tabs.Panel>
 				</Tabs>

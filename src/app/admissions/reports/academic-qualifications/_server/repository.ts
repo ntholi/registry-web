@@ -27,6 +27,11 @@ export interface ClassificationDistRow {
 	count: number;
 }
 
+export interface OriginSchoolRow {
+	name: string;
+	count: number;
+}
+
 export class AcademicQualificationsRepository {
 	async getCertificateTypeDistribution(
 		filter: AdmissionReportFilter
@@ -121,5 +126,30 @@ export class AcademicQualificationsRepository {
 			.filter((r) => r.classification !== null)
 			.map((r) => ({ classification: r.classification!, count: r.count }))
 			.sort((a, b) => b.count - a.count);
+	}
+
+	async getTopOriginSchools(
+		filter: AdmissionReportFilter
+	): Promise<OriginSchoolRow[]> {
+		const conditions = buildAdmissionReportConditions(filter);
+
+		const rows = await db
+			.select({
+				name: academicRecords.institutionName,
+				count: count(),
+			})
+			.from(academicRecords)
+			.innerJoin(
+				applications,
+				eq(academicRecords.applicantId, applications.applicantId)
+			)
+			.innerJoin(programs, eq(applications.firstChoiceProgramId, programs.id))
+			.innerJoin(schools, eq(programs.schoolId, schools.id))
+			.where(conditions.length ? and(...conditions) : undefined)
+			.groupBy(academicRecords.institutionName)
+			.orderBy(desc(count()))
+			.limit(100);
+
+		return rows;
 	}
 }

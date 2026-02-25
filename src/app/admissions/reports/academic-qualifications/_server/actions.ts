@@ -17,6 +17,10 @@ export async function getResultClassification(filter: AdmissionReportFilter) {
 	return academicQualificationsService.getResultClassification(filter);
 }
 
+export async function getTopOriginSchools(filter: AdmissionReportFilter) {
+	return academicQualificationsService.getTopOriginSchools(filter);
+}
+
 export async function exportQualificationsExcel(filter: AdmissionReportFilter) {
 	const buffer = await academicQualificationsService.exportExcel(filter);
 	return Buffer.from(buffer).toString('base64');

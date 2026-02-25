@@ -3,12 +3,14 @@ import type {
 	CertificateDistRow,
 	ClassificationDistRow,
 	GradeDistRow,
+	OriginSchoolRow,
 } from './repository';
 
 export async function createQualificationsExcel(
 	certs: CertificateDistRow[],
 	grades: GradeDistRow[],
-	classifications: ClassificationDistRow[]
+	classifications: ClassificationDistRow[],
+	originSchools: OriginSchoolRow[]
 ): Promise<Buffer> {
 	const wb = new ExcelJS.Workbook();
 
@@ -50,6 +52,16 @@ export async function createQualificationsExcel(
 	applyHeader(ws3);
 	for (const r of classifications) {
 		ws3.addRow({ classification: r.classification, count: r.count });
+	}
+
+	const ws4 = wb.addWorksheet('Origin Schools');
+	ws4.columns = [
+		{ header: 'School', key: 'name', width: 40 },
+		{ header: 'Applicants', key: 'count', width: 14 },
+	];
+	applyHeader(ws4);
+	for (const r of originSchools) {
+		ws4.addRow(r);
 	}
 
 	const buffer = await wb.xlsx.writeBuffer();

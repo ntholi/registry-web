@@ -1,9 +1,8 @@
 import ExcelJS from 'exceljs';
-import type { DemographicsOverview, OriginSchoolRow } from './repository';
+import type { DemographicsOverview } from './repository';
 
 export async function createDemographicsExcel(
-	overview: DemographicsOverview,
-	originSchools: OriginSchoolRow[]
+	overview: DemographicsOverview
 ): Promise<Buffer> {
 	const wb = new ExcelJS.Workbook();
 
@@ -53,22 +52,6 @@ export async function createDemographicsExcel(
 	};
 	for (const a of overview.ageGroup) {
 		ageSheet.addRow(a);
-	}
-
-	const schoolSheet = wb.addWorksheet('Origin Schools');
-	schoolSheet.columns = [
-		{ header: 'School', key: 'name', width: 40 },
-		{ header: 'Applicants', key: 'count', width: 15 },
-	];
-	const schoolHeader = schoolSheet.getRow(1);
-	schoolHeader.font = { bold: true, color: { argb: 'FFFFFFFF' } };
-	schoolHeader.fill = {
-		type: 'pattern' as const,
-		pattern: 'solid' as const,
-		fgColor: { argb: 'FF4472C4' },
-	};
-	for (const s of originSchools) {
-		schoolSheet.addRow(s);
 	}
 
 	const buffer = await wb.xlsx.writeBuffer();

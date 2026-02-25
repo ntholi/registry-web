@@ -28,14 +28,29 @@ export class AcademicQualificationsService {
 		);
 	}
 
+	async getTopOriginSchools(filter: AdmissionReportFilter) {
+		return withAuth(
+			async () => this.repository.getTopOriginSchools(filter),
+			['registry', 'marketing', 'admin']
+		);
+	}
+
 	async exportExcel(filter: AdmissionReportFilter): Promise<Buffer> {
 		return withAuth(async () => {
-			const [certs, grades, classifications] = await Promise.all([
-				this.repository.getCertificateTypeDistribution(filter),
-				this.repository.getGradeDistribution(filter),
-				this.repository.getResultClassification(filter),
-			]);
-			return createQualificationsExcel(certs, grades, classifications);
+			const [certs, grades, classifications, originSchools] = await Promise.all(
+				[
+					this.repository.getCertificateTypeDistribution(filter),
+					this.repository.getGradeDistribution(filter),
+					this.repository.getResultClassification(filter),
+					this.repository.getTopOriginSchools(filter),
+				]
+			);
+			return createQualificationsExcel(
+				certs,
+				grades,
+				classifications,
+				originSchools
+			);
 		}, ['registry', 'marketing', 'admin']);
 	}
 }

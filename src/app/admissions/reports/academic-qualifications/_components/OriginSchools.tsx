@@ -24,7 +24,7 @@ export default function OriginSchools({ data }: Props) {
 			<Stack>
 				<Group justify='space-between'>
 					<Title order={4}>Origin Schools</Title>
-					<Badge variant='light' size='lg'>
+					<Badge variant='default'>
 						{total} applicants
 					</Badge>
 				</Group>
