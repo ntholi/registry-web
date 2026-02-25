@@ -7,8 +7,8 @@ export async function getDemographicsOverview(filter: AdmissionReportFilter) {
 	return demographicsService.getOverview(filter);
 }
 
-export async function getDemographicsBySchool(filter: AdmissionReportFilter) {
-	return demographicsService.getBySchool(filter);
+export async function getTopOriginSchools(filter: AdmissionReportFilter) {
+	return demographicsService.getTopOriginSchools(filter);
 }
 
 export async function exportDemographicsExcel(filter: AdmissionReportFilter) {

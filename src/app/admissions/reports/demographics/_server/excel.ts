@@ -1,9 +1,9 @@
 import ExcelJS from 'exceljs';
-import type { DemographicsOverview, SchoolDemographics } from './repository';
+import type { DemographicsOverview, OriginSchoolRow } from './repository';
 
 export async function createDemographicsExcel(
 	overview: DemographicsOverview,
-	bySchool: SchoolDemographics[]
+	originSchools: OriginSchoolRow[]
 ): Promise<Buffer> {
 	const wb = new ExcelJS.Workbook();
 
@@ -55,12 +55,10 @@ export async function createDemographicsExcel(
 		ageSheet.addRow(a);
 	}
 
-	const schoolSheet = wb.addWorksheet('By School');
+	const schoolSheet = wb.addWorksheet('Origin Schools');
 	schoolSheet.columns = [
-		{ header: 'School', key: 'school', width: 40 },
-		{ header: 'Male', key: 'male', width: 12 },
-		{ header: 'Female', key: 'female', width: 12 },
-		{ header: 'Total', key: 'total', width: 12 },
+		{ header: 'School', key: 'name', width: 40 },
+		{ header: 'Applicants', key: 'count', width: 15 },
 	];
 	const schoolHeader = schoolSheet.getRow(1);
 	schoolHeader.font = { bold: true, color: { argb: 'FFFFFFFF' } };
@@ -69,13 +67,8 @@ export async function createDemographicsExcel(
 		pattern: 'solid' as const,
 		fgColor: { argb: 'FF4472C4' },
 	};
-	for (const s of bySchool) {
-		schoolSheet.addRow({
-			school: s.schoolName,
-			male: s.gender.find((g) => g.name === 'Male')?.value ?? 0,
-			female: s.gender.find((g) => g.name === 'Female')?.value ?? 0,
-			total: s.total,
-		});
+	for (const s of originSchools) {
+		schoolSheet.addRow(s);
 	}
 
 	const buffer = await wb.xlsx.writeBuffer();

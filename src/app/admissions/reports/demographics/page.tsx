@@ -9,17 +9,21 @@ import {
 	Text,
 	Title,
 } from '@mantine/core';
-import { IconChartDonut, IconDownload, IconSchool } from '@tabler/icons-react';
+import {
+	IconBuildingCommunity,
+	IconChartDonut,
+	IconDownload,
+} from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 import AdmissionReportFilterComponent from '../_shared/AdmissionReportFilter';
 import type { AdmissionReportFilter } from '../_shared/types';
+import OriginSchools from './_components/OriginSchools';
 import OverviewCharts from './_components/OverviewCharts';
-import SchoolBreakdown from './_components/SchoolBreakdown';
 import {
 	exportDemographicsExcel,
-	getDemographicsBySchool,
 	getDemographicsOverview,
+	getTopOriginSchools,
 } from './_server/actions';
 
 export default function DemographicsPage() {
@@ -30,9 +34,9 @@ export default function DemographicsPage() {
 		queryFn: () => getDemographicsOverview(filter),
 	});
 
-	const { data: bySchool, isLoading: schoolLoading } = useQuery({
-		queryKey: ['demographics-by-school', filter],
-		queryFn: () => getDemographicsBySchool(filter),
+	const { data: originSchools, isLoading: originLoading } = useQuery({
+		queryKey: ['demographics-origin-schools', filter],
+		queryFn: () => getTopOriginSchools(filter),
 	});
 
 	async function handleExport() {
@@ -59,8 +63,11 @@ export default function DemographicsPage() {
 						>
 							Overview
 						</Tabs.Tab>
-						<Tabs.Tab value='by-school' leftSection={<IconSchool size={16} />}>
-							By School
+						<Tabs.Tab
+							value='origin-schools'
+							leftSection={<IconBuildingCommunity size={16} />}
+						>
+							Origin Schools
 						</Tabs.Tab>
 						<Button
 							variant='light'
@@ -79,11 +86,11 @@ export default function DemographicsPage() {
 							<OverviewCharts data={overview} />
 						) : null}
 					</Tabs.Panel>
-					<Tabs.Panel value='by-school' pt='md'>
-						{schoolLoading ? (
+					<Tabs.Panel value='origin-schools' pt='md'>
+						{originLoading ? (
 							<Loader />
-						) : bySchool ? (
-							<SchoolBreakdown data={bySchool} />
+						) : originSchools ? (
+							<OriginSchools data={originSchools} />
 						) : null}
 					</Tabs.Panel>
 				</Tabs>

@@ -14,9 +14,9 @@ export class DemographicsService {
 		);
 	}
 
-	async getBySchool(filter: AdmissionReportFilter) {
+	async getTopOriginSchools(filter: AdmissionReportFilter) {
 		return withAuth(
-			async () => this.repository.getBySchool(filter),
+			async () => this.repository.getTopOriginSchools(filter),
 			['registry', 'marketing', 'admin']
 		);
 	}
@@ -24,8 +24,8 @@ export class DemographicsService {
 	async exportExcel(filter: AdmissionReportFilter): Promise<Buffer> {
 		return withAuth(async () => {
 			const overview = await this.repository.getOverview(filter);
-			const bySchool = await this.repository.getBySchool(filter);
-			return createDemographicsExcel(overview, bySchool);
+			const originSchools = await this.repository.getTopOriginSchools(filter);
+			return createDemographicsExcel(overview, originSchools);
 		}, ['registry', 'marketing', 'admin']);
 	}
 }

@@ -1,5 +1,6 @@
-import { and, count, eq, sql } from 'drizzle-orm';
+import { and, count, desc, eq, sql } from 'drizzle-orm';
 import {
+	academicRecords,
 	applicants,
 	applications,
 	db,
@@ -25,12 +26,9 @@ export interface DemographicsOverview {
 	total: number;
 }
 
-export interface SchoolDemographics {
-	schoolName: string;
-	schoolId: number;
-	gender: Array<{ name: string; value: number; color: string }>;
-	nationality: Array<{ name: string; value: number }>;
-	total: number;
+export interface OriginSchoolRow {
+	name: string;
+	count: number;
 }
 
 export class DemographicsRepository {
@@ -117,73 +115,29 @@ export class DemographicsRepository {
 		return { gender, nationality, ageGroup, total };
 	}
 
-	async getBySchool(
+	async getTopOriginSchools(
 		filter: AdmissionReportFilter
-	): Promise<SchoolDemographics[]> {
+	): Promise<OriginSchoolRow[]> {
 		const conditions = buildAdmissionReportConditions(filter);
 		const whereClause = conditions.length ? and(...conditions) : undefined;
 
 		const rows = await db
 			.select({
-				schoolName: schools.code,
-				schoolId: schools.id,
-				gender: applicants.gender,
-				nationality: applicants.nationality,
+				name: academicRecords.institutionName,
 				count: count(),
 			})
-			.from(applications)
-			.innerJoin(applicants, eq(applications.applicantId, applicants.id))
+			.from(academicRecords)
+			.innerJoin(
+				applications,
+				eq(academicRecords.applicantId, applications.applicantId)
+			)
 			.innerJoin(programs, eq(applications.firstChoiceProgramId, programs.id))
 			.innerJoin(schools, eq(programs.schoolId, schools.id))
 			.where(whereClause)
-			.groupBy(
-				schools.id,
-				schools.code,
-				applicants.gender,
-				applicants.nationality
-			);
+			.groupBy(academicRecords.institutionName)
+			.orderBy(desc(count()))
+			.limit(50);
 
-		const schoolMap = new Map<number, SchoolDemographics>();
-
-		const genderColorMap: Record<string, string> = {
-			Male: 'blue.6',
-			Female: 'pink.6',
-		};
-
-		for (const row of rows) {
-			if (!schoolMap.has(row.schoolId)) {
-				schoolMap.set(row.schoolId, {
-					schoolName: row.schoolName,
-					schoolId: row.schoolId,
-					gender: [],
-					nationality: [],
-					total: 0,
-				});
-			}
-			const school = schoolMap.get(row.schoolId)!;
-			school.total += row.count;
-
-			const genderName = row.gender ?? 'Unknown';
-			const existingGender = school.gender.find((g) => g.name === genderName);
-			if (existingGender) {
-				existingGender.value += row.count;
-			} else {
-				school.gender.push({
-					name: genderName,
-					value: row.count,
-					color: genderColorMap[genderName] ?? 'gray.6',
-				});
-			}
-
-			const natName = row.nationality ?? 'Unknown';
-			const existingNat = school.nationality.find((n) => n.name === natName);
-			if (existingNat) {
-				existingNat.value += row.count;
-			} else {
-				school.nationality.push({ name: natName, value: row.count });
-			}
-		}
-
-		return Array.from(schoolMap.values()).sort((a, b) => b.total - a.total);
+		return rows;
 	}
 }
