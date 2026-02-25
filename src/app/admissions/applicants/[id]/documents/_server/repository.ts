@@ -1,7 +1,9 @@
 import { count, eq } from 'drizzle-orm';
 import type { DocumentType, DocumentVerificationStatus } from '@/core/database';
 import { applicantDocuments, db, documents } from '@/core/database';
-import BaseRepository from '@/core/platform/BaseRepository';
+import BaseRepository, {
+	type AuditOptions,
+} from '@/core/platform/BaseRepository';
 
 export default class ApplicantDocumentRepository extends BaseRepository<
 	typeof applicantDocuments,
@@ -89,11 +91,21 @@ export default class ApplicantDocumentRepository extends BaseRepository<
 		return doc;
 	}
 
-	async removeById(id: string) {
+	async removeById(id: string, audit?: AuditOptions) {
 		const appDoc = await db.query.applicantDocuments.findFirst({
 			where: eq(applicantDocuments.id, id),
 		});
-		if (appDoc) {
+		if (!appDoc) return;
+
+		if (audit) {
+			await db.transaction(async (tx) => {
+				await tx
+					.delete(applicantDocuments)
+					.where(eq(applicantDocuments.id, id));
+				await tx.delete(documents).where(eq(documents.id, appDoc.documentId));
+				await this.writeAuditLog(tx, 'DELETE', id, appDoc, null, audit);
+			});
+		} else {
 			await db.delete(applicantDocuments).where(eq(applicantDocuments.id, id));
 			await db.delete(documents).where(eq(documents.id, appDoc.documentId));
 		}

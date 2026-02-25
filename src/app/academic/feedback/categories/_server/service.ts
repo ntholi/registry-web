@@ -24,18 +24,22 @@ class FeedbackCategoryService extends BaseService<
 	}
 
 	override async delete(id: string) {
-		return withAuth(async () => {
-			const repo = this.repository as FeedbackCategoryRepository;
-			const hasQuestions = await repo.hasQuestions(id);
+		return withAuth(
+			async (session) => {
+				const repo = this.repository as FeedbackCategoryRepository;
+				const hasQuestions = await repo.hasQuestions(id);
 
-			if (hasQuestions) {
-				throw new Error(
-					'Category cannot be deleted because it contains questions'
-				);
-			}
+				if (hasQuestions) {
+					throw new Error(
+						'Category cannot be deleted because it contains questions'
+					);
+				}
 
-			await repo.delete(id);
-		}, ['academic', 'admin']);
+				const audit = this.buildAuditOptions(session, 'delete');
+				await repo.delete(id, audit);
+			},
+			['academic', 'admin']
+		);
 	}
 }
 

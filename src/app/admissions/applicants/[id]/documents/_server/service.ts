@@ -76,7 +76,12 @@ class ApplicantDocumentService extends BaseService<
 
 	override async delete(id: string) {
 		return withAuth(
-			async () => this.repo.removeById(id),
+			async (session) =>
+				this.repo.removeById(id, {
+					userId: session!.user!.id!,
+					role: session!.user!.role!,
+					activityType: 'applicant_document_deleted',
+				}),
 			['registry', 'marketing', 'admin', 'applicant']
 		);
 	}

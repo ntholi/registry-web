@@ -24,9 +24,7 @@ export default function OriginSchools({ data }: Props) {
 			<Stack>
 				<Group justify='space-between'>
 					<Title order={4}>Origin Schools</Title>
-					<Badge variant='default'>
-						{total} applicants
-					</Badge>
+					<Badge variant='default'>{total} applicants</Badge>
 				</Group>
 				<Table.ScrollContainer minWidth={300} mah={500}>
 					<Table striped highlightOnHover>

@@ -26,6 +26,7 @@ class DocumentReviewService extends BaseService<
 			activityTypes: {
 				create: 'applicant_document_uploaded',
 				update: 'applicant_document_reviewed',
+				delete: 'applicant_document_deleted',
 			},
 		});
 		this.repo = repo;
