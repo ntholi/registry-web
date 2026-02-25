@@ -1,4 +1,8 @@
-import type { ActivityType } from '@/app/admin/activity-tracker/_lib/registry';
+import {
+	resolveStudentModuleActivityType,
+	resolveStudentProgramActivityType,
+	resolveStudentSemesterActivityType,
+} from '@/app/registry/_lib/activities';
 import { getActiveTerm } from '@/app/registry/terms';
 import type {
 	studentModules,
@@ -255,59 +259,6 @@ class StudentService {
 				}),
 			['registry', 'admin']
 		);
-	}
-}
-
-function resolveStudentProgramActivityType(status?: string): ActivityType {
-	switch (status) {
-		case 'Completed':
-			return 'program_completed';
-		case 'Active':
-			return 'program_activated';
-		case 'Changed':
-			return 'program_change';
-		case 'Deleted':
-			return 'program_deleted';
-		case 'Inactive':
-			return 'program_deactivated';
-		default:
-			return 'program_enrollment';
-	}
-}
-
-function resolveStudentSemesterActivityType(status?: string): ActivityType {
-	switch (status) {
-		case 'Active':
-			return 'semester_activated';
-		case 'Deferred':
-			return 'semester_deferred';
-		case 'DroppedOut':
-			return 'semester_dropout';
-		case 'Deleted':
-			return 'semester_deleted';
-		case 'Withdrawn':
-			return 'semester_withdrawal';
-		case 'Repeat':
-			return 'semester_repeat';
-		case 'Inactive':
-			return 'semester_deactivated';
-		default:
-			return 'semester_activated';
-	}
-}
-
-function resolveStudentModuleActivityType(status?: string): ActivityType {
-	switch (status) {
-		case 'Drop':
-			return 'module_dropped';
-		case 'Delete':
-			return 'module_deleted';
-		case 'Repeat1':
-		case 'Repeat2':
-		case 'Repeat3':
-			return 'module_repeated';
-		default:
-			return 'module_update';
 	}
 }
 
