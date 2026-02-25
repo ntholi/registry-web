@@ -1,4 +1,5 @@
 import type { Session } from 'next-auth';
+import type { ActivityType } from '@/app/admin/activity-tracker/_lib/activity-catalog';
 import type { tasks, UserRole } from '@/core/database';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
 import withAuth from '@/core/platform/withAuth';
@@ -154,12 +155,19 @@ class TaskService {
 
 			const { assigneeIds: _, studentIds, ...taskData } = data;
 
+			const activityType = resolveTaskUpdateIntent(
+				existingTask,
+				taskData,
+				assigneeIds,
+				studentIds
+			);
+
 			return this.repository.updateWithRelations(
 				id,
 				taskData,
 				assigneeIds,
 				studentIds,
-				{ userId: userId!, activityType: 'task_updated' }
+				{ userId: userId!, activityType }
 			);
 		}, ALLOWED_ROLES);
 	}
@@ -235,3 +243,50 @@ class TaskService {
 }
 
 export const tasksService = serviceWrapper(TaskService, 'TasksService');
+
+type TaskWithRelations = Awaited<
+	ReturnType<TaskRepository['findByIdWithRelations']>
+>;
+
+function resolveTaskUpdateIntent(
+	existing: NonNullable<TaskWithRelations>,
+	taskData: Partial<TaskInsert>,
+	assigneeIds?: string[],
+	studentIds?: number[]
+): ActivityType {
+	if (assigneeIds !== undefined) {
+		const currentIds = existing.assignees.map((a) => a.user.id).sort();
+		const newIds = [...assigneeIds].sort();
+		if (
+			currentIds.length !== newIds.length ||
+			currentIds.some((id, i) => id !== newIds[i])
+		) {
+			return 'task_assignees_changed';
+		}
+	}
+
+	if (studentIds !== undefined) {
+		const currentIds = existing.students.map((s) => s.student.stdNo).sort();
+		const newIds = [...studentIds].sort();
+		if (
+			currentIds.length !== newIds.length ||
+			currentIds.some((id, i) => id !== newIds[i])
+		) {
+			return 'task_students_changed';
+		}
+	}
+
+	if (
+		taskData.priority !== undefined &&
+		taskData.priority !== existing.priority
+	)
+		return 'task_priority_changed';
+
+	if (taskData.dueDate !== undefined && taskData.dueDate !== existing.dueDate)
+		return 'task_due_date_changed';
+
+	if (taskData.status !== undefined && taskData.status !== existing.status)
+		return 'task_status_changed';
+
+	return 'task_updated';
+}

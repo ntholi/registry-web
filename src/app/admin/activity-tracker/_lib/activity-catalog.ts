@@ -342,6 +342,22 @@ export const ACTIVITY_CATALOG = {
 	task_updated: { label: 'Task Updated', department: 'admin' },
 	task_deleted: { label: 'Task Deleted', department: 'admin' },
 	task_status_changed: { label: 'Task Status Changed', department: 'admin' },
+	task_assignees_changed: {
+		label: 'Task Assignees Changed',
+		department: 'admin',
+	},
+	task_students_changed: {
+		label: 'Task Students Changed',
+		department: 'admin',
+	},
+	task_due_date_changed: {
+		label: 'Task Due Date Changed',
+		department: 'admin',
+	},
+	task_priority_changed: {
+		label: 'Task Priority Changed',
+		department: 'admin',
+	},
 	notification_created: {
 		label: 'Notification Created',
 		department: 'admin',
@@ -352,6 +368,14 @@ export const ACTIVITY_CATALOG = {
 	},
 	notification_deleted: {
 		label: 'Notification Deleted',
+		department: 'admin',
+	},
+	notification_recipients_changed: {
+		label: 'Notification Recipients Changed',
+		department: 'admin',
+	},
+	notification_visibility_changed: {
+		label: 'Notification Visibility Changed',
 		department: 'admin',
 	},
 	venue_created: { label: 'Venue Created', department: 'resource' },

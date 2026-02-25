@@ -1,3 +1,4 @@
+import type { ActivityType } from '@/app/admin/activity-tracker/_lib/activity-catalog';
 import type { UserPosition, UserRole } from '@/core/database';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
 import withAuth from '@/core/platform/withAuth';
@@ -40,12 +41,14 @@ class NotificationService {
 
 	async update(id: number, data: Partial<NotificationWithRecipients>) {
 		return withAuth(
-			(session) =>
-				this.repository.update(id, data, {
+			(session) => {
+				const activityType = resolveNotificationUpdateIntent(data);
+				return this.repository.update(id, data, {
 					userId: session!.user!.id!,
 					role: session!.user!.role!,
-					activityType: 'notification_updated',
-				}),
+					activityType,
+				});
+			},
 			['admin']
 		);
 	}
@@ -100,3 +103,22 @@ export const notificationsService = serviceWrapper(
 	NotificationService,
 	'NotificationsService'
 );
+
+const VISIBILITY_KEYS: (keyof NotificationWithRecipients)[] = [
+	'targetType',
+	'targetRoles',
+	'targetPositions',
+	'visibleFrom',
+	'visibleUntil',
+	'isActive',
+];
+
+function resolveNotificationUpdateIntent(
+	data: Partial<NotificationWithRecipients>
+): ActivityType {
+	if (data.recipientUserIds !== undefined)
+		return 'notification_recipients_changed';
+	if (VISIBILITY_KEYS.some((k) => k in data))
+		return 'notification_visibility_changed';
+	return 'notification_updated';
+}
