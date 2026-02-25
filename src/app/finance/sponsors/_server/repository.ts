@@ -7,6 +7,7 @@ import {
 	studentPrograms,
 	students,
 } from '@/core/database';
+import type { AuditOptions } from '@/core/platform/BaseRepository';
 import BaseRepository from '@/core/platform/BaseRepository';
 
 type SponsoredStudent = typeof sponsoredStudents.$inferSelect;
@@ -589,13 +590,16 @@ export default class SponsorRepository extends BaseRepository<
 		return result;
 	}
 
-	async createSponsoredStudent(data: {
-		stdNo: number;
-		sponsorId: number;
-		borrowerNo?: string;
-		bankName?: string;
-		accountNumber?: string;
-	}) {
+	async createSponsoredStudent(
+		data: {
+			stdNo: number;
+			sponsorId: number;
+			borrowerNo?: string;
+			bankName?: string;
+			accountNumber?: string;
+		},
+		audit?: AuditOptions
+	) {
 		const existing = await db.query.sponsoredStudents.findFirst({
 			where: and(
 				eq(sponsoredStudents.stdNo, data.stdNo),
@@ -609,18 +613,44 @@ export default class SponsorRepository extends BaseRepository<
 			);
 		}
 
-		const [result] = await db
-			.insert(sponsoredStudents)
-			.values({
-				stdNo: data.stdNo,
-				sponsorId: data.sponsorId,
-				borrowerNo: data.borrowerNo,
-				bankName: data.bankName,
-				accountNumber: data.accountNumber,
-			})
-			.returning();
+		if (!audit) {
+			const [result] = await db
+				.insert(sponsoredStudents)
+				.values({
+					stdNo: data.stdNo,
+					sponsorId: data.sponsorId,
+					borrowerNo: data.borrowerNo,
+					bankName: data.bankName,
+					accountNumber: data.accountNumber,
+				})
+				.returning();
+			return result;
+		}
 
-		return result;
+		return db.transaction(async (tx) => {
+			const [result] = await tx
+				.insert(sponsoredStudents)
+				.values({
+					stdNo: data.stdNo,
+					sponsorId: data.sponsorId,
+					borrowerNo: data.borrowerNo,
+					bankName: data.bankName,
+					accountNumber: data.accountNumber,
+				})
+				.returning();
+
+			await this.writeAuditLogForTable(
+				tx,
+				'sponsored_students',
+				'INSERT',
+				String(result.id),
+				null,
+				result,
+				audit
+			);
+
+			return result;
+		});
 	}
 
 	async updateSponsoredStudent(
@@ -630,18 +660,50 @@ export default class SponsorRepository extends BaseRepository<
 			borrowerNo?: string | null;
 			bankName?: string | null;
 			accountNumber?: string | null;
-		}
+		},
+		audit?: AuditOptions
 	) {
-		const [result] = await db
-			.update(sponsoredStudents)
-			.set({
-				...data,
-				updatedAt: new Date(),
-			})
-			.where(eq(sponsoredStudents.id, id))
-			.returning();
+		if (!audit) {
+			const [result] = await db
+				.update(sponsoredStudents)
+				.set({
+					...data,
+					updatedAt: new Date(),
+				})
+				.where(eq(sponsoredStudents.id, id))
+				.returning();
+			return result;
+		}
 
-		return result;
+		return db.transaction(async (tx) => {
+			const [old] = await tx
+				.select()
+				.from(sponsoredStudents)
+				.where(eq(sponsoredStudents.id, id));
+
+			const [result] = await tx
+				.update(sponsoredStudents)
+				.set({
+					...data,
+					updatedAt: new Date(),
+				})
+				.where(eq(sponsoredStudents.id, id))
+				.returning();
+
+			if (old) {
+				await this.writeAuditLogForTable(
+					tx,
+					'sponsored_students',
+					'UPDATE',
+					String(id),
+					old,
+					result,
+					audit
+				);
+			}
+
+			return result;
+		});
 	}
 
 	async findSponsoredStudentById(id: number) {

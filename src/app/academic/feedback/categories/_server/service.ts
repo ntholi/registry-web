@@ -18,6 +18,7 @@ class FeedbackCategoryService extends BaseService<
 			activityTypes: {
 				create: 'feedback_category_created',
 				update: 'feedback_category_updated',
+				delete: 'feedback_category_deleted',
 			},
 		});
 	}

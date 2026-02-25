@@ -18,6 +18,7 @@ class FeedbackQuestionService extends BaseService<
 			activityTypes: {
 				create: 'feedback_question_created',
 				update: 'feedback_question_updated',
+				delete: 'feedback_question_deleted',
 			},
 		});
 	}

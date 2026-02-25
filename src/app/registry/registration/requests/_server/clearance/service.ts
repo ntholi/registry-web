@@ -1,3 +1,4 @@
+import type { ActivityType } from '@/app/admin/activity-tracker/_lib/activity-catalog';
 import { getActiveTerm } from '@/app/registry/terms';
 import { auth } from '@/core/auth';
 import type { clearance, DashboardUser } from '@/core/database';
@@ -66,7 +67,7 @@ class ClearanceService {
 		return withAuth(
 			async (session) => {
 				if (!data.id) throw Error('Clearance id cannot be null/undefined');
-				const activityType =
+				const activityType: ActivityType =
 					data.status === 'rejected'
 						? 'clearance_rejected'
 						: 'clearance_approved';
@@ -95,7 +96,7 @@ class ClearanceService {
 				const current = await this.repository.findById(id);
 				if (!current) throw new Error('Clearance not found');
 
-				const activityType =
+				const activityType: ActivityType =
 					data.status === 'rejected'
 						? 'clearance_rejected'
 						: 'clearance_approved';

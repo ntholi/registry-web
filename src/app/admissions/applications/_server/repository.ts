@@ -12,6 +12,7 @@ import {
 	programs,
 	users,
 } from '@/core/database';
+import type { AuditOptions } from '@/core/platform/BaseRepository';
 import BaseRepository from '@/core/platform/BaseRepository';
 import type { ApplicationFilters } from '../_lib/types';
 
@@ -275,13 +276,12 @@ export default class ApplicationRepository extends BaseRepository<
 		return entry;
 	}
 
-	async updateStatus(id: string, status: ApplicationStatus) {
-		const [updated] = await db
-			.update(applications)
-			.set({ status, updatedAt: new Date() })
-			.where(eq(applications.id, id))
-			.returning();
-		return updated;
+	async updateStatus(
+		id: string,
+		status: ApplicationStatus,
+		audit?: AuditOptions
+	) {
+		return this.update(id, { status, updatedAt: new Date() }, audit);
 	}
 
 	async addNote(data: typeof applicationNotes.$inferInsert) {

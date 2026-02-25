@@ -31,6 +31,7 @@ class ApplicationService extends BaseService<typeof applications, 'id'> {
 			activityTypes: {
 				create: 'application_submitted',
 				update: 'application_updated',
+				delete: 'application_deleted',
 			},
 		});
 		this.repo = repo;
@@ -200,7 +201,11 @@ class ApplicationService extends BaseService<typeof applications, 'id'> {
 						newStatus === 'rejected' ? rejectionReason : undefined,
 				});
 
-				return this.repo.updateStatus(applicationId, newStatus);
+				return this.repo.updateStatus(applicationId, newStatus, {
+					userId: session!.user!.id!,
+					role: session!.user!.role!,
+					activityType: 'application_status_changed',
+				});
 			},
 			['registry', 'marketing', 'admin', 'applicant']
 		);

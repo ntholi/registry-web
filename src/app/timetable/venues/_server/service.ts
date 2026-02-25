@@ -19,6 +19,7 @@ class VenueService extends BaseService<typeof venues, 'id'> {
 			activityTypes: {
 				create: 'venue_created',
 				update: 'venue_updated',
+				delete: 'venue_deleted',
 			},
 		});
 		this.venueRepository = repository;

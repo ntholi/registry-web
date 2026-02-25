@@ -13,6 +13,7 @@ class ModuleService extends BaseService<typeof modules, 'id'> {
 			activityTypes: {
 				create: 'module_created',
 				update: 'module_updated',
+				delete: 'module_deleted',
 			},
 		});
 	}

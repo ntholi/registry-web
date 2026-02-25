@@ -25,6 +25,11 @@ class ApplicantDocumentService extends BaseService<
 			createRoles: ['registry', 'marketing', 'admin'],
 			updateRoles: ['registry', 'marketing', 'admin'],
 			deleteRoles: ['registry', 'marketing', 'admin'],
+			activityTypes: {
+				create: 'applicant_document_uploaded',
+				update: 'applicant_document_reviewed',
+				delete: 'applicant_document_deleted',
+			},
 		});
 		this.repo = repo;
 	}

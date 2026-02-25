@@ -51,7 +51,7 @@ class SponsorService {
 				this.repository.delete(id, {
 					userId: session!.user!.id!,
 					role: session!.user!.role!,
-					activityType: 'sponsor_updated',
+					activityType: 'sponsor_deleted',
 				}),
 			['admin', 'finance']
 		);
@@ -163,7 +163,13 @@ class SponsorService {
 		accountNumber?: string;
 	}) {
 		return withAuth(
-			async () => this.repository.createSponsoredStudent(data),
+			async (session) =>
+				this.repository.createSponsoredStudent(data, {
+					userId: session!.user!.id!,
+					role: session!.user!.role!,
+					activityType: 'sponsorship_assigned',
+					stdNo: data.stdNo,
+				}),
 			['registry', 'finance', 'admin']
 		);
 	}
@@ -178,7 +184,12 @@ class SponsorService {
 		}
 	) {
 		return withAuth(
-			async () => this.repository.updateSponsoredStudent(id, data),
+			async (session) =>
+				this.repository.updateSponsoredStudent(id, data, {
+					userId: session!.user!.id!,
+					role: session!.user!.role!,
+					activityType: 'sponsorship_updated',
+				}),
 			['registry', 'finance', 'admin']
 		);
 	}

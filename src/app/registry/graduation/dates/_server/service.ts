@@ -44,9 +44,18 @@ class GraduationService extends BaseService<typeof graduationDates, 'id'> {
 	}
 
 	async deleteGraduation(id: number) {
-		const graduation = await this.repository.findById(id);
-		await this.repository.delete(id);
-		return graduation;
+		return withAuth(
+			async (session) => {
+				const graduation = await this.repository.findById(id);
+				await this.repository.delete(id, {
+					userId: session!.user!.id!,
+					role: session!.user!.role!,
+					activityType: 'graduation_date_deleted',
+				});
+				return graduation;
+			},
+			['registry', 'admin']
+		);
 	}
 }
 

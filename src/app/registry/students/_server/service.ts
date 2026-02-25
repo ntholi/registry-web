@@ -1,3 +1,4 @@
+import type { ActivityType } from '@/app/admin/activity-tracker/_lib/activity-catalog';
 import { getActiveTerm } from '@/app/registry/terms';
 import type {
 	studentModules,
@@ -150,7 +151,7 @@ class StudentService {
 				this.repository.updateProgramStructure(stdNo, structureId, {
 					userId: requireSessionUserId(session),
 					role: session!.user!.role!,
-					activityType: 'program_structure_update',
+					activityType: 'student_program_structure_changed',
 					stdNo,
 				}),
 			['admin', 'registry']
@@ -257,7 +258,7 @@ class StudentService {
 	}
 }
 
-function resolveStudentProgramActivityType(status?: string): string {
+function resolveStudentProgramActivityType(status?: string): ActivityType {
 	switch (status) {
 		case 'Completed':
 			return 'program_completed';
@@ -274,7 +275,7 @@ function resolveStudentProgramActivityType(status?: string): string {
 	}
 }
 
-function resolveStudentSemesterActivityType(status?: string): string {
+function resolveStudentSemesterActivityType(status?: string): ActivityType {
 	switch (status) {
 		case 'Active':
 			return 'semester_activated';
@@ -295,7 +296,7 @@ function resolveStudentSemesterActivityType(status?: string): string {
 	}
 }
 
-function resolveStudentModuleActivityType(status?: string): string {
+function resolveStudentModuleActivityType(status?: string): ActivityType {
 	switch (status) {
 		case 'Drop':
 			return 'module_dropped';

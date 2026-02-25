@@ -17,6 +17,7 @@ class FineService extends BaseService<typeof fines, 'id'> {
 			activityTypes: {
 				create: 'fine_created',
 				update: 'fine_updated',
+				delete: 'fine_deleted',
 			},
 		});
 	}

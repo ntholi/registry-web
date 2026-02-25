@@ -28,7 +28,7 @@ class CertificateReprintsService {
 				this.repository.create(data, {
 					userId: requireSessionUserId(session),
 					role: session!.user!.role!,
-					activityType: 'certificate_reprint',
+					activityType: 'certificate_reprint_created',
 					stdNo: data.stdNo,
 				}),
 			['registry', 'admin']
@@ -41,7 +41,7 @@ class CertificateReprintsService {
 				this.repository.update(id, data, {
 					userId: requireSessionUserId(session),
 					role: session!.user!.role!,
-					activityType: 'certificate_reprint',
+					activityType: 'certificate_reprint_updated',
 					stdNo: data.stdNo,
 				}),
 			['registry', 'admin']
@@ -54,7 +54,7 @@ class CertificateReprintsService {
 				this.repository.delete(id, {
 					userId: requireSessionUserId(session),
 					role: session!.user!.role!,
-					activityType: 'certificate_reprint',
+					activityType: 'certificate_reprint_deleted',
 				}),
 			['registry', 'admin']
 		);

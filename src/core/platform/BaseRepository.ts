@@ -1,6 +1,8 @@
 import { count, eq, or, type SQL, sql } from 'drizzle-orm';
 import type { PgColumn as Column, PgTable as Table } from 'drizzle-orm/pg-core';
 import { getTableConfig } from 'drizzle-orm/pg-core';
+import type { ActivityType } from '@/app/admin/activity-tracker/_lib/activity-catalog';
+import { resolveTableActivity } from '@/app/admin/activity-tracker/_lib/activity-types';
 import { db } from '@/core/database';
 import { auditLogs } from '@/core/database/schema/auditLogs';
 
@@ -14,7 +16,7 @@ export type TransactionClient = Parameters<
 export interface AuditOptions {
 	userId: string;
 	metadata?: Record<string, unknown>;
-	activityType?: string;
+	activityType?: ActivityType;
 	stdNo?: number;
 	role?: string;
 }
@@ -88,6 +90,11 @@ class BaseRepository<
 			...audit.metadata,
 		};
 
+		const activityType =
+			audit.activityType ??
+			resolveTableActivity(this.getTableName(), operation) ??
+			null;
+
 		await tx.insert(auditLogs).values({
 			tableName: this.getTableName(),
 			recordId,
@@ -96,7 +103,7 @@ class BaseRepository<
 			newValues: newValues ?? null,
 			changedBy: audit.userId,
 			metadata: Object.keys(meta).length > 0 ? meta : null,
-			activityType: audit.activityType ?? null,
+			activityType,
 			stdNo: audit.stdNo ?? null,
 			changedByRole: audit.role ?? null,
 		});
@@ -116,6 +123,9 @@ class BaseRepository<
 			...audit.metadata,
 		};
 
+		const activityType =
+			audit.activityType ?? resolveTableActivity(tableName, operation) ?? null;
+
 		await tx.insert(auditLogs).values({
 			tableName,
 			recordId,
@@ -124,7 +134,7 @@ class BaseRepository<
 			newValues: newValues ?? null,
 			changedBy: audit.userId,
 			metadata: Object.keys(meta).length > 0 ? meta : null,
-			activityType: audit.activityType ?? null,
+			activityType,
 			stdNo: audit.stdNo ?? null,
 			changedByRole: audit.role ?? null,
 		});
@@ -152,6 +162,12 @@ class BaseRepository<
 				),
 				...audit.metadata,
 			};
+
+			const activityType =
+				audit.activityType ??
+				resolveTableActivity(tableName, entry.operation) ??
+				null;
+
 			return {
 				tableName,
 				recordId: entry.recordId,
@@ -160,7 +176,7 @@ class BaseRepository<
 				newValues: entry.newValues ?? null,
 				changedBy: audit.userId,
 				metadata: Object.keys(meta).length > 0 ? meta : null,
-				activityType: audit.activityType ?? null,
+				activityType,
 				stdNo: audit.stdNo ?? null,
 				changedByRole: audit.role ?? null,
 			};

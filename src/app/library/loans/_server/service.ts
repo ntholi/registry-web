@@ -58,7 +58,7 @@ class LoanService extends BaseService<typeof loans, 'id'> {
 	async renewLoan(loanId: string, newDueDate: Date, renewedBy: string) {
 		return this.repository.renewLoan(loanId, newDueDate, renewedBy, {
 			userId: renewedBy,
-			activityType: 'book_loan_created',
+			activityType: 'book_loan_renewed',
 		});
 	}
 

@@ -57,7 +57,7 @@ class NotificationService {
 				await this.repository.delete(id, {
 					userId: session!.user!.id!,
 					role: session!.user!.role!,
-					activityType: 'notification_updated',
+					activityType: 'notification_deleted',
 				});
 				return notification;
 			},

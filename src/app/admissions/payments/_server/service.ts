@@ -27,6 +27,7 @@ class PaymentService extends BaseService<typeof bankDeposits, 'id'> {
 			activityTypes: {
 				create: 'deposit_submitted',
 				update: 'deposit_verified',
+				delete: 'deposit_deleted',
 			},
 		});
 		this.repo = repo;

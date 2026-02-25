@@ -182,7 +182,7 @@ class TaskService {
 
 			await this.repository.deleteTask(id, {
 				userId: userId!,
-				activityType: 'task_updated',
+				activityType: 'task_deleted',
 			});
 			return existingTask;
 		}, ALLOWED_ROLES);
@@ -215,7 +215,7 @@ class TaskService {
 
 			return this.repository.updateStatus(id, status, {
 				userId: userId!,
-				activityType: 'task_updated',
+				activityType: 'task_status_changed',
 			});
 		}, ALLOWED_ROLES);
 	}

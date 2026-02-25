@@ -16,6 +16,7 @@ class BookCopyService extends BaseService<typeof bookCopies, 'id'> {
 			activityTypes: {
 				create: 'book_copy_added',
 				update: 'book_copy_updated',
+				delete: 'book_copy_deleted',
 			},
 		});
 	}
