@@ -51,6 +51,7 @@ For every service that has `deleteRoles` configured but no `delete` activity typ
 1. Run typecheck/lint clean.
 2. Validate analytics pages still resolve labels and department grouping.
 3. Add smoke checks for key operations to assert correct activity type emission.
+4. Execute historical migration per [004_historical-migration-plan.md](004_historical-migration-plan.md) after rollout stabilizes.
 
 ## Validation checklist
 - Every write operation emits a catalog-valid activity type.
@@ -99,63 +100,6 @@ where changed_at >= now() - interval '30 days'
 group by 1
 order by 2 desc;
 ```
-
-## Migration strategy
-- Stepwise migration by module to avoid noisy analytics jumps.
-- Keep backward-compatible labels during transition where needed.
-
-### Concrete backfill strategy
-Use the `operation` column in `audit_logs` to retroactively correct historical activity types where `operation` disagrees with the activity type:
-```sql
--- Fix task deletes logged as task_updated
-UPDATE audit_logs SET activity_type = 'task_deleted'
-WHERE table_name = 'tasks' AND operation = 'DELETE' AND activity_type = 'task_updated';
-
--- Fix notification deletes logged as notification_updated
-UPDATE audit_logs SET activity_type = 'notification_deleted'
-WHERE table_name = 'notifications' AND operation = 'DELETE' AND activity_type = 'notification_updated';
-
--- Fix sponsor deletes logged as sponsor_updated
-UPDATE audit_logs SET activity_type = 'sponsor_deleted'
-WHERE table_name = 'sponsors' AND operation = 'DELETE' AND activity_type = 'sponsor_updated';
-
--- Fix certificate_reprint generic usage
-UPDATE audit_logs SET activity_type = 'certificate_reprint_created'
-WHERE table_name = 'certificate_reprints' AND operation = 'INSERT' AND activity_type = 'certificate_reprint';
-
-UPDATE audit_logs SET activity_type = 'certificate_reprint_updated'
-WHERE table_name = 'certificate_reprints' AND operation = 'UPDATE' AND activity_type = 'certificate_reprint';
-
-UPDATE audit_logs SET activity_type = 'certificate_reprint_deleted'
-WHERE table_name = 'certificate_reprints' AND operation = 'DELETE' AND activity_type = 'certificate_reprint';
-
--- Fix non-cataloged program_structure_update
-UPDATE audit_logs SET activity_type = 'student_program_structure_changed'
-WHERE activity_type = 'program_structure_update';
-
--- Backfill NULL activity types using operation column
-UPDATE audit_logs SET activity_type = 'venue_deleted'
-WHERE table_name = 'venues' AND operation = 'DELETE' AND activity_type IS NULL;
-
-UPDATE audit_logs SET activity_type = 'venue_type_deleted'
-WHERE table_name = 'venue_types' AND operation = 'DELETE' AND activity_type IS NULL;
-
-UPDATE audit_logs SET activity_type = 'application_deleted'
-WHERE table_name = 'applications' AND operation = 'DELETE' AND activity_type IS NULL;
-
-UPDATE audit_logs SET activity_type = 'feedback_category_deleted'
-WHERE table_name = 'feedback_categories' AND operation = 'DELETE' AND activity_type IS NULL;
-
-UPDATE audit_logs SET activity_type = 'feedback_cycle_deleted'
-WHERE table_name = 'feedback_cycles' AND operation = 'DELETE' AND activity_type IS NULL;
-
-UPDATE audit_logs SET activity_type = 'feedback_question_deleted'
-WHERE table_name = 'feedback_questions' AND operation = 'DELETE' AND activity_type IS NULL;
-
-UPDATE audit_logs SET activity_type = 'graduation_date_deleted'
-WHERE table_name = 'graduation_dates' AND operation = 'DELETE' AND activity_type IS NULL;
-```
-Run backfill AFTER new types are added to the catalog to avoid analytics breakage.
 
 ## Risk controls
 - Protect fallback resolver with deterministic tests.

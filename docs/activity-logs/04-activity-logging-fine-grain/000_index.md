@@ -9,7 +9,8 @@ Make activity logs highly specific to the exact business operation being perform
 |------|------|-------------|
 | 1 | [001_current-state-deepdive.md](001_current-state-deepdive.md) | Current-state analysis, confirmed issues, and impact summary |
 | 2 | [002_gap-matrix-and-taxonomy.md](002_gap-matrix-and-taxonomy.md) | Precision gaps and proposed fine-grained activity taxonomy |
-| 3 | [003_implementation-validation-and-rollout.md](003_implementation-validation-and-rollout.md) | Implementation phases, validation, migration strategy, and done criteria |
+| 3 | [003_implementation-validation-and-rollout.md](003_implementation-validation-and-rollout.md) | Implementation phases, validation, and done criteria |
+| 4 | [004_historical-migration-plan.md](004_historical-migration-plan.md) | Standalone backfill migration plan for existing audit logs, including feasibility, SQL strategy, and rollback |
 
 ## Key Outcomes Expected
 - Every write operation emits a semantically accurate activity type.
