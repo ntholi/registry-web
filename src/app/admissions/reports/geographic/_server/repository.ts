@@ -1,13 +1,4 @@
-import {
-	and,
-	avg,
-	count,
-	desc,
-	eq,
-	inArray,
-	isNotNull,
-	type SQL,
-} from 'drizzle-orm';
+import { and, avg, count, desc, eq, isNotNull } from 'drizzle-orm';
 import {
 	applicantLocations,
 	applicants,
@@ -16,6 +7,7 @@ import {
 	programs,
 	schools,
 } from '@/core/database';
+import { buildAdmissionReportConditions } from '../../_shared/reportConditions';
 import type { AdmissionReportFilter } from '../../_shared/types';
 
 export interface LocationData {
@@ -44,31 +36,11 @@ export interface LocationAggregation {
 	longitude: number;
 }
 
-function buildConditions(filter: AdmissionReportFilter): SQL[] {
-	const conditions: SQL[] = [];
-	if (filter.intakePeriodId) {
-		conditions.push(eq(applications.intakePeriodId, filter.intakePeriodId));
-	}
-	if (filter.schoolIds?.length) {
-		conditions.push(inArray(programs.schoolId, filter.schoolIds));
-	}
-	if (filter.programId) {
-		conditions.push(eq(applications.firstChoiceProgramId, filter.programId));
-	}
-	if (filter.programLevels?.length) {
-		conditions.push(inArray(programs.level, filter.programLevels));
-	}
-	if (filter.applicationStatuses?.length) {
-		conditions.push(inArray(applications.status, filter.applicationStatuses));
-	}
-	return conditions;
-}
-
 export class GeographicRepository {
 	async getCountryAggregation(
 		filter: AdmissionReportFilter
 	): Promise<CountryAggregation[]> {
-		const conditions = buildConditions(filter);
+		const conditions = buildAdmissionReportConditions(filter);
 		const whereClause = conditions.length ? and(...conditions) : undefined;
 
 		const rows = await db
@@ -99,7 +71,7 @@ export class GeographicRepository {
 	async getDistrictAggregation(
 		filter: AdmissionReportFilter
 	): Promise<DistrictAggregation[]> {
-		const conditions = buildConditions(filter);
+		const conditions = buildAdmissionReportConditions(filter);
 		const whereClause = conditions.length ? and(...conditions) : undefined;
 
 		const rows = await db
@@ -130,7 +102,7 @@ export class GeographicRepository {
 	async getLocationAggregation(
 		filter: AdmissionReportFilter
 	): Promise<LocationAggregation[]> {
-		const conditions = buildConditions(filter);
+		const conditions = buildAdmissionReportConditions(filter);
 		conditions.push(eq(applicantLocations.country, 'Lesotho'));
 		conditions.push(isNotNull(applicantLocations.city));
 		conditions.push(isNotNull(applicantLocations.latitude));

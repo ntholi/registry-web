@@ -1,4 +1,4 @@
-import { and, count, eq, inArray, type SQL, sql } from 'drizzle-orm';
+import { and, count, eq, sql } from 'drizzle-orm';
 import {
 	applicants,
 	applications,
@@ -6,6 +6,7 @@ import {
 	programs,
 	schools,
 } from '@/core/database';
+import { buildAdmissionReportConditions } from '../../_shared/reportConditions';
 import type { AdmissionReportFilter } from '../../_shared/types';
 
 export const AGE_GROUPS = [
@@ -32,31 +33,11 @@ export interface SchoolDemographics {
 	total: number;
 }
 
-function buildConditions(filter: AdmissionReportFilter): SQL[] {
-	const conditions: SQL[] = [];
-	if (filter.intakePeriodId) {
-		conditions.push(eq(applications.intakePeriodId, filter.intakePeriodId));
-	}
-	if (filter.schoolIds?.length) {
-		conditions.push(inArray(programs.schoolId, filter.schoolIds));
-	}
-	if (filter.programId) {
-		conditions.push(eq(applications.firstChoiceProgramId, filter.programId));
-	}
-	if (filter.programLevels?.length) {
-		conditions.push(inArray(programs.level, filter.programLevels));
-	}
-	if (filter.applicationStatuses?.length) {
-		conditions.push(inArray(applications.status, filter.applicationStatuses));
-	}
-	return conditions;
-}
-
 export class DemographicsRepository {
 	async getOverview(
 		filter: AdmissionReportFilter
 	): Promise<DemographicsOverview> {
-		const conditions = buildConditions(filter);
+		const conditions = buildAdmissionReportConditions(filter);
 		const whereClause = conditions.length ? and(...conditions) : undefined;
 
 		const genderRows = await db
@@ -139,7 +120,7 @@ export class DemographicsRepository {
 	async getBySchool(
 		filter: AdmissionReportFilter
 	): Promise<SchoolDemographics[]> {
-		const conditions = buildConditions(filter);
+		const conditions = buildAdmissionReportConditions(filter);
 		const whereClause = conditions.length ? and(...conditions) : undefined;
 
 		const rows = await db

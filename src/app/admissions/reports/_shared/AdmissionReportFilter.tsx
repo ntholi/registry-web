@@ -50,9 +50,7 @@ interface Props {
 	onFilterChange: (filter: AdmissionReportFilterType) => void;
 }
 
-export default function AdmissionReportFilter({
-	onFilterChange,
-}: Props) {
+export default function AdmissionReportFilter({ onFilterChange }: Props) {
 	const [opened, { open, close }] = useDisclosure(false);
 	const [scoreRange, setScoreRange] = useState<[number, number]>([
 		SCORE_MIN,
@@ -205,23 +203,23 @@ export default function AdmissionReportFilter({
 						value={filter.applicationStatuses ?? []}
 						onChange={(vals) => setFilter({ applicationStatuses: vals })}
 					/>
-						<Stack gap='xs'>
-							<Text size='sm' fw={500}>
-								Overall Score: {scoreRange[0].toFixed(1)} –{' '}
-								{scoreRange[1].toFixed(1)}
-							</Text>
-							<RangeSlider
-								value={scoreRange}
-								onChange={setScoreRange}
-								min={SCORE_MIN}
-								max={SCORE_MAX}
-								step={0.25}
-								minRange={0.25}
-								marks={SCORE_MARKS}
-								label={(val) => val.toFixed(1)}
-								pb='lg'
-							/>
-						</Stack>
+					<Stack gap='xs'>
+						<Text size='sm' fw={500}>
+							Overall Score: {scoreRange[0].toFixed(1)} –{' '}
+							{scoreRange[1].toFixed(1)}
+						</Text>
+						<RangeSlider
+							value={scoreRange}
+							onChange={setScoreRange}
+							min={SCORE_MIN}
+							max={SCORE_MAX}
+							step={0.25}
+							minRange={0.25}
+							marks={SCORE_MARKS}
+							label={(val) => val.toFixed(1)}
+							pb='lg'
+						/>
+					</Stack>
 					<Button
 						leftSection={<IconFilter size={16} />}
 						onClick={handleApply}

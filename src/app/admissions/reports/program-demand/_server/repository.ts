@@ -1,16 +1,6 @@
-import { applicationScores } from '@admissions/applications/_schema/applicationScores';
-import {
-	and,
-	count,
-	desc,
-	eq,
-	gte,
-	inArray,
-	isNotNull,
-	lte,
-	type SQL,
-} from 'drizzle-orm';
+import { and, count, desc, eq } from 'drizzle-orm';
 import { applications, db, programs, schools } from '@/core/database';
+import { buildAdmissionReportConditions } from '../../_shared/reportConditions';
 import type { AdmissionReportFilter } from '../../_shared/types';
 
 export interface ProgramDemandRow {
@@ -31,46 +21,11 @@ export interface SchoolDemandRow {
 	count: number;
 }
 
-function buildConditions(filter: AdmissionReportFilter): SQL[] {
-	const conditions: SQL[] = [];
-	if (filter.intakePeriodId) {
-		conditions.push(eq(applications.intakePeriodId, filter.intakePeriodId));
-	}
-	if (filter.applicationStatuses?.length) {
-		conditions.push(inArray(applications.status, filter.applicationStatuses));
-	}
-	return conditions;
-}
-
-function buildScoreConditions(filter: AdmissionReportFilter): SQL[] {
-	if (!filter.scoreRange) return [];
-	return [
-		isNotNull(applicationScores.overallScore),
-		gte(applicationScores.overallScore, filter.scoreRange[0]),
-		lte(applicationScores.overallScore, filter.scoreRange[1]),
-	];
-}
-
 export class ProgramDemandRepository {
 	async getProgramDemand(
 		filter: AdmissionReportFilter
 	): Promise<ProgramDemandRow[]> {
-		const conditions = buildConditions(filter);
-		const scoreConditions = buildScoreConditions(filter);
-
-		const schoolFilter = filter.schoolIds?.length
-			? inArray(programs.schoolId, filter.schoolIds)
-			: undefined;
-		const levelFilter = filter.programLevels?.length
-			? inArray(programs.level, filter.programLevels)
-			: undefined;
-		const programFilter = filter.programId
-			? eq(programs.id, filter.programId)
-			: undefined;
-
-		const allFilters = [schoolFilter, levelFilter, programFilter].filter(
-			Boolean
-		);
+		const conditions = buildAdmissionReportConditions(filter);
 
 		const firstChoice = db
 			.select({
@@ -85,11 +40,7 @@ export class ProgramDemandRepository {
 			.from(applications)
 			.innerJoin(programs, eq(applications.firstChoiceProgramId, programs.id))
 			.innerJoin(schools, eq(programs.schoolId, schools.id))
-			.leftJoin(
-				applicationScores,
-				eq(applications.id, applicationScores.applicationId)
-			)
-			.where(and(...conditions, ...scoreConditions, ...allFilters) || undefined)
+			.where(conditions.length ? and(...conditions) : undefined)
 			.groupBy(
 				programs.id,
 				programs.code,
@@ -112,11 +63,7 @@ export class ProgramDemandRepository {
 			.from(applications)
 			.innerJoin(programs, eq(applications.secondChoiceProgramId, programs.id))
 			.innerJoin(schools, eq(programs.schoolId, schools.id))
-			.leftJoin(
-				applicationScores,
-				eq(applications.id, applicationScores.applicationId)
-			)
-			.where(and(...conditions, ...scoreConditions, ...allFilters) || undefined)
+			.where(conditions.length ? and(...conditions) : undefined)
 			.groupBy(
 				programs.id,
 				programs.code,
@@ -173,17 +120,7 @@ export class ProgramDemandRepository {
 	async getDemandBySchool(
 		filter: AdmissionReportFilter
 	): Promise<SchoolDemandRow[]> {
-		const conditions = buildConditions(filter);
-		const scoreConditions = buildScoreConditions(filter);
-
-		const schoolFilter = filter.schoolIds?.length
-			? inArray(programs.schoolId, filter.schoolIds)
-			: undefined;
-		const levelFilter = filter.programLevels?.length
-			? inArray(programs.level, filter.programLevels)
-			: undefined;
-
-		const allFilters = [schoolFilter, levelFilter].filter(Boolean);
+		const conditions = buildAdmissionReportConditions(filter);
 
 		const rows = await db
 			.select({
@@ -194,11 +131,7 @@ export class ProgramDemandRepository {
 			.from(applications)
 			.innerJoin(programs, eq(applications.firstChoiceProgramId, programs.id))
 			.innerJoin(schools, eq(programs.schoolId, schools.id))
-			.leftJoin(
-				applicationScores,
-				eq(applications.id, applicationScores.applicationId)
-			)
-			.where(and(...conditions, ...scoreConditions, ...allFilters) || undefined)
+			.where(conditions.length ? and(...conditions) : undefined)
 			.groupBy(schools.id, schools.code)
 			.orderBy(desc(count()), schools.code);
 

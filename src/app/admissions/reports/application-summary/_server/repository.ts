@@ -1,5 +1,6 @@
-import { and, count, desc, eq, inArray, type SQL, sql } from 'drizzle-orm';
+import { and, count, desc, eq, sql } from 'drizzle-orm';
 import { applications, db, programs, schools } from '@/core/database';
+import { buildAdmissionReportConditions } from '../../_shared/reportConditions';
 import type { AdmissionReportFilter } from '../../_shared/types';
 
 export interface StatusCount {
@@ -36,29 +37,9 @@ export interface ChartData {
 	}>;
 }
 
-function buildConditions(filter: AdmissionReportFilter): SQL[] {
-	const conditions: SQL[] = [];
-	if (filter.intakePeriodId) {
-		conditions.push(eq(applications.intakePeriodId, filter.intakePeriodId));
-	}
-	if (filter.schoolIds?.length) {
-		conditions.push(inArray(programs.schoolId, filter.schoolIds));
-	}
-	if (filter.programId) {
-		conditions.push(eq(applications.firstChoiceProgramId, filter.programId));
-	}
-	if (filter.programLevels?.length) {
-		conditions.push(inArray(programs.level, filter.programLevels));
-	}
-	if (filter.applicationStatuses?.length) {
-		conditions.push(inArray(applications.status, filter.applicationStatuses));
-	}
-	return conditions;
-}
-
 export class ApplicationSummaryRepository {
 	async getSummaryData(filter: AdmissionReportFilter): Promise<SummaryRow[]> {
-		const conditions = buildConditions(filter);
+		const conditions = buildAdmissionReportConditions(filter);
 		const totalCount = count();
 
 		const rows = await db
@@ -124,7 +105,7 @@ export class ApplicationSummaryRepository {
 	}
 
 	async getChartData(filter: AdmissionReportFilter): Promise<ChartData> {
-		const conditions = buildConditions(filter);
+		const conditions = buildAdmissionReportConditions(filter);
 		const whereClause = conditions.length ? and(...conditions) : undefined;
 
 		const statusRows = await db
