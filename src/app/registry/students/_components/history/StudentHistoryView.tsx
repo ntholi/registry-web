@@ -1,6 +1,6 @@
 'use client';
 
-import { getActivityLabel } from '@admin/activity-tracker/_lib/activity-catalog';
+import { getActivityLabel } from '@admin/activity-tracker/_lib/registry';
 import ChangeItem from '@audit-logs/_components/ChangeItem';
 import {
 	DEFAULT_EXCLUDE_FIELDS,

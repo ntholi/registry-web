@@ -68,6 +68,15 @@ function isActivityType(
 	return value in catalog;
 }
 
+function resolveTableActivity(
+	tableName: string,
+	operation: 'INSERT' | 'UPDATE' | 'DELETE',
+	tableOperationMap: Record<string, string>
+): string | undefined {
+	const key = `${tableName}:${operation}`;
+	return tableOperationMap[key];
+}
+
 export {
 	type Department,
 	type ActivityEntry,
@@ -76,4 +85,5 @@ export {
 	getActivityLabel,
 	groupByDepartment,
 	isActivityType,
+	resolveTableActivity,
 };

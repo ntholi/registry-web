@@ -19,7 +19,7 @@ import { IconDatabaseOff, IconSearch } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { getActivityLabel } from '../_lib/activity-catalog';
+import { getActivityLabel } from '../_lib/registry';
 import { getEmployeeList } from '../_server/actions';
 
 type Props = {

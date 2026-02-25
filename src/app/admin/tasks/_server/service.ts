@@ -1,5 +1,5 @@
 import type { Session } from 'next-auth';
-import type { ActivityType } from '@/app/admin/activity-tracker/_lib/activity-catalog';
+import type { ActivityType } from '@/app/admin/activity-tracker/_lib/registry';
 import type { tasks, UserRole } from '@/core/database';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
 import withAuth from '@/core/platform/withAuth';

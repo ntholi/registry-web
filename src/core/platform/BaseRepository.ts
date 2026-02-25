@@ -1,8 +1,10 @@
 import { count, eq, or, type SQL, sql } from 'drizzle-orm';
 import type { PgColumn as Column, PgTable as Table } from 'drizzle-orm/pg-core';
 import { getTableConfig } from 'drizzle-orm/pg-core';
-import type { ActivityType } from '@/app/admin/activity-tracker/_lib/activity-catalog';
-import { resolveTableActivity } from '@/app/admin/activity-tracker/_lib/activity-types';
+import {
+	type ActivityType,
+	resolveTableActivity,
+} from '@/app/admin/activity-tracker/_lib/registry';
 import { db } from '@/core/database';
 import { auditLogs } from '@/core/database/schema/auditLogs';
 

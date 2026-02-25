@@ -1,6 +1,6 @@
 import type { PgTable as Table } from 'drizzle-orm/pg-core';
 import type { Session } from 'next-auth';
-import type { ActivityType } from '@/app/admin/activity-tracker/_lib/activity-catalog';
+import type { ActivityType } from '@/app/admin/activity-tracker/_lib/registry';
 import type { UserRole } from '@/core/database';
 import type BaseRepository from './BaseRepository';
 import type { AuditOptions, QueryOptions } from './BaseRepository';

@@ -6,7 +6,7 @@ import { IconDatabaseOff } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useMemo } from 'react';
 import { formatDate } from '@/shared/lib/utils/dates';
-import { getActivityLabel } from '../_lib/activity-catalog';
+import { getActivityLabel } from '../_lib/registry';
 import { getDailyTrends } from '../_server/actions';
 
 type Props = {

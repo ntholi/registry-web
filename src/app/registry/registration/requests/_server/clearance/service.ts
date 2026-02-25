@@ -1,4 +1,4 @@
-import type { ActivityType } from '@/app/admin/activity-tracker/_lib/activity-catalog';
+import type { ActivityType } from '@/app/admin/activity-tracker/_lib/registry';
 import { getActiveTerm } from '@/app/registry/terms';
 import { auth } from '@/core/auth';
 import type { clearance, DashboardUser } from '@/core/database';

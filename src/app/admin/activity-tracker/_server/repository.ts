@@ -1,6 +1,6 @@
 import { and, between, count, eq, ilike, isNotNull, sql } from 'drizzle-orm';
 import { auditLogs, db, users } from '@/core/database';
-import { getActivityLabel } from '../_lib/activity-catalog';
+import { getActivityLabel } from '../_lib/registry';
 import type {
 	ActivitySummary,
 	DailyTrend,
