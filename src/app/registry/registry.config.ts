@@ -1,35 +1,21 @@
 import {
-	IconBan,
 	IconBook,
 	IconBooks,
 	IconCalendarDue,
 	IconCalendarEvent,
 	IconCertificate,
-	IconCircleCheck,
 	IconClipboardCheck,
-	IconHourglass,
 	IconRobot,
 	IconSchool,
 	IconUserOff,
 	IconUserPlus,
 	IconUsers,
 } from '@tabler/icons-react';
-import type {
-	ModuleConfig,
-	NavItem,
-} from '@/app/dashboard/module-config.types';
+import type { ModuleConfig } from '@/app/dashboard/module-config.types';
 import { moduleConfig } from '@/config/modules.config';
 import type { UserPosition, UserRole } from '../auth/_database';
-import {
-	countApprovedGraduationClearances,
-	countPendingGraduationClearances,
-	countRejectedGraduationClearances,
-} from './graduation';
-import {
-	countApprovedClearances,
-	countPendingClearances,
-	countRejectedClearances,
-} from './registration';
+import { countPendingGraduationClearances } from './graduation';
+import { countPendingClearances } from './registration';
 
 export const registryConfig: ModuleConfig = {
 	id: 'registry',
@@ -93,52 +79,24 @@ export const registryConfig: ModuleConfig = {
 			},
 			{
 				label: 'Registration Clearance',
+				href: '/registry/registration/clearance',
 				icon: IconClipboardCheck,
-
-				children: [
-					{
-						label: 'Requests',
-						href: '/registry/registration/clearance/pending',
-						icon: IconHourglass,
-						notificationCount: {
-							queryKey: ['clearances', 'pending'],
-							queryFn: () => countPendingClearances(),
-							color: 'red',
-						},
-						roles: ['finance', 'library', 'resource', 'leap'],
-					},
-					{
-						label: 'Approved',
-						href: '/registry/registration/clearance/approved',
-						icon: IconCircleCheck,
-						notificationCount: {
-							queryKey: ['clearances', 'approved'],
-							queryFn: () => countApprovedClearances(),
-							color: 'gray',
-						},
-						roles: ['finance', 'library', 'resource', 'leap'],
-					},
-					{
-						label: 'Rejected',
-						href: '/registry/registration/clearance/rejected',
-						icon: IconBan,
-						notificationCount: {
-							queryKey: ['clearances', 'rejected'],
-							queryFn: () => countRejectedClearances(),
-							color: 'gray',
-						},
-						roles: ['finance', 'library', 'resource', 'leap'],
-					},
-					{
-						label: 'Auto-Approvals',
-						href: '/registry/registration/clearance/auto-approve',
-						icon: IconRobot,
-						roles: ['finance', 'library', 'resource', 'admin'],
-					},
-				] as NavItem[],
+				roles: ['finance', 'library', 'resource', 'leap'],
+				notificationCount: {
+					queryKey: ['clearances', 'pending'],
+					queryFn: () => countPendingClearances(),
+					color: 'red',
+				},
+			},
+			{
+				label: 'Auto-Approvals',
+				href: '/registry/registration/clearance/auto-approve',
+				icon: IconRobot,
+				roles: ['finance', 'library', 'resource', 'admin'],
 			},
 			{
 				label: 'Graduation Clearance',
+				href: '/registry/graduation/clearance',
 				icon: IconCertificate,
 				isVisible: (session) => {
 					if (['finance', 'library'].includes(session?.user?.role as UserRole))
@@ -149,39 +107,11 @@ export const registryConfig: ModuleConfig = {
 						['manager', 'admin', 'program_leader'].includes(academicRole)
 					);
 				},
-				collapsed: true,
-				children: [
-					{
-						label: 'Requests',
-						href: '/registry/graduation/clearance/pending',
-						icon: IconHourglass,
-						notificationCount: {
-							queryKey: ['graduation-clearances', 'pending'],
-							queryFn: () => countPendingGraduationClearances(),
-							color: 'red',
-						},
-					},
-					{
-						label: 'Approved',
-						href: '/registry/graduation/clearance/approved',
-						icon: IconCircleCheck,
-						notificationCount: {
-							queryKey: ['graduation-clearances', 'approved'],
-							queryFn: () => countApprovedGraduationClearances(),
-							color: 'gray',
-						},
-					},
-					{
-						label: 'Rejected',
-						href: '/registry/graduation/clearance/rejected',
-						icon: IconBan,
-						notificationCount: {
-							queryKey: ['graduation-clearances', 'rejected'],
-							queryFn: () => countRejectedGraduationClearances(),
-							color: 'gray',
-						},
-					},
-				] as NavItem[],
+				notificationCount: {
+					queryKey: ['graduation-clearances', 'pending'],
+					queryFn: () => countPendingGraduationClearances(),
+					color: 'red',
+				},
 			},
 			{
 				label: 'Blocked Students',

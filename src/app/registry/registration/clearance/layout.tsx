@@ -6,7 +6,8 @@ import {
 } from '@registry/registration/requests';
 import { IconAlertCircle, IconCheck, IconClock } from '@tabler/icons-react';
 import { useAtom } from 'jotai';
-import { useParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
+import { useRouter } from 'nextjs-toploader/app';
 import type { PropsWithChildren } from 'react';
 import { getStatusColor } from '@/shared/lib/utils/colors';
 import { ListItem, ListLayout } from '@/shared/ui/adease';
@@ -29,24 +30,15 @@ type ClearanceItem = {
 	} | null;
 };
 
-const statusTitles = {
-	pending: 'Pending Clearance Requests',
-	approved: 'Approved Clearances',
-	rejected: 'Rejected Clearances',
-};
-
 function getFilterKey(filter: AtomClearanceFilter) {
 	return JSON.stringify(filter);
 }
 
 export default function Layout({ children }: PropsWithChildren) {
-	const params = useParams();
-	const status = params.status as Status;
+	const router = useRouter();
+	const searchParams = useSearchParams();
+	const statusFilter = (searchParams.get('status') || 'pending') as Status;
 	const [filter, setFilter] = useAtom(clearanceFilterAtom);
-
-	if (!statusTitles[status]) {
-		return <div>Invalid status: {status}</div>;
-	}
 
 	const apiFilter: ClearanceFilter = {
 		termId: filter.termId,
@@ -56,13 +48,29 @@ export default function Layout({ children }: PropsWithChildren) {
 		semester: filter.semester,
 	};
 
+	function handleStatusChange(status: string) {
+		const params = new URLSearchParams(searchParams);
+		if (status !== 'pending') {
+			params.set('status', status);
+		} else {
+			params.delete('status');
+		}
+		params.delete('page');
+		const query = params.toString();
+		router.push(
+			query
+				? `/registry/registration/clearance?${query}`
+				: '/registry/registration/clearance'
+		);
+	}
+
 	return (
-		<ListLayout
-			path={`/registry/registration/clearance/${status}`}
-			queryKey={['clearances', status, getFilterKey(filter)]}
+		<ListLayout<ClearanceItem>
+			path='/registry/registration/clearance'
+			queryKey={['clearances', statusFilter, getFilterKey(filter)]}
 			getData={async (page, search) => {
 				const response = await clearanceByStatus(
-					status,
+					statusFilter,
 					page,
 					search,
 					apiFilter
@@ -75,10 +83,12 @@ export default function Layout({ children }: PropsWithChildren) {
 			actionIcons={[
 				<RegistrationClearanceFilter
 					key='clearance-filter'
+					statusValue={statusFilter}
 					onFilterChange={setFilter}
+					onStatusChange={handleStatusChange}
 				/>,
 			]}
-			renderItem={(it: ClearanceItem) => (
+			renderItem={(it) => (
 				<ListItem
 					id={it.id}
 					label={it.registrationRequest?.student.stdNo || 'N/A'}
@@ -92,7 +102,7 @@ export default function Layout({ children }: PropsWithChildren) {
 	);
 }
 
-function getStatusIcon(status: 'pending' | 'approved' | 'rejected') {
+function getStatusIcon(status: Status) {
 	const color = getStatusColor(status);
 	switch (status) {
 		case 'pending':

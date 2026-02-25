@@ -5,7 +5,8 @@ import { getLatestGraduationDate } from '@registry/graduation/dates';
 import { IconAlertCircle, IconCheck, IconClock } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useAtom } from 'jotai';
-import { useParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
+import { useRouter } from 'nextjs-toploader/app';
 import type { PropsWithChildren } from 'react';
 import { getStatusColor } from '@/shared/lib/utils/colors';
 import { ListItem, ListLayout } from '@/shared/ui/adease';
@@ -28,15 +29,10 @@ type GraduationClearanceItem = {
 	} | null;
 };
 
-const statusTitles = {
-	pending: 'Pending Graduation Clearance Requests',
-	approved: 'Approved Graduation Clearances',
-	rejected: 'Rejected Graduation Clearances',
-};
-
 export default function Layout({ children }: PropsWithChildren) {
-	const params = useParams();
-	const status = params.status as Status;
+	const router = useRouter();
+	const searchParams = useSearchParams();
+	const statusFilter = (searchParams.get('status') || 'pending') as Status;
 	const [selectedDate, setSelectedDate] = useAtom(selectedGraduationDateAtom);
 
 	const { data: latestDate } = useQuery({
@@ -49,22 +45,34 @@ export default function Layout({ children }: PropsWithChildren) {
 		setSelectedDate(latestDate.id);
 	}
 
-	if (!statusTitles[status]) {
-		return <div>Invalid status: {status}</div>;
+	function handleStatusChange(status: string) {
+		const params = new URLSearchParams(searchParams);
+		if (status !== 'pending') {
+			params.set('status', status);
+		} else {
+			params.delete('status');
+		}
+		params.delete('page');
+		const query = params.toString();
+		router.push(
+			query
+				? `/registry/graduation/clearance?${query}`
+				: '/registry/graduation/clearance'
+		);
 	}
 
 	return (
-		<ListLayout
-			path={`/registry/graduation/clearance/${status}`}
+		<ListLayout<GraduationClearanceItem>
+			path='/registry/graduation/clearance'
 			queryKey={[
 				'graduation-clearances',
-				status,
+				statusFilter,
 				selectedDate?.toString() || latestDate?.id?.toString() || 'all',
 			]}
 			getData={async (page, search) => {
 				const dateToUse = selectedDate || latestDate?.id;
 				const response = await graduationClearanceByStatus(
-					status,
+					statusFilter,
 					page,
 					search,
 					dateToUse || undefined
@@ -77,10 +85,12 @@ export default function Layout({ children }: PropsWithChildren) {
 			actionIcons={[
 				<GraduationDateFilter
 					key='graduation-date-filter'
+					statusValue={statusFilter}
+					onStatusChange={handleStatusChange}
 					onDateChange={setSelectedDate}
 				/>,
 			]}
-			renderItem={(it: GraduationClearanceItem) => (
+			renderItem={(it) => (
 				<ListItem
 					id={it.id}
 					label={
@@ -96,7 +106,7 @@ export default function Layout({ children }: PropsWithChildren) {
 	);
 }
 
-function getStatusIcon(status: 'pending' | 'approved' | 'rejected') {
+function getStatusIcon(status: Status) {
 	const color = getStatusColor(status);
 	switch (status) {
 		case 'pending':

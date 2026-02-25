@@ -20,6 +20,7 @@ import { useDisclosure } from '@mantine/hooks';
 import { IconFilter, IconX } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useAtom } from 'jotai';
+import { useState } from 'react';
 import { getAllTerms } from '@/app/registry/terms';
 import { formatSemester } from '@/shared/lib/utils/utils';
 import {
@@ -27,6 +28,15 @@ import {
 	clearanceFilterAtom,
 	defaultClearanceFilter,
 } from '@/shared/ui/atoms/clearanceFilterAtoms';
+
+const DEFAULT_STATUS = 'pending';
+
+const statusOptions = [
+	{ value: 'all', label: 'All Status' },
+	{ value: 'pending', label: 'Pending' },
+	{ value: 'approved', label: 'Approved' },
+	{ value: 'rejected', label: 'Rejected' },
+];
 
 const semesterOptions = Array.from({ length: 8 }, (_, i) => {
 	const num = (i + 1).toString().padStart(2, '0');
@@ -39,12 +49,24 @@ const levelOptions = programLevelEnum.enumValues.map((level) => ({
 }));
 
 interface Props {
+	statusValue?: string;
+	onStatusChange?: (status: string) => void;
 	onFilterChange?: (filter: ClearanceFilter) => void;
 }
 
-export default function RegistrationClearanceFilter({ onFilterChange }: Props) {
+export default function RegistrationClearanceFilter({
+	statusValue = DEFAULT_STATUS,
+	onStatusChange,
+	onFilterChange,
+}: Props) {
 	const [opened, { open, close }] = useDisclosure(false);
 	const [filter, setFilter] = useAtom(clearanceFilterAtom);
+	const [status, setStatus] = useState(statusValue);
+
+	function handleOpen() {
+		setStatus(statusValue);
+		open();
+	}
 
 	const { data: terms = [], isLoading: termsLoading } = useQuery({
 		queryKey: ['terms'],
@@ -66,6 +88,7 @@ export default function RegistrationClearanceFilter({ onFilterChange }: Props) {
 	});
 
 	const activeFiltersCount = [
+		statusValue !== DEFAULT_STATUS,
 		filter.termId,
 		filter.schoolId,
 		filter.programId,
@@ -88,18 +111,22 @@ export default function RegistrationClearanceFilter({ onFilterChange }: Props) {
 	}
 
 	function handleClear() {
+		setStatus(DEFAULT_STATUS);
 		setFilter(defaultClearanceFilter);
 		onFilterChange?.(defaultClearanceFilter);
+		onStatusChange?.(DEFAULT_STATUS);
 	}
 
 	function handleApply() {
 		onFilterChange?.(filter);
+		onStatusChange?.(status);
 		close();
 	}
 
 	const isDefaultFilter =
-		Object.keys(filter).length === 0 ||
-		Object.values(filter).every((v) => v === undefined);
+		statusValue === DEFAULT_STATUS &&
+		(Object.keys(filter).length === 0 ||
+			Object.values(filter).every((v) => v === undefined));
 
 	return (
 		<>
@@ -113,7 +140,7 @@ export default function RegistrationClearanceFilter({ onFilterChange }: Props) {
 					<ActionIcon
 						variant={isDefaultFilter ? 'default' : 'filled'}
 						color='blue'
-						onClick={open}
+						onClick={handleOpen}
 						size='input-sm'
 					>
 						<IconFilter size={16} />
@@ -129,6 +156,14 @@ export default function RegistrationClearanceFilter({ onFilterChange }: Props) {
 			>
 				<Paper p='md' withBorder>
 					<Stack gap='md'>
+						<Select
+							label='Status'
+							placeholder='Select status'
+							data={statusOptions}
+							value={status}
+							onChange={(val) => setStatus(val || DEFAULT_STATUS)}
+						/>
+
 						<Select
 							label='Term'
 							placeholder='Select term'

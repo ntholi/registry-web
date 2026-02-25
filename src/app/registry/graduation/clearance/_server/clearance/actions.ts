@@ -14,14 +14,6 @@ export async function countPendingGraduationClearances() {
 	return service.countByStatus('pending');
 }
 
-export async function countApprovedGraduationClearances() {
-	return service.countByStatus('approved');
-}
-
-export async function countRejectedGraduationClearances() {
-	return service.countByStatus('rejected');
-}
-
 export async function graduationClearanceByStatus(
 	status: 'pending' | 'approved' | 'rejected',
 	page: number = 1,

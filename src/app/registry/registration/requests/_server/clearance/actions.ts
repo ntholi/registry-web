@@ -23,14 +23,6 @@ export async function countPendingClearances() {
 	return service.countByStatus('pending');
 }
 
-export async function countApprovedClearances() {
-	return service.countByStatus('approved');
-}
-
-export async function countRejectedClearances() {
-	return service.countByStatus('rejected');
-}
-
 export async function clearanceByStatus(
 	status: 'pending' | 'approved' | 'rejected',
 	page: number = 1,
