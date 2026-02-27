@@ -115,10 +115,10 @@ GET /contacts?cf_account_code=901017723&organization_id=823788793
 Registry Web Receipt Type  →  Zoho Books Item Name  →  Zoho Item ID
 ─────────────────────────────────────────────────────────────────────
 student_card               →  "Student Card"         →  4172689000000628015
-graduation_gown            →  ________________       →  ________________
-graduation_fee             →  ________________       →  ________________
+graduation_gown            →  "Degree Gown"       →  4172689000000694001 & Diploma Gown -> 4172689000000693001
+graduation_fee             →  "Graduation fee"       →  4172689000000694036
 repeat_module              →  ________________       →  ________________
-late_registration          →  ________________       →  ________________
+late_registration          →  "Late Registration Fee"       →  4172689000000653071
 tuition_fee                →  ________________       →  ________________
 library_fine               →  ________________       →  ________________
 application_fee            →  ________________       →  ________________
