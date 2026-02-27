@@ -18,7 +18,10 @@
 | Better Auth version | Pin to latest stable at migration time |
 | pgEnums | Drop all 3 (user_roles, user_positions, dashboard_users) → use text |
 | Google UX | `prompt: "select_account"` (force account picker) |
-| Route protection | Next.js 16 proxy (cookie-only check via `getSessionCookie()`, real validation in pages/routes) |
+| Route protection | Next.js 16 proxy (cookie-cache check via `getCookieCache()`, real validation in pages/routes) |
+| Trusted origins | Production domain + Vercel preview wildcard |
+| Experimental joins | Enabled (`experimental: { joins: true }`) for 2-3x perf on session lookups |
+| Rate limiting | Default in-memory (acceptable for initial rollout; upgrade to DB storage if abuse observed) |
 
 ---
 
@@ -97,6 +100,10 @@ export const auth = betterAuth({
     provider: "pg",
     usePlural: true,
   }),
+  trustedOrigins: [
+    process.env.BETTER_AUTH_URL!,
+    "https://*.vercel.app",
+  ],
   socialProviders: {
     google: {
       clientId: process.env.GOOGLE_CLIENT_ID!,
@@ -111,6 +118,7 @@ export const auth = betterAuth({
       enabled: true,
       maxAge: 5 * 60,
       strategy: "compact",
+      version: "1",
     },
   },
   account: {
@@ -123,12 +131,15 @@ export const auth = betterAuth({
   user: {
     additionalFields: {
       role: {
-        type: "string",
+        type: ["user", "applicant", "student", "finance", "registry", "library", "academic", "marketing", "student_services", "resource", "leap", "admin"],
         required: false,
         defaultValue: "user",
         input: false,
       },
     },
+  },
+  experimental: {
+    joins: true,
   },
   advanced: {
     useSecureCookies: process.env.NODE_ENV === "production",
@@ -384,12 +395,12 @@ File: `proxy.ts` (project root)
 
 ```ts
 import { NextRequest, NextResponse } from "next/server";
-import { getSessionCookie } from "better-auth/cookies";
+import { getCookieCache } from "better-auth/cookies";
 
 export async function proxy(request: NextRequest) {
-  const sessionCookie = getSessionCookie(request);
+  const session = await getCookieCache(request);
 
-  if (!sessionCookie) {
+  if (!session) {
     return NextResponse.redirect(new URL("/auth/login", request.url));
   }
 
@@ -412,9 +423,11 @@ export const config = {
 };
 ```
 
-> **Why cookie-only?** Better Auth docs explicitly state: proxy/middleware is for
-> "optimistic redirects" only. The `getSessionCookie()` check is fast (no DB hit)
-> and prevents unauthenticated users from seeing protected pages. Real security
-> enforcement happens in `withPermission()` at the server action/page level,
-> which calls `auth.api.getSession()` with full DB validation.
+> **Why `getCookieCache`?** Better Auth docs state: proxy/middleware is for
+> "optimistic redirects" only. Unlike `getSessionCookie()` (which only checks
+> cookie existence and can be faked), `getCookieCache()` **decodes and verifies
+> the signed cookie cache** without hitting the DB. This validates the HMAC
+> signature and checks expiry — much stronger than an existence check, while
+> still being fast (no DB round-trip). Real security enforcement still happens
+> in `withPermission()` at the server action/page level via `auth.api.getSession()`.
 ```

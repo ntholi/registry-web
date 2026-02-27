@@ -26,8 +26,12 @@ To avoid querying `user_permissions` on every single server action call:
 import { cache } from "react";
 
 const getUserPermissions = cache(async (userId: string) => {
-  // Query user_permissions table once per request
-  return await permissionRepository.findByUserId(userId);
+  try {
+    return await permissionRepository.findByUserId(userId);
+  } catch (error) {
+    console.error("[withPermission] Failed to query user_permissions", { userId, error });
+    return [];
+  }
 });
 ```
 

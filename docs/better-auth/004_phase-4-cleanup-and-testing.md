@@ -23,24 +23,33 @@ File: `src/app/dashboard/module-config.types.ts`
 - [ ] Google OAuth sign-in works and account selector appears
 - [ ] Session persists across refreshes
 - [ ] Cookie cache is active (check for `better-auth.session_data` cookie)
-- [ ] Proxy redirects unauthenticated users from protected routes (cookie-only check)
+- [ ] Proxy redirects unauthenticated users from protected routes (cookie-cache check via `getCookieCache`)
 - [ ] Proxy file is at project root (`proxy.ts`), NOT in `src/`
 - [ ] `serverExternalPackages: ['better-auth']` is in `next.config.ts`
+- [ ] `trustedOrigins` includes production domain and Vercel preview wildcard
+- [ ] `experimental: { joins: true }` is enabled and Drizzle relations are defined
+- [ ] Session `getSession` endpoint uses DB joins (verify via network/logs that related data is fetched in 1 query)
+- [ ] Cookie cache `version: "1"` is set (allows future mass session invalidation)
+- [ ] Role field validates against the defined enum array (rejects invalid role strings)
 - [ ] Admin can manage user roles via Better Auth admin API
+- [ ] Admin impersonation works and sessions are marked with `impersonatedBy`
 - [ ] Permission presets populate `user_permissions`
 - [ ] Per-user permission overrides work (grant + revoke)
 - [ ] `withPermission` merges role defaults + overrides correctly
 - [ ] Permission caching works (React `cache()` deduplication)
+- [ ] Permission query failures are handled gracefully (returns empty permissions, doesn't crash)
 - [ ] Server actions enforce correct permissions
 - [ ] Client conditional rendering uses permission checks
 - [ ] Student portal auth works
 - [ ] Apply portal auth works
 - [ ] LMS auth guard works with `lms_credentials`
 - [ ] Account linking works for existing Google users
+- [ ] `encryptOAuthTokens: true` is active (verify tokens are encrypted in `accounts` table)
 - [ ] Database indexes exist on: users.email, accounts.user_id, sessions.user_id, sessions.token, verifications.identifier
 - [ ] No `next-auth` imports remain (`grep -r "next-auth" src/` returns nothing)
 - [ ] `pnpm tsc --noEmit && pnpm lint:fix` passes clean
 - [ ] Vercel deployment works (backgroundTasks with `waitUntil` functioning)
+- [ ] Rate limiting responds with 429 + `X-Retry-After` header on excessive requests
 
 ---
 
@@ -143,20 +152,21 @@ const { data } = await authClient.admin.hasPermission({
 ### Phase 1: Foundation
 1. Install Better Auth + `@vercel/functions`, remove Auth.js deps
 2. Update `next.config.ts` (add `serverExternalPackages: ['better-auth']`)
-3. Add Better Auth env vars
+3. Add Better Auth env vars (including `trustedOrigins` for Vercel previews)
 4. Create permissions and presets
-5. Create `src/core/auth.ts` (using `better-auth/minimal`)
+5. Create `src/core/auth.ts` (using `better-auth/minimal`, with `experimental: { joins: true }`, `trustedOrigins`, role enum type, `cookieCache.version`)
 6. Create `src/core/auth-client.ts`
 7. Create `src/app/api/auth/[...all]/route.ts`
-8. Create `proxy.ts` at project root (cookie-only check)
+8. Create `proxy.ts` at project root (using `getCookieCache` for signed cookie verification)
 
 ### Phase 2: Database Migration
 9. Create/update schema files
-10. Run `pnpm db:generate`
-11. Write custom migration SQL (including indexes)
-12. Run `pnpm db:migrate`
-13. Run data migration script
-14. Verify integrity + verify indexes exist
+10. Generate Drizzle relations for experimental joins (accounts→users, sessions→users)
+11. Run `pnpm db:generate`
+12. Write custom migration SQL (including indexes)
+13. Run `pnpm db:migrate`
+14. Run data migration script
+15. Verify integrity + verify indexes exist + verify joins work
 
 ### Phase 3: Authorization Layer Replacement
 15. Create `withPermission` (with React `cache()` for permission deduplication)
