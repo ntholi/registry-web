@@ -8,6 +8,7 @@ export type DayOfWeek =
 	| 'sunday';
 
 export type AppConfig = {
+	staffEmailDomain: string;
 	registry: {
 		maxRegModules: number;
 		maxRegistrationAttempts: number;

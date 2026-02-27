@@ -1,5 +1,13 @@
 import { findAllByRole } from '@admin/users';
-import { Autocomplete, type BoxProps, Loader } from '@mantine/core';
+import {
+	Autocomplete,
+	Avatar,
+	type BoxProps,
+	Group,
+	Loader,
+	Stack,
+	Text,
+} from '@mantine/core';
 import { useDebouncedValue } from '@mantine/hooks';
 import { useEffect, useState } from 'react';
 import type { users } from '@/core/database';
@@ -13,6 +21,7 @@ interface UserInputProps extends BoxProps {
 	label?: string;
 	error?: string;
 	placeholder?: string;
+	emailDomain?: string;
 }
 
 export default function UserInput({
@@ -22,6 +31,7 @@ export default function UserInput({
 	label,
 	error,
 	placeholder,
+	emailDomain,
 	...props
 }: UserInputProps) {
 	const [inputValue, setInputValue] = useState(() =>
@@ -41,16 +51,19 @@ export default function UserInput({
 			setIsSearching(true);
 			try {
 				const result = await findAllByRole(1, debounced, role);
-				setUsers(result.items);
-			} catch (error) {
-				console.error('Error searching users:', error);
+				const filtered = emailDomain
+					? result.items.filter((u) => u.email?.endsWith(emailDomain))
+					: result.items;
+				setUsers(filtered);
+			} catch {
+				setUsers([]);
 			} finally {
 				setIsSearching(false);
 			}
 		}
 
 		searchUsers();
-	}, [debounced, role]);
+	}, [debounced, role, emailDomain]);
 
 	const options = users.map((user) => ({
 		value: `${user.id}:${user.name || user.email}`,
@@ -70,6 +83,7 @@ export default function UserInput({
 					(u) => `${u.id}:${u.name || u.email}` === option
 				);
 				if (selectedUser) {
+					setInputValue(selectedUser.name || selectedUser.email || '');
 					onChange?.(selectedUser);
 				}
 			}}
@@ -78,12 +92,19 @@ export default function UserInput({
 				const userId = option.value.split(':')[0];
 				const user = users.find((u) => u.id === userId);
 				return (
-					<div>
-						<div>{user?.name || 'Unnamed User'}</div>
-						<div style={{ fontSize: '0.8em', color: 'gray' }}>
-							{user?.email}
-						</div>
-					</div>
+					<Group gap='sm' wrap='nowrap'>
+						<Avatar src={user?.image} size='sm' radius='xl'>
+							{user?.name?.charAt(0)?.toUpperCase()}
+						</Avatar>
+						<Stack gap={0}>
+							<Text size='sm' fw={500}>
+								{user?.name || 'Unnamed User'}
+							</Text>
+							<Text size='xs' c='dimmed'>
+								{user?.email}
+							</Text>
+						</Stack>
+					</Group>
 				);
 			}}
 			rightSection={isSearching ? <Loader size='xs' /> : null}

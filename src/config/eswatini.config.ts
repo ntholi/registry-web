@@ -1,6 +1,7 @@
 import type { AppConfig } from './index';
 
 const config: AppConfig = {
+	staffEmailDomain: '@limkokwing.ac.sz',
 	registry: {
 		maxRegModules: 8,
 		maxRegistrationAttempts: 2,

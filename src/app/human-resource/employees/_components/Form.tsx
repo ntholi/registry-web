@@ -8,6 +8,7 @@ import { useQuery } from '@tanstack/react-query';
 import { createInsertSchema } from 'drizzle-zod';
 import { useRouter } from 'nextjs-toploader/app';
 import { useState } from 'react';
+import { getStaffEmailDomain } from '@/config/server-actions';
 import type { users } from '@/core/database';
 import { Form } from '@/shared/ui/adease';
 import UserInput from '@/shared/ui/UserInput';
@@ -70,6 +71,12 @@ export default function EmployeeForm({
 		queryFn: getAllSchools,
 	});
 
+	const { data: emailDomain } = useQuery({
+		queryKey: ['staff-email-domain'],
+		queryFn: getStaffEmailDomain,
+		staleTime: Number.POSITIVE_INFINITY,
+	});
+
 	return (
 		<Form
 			title={title}
@@ -129,6 +136,7 @@ export default function EmployeeForm({
 							placeholder='Search by name or email'
 							value={selectedUser}
 							onChange={handleUserChange}
+							emailDomain={emailDomain}
 						/>
 						<TextInput label='Full Name' {...form.getInputProps('name')} />
 						<Autocomplete
