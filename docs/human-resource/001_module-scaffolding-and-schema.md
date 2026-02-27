@@ -106,6 +106,7 @@ employees
 ├── schoolId    INTEGER    FK → schools.id  (nullable, for department/faculty)
 ├── userId      TEXT       FK → users.id    (nullable, ON DELETE SET NULL)
 ├── createdAt   TIMESTAMP  DEFAULT NOW()
+├── updatedAt   TIMESTAMP  DEFAULT NOW(), $onUpdate(() => new Date())
 ```
 
 ### Schema Details
@@ -152,6 +153,7 @@ export const employees = pgTable(
     schoolId: integer().references(() => schools.id, { onDelete: 'set null' }),
     userId: text().references(() => users.id, { onDelete: 'set null' }),
     createdAt: timestamp().defaultNow(),
+    updatedAt: timestamp().defaultNow().$onUpdate(() => new Date()),
   },
   (table) => ({
     nameTrigramIdx: index('idx_employees_name_trgm').using(
@@ -170,10 +172,9 @@ export const employees = pgTable(
 import { schools } from '@academic/schools/_schema/schools';
 import { users } from '@auth/users/_schema/users';
 import { relations } from 'drizzle-orm';
-import { employeeCardPrints } from '@human-resource/print/_schema/employeeCardPrints';
 import { employees } from './employees';
 
-export const employeesRelations = relations(employees, ({ one, many }) => ({
+export const employeesRelations = relations(employees, ({ one }) => ({
   user: one(users, {
     fields: [employees.userId],
     references: [users.id],
@@ -182,17 +183,17 @@ export const employeesRelations = relations(employees, ({ one, many }) => ({
     fields: [employees.schoolId],
     references: [schools.id],
   }),
-  employeeCardPrints: many(employeeCardPrints),
 }));
 ```
 
-> **Note**: The `employeeCardPrints` relation references a table defined in Part 2. When implementing Part 1 first, temporarily omit this relation and add it in Part 2.
+> **Note**: No `employeeCardPrints` relation — card print history is tracked via audit logs, not a dedicated table.
 
 **`src/app/human-resource/_database/index.ts`**
 
 ```typescript
-export { employees } from '@human-resource/employees/_schema/employees';
-export { employeeStatus, employeeType } from '@human-resource/employees/_schema/types';
+export { employees } from '../employees/_schema/employees';
+export { employeesRelations } from '../employees/_schema/relations';
+export { employeeStatus, employeeType } from '../employees/_schema/types';
 ```
 
 ### Register in Core Database
@@ -209,80 +210,7 @@ pnpm db:generate
 
 ---
 
-## 1.4 — Employee Card Prints Schema
-
-### Files to create
-
-| File | Purpose |
-|------|---------|
-| `src/app/human-resource/print/_schema/employeeCardPrints.ts` | Print history table |
-| `src/app/human-resource/print/_schema/relations.ts` | Relations for prints |
-
-### Table: `employee_card_prints`
-
-```
-employee_card_prints
-├── id          SERIAL     PK
-├── empNo       TEXT       FK → employees.empNo  NOT NULL
-├── printedBy   TEXT       FK → users.id          NOT NULL
-├── receiptNo   TEXT       NOT NULL
-├── createdAt   TIMESTAMP  DEFAULT NOW()
-```
-
-### Schema Details
-
-**`src/app/human-resource/print/_schema/employeeCardPrints.ts`**
-
-```typescript
-import { users } from '@auth/users/_schema/users';
-import { pgTable, serial, text, timestamp } from 'drizzle-orm/pg-core';
-import { employees } from '@human-resource/employees/_schema/employees';
-
-export const employeeCardPrints = pgTable('employee_card_prints', {
-  id: serial().primaryKey(),
-  empNo: text()
-    .references(() => employees.empNo, { onDelete: 'cascade' })
-    .notNull(),
-  printedBy: text()
-    .references(() => users.id, { onDelete: 'cascade' })
-    .notNull(),
-  receiptNo: text().notNull(),
-  createdAt: timestamp().defaultNow(),
-});
-```
-
-**`src/app/human-resource/print/_schema/relations.ts`**
-
-```typescript
-import { users } from '@auth/users/_schema/users';
-import { relations } from 'drizzle-orm';
-import { employees } from '@human-resource/employees/_schema/employees';
-import { employeeCardPrints } from './employeeCardPrints';
-
-export const employeeCardPrintsRelations = relations(
-  employeeCardPrints,
-  ({ one }) => ({
-    employee: one(employees, {
-      fields: [employeeCardPrints.empNo],
-      references: [employees.empNo],
-    }),
-    printedByUser: one(users, {
-      fields: [employeeCardPrints.printedBy],
-      references: [users.id],
-    }),
-  })
-);
-```
-
-Add exports to `src/app/human-resource/_database/index.ts`:
-
-```typescript
-export { employeeCardPrints } from '@human-resource/print/_schema/employeeCardPrints';
-```
-
----
-
-## 1.5 — Repository Layer
+## 1.4 — Repository Layer
 
 ### Files to create
 
@@ -291,6 +219,8 @@ export { employeeCardPrints } from '@human-resource/print/_schema/employeeCardPr
 | `src/app/human-resource/employees/_server/repository.ts` | Employee database access |
 
 ### Details
+
+Mirrors `StudentRepository` which extends `BaseRepository<typeof students, 'stdNo'>` and provides a custom `findStudentByStdNo` that loads user + program relations. The employee version loads user + school.
 
 ```typescript
 import { eq } from 'drizzle-orm';
@@ -317,42 +247,9 @@ export default class EmployeeRepository extends BaseRepository<
 }
 ```
 
-### Employee Card Print Repository
-
-| File | Purpose |
-|------|---------|
-| `src/app/human-resource/print/_server/repository.ts` | Print history database access |
-
-```typescript
-import { eq, desc } from 'drizzle-orm';
-import { db, employeeCardPrints } from '@/core/database';
-import BaseRepository from '@/core/platform/BaseRepository';
-
-export default class EmployeeCardPrintRepository extends BaseRepository<
-  typeof employeeCardPrints,
-  'id'
-> {
-  constructor() {
-    super(employeeCardPrints, employeeCardPrints.id);
-  }
-
-  async findByEmpNo(empNo: string) {
-    return db.query.employeeCardPrints.findMany({
-      where: eq(employeeCardPrints.empNo, empNo),
-      orderBy: [desc(employeeCardPrints.createdAt)],
-      with: {
-        printedByUser: {
-          columns: { id: true, name: true },
-        },
-      },
-    });
-  }
-}
-```
-
 ---
 
-## 1.6 — Service Layer
+## 1.5 — Service Layer
 
 ### Files to create
 
@@ -362,7 +259,7 @@ export default class EmployeeCardPrintRepository extends BaseRepository<
 
 ### Details
 
-Follow the `BaseService` pattern. The service wraps the repository with role-based authorization.
+Uses `BaseService` with an overridden `get()` to load relations via the custom repo method. This is simpler than the student's fully custom `StudentService` since employees have fewer domain operations, but follows the same authorization pattern.
 
 ```typescript
 import type { employees } from '@/core/database';
@@ -397,57 +294,19 @@ class EmployeeService extends BaseService<typeof employees, 'empNo'> {
 export const employeesService = serviceWrapper(EmployeeService, 'EmployeeService');
 ```
 
-### Employee Card Print Service
-
-| File | Purpose |
-|------|---------|
-| `src/app/human-resource/print/_server/service.ts` | Print business logic |
-
-```typescript
-import { serviceWrapper } from '@/core/platform/serviceWrapper';
-import withAuth, { requireSessionUserId } from '@/core/platform/withAuth';
-import EmployeeCardPrintRepository from './repository';
-
-class EmployeeCardPrintService {
-  private repository: EmployeeCardPrintRepository;
-
-  constructor() {
-    this.repository = new EmployeeCardPrintRepository();
-  }
-
-  async findByEmpNo(empNo: string) {
-    return withAuth(
-      async () => this.repository.findByEmpNo(empNo),
-      ['human_resource', 'admin']
-    );
-  }
-
-  async create(data: { empNo: string; printedBy: string; receiptNo: string }) {
-    return withAuth(
-      async () => this.repository.create(data),
-      ['human_resource', 'admin']
-    );
-  }
-}
-
-export const employeeCardPrintService = serviceWrapper(
-  EmployeeCardPrintService,
-  'EmployeeCardPrintService'
-);
-```
-
 ---
 
-## 1.7 — Server Actions
+## 1.6 — Server Actions
 
 ### Files to create
 
 | File | Purpose |
 |------|---------|
 | `src/app/human-resource/employees/_server/actions.ts` | Employee server actions |
-| `src/app/human-resource/print/_server/actions.ts` | Print server actions |
 
-### Employee Actions
+### Details
+
+Mirrors `registry/students/_server/actions.ts` structure. Key difference: `getEmployeePhoto` uses `photos/employees/` sub-path (students use `photos/`).
 
 ```typescript
 'use server';
@@ -518,29 +377,9 @@ export async function getEmployeePhoto(
 }
 ```
 
-### Print Actions
-
-```typescript
-'use server';
-
-import { employeeCardPrintService as service } from './service';
-
-export async function getEmployeeCardPrints(empNo: string) {
-  return service.findByEmpNo(empNo);
-}
-
-export async function createEmployeeCardPrint(data: {
-  empNo: string;
-  printedBy: string;
-  receiptNo: string;
-}) {
-  return service.create(data);
-}
-```
-
 ---
 
-## 1.8 — Types
+## 1.7 — Types
 
 ### Files to create
 
@@ -557,30 +396,30 @@ export type EmployeeInsert = typeof employees.$inferInsert;
 
 ---
 
-## 1.9 — Barrel Exports
+## 1.8 — Barrel Exports
 
 ### Files to create
 
 | File | Purpose |
 |------|---------|
 | `src/app/human-resource/employees/index.ts` | Re-exports for employees feature |
-| `src/app/human-resource/print/index.ts` | Re-exports for print feature |
-
-**`employees/index.ts`**
 
 ```typescript
-export { findAllEmployees, getEmployee, getEmployeePhoto } from './_server/actions';
-```
-
-**`print/index.ts`**
-
-```typescript
-export { getEmployeeCardPrints, createEmployeeCardPrint } from './_server/actions';
+export { default as Form } from './_components/Form';
+export * from './_lib/types';
+export {
+  findAllEmployees,
+  getEmployee,
+  getEmployeePhoto,
+  createEmployee,
+  updateEmployee,
+  deleteEmployee,
+} from './_server/actions';
 ```
 
 ---
 
-## 1.10 — Module Configuration & Navigation
+## 1.9 — Module Configuration & Navigation
 
 ### Files to create
 
@@ -591,7 +430,7 @@ export { getEmployeeCardPrints, createEmployeeCardPrint } from './_server/action
 ### Details
 
 ```typescript
-import { IconId, IconUsers } from '@tabler/icons-react';
+import { IconUsers } from '@tabler/icons-react';
 import type { ModuleConfig } from '@/app/dashboard/module-config.types';
 
 export const humanResourceConfig: ModuleConfig = {
@@ -625,8 +464,7 @@ export const humanResourceConfig: ModuleConfig = {
 
 **`src/config/modules.config.ts`**
 
-Add `'human-resource'` to `ModuleKey` union type, add env key mapping, and add to the `moduleConfig` object:
-
+Add `'human-resource'` to `ModuleKey` union type:
 ```typescript
 export type ModuleKey =
   | 'academic'
@@ -648,9 +486,14 @@ Add to `moduleEnvKeys`:
 'human-resource': 'ENABLE_MODULE_HUMAN_RESOURCE',
 ```
 
-Add to `moduleConfig` and `getModuleConfig()`:
+Add to `moduleConfig`:
 ```typescript
 humanResource: isModuleEnabled('human-resource'),
+```
+
+Add to `getModuleConfig()`:
+```typescript
+humanResource: moduleConfig.humanResource,
 ```
 
 **`src/app/dashboard/dashboard.tsx`**
@@ -667,7 +510,7 @@ Add to `allConfigs` array in `getNavigation()`:
 
 ---
 
-## 1.11 — Layout
+## 1.10 — Layout & Page
 
 ### Files to create
 
@@ -678,12 +521,12 @@ Add to `allConfigs` array in `getNavigation()`:
 
 ### Layout
 
-The layout mirrors the student layout: a `ListLayout` with search showing employee name and number.
+Mirrors the student layout with `ListLayout`. The student layout adds filter functionality via `StudentsFilter` and `useSearchParams` — the employee layout is simpler (no filters) but follows the same `ListLayout` pattern exactly.
 
 ```tsx
 'use client';
 
-import { findAllEmployees } from '@human-resource/employees';
+import { findAllEmployees } from './_server/actions';
 import type { PropsWithChildren } from 'react';
 import { ListItem, ListLayout, NewLink } from '@/shared/ui/adease';
 
@@ -692,7 +535,7 @@ export default function Layout({ children }: PropsWithChildren) {
     <ListLayout
       path='/human-resource/employees'
       queryKey={['employees']}
-      getData={(page, search) => findAllEmployees(page, search)}
+      getData={findAllEmployees}
       actionIcons={[
         <NewLink key='new-link' href='/human-resource/employees/new' />,
       ]}
@@ -722,16 +565,19 @@ export default function Page() {
 
 - [ ] `human_resource` added to `userRoles` and `dashboardUsers` enums
 - [ ] `@human-resource/*` path alias in `tsconfig.json`
-- [ ] `employees` table schema created with text PK (`empNo`)
-- [ ] `employee_card_prints` table schema created
-- [ ] Relations defined for both tables
+- [ ] `employees` table schema created with text PK (`empNo`) and `updatedAt` column
+- [ ] Relations defined (user, school)
 - [ ] Schemas registered in `src/core/database`
+- [ ] _database barrel export with schemas + enums + relations
 - [ ] Migration generated via `pnpm db:generate`
-- [ ] Repository, Service, Actions layers created for employees
-- [ ] Repository, Service, Actions layers created for prints
+- [ ] Repository with custom `findByEmpNo` (loads user + school relations)
+- [ ] Service extending `BaseService` with overridden `get()`
+- [ ] Actions layer with CRUD + `getEmployeePhoto`
+- [ ] Types file with `Employee` and `EmployeeInsert`
+- [ ] Barrel exports in `index.ts`
 - [ ] Module config created with navigation
 - [ ] Dashboard integration (module config + navigation)
-- [ ] Layout with ListLayout and empty state page
+- [ ] Layout with `ListLayout` and empty state page
 - [ ] Run `pnpm tsc --noEmit && pnpm lint:fix` — clean
 - [ ] Run migration against database
 
@@ -747,17 +593,11 @@ export default function Page() {
 | `src/app/human-resource/employees/_schema/employees.ts` | Employee table |
 | `src/app/human-resource/employees/_schema/relations.ts` | Employee relations |
 | `src/app/human-resource/_database/index.ts` | HR barrel export |
-| `src/app/human-resource/print/_schema/employeeCardPrints.ts` | Print history table |
-| `src/app/human-resource/print/_schema/relations.ts` | Print relations |
 | `src/app/human-resource/employees/_server/repository.ts` | Employee repository |
 | `src/app/human-resource/employees/_server/service.ts` | Employee service |
 | `src/app/human-resource/employees/_server/actions.ts` | Employee server actions |
 | `src/app/human-resource/employees/_lib/types.ts` | Employee type definitions |
-| `src/app/human-resource/print/_server/repository.ts` | Print repository |
-| `src/app/human-resource/print/_server/service.ts` | Print service |
-| `src/app/human-resource/print/_server/actions.ts` | Print server actions |
 | `src/app/human-resource/employees/index.ts` | Barrel export |
-| `src/app/human-resource/print/index.ts` | Barrel export |
 | `src/app/human-resource/human-resource.config.ts` | Module config |
 | `src/app/human-resource/employees/layout.tsx` | List layout |
 | `src/app/human-resource/employees/page.tsx` | Empty state |
@@ -771,3 +611,10 @@ export default function Page() {
 | `src/core/database/index.ts` | Register HR schemas |
 | `src/config/modules.config.ts` | Add `human-resource` module key |
 | `src/app/dashboard/dashboard.tsx` | Import and register HR config |
+
+### Removed From Original Plan
+
+| Item | Reason |
+|------|--------|
+| `employee_card_prints` table & schema | Print history tracked via audit logs instead |
+| `human-resource/print/` feature (repo, service, actions, schema) | No dedicated print table; audit logging through BaseRepository handles tracking |
