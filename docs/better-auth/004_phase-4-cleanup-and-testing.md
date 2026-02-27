@@ -49,7 +49,7 @@ File: `src/app/dashboard/module-config.types.ts`
 - [ ] Database indexes exist on: users.email, accounts.user_id, sessions.user_id, sessions.token, verifications.identifier
 - [ ] No `next-auth` imports remain (`grep -r "next-auth" src/` returns nothing)
 - [ ] `pnpm tsc --noEmit && pnpm lint:fix` passes clean
-- [ ] Vercel deployment works (backgroundTasks with `waitUntil` functioning)
+- [ ] Vercel deployment works (`waitUntil` wrapping databaseHook callbacks functioning)
 - [ ] Rate limiting responds with 429 + `X-Retry-After` header on excessive requests
 - [ ] Rate limiting uses `storage: "database"` (NOT in-memory — required for Vercel serverless)
 - [ ] `rateLimit` table exists in database (id, key, count, last_request) — required because `better-auth/minimal` can't run CLI migrate
@@ -62,6 +62,10 @@ File: `src/app/dashboard/module-config.types.ts`
 - [ ] `stdNo` is accessed via dedicated `getStudentByUserId()` server action, NOT from session
 - [ ] Student portal components updated to use on-demand `stdNo` fetching
 - [ ] `BETTER_AUTH_TRUSTED_ORIGINS` env var is set in all environments (local, preview, production)
+- [ ] `session.freshAge` is set to `300` (5 minutes) for sensitive operation protection
+- [ ] Client `authClient` passes `typeof auth` for full type inference of custom fields
+- [ ] Client `fetchOptions.onError` handles 429 rate limit responses globally
+- [ ] Admin plugin imported from `better-auth/plugins` (NOT `better-auth/plugins/admin`)
 
 ---
 
@@ -166,8 +170,8 @@ const { data } = await authClient.admin.hasPermission({
 2. Update `next.config.ts` (add `serverExternalPackages: ['better-auth']`)
 3. Add Better Auth env vars (NO `NEXT_PUBLIC_BETTER_AUTH_URL` needed; set `BETTER_AUTH_TRUSTED_ORIGINS` per environment for Vercel previews)
 4. Create permissions and presets
-5. Create `src/core/auth.ts` (using `better-auth/minimal`, with `experimental: { joins: true }`, `trustedOrigins` from env var, role enum type, `cookieCache.version`, `rateLimit.enabled: true`)
-6. Create `src/core/auth-client.ts`
+5. Create `src/core/auth.ts` (using `better-auth/minimal`, with `experimental: { joins: true }`, `trustedOrigins` from env var, role enum type, `cookieCache.version`, `rateLimit.enabled: true`, `session.freshAge: 300`, `waitUntil` in databaseHooks, admin from `better-auth/plugins`)
+6. Create `src/core/auth-client.ts` (with `createAuthClient<typeof auth>()` for type inference, `fetchOptions.onError` for rate limit handling)
 7. Create `src/app/api/auth/[...all]/route.ts`
 8. Create `proxy.ts` at project root (using `getCookieCache` for signed cookie verification)
 
@@ -181,16 +185,16 @@ const { data } = await authClient.admin.hasPermission({
 15. Verify integrity + verify indexes exist + verify joins work + verify `rate_limit` table exists
 
 ### Phase 3: Authorization Layer Replacement
-15. Create `withPermission` (with React `cache()` for permission deduplication)
-16. Update `BaseService.ts`
-17. Update server actions
-18. Update client components
-19. Update `providers.tsx`
-20. Update login and Google sign-in flow
-21. Replace `session.user.stdNo` with `getStudentByUserId()` server action in student portal
+16. Create `withPermission` (with React `cache()` for permission deduplication)
+17. Update `BaseService.ts`
+18. Update server actions
+19. Update client components
+20. Update `providers.tsx`
+21. Update login and Google sign-in flow
+22. Replace `session.user.stdNo` with `getStudentByUserId()` server action in student portal
 
 ### Phase 4: Cleanup & Testing
-21. Delete Auth.js artifacts
-21. Remove old dependencies
-22. Run auth flow testing
-23. Run `pnpm tsc --noEmit && pnpm lint:fix`
+23. Delete Auth.js artifacts
+24. Remove old dependencies
+25. Run auth flow testing
+26. Run `pnpm tsc --noEmit && pnpm lint:fix`

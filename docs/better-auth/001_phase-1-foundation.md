@@ -24,6 +24,10 @@
 | Rate limiting | Database storage (`rateLimit.storage: "database"`) — required for Vercel serverless where in-memory resets on cold starts |
 | Rate limit enabled | Explicitly `true` (disabled in dev by default; must be enabled for testing) |
 | Rate limit table | Must be created in custom migration (CLI migrate unavailable with `better-auth/minimal`) |
+| Session freshness | `freshAge: 300` (5 minutes) — sensitive operations require recent sign-in |
+| Background tasks | Use `waitUntil()` from `@vercel/functions` directly in databaseHooks (no `advanced.backgroundTasks` — undocumented) |
+| Client type safety | `createAuthClient<typeof auth>()` for full type inference of custom `role` field |
+| Rate limit UX | Global `fetchOptions.onError` handler for 429 + `X-Retry-After` on client |
 
 ---
 
@@ -93,7 +97,7 @@ File: `src/core/auth.ts` (replace entirely)
 ```ts
 import { betterAuth } from "better-auth/minimal";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
-import { admin } from "better-auth/plugins/admin";
+import { admin } from "better-auth/plugins";
 import { nextCookies } from "better-auth/next-js";
 import { nanoid } from "nanoid";
 import { waitUntil } from "@vercel/functions";
@@ -121,6 +125,7 @@ export const auth = betterAuth({
   session: {
     expiresIn: 60 * 60 * 24 * 7,
     updateAge: 60 * 60 * 24,
+    freshAge: 60 * 5,
     cookieCache: {
       enabled: true,
       maxAge: 5 * 60,
@@ -166,28 +171,29 @@ export const auth = betterAuth({
     database: {
       generateId: () => nanoid(),
     },
-    backgroundTasks: {
-      handler: waitUntil,
-    },
   },
   databaseHooks: {
     session: {
       create: {
         after: async (session) => {
-          await logActivity({
-            userId: session.userId,
-            type: "auth:sign_in",
-          }).catch(() => {});
+          waitUntil(
+            logActivity({
+              userId: session.userId,
+              type: "auth:sign_in",
+            }).catch(() => {})
+          );
         },
       },
     },
     user: {
       update: {
         after: async (user) => {
-          await logActivity({
-            userId: user.id,
-            type: "auth:user_update",
-          }).catch(() => {});
+          waitUntil(
+            logActivity({
+              userId: user.id,
+              type: "auth:user_update",
+            }).catch(() => {})
+          );
         },
       },
     },
@@ -383,12 +389,22 @@ File: `src/core/auth-client.ts`
 ```ts
 import { createAuthClient } from "better-auth/react";
 import { adminClient } from "better-auth/client/plugins";
+import type { auth } from "@/core/auth";
 import { ac, roles } from "@/core/auth/permissions";
 
-export const authClient = createAuthClient({
+export const authClient = createAuthClient<typeof auth>({
   plugins: [
     adminClient({ ac, roles }),
   ],
+  fetchOptions: {
+    onError: async (context) => {
+      const { response } = context;
+      if (response.status === 429) {
+        const retryAfter = response.headers.get("X-Retry-After");
+        console.warn(`Rate limit exceeded. Retry after ${retryAfter} seconds`);
+      }
+    },
+  },
 });
 
 export const { signIn, signUp, signOut, useSession } = authClient;
