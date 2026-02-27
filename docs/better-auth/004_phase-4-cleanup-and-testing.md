@@ -22,21 +22,25 @@ File: `src/app/dashboard/module-config.types.ts`
 ## 4.4 Testing Checklist
 - [ ] Google OAuth sign-in works and account selector appears
 - [ ] Session persists across refreshes
-- [ ] Cookie cache is active
-- [ ] Proxy redirects unauthenticated users from protected routes
+- [ ] Cookie cache is active (check for `better-auth.session_data` cookie)
+- [ ] Proxy redirects unauthenticated users from protected routes (cookie-only check)
+- [ ] Proxy file is at project root (`proxy.ts`), NOT in `src/`
+- [ ] `serverExternalPackages: ['better-auth']` is in `next.config.ts`
 - [ ] Admin can manage user roles via Better Auth admin API
 - [ ] Permission presets populate `user_permissions`
 - [ ] Per-user permission overrides work (grant + revoke)
 - [ ] `withPermission` merges role defaults + overrides correctly
+- [ ] Permission caching works (React `cache()` deduplication)
 - [ ] Server actions enforce correct permissions
 - [ ] Client conditional rendering uses permission checks
 - [ ] Student portal auth works
 - [ ] Apply portal auth works
 - [ ] LMS auth guard works with `lms_credentials`
-- [ ] Rate limiting is active
 - [ ] Account linking works for existing Google users
-- [ ] No `next-auth` imports remain
+- [ ] Database indexes exist on: users.email, accounts.user_id, sessions.user_id, sessions.token, verifications.identifier
+- [ ] No `next-auth` imports remain (`grep -r "next-auth" src/` returns nothing)
 - [ ] `pnpm tsc --noEmit && pnpm lint:fix` passes clean
+- [ ] Vercel deployment works (backgroundTasks with `waitUntil` functioning)
 
 ---
 
@@ -137,32 +141,33 @@ const { data } = await authClient.admin.hasPermission({
 ## Migration Execution Order
 
 ### Phase 1: Foundation
-1. Install Better Auth and remove Auth.js deps
-2. Add Better Auth env vars
-3. Create permissions and presets
-4. Create `src/core/auth.ts`
-5. Create `src/core/auth-client.ts`
-6. Create `src/app/api/auth/[...all]/route.ts`
-7. Create `src/proxy.ts`
+1. Install Better Auth + `@vercel/functions`, remove Auth.js deps
+2. Update `next.config.ts` (add `serverExternalPackages: ['better-auth']`)
+3. Add Better Auth env vars
+4. Create permissions and presets
+5. Create `src/core/auth.ts` (using `better-auth/minimal`)
+6. Create `src/core/auth-client.ts`
+7. Create `src/app/api/auth/[...all]/route.ts`
+8. Create `proxy.ts` at project root (cookie-only check)
 
 ### Phase 2: Database Migration
-8. Create/update schema files
-9. Run `pnpm db:generate`
-10. Write custom migration SQL
-11. Run `pnpm db:migrate`
-12. Run data migration script
-13. Verify integrity
+9. Create/update schema files
+10. Run `pnpm db:generate`
+11. Write custom migration SQL (including indexes)
+12. Run `pnpm db:migrate`
+13. Run data migration script
+14. Verify integrity + verify indexes exist
 
 ### Phase 3: Authorization Layer Replacement
-14. Create `withPermission`
-15. Update `BaseService.ts`
-16. Update server actions
-17. Update client components
-18. Update `providers.tsx`
-19. Update login and Google sign-in flow
+15. Create `withPermission` (with React `cache()` for permission deduplication)
+16. Update `BaseService.ts`
+17. Update server actions
+18. Update client components
+19. Update `providers.tsx`
+20. Update login and Google sign-in flow
 
 ### Phase 4: Cleanup & Testing
-20. Delete Auth.js artifacts
+21. Delete Auth.js artifacts
 21. Remove old dependencies
 22. Run auth flow testing
 23. Run `pnpm tsc --noEmit && pnpm lint:fix`

@@ -96,3 +96,17 @@ DROP TYPE IF EXISTS dashboard_users;
 - Rewrite `src/app/auth/auth-providers/_schema/sessions.ts` for Better Auth session model
 - Rename `src/app/auth/auth-providers/_schema/verificationTokens.ts` to `verifications.ts` and update schema
 - Delete `src/app/auth/auth-providers/_schema/authenticators.ts`
+
+## 2.7 Database Indexes (Performance)
+
+Better Auth's performance guide recommends these indexes for optimal query performance. Add to the custom migration SQL:
+
+```sql
+CREATE INDEX IF NOT EXISTS idx_users_email ON users (email);
+CREATE INDEX IF NOT EXISTS idx_accounts_user_id ON accounts (user_id);
+CREATE INDEX IF NOT EXISTS idx_sessions_user_id ON sessions (user_id);
+CREATE INDEX IF NOT EXISTS idx_sessions_token ON sessions (token);
+CREATE INDEX IF NOT EXISTS idx_verifications_identifier ON verifications (identifier);
+```
+
+These are critical with 12K+ users and frequent session lookups on Vercel serverless.

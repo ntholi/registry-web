@@ -18,7 +18,7 @@
 | Better Auth version | Pin to latest stable at migration time |
 | pgEnums | Drop all 3 (user_roles, user_positions, dashboard_users) → use text |
 | Google UX | `prompt: "select_account"` (force account picker) |
-| Route protection | Next.js 16 proxy (full session validation via `auth.api.getSession()`) |
+| Route protection | Next.js 16 proxy (cookie-only check via `getSessionCookie()`, real validation in pages/routes) |
 
 ---
 
@@ -45,11 +45,22 @@ Request → getSession (Better Auth) → withPermission(permissions)
 
 ## 1.1 Install Dependencies
 ```
-pnpm add better-auth@latest
+pnpm add better-auth@latest @vercel/functions
 pnpm remove next-auth @auth/drizzle-adapter
 ```
 
 Pin the version in `package.json` (remove `^` prefix) to prevent unexpected breaking changes.
+
+## 1.1b Update `next.config.ts`
+
+Add `better-auth` to `serverExternalPackages` to prevent bundler-level resolution issues (recommended by Better Auth FAQ):
+
+```ts
+const nextConfig: NextConfig = {
+  serverExternalPackages: ['better-auth'],
+  // ... rest of existing config
+};
+```
 
 ## 1.2 Environment Variables
 
@@ -71,11 +82,12 @@ Add:
 File: `src/core/auth.ts` (replace entirely)
 
 ```ts
-import { betterAuth } from "better-auth";
+import { betterAuth } from "better-auth/minimal";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { admin } from "better-auth/plugins/admin";
 import { nextCookies } from "better-auth/next-js";
 import { nanoid } from "nanoid";
+import { waitUntil } from "@vercel/functions";
 import { db } from "@/core/database";
 import { ac, roles } from "@/core/auth/permissions";
 import { logActivity } from "@audit-logs/activity-logs/_server/actions";
@@ -85,9 +97,6 @@ export const auth = betterAuth({
     provider: "pg",
     usePlural: true,
   }),
-  trustedOrigins: [
-    process.env.BETTER_AUTH_URL!,
-  ],
   socialProviders: {
     google: {
       clientId: process.env.GOOGLE_CLIENT_ID!,
@@ -111,12 +120,6 @@ export const auth = betterAuth({
     },
     encryptOAuthTokens: true,
   },
-  rateLimit: {
-    enabled: true,
-    window: 60,
-    max: 100,
-    storage: "database",
-  },
   user: {
     additionalFields: {
       role: {
@@ -131,6 +134,9 @@ export const auth = betterAuth({
     useSecureCookies: process.env.NODE_ENV === "production",
     database: {
       generateId: () => nanoid(),
+    },
+    backgroundTasks: {
+      handler: waitUntil,
     },
   },
   databaseHooks: {
@@ -156,7 +162,11 @@ export const auth = betterAuth({
     },
   },
   plugins: [
-    admin({ ac, roles }),
+    admin({
+      ac,
+      roles,
+      defaultRole: "user",
+    }),
     nextCookies(),
   ],
 });
@@ -368,19 +378,18 @@ export const { POST, GET } = toNextJsHandler(auth);
 
 ## 1.10 Add Next.js 16 Proxy (NOT Middleware)
 
-File: `src/proxy.ts`
+**IMPORTANT**: This file MUST be at the project root (same level as `next.config.ts`), NOT inside `src/`.
+
+File: `proxy.ts` (project root)
 
 ```ts
 import { NextRequest, NextResponse } from "next/server";
-import { headers } from "next/headers";
-import { auth } from "@/core/auth";
+import { getSessionCookie } from "better-auth/cookies";
 
 export async function proxy(request: NextRequest) {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
+  const sessionCookie = getSessionCookie(request);
 
-  if (!session) {
+  if (!sessionCookie) {
     return NextResponse.redirect(new URL("/auth/login", request.url));
   }
 
@@ -401,4 +410,11 @@ export const config = {
     "/student-portal/:path*",
   ],
 };
+```
+
+> **Why cookie-only?** Better Auth docs explicitly state: proxy/middleware is for
+> "optimistic redirects" only. The `getSessionCookie()` check is fast (no DB hit)
+> and prevents unauthenticated users from seeing protected pages. Real security
+> enforcement happens in `withPermission()` at the server action/page level,
+> which calls `auth.api.getSession()` with full DB validation.
 ```

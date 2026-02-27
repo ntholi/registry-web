@@ -7,13 +7,29 @@ Delete: `src/core/platform/withAuth.ts`
 Create: `src/core/platform/withPermission.ts`
 
 New `withPermission` behavior:
-1. Gets session via `auth.api.getSession({ headers: await headers() })`
+1. Gets session via `auth.api.getSession({ headers: await headers() })` — this is the REAL security check (not the proxy)
 2. Supports:
    - `'all'` — no auth required
    - `'auth'` — authenticated user required
    - permission object requirement
 3. Merges role defaults + per-user overrides from `user_permissions`
 4. `admin` role bypasses checks
+
+### Permission Caching Strategy
+To avoid querying `user_permissions` on every single server action call:
+- On first `withPermission` call per request, query user_permissions and cache the result
+- Use React's `cache()` function to deduplicate within a single request lifecycle
+- This means multiple `withPermission` calls in the same request share one DB query
+- Permission changes by admins take effect on the user's next request (acceptable trade-off)
+
+```ts
+import { cache } from "react";
+
+const getUserPermissions = cache(async (userId: string) => {
+  // Query user_permissions table once per request
+  return await permissionRepository.findByUserId(userId);
+});
+```
 
 Signature concept:
 ```ts
