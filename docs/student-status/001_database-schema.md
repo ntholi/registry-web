@@ -89,8 +89,8 @@ The main application table. One record per application (a student can have multi
 | `justification`   | `student_status_justification`     | NOT NULL                                           | Reason category                                |
 | `notes`           | `text`                             |                                                    | Additional free-text notes                     |
 | `term_code`       | `text`                             | NOT NULL                                           | The term this application applies to           |
-| `semester_id`     | `integer`                          | FK → `student_semesters.id` (set null on delete)   | The specific semester record (nullable for reinstatement where student may not have an active semester) |
-| `created_by`      | `text`                             | NOT NULL, FK → `users.id` (set null on delete)     | The staff user who created the application     |
+| `semester_id`     | `integer`                          | FK → `student_semesters.id` (set null on delete)   | The specific semester record (**required** for withdrawal/deferment, nullable for reinstatement where student may not have an active semester) |
+| `created_by`      | `text`                             | FK → `users.id` (set null on delete)     | The staff user who created the application (nullable only if user is deleted) |
 | `created_at`      | `timestamp`                        | Default `now()`                                    |                                                |
 | `updated_at`      | `timestamp`                        |                                                    | Updated on status change                       |
 
@@ -188,7 +188,8 @@ This generates the SQL migration file. Do NOT manually create or edit migration 
 
 ## Notes
 
-- The `semesterId` column is nullable because reinstatement applications may be created for students who don't currently have an active semester
+- The `semesterId` column is nullable only for reinstatement applications. Withdrawal and deferment applications **must** have a `semesterId` (enforced at the service layer, Step 2)
+- The `createdBy` column is set to nullable to allow `SET NULL` on user deletion without violating constraints
 - The `termCode` is stored as text (not an FK to `terms`) to match the existing pattern used by `studentSemesters.termCode`
 - Approval records are pre-created when the application is created (Step 2 handles this logic)
 - The `createdBy` field tracks which staff member created the application, separate from the student (`stdNo`)

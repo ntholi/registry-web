@@ -28,7 +28,10 @@ Add a new navigation item below "Blocked Students":
 | `label`           | `'Student Status'`                          |
 | `href`            | `'/registry/student-status'`                |
 | `icon`            | `IconUserExclamation` (from `@tabler/icons-react`) |
-| `roles`           | `['admin', 'registry']`                     |
+| `isVisible`       | Function: visible to `admin`, `registry`, `academic`, `student_services`, `finance` roles |
+| `notificationCount` | `{ queryKey: ['student-status-apps', 'pending'], queryFn: () => countPendingStudentStatusApps(), color: 'red' }` |
+
+> **Important**: Use `isVisible` (not `roles`) because approvers (academic with year_leader/manager/program_leader positions, student_services, finance) need access to navigate to pending applications. The `countPendingStudentStatusApps` action should return the count of applications with at least one pending approval matching the current user's role/position.
 
 ### 2. Application Form (`_components/Form.tsx`)
 
@@ -46,11 +49,11 @@ A form for creating new student status change applications.
 6. **Semester**: Auto-detected from the student's active semester for the given term. For reinstatement this may be empty.
 
 #### Validation
-- Use `drizzle-zod` `createInsertSchema` from `studentStatusApps`, omitting `status`, `createdBy`, `createdAt`, `updatedAt`
+- Use `drizzle-zod` `createInsertSchema` from `studentStatuses`, omitting `status`, `createdBy`, `createdAt`, `updatedAt`
 - `stdNo` required, `type` required, `justification` required, `termCode` required
 
 #### Conditional Logic
-- For **reinstatement**: only allow if the student's status is `Withdrawn` or they have a `Deferred`/`Withdrawn` semester. Show a validation message otherwise.
+- For **reinstatement**: only allow if the student's status is `Withdrawn`/`Terminated` or they have a `Deferred`/`Withdrawn` semester. Show a validation message otherwise.
 - For **withdrawal/deferment**: only allow if the student has an active semester for the selected term.
 
 #### Props Pattern
@@ -165,16 +168,16 @@ Client component using `useQuery` to fetch the application.
 
 **File to update:** `src/shared/lib/utils/colors.ts`
 
-Add to the appropriate status color category or create a new one:
+Verify that the following statuses already map correctly through `getStatusColor()`:
 
-| Status      | Color     |
-| ----------- | --------- |
-| `pending`   | `yellow`  |
-| `approved`  | `green`   |
-| `rejected`  | `red`     |
-| `cancelled` | `gray`    |
+| Status      | Expected Color | Notes                                          |
+| ----------- | -------------- | ---------------------------------------------- |
+| `pending`   | `yellow`       | Already handled by normalized string matching  |
+| `approved`  | `green`        | Already handled via `allStatuses` lookup       |
+| `rejected`  | `red`          | Already handled by normalized string matching  |
+| `cancelled` | `red`          | Already mapped as `semantic.error` at line 192 |
 
-These likely already map through the existing `getStatusColor()` function, but verify and add `cancelled` → `gray` if missing.
+> No changes needed to `colors.ts` — all statuses are already covered by the existing `getStatusColor()` function.
 
 **File to update:** `src/shared/lib/utils/status.tsx`
 
@@ -221,7 +224,7 @@ Create a small utility file or add to the form component for formatting enum val
 | `src/app/registry/student-status/_components/ApprovalPanel.tsx`   | Approval steps with action buttons          |
 | `src/app/registry/student-status/_components/StatusTimeline.tsx`  | Visual timeline of application progress     |
 | `src/app/registry/registry.config.ts`                             | Updated navigation (add Student Status)     |
-| `src/shared/lib/utils/colors.ts`                                  | Updated with `cancelled` color if needed    |
+| `src/shared/lib/utils/colors.ts`                                  | No changes needed (verified)                |
 | `src/shared/lib/utils/status.tsx`                                 | Updated with application type icons         |
 
 ## Validation Criteria

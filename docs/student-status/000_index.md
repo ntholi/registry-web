@@ -27,7 +27,7 @@ When a withdrawal or deferment application is fully approved, the system automat
 | --------------- | ------------------------------------------------- | ------------------------------------------------------------------ |
 | **Withdrawal**  | Student exits permanently                         | `students.status` → `Withdrawn`, active semester → `Withdrawn`     |
 | **Deferment**   | Student pauses (semester-level), intends to return | Active semester status → `Deferred`                                |
-| **Reinstatement** | Withdrawn/Deferred student returns              | None (manual reactivation by registry)                             |
+| **Reinstatement** | Withdrawn/Deferred/Terminated student returns    | None (manual reactivation by registry)                             |
 
 ## Justification Options
 
@@ -82,21 +82,21 @@ Two parallel approval steps only:
 ## Database Entities
 
 ```
-┌─────────────────────────┐
-│   student_status_apps   │    (Main application table)
-│─────────────────────────│
-│ id (PK)                 │
-│ stdNo (FK → students)   │
-│ type (enum)             │
-│ status (enum)           │
-│ justification (enum)    │
-│ notes (text)            │
-│ termCode (text)         │
-│ semesterId (FK)         │
-│ createdBy (FK → users)  │
-│ createdAt               │
-│ updatedAt               │
-└──────────┬──────────────┘
+┌──────────────────────────┐
+│   student_status_apps    │    (Main application table)
+│──────────────────────────│
+│ id (PK)                  │
+│ stdNo (FK → students)    │
+│ type (enum)              │
+│ status (enum)            │
+│ justification (enum)     │
+│ notes (text)             │
+│ termCode (text)          │
+│ semesterId (FK, req W/D) │
+│ createdBy (FK → users)   │
+│ createdAt                │
+│ updatedAt                │
+└──────────┬───────────────┘
            │ 1:N
            ▼
 ┌──────────────────────────────┐
@@ -144,7 +144,7 @@ src/app/registry/student-status/
 |---|------------------------------------------------------------------------------------------------|
 | 1 | Only `registry` and `admin` roles can create applications                                      |
 | 2 | A student cannot have two pending applications of the same type simultaneously                  |
-| 3 | Reinstatement can only be created for students with status `Withdrawn` or semester `Deferred`   |
+| 3 | Reinstatement can only be created for students with status `Withdrawn`/`Terminated` or semester `Deferred`   |
 | 4 | Form auto-fills current active term but allows override                                        |
 | 5 | Any single rejection from any approver rejects the entire application                          |
 | 6 | When all required approvals pass: auto-update student/semester status (except reinstatement)    |
