@@ -26,13 +26,14 @@ File: `src/app/dashboard/module-config.types.ts`
 - [ ] Proxy redirects unauthenticated users from protected routes (cookie-cache check via `getCookieCache`)
 - [ ] Proxy file is at project root (`proxy.ts`), NOT in `src/`
 - [ ] `serverExternalPackages: ['better-auth']` is in `next.config.ts`
-- [ ] `trustedOrigins` includes production domain and Vercel preview wildcard
+- [ ] `trustedOrigins` uses `BETTER_AUTH_TRUSTED_ORIGINS` env var (NOT hardcoded `*.vercel.app` wildcard)
 - [ ] `experimental: { joins: true }` is enabled and Drizzle relations are defined
 - [ ] Session `getSession` endpoint uses DB joins (verify via network/logs that related data is fetched in 1 query)
 - [ ] Cookie cache `version: "1"` is set (allows future mass session invalidation)
 - [ ] Role field validates against the defined enum array (rejects invalid role strings)
 - [ ] Admin can manage user roles via Better Auth admin API
 - [ ] Admin impersonation works and sessions are marked with `impersonatedBy`
+- [ ] Sessions table includes `impersonated_by` column (added by admin plugin)
 - [ ] Permission presets populate `user_permissions`
 - [ ] Per-user permission overrides work (grant + revoke)
 - [ ] `withPermission` merges role defaults + overrides correctly
@@ -50,6 +51,17 @@ File: `src/app/dashboard/module-config.types.ts`
 - [ ] `pnpm tsc --noEmit && pnpm lint:fix` passes clean
 - [ ] Vercel deployment works (backgroundTasks with `waitUntil` functioning)
 - [ ] Rate limiting responds with 429 + `X-Retry-After` header on excessive requests
+- [ ] Rate limiting uses `storage: "database"` (NOT in-memory — required for Vercel serverless)
+- [ ] `rateLimit` table exists in database (id, key, count, last_request) — required because `better-auth/minimal` can't run CLI migrate
+- [ ] `rateLimit.enabled` is explicitly `true` (disabled in dev by default; without this, rate limiting is untestable)
+- [ ] Custom rate limit rule for `/sign-in/social` is active (3 req/10s to prevent OAuth abuse)
+- [ ] `account.updateAccountOnSignIn: true` is set (OAuth tokens refresh on each sign-in)
+- [ ] `NEXT_PUBLIC_BETTER_AUTH_URL` is NOT set (client auto-discovers, unnecessary env var)
+- [ ] Drizzle adapter `schema` option includes ALL table definitions AND relation definitions for joins
+- [ ] `better-auth/minimal` is used for bundle size (Drizzle Kit handles migrations, not Better Auth CLI)
+- [ ] `stdNo` is accessed via dedicated `getStudentByUserId()` server action, NOT from session
+- [ ] Student portal components updated to use on-demand `stdNo` fetching
+- [ ] `BETTER_AUTH_TRUSTED_ORIGINS` env var is set in all environments (local, preview, production)
 
 ---
 
@@ -152,9 +164,9 @@ const { data } = await authClient.admin.hasPermission({
 ### Phase 1: Foundation
 1. Install Better Auth + `@vercel/functions`, remove Auth.js deps
 2. Update `next.config.ts` (add `serverExternalPackages: ['better-auth']`)
-3. Add Better Auth env vars (including `trustedOrigins` for Vercel previews)
+3. Add Better Auth env vars (NO `NEXT_PUBLIC_BETTER_AUTH_URL` needed; set `BETTER_AUTH_TRUSTED_ORIGINS` per environment for Vercel previews)
 4. Create permissions and presets
-5. Create `src/core/auth.ts` (using `better-auth/minimal`, with `experimental: { joins: true }`, `trustedOrigins`, role enum type, `cookieCache.version`)
+5. Create `src/core/auth.ts` (using `better-auth/minimal`, with `experimental: { joins: true }`, `trustedOrigins` from env var, role enum type, `cookieCache.version`, `rateLimit.enabled: true`)
 6. Create `src/core/auth-client.ts`
 7. Create `src/app/api/auth/[...all]/route.ts`
 8. Create `proxy.ts` at project root (using `getCookieCache` for signed cookie verification)
@@ -163,10 +175,10 @@ const { data } = await authClient.admin.hasPermission({
 9. Create/update schema files
 10. Generate Drizzle relations for experimental joins (accounts→users, sessions→users)
 11. Run `pnpm db:generate`
-12. Write custom migration SQL (including indexes)
+12. Write custom migration SQL (including indexes, `rate_limit` table, `impersonated_by` column on sessions)
 13. Run `pnpm db:migrate`
 14. Run data migration script
-15. Verify integrity + verify indexes exist + verify joins work
+15. Verify integrity + verify indexes exist + verify joins work + verify `rate_limit` table exists
 
 ### Phase 3: Authorization Layer Replacement
 15. Create `withPermission` (with React `cache()` for permission deduplication)
@@ -175,6 +187,7 @@ const { data } = await authClient.admin.hasPermission({
 18. Update client components
 19. Update `providers.tsx`
 20. Update login and Google sign-in flow
+21. Replace `session.user.stdNo` with `getStudentByUserId()` server action in student portal
 
 ### Phase 4: Cleanup & Testing
 21. Delete Auth.js artifacts

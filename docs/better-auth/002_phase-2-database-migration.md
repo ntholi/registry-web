@@ -7,9 +7,10 @@ The database migration MUST be completed before any code changes in Phase 3. The
 2. Better Auth creates: `user`, `session`, `account`, `verification`
 3. Since `usePlural: true`, Better Auth will look for: `users`, `sessions`, `accounts`, `verifications`
 4. Write a custom migration that:
-   - Creates Better Auth `sessions`
+   - Creates Better Auth `sessions` (including `impersonated_by` column for admin plugin)
    - Creates Better Auth `accounts`
    - Creates Better Auth `verifications`
+   - Creates `rate_limit` table (required for `rateLimit.storage: "database"` since CLI migrate is unavailable with `better-auth/minimal`)
    - Creates `user_permissions`
    - Creates `lms_credentials`
    - Alters `users` table (enum/text conversion, timestamp/boolean conversion, added fields, dropped fields)
@@ -70,6 +71,7 @@ Old sessions are dropped (users re-login). Better Auth sessions include:
 - `user_id`
 - `expires_at`
 - `ip_address`, `user_agent`
+- `impersonated_by` text nullable (added by admin plugin for impersonation tracking)
 - `created_at`, `updated_at`
 
 ## 2.5 Enum Cleanup
@@ -126,7 +128,7 @@ export const sessionsRelations = relations(sessions, ({ one }) => ({
 }));
 ```
 
-Pass these relations through the Drizzle adapter `schema` option if not auto-resolved.
+**CRITICAL**: These relations MUST be passed through the Drizzle adapter `schema` option for experimental joins to work. The `schema` object passed to `drizzleAdapter()` must include both the table definitions AND these relation definitions. Since our `db` instance already includes a schema object, we need to ensure all auth relations are exported from `@auth/_database` and included in the central `@/core/database` schema barrel.
 
 ## 2.7 Database Indexes (Performance)
 
@@ -138,6 +140,24 @@ CREATE INDEX IF NOT EXISTS idx_accounts_user_id ON accounts (user_id);
 CREATE INDEX IF NOT EXISTS idx_sessions_user_id ON sessions (user_id);
 CREATE INDEX IF NOT EXISTS idx_sessions_token ON sessions (token);
 CREATE INDEX IF NOT EXISTS idx_verifications_identifier ON verifications (identifier);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_rate_limit_key ON rate_limit (key);
 ```
+
+## 2.8 Rate Limit Table (Required for `rateLimit.storage: "database"`)
+
+Since `better-auth/minimal` disables the CLI `migrate` command, the `rate_limit` table MUST be created manually in the custom migration. Without this table, rate limiting will fail at runtime.
+
+Schema (from Better Auth docs):
+
+```sql
+CREATE TABLE IF NOT EXISTS rate_limit (
+  id TEXT PRIMARY KEY,
+  key TEXT NOT NULL UNIQUE,
+  count INTEGER NOT NULL,
+  last_request BIGINT NOT NULL
+);
+```
+
+> **Why is this here?** The `rateLimit.storage: "database"` option tells Better Auth to store rate limit counters in the database. Normally you'd run `npx @better-auth/cli migrate` to auto-create this table, but since we use `better-auth/minimal` (which excludes the built-in Kysely adapter), the CLI migrate command is unavailable. We create it ourselves.
 
 These are critical with 12K+ users and frequent session lookups on Vercel serverless.

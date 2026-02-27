@@ -95,7 +95,30 @@ authClient.admin.checkRolePermission({
 
 Note: `checkRolePermission` does not include DB per-user overrides.
 
-## 3.5 Files Referencing `next-auth` (migration inventory)
+## 3.5 Replace `stdNo` Session Access with On-Demand Server Action
+
+Currently, `session.user.stdNo` is populated by a DB query in every session callback. This adds latency to every session fetch (including non-student users).
+
+**Replacement**: Create a dedicated server action that queries `stdNo` on-demand only where needed.
+
+File: `src/app/registry/students/_server/actions.ts` (add to existing actions)
+
+```ts
+export async function getStudentByUserId(userId: string) {
+  return withPermission(async () => {
+    return studentRepository.findByUserId(userId);
+  }, 'auth');
+}
+```
+
+Update all components that currently use `session.user.stdNo`:
+- `src/app/student-portal/**` — call `getStudentByUserId(session.user.id)` instead
+- `src/shared/lib/hooks/use-user-student.tsx` — refactor to use the server action via TanStack Query
+- Any other component using `session.user.stdNo`
+
+> **Why?** This eliminates a DB query on every session load for all 12K users, when only ~student role users need `stdNo`. On-demand querying is both faster (for non-students) and cleaner architecturally.
+
+## 3.6 Files Referencing `next-auth` (migration inventory)
 
 Server-side highlights:
 - `src/core/platform/withAuth.ts` — delete

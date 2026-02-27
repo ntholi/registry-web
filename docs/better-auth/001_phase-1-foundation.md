@@ -11,7 +11,7 @@
 | DB migration | Side-by-side (new tables alongside old → migrate data → drop old) |
 | RBAC approach | Better Auth admin plugin + custom permission layer |
 | Custom user fields | `additionalFields` for role only; lmsUserId/lmsToken → separate `lms_credentials` table |
-| stdNo in session | Removed; query on-demand |
+| stdNo in session | Removed; use dedicated server action `getStudentByUserId()` on-demand where needed |
 | Position field | Removed; replaced by code-defined permission presets (e.g. "lecturer", "year_leader") |
 | Environment vars | Rename all to Better Auth conventions |
 | Rollout | Phased (4 phases) |
@@ -19,9 +19,11 @@
 | pgEnums | Drop all 3 (user_roles, user_positions, dashboard_users) → use text |
 | Google UX | `prompt: "select_account"` (force account picker) |
 | Route protection | Next.js 16 proxy (cookie-cache check via `getCookieCache()`, real validation in pages/routes) |
-| Trusted origins | Production domain + Vercel preview wildcard |
+| Trusted origins | Environment variable (`BETTER_AUTH_TRUSTED_ORIGINS`) + production domain |
 | Experimental joins | Enabled (`experimental: { joins: true }`) for 2-3x perf on session lookups |
-| Rate limiting | Default in-memory (acceptable for initial rollout; upgrade to DB storage if abuse observed) |
+| Rate limiting | Database storage (`rateLimit.storage: "database"`) — required for Vercel serverless where in-memory resets on cold starts |
+| Rate limit enabled | Explicitly `true` (disabled in dev by default; must be enabled for testing) |
+| Rate limit table | Must be created in custom migration (CLI migrate unavailable with `better-auth/minimal`) |
 
 ---
 
@@ -54,6 +56,8 @@ pnpm remove next-auth @auth/drizzle-adapter
 
 Pin the version in `package.json` (remove `^` prefix) to prevent unexpected breaking changes.
 
+> **Note on `better-auth/minimal`**: This plan uses `better-auth/minimal` for reduced bundle size (excludes built-in Kysely). This means the `npx @better-auth/cli migrate` command won't work — but that's fine because we use Drizzle Kit (`pnpm db:generate` / `pnpm db:migrate`) for all migrations. The CLI `generate` command still works to output schema files.
+
 ## 1.1b Update `next.config.ts`
 
 Add `better-auth` to `serverExternalPackages` to prevent bundler-level resolution issues (recommended by Better Auth FAQ):
@@ -76,9 +80,11 @@ Remove:
 Add:
 - `BETTER_AUTH_SECRET` (32+ chars: `openssl rand -base64 32`)
 - `BETTER_AUTH_URL` (e.g., `http://localhost:3000`)
-- `NEXT_PUBLIC_BETTER_AUTH_URL` (same value — needed for client-side auth requests)
+- `BETTER_AUTH_TRUSTED_ORIGINS` (comma-separated, e.g., `https://registry-web-*.vercel.app`; do NOT include `*.vercel.app` — that trusts all Vercel apps)
 - `GOOGLE_CLIENT_ID` (same value as old AUTH_GOOGLE_ID)
 - `GOOGLE_CLIENT_SECRET` (same value as old AUTH_GOOGLE_SECRET)
+
+> **Note**: `NEXT_PUBLIC_BETTER_AUTH_URL` is NOT needed. The Better Auth client auto-discovers the API endpoint from the same origin. Only required if the client runs on a different domain than the server.
 
 ## 1.3 Create Better Auth Server Instance
 
@@ -91,7 +97,7 @@ import { admin } from "better-auth/plugins/admin";
 import { nextCookies } from "better-auth/next-js";
 import { nanoid } from "nanoid";
 import { waitUntil } from "@vercel/functions";
-import { db } from "@/core/database";
+import { db, schema } from "@/core/database";
 import { ac, roles } from "@/core/auth/permissions";
 import { logActivity } from "@audit-logs/activity-logs/_server/actions";
 
@@ -99,10 +105,11 @@ export const auth = betterAuth({
   database: drizzleAdapter(db, {
     provider: "pg",
     usePlural: true,
+    schema,
   }),
   trustedOrigins: [
     process.env.BETTER_AUTH_URL!,
-    "https://*.vercel.app",
+    ...(process.env.BETTER_AUTH_TRUSTED_ORIGINS?.split(",").map((o) => o.trim()) ?? []),
   ],
   socialProviders: {
     google: {
@@ -127,6 +134,7 @@ export const auth = betterAuth({
       trustedProviders: ["google"],
     },
     encryptOAuthTokens: true,
+    updateAccountOnSignIn: true,
   },
   user: {
     additionalFields: {
@@ -140,6 +148,18 @@ export const auth = betterAuth({
   },
   experimental: {
     joins: true,
+  },
+  rateLimit: {
+    enabled: true,
+    storage: "database",
+    window: 60,
+    max: 100,
+    customRules: {
+      "/sign-in/social": {
+        window: 10,
+        max: 3,
+      },
+    },
   },
   advanced: {
     useSecureCookies: process.env.NODE_ENV === "production",
@@ -366,7 +386,6 @@ import { adminClient } from "better-auth/client/plugins";
 import { ac, roles } from "@/core/auth/permissions";
 
 export const authClient = createAuthClient({
-  baseURL: process.env.NEXT_PUBLIC_BETTER_AUTH_URL,
   plugins: [
     adminClient({ ac, roles }),
   ],
