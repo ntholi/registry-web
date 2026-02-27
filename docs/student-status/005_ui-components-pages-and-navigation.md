@@ -1,8 +1,8 @@
-# Step 003: UI & Pages
+# Step 005: UI Components, Pages & Navigation
 
 ## Introduction
 
-This step creates all UI components, page routes, and navigation configuration for the Student Status feature. Steps 1 (schema) and 2 (backend) must be completed first. The UI follows the existing Adease patterns: `ListLayout` for the master list, `DetailsView` for detail pages, and `Form` for creation.
+This step creates all UI components, page routes, and navigation configuration for the Student Status feature. Steps 1–4 must be completed first. The UI follows the existing Adease patterns: `ListLayout` for the master list, `DetailsView` for detail pages, and `Form` for creation.
 
 ## Context
 
@@ -23,15 +23,15 @@ Existing UI patterns in the codebase:
 
 Add a new navigation item below "Blocked Students":
 
-| Property          | Value                                       |
-| ----------------- | ------------------------------------------- |
-| `label`           | `'Student Status'`                          |
-| `href`            | `'/registry/student-status'`                |
-| `icon`            | `IconUserExclamation` (from `@tabler/icons-react`) |
-| `isVisible`       | Function: visible to `admin`, `registry`, `academic`, `student_services`, `finance` roles |
-| `notificationCount` | `{ queryKey: ['student-status-apps', 'pending'], queryFn: () => countPendingStudentStatusApps(), color: 'red' }` |
+| Property           | Value                                       |
+| ------------------ | ------------------------------------------- |
+| `label`            | `'Student Status'`                          |
+| `href`             | `'/registry/student-statuses'`              |
+| `icon`             | `IconUserExclamation` (from `@tabler/icons-react`) |
+| `isVisible`        | Function: visible to `admin`, `registry`, `academic`, `student_services`, `finance` roles |
+| `notificationCount` | `{ queryKey: ['student-statuses', 'pending'], queryFn: () => countPendingStudentStatuses(), color: 'red' }` |
 
-> **Important**: Use `isVisible` (not `roles`) because approvers (academic with year_leader/manager/program_leader positions, student_services, finance) need access to navigate to pending applications. The `countPendingStudentStatusApps` action should return the count of applications with at least one pending approval matching the current user's role/position.
+> **Important**: Use `isVisible` (not `roles`) because approvers (academic with year_leader/manager/program_leader positions, student_services, finance) need access to navigate to pending applications.
 
 ### 2. Application Form (`_components/Form.tsx`)
 
@@ -60,8 +60,8 @@ A form for creating new student status change applications.
 Follow the existing `BlockedStudentForm` pattern:
 ```
 type Props = {
-  onSubmit: (values: AppInsert) => Promise<AppSelect>;
-  defaultValues?: AppInsert;
+  onSubmit: (values: StudentStatusInsert) => Promise<StudentStatus>;
+  defaultValues?: StudentStatusInsert;
   title?: string;
 }
 ```
@@ -107,20 +107,20 @@ Use appropriate colors and icons from `@tabler/icons-react` for each step.
 #### `layout.tsx` — List Layout
 
 ```
-Path: src/app/registry/student-status/layout.tsx
+Path: src/app/registry/student-statuses/layout.tsx
 ```
 
 Use `ListLayout` component:
-- `path`: `/registry/student-status`
-- `queryKey`: `['student-status-apps']`
-- `getData`: Call `findAllStudentStatusApps(page, search)` — returns paginated result
-- `actionIcons`: `[<NewLink href='/registry/student-status/new' />]`
+- `path`: `/registry/student-statuses`
+- `queryKey`: `['student-statuses']`
+- `getData`: Call `findAllStudentStatuses(page, search)` — returns paginated result
+- `actionIcons`: `[<NewLink href='/registry/student-statuses/new' />]`
 - `renderItem`: Show student number as label, student name as description, type and status as badges
 
 #### `page.tsx` — Nothing Selected
 
 ```
-Path: src/app/registry/student-status/page.tsx
+Path: src/app/registry/student-statuses/page.tsx
 ```
 
 Return `<NothingSelected title='Student Status' />`
@@ -128,27 +128,27 @@ Return `<NothingSelected title='Student Status' />`
 #### `new/page.tsx` — Create Application
 
 ```
-Path: src/app/registry/student-status/new/page.tsx
+Path: src/app/registry/student-statuses/new/page.tsx
 ```
 
 Render the `Form` component:
 - `title`: `'New Application'`
-- `onSubmit`: Call `createStudentStatusApp`
+- `onSubmit`: Call `createStudentStatus`
 - On success, redirect to the created application's detail page
 
 #### `[id]/page.tsx` — Application Detail
 
 ```
-Path: src/app/registry/student-status/[id]/page.tsx
+Path: src/app/registry/student-statuses/[id]/page.tsx
 ```
 
-Client component using `useQuery` to fetch the application.
+Server component that fetches the application via `getStudentStatus(id)`.
 
 **Layout:**
 - `DetailsView` wrapper
 - `DetailsViewHeader`:
   - `title`: Student name
-  - `queryKey`: `['student-status-apps']`
+  - `queryKey`: `['student-statuses']`
   - Cancel button visible for pending applications (registry/admin only)
 - `DetailsViewBody`:
   - **Top Section**: Application info fields using `FieldView`:
@@ -175,7 +175,7 @@ Verify that the following statuses already map correctly through `getStatusColor
 | `pending`   | `yellow`       | Already handled by normalized string matching  |
 | `approved`  | `green`        | Already handled via `allStatuses` lookup       |
 | `rejected`  | `red`          | Already handled by normalized string matching  |
-| `cancelled` | `red`          | Already mapped as `semantic.error` at line 192 |
+| `cancelled` | `red`          | Already mapped as `semantic.error`             |
 
 > No changes needed to `colors.ts` — all statuses are already covered by the existing `getStatusColor()` function.
 
@@ -191,7 +191,7 @@ Add mappings for the application type:
 
 ### 7. Utility: Label Formatters
 
-Create a small utility file or add to the form component for formatting enum values to display labels:
+Create a small utility within the feature at `_lib/labels.ts` for formatting enum values to display labels:
 
 | Enum Value            | Display Label                     |
 | --------------------- | --------------------------------- |
@@ -214,18 +214,18 @@ Create a small utility file or add to the form component for formatting enum val
 
 ## Expected Files
 
-| File                                                               | Purpose                                     |
-| ------------------------------------------------------------------ | ------------------------------------------- |
-| `src/app/registry/student-status/layout.tsx`                      | ListLayout wrapper                          |
-| `src/app/registry/student-status/page.tsx`                        | NothingSelected page                        |
-| `src/app/registry/student-status/new/page.tsx`                    | Create application page                     |
-| `src/app/registry/student-status/[id]/page.tsx`                   | Application detail page                     |
-| `src/app/registry/student-status/_components/Form.tsx`            | Application creation form                   |
-| `src/app/registry/student-status/_components/ApprovalPanel.tsx`   | Approval steps with action buttons          |
-| `src/app/registry/student-status/_components/StatusTimeline.tsx`  | Visual timeline of application progress     |
-| `src/app/registry/registry.config.ts`                             | Updated navigation (add Student Status)     |
-| `src/shared/lib/utils/colors.ts`                                  | No changes needed (verified)                |
-| `src/shared/lib/utils/status.tsx`                                 | Updated with application type icons         |
+| File                                                                  | Purpose                                     |
+| --------------------------------------------------------------------- | ------------------------------------------- |
+| `src/app/registry/student-statuses/layout.tsx`                        | ListLayout wrapper                          |
+| `src/app/registry/student-statuses/page.tsx`                          | NothingSelected page                        |
+| `src/app/registry/student-statuses/new/page.tsx`                      | Create application page                     |
+| `src/app/registry/student-statuses/[id]/page.tsx`                     | Application detail page                     |
+| `src/app/registry/student-statuses/_components/Form.tsx`              | Application creation form                   |
+| `src/app/registry/student-statuses/_components/ApprovalPanel.tsx`     | Approval steps with action buttons          |
+| `src/app/registry/student-statuses/_components/StatusTimeline.tsx`    | Visual timeline of application progress     |
+| `src/app/registry/student-statuses/_lib/labels.ts`                    | Enum → display label formatters             |
+| `src/app/registry/registry.config.ts`                                 | Updated navigation (add Student Status)     |
+| `src/shared/lib/utils/status.tsx`                                     | Updated with application type icons         |
 
 ## Validation Criteria
 
@@ -252,3 +252,4 @@ Create a small utility file or add to the form component for formatting enum val
 - Use `Mantine.Badge` for status and type display throughout
 - Use `Mantine.Select` for type and justification dropdowns
 - Dark mode optimization: use Mantine's semantic colors (no hardcoded hex values)
+- The label formatters in `_lib/labels.ts` keep display logic centralized within the feature rather than scattering it across multiple components
