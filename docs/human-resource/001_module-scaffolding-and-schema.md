@@ -4,6 +4,22 @@
 
 Set up the Human Resource module infrastructure: database schema, role integration, repository/service/actions layers, module configuration, and dashboard navigation.
 
+## Locked Alignment Decisions (Validated)
+
+- Target parity is with `registry/students/*` patterns and naming conventions.
+- Authorization scope is `human_resource` + `admin` only.
+- Card print tracking source is `audit_logs` only (no `employee_card_prints` table).
+- Keep all current scope (not MVP cut-down), but enforce reuse-first extraction in Part 2.
+- Follow create-feature module layout exactly (`_schema`, `_server`, `_components`, `_lib`, `layout.tsx`, `page.tsx`, `new`, `[id]`, `[id]/edit`, `index.ts`).
+
+## Critical Compliance Guardrails
+
+- Schema files in `_schema/*.ts` must only import tables from owning module schema paths (never `@/core/database`).
+- Only repositories may access `db` directly.
+- All writes must be audited via `BaseRepository` audit path or `writeAuditLog` in the same transaction.
+- Never create manual SQL migrations; use `pnpm db:generate` (and custom mode only when needed).
+- Never use `pnpm db:push`.
+
 ---
 
 ## 1.1 — Add `human_resource` Role
@@ -206,6 +222,7 @@ After creating all schema files and registering them:
 
 ```bash
 pnpm db:generate
+pnpm db:migrate
 ```
 
 ---
@@ -259,34 +276,76 @@ export default class EmployeeRepository extends BaseRepository<
 
 ### Details
 
-Uses `BaseService` with an overridden `get()` to load relations via the custom repo method. This is simpler than the student's fully custom `StudentService` since employees have fewer domain operations, but follows the same authorization pattern.
+Uses a students-style custom service class (not `BaseService`) so auth, audit metadata, and later employee-specific operations can stay in one consistent pattern.
 
 ```typescript
 import type { employees } from '@/core/database';
-import BaseService from '@/core/platform/BaseService';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
-import withAuth from '@/core/platform/withAuth';
+import withAuth, { requireSessionUserId } from '@/core/platform/withAuth';
 import EmployeeRepository from './repository';
 
-class EmployeeService extends BaseService<typeof employees, 'empNo'> {
-  private repo: EmployeeRepository;
+type Employee = typeof employees.$inferInsert;
+
+class EmployeeService {
+  private repository: EmployeeRepository;
 
   constructor() {
-    const repository = new EmployeeRepository();
-    super(repository, {
-      byIdRoles: ['human_resource', 'admin'],
-      findAllRoles: ['human_resource', 'admin'],
-      createRoles: ['human_resource', 'admin'],
-      updateRoles: ['human_resource', 'admin'],
-      deleteRoles: ['admin'],
-    });
-    this.repo = repository;
+    this.repository = new EmployeeRepository();
   }
 
-  override async get(empNo: string) {
+  async get(empNo: string) {
     return withAuth(
-      async () => this.repo.findByEmpNo(empNo),
+      async () => this.repository.findByEmpNo(empNo),
       ['human_resource', 'admin']
+    );
+  }
+
+  async findAll(page = 1, search = '') {
+    return withAuth(
+      async () =>
+        this.repository.queryBasic({
+          page,
+          search,
+          searchColumns: ['empNo', 'name'],
+          sort: [{ column: 'createdAt', order: 'desc' }],
+        }),
+      ['human_resource', 'admin']
+    );
+  }
+
+  async create(data: Employee) {
+    return withAuth(
+      async (session) =>
+        this.repository.create(data, {
+          userId: requireSessionUserId(session),
+          role: session!.user!.role!,
+          activityType: 'employee_creation',
+        }),
+      ['human_resource', 'admin']
+    );
+  }
+
+  async update(empNo: string, data: Employee) {
+    return withAuth(
+      async (session) =>
+        this.repository.update(empNo, data, {
+          userId: requireSessionUserId(session),
+          role: session!.user!.role!,
+          activityType: 'employee_update',
+        }),
+      ['human_resource', 'admin']
+    );
+  }
+
+  async delete(empNo: string) {
+    return withAuth(
+      async (session) =>
+        this.repository.delete(empNo, {
+          userId: requireSessionUserId(session),
+          role: session!.user!.role!,
+          activityType: 'employee_delete',
+        }),
+      ['admin']
     );
   }
 }
@@ -321,12 +380,7 @@ export async function getEmployee(empNo: string) {
 }
 
 export async function findAllEmployees(page: number = 1, search = '') {
-  return service.findAll({
-    page,
-    search,
-    searchColumns: ['empNo', 'name'],
-    sort: [{ column: 'createdAt', order: 'desc' }],
-  });
+  return service.findAll(page, search);
 }
 
 export async function createEmployee(employee: Employee) {
@@ -570,8 +624,9 @@ export default function Page() {
 - [ ] Schemas registered in `src/core/database`
 - [ ] _database barrel export with schemas + enums + relations
 - [ ] Migration generated via `pnpm db:generate`
+- [ ] Migration applied via `pnpm db:migrate`
 - [ ] Repository with custom `findByEmpNo` (loads user + school relations)
-- [ ] Service extending `BaseService` with overridden `get()`
+- [ ] Service follows students-style custom class with `withAuth` wrappers for CRUD
 - [ ] Actions layer with CRUD + `getEmployeePhoto`
 - [ ] Types file with `Employee` and `EmployeeInsert`
 - [ ] Barrel exports in `index.ts`

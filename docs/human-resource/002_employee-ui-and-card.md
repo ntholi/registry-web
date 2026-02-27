@@ -4,6 +4,20 @@
 
 Build the complete employee UI: the create/edit form, the detail page with two tabs (Details and Card), photo management, employee card preview (matching the physical card design), card PDF generation, and print audit logging. Card print history is read from `audit_logs` (no dedicated prints table).
 
+## Execution Phases
+
+- **Phase 2A (Reuse-First Refactor):** extract shared UI from students to `src/shared/ui/` and refactor students to consume shared components.
+- **Phase 2B (Employee UI Build):** implement employee form, detail page, tabs, photo, card preview, print, and history.
+- **Phase 2C (Cross-Feature Validation):** verify no duplication remains and both student + employee flows still work.
+
+## Locked Alignment Decisions (Validated)
+
+- Keep line-by-line convention parity with `registry/students/*` where feasible.
+- Keep full scope (do not trim current ideas).
+- Keep print history source as `audit_logs` only.
+- Keep authorization scope to `human_resource` + `admin` only.
+- Prefer shared extraction over feature-local duplication.
+
 ---
 
 ## 2.0 — Shared Component Extractions (PREREQUISITE)
@@ -787,7 +801,7 @@ Add to `EmployeeService`:
 async logCardPrint(empNo: string) {
   return withAuth(
     async (session) => {
-      await this.repo.logCardPrint(empNo, {
+      await this.repository.logCardPrint(empNo, {
         userId: requireSessionUserId(session),
         role: session!.user!.role!,
         activityType: 'employee_card_print',
