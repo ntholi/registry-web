@@ -14,26 +14,23 @@ import {
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 import IDCardPreview from '@/shared/ui/IDCardPreview';
-import { type getStudent, getStudentPhoto } from '../../_server/actions';
+import { type getEmployee, getEmployeePhoto } from '../../_server/actions';
 import PhotoSelection from './PhotoSelection';
 import PrintHistoryView from './PrintHistoryView';
 
-type StudentCardViewProps = {
-	student: NonNullable<Awaited<ReturnType<typeof getStudent>>>;
+type Props = {
+	employee: NonNullable<Awaited<ReturnType<typeof getEmployee>>>;
 	isActive: boolean;
 };
 
-export default function StudentCardView({
-	student,
-	isActive,
-}: StudentCardViewProps) {
+export default function EmployeeCardView({ employee, isActive }: Props) {
 	const [activeTab, setActiveTab] = useState<string | null>('preview');
 	const [selectedPhoto, setSelectedPhoto] = useState<File | null>(null);
 	const [photoPreview, setPhotoPreview] = useState<string | null>(null);
 
 	const { data: existingPhotoUrl, isLoading } = useQuery({
-		queryKey: ['student-photo', student.stdNo],
-		queryFn: () => getStudentPhoto(student.stdNo),
+		queryKey: ['employee-photo', employee.empNo],
+		queryFn: () => getEmployeePhoto(employee.empNo),
 		staleTime: 1000 * 60 * 3,
 		enabled: isActive,
 	});
@@ -57,7 +54,7 @@ export default function StudentCardView({
 								<Skeleton height={20} width={100} />
 							) : finalPhotoUrl ? (
 								<Text fw={500} size='sm'>
-									Student Card
+									Employee Card
 								</Text>
 							) : (
 								<Text size='xs' c='dimmed' fs='italic'>
@@ -66,7 +63,7 @@ export default function StudentCardView({
 							)}
 						</Group>
 						<Text size='xs' c='dimmed'>
-							Manage student card photo and print history
+							Manage employee card photo and print history
 						</Text>
 					</Stack>
 					<Group gap='xs'>
@@ -74,7 +71,7 @@ export default function StudentCardView({
 							selectedPhoto={selectedPhoto}
 							photoPreview={photoPreview}
 							onPhotoChange={handlePhotoChange}
-							studentNumber={student.stdNo}
+							employeeNumber={employee.empNo}
 							existingPhotoUrl={existingPhotoUrl}
 							compact
 						/>
@@ -91,21 +88,17 @@ export default function StudentCardView({
 					<IDCardPreview
 						photoUrl={finalPhotoUrl}
 						fields={[
-							{ value: student.name },
-							{ value: String(student.stdNo) },
-							{
-								value:
-									student.programs?.find((p) => p.status === 'Active')
-										?.structure?.program?.code || 'N/A',
-							},
-							{ value: 'STUDENT' },
+							{ value: employee.name },
+							{ value: employee.empNo },
+							{ value: employee.school?.name ?? 'N/A' },
+							{ value: (employee.type ?? 'STAFF').toUpperCase() },
 							{ value: String(new Date().getFullYear()) },
 						]}
 					/>
 				</TabsPanel>
 				<TabsPanel value='history' pt='xl'>
 					<PrintHistoryView
-						stdNo={student.stdNo}
+						empNo={employee.empNo}
 						isActive={isActive && activeTab === 'history'}
 					/>
 				</TabsPanel>

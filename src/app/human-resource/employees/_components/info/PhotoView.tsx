@@ -7,16 +7,16 @@ import { useSession } from 'next-auth/react';
 import { deleteDocument, uploadDocument } from '@/core/integrations/storage';
 import PhotoInputModal from '@/shared/ui/PhotoInputModal';
 import PhotoPreviewModal from '@/shared/ui/PhotoPreviewModal';
-import { type getStudent, getStudentPhoto } from '../../_server/actions';
+import { type getEmployee, getEmployeePhoto } from '../../_server/actions';
 
 type Props = {
-	student: NonNullable<Awaited<ReturnType<typeof getStudent>>>;
+	employee: NonNullable<Awaited<ReturnType<typeof getEmployee>>>;
 };
 
-export default function PhotoView({ student }: Props) {
+export default function PhotoView({ employee }: Props) {
 	const { data: photoUrl, refetch } = useQuery({
-		queryKey: ['student-photo', student.stdNo],
-		queryFn: () => getStudentPhoto(student.stdNo),
+		queryKey: ['employee-photo', employee.empNo],
+		queryFn: () => getEmployeePhoto(employee.empNo),
 		staleTime: 1000 * 60 * 3,
 	});
 	const { data: session } = useSession();
@@ -27,12 +27,12 @@ export default function PhotoView({ student }: Props) {
 				await deleteDocument(photoUrl);
 			}
 
-			const fileName = `${student.stdNo}.jpg`;
+			const fileName = `${employee.empNo}.jpg`;
 			const photoFile = new File([croppedImageBlob], fileName, {
 				type: 'image/jpeg',
 			});
 
-			await uploadDocument(photoFile, fileName, 'photos');
+			await uploadDocument(photoFile, fileName, 'photos/employees');
 			await refetch();
 
 			notifications.show({
@@ -49,7 +49,7 @@ export default function PhotoView({ student }: Props) {
 		}
 	};
 
-	const canEditPhoto = ['admin', 'registry'].includes(
+	const canEditPhoto = ['admin', 'human_resource'].includes(
 		session?.user?.role ?? ''
 	);
 
@@ -65,8 +65,8 @@ export default function PhotoView({ student }: Props) {
 				<>
 					<PhotoPreviewModal
 						photoUrl={photoUrl}
-						title={`${student.name} (${student.stdNo})`}
-						alt='Student photo'
+						title={`${employee.name} (${employee.empNo})`}
+						alt='Employee photo'
 						width={76}
 						height={76}
 					/>
@@ -83,7 +83,7 @@ export default function PhotoView({ student }: Props) {
 						>
 							<PhotoInputModal
 								onPhotoSubmit={handlePhotoSubmit}
-								title={`Change Photo for ${student.name}`}
+								title={`Change Photo for ${employee.name}`}
 								renderTrigger={({ open }) => (
 									<ActionIcon
 										size='sm'
@@ -102,13 +102,13 @@ export default function PhotoView({ student }: Props) {
 				</>
 			) : (
 				<>
-					<Card withBorder radius={'md'} w={76} h={76} p={'xs'}>
+					<Card withBorder radius='md' w={76} h={76} p='xs'>
 						{cardContent}
 					</Card>
 					{canEditPhoto && (
 						<PhotoInputModal
 							onPhotoSubmit={handlePhotoSubmit}
-							title={`Upload Photo for ${student.name}`}
+							title={`Upload Photo for ${employee.name}`}
 							renderTrigger={({ open }) => (
 								<ActionIcon
 									size='sm'

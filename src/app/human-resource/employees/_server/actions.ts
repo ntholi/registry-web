@@ -25,6 +25,14 @@ export async function deleteEmployee(empNo: string) {
 	return service.delete(empNo);
 }
 
+export async function logEmployeeCardPrint(empNo: string) {
+	return service.logCardPrint(empNo);
+}
+
+export async function getEmployeeCardPrintHistory(empNo: string) {
+	return service.getCardPrintHistory(empNo);
+}
+
 export async function getEmployeePhoto(
 	empNo: string | undefined | null
 ): Promise<string | null> {

@@ -67,6 +67,26 @@ class EmployeeService {
 			['admin']
 		);
 	}
+
+	async logCardPrint(empNo: string) {
+		return withAuth(
+			async (session) => {
+				await this.repository.logCardPrint(empNo, {
+					userId: requireSessionUserId(session),
+					role: session!.user!.role!,
+					activityType: 'employee_card_print',
+				});
+			},
+			['human_resource', 'admin']
+		);
+	}
+
+	async getCardPrintHistory(empNo: string) {
+		return withAuth(
+			async () => this.repository.findCardPrintHistory(empNo),
+			['human_resource', 'admin']
+		);
+	}
 }
 
 export const employeesService = serviceWrapper(

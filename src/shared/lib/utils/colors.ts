@@ -1,5 +1,6 @@
 import type { ModuleType, programLevelEnum } from '@academic/_database';
 import type { taskPriority, taskStatus } from '@admin/_database';
+import type { employeeStatus } from '@human-resource/_database';
 import type {
 	QuestionType as LmsQuestionType,
 	QuestionState,
@@ -20,6 +21,7 @@ type ClassTypeDb = (typeof classTypeEnum.enumValues)[number];
 type TaskPriority = (typeof taskPriority.enumValues)[number];
 type TaskStatus = (typeof taskStatus.enumValues)[number];
 type StudentStatus = (typeof studentStatus.enumValues)[number];
+type EmployeeStatus = (typeof employeeStatus.enumValues)[number];
 
 export const semantic = {
 	success: 'green',
@@ -70,6 +72,9 @@ export const statusColors = {
 		dnr: semantic.error,
 		withdrawn: semantic.error,
 		deceased: semantic.neutral,
+		resigned: semantic.caution,
+		retired: semantic.neutral,
+		onleave: semantic.warning,
 	},
 	academic: {
 		proceed: semantic.success,
@@ -252,6 +257,7 @@ export type AllStatusType =
 	| SemesterStatus
 	| StudentModuleStatus
 	| ModuleType
+	| EmployeeStatus
 	| 'verified';
 export type QuizStateType = keyof typeof statusColors.quizState | QuestionState;
 export type QuestionType =

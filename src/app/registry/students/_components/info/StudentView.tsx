@@ -5,7 +5,6 @@ import {
 	Badge,
 	Box,
 	Card,
-	CopyButton,
 	Flex,
 	Grid,
 	Group,
@@ -16,12 +15,13 @@ import {
 	Tooltip,
 } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
-import { IconCheck, IconCopy } from '@tabler/icons-react';
+import { IconCopy } from '@tabler/icons-react';
 import { useSession } from 'next-auth/react';
 import type { UserRole } from '@/core/database';
-import { getBooleanColor, getStatusColor } from '@/shared/lib/utils/colors';
+import { getStatusColor } from '@/shared/lib/utils/colors';
 import { calculateAge, formatDate } from '@/shared/lib/utils/dates';
 import { formatPhoneNumber, formatSemester } from '@/shared/lib/utils/utils';
+import InfoItem from '@/shared/ui/InfoItem';
 import Link from '@/shared/ui/Link';
 import type { getStudent } from '../../_server/actions';
 import CreateStudentProgramModal from '../academics/CreateStudentProgramModal';
@@ -354,75 +354,6 @@ export default function StudentView({ student }: Props) {
 				</div>
 			)}
 		</Stack>
-	);
-}
-
-function InfoItem({
-	label,
-	value,
-	href,
-	displayValue,
-	copyable = true,
-}: {
-	label: string;
-	value: number | string | null | undefined;
-	href?: string;
-	displayValue?: string | null;
-	copyable?: boolean;
-}) {
-	return (
-		<Box
-			style={{
-				position: 'relative',
-			}}
-			onMouseEnter={(e) => {
-				const copyButton = e.currentTarget.querySelector(
-					'.copy-button'
-				) as HTMLElement;
-				if (copyButton) copyButton.style.opacity = '1';
-			}}
-			onMouseLeave={(e) => {
-				const copyButton = e.currentTarget.querySelector(
-					'.copy-button'
-				) as HTMLElement;
-				if (copyButton) copyButton.style.opacity = '0';
-			}}
-		>
-			<Text size='sm' c='dimmed'>
-				{label}
-			</Text>
-			<Group>
-				{href ? (
-					<Link href={href} size='sm' fw={500}>
-						{displayValue ?? value ?? 'N/A'}
-					</Link>
-				) : (
-					<Text size='sm' fw={500}>
-						{displayValue ?? value ?? 'N/A'}
-					</Text>
-				)}
-				{copyable && value && (
-					<CopyButton value={String(value)}>
-						{({ copied, copy }) => (
-							<Tooltip label={copied ? 'Copied' : 'Copy'}>
-								<ActionIcon
-									variant='subtle'
-									color={getBooleanColor(copied, 'highlight')}
-									onClick={copy}
-									className='copy-button'
-									style={{
-										opacity: 0,
-										transition: 'opacity 0.2s ease',
-									}}
-								>
-									{copied ? <IconCheck size={16} /> : <IconCopy size={16} />}
-								</ActionIcon>
-							</Tooltip>
-						)}
-					</CopyButton>
-				)}
-			</Group>
-		</Box>
 	);
 }
 

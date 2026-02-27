@@ -21,7 +21,7 @@ import {
 } from '@tabler/icons-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { deleteDocument, uploadDocument } from '@/core/integrations/storage';
-import PhotoInputModal from '../info/PhotoInputModal';
+import PhotoInputModal from '@/shared/ui/PhotoInputModal';
 
 type PhotoSelectionProps = {
 	selectedPhoto: File | null;
