@@ -1184,6 +1184,13 @@
 			"when": 1772174513456,
 			"tag": "0168_lame_jazinda",
 			"breakpoints": true
+		},
+		{
+			"idx": 169,
+			"version": "7",
+			"when": 1772177696784,
+			"tag": "0169_lucky_shockwave",
+			"breakpoints": true
 		}
 	]
 }

@@ -1,8 +1,7 @@
-import { schools } from '@academic/schools/_schema/schools';
 import { users } from '@auth/users/_schema/users';
 import { sql } from 'drizzle-orm';
-import { index, integer, pgTable, text, timestamp } from 'drizzle-orm/pg-core';
-import { employeeStatus, employeeType } from './types';
+import { index, pgTable, text, timestamp } from 'drizzle-orm/pg-core';
+import { employeeDepartment, employeeStatus, employeeType } from './types';
 
 export const employees = pgTable(
 	'employees',
@@ -11,7 +10,8 @@ export const employees = pgTable(
 		name: text().notNull(),
 		status: employeeStatus().notNull().default('Active'),
 		type: employeeType().notNull(),
-		schoolId: integer().references(() => schools.id, { onDelete: 'set null' }),
+		department: employeeDepartment(),
+		position: text(),
 		userId: text().references(() => users.id, { onDelete: 'set null' }),
 		createdAt: timestamp().defaultNow(),
 		updatedAt: timestamp()
@@ -24,6 +24,5 @@ export const employees = pgTable(
 			sql`${table.name} gin_trgm_ops`
 		),
 		userIdIdx: index('fk_employees_user_id').on(table.userId),
-		schoolIdIdx: index('fk_employees_school_id').on(table.schoolId),
 	})
 );

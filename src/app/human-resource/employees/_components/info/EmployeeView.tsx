@@ -21,6 +21,11 @@ type Props = {
 };
 
 export default function EmployeeView({ employee }: Props) {
+	const schoolNames = employee.employeeSchools
+		?.map((es) => es.school?.name)
+		.filter(Boolean)
+		.join(', ');
+
 	return (
 		<Stack gap='xl'>
 			<Group gap='xs' align='stretch'>
@@ -79,15 +84,18 @@ export default function EmployeeView({ employee }: Props) {
 						</Grid.Col>
 						<Grid.Col span={{ base: 12, sm: 6 }}>
 							<InfoItem
-								label='Department / School'
-								value={employee.school?.name ?? 'N/A'}
-								href={
-									employee.schoolId
-										? `/academic/schools/${employee.schoolId}`
-										: undefined
-								}
+								label='Department'
+								value={employee.department ?? 'N/A'}
 							/>
 						</Grid.Col>
+						<Grid.Col span={{ base: 12, sm: 6 }}>
+							<InfoItem label='Position' value={employee.position ?? 'N/A'} />
+						</Grid.Col>
+						{employee.department === 'Academic' && (
+							<Grid.Col span={{ base: 12, sm: 6 }}>
+								<InfoItem label='Schools' value={schoolNames || 'N/A'} />
+							</Grid.Col>
+						)}
 					</Grid>
 				</Paper>
 			</div>

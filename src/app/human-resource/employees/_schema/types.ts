@@ -16,3 +16,15 @@ export const employeeType = pgEnum('employee_type', [
 	'Contract',
 	'Intern',
 ]);
+
+export const employeeDepartment = pgEnum('employee_department', [
+	'Academic',
+	'Finance',
+	'Registry',
+	'Library',
+	'Marketing',
+	'Student Services',
+	'LEAP',
+	'Human Resources',
+	'Operations and Resources',
+]);

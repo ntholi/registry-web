@@ -133,7 +133,7 @@ type Props = {
 };
 
 export default function EmployeeCardPDF({ employee, photoUrl }: Props) {
-	const department = employee.school?.name ?? 'N/A';
+	const department = employee.department ?? 'N/A';
 	const currentYear = new Date().getFullYear();
 
 	return (

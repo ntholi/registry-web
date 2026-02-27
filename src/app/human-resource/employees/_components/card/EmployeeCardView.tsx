@@ -90,7 +90,7 @@ export default function EmployeeCardView({ employee, isActive }: Props) {
 						fields={[
 							{ value: employee.name },
 							{ value: employee.empNo },
-							{ value: employee.school?.name ?? 'N/A' },
+							{ value: employee.department ?? 'N/A' },
 							{ value: (employee.type ?? 'STAFF').toUpperCase() },
 							{ value: String(new Date().getFullYear()) },
 						]}

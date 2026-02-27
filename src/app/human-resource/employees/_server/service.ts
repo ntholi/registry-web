@@ -4,6 +4,7 @@ import withAuth, { requireSessionUserId } from '@/core/platform/withAuth';
 import EmployeeRepository from './repository';
 
 type Employee = typeof employees.$inferInsert;
+type EmployeeWithSchools = Employee & { schoolIds?: number[] };
 
 class EmployeeService {
 	private repository: EmployeeRepository;
@@ -32,26 +33,38 @@ class EmployeeService {
 		);
 	}
 
-	async create(data: Employee) {
+	async create(data: EmployeeWithSchools) {
 		return withAuth(
-			async (session) =>
-				this.repository.create(data, {
+			async (session) => {
+				const { schoolIds, ...employee } = data;
+				const created = await this.repository.create(employee, {
 					userId: requireSessionUserId(session),
 					role: session!.user!.role!,
 					activityType: 'employee_creation',
-				}),
+				});
+				if (schoolIds && schoolIds.length > 0) {
+					await this.repository.updateSchools(created.empNo, schoolIds);
+				}
+				return created;
+			},
 			['human_resource', 'admin']
 		);
 	}
 
-	async update(empNo: string, data: Employee) {
+	async update(empNo: string, data: EmployeeWithSchools) {
 		return withAuth(
-			async (session) =>
-				this.repository.update(empNo, data, {
+			async (session) => {
+				const { schoolIds, ...employee } = data;
+				const updated = await this.repository.update(empNo, employee, {
 					userId: requireSessionUserId(session),
 					role: session!.user!.role!,
 					activityType: 'employee_update',
-				}),
+				});
+				if (schoolIds !== undefined) {
+					await this.repository.updateSchools(empNo, schoolIds);
+				}
+				return updated;
+			},
 			['human_resource', 'admin']
 		);
 	}

@@ -1,5 +1,5 @@
 import { and, desc, eq } from 'drizzle-orm';
-import { db, employees, users } from '@/core/database';
+import { db, employeeSchools, employees, users } from '@/core/database';
 import { auditLogs } from '@/core/database/schema/auditLogs';
 import BaseRepository, {
 	type AuditOptions,
@@ -18,9 +18,21 @@ export default class EmployeeRepository extends BaseRepository<
 			where: eq(employees.empNo, empNo),
 			with: {
 				user: true,
-				school: true,
+				employeeSchools: {
+					with: { school: true },
+				},
 			},
 		});
+	}
+
+	async updateSchools(empNo: string, schoolIds: number[]) {
+		await db.delete(employeeSchools).where(eq(employeeSchools.empNo, empNo));
+
+		if (schoolIds.length > 0) {
+			await db
+				.insert(employeeSchools)
+				.values(schoolIds.map((schoolId) => ({ empNo, schoolId })));
+		}
 	}
 
 	async logCardPrint(empNo: string, audit: AuditOptions) {

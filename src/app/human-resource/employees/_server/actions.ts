@@ -4,6 +4,7 @@ import type { employees } from '@/core/database';
 import { employeesService as service } from './service';
 
 type Employee = typeof employees.$inferInsert;
+type EmployeeWithSchools = Employee & { schoolIds?: number[] };
 
 export async function getEmployee(empNo: string) {
 	return service.get(empNo);
@@ -13,11 +14,14 @@ export async function findAllEmployees(page: number = 1, search = '') {
 	return service.findAll(page, search);
 }
 
-export async function createEmployee(employee: Employee) {
+export async function createEmployee(employee: EmployeeWithSchools) {
 	return service.create(employee);
 }
 
-export async function updateEmployee(empNo: string, employee: Employee) {
+export async function updateEmployee(
+	empNo: string,
+	employee: EmployeeWithSchools
+) {
 	return service.update(empNo, employee);
 }
 
