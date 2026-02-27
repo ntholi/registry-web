@@ -34,6 +34,7 @@
 			"@auth/*": ["./src/app/auth/*"],
 			"@audit-logs/*": ["./src/app/audit-logs/*"],
 			"@library/*": ["./src/app/library/*"],
+			"@human-resource/*": ["./src/app/human-resource/*"],
 			"@server/*": ["./src/server/*"]
 		}
 	},

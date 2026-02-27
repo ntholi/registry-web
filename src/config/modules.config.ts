@@ -9,7 +9,8 @@ export type ModuleKey =
 	| 'timetable'
 	| 'student-portal'
 	| 'audit-logs'
-	| 'library';
+	| 'library'
+	| 'human-resource';
 
 const moduleEnvKeys: Record<ModuleKey, string> = {
 	academic: 'ENABLE_MODULE_ACADEMIC',
@@ -23,6 +24,7 @@ const moduleEnvKeys: Record<ModuleKey, string> = {
 	'student-portal': 'ENABLE_MODULE_STUDENT_PORTAL',
 	'audit-logs': 'ENABLE_MODULE_AUDIT_LOGS',
 	library: 'ENABLE_MODULE_LIBRARY',
+	'human-resource': 'ENABLE_MODULE_HUMAN_RESOURCE',
 };
 
 function isModuleEnabled(moduleKey: ModuleKey): boolean {
@@ -48,6 +50,7 @@ export const moduleConfig = {
 	studentPortal: isModuleEnabled('student-portal'),
 	auditLogs: isModuleEnabled('audit-logs'),
 	library: isModuleEnabled('library'),
+	humanResource: isModuleEnabled('human-resource'),
 };
 
 export function getModuleConfig() {
@@ -63,6 +66,7 @@ export function getModuleConfig() {
 		studentPortal: moduleConfig.studentPortal,
 		auditLogs: moduleConfig.auditLogs,
 		library: moduleConfig.library,
+		humanResource: moduleConfig.humanResource,
 	};
 }
 

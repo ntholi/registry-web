@@ -4,6 +4,7 @@ export * from '@admissions/_database';
 export * from '@audit-logs/_database';
 export * from '@auth/_database';
 export * from '@finance/_database';
+export * from '@human-resource/_database';
 export * from '@library/_database';
 export * from '@registry/_database';
 export * from '@timetable/_database';

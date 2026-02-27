@@ -31,6 +31,7 @@ import { academicConfig } from '@/app/academic/academic.config';
 import { adminConfig } from '@/app/admin/admin.config';
 import { admissionsConfig } from '@/app/admissions/admissions.config';
 import { financeConfig } from '@/app/finance/finance.config';
+import { humanResourceConfig } from '@/app/human-resource/human-resource.config';
 import { lmsConfig } from '@/app/lms/lms.config';
 import { registryConfig } from '@/app/registry/registry.config';
 import { reportsConfig } from '@/app/reports/reports.config';
@@ -97,6 +98,7 @@ function getNavigation(
 		{ config: financeConfig, enabled: moduleConfig.finance },
 		{ config: adminConfig, enabled: moduleConfig.admin },
 		{ config: reportsConfig, enabled: moduleConfig.reports },
+		{ config: humanResourceConfig, enabled: moduleConfig.humanResource },
 	];
 
 	const getLabelKey = (label: React.ReactNode): string => {
