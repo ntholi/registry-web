@@ -290,7 +290,7 @@ import { getPublicUrl } from '@/core/integrations/storage-utils';
   />
 ```
 
-> **NOTE**: Import from `storage-utils` (NOT `storage`). The `storage.ts` file has `import 'server-only'` and cannot be imported from client components. `getPublicUrl` is a pure function in `storage-utils.ts`.
+> **NOTE**: Import from `storage-utils` (NOT `storage`). The `storage.ts` file is server-side only and should not be imported from client components. `getPublicUrl` is a pure function in `storage-utils.ts`.
 
 ## 7.7.2 — Fix `DocumentViewer` PDF Rendering (CRITICAL)
 
@@ -335,11 +335,13 @@ The callers (question paper page, publication page) must wrap the value with `ge
 />
 ```
 
-> **IMPORT NOTE**: In server components, import `getPublicUrl` from `@/core/integrations/storage-utils`. In client components, import from the same path. The file has no `'use server'` or `'server-only'` restrictions.
+> **IMPORT NOTE**: In server components, import `getPublicUrl` from `@/core/integrations/storage-utils`. In client components, import from the same path. The file has no `'use server'` or server-only restrictions.
 
 ## 7.8 — Update Deletion on Attachment Removal
 
-### File: `src/app/registry/terms/settings/_components/ResultsPublicationAttachments.tsx`
+### File: `src/app/registry/terms/settings/_components/ResultsPublicationAttachments.tsx` (**client component**)
+
+> **CRITICAL**: This is a `'use client'` component. It CANNOT import `deleteFile` from `storage.ts`. Use the `deletePublicationAttachmentWithFile` server action defined in Step 6.5 instead.
 
 ### Current delete pattern:
 ```typescript
@@ -349,7 +351,9 @@ await deleteDocument(`${folder}/${attachment.fileName}`);
 
 ### New pattern:
 ```typescript
-await deleteFile(attachment.storageKey ?? StoragePaths.termPublication(termCode, attachment.type, attachment.fileName));
+import { deletePublicationAttachmentWithFile } from '../../_server/actions';
+
+await deletePublicationAttachmentWithFile(attachment.id);
 ```
 
 ## 7.9 — Cache Busting Strategy

@@ -13,7 +13,7 @@ Update every file upload callsite to use `StoragePaths`, `uploadFile`, and `gene
 
 ## IMPORTANT: Client Components and Storage Imports
 
-> **Since `storage.ts` now has `import 'server-only'` (see [Step 1](./01-centralize-storage-utility.md)), client components CANNOT import `uploadFile`/`deleteFile` directly.** All upload and delete operations from client components MUST go through module-specific server actions. Pure utilities like `StoragePaths` and `getPublicUrl` are imported from `@/core/integrations/storage-utils` (no restrictions).
+> **Since `storage.ts` is now a plain server module (no `'use server'` directive), client components CANNOT import `uploadFile`/`deleteFile` directly.** All upload and delete operations from client components MUST go through module-specific server actions. Pure utilities like `StoragePaths` and `getPublicUrl` are imported from `@/core/integrations/storage-utils` (no restrictions).
 
 ## 6.1 — Student Photo Upload
 
@@ -110,9 +110,24 @@ Handles old photo cleanup, S3 upload, and DB update atomically.
 ## 6.3 — Admissions Document Upload
 
 ### Files to update:
-- `src/app/admissions/applicants/_components/DocumentUpload.tsx`
-- `src/app/apply/[id]/(wizard)/qualifications/_server/actions.ts`
-- `src/app/apply/[id]/(wizard)/identity/_server/actions.ts`
+- `src/app/admissions/applicants/_components/DocumentUpload.tsx` (**client component**)
+- `src/app/admissions/applicants/[id]/documents/_components/UploadModal.tsx` (**client component**)
+- `src/app/apply/[id]/(wizard)/qualifications/_server/actions.ts` (server action — can use `uploadFile` directly)
+- `src/app/apply/[id]/(wizard)/identity/_server/actions.ts` (server action — can use `uploadFile` directly)
+
+> **CRITICAL**: `DocumentUpload.tsx` and `UploadModal.tsx` are `'use client'` components. They CANNOT import `uploadFile` or `generateUploadKey` from `storage.ts` (a plain server module). They MUST call server actions instead.
+
+### New server action needed in `src/app/admissions/applicants/[id]/documents/_server/actions.ts`:
+```typescript
+export async function uploadApplicantFile(applicantId: string, file: File): Promise<string> {
+  const key = generateUploadKey(
+    (fn) => StoragePaths.applicantDocument(applicantId, fn),
+    file.name
+  );
+  await uploadFile(file, key);
+  return key;
+}
+```
 
 ### Current code (DocumentUpload.tsx):
 ```typescript
@@ -121,23 +136,45 @@ const fileName = `${nanoid()}.${getFileExtension(file.name)}`;
 await uploadDocument(file, fileName, folder);
 ```
 
-### New code:
+### New code (DocumentUpload.tsx):
 ```typescript
-import { StoragePaths, uploadFile, generateUploadKey } from '@/core/integrations/storage';
+import { uploadApplicantFile } from '../[id]/documents/_server/actions';
+// NO import from '@/core/integrations/storage'
 
-const key = generateUploadKey(
-  (fn) => StoragePaths.applicantDocument(applicantId, fn),
-  file.name
-);
-await uploadFile(file, key);
+const key = await uploadApplicantFile(applicantId, file);
 ```
 
-### For `saveApplicantDocument`, update to store the key:
+### Current code (UploadModal.tsx):
 ```typescript
-const fileUrl = key; // Store key, not full URL
+const folder = await getDocumentFolder(applicantId);
+const fileName = `${nanoid()}${getFileExtension(uploadResult.file.name)}`;
+await uploadDocument(uploadResult.file, fileName, folder);
 ```
 
-### qualifications/_server/actions.ts:
+### New code (UploadModal.tsx):
+```typescript
+import { uploadApplicantFile } from '../_server/actions';
+// NO import from '@/core/integrations/storage'
+
+const key = await uploadApplicantFile(applicantId, uploadResult.file);
+```
+
+### For `saveApplicantDocument`, update to accept a pre-built key:
+```typescript
+export async function saveApplicantDocument(data: {
+  applicantId: string;
+  fileName: string;
+  fileUrl: string; // Now receives the R2 key directly
+  type: DocumentType;
+}) {
+  return applicantDocumentsService.uploadDocument(
+    { fileName: data.fileName, fileUrl: data.fileUrl, type: data.type },
+    data.applicantId, 0
+  );
+}
+```
+
+### qualifications/_server/actions.ts (server action — CAN import directly):
 ```typescript
 // Replace:
 const folder = 'documents/admissions';
@@ -146,6 +183,9 @@ const fileName = `${nanoid()}${ext}`;
 await uploadDocument(file, fileName, folder);
 
 // With:
+import { uploadFile } from '@/core/integrations/storage';
+import { generateUploadKey, StoragePaths } from '@/core/integrations/storage-utils';
+
 const key = generateUploadKey(
   (fn) => StoragePaths.applicantDocument(applicantId, fn),
   file.name
@@ -154,12 +194,35 @@ await uploadFile(file, key);
 ```
 
 ### identity/_server/actions.ts:
-Same pattern as qualifications.
+Same pattern as qualifications (server action, can import directly).
 
 ## 6.4 — Student Document Upload (Registry)
 
 ### File to update:
-- `src/app/registry/students/_components/documents/AddDocumentModal.tsx`
+- `src/app/registry/students/_components/documents/AddDocumentModal.tsx` (**client component**)
+
+> **CRITICAL**: This is a `'use client'` component. It CANNOT import `uploadFile` or `generateUploadKey` from `storage.ts`. It must call a server action instead.
+
+### New server action needed in `src/app/registry/documents/_server/actions.ts`:
+```typescript
+export async function uploadAndCreateDocument(data: {
+  file: File;
+  type: DocumentType;
+  stdNo: number;
+}) {
+  const key = generateUploadKey(
+    (fn) => StoragePaths.studentDocument(data.stdNo, fn),
+    data.file.name
+  );
+  await uploadFile(data.file, key);
+  return service.create({
+    fileName: data.file.name,
+    fileUrl: key,
+    type: data.type,
+    stdNo: data.stdNo,
+  });
+}
+```
 
 ### Current code:
 ```typescript
@@ -169,26 +232,49 @@ const uploadedPath = await uploadDocument(file, generatedFileName, uploadPath);
 
 ### New code:
 ```typescript
-import { StoragePaths, uploadFile, generateUploadKey } from '@/core/integrations/storage';
+import { uploadAndCreateDocument } from '@registry/documents';
+// NO import from '@/core/integrations/storage'
 
-const key = generateUploadKey(
-  (fn) => StoragePaths.studentDocument(stdNo, fn),
-  file.name
-);
-await uploadFile(file, key);
-
-await createDocument({
-  fileName: file.name,
-  fileUrl: key, // Store key, not relative path
-  type,
-  stdNo,
-});
+await uploadAndCreateDocument({ file, type, stdNo });
 ```
 
 ## 6.5 — Term Publication Attachments
 
 ### File to update:
-- `src/app/registry/terms/settings/_components/ResultsPublicationAttachments.tsx`
+- `src/app/registry/terms/settings/_components/ResultsPublicationAttachments.tsx` (**client component**)
+
+> **CRITICAL**: This is a `'use client'` component. It CANNOT import `uploadFile` from `storage.ts`. It must call a server action instead.
+
+### New server action needed in `src/app/registry/terms/settings/_server/actions.ts`:
+```typescript
+export async function uploadPublicationAttachment(data: {
+  termCode: string;
+  file: File;
+  type: 'scanned-pdf' | 'raw-marks' | 'other';
+}) {
+  const key = StoragePaths.termPublication(data.termCode, data.type, data.file.name);
+  await uploadFile(data.file, key);
+  return service.createPublicationAttachment({
+    termCode: data.termCode,
+    fileName: data.file.name,
+    type: data.type,
+    storageKey: key,
+  });
+}
+
+export async function deletePublicationAttachmentWithFile(id: string) {
+  const attachment = await service.getPublicationAttachment(id);
+  if (attachment?.storageKey) {
+    await deleteFile(attachment.storageKey);
+  } else if (attachment) {
+    const fallbackKey = StoragePaths.termPublication(
+      attachment.termCode, attachment.type, attachment.fileName
+    );
+    await deleteFile(fallbackKey);
+  }
+  return service.deletePublicationAttachment(id);
+}
+```
 
 ### Current code:
 ```typescript
@@ -198,17 +284,10 @@ await uploadDocument(file, file.name, folder);
 
 ### New code:
 ```typescript
-import { StoragePaths, uploadFile } from '@/core/integrations/storage';
+import { uploadPublicationAttachment, deletePublicationAttachmentWithFile } from '../../_server/actions';
+// NO import from '@/core/integrations/storage'
 
-const key = StoragePaths.termPublication(termCode, type, file.name);
-await uploadFile(file, key);
-
-await savePublicationAttachment({
-  termCode,
-  fileName: file.name,
-  type,
-  storageKey: key, // New field
-});
+await uploadPublicationAttachment({ termCode, file, type });
 ```
 
 ## 6.6 — Library Question Papers
@@ -321,18 +400,19 @@ fileUrl: getPublicUrl(doc.document?.fileUrl || `admissions/applicants/documents/
 | `src/app/human-resource/employees/_server/actions.ts` | Add `updateEmployeePhotoKey` action |
 | `src/app/human-resource/employees/_server/service.ts` | Add `updatePhotoKey` method |
 | `src/app/human-resource/employees/_server/repository.ts` | Add `updatePhotoKey` method |
-| `src/app/admissions/applicants/_components/DocumentUpload.tsx` | Use `StoragePaths`, `uploadFile`, remove `formatFileSize` |
+| `src/app/admissions/applicants/_components/DocumentUpload.tsx` | Replace `uploadDocument` import with `uploadApplicantFile` server action call, remove `formatFileSize` |
 | `src/app/admissions/applicants/_server/service.ts` | Use `getPublicUrl()` |
 | `src/app/admissions/applicants/[id]/documents/_server/actions.ts` | Use `getPublicUrl()`, remove hardcoded URL constant |
 | `src/app/apply/[id]/(wizard)/qualifications/_server/actions.ts` | Use `StoragePaths.applicantDocument` + `uploadFile` |
 | `src/app/apply/[id]/(wizard)/identity/_server/actions.ts` | Use `StoragePaths.applicantDocument` + `uploadFile` |
-| `src/app/registry/students/_components/documents/AddDocumentModal.tsx` | Use `StoragePaths`, `uploadFile`, remove `formatFileSize` |
-| `src/app/registry/terms/settings/_components/ResultsPublicationAttachments.tsx` | Use `StoragePaths.termPublication` + `uploadFile` |
-| `src/app/registry/terms/settings/_server/actions.ts` | Remove `getAttachmentFolder`/`getAttachmentFolderPath`, use `StoragePaths` |
+| `src/app/registry/students/_components/documents/AddDocumentModal.tsx` | Replace `uploadDocument` import with `uploadAndCreateDocument` server action call, remove `formatFileSize` |
+| `src/app/registry/terms/settings/_components/ResultsPublicationAttachments.tsx` | Replace `uploadDocument`/`deleteDocument` imports with `uploadPublicationAttachment`/`deletePublicationAttachmentWithFile` server action calls |
+| `src/app/registry/terms/settings/_server/actions.ts` | Add `uploadPublicationAttachment` and `deletePublicationAttachmentWithFile` server actions, remove `getAttachmentFolder`/`getAttachmentFolderPath`, use `StoragePaths` |
 | `src/app/library/resources/question-papers/_server/actions.ts` | Use `StoragePaths.questionPaper` + `uploadFile`, remove `BASE_URL`/`FOLDER` |
 | `src/app/library/resources/publications/_server/actions.ts` | Use `StoragePaths.publication` + `uploadFile`, remove `BASE_URL`/`FOLDER` |
-| `src/app/admissions/applications/_server/actions.ts` | **MISSED** — Uses `uploadDocument(file, fileName, 'documents/admissions')` in `uploadAndAnalyzeDocument()`. Use `StoragePaths.applicantDocument` + `uploadFile` |
-| `src/app/admissions/applicants/[id]/documents/_components/UploadModal.tsx` | **MISSED** — Uses `uploadDocument(uploadResult.file, fileName, folder)` via `getDocumentFolder`. Replace with: construct key via `generateUploadKey(fn => StoragePaths.applicantDocument(applicantId, fn), file.name)`, call `uploadFile(file, key)`, then pass `key` as `fileUrl` to `saveApplicantDocument`. **CRITICAL**: The `saveApplicantDocument` action must also be updated to accept a pre-built `fileUrl` key instead of constructing the URL itself from `ADMISSIONS_DOCUMENTS_BASE_URL + folder + fileName`. Both sides must agree on the key format, or URLs will mismatch. |
+| `src/app/admissions/applicants/[id]/documents/_server/actions.ts` | Add `uploadApplicantFile` server action for client components, remove `ADMISSIONS_DOCUMENTS_BASE_URL`, update `saveApplicantDocument` to accept `fileUrl` key |
+| `src/app/admissions/applications/_server/actions.ts` | Uses `uploadDocument` in server action — replace with `uploadFile` + `StoragePaths.applicantDocument` (server action can import directly) |
+| `src/app/admissions/applicants/[id]/documents/_components/UploadModal.tsx` | Replace `uploadDocument` import with `uploadApplicantFile` server action call |
 | `src/app/admissions/applicants/[id]/academic-records/_server/actions.ts` | **MISSED** — Uses `deleteDocument(getStorageKeyFromUrl(fileUrl))`. Use `deleteFile(fileUrl)` directly (after migration, `fileUrl` IS the key) |
 | `src/app/registry/students/_components/documents/DeleteDocumentModal.tsx` | **BUG FIX** — Currently calls `deleteFromStorage(document.fileName)` but `fileName` is the display name, not the storage key. Must call a server action that handles both R2 deletion + DB deletion using `document.fileUrl`. See section 6.11 below |
 

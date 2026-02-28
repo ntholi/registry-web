@@ -286,7 +286,7 @@ const nextConfig: NextConfig = {
 
 After this step:
 - All new functions are exported and available
-- Old `uploadDocument`/`deleteDocument` still work as deprecated wrappers (server-only)
+- Old `uploadDocument`/`deleteDocument` still work as deprecated wrappers (server-side only)
 - `getPublicUrl` and `StoragePaths` are importable in client components from `storage-utils.ts`
 - Client components that previously imported from `storage.ts` will get build errors — this is intentional and fixed in Step 6
 - No existing server-side functionality is broken
