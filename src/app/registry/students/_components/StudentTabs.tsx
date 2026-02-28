@@ -167,6 +167,7 @@ export default function StudentTabs({
 			<TabsPanel value='finance' pt={'xl'} p={'sm'} key='finance'>
 				<StudentFinanceView
 					stdNo={student.stdNo}
+					zohoContactId={student.zohoContactId}
 					isActive={activeTab === 'finance'}
 				/>
 			</TabsPanel>

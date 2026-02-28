@@ -149,6 +149,13 @@ class StudentService {
 		);
 	}
 
+	async saveZohoContactId(stdNo: number, zohoContactId: string) {
+		return withAuth(
+			async () => this.repository.saveZohoContactId(stdNo, zohoContactId),
+			['dashboard']
+		);
+	}
+
 	async updateProgramStructure(stdNo: number, structureId: number) {
 		return withAuth(
 			async (session) =>

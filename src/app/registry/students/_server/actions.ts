@@ -158,6 +158,10 @@ export async function updateStudentUserId(
 	return res;
 }
 
+export async function saveZohoContactId(stdNo: number, zohoContactId: string) {
+	return service.saveZohoContactId(stdNo, zohoContactId);
+}
+
 export async function updateStudentProgramStructure(
 	stdNo: number,
 	structureId: number

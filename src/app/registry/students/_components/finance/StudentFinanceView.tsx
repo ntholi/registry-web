@@ -1,6 +1,12 @@
 'use client';
 
-import { fetchStudentFinance } from '@finance/_lib/zoho-books/actions';
+import {
+	fetchStudentEstimates,
+	fetchStudentFinance,
+	fetchStudentPayments,
+	fetchStudentSalesReceipts,
+	resolveZohoContactId,
+} from '@finance/_lib/zoho-books/actions';
 import {
 	Badge,
 	Group,
@@ -28,29 +34,70 @@ import { SalesReceiptsTab } from './SalesReceiptsTab';
 
 type Props = {
 	stdNo: number;
+	zohoContactId: string | null;
 	isActive: boolean;
 };
 
-export default function StudentFinanceView({ stdNo, isActive }: Props) {
+export default function StudentFinanceView({
+	stdNo,
+	zohoContactId,
+	isActive,
+}: Props) {
 	const [tab, setTab] = useState<string | null>('invoices');
 	const queryClient = useQueryClient();
 
 	const {
+		data: contactId,
+		isLoading: contactLoading,
+		isError: contactError,
+		error: contactErr,
+	} = useQuery({
+		queryKey: ['zoho-contact', stdNo],
+		queryFn: () => resolveZohoContactId(stdNo, zohoContactId),
+		enabled: isActive,
+		staleTime: Number.POSITIVE_INFINITY,
+	});
+
+	const {
 		data: summary,
-		isLoading,
-		isError,
-		error,
+		isLoading: summaryLoading,
+		isError: summaryError,
+		error: summaryErr,
 		isFetching,
 	} = useQuery({
-		queryKey: ['student-finance', stdNo],
-		queryFn: () => fetchStudentFinance(stdNo),
-		enabled: isActive,
+		queryKey: ['student-finance', contactId],
+		queryFn: () => fetchStudentFinance(contactId!),
+		enabled: !!contactId,
+		staleTime: 1000 * 60 * 5,
+	});
+
+	const { data: payments, isLoading: paymentsLoading } = useQuery({
+		queryKey: ['student-payments', contactId],
+		queryFn: () => fetchStudentPayments(contactId!),
+		enabled: !!contactId,
+		staleTime: 1000 * 60 * 5,
+	});
+
+	const { data: estimates, isLoading: estimatesLoading } = useQuery({
+		queryKey: ['student-estimates', contactId],
+		queryFn: () => fetchStudentEstimates(contactId!),
+		enabled: !!contactId,
+		staleTime: 1000 * 60 * 5,
+	});
+
+	const { data: salesReceipts, isLoading: receiptsLoading } = useQuery({
+		queryKey: ['student-receipts', contactId],
+		queryFn: () => fetchStudentSalesReceipts(contactId!),
+		enabled: !!contactId,
 		staleTime: 1000 * 60 * 5,
 	});
 
 	if (!isActive) return null;
 
-	if (isLoading) return <FinanceLoader />;
+	if (contactLoading || summaryLoading) return <FinanceLoader />;
+
+	const isError = contactError || summaryError;
+	const error = contactErr || summaryErr;
 
 	if (isError) {
 		return (
@@ -74,7 +121,7 @@ export default function StudentFinanceView({ stdNo, isActive }: Props) {
 		);
 	}
 
-	if (!summary) {
+	if (!contactId || !summary) {
 		return (
 			<Paper p='xl' withBorder>
 				<Stack align='center' gap='md' py='lg'>
@@ -99,11 +146,20 @@ export default function StudentFinanceView({ stdNo, isActive }: Props) {
 			<FinancialOverview
 				summary={summary}
 				isFetching={isFetching}
-				onRefresh={() =>
+				onRefresh={() => {
 					queryClient.invalidateQueries({
-						queryKey: ['student-finance', stdNo],
-					})
-				}
+						queryKey: ['student-finance', contactId],
+					});
+					queryClient.invalidateQueries({
+						queryKey: ['student-payments', contactId],
+					});
+					queryClient.invalidateQueries({
+						queryKey: ['student-estimates', contactId],
+					});
+					queryClient.invalidateQueries({
+						queryKey: ['student-receipts', contactId],
+					});
+				}}
 			/>
 
 			<Tabs value={tab} onChange={setTab}>
@@ -118,19 +174,22 @@ export default function StudentFinanceView({ stdNo, isActive }: Props) {
 						value='payments'
 						icon={<IconCreditCard size='0.85rem' />}
 						label='Payments'
-						count={summary.payments.length}
+						count={payments?.length}
+						loading={paymentsLoading}
 					/>
 					<TabLabel
 						value='quotes'
 						icon={<IconNotebook size='0.85rem' />}
 						label='Quotes'
-						count={summary.estimates.length}
+						count={estimates?.length}
+						loading={estimatesLoading}
 					/>
 					<TabLabel
 						value='receipts'
 						icon={<IconReceipt size='0.85rem' />}
 						label='Receipts'
-						count={summary.salesReceipts.length}
+						count={salesReceipts?.length}
+						loading={receiptsLoading}
 					/>
 				</Tabs.List>
 
@@ -138,13 +197,19 @@ export default function StudentFinanceView({ stdNo, isActive }: Props) {
 					<InvoicesTab invoices={summary.invoices} />
 				</Tabs.Panel>
 				<Tabs.Panel value='payments' pt='md'>
-					<PaymentsTab payments={summary.payments} />
+					<TabContent loading={paymentsLoading}>
+						<PaymentsTab payments={payments ?? []} />
+					</TabContent>
 				</Tabs.Panel>
 				<Tabs.Panel value='quotes' pt='md'>
-					<EstimatesTab estimates={summary.estimates} />
+					<TabContent loading={estimatesLoading}>
+						<EstimatesTab estimates={estimates ?? []} />
+					</TabContent>
 				</Tabs.Panel>
 				<Tabs.Panel value='receipts' pt='md'>
-					<SalesReceiptsTab receipts={summary.salesReceipts} />
+					<TabContent loading={receiptsLoading}>
+						<SalesReceiptsTab receipts={salesReceipts ?? []} />
+					</TabContent>
 				</Tabs.Panel>
 			</Tabs>
 		</Stack>
@@ -155,24 +220,48 @@ type TabLabelProps = {
 	value: string;
 	icon: React.ReactNode;
 	label: string;
-	count: number;
+	count?: number;
+	loading?: boolean;
 };
 
-function TabLabel({ value, icon, label, count }: TabLabelProps) {
+function TabLabel({ value, icon, label, count, loading }: TabLabelProps) {
 	return (
 		<Tabs.Tab value={value} leftSection={icon}>
 			<Group gap={6} wrap='nowrap'>
 				<Text size='sm' inherit>
 					{label}
 				</Text>
-				{count > 0 && (
-					<Badge size='xs' variant='default' circle>
-						{count}
-					</Badge>
+				{loading ? (
+					<Skeleton height={16} width={16} circle />
+				) : (
+					count != null &&
+					count > 0 && (
+						<Badge size='xs' variant='default' circle>
+							{count}
+						</Badge>
+					)
 				)}
 			</Group>
 		</Tabs.Tab>
 	);
+}
+
+type TabContentProps = {
+	loading: boolean;
+	children: React.ReactNode;
+};
+
+function TabContent({ loading, children }: TabContentProps) {
+	if (loading) {
+		return (
+			<Stack gap='xs'>
+				{Array.from({ length: 4 }).map((_, i) => (
+					<Skeleton height={36} key={`loading-row-${i}`} />
+				))}
+			</Stack>
+		);
+	}
+	return <>{children}</>;
 }
 
 function FinanceLoader() {

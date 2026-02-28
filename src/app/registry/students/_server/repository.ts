@@ -632,6 +632,13 @@ export default class StudentRepository extends BaseRepository<
 		});
 	}
 
+	async saveZohoContactId(stdNo: number, zohoContactId: string) {
+		await db
+			.update(students)
+			.set({ zohoContactId })
+			.where(eq(students.stdNo, stdNo));
+	}
+
 	async updateProgramStructure(
 		stdNo: number,
 		structureId: number,

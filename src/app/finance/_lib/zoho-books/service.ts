@@ -131,33 +131,26 @@ export async function getStudentInvoiceSummary(
 }
 
 export async function getStudentFinanceSummary(
-	stdNo: number
-): Promise<StudentFinanceSummary | null> {
-	const contact = await findStudentContact(stdNo);
-
-	if (!contact) return null;
-
-	const [invoices, payments, estimates, salesReceipts] = await Promise.all([
-		findStudentInvoices(contact.contact_id),
-		findStudentPayments(contact.contact_id),
-		findStudentEstimates(contact.contact_id),
-		findStudentSalesReceipts(contact.contact_id),
+	contactId: string
+): Promise<StudentFinanceSummary> {
+	const [invoices, contact] = await Promise.all([
+		findStudentInvoices(contactId),
+		zohoGet<{ contact: ZohoContact }>(`/contacts/${contactId}`).then(
+			(r) => r.contact
+		),
 	]);
 
 	const totalAmount = invoices.reduce((sum, inv) => sum + inv.total, 0);
 	const totalOutstanding = invoices.reduce((sum, inv) => sum + inv.balance, 0);
 	const totalPaid = totalAmount - totalOutstanding;
-	const unusedCredits = contact.unused_credits_receivable_amount ?? 0;
+	const unusedCredits = contact?.unused_credits_receivable_amount ?? 0;
 
 	return {
-		contactId: contact.contact_id,
+		contactId,
 		totalAmount,
 		totalPaid,
 		totalOutstanding,
 		unusedCredits,
 		invoices,
-		payments,
-		estimates,
-		salesReceipts,
 	};
 }

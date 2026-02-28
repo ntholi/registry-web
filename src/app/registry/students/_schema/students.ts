@@ -48,6 +48,7 @@ export const students = pgTable(
 		birthPlace: text(),
 		religion: text(),
 		userId: text().references(() => users.id, { onDelete: 'set null' }),
+		zohoContactId: text(),
 		createdAt: timestamp().defaultNow(),
 	},
 	(table) => ({

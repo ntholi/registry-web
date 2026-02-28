@@ -227,7 +227,4 @@ export interface StudentFinanceSummary {
 	totalOutstanding: number;
 	unusedCredits: number;
 	invoices: ZohoInvoice[];
-	payments: ZohoPayment[];
-	estimates: ZohoEstimate[];
-	salesReceipts: ZohoSalesReceipt[];
 }

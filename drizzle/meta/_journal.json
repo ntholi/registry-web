@@ -1198,6 +1198,13 @@
 			"when": 1772218889125,
 			"tag": "0170_cold_nico_minoru",
 			"breakpoints": true
+		},
+		{
+			"idx": 171,
+			"version": "7",
+			"when": 1772276009670,
+			"tag": "0171_rich_nebula",
+			"breakpoints": true
 		}
 	]
 }

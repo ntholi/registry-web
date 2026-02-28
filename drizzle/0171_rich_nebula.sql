@@ -1,0 +1,1 @@
+ALTER TABLE "students" ADD COLUMN "zoho_contact_id" text;
