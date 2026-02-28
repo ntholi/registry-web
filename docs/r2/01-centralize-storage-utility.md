@@ -25,19 +25,41 @@ Update `README.md` env section to include:
 R2_PUBLIC_URL=
 ```
 
-## 1.2 — Redesign `src/core/integrations/storage.ts`
+## 1.2 — File Architecture (Two Files)
 
-Replace the current file with a comprehensive storage module. The new module should contain:
+> **CRITICAL DECISION**: The current `storage.ts` has `'use server'`, which makes ALL exports into async server actions. Pure functions like `StoragePaths` and `getPublicUrl` need to be importable synchronously in client components (e.g., `PaymentReviewDocumentSwitcher.tsx`). Therefore, we **split into two files**:
 
-### Constants & Client (existing, keep as-is)
+| File | Purpose | Restrictions |
+|------|---------|-------------|
+| `src/core/integrations/storage.ts` | S3 operations (upload, delete, HEAD) | `import 'server-only'` — cannot be imported from client components |
+| `src/core/integrations/storage-utils.ts` | Pure functions (path builders, URL resolver, key generator) | None — importable from anywhere (client + server) |
 
-```typescript
-const s3Client = new S3Client({ ... }); // Keep current config
-const BUCKET_NAME = process.env.R2_BUCKET_NAME || '';
-const PUBLIC_URL = process.env.R2_PUBLIC_URL || '';
-```
+### Why remove `'use server'` instead of keeping it?
+- `'use server'` makes every export an async server action (network round-trip per call)
+- `uploadFile` and `deleteFile` should NOT be callable from client components directly — they are low-level S3 operations
+- Instead, each module creates server actions (e.g., `uploadStudentPhoto`) that call `uploadFile` internally
+- This is cleaner: the upload + DB update happen atomically in one server action, not as two separate client calls
 
-### Path Builders (NEW)
+### Why `import 'server-only'` on `storage.ts`?
+Without `'use server'` AND without `'server-only'`, a client component could accidentally import `uploadFile`, which would bundle the AWS SDK into the client JavaScript. `import 'server-only'` causes a **build error** if any client component imports from this file, preventing this mistake.
+
+### Impact on client components that currently call `uploadDocument` directly:
+The following client components currently import `uploadDocument`/`deleteDocument` from `storage.ts`:
+- `PhotoView.tsx` (students) → Will call `uploadStudentPhoto(stdNo, file)` server action instead
+- `PhotoSelection.tsx` (students) → Same
+- `PhotoView.tsx` (employees) → Will call `uploadEmployeePhoto(empNo, file)` server action instead
+- `PhotoSelection.tsx` (employees) → Same
+- `AddDocumentModal.tsx` → Will call `createDocument(data)` server action with file
+- `ResultsPublicationAttachments.tsx` → Will call a `uploadPublicationAttachment(...)` server action
+- `DeleteDocumentModal.tsx` → Will call a server action that handles both R2 deletion + DB deletion
+
+These changes are detailed in [Step 6](./06-update-upload-code.md).
+
+## 1.2.1 — `src/core/integrations/storage-utils.ts` (NEW file, pure functions)
+
+This file has **NO** `'use server'` and **NO** `import 'server-only'`. It is importable from both client and server code.
+
+### Path Builders
 
 A centralized object that defines all valid R2 key patterns. This ensures every module uses the same paths and prevents ad-hoc folder naming.
 
@@ -69,9 +91,11 @@ export const StoragePaths = {
 } as const;
 ```
 
-### URL Resolver (NEW)
+### URL Resolver
 
 ```typescript
+const PUBLIC_URL = process.env.R2_PUBLIC_URL || process.env.NEXT_PUBLIC_R2_PUBLIC_URL || '';
+
 export function getPublicUrl(key: string): string {
   if (!key) return '';
   if (key.startsWith('http')) return key; // Already a full URL (backwards compat)
@@ -81,13 +105,58 @@ export function getPublicUrl(key: string): string {
 ```
 
 > **CRITICAL**: The `data:` URI check is essential during the transition period. Between Steps 3/4 and full deployment, some `documents.fileUrl` records may still contain base64 data URIs while others have been migrated to R2 keys. This ensures both formats render correctly.
+
+> **ENV VAR NOTE**: Since this file runs on both client and server, the env var must be available on both sides. Use `NEXT_PUBLIC_R2_PUBLIC_URL` as a fallback for client-side access, or ensure the URL is passed as a prop from server components. The server-side `R2_PUBLIC_URL` takes precedence.
+
+### Generate Upload Key (encapsulates nanoid + extension)
+
+```typescript
+import { nanoid } from 'nanoid';
+
+export function generateUploadKey(
+  pathBuilder: (fileName: string) => string,
+  originalFileName: string
+): string {
+  const ext = getFileExtension(originalFileName) || '.bin';
+  const fileName = `${nanoid()}${ext}`;
+  return pathBuilder(fileName);
+}
+
+export function getFileExtension(fileName: string): string {
+  const ext = fileName.split('.').pop()?.toLowerCase();
+  return ext ? `.${ext}` : '';
+}
 ```
 
-### Upload Function (MODIFIED)
+## 1.2.2 — `src/core/integrations/storage.ts` (REWRITTEN, server-only)
 
-Modify `uploadDocument` to accept the **full R2 key** instead of separate `fileName` + `folder` params. The caller uses `StoragePaths` to build the key.
+Replace the current file. **Remove** `'use server'`, **add** `import 'server-only'`.
 
-Accepts `File | Blob | Buffer` to support both browser uploads (File/Blob) and server-side operations like the base64 extraction script (Buffer). This is needed from Step 1 because Step 4's extraction script uploads decoded buffers.
+### Header
+
+```typescript
+import 'server-only';
+
+import {
+  DeleteObjectCommand,
+  HeadObjectCommand,
+  PutObjectCommand,
+  S3Client,
+} from '@aws-sdk/client-s3';
+
+const s3Client = new S3Client({
+  endpoint: `https://${process.env.R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,
+  credentials: {
+    accessKeyId: process.env.R2_ACCESS_KEY_ID || '',
+    secretAccessKey: process.env.R2_SECRET_ACCESS_KEY || '',
+  },
+  region: 'weur',
+});
+
+const BUCKET_NAME = process.env.R2_BUCKET_NAME || '';
+```
+
+### Upload Function
 
 ```typescript
 export async function uploadFile(
@@ -112,18 +181,14 @@ export async function uploadFile(
 }
 ```
 
-> **NOTE**: This function does NOT require auth. Auth is the calling action's responsibility. This is intentional — the public-facing `submitReceiptPayment` action (Step 5) needs to upload files without a session, and migration scripts (Steps 3-4) also call this without user context.
-```
+> **NOTE**: This function is NOT a server action. It cannot be called from client components. Auth is the calling server action's responsibility. Migration scripts (Steps 3-4) and the public-facing `submitReceiptPayment` action (Step 5) call this without user context.
 
-### Delete Function (MODIFIED)
-
-> **NOTE**: `deleteFile` is auth-free (like `uploadFile`). Auth is the calling action's or script's responsibility. This is intentional — migration scripts (Step 3), cleanup scripts (Step 8), and the public-facing payment action need to delete files without a user session. Server actions that expose deletion to users MUST check auth before calling `deleteFile`.
+### Delete Function
 
 ```typescript
 export async function deleteFile(key: string): Promise<void> {
   if (!key) throw new Error('No key provided');
 
-  // Handle both full URLs and bare keys
   const actualKey = key.startsWith('http')
     ? new URL(key).pathname.replace(/^\//,  '')
     : key;
@@ -137,7 +202,7 @@ export async function deleteFile(key: string): Promise<void> {
 }
 ```
 
-### File Existence Check (NEW — replaces HEAD-request probing)
+### File Existence Check (replaces HEAD-request probing)
 
 ```typescript
 export async function fileExists(key: string): Promise<boolean> {
@@ -155,22 +220,9 @@ export async function fileExists(key: string): Promise<boolean> {
 }
 ```
 
-### Generate Upload Key (NEW — encapsulates nanoid + extension)
-
-```typescript
-export function generateUploadKey(
-  pathBuilder: (fileName: string) => string,
-  originalFileName: string
-): string {
-  const ext = getFileExtension(originalFileName) || '.bin';
-  const fileName = `${nanoid()}${ext}`;
-  return pathBuilder(fileName);
-}
-```
-
 ## 1.3 — Deprecation Wrappers (Temporary)
 
-Keep the old function signatures as deprecated wrappers during the transition period so existing code doesn't break before it's updated:
+Keep the old function signatures as deprecated wrappers in `storage.ts` during the transition period so existing code doesn't break before Step 6 updates it:
 
 ```typescript
 /** @deprecated Use uploadFile + StoragePaths instead */
@@ -189,6 +241,8 @@ export async function deleteDocument(url: string | undefined | null): Promise<vo
   return deleteFile(url);
 }
 ```
+
+> **NOTE**: These wrappers live in `storage.ts` (server-only). Since the current callers are client components that rely on `'use server'`, these wrappers are NOT callable from client components after this step. **This is intentional** — the deprecated wrappers are only for server-side code that still uses the old patterns. Client component callsites are updated in Step 6 to use module-specific server actions.
 
 ## 1.4 — Remove Duplicated Utilities
 
@@ -218,15 +272,18 @@ const nextConfig: NextConfig = {
 
 | File | Change |
 |------|--------|
-| `src/core/integrations/storage.ts` | Major rewrite: add `StoragePaths`, `getPublicUrl`, `uploadFile`, `deleteFile`, `fileExists`, `generateUploadKey` |
+| `src/core/integrations/storage.ts` | Rewrite: remove `'use server'`, add `import 'server-only'`, add `uploadFile`, `deleteFile`, `fileExists`, keep deprecated wrappers |
+| `src/core/integrations/storage-utils.ts` | **NEW**: `StoragePaths`, `getPublicUrl`, `generateUploadKey`, `getFileExtension` (pure functions, importable from client & server) |
 | `next.config.ts` | Add `images.remotePatterns` for R2 domain (MANDATORY) |
-| `README.md` | Add `R2_PUBLIC_URL` to env vars |
-| `.env` / `.env.local` | Add `R2_PUBLIC_URL` value |
+| `README.md` | Add `R2_PUBLIC_URL` and `NEXT_PUBLIC_R2_PUBLIC_URL` to env vars |
+| `.env` / `.env.local` | Add `R2_PUBLIC_URL` and `NEXT_PUBLIC_R2_PUBLIC_URL` values |
 
 ## Verification
 
 After this step:
 - All new functions are exported and available
-- Old `uploadDocument`/`deleteDocument` still work (deprecated wrappers)
-- No existing functionality is broken
-- `pnpm tsc --noEmit` passes cleanly
+- Old `uploadDocument`/`deleteDocument` still work as deprecated wrappers (server-only)
+- `getPublicUrl` and `StoragePaths` are importable in client components from `storage-utils.ts`
+- Client components that previously imported from `storage.ts` will get build errors — this is intentional and fixed in Step 6
+- No existing server-side functionality is broken
+- `pnpm tsc --noEmit` may show errors in client components importing from `storage.ts` — these are fixed in Step 6

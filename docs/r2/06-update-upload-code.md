@@ -11,6 +11,10 @@
 
 Update every file upload callsite to use `StoragePaths`, `uploadFile`, and `generateUploadKey` from the centralized storage utility. No more ad-hoc folder strings.
 
+## IMPORTANT: Client Components and Storage Imports
+
+> **Since `storage.ts` now has `import 'server-only'` (see [Step 1](./01-centralize-storage-utility.md)), client components CANNOT import `uploadFile`/`deleteFile` directly.** All upload and delete operations from client components MUST go through module-specific server actions. Pure utilities like `StoragePaths` and `getPublicUrl` are imported from `@/core/integrations/storage-utils` (no restrictions).
+
 ## 6.1 — Student Photo Upload
 
 ### Files to update:
@@ -19,6 +23,11 @@ Update every file upload callsite to use `StoragePaths`, `uploadFile`, and `gene
 
 ### Current code (PhotoView.tsx):
 ```typescript
+import { deleteDocument, uploadDocument } from '@/core/integrations/storage';
+// ...
+if (photoUrl) {
+  await deleteDocument(photoUrl);
+}
 const fileName = `${student.stdNo}.jpg`;
 const photoFile = new File([croppedImageBlob], fileName, { type: 'image/jpeg' });
 await uploadDocument(photoFile, fileName, 'photos');
@@ -26,32 +35,47 @@ await uploadDocument(photoFile, fileName, 'photos');
 
 ### New code:
 ```typescript
-import { StoragePaths, uploadFile } from '@/core/integrations/storage';
-import { updateStudentPhotoKey } from '../../_server/actions';
+import { uploadStudentPhoto } from '../../_server/actions';
+// NO import from '@/core/integrations/storage'
 
-const key = StoragePaths.studentPhoto(student.stdNo);
 const photoFile = new File([croppedImageBlob], `${student.stdNo}.jpg`, { type: 'image/jpeg' });
-await uploadFile(photoFile, key);
-await updateStudentPhotoKey(student.stdNo, key);
+await uploadStudentPhoto(student.stdNo, photoFile);
 ```
 
 ### New server action needed in `src/app/registry/students/_server/actions.ts`:
 ```typescript
-export async function updateStudentPhotoKey(stdNo: number, photoKey: string | null) {
-  return service.updatePhotoKey(stdNo, photoKey);
+export async function uploadStudentPhoto(stdNo: number, photo: File) {
+  return service.uploadPhoto(stdNo, photo);
 }
 ```
 
-### Service/Repository changes:
-Add `updatePhotoKey(stdNo, key)` method that does:
+### Service method:
+```typescript
+async uploadPhoto(stdNo: number, photo: File) {
+  return withAuth(async () => {
+    const student = await this.repo.findByStdNo(stdNo);
+    if (student?.photoKey) {
+      await deleteFile(student.photoKey);
+    }
+    const key = StoragePaths.studentPhoto(stdNo);
+    await uploadFile(photo, key);
+    return this.repo.updatePhotoKey(stdNo, key);
+  }, ['admin', 'registry']);
+}
+```
+
+### Repository:
+Add `updatePhotoKey(stdNo, key)` method:
 ```sql
 UPDATE students SET photo_key = $1 WHERE std_no = $2
 ```
 
 ### PhotoSelection.tsx:
-Same pattern — replace `uploadDocument(photoFile, fileName, 'photos')` with `uploadFile(photoFile, key)` and `updateStudentPhotoKey(...)`.
+Same pattern — replace all `uploadDocument(photoFile, fileName, 'photos')` calls with `await uploadStudentPhoto(student.stdNo, photoFile)`. Remove all `deleteDocument` calls (the server action handles old photo cleanup).
 
 Also update the camera capture handler with the same pattern.
+
+> **KEY CHANGE**: The old pattern had the client uploading to S3 then updating DB in separate calls (race condition). The new pattern is a single server action that does both atomically.
 
 ## 6.2 — Employee Photo Upload
 
@@ -66,20 +90,22 @@ await uploadDocument(photoFile, fileName, 'photos/employees');
 
 ### New code:
 ```typescript
-import { StoragePaths, uploadFile } from '@/core/integrations/storage';
-import { updateEmployeePhotoKey } from '../../_server/actions';
+import { uploadEmployeePhoto } from '../../_server/actions';
+// NO import from '@/core/integrations/storage'
 
-const key = StoragePaths.employeePhoto(employee.empNo);
-await uploadFile(photoFile, key);
-await updateEmployeePhotoKey(employee.empNo, key);
+const photoFile = new File([croppedImageBlob], `${employee.empNo}.jpg`, { type: 'image/jpeg' });
+await uploadEmployeePhoto(employee.empNo, photoFile);
 ```
 
 ### New server action needed in `src/app/human-resource/employees/_server/actions.ts`:
 ```typescript
-export async function updateEmployeePhotoKey(empNo: string, photoKey: string | null) {
-  return service.updatePhotoKey(empNo, photoKey);
+export async function uploadEmployeePhoto(empNo: string, photo: File) {
+  return service.uploadPhoto(empNo, photo);
 }
 ```
+
+### Service method (same pattern as students):
+Handles old photo cleanup, S3 upload, and DB update atomically.
 
 ## 6.3 — Admissions Document Upload
 
@@ -248,20 +274,21 @@ if (student.photoKey) {
 
 ## 6.9 — Remove Duplicated `formatFileSize`
 
-### Files with duplicated implementation (6 total):
-- `src/app/registry/students/_components/documents/AddDocumentModal.tsx` (lines 42-53)
-- `src/app/registry/terms/settings/_components/ResultsPublicationAttachments.tsx` (lines 67-76)
+### Files with duplicated implementation (7 total):
+- `src/app/registry/students/_components/documents/AddDocumentModal.tsx` (line 42)
+- `src/app/registry/terms/settings/_components/ResultsPublicationAttachments.tsx` (line 67)
 - `src/app/library/resources/_components/UploadField.tsx` (line 26)
 - `src/app/apply/_components/DocumentUpload.tsx` (line 101)
 - `src/app/apply/_components/MobileDocumentUpload.tsx` (line 95)
 - `src/app/lms/assignments/_features/submissions/utils.ts` (line 3)
+- `src/app/admissions/applicants/_components/DocumentUpload.tsx` (line 53)
 
 ### Replace with import:
 ```typescript
 import { formatFileSize } from '@/shared/lib/utils/files';
 ```
 
-Delete the local `formatFileSize` function from ALL 6 files. The canonical implementation lives in `src/shared/lib/utils/files.ts`.
+Delete the local `formatFileSize` function from ALL 7 files. The canonical implementation lives in `src/shared/lib/utils/files.ts`.
 
 ## 6.10 — Applicant Service (Hardcoded URL)
 
@@ -307,7 +334,87 @@ fileUrl: getPublicUrl(doc.document?.fileUrl || `admissions/applicants/documents/
 | `src/app/admissions/applications/_server/actions.ts` | **MISSED** — Uses `uploadDocument(file, fileName, 'documents/admissions')` in `uploadAndAnalyzeDocument()`. Use `StoragePaths.applicantDocument` + `uploadFile` |
 | `src/app/admissions/applicants/[id]/documents/_components/UploadModal.tsx` | **MISSED** — Uses `uploadDocument(uploadResult.file, fileName, folder)` via `getDocumentFolder`. Replace with: construct key via `generateUploadKey(fn => StoragePaths.applicantDocument(applicantId, fn), file.name)`, call `uploadFile(file, key)`, then pass `key` as `fileUrl` to `saveApplicantDocument`. **CRITICAL**: The `saveApplicantDocument` action must also be updated to accept a pre-built `fileUrl` key instead of constructing the URL itself from `ADMISSIONS_DOCUMENTS_BASE_URL + folder + fileName`. Both sides must agree on the key format, or URLs will mismatch. |
 | `src/app/admissions/applicants/[id]/academic-records/_server/actions.ts` | **MISSED** — Uses `deleteDocument(getStorageKeyFromUrl(fileUrl))`. Use `deleteFile(fileUrl)` directly (after migration, `fileUrl` IS the key) |
-| `src/app/registry/students/_components/documents/DeleteDocumentModal.tsx` | **BUG FIX** — Currently calls `deleteFromStorage(document.fileName)` but `fileName` is the display name, not the storage key. Must pass `document.fileUrl` instead |
+| `src/app/registry/students/_components/documents/DeleteDocumentModal.tsx` | **BUG FIX** — Currently calls `deleteFromStorage(document.fileName)` but `fileName` is the display name, not the storage key. Must call a server action that handles both R2 deletion + DB deletion using `document.fileUrl`. See section 6.11 below |
+
+## 6.11 — Fix `DeleteDocumentModal` Prop Chain (BUG FIX)
+
+The plan to use `document.fileUrl` requires updating the entire prop chain:
+
+### 1. `DocumentsView.tsx` — update `handleDelete` and `selectedDocument` state:
+```typescript
+// BEFORE:
+const [selectedDocument, setSelectedDocument] = useState<{
+  id: string;
+  fileName: string;
+} | null>(null);
+
+function handleDelete(id: string, fileName: string) {
+  setSelectedDocument({ id, fileName });
+  setDeleteModalOpened(true);
+}
+
+// AFTER:
+const [selectedDocument, setSelectedDocument] = useState<{
+  id: string;
+  fileName: string;
+  fileUrl: string | null;
+} | null>(null);
+
+function handleDelete(id: string, fileName: string, fileUrl: string | null) {
+  setSelectedDocument({ id, fileName, fileUrl });
+  setDeleteModalOpened(true);
+}
+```
+
+### 2. `DocumentCard.tsx` — update `onDelete` callback signature:
+```typescript
+// BEFORE:
+onDelete: (id: string, fileName: string) => void;
+
+// AFTER:
+onDelete: (id: string, fileName: string, fileUrl: string | null) => void;
+
+// In the delete button handler:
+onDelete(id, fileName, fileUrl);
+```
+
+### 3. `DeleteDocumentModal.tsx` — add `fileUrl` to props, use server action for deletion:
+```typescript
+type DeleteDocumentModalProps = {
+  opened: boolean;
+  onClose: () => void;
+  document: {
+    id: string;
+    fileName: string;
+    fileUrl: string | null;
+  };
+  onSuccess: () => void;
+};
+
+// REMOVE: import { deleteDocument as deleteFromStorage } from '@/core/integrations/storage';
+// Instead use the server action:
+import { deleteDocument } from '@registry/documents';
+
+async function handleDelete() {
+  // deleteDocument server action handles BOTH R2 deletion and DB deletion
+  await deleteDocument(document.id);
+  onSuccess();
+}
+```
+
+### 4. `deleteDocument` server action update (registry documents):
+The existing `deleteDocument(id)` action in `src/app/registry/documents/_server/actions.ts` should be updated to also delete the file from R2:
+```typescript
+export async function deleteDocument(id: string) {
+  const doc = await service.get(id);
+  if (doc?.fileUrl) {
+    await deleteFile(doc.fileUrl);
+  }
+  return service.delete(id);
+}
+```
+
+> **KEY CHANGE**: The old pattern had the client component calling two separate functions (deleteFromStorage + deleteDocument) — and the storage call used the wrong key! The new pattern is a single server action that handles both, using the correct `fileUrl` from the DB.
 
 ## Pre-Existing Bugs Fixed in This Step
 

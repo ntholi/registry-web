@@ -172,6 +172,10 @@ The entire migration (Steps 1–7) MUST be executed as a **single atomic operati
 - **PDF rendering**: Admissions `DocumentViewer` is updated to handle PDFs via `<iframe>` (120 deposit receipts are PDFs).
 - **Batch resilience**: Migration scripts use `Promise.allSettled` (not `Promise.all`) so one corrupt record doesn't kill the entire batch.
 
+## Known Limitations
+
+- **HEIC/HEIF images (24 records)**: 23 `image/heic` and 1 `image/heif` deposit receipts will not render in Chrome/Firefox browsers after migration. This is a **pre-existing issue** (the base64 `data:image/heic` URIs also don't render in non-Safari browsers today). Affects 1.7% of deposit records. Future fix: convert to JPEG during a subsequent task using `sharp`.
+
 ## Live Database Profile (as of 2026-02-28)
 
 | Category | Count | Notes |
@@ -192,5 +196,5 @@ The entire migration (Steps 1–7) MUST be executed as a **single atomic operati
 1. **Student photo deletion broken** — `deleteDocument(photoUrl)` passes full URL with query params as R2 Key; silently fails.
 2. **Student document deletion from R2 broken** — `deleteFromStorage(document.fileName)` passes display name instead of storage key; file never deleted from R2.
 3. **`DocumentCard` passes wrong field for URL resolution** — `getDocumentUrl(fileName)` receives the display name (e.g., "Report.pdf") instead of `fileUrl` (the storage reference). Currently dormant (0 student docs) but must be fixed in Step 7.
-4. **`formatFileSize()` duplicated in 6 places** — Not 3 as previously estimated. Found in: `AddDocumentModal.tsx`, `ResultsPublicationAttachments.tsx`, `UploadField.tsx` (library), `DocumentUpload.tsx` (apply), `MobileDocumentUpload.tsx` (apply), LMS `submissions/utils.ts`.
+4. **`formatFileSize()` duplicated in 7 places** — Not 3 as previously estimated. Found in: `AddDocumentModal.tsx`, `ResultsPublicationAttachments.tsx`, `UploadField.tsx` (library), `DocumentUpload.tsx` (apply), `MobileDocumentUpload.tsx` (apply), LMS `submissions/utils.ts`, `DocumentUpload.tsx` (admissions applicants).
 5. **Admissions `DocumentViewer` cannot render PDFs** — Uses `<Image>` for all content, but 120 deposit receipts are PDFs. After migration (or even now with base64 PDFs), these render as broken images. Fixed in Step 7.7.2 by adding PDF detection and `<iframe>` rendering.

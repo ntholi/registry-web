@@ -171,9 +171,14 @@ type DocumentCardProps = {
 // BEFORE (broken — passes display name):
 queryFn: () => getDocumentUrl(fileName),
 
-// AFTER (correct — passes R2 key):
-queryFn: () => getDocumentUrl(fileUrl),
+// AFTER (correct — passes R2 key, resolves locally):
+// No more server call needed! Use getPublicUrl from storage-utils:
+import { getPublicUrl } from '@/core/integrations/storage-utils';
+
+const documentUrl = fileUrl ? getPublicUrl(fileUrl) : null;
 ```
+
+> **PERFORMANCE WIN**: The old `getDocumentUrl(fileName)` made a HEAD request to R2 every time. The new approach is a pure function call — zero network requests, instant resolution.
 
 ## 7.4 — Replace Publication Attachment URL Construction
 
@@ -276,7 +281,7 @@ After migration, `fileUrl` is an R2 key (e.g., `admissions/deposits/{appId}/depo
 
 ### New code:
 ```tsx
-import { getPublicUrl } from '@/core/integrations/storage';
+import { getPublicUrl } from '@/core/integrations/storage-utils';
 
 {selected.document?.fileUrl ? (
   <DocumentViewer
@@ -285,7 +290,7 @@ import { getPublicUrl } from '@/core/integrations/storage';
   />
 ```
 
-> **NOTE**: `getPublicUrl` handles all formats — full URLs (pass-through), data URIs (pass-through), and bare keys (prefixes `R2_PUBLIC_URL`). This makes it safe regardless of migration state.
+> **NOTE**: Import from `storage-utils` (NOT `storage`). The `storage.ts` file has `import 'server-only'` and cannot be imported from client components. `getPublicUrl` is a pure function in `storage-utils.ts`.
 
 ## 7.7.2 — Fix `DocumentViewer` PDF Rendering (CRITICAL)
 
@@ -329,6 +334,8 @@ The callers (question paper page, publication page) must wrap the value with `ge
   fileName={questionPaper.document.fileName}
 />
 ```
+
+> **IMPORT NOTE**: In server components, import `getPublicUrl` from `@/core/integrations/storage-utils`. In client components, import from the same path. The file has no `'use server'` or `'server-only'` restrictions.
 
 ## 7.8 — Update Deletion on Attachment Removal
 
@@ -395,6 +402,8 @@ The current implementations use ETags/Last-Modified headers from HEAD requests f
 After this step:
 - `grep -r "pub-2b37ce26bd70421e" src/` returns **0 results**
 - `grep -r "r2\.dev" src/` returns **0 results** (only in env vars)
+- All `getPublicUrl` imports in client components point to `@/core/integrations/storage-utils`
+- All `uploadFile`/`deleteFile` imports are only in server-side files (actions, services, repositories)
 - Student photos load from DB `photoKey` — no HEAD requests in server logs
 - Employee photos load from DB `photoKey` — no HEAD requests in server logs
 - All document URLs resolve correctly via `getPublicUrl()`
