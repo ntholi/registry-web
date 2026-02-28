@@ -300,6 +300,22 @@ fileUrl: getPublicUrl(doc.document?.fileUrl || `admissions/applicants/documents/
 | `src/app/registry/terms/settings/_server/actions.ts` | Remove `getAttachmentFolder`/`getAttachmentFolderPath`, use `StoragePaths` |
 | `src/app/library/resources/question-papers/_server/actions.ts` | Use `StoragePaths.questionPaper` + `uploadFile`, remove `BASE_URL`/`FOLDER` |
 | `src/app/library/resources/publications/_server/actions.ts` | Use `StoragePaths.publication` + `uploadFile`, remove `BASE_URL`/`FOLDER` |
+| `src/app/admissions/applications/_server/actions.ts` | **MISSED** — Uses `uploadDocument(file, fileName, 'documents/admissions')` in `uploadAndAnalyzeDocument()`. Use `StoragePaths.applicantDocument` + `uploadFile` |
+| `src/app/admissions/applicants/[id]/documents/_components/UploadModal.tsx` | **MISSED** — Uses `uploadDocument(uploadResult.file, fileName, folder)` via `getDocumentFolder`. Use `StoragePaths.applicantDocument` + `uploadFile` |
+| `src/app/admissions/applicants/[id]/academic-records/_server/actions.ts` | **MISSED** — Uses `deleteDocument(getStorageKeyFromUrl(fileUrl))`. Use `deleteFile(fileUrl)` directly (after migration, `fileUrl` IS the key) |
+| `src/app/registry/students/_components/documents/DeleteDocumentModal.tsx` | **BUG FIX** — Currently calls `deleteFromStorage(document.fileName)` but `fileName` is the display name, not the storage key. Must pass `document.fileUrl` instead |
+
+## Pre-Existing Bugs Fixed in This Step
+
+### Bug 1: Student Photo Deletion Passes Full URL as R2 Key
+**File:** `src/app/registry/students/_components/info/PhotoView.tsx` (line 27)
+**Problem:** `deleteDocument(photoUrl)` passes a full URL with cache-busting query params (e.g., `https://...r2.dev/photos/901234.jpg?v=etag`). The current `deleteDocument` passes this verbatim as the R2 Key, which fails silently — the S3 API won't find a key matching the full URL.
+**Fix:** The new `deleteFile()` handles both full URLs and bare keys by stripping the URL prefix. Additionally, after this step, `student.photoKey` stores the bare key and is used directly.
+
+### Bug 2: Student Document Deletion From R2 Uses Wrong Key
+**File:** `src/app/registry/students/_components/documents/DeleteDocumentModal.tsx` (line 34)
+**Problem:** `deleteFromStorage(document.fileName)` passes the **original filename** (e.g., "Report.pdf") instead of the **storage key** (e.g., "documents/registry/students/901234/abc123.pdf"). The file is never actually deleted from R2.
+**Fix:** After this step, `document.fileUrl` stores the R2 key. The delete call should use `deleteFile(document.fileUrl)`.
 
 ## Verification
 

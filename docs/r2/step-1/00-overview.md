@@ -53,6 +53,16 @@ The current R2 storage implementation suffers from:
 | `src/app/library/resources/question-papers/_server/actions.ts` | 11 |
 | `src/app/library/resources/publications/_server/actions.ts` | 16 |
 
+### Files Using Old Upload Patterns (No Hardcoded URL but Must Be Updated)
+
+| File | Issue |
+|------|-------|
+| `src/app/admissions/applications/_server/actions.ts` | Uses `uploadDocument(file, fileName, 'documents/admissions')` — hardcoded folder |
+| `src/app/admissions/applicants/[id]/documents/_components/UploadModal.tsx` | Uses `uploadDocument()` with old folder from `getDocumentFolder()` |
+| `src/app/admissions/applicants/[id]/academic-records/_server/actions.ts` | Uses `deleteDocument(getStorageKeyFromUrl(fileUrl))` — will need `deleteFile(fileUrl)` |
+| `src/app/registry/students/_components/documents/DeleteDocumentModal.tsx` | **BUG**: Passes display name as storage key |
+| `src/app/apply/[id]/(wizard)/payment/_server/actions.ts` | Stores base64 directly in `documents.fileUrl` — see Step 0 |
+
 ### Database Schema for Files
 
 | Table | Key Columns | Notes |
@@ -91,6 +101,7 @@ The current R2 storage implementation suffers from:
 
 | Step | Document | Description |
 |------|----------|-------------|
+| 0 | [0000-before-migration-base64-investigation.md](./0000-before-migration-base64-investigation.md) | Investigate & resolve 1,422 base64 deposit receipts stored in DB |
 | 1 | [01-centralize-storage-utility.md](./01-centralize-storage-utility.md) | Create centralized storage utility with env var, path builders, and URL resolver |
 | 2 | [02-schema-changes.md](./02-schema-changes.md) | Add `photoKey` to students/employees, standardize `fileUrl` storage format |
 | 3 | [03-migration-script.md](./03-migration-script.md) | R2 copy script: old paths → new paths, populate `photoKey` columns |
@@ -98,9 +109,21 @@ The current R2 storage implementation suffers from:
 | 5 | [05-update-retrieval-code.md](./05-update-retrieval-code.md) | Update all URL construction and photo retrieval to use DB + utility |
 | 6 | [06-cleanup-and-verification.md](./06-cleanup-and-verification.md) | Verify all new paths, delete old objects, remove dead code |
 
+## Pre-Migration: Base64 Data in `documents` Table
+
+> See [0000-before-migration-base64-investigation.md](./0000-before-migration-base64-investigation.md)
+
+**1,422 `documents` records** store raw base64 file content (deposit receipts) directly in `file_url` instead of R2. These are linked via `bank_deposits` and total ~892 MB of DB storage. This must be investigated and resolved before running the migration script.
+
 ## Risk Mitigation
 
 - **Zero data loss**: Copy-then-update strategy. Old files are never deleted until new paths are verified with HEAD requests.
 - **Rollback**: If anything goes wrong, old paths still exist. The migration script logs all operations for audit.
 - **Phased deployment**: Each step can be deployed independently. Steps 1-2 are backwards-compatible.
 - **Feature flags**: The old URL construction fallback remains until Step 6 cleanup.
+- **Deployment order**: Steps 1+2+4+5 deploy as one code release (maintenance window). Then Step 3 migration script runs. Then Step 6 cleanup after verification period.
+
+## Pre-Existing Bugs (Fixed in Step 4)
+
+1. **Student photo deletion broken** — `deleteDocument(photoUrl)` passes full URL with query params as R2 Key; silently fails.
+2. **Student document deletion from R2 broken** — `deleteFromStorage(document.fileName)` passes display name instead of storage key; file never deleted from R2.
