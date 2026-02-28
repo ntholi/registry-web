@@ -5,16 +5,8 @@ import type {
 	ZohoInvoice,
 	ZohoInvoiceStatus,
 } from '@finance/_lib/zoho-books/types';
-import {
-	Group,
-	Paper,
-	SegmentedControl,
-	Skeleton,
-	Stack,
-	Text,
-} from '@mantine/core';
+import { Group, Paper, Skeleton, Stack, Text } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
-import { useState } from 'react';
 import { statusColors } from '@/shared/lib/utils/colors';
 import { formatCurrency } from '@/shared/lib/utils/utils';
 import {
@@ -31,16 +23,6 @@ import {
 type Props = {
 	invoices: ZohoInvoice[];
 };
-
-const FILTERS = [
-	{ label: 'All', value: 'all' },
-	{ label: 'Paid', value: 'paid' },
-	{ label: 'Unpaid', value: 'unpaid' },
-	{ label: 'Overdue', value: 'overdue' },
-	{ label: 'Partial', value: 'partially_paid' },
-] as const;
-
-type Filter = (typeof FILTERS)[number]['value'];
 
 const LABEL_MAP: Record<ZohoInvoiceStatus, string> = {
 	draft: 'Draft',
@@ -96,22 +78,10 @@ const columns: TransactionColumn<ZohoInvoice>[] = [
 ];
 
 export function InvoicesTab({ invoices }: Props) {
-	const [filter, setFilter] = useState<Filter>('all');
-
-	const filtered =
-		filter === 'all' ? invoices : invoices.filter((i) => i.status === filter);
-
 	return (
 		<Stack gap='sm'>
-			<Group justify='flex-end'>
-				<SegmentedControl
-					value={filter}
-					onChange={(v) => setFilter(v as Filter)}
-					data={FILTERS.map((f) => ({ label: f.label, value: f.value }))}
-				/>
-			</Group>
 			<TransactionTable
-				data={filtered}
+				data={invoices}
 				columns={columns}
 				rowKey={(r) => r.invoice_id}
 				emptyLabel='No invoices found.'
