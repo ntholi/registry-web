@@ -16,7 +16,7 @@ The current R2 storage implementation suffers from:
 3. **No database tracking for photos** — Student/employee photos are discovered via 4 sequential HEAD requests (probing .jpg, .jpeg, .png, .webp)
 4. **Duplicated upload/retrieval logic** — Each module implements its own URL construction, file size validation, and extension handling
 5. **Mixed storage reference patterns** — Some DB records store `fileName` only, others store full `fileUrl`, others store nothing (photos)
-6. **`formatFileSize()` duplicated** — Exists in 6 places instead of using the shared utility
+6. **`formatFileSize()` duplicated** — Exists in 7 places instead of using the shared utility
 
 ## Decisions Made
 
@@ -93,7 +93,7 @@ The current R2 storage implementation suffers from:
 ├── admissions/
 │   ├── applicants/
 │   │   └── documents/{applicantId}/{nanoid}.{ext}
-│   └── deposits/{applicationId}/{fileName}
+│   └── deposits/{applicationId}/{docId}.{ext}
 └── library/
     ├── question-papers/{nanoid}.{ext}
     └── publications/{nanoid}.{ext}
@@ -128,6 +128,7 @@ The entire migration (Steps 1–7) MUST be executed as a **single atomic operati
 ### Pre-Maintenance Checklist
 - [ ] Full PostgreSQL backup via `pg_dump` with `--format=custom`
 - [ ] R2 bucket object listing saved to JSON (audit trail)
+- [ ] `NEXT_PUBLIC_R2_PUBLIC_URL` env var added to production environment
 - [ ] All code changes (Steps 1, 2, 5, 6, 7) committed, reviewed, and ready to deploy
 - [ ] Migration scripts (Steps 3, 4) tested on staging/local with `--dry-run`
 - [ ] Maintenance banner / downtime notice communicated to users

@@ -30,24 +30,29 @@ This stores the entire base64 payload (~500KB–1MB per file) directly in Postgr
 
 ```typescript
 import { StoragePaths, uploadFile } from '@/core/integrations/storage';
+import { nanoid } from 'nanoid';
 
 // Inside the transaction, for each receipt:
 const ext = receipt.mediaType.split('/')[1] || 'pdf';
 const fileName = `deposit-${receipt.reference}.${ext}`;
 const buffer = Buffer.from(receipt.base64, 'base64');
-const key = StoragePaths.admissionDeposit(applicationId, fileName);
+const docId = nanoid();
+const key = StoragePaths.admissionDeposit(applicationId, `${docId}.${ext}`);
 
 await uploadFile(buffer, key, receipt.mediaType);
 
 const [doc] = await tx
   .insert(documents)
   .values({
+    id: docId,
     fileName,
     fileUrl: key,
     type: 'proof_of_payment',
   })
   .returning({ id: documents.id });
 ```
+
+> **NOTE**: We pre-generate `docId` via `nanoid()` and pass it as the `id` to the insert. This ensures the R2 key (`admissions/deposits/{appId}/{docId}.{ext}`) matches the document's DB `id`. This is consistent with Step 4's migration strategy which also uses `docId` in the R2 path.
 
 ## 5.3 — Storage Utility (Already Handled in Step 1)
 
@@ -82,23 +87,24 @@ If the R2 upload fails, the entire transaction should fail and no `documents` or
 
 ```typescript
 // Upload all receipts to R2 first
-const uploadedKeys: { key: string; receipt: DepositData }[] = [];
+const uploadedKeys: { key: string; docId: string; receipt: DepositData }[] = [];
 for (const receipt of receipts) {
   const ext = receipt.mediaType.split('/')[1] || 'pdf';
-  const fileName = `deposit-${receipt.reference}.${ext}`;
   const buffer = Buffer.from(receipt.base64, 'base64');
-  const key = StoragePaths.admissionDeposit(applicationId, fileName);
+  const docId = nanoid();
+  const key = StoragePaths.admissionDeposit(applicationId, `${docId}.${ext}`);
   await uploadFile(buffer, key, receipt.mediaType);
-  uploadedKeys.push({ key, receipt });
+  uploadedKeys.push({ key, docId, receipt });
 }
 
 // Then insert into DB in a transaction
 await db.transaction(async (tx) => {
-  for (const { key, receipt } of uploadedKeys) {
+  for (const { key, docId, receipt } of uploadedKeys) {
     const ext = receipt.mediaType.split('/')[1] || 'pdf';
     const [doc] = await tx
       .insert(documents)
       .values({
+        id: docId,
         fileName: `deposit-${receipt.reference}.${ext}`,
         fileUrl: key,
         type: 'proof_of_payment',
@@ -117,25 +123,26 @@ await db.transaction(async (tx) => {
 If the DB transaction fails after R2 upload, orphaned R2 objects remain. To handle this, wrap the entire flow in a try/catch that cleans up uploaded files on failure:
 
 ```typescript
-const uploadedKeys: { key: string; receipt: DepositData }[] = [];
+const uploadedKeys: { key: string; docId: string; receipt: DepositData }[] = [];
 try {
   // Upload all receipts to R2 first
   for (const receipt of receipts) {
     const ext = receipt.mediaType.split('/')[1] || 'pdf';
-    const fileName = `deposit-${receipt.reference}.${ext}`;
     const buffer = Buffer.from(receipt.base64, 'base64');
-    const key = StoragePaths.admissionDeposit(applicationId, fileName);
+    const docId = nanoid();
+    const key = StoragePaths.admissionDeposit(applicationId, `${docId}.${ext}`);
     await uploadFile(buffer, key, receipt.mediaType);
-    uploadedKeys.push({ key, receipt });
+    uploadedKeys.push({ key, docId, receipt });
   }
 
   // Then insert into DB in a transaction
   await db.transaction(async (tx) => {
-    for (const { key, receipt } of uploadedKeys) {
+    for (const { key, docId, receipt } of uploadedKeys) {
       const ext = receipt.mediaType.split('/')[1] || 'pdf';
       const [doc] = await tx
         .insert(documents)
         .values({
+          id: docId,
           fileName: `deposit-${receipt.reference}.${ext}`,
           fileUrl: key,
           type: 'proof_of_payment',
@@ -168,10 +175,11 @@ try {
 ## 5.7 — Testing
 
 1. Submit a new payment via the applicant portal
-2. Verify the deposit receipt appears in R2 at `admissions/deposits/{applicationId}/deposit-{ref}.{ext}`
+2. Verify the deposit receipt appears in R2 at `admissions/deposits/{applicationId}/{docId}.{ext}`
 3. Verify `documents.file_url` stores the R2 key (not base64)
-4. Verify the admin payment review page renders the receipt image correctly
-5. Verify the file size in R2 matches the decoded base64 size
+4. Verify `documents.id` matches the `{docId}` portion of the R2 key
+5. Verify the admin payment review page renders the receipt image correctly
+6. Verify the file size in R2 matches the decoded base64 size
 
 ## 5.8 — Files Changed
 

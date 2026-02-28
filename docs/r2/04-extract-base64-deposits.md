@@ -38,18 +38,21 @@ The admissions payment workflow at `src/app/apply/[id]/(wizard)/payment/_server/
 ## 4.1 — Target R2 Path
 
 ```
-admissions/deposits/{applicationId}/{fileName}
+admissions/deposits/{applicationId}/{docId}.{ext}
 ```
 
-Where `fileName` is the existing `documents.fileName` value (e.g., `deposit-APPLICATION FEE.jpeg`).
+Where `docId` is the document's unique `id` (nanoid) and `ext` is derived from the MIME type. The `documents.fileName` column is NOT used for the R2 key because:
 
-This keeps deposits separate from applicant documents and is keyed by `applicationId` (matching `bank_deposits.applicationId`).
+1. **141 duplicate `fileName`+`applicationId` collisions exist** (10% of records). E.g., application `100497` has 6 records all named `deposit-MOTEBANG MAKHETHA.jpeg`.
+2. **1,017 filenames (72%) contain spaces** (e.g., `deposit-MAFUSI MOTSOKOLA.jpeg`), which would require sanitization and create a mismatch between the display name and storage key.
+
+Using `docId` as the filename guarantees uniqueness and avoids sanitization entirely. The display name (`documents.fileName`) remains unchanged for the UI.
 
 Uses `StoragePaths.admissionDeposit` (already defined in [Step 1](./01-centralize-storage-utility.md)):
 
 ```typescript
-StoragePaths.admissionDeposit(applicationId, fileName)
-// → "admissions/deposits/{applicationId}/{fileName}"
+StoragePaths.admissionDeposit(applicationId, `${docId}.${ext}`)
+// → "admissions/deposits/{applicationId}/{docId}.jpeg"
 ```
 
 ## 4.2 — Script Location & Usage
@@ -110,7 +113,8 @@ for (const batch of chunk(base64Docs, BATCH_SIZE)) {
   const results = await Promise.allSettled(batch.map(async (doc) => {
     const { mediaType, base64 } = parseDataUri(doc.fileUrl);
     const buffer = Buffer.from(base64, 'base64');
-    const key = StoragePaths.admissionDeposit(doc.applicationId, doc.fileName);
+    const ext = mimeToExt(mediaType); // e.g. 'jpeg', 'pdf', 'png'
+    const key = StoragePaths.admissionDeposit(doc.applicationId, `${doc.docId}.${ext}`);
 
     await s3Client.send(new PutObjectCommand({
       Bucket: BUCKET_NAME,
@@ -159,6 +163,18 @@ function parseDataUri(dataUri: string): { mediaType: string; base64: string } {
   if (!match) throw new Error(`Invalid data URI: ${dataUri.substring(0, 50)}...`);
   return { mediaType: match[1], base64: match[2] };
 }
+
+function mimeToExt(mediaType: string): string {
+  const map: Record<string, string> = {
+    'image/jpeg': 'jpeg',
+    'image/png': 'png',
+    'image/webp': 'webp',
+    'image/heic': 'heic',
+    'image/heif': 'heif',
+    'application/pdf': 'pdf',
+  };
+  return map[mediaType] || mediaType.split('/')[1] || 'bin';
+}
 ```
 
 ## 4.5 — HEIC/HEIF Handling
@@ -171,8 +187,8 @@ No conversion needed at migration time.
 
 | Scenario | Handling |
 |----------|----------|
-| Duplicate `fileName` for same `applicationId` | Append nanoid suffix: `deposit-ref-{nanoid}.ext` |
-| `fileName` contains spaces or special characters | Sanitize by replacing spaces with hyphens and removing non-URL-safe characters before constructing the R2 key. E.g., `deposit-APPLICATION FEE.jpeg` → `deposit-APPLICATION-FEE.jpeg` |
+| Duplicate `fileName` for same `applicationId` | **Not an issue** — R2 key uses `docId` (unique nanoid) instead of `fileName`. All 141 collisions are eliminated. |
+| `fileName` contains spaces or special characters | **Not an issue** — `fileName` is only used as the display name. R2 key uses `docId.ext` which is always clean. |
 | `fileUrl` is NULL or empty | Skip, log as warning |
 | `fileUrl` already an R2 key (not base64) | Skip, log as already-migrated |
 | Upload fails | Log error, continue with next record; do NOT update DB |

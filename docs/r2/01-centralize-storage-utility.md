@@ -10,20 +10,22 @@
 
 Create a single source of truth for R2 configuration, path construction, and URL resolution. Eliminate all hardcoded URLs and duplicated helper functions.
 
-## 1.1 — Add Environment Variable
+## 1.1 — Environment Variable Setup (PREREQUISITE)
 
-Add `R2_PUBLIC_URL` to the environment:
+Add `NEXT_PUBLIC_R2_PUBLIC_URL` to the environment:
 
 ```env
 # .env / .env.local
-R2_PUBLIC_URL=https://pub-2b37ce26bd70421e9e59e4fe805c6873.r2.dev
+NEXT_PUBLIC_R2_PUBLIC_URL=https://pub-2b37ce26bd70421e9e59e4fe805c6873.r2.dev
 ```
 
 Update `README.md` env section to include:
 
 ```
-R2_PUBLIC_URL=
+NEXT_PUBLIC_R2_PUBLIC_URL=
 ```
+
+> **WHY `NEXT_PUBLIC_` prefix?** The `storage-utils.ts` file is imported by client components (e.g., `PaymentReviewDocumentSwitcher.tsx`). Non-prefixed env vars like `R2_PUBLIC_URL` are `undefined` on the client side in Next.js. Using `NEXT_PUBLIC_R2_PUBLIC_URL` ensures the URL is available on BOTH server and client.
 
 ## 1.2 — File Architecture (Two Files)
 
@@ -31,7 +33,7 @@ R2_PUBLIC_URL=
 
 | File | Purpose | Restrictions |
 |------|---------|-------------|
-| `src/core/integrations/storage.ts` | S3 operations (upload, delete, HEAD) | `import 'server-only'` — cannot be imported from client components |
+| `src/core/integrations/storage.ts` | S3 operations (upload, delete, HEAD) | Server-side only — must NOT be imported from client components |
 | `src/core/integrations/storage-utils.ts` | Pure functions (path builders, URL resolver, key generator) | None — importable from anywhere (client + server) |
 
 ### Why remove `'use server'` instead of keeping it?
@@ -40,8 +42,11 @@ R2_PUBLIC_URL=
 - Instead, each module creates server actions (e.g., `uploadStudentPhoto`) that call `uploadFile` internally
 - This is cleaner: the upload + DB update happen atomically in one server action, not as two separate client calls
 
-### Why `import 'server-only'` on `storage.ts`?
-Without `'use server'` AND without `'server-only'`, a client component could accidentally import `uploadFile`, which would bundle the AWS SDK into the client JavaScript. `import 'server-only'` causes a **build error** if any client component imports from this file, preventing this mistake.
+### Why is `storage.ts` safe without `'use server'` or `import 'server-only'`?
+- Without any directive, `storage.ts` is a plain module that only runs on the server
+- Client components cannot call its functions directly (they would get a runtime error for AWS SDK)
+- The risk of accidental client import is mitigated by the architecture: all client-facing operations go through module-specific server actions
+- Code review and TypeScript compilation will catch any accidental client imports (AWS SDK has Node.js-only APIs)
 
 ### Impact on client components that currently call `uploadDocument` directly:
 The following client components currently import `uploadDocument`/`deleteDocument` from `storage.ts`:
@@ -94,7 +99,7 @@ export const StoragePaths = {
 ### URL Resolver
 
 ```typescript
-const PUBLIC_URL = process.env.R2_PUBLIC_URL || process.env.NEXT_PUBLIC_R2_PUBLIC_URL || '';
+const PUBLIC_URL = process.env.NEXT_PUBLIC_R2_PUBLIC_URL || '';
 
 export function getPublicUrl(key: string): string {
   if (!key) return '';
@@ -106,7 +111,7 @@ export function getPublicUrl(key: string): string {
 
 > **CRITICAL**: The `data:` URI check is essential during the transition period. Between Steps 3/4 and full deployment, some `documents.fileUrl` records may still contain base64 data URIs while others have been migrated to R2 keys. This ensures both formats render correctly.
 
-> **ENV VAR NOTE**: Since this file runs on both client and server, the env var must be available on both sides. Use `NEXT_PUBLIC_R2_PUBLIC_URL` as a fallback for client-side access, or ensure the URL is passed as a prop from server components. The server-side `R2_PUBLIC_URL` takes precedence.
+> **ENV VAR NOTE**: Since this file runs on both client and server, we use `NEXT_PUBLIC_R2_PUBLIC_URL` (with the `NEXT_PUBLIC_` prefix) so it's available on both sides. There is no separate `R2_PUBLIC_URL` — one env var serves both contexts.
 
 ### Generate Upload Key (encapsulates nanoid + extension)
 
@@ -128,15 +133,13 @@ export function getFileExtension(fileName: string): string {
 }
 ```
 
-## 1.2.2 — `src/core/integrations/storage.ts` (REWRITTEN, server-only)
+## 1.2.2 — `src/core/integrations/storage.ts` (REWRITTEN, server-side only)
 
-Replace the current file. **Remove** `'use server'`, **add** `import 'server-only'`.
+Replace the current file. **Remove** `'use server'`. No `import 'server-only'` needed.
 
 ### Header
 
 ```typescript
-import 'server-only';
-
 import {
   DeleteObjectCommand,
   HeadObjectCommand,
@@ -242,11 +245,11 @@ export async function deleteDocument(url: string | undefined | null): Promise<vo
 }
 ```
 
-> **NOTE**: These wrappers live in `storage.ts` (server-only). Since the current callers are client components that rely on `'use server'`, these wrappers are NOT callable from client components after this step. **This is intentional** — the deprecated wrappers are only for server-side code that still uses the old patterns. Client component callsites are updated in Step 6 to use module-specific server actions.
+> **NOTE**: These wrappers live in `storage.ts` (server-side only). Since the current callers are client components that rely on `'use server'`, these wrappers are NOT callable from client components after this step. **This is intentional** — the deprecated wrappers are only for server-side code that still uses the old patterns. Client component callsites are updated in Step 6 to use module-specific server actions.
 
 ## 1.4 — Remove Duplicated Utilities
 
-The `formatFileSize()` function is duplicated in **6 files** (see [Step 6, section 6.9](./06-update-upload-code.md) for the full list). All should import from `@/shared/lib/utils/files` instead.
+The `formatFileSize()` function is duplicated in **7 files** (see [Step 6, section 6.9](./06-update-upload-code.md) for the full list). All should import from `@/shared/lib/utils/files` instead.
 
 Similarly, `getFileExtension()` logic is inline in several files — all should use the shared utility.
 
@@ -272,11 +275,12 @@ const nextConfig: NextConfig = {
 
 | File | Change |
 |------|--------|
-| `src/core/integrations/storage.ts` | Rewrite: remove `'use server'`, add `import 'server-only'`, add `uploadFile`, `deleteFile`, `fileExists`, keep deprecated wrappers |
+| `src/core/integrations/storage.ts` | Rewrite: remove `'use server'`, add `uploadFile`, `deleteFile`, `fileExists`, keep deprecated wrappers |
 | `src/core/integrations/storage-utils.ts` | **NEW**: `StoragePaths`, `getPublicUrl`, `generateUploadKey`, `getFileExtension` (pure functions, importable from client & server) |
 | `next.config.ts` | Add `images.remotePatterns` for R2 domain (MANDATORY) |
-| `README.md` | Add `R2_PUBLIC_URL` and `NEXT_PUBLIC_R2_PUBLIC_URL` to env vars |
-| `.env` / `.env.local` | Add `R2_PUBLIC_URL` and `NEXT_PUBLIC_R2_PUBLIC_URL` values |
+| `README.md` | Add `NEXT_PUBLIC_R2_PUBLIC_URL` to env vars |
+| `.env` / `.env.local` | Add `NEXT_PUBLIC_R2_PUBLIC_URL` value |
+| `package.json` | No changes needed |
 
 ## Verification
 

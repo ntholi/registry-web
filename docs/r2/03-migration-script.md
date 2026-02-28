@@ -79,17 +79,39 @@ Same as Phase 1 but:
 
 ### Logic:
 1. Query all `documents` rows where `fileUrl LIKE '%documents/admissions%'`
-2. Join with `applicant_documents` to get `applicantId`
-3. For each:
+2. **LEFT JOIN** with `applicant_documents` to get `applicantId` (some will be NULL for orphans)
+3. For each record WHERE `applicantId` IS NOT NULL:
    - Extract `fileName` from old URL
    - New key: `admissions/applicants/documents/{applicantId}/{fileName}`
    - `CopyObjectCommand` old → new
    - `HeadObjectCommand` to verify
    - `UPDATE documents SET file_url = '{newKey}' WHERE id = '{docId}'`
 
+### 3.5.1 — Orphaned Documents (SEPARATE QUERY)
+
+> **CRITICAL**: The 153 orphaned documents have NO `applicantId` from any join. They MUST be handled by a separate query — NOT by the main Phase 3 query which uses `INNER JOIN applicant_documents`.
+
+```sql
+-- Query orphaned documents (no applicant link AND no bank_deposit link)
+SELECT d.id, d.file_name, d.file_url, d.type
+FROM documents d
+LEFT JOIN applicant_documents ad ON ad.document_id = d.id
+LEFT JOIN bank_deposits bd ON bd.document_id = d.id
+WHERE ad.id IS NULL AND bd.id IS NULL
+AND d.file_url LIKE 'https://%'
+AND d.file_url IS NOT NULL;
+```
+
+For each orphaned document:
+- Extract the R2 key from the full URL (strip base URL prefix)
+- Copy to `admissions/applicants/documents/_orphaned/{docId}/{fileName}`
+- `UPDATE documents SET file_url = '{orphanedKey}' WHERE id = '{docId}'`
+- Log as orphaned with original type (identity: 70, certificate: 48, academic_record: 35)
+
+> **NOTE**: These orphans all have full R2 URLs (`https://pub-...r2.dev/documents/admissions/{nanoid}.{ext}`) and are NOT base64. They are NOT picked up by Step 4's base64 extraction.
+
 ### Edge case:
-- **Documents not linked to any applicant** (153 orphaned records): These have no `applicantId` from the join. Log as orphaned; copy to `admissions/applicants/documents/_orphaned/{docId}/{fileName}` using the document's own `id` as the folder key. Update `documents.fileUrl` to the orphaned key so `getPublicUrl()` can still resolve them.
-- **`documents.fileUrl` is NULL**: Skip the record entirely, log as warning (do NOT attempt REPLACE on NULL values). Add `WHERE file_url IS NOT NULL` to all UPDATE queries in the migration script.
+- **`documents.fileUrl` is NULL**: Skip the record entirely, log as warning (do NOT attempt REPLACE on NULL values). Add `WHERE file_url IS NOT NULL` to all UPDATE queries in the migration script. (Currently 0 NULL records exist, but this is defensive.)
 
 ## 3.6 — Phase 4: Student Documents (Registry)
 
