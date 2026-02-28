@@ -17,11 +17,9 @@ import {
 	IconFileInvoice,
 	IconNotebook,
 	IconReceipt,
-	IconReceiptRefund,
 } from '@tabler/icons-react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
-import { CreditNotesTab } from './CreditNotesTab';
 import { EstimatesTab } from './EstimatesTab';
 import { FinancialOverview } from './FinancialOverview';
 import { InvoicesTab } from './InvoicesTab';
@@ -58,7 +56,7 @@ export default function StudentFinanceView({ stdNo, isActive }: Props) {
 		return (
 			<Paper p='xl' withBorder>
 				<Stack align='center' gap='md' py='lg'>
-					<ThemeIcon size={56} variant='light' color='red' radius='xl'>
+					<ThemeIcon size={56} variant='light' color='red'>
 						<IconAlertTriangle size='1.6rem' />
 					</ThemeIcon>
 					<Stack align='center' gap={4}>
@@ -80,7 +78,7 @@ export default function StudentFinanceView({ stdNo, isActive }: Props) {
 		return (
 			<Paper p='xl' withBorder>
 				<Stack align='center' gap='md' py='lg'>
-					<ThemeIcon size={56} variant='light' color='gray' radius='xl'>
+					<ThemeIcon size={56} variant='light' color='gray'>
 						<IconFileInvoice size='1.6rem' />
 					</ThemeIcon>
 					<Stack align='center' gap={4}>
@@ -108,7 +106,7 @@ export default function StudentFinanceView({ stdNo, isActive }: Props) {
 				}
 			/>
 
-			<Tabs value={tab} onChange={setTab} variant='pills' radius='md'>
+			<Tabs value={tab} onChange={setTab}>
 				<Tabs.List>
 					<TabLabel
 						value='invoices'
@@ -134,12 +132,6 @@ export default function StudentFinanceView({ stdNo, isActive }: Props) {
 						label='Receipts'
 						count={summary.salesReceipts.length}
 					/>
-					<TabLabel
-						value='credits'
-						icon={<IconReceiptRefund size='0.85rem' />}
-						label='Credits'
-						count={summary.creditNotes.length}
-					/>
 				</Tabs.List>
 
 				<Tabs.Panel value='invoices' pt='md'>
@@ -153,9 +145,6 @@ export default function StudentFinanceView({ stdNo, isActive }: Props) {
 				</Tabs.Panel>
 				<Tabs.Panel value='receipts' pt='md'>
 					<SalesReceiptsTab receipts={summary.salesReceipts} />
-				</Tabs.Panel>
-				<Tabs.Panel value='credits' pt='md'>
-					<CreditNotesTab creditNotes={summary.creditNotes} />
 				</Tabs.Panel>
 			</Tabs>
 		</Stack>
@@ -190,29 +179,28 @@ function FinanceLoader() {
 	return (
 		<Stack gap='md'>
 			<Group justify='space-between'>
-				<Skeleton height={12} width={120} radius='xl' />
+				<Skeleton height={12} width={120} />
 				<Skeleton height={24} width={24} circle />
 			</Group>
 			<Group grow gap='sm'>
 				{Array.from({ length: 3 }).map((_, i) => (
-					<Paper p='md' withBorder radius='md' key={`metric-${i}`}>
+					<Paper p='md' withBorder key={`metric-${i}`}>
 						<Stack gap='xs'>
-							<Skeleton height={10} width={80} radius='xl' />
-							<Skeleton height={22} width={100} radius='xl' />
+							<Skeleton height={10} width={80} />
+							<Skeleton height={22} width={100} />
 						</Stack>
 					</Paper>
 				))}
 			</Group>
-			<Skeleton height={6} radius='xl' />
 			<Group gap='xs'>
-				{Array.from({ length: 5 }).map((_, i) => (
-					<Skeleton height={30} width={90} radius='md' key={`tab-${i}`} />
+				{Array.from({ length: 4 }).map((_, i) => (
+					<Skeleton height={30} width={90} key={`tab-${i}`} />
 				))}
 			</Group>
-			<Paper withBorder radius='md' p='sm'>
+			<Paper withBorder p='sm'>
 				<Stack gap='xs'>
 					{Array.from({ length: 4 }).map((_, i) => (
-						<Skeleton height={36} radius='sm' key={`row-${i}`} />
+						<Skeleton height={36} key={`row-${i}`} />
 					))}
 				</Stack>
 			</Paper>

@@ -137,14 +137,12 @@ export async function getStudentFinanceSummary(
 
 	if (!contact) return null;
 
-	const [invoices, payments, estimates, salesReceipts, creditNotes] =
-		await Promise.all([
-			findStudentInvoices(contact.contact_id),
-			findStudentPayments(contact.contact_id),
-			findStudentEstimates(contact.contact_id),
-			findStudentSalesReceipts(contact.contact_id),
-			findStudentCreditNotes(contact.contact_id),
-		]);
+	const [invoices, payments, estimates, salesReceipts] = await Promise.all([
+		findStudentInvoices(contact.contact_id),
+		findStudentPayments(contact.contact_id),
+		findStudentEstimates(contact.contact_id),
+		findStudentSalesReceipts(contact.contact_id),
+	]);
 
 	const totalAmount = invoices.reduce((sum, inv) => sum + inv.total, 0);
 	const totalOutstanding = invoices.reduce((sum, inv) => sum + inv.balance, 0);
@@ -161,6 +159,5 @@ export async function getStudentFinanceSummary(
 		payments,
 		estimates,
 		salesReceipts,
-		creditNotes,
 	};
 }

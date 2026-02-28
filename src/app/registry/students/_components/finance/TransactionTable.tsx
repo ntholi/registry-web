@@ -25,9 +25,9 @@ export function TransactionTable<T>({
 }: TransactionTableProps<T>) {
 	if (data.length === 0) {
 		return (
-			<Paper p='xl' withBorder radius='md'>
+			<Paper p='xl' withBorder>
 				<Stack align='center' gap='xs' py='md'>
-					<ThemeIcon size='lg' variant='light' color='gray' radius='xl'>
+					<ThemeIcon size='lg' variant='light' color='gray'>
 						<IconDatabaseOff size='1rem' />
 					</ThemeIcon>
 					<Text c='dimmed' size='sm'>
@@ -39,13 +39,9 @@ export function TransactionTable<T>({
 	}
 
 	return (
-		<Paper withBorder radius='md' style={{ overflow: 'hidden' }}>
+		<Paper withBorder style={{ overflow: 'hidden' }}>
 			<Table.ScrollContainer minWidth={600}>
-				<Table
-					horizontalSpacing='md'
-					verticalSpacing='xs'
-					highlightOnHover
-				>
+				<Table horizontalSpacing='md' verticalSpacing='xs' highlightOnHover>
 					<Table.Thead>
 						<Table.Tr>
 							{columns.map((col) => (
@@ -91,7 +87,7 @@ export function StatusBadge({ status, colorMap, labelMap }: StatusBadgeProps) {
 	const label = labelMap?.[status] ?? (status || 'Paid');
 
 	return (
-		<Badge size='sm' variant='light' color={color} radius='sm'>
+		<Badge size='sm' variant='light' color={color}>
 			{label}
 		</Badge>
 	);

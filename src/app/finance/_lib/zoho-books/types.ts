@@ -230,5 +230,4 @@ export interface StudentFinanceSummary {
 	payments: ZohoPayment[];
 	estimates: ZohoEstimate[];
 	salesReceipts: ZohoSalesReceipt[];
-	creditNotes: ZohoCreditNote[];
 }

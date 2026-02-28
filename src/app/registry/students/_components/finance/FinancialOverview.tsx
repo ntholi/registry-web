@@ -3,7 +3,6 @@ import {
 	ActionIcon,
 	Group,
 	Paper,
-	Progress,
 	SimpleGrid,
 	Stack,
 	Text,
@@ -26,11 +25,6 @@ type Props = {
 };
 
 export function FinancialOverview({ summary, isFetching, onRefresh }: Props) {
-	const paidPct =
-		summary.totalAmount > 0
-			? Math.round((summary.totalPaid / summary.totalAmount) * 100)
-			: 100;
-
 	return (
 		<Stack gap='sm'>
 			<Group justify='space-between' align='center'>
@@ -78,23 +72,6 @@ export function FinancialOverview({ summary, isFetching, onRefresh }: Props) {
 					/>
 				)}
 			</SimpleGrid>
-
-			<Paper p='xs' px='sm' withBorder radius='md'>
-				<Group justify='space-between' mb={4}>
-					<Text size='xs' c='dimmed'>
-						Payment Progress
-					</Text>
-					<Text size='xs' fw={600}>
-						{paidPct}%
-					</Text>
-				</Group>
-				<Progress.Root size='sm' radius='xl'>
-					<Progress.Section value={paidPct} color='green' />
-					{summary.totalOutstanding > 0 && (
-						<Progress.Section value={100 - paidPct} color='red.3' />
-					)}
-				</Progress.Root>
-			</Paper>
 		</Stack>
 	);
 }
@@ -108,9 +85,9 @@ type MetricCardProps = {
 
 function MetricCard({ label, value, icon, color }: MetricCardProps) {
 	return (
-		<Paper p='md' withBorder radius='md'>
+		<Paper p='md' withBorder>
 			<Group gap='xs' mb='xs'>
-				<ThemeIcon size='sm' variant='light' color={color} radius='xl'>
+				<ThemeIcon size='sm' variant='light' color={color}>
 					{icon}
 				</ThemeIcon>
 				<Text size='xs' c='dimmed'>

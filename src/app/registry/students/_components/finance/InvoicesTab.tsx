@@ -4,7 +4,7 @@ import type {
 	ZohoInvoice,
 	ZohoInvoiceStatus,
 } from '@finance/_lib/zoho-books/types';
-import { Chip, Group, Stack, Text } from '@mantine/core';
+import { Group, SegmentedControl, Stack, Text } from '@mantine/core';
 import { useState } from 'react';
 import { statusColors } from '@/shared/lib/utils/colors';
 import {
@@ -100,15 +100,14 @@ export function InvoicesTab({ invoices }: Props) {
 
 	return (
 		<Stack gap='sm'>
-			<Chip.Group value={filter} onChange={(v) => setFilter(v as Filter)}>
-				<Group gap='xs'>
-					{FILTERS.map((f) => (
-						<Chip key={f.value} value={f.value} size='xs' variant='light'>
-							{f.label}
-						</Chip>
-					))}
-				</Group>
-			</Chip.Group>
+			<Group justify='flex-end'>
+				<SegmentedControl
+					size='xs'
+					value={filter}
+					onChange={(v) => setFilter(v as Filter)}
+					data={FILTERS.map((f) => ({ label: f.label, value: f.value }))}
+				/>
+			</Group>
 			<TransactionTable
 				data={filtered}
 				columns={columns}
