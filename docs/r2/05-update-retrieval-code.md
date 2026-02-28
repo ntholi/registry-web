@@ -1,0 +1,268 @@
+# Step 5: Update All Retrieval Code
+
+> **Priority:** High  
+> **Risk:** Medium (changes how URLs are resolved — user-visible)  
+> **Estimated effort:** 2 hours  
+> **Prerequisite:** Steps 1, 2, 3, 4 completed
+
+---
+
+## Objective
+
+Replace all hardcoded URL construction and HEAD-request probing with database lookups and the centralized `getPublicUrl()` utility.
+
+## 5.1 — Replace `getStudentPhoto()` (Eliminate 4 HEAD Requests)
+
+### File: `src/app/registry/students/_server/actions.ts`
+
+### Current code (lines 174–207):
+```typescript
+export async function getStudentPhoto(studentNumber: number | undefined | null): Promise<string | null> {
+  if (!studentNumber) return null;
+  const extensions = ['jpg', 'jpeg', 'png', 'webp'];
+  for (const ext of extensions) {
+    const fileName = `${studentNumber}.${ext}`;
+    const url = `https://pub-2b37ce26bd70421e9e59e4fe805c6873.r2.dev/photos/${fileName}`;
+    const response = await fetch(url, { method: 'HEAD', cache: 'no-store' });
+    if (response.ok) {
+      return `${url}?v=${etag}`;
+    }
+  }
+  return null;
+}
+```
+
+### New code:
+```typescript
+export async function getStudentPhoto(
+  studentNumber: number | undefined | null
+): Promise<string | null> {
+  if (!studentNumber) return null;
+  const student = await service.getPhotoKey(studentNumber);
+  if (!student?.photoKey) return null;
+  return getPublicUrl(student.photoKey);
+}
+```
+
+### New repository method:
+```typescript
+async getPhotoKey(stdNo: number) {
+  return db.query.students.findFirst({
+    where: eq(students.stdNo, stdNo),
+    columns: { photoKey: true },
+  });
+}
+```
+
+### Performance improvement:
+- **Before:** 1–4 HTTP HEAD requests to R2 per call (sequential, no-cache)
+- **After:** 1 DB query (indexed primary key lookup, <1ms)
+- **Cache busting:** If needed, append `?v={timestamp}` at the component level when the photo is updated, not on every read
+
+## 5.2 — Replace `getEmployeePhoto()` (Eliminate 4 HEAD Requests)
+
+### File: `src/app/human-resource/employees/_server/actions.ts`
+
+### Same pattern as 5.1:
+```typescript
+export async function getEmployeePhoto(
+  empNo: string | undefined | null
+): Promise<string | null> {
+  if (!empNo) return null;
+  const employee = await service.getPhotoKey(empNo);
+  if (!employee?.photoKey) return null;
+  return getPublicUrl(employee.photoKey);
+}
+```
+
+## 5.3 — Replace `getDocumentUrl()` (Registry Documents)
+
+### File: `src/app/registry/documents/_server/actions.ts`
+
+### Current code:
+```typescript
+export async function getDocumentUrl(fileName: string | undefined | null): Promise<string | null> {
+  if (!fileName) return null;
+  const url = `https://pub-2b37ce26bd70421e9e59e4fe805c6873.r2.dev/documents/${fileName}`;
+  const response = await fetch(url, { method: 'HEAD', cache: 'no-store' });
+  if (response.ok) {
+    return `${url}?v=${etag}`;
+  }
+  return null;
+}
+```
+
+### New code:
+```typescript
+export async function getDocumentUrl(
+  fileUrl: string | undefined | null
+): Promise<string | null> {
+  if (!fileUrl) return null;
+  return getPublicUrl(fileUrl);
+}
+```
+
+Since the `documents.fileUrl` column now stores the R2 key (after Step 3 migration), we just pass it through `getPublicUrl()`. No HEAD request needed — if the document exists in the DB, it exists in R2.
+
+## 5.4 — Replace Publication Attachment URL Construction
+
+### File: `src/app/registry/terms/settings/_server/actions.ts`
+
+### Current code:
+```typescript
+const BASE_URL = 'https://pub-2b37ce26bd70421e9e59e4fe805c6873.r2.dev';
+
+export async function getPublicationAttachments(termCode: string) {
+  const attachments = await service.getPublicationAttachments(termCode);
+  return attachments.map((att) => {
+    const folder = getAttachmentFolder(termCode, att.type);
+    return { ...att, url: `${BASE_URL}/${folder}/${att.fileName}` };
+  });
+}
+```
+
+### New code:
+```typescript
+export async function getPublicationAttachments(termCode: string) {
+  const attachments = await service.getPublicationAttachments(termCode);
+  return attachments.map((att) => ({
+    ...att,
+    url: getPublicUrl(att.storageKey ?? StoragePaths.termPublication(termCode, att.type, att.fileName)),
+  }));
+}
+```
+
+Remove the `BASE_URL` constant and `getAttachmentFolder` function entirely.
+
+## 5.5 — Replace Question Paper URL Construction
+
+### File: `src/app/library/resources/question-papers/_server/actions.ts`
+
+After Step 4, `documents.fileUrl` stores the key. Any place that reads document URLs should use `getPublicUrl()`:
+
+```typescript
+// In any query result mapping:
+const publicUrl = getPublicUrl(questionPaper.document.fileUrl);
+```
+
+Remove the `BASE_URL` constant.
+
+## 5.6 — Replace Publication URL Construction
+
+### File: `src/app/library/resources/publications/_server/actions.ts`
+
+Same pattern as question papers. Remove `BASE_URL`.
+
+## 5.7 — Replace Admissions Document URL Construction
+
+### File: `src/app/admissions/applicants/[id]/documents/_server/actions.ts`
+
+### Current code:
+```typescript
+const ADMISSIONS_DOCUMENTS_BASE_URL = 'https://pub-2b37ce26bd70421e9e59e4fe805c6873.r2.dev';
+
+export async function saveApplicantDocument(data: { ... }) {
+  const folder = await getDocumentFolder(data.applicantId);
+  const fileUrl = `${ADMISSIONS_DOCUMENTS_BASE_URL}/${folder}/${data.fileName}`;
+  // ...
+}
+```
+
+### New code:
+After Step 4, `fileUrl` already contains the R2 key. The `getDocumentFolder()` function is no longer needed. Remove the `ADMISSIONS_DOCUMENTS_BASE_URL` constant.
+
+For reading documents, use `getPublicUrl()`:
+```typescript
+const publicUrl = getPublicUrl(document.fileUrl);
+```
+
+### File: `src/app/admissions/applicants/_server/service.ts`
+
+### Current code (line 186):
+```typescript
+fileUrl: `https://pub-2b37ce26bd70421e9e59e4fe805c6873.r2.dev/documents/admissions/${doc.fileName}`,
+```
+
+### New code:
+```typescript
+fileUrl: getPublicUrl(doc.document?.fileUrl ?? ''),
+```
+
+## 5.8 — Update Deletion on Attachment Removal
+
+### File: `src/app/registry/terms/settings/_components/ResultsPublicationAttachments.tsx`
+
+### Current delete pattern:
+```typescript
+const folder = getAttachmentFolderPath(termCode, attachment.type);
+await deleteDocument(`${folder}/${attachment.fileName}`);
+```
+
+### New pattern:
+```typescript
+await deleteFile(attachment.storageKey ?? StoragePaths.termPublication(termCode, attachment.type, attachment.fileName));
+```
+
+## 5.9 — Cache Busting Strategy
+
+The current implementations use ETags/Last-Modified headers from HEAD requests for cache busting. Since we're eliminating HEAD requests, adopt this strategy:
+
+### For photos (change frequently):
+- The TanStack Query already has `staleTime: 1000 * 60 * 3` (3 minutes)
+- When a photo is updated, `queryClient.invalidateQueries({ queryKey: ['student-photo', stdNo] })` forces a refetch
+- The URL itself changes only when `photoKey` changes after re-upload
+- For aggressive cache busting, append `?t=${Date.now()}` only in the component that just uploaded
+
+### For documents (rarely change):
+- Documents are immutable — once uploaded, the content doesn't change (new version = new file)
+- No cache busting needed; the URL is stable
+
+## 5.10 — Next.js Image Optimization (Optional Enhancement)
+
+If using `<Image>` from Next.js for photos, add the R2 domain to `next.config.ts`:
+
+```typescript
+const nextConfig: NextConfig = {
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'pub-2b37ce26bd70421e9e59e4fe805c6873.r2.dev',
+      },
+    ],
+  },
+  // ... existing config
+};
+```
+
+This enables Next.js automatic image optimization (resizing, WebP conversion, CDN caching) for R2-hosted images.
+
+## Summary of All Files Changed
+
+| File | Change |
+|------|--------|
+| `src/app/registry/students/_server/actions.ts` | `getStudentPhoto` → DB lookup |
+| `src/app/registry/students/_server/service.ts` | Add `getPhotoKey()` |
+| `src/app/registry/students/_server/repository.ts` | Add `getPhotoKey()` |
+| `src/app/human-resource/employees/_server/actions.ts` | `getEmployeePhoto` → DB lookup |
+| `src/app/human-resource/employees/_server/service.ts` | Add `getPhotoKey()` |
+| `src/app/human-resource/employees/_server/repository.ts` | Add `getPhotoKey()` |
+| `src/app/registry/documents/_server/actions.ts` | `getDocumentUrl` → `getPublicUrl()` |
+| `src/app/registry/terms/settings/_server/actions.ts` | Remove `BASE_URL`, `getAttachmentFolder`, use `getPublicUrl` |
+| `src/app/registry/terms/settings/_components/ResultsPublicationAttachments.tsx` | Use `deleteFile` + `storageKey` |
+| `src/app/library/resources/question-papers/_server/actions.ts` | Remove `BASE_URL`, use `getPublicUrl` |
+| `src/app/library/resources/publications/_server/actions.ts` | Remove `BASE_URL`, use `getPublicUrl` |
+| `src/app/admissions/applicants/_server/service.ts` | Use `getPublicUrl` |
+| `src/app/admissions/applicants/[id]/documents/_server/actions.ts` | Remove `ADMISSIONS_DOCUMENTS_BASE_URL`, use `getPublicUrl` |
+| `next.config.ts` | Add `images.remotePatterns` (optional) |
+
+## Verification
+
+After this step:
+- `grep -r "pub-2b37ce26bd70421e" src/` returns **0 results**
+- `grep -r "r2\.dev" src/` returns **0 results** (only in env vars)
+- Student photos load from DB `photoKey` — no HEAD requests in server logs
+- Employee photos load from DB `photoKey` — no HEAD requests in server logs
+- All document URLs resolve correctly via `getPublicUrl()`
+- `pnpm tsc --noEmit` passes cleanly
+- Manual test: open a student, employee, document, question paper, and publication — all images/files load correctly
