@@ -5,7 +5,8 @@ type Department =
 	| 'library'
 	| 'marketing'
 	| 'admin'
-	| 'resource';
+	| 'resource'
+	| 'human_resource';
 
 interface ActivityEntry {
 	label: string;

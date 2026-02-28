@@ -118,7 +118,11 @@ class StudentStatusRepository extends BaseRepository<
 					String(created.id),
 					null,
 					created,
-					{ ...audit, activityType: 'student_status_created' }
+					{
+						...audit,
+						activityType: 'student_status_created',
+						stdNo: data.stdNo,
+					}
 				);
 			}
 
@@ -153,7 +157,11 @@ class StudentStatusRepository extends BaseRepository<
 				.returning();
 
 			if (old) {
-				await this.writeAuditLog(tx, 'UPDATE', String(id), old, updated, audit);
+				await this.writeAuditLog(tx, 'UPDATE', String(id), old, updated, {
+					...audit,
+					activityType: 'student_status_updated',
+					stdNo: old.stdNo,
+				});
 			}
 
 			return updated;
@@ -204,7 +212,7 @@ class StudentStatusRepository extends BaseRepository<
 					String(id),
 					old,
 					updated,
-					audit
+					{ ...audit, activityType: 'student_status_approval_updated' }
 				);
 			}
 

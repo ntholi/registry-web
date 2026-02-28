@@ -151,6 +151,18 @@ const REGISTRY_ACTIVITIES = {
 			label: 'Auto Approval Deleted',
 			department: 'registry',
 		},
+		student_status_created: {
+			label: 'Student Status Created',
+			department: 'registry',
+		},
+		student_status_updated: {
+			label: 'Student Status Updated',
+			department: 'registry',
+		},
+		student_status_approval_updated: {
+			label: 'Student Status Approval Updated',
+			department: 'registry',
+		},
 	},
 	tableOperationMap: {
 		'students:INSERT': 'student_creation',
@@ -186,6 +198,9 @@ const REGISTRY_ACTIVITIES = {
 		'auto_approvals:INSERT': 'auto_approval_created',
 		'auto_approvals:UPDATE': 'auto_approval_updated',
 		'auto_approvals:DELETE': 'auto_approval_deleted',
+		'student_statuses:INSERT': 'student_status_created',
+		'student_statuses:UPDATE': 'student_status_updated',
+		'student_status_approvals:UPDATE': 'student_status_approval_updated',
 	},
 } as const satisfies ActivityFragment;
 

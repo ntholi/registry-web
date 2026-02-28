@@ -2,6 +2,7 @@ import ACADEMIC_ACTIVITIES from '@academic/_lib/activities';
 import ADMIN_ACTIVITIES from '@admin/_lib/activities';
 import ADMISSIONS_ACTIVITIES from '@admissions/_lib/activities';
 import FINANCE_ACTIVITIES from '@finance/_lib/activities';
+import HUMAN_RESOURCE_ACTIVITIES from '@human-resource/_lib/activities';
 import LIBRARY_ACTIVITIES from '@library/_lib/activities';
 import REGISTRY_ACTIVITIES from '@registry/_lib/activities';
 import TIMETABLE_ACTIVITIES from '@timetable/_lib/activities';
@@ -18,6 +19,7 @@ const ALL_FRAGMENTS = [
 	ADMISSIONS_ACTIVITIES,
 	ADMIN_ACTIVITIES,
 	TIMETABLE_ACTIVITIES,
+	HUMAN_RESOURCE_ACTIVITIES,
 ] as const;
 
 export const ACTIVITY_CATALOG = mergeFragments(...ALL_FRAGMENTS);
