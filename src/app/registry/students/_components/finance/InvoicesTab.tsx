@@ -16,7 +16,6 @@ import {
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 import { statusColors } from '@/shared/lib/utils/colors';
-import { formatDate } from '@/shared/lib/utils/dates';
 import { formatCurrency } from '@/shared/lib/utils/utils';
 import {
 	CurrencyCell,
@@ -106,7 +105,6 @@ export function InvoicesTab({ invoices }: Props) {
 		<Stack gap='sm'>
 			<Group justify='flex-end'>
 				<SegmentedControl
-					size='xs'
 					value={filter}
 					onChange={(v) => setFilter(v as Filter)}
 					data={FILTERS.map((f) => ({ label: f.label, value: f.value }))}
@@ -138,17 +136,6 @@ function InvoiceDetail({ invoice }: InvoiceDetailProps) {
 
 	return (
 		<Stack gap='sm'>
-			<Group gap='xl'>
-				<DetailField
-					label='Due Date'
-					value={formatDate(invoice.due_date, 'short')}
-				/>
-				<DetailField
-					label='Reference'
-					value={invoice.reference_number || '-'}
-				/>
-			</Group>
-
 			<Paper p='sm' radius='sm' withBorder>
 				<Group justify='space-between'>
 					<DetailField
