@@ -163,37 +163,45 @@ function InvoicesLoader() {
 	return (
 		<Stack gap='lg'>
 			<Paper p='lg' radius='md' withBorder>
-				<Group gap='xl' wrap='nowrap'>
-					<Skeleton height={100} width={100} circle />
-					<Stack gap='sm' style={{ flex: 1 }}>
-						<Skeleton height={12} width='40%' />
-						<Group gap='xl'>
-							<Stack gap={4}>
+				<Stack gap='md'>
+					<Group justify='space-between' align='flex-start' wrap='nowrap'>
+						<Stack gap={4} style={{ flex: 1, minWidth: 0 }}>
+							<Skeleton height={10} width={120} />
+						</Stack>
+						<Skeleton height={24} width={90} radius='md' />
+					</Group>
+					<Group gap='3rem' wrap='nowrap'>
+						{Array.from({ length: 3 }).map((_, i) => (
+							<Stack gap={4} key={`skeleton-metric-${i}`}>
 								<Skeleton height={10} width={50} />
 								<Skeleton height={20} width={90} />
 							</Stack>
-							<Stack gap={4}>
-								<Skeleton height={10} width={50} />
-								<Skeleton height={20} width={90} />
-							</Stack>
-							<Stack gap={4}>
-								<Skeleton height={10} width={50} />
-								<Skeleton height={20} width={90} />
-							</Stack>
-						</Group>
-					</Stack>
-				</Group>
+						))}
+					</Group>
+				</Stack>
 			</Paper>
 			<Stack gap='xs'>
-				<Skeleton height={14} width='20%' />
-				{Array.from({ length: 3 }).map((_, i) => (
+				<Group justify='space-between' align='center' wrap='nowrap'>
+					<Skeleton height={14} width={60} />
+					<Group gap='xs' wrap='nowrap'>
+						<Skeleton height={32} width={250} radius='md' />
+						<Skeleton height={28} width={28} circle />
+					</Group>
+				</Group>
+				{Array.from({ length: 4 }).map((_, i) => (
 					<Paper p='sm' radius='md' withBorder key={`skeleton-row-${i}`}>
-						<Group justify='space-between'>
-							<Stack gap={4} style={{ flex: 1 }}>
-								<Skeleton height={14} width='35%' />
-								<Skeleton height={10} width='25%' />
-							</Stack>
-							<Stack gap={4} align='flex-end'>
+						<Group justify='space-between' wrap='nowrap'>
+							<Group gap='sm' wrap='nowrap' style={{ flex: 1, minWidth: 0 }}>
+								<Skeleton height={20} width={20} radius='sm' />
+								<Stack gap={4} style={{ flex: 1, minWidth: 0 }}>
+									<Group gap='xs' wrap='nowrap'>
+										<Skeleton height={14} width='35%' />
+										<Skeleton height={18} width={64} radius='xl' />
+									</Group>
+									<Skeleton height={10} width='45%' />
+								</Stack>
+							</Group>
+							<Stack gap={4} align='flex-end' miw={100}>
 								<Skeleton height={14} width={80} />
 								<Skeleton height={10} width={60} />
 							</Stack>

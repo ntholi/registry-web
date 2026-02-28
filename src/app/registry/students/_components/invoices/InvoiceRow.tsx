@@ -11,8 +11,8 @@ import {
 	Collapse,
 	Divider,
 	Group,
-	Loader,
 	Paper,
+	Skeleton,
 	Stack,
 	Table,
 	Text,
@@ -118,12 +118,22 @@ export function InvoiceRow({ invoice }: InvoiceRowProps) {
 				<Divider />
 				<Box p='sm' bg='var(--mantine-color-body)'>
 					{isLoading && !isFetched ? (
-						<Group justify='center' py='sm'>
-							<Loader size='xs' type='dots' />
-							<Text size='xs' c='dimmed'>
-								Loading details…
-							</Text>
-						</Group>
+						<Stack gap='xs' py='xs'>
+							<Group justify='space-between'>
+								<Skeleton height={10} width='30%' />
+								<Skeleton height={10} width={60} />
+								<Skeleton height={10} width={70} />
+								<Skeleton height={10} width={80} />
+							</Group>
+							{Array.from({ length: 3 }).map((_, i) => (
+								<Group key={`line-item-skeleton-${i}`} justify='space-between'>
+									<Skeleton height={12} width='40%' />
+									<Skeleton height={12} width={50} />
+									<Skeleton height={12} width={70} />
+									<Skeleton height={12} width={80} />
+								</Group>
+							))}
+						</Stack>
 					) : lineItems.length > 0 ? (
 						<LineItemsTable items={lineItems} />
 					) : (
