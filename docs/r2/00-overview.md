@@ -3,6 +3,7 @@
 > **Status:** Planning  
 > **Created:** 2026-02-28  
 > **Goal:** Standardize all R2 file storage with a unified folder hierarchy, centralized URL management, DB-tracked photo references, and zero data loss.
+> **Maintenance Window:** Full server downtime during migration; no new records will be created while maintenance is active.
 
 ---
 
@@ -101,29 +102,31 @@ The current R2 storage implementation suffers from:
 
 | Step | Document | Description |
 |------|----------|-------------|
-| 0 | [0000-before-migration-base64-investigation.md](./0000-before-migration-base64-investigation.md) | Investigate & resolve 1,422 base64 deposit receipts stored in DB |
+| 0 | [Investigation](../step-0/0000-before-migration-base64-investigation.md) | Investigate & resolve 1,422 base64 deposit receipts stored in DB |
 | 1 | [01-centralize-storage-utility.md](./01-centralize-storage-utility.md) | Create centralized storage utility with env var, path builders, and URL resolver |
 | 2 | [02-schema-changes.md](./02-schema-changes.md) | Add `photoKey` to students/employees, standardize `fileUrl` storage format |
 | 3 | [03-migration-script.md](./03-migration-script.md) | R2 copy script: old paths → new paths, populate `photoKey` columns |
-| 4 | [04-update-upload-code.md](./04-update-upload-code.md) | Update all upload callsites to use new paths and centralized utility |
-| 5 | [05-update-retrieval-code.md](./05-update-retrieval-code.md) | Update all URL construction and photo retrieval to use DB + utility |
-| 6 | [06-cleanup-and-verification.md](./06-cleanup-and-verification.md) | Verify all new paths, delete old objects, remove dead code |
+| 4 | [04-extract-base64-deposits.md](./04-extract-base64-deposits.md) | Extract 1,422 base64 deposit receipts from DB → upload to R2 → update keys |
+| 5 | [05-fix-payment-upload.md](./05-fix-payment-upload.md) | Fix payment action to upload receipts to R2 directly (prevent new base64) |
+| 6 | [06-update-upload-code.md](./06-update-upload-code.md) | Update all upload callsites to use new paths and centralized utility |
+| 7 | [07-update-retrieval-code.md](./07-update-retrieval-code.md) | Update all URL construction and photo retrieval to use DB + utility |
+| 8 | [08-cleanup-and-verification.md](./08-cleanup-and-verification.md) | Verify all new paths, delete old objects, remove dead code |
 
 ## Pre-Migration: Base64 Data in `documents` Table
 
-> See [0000-before-migration-base64-investigation.md](./0000-before-migration-base64-investigation.md)
+> See [0000-before-migration-base64-investigation.md](../step-0/0000-before-migration-base64-investigation.md)
 
-**1,422 `documents` records** store raw base64 file content (deposit receipts) directly in `file_url` instead of R2. These are linked via `bank_deposits` and total ~892 MB of DB storage. This must be investigated and resolved before running the migration script.
+**1,422 `documents` records** store raw base64 file content (deposit receipts) directly in `file_url` instead of R2. These are linked via `bank_deposits` and total ~892 MB of DB storage. This is resolved by **Steps 4 & 5** — Step 4 extracts existing records to R2, Step 5 fixes the source action to prevent new base64 records.
 
 ## Risk Mitigation
 
 - **Zero data loss**: Copy-then-update strategy. Old files are never deleted until new paths are verified with HEAD requests.
 - **Rollback**: If anything goes wrong, old paths still exist. The migration script logs all operations for audit.
 - **Phased deployment**: Each step can be deployed independently. Steps 1-2 are backwards-compatible.
-- **Feature flags**: The old URL construction fallback remains until Step 6 cleanup.
-- **Deployment order**: Steps 1+2+4+5 deploy as one code release (maintenance window). Then Step 3 migration script runs. Then Step 6 cleanup after verification period.
+- **Feature flags**: The old URL construction fallback remains until Step 8 cleanup.
+- **Deployment order**: Steps 1+2 deploy first (additive). Then Step 3 migration script runs. Then Steps 4+5 (base64 cleanup). Then Steps 6+7 (code updates). Finally Step 8 after verification period.
 
-## Pre-Existing Bugs (Fixed in Step 4)
+## Pre-Existing Bugs (Fixed in Step 6)
 
 1. **Student photo deletion broken** — `deleteDocument(photoUrl)` passes full URL with query params as R2 Key; silently fails.
 2. **Student document deletion from R2 broken** — `deleteFromStorage(document.fileName)` passes display name instead of storage key; file never deleted from R2.

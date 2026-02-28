@@ -1,9 +1,9 @@
-# Step 4: Update All Upload Code
+# Step 6: Update All Upload Code
 
 > **Priority:** High  
 > **Risk:** Medium (changes upload paths for new files)  
 > **Estimated effort:** 2–3 hours  
-> **Prerequisite:** Steps 1, 2, 3 completed
+> **Prerequisite:** Steps 1–5 completed
 
 ---
 
@@ -11,7 +11,7 @@
 
 Update every file upload callsite to use `StoragePaths`, `uploadFile`, and `generateUploadKey` from the centralized storage utility. No more ad-hoc folder strings.
 
-## 4.1 — Student Photo Upload
+## 6.1 — Student Photo Upload
 
 ### Files to update:
 - `src/app/registry/students/_components/info/PhotoView.tsx`
@@ -53,7 +53,7 @@ Same pattern — replace `uploadDocument(photoFile, fileName, 'photos')` with `u
 
 Also update the camera capture handler with the same pattern.
 
-## 4.2 — Employee Photo Upload
+## 6.2 — Employee Photo Upload
 
 ### Files to update:
 - `src/app/human-resource/employees/_components/info/PhotoView.tsx`
@@ -81,7 +81,7 @@ export async function updateEmployeePhotoKey(empNo: string, photoKey: string | n
 }
 ```
 
-## 4.3 — Admissions Document Upload
+## 6.3 — Admissions Document Upload
 
 ### Files to update:
 - `src/app/admissions/applicants/_components/DocumentUpload.tsx`
@@ -130,7 +130,7 @@ await uploadFile(file, key);
 ### identity/_server/actions.ts:
 Same pattern as qualifications.
 
-## 4.4 — Student Document Upload (Registry)
+## 6.4 — Student Document Upload (Registry)
 
 ### File to update:
 - `src/app/registry/students/_components/documents/AddDocumentModal.tsx`
@@ -159,7 +159,7 @@ await createDocument({
 });
 ```
 
-## 4.5 — Term Publication Attachments
+## 6.5 — Term Publication Attachments
 
 ### File to update:
 - `src/app/registry/terms/settings/_components/ResultsPublicationAttachments.tsx`
@@ -185,7 +185,7 @@ await savePublicationAttachment({
 });
 ```
 
-## 4.6 — Library Question Papers
+## 6.6 — Library Question Papers
 
 ### File to update:
 - `src/app/library/resources/question-papers/_server/actions.ts`
@@ -214,14 +214,14 @@ const [doc] = await tx.insert(documents).values({
 
 Remove the `BASE_URL` and `FOLDER` constants.
 
-## 4.7 — Library Publications
+## 6.7 — Library Publications
 
 ### File to update:
 - `src/app/library/resources/publications/_server/actions.ts`
 
 Same pattern as question papers. Remove `BASE_URL` and `FOLDER` constants.
 
-## 4.8 — Delete Operations
+## 6.8 — Delete Operations
 
 Update all delete operations to use `deleteFile` with the stored key:
 
@@ -246,7 +246,7 @@ if (student.photoKey) {
 }
 ```
 
-## 4.9 — Remove Duplicated `formatFileSize`
+## 6.9 — Remove Duplicated `formatFileSize`
 
 ### Files with duplicated implementation:
 - `src/app/admissions/applicants/_components/DocumentUpload.tsx` (lines 54-61)
@@ -259,7 +259,7 @@ import { formatFileSize } from '@/shared/lib/utils/files';
 
 Delete the local `formatFileSize` function from both files.
 
-## 4.10 — Applicant Service (Hardcoded URL)
+## 6.10 — Applicant Service (Hardcoded URL)
 
 ### File to update:
 - `src/app/admissions/applicants/_server/service.ts` (line 186)

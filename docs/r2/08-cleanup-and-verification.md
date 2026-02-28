@@ -1,9 +1,9 @@
-# Step 6: Cleanup & Verification
+# Step 8: Cleanup & Verification
 
 > **Priority:** Low (run after all other steps are stable in production)  
 > **Risk:** Medium (deleting old R2 objects is irreversible)  
 > **Estimated effort:** 1–2 hours  
-> **Prerequisite:** Steps 1–5 deployed and verified in production for at least 1 week
+> **Prerequisite:** Steps 1–7 deployed and verified in production for at least 1 week
 
 ---
 
@@ -11,7 +11,7 @@
 
 Remove old R2 objects, deprecated code wrappers, and verify the complete migration. This is the final step — only execute when confident everything works.
 
-## 6.1 — Verification Checklist (Pre-Cleanup)
+## 8.1 — Verification Checklist (Pre-Cleanup)
 
 Run this checklist **before** deleting anything:
 
@@ -77,7 +77,7 @@ This script:
 - [ ] Upload a new document — saves to new path
 - [ ] Delete a document — R2 object is removed
 
-## 6.2 — Codebase Grep Verification
+## 8.2 — Codebase Grep Verification
 
 ```bash
 # No hardcoded R2 URLs in source code
@@ -101,7 +101,7 @@ grep -rn "function formatFileSize" src/ --include="*.ts" --include="*.tsx"
 # Expected: Only 1 result in src/shared/lib/utils/files.ts
 ```
 
-## 6.3 — Remove Deprecated Wrappers
+## 8.3 — Remove Deprecated Wrappers
 
 ### File: `src/core/integrations/storage.ts`
 
@@ -111,7 +111,7 @@ Remove the deprecated functions:
 - `getStorageKeyFromUrl()` — no longer needed (keys stored in DB)
 - `_formatUrl()` — unused private function
 
-## 6.4 — Remove Dead Code
+## 8.4 — Remove Dead Code
 
 ### File: `src/app/registry/terms/settings/_server/actions.ts`
 - Remove `getAttachmentFolder()` function
@@ -130,7 +130,7 @@ Remove the deprecated functions:
 - Remove `BASE_URL` constant
 - Remove `FOLDER` constant
 
-## 6.5 — Delete Old R2 Objects
+## 8.5 — Delete Old R2 Objects
 
 Create a cleanup script at `scripts/cleanup-old-r2-objects.ts`:
 
@@ -158,7 +158,7 @@ Run this script **at least 1 week** after Steps 4-5 are deployed to production. 
 - Receive user reports of broken images/links
 - Roll back if needed (old files still exist)
 
-## 6.6 — Final R2 Bucket Audit
+## 8.6 — Final R2 Bucket Audit
 
 After cleanup, list all remaining objects and verify the folder structure matches the expected hierarchy:
 
@@ -186,7 +186,7 @@ Total: 2,830 objects
 Unexpected: 0 objects
 ```
 
-## 6.7 — Documentation Update
+## 8.7 — Documentation Update
 
 Update the following files to reflect the new storage architecture:
 - `README.md` — Add R2 section describing the folder hierarchy and env vars

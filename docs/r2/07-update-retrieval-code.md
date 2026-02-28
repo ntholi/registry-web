@@ -1,9 +1,9 @@
-# Step 5: Update All Retrieval Code
+# Step 7: Update All Retrieval Code
 
 > **Priority:** High  
 > **Risk:** Medium (changes how URLs are resolved — user-visible)  
 > **Estimated effort:** 2 hours  
-> **Prerequisite:** Steps 1, 2, 3, 4 completed
+> **Prerequisite:** Steps 1–6 completed
 
 ---
 
@@ -11,7 +11,7 @@
 
 Replace all hardcoded URL construction and HEAD-request probing with database lookups and the centralized `getPublicUrl()` utility.
 
-## 5.1 — Replace `getStudentPhoto()` (Eliminate 4 HEAD Requests)
+## 7.1 — Replace `getStudentPhoto()` (Eliminate 4 HEAD Requests)
 
 ### File: `src/app/registry/students/_server/actions.ts`
 
@@ -59,7 +59,7 @@ async getPhotoKey(stdNo: number) {
 - **After:** 1 DB query (indexed primary key lookup, <1ms)
 - **Cache busting:** If needed, append `?v={timestamp}` at the component level when the photo is updated, not on every read
 
-## 5.2 — Replace `getEmployeePhoto()` (Eliminate 4 HEAD Requests)
+## 7.2 — Replace `getEmployeePhoto()` (Eliminate 4 HEAD Requests)
 
 ### File: `src/app/human-resource/employees/_server/actions.ts`
 
@@ -75,7 +75,7 @@ export async function getEmployeePhoto(
 }
 ```
 
-## 5.3 — Replace `getDocumentUrl()` (Registry Documents)
+## 7.3 — Replace `getDocumentUrl()` (Registry Documents)
 
 ### File: `src/app/registry/documents/_server/actions.ts`
 
@@ -104,7 +104,7 @@ export async function getDocumentUrl(
 
 Since the `documents.fileUrl` column now stores the R2 key (after Step 3 migration), we just pass it through `getPublicUrl()`. No HEAD request needed — if the document exists in the DB, it exists in R2.
 
-## 5.4 — Replace Publication Attachment URL Construction
+## 7.4 — Replace Publication Attachment URL Construction
 
 ### File: `src/app/registry/terms/settings/_server/actions.ts`
 
@@ -134,11 +134,11 @@ export async function getPublicationAttachments(termCode: string) {
 
 Remove the `BASE_URL` constant and `getAttachmentFolder` function entirely.
 
-## 5.5 — Replace Question Paper URL Construction
+## 7.5 — Replace Question Paper URL Construction
 
 ### File: `src/app/library/resources/question-papers/_server/actions.ts`
 
-After Step 4, `documents.fileUrl` stores the key. Any place that reads document URLs should use `getPublicUrl()`:
+After Step 3, `documents.fileUrl` stores the key. Any place that reads document URLs should use `getPublicUrl()`:
 
 ```typescript
 // In any query result mapping:
@@ -147,13 +147,13 @@ const publicUrl = getPublicUrl(questionPaper.document.fileUrl);
 
 Remove the `BASE_URL` constant.
 
-## 5.6 — Replace Publication URL Construction
+## 7.6 — Replace Publication URL Construction
 
 ### File: `src/app/library/resources/publications/_server/actions.ts`
 
 Same pattern as question papers. Remove `BASE_URL`.
 
-## 5.7 — Replace Admissions Document URL Construction
+## 7.7 — Replace Admissions Document URL Construction
 
 ### File: `src/app/admissions/applicants/[id]/documents/_server/actions.ts`
 
@@ -169,7 +169,7 @@ export async function saveApplicantDocument(data: { ... }) {
 ```
 
 ### New code:
-After Step 4, `fileUrl` already contains the R2 key. The `getDocumentFolder()` function is no longer needed. Remove the `ADMISSIONS_DOCUMENTS_BASE_URL` constant.
+After Step 3, `fileUrl` already contains the R2 key. The `getDocumentFolder()` function is no longer needed. Remove the `ADMISSIONS_DOCUMENTS_BASE_URL` constant.
 
 For reading documents, use `getPublicUrl()`:
 ```typescript
@@ -188,7 +188,7 @@ fileUrl: `https://pub-2b37ce26bd70421e9e59e4fe805c6873.r2.dev/documents/admissio
 fileUrl: getPublicUrl(doc.document?.fileUrl ?? ''),
 ```
 
-## 5.8 — Update Deletion on Attachment Removal
+## 7.8 — Update Deletion on Attachment Removal
 
 ### File: `src/app/registry/terms/settings/_components/ResultsPublicationAttachments.tsx`
 
@@ -203,7 +203,7 @@ await deleteDocument(`${folder}/${attachment.fileName}`);
 await deleteFile(attachment.storageKey ?? StoragePaths.termPublication(termCode, attachment.type, attachment.fileName));
 ```
 
-## 5.9 — Cache Busting Strategy
+## 7.9 — Cache Busting Strategy
 
 The current implementations use ETags/Last-Modified headers from HEAD requests for cache busting. Since we're eliminating HEAD requests, adopt this strategy:
 
@@ -217,7 +217,7 @@ The current implementations use ETags/Last-Modified headers from HEAD requests f
 - Documents are immutable — once uploaded, the content doesn't change (new version = new file)
 - No cache busting needed; the URL is stable
 
-## 5.10 — Next.js Image Optimization (Optional Enhancement)
+## 7.10 — Next.js Image Optimization (Optional Enhancement)
 
 If using `<Image>` from Next.js for photos, add the R2 domain to `next.config.ts`:
 
