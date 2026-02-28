@@ -2,17 +2,15 @@ import type {
 	ZohoEstimate,
 	ZohoEstimateStatus,
 } from '@finance/_lib/zoho-books/types';
-import { Divider, SimpleGrid, Stack, Text } from '@mantine/core';
+import { Group, Stack, Text } from '@mantine/core';
 import { statusColors } from '@/shared/lib/utils/colors';
 import { formatDate } from '@/shared/lib/utils/dates';
-import { formatCurrency } from '@/shared/lib/utils/utils';
 import {
 	CurrencyCell,
 	DateCell,
 	DetailField,
 	LineItemsTable,
 	NumberCell,
-	RefCell,
 	StatusBadge,
 	type TransactionColumn,
 	TransactionTable,
@@ -41,11 +39,6 @@ const columns: TransactionColumn<ZohoEstimate>[] = [
 		key: 'number',
 		label: 'Quote #',
 		render: (row) => <NumberCell value={row.estimate_number} />,
-	},
-	{
-		key: 'ref',
-		label: 'Reference',
-		render: (row) => <RefCell value={row.reference_number} />,
 	},
 	{
 		key: 'expiry',
@@ -94,12 +87,8 @@ type EstimateDetailProps = {
 
 function EstimateDetail({ estimate }: EstimateDetailProps) {
 	return (
-		<Stack gap='md'>
-			<SimpleGrid cols={{ base: 2, sm: 4 }} spacing='md'>
-				<DetailField
-					label='Quote Date'
-					value={formatDate(estimate.date, 'short')}
-				/>
+		<Stack gap='sm'>
+			<Group gap='xl'>
 				<DetailField
 					label='Expiry Date'
 					value={
@@ -112,24 +101,10 @@ function EstimateDetail({ estimate }: EstimateDetailProps) {
 					label='Reference'
 					value={estimate.reference_number || '-'}
 				/>
-				<DetailField
-					label='Total'
-					value={
-						<Text fw={700} ff='monospace' size='sm'>
-							{formatCurrency(estimate.total)}
-						</Text>
-					}
-				/>
-			</SimpleGrid>
+			</Group>
 
 			{estimate.line_items && estimate.line_items.length > 0 && (
-				<>
-					<Divider />
-					<Text size='xs' fw={600} c='dimmed' tt='uppercase' lts={0.3}>
-						Line Items
-					</Text>
-					<LineItemsTable items={estimate.line_items} />
-				</>
+				<LineItemsTable items={estimate.line_items} />
 			)}
 		</Stack>
 	);

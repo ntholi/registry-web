@@ -6,10 +6,9 @@ import type {
 	ZohoInvoiceStatus,
 } from '@finance/_lib/zoho-books/types';
 import {
-	Divider,
 	Group,
+	Paper,
 	SegmentedControl,
-	SimpleGrid,
 	Skeleton,
 	Stack,
 	Text,
@@ -65,15 +64,6 @@ const columns: TransactionColumn<ZohoInvoice>[] = [
 		key: 'number',
 		label: 'Invoice #',
 		render: (row) => <NumberCell value={row.invoice_number} />,
-	},
-	{
-		key: 'ref',
-		label: 'Reference',
-		render: (row) => (
-			<Text size='sm' c='dimmed'>
-				{row.reference_number || '-'}
-			</Text>
-		),
 	},
 	{
 		key: 'total',
@@ -147,12 +137,8 @@ function InvoiceDetail({ invoice }: InvoiceDetailProps) {
 	const paid = invoice.total - invoice.balance;
 
 	return (
-		<Stack gap='md'>
-			<SimpleGrid cols={{ base: 2, sm: 4 }} spacing='md'>
-				<DetailField
-					label='Invoice Date'
-					value={formatDate(invoice.date, 'short')}
-				/>
+		<Stack gap='sm'>
+			<Group gap='xl'>
 				<DetailField
 					label='Due Date'
 					value={formatDate(invoice.due_date, 'short')}
@@ -161,53 +147,44 @@ function InvoiceDetail({ invoice }: InvoiceDetailProps) {
 					label='Reference'
 					value={invoice.reference_number || '-'}
 				/>
-				<DetailField
-					label='Status'
-					value={
-						<StatusBadge
-							status={invoice.status}
-							colorMap={statusColors.invoiceStatus}
-							labelMap={LABEL_MAP}
-						/>
-					}
-				/>
-			</SimpleGrid>
+			</Group>
 
-			<SimpleGrid cols={{ base: 3 }} spacing='md'>
-				<DetailField
-					label='Total'
-					value={
-						<Text fw={700} ff='monospace' size='sm'>
-							{formatCurrency(invoice.total)}
-						</Text>
-					}
-				/>
-				<DetailField
-					label='Paid'
-					value={
-						<Text fw={700} ff='monospace' size='sm' c='green'>
-							{formatCurrency(paid)}
-						</Text>
-					}
-				/>
-				<DetailField
-					label='Balance Due'
-					value={
-						<Text
-							fw={700}
-							ff='monospace'
-							size='sm'
-							c={invoice.balance > 0 ? 'red' : 'green'}
-						>
-							{formatCurrency(invoice.balance)}
-						</Text>
-					}
-				/>
-			</SimpleGrid>
+			<Paper p='sm' radius='sm' withBorder>
+				<Group justify='space-between'>
+					<DetailField
+						label='Total'
+						value={
+							<Text fw={700} ff='monospace' size='sm'>
+								{formatCurrency(invoice.total)}
+							</Text>
+						}
+					/>
+					<DetailField
+						label='Paid'
+						value={
+							<Text fw={700} ff='monospace' size='sm' c='green'>
+								{formatCurrency(paid)}
+							</Text>
+						}
+					/>
+					<DetailField
+						label='Balance Due'
+						value={
+							<Text
+								fw={700}
+								ff='monospace'
+								size='sm'
+								c={invoice.balance > 0 ? 'red' : 'green'}
+							>
+								{formatCurrency(invoice.balance)}
+							</Text>
+						}
+					/>
+				</Group>
+			</Paper>
 
 			{isLoading ? (
 				<Stack gap='xs'>
-					<Skeleton height={12} width={80} />
 					{Array.from({ length: 2 }).map((_, i) => (
 						<Skeleton height={24} key={`line-${i}`} />
 					))}
@@ -215,13 +192,7 @@ function InvoiceDetail({ invoice }: InvoiceDetailProps) {
 			) : (
 				detail?.line_items &&
 				detail.line_items.length > 0 && (
-					<>
-						<Divider />
-						<Text size='xs' fw={600} c='dimmed' tt='uppercase' lts={0.3}>
-							Line Items
-						</Text>
-						<LineItemsTable items={detail.line_items} />
-					</>
+					<LineItemsTable items={detail.line_items} />
 				)
 			)}
 		</Stack>
