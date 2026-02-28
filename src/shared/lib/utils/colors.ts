@@ -237,6 +237,16 @@ export const statusColors = {
 		success: semantic.success,
 		failed: semantic.error,
 	},
+	invoiceStatus: {
+		draft: semantic.neutral,
+		sent: semantic.info,
+		overdue: semantic.error,
+		paid: semantic.success,
+		partially_paid: semantic.caution,
+		unpaid: semantic.error,
+		viewed: semantic.info,
+		void: semantic.neutral,
+	},
 } as const;
 
 const allStatuses = {

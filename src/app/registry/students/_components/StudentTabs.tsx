@@ -15,6 +15,7 @@ import DocumentsView from './documents/DocumentsView';
 import GraduationView from './graduation/GraduationView';
 import StudentHistoryView from './history/StudentHistoryView';
 import StudentView from './info/StudentView';
+import InvoicesView from './invoices/InvoicesView';
 import RegistrationTabs from './registration/RegistrationTabs';
 import SponsorsView from './sponsors/SponsorsView';
 
@@ -70,6 +71,8 @@ export default function StudentTabs({
 		session?.user?.role ?? ''
 	);
 
+	const showInvoices = ['admin', 'finance'].includes(session?.user?.role ?? '');
+
 	const showDocuments =
 		['admin', 'registry', 'finance', 'student_services'].includes(
 			session?.user?.role ?? ''
@@ -118,6 +121,7 @@ export default function StudentTabs({
 				{showSponsors && <TabsTab value='sponsors'>Sponsors</TabsTab>}
 				{showStudentCard && <TabsTab value='studentcard'>Card</TabsTab>}
 				{showGraduation && <TabsTab value='graduation'>Graduation</TabsTab>}
+				{showInvoices && <TabsTab value='invoices'>Invoices</TabsTab>}
 				{showDocuments && <TabsTab value='documents'>Documents</TabsTab>}
 				{showHistory && <TabsTab value='history'>History</TabsTab>}
 			</ScrollableTabsList>
@@ -158,6 +162,12 @@ export default function StudentTabs({
 					stdNo={student.stdNo.toString()}
 					isActive={activeTab === 'graduation'}
 					blockedStudent={blockedStudent}
+				/>
+			</TabsPanel>
+			<TabsPanel value='invoices' pt={'xl'} p={'sm'} key='invoices'>
+				<InvoicesView
+					stdNo={student.stdNo}
+					isActive={activeTab === 'invoices'}
 				/>
 			</TabsPanel>
 			<TabsPanel value='documents' pt={'xl'} p={'sm'} key='documents'>
