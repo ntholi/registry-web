@@ -13,15 +13,14 @@ import type {
 import {
 	ActionIcon,
 	Badge,
-	Card,
+	Box,
 	Collapse,
 	Divider,
 	Group,
 	Loader,
 	Paper,
-	Progress,
+	RingProgress,
 	SegmentedControl,
-	SimpleGrid,
 	Skeleton,
 	Stack,
 	Table,
@@ -30,15 +29,16 @@ import {
 	Tooltip,
 } from '@mantine/core';
 import {
-	IconAlertCircle,
-	IconCalendar,
+	IconAlertTriangle,
+	IconCalendarDue,
+	IconCheck,
 	IconChevronDown,
 	IconChevronRight,
 	IconCoin,
 	IconFileInvoice,
 	IconHash,
-	IconReceipt,
-	IconReload,
+	IconRefresh,
+	IconWallet,
 } from '@tabler/icons-react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
@@ -85,17 +85,21 @@ export default function InvoicesView({ stdNo, isActive }: Props) {
 
 	if (isError) {
 		return (
-			<Paper p='xl' withBorder>
-				<Stack align='center' gap='sm'>
-					<ThemeIcon size='xl' variant='light' color='red' radius='xl'>
-						<IconAlertCircle size='1.4rem' />
+			<Paper p='xl' radius='md' withBorder>
+				<Stack align='center' gap='md' py='lg'>
+					<ThemeIcon size={56} variant='light' color='red' radius='xl'>
+						<IconAlertTriangle size='1.6rem' />
 					</ThemeIcon>
-					<Text fw={500}>Failed to load invoices</Text>
-					<Text size='sm' c='dimmed' ta='center' maw={400}>
-						{error instanceof Error
-							? error.message
-							: 'Unable to connect to Zoho Books. Please try again.'}
-					</Text>
+					<Stack align='center' gap={4}>
+						<Text fw={600} size='lg'>
+							Unable to load invoices
+						</Text>
+						<Text size='sm' c='dimmed' ta='center' maw={360}>
+							{error instanceof Error
+								? error.message
+								: 'Could not connect to Zoho Books. Please try again later.'}
+						</Text>
+					</Stack>
 				</Stack>
 			</Paper>
 		);
@@ -103,15 +107,19 @@ export default function InvoicesView({ stdNo, isActive }: Props) {
 
 	if (!summary || summary.totalInvoices === 0) {
 		return (
-			<Paper p='xl' withBorder>
-				<Stack align='center' gap='sm'>
-					<ThemeIcon size='xl' variant='light' color='gray' radius='xl'>
-						<IconFileInvoice size='1.4rem' />
+			<Paper p='xl' radius='md' withBorder>
+				<Stack align='center' gap='md' py='lg'>
+					<ThemeIcon size={56} variant='light' color='gray' radius='xl'>
+						<IconFileInvoice size='1.6rem' />
 					</ThemeIcon>
-					<Text fw={500}>No invoices found</Text>
-					<Text size='sm' c='dimmed' ta='center'>
-						This student does not have any invoices in Zoho Books.
-					</Text>
+					<Stack align='center' gap={4}>
+						<Text fw={600} size='lg'>
+							No invoices
+						</Text>
+						<Text size='sm' c='dimmed' ta='center'>
+							This student has no invoices in Zoho Books.
+						</Text>
+					</Stack>
 				</Stack>
 			</Paper>
 		);
@@ -120,154 +128,158 @@ export default function InvoicesView({ stdNo, isActive }: Props) {
 	const filtered = filterInvoices(summary.invoices, statusFilter);
 
 	return (
-		<Stack gap='md'>
-			<SummaryCards summary={summary} />
+		<Stack gap='lg'>
+			<FinancialOverview summary={summary} />
 
-			<Card withBorder p='md'>
-				<Stack gap='md'>
-					<Group justify='space-between' align='center'>
-						<Group gap='xs'>
-							<IconReceipt size='1.2rem' color='var(--mantine-color-dimmed)' />
-							<Text fw={500} size='sm'>
-								Invoices ({filtered.length})
-							</Text>
-						</Group>
-						<Group gap='xs'>
-							<SegmentedControl
-								size='xs'
-								value={statusFilter}
-								onChange={(v) => setStatusFilter(v as StatusFilter)}
-								data={STATUS_FILTERS.map((f) => ({
-									label: f.label,
-									value: f.value,
-								}))}
-							/>
-							<Tooltip label='Refresh'>
-								<ActionIcon
-									variant='subtle'
-									color='gray'
-									size='sm'
-									loading={isFetching}
-									onClick={() =>
-										queryClient.invalidateQueries({
-											queryKey: ['student-invoices', stdNo],
-										})
-									}
-								>
-									<IconReload size='1rem' />
-								</ActionIcon>
-							</Tooltip>
-						</Group>
+			<Stack gap='xs'>
+				<Group justify='space-between' align='center'>
+					<Text fw={600} size='sm' c='dimmed' tt='uppercase' lts={0.5}>
+						Invoices
+					</Text>
+					<Group gap='xs'>
+						<SegmentedControl
+							size='xs'
+							radius='md'
+							value={statusFilter}
+							onChange={(v) => setStatusFilter(v as StatusFilter)}
+							data={STATUS_FILTERS.map((f) => ({
+								label: f.label,
+								value: f.value,
+							}))}
+						/>
+						<Tooltip label='Refresh' withArrow>
+							<ActionIcon
+								variant='subtle'
+								color='gray'
+								size='sm'
+								loading={isFetching}
+								onClick={() =>
+									queryClient.invalidateQueries({
+										queryKey: ['student-invoices', stdNo],
+									})
+								}
+							>
+								<IconRefresh size='1rem' />
+							</ActionIcon>
+						</Tooltip>
 					</Group>
+				</Group>
 
-					{filtered.length === 0 ? (
-						<Text c='dimmed' size='sm' ta='center' py='md'>
-							No invoices match the selected filter.
+				{filtered.length === 0 ? (
+					<Paper p='xl' radius='md' withBorder>
+						<Text c='dimmed' size='sm' ta='center'>
+							No invoices match this filter.
 						</Text>
-					) : (
-						<Stack gap={0}>
-							{filtered.map((invoice) => (
-								<InvoiceRow key={invoice.invoice_id} invoice={invoice} />
-							))}
-						</Stack>
-					)}
-				</Stack>
-			</Card>
+					</Paper>
+				) : (
+					<Stack gap='xs'>
+						{filtered.map((invoice) => (
+							<InvoiceRow key={invoice.invoice_id} invoice={invoice} />
+						))}
+					</Stack>
+				)}
+			</Stack>
 		</Stack>
 	);
 }
 
-type SummaryCardsProps = {
+type FinancialOverviewProps = {
 	summary: StudentInvoiceSummary;
 };
 
-function SummaryCards({ summary }: SummaryCardsProps) {
+function FinancialOverview({ summary }: FinancialOverviewProps) {
 	const paidPercent =
 		summary.totalAmount > 0
-			? (summary.totalPaid / summary.totalAmount) * 100
+			? Math.round((summary.totalPaid / summary.totalAmount) * 100)
 			: 0;
 
+	const ringColor =
+		paidPercent === 100 ? 'green' : paidPercent >= 50 ? 'blue' : 'orange';
+
 	return (
-		<SimpleGrid cols={{ base: 1, sm: 2, md: 4 }} spacing='sm'>
-			<SummaryCard
-				label='Total Invoices'
-				value={String(summary.totalInvoices)}
-				icon={<IconFileInvoice size='1.2rem' />}
-				color='blue'
-			/>
-			<SummaryCard
-				label='Total Amount'
-				value={formatCurrency(summary.totalAmount)}
-				icon={<IconCoin size='1.2rem' />}
-				color='violet'
-			/>
-			<SummaryCard
-				label='Total Paid'
-				value={formatCurrency(summary.totalPaid)}
-				icon={<IconReceipt size='1.2rem' />}
-				color='green'
-			/>
-			<Card withBorder p='sm'>
-				<Stack gap={4}>
-					<Group justify='space-between'>
-						<Text size='xs' c='dimmed' tt='uppercase' fw={600}>
-							Outstanding
-						</Text>
-						<ThemeIcon
-							size='sm'
-							variant='light'
-							color={summary.totalOutstanding > 0 ? 'red' : 'green'}
-							radius='xl'
-						>
-							<IconCoin size='0.8rem' />
-						</ThemeIcon>
-					</Group>
-					<Text
-						fw={700}
-						size='lg'
-						c={summary.totalOutstanding > 0 ? 'red' : 'green'}
-					>
-						{formatCurrency(summary.totalOutstanding)}
-					</Text>
-					<Progress
-						value={paidPercent}
-						color={paidPercent === 100 ? 'green' : 'blue'}
-						size='xs'
-						mt={4}
+		<Paper p='lg' radius='md' withBorder>
+			<Group justify='space-between' align='flex-start' wrap='nowrap'>
+				<Group gap='xl' wrap='nowrap'>
+					<RingProgress
+						size={100}
+						thickness={8}
+						roundCaps
+						sections={[{ value: paidPercent, color: ringColor }]}
+						label={
+							<Stack align='center' gap={0}>
+								<Text fw={700} size='lg' lh={1}>
+									{paidPercent}%
+								</Text>
+								<Text size='xs' c='dimmed' lh={1.2}>
+									paid
+								</Text>
+							</Stack>
+						}
 					/>
-					<Text size='xs' c='dimmed'>
-						{paidPercent.toFixed(0)}% paid
-					</Text>
-				</Stack>
-			</Card>
-		</SimpleGrid>
+
+					<Stack gap='xs'>
+						<Text size='xs' c='dimmed' tt='uppercase' fw={600} lts={0.5}>
+							Financial Summary
+						</Text>
+						<Group gap='xl'>
+							<MetricItem
+								label='Total'
+								value={formatCurrency(summary.totalAmount)}
+								icon={<IconCoin size='0.9rem' />}
+								color='violet'
+							/>
+							<MetricItem
+								label='Paid'
+								value={formatCurrency(summary.totalPaid)}
+								icon={<IconCheck size='0.9rem' />}
+								color='green'
+							/>
+							<MetricItem
+								label='Outstanding'
+								value={formatCurrency(summary.totalOutstanding)}
+								icon={<IconWallet size='0.9rem' />}
+								color={summary.totalOutstanding > 0 ? 'red' : 'green'}
+							/>
+						</Group>
+					</Stack>
+				</Group>
+
+				<Badge
+					size='lg'
+					variant='light'
+					color={summary.totalOutstanding > 0 ? 'red' : 'green'}
+					radius='md'
+				>
+					{summary.totalInvoices} invoice
+					{summary.totalInvoices !== 1 ? 's' : ''}
+				</Badge>
+			</Group>
+		</Paper>
 	);
 }
 
-type SummaryCardProps = {
+type MetricItemProps = {
 	label: string;
 	value: string;
 	icon: React.ReactNode;
 	color: string;
 };
 
-function SummaryCard({ label, value, icon, color }: SummaryCardProps) {
+function MetricItem({ label, value, icon, color }: MetricItemProps) {
 	return (
-		<Card withBorder p='sm'>
-			<Stack gap={4}>
-				<Group justify='space-between'>
-					<Text size='xs' c='dimmed' tt='uppercase' fw={600}>
-						{label}
-					</Text>
-					<ThemeIcon size='sm' variant='light' color={color} radius='xl'>
-						{icon}
-					</ThemeIcon>
-				</Group>
-				<Text fw={700} size='lg'>
-					{value}
+		<Stack gap={2}>
+			<Group gap={4}>
+				<ThemeIcon size='xs' variant='transparent' color={color}>
+					{icon}
+				</ThemeIcon>
+				<Text size='xs' c='dimmed'>
+					{label}
 				</Text>
-			</Stack>
-		</Card>
+			</Group>
+			<Text fw={700} size='md'>
+				{value}
+			</Text>
+		</Stack>
 	);
 }
 
@@ -290,21 +302,26 @@ function InvoiceRow({ invoice }: InvoiceRowProps) {
 	});
 
 	const lineItems = invoice.line_items ?? detail?.line_items ?? [];
-	const _hasDetails = lineItems.length > 0 || isLoading;
+	const isPaid = invoice.status === 'paid';
+	const isOverdue = invoice.status === 'overdue';
 
 	return (
-		<>
-			<Paper
+		<Paper
+			radius='md'
+			withBorder
+			style={{
+				overflow: 'hidden',
+				borderLeftWidth: 3,
+				borderLeftColor: `var(--mantine-color-${invoiceAccentColor(invoice.status)}-${isOverdue ? 6 : 4})`,
+			}}
+		>
+			<Box
 				p='sm'
-				withBorder={false}
-				style={{
-					cursor: 'pointer',
-					borderBottom: '1px solid var(--mantine-color-default-border)',
-				}}
+				style={{ cursor: 'pointer' }}
 				onClick={() => setExpanded(!expanded)}
 			>
 				<Group justify='space-between' wrap='nowrap'>
-					<Group gap='sm' wrap='nowrap' style={{ flex: 1 }}>
+					<Group gap='sm' wrap='nowrap' style={{ flex: 1, minWidth: 0 }}>
 						<ActionIcon
 							variant='subtle'
 							color='gray'
@@ -321,15 +338,15 @@ function InvoiceRow({ invoice }: InvoiceRowProps) {
 							)}
 						</ActionIcon>
 
-						<Stack gap={2} style={{ flex: 1 }}>
-							<Group gap='xs'>
-								<Text size='sm' fw={600}>
+						<Stack gap={4} style={{ flex: 1, minWidth: 0 }}>
+							<Group gap='xs' wrap='nowrap'>
+								<Text size='sm' fw={600} truncate>
 									{invoice.invoice_number}
 								</Text>
 								<InvoiceStatusBadge status={invoice.status} />
 							</Group>
-							<Group gap='xs'>
-								<IconCalendar
+							<Group gap='xs' wrap='nowrap'>
+								<IconCalendarDue
 									size='0.75rem'
 									color='var(--mantine-color-dimmed)'
 								/>
@@ -337,42 +354,36 @@ function InvoiceRow({ invoice }: InvoiceRowProps) {
 									{formatDate(invoice.date, 'short')}
 								</Text>
 								{invoice.due_date && (
-									<>
-										<Text size='xs' c='dimmed'>
-											→
-										</Text>
-										<Text
-											size='xs'
-											c={invoice.status === 'overdue' ? 'red' : 'dimmed'}
-										>
-											Due {formatDate(invoice.due_date, 'short')}
-										</Text>
-									</>
+									<Text size='xs' c={isOverdue ? 'red' : 'dimmed'}>
+										{' '}
+										&middot; Due {formatDate(invoice.due_date, 'short')}
+									</Text>
 								)}
 							</Group>
 						</Stack>
 					</Group>
 
-					<Stack gap={2} align='flex-end'>
-						<Text fw={600} size='sm'>
+					<Stack gap={2} align='flex-end' miw={100}>
+						<Text fw={700} size='sm' ff='monospace'>
 							{formatCurrency(invoice.total)}
 						</Text>
-						{invoice.balance > 0 && (
-							<Text size='xs' c='red'>
-								Balance: {formatCurrency(invoice.balance)}
+						{invoice.balance > 0 && !isPaid && (
+							<Text size='xs' c='red' ff='monospace'>
+								−{formatCurrency(invoice.balance)}
 							</Text>
 						)}
 					</Stack>
 				</Group>
-			</Paper>
+			</Box>
 
 			<Collapse in={expanded}>
-				<Paper p='sm' bg='var(--mantine-color-body)' ml='xl'>
+				<Divider />
+				<Box p='sm' bg='var(--mantine-color-body)'>
 					{isLoading && !isFetched ? (
 						<Group justify='center' py='sm'>
-							<Loader size='xs' />
+							<Loader size='xs' type='dots' />
 							<Text size='xs' c='dimmed'>
-								Loading line items...
+								Loading details…
 							</Text>
 						</Group>
 					) : lineItems.length > 0 ? (
@@ -385,19 +396,33 @@ function InvoiceRow({ invoice }: InvoiceRowProps) {
 
 					{invoice.reference_number && (
 						<>
-							<Divider my='xs' />
-							<Group gap='xs'>
-								<IconHash size='0.75rem' color='var(--mantine-color-dimmed)' />
-								<Text size='xs' c='dimmed'>
-									Ref: {invoice.reference_number}
+							<Divider my='xs' variant='dashed' />
+							<Group gap={6}>
+								<IconHash size='0.7rem' color='var(--mantine-color-dimmed)' />
+								<Text size='xs' c='dimmed' ff='monospace'>
+									{invoice.reference_number}
 								</Text>
 							</Group>
 						</>
 					)}
-				</Paper>
+				</Box>
 			</Collapse>
-		</>
+		</Paper>
 	);
+}
+
+function invoiceAccentColor(status: ZohoInvoiceStatus): string {
+	const map: Record<ZohoInvoiceStatus, string> = {
+		paid: 'green',
+		overdue: 'red',
+		unpaid: 'orange',
+		partially_paid: 'yellow',
+		draft: 'gray',
+		sent: 'blue',
+		viewed: 'cyan',
+		void: 'gray',
+	};
+	return map[status] ?? 'gray';
 }
 
 type InvoiceStatusBadgeProps = {
@@ -422,7 +447,7 @@ function InvoiceStatusBadge({ status }: InvoiceStatusBadgeProps) {
 	};
 
 	return (
-		<Badge size='xs' variant='light' color={color}>
+		<Badge size='xs' variant='dot' color={color} radius='sm'>
 			{labelMap[status] ?? status}
 		</Badge>
 	);
@@ -433,69 +458,133 @@ type LineItemsTableProps = {
 };
 
 function LineItemsTable({ items }: LineItemsTableProps) {
+	const total = items.reduce((sum, it) => sum + it.item_total, 0);
+
 	return (
 		<Table
 			horizontalSpacing='sm'
-			verticalSpacing={4}
+			verticalSpacing={6}
 			withRowBorders={false}
 			fz='xs'
 		>
 			<Table.Thead>
 				<Table.Tr>
-					<Table.Th>Item</Table.Th>
-					<Table.Th ta='right'>Qty</Table.Th>
-					<Table.Th ta='right'>Rate</Table.Th>
-					<Table.Th ta='right'>Total</Table.Th>
+					<Table.Th
+						style={{ color: 'var(--mantine-color-dimmed)', fontWeight: 500 }}
+					>
+						Item
+					</Table.Th>
+					<Table.Th
+						ta='right'
+						style={{ color: 'var(--mantine-color-dimmed)', fontWeight: 500 }}
+					>
+						Qty
+					</Table.Th>
+					<Table.Th
+						ta='right'
+						style={{ color: 'var(--mantine-color-dimmed)', fontWeight: 500 }}
+					>
+						Rate
+					</Table.Th>
+					<Table.Th
+						ta='right'
+						style={{ color: 'var(--mantine-color-dimmed)', fontWeight: 500 }}
+					>
+						Amount
+					</Table.Th>
 				</Table.Tr>
 			</Table.Thead>
 			<Table.Tbody>
 				{items.map((item) => (
 					<Table.Tr key={item.line_item_id}>
 						<Table.Td>
-							<Stack gap={0}>
-								<Text size='xs' fw={500}>
-									{item.name ?? 'Unnamed'}
+							<Text size='xs' fw={500}>
+								{item.name ?? 'Unnamed'}
+							</Text>
+							{item.description && (
+								<Text size='xs' c='dimmed' lineClamp={1}>
+									{item.description}
 								</Text>
-								{item.description && (
-									<Text size='xs' c='dimmed' lineClamp={1}>
-										{item.description}
-									</Text>
-								)}
-							</Stack>
+							)}
 						</Table.Td>
-						<Table.Td ta='right'>{item.quantity}</Table.Td>
-						<Table.Td ta='right'>{formatCurrency(item.rate)}</Table.Td>
-						<Table.Td ta='right' fw={500}>
-							{formatCurrency(item.item_total)}
+						<Table.Td ta='right'>
+							<Text size='xs' ff='monospace'>
+								{item.quantity}
+							</Text>
+						</Table.Td>
+						<Table.Td ta='right'>
+							<Text size='xs' ff='monospace'>
+								{formatCurrency(item.rate)}
+							</Text>
+						</Table.Td>
+						<Table.Td ta='right'>
+							<Text size='xs' fw={500} ff='monospace'>
+								{formatCurrency(item.item_total)}
+							</Text>
 						</Table.Td>
 					</Table.Tr>
 				))}
 			</Table.Tbody>
+			<Table.Tfoot>
+				<Table.Tr>
+					<Table.Td colSpan={3}>
+						<Text size='xs' fw={600} ta='right'>
+							Total
+						</Text>
+					</Table.Td>
+					<Table.Td ta='right'>
+						<Text size='xs' fw={700} ff='monospace'>
+							{formatCurrency(total)}
+						</Text>
+					</Table.Td>
+				</Table.Tr>
+			</Table.Tfoot>
 		</Table>
 	);
 }
 
 function InvoicesLoader() {
 	return (
-		<Stack gap='md'>
-			<SimpleGrid cols={{ base: 1, sm: 2, md: 4 }} spacing='sm'>
-				{Array.from({ length: 4 }).map((_, i) => (
-					<Card withBorder p='sm' key={`skeleton-card-${i}`}>
-						<Stack gap='xs'>
-							<Skeleton height={12} width='60%' />
-							<Skeleton height={24} width='80%' />
-						</Stack>
-					</Card>
+		<Stack gap='lg'>
+			<Paper p='lg' radius='md' withBorder>
+				<Group gap='xl' wrap='nowrap'>
+					<Skeleton height={100} width={100} circle />
+					<Stack gap='sm' style={{ flex: 1 }}>
+						<Skeleton height={12} width='40%' />
+						<Group gap='xl'>
+							<Stack gap={4}>
+								<Skeleton height={10} width={50} />
+								<Skeleton height={20} width={90} />
+							</Stack>
+							<Stack gap={4}>
+								<Skeleton height={10} width={50} />
+								<Skeleton height={20} width={90} />
+							</Stack>
+							<Stack gap={4}>
+								<Skeleton height={10} width={50} />
+								<Skeleton height={20} width={90} />
+							</Stack>
+						</Group>
+					</Stack>
+				</Group>
+			</Paper>
+			<Stack gap='xs'>
+				<Skeleton height={14} width='20%' />
+				{Array.from({ length: 3 }).map((_, i) => (
+					<Paper p='sm' radius='md' withBorder key={`skeleton-row-${i}`}>
+						<Group justify='space-between'>
+							<Stack gap={4} style={{ flex: 1 }}>
+								<Skeleton height={14} width='35%' />
+								<Skeleton height={10} width='25%' />
+							</Stack>
+							<Stack gap={4} align='flex-end'>
+								<Skeleton height={14} width={80} />
+								<Skeleton height={10} width={60} />
+							</Stack>
+						</Group>
+					</Paper>
 				))}
-			</SimpleGrid>
-			<Card withBorder p='md'>
-				<Stack gap='sm'>
-					<Skeleton height={14} width='30%' />
-					{Array.from({ length: 3 }).map((_, i) => (
-						<Skeleton height={50} key={`skeleton-row-${i}`} />
-					))}
-				</Stack>
-			</Card>
+			</Stack>
 		</Stack>
 	);
 }
