@@ -249,7 +249,9 @@ You should see your Limkokwing organization listed. **Note down the `organizatio
 
 ## Step 4 — Verify Connectivity & Find Your Organization ID
 
-### 4.1 Get Your Organization ID
+### 4.1 Get Your Organization ID ✅
+
+> **Verified on 2026-02-28**.
 
 From the response in Step 3.3, find the correct organization:
 
@@ -257,59 +259,77 @@ From the response in Step 3.3, find the correct organization:
 {
   "organizations": [
     {
-      "organization_id": "10234695",
+      "organization_id": "823788793",
       "name": "Limkokwing University",
       "is_default_org": true,
-      "currency_code": "...",
-      ...
+      "currency_code": "LSL"
     }
   ]
 }
 ```
 
-Write it down: `organization_id = _______________`
+**Organization ID**: `823788793`  
+**Zoho Domain**: `zoho.com` (US / Global — API base: `https://www.zohoapis.com`)
 
-### 4.2 Test Searching for a Student
+### 4.2 Test Searching for a Student ✅
 
-Try searching for a known student. Use supported List Contacts parameters such as `contact_name`, `company_name`, or `search_text`:
+> **Verified on 2026-02-28** using students `901013251` and `901015987`.
+
+Use `search_text` with the student number:
 
 ```bash
-curl -X GET "https://www.zohoapis.com/books/v3/contacts?organization_id=YOUR_ORG_ID&search_text=901234567" \
+curl -X GET "https://www.zohoapis.com/books/v3/contacts?organization_id=823788793&search_text=901013251" \
   -H "Authorization: Zoho-oauthtoken YOUR_ACCESS_TOKEN"
 ```
 
-If no results, try:
+**Confirmed result**: Returns the contact with `first_name: "901013251"`, `cf_account_code: "901013251"`, `contact_name: "Neo Joseph Chere"`, `company_name: "Diploma in Architecture Technology"`.
+
+You can also fetch full contact details (including `notes`, `contact_persons`, `unused_credits_receivable_amount`) using:
+
 ```bash
-# Search by contact name
-curl -X GET "https://www.zohoapis.com/books/v3/contacts?organization_id=YOUR_ORG_ID&contact_name=StudentName" \
+curl -X GET "https://www.zohoapis.com/books/v3/contacts/4172689000000529161?organization_id=823788793" \
   -H "Authorization: Zoho-oauthtoken YOUR_ACCESS_TOKEN"
 ```
 
-**From the response**, confirm which field contains the student number. Note the `contact_id` for the next test.
+**From the response**, confirm:
+- ✅ `first_name` = student number (e.g., `"901013251"`)
+- ✅ `cf_account_code` = student number (e.g., `"901013251"`)
+- ✅ `contact_name` = student display name (e.g., `"Neo Joseph Chere"`)
+- ✅ `company_name` = program name (e.g., `"Diploma in Architecture Technology"`)
+- ✅ `notes` = program + intake info (e.g., `"Diploma in Architecture Technology Initial Intake Year 2022/06/29"`)
+- ✅ Tags contain School (`FAID`), Programme (`DAT`), Financial Assistance (`ManPower`)
 
-> **Confirmed (2026-02-28)**: `search_text` searches across **EmailID, CompanyName, FirstName, LastName, Notes, and Name** (per the `page_context.search_criteria` in the API response). It reliably finds students because the student number is stored in `first_name`. Verify the correct contact by checking `cf_account_code` in the response.
+> **`search_text` searches across**: EmailID, CompanyName, FirstName, LastName, Notes, Name (confirmed from `page_context.search_criteria` in the API response). It finds students because the student number is stored in `first_name`. Always verify the correct contact by checking `cf_account_code` in the response.
 
-### 4.3 Test Searching for Invoices by Student
+### 4.3 Test Searching for Invoices by Student ⚠️ (Pending — scope needed)
 
-Use the `customer_id` found above:
+> **Tested on 2026-02-28**: Returns `{"code":57,"message":"You are not authorized to perform this operation"}` because the current OAuth token was generated **without** `ZohoBooks.invoices.READ` scope.
+>
+> **To fix**: Generate a **new** Grant Token in the [Zoho API Console](https://api-console.zoho.com/) with ALL required scopes:
+> ```
+> ZohoBooks.invoices.READ,ZohoBooks.contacts.READ,ZohoBooks.settings.READ
+> ```
+> Then exchange it for a new refresh token (Step 3.2) and retry.
+
+Once the token includes invoice scope, use the `customer_id` found in Step 4.2:
 
 ```bash
-curl -X GET "https://www.zohoapis.com/books/v3/invoices?organization_id=YOUR_ORG_ID&customer_id=CONTACT_ID&status=paid" \
+curl -X GET "https://www.zohoapis.com/books/v3/invoices?organization_id=823788793&customer_id=4172689000000529161&status=paid" \
   -H "Authorization: Zoho-oauthtoken YOUR_ACCESS_TOKEN"
 ```
 
 Alternatively, search by item name:
 
 ```bash
-curl -X GET "https://www.zohoapis.com/books/v3/invoices?organization_id=YOUR_ORG_ID&customer_id=CONTACT_ID&item_name=Student Card" \
+curl -X GET "https://www.zohoapis.com/books/v3/invoices?organization_id=823788793&customer_id=4172689000000529161&item_name=Student Card" \
   -H "Authorization: Zoho-oauthtoken YOUR_ACCESS_TOKEN"
 ```
 
 **From this response**, confirm:
-- ✅ You can find the student's invoices
-- ✅ You can filter by paid invoices and item name
-- ✅ The status is "paid" for completed payments
-- ✅ The invoice number is available (this will become the `receiptNo` in our app)
+- [ ] You can find the student's invoices
+- [ ] You can filter by paid invoices and item name
+- [ ] The status is "paid" for completed payments
+- [ ] The invoice number is available (this will become the `receiptNo` in our app)
 
 > If you must validate exact line items, call `GET /invoices/{invoice_id}` for each candidate invoice.
 
@@ -360,7 +380,7 @@ Add these to your `.env.local` file (and to your deployment environment):
 ZOHO_BOOKS_CLIENT_ID=1000.XXXXXXXXXXXXXXXXXXXX
 ZOHO_BOOKS_CLIENT_SECRET=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 ZOHO_BOOKS_REFRESH_TOKEN=1000.xxxxxxxxxxxxxxxxxxxxxxxx.yyyyyyyyyyyyyyyyyyyyyyyy
-ZOHO_BOOKS_ORGANIZATION_ID=10234695
+ZOHO_BOOKS_ORGANIZATION_ID=823788793
 ZOHO_BOOKS_ACCOUNTS_URL=https://accounts.zoho.com
 ZOHO_BOOKS_API_BASE_URL=https://www.zohoapis.com/books/v3
 
@@ -542,6 +562,16 @@ export interface ZohoContact {
   }>;
   tags?: ZohoContactTag[];
   cf_account_code?: string;
+  notes?: string;
+  has_transaction?: boolean;
+  outstanding_receivable_amount?: number;
+  unused_credits_receivable_amount?: number;
+}
+
+export interface ZohoContactDetailResponse {
+  code: number;
+  message: string;
+  contact: ZohoContact;
 }
 
 export interface ZohoContactsResponse {
