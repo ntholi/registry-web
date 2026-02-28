@@ -149,14 +149,7 @@ function ExpandableRow<T>({
 				<Table.Tr>
 					<Table.Td colSpan={colSpan} p={0} bd='none'>
 						<Collapse in={isExpanded}>
-							<Box
-								px='lg'
-								py='md'
-								style={{
-									borderLeft: '3px solid var(--mantine-primary-color-filled)',
-									background: 'var(--mantine-color-body)',
-								}}
-							>
+							<Box px='lg' py='md' bg='var(--mantine-color-body)'>
 								{isExpanded && renderDetail!(row)}
 							</Box>
 						</Collapse>
