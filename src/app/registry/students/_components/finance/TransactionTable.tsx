@@ -1,4 +1,5 @@
-import { Badge, Paper, Table, Text } from '@mantine/core';
+import { Badge, Paper, Stack, Table, Text, ThemeIcon } from '@mantine/core';
+import { IconDatabaseOff } from '@tabler/icons-react';
 import { formatDate } from '@/shared/lib/utils/dates';
 import { formatCurrency } from '@/shared/lib/utils/utils';
 
@@ -24,46 +25,58 @@ export function TransactionTable<T>({
 }: TransactionTableProps<T>) {
 	if (data.length === 0) {
 		return (
-			<Paper p='xl' withBorder>
-				<Text c='dimmed' size='sm' ta='center'>
-					{emptyLabel}
-				</Text>
+			<Paper p='xl' withBorder radius='md'>
+				<Stack align='center' gap='xs' py='md'>
+					<ThemeIcon size='lg' variant='light' color='gray' radius='xl'>
+						<IconDatabaseOff size='1rem' />
+					</ThemeIcon>
+					<Text c='dimmed' size='sm'>
+						{emptyLabel}
+					</Text>
+				</Stack>
 			</Paper>
 		);
 	}
 
 	return (
-		<Table.ScrollContainer minWidth={600}>
-			<Table
-				horizontalSpacing='sm'
-				verticalSpacing='sm'
-				striped
-				highlightOnHover
-				withTableBorder
-				withColumnBorders={false}
-			>
-				<Table.Thead>
-					<Table.Tr>
-						{columns.map((col) => (
-							<Table.Th key={col.key} ta={col.align}>
-								{col.label}
-							</Table.Th>
-						))}
-					</Table.Tr>
-				</Table.Thead>
-				<Table.Tbody>
-					{data.map((row) => (
-						<Table.Tr key={rowKey(row)}>
+		<Paper withBorder radius='md' style={{ overflow: 'hidden' }}>
+			<Table.ScrollContainer minWidth={600}>
+				<Table
+					horizontalSpacing='md'
+					verticalSpacing='xs'
+					highlightOnHover
+				>
+					<Table.Thead>
+						<Table.Tr>
 							{columns.map((col) => (
-								<Table.Td key={col.key} ta={col.align}>
-									{col.render(row)}
-								</Table.Td>
+								<Table.Th
+									key={col.key}
+									ta={col.align}
+									fw={600}
+									fz='xs'
+									c='dimmed'
+									tt='uppercase'
+									lts={0.3}
+								>
+									{col.label}
+								</Table.Th>
 							))}
 						</Table.Tr>
-					))}
-				</Table.Tbody>
-			</Table>
-		</Table.ScrollContainer>
+					</Table.Thead>
+					<Table.Tbody>
+						{data.map((row) => (
+							<Table.Tr key={rowKey(row)}>
+								{columns.map((col) => (
+									<Table.Td key={col.key} ta={col.align}>
+										{col.render(row)}
+									</Table.Td>
+								))}
+							</Table.Tr>
+						))}
+					</Table.Tbody>
+				</Table>
+			</Table.ScrollContainer>
+		</Paper>
 	);
 }
 
@@ -78,7 +91,7 @@ export function StatusBadge({ status, colorMap, labelMap }: StatusBadgeProps) {
 	const label = labelMap?.[status] ?? (status || 'Paid');
 
 	return (
-		<Badge size='sm' variant='dot' color={color} radius='sm'>
+		<Badge size='sm' variant='light' color={color} radius='sm'>
 			{label}
 		</Badge>
 	);
