@@ -80,7 +80,7 @@ export default async function TaskDetails({ params }: Props) {
 						</Box>
 					)}
 
-					{(task.dueDate || task.scheduledDate || task.completedAt) && (
+					{(task.dueDate || task.completedAt) && (
 						<>
 							<Divider />
 							<Box>
@@ -88,15 +88,6 @@ export default async function TaskDetails({ params }: Props) {
 									Timeline
 								</Text>
 								<Stack gap='sm'>
-									{task.scheduledDate && (
-										<Group gap='xs'>
-											<IconCalendar size={16} opacity={0.6} />
-											<Text size='sm' c='dimmed'>
-												Scheduled:
-											</Text>
-											<Text size='sm'>{formatDate(task.scheduledDate)}</Text>
-										</Group>
-									)}
 									{task.dueDate && (
 										<Group gap='xs'>
 											<IconCalendar size={16} opacity={0.6} />

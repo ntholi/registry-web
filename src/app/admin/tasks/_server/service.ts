@@ -107,7 +107,6 @@ class TaskService {
 				priority: data.priority,
 				status: data.status,
 				dueDate: data.dueDate,
-				scheduledDate: data.scheduledDate,
 				createdBy: userId,
 			};
 

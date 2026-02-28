@@ -1205,6 +1205,13 @@
 			"when": 1772276009670,
 			"tag": "0171_rich_nebula",
 			"breakpoints": true
+		},
+		{
+			"idx": 172,
+			"version": "7",
+			"when": 1772300244652,
+			"tag": "0172_lame_rictor",
+			"breakpoints": true
 		}
 	]
 }

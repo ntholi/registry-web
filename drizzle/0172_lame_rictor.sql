@@ -1,0 +1,1 @@
+ALTER TABLE "tasks" DROP COLUMN "scheduled_date";

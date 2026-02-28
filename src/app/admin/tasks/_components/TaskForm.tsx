@@ -20,6 +20,8 @@ import { createInsertSchema } from 'drizzle-zod';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'nextjs-toploader/app';
 import { useState } from 'react';
+import { z } from 'zod';
+import { parseDate } from '@/shared/lib/utils/dates';
 import { Form } from '@/shared/ui/adease';
 import type { TaskWithRelations } from '../_server/types';
 import MultiStudentInput from './MultiStudentInput';
@@ -107,8 +109,7 @@ export default function TaskForm({ onSubmit, defaultValues, title }: Props) {
 		description: defaultValues?.description ?? '',
 		priority: defaultValues?.priority ?? 'medium',
 		status: defaultValues?.status ?? 'todo',
-		dueDate: defaultValues?.dueDate ?? null,
-		scheduledDate: defaultValues?.scheduledDate ?? null,
+		dueDate: parseDate(defaultValues?.dueDate),
 	};
 
 	async function handleSubmit(values: Task) {
@@ -147,126 +148,107 @@ export default function TaskForm({ onSubmit, defaultValues, title }: Props) {
 			title={title}
 			action={handleSubmit}
 			queryKey={['tasks']}
-			schema={createInsertSchema(tasks).omit({
-				id: true,
-				createdBy: true,
-				createdAt: true,
-				updatedAt: true,
-				completedAt: true,
-			})}
+			schema={createInsertSchema(tasks)
+				.omit({
+					id: true,
+					createdBy: true,
+					createdAt: true,
+					updatedAt: true,
+					completedAt: true,
+				})
+				.extend({
+					dueDate: z.coerce.date().nullable().optional(),
+				})}
 			defaultValues={initialValues}
 			onSuccess={({ id }) => router.push(`/admin/tasks/${id}`)}
 		>
-			{(form) => {
-				console.log('Form values:', form);
-				return (
-					<Stack gap='md'>
-						<TextInput
-							label='Title'
-							placeholder='Enter task title'
-							required
-							{...form.getInputProps('title')}
+			{(form) => (
+				<Stack gap='md'>
+					<TextInput
+						label='Title'
+						placeholder='Enter task title'
+						required
+						{...form.getInputProps('title')}
+					/>
+
+					<Textarea
+						label='Description'
+						placeholder='Enter task description'
+						minRows={3}
+						autosize
+						{...form.getInputProps('description')}
+					/>
+
+					<SimpleGrid cols={{ base: 1, sm: 2 }}>
+						<Select
+							label='Priority'
+							placeholder='Select priority'
+							data={priorityOptions}
+							{...form.getInputProps('priority')}
 						/>
 
-						<Textarea
-							label='Description'
-							placeholder='Enter task description'
-							minRows={3}
-							autosize
-							{...form.getInputProps('description')}
+						<Select
+							label='Status'
+							placeholder='Select status'
+							data={statusOptions}
+							{...form.getInputProps('status')}
 						/>
+					</SimpleGrid>
 
-						<SimpleGrid cols={{ base: 1, sm: 2 }}>
-							<Select
-								label='Priority'
-								placeholder='Select priority'
-								data={priorityOptions}
-								{...form.getInputProps('priority')}
-							/>
+					<DateInput
+						label='Due Date'
+						placeholder='Select due date'
+						clearable
+						value={parseDate(form.values.dueDate)}
+						onChange={(date) => form.setFieldValue('dueDate', parseDate(date))}
+					/>
 
-							<Select
-								label='Status'
-								placeholder='Select status'
-								data={statusOptions}
-								{...form.getInputProps('status')}
-							/>
-						</SimpleGrid>
-
-						<SimpleGrid cols={{ base: 1, sm: 2 }}>
-							<DateInput
-								label='Due Date'
-								placeholder='Select due date'
-								clearable
-								value={
-									form.values.dueDate ? new Date(form.values.dueDate) : null
-								}
-								onChange={(date) =>
-									form.setFieldValue('dueDate', date as Date | null)
-								}
-							/>
-
-							<DateInput
-								label='Scheduled Date'
-								placeholder='Select scheduled date'
-								clearable
-								value={
-									form.values.scheduledDate
-										? new Date(form.values.scheduledDate)
-										: null
-								}
-								onChange={(date) =>
-									form.setFieldValue('scheduledDate', date as Date | null)
-								}
-							/>
-						</SimpleGrid>
-
-						{canAssignOthers && (
-							<Stack gap='sm'>
-								{isAdmin && (
-									<MultiSelect
-										label='Departments'
-										placeholder='Select departments to assign'
-										data={departmentOptions}
-										value={selectedDepartments}
-										onChange={setSelectedDepartments}
-										clearable
-									/>
-								)}
-
-								{(isAdmin ? selectedDepartments.length > 0 : true) && (
-									<Checkbox
-										label={
-											isAdmin
-												? 'Assign to all users in selected departments'
-												: `Assign to all users in ${managerRoleLabel}`
-										}
-										checked={assignToAll}
-										onChange={(e) => handleAssignToAllChange(e.target.checked)}
-									/>
-								)}
-
-								<MultiUserInput
-									label='Assign to'
-									placeholder='Search users to assign'
-									value={selectedUsers}
-									onChange={setSelectedUsers}
-									role={isAdmin ? undefined : (userRole as User['role'])}
-									disabled={assignToAll}
+					{canAssignOthers && (
+						<Stack gap='sm'>
+							{isAdmin && (
+								<MultiSelect
+									label='Departments'
+									placeholder='Select departments to assign'
+									data={departmentOptions}
+									value={selectedDepartments}
+									onChange={setSelectedDepartments}
+									clearable
 								/>
-							</Stack>
-						)}
+							)}
 
-						<Divider label='Related Students' labelPosition='left' />
+							{(isAdmin ? selectedDepartments.length > 0 : true) && (
+								<Checkbox
+									label={
+										isAdmin
+											? 'Assign to all users in selected departments'
+											: `Assign to all users in ${managerRoleLabel}`
+									}
+									checked={assignToAll}
+									onChange={(e) => handleAssignToAllChange(e.target.checked)}
+								/>
+							)}
 
-						<MultiStudentInput
-							label='Associated Students'
-							placeholder='Search students by name or student number'
-							value={selectedStudents}
-							onChange={setSelectedStudents}
-						/>
-					</Stack>
-				);
-			}}
+							<MultiUserInput
+								label='Assign to'
+								placeholder='Search users to assign'
+								value={selectedUsers}
+								onChange={setSelectedUsers}
+								role={isAdmin ? undefined : (userRole as User['role'])}
+								disabled={assignToAll}
+							/>
+						</Stack>
+					)}
+
+					<Divider label='Related Students' labelPosition='left' />
+
+					<MultiStudentInput
+						label='Associated Students'
+						placeholder='Search students by name or student number'
+						value={selectedStudents}
+						onChange={setSelectedStudents}
+					/>
+				</Stack>
+			)}
 		</Form>
 	);
 }
