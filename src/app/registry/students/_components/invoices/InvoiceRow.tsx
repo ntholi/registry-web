@@ -52,7 +52,7 @@ export function InvoiceRow({ invoice }: InvoiceRowProps) {
 	const isOverdue = invoice.status === 'overdue';
 
 	return (
-		<Paper radius='md' withBorder>
+		<Paper withBorder>
 			<Box
 				p='sm'
 				style={{ cursor: 'pointer' }}

@@ -9,7 +9,7 @@ type Props = {
 
 export function FinancialOverview({ summary }: Props) {
 	return (
-		<Paper p='lg' radius='md' withBorder>
+		<Paper p='lg' withBorder>
 			<Stack gap='md'>
 				<Group justify='space-between' align='flex-start' wrap='nowrap'>
 					<Stack gap={2}>
@@ -21,7 +21,6 @@ export function FinancialOverview({ summary }: Props) {
 					<Badge
 						variant='light'
 						color={summary.totalOutstanding > 0 ? 'red' : 'green'}
-						radius='md'
 					>
 						{summary.totalInvoices} invoice
 						{summary.totalInvoices !== 1 ? 's' : ''}

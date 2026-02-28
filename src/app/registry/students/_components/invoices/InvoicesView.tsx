@@ -61,7 +61,7 @@ export default function InvoicesView({ stdNo, isActive }: Props) {
 
 	if (isError) {
 		return (
-			<Paper p='xl' radius='md' withBorder>
+			<Paper p='xl' withBorder>
 				<Stack align='center' gap='md' py='lg'>
 					<ThemeIcon size={56} variant='light' color='red' radius='xl'>
 						<IconAlertTriangle size='1.6rem' />
@@ -83,7 +83,7 @@ export default function InvoicesView({ stdNo, isActive }: Props) {
 
 	if (!summary || summary.totalInvoices === 0) {
 		return (
-			<Paper p='xl' radius='md' withBorder>
+			<Paper p='xl' withBorder>
 				<Stack align='center' gap='md' py='lg'>
 					<ThemeIcon size={56} variant='light' color='gray' radius='xl'>
 						<IconFileInvoice size='1.6rem' />
@@ -115,7 +115,6 @@ export default function InvoicesView({ stdNo, isActive }: Props) {
 					<Group gap='xs'>
 						<SegmentedControl
 							size='sm'
-							radius='md'
 							value={statusFilter}
 							onChange={(v) => setStatusFilter(v as StatusFilter)}
 							data={STATUS_FILTERS.map((f) => ({
@@ -142,7 +141,7 @@ export default function InvoicesView({ stdNo, isActive }: Props) {
 				</Group>
 
 				{filtered.length === 0 ? (
-					<Paper p='xl' radius='md' withBorder>
+					<Paper p='xl' withBorder>
 						<Text c='dimmed' size='sm' ta='center'>
 							No invoices match this filter.
 						</Text>
@@ -162,13 +161,13 @@ export default function InvoicesView({ stdNo, isActive }: Props) {
 function InvoicesLoader() {
 	return (
 		<Stack gap='lg'>
-			<Paper p='lg' radius='md' withBorder>
+			<Paper p='lg' withBorder>
 				<Stack gap='md'>
 					<Group justify='space-between' align='flex-start' wrap='nowrap'>
 						<Stack gap={4} style={{ flex: 1, minWidth: 0 }}>
 							<Skeleton height={10} width={120} />
 						</Stack>
-						<Skeleton height={24} width={90} radius='md' />
+						<Skeleton height={24} width={90} />
 					</Group>
 					<Group gap='3rem' wrap='nowrap'>
 						{Array.from({ length: 3 }).map((_, i) => (
@@ -184,12 +183,12 @@ function InvoicesLoader() {
 				<Group justify='space-between' align='center' wrap='nowrap'>
 					<Skeleton height={14} width={60} />
 					<Group gap='xs' wrap='nowrap'>
-						<Skeleton height={32} width={250} radius='md' />
+						<Skeleton height={32} width={250} />
 						<Skeleton height={28} width={28} circle />
 					</Group>
 				</Group>
 				{Array.from({ length: 4 }).map((_, i) => (
-					<Paper p='sm' radius='md' withBorder key={`skeleton-row-${i}`}>
+					<Paper p='sm' withBorder key={`skeleton-row-${i}`}>
 						<Group justify='space-between' wrap='nowrap'>
 							<Group gap='sm' wrap='nowrap' style={{ flex: 1, minWidth: 0 }}>
 								<Skeleton height={20} width={20} radius='sm' />
