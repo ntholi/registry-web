@@ -247,6 +247,29 @@ export const statusColors = {
 		viewed: semantic.info,
 		void: semantic.neutral,
 	},
+	zohoPaymentStatus: {
+		'': semantic.success,
+		void: semantic.neutral,
+	},
+	estimateStatus: {
+		draft: semantic.neutral,
+		sent: semantic.info,
+		invoiced: semantic.success,
+		accepted: semantic.success,
+		declined: semantic.error,
+		expired: semantic.caution,
+	},
+	salesReceiptStatus: {
+		draft: semantic.neutral,
+		confirmed: semantic.success,
+		void: semantic.neutral,
+	},
+	creditNoteStatus: {
+		draft: semantic.neutral,
+		open: semantic.info,
+		closed: semantic.success,
+		void: semantic.neutral,
+	},
 } as const;
 
 const allStatuses = {

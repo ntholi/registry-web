@@ -95,3 +95,140 @@ export interface StudentInvoiceSummary {
 	totalOutstanding: number;
 	invoices: ZohoInvoice[];
 }
+
+export type ZohoPaymentStatus = '' | 'void';
+
+export interface ZohoPayment {
+	payment_id: string;
+	payment_number: string;
+	customer_id: string;
+	customer_name: string;
+	date: string;
+	amount: number;
+	unused_amount: number;
+	payment_mode: string;
+	reference_number?: string;
+	description?: string;
+	status: ZohoPaymentStatus;
+	currency_code?: string;
+	invoices?: {
+		invoice_id: string;
+		invoice_number: string;
+		amount_applied: number;
+	}[];
+}
+
+export interface ZohoPaymentsResponse {
+	code: number;
+	message: string;
+	customerpayments?: ZohoPayment[];
+}
+
+export interface ZohoPaymentDetailResponse {
+	code: number;
+	message: string;
+	payment: ZohoPayment;
+}
+
+export type ZohoEstimateStatus =
+	| 'draft'
+	| 'sent'
+	| 'invoiced'
+	| 'accepted'
+	| 'declined'
+	| 'expired';
+
+export interface ZohoEstimate {
+	estimate_id: string;
+	estimate_number: string;
+	customer_id: string;
+	customer_name: string;
+	status: ZohoEstimateStatus;
+	date: string;
+	expiry_date?: string;
+	total: number;
+	line_items?: ZohoLineItem[];
+	reference_number?: string;
+	currency_code?: string;
+}
+
+export interface ZohoEstimatesResponse {
+	code: number;
+	message: string;
+	estimates?: ZohoEstimate[];
+}
+
+export interface ZohoEstimateDetailResponse {
+	code: number;
+	message: string;
+	estimate: ZohoEstimate;
+}
+
+export type ZohoSalesReceiptStatus = 'draft' | 'confirmed' | 'void';
+
+export interface ZohoSalesReceipt {
+	salesreceipt_id: string;
+	salesreceipt_number: string;
+	customer_id: string;
+	customer_name: string;
+	status: ZohoSalesReceiptStatus;
+	date: string;
+	total: number;
+	line_items?: ZohoLineItem[];
+	reference_number?: string;
+	payment_mode?: string;
+	currency_code?: string;
+}
+
+export interface ZohoSalesReceiptsResponse {
+	code: number;
+	message: string;
+	salesreceipts?: ZohoSalesReceipt[];
+}
+
+export interface ZohoSalesReceiptDetailResponse {
+	code: number;
+	message: string;
+	salesreceipt: ZohoSalesReceipt;
+}
+
+export type ZohoCreditNoteStatus = 'draft' | 'open' | 'closed' | 'void';
+
+export interface ZohoCreditNote {
+	creditnote_id: string;
+	creditnote_number: string;
+	customer_id: string;
+	customer_name: string;
+	status: ZohoCreditNoteStatus;
+	date: string;
+	total: number;
+	balance: number;
+	line_items?: ZohoLineItem[];
+	reference_number?: string;
+	currency_code?: string;
+}
+
+export interface ZohoCreditNotesResponse {
+	code: number;
+	message: string;
+	creditnotes?: ZohoCreditNote[];
+}
+
+export interface ZohoCreditNoteDetailResponse {
+	code: number;
+	message: string;
+	creditnote: ZohoCreditNote;
+}
+
+export interface StudentFinanceSummary {
+	contactId: string;
+	totalAmount: number;
+	totalPaid: number;
+	totalOutstanding: number;
+	unusedCredits: number;
+	invoices: ZohoInvoice[];
+	payments: ZohoPayment[];
+	estimates: ZohoEstimate[];
+	salesReceipts: ZohoSalesReceipt[];
+	creditNotes: ZohoCreditNote[];
+}

@@ -12,10 +12,10 @@ import StatementOfResultsPrinter from './academics/statements/StatementOfResults
 import StudentCardPrinter from './card/StudentCardPrinter';
 import StudentCardView from './card/StudentCardView';
 import DocumentsView from './documents/DocumentsView';
+import StudentFinanceView from './finance/StudentFinanceView';
 import GraduationView from './graduation/GraduationView';
 import StudentHistoryView from './history/StudentHistoryView';
 import StudentView from './info/StudentView';
-import InvoicesView from './invoices/InvoicesView';
 import RegistrationTabs from './registration/RegistrationTabs';
 import SponsorsView from './sponsors/SponsorsView';
 
@@ -71,7 +71,7 @@ export default function StudentTabs({
 		session?.user?.role ?? ''
 	);
 
-	const showInvoices = ['admin', 'finance'].includes(session?.user?.role ?? '');
+	const showFinance = ['admin', 'finance'].includes(session?.user?.role ?? '');
 
 	const showDocuments =
 		['admin', 'registry', 'finance', 'student_services'].includes(
@@ -121,7 +121,7 @@ export default function StudentTabs({
 				{showSponsors && <TabsTab value='sponsors'>Sponsors</TabsTab>}
 				{showStudentCard && <TabsTab value='studentcard'>Card</TabsTab>}
 				{showGraduation && <TabsTab value='graduation'>Graduation</TabsTab>}
-				{showInvoices && <TabsTab value='invoices'>Invoices</TabsTab>}
+				{showFinance && <TabsTab value='finance'>Finance</TabsTab>}
 				{showDocuments && <TabsTab value='documents'>Documents</TabsTab>}
 				{showHistory && <TabsTab value='history'>History</TabsTab>}
 			</ScrollableTabsList>
@@ -164,10 +164,10 @@ export default function StudentTabs({
 					blockedStudent={blockedStudent}
 				/>
 			</TabsPanel>
-			<TabsPanel value='invoices' pt={'xl'} p={'sm'} key='invoices'>
-				<InvoicesView
+			<TabsPanel value='finance' pt={'xl'} p={'sm'} key='finance'>
+				<StudentFinanceView
 					stdNo={student.stdNo}
-					isActive={activeTab === 'invoices'}
+					isActive={activeTab === 'finance'}
 				/>
 			</TabsPanel>
 			<TabsPanel value='documents' pt={'xl'} p={'sm'} key='documents'>

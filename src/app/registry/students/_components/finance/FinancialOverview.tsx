@@ -1,13 +1,37 @@
-import type { StudentInvoiceSummary } from '@finance/_lib/zoho-books/types';
-import { Badge, Group, Paper, Stack, Text, ThemeIcon } from '@mantine/core';
-import { IconCheck, IconCoin, IconWallet } from '@tabler/icons-react';
+import type { StudentFinanceSummary } from '@finance/_lib/zoho-books/types';
+import {
+	ActionIcon,
+	Badge,
+	Group,
+	Paper,
+	Stack,
+	Text,
+	ThemeIcon,
+	Tooltip,
+} from '@mantine/core';
+import {
+	IconCheck,
+	IconCoin,
+	IconCreditCard,
+	IconRefresh,
+	IconWallet,
+} from '@tabler/icons-react';
 import { formatCurrency } from '@/shared/lib/utils/utils';
 
 type Props = {
-	summary: StudentInvoiceSummary;
+	summary: StudentFinanceSummary;
+	isFetching: boolean;
+	onRefresh: () => void;
 };
 
-export function FinancialOverview({ summary }: Props) {
+export function FinancialOverview({ summary, isFetching, onRefresh }: Props) {
+	const txCount =
+		summary.invoices.length +
+		summary.payments.length +
+		summary.estimates.length +
+		summary.salesReceipts.length +
+		summary.creditNotes.length;
+
 	return (
 		<Paper p='lg' withBorder>
 			<Stack gap='md'>
@@ -18,18 +42,30 @@ export function FinancialOverview({ summary }: Props) {
 						</Text>
 					</Stack>
 
-					<Badge
-						variant='light'
-						color={summary.totalOutstanding > 0 ? 'red' : 'green'}
-					>
-						{summary.totalInvoices} invoice
-						{summary.totalInvoices !== 1 ? 's' : ''}
-					</Badge>
+					<Group gap='xs'>
+						<Badge
+							variant='light'
+							color={summary.totalOutstanding > 0 ? 'red' : 'green'}
+						>
+							{txCount} transaction{txCount !== 1 ? 's' : ''}
+						</Badge>
+						<Tooltip label='Refresh' withArrow>
+							<ActionIcon
+								variant='subtle'
+								color='gray'
+								size='sm'
+								loading={isFetching}
+								onClick={onRefresh}
+							>
+								<IconRefresh size='1rem' />
+							</ActionIcon>
+						</Tooltip>
+					</Group>
 				</Group>
 
 				<Group gap='3rem'>
 					<MetricItem
-						label='Total'
+						label='Total Invoiced'
 						value={formatCurrency(summary.totalAmount)}
 						icon={<IconCoin size='0.9rem' />}
 						color='violet'
@@ -46,6 +82,14 @@ export function FinancialOverview({ summary }: Props) {
 						icon={<IconWallet size='0.9rem' />}
 						color={summary.totalOutstanding > 0 ? 'red' : 'green'}
 					/>
+					{summary.unusedCredits > 0 && (
+						<MetricItem
+							label='Credits'
+							value={formatCurrency(summary.unusedCredits)}
+							icon={<IconCreditCard size='0.9rem' />}
+							color='cyan'
+						/>
+					)}
 				</Group>
 			</Stack>
 		</Paper>

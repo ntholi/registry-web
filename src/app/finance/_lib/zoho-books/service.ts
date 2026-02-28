@@ -1,11 +1,20 @@
 import { zohoGet } from './client';
 import type {
+	StudentFinanceSummary,
 	StudentInvoiceSummary,
 	ZohoContact,
 	ZohoContactsResponse,
+	ZohoCreditNote,
+	ZohoCreditNotesResponse,
+	ZohoEstimate,
+	ZohoEstimatesResponse,
 	ZohoInvoice,
 	ZohoInvoiceDetailResponse,
 	ZohoInvoicesResponse,
+	ZohoPayment,
+	ZohoPaymentsResponse,
+	ZohoSalesReceipt,
+	ZohoSalesReceiptsResponse,
 } from './types';
 
 export async function findStudentContact(
@@ -36,6 +45,50 @@ export async function findStudentInvoices(
 		sort_order: 'D',
 	});
 	return response.invoices ?? [];
+}
+
+export async function findStudentPayments(
+	contactId: string
+): Promise<ZohoPayment[]> {
+	const response = await zohoGet<ZohoPaymentsResponse>('/customerpayments', {
+		customer_id: contactId,
+		sort_column: 'date',
+		sort_order: 'D',
+	});
+	return response.customerpayments ?? [];
+}
+
+export async function findStudentEstimates(
+	contactId: string
+): Promise<ZohoEstimate[]> {
+	const response = await zohoGet<ZohoEstimatesResponse>('/estimates', {
+		customer_id: contactId,
+		sort_column: 'date',
+		sort_order: 'D',
+	});
+	return response.estimates ?? [];
+}
+
+export async function findStudentSalesReceipts(
+	contactId: string
+): Promise<ZohoSalesReceipt[]> {
+	const response = await zohoGet<ZohoSalesReceiptsResponse>('/salesreceipts', {
+		customer_id: contactId,
+		sort_column: 'date',
+		sort_order: 'D',
+	});
+	return response.salesreceipts ?? [];
+}
+
+export async function findStudentCreditNotes(
+	contactId: string
+): Promise<ZohoCreditNote[]> {
+	const response = await zohoGet<ZohoCreditNotesResponse>('/creditnotes', {
+		customer_id: contactId,
+		sort_column: 'date',
+		sort_order: 'D',
+	});
+	return response.creditnotes ?? [];
 }
 
 export async function getInvoiceDetail(
@@ -74,5 +127,40 @@ export async function getStudentInvoiceSummary(
 		totalPaid,
 		totalOutstanding,
 		invoices,
+	};
+}
+
+export async function getStudentFinanceSummary(
+	stdNo: number
+): Promise<StudentFinanceSummary | null> {
+	const contact = await findStudentContact(stdNo);
+
+	if (!contact) return null;
+
+	const [invoices, payments, estimates, salesReceipts, creditNotes] =
+		await Promise.all([
+			findStudentInvoices(contact.contact_id),
+			findStudentPayments(contact.contact_id),
+			findStudentEstimates(contact.contact_id),
+			findStudentSalesReceipts(contact.contact_id),
+			findStudentCreditNotes(contact.contact_id),
+		]);
+
+	const totalAmount = invoices.reduce((sum, inv) => sum + inv.total, 0);
+	const totalOutstanding = invoices.reduce((sum, inv) => sum + inv.balance, 0);
+	const totalPaid = totalAmount - totalOutstanding;
+	const unusedCredits = contact.unused_credits_receivable_amount ?? 0;
+
+	return {
+		contactId: contact.contact_id,
+		totalAmount,
+		totalPaid,
+		totalOutstanding,
+		unusedCredits,
+		invoices,
+		payments,
+		estimates,
+		salesReceipts,
+		creditNotes,
 	};
 }
