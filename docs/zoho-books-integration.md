@@ -49,30 +49,45 @@ Before you begin, make sure you have:
 ### 1.1 Find Out How Students Are Identified ✅
 
 > **Verified on 2026-02-20** using student `901017723` (Mathapelo Letsoela).
+> **Re-verified on 2026-02-28** via API using student `901013251` (Neo Joseph Chere).
 
 Students are stored as **Business** contacts in Zoho Books with the following structure:
 
-| Field | Value | Notes |
-|-------|-------|-------|
-| **Customer Type** | Business | All students are "Business" type |
-| **Primary Contact (First Name)** | `901017723` | Student number used as first name |
-| **Company Name** | `Diploma in Information Technology` | Contains the **program name** |
-| **Display Name** | `Mathapelo Letsoela` | Student's actual name |
-| **Custom Field: "Account Code"** | `901017723` | **Primary lookup field** — populated for all students |
-| **Contact ID** | `4172689000000568209` | From URL: `contacts/4172689000000568209` |
-| **Organization ID** | `823788793` | From URL: `app/823788793` |
-| **Zoho Domain** | `zoho.com` | US / Global data center |
+| Field | Value (901017723) | Value (901013251) | Notes |
+|-------|-------|-------|-------|
+| **Customer Type** | Business | Business | All students are "Business" type |
+| **Primary Contact (First Name)** | `901017723` | `901013251` | Student number used as first name |
+| **Company Name** | `Diploma in Information Technology` | `Diploma in Architecture Technology` | Contains the **program name** |
+| **Display Name / Contact Name** | `Mathapelo Letsoela` | `Neo Joseph Chere` | Student's actual name (NOT the student number) |
+| **Custom Field: "Account Code"** | `901017723` | `901013251` | **Primary verification field** — populated for all students |
+| **Contact ID** | `4172689000000568209` | `4172689000000529161` | Zoho internal ID |
+| **Organization ID** | `823788793` | `823788793` | From URL: `app/823788793` |
+| **Zoho Domain** | `zoho.com` | `zoho.com` | US / Global data center |
+
+#### Tags (Discovered via API)
+
+Contacts also have **tags** with useful metadata:
+
+| Tag Name | Example Value | Notes |
+|----------|---------------|-------|
+| **Financial Assistance** | `ManPower` | Sponsor/funding source |
+| **School** | `FAID` | School abbreviation |
+| **Programme** | `DAT` | Program abbreviation |
 
 #### API Lookup Strategy
 
-1. **Primary**: Search by custom field `cf_account_code` (Account Code = student number)
-2. **Fallback**: Search by `contact_name` (Primary Contact first name = student number)
+The `cf_account_code` custom field is **not** a supported query parameter on the List Contacts API. Instead:
+
+1. **Search**: Use `search_text=<stdNo>` which searches across: EmailID, CompanyName, **FirstName**, LastName, Notes, Name
+2. **Verify**: Filter results client-side by matching `cf_account_code` (or `first_name`) = student number
 
 ```
-GET /contacts?cf_account_code=901017723&organization_id=823788793
+GET /contacts?search_text=901013251&organization_id=823788793
 ```
 
-> **Confirmed**: The Account Code custom field is populated for **all** students in Zoho Books.
+> **Confirmed**: The `search_text` parameter reliably finds students because the student number is stored in the `first_name` field (which is one of the searched fields). The `cf_account_code` custom field is populated for **all** students and is used for client-side verification.
+
+> **Important**: `contact_name` is the student's **display name** (e.g., "Neo Joseph Chere"), NOT the student number. Do NOT use `contact_name=<stdNo>` — it will return no results.
 
 ### 1.2 Find Out How Payment Types Are Identified ✅ (partial)
 
@@ -272,7 +287,7 @@ curl -X GET "https://www.zohoapis.com/books/v3/contacts?organization_id=YOUR_ORG
 
 **From the response**, confirm which field contains the student number. Note the `contact_id` for the next test.
 
-> `search_text` searches contact name and notes; it does not directly query `contact_number`.
+> **Confirmed (2026-02-28)**: `search_text` searches across **EmailID, CompanyName, FirstName, LastName, Notes, and Name** (per the `page_context.search_criteria` in the API response). It reliably finds students because the student number is stored in `first_name`. Verify the correct contact by checking `cf_account_code` in the response.
 
 ### 4.3 Test Searching for Invoices by Student
 
@@ -312,12 +327,12 @@ Choose ONE of the following based on what you found:
 |----------|-----------------------------|--------------------|
 | **A: Contact Name = Student Number** | `contact_name` field equals `stdNo` (e.g., `"901234567"`) | `contact_name=901234567` |
 | **B: Company Name = Student Number** | `company_name` field equals `stdNo` | `company_name=901234567` |
-| **C: Custom Field = Student Number** | A custom field (e.g., `cf_student_id`) holds `stdNo` | `search_text=901234567` (searches contact name and notes; verify results manually) |
+| **C: Custom Field = Student Number** | A custom field (e.g., `cf_account_code`) holds `stdNo`; `first_name` also holds `stdNo` | `search_text=901234567` → verify `cf_account_code` client-side |
 | **D: Contact Name = Student Full Name** | Search by name, then verify via custom field | `search_text=John Doe` |
 
-> **Note**: The List Contacts API does **not** support searching by `contact_number` as a query parameter. If student numbers are stored in the `contact_number` field, use `search_text` and filter results client-side, or use `contact_name` / `company_name` if those fields hold the student number.
+> **Note**: The List Contacts API does **not** support `cf_account_code` or `contact_number` as direct query parameters. Use `search_text` which searches across EmailID, CompanyName, FirstName, LastName, Notes, and Name. Since student numbers are stored in `first_name`, `search_text=<stdNo>` reliably matches. Always verify results by checking `cf_account_code` in the response.
 
-**Your choice**: ______ (fill in after Step 1 & 4 exploration)
+**Your choice**: **C** — Use `search_text=<stdNo>` to find the contact (matches via `first_name`), then verify the result by checking the `cf_account_code` custom field (label: "Account Code", api_name: `cf_account_code`) equals the student number. This is the most reliable approach as it leverages Zoho's built-in search and uses the authoritative custom field for verification.
 
 ### 5.2 Payment Type Mapping
 
@@ -360,11 +375,12 @@ ZOHO_BOOKS_ITEM_TUITION_FEE=Tuition Fee
 ZOHO_BOOKS_ITEM_LIBRARY_FINE=Library Fine
 ZOHO_BOOKS_ITEM_APPLICATION_FEE=Application Fee
 
-# Student lookup strategy: "contact_name" | "company_name" | "search_text" | "custom_field"
-ZOHO_BOOKS_STUDENT_LOOKUP_FIELD=contact_name
+# Student lookup strategy: "search_text" (recommended) | "contact_name" | "company_name" | "custom_field"
+ZOHO_BOOKS_STUDENT_LOOKUP_FIELD=search_text
 
-# Required only when ZOHO_BOOKS_STUDENT_LOOKUP_FIELD=custom_field
-ZOHO_BOOKS_STUDENT_CUSTOM_FIELD_LABEL=Student ID
+# Custom field label used to VERIFY the correct contact after search_text lookup
+# The "Account Code" custom field (api_name: cf_account_code) stores the student number
+ZOHO_BOOKS_STUDENT_CUSTOM_FIELD_LABEL=Account Code
 ```
 
 ---
@@ -497,18 +513,35 @@ export async function zohoGet<T>(
 Create file: `src/app/finance/_lib/zoho-books/types.ts`
 
 ```typescript
+export interface ZohoContactTag {
+  tag_id: string;
+  tag_name: string;
+  tag_option_id: string;
+  tag_option_name: string;
+  is_tag_mandatory: boolean;
+}
+
 export interface ZohoContact {
   contact_id: string;
   contact_name?: string;
+  first_name?: string;
+  last_name?: string;
   company_name?: string;
   contact_number?: string;
   email?: string;
   status?: string;
+  customer_sub_type?: string;
+  source?: string;
   custom_fields?: Array<{
+    field_id: string;
     index: number;
     value?: string;
     label: string;
+    api_name: string;
+    data_type: string;
   }>;
+  tags?: ZohoContactTag[];
+  cf_account_code?: string;
 }
 
 export interface ZohoContactsResponse {
@@ -569,9 +602,9 @@ import type {
 } from './types';
 
 const STUDENT_LOOKUP_FIELD =
-  process.env.ZOHO_BOOKS_STUDENT_LOOKUP_FIELD ?? 'contact_name';
+  process.env.ZOHO_BOOKS_STUDENT_LOOKUP_FIELD ?? 'search_text';
 const STUDENT_CUSTOM_FIELD_LABEL =
-  process.env.ZOHO_BOOKS_STUDENT_CUSTOM_FIELD_LABEL ?? '';
+  process.env.ZOHO_BOOKS_STUDENT_CUSTOM_FIELD_LABEL ?? 'Account Code';
 
 function getZohoItemName(receiptType: ReceiptType): string {
   const mapping: Record<ReceiptType, string | undefined> = {
@@ -621,6 +654,14 @@ export async function findStudentContact(
   const contacts = response.contacts ?? [];
   if (contacts.length === 0) {
     return null;
+  }
+
+  if (STUDENT_LOOKUP_FIELD === 'search_text') {
+    return (
+      contacts.find((contact) => contact.cf_account_code === stdNoStr) ??
+      contacts.find((contact) => contact.first_name === stdNoStr) ??
+      null
+    );
   }
 
   if (STUDENT_LOOKUP_FIELD === 'contact_name') {
