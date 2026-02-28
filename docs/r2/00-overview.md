@@ -167,6 +167,10 @@ The entire migration (Steps 1–7) MUST be executed as a **single atomic operati
 - **Atomic deployment**: All code + DB + R2 changes happen in a single maintenance window — no partial states exposed to users.
 - **Feature flags**: The old URL construction fallback remains until Step 8 cleanup.
 - **Content integrity**: Base64 extraction (Step 4) verifies uploaded file size matches decoded size before updating DB.
+- **NULL safety**: All migration UPDATE queries include `WHERE file_url IS NOT NULL` guards — the `documents.fileUrl` column is nullable.
+- **Orphan cleanup**: Step 5 payment upload cleans up R2 objects on DB transaction failure. Step 8 audits for any remaining orphans.
+- **PDF rendering**: Admissions `DocumentViewer` is updated to handle PDFs via `<iframe>` (120 deposit receipts are PDFs).
+- **Batch resilience**: Migration scripts use `Promise.allSettled` (not `Promise.all`) so one corrupt record doesn't kill the entire batch.
 
 ## Live Database Profile (as of 2026-02-28)
 
@@ -189,3 +193,4 @@ The entire migration (Steps 1–7) MUST be executed as a **single atomic operati
 2. **Student document deletion from R2 broken** — `deleteFromStorage(document.fileName)` passes display name instead of storage key; file never deleted from R2.
 3. **`DocumentCard` passes wrong field for URL resolution** — `getDocumentUrl(fileName)` receives the display name (e.g., "Report.pdf") instead of `fileUrl` (the storage reference). Currently dormant (0 student docs) but must be fixed in Step 7.
 4. **`formatFileSize()` duplicated in 6 places** — Not 3 as previously estimated. Found in: `AddDocumentModal.tsx`, `ResultsPublicationAttachments.tsx`, `UploadField.tsx` (library), `DocumentUpload.tsx` (apply), `MobileDocumentUpload.tsx` (apply), LMS `submissions/utils.ts`.
+5. **Admissions `DocumentViewer` cannot render PDFs** — Uses `<Image>` for all content, but 120 deposit receipts are PDFs. After migration (or even now with base64 PDFs), these render as broken images. Fixed in Step 7.7.2 by adding PDF detection and `<iframe>` rendering.

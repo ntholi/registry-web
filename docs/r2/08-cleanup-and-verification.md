@@ -45,6 +45,8 @@ FROM publication_attachments
 WHERE storage_key IS NULL;
 ```
 
+> **CRITICAL**: If `attachments_missing_key > 0`, do NOT proceed with cleanup. This means Step 3 Phase 5 didn't populate all `storageKey` values. The fallback `StoragePaths.termPublication(...)` in deletion code (Step 7.8) depends on this column. Run the migration script again for the term publications phase before continuing.
+
 **Expected:** All counts return 0.
 
 ### R2 Verification
@@ -223,6 +225,6 @@ Track these metrics after the full migration:
 | R2 HEAD requests per employee photo load | 1–4 | 0 |
 | Hardcoded R2 URLs in codebase | 9 files | 0 files |
 | Different folder naming patterns | 7 | 1 (standardized) |
-| `formatFileSize` implementations | 3 | 1 |
+| `formatFileSize` implementations | 6 | 1 |
 | DB queries per photo load | 0 | 1 (indexed, <1ms) |
 | Time to resolve student photo URL | ~200-800ms (network) | ~1ms (DB) |

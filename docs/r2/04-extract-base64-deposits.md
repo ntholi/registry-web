@@ -107,7 +107,7 @@ const base64Docs = await db
   );
 
 for (const batch of chunk(base64Docs, BATCH_SIZE)) {
-  await Promise.all(batch.map(async (doc) => {
+  const results = await Promise.allSettled(batch.map(async (doc) => {
     const { mediaType, base64 } = parseDataUri(doc.fileUrl);
     const buffer = Buffer.from(base64, 'base64');
     const key = StoragePaths.admissionDeposit(doc.applicationId, doc.fileName);
@@ -141,6 +141,13 @@ for (const batch of chunk(base64Docs, BATCH_SIZE)) {
       log({ docId: doc.id, status: 'failed', reason: 'HEAD verification failed' });
     }
   }));
+
+  // Log individual failures from Promise.allSettled
+  for (const result of results) {
+    if (result.status === 'rejected') {
+      log({ status: 'failed', reason: result.reason?.message || 'Unknown error in batch' });
+    }
+  }
 }
 ```
 
@@ -165,6 +172,7 @@ No conversion needed at migration time.
 | Scenario | Handling |
 |----------|----------|
 | Duplicate `fileName` for same `applicationId` | Append nanoid suffix: `deposit-ref-{nanoid}.ext` |
+| `fileName` contains spaces or special characters | Sanitize by replacing spaces with hyphens and removing non-URL-safe characters before constructing the R2 key. E.g., `deposit-APPLICATION FEE.jpeg` → `deposit-APPLICATION-FEE.jpeg` |
 | `fileUrl` is NULL or empty | Skip, log as warning |
 | `fileUrl` already an R2 key (not base64) | Skip, log as already-migrated |
 | Upload fails | Log error, continue with next record; do NOT update DB |

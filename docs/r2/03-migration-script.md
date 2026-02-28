@@ -88,7 +88,8 @@ Same as Phase 1 but:
    - `UPDATE documents SET file_url = '{newKey}' WHERE id = '{docId}'`
 
 ### Edge case:
-- **Documents not linked to any applicant**: Log as orphaned; copy to `admissions/applicants/documents/_orphaned/{fileName}`
+- **Documents not linked to any applicant** (153 orphaned records): These have no `applicantId` from the join. Log as orphaned; copy to `admissions/applicants/documents/_orphaned/{docId}/{fileName}` using the document's own `id` as the folder key. Update `documents.fileUrl` to the orphaned key so `getPublicUrl()` can still resolve them.
+- **`documents.fileUrl` is NULL**: Skip the record entirely, log as warning (do NOT attempt REPLACE on NULL values). Add `WHERE file_url IS NOT NULL` to all UPDATE queries in the migration script.
 
 ## 3.6 — Phase 4: Student Documents (Registry)
 
@@ -97,7 +98,8 @@ Same as Phase 1 but:
 
 ### Logic:
 1. Query `documents` joined with `student_documents` where `fileUrl` contains `documents/registry/students`
-2. For each:
+2. **IMPORTANT**: Filter `WHERE file_url IS NOT NULL` in all queries — the `fileUrl` column is nullable
+3. For each:
    - Build new key: `registry/students/documents/{stdNo}/{fileName}`
    - Copy, verify, update `documents.fileUrl`
 
@@ -127,7 +129,9 @@ Some student documents store only `fileName` in `documents.fileUrl` (not a full 
 ### Logic:
 These paths are already clean — **no file moving needed**. Only need to:
 1. Strip the base URL from `documents.fileUrl` for all library documents
-2. `UPDATE documents SET file_url = REPLACE(file_url, '{BASE_URL}/', '') WHERE file_url LIKE '{BASE_URL}/library/%'`
+2. `UPDATE documents SET file_url = REPLACE(file_url, '{BASE_URL}/', '') WHERE file_url LIKE '{BASE_URL}/library/%' AND file_url IS NOT NULL`
+
+> **NULL GUARD**: All bulk UPDATE statements MUST include `AND file_url IS NOT NULL` to prevent operating on NULL values. The `documents.fileUrl` column is nullable.
 
 ## 3.9 — Migration Log Format
 

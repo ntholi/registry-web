@@ -287,6 +287,49 @@ import { getPublicUrl } from '@/core/integrations/storage';
 
 > **NOTE**: `getPublicUrl` handles all formats — full URLs (pass-through), data URIs (pass-through), and bare keys (prefixes `R2_PUBLIC_URL`). This makes it safe regardless of migration state.
 
+## 7.7.2 — Fix `DocumentViewer` PDF Rendering (CRITICAL)
+
+### File: `src/app/admissions/documents/_components/DocumentViewer.tsx`
+
+### Problem:
+The admissions `DocumentViewer` uses Next.js `<Image>` for ALL content. After migration, 120 deposit receipts are PDFs (`application/pdf`). `<Image>` cannot render PDFs — they'll show as broken images. This is likely already broken for base64 PDF data URIs.
+
+### Fix:
+Add PDF detection and render PDFs in an `<iframe>` instead of `<Image>`:
+
+```tsx
+const isPdf = src.toLowerCase().endsWith('.pdf') ||
+  src.startsWith('data:application/pdf');
+
+// In the render:
+{isPdf ? (
+  <iframe
+    src={src}
+    style={{ width: '100%', height: '100%', minHeight: 500, border: 'none' }}
+    title={alt}
+  />
+) : (
+  <Image src={src} alt={alt} fill unoptimized ... />
+)}
+```
+
+> **NOTE**: The library `DocumentViewer` at `src/app/library/resources/_components/DocumentViewer.tsx` already handles PDFs correctly with a similar pattern. The admissions one must be brought to parity.
+
+## 7.7.3 — Update Library `DocumentViewer` URL Resolution
+
+### File: `src/app/library/resources/_components/DocumentViewer.tsx`
+
+This component receives `fileUrl` directly. After Step 3 strips the base URL from `documents.fileUrl` for library resources, the `fileUrl` prop will be a bare R2 key (e.g., `library/question-papers/abc123.pdf`).
+
+The callers (question paper page, publication page) must wrap the value with `getPublicUrl()` before passing it to this component:
+
+```tsx
+<DocumentViewer
+  fileUrl={getPublicUrl(questionPaper.document.fileUrl)}
+  fileName={questionPaper.document.fileName}
+/>
+```
+
 ## 7.8 — Update Deletion on Attachment Removal
 
 ### File: `src/app/registry/terms/settings/_components/ResultsPublicationAttachments.tsx`
@@ -316,25 +359,9 @@ The current implementations use ETags/Last-Modified headers from HEAD requests f
 - Documents are immutable — once uploaded, the content doesn't change (new version = new file)
 - No cache busting needed; the URL is stable
 
-## 7.10 — Next.js Image Optimization (Optional Enhancement)
+## 7.10 — Next.js Image Configuration (MOVED TO STEP 1)
 
-If using `<Image>` from Next.js for photos, add the R2 domain to `next.config.ts`:
-
-```typescript
-const nextConfig: NextConfig = {
-  images: {
-    remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: 'pub-2b37ce26bd70421e9e59e4fe805c6873.r2.dev',
-      },
-    ],
-  },
-  // ... existing config
-};
-```
-
-This enables Next.js automatic image optimization (resizing, WebP conversion, CDN caching) for R2-hosted images.
+> **This section has been moved to [Step 1, section 1.5](./01-centralize-storage-utility.md#15--add-imagesremotepatterns-to-nextconfigts-mandatory).** Adding `images.remotePatterns` to `next.config.ts` is MANDATORY and is now part of the foundational setup step.
 
 ## Summary of All Files Changed
 
@@ -356,6 +383,9 @@ This enables Next.js automatic image optimization (resizing, WebP conversion, CD
 | `src/app/admissions/applicants/_server/service.ts` | Use `getPublicUrl` |
 | `src/app/admissions/applicants/[id]/documents/_server/actions.ts` | Remove `ADMISSIONS_DOCUMENTS_BASE_URL`, use `getPublicUrl` |
 | `src/app/admissions/payments/_components/PaymentReviewDocumentSwitcher.tsx` | Wrap `fileUrl` with `getPublicUrl()` before passing to `DocumentViewer` |
+| `src/app/admissions/documents/_components/DocumentViewer.tsx` | **CRITICAL**: Add PDF detection and render PDFs via `<iframe>` instead of `<Image>` (120 PDF deposit receipts) |
+| `src/app/library/resources/question-papers/[id]/page.tsx` | Wrap `fileUrl` with `getPublicUrl()` before passing to library `DocumentViewer` |
+| `src/app/library/resources/publications/[id]/page.tsx` | Wrap `fileUrl` with `getPublicUrl()` before passing to library `DocumentViewer` |
 | `src/app/student-portal/profile/_components/ProfileHeader.tsx` | No code change needed (calls `getStudentPhoto` which is updated above) |
 | `src/app/student-portal/home/_components/Hero.tsx` | No code change needed (calls `getStudentPhoto` which is updated above) |
 | `next.config.ts` | Add `images.remotePatterns` (optional) |

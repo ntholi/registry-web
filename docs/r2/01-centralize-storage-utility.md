@@ -117,16 +117,15 @@ export async function uploadFile(
 
 ### Delete Function (MODIFIED)
 
+> **NOTE**: `deleteFile` is auth-free (like `uploadFile`). Auth is the calling action's or script's responsibility. This is intentional — migration scripts (Step 3), cleanup scripts (Step 8), and the public-facing payment action need to delete files without a user session. Server actions that expose deletion to users MUST check auth before calling `deleteFile`.
+
 ```typescript
 export async function deleteFile(key: string): Promise<void> {
-  const session = await auth();
-  if (!session?.user) return unauthorized();
-
   if (!key) throw new Error('No key provided');
 
   // Handle both full URLs and bare keys
   const actualKey = key.startsWith('http')
-    ? new URL(key).pathname.replace(/^\//, '')
+    ? new URL(key).pathname.replace(/^\//,  '')
     : key;
 
   await s3Client.send(
@@ -197,11 +196,30 @@ The `formatFileSize()` function is duplicated in **6 files** (see [Step 6, secti
 
 Similarly, `getFileExtension()` logic is inline in several files — all should use the shared utility.
 
+## 1.5 — Add `images.remotePatterns` to `next.config.ts` (MANDATORY)
+
+> **CRITICAL**: This is NOT optional. The `DocumentViewer` components use Next.js `<Image>` with `fill` and `unoptimized`. While `unoptimized` may bypass optimization, `remotePatterns` ensures Next.js allows the R2 domain. Without this, images from R2 URLs may be rejected.
+
+```typescript
+const nextConfig: NextConfig = {
+  // ...existing config
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'pub-2b37ce26bd70421e9e59e4fe805c6873.r2.dev',
+      },
+    ],
+  },
+};
+```
+
 ## Files Changed
 
 | File | Change |
 |------|--------|
 | `src/core/integrations/storage.ts` | Major rewrite: add `StoragePaths`, `getPublicUrl`, `uploadFile`, `deleteFile`, `fileExists`, `generateUploadKey` |
+| `next.config.ts` | Add `images.remotePatterns` for R2 domain (MANDATORY) |
 | `README.md` | Add `R2_PUBLIC_URL` to env vars |
 | `.env` / `.env.local` | Add `R2_PUBLIC_URL` value |
 

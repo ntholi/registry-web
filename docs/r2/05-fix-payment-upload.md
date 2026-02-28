@@ -114,7 +114,56 @@ await db.transaction(async (tx) => {
 });
 ```
 
-If the DB transaction fails after R2 upload, orphaned R2 objects remain but are harmless (can be cleaned up in Step 8).
+If the DB transaction fails after R2 upload, orphaned R2 objects remain. To handle this, wrap the entire flow in a try/catch that cleans up uploaded files on failure:
+
+```typescript
+const uploadedKeys: { key: string; receipt: DepositData }[] = [];
+try {
+  // Upload all receipts to R2 first
+  for (const receipt of receipts) {
+    const ext = receipt.mediaType.split('/')[1] || 'pdf';
+    const fileName = `deposit-${receipt.reference}.${ext}`;
+    const buffer = Buffer.from(receipt.base64, 'base64');
+    const key = StoragePaths.admissionDeposit(applicationId, fileName);
+    await uploadFile(buffer, key, receipt.mediaType);
+    uploadedKeys.push({ key, receipt });
+  }
+
+  // Then insert into DB in a transaction
+  await db.transaction(async (tx) => {
+    for (const { key, receipt } of uploadedKeys) {
+      const ext = receipt.mediaType.split('/')[1] || 'pdf';
+      const [doc] = await tx
+        .insert(documents)
+        .values({
+          fileName: `deposit-${receipt.reference}.${ext}`,
+          fileUrl: key,
+          type: 'proof_of_payment',
+        })
+        .returning({ id: documents.id });
+
+      await tx.insert(bankDeposits).values({
+        applicationId,
+        documentId: doc.id,
+        // ...other fields unchanged
+      });
+    }
+  });
+} catch (error) {
+  // Clean up orphaned R2 objects if DB transaction fails
+  for (const { key } of uploadedKeys) {
+    try {
+      await deleteFile(key);
+    } catch {
+      // Log but don't throw — cleanup is best-effort
+      console.error(`Failed to clean up orphaned R2 object: ${key}`);
+    }
+  }
+  throw error;
+}
+```
+
+> **NOTE**: `deleteFile` is now auth-free (see Step 1), so it can be called from this public-facing action without a session.
 
 ## 5.7 — Testing
 
