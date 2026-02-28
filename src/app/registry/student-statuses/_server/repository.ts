@@ -1,4 +1,4 @@
-import { and, count, eq, sql } from 'drizzle-orm';
+import { and, count, eq, inArray, sql } from 'drizzle-orm';
 import { db, studentStatusApprovals, studentStatuses } from '@/core/database';
 import BaseRepository, {
 	type AuditOptions,
@@ -282,6 +282,74 @@ class StudentStatusRepository extends BaseRepository<
 			totalPages: Math.ceil(totalItems / size),
 			totalItems,
 		};
+	}
+
+	async findPendingByApproverRoles(
+		roles: ApprovalRole[],
+		options?: QueryOptions<typeof studentStatuses>
+	) {
+		const { page = 1, size = 10, search } = options ?? {};
+		const offset = (page - 1) * size;
+
+		const conditions = [
+			inArray(studentStatusApprovals.approverRole, roles),
+			eq(studentStatusApprovals.status, 'pending'),
+			eq(studentStatuses.status, 'pending'),
+		];
+
+		if (search) {
+			conditions.push(
+				sql`${studentStatuses.stdNo}::text ILIKE ${`%${search}%`}`
+			);
+		}
+
+		const where = and(...conditions);
+
+		const items = await db
+			.select({ studentStatuses })
+			.from(studentStatuses)
+			.innerJoin(
+				studentStatusApprovals,
+				eq(studentStatusApprovals.applicationId, studentStatuses.id)
+			)
+			.where(where)
+			.orderBy(sql`${studentStatuses.createdAt} DESC`)
+			.limit(size)
+			.offset(offset);
+
+		const [result] = await db
+			.select({ count: count() })
+			.from(studentStatuses)
+			.innerJoin(
+				studentStatusApprovals,
+				eq(studentStatusApprovals.applicationId, studentStatuses.id)
+			)
+			.where(where);
+
+		const totalItems = result?.count ?? 0;
+		return {
+			items: items.map((row) => row.studentStatuses),
+			totalPages: Math.ceil(totalItems / size),
+			totalItems,
+		};
+	}
+
+	async countPendingByApproverRoles(roles: ApprovalRole[]) {
+		const [result] = await db
+			.select({ count: count() })
+			.from(studentStatuses)
+			.innerJoin(
+				studentStatusApprovals,
+				eq(studentStatusApprovals.applicationId, studentStatuses.id)
+			)
+			.where(
+				and(
+					inArray(studentStatusApprovals.approverRole, roles),
+					eq(studentStatusApprovals.status, 'pending'),
+					eq(studentStatuses.status, 'pending')
+				)
+			);
+		return result?.count ?? 0;
 	}
 }
 
