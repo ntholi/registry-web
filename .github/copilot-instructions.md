@@ -162,6 +162,15 @@ You are a **Senior Principal Software Engineer** and **System Architect** specia
 - **Status Icons**: `src/shared/lib/utils/status.tsx` (Add status → icon mappings here).
 - **Dates**: `src/shared/lib/utils/dates.ts` (Use for ALL formatting; never manual).
 - **Grades**: `src/shared/lib/utils/grades/` & `gradeCalculations.ts` (Never calculate locally).
+- **Activities**: `src/shared/lib/utils/activities.ts` (Shared contract: `ActivityFragment`, `ActivityEntry`, `Department` types).
+
+### Activity Logging
+- **Automatic**: `BaseRepository` audits all `create`/`update`/`delete` when `AuditOptions` is passed. `BaseService` auto-passes `{ userId, role, activityType }`.
+- **Activity Types**: Services declare `activityTypes: { create, update, delete }` in `BaseServiceConfig`. Each maps to a key in the module's `_lib/activities.ts` fragment.
+- **Fragments**: Each module owns `_lib/activities.ts` exporting a const `ActivityFragment` (`catalog` + `tableOperationMap`). Assembled in `src/app/admin/activity-tracker/_lib/registry.ts`.
+- **Custom writes**: Repositories call `this.writeAuditLog(tx, ...)` or `this.writeAuditLogBatch(tx, ...)` inside custom transactions. Pass `activityType` explicitly via `AuditOptions`.
+- **Student tracing**: Pass `stdNo` in `AuditOptions` for student-related writes (powers student History tab).
+- **Opt-out**: Set `protected auditEnabled = false` in repositories for ephemeral/log tables.
 
 ## 🚫 Negative Constraints (Critical)
 
@@ -256,8 +265,8 @@ src/
 - `ReceiptInput` - Receipt number input
 
 ### Platform Classes (`src/core/platform/`)
-- `BaseRepository` - CRUD operations with pagination
-- `BaseService` - Service layer with role-based auth
+- `BaseRepository` - CRUD with pagination + automatic audit logging (`AuditOptions`, `writeAuditLog`, `writeAuditLogBatch`)
+- `BaseService` - Service layer with role-based auth + auto audit (`buildAuditOptions`, `activityTypes` config)
 - `withAuth` - Authentication wrapper
 - `serviceWrapper` - Service proxy with logging
 

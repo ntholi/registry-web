@@ -16,6 +16,15 @@ Automates scaffolding a new feature within the Registry Web modular monolith arc
 - Service layer passes `userId` to repositories; repositories never call `auth()` and never create parallel audit flows.
 - If custom repository writes bypass base CRUD, include audit via `writeAuditLog` in the same transaction.
 
+### Activity Logging (CRITICAL)
+
+- Every service MUST declare `activityTypes: { create, update, delete }` in `BaseServiceConfig` mapping to activity type keys from the module's `_lib/activities.ts` fragment.
+- Every module has an `_lib/activities.ts` exporting a const `ActivityFragment` with `catalog` + `tableOperationMap`.
+- New features MUST add their activity entries to the module's existing `_lib/activities.ts` (or create it if first feature in module).
+- The assembler at `src/app/admin/activity-tracker/_lib/registry.ts` merges all module fragments — new modules must be imported there.
+- Shared contract: `src/shared/lib/utils/activities.ts` (`ActivityFragment`, `ActivityEntry`, `Department`).
+- `AuditOptions` supports `activityType`, `stdNo`, `role` — `BaseService.buildAuditOptions()` auto-populates `userId`, `role`, and `activityType` from config.
+
 ### Schema Import Rules (CRITICAL)
 
 Schema files (`_schema/*.ts`) must NEVER import from `@/core/database`. Instead, import from specific module paths:
@@ -154,6 +163,11 @@ class {{Entity}}Service extends BaseService<typeof {{entities}}, 'id'> {
 			createRoles: ['dashboard'],
 			updateRoles: ['dashboard'],
 			deleteRoles: ['dashboard'],
+			activityTypes: {
+				create: '{{table_file}}_created',
+				update: '{{table_file}}_updated',
+				delete: '{{table_file}}_deleted',
+			},
 		});
 	}
 }
@@ -197,7 +211,31 @@ export async function delete{{Entity}}(id: number) {
 }
 ```
 
-### Step 6: Types
+### Step 6: Activity Fragment Entries
+
+Add entries to the module's `src/app/{{module}}/_lib/activities.ts`. If the file exists, append to it. If not, create it following the pattern below:
+
+```typescript
+import type { ActivityFragment } from '@/shared/lib/utils/activities';
+
+const {{MODULE}}_ACTIVITIES = {
+	catalog: {
+		{{table_file}}_created: { label: '{{Entity}} Created', department: '{{department}}' },
+		{{table_file}}_updated: { label: '{{Entity}} Updated', department: '{{department}}' },
+		{{table_file}}_deleted: { label: '{{Entity}} Deleted', department: '{{department}}' },
+	},
+	tableOperationMap: {
+		'{{table_name}}:INSERT': '{{table_file}}_created',
+		'{{table_name}}:UPDATE': '{{table_file}}_updated',
+		'{{table_name}}:DELETE': '{{table_file}}_deleted',
+	},
+} as const satisfies ActivityFragment;
+
+export default {{MODULE}}_ACTIVITIES;
+export type {{Module}}ActivityType = keyof typeof {{MODULE}}_ACTIVITIES.catalog;
+```
+
+### Step 7: Types
 **Path:** `src/app/{{module}}/{{feature}}/_lib/types.ts`
 
 ```typescript
@@ -207,7 +245,7 @@ export type {{Entity}} = typeof {{entities}}.$inferSelect;
 export type {{Entity}}Insert = typeof {{entities}}.$inferInsert;
 ```
 
-### Step 7: Index (Re-exports)
+### Step 8: Index (Re-exports)
 **Path:** `src/app/{{module}}/{{feature}}/index.ts`
 
 ```typescript
@@ -216,7 +254,7 @@ export * from './_lib/types';
 export * from './_server/actions';
 ```
 
-### Step 8: Form Component
+### Step 9: Form Component
 **Path:** `src/app/{{module}}/{{feature}}/_components/Form.tsx`
 
 ```typescript
@@ -259,7 +297,7 @@ export default function {{Entity}}Form({ onSubmit, defaultValues, title }: Props
 }
 ```
 
-### Step 9: Layout
+### Step 10: Layout
 **Path:** `src/app/{{module}}/{{feature}}/layout.tsx`
 
 ```typescript
@@ -286,7 +324,7 @@ export default function Layout({ children }: PropsWithChildren) {
 }
 ```
 
-### Step 10: Index Page
+### Step 11: Index Page
 **Path:** `src/app/{{module}}/{{feature}}/page.tsx`
 
 ```typescript
@@ -297,7 +335,7 @@ export default function Page() {
 }
 ```
 
-### Step 11: New Page
+### Step 12: New Page
 **Path:** `src/app/{{module}}/{{feature}}/new/page.tsx`
 
 ```typescript
@@ -314,7 +352,7 @@ export default async function NewPage() {
 }
 ```
 
-### Step 12: Details Page
+### Step 13: Details Page
 **Path:** `src/app/{{module}}/{{feature}}/[id]/page.tsx`
 
 ```typescript
@@ -358,7 +396,7 @@ export default async function {{Entity}}Details({ params }: Props) {
 }
 ```
 
-### Step 13: Edit Page
+### Step 14: Edit Page
 **Path:** `src/app/{{module}}/{{feature}}/[id]/edit/page.tsx`
 
 ```typescript
@@ -409,9 +447,15 @@ After scaffolding, remind user to:
    pnpm db:migrate
    ```
 
-3. **Add navigation** (optional) - Add `NavItem` to `src/app/{{module}}/{{module}}.config.ts`
+3. **Register activity fragment** (if new module) - Import in `src/app/admin/activity-tracker/_lib/registry.ts`:
+   ```typescript
+   import {{MODULE}}_ACTIVITIES from '@{{module}}/_lib/activities';
+   // Add to ALL_FRAGMENTS array
+   ```
 
-4. **Validate**:
+4. **Add navigation** (optional) - Add `NavItem` to `src/app/{{module}}/{{module}}.config.ts`
+
+5. **Validate**:
    ```bash
    pnpm tsc --noEmit & pnpm lint:fix
    ```
