@@ -58,6 +58,9 @@ export const StoragePaths = {
   applicantDocument: (applicantId: string, fileName: string) =>
     `admissions/applicants/documents/${applicantId}/${fileName}`,
 
+  admissionDeposit: (applicationId: string, fileName: string) =>
+    `admissions/deposits/${applicationId}/${fileName}`,
+
   questionPaper: (fileName: string) =>
     `library/question-papers/${fileName}`,
 
@@ -72,33 +75,44 @@ export const StoragePaths = {
 export function getPublicUrl(key: string): string {
   if (!key) return '';
   if (key.startsWith('http')) return key; // Already a full URL (backwards compat)
+  if (key.startsWith('data:')) return key; // Base64 data URI (transition safety)
   return `${PUBLIC_URL}/${key}`;
 }
+```
+
+> **CRITICAL**: The `data:` URI check is essential during the transition period. Between Steps 3/4 and full deployment, some `documents.fileUrl` records may still contain base64 data URIs while others have been migrated to R2 keys. This ensures both formats render correctly.
 ```
 
 ### Upload Function (MODIFIED)
 
 Modify `uploadDocument` to accept the **full R2 key** instead of separate `fileName` + `folder` params. The caller uses `StoragePaths` to build the key.
 
-```typescript
-export async function uploadFile(file: File | Blob, key: string): Promise<string> {
-  const session = await auth();
-  if (!session?.user) return unauthorized();
+Accepts `File | Blob | Buffer` to support both browser uploads (File/Blob) and server-side operations like the base64 extraction script (Buffer). This is needed from Step 1 because Step 4's extraction script uploads decoded buffers.
 
-  const buffer = Buffer.from(await file.arrayBuffer());
+```typescript
+export async function uploadFile(
+  input: File | Blob | Buffer,
+  key: string,
+  contentType?: string
+): Promise<string> {
+  const body = input instanceof Buffer ? input : Buffer.from(await input.arrayBuffer());
+  const type = contentType || (input instanceof File ? input.type : 'application/octet-stream');
 
   await s3Client.send(
     new PutObjectCommand({
       Bucket: BUCKET_NAME,
       Key: key,
-      Body: buffer,
-      ContentType: file instanceof File ? file.type : 'application/octet-stream',
+      Body: body,
+      ContentType: type,
       ACL: 'public-read',
     })
   );
 
   return key;
 }
+```
+
+> **NOTE**: This function does NOT require auth. Auth is the calling action's responsibility. This is intentional — the public-facing `submitReceiptPayment` action (Step 5) needs to upload files without a session, and migration scripts (Steps 3-4) also call this without user context.
 ```
 
 ### Delete Function (MODIFIED)
@@ -179,11 +193,7 @@ export async function deleteDocument(url: string | undefined | null): Promise<vo
 
 ## 1.4 — Remove Duplicated Utilities
 
-The `formatFileSize()` function is duplicated in:
-- `src/app/admissions/applicants/_components/DocumentUpload.tsx`
-- `src/app/registry/students/_components/documents/AddDocumentModal.tsx`
-
-Both should import from `@/shared/lib/utils/files` instead.
+The `formatFileSize()` function is duplicated in **6 files** (see [Step 6, section 6.9](./06-update-upload-code.md) for the full list). All should import from `@/shared/lib/utils/files` instead.
 
 Similarly, `getFileExtension()` logic is inline in several files — all should use the shared utility.
 

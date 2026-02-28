@@ -49,68 +49,24 @@ const [doc] = await tx
   .returning({ id: documents.id });
 ```
 
-## 5.3 — Storage Utility Addition
+## 5.3 — Storage Utility (Already Handled in Step 1)
 
-The `uploadFile` function needs to accept a `Buffer` in addition to `File | Blob`. Either:
-
-**Option A** — Add a new `uploadBuffer` function:
+The `uploadFile` function defined in Step 1 already accepts `File | Blob | Buffer` with an optional `contentType` parameter. No additional changes needed here.
 
 ```typescript
-export async function uploadBuffer(
-  buffer: Buffer,
-  key: string,
-  contentType: string
-) {
-  await s3Client.send(
-    new PutObjectCommand({
-      Bucket: BUCKET_NAME,
-      Key: key,
-      Body: buffer,
-      ContentType: contentType,
-      ACL: 'public-read',
-    })
-  );
-  return key;
-}
-```
-
-**Option B** — Extend `uploadFile` to accept `Buffer`:
-
-```typescript
+// Step 1 already defines:
 export async function uploadFile(
   input: File | Blob | Buffer,
   key: string,
   contentType?: string
-) {
-  const body = input instanceof Buffer ? input : Buffer.from(await input.arrayBuffer());
-  const type = contentType || (input instanceof File ? input.type : 'application/octet-stream');
-
-  await s3Client.send(
-    new PutObjectCommand({
-      Bucket: BUCKET_NAME,
-      Key: key,
-      Body: body,
-      ContentType: type,
-      ACL: 'public-read',
-    })
-  );
-  return key;
-}
+): Promise<string>
 ```
 
-Either option works. Option B is cleaner if the centralized utility from Step 1 already uses `uploadFile`.
+The function also does NOT require auth (auth is the action's responsibility), which is correct for this public-facing payment action.
 
-## 5.4 — Authentication Consideration
+## 5.4 — Authentication Note
 
-The current `submitReceiptPayment` action does **not** use `withAuth` — it's a public-facing action for applicants (unauthenticated users submitting payment receipts). The R2 upload must not require an authenticated session.
-
-The existing `uploadDocument` in storage.ts calls `auth()` and returns `unauthorized()` if no session. The new `uploadBuffer` / `uploadFile` function for this use case should **not** require auth, since it's called server-side from a server action that already validates the input.
-
-Two approaches:
-1. Make `uploadFile` a lower-level function without auth (auth is the action's responsibility)
-2. Create a separate `uploadPublic` function that doesn't check auth
-
-This aligns with Step 1's centralized storage redesign.
+The current `submitReceiptPayment` action does **not** use `withAuth` — it's a public-facing action for applicants (unauthenticated users). Per Step 1's design, `uploadFile` is a low-level function that does NOT check auth. Auth enforcement is the calling action's responsibility. No special handling needed here.
 
 ## 5.5 — Input Validation
 
@@ -132,7 +88,7 @@ for (const receipt of receipts) {
   const fileName = `deposit-${receipt.reference}.${ext}`;
   const buffer = Buffer.from(receipt.base64, 'base64');
   const key = StoragePaths.admissionDeposit(applicationId, fileName);
-  await uploadBuffer(buffer, key, receipt.mediaType);
+  await uploadFile(buffer, key, receipt.mediaType);
   uploadedKeys.push({ key, receipt });
 }
 
@@ -173,4 +129,4 @@ If the DB transaction fails after R2 upload, orphaned R2 objects remain but are 
 | File | Change |
 |------|--------|
 | `src/app/apply/[id]/(wizard)/payment/_server/actions.ts` | Decode base64 → upload to R2 → store key |
-| `src/core/integrations/storage.ts` | Add `uploadBuffer` or extend `uploadFile` (if not done in Step 1) |
+| `src/core/integrations/storage.ts` | Already updated in Step 1 (`uploadFile` accepts `Buffer`) |

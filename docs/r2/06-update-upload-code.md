@@ -248,16 +248,20 @@ if (student.photoKey) {
 
 ## 6.9 — Remove Duplicated `formatFileSize`
 
-### Files with duplicated implementation:
-- `src/app/admissions/applicants/_components/DocumentUpload.tsx` (lines 54-61)
-- `src/app/registry/students/_components/documents/AddDocumentModal.tsx` (lines 44-53)
+### Files with duplicated implementation (6 total):
+- `src/app/registry/students/_components/documents/AddDocumentModal.tsx` (lines 42-53)
+- `src/app/registry/terms/settings/_components/ResultsPublicationAttachments.tsx` (lines 67-76)
+- `src/app/library/resources/_components/UploadField.tsx` (line 26)
+- `src/app/apply/_components/DocumentUpload.tsx` (line 101)
+- `src/app/apply/_components/MobileDocumentUpload.tsx` (line 95)
+- `src/app/lms/assignments/_features/submissions/utils.ts` (line 3)
 
 ### Replace with import:
 ```typescript
 import { formatFileSize } from '@/shared/lib/utils/files';
 ```
 
-Delete the local `formatFileSize` function from both files.
+Delete the local `formatFileSize` function from ALL 6 files. The canonical implementation lives in `src/shared/lib/utils/files.ts`.
 
 ## 6.10 — Applicant Service (Hardcoded URL)
 

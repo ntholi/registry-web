@@ -102,7 +102,78 @@ export async function getDocumentUrl(
 }
 ```
 
+> **CRITICAL SIGNATURE CHANGE**: The parameter changes from `fileName` (display name) to `fileUrl` (R2 key). See section 7.3.1 below for caller updates.
+
 Since the `documents.fileUrl` column now stores the R2 key (after Step 3 migration), we just pass it through `getPublicUrl()`. No HEAD request needed — if the document exists in the DB, it exists in R2.
+
+### 7.3.1 — Fix `DocumentCard` Caller (PRE-EXISTING BUG)
+
+### File: `src/app/registry/students/_components/documents/DocumentsView.tsx`
+
+The `DocumentCard` component currently receives `doc.document.fileName` (display name), but the URL resolution needs `doc.document.fileUrl` (R2 key). This is a **pre-existing bug** — the current `getDocumentUrl(fileName)` constructs `https://...r2.dev/documents/{displayName}` which points to a non-existent R2 object.
+
+### Current code (`DocumentsView.tsx`):
+```tsx
+<DocumentCard
+  key={doc.id}
+  id={doc.id}
+  fileName={doc.document.fileName}
+  type={doc.document.type}
+  createdAt={doc.document.createdAt}
+  canEdit={canEdit}
+  onDelete={handleDelete}
+/>
+```
+
+### New code:
+```tsx
+<DocumentCard
+  key={doc.id}
+  id={doc.id}
+  fileName={doc.document.fileName}
+  fileUrl={doc.document.fileUrl}
+  type={doc.document.type}
+  createdAt={doc.document.createdAt}
+  canEdit={canEdit}
+  onDelete={handleDelete}
+/>
+```
+
+### File: `src/app/registry/students/_components/documents/DocumentCard.tsx`
+
+### Current props:
+```typescript
+type DocumentCardProps = {
+  id: string;
+  fileName: string;
+  type: string | null;
+  createdAt: Date | null;
+  canEdit: boolean;
+  onDelete: (id: string, fileName: string) => void;
+};
+```
+
+### New props:
+```typescript
+type DocumentCardProps = {
+  id: string;
+  fileName: string;
+  fileUrl: string | null;
+  type: string | null;
+  createdAt: Date | null;
+  canEdit: boolean;
+  onDelete: (id: string, fileName: string) => void;
+};
+```
+
+### Update query inside `DocumentCard`:
+```typescript
+// BEFORE (broken — passes display name):
+queryFn: () => getDocumentUrl(fileName),
+
+// AFTER (correct — passes R2 key):
+queryFn: () => getDocumentUrl(fileUrl),
+```
 
 ## 7.4 — Replace Publication Attachment URL Construction
 
@@ -188,6 +259,34 @@ fileUrl: `https://pub-2b37ce26bd70421e9e59e4fe805c6873.r2.dev/documents/admissio
 fileUrl: getPublicUrl(doc.document?.fileUrl ?? ''),
 ```
 
+## 7.7.1 — Fix `PaymentReviewDocumentSwitcher` URL Resolution
+
+### File: `src/app/admissions/payments/_components/PaymentReviewDocumentSwitcher.tsx`
+
+### Current code:
+```tsx
+{selected.document?.fileUrl ? (
+  <DocumentViewer
+    src={selected.document.fileUrl}
+    alt={selected.document.fileName || 'Payment proof'}
+  />
+```
+
+After migration, `fileUrl` is an R2 key (e.g., `admissions/deposits/{appId}/deposit.jpeg`), not a renderable URL. Must resolve via `getPublicUrl()`:
+
+### New code:
+```tsx
+import { getPublicUrl } from '@/core/integrations/storage';
+
+{selected.document?.fileUrl ? (
+  <DocumentViewer
+    src={getPublicUrl(selected.document.fileUrl)}
+    alt={selected.document.fileName || 'Payment proof'}
+  />
+```
+
+> **NOTE**: `getPublicUrl` handles all formats — full URLs (pass-through), data URIs (pass-through), and bare keys (prefixes `R2_PUBLIC_URL`). This makes it safe regardless of migration state.
+
 ## 7.8 — Update Deletion on Attachment Removal
 
 ### File: `src/app/registry/terms/settings/_components/ResultsPublicationAttachments.tsx`
@@ -244,16 +343,21 @@ This enables Next.js automatic image optimization (resizing, WebP conversion, CD
 | `src/app/registry/students/_server/actions.ts` | `getStudentPhoto` → DB lookup |
 | `src/app/registry/students/_server/service.ts` | Add `getPhotoKey()` |
 | `src/app/registry/students/_server/repository.ts` | Add `getPhotoKey()` |
+| `src/app/registry/students/_components/documents/DocumentCard.tsx` | Add `fileUrl` prop, use it for URL resolution instead of `fileName` |
+| `src/app/registry/students/_components/documents/DocumentsView.tsx` | Pass `fileUrl` to `DocumentCard` |
 | `src/app/human-resource/employees/_server/actions.ts` | `getEmployeePhoto` → DB lookup |
 | `src/app/human-resource/employees/_server/service.ts` | Add `getPhotoKey()` |
 | `src/app/human-resource/employees/_server/repository.ts` | Add `getPhotoKey()` |
-| `src/app/registry/documents/_server/actions.ts` | `getDocumentUrl` → `getPublicUrl()` |
+| `src/app/registry/documents/_server/actions.ts` | `getDocumentUrl` → `getPublicUrl()`, parameter changes from `fileName` to `fileUrl` |
 | `src/app/registry/terms/settings/_server/actions.ts` | Remove `BASE_URL`, `getAttachmentFolder`, use `getPublicUrl` |
 | `src/app/registry/terms/settings/_components/ResultsPublicationAttachments.tsx` | Use `deleteFile` + `storageKey` |
 | `src/app/library/resources/question-papers/_server/actions.ts` | Remove `BASE_URL`, use `getPublicUrl` |
 | `src/app/library/resources/publications/_server/actions.ts` | Remove `BASE_URL`, use `getPublicUrl` |
 | `src/app/admissions/applicants/_server/service.ts` | Use `getPublicUrl` |
 | `src/app/admissions/applicants/[id]/documents/_server/actions.ts` | Remove `ADMISSIONS_DOCUMENTS_BASE_URL`, use `getPublicUrl` |
+| `src/app/admissions/payments/_components/PaymentReviewDocumentSwitcher.tsx` | Wrap `fileUrl` with `getPublicUrl()` before passing to `DocumentViewer` |
+| `src/app/student-portal/profile/_components/ProfileHeader.tsx` | No code change needed (calls `getStudentPhoto` which is updated above) |
+| `src/app/student-portal/home/_components/Hero.tsx` | No code change needed (calls `getStudentPhoto` which is updated above) |
 | `next.config.ts` | Add `images.remotePatterns` (optional) |
 
 ## Verification

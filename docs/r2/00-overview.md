@@ -16,7 +16,7 @@ The current R2 storage implementation suffers from:
 3. **No database tracking for photos** — Student/employee photos are discovered via 4 sequential HEAD requests (probing .jpg, .jpeg, .png, .webp)
 4. **Duplicated upload/retrieval logic** — Each module implements its own URL construction, file size validation, and extension handling
 5. **Mixed storage reference patterns** — Some DB records store `fileName` only, others store full `fileUrl`, others store nothing (photos)
-6. **`formatFileSize()` duplicated** — Exists in 3 places instead of using the shared utility
+6. **`formatFileSize()` duplicated** — Exists in 6 places instead of using the shared utility
 
 ## Decisions Made
 
@@ -91,8 +91,9 @@ The current R2 storage implementation suffers from:
 │   └── employees/
 │       └── photos/{empNo}.jpg
 ├── admissions/
-│   └── applicants/
-│       └── documents/{applicantId}/{nanoid}.{ext}
+│   ├── applicants/
+│   │   └── documents/{applicantId}/{nanoid}.{ext}
+│   └── deposits/{applicationId}/{fileName}
 └── library/
     ├── question-papers/{nanoid}.{ext}
     └── publications/{nanoid}.{ext}
@@ -102,7 +103,7 @@ The current R2 storage implementation suffers from:
 
 | Step | Document | Description |
 |------|----------|-------------|
-| 0 | [Investigation](../step-0/0000-before-migration-base64-investigation.md) | Investigate & resolve 1,422 base64 deposit receipts stored in DB |
+| 0 | Investigation (incorporated into Step 4) | Base64 deposit receipts investigation — findings captured in Step 4 |
 | 1 | [01-centralize-storage-utility.md](./01-centralize-storage-utility.md) | Create centralized storage utility with env var, path builders, and URL resolver |
 | 2 | [02-schema-changes.md](./02-schema-changes.md) | Add `photoKey` to students/employees, standardize `fileUrl` storage format |
 | 3 | [03-migration-script.md](./03-migration-script.md) | R2 copy script: old paths → new paths, populate `photoKey` columns |
@@ -114,19 +115,77 @@ The current R2 storage implementation suffers from:
 
 ## Pre-Migration: Base64 Data in `documents` Table
 
-> See [0000-before-migration-base64-investigation.md](../step-0/0000-before-migration-base64-investigation.md)
+> See [04-extract-base64-deposits.md](./04-extract-base64-deposits.md)
 
 **1,422 `documents` records** store raw base64 file content (deposit receipts) directly in `file_url` instead of R2. These are linked via `bank_deposits` and total ~892 MB of DB storage. This is resolved by **Steps 4 & 5** — Step 4 extracts existing records to R2, Step 5 fixes the source action to prevent new base64 records.
+
+## Maintenance Window — Deployment Procedure
+
+> **CRITICAL: Full server downtime is required. No user traffic during migration.**
+
+The entire migration (Steps 1–7) MUST be executed as a **single atomic operation** during a scheduled maintenance window. The server is taken offline, ALL code changes and migration scripts run, and the server only comes back online once everything is verified.
+
+### Pre-Maintenance Checklist
+- [ ] Full PostgreSQL backup via `pg_dump` with `--format=custom`
+- [ ] R2 bucket object listing saved to JSON (audit trail)
+- [ ] All code changes (Steps 1, 2, 5, 6, 7) committed, reviewed, and ready to deploy
+- [ ] Migration scripts (Steps 3, 4) tested on staging/local with `--dry-run`
+- [ ] Maintenance banner / downtime notice communicated to users
+
+### Execution Sequence (During Downtime)
+
+```
+1. Take server offline (maintenance mode)
+2. pg_dump full database backup                      <- SAFETY NET
+3. Deploy code changes (Steps 1+2+5+6+7)            <- New code handles BOTH old and new formats
+4. Run schema migration (Step 2: pnpm db:generate)   <- Add nullable columns
+5. Run R2 migration script (Step 3: --dry-run first) <- Copy files, update DB references
+6. Run base64 extraction (Step 4: --dry-run first)   <- Extract deposits from DB to R2
+7. VACUUM FULL documents;                            <- Reclaim ~892 MB of dead tuples
+8. Verify: spot-check 10 files per category via HEAD
+9. Verify: run SQL verification queries (Step 8.1)
+10. Start server, smoke-test all modules
+11. If ANYTHING fails → restore from pg_dump, redeploy old code, bring server back up
+```
+
+### Why Atomic Deployment Is Mandatory
+- Step 3 changes `documents.fileUrl` from full URLs to bare R2 keys
+- Step 4 replaces base64 data URIs with R2 keys
+- If old code (without `getPublicUrl()`) runs after these DB changes, **all documents show broken images/links**
+- The new code's `getPublicUrl()` handles both formats (`if (key.startsWith('http')) return key`), so deploying code first is safe but running migration scripts without code is NOT
+
+### Rollback Plan
+- **Code rollback**: Redeploy previous version (old code handles old DB format)
+- **DB rollback**: Restore from `pg_dump` backup taken in step 2
+- **R2 rollback**: No rollback needed — R2 changes are additive (copies, not moves). Old files remain until Step 8 cleanup
+- **Partial failure**: If migration script fails mid-way, the script is idempotent and can be re-run. Mixed state (some records updated, some not) is handled by `getPublicUrl()` which accepts both formats
 
 ## Risk Mitigation
 
 - **Zero data loss**: Copy-then-update strategy. Old files are never deleted until new paths are verified with HEAD requests.
 - **Rollback**: If anything goes wrong, old paths still exist. The migration script logs all operations for audit.
-- **Phased deployment**: Each step can be deployed independently. Steps 1-2 are backwards-compatible.
+- **Atomic deployment**: All code + DB + R2 changes happen in a single maintenance window — no partial states exposed to users.
 - **Feature flags**: The old URL construction fallback remains until Step 8 cleanup.
-- **Deployment order**: Steps 1+2 deploy first (additive). Then Step 3 migration script runs. Then Steps 4+5 (base64 cleanup). Then Steps 6+7 (code updates). Finally Step 8 after verification period.
+- **Content integrity**: Base64 extraction (Step 4) verifies uploaded file size matches decoded size before updating DB.
 
-## Pre-Existing Bugs (Fixed in Step 6)
+## Live Database Profile (as of 2026-02-28)
+
+| Category | Count | Notes |
+|----------|-------|-------|
+| Documents with full R2 URLs | 5,037 | All admissions documents (`documents/admissions/{nanoid}.{ext}`) |
+| Documents with base64 data URIs | 1,422 | All bank deposit receipts (100% linked to `bank_deposits`) |
+| Documents linked to applicants | 4,884 | Via `applicant_documents` join table |
+| Orphaned documents (no link) | 153 | Types: identity (70), certificate (48), academic_record (35) |
+| Student documents | 0 | No records yet (upload code exists but unused) |
+| Library question papers | 0 | No records yet |
+| Library publications | 0 | No records yet |
+| Publication attachments | 0 | No records yet |
+| Students (need photo scan) | 21,208 | Photos in R2 but not tracked in DB |
+| Employees | 0 | No records in local DB |
+
+## Pre-Existing Bugs (Fixed in Steps 6–7)
 
 1. **Student photo deletion broken** — `deleteDocument(photoUrl)` passes full URL with query params as R2 Key; silently fails.
 2. **Student document deletion from R2 broken** — `deleteFromStorage(document.fileName)` passes display name instead of storage key; file never deleted from R2.
+3. **`DocumentCard` passes wrong field for URL resolution** — `getDocumentUrl(fileName)` receives the display name (e.g., "Report.pdf") instead of `fileUrl` (the storage reference). Currently dormant (0 student docs) but must be fixed in Step 7.
+4. **`formatFileSize()` duplicated in 6 places** — Not 3 as previously estimated. Found in: `AddDocumentModal.tsx`, `ResultsPublicationAttachments.tsx`, `UploadField.tsx` (library), `DocumentUpload.tsx` (apply), `MobileDocumentUpload.tsx` (apply), LMS `submissions/utils.ts`.

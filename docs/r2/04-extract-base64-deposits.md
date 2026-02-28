@@ -45,11 +45,11 @@ Where `fileName` is the existing `documents.fileName` value (e.g., `deposit-APPL
 
 This keeps deposits separate from applicant documents and is keyed by `applicationId` (matching `bank_deposits.applicationId`).
 
-Add to `StoragePaths` in `src/core/integrations/storage.ts`:
+Uses `StoragePaths.admissionDeposit` (already defined in [Step 1](./01-centralize-storage-utility.md)):
 
 ```typescript
-admissionDeposit: (applicationId: string, fileName: string) =>
-  `admissions/deposits/${applicationId}/${fileName}`,
+StoragePaths.admissionDeposit(applicationId, fileName)
+// → "admissions/deposits/{applicationId}/{fileName}"
 ```
 
 ## 4.2 — Script Location & Usage
@@ -125,12 +125,18 @@ for (const batch of chunk(base64Docs, BATCH_SIZE)) {
       Key: key,
     }));
 
-    if (head.$metadata.httpStatusCode === 200) {
+    // CRITICAL: Verify content integrity — uploaded size must match decoded size
+    const expectedSize = buffer.length;
+    const actualSize = head.ContentLength;
+
+    if (head.$metadata.httpStatusCode === 200 && actualSize === expectedSize) {
       await db.update(documents)
         .set({ fileUrl: key })
         .where(eq(documents.id, doc.id));
 
-      log({ docId: doc.id, oldSize: doc.fileUrl.length, newKey: key, status: 'success' });
+      log({ docId: doc.id, oldSize: doc.fileUrl.length, newKey: key, uploadedBytes: actualSize, status: 'success' });
+    } else if (actualSize !== expectedSize) {
+      log({ docId: doc.id, status: 'failed', reason: `Size mismatch: expected ${expectedSize}, got ${actualSize}` });
     } else {
       log({ docId: doc.id, status: 'failed', reason: 'HEAD verification failed' });
     }
@@ -202,30 +208,48 @@ WHERE d.file_url LIKE 'admissions/deposits/%';
 -- Expected: 1422
 
 SELECT pg_size_pretty(pg_total_relation_size('documents')) AS table_size;
--- Should be significantly smaller than before
+-- Will still be large until VACUUM FULL runs (dead tuples)
 ```
 
+## 4.8.1 — VACUUM FULL (Mandatory)
+
+After the extraction completes, ~892 MB of base64 data becomes dead tuples in PostgreSQL. The space is NOT automatically reclaimed.
+
+```sql
+-- Run IMMEDIATELY after extraction completes and verification passes
+VACUUM FULL documents;
+ANALYZE documents;
+```
+
+Then re-check:
+```sql
+SELECT pg_size_pretty(pg_total_relation_size('documents')) AS table_size_after_vacuum;
+-- Should now be dramatically smaller (~5-10 MB vs ~900 MB)
+```
+
+> **WARNING**: `VACUUM FULL` requires an exclusive lock on the table. This is acceptable during the maintenance window but must NOT be run while the server is live.
+
+## 4.8.2 — Orphaned Documents (153 Records)
+
+The database contains **153 documents** with full R2 URLs that are NOT linked to any `applicant_documents` or `bank_deposits` record (likely leftovers from deleted applicants):
+- 70 identity documents
+- 48 certificates
+- 35 academic records
+
+These will have their `file_url` stripped of the base URL prefix by Step 3 (since they match `LIKE 'https://pub-%'`). The R2 files themselves are handled by Step 3 Phase 3 (logged as orphaned, copied to `_orphaned/` subfolder).
+
+No special handling needed beyond what Step 3 already defines, but the extraction script should explicitly log these as skipped (they are NOT base64).
+
 ## 4.9 — UI Impact
+
+> **NOTE**: Since all steps are deployed atomically during the maintenance window (see [00-overview.md](./00-overview.md#maintenance-window--deployment-procedure)), Steps 4 and 7 are live simultaneously. No interim workaround is needed.
 
 The `DocumentViewer` component at `src/app/admissions/documents/_components/DocumentViewer.tsx` currently works with both base64 data URIs and regular URLs as the `src` prop. After migration:
 
 - `fileUrl` will be an R2 key like `admissions/deposits/{appId}/deposit-ref.jpeg`
-- The retrieval code (Step 7) must resolve this key to a full URL via `getPublicUrl(key)`
-- Until Step 7 is done, admins will see broken images — **plan accordingly**
-
-### Interim Workaround
-
-If Steps 4 and 7 can't be deployed simultaneously, add a temporary resolver in the repository's `findBankDepositWithDocument`:
-
-```typescript
-documentFileUrl: sql`
-  CASE
-    WHEN ${documents.fileUrl} LIKE 'data:%' THEN ${documents.fileUrl}
-    WHEN ${documents.fileUrl} LIKE 'http%' THEN ${documents.fileUrl}
-    ELSE CONCAT(${PUBLIC_URL}, '/', ${documents.fileUrl})
-  END
-`.as('document_file_url'),
-```
+- The retrieval code (Step 7) resolves this key to a full URL via `getPublicUrl(key)`
+- The `PaymentReviewDocumentSwitcher` passes `selected.document.fileUrl` directly to `<DocumentViewer src=...>` — this must go through `getPublicUrl()` after migration
+- `getPublicUrl()` also handles `data:` URIs (returns as-is) for safety during any partial state
 
 ## 4.10 — Rollback Plan
 
