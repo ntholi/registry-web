@@ -7,6 +7,7 @@ import {
 	IconClipboardCheck,
 	IconRobot,
 	IconSchool,
+	IconUserExclamation,
 	IconUserOff,
 	IconUserPlus,
 	IconUsers,
@@ -16,6 +17,7 @@ import { moduleConfig } from '@/config/modules.config';
 import type { UserPosition, UserRole } from '../auth/_database';
 import { countPendingGraduationClearances } from './graduation';
 import { countPendingClearances } from './registration';
+import { countPendingStudentStatuses } from './student-statuses';
 
 export const registryConfig: ModuleConfig = {
 	id: 'registry',
@@ -118,6 +120,28 @@ export const registryConfig: ModuleConfig = {
 				href: '/registry/blocked-students',
 				icon: IconUserOff,
 				roles: ['admin', 'registry', 'finance'],
+			},
+			{
+				label: 'Student Status',
+				href: '/registry/student-statuses',
+				icon: IconUserExclamation,
+				isVisible: (session) => {
+					const role = session?.user?.role as UserRole;
+					if (
+						['admin', 'registry', 'student_services', 'finance'].includes(role)
+					)
+						return true;
+					const position = session?.user?.position as UserPosition;
+					return !!(
+						position &&
+						['manager', 'program_leader', 'year_leader'].includes(position)
+					);
+				},
+				notificationCount: {
+					queryKey: ['student-statuses', 'pending'],
+					queryFn: () => countPendingStudentStatuses(),
+					color: 'red',
+				},
 			},
 			{
 				label: 'Terms',

@@ -2,6 +2,9 @@ import {
 	IconCircleCheck,
 	IconClock,
 	IconExclamationCircle,
+	IconUserMinus,
+	IconUserPause,
+	IconUserPlus,
 } from '@tabler/icons-react';
 import { getStatusColor } from './colors';
 
@@ -31,5 +34,22 @@ export function getStatusIcon(
 			return <IconExclamationCircle size={size} color={color} />;
 		default:
 			return <IconClock size={size} color={color} />;
+	}
+}
+
+export type ApplicationType = 'withdrawal' | 'deferment' | 'reinstatement';
+
+export function getApplicationTypeIcon(
+	type: ApplicationType,
+	options?: { size?: StatusIconSize }
+) {
+	const { size = '1rem' } = options || {};
+	switch (type) {
+		case 'withdrawal':
+			return <IconUserMinus size={size} />;
+		case 'deferment':
+			return <IconUserPause size={size} />;
+		case 'reinstatement':
+			return <IconUserPlus size={size} />;
 	}
 }
