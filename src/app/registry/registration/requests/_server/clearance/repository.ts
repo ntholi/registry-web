@@ -15,6 +15,7 @@ import {
 	studentModules,
 	studentPrograms,
 	studentSemesters,
+	students,
 } from '@/core/database';
 import BaseRepository, {
 	type AuditOptions,
@@ -384,12 +385,13 @@ export default class ClearanceRepository extends BaseRepository<
 			filter?.schoolId || filter?.programId || filter?.programLevel;
 		const hasSemesterFilter = filter?.semester;
 
+		const needsStudentJoin = !!params.search;
+
 		const baseConditions = and(
 			params.search
 				? sql`(
 					${registrationRequests.stdNo}::text LIKE ${`%${params.search}%`}
-					OR ${registrationRequests.id}::text LIKE ${`%${params.search}%`}
-					OR ${clearance.id}::text LIKE ${`%${params.search}%`}
+					OR ${students.name} ILIKE ${`%${params.search}%`}
 				)`
 				: undefined,
 			filter?.termId
@@ -424,6 +426,13 @@ export default class ClearanceRepository extends BaseRepository<
 			.innerJoin(clearance, eq(registrationClearance.clearanceId, clearance.id))
 			.$dynamic();
 
+		if (needsStudentJoin) {
+			countQuery = countQuery.innerJoin(
+				students,
+				eq(students.stdNo, registrationRequests.stdNo)
+			);
+		}
+
 		if (hasAdvancedFilter) {
 			countQuery = countQuery
 				.innerJoin(
@@ -450,6 +459,13 @@ export default class ClearanceRepository extends BaseRepository<
 			)
 			.innerJoin(clearance, eq(registrationClearance.clearanceId, clearance.id))
 			.$dynamic();
+
+		if (needsStudentJoin) {
+			idQuery = idQuery.innerJoin(
+				students,
+				eq(students.stdNo, registrationRequests.stdNo)
+			);
+		}
 
 		if (hasAdvancedFilter) {
 			idQuery = idQuery

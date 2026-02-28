@@ -69,8 +69,14 @@ export default function Layout({ children }: PropsWithChildren) {
 			path='/registry/registration/clearance'
 			queryKey={['clearances', statusFilter, getFilterKey(filter)]}
 			getData={async (page, search) => {
+				const effectiveStatus =
+					search && statusFilter !== 'all'
+						? undefined
+						: statusFilter === 'all'
+							? undefined
+							: statusFilter;
 				const response = await clearanceByStatus(
-					statusFilter === 'all' ? undefined : statusFilter,
+					effectiveStatus,
 					page,
 					search,
 					apiFilter

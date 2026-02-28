@@ -170,7 +170,10 @@ export default class GraduationClearanceRepository extends BaseRepository<
 
 		const baseWhereConditions = [
 			params.search
-				? sql`${students.stdNo}::text LIKE ${`%${params.search}%`}`
+				? sql`(
+					${students.stdNo}::text LIKE ${`%${params.search}%`}
+					OR ${students.name} ILIKE ${`%${params.search}%`}
+				)`
 				: undefined,
 			eq(clearance.department, department),
 			status ? eq(clearance.status, status) : undefined,

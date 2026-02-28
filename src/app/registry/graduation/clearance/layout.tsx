@@ -71,8 +71,14 @@ export default function Layout({ children }: PropsWithChildren) {
 			]}
 			getData={async (page, search) => {
 				const dateToUse = selectedDate || latestDate?.id;
+				const effectiveStatus =
+					search && statusFilter !== 'all'
+						? undefined
+						: statusFilter === 'all'
+							? undefined
+							: statusFilter;
 				const response = await graduationClearanceByStatus(
-					statusFilter === 'all' ? undefined : statusFilter,
+					effectiveStatus,
 					page,
 					search,
 					dateToUse || undefined
