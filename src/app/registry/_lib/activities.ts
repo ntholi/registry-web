@@ -159,6 +159,18 @@ const REGISTRY_ACTIVITIES = {
 			label: 'Student Status Updated',
 			department: 'registry',
 		},
+		student_status_approved: {
+			label: 'Student Status Approved',
+			department: 'registry',
+		},
+		student_status_rejected: {
+			label: 'Student Status Rejected',
+			department: 'registry',
+		},
+		student_status_cancelled: {
+			label: 'Student Status Cancelled',
+			department: 'registry',
+		},
 		student_status_approval_updated: {
 			label: 'Student Status Approval Updated',
 			department: 'registry',
