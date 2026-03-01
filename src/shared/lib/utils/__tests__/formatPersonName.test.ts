@@ -19,5 +19,6 @@ describe('formatPersonName', () => {
 	it('returns nullable inputs unchanged', () => {
 		expect(formatPersonName(undefined)).toBeUndefined();
 		expect(formatPersonName(null)).toBeUndefined();
+		expect(formatPersonName('   ')).toBeUndefined();
 	});
 });

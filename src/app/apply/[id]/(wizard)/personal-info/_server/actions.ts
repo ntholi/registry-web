@@ -83,7 +83,7 @@ export async function updateExistingGuardian(
 			id,
 			{
 				...data,
-				name: formatPersonName(data.name),
+				name: formatPersonName(data.name) ?? data.name,
 			},
 			phoneNumbers
 		);

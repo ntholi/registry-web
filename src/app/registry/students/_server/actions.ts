@@ -105,7 +105,7 @@ export async function updateStudentWithReasons(
 		stdNo,
 		{
 			...data,
-			name: formatPersonName(data.name),
+			name: formatPersonName(data.name) ?? data.name,
 		},
 		reasons
 	);

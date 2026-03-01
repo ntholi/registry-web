@@ -14,17 +14,25 @@ async function normalizeApplicantNames() {
 		.select({ id: applicants.id, fullName: applicants.fullName })
 		.from(applicants);
 
-	let updated = 0;
+	const updates: { id: string; fullName: string }[] = [];
 	for (const row of rows) {
 		const fullName = formatPersonName(row.fullName);
 		if (!fullName || fullName === row.fullName) continue;
-		await db
-			.update(applicants)
-			.set({ fullName })
-			.where(eq(applicants.id, row.id));
-		updated++;
+		updates.push({ id: row.id, fullName });
 	}
-	return updated;
+
+	if (updates.length === 0) return 0;
+
+	await db.transaction(async (tx) => {
+		for (const row of updates) {
+			await tx
+				.update(applicants)
+				.set({ fullName: row.fullName })
+				.where(eq(applicants.id, row.id));
+		}
+	});
+
+	return updates.length;
 }
 
 async function normalizeGuardianNames() {
@@ -32,14 +40,25 @@ async function normalizeGuardianNames() {
 		.select({ id: guardians.id, name: guardians.name })
 		.from(guardians);
 
-	let updated = 0;
+	const updates: { id: string; name: string }[] = [];
 	for (const row of rows) {
 		const name = formatPersonName(row.name);
 		if (!name || name === row.name) continue;
-		await db.update(guardians).set({ name }).where(eq(guardians.id, row.id));
-		updated++;
+		updates.push({ id: row.id, name });
 	}
-	return updated;
+
+	if (updates.length === 0) return 0;
+
+	await db.transaction(async (tx) => {
+		for (const row of updates) {
+			await tx
+				.update(guardians)
+				.set({ name: row.name })
+				.where(eq(guardians.id, row.id));
+		}
+	});
+
+	return updates.length;
 }
 
 async function normalizeEmployeeNames() {
@@ -47,17 +66,25 @@ async function normalizeEmployeeNames() {
 		.select({ empNo: employees.empNo, name: employees.name })
 		.from(employees);
 
-	let updated = 0;
+	const updates: { empNo: string; name: string }[] = [];
 	for (const row of rows) {
 		const name = formatPersonName(row.name);
 		if (!name || name === row.name) continue;
-		await db
-			.update(employees)
-			.set({ name })
-			.where(eq(employees.empNo, row.empNo));
-		updated++;
+		updates.push({ empNo: row.empNo, name });
 	}
-	return updated;
+
+	if (updates.length === 0) return 0;
+
+	await db.transaction(async (tx) => {
+		for (const row of updates) {
+			await tx
+				.update(employees)
+				.set({ name: row.name })
+				.where(eq(employees.empNo, row.empNo));
+		}
+	});
+
+	return updates.length;
 }
 
 async function normalizeStudentNames() {
@@ -65,17 +92,25 @@ async function normalizeStudentNames() {
 		.select({ stdNo: students.stdNo, name: students.name })
 		.from(students);
 
-	let updated = 0;
+	const updates: { stdNo: number; name: string }[] = [];
 	for (const row of rows) {
 		const name = formatPersonName(row.name);
 		if (!name || name === row.name) continue;
-		await db
-			.update(students)
-			.set({ name })
-			.where(eq(students.stdNo, row.stdNo));
-		updated++;
+		updates.push({ stdNo: row.stdNo, name });
 	}
-	return updated;
+
+	if (updates.length === 0) return 0;
+
+	await db.transaction(async (tx) => {
+		for (const row of updates) {
+			await tx
+				.update(students)
+				.set({ name: row.name })
+				.where(eq(students.stdNo, row.stdNo));
+		}
+	});
+
+	return updates.length;
 }
 
 async function main() {

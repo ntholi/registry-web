@@ -99,7 +99,7 @@ function capitalizeNamePart(part: string) {
 
 export function formatPersonName(name: string | undefined | null) {
 	if (name === undefined || name === null) return undefined;
-	if (!name.trim()) return '';
+	if (!name.trim()) return undefined;
 	return name
 		.trim()
 		.replace(/\s+/g, ' ')
