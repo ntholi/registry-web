@@ -12,6 +12,7 @@ import {
 } from '@admissions/applicants';
 import { type ActionResult, extractError } from '@apply/_lib/errors';
 import type { applicants, guardians } from '@/core/database';
+import { formatPersonName } from '@/shared/lib/utils/utils';
 
 type ApplicantInput = typeof applicants.$inferInsert;
 type GuardianInput = typeof guardians.$inferInsert;
@@ -21,7 +22,10 @@ export async function updateApplicantInfo(
 	data: ApplicantInput
 ): Promise<ActionResult<void>> {
 	try {
-		await updateApplicant(id, data);
+		await updateApplicant(id, {
+			...data,
+			fullName: formatPersonName(data.fullName) ?? data.fullName,
+		});
 		return { success: true, data: undefined };
 	} catch (error) {
 		return { success: false, error: extractError(error) };
@@ -56,7 +60,13 @@ export async function addNewGuardian(
 	phoneNumbers?: string[]
 ): Promise<ActionResult<void>> {
 	try {
-		await createGuardian(data, phoneNumbers);
+		await createGuardian(
+			{
+				...data,
+				name: formatPersonName(data.name) ?? data.name,
+			},
+			phoneNumbers
+		);
 		return { success: true, data: undefined };
 	} catch (error) {
 		return { success: false, error: extractError(error) };
@@ -69,7 +79,14 @@ export async function updateExistingGuardian(
 	phoneNumbers?: string[]
 ): Promise<ActionResult<void>> {
 	try {
-		await updateGuardian(id, data, phoneNumbers);
+		await updateGuardian(
+			id,
+			{
+				...data,
+				name: formatPersonName(data.name),
+			},
+			phoneNumbers
+		);
 		return { success: true, data: undefined };
 	} catch (error) {
 		return { success: false, error: extractError(error) };

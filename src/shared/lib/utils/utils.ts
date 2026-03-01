@@ -92,6 +92,28 @@ export function toTitleCase(str: string | undefined | null) {
 		.join(' ');
 }
 
+function capitalizeNamePart(part: string) {
+	if (!part) return '';
+	return part.charAt(0).toUpperCase() + part.slice(1);
+}
+
+export function formatPersonName(name: string | undefined | null) {
+	if (name === undefined || name === null) return undefined;
+	if (!name.trim()) return '';
+	return name
+		.trim()
+		.replace(/\s+/g, ' ')
+		.toLowerCase()
+		.split(' ')
+		.map((word) =>
+			word
+				.split('-')
+				.map((part) => capitalizeNamePart(part))
+				.join('-')
+		)
+		.join(' ');
+}
+
 /**
  * Sanitizes the values of an object to ensure that null values are converted to undefined,
  * @param values - The object to sanitize

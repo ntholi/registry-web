@@ -6,6 +6,7 @@ import { getActiveProgram } from '@registry/students/_lib/utils';
 import { headers } from 'next/headers';
 import { auth } from '@/core/auth';
 import type { applicants, guardians } from '@/core/database';
+import { formatPersonName } from '@/shared/lib/utils/utils';
 import { applicantsService } from './service';
 
 type Applicant = typeof applicants.$inferInsert;
@@ -70,11 +71,17 @@ export async function findAllApplicants(page = 1, search = '') {
 }
 
 export async function createApplicant(data: Applicant) {
-	return applicantsService.create(data);
+	return applicantsService.create({
+		...data,
+		fullName: formatPersonName(data.fullName) ?? data.fullName,
+	});
 }
 
 export async function updateApplicant(id: string, data: Applicant) {
-	return applicantsService.update(id, data);
+	return applicantsService.update(id, {
+		...data,
+		fullName: formatPersonName(data.fullName) ?? data.fullName,
+	});
 }
 
 export async function deleteApplicant(id: string) {
@@ -93,7 +100,13 @@ export async function removeApplicantPhone(phoneId: string) {
 }
 
 export async function createGuardian(data: Guardian, phoneNumbers?: string[]) {
-	return applicantsService.createGuardian(data, phoneNumbers);
+	return applicantsService.createGuardian(
+		{
+			...data,
+			name: formatPersonName(data.name) ?? data.name,
+		},
+		phoneNumbers
+	);
 }
 
 export async function updateGuardian(
@@ -101,7 +114,14 @@ export async function updateGuardian(
 	data: Partial<Guardian>,
 	phoneNumbers?: string[]
 ) {
-	return applicantsService.updateGuardian(id, data, phoneNumbers);
+	return applicantsService.updateGuardian(
+		id,
+		{
+			...data,
+			name: formatPersonName(data.name) ?? data.name,
+		},
+		phoneNumbers
+	);
 }
 
 export async function deleteGuardian(id: string) {

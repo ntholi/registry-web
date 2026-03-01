@@ -1,6 +1,7 @@
 'use server';
 
 import type { employees } from '@/core/database';
+import { formatPersonName } from '@/shared/lib/utils/utils';
 import { employeesService as service } from './service';
 
 type Employee = typeof employees.$inferInsert;
@@ -15,14 +16,20 @@ export async function findAllEmployees(page: number = 1, search = '') {
 }
 
 export async function createEmployee(employee: EmployeeWithSchools) {
-	return service.create(employee);
+	return service.create({
+		...employee,
+		name: formatPersonName(employee.name) ?? employee.name,
+	});
 }
 
 export async function updateEmployee(
 	empNo: string,
 	employee: EmployeeWithSchools
 ) {
-	return service.update(empNo, employee);
+	return service.update(empNo, {
+		...employee,
+		name: formatPersonName(employee.name) ?? employee.name,
+	});
 }
 
 export async function deleteEmployee(empNo: string) {

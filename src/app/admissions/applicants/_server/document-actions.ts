@@ -9,6 +9,7 @@ import {
 	success,
 } from '@/shared/lib/utils/actionResult';
 import { normalizeNationality } from '@/shared/lib/utils/countries';
+import { formatPersonName } from '@/shared/lib/utils/utils';
 import { applicantsService } from './service';
 
 export type PendingDocument = {
@@ -58,7 +59,7 @@ export async function createApplicantFromDocuments(
 
 	const applicant = await applicantsService.createWithDocumentsAndRecords(
 		{
-			fullName: identity.fullName,
+			fullName: formatPersonName(identity.fullName) ?? identity.fullName,
 			dateOfBirth: identity.dateOfBirth,
 			nationalId: identity.nationalId ?? undefined,
 			nationality:

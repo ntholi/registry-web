@@ -10,6 +10,7 @@ import type {
 	students,
 } from '@/core/database';
 import type { QueryOptions } from '@/core/platform/BaseRepository';
+import { formatPersonName } from '@/shared/lib/utils/utils';
 import { studentsService as service } from './service';
 
 type Student = typeof students.$inferInsert;
@@ -82,11 +83,17 @@ export async function findAllStudents(
 }
 
 export async function createStudent(student: Student) {
-	return service.create(student);
+	return service.create({
+		...student,
+		name: formatPersonName(student.name) ?? student.name,
+	});
 }
 
 export async function updateStudent(stdNo: number, student: Student) {
-	return service.update(stdNo, student);
+	return service.update(stdNo, {
+		...student,
+		name: formatPersonName(student.name) ?? student.name,
+	});
 }
 
 export async function updateStudentWithReasons(
@@ -94,7 +101,14 @@ export async function updateStudentWithReasons(
 	data: Partial<Student>,
 	reasons?: string
 ) {
-	const result = await service.updateWithReasons(stdNo, data, reasons);
+	const result = await service.updateWithReasons(
+		stdNo,
+		{
+			...data,
+			name: formatPersonName(data.name),
+		},
+		reasons
+	);
 	revalidatePath(`/registry/students/${stdNo}`);
 	return result;
 }
