@@ -92,6 +92,8 @@ export function toTitleCase(str: string | undefined | null) {
 		.join(' ');
 }
 
+export { formatPersonName } from './names';
+
 /**
  * Sanitizes the values of an object to ensure that null values are converted to undefined,
  * @param values - The object to sanitize
