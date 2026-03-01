@@ -36,7 +36,9 @@ export async function getStudentStatusesByStdNo(stdNo: number) {
 }
 
 export async function createStudentStatus(data: StudentStatusInsert) {
-	return studentStatusesService.create(data);
+	const result = await studentStatusesService.create(data);
+	if (!result) throw new Error('Failed to create application');
+	return { id: result.id };
 }
 
 export async function cancelStudentStatus(id: number) {

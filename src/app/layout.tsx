@@ -2,7 +2,8 @@ import '@mantine/core/styles.css';
 import './global.css';
 
 import type { Metadata } from 'next';
-import { type PropsWithChildren, Suspense } from 'react';
+import { Suspense } from 'react';
+import Maintenance from './Maintenance';
 import Providers from './providers';
 
 export const metadata: Metadata = {
@@ -28,12 +29,14 @@ export const metadata: Metadata = {
 	},
 };
 
-export default function RootLayout({ children }: PropsWithChildren) {
+export default function RootLayout() {
 	return (
 		<html lang='en' suppressHydrationWarning>
 			<body suppressHydrationWarning>
 				<Suspense>
-					<Providers>{children}</Providers>
+					<Providers>
+						<Maintenance />
+					</Providers>
 				</Suspense>
 			</body>
 		</html>

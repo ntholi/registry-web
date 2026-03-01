@@ -1,3 +1,5 @@
+'use client';
+
 import { Container, SimpleGrid, Stack, Text, Title } from '@mantine/core';
 import {
 	IconCertificate,
