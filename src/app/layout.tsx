@@ -3,7 +3,6 @@ import './global.css';
 
 import type { Metadata } from 'next';
 import { Suspense } from 'react';
-import Maintenance from './Maintenance';
 import Providers from './providers';
 
 export const metadata: Metadata = {
@@ -29,14 +28,16 @@ export const metadata: Metadata = {
 	},
 };
 
-export default function RootLayout() {
+export default function RootLayout({
+	children,
+}: {
+	children: React.ReactNode;
+}) {
 	return (
 		<html lang='en' suppressHydrationWarning>
 			<body suppressHydrationWarning>
 				<Suspense>
-					<Providers>
-						<Maintenance />
-					</Providers>
+					<Providers>{children}</Providers>
 				</Suspense>
 			</body>
 		</html>
