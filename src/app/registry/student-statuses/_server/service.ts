@@ -1,72 +1,62 @@
-import StudentRepository from '@registry/students/_server/repository';
-import { eq } from 'drizzle-orm';
+import {
+	updateStudentForStatusWorkflow,
+	updateStudentSemesterForStatusWorkflow,
+} from '@registry/students/_server/actions';
 import type { Session } from 'next-auth';
-import { db, studentSemesters, students } from '@/core/database';
+import type { studentStatuses } from '@/core/database';
 import type {
 	AuditOptions,
 	QueryOptions,
 } from '@/core/platform/BaseRepository';
+import BaseService from '@/core/platform/BaseService';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
 import withAuth, { requireSessionUserId } from '@/core/platform/withAuth';
-import type { studentStatusApprovalRole } from '../_schema/studentStatusApprovals';
-import type { studentStatuses } from '../_schema/studentStatuses';
+import {
+	canUserApproveRole,
+	getUserApprovalRoles,
+} from '../_lib/approvalRoles';
+import type {
+	StudentStatusApprovalRole,
+	StudentStatusEditableInput,
+	StudentStatusType,
+} from '../_lib/types';
+import type StudentStatusRepository from './repository';
 import { studentStatusRepository } from './repository';
 
-type ApprovalRole = (typeof studentStatusApprovalRole.enumValues)[number];
+class StudentStatusService extends BaseService<typeof studentStatuses, 'id'> {
+	declare repository: StudentStatusRepository;
 
-function canUserApproveRole(session: Session, approverRole: ApprovalRole) {
-	const user = session.user!;
-	const { role, position } = user;
-	switch (approverRole) {
-		case 'year_leader':
-			return role === 'academic' && position === 'year_leader';
-		case 'program_leader':
-			return (
-				role === 'academic' &&
-				(position === 'manager' || position === 'program_leader')
-			);
-		case 'student_services':
-			return role === 'student_services';
-		case 'finance':
-			return role === 'finance';
-		default:
-			return false;
+	constructor() {
+		super(studentStatusRepository, {
+			byIdRoles: ['dashboard'],
+			findAllRoles: ['registry', 'admin'],
+			createRoles: ['registry', 'admin'],
+			updateRoles: ['registry', 'admin'],
+			deleteRoles: ['registry', 'admin'],
+			activityTypes: {
+				create: 'student_status_created',
+				update: 'student_status_updated',
+				delete: 'student_status_cancelled',
+			},
+		});
 	}
-}
-
-function getUserApprovalRoles(session: Session): ApprovalRole[] {
-	const roles: ApprovalRole[] = [];
-	const user = session.user!;
-	const { role, position } = user;
-	if (role === 'academic') {
-		if (position === 'year_leader') roles.push('year_leader');
-		if (position === 'manager' || position === 'program_leader')
-			roles.push('program_leader');
-	}
-	if (role === 'student_services') roles.push('student_services');
-	if (role === 'finance') roles.push('finance');
-	return roles;
-}
-
-class StudentStatusService {
-	private repository = studentStatusRepository;
 
 	async get(id: number) {
-		return withAuth(async () => {
-			return this.repository.findById(id);
-		}, ['dashboard']);
+		return withAuth(async () => this.repository.findById(id), ['dashboard']);
 	}
 
-	async getAll(options: QueryOptions<typeof studentStatuses>) {
-		return withAuth(async () => {
-			return this.repository.query(options);
-		}, ['registry', 'admin']);
+	async queryAll(options: QueryOptions<typeof studentStatuses>) {
+		return withAuth(
+			async () => this.repository.query(options),
+			['registry', 'admin']
+		);
 	}
 
 	async getByStdNo(stdNo: number) {
-		return withAuth(async () => {
-			return this.repository.findByStdNo(stdNo);
-		}, ['dashboard']);
+		return withAuth(
+			async () => this.repository.findByStdNo(stdNo),
+			['dashboard']
+		);
 	}
 
 	async getPendingForApproval(options: QueryOptions<typeof studentStatuses>) {
@@ -95,20 +85,17 @@ class StudentStatusService {
 		);
 	}
 
-	async create(data: typeof studentStatuses.$inferInsert) {
+	async createStatus(data: typeof studentStatuses.$inferInsert) {
 		return withAuth(
 			async (session) => {
 				const userId = requireSessionUserId(session);
 
-				const student = await db.query.students.findFirst({
-					where: eq(students.stdNo, data.stdNo),
-					columns: { stdNo: true, status: true },
-				});
+				const student = await this.repository.findStudentByStdNo(data.stdNo);
 				if (!student) throw new Error('Student not found');
 
 				const hasPending = await this.repository.hasPending(
 					data.stdNo,
-					data.type
+					data.type as StudentStatusType
 				);
 				if (hasPending)
 					throw new Error(
@@ -125,11 +112,10 @@ class StudentStatusService {
 						student.status === 'Withdrawn' || student.status === 'Terminated';
 
 					let isEligibleBySemester = false;
-					if (!isEligibleByStatus) {
-						const semester = await db.query.studentSemesters.findFirst({
-							where: eq(studentSemesters.id, data.semesterId!),
-							columns: { status: true },
-						});
+					if (!isEligibleByStatus && data.semesterId) {
+						const semester = await this.repository.findStudentSemesterById(
+							data.semesterId
+						);
 						isEligibleBySemester =
 							semester?.status === 'Deferred' ||
 							semester?.status === 'Withdrawn';
@@ -139,12 +125,14 @@ class StudentStatusService {
 						throw new Error('Student is not eligible for reinstatement');
 				}
 
-				const approvalRoles: ApprovalRole[] =
+				const approvalRoles: StudentStatusApprovalRole[] =
 					data.type === 'reinstatement'
 						? ['program_leader', 'finance']
 						: ['year_leader', 'program_leader', 'student_services', 'finance'];
 
+				const baseAudit = this.buildAuditOptions(session, 'create');
 				const audit: AuditOptions = {
+					...(baseAudit ?? {}),
 					userId,
 					activityType: 'student_status_created',
 					stdNo: data.stdNo,
@@ -161,6 +149,36 @@ class StudentStatusService {
 		);
 	}
 
+	async edit(id: number, data: StudentStatusEditableInput) {
+		return withAuth(
+			async (session) => {
+				const userId = requireSessionUserId(session);
+				const app = await this.repository.findById(id);
+				if (!app) throw new Error('Application not found');
+				if (app.status !== 'pending') {
+					throw new Error('Only pending applications can be edited');
+				}
+
+				const baseAudit = this.buildAuditOptions(session, 'update');
+				const audit: AuditOptions = {
+					...(baseAudit ?? {}),
+					userId,
+					activityType: 'student_status_updated',
+					stdNo: app.stdNo,
+					role: session!.user!.role,
+				};
+
+				const updated = await this.repository.updateEditable(id, data, audit);
+				if (!updated) {
+					throw new Error('Failed to update application');
+				}
+
+				return this.repository.findById(id);
+			},
+			['registry', 'admin']
+		);
+	}
+
 	async cancel(id: number) {
 		return withAuth(
 			async (session) => {
@@ -171,7 +189,9 @@ class StudentStatusService {
 				if (app.status !== 'pending')
 					throw new Error('Only pending applications can be cancelled');
 
+				const baseAudit = this.buildAuditOptions(session, 'update');
 				const audit: AuditOptions = {
+					...(baseAudit ?? {}),
 					userId,
 					activityType: 'student_status_cancelled',
 					stdNo: app.stdNo,
@@ -200,7 +220,9 @@ class StudentStatusService {
 				if (approval.status !== 'pending')
 					throw new Error('Approval step is no longer pending');
 
+				const baseAudit = this.buildAuditOptions(session, 'update');
 				const audit: AuditOptions = {
+					...(baseAudit ?? {}),
 					userId,
 					activityType: 'student_status_approved',
 					stdNo: app.stdNo,
@@ -242,7 +264,9 @@ class StudentStatusService {
 				if (approval.status !== 'pending')
 					throw new Error('Approval step is no longer pending');
 
+				const baseAudit = this.buildAuditOptions(session, 'update');
 				const audit: AuditOptions = {
+					...(baseAudit ?? {}),
 					userId,
 					activityType: 'student_status_rejected',
 					stdNo: app.stdNo,
@@ -267,57 +291,39 @@ class StudentStatusService {
 		app: { id: number; type: string; stdNo: number; semesterId: number | null },
 		session: Session
 	) {
-		const user = session.user!;
-		const userId = user.id!;
-		const studentRepo = new StudentRepository();
+		const userId = requireSessionUserId(session);
 
 		if (app.type === 'withdrawal') {
-			await studentRepo.updateStudentWithAudit(
+			await updateStudentForStatusWorkflow(
 				app.stdNo,
-				{ status: 'Withdrawn' },
-				{
-					userId,
-					activityType: 'student_update',
-					stdNo: app.stdNo,
-					role: user.role,
-					metadata: { reasons: 'Withdrawal application approved' },
-				}
+				'Withdrawn',
+				'Withdrawal application approved'
 			);
 
 			if (app.semesterId) {
-				await studentRepo.updateStudentSemester(
-					app.semesterId,
-					{ status: 'Withdrawn' },
-					{
-						userId,
-						activityType: 'semester_withdrawal',
-						stdNo: app.stdNo,
-						role: user.role,
-						metadata: { reasons: 'Withdrawal application approved' },
-					}
-				);
+				await updateStudentSemesterForStatusWorkflow(app.semesterId, {
+					status: 'Withdrawn',
+					stdNo: app.stdNo,
+					reasons: 'Withdrawal application approved',
+				});
 			}
 		}
 
 		if (app.type === 'deferment' && app.semesterId) {
-			await studentRepo.updateStudentSemester(
-				app.semesterId,
-				{ status: 'Deferred' },
-				{
-					userId,
-					activityType: 'semester_withdrawal',
-					stdNo: app.stdNo,
-					role: user.role,
-					metadata: { reasons: 'Deferment application approved' },
-				}
-			);
+			await updateStudentSemesterForStatusWorkflow(app.semesterId, {
+				status: 'Deferred',
+				stdNo: app.stdNo,
+				reasons: 'Deferment application approved',
+			});
 		}
 
+		const baseAudit = this.buildAuditOptions(session, 'update');
 		const audit: AuditOptions = {
+			...(baseAudit ?? {}),
 			userId,
 			activityType: 'student_status_approved',
 			stdNo: app.stdNo,
-			role: user.role,
+			role: session.user!.role,
 		};
 
 		await this.repository.updateStatus(app.id, 'approved', audit);

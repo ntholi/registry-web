@@ -194,6 +194,28 @@ class StudentService {
 		);
 	}
 
+	async updateForStatusWorkflow(
+		stdNo: number,
+		status: NonNullable<Student['status']>,
+		reasons?: string
+	) {
+		return withAuth(
+			async (session) =>
+				this.repository.updateStudentWithAudit(
+					stdNo,
+					{ status },
+					{
+						userId: requireSessionUserId(session),
+						role: session!.user!.role!,
+						activityType: 'student_update',
+						stdNo,
+						metadata: reasons ? { reasons } : undefined,
+					}
+				),
+			['dashboard']
+		);
+	}
+
 	async updateStudentProgram(
 		id: number,
 		data: Partial<typeof studentPrograms.$inferInsert>,
@@ -246,6 +268,29 @@ class StudentService {
 					metadata: reasons ? { reasons } : undefined,
 				}),
 			['registry', 'admin']
+		);
+	}
+
+	async updateStudentSemesterForStatusWorkflow(
+		id: number,
+		status: NonNullable<(typeof studentSemesters.$inferInsert)['status']>,
+		stdNo: number,
+		reasons?: string
+	) {
+		return withAuth(
+			async (session) =>
+				this.repository.updateStudentSemester(
+					id,
+					{ status },
+					{
+						userId: requireSessionUserId(session),
+						role: session!.user!.role!,
+						activityType: resolveStudentSemesterActivityType(status),
+						stdNo,
+						metadata: reasons ? { reasons } : undefined,
+					}
+				),
+			['dashboard']
 		);
 	}
 

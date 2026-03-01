@@ -1,18 +1,23 @@
 import { and, count, eq, inArray, sql } from 'drizzle-orm';
-import { db, studentStatusApprovals, studentStatuses } from '@/core/database';
+import {
+	db,
+	studentSemesters,
+	studentStatusApprovals,
+	studentStatuses,
+	students,
+} from '@/core/database';
 import BaseRepository, {
 	type AuditOptions,
 	type QueryOptions,
 } from '@/core/platform/BaseRepository';
-import type { studentStatusApprovalRole } from '../_schema/studentStatusApprovals';
 import type {
-	studentStatusStatus,
-	studentStatusType,
-} from '../_schema/studentStatuses';
+	StudentStatusApprovalRole,
+	StudentStatusEditableInput,
+	StudentStatusState,
+	StudentStatusType,
+} from '../_lib/types';
 
-type StudentStatusType = (typeof studentStatusType.enumValues)[number];
-type StudentStatusStatus = (typeof studentStatusStatus.enumValues)[number];
-type ApprovalRole = (typeof studentStatusApprovalRole.enumValues)[number];
+type ApprovalRole = StudentStatusApprovalRole;
 
 interface ApprovalResponse {
 	status: 'approved' | 'rejected';
@@ -20,7 +25,7 @@ interface ApprovalResponse {
 	message?: string;
 }
 
-class StudentStatusRepository extends BaseRepository<
+export default class StudentStatusRepository extends BaseRepository<
 	typeof studentStatuses,
 	'id'
 > {
@@ -90,6 +95,20 @@ class StudentStatusRepository extends BaseRepository<
 		return !!result;
 	}
 
+	async findStudentByStdNo(stdNo: number) {
+		return db.query.students.findFirst({
+			where: eq(students.stdNo, stdNo),
+			columns: { stdNo: true, status: true },
+		});
+	}
+
+	async findStudentSemesterById(id: number) {
+		return db.query.studentSemesters.findFirst({
+			where: eq(studentSemesters.id, id),
+			columns: { status: true },
+		});
+	}
+
 	async createWithApprovals(
 		data: typeof studentStatuses.$inferInsert,
 		approvalRoles: ApprovalRole[],
@@ -132,7 +151,7 @@ class StudentStatusRepository extends BaseRepository<
 
 	async updateStatus(
 		id: number,
-		status: StudentStatusStatus,
+		status: StudentStatusState,
 		audit?: AuditOptions
 	) {
 		if (!audit) {
@@ -166,6 +185,23 @@ class StudentStatusRepository extends BaseRepository<
 
 			return updated;
 		});
+	}
+
+	async updateEditable(
+		id: number,
+		data: StudentStatusEditableInput,
+		audit?: AuditOptions
+	) {
+		return this.update(
+			id,
+			{
+				termCode: data.termCode,
+				justification: data.justification,
+				notes: data.notes,
+				updatedAt: new Date(),
+			},
+			audit
+		);
 	}
 
 	async respondToApproval(

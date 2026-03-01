@@ -2,7 +2,10 @@
 
 import { and, eq, type SQL } from 'drizzle-orm';
 import { studentStatuses } from '@/core/database';
-import type { StudentStatusInsert } from '../_lib/types';
+import type {
+	StudentStatusEditableInput,
+	StudentStatusInsert,
+} from '../_lib/types';
 import { studentStatusesService } from './service';
 
 export async function getStudentStatus(id: number) {
@@ -24,7 +27,7 @@ export async function findAllStudentStatuses(
 	if (filter?.status)
 		conditions.push(eq(studentStatuses.status, filter.status));
 
-	return studentStatusesService.getAll({
+	return studentStatusesService.queryAll({
 		page,
 		search,
 		filter: conditions.length > 0 ? and(...conditions) : undefined,
@@ -36,8 +39,17 @@ export async function getStudentStatusesByStdNo(stdNo: number) {
 }
 
 export async function createStudentStatus(data: StudentStatusInsert) {
-	const result = await studentStatusesService.create(data);
+	const result = await studentStatusesService.createStatus(data);
 	if (!result) throw new Error('Failed to create application');
+	return { id: result.id };
+}
+
+export async function updateStudentStatus(
+	id: number,
+	data: StudentStatusEditableInput
+) {
+	const result = await studentStatusesService.edit(id, data);
+	if (!result) throw new Error('Failed to update application');
 	return { id: result.id };
 }
 

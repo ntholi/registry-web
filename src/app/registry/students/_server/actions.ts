@@ -144,6 +144,36 @@ export async function updateStudentSemester(
 	return result;
 }
 
+export async function updateStudentForStatusWorkflow(
+	stdNo: number,
+	status: NonNullable<Student['status']>,
+	reasons?: string
+) {
+	const result = await service.updateForStatusWorkflow(stdNo, status, reasons);
+	revalidatePath('/registry/students');
+	return result;
+}
+
+interface StatusWorkflowSemesterInput {
+	status: NonNullable<(typeof studentSemesters.$inferInsert)['status']>;
+	stdNo: number;
+	reasons?: string;
+}
+
+export async function updateStudentSemesterForStatusWorkflow(
+	id: number,
+	data: StatusWorkflowSemesterInput
+) {
+	const result = await service.updateStudentSemesterForStatusWorkflow(
+		id,
+		data.status,
+		data.stdNo,
+		data.reasons
+	);
+	revalidatePath('/registry/students');
+	return result;
+}
+
 export async function updateStudentModule(
 	id: number,
 	data: Partial<typeof studentModules.$inferInsert>,

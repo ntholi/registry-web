@@ -1,15 +1,10 @@
 'use client';
 
 import { Text, Timeline } from '@mantine/core';
-import {
-	IconCheck,
-	IconCircleCheck,
-	IconClock,
-	IconFileDescription,
-	IconX,
-} from '@tabler/icons-react';
+import { IconFileDescription } from '@tabler/icons-react';
 import { type AllStatusType, getStatusColor } from '@/shared/lib/utils/colors';
 import { formatDateTime } from '@/shared/lib/utils/dates';
+import { getStatusIcon, type StatusType } from '@/shared/lib/utils/status';
 import { getApprovalRoleLabel } from '../_lib/labels';
 
 type Approval = {
@@ -29,17 +24,6 @@ type Props = {
 	status: string;
 	updatedAt: Date | null;
 };
-
-function getApprovalIcon(status: string) {
-	switch (status) {
-		case 'approved':
-			return <IconCheck size={14} />;
-		case 'rejected':
-			return <IconX size={14} />;
-		default:
-			return <IconClock size={14} />;
-	}
-}
 
 export default function StatusTimeline({
 	createdAt,
@@ -69,7 +53,7 @@ export default function StatusTimeline({
 			{approvals.map((approval) => (
 				<Timeline.Item
 					key={approval.id}
-					bullet={getApprovalIcon(approval.status)}
+					bullet={getStatusIcon(approval.status as StatusType, { size: 14 })}
 					color={getStatusColor(approval.status as AllStatusType)}
 					title={getApprovalRoleLabel(approval.approverRole)}
 				>
@@ -92,13 +76,7 @@ export default function StatusTimeline({
 
 			{isFinalized && (
 				<Timeline.Item
-					bullet={
-						status === 'approved' ? (
-							<IconCircleCheck size={14} />
-						) : (
-							<IconX size={14} />
-						)
-					}
+					bullet={getStatusIcon(status as StatusType, { size: 14 })}
 					color={getStatusColor(status as AllStatusType)}
 					title={`Application ${status.charAt(0).toUpperCase() + status.slice(1)}`}
 				>

@@ -56,6 +56,8 @@ export default function StudentStatusDetails() {
 			<DetailsViewHeader
 				title={app.student?.name ?? String(app.stdNo)}
 				queryKey={['student-statuses']}
+				editRoles={['registry']}
+				hideEdit={app.status !== 'pending'}
 				handleDelete={
 					app.status === 'pending'
 						? async () => {

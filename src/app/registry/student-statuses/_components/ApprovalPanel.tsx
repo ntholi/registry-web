@@ -17,7 +17,9 @@ import { useSession } from 'next-auth/react';
 import { useState } from 'react';
 import { type AllStatusType, getStatusColor } from '@/shared/lib/utils/colors';
 import { formatDateTime } from '@/shared/lib/utils/dates';
+import { hasApprovalRole } from '../_lib/approvalRoles';
 import { getApprovalRoleLabel } from '../_lib/labels';
+import type { StudentStatusApprovalRole } from '../_lib/types';
 import {
 	approveStudentStatusStep,
 	rejectStudentStatusStep,
@@ -25,7 +27,7 @@ import {
 
 type Approval = {
 	id: number;
-	approverRole: string;
+	approverRole: StudentStatusApprovalRole;
 	status: string;
 	respondedBy: string | null;
 	message: string | null;
@@ -45,26 +47,9 @@ export default function ApprovalPanel({
 	applicationId,
 }: Props) {
 	const { data: session } = useSession();
-	const _queryClient = useQueryClient();
 
-	function canApprove(approverRole: string) {
-		if (!session?.user) return false;
-		const { role, position } = session.user;
-		switch (approverRole) {
-			case 'year_leader':
-				return role === 'academic' && position === 'year_leader';
-			case 'program_leader':
-				return (
-					role === 'academic' &&
-					(position === 'manager' || position === 'program_leader')
-				);
-			case 'student_services':
-				return role === 'student_services';
-			case 'finance':
-				return role === 'finance';
-			default:
-				return false;
-		}
+	function canApprove(approverRole: StudentStatusApprovalRole) {
+		return hasApprovalRole(session?.user, approverRole);
 	}
 
 	return (

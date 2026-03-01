@@ -6,24 +6,25 @@ import {
 	IconUserPause,
 	IconUserPlus,
 } from '@tabler/icons-react';
-import { getStatusColor } from './colors';
+import { type AllStatusType, getStatusColor } from './colors';
 
 export type StatusType =
 	| 'pending'
 	| 'approved'
 	| 'rejected'
+	| 'cancelled'
 	| 'confirmed'
 	| 'partial'
 	| 'registered';
 
-export type StatusIconSize = '1rem' | 16 | 20 | 24;
+export type StatusIconSize = '1rem' | 14 | 16 | 20 | 24;
 
 export function getStatusIcon(
 	status: StatusType,
 	options?: { size?: StatusIconSize; withColor?: boolean }
 ) {
 	const { size = '1rem', withColor = false } = options || {};
-	const color = withColor ? getStatusColor(status) : undefined;
+	const color = withColor ? getStatusColor(status as AllStatusType) : undefined;
 
 	switch (status) {
 		case 'approved':
@@ -31,6 +32,7 @@ export function getStatusIcon(
 		case 'registered':
 			return <IconCircleCheck size={size} color={color} />;
 		case 'rejected':
+		case 'cancelled':
 			return <IconExclamationCircle size={size} color={color} />;
 		default:
 			return <IconClock size={size} color={color} />;

@@ -17,6 +17,7 @@ type Props = {
 	onSubmit: (values: StudentStatusInsert) => Promise<{ id: number }>;
 	defaultValues?: StudentStatusInsert;
 	title?: string;
+	mode?: 'create' | 'edit';
 };
 
 const schema = createInsertSchema(studentStatuses).omit({
@@ -54,9 +55,11 @@ export default function StudentStatusForm({
 	onSubmit,
 	defaultValues,
 	title,
+	mode = 'create',
 }: Props) {
 	const router = useRouter();
 	const { activeTerm } = useActiveTerm();
+	const isEdit = mode === 'edit';
 	const [validStudentNo, setValidStudentNo] = useState(
 		!!defaultValues?.stdNo && String(defaultValues.stdNo).length === 9
 	);
@@ -91,10 +94,8 @@ export default function StudentStatusForm({
 					const typed = value as StatusType | null;
 					setSelectedType(typed);
 					form.setFieldValue('type', typed as StatusType);
-					form.setFieldValue(
-						'justification',
-						null as unknown as (typeof studentStatuses.justification.enumValues)[number]
-					);
+					const options = getJustificationOptions(typed);
+					form.setFieldValue('justification', options[0].value);
 				};
 
 				return (
@@ -102,6 +103,7 @@ export default function StudentStatusForm({
 						<StdNoInput
 							{...form.getInputProps('stdNo')}
 							onChange={handleStdNoChange}
+							disabled={isEdit}
 						/>
 
 						{validStudentNo && (
@@ -109,12 +111,13 @@ export default function StudentStatusForm({
 								<Select
 									label='Type'
 									required
+									disabled={isEdit}
 									data={studentStatuses.type.enumValues.map((v) => ({
 										value: v,
 										label: getTypeLabel(v),
 									}))}
 									{...form.getInputProps('type')}
-									onChange={handleTypeChange}
+									onChange={isEdit ? undefined : handleTypeChange}
 								/>
 
 								{selectedType && (
