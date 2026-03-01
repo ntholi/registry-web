@@ -10,6 +10,22 @@ type TaskStatusFilter = TaskStatus | 'all' | 'open';
 
 const ALLOWED_ROLES: UserRole[] = ['admin', 'registry', 'finance'];
 
+type VisibilityOpts = {
+	userId?: string;
+	userRole?: UserRole;
+	isManager: boolean;
+	isAdmin: boolean;
+};
+
+function sessionVisibility(session?: Session | null): VisibilityOpts {
+	return {
+		userId: session?.user?.id,
+		userRole: session?.user?.role as UserRole | undefined,
+		isManager: session?.user?.position === 'manager',
+		isAdmin: session?.user?.role === 'admin',
+	};
+}
+
 class TaskService {
 	private repository: TaskRepository;
 
@@ -22,13 +38,16 @@ class TaskService {
 			const task = await this.repository.findByIdWithRelations(id);
 			if (!task) return null;
 
-			const userId = session?.user?.id;
-			const isManager = session?.user?.position === 'manager';
+			const { userId, userRole, isManager, isAdmin } =
+				sessionVisibility(session);
 			const isCreator = task.createdBy === userId;
 			const isAssignee = task.assignees.some((a) => a.user.id === userId);
-			const isAdmin = session?.user?.role === 'admin';
+			const hasRoleAssignee =
+				isManager && userRole
+					? task.assignees.some((a) => a.user.role === userRole)
+					: false;
 
-			if (!isAdmin && !isManager && !isCreator && !isAssignee) {
+			if (!isAdmin && !hasRoleAssignee && !isCreator && !isAssignee) {
 				return null;
 			}
 
@@ -41,38 +60,26 @@ class TaskService {
 		session?: Session | null
 	) {
 		return withAuth(async (sess) => {
-			const currentSession = sess ?? session;
-			const userId = currentSession?.user?.id;
-			const isManager = currentSession?.user?.position === 'manager';
-			const isAdmin = currentSession?.user?.role === 'admin';
+			const vis = sessionVisibility(sess ?? session);
 
 			return this.repository.findAllWithRelations({
 				page: params.page,
 				search: params.search,
 				statusFilter: params.statusFilter,
-				userId,
-				isManager: isManager || isAdmin,
+				...vis,
 			});
 		}, ALLOWED_ROLES);
 	}
 
 	async countUncompleted() {
 		return withAuth(async (session) => {
-			const userId = session?.user?.id;
-			const isManager = session?.user?.position === 'manager';
-			const isAdmin = session?.user?.role === 'admin';
-
-			return this.repository.countUncompleted(userId, isManager || isAdmin);
+			return this.repository.countUncompleted(sessionVisibility(session));
 		}, ALLOWED_ROLES);
 	}
 
 	async getTodoSummary() {
 		return withAuth(async (session) => {
-			const userId = session?.user?.id;
-			const isManager = session?.user?.position === 'manager';
-			const isAdmin = session?.user?.role === 'admin';
-
-			return this.repository.getTodoSummary(userId, isManager || isAdmin);
+			return this.repository.getTodoSummary(sessionVisibility(session));
 		}, ALLOWED_ROLES);
 	}
 
@@ -82,9 +89,7 @@ class TaskService {
 	) {
 		return withAuth(async (sess) => {
 			const currentSession = sess ?? session;
-			const userId = currentSession?.user?.id;
-			const isManager = currentSession?.user?.position === 'manager';
-			const isAdmin = currentSession?.user?.role === 'admin';
+			const { userId, isManager, isAdmin } = sessionVisibility(currentSession);
 
 			if (!userId) {
 				throw new Error('User not authenticated');
@@ -129,9 +134,8 @@ class TaskService {
 	) {
 		return withAuth(async (sess) => {
 			const currentSession = sess ?? session;
-			const userId = currentSession?.user?.id;
-			const isManager = currentSession?.user?.position === 'manager';
-			const isAdmin = currentSession?.user?.role === 'admin';
+			const { userId, userRole, isManager, isAdmin } =
+				sessionVisibility(currentSession);
 
 			const existingTask = await this.repository.findByIdWithRelations(id);
 			if (!existingTask) {
@@ -142,8 +146,12 @@ class TaskService {
 			const isAssignee = existingTask.assignees.some(
 				(a) => a.user.id === userId
 			);
+			const hasRoleAssignee =
+				isManager && userRole
+					? existingTask.assignees.some((a) => a.user.role === userRole)
+					: false;
 
-			if (!isAdmin && !isManager && !isCreator && !isAssignee) {
+			if (!isAdmin && !hasRoleAssignee && !isCreator && !isAssignee) {
 				throw new Error('You do not have permission to update this task');
 			}
 
@@ -173,8 +181,8 @@ class TaskService {
 
 	async delete(id: number) {
 		return withAuth(async (session) => {
-			const userId = session?.user?.id;
-			const isAdmin = session?.user?.role === 'admin';
+			const { userId, userRole, isManager, isAdmin } =
+				sessionVisibility(session);
 
 			const existingTask = await this.repository.findByIdWithRelations(id);
 			if (!existingTask) {
@@ -182,9 +190,15 @@ class TaskService {
 			}
 
 			const isCreator = existingTask.createdBy === userId;
+			const hasRoleAssignee =
+				isManager && userRole
+					? existingTask.assignees.some((a) => a.user.role === userRole)
+					: false;
 
-			if (!isAdmin && !isCreator) {
-				throw new Error('Only the creator or admin can delete this task');
+			if (!isAdmin && !isCreator && !hasRoleAssignee) {
+				throw new Error(
+					'Only the creator, manager, or admin can delete this task'
+				);
 			}
 
 			await this.repository.deleteTask(id, {
@@ -200,9 +214,8 @@ class TaskService {
 		status: (typeof tasks.$inferSelect)['status']
 	) {
 		return withAuth(async (session) => {
-			const userId = session?.user?.id;
-			const isAdmin = session?.user?.role === 'admin';
-			const isManager = session?.user?.position === 'manager';
+			const { userId, userRole, isManager, isAdmin } =
+				sessionVisibility(session);
 
 			const existingTask = await this.repository.findByIdWithRelations(id);
 			if (!existingTask) {
@@ -213,8 +226,12 @@ class TaskService {
 			const isAssignee = existingTask.assignees.some(
 				(a) => a.user.id === userId
 			);
+			const hasRoleAssignee =
+				isManager && userRole
+					? existingTask.assignees.some((a) => a.user.role === userRole)
+					: false;
 
-			if (!isAdmin && !isManager && !isCreator && !isAssignee) {
+			if (!isAdmin && !hasRoleAssignee && !isCreator && !isAssignee) {
 				throw new Error(
 					'You do not have permission to update this task status'
 				);
@@ -229,14 +246,7 @@ class TaskService {
 
 	async getTaskCounts() {
 		return withAuth(async (session) => {
-			const userId = session?.user?.id;
-			const isManager = session?.user?.position === 'manager';
-			const isAdmin = session?.user?.role === 'admin';
-
-			return this.repository.getTaskCountsByStatus(
-				userId,
-				isManager || isAdmin
-			);
+			return this.repository.getTaskCountsByStatus(sessionVisibility(session));
 		}, ALLOWED_ROLES);
 	}
 }

@@ -5,7 +5,8 @@ import {
 	taskAssignees,
 	taskStudents,
 	tasks,
-	type users,
+	type UserRole,
+	users,
 } from '@/core/database';
 import BaseRepository, {
 	type AuditOptions,
@@ -25,11 +26,27 @@ export default class TaskRepository extends BaseRepository<typeof tasks, 'id'> {
 		super(tasks, tasks.id);
 	}
 
-	private buildVisibilityFilter(
-		userId?: string,
-		isManager?: boolean
-	): SQL | undefined {
-		if (!isManager && userId) {
+	private buildVisibilityFilter(opts: {
+		userId?: string;
+		userRole?: UserRole;
+		isManager?: boolean;
+		isAdmin?: boolean;
+	}): SQL | undefined {
+		const { userId, userRole, isManager, isAdmin } = opts;
+
+		if (isAdmin) return undefined;
+
+		if (isManager && userRole && userId) {
+			const roleTaskIds = db
+				.select({ taskId: taskAssignees.taskId })
+				.from(taskAssignees)
+				.innerJoin(users, eq(users.id, taskAssignees.userId))
+				.where(eq(users.role, userRole));
+
+			return or(eq(tasks.createdBy, userId), inArray(tasks.id, roleTaskIds));
+		}
+
+		if (userId) {
 			const assignedTaskIds = db
 				.select({ taskId: taskAssignees.taskId })
 				.from(taskAssignees)
@@ -68,7 +85,9 @@ export default class TaskRepository extends BaseRepository<typeof tasks, 'id'> {
 		options: QueryOptions<typeof tasks> & {
 			statusFilter?: TaskSelect['status'] | 'all' | 'open';
 			userId?: string;
+			userRole?: UserRole;
 			isManager?: boolean;
+			isAdmin?: boolean;
 		}
 	) {
 		const {
@@ -77,11 +96,18 @@ export default class TaskRepository extends BaseRepository<typeof tasks, 'id'> {
 			search,
 			statusFilter = 'open',
 			userId,
+			userRole,
 			isManager,
+			isAdmin,
 		} = options;
 		const offset = (page - 1) * size;
 
-		const baseFilter = this.buildVisibilityFilter(userId, isManager);
+		const baseFilter = this.buildVisibilityFilter({
+			userId,
+			userRole,
+			isManager,
+			isAdmin,
+		});
 
 		let searchFilter: SQL | undefined;
 		if (search) {
@@ -156,8 +182,13 @@ export default class TaskRepository extends BaseRepository<typeof tasks, 'id'> {
 		};
 	}
 
-	async countUncompleted(userId?: string, isManager?: boolean) {
-		const baseFilter = this.buildVisibilityFilter(userId, isManager);
+	async countUncompleted(opts: {
+		userId?: string;
+		userRole?: UserRole;
+		isManager?: boolean;
+		isAdmin?: boolean;
+	}) {
+		const baseFilter = this.buildVisibilityFilter(opts);
 
 		const statusFilter = and(
 			sql`${tasks.status} != 'completed'`,
@@ -176,8 +207,13 @@ export default class TaskRepository extends BaseRepository<typeof tasks, 'id'> {
 		return Number(result[0]?.count ?? 0);
 	}
 
-	async getTodoSummary(userId?: string, isManager?: boolean) {
-		const baseFilter = this.buildVisibilityFilter(userId, isManager);
+	async getTodoSummary(opts: {
+		userId?: string;
+		userRole?: UserRole;
+		isManager?: boolean;
+		isAdmin?: boolean;
+	}) {
+		const baseFilter = this.buildVisibilityFilter(opts);
 
 		const result = await db
 			.select({
@@ -366,8 +402,13 @@ export default class TaskRepository extends BaseRepository<typeof tasks, 'id'> {
 		});
 	}
 
-	async getTaskCountsByStatus(userId?: string, isManager?: boolean) {
-		const whereClause = this.buildVisibilityFilter(userId, isManager);
+	async getTaskCountsByStatus(opts: {
+		userId?: string;
+		userRole?: UserRole;
+		isManager?: boolean;
+		isAdmin?: boolean;
+	}) {
+		const whereClause = this.buildVisibilityFilter(opts);
 
 		const result = await db
 			.select({
