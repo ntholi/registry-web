@@ -9,7 +9,7 @@ import {
 	success,
 } from '@/shared/lib/utils/actionResult';
 import { normalizeNationality } from '@/shared/lib/utils/countries';
-import { formatPersonName } from '@/shared/lib/utils/utils';
+import { formatPersonName } from '@/shared/lib/utils/names';
 import { applicantsService } from './service';
 
 export type PendingDocument = {

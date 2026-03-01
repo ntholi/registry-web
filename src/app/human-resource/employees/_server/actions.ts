@@ -1,7 +1,7 @@
 'use server';
 
 import type { employees } from '@/core/database';
-import { formatPersonName } from '@/shared/lib/utils/utils';
+import { formatPersonName } from '@/shared/lib/utils/names';
 import { employeesService as service } from './service';
 
 type Employee = typeof employees.$inferInsert;

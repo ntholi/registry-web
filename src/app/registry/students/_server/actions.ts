@@ -10,7 +10,7 @@ import type {
 	students,
 } from '@/core/database';
 import type { QueryOptions } from '@/core/platform/BaseRepository';
-import { formatPersonName } from '@/shared/lib/utils/utils';
+import { formatPersonName } from '@/shared/lib/utils/names';
 import { studentsService as service } from './service';
 
 type Student = typeof students.$inferInsert;

@@ -7,7 +7,7 @@ import {
 	guardians,
 	students,
 } from '@/core/database';
-import { formatPersonName } from '@/shared/lib/utils/utils';
+import { formatPersonName } from '@/shared/lib/utils/names';
 
 async function normalizeApplicantNames() {
 	const rows = await db

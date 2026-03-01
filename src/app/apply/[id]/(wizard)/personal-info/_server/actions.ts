@@ -12,7 +12,7 @@ import {
 } from '@admissions/applicants';
 import { type ActionResult, extractError } from '@apply/_lib/errors';
 import type { applicants, guardians } from '@/core/database';
-import { formatPersonName } from '@/shared/lib/utils/utils';
+import { formatPersonName } from '@/shared/lib/utils/names';
 
 type ApplicantInput = typeof applicants.$inferInsert;
 type GuardianInput = typeof guardians.$inferInsert;

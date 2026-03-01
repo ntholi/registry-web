@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { formatPersonName } from '../utils';
+import { formatPersonName } from '../names';
 
 describe('formatPersonName', () => {
 	it('normalizes uppercase names with apostrophes', () => {

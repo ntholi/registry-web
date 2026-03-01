@@ -6,7 +6,7 @@ import { getActiveProgram } from '@registry/students/_lib/utils';
 import { headers } from 'next/headers';
 import { auth } from '@/core/auth';
 import type { applicants, guardians } from '@/core/database';
-import { formatPersonName } from '@/shared/lib/utils/utils';
+import { formatPersonName } from '@/shared/lib/utils/names';
 import { applicantsService } from './service';
 
 type Applicant = typeof applicants.$inferInsert;
