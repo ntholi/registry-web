@@ -1,6 +1,7 @@
 import type { StudentFinanceSummary } from '@finance/_lib/zoho-books/types';
 import {
 	ActionIcon,
+	Box,
 	Card,
 	Divider,
 	Group,
@@ -21,7 +22,7 @@ type Props = {
 
 export function FinancialOverview({ summary, isFetching, onRefresh }: Props) {
 	return (
-		<Stack gap='md'>
+		<Box>
 			<Group justify='space-between' align='center'>
 				<Group gap='xs'>
 					<ThemeIcon size='sm' variant='transparent' color='dimmed'>
@@ -44,7 +45,7 @@ export function FinancialOverview({ summary, isFetching, onRefresh }: Props) {
 				</Tooltip>
 			</Group>
 
-			<Divider />
+			<Divider mb={'md'} mt='xs' />
 
 			<SimpleGrid cols={{ base: 1, xs: 2, sm: 4 }} spacing='xs'>
 				<MetricCard
@@ -70,7 +71,7 @@ export function FinancialOverview({ summary, isFetching, onRefresh }: Props) {
 					/>
 				)}
 			</SimpleGrid>
-		</Stack>
+		</Box>
 	);
 }
 
