@@ -1,6 +1,7 @@
 'use client';
 
 import {
+	createZohoContact,
 	fetchStudentEstimates,
 	fetchStudentFinance,
 	fetchStudentPayments,
@@ -9,6 +10,7 @@ import {
 } from '@finance/_lib/zoho-books/actions';
 import {
 	Badge,
+	Button,
 	Group,
 	Paper,
 	Skeleton,
@@ -22,9 +24,10 @@ import {
 	IconCreditCard,
 	IconFileInvoice,
 	IconNotebook,
+	IconPlus,
 	IconReceipt,
 } from '@tabler/icons-react';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { EstimatesTab } from './EstimatesTab';
 import { FinancialOverview } from './FinancialOverview';
@@ -122,23 +125,7 @@ export default function StudentFinanceView({
 	}
 
 	if (!contactId || !summary) {
-		return (
-			<Paper p='xl' withBorder>
-				<Stack align='center' gap='md' py='lg'>
-					<ThemeIcon size={56} variant='light' color='gray'>
-						<IconFileInvoice size='1.6rem' />
-					</ThemeIcon>
-					<Stack align='center' gap={4}>
-						<Text fw={600} size='lg'>
-							No financial records
-						</Text>
-						<Text size='sm' c='dimmed' ta='center'>
-							This student was not found in Zoho Books.
-						</Text>
-					</Stack>
-				</Stack>
-			</Paper>
-		);
+		return <NoContactView stdNo={stdNo} />;
 	}
 
 	return (
@@ -294,5 +281,56 @@ function FinanceLoader() {
 				</Stack>
 			</Paper>
 		</Stack>
+	);
+}
+
+type NoContactViewProps = {
+	stdNo: number;
+};
+
+function NoContactView({ stdNo }: NoContactViewProps) {
+	const queryClient = useQueryClient();
+
+	const { mutate, isPending, isError, error } = useMutation({
+		mutationFn: () => createZohoContact(stdNo),
+		onSuccess: (contactId) => {
+			queryClient.setQueryData(['zoho-contact', stdNo], contactId);
+			queryClient.invalidateQueries({
+				queryKey: ['student-finance', contactId],
+			});
+		},
+	});
+
+	return (
+		<Paper p='xl' withBorder>
+			<Stack align='center' gap='md' py='lg'>
+				<ThemeIcon size={56} variant='light' color='gray'>
+					<IconFileInvoice size='1.6rem' />
+				</ThemeIcon>
+				<Stack align='center' gap={4}>
+					<Text fw={600} size='lg'>
+						No financial records
+					</Text>
+					<Text size='sm' c='dimmed' ta='center' maw={360}>
+						This student was not found in Zoho Books. Create a contact to start
+						tracking their finances.
+					</Text>
+				</Stack>
+				{isError && (
+					<Text size='sm' c='red' ta='center' maw={400}>
+						{error instanceof Error
+							? error.message
+							: 'Failed to create contact. Please try again.'}
+					</Text>
+				)}
+				<Button
+					leftSection={<IconPlus size='1rem' />}
+					onClick={() => mutate()}
+					loading={isPending}
+				>
+					Create Zoho Contact
+				</Button>
+			</Stack>
+		</Paper>
 	);
 }

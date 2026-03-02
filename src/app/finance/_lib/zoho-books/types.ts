@@ -228,3 +228,20 @@ export interface StudentFinanceSummary {
 	unusedCredits: number;
 	invoices: ZohoInvoice[];
 }
+
+export interface CreateStudentContactInput {
+	stdNo: number;
+	name: string;
+	programName: string;
+	email: string | null;
+	phone: string | null;
+	schoolCode: string | null;
+	programCode: string | null;
+	sponsorName: string | null;
+}
+
+export interface ZohoCreateContactResponse {
+	code: number;
+	message: string;
+	contact: ZohoContact;
+}
