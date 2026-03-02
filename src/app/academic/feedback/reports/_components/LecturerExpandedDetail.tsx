@@ -1,17 +1,19 @@
 'use client';
 
-import { BarChart } from '@mantine/charts';
 import {
-	Accordion,
 	Badge,
+	Box,
 	Card,
+	Grid,
 	Group,
 	Loader,
+	Progress,
 	ScrollArea,
 	Stack,
 	Table,
 	Tabs,
 	Text,
+	Tooltip,
 } from '@mantine/core';
 import {
 	IconBook2,
@@ -36,8 +38,8 @@ function ratingColor(avg: number) {
 	return 'red';
 }
 
-function truncate(text: string, max: number) {
-	return text.length > max ? `${text.substring(0, max)}…` : text;
+function ratingPercent(avg: number) {
+	return (avg / 5) * 100;
 }
 
 export default function LecturerExpandedDetail({ userId, filter }: Props) {
@@ -98,70 +100,41 @@ export default function LecturerExpandedDetail({ userId, filter }: Props) {
 						No question data
 					</Text>
 				) : (
-					<Accordion variant='contained' chevronPosition='right'>
+					<Stack gap='lg'>
 						{Array.from(grouped.entries()).map(([category, questions]) => {
 							const catAvg =
 								questions.reduce((sum, q) => sum + q.avgRating, 0) /
 								questions.length;
 
-							const chartData = questions.map((q) => ({
-								question: truncate(q.questionText, 30),
-								Lecturer: Number(q.avgRating.toFixed(2)),
-								Overall: Number(q.overallAvgRating.toFixed(2)),
-							}));
-
 							return (
-								<Accordion.Item key={category} value={category}>
-									<Accordion.Control>
-										<Group justify='space-between' pr='sm'>
-											<Text size='sm' fw={500}>
-												{category}
-											</Text>
-											<Group gap='xs'>
-												<Text size='xs' c='dimmed'>
-													{questions.length} questions
-												</Text>
-												<Badge
-													color={ratingColor(catAvg)}
-													variant='light'
-													size='sm'
-												>
-													{catAvg.toFixed(2)}
-												</Badge>
-											</Group>
-										</Group>
-									</Accordion.Control>
-									<Accordion.Panel>
-										<BarChart
-											h={questions.length * 50 + 50}
-											data={chartData}
-											dataKey='question'
-											orientation='vertical'
-											yAxisProps={{ width: 200 }}
-											series={[
-												{ name: 'Lecturer', color: 'blue.6' },
-												{ name: 'Overall', color: 'gray.4' },
-											]}
-											withLegend
-											legendProps={{
-												verticalAlign: 'bottom',
-												height: 40,
-											}}
-											tooltipAnimationDuration={200}
-											barProps={{ radius: 4 }}
-											valueFormatter={(v) => v.toFixed(2)}
-										/>
-									</Accordion.Panel>
-								</Accordion.Item>
+								<Box key={category}>
+									<Group justify='space-between' mb='xs'>
+										<Text size='sm' fw={600}>
+											{category}
+										</Text>
+										<Badge
+											color={ratingColor(catAvg)}
+											variant='light'
+											size='sm'
+										>
+											{catAvg.toFixed(2)}
+										</Badge>
+									</Group>
+									<Stack gap={6}>
+										{questions.map((q) => (
+											<QuestionRatingRow key={q.questionId} question={q} />
+										))}
+									</Stack>
+								</Box>
 							);
 						})}
-					</Accordion>
+					</Stack>
 				)}
 			</Tabs.Panel>
 
 			<Tabs.Panel value='modules' pt='md'>
 				<ScrollArea>
-					<Table striped highlightOnHover>
+					<Table striped highlightOnHover fz='sm'>
 						<Table.Thead>
 							<Table.Tr>
 								<Table.Th>Module Code</Table.Th>
@@ -177,7 +150,11 @@ export default function LecturerExpandedDetail({ userId, filter }: Props) {
 									<Table.Td>{m.moduleCode}</Table.Td>
 									<Table.Td>{m.moduleName}</Table.Td>
 									<Table.Td>
-										<Badge color={ratingColor(m.avgRating)} variant='light'>
+										<Badge
+											color={ratingColor(m.avgRating)}
+											variant='light'
+											size='sm'
+										>
 											{m.avgRating.toFixed(2)}
 										</Badge>
 									</Table.Td>
@@ -221,5 +198,82 @@ export default function LecturerExpandedDetail({ userId, filter }: Props) {
 				</ScrollArea>
 			</Tabs.Panel>
 		</Tabs>
+	);
+}
+
+type QuestionRatingRowProps = {
+	question: LecturerQuestionDetail;
+};
+
+function QuestionRatingRow({ question }: QuestionRatingRowProps) {
+	const diff = question.avgRating - question.overallAvgRating;
+	const diffColor = diff >= 0 ? 'green' : 'red';
+	const diffSign = diff >= 0 ? '+' : '';
+
+	return (
+		<Card withBorder p='xs' radius='sm'>
+			<Grid align='center' gutter='xs'>
+				<Grid.Col span={{ base: 12, sm: 5 }}>
+					<Tooltip label={question.questionText} multiline maw={400}>
+						<Text size='xs' lineClamp={2}>
+							{question.questionText}
+						</Text>
+					</Tooltip>
+				</Grid.Col>
+				<Grid.Col span={{ base: 12, sm: 5 }}>
+					<Stack gap={4}>
+						<Group gap='xs'>
+							<Text size='xs' w={55} c='dimmed'>
+								Lecturer
+							</Text>
+							<Box style={{ flex: 1 }}>
+								<Progress
+									value={ratingPercent(question.avgRating)}
+									color={ratingColor(question.avgRating)}
+									size='sm'
+									radius='xl'
+								/>
+							</Box>
+							<Text
+								size='xs'
+								fw={600}
+								w={32}
+								ta='right'
+								c={ratingColor(question.avgRating)}
+							>
+								{question.avgRating.toFixed(2)}
+							</Text>
+						</Group>
+						<Group gap='xs'>
+							<Text size='xs' w={55} c='dimmed'>
+								Overall
+							</Text>
+							<Box style={{ flex: 1 }}>
+								<Progress
+									value={ratingPercent(question.overallAvgRating)}
+									color='gray.5'
+									size='sm'
+									radius='xl'
+								/>
+							</Box>
+							<Text size='xs' w={32} ta='right' c='dimmed'>
+								{question.overallAvgRating.toFixed(2)}
+							</Text>
+						</Group>
+					</Stack>
+				</Grid.Col>
+				<Grid.Col span={{ base: 12, sm: 2 }}>
+					<Group justify='flex-end' gap={4}>
+						<Badge size='xs' variant='light' color={diffColor}>
+							{diffSign}
+							{diff.toFixed(2)}
+						</Badge>
+						<Text size='xs' c='dimmed'>
+							({question.responseCount})
+						</Text>
+					</Group>
+				</Grid.Col>
+			</Grid>
+		</Card>
 	);
 }

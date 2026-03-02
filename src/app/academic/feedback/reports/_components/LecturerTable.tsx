@@ -9,6 +9,7 @@ import {
 	Stack,
 	Table,
 	Text,
+	Tooltip,
 	UnstyledButton,
 } from '@mantine/core';
 import { IconChevronRight } from '@tabler/icons-react';
@@ -38,6 +39,13 @@ function ratingColor(avg: number) {
 	if (avg >= 4) return 'green';
 	if (avg >= 3) return 'yellow';
 	return 'red';
+}
+
+function abbreviate(name: string, max = 12): string {
+	if (name.length <= max) return name;
+	const ampIdx = name.indexOf('&');
+	if (ampIdx > 0) return name.substring(0, ampIdx).trim();
+	return `${name.substring(0, max - 1)}…`;
 }
 
 export default function LecturerTable({ data, categories, filter }: Props) {
@@ -89,8 +97,8 @@ export default function LecturerTable({ data, categories, filter }: Props) {
 		return sortDir === 'asc' ? ' ↑' : ' ↓';
 	}
 
-	function th(label: string, field: SortField) {
-		return (
+	function th(label: string, field: SortField, tooltip?: string) {
+		const header = (
 			<Table.Th
 				onClick={() => handleSort(field)}
 				style={{ cursor: 'pointer', whiteSpace: 'nowrap' }}
@@ -99,6 +107,14 @@ export default function LecturerTable({ data, categories, filter }: Props) {
 				{sortIndicator(field)}
 			</Table.Th>
 		);
+		if (tooltip && tooltip !== label) {
+			return (
+				<Tooltip label={tooltip} position='top' withArrow key={field}>
+					{header}
+				</Tooltip>
+			);
+		}
+		return header;
 	}
 
 	const colCount = 7 + categories.length;
@@ -112,17 +128,19 @@ export default function LecturerTable({ data, categories, filter }: Props) {
 			<Stack gap='md'>
 				<Text fw={600}>Lecturer Rankings</Text>
 				<ScrollArea>
-					<Table striped highlightOnHover>
+					<Table striped highlightOnHover fz='sm'>
 						<Table.Thead>
 							<Table.Tr>
 								<Table.Th w={36} />
-								<Table.Th>#</Table.Th>
+								{th('#', 'avgRating')}
 								{th('Lecturer', 'lecturerName')}
 								{th('School', 'schoolCode')}
-								{th('Modules', 'moduleCount')}
-								{th('Responses', 'responseCount')}
-								{th('Avg Rating', 'avgRating')}
-								{categories.map((c) => th(c.categoryName, c.categoryName))}
+								{th('Mod', 'moduleCount', 'Modules')}
+								{th('Resp', 'responseCount', 'Responses')}
+								{th('Avg', 'avgRating', 'Average Rating')}
+								{categories.map((c) =>
+									th(abbreviate(c.categoryName), c.categoryName, c.categoryName)
+								)}
 							</Table.Tr>
 						</Table.Thead>
 						<Table.Tbody>
@@ -190,25 +208,31 @@ function LecturerRow({
 					</UnstyledButton>
 				</Table.Td>
 				<Table.Td>{idx + 1}</Table.Td>
-				<Table.Td>{lecturer.lecturerName}</Table.Td>
+				<Table.Td style={{ whiteSpace: 'nowrap' }}>
+					{lecturer.lecturerName}
+				</Table.Td>
 				<Table.Td>{lecturer.schoolCode}</Table.Td>
-				<Table.Td>{lecturer.moduleCount}</Table.Td>
-				<Table.Td>{lecturer.responseCount}</Table.Td>
+				<Table.Td ta='center'>{lecturer.moduleCount}</Table.Td>
+				<Table.Td ta='center'>{lecturer.responseCount}</Table.Td>
 				<Table.Td>
-					<Badge color={ratingColor(lecturer.avgRating)} variant='light'>
+					<Badge
+						color={ratingColor(lecturer.avgRating)}
+						variant='light'
+						size='sm'
+					>
 						{lecturer.avgRating.toFixed(2)}
 					</Badge>
 				</Table.Td>
-				{categories.map((c) => (
-					<Table.Td key={c.categoryId}>
-						<Text
-							size='sm'
-							c={ratingColor(lecturer.categoryAverages[c.categoryName] ?? 0)}
-						>
-							{(lecturer.categoryAverages[c.categoryName] ?? 0).toFixed(2)}
-						</Text>
-					</Table.Td>
-				))}
+				{categories.map((c) => {
+					const val = lecturer.categoryAverages[c.categoryName] ?? 0;
+					return (
+						<Table.Td key={c.categoryId} ta='center'>
+							<Text size='xs' c={ratingColor(val)}>
+								{val.toFixed(2)}
+							</Text>
+						</Table.Td>
+					);
+				})}
 			</Table.Tr>
 			<Table.Tr>
 				<Table.Td
