@@ -253,7 +253,21 @@ export async function createStudentContact(
 	if (input.phone) body.phone = input.phone;
 	if (tags.length > 0) body.tags = tags;
 
-	const response = await zohoPost<ZohoCreateContactResponse>('/contacts', body);
-
-	return response.contact;
+	try {
+		const response = await zohoPost<ZohoCreateContactResponse>(
+			'/contacts',
+			body
+		);
+		return response.contact;
+	} catch (error) {
+		const msg = error instanceof Error ? error.message : String(error);
+		if (msg.includes('already exists')) {
+			throw new Error(
+				`A Zoho contact with the name "${input.name}" already exists. ` +
+					`Please create the contact for student ${input.stdNo} manually in Zoho Books ` +
+					`with a differentiated name, then link it.`
+			);
+		}
+		throw error;
+	}
 }

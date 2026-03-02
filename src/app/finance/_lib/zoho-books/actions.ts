@@ -50,16 +50,33 @@ export async function fetchInvoiceDetail(invoiceId: string) {
 	return getInvoiceDetail(invoiceId);
 }
 
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+function sanitizeEmail(email: string | null | undefined): string | null {
+	if (!email) return null;
+	const trimmed = email.trim();
+	if (!trimmed || !EMAIL_REGEX.test(trimmed)) return null;
+	return trimmed;
+}
+
 export async function createZohoContact(stdNo: number): Promise<string> {
 	const student = await getStudent(stdNo);
 	if (!student) throw new Error(`Student ${stdNo} not found`);
 
+	const name = student.name.trim();
+	if (!name) throw new Error(`Student ${stdNo} has no name`);
+
 	const activeProgram = student.programs.find((p) => p.status === 'Active');
 	const program = activeProgram ?? student.programs[0];
-	const structure = program?.structure;
-	const schoolId = structure?.program?.school?.id;
+	if (!program?.structure?.program)
+		throw new Error(
+			`Student ${stdNo} has no program assigned. Cannot create Zoho contact without a program.`
+		);
 
-	const latestSemester = program?.semesters?.at(-1);
+	const structure = program.structure;
+	const schoolId = structure.program.school?.id;
+
+	const latestSemester = program.semesters?.at(-1);
 	const sponsorId = latestSemester?.sponsorId;
 
 	const [school, sponsor] = await Promise.all([
@@ -69,12 +86,12 @@ export async function createZohoContact(stdNo: number): Promise<string> {
 
 	const input: CreateStudentContactInput = {
 		stdNo,
-		name: student.name,
-		programName: structure?.program?.name ?? '',
-		email: student.user?.email ?? null,
-		phone: student.phone1 ?? null,
+		name,
+		programName: structure.program.name ?? '',
+		email: sanitizeEmail(student.user?.email),
+		phone: student.phone1?.trim() || null,
 		schoolCode: school?.code ?? null,
-		programCode: structure?.program?.code ?? null,
+		programCode: structure.program.code ?? null,
 		sponsorCode: sponsor?.code ?? null,
 	};
 
