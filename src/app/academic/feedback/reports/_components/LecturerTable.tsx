@@ -1,23 +1,24 @@
 'use client';
 
 import {
-	ActionIcon,
 	Badge,
-	Group,
+	Box,
+	Collapse,
 	Paper,
 	ScrollArea,
 	Stack,
 	Table,
 	Text,
+	UnstyledButton,
 } from '@mantine/core';
-import { IconEye } from '@tabler/icons-react';
+import { IconChevronRight } from '@tabler/icons-react';
 import { useState } from 'react';
 import type {
 	CategoryAverage,
 	FeedbackReportFilter,
 	LecturerRanking,
 } from '../_lib/types';
-import LecturerDetailModal from './LecturerDetailModal';
+import LecturerExpandedDetail from './LecturerExpandedDetail';
 
 type SortField =
 	| 'lecturerName'
@@ -42,7 +43,7 @@ function ratingColor(avg: number) {
 export default function LecturerTable({ data, categories, filter }: Props) {
 	const [sortField, setSortField] = useState<SortField>('avgRating');
 	const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
-	const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
+	const [expandedId, setExpandedId] = useState<string | null>(null);
 
 	function handleSort(field: SortField) {
 		if (sortField === field) {
@@ -100,89 +101,131 @@ export default function LecturerTable({ data, categories, filter }: Props) {
 		);
 	}
 
+	const colCount = 7 + categories.length;
+
+	function toggleRow(userId: string) {
+		setExpandedId((prev) => (prev === userId ? null : userId));
+	}
+
+	return (
+		<Paper withBorder p='lg'>
+			<Stack gap='md'>
+				<Text fw={600}>Lecturer Rankings</Text>
+				<ScrollArea>
+					<Table striped highlightOnHover>
+						<Table.Thead>
+							<Table.Tr>
+								<Table.Th w={36} />
+								<Table.Th>#</Table.Th>
+								{th('Lecturer', 'lecturerName')}
+								{th('School', 'schoolCode')}
+								{th('Modules', 'moduleCount')}
+								{th('Responses', 'responseCount')}
+								{th('Avg Rating', 'avgRating')}
+								{categories.map((c) => th(c.categoryName, c.categoryName))}
+							</Table.Tr>
+						</Table.Thead>
+						<Table.Tbody>
+							{sorted.map((lecturer, idx) => {
+								const isExpanded = expandedId === lecturer.userId;
+								return (
+									<LecturerRow
+										key={lecturer.userId}
+										lecturer={lecturer}
+										idx={idx}
+										categories={categories}
+										isExpanded={isExpanded}
+										colCount={colCount}
+										filter={filter}
+										onToggle={() => toggleRow(lecturer.userId)}
+									/>
+								);
+							})}
+							{sorted.length === 0 && (
+								<Table.Tr>
+									<Table.Td colSpan={colCount + 1} ta='center' c='dimmed'>
+										No lecturers found
+									</Table.Td>
+								</Table.Tr>
+							)}
+						</Table.Tbody>
+					</Table>
+				</ScrollArea>
+			</Stack>
+		</Paper>
+	);
+}
+
+type LecturerRowProps = {
+	lecturer: LecturerRanking;
+	idx: number;
+	categories: CategoryAverage[];
+	isExpanded: boolean;
+	colCount: number;
+	filter: FeedbackReportFilter;
+	onToggle: () => void;
+};
+
+function LecturerRow({
+	lecturer,
+	idx,
+	categories,
+	isExpanded,
+	colCount,
+	filter,
+	onToggle,
+}: LecturerRowProps) {
 	return (
 		<>
-			<Paper withBorder p='lg'>
-				<Stack gap='md'>
-					<Text fw={600}>Lecturer Rankings</Text>
-					<ScrollArea>
-						<Table striped highlightOnHover>
-							<Table.Thead>
-								<Table.Tr>
-									<Table.Th>#</Table.Th>
-									{th('Lecturer', 'lecturerName')}
-									{th('School', 'schoolCode')}
-									{th('Modules', 'moduleCount')}
-									{th('Responses', 'responseCount')}
-									{th('Avg Rating', 'avgRating')}
-									{categories.map((c) => th(c.categoryName, c.categoryName))}
-									<Table.Th>Action</Table.Th>
-								</Table.Tr>
-							</Table.Thead>
-							<Table.Tbody>
-								{sorted.map((lecturer, idx) => (
-									<Table.Tr key={lecturer.userId}>
-										<Table.Td>{idx + 1}</Table.Td>
-										<Table.Td>{lecturer.lecturerName}</Table.Td>
-										<Table.Td>{lecturer.schoolCode}</Table.Td>
-										<Table.Td>{lecturer.moduleCount}</Table.Td>
-										<Table.Td>{lecturer.responseCount}</Table.Td>
-										<Table.Td>
-											<Badge
-												color={ratingColor(lecturer.avgRating)}
-												variant='light'
-											>
-												{lecturer.avgRating.toFixed(2)}
-											</Badge>
-										</Table.Td>
-										{categories.map((c) => (
-											<Table.Td key={c.categoryId}>
-												<Text
-													size='sm'
-													c={ratingColor(
-														lecturer.categoryAverages[c.categoryName] ?? 0
-													)}
-												>
-													{(
-														lecturer.categoryAverages[c.categoryName] ?? 0
-													).toFixed(2)}
-												</Text>
-											</Table.Td>
-										))}
-										<Table.Td>
-											<Group gap={4}>
-												<ActionIcon
-													variant='subtle'
-													size='sm'
-													onClick={() => setSelectedUserId(lecturer.userId)}
-												>
-													<IconEye size={14} />
-												</ActionIcon>
-											</Group>
-										</Table.Td>
-									</Table.Tr>
-								))}
-								{sorted.length === 0 && (
-									<Table.Tr>
-										<Table.Td
-											colSpan={7 + categories.length}
-											ta='center'
-											c='dimmed'
-										>
-											No lecturers found
-										</Table.Td>
-									</Table.Tr>
-								)}
-							</Table.Tbody>
-						</Table>
-					</ScrollArea>
-				</Stack>
-			</Paper>
-			<LecturerDetailModal
-				userId={selectedUserId}
-				filter={filter}
-				onClose={() => setSelectedUserId(null)}
-			/>
+			<Table.Tr style={{ cursor: 'pointer' }} onClick={onToggle}>
+				<Table.Td w={36}>
+					<UnstyledButton>
+						<IconChevronRight
+							size={16}
+							style={{
+								transform: isExpanded ? 'rotate(90deg)' : undefined,
+								transition: 'transform 200ms',
+							}}
+						/>
+					</UnstyledButton>
+				</Table.Td>
+				<Table.Td>{idx + 1}</Table.Td>
+				<Table.Td>{lecturer.lecturerName}</Table.Td>
+				<Table.Td>{lecturer.schoolCode}</Table.Td>
+				<Table.Td>{lecturer.moduleCount}</Table.Td>
+				<Table.Td>{lecturer.responseCount}</Table.Td>
+				<Table.Td>
+					<Badge color={ratingColor(lecturer.avgRating)} variant='light'>
+						{lecturer.avgRating.toFixed(2)}
+					</Badge>
+				</Table.Td>
+				{categories.map((c) => (
+					<Table.Td key={c.categoryId}>
+						<Text
+							size='sm'
+							c={ratingColor(lecturer.categoryAverages[c.categoryName] ?? 0)}
+						>
+							{(lecturer.categoryAverages[c.categoryName] ?? 0).toFixed(2)}
+						</Text>
+					</Table.Td>
+				))}
+			</Table.Tr>
+			<Table.Tr>
+				<Table.Td
+					colSpan={colCount + 1}
+					p={0}
+					style={{ borderTop: isExpanded ? undefined : 'none' }}
+				>
+					<Collapse in={isExpanded}>
+						<Box p='md'>
+							<LecturerExpandedDetail
+								userId={lecturer.userId}
+								filter={filter}
+							/>
+						</Box>
+					</Collapse>
+				</Table.Td>
+			</Table.Tr>
 		</>
 	);
 }
