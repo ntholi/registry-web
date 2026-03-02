@@ -7,6 +7,7 @@ import {
 } from '@registry/graduation/clearance';
 import { AcademicsLoader } from '@registry/registration/clearance';
 import { notFound } from 'next/navigation';
+import StudentFinanceView from '@/app/registry/students/_components/finance/StudentFinanceView';
 import { auth } from '@/core/auth';
 import { DetailsView } from '@/shared/ui/adease';
 
@@ -33,18 +34,29 @@ export default async function GraduationClearanceRequestDetails({
 			<Tabs defaultValue='details' variant='outline'>
 				<TabsList>
 					<TabsTab value='details'>Details</TabsTab>
+					{session?.user?.role === 'finance' && (
+						<TabsTab value='finance'>Finance</TabsTab>
+					)}
 					{['academic', 'finance'].includes(session?.user?.role || '') && (
 						<TabsTab value='academics'>Academics</TabsTab>
 					)}
+
 					<TabsTab value='history'>History</TabsTab>
 				</TabsList>
 				<TabsPanel value='details'>
 					<GraduationClearanceDetails request={request} />
 				</TabsPanel>
-				<TabsPanel value='academics'>
-					<AcademicsLoader
+				<TabsPanel value='finance' pb={'md'}>
+					<StudentFinanceView
 						stdNo={request.graduationRequest.studentProgram.stdNo}
+						zohoContactId={null}
+						isActive
 					/>
+					<TabsPanel value='academics'>
+						<AcademicsLoader
+							stdNo={request.graduationRequest.studentProgram.stdNo}
+						/>
+					</TabsPanel>
 				</TabsPanel>
 				<TabsPanel value='history'>
 					<GraduationClearanceHistory

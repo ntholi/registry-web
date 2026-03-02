@@ -6,6 +6,7 @@ import {
 } from '@registry/registration/clearance';
 import { getClearance } from '@registry/registration/requests';
 import { notFound } from 'next/navigation';
+import StudentFinanceView from '@/app/registry/students/_components/finance/StudentFinanceView';
 import { getActiveTerm } from '@/app/registry/terms';
 import { auth } from '@/core/auth';
 import { DetailsView } from '@/shared/ui/adease';
@@ -35,16 +36,28 @@ export default async function ClearanceRequestDetails({ params }: Props) {
 				<TabsList>
 					<TabsTab value='details'>Details</TabsTab>
 					{session?.user?.role === 'finance' && (
+						<TabsTab value='finance'>Finance</TabsTab>
+					)}
+					{session?.user?.role === 'finance' && (
 						<TabsTab value='academics'>Academics</TabsTab>
 					)}
+
 					<TabsTab value='history'>History</TabsTab>
 				</TabsList>
 				<TabsPanel value='details'>
 					<ClearanceDetails request={request} termId={term.id} />
 				</TabsPanel>
+				<TabsPanel value='finance' p={'md'}>
+					<StudentFinanceView
+						stdNo={request.registrationRequest.student.stdNo}
+						zohoContactId={null}
+						isActive
+					/>
+				</TabsPanel>
 				<TabsPanel value='academics'>
 					<AcademicsLoader stdNo={request.registrationRequest.student.stdNo} />
 				</TabsPanel>
+
 				<TabsPanel value='history'>
 					<ClearanceHistory stdNo={request.registrationRequest.student.stdNo} />
 				</TabsPanel>

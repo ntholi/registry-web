@@ -10,14 +10,7 @@ import {
 	ThemeIcon,
 	Tooltip,
 } from '@mantine/core';
-import {
-	IconCheck,
-	IconCoin,
-	IconCreditCard,
-	IconRefresh,
-	IconReport,
-	IconWallet,
-} from '@tabler/icons-react';
+import { IconRefresh, IconReport } from '@tabler/icons-react';
 import { formatCurrency } from '@/shared/lib/utils/utils';
 
 type Props = {
@@ -53,31 +46,27 @@ export function FinancialOverview({ summary, isFetching, onRefresh }: Props) {
 
 			<Divider />
 
-			<SimpleGrid cols={{ base: 1, xs: 2, sm: 4 }} spacing='sm'>
+			<SimpleGrid cols={{ base: 1, xs: 2, sm: 4 }} spacing='xs'>
 				<MetricCard
 					label='Total Invoiced'
 					value={formatCurrency(summary.totalAmount)}
-					icon={<IconCoin size='1.2rem' />}
-					color='violet'
+					color='default'
 				/>
 				<MetricCard
 					label='Amount Paid'
 					value={formatCurrency(summary.totalPaid)}
-					icon={<IconCheck size='1.2rem' />}
-					color='teal'
+					color='default'
 				/>
 				<MetricCard
 					label='Outstanding'
 					value={formatCurrency(summary.totalOutstanding)}
-					icon={<IconWallet size='1.2rem' />}
 					color={summary.totalOutstanding > 0 ? 'red' : 'teal'}
 				/>
 				{summary.unusedCredits > 0 && (
 					<MetricCard
 						label='Unused Credits'
 						value={formatCurrency(summary.unusedCredits)}
-						icon={<IconCreditCard size='1.2rem' />}
-						color='cyan'
+						color='default'
 					/>
 				)}
 			</SimpleGrid>
@@ -88,27 +77,18 @@ export function FinancialOverview({ summary, isFetching, onRefresh }: Props) {
 type MetricCardProps = {
 	label: string;
 	value: string;
-	icon: React.ReactNode;
 	color: string;
 };
 
-function MetricCard({ label, value, icon, color }: MetricCardProps) {
+function MetricCard({ label, value, color }: MetricCardProps) {
 	return (
 		<Card withBorder padding='sm'>
 			<Group gap='sm' wrap='nowrap' align='center'>
-				<ThemeIcon
-					size='lg'
-					variant='light'
-					color={color}
-					style={{ flexShrink: 0 }}
-				>
-					{icon}
-				</ThemeIcon>
 				<Stack gap={2} style={{ minWidth: 0, flex: 1 }}>
 					<Text size='xs' c='dimmed' truncate>
 						{label}
 					</Text>
-					<Text ff='monospace' lh={1.2}>
+					<Text c={color} ff='monospace' lh={1.2}>
 						{value}
 					</Text>
 				</Stack>
