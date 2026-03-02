@@ -57,26 +57,26 @@ export function FinancialOverview({ summary, isFetching, onRefresh }: Props) {
 				<MetricCard
 					label='Total Invoiced'
 					value={formatCurrency(summary.totalAmount)}
-					icon={<IconCoin size='1rem' />}
+					icon={<IconCoin size='1.2rem' />}
 					color='violet'
 				/>
 				<MetricCard
 					label='Amount Paid'
 					value={formatCurrency(summary.totalPaid)}
-					icon={<IconCheck size='1rem' />}
+					icon={<IconCheck size='1.2rem' />}
 					color='teal'
 				/>
 				<MetricCard
 					label='Outstanding'
 					value={formatCurrency(summary.totalOutstanding)}
-					icon={<IconWallet size='1rem' />}
+					icon={<IconWallet size='1.2rem' />}
 					color={summary.totalOutstanding > 0 ? 'red' : 'teal'}
 				/>
 				{summary.unusedCredits > 0 && (
 					<MetricCard
 						label='Unused Credits'
 						value={formatCurrency(summary.unusedCredits)}
-						icon={<IconCreditCard size='1rem' />}
+						icon={<IconCreditCard size='1.2rem' />}
 						color='cyan'
 					/>
 				)}
@@ -94,41 +94,25 @@ type MetricCardProps = {
 
 function MetricCard({ label, value, icon, color }: MetricCardProps) {
 	return (
-		<Card withBorder padding='lg' radius='md'>
-			<Stack gap='sm'>
-				<Group justify='space-between' align='flex-start'>
-					<Text
-						size='xs'
-						c='dimmed'
-						tt='uppercase'
-						fw={700}
-						lts={0.8}
-						style={{ lineHeight: 1.4 }}
-					>
+		<Card withBorder padding='sm'>
+			<Group gap='sm' wrap='nowrap' align='center'>
+				<ThemeIcon
+					size='lg'
+					variant='light'
+					color={color}
+					style={{ flexShrink: 0 }}
+				>
+					{icon}
+				</ThemeIcon>
+				<Stack gap={2} style={{ minWidth: 0, flex: 1 }}>
+					<Text size='xs' c='dimmed' truncate>
 						{label}
 					</Text>
-					<ThemeIcon
-						size='lg'
-						variant='light'
-						color={color}
-						radius='md'
-						style={{ flexShrink: 0 }}
-					>
-						{icon}
-					</ThemeIcon>
-				</Group>
-				<Text
-					fw={800}
-					ff='monospace'
-					lh={1}
-					style={{
-						fontSize: 'clamp(0.9rem, 2.5vw, 1.25rem)',
-						wordBreak: 'break-all',
-					}}
-				>
-					{value}
-				</Text>
-			</Stack>
+					<Text ff='monospace' lh={1.2}>
+						{value}
+					</Text>
+				</Stack>
+			</Group>
 		</Card>
 	);
 }
