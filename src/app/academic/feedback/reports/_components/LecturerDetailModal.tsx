@@ -1,12 +1,13 @@
 'use client';
 
+import { BarChart } from '@mantine/charts';
 import {
+	Accordion,
 	Badge,
 	Card,
 	Group,
 	Loader,
 	Modal,
-	Progress,
 	ScrollArea,
 	Stack,
 	Table,
@@ -19,7 +20,10 @@ import {
 	IconQuestionMark,
 } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
-import type { FeedbackReportFilter } from '../_lib/types';
+import type {
+	FeedbackReportFilter,
+	LecturerQuestionDetail,
+} from '../_lib/types';
 import { getFeedbackLecturerDetail } from '../_server/actions';
 
 type Props = {
@@ -34,6 +38,10 @@ function ratingColor(avg: number) {
 	return 'red';
 }
 
+function truncate(text: string, max: number) {
+	return text.length > max ? `${text.substring(0, max)}…` : text;
+}
+
 export default function LecturerDetailModal({
 	userId,
 	filter,
@@ -44,6 +52,15 @@ export default function LecturerDetailModal({
 		queryFn: () => getFeedbackLecturerDetail(userId!, filter),
 		enabled: Boolean(userId),
 	});
+
+	const grouped = new Map<string, LecturerQuestionDetail[]>();
+	if (detail) {
+		for (const q of detail.questions) {
+			const list = grouped.get(q.categoryName) ?? [];
+			list.push(q);
+			grouped.set(q.categoryName, list);
+		}
+	}
 
 	return (
 		<Modal
@@ -131,56 +148,59 @@ export default function LecturerDetailModal({
 
 					<Tabs.Panel value='questions' pt='md'>
 						<ScrollArea>
-							<Stack gap='sm'>
-								{detail.questions.map((q) => {
-									const delta = q.avgRating - q.overallAvgRating;
-									const deltaColor = delta >= 0 ? 'green' : 'red';
+							<Accordion variant='contained' chevronPosition='right'>
+								{Array.from(grouped.entries()).map(([category, questions]) => {
+									const catAvg =
+										questions.reduce((sum, q) => sum + q.avgRating, 0) /
+										questions.length;
+
+									const chartData = questions.map((q) => ({
+										question: truncate(q.questionText, 28),
+										Lecturer: Number(q.avgRating.toFixed(2)),
+										Overall: Number(q.overallAvgRating.toFixed(2)),
+									}));
+
 									return (
-										<Card key={q.questionId} withBorder p='sm'>
-											<Stack gap='xs'>
-												<Group justify='space-between'>
-													<Text size='sm' fw={500} style={{ flex: 1 }}>
-														{q.questionText}
+										<Accordion.Item key={category} value={category}>
+											<Accordion.Control>
+												<Group justify='space-between' pr='sm'>
+													<Text size='sm' fw={500}>
+														{category}
 													</Text>
-													<Group gap='xs'>
-														<Badge
-															color={ratingColor(q.avgRating)}
-															variant='light'
-															size='sm'
-														>
-															{q.avgRating.toFixed(2)}
-														</Badge>
-														<Text size='xs' c={deltaColor}>
-															({delta >= 0 ? '+' : ''}
-															{delta.toFixed(2)})
-														</Text>
-													</Group>
+													<Badge
+														color={ratingColor(catAvg)}
+														variant='light'
+														size='sm'
+													>
+														{catAvg.toFixed(2)}
+													</Badge>
 												</Group>
-												<Text size='xs' c='dimmed'>
-													{q.categoryName} · {q.responseCount} responses
-												</Text>
-												<Group gap={4}>
-													{q.distribution.map((d) => (
-														<Progress
-															key={d.rating}
-															value={d.percentage}
-															color={
-																d.rating >= 4
-																	? 'green'
-																	: d.rating >= 3
-																		? 'yellow'
-																		: 'red'
-															}
-															size='sm'
-															style={{ flex: 1 }}
-														/>
-													))}
-												</Group>
-											</Stack>
-										</Card>
+											</Accordion.Control>
+											<Accordion.Panel>
+												<BarChart
+													h={questions.length * 50 + 50}
+													data={chartData}
+													dataKey='question'
+													orientation='vertical'
+													yAxisProps={{ width: 180 }}
+													series={[
+														{ name: 'Lecturer', color: 'blue.6' },
+														{ name: 'Overall', color: 'gray.4' },
+													]}
+													withLegend
+													legendProps={{
+														verticalAlign: 'bottom',
+														height: 40,
+													}}
+													tooltipAnimationDuration={200}
+													barProps={{ radius: 4 }}
+													valueFormatter={(v) => v.toFixed(2)}
+												/>
+											</Accordion.Panel>
+										</Accordion.Item>
 									);
 								})}
-							</Stack>
+							</Accordion>
 						</ScrollArea>
 					</Tabs.Panel>
 

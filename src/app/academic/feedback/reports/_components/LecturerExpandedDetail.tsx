@@ -1,12 +1,12 @@
 'use client';
 
+import { BarChart } from '@mantine/charts';
 import {
 	Accordion,
 	Badge,
 	Card,
 	Group,
 	Loader,
-	Progress,
 	ScrollArea,
 	Stack,
 	Table,
@@ -34,6 +34,10 @@ function ratingColor(avg: number) {
 	if (avg >= 4) return 'green';
 	if (avg >= 3) return 'yellow';
 	return 'red';
+}
+
+function truncate(text: string, max: number) {
+	return text.length > max ? `${text.substring(0, max)}…` : text;
 }
 
 export default function LecturerExpandedDetail({ userId, filter }: Props) {
@@ -99,6 +103,13 @@ export default function LecturerExpandedDetail({ userId, filter }: Props) {
 							const catAvg =
 								questions.reduce((sum, q) => sum + q.avgRating, 0) /
 								questions.length;
+
+							const chartData = questions.map((q) => ({
+								question: truncate(q.questionText, 30),
+								Lecturer: Number(q.avgRating.toFixed(2)),
+								Overall: Number(q.overallAvgRating.toFixed(2)),
+							}));
+
 							return (
 								<Accordion.Item key={category} value={category}>
 									<Accordion.Control>
@@ -121,11 +132,25 @@ export default function LecturerExpandedDetail({ userId, filter }: Props) {
 										</Group>
 									</Accordion.Control>
 									<Accordion.Panel>
-										<Stack gap='xs'>
-											{questions.map((q) => (
-												<QuestionCard key={q.questionId} question={q} />
-											))}
-										</Stack>
+										<BarChart
+											h={questions.length * 50 + 50}
+											data={chartData}
+											dataKey='question'
+											orientation='vertical'
+											yAxisProps={{ width: 200 }}
+											series={[
+												{ name: 'Lecturer', color: 'blue.6' },
+												{ name: 'Overall', color: 'gray.4' },
+											]}
+											withLegend
+											legendProps={{
+												verticalAlign: 'bottom',
+												height: 40,
+											}}
+											tooltipAnimationDuration={200}
+											barProps={{ radius: 4 }}
+											valueFormatter={(v) => v.toFixed(2)}
+										/>
 									</Accordion.Panel>
 								</Accordion.Item>
 							);
@@ -196,56 +221,5 @@ export default function LecturerExpandedDetail({ userId, filter }: Props) {
 				</ScrollArea>
 			</Tabs.Panel>
 		</Tabs>
-	);
-}
-
-type QuestionCardProps = {
-	question: LecturerQuestionDetail;
-};
-
-function QuestionCard({ question: q }: QuestionCardProps) {
-	const delta = q.avgRating - q.overallAvgRating;
-	const deltaColor = delta >= 0 ? 'green' : 'red';
-
-	return (
-		<Card withBorder p='sm'>
-			<Stack gap='xs'>
-				<Group justify='space-between' wrap='nowrap'>
-					<Text size='sm' fw={500} style={{ flex: 1 }}>
-						{q.questionText}
-					</Text>
-					<Group gap='xs' wrap='nowrap'>
-						<Badge color={ratingColor(q.avgRating)} variant='light' size='sm'>
-							{q.avgRating.toFixed(2)}
-						</Badge>
-						<Text size='xs' c={deltaColor}>
-							({delta >= 0 ? '+' : ''}
-							{delta.toFixed(2)})
-						</Text>
-					</Group>
-				</Group>
-				<Text size='xs' c='dimmed'>
-					{q.responseCount} responses · Overall avg:{' '}
-					{q.overallAvgRating.toFixed(2)}
-				</Text>
-				<Group gap={4}>
-					{q.distribution.map((d) => (
-						<Stack key={d.rating} gap={2} align='center' style={{ flex: 1 }}>
-							<Progress
-								value={d.percentage}
-								color={
-									d.rating >= 4 ? 'green' : d.rating >= 3 ? 'yellow' : 'red'
-								}
-								size='sm'
-								w='100%'
-							/>
-							<Text size='xs' c='dimmed'>
-								{d.rating}★ ({d.percentage}%)
-							</Text>
-						</Stack>
-					))}
-				</Group>
-			</Stack>
-		</Card>
 	);
 }
