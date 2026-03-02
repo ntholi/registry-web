@@ -18,6 +18,7 @@ import type {
 	ZohoSalesReceipt,
 	ZohoSalesReceiptsResponse,
 } from './types';
+import zohoConfig from './zoho-config.json';
 
 export async function findStudentContact(
 	stdNo: number
@@ -157,50 +158,20 @@ export async function getStudentFinanceSummary(
 	};
 }
 
-const ACCOUNT_CODE_FIELD_ID = '4172689000000078005';
+const ACCOUNT_CODE_FIELD_ID = zohoConfig.customFields.accountCode.fieldId;
 
 const TAG_IDS = {
-	financialAssistance: '4172689000000000333',
-	school: '4172689000000000335',
-	programme: '4172689000000000337',
+	financialAssistance: zohoConfig.tagIds.financialAssitance,
+	school: zohoConfig.tagIds.school,
+	programme: zohoConfig.tagIds.programe,
 } as const;
 
-const FINANCIAL_ASSISTANCE_OPTIONS: Record<string, string> = {
-	ManPower: '4172689000000422009',
-	Private: '4172689000000422011',
-};
+const FINANCIAL_ASSISTANCE_OPTIONS = zohoConfig.tagOptions.financialAssitance;
 
-const SCHOOL_OPTIONS: Record<string, string> = {
-	FAID: '4172689000000422021',
-	FBS: '4172689000000422023',
-	FCO: '4172689000000422025',
-	FCTH: '4172689000000422027',
-	FDSI: '4172689000000422029',
-	FFLD: '4172689000000422033',
-	FFTB: '4172689000000422035',
-	FINT: '4172689000000422037',
-};
+const SCHOOL_OPTIONS: Record<string, string> = zohoConfig.tagOptions.school;
 
-const PROGRAMME_OPTIONS: Record<string, string> = {
-	AV: '4172689000000422059',
-	BAFASH: '4172689000000422067',
-	BAHR: '4172689000000422069',
-	BAS: '4172689000003710011',
-	BHR: '4172689000000422089',
-	BIB: '4172689000000422091',
-	BSCIT: '4172689000000422103',
-	CBIT: '4172689000000422115',
-	CGD: '4172689000000422117',
-	DAT: '4172689000000422125',
-	DCAV: '4172689000000422133',
-	DEM: '4172689000000422135',
-	DFAD: '4172689000000422137',
-	DFP: '4172689000000422109',
-	DJM: '4172689000000422147',
-	DTM: '4172689000000422157',
-	RM: '4172689000000422179',
-	TM: '4172689000000422169',
-};
+const PROGRAMME_OPTIONS: Record<string, string> =
+	zohoConfig.tagOptions.programe;
 
 function buildTags(input: CreateStudentContactInput) {
 	const tags: { tag_id: string; tag_option_id: string }[] = [];
