@@ -1,8 +1,9 @@
 import type { StudentFinanceSummary } from '@finance/_lib/zoho-books/types';
 import {
 	ActionIcon,
+	Card,
+	Divider,
 	Group,
-	Paper,
 	SimpleGrid,
 	Stack,
 	Text,
@@ -14,6 +15,7 @@ import {
 	IconCoin,
 	IconCreditCard,
 	IconRefresh,
+	IconReport,
 	IconWallet,
 } from '@tabler/icons-react';
 import { formatCurrency } from '@/shared/lib/utils/utils';
@@ -26,12 +28,17 @@ type Props = {
 
 export function FinancialOverview({ summary, isFetching, onRefresh }: Props) {
 	return (
-		<Stack gap='sm'>
+		<Stack gap='md'>
 			<Group justify='space-between' align='center'>
-				<Text size='sm' fw={600} c='dimmed' tt='uppercase' lts={0.5}>
-					Financial Summary
-				</Text>
-				<Tooltip label='Refresh' withArrow>
+				<Group gap='xs'>
+					<ThemeIcon size='sm' variant='transparent' color='dimmed'>
+						<IconReport size='1rem' />
+					</ThemeIcon>
+					<Text size='xs' fw={700} c='dimmed' tt='uppercase' lts={1}>
+						Financial Summary
+					</Text>
+				</Group>
+				<Tooltip label='Refresh from Zoho' withArrow position='left'>
 					<ActionIcon
 						variant='subtle'
 						color='gray'
@@ -39,35 +46,37 @@ export function FinancialOverview({ summary, isFetching, onRefresh }: Props) {
 						loading={isFetching}
 						onClick={onRefresh}
 					>
-						<IconRefresh size='1rem' />
+						<IconRefresh size='0.9rem' />
 					</ActionIcon>
 				</Tooltip>
 			</Group>
 
-			<SimpleGrid cols={{ base: 2, sm: 4 }} spacing='sm'>
+			<Divider />
+
+			<SimpleGrid cols={{ base: 1, xs: 2, sm: 4 }} spacing='sm'>
 				<MetricCard
 					label='Total Invoiced'
 					value={formatCurrency(summary.totalAmount)}
-					icon={<IconCoin size='1.1rem' />}
+					icon={<IconCoin size='1rem' />}
 					color='violet'
 				/>
 				<MetricCard
-					label='Paid'
+					label='Amount Paid'
 					value={formatCurrency(summary.totalPaid)}
-					icon={<IconCheck size='1.1rem' />}
-					color='green'
+					icon={<IconCheck size='1rem' />}
+					color='teal'
 				/>
 				<MetricCard
 					label='Outstanding'
 					value={formatCurrency(summary.totalOutstanding)}
-					icon={<IconWallet size='1.1rem' />}
-					color={summary.totalOutstanding > 0 ? 'red' : 'green'}
+					icon={<IconWallet size='1rem' />}
+					color={summary.totalOutstanding > 0 ? 'red' : 'teal'}
 				/>
 				{summary.unusedCredits > 0 && (
 					<MetricCard
-						label='Credits'
+						label='Unused Credits'
 						value={formatCurrency(summary.unusedCredits)}
-						icon={<IconCreditCard size='1.1rem' />}
+						icon={<IconCreditCard size='1rem' />}
 						color='cyan'
 					/>
 				)}
@@ -85,18 +94,41 @@ type MetricCardProps = {
 
 function MetricCard({ label, value, icon, color }: MetricCardProps) {
 	return (
-		<Paper p='md' withBorder>
-			<Group gap='xs' mb='xs'>
-				<ThemeIcon size='sm' variant='light' color={color}>
-					{icon}
-				</ThemeIcon>
-				<Text size='xs' c='dimmed'>
-					{label}
+		<Card withBorder padding='lg' radius='md'>
+			<Stack gap='sm'>
+				<Group justify='space-between' align='flex-start'>
+					<Text
+						size='xs'
+						c='dimmed'
+						tt='uppercase'
+						fw={700}
+						lts={0.8}
+						style={{ lineHeight: 1.4 }}
+					>
+						{label}
+					</Text>
+					<ThemeIcon
+						size='lg'
+						variant='light'
+						color={color}
+						radius='md'
+						style={{ flexShrink: 0 }}
+					>
+						{icon}
+					</ThemeIcon>
+				</Group>
+				<Text
+					fw={800}
+					ff='monospace'
+					lh={1}
+					style={{
+						fontSize: 'clamp(0.9rem, 2.5vw, 1.25rem)',
+						wordBreak: 'break-all',
+					}}
+				>
+					{value}
 				</Text>
-			</Group>
-			<Text fw={700} size='lg' ff='monospace'>
-				{value}
-			</Text>
-		</Paper>
+			</Stack>
+		</Card>
 	);
 }
