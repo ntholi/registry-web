@@ -1,7 +1,7 @@
 'use client';
 
 import { DonutChart } from '@mantine/charts';
-import { Card, Stack, Text } from '@mantine/core';
+import { Paper, Stack, Text } from '@mantine/core';
 import type { RatingDistribution } from '../_lib/types';
 
 type Props = {
@@ -28,7 +28,7 @@ export default function RatingHistogram({ data }: Props) {
 	}));
 
 	return (
-		<Card withBorder p='lg'>
+		<Paper withBorder p='lg'>
 			<Stack gap='md'>
 				<Text fw={600}>Rating Distribution</Text>
 				<DonutChart
@@ -42,6 +42,6 @@ export default function RatingHistogram({ data }: Props) {
 					thickness={20}
 				/>
 			</Stack>
-		</Card>
+		</Paper>
 	);
 }

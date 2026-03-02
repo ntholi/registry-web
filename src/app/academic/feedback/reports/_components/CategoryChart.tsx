@@ -1,7 +1,7 @@
 'use client';
 
 import { RadarChart } from '@mantine/charts';
-import { Card, Stack, Text } from '@mantine/core';
+import { Paper, Stack, Text } from '@mantine/core';
 import type { CategoryAverage } from '../_lib/types';
 
 type Props = {
@@ -17,7 +17,7 @@ export default function CategoryChart({ data }: Props) {
 	}));
 
 	return (
-		<Card withBorder p='lg'>
+		<Paper withBorder p='lg'>
 			<Stack gap='md'>
 				<Text fw={600}>Average Rating by Category</Text>
 				<RadarChart
@@ -34,6 +34,6 @@ export default function CategoryChart({ data }: Props) {
 					}}
 				/>
 			</Stack>
-		</Card>
+		</Paper>
 	);
 }
