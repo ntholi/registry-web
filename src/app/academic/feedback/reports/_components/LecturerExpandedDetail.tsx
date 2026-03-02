@@ -13,7 +13,6 @@ import {
 	Table,
 	Tabs,
 	Text,
-	Tooltip,
 } from '@mantine/core';
 import {
 	IconBook2,
@@ -214,11 +213,9 @@ function QuestionRatingRow({ question }: QuestionRatingRowProps) {
 		<Card withBorder p='xs' radius='sm'>
 			<Grid align='center' gutter='xs'>
 				<Grid.Col span={{ base: 12, sm: 5 }}>
-					<Tooltip label={question.questionText} multiline maw={400}>
-						<Text size='xs' lineClamp={2}>
-							{question.questionText}
-						</Text>
-					</Tooltip>
+					<Text size='xs' lineClamp={2}>
+						{question.questionText}
+					</Text>
 				</Grid.Col>
 				<Grid.Col span={{ base: 12, sm: 5 }}>
 					<Stack gap={4}>
