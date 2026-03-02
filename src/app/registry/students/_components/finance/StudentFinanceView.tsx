@@ -1,7 +1,6 @@
 'use client';
 
 import {
-	createZohoContact,
 	fetchStudentEstimates,
 	fetchStudentFinance,
 	fetchStudentPayments,
@@ -10,7 +9,6 @@ import {
 } from '@finance/_lib/zoho-books/actions';
 import {
 	Badge,
-	Button,
 	Group,
 	Paper,
 	Skeleton,
@@ -24,11 +22,11 @@ import {
 	IconCreditCard,
 	IconFileInvoice,
 	IconNotebook,
-	IconPlus,
 	IconReceipt,
 } from '@tabler/icons-react';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
+import CreateContactBtn from './CreateContactBtn';
 import { EstimatesTab } from './EstimatesTab';
 import { FinancialOverview } from './FinancialOverview';
 import { InvoicesTab } from './InvoicesTab';
@@ -289,18 +287,6 @@ type NoContactViewProps = {
 };
 
 function NoContactView({ stdNo }: NoContactViewProps) {
-	const queryClient = useQueryClient();
-
-	const { mutate, isPending, isError, error } = useMutation({
-		mutationFn: () => createZohoContact(stdNo),
-		onSuccess: (contactId) => {
-			queryClient.setQueryData(['zoho-contact', stdNo], contactId);
-			queryClient.invalidateQueries({
-				queryKey: ['student-finance', contactId],
-			});
-		},
-	});
-
 	return (
 		<Paper p='xl' withBorder>
 			<Stack align='center' gap='md' py='lg'>
@@ -316,20 +302,7 @@ function NoContactView({ stdNo }: NoContactViewProps) {
 						tracking their finances.
 					</Text>
 				</Stack>
-				{isError && (
-					<Text size='sm' c='red' ta='center' maw={400}>
-						{error instanceof Error
-							? error.message
-							: 'Failed to create contact. Please try again.'}
-					</Text>
-				)}
-				<Button
-					leftSection={<IconPlus size='1rem' />}
-					onClick={() => mutate()}
-					loading={isPending}
-				>
-					Create Zoho Contact
-				</Button>
+				<CreateContactBtn stdNo={stdNo} />
 			</Stack>
 		</Paper>
 	);
