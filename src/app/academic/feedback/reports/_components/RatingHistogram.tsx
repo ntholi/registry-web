@@ -1,6 +1,6 @@
 'use client';
 
-import { DonutChart } from '@mantine/charts';
+import { BarChart } from '@mantine/charts';
 import { Paper, Stack, Text } from '@mantine/core';
 import type { RatingDistribution } from '../_lib/types';
 
@@ -19,27 +19,25 @@ const ratingColors: Record<number, string> = {
 export default function RatingHistogram({ data }: Props) {
 	if (data.length === 0) return null;
 
-	const total = data.reduce((sum, d) => sum + d.count, 0);
-
 	const chartData = data.map((d) => ({
-		name: `${d.rating} ★`,
-		value: d.count,
+		rating: `${d.rating} ★`,
+		count: d.count,
 		color: ratingColors[d.rating] ?? 'gray.5',
 	}));
 
 	return (
-		<Paper withBorder p='lg'>
-			<Stack gap='md'>
+		<Paper withBorder p='lg' h='100%'>
+			<Stack gap='md' h='100%'>
 				<Text fw={600}>Rating Distribution</Text>
-				<DonutChart
+				<BarChart
+					h={300}
 					data={chartData}
-					withLabelsLine
-					withLabels
-					labelsType='percent'
-					tooltipDataSource='segment'
-					chartLabel={total.toLocaleString()}
-					paddingAngle={2}
-					thickness={20}
+					dataKey='rating'
+					series={[{ name: 'count', label: 'Responses', color: 'blue.6' }]}
+					withBarValueLabel
+					withTooltip
+					barProps={{ barSize: 40 }}
+					gridAxis='y'
 				/>
 			</Stack>
 		</Paper>

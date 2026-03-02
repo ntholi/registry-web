@@ -17,8 +17,8 @@ export default function CategoryChart({ data }: Props) {
 	}));
 
 	return (
-		<Paper withBorder p='lg'>
-			<Stack gap='md'>
+		<Paper withBorder p='lg' h='100%'>
+			<Stack gap='md' h='100%'>
 				<Text fw={600}>Average Rating by Category</Text>
 				<RadarChart
 					h={300}

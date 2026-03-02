@@ -128,7 +128,7 @@ export default function LecturerTable({ data, categories, filter }: Props) {
 			<Stack gap='md'>
 				<Text fw={600}>Lecturer Rankings</Text>
 				<ScrollArea>
-					<Table striped highlightOnHover fz='sm'>
+					<Table fz='sm'>
 						<Table.Thead>
 							<Table.Tr>
 								<Table.Th w={36} />
