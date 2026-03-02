@@ -237,7 +237,7 @@ export interface CreateStudentContactInput {
 	phone: string | null;
 	schoolCode: string | null;
 	programCode: string | null;
-	sponsorName: string | null;
+	sponsorCode: string | null;
 }
 
 export interface ZohoCreateContactResponse {

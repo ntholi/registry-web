@@ -166,29 +166,49 @@ const TAG_IDS = {
 	programme: zohoConfig.tagIds.programe,
 } as const;
 
-const FINANCIAL_ASSISTANCE_OPTIONS = zohoConfig.tagOptions.financialAssitance;
+const FINANCIAL_ASSISTANCE_OPTIONS: Record<string, string> =
+	zohoConfig.tagOptions.financialAssitance;
 
 const SCHOOL_OPTIONS: Record<string, string> = zohoConfig.tagOptions.school;
 
 const PROGRAMME_OPTIONS: Record<string, string> =
 	zohoConfig.tagOptions.programe;
 
+const SPONSOR_CODE_TO_ZOHO_TAG: Record<string, string> = {
+	NMDS: 'ManPower',
+	PRV: 'Private',
+};
+
+const SCHOOL_CODE_ALIASES: Record<string, string> = {
+	FICT: 'FINT',
+	FBMG: 'FBS',
+	FCM: 'FCO',
+	FDI: 'FDSI',
+};
+
+function resolveSchoolCode(code: string): string {
+	return SCHOOL_CODE_ALIASES[code] ?? code;
+}
+
 function buildTags(input: CreateStudentContactInput) {
 	const tags: { tag_id: string; tag_option_id: string }[] = [];
 
-	if (input.sponsorName) {
-		const key = input.sponsorName === 'Private' ? 'Private' : 'ManPower';
-		const optionId = FINANCIAL_ASSISTANCE_OPTIONS[key];
-		if (optionId) {
-			tags.push({
-				tag_id: TAG_IDS.financialAssistance,
-				tag_option_id: optionId,
-			});
+	if (input.sponsorCode) {
+		const zohoKey = SPONSOR_CODE_TO_ZOHO_TAG[input.sponsorCode];
+		if (zohoKey) {
+			const optionId = FINANCIAL_ASSISTANCE_OPTIONS[zohoKey];
+			if (optionId) {
+				tags.push({
+					tag_id: TAG_IDS.financialAssistance,
+					tag_option_id: optionId,
+				});
+			}
 		}
 	}
 
 	if (input.schoolCode) {
-		const optionId = SCHOOL_OPTIONS[input.schoolCode];
+		const resolved = resolveSchoolCode(input.schoolCode);
+		const optionId = SCHOOL_OPTIONS[resolved];
 		if (optionId) {
 			tags.push({ tag_id: TAG_IDS.school, tag_option_id: optionId });
 		}

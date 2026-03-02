@@ -75,7 +75,7 @@ export async function createZohoContact(stdNo: number): Promise<string> {
 		phone: student.phone1 ?? null,
 		schoolCode: school?.code ?? null,
 		programCode: structure?.program?.code ?? null,
-		sponsorName: sponsor?.name ?? null,
+		sponsorCode: sponsor?.code ?? null,
 	};
 
 	const contact = await createStudentContact(input);
