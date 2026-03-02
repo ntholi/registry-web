@@ -1,6 +1,7 @@
 function capitalizeNamePart(part: string) {
 	if (!part) return '';
-	return part.charAt(0).toUpperCase() + part.slice(1);
+	const lower = part.toLowerCase();
+	return lower.charAt(0).toUpperCase() + lower.slice(1);
 }
 
 const LOWER_NAME_PARTICLES = new Set([
@@ -24,7 +25,10 @@ const LOWER_NAME_PARTICLES = new Set([
 ]);
 
 const LOWER_APOSTROPHE_PREFIXES = new Set(['d', 'l']);
-const APOSTROPHE_LONG_PREFIX_MIN_LENGTH = 3;
+
+function hasMixedCase(value: string) {
+	return /[A-Z]/.test(value) && /[a-z]/.test(value);
+}
 
 function isRomanNumeral(value: string) {
 	return /^[ivxlcdm]+$/i.test(value);
@@ -36,43 +40,73 @@ function isInitials(value: string) {
 
 function normalizeApostrophePart(part: string) {
 	const sections = part.split("'");
+	const firstSection = sections[0] ?? '';
+	const firstLower = firstSection.toLowerCase();
+	const keepFirstLower = LOWER_APOSTROPHE_PREFIXES.has(firstLower);
+	const capitalizeSuffixes = keepFirstLower || firstLower.length === 1;
+
 	return sections
 		.map((section, idx) => {
 			if (!section) return section;
-			if (idx === 0 && LOWER_APOSTROPHE_PREFIXES.has(section)) {
-				return section.toLowerCase();
+			if (idx === 0) {
+				if (keepFirstLower) return firstLower;
+				return capitalizeNamePart(section);
 			}
-			if (idx > 0 && sections[0].length >= APOSTROPHE_LONG_PREFIX_MIN_LENGTH) {
-				return section.toLowerCase();
+			if (capitalizeSuffixes) {
+				return capitalizeNamePart(section);
 			}
-			return capitalizeNamePart(section);
+			return section.toLowerCase();
 		})
 		.join("'");
 }
 
-function normalizeNameWordPart(part: string) {
+function repairDistortedNameWordPart(part: string) {
 	if (!part) return '';
-	if (LOWER_NAME_PARTICLES.has(part)) return part.toLowerCase();
-	if (isInitials(part)) return part.toUpperCase();
-	if (isRomanNumeral(part)) return part.toUpperCase();
-	if (/^st\.?$/i.test(part)) return 'St.';
-	if (/^mc[a-z]{1,}$/i.test(part)) {
-		return `Mc${capitalizeNamePart(part.slice(2))}`;
+
+	let repaired = part;
+	const apostropheMatch = repaired.match(/^([A-Za-z]{2,})'([A-Z][a-z]+)$/);
+	if (apostropheMatch) {
+		const [, first, second] = apostropheMatch;
+		repaired = `${capitalizeNamePart(first)}'${second.toLowerCase()}`;
 	}
-	if (/^mac[a-z]{1,}$/i.test(part)) {
-		return `Mac${capitalizeNamePart(part.slice(3))}`;
-	}
-	if (part.includes("'")) return normalizeApostrophePart(part);
-	return capitalizeNamePart(part);
+
+	return repaired;
 }
 
-export function formatPersonName(name: string | undefined | null) {
+export function repairDistortedPersonName(name: string | undefined | null) {
 	if (name === undefined || name === null) return undefined;
 	if (!name.trim()) return undefined;
 	return name
 		.trim()
 		.replace(/\s+/g, ' ')
-		.toLowerCase()
+		.split(' ')
+		.map((word) =>
+			word
+				.split('-')
+				.map((part) => repairDistortedNameWordPart(part))
+				.join('-')
+		)
+		.join(' ');
+}
+
+function normalizeNameWordPart(part: string) {
+	if (!part) return '';
+	const lowerPart = part.toLowerCase();
+	if (LOWER_NAME_PARTICLES.has(lowerPart)) return lowerPart;
+	if (isInitials(lowerPart)) return lowerPart.toUpperCase();
+	if (isRomanNumeral(lowerPart)) return lowerPart.toUpperCase();
+	if (/^st\.?$/i.test(part)) return 'St.';
+	if (part.includes("'")) return normalizeApostrophePart(part);
+	if (hasMixedCase(part)) return part;
+	return capitalizeNamePart(lowerPart);
+}
+
+export function formatPersonName(name: string | undefined | null) {
+	const repairedName = repairDistortedPersonName(name);
+	if (!repairedName) return undefined;
+	return repairedName
+		.trim()
+		.replace(/\s+/g, ' ')
 		.split(' ')
 		.map((word) =>
 			word
