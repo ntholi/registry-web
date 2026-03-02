@@ -9,8 +9,11 @@ import {
 } from '@finance/_lib/zoho-books/actions';
 import {
 	Badge,
+	Card,
+	Divider,
 	Group,
 	Paper,
+	SimpleGrid,
 	Skeleton,
 	Stack,
 	Tabs,
@@ -252,32 +255,34 @@ function TabContent({ loading, children }: TabContentProps) {
 function FinanceLoader() {
 	return (
 		<Stack gap='md'>
-			<Group justify='space-between'>
-				<Skeleton height={12} width={120} />
-				<Skeleton height={24} width={24} circle />
+			<Group justify='space-between' align='center'>
+				<Group gap='xs'>
+					<Skeleton height={16} width={16} circle />
+					<Skeleton height={10} width={130} />
+				</Group>
+				<Skeleton height={22} width={22} circle />
 			</Group>
-			<Group grow gap='sm'>
-				{Array.from({ length: 3 }).map((_, i) => (
-					<Paper p='md' withBorder key={`metric-${i}`}>
-						<Stack gap='xs'>
-							<Skeleton height={10} width={80} />
-							<Skeleton height={22} width={100} />
-						</Stack>
-					</Paper>
-				))}
-			</Group>
-			<Group gap='xs'>
+			<Divider />
+			<SimpleGrid cols={{ base: 1, xs: 2, sm: 4 }} spacing='xs'>
 				{Array.from({ length: 4 }).map((_, i) => (
-					<Skeleton height={30} width={90} key={`tab-${i}`} />
+					<Card withBorder padding='sm' key={`metric-${i}`}>
+						<Stack gap={4}>
+							<Skeleton height={10} width={80} />
+							<Skeleton height={20} width={100} />
+						</Stack>
+					</Card>
+				))}
+			</SimpleGrid>
+			<Group gap='xs' mt='xs'>
+				{Array.from({ length: 4 }).map((_, i) => (
+					<Skeleton height={30} width={90} key={`tab-${i}`} radius='sm' />
 				))}
 			</Group>
-			<Paper withBorder p='sm'>
-				<Stack gap='xs'>
-					{Array.from({ length: 4 }).map((_, i) => (
-						<Skeleton height={36} key={`row-${i}`} />
-					))}
-				</Stack>
-			</Paper>
+			<Stack gap='xs'>
+				{Array.from({ length: 5 }).map((_, i) => (
+					<Skeleton height={36} key={`row-${i}`} />
+				))}
+			</Stack>
 		</Stack>
 	);
 }
