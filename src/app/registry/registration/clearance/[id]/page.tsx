@@ -47,7 +47,7 @@ export default async function ClearanceRequestDetails({ params }: Props) {
 				<TabsPanel value='details'>
 					<ClearanceDetails request={request} termId={term.id} />
 				</TabsPanel>
-				<TabsPanel value='finance' p={'md'}>
+				<TabsPanel value='finance' p={'md'} pt='lg'>
 					<StudentFinanceView
 						stdNo={request.registrationRequest.student.stdNo}
 						zohoContactId={null}

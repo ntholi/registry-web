@@ -46,7 +46,7 @@ export default async function GraduationClearanceRequestDetails({
 				<TabsPanel value='details'>
 					<GraduationClearanceDetails request={request} />
 				</TabsPanel>
-				<TabsPanel value='finance' pb={'md'}>
+				<TabsPanel value='finance' pb={'md'} pt='lg'>
 					<StudentFinanceView
 						stdNo={request.graduationRequest.studentProgram.stdNo}
 						zohoContactId={null}
