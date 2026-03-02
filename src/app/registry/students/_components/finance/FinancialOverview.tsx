@@ -63,13 +63,11 @@ export function FinancialOverview({ summary, isFetching, onRefresh }: Props) {
 					value={formatCurrency(summary.totalOutstanding)}
 					color={summary.totalOutstanding > 0 ? 'red' : 'teal'}
 				/>
-				{summary.unusedCredits > 0 && (
-					<MetricCard
-						label='Unused Credits'
-						value={formatCurrency(summary.unusedCredits)}
-						color='default'
-					/>
-				)}
+				<MetricCard
+					label='Unused Credits'
+					value={formatCurrency(summary.unusedCredits)}
+					color='default'
+				/>
 			</SimpleGrid>
 		</Box>
 	);
