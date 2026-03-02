@@ -32,9 +32,10 @@ import {
 
 type Props = {
 	onFilterChange: (filter: FeedbackReportFilter) => void;
+	hideAdvanced?: boolean;
 };
 
-export default function Filter({ onFilterChange }: Props) {
+export default function Filter({ onFilterChange, hideAdvanced }: Props) {
 	const [localFilter, setLocalFilter] = useQueryStates(
 		{
 			termId: parseAsInteger,
@@ -151,7 +152,7 @@ export default function Filter({ onFilterChange }: Props) {
 			</Group>
 
 			<Grid gutter='md'>
-				<Grid.Col span={{ base: 12, sm: 6, md: 2 }}>
+				<Grid.Col span={{ base: 12, sm: 6, md: hideAdvanced ? 6 : 2 }}>
 					<Select
 						label='Term'
 						placeholder='Select term'
@@ -168,90 +169,96 @@ export default function Filter({ onFilterChange }: Props) {
 					/>
 				</Grid.Col>
 
-				<Grid.Col span={{ base: 12, sm: 6, md: 2 }}>
-					<Select
-						label='Cycle'
-						placeholder='All cycles'
-						data={cycles.map((c) => ({
-							value: c.id,
-							label: c.name,
-						}))}
-						rightSection={cyclesLoading && <Loader size='xs' />}
-						value={localFilter.cycleId ?? null}
-						onChange={(v) => handleChange('cycleId', v)}
-						searchable
-						clearable
-						disabled={!localFilter.termId}
-					/>
-				</Grid.Col>
+				{!hideAdvanced && (
+					<>
+						<Grid.Col span={{ base: 12, sm: 6, md: 2 }}>
+							<Select
+								label='Cycle'
+								placeholder='All cycles'
+								data={cycles.map((c) => ({
+									value: c.id,
+									label: c.name,
+								}))}
+								rightSection={cyclesLoading && <Loader size='xs' />}
+								value={localFilter.cycleId ?? null}
+								onChange={(v) => handleChange('cycleId', v)}
+								searchable
+								clearable
+								disabled={!localFilter.termId}
+							/>
+						</Grid.Col>
 
-				<Grid.Col span={{ base: 12, sm: 6, md: 3 }}>
-					<MultiSelect
-						label='Schools'
-						placeholder='All schools'
-						data={schools.map((s) => ({
-							value: s.id?.toString() || '',
-							label: s.code,
-							description: s.name,
-						}))}
-						rightSection={schoolsLoading && <Loader size='xs' />}
-						value={localFilter.schoolIds?.map(String) ?? []}
-						onChange={(v) => handleChange('schoolIds', v)}
-						searchable
-						clearable
-						renderOption={({ option }) => {
-							const opt = option as {
-								value: string;
-								label: string;
-								description: string;
-							};
-							return (
-								<div>
-									<Text>{opt.label}</Text>
-									<Text size='xs' c='dimmed'>
-										{opt.description}
-									</Text>
-								</div>
-							);
-						}}
-					/>
-				</Grid.Col>
+						<Grid.Col span={{ base: 12, sm: 6, md: 3 }}>
+							<MultiSelect
+								label='Schools'
+								placeholder='All schools'
+								data={schools.map((s) => ({
+									value: s.id?.toString() || '',
+									label: s.code,
+									description: s.name,
+								}))}
+								rightSection={schoolsLoading && <Loader size='xs' />}
+								value={localFilter.schoolIds?.map(String) ?? []}
+								onChange={(v) => handleChange('schoolIds', v)}
+								searchable
+								clearable
+								renderOption={({ option }) => {
+									const opt = option as {
+										value: string;
+										label: string;
+										description: string;
+									};
+									return (
+										<div>
+											<Text>{opt.label}</Text>
+											<Text size='xs' c='dimmed'>
+												{opt.description}
+											</Text>
+										</div>
+									);
+								}}
+							/>
+						</Grid.Col>
 
-				<Grid.Col span={{ base: 12, sm: 6, md: 2 }}>
-					<Select
-						label='Program'
-						placeholder='All programs'
-						data={programs.map((p) => ({
-							value: p.id?.toString() || '',
-							label: p.code,
-						}))}
-						rightSection={programsLoading && <Loader size='xs' />}
-						value={localFilter.programId?.toString() ?? null}
-						onChange={(v) => handleChange('programId', v ? Number(v) : null)}
-						searchable
-						clearable
-						disabled={
-							!localFilter.schoolIds || localFilter.schoolIds.length === 0
-						}
-					/>
-				</Grid.Col>
+						<Grid.Col span={{ base: 12, sm: 6, md: 2 }}>
+							<Select
+								label='Program'
+								placeholder='All programs'
+								data={programs.map((p) => ({
+									value: p.id?.toString() || '',
+									label: p.code,
+								}))}
+								rightSection={programsLoading && <Loader size='xs' />}
+								value={localFilter.programId?.toString() ?? null}
+								onChange={(v) =>
+									handleChange('programId', v ? Number(v) : null)
+								}
+								searchable
+								clearable
+								disabled={
+									!localFilter.schoolIds || localFilter.schoolIds.length === 0
+								}
+							/>
+						</Grid.Col>
 
-				<Grid.Col span={{ base: 12, sm: 6, md: 3 }}>
-					<Select
-						label='Module'
-						placeholder='All modules'
-						data={moduleOptions.map((m) => ({
-							value: m.id.toString(),
-							label: `${m.code} — ${m.name}`,
-						}))}
-						rightSection={modulesLoading && <Loader size='xs' />}
-						value={localFilter.moduleId?.toString() ?? null}
-						onChange={(v) => handleChange('moduleId', v ? Number(v) : null)}
-						searchable
-						clearable
-						disabled={!localFilter.termId}
-					/>
-				</Grid.Col>
+						<Grid.Col span={{ base: 12, sm: 6, md: 3 }}>
+							<Select
+								label='Module'
+								placeholder='All modules'
+								data={moduleOptions.map((m) => ({
+									value: m.id.toString(),
+									label: `${m.code} — ${m.name}`,
+								}))}
+								rightSection={modulesLoading && <Loader size='xs' />}
+								value={localFilter.moduleId?.toString() ?? null}
+								onChange={(v) => handleChange('moduleId', v ? Number(v) : null)}
+								searchable
+								clearable
+								disabled={!localFilter.termId}
+							/>
+						</Grid.Col>
+					</>
+				)}
 			</Grid>
 		</Paper>
 	);

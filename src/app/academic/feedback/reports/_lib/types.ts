@@ -4,6 +4,7 @@ export interface FeedbackReportFilter {
 	schoolIds?: number[];
 	programId?: number;
 	moduleId?: number;
+	lecturerId?: string;
 }
 
 export interface OverviewStats {

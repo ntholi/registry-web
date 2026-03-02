@@ -1,10 +1,13 @@
 'use client';
 
 import { Badge } from '@mantine/core';
+import { useSession } from 'next-auth/react';
 import type { PropsWithChildren } from 'react';
 import { getStatusColor } from '@/shared/lib/utils/colors';
 import { ListItem, ListLayout, NewLink } from '@/shared/ui/adease';
 import { getCycles } from './_server/actions';
+
+const CRUD_POSITIONS = ['admin', 'manager'];
 
 function getCycleStatus(startDate: string, endDate: string) {
 	const today = new Date().toISOString().slice(0, 10);
@@ -14,14 +17,23 @@ function getCycleStatus(startDate: string, endDate: string) {
 }
 
 export default function Layout({ children }: PropsWithChildren) {
+	const { data: session } = useSession();
+	const role = session?.user?.role;
+	const position = session?.user?.position;
+	const canCreate =
+		role === 'admin' ||
+		(role === 'academic' && CRUD_POSITIONS.includes(position ?? ''));
+
 	return (
 		<ListLayout
 			path='/academic/feedback/cycles'
 			queryKey={['feedback-cycles']}
 			getData={getCycles}
-			actionIcons={[
-				<NewLink key='new-link' href='/academic/feedback/cycles/new' />,
-			]}
+			actionIcons={
+				canCreate
+					? [<NewLink key='new-link' href='/academic/feedback/cycles/new' />]
+					: []
+			}
 			renderItem={(it) => {
 				const status = getCycleStatus(it.startDate, it.endDate);
 				return (

@@ -22,10 +22,18 @@ import OverviewStats from './_components/OverviewStats';
 import QuestionBreakdown from './_components/QuestionBreakdown';
 import RatingHistogram from './_components/RatingHistogram';
 import type { FeedbackReportFilter } from './_lib/types';
-import { getFeedbackReportData } from './_server/actions';
+import {
+	checkFullReportAccess,
+	getFeedbackReportData,
+} from './_server/actions';
 
 export default function FeedbackReportsPage() {
 	const [filter, setFilter] = useState<FeedbackReportFilter>({});
+
+	const { data: hasFullAccess = false } = useQuery({
+		queryKey: ['feedback-report-access'],
+		queryFn: () => checkFullReportAccess(),
+	});
 
 	const isFilterApplied = Boolean(filter.termId);
 
@@ -47,18 +55,23 @@ export default function FeedbackReportsPage() {
 				<Group justify='space-between'>
 					<Box>
 						<Title order={1} size='h2'>
-							Feedback Report
+							{hasFullAccess ? 'Feedback Report' : 'My Feedback'}
 						</Title>
 						<Text c='dimmed' size='sm'>
-							Analyze lecturer feedback across schools, programs, and modules
+							{hasFullAccess
+								? 'Analyze lecturer feedback across schools, programs, and modules'
+								: 'View your personal feedback from student evaluations'}
 						</Text>
 					</Box>
-					{hasData && reportData && (
+					{hasFullAccess && hasData && reportData && (
 						<ExportButton data={reportData} filter={filter} />
 					)}
 				</Group>
 
-				<Filter onFilterChange={handleFilterChange} />
+				<Filter
+					onFilterChange={handleFilterChange}
+					hideAdvanced={!hasFullAccess}
+				/>
 
 				{!isFilterApplied && (
 					<Alert
@@ -83,8 +96,9 @@ export default function FeedbackReportsPage() {
 						color='yellow'
 						variant='light'
 					>
-						No feedback data found for the selected criteria. Try adjusting your
-						filters or selecting a different academic term.
+						{hasFullAccess
+							? 'No feedback data found for the selected criteria. Try adjusting your filters or selecting a different academic term.'
+							: 'No feedback data found for you in this term.'}
 					</Alert>
 				)}
 
@@ -101,11 +115,13 @@ export default function FeedbackReportsPage() {
 							</Grid.Col>
 						</Grid>
 
-						<LecturerTable
-							data={reportData.lecturerRankings}
-							categories={reportData.categoryAverages}
-							filter={filter}
-						/>
+						{hasFullAccess && (
+							<LecturerTable
+								data={reportData.lecturerRankings}
+								categories={reportData.categoryAverages}
+								filter={filter}
+							/>
+						)}
 
 						<QuestionBreakdown data={reportData.questionBreakdown} />
 					</Stack>

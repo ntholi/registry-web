@@ -32,8 +32,22 @@ import {
 import { notifications } from '@mantine/notifications';
 import { IconGripVertical, IconSearch } from '@tabler/icons-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useSession } from 'next-auth/react';
 import { useMemo, useState } from 'react';
 import { DeleteButton } from '@/shared/ui/adease';
+
+const MANAGE_POSITIONS = ['manager', 'program_leader', 'admin'];
+
+function useCanManage() {
+	const { data: session } = useSession();
+	const role = session?.user?.role;
+	const position = session?.user?.position;
+	return (
+		role === 'admin' ||
+		(role === 'academic' && MANAGE_POSITIONS.includes(position ?? ''))
+	);
+}
+
 import { deleteCategory } from '../../categories/_server/actions';
 import {
 	deleteQuestion,
@@ -51,6 +65,7 @@ type CategoryBoard = Awaited<ReturnType<typeof getQuestionBoard>>[number];
 export default function QuestionsList() {
 	const [search, setSearch] = useState('');
 	const queryClient = useQueryClient();
+	const canManage = useCanManage();
 
 	const { data: board = [], isLoading } = useQuery({
 		queryKey: ['feedback-question-board'],
@@ -129,7 +144,7 @@ export default function QuestionsList() {
 					onChange={(e) => setSearch(e.currentTarget.value)}
 					w={300}
 				/>
-				<CreateCategoryModal />
+				{canManage && <CreateCategoryModal />}
 			</Group>
 
 			{grouped.length === 0 && (
@@ -142,8 +157,10 @@ export default function QuestionsList() {
 				</Flex>
 			)}
 
-			{isSearching ? (
-				grouped.map((group) => <CategoryGroup key={group.id} group={group} />)
+			{isSearching || !canManage ? (
+				grouped.map((group) => (
+					<CategoryGroup key={group.id} group={group} canManage={canManage} />
+				))
 			) : (
 				<DndContext
 					sensors={sensors}
@@ -155,7 +172,11 @@ export default function QuestionsList() {
 						strategy={verticalListSortingStrategy}
 					>
 						{grouped.map((group) => (
-							<SortableCategoryGroup key={group.id} group={group} />
+							<SortableCategoryGroup
+								key={group.id}
+								group={group}
+								canManage={canManage}
+							/>
 						))}
 					</SortableContext>
 				</DndContext>
@@ -166,9 +187,10 @@ export default function QuestionsList() {
 
 type CategoryGroupProps = {
 	group: CategoryBoard;
+	canManage: boolean;
 };
 
-function SortableCategoryGroup({ group }: CategoryGroupProps) {
+function SortableCategoryGroup({ group, canManage }: CategoryGroupProps) {
 	const { attributes, listeners, setNodeRef, transform, transition } =
 		useSortable({ id: group.id });
 
@@ -179,7 +201,11 @@ function SortableCategoryGroup({ group }: CategoryGroupProps) {
 
 	return (
 		<div ref={setNodeRef} style={style} {...attributes}>
-			<CategoryGroup group={group} dragListeners={listeners} />
+			<CategoryGroup
+				group={group}
+				dragListeners={listeners}
+				canManage={canManage}
+			/>
 		</div>
 	);
 }
@@ -187,9 +213,14 @@ function SortableCategoryGroup({ group }: CategoryGroupProps) {
 type CategoryGroupInnerProps = {
 	group: CategoryBoard;
 	dragListeners?: ReturnType<typeof useSortable>['listeners'];
+	canManage?: boolean;
 };
 
-function CategoryGroup({ group, dragListeners }: CategoryGroupInnerProps) {
+function CategoryGroup({
+	group,
+	dragListeners,
+	canManage = false,
+}: CategoryGroupInnerProps) {
 	const queryClient = useQueryClient();
 	const hasQuestions = group.questionCount > 0;
 
@@ -231,42 +262,46 @@ function CategoryGroup({ group, dragListeners }: CategoryGroupInnerProps) {
 						</ActionIcon>
 					)}
 					<Text fw={600}>{group.name}</Text>
-					<EditCategoryModal category={{ id: group.id, name: group.name }} />
+					{canManage && (
+						<EditCategoryModal category={{ id: group.id, name: group.name }} />
+					)}
 				</Group>
-				<Group gap='xs' wrap='nowrap'>
-					<CreateQuestionModal
-						categoryId={group.id}
-						categoryName={group.name}
-					/>
-					<Tooltip
-						label={
-							hasQuestions
-								? 'Remove all questions before deleting this category'
-								: 'Delete category'
-						}
-					>
-						<span>
-							<DeleteButton
-								size='sm'
-								typedConfirmation={false}
-								disabled={hasQuestions}
-								handleDelete={async () => {
-									await deleteCategory(group.id);
-								}}
-								queryKey={['feedback-question-board']}
-								itemName={group.name}
-								itemType='category'
-								onSuccess={() => {
-									notifications.show({
-										title: 'Category Deleted',
-										message: 'The category has been removed',
-										color: 'red',
-									});
-								}}
-							/>
-						</span>
-					</Tooltip>
-				</Group>
+				{canManage && (
+					<Group gap='xs' wrap='nowrap'>
+						<CreateQuestionModal
+							categoryId={group.id}
+							categoryName={group.name}
+						/>
+						<Tooltip
+							label={
+								hasQuestions
+									? 'Remove all questions before deleting this category'
+									: 'Delete category'
+							}
+						>
+							<span>
+								<DeleteButton
+									size='sm'
+									typedConfirmation={false}
+									disabled={hasQuestions}
+									handleDelete={async () => {
+										await deleteCategory(group.id);
+									}}
+									queryKey={['feedback-question-board']}
+									itemName={group.name}
+									itemType='category'
+									onSuccess={() => {
+										notifications.show({
+											title: 'Category Deleted',
+											message: 'The category has been removed',
+											color: 'red',
+										});
+									}}
+								/>
+							</span>
+						</Tooltip>
+					</Group>
+				)}
 			</Group>
 			<Divider mb='sm' />
 			<Stack gap='xs'>
@@ -274,7 +309,7 @@ function CategoryGroup({ group, dragListeners }: CategoryGroupInnerProps) {
 					<Text size='sm' c='dimmed'>
 						No questions in this category yet.
 					</Text>
-				) : (
+				) : canManage ? (
 					<DndContext
 						sensors={sensors}
 						collisionDetection={closestCenter}
@@ -289,10 +324,15 @@ function CategoryGroup({ group, dragListeners }: CategoryGroupInnerProps) {
 									key={q.id}
 									question={q}
 									categoryName={group.name}
+									canManage
 								/>
 							))}
 						</SortableContext>
 					</DndContext>
+				) : (
+					group.questions.map((q) => (
+						<QuestionCard key={q.id} question={q} categoryName={group.name} />
+					))
 				)}
 			</Stack>
 		</Paper>
@@ -302,9 +342,14 @@ function CategoryGroup({ group, dragListeners }: CategoryGroupInnerProps) {
 type QuestionCardProps = {
 	question: CategoryBoard['questions'][number];
 	categoryName: string;
+	canManage?: boolean;
 };
 
-function SortableQuestionCard({ question, categoryName }: QuestionCardProps) {
+function SortableQuestionCard({
+	question,
+	categoryName,
+	canManage,
+}: QuestionCardProps) {
 	const {
 		attributes,
 		listeners,
@@ -344,34 +389,46 @@ function SortableQuestionCard({ question, categoryName }: QuestionCardProps) {
 						<Text size='sm'>{question.text}</Text>
 					</Box>
 				</Group>
-				<Group gap='xs' wrap='nowrap'>
-					<EditQuestionModal
-						question={{
-							id: question.id,
-							categoryId: question.categoryId,
-							categoryName,
-							text: question.text,
-						}}
-					/>
-					<DeleteButton
-						size='sm'
-						typedConfirmation={false}
-						handleDelete={async () => {
-							await deleteQuestion(question.id);
-						}}
-						queryKey={['feedback-question-board']}
-						itemName={question.text}
-						itemType='question'
-						onSuccess={() => {
-							notifications.show({
-								title: 'Question Deleted',
-								message: 'The question has been removed',
-								color: 'red',
-							});
-						}}
-					/>
-				</Group>
+				{canManage && (
+					<Group gap='xs' wrap='nowrap'>
+						<EditQuestionModal
+							question={{
+								id: question.id,
+								categoryId: question.categoryId,
+								categoryName,
+								text: question.text,
+							}}
+						/>
+						<DeleteButton
+							size='sm'
+							typedConfirmation={false}
+							handleDelete={async () => {
+								await deleteQuestion(question.id);
+							}}
+							queryKey={['feedback-question-board']}
+							itemName={question.text}
+							itemType='question'
+							onSuccess={() => {
+								notifications.show({
+									title: 'Question Deleted',
+									message: 'The question has been removed',
+									color: 'red',
+								});
+							}}
+						/>
+					</Group>
+				)}
 			</Group>
+		</Card>
+	);
+}
+
+function QuestionCard({ question }: QuestionCardProps) {
+	return (
+		<Card withBorder padding='sm' radius='md'>
+			<Box style={{ flex: 1 }}>
+				<Text size='sm'>{question.text}</Text>
+			</Box>
 		</Card>
 	);
 }

@@ -1,4 +1,4 @@
-import { and, count, eq, getTableColumns, sql } from 'drizzle-orm';
+import { and, count, eq, getTableColumns, inArray, sql } from 'drizzle-orm';
 import {
 	db,
 	feedbackCycleSchools,
@@ -33,8 +33,23 @@ export default class FeedbackCycleRepository extends BaseRepository<
 		});
 	}
 
-	async queryWithSchoolCodes(options: QueryOptions<typeof feedbackCycles>) {
+	async queryWithSchoolCodes(
+		options: QueryOptions<typeof feedbackCycles>,
+		userSchoolIds?: number[]
+	) {
 		const { orderBy, where, offset, limit } = this.buildQueryCriteria(options);
+		const schoolFilter =
+			userSchoolIds && userSchoolIds.length > 0
+				? inArray(feedbackCycleSchools.schoolId, userSchoolIds)
+				: undefined;
+		const combinedWhere = schoolFilter
+			? where
+				? and(
+						where,
+						sql`${feedbackCycles.id} in (select ${feedbackCycleSchools.cycleId} from ${feedbackCycleSchools} where ${schoolFilter})`
+					)
+				: sql`${feedbackCycles.id} in (select ${feedbackCycleSchools.cycleId} from ${feedbackCycleSchools} where ${schoolFilter})`
+			: where;
 		const items = await db
 			.select({
 				...getTableColumns(feedbackCycles),
@@ -50,10 +65,10 @@ export default class FeedbackCycleRepository extends BaseRepository<
 			.leftJoin(schools, eq(schools.id, feedbackCycleSchools.schoolId))
 			.groupBy(feedbackCycles.id)
 			.orderBy(...orderBy)
-			.where(where)
+			.where(combinedWhere)
 			.limit(limit)
 			.offset(offset);
-		return this.createPaginatedResult(items, { where, limit });
+		return this.createPaginatedResult(items, { where: combinedWhere, limit });
 	}
 
 	async createWithSchools(

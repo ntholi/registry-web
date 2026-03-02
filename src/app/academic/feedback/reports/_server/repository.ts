@@ -55,6 +55,9 @@ function buildFilterConditions(filter: FeedbackReportFilter) {
 	if (filter.moduleId) {
 		conditions.push(eq(modules.id, filter.moduleId));
 	}
+	if (filter.lecturerId) {
+		conditions.push(eq(assignedModules.userId, filter.lecturerId));
+	}
 
 	return conditions;
 }

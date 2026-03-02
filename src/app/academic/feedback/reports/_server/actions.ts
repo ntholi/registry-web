@@ -32,3 +32,7 @@ export async function exportFeedbackReportExcel(
 	const buffer = await generateFeedbackExcel(data, filter);
 	return buffer.toString('base64');
 }
+
+export async function checkFullReportAccess() {
+	return feedbackReportService.hasFullAccess();
+}
