@@ -6,6 +6,7 @@ import {
 	Badge,
 	Box,
 	Button,
+	Checkbox,
 	Group,
 	Modal,
 	Stack,
@@ -55,7 +56,7 @@ type Props = {
 export default function AddModuleModal({ request }: Props) {
 	const [opened, { open, close }] = useDisclosure(false);
 	const [search, setSearch] = useState('');
-	const [selected, setSelected] = useState<EligibleModule | null>(null);
+	const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
 	const [receipt, setReceipt] = useState('');
 	const queryClient = useQueryClient();
 	const isSelfSponsored = request.sponsoredStudent?.sponsor?.code === 'PRV';
@@ -79,13 +80,16 @@ export default function AddModuleModal({ request }: Props) {
 			m.name.toLowerCase().includes(search.toLowerCase())
 	);
 
-	const isRepeat = selected?.status.startsWith('Repeat') ?? false;
-	const requiresRepeatReceipt = isRepeat && !isSelfSponsored;
+	const selectedModules = modules.filter((mod) =>
+		selectedIds.has(mod.semesterModuleId)
+	);
+
+	const requiresRepeatReceipt =
+		!isSelfSponsored &&
+		selectedModules.some((mod) => mod.status.startsWith('Repeat'));
 	const isValidReceipt = /^(PMRC\d{5}|SR-\d{5})$/.test(receipt);
 	const canSubmit =
-		!!selected &&
-		(!requiresRepeatReceipt || isValidReceipt) &&
-		!existingModuleIds.has(selected.semesterModuleId);
+		selectedModules.length > 0 && (!requiresRepeatReceipt || isValidReceipt);
 
 	function getModuleStatus(module: EligibleModule): StudentModuleStatus {
 		if (module.status === 'Compulsory' || module.status === 'Elective') {
@@ -97,7 +101,9 @@ export default function AddModuleModal({ request }: Props) {
 
 	const mutation = useMutation({
 		mutationFn: async () => {
-			if (!selected) throw new Error('Please select a module');
+			if (selectedModules.length === 0) {
+				throw new Error('Please select at least one module');
+			}
 
 			const sponsorId = request.sponsoredStudent?.sponsorId;
 			if (!sponsorId) {
@@ -126,19 +132,18 @@ export default function AddModuleModal({ request }: Props) {
 				borrowerNo: request.sponsoredStudent?.borrowerNo ?? undefined,
 				bankName: request.sponsoredStudent?.bankName ?? undefined,
 				accountNumber: request.sponsoredStudent?.accountNumber ?? undefined,
-				modules: [
-					{
-						moduleId: selected.semesterModuleId,
-						moduleStatus: getModuleStatus(selected),
-					},
-				],
+				modules: selectedModules.map((mod) => ({
+					moduleId: mod.semesterModuleId,
+					moduleStatus: getModuleStatus(mod),
+				})),
 				receipts,
 			});
 		},
 		onSuccess: () => {
+			const addedCodes = selectedModules.map((mod) => mod.code).join(', ');
 			notifications.show({
 				title: 'Additional Request Created',
-				message: `${selected?.code} - ${selected?.name} was submitted as a new registration request`,
+				message: `${selectedModules.length} module${selectedModules.length > 1 ? 's were' : ' was'} submitted as a new registration request${addedCodes ? `: ${addedCodes}` : ''}`,
 				color: 'green',
 			});
 			queryClient.invalidateQueries({
@@ -158,21 +163,29 @@ export default function AddModuleModal({ request }: Props) {
 	function handleClose() {
 		close();
 		setSearch('');
-		setSelected(null);
+		setSelectedIds(new Set());
 		setReceipt('');
 	}
 
-	function handleSelect(mod: EligibleModule) {
+	function handleToggle(mod: EligibleModule) {
 		const hasFailedPrereqs = mod.prerequisites && mod.prerequisites.length > 0;
 		if (hasFailedPrereqs || existingModuleIds.has(mod.semesterModuleId)) return;
-		setSelected(mod);
-		setReceipt('');
+
+		setSelectedIds((prev) => {
+			const next = new Set(prev);
+			if (next.has(mod.semesterModuleId)) {
+				next.delete(mod.semesterModuleId);
+			} else {
+				next.add(mod.semesterModuleId);
+			}
+			return next;
+		});
 	}
 
 	const rows = filtered.map((mod) => {
 		const hasFailedPrereqs = mod.prerequisites && mod.prerequisites.length > 0;
 		const alreadyAdded = existingModuleIds.has(mod.semesterModuleId);
-		const isSelected = selected?.semesterModuleId === mod.semesterModuleId;
+		const isSelected = selectedIds.has(mod.semesterModuleId);
 		const isDisabled = hasFailedPrereqs || alreadyAdded;
 
 		return (
@@ -183,8 +196,16 @@ export default function AddModuleModal({ request }: Props) {
 					cursor: isDisabled ? 'not-allowed' : 'pointer',
 					opacity: isDisabled ? 0.5 : 1,
 				}}
-				onClick={() => !isDisabled && handleSelect(mod)}
+				onClick={() => !isDisabled && handleToggle(mod)}
 			>
+				<Table.Td>
+					<Checkbox
+						checked={isSelected}
+						disabled={isDisabled}
+						onClick={(event) => event.stopPropagation()}
+						onChange={() => handleToggle(mod)}
+					/>
+				</Table.Td>
 				<Table.Td fw={500}>{mod.code}</Table.Td>
 				<Table.Td>{mod.name}</Table.Td>
 				<Table.Td ta='center'>{mod.credits}</Table.Td>
@@ -250,6 +271,7 @@ export default function AddModuleModal({ request }: Props) {
 							<Table highlightOnHover withTableBorder>
 								<Table.Thead>
 									<Table.Tr>
+										<Table.Th>Select</Table.Th>
 										<Table.Th>Code</Table.Th>
 										<Table.Th>Name</Table.Th>
 										<Table.Th ta='center'>Credits</Table.Th>
@@ -272,7 +294,7 @@ export default function AddModuleModal({ request }: Props) {
 						</Alert>
 					)}
 
-					{selected && (
+					{selectedModules.length > 0 && (
 						<Stack
 							gap='sm'
 							p='md'
@@ -282,13 +304,16 @@ export default function AddModuleModal({ request }: Props) {
 							}}
 						>
 							<Text size='sm' fw={500}>
-								Selected: {selected.code} - {selected.name}
+								Selected modules: {selectedModules.length}
+							</Text>
+							<Text size='xs' c='dimmed'>
+								{selectedModules.map((mod) => mod.code).join(', ')}
 							</Text>
 
 							{requiresRepeatReceipt && (
 								<ReceiptInput
 									label='Payment Receipt'
-									description='Required for repeat modules'
+									description='Required when at least one selected module is repeat'
 									required
 									value={receipt}
 									onChange={setReceipt}
