@@ -2,9 +2,12 @@
 
 import { Center, Container, Divider, Stack, Text, Title } from '@mantine/core';
 import Image from 'next/image';
-import { useEffect, useState } from 'react';
+import { type ReactNode, useEffect, useState } from 'react';
 
-const TARGET_DATE = '2026-03-02T08:30:30';
+interface Props {
+	target: string;
+	children: ReactNode;
+}
 
 function useCountdown(targetDate: string) {
 	const [timeLeft, setTimeLeft] = useState({
@@ -12,6 +15,7 @@ function useCountdown(targetDate: string) {
 		hours: 0,
 		minutes: 0,
 		seconds: 0,
+		done: false,
 	});
 
 	useEffect(() => {
@@ -24,9 +28,10 @@ function useCountdown(targetDate: string) {
 					hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
 					minutes: Math.floor((difference / 1000 / 60) % 60),
 					seconds: Math.floor((difference / 1000) % 60),
+					done: false,
 				});
 			} else {
-				setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+				setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0, done: true });
 			}
 		}
 
@@ -39,8 +44,12 @@ function useCountdown(targetDate: string) {
 	return timeLeft;
 }
 
-export default function Maintenance() {
-	const timeLeft = useCountdown(TARGET_DATE);
+export default function Maintenance({ target, children }: Props) {
+	const timeLeft = useCountdown(target);
+
+	if (timeLeft.done) {
+		return <>{children}</>;
+	}
 
 	return (
 		<Container
