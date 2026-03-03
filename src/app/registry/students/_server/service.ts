@@ -65,7 +65,7 @@ class StudentService {
 	async findStudentByUserId(userId: string) {
 		return withAuth(async () => {
 			return await this.repository.findStudentByUserId(userId);
-		}, ['dashboard']);
+		}, ['dashboard', 'student']);
 	}
 
 	async findBySemesterModules(semesterModuleIds: number[]) {

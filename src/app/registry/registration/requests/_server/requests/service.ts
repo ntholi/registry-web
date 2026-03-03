@@ -244,30 +244,6 @@ class RegistrationRequestService {
 		}, ['registry']);
 	}
 
-	async addModuleToRequest(
-		requestId: number,
-		semesterModuleId: number,
-		moduleStatus: StudentModuleStatus,
-		receipt?: { receiptNo: string; receiptType: ReceiptType }
-	) {
-		return withAuth(
-			async (session) => {
-				return this.repository.addModuleToRequest(
-					requestId,
-					semesterModuleId,
-					moduleStatus,
-					receipt,
-					{
-						userId: session!.user!.id!,
-						role: session!.user!.role!,
-						activityType: 'registration_updated',
-					}
-				);
-			},
-			['registry']
-		);
-	}
-
 	async getForProofOfRegistration(registrationId: number) {
 		return withAuth(async () => {
 			const result = await this.repository.findById(registrationId);

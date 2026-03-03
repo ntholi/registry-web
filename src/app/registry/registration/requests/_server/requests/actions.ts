@@ -143,20 +143,6 @@ export async function getEligibleModulesForRequest(
 	return service.getEligibleModulesForRequest(stdNo, termCode);
 }
 
-export async function addModuleToRequest(
-	requestId: number,
-	semesterModuleId: number,
-	moduleStatus: StudentModuleStatus,
-	receipt?: { receiptNo: string; receiptType: ReceiptType }
-) {
-	return service.addModuleToRequest(
-		requestId,
-		semesterModuleId,
-		moduleStatus,
-		receipt
-	);
-}
-
 function commonSemesterNo(modules: ModuleWithStatus[]): string {
 	const semesterCounts = new Map<string, number>();
 

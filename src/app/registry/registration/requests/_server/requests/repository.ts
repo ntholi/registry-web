@@ -22,7 +22,6 @@ import {
 	registrationRequests,
 	requestedModules,
 	type StudentModuleStatus,
-	semesterModules,
 	sponsoredStudents,
 	sponsoredTerms,
 	studentModules,
@@ -1003,99 +1002,6 @@ export default class RegistrationRequestRepository extends BaseRepository<
 				},
 			},
 			orderBy: [desc(registrationRequests.createdAt)],
-		});
-	}
-
-	async addModuleToRequest(
-		registrationRequestId: number,
-		semesterModuleId: number,
-		moduleStatus: StudentModuleStatus,
-		receipt?: { receiptNo: string; receiptType: ReceiptType },
-		audit?: AuditOptions
-	) {
-		return db.transaction(async (tx) => {
-			const request = await tx.query.registrationRequests.findFirst({
-				where: eq(registrationRequests.id, registrationRequestId),
-				with: {
-					clearances: { with: { clearance: true } },
-				},
-			});
-			if (!request) throw new Error('Registration request not found');
-
-			const existing = await tx.query.requestedModules.findFirst({
-				where: and(
-					eq(requestedModules.registrationRequestId, registrationRequestId),
-					eq(requestedModules.semesterModuleId, semesterModuleId)
-				),
-			});
-			if (existing) throw new Error('Module is already in this request');
-
-			const isRepeat = moduleStatus.startsWith('Repeat');
-
-			const allClearancesApproved =
-				request.clearances.length > 0 &&
-				request.clearances.every((c) => c.clearance.status === 'approved');
-			const isAlreadyRegistered = request.status === 'registered';
-			const clearanceSkipped = request.clearances.length === 0;
-
-			const shouldAutoRegister =
-				!isRepeat &&
-				(allClearancesApproved || isAlreadyRegistered || clearanceSkipped);
-
-			const [inserted] = await tx
-				.insert(requestedModules)
-				.values({
-					registrationRequestId,
-					semesterModuleId,
-					moduleStatus,
-					status: shouldAutoRegister ? 'registered' : 'pending',
-				})
-				.returning();
-
-			if (receipt) {
-				const [newReceipt] = await tx
-					.insert(paymentReceipts)
-					.values({
-						receiptNo: receipt.receiptNo,
-						receiptType: receipt.receiptType,
-						stdNo: request.stdNo,
-					})
-					.returning();
-
-				await tx.insert(registrationRequestReceipts).values({
-					registrationRequestId,
-					receiptId: newReceipt.id,
-				});
-			}
-
-			if (shouldAutoRegister && request.studentSemesterId) {
-				const semModule = await tx.query.semesterModules.findFirst({
-					where: eq(semesterModules.id, semesterModuleId),
-				});
-				if (semModule) {
-					await tx.insert(studentModules).values({
-						semesterModuleId,
-						status: moduleStatus,
-						marks: 'NM',
-						grade: 'NM' as const,
-						credits: semModule.credits,
-						studentSemesterId: request.studentSemesterId,
-					});
-				}
-			}
-
-			if (audit) {
-				await this.writeAuditLog(
-					tx,
-					'INSERT',
-					String(inserted.id),
-					null,
-					inserted,
-					audit
-				);
-			}
-
-			return inserted;
 		});
 	}
 

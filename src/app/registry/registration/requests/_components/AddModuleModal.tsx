@@ -8,7 +8,6 @@ import {
 	Button,
 	Group,
 	Modal,
-	Select,
 	Stack,
 	Table,
 	Text,
@@ -18,7 +17,7 @@ import {
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import {
-	addModuleToRequest,
+	createRegistration,
 	getEligibleModulesForRequest,
 } from '@registry/registration/requests';
 import {
@@ -30,8 +29,7 @@ import {
 } from '@tabler/icons-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
-import { studentModuleStatus } from '@/app/registry/students/_schema/types';
-import type { ReceiptType, StudentModuleStatus } from '@/core/database';
+import type { StudentModuleStatus } from '@/core/database';
 import ReceiptInput from '@/shared/ui/adease/ReceiptInput';
 import type { getRegistrationRequest } from '../_server/requests/actions';
 
@@ -58,11 +56,9 @@ export default function AddModuleModal({ request }: Props) {
 	const [opened, { open, close }] = useDisclosure(false);
 	const [search, setSearch] = useState('');
 	const [selected, setSelected] = useState<EligibleModule | null>(null);
-	const [moduleStatus, setModuleStatus] = useState<StudentModuleStatus | null>(
-		null
-	);
 	const [receipt, setReceipt] = useState('');
 	const queryClient = useQueryClient();
+	const isSelfSponsored = request.sponsoredStudent?.sponsor?.code === 'PRV';
 
 	const existingModuleIds = new Set(
 		request.requestedModules.map((rm) => rm.semesterModule.id)
@@ -83,35 +79,66 @@ export default function AddModuleModal({ request }: Props) {
 			m.name.toLowerCase().includes(search.toLowerCase())
 	);
 
-	const isRepeat = moduleStatus?.startsWith('Repeat') ?? false;
+	const isRepeat = selected?.status.startsWith('Repeat') ?? false;
+	const requiresRepeatReceipt = isRepeat && !isSelfSponsored;
 	const isValidReceipt = /^(PMRC\d{5}|SR-\d{5})$/.test(receipt);
 	const canSubmit =
 		!!selected &&
-		!!moduleStatus &&
-		(!isRepeat || isValidReceipt) &&
+		(!requiresRepeatReceipt || isValidReceipt) &&
 		!existingModuleIds.has(selected.semesterModuleId);
+
+	function getModuleStatus(module: EligibleModule): StudentModuleStatus {
+		if (module.status === 'Compulsory' || module.status === 'Elective') {
+			return 'Compulsory';
+		}
+
+		return module.status as StudentModuleStatus;
+	}
 
 	const mutation = useMutation({
 		mutationFn: async () => {
-			if (!selected || !moduleStatus) return;
-			const receiptPayload =
-				isRepeat && receipt
-					? ({ receiptNo: receipt, receiptType: 'repeat_module' } as {
-							receiptNo: string;
-							receiptType: ReceiptType;
-						})
+			if (!selected) throw new Error('Please select a module');
+
+			const sponsorId = request.sponsoredStudent?.sponsorId;
+			if (!sponsorId) {
+				throw new Error(
+					'No sponsor information found on the current request. Please update sponsorship details first.'
+				);
+			}
+
+			if (!request.semesterNumber || !request.semesterStatus) {
+				throw new Error(
+					'Missing semester details on the current request. Please update semester details first.'
+				);
+			}
+
+			const receipts =
+				requiresRepeatReceipt && receipt
+					? [{ receiptNo: receipt, receiptType: 'repeat_module' as const }]
 					: undefined;
-			return addModuleToRequest(
-				request.id,
-				selected.semesterModuleId,
-				moduleStatus,
-				receiptPayload
-			);
+
+			return createRegistration({
+				stdNo: request.stdNo,
+				termId: request.termId,
+				sponsorId,
+				semesterNumber: request.semesterNumber,
+				semesterStatus: request.semesterStatus,
+				borrowerNo: request.sponsoredStudent?.borrowerNo ?? undefined,
+				bankName: request.sponsoredStudent?.bankName ?? undefined,
+				accountNumber: request.sponsoredStudent?.accountNumber ?? undefined,
+				modules: [
+					{
+						moduleId: selected.semesterModuleId,
+						moduleStatus: getModuleStatus(selected),
+					},
+				],
+				receipts,
+			});
 		},
 		onSuccess: () => {
 			notifications.show({
-				title: 'Module Added',
-				message: `${selected?.code} - ${selected?.name} added successfully`,
+				title: 'Additional Request Created',
+				message: `${selected?.code} - ${selected?.name} was submitted as a new registration request`,
 				color: 'green',
 			});
 			queryClient.invalidateQueries({
@@ -132,7 +159,6 @@ export default function AddModuleModal({ request }: Props) {
 		close();
 		setSearch('');
 		setSelected(null);
-		setModuleStatus(null);
 		setReceipt('');
 	}
 
@@ -140,13 +166,7 @@ export default function AddModuleModal({ request }: Props) {
 		const hasFailedPrereqs = mod.prerequisites && mod.prerequisites.length > 0;
 		if (hasFailedPrereqs || existingModuleIds.has(mod.semesterModuleId)) return;
 		setSelected(mod);
-		if (mod.status.startsWith('Repeat')) {
-			setModuleStatus(mod.status as StudentModuleStatus);
-		} else if (mod.status === 'Elective') {
-			setModuleStatus('Compulsory');
-		} else {
-			setModuleStatus(mod.status as StudentModuleStatus);
-		}
+		setReceipt('');
 	}
 
 	const rows = filtered.map((mod) => {
@@ -203,7 +223,12 @@ export default function AddModuleModal({ request }: Props) {
 				<IconPlus size={16} />
 			</ActionIcon>
 
-			<Modal opened={opened} onClose={handleClose} title='Add Module' size='xl'>
+			<Modal
+				opened={opened}
+				onClose={handleClose}
+				title='Add Module as Additional Request'
+				size='xl'
+			>
 				<Stack>
 					<TextInput
 						placeholder='Search by module code or name...'
@@ -260,20 +285,7 @@ export default function AddModuleModal({ request }: Props) {
 								Selected: {selected.code} - {selected.name}
 							</Text>
 
-							<Select
-								label='Module Status'
-								data={studentModuleStatus.enumValues.map((s) => ({
-									value: s,
-									label: s,
-								}))}
-								value={moduleStatus}
-								onChange={(v) =>
-									setModuleStatus(v as StudentModuleStatus | null)
-								}
-								required
-							/>
-
-							{isRepeat && (
+							{requiresRepeatReceipt && (
 								<ReceiptInput
 									label='Payment Receipt'
 									description='Required for repeat modules'
@@ -294,7 +306,7 @@ export default function AddModuleModal({ request }: Props) {
 							disabled={!canSubmit}
 							loading={mutation.isPending}
 						>
-							Add Module
+							Create Request
 						</Button>
 					</Group>
 				</Stack>
