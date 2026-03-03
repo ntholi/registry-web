@@ -136,6 +136,27 @@ export async function getStudentRegistrationHistory(stdNo: number) {
 	return service.getHistory(stdNo);
 }
 
+export async function getEligibleModulesForRequest(
+	stdNo: number,
+	termCode: string
+) {
+	return service.getEligibleModulesForRequest(stdNo, termCode);
+}
+
+export async function addModuleToRequest(
+	requestId: number,
+	semesterModuleId: number,
+	moduleStatus: StudentModuleStatus,
+	receipt?: { receiptNo: string; receiptType: ReceiptType }
+) {
+	return service.addModuleToRequest(
+		requestId,
+		semesterModuleId,
+		moduleStatus,
+		receipt
+	);
+}
+
 function commonSemesterNo(modules: ModuleWithStatus[]): string {
 	const semesterCounts = new Map<string, number>();
 

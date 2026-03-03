@@ -83,9 +83,7 @@ describe('formatPersonName', () => {
 		});
 
 		it('handles multiple hyphens', () => {
-			expect(formatPersonName('jean-claude-andre')).toBe(
-				'Jean-Claude-Andre'
-			);
+			expect(formatPersonName('jean-claude-andre')).toBe('Jean-Claude-Andre');
 		});
 
 		it('handles hyphenated surname in full name', () => {
@@ -121,9 +119,7 @@ describe('formatPersonName', () => {
 		});
 
 		it('lowercases "la" particle', () => {
-			expect(formatPersonName('PIERRE LA FONTAINE')).toBe(
-				'Pierre la Fontaine'
-			);
+			expect(formatPersonName('PIERRE LA FONTAINE')).toBe('Pierre la Fontaine');
 		});
 
 		it('lowercases "el" particle', () => {
@@ -151,9 +147,7 @@ describe('formatPersonName', () => {
 		});
 
 		it('lowercases "do" particle', () => {
-			expect(formatPersonName('JOAO DO NASCIMENTO')).toBe(
-				'Joao do Nascimento'
-			);
+			expect(formatPersonName('JOAO DO NASCIMENTO')).toBe('Joao do Nascimento');
 		});
 
 		it('lowercases "das" particle', () => {
@@ -161,9 +155,7 @@ describe('formatPersonName', () => {
 		});
 
 		it('lowercases "della" particle', () => {
-			expect(formatPersonName('MARIA DELLA ROVERE')).toBe(
-				'Maria della Rovere'
-			);
+			expect(formatPersonName('MARIA DELLA ROVERE')).toBe('Maria della Rovere');
 		});
 
 		it('lowercases "al" particle', () => {
@@ -303,9 +295,7 @@ describe('formatPersonName', () => {
 		});
 
 		it('handles a name with initials and particle ("der" not a particle)', () => {
-			expect(formatPersonName('j.r. van der berg')).toBe(
-				'J.R. van Der Berg'
-			);
+			expect(formatPersonName('j.r. van der berg')).toBe('J.R. van Der Berg');
 		});
 
 		it('handles Irish name with apostrophe', () => {
@@ -313,9 +303,7 @@ describe('formatPersonName', () => {
 		});
 
 		it('handles Italian name with particle', () => {
-			expect(formatPersonName('LEONARDO DA VINCI')).toBe(
-				'Leonardo da Vinci'
-			);
+			expect(formatPersonName('LEONARDO DA VINCI')).toBe('Leonardo da Vinci');
 		});
 
 		it('handles Dutch name with van der ("der" not a particle)', () => {
@@ -444,9 +432,7 @@ describe('repairDistortedPersonName', () => {
 		});
 
 		it('handles multiple distorted words in a name', () => {
-			const r = repairDistortedPersonName(
-				"Nts'EBO Mants'O-Lets'OLO"
-			);
+			const r = repairDistortedPersonName("Nts'EBO Mants'O-Lets'OLO");
 			expect(r).toBe("Nts'ebo Mants'o-Lets'olo");
 		});
 	});

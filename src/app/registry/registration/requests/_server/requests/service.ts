@@ -1,4 +1,5 @@
 import type { AcademicRemarks, Student } from '@registry/students';
+import { getStudentRegistrationData } from '@registry/students/_server/actions';
 import { getSponsor } from '@/app/finance/sponsors';
 import { getActiveTerm } from '@/app/registry/terms';
 import {
@@ -10,6 +11,7 @@ import {
 import type { QueryOptions } from '@/core/platform/BaseRepository';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
 import withAuth from '@/core/platform/withAuth';
+import { getAcademicRemarks } from '@/shared/lib/utils/grades';
 import { getStudentSemesterModulesLogic } from './getStudentSemesterModules';
 import RegistrationRequestRepository from './repository';
 
@@ -230,6 +232,39 @@ class RegistrationRequestService {
 			},
 			async (session) =>
 				session.user?.stdNo === stdNo || session.user?.role === 'registry'
+		);
+	}
+
+	async getEligibleModulesForRequest(stdNo: number, termCode: string) {
+		return withAuth(async () => {
+			const studentData = await getStudentRegistrationData(stdNo);
+			if (!studentData) throw new Error('Student not found');
+			const remarks = getAcademicRemarks(studentData.programs);
+			return getStudentSemesterModulesLogic(studentData, remarks, termCode);
+		}, ['registry']);
+	}
+
+	async addModuleToRequest(
+		requestId: number,
+		semesterModuleId: number,
+		moduleStatus: StudentModuleStatus,
+		receipt?: { receiptNo: string; receiptType: ReceiptType }
+	) {
+		return withAuth(
+			async (session) => {
+				return this.repository.addModuleToRequest(
+					requestId,
+					semesterModuleId,
+					moduleStatus,
+					receipt,
+					{
+						userId: session!.user!.id!,
+						role: session!.user!.role!,
+						activityType: 'registration_updated',
+					}
+				);
+			},
+			['registry']
 		);
 	}
 

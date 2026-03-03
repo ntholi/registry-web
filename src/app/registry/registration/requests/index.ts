@@ -1,3 +1,4 @@
+export { default as AddModuleModal } from './_components/AddModuleModal';
 export { default as ClearanceAccordion } from './_components/ClearanceAccordion';
 export { default as Form } from './_components/Form';
 export { default as ModulesDialog } from './_components/ModulesDialog';

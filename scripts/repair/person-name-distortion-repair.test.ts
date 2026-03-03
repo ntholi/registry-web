@@ -504,9 +504,7 @@ describe('repairLegacyDistortedPersonName', () => {
 		it('handles all 4 distortion types in one name', () => {
 			const value = "Ts'Ele Mants\u2019O O'Connor 'NEHENG MaCHeli";
 			const r = repairLegacyDistortedPersonName(value);
-			expect(r?.repairedName).toBe(
-				"Ts'ele Mants'o O'Connor 'Neheng Macheli"
-			);
+			expect(r?.repairedName).toBe("Ts'ele Mants'o O'Connor 'Neheng Macheli");
 			expect(r?.changed).toBe(true);
 			expect(r?.rules.apostropheMiddle).toBe(2);
 			expect(r?.rules.apostropheLeading).toBe(1);
@@ -525,9 +523,7 @@ describe('repairLegacyDistortedPersonName', () => {
 		it("handles Ts'Ele Mants'O O'Connor 'Neheng MaCHeli with correct rule counts", () => {
 			const value = "Ts'Ele Mants'O O'Connor 'Neheng MaCHeli";
 			const r = repairLegacyDistortedPersonName(value);
-			expect(r?.repairedName).toBe(
-				"Ts'ele Mants'o O'Connor 'Neheng Macheli"
-			);
+			expect(r?.repairedName).toBe("Ts'ele Mants'o O'Connor 'Neheng Macheli");
 			expect(r?.changed).toBe(true);
 			expect(r?.rules.apostropheMiddle).toBe(2);
 			expect(r?.rules.apostropheLeading).toBe(1);
@@ -602,9 +598,7 @@ describe('repairLegacyDistortedPersonName', () => {
 		});
 
 		it('returns changed=false and correct name when no distortion present', () => {
-			const r = repairLegacyDistortedPersonName(
-				'Thabang Mokoena Phiri Lerato'
-			);
+			const r = repairLegacyDistortedPersonName('Thabang Mokoena Phiri Lerato');
 			expect(r?.changed).toBe(false);
 			expect(r?.repairedName).toBe('Thabang Mokoena Phiri Lerato');
 		});
