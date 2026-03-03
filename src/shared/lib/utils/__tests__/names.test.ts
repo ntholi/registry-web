@@ -191,6 +191,11 @@ describe('formatPersonName', () => {
 		it("handles Mants'o", () => {
 			expect(formatPersonName("MANTS'O")).toBe("Mants'o");
 		});
+		it('handles names with special characters', () => {
+			expect(formatPersonName('Mantoetsi Portia `neko')).toBe(
+				"Mantoetsi Portia 'Neko"
+			);
+		});
 	});
 
 	describe('unicode apostrophe normalization', () => {
