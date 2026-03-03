@@ -63,7 +63,7 @@ export const academicConfig: ModuleConfig = {
 			{
 				label: 'Student Feedback',
 				icon: IconMessageStar,
-				roles: ['academic', 'admin'],
+				roles: ['academic', 'admin', 'human_resource'],
 				collapsed: false,
 				children: [
 					{
@@ -82,9 +82,6 @@ export const academicConfig: ModuleConfig = {
 						label: 'Reports',
 						href: '/academic/feedback/reports',
 						icon: IconChartBar,
-						isVisible: (session) => {
-							return session?.user?.position !== 'admin';
-						},
 					},
 				],
 			},
