@@ -25,6 +25,11 @@ const LOWER_NAME_PARTICLES = new Set([
 ]);
 
 const LOWER_APOSTROPHE_PREFIXES = new Set(['d', 'l']);
+const APOSTROPHE_VARIANTS = /[\u2018\u2019\u02BC\u0060\u00B4]/g;
+
+function normalizeApostropheChars(value: string) {
+	return value.replace(APOSTROPHE_VARIANTS, "'");
+}
 
 function hasMixedCase(value: string) {
 	return /[A-Z]/.test(value) && /[a-z]/.test(value);
@@ -39,11 +44,12 @@ function isInitials(value: string) {
 }
 
 function normalizeApostrophePart(part: string) {
-	const sections = part.split("'");
+	const normalizedPart = normalizeApostropheChars(part);
+	const sections = normalizedPart.split("'");
 	const firstSection = sections[0] ?? '';
 	const firstLower = firstSection.toLowerCase();
 	const keepFirstLower = LOWER_APOSTROPHE_PREFIXES.has(firstLower);
-	const capitalizeSuffixes = keepFirstLower || firstLower.length === 1;
+	const capitalizeSuffixes = keepFirstLower || firstLower.length <= 1;
 
 	return sections
 		.map((section, idx) => {
@@ -63,8 +69,8 @@ function normalizeApostrophePart(part: string) {
 function repairDistortedNameWordPart(part: string) {
 	if (!part) return '';
 
-	let repaired = part;
-	const apostropheMatch = repaired.match(/^([A-Za-z]{2,})'([A-Z][a-z]+)$/);
+	let repaired = normalizeApostropheChars(part);
+	const apostropheMatch = repaired.match(/^([A-Za-z]{2,})'([A-Z][A-Za-z]*)$/);
 	if (apostropheMatch) {
 		const [, first, second] = apostropheMatch;
 		repaired = `${capitalizeNamePart(first)}'${second.toLowerCase()}`;
@@ -91,13 +97,15 @@ export function repairDistortedPersonName(name: string | undefined | null) {
 
 function normalizeNameWordPart(part: string) {
 	if (!part) return '';
-	const lowerPart = part.toLowerCase();
+	const normalizedPart = normalizeApostropheChars(part);
+	const lowerPart = normalizedPart.toLowerCase();
 	if (LOWER_NAME_PARTICLES.has(lowerPart)) return lowerPart;
 	if (isInitials(lowerPart)) return lowerPart.toUpperCase();
 	if (isRomanNumeral(lowerPart)) return lowerPart.toUpperCase();
-	if (/^st\.?$/i.test(part)) return 'St.';
-	if (part.includes("'")) return normalizeApostrophePart(part);
-	if (hasMixedCase(part)) return part;
+	if (/^st\.?$/i.test(normalizedPart)) return 'St.';
+	if (normalizedPart.includes("'"))
+		return normalizeApostrophePart(normalizedPart);
+	if (hasMixedCase(normalizedPart)) return normalizedPart;
 	return capitalizeNamePart(lowerPart);
 }
 
