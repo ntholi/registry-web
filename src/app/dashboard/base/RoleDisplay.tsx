@@ -1,6 +1,7 @@
 'use client';
 import { Skeleton, Title } from '@mantine/core';
 import { useSession } from 'next-auth/react';
+import { toTitleCase } from '@/shared/lib/utils/utils';
 
 export default function RoleDisplay() {
 	const { data: session, status } = useSession();
@@ -11,7 +12,7 @@ export default function RoleDisplay() {
 
 	return (
 		<Title fw={'lighter'} tt='capitalize'>
-			{session?.user?.role} Portal
+			{toTitleCase(session?.user?.role)} Portal
 		</Title>
 	);
 }
