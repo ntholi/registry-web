@@ -36,11 +36,15 @@ export function getActiveProgram(student: Student | null | undefined) {
 	};
 }
 
-export function getCurrentSemester(student: Student | null | undefined) {
+export function getCurrentSemester(
+	student: Student | null | undefined,
+	excludeTermCodes: string[] = []
+) {
 	if (!student) return null;
 	const activeProgram = getActiveProgram(student);
+	const excludeSet = new Set(excludeTermCodes);
 	return activeProgram?.semesters
-		.filter((s) => isActiveSemester(s.status))
+		.filter((s) => isActiveSemester(s.status) && !excludeSet.has(s.termCode))
 		.sort((a, b) => b.id - a.id)[0];
 }
 

@@ -1,4 +1,4 @@
-import { and, eq, inArray, ne } from 'drizzle-orm';
+import { and, eq, inArray, isNull, ne, or } from 'drizzle-orm';
 import {
 	blockedStudents,
 	clearance,
@@ -165,9 +165,14 @@ export default class TermSettingsRepository extends BaseRepository<
 	async getUnpublishedTermCodes() {
 		const results = await db
 			.select({ code: terms.code })
-			.from(termSettings)
-			.innerJoin(terms, eq(terms.id, termSettings.termId))
-			.where(eq(termSettings.resultsPublished, false));
+			.from(terms)
+			.leftJoin(termSettings, eq(terms.id, termSettings.termId))
+			.where(
+				or(
+					isNull(termSettings.resultsPublished),
+					eq(termSettings.resultsPublished, false)
+				)
+			);
 		return results.map((r) => r.code);
 	}
 
