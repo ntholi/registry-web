@@ -43,7 +43,6 @@ export function FinancialOverview({
 						<Tooltip label='Open in Zoho Books' withArrow position='left'>
 							<ActionIcon
 								variant='subtle'
-								color='gray'
 								size='sm'
 								component='a'
 								href={zohoUrl}

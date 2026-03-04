@@ -43,7 +43,7 @@ import { useRouter } from 'nextjs-toploader/app';
 import { useMemo, useState } from 'react';
 import { getAllTerms } from '@/app/registry/terms';
 import { useActiveTerm } from '@/shared/lib/hooks/use-active-term';
-import { getCountries } from '@/shared/lib/utils/countries';
+import { getCountrySelectData } from '@/shared/lib/utils/countries';
 import { formatDateToISO } from '@/shared/lib/utils/dates';
 import {
 	type CreateFullStudentInput,
@@ -101,7 +101,7 @@ export default function NewStudentForm() {
 	const { activeTerm } = useActiveTerm();
 	const [termDefaultSet, setTermDefaultSet] = useState(false);
 
-	const countries = useMemo(() => getCountries(), []);
+	const countries = useMemo(() => getCountrySelectData(), []);
 
 	const form = useForm<FormValues>({
 		initialValues: {
@@ -333,11 +333,13 @@ export default function NewStudentForm() {
 	);
 }
 
+type SelectOption = { value: string; label: string };
+
 type StepForm = ReturnType<typeof useForm<FormValues>>;
 
 type PersonalInfoProps = {
 	form: StepForm;
-	countries: string[];
+	countries: SelectOption[];
 };
 
 function PersonalInfoStep({ form, countries }: PersonalInfoProps) {
@@ -431,7 +433,7 @@ function PersonalInfoStep({ form, countries }: PersonalInfoProps) {
 
 type NextOfKinProps = {
 	form: StepForm;
-	countries: string[];
+	countries: SelectOption[];
 };
 
 function NextOfKinStep({ form, countries }: NextOfKinProps) {
