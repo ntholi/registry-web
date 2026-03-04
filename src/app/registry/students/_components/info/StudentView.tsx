@@ -231,7 +231,7 @@ export default function StudentView({ student }: Props) {
 										<InfoItem
 											label='Program/Class'
 											value={programForView.structure.program.name}
-											displayValue={`${programForView.structure.program.name} (${programForView.structure.program.code}${formatSemester(latestSemester, 'mini')})`}
+											displayValue={`${programForView.structure.program.name} (${programForView.structure.program.code}${latestSemester ? formatSemester(latestSemester, 'mini') : ''})`}
 										/>
 									</Group>
 								</Grid.Col>
