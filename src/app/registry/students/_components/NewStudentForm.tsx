@@ -6,7 +6,6 @@ import {
 	ActionIcon,
 	Button,
 	Divider,
-	Flex,
 	Group,
 	Loader,
 	Select,
@@ -52,7 +51,6 @@ import {
 	type CreateFullStudentInput,
 	createFullStudent,
 } from '../_server/actions';
-import ImportStudentsModal from './import/ImportStudentsModal';
 
 interface NextOfKinEntry {
 	name: string;
@@ -275,10 +273,8 @@ export default function NewStudentForm() {
 
 	return (
 		<Stack p='xl'>
-			<Flex align='center' justify='space-between' gap='md'>
-				<Title order={4}>Create New Student</Title>
-				<ImportStudentsModal />
-			</Flex>
+			<Title order={4}>Create New Student</Title>
+
 			<Divider />
 			<Stepper
 				active={active}
