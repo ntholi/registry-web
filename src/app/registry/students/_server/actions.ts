@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache';
 import { getUnpublishedTermCodes } from '@/app/registry/terms/settings/_server/actions';
 import { auth } from '@/core/auth';
 import type {
+	nextOfKins,
 	studentModules,
 	studentPrograms,
 	studentSemesters,
@@ -191,6 +192,31 @@ export async function canEditMarksAndGrades() {
 	const isRegistryManager =
 		session?.user?.role === 'registry' && session?.user?.position === 'manager';
 	return isAdmin || isRegistryManager;
+}
+
+export async function getNextStdNo() {
+	return service.getNextStdNo();
+}
+
+export interface CreateFullStudentInput {
+	student: Omit<typeof students.$inferInsert, 'stdNo'>;
+	nextOfKins: Omit<typeof nextOfKins.$inferInsert, 'stdNo'>[];
+	program: Omit<typeof studentPrograms.$inferInsert, 'stdNo'>;
+}
+
+export async function createFullStudent(input: CreateFullStudentInput) {
+	const nextStdNo = await service.getNextStdNo();
+	const result = await service.createFull({
+		student: {
+			...input.student,
+			stdNo: nextStdNo,
+			name: formatPersonName(input.student.name) ?? input.student.name,
+		},
+		nextOfKins: input.nextOfKins.map((k) => ({ ...k, stdNo: nextStdNo })),
+		program: { ...input.program, stdNo: nextStdNo },
+	});
+	revalidatePath('/registry/students');
+	return result;
 }
 
 export async function updateStudentUserId(

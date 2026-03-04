@@ -639,6 +639,79 @@ export default class StudentRepository extends BaseRepository<
 			.where(eq(students.stdNo, stdNo));
 	}
 
+	async getNextStdNo(): Promise<number> {
+		const [result] = await db
+			.select({ max: sql<number>`coalesce(max(${students.stdNo}), 0)` })
+			.from(students);
+		return (result?.max ?? 0) + 1;
+	}
+
+	async createFull(
+		data: {
+			student: typeof students.$inferInsert;
+			nextOfKins: (typeof nextOfKins.$inferInsert)[];
+			program: typeof studentPrograms.$inferInsert;
+		},
+		audit: AuditOptions
+	) {
+		return db.transaction(async (tx) => {
+			const [created] = await tx
+				.insert(students)
+				.values(data.student)
+				.returning();
+
+			await this.writeAuditLogForTable(
+				tx,
+				'students',
+				'INSERT',
+				String(created.stdNo),
+				null,
+				created,
+				audit
+			);
+
+			if (data.nextOfKins.length > 0) {
+				const kinValues = data.nextOfKins.map((k) => ({
+					...k,
+					stdNo: created.stdNo,
+				}));
+				const createdKins = await tx
+					.insert(nextOfKins)
+					.values(kinValues)
+					.returning();
+
+				await this.writeAuditLogBatch(
+					tx,
+					createdKins.map((kin) => ({
+						operation: 'INSERT' as const,
+						recordId: String(kin.id),
+						oldValues: null,
+						newValues: kin,
+					})),
+					{ ...audit, activityType: 'student_creation' }
+				);
+			}
+
+			const programData = { ...data.program, stdNo: created.stdNo };
+			const [createdProgram] = await tx
+				.insert(studentPrograms)
+				.values(programData)
+				.returning();
+
+			await this.writeAuditLogForTable(
+				tx,
+				'student_programs',
+				'INSERT',
+				String(createdProgram.id),
+				null,
+				createdProgram,
+				{ ...audit, activityType: 'program_enrollment' }
+			);
+
+			return created;
+		});
+	}
+
 	async updateProgramStructure(
 		stdNo: number,
 		structureId: number,

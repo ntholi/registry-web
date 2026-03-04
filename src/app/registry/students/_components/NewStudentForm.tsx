@@ -1,0 +1,643 @@
+'use client';
+
+import { getAllSchools, getProgramsBySchoolId } from '@academic/schools';
+import { getStructuresByProgramId } from '@academic/structures';
+import {
+	ActionIcon,
+	Button,
+	Divider,
+	Group,
+	Loader,
+	Paper,
+	Select,
+	SimpleGrid,
+	Stack,
+	Stepper,
+	Text,
+	TextInput,
+	Title,
+} from '@mantine/core';
+import { DateInput } from '@mantine/dates';
+import { useForm } from '@mantine/form';
+import { notifications } from '@mantine/notifications';
+import {
+	gender,
+	maritalStatusEnum,
+	nextOfKinRelationship,
+	programStatus,
+} from '@registry/_database';
+import {
+	IconArrowLeft,
+	IconArrowRight,
+	IconDeviceFloppy,
+	IconPlus,
+	IconSchool,
+	IconTrash,
+	IconUser,
+	IconUsers,
+} from '@tabler/icons-react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useRouter } from 'nextjs-toploader/app';
+import { useMemo, useState } from 'react';
+import { getAllTerms } from '@/app/registry/terms';
+import { getCountries } from '@/shared/lib/utils/countries';
+import { formatDateToISO } from '@/shared/lib/utils/dates';
+import {
+	type CreateFullStudentInput,
+	createFullStudent,
+} from '../_server/actions';
+
+interface NextOfKinEntry {
+	name: string;
+	relationship: string;
+	phone: string;
+	email: string;
+	occupation: string;
+	address: string;
+	country: string;
+}
+
+interface FormValues {
+	name: string;
+	nationalId: string;
+	dateOfBirth: Date | null;
+	phone1: string;
+	phone2: string;
+	gender: string;
+	maritalStatus: string;
+	country: string;
+	nationality: string;
+	birthPlace: string;
+	religion: string;
+	race: string;
+	nextOfKins: NextOfKinEntry[];
+	schoolId: string;
+	programId: string;
+	structureId: string;
+	intakeDate: Date | null;
+	regDate: Date | null;
+	startTerm: string;
+	programStatus: string;
+	stream: string;
+}
+
+const EMPTY_KIN: NextOfKinEntry = {
+	name: '',
+	relationship: '',
+	phone: '',
+	email: '',
+	occupation: '',
+	address: '',
+	country: '',
+};
+
+export default function NewStudentForm() {
+	const router = useRouter();
+	const queryClient = useQueryClient();
+	const [active, setActive] = useState(0);
+	const [isSubmitting, setIsSubmitting] = useState(false);
+
+	const countries = useMemo(() => getCountries(), []);
+
+	const form = useForm<FormValues>({
+		initialValues: {
+			name: '',
+			nationalId: '',
+			dateOfBirth: null,
+			phone1: '',
+			phone2: '',
+			gender: '',
+			maritalStatus: '',
+			country: 'Lesotho',
+			nationality: 'Mosotho',
+			birthPlace: '',
+			religion: '',
+			race: '',
+			nextOfKins: [{ ...EMPTY_KIN }],
+			schoolId: '',
+			programId: '',
+			structureId: '',
+			intakeDate: new Date(),
+			regDate: new Date(),
+			startTerm: '',
+			programStatus: 'Active',
+			stream: '',
+		},
+		validate: (values) => {
+			if (active === 0) {
+				return {
+					name: !values.name.trim() ? 'Name is required' : null,
+					nationalId: !values.nationalId.trim()
+						? 'National ID is required'
+						: null,
+					gender: !values.gender ? 'Gender is required' : null,
+				};
+			}
+			if (active === 2) {
+				return {
+					structureId: !values.structureId ? 'Structure is required' : null,
+					programStatus: !values.programStatus
+						? 'Program status is required'
+						: null,
+				};
+			}
+			return {};
+		},
+	});
+
+	const selectedSchoolId = useMemo(() => {
+		const val = Number(form.values.schoolId);
+		return Number.isFinite(val) && val > 0 ? val : null;
+	}, [form.values.schoolId]);
+
+	const selectedProgramId = useMemo(() => {
+		const val = Number(form.values.programId);
+		return Number.isFinite(val) && val > 0 ? val : null;
+	}, [form.values.programId]);
+
+	const { data: schoolsData = [], isLoading: isLoadingSchools } = useQuery({
+		queryKey: ['schools'],
+		queryFn: getAllSchools,
+		select: (data) =>
+			data.map((s) => ({ value: s.id.toString(), label: s.name })),
+	});
+
+	const { data: programsData = [], isLoading: isLoadingPrograms } = useQuery({
+		queryKey: ['programs', selectedSchoolId],
+		queryFn: () =>
+			selectedSchoolId ? getProgramsBySchoolId(selectedSchoolId) : [],
+		enabled: !!selectedSchoolId,
+		select: (data) =>
+			data.map((p) => ({ value: p.id.toString(), label: p.name })),
+	});
+
+	const { data: structuresData = [], isLoading: isLoadingStructures } =
+		useQuery({
+			queryKey: ['structures', selectedProgramId],
+			queryFn: () =>
+				selectedProgramId ? getStructuresByProgramId(selectedProgramId) : [],
+			enabled: !!selectedProgramId,
+			select: (data) =>
+				data.map((s) => ({ value: s.id.toString(), label: s.code })),
+		});
+
+	const { data: termsData = [] } = useQuery({
+		queryKey: ['terms'],
+		queryFn: getAllTerms,
+		select: (data) => data.map((t) => ({ value: t.code, label: t.code })),
+	});
+
+	function handleNext() {
+		if (form.validate().hasErrors) return;
+		setActive((c) => Math.min(c + 1, 2));
+	}
+
+	function handleBack() {
+		setActive((c) => Math.max(c - 1, 0));
+	}
+
+	function addNextOfKin() {
+		form.insertListItem('nextOfKins', { ...EMPTY_KIN });
+	}
+
+	function removeNextOfKin(index: number) {
+		form.removeListItem('nextOfKins', index);
+	}
+
+	async function handleSubmit() {
+		if (form.validate().hasErrors) return;
+
+		setIsSubmitting(true);
+		try {
+			const v = form.values;
+			const input: CreateFullStudentInput = {
+				student: {
+					name: v.name,
+					nationalId: v.nationalId,
+					dateOfBirth: v.dateOfBirth ?? undefined,
+					phone1: v.phone1 || null,
+					phone2: v.phone2 || null,
+					gender: (v.gender as (typeof gender.enumValues)[number]) || null,
+					maritalStatus:
+						(v.maritalStatus as (typeof maritalStatusEnum.enumValues)[number]) ||
+						null,
+					country: v.country || null,
+					nationality: v.nationality || null,
+					birthPlace: v.birthPlace || null,
+					religion: v.religion || null,
+					race: v.race || null,
+					status: 'Active',
+				},
+				nextOfKins: v.nextOfKins
+					.filter((k) => k.name.trim())
+					.map((k) => ({
+						name: k.name,
+						relationship:
+							k.relationship as (typeof nextOfKinRelationship.enumValues)[number],
+						phone: k.phone || null,
+						email: k.email || null,
+						occupation: k.occupation || null,
+						address: k.address || null,
+						country: k.country || null,
+					})),
+				program: {
+					structureId: Number(v.structureId),
+					status:
+						(v.programStatus as (typeof programStatus.enumValues)[number]) ||
+						'Active',
+					intakeDate: formatDateToISO(v.intakeDate) || null,
+					regDate: formatDateToISO(v.regDate) || null,
+					startTerm: v.startTerm || null,
+					stream: v.stream || null,
+				},
+			};
+
+			const created = await createFullStudent(input);
+			notifications.show({
+				title: 'Success',
+				message: `Student ${created.stdNo} created successfully`,
+				color: 'green',
+			});
+			queryClient.invalidateQueries({ queryKey: ['students'] });
+			router.push(`/registry/students/${created.stdNo}`);
+		} catch (error) {
+			notifications.show({
+				title: 'Error',
+				message: `Failed to create student: ${error}`,
+				color: 'red',
+			});
+		} finally {
+			setIsSubmitting(false);
+		}
+	}
+
+	return (
+		<Stack p='lg'>
+			<Title order={3}>Create New Student</Title>
+			<Stepper
+				active={active}
+				onStepClick={setActive}
+				size='sm'
+				allowNextStepsSelect={false}
+			>
+				<Stepper.Step label='Personal Info' icon={<IconUser size='1.1rem' />}>
+					<PersonalInfoStep form={form} countries={countries} />
+				</Stepper.Step>
+				<Stepper.Step label='Next of Kin' icon={<IconUsers size='1.1rem' />}>
+					<NextOfKinStep
+						form={form}
+						countries={countries}
+						onAdd={addNextOfKin}
+						onRemove={removeNextOfKin}
+					/>
+				</Stepper.Step>
+				<Stepper.Step label='Program' icon={<IconSchool size='1.1rem' />}>
+					<ProgramStep
+						form={form}
+						schoolsData={schoolsData}
+						programsData={programsData}
+						structuresData={structuresData}
+						termsData={termsData}
+						isLoadingSchools={isLoadingSchools}
+						isLoadingPrograms={isLoadingPrograms}
+						isLoadingStructures={isLoadingStructures}
+						queryClient={queryClient}
+					/>
+				</Stepper.Step>
+			</Stepper>
+			<Group justify='space-between' mt='md'>
+				{active > 0 ? (
+					<Button
+						variant='default'
+						leftSection={<IconArrowLeft size='1rem' />}
+						onClick={handleBack}
+					>
+						Back
+					</Button>
+				) : (
+					<div />
+				)}
+				{active < 2 ? (
+					<Button
+						rightSection={<IconArrowRight size='1rem' />}
+						onClick={handleNext}
+					>
+						Next
+					</Button>
+				) : (
+					<Button
+						leftSection={<IconDeviceFloppy size='1rem' />}
+						loading={isSubmitting}
+						onClick={handleSubmit}
+					>
+						Create Student
+					</Button>
+				)}
+			</Group>
+		</Stack>
+	);
+}
+
+type StepForm = ReturnType<typeof useForm<FormValues>>;
+
+type PersonalInfoProps = {
+	form: StepForm;
+	countries: string[];
+};
+
+function PersonalInfoStep({ form, countries }: PersonalInfoProps) {
+	return (
+		<Stack mt='md'>
+			<SimpleGrid cols={{ base: 1, sm: 2 }}>
+				<TextInput
+					label='Full Name'
+					placeholder='e.g. John Doe'
+					required
+					{...form.getInputProps('name')}
+				/>
+				<TextInput
+					label='National ID'
+					placeholder='e.g. 1234567890'
+					required
+					{...form.getInputProps('nationalId')}
+				/>
+			</SimpleGrid>
+			<SimpleGrid cols={{ base: 1, sm: 3 }}>
+				<DateInput
+					label='Date of Birth'
+					placeholder='Select date'
+					clearable
+					maxDate={new Date()}
+					{...form.getInputProps('dateOfBirth')}
+				/>
+				<Select
+					label='Gender'
+					placeholder='Select gender'
+					required
+					data={gender.enumValues}
+					{...form.getInputProps('gender')}
+				/>
+				<Select
+					label='Marital Status'
+					placeholder='Select status'
+					data={maritalStatusEnum.enumValues}
+					clearable
+					{...form.getInputProps('maritalStatus')}
+				/>
+			</SimpleGrid>
+			<Divider label='Contact Information' labelPosition='left' />
+			<SimpleGrid cols={{ base: 1, sm: 2 }}>
+				<TextInput
+					label='Phone 1'
+					placeholder='e.g. +266 5800 0000'
+					{...form.getInputProps('phone1')}
+				/>
+				<TextInput
+					label='Phone 2'
+					placeholder='e.g. +266 2200 0000'
+					{...form.getInputProps('phone2')}
+				/>
+			</SimpleGrid>
+			<Divider label='Background' labelPosition='left' />
+			<SimpleGrid cols={{ base: 1, sm: 2 }}>
+				<Select
+					label='Country'
+					placeholder='Select country'
+					searchable
+					data={countries}
+					{...form.getInputProps('country')}
+				/>
+				<TextInput
+					label='Nationality'
+					placeholder='e.g. Mosotho'
+					{...form.getInputProps('nationality')}
+				/>
+			</SimpleGrid>
+			<SimpleGrid cols={{ base: 1, sm: 3 }}>
+				<TextInput
+					label='Birth Place'
+					placeholder='e.g. Maseru'
+					{...form.getInputProps('birthPlace')}
+				/>
+				<TextInput
+					label='Religion'
+					placeholder='e.g. Christian'
+					{...form.getInputProps('religion')}
+				/>
+				<TextInput
+					label='Race'
+					placeholder='e.g. African'
+					{...form.getInputProps('race')}
+				/>
+			</SimpleGrid>
+		</Stack>
+	);
+}
+
+type NextOfKinProps = {
+	form: StepForm;
+	countries: string[];
+	onAdd: () => void;
+	onRemove: (index: number) => void;
+};
+
+function NextOfKinStep({ form, countries, onAdd, onRemove }: NextOfKinProps) {
+	return (
+		<Stack mt='md'>
+			{form.values.nextOfKins.map((_, i) => (
+				<Paper key={i} withBorder p='md' radius='md'>
+					<Group justify='space-between' mb='sm'>
+						<Text fw={500} size='sm'>
+							Next of Kin #{i + 1}
+						</Text>
+						{form.values.nextOfKins.length > 1 && (
+							<ActionIcon
+								color='red'
+								variant='subtle'
+								size='sm'
+								onClick={() => onRemove(i)}
+							>
+								<IconTrash size='1rem' />
+							</ActionIcon>
+						)}
+					</Group>
+					<SimpleGrid cols={{ base: 1, sm: 2 }}>
+						<TextInput
+							label='Full Name'
+							placeholder='e.g. Jane Doe'
+							{...form.getInputProps(`nextOfKins.${i}.name`)}
+						/>
+						<Select
+							label='Relationship'
+							placeholder='Select relationship'
+							data={nextOfKinRelationship.enumValues}
+							{...form.getInputProps(`nextOfKins.${i}.relationship`)}
+						/>
+					</SimpleGrid>
+					<SimpleGrid cols={{ base: 1, sm: 2 }} mt='sm'>
+						<TextInput
+							label='Phone'
+							placeholder='e.g. +266 5800 0000'
+							{...form.getInputProps(`nextOfKins.${i}.phone`)}
+						/>
+						<TextInput
+							label='Email'
+							placeholder='e.g. jane@example.com'
+							{...form.getInputProps(`nextOfKins.${i}.email`)}
+						/>
+					</SimpleGrid>
+					<SimpleGrid cols={{ base: 1, sm: 3 }} mt='sm'>
+						<TextInput
+							label='Occupation'
+							placeholder='e.g. Teacher'
+							{...form.getInputProps(`nextOfKins.${i}.occupation`)}
+						/>
+						<TextInput
+							label='Address'
+							placeholder='e.g. Maseru, Lesotho'
+							{...form.getInputProps(`nextOfKins.${i}.address`)}
+						/>
+						<Select
+							label='Country'
+							placeholder='Select country'
+							searchable
+							data={countries}
+							{...form.getInputProps(`nextOfKins.${i}.country`)}
+						/>
+					</SimpleGrid>
+				</Paper>
+			))}
+			<Button
+				variant='light'
+				leftSection={<IconPlus size='1rem' />}
+				onClick={onAdd}
+				fullWidth
+			>
+				Add Next of Kin
+			</Button>
+		</Stack>
+	);
+}
+
+type ProgramStepProps = {
+	form: StepForm;
+	schoolsData: { value: string; label: string }[];
+	programsData: { value: string; label: string }[];
+	structuresData: { value: string; label: string }[];
+	termsData: { value: string; label: string }[];
+	isLoadingSchools: boolean;
+	isLoadingPrograms: boolean;
+	isLoadingStructures: boolean;
+	queryClient: ReturnType<typeof useQueryClient>;
+};
+
+function ProgramStep({
+	form,
+	schoolsData,
+	programsData,
+	structuresData,
+	termsData,
+	isLoadingSchools,
+	isLoadingPrograms,
+	isLoadingStructures,
+	queryClient,
+}: ProgramStepProps) {
+	return (
+		<Stack mt='md'>
+			<SimpleGrid cols={{ base: 1, sm: 2 }}>
+				<Select
+					label='School'
+					placeholder='Select school'
+					searchable
+					clearable
+					data={schoolsData}
+					disabled={isLoadingSchools}
+					{...form.getInputProps('schoolId')}
+					onChange={(value) => {
+						form.setFieldValue('schoolId', value || '');
+						form.setFieldValue('programId', '');
+						form.setFieldValue('structureId', '');
+					}}
+					rightSection={isLoadingSchools ? <Loader size='xs' /> : undefined}
+				/>
+				<Select
+					label='Program'
+					placeholder='Select program'
+					searchable
+					clearable
+					data={programsData}
+					disabled={!form.values.schoolId || isLoadingPrograms}
+					{...form.getInputProps('programId')}
+					onChange={(value) => {
+						form.setFieldValue('programId', value || '');
+						form.setFieldValue('structureId', '');
+						const programId = value ? Number(value) : null;
+						if (!programId) return;
+						void queryClient
+							.fetchQuery({
+								queryKey: ['structures', programId],
+								queryFn: () => getStructuresByProgramId(programId),
+							})
+							.then((structures) => {
+								const latest = structures.at(-1);
+								if (latest?.id) {
+									form.setFieldValue('structureId', latest.id.toString());
+								}
+							});
+					}}
+					rightSection={isLoadingPrograms ? <Loader size='xs' /> : undefined}
+				/>
+			</SimpleGrid>
+			<SimpleGrid cols={{ base: 1, sm: 2 }}>
+				<Select
+					label='Structure'
+					placeholder='Select structure'
+					searchable
+					clearable
+					required
+					data={structuresData}
+					disabled={!form.values.programId || isLoadingStructures}
+					{...form.getInputProps('structureId')}
+					rightSection={isLoadingStructures ? <Loader size='xs' /> : undefined}
+				/>
+				<Select
+					label='Program Status'
+					placeholder='Select status'
+					required
+					data={programStatus.enumValues}
+					{...form.getInputProps('programStatus')}
+				/>
+			</SimpleGrid>
+			<Divider label='Enrollment Details' labelPosition='left' />
+			<SimpleGrid cols={{ base: 1, sm: 3 }}>
+				<DateInput
+					label='Intake Date'
+					placeholder='Select date'
+					clearable
+					{...form.getInputProps('intakeDate')}
+				/>
+				<DateInput
+					label='Registration Date'
+					placeholder='Select date'
+					clearable
+					{...form.getInputProps('regDate')}
+				/>
+				<Select
+					label='Start Term'
+					placeholder='Select term'
+					searchable
+					clearable
+					data={termsData}
+					{...form.getInputProps('startTerm')}
+				/>
+			</SimpleGrid>
+			<SimpleGrid cols={{ base: 1, sm: 2 }}>
+				<TextInput
+					label='Stream'
+					placeholder='e.g. Full-time'
+					{...form.getInputProps('stream')}
+				/>
+			</SimpleGrid>
+		</Stack>
+	);
+}

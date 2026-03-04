@@ -1,10 +1,5 @@
-import { Box } from '@mantine/core';
-import { createStudent, Form } from '@registry/students';
+import NewStudentForm from '../_components/NewStudentForm';
 
-export default async function NewPage() {
-	return (
-		<Box p={'lg'}>
-			<Form title={'Create Student'} onSubmit={createStudent} />
-		</Box>
-	);
+export default function NewPage() {
+	return <NewStudentForm />;
 }

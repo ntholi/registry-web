@@ -5,6 +5,7 @@ import {
 } from '@/app/registry/_lib/activities';
 import { getActiveTerm } from '@/app/registry/terms';
 import type {
+	nextOfKins,
 	studentModules,
 	studentPrograms,
 	studentSemesters,
@@ -153,6 +154,30 @@ class StudentService {
 		return withAuth(
 			async () => this.repository.saveZohoContactId(stdNo, zohoContactId),
 			['dashboard']
+		);
+	}
+
+	async getNextStdNo() {
+		return withAuth(
+			async () => this.repository.getNextStdNo(),
+			['admin', 'registry']
+		);
+	}
+
+	async createFull(data: {
+		student: Student;
+		nextOfKins: (typeof nextOfKins.$inferInsert)[];
+		program: typeof studentPrograms.$inferInsert;
+	}) {
+		return withAuth(
+			async (session) =>
+				this.repository.createFull(data, {
+					userId: requireSessionUserId(session),
+					role: session!.user!.role!,
+					activityType: 'student_creation',
+					stdNo: data.student.stdNo,
+				}),
+			['admin', 'registry']
 		);
 	}
 
