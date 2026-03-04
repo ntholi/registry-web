@@ -37,7 +37,7 @@ export const students = pgTable(
 			.primaryKey()
 			.generatedByDefaultAsIdentity(),
 		name: text().notNull(),
-		nationalId: text().notNull(),
+		nationalId: text().unique(),
 		status: studentStatus().notNull().default('Active'),
 		dateOfBirth: timestamp({ mode: 'date' }),
 		phone1: text(),

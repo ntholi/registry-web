@@ -216,7 +216,7 @@ export function TranscriptPages({
 										/>
 										<HeaderRow
 											label='IC / Passport No.'
-											value={student.nationalId}
+											value={student.nationalId || 'N/A'}
 										/>
 										<HeaderRow label='Gender' value={student.gender || 'N/A'} />
 										<HeaderRow label='Nationality' value='Mosotho' />

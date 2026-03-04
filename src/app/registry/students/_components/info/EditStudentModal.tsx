@@ -26,7 +26,7 @@ import { updateStudentWithReasons } from '../../_server/actions';
 interface Student {
 	stdNo: number;
 	name: string;
-	nationalId: string;
+	nationalId: string | null;
 	status: string;
 	dateOfBirth: Date | null;
 	phone1: string | null;

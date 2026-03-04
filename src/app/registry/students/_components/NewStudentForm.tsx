@@ -6,6 +6,7 @@ import {
 	ActionIcon,
 	Button,
 	Divider,
+	Flex,
 	Group,
 	Loader,
 	Select,
@@ -271,7 +272,10 @@ export default function NewStudentForm() {
 
 	return (
 		<Stack p='xl'>
-			<Title order={4}>Create New Student</Title>
+			<Flex align='center' gap='md'>
+				<Title order={4}>Create New Student</Title>
+			</Flex>
+			<Divider />
 			<Stepper
 				active={active}
 				onStepClick={setActive}
