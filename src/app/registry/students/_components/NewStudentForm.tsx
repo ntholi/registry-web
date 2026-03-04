@@ -8,14 +8,15 @@ import {
 	Divider,
 	Group,
 	Loader,
-	Paper,
 	Select,
 	SimpleGrid,
 	Stack,
 	Stepper,
+	Table,
 	Text,
 	TextInput,
 	Title,
+	Tooltip,
 } from '@mantine/core';
 import { DateInput } from '@mantine/dates';
 import { useForm } from '@mantine/form';
@@ -30,6 +31,7 @@ import {
 	IconArrowLeft,
 	IconArrowRight,
 	IconDeviceFloppy,
+	IconPencil,
 	IconPlus,
 	IconSchool,
 	IconTrash,
@@ -113,7 +115,7 @@ export default function NewStudentForm() {
 			birthPlace: '',
 			religion: '',
 			race: '',
-			nextOfKins: [{ ...EMPTY_KIN }],
+			nextOfKins: [],
 			schoolId: '',
 			programId: '',
 			structureId: '',
@@ -196,14 +198,6 @@ export default function NewStudentForm() {
 		setActive((c) => Math.max(c - 1, 0));
 	}
 
-	function addNextOfKin() {
-		form.insertListItem('nextOfKins', { ...EMPTY_KIN });
-	}
-
-	function removeNextOfKin(index: number) {
-		form.removeListItem('nextOfKins', index);
-	}
-
 	async function handleSubmit() {
 		if (form.validate().hasErrors) return;
 
@@ -272,8 +266,8 @@ export default function NewStudentForm() {
 	}
 
 	return (
-		<Stack p='lg'>
-			<Title order={3}>Create New Student</Title>
+		<Stack p='xl'>
+			<Title order={4}>Create New Student</Title>
 			<Stepper
 				active={active}
 				onStepClick={setActive}
@@ -284,12 +278,7 @@ export default function NewStudentForm() {
 					<PersonalInfoStep form={form} countries={countries} />
 				</Stepper.Step>
 				<Stepper.Step label='Next of Kin' icon={<IconUsers size='1.1rem' />}>
-					<NextOfKinStep
-						form={form}
-						countries={countries}
-						onAdd={addNextOfKin}
-						onRemove={removeNextOfKin}
-					/>
+					<NextOfKinStep form={form} countries={countries} />
 				</Stepper.Step>
 				<Stepper.Step label='Program' icon={<IconSchool size='1.1rem' />}>
 					<ProgramStep
@@ -437,85 +426,166 @@ function PersonalInfoStep({ form, countries }: PersonalInfoProps) {
 type NextOfKinProps = {
 	form: StepForm;
 	countries: string[];
-	onAdd: () => void;
-	onRemove: (index: number) => void;
 };
 
-function NextOfKinStep({ form, countries, onAdd, onRemove }: NextOfKinProps) {
+function NextOfKinStep({ form, countries }: NextOfKinProps) {
+	const [draft, setDraft] = useState<NextOfKinEntry>({ ...EMPTY_KIN });
+	const [editIndex, setEditIndex] = useState<number | null>(null);
+
+	function updateDraft(field: keyof NextOfKinEntry, value: string) {
+		setDraft((prev) => ({ ...prev, [field]: value }));
+	}
+
+	function resetDraft() {
+		setDraft({ ...EMPTY_KIN });
+		setEditIndex(null);
+	}
+
+	function handleAddOrSave() {
+		if (!draft.name.trim() || !draft.relationship) return;
+		if (editIndex !== null) {
+			form.setFieldValue(`nextOfKins.${editIndex}`, { ...draft });
+		} else {
+			form.insertListItem('nextOfKins', { ...draft });
+		}
+		resetDraft();
+	}
+
+	function handleEdit(index: number) {
+		setDraft({ ...form.values.nextOfKins[index] });
+		setEditIndex(index);
+	}
+
+	function handleDelete(index: number) {
+		form.removeListItem('nextOfKins', index);
+		if (editIndex === index) resetDraft();
+		else if (editIndex !== null && index < editIndex)
+			setEditIndex(editIndex - 1);
+	}
+
 	return (
 		<Stack mt='md'>
-			{form.values.nextOfKins.map((_, i) => (
-				<Paper key={i} withBorder p='md' radius='md'>
-					<Group justify='space-between' mb='sm'>
-						<Text fw={500} size='sm'>
-							Next of Kin #{i + 1}
-						</Text>
-						{form.values.nextOfKins.length > 1 && (
-							<ActionIcon
-								color='red'
-								variant='subtle'
-								size='sm'
-								onClick={() => onRemove(i)}
-							>
-								<IconTrash size='1rem' />
-							</ActionIcon>
-						)}
-					</Group>
-					<SimpleGrid cols={{ base: 1, sm: 2 }}>
-						<TextInput
-							label='Full Name'
-							placeholder='e.g. Jane Doe'
-							{...form.getInputProps(`nextOfKins.${i}.name`)}
-						/>
-						<Select
-							label='Relationship'
-							placeholder='Select relationship'
-							required
-							data={nextOfKinRelationship.enumValues}
-							{...form.getInputProps(`nextOfKins.${i}.relationship`)}
-						/>
-					</SimpleGrid>
-					<SimpleGrid cols={{ base: 1, sm: 2 }} mt='sm'>
-						<TextInput
-							label='Phone'
-							placeholder='e.g. +266 5800 0000'
-							{...form.getInputProps(`nextOfKins.${i}.phone`)}
-						/>
-						<TextInput
-							label='Email'
-							placeholder='e.g. jane@example.com'
-							{...form.getInputProps(`nextOfKins.${i}.email`)}
-						/>
-					</SimpleGrid>
-					<SimpleGrid cols={{ base: 1, sm: 3 }} mt='sm'>
-						<TextInput
-							label='Occupation'
-							placeholder='e.g. Teacher'
-							{...form.getInputProps(`nextOfKins.${i}.occupation`)}
-						/>
-						<TextInput
-							label='Address'
-							placeholder='e.g. Maseru, Lesotho'
-							{...form.getInputProps(`nextOfKins.${i}.address`)}
-						/>
-						<Select
-							label='Country'
-							placeholder='Select country'
-							searchable
-							data={countries}
-							{...form.getInputProps(`nextOfKins.${i}.country`)}
-						/>
-					</SimpleGrid>
-				</Paper>
-			))}
-			<Button
-				variant='light'
-				leftSection={<IconPlus size='1rem' />}
-				onClick={onAdd}
-				fullWidth
-			>
-				Add Next of Kin
-			</Button>
+			<SimpleGrid cols={{ base: 1, sm: 2 }}>
+				<TextInput
+					label='Full Name'
+					value={draft.name}
+					onChange={(e) => updateDraft('name', e.currentTarget.value)}
+				/>
+				<Select
+					label='Relationship'
+					placeholder='Select relationship'
+					data={nextOfKinRelationship.enumValues}
+					value={draft.relationship || null}
+					onChange={(v) => updateDraft('relationship', v || '')}
+				/>
+			</SimpleGrid>
+			<SimpleGrid cols={{ base: 1, sm: 2 }}>
+				<TextInput
+					label='Phone'
+					placeholder='e.g. +266 5800 0000'
+					value={draft.phone}
+					onChange={(e) => updateDraft('phone', e.currentTarget.value)}
+				/>
+				<TextInput
+					label='Email'
+					placeholder='e.g. jane@example.com'
+					value={draft.email}
+					onChange={(e) => updateDraft('email', e.currentTarget.value)}
+				/>
+			</SimpleGrid>
+			<SimpleGrid cols={{ base: 1, sm: 3 }}>
+				<TextInput
+					label='Occupation'
+					placeholder='e.g. Teacher'
+					value={draft.occupation}
+					onChange={(e) => updateDraft('occupation', e.currentTarget.value)}
+				/>
+				<TextInput
+					label='Address'
+					placeholder='e.g. Maseru, Lesotho'
+					value={draft.address}
+					onChange={(e) => updateDraft('address', e.currentTarget.value)}
+				/>
+				<Select
+					label='Country'
+					placeholder='Select country'
+					searchable
+					data={countries}
+					value={draft.country || null}
+					onChange={(v) => updateDraft('country', v || '')}
+				/>
+			</SimpleGrid>
+			<Group justify='flex-end'>
+				{editIndex !== null && (
+					<Button variant='default' onClick={resetDraft}>
+						Cancel
+					</Button>
+				)}
+				<Button
+					leftSection={
+						editIndex !== null ? (
+							<IconDeviceFloppy size='1rem' />
+						) : (
+							<IconPlus size='1rem' />
+						)
+					}
+					onClick={handleAddOrSave}
+					disabled={!draft.name.trim() || !draft.relationship}
+				>
+					{editIndex !== null ? 'Save' : 'Add'}
+				</Button>
+			</Group>
+			{form.values.nextOfKins.length > 0 && (
+				<Table striped highlightOnHover withTableBorder>
+					<Table.Thead>
+						<Table.Tr>
+							<Table.Th>Name</Table.Th>
+							<Table.Th>Relationship</Table.Th>
+							<Table.Th>Phone</Table.Th>
+							<Table.Th>Email</Table.Th>
+							<Table.Th w={80} />
+						</Table.Tr>
+					</Table.Thead>
+					<Table.Tbody>
+						{form.values.nextOfKins.map((kin, i) => (
+							<Table.Tr key={i}>
+								<Table.Td>{kin.name}</Table.Td>
+								<Table.Td>{kin.relationship}</Table.Td>
+								<Table.Td>{kin.phone}</Table.Td>
+								<Table.Td>{kin.email}</Table.Td>
+								<Table.Td>
+									<Group gap='xs' wrap='nowrap'>
+										<Tooltip label='Edit'>
+											<ActionIcon
+												variant='subtle'
+												size='sm'
+												onClick={() => handleEdit(i)}
+											>
+												<IconPencil size='1rem' />
+											</ActionIcon>
+										</Tooltip>
+										<Tooltip label='Delete'>
+											<ActionIcon
+												variant='subtle'
+												color='red'
+												size='sm'
+												onClick={() => handleDelete(i)}
+											>
+												<IconTrash size='1rem' />
+											</ActionIcon>
+										</Tooltip>
+									</Group>
+								</Table.Td>
+							</Table.Tr>
+						))}
+					</Table.Tbody>
+				</Table>
+			)}
+			{form.values.nextOfKins.length === 0 && (
+				<Text c='dimmed' ta='center' size='sm' py='lg'>
+					No next of kin added yet. Fill in the form above and click Add.
+				</Text>
+			)}
 		</Stack>
 	);
 }
