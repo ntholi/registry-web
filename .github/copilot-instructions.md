@@ -155,6 +155,7 @@ You are a **Senior Principal Software Engineer** and **System Architect** specia
 - **Modals**: Must be self-contained (include their own trigger button).
 - **Mantine Dates**: Use string values; Calendars must start on Sunday.
 - **Mantine Charts**: ALWAYS research and read documentation at https://mantine.dev/charts/* before generating any chart code.
+- Use Popover instead of Tooltip
 
 ### Centralized Utilities (Extensibility)
 *Never hardcode values. Use and extend these centralized files:*
