@@ -81,13 +81,16 @@ class ApplicationService extends BaseService<typeof applications, 'id'> {
 					);
 				}
 
-				const application = await this.repo.create({
-					...data,
-					status: 'submitted',
-					paymentStatus: 'unpaid',
-					createdBy: session?.user?.id,
-					applicationDate: new Date(),
-				});
+				const application = await this.repo.create(
+					{
+						...data,
+						status: 'submitted',
+						paymentStatus: 'unpaid',
+						createdBy: session?.user?.id,
+						applicationDate: new Date(),
+					},
+					this.buildAuditOptions(session, 'create')
+				);
 
 				await this.repo.addStatusHistory({
 					applicationId: application.id,
@@ -119,10 +122,14 @@ class ApplicationService extends BaseService<typeof applications, 'id'> {
 				);
 
 				if (existing) {
-					const updated = await this.repo.update(existing.id, {
-						...data,
-						updatedAt: new Date(),
-					});
+					const updated = await this.repo.update(
+						existing.id,
+						{
+							...data,
+							updatedAt: new Date(),
+						},
+						this.buildAuditOptions(session, 'update')
+					);
 
 					this.computeAndUpsertScores({
 						id: existing.id,
@@ -151,13 +158,16 @@ class ApplicationService extends BaseService<typeof applications, 'id'> {
 					);
 				}
 
-				const application = await this.repo.create({
-					...data,
-					status: data.status ?? 'draft',
-					paymentStatus: 'unpaid',
-					createdBy: session?.user?.id,
-					applicationDate: new Date(),
-				});
+				const application = await this.repo.create(
+					{
+						...data,
+						status: data.status ?? 'draft',
+						paymentStatus: 'unpaid',
+						createdBy: session?.user?.id,
+						applicationDate: new Date(),
+					},
+					this.buildAuditOptions(session, 'create')
+				);
 
 				this.computeAndUpsertScores({
 					id: application.id,

@@ -1,7 +1,9 @@
 import type { StandardGrade } from '@admissions/_database';
 import { and, count, eq, isNotNull } from 'drizzle-orm';
 import { academicRecords, db, subjectGrades } from '@/core/database';
-import BaseRepository from '@/core/platform/BaseRepository';
+import BaseRepository, {
+	type AuditOptions,
+} from '@/core/platform/BaseRepository';
 
 export default class AcademicRecordRepository extends BaseRepository<
 	typeof academicRecords,
@@ -57,13 +59,18 @@ export default class AcademicRecordRepository extends BaseRepository<
 			subjectId: string;
 			originalGrade: string;
 			standardGrade: StandardGrade | null;
-		}[]
+		}[],
+		audit?: AuditOptions
 	) {
 		return db.transaction(async (tx) => {
 			const [record] = await tx
 				.insert(academicRecords)
 				.values(data)
 				.returning();
+
+			if (audit) {
+				await this.writeAuditLog(tx, 'INSERT', record.id, null, record, audit);
+			}
 
 			if (grades && grades.length > 0) {
 				const unique = [
@@ -97,9 +104,16 @@ export default class AcademicRecordRepository extends BaseRepository<
 			subjectId: string;
 			originalGrade: string;
 			standardGrade: StandardGrade | null;
-		}[]
+		}[],
+		audit?: AuditOptions
 	) {
 		return db.transaction(async (tx) => {
+			const oldValues = audit
+				? await tx.query.academicRecords.findFirst({
+						where: eq(academicRecords.id, id),
+					})
+				: null;
+
 			await tx
 				.update(academicRecords)
 				.set({ ...data, updatedAt: new Date() })
@@ -125,7 +139,7 @@ export default class AcademicRecordRepository extends BaseRepository<
 				}
 			}
 
-			return tx.query.academicRecords.findFirst({
+			const result = await tx.query.academicRecords.findFirst({
 				where: eq(academicRecords.id, id),
 				with: {
 					certificateType: true,
@@ -133,11 +147,30 @@ export default class AcademicRecordRepository extends BaseRepository<
 					applicantDocument: { with: { document: true } },
 				},
 			});
+
+			if (audit) {
+				await this.writeAuditLog(tx, 'UPDATE', id, oldValues, result, audit);
+			}
+
+			return result;
 		});
 	}
 
-	async removeById(id: string) {
-		await db.delete(academicRecords).where(eq(academicRecords.id, id));
+	async removeById(id: string, audit?: AuditOptions) {
+		if (!audit) {
+			await db.delete(academicRecords).where(eq(academicRecords.id, id));
+			return;
+		}
+
+		await db.transaction(async (tx) => {
+			const oldValues = await tx.query.academicRecords.findFirst({
+				where: eq(academicRecords.id, id),
+			});
+			await tx.delete(academicRecords).where(eq(academicRecords.id, id));
+			if (oldValues) {
+				await this.writeAuditLog(tx, 'DELETE', id, oldValues, null, audit);
+			}
+		});
 	}
 
 	async findByCertificateNumber(certificateNumber: string) {

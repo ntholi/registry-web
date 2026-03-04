@@ -65,7 +65,11 @@ class PaymentService extends BaseService<typeof bankDeposits, 'id'> {
 
 	async createBankDeposit(data: typeof bankDeposits.$inferInsert) {
 		return withAuth(
-			async () => this.repo.createBankDeposit(data),
+			async (session) =>
+				this.repo.createBankDeposit(
+					data,
+					this.buildAuditOptions(session, 'create')
+				),
 			['registry', 'marketing', 'admin', 'applicant']
 		);
 	}
@@ -87,6 +91,8 @@ class PaymentService extends BaseService<typeof bankDeposits, 'id'> {
 					throw new Error('Receipt number already exists');
 				}
 
+				const audit = this.buildAuditOptions(session, 'update');
+
 				const receipt = await this.repo.createReceipt({
 					receiptNo,
 					createdBy: session?.user?.id,
@@ -101,6 +107,13 @@ class PaymentService extends BaseService<typeof bankDeposits, 'id'> {
 					);
 				}
 
+				await this.repo.updateBankDepositStatus(
+					depositId,
+					'verified',
+					undefined,
+					audit
+				);
+
 				return { deposit, receipt };
 			},
 			[...ROLES]
@@ -108,31 +121,37 @@ class PaymentService extends BaseService<typeof bankDeposits, 'id'> {
 	}
 
 	async rejectBankDeposit(depositId: string, rejectionReason?: string) {
-		return withAuth(async () => {
-			const deposit = await this.repo.findBankDepositById(depositId);
-			if (!deposit) {
-				throw new Error('Deposit not found');
-			}
+		return withAuth(
+			async (session) => {
+				const deposit = await this.repo.findBankDepositById(depositId);
+				if (!deposit) {
+					throw new Error('Deposit not found');
+				}
 
-			if (deposit.status !== 'pending') {
-				throw new Error('Deposit is not pending');
-			}
+				if (deposit.status !== 'pending') {
+					throw new Error('Deposit is not pending');
+				}
 
-			await this.repo.updateBankDepositStatus(
-				depositId,
-				'rejected',
-				rejectionReason
-			);
+				const audit = this.buildAuditOptions(session, 'update');
 
-			if (deposit.application?.id) {
-				await this.repo.updateApplicationStatus(
-					deposit.application.id,
-					'rejected'
+				await this.repo.updateBankDepositStatus(
+					depositId,
+					'rejected',
+					rejectionReason,
+					audit
 				);
-			}
 
-			return { success: true };
-		}, [...ROLES]);
+				if (deposit.application?.id) {
+					await this.repo.updateApplicationStatus(
+						deposit.application.id,
+						'rejected'
+					);
+				}
+
+				return { success: true };
+			},
+			[...ROLES]
+		);
 	}
 
 	async updateReviewStatus(
@@ -141,8 +160,13 @@ class PaymentService extends BaseService<typeof bankDeposits, 'id'> {
 		rejectionReason?: string
 	) {
 		return withAuth(
-			async () =>
-				this.repo.updateBankDepositStatus(depositId, status, rejectionReason),
+			async (session) =>
+				this.repo.updateBankDepositStatus(
+					depositId,
+					status,
+					rejectionReason,
+					this.buildAuditOptions(session, 'update')
+				),
 			[...ROLES]
 		);
 	}
@@ -209,53 +233,60 @@ class PaymentService extends BaseService<typeof bankDeposits, 'id'> {
 		mobileNumber: string,
 		provider: 'mpesa' | 'ecocash'
 	) {
-		return withAuth(async () => {
-			const existing = await this.repo.findPendingMobileDeposit(applicationId);
-			if (existing) {
-				return {
-					success: false,
-					error: 'A pending payment already exists for this application',
-					isDuplicate: true,
-				};
-			}
-
-			const clientReference = generateClientReference(applicationId);
-
-			if (provider === 'mpesa') {
-				const response = await initiateMpesaPayment(
-					amount,
-					mobileNumber,
-					clientReference
-				);
-
-				const deposit = await this.repo.createMobileDeposit({
-					applicationId,
-					amount: amount.toString(),
-					mobileNumber,
-					provider,
-					clientReference,
-					providerReference: response.reference,
-					providerResponse: response as unknown as Record<string, unknown>,
-					status: isPaymentSuccessful(response) ? 'pending' : 'rejected',
-				});
-
-				if (!isPaymentSuccessful(response)) {
+		return withAuth(
+			async (session) => {
+				const existing =
+					await this.repo.findPendingMobileDeposit(applicationId);
+				if (existing) {
 					return {
 						success: false,
-						error: response.message || 'Payment initiation failed',
+						error: 'A pending payment already exists for this application',
+						isDuplicate: true,
 					};
 				}
 
-				return {
-					success: true,
-					transactionId: deposit.id,
-					clientReference,
-					message: 'Check your phone for M-Pesa PIN prompt',
-				};
-			}
+				const clientReference = generateClientReference(applicationId);
 
-			return { success: false, error: 'Unsupported payment provider' };
-		}, ['applicant', 'registry', 'marketing', 'admin']);
+				if (provider === 'mpesa') {
+					const response = await initiateMpesaPayment(
+						amount,
+						mobileNumber,
+						clientReference
+					);
+
+					const deposit = await this.repo.createMobileDeposit(
+						{
+							applicationId,
+							amount: amount.toString(),
+							mobileNumber,
+							provider,
+							clientReference,
+							providerReference: response.reference,
+							providerResponse: response as unknown as Record<string, unknown>,
+							status: isPaymentSuccessful(response) ? 'pending' : 'rejected',
+						},
+						this.buildAuditOptions(session, 'create')
+					);
+
+					if (!isPaymentSuccessful(response)) {
+						return {
+							success: false,
+							error: response.message || 'Payment initiation failed',
+						};
+					}
+
+					return {
+						success: true,
+						transactionId: deposit.id,
+						clientReference,
+						message: 'Check your phone for M-Pesa PIN prompt',
+					};
+				}
+
+				return { success: false, error: 'Unsupported payment provider' };
+			},
+			['applicant', 'registry', 'marketing', 'admin']
+		);
 	}
 
 	async verifyMobilePayment(depositId: string) {

@@ -22,7 +22,9 @@ import {
 	mobileDeposits,
 	users,
 } from '@/core/database';
-import BaseRepository from '@/core/platform/BaseRepository';
+import BaseRepository, {
+	type AuditOptions,
+} from '@/core/platform/BaseRepository';
 import type { DepositFilters } from '../_lib/types';
 
 const LOCK_EXPIRY_MS = 5 * 60 * 1000;
@@ -458,30 +460,71 @@ export default class PaymentRepository extends BaseRepository<
 		});
 	}
 
-	async createBankDeposit(data: typeof bankDeposits.$inferInsert) {
-		const [deposit] = await db.insert(bankDeposits).values(data).returning();
-		return deposit;
+	async createBankDeposit(
+		data: typeof bankDeposits.$inferInsert,
+		audit?: AuditOptions
+	) {
+		if (!audit) {
+			const [deposit] = await db.insert(bankDeposits).values(data).returning();
+			return deposit;
+		}
+		return this.create(data, audit);
 	}
 
 	async updateBankDepositStatus(
 		id: string,
 		status: DepositStatus,
-		rejectionReason?: string
+		rejectionReason?: string,
+		audit?: AuditOptions
 	) {
-		const updated = await db
-			.update(bankDeposits)
-			.set({
-				status,
-				rejectionReason: status === 'rejected' ? rejectionReason : null,
-			})
-			.where(
-				eq(
-					bankDeposits.applicationId,
-					sql`(SELECT application_id FROM bank_deposits WHERE id = ${id})`
+		const tableName = 'bank_deposits';
+		if (!audit) {
+			const updated = await db
+				.update(bankDeposits)
+				.set({
+					status,
+					rejectionReason: status === 'rejected' ? rejectionReason : null,
+				})
+				.where(
+					eq(
+						bankDeposits.applicationId,
+						sql`(SELECT application_id FROM bank_deposits WHERE id = ${id})`
+					)
 				)
-			)
-			.returning();
-		return updated[0] ?? null;
+				.returning();
+			return updated[0] ?? null;
+		}
+
+		return db.transaction(async (tx) => {
+			const oldValues = await tx.query.bankDeposits.findFirst({
+				where: eq(bankDeposits.id, id),
+			});
+			const updated = await tx
+				.update(bankDeposits)
+				.set({
+					status,
+					rejectionReason: status === 'rejected' ? rejectionReason : null,
+				})
+				.where(
+					eq(
+						bankDeposits.applicationId,
+						sql`(SELECT application_id FROM bank_deposits WHERE id = ${id})`
+					)
+				)
+				.returning();
+			if (updated[0]) {
+				await this.writeAuditLogForTable(
+					tx,
+					tableName,
+					'UPDATE',
+					id,
+					oldValues,
+					updated[0],
+					audit
+				);
+			}
+			return updated[0] ?? null;
+		});
 	}
 
 	async linkReceiptToBankDeposit(depositId: string, receiptId: string) {
@@ -536,9 +579,34 @@ export default class PaymentRepository extends BaseRepository<
 		return updated;
 	}
 
-	async createMobileDeposit(data: typeof mobileDeposits.$inferInsert) {
-		const [deposit] = await db.insert(mobileDeposits).values(data).returning();
-		return deposit;
+	async createMobileDeposit(
+		data: typeof mobileDeposits.$inferInsert,
+		audit?: AuditOptions
+	) {
+		if (!audit) {
+			const [deposit] = await db
+				.insert(mobileDeposits)
+				.values(data)
+				.returning();
+			return deposit;
+		}
+
+		return db.transaction(async (tx) => {
+			const [deposit] = await tx
+				.insert(mobileDeposits)
+				.values(data)
+				.returning();
+			await this.writeAuditLogForTable(
+				tx,
+				'mobile_deposits',
+				'INSERT',
+				deposit.id,
+				null,
+				deposit,
+				audit
+			);
+			return deposit;
+		});
 	}
 
 	async findMobileDepositById(id: string) {

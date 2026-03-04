@@ -17,6 +17,11 @@ class AcademicRecordService extends BaseService<typeof academicRecords, 'id'> {
 			createRoles: ['registry', 'marketing', 'admin'],
 			updateRoles: ['registry', 'marketing', 'admin'],
 			deleteRoles: ['registry', 'marketing', 'admin'],
+			activityTypes: {
+				create: 'academic_record_created',
+				update: 'academic_record_updated',
+				delete: 'academic_record_deleted',
+			},
 		});
 		this.repo = repo;
 	}
@@ -40,32 +45,39 @@ class AcademicRecordService extends BaseService<typeof academicRecords, 'id'> {
 		isLevel4: boolean,
 		grades?: SubjectGradeInput[]
 	) {
-		return withAuth(async () => {
-			let preparedGrades:
-				| {
-						subjectId: string;
-						originalGrade: string;
-						standardGrade: StandardGrade | null;
-				  }[]
-				| undefined;
+		return withAuth(
+			async (session) => {
+				let preparedGrades:
+					| {
+							subjectId: string;
+							originalGrade: string;
+							standardGrade: StandardGrade | null;
+					  }[]
+					| undefined;
 
-			if (grades && grades.length > 0) {
-				if (isLevel4) {
-					preparedGrades = await mapGradesToStandard(
-						grades,
-						data.certificateTypeId
-					);
-				} else {
-					preparedGrades = grades.map((g) => ({
-						subjectId: g.subjectId,
-						originalGrade: g.originalGrade,
-						standardGrade: null,
-					}));
+				if (grades && grades.length > 0) {
+					if (isLevel4) {
+						preparedGrades = await mapGradesToStandard(
+							grades,
+							data.certificateTypeId
+						);
+					} else {
+						preparedGrades = grades.map((g) => ({
+							subjectId: g.subjectId,
+							originalGrade: g.originalGrade,
+							standardGrade: null,
+						}));
+					}
 				}
-			}
 
-			return this.repo.createWithGrades(data, preparedGrades);
-		}, ['registry', 'marketing', 'admin', 'applicant']);
+				return this.repo.createWithGrades(
+					data,
+					preparedGrades,
+					this.buildAuditOptions(session, 'create')
+				);
+			},
+			['registry', 'marketing', 'admin', 'applicant']
+		);
 	}
 
 	async updateWithGrades(
@@ -74,37 +86,46 @@ class AcademicRecordService extends BaseService<typeof academicRecords, 'id'> {
 		isLevel4: boolean,
 		grades?: SubjectGradeInput[]
 	) {
-		return withAuth(async () => {
-			let preparedGrades:
-				| {
-						subjectId: string;
-						originalGrade: string;
-						standardGrade: StandardGrade | null;
-				  }[]
-				| undefined;
+		return withAuth(
+			async (session) => {
+				let preparedGrades:
+					| {
+							subjectId: string;
+							originalGrade: string;
+							standardGrade: StandardGrade | null;
+					  }[]
+					| undefined;
 
-			if (grades !== undefined && data.certificateTypeId) {
-				if (isLevel4) {
-					preparedGrades =
-						grades.length > 0
-							? await mapGradesToStandard(grades, data.certificateTypeId)
-							: [];
-				} else {
-					preparedGrades = grades.map((g) => ({
-						subjectId: g.subjectId,
-						originalGrade: g.originalGrade,
-						standardGrade: null,
-					}));
+				if (grades !== undefined && data.certificateTypeId) {
+					if (isLevel4) {
+						preparedGrades =
+							grades.length > 0
+								? await mapGradesToStandard(grades, data.certificateTypeId)
+								: [];
+					} else {
+						preparedGrades = grades.map((g) => ({
+							subjectId: g.subjectId,
+							originalGrade: g.originalGrade,
+							standardGrade: null,
+						}));
+					}
 				}
-			}
 
-			return this.repo.updateWithGrades(id, data, preparedGrades);
-		}, ['registry', 'marketing', 'admin']);
+				return this.repo.updateWithGrades(
+					id,
+					data,
+					preparedGrades,
+					this.buildAuditOptions(session, 'update')
+				);
+			},
+			['registry', 'marketing', 'admin']
+		);
 	}
 
 	override async delete(id: string) {
 		return withAuth(
-			async () => this.repo.removeById(id),
+			async (session) =>
+				this.repo.removeById(id, this.buildAuditOptions(session, 'delete')),
 			['registry', 'marketing', 'admin', 'applicant']
 		);
 	}

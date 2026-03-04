@@ -64,51 +64,67 @@ class IntakePeriodService extends BaseService<typeof intakePeriods, 'id'> {
 	}
 
 	override async create(data: typeof intakePeriods.$inferInsert) {
-		return withAuth(async () => {
-			const overlap = await this.repo.findOverlapping(
-				data.startDate,
-				data.endDate
-			);
-			if (overlap) {
-				throw new Error(
-					'INTAKE_PERIOD_OVERLAP: Intake period dates overlap with existing period'
-				);
-			}
-			return this.repo.create(data);
-		}, ['registry', 'marketing', 'admin']);
-	}
-
-	override async update(
-		id: string,
-		data: Partial<typeof intakePeriods.$inferInsert>
-	) {
-		return withAuth(async () => {
-			if (data.startDate && data.endDate) {
+		return withAuth(
+			async (session) => {
 				const overlap = await this.repo.findOverlapping(
 					data.startDate,
-					data.endDate,
-					id
+					data.endDate
 				);
 				if (overlap) {
 					throw new Error(
 						'INTAKE_PERIOD_OVERLAP: Intake period dates overlap with existing period'
 					);
 				}
-			}
-			return this.repo.update(id, data);
-		}, ['registry', 'marketing', 'admin']);
+				return this.repo.create(
+					data,
+					this.buildAuditOptions(session, 'create')
+				);
+			},
+			['registry', 'marketing', 'admin']
+		);
+	}
+
+	override async update(
+		id: string,
+		data: Partial<typeof intakePeriods.$inferInsert>
+	) {
+		return withAuth(
+			async (session) => {
+				if (data.startDate && data.endDate) {
+					const overlap = await this.repo.findOverlapping(
+						data.startDate,
+						data.endDate,
+						id
+					);
+					if (overlap) {
+						throw new Error(
+							'INTAKE_PERIOD_OVERLAP: Intake period dates overlap with existing period'
+						);
+					}
+				}
+				return this.repo.update(
+					id,
+					data,
+					this.buildAuditOptions(session, 'update')
+				);
+			},
+			['registry', 'marketing', 'admin']
+		);
 	}
 
 	override async delete(id: string) {
-		return withAuth(async () => {
-			const hasApps = await this.repo.hasApplications(id);
-			if (hasApps) {
-				throw new Error(
-					'INTAKE_PERIOD_HAS_APPLICATIONS: Cannot delete intake period with applications'
-				);
-			}
-			return this.repo.delete(id);
-		}, ['registry', 'marketing', 'admin']);
+		return withAuth(
+			async (session) => {
+				const hasApps = await this.repo.hasApplications(id);
+				if (hasApps) {
+					throw new Error(
+						'INTAKE_PERIOD_HAS_APPLICATIONS: Cannot delete intake period with applications'
+					);
+				}
+				return this.repo.delete(id, this.buildAuditOptions(session, 'delete'));
+			},
+			['registry', 'marketing', 'admin']
+		);
 	}
 }
 

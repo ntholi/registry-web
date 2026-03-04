@@ -59,7 +59,8 @@ export default class ApplicantDocumentRepository extends BaseRepository<
 
 	async createWithDocument(
 		documentData: typeof documents.$inferInsert,
-		applicantId: string
+		applicantId: string,
+		audit?: AuditOptions
 	) {
 		return db.transaction(async (tx) => {
 			const [doc] = await tx.insert(documents).values(documentData).returning();
@@ -71,6 +72,17 @@ export default class ApplicantDocumentRepository extends BaseRepository<
 				})
 				.returning();
 
+			if (audit) {
+				await this.writeAuditLog(
+					tx,
+					'INSERT',
+					appDoc.id,
+					null,
+					{ ...appDoc, document: doc },
+					audit
+				);
+			}
+
 			return { ...appDoc, document: doc };
 		});
 	}
@@ -78,17 +90,44 @@ export default class ApplicantDocumentRepository extends BaseRepository<
 	async updateVerificationStatus(
 		id: string,
 		status: DocumentVerificationStatus,
-		rejectionReason?: string
+		rejectionReason?: string,
+		audit?: AuditOptions
 	) {
-		const [doc] = await db
-			.update(applicantDocuments)
-			.set({
-				verificationStatus: status,
-				rejectionReason: status === 'rejected' ? rejectionReason : null,
-			})
-			.where(eq(applicantDocuments.id, id))
-			.returning();
-		return doc;
+		if (!audit) {
+			const [doc] = await db
+				.update(applicantDocuments)
+				.set({
+					verificationStatus: status,
+					rejectionReason: status === 'rejected' ? rejectionReason : null,
+				})
+				.where(eq(applicantDocuments.id, id))
+				.returning();
+			return doc;
+		}
+
+		return db.transaction(async (tx) => {
+			const oldValues = await tx.query.applicantDocuments.findFirst({
+				where: eq(applicantDocuments.id, id),
+			});
+			const [doc] = await tx
+				.update(applicantDocuments)
+				.set({
+					verificationStatus: status,
+					rejectionReason: status === 'rejected' ? rejectionReason : null,
+				})
+				.where(eq(applicantDocuments.id, id))
+				.returning();
+			await this.writeAuditLogForTable(
+				tx,
+				'applicant_documents',
+				'UPDATE',
+				id,
+				oldValues,
+				doc,
+				audit
+			);
+			return doc;
+		});
 	}
 
 	async removeById(id: string, audit?: AuditOptions) {

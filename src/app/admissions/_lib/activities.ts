@@ -98,6 +98,18 @@ const ADMISSIONS_ACTIVITIES = {
 			label: 'Intake Period Deleted',
 			department: 'marketing',
 		},
+		academic_record_created: {
+			label: 'Academic Record Created',
+			department: 'marketing',
+		},
+		academic_record_updated: {
+			label: 'Academic Record Updated',
+			department: 'marketing',
+		},
+		academic_record_deleted: {
+			label: 'Academic Record Deleted',
+			department: 'marketing',
+		},
 	},
 	tableOperationMap: {
 		'applications:INSERT': 'application_submitted',
@@ -126,6 +138,9 @@ const ADMISSIONS_ACTIVITIES = {
 		'intake_periods:INSERT': 'intake_period_created',
 		'intake_periods:UPDATE': 'intake_period_updated',
 		'intake_periods:DELETE': 'intake_period_deleted',
+		'academic_records:INSERT': 'academic_record_created',
+		'academic_records:UPDATE': 'academic_record_updated',
+		'academic_records:DELETE': 'academic_record_deleted',
 	},
 } as const satisfies ActivityFragment;
 

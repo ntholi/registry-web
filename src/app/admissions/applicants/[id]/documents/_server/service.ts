@@ -53,12 +53,19 @@ class ApplicantDocumentService extends BaseService<
 		applicantId: string,
 		fileSize: number
 	) {
-		return withAuth(async () => {
-			if (fileSize > MAX_FILE_SIZE) {
-				throw new Error('FILE_TOO_LARGE: Document exceeds 5MB limit');
-			}
-			return this.repo.createWithDocument(documentData, applicantId);
-		}, ['registry', 'marketing', 'admin', 'applicant']);
+		return withAuth(
+			async (session) => {
+				if (fileSize > MAX_FILE_SIZE) {
+					throw new Error('FILE_TOO_LARGE: Document exceeds 5MB limit');
+				}
+				return this.repo.createWithDocument(
+					documentData,
+					applicantId,
+					this.buildAuditOptions(session, 'create')
+				);
+			},
+			['registry', 'marketing', 'admin', 'applicant']
+		);
 	}
 
 	async verifyDocument(
@@ -66,12 +73,20 @@ class ApplicantDocumentService extends BaseService<
 		status: DocumentVerificationStatus,
 		rejectionReason?: string
 	) {
-		return withAuth(async () => {
-			if (status === 'rejected' && !rejectionReason) {
-				throw new Error('Rejection reason is required');
-			}
-			return this.repo.updateVerificationStatus(id, status, rejectionReason);
-		}, ['registry', 'marketing', 'admin', 'applicant']);
+		return withAuth(
+			async (session) => {
+				if (status === 'rejected' && !rejectionReason) {
+					throw new Error('Rejection reason is required');
+				}
+				return this.repo.updateVerificationStatus(
+					id,
+					status,
+					rejectionReason,
+					this.buildAuditOptions(session, 'update')
+				);
+			},
+			['registry', 'marketing', 'admin', 'applicant']
+		);
 	}
 
 	override async delete(id: string) {

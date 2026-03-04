@@ -6,7 +6,9 @@ import {
 	entryRequirements,
 	gradeMappings,
 } from '@/core/database';
-import BaseRepository from '@/core/platform/BaseRepository';
+import BaseRepository, {
+	type AuditOptions,
+} from '@/core/platform/BaseRepository';
 
 export default class CertificateTypeRepository extends BaseRepository<
 	typeof certificateTypes,
@@ -82,13 +84,25 @@ export default class CertificateTypeRepository extends BaseRepository<
 		mappings?: Array<{
 			originalGrade: string;
 			standardGrade: (typeof gradeMappings.$inferInsert)['standardGrade'];
-		}>
+		}>,
+		audit?: AuditOptions
 	) {
 		return db.transaction(async (tx) => {
 			const [certType] = await tx
 				.insert(certificateTypes)
 				.values(data)
 				.returning();
+
+			if (audit) {
+				await this.writeAuditLog(
+					tx,
+					'INSERT',
+					certType.id,
+					null,
+					certType,
+					audit
+				);
+			}
 
 			if (mappings && mappings.length > 0) {
 				await tx.insert(gradeMappings).values(
@@ -113,9 +127,16 @@ export default class CertificateTypeRepository extends BaseRepository<
 		mappings?: Array<{
 			originalGrade: string;
 			standardGrade: (typeof gradeMappings.$inferInsert)['standardGrade'];
-		}>
+		}>,
+		audit?: AuditOptions
 	) {
 		return db.transaction(async (tx) => {
+			const oldValues = audit
+				? await tx.query.certificateTypes.findFirst({
+						where: eq(certificateTypes.id, id),
+					})
+				: null;
+
 			await tx
 				.update(certificateTypes)
 				.set({ ...data, updatedAt: new Date() })
@@ -137,10 +158,16 @@ export default class CertificateTypeRepository extends BaseRepository<
 				}
 			}
 
-			return tx.query.certificateTypes.findFirst({
+			const result = await tx.query.certificateTypes.findFirst({
 				where: eq(certificateTypes.id, id),
 				with: { gradeMappings: true },
 			});
+
+			if (audit) {
+				await this.writeAuditLog(tx, 'UPDATE', id, oldValues, result, audit);
+			}
+
+			return result;
 		});
 	}
 

@@ -71,8 +71,13 @@ class DocumentReviewService extends BaseService<
 		rejectionReason?: string
 	) {
 		return withAuth(
-			async () =>
-				this.repo.updateVerificationStatus(id, status, rejectionReason),
+			async (session) =>
+				this.repo.updateVerificationStatus(
+					id,
+					status,
+					rejectionReason,
+					this.buildAuditOptions(session, 'update')
+				),
 			[...ROLES]
 		);
 	}
@@ -83,7 +88,13 @@ class DocumentReviewService extends BaseService<
 		value: string | null
 	) {
 		return withAuth(
-			async () => this.repo.updateApplicantField(applicantId, field, value),
+			async (session) =>
+				this.repo.updateApplicantField(
+					applicantId,
+					field,
+					value,
+					this.buildAuditOptions(session, 'update')
+				),
 			[...ROLES]
 		);
 	}

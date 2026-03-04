@@ -10,7 +10,9 @@ import {
 	gradeMappings,
 	subjectGrades,
 } from '@/core/database';
-import BaseRepository from '@/core/platform/BaseRepository';
+import BaseRepository, {
+	type AuditOptions,
+} from '@/core/platform/BaseRepository';
 
 const LOCK_EXPIRY_MS = 5 * 60 * 1000;
 
@@ -153,30 +155,81 @@ export default class DocumentReviewRepository extends BaseRepository<
 	async updateVerificationStatus(
 		id: string,
 		status: DocumentVerificationStatus,
-		rejectionReason?: string
+		rejectionReason?: string,
+		audit?: AuditOptions
 	) {
-		const [doc] = await db
-			.update(applicantDocuments)
-			.set({
-				verificationStatus: status,
-				rejectionReason: status === 'rejected' ? rejectionReason : null,
-			})
-			.where(eq(applicantDocuments.id, id))
-			.returning();
-		return doc;
+		if (!audit) {
+			const [doc] = await db
+				.update(applicantDocuments)
+				.set({
+					verificationStatus: status,
+					rejectionReason: status === 'rejected' ? rejectionReason : null,
+				})
+				.where(eq(applicantDocuments.id, id))
+				.returning();
+			return doc;
+		}
+
+		return db.transaction(async (tx) => {
+			const oldValues = await tx.query.applicantDocuments.findFirst({
+				where: eq(applicantDocuments.id, id),
+			});
+			const [doc] = await tx
+				.update(applicantDocuments)
+				.set({
+					verificationStatus: status,
+					rejectionReason: status === 'rejected' ? rejectionReason : null,
+				})
+				.where(eq(applicantDocuments.id, id))
+				.returning();
+			await this.writeAuditLogForTable(
+				tx,
+				'applicant_documents',
+				'UPDATE',
+				id,
+				oldValues,
+				doc,
+				audit
+			);
+			return doc;
+		});
 	}
 
 	async updateApplicantField(
 		applicantId: string,
 		field: string,
-		value: string | null
+		value: string | null,
+		audit?: AuditOptions
 	) {
-		const [updated] = await db
-			.update(applicants)
-			.set({ [field]: value, updatedAt: new Date() })
-			.where(eq(applicants.id, applicantId))
-			.returning();
-		return updated;
+		if (!audit) {
+			const [updated] = await db
+				.update(applicants)
+				.set({ [field]: value, updatedAt: new Date() })
+				.where(eq(applicants.id, applicantId))
+				.returning();
+			return updated;
+		}
+
+		return db.transaction(async (tx) => {
+			const oldValues = await tx.query.applicants.findFirst({
+				where: eq(applicants.id, applicantId),
+			});
+			const [updated] = await tx
+				.update(applicants)
+				.set({ [field]: value, updatedAt: new Date() })
+				.where(eq(applicants.id, applicantId))
+				.returning();
+			await this.writeAuditLogForTable(
+				tx,
+				'applicants',
+				'UPDATE',
+				applicantId,
+				oldValues,
+				updated,
+				audit
+			);
+			return updated;
+		});
 	}
 
 	async updateAcademicRecordField(

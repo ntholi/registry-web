@@ -74,13 +74,16 @@ class SubjectService extends BaseService<typeof subjects, 'id'> {
 	}
 
 	override async delete(id: string) {
-		return withAuth(async () => {
-			const isInUse = await this.repo.isInUse(id);
-			if (isInUse) {
-				throw new Error('SUBJECT_IN_USE: Cannot delete subject in use');
-			}
-			return this.repo.delete(id);
-		}, ['registry', 'marketing', 'admin']);
+		return withAuth(
+			async (session) => {
+				const isInUse = await this.repo.isInUse(id);
+				if (isInUse) {
+					throw new Error('SUBJECT_IN_USE: Cannot delete subject in use');
+				}
+				return this.repo.delete(id, this.buildAuditOptions(session, 'delete'));
+			},
+			['registry', 'marketing', 'admin']
+		);
 	}
 }
 

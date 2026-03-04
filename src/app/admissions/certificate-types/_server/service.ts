@@ -50,13 +50,20 @@ class CertificateTypeService extends BaseService<
 		data: typeof certificateTypes.$inferInsert,
 		mappings?: GradeMapping[]
 	) {
-		return withAuth(async () => {
-			if (data.lqfLevel < 4) {
-				throw new Error('INVALID_LQF_LEVEL: LQF level must be 4 or higher');
-			}
+		return withAuth(
+			async (session) => {
+				if (data.lqfLevel < 4) {
+					throw new Error('INVALID_LQF_LEVEL: LQF level must be 4 or higher');
+				}
 
-			return this.repo.createWithMappings(data, mappings);
-		}, ['registry', 'marketing', 'admin']);
+				return this.repo.createWithMappings(
+					data,
+					mappings,
+					this.buildAuditOptions(session, 'create')
+				);
+			},
+			['registry', 'marketing', 'admin']
+		);
 	}
 
 	async findByName(name: string) {
@@ -68,26 +75,37 @@ class CertificateTypeService extends BaseService<
 		data: Partial<typeof certificateTypes.$inferInsert>,
 		mappings?: GradeMapping[]
 	) {
-		return withAuth(async () => {
-			if (data.lqfLevel !== undefined && data.lqfLevel < 4) {
-				throw new Error('INVALID_LQF_LEVEL: LQF level must be 4 or higher');
-			}
+		return withAuth(
+			async (session) => {
+				if (data.lqfLevel !== undefined && data.lqfLevel < 4) {
+					throw new Error('INVALID_LQF_LEVEL: LQF level must be 4 or higher');
+				}
 
-			return this.repo.updateWithMappings(id, data, mappings);
-		}, ['registry', 'marketing', 'admin']);
+				return this.repo.updateWithMappings(
+					id,
+					data,
+					mappings,
+					this.buildAuditOptions(session, 'update')
+				);
+			},
+			['registry', 'marketing', 'admin']
+		);
 	}
 
 	override async delete(id: string) {
-		return withAuth(async () => {
-			const isInUse = await this.repo.isInUse(id);
-			if (isInUse) {
-				throw new Error(
-					'CERTIFICATE_TYPE_IN_USE: Cannot delete certificate type in use'
-				);
-			}
+		return withAuth(
+			async (session) => {
+				const isInUse = await this.repo.isInUse(id);
+				if (isInUse) {
+					throw new Error(
+						'CERTIFICATE_TYPE_IN_USE: Cannot delete certificate type in use'
+					);
+				}
 
-			await this.repo.removeById(id);
-		}, ['registry', 'marketing', 'admin']);
+				return this.repo.delete(id, this.buildAuditOptions(session, 'delete'));
+			},
+			['registry', 'marketing', 'admin']
+		);
 	}
 
 	async isInUse(id: string) {
