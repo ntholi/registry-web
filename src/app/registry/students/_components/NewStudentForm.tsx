@@ -43,8 +43,8 @@ import { useRouter } from 'nextjs-toploader/app';
 import { useMemo, useState } from 'react';
 import { getAllTerms } from '@/app/registry/terms';
 import { useActiveTerm } from '@/shared/lib/hooks/use-active-term';
-import { getCountrySelectData } from '@/shared/lib/utils/countries';
 import { formatDateToISO } from '@/shared/lib/utils/dates';
+import CountrySelect from '@/shared/ui/CountrySelect';
 import {
 	type CreateFullStudentInput,
 	createFullStudent,
@@ -100,8 +100,6 @@ export default function NewStudentForm() {
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const { activeTerm } = useActiveTerm();
 	const [termDefaultSet, setTermDefaultSet] = useState(false);
-
-	const countries = useMemo(() => getCountrySelectData(), []);
 
 	const form = useForm<FormValues>({
 		initialValues: {
@@ -281,10 +279,10 @@ export default function NewStudentForm() {
 				allowNextStepsSelect={false}
 			>
 				<Stepper.Step label='Personal Info' icon={<IconUser size='1.1rem' />}>
-					<PersonalInfoStep form={form} countries={countries} />
+					<PersonalInfoStep form={form} />
 				</Stepper.Step>
 				<Stepper.Step label='Next of Kin' icon={<IconUsers size='1.1rem' />}>
-					<NextOfKinStep form={form} countries={countries} />
+					<NextOfKinStep form={form} />
 				</Stepper.Step>
 				<Stepper.Step label='Program' icon={<IconSchool size='1.1rem' />}>
 					<ProgramStep
@@ -333,16 +331,13 @@ export default function NewStudentForm() {
 	);
 }
 
-type SelectOption = { value: string; label: string };
-
 type StepForm = ReturnType<typeof useForm<FormValues>>;
 
 type PersonalInfoProps = {
 	form: StepForm;
-	countries: SelectOption[];
 };
 
-function PersonalInfoStep({ form, countries }: PersonalInfoProps) {
+function PersonalInfoStep({ form }: PersonalInfoProps) {
 	return (
 		<Stack mt='md'>
 			<SimpleGrid cols={{ base: 1, sm: 2 }}>
@@ -397,11 +392,9 @@ function PersonalInfoStep({ form, countries }: PersonalInfoProps) {
 			</SimpleGrid>
 			<Divider label='Background' labelPosition='left' />
 			<SimpleGrid cols={{ base: 1, sm: 2 }}>
-				<Select
+				<CountrySelect
 					label='Country'
 					placeholder='Select country'
-					searchable
-					data={countries}
 					{...form.getInputProps('country')}
 				/>
 				<TextInput
@@ -433,10 +426,9 @@ function PersonalInfoStep({ form, countries }: PersonalInfoProps) {
 
 type NextOfKinProps = {
 	form: StepForm;
-	countries: SelectOption[];
 };
 
-function NextOfKinStep({ form, countries }: NextOfKinProps) {
+function NextOfKinStep({ form }: NextOfKinProps) {
 	const [draft, setDraft] = useState<NextOfKinEntry>({ ...EMPTY_KIN });
 	const [editIndex, setEditIndex] = useState<number | null>(null);
 
@@ -514,11 +506,9 @@ function NextOfKinStep({ form, countries }: NextOfKinProps) {
 					value={draft.address}
 					onChange={(e) => updateDraft('address', e.currentTarget.value)}
 				/>
-				<Select
+				<CountrySelect
 					label='Country'
 					placeholder='Select country'
-					searchable
-					data={countries}
 					value={draft.country || null}
 					onChange={(v) => updateDraft('country', v || '')}
 				/>
