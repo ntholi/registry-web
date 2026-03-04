@@ -36,6 +36,11 @@ const connectionString =
 		? process.env.DATABASE_REMOTE_URL!
 		: process.env.DATABASE_LOCAL_URL!;
 
+const isScriptRuntime = /[\\/]scripts[\\/]/.test(process.argv[1] ?? '');
+const remoteDriver = process.env.DATABASE_REMOTE_DRIVER || 'neon';
+const useNodeDriver =
+	databaseEnv !== 'remote' || isScriptRuntime || remoteDriver === 'node';
+
 const neonDb = drizzleNeon(new NeonPool({ connectionString }), {
 	schema,
 	casing: 'snake_case',
@@ -46,7 +51,7 @@ const nodeDb = drizzleNode(new NodePool({ connectionString }), {
 	casing: 'snake_case',
 });
 
-const db = databaseEnv === 'remote' ? neonDb : nodeDb;
+const db = useNodeDriver ? nodeDb : neonDb;
 
 export { db };
 
