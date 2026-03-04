@@ -42,6 +42,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'nextjs-toploader/app';
 import { useMemo, useState } from 'react';
 import { getAllTerms } from '@/app/registry/terms';
+import { useActiveTerm } from '@/shared/lib/hooks/use-active-term';
 import { getCountries } from '@/shared/lib/utils/countries';
 import { formatDateToISO } from '@/shared/lib/utils/dates';
 import {
@@ -80,7 +81,6 @@ interface FormValues {
 	regDate: Date | null;
 	startTerm: string;
 	programStatus: string;
-	stream: string;
 }
 
 const EMPTY_KIN: NextOfKinEntry = {
@@ -98,6 +98,8 @@ export default function NewStudentForm() {
 	const queryClient = useQueryClient();
 	const [active, setActive] = useState(0);
 	const [isSubmitting, setIsSubmitting] = useState(false);
+	const { activeTerm } = useActiveTerm();
+	const [termDefaultSet, setTermDefaultSet] = useState(false);
 
 	const countries = useMemo(() => getCountries(), []);
 
@@ -123,7 +125,6 @@ export default function NewStudentForm() {
 			regDate: new Date(),
 			startTerm: '',
 			programStatus: 'Active',
-			stream: '',
 		},
 		validate: (values) => {
 			if (active === 0) {
@@ -146,6 +147,11 @@ export default function NewStudentForm() {
 			return {};
 		},
 	});
+
+	if (activeTerm?.code && !termDefaultSet) {
+		form.setFieldValue('startTerm', activeTerm.code);
+		setTermDefaultSet(true);
+	}
 
 	const selectedSchoolId = useMemo(() => {
 		const val = Number(form.values.schoolId);
@@ -242,7 +248,7 @@ export default function NewStudentForm() {
 					intakeDate: formatDateToISO(v.intakeDate) || null,
 					regDate: formatDateToISO(v.regDate) || null,
 					startTerm: v.startTerm || null,
-					stream: v.stream || null,
+					stream: null,
 				},
 			};
 
@@ -700,13 +706,6 @@ function ProgramStep({
 					clearable
 					data={termsData}
 					{...form.getInputProps('startTerm')}
-				/>
-			</SimpleGrid>
-			<SimpleGrid cols={{ base: 1, sm: 2 }}>
-				<TextInput
-					label='Stream'
-					placeholder='e.g. Full-time'
-					{...form.getInputProps('stream')}
 				/>
 			</SimpleGrid>
 		</Stack>
