@@ -84,8 +84,7 @@ export default function SponsorInput({
 	const hasValidReceipts = tuitionFeeReceipts.filter(Boolean).length > 0;
 
 	useEffect(() => {
-		const isValid = !requiresReceipt || hasValidReceipts;
-		onReceiptValidationChange?.(isValid);
+		onReceiptValidationChange?.(!requiresReceipt || hasValidReceipts);
 	}, [requiresReceipt, hasValidReceipts, onReceiptValidationChange]);
 
 	const handleAddTuitionReceipt = () => {
@@ -171,8 +170,8 @@ export default function SponsorInput({
 							<Title order={5}>Payment Receipts</Title>
 							<Text size='sm' c='dimmed'>
 								{selfSponsored
-									? 'Payment receipts for tuition and/or repeat modules (required).'
-									: 'Payment receipts for repeat modules (required).'}
+									? 'Payment receipts for tuition and/or repeat modules.'
+									: 'Payment receipts for repeat modules.'}
 							</Text>
 						</div>
 
