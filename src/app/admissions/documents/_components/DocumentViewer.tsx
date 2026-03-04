@@ -18,6 +18,12 @@ type Props = {
 	onRotationChange?: (rotation: number) => void;
 };
 
+function isPdfSource(src: string, alt: string): boolean {
+	const cleanSrc = src.split('#')[0]?.split('?')[0]?.toLowerCase() ?? '';
+	const cleanAlt = alt.toLowerCase();
+	return cleanSrc.endsWith('.pdf') || cleanAlt.endsWith('.pdf');
+}
+
 export default function DocumentViewer({
 	src,
 	alt = 'Document',
@@ -25,6 +31,7 @@ export default function DocumentViewer({
 	withBorder = true,
 	onRotationChange,
 }: Props) {
+	const isPdf = isPdfSource(src, alt);
 	const [scale, setScale] = useState(1);
 	const [rotation, setRotation] = useState(initialRotation);
 	const [position, setPosition] = useState({ x: 0, y: 0 });
@@ -57,15 +64,17 @@ export default function DocumentViewer({
 
 	const handleWheel = useCallback(
 		(e: React.WheelEvent) => {
+			if (isPdf) return;
 			e.preventDefault();
 			if (e.deltaY < 0) zoomIn();
 			else zoomOut();
 		},
-		[zoomIn, zoomOut]
+		[isPdf, zoomIn, zoomOut]
 	);
 
 	const handleMouseDown = useCallback(
 		(e: React.MouseEvent) => {
+			if (isPdf) return;
 			if (scale <= 1) return;
 			setDragging(true);
 			dragStart.current = {
@@ -73,7 +82,7 @@ export default function DocumentViewer({
 				y: e.clientY - position.y,
 			};
 		},
-		[scale, position]
+		[isPdf, scale, position]
 	);
 
 	const handleMouseMove = useCallback(
@@ -90,6 +99,7 @@ export default function DocumentViewer({
 	const handleMouseUp = useCallback(() => setDragging(false), []);
 
 	const zoomPercent = Math.round(scale * 100);
+	const transform = `translate(${position.x}px, ${position.y}px) scale(${scale}) rotate(${rotation}deg)`;
 
 	return (
 		<Paper
@@ -158,7 +168,8 @@ export default function DocumentViewer({
 				style={{
 					flex: 1,
 					overflow: 'hidden',
-					cursor: scale > 1 ? (dragging ? 'grabbing' : 'grab') : 'default',
+					cursor:
+						!isPdf && scale > 1 ? (dragging ? 'grabbing' : 'grab') : 'default',
 					display: 'flex',
 					alignItems: 'center',
 					justifyContent: 'center',
@@ -167,21 +178,39 @@ export default function DocumentViewer({
 					position: 'relative',
 				}}
 			>
-				<Image
-					src={src}
-					alt={alt}
-					fill
-					unoptimized
-					draggable={false}
-					style={{
-						maxWidth: '100%',
-						maxHeight: '100%',
-						objectFit: 'contain',
-						transform: `translate(${position.x}px, ${position.y}px) scale(${scale}) rotate(${rotation}deg)`,
-						transition: dragging ? 'none' : 'transform 0.2s ease',
-						userSelect: 'none',
-					}}
-				/>
+				{isPdf ? (
+					<Box
+						style={{
+							width: '100%',
+							height: '100%',
+							transform,
+							transition: 'transform 0.2s ease',
+							transformOrigin: 'center center',
+						}}
+					>
+						<iframe
+							src={src}
+							title={alt}
+							style={{ width: '100%', height: '100%', border: 'none' }}
+						/>
+					</Box>
+				) : (
+					<Image
+						src={src}
+						alt={alt}
+						fill
+						unoptimized
+						draggable={false}
+						style={{
+							maxWidth: '100%',
+							maxHeight: '100%',
+							objectFit: 'contain',
+							transform,
+							transition: dragging ? 'none' : 'transform 0.2s ease',
+							userSelect: 'none',
+						}}
+					/>
+				)}
 			</Box>
 		</Paper>
 	);
