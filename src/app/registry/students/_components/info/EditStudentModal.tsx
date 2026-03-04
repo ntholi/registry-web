@@ -20,6 +20,7 @@ import { gender, maritalStatusEnum, studentStatus } from '@registry/_database';
 import { IconAlertCircle, IconEdit } from '@tabler/icons-react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect, useState } from 'react';
+import { getRaceByCountry, getRaces } from '@/shared/lib/utils/countries';
 import { getReligions } from '@/shared/lib/utils/religions';
 import CountrySelect from '@/shared/ui/CountrySelect';
 import { updateStudentWithReasons } from '../../_server/actions';
@@ -249,7 +250,11 @@ export default function EditStudentModal({ student }: Props) {
 								mb='md'
 								{...form.getInputProps('country')}
 								onCountryChange={(c) => {
-									if (c) form.setFieldValue('nationality', c.nationality);
+									if (c) {
+										form.setFieldValue('nationality', c.nationality);
+										const race = getRaceByCountry(c.name);
+										if (race) form.setFieldValue('race', race);
+									}
 								}}
 							/>
 						</Tabs.Panel>
@@ -291,9 +296,12 @@ export default function EditStudentModal({ student }: Props) {
 								mb='md'
 								{...form.getInputProps('birthPlace')}
 							/>
-							<TextInput
+							<Select
 								label='Race'
-								placeholder='Enter race'
+								placeholder='Select race'
+								data={getRaces()}
+								searchable
+								clearable
 								mb='md'
 								{...form.getInputProps('race')}
 							/>

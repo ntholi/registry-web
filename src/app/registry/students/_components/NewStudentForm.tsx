@@ -44,6 +44,7 @@ import { useRouter } from 'nextjs-toploader/app';
 import { useMemo, useState } from 'react';
 import { getAllTerms } from '@/app/registry/terms';
 import { useActiveTerm } from '@/shared/lib/hooks/use-active-term';
+import { getRaceByCountry, getRaces } from '@/shared/lib/utils/countries';
 import { formatDateToISO } from '@/shared/lib/utils/dates';
 import { getReligions } from '@/shared/lib/utils/religions';
 import CountrySelect from '@/shared/ui/CountrySelect';
@@ -397,7 +398,11 @@ function PersonalInfoStep({ form }: PersonalInfoProps) {
 					placeholder='Select country'
 					{...form.getInputProps('country')}
 					onCountryChange={(c) => {
-						if (c) form.setFieldValue('nationality', c.nationality);
+						if (c) {
+							form.setFieldValue('nationality', c.nationality);
+							const race = getRaceByCountry(c.name);
+							if (race) form.setFieldValue('race', race);
+						}
 					}}
 				/>
 				<TextInput
@@ -420,9 +425,12 @@ function PersonalInfoStep({ form }: PersonalInfoProps) {
 					clearable
 					{...form.getInputProps('religion')}
 				/>
-				<TextInput
+				<Select
 					label='Race'
-					placeholder='e.g. African'
+					placeholder='Select race'
+					data={getRaces()}
+					searchable
+					clearable
 					{...form.getInputProps('race')}
 				/>
 			</SimpleGrid>
