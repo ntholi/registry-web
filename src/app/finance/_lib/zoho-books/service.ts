@@ -233,6 +233,11 @@ export async function createStudentContact(
 	const stdNoStr = String(input.stdNo);
 	const tags = buildTags(input);
 
+	let notes = input.programName;
+	if (input.intakeDate) {
+		notes += ` Initial Intake Year ${input.intakeDate}`;
+	}
+
 	const body: Record<string, unknown> = {
 		contact_name: input.name,
 		contact_type: 'customer',
@@ -241,6 +246,7 @@ export async function createStudentContact(
 		company_name: input.programName,
 		payment_terms: 0,
 		payment_terms_label: 'Due on Receipt',
+		notes,
 		custom_fields: [
 			{
 				field_id: ACCOUNT_CODE_FIELD_ID,
@@ -251,6 +257,7 @@ export async function createStudentContact(
 
 	if (input.email) body.email = input.email;
 	if (input.phone) body.phone = input.phone;
+	if (input.mobile) body.mobile = input.mobile;
 	if (tags.length > 0) body.tags = tags;
 
 	try {

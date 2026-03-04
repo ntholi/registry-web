@@ -95,9 +95,11 @@ export async function createZohoContact(stdNo: number): Promise<string> {
 		programName: structure.program.name ?? '',
 		email: sanitizeEmail(student.user?.email),
 		phone: student.phone1?.trim() || null,
+		mobile: student.phone2?.trim() || null,
 		schoolCode: school?.code ?? null,
 		programCode: structure.program.code ?? null,
 		sponsorCode: sponsor?.code ?? null,
+		intakeDate: program.intakeDate ?? null,
 	};
 
 	const contact = await createStudentContact(input);

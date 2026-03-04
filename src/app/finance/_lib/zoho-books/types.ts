@@ -235,9 +235,11 @@ export interface CreateStudentContactInput {
 	programName: string;
 	email: string | null;
 	phone: string | null;
+	mobile: string | null;
 	schoolCode: string | null;
 	programCode: string | null;
 	sponsorCode: string | null;
+	intakeDate: string | null;
 }
 
 export interface ZohoCreateContactResponse {
