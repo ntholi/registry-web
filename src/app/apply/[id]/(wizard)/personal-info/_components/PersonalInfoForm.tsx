@@ -17,6 +17,7 @@ import { notifications } from '@mantine/notifications';
 import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'nextjs-toploader/app';
 import { getCountries } from '@/shared/lib/utils/countries';
+import { getReligions } from '@/shared/lib/utils/religions';
 import WizardNavigation from '../../_components/WizardNavigation';
 import { updateApplicantInfo } from '../_server/actions';
 import GuardianManager from './GuardianManager';
@@ -129,9 +130,12 @@ export default function PersonalInfoForm({ applicationId }: Props) {
 								key={form.key('birthPlace')}
 								{...form.getInputProps('birthPlace')}
 							/>
-							<TextInput
+							<Select
 								label='Religion'
-								placeholder='Enter religion'
+								placeholder='Select religion'
+								data={getReligions()}
+								searchable
+								clearable
 								key={form.key('religion')}
 								{...form.getInputProps('religion')}
 							/>

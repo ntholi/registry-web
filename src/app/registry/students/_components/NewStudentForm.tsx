@@ -45,6 +45,7 @@ import { useMemo, useState } from 'react';
 import { getAllTerms } from '@/app/registry/terms';
 import { useActiveTerm } from '@/shared/lib/hooks/use-active-term';
 import { formatDateToISO } from '@/shared/lib/utils/dates';
+import { getReligions } from '@/shared/lib/utils/religions';
 import CountrySelect from '@/shared/ui/CountrySelect';
 import {
 	type CreateFullStudentInput,
@@ -411,9 +412,12 @@ function PersonalInfoStep({ form }: PersonalInfoProps) {
 					placeholder='e.g. Maseru'
 					{...form.getInputProps('birthPlace')}
 				/>
-				<TextInput
+				<Select
 					label='Religion'
-					placeholder='e.g. Christian'
+					placeholder='e.g. Christianity'
+					data={getReligions()}
+					searchable
+					clearable
 					{...form.getInputProps('religion')}
 				/>
 				<TextInput

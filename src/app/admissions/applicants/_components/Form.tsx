@@ -6,6 +6,7 @@ import { DateInput } from '@mantine/dates';
 import { createInsertSchema } from 'drizzle-zod';
 import { useRouter } from 'nextjs-toploader/app';
 import type { RefObject } from 'react';
+import { getReligions } from '@/shared/lib/utils/religions';
 import { Form } from '@/shared/ui/adease';
 import type { Applicant } from '../_lib/types';
 
@@ -82,9 +83,12 @@ export default function ApplicantForm({
 						placeholder='Enter birth place'
 						{...form.getInputProps('birthPlace')}
 					/>
-					<TextInput
+					<Select
 						label='Religion'
-						placeholder='Enter religion'
+						placeholder='Select religion'
+						data={getReligions()}
+						searchable
+						clearable
 						{...form.getInputProps('religion')}
 					/>
 					<Textarea

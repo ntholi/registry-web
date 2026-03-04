@@ -5,6 +5,7 @@ import { DateInput } from '@mantine/dates';
 import { students } from '@registry/_database';
 import { createInsertSchema } from 'drizzle-zod';
 import { useRouter } from 'nextjs-toploader/app';
+import { getReligions } from '@/shared/lib/utils/religions';
 import { Form } from '@/shared/ui/adease';
 
 type Student = typeof students.$inferInsert;
@@ -42,7 +43,13 @@ export default function StudentForm({ onSubmit, defaultValues, title }: Props) {
 					<TextInput label='Name' {...form.getInputProps('name')} />
 					<TextInput label='Phone 1' {...form.getInputProps('phone1')} />
 					<TextInput label='Phone 2' {...form.getInputProps('phone2')} />
-					<TextInput label='Religion' {...form.getInputProps('religion')} />
+					<Select
+						label='Religion'
+						data={getReligions()}
+						searchable
+						clearable
+						{...form.getInputProps('religion')}
+					/>
 					<DateInput
 						label='Date of Birth'
 						{...form.getInputProps('dateOfBirth')}
