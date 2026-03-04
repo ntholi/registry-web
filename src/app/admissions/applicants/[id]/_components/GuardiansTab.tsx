@@ -270,7 +270,6 @@ export default function GuardiansTab({ guardians }: Props) {
 							label='Full Name'
 							required
 							{...form.getInputProps('name')}
-							placeholder='e.g. John Doe'
 						/>
 						<Select
 							label='Relationship'

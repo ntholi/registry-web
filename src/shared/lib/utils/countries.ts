@@ -5,6 +5,7 @@ interface CountryMeta {
 	phoneCode: string;
 	flag: string;
 	continent: string;
+	nationality: string;
 }
 
 const COUNTRY_DATA: CountryMeta[] = [
@@ -15,6 +16,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+93',
 		flag: '🇦🇫',
 		continent: 'Asia',
+		nationality: 'Afghan',
 	},
 	{
 		name: 'Albania',
@@ -23,6 +25,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+355',
 		flag: '🇦🇱',
 		continent: 'Europe',
+		nationality: 'Albanian',
 	},
 	{
 		name: 'Algeria',
@@ -31,6 +34,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+213',
 		flag: '🇩🇿',
 		continent: 'Africa',
+		nationality: 'Algerian',
 	},
 	{
 		name: 'Andorra',
@@ -39,6 +43,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+376',
 		flag: '🇦🇩',
 		continent: 'Europe',
+		nationality: 'Andorran',
 	},
 	{
 		name: 'Angola',
@@ -47,6 +52,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+244',
 		flag: '🇦🇴',
 		continent: 'Africa',
+		nationality: 'Angolan',
 	},
 	{
 		name: 'Antigua and Barbuda',
@@ -55,6 +61,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+1-268',
 		flag: '🇦🇬',
 		continent: 'North America',
+		nationality: 'Antiguan',
 	},
 	{
 		name: 'Argentina',
@@ -63,6 +70,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+54',
 		flag: '🇦🇷',
 		continent: 'South America',
+		nationality: 'Argentine',
 	},
 	{
 		name: 'Armenia',
@@ -71,6 +79,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+374',
 		flag: '🇦🇲',
 		continent: 'Asia',
+		nationality: 'Armenian',
 	},
 	{
 		name: 'Australia',
@@ -79,6 +88,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+61',
 		flag: '🇦🇺',
 		continent: 'Oceania',
+		nationality: 'Australian',
 	},
 	{
 		name: 'Austria',
@@ -87,6 +97,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+43',
 		flag: '🇦🇹',
 		continent: 'Europe',
+		nationality: 'Austrian',
 	},
 	{
 		name: 'Azerbaijan',
@@ -95,6 +106,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+994',
 		flag: '🇦🇿',
 		continent: 'Asia',
+		nationality: 'Azerbaijani',
 	},
 	{
 		name: 'Bahamas',
@@ -103,6 +115,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+1-242',
 		flag: '🇧🇸',
 		continent: 'North America',
+		nationality: 'Bahamian',
 	},
 	{
 		name: 'Bahrain',
@@ -111,6 +124,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+973',
 		flag: '🇧🇭',
 		continent: 'Asia',
+		nationality: 'Bahraini',
 	},
 	{
 		name: 'Bangladesh',
@@ -119,6 +133,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+880',
 		flag: '🇧🇩',
 		continent: 'Asia',
+		nationality: 'Bangladeshi',
 	},
 	{
 		name: 'Barbados',
@@ -127,6 +142,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+1-246',
 		flag: '🇧🇧',
 		continent: 'North America',
+		nationality: 'Barbadian',
 	},
 	{
 		name: 'Belarus',
@@ -135,6 +151,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+375',
 		flag: '🇧🇾',
 		continent: 'Europe',
+		nationality: 'Belarusian',
 	},
 	{
 		name: 'Belgium',
@@ -143,6 +160,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+32',
 		flag: '🇧🇪',
 		continent: 'Europe',
+		nationality: 'Belgian',
 	},
 	{
 		name: 'Belize',
@@ -151,6 +169,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+501',
 		flag: '🇧🇿',
 		continent: 'North America',
+		nationality: 'Belizean',
 	},
 	{
 		name: 'Benin',
@@ -159,6 +178,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+229',
 		flag: '🇧🇯',
 		continent: 'Africa',
+		nationality: 'Beninese',
 	},
 	{
 		name: 'Bhutan',
@@ -167,6 +187,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+975',
 		flag: '🇧🇹',
 		continent: 'Asia',
+		nationality: 'Bhutanese',
 	},
 	{
 		name: 'Bolivia',
@@ -175,6 +196,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+591',
 		flag: '🇧🇴',
 		continent: 'South America',
+		nationality: 'Bolivian',
 	},
 	{
 		name: 'Bosnia and Herzegovina',
@@ -183,6 +205,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+387',
 		flag: '🇧🇦',
 		continent: 'Europe',
+		nationality: 'Bosnian',
 	},
 	{
 		name: 'Botswana',
@@ -191,6 +214,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+267',
 		flag: '🇧🇼',
 		continent: 'Africa',
+		nationality: 'Motswana',
 	},
 	{
 		name: 'Brazil',
@@ -199,6 +223,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+55',
 		flag: '🇧🇷',
 		continent: 'South America',
+		nationality: 'Brazilian',
 	},
 	{
 		name: 'Brunei',
@@ -207,6 +232,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+673',
 		flag: '🇧🇳',
 		continent: 'Asia',
+		nationality: 'Bruneian',
 	},
 	{
 		name: 'Bulgaria',
@@ -215,6 +241,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+359',
 		flag: '🇧🇬',
 		continent: 'Europe',
+		nationality: 'Bulgarian',
 	},
 	{
 		name: 'Burkina Faso',
@@ -223,6 +250,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+226',
 		flag: '🇧🇫',
 		continent: 'Africa',
+		nationality: 'Burkinabe',
 	},
 	{
 		name: 'Burundi',
@@ -231,6 +259,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+257',
 		flag: '🇧🇮',
 		continent: 'Africa',
+		nationality: 'Burundian',
 	},
 	{
 		name: 'Cabo Verde',
@@ -239,6 +268,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+238',
 		flag: '🇨🇻',
 		continent: 'Africa',
+		nationality: 'Cape Verdean',
 	},
 	{
 		name: 'Cambodia',
@@ -247,6 +277,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+855',
 		flag: '🇰🇭',
 		continent: 'Asia',
+		nationality: 'Cambodian',
 	},
 	{
 		name: 'Cameroon',
@@ -255,6 +286,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+237',
 		flag: '🇨🇲',
 		continent: 'Africa',
+		nationality: 'Cameroonian',
 	},
 	{
 		name: 'Canada',
@@ -263,6 +295,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+1',
 		flag: '🇨🇦',
 		continent: 'North America',
+		nationality: 'Canadian',
 	},
 	{
 		name: 'Central African Republic',
@@ -271,6 +304,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+236',
 		flag: '🇨🇫',
 		continent: 'Africa',
+		nationality: 'Central African',
 	},
 	{
 		name: 'Chad',
@@ -279,6 +313,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+235',
 		flag: '🇹🇩',
 		continent: 'Africa',
+		nationality: 'Chadian',
 	},
 	{
 		name: 'Chile',
@@ -287,6 +322,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+56',
 		flag: '🇨🇱',
 		continent: 'South America',
+		nationality: 'Chilean',
 	},
 	{
 		name: 'China',
@@ -295,6 +331,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+86',
 		flag: '🇨🇳',
 		continent: 'Asia',
+		nationality: 'Chinese',
 	},
 	{
 		name: 'Colombia',
@@ -303,6 +340,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+57',
 		flag: '🇨🇴',
 		continent: 'South America',
+		nationality: 'Colombian',
 	},
 	{
 		name: 'Comoros',
@@ -311,6 +349,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+269',
 		flag: '🇰🇲',
 		continent: 'Africa',
+		nationality: 'Comorian',
 	},
 	{
 		name: 'Congo',
@@ -319,6 +358,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+242',
 		flag: '🇨🇬',
 		continent: 'Africa',
+		nationality: 'Congolese',
 	},
 	{
 		name: 'Costa Rica',
@@ -327,6 +367,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+506',
 		flag: '🇨🇷',
 		continent: 'North America',
+		nationality: 'Costa Rican',
 	},
 	{
 		name: 'Croatia',
@@ -335,6 +376,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+385',
 		flag: '🇭🇷',
 		continent: 'Europe',
+		nationality: 'Croatian',
 	},
 	{
 		name: 'Cuba',
@@ -343,6 +385,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+53',
 		flag: '🇨🇺',
 		continent: 'North America',
+		nationality: 'Cuban',
 	},
 	{
 		name: 'Cyprus',
@@ -351,6 +394,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+357',
 		flag: '🇨🇾',
 		continent: 'Europe',
+		nationality: 'Cypriot',
 	},
 	{
 		name: 'Czech Republic',
@@ -359,6 +403,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+420',
 		flag: '🇨🇿',
 		continent: 'Europe',
+		nationality: 'Czech',
 	},
 	{
 		name: 'DR Congo',
@@ -367,6 +412,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+243',
 		flag: '🇨🇩',
 		continent: 'Africa',
+		nationality: 'Congolese',
 	},
 	{
 		name: 'Denmark',
@@ -375,6 +421,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+45',
 		flag: '🇩🇰',
 		continent: 'Europe',
+		nationality: 'Danish',
 	},
 	{
 		name: 'Djibouti',
@@ -383,6 +430,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+253',
 		flag: '🇩🇯',
 		continent: 'Africa',
+		nationality: 'Djiboutian',
 	},
 	{
 		name: 'Dominica',
@@ -391,6 +439,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+1-767',
 		flag: '🇩🇲',
 		continent: 'North America',
+		nationality: 'Dominican',
 	},
 	{
 		name: 'Dominican Republic',
@@ -399,6 +448,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+1-809',
 		flag: '🇩🇴',
 		continent: 'North America',
+		nationality: 'Dominican',
 	},
 	{
 		name: 'Ecuador',
@@ -407,6 +457,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+593',
 		flag: '🇪🇨',
 		continent: 'South America',
+		nationality: 'Ecuadorian',
 	},
 	{
 		name: 'Egypt',
@@ -415,6 +466,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+20',
 		flag: '🇪🇬',
 		continent: 'Africa',
+		nationality: 'Egyptian',
 	},
 	{
 		name: 'El Salvador',
@@ -423,6 +475,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+503',
 		flag: '🇸🇻',
 		continent: 'North America',
+		nationality: 'Salvadoran',
 	},
 	{
 		name: 'Equatorial Guinea',
@@ -431,6 +484,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+240',
 		flag: '🇬🇶',
 		continent: 'Africa',
+		nationality: 'Equatoguinean',
 	},
 	{
 		name: 'Eritrea',
@@ -439,6 +493,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+291',
 		flag: '🇪🇷',
 		continent: 'Africa',
+		nationality: 'Eritrean',
 	},
 	{
 		name: 'Estonia',
@@ -447,6 +502,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+372',
 		flag: '🇪🇪',
 		continent: 'Europe',
+		nationality: 'Estonian',
 	},
 	{
 		name: 'Eswatini',
@@ -455,6 +511,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+268',
 		flag: '🇸🇿',
 		continent: 'Africa',
+		nationality: 'Liswati',
 	},
 	{
 		name: 'Ethiopia',
@@ -463,6 +520,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+251',
 		flag: '🇪🇹',
 		continent: 'Africa',
+		nationality: 'Ethiopian',
 	},
 	{
 		name: 'Fiji',
@@ -471,6 +529,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+679',
 		flag: '🇫🇯',
 		continent: 'Oceania',
+		nationality: 'Fijian',
 	},
 	{
 		name: 'Finland',
@@ -479,6 +538,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+358',
 		flag: '🇫🇮',
 		continent: 'Europe',
+		nationality: 'Finnish',
 	},
 	{
 		name: 'France',
@@ -487,6 +547,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+33',
 		flag: '🇫🇷',
 		continent: 'Europe',
+		nationality: 'French',
 	},
 	{
 		name: 'Gabon',
@@ -495,6 +556,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+241',
 		flag: '🇬🇦',
 		continent: 'Africa',
+		nationality: 'Gabonese',
 	},
 	{
 		name: 'Gambia',
@@ -503,6 +565,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+220',
 		flag: '🇬🇲',
 		continent: 'Africa',
+		nationality: 'Gambian',
 	},
 	{
 		name: 'Georgia',
@@ -511,6 +574,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+995',
 		flag: '🇬🇪',
 		continent: 'Asia',
+		nationality: 'Georgian',
 	},
 	{
 		name: 'Germany',
@@ -519,6 +583,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+49',
 		flag: '🇩🇪',
 		continent: 'Europe',
+		nationality: 'German',
 	},
 	{
 		name: 'Ghana',
@@ -527,6 +592,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+233',
 		flag: '🇬🇭',
 		continent: 'Africa',
+		nationality: 'Ghanaian',
 	},
 	{
 		name: 'Greece',
@@ -535,6 +601,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+30',
 		flag: '🇬🇷',
 		continent: 'Europe',
+		nationality: 'Greek',
 	},
 	{
 		name: 'Grenada',
@@ -543,6 +610,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+1-473',
 		flag: '🇬🇩',
 		continent: 'North America',
+		nationality: 'Grenadian',
 	},
 	{
 		name: 'Guatemala',
@@ -551,6 +619,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+502',
 		flag: '🇬🇹',
 		continent: 'North America',
+		nationality: 'Guatemalan',
 	},
 	{
 		name: 'Guinea',
@@ -559,6 +628,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+224',
 		flag: '🇬🇳',
 		continent: 'Africa',
+		nationality: 'Guinean',
 	},
 	{
 		name: 'Guinea-Bissau',
@@ -567,6 +637,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+245',
 		flag: '🇬🇼',
 		continent: 'Africa',
+		nationality: 'Bissau-Guinean',
 	},
 	{
 		name: 'Guyana',
@@ -575,6 +646,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+592',
 		flag: '🇬🇾',
 		continent: 'South America',
+		nationality: 'Guyanese',
 	},
 	{
 		name: 'Haiti',
@@ -583,6 +655,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+509',
 		flag: '🇭🇹',
 		continent: 'North America',
+		nationality: 'Haitian',
 	},
 	{
 		name: 'Honduras',
@@ -591,6 +664,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+504',
 		flag: '🇭🇳',
 		continent: 'North America',
+		nationality: 'Honduran',
 	},
 	{
 		name: 'Hungary',
@@ -599,6 +673,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+36',
 		flag: '🇭🇺',
 		continent: 'Europe',
+		nationality: 'Hungarian',
 	},
 	{
 		name: 'Iceland',
@@ -607,6 +682,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+354',
 		flag: '🇮🇸',
 		continent: 'Europe',
+		nationality: 'Icelander',
 	},
 	{
 		name: 'India',
@@ -615,6 +691,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+91',
 		flag: '🇮🇳',
 		continent: 'Asia',
+		nationality: 'Indian',
 	},
 	{
 		name: 'Indonesia',
@@ -623,6 +700,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+62',
 		flag: '🇮🇩',
 		continent: 'Asia',
+		nationality: 'Indonesian',
 	},
 	{
 		name: 'Iran',
@@ -631,6 +709,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+98',
 		flag: '🇮🇷',
 		continent: 'Asia',
+		nationality: 'Iranian',
 	},
 	{
 		name: 'Iraq',
@@ -639,6 +718,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+964',
 		flag: '🇮🇶',
 		continent: 'Asia',
+		nationality: 'Iraqi',
 	},
 	{
 		name: 'Ireland',
@@ -647,6 +727,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+353',
 		flag: '🇮🇪',
 		continent: 'Europe',
+		nationality: 'Irish',
 	},
 	{
 		name: 'Israel',
@@ -655,6 +736,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+972',
 		flag: '🇮🇱',
 		continent: 'Asia',
+		nationality: 'Israeli',
 	},
 	{
 		name: 'Italy',
@@ -663,6 +745,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+39',
 		flag: '🇮🇹',
 		continent: 'Europe',
+		nationality: 'Italian',
 	},
 	{
 		name: 'Ivory Coast',
@@ -671,6 +754,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+225',
 		flag: '🇨🇮',
 		continent: 'Africa',
+		nationality: 'Ivorian',
 	},
 	{
 		name: 'Jamaica',
@@ -679,6 +763,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+1-876',
 		flag: '🇯🇲',
 		continent: 'North America',
+		nationality: 'Jamaican',
 	},
 	{
 		name: 'Japan',
@@ -687,6 +772,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+81',
 		flag: '🇯🇵',
 		continent: 'Asia',
+		nationality: 'Japanese',
 	},
 	{
 		name: 'Jordan',
@@ -695,6 +781,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+962',
 		flag: '🇯🇴',
 		continent: 'Asia',
+		nationality: 'Jordanian',
 	},
 	{
 		name: 'Kazakhstan',
@@ -703,6 +790,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+7',
 		flag: '🇰🇿',
 		continent: 'Asia',
+		nationality: 'Kazakhstani',
 	},
 	{
 		name: 'Kenya',
@@ -711,6 +799,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+254',
 		flag: '🇰🇪',
 		continent: 'Africa',
+		nationality: 'Kenyan',
 	},
 	{
 		name: 'Kiribati',
@@ -719,6 +808,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+686',
 		flag: '🇰🇮',
 		continent: 'Oceania',
+		nationality: 'I-Kiribati',
 	},
 	{
 		name: 'Kuwait',
@@ -727,6 +817,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+965',
 		flag: '🇰🇼',
 		continent: 'Asia',
+		nationality: 'Kuwaiti',
 	},
 	{
 		name: 'Kyrgyzstan',
@@ -735,6 +826,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+996',
 		flag: '🇰🇬',
 		continent: 'Asia',
+		nationality: 'Kyrgyz',
 	},
 	{
 		name: 'Laos',
@@ -743,6 +835,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+856',
 		flag: '🇱🇦',
 		continent: 'Asia',
+		nationality: 'Laotian',
 	},
 	{
 		name: 'Latvia',
@@ -751,6 +844,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+371',
 		flag: '🇱🇻',
 		continent: 'Europe',
+		nationality: 'Latvian',
 	},
 	{
 		name: 'Lebanon',
@@ -759,6 +853,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+961',
 		flag: '🇱🇧',
 		continent: 'Asia',
+		nationality: 'Lebanese',
 	},
 	{
 		name: 'Lesotho',
@@ -767,6 +862,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+266',
 		flag: '🇱🇸',
 		continent: 'Africa',
+		nationality: 'Mosotho',
 	},
 	{
 		name: 'Liberia',
@@ -775,6 +871,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+231',
 		flag: '🇱🇷',
 		continent: 'Africa',
+		nationality: 'Liberian',
 	},
 	{
 		name: 'Libya',
@@ -783,6 +880,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+218',
 		flag: '🇱🇾',
 		continent: 'Africa',
+		nationality: 'Libyan',
 	},
 	{
 		name: 'Liechtenstein',
@@ -791,6 +889,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+423',
 		flag: '🇱🇮',
 		continent: 'Europe',
+		nationality: 'Liechtensteiner',
 	},
 	{
 		name: 'Lithuania',
@@ -799,6 +898,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+370',
 		flag: '🇱🇹',
 		continent: 'Europe',
+		nationality: 'Lithuanian',
 	},
 	{
 		name: 'Luxembourg',
@@ -807,6 +907,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+352',
 		flag: '🇱🇺',
 		continent: 'Europe',
+		nationality: 'Luxembourger',
 	},
 	{
 		name: 'Madagascar',
@@ -815,6 +916,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+261',
 		flag: '🇲🇬',
 		continent: 'Africa',
+		nationality: 'Malagasy',
 	},
 	{
 		name: 'Malawi',
@@ -823,6 +925,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+265',
 		flag: '🇲🇼',
 		continent: 'Africa',
+		nationality: 'Malawian',
 	},
 	{
 		name: 'Malaysia',
@@ -831,6 +934,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+60',
 		flag: '🇲🇾',
 		continent: 'Asia',
+		nationality: 'Malaysian',
 	},
 	{
 		name: 'Maldives',
@@ -839,6 +943,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+960',
 		flag: '🇲🇻',
 		continent: 'Asia',
+		nationality: 'Maldivian',
 	},
 	{
 		name: 'Mali',
@@ -847,6 +952,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+223',
 		flag: '🇲🇱',
 		continent: 'Africa',
+		nationality: 'Malian',
 	},
 	{
 		name: 'Malta',
@@ -855,6 +961,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+356',
 		flag: '🇲🇹',
 		continent: 'Europe',
+		nationality: 'Maltese',
 	},
 	{
 		name: 'Marshall Islands',
@@ -863,6 +970,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+692',
 		flag: '🇲🇭',
 		continent: 'Oceania',
+		nationality: 'Marshallese',
 	},
 	{
 		name: 'Mauritania',
@@ -871,6 +979,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+222',
 		flag: '🇲🇷',
 		continent: 'Africa',
+		nationality: 'Mauritanian',
 	},
 	{
 		name: 'Mauritius',
@@ -879,6 +988,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+230',
 		flag: '🇲🇺',
 		continent: 'Africa',
+		nationality: 'Mauritian',
 	},
 	{
 		name: 'Mexico',
@@ -887,6 +997,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+52',
 		flag: '🇲🇽',
 		continent: 'North America',
+		nationality: 'Mexican',
 	},
 	{
 		name: 'Micronesia',
@@ -895,6 +1006,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+691',
 		flag: '🇫🇲',
 		continent: 'Oceania',
+		nationality: 'Micronesian',
 	},
 	{
 		name: 'Moldova',
@@ -903,6 +1015,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+373',
 		flag: '🇲🇩',
 		continent: 'Europe',
+		nationality: 'Moldovan',
 	},
 	{
 		name: 'Monaco',
@@ -911,6 +1024,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+377',
 		flag: '🇲🇨',
 		continent: 'Europe',
+		nationality: 'Monegasque',
 	},
 	{
 		name: 'Mongolia',
@@ -919,6 +1033,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+976',
 		flag: '🇲🇳',
 		continent: 'Asia',
+		nationality: 'Mongolian',
 	},
 	{
 		name: 'Montenegro',
@@ -927,6 +1042,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+382',
 		flag: '🇲🇪',
 		continent: 'Europe',
+		nationality: 'Montenegrin',
 	},
 	{
 		name: 'Morocco',
@@ -935,6 +1051,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+212',
 		flag: '🇲🇦',
 		continent: 'Africa',
+		nationality: 'Moroccan',
 	},
 	{
 		name: 'Mozambique',
@@ -943,6 +1060,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+258',
 		flag: '🇲🇿',
 		continent: 'Africa',
+		nationality: 'Mozambican',
 	},
 	{
 		name: 'Myanmar',
@@ -951,6 +1069,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+95',
 		flag: '🇲🇲',
 		continent: 'Asia',
+		nationality: 'Burmese',
 	},
 	{
 		name: 'Namibia',
@@ -959,6 +1078,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+264',
 		flag: '🇳🇦',
 		continent: 'Africa',
+		nationality: 'Namibian',
 	},
 	{
 		name: 'Nauru',
@@ -967,6 +1087,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+674',
 		flag: '🇳🇷',
 		continent: 'Oceania',
+		nationality: 'Nauruan',
 	},
 	{
 		name: 'Nepal',
@@ -975,6 +1096,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+977',
 		flag: '🇳🇵',
 		continent: 'Asia',
+		nationality: 'Nepali',
 	},
 	{
 		name: 'Netherlands',
@@ -983,6 +1105,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+31',
 		flag: '🇳🇱',
 		continent: 'Europe',
+		nationality: 'Dutch',
 	},
 	{
 		name: 'New Zealand',
@@ -991,6 +1114,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+64',
 		flag: '🇳🇿',
 		continent: 'Oceania',
+		nationality: 'New Zealander',
 	},
 	{
 		name: 'Nicaragua',
@@ -999,6 +1123,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+505',
 		flag: '🇳🇮',
 		continent: 'North America',
+		nationality: 'Nicaraguan',
 	},
 	{
 		name: 'Niger',
@@ -1007,6 +1132,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+227',
 		flag: '🇳🇪',
 		continent: 'Africa',
+		nationality: 'Nigerien',
 	},
 	{
 		name: 'Nigeria',
@@ -1015,6 +1141,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+234',
 		flag: '🇳🇬',
 		continent: 'Africa',
+		nationality: 'Nigerian',
 	},
 	{
 		name: 'North Korea',
@@ -1023,6 +1150,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+850',
 		flag: '🇰🇵',
 		continent: 'Asia',
+		nationality: 'North Korean',
 	},
 	{
 		name: 'North Macedonia',
@@ -1031,6 +1159,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+389',
 		flag: '🇲🇰',
 		continent: 'Europe',
+		nationality: 'Macedonian',
 	},
 	{
 		name: 'Norway',
@@ -1039,6 +1168,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+47',
 		flag: '🇳🇴',
 		continent: 'Europe',
+		nationality: 'Norwegian',
 	},
 	{
 		name: 'Oman',
@@ -1047,6 +1177,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+968',
 		flag: '🇴🇲',
 		continent: 'Asia',
+		nationality: 'Omani',
 	},
 	{
 		name: 'Pakistan',
@@ -1055,6 +1186,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+92',
 		flag: '🇵🇰',
 		continent: 'Asia',
+		nationality: 'Pakistani',
 	},
 	{
 		name: 'Palau',
@@ -1063,6 +1195,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+680',
 		flag: '🇵🇼',
 		continent: 'Oceania',
+		nationality: 'Palauan',
 	},
 	{
 		name: 'Palestine',
@@ -1071,6 +1204,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+970',
 		flag: '🇵🇸',
 		continent: 'Asia',
+		nationality: 'Palestinian',
 	},
 	{
 		name: 'Panama',
@@ -1079,6 +1213,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+507',
 		flag: '🇵🇦',
 		continent: 'North America',
+		nationality: 'Panamanian',
 	},
 	{
 		name: 'Papua New Guinea',
@@ -1087,6 +1222,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+675',
 		flag: '🇵🇬',
 		continent: 'Oceania',
+		nationality: 'Papua New Guinean',
 	},
 	{
 		name: 'Paraguay',
@@ -1095,6 +1231,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+595',
 		flag: '🇵🇾',
 		continent: 'South America',
+		nationality: 'Paraguayan',
 	},
 	{
 		name: 'Peru',
@@ -1103,6 +1240,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+51',
 		flag: '🇵🇪',
 		continent: 'South America',
+		nationality: 'Peruvian',
 	},
 	{
 		name: 'Philippines',
@@ -1111,6 +1249,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+63',
 		flag: '🇵🇭',
 		continent: 'Asia',
+		nationality: 'Filipino',
 	},
 	{
 		name: 'Poland',
@@ -1119,6 +1258,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+48',
 		flag: '🇵🇱',
 		continent: 'Europe',
+		nationality: 'Polish',
 	},
 	{
 		name: 'Portugal',
@@ -1127,6 +1267,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+351',
 		flag: '🇵🇹',
 		continent: 'Europe',
+		nationality: 'Portuguese',
 	},
 	{
 		name: 'Qatar',
@@ -1135,6 +1276,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+974',
 		flag: '🇶🇦',
 		continent: 'Asia',
+		nationality: 'Qatari',
 	},
 	{
 		name: 'Romania',
@@ -1143,6 +1285,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+40',
 		flag: '🇷🇴',
 		continent: 'Europe',
+		nationality: 'Romanian',
 	},
 	{
 		name: 'Russia',
@@ -1151,6 +1294,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+7',
 		flag: '🇷🇺',
 		continent: 'Europe',
+		nationality: 'Russian',
 	},
 	{
 		name: 'Rwanda',
@@ -1159,6 +1303,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+250',
 		flag: '🇷🇼',
 		continent: 'Africa',
+		nationality: 'Rwandan',
 	},
 	{
 		name: 'Saint Kitts and Nevis',
@@ -1167,6 +1312,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+1-869',
 		flag: '🇰🇳',
 		continent: 'North America',
+		nationality: 'Kittitian',
 	},
 	{
 		name: 'Saint Lucia',
@@ -1175,6 +1321,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+1-758',
 		flag: '🇱🇨',
 		continent: 'North America',
+		nationality: 'Saint Lucian',
 	},
 	{
 		name: 'Saint Vincent and the Grenadines',
@@ -1183,6 +1330,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+1-784',
 		flag: '🇻🇨',
 		continent: 'North America',
+		nationality: 'Vincentian',
 	},
 	{
 		name: 'Samoa',
@@ -1191,6 +1339,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+685',
 		flag: '🇼🇸',
 		continent: 'Oceania',
+		nationality: 'Samoan',
 	},
 	{
 		name: 'San Marino',
@@ -1199,6 +1348,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+378',
 		flag: '🇸🇲',
 		continent: 'Europe',
+		nationality: 'Sammarinese',
 	},
 	{
 		name: 'Sao Tome and Principe',
@@ -1207,6 +1357,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+239',
 		flag: '🇸🇹',
 		continent: 'Africa',
+		nationality: 'Sao Tomean',
 	},
 	{
 		name: 'Saudi Arabia',
@@ -1215,6 +1366,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+966',
 		flag: '🇸🇦',
 		continent: 'Asia',
+		nationality: 'Saudi',
 	},
 	{
 		name: 'Senegal',
@@ -1223,6 +1375,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+221',
 		flag: '🇸🇳',
 		continent: 'Africa',
+		nationality: 'Senegalese',
 	},
 	{
 		name: 'Serbia',
@@ -1231,6 +1384,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+381',
 		flag: '🇷🇸',
 		continent: 'Europe',
+		nationality: 'Serbian',
 	},
 	{
 		name: 'Seychelles',
@@ -1239,6 +1393,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+248',
 		flag: '🇸🇨',
 		continent: 'Africa',
+		nationality: 'Seychellois',
 	},
 	{
 		name: 'Sierra Leone',
@@ -1247,6 +1402,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+232',
 		flag: '🇸🇱',
 		continent: 'Africa',
+		nationality: 'Sierra Leonean',
 	},
 	{
 		name: 'Singapore',
@@ -1255,6 +1411,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+65',
 		flag: '🇸🇬',
 		continent: 'Asia',
+		nationality: 'Singaporean',
 	},
 	{
 		name: 'Slovakia',
@@ -1263,6 +1420,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+421',
 		flag: '🇸🇰',
 		continent: 'Europe',
+		nationality: 'Slovak',
 	},
 	{
 		name: 'Slovenia',
@@ -1271,6 +1429,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+386',
 		flag: '🇸🇮',
 		continent: 'Europe',
+		nationality: 'Slovenian',
 	},
 	{
 		name: 'Solomon Islands',
@@ -1279,6 +1438,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+677',
 		flag: '🇸🇧',
 		continent: 'Oceania',
+		nationality: 'Solomon Islander',
 	},
 	{
 		name: 'Somalia',
@@ -1287,6 +1447,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+252',
 		flag: '🇸🇴',
 		continent: 'Africa',
+		nationality: 'Somali',
 	},
 	{
 		name: 'South Africa',
@@ -1295,6 +1456,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+27',
 		flag: '🇿🇦',
 		continent: 'Africa',
+		nationality: 'South African',
 	},
 	{
 		name: 'South Korea',
@@ -1303,6 +1465,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+82',
 		flag: '🇰🇷',
 		continent: 'Asia',
+		nationality: 'South Korean',
 	},
 	{
 		name: 'South Sudan',
@@ -1311,6 +1474,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+211',
 		flag: '🇸🇸',
 		continent: 'Africa',
+		nationality: 'South Sudanese',
 	},
 	{
 		name: 'Spain',
@@ -1319,6 +1483,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+34',
 		flag: '🇪🇸',
 		continent: 'Europe',
+		nationality: 'Spanish',
 	},
 	{
 		name: 'Sri Lanka',
@@ -1327,6 +1492,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+94',
 		flag: '🇱🇰',
 		continent: 'Asia',
+		nationality: 'Sri Lankan',
 	},
 	{
 		name: 'Sudan',
@@ -1335,6 +1501,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+249',
 		flag: '🇸🇩',
 		continent: 'Africa',
+		nationality: 'Sudanese',
 	},
 	{
 		name: 'Suriname',
@@ -1343,6 +1510,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+597',
 		flag: '🇸🇷',
 		continent: 'South America',
+		nationality: 'Surinamese',
 	},
 	{
 		name: 'Sweden',
@@ -1351,6 +1519,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+46',
 		flag: '🇸🇪',
 		continent: 'Europe',
+		nationality: 'Swedish',
 	},
 	{
 		name: 'Switzerland',
@@ -1359,6 +1528,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+41',
 		flag: '🇨🇭',
 		continent: 'Europe',
+		nationality: 'Swiss',
 	},
 	{
 		name: 'Syria',
@@ -1367,6 +1537,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+963',
 		flag: '🇸🇾',
 		continent: 'Asia',
+		nationality: 'Syrian',
 	},
 	{
 		name: 'Taiwan',
@@ -1375,6 +1546,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+886',
 		flag: '🇹🇼',
 		continent: 'Asia',
+		nationality: 'Taiwanese',
 	},
 	{
 		name: 'Tajikistan',
@@ -1383,6 +1555,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+992',
 		flag: '🇹🇯',
 		continent: 'Asia',
+		nationality: 'Tajik',
 	},
 	{
 		name: 'Tanzania',
@@ -1391,6 +1564,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+255',
 		flag: '🇹🇿',
 		continent: 'Africa',
+		nationality: 'Tanzanian',
 	},
 	{
 		name: 'Thailand',
@@ -1399,6 +1573,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+66',
 		flag: '🇹🇭',
 		continent: 'Asia',
+		nationality: 'Thai',
 	},
 	{
 		name: 'Timor-Leste',
@@ -1407,6 +1582,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+670',
 		flag: '🇹🇱',
 		continent: 'Asia',
+		nationality: 'Timorese',
 	},
 	{
 		name: 'Togo',
@@ -1415,6 +1591,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+228',
 		flag: '🇹🇬',
 		continent: 'Africa',
+		nationality: 'Togolese',
 	},
 	{
 		name: 'Tonga',
@@ -1423,6 +1600,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+676',
 		flag: '🇹🇴',
 		continent: 'Oceania',
+		nationality: 'Tongan',
 	},
 	{
 		name: 'Trinidad and Tobago',
@@ -1431,6 +1609,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+1-868',
 		flag: '🇹🇹',
 		continent: 'North America',
+		nationality: 'Trinidadian',
 	},
 	{
 		name: 'Tunisia',
@@ -1439,6 +1618,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+216',
 		flag: '🇹🇳',
 		continent: 'Africa',
+		nationality: 'Tunisian',
 	},
 	{
 		name: 'Turkey',
@@ -1447,6 +1627,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+90',
 		flag: '🇹🇷',
 		continent: 'Asia',
+		nationality: 'Turkish',
 	},
 	{
 		name: 'Turkmenistan',
@@ -1455,6 +1636,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+993',
 		flag: '🇹🇲',
 		continent: 'Asia',
+		nationality: 'Turkmen',
 	},
 	{
 		name: 'Tuvalu',
@@ -1463,6 +1645,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+688',
 		flag: '🇹🇻',
 		continent: 'Oceania',
+		nationality: 'Tuvaluan',
 	},
 	{
 		name: 'Uganda',
@@ -1471,6 +1654,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+256',
 		flag: '🇺🇬',
 		continent: 'Africa',
+		nationality: 'Ugandan',
 	},
 	{
 		name: 'Ukraine',
@@ -1479,6 +1663,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+380',
 		flag: '🇺🇦',
 		continent: 'Europe',
+		nationality: 'Ukrainian',
 	},
 	{
 		name: 'United Arab Emirates',
@@ -1487,6 +1672,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+971',
 		flag: '🇦🇪',
 		continent: 'Asia',
+		nationality: 'Emirati',
 	},
 	{
 		name: 'United Kingdom',
@@ -1495,6 +1681,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+44',
 		flag: '🇬🇧',
 		continent: 'Europe',
+		nationality: 'British',
 	},
 	{
 		name: 'United States',
@@ -1503,6 +1690,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+1',
 		flag: '🇺🇸',
 		continent: 'North America',
+		nationality: 'American',
 	},
 	{
 		name: 'Uruguay',
@@ -1511,6 +1699,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+598',
 		flag: '🇺🇾',
 		continent: 'South America',
+		nationality: 'Uruguayan',
 	},
 	{
 		name: 'Uzbekistan',
@@ -1519,6 +1708,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+998',
 		flag: '🇺🇿',
 		continent: 'Asia',
+		nationality: 'Uzbek',
 	},
 	{
 		name: 'Vanuatu',
@@ -1527,6 +1717,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+678',
 		flag: '🇻🇺',
 		continent: 'Oceania',
+		nationality: 'Ni-Vanuatu',
 	},
 	{
 		name: 'Vatican City',
@@ -1535,6 +1726,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+379',
 		flag: '🇻🇦',
 		continent: 'Europe',
+		nationality: 'Vatican',
 	},
 	{
 		name: 'Venezuela',
@@ -1543,6 +1735,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+58',
 		flag: '🇻🇪',
 		continent: 'South America',
+		nationality: 'Venezuelan',
 	},
 	{
 		name: 'Vietnam',
@@ -1551,6 +1744,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+84',
 		flag: '🇻🇳',
 		continent: 'Asia',
+		nationality: 'Vietnamese',
 	},
 	{
 		name: 'Yemen',
@@ -1559,6 +1753,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+967',
 		flag: '🇾🇪',
 		continent: 'Asia',
+		nationality: 'Yemeni',
 	},
 	{
 		name: 'Zambia',
@@ -1567,6 +1762,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+260',
 		flag: '🇿🇲',
 		continent: 'Africa',
+		nationality: 'Zambian',
 	},
 	{
 		name: 'Zimbabwe',
@@ -1575,6 +1771,7 @@ const COUNTRY_DATA: CountryMeta[] = [
 		phoneCode: '+263',
 		flag: '🇿🇼',
 		continent: 'Africa',
+		nationality: 'Zimbabwean',
 	},
 ];
 

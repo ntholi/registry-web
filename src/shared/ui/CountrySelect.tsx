@@ -4,7 +4,9 @@ import { Group, Image, Select, type SelectProps, Text } from '@mantine/core';
 import { useMemo } from 'react';
 import { type CountryMeta, getCountryData } from '@/shared/lib/utils/countries';
 
-type Props = Omit<SelectProps, 'data' | 'renderOption'>;
+type Props = Omit<SelectProps, 'data' | 'renderOption'> & {
+	onCountryChange?: (country: CountryMeta | null) => void;
+};
 
 function getFlagUrl(iso2: string) {
 	return `https://flagcdn.com/w40/${iso2.toLowerCase()}.png`;
@@ -18,7 +20,11 @@ function buildLookup(countries: CountryMeta[]) {
 	return map;
 }
 
-export default function CountrySelect(props: Props) {
+export default function CountrySelect({
+	onCountryChange,
+	onChange,
+	...props
+}: Props) {
 	const countries = useMemo(() => getCountryData(), []);
 	const lookup = useMemo(() => buildLookup(countries), [countries]);
 
@@ -48,6 +54,14 @@ export default function CountrySelect(props: Props) {
 
 	const selected = props.value ? lookup.get(props.value as string) : null;
 
+	function handleChange(
+		value: string | null,
+		option: { value: string; label: string }
+	) {
+		onChange?.(value, option);
+		onCountryChange?.(value ? (lookup.get(value) ?? null) : null);
+	}
+
 	return (
 		<Select
 			searchable
@@ -66,6 +80,7 @@ export default function CountrySelect(props: Props) {
 				)
 			}
 			{...props}
+			onChange={handleChange}
 		/>
 	);
 }

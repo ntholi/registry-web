@@ -341,12 +341,7 @@ function PersonalInfoStep({ form }: PersonalInfoProps) {
 	return (
 		<Stack mt='md'>
 			<SimpleGrid cols={{ base: 1, sm: 2 }}>
-				<TextInput
-					label='Full Name'
-					placeholder='e.g. John Doe'
-					required
-					{...form.getInputProps('name')}
-				/>
+				<TextInput label='Full Name' required {...form.getInputProps('name')} />
 				<TextInput
 					label='National ID'
 					placeholder='e.g. 1234567890'
@@ -396,6 +391,9 @@ function PersonalInfoStep({ form }: PersonalInfoProps) {
 					label='Country'
 					placeholder='Select country'
 					{...form.getInputProps('country')}
+					onCountryChange={(c) => {
+						if (c) form.setFieldValue('nationality', c.nationality);
+					}}
 				/>
 				<TextInput
 					label='Nationality'

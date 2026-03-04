@@ -20,6 +20,7 @@ import { gender, maritalStatusEnum, studentStatus } from '@registry/_database';
 import { IconAlertCircle, IconEdit } from '@tabler/icons-react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect, useState } from 'react';
+import CountrySelect from '@/shared/ui/CountrySelect';
 import { updateStudentWithReasons } from '../../_server/actions';
 
 interface Student {
@@ -240,11 +241,15 @@ export default function EditStudentModal({ student }: Props) {
 								mb='md'
 								{...form.getInputProps('phone2')}
 							/>
-							<TextInput
+							<CountrySelect
 								label='Country'
-								placeholder='Enter country'
+								placeholder='Select country'
+								clearable
 								mb='md'
 								{...form.getInputProps('country')}
+								onCountryChange={(c) => {
+									if (c) form.setFieldValue('nationality', c.nationality);
+								}}
 							/>
 						</Tabs.Panel>
 
