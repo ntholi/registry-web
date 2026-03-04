@@ -5,6 +5,7 @@ import {
 	fetchStudentFinance,
 	fetchStudentPayments,
 	fetchStudentSalesReceipts,
+	getZohoContactUrl,
 	resolveZohoContactId,
 } from '@finance/_lib/zoho-books/actions';
 import {
@@ -96,6 +97,13 @@ export default function StudentFinanceView({
 		staleTime: 1000 * 60 * 5,
 	});
 
+	const { data: zohoUrl } = useQuery({
+		queryKey: ['zoho-contact-url', contactId],
+		queryFn: () => getZohoContactUrl(contactId!),
+		enabled: !!contactId,
+		staleTime: Number.POSITIVE_INFINITY,
+	});
+
 	if (!isActive) return null;
 
 	if (contactLoading || summaryLoading) return <FinanceLoader />;
@@ -134,6 +142,7 @@ export default function StudentFinanceView({
 			<FinancialOverview
 				summary={summary}
 				isFetching={isFetching}
+				zohoUrl={zohoUrl ?? null}
 				onRefresh={() => {
 					queryClient.invalidateQueries({
 						queryKey: ['student-finance', contactId],

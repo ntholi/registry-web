@@ -46,6 +46,11 @@ export async function fetchStudentSalesReceipts(contactId: string) {
 	return findStudentSalesReceipts(contactId);
 }
 
+export async function getZohoContactUrl(contactId: string) {
+	const orgId = process.env.ZOHO_BOOKS_ORGANIZATION_ID;
+	return `https://books.zoho.com/app/${orgId}#/contacts/${contactId}`;
+}
+
 export async function fetchInvoiceDetail(invoiceId: string) {
 	return getInvoiceDetail(invoiceId);
 }

@@ -11,16 +11,22 @@ import {
 	ThemeIcon,
 	Tooltip,
 } from '@mantine/core';
-import { IconRefresh, IconReport } from '@tabler/icons-react';
+import { IconExternalLink, IconRefresh, IconReport } from '@tabler/icons-react';
 import { formatCurrency } from '@/shared/lib/utils/utils';
 
 type Props = {
 	summary: StudentFinanceSummary;
 	isFetching: boolean;
 	onRefresh: () => void;
+	zohoUrl: string | null;
 };
 
-export function FinancialOverview({ summary, isFetching, onRefresh }: Props) {
+export function FinancialOverview({
+	summary,
+	isFetching,
+	onRefresh,
+	zohoUrl,
+}: Props) {
 	return (
 		<Box>
 			<Group justify='space-between' align='center'>
@@ -32,17 +38,34 @@ export function FinancialOverview({ summary, isFetching, onRefresh }: Props) {
 						Financial Summary
 					</Text>
 				</Group>
-				<Tooltip label='Refresh from Zoho' withArrow position='left'>
-					<ActionIcon
-						variant='subtle'
-						color='gray'
-						size='sm'
-						loading={isFetching}
-						onClick={onRefresh}
-					>
-						<IconRefresh size='0.9rem' />
-					</ActionIcon>
-				</Tooltip>
+				<Group gap={4}>
+					{zohoUrl && (
+						<Tooltip label='Open in Zoho Books' withArrow position='left'>
+							<ActionIcon
+								variant='subtle'
+								color='gray'
+								size='sm'
+								component='a'
+								href={zohoUrl}
+								target='_blank'
+								rel='noopener noreferrer'
+							>
+								<IconExternalLink size='0.9rem' />
+							</ActionIcon>
+						</Tooltip>
+					)}
+					<Tooltip label='Refresh from Zoho' withArrow position='left'>
+						<ActionIcon
+							variant='subtle'
+							color='gray'
+							size='sm'
+							loading={isFetching}
+							onClick={onRefresh}
+						>
+							<IconRefresh size='0.9rem' />
+						</ActionIcon>
+					</Tooltip>
+				</Group>
 			</Group>
 
 			<Divider mb={'md'} mt='xs' />
