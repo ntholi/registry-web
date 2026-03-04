@@ -33,7 +33,9 @@ export const studentStatus = pgEnum('student_status', [
 export const students = pgTable(
 	'students',
 	{
-		stdNo: bigint({ mode: 'number' }).primaryKey(),
+		stdNo: bigint({ mode: 'number' })
+			.primaryKey()
+			.generatedByDefaultAsIdentity(),
 		name: text().notNull(),
 		nationalId: text().notNull(),
 		status: studentStatus().notNull().default('Active'),

@@ -1212,6 +1212,13 @@
 			"when": 1772300244652,
 			"tag": "0172_lame_rictor",
 			"breakpoints": true
+		},
+		{
+			"idx": 173,
+			"version": "7",
+			"when": 1772608271307,
+			"tag": "0173_damp_legion",
+			"breakpoints": true
 		}
 	]
 }

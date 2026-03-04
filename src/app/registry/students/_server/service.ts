@@ -157,17 +157,10 @@ class StudentService {
 		);
 	}
 
-	async getNextStdNo() {
-		return withAuth(
-			async () => this.repository.getNextStdNo(),
-			['admin', 'registry']
-		);
-	}
-
 	async createFull(data: {
-		student: Student;
-		nextOfKins: (typeof nextOfKins.$inferInsert)[];
-		program: typeof studentPrograms.$inferInsert;
+		student: Omit<Student, 'stdNo'>;
+		nextOfKins: Omit<typeof nextOfKins.$inferInsert, 'stdNo'>[];
+		program: Omit<typeof studentPrograms.$inferInsert, 'stdNo'>;
 	}) {
 		return withAuth(
 			async (session) =>
@@ -175,7 +168,6 @@ class StudentService {
 					userId: requireSessionUserId(session),
 					role: session!.user!.role!,
 					activityType: 'student_creation',
-					stdNo: data.student.stdNo,
 				}),
 			['admin', 'registry']
 		);

@@ -639,18 +639,11 @@ export default class StudentRepository extends BaseRepository<
 			.where(eq(students.stdNo, stdNo));
 	}
 
-	async getNextStdNo(): Promise<number> {
-		const [result] = await db
-			.select({ max: sql<number>`coalesce(max(${students.stdNo}), 0)` })
-			.from(students);
-		return (result?.max ?? 0) + 1;
-	}
-
 	async createFull(
 		data: {
-			student: typeof students.$inferInsert;
-			nextOfKins: (typeof nextOfKins.$inferInsert)[];
-			program: typeof studentPrograms.$inferInsert;
+			student: Omit<typeof students.$inferInsert, 'stdNo'>;
+			nextOfKins: Omit<typeof nextOfKins.$inferInsert, 'stdNo'>[];
+			program: Omit<typeof studentPrograms.$inferInsert, 'stdNo'>;
 		},
 		audit: AuditOptions
 	) {
@@ -660,6 +653,8 @@ export default class StudentRepository extends BaseRepository<
 				.values(data.student)
 				.returning();
 
+			const auditWithStdNo = { ...audit, stdNo: created.stdNo };
+
 			await this.writeAuditLogForTable(
 				tx,
 				'students',
@@ -667,7 +662,7 @@ export default class StudentRepository extends BaseRepository<
 				String(created.stdNo),
 				null,
 				created,
-				audit
+				auditWithStdNo
 			);
 
 			if (data.nextOfKins.length > 0) {
@@ -688,7 +683,7 @@ export default class StudentRepository extends BaseRepository<
 						oldValues: null,
 						newValues: kin,
 					})),
-					{ ...audit, activityType: 'student_creation' }
+					{ ...auditWithStdNo, activityType: 'student_creation' }
 				);
 			}
 
@@ -705,7 +700,7 @@ export default class StudentRepository extends BaseRepository<
 				String(createdProgram.id),
 				null,
 				createdProgram,
-				{ ...audit, activityType: 'program_enrollment' }
+				{ ...auditWithStdNo, activityType: 'program_enrollment' }
 			);
 
 			return created;
