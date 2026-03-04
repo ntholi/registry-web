@@ -206,11 +206,13 @@ export interface CreateFullStudentInput {
 
 export async function createFullStudent(input: CreateFullStudentInput) {
 	const nextStdNo = await service.getNextStdNo();
+	const dob = input.student.dateOfBirth;
 	const result = await service.createFull({
 		student: {
 			...input.student,
 			stdNo: nextStdNo,
 			name: formatPersonName(input.student.name) ?? input.student.name,
+			dateOfBirth: dob ? new Date(dob) : undefined,
 		},
 		nextOfKins: input.nextOfKins.map((k) => ({ ...k, stdNo: nextStdNo })),
 		program: { ...input.program, stdNo: nextStdNo },

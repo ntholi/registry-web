@@ -229,7 +229,7 @@ export default function NewStudentForm() {
 					status: 'Active',
 				},
 				nextOfKins: v.nextOfKins
-					.filter((k) => k.name.trim())
+					.filter((k) => k.name.trim() && k.relationship)
 					.map((k) => ({
 						name: k.name,
 						relationship:
@@ -470,6 +470,7 @@ function NextOfKinStep({ form, countries, onAdd, onRemove }: NextOfKinProps) {
 						<Select
 							label='Relationship'
 							placeholder='Select relationship'
+							required
 							data={nextOfKinRelationship.enumValues}
 							{...form.getInputProps(`nextOfKins.${i}.relationship`)}
 						/>
