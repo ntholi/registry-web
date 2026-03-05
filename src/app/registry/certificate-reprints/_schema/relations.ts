@@ -13,6 +13,12 @@ export const certificateReprintsRelations = relations(
 		createdByUser: one(users, {
 			fields: [certificateReprints.createdBy],
 			references: [users.id],
+			relationName: 'createdBy',
+		}),
+		receivedByUser: one(users, {
+			fields: [certificateReprints.receivedBy],
+			references: [users.id],
+			relationName: 'receivedBy',
 		}),
 	})
 );

@@ -1,0 +1,1 @@
+ALTER TABLE "certificate_reprints" ALTER COLUMN "id" SET DATA TYPE text;

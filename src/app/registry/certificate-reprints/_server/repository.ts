@@ -15,12 +15,13 @@ class CertificateReprintsRepository extends BaseRepository<
 		super(certificateReprints, certificateReprints.id);
 	}
 
-	async findById(id: number) {
+	async findById(id: string) {
 		return db.query.certificateReprints.findFirst({
 			where: eq(certificateReprints.id, id),
 			with: {
 				student: true,
 				createdByUser: true,
+				receivedByUser: true,
 			},
 		});
 	}
@@ -85,7 +86,7 @@ class CertificateReprintsRepository extends BaseRepository<
 	}
 
 	async update(
-		id: number,
+		id: string,
 		data: Partial<CertificateReprint>,
 		audit?: AuditOptions
 	) {
@@ -120,7 +121,7 @@ class CertificateReprintsRepository extends BaseRepository<
 		});
 	}
 
-	async delete(id: number, audit?: AuditOptions) {
+	async delete(id: string, audit?: AuditOptions) {
 		return db.transaction(async (tx) => {
 			let existing: typeof certificateReprints.$inferSelect | undefined;
 			if (audit) {

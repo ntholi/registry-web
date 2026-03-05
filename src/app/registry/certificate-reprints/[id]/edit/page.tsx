@@ -12,7 +12,7 @@ type Props = {
 
 export default async function CertificateReprintEdit({ params }: Props) {
 	const { id } = await params;
-	const item = await getCertificateReprint(Number(id));
+	const item = await getCertificateReprint(id);
 	if (!item) {
 		return notFound();
 	}
@@ -24,7 +24,7 @@ export default async function CertificateReprintEdit({ params }: Props) {
 				defaultValues={item}
 				onSubmit={async (value) => {
 					'use server';
-					return await updateCertificateReprint(Number(id), value);
+					return await updateCertificateReprint(id, value);
 				}}
 			/>
 		</Box>

@@ -108,10 +108,13 @@ src/app/{{module}}/{{feature}}/
 **Path:** `src/app/{{module}}/{{feature}}/_schema/{{table_file}}.ts`
 
 ```typescript
-import { boolean, pgTable, serial, text, timestamp } from 'drizzle-orm/pg-core';
+import { boolean, pgTable, text, timestamp } from 'drizzle-orm/pg-core';
+import { nanoid } from 'nanoid';
 
 export const {{entities}} = pgTable('{{table_name}}', {
-	id: serial().primaryKey(),
+	id: text()
+		.primaryKey()
+		.$defaultFn(() => nanoid()),
 	name: text().notNull(),
 	isActive: boolean().notNull().default(true),
 	createdAt: timestamp().defaultNow(),
@@ -186,7 +189,7 @@ import { {{entities}}Service } from './service';
 
 type {{Entity}} = typeof {{entities}}.$inferInsert;
 
-export async function get{{Entity}}(id: number) {
+export async function get{{Entity}}(id: string) {
 	return {{entities}}Service.get(id);
 }
 
@@ -202,11 +205,11 @@ export async function create{{Entity}}(data: {{Entity}}) {
 	return {{entities}}Service.create(data);
 }
 
-export async function update{{Entity}}(id: number, data: {{Entity}}) {
+export async function update{{Entity}}(id: string, data: {{Entity}}) {
 	return {{entities}}Service.update(id, data);
 }
 
-export async function delete{{Entity}}(id: number) {
+export async function delete{{Entity}}(id: string) {
 	return {{entities}}Service.delete(id);
 }
 ```
@@ -371,7 +374,7 @@ type Props = {
 
 export default async function {{Entity}}Details({ params }: Props) {
 	const { id } = await params;
-	const item = await get{{Entity}}(Number(id));
+	const item = await get{{Entity}}(id);
 
 	if (!item) {
 		return notFound();
@@ -384,7 +387,7 @@ export default async function {{Entity}}Details({ params }: Props) {
 				queryKey={['{{feature}}']}
 				handleDelete={async () => {
 					'use server';
-					await delete{{Entity}}(Number(id));
+					await delete{{Entity}}(id);
 				}}
 			/>
 			<DetailsViewBody>
@@ -411,7 +414,7 @@ type Props = {
 
 export default async function {{Entity}}Edit({ params }: Props) {
 	const { id } = await params;
-	const item = await get{{Entity}}(Number(id));
+	const item = await get{{Entity}}(id);
 	if (!item) {
 		return notFound();
 	}
@@ -423,7 +426,7 @@ export default async function {{Entity}}Edit({ params }: Props) {
 				defaultValues={item}
 				onSubmit={async (value) => {
 					'use server';
-					return await update{{Entity}}(Number(id), value);
+					return await update{{Entity}}(id, value);
 				}}
 			/>
 		</Box>

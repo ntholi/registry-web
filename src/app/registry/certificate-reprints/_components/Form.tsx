@@ -12,7 +12,7 @@ import StudentInfoCard from './StudentInfoCard';
 type CertificateReprint = typeof certificateReprints.$inferInsert;
 
 type Props = {
-	onSubmit: (values: CertificateReprint) => Promise<{ id: number }>;
+	onSubmit: (values: CertificateReprint) => Promise<{ id: string }>;
 	defaultValues?: CertificateReprint;
 	title?: string;
 };

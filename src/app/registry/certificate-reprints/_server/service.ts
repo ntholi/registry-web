@@ -11,7 +11,7 @@ class CertificateReprintsService {
 		this.repository = new CertificateReprintsRepository();
 	}
 
-	async get(id: number) {
+	async get(id: string) {
 		return withAuth(() => this.repository.findById(id), ['registry', 'admin']);
 	}
 
@@ -47,7 +47,7 @@ class CertificateReprintsService {
 		);
 	}
 
-	async update(id: number, data: Partial<CertificateReprint>) {
+	async update(id: string, data: Partial<CertificateReprint>) {
 		return withAuth(
 			(session) =>
 				this.repository.update(id, data, {
@@ -60,7 +60,7 @@ class CertificateReprintsService {
 		);
 	}
 
-	async delete(id: number) {
+	async delete(id: string) {
 		return withAuth(
 			(session) =>
 				this.repository.delete(id, {

@@ -1,4 +1,4 @@
-import { Badge, Divider, Stack, Text } from '@mantine/core';
+import { Badge, Divider, SimpleGrid, Stack, Text } from '@mantine/core';
 import { notFound } from 'next/navigation';
 import { formatDate } from '@/shared/lib/utils/dates';
 import {
@@ -8,7 +8,7 @@ import {
 	FieldView,
 } from '@/shared/ui/adease';
 import Link from '@/shared/ui/Link';
-import StatusSwitch from '../_components/StatusSwitch';
+import StatusUpdateModal from '../_components/StatusUpdateModal';
 import StudentInfoCard from '../_components/StudentInfoCard';
 import {
 	deleteCertificateReprint,
@@ -21,7 +21,7 @@ type Props = {
 
 export default async function CertificateReprintDetails({ params }: Props) {
 	const { id } = await params;
-	const item = await getCertificateReprint(Number(id));
+	const item = await getCertificateReprint(id);
 
 	if (!item) {
 		return notFound();
@@ -34,20 +34,21 @@ export default async function CertificateReprintDetails({ params }: Props) {
 				queryKey={['certificate-reprints']}
 				handleDelete={async () => {
 					'use server';
-					await deleteCertificateReprint(Number(id));
+					await deleteCertificateReprint(id);
 				}}
 			/>
 			<DetailsViewBody>
+				<SimpleGrid cols={{ base: 1, sm: 2 }} mb='md'>
+					<FieldView underline={false} label='Student No'>
+						<Link href={`/registry/students/${item.stdNo}`}>{item.stdNo}</Link>
+					</FieldView>
+					<StatusUpdateModal id={item.id} status={item.status} />
+				</SimpleGrid>
 				<StudentInfoCard stdNo={item.stdNo} />
-
-				<StatusSwitch id={item.id} status={item.status} />
 
 				<Divider />
 
 				<Stack gap='xs'>
-					<FieldView label='Student No'>
-						<Link href={`/registry/students/${item.stdNo}`}>{item.stdNo}</Link>
-					</FieldView>
 					{item.receiptNumber && (
 						<FieldView label='Receipt Number'>{item.receiptNumber}</FieldView>
 					)}
@@ -59,6 +60,13 @@ export default async function CertificateReprintDetails({ params }: Props) {
 					{item.receivedAt && (
 						<FieldView label='Received At'>
 							{formatDate(item.receivedAt)}
+						</FieldView>
+					)}
+					{item.receivedByUser && (
+						<FieldView label='Received By'>
+							<Badge variant='light' color='gray'>
+								{item.receivedByUser.name}
+							</Badge>
 						</FieldView>
 					)}
 					<FieldView label='Created By'>

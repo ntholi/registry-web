@@ -1,0 +1,2 @@
+ALTER TABLE "certificate_reprints" ADD COLUMN "received_by" text;--> statement-breakpoint
+ALTER TABLE "certificate_reprints" ADD CONSTRAINT "certificate_reprints_received_by_users_id_fk" FOREIGN KEY ("received_by") REFERENCES "public"."users"("id") ON DELETE set null ON UPDATE no action;

@@ -9,7 +9,7 @@ type CertificateReprintUpdate = Partial<
 	typeof certificateReprints.$inferInsert
 >;
 
-export async function getCertificateReprint(id: number) {
+export async function getCertificateReprint(id: string) {
 	return service.get(id);
 }
 
@@ -29,7 +29,7 @@ export async function createCertificateReprint(data: CertificateReprint) {
 }
 
 export async function updateCertificateReprint(
-	id: number,
+	id: string,
 	data: CertificateReprintUpdate
 ) {
 	const result = await service.update(id, data);
@@ -39,6 +39,6 @@ export async function updateCertificateReprint(
 	return result;
 }
 
-export async function deleteCertificateReprint(id: number) {
+export async function deleteCertificateReprint(id: string) {
 	return service.delete(id);
 }

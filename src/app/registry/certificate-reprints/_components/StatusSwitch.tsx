@@ -10,7 +10,7 @@ import { updateCertificateReprint } from '../_server/actions';
 type Status = (typeof certificateReprintStatus.enumValues)[number];
 
 type Props = {
-	id: number;
+	id: string;
 	status: Status;
 };
 

@@ -5,10 +5,10 @@ import {
 	index,
 	pgEnum,
 	pgTable,
-	serial,
 	text,
 	timestamp,
 } from 'drizzle-orm/pg-core';
+import { nanoid } from 'nanoid';
 
 export const certificateReprintStatus = pgEnum('certificate_reprint_status', [
 	'pending',
@@ -18,7 +18,9 @@ export const certificateReprintStatus = pgEnum('certificate_reprint_status', [
 export const certificateReprints = pgTable(
 	'certificate_reprints',
 	{
-		id: serial().primaryKey(),
+		id: text()
+			.primaryKey()
+			.$defaultFn(() => nanoid()),
 		stdNo: bigint({ mode: 'number' })
 			.references(() => students.stdNo, { onDelete: 'cascade' })
 			.notNull(),
@@ -26,6 +28,7 @@ export const certificateReprints = pgTable(
 		reason: text().notNull(),
 		status: certificateReprintStatus().notNull().default('pending'),
 		receivedAt: timestamp({ mode: 'date' }),
+		receivedBy: text().references(() => users.id, { onDelete: 'set null' }),
 		createdBy: text()
 			.references(() => users.id, { onDelete: 'set null' })
 			.notNull(),
