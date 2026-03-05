@@ -1,7 +1,16 @@
 'use client';
 
-import { Card, Group, Skeleton, Stack, Text, Textarea } from '@mantine/core';
+import {
+	Card,
+	Flex,
+	Group,
+	Skeleton,
+	Stack,
+	Text,
+	Textarea,
+} from '@mantine/core';
 import { certificateReprints } from '@registry/_database';
+import EditStudentModal from '@registry/students/_components/info/EditStudentModal';
 import { useQuery } from '@tanstack/react-query';
 import { createInsertSchema } from 'drizzle-zod';
 import { useRouter } from 'nextjs-toploader/app';
@@ -81,7 +90,10 @@ export default function CertificateReprintForm({
 							</Stack>
 						) : (
 							<Stack gap={4}>
-								<InfoRow label='Name' value={student?.name} />
+								<Flex justify={'space-between'}>
+									<InfoRow label='Name' value={student?.name} />
+									{student && <EditStudentModal student={student} />}
+								</Flex>
 								<InfoRow label='Phone 1' value={student?.phone1} />
 								<InfoRow label='Phone 2' value={student?.phone2} />
 								<InfoRow
