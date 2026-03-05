@@ -706,7 +706,7 @@ export default class RegistrationRequestRepository extends BaseRepository<
 					String(request.id),
 					null,
 					request,
-					audit
+					{ ...audit, stdNo: data.stdNo }
 				);
 			}
 
@@ -940,7 +940,7 @@ export default class RegistrationRequestRepository extends BaseRepository<
 					String(registrationRequestId),
 					registration,
 					updated,
-					audit
+					{ ...audit, stdNo: registration.stdNo }
 				);
 			}
 
@@ -1029,14 +1029,10 @@ export default class RegistrationRequestRepository extends BaseRepository<
 				.returning();
 
 			if (audit && existing) {
-				await this.writeAuditLog(
-					tx,
-					'DELETE',
-					String(id),
-					existing,
-					updated,
-					audit
-				);
+				await this.writeAuditLog(tx, 'DELETE', String(id), existing, updated, {
+					...audit,
+					stdNo: existing.stdNo,
+				});
 			}
 
 			return updated;
