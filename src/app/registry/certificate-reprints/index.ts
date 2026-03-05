@@ -1,6 +1,7 @@
 export {
 	createCertificateReprint,
 	deleteCertificateReprint,
+	findAllCertificateReprints,
 	getCertificateReprint,
 	getCertificateReprintsByStdNo,
 	updateCertificateReprint,

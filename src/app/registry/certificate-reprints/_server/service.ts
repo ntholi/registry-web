@@ -22,15 +22,27 @@ class CertificateReprintsService {
 		);
 	}
 
+	async queryAll(page: number, search: string) {
+		return withAuth(
+			() => this.repository.queryPaginated(page, search),
+			['registry', 'admin']
+		);
+	}
+
 	async create(data: CertificateReprint) {
 		return withAuth(
-			(session) =>
-				this.repository.create(data, {
-					userId: requireSessionUserId(session),
-					role: session!.user!.role!,
-					activityType: 'certificate_reprint_created',
-					stdNo: data.stdNo,
-				}),
+			(session) => {
+				const userId = requireSessionUserId(session);
+				return this.repository.create(
+					{ ...data, createdBy: userId },
+					{
+						userId,
+						role: session!.user!.role!,
+						activityType: 'certificate_reprint_created',
+						stdNo: data.stdNo,
+					}
+				);
+			},
 			['registry', 'admin']
 		);
 	}

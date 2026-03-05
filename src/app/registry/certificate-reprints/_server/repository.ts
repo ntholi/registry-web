@@ -1,5 +1,5 @@
 import { certificateReprints } from '@registry/_database';
-import { desc, eq } from 'drizzle-orm';
+import { count, desc, eq, sql } from 'drizzle-orm';
 import { db } from '@/core/database';
 import BaseRepository, {
 	type AuditOptions,
@@ -33,6 +33,33 @@ class CertificateReprintsRepository extends BaseRepository<
 			},
 			orderBy: [desc(certificateReprints.createdAt)],
 		});
+	}
+
+	async queryPaginated(page = 1, search = '', size = 10) {
+		const offset = (page - 1) * size;
+		const where = search
+			? sql`${certificateReprints.stdNo}::text ILIKE ${`%${search}%`} OR ${certificateReprints.receiptNumber}::text ILIKE ${`%${search}%`}`
+			: undefined;
+
+		const items = await db.query.certificateReprints.findMany({
+			where,
+			with: { student: true, createdByUser: true },
+			orderBy: [desc(certificateReprints.createdAt)],
+			limit: size,
+			offset,
+		});
+
+		const [result] = await db
+			.select({ count: count() })
+			.from(certificateReprints)
+			.where(where);
+
+		const totalItems = result?.count ?? 0;
+		return {
+			items,
+			totalPages: Math.ceil(totalItems / size),
+			totalItems,
+		};
 	}
 
 	async create(data: CertificateReprint, audit?: AuditOptions) {

@@ -17,8 +17,13 @@ export async function getCertificateReprintsByStdNo(stdNo: number) {
 	return service.findByStdNo(stdNo);
 }
 
+export async function findAllCertificateReprints(page = 1, search = '') {
+	return service.queryAll(page, search);
+}
+
 export async function createCertificateReprint(data: CertificateReprint) {
 	const result = await service.create(data);
+	revalidatePath('/registry/certificate-reprints');
 	revalidatePath(`/registry/students/${data.stdNo}`);
 	return result;
 }
