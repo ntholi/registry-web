@@ -829,36 +829,38 @@ export default class RegistrationRequestRepository extends BaseRepository<
 				.where(eq(registrationRequests.id, registrationRequestId))
 				.returning();
 
-			if (hasModulesChanged) {
-				const financeClearances = await tx
-					.select({ clearanceId: registrationClearance.clearanceId })
-					.from(registrationClearance)
-					.innerJoin(
-						clearance,
-						eq(registrationClearance.clearanceId, clearance.id)
-					)
-					.where(
-						and(
-							eq(
-								registrationClearance.registrationRequestId,
-								registrationRequestId
-							),
-							eq(clearance.department, 'finance')
-						)
-					);
+			const existingClearances = await tx
+				.select({
+					clearanceId: registrationClearance.clearanceId,
+					department: clearance.department,
+				})
+				.from(registrationClearance)
+				.innerJoin(
+					clearance,
+					eq(registrationClearance.clearanceId, clearance.id)
+				)
+				.where(
+					eq(registrationClearance.registrationRequestId, registrationRequestId)
+				);
 
-				if (financeClearances.length > 0) {
-					await tx
-						.update(clearance)
-						.set({
-							status: 'pending',
-						})
-						.where(eq(clearance.id, financeClearances[0].clearanceId));
+			const clearanceByDept = new Map(
+				existingClearances.map((c) => [c.department, c.clearanceId])
+			);
+
+			for (const department of ['finance', 'library'] as const) {
+				const existingId = clearanceByDept.get(department);
+				if (existingId) {
+					if (department === 'finance' && hasModulesChanged) {
+						await tx
+							.update(clearance)
+							.set({ status: 'pending' })
+							.where(eq(clearance.id, existingId));
+					}
 				} else {
 					const [newClearance] = await tx
 						.insert(clearance)
 						.values({
-							department: 'finance',
+							department,
 							status: 'pending',
 						})
 						.returning();
