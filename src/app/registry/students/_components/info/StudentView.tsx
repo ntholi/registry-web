@@ -168,7 +168,11 @@ export default function StudentView({ student }: Props) {
 							/>
 						</Grid.Col>
 						<Grid.Col span={{ base: 12, sm: 6 }}>
-							<InfoItem label='National ID' value={student.nationalId} />
+							<InfoItem
+								label='National ID'
+								value={student.nationalId}
+								showOnHover
+							/>
 						</Grid.Col>
 						<Grid.Col span={{ base: 12, sm: 6 }}>
 							<InfoItem
@@ -177,16 +181,24 @@ export default function StudentView({ student }: Props) {
 							/>
 						</Grid.Col>
 						<Grid.Col span={{ base: 12, sm: 6 }}>
-							<InfoItem label='Gender' value={student.gender} />
+							<InfoItem label='Gender' value={student.gender} showOnHover />
 						</Grid.Col>
 						<Grid.Col span={{ base: 12, sm: 6 }}>
-							<InfoItem label='Marital Status' value={student.maritalStatus} />
+							<InfoItem
+								label='Marital Status'
+								value={student.maritalStatus}
+								showOnHover
+							/>
 						</Grid.Col>
 						<Grid.Col span={{ base: 12, sm: 6 }}>
-							<InfoItem label='Country' value={student.country} />
+							<InfoItem label='Country' value={student.country} showOnHover />
 						</Grid.Col>
 						<Grid.Col span={{ base: 12, sm: 6 }}>
-							<InfoItem label='Birth Place' value={student.birthPlace} />
+							<InfoItem
+								label='Birth Place'
+								value={student.birthPlace}
+								showOnHover
+							/>
 						</Grid.Col>
 					</Grid>
 				</Paper>
@@ -242,6 +254,7 @@ export default function StudentView({ student }: Props) {
 											label='Program/Class'
 											value={programForView.structure.program.name}
 											displayValue={`${programForView.structure.program.name} (${programForView.structure.program.code}${latestSemester ? formatSemester(latestSemester, 'mini') : ''})`}
+											showOnHover
 										/>
 									</Group>
 								</Grid.Col>
@@ -256,6 +269,7 @@ export default function StudentView({ student }: Props) {
 									<InfoItem
 										label='Graduation Date'
 										value={programForView.graduationDate}
+										showOnHover
 									/>
 								</Grid.Col>
 								<Grid.Col span={{ base: 12, sm: 3 }}>
@@ -305,6 +319,7 @@ export default function StudentView({ student }: Props) {
 								href={`tel:${stripPhoneNumber(formatPhoneNumber(student.phone1))}`}
 								displayValue={formatPhoneNumber(student.phone1)}
 								value={stripPhoneNumber(formatPhoneNumber(student.phone1))}
+								showOnHover
 							/>
 						</Grid.Col>
 						<Grid.Col span={{ base: 12, sm: 6 }}>
@@ -313,6 +328,7 @@ export default function StudentView({ student }: Props) {
 								href={`tel:${stripPhoneNumber(formatPhoneNumber(student.phone2))}`}
 								displayValue={formatPhoneNumber(student.phone2)}
 								value={stripPhoneNumber(formatPhoneNumber(student.phone2))}
+								showOnHover
 							/>
 						</Grid.Col>
 					</Grid>
@@ -329,10 +345,14 @@ export default function StudentView({ student }: Props) {
 							<Paper key={kin.id} p='md' radius='md' withBorder>
 								<Grid gutter='xl'>
 									<Grid.Col span={{ base: 12, sm: 6 }}>
-										<InfoItem label='Name' value={kin.name} />
+										<InfoItem label='Name' value={kin.name} showOnHover />
 									</Grid.Col>
 									<Grid.Col span={{ base: 12, sm: 6 }}>
-										<InfoItem label='Relationship' value={kin.relationship} />
+										<InfoItem
+											label='Relationship'
+											value={kin.relationship}
+											showOnHover
+										/>
 									</Grid.Col>
 									<Grid.Col span={{ base: 12, sm: 6 }}>
 										<InfoItem
@@ -355,6 +375,7 @@ export default function StudentView({ student }: Props) {
 											label='Email'
 											href={kin.email ? `mailto:${kin.email}` : undefined}
 											value={kin.email}
+											showOnHover
 										/>
 									</Grid.Col>
 								</Grid>

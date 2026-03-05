@@ -37,7 +37,9 @@ export default function InfoItem({
 				{label}
 			</Text>
 			{copyable && value ? (
-				<Copyable value={String(value)} showOnHover={showOnHover}>{content}</Copyable>
+				<Copyable value={String(value)} showOnHover={showOnHover}>
+					{content}
+				</Copyable>
 			) : (
 				content
 			)}
