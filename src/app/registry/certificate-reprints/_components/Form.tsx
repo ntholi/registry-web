@@ -1,23 +1,13 @@
 'use client';
 
-import {
-	Card,
-	Flex,
-	Group,
-	Skeleton,
-	Stack,
-	Text,
-	Textarea,
-} from '@mantine/core';
+import { Textarea } from '@mantine/core';
 import { certificateReprints } from '@registry/_database';
-import EditStudentModal from '@registry/students/_components/info/EditStudentModal';
-import { useQuery } from '@tanstack/react-query';
 import { createInsertSchema } from 'drizzle-zod';
 import { useRouter } from 'nextjs-toploader/app';
 import { useState } from 'react';
 import StdNoInput from '@/app/dashboard/base/StdNoInput';
-import { getPublishedAcademicHistory } from '@/app/registry/students/_server/actions';
 import { Form, ReceiptInput } from '@/shared/ui/adease';
+import StudentInfoCard from './StudentInfoCard';
 
 type CertificateReprint = typeof certificateReprints.$inferInsert;
 
@@ -45,18 +35,6 @@ export default function CertificateReprintForm({
 		defaultValues?.stdNo ?? null
 	);
 
-	const isValidStdNo = stdNo !== null && String(stdNo).length === 9;
-
-	const { data: student, isLoading } = useQuery({
-		queryKey: ['student', stdNo, 'published'],
-		queryFn: () => getPublishedAcademicHistory(stdNo!),
-		enabled: isValidStdNo,
-	});
-
-	const completedProgram = student?.programs?.find(
-		(p) => p?.status === 'Completed'
-	);
-
 	return (
 		<Form
 			title={title}
@@ -81,28 +59,7 @@ export default function CertificateReprintForm({
 						}}
 					/>
 
-					<Card withBorder>
-						{isLoading ? (
-							<Stack gap={6}>
-								{[1, 2, 3, 4].map((i) => (
-									<Skeleton key={i} height={16} width={`${60 + i * 5}%`} />
-								))}
-							</Stack>
-						) : (
-							<Stack gap={4}>
-								<Flex justify={'space-between'}>
-									<InfoRow label='Name' value={student?.name} />
-									{student && <EditStudentModal student={student} />}
-								</Flex>
-								<InfoRow label='Phone 1' value={student?.phone1} />
-								<InfoRow label='Phone 2' value={student?.phone2} />
-								<InfoRow
-									label='Graduation Date'
-									value={completedProgram?.graduationDate}
-								/>
-							</Stack>
-						)}
-					</Card>
+					<StudentInfoCard stdNo={stdNo} />
 					<ReceiptInput
 						label='Receipt Number'
 						{...form.getInputProps('receiptNumber')}
@@ -117,23 +74,5 @@ export default function CertificateReprintForm({
 				</>
 			)}
 		</Form>
-	);
-}
-
-type InfoRowProps = {
-	label: string;
-	value: string | null | undefined;
-};
-
-function InfoRow({ label, value }: InfoRowProps) {
-	return (
-		<Group gap='xs'>
-			<Text size='sm' c='dimmed' w={120}>
-				{label}:
-			</Text>
-			<Text size='sm' fw={500}>
-				{value || 'N/A'}
-			</Text>
-		</Group>
 	);
 }
