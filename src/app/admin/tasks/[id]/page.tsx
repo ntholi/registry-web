@@ -35,7 +35,7 @@ const priorityColors: Record<string, string> = {
 
 export default async function TaskDetails({ params }: Props) {
 	const { id } = await params;
-	const task = await getTask(Number(id));
+	const task = await getTask(id);
 
 	if (!task) {
 		return notFound();
@@ -48,7 +48,7 @@ export default async function TaskDetails({ params }: Props) {
 				queryKey={['tasks']}
 				handleDelete={async () => {
 					'use server';
-					await deleteTask(Number(id));
+					await deleteTask(id);
 				}}
 			/>
 			<DetailsViewBody>

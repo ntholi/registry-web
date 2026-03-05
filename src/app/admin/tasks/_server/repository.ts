@@ -61,7 +61,7 @@ export default class TaskRepository extends BaseRepository<typeof tasks, 'id'> {
 		return undefined;
 	}
 
-	async findByIdWithRelations(id: number): Promise<TaskWithRelations | null> {
+	async findByIdWithRelations(id: string): Promise<TaskWithRelations | null> {
 		const result = await db.query.tasks.findFirst({
 			where: eq(tasks.id, id),
 			with: {
@@ -275,7 +275,7 @@ export default class TaskRepository extends BaseRepository<typeof tasks, 'id'> {
 	}
 
 	async updateWithRelations(
-		id: number,
+		id: string,
 		task: Partial<TaskInsert>,
 		assigneeIds?: string[],
 		studentIds?: number[],
@@ -335,7 +335,7 @@ export default class TaskRepository extends BaseRepository<typeof tasks, 'id'> {
 		});
 	}
 
-	async deleteTask(id: number, audit?: AuditOptions): Promise<void> {
+	async deleteTask(id: string, audit?: AuditOptions): Promise<void> {
 		await db.transaction(async (tx) => {
 			let existing: TaskSelect | undefined;
 			if (audit) {
@@ -361,7 +361,7 @@ export default class TaskRepository extends BaseRepository<typeof tasks, 'id'> {
 	}
 
 	async updateStatus(
-		id: number,
+		id: string,
 		status: TaskSelect['status'],
 		audit?: AuditOptions
 	): Promise<TaskSelect> {

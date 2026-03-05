@@ -4,13 +4,12 @@ import {
 	bigint,
 	date,
 	index,
-	integer,
 	pgEnum,
 	pgTable,
-	serial,
 	text,
 	timestamp,
 } from 'drizzle-orm/pg-core';
+import { nanoid } from 'nanoid';
 
 export const taskPriority = pgEnum('task_priority', [
 	'low',
@@ -28,7 +27,9 @@ export const taskStatus = pgEnum('task_status', [
 ]);
 
 export const tasks = pgTable('tasks', {
-	id: serial().primaryKey(),
+	id: text()
+		.primaryKey()
+		.$defaultFn(() => nanoid()),
 	title: text().notNull(),
 	description: text(),
 	priority: taskPriority().notNull().default('medium'),
@@ -43,8 +44,10 @@ export const tasks = pgTable('tasks', {
 });
 
 export const taskAssignees = pgTable('task_assignees', {
-	id: serial().primaryKey(),
-	taskId: integer()
+	id: text()
+		.primaryKey()
+		.$defaultFn(() => nanoid()),
+	taskId: text()
 		.notNull()
 		.references(() => tasks.id, { onDelete: 'cascade' }),
 	userId: text()
@@ -56,8 +59,10 @@ export const taskAssignees = pgTable('task_assignees', {
 export const taskStudents = pgTable(
 	'task_students',
 	{
-		id: serial().primaryKey(),
-		taskId: integer()
+		id: text()
+			.primaryKey()
+			.$defaultFn(() => nanoid()),
+		taskId: text()
 			.notNull()
 			.references(() => tasks.id, { onDelete: 'cascade' }),
 		stdNo: bigint({ mode: 'number' })

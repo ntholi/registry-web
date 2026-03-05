@@ -33,7 +33,7 @@ class TaskService {
 		this.repository = new TaskRepository();
 	}
 
-	async get(id: number) {
+	async get(id: string) {
 		return withAuth(async (session) => {
 			const task = await this.repository.findByIdWithRelations(id);
 			if (!task) return null;
@@ -125,7 +125,7 @@ class TaskService {
 	}
 
 	async update(
-		id: number,
+		id: string,
 		data: Partial<TaskInsert> & {
 			assigneeIds?: string[];
 			studentIds?: number[];
@@ -179,7 +179,7 @@ class TaskService {
 		}, ALLOWED_ROLES);
 	}
 
-	async delete(id: number) {
+	async delete(id: string) {
 		return withAuth(async (session) => {
 			const { userId, userRole, isManager, isAdmin } =
 				sessionVisibility(session);
@@ -210,7 +210,7 @@ class TaskService {
 	}
 
 	async updateStatus(
-		id: number,
+		id: string,
 		status: (typeof tasks.$inferSelect)['status']
 	) {
 		return withAuth(async (session) => {

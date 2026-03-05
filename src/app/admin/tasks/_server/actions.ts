@@ -12,7 +12,7 @@ type TaskWithRelationsInput = Task & {
 type TaskStatus = (typeof tasks.$inferSelect)['status'];
 type TaskStatusFilter = TaskStatus | 'all' | 'open';
 
-export async function getTask(id: number): Promise<TaskWithRelations | null> {
+export async function getTask(id: string): Promise<TaskWithRelations | null> {
 	return service.get(id) as Promise<TaskWithRelations | null>;
 }
 
@@ -39,18 +39,18 @@ export async function createTask(
 }
 
 export async function updateTask(
-	id: number,
+	id: string,
 	task: TaskWithRelationsInput
 ): Promise<typeof tasks.$inferSelect> {
 	return service.update(id, task) as Promise<typeof tasks.$inferSelect>;
 }
 
-export async function deleteTask(id: number): Promise<TaskWithRelations> {
+export async function deleteTask(id: string): Promise<TaskWithRelations> {
 	return service.delete(id) as Promise<TaskWithRelations>;
 }
 
 export async function updateTaskStatus(
-	id: number,
+	id: string,
 	status: TaskStatus
 ): Promise<typeof tasks.$inferSelect> {
 	return service.updateStatus(id, status) as Promise<typeof tasks.$inferSelect>;

@@ -7,9 +7,8 @@ import {
 	Card,
 	Group,
 	Modal,
-	Select,
+	SegmentedControl,
 	Stack,
-	Text,
 	TextInput,
 } from '@mantine/core';
 import { DateInput } from '@mantine/dates';
@@ -91,10 +90,7 @@ export default function StatusUpdateModal({ id, status: initial }: Props) {
 			<Card withBorder p='sm'>
 				<Group justify='space-between'>
 					<Stack gap={2}>
-						<Text size='xs' c='dimmed'>
-							Status
-						</Text>
-						<Badge color={color} variant='light' size='lg'>
+						<Badge color={color} variant='light'>
 							{labels[initial]}
 						</Badge>
 					</Stack>
@@ -106,8 +102,7 @@ export default function StatusUpdateModal({ id, status: initial }: Props) {
 
 			<Modal opened={opened} onClose={close} title='Update Status'>
 				<Stack>
-					<Select
-						label='Status'
+					<SegmentedControl
 						value={status}
 						onChange={(v) => setStatus(v as Status)}
 						data={certificateReprintStatus.enumValues.map((s) => ({

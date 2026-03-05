@@ -8,7 +8,7 @@ type Props = {
 
 export default async function EditTaskPage({ params }: Props) {
 	const { id } = await params;
-	const task = await getTask(Number(id));
+	const task = await getTask(id);
 
 	if (!task) {
 		return notFound();
@@ -21,7 +21,7 @@ export default async function EditTaskPage({ params }: Props) {
 				defaultValues={task}
 				onSubmit={async (values) => {
 					'use server';
-					return await updateTask(Number(id), values);
+					return await updateTask(id, values);
 				}}
 			/>
 		</Box>

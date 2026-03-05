@@ -15,7 +15,7 @@ type TaskStatus =
 	| 'cancelled';
 
 type Props = {
-	taskId: number;
+	taskId: string;
 	currentStatus: TaskStatus;
 };
 
