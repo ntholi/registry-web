@@ -3,17 +3,19 @@ import {
 	index,
 	integer,
 	pgTable,
-	serial,
 	text,
 	timestamp,
 	unique,
 } from 'drizzle-orm/pg-core';
+import { nanoid } from 'nanoid';
 import { employees } from './employees';
 
 export const employeeSchools = pgTable(
 	'employee_schools',
 	{
-		id: serial().primaryKey(),
+		id: text()
+			.primaryKey()
+			.$defaultFn(() => nanoid()),
 		empNo: text()
 			.references(() => employees.empNo, { onDelete: 'cascade' })
 			.notNull(),
