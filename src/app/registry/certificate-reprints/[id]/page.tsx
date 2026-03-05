@@ -1,4 +1,13 @@
-import { Badge, Divider, SimpleGrid, Stack, Text } from '@mantine/core';
+import {
+	Box,
+	Divider,
+	Fieldset,
+	Grid,
+	GridCol,
+	Group,
+	Stack,
+	Text,
+} from '@mantine/core';
 import { notFound } from 'next/navigation';
 import { formatDate } from '@/shared/lib/utils/dates';
 import {
@@ -38,43 +47,52 @@ export default async function CertificateReprintDetails({ params }: Props) {
 				}}
 			/>
 			<DetailsViewBody>
-				<SimpleGrid cols={{ base: 1, sm: 2 }} mb='md'>
-					<FieldView underline={false} label='Student No'>
-						<Link href={`/registry/students/${item.stdNo}`}>{item.stdNo}</Link>
-					</FieldView>
-					<StatusUpdateModal id={item.id} status={item.status} />
-				</SimpleGrid>
-				<StudentInfoCard stdNo={item.stdNo} />
+				<Box>
+					<Grid>
+						<GridCol span={{ base: 12, md: 8 }}>
+							<FieldView underline={false} label='Student No'>
+								<Link href={`/registry/students/${item.stdNo}`}>
+									{item.stdNo}
+								</Link>
+							</FieldView>
+						</GridCol>
+						<GridCol span={{ base: 12, md: 4 }}>
+							<StatusUpdateModal id={item.id} status={item.status} />
+						</GridCol>
+					</Grid>
+					<Divider mt='xs' />
+				</Box>
+				<StudentInfoCard stdNo={item.stdNo} editable={false} />
 
 				<Divider />
 
-				<Stack gap='xs'>
+				<Stack>
 					{item.receiptNumber && (
 						<FieldView label='Receipt Number'>{item.receiptNumber}</FieldView>
 					)}
-					<FieldView label='Reason'>
+					<Fieldset legend='Reason'>
 						<Text size='sm' style={{ whiteSpace: 'pre-wrap' }}>
 							{item.reason}
 						</Text>
-					</FieldView>
-					{item.receivedAt && (
-						<FieldView label='Received At'>
-							{formatDate(item.receivedAt)}
-						</FieldView>
-					)}
-					{item.receivedByUser && (
-						<FieldView label='Received By'>
-							<Badge variant='light' color='gray'>
+					</Fieldset>
+					<Group grow>
+						{item.receivedAt && (
+							<FieldView label='Received At'>
+								{formatDate(item.receivedAt)}
+							</FieldView>
+						)}
+						{item.receivedByUser && (
+							<FieldView label='Received By'>
 								{item.receivedByUser.name}
-							</Badge>
+							</FieldView>
+						)}
+					</Group>
+					<Group grow>
+						<FieldView label='Created By'>{item.createdByUser?.name}</FieldView>
+						<FieldView label='Created At'>
+							{formatDate(item.createdAt)}
 						</FieldView>
-					)}
-					<FieldView label='Created By'>
-						<Badge variant='light' color='gray'>
-							{item.createdByUser?.name}
-						</Badge>
-					</FieldView>
-					<FieldView label='Created At'>{formatDate(item.createdAt)}</FieldView>
+					</Group>
 				</Stack>
 			</DetailsViewBody>
 		</DetailsView>

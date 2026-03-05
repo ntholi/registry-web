@@ -1,6 +1,6 @@
 'use client';
 
-import { Badge, Group } from '@mantine/core';
+import { Badge } from '@mantine/core';
 import type { PropsWithChildren } from 'react';
 import { getStatusColor } from '@/shared/lib/utils/colors';
 import { ListItem, ListLayout, NewLink } from '@/shared/ui/adease';
@@ -18,19 +18,17 @@ export default function Layout({ children }: PropsWithChildren) {
 			renderItem={(it) => (
 				<ListItem
 					id={it.id}
-					label={
-						<Group gap='xs'>
-							{it.student?.name ?? String(it.stdNo)}
-							<Badge
-								size='xs'
-								color={getStatusColor(
-									it.status === 'printed' ? 'approved' : 'pending'
-								)}
-								variant='light'
-							>
-								{it.status}
-							</Badge>
-						</Group>
+					label={it.student?.name ?? String(it.stdNo)}
+					rightSection={
+						<Badge
+							size='xs'
+							color={getStatusColor(
+								it.status === 'printed' ? 'approved' : 'pending'
+							)}
+							variant='light'
+						>
+							{it.status}
+						</Badge>
 					}
 					description={it.receiptNumber || 'No Receipt'}
 				/>

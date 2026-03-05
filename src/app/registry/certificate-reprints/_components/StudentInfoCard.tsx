@@ -7,9 +7,10 @@ import { getPublishedAcademicHistory } from '@/app/registry/students/_server/act
 
 type Props = {
 	stdNo: number | null;
+	editable?: boolean;
 };
 
-export default function StudentInfoCard({ stdNo }: Props) {
+export default function StudentInfoCard({ stdNo, editable = true }: Props) {
 	const isValid = stdNo !== null && String(stdNo).length === 9;
 
 	const { data: student, isLoading } = useQuery({
@@ -34,7 +35,7 @@ export default function StudentInfoCard({ stdNo }: Props) {
 				<Stack gap={4}>
 					<Flex justify='space-between'>
 						<InfoRow label='Name' value={student?.name} />
-						{student && <EditStudentModal student={student} />}
+						{editable && student && <EditStudentModal student={student} />}
 					</Flex>
 					<InfoRow label='Phone 1' value={student?.phone1} />
 					<InfoRow label='Phone 2' value={student?.phone2} />

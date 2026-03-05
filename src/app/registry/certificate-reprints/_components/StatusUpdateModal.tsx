@@ -1,12 +1,11 @@
 'use client';
 
 import {
-	ActionIcon,
 	Badge,
 	Button,
-	Card,
 	Group,
 	Modal,
+	Paper,
 	SegmentedControl,
 	Stack,
 	TextInput,
@@ -15,7 +14,6 @@ import { DateInput } from '@mantine/dates';
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import { certificateReprintStatus } from '@registry/_database';
-import { IconEdit } from '@tabler/icons-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
 import { useState } from 'react';
@@ -87,18 +85,18 @@ export default function StatusUpdateModal({ id, status: initial }: Props) {
 
 	return (
 		<>
-			<Card withBorder p='sm'>
-				<Group justify='space-between'>
+			<Paper withBorder p='sm'>
+				<Group justify='space-between' align='center'>
 					<Stack gap={2}>
-						<Badge color={color} variant='light'>
+						<Badge color={color} variant='light' radius='xs'>
 							{labels[initial]}
 						</Badge>
 					</Stack>
-					<ActionIcon variant='subtle' color='gray' onClick={handleOpen}>
-						<IconEdit size={18} />
-					</ActionIcon>
+					<Button onClick={handleOpen} size='xs' variant='light'>
+						Update
+					</Button>
 				</Group>
-			</Card>
+			</Paper>
 
 			<Modal opened={opened} onClose={close} title='Update Status'>
 				<Stack>
