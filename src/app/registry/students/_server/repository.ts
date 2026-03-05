@@ -675,15 +675,18 @@ export default class StudentRepository extends BaseRepository<
 					.values(kinValues)
 					.returning();
 
-				await this.writeAuditLogBatch(
-					tx,
-					createdKins.map((kin) => ({
-						operation: 'INSERT' as const,
-						recordId: String(kin.id),
-						oldValues: null,
-						newValues: kin,
-					})),
-					{ ...auditWithStdNo, activityType: 'student_creation' }
+				await Promise.all(
+					createdKins.map((kin) =>
+						this.writeAuditLogForTable(
+							tx,
+							'next_of_kins',
+							'INSERT',
+							String(kin.id),
+							null,
+							kin,
+							{ ...auditWithStdNo, activityType: 'student_creation' }
+						)
+					)
 				);
 			}
 
