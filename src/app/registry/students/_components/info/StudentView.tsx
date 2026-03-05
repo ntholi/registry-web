@@ -152,10 +152,20 @@ export default function StudentView({ student }: Props) {
 				<Paper p='md' radius='md' withBorder>
 					<Grid gutter='xl'>
 						<Grid.Col span={{ base: 12, sm: 6 }}>
-							<InfoItem label='Student Number' value={student.stdNo} copyable />
+							<InfoItem
+								label='Student Number'
+								value={student.stdNo}
+								copyable
+								showOnHover
+							/>
 						</Grid.Col>
 						<Grid.Col span={{ base: 12, sm: 6 }}>
-							<InfoItem label='Full Name' value={student.name} copyable />
+							<InfoItem
+								label='Full Name'
+								value={student.name}
+								copyable
+								showOnHover
+							/>
 						</Grid.Col>
 						<Grid.Col span={{ base: 12, sm: 6 }}>
 							<InfoItem label='National ID' value={student.nationalId} />

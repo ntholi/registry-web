@@ -1,5 +1,6 @@
 import { certificateReprints } from '@registry/_database';
-import { count, desc, eq, sql } from 'drizzle-orm';
+import { studentPrograms } from '@registry/students/_schema/studentPrograms';
+import { and, count, desc, eq, isNotNull, sql } from 'drizzle-orm';
 import { db } from '@/core/database';
 import BaseRepository, {
 	type AuditOptions,
@@ -61,6 +62,19 @@ class CertificateReprintsRepository extends BaseRepository<
 			totalPages: Math.ceil(totalItems / size),
 			totalItems,
 		};
+	}
+
+	async hasGraduationDate(stdNo: number) {
+		const [result] = await db
+			.select({ count: count() })
+			.from(studentPrograms)
+			.where(
+				and(
+					eq(studentPrograms.stdNo, stdNo),
+					isNotNull(studentPrograms.graduationDate)
+				)
+			);
+		return (result?.count ?? 0) > 0;
 	}
 
 	async create(data: CertificateReprint, audit?: AuditOptions) {

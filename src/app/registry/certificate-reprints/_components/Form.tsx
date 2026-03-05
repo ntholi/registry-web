@@ -1,10 +1,11 @@
 'use client';
 
-import { Textarea } from '@mantine/core';
+import { Alert, Textarea } from '@mantine/core';
 import { certificateReprints } from '@registry/_database';
+import { IconAlertCircle } from '@tabler/icons-react';
 import { createInsertSchema } from 'drizzle-zod';
 import { useRouter } from 'nextjs-toploader/app';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import StdNoInput from '@/app/dashboard/base/StdNoInput';
 import { Form, ReceiptInput } from '@/shared/ui/adease';
 import StudentInfoCard from './StudentInfoCard';
@@ -34,6 +35,11 @@ export default function CertificateReprintForm({
 	const [stdNo, setStdNo] = useState<number | null>(
 		defaultValues?.stdNo ?? null
 	);
+	const [hasGraduationDate, setHasGraduationDate] = useState(true);
+
+	const onGraduationDateChange = useCallback((value: boolean) => {
+		setHasGraduationDate(value);
+	}, []);
 
 	return (
 		<Form
@@ -44,6 +50,14 @@ export default function CertificateReprintForm({
 			defaultValues={defaultValues}
 			onSuccess={({ id }) => {
 				router.push(`/registry/certificate-reprints/${id}`);
+			}}
+			beforeSubmit={(form) => {
+				if (!hasGraduationDate) {
+					form.setFieldError(
+						'stdNo',
+						'Student does not have a graduation date'
+					);
+				}
 			}}
 		>
 			{(form) => (
@@ -59,7 +73,20 @@ export default function CertificateReprintForm({
 						}}
 					/>
 
-					<StudentInfoCard stdNo={stdNo} />
+					<StudentInfoCard
+						stdNo={stdNo}
+						onGraduationDateChange={onGraduationDateChange}
+					/>
+					{!hasGraduationDate && (
+						<Alert
+							color='red'
+							icon={<IconAlertCircle size={16} />}
+							title='Cannot Create Reprint'
+						>
+							This student does not have a graduation date. Certificate reprints
+							can only be created for graduated students.
+						</Alert>
+					)}
 					<ReceiptInput
 						label='Receipt Number'
 						{...form.getInputProps('receiptNumber')}

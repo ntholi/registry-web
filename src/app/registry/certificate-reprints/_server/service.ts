@@ -31,7 +31,13 @@ class CertificateReprintsService {
 
 	async create(data: CertificateReprint) {
 		return withAuth(
-			(session) => {
+			async (session) => {
+				const hasGradDate = await this.repository.hasGraduationDate(data.stdNo);
+				if (!hasGradDate) {
+					throw new Error(
+						'Student does not have a graduation date. Certificate reprints can only be created for graduated students.'
+					);
+				}
 				const userId = requireSessionUserId(session);
 				return this.repository.create(
 					{ ...data, createdBy: userId },

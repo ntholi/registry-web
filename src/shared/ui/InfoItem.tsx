@@ -10,6 +10,7 @@ type Props = {
 	href?: string;
 	displayValue?: string | null;
 	copyable?: boolean;
+	showOnHover?: boolean;
 };
 
 export default function InfoItem({
@@ -18,6 +19,7 @@ export default function InfoItem({
 	href,
 	displayValue,
 	copyable = true,
+	showOnHover = false,
 }: Props) {
 	const content = href ? (
 		<Link href={href} size='sm' fw={500}>
@@ -35,7 +37,7 @@ export default function InfoItem({
 				{label}
 			</Text>
 			{copyable && value ? (
-				<Copyable value={String(value)}>{content}</Copyable>
+				<Copyable value={String(value)} showOnHover={showOnHover}>{content}</Copyable>
 			) : (
 				content
 			)}

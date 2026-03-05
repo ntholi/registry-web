@@ -3,14 +3,20 @@
 import { Card, Flex, Group, Skeleton, Stack, Text } from '@mantine/core';
 import EditStudentModal from '@registry/students/_components/info/EditStudentModal';
 import { useQuery } from '@tanstack/react-query';
+import { useEffect } from 'react';
 import { getPublishedAcademicHistory } from '@/app/registry/students/_server/actions';
 
 type Props = {
 	stdNo: number | null;
 	editable?: boolean;
+	onGraduationDateChange?: (hasGraduationDate: boolean) => void;
 };
 
-export default function StudentInfoCard({ stdNo, editable = true }: Props) {
+export default function StudentInfoCard({
+	stdNo,
+	editable = true,
+	onGraduationDateChange,
+}: Props) {
 	const isValid = stdNo !== null && String(stdNo).length === 9;
 
 	const { data: student, isLoading } = useQuery({
@@ -22,6 +28,14 @@ export default function StudentInfoCard({ stdNo, editable = true }: Props) {
 	const completedProgram = student?.programs?.find(
 		(p) => p?.status === 'Completed'
 	);
+
+	const hasGraduationDate = !!completedProgram?.graduationDate;
+
+	useEffect(() => {
+		if (!isLoading) {
+			onGraduationDateChange?.(isValid ? hasGraduationDate : true);
+		}
+	}, [hasGraduationDate, isValid, isLoading, onGraduationDateChange]);
 
 	return (
 		<Card withBorder>
