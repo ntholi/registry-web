@@ -1,10 +1,8 @@
 'use client';
 
 import {
-	ActionIcon,
 	Anchor,
 	Avatar,
-	CopyButton,
 	Flex,
 	Group,
 	HoverCard,
@@ -16,19 +14,16 @@ import {
 	Table,
 	Text,
 	TextInput,
-	Tooltip,
 } from '@mantine/core';
 import { useDebouncedValue } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import { getStudentPhoto } from '@registry/students';
 import {
 	IconCalendarOff,
-	IconCheck,
 	IconCircleCheck,
 	IconCircleMinus,
 	IconCircleX,
 	IconClock,
-	IconCopy,
 	IconQuestionMark,
 	IconSearch,
 } from '@tabler/icons-react';
@@ -37,6 +32,7 @@ import { useMemo, useState } from 'react';
 import type { AttendanceStatus } from '@/core/database';
 import { getStatusColor } from '@/shared/lib/utils/colors';
 import { formatPhoneNumber } from '@/shared/lib/utils/utils';
+import Copyable from '@/shared/ui/Copyable';
 import Link from '@/shared/ui/Link';
 import { getAttendanceForWeek, markAttendance } from '../_server/actions';
 
@@ -430,7 +426,7 @@ function ContactValue({
 		);
 	}
 
-	return (
+	const content = (
 		<Group gap={4} wrap='nowrap'>
 			{showLabel && (
 				<Text size='xs' c='dimmed' w={42}>
@@ -444,22 +440,12 @@ function ContactValue({
 			) : (
 				<Text size='sm'>{value}</Text>
 			)}
-			{copyable && (
-				<CopyButton value={copyValue ?? ''}>
-					{({ copied, copy }) => (
-						<Tooltip label={copied ? 'Copied' : `Copy ${label.toLowerCase()}`}>
-							<ActionIcon
-								variant='subtle'
-								size='sm'
-								color={copied ? 'green' : 'gray'}
-								onClick={copy}
-							>
-								{copied ? <IconCheck size={14} /> : <IconCopy size={14} />}
-							</ActionIcon>
-						</Tooltip>
-					)}
-				</CopyButton>
-			)}
 		</Group>
 	);
+
+	if (copyable && copyValue) {
+		return <Copyable value={copyValue}>{content}</Copyable>;
+	}
+
+	return content;
 }

@@ -1,16 +1,9 @@
 'use client';
 
-import {
-	ActionIcon,
-	Anchor,
-	CopyButton,
-	Group,
-	PasswordInput,
-	Stack,
-	Tooltip,
-} from '@mantine/core';
-import { IconCheck, IconCopy, IconExternalLink } from '@tabler/icons-react';
+import { Anchor, Group, PasswordInput, Stack } from '@mantine/core';
+import { IconExternalLink } from '@tabler/icons-react';
 import { FieldView } from '@/shared/ui/adease';
+import Copyable from '@/shared/ui/Copyable';
 import type { ExternalLibrary } from '../_lib/types';
 
 type Props = {
@@ -33,58 +26,20 @@ export default function DetailsContent({ library }: Props) {
 
 			{library.username && (
 				<FieldView label='Username'>
-					<Group gap='xs'>
-						{library.username}
-						<CopyButton value={library.username} timeout={2000}>
-							{({ copied, copy }) => (
-								<Tooltip
-									label={copied ? 'Copied' : 'Copy'}
-									withArrow
-									position='right'
-								>
-									<ActionIcon
-										color={copied ? 'teal' : 'gray'}
-										variant='subtle'
-										onClick={copy}
-										size='xs'
-									>
-										{copied ? <IconCheck size={14} /> : <IconCopy size={14} />}
-									</ActionIcon>
-								</Tooltip>
-							)}
-						</CopyButton>
-					</Group>
+					<Copyable value={library.username}>{library.username}</Copyable>
 				</FieldView>
 			)}
 
 			{library.password && (
 				<FieldView label='Password'>
-					<Group gap='xs'>
+					<Copyable value={library.password}>
 						<PasswordInput
 							value={library.password}
 							readOnly
 							variant='unstyled'
 							styles={{ input: { width: 150 } }}
 						/>
-						<CopyButton value={library.password} timeout={2000}>
-							{({ copied, copy }) => (
-								<Tooltip
-									label={copied ? 'Copied' : 'Copy'}
-									withArrow
-									position='right'
-								>
-									<ActionIcon
-										color={copied ? 'teal' : 'gray'}
-										variant='subtle'
-										onClick={copy}
-										size='xs'
-									>
-										{copied ? <IconCheck size={14} /> : <IconCopy size={14} />}
-									</ActionIcon>
-								</Tooltip>
-							)}
-						</CopyButton>
-					</Group>
+					</Copyable>
 				</FieldView>
 			)}
 

@@ -18,6 +18,7 @@ import {
 	DetailsViewBody,
 	DetailsViewHeader,
 } from '@/shared/ui/adease';
+import Copyable from '@/shared/ui/Copyable';
 import Link from '@/shared/ui/Link';
 import TaskStatusSelect from './TaskStatusSelect';
 
@@ -129,9 +130,11 @@ export default async function TaskDetails({ params }: Props) {
 											>
 												{student.name}
 											</Link>
-											<Badge variant='light' size='sm'>
-												{student.stdNo}
-											</Badge>
+											<Copyable value={String(student.stdNo)}>
+												<Badge variant='light' radius={'xs'}>
+													{student.stdNo}
+												</Badge>
+											</Copyable>
 										</Group>
 									))}
 								</Stack>

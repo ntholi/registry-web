@@ -1,17 +1,8 @@
 'use client';
 
-import {
-	ActionIcon,
-	CopyButton,
-	Grid,
-	GridCol,
-	Group,
-	Paper,
-	Text,
-	Tooltip,
-} from '@mantine/core';
-import { IconCheck, IconCopy } from '@tabler/icons-react';
+import { Grid, GridCol, Paper, Text } from '@mantine/core';
 import type React from 'react';
+import Copyable from '@/shared/ui/Copyable';
 import Link from '@/shared/ui/Link';
 
 type Props = {
@@ -99,29 +90,18 @@ function CopyableField({
 	copyable = true,
 	textProps,
 }: CopyableFieldProps) {
+	const inner = content || (
+		<Text size='sm' fw={500} ff={textProps?.ff}>
+			{value}
+		</Text>
+	);
+
 	return (
 		<>
 			<Text size='xs' c='dimmed'>
 				{label}
 			</Text>
-			<Group gap='xs' align='center' wrap='nowrap'>
-				{content || (
-					<Text size='sm' fw={500} ff={textProps?.ff}>
-						{value}
-					</Text>
-				)}
-				{copyable && (
-					<CopyButton value={value} timeout={2000}>
-						{({ copied, copy }) => (
-							<Tooltip label={copied ? 'Copied' : 'Copy'}>
-								<ActionIcon variant='subtle' onClick={copy}>
-									{copied ? <IconCheck size={15} /> : <IconCopy size={15} />}
-								</ActionIcon>
-							</Tooltip>
-						)}
-					</CopyButton>
-				)}
-			</Group>
+			{copyable ? <Copyable value={value}>{inner}</Copyable> : inner}
 		</>
 	);
 }
