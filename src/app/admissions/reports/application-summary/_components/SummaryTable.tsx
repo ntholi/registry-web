@@ -83,11 +83,13 @@ type CardDef = {
 	value: number;
 	icon: React.ReactNode;
 	color: string;
+
 	highlight?: boolean;
 };
 
 type SummaryCardsProps = {
 	totals: Record<string, number>;
+	grandTotal?: number;
 };
 
 function SummaryCards({ totals }: SummaryCardsProps) {
