@@ -177,6 +177,7 @@ export default function StudentView({ student }: Props) {
 						<Grid.Col span={{ base: 12, sm: 6 }}>
 							<InfoItem
 								label='Date of Birth'
+								showOnHover
 								value={`${formatDate(student.dateOfBirth)} • ${calculateAge(student.dateOfBirth)} Years`}
 							/>
 						</Grid.Col>
@@ -262,6 +263,7 @@ export default function StudentView({ student }: Props) {
 								<Grid.Col span={{ base: 12, sm: 6 }}>
 									<InfoItem
 										label='Intake Date'
+										showOnHover
 										value={programForView.intakeDate}
 									/>
 								</Grid.Col>
@@ -357,6 +359,7 @@ export default function StudentView({ student }: Props) {
 									<Grid.Col span={{ base: 12, sm: 6 }}>
 										<InfoItem
 											label='Phone'
+											showOnHover
 											href={
 												kin.phone
 													? `tel:${stripPhoneNumber(kin.phone)}`
