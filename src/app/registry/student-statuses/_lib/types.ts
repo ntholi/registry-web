@@ -15,7 +15,7 @@ export type StudentStatusApprovalState =
 	(typeof studentStatusApprovals.status.enumValues)[number];
 
 export interface StudentStatusEditableInput {
-	termCode: string;
+	termId: number;
 	justification: StudentStatusJustification;
 	notes?: string | null;
 }

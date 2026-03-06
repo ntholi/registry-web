@@ -24,7 +24,7 @@ export default async function StudentStatusEditPage({ params }: Props) {
 				onSubmit={async (value) => {
 					'use server';
 					return updateStudentStatus(id, {
-						termCode: value.termCode,
+						termId: value.termId as number,
 						justification: value.justification,
 						notes: value.notes,
 					});

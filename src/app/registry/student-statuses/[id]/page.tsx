@@ -90,7 +90,9 @@ export default function StudentStatusDetails() {
 						<FieldView label='Justification'>
 							{getJustificationLabel(app.justification)}
 						</FieldView>
-						<FieldView label='Term Code'>{app.termCode}</FieldView>
+						<FieldView label='Term'>
+							{app.term?.name ?? app.term?.code ?? app.termCode ?? '-'}
+						</FieldView>
 						<FieldView label='Created By'>{app.creator?.name ?? '-'}</FieldView>
 						<FieldView label='Created Date'>
 							{app.createdAt ? formatDateTime(app.createdAt, 'long') : '-'}

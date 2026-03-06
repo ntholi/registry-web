@@ -40,6 +40,7 @@ export default class StudentStatusRepository extends BaseRepository<
 				student: true,
 				approvals: { with: { responder: true } },
 				semester: true,
+				term: true,
 				creator: true,
 			},
 		});
@@ -195,7 +196,7 @@ export default class StudentStatusRepository extends BaseRepository<
 		return this.update(
 			id,
 			{
-				termCode: data.termCode,
+				termId: data.termId,
 				justification: data.justification,
 				notes: data.notes,
 				updatedAt: new Date(),

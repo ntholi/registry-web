@@ -1,6 +1,7 @@
 import { users } from '@auth/users/_schema/users';
 import { studentSemesters } from '@registry/students/_schema/studentSemesters';
 import { students } from '@registry/students/_schema/students';
+import { terms } from '@registry/terms/_schema/terms';
 import {
 	bigint,
 	index,
@@ -53,7 +54,8 @@ export const studentStatuses = pgTable(
 		status: studentStatusStatus().notNull().default('pending'),
 		justification: studentStatusJustification().notNull(),
 		notes: text(),
-		termCode: text().notNull(),
+		termCode: text(),
+		termId: integer().references(() => terms.id),
 		semesterId: integer().references(() => studentSemesters.id, {
 			onDelete: 'set null',
 		}),
@@ -66,5 +68,6 @@ export const studentStatuses = pgTable(
 		statusIdx: index('idx_student_statuses_status').on(table.status),
 		typeIdx: index('idx_student_statuses_type').on(table.type),
 		termIdx: index('idx_student_statuses_term').on(table.termCode),
+		termIdIdx: index('idx_student_statuses_term_id').on(table.termId),
 	})
 );

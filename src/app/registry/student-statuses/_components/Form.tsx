@@ -6,19 +6,20 @@ import {
 	Group,
 	Paper,
 	Select,
+	SimpleGrid,
 	Text,
 	Textarea,
-	TextInput,
 } from '@mantine/core';
 import { studentStatuses } from '@registry/_database';
 import { getStudent, getStudentPhoto } from '@registry/students';
+import { getAllTerms } from '@registry/terms';
 import { IconUser } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { createInsertSchema } from 'drizzle-zod';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { z } from 'zod';
 import StudentInput from '@/app/dashboard/base/StudentInput';
-import { useActiveTerm } from '@/shared/lib/hooks/use-active-term';
 import { Form } from '@/shared/ui/adease';
 import { getJustificationLabel, getTypeLabel } from '../_lib/labels';
 
@@ -32,12 +33,15 @@ type Props = {
 	mode?: 'create' | 'edit';
 };
 
-const schema = createInsertSchema(studentStatuses).omit({
-	status: true,
-	createdBy: true,
-	createdAt: true,
-	updatedAt: true,
-});
+const schema = createInsertSchema(studentStatuses)
+	.omit({
+		status: true,
+		createdBy: true,
+		createdAt: true,
+		updatedAt: true,
+		termCode: true,
+	})
+	.extend({ termId: z.number() });
 
 const withdrawalJustifications = [
 	'medical',
@@ -70,7 +74,6 @@ export default function StudentStatusForm({
 	mode = 'create',
 }: Props) {
 	const router = useRouter();
-	const { activeTerm } = useActiveTerm();
 	const isEdit = mode === 'edit';
 	const [validStudentNo, setValidStudentNo] = useState(
 		!!defaultValues?.stdNo && String(defaultValues.stdNo).length === 9
@@ -94,16 +97,18 @@ export default function StudentStatusForm({
 		enabled: !!selectedStdNo,
 	});
 
+	const { data: terms } = useQuery({
+		queryKey: ['terms'],
+		queryFn: getAllTerms,
+	});
+
 	return (
 		<Form
 			title={title}
 			action={onSubmit}
 			queryKey={['student-statuses']}
 			schema={schema}
-			defaultValues={{
-				...defaultValues,
-				termCode: defaultValues?.termCode ?? activeTerm?.code ?? '',
-			}}
+			defaultValues={defaultValues}
 			onSuccess={({ id }) => {
 				router.push(`/registry/student-statuses/${id}`);
 			}}
@@ -160,34 +165,48 @@ export default function StudentStatusForm({
 
 						{validStudentNo && (
 							<>
-								<Select
-									label='Type'
-									required
-									disabled={isEdit}
-									data={studentStatuses.type.enumValues.map((v) => ({
-										value: v,
-										label: getTypeLabel(v),
-									}))}
-									{...form.getInputProps('type')}
-									onChange={isEdit ? undefined : handleTypeChange}
-								/>
+								<SimpleGrid cols={2} spacing='md'>
+									<Select
+										label='Type'
+										required
+										disabled={isEdit}
+										data={studentStatuses.type.enumValues.map((v) => ({
+											value: v,
+											label: getTypeLabel(v),
+										}))}
+										{...form.getInputProps('type')}
+										onChange={isEdit ? undefined : handleTypeChange}
+									/>
+									<Select
+										label='Justification'
+										required
+										disabled={!selectedType}
+										data={getJustificationOptions(selectedType)}
+										{...form.getInputProps('justification')}
+									/>
+								</SimpleGrid>
 
 								{selectedType && (
 									<>
 										<Select
-											label='Justification'
+											label='Term'
 											required
-											data={getJustificationOptions(selectedType)}
-											{...form.getInputProps('justification')}
+											searchable
+											data={(terms ?? []).map((t) => ({
+												value: String(t.id),
+												label: t.name ?? t.code,
+											}))}
+											value={
+												form.values.termId ? String(form.values.termId) : null
+											}
+											onChange={(value) =>
+												form.setFieldValue(
+													'termId',
+													value ? Number(value) : undefined
+												)
+											}
+											error={form.errors.termId}
 										/>
-
-										<TextInput
-											label='Term Code'
-											required
-											placeholder='YYYY-MM'
-											{...form.getInputProps('termCode')}
-										/>
-
 										<Textarea
 											label='Notes'
 											autosize
