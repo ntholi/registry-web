@@ -7,10 +7,10 @@ import {
 	integer,
 	pgEnum,
 	pgTable,
-	serial,
 	text,
 	timestamp,
 } from 'drizzle-orm/pg-core';
+import { nanoid } from 'nanoid';
 
 export const studentStatusType = pgEnum('student_status_type', [
 	'withdrawal',
@@ -43,7 +43,9 @@ export const studentStatusJustification = pgEnum(
 export const studentStatuses = pgTable(
 	'student_statuses',
 	{
-		id: serial().primaryKey(),
+		id: text()
+			.primaryKey()
+			.$defaultFn(() => nanoid()),
 		stdNo: bigint({ mode: 'number' })
 			.references(() => students.stdNo, { onDelete: 'cascade' })
 			.notNull(),

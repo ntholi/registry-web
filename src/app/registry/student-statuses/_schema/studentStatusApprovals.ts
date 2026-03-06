@@ -1,14 +1,13 @@
 import { users } from '@auth/users/_schema/users';
 import {
 	index,
-	integer,
 	pgEnum,
 	pgTable,
-	serial,
 	text,
 	timestamp,
 	unique,
 } from 'drizzle-orm/pg-core';
+import { nanoid } from 'nanoid';
 import { studentStatuses } from './studentStatuses';
 
 export const studentStatusApprovalRole = pgEnum(
@@ -24,8 +23,10 @@ export const studentStatusApprovalStatus = pgEnum(
 export const studentStatusApprovals = pgTable(
 	'student_status_approvals',
 	{
-		id: serial().primaryKey(),
-		applicationId: integer()
+		id: text()
+			.primaryKey()
+			.$defaultFn(() => nanoid()),
+		applicationId: text()
 			.references(() => studentStatuses.id, { onDelete: 'cascade' })
 			.notNull(),
 		approverRole: studentStatusApprovalRole().notNull(),

@@ -14,7 +14,7 @@ type StudentStatusInsert = typeof studentStatuses.$inferInsert;
 type StatusType = (typeof studentStatuses.type.enumValues)[number];
 
 type Props = {
-	onSubmit: (values: StudentStatusInsert) => Promise<{ id: number }>;
+	onSubmit: (values: StudentStatusInsert) => Promise<{ id: string }>;
 	defaultValues?: StudentStatusInsert;
 	title?: string;
 	mode?: 'create' | 'edit';

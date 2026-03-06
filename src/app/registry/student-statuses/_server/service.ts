@@ -41,7 +41,7 @@ class StudentStatusService extends BaseService<typeof studentStatuses, 'id'> {
 		});
 	}
 
-	async get(id: number) {
+	async get(id: string) {
 		return withAuth(async () => this.repository.findById(id), ['dashboard']);
 	}
 
@@ -149,7 +149,7 @@ class StudentStatusService extends BaseService<typeof studentStatuses, 'id'> {
 		);
 	}
 
-	async edit(id: number, data: StudentStatusEditableInput) {
+	async edit(id: string, data: StudentStatusEditableInput) {
 		return withAuth(
 			async (session) => {
 				const userId = requireSessionUserId(session);
@@ -179,7 +179,7 @@ class StudentStatusService extends BaseService<typeof studentStatuses, 'id'> {
 		);
 	}
 
-	async cancel(id: number) {
+	async cancel(id: string) {
 		return withAuth(
 			async (session) => {
 				const userId = requireSessionUserId(session);
@@ -204,7 +204,7 @@ class StudentStatusService extends BaseService<typeof studentStatuses, 'id'> {
 		);
 	}
 
-	async approve(approvalId: number) {
+	async approve(approvalId: string) {
 		return withAuth(
 			async (session) => {
 				const userId = requireSessionUserId(session);
@@ -248,7 +248,7 @@ class StudentStatusService extends BaseService<typeof studentStatuses, 'id'> {
 		);
 	}
 
-	async reject(approvalId: number, message?: string) {
+	async reject(approvalId: string, message?: string) {
 		return withAuth(
 			async (session) => {
 				const userId = requireSessionUserId(session);
@@ -288,7 +288,7 @@ class StudentStatusService extends BaseService<typeof studentStatuses, 'id'> {
 	}
 
 	private async onAllApproved(
-		app: { id: number; type: string; stdNo: number; semesterId: number | null },
+		app: { id: string; type: string; stdNo: number; semesterId: number | null },
 		session: Session
 	) {
 		const userId = requireSessionUserId(session);

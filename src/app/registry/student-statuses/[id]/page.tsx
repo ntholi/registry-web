@@ -27,7 +27,7 @@ import { cancelStudentStatus, getStudentStatus } from '../_server/actions';
 
 export default function StudentStatusDetails() {
 	const params = useParams();
-	const id = Number(params.id);
+	const id = params.id as string;
 
 	const {
 		data: app,

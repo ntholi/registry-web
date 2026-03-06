@@ -33,7 +33,7 @@ export default class StudentStatusRepository extends BaseRepository<
 		super(studentStatuses, studentStatuses.id);
 	}
 
-	async findById(id: number) {
+	async findById(id: string) {
 		return db.query.studentStatuses.findFirst({
 			where: eq(studentStatuses.id, id),
 			with: {
@@ -150,7 +150,7 @@ export default class StudentStatusRepository extends BaseRepository<
 	}
 
 	async updateStatus(
-		id: number,
+		id: string,
 		status: StudentStatusState,
 		audit?: AuditOptions
 	) {
@@ -176,7 +176,7 @@ export default class StudentStatusRepository extends BaseRepository<
 				.returning();
 
 			if (old) {
-				await this.writeAuditLog(tx, 'UPDATE', String(id), old, updated, {
+				await this.writeAuditLog(tx, 'UPDATE', id, old, updated, {
 					...audit,
 					activityType: 'student_status_updated',
 					stdNo: old.stdNo,
@@ -188,7 +188,7 @@ export default class StudentStatusRepository extends BaseRepository<
 	}
 
 	async updateEditable(
-		id: number,
+		id: string,
 		data: StudentStatusEditableInput,
 		audit?: AuditOptions
 	) {
@@ -205,7 +205,7 @@ export default class StudentStatusRepository extends BaseRepository<
 	}
 
 	async respondToApproval(
-		id: number,
+		id: string,
 		data: ApprovalResponse,
 		audit?: AuditOptions
 	) {
@@ -256,14 +256,14 @@ export default class StudentStatusRepository extends BaseRepository<
 		});
 	}
 
-	async getApprovalsByAppId(appId: number) {
+	async getApprovalsByAppId(appId: string) {
 		return db.query.studentStatusApprovals.findMany({
 			where: eq(studentStatusApprovals.applicationId, appId),
 			with: { responder: true },
 		});
 	}
 
-	async findApprovalById(id: number) {
+	async findApprovalById(id: string) {
 		return db.query.studentStatusApprovals.findFirst({
 			where: eq(studentStatusApprovals.id, id),
 			with: { application: true },

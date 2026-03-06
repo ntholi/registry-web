@@ -9,7 +9,7 @@ type Props = {
 
 export default async function StudentStatusEditPage({ params }: Props) {
 	const { id } = await params;
-	const item = await getStudentStatus(Number(id));
+	const item = await getStudentStatus(id);
 
 	if (!item) {
 		return notFound();
@@ -23,7 +23,7 @@ export default async function StudentStatusEditPage({ params }: Props) {
 				defaultValues={item}
 				onSubmit={async (value) => {
 					'use server';
-					return updateStudentStatus(Number(id), {
+					return updateStudentStatus(id, {
 						termCode: value.termCode,
 						justification: value.justification,
 						notes: value.notes,

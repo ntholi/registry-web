@@ -8,7 +8,7 @@ import type {
 } from '../_lib/types';
 import { studentStatusesService } from './service';
 
-export async function getStudentStatus(id: number) {
+export async function getStudentStatus(id: string) {
 	return studentStatusesService.get(id);
 }
 
@@ -45,7 +45,7 @@ export async function createStudentStatus(data: StudentStatusInsert) {
 }
 
 export async function updateStudentStatus(
-	id: number,
+	id: string,
 	data: StudentStatusEditableInput
 ) {
 	const result = await studentStatusesService.edit(id, data);
@@ -53,16 +53,16 @@ export async function updateStudentStatus(
 	return { id: result.id };
 }
 
-export async function cancelStudentStatus(id: number) {
+export async function cancelStudentStatus(id: string) {
 	return studentStatusesService.cancel(id);
 }
 
-export async function approveStudentStatusStep(approvalId: number) {
+export async function approveStudentStatusStep(approvalId: string) {
 	return studentStatusesService.approve(approvalId);
 }
 
 export async function rejectStudentStatusStep(
-	approvalId: number,
+	approvalId: string,
 	message?: string
 ) {
 	return studentStatusesService.reject(approvalId, message);

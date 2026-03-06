@@ -8,7 +8,7 @@ import { getStatusIcon, type StatusType } from '@/shared/lib/utils/status';
 import { getApprovalRoleLabel } from '../_lib/labels';
 
 type Approval = {
-	id: number;
+	id: string;
 	approverRole: string;
 	status: string;
 	respondedBy: string | null;

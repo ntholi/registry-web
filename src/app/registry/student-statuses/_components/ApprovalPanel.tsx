@@ -26,7 +26,7 @@ import {
 } from '../_server/actions';
 
 type Approval = {
-	id: number;
+	id: string;
 	approverRole: StudentStatusApprovalRole;
 	status: string;
 	respondedBy: string | null;
@@ -38,7 +38,7 @@ type Approval = {
 type Props = {
 	approvals: Approval[];
 	applicationStatus: string;
-	applicationId: number;
+	applicationId: string;
 };
 
 export default function ApprovalPanel({
@@ -105,8 +105,8 @@ export default function ApprovalPanel({
 }
 
 type ApprovalActionsProps = {
-	approvalId: number;
-	applicationId: number;
+	approvalId: string;
+	applicationId: string;
 };
 
 function ApprovalActions({ approvalId, applicationId }: ApprovalActionsProps) {
