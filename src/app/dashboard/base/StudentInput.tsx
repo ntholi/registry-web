@@ -2,7 +2,7 @@
 
 import { Autocomplete, Avatar, Box, Group, Loader, Text } from '@mantine/core';
 import { useDebouncedValue } from '@mantine/hooks';
-import { findAllStudents, getStudent } from '@registry/students';
+import { findAllStudents } from '@registry/students';
 import { IconCheck, IconSearch, IconUser } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
@@ -36,25 +36,12 @@ export default function StudentInput({
 	const [isSelected, setIsSelected] = useState(() => Boolean(value));
 	const [debounced] = useDebouncedValue(inputValue, 350);
 
-	const committedStdNo = value ? Number(value) || null : null;
-
 	const { data: results, isLoading } = useQuery({
 		queryKey: ['student-search', debounced],
 		queryFn: () => findAllStudents(1, debounced),
 		enabled: debounced.length >= 2 && !isSelected,
 		select: (data) => data.items,
 	});
-
-	const { data: selectedStudent } = useQuery({
-		queryKey: ['student', committedStdNo],
-		queryFn: () => getStudent(committedStdNo!),
-		enabled: !!committedStdNo,
-	});
-
-	const selectedLabel = selectedStudent
-		? formatStudentLabel(selectedStudent.name, selectedStudent.stdNo)
-		: '';
-	const currentValue = isSelected && selectedLabel ? selectedLabel : inputValue;
 
 	const options = (results ?? []).map((s) => ({
 		value: formatStudentLabel(s.name, s.stdNo),
@@ -83,13 +70,8 @@ export default function StudentInput({
 			return;
 		}
 
-		if (selectedLabel && val === selectedLabel) {
-			setIsSelected(true);
-			return;
-		}
-
 		setIsSelected(false);
-		if (committedStdNo) onChange?.('');
+		if (value) onChange?.('');
 	}
 
 	return (
@@ -97,7 +79,7 @@ export default function StudentInput({
 			<Autocomplete
 				label={label}
 				placeholder={placeholder}
-				value={currentValue}
+				value={inputValue}
 				onChange={handleChange}
 				onOptionSubmit={handleSelect}
 				data={options}

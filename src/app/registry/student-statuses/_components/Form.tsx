@@ -1,7 +1,19 @@
 'use client';
 
-import { Select, Textarea, TextInput } from '@mantine/core';
+import {
+	Avatar,
+	Box,
+	Group,
+	Paper,
+	Select,
+	Text,
+	Textarea,
+	TextInput,
+} from '@mantine/core';
 import { studentStatuses } from '@registry/_database';
+import { getStudent, getStudentPhoto } from '@registry/students';
+import { IconUser } from '@tabler/icons-react';
+import { useQuery } from '@tanstack/react-query';
 import { createInsertSchema } from 'drizzle-zod';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
@@ -63,9 +75,24 @@ export default function StudentStatusForm({
 	const [validStudentNo, setValidStudentNo] = useState(
 		!!defaultValues?.stdNo && String(defaultValues.stdNo).length === 9
 	);
+	const [selectedStdNo, setSelectedStdNo] = useState<number | null>(
+		defaultValues?.stdNo ? Number(defaultValues.stdNo) : null
+	);
 	const [selectedType, setSelectedType] = useState<StatusType | null>(
 		defaultValues?.type ?? null
 	);
+
+	const { data: selectedStudent } = useQuery({
+		queryKey: ['student', selectedStdNo],
+		queryFn: () => getStudent(selectedStdNo!),
+		enabled: !!selectedStdNo,
+	});
+
+	const { data: photoUrl } = useQuery({
+		queryKey: ['student-photo', selectedStdNo],
+		queryFn: () => getStudentPhoto(selectedStdNo),
+		enabled: !!selectedStdNo,
+	});
 
 	return (
 		<Form
@@ -85,6 +112,8 @@ export default function StudentStatusForm({
 				const handleStdNoChange = (value: number | string) => {
 					form.setFieldValue('stdNo', value as number);
 					const strValue = String(value);
+					const stdNo = Number(value);
+					setSelectedStdNo(stdNo > 0 ? stdNo : null);
 					setValidStudentNo(
 						strValue.length === 9 && strValue.startsWith('9010')
 					);
@@ -105,6 +134,29 @@ export default function StudentStatusForm({
 							onChange={handleStdNoChange}
 							disabled={isEdit}
 						/>
+
+						{selectedStudent && (
+							<Paper withBorder p='sm' mt='xs' radius='md' bg='transparent'>
+								<Group gap='sm'>
+									<Avatar
+										size={46}
+										radius='xl'
+										src={photoUrl ?? undefined}
+										color='blue'
+									>
+										<IconUser size={22} />
+									</Avatar>
+									<Box>
+										<Text fw={600} size='sm'>
+											{selectedStudent.name}
+										</Text>
+										<Text size='xs' c='dimmed'>
+											{selectedStudent.stdNo}
+										</Text>
+									</Box>
+								</Group>
+							</Paper>
+						)}
 
 						{validStudentNo && (
 							<>
