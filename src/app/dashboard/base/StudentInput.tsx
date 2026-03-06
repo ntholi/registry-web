@@ -1,20 +1,8 @@
 'use client';
 
-import {
-	Autocomplete,
-	Avatar,
-	Box,
-	Group,
-	Loader,
-	Paper,
-	Text,
-} from '@mantine/core';
+import { Autocomplete, Avatar, Box, Group, Loader, Text } from '@mantine/core';
 import { useDebouncedValue } from '@mantine/hooks';
-import {
-	findAllStudents,
-	getStudent,
-	getStudentPhoto,
-} from '@registry/students';
+import { findAllStudents, getStudent } from '@registry/students';
 import { IconCheck, IconSearch, IconUser } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
@@ -29,6 +17,10 @@ type Props = {
 	required?: boolean;
 };
 
+function formatStudentLabel(name: string, stdNo: number | string) {
+	return `${name} (${stdNo})`;
+}
+
 export default function StudentInput({
 	value,
 	onChange,
@@ -41,11 +33,10 @@ export default function StudentInput({
 	const [inputValue, setInputValue] = useState(() =>
 		value ? String(value) : ''
 	);
-	const [isSelected, setIsSelected] = useState(false);
+	const [isSelected, setIsSelected] = useState(() => Boolean(value));
 	const [debounced] = useDebouncedValue(inputValue, 350);
 
 	const committedStdNo = value ? Number(value) || null : null;
-	const showCard = isSelected && !!committedStdNo;
 
 	const { data: results, isLoading } = useQuery({
 		queryKey: ['student-search', debounced],
@@ -60,28 +51,45 @@ export default function StudentInput({
 		enabled: !!committedStdNo,
 	});
 
-	const { data: photoUrl } = useQuery({
-		queryKey: ['student-photo', committedStdNo],
-		queryFn: () => getStudentPhoto(committedStdNo),
-		enabled: !!committedStdNo,
-	});
+	const selectedLabel = selectedStudent
+		? formatStudentLabel(selectedStudent.name, selectedStudent.stdNo)
+		: '';
+	const currentValue = isSelected && selectedLabel ? selectedLabel : inputValue;
 
 	const options = (results ?? []).map((s) => ({
-		value: String(s.stdNo),
-		label: `${s.stdNo} - ${s.name}`,
+		value: formatStudentLabel(s.name, s.stdNo),
 	}));
 
 	function handleSelect(val: string) {
-		const student = results?.find((s) => String(s.stdNo) === val);
-		setInputValue(student ? `${student.name} (${student.stdNo})` : val);
+		const student = results?.find(
+			(s) => formatStudentLabel(s.name, s.stdNo) === val
+		);
+		setInputValue(
+			student ? formatStudentLabel(student.name, student.stdNo) : val
+		);
 		setIsSelected(true);
-		onChange?.(Number(val));
+		onChange?.(student ? Number(student.stdNo) : '');
 	}
 
 	function handleChange(val: string) {
 		setInputValue(val);
+
+		const student = results?.find(
+			(s) => formatStudentLabel(s.name, s.stdNo) === val
+		);
+		if (student) {
+			setIsSelected(true);
+			onChange?.(Number(student.stdNo));
+			return;
+		}
+
+		if (selectedLabel && val === selectedLabel) {
+			setIsSelected(true);
+			return;
+		}
+
 		setIsSelected(false);
-		if (!val) onChange?.('');
+		if (committedStdNo) onChange?.('');
 	}
 
 	return (
@@ -89,14 +97,14 @@ export default function StudentInput({
 			<Autocomplete
 				label={label}
 				placeholder={placeholder}
-				value={inputValue}
+				value={currentValue}
 				onChange={handleChange}
 				onOptionSubmit={handleSelect}
 				data={options}
 				leftSection={
 					isLoading ? (
 						<Loader size='xs' />
-					) : isSelected && committedStdNo ? (
+					) : isSelected ? (
 						<IconCheck size={16} color='green' />
 					) : (
 						<IconSearch size={16} />
@@ -108,7 +116,7 @@ export default function StudentInput({
 				filter={({ options }) => options}
 				renderOption={({ option }) => {
 					const student = results?.find(
-						(s) => String(s.stdNo) === option.value
+						(s) => formatStudentLabel(s.name, s.stdNo) === option.value
 					);
 					return (
 						<Group gap='sm' px={4}>
@@ -127,28 +135,6 @@ export default function StudentInput({
 					);
 				}}
 			/>
-			{showCard && selectedStudent && (
-				<Paper withBorder p='sm' mt='xs' radius='md' bg='transparent'>
-					<Group gap='sm'>
-						<Avatar
-							size={46}
-							radius='xl'
-							src={photoUrl ?? undefined}
-							color='blue'
-						>
-							<IconUser size={22} />
-						</Avatar>
-						<Box>
-							<Text fw={600} size='sm'>
-								{selectedStudent.name}
-							</Text>
-							<Text size='xs' c='dimmed'>
-								{selectedStudent.stdNo}
-							</Text>
-						</Box>
-					</Group>
-				</Paper>
-			)}
 		</Box>
 	);
 }
