@@ -6,8 +6,8 @@ import { IconAlertCircle } from '@tabler/icons-react';
 import { createInsertSchema } from 'drizzle-zod';
 import { useRouter } from 'nextjs-toploader/app';
 import { useCallback, useState } from 'react';
-import StudentInput from '@/app/dashboard/base/StudentInput';
 import { Form, ReceiptInput } from '@/shared/ui/adease';
+import StudentInput from '@/shared/ui/StudentInput';
 import StudentInfoCard from './StudentInfoCard';
 
 type CertificateReprint = typeof certificateReprints.$inferInsert;

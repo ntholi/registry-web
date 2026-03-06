@@ -4,10 +4,10 @@ import { Select, Stack } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'nextjs-toploader/app';
-import StudentInput from '@/app/dashboard/base/StudentInput';
 import { getAllTerms } from '@/app/registry/terms';
 import type { DashboardUser } from '@/core/database';
 import { Form } from '@/shared/ui/adease';
+import StudentInput from '@/shared/ui/StudentInput';
 import { createAutoApproval, updateAutoApproval } from '../_server/actions';
 
 type Props = {

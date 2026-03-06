@@ -29,7 +29,6 @@ import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
 import { useRouter } from 'nextjs-toploader/app';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import StudentInput from '@/app/dashboard/base/StudentInput';
 import { getAllTerms } from '@/app/registry/terms';
 import { useActiveTerm } from '@/shared/lib/hooks/use-active-term';
 import { getAcademicRemarks } from '@/shared/lib/utils/grades';
@@ -39,6 +38,7 @@ import {
 	isActiveSemester,
 } from '@/shared/lib/utils/utils';
 import { Form } from '@/shared/ui/adease';
+import StudentInput from '@/shared/ui/StudentInput';
 import {
 	determineSemesterStatus,
 	getStudentSemesterModules,

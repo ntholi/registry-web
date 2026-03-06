@@ -24,8 +24,8 @@ import { createInsertSchema } from 'drizzle-zod';
 import Link from 'next/link';
 import { useRouter } from 'nextjs-toploader/app';
 import { useCallback, useEffect, useState } from 'react';
-import StudentInput from '@/app/dashboard/base/StudentInput';
 import { Form } from '@/shared/ui/adease';
+import StudentInput from '@/shared/ui/StudentInput';
 import { getEligiblePrograms } from '../../clearance/_server/requests/actions';
 
 type GraduationRequest = typeof graduationRequests.$inferInsert;

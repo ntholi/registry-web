@@ -19,8 +19,8 @@ import { createInsertSchema } from 'drizzle-zod';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { z } from 'zod';
-import StudentInput from '@/app/dashboard/base/StudentInput';
 import { Form } from '@/shared/ui/adease';
+import StudentInput from '@/shared/ui/StudentInput';
 import { getJustificationLabel, getTypeLabel } from '../_lib/labels';
 
 type StudentStatusInsert = typeof studentStatuses.$inferInsert;
