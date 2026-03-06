@@ -5,7 +5,7 @@ import { studentStatuses } from '@registry/_database';
 import { createInsertSchema } from 'drizzle-zod';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import StdNoInput from '@/app/dashboard/base/StdNoInput';
+import StudentInput from '@/app/dashboard/base/StudentInput';
 import { useActiveTerm } from '@/shared/lib/hooks/use-active-term';
 import { Form } from '@/shared/ui/adease';
 import { getJustificationLabel, getTypeLabel } from '../_lib/labels';
@@ -100,7 +100,7 @@ export default function StudentStatusForm({
 
 				return (
 					<>
-						<StdNoInput
+						<StudentInput
 							{...form.getInputProps('stdNo')}
 							onChange={handleStdNoChange}
 							disabled={isEdit}

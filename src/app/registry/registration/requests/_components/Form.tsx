@@ -29,7 +29,7 @@ import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
 import { useRouter } from 'nextjs-toploader/app';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import StdNoInput from '@/app/dashboard/base/StdNoInput';
+import StudentInput from '@/app/dashboard/base/StudentInput';
 import { getAllTerms } from '@/app/registry/terms';
 import { useActiveTerm } from '@/shared/lib/hooks/use-active-term';
 import { getAcademicRemarks } from '@/shared/lib/utils/grades';
@@ -406,7 +406,7 @@ export default function RegistrationRequestForm({
 							<FormBinder form={form} onReady={handleFormReady} />
 							<Group w='100%' align='flex-start' wrap='nowrap'>
 								<Box style={{ flex: 1 }}>
-									<StdNoInput
+									<StudentInput
 										{...form.getInputProps('stdNo')}
 										disabled={!!defaultValues || !!initialStdNo}
 										onChange={(value: string | number) => {

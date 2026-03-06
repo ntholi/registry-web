@@ -15,7 +15,7 @@ import {
 	getStudent,
 	getStudentPhoto,
 } from '@registry/students';
-import { IconSearch, IconUser } from '@tabler/icons-react';
+import { IconCheck, IconSearch, IconUser } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 
@@ -34,22 +34,23 @@ export default function StudentInput({
 	onChange,
 	error,
 	disabled,
-	label = 'Student Number',
+	label = 'Student',
 	placeholder = 'Search by name or student number...',
 	required,
 }: Props) {
 	const [inputValue, setInputValue] = useState(() =>
 		value ? String(value) : ''
 	);
+	const [isSelected, setIsSelected] = useState(false);
 	const [debounced] = useDebouncedValue(inputValue, 350);
 
 	const committedStdNo = value ? Number(value) || null : null;
-	const showCard = !!committedStdNo && String(committedStdNo) === inputValue;
+	const showCard = isSelected && !!committedStdNo;
 
 	const { data: results, isLoading } = useQuery({
 		queryKey: ['student-search', debounced],
 		queryFn: () => findAllStudents(1, debounced),
-		enabled: debounced.length >= 2,
+		enabled: debounced.length >= 2 && !isSelected,
 		select: (data) => data.items,
 	});
 
@@ -71,12 +72,15 @@ export default function StudentInput({
 	}));
 
 	function handleSelect(val: string) {
-		setInputValue(val);
+		const student = results?.find((s) => String(s.stdNo) === val);
+		setInputValue(student ? `${student.name} (${student.stdNo})` : val);
+		setIsSelected(true);
 		onChange?.(Number(val));
 	}
 
 	function handleChange(val: string) {
 		setInputValue(val);
+		setIsSelected(false);
 		if (!val) onChange?.('');
 	}
 
@@ -90,7 +94,13 @@ export default function StudentInput({
 				onOptionSubmit={handleSelect}
 				data={options}
 				leftSection={
-					isLoading ? <Loader size='xs' /> : <IconSearch size={16} />
+					isLoading ? (
+						<Loader size='xs' />
+					) : isSelected && committedStdNo ? (
+						<IconCheck size={16} color='green' />
+					) : (
+						<IconSearch size={16} />
+					)
 				}
 				error={error}
 				disabled={disabled}

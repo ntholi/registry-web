@@ -6,7 +6,7 @@ import { IconAlertCircle } from '@tabler/icons-react';
 import { createInsertSchema } from 'drizzle-zod';
 import { useRouter } from 'nextjs-toploader/app';
 import { useCallback, useState } from 'react';
-import StdNoInput from '@/app/dashboard/base/StdNoInput';
+import StudentInput from '@/app/dashboard/base/StudentInput';
 import { Form, ReceiptInput } from '@/shared/ui/adease';
 import StudentInfoCard from './StudentInfoCard';
 
@@ -62,7 +62,7 @@ export default function CertificateReprintForm({
 		>
 			{(form) => (
 				<>
-					<StdNoInput
+					<StudentInput
 						{...form.getInputProps('stdNo')}
 						disabled={!!defaultValues?.stdNo}
 						onChange={(value) => {

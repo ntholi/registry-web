@@ -24,7 +24,7 @@ import { createInsertSchema } from 'drizzle-zod';
 import Link from 'next/link';
 import { useRouter } from 'nextjs-toploader/app';
 import { useCallback, useEffect, useState } from 'react';
-import StdNoInput from '@/app/dashboard/base/StdNoInput';
+import StudentInput from '@/app/dashboard/base/StudentInput';
 import { Form } from '@/shared/ui/adease';
 import { getEligiblePrograms } from '../../clearance/_server/requests/actions';
 
@@ -235,7 +235,7 @@ export default function GraduationRequestForm({
 
 						<Group w='100%' align='flex-start' wrap='nowrap'>
 							<Box style={{ flex: 1 }}>
-								<StdNoInput
+								<StudentInput
 									value={stdNo}
 									onChange={handleStudentChange}
 									disabled={!!initialStdNo}

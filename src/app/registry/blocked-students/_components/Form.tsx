@@ -5,7 +5,7 @@ import { blockedStudents } from '@registry/_database';
 import { createInsertSchema } from 'drizzle-zod';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import StdNoInput from '@/app/dashboard/base/StdNoInput';
+import StudentInput from '@/app/dashboard/base/StudentInput';
 import { Form } from '@/shared/ui/adease';
 
 type BlockedStudent = typeof blockedStudents.$inferInsert;
@@ -57,7 +57,7 @@ export default function BlockedStudentForm({
 
 				return (
 					<>
-						<StdNoInput
+						<StudentInput
 							{...form.getInputProps('stdNo')}
 							onChange={handleStdNoChange}
 						/>
