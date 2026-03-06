@@ -1,53 +1,144 @@
 'use client';
-import { NumberInput, type NumberInputProps, Stack, Text } from '@mantine/core';
-import { getStudent } from '@registry/students';
-import { IconUser } from '@tabler/icons-react';
+
+import {
+	Autocomplete,
+	Avatar,
+	Box,
+	Group,
+	Loader,
+	Paper,
+	Text,
+} from '@mantine/core';
+import { useDebouncedValue } from '@mantine/hooks';
+import {
+	findAllStudents,
+	getStudent,
+	getStudentPhoto,
+} from '@registry/students';
+import { IconSearch, IconUser } from '@tabler/icons-react';
+import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 
-export default function StdNoInput(props: NumberInputProps) {
-	const { value, onChange, ...rest } = props;
-	const [error, setError] = useState<string | null>(null);
-	const [description, setDescription] = useState<string | null>(null);
+type Props = {
+	value?: number | string;
+	onChange?: (value: number | string) => void;
+	error?: React.ReactNode;
+	disabled?: boolean;
+	label?: string;
+	placeholder?: string;
+	required?: boolean;
+};
 
-	function handleChange(value: number | string) {
-		const str = String(value);
-		setError(null);
-		onChange?.(value);
-		setDescription(null);
+export default function StudentInput({
+	value,
+	onChange,
+	error,
+	disabled,
+	label = 'Student Number',
+	placeholder = 'Search by name or student number...',
+	required,
+}: Props) {
+	const [inputValue, setInputValue] = useState(() =>
+		value ? String(value) : ''
+	);
+	const [debounced] = useDebouncedValue(inputValue, 350);
 
-		if (str.length > 4 && !str.startsWith('9010')) {
-			setError('Student number must start with 9010...');
-		} else if (str.length > 9) {
-			setError('Student number too long');
-		} else if (str.length === 9) {
-			getStudent(Number(str))
-				.then((student) => {
-					if (student) {
-						setDescription(student.name);
-					} else {
-						setError('Student not found');
-					}
-				})
-				.catch(() => {
-					setError('Error retrieving student information');
-				});
-		}
+	const committedStdNo = value ? Number(value) || null : null;
+	const showCard = !!committedStdNo && String(committedStdNo) === inputValue;
+
+	const { data: results, isLoading } = useQuery({
+		queryKey: ['student-search', debounced],
+		queryFn: () => findAllStudents(1, debounced),
+		enabled: debounced.length >= 2,
+		select: (data) => data.items,
+	});
+
+	const { data: selectedStudent } = useQuery({
+		queryKey: ['student', committedStdNo],
+		queryFn: () => getStudent(committedStdNo!),
+		enabled: !!committedStdNo,
+	});
+
+	const { data: photoUrl } = useQuery({
+		queryKey: ['student-photo', committedStdNo],
+		queryFn: () => getStudentPhoto(committedStdNo),
+		enabled: !!committedStdNo,
+	});
+
+	const options = (results ?? []).map((s) => ({
+		value: String(s.stdNo),
+		label: `${s.stdNo} - ${s.name}`,
+	}));
+
+	function handleSelect(val: string) {
+		setInputValue(val);
+		onChange?.(Number(val));
+	}
+
+	function handleChange(val: string) {
+		setInputValue(val);
+		if (!val) onChange?.('');
 	}
 
 	return (
-		<Stack gap={'2px'}>
-			<NumberInput
-				rightSection={<IconUser size='1.1rem' />}
-				value={value}
+		<Box>
+			<Autocomplete
+				label={label}
+				placeholder={placeholder}
+				value={inputValue}
 				onChange={handleChange}
-				label='Student Number'
-				required
-				{...rest}
+				onOptionSubmit={handleSelect}
+				data={options}
+				leftSection={
+					isLoading ? <Loader size='xs' /> : <IconSearch size={16} />
+				}
 				error={error}
+				disabled={disabled}
+				required={required}
+				filter={({ options }) => options}
+				renderOption={({ option }) => {
+					const student = results?.find(
+						(s) => String(s.stdNo) === option.value
+					);
+					return (
+						<Group gap='sm' px={4}>
+							<Avatar size={36} radius='xl' color='blue'>
+								{student?.name.charAt(0) ?? <IconUser size={18} />}
+							</Avatar>
+							<Box>
+								<Text size='sm' fw={500}>
+									{student?.name}
+								</Text>
+								<Text size='xs' c='dimmed'>
+									{student?.stdNo}
+								</Text>
+							</Box>
+						</Group>
+					);
+				}}
 			/>
-			<Text size='xs' c='dimmed' h={error ? 'auto' : 20}>
-				{description}
-			</Text>
-		</Stack>
+			{showCard && selectedStudent && (
+				<Paper withBorder p='sm' mt='xs' radius='md' bg='transparent'>
+					<Group gap='sm'>
+						<Avatar
+							size={46}
+							radius='xl'
+							src={photoUrl ?? undefined}
+							color='blue'
+						>
+							<IconUser size={22} />
+						</Avatar>
+						<Box>
+							<Text fw={600} size='sm'>
+								{selectedStudent.name}
+							</Text>
+							<Text size='xs' c='dimmed'>
+								{selectedStudent.stdNo}
+							</Text>
+						</Box>
+					</Group>
+				</Paper>
+			)}
+		</Box>
 	);
 }

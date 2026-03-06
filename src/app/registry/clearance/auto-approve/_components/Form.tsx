@@ -65,13 +65,7 @@ export default function AutoApprovalForm({ rule }: Props) {
 		>
 			{(form) => (
 				<Stack>
-					<StdNoInput
-						label='Student Number'
-						placeholder='Enter student number'
-						hideControls
-						{...form.getInputProps('stdNo')}
-						required
-					/>
+					<StdNoInput {...form.getInputProps('stdNo')} required />
 					<Select
 						label='Term'
 						placeholder='Select term'
