@@ -154,7 +154,22 @@ You are a **Senior Principal Software Engineer** and **System Architect** specia
 - **Dark Mode**: Optimize all components for dark mode transparency and contrast.
 - **Modals**: Must be self-contained (include their own trigger button).
 - **Mantine Dates**: Use string values; Calendars must start on Sunday.
-- **Mantine Charts**: ALWAYS research and read documentation at https://mantine.dev/charts/* before generating any chart code.
+- **Mantine Charts**: ALWAYS research and read documentation charts documentation before generating any chart code.
+#### Charts Documentations are as follows:
+- [AreaChart](https://mantine.dev/llms/charts-area-chart.md): Area chart component with stacked, percent and split variants
+- [BarChart](https://mantine.dev/llms/charts-bar-chart.md): Bar chart component with stacked and percent variants
+- [BubbleChart](https://mantine.dev/llms/charts-bubble-chart.md): Bubble chart component
+- [CompositeChart](https://mantine.dev/llms/charts-composite-chart.md): Composed chart with support for Area, Bar and Line charts
+- [DonutChart](https://mantine.dev/llms/charts-donut-chart.md): Donut chart component
+- [FunnelChart](https://mantine.dev/llms/charts-funnel-chart.md): Funnel chart component
+- [GettingStartedCharts](https://mantine.dev/llms/charts-getting-started.md)
+- [Heatmap](https://mantine.dev/llms/charts-heatmap.md): Heatmap chart component
+- [LineChart](https://mantine.dev/llms/charts-line-chart.md): Line chart component
+- [PieChart](https://mantine.dev/llms/charts-pie-chart.md): Pie chart component
+- [RadarChart](https://mantine.dev/llms/charts-radar-chart.md): Radar chart component
+- [RadialBarChart](https://mantine.dev/llms/charts-radial-bar-chart.md): Radial bar chart component
+- [ScatterChart](https://mantine.dev/llms/charts-scatter-chart.md): Scatter chart component
+- [Sparkline](https://mantine.dev/llms/charts-sparkline.md): Simplified area chart to show trends
 - Use Popover instead of Tooltip
 
 ### Centralized Utilities (Extensibility)
