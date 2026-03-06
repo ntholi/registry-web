@@ -1,24 +1,12 @@
 import ExcelJS from 'exceljs';
 import type { SummaryRow } from './repository';
 
-const STATUSES = [
-	'draft',
-	'submitted',
-	'under_review',
-	'accepted_first_choice',
-	'accepted_second_choice',
-	'rejected',
-	'waitlisted',
-] as const;
+const STATUSES = ['draft', 'submitted', 'submittedPaid'] as const;
 
 const STATUS_LABELS: Record<string, string> = {
 	draft: 'Draft',
 	submitted: 'Submitted',
-	under_review: 'Under Review',
-	accepted_first_choice: 'Accepted (1st)',
-	accepted_second_choice: 'Accepted (2nd)',
-	rejected: 'Rejected',
-	waitlisted: 'Waitlisted',
+	submittedPaid: 'Submitted & Paid',
 };
 
 export async function createApplicationSummaryExcel(
@@ -40,7 +28,6 @@ export async function createApplicationSummaryExcel(
 	];
 
 	const headerRow = ws.getRow(1);
-	headerRow.font = { bold: true };
 	headerRow.fill = {
 		type: 'pattern' as const,
 		pattern: 'solid' as const,

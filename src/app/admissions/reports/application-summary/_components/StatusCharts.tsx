@@ -12,11 +12,7 @@ export default function StatusCharts({ data }: Props) {
 	const barSeries = [
 		{ name: 'draft', color: 'gray.6', label: 'Draft' },
 		{ name: 'submitted', color: 'blue.6', label: 'Submitted' },
-		{ name: 'under_review', color: 'yellow.6', label: 'Under Review' },
-		{ name: 'accepted_first_choice', color: 'green.6', label: '1st Choice' },
-		{ name: 'accepted_second_choice', color: 'teal.6', label: '2nd Choice' },
-		{ name: 'rejected', color: 'red.6', label: 'Rejected' },
-		{ name: 'waitlisted', color: 'orange.6', label: 'Waitlisted' },
+		{ name: 'submittedPaid', color: 'green.6', label: 'Submitted & Paid' },
 	];
 
 	return (

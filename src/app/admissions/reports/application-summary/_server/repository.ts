@@ -3,14 +3,14 @@ import { applications, db, programs, schools } from '@/core/database';
 import { buildAdmissionReportConditions } from '../../_shared/reportConditions';
 import type { AdmissionReportFilter } from '../../_shared/types';
 
+const hasBankDeposit = sql`EXISTS (
+	SELECT 1 FROM bank_deposits bd WHERE bd.application_id = ${applications.id}
+)`;
+
 export interface StatusCount {
 	draft: number;
 	submitted: number;
-	under_review: number;
-	accepted_first_choice: number;
-	accepted_second_choice: number;
-	rejected: number;
-	waitlisted: number;
+	submittedPaid: number;
 	total: number;
 }
 
@@ -29,11 +29,7 @@ export interface ChartData {
 		school: string;
 		draft: number;
 		submitted: number;
-		under_review: number;
-		accepted_first_choice: number;
-		accepted_second_choice: number;
-		rejected: number;
-		waitlisted: number;
+		submittedPaid: number;
 	}>;
 }
 
@@ -55,20 +51,8 @@ export class ApplicationSummaryRepository {
 				submitted: count(
 					sql`CASE WHEN ${applications.status} = 'submitted' THEN 1 END`
 				),
-				underReview: count(
-					sql`CASE WHEN ${applications.status} = 'under_review' THEN 1 END`
-				),
-				acceptedFirst: count(
-					sql`CASE WHEN ${applications.status} = 'accepted_first_choice' THEN 1 END`
-				),
-				acceptedSecond: count(
-					sql`CASE WHEN ${applications.status} = 'accepted_second_choice' THEN 1 END`
-				),
-				rejected: count(
-					sql`CASE WHEN ${applications.status} = 'rejected' THEN 1 END`
-				),
-				waitlisted: count(
-					sql`CASE WHEN ${applications.status} = 'waitlisted' THEN 1 END`
+				submittedPaid: count(
+					sql`CASE WHEN ${applications.status} = 'submitted' AND ${hasBankDeposit} THEN 1 END`
 				),
 				total: totalCount,
 			})
@@ -94,11 +78,7 @@ export class ApplicationSummaryRepository {
 			counts: {
 				draft: r.draft,
 				submitted: r.submitted,
-				under_review: r.underReview,
-				accepted_first_choice: r.acceptedFirst,
-				accepted_second_choice: r.acceptedSecond,
-				rejected: r.rejected,
-				waitlisted: r.waitlisted,
+				submittedPaid: r.submittedPaid,
 				total: r.total,
 			},
 		}));
@@ -110,57 +90,53 @@ export class ApplicationSummaryRepository {
 
 		const statusRows = await db
 			.select({
-				status: applications.status,
+				label: sql<string>`CASE
+					WHEN ${applications.status} = 'draft' THEN 'Draft'
+					WHEN ${applications.status} = 'submitted' AND ${hasBankDeposit} THEN 'Submitted & Paid'
+					WHEN ${applications.status} = 'submitted' THEN 'Submitted'
+					ELSE 'Other'
+				END`,
 				count: count(),
 			})
 			.from(applications)
 			.innerJoin(programs, eq(applications.firstChoiceProgramId, programs.id))
 			.innerJoin(schools, eq(programs.schoolId, schools.id))
 			.where(whereClause)
-			.groupBy(applications.status);
+			.groupBy(
+				sql`CASE
+					WHEN ${applications.status} = 'draft' THEN 'Draft'
+					WHEN ${applications.status} = 'submitted' AND ${hasBankDeposit} THEN 'Submitted & Paid'
+					WHEN ${applications.status} = 'submitted' THEN 'Submitted'
+					ELSE 'Other'
+				END`
+			);
 
-		const statusColorMap: Record<string, string> = {
-			draft: 'gray.6',
-			submitted: 'blue.6',
-			under_review: 'yellow.6',
-			accepted_first_choice: 'green.6',
-			accepted_second_choice: 'teal.6',
-			rejected: 'red.6',
-			waitlisted: 'orange.6',
+		const colorMap: Record<string, string> = {
+			Draft: 'gray.6',
+			Submitted: 'blue.6',
+			'Submitted & Paid': 'green.6',
+			Other: 'orange.6',
 		};
 
-		const statusDistribution = statusRows.map((r) => ({
-			name: r.status
-				.replace(/_/g, ' ')
-				.replace(/\b\w/g, (c) => c.toUpperCase()),
-			value: r.count,
-			color: statusColorMap[r.status] ?? 'gray.6',
-		}));
+		const statusDistribution = statusRows
+			.filter((r) => r.label !== 'Other')
+			.map((r) => ({
+				name: r.label,
+				value: r.count,
+				color: colorMap[r.label] ?? 'gray.6',
+			}));
 
 		const schoolRows = await db
 			.select({
 				school: schools.code,
-				total: count(),
 				draft: count(
 					sql`CASE WHEN ${applications.status} = 'draft' THEN 1 END`
 				),
 				submitted: count(
 					sql`CASE WHEN ${applications.status} = 'submitted' THEN 1 END`
 				),
-				under_review: count(
-					sql`CASE WHEN ${applications.status} = 'under_review' THEN 1 END`
-				),
-				accepted_first_choice: count(
-					sql`CASE WHEN ${applications.status} = 'accepted_first_choice' THEN 1 END`
-				),
-				accepted_second_choice: count(
-					sql`CASE WHEN ${applications.status} = 'accepted_second_choice' THEN 1 END`
-				),
-				rejected: count(
-					sql`CASE WHEN ${applications.status} = 'rejected' THEN 1 END`
-				),
-				waitlisted: count(
-					sql`CASE WHEN ${applications.status} = 'waitlisted' THEN 1 END`
+				submittedPaid: count(
+					sql`CASE WHEN ${applications.status} = 'submitted' AND ${hasBankDeposit} THEN 1 END`
 				),
 			})
 			.from(applications)
@@ -176,11 +152,7 @@ export class ApplicationSummaryRepository {
 				school: row.school,
 				draft: row.draft,
 				submitted: row.submitted,
-				under_review: row.under_review,
-				accepted_first_choice: row.accepted_first_choice,
-				accepted_second_choice: row.accepted_second_choice,
-				rejected: row.rejected,
-				waitlisted: row.waitlisted,
+				submittedPaid: row.submittedPaid,
 			})),
 		};
 	}
