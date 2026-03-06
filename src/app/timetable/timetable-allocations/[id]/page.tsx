@@ -15,8 +15,8 @@ import { useQuery } from '@tanstack/react-query';
 import { useAtom } from 'jotai';
 import { notFound } from 'next/navigation';
 import { use, useEffect, useMemo } from 'react';
-import { getAllTerms } from '@/app/registry/terms';
 import useConfigDefaults from '@/shared/lib/hooks/use-config-defaults';
+import { useAllTerms } from '@/shared/lib/hooks/use-term';
 import { DetailsView } from '@/shared/ui/adease';
 import { selectedTermAtom } from '@/shared/ui/atoms/termAtoms';
 import AllocationTab from '../_components/AllocationTab';
@@ -41,10 +41,7 @@ export default function LecturerAllocationDetails({ params }: Props) {
 		queryFn: () => getTimetableAllocationsByUserId(id),
 	});
 
-	const { data: terms = [] } = useQuery({
-		queryKey: ['terms'],
-		queryFn: async () => getAllTerms(),
-	});
+	const { data: terms = [] } = useAllTerms();
 
 	const { defaults } = useConfigDefaults();
 

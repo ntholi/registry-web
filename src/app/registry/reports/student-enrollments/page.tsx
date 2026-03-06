@@ -2,7 +2,7 @@
 
 import { Container, SimpleGrid, Stack, Text, Title } from '@mantine/core';
 import { IconChartDonut, IconReportAnalytics } from '@tabler/icons-react';
-import { useActiveTerm } from '@/shared/lib/hooks/use-active-term';
+import { useActiveTerm } from '@/shared/lib/hooks/use-term';
 import { useUserSchools } from '@/shared/lib/hooks/use-user-schools';
 import { ReportCard, type ReportLink } from '@/shared/ui/adease';
 

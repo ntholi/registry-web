@@ -1,9 +1,8 @@
 'use client';
 
 import { Select, type SelectProps } from '@mantine/core';
-import { useQuery } from '@tanstack/react-query';
 import { useEffect } from 'react';
-import { getAllTerms } from '@/app/registry/terms';
+import { useAllTerms } from '@/shared/lib/hooks/use-term';
 
 interface TermOption {
 	id: number;
@@ -33,9 +32,7 @@ export default function TermInput({
 	disabled,
 	...props
 }: Props) {
-	const { data: fetchedTerms = [], isLoading } = useQuery({
-		queryKey: ['terms'],
-		queryFn: getAllTerms,
+	const { data: fetchedTerms = [], isLoading } = useAllTerms({
 		enabled: !terms,
 	});
 

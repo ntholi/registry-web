@@ -18,7 +18,7 @@ import {
 import { notifications } from '@mantine/notifications';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useEffect, useMemo, useState } from 'react';
-import { useActiveTerm } from '@/shared/lib/hooks/use-active-term';
+import { useActiveTerm } from '@/shared/lib/hooks/use-term';
 import { toClassName } from '@/shared/lib/utils/utils';
 import { generateCourseSummaryReport } from '../_server/actions';
 

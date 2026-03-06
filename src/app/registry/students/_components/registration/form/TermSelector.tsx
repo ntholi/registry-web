@@ -2,7 +2,7 @@
 
 import { Alert, Stack, Text } from '@mantine/core';
 import { IconInfoCircle } from '@tabler/icons-react';
-import { useActiveTerm } from '@/shared/lib/hooks/use-active-term';
+import { useActiveTerm } from '@/shared/lib/hooks/use-term';
 import TermInput from '@/shared/ui/TermInput';
 
 type Props = {

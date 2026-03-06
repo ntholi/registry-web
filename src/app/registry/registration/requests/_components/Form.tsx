@@ -29,8 +29,7 @@ import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
 import { useRouter } from 'nextjs-toploader/app';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { getAllTerms } from '@/app/registry/terms';
-import { useActiveTerm } from '@/shared/lib/hooks/use-active-term';
+import { useActiveTerm, useAllTerms } from '@/shared/lib/hooks/use-term';
 import { getAcademicRemarks } from '@/shared/lib/utils/grades';
 import {
 	formatSemester,
@@ -127,10 +126,7 @@ export default function RegistrationRequestForm({
 	);
 
 	const { activeTerm } = useActiveTerm();
-	const { data: allTerms = [] } = useQuery({
-		queryKey: ['terms'],
-		queryFn: async () => await getAllTerms(),
-	});
+	const { data: allTerms = [] } = useAllTerms();
 
 	const { data: structureModules, isLoading } = useQuery({
 		queryKey: ['structure-modules', structureId],

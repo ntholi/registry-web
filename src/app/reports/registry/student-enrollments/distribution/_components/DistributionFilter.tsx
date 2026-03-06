@@ -22,7 +22,7 @@ import {
 	useQueryStates,
 } from 'nuqs';
 import { useEffect } from 'react';
-import { getAllTerms } from '@/app/registry/terms/_server/actions';
+import { useAllTerms } from '@/shared/lib/hooks/use-term';
 import { formatSemester } from '@/shared/lib/utils/utils';
 import {
 	DISTRIBUTION_OPTIONS,
@@ -83,10 +83,7 @@ export default function DistributionFilter({ onFilterChange }: Props) {
 		);
 	}, [localFilter, onFilterChange]);
 
-	const { data: terms = [], isLoading: termsLoading } = useQuery({
-		queryKey: ['terms'],
-		queryFn: getAllTerms,
-	});
+	const { data: terms = [], isLoading: termsLoading } = useAllTerms();
 
 	const { data: schools = [], isLoading: schoolsLoading } = useQuery({
 		queryKey: ['active-schools'],

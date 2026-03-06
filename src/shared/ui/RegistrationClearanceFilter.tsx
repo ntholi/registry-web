@@ -21,7 +21,7 @@ import { IconFilter, IconX } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useAtom } from 'jotai';
 import { useState } from 'react';
-import { getAllTerms } from '@/app/registry/terms';
+import { useAllTerms } from '@/shared/lib/hooks/use-term';
 import { formatSemester } from '@/shared/lib/utils/utils';
 import {
 	type ClearanceFilter,
@@ -68,11 +68,7 @@ export default function RegistrationClearanceFilter({
 		open();
 	}
 
-	const { data: terms = [], isLoading: termsLoading } = useQuery({
-		queryKey: ['terms'],
-		queryFn: getAllTerms,
-		staleTime: 1000 * 60 * 10,
-	});
+	const { data: terms = [], isLoading: termsLoading } = useAllTerms();
 
 	const { data: schools = [], isLoading: schoolsLoading } = useQuery({
 		queryKey: ['all-schools'],

@@ -38,7 +38,7 @@ import { getAllVenues } from '@timetable/venues';
 import { zod4Resolver as zodResolver } from 'mantine-form-zod-resolver';
 import { useCallback, useState } from 'react';
 import { z } from 'zod';
-import { getAllTerms } from '@/app/registry/terms';
+import { useAllTerms } from '@/shared/lib/hooks/use-term';
 import { calculateDuration } from '@/shared/lib/utils/dates';
 import { toClassName as toClassNameShared } from '@/shared/lib/utils/utils';
 import {
@@ -103,10 +103,7 @@ export default function AddSlotAllocationWithLecturerModal() {
 		enabled: debouncedSearch.length >= 2,
 	});
 
-	const { data: terms = [] } = useQuery({
-		queryKey: ['terms'],
-		queryFn: getAllTerms,
-	});
+	const { data: terms = [] } = useAllTerms();
 
 	const { data: venues = [] } = useQuery({
 		queryKey: ['venues'],

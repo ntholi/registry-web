@@ -20,8 +20,9 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useParams } from 'next/navigation';
 import { useQueryState } from 'nuqs';
 import { useCallback, useMemo, useState } from 'react';
-import { getAllTerms, getTermByCode } from '@/app/registry/terms';
+import { getTermByCode } from '@/app/registry/terms';
 import type { Term } from '@/core/database';
+import { useAllTerms } from '@/shared/lib/hooks/use-term';
 import { getBooleanColor } from '@/shared/lib/utils/colors';
 import { formatSemester } from '@/shared/lib/utils/utils';
 import { getStudentFilterInfo } from '../_server/actions';
@@ -65,10 +66,7 @@ export default function StudentsFilter() {
 		enabled: !!filters.schoolId,
 	});
 
-	const { data: terms = [] } = useQuery({
-		queryKey: ['terms'],
-		queryFn: getAllTerms,
-	});
+	const { data: terms = [] } = useAllTerms();
 
 	const handleAutoFill = useCallback(async () => {
 		if (!stdNo) return;

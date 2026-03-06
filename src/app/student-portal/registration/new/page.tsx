@@ -37,7 +37,7 @@ import { getBlockedStudentByStdNo } from '@/app/registry/blocked-students';
 import { getActiveProgram } from '@/app/registry/students/_lib/utils';
 import { config } from '@/config';
 import type { ReceiptType } from '@/core/database';
-import { useActiveTerm } from '@/shared/lib/hooks/use-active-term';
+import { useActiveTerm } from '@/shared/lib/hooks/use-term';
 import useUserStudent from '@/shared/lib/hooks/use-user-student';
 import {
 	AccountConfirmation,

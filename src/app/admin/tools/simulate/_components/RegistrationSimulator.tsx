@@ -38,7 +38,7 @@ import {
 } from '@tabler/icons-react';
 import { useQueryState } from 'nuqs';
 import { useState, useTransition } from 'react';
-import { useActiveTerm } from '@/shared/lib/hooks/use-active-term';
+import { useActiveTerm } from '@/shared/lib/hooks/use-term';
 import { getModuleTypeColor } from '@/shared/lib/utils/colors';
 import { getAcademicRemarks } from '@/shared/lib/utils/grades';
 import { formatSemester } from '@/shared/lib/utils/utils';

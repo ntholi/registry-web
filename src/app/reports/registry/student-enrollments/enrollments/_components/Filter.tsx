@@ -38,7 +38,7 @@ import {
 	useQueryStates,
 } from 'nuqs';
 import { useEffect, useMemo, useRef } from 'react';
-import { getAllTerms } from '@/app/registry/terms/_server/actions';
+import { useAllTerms } from '@/shared/lib/hooks/use-term';
 import { formatSemester } from '@/shared/lib/utils/utils';
 import {
 	getAvailableCountriesForReports,
@@ -271,10 +271,7 @@ export default function EnrollmentFilter({ onFilterChange }: Props) {
 			localFilter.programLevels && localFilter.programLevels.length > 0,
 		].filter(Boolean).length || 0;
 
-	const { data: terms = [], isLoading: termsLoading } = useQuery({
-		queryKey: ['terms'],
-		queryFn: getAllTerms,
-	});
+	const { data: terms = [], isLoading: termsLoading } = useAllTerms();
 
 	const { data: schools = [], isLoading: schoolsLoading } = useQuery({
 		queryKey: ['active-schools'],

@@ -18,7 +18,7 @@ import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
 import { useState } from 'react';
-import { useActiveTerm } from '@/shared/lib/hooks/use-active-term';
+import { useActiveTerm } from '@/shared/lib/hooks/use-term';
 import { getStudentRegistrationData } from '../../_server/actions';
 import ProofOfRegistrationPrinter from './proof/ProofOfRegistrationPrinter';
 import RequestsView from './RequestsView';

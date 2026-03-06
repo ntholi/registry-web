@@ -14,7 +14,7 @@ import { IconBook2, IconSchool } from '@tabler/icons-react';
 import { useSession } from 'next-auth/react';
 import { useQueryState } from 'nuqs';
 import { useEffect, useMemo } from 'react';
-import { useActiveTerm } from '@/shared/lib/hooks/use-active-term';
+import { useActiveTerm } from '@/shared/lib/hooks/use-term';
 import { toClassName } from '@/shared/lib/utils/utils';
 import { useAssessmentsQuery } from '../_hooks/useAssessmentsQuery';
 import ExportButton from './export/ExportButton';

@@ -41,8 +41,7 @@ import {
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'nextjs-toploader/app';
 import { useMemo, useState } from 'react';
-import { getAllTerms } from '@/app/registry/terms';
-import { useActiveTerm } from '@/shared/lib/hooks/use-active-term';
+import { useActiveTerm, useAllTerms } from '@/shared/lib/hooks/use-term';
 import { getRaceByCountry, getRaces } from '@/shared/lib/utils/countries';
 import { formatDateToISO } from '@/shared/lib/utils/dates';
 import { getReligions } from '@/shared/lib/utils/religions';
@@ -189,9 +188,7 @@ export default function NewStudentForm() {
 				data.map((s) => ({ value: s.id.toString(), label: s.code })),
 		});
 
-	const { data: termsData = [] } = useQuery({
-		queryKey: ['terms'],
-		queryFn: getAllTerms,
+	const { data: termsData = [] } = useAllTerms({
 		select: (data) => data.map((t) => ({ value: t.code, label: t.code })),
 	});
 

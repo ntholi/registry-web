@@ -22,7 +22,7 @@ import {
 	useQueryStates,
 } from 'nuqs';
 import { useEffect } from 'react';
-import { getAllTerms } from '@/app/registry/terms/_server/actions';
+import { useAllTerms } from '@/shared/lib/hooks/use-term';
 import { useUserSchools } from '@/shared/lib/hooks/use-user-schools';
 import type { FeedbackReportFilter } from '../_lib/types';
 import {
@@ -60,10 +60,7 @@ export default function Filter({ onFilterChange, hideAdvanced }: Props) {
 		});
 	}, [localFilter, onFilterChange]);
 
-	const { data: terms = [], isLoading: termsLoading } = useQuery({
-		queryKey: ['terms'],
-		queryFn: getAllTerms,
-	});
+	const { data: terms = [], isLoading: termsLoading } = useAllTerms();
 
 	useEffect(() => {
 		if (localFilter.termId || termsLoading || terms.length === 0) return;

@@ -32,7 +32,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { getBlockedStudentByStdNo } from '@/app/registry/blocked-students';
 import { config } from '@/config';
-import { useActiveTerm } from '@/shared/lib/hooks/use-active-term';
+import { useActiveTerm } from '@/shared/lib/hooks/use-term';
 import useUserStudent from '@/shared/lib/hooks/use-user-student';
 import {
 	ModuleSelection,

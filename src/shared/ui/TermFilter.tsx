@@ -3,11 +3,10 @@
 import { ActionIcon, Modal, Paper, Stack, Tooltip } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { IconFilter } from '@tabler/icons-react';
-import { useQuery } from '@tanstack/react-query';
 import { useAtom } from 'jotai';
 import type { ReactNode } from 'react';
 import { useEffect } from 'react';
-import { getAllTerms } from '@/app/registry/terms';
+import { useAllTerms } from '@/shared/lib/hooks/use-term';
 import { selectedTermAtom } from '@/shared/ui/atoms/termAtoms';
 import TermInput from '@/shared/ui/TermInput';
 
@@ -29,11 +28,7 @@ export default function TermFilter({
 	extraContent,
 }: TermFilterProps) {
 	const [opened, { open, close }] = useDisclosure(false);
-	const { data: terms, isLoading } = useQuery({
-		queryKey: ['terms'],
-		queryFn: () => getAllTerms(),
-		staleTime: 1000 * 60 * 10,
-	});
+	const { data: terms, isLoading } = useAllTerms();
 	const [selectedTerm, setSelectedTerm] = useAtom(selectedTermAtom);
 
 	useEffect(() => {

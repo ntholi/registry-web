@@ -31,7 +31,7 @@ import {
 	useQueryStates,
 } from 'nuqs';
 import { useEffect, useRef, useState } from 'react';
-import { getAllTerms } from '@/app/registry/terms';
+import { useAllTerms } from '@/shared/lib/hooks/use-term';
 import { useUserSchools } from '@/shared/lib/hooks/use-user-schools';
 import { formatSemester } from '@/shared/lib/utils/utils';
 import { searchModulesForGradeFinder } from '../_server/actions';
@@ -92,10 +92,7 @@ export function GradeFinderFilter({ mode, onSearch, isLoading }: Props) {
 		enabled: (params.schoolIds?.length ?? 0) > 0,
 	});
 
-	const { data: terms = [], isLoading: termsLoading } = useQuery({
-		queryKey: ['terms'],
-		queryFn: getAllTerms,
-	});
+	const { data: terms = [], isLoading: termsLoading } = useAllTerms();
 
 	useEffect(() => {
 		if (!termAutoSelected.current && !params.termCode && terms.length > 0) {

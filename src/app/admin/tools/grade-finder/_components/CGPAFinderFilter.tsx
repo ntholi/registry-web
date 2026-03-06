@@ -29,7 +29,7 @@ import {
 	useQueryStates,
 } from 'nuqs';
 import { useEffect, useRef } from 'react';
-import { getAllTerms } from '@/app/registry/terms';
+import { useAllTerms } from '@/shared/lib/hooks/use-term';
 import { useUserSchools } from '@/shared/lib/hooks/use-user-schools';
 
 export interface CGPAFinderFilterValues {
@@ -70,10 +70,7 @@ export function CGPAFinderFilter({ onSearch, isLoading }: Props) {
 		enabled: (params.schoolIds?.length ?? 0) > 0,
 	});
 
-	const { data: terms = [], isLoading: termsLoading } = useQuery({
-		queryKey: ['terms'],
-		queryFn: getAllTerms,
-	});
+	const { data: terms = [], isLoading: termsLoading } = useAllTerms();
 
 	useEffect(() => {
 		if (!termAutoSelected.current && !params.termCode && terms.length > 0) {

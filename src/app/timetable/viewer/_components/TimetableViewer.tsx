@@ -20,7 +20,7 @@ import type { UserSlot } from '@timetable/slots';
 import { getAllVenues } from '@timetable/venues';
 import { parseAsInteger, parseAsString, useQueryState } from 'nuqs';
 import { useState } from 'react';
-import { getAllTerms } from '@/app/registry/terms';
+import { useAllTerms } from '@/shared/lib/hooks/use-term';
 import { getStudentClassName } from '@/shared/lib/utils/utils';
 import { Pagination } from '@/shared/ui/adease/Pagination';
 import { generateTimetableDocx } from '../_lib/generateTimetableDocx';
@@ -47,10 +47,7 @@ export default function TimetableViewer() {
 	const [page, setPage] = useQueryState('page', parseAsInteger.withDefault(1));
 	const [isDownloading, setIsDownloading] = useState(false);
 
-	const { data: terms = [] } = useQuery({
-		queryKey: ['terms'],
-		queryFn: () => getAllTerms(),
-	});
+	const { data: terms = [] } = useAllTerms();
 
 	const { data: lecturersData } = useQuery({
 		queryKey: ['lecturers-select'],

@@ -15,7 +15,7 @@ import { IconInfoCircle, IconPlus } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
 import { getBlockedStudentByStdNo } from '@/app/registry/blocked-students';
-import { useActiveTerm } from '@/shared/lib/hooks/use-active-term';
+import { useActiveTerm } from '@/shared/lib/hooks/use-term';
 import useUserStudent from '@/shared/lib/hooks/use-user-student';
 import { isActiveSemester } from '@/shared/lib/utils/utils';
 

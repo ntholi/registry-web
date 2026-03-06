@@ -22,7 +22,7 @@ import {
 	IconSelector,
 } from '@tabler/icons-react';
 import React, { useState } from 'react';
-import { useActiveTerm } from '@/shared/lib/hooks/use-active-term';
+import { useActiveTerm } from '@/shared/lib/hooks/use-term';
 import Link from '@/shared/ui/Link';
 import {
 	useAssessmentMarksQuery,

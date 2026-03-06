@@ -21,7 +21,7 @@ import { type SemesterStatus, semesterStatus } from '@registry/_database';
 import { IconAlertCircle, IconEdit } from '@tabler/icons-react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect, useState } from 'react';
-import { getAllTerms } from '@/app/registry/terms';
+import { useAllTerms } from '@/shared/lib/hooks/use-term';
 import { updateStudentSemester } from '../../_server/actions';
 
 interface StudentSemester {
@@ -60,9 +60,7 @@ export default function EditStudentSemesterModal({
 	const [showReasonWarning, setShowReasonWarning] = useState(false);
 	const [pendingSubmit, setPendingSubmit] = useState(false);
 
-	const { data: termsData = [], isLoading: isLoadingTerms } = useQuery({
-		queryKey: ['terms'],
-		queryFn: getAllTerms,
+	const { data: termsData = [], isLoading: isLoadingTerms } = useAllTerms({
 		enabled: opened,
 		select: (data) => data.map((t) => ({ value: t.code, label: t.code })),
 	});
