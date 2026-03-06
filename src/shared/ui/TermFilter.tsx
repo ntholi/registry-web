@@ -1,13 +1,6 @@
 'use client';
 
-import {
-	ActionIcon,
-	Modal,
-	Paper,
-	Select,
-	Stack,
-	Tooltip,
-} from '@mantine/core';
+import { ActionIcon, Modal, Paper, Stack, Tooltip } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { IconFilter } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
@@ -16,6 +9,7 @@ import type { ReactNode } from 'react';
 import { useEffect } from 'react';
 import { getAllTerms } from '@/app/registry/terms';
 import { selectedTermAtom } from '@/shared/ui/atoms/termAtoms';
+import TermInput from '@/shared/ui/TermInput';
 
 interface TermFilterProps {
 	onTermChange?: (termId: number | null) => void;
@@ -61,11 +55,6 @@ export default function TermFilter({
 		close();
 	};
 
-	const termOptions = terms?.map((term) => ({
-		value: term.id.toString(),
-		label: term.code + (term.isActive ? ' (Current)' : ''),
-	}));
-
 	const activeTerm = terms?.find((term) => term.isActive);
 	const isActiveTermSelected = activeTerm && selectedTerm === activeTerm.id;
 
@@ -92,12 +81,14 @@ export default function TermFilter({
 			>
 				<Paper p={'lg'} pb={'xl'} withBorder>
 					<Stack gap='md'>
-						<Select
+						<TermInput
 							label='Select Term'
 							placeholder='Choose a term'
-							data={termOptions}
-							value={selectedTerm?.toString() || null}
-							onChange={handleTermSelect}
+							terms={terms}
+							value={selectedTerm}
+							onChange={(termId) =>
+								handleTermSelect(termId ? String(termId) : null)
+							}
 						/>
 						{extraContent}
 					</Stack>

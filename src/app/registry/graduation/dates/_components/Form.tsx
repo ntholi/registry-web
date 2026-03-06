@@ -1,12 +1,12 @@
 'use client';
 
-import { Select } from '@mantine/core';
 import { DateInput } from '@mantine/dates';
 import { graduationDates } from '@registry/_database';
 import { createInsertSchema } from 'drizzle-zod';
 import { useRouter } from 'nextjs-toploader/app';
 import { formatDateToISO, parseDate } from '@/shared/lib/utils/dates';
 import { Form } from '@/shared/ui/adease';
+import TermInput from '@/shared/ui/TermInput';
 
 type Graduation = typeof graduationDates.$inferInsert;
 
@@ -50,21 +50,16 @@ export default function GraduationForm({
 						error={form.errors.date}
 						required
 					/>
-					<Select
-						label='Term'
-						data={terms.map((t) => ({
-							value: String(t.id),
-							label: t.code,
-						}))}
-						value={form.values.termId ? String(form.values.termId) : null}
+					<TermInput
+						terms={terms}
+						value={form.values.termId}
 						onChange={(value) => {
-							if (value) {
-								form.setFieldValue('termId', Number(value));
+							if (typeof value === 'number') {
+								form.setFieldValue('termId', value);
 							}
 						}}
 						error={form.errors.termId}
 						required
-						searchable
 					/>
 				</>
 			)}

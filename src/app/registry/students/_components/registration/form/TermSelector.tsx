@@ -1,10 +1,9 @@
 'use client';
 
-import { Alert, Select, Stack, Text } from '@mantine/core';
+import { Alert, Stack, Text } from '@mantine/core';
 import { IconInfoCircle } from '@tabler/icons-react';
-import { useQuery } from '@tanstack/react-query';
-import { getAllTerms } from '@/app/registry/terms';
 import { useActiveTerm } from '@/shared/lib/hooks/use-active-term';
+import TermInput from '@/shared/ui/TermInput';
 
 type Props = {
 	value: number | null;
@@ -14,28 +13,13 @@ type Props = {
 
 export default function TermSelector({ value, onChange, error }: Props) {
 	const { activeTerm } = useActiveTerm();
-	const { data: terms, isLoading } = useQuery({
-		queryKey: ['terms'],
-		queryFn: () => getAllTerms(),
-	});
-
-	const termOptions =
-		terms?.map((term) => ({
-			value: term.id.toString(),
-			label: term.code,
-		})) || [];
 
 	return (
 		<Stack gap='xs'>
-			<Select
-				label='Term'
-				placeholder='Select term'
-				data={termOptions}
-				value={value?.toString() || ''}
-				onChange={(val) => onChange(val ? Number.parseInt(val, 10) : null)}
+			<TermInput
+				value={value}
+				onChange={(val) => onChange(typeof val === 'number' ? val : null)}
 				error={error}
-				searchable
-				disabled={isLoading}
 			/>
 			{activeTerm && value !== activeTerm.id && (
 				<Alert color='yellow' icon={<IconInfoCircle size={14} />}>

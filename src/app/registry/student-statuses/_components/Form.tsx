@@ -12,7 +12,6 @@ import {
 } from '@mantine/core';
 import { studentStatuses } from '@registry/_database';
 import { getStudent, getStudentPhoto } from '@registry/students';
-import { getAllTerms } from '@registry/terms';
 import { IconUser } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { createInsertSchema } from 'drizzle-zod';
@@ -21,6 +20,7 @@ import { useState } from 'react';
 import { z } from 'zod';
 import { Form } from '@/shared/ui/adease';
 import StudentInput from '@/shared/ui/StudentInput';
+import TermInput from '@/shared/ui/TermInput';
 import { getJustificationLabel, getTypeLabel } from '../_lib/labels';
 
 type StudentStatusInsert = typeof studentStatuses.$inferInsert;
@@ -95,11 +95,6 @@ export default function StudentStatusForm({
 		queryKey: ['student-photo', selectedStdNo],
 		queryFn: () => getStudentPhoto(selectedStdNo),
 		enabled: !!selectedStdNo,
-	});
-
-	const { data: terms } = useQuery({
-		queryKey: ['terms'],
-		queryFn: getAllTerms,
 	});
 
 	return (
@@ -188,21 +183,13 @@ export default function StudentStatusForm({
 
 								{selectedType && (
 									<>
-										<Select
-											label='Term'
+										<TermInput
 											required
-											searchable
-											data={(terms ?? []).map((t) => ({
-												value: String(t.id),
-												label: t.name ?? t.code,
-											}))}
-											value={
-												form.values.termId ? String(form.values.termId) : null
-											}
+											value={form.values.termId}
 											onChange={(value) =>
 												form.setFieldValue(
 													'termId',
-													value ? Number(value) : undefined
+													typeof value === 'number' ? value : undefined
 												)
 											}
 											error={form.errors.termId}

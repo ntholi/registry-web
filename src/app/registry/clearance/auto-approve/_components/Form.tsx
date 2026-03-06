@@ -1,13 +1,12 @@
 'use client';
 
 import { Select, Stack } from '@mantine/core';
-import { useQuery } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'nextjs-toploader/app';
-import { getAllTerms } from '@/app/registry/terms';
 import type { DashboardUser } from '@/core/database';
 import { Form } from '@/shared/ui/adease';
 import StudentInput from '@/shared/ui/StudentInput';
+import TermInput from '@/shared/ui/TermInput';
 import { createAutoApproval, updateAutoApproval } from '../_server/actions';
 
 type Props = {
@@ -24,17 +23,6 @@ export default function AutoApprovalForm({ rule }: Props) {
 	const { data: session } = useSession();
 	const userRole = session?.user?.role as DashboardUser | undefined;
 	const isAdmin = userRole === 'admin';
-
-	const { data: terms, isLoading: termsLoading } = useQuery({
-		queryKey: ['terms'],
-		queryFn: () => getAllTerms(),
-	});
-
-	const termOptions =
-		terms?.map((term) => ({
-			value: term.id.toString(),
-			label: term.code,
-		})) || [];
 
 	const departmentOptions = [
 		{ value: 'finance', label: 'Finance' },
@@ -66,21 +54,16 @@ export default function AutoApprovalForm({ rule }: Props) {
 			{(form) => (
 				<Stack>
 					<StudentInput {...form.getInputProps('stdNo')} required />
-					<Select
-						label='Term'
-						placeholder='Select term'
-						data={termOptions}
-						disabled={termsLoading}
-						searchable
-						value={form.values.termId?.toString() || ''}
-						onChange={(val) =>
+					<TermInput
+						required
+						value={form.values.termId as number | null | undefined}
+						onChange={(value) =>
 							form.setFieldValue(
 								'termId',
-								val ? Number.parseInt(val, 10) : ('' as unknown as number)
+								typeof value === 'number' ? value : ('' as unknown as number)
 							)
 						}
 						error={form.errors.termId}
-						required
 					/>
 					<Select
 						label='Department'

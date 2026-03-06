@@ -14,12 +14,12 @@ import {
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import { IconFileUpload, IconUpload } from '@tabler/icons-react';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
 import { useState } from 'react';
 import * as XLSX from 'xlsx';
-import { getAllTerms } from '@/app/registry/terms';
 import type { DashboardUser } from '@/core/database';
+import TermInput from '@/shared/ui/TermInput';
 import { bulkCreateAutoApprovals } from '../_server/actions';
 
 type ParsedRow = {
@@ -41,14 +41,6 @@ export default function BulkImportModal() {
 	const [selectedTermCode, setSelectedTermCode] = useState<string | null>(null);
 	const [fileName, setFileName] = useState<string | null>(null);
 	const queryClient = useQueryClient();
-
-	const { data: terms } = useQuery({
-		queryKey: ['terms'],
-		queryFn: () => getAllTerms(),
-	});
-
-	const termOptions =
-		terms?.map((t) => ({ value: t.code, label: t.code })) ?? [];
 
 	const mutation = useMutation({
 		mutationFn: async () => {
@@ -202,14 +194,15 @@ export default function BulkImportModal() {
 								required
 							/>
 						)}
-						<Select
+						<TermInput
 							label='Import Term'
 							placeholder='Select term for all students'
-							data={termOptions}
 							value={selectedTermCode}
-							onChange={setSelectedTermCode}
+							onChange={(value) =>
+								setSelectedTermCode(typeof value === 'string' ? value : null)
+							}
+							valueMode='code'
 							required
-							searchable
 						/>
 					</Group>
 

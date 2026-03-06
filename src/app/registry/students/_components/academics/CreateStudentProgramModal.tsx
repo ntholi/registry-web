@@ -19,8 +19,8 @@ import { programStatus, type StudentProgramStatus } from '@registry/_database';
 import { IconPlus } from '@tabler/icons-react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useMemo, useState } from 'react';
-import { getActiveTerm, getAllTerms } from '@/app/registry/terms';
 import { formatDateToISO } from '@/shared/lib/utils/dates';
+import TermInput from '@/shared/ui/TermInput';
 import { createStudentProgram } from '../../_server/actions';
 
 type Props = {
@@ -37,12 +37,6 @@ export default function CreateStudentProgramModal({
 	const queryClient = useQueryClient();
 	const [opened, { open, close }] = useDisclosure(false);
 	const [isSubmitting, setIsSubmitting] = useState(false);
-
-	const { refetch: refetchActiveTerm } = useQuery({
-		queryKey: ['active-term'],
-		queryFn: getActiveTerm,
-		enabled: false,
-	});
 
 	const form = useForm({
 		initialValues: {
@@ -81,13 +75,6 @@ export default function CreateStudentProgramModal({
 		enabled: opened && !!selectedSchoolId,
 		select: (data) =>
 			data.map((p) => ({ value: p.id.toString(), label: p.name })),
-	});
-
-	const { data: termsData = [], isLoading: isLoadingTerms } = useQuery({
-		queryKey: ['terms'],
-		queryFn: getAllTerms,
-		enabled: opened,
-		select: (data) => data.map((t) => ({ value: t.code, label: t.code })),
 	});
 
 	const { data: structuresData = [], isLoading: isLoadingStructures } =
@@ -151,11 +138,6 @@ export default function CreateStudentProgramModal({
 					);
 					form.setFieldValue('intakeDate', new Date());
 					form.setFieldValue('regDate', new Date());
-					void refetchActiveTerm().then((res) => {
-						if (res.data?.code) {
-							form.setFieldValue('startTerm', res.data.code);
-						}
-					});
 					open();
 				}}
 				style={{
@@ -259,15 +241,18 @@ export default function CreateStudentProgramModal({
 								{...form.getInputProps('regDate')}
 							/>
 						</Group>
-						<Select
+						<TermInput
 							label='Start Term'
 							placeholder='Select start term'
-							searchable
+							value={form.values.startTerm}
+							onChange={(value) =>
+								form.setFieldValue(
+									'startTerm',
+									typeof value === 'string' ? value : ''
+								)
+							}
+							valueMode='code'
 							clearable
-							data={termsData}
-							disabled={isLoadingTerms}
-							{...form.getInputProps('startTerm')}
-							rightSection={isLoadingTerms ? <Loader size='xs' /> : undefined}
 						/>
 					</Stack>
 
@@ -279,7 +264,6 @@ export default function CreateStudentProgramModal({
 								isSubmitting ||
 								isLoadingSchools ||
 								isLoadingPrograms ||
-								isLoadingTerms ||
 								isLoadingStructures
 							}
 						>
@@ -289,10 +273,7 @@ export default function CreateStudentProgramModal({
 							type='submit'
 							loading={isSubmitting}
 							disabled={
-								isLoadingSchools ||
-								isLoadingPrograms ||
-								isLoadingTerms ||
-								isLoadingStructures
+								isLoadingSchools || isLoadingPrograms || isLoadingStructures
 							}
 						>
 							Create

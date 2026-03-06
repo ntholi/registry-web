@@ -39,6 +39,7 @@ import {
 } from '@/shared/lib/utils/utils';
 import { Form } from '@/shared/ui/adease';
 import StudentInput from '@/shared/ui/StudentInput';
+import TermInput from '@/shared/ui/TermInput';
 import {
 	determineSemesterStatus,
 	getStudentSemesterModules,
@@ -428,16 +429,13 @@ export default function RegistrationRequestForm({
 								</ActionIcon>
 							</Group>
 
-							<Select
-								label='Term'
-								placeholder='Select term'
-								data={allTerms.map((term) => ({
-									value: term.id.toString(),
-									label: term.code,
-								}))}
-								value={form.values.termId ? String(form.values.termId) : null}
-								onChange={(value: string | null) => {
-									if (value) form.setFieldValue('termId', Number(value));
+							<TermInput
+								terms={allTerms}
+								value={form.values.termId}
+								onChange={(value) => {
+									if (typeof value === 'number') {
+										form.setFieldValue('termId', value);
+									}
 								}}
 								error={form.errors.termId}
 								required

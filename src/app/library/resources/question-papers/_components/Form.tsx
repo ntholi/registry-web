@@ -7,8 +7,8 @@ import type { FileWithPath } from '@mantine/dropzone';
 import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'nextjs-toploader/app';
 import { useRef, useState } from 'react';
-import { getAllTerms } from '@/app/registry/terms';
 import { Form } from '@/shared/ui/adease';
+import TermInput from '@/shared/ui/TermInput';
 import UploadField from '../../_components/UploadField';
 import type {
 	QuestionPaper,
@@ -37,21 +37,10 @@ export default function QuestionPaperForm({
 		queryFn: () => getModules(1, moduleSearch),
 	});
 
-	const { data: termsData } = useQuery({
-		queryKey: ['terms', 'all'],
-		queryFn: getAllTerms,
-	});
-
 	const moduleOptions =
 		modulesData?.items?.map((m) => ({
 			value: String(m.id),
 			label: `${m.code} - ${m.name}`,
-		})) ?? [];
-
-	const termOptions =
-		termsData?.map((t) => ({
-			value: String(t.id),
-			label: t.code,
 		})) ?? [];
 
 	const assessmentTypeOptions = ASSESSMENT_TYPES.map((t) => ({
@@ -100,14 +89,14 @@ export default function QuestionPaperForm({
 						}
 					/>
 
-					<Select
-						label='Term'
+					<TermInput
 						required
-						data={termOptions}
-						searchable
-						value={form.values.termId ? String(form.values.termId) : null}
+						value={form.values.termId}
 						onChange={(value) =>
-							form.setFieldValue('termId', value ? Number(value) : 0)
+							form.setFieldValue(
+								'termId',
+								typeof value === 'number' ? value : 0
+							)
 						}
 					/>
 
