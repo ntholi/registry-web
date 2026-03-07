@@ -8,7 +8,10 @@ import {
 	verifyMobilePayment,
 } from '@admissions/payments';
 import { extractError } from '@apply/_lib/errors';
+import { nanoid } from 'nanoid';
 import { bankDeposits, db, documents } from '@/core/database';
+import { deleteFile, uploadFile } from '@/core/integrations/storage';
+import { StoragePaths } from '@/core/integrations/storage-utils';
 import { validateAnalyzedReceipt, validateReceipts } from './validation';
 
 export { validateAnalyzedReceipt, validateReceipts };
@@ -63,36 +66,62 @@ export async function submitReceiptPayment(
 			};
 		}
 
-		await db.transaction(async (tx) => {
+		const uploaded: { key: string; docId: string; receipt: DepositData }[] = [];
+		try {
 			for (const receipt of receipts) {
-				const [doc] = await tx
-					.insert(documents)
-					.values({
-						fileName: `deposit-${receipt.reference}.${receipt.mediaType.split('/')[1] || 'pdf'}`,
-						fileUrl: `data:${receipt.mediaType};base64,${receipt.base64}`,
-						type: 'proof_of_payment',
-					})
-					.returning({ id: documents.id });
-
-				await tx.insert(bankDeposits).values({
+				const ext = receipt.mediaType.split('/')[1] || 'pdf';
+				const buffer = Buffer.from(receipt.base64, 'base64');
+				const docId = nanoid();
+				const key = StoragePaths.admissionDeposit(
 					applicationId,
-					documentId: doc.id,
-					reference: receipt.reference,
-					type: receipt.receiptType ?? 'bank_deposit',
-					status: 'pending',
-					receiptNumber: receipt.receiptNumber,
-					beneficiaryName: receipt.beneficiaryName,
-					dateDeposited: receipt.dateDeposited,
-					amountDeposited: receipt.amountDeposited?.toString(),
-					currency: receipt.currency,
-					depositorName: receipt.depositorName,
-					bankName: receipt.bankName,
-					paymentMode: receipt.paymentMode,
-					transactionNumber: receipt.transactionNumber,
-					terminalNumber: receipt.terminalNumber,
-				});
+					`${docId}.${ext}`
+				);
+				await uploadFile(buffer, key, receipt.mediaType);
+				uploaded.push({ key, docId, receipt });
 			}
-		});
+
+			await db.transaction(async (tx) => {
+				for (const { key, docId, receipt } of uploaded) {
+					const ext = receipt.mediaType.split('/')[1] || 'pdf';
+					const [doc] = await tx
+						.insert(documents)
+						.values({
+							id: docId,
+							fileName: `deposit-${receipt.reference}.${ext}`,
+							fileUrl: key,
+							type: 'proof_of_payment',
+						})
+						.returning({ id: documents.id });
+
+					await tx.insert(bankDeposits).values({
+						applicationId,
+						documentId: doc.id,
+						reference: receipt.reference,
+						type: receipt.receiptType ?? 'bank_deposit',
+						status: 'pending',
+						receiptNumber: receipt.receiptNumber,
+						beneficiaryName: receipt.beneficiaryName,
+						dateDeposited: receipt.dateDeposited,
+						amountDeposited: receipt.amountDeposited?.toString(),
+						currency: receipt.currency,
+						depositorName: receipt.depositorName,
+						bankName: receipt.bankName,
+						paymentMode: receipt.paymentMode,
+						transactionNumber: receipt.transactionNumber,
+						terminalNumber: receipt.terminalNumber,
+					});
+				}
+			});
+		} catch (uploadOrDbError) {
+			for (const { key } of uploaded) {
+				try {
+					await deleteFile(key);
+				} catch {
+					console.error(`Failed to clean up orphaned R2 object: ${key}`);
+				}
+			}
+			throw uploadOrDbError;
+		}
 
 		return { success: true };
 	} catch (error) {

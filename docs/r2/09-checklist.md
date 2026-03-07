@@ -14,7 +14,7 @@ What you need to do:
 - Do not skip backups, dry runs, or verification.
 
 Current step:
-- `4`
+- `6`
 
 Go / no-go:
 - [x] PostgreSQL backup completed before destructive work
@@ -31,22 +31,20 @@ Progress:
 | 2 | Done | photoKey added to students & employees, storageKey added to publication_attachments, migration 0181 generated |
 | 3 | Done | migrate-r2-storage.ts dry run passed with 0 failures; review noted 20 student-photo orphans, 1 employee-photo orphan, and 154 admissions-document orphans |
 | 4 | Done | extract-base64-deposits.ts created and dry run passed with 1,595 receipts, 0 failures, ~1000.79 MB estimated DB bytes replaced |
-| 5 | Not started | - |
+| 5 | Done | submitReceiptPayment updated to decode base64 → upload to R2 → store key in documents.fileUrl; orphan cleanup on failure |
 | 6 | Not started | - |
 | 7 | Not started | - |
 | 8 | Not started | - |
 
 Last update:
-- Step 4 completed: extract-base64-deposits.ts created at scripts/extract-base64-deposits.ts and dry run logged at scripts/logs/base64-extraction-2026-03-07T15-31-02-881Z.json
+- Step 5 completed: submitReceiptPayment in src/app/apply/[id]/(wizard)/payment/_server/actions.ts now uploads receipts to R2 via StoragePaths.admissionDeposit and stores the R2 key instead of base64 data
 
 Blockers:
 - None
 
 ## What to do now
 
-Steps 3 and 4 scripts are written and dry-run validated, but NOT yet executed live. Before proceeding to Step 5:
-
-1. **Proceed to Step 5**: update the payment submission action so new receipts upload to R2 instead of storing base64 in `documents.file_url`
+1. **Proceed to Step 6**: update remaining upload code paths (student photos, employee photos, publication attachments, applicant documents) to use `uploadFile` + `StoragePaths` instead of the deprecated `uploadDocument` helper
 2. **Keep live execution for downtime only**: run `pnpm tsx scripts/migrate-r2-storage.ts --phase all` and `pnpm tsx scripts/extract-base64-deposits.ts` during the maintenance window after deploying the Step 1/2/5/6/7 code changes
 3. **Use the dry-run logs as the operator baseline**:
 	- Step 3 log: `scripts/migration-logs/r2-migration-2026-03-07T15-26-12-891Z.json`
