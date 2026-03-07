@@ -5,10 +5,9 @@ import type {
 	ZohoInvoice,
 	ZohoInvoiceStatus,
 } from '@finance/_lib/zoho-books/types';
-import { Card, Divider, Group, Skeleton, Stack, Text } from '@mantine/core';
+import { Divider, Group, Skeleton, Stack, Text } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
 import { statusColors } from '@/shared/lib/utils/colors';
-import { formatCurrency } from '@/shared/lib/utils/utils';
 import {
 	CurrencyCell,
 	DateCell,
@@ -101,7 +100,19 @@ function InvoiceDetail({ invoice }: InvoiceDetailProps) {
 		staleTime: 1000 * 60 * 10,
 	});
 
+	const currency = invoice.currency_code ?? 'LSL';
+	const lineItems = detail?.line_items ?? [];
+	const subTotal =
+		detail?.sub_total ??
+		(lineItems.length > 0
+			? lineItems.reduce((s, it) => s + it.item_total, 0)
+			: invoice.total);
 	const paid = invoice.total - invoice.balance;
+	const fmt = (n: number) =>
+		n.toLocaleString('en', {
+			minimumFractionDigits: 2,
+			maximumFractionDigits: 2,
+		});
 
 	return (
 		<Stack gap='sm'>
@@ -110,32 +121,43 @@ function InvoiceDetail({ invoice }: InvoiceDetailProps) {
 					<Skeleton height={14} width={120} />
 					<Skeleton height={60} />
 				</Stack>
-			) : detail?.line_items && detail.line_items.length > 0 ? (
-				<LineItemsTable items={detail.line_items} />
+			) : lineItems.length > 0 ? (
+				<LineItemsTable items={lineItems} />
 			) : (
 				<Text size='sm' c='dimmed'>
 					No line items
 				</Text>
 			)}
-			<Card p='sm' withBorder>
-				<Stack gap={4}>
-					<SummaryRow label='Total' value={invoice.total} bold />
+			<Group justify='flex-end'>
+				<Stack gap={4} w={300}>
+					<SummaryRow label='Sub Total' value={fmt(subTotal)} />
 					<Divider my={4} />
-					<SummaryRow label='Amount Paid' value={paid} />
+					<SummaryRow
+						label='Total'
+						value={`${currency}${fmt(invoice.total)}`}
+						bold
+					/>
+					<SummaryRow
+						label='Payment Made'
+						value={`(-) ${fmt(paid)}`}
+						color='red'
+					/>
+					<Divider my={4} />
 					<SummaryRow
 						label='Balance Due'
-						value={invoice.balance}
-						color={invoice.balance > 0 ? 'red' : 'green'}
+						value={`${currency}${fmt(invoice.balance)}`}
+						bold
+						color={invoice.balance > 0 ? 'red' : undefined}
 					/>
 				</Stack>
-			</Card>
+			</Group>
 		</Stack>
 	);
 }
 
 type SummaryRowProps = {
 	label: string;
-	value: number;
+	value: string;
 	bold?: boolean;
 	color?: string;
 };
@@ -147,7 +169,7 @@ function SummaryRow({ label, value, bold, color }: SummaryRowProps) {
 				{label}
 			</Text>
 			<Text size='sm' fw={bold ? 700 : 500} ff='monospace' c={color}>
-				{formatCurrency(value)}
+				{value}
 			</Text>
 		</Group>
 	);

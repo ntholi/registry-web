@@ -47,6 +47,7 @@ export interface ZohoLineItem {
 	name?: string;
 	description?: string;
 	quantity: number;
+	unit?: string;
 	rate: number;
 	item_total: number;
 }
@@ -69,6 +70,7 @@ export interface ZohoInvoice {
 	status: ZohoInvoiceStatus;
 	date: string;
 	due_date: string;
+	sub_total?: number;
 	total: number;
 	balance: number;
 	line_items?: ZohoLineItem[];

@@ -242,20 +242,30 @@ type LineItemsTableProps = {
 		name?: string;
 		description?: string;
 		quantity: number;
+		unit?: string;
 		rate: number;
 		item_total: number;
 	}[];
 };
 
+const fmt = (n: number) =>
+	n.toLocaleString('en', {
+		minimumFractionDigits: 2,
+		maximumFractionDigits: 2,
+	});
+
 export function LineItemsTable({ items }: LineItemsTableProps) {
 	if (items.length === 0) return null;
 
 	return (
-		<Table verticalSpacing={4} horizontalSpacing='sm' fz='xs'>
+		<Table verticalSpacing='xs' horizontalSpacing='sm' fz='xs'>
 			<Table.Thead>
 				<Table.Tr>
+					<Table.Th fw={600} c='dimmed' tt='uppercase' lts={0.3} w={32}>
+						#
+					</Table.Th>
 					<Table.Th fw={600} c='dimmed' tt='uppercase' lts={0.3}>
-						Item
+						Item &amp; Description
 					</Table.Th>
 					<Table.Th fw={600} c='dimmed' tt='uppercase' lts={0.3} ta='right'>
 						Qty
@@ -269,35 +279,55 @@ export function LineItemsTable({ items }: LineItemsTableProps) {
 				</Table.Tr>
 			</Table.Thead>
 			<Table.Tbody>
-				{items.map((item, i) => (
-					<Table.Tr key={`item-${i}`}>
-						<Table.Td>
-							<Text size='xs' fw={500}>
-								{item.name || 'Item'}
-							</Text>
-							{item.description && (
-								<Text size='xs' c='dimmed' lineClamp={2}>
-									{item.description}
+				{items.map((item, i) => {
+					const raw = item.name ?? 'Item';
+					const pipeIdx = raw.indexOf('|');
+					const itemName = pipeIdx >= 0 ? raw.slice(0, pipeIdx).trim() : raw;
+					const itemCode =
+						pipeIdx >= 0 ? raw.slice(pipeIdx + 1).trim() : undefined;
+
+					return (
+						<Table.Tr key={`item-${i}`}>
+							<Table.Td c='dimmed'>{i + 1}</Table.Td>
+							<Table.Td>
+								<Text size='xs' fw={600}>
+									{itemName}
+									{itemCode && (
+										<Text span fw={400} c='dimmed'>
+											{' '}
+											| {itemCode}
+										</Text>
+									)}
 								</Text>
-							)}
-						</Table.Td>
-						<Table.Td ta='right'>
-							<Text size='xs' ff='monospace'>
-								{item.quantity}
-							</Text>
-						</Table.Td>
-						<Table.Td ta='right'>
-							<Text size='xs' ff='monospace'>
-								{formatCurrency(item.rate)}
-							</Text>
-						</Table.Td>
-						<Table.Td ta='right'>
-							<Text size='xs' fw={600} ff='monospace'>
-								{formatCurrency(item.item_total)}
-							</Text>
-						</Table.Td>
-					</Table.Tr>
-				))}
+								{item.description && (
+									<Text size='xs' c='dimmed' lineClamp={2}>
+										{item.description}
+									</Text>
+								)}
+							</Table.Td>
+							<Table.Td ta='right'>
+								<Text size='xs' ff='monospace'>
+									{fmt(item.quantity)}
+								</Text>
+								{item.unit && (
+									<Text size='xs' c='dimmed'>
+										{item.unit}
+									</Text>
+								)}
+							</Table.Td>
+							<Table.Td ta='right'>
+								<Text size='xs' ff='monospace'>
+									{fmt(item.rate)}
+								</Text>
+							</Table.Td>
+							<Table.Td ta='right'>
+								<Text size='xs' fw={600} ff='monospace'>
+									{fmt(item.item_total)}
+								</Text>
+							</Table.Td>
+						</Table.Tr>
+					);
+				})}
 			</Table.Tbody>
 		</Table>
 	);
