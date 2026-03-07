@@ -151,8 +151,10 @@ pnpm tsx scripts/cleanup-old-r2-objects.ts [--dry-run]
 ### Safety:
 - **Dry run first** — always run with `--dry-run` before actual deletion
 - **Only delete objects listed in the migration log** — never blindly delete entire prefixes
+- **Require a live DB/reference check before delete** — a key is only eligible if the migration log says it copied successfully, the destination object still exists and matches the migration manifest, and no current DB row still references or derives the old key
 - **Batch deletes** — use `DeleteObjectsCommand` (up to 1000 objects per request) for efficiency
 - **Do NOT delete orphaned files** — those were moved to `*/orphaned/` subfolder; review them manually
+- **Independent recovery required** — do not delete anything unless bucket versioning is enabled or a full object backup exists outside the primary prefix/bucket
 
 ### Wait period:
 Run this script **at least 1 week** after Steps 4-5 are deployed to production. This gives time to:

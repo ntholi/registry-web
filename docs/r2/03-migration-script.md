@@ -34,7 +34,7 @@ pnpm tsx scripts/migrate-r2-storage.ts [--dry-run] [--phase photos|documents|all
 │ 3. For each migration phase:            │
 │    a. List objects at old prefix         │
 │    b. CopyObject to new key             │
-│    c. HEAD new key to verify            │
+│    c. HEAD old + new keys to verify     │
 │    d. Update DB record                  │
 │    e. Log result to migration-log.json  │
 │ 4. Print summary report                 │
@@ -44,16 +44,17 @@ pnpm tsx scripts/migrate-r2-storage.ts [--dry-run] [--phase photos|documents|all
 ## 3.3 — Phase 1: Student Photos
 
 **Old pattern:** `photos/{stdNo}.{ext}`  
-**New pattern:** `registry/students/photos/{stdNo}.jpg`
+**New pattern:** `registry/students/photos/{stdNo}.{ext}`
 
 ### Logic:
 1. `ListObjectsV2Command` with prefix `photos/` (exclude `photos/employees/`)
 2. For each object:
    - Extract `stdNo` from the key (e.g., `photos/901234.jpg` → `901234`)
    - Validate that `stdNo` exists in the `students` table
-   - `CopyObjectCommand` from `photos/{stdNo}.{ext}` → `registry/students/photos/{stdNo}.jpg`
-   - `HeadObjectCommand` on the new key to verify copy succeeded
-   - `UPDATE students SET photo_key = 'registry/students/photos/{stdNo}.jpg' WHERE std_no = {stdNo}`
+  - Preserve the original extension and content type from the source object; do NOT rename `.png`/`.webp`/`.jpeg` objects to `.jpg` without an explicit transcoding step
+  - `CopyObjectCommand` from `photos/{stdNo}.{ext}` → `registry/students/photos/{stdNo}.{ext}`
+  - `HeadObjectCommand` on both source and destination, then verify `ContentLength`, `ContentType`, and checksum/ETag match before updating the DB row
+  - `UPDATE students SET photo_key = 'registry/students/photos/{stdNo}.{ext}' WHERE std_no = {stdNo}`
    - Log: `{ oldKey, newKey, stdNo, status: 'copied' | 'failed', timestamp }`
 
 ### Edge cases:
@@ -64,13 +65,15 @@ pnpm tsx scripts/migrate-r2-storage.ts [--dry-run] [--phase photos|documents|all
 ## 3.4 — Phase 2: Employee Photos
 
 **Old pattern:** `photos/employees/{empNo}.{ext}`  
-**New pattern:** `human-resource/employees/photos/{empNo}.jpg`
+**New pattern:** `human-resource/employees/photos/{empNo}.{ext}`
 
 ### Logic:
 Same as Phase 1 but:
 1. `ListObjectsV2Command` with prefix `photos/employees/`
 2. Validate against `employees` table
 3. `UPDATE employees SET photo_key = '...' WHERE emp_no = {empNo}`
+
+The same rules apply as student photos: preserve the original extension and content type, and verify source and destination metadata match before updating `photo_key`.
 
 ## 3.5 — Phase 3: Admissions Documents
 
@@ -217,9 +220,25 @@ pnpm tsx scripts/migrate-r2-storage.ts --phase all
 
 The script must be safely re-runnable:
 - Before copying, check if the new key already exists via `HeadObjectCommand`
-- If it exists AND has the same `ContentLength`, skip the copy
+- If it exists AND the source/destination `ContentLength`, `ContentType`, and checksum/ETag match, skip the copy
 - DB updates use `SET ... WHERE` (idempotent)
 - Log skip events for transparency
+
+## 3.13 — Integrity Verification Rules
+
+Before updating any database row, the script must verify that the copied object is equivalent to the source object.
+
+Required checks:
+- `ContentLength` matches between source and destination
+- `ContentType` matches between source and destination
+- checksum/ETag matches between source and destination when available from the provider metadata
+
+If any verification field does not match:
+- log the record as failed
+- do NOT update the database row
+- do NOT include the old key in any future cleanup candidate list
+
+For zero-loss purposes, `HeadObject` on the new key by itself is not sufficient.
 
 ## Pre-Execution Checklist
 

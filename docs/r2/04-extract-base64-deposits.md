@@ -84,7 +84,8 @@ pnpm tsx scripts/extract-base64-deposits.ts [--dry-run] [--batch-size 50]
 │    d. Build R2 key using StoragePaths         │
 │    e. PutObjectCommand to R2                  │
 │    f. HeadObjectCommand to verify upload      │
-│    g. UPDATE documents SET file_url = key     │
+│    g. Verify uploaded metadata matches source │
+│    h. UPDATE documents SET file_url = key     │
 │    h. Log result                              │
 │ 5. Print summary report                       │
 └───────────────────────────────────────────────┘
@@ -115,6 +116,8 @@ for (const batch of chunk(base64Docs, BATCH_SIZE)) {
     const buffer = Buffer.from(base64, 'base64');
     const ext = mimeToExt(mediaType); // e.g. 'jpeg', 'pdf', 'png'
     const key = StoragePaths.admissionDeposit(doc.applicationId, `${doc.docId}.${ext}`);
+    const expectedSize = buffer.length;
+    const expectedMd5 = createHash('md5').update(buffer).digest('hex');
 
     await s3Client.send(new PutObjectCommand({
       Bucket: BUCKET_NAME,
@@ -129,11 +132,14 @@ for (const batch of chunk(base64Docs, BATCH_SIZE)) {
       Key: key,
     }));
 
-    // CRITICAL: Verify content integrity — uploaded size must match decoded size
-    const expectedSize = buffer.length;
     const actualSize = head.ContentLength;
+    const actualEtag = head.ETag?.replaceAll('"', '');
 
-    if (head.$metadata.httpStatusCode === 200 && actualSize === expectedSize) {
+    if (
+      head.$metadata.httpStatusCode === 200 &&
+      actualSize === expectedSize &&
+      actualEtag === expectedMd5
+    ) {
       await db.update(documents)
         .set({ fileUrl: key })
         .where(eq(documents.id, doc.id));
@@ -141,6 +147,8 @@ for (const batch of chunk(base64Docs, BATCH_SIZE)) {
       log({ docId: doc.id, oldSize: doc.fileUrl.length, newKey: key, uploadedBytes: actualSize, status: 'success' });
     } else if (actualSize !== expectedSize) {
       log({ docId: doc.id, status: 'failed', reason: `Size mismatch: expected ${expectedSize}, got ${actualSize}` });
+    } else if (actualEtag !== expectedMd5) {
+      log({ docId: doc.id, status: 'failed', reason: `Checksum mismatch: expected ${expectedMd5}, got ${actualEtag}` });
     } else {
       log({ docId: doc.id, status: 'failed', reason: 'HEAD verification failed' });
     }
@@ -182,6 +190,15 @@ function mimeToExt(mediaType: string): string {
 23 records use `image/heic` and 1 uses `image/heif`. These should be uploaded as-is to R2 — the `DocumentViewer` component uses `<Image unoptimized>` which passes through the original format. The browser or Next.js Image component handles rendering.
 
 No conversion needed at migration time.
+
+## 4.5.1 — Integrity Standard
+
+Before replacing a base64 payload in `documents.file_url`, the script must verify both:
+
+1. uploaded `ContentLength` equals the decoded buffer length
+2. uploaded checksum/ETag matches the checksum calculated from the decoded buffer
+
+If either check fails, log the record as failed and leave the original base64 content unchanged in the database.
 
 ## 4.6 — Edge Cases
 

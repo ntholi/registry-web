@@ -128,6 +128,7 @@ The entire migration (Steps 1–7) MUST be executed as a **single atomic operati
 ### Pre-Maintenance Checklist
 - [ ] Full PostgreSQL backup via `pg_dump` with `--format=custom`
 - [ ] R2 bucket object listing saved to JSON (audit trail)
+- [ ] R2 object contents protected by an independent recovery path before cleanup: bucket versioning enabled or full object copy to a backup bucket/prefix
 - [ ] `NEXT_PUBLIC_R2_PUBLIC_URL` env var added to production environment
 - [ ] All code changes (Steps 1, 2, 5, 6, 7) committed, reviewed, and ready to deploy
 - [ ] Migration scripts (Steps 3, 4) tested on staging/local with `--dry-run`
@@ -156,18 +157,18 @@ The entire migration (Steps 1–7) MUST be executed as a **single atomic operati
 - The new code's `getPublicUrl()` handles both formats (`if (key.startsWith('http')) return key`), so deploying code first is safe but running migration scripts without code is NOT
 
 ### Rollback Plan
-- **Code rollback**: Redeploy previous version (old code handles old DB format)
+- **Code + DB rollback are a single operation**: If rollback is required after any rows have been converted to key-based storage, restore the pre-migration database backup and redeploy the pre-migration code together before reopening traffic
 - **DB rollback**: Restore from `pg_dump` backup taken in step 2
-- **R2 rollback**: No rollback needed — R2 changes are additive (copies, not moves). Old files remain until Step 8 cleanup
+- **R2 rollback**: No destructive R2 rollback is needed during cutover because R2 changes are additive (copies, not moves). Old files remain until Step 8 cleanup, and cleanup must not run unless an independent R2 recovery path exists
 - **Partial failure**: If migration script fails mid-way, the script is idempotent and can be re-run. Mixed state (some records updated, some not) is handled by `getPublicUrl()` which accepts both formats
 
 ## Risk Mitigation
 
-- **Zero data loss**: Copy-then-update strategy. Old files are never deleted until new paths are verified with HEAD requests.
+- **Zero data loss**: Copy-then-update strategy. Old files are never deleted during cutover, and cleanup is blocked until an independent R2 recovery path exists.
 - **Rollback**: If anything goes wrong, old paths still exist. The migration script logs all operations for audit.
 - **Atomic deployment**: All code + DB + R2 changes happen in a single maintenance window — no partial states exposed to users.
 - **Feature flags**: The old URL construction fallback remains until Step 8 cleanup.
-- **Content integrity**: Base64 extraction (Step 4) verifies uploaded file size matches decoded size before updating DB.
+- **Content integrity**: Step 3 verifies source and destination metadata match before updating DB. Step 4 verifies uploaded size and checksum before updating DB.
 - **NULL safety**: All migration UPDATE queries include `WHERE file_url IS NOT NULL` guards — the `documents.fileUrl` column is nullable.
 - **Orphan cleanup**: Step 5 payment upload cleans up R2 objects on DB transaction failure. Step 8 audits for any remaining orphans.
 - **PDF rendering**: Admissions `DocumentViewer` is updated to handle PDFs via `<iframe>` (120 deposit receipts are PDFs).
