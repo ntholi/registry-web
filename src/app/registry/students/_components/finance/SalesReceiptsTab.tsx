@@ -3,10 +3,11 @@ import type {
 	ZohoSalesReceipt,
 	ZohoSalesReceiptStatus,
 } from '@finance/_lib/zoho-books/types';
-import { Card, Group, Skeleton, Stack, Text } from '@mantine/core';
+import { Card, Divider, Group, Skeleton, Stack, Text } from '@mantine/core';
 import { IconUser } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { statusColors } from '@/shared/lib/utils/colors';
+import { formatCurrency } from '@/shared/lib/utils/utils';
 import {
 	CurrencyCell,
 	DateCell,
@@ -108,6 +109,26 @@ function SalesReceiptDetail({ receiptId, reference }: SalesReceiptDetailProps) {
 					No line items
 				</Text>
 			)}
+			{data && (
+				<Card p='sm' withBorder>
+					<Stack gap={4}>
+						<SummaryRow
+							label='Sub Total'
+							value={data.sub_total ?? data.total}
+						/>
+						{!!data.discount_total && (
+							<SummaryRow label='Discount' value={-data.discount_total} />
+						)}
+						{!!data.tax_total && (
+							<SummaryRow label='Tax' value={data.tax_total} />
+						)}
+						<Divider my={4} />
+						<SummaryRow label='Total' value={data.total} bold />
+						<SummaryRow label='Amount Paid' value={data.total} />
+						<SummaryRow label='Balance Due' value={0} />
+					</Stack>
+				</Card>
+			)}
 			{reference && (
 				<Card p='xs' px='sm' withBorder>
 					<Group gap='xs'>
@@ -122,5 +143,24 @@ function SalesReceiptDetail({ receiptId, reference }: SalesReceiptDetailProps) {
 				</Card>
 			)}
 		</Stack>
+	);
+}
+
+type SummaryRowProps = {
+	label: string;
+	value: number;
+	bold?: boolean;
+};
+
+function SummaryRow({ label, value, bold }: SummaryRowProps) {
+	return (
+		<Group justify='space-between'>
+			<Text size='sm' c={bold ? undefined : 'dimmed'} fw={bold ? 600 : 400}>
+				{label}
+			</Text>
+			<Text size='sm' fw={bold ? 700 : 500} ff='monospace'>
+				{formatCurrency(value)}
+			</Text>
+		</Group>
 	);
 }

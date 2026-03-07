@@ -5,14 +5,13 @@ import type {
 	ZohoInvoice,
 	ZohoInvoiceStatus,
 } from '@finance/_lib/zoho-books/types';
-import { Group, Paper, Skeleton, Stack, Text } from '@mantine/core';
+import { Card, Divider, Group, Skeleton, Stack, Text } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
 import { statusColors } from '@/shared/lib/utils/colors';
 import { formatCurrency } from '@/shared/lib/utils/utils';
 import {
 	CurrencyCell,
 	DateCell,
-	DetailField,
 	LineItemsTable,
 	NumberCell,
 	StatusBadge,
@@ -106,52 +105,50 @@ function InvoiceDetail({ invoice }: InvoiceDetailProps) {
 
 	return (
 		<Stack gap='sm'>
-			<Paper p='sm' radius='sm' withBorder>
-				<Group justify='space-between'>
-					<DetailField
-						label='Total'
-						value={
-							<Text fw={700} ff='monospace' size='sm'>
-								{formatCurrency(invoice.total)}
-							</Text>
-						}
-					/>
-					<DetailField
-						label='Paid'
-						value={
-							<Text fw={700} ff='monospace' size='sm' c='green'>
-								{formatCurrency(paid)}
-							</Text>
-						}
-					/>
-					<DetailField
-						label='Balance Due'
-						value={
-							<Text
-								fw={700}
-								ff='monospace'
-								size='sm'
-								c={invoice.balance > 0 ? 'red' : 'green'}
-							>
-								{formatCurrency(invoice.balance)}
-							</Text>
-						}
-					/>
-				</Group>
-			</Paper>
-
 			{isLoading ? (
 				<Stack gap='xs'>
-					{Array.from({ length: 2 }).map((_, i) => (
-						<Skeleton height={24} key={`line-${i}`} />
-					))}
+					<Skeleton height={14} width={120} />
+					<Skeleton height={60} />
 				</Stack>
+			) : detail?.line_items && detail.line_items.length > 0 ? (
+				<LineItemsTable items={detail.line_items} />
 			) : (
-				detail?.line_items &&
-				detail.line_items.length > 0 && (
-					<LineItemsTable items={detail.line_items} />
-				)
+				<Text size='sm' c='dimmed'>
+					No line items
+				</Text>
 			)}
+			<Card p='sm' withBorder>
+				<Stack gap={4}>
+					<SummaryRow label='Total' value={invoice.total} bold />
+					<Divider my={4} />
+					<SummaryRow label='Amount Paid' value={paid} />
+					<SummaryRow
+						label='Balance Due'
+						value={invoice.balance}
+						color={invoice.balance > 0 ? 'red' : 'green'}
+					/>
+				</Stack>
+			</Card>
 		</Stack>
+	);
+}
+
+type SummaryRowProps = {
+	label: string;
+	value: number;
+	bold?: boolean;
+	color?: string;
+};
+
+function SummaryRow({ label, value, bold, color }: SummaryRowProps) {
+	return (
+		<Group justify='space-between'>
+			<Text size='sm' c={bold ? undefined : 'dimmed'} fw={bold ? 600 : 400}>
+				{label}
+			</Text>
+			<Text size='sm' fw={bold ? 700 : 500} ff='monospace' c={color}>
+				{formatCurrency(value)}
+			</Text>
+		</Group>
 	);
 }

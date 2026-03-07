@@ -173,6 +173,9 @@ export interface ZohoSalesReceipt {
 	customer_name: string;
 	status: ZohoSalesReceiptStatus;
 	date: string;
+	sub_total?: number;
+	discount_total?: number;
+	tax_total?: number;
 	total: number;
 	line_items?: ZohoLineItem[];
 	reference_number?: string;
