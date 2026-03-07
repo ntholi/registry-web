@@ -3,6 +3,7 @@ import './global.css';
 
 import type { Metadata } from 'next';
 import { Suspense } from 'react';
+import Maintenance from './Maintenance';
 import Providers from './providers';
 
 export const metadata: Metadata = {
@@ -37,7 +38,9 @@ export default function RootLayout({
 		<html lang='en' suppressHydrationWarning>
 			<body suppressHydrationWarning>
 				<Suspense>
-					<Providers>{children}</Providers>
+					<Providers>
+						<Maintenance target={'2026-03-08T21:00:00'}>{children}</Maintenance>
+					</Providers>
 				</Suspense>
 			</body>
 		</html>

@@ -27,7 +27,7 @@ Progress:
 
 | Step | Status | Result |
 |------|--------|--------|
-| 1 | Not started | - |
+| 1 | Done | storage-utils.ts created, storage.ts rewritten, next.config.ts updated, env var added |
 | 2 | Not started | - |
 | 3 | Not started | - |
 | 4 | Not started | - |
@@ -37,10 +37,10 @@ Progress:
 | 8 | Not started | - |
 
 Last update:
-- None yet
+- Step 1 completed: centralized storage utility
 
 Blockers:
 - None
 
 Next action:
-- Start Step 1
+- Start Step 2
