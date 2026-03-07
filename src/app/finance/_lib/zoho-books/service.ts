@@ -80,7 +80,7 @@ export async function findStudentSalesReceipts(
 		sort_column: 'date',
 		sort_order: 'D',
 	});
-	return response.salesreceipts ?? [];
+	return response.sales_receipts ?? [];
 }
 
 export async function findStudentCreditNotes(

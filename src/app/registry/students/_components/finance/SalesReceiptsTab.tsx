@@ -22,6 +22,7 @@ type Props = {
 const LABEL_MAP: Record<ZohoSalesReceiptStatus, string> = {
 	draft: 'Draft',
 	confirmed: 'Confirmed',
+	paid: 'Paid',
 	void: 'Void',
 };
 
@@ -34,7 +35,7 @@ const columns: TransactionColumn<ZohoSalesReceipt>[] = [
 	{
 		key: 'number',
 		label: 'Receipt #',
-		render: (row) => <NumberCell value={row.salesreceipt_number} />,
+		render: (row) => <NumberCell value={row.receipt_number} />,
 	},
 	{
 		key: 'total',
@@ -61,7 +62,7 @@ export function SalesReceiptsTab({ receipts }: Props) {
 		<TransactionTable
 			data={receipts}
 			columns={columns}
-			rowKey={(r) => r.salesreceipt_id}
+			rowKey={(r) => r.sales_receipt_id}
 			emptyLabel='No sales receipts found.'
 			renderDetail={(row) => <SalesReceiptDetail receipt={row} />}
 		/>

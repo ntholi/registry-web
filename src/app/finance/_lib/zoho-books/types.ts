@@ -164,11 +164,11 @@ export interface ZohoEstimateDetailResponse {
 	estimate: ZohoEstimate;
 }
 
-export type ZohoSalesReceiptStatus = 'draft' | 'confirmed' | 'void';
+export type ZohoSalesReceiptStatus = 'draft' | 'confirmed' | 'paid' | 'void';
 
 export interface ZohoSalesReceipt {
-	salesreceipt_id: string;
-	salesreceipt_number: string;
+	sales_receipt_id: string;
+	receipt_number: string;
 	customer_id: string;
 	customer_name: string;
 	status: ZohoSalesReceiptStatus;
@@ -183,13 +183,13 @@ export interface ZohoSalesReceipt {
 export interface ZohoSalesReceiptsResponse {
 	code: number;
 	message: string;
-	salesreceipts?: ZohoSalesReceipt[];
+	sales_receipts?: ZohoSalesReceipt[];
 }
 
 export interface ZohoSalesReceiptDetailResponse {
 	code: number;
 	message: string;
-	salesreceipt: ZohoSalesReceipt;
+	sales_receipt_details: ZohoSalesReceipt;
 }
 
 export type ZohoCreditNoteStatus = 'draft' | 'open' | 'closed' | 'void';

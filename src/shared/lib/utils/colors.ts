@@ -262,6 +262,7 @@ export const statusColors = {
 	salesReceiptStatus: {
 		draft: semantic.neutral,
 		confirmed: semantic.success,
+		paid: semantic.success,
 		void: semantic.neutral,
 	},
 	creditNoteStatus: {
