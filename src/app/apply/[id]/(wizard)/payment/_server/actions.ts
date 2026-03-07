@@ -1,5 +1,4 @@
 'use server';
-
 import { resolveApplicationFee } from '@admissions/_lib/fees';
 import { getApplicant } from '@admissions/applicants';
 import { getApplicationForPayment } from '@admissions/applications';

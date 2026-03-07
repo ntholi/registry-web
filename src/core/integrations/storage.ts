@@ -21,8 +21,9 @@ export async function uploadFile(
 	key: string,
 	contentType?: string
 ): Promise<string> {
-	const body =
-		input instanceof Buffer ? input : Buffer.from(await input.arrayBuffer());
+	const body = Buffer.isBuffer(input)
+		? input
+		: Buffer.from(await input.arrayBuffer());
 	const type =
 		contentType ||
 		(input instanceof File ? input.type : 'application/octet-stream');
@@ -43,9 +44,9 @@ export async function uploadFile(
 export async function deleteFile(key: string): Promise<void> {
 	if (!key) throw new Error('No key provided');
 
-	const actualKey = key.startsWith('http')
-		? new URL(key).pathname.replace(/^\//, '')
-		: key;
+	const actualKey = getStorageKeyFromUrl(key);
+
+	if (!actualKey) throw new Error('No storage key provided');
 
 	await s3Client.send(
 		new DeleteObjectCommand({
@@ -67,6 +68,13 @@ export async function fileExists(key: string): Promise<boolean> {
 	} catch {
 		return false;
 	}
+}
+
+export function getStorageKeyFromUrl(value: string | undefined | null): string {
+	if (!value || value.startsWith('data:')) return '';
+	return value.startsWith('http')
+		? new URL(value).pathname.replace(/^\//, '')
+		: value;
 }
 
 /** @deprecated Use uploadFile + StoragePaths instead */
