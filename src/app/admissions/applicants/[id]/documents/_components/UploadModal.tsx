@@ -4,7 +4,6 @@ import { Button, Group, Modal, Select, Stack } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { documentTypeEnum } from '@registry/_database';
 import { IconUpload } from '@tabler/icons-react';
-import { nanoid } from 'nanoid';
 import { useRouter } from 'nextjs-toploader/app';
 import { useState } from 'react';
 import {
@@ -12,12 +11,11 @@ import {
 	type DocumentUploadResult,
 } from '@/app/apply/_components/DocumentUpload';
 import type { DocumentAnalysisResult } from '@/core/integrations/ai/documents';
-import { uploadDocument } from '@/core/integrations/storage';
 import {
 	createAcademicRecordFromDocument,
-	getDocumentFolder,
 	saveApplicantDocument,
 	updateApplicantFromIdentity,
+	uploadApplicantFile,
 } from '../_server/actions';
 
 type DocumentType = (typeof documentTypeEnum.enumValues)[number];
@@ -26,12 +24,6 @@ const TYPE_OPTIONS = documentTypeEnum.enumValues.map((t) => ({
 	value: t,
 	label: t.replace(/_/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase()),
 }));
-
-function getFileExtension(name: string) {
-	const index = name.lastIndexOf('.');
-	if (index === -1 || index === name.length - 1) return '';
-	return name.slice(index);
-}
 
 function mapDocumentTypeFromAI(
 	result: DocumentAnalysisResult
@@ -130,15 +122,14 @@ export function UploadModal({
 		try {
 			setSaving(true);
 
-			const folder = await getDocumentFolder(applicantId);
-			const fileName = `${nanoid()}${getFileExtension(uploadResult.file.name)}`;
-			await uploadDocument(uploadResult.file, fileName, folder);
+			const fileKey = await uploadApplicantFile(applicantId, uploadResult.file);
 
 			const result = uploadResult.analysis;
 
 			const savedDoc = await saveApplicantDocument({
 				applicantId,
-				fileName,
+				fileName: uploadResult.file.name,
+				fileUrl: fileKey,
 				type,
 			});
 

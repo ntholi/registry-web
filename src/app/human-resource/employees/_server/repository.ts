@@ -25,6 +25,35 @@ export default class EmployeeRepository extends BaseRepository<
 		});
 	}
 
+	async findPhotoKey(empNo: string) {
+		const employee = await db.query.employees.findFirst({
+			where: eq(employees.empNo, empNo),
+			columns: { photoKey: true },
+		});
+
+		return employee?.photoKey ?? null;
+	}
+
+	async updatePhotoKey(empNo: string, photoKey: string, audit?: AuditOptions) {
+		return db.transaction(async (tx) => {
+			const existing = await tx.query.employees.findFirst({
+				where: eq(employees.empNo, empNo),
+			});
+
+			const [updated] = await tx
+				.update(employees)
+				.set({ photoKey })
+				.where(eq(employees.empNo, empNo))
+				.returning();
+
+			if (audit && existing && updated) {
+				await this.writeAuditLog(tx, 'UPDATE', empNo, existing, updated, audit);
+			}
+
+			return updated;
+		});
+	}
+
 	async updateSchools(empNo: string, schoolIds: number[]) {
 		await db.delete(employeeSchools).where(eq(employeeSchools.empNo, empNo));
 

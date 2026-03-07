@@ -321,7 +321,7 @@ export default class ApplicantRepository extends BaseRepository<
 					})
 					.returning();
 
-				applicantDocIdMap.set(docInput.fileName, appDoc.id);
+				applicantDocIdMap.set(docInput.fileUrl, appDoc.id);
 			}
 
 			for (const recordInput of academicRecordInputs) {

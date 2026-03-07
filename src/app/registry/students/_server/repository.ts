@@ -259,6 +259,42 @@ export default class StudentRepository extends BaseRepository<
 		return this.findStudentByStdNo(stdNo);
 	}
 
+	async findPhotoKey(stdNo: number) {
+		const student = await db.query.students.findFirst({
+			where: eq(students.stdNo, stdNo),
+			columns: { photoKey: true },
+		});
+
+		return student?.photoKey ?? null;
+	}
+
+	async updatePhotoKey(stdNo: number, photoKey: string, audit?: AuditOptions) {
+		return db.transaction(async (tx) => {
+			const existing = await tx.query.students.findFirst({
+				where: eq(students.stdNo, stdNo),
+			});
+
+			const [updated] = await tx
+				.update(students)
+				.set({ photoKey })
+				.where(eq(students.stdNo, stdNo))
+				.returning();
+
+			if (audit && existing && updated) {
+				await this.writeAuditLog(
+					tx,
+					'UPDATE',
+					String(stdNo),
+					existing,
+					updated,
+					audit
+				);
+			}
+
+			return updated;
+		});
+	}
+
 	async findBySemesterModules(semesterModuleIds: number[], termCode: string) {
 		if (semesterModuleIds.length === 0) return [];
 

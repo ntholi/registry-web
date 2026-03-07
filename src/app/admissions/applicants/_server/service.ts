@@ -182,8 +182,8 @@ class ApplicantService extends BaseService<typeof applicants, 'id'> {
 			const docInputs: DocumentInput[] = pendingDocs.map((doc) => {
 				const type = doc.analysisResult.documentType;
 				return {
-					fileName: doc.fileName,
-					fileUrl: `https://pub-2b37ce26bd70421e9e59e4fe805c6873.r2.dev/documents/admissions/${doc.fileName}`,
+					fileName: doc.originalName,
+					fileUrl: doc.fileUrl,
 					type,
 					analysisResult: doc.analysisResult,
 				};
@@ -236,7 +236,7 @@ class ApplicantService extends BaseService<typeof applicants, 'id'> {
 						result.overallClassification
 					),
 					subjectGrades: grades.length > 0 ? grades : undefined,
-					sourceFileName: doc.fileName,
+					sourceFileName: doc.fileUrl,
 				});
 			}
 

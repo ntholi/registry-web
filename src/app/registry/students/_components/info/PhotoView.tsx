@@ -4,10 +4,13 @@ import { notifications } from '@mantine/notifications';
 import { IconEdit, IconUpload, IconUser } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
-import { deleteDocument, uploadDocument } from '@/core/integrations/storage';
 import PhotoInputModal from '@/shared/ui/PhotoInputModal';
 import PhotoPreviewModal from '@/shared/ui/PhotoPreviewModal';
-import { type getStudent, getStudentPhoto } from '../../_server/actions';
+import {
+	type getStudent,
+	getStudentPhoto,
+	uploadStudentPhoto,
+} from '../../_server/actions';
 
 type Props = {
 	student: NonNullable<Awaited<ReturnType<typeof getStudent>>>;
@@ -23,16 +26,11 @@ export default function PhotoView({ student }: Props) {
 
 	const handlePhotoSubmit = async (croppedImageBlob: Blob) => {
 		try {
-			if (photoUrl) {
-				await deleteDocument(photoUrl);
-			}
-
-			const fileName = `${student.stdNo}.jpg`;
-			const photoFile = new File([croppedImageBlob], fileName, {
+			const photoFile = new File([croppedImageBlob], `${student.stdNo}.jpg`, {
 				type: 'image/jpeg',
 			});
 
-			await uploadDocument(photoFile, fileName, 'photos');
+			await uploadStudentPhoto(student.stdNo, photoFile);
 			await refetch();
 
 			notifications.show({

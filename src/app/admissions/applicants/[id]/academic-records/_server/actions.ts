@@ -2,10 +2,7 @@
 
 import { recalculateScoresForApplicant } from '@admissions/applications/_server/actions';
 import type { academicRecords } from '@/core/database';
-import {
-	deleteDocument,
-	getStorageKeyFromUrl,
-} from '@/core/integrations/storage';
+import { deleteFile } from '@/core/integrations/storage';
 import { normalizeResultClassification } from '@/shared/lib/utils/resultClassification';
 import { applicantDocumentsService } from '../../documents/_server/service';
 import type { CreateAcademicRecordInput } from '../_lib/types';
@@ -94,7 +91,7 @@ export async function deleteAcademicRecordInternal(
 
 	if (applicantDocumentId && !options?.skipRelatedDocumentDelete) {
 		if (documentFileUrl) {
-			await deleteDocument(await getStorageKeyFromUrl(documentFileUrl));
+			await deleteFile(documentFileUrl);
 		}
 		await applicantDocumentsService.delete(applicantDocumentId);
 	}

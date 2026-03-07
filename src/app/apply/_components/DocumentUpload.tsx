@@ -36,6 +36,7 @@ import type {
 	IdentityDocumentResult,
 	ReceiptResult,
 } from '@/core/integrations/ai/documents';
+import { formatFileSize } from '@/shared/lib/utils/files';
 import { CertificateConfirmationModal } from './CertificateConfirmationModal';
 import { IdentityConfirmationModal } from './IdentityConfirmationModal';
 import { ReceiptConfirmationModal } from './ReceiptConfirmationModal';
@@ -97,17 +98,6 @@ type Props = IdentityProps | CertificateProps | ReceiptProps | AnyProps;
 
 const ACCEPTED_MIME_TYPES = [...IMAGE_MIME_TYPE, MIME_TYPES.pdf];
 const MAX_FILE_SIZE = 2 * 1024 * 1024;
-
-function formatFileSize(bytes: number): string {
-	if (bytes === 0) return '0 B';
-	const units = ['B', 'KB', 'MB', 'GB'];
-	const exp = Math.min(
-		Math.floor(Math.log(bytes) / Math.log(1024)),
-		units.length - 1
-	);
-	const val = bytes / 1024 ** exp;
-	return `${val.toFixed(val < 10 && exp > 0 ? 1 : 0)} ${units[exp]}`;
-}
 
 const ICON_MAP = {
 	identity: IconId,

@@ -4,10 +4,13 @@ import { notifications } from '@mantine/notifications';
 import { IconEdit, IconUpload, IconUser } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
-import { deleteDocument, uploadDocument } from '@/core/integrations/storage';
 import PhotoInputModal from '@/shared/ui/PhotoInputModal';
 import PhotoPreviewModal from '@/shared/ui/PhotoPreviewModal';
-import { type getEmployee, getEmployeePhoto } from '../../_server/actions';
+import {
+	type getEmployee,
+	getEmployeePhoto,
+	uploadEmployeePhoto,
+} from '../../_server/actions';
 
 type Props = {
 	employee: NonNullable<Awaited<ReturnType<typeof getEmployee>>>;
@@ -23,16 +26,11 @@ export default function PhotoView({ employee }: Props) {
 
 	const handlePhotoSubmit = async (croppedImageBlob: Blob) => {
 		try {
-			if (photoUrl) {
-				await deleteDocument(photoUrl);
-			}
-
-			const fileName = `${employee.empNo}.jpg`;
-			const photoFile = new File([croppedImageBlob], fileName, {
+			const photoFile = new File([croppedImageBlob], `${employee.empNo}.jpg`, {
 				type: 'image/jpeg',
 			});
 
-			await uploadDocument(photoFile, fileName, 'photos/employees');
+			await uploadEmployeePhoto(employee.empNo, photoFile);
 			await refetch();
 
 			notifications.show({

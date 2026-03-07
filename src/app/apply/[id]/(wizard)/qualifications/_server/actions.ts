@@ -13,11 +13,13 @@ import {
 import { getApplication } from '@admissions/applications';
 import { type ActionResult, extractError } from '@apply/_lib/errors';
 import { getStudentByUserId } from '@registry/students';
-import { nanoid } from 'nanoid';
 import { auth } from '@/core/auth';
 import type { CertificateDocumentResult } from '@/core/integrations/ai/documents';
-import { uploadDocument } from '@/core/integrations/storage';
-import { getFileExtension } from '@/shared/lib/utils/files';
+import { uploadFile } from '@/core/integrations/storage';
+import {
+	generateUploadKey,
+	StoragePaths,
+} from '@/core/integrations/storage-utils';
 import {
 	getAcademicRemarks,
 	getResultClassificationFromCgpa,
@@ -135,17 +137,19 @@ export async function uploadCertificateDocument(
 			return { success: false, error: 'File size exceeds 2MB limit' };
 		}
 
-		const folder = 'documents/admissions';
-		const ext = getFileExtension(file.name);
-		const fileName = `${nanoid()}${ext}`;
+		const fileKey = generateUploadKey(
+			(fileName) => StoragePaths.applicantDocument(applicantId, fileName),
+			file.name
+		);
 
-		await uploadDocument(file, fileName, folder);
+		await uploadFile(file, fileKey);
 
 		const type = analysis.documentType;
 
 		const savedDoc = await saveApplicantDocument({
 			applicantId,
-			fileName,
+			fileName: file.name,
+			fileUrl: fileKey,
 			type,
 		});
 
@@ -181,7 +185,7 @@ export async function uploadCertificateDocument(
 			}
 		}
 
-		return { success: true, data: { fileName, type, analysis } };
+		return { success: true, data: { fileName: file.name, type, analysis } };
 	} catch (error) {
 		console.error('[uploadCertificateDocument] Error:', error);
 		return { success: false, error: extractError(error) };

@@ -20,8 +20,8 @@ import {
 	IconVideo,
 } from '@tabler/icons-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { deleteDocument, uploadDocument } from '@/core/integrations/storage';
 import PhotoInputModal from '@/shared/ui/PhotoInputModal';
+import { uploadStudentPhoto } from '../../_server/actions';
 
 type PhotoSelectionProps = {
 	selectedPhoto: File | null;
@@ -54,16 +54,11 @@ export default function PhotoSelection({
 	const handlePhotoSubmit = async (croppedImageBlob: Blob) => {
 		setIsUploading(true);
 		try {
-			if (existingPhotoUrl) {
-				await deleteDocument(existingPhotoUrl);
-			}
-
-			const fileName = `${studentNumber}.jpg`;
-			const photoFile = new File([croppedImageBlob], fileName, {
+			const photoFile = new File([croppedImageBlob], `${studentNumber}.jpg`, {
 				type: 'image/jpeg',
 			});
 
-			await uploadDocument(photoFile, fileName, 'photos');
+			await uploadStudentPhoto(studentNumber, photoFile);
 
 			const preview = URL.createObjectURL(croppedImageBlob);
 			onPhotoChange(photoFile, preview);
@@ -77,16 +72,16 @@ export default function PhotoSelection({
 	const handleCameraCapture = async (capturedFile: File, preview: string) => {
 		setIsUploading(true);
 		try {
-			if (existingPhotoUrl) {
-				await deleteDocument(existingPhotoUrl);
-			}
-
 			const fileExtension =
 				capturedFile.name.split('.').pop()?.toLowerCase() || 'jpg';
-			const fileName = `${studentNumber}.${fileExtension}`;
+			const photoFile = new File(
+				[capturedFile],
+				`${studentNumber}.${fileExtension}`,
+				{ type: capturedFile.type || 'image/jpeg' }
+			);
 
-			await uploadDocument(capturedFile, fileName, 'photos');
-			onPhotoChange(capturedFile, preview);
+			await uploadStudentPhoto(studentNumber, photoFile);
+			onPhotoChange(photoFile, preview);
 		} catch (error) {
 			console.error('Error uploading photo:', error);
 		} finally {

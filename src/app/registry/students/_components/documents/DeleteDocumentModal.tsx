@@ -4,7 +4,6 @@ import { Button, Group, Modal, Stack, Text } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { deleteDocument } from '@registry/documents';
 import { useState } from 'react';
-import { deleteDocument as deleteFromStorage } from '@/core/integrations/storage';
 
 type DeleteDocumentModalProps = {
 	opened: boolean;
@@ -12,6 +11,7 @@ type DeleteDocumentModalProps = {
 	document: {
 		id: string;
 		fileName: string;
+		fileUrl: string | null;
 	};
 	onSuccess: () => void;
 };
@@ -28,8 +28,6 @@ export default function DeleteDocumentModal({
 	async function handleDelete() {
 		try {
 			setLoading(true);
-
-			await deleteFromStorage(document.fileName);
 
 			await deleteDocument(document.id);
 

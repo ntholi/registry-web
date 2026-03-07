@@ -1,4 +1,6 @@
 import type { employees } from '@/core/database';
+import { deleteFile, uploadFile } from '@/core/integrations/storage';
+import { StoragePaths } from '@/core/integrations/storage-utils';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
 import withAuth, { requireSessionUserId } from '@/core/platform/withAuth';
 import EmployeeRepository from './repository';
@@ -97,6 +99,32 @@ class EmployeeService {
 	async getCardPrintHistory(empNo: string) {
 		return withAuth(
 			async () => this.repository.findCardPrintHistory(empNo),
+			['human_resource', 'admin']
+		);
+	}
+
+	async getPhotoKey(empNo: string) {
+		return withAuth(async () => this.repository.findPhotoKey(empNo), ['all']);
+	}
+
+	async uploadPhoto(empNo: string, photo: File) {
+		return withAuth(
+			async (session) => {
+				const existingKey = await this.repository.findPhotoKey(empNo);
+				if (existingKey) {
+					await deleteFile(existingKey);
+				}
+
+				const ext = photo.name.split('.').pop()?.toLowerCase() || 'jpg';
+				const key = StoragePaths.employeePhoto(empNo, ext);
+				await uploadFile(photo, key);
+
+				return this.repository.updatePhotoKey(empNo, key, {
+					userId: requireSessionUserId(session),
+					role: session!.user!.role!,
+					activityType: 'employee_update',
+				});
+			},
 			['human_resource', 'admin']
 		);
 	}

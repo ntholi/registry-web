@@ -18,7 +18,7 @@ import {
 	MIME_TYPES,
 } from '@mantine/dropzone';
 import { notifications } from '@mantine/notifications';
-import { createDocument } from '@registry/documents';
+import { uploadAndCreateDocument } from '@registry/documents';
 import type { DocumentType } from '@registry/documents/_schema/documents';
 import {
 	IconFile,
@@ -27,9 +27,8 @@ import {
 	IconUpload,
 	IconX,
 } from '@tabler/icons-react';
-import { nanoid } from 'nanoid';
 import { useState } from 'react';
-import { uploadDocument } from '@/core/integrations/storage';
+import { formatFileSize } from '@/shared/lib/utils/files';
 import documentTypes from './documentTypes';
 
 type AddDocumentModalProps = {
@@ -38,19 +37,6 @@ type AddDocumentModalProps = {
 	stdNo: number;
 	onSuccess: () => void;
 };
-
-function formatFileSize(bytes: number): string {
-	if (bytes === 0) {
-		return '0 B';
-	}
-	const units = ['B', 'KB', 'MB', 'GB'];
-	const exponent = Math.min(
-		Math.floor(Math.log(bytes) / Math.log(1024)),
-		units.length - 1
-	);
-	const value = bytes / 1024 ** exponent;
-	return `${value.toFixed(value < 10 && exponent > 0 ? 1 : 0)} ${units[exponent]}`;
-}
 
 export default function AddDocumentModal({
 	opened,
@@ -110,22 +96,7 @@ export default function AddDocumentModal({
 			setLoading(true);
 
 			const file = files[0];
-			const ext = file.name.split('.').pop()?.toLowerCase() || 'pdf';
-			const generatedFileName = `${nanoid()}.${ext}`;
-			const uploadPath = `documents/registry/students/${stdNo}`;
-
-			const uploadedPath = await uploadDocument(
-				file,
-				generatedFileName,
-				uploadPath
-			);
-
-			await createDocument({
-				fileName: file.name,
-				fileUrl: uploadedPath,
-				type,
-				stdNo,
-			});
+			await uploadAndCreateDocument({ file, type, stdNo });
 
 			notifications.show({
 				title: 'Success',

@@ -30,6 +30,7 @@ export default function DocumentsView({ stdNo, isActive }: DocumentsViewProps) {
 	const [selectedDocument, setSelectedDocument] = useState<{
 		id: string;
 		fileName: string;
+		fileUrl: string | null;
 	} | null>(null);
 
 	const {
@@ -59,8 +60,8 @@ export default function DocumentsView({ stdNo, isActive }: DocumentsViewProps) {
 		);
 	}
 
-	function handleDelete(id: string, fileName: string) {
-		setSelectedDocument({ id, fileName });
+	function handleDelete(id: string, fileName: string, fileUrl: string | null) {
+		setSelectedDocument({ id, fileName, fileUrl });
 		setDeleteModalOpened(true);
 	}
 
@@ -106,6 +107,7 @@ export default function DocumentsView({ stdNo, isActive }: DocumentsViewProps) {
 							key={doc.id}
 							id={doc.id}
 							fileName={doc.document.fileName}
+							fileUrl={doc.document.fileUrl}
 							type={doc.document.type}
 							createdAt={doc.document.createdAt}
 							canEdit={canEdit}

@@ -2,6 +2,8 @@
 
 import { createNotification } from '@admin/notifications/_server/actions';
 import { auth } from '@/core/auth';
+import { deleteFile, uploadFile } from '@/core/integrations/storage';
+import { getPublicUrl, StoragePaths } from '@/core/integrations/storage-utils';
 import { termSettingsService as service } from './service';
 
 export async function getTermSettings(termId: number) {
@@ -76,48 +78,61 @@ export async function getUnpublishedTermCodes() {
 	return service.getUnpublishedTermCodes();
 }
 
-const BASE_URL = 'https://pub-2b37ce26bd70421e9e59e4fe805c6873.r2.dev';
-
-function getAttachmentFolder(
-	termCode: string,
-	type: 'scanned-pdf' | 'raw-marks' | 'other'
-) {
-	switch (type) {
-		case 'scanned-pdf':
-			return `documents/${termCode}/publications/scanned`;
-		case 'raw-marks':
-			return `documents/${termCode}/publications/raw-marks`;
-		case 'other':
-			return `documents/${termCode}/publications/other`;
-	}
-}
-
 export async function getPublicationAttachments(termCode: string) {
 	const attachments = await service.getPublicationAttachments(termCode);
-	return attachments.map((att) => {
-		const folder = getAttachmentFolder(termCode, att.type);
-		return {
-			...att,
-			url: `${BASE_URL}/${folder}/${att.fileName}`,
-		};
-	});
+	return attachments.map((att) => ({
+		...att,
+		url: getPublicUrl(
+			att.storageKey ||
+				StoragePaths.termPublication(att.termCode, att.type, att.fileName)
+		),
+	}));
 }
 
 export async function savePublicationAttachment(data: {
 	termCode: string;
 	fileName: string;
 	type: 'scanned-pdf' | 'raw-marks' | 'other';
+	storageKey?: string;
 }) {
 	return service.createPublicationAttachment(data);
+}
+
+export async function uploadPublicationAttachment(data: {
+	termCode: string;
+	file: File;
+	type: 'scanned-pdf' | 'raw-marks' | 'other';
+}) {
+	const key = StoragePaths.termPublication(
+		data.termCode,
+		data.type,
+		data.file.name
+	);
+	await uploadFile(data.file, key);
+	return service.createPublicationAttachment({
+		termCode: data.termCode,
+		fileName: data.file.name,
+		type: data.type,
+		storageKey: key,
+	});
 }
 
 export async function deletePublicationAttachment(id: string) {
 	return service.deletePublicationAttachment(id);
 }
 
-export async function getAttachmentFolderPath(
-	termCode: string,
-	type: 'scanned-pdf' | 'raw-marks' | 'other'
-) {
-	return getAttachmentFolder(termCode, type);
+export async function deletePublicationAttachmentWithFile(id: string) {
+	const attachment = await service.getPublicationAttachment(id);
+	if (attachment?.storageKey) {
+		await deleteFile(attachment.storageKey);
+	} else if (attachment) {
+		const fallbackKey = StoragePaths.termPublication(
+			attachment.termCode,
+			attachment.type,
+			attachment.fileName
+		);
+		await deleteFile(fallbackKey);
+	}
+
+	return service.deletePublicationAttachment(id);
 }

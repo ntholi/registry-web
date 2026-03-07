@@ -1,6 +1,7 @@
 'use server';
 
 import type { employees } from '@/core/database';
+import { getPublicUrl } from '@/core/integrations/storage-utils';
 import { formatPersonName } from '@/shared/lib/utils/names';
 import { employeesService as service } from './service';
 
@@ -49,32 +50,29 @@ export async function getEmployeePhoto(
 ): Promise<string | null> {
 	if (!empNo) return null;
 	try {
-		const extensions = ['jpg', 'jpeg', 'png', 'webp'];
+		const photoKey = await service.getPhotoKey(empNo);
+		if (!photoKey) return null;
 
-		for (const ext of extensions) {
-			const fileName = `${empNo}.${ext}`;
-			const url = `https://pub-2b37ce26bd70421e9e59e4fe805c6873.r2.dev/photos/employees/${fileName}`;
-
-			try {
-				const response = await fetch(url, {
-					method: 'HEAD',
-					cache: 'no-store',
-					next: { revalidate: 0 },
-				});
-				if (response.ok) {
-					const etag = response.headers.get('etag')?.replace(/"/g, '') || '';
-					const lastModified = response.headers.get('last-modified') || '';
-					const versionSource = etag || lastModified || Date.now().toString();
-					return `${url}?v=${encodeURIComponent(versionSource)}`;
-				}
-			} catch (error) {
-				console.error('Error:', error);
-			}
+		const url = getPublicUrl(photoKey);
+		const response = await fetch(url, {
+			method: 'HEAD',
+			cache: 'no-store',
+			next: { revalidate: 0 },
+		});
+		if (!response.ok) {
+			return null;
 		}
 
-		return null;
+		const etag = response.headers.get('etag')?.replace(/"/g, '') || '';
+		const lastModified = response.headers.get('last-modified') || '';
+		const versionSource = etag || lastModified || Date.now().toString();
+		return `${url}?v=${encodeURIComponent(versionSource)}`;
 	} catch (error) {
 		console.error('Error checking employee photo:', error);
 		return null;
 	}
+}
+
+export async function uploadEmployeePhoto(empNo: string, photo: File) {
+	return service.uploadPhoto(empNo, photo);
 }

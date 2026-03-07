@@ -10,7 +10,6 @@ import {
 	saveApplicantDocument,
 	updateApplicantFromIdentity,
 } from '@admissions/applicants/[id]/documents/_server/actions';
-import { nanoid } from 'nanoid';
 import { redirect } from 'next/navigation';
 import { auth } from '@/core/auth';
 import type {
@@ -19,7 +18,11 @@ import type {
 	DocumentType,
 } from '@/core/database';
 import type { DocumentAnalysisResult } from '@/core/integrations/ai/documents';
-import { uploadDocument } from '@/core/integrations/storage';
+import { uploadFile } from '@/core/integrations/storage';
+import {
+	generateUploadKey,
+	StoragePaths,
+} from '@/core/integrations/storage-utils';
 import {
 	type ActionResult,
 	failure,
@@ -107,12 +110,6 @@ export async function recalculateScoresForApplicant(applicantId: string) {
 	return applicationsService.recalculateScoresForApplicant(applicantId);
 }
 
-function getFileExtension(name: string) {
-	const idx = name.lastIndexOf('.');
-	if (idx === -1 || idx === name.length - 1) return '';
-	return name.slice(idx);
-}
-
 export async function uploadAndAnalyzeDocument(formData: FormData): Promise<
 	ActionResult<{
 		result: DocumentAnalysisResult;
@@ -135,10 +132,12 @@ export async function uploadAndAnalyzeDocument(formData: FormData): Promise<
 		return failure('Failed to get applicant');
 	}
 
-	const folder = 'documents/admissions';
-	const fileName = `${nanoid()}${getFileExtension(file.name)}`;
+	const fileKey = generateUploadKey(
+		(fileName) => StoragePaths.applicantDocument(applicant.id, fileName),
+		file.name
+	);
 
-	await uploadDocument(file, fileName, folder);
+	await uploadFile(file, fileKey);
 
 	const buffer = await file.arrayBuffer();
 	const base64 = Buffer.from(buffer).toString('base64');
@@ -152,7 +151,8 @@ export async function uploadAndAnalyzeDocument(formData: FormData): Promise<
 
 	const savedDoc = await saveApplicantDocument({
 		applicantId: applicant.id,
-		fileName,
+		fileName: file.name,
+		fileUrl: fileKey,
 		type,
 	});
 
@@ -202,7 +202,7 @@ export async function uploadAndAnalyzeDocument(formData: FormData): Promise<
 	} = {
 		result: analysis,
 		type,
-		fileName,
+		fileName: file.name,
 	};
 
 	return success(payload);

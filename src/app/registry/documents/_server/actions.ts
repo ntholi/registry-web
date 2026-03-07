@@ -1,5 +1,11 @@
 'use server';
 
+import { deleteFile, uploadFile } from '@/core/integrations/storage';
+import {
+	generateUploadKey,
+	getPublicUrl,
+	StoragePaths,
+} from '@/core/integrations/storage-utils';
 import type { DocumentType } from '../_schema/documents';
 import { documentsService as service } from './service';
 
@@ -16,37 +22,35 @@ export async function createDocument(data: {
 	return service.create(data);
 }
 
+export async function uploadAndCreateDocument(data: {
+	file: File;
+	type: DocumentType;
+	stdNo: number;
+}) {
+	const key = generateUploadKey(
+		(fileName) => StoragePaths.studentDocument(data.stdNo, fileName),
+		data.file.name
+	);
+	await uploadFile(data.file, key);
+	return service.create({
+		fileName: data.file.name,
+		fileUrl: key,
+		type: data.type,
+		stdNo: data.stdNo,
+	});
+}
+
 export async function deleteDocument(id: string) {
+	const doc = await service.get(id);
+	if (doc?.document.fileUrl) {
+		await deleteFile(doc.document.fileUrl);
+	}
 	return service.delete(id);
 }
 
 export async function getDocumentUrl(
-	fileName: string | undefined | null
+	fileUrl: string | undefined | null
 ): Promise<string | null> {
-	if (!fileName) return null;
-	try {
-		const url = `https://pub-2b37ce26bd70421e9e59e4fe805c6873.r2.dev/documents/${fileName}`;
-
-		try {
-			const response = await fetch(url, {
-				method: 'HEAD',
-				cache: 'no-store',
-				next: { revalidate: 0 },
-			});
-			if (response.ok) {
-				const etag = response.headers.get('etag')?.replace(/"/g, '') || '';
-				const lastModified = response.headers.get('last-modified') || '';
-				const versionSource = etag || lastModified || Date.now().toString();
-				return `${url}?v=${encodeURIComponent(versionSource)}`;
-			}
-		} catch (error) {
-			console.error('Error:', error);
-			return null;
-		}
-
-		return null;
-	} catch (error) {
-		console.error('Error checking document:', error);
-		return null;
-	}
+	if (!fileUrl) return null;
+	return getPublicUrl(fileUrl);
 }

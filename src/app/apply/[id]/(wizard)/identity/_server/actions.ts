@@ -11,10 +11,12 @@ import {
 	updateApplicantFromIdentity,
 } from '@admissions/applicants/[id]/documents/_server/actions';
 import { type ActionResult, extractError } from '@apply/_lib/errors';
-import { nanoid } from 'nanoid';
 import type { IdentityDocumentResult } from '@/core/integrations/ai/documents';
-import { uploadDocument } from '@/core/integrations/storage';
-import { getFileExtension } from '@/shared/lib/utils/files';
+import { uploadFile } from '@/core/integrations/storage';
+import {
+	generateUploadKey,
+	StoragePaths,
+} from '@/core/integrations/storage-utils';
 
 const MAX_FILE_SIZE = 2 * 1024 * 1024;
 
@@ -70,15 +72,17 @@ export async function uploadIdentityDocument(
 			return { success: false, error: 'File size exceeds 2MB limit' };
 		}
 
-		const folder = 'documents/admissions';
-		const ext = getFileExtension(file.name);
-		const fileName = `${nanoid()}${ext}`;
+		const fileKey = generateUploadKey(
+			(fileName) => StoragePaths.applicantDocument(applicantId, fileName),
+			file.name
+		);
 
-		await uploadDocument(file, fileName, folder);
+		await uploadFile(file, fileKey);
 
 		await saveApplicantDocument({
 			applicantId,
-			fileName,
+			fileName: file.name,
+			fileUrl: fileKey,
 			type: 'identity',
 		});
 
@@ -95,7 +99,7 @@ export async function uploadIdentityDocument(
 			return { success: false, error: updateResult.error };
 		}
 
-		return { success: true, data: { fileName, analysis } };
+		return { success: true, data: { fileName: file.name, analysis } };
 	} catch (error) {
 		return { success: false, error: extractError(error) };
 	}

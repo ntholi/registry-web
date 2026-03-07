@@ -24,6 +24,13 @@ export default class DocumentRepository extends BaseRepository<
 		});
 	}
 
+	async findByIdWithDocument(id: string) {
+		return this.db.query.studentDocuments.findFirst({
+			where: eq(studentDocuments.id, id),
+			with: { document: true },
+		});
+	}
+
 	async findByType(stdNo: number, type: DocumentType) {
 		const result = await this.db.query.studentDocuments.findMany({
 			where: eq(studentDocuments.stdNo, stdNo),

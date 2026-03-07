@@ -3,8 +3,8 @@
 import { ActionIcon, Group } from '@mantine/core';
 import { IconPhoto } from '@tabler/icons-react';
 import { useEffect, useState } from 'react';
-import { deleteDocument, uploadDocument } from '@/core/integrations/storage';
 import PhotoInputModal from '@/shared/ui/PhotoInputModal';
+import { uploadEmployeePhoto } from '../../_server/actions';
 
 type Props = {
 	selectedPhoto: File | null;
@@ -34,16 +34,11 @@ export default function PhotoSelection({
 	const handlePhotoSubmit = async (croppedImageBlob: Blob) => {
 		setIsUploading(true);
 		try {
-			if (existingPhotoUrl) {
-				await deleteDocument(existingPhotoUrl);
-			}
-
-			const fileName = `${employeeNumber}.jpg`;
-			const photoFile = new File([croppedImageBlob], fileName, {
+			const photoFile = new File([croppedImageBlob], `${employeeNumber}.jpg`, {
 				type: 'image/jpeg',
 			});
 
-			await uploadDocument(photoFile, fileName, 'photos/employees');
+			await uploadEmployeePhoto(employeeNumber, photoFile);
 
 			const preview = URL.createObjectURL(croppedImageBlob);
 			onPhotoChange(photoFile, preview);

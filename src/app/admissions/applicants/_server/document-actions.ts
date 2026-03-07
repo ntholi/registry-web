@@ -14,6 +14,7 @@ import { applicantsService } from './service';
 
 export type PendingDocument = {
 	fileName: string;
+	fileUrl: string;
 	originalName: string;
 	analysisResult: DocumentAnalysisResult;
 };

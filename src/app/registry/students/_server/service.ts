@@ -11,6 +11,8 @@ import type {
 	studentSemesters,
 	students,
 } from '@/core/database';
+import { deleteFile, uploadFile } from '@/core/integrations/storage';
+import { StoragePaths } from '@/core/integrations/storage-utils';
 import type { QueryOptions } from '@/core/platform/BaseRepository';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
 import withAuth, { requireSessionUserId } from '@/core/platform/withAuth';
@@ -191,6 +193,33 @@ class StudentService {
 			const student = await this.repository.findStudentByStdNo(stdNo);
 			return student?.programs || [];
 		}, ['dashboard', 'student']);
+	}
+
+	async getPhotoKey(stdNo: number) {
+		return withAuth(async () => this.repository.findPhotoKey(stdNo), ['all']);
+	}
+
+	async uploadPhoto(stdNo: number, photo: File) {
+		return withAuth(
+			async (session) => {
+				const existingKey = await this.repository.findPhotoKey(stdNo);
+				if (existingKey) {
+					await deleteFile(existingKey);
+				}
+
+				const ext = photo.name.split('.').pop()?.toLowerCase() || 'jpg';
+				const key = StoragePaths.studentPhoto(stdNo, ext);
+				await uploadFile(photo, key);
+
+				return this.repository.updatePhotoKey(stdNo, key, {
+					userId: requireSessionUserId(session),
+					role: session!.user!.role!,
+					activityType: 'student_update',
+					stdNo,
+				});
+			},
+			['admin', 'registry']
+		);
 	}
 
 	async updateWithReasons(

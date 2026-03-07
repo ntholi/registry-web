@@ -9,10 +9,12 @@ import {
 	analyzeDocument,
 	type DocumentAnalysisResult,
 } from '@/core/integrations/ai/documents';
+import { deleteFile, uploadFile } from '@/core/integrations/storage';
 import {
-	deleteDocument,
-	getStorageKeyFromUrl,
-} from '@/core/integrations/storage';
+	generateUploadKey,
+	getPublicUrl,
+	StoragePaths,
+} from '@/core/integrations/storage-utils';
 import {
 	type ActionResult,
 	failure,
@@ -35,13 +37,6 @@ import type {
 } from '../_lib/types';
 import { applicantDocumentsService } from './service';
 
-const ADMISSIONS_DOCUMENTS_BASE_URL =
-	'https://pub-2b37ce26bd70421e9e59e4fe805c6873.r2.dev';
-
-export async function getDocumentFolder(_applicantId: string) {
-	return 'documents/admissions';
-}
-
 export async function getApplicantDocument(id: string) {
 	return applicantDocumentsService.get(id);
 }
@@ -60,20 +55,30 @@ export async function findDocumentsByType(
 export async function saveApplicantDocument(data: {
 	applicantId: string;
 	fileName: string;
+	fileUrl: string;
 	type: DocumentType;
 }) {
-	const folder = await getDocumentFolder(data.applicantId);
-	const fileUrl = `${ADMISSIONS_DOCUMENTS_BASE_URL}/${folder}/${data.fileName}`;
-
 	return applicantDocumentsService.uploadDocument(
 		{
 			fileName: data.fileName,
-			fileUrl,
+			fileUrl: data.fileUrl,
 			type: data.type,
 		},
 		data.applicantId,
 		0
 	);
+}
+
+export async function uploadApplicantFile(
+	applicantId: string,
+	file: File
+): Promise<string> {
+	const key = generateUploadKey(
+		(fileName) => StoragePaths.applicantDocument(applicantId, fileName),
+		file.name
+	);
+	await uploadFile(file, key);
+	return key;
 }
 
 export async function verifyApplicantDocument(
@@ -92,7 +97,7 @@ export async function deleteApplicantDocument(id: string, fileUrl: string) {
 		});
 	}
 
-	await deleteDocument(await getStorageKeyFromUrl(fileUrl));
+	await deleteFile(fileUrl);
 	return applicantDocumentsService.delete(id);
 }
 
@@ -124,7 +129,9 @@ export async function reanalyzeDocumentFromUrl(
 	if (!normalizedUrl.success) {
 		return failure(normalizedUrl.error);
 	}
-	const response = await fetch(normalizedUrl.data, { cache: 'no-store' });
+	const response = await fetch(getPublicUrl(normalizedUrl.data), {
+		cache: 'no-store',
+	});
 	if (!response.ok) {
 		return failure(`Failed to fetch document (${response.status})`);
 	}

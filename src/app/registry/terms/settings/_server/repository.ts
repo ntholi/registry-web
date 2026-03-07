@@ -183,10 +183,17 @@ export default class TermSettingsRepository extends BaseRepository<
 		});
 	}
 
+	async getPublicationAttachment(id: string) {
+		return db.query.publicationAttachments.findFirst({
+			where: eq(publicationAttachments.id, id),
+		});
+	}
+
 	async createPublicationAttachment(data: {
 		termCode: string;
 		fileName: string;
 		type: 'scanned-pdf' | 'raw-marks' | 'other';
+		storageKey?: string;
 		createdBy: string;
 	}) {
 		const [result] = await db

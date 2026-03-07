@@ -30,12 +30,15 @@ import { nanoid } from 'nanoid';
 import { useRouter } from 'nextjs-toploader/app';
 import { useState } from 'react';
 import type { DocumentAnalysisResult } from '@/core/integrations/ai/documents';
-import { uploadDocument } from '@/core/integrations/storage';
+import { formatFileSize } from '@/shared/lib/utils/files';
 import {
 	createApplicantFromDocuments,
 	type PendingDocument,
 } from '../_server/document-actions';
-import { analyzeDocumentWithAI } from '../[id]/documents/_server/actions';
+import {
+	analyzeDocumentWithAI,
+	uploadApplicantFile,
+} from '../[id]/documents/_server/actions';
 
 type UploadState = 'idle' | 'uploading' | 'analyzing' | 'ready';
 
@@ -44,28 +47,11 @@ type FileItem = {
 	file: FileWithPath;
 	uploadState: UploadState;
 	analysisResult: DocumentAnalysisResult | null;
-	uploadedFileName: string | null;
+	uploadedFileKey: string | null;
 };
 
 const ACCEPTED_MIME_TYPES = [...IMAGE_MIME_TYPE, MIME_TYPES.pdf];
 const MAX_FILE_SIZE = 10 * 1024 * 1024;
-
-function formatFileSize(bytes: number): string {
-	if (bytes === 0) return '0 B';
-	const units = ['B', 'KB', 'MB', 'GB'];
-	const exp = Math.min(
-		Math.floor(Math.log(bytes) / Math.log(1024)),
-		units.length - 1
-	);
-	const val = bytes / 1024 ** exp;
-	return `${val.toFixed(val < 10 && exp > 0 ? 1 : 0)} ${units[exp]}`;
-}
-
-function getFileExtension(name: string) {
-	const index = name.lastIndexOf('.');
-	if (index === -1 || index === name.length - 1) return '';
-	return name.slice(index);
-}
 
 export default function DocumentUpload() {
 	const router = useRouter();
@@ -84,13 +70,12 @@ export default function DocumentUpload() {
 		updateFileItem(id, { uploadState: 'uploading' });
 
 		try {
-			const folder = 'documents/admissions';
-			const fileName = `${nanoid()}.${getFileExtension(file.name)}`;
-			await uploadDocument(file, fileName, folder);
+			const applicantId = nanoid();
+			const fileKey = await uploadApplicantFile(applicantId, file);
 
 			updateFileItem(id, {
 				uploadState: 'analyzing',
-				uploadedFileName: fileName,
+				uploadedFileKey: fileKey,
 			});
 
 			const arrayBuffer = await file.arrayBuffer();
@@ -133,7 +118,7 @@ export default function DocumentUpload() {
 			file,
 			uploadState: 'idle' as UploadState,
 			analysisResult: null,
-			uploadedFileName: null,
+			uploadedFileKey: null,
 		}));
 
 		setFileItems((prev) => [...prev, ...newItems]);
@@ -186,7 +171,8 @@ export default function DocumentUpload() {
 			setSaving(true);
 
 			const documents: PendingDocument[] = readyFiles.map((f) => ({
-				fileName: f.uploadedFileName!,
+				fileName: f.file.name,
+				fileUrl: f.uploadedFileKey!,
 				originalName: f.file.name,
 				analysisResult: f.analysisResult!,
 			}));

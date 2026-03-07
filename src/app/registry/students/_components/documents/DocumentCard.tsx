@@ -22,23 +22,25 @@ import documentTypes from './documentTypes';
 type DocumentCardProps = {
 	id: string;
 	fileName: string;
+	fileUrl: string | null;
 	type: string | null;
 	createdAt: Date | null;
 	canEdit: boolean;
-	onDelete: (id: string, fileName: string) => void;
+	onDelete: (id: string, fileName: string, fileUrl: string | null) => void;
 };
 
 export default function DocumentCard({
 	id,
 	fileName,
+	fileUrl,
 	type,
 	createdAt,
 	canEdit,
 	onDelete,
 }: DocumentCardProps) {
 	const { data: documentUrl } = useQuery({
-		queryKey: ['document-url', fileName],
-		queryFn: () => getDocumentUrl(fileName),
+		queryKey: ['document-url', fileUrl],
+		queryFn: () => getDocumentUrl(fileUrl),
 		staleTime: 1000 * 60 * 3,
 	});
 
@@ -171,7 +173,7 @@ export default function DocumentCard({
 							<ActionIcon
 								variant='light'
 								color='red'
-								onClick={() => onDelete(id, fileName)}
+								onClick={() => onDelete(id, fileName, fileUrl)}
 							>
 								<IconTrash size={16} />
 							</ActionIcon>

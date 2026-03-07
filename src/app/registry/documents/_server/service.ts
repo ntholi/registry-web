@@ -6,6 +6,13 @@ import DocumentRepository from './repository';
 class DocumentService {
 	constructor(private readonly repository = new DocumentRepository()) {}
 
+	async get(id: string) {
+		return withAuth(
+			async () => this.repository.findByIdWithDocument(id),
+			['admin', 'registry', 'student_services']
+		);
+	}
+
 	async getByStudent(stdNo: number) {
 		return withAuth(
 			async () => this.repository.findByStudent(stdNo),

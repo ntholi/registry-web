@@ -122,10 +122,18 @@ class TermSettingsService {
 		);
 	}
 
+	async getPublicationAttachment(id: string) {
+		return withAuth(
+			async () => this.repository.getPublicationAttachment(id),
+			['admin', 'registry']
+		);
+	}
+
 	async createPublicationAttachment(data: {
 		termCode: string;
 		fileName: string;
 		type: 'scanned-pdf' | 'raw-marks' | 'other';
+		storageKey?: string;
 	}) {
 		return withAuth(
 			async (session) => {

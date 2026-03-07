@@ -13,6 +13,7 @@ import {
 } from '@mantine/core';
 import { Dropzone, type FileWithPath } from '@mantine/dropzone';
 import { IconFile, IconTrash, IconUpload, IconX } from '@tabler/icons-react';
+import { formatFileSize } from '@/shared/lib/utils/files';
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024;
 
@@ -22,12 +23,6 @@ type Props = {
 	currentFileName?: string;
 	loading?: boolean;
 };
-
-function formatFileSize(bytes: number) {
-	if (bytes < 1024) return `${bytes} B`;
-	if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
-	return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
-}
 
 export default function UploadField({
 	value,

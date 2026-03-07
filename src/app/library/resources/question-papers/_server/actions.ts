@@ -1,15 +1,16 @@
 'use server';
 
 import { eq } from 'drizzle-orm';
-import { nanoid } from 'nanoid';
 import { auth } from '@/core/auth';
 import { db, documents, questionPapers } from '@/core/database';
-import { deleteDocument, uploadDocument } from '@/core/integrations/storage';
+import { deleteFile, uploadFile } from '@/core/integrations/storage';
+import {
+	generateUploadKey,
+	StoragePaths,
+} from '@/core/integrations/storage-utils';
 import type { QuestionPaperFormData } from '../_lib/types';
 import { questionPapersService } from './service';
 
-const BASE_URL = 'https://pub-2b37ce26bd70421e9e59e4fe805c6873.r2.dev';
-const FOLDER = 'library/question-papers';
 const MAX_FILE_SIZE = 10 * 1024 * 1024;
 
 export async function getQuestionPaper(id: string) {
@@ -44,17 +45,16 @@ export async function createQuestionPaper(data: QuestionPaperFormData) {
 		throw new Error('File size exceeds 10MB limit');
 	}
 
-	const ext = file.name.split('.').pop()?.toLowerCase() || 'unknown';
-	const fileName = `${nanoid()}.${ext}`;
-	await uploadDocument(file, fileName, FOLDER);
-	const fileUrl = `${BASE_URL}/${FOLDER}/${fileName}`;
+	const key = generateUploadKey(StoragePaths.questionPaper, file.name);
+	await uploadFile(file, key);
 
 	return db.transaction(async (tx) => {
+		const fileName = key.split('/').pop()!;
 		const [doc] = await tx
 			.insert(documents)
 			.values({
-				fileName: fileName,
-				fileUrl,
+				fileName,
+				fileUrl: key,
 			})
 			.returning();
 
@@ -97,18 +97,16 @@ export async function updateQuestionPaper(
 			}
 
 			if (existing.document?.fileUrl) {
-				const key = existing.document.fileUrl.replace(`${BASE_URL}/`, '');
-				await deleteDocument(key);
+				await deleteFile(existing.document.fileUrl);
 			}
 
-			const ext = file.name.split('.').pop()?.toLowerCase() || 'unknown';
-			const fileName = `${nanoid()}.${ext}`;
-			await uploadDocument(file, fileName, FOLDER);
-			const fileUrl = `${BASE_URL}/${FOLDER}/${fileName}`;
+			const key = generateUploadKey(StoragePaths.questionPaper, file.name);
+			await uploadFile(file, key);
+			const fileName = key.split('/').pop()!;
 
 			await tx
 				.update(documents)
-				.set({ fileName, fileUrl })
+				.set({ fileName, fileUrl: key })
 				.where(eq(documents.id, existing.documentId));
 		}
 
@@ -131,8 +129,7 @@ export async function deleteQuestionPaper(id: string) {
 	if (!existing) throw new Error('Question paper not found');
 
 	if (existing.document?.fileUrl) {
-		const key = existing.document.fileUrl.replace(`${BASE_URL}/`, '');
-		await deleteDocument(key);
+		await deleteFile(existing.document.fileUrl);
 	}
 
 	await db.transaction(async (tx) => {

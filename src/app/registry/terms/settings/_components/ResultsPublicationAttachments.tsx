@@ -39,12 +39,11 @@ import {
 } from '@tabler/icons-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
-import { deleteDocument, uploadDocument } from '@/core/integrations/storage';
+import { formatFileSize } from '@/shared/lib/utils/files';
 import {
-	deletePublicationAttachment,
-	getAttachmentFolderPath,
+	deletePublicationAttachmentWithFile,
 	getPublicationAttachments,
-	savePublicationAttachment,
+	uploadPublicationAttachment,
 } from '../_server/actions';
 
 type AttachmentType = 'scanned-pdf' | 'raw-marks' | 'other';
@@ -63,17 +62,6 @@ const EXCEL_MIME_TYPES = [
 	'application/vnd.ms-excel',
 	'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
 ];
-
-function formatFileSize(bytes: number): string {
-	if (bytes === 0) return '0 B';
-	const units = ['B', 'KB', 'MB', 'GB'];
-	const exp = Math.min(
-		Math.floor(Math.log(bytes) / Math.log(1024)),
-		units.length - 1
-	);
-	const val = bytes / 1024 ** exp;
-	return `${val.toFixed(val < 10 && exp > 0 ? 1 : 0)} ${units[exp]}`;
-}
 
 function getMimeTypes(type: AttachmentType | null): string[] {
 	if (type === 'scanned-pdf') return [MIME_TYPES.pdf];
@@ -262,11 +250,7 @@ function AttachmentCard({
 	const queryClient = useQueryClient();
 
 	const deleteMutation = useMutation({
-		mutationFn: async () => {
-			const folder = getAttachmentFolderPath(termCode, attachment.type);
-			await deleteDocument(`${folder}/${attachment.fileName}`);
-			await deletePublicationAttachment(attachment.id);
-		},
+		mutationFn: async () => deletePublicationAttachmentWithFile(attachment.id),
 		onSuccess: () => {
 			notifications.show({
 				title: 'Success',
@@ -430,15 +414,8 @@ function UploadModal({ opened, onClose, termCode }: UploadModalProps) {
 		try {
 			setLoading(true);
 			const file = files[0];
-			const folder = await getAttachmentFolderPath(termCode, type);
 
-			await uploadDocument(file, file.name, folder);
-
-			await savePublicationAttachment({
-				termCode,
-				fileName: file.name,
-				type,
-			});
+			await uploadPublicationAttachment({ termCode, file, type });
 
 			notifications.show({
 				title: 'Success',
