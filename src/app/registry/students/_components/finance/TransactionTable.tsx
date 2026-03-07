@@ -288,8 +288,10 @@ export function LineItemsTable({ items }: LineItemsTableProps) {
 
 					return (
 						<Table.Tr key={`item-${i}`}>
-							<Table.Td c='dimmed'>{i + 1}</Table.Td>
-							<Table.Td>
+							<Table.Td c='dimmed' valign='top'>
+								{i + 1}
+							</Table.Td>
+							<Table.Td valign='top'>
 								<Text size='xs' fw={600}>
 									{itemName}
 									{itemCode && (
@@ -305,7 +307,7 @@ export function LineItemsTable({ items }: LineItemsTableProps) {
 									</Text>
 								)}
 							</Table.Td>
-							<Table.Td ta='right'>
+							<Table.Td ta='right' valign='top'>
 								<Text size='xs' ff='monospace'>
 									{fmt(item.quantity)}
 								</Text>

@@ -4,10 +4,8 @@ import type {
 	ZohoSalesReceiptStatus,
 } from '@finance/_lib/zoho-books/types';
 import { Card, Divider, Group, Skeleton, Stack, Text } from '@mantine/core';
-import { IconUser } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { statusColors } from '@/shared/lib/utils/colors';
-import { formatCurrency } from '@/shared/lib/utils/utils';
 import {
 	CurrencyCell,
 	DateCell,
@@ -77,6 +75,7 @@ export function SalesReceiptsTab({ receipts }: Props) {
 				<SalesReceiptDetail
 					receiptId={row.sales_receipt_id}
 					reference={row.reference_number}
+					paymentMode={row.payment_mode}
 				/>
 			)}
 		/>
@@ -86,14 +85,30 @@ export function SalesReceiptsTab({ receipts }: Props) {
 type SalesReceiptDetailProps = {
 	receiptId: string;
 	reference?: string;
+	paymentMode?: string;
 };
 
-function SalesReceiptDetail({ receiptId, reference }: SalesReceiptDetailProps) {
+function SalesReceiptDetail({
+	receiptId,
+	reference,
+	paymentMode,
+}: SalesReceiptDetailProps) {
 	const { data, isLoading } = useQuery({
 		queryKey: ['sales-receipt-detail', receiptId],
 		queryFn: () => fetchSalesReceiptDetail(receiptId),
 		staleTime: 1000 * 60 * 10,
 	});
+
+	const currency = data?.currency_code ?? 'LSL';
+	const lineItems = data?.line_items ?? [];
+	const fmt = (n: number) =>
+		n.toLocaleString('en', {
+			minimumFractionDigits: 2,
+			maximumFractionDigits: 2,
+		});
+
+	const mode = paymentMode ?? data?.payment_mode;
+	const ref = data?.reference_number ?? reference;
 
 	return (
 		<Stack gap='sm'>
@@ -102,64 +117,84 @@ function SalesReceiptDetail({ receiptId, reference }: SalesReceiptDetailProps) {
 					<Skeleton height={14} width={120} />
 					<Skeleton height={60} />
 				</Stack>
-			) : data?.line_items && data.line_items.length > 0 ? (
-				<LineItemsTable items={data.line_items} />
+			) : lineItems.length > 0 ? (
+				<LineItemsTable items={lineItems} />
 			) : (
 				<Text size='sm' c='dimmed'>
 					No line items
 				</Text>
 			)}
 			{data && (
-				<Card p='sm' withBorder>
-					<Stack gap={4}>
+				<Group align='flex-start' justify='space-between'>
+					{(mode || ref) && (
+						<Card p='sm' withBorder radius='md' w={300}>
+							<Stack gap={8}>
+								<Text size='xs' fw={700}>
+									Payment Details
+								</Text>
+								{mode && <PaymentField label='Payment Mode' value={mode} />}
+								{ref && <PaymentField label='Reference' value={ref} />}
+							</Stack>
+						</Card>
+					)}
+					<Stack gap={4} w={300}>
 						<SummaryRow
 							label='Sub Total'
-							value={data.sub_total ?? data.total}
+							value={fmt(data.sub_total ?? data.total)}
 						/>
 						{!!data.discount_total && (
-							<SummaryRow label='Discount' value={-data.discount_total} />
+							<SummaryRow
+								label='Discount'
+								value={`(-) ${fmt(data.discount_total)}`}
+								color='green'
+							/>
 						)}
 						{!!data.tax_total && (
-							<SummaryRow label='Tax' value={data.tax_total} />
+							<SummaryRow label='Tax' value={fmt(data.tax_total)} />
 						)}
 						<Divider my={4} />
-						<SummaryRow label='Total' value={data.total} bold />
-						<SummaryRow label='Amount Paid' value={data.total} />
-						<SummaryRow label='Balance Due' value={0} />
+						<SummaryRow
+							label='Total'
+							value={`${currency}${fmt(data.total)}`}
+							bold
+						/>
 					</Stack>
-				</Card>
-			)}
-			{reference && (
-				<Card p='xs' px='sm' withBorder>
-					<Group gap='xs'>
-						<IconUser size='0.85rem' opacity={0.5} />
-						<Text size='xs' c='dimmed' fw={600} tt='uppercase' lts={0.3}>
-							Reference:
-						</Text>
-						<Text size='sm' fw={500}>
-							{reference}
-						</Text>
-					</Group>
-				</Card>
+				</Group>
 			)}
 		</Stack>
 	);
 }
 
+type PaymentFieldProps = { label: string; value: string };
+
+function PaymentField({ label, value }: PaymentFieldProps) {
+	return (
+		<Group gap='xs' wrap='nowrap' align='flex-start'>
+			<Text size='xs' c='dimmed' fw={600} w={100} style={{ flexShrink: 0 }}>
+				{label}
+			</Text>
+			<Text size='sm' fw={600}>
+				{value}
+			</Text>
+		</Group>
+	);
+}
+
 type SummaryRowProps = {
 	label: string;
-	value: number;
+	value: string;
 	bold?: boolean;
+	color?: string;
 };
 
-function SummaryRow({ label, value, bold }: SummaryRowProps) {
+function SummaryRow({ label, value, bold, color }: SummaryRowProps) {
 	return (
 		<Group justify='space-between'>
 			<Text size='sm' c={bold ? undefined : 'dimmed'} fw={bold ? 600 : 400}>
 				{label}
 			</Text>
-			<Text size='sm' fw={bold ? 700 : 500} ff='monospace'>
-				{formatCurrency(value)}
+			<Text size='sm' fw={bold ? 700 : 500} ff='monospace' c={color}>
+				{value}
 			</Text>
 		</Group>
 	);
