@@ -3,7 +3,8 @@ import type {
 	ZohoSalesReceipt,
 	ZohoSalesReceiptStatus,
 } from '@finance/_lib/zoho-books/types';
-import { Skeleton, Stack, Text } from '@mantine/core';
+import { Card, Group, Skeleton, Stack, Text } from '@mantine/core';
+import { IconUser } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { statusColors } from '@/shared/lib/utils/colors';
 import {
@@ -40,11 +41,6 @@ const columns: TransactionColumn<ZohoSalesReceipt>[] = [
 		render: (row) => <NumberCell value={row.receipt_number} />,
 	},
 	{
-		key: 'reference',
-		label: 'Reference',
-		render: (row) => <RefCell value={row.reference_number} />,
-	},
-	{
 		key: 'payment_mode',
 		label: 'Payment Mode',
 		render: (row) => <RefCell value={row.payment_mode} />,
@@ -77,7 +73,10 @@ export function SalesReceiptsTab({ receipts }: Props) {
 			rowKey={(r) => r.sales_receipt_id}
 			emptyLabel='No sales receipts found.'
 			renderDetail={(row) => (
-				<SalesReceiptDetail receiptId={row.sales_receipt_id} />
+				<SalesReceiptDetail
+					receiptId={row.sales_receipt_id}
+					reference={row.reference_number}
+				/>
 			)}
 		/>
 	);
@@ -85,31 +84,43 @@ export function SalesReceiptsTab({ receipts }: Props) {
 
 type SalesReceiptDetailProps = {
 	receiptId: string;
+	reference?: string;
 };
 
-function SalesReceiptDetail({ receiptId }: SalesReceiptDetailProps) {
+function SalesReceiptDetail({ receiptId, reference }: SalesReceiptDetailProps) {
 	const { data, isLoading } = useQuery({
 		queryKey: ['sales-receipt-detail', receiptId],
 		queryFn: () => fetchSalesReceiptDetail(receiptId),
 		staleTime: 1000 * 60 * 10,
 	});
 
-	if (isLoading) {
-		return (
-			<Stack gap='xs'>
-				<Skeleton height={14} width={120} />
-				<Skeleton height={60} />
-			</Stack>
-		);
-	}
-
-	if (!data?.line_items || data.line_items.length === 0) {
-		return (
-			<Text size='sm' c='dimmed'>
-				No line items
-			</Text>
-		);
-	}
-
-	return <LineItemsTable items={data.line_items} />;
+	return (
+		<Stack gap='sm'>
+			{isLoading ? (
+				<Stack gap='xs'>
+					<Skeleton height={14} width={120} />
+					<Skeleton height={60} />
+				</Stack>
+			) : data?.line_items && data.line_items.length > 0 ? (
+				<LineItemsTable items={data.line_items} />
+			) : (
+				<Text size='sm' c='dimmed'>
+					No line items
+				</Text>
+			)}
+			{reference && (
+				<Card p='xs' px='sm' withBorder>
+					<Group gap='xs'>
+						<IconUser size='0.85rem' opacity={0.5} />
+						<Text size='xs' c='dimmed' fw={600} tt='uppercase' lts={0.3}>
+							Reference:
+						</Text>
+						<Text size='sm' fw={500}>
+							{reference}
+						</Text>
+					</Group>
+				</Card>
+			)}
+		</Stack>
+	);
 }
