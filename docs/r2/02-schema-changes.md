@@ -10,6 +10,8 @@
 
 Add database columns to track photo storage keys for students and employees. Standardize how file references are stored across all modules.
 
+Before moving to the next step, update [09-checklist.md](./09-checklist.md) with the Step 2 status and a one-line result.
+
 ## 2.1 — Add `photoKey` to Students
 
 Add a nullable `text` column to the `students` table to store the R2 object key for the student's photo.
@@ -18,7 +20,7 @@ Add a nullable `text` column to the `students` table to store the R2 object key 
 
 ```typescript
 // Add to the students table columns:
-photoKey: text(), // e.g. "registry/students/photos/901234.jpg"
+photoKey: text(), // e.g. "registry/students/photos/901234.jpeg"
 ```
 
 ### Why nullable:
@@ -34,7 +36,7 @@ Same pattern for the employees table.
 
 ```typescript
 // Add to the employees table columns:
-photoKey: text(), // e.g. "human-resource/employees/photos/EMP001.jpg"
+photoKey: text(), // e.g. "human-resource/employees/photos/EMP001.png"
 ```
 
 ## 2.3 — Standardize `documents.fileUrl` Storage

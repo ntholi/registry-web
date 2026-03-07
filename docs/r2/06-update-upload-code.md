@@ -11,6 +11,8 @@
 
 Update every file upload callsite to use `StoragePaths`, `uploadFile`, and `generateUploadKey` from the centralized storage utility. No more ad-hoc folder strings.
 
+Before moving to the next step, update [09-checklist.md](./09-checklist.md) with the Step 6 status and a one-line result.
+
 ## IMPORTANT: Client Components and Storage Imports
 
 > **Since `storage.ts` is now a plain server module (no `'use server'` directive), client components CANNOT import `uploadFile`/`deleteFile` directly.** All upload and delete operations from client components MUST go through module-specific server actions. Pure utilities like `StoragePaths` and `getPublicUrl` are imported from `@/core/integrations/storage-utils` (no restrictions).

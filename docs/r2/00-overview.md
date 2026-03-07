@@ -9,6 +9,13 @@
 
 ## Problem Statement
 
+## How To Use This Plan
+
+- Use [09-checklist.md](./09-checklist.md) as the only short operator-facing file.
+- Execute one step document at a time in order.
+- After each completed step, update [09-checklist.md](./09-checklist.md) with a very short result before moving on.
+- If any step is partial, blocked, or failed, stop and resolve it before continuing.
+
 The current R2 storage implementation suffers from:
 
 1. **Inconsistent folder paths** — 7 different naming conventions across modules
@@ -83,13 +90,13 @@ The current R2 storage implementation suffers from:
 {bucket}/
 ├── registry/
 │   ├── students/
-│   │   ├── photos/{stdNo}.jpg
+│   │   ├── photos/{stdNo}.{ext}
 │   │   └── documents/{stdNo}/{nanoid}.{ext}
 │   └── terms/
 │       └── publications/{termCode}/{type}/{fileName}
 ├── human-resource/
 │   └── employees/
-│       └── photos/{empNo}.jpg
+│       └── photos/{empNo}.{ext}
 ├── admissions/
 │   ├── applicants/
 │   │   └── documents/{applicantId}/{nanoid}.{ext}
@@ -112,6 +119,7 @@ The current R2 storage implementation suffers from:
 | 6 | [06-update-upload-code.md](./06-update-upload-code.md) | Update all upload callsites to use new paths and centralized utility |
 | 7 | [07-update-retrieval-code.md](./07-update-retrieval-code.md) | Update all URL construction and photo retrieval to use DB + utility |
 | 8 | [08-cleanup-and-verification.md](./08-cleanup-and-verification.md) | Verify all new paths, delete old objects, remove dead code |
+| 9 | [09-checklist.md](./09-checklist.md) | Short operator checklist and progress tracker to update after every step |
 
 ## Pre-Migration: Base64 Data in `documents` Table
 

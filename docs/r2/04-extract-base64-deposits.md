@@ -11,6 +11,8 @@
 
 Decode 1,422 base64-encoded deposit receipt images from the `documents.file_url` column, upload them to R2 under a standardized path, and update `file_url` to the new R2 key. This reclaims ~892 MB of PostgreSQL storage.
 
+Before moving to the next step, update [09-checklist.md](./09-checklist.md) with the Step 4 status and a one-line result.
+
 ## Background
 
 The admissions payment workflow at `src/app/apply/[id]/(wizard)/payment/_server/actions.ts` stores deposit receipts as `data:{mediaType};base64,{content}` directly in `documents.file_url`. These records are all linked via `bank_deposits.documentId` and are **actively viewed** by admins in the payment review page (`PaymentReviewDocumentSwitcher` → `DocumentViewer`).

@@ -10,6 +10,8 @@
 
 Create a single source of truth for R2 configuration, path construction, and URL resolution. Eliminate all hardcoded URLs and duplicated helper functions.
 
+Before moving to the next step, update [09-checklist.md](./09-checklist.md) with the Step 1 status and a one-line result.
+
 ## 1.1 — Environment Variable Setup (PREREQUISITE)
 
 Add `NEXT_PUBLIC_R2_PUBLIC_URL` to the environment:
@@ -70,8 +72,8 @@ A centralized object that defines all valid R2 key patterns. This ensures every 
 
 ```typescript
 export const StoragePaths = {
-  studentPhoto: (stdNo: number) =>
-    `registry/students/photos/${stdNo}.jpg`,
+  studentPhoto: (stdNo: number, ext: string) =>
+    `registry/students/photos/${stdNo}.${ext}`,
 
   studentDocument: (stdNo: number, fileName: string) =>
     `registry/students/documents/${stdNo}/${fileName}`,
@@ -79,8 +81,8 @@ export const StoragePaths = {
   termPublication: (termCode: string, type: string, fileName: string) =>
     `registry/terms/publications/${termCode}/${type}/${fileName}`,
 
-  employeePhoto: (empNo: string) =>
-    `human-resource/employees/photos/${empNo}.jpg`,
+  employeePhoto: (empNo: string, ext: string) =>
+    `human-resource/employees/photos/${empNo}.${ext}`,
 
   applicantDocument: (applicantId: string, fileName: string) =>
     `admissions/applicants/documents/${applicantId}/${fileName}`,

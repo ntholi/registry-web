@@ -11,6 +11,8 @@
 
 Update `submitReceiptPayment` in `src/app/apply/[id]/(wizard)/payment/_server/actions.ts` to decode the base64 receipt → upload to R2 → store the R2 key in `documents.fileUrl` instead of the raw base64 data URI.
 
+Before moving to the next step, update [09-checklist.md](./09-checklist.md) with the Step 5 status and a one-line result.
+
 ## 5.1 — Current Code (Problem)
 
 ```typescript
