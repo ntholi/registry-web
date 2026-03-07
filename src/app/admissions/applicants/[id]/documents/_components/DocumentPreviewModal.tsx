@@ -13,6 +13,7 @@ import {
 	Tooltip,
 } from '@mantine/core';
 import { IconCalendar, IconDownload, IconFile } from '@tabler/icons-react';
+import { getPublicUrl } from '@/core/integrations/storage-utils';
 import { formatDate } from '@/shared/lib/utils/dates';
 import type { ApplicantDocument } from '../_lib/types';
 
@@ -31,7 +32,7 @@ export function DocumentPreviewModal({ opened, onClose, applicantDoc }: Props) {
 	if (!applicantDoc) return null;
 
 	const doc = applicantDoc.document;
-	const previewUrl = doc.fileUrl ?? '';
+	const previewUrl = doc.fileUrl ? getPublicUrl(doc.fileUrl) : '';
 	const isPdf = previewUrl.toLowerCase().endsWith('.pdf');
 
 	function handleDownload() {

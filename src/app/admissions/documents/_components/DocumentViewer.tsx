@@ -21,7 +21,11 @@ type Props = {
 function isPdfSource(src: string, alt: string): boolean {
 	const cleanSrc = src.split('#')[0]?.split('?')[0]?.toLowerCase() ?? '';
 	const cleanAlt = alt.toLowerCase();
-	return cleanSrc.endsWith('.pdf') || cleanAlt.endsWith('.pdf');
+	return (
+		cleanSrc.endsWith('.pdf') ||
+		src.startsWith('data:application/pdf') ||
+		cleanAlt.endsWith('.pdf')
+	);
 }
 
 export default function DocumentViewer({

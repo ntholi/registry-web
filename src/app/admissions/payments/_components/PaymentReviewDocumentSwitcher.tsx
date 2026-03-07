@@ -3,6 +3,7 @@
 import DocumentViewer from '@admissions/documents/_components/DocumentViewer';
 import { Paper, SegmentedControl, Stack, Text } from '@mantine/core';
 import { useMemo, useState } from 'react';
+import { getPublicUrl } from '@/core/integrations/storage-utils';
 import { formatDateTime } from '@/shared/lib/utils/dates';
 import type { GroupedPaymentReviewDeposit } from '../_lib/types';
 import PaymentReviewSummary from './PaymentReviewSummary';
@@ -73,7 +74,7 @@ export default function PaymentReviewDocumentSwitcher({
 
 			{selected.document?.fileUrl ? (
 				<DocumentViewer
-					src={selected.document.fileUrl}
+					src={getPublicUrl(selected.document.fileUrl)}
 					alt={selected.document.fileName || 'Payment proof'}
 				/>
 			) : (

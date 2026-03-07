@@ -26,6 +26,7 @@ import {
 	IconSchool,
 	IconUser,
 } from '@tabler/icons-react';
+import { getPublicUrl } from '@/core/integrations/storage-utils';
 import type { CatalogPublication } from '../_server/types';
 
 type Props = {
@@ -51,6 +52,9 @@ export default function PublicationDetailModal({
 		.map((pa) => pa.author.name)
 		.join(', ');
 	const hasDocument = publication.document?.fileUrl;
+	const documentUrl = publication.document?.fileUrl
+		? getPublicUrl(publication.document.fileUrl)
+		: undefined;
 
 	return (
 		<>
@@ -91,7 +95,7 @@ export default function PublicationDetailModal({
 						<Tabs.Panel value='preview'>
 							<Box h={500}>
 								<iframe
-									src={publication.document.fileUrl ?? undefined}
+									src={documentUrl}
 									title={publication.title}
 									width='100%'
 									height='100%'
@@ -152,7 +156,7 @@ export default function PublicationDetailModal({
 										<Divider />
 										<Button
 											component='a'
-											href={publication.document.fileUrl ?? undefined}
+											href={documentUrl}
 											target='_blank'
 											leftSection={<IconDownload size={16} />}
 											variant='light'

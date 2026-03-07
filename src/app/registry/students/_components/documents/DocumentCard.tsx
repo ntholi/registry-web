@@ -13,9 +13,8 @@ import {
 	Text,
 	Tooltip,
 } from '@mantine/core';
-import { getDocumentUrl } from '@registry/documents';
 import { IconDownload, IconFile, IconTrash } from '@tabler/icons-react';
-import { useQuery } from '@tanstack/react-query';
+import { getPublicUrl } from '@/core/integrations/storage-utils';
 import { formatDate } from '@/shared/lib/utils/dates';
 import documentTypes from './documentTypes';
 
@@ -38,11 +37,7 @@ export default function DocumentCard({
 	canEdit,
 	onDelete,
 }: DocumentCardProps) {
-	const { data: documentUrl } = useQuery({
-		queryKey: ['document-url', fileUrl],
-		queryFn: () => getDocumentUrl(fileUrl),
-		staleTime: 1000 * 60 * 3,
-	});
+	const documentUrl = fileUrl ? getPublicUrl(fileUrl) : null;
 
 	function getFileExtension(fileName: string): string {
 		return fileName.split('.').pop()?.toLowerCase() || '';

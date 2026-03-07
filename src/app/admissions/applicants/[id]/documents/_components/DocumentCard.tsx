@@ -11,6 +11,7 @@ import {
 	Text,
 } from '@mantine/core';
 import { IconFile } from '@tabler/icons-react';
+import { getPublicUrl } from '@/core/integrations/storage-utils';
 import { getDocumentVerificationStatusColor } from '@/shared/lib/utils/colors';
 import type { ApplicantDocument } from '../_lib/types';
 
@@ -31,7 +32,9 @@ type Props = {
 };
 
 export function DocumentCard({ doc, onPreview }: Props) {
-	const fileUrl = doc.document.fileUrl ?? '';
+	const fileUrl = doc.document.fileUrl
+		? getPublicUrl(doc.document.fileUrl)
+		: '';
 	const isPdf = isPdfFile(doc.document.fileName);
 	const isImage = isImageFile(doc.document.fileName);
 

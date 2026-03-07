@@ -1,5 +1,6 @@
 import { Badge, Divider, Group, Stack, Text } from '@mantine/core';
 import { notFound } from 'next/navigation';
+import { getPublicUrl } from '@/core/integrations/storage-utils';
 import { formatDate } from '@/shared/lib/utils/dates';
 import { toTitleCase } from '@/shared/lib/utils/utils';
 import {
@@ -20,6 +21,9 @@ export default async function PublicationDetailsPage({ params }: Props) {
 	const publication = await getPublication(id);
 
 	if (!publication) return notFound();
+	const documentUrl = publication.document?.fileUrl
+		? getPublicUrl(publication.document.fileUrl)
+		: '';
 
 	const authors = publication.publicationAuthors
 		?.map((pa) => pa.author.name)
@@ -67,7 +71,7 @@ export default async function PublicationDetailsPage({ params }: Props) {
 					<Divider label='Document' labelPosition='left' />
 
 					<DocumentViewer
-						fileUrl={publication.document?.fileUrl || ''}
+						fileUrl={documentUrl}
 						fileName={publication.document?.fileName || ''}
 					/>
 				</Stack>

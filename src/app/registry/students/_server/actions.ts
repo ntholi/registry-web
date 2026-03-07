@@ -242,28 +242,9 @@ export async function getStudentPhoto(
 	studentNumber: number | undefined | null
 ): Promise<string | null> {
 	if (!studentNumber) return null;
-	try {
-		const photoKey = await service.getPhotoKey(studentNumber);
-		if (!photoKey) return null;
-
-		const url = getPublicUrl(photoKey);
-		const response = await fetch(url, {
-			method: 'HEAD',
-			cache: 'no-store',
-			next: { revalidate: 0 },
-		});
-		if (!response.ok) {
-			return null;
-		}
-
-		const etag = response.headers.get('etag')?.replace(/"/g, '') || '';
-		const lastModified = response.headers.get('last-modified') || '';
-		const versionSource = etag || lastModified || Date.now().toString();
-		return `${url}?v=${encodeURIComponent(versionSource)}`;
-	} catch (error) {
-		console.error('Error checking student photo:', error);
-		return null;
-	}
+	const photoKey = await service.getPhotoKey(studentNumber);
+	if (!photoKey) return null;
+	return getPublicUrl(photoKey);
 }
 
 export async function uploadStudentPhoto(stdNo: number, photo: File) {

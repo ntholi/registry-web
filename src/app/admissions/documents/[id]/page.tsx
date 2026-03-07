@@ -1,5 +1,6 @@
 import { Grid, GridCol, Paper, ScrollArea, Stack, Text } from '@mantine/core';
 import { notFound } from 'next/navigation';
+import { getPublicUrl } from '@/core/integrations/storage-utils';
 import { DetailsView } from '@/shared/ui/adease';
 import Link from '@/shared/ui/Link';
 import AcademicDataPanel from '../_components/AcademicDataPanel';
@@ -34,6 +35,9 @@ export default async function DocumentReviewPage({ params }: Props) {
 		: isAcademic
 			? 'Academic Document'
 			: 'Document';
+	const documentUrl = doc.document.fileUrl
+		? getPublicUrl(doc.document.fileUrl)
+		: '';
 
 	return (
 		<DetailsView>
@@ -44,9 +48,9 @@ export default async function DocumentReviewPage({ params }: Props) {
 			/>
 			<Grid gutter='md'>
 				<GridCol span={{ base: 12, md: 7 }}>
-					{doc.document.fileUrl ? (
+					{documentUrl ? (
 						<DocumentViewer
-							src={doc.document.fileUrl}
+							src={documentUrl}
 							alt={doc.document.fileName}
 							initialRotation={doc.rotation}
 							onRotationChange={async (rotation) => {
