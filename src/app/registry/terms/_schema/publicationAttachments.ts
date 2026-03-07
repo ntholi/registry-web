@@ -9,6 +9,7 @@ export const publicationAttachments = pgTable('publication_attachments', {
 	termCode: text().notNull(),
 	fileName: text().notNull(),
 	type: text({ enum: ['scanned-pdf', 'raw-marks', 'other'] }).notNull(),
+	storageKey: text(),
 	createdAt: timestamp().defaultNow().notNull(),
 	createdBy: text().references(() => users.id, { onDelete: 'set null' }),
 });

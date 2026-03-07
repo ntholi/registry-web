@@ -13,6 +13,7 @@ export const employees = pgTable(
 		department: employeeDepartment(),
 		position: text(),
 		userId: text().references(() => users.id, { onDelete: 'set null' }),
+		photoKey: text(),
 		createdAt: timestamp().defaultNow(),
 		updatedAt: timestamp()
 			.defaultNow()

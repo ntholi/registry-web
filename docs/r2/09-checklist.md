@@ -14,7 +14,7 @@ What you need to do:
 - Do not skip backups, dry runs, or verification.
 
 Current step:
-- `1`
+- `2`
 
 Go / no-go:
 - [ ] PostgreSQL backup completed before destructive work
@@ -28,7 +28,7 @@ Progress:
 | Step | Status | Result |
 |------|--------|--------|
 | 1 | Done | storage-utils.ts created, storage.ts rewritten, next.config.ts updated, env var added |
-| 2 | Not started | - |
+| 2 | Done | photoKey added to students & employees, storageKey added to publication_attachments, migration 0181 generated |
 | 3 | Not started | - |
 | 4 | Not started | - |
 | 5 | Not started | - |
@@ -37,10 +37,10 @@ Progress:
 | 8 | Not started | - |
 
 Last update:
-- Step 1 completed: centralized storage utility
+- Step 2 completed: schema changes and migration generated
 
 Blockers:
 - None
 
 Next action:
-- Start Step 2
+- Start Step 3
