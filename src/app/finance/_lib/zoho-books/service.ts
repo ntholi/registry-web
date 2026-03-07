@@ -238,6 +238,14 @@ export async function createStudentContact(
 		notes += ` Initial Intake Year ${input.intakeDate}`;
 	}
 
+	const primaryContact: Record<string, unknown> = {
+		first_name: stdNoStr,
+		is_primary_contact: true,
+	};
+	if (input.email) primaryContact.email = input.email;
+	if (input.phone) primaryContact.phone = input.phone;
+	if (input.mobile) primaryContact.mobile = input.mobile;
+
 	const body: Record<string, unknown> = {
 		contact_name: input.name,
 		contact_type: 'customer',
@@ -247,12 +255,15 @@ export async function createStudentContact(
 		payment_terms: 0,
 		payment_terms_label: 'Due on Receipt',
 		notes,
+		cf_account_code: stdNoStr,
 		custom_fields: [
 			{
 				field_id: ACCOUNT_CODE_FIELD_ID,
+				customfield_id: ACCOUNT_CODE_FIELD_ID,
 				value: stdNoStr,
 			},
 		],
+		contact_persons: [primaryContact],
 	};
 
 	if (input.email) body.email = input.email;
