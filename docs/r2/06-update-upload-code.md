@@ -11,7 +11,7 @@
 
 Update every file upload callsite to use `StoragePaths`, `uploadFile`, and `generateUploadKey` from the centralized storage utility. No more ad-hoc folder strings.
 
-Before moving to the next step, update [09-checklist.md](./09-checklist.md) with the Step 6 status and a one-line result.
+Before moving to the next step, update [09-checklist.md](./09-checklist.md): mark Step 6 as Done with a one-line result in the Progress table, and replace the **"What to do now"** section with clear instructions for what the operator should do next.
 
 ## IMPORTANT: Client Components and Storage Imports
 

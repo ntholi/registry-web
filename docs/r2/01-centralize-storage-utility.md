@@ -10,7 +10,7 @@
 
 Create a single source of truth for R2 configuration, path construction, and URL resolution. Eliminate all hardcoded URLs and duplicated helper functions.
 
-Before moving to the next step, update [09-checklist.md](./09-checklist.md) with the Step 1 status and a one-line result.
+Before moving to the next step, update [09-checklist.md](./09-checklist.md): mark Step 1 as Done with a one-line result in the Progress table, and replace the **"What to do now"** section with clear instructions for what the operator should do next (e.g., "Tell Copilot to do Step 2" or specific commands to run).
 
 ## 1.1 — Environment Variable Setup (PREREQUISITE)
 

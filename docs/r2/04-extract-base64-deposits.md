@@ -11,7 +11,7 @@
 
 Decode 1,422 base64-encoded deposit receipt images from the `documents.file_url` column, upload them to R2 under a standardized path, and update `file_url` to the new R2 key. This reclaims ~892 MB of PostgreSQL storage.
 
-Before moving to the next step, update [09-checklist.md](./09-checklist.md) with the Step 4 status and a one-line result.
+Before moving to the next step, update [09-checklist.md](./09-checklist.md): mark Step 4 as Done with a one-line result in the Progress table, and replace the **"What to do now"** section with clear instructions for what the operator should do next.
 
 ## Background
 

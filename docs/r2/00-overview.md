@@ -13,8 +13,16 @@
 
 - Use [09-checklist.md](./09-checklist.md) as the only short operator-facing file.
 - Execute one step document at a time in order.
-- After each completed step, update [09-checklist.md](./09-checklist.md) with a very short result before moving on.
 - If any step is partial, blocked, or failed, stop and resolve it before continuing.
+
+> **CRITICAL RULE — UPDATE 09-CHECKLIST.MD AFTER EVERY STEP**
+>
+> Each step runs in a **new conversation context** — there is no carry-over from the previous session. After completing each step, you **MUST** update [09-checklist.md](./09-checklist.md) with:
+>
+> 1. Mark the step as **Done** in the Progress table with a one-line result.
+> 2. Replace the **"What to do now"** section with clear, actionable operator instructions for the next step (e.g., "Run `pnpm tsx scripts/...` then proceed to Step 5" or "Tell Copilot to do Step 6").
+>
+> The operator reads **only 09-checklist.md** to know what to do next. If the instructions are missing or vague, the next session will not know how to proceed.
 
 The current R2 storage implementation suffers from:
 

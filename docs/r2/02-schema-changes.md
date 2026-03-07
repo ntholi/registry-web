@@ -10,7 +10,7 @@
 
 Add database columns to track photo storage keys for students and employees. Standardize how file references are stored across all modules.
 
-Before moving to the next step, update [09-checklist.md](./09-checklist.md) with the Step 2 status and a one-line result.
+Before moving to the next step, update [09-checklist.md](./09-checklist.md): mark Step 2 as Done with a one-line result in the Progress table, and replace the **"What to do now"** section with clear instructions for what the operator should do next.
 
 ## 2.1 — Add `photoKey` to Students
 

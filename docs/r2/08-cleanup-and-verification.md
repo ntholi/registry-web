@@ -11,7 +11,7 @@
 
 Remove old R2 objects, deprecated code wrappers, and verify the complete migration. This is the final step — only execute when confident everything works.
 
-Before closing the migration, update [09-checklist.md](./09-checklist.md) with the Step 8 status and a one-line result.
+Before closing the migration, update [09-checklist.md](./09-checklist.md): mark Step 8 as Done with a one-line result in the Progress table, and replace the **"What to do now"** section with "Migration complete. All steps done."
 
 ## 8.1 — Verification Checklist (Pre-Cleanup)
 

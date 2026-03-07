@@ -10,7 +10,7 @@
 
 Copy all existing R2 objects from old paths to new standardized paths, update database references, and backfill the new `photoKey` / `storageKey` columns. No data is deleted in this step.
 
-Before moving to the next step, update [09-checklist.md](./09-checklist.md) with the Step 3 status and a one-line result.
+Before moving to the next step, update [09-checklist.md](./09-checklist.md): mark Step 3 as Done with a one-line result in the Progress table, and replace the **"What to do now"** section with clear instructions for what the operator should do next.
 
 ## 3.1 — Migration Script Location
 

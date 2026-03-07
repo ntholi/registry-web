@@ -11,7 +11,7 @@
 
 Replace all hardcoded URL construction and HEAD-request probing with database lookups and the centralized `getPublicUrl()` utility.
 
-Before moving to the next step, update [09-checklist.md](./09-checklist.md) with the Step 7 status and a one-line result.
+Before moving to the next step, update [09-checklist.md](./09-checklist.md): mark Step 7 as Done with a one-line result in the Progress table, and replace the **"What to do now"** section with clear instructions for what the operator should do next.
 
 ## 7.1 — Replace `getStudentPhoto()` (Eliminate 4 HEAD Requests)
 

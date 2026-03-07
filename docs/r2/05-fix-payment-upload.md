@@ -11,7 +11,7 @@
 
 Update `submitReceiptPayment` in `src/app/apply/[id]/(wizard)/payment/_server/actions.ts` to decode the base64 receipt → upload to R2 → store the R2 key in `documents.fileUrl` instead of the raw base64 data URI.
 
-Before moving to the next step, update [09-checklist.md](./09-checklist.md) with the Step 5 status and a one-line result.
+Before moving to the next step, update [09-checklist.md](./09-checklist.md): mark Step 5 as Done with a one-line result in the Progress table, and replace the **"What to do now"** section with clear instructions for what the operator should do next.
 
 ## 5.1 — Current Code (Problem)
 
