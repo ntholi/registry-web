@@ -13,6 +13,7 @@ import {
 	findStudentPayments,
 	findStudentSalesReceipts,
 	getInvoiceDetail,
+	getSalesReceiptDetail,
 	getStudentFinanceSummary,
 } from './service';
 import type { CreateStudentContactInput } from './types';
@@ -53,6 +54,10 @@ export async function getZohoContactUrl(contactId: string) {
 
 export async function fetchInvoiceDetail(invoiceId: string) {
 	return getInvoiceDetail(invoiceId);
+}
+
+export async function fetchSalesReceiptDetail(receiptId: string) {
+	return getSalesReceiptDetail(receiptId);
 }
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;

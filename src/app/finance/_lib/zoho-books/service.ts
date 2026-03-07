@@ -16,6 +16,7 @@ import type {
 	ZohoPayment,
 	ZohoPaymentsResponse,
 	ZohoSalesReceipt,
+	ZohoSalesReceiptDetailResponse,
 	ZohoSalesReceiptsResponse,
 } from './types';
 import zohoConfig from './zoho-config.json';
@@ -101,6 +102,15 @@ export async function getInvoiceDetail(
 		`/invoices/${invoiceId}`
 	);
 	return response.invoice;
+}
+
+export async function getSalesReceiptDetail(
+	receiptId: string
+): Promise<ZohoSalesReceipt> {
+	const response = await zohoGet<ZohoSalesReceiptDetailResponse>(
+		`/salesreceipts/${receiptId}`
+	);
+	return response.sales_receipt_details;
 }
 
 export async function getStudentInvoiceSummary(

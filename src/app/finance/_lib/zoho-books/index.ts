@@ -1,5 +1,6 @@
 export {
 	fetchInvoiceDetail,
+	fetchSalesReceiptDetail,
 	fetchStudentEstimates,
 	fetchStudentFinance,
 	fetchStudentPayments,

@@ -1,15 +1,17 @@
+import { fetchSalesReceiptDetail } from '@finance/_lib/zoho-books/actions';
 import type {
 	ZohoSalesReceipt,
 	ZohoSalesReceiptStatus,
 } from '@finance/_lib/zoho-books/types';
-import { Group, Stack } from '@mantine/core';
+import { Skeleton, Stack, Text } from '@mantine/core';
+import { useQuery } from '@tanstack/react-query';
 import { statusColors } from '@/shared/lib/utils/colors';
 import {
 	CurrencyCell,
 	DateCell,
-	DetailField,
 	LineItemsTable,
 	NumberCell,
+	RefCell,
 	StatusBadge,
 	type TransactionColumn,
 	TransactionTable,
@@ -38,6 +40,16 @@ const columns: TransactionColumn<ZohoSalesReceipt>[] = [
 		render: (row) => <NumberCell value={row.receipt_number} />,
 	},
 	{
+		key: 'reference',
+		label: 'Reference',
+		render: (row) => <RefCell value={row.reference_number} />,
+	},
+	{
+		key: 'payment_mode',
+		label: 'Payment Mode',
+		render: (row) => <RefCell value={row.payment_mode} />,
+	},
+	{
 		key: 'total',
 		label: 'Amount',
 		align: 'right',
@@ -64,29 +76,40 @@ export function SalesReceiptsTab({ receipts }: Props) {
 			columns={columns}
 			rowKey={(r) => r.sales_receipt_id}
 			emptyLabel='No sales receipts found.'
-			renderDetail={(row) => <SalesReceiptDetail receipt={row} />}
+			renderDetail={(row) => (
+				<SalesReceiptDetail receiptId={row.sales_receipt_id} />
+			)}
 		/>
 	);
 }
 
 type SalesReceiptDetailProps = {
-	receipt: ZohoSalesReceipt;
+	receiptId: string;
 };
 
-function SalesReceiptDetail({ receipt }: SalesReceiptDetailProps) {
-	return (
-		<Stack gap='sm'>
-			<Group gap='xl'>
-				<DetailField label='Payment Mode' value={receipt.payment_mode || '-'} />
-				<DetailField
-					label='Reference'
-					value={receipt.reference_number || '-'}
-				/>
-			</Group>
+function SalesReceiptDetail({ receiptId }: SalesReceiptDetailProps) {
+	const { data, isLoading } = useQuery({
+		queryKey: ['sales-receipt-detail', receiptId],
+		queryFn: () => fetchSalesReceiptDetail(receiptId),
+		staleTime: 1000 * 60 * 10,
+	});
 
-			{receipt.line_items && receipt.line_items.length > 0 && (
-				<LineItemsTable items={receipt.line_items} />
-			)}
-		</Stack>
-	);
+	if (isLoading) {
+		return (
+			<Stack gap='xs'>
+				<Skeleton height={14} width={120} />
+				<Skeleton height={60} />
+			</Stack>
+		);
+	}
+
+	if (!data?.line_items || data.line_items.length === 0) {
+		return (
+			<Text size='sm' c='dimmed'>
+				No line items
+			</Text>
+		);
+	}
+
+	return <LineItemsTable items={data.line_items} />;
 }
