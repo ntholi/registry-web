@@ -315,12 +315,12 @@ export function LineItemsTable({ items }: LineItemsTableProps) {
 									</Text>
 								)}
 							</Table.Td>
-							<Table.Td ta='right'>
+							<Table.Td ta='right' valign='top'>
 								<Text size='xs' ff='monospace'>
 									{fmt(item.rate)}
 								</Text>
 							</Table.Td>
-							<Table.Td ta='right'>
+							<Table.Td ta='right' valign='top'>
 								<Text size='xs' fw={600} ff='monospace'>
 									{fmt(item.item_total)}
 								</Text>

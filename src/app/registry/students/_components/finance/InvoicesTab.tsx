@@ -5,7 +5,7 @@ import type {
 	ZohoInvoice,
 	ZohoInvoiceStatus,
 } from '@finance/_lib/zoho-books/types';
-import { Divider, Group, Skeleton, Stack, Text } from '@mantine/core';
+import { Card, Divider, Group, Skeleton, Stack, Text } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
 import { statusColors } from '@/shared/lib/utils/colors';
 import {
@@ -129,27 +129,29 @@ function InvoiceDetail({ invoice }: InvoiceDetailProps) {
 				</Text>
 			)}
 			<Group justify='flex-end'>
-				<Stack gap={4} w={300}>
-					<SummaryRow label='Sub Total' value={fmt(subTotal)} />
-					<Divider my={4} />
-					<SummaryRow
-						label='Total'
-						value={`${currency}${fmt(invoice.total)}`}
-						bold
-					/>
-					<SummaryRow
-						label='Payment Made'
-						value={`(-) ${fmt(paid)}`}
-						color='red'
-					/>
-					<Divider my={4} />
-					<SummaryRow
-						label='Balance Due'
-						value={`${currency}${fmt(invoice.balance)}`}
-						bold
-						color={invoice.balance > 0 ? 'red' : undefined}
-					/>
-				</Stack>
+				<Card withBorder>
+					<Stack gap={4} w={300}>
+						<SummaryRow label='Sub Total' value={fmt(subTotal)} />
+						<Divider my={4} />
+						<SummaryRow
+							label='Total'
+							value={`${currency}${fmt(invoice.total)}`}
+							bold
+						/>
+						<SummaryRow
+							label='Payment Made'
+							value={`(-) ${fmt(paid)}`}
+							color='red'
+						/>
+						<Divider my={4} />
+						<SummaryRow
+							label='Balance Due'
+							value={`${currency}${fmt(invoice.balance)}`}
+							bold
+							color={invoice.balance > 0 ? 'red' : undefined}
+						/>
+					</Stack>
+				</Card>
 			</Group>
 		</Stack>
 	);
