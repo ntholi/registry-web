@@ -1,0 +1,13 @@
+{
+  "startedAt": "2026-03-08T15:35:21.586Z",
+  "completedAt": "2026-03-08T15:35:40.756Z",
+  "total": 1820,
+  "success": 1820,
+  "skipped": 0,
+  "failed": 0,
+  "totalBytesUploaded": 892106219,
+  "dbBytesReplaced": 1189520121,
+  "dbSizeReclaimedEstimate": "1.11 GB",
+  "failures": [],
+  "skippedEntries": []
+}
