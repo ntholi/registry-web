@@ -1,107 +1,66 @@
-# Step 10: Remote Database
+# Step 10: Sync Production Database
 
-> **Prerequisite:** Steps 1–7 code changes deployed. Step 8 not yet started.  
-> **Context:** Steps 0–9 were executed against the local database. The remote database is identical but missing the Step 2 schema migration and all DB-side data updates from Steps 3–4.  
-> **R2 bucket:** Shared — Step 3 already copied files to new paths. The script is idempotent and will skip existing copies.
+> **⚠️ THIS RUNS AGAINST THE PRODUCTION DATABASE.**  
+> Steps 1–9 are complete. All code changes are deployed. The live R2 bucket already has all files in their new paths. The only thing remaining is making the production database match the local database.
+
+**What this does:** Applies schema columns + updates DB records to point to the already-existing R2 files.  
+**What this does NOT do:** No R2 file uploads or copies — R2 is already correct from Steps 1–9.
 
 ---
 
-## Switch to Remote Database
+## Before You Start
 
-All commands below require the remote database connection. Set the env before each command:
+**Take a full database backup before running anything.**
 
 ```bash
-DATABASE_ENV=remote
+pg_dump --format=custom -f backup-pre-step10.dump "$DATABASE_REMOTE_URL"
 ```
-
-Or prefix each command: `DATABASE_ENV=remote pnpm ...`
 
 ---
 
-## 1. Apply Schema Migration (Step 2)
+## 1. Apply Schema Migration
 
-Adds `photo_key` to students/employees and `storage_key` to publication_attachments.
+Adds nullable columns: `students.photo_key`, `employees.photo_key`, `publication_attachments.storage_key`.
 
 ```bash
 DATABASE_ENV=remote pnpm db:migrate
 ```
 
-Verify columns exist:
-
-```sql
-SELECT column_name FROM information_schema.columns
-WHERE table_name = 'students' AND column_name = 'photo_key';
-
-SELECT column_name FROM information_schema.columns
-WHERE table_name = 'employees' AND column_name = 'photo_key';
-
-SELECT column_name FROM information_schema.columns
-WHERE table_name = 'publication_attachments' AND column_name = 'storage_key';
-```
-
-All three should return 1 row.
-
 ---
 
-## 2. Run R2 Migration Script (Step 3)
-
-R2 files are already copied — the script will skip copies and only update DB records (`photo_key`, `file_url`, `storage_key`).
-
-**Dry run first:**
+## 2. Update DB Records (Step 3 — R2 copies will be skipped, only DB writes)
 
 ```bash
 DATABASE_ENV=remote pnpm tsx scripts/migrate-r2-storage.ts --dry-run
 ```
 
-**Live run:**
+If dry-run shows 0 failures:
 
 ```bash
 DATABASE_ENV=remote pnpm tsx scripts/migrate-r2-storage.ts --phase all
 ```
 
-Verify:
-
-```sql
--- Should return 0
-SELECT COUNT(*) FROM documents
-WHERE file_url LIKE 'https://pub-%' AND file_url IS NOT NULL;
-
--- Should return > 0
-SELECT COUNT(*) FROM students WHERE photo_key IS NOT NULL;
-```
+This sets `photo_key` on students/employees, converts `documents.file_url` from full URLs to R2 keys, and sets `storage_key` on publication_attachments.
 
 ---
 
-## 3. Extract Base64 Deposits (Step 4)
+## 3. Extract Base64 Deposits (Step 4 — uploads to R2 + updates DB)
 
-**Dry run first:**
+The production DB still has ~1,820 base64-encoded deposit receipts in `documents.file_url`. This decodes them, uploads to R2, and replaces the base64 with R2 keys.
 
 ```bash
 DATABASE_ENV=remote pnpm tsx scripts/extract-base64-deposits.ts --dry-run
 ```
 
-**Live run:**
+If dry-run shows 0 failures:
 
 ```bash
 DATABASE_ENV=remote pnpm tsx scripts/extract-base64-deposits.ts
 ```
 
-Verify:
-
-```sql
--- Should return 0
-SELECT COUNT(*) FROM documents
-WHERE file_url LIKE 'data:%' AND type = 'proof_of_payment';
-
--- Should return the total migrated count
-SELECT COUNT(*) FROM documents d
-JOIN bank_deposits bd ON bd.document_id = d.id
-WHERE d.file_url LIKE 'admissions/deposits/%';
-```
-
 ---
 
-## 4. Reclaim DB Space
+## 4. Reclaim Space
 
 ```sql
 VACUUM FULL documents;
@@ -110,27 +69,34 @@ ANALYZE documents;
 
 ---
 
-## 5. Verify (Step 8 Queries)
+## 5. Verify
+
+All counts must return **0**:
 
 ```sql
--- No old-format URLs remaining
-SELECT COUNT(*) FROM documents WHERE file_url LIKE '%pub-2b37ce26bd70421e%';
--- Expected: 0
-
--- No remaining base64
+SELECT COUNT(*) FROM documents WHERE file_url LIKE 'https://pub-%';
 SELECT COUNT(*) FROM documents WHERE file_url LIKE 'data:%';
--- Expected: 0
-
--- All publication attachments have storage_key
 SELECT COUNT(*) FROM publication_attachments WHERE storage_key IS NULL;
--- Expected: 0
+```
 
--- Table size after vacuum
+Confirm photo_key populated:
+
+```sql
+SELECT COUNT(*) FROM students WHERE photo_key IS NOT NULL;
+```
+
+Table size after vacuum (should be ~5–10 MB, not ~900 MB):
+
+```sql
 SELECT pg_size_pretty(pg_total_relation_size('documents'));
 ```
 
 ---
 
-## 6. Proceed to Step 8
+## Rollback
 
-Once verification passes, follow `08-cleanup-and-verification.md` for the full application smoke test and old R2 object cleanup.
+If anything fails: restore the backup and redeploy the previous code version together. DB and code must match — new code expects R2 keys, old code expects full URLs.
+
+```bash
+pg_restore --clean --if-exists -d "$DATABASE_REMOTE_URL" backup-pre-step10.dump
+```
