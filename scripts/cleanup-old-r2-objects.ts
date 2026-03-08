@@ -20,12 +20,7 @@ const s3 = new S3Client({
 	region: 'weur',
 });
 
-const OLD_PREFIXES = [
-	'photos/',
-	'documents/admissions/',
-	'documents/registry/',
-	'documents/library/',
-];
+const OLD_PREFIXES = ['photos/', 'documents/', 'applicant-documents/'];
 
 const _NEW_PREFIXES = [
 	'registry/',

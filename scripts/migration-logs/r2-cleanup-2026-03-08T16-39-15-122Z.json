@@ -1,0 +1,21 @@
+{
+	"timestamp": "2026-03-08T16:39:15.123Z",
+	"dryRun": false,
+	"stats": {
+		"total": 7,
+		"deleted": 7,
+		"alreadyGone": 0,
+		"errors": 0,
+		"skippedOrphaned": 0
+	},
+	"deletedKeys": [
+		"documents/2025-07/publications/scanned/Matubatsi Rasekolana Koete _ Limkokwing.pdf",
+		"documents/",
+		"documents/CszU5pp_rYEiKt-whCGsB.jpg",
+		"documents/S9KSALsVrNjrV-or4YUVU.jpg",
+		"documents/qwxKTTPmGORvWaL0-NpdB.pdf",
+		"documents/sDPpLN6zshL0zHPTi7kEC.jpg",
+		"applicant-documents/Cyo_q6OhxXzRCYOzuyWbj-1768667537039-church-gray.webp"
+	],
+	"eligibleKeys": []
+}
