@@ -44,14 +44,10 @@ export async function uploadFile(
 export async function deleteFile(key: string): Promise<void> {
 	if (!key) throw new Error('No key provided');
 
-	const actualKey = getStorageKeyFromUrl(key);
-
-	if (!actualKey) throw new Error('No storage key provided');
-
 	await s3Client.send(
 		new DeleteObjectCommand({
 			Bucket: BUCKET_NAME,
-			Key: actualKey,
+			Key: key,
 		})
 	);
 }
@@ -68,30 +64,4 @@ export async function fileExists(key: string): Promise<boolean> {
 	} catch {
 		return false;
 	}
-}
-
-export function getStorageKeyFromUrl(value: string | undefined | null): string {
-	if (!value || value.startsWith('data:')) return '';
-	return value.startsWith('http')
-		? new URL(value).pathname.replace(/^\//, '')
-		: value;
-}
-
-/** @deprecated Use uploadFile + StoragePaths instead */
-export async function uploadDocument(
-	file: File | Blob,
-	fileName: string,
-	folder: string
-): Promise<string> {
-	const key = `${folder}/${fileName}`;
-	await uploadFile(file, key);
-	return fileName;
-}
-
-/** @deprecated Use deleteFile instead */
-export async function deleteDocument(
-	url: string | undefined | null
-): Promise<void> {
-	if (!url) throw new Error('Invalid URL format');
-	return deleteFile(url);
 }

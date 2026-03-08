@@ -80,3 +80,26 @@ pnpm build && pnpm start # production build + serve
 - Keep modules self-contained; reuse actions/services via path aliases rather than duplicating logic.
 - Use Adease layout components for lists/details and Mantine form primitives for inputs.
 - Prefer early returns with Zod validation for all inputs.
+
+## R2 Storage
+
+Files are stored in Cloudflare R2 with a structured folder hierarchy:
+
+```
+registry/students/photos/         — Student profile photos (keyed by stdNo)
+registry/students/documents/      — Student documents (transcripts, etc.)
+registry/terms/publications/      — Term publication attachments
+human-resource/employees/photos/  — Employee profile photos (keyed by empNo)
+admissions/applicants/documents/  — Applicant supporting documents
+admissions/deposits/              — Deposit receipt scans
+library/question-papers/          — Past exam papers
+library/publications/             — Faculty publications
+```
+
+- **Path builders**: Use `StoragePaths` from `@/core/integrations/storage-utils` for all R2 keys.
+- **URL resolution**: Use `getPublicUrl(key)` — never hardcode the R2 domain.
+- **Upload**: Use `uploadFile(file, key)` from `@/core/integrations/storage` — never construct keys manually.
+- **DB storage**: Store R2 keys (not full URLs) in `fileUrl` / `storageKey` / `photoKey` columns.
+- **New modules**: Add a new path builder to `StoragePaths` when adding file storage to a new feature.
+
+Env vars: `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_BUCKET_NAME`, `NEXT_PUBLIC_R2_PUBLIC_URL`.

@@ -180,6 +180,13 @@ You are a **Senior Principal Software Engineer** and **System Architect** specia
 - **Grades**: `src/shared/lib/utils/grades/` & `gradeCalculations.ts` (Never calculate locally).
 - **Activities**: `src/shared/lib/utils/activities.ts` (Shared contract: `ActivityFragment`, `ActivityEntry`, `Department` types).
 
+### R2 Storage
+- **Path Builders**: Always use `StoragePaths` from `@/core/integrations/storage-utils` for R2 keys.
+- **URL Resolution**: Always use `getPublicUrl(key)` — never hardcode the R2 domain.
+- **Upload**: Use `uploadFile(file, key)` from `@/core/integrations/storage` — never construct keys manually.
+- **DB Storage**: Store R2 keys (not full URLs) in `fileUrl` / `storageKey` / `photoKey` columns.
+- **New Modules**: Add a new path builder to `StoragePaths` when adding file storage to a new feature.
+
 ### Activity Logging
 - **Automatic**: `BaseRepository` audits all `create`/`update`/`delete` when `AuditOptions` is passed. `BaseService` auto-passes `{ userId, role, activityType }`.
 - **Activity Types**: Services declare `activityTypes: { create, update, delete }` in `BaseServiceConfig`. Each maps to a key in the module's `_lib/activities.ts` fragment.

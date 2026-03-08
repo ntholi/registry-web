@@ -1,137 +1,137 @@
 {
-  "startedAt": "2026-03-08T03:40:30.619Z",
-  "completedAt": "2026-03-08T03:43:40.745Z",
-  "phases": {
-    "studentPhotos": {
-      "total": 2227,
-      "copied": 4,
-      "skipped": 2207,
-      "failed": 0,
-      "orphaned": 16,
-      "duplicates": 0
-    },
-    "employeePhotos": {
-      "total": 0,
-      "copied": 0,
-      "skipped": 0,
-      "failed": 0,
-      "orphaned": 0,
-      "duplicates": 0
-    },
-    "admissionsDocuments": {
-      "total": 0,
-      "copied": 0,
-      "skipped": 0,
-      "failed": 0,
-      "orphaned": 0,
-      "duplicates": 0
-    },
-    "studentDocuments": {
-      "total": 0,
-      "copied": 0,
-      "skipped": 0,
-      "failed": 0,
-      "orphaned": 0,
-      "duplicates": 0
-    },
-    "termPublications": {
-      "total": 0,
-      "copied": 0,
-      "skipped": 0,
-      "failed": 0,
-      "orphaned": 0,
-      "duplicates": 0
-    },
-    "libraryResources": {
-      "total": 0,
-      "copied": 0,
-      "skipped": 0,
-      "failed": 0,
-      "orphaned": 0,
-      "duplicates": 0
-    }
-  },
-  "failures": [],
-  "orphaned": [
-    {
-      "key": "photos/90101276.jpg",
-      "movedTo": "registry/students/photos/orphaned/90101276.jpg",
-      "reason": "no matching DB record"
-    },
-    {
-      "key": "photos/90101345.jpg",
-      "movedTo": "registry/students/photos/orphaned/90101345.jpg",
-      "reason": "no matching DB record"
-    },
-    {
-      "key": "photos/90101346.jpg",
-      "movedTo": "registry/students/photos/orphaned/90101346.jpg",
-      "reason": "no matching DB record"
-    },
-    {
-      "key": "photos/90101814.jpg",
-      "movedTo": "registry/students/photos/orphaned/90101814.jpg",
-      "reason": "no matching DB record"
-    },
-    {
-      "key": "photos/9010188902.jpg",
-      "movedTo": "registry/students/photos/orphaned/9010188902.jpg",
-      "reason": "no matching DB record"
-    },
-    {
-      "key": "photos/901019218 sekepe.jpg",
-      "movedTo": "registry/students/photos/orphaned/901019218 sekepe.jpg",
-      "reason": "invalid stdNo format"
-    },
-    {
-      "key": "photos/90101940.jpg",
-      "movedTo": "registry/students/photos/orphaned/90101940.jpg",
-      "reason": "no matching DB record"
-    },
-    {
-      "key": "photos/901019568 Ramakhula.jpg",
-      "movedTo": "registry/students/photos/orphaned/901019568 Ramakhula.jpg",
-      "reason": "invalid stdNo format"
-    },
-    {
-      "key": "photos/9010198753.jpg",
-      "movedTo": "registry/students/photos/orphaned/9010198753.jpg",
-      "reason": "no matching DB record"
-    },
-    {
-      "key": "photos/9010198825.jpg",
-      "movedTo": "registry/students/photos/orphaned/9010198825.jpg",
-      "reason": "no matching DB record"
-    },
-    {
-      "key": "photos/901086953.jpg",
-      "movedTo": "registry/students/photos/orphaned/901086953.jpg",
-      "reason": "no matching DB record"
-    },
-    {
-      "key": "photos/90108900.jpg",
-      "movedTo": "registry/students/photos/orphaned/90108900.jpg",
-      "reason": "no matching DB record"
-    },
-    {
-      "key": "photos/90109354.jpg",
-      "movedTo": "registry/students/photos/orphaned/90109354.jpg",
-      "reason": "no matching DB record"
-    },
-    {
-      "key": "photos/90109378.jpg",
-      "movedTo": "registry/students/photos/orphaned/90109378.jpg",
-      "reason": "no matching DB record"
-    },
-    {
-      "key": "photos/",
-      "movedTo": "registry/students/photos/orphaned/",
-      "reason": "no matching DB record"
-    },
-    {
-      "key": "photos/documents/QoZhwtwhLCb3joubQGmf5.jpg",
-      "movedTo": "registry/students/photos/orphaned/documents/QoZhwtwhLCb3joubQGmf5.jpg",
-      "reason": "invalid stdNo format"
-    }
-  ]
+	"startedAt": "2026-03-08T03:40:30.619Z",
+	"completedAt": "2026-03-08T03:43:40.745Z",
+	"phases": {
+		"studentPhotos": {
+			"total": 2227,
+			"copied": 4,
+			"skipped": 2207,
+			"failed": 0,
+			"orphaned": 16,
+			"duplicates": 0
+		},
+		"employeePhotos": {
+			"total": 0,
+			"copied": 0,
+			"skipped": 0,
+			"failed": 0,
+			"orphaned": 0,
+			"duplicates": 0
+		},
+		"admissionsDocuments": {
+			"total": 0,
+			"copied": 0,
+			"skipped": 0,
+			"failed": 0,
+			"orphaned": 0,
+			"duplicates": 0
+		},
+		"studentDocuments": {
+			"total": 0,
+			"copied": 0,
+			"skipped": 0,
+			"failed": 0,
+			"orphaned": 0,
+			"duplicates": 0
+		},
+		"termPublications": {
+			"total": 0,
+			"copied": 0,
+			"skipped": 0,
+			"failed": 0,
+			"orphaned": 0,
+			"duplicates": 0
+		},
+		"libraryResources": {
+			"total": 0,
+			"copied": 0,
+			"skipped": 0,
+			"failed": 0,
+			"orphaned": 0,
+			"duplicates": 0
+		}
+	},
+	"failures": [],
+	"orphaned": [
+		{
+			"key": "photos/90101276.jpg",
+			"movedTo": "registry/students/photos/orphaned/90101276.jpg",
+			"reason": "no matching DB record"
+		},
+		{
+			"key": "photos/90101345.jpg",
+			"movedTo": "registry/students/photos/orphaned/90101345.jpg",
+			"reason": "no matching DB record"
+		},
+		{
+			"key": "photos/90101346.jpg",
+			"movedTo": "registry/students/photos/orphaned/90101346.jpg",
+			"reason": "no matching DB record"
+		},
+		{
+			"key": "photos/90101814.jpg",
+			"movedTo": "registry/students/photos/orphaned/90101814.jpg",
+			"reason": "no matching DB record"
+		},
+		{
+			"key": "photos/9010188902.jpg",
+			"movedTo": "registry/students/photos/orphaned/9010188902.jpg",
+			"reason": "no matching DB record"
+		},
+		{
+			"key": "photos/901019218 sekepe.jpg",
+			"movedTo": "registry/students/photos/orphaned/901019218 sekepe.jpg",
+			"reason": "invalid stdNo format"
+		},
+		{
+			"key": "photos/90101940.jpg",
+			"movedTo": "registry/students/photos/orphaned/90101940.jpg",
+			"reason": "no matching DB record"
+		},
+		{
+			"key": "photos/901019568 Ramakhula.jpg",
+			"movedTo": "registry/students/photos/orphaned/901019568 Ramakhula.jpg",
+			"reason": "invalid stdNo format"
+		},
+		{
+			"key": "photos/9010198753.jpg",
+			"movedTo": "registry/students/photos/orphaned/9010198753.jpg",
+			"reason": "no matching DB record"
+		},
+		{
+			"key": "photos/9010198825.jpg",
+			"movedTo": "registry/students/photos/orphaned/9010198825.jpg",
+			"reason": "no matching DB record"
+		},
+		{
+			"key": "photos/901086953.jpg",
+			"movedTo": "registry/students/photos/orphaned/901086953.jpg",
+			"reason": "no matching DB record"
+		},
+		{
+			"key": "photos/90108900.jpg",
+			"movedTo": "registry/students/photos/orphaned/90108900.jpg",
+			"reason": "no matching DB record"
+		},
+		{
+			"key": "photos/90109354.jpg",
+			"movedTo": "registry/students/photos/orphaned/90109354.jpg",
+			"reason": "no matching DB record"
+		},
+		{
+			"key": "photos/90109378.jpg",
+			"movedTo": "registry/students/photos/orphaned/90109378.jpg",
+			"reason": "no matching DB record"
+		},
+		{
+			"key": "photos/",
+			"movedTo": "registry/students/photos/orphaned/",
+			"reason": "no matching DB record"
+		},
+		{
+			"key": "photos/documents/QoZhwtwhLCb3joubQGmf5.jpg",
+			"movedTo": "registry/students/photos/orphaned/documents/QoZhwtwhLCb3joubQGmf5.jpg",
+			"reason": "invalid stdNo format"
+		}
+	]
 }

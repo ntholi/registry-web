@@ -34,49 +34,19 @@ Progress:
 | 5 | Done | submitReceiptPayment updated to decode base64 → upload to R2 → store key in documents.fileUrl; orphan cleanup on failure |
 | 6 | Done | Upload and delete flows now use storage keys and centralized server-side storage actions across student photos, employee photos, applicant documents, registry documents, term attachments, and library resources |
 | 7 | Done | Retrieval paths now resolve stored R2 keys with getPublicUrl(), photo lookups no longer issue HEAD probes, and admissions/library document viewers were updated to render resolved URLs including PDF previews |
-| 8 | Ready | Steps 1–7 complete. Run verification queries and spot checks before cleanup. |
+| 8 | Done | Verification passed (0 missing DB/R2), deprecated wrappers removed from storage.ts, codebase grep clean, documentation updated (README + copilot-instructions). Old R2 object deletion deferred pending R2 versioning/backup. |
 
 Last update:
-- 2026-03-08: Step 4 completed. 1,820 base64 deposit receipts extracted to R2, VACUUM FULL run. All steps 1–7 are done. Step 8 (cleanup & verification) is unblocked.
+- 2026-03-08: Step 8 executed. DB verification: 0 base64, 0 old URLs, 0 missing storage keys. R2 verification: 2,211 student photos + 8,134 documents all present (0 missing, 0 errors). Deprecated storage wrappers (uploadDocument, deleteDocument, getStorageKeyFromUrl) removed. README and copilot-instructions updated with R2 storage guidelines. Cleanup/audit scripts created. Old R2 objects (8,769 under old prefixes) await deletion after R2 versioning is enabled.
 
 Blockers:
-- None. All migration steps are complete. Step 8 cleanup awaits verification.
+- Old R2 object deletion (8.5) blocked on R2 versioning or backup copy. Enable bucket versioning before running `pnpm tsx scripts/cleanup-old-r2-objects.ts --dry-run`.
 
 ## What to do now
 
-### Step 8: Cleanup & Verification
+Migration complete. All code changes are done.
 
-All migration steps (1–7) are complete. Follow `08-cleanup-and-verification.md`.
-
-**1. Run verification SQL queries** (safe, read-only):
-```sql
--- Confirm no base64 data remains
-SELECT COUNT(*) FROM documents WHERE file_url LIKE 'data:%';
--- Expected: 0
-
--- Confirm no old hardcoded URLs remain
-SELECT COUNT(*) FROM documents WHERE file_url LIKE '%pub-2b37ce26bd70421e%';
--- Expected: 0
-
--- Confirm all publication attachments have storage keys
-SELECT COUNT(*) FROM publication_attachments WHERE storage_key IS NULL;
--- Expected: 0
-```
-
-**2. Application smoke test** — Open the app and verify:
-- Student photos load
-- Employee photos load
-- Student documents download
-- Admissions applicant documents display
-- Library resources open
-- Deposit receipt images display in payment review
-
-**3. Codebase grep** — Verify no old patterns remain:
-```bash
-grep -r "pub-2b37ce26bd70421e" src/
-```
-Expected: 0 results.
-
-**4. When satisfied, tell Copilot to execute Step 8** (remove deprecated code, dead code, and optionally clean up old R2 objects).
-
-> **NOTE**: Do NOT delete old R2 objects until R2 versioning or a backup copy is in place (see go/no-go checklist at top).
+**Remaining optional action**: Delete old R2 objects (~8,769 objects under `photos/`, `documents/`, `applicant-documents/` prefixes). Prerequisites:
+1. Enable R2 bucket versioning or create a backup copy
+2. Run `pnpm tsx scripts/cleanup-old-r2-objects.ts --dry-run` first
+3. Then `pnpm tsx scripts/cleanup-old-r2-objects.ts` to delete
