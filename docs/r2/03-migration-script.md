@@ -111,7 +111,7 @@ For each orphaned document:
 - Extract the R2 key from the full URL (strip base URL prefix)
 - Copy to `admissions/applicants/documents/_orphaned/{docId}/{fileName}`
 - `UPDATE documents SET file_url = '{orphanedKey}' WHERE id = '{docId}'`
-- Log as orphaned with original type (identity: 70, certificate: 48, academic_record: 35)
+- Log as orphaned with original type (identity: 71, certificate: 48, academic_record: 35)
 
 > **NOTE**: These orphans all have full R2 URLs (`https://pub-...r2.dev/documents/admissions/{nanoid}.{ext}`) and are NOT base64. They are NOT picked up by Step 4's base64 extraction.
 
@@ -208,6 +208,14 @@ pnpm tsx scripts/migrate-r2-storage.ts --dry-run
 # Run specific phase only
 pnpm tsx scripts/migrate-r2-storage.ts --phase photos --dry-run
 
+# Run specific sub-phase only
+pnpm tsx scripts/migrate-r2-storage.ts --phase student-photos --dry-run
+pnpm tsx scripts/migrate-r2-storage.ts --phase employee-photos --dry-run
+pnpm tsx scripts/migrate-r2-storage.ts --phase admissions --dry-run
+pnpm tsx scripts/migrate-r2-storage.ts --phase student-documents --dry-run
+pnpm tsx scripts/migrate-r2-storage.ts --phase term-publications --dry-run
+pnpm tsx scripts/migrate-r2-storage.ts --phase library --dry-run
+
 # Full migration
 pnpm tsx scripts/migrate-r2-storage.ts --phase all
 ```
@@ -259,7 +267,7 @@ For zero-loss purposes, `HeadObject` on the new key by itself is not sufficient.
 - [ ] Verify `employees.photo_key` is populated for employees who had photos
 - [ ] Verify `documents.file_url` values no longer contain the full base URL
 - [ ] Verify `publication_attachments.storage_key` is populated
-- [ ] **Do NOT delete old files yet** — that happens in Step 6
+- [ ] **Do NOT delete old files yet** — that happens in Step 8
 
 ## Files Created
 

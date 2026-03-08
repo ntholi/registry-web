@@ -1,0 +1,62 @@
+{
+  "startedAt": "2026-03-08T03:39:55.292Z",
+  "completedAt": "2026-03-08T03:39:55.810Z",
+  "phases": {
+    "studentPhotos": {
+      "total": 0,
+      "copied": 0,
+      "skipped": 0,
+      "failed": 0,
+      "orphaned": 0,
+      "duplicates": 0
+    },
+    "employeePhotos": {
+      "total": 1,
+      "copied": 0,
+      "skipped": 0,
+      "failed": 0,
+      "orphaned": 1,
+      "duplicates": 0
+    },
+    "admissionsDocuments": {
+      "total": 0,
+      "copied": 0,
+      "skipped": 0,
+      "failed": 0,
+      "orphaned": 0,
+      "duplicates": 0
+    },
+    "studentDocuments": {
+      "total": 0,
+      "copied": 0,
+      "skipped": 0,
+      "failed": 0,
+      "orphaned": 0,
+      "duplicates": 0
+    },
+    "termPublications": {
+      "total": 0,
+      "copied": 0,
+      "skipped": 0,
+      "failed": 0,
+      "orphaned": 0,
+      "duplicates": 0
+    },
+    "libraryResources": {
+      "total": 0,
+      "copied": 0,
+      "skipped": 0,
+      "failed": 0,
+      "orphaned": 0,
+      "duplicates": 0
+    }
+  },
+  "failures": [],
+  "orphaned": [
+    {
+      "key": "photos/employees/LUCT254.jpg",
+      "movedTo": "human-resource/employees/photos/orphaned/LUCT254.jpg",
+      "reason": "no matching DB record"
+    }
+  ]
+}
