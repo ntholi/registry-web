@@ -27,7 +27,7 @@ The app connects to a single Zoho Books organization. The organization must:
 Generate a grant token in the API Console with **all** required scopes:
 
 ```
-ZohoBooks.invoices.READ,ZohoBooks.customerpayments.READ,ZohoBooks.salesorders.READ,ZohoBooks.estimates.READ,ZohoBooks.projects.READ,ZohoBooks.expenses.READ,ZohoBooks.creditnotes.READ,ZohoBooks.purchaseorders.READ,ZohoBooks.bills.READ,ZohoBooks.debitnotes.READ,ZohoBooks.vendorpayments.READ,ZohoBooks.banking.READ,ZohoBooks.accountants.READ,ZohoBooks.contacts.CREATE,ZohoBooks.settings.UPDATE,ZohoBooks.settings.READ
+ZohoBooks.invoices.READ,ZohoBooks.customerpayments.READ,ZohoBooks.salesorders.READ,ZohoBooks.estimates.ALL,ZohoBooks.projects.READ,ZohoBooks.expenses.READ,ZohoBooks.creditnotes.READ,ZohoBooks.purchaseorders.READ,ZohoBooks.bills.READ,ZohoBooks.debitnotes.READ,ZohoBooks.vendorpayments.READ,ZohoBooks.banking.READ,ZohoBooks.accountants.READ,ZohoBooks.contacts.CREATE,ZohoBooks.contacts.UPDATE,ZohoBooks.settings.UPDATE,ZohoBooks.settings.READ
 ```
 
 > Grant tokens expire quickly (typically 3 minutes). Exchange it immediately.
