@@ -18,6 +18,7 @@ import { createInsertSchema } from 'drizzle-zod';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { z } from 'zod';
+import { formatSemester } from '@/shared/lib/utils/utils';
 import { Form } from '@/shared/ui/adease';
 import StudentInput from '@/shared/ui/StudentInput';
 import TermInput from '@/shared/ui/TermInput';
@@ -25,6 +26,9 @@ import { getJustificationLabel, getTypeLabel } from '../_lib/labels';
 
 type StudentStatusInsert = typeof studentStatuses.$inferInsert;
 type StatusType = (typeof studentStatuses.type.enumValues)[number];
+type StudentData = Awaited<ReturnType<typeof getStudent>>;
+type StudentSemesterData =
+	NonNullable<StudentData>['programs'][number]['semesters'][number];
 
 type Props = {
 	onSubmit: (values: StudentStatusInsert) => Promise<{ id: string }>;
@@ -65,6 +69,31 @@ function getJustificationOptions(type: StatusType | null) {
 			? reinstatementJustifications
 			: withdrawalJustifications;
 	return items.map((v) => ({ value: v, label: getJustificationLabel(v) }));
+}
+
+function semesterSortValue(semester: StudentSemesterData) {
+	return Number(semester.structureSemester?.semesterNumber ?? '0');
+}
+
+function getSemesterOptions(student: StudentData | undefined) {
+	if (!student) return [];
+
+	return student.programs
+		.flatMap((program) => program.semesters)
+		.sort((left, right) => {
+			const byTerm = right.termCode.localeCompare(left.termCode);
+			if (byTerm !== 0) return byTerm;
+
+			const bySemester = semesterSortValue(right) - semesterSortValue(left);
+			if (bySemester !== 0) return bySemester;
+
+			return right.id - left.id;
+		})
+		.map((semester) => ({
+			value: String(semester.id),
+			id: semester.id,
+			label: formatSemester(semester.structureSemester?.semesterNumber, 'mini'),
+		}));
 }
 
 export default function StudentStatusForm({
@@ -109,8 +138,12 @@ export default function StudentStatusForm({
 			}}
 		>
 			{(form) => {
+				const semesterOptions = getSemesterOptions(selectedStudent);
+				const latestSemesterId = semesterOptions[0]?.id;
+
 				const handleStdNoChange = (value: number | string) => {
 					form.setFieldValue('stdNo', value as number);
+					form.setFieldValue('semesterId', undefined);
 					const strValue = String(value);
 					const stdNo = Number(value);
 					setSelectedStdNo(stdNo > 0 ? stdNo : null);
@@ -125,7 +158,13 @@ export default function StudentStatusForm({
 					form.setFieldValue('type', typed as StatusType);
 					const options = getJustificationOptions(typed);
 					form.setFieldValue('justification', options[0].value);
+					if (!form.values.semesterId && latestSemesterId) {
+						form.setFieldValue('semesterId', latestSemesterId);
+					}
 				};
+
+				const semesterRequired =
+					selectedType === 'withdrawal' || selectedType === 'deferment';
 
 				return (
 					<>
@@ -183,17 +222,40 @@ export default function StudentStatusForm({
 
 								{selectedType && (
 									<>
-										<TermInput
-											required
-											value={form.values.termId}
-											onChange={(value) =>
-												form.setFieldValue(
-													'termId',
-													typeof value === 'number' ? value : undefined
-												)
-											}
-											error={form.errors.termId}
-										/>
+										<SimpleGrid cols={2} spacing='md'>
+											<TermInput
+												required
+												value={form.values.termId}
+												onChange={(value) =>
+													form.setFieldValue(
+														'termId',
+														typeof value === 'number' ? value : undefined
+													)
+												}
+												error={form.errors.termId}
+											/>
+											<Select
+												label='Semester'
+												required={semesterRequired}
+												placeholder='Select semester'
+												data={semesterOptions}
+												value={
+													form.values.semesterId || latestSemesterId
+														? String(form.values.semesterId ?? latestSemesterId)
+														: null
+												}
+												onChange={(value) =>
+													form.setFieldValue(
+														'semesterId',
+														typeof value === 'string'
+															? Number(value)
+															: undefined
+													)
+												}
+												error={form.errors.semesterId}
+												disabled={semesterOptions.length === 0}
+											/>
+										</SimpleGrid>
 										<Textarea
 											label='Notes'
 											autosize
