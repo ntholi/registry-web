@@ -9,6 +9,7 @@ import { statementOfResultsPrints } from '@registry/print/_schema/statementOfRes
 import { studentCardPrints } from '@registry/print/_schema/studentCardPrints';
 import { transcriptPrints } from '@registry/print/_schema/transcriptPrints';
 import { registrationRequests } from '@registry/registration-requests/_schema/registrationRequests';
+import { studentNotes } from '@registry/student-notes/_schema/studentNotes';
 import { relations } from 'drizzle-orm';
 import { graduationRequests } from '@/app/registry/graduation/requests/_schema/graduationRequests';
 import { nextOfKins } from './nextOfKins';
@@ -32,6 +33,7 @@ export const studentsRelations = relations(students, ({ many, one }) => ({
 	transcriptPrints: many(transcriptPrints),
 	studentCardPrints: many(studentCardPrints),
 	studentDocuments: many(studentDocuments),
+	studentNotes: many(studentNotes),
 	certificateReprints: many(certificateReprints),
 }));
 

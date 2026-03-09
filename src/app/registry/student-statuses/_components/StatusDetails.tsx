@@ -261,7 +261,7 @@ function OtherRolesView({ app }: OtherRolesProps) {
 								placeholder='Add a comment...'
 								value={comment ?? ''}
 								onChange={(e) => setComment(e.currentTarget.value)}
-								minRows={3}
+								rows={5}
 							/>
 						</Stack>
 					</AccordionPanel>

@@ -175,6 +175,26 @@ const REGISTRY_ACTIVITIES = {
 			label: 'Student Status Approval Updated',
 			department: 'registry',
 		},
+		student_note_created: {
+			label: 'Student Note Created',
+			department: 'registry',
+		},
+		student_note_updated: {
+			label: 'Student Note Updated',
+			department: 'registry',
+		},
+		student_note_deleted: {
+			label: 'Student Note Deleted',
+			department: 'registry',
+		},
+		student_note_attachment_uploaded: {
+			label: 'Student Note Attachment Uploaded',
+			department: 'registry',
+		},
+		student_note_attachment_deleted: {
+			label: 'Student Note Attachment Deleted',
+			department: 'registry',
+		},
 	},
 	tableOperationMap: {
 		'students:INSERT': 'student_creation',
@@ -213,6 +233,11 @@ const REGISTRY_ACTIVITIES = {
 		'student_statuses:INSERT': 'student_status_created',
 		'student_statuses:UPDATE': 'student_status_updated',
 		'student_status_approvals:UPDATE': 'student_status_approval_updated',
+		'student_notes:INSERT': 'student_note_created',
+		'student_notes:UPDATE': 'student_note_updated',
+		'student_notes:DELETE': 'student_note_deleted',
+		'student_note_attachments:INSERT': 'student_note_attachment_uploaded',
+		'student_note_attachments:DELETE': 'student_note_attachment_deleted',
 	},
 } as const satisfies ActivityFragment;
 
