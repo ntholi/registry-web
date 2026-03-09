@@ -20,17 +20,14 @@ import { formatDateTime } from '@/shared/lib/utils/dates';
 import { hasApprovalRole } from '../_lib/approvalRoles';
 import { getApprovalRoleLabel } from '../_lib/labels';
 import type { StudentStatusApprovalRole } from '../_lib/types';
-import {
-	approveStudentStatusStep,
-	rejectStudentStatusStep,
-} from '../_server/actions';
+import { respondToStudentStatusStep } from '../_server/actions';
 
 type Approval = {
 	id: string;
 	approverRole: StudentStatusApprovalRole;
 	status: string;
 	respondedBy: string | null;
-	message: string | null;
+	comments: string | null;
 	respondedAt: Date | null;
 	responder: { name: string | null } | null;
 };
@@ -60,7 +57,7 @@ export default function ApprovalPanel({
 					<Table.Th>Status</Table.Th>
 					<Table.Th>Responded By</Table.Th>
 					<Table.Th>Date</Table.Th>
-					<Table.Th>Message</Table.Th>
+					<Table.Th>Comments</Table.Th>
 					<Table.Th>Actions</Table.Th>
 				</Table.Tr>
 			</Table.Thead>
@@ -84,12 +81,11 @@ export default function ApprovalPanel({
 						</Table.Td>
 						<Table.Td>
 							<Text size='sm' lineClamp={2}>
-								{approval.message ?? '-'}
+								{approval.comments ?? '-'}
 							</Text>
 						</Table.Td>
 						<Table.Td>
-							{applicationStatus === 'pending' &&
-								approval.status === 'pending' &&
+							{applicationStatus !== 'approved' &&
 								canApprove(approval.approverRole) && (
 									<ApprovalActions
 										approvalId={approval.id}
@@ -112,27 +108,27 @@ type ApprovalActionsProps = {
 function ApprovalActions({ approvalId, applicationId }: ApprovalActionsProps) {
 	const queryClient = useQueryClient();
 	const [opened, { open, close }] = useDisclosure(false);
-	const [message, setMessage] = useState('');
+	const [comments, setComments] = useState('');
+
+	const invalidate = () => {
+		queryClient.invalidateQueries({
+			queryKey: ['student-status', applicationId],
+		});
+		queryClient.invalidateQueries({ queryKey: ['student-statuses'] });
+	};
 
 	const approveMutation = useMutation({
-		mutationFn: () => approveStudentStatusStep(approvalId),
-		onSuccess: () => {
-			queryClient.invalidateQueries({
-				queryKey: ['student-status', applicationId],
-			});
-			queryClient.invalidateQueries({ queryKey: ['student-statuses'] });
-		},
+		mutationFn: () => respondToStudentStatusStep(approvalId, 'approved'),
+		onSuccess: invalidate,
 	});
 
 	const rejectMutation = useMutation({
-		mutationFn: () => rejectStudentStatusStep(approvalId, message),
+		mutationFn: () =>
+			respondToStudentStatusStep(approvalId, 'rejected', comments),
 		onSuccess: () => {
 			close();
-			setMessage('');
-			queryClient.invalidateQueries({
-				queryKey: ['student-status', applicationId],
-			});
-			queryClient.invalidateQueries({ queryKey: ['student-statuses'] });
+			setComments('');
+			invalidate();
 		},
 	});
 
@@ -163,8 +159,8 @@ function ApprovalActions({ approvalId, applicationId }: ApprovalActionsProps) {
 					<Textarea
 						label='Rejection Reason'
 						required
-						value={message}
-						onChange={(e) => setMessage(e.currentTarget.value)}
+						value={comments}
+						onChange={(e) => setComments(e.currentTarget.value)}
 						minRows={3}
 					/>
 					<Group justify='flex-end'>
@@ -174,7 +170,7 @@ function ApprovalActions({ approvalId, applicationId }: ApprovalActionsProps) {
 						<Button
 							color='red'
 							loading={rejectMutation.isPending}
-							disabled={!message.trim()}
+							disabled={!comments.trim()}
 							onClick={() => rejectMutation.mutate()}
 						>
 							Reject

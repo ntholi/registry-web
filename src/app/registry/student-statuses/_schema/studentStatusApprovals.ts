@@ -32,7 +32,7 @@ export const studentStatusApprovals = pgTable(
 		approverRole: studentStatusApprovalRole().notNull(),
 		status: studentStatusApprovalStatus().notNull().default('pending'),
 		respondedBy: text().references(() => users.id, { onDelete: 'set null' }),
-		message: text(),
+		comments: text(),
 		respondedAt: timestamp(),
 		createdAt: timestamp().defaultNow(),
 	},

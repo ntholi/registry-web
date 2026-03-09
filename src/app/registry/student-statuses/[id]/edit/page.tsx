@@ -26,7 +26,7 @@ export default async function StudentStatusEditPage({ params }: Props) {
 					return updateStudentStatus(id, {
 						termId: value.termId as number,
 						justification: value.justification,
-						notes: value.notes,
+						reasons: value.reasons,
 					});
 				}}
 			/>

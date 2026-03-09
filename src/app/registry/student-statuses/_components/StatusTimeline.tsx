@@ -14,7 +14,7 @@ type Approval = {
 	respondedBy: string | null;
 	respondedAt: Date | null;
 	responder: { name: string | null } | null;
-	message: string | null;
+	comments: string | null;
 };
 
 type Props = {
@@ -66,9 +66,9 @@ export default function StatusTimeline({
 							{formatDateTime(approval.respondedAt, 'long')}
 						</Text>
 					)}
-					{approval.message && (
+					{approval.comments && (
 						<Text size='sm' fs='italic' mt={4}>
-							{approval.message}
+							{approval.comments}
 						</Text>
 					)}
 				</Timeline.Item>

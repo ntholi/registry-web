@@ -53,7 +53,7 @@ export const studentStatuses = pgTable(
 		type: studentStatusType().notNull(),
 		status: studentStatusStatus().notNull().default('pending'),
 		justification: studentStatusJustification().notNull(),
-		notes: text(),
+		reasons: text(),
 		termCode: text(),
 		termId: integer().references(() => terms.id),
 		semesterId: integer().references(() => studentSemesters.id, {

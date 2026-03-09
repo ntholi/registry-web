@@ -216,7 +216,11 @@ class StudentStatusService extends BaseService<typeof studentStatuses, 'id'> {
 		);
 	}
 
-	async approve(approvalId: string) {
+	async respond(
+		approvalId: string,
+		status: 'pending' | 'approved' | 'rejected',
+		comments?: string
+	) {
 		return withAuth(
 			async (session) => {
 				const userId = requireSessionUserId(session);
@@ -227,71 +231,43 @@ class StudentStatusService extends BaseService<typeof studentStatuses, 'id'> {
 					throw new Error('Unauthorized for this approval step');
 
 				const app = approval.application;
-				if (app.status !== 'pending')
-					throw new Error('Application is no longer pending');
-				if (approval.status !== 'pending')
-					throw new Error('Approval step is no longer pending');
+				if (app.status === 'approved')
+					throw new Error('Application is already approved');
 
 				const baseAudit = this.buildAuditOptions(session, 'update');
+				const activityType =
+					status === 'approved'
+						? 'student_status_approved'
+						: status === 'rejected'
+							? 'student_status_rejected'
+							: 'student_status_updated';
+
 				const audit: AuditOptions = {
 					...(baseAudit ?? {}),
 					userId,
-					activityType: 'student_status_approved',
+					activityType,
 					stdNo: app.stdNo,
 					role: session!.user!.role,
 				};
 
 				await this.repository.respondToApproval(
 					approvalId,
-					{ status: 'approved', respondedBy: userId },
+					{ status, respondedBy: userId, comments },
 					audit
 				);
 
-				const allApprovals = await this.repository.getApprovalsByAppId(app.id);
-				const allApproved = allApprovals.every((a) => a.status === 'approved');
+				if (status === 'approved') {
+					const allApprovals = await this.repository.getApprovalsByAppId(
+						app.id
+					);
+					const allApproved = allApprovals.every(
+						(a) => a.status === 'approved'
+					);
 
-				if (allApproved) {
-					await this.onAllApproved(app, session!);
+					if (allApproved) {
+						await this.onAllApproved(app, session!);
+					}
 				}
-
-				return this.repository.findById(app.id);
-			},
-			['dashboard']
-		);
-	}
-
-	async reject(approvalId: string, message?: string) {
-		return withAuth(
-			async (session) => {
-				const userId = requireSessionUserId(session);
-
-				const approval = await this.repository.findApprovalById(approvalId);
-				if (!approval) throw new Error('Approval step not found');
-				if (!canUserApproveRole(session!, approval.approverRole))
-					throw new Error('Unauthorized for this approval step');
-
-				const app = approval.application;
-				if (app.status !== 'pending')
-					throw new Error('Application is no longer pending');
-				if (approval.status !== 'pending')
-					throw new Error('Approval step is no longer pending');
-
-				const baseAudit = this.buildAuditOptions(session, 'update');
-				const audit: AuditOptions = {
-					...(baseAudit ?? {}),
-					userId,
-					activityType: 'student_status_rejected',
-					stdNo: app.stdNo,
-					role: session!.user!.role,
-				};
-
-				await this.repository.respondToApproval(
-					approvalId,
-					{ status: 'rejected', respondedBy: userId, message },
-					audit
-				);
-
-				await this.repository.updateStatus(app.id, 'rejected', audit);
 
 				return this.repository.findById(app.id);
 			},

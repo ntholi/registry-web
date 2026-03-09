@@ -17,17 +17,14 @@ import { formatDateTime } from '@/shared/lib/utils/dates';
 import { getApprovalRolesByUser } from '../_lib/approvalRoles';
 import { getApprovalRoleLabel } from '../_lib/labels';
 import type { StudentStatusApprovalRole } from '../_lib/types';
-import {
-	approveStudentStatusStep,
-	rejectStudentStatusStep,
-} from '../_server/actions';
+import { respondToStudentStatusStep } from '../_server/actions';
 
 type Approval = {
 	id: string;
 	approverRole: StudentStatusApprovalRole;
 	status: string;
 	respondedBy: string | null;
-	message: string | null;
+	comments: string | null;
 	respondedAt: Date | null;
 	responder: { name: string | null } | null;
 };
@@ -64,7 +61,7 @@ export default function ApprovalSwitch({
 		);
 	}
 
-	if (applicationStatus !== 'pending' || myApproval.status !== 'pending') {
+	if (applicationStatus === 'approved') {
 		return (
 			<Paper withBorder p='md'>
 				<Stack gap='sm'>
@@ -87,7 +84,7 @@ export default function ApprovalSwitch({
 							{formatDateTime(myApproval.respondedAt, 'long')}
 						</Text>
 					)}
-					{myApproval.message && <Text size='sm'>{myApproval.message}</Text>}
+					{myApproval.comments && <Text size='sm'>{myApproval.comments}</Text>}
 				</Stack>
 			</Paper>
 		);
@@ -117,14 +114,13 @@ function ApprovalSwitchForm({
 	setAccordion,
 }: FormProps) {
 	const queryClient = useQueryClient();
-	const [status, setStatus] = useState<ApprovalStatus>('pending');
+	const [status, setStatus] = useState<ApprovalStatus>(
+		approval.status as ApprovalStatus
+	);
 
 	const mutation = useMutation({
 		mutationFn: async () => {
-			if (status === 'approved') {
-				return approveStudentStatusStep(approval.id);
-			}
-			return rejectStudentStatusStep(approval.id, comment);
+			return respondToStudentStatusStep(approval.id, status, comment);
 		},
 		onSuccess: () => {
 			queryClient.invalidateQueries({
@@ -146,7 +142,7 @@ function ApprovalSwitchForm({
 		},
 	});
 
-	const isChanged = status !== 'pending';
+	const isChanged = status !== approval.status;
 	const canSubmit = isChanged;
 
 	return (
@@ -162,7 +158,7 @@ function ApprovalSwitchForm({
 						if ((v as ApprovalStatus) === 'rejected') {
 							setAccordion?.('comments');
 						} else {
-							setAccordion?.('notes');
+							setAccordion?.('reasons');
 						}
 					}}
 					data={[

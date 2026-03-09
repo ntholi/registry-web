@@ -36,14 +36,14 @@ export default function StatusDetails({ app }: Props) {
 	const isAdminOrRegistry = role === 'admin' || role === 'registry';
 	const [comment, setComment] = useState<string | undefined>(undefined);
 	const [accordion, setAccordion] = useState<string | null>(
-		app.notes ? 'notes' : 'comments'
+		app.reasons ? 'reasons' : 'comments'
 	);
 
 	const comments = (app.approvals ?? [])
-		.filter((a) => a.message)
+		.filter((a) => a.comments)
 		.map((a) => ({
 			role: a.approverRole,
-			message: a.message as string,
+			comments: a.comments as string,
 			responder: a.responder?.name,
 		}));
 
@@ -104,7 +104,7 @@ export default function StatusDetails({ app }: Props) {
 											</Text>
 										)}
 									</Group>
-									<Text size='sm'>{c.message}</Text>
+									<Text size='sm'>{c.comments}</Text>
 								</Paper>
 							))}
 							<Textarea
@@ -116,14 +116,14 @@ export default function StatusDetails({ app }: Props) {
 						</Stack>
 					</AccordionPanel>
 				</AccordionItem>
-				<AccordionItem value='notes'>
-					<AccordionControl>Notes</AccordionControl>
+				<AccordionItem value='reasons'>
+					<AccordionControl>Reasons</AccordionControl>
 					<AccordionPanel>
-						{app.notes ? (
-							<Text size='sm'>{app.notes}</Text>
+						{app.reasons ? (
+							<Text size='sm'>{app.reasons}</Text>
 						) : (
 							<Text size='sm' c='dimmed'>
-								No notes
+								No reasons
 							</Text>
 						)}
 					</AccordionPanel>
@@ -138,7 +138,7 @@ type Approval = {
 	approverRole: StudentStatusApprovalRole;
 	status: string;
 	respondedBy: string | null;
-	message: string | null;
+	comments: string | null;
 	respondedAt: Date | null;
 	responder: { name: string | null } | null;
 };
@@ -174,9 +174,9 @@ function ApprovalSummary({ approvals }: ApprovalSummaryProps) {
 							{formatDateTime(approval.respondedAt, 'long')}
 						</Text>
 					)}
-					{approval.message && (
+					{approval.comments && (
 						<Text size='xs' fs='italic' mt={4}>
-							{approval.message}
+							{approval.comments}
 						</Text>
 					)}
 				</Paper>

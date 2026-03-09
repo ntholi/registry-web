@@ -57,15 +57,12 @@ export async function cancelStudentStatus(id: string) {
 	return studentStatusesService.cancel(id);
 }
 
-export async function approveStudentStatusStep(approvalId: string) {
-	return studentStatusesService.approve(approvalId);
-}
-
-export async function rejectStudentStatusStep(
+export async function respondToStudentStatusStep(
 	approvalId: string,
-	message?: string
+	status: 'pending' | 'approved' | 'rejected',
+	comments?: string
 ) {
-	return studentStatusesService.reject(approvalId, message);
+	return studentStatusesService.respond(approvalId, status, comments);
 }
 
 export async function getPendingApprovals(page: number, search: string) {

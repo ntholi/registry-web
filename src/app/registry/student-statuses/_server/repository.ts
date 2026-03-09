@@ -20,9 +20,9 @@ import type {
 type ApprovalRole = StudentStatusApprovalRole;
 
 interface ApprovalResponse {
-	status: 'approved' | 'rejected';
+	status: 'pending' | 'approved' | 'rejected';
 	respondedBy: string;
-	message?: string;
+	comments?: string;
 }
 
 export default class StudentStatusRepository extends BaseRepository<
@@ -198,7 +198,7 @@ export default class StudentStatusRepository extends BaseRepository<
 			{
 				termId: data.termId,
 				justification: data.justification,
-				notes: data.notes,
+				reasons: data.reasons,
 				updatedAt: new Date(),
 			},
 			audit
@@ -210,15 +210,25 @@ export default class StudentStatusRepository extends BaseRepository<
 		data: ApprovalResponse,
 		audit?: AuditOptions
 	) {
+		const isPending = data.status === 'pending';
+		const setData = isPending
+			? {
+					status: data.status as 'pending',
+					respondedBy: null,
+					comments: null,
+					respondedAt: null,
+				}
+			: {
+					status: data.status,
+					respondedBy: data.respondedBy,
+					comments: data.comments,
+					respondedAt: new Date(),
+				};
+
 		if (!audit) {
 			const [updated] = await db
 				.update(studentStatusApprovals)
-				.set({
-					status: data.status,
-					respondedBy: data.respondedBy,
-					message: data.message,
-					respondedAt: new Date(),
-				})
+				.set(setData)
 				.where(eq(studentStatusApprovals.id, id))
 				.returning();
 			return updated;
@@ -232,12 +242,7 @@ export default class StudentStatusRepository extends BaseRepository<
 
 			const [updated] = await tx
 				.update(studentStatusApprovals)
-				.set({
-					status: data.status,
-					respondedBy: data.respondedBy,
-					message: data.message,
-					respondedAt: new Date(),
-				})
+				.set(setData)
 				.where(eq(studentStatusApprovals.id, id))
 				.returning();
 

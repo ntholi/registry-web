@@ -17,5 +17,5 @@ export type StudentStatusApprovalState =
 export interface StudentStatusEditableInput {
 	termId: number;
 	justification: StudentStatusJustification;
-	notes?: string | null;
+	reasons?: string | null;
 }
