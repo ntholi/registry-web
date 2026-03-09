@@ -1,4 +1,4 @@
-import { zohoGet, zohoPost } from './client';
+import { zohoGet, zohoPost, zohoPut } from './client';
 import type {
 	CreateStudentContactInput,
 	StudentFinanceSummary,
@@ -298,4 +298,66 @@ export async function createStudentContact(
 		}
 		throw error;
 	}
+}
+
+export async function getFullContact(contactId: string): Promise<ZohoContact> {
+	const response = await zohoGet<{ contact: ZohoContact }>(
+		`/contacts/${contactId}`
+	);
+	return response.contact;
+}
+
+export async function updateStudentContact(
+	contactId: string,
+	input: CreateStudentContactInput
+): Promise<ZohoContact> {
+	const stdNoStr = String(input.stdNo);
+	const tags = buildTags(input);
+
+	let notes = input.programName;
+	if (input.intakeDate) {
+		notes += ` Initial Intake Year ${input.intakeDate}`;
+	}
+
+	const existing = await getFullContact(contactId);
+	const primaryPerson = existing.contact_persons?.find(
+		(p) => p.is_primary_contact
+	);
+
+	const personData: Record<string, unknown> = {
+		first_name: stdNoStr,
+		is_primary_contact: true,
+	};
+	if (primaryPerson) {
+		personData.contact_person_id = primaryPerson.contact_person_id;
+	}
+	if (input.email) personData.email = input.email;
+	if (input.phone) personData.phone = input.phone;
+	if (input.mobile) personData.mobile = input.mobile;
+
+	const body: Record<string, unknown> = {
+		contact_name: input.name,
+		first_name: stdNoStr,
+		company_name: input.programName,
+		notes,
+		cf_account_code: stdNoStr,
+		custom_fields: [
+			{
+				field_id: ACCOUNT_CODE_FIELD_ID,
+				customfield_id: ACCOUNT_CODE_FIELD_ID,
+				value: stdNoStr,
+			},
+		],
+		contact_persons: [personData],
+	};
+
+	if (input.email) body.email = input.email;
+	if (input.phone) body.phone = input.phone;
+	if (tags.length > 0) body.tags = tags;
+
+	const response = await zohoPut<ZohoCreateContactResponse>(
+		`/contacts/${contactId}`,
+		body
+	);
+	return response.contact;
 }

@@ -9,12 +9,14 @@ import {
 	Stack,
 	Text,
 	ThemeIcon,
-	Tooltip,
 } from '@mantine/core';
 import { IconExternalLink, IconRefresh, IconReport } from '@tabler/icons-react';
 import { formatCurrency } from '@/shared/lib/utils/utils';
+import { UpdateZohoContactModal } from './UpdateZohoContactModal';
 
 type Props = {
+	stdNo: number;
+	contactId: string;
 	summary: StudentFinanceSummary;
 	isFetching: boolean;
 	onRefresh: () => void;
@@ -22,6 +24,8 @@ type Props = {
 };
 
 export function FinancialOverview({
+	stdNo,
+	contactId,
 	summary,
 	isFetching,
 	onRefresh,
@@ -39,31 +43,28 @@ export function FinancialOverview({
 					</Text>
 				</Group>
 				<Group gap={4}>
+					<UpdateZohoContactModal stdNo={stdNo} contactId={contactId} />
 					{zohoUrl && (
-						<Tooltip label='Open in Zoho Books' withArrow position='left'>
-							<ActionIcon
-								variant='subtle'
-								size='sm'
-								component='a'
-								href={zohoUrl}
-								target='_blank'
-								rel='noopener noreferrer'
-							>
-								<IconExternalLink size='0.9rem' />
-							</ActionIcon>
-						</Tooltip>
-					)}
-					<Tooltip label='Refresh from Zoho' withArrow position='left'>
 						<ActionIcon
 							variant='subtle'
-							color='gray'
 							size='sm'
-							loading={isFetching}
-							onClick={onRefresh}
+							component='a'
+							href={zohoUrl}
+							target='_blank'
+							rel='noopener noreferrer'
 						>
-							<IconRefresh size='0.9rem' />
+							<IconExternalLink size='0.9rem' />
 						</ActionIcon>
-					</Tooltip>
+					)}
+					<ActionIcon
+						variant='subtle'
+						color='gray'
+						size='sm'
+						loading={isFetching}
+						onClick={onRefresh}
+					>
+						<IconRefresh size='0.9rem' />
+					</ActionIcon>
 				</Group>
 			</Group>
 

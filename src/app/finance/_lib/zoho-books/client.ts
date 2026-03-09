@@ -173,3 +173,53 @@ export async function zohoPost<T>(
 
 	return raw;
 }
+
+export async function zohoPut<T>(
+	endpoint: string,
+	body: Record<string, unknown>
+): Promise<T> {
+	const config = getConfig();
+
+	async function runRequest(token: string) {
+		const searchParams = new URLSearchParams({
+			organization_id: config.ZOHO_BOOKS_ORGANIZATION_ID,
+		});
+
+		const url = `${config.ZOHO_BOOKS_API_BASE_URL}${endpoint}?${searchParams.toString()}`;
+		return fetch(url, {
+			method: 'PUT',
+			headers: {
+				Authorization: `Zoho-oauthtoken ${token}`,
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify(body),
+			cache: 'no-store',
+		});
+	}
+
+	let response = await runRequest(await getAccessToken());
+
+	if (response.status === 401) {
+		response = await runRequest(await getAccessToken(true));
+	}
+
+	if (response.status === 429) {
+		throw new Error(
+			'Zoho Books API rate limit reached. Please try again in a few minutes.'
+		);
+	}
+
+	const raw = (await response.json()) as T & ZohoErrorResponse;
+
+	if (
+		!response.ok ||
+		raw.error ||
+		(typeof raw.code === 'number' && raw.code !== 0)
+	) {
+		throw new Error(
+			`Zoho API error [${response.status}]: ${raw.message ?? raw.error ?? 'Unknown error'}`
+		);
+	}
+
+	return raw;
+}

@@ -140,6 +140,8 @@ export default function StudentFinanceView({
 	return (
 		<Stack gap='lg'>
 			<FinancialOverview
+				stdNo={stdNo}
+				contactId={contactId}
 				summary={summary}
 				isFetching={isFetching}
 				zohoUrl={zohoUrl ?? null}

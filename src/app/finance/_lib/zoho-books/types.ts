@@ -15,6 +15,16 @@ export interface ZohoCustomField {
 	data_type: string;
 }
 
+export interface ZohoContactPerson {
+	contact_person_id: string;
+	first_name: string;
+	last_name: string;
+	email: string;
+	phone: string;
+	mobile: string;
+	is_primary_contact: boolean;
+}
+
 export interface ZohoContact {
 	contact_id: string;
 	contact_name?: string;
@@ -23,6 +33,8 @@ export interface ZohoContact {
 	company_name?: string;
 	contact_number?: string;
 	email?: string;
+	phone?: string;
+	mobile?: string;
 	status?: string;
 	customer_sub_type?: string;
 	source?: string;
@@ -33,6 +45,7 @@ export interface ZohoContact {
 	has_transaction?: boolean;
 	outstanding_receivable_amount?: number;
 	unused_credits_receivable_amount?: number;
+	contact_persons?: ZohoContactPerson[];
 }
 
 export interface ZohoContactsResponse {
@@ -251,4 +264,17 @@ export interface ZohoCreateContactResponse {
 	code: number;
 	message: string;
 	contact: ZohoContact;
+}
+
+export interface ZohoContactComparisonField {
+	label: string;
+	zohoValue: string;
+	dbValue: string;
+	changed: boolean;
+}
+
+export interface ZohoContactComparison {
+	contactId: string;
+	fields: ZohoContactComparisonField[];
+	hasChanges: boolean;
 }

@@ -12,11 +12,17 @@ import {
 	findStudentEstimates,
 	findStudentPayments,
 	findStudentSalesReceipts,
+	getFullContact,
 	getInvoiceDetail,
 	getSalesReceiptDetail,
 	getStudentFinanceSummary,
+	updateStudentContact,
 } from './service';
-import type { CreateStudentContactInput } from './types';
+import type {
+	CreateStudentContactInput,
+	ZohoContactComparison,
+	ZohoContactComparisonField,
+} from './types';
 
 export async function resolveZohoContactId(
 	stdNo: number,
@@ -69,7 +75,9 @@ function sanitizeEmail(email: string | null | undefined): string | null {
 	return trimmed;
 }
 
-export async function createZohoContact(stdNo: number): Promise<string> {
+async function buildContactInput(
+	stdNo: number
+): Promise<CreateStudentContactInput> {
 	const student = await getStudent(stdNo);
 	if (!student) throw new Error(`Student ${stdNo} not found`);
 
@@ -94,7 +102,7 @@ export async function createZohoContact(stdNo: number): Promise<string> {
 		sponsorId ? getSponsor(sponsorId) : null,
 	]);
 
-	const input: CreateStudentContactInput = {
+	return {
 		stdNo,
 		name,
 		programName: structure.program.name ?? '',
@@ -106,8 +114,97 @@ export async function createZohoContact(stdNo: number): Promise<string> {
 		sponsorCode: sponsor?.code ?? null,
 		intakeDate: program.intakeDate ?? null,
 	};
+}
 
+export async function createZohoContact(stdNo: number): Promise<string> {
+	const input = await buildContactInput(stdNo);
 	const contact = await createStudentContact(input);
 	await saveZohoContactId(stdNo, contact.contact_id);
 	return contact.contact_id;
+}
+
+export async function fetchZohoContactComparison(
+	stdNo: number,
+	contactId: string
+): Promise<ZohoContactComparison> {
+	const [zohoContact, input] = await Promise.all([
+		getFullContact(contactId),
+		buildContactInput(stdNo),
+	]);
+
+	let dbNotes = input.programName;
+	if (input.intakeDate) {
+		dbNotes += ` Initial Intake Year ${input.intakeDate}`;
+	}
+
+	const tagNames = (zohoContact.tags ?? []).map((t) => t.tag_option_name);
+	const dbTags: string[] = [];
+	if (input.sponsorCode) {
+		const map: Record<string, string> = { NMDS: 'ManPower', PRV: 'Private' };
+		const tag = map[input.sponsorCode];
+		if (tag) dbTags.push(tag);
+	}
+	if (input.schoolCode) {
+		const aliases: Record<string, string> = {
+			FICT: 'FINT',
+			FBMG: 'FBS',
+			FCM: 'FCO',
+			FDI: 'FDSI',
+		};
+		dbTags.push(aliases[input.schoolCode] ?? input.schoolCode);
+	}
+	if (input.programCode) dbTags.push(input.programCode);
+
+	const fields: ZohoContactComparisonField[] = [
+		{
+			label: 'Name',
+			zohoValue: zohoContact.contact_name ?? '',
+			dbValue: input.name,
+			changed: (zohoContact.contact_name ?? '') !== input.name,
+		},
+		{
+			label: 'Program',
+			zohoValue: zohoContact.company_name ?? '',
+			dbValue: input.programName,
+			changed: (zohoContact.company_name ?? '') !== input.programName,
+		},
+		{
+			label: 'Email',
+			zohoValue: zohoContact.email ?? '',
+			dbValue: input.email ?? '',
+			changed: (zohoContact.email ?? '') !== (input.email ?? ''),
+		},
+		{
+			label: 'Phone',
+			zohoValue: zohoContact.phone ?? '',
+			dbValue: input.phone ?? '',
+			changed: (zohoContact.phone ?? '') !== (input.phone ?? ''),
+		},
+		{
+			label: 'Notes',
+			zohoValue: zohoContact.notes ?? '',
+			dbValue: dbNotes,
+			changed: (zohoContact.notes ?? '') !== dbNotes,
+		},
+		{
+			label: 'Tags',
+			zohoValue: tagNames.sort().join(', '),
+			dbValue: dbTags.sort().join(', '),
+			changed: tagNames.sort().join(',') !== dbTags.sort().join(','),
+		},
+	];
+
+	return {
+		contactId,
+		fields,
+		hasChanges: fields.some((f) => f.changed),
+	};
+}
+
+export async function updateZohoContactFromDb(
+	stdNo: number,
+	contactId: string
+): Promise<void> {
+	const input = await buildContactInput(stdNo);
+	await updateStudentContact(contactId, input);
 }
