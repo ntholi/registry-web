@@ -11,6 +11,7 @@ import {
 } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
 import { notFound, useParams } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 import { type AllStatusType, getStatusColor } from '@/shared/lib/utils/colors';
 import { formatDateTime } from '@/shared/lib/utils/dates';
 import {
@@ -21,6 +22,7 @@ import {
 } from '@/shared/ui/adease';
 import Link from '@/shared/ui/Link';
 import ApprovalPanel from '../_components/ApprovalPanel';
+import ApprovalSwitch from '../_components/ApprovalSwitch';
 import StatusTimeline from '../_components/StatusTimeline';
 import { getJustificationLabel, getTypeLabel } from '../_lib/labels';
 import { cancelStudentStatus, getStudentStatus } from '../_server/actions';
@@ -28,6 +30,9 @@ import { cancelStudentStatus, getStudentStatus } from '../_server/actions';
 export default function StudentStatusDetails() {
 	const params = useParams();
 	const id = params.id as string;
+	const { data: session } = useSession();
+	const role = session?.user?.role;
+	const isAdminOrRegistry = role === 'admin' || role === 'registry';
 
 	const {
 		data: app,
@@ -103,11 +108,19 @@ export default function StudentStatusDetails() {
 
 					<Divider />
 					<Title order={4}>Approvals</Title>
-					<ApprovalPanel
-						approvals={app.approvals ?? []}
-						applicationStatus={app.status}
-						applicationId={app.id}
-					/>
+					{isAdminOrRegistry ? (
+						<ApprovalPanel
+							approvals={app.approvals ?? []}
+							applicationStatus={app.status}
+							applicationId={app.id}
+						/>
+					) : (
+						<ApprovalSwitch
+							approvals={app.approvals ?? []}
+							applicationStatus={app.status}
+							applicationId={app.id}
+						/>
+					)}
 
 					<Divider />
 					<Title order={4}>Timeline</Title>

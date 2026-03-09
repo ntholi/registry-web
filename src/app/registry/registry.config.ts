@@ -123,12 +123,6 @@ export const registryConfig: ModuleConfig = {
 				},
 			},
 			{
-				label: 'Blocked Students',
-				href: '/registry/blocked-students',
-				icon: IconUserOff,
-				roles: ['admin', 'registry', 'finance'],
-			},
-			{
 				label: 'Student Status',
 				href: '/registry/student-statuses',
 				icon: IconUserExclamation,
@@ -149,6 +143,12 @@ export const registryConfig: ModuleConfig = {
 					queryFn: () => countPendingStudentStatuses(),
 					color: 'red',
 				},
+			},
+			{
+				label: 'Blocked Students',
+				href: '/registry/blocked-students',
+				icon: IconUserOff,
+				roles: ['admin', 'registry', 'finance'],
 			},
 			{
 				label: 'Terms',

@@ -29,9 +29,21 @@ class StudentStatusService extends BaseService<typeof studentStatuses, 'id'> {
 	constructor() {
 		super(studentStatusRepository, {
 			byIdRoles: ['dashboard'],
-			findAllRoles: ['registry', 'admin'],
-			createRoles: ['registry', 'admin'],
-			updateRoles: ['registry', 'admin'],
+			findAllRoles: [
+				'registry',
+				'admin',
+				'student_services',
+				'academic',
+				'finance',
+			],
+			createRoles: ['registry', 'admin', 'student_services'],
+			updateRoles: [
+				'registry',
+				'admin',
+				'student_services',
+				'academic',
+				'finance',
+			],
 			deleteRoles: ['registry', 'admin'],
 			activityTypes: {
 				create: 'student_status_created',
@@ -48,7 +60,7 @@ class StudentStatusService extends BaseService<typeof studentStatuses, 'id'> {
 	async queryAll(options: QueryOptions<typeof studentStatuses>) {
 		return withAuth(
 			async () => this.repository.query(options),
-			['registry', 'admin']
+			['registry', 'admin', 'student_services', 'academic', 'finance']
 		);
 	}
 

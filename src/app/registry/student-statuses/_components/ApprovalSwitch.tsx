@@ -1,0 +1,175 @@
+'use client';
+
+import {
+	Badge,
+	Button,
+	Paper,
+	SegmentedControl,
+	Stack,
+	Text,
+	Textarea,
+} from '@mantine/core';
+import { notifications } from '@mantine/notifications';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useSession } from 'next-auth/react';
+import { useState } from 'react';
+import { type AllStatusType, getStatusColor } from '@/shared/lib/utils/colors';
+import { formatDateTime } from '@/shared/lib/utils/dates';
+import { getApprovalRolesByUser } from '../_lib/approvalRoles';
+import { getApprovalRoleLabel } from '../_lib/labels';
+import type { StudentStatusApprovalRole } from '../_lib/types';
+import {
+	approveStudentStatusStep,
+	rejectStudentStatusStep,
+} from '../_server/actions';
+
+type Approval = {
+	id: string;
+	approverRole: StudentStatusApprovalRole;
+	status: string;
+	respondedBy: string | null;
+	message: string | null;
+	respondedAt: Date | null;
+	responder: { name: string | null } | null;
+};
+
+type Props = {
+	approvals: Approval[];
+	applicationStatus: string;
+	applicationId: string;
+};
+
+type ApprovalStatus = 'pending' | 'approved' | 'rejected';
+
+export default function ApprovalSwitch({
+	approvals,
+	applicationStatus,
+	applicationId,
+}: Props) {
+	const { data: session } = useSession();
+	const userRoles = getApprovalRolesByUser(session?.user);
+
+	const myApproval = approvals.find((a) => userRoles.includes(a.approverRole));
+
+	if (!myApproval) {
+		return (
+			<Paper withBorder p='md'>
+				<Text c='dimmed' size='sm' ta='center'>
+					No approval step assigned to your role
+				</Text>
+			</Paper>
+		);
+	}
+
+	if (applicationStatus !== 'pending' || myApproval.status !== 'pending') {
+		return (
+			<Paper withBorder p='md'>
+				<Stack gap='sm'>
+					<Text size='sm' fw={500}>
+						{getApprovalRoleLabel(myApproval.approverRole)}
+					</Text>
+					<Badge
+						color={getStatusColor(myApproval.status as AllStatusType)}
+						variant='light'
+					>
+						{myApproval.status}
+					</Badge>
+					{myApproval.responder?.name && (
+						<Text size='sm' c='dimmed'>
+							By {myApproval.responder.name}
+						</Text>
+					)}
+					{myApproval.respondedAt && (
+						<Text size='sm' c='dimmed'>
+							{formatDateTime(myApproval.respondedAt, 'long')}
+						</Text>
+					)}
+					{myApproval.message && <Text size='sm'>{myApproval.message}</Text>}
+				</Stack>
+			</Paper>
+		);
+	}
+
+	return (
+		<ApprovalSwitchForm approval={myApproval} applicationId={applicationId} />
+	);
+}
+
+type FormProps = {
+	approval: Approval;
+	applicationId: string;
+};
+
+function ApprovalSwitchForm({ approval, applicationId }: FormProps) {
+	const queryClient = useQueryClient();
+	const [status, setStatus] = useState<ApprovalStatus>('pending');
+	const [message, setMessage] = useState('');
+
+	const mutation = useMutation({
+		mutationFn: async () => {
+			if (status === 'approved') {
+				return approveStudentStatusStep(approval.id);
+			}
+			return rejectStudentStatusStep(approval.id, message);
+		},
+		onSuccess: () => {
+			queryClient.invalidateQueries({
+				queryKey: ['student-status', applicationId],
+			});
+			queryClient.invalidateQueries({ queryKey: ['student-statuses'] });
+			notifications.show({
+				title: 'Success',
+				message: 'Response submitted successfully',
+				color: 'green',
+			});
+		},
+		onError: (error) => {
+			notifications.show({
+				title: 'Error',
+				message: error.message || 'Failed to submit response',
+				color: 'red',
+			});
+		},
+	});
+
+	const isChanged = status !== 'pending';
+	const canSubmit = isChanged && (status === 'approved' || message.trim());
+
+	return (
+		<Paper withBorder p='md' py={21}>
+			<Stack>
+				<Text size='sm' fw={500}>
+					{getApprovalRoleLabel(approval.approverRole)}
+				</Text>
+				<SegmentedControl
+					value={status}
+					onChange={(v) => setStatus(v as ApprovalStatus)}
+					data={[
+						{ label: 'Pending', value: 'pending' },
+						{ label: 'Approve', value: 'approved' },
+						{ label: 'Reject', value: 'rejected' },
+					]}
+					fullWidth
+					disabled={mutation.isPending}
+				/>
+				{status === 'rejected' && (
+					<Textarea
+						label='Rejection Reason'
+						required
+						value={message}
+						onChange={(e) => setMessage(e.currentTarget.value)}
+						minRows={3}
+					/>
+				)}
+				<Button
+					onClick={() => mutation.mutate()}
+					loading={mutation.isPending}
+					disabled={!canSubmit}
+					variant={isChanged ? 'filled' : 'default'}
+				>
+					Submit Response
+				</Button>
+			</Stack>
+		</Paper>
+	);
+}
