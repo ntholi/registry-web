@@ -1,60 +1,27 @@
-'use client';
-
-import {
-	Badge,
-	Center,
-	Divider,
-	Loader,
-	SimpleGrid,
-	Stack,
-	Title,
-} from '@mantine/core';
-import { useQuery } from '@tanstack/react-query';
-import { notFound, useParams } from 'next/navigation';
-import { useSession } from 'next-auth/react';
-import { type AllStatusType, getStatusColor } from '@/shared/lib/utils/colors';
-import { formatDateTime } from '@/shared/lib/utils/dates';
-import {
-	DetailsView,
-	DetailsViewBody,
-	DetailsViewHeader,
-	FieldView,
-} from '@/shared/ui/adease';
-import Link from '@/shared/ui/Link';
-import ApprovalPanel from '../_components/ApprovalPanel';
-import ApprovalSwitch from '../_components/ApprovalSwitch';
+import { Tabs, TabsList, TabsPanel, TabsTab } from '@mantine/core';
+import { AcademicsLoader } from '@registry/registration/clearance';
+import { notFound } from 'next/navigation';
+import StudentFinanceView from '@/app/registry/students/_components/finance/StudentFinanceView';
+import { auth } from '@/core/auth';
+import { DetailsView, DetailsViewHeader } from '@/shared/ui/adease';
+import StatusDetails from '../_components/StatusDetails';
 import StatusTimeline from '../_components/StatusTimeline';
-import { getJustificationLabel, getTypeLabel } from '../_lib/labels';
 import { cancelStudentStatus, getStudentStatus } from '../_server/actions';
 
-export default function StudentStatusDetails() {
-	const params = useParams();
-	const id = params.id as string;
-	const { data: session } = useSession();
-	const role = session?.user?.role;
-	const isAdminOrRegistry = role === 'admin' || role === 'registry';
+type Props = {
+	params: Promise<{ id: string }>;
+};
 
-	const {
-		data: app,
-		isLoading,
-		error,
-	} = useQuery({
-		queryKey: ['student-status', id],
-		queryFn: () => getStudentStatus(id),
-		enabled: !!id,
-	});
+export default async function StudentStatusDetailsPage({ params }: Props) {
+	const { id } = await params;
+	const app = await getStudentStatus(id);
+	const session = await auth();
 
-	if (isLoading) {
-		return (
-			<Center h='60vh'>
-				<Loader />
-			</Center>
-		);
-	}
-
-	if (error || !app) {
+	if (!app) {
 		return notFound();
 	}
+
+	const role = session?.user?.role;
 
 	return (
 		<DetailsView>
@@ -66,64 +33,38 @@ export default function StudentStatusDetails() {
 				handleDelete={
 					app.status === 'pending'
 						? async () => {
+								'use server';
 								await cancelStudentStatus(id);
 							}
 						: undefined
 				}
 				deleteRoles={['registry', 'admin']}
 			/>
-			<DetailsViewBody>
-				<Stack gap='lg'>
-					<SimpleGrid cols={{ base: 1, sm: 2 }} spacing='md'>
-						<FieldView label='Student Number'>
-							<Link href={`/registry/students/${app.stdNo}`}>{app.stdNo}</Link>
-						</FieldView>
-						<FieldView label='Student Name'>
-							{app.student?.name ?? '-'}
-						</FieldView>
-						<FieldView label='Type'>
-							<Badge variant='light'>{getTypeLabel(app.type)}</Badge>
-						</FieldView>
-						<FieldView label='Status'>
-							<Badge
-								color={getStatusColor(app.status as AllStatusType)}
-								variant='light'
-							>
-								{app.status}
-							</Badge>
-						</FieldView>
-						<FieldView label='Justification'>
-							{getJustificationLabel(app.justification)}
-						</FieldView>
-						<FieldView label='Term'>
-							{app.term?.name ?? app.term?.code ?? app.termCode ?? '-'}
-						</FieldView>
-						<FieldView label='Created By'>{app.creator?.name ?? '-'}</FieldView>
-						<FieldView label='Created Date'>
-							{app.createdAt ? formatDateTime(app.createdAt, 'long') : '-'}
-						</FieldView>
-					</SimpleGrid>
-
-					{app.notes && <FieldView label='Notes'>{app.notes}</FieldView>}
-
-					<Divider />
-					<Title order={4}>Approvals</Title>
-					{isAdminOrRegistry ? (
-						<ApprovalPanel
-							approvals={app.approvals ?? []}
-							applicationStatus={app.status}
-							applicationId={app.id}
+			<Tabs defaultValue='details' variant='outline'>
+				<TabsList>
+					<TabsTab value='details'>Details</TabsTab>
+					{role === 'finance' && <TabsTab value='finance'>Finance</TabsTab>}
+					{role === 'finance' && <TabsTab value='academics'>Academics</TabsTab>}
+					<TabsTab value='timeline'>Timeline</TabsTab>
+				</TabsList>
+				<TabsPanel value='details'>
+					<StatusDetails app={app} />
+				</TabsPanel>
+				{role === 'finance' && (
+					<TabsPanel value='finance' p='md' pt='lg'>
+						<StudentFinanceView
+							stdNo={app.stdNo}
+							zohoContactId={null}
+							isActive
 						/>
-					) : (
-						<ApprovalSwitch
-							approvals={app.approvals ?? []}
-							applicationStatus={app.status}
-							applicationId={app.id}
-						/>
-					)}
-
-					<Divider />
-					<Title order={4}>Timeline</Title>
+					</TabsPanel>
+				)}
+				{role === 'finance' && (
+					<TabsPanel value='academics'>
+						<AcademicsLoader stdNo={app.stdNo} />
+					</TabsPanel>
+				)}
+				<TabsPanel value='timeline' p='lg'>
 					<StatusTimeline
 						createdAt={app.createdAt}
 						creatorName={app.creator?.name ?? null}
@@ -131,8 +72,8 @@ export default function StudentStatusDetails() {
 						status={app.status}
 						updatedAt={app.updatedAt}
 					/>
-				</Stack>
-			</DetailsViewBody>
+				</TabsPanel>
+			</Tabs>
 		</DetailsView>
 	);
 }
