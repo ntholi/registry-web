@@ -11,8 +11,15 @@ import {
 	Group,
 	Paper,
 	Stack,
+	Table,
+	TableTbody,
+	TableTd,
+	TableTh,
+	TableThead,
+	TableTr,
 	Text,
 	Textarea,
+	Title,
 } from '@mantine/core';
 import { useSession } from 'next-auth/react';
 import { useState } from 'react';
@@ -22,7 +29,6 @@ import { FieldView } from '@/shared/ui/adease';
 import Copyable from '@/shared/ui/Copyable';
 import Link from '@/shared/ui/Link';
 import { getApprovalRoleLabel, getJustificationLabel } from '../_lib/labels';
-import type { StudentStatusApprovalRole } from '../_lib/types';
 import type { getStudentStatus } from '../_server/actions';
 import ApprovalSwitch from './ApprovalSwitch';
 
@@ -34,6 +40,155 @@ export default function StatusDetails({ app }: Props) {
 	const { data: session } = useSession();
 	const role = session?.user?.role;
 	const isAdminOrRegistry = role === 'admin' || role === 'registry';
+
+	if (isAdminOrRegistry) {
+		return <AdminRegistryView app={app} />;
+	}
+
+	return <OtherRolesView app={app} />;
+}
+
+function AdminRegistryView({ app }: Props) {
+	const approvals = app.approvals ?? [];
+
+	return (
+		<Stack p='lg' gap='lg'>
+			<Paper withBorder p='lg'>
+				<Title order={6} c='dimmed' tt='uppercase' fz='xs' mb='md'>
+					Application Details
+				</Title>
+				<Grid gutter='md'>
+					<GridCol span={{ base: 12, sm: 6 }}>
+						<FieldView label='Student Number' underline={false}>
+							<Copyable value={app.stdNo}>
+								<Link href={`/registry/students/${app.stdNo}`}>
+									{app.stdNo}
+								</Link>
+							</Copyable>
+						</FieldView>
+					</GridCol>
+					<GridCol span={{ base: 12, sm: 6 }}>
+						<FieldView label='Justification' underline={false}>
+							{getJustificationLabel(app.justification)}
+						</FieldView>
+					</GridCol>
+					<GridCol span={{ base: 12, sm: 6 }}>
+						<FieldView label='Term' underline={false}>
+							{app.term?.name ?? app.term?.code ?? app.termCode ?? '-'}
+						</FieldView>
+					</GridCol>
+					<GridCol span={{ base: 12, sm: 6 }}>
+						<FieldView label='Semester' underline={false}>
+							{app.semester?.termCode ?? '-'}
+						</FieldView>
+					</GridCol>
+					<GridCol span={{ base: 12, sm: 6 }}>
+						<FieldView label='Created By' underline={false}>
+							{app.creator?.name ?? '-'}
+						</FieldView>
+					</GridCol>
+					<GridCol span={{ base: 12, sm: 6 }}>
+						<FieldView label='Created Date' underline={false}>
+							{app.createdAt ? formatDateTime(app.createdAt, 'long') : '-'}
+						</FieldView>
+					</GridCol>
+				</Grid>
+			</Paper>
+
+			<Paper withBorder p='lg'>
+				<Title order={6} c='dimmed' tt='uppercase' fz='xs' mb='md'>
+					Reasons
+				</Title>
+				{app.reasons ? (
+					<Text size='sm'>{app.reasons}</Text>
+				) : (
+					<Text size='sm' c='dimmed' fs='italic'>
+						No reasons provided
+					</Text>
+				)}
+			</Paper>
+
+			<Paper withBorder p='lg'>
+				<Title order={6} c='dimmed' tt='uppercase' fz='xs' mb='md'>
+					Approvers
+				</Title>
+				{approvals.length === 0 ? (
+					<Text size='sm' c='dimmed' fs='italic'>
+						No approvals recorded
+					</Text>
+				) : (
+					<Table highlightOnHover withColumnBorders>
+						<TableThead>
+							<TableTr>
+								<TableTh>Role</TableTh>
+								<TableTh>Status</TableTh>
+								<TableTh>Responded By</TableTh>
+								<TableTh>Comments</TableTh>
+								<TableTh>Date</TableTh>
+							</TableTr>
+						</TableThead>
+						<TableTbody>
+							{approvals.map((approval) => (
+								<TableTr key={approval.id}>
+									<TableTd>
+										<Text size='sm' fw={500}>
+											{getApprovalRoleLabel(approval.approverRole)}
+										</Text>
+									</TableTd>
+									<TableTd>
+										<Badge
+											color={getStatusColor(approval.status as AllStatusType)}
+											variant='light'
+											size='sm'
+											tt='capitalize'
+										>
+											{approval.status}
+										</Badge>
+									</TableTd>
+									<TableTd>
+										<Text size='sm'>
+											{approval.responder?.name ?? (
+												<Text span size='sm' c='dimmed' fs='italic'>
+													Pending
+												</Text>
+											)}
+										</Text>
+									</TableTd>
+									<TableTd>
+										{approval.comments ? (
+											<Text size='sm' fs='italic'>
+												{approval.comments}
+											</Text>
+										) : (
+											<Text size='sm' c='dimmed'>
+												—
+											</Text>
+										)}
+									</TableTd>
+									<TableTd>
+										{approval.respondedAt ? (
+											<Text size='sm' c='dimmed'>
+												{formatDateTime(approval.respondedAt, 'long')}
+											</Text>
+										) : (
+											<Text size='sm' c='dimmed'>
+												—
+											</Text>
+										)}
+									</TableTd>
+								</TableTr>
+							))}
+						</TableTbody>
+					</Table>
+				)}
+			</Paper>
+		</Stack>
+	);
+}
+
+type OtherRolesProps = Props & { role?: string };
+
+function OtherRolesView({ app }: OtherRolesProps) {
 	const [comment, setComment] = useState<string | undefined>(undefined);
 	const [accordion, setAccordion] = useState<string | null>(
 		app.reasons ? 'reasons' : 'comments'
@@ -63,7 +218,6 @@ export default function StatusDetails({ app }: Props) {
 							<FieldView label='Justification' underline={false}>
 								{getJustificationLabel(app.justification)}
 							</FieldView>
-
 							<FieldView label='Term' underline={false}>
 								{app.term?.name ?? app.term?.code ?? app.termCode ?? '-'}
 							</FieldView>
@@ -74,17 +228,13 @@ export default function StatusDetails({ app }: Props) {
 					</Paper>
 				</GridCol>
 				<GridCol span={{ base: 12, md: 5 }}>
-					{isAdminOrRegistry ? (
-						<ApprovalSummary approvals={app.approvals ?? []} />
-					) : (
-						<ApprovalSwitch
-							approvals={app.approvals ?? []}
-							applicationStatus={app.status}
-							applicationId={app.id}
-							comment={comment}
-							setAccordion={setAccordion}
-						/>
-					)}
+					<ApprovalSwitch
+						approvals={app.approvals ?? []}
+						applicationStatus={app.status}
+						applicationId={app.id}
+						comment={comment}
+						setAccordion={setAccordion}
+					/>
 				</GridCol>
 			</Grid>
 			<Accordion value={accordion} onChange={setAccordion} variant='separated'>
@@ -129,58 +279,6 @@ export default function StatusDetails({ app }: Props) {
 					</AccordionPanel>
 				</AccordionItem>
 			</Accordion>
-		</Stack>
-	);
-}
-
-type Approval = {
-	id: string;
-	approverRole: StudentStatusApprovalRole;
-	status: string;
-	respondedBy: string | null;
-	comments: string | null;
-	respondedAt: Date | null;
-	responder: { name: string | null } | null;
-};
-
-type ApprovalSummaryProps = {
-	approvals: Approval[];
-};
-
-function ApprovalSummary({ approvals }: ApprovalSummaryProps) {
-	return (
-		<Stack gap='sm'>
-			{approvals.map((approval) => (
-				<Paper key={approval.id} withBorder p='sm'>
-					<Group justify='space-between' mb={4}>
-						<Text size='sm' fw={500}>
-							{getApprovalRoleLabel(approval.approverRole)}
-						</Text>
-						<Badge
-							color={getStatusColor(approval.status as AllStatusType)}
-							variant='light'
-							size='sm'
-						>
-							{approval.status}
-						</Badge>
-					</Group>
-					{approval.responder?.name && (
-						<Text size='xs' c='dimmed'>
-							By {approval.responder.name}
-						</Text>
-					)}
-					{approval.respondedAt && (
-						<Text size='xs' c='dimmed'>
-							{formatDateTime(approval.respondedAt, 'long')}
-						</Text>
-					)}
-					{approval.comments && (
-						<Text size='xs' fs='italic' mt={4}>
-							{approval.comments}
-						</Text>
-					)}
-				</Paper>
-			))}
 		</Stack>
 	);
 }
