@@ -60,7 +60,7 @@ function ChartTooltip({
 			</Text>
 			{filtered.map((item) => (
 				<Text key={String(item.name)} c={String(item.color)} fz='sm'>
-					{item.name ?? seriesName}: {String(item.value)}
+					{String(item.name ?? seriesName)}: {String(item.value)}
 				</Text>
 			))}
 		</Paper>
