@@ -1,16 +1,27 @@
 'use client';
 
-import { Badge, Grid, GridCol, Group, Paper, Stack, Text } from '@mantine/core';
+import {
+	Accordion,
+	AccordionControl,
+	AccordionItem,
+	AccordionPanel,
+	Badge,
+	Grid,
+	GridCol,
+	Group,
+	Paper,
+	Stack,
+	Text,
+	Textarea,
+} from '@mantine/core';
 import { useSession } from 'next-auth/react';
+import { useState } from 'react';
 import { type AllStatusType, getStatusColor } from '@/shared/lib/utils/colors';
 import { formatDateTime } from '@/shared/lib/utils/dates';
 import { FieldView } from '@/shared/ui/adease';
+import Copyable from '@/shared/ui/Copyable';
 import Link from '@/shared/ui/Link';
-import {
-	getApprovalRoleLabel,
-	getJustificationLabel,
-	getTypeLabel,
-} from '../_lib/labels';
+import { getApprovalRoleLabel, getJustificationLabel } from '../_lib/labels';
 import type { StudentStatusApprovalRole } from '../_lib/types';
 import type { getStudentStatus } from '../_server/actions';
 import ApprovalSwitch from './ApprovalSwitch';
@@ -23,6 +34,18 @@ export default function StatusDetails({ app }: Props) {
 	const { data: session } = useSession();
 	const role = session?.user?.role;
 	const isAdminOrRegistry = role === 'admin' || role === 'registry';
+	const [comment, setComment] = useState<string | undefined>(undefined);
+	const [accordion, setAccordion] = useState<string | null>(
+		app.notes ? 'notes' : 'comments'
+	);
+
+	const comments = (app.approvals ?? [])
+		.filter((a) => a.message)
+		.map((a) => ({
+			role: a.approverRole,
+			message: a.message as string,
+			responder: a.responder?.name,
+		}));
 
 	return (
 		<Stack p='lg'>
@@ -31,32 +54,18 @@ export default function StatusDetails({ app }: Props) {
 					<Paper withBorder p='md' pb='xl'>
 						<Stack>
 							<FieldView label='Student Number' underline={false}>
-								<Link href={`/registry/students/${app.stdNo}`}>
-									{app.stdNo}
-								</Link>
-							</FieldView>
-							<FieldView label='Student Name' underline={false}>
-								{app.student?.name ?? '-'}
-							</FieldView>
-							<FieldView label='Type' underline={false}>
-								<Badge variant='light'>{getTypeLabel(app.type)}</Badge>
-							</FieldView>
-							<FieldView label='Status' underline={false}>
-								<Badge
-									color={getStatusColor(app.status as AllStatusType)}
-									variant='light'
-								>
-									{app.status}
-								</Badge>
+								<Copyable value={app.stdNo}>
+									<Link href={`/registry/students/${app.stdNo}`}>
+										{app.stdNo}
+									</Link>
+								</Copyable>
 							</FieldView>
 							<FieldView label='Justification' underline={false}>
 								{getJustificationLabel(app.justification)}
 							</FieldView>
+
 							<FieldView label='Term' underline={false}>
 								{app.term?.name ?? app.term?.code ?? app.termCode ?? '-'}
-							</FieldView>
-							<FieldView label='Created By' underline={false}>
-								{app.creator?.name ?? '-'}
 							</FieldView>
 							<FieldView label='Created Date' underline={false}>
 								{app.createdAt ? formatDateTime(app.createdAt, 'long') : '-'}
@@ -72,18 +81,54 @@ export default function StatusDetails({ app }: Props) {
 							approvals={app.approvals ?? []}
 							applicationStatus={app.status}
 							applicationId={app.id}
+							comment={comment}
+							setAccordion={setAccordion}
 						/>
 					)}
 				</GridCol>
 			</Grid>
-			{app.notes && (
-				<Paper withBorder p='md'>
-					<Text fw={500} mb='xs'>
-						Notes
-					</Text>
-					<Text size='sm'>{app.notes}</Text>
-				</Paper>
-			)}
+			<Accordion value={accordion} onChange={setAccordion} variant='separated'>
+				<AccordionItem value='comments'>
+					<AccordionControl>Comments</AccordionControl>
+					<AccordionPanel>
+						<Stack gap='sm'>
+							{comments.map((c) => (
+								<Paper key={c.role} p='xs'>
+									<Group gap='xs'>
+										<Text size='sm' fw={500}>
+											{getApprovalRoleLabel(c.role)}
+										</Text>
+										{c.responder && (
+											<Text size='xs' c='dimmed'>
+												— {c.responder}
+											</Text>
+										)}
+									</Group>
+									<Text size='sm'>{c.message}</Text>
+								</Paper>
+							))}
+							<Textarea
+								placeholder='Add a comment...'
+								value={comment ?? ''}
+								onChange={(e) => setComment(e.currentTarget.value)}
+								minRows={3}
+							/>
+						</Stack>
+					</AccordionPanel>
+				</AccordionItem>
+				<AccordionItem value='notes'>
+					<AccordionControl>Notes</AccordionControl>
+					<AccordionPanel>
+						{app.notes ? (
+							<Text size='sm'>{app.notes}</Text>
+						) : (
+							<Text size='sm' c='dimmed'>
+								No notes
+							</Text>
+						)}
+					</AccordionPanel>
+				</AccordionItem>
+			</Accordion>
 		</Stack>
 	);
 }

@@ -3,10 +3,11 @@ import { AcademicsLoader } from '@registry/registration/clearance';
 import { notFound } from 'next/navigation';
 import StudentFinanceView from '@/app/registry/students/_components/finance/StudentFinanceView';
 import { auth } from '@/core/auth';
-import { DetailsView, DetailsViewHeader } from '@/shared/ui/adease';
+import { DetailsView } from '@/shared/ui/adease';
 import StatusDetails from '../_components/StatusDetails';
+import StatusHeader from '../_components/StatusHeader';
 import StatusTimeline from '../_components/StatusTimeline';
-import { cancelStudentStatus, getStudentStatus } from '../_server/actions';
+import { getStudentStatus } from '../_server/actions';
 
 type Props = {
 	params: Promise<{ id: string }>;
@@ -25,20 +26,11 @@ export default async function StudentStatusDetailsPage({ params }: Props) {
 
 	return (
 		<DetailsView>
-			<DetailsViewHeader
+			<StatusHeader
 				title={app.student?.name ?? String(app.stdNo)}
-				queryKey={['student-statuses']}
-				editRoles={['registry']}
-				hideEdit={app.status !== 'pending'}
-				handleDelete={
-					app.status === 'pending'
-						? async () => {
-								'use server';
-								await cancelStudentStatus(id);
-							}
-						: undefined
-				}
-				deleteRoles={['registry', 'admin']}
+				type={app.type}
+				status={app.status}
+				id={id}
 			/>
 			<Tabs defaultValue='details' variant='outline'>
 				<TabsList>

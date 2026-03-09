@@ -7,7 +7,6 @@ import {
 	SegmentedControl,
 	Stack,
 	Text,
-	Textarea,
 } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -37,6 +36,8 @@ type Props = {
 	approvals: Approval[];
 	applicationStatus: string;
 	applicationId: string;
+	comment?: string;
+	setAccordion?: (value: string) => void;
 };
 
 type ApprovalStatus = 'pending' | 'approved' | 'rejected';
@@ -45,6 +46,8 @@ export default function ApprovalSwitch({
 	approvals,
 	applicationStatus,
 	applicationId,
+	comment,
+	setAccordion,
 }: Props) {
 	const { data: session } = useSession();
 	const userRoles = getApprovalRolesByUser(session?.user);
@@ -91,26 +94,37 @@ export default function ApprovalSwitch({
 	}
 
 	return (
-		<ApprovalSwitchForm approval={myApproval} applicationId={applicationId} />
+		<ApprovalSwitchForm
+			approval={myApproval}
+			applicationId={applicationId}
+			comment={comment}
+			setAccordion={setAccordion}
+		/>
 	);
 }
 
 type FormProps = {
 	approval: Approval;
 	applicationId: string;
+	comment?: string;
+	setAccordion?: (value: string) => void;
 };
 
-function ApprovalSwitchForm({ approval, applicationId }: FormProps) {
+function ApprovalSwitchForm({
+	approval,
+	applicationId,
+	comment,
+	setAccordion,
+}: FormProps) {
 	const queryClient = useQueryClient();
 	const [status, setStatus] = useState<ApprovalStatus>('pending');
-	const [message, setMessage] = useState('');
 
 	const mutation = useMutation({
 		mutationFn: async () => {
 			if (status === 'approved') {
 				return approveStudentStatusStep(approval.id);
 			}
-			return rejectStudentStatusStep(approval.id, message);
+			return rejectStudentStatusStep(approval.id, comment);
 		},
 		onSuccess: () => {
 			queryClient.invalidateQueries({
@@ -133,7 +147,7 @@ function ApprovalSwitchForm({ approval, applicationId }: FormProps) {
 	});
 
 	const isChanged = status !== 'pending';
-	const canSubmit = isChanged && (status === 'approved' || message.trim());
+	const canSubmit = isChanged;
 
 	return (
 		<Paper withBorder p='md' py={21}>
@@ -143,7 +157,14 @@ function ApprovalSwitchForm({ approval, applicationId }: FormProps) {
 				</Text>
 				<SegmentedControl
 					value={status}
-					onChange={(v) => setStatus(v as ApprovalStatus)}
+					onChange={(v) => {
+						setStatus(v as ApprovalStatus);
+						if ((v as ApprovalStatus) === 'rejected') {
+							setAccordion?.('comments');
+						} else {
+							setAccordion?.('notes');
+						}
+					}}
 					data={[
 						{ label: 'Pending', value: 'pending' },
 						{ label: 'Approve', value: 'approved' },
@@ -152,15 +173,6 @@ function ApprovalSwitchForm({ approval, applicationId }: FormProps) {
 					fullWidth
 					disabled={mutation.isPending}
 				/>
-				{status === 'rejected' && (
-					<Textarea
-						label='Rejection Reason'
-						required
-						value={message}
-						onChange={(e) => setMessage(e.currentTarget.value)}
-						minRows={3}
-					/>
-				)}
 				<Button
 					onClick={() => mutation.mutate()}
 					loading={mutation.isPending}
