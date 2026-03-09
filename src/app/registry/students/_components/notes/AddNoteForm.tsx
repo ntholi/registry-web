@@ -1,0 +1,81 @@
+'use client';
+
+import { Button, Group, Paper, SegmentedControl, Stack } from '@mantine/core';
+import { notifications } from '@mantine/notifications';
+import { IconSend } from '@tabler/icons-react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useState } from 'react';
+import type { NoteVisibility } from '@/app/registry/student-notes/_schema/studentNotes';
+import { createStudentNote } from '@/app/registry/student-notes/_server/actions';
+import RichTextField from '@/shared/ui/adease/RichTextField';
+
+type Props = {
+	stdNo: number;
+};
+
+const VISIBILITY_OPTIONS = [
+	{ label: 'My Department', value: 'role' },
+	{ label: 'Only Me', value: 'self' },
+	{ label: 'Everyone', value: 'everyone' },
+];
+
+export default function AddNoteForm({ stdNo }: Props) {
+	const [content, setContent] = useState('');
+	const [visibility, setVisibility] = useState<NoteVisibility>('role');
+	const queryClient = useQueryClient();
+
+	const mutation = useMutation({
+		mutationFn: () => createStudentNote(stdNo, content, visibility),
+		onSuccess: async () => {
+			await queryClient.invalidateQueries({
+				queryKey: ['student-notes', stdNo],
+			});
+			setContent('');
+			notifications.show({
+				title: 'Success',
+				message: 'Note added',
+				color: 'green',
+			});
+		},
+		onError: (error: Error) => {
+			notifications.show({
+				title: 'Error',
+				message: error.message,
+				color: 'red',
+			});
+		},
+	});
+
+	const isEmpty = !content.trim() || content === '<p></p>';
+
+	return (
+		<Paper p='md' withBorder>
+			<Stack gap='sm'>
+				<RichTextField
+					toolbar='normal'
+					placeholder='Write a note...'
+					value={content}
+					onChange={setContent}
+					height={150}
+					showFullScreenButton={false}
+				/>
+				<Group justify='space-between'>
+					<SegmentedControl
+						size='xs'
+						data={VISIBILITY_OPTIONS}
+						value={visibility}
+						onChange={(val) => setVisibility(val as NoteVisibility)}
+					/>
+					<Button
+						leftSection={<IconSend size={16} />}
+						onClick={() => mutation.mutate()}
+						loading={mutation.isPending}
+						disabled={isEmpty}
+					>
+						Add Note
+					</Button>
+				</Group>
+			</Stack>
+		</Paper>
+	);
+}

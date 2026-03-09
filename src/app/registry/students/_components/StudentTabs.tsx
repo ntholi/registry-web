@@ -16,6 +16,7 @@ import StudentFinanceView from './finance/StudentFinanceView';
 import GraduationView from './graduation/GraduationView';
 import StudentHistoryView from './history/StudentHistoryView';
 import StudentView from './info/StudentView';
+import NotesView from './notes/NotesView';
 import RegistrationTabs from './registration/RegistrationTabs';
 import SponsorsView from './sponsors/SponsorsView';
 
@@ -78,6 +79,14 @@ export default function StudentTabs({
 			session?.user?.role ?? ''
 		) || session?.user?.position === 'manager';
 
+	const showNotes = [
+		'admin',
+		'registry',
+		'finance',
+		'academic',
+		'student_services',
+	].includes(session?.user?.role ?? '');
+
 	const showHistory = [
 		'admin',
 		'registry',
@@ -123,6 +132,7 @@ export default function StudentTabs({
 				{showGraduation && <TabsTab value='graduation'>Graduation</TabsTab>}
 				{showFinance && <TabsTab value='finance'>Finance</TabsTab>}
 				{showDocuments && <TabsTab value='documents'>Documents</TabsTab>}
+				{showNotes && <TabsTab value='notes'>Notes</TabsTab>}
 				{showHistory && <TabsTab value='history'>History</TabsTab>}
 			</ScrollableTabsList>
 			<TabsPanel value='academics' pt={'xl'} p={'sm'} key='academics'>
@@ -177,6 +187,11 @@ export default function StudentTabs({
 					isActive={activeTab === 'documents'}
 				/>
 			</TabsPanel>
+			{showNotes && (
+				<TabsPanel value='notes' pt='xl' p='sm' key='notes'>
+					<NotesView stdNo={student.stdNo} isActive={activeTab === 'notes'} />
+				</TabsPanel>
+			)}
 			{showHistory && (
 				<TabsPanel value='history' pt='xl' p='sm' key='history'>
 					<StudentHistoryView
