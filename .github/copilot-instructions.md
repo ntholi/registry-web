@@ -155,6 +155,7 @@ You are a **Senior Principal Software Engineer** and **System Architect** specia
 - **Modals**: Must be self-contained (include their own trigger button).
 - **Mantine Dates**: Use string values; Calendars must start on Sunday.
 - **Mantine Charts**: ALWAYS research and read documentation charts documentation before generating any chart code.
+
 #### Charts Documentations are as follows:
 - [AreaChart](https://mantine.dev/llms/charts-area-chart.md): Area chart component with stacked, percent and split variants
 - [BarChart](https://mantine.dev/llms/charts-bar-chart.md): Bar chart component with stacked and percent variants
@@ -186,6 +187,9 @@ You are a **Senior Principal Software Engineer** and **System Architect** specia
 - **Upload**: Use `uploadFile(file, key)` from `@/core/integrations/storage` — never construct keys manually.
 - **DB Storage**: Store R2 keys (not full URLs) in `fileUrl` / `storageKey` / `photoKey` columns.
 - **New Modules**: Add a new path builder to `StoragePaths` when adding file storage to a new feature.
+- **Key Generation**: Use `generateUploadKey(pathBuilder, originalFileName)` for file names
+- **R2 Upload Path**: `{module}/{feature}/{identifier}/{nanoid}.{ext}` — add to `StoragePaths` in `storage-utils.ts`.
+- **Cleanup**: Call `deleteFile(existingKey)` before replacing files. In transactions, catch cleanup errors to prevent orphaned keys from crashing writes.
 
 ### Activity Logging
 - **Automatic**: `BaseRepository` audits all `create`/`update`/`delete` when `AuditOptions` is passed. `BaseService` auto-passes `{ userId, role, activityType }`.
