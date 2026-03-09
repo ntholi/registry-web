@@ -6,7 +6,7 @@ import { type ReactNode, useState } from 'react';
 import { getBooleanColor } from '@/shared/lib/utils/colors';
 
 type Props = {
-	value: string;
+	value: string | number;
 	children: ReactNode;
 	iconSize?: number;
 	showOnHover?: boolean;
@@ -28,7 +28,7 @@ export default function Copyable({
 			onMouseLeave={() => setHovered(false)}
 		>
 			{children}
-			<CopyButton value={value} timeout={2000}>
+			<CopyButton value={`${value}`} timeout={2000}>
 				{({ copied, copy }) => (
 					<Popover opened={copied} position='right' withArrow>
 						<Popover.Target>

@@ -1,7 +1,11 @@
 'use client';
 
 import { Container, SimpleGrid, Stack, Text, Title } from '@mantine/core';
-import { IconChartDonut, IconReportAnalytics } from '@tabler/icons-react';
+import {
+	IconChartDonut,
+	IconReportAnalytics,
+	IconTrendingUp,
+} from '@tabler/icons-react';
 import { useActiveTerm } from '@/shared/lib/hooks/use-term';
 import { useUserSchools } from '@/shared/lib/hooks/use-user-schools';
 import { ReportCard, type ReportLink } from '@/shared/ui/adease';
@@ -20,6 +24,13 @@ const reports: ReportLink[] = [
 			'Visualize enrollment distribution with interactive charts and graphs',
 		href: '/reports/registry/student-enrollments/distribution',
 		icon: IconChartDonut,
+	},
+	{
+		title: 'Student Progression',
+		description:
+			'Compare two terms to analyze student progression, retention, and attrition',
+		href: '/reports/registry/student-enrollments/progression',
+		icon: IconTrendingUp,
 	},
 ];
 
