@@ -2,12 +2,11 @@
 
 import {
 	ActionIcon,
+	Anchor,
 	Badge,
-	Button,
 	Divider,
 	Group,
 	Paper,
-	SegmentedControl,
 	Stack,
 	Text,
 	TypographyStylesProvider,
@@ -16,6 +15,7 @@ import { modals } from '@mantine/modals';
 import { notifications } from '@mantine/notifications';
 import {
 	IconEdit,
+	IconFile,
 	IconLock,
 	IconTrash,
 	IconUsers,
@@ -24,14 +24,11 @@ import {
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import type { NoteVisibility } from '@/app/registry/student-notes/_schema/studentNotes';
-import {
-	deleteStudentNote,
-	updateStudentNote,
-} from '@/app/registry/student-notes/_server/actions';
+import { deleteStudentNote } from '@/app/registry/student-notes/_server/actions';
 import type { StudentNoteRecord } from '@/app/registry/student-notes/_server/repository';
+import { getPublicUrl } from '@/core/integrations/storage-utils';
 import { formatRelativeTime } from '@/shared/lib/utils/dates';
-import RichTextField from '@/shared/ui/adease/RichTextField';
-import AttachmentList from './AttachmentList';
+import NoteModal from './NoteModal';
 
 type Props = {
 	note: StudentNoteRecord;
@@ -39,12 +36,6 @@ type Props = {
 	currentUserId: string;
 	currentUserRole: string;
 };
-
-const VISIBILITY_OPTIONS = [
-	{ label: 'My Department', value: 'role' },
-	{ label: 'Only Me', value: 'self' },
-	{ label: 'Everyone', value: 'everyone' },
-];
 
 const VISIBILITY_CONFIG: Record<
 	NoteVisibility,
@@ -61,37 +52,11 @@ export default function NoteCard({
 	currentUserId,
 	currentUserRole,
 }: Props) {
-	const [editing, setEditing] = useState(false);
-	const [editContent, setEditContent] = useState(note.content);
-	const [editVisibility, setEditVisibility] = useState<NoteVisibility>(
-		note.visibility
-	);
+	const [editOpen, setEditOpen] = useState(false);
 	const queryClient = useQueryClient();
 
 	const canManage =
 		currentUserRole === 'admin' || note.createdBy === currentUserId;
-
-	const updateMutation = useMutation({
-		mutationFn: () => updateStudentNote(note.id, editContent, editVisibility),
-		onSuccess: async () => {
-			await queryClient.invalidateQueries({
-				queryKey: ['student-notes', stdNo],
-			});
-			setEditing(false);
-			notifications.show({
-				title: 'Success',
-				message: 'Note updated',
-				color: 'green',
-			});
-		},
-		onError: (error: Error) => {
-			notifications.show({
-				title: 'Error',
-				message: error.message,
-				color: 'red',
-			});
-		},
-	});
 
 	const deleteMutation = useMutation({
 		mutationFn: () => deleteStudentNote(note.id),
@@ -127,116 +92,92 @@ export default function NoteCard({
 		});
 	}
 
-	function handleStartEdit() {
-		setEditContent(note.content);
-		setEditVisibility(note.visibility);
-		setEditing(true);
-	}
-
 	const vis = VISIBILITY_CONFIG[note.visibility];
 	const VisIcon = vis.icon;
 
 	return (
-		<Paper p='md' withBorder>
-			<Stack gap='sm'>
-				<Group justify='space-between' align='flex-start'>
-					<Group gap='xs'>
-						<Text fw={600} size='sm'>
-							{note.createdByUser?.name ?? 'Unknown'}
-						</Text>
-						<Badge variant='light' size='sm'>
-							{note.creatorRole}
-						</Badge>
-						<Text size='xs' c='dimmed'>
-							{formatRelativeTime(note.createdAt)}
-						</Text>
-						<Badge
-							variant='light'
-							size='xs'
-							color={vis.color}
-							leftSection={<VisIcon size={12} />}
-						>
-							{vis.label}
-						</Badge>
-					</Group>
-					{canManage && !editing && (
-						<Group gap={4}>
-							<ActionIcon variant='subtle' size='sm' onClick={handleStartEdit}>
-								<IconEdit size={14} />
-							</ActionIcon>
-							<ActionIcon
-								variant='subtle'
-								size='sm'
-								color='red'
-								onClick={handleDelete}
-								loading={deleteMutation.isPending}
-							>
-								<IconTrash size={14} />
-							</ActionIcon>
-						</Group>
-					)}
-				</Group>
-
-				{editing ? (
-					<Stack gap='sm'>
-						<RichTextField
-							toolbar='normal'
-							value={editContent}
-							onChange={setEditContent}
-							height={150}
-							showFullScreenButton={false}
-						/>
-						<Group justify='space-between'>
-							<SegmentedControl
+		<>
+			<Paper p='md' withBorder>
+				<Stack gap='sm'>
+					<Group justify='space-between' align='flex-start'>
+						<Group gap='xs'>
+							<Text fw={600} size='sm'>
+								{note.createdByUser?.name ?? 'Unknown'}
+							</Text>
+							<Badge variant='light' size='sm'>
+								{note.creatorRole}
+							</Badge>
+							<Text size='xs' c='dimmed'>
+								{formatRelativeTime(note.createdAt)}
+							</Text>
+							<Badge
+								variant='light'
 								size='xs'
-								data={VISIBILITY_OPTIONS}
-								value={editVisibility}
-								onChange={(val) => setEditVisibility(val as NoteVisibility)}
-							/>
-							<Group gap='xs'>
-								<Button
-									variant='default'
-									size='xs'
-									onClick={() => setEditing(false)}
-								>
-									Cancel
-								</Button>
-								<Button
-									size='xs'
-									onClick={() => updateMutation.mutate()}
-									loading={updateMutation.isPending}
-								>
-									Save
-								</Button>
-							</Group>
+								color={vis.color}
+								leftSection={<VisIcon size={12} />}
+							>
+								{vis.label}
+							</Badge>
 						</Group>
-					</Stack>
-				) : (
+						{canManage && (
+							<Group gap={4}>
+								<ActionIcon
+									variant='subtle'
+									size='sm'
+									onClick={() => setEditOpen(true)}
+								>
+									<IconEdit size={14} />
+								</ActionIcon>
+								<ActionIcon
+									variant='subtle'
+									size='sm'
+									color='red'
+									onClick={handleDelete}
+									loading={deleteMutation.isPending}
+								>
+									<IconTrash size={14} />
+								</ActionIcon>
+							</Group>
+						)}
+					</Group>
+
 					<TypographyStylesProvider>
 						<div dangerouslySetInnerHTML={{ __html: note.content }} />
 					</TypographyStylesProvider>
-				)}
 
-				{note.attachments.length > 0 && (
-					<>
-						<Divider />
-						<AttachmentList
-							noteId={note.id}
-							stdNo={stdNo}
-							attachments={note.attachments}
-							canEdit={canManage}
-						/>
-					</>
-				)}
-				{note.attachments.length === 0 && canManage && (
-					<AttachmentList
-						noteId={note.id}
-						stdNo={stdNo}
-						attachments={[]}
-						canEdit
-					/>
-				)}
-			</Stack>
-		</Paper>
+					{note.attachments.length > 0 && (
+						<>
+							<Divider />
+							<Stack gap={4}>
+								{note.attachments.map((a) => (
+									<Group key={a.id} gap='xs'>
+										<IconFile
+											size={14}
+											style={{ color: 'var(--mantine-color-dimmed)' }}
+										/>
+										<Anchor
+											href={getPublicUrl(a.fileKey)}
+											target='_blank'
+											size='xs'
+										>
+											{a.fileName}
+										</Anchor>
+									</Group>
+								))}
+							</Stack>
+						</>
+					)}
+				</Stack>
+			</Paper>
+
+			{editOpen && (
+				<NoteModal
+					opened={editOpen}
+					onClose={() => setEditOpen(false)}
+					stdNo={stdNo}
+					note={note}
+				/>
+			)}
+		</>
 	);
 }

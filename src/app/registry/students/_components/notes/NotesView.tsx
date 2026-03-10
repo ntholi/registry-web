@@ -1,11 +1,22 @@
 'use client';
 
-import { Center, Loader, Stack, Text } from '@mantine/core';
+import {
+	Button,
+	Card,
+	Center,
+	Group,
+	Loader,
+	Paper,
+	Stack,
+	Text,
+} from '@mantine/core';
+import { IconPlus } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
+import { useState } from 'react';
 import { getStudentNotes } from '@/app/registry/student-notes/_server/actions';
-import AddNoteForm from './AddNoteForm';
 import NoteCard from './NoteCard';
+import NoteModal from './NoteModal';
 
 type Props = {
 	stdNo: number;
@@ -14,6 +25,7 @@ type Props = {
 
 export default function NotesView({ stdNo, isActive }: Props) {
 	const { data: session } = useSession();
+	const [createOpen, setCreateOpen] = useState(false);
 	const { data: notes, isLoading } = useQuery({
 		queryKey: ['student-notes', stdNo],
 		queryFn: () => getStudentNotes(stdNo),
@@ -23,21 +35,39 @@ export default function NotesView({ stdNo, isActive }: Props) {
 	const userId = session?.user?.id ?? '';
 	const userRole = session?.user?.role ?? '';
 
-	if (isLoading) {
-		return (
-			<Center py='xl'>
-				<Loader />
-			</Center>
-		);
-	}
-
 	return (
 		<Stack gap='md'>
-			<AddNoteForm stdNo={stdNo} />
-			{!notes || notes.length === 0 ? (
-				<Text c='dimmed' ta='center' py='xl'>
-					No notes yet
-				</Text>
+			<Card withBorder p='md'>
+				<Group justify='space-between' align='center'>
+					<Stack gap={4}>
+						<Text size='sm' fw={500}>
+							Notes
+						</Text>
+						<Text size='xs' c='dimmed'>
+							Internal staff notes and observations about this student
+						</Text>
+					</Stack>
+					<Button
+						leftSection={<IconPlus size={14} />}
+						variant='filled'
+						size='sm'
+						onClick={() => setCreateOpen(true)}
+					>
+						Create
+					</Button>
+				</Group>
+			</Card>
+
+			{isLoading ? (
+				<Center py='xl'>
+					<Loader />
+				</Center>
+			) : !notes || notes.length === 0 ? (
+				<Paper p='xl' withBorder>
+					<Text c='dimmed' ta='center'>
+						No notes yet. Create the first note for this student.
+					</Text>
+				</Paper>
 			) : (
 				<Stack gap='sm'>
 					{notes.map((note) => (
@@ -51,6 +81,12 @@ export default function NotesView({ stdNo, isActive }: Props) {
 					))}
 				</Stack>
 			)}
+
+			<NoteModal
+				opened={createOpen}
+				onClose={() => setCreateOpen(false)}
+				stdNo={stdNo}
+			/>
 		</Stack>
 	);
 }
