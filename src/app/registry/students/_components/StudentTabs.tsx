@@ -9,12 +9,12 @@ import type { getStudent } from '../_server/actions';
 import AcademicsView from './academics/AcademicsView';
 import BlockedAcademicsView from './academics/BlockedAcademicsView';
 import StatementOfResultsPrinter from './academics/statements/StatementOfResultsPrinter';
+import StudentAuditView from './audit/StudentAuditView';
 import StudentCardPrinter from './card/StudentCardPrinter';
 import StudentCardView from './card/StudentCardView';
 import DocumentsView from './documents/DocumentsView';
 import StudentFinanceView from './finance/StudentFinanceView';
 import GraduationView from './graduation/GraduationView';
-import StudentHistoryView from './history/StudentHistoryView';
 import StudentView from './info/StudentView';
 import NotesView from './notes/NotesView';
 import RegistrationTabs from './registration/RegistrationTabs';
@@ -87,7 +87,7 @@ export default function StudentTabs({
 		'student_services',
 	].includes(session?.user?.role ?? '');
 
-	const showHistory = [
+	const showAudit = [
 		'admin',
 		'registry',
 		'finance',
@@ -133,7 +133,7 @@ export default function StudentTabs({
 				{showFinance && <TabsTab value='finance'>Finance</TabsTab>}
 				{showDocuments && <TabsTab value='documents'>Documents</TabsTab>}
 				{showNotes && <TabsTab value='notes'>Notes</TabsTab>}
-				{showHistory && <TabsTab value='history'>History</TabsTab>}
+				{showAudit && <TabsTab value='audit'>Audit</TabsTab>}
 			</ScrollableTabsList>
 			<TabsPanel value='academics' pt={'xl'} p={'sm'} key='academics'>
 				{blockedStudent ? (
@@ -192,11 +192,11 @@ export default function StudentTabs({
 					<NotesView stdNo={student.stdNo} isActive={activeTab === 'notes'} />
 				</TabsPanel>
 			)}
-			{showHistory && (
-				<TabsPanel value='history' pt='xl' p='sm' key='history'>
-					<StudentHistoryView
+			{showAudit && (
+				<TabsPanel value='audit' pt='xl' p='sm' key='audit'>
+					<StudentAuditView
 						stdNo={student.stdNo}
-						isActive={activeTab === 'history'}
+						isActive={activeTab === 'audit'}
 					/>
 				</TabsPanel>
 			)}
