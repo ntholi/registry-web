@@ -7,6 +7,7 @@ import {
 	Group,
 	Loader,
 	Paper,
+	SimpleGrid,
 	Stack,
 	Text,
 } from '@mantine/core';
@@ -69,7 +70,7 @@ export default function NotesView({ stdNo, isActive }: Props) {
 					</Text>
 				</Paper>
 			) : (
-				<Stack gap='sm'>
+				<SimpleGrid cols={{ base: 1, sm: 2 }} spacing='sm'>
 					{notes.map((note) => (
 						<NoteCard
 							key={note.id}
@@ -79,7 +80,7 @@ export default function NotesView({ stdNo, isActive }: Props) {
 							currentUserRole={userRole}
 						/>
 					))}
-				</Stack>
+				</SimpleGrid>
 			)}
 
 			<NoteModal

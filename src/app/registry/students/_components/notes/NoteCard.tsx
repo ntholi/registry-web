@@ -3,6 +3,7 @@
 import {
 	ActionIcon,
 	Anchor,
+	Avatar,
 	Badge,
 	Divider,
 	Group,
@@ -44,6 +45,16 @@ const VISIBILITY_CONFIG: Record<
 	everyone: { icon: IconWorld, color: 'green', label: 'Everyone' },
 };
 
+function getInitials(name: string | null): string {
+	if (!name) return '?';
+	return name
+		.split(' ')
+		.slice(0, 2)
+		.map((n) => n[0])
+		.join('')
+		.toUpperCase();
+}
+
 export default function NoteCard({
 	note,
 	stdNo,
@@ -57,33 +68,42 @@ export default function NoteCard({
 
 	const vis = VISIBILITY_CONFIG[note.visibility];
 	const VisIcon = vis.icon;
+	const authorName = note.createdByUser?.name ?? 'Unknown';
 
 	return (
 		<>
 			<Paper p='md' withBorder>
 				<Stack gap='sm'>
-					<Group justify='space-between' align='flex-start'>
-						<Group gap='xs'>
-							<Text fw={600} size='sm'>
-								{note.createdByUser?.name ?? 'Unknown'}
-							</Text>
-							<Badge variant='light' size='sm'>
-								{note.creatorRole}
-							</Badge>
-							<Text size='xs' c='dimmed'>
-								{formatRelativeTime(note.createdAt)}
-							</Text>
-							<Badge
-								variant='light'
-								size='xs'
-								color={vis.color}
-								leftSection={<VisIcon size={12} />}
-							>
-								{vis.label}
-							</Badge>
+					<Group justify='space-between' align='flex-start' wrap='nowrap'>
+						<Group gap='xs' wrap='nowrap' align='flex-start'>
+							<Avatar size={38} radius='xl' color='initials' name={authorName}>
+								{getInitials(authorName)}
+							</Avatar>
+							<Stack gap={2}>
+								<Group gap='xs' align='center'>
+									<Text fw={700} size='sm' lh={1.2}>
+										{authorName}
+									</Text>
+									<Badge variant='light' size='xs' radius='sm'>
+										{note.creatorRole}
+									</Badge>
+								</Group>
+								<Group gap={4} align='center'>
+									<Text size='xs' c='dimmed' lh={1}>
+										{formatRelativeTime(note.createdAt)}
+									</Text>
+									<Text size='xs' c='dimmed' lh={1}>
+										·
+									</Text>
+									<VisIcon
+										size={11}
+										style={{ color: 'var(--mantine-color-dimmed)' }}
+									/>
+								</Group>
+							</Stack>
 						</Group>
 						{canManage && (
-							<Group gap={4}>
+							<Group gap={4} wrap='nowrap'>
 								<ActionIcon
 									variant='subtle'
 									size='sm'
