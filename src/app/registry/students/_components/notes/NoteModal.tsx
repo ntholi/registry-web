@@ -10,6 +10,7 @@ import {
 	Modal,
 	Paper,
 	SegmentedControl,
+	SimpleGrid,
 	Stack,
 	Text,
 } from '@mantine/core';
@@ -158,7 +159,7 @@ export default function NoteModal({ opened, onClose, stdNo, note }: Props) {
 			opened={opened}
 			onClose={handleClose}
 			title={isEdit ? 'Edit Note' : 'Create Note'}
-			size='lg'
+			size='xl'
 			centered
 		>
 			<Stack gap='md'>
@@ -167,11 +168,11 @@ export default function NoteModal({ opened, onClose, stdNo, note }: Props) {
 					placeholder='Write a note...'
 					value={content}
 					onChange={setContent}
-					height={200}
+					height={280}
 					showFullScreenButton={false}
 				/>
 				<Stack gap={4}>
-					<Text size='xs' fw={500} c='dimmed'>
+					<Text size='sm' fw={500}>
 						Visibility
 					</Text>
 					<SegmentedControl
@@ -261,9 +262,9 @@ export default function NoteModal({ opened, onClose, stdNo, note }: Props) {
 					)}
 
 					{!isEdit && pendingFiles.length > 0 && (
-						<Stack gap={4}>
+						<SimpleGrid cols={{ base: 1, sm: 2 }}>
 							{pendingFiles.map((file, i) => (
-								<Paper key={`${file.name}-${i}`} px='xs' py={6} withBorder>
+								<Paper key={`${file.name}-${i}`} p='md' withBorder>
 									<Group justify='space-between'>
 										<Group gap='xs'>
 											<IconFile
@@ -283,7 +284,7 @@ export default function NoteModal({ opened, onClose, stdNo, note }: Props) {
 									</Group>
 								</Paper>
 							))}
-						</Stack>
+						</SimpleGrid>
 					)}
 				</Stack>
 
