@@ -26,13 +26,10 @@ import {
 	IconX,
 } from '@tabler/icons-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import {
-	deleteNoteAttachment,
-	uploadNoteAttachment,
-} from '@/app/registry/student-notes/_server/actions';
-import type { StudentNoteAttachmentRecord } from '@/app/registry/student-notes/_server/repository';
 import { getPublicUrl } from '@/core/integrations/storage-utils';
 import { formatFileSize } from '@/shared/lib/utils/files';
+import { deleteNoteAttachment, uploadNoteAttachment } from '../_server/actions';
+import type { StudentNoteAttachmentRecord } from '../_server/repository';
 
 type Props = {
 	noteId: string;

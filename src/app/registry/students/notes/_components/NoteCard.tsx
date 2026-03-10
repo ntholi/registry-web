@@ -28,11 +28,11 @@ import {
 } from '@tabler/icons-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
-import type { NoteVisibility } from '@/app/registry/student-notes/_schema/studentNotes';
-import { deleteStudentNote } from '@/app/registry/student-notes/_server/actions';
-import type { StudentNoteRecord } from '@/app/registry/student-notes/_server/repository';
 import { getPublicUrl } from '@/core/integrations/storage-utils';
 import { formatRelativeTime } from '@/shared/lib/utils/dates';
+import type { NoteVisibility } from '../_schema/studentNotes';
+import { deleteStudentNote } from '../_server/actions';
+import type { StudentNoteRecord } from '../_server/repository';
 import NoteModal from './NoteModal';
 
 type Props = {

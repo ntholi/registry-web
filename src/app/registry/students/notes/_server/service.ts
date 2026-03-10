@@ -5,6 +5,7 @@ import {
 	generateUploadKey,
 	StoragePaths,
 } from '@/core/integrations/storage-utils';
+import type { QueryOptions } from '@/core/platform/BaseRepository';
 import BaseService from '@/core/platform/BaseService';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
 import withAuth, { requireSessionUserId } from '@/core/platform/withAuth';
@@ -85,6 +86,23 @@ class StudentNotesService extends BaseService<typeof studentNotes, 'id'> {
 				),
 			['dashboard']
 		);
+	}
+
+	async findAll(options: QueryOptions<typeof studentNotes>) {
+		return withAuth(
+			async (session) =>
+				this.repo.findAllNotes(
+					requireSessionUserId(session),
+					this.requireRole(session),
+					options.page ?? 1,
+					options.search
+				),
+			['dashboard']
+		);
+	}
+
+	async getNoteById(id: string) {
+		return withAuth(async () => this.repo.findNoteById(id), ['dashboard']);
 	}
 
 	async createNote(stdNo: number, content: string, visibility: NoteVisibility) {

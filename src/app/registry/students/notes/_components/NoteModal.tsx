@@ -18,16 +18,16 @@ import { notifications } from '@mantine/notifications';
 import { IconFile, IconPaperclip, IconX } from '@tabler/icons-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
-import type { NoteVisibility } from '@/app/registry/student-notes/_schema/studentNotes';
+import { getPublicUrl } from '@/core/integrations/storage-utils';
+import RichTextField from '@/shared/ui/adease/RichTextField';
+import type { NoteVisibility } from '../_schema/studentNotes';
 import {
 	createStudentNote,
 	deleteNoteAttachment,
 	updateStudentNote,
 	uploadNoteAttachment,
-} from '@/app/registry/student-notes/_server/actions';
-import type { StudentNoteRecord } from '@/app/registry/student-notes/_server/repository';
-import { getPublicUrl } from '@/core/integrations/storage-utils';
-import RichTextField from '@/shared/ui/adease/RichTextField';
+} from '../_server/actions';
+import type { StudentNoteRecord } from '../_server/repository';
 
 type Props = {
 	opened: boolean;

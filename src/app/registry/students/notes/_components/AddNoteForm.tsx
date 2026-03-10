@@ -5,9 +5,9 @@ import { notifications } from '@mantine/notifications';
 import { IconSend } from '@tabler/icons-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
-import type { NoteVisibility } from '@/app/registry/student-notes/_schema/studentNotes';
-import { createStudentNote } from '@/app/registry/student-notes/_server/actions';
 import RichTextField from '@/shared/ui/adease/RichTextField';
+import type { NoteVisibility } from '../_schema/studentNotes';
+import { createStudentNote } from '../_server/actions';
 
 type Props = {
 	stdNo: number;

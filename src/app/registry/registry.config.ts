@@ -5,6 +5,7 @@ import {
 	IconCalendarEvent,
 	IconCertificate,
 	IconClipboardCheck,
+	IconNote,
 	IconPrinter,
 	IconRobot,
 	IconSchool,
@@ -155,6 +156,12 @@ export const registryConfig: ModuleConfig = {
 					queryFn: () => countPendingStudentStatuses(),
 					color: 'red',
 				},
+			},
+			{
+				label: 'Notes',
+				href: '/registry/students/notes',
+				icon: IconNote,
+				roles: ['admin', 'registry', 'finance', 'academic', 'student_services'],
 			},
 			{
 				label: 'Blocked Students',

@@ -1,1 +1,1 @@
-export * from './_server/actions';
+export * from '../students/notes/_server/actions';
