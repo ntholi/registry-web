@@ -159,7 +159,7 @@ export const registryConfig: ModuleConfig = {
 			},
 			{
 				label: 'Notes',
-				href: '/registry/students/notes',
+				href: '/registry/student-notes',
 				icon: IconNote,
 				roles: ['admin', 'registry', 'finance', 'academic', 'student_services'],
 			},

@@ -8,11 +8,11 @@ import { findAllNotes } from './_server/actions';
 export default function Layout({ children }: PropsWithChildren) {
 	return (
 		<ListLayout
-			path='/registry/students/notes'
+			path='/registry/student-notes'
 			queryKey={['student-notes']}
 			getData={(page, search) => findAllNotes(page, search)}
 			actionIcons={[
-				<NewLink key='new-link' href='/registry/students/notes/new' />,
+				<NewLink key='new-link' href='/registry/student-notes/new' />,
 			]}
 			renderItem={(it) => (
 				<ListItem

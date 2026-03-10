@@ -11,7 +11,7 @@ import { transcriptPrints } from '@registry/print/_schema/transcriptPrints';
 import { registrationRequests } from '@registry/registration-requests/_schema/registrationRequests';
 import { relations } from 'drizzle-orm';
 import { graduationRequests } from '@/app/registry/graduation/requests/_schema/graduationRequests';
-import { studentNotes } from '@/app/registry/students/notes/_schema/studentNotes';
+import { studentNotes } from '@/app/registry/student-notes/_schema/studentNotes';
 import { nextOfKins } from './nextOfKins';
 import { studentEducation } from './studentEducation';
 import { studentModules } from './studentModules';

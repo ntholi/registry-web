@@ -9,7 +9,7 @@ export const StoragePaths = {
 		`registry/students/documents/${stdNo}/${fileName}`,
 
 	studentNoteAttachment: (stdNo: number, fileName: string) =>
-		`registry/students/notes/${stdNo}/${fileName}`,
+		`registry/student-notes/${stdNo}/${fileName}`,
 
 	termPublication: (termCode: string, type: string, fileName: string) =>
 		`registry/terms/publications/${termCode}/${type}/${fileName}`,

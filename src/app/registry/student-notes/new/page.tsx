@@ -89,7 +89,7 @@ export default function NewNotePage() {
 				message: 'Note created',
 				color: 'green',
 			});
-			router.push(`/registry/students/notes/${created.id}`);
+			router.push(`/registry/student-notes/${created.id}`);
 		},
 		onError: (error: Error) => {
 			notifications.show({
