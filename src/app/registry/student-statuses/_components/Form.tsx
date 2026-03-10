@@ -1,18 +1,8 @@
 'use client';
 
-import {
-	Avatar,
-	Box,
-	Group,
-	Paper,
-	Select,
-	SimpleGrid,
-	Text,
-	Textarea,
-} from '@mantine/core';
+import { Select, SimpleGrid, Textarea } from '@mantine/core';
 import { studentStatuses } from '@registry/_database';
 import { getStudent, getStudentPhoto } from '@registry/students';
-import { IconUser } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { createInsertSchema } from 'drizzle-zod';
 import { useRouter } from 'next/navigation';
@@ -22,6 +12,7 @@ import { formatSemester } from '@/shared/lib/utils/utils';
 import { Form } from '@/shared/ui/adease';
 import StudentInput from '@/shared/ui/StudentInput';
 import TermInput from '@/shared/ui/TermInput';
+import StudentPreviewCard from '../../_components/StudentPreviewCard';
 import { getJustificationLabel, getTypeLabel } from '../_lib/labels';
 
 type StudentStatusInsert = typeof studentStatuses.$inferInsert;
@@ -175,26 +166,11 @@ export default function StudentStatusForm({
 						/>
 
 						{selectedStudent && (
-							<Paper withBorder p='sm' mt='xs' radius='md' bg='transparent'>
-								<Group gap='sm'>
-									<Avatar
-										size={46}
-										radius='xl'
-										src={photoUrl ?? undefined}
-										color='blue'
-									>
-										<IconUser size={22} />
-									</Avatar>
-									<Box>
-										<Text fw={600} size='sm'>
-											{selectedStudent.name}
-										</Text>
-										<Text size='xs' c='dimmed'>
-											{selectedStudent.stdNo}
-										</Text>
-									</Box>
-								</Group>
-							</Paper>
+							<StudentPreviewCard
+								student={selectedStudent}
+								photoUrl={photoUrl}
+								mt='xs'
+							/>
 						)}
 
 						{validStudentNo && (
