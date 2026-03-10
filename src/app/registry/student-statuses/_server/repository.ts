@@ -2,6 +2,7 @@ import { and, count, eq, inArray, sql } from 'drizzle-orm';
 import {
 	db,
 	studentSemesters,
+	studentStatusAttachments,
 	studentStatusApprovals,
 	studentStatuses,
 	students,
@@ -38,6 +39,7 @@ export default class StudentStatusRepository extends BaseRepository<
 			where: eq(studentStatuses.id, id),
 			with: {
 				student: true,
+				attachments: true,
 				approvals: { with: { responder: true } },
 				semester: true,
 				term: true,
@@ -273,6 +275,77 @@ export default class StudentStatusRepository extends BaseRepository<
 		return db.query.studentStatusApprovals.findFirst({
 			where: eq(studentStatusApprovals.id, id),
 			with: { application: true },
+		});
+	}
+
+	async createAttachment(
+		data: typeof studentStatusAttachments.$inferInsert,
+		audit?: AuditOptions
+	) {
+		if (!audit) {
+			const [attachment] = await db
+				.insert(studentStatusAttachments)
+				.values(data)
+				.returning();
+			return attachment;
+		}
+
+		return db.transaction(async (tx) => {
+			const [attachment] = await tx
+				.insert(studentStatusAttachments)
+				.values(data)
+				.returning();
+
+			await this.writeAuditLogForTable(
+				tx,
+				'student_status_attachments',
+				'INSERT',
+				attachment.id,
+				null,
+				attachment,
+				audit
+			);
+
+			return attachment;
+		});
+	}
+
+	async findAttachmentById(id: string) {
+		return db.query.studentStatusAttachments.findFirst({
+			where: eq(studentStatusAttachments.id, id),
+		});
+	}
+
+	async deleteAttachment(id: string, audit?: AuditOptions) {
+		if (!audit) {
+			await db
+				.delete(studentStatusAttachments)
+				.where(eq(studentStatusAttachments.id, id));
+			return;
+		}
+
+		await db.transaction(async (tx) => {
+			const existing = await tx.query.studentStatusAttachments.findFirst({
+				where: eq(studentStatusAttachments.id, id),
+			});
+
+			if (!existing) {
+				return;
+			}
+
+			await tx
+				.delete(studentStatusAttachments)
+				.where(eq(studentStatusAttachments.id, id));
+
+			await this.writeAuditLogForTable(
+				tx,
+				'student_status_attachments',
+				'DELETE',
+				id,
+				existing,
+				null,
+				audit
+			);
 		});
 	}
 

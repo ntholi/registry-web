@@ -1,4 +1,8 @@
 import { IconLock, IconUsers, IconWorld } from '@tabler/icons-react';
+import {
+	ALLOWED_ATTACHMENT_MIME_TYPES,
+	MAX_ATTACHMENT_SIZE,
+} from '@/shared/lib/utils/attachments';
 import type { NoteVisibility } from '../_schema/studentNotes';
 
 export const VISIBILITY_OPTIONS = [
@@ -22,21 +26,7 @@ export const VISIBILITY_CONFIG: Record<
 	everyone: { icon: IconWorld, color: 'green', label: 'Everyone' },
 };
 
-export const ALLOWED_MIME_TYPES = [
-	'application/pdf',
-	'image/jpeg',
-	'image/png',
-	'image/webp',
-	'image/gif',
-	'application/msword',
-	'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-	'application/vnd.ms-powerpoint',
-	'application/vnd.openxmlformats-officedocument.presentationml.presentation',
-	'application/vnd.ms-excel',
-	'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-];
-
-export const MAX_ATTACHMENT_SIZE = 5 * 1024 * 1024;
+export const ALLOWED_MIME_TYPES = ALLOWED_ATTACHMENT_MIME_TYPES;
 
 export function getInitials(name: string | null): string {
 	if (!name) return '?';

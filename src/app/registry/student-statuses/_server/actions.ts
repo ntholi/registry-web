@@ -44,6 +44,27 @@ export async function createStudentStatus(data: StudentStatusInsert) {
 	return { id: result.id };
 }
 
+export async function uploadStudentStatusAttachment(
+	id: string,
+	formData: FormData
+) {
+	const fileValue = formData.get('file');
+	if (!(fileValue instanceof File)) {
+		throw new Error('File is required');
+	}
+
+	return studentStatusesService.uploadAttachment(
+		id,
+		fileValue,
+		fileValue.name,
+		fileValue.type
+	);
+}
+
+export async function deleteStudentStatusAttachment(id: string) {
+	return studentStatusesService.deleteAttachment(id);
+}
+
 export async function updateStudentStatus(
 	id: string,
 	data: StudentStatusEditableInput

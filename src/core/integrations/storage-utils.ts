@@ -11,6 +11,9 @@ export const StoragePaths = {
 	studentNoteAttachment: (stdNo: number, fileName: string) =>
 		`registry/students/notes/${stdNo}/${fileName}`,
 
+	studentStatusAttachment: (applicationId: string, fileName: string) =>
+		`registry/students/statuses/${applicationId}/${fileName}`,
+
 	termPublication: (termCode: string, type: string, fileName: string) =>
 		`registry/terms/publications/${termCode}/${type}/${fileName}`,
 

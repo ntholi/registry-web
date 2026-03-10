@@ -10,6 +10,7 @@ import {
 	Text,
 	Textarea,
 } from '@mantine/core';
+import { notifications } from '@mantine/notifications';
 import { studentStatuses } from '@registry/_database';
 import { getStudent, getStudentPhoto } from '@registry/students';
 import { IconUser } from '@tabler/icons-react';
@@ -19,16 +20,19 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { z } from 'zod';
 import { formatSemester } from '@/shared/lib/utils/utils';
-import { Form } from '@/shared/ui/adease';
+import { AttachmentManager, type AttachmentItem, Form } from '@/shared/ui/adease';
 import StudentInput from '@/shared/ui/StudentInput';
 import TermInput from '@/shared/ui/TermInput';
+import { ALLOWED_MIME_TYPES, MAX_ATTACHMENT_SIZE } from '../_lib/constants';
 import { getJustificationLabel, getTypeLabel } from '../_lib/labels';
+import { uploadStudentStatusAttachment } from '../_server/actions';
 
 type StudentStatusInsert = typeof studentStatuses.$inferInsert;
 type StatusType = (typeof studentStatuses.type.enumValues)[number];
 type StudentData = Awaited<ReturnType<typeof getStudent>>;
 type StudentSemesterData =
 	NonNullable<StudentData>['programs'][number]['semesters'][number];
+type DraftAttachment = AttachmentItem & { file: File };
 
 type Props = {
 	onSubmit: (values: StudentStatusInsert) => Promise<{ id: string }>;
@@ -104,6 +108,7 @@ export default function StudentStatusForm({
 }: Props) {
 	const router = useRouter();
 	const isEdit = mode === 'edit';
+	const [attachments, setAttachments] = useState<DraftAttachment[]>([]);
 	const [validStudentNo, setValidStudentNo] = useState(
 		!!defaultValues?.stdNo && String(defaultValues.stdNo).length === 9
 	);
@@ -126,6 +131,14 @@ export default function StudentStatusForm({
 		enabled: !!selectedStdNo,
 	});
 
+	function releaseAttachmentUrls(items: DraftAttachment[]) {
+		for (const attachment of items) {
+			if (attachment.fileUrl?.startsWith('blob:')) {
+				URL.revokeObjectURL(attachment.fileUrl);
+			}
+		}
+	}
+
 	return (
 		<Form
 			title={title}
@@ -133,7 +146,29 @@ export default function StudentStatusForm({
 			queryKey={['student-statuses']}
 			schema={schema}
 			defaultValues={defaultValues}
-			onSuccess={({ id }) => {
+			onSuccess={async ({ id }) => {
+				if (attachments.length > 0) {
+					const results = await Promise.allSettled(
+						attachments.map((attachment) => {
+							const formData = new FormData();
+							formData.append('file', attachment.file);
+							return uploadStudentStatusAttachment(id, formData);
+						})
+					);
+
+					releaseAttachmentUrls(attachments);
+					setAttachments([]);
+
+					if (results.some((result) => result.status === 'rejected')) {
+						notifications.show({
+							title: 'Partial Upload',
+							message:
+								'Application created, but some attachments failed to upload. You can retry from the details page.',
+							color: 'yellow',
+						});
+					}
+				}
+
 				router.push(`/registry/student-statuses/${id}`);
 			}}
 		>
@@ -262,6 +297,45 @@ export default function StudentStatusForm({
 											minRows={3}
 											{...form.getInputProps('notes')}
 										/>
+										{!isEdit && (
+											<AttachmentManager
+												attachments={attachments}
+												canEdit
+												accept={ALLOWED_MIME_TYPES}
+												maxSize={MAX_ATTACHMENT_SIZE}
+												onUpload={async (file) => {
+													const nextAttachment: DraftAttachment = {
+														id: `${file.name}-${file.size}-${file.lastModified}`,
+														fileName: file.name,
+														fileKey: null,
+														fileUrl: URL.createObjectURL(file),
+														fileSize: file.size,
+														mimeType: file.type || null,
+														file,
+													};
+													setAttachments((current) => [
+														...current,
+														nextAttachment,
+													]);
+													return nextAttachment;
+												}}
+												onDelete={async (id) => {
+													setAttachments((current) => {
+														const found = current.find(
+															(attachment) => attachment.id === id
+														);
+														if (found?.fileUrl?.startsWith('blob:')) {
+															URL.revokeObjectURL(found.fileUrl);
+														}
+														return current.filter(
+															(attachment) => attachment.id !== id
+														);
+													});
+												}}
+												uploadSuccessMessage='Attachment added'
+												deleteSuccessMessage='Attachment removed'
+											/>
+										)}
 									</>
 								)}
 							</>

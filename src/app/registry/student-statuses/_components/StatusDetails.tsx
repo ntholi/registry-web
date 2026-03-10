@@ -31,6 +31,8 @@ import Link from '@/shared/ui/Link';
 import { getApprovalRoleLabel, getJustificationLabel } from '../_lib/labels';
 import type { getStudentStatus } from '../_server/actions';
 import ApprovalSwitch from './ApprovalSwitch';
+import StatusAttachmentList from './StatusAttachmentList';
+import StatusAttachmentList from './StatusAttachmentList';
 
 type Props = {
 	app: NonNullable<Awaited<ReturnType<typeof getStudentStatus>>>;
@@ -40,15 +42,20 @@ export default function StatusDetails({ app }: Props) {
 	const { data: session } = useSession();
 	const role = session?.user?.role;
 	const isAdminOrRegistry = role === 'admin' || role === 'registry';
+	const canManageAttachments =
+		app.status === 'pending' &&
+		(role === 'admin' || role === 'registry' || role === 'student_services');
 
 	if (isAdminOrRegistry) {
-		return <AdminRegistryView app={app} />;
+		return <AdminRegistryView app={app} canManageAttachments={canManageAttachments} />;
 	}
 
-	return <OtherRolesView app={app} />;
+	return <OtherRolesView app={app} canManageAttachments={canManageAttachments} />;
 }
 
-function AdminRegistryView({ app }: Props) {
+type ViewProps = Props & { canManageAttachments: boolean };
+
+function AdminRegistryView({ app, canManageAttachments }: ViewProps) {
 	const approvals = app.approvals ?? [];
 
 	return (
@@ -107,6 +114,8 @@ function AdminRegistryView({ app }: Props) {
 					</Text>
 				)}
 			</Paper>
+
+			<AttachmentSection app={app} canEdit={canManageAttachments} />
 
 			<Paper withBorder p='lg'>
 				<Title order={6} c='dimmed' tt='uppercase' fz='xs' mb='md'>
@@ -186,9 +195,9 @@ function AdminRegistryView({ app }: Props) {
 	);
 }
 
-type OtherRolesProps = Props & { role?: string };
+type OtherRolesProps = ViewProps & { role?: string };
 
-function OtherRolesView({ app }: OtherRolesProps) {
+function OtherRolesView({ app, canManageAttachments }: OtherRolesProps) {
 	const [comment, setComment] = useState<string | undefined>(undefined);
 	const [accordion, setAccordion] = useState<string | null>(
 		app.reasons ? 'reasons' : 'comments'
@@ -279,6 +288,35 @@ function OtherRolesView({ app }: OtherRolesProps) {
 					</AccordionPanel>
 				</AccordionItem>
 			</Accordion>
+			<AttachmentSection app={app} canEdit={canManageAttachments} />
 		</Stack>
+	);
+}
+
+type AttachmentSectionProps = {
+	app: Props['app'];
+	canEdit: boolean;
+};
+
+function AttachmentSection({ app, canEdit }: AttachmentSectionProps) {
+	const attachments = app.attachments ?? [];
+
+	return (
+		<Paper withBorder p='lg'>
+			<Title order={6} c='dimmed' tt='uppercase' fz='xs' mb='md'>
+				Attachments
+			</Title>
+			{attachments.length === 0 && !canEdit ? (
+				<Text size='sm' c='dimmed' fs='italic'>
+					No attachments uploaded
+				</Text>
+			) : (
+				<StatusAttachmentList
+					applicationId={app.id}
+					attachments={attachments}
+					canEdit={canEdit}
+				/>
+			)}
+		</Paper>
 	);
 }

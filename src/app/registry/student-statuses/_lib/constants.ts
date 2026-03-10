@@ -1,0 +1,7 @@
+import {
+	ALLOWED_ATTACHMENT_MIME_TYPES,
+	MAX_ATTACHMENT_SIZE,
+} from '@/shared/lib/utils/attachments';
+
+export const ALLOWED_MIME_TYPES = ALLOWED_ATTACHMENT_MIME_TYPES;
+export { MAX_ATTACHMENT_SIZE };
