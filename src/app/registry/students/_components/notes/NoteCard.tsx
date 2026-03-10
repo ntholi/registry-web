@@ -5,28 +5,34 @@ import {
 	Anchor,
 	Avatar,
 	Badge,
+	Button,
 	Divider,
 	Group,
+	Menu,
+	Modal,
 	Paper,
 	Stack,
 	Text,
 	TypographyStylesProvider,
 } from '@mantine/core';
+import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import {
+	IconDotsVertical,
 	IconEdit,
 	IconFile,
 	IconLock,
+	IconTrash,
 	IconUsers,
 	IconWorld,
 } from '@tabler/icons-react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import type { NoteVisibility } from '@/app/registry/student-notes/_schema/studentNotes';
 import { deleteStudentNote } from '@/app/registry/student-notes/_server/actions';
 import type { StudentNoteRecord } from '@/app/registry/student-notes/_server/repository';
 import { getPublicUrl } from '@/core/integrations/storage-utils';
 import { formatRelativeTime } from '@/shared/lib/utils/dates';
-import { DeleteButton } from '@/shared/ui/adease';
 import NoteModal from './NoteModal';
 
 type Props = {
@@ -62,13 +68,30 @@ export default function NoteCard({
 	currentUserRole,
 }: Props) {
 	const [editOpen, setEditOpen] = useState(false);
+	const [delOpen, { open: openDel, close: closeDel }] = useDisclosure(false);
+	const queryClient = useQueryClient();
 
-	const canManage =
-		currentUserRole === 'admin' || note.createdBy === currentUserId;
+	const deleteMutation = useMutation({
+		mutationFn: () => deleteStudentNote(note.id),
+		onSuccess: async () => {
+			await queryClient.invalidateQueries({
+				queryKey: ['student-notes', stdNo],
+				refetchType: 'all',
+			});
+			notifications.show({
+				title: 'Success',
+				message: 'Note deleted',
+				color: 'green',
+			});
+			closeDel();
+		},
+	});
 
 	const vis = VISIBILITY_CONFIG[note.visibility];
 	const VisIcon = vis.icon;
 	const authorName = note.createdByUser?.name ?? 'Unknown';
+	const canManage =
+		currentUserRole === 'admin' || note.createdBy === currentUserId;
 
 	return (
 		<>
@@ -103,28 +126,28 @@ export default function NoteCard({
 							</Stack>
 						</Group>
 						{canManage && (
-							<Group gap={4} wrap='nowrap'>
-								<ActionIcon
-									variant='subtle'
-									size='sm'
-									onClick={() => setEditOpen(true)}
-								>
-									<IconEdit size={14} />
-								</ActionIcon>
-								<DeleteButton
-									size='sm'
-									handleDelete={() => deleteStudentNote(note.id)}
-									queryKey={['student-notes', stdNo]}
-									itemType='note'
-									onSuccess={() =>
-										notifications.show({
-											title: 'Success',
-											message: 'Note deleted',
-											color: 'green',
-										})
-									}
-								/>
-							</Group>
+							<Menu shadow='md' position='bottom-end' withArrow>
+								<Menu.Target>
+									<ActionIcon variant='subtle' size='sm' color='gray'>
+										<IconDotsVertical size={16} />
+									</ActionIcon>
+								</Menu.Target>
+								<Menu.Dropdown>
+									<Menu.Item
+										leftSection={<IconEdit size={14} />}
+										onClick={() => setEditOpen(true)}
+									>
+										Edit
+									</Menu.Item>
+									<Menu.Item
+										leftSection={<IconTrash size={14} />}
+										color='red'
+										onClick={openDel}
+									>
+										Delete
+									</Menu.Item>
+								</Menu.Dropdown>
+							</Menu>
 						)}
 					</Group>
 
@@ -165,6 +188,32 @@ export default function NoteCard({
 					note={note}
 				/>
 			)}
+
+			<Modal
+				opened={delOpen}
+				onClose={closeDel}
+				title='Delete note'
+				size='sm'
+				centered
+			>
+				<Text size='sm' c='dimmed'>
+					Are you sure you want to delete this note? This action cannot be
+					undone.
+				</Text>
+				<Group justify='flex-end' mt='lg' gap='sm'>
+					<Button variant='default' onClick={closeDel}>
+						Cancel
+					</Button>
+					<Button
+						color='red'
+						leftSection={<IconTrash size={14} />}
+						loading={deleteMutation.isPending}
+						onClick={() => deleteMutation.mutate()}
+					>
+						Delete
+					</Button>
+				</Group>
+			</Modal>
 		</>
 	);
 }
