@@ -33,7 +33,25 @@ class RegistrationRequestService {
 	async findAll(params: RegistrationRequestQuery, termId?: number) {
 		return withAuth(
 			async () => this.repository.findAllPaginated(params, termId),
-			['registry', 'finance', 'library']
+			async (session) => {
+				const role = session.user?.role || '';
+				if (
+					[
+						'registry',
+						'finance',
+						'library',
+						'leap',
+						'student_services',
+					].includes(role)
+				)
+					return true;
+				if (role === 'academic') {
+					return ['manager', 'program_leader', 'year_leader'].includes(
+						session.user?.position || ''
+					);
+				}
+				return false;
+			}
 		);
 	}
 

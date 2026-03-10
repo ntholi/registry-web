@@ -59,7 +59,19 @@ export const registryConfig: ModuleConfig = {
 				description: 'Registration Requests',
 				href: '/registry/registration/requests',
 				icon: IconUserPlus,
-				roles: ['registry', 'admin'],
+				isVisible: (session) => {
+					const role = session?.user?.role as UserRole;
+					if (['registry', 'admin', 'leap', 'student_services'].includes(role))
+						return true;
+					if (role === 'academic') {
+						const position = session?.user?.position as UserPosition;
+						return !!(
+							position &&
+							['manager', 'program_leader', 'year_leader'].includes(position)
+						);
+					}
+					return false;
+				},
 			},
 			{
 				label: 'Graduations',
