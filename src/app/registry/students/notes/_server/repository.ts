@@ -1,9 +1,10 @@
-import { and, desc, eq, or } from 'drizzle-orm';
+import { and, count, desc, eq, or, sql } from 'drizzle-orm';
 import type { UserRole } from '@/core/database';
 import {
 	db,
 	studentNoteAttachments,
 	studentNotes,
+	students,
 	users,
 } from '@/core/database';
 import BaseRepository, {
@@ -138,6 +139,74 @@ export default class StudentNotesRepository extends BaseRepository<
 			);
 
 		return this.mapNotes(rows);
+	}
+
+	async findAllNotes(
+		userId: string,
+		userRole: UserRole,
+		page: number,
+		search?: string
+	) {
+		const size = 15;
+		const offset = (page - 1) * size;
+
+		const visibilityCondition =
+			userRole === 'admin'
+				? undefined
+				: or(
+						eq(studentNotes.visibility, 'everyone'),
+						and(
+							eq(studentNotes.visibility, 'role'),
+							eq(studentNotes.creatorRole, userRole)
+						),
+						and(
+							eq(studentNotes.visibility, 'self'),
+							eq(studentNotes.createdBy, userId)
+						)
+					);
+
+		const searchCondition = search
+			? or(
+					sql`${students.name} ILIKE ${`%${search}%`}`,
+					sql`${studentNotes.stdNo}::text ILIKE ${`%${search}%`}`,
+					sql`${studentNotes.content} ILIKE ${`%${search}%`}`
+				)
+			: undefined;
+
+		const conditions = [visibilityCondition, searchCondition].filter(Boolean);
+		const where = conditions.length > 0 ? and(...conditions) : undefined;
+
+		const items = await db
+			.select({
+				id: studentNotes.id,
+				stdNo: studentNotes.stdNo,
+				content: studentNotes.content,
+				visibility: studentNotes.visibility,
+				creatorRole: studentNotes.creatorRole,
+				createdBy: studentNotes.createdBy,
+				createdAt: studentNotes.createdAt,
+				updatedAt: studentNotes.updatedAt,
+				studentName: students.name,
+			})
+			.from(studentNotes)
+			.innerJoin(students, eq(studentNotes.stdNo, students.stdNo))
+			.where(where)
+			.orderBy(desc(studentNotes.createdAt))
+			.limit(size)
+			.offset(offset);
+
+		const [result] = await db
+			.select({ count: count() })
+			.from(studentNotes)
+			.innerJoin(students, eq(studentNotes.stdNo, students.stdNo))
+			.where(where);
+
+		const totalItems = result?.count ?? 0;
+		return {
+			items,
+			totalPages: Math.ceil(totalItems / size),
+			totalItems,
+		};
 	}
 
 	async findNoteById(id: string) {

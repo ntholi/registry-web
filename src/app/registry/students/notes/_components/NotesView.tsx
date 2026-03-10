@@ -15,7 +15,7 @@ import { IconPlus } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
 import { useState } from 'react';
-import { getStudentNotes } from '@/app/registry/student-notes/_server/actions';
+import { getStudentNotes } from '../_server/actions';
 import NoteCard from './NoteCard';
 import NoteModal from './NoteModal';
 

@@ -6,6 +6,7 @@ import { useQueryState } from 'nuqs';
 import type { getBlockedStudentByStdNo } from '@/app/registry/blocked-students';
 import ScrollableTabsList from '@/shared/ui/ScrollableTabsList';
 import type { getStudent } from '../_server/actions';
+import NotesView from '../notes/_components/NotesView';
 import AcademicsView from './academics/AcademicsView';
 import BlockedAcademicsView from './academics/BlockedAcademicsView';
 import StatementOfResultsPrinter from './academics/statements/StatementOfResultsPrinter';
@@ -16,7 +17,6 @@ import DocumentsView from './documents/DocumentsView';
 import StudentFinanceView from './finance/StudentFinanceView';
 import GraduationView from './graduation/GraduationView';
 import StudentView from './info/StudentView';
-import NotesView from './notes/NotesView';
 import RegistrationTabs from './registration/RegistrationTabs';
 import SponsorsView from './sponsors/SponsorsView';
 

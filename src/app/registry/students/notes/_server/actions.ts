@@ -7,6 +7,10 @@ export async function getStudentNotes(stdNo: number) {
 	return service.getByStudent(stdNo);
 }
 
+export async function findAllNotes(page: number, search: string) {
+	return service.findAll({ page, search });
+}
+
 export async function createStudentNote(
 	stdNo: number,
 	content: string,
@@ -25,6 +29,10 @@ export async function updateStudentNote(
 
 export async function deleteStudentNote(id: string) {
 	return service.deleteNote(id);
+}
+
+export async function getStudentNote(id: string) {
+	return service.getNoteById(id);
 }
 
 export async function uploadNoteAttachment(

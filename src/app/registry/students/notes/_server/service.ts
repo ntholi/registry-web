@@ -5,27 +5,13 @@ import {
 	generateUploadKey,
 	StoragePaths,
 } from '@/core/integrations/storage-utils';
+import type { QueryOptions } from '@/core/platform/BaseRepository';
 import BaseService from '@/core/platform/BaseService';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
 import withAuth, { requireSessionUserId } from '@/core/platform/withAuth';
+import { ALLOWED_MIME_TYPES, MAX_ATTACHMENT_SIZE } from '../_lib/constants';
 import type { NoteVisibility } from '../_schema/studentNotes';
 import StudentNotesRepository from './repository';
-
-const MAX_ATTACHMENT_SIZE = 5 * 1024 * 1024;
-
-const ALLOWED_MIME_TYPES = new Set([
-	'application/pdf',
-	'image/jpeg',
-	'image/png',
-	'image/webp',
-	'image/gif',
-	'application/msword',
-	'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-	'application/vnd.ms-powerpoint',
-	'application/vnd.openxmlformats-officedocument.presentationml.presentation',
-	'application/vnd.ms-excel',
-	'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-]);
 
 type StudentNoteDetails = Awaited<
 	ReturnType<StudentNotesRepository['findNoteById']>
@@ -85,6 +71,23 @@ class StudentNotesService extends BaseService<typeof studentNotes, 'id'> {
 				),
 			['dashboard']
 		);
+	}
+
+	async findAll(options: QueryOptions<typeof studentNotes>) {
+		return withAuth(
+			async (session) =>
+				this.repo.findAllNotes(
+					requireSessionUserId(session),
+					this.requireRole(session),
+					options.page ?? 1,
+					options.search
+				),
+			['dashboard']
+		);
+	}
+
+	async getNoteById(id: string) {
+		return withAuth(async () => this.repo.findNoteById(id), ['dashboard']);
 	}
 
 	async createNote(stdNo: number, content: string, visibility: NoteVisibility) {
@@ -192,7 +195,7 @@ class StudentNotesService extends BaseService<typeof studentNotes, 'id'> {
 					throw new Error('Attachment must not exceed 5 MB');
 				}
 
-				if (!ALLOWED_MIME_TYPES.has(mimeType)) {
+				if (!ALLOWED_MIME_TYPES.includes(mimeType)) {
 					throw new Error('Unsupported attachment type');
 				}
 

@@ -18,34 +18,23 @@ import { notifications } from '@mantine/notifications';
 import { IconFile, IconPaperclip, IconX } from '@tabler/icons-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
-import type { NoteVisibility } from '@/app/registry/student-notes/_schema/studentNotes';
+import { getPublicUrl } from '@/core/integrations/storage-utils';
+import RichTextField from '@/shared/ui/adease/RichTextField';
+import { VISIBILITY_HINT, VISIBILITY_OPTIONS } from '../_lib/constants';
+import type { NoteVisibility } from '../_schema/studentNotes';
 import {
 	createStudentNote,
 	deleteNoteAttachment,
 	updateStudentNote,
 	uploadNoteAttachment,
-} from '@/app/registry/student-notes/_server/actions';
-import type { StudentNoteRecord } from '@/app/registry/student-notes/_server/repository';
-import { getPublicUrl } from '@/core/integrations/storage-utils';
-import RichTextField from '@/shared/ui/adease/RichTextField';
+} from '../_server/actions';
+import type { StudentNoteRecord } from '../_server/repository';
 
 type Props = {
 	opened: boolean;
 	onClose: () => void;
 	stdNo: number;
 	note?: StudentNoteRecord;
-};
-
-const VISIBILITY_OPTIONS = [
-	{ label: 'My Department', value: 'role' },
-	{ label: 'Only Me', value: 'self' },
-	{ label: 'Everyone', value: 'everyone' },
-];
-
-const VISIBILITY_HINT: Record<NoteVisibility, string> = {
-	role: 'This note will only be visible to members of your department.',
-	self: 'This note will only be visible to you.',
-	everyone: 'This note will be visible to all staff.',
 };
 
 export default function NoteModal({ opened, onClose, stdNo, note }: Props) {
