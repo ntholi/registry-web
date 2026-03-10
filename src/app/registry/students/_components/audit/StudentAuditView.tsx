@@ -10,19 +10,19 @@ import {
 	Avatar,
 	Badge,
 	Box,
+	Button,
 	Center,
 	Chip,
 	Group,
 	HoverCard,
 	Loader,
-	Pagination,
 	Stack,
 	Text,
 	ThemeIcon,
 	Timeline,
 } from '@mantine/core';
-import { IconHistory } from '@tabler/icons-react';
-import { keepPreviousData, useQuery } from '@tanstack/react-query';
+import { IconChevronDown, IconHistory } from '@tabler/icons-react';
+import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 import { getRoleColor } from '@/shared/lib/utils/colors';
 import { formatDateTime, formatRelativeTime } from '@/shared/lib/utils/dates';
@@ -34,36 +34,41 @@ import {
 import {
 	getStudentHistory,
 	getStudentHistoryTableSummary,
-} from '../../_server/history/actions';
+} from '../../_server/audit/actions';
 
-type StudentHistoryViewProps = {
+type StudentAuditViewProps = {
 	stdNo: number;
 	isActive: boolean;
 };
 
-export default function StudentHistoryView({
+export default function StudentAuditView({
 	stdNo,
 	isActive,
-}: StudentHistoryViewProps) {
-	const [page, setPage] = useState(1);
+}: StudentAuditViewProps) {
 	const [tableFilter, setTableFilter] = useState<string | undefined>(undefined);
 
 	const { data: tableSummary } = useQuery({
-		queryKey: ['student-history-tables', stdNo],
+		queryKey: ['student-audit-tables', stdNo],
 		queryFn: () => getStudentHistoryTableSummary(stdNo),
 		enabled: isActive,
 	});
 
-	const { data, isLoading } = useQuery({
-		queryKey: ['student-history', stdNo, page, tableFilter],
-		queryFn: () => getStudentHistory(stdNo, page, tableFilter),
-		enabled: isActive,
-		placeholderData: keepPreviousData,
-	});
+	const { data, isLoading, isFetchingNextPage, hasNextPage, fetchNextPage } =
+		useInfiniteQuery({
+			queryKey: ['student-audit', stdNo, tableFilter],
+			queryFn: ({ pageParam }) =>
+				getStudentHistory(stdNo, pageParam, tableFilter),
+			initialPageParam: 1,
+			getNextPageParam: (lastPage, _, lastPageParam) =>
+				lastPageParam < lastPage.totalPages ? lastPageParam + 1 : undefined,
+			enabled: isActive,
+		});
+
+	const allItems = data?.pages.flatMap((p) => p.items) ?? [];
+	const totalItems = data?.pages[0]?.totalItems ?? 0;
 
 	function handleTableFilter(table: string | undefined) {
 		setTableFilter(table);
-		setPage(1);
 	}
 
 	if (!isActive) return null;
@@ -79,34 +84,36 @@ export default function StudentHistoryView({
 				<Center py='xl'>
 					<Loader size='sm' />
 				</Center>
-			) : !data || data.items.length === 0 ? (
+			) : allItems.length === 0 ? (
 				<Center py='xl'>
 					<Stack align='center' gap='xs'>
 						<ThemeIcon size='xl' variant='light' color='gray'>
 							<IconHistory size={24} />
 						</ThemeIcon>
 						<Text size='sm' c='dimmed'>
-							No history available
+							No audit entries available
 						</Text>
 					</Stack>
 				</Center>
 			) : (
 				<>
-					<HistoryTimeline entries={data.items} />
-					{data.totalPages > 1 && (
+					<AuditTimeline entries={allItems} />
+					{hasNextPage && (
 						<Center>
-							<Pagination
-								size='sm'
-								total={data.totalPages}
-								value={page}
-								onChange={setPage}
-								siblings={1}
-							/>
+							<Button
+								variant='subtle'
+								size='compact-sm'
+								rightSection={<IconChevronDown size={16} />}
+								onClick={() => fetchNextPage()}
+								loading={isFetchingNextPage}
+							>
+								Load more
+							</Button>
 						</Center>
 					)}
 					<Text size='xs' c='dimmed' ta='center'>
-						{data.totalItems.toLocaleString()}
-						{data.totalItems === 1 ? ' entry' : ' entries'}
+						{totalItems.toLocaleString()}
+						{totalItems === 1 ? ' entry' : ' entries'}
 					</Text>
 				</>
 			)}
@@ -152,29 +159,29 @@ function TableFilterChips({
 	);
 }
 
-type HistoryEntry = Awaited<
+type AuditEntry = Awaited<
 	ReturnType<typeof getStudentHistory>
 >['items'][number];
 
-type HistoryTimelineProps = {
-	entries: HistoryEntry[];
+type AuditTimelineProps = {
+	entries: AuditEntry[];
 };
 
-function HistoryTimeline({ entries }: HistoryTimelineProps) {
+function AuditTimeline({ entries }: AuditTimelineProps) {
 	return (
 		<Timeline bulletSize={36} lineWidth={2}>
 			{entries.map((entry) => (
-				<HistoryTimelineEntry key={String(entry.id)} entry={entry} />
+				<AuditTimelineEntry key={String(entry.id)} entry={entry} />
 			))}
 		</Timeline>
 	);
 }
 
-type HistoryTimelineEntryProps = {
-	entry: HistoryEntry;
+type AuditTimelineEntryProps = {
+	entry: AuditEntry;
 };
 
-function HistoryTimelineEntry({ entry }: HistoryTimelineEntryProps) {
+function AuditTimelineEntry({ entry }: AuditTimelineEntryProps) {
 	const oldVals = (entry.oldValues ?? {}) as Record<string, unknown>;
 	const newVals = (entry.newValues ?? {}) as Record<string, unknown>;
 	const meta = entry.metadata as Record<string, unknown> | null;
@@ -294,7 +301,7 @@ function getTableLabel(tableName: string): string {
 }
 
 type UserProfileHoverProps = {
-	entry: HistoryEntry;
+	entry: AuditEntry;
 	initials: string;
 	opColor: string;
 	children: React.ReactNode;
