@@ -11,6 +11,7 @@ import type { QueryOptions } from '@/core/platform/BaseRepository';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
 import withAuth from '@/core/platform/withAuth';
 import { getAcademicRemarks } from '@/shared/lib/utils/grades';
+import { canReadRegistrationRequestList } from '../../_lib/access';
 import { getStudentSemesterModulesLogic } from './getStudentSemesterModules';
 import RegistrationRequestRepository from './repository';
 
@@ -33,7 +34,7 @@ class RegistrationRequestService {
 	async findAll(params: RegistrationRequestQuery, termId?: number) {
 		return withAuth(
 			async () => this.repository.findAllPaginated(params, termId),
-			['registry', 'finance', 'library']
+			async (session) => canReadRegistrationRequestList(session.user)
 		);
 	}
 

@@ -1,3 +1,4 @@
+import { canReadRegistrationRequestList } from '@registry/registration/requests/_lib/access';
 import {
 	IconBook,
 	IconBooks,
@@ -59,7 +60,7 @@ export const registryConfig: ModuleConfig = {
 				description: 'Registration Requests',
 				href: '/registry/registration/requests',
 				icon: IconUserPlus,
-				roles: ['registry', 'admin'],
+				isVisible: (session) => canReadRegistrationRequestList(session?.user),
 			},
 			{
 				label: 'Graduations',
