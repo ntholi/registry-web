@@ -257,10 +257,10 @@ export default function StudentStatusForm({
 											/>
 										</SimpleGrid>
 										<Textarea
-											label='Reasons'
+											label='Notes'
 											autosize
 											minRows={3}
-											{...form.getInputProps('reasons')}
+											{...form.getInputProps('notes')}
 										/>
 									</>
 								)}

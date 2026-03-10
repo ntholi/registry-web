@@ -1,11 +1,8 @@
-import type { ProgramLevel } from '@academic/_database';
-import type { SemesterStatus } from '@registry/_database';
-import { and, eq, ilike, inArray, or, type SQL, sql } from 'drizzle-orm';
+import { and, eq, inArray, sql } from 'drizzle-orm';
 import {
 	db,
 	programs,
 	schools,
-	sponsors,
 	structureSemesters,
 	structures,
 	studentPrograms,
@@ -13,647 +10,409 @@ import {
 	students,
 	terms,
 } from '@/core/database';
-import { compareSemesters } from '@/shared/lib/utils/utils';
+import type { ProgressionReportFilter } from '../types';
 
-export type ProgressionCategory =
-	| 'Progressed'
-	| 'Remained'
-	| 'Not Enrolled'
-	| 'Graduated'
-	| 'Dropped Out'
-	| 'Deferred'
-	| 'Terminated/Suspended';
-
-export interface ProgressionFilter {
-	schoolIds?: number[];
-	programId?: number;
-	programLevels?: ProgramLevel[];
-	searchQuery?: string;
-	gender?: string;
-	sponsorId?: number;
-	ageRangeMin?: number;
-	ageRangeMax?: number;
-	country?: string;
-	studentStatus?: string;
-	programStatus?: string;
-	semesterStatuses?: string[];
-	category?: ProgressionCategory;
-}
-
-export interface ProgressionStudent {
+interface ProgressionCohortRow {
+	studentProgramId: number;
 	stdNo: number;
 	name: string;
+	schoolCode: string;
+	schoolName: string;
+	programCode: string;
 	programName: string;
 	previousSemester: string;
+	previousStatus: string;
+	previousSemesterOrder: number;
+	hasNextSemester: boolean;
 	currentSemester: string | null;
-	category: ProgressionCategory;
-	schoolCode: string;
-	schoolName: string;
-	gender: string | null;
-	country: string | null;
-	sponsorName: string | null;
+	currentStatus: string | null;
+	currentSemesterOrder: number | null;
 }
-
-export interface ProgressionSummaryProgram {
-	programName: string;
-	totalPrevious: number;
-	progressed: number;
-	remained: number;
-	notEnrolled: number;
-	graduated: number;
-	droppedOut: number;
-	deferred: number;
-	terminated: number;
-	progressionRate: number;
-}
-
-export interface ProgressionSummarySchool {
-	schoolName: string;
-	schoolCode: string;
-	totalPrevious: number;
-	progressed: number;
-	remained: number;
-	notEnrolled: number;
-	graduated: number;
-	droppedOut: number;
-	deferred: number;
-	terminated: number;
-	progressionRate: number;
-	programs: ProgressionSummaryProgram[];
-}
-
-interface ProgressionChartCategoryItem {
-	category: ProgressionCategory;
-	count: number;
-}
-
-interface ProgressionChartSchoolItem {
-	name: string;
-	code: string;
-	progressed: number;
-	notProgressed: number;
-}
-
-interface ProgressionChartProgramItem {
-	name: string;
-	total: number;
-	progressed: number;
-	rate: number;
-}
-
-interface ProgressionChartSemesterItem {
-	semester: string;
-	total: number;
-	progressed: number;
-	rate: number;
-}
-
-export interface ProgressionChartData {
-	totalStudents: number;
-	byCategory: ProgressionChartCategoryItem[];
-	bySchool: ProgressionChartSchoolItem[];
-	byProgram: ProgressionChartProgramItem[];
-	bySemester: ProgressionChartSemesterItem[];
-}
-
-interface PrevSemRow {
-	stdNo: number;
-	name: string;
-	programName: string;
-	schoolName: string;
-	schoolCode: string;
-	previousSemester: string | null;
-	studentProgramId: number;
-	gender: string | null;
-	country: string | null;
-	sponsorName: string | null;
-	studentStatus: string | null;
-	programStatus: string | null;
-	semesterStatus: string;
-	dateOfBirth: Date | null;
-}
-
-const prevSem = studentSemesters;
 
 export class ProgressionReportRepository {
-	async getTermById(termId: number) {
-		const [term] = await db
-			.select({ id: terms.id, code: terms.code })
-			.from(terms)
-			.where(eq(terms.id, termId))
-			.limit(1);
-		return term ?? null;
+	private semesterOrder(column: typeof structureSemesters.semesterNumber) {
+		return sql<number>`
+			CASE
+				WHEN ${column} ~ '^[A-Z][0-9]+$'
+					THEN ASCII(LEFT(${column}, 1)) * 1000 + CAST(SUBSTRING(${column} FROM 2) AS INTEGER)
+				WHEN ${column} ~ '^[0-9]+$'
+					THEN 1000000 + CAST(${column} AS INTEGER)
+				ELSE 2000000
+			END
+		`;
 	}
 
-	private createPrevTermQuery() {
-		return db
-			.select({
-				stdNo: students.stdNo,
-				name: students.name,
-				programName: programs.name,
-				schoolName: schools.name,
-				schoolCode: schools.code,
-				previousSemester: structureSemesters.semesterNumber,
-				studentProgramId: prevSem.studentProgramId,
-				gender: students.gender,
-				country: students.country,
-				sponsorName: sponsors.name,
-				studentStatus: students.status,
-				programStatus: studentPrograms.status,
-				semesterStatus: prevSem.status,
-				dateOfBirth: students.dateOfBirth,
-			})
-			.from(prevSem)
-			.innerJoin(
-				structureSemesters,
-				eq(prevSem.structureSemesterId, structureSemesters.id)
-			)
-			.innerJoin(
-				studentPrograms,
-				eq(prevSem.studentProgramId, studentPrograms.id)
-			)
-			.innerJoin(students, eq(studentPrograms.stdNo, students.stdNo))
-			.innerJoin(structures, eq(studentPrograms.structureId, structures.id))
-			.innerJoin(programs, eq(structures.programId, programs.id))
-			.innerJoin(schools, eq(programs.schoolId, schools.id))
-			.leftJoin(sponsors, eq(prevSem.sponsorId, sponsors.id));
-	}
-
-	private buildFilterConditions(
-		filter: ProgressionFilter | undefined,
-		options: { includeSearchQuery?: boolean } = {}
-	): SQL[] {
+	private buildPreviousFilters(filter: ProgressionReportFilter | undefined) {
 		const conditions: SQL[] = [];
-
-		if (filter?.studentStatus) {
-			conditions.push(sql`${students.status} = ${filter.studentStatus}`);
-		}
-
-		if (filter?.programStatus) {
-			conditions.push(sql`${studentPrograms.status} = ${filter.programStatus}`);
-		} else {
-			conditions.push(inArray(studentPrograms.status, ['Active', 'Completed']));
-		}
-
-		if (filter?.semesterStatuses && filter.semesterStatuses.length > 0) {
-			conditions.push(
-				inArray(prevSem.status, filter.semesterStatuses as SemesterStatus[])
-			);
-		} else {
-			conditions.push(
-				inArray(prevSem.status, [
-					'Active',
-					'Enrolled',
-					'Exempted',
-					'Outstanding',
-					'Repeat',
-					'DNR',
-				])
-			);
-		}
 
 		if (filter?.schoolIds && filter.schoolIds.length > 0) {
 			conditions.push(inArray(schools.id, filter.schoolIds));
-		}
-
-		if (filter?.programLevels && filter.programLevels.length > 0) {
-			conditions.push(inArray(programs.level, filter.programLevels));
 		}
 
 		if (filter?.programId) {
 			conditions.push(eq(programs.id, filter.programId));
 		}
 
-		if (filter?.gender) {
-			conditions.push(
-				sql`${students.gender} = ${filter.gender as 'Male' | 'Female' | 'Unknown'}`
+		return conditions;
+	}
+
+	async getTermsByIds(termIds: number[]) {
+		return db
+			.select({ id: terms.id, code: terms.code, name: terms.name })
+			.from(terms)
+			.where(inArray(terms.id, termIds));
+	}
+
+	async getProgressionCohort(
+		previousTermCode: string,
+		currentTermCode: string,
+		filter?: ProgressionReportFilter
+	): Promise<ProgressionCohortRow[]> {
+		const semesterOrder = this.semesterOrder(structureSemesters.semesterNumber);
+
+		const semesterSequence = db.$with('semester_sequence').as(
+			db
+				.select({
+					structureSemesterId: structureSemesters.id,
+					structureId: structureSemesters.structureId,
+					semesterNumber: structureSemesters.semesterNumber,
+					semesterOrder: semesterOrder.as('semester_order'),
+					nextSemesterNumber: sql<string | null>`LEAD(${structureSemesters.semesterNumber}) OVER (
+						PARTITION BY ${structureSemesters.structureId}
+						ORDER BY ${semesterOrder}
+					)`.as('next_semester_number'),
+				})
+				.from(structureSemesters)
+		);
+
+		const previousCohort = db.$with('previous_cohort').as(
+			db
+				.with(semesterSequence)
+				.select({
+					previousStudentProgramId: sql<number>`${studentPrograms.id}`.as(
+						'previous_student_program_id'
+					),
+					stdNo: sql<number>`${students.stdNo}`.as('std_no'),
+					name: sql<string>`${students.name}`.as('student_name'),
+					schoolCode: sql<string>`${schools.code}`.as('school_code'),
+					schoolName: sql<string>`${schools.name}`.as('school_name'),
+					programCode: sql<string>`${programs.code}`.as('program_code'),
+					programName: sql<string>`${programs.name}`.as('program_name'),
+					previousSemester: sql<string>`${semesterSequence.semesterNumber}`.as(
+						'previous_semester'
+					),
+					previousStatus: sql<string>`${studentSemesters.status}`.as(
+						'previous_status'
+					),
+					previousSemesterOrder: sql<number>`${semesterSequence.semesterOrder}`.as(
+						'previous_semester_order'
+					),
+					hasNextSemester:
+						sql<boolean>`${semesterSequence.nextSemesterNumber} IS NOT NULL`.as(
+							'has_next_semester'
+						),
+				})
+				.from(studentSemesters)
+				.innerJoin(
+					studentPrograms,
+					eq(studentPrograms.id, studentSemesters.studentProgramId)
+				)
+				.innerJoin(students, eq(students.stdNo, studentPrograms.stdNo))
+				.innerJoin(structures, eq(structures.id, studentPrograms.structureId))
+				.innerJoin(programs, eq(programs.id, structures.programId))
+				.innerJoin(schools, eq(schools.id, programs.schoolId))
+				.innerJoin(
+					semesterSequence,
+					eq(
+						semesterSequence.structureSemesterId,
+						studentSemesters.structureSemesterId
+					)
+				)
+				.where(
+					and(
+						eq(studentSemesters.termCode, previousTermCode),
+						inArray(studentPrograms.status, ['Active', 'Completed']),
+						inArray(studentSemesters.status, [
+							'Active',
+							'Enrolled',
+							'Exempted',
+							'Outstanding',
+							'Repeat',
+							'DNR',
+						]),
+						...this.buildPreviousFilters(filter),
+						filter?.semesterNumber
+							? eq(semesterSequence.semesterNumber, filter.semesterNumber)
+							: undefined
+					)
+				)
+		);
+
+		const currentCohort = db.$with('current_cohort').as(
+			db
+				.with(semesterSequence)
+				.select({
+					currentStudentProgramId: sql<number>`${studentSemesters.studentProgramId}`.as(
+						'current_student_program_id'
+					),
+					currentSemester: sql<string>`${semesterSequence.semesterNumber}`.as(
+						'current_semester'
+					),
+					currentStatus: sql<string>`${studentSemesters.status}`.as(
+						'current_status'
+					),
+					currentSemesterOrder: sql<number>`${semesterSequence.semesterOrder}`.as(
+						'current_semester_order'
+					),
+				})
+				.from(studentSemesters)
+				.innerJoin(
+					semesterSequence,
+					eq(
+						semesterSequence.structureSemesterId,
+						studentSemesters.structureSemesterId
+					)
+				)
+				.where(eq(studentSemesters.termCode, currentTermCode))
+		);
+
+		return db
+			.with(semesterSequence, previousCohort, currentCohort)
+			.select({
+				studentProgramId: previousCohort.previousStudentProgramId,
+				stdNo: previousCohort.stdNo,
+				name: previousCohort.name,
+				schoolCode: previousCohort.schoolCode,
+				schoolName: previousCohort.schoolName,
+				programCode: previousCohort.programCode,
+				programName: previousCohort.programName,
+				previousSemester: previousCohort.previousSemester,
+				previousStatus: previousCohort.previousStatus,
+				previousSemesterOrder: previousCohort.previousSemesterOrder,
+				hasNextSemester: previousCohort.hasNextSemester,
+				currentSemester: currentCohort.currentSemester,
+				currentStatus: currentCohort.currentStatus,
+				currentSemesterOrder: currentCohort.currentSemesterOrder,
+			})
+			.from(previousCohort)
+			.leftJoin(
+				currentCohort,
+				eq(
+					currentCohort.currentStudentProgramId,
+					previousCohort.previousStudentProgramId
+				)
+			)
+			.orderBy(
+				sql`${previousCohort.hasNextSemester} DESC`,
+				sql`${previousCohort.previousSemesterOrder} DESC`,
+				previousCohort.schoolCode,
+				previousCohort.programCode,
+				previousCohort.stdNo
 			);
-		}
+	}
+}
 
-		if (filter?.sponsorId) {
-			conditions.push(eq(prevSem.sponsorId, filter.sponsorId));
-		}
+export const progressionReportRepository = new ProgressionReportRepository();
+	stdNo: number;
+	name: string;
+	schoolCode: string;
+	schoolName: string;
+	programCode: string;
+	programName: string;
+	previousSemester: string;
+	previousStatus: string;
+	previousSemesterOrder: number;
+	hasNextSemester: boolean;
+	currentSemester: string | null;
+	currentStatus: string | null;
+	currentSemesterOrder: number | null;
+}
 
-		if (filter?.country) {
-			conditions.push(eq(students.country, filter.country));
-		}
+export class ProgressionReportRepository {
+	private semesterOrder(column: typeof structureSemesters.semesterNumber) {
+		return sql<number>`
+			CASE
+				WHEN ${column} ~ '^[A-Z][0-9]+$'
+					THEN ASCII(LEFT(${column}, 1)) * 1000 + CAST(SUBSTRING(${column} FROM 2) AS INTEGER)
+				WHEN ${column} ~ '^[0-9]+$'
+					THEN 1000000 + CAST(${column} AS INTEGER)
+				ELSE 2000000
+			END
+		`;
+	}
 
-		if (filter?.ageRangeMin || filter?.ageRangeMax) {
-			const currentDate = new Date();
-			if (filter.ageRangeMin) {
-				const maxBirthDate = new Date(
-					currentDate.getFullYear() - filter.ageRangeMin,
-					currentDate.getMonth(),
-					currentDate.getDate()
-				);
-				conditions.push(sql`${students.dateOfBirth} <= ${maxBirthDate}`);
-			}
-			if (filter.ageRangeMax) {
-				const minBirthDate = new Date(
-					currentDate.getFullYear() - filter.ageRangeMax - 1,
-					currentDate.getMonth(),
-					currentDate.getDate()
-				);
-				conditions.push(sql`${students.dateOfBirth} >= ${minBirthDate}`);
-			}
-		}
+	private buildPreviousFilters(filter: ProgressionReportFilter | undefined) {
+		const conditions = [];
 
-		if (options.includeSearchQuery && filter?.searchQuery?.trim()) {
-			const searchTerm = `%${filter.searchQuery.trim()}%`;
-			conditions.push(
-				or(
-					ilike(sql`CAST(${students.stdNo} AS TEXT)`, searchTerm),
-					ilike(students.name, searchTerm),
-					ilike(programs.name, searchTerm),
-					ilike(schools.name, searchTerm),
-					ilike(schools.code, searchTerm)
-				)!
-			);
+		if (filter?.schoolIds && filter.schoolIds.length > 0) {
+					previousStudentProgramId: sql<number>`${studentPrograms.id}`.as(
+						'previous_student_program_id'
+					),
+		if (filter?.programId) {
+			conditions.push(eq(programs.id, filter.programId));
 		}
 
 		return conditions;
 	}
 
-	private categorizeStudent(
-		row: PrevSemRow,
-		currSemRow: { semesterNumber: string | null } | null
-	): ProgressionCategory {
-		if (
-			row.studentStatus === 'Graduated' ||
-			row.programStatus === 'Completed'
-		) {
-			return 'Graduated';
-		}
+	async getTermsByIds(termIds: number[]) 
+		return db
+			.select({ id: terms.id, code: terms.code, name: terms.name })
+			.from(terms)
+			.where(inArray(terms.id, termIds));
 
-		if (
-			row.studentStatus === 'Terminated' ||
-			row.studentStatus === 'Suspended'
-		) {
-			return 'Terminated/Suspended';
-		}
+	async getProgressionCohort(
+		previousTermCode: string,
+		currentTermCode: string,
+		filter?: ProgressionReportFilter
+	): Promise<ProgressionCohortRow[]> {
+		const semesterOrder = this.semesterOrder(structureSemesters.semesterNumber);
 
-		if (row.studentStatus === 'Withdrawn') {
-			return 'Dropped Out';
-		}
+		const semesterSequence = db.$with('semester_sequence').as(
+			db
+				.select({
+					structureSemesterId: structureSemesters.id,
+					structureId: structureSemesters.structureId,
+					semesterNumber: structureSemesters.semesterNumber,
+					semesterOrder: semesterOrder.as('semester_order'),
+					nextSemesterNumber: sql<
+						string | null
+					>`LEAD(${structureSemesters.semesterNumber}) OVER (
+						PARTITION BY ${structureSemesters.structureId}
+						ORDER BY ${semesterOrder}
+					)`.as('next_semester_number'),
+				})
+				.from(structureSemesters)
+		);
 
-		if (
-			row.semesterStatus === 'DroppedOut' ||
-			row.semesterStatus === 'Withdrawn'
-		) {
-			return 'Dropped Out';
-		}
-
-		if (row.semesterStatus === 'Deferred') {
-			return 'Deferred';
-		}
-
-		if (!currSemRow || !currSemRow.semesterNumber) {
-			return 'Not Enrolled';
-		}
-
-		const prevSemNum = row.previousSemester ?? '';
-		const currSemNum = currSemRow.semesterNumber;
-		const cmp = compareSemesters(currSemNum, prevSemNum);
-
-		if (cmp > 0) return 'Progressed';
-		return 'Remained';
-	}
-
-	private async fetchProgressionRows(
-		prevTermCode: string,
-		currTermCode: string,
-		filter?: ProgressionFilter
-	): Promise<ProgressionStudent[]> {
-		const conditions = [
-			eq(prevSem.termCode, prevTermCode),
-			...this.buildFilterConditions(filter),
-		];
-
-		const prevRows = (await this.createPrevTermQuery().where(
-			and(...conditions)
-		)) as PrevSemRow[];
-
-		if (prevRows.length === 0) return [];
-
-		const spIds = [
-			...new Set(prevRows.map((r) => r.studentProgramId).filter(Boolean)),
-		];
-
-		const currRows = await db
-			.select({
-				studentProgramId: studentSemesters.studentProgramId,
-				semesterNumber: structureSemesters.semesterNumber,
-			})
-			.from(studentSemesters)
-			.innerJoin(
-				structureSemesters,
-				eq(studentSemesters.structureSemesterId, structureSemesters.id)
-			)
-			.where(
-				and(
-					eq(studentSemesters.termCode, currTermCode),
-					inArray(studentSemesters.studentProgramId, spIds)
+		const previousCohort = db.$with('previous_cohort').as(
+			db
+				.with(semesterSequence)
+				.select({
+					studentProgramId: sql<number>`${studentPrograms.id}`.as(
+						'student_program_id'
+					),
+					stdNo: sql<number>`${students.stdNo}`.as('std_no'),
+					name: sql<string>`${students.name}`.as('student_name'),
+					schoolCode: sql<string>`${schools.code}`.as('school_code'),
+					schoolName: sql<string>`${schools.name}`.as('school_name'),
+					programCode: sql<string>`${programs.code}`.as('program_code'),
+					programName: sql<string>`${programs.name}`.as('program_name'),
+					previousSemester: sql<string>`${semesterSequence.semesterNumber}`.as(
+						'previous_semester'
+					),
+					previousStatus: sql<string>`${studentSemesters.status}`.as(
+						'previous_status'
+					),
+					previousSemesterOrder:
+						sql<number>`${semesterSequence.semesterOrder}`.as(
+							'previous_semester_order'
+						),
+					currentStudentProgramId:
+						sql<number>`${studentSemesters.studentProgramId}`.as(
+							'current_student_program_id'
+						),
+				})
+				.from(studentSemesters)
+				.innerJoin(
+					studentPrograms,
+					eq(studentPrograms.id, studentSemesters.studentProgramId)
 				)
+				.innerJoin(students, eq(students.stdNo, studentPrograms.stdNo))
+				.innerJoin(structures, eq(structures.id, studentPrograms.structureId))
+				.innerJoin(programs, eq(programs.id, structures.programId))
+				.innerJoin(schools, eq(schools.id, programs.schoolId))
+				.innerJoin(
+					semesterSequence,
+					eq(
+						semesterSequence.structureSemesterId,
+						studentSemesters.structureSemesterId
+					)
+				)
+				.where(
+					and(
+						eq(studentSemesters.termCode, previousTermCode),
+						inArray(studentPrograms.status, ['Active', 'Completed']),
+						inArray(studentSemesters.status, [
+							'Active',
+							'Enrolled',
+							'Exempted',
+				studentProgramId: previousCohort.previousStudentProgramId,
+							'Repeat',
+							'DNR',
+						]),
+						...this.buildPreviousFilters(filter),
+						filter?.semesterNumber
+							? eq(semesterSequence.semesterNumber, filter.semesterNumber)
+							: undefined
+					)
+				)
+		);
+
+		const currentCohort = db.$with('current_cohort').as(
+			db
+				.with(semesterSequence)
+				.select({
+					studentProgramId:
+						sql<number>`${studentSemesters.studentProgramId}`.as(
+				eq(
+					currentCohort.currentStudentProgramId,
+					previousCohort.previousStudentProgramId
+				)
+						),
+					currentSemester: sql<string>`${semesterSequence.semesterNumber}`.as(
+						'current_semester'
+					),
+					currentStatus: sql<string>`${studentSemesters.status}`.as(
+						'current_status'
+					),
+					currentSemesterOrder:
+						sql<number>`${semesterSequence.semesterOrder}`.as(
+							'current_semester_order'
+						),
+				})
+				.from(studentSemesters)
+				.innerJoin(
+					semesterSequence,
+					eq(
+						semesterSequence.structureSemesterId,
+						studentSemesters.structureSemesterId
+					)
+				)
+				.where(eq(studentSemesters.termCode, currentTermCode))
+		);
+
+		return db
+			.with(semesterSequence, previousCohort, currentCohort)
+			.select({
+				studentProgramId: previousCohort.studentProgramId,
+				stdNo: previousCohort.stdNo,
+				name: previousCohort.name,
+				schoolCode: previousCohort.schoolCode,
+				schoolName: previousCohort.schoolName,
+				programCode: previousCohort.programCode,
+				programName: previousCohort.programName,
+				previousSemester: previousCohort.previousSemester,
+				previousStatus: previousCohort.previousStatus,
+				previousSemesterOrder: previousCohort.previousSemesterOrder,
+				hasNextSemester: previousCohort.hasNextSemester,
+				currentSemester: currentCohort.currentSemester,
+				currentStatus: currentCohort.currentStatus,
+				currentSemesterOrder: currentCohort.currentSemesterOrder,
+			})
+			.from(previousCohort)
+			.leftJoin(
+				currentCohort,
+				eq(currentCohort.studentProgramId, previousCohort.studentProgramId)
+			)
+			.orderBy(
+				sql`${previousCohort.hasNextSemester} DESC`,
+				sql`${previousCohort.previousSemesterOrder} DESC`,
+				previousCohort.schoolCode,
+				previousCohort.programCode,
+				previousCohort.stdNo
 			);
-
-		const currMap = new Map(currRows.map((r) => [r.studentProgramId, r]));
-
-		const result: ProgressionStudent[] = [];
-		for (const row of prevRows) {
-			const currSemRow = currMap.get(row.studentProgramId) ?? null;
-			const category = this.categorizeStudent(row, currSemRow);
-
-			if (filter?.category && category !== filter.category) continue;
-
-			result.push({
-				stdNo: row.stdNo,
-				name: row.name,
-				programName: row.programName,
-				previousSemester: row.previousSemester ?? '',
-				currentSemester: currSemRow?.semesterNumber ?? null,
-				category,
-				schoolCode: row.schoolCode,
-				schoolName: row.schoolName,
-				gender: row.gender,
-				country: row.country,
-				sponsorName: row.sponsorName,
-			});
-		}
-
-		return result;
-	}
-
-	async getProgressionSummary(
-		prevTermCode: string,
-		currTermCode: string,
-		filter?: ProgressionFilter
-	): Promise<ProgressionSummarySchool[]> {
-		const rows = await this.fetchProgressionRows(
-			prevTermCode,
-			currTermCode,
-			filter
-		);
-
-		const schoolMap = new Map<string, ProgressionSummarySchool>();
-		const programMap = new Map<
-			string,
-			ProgressionSummaryProgram & { schoolName: string }
-		>();
-
-		for (const row of rows) {
-			const schoolKey = row.schoolName;
-			if (!schoolMap.has(schoolKey)) {
-				schoolMap.set(schoolKey, {
-					schoolName: row.schoolName,
-					schoolCode: row.schoolCode,
-					totalPrevious: 0,
-					progressed: 0,
-					remained: 0,
-					notEnrolled: 0,
-					graduated: 0,
-					droppedOut: 0,
-					deferred: 0,
-					terminated: 0,
-					progressionRate: 0,
-					programs: [],
-				});
-			}
-
-			const programKey = `${row.programName}|${row.schoolName}`;
-			if (!programMap.has(programKey)) {
-				programMap.set(programKey, {
-					programName: row.programName,
-					schoolName: row.schoolName,
-					totalPrevious: 0,
-					progressed: 0,
-					remained: 0,
-					notEnrolled: 0,
-					graduated: 0,
-					droppedOut: 0,
-					deferred: 0,
-					terminated: 0,
-					progressionRate: 0,
-				});
-			}
-
-			const school = schoolMap.get(schoolKey)!;
-			const program = programMap.get(programKey)!;
-
-			school.totalPrevious++;
-			program.totalPrevious++;
-
-			switch (row.category) {
-				case 'Progressed':
-					school.progressed++;
-					program.progressed++;
-					break;
-				case 'Remained':
-					school.remained++;
-					program.remained++;
-					break;
-				case 'Not Enrolled':
-					school.notEnrolled++;
-					program.notEnrolled++;
-					break;
-				case 'Graduated':
-					school.graduated++;
-					program.graduated++;
-					break;
-				case 'Dropped Out':
-					school.droppedOut++;
-					program.droppedOut++;
-					break;
-				case 'Deferred':
-					school.deferred++;
-					program.deferred++;
-					break;
-				case 'Terminated/Suspended':
-					school.terminated++;
-					program.terminated++;
-					break;
-			}
-		}
-
-		for (const program of programMap.values()) {
-			program.progressionRate =
-				program.totalPrevious > 0
-					? Math.round((program.progressed / program.totalPrevious) * 100)
-					: 0;
-		}
-
-		const result: ProgressionSummarySchool[] = [];
-		for (const school of schoolMap.values()) {
-			school.progressionRate =
-				school.totalPrevious > 0
-					? Math.round((school.progressed / school.totalPrevious) * 100)
-					: 0;
-
-			school.programs = Array.from(programMap.values())
-				.filter((p) => p.schoolName === school.schoolName)
-				.map(({ schoolName: _sn, ...rest }) => rest)
-				.sort((a, b) => a.programName.localeCompare(b.programName));
-
-			result.push(school);
-		}
-
-		return result.sort((a, b) => a.schoolName.localeCompare(b.schoolName));
-	}
-
-	async getPaginatedProgressionData(
-		prevTermCode: string,
-		currTermCode: string,
-		page: number,
-		pageSize: number,
-		filter?: ProgressionFilter
-	): Promise<{
-		students: ProgressionStudent[];
-		totalCount: number;
-		totalPages: number;
-		currentPage: number;
-	}> {
-		const allRows = await this.fetchProgressionRows(
-			prevTermCode,
-			currTermCode,
-			{ ...filter, category: undefined }
-		);
-
-		let filtered = allRows;
-
-		if (filter?.category) {
-			filtered = allRows.filter((r) => r.category === filter.category);
-		}
-
-		if (filter?.searchQuery?.trim()) {
-			const q = filter.searchQuery.trim().toLowerCase();
-			filtered = filtered.filter(
-				(r) =>
-					String(r.stdNo).includes(q) ||
-					r.name.toLowerCase().includes(q) ||
-					r.programName.toLowerCase().includes(q) ||
-					r.schoolName.toLowerCase().includes(q) ||
-					r.schoolCode.toLowerCase().includes(q)
-			);
-		}
-
-		const totalCount = filtered.length;
-		const totalPages = Math.ceil(totalCount / pageSize);
-		const offset = (page - 1) * pageSize;
-		const paginated = filtered.slice(offset, offset + pageSize);
-
-		return {
-			students: paginated,
-			totalCount,
-			totalPages,
-			currentPage: page,
-		};
-	}
-
-	async getProgressionChartData(
-		prevTermCode: string,
-		currTermCode: string,
-		filter?: ProgressionFilter
-	): Promise<ProgressionChartData> {
-		const rows = await this.fetchProgressionRows(
-			prevTermCode,
-			currTermCode,
-			filter
-		);
-
-		const categoryMap = new Map<ProgressionCategory, number>();
-		const schoolDataMap = new Map<
-			string,
-			{ code: string; progressed: number; notProgressed: number }
-		>();
-		const programDataMap = new Map<
-			string,
-			{ total: number; progressed: number }
-		>();
-		const semesterDataMap = new Map<
-			string,
-			{ total: number; progressed: number }
-		>();
-
-		for (const row of rows) {
-			categoryMap.set(row.category, (categoryMap.get(row.category) ?? 0) + 1);
-
-			if (!schoolDataMap.has(row.schoolName)) {
-				schoolDataMap.set(row.schoolName, {
-					code: row.schoolCode,
-					progressed: 0,
-					notProgressed: 0,
-				});
-			}
-			const sch = schoolDataMap.get(row.schoolName)!;
-			if (row.category === 'Progressed') sch.progressed++;
-			else sch.notProgressed++;
-
-			if (!programDataMap.has(row.programName)) {
-				programDataMap.set(row.programName, { total: 0, progressed: 0 });
-			}
-			const prg = programDataMap.get(row.programName)!;
-			prg.total++;
-			if (row.category === 'Progressed') prg.progressed++;
-
-			const sem = row.previousSemester || 'Unknown';
-			if (!semesterDataMap.has(sem)) {
-				semesterDataMap.set(sem, { total: 0, progressed: 0 });
-			}
-			const s = semesterDataMap.get(sem)!;
-			s.total++;
-			if (row.category === 'Progressed') s.progressed++;
-		}
-
-		const allCategories: ProgressionCategory[] = [
-			'Progressed',
-			'Remained',
-			'Not Enrolled',
-			'Graduated',
-			'Dropped Out',
-			'Deferred',
-			'Terminated/Suspended',
-		];
-
-		return {
-			totalStudents: rows.length,
-			byCategory: allCategories
-				.map((category) => ({
-					category,
-					count: categoryMap.get(category) ?? 0,
-				}))
-				.filter((c) => c.count > 0),
-			bySchool: Array.from(schoolDataMap.entries())
-				.map(([name, data]) => ({
-					name,
-					code: data.code,
-					progressed: data.progressed,
-					notProgressed: data.notProgressed,
-				}))
-				.sort(
-					(a, b) =>
-						b.progressed + b.notProgressed - (a.progressed + a.notProgressed)
-				),
-			byProgram: Array.from(programDataMap.entries())
-				.map(([name, data]) => ({
-					name,
-					total: data.total,
-					progressed: data.progressed,
-					rate:
-						data.total > 0
-							? Math.round((data.progressed / data.total) * 100)
-							: 0,
-				}))
-				.sort((a, b) => b.rate - a.rate),
-			bySemester: Array.from(semesterDataMap.entries())
-				.map(([semester, data]) => ({
-					semester,
-					total: data.total,
-					progressed: data.progressed,
-					rate:
-						data.total > 0
-							? Math.round((data.progressed / data.total) * 100)
-							: 0,
-				}))
-				.sort((a, b) => compareSemesters(a.semester, b.semester)),
-		};
 	}
 }
+
+export const progressionReportRepository = new ProgressionReportRepository();
