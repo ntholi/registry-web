@@ -94,7 +94,7 @@ export default function NoteCard({
 								<DeleteButton
 									size='sm'
 									handleDelete={() => deleteStudentNote(note.id)}
-									queryKey={['student-notes', String(stdNo)]}
+									queryKey={['student-notes', stdNo]}
 									itemType='note'
 									onSuccess={() =>
 										notifications.show({

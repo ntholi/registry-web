@@ -29,7 +29,7 @@ export interface DeleteButtonProps extends ActionIconProps {
 	message?: string;
 	onSuccess?: () => void;
 	onError?: (error: Error) => void;
-	queryKey?: string[];
+	queryKey?: unknown[];
 	itemName?: string;
 	itemType?: string;
 	warningMessage?: string;
