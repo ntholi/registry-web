@@ -27,6 +27,7 @@ export * from '../registration-requests/_schema/relations';
 export * from '../registration-requests/_schema/requestedModules';
 export * from '../student-statuses/_schema/relations';
 export * from '../student-statuses/_schema/studentStatusApprovals';
+export * from '../student-statuses/_schema/studentStatusAttachments';
 export * from '../student-statuses/_schema/studentStatuses';
 export * from '../students/_schema/nextOfKins';
 export * from '../students/_schema/relations';

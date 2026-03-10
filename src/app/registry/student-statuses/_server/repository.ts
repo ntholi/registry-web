@@ -3,6 +3,7 @@ import {
 	db,
 	studentSemesters,
 	studentStatusApprovals,
+	studentStatusAttachments,
 	studentStatuses,
 	students,
 } from '@/core/database';
@@ -42,6 +43,7 @@ export default class StudentStatusRepository extends BaseRepository<
 				semester: true,
 				term: true,
 				creator: true,
+				attachments: true,
 			},
 		});
 	}
@@ -392,6 +394,75 @@ export default class StudentStatusRepository extends BaseRepository<
 				)
 			);
 		return result?.count ?? 0;
+	}
+
+	async createAttachment(
+		data: typeof studentStatusAttachments.$inferInsert,
+		audit?: AuditOptions
+	) {
+		if (!audit) {
+			const [attachment] = await db
+				.insert(studentStatusAttachments)
+				.values(data)
+				.returning();
+			return attachment;
+		}
+
+		return db.transaction(async (tx) => {
+			const [attachment] = await tx
+				.insert(studentStatusAttachments)
+				.values(data)
+				.returning();
+
+			await this.writeAuditLogForTable(
+				tx,
+				'student_status_attachments',
+				'INSERT',
+				attachment.id,
+				null,
+				attachment,
+				audit
+			);
+
+			return attachment;
+		});
+	}
+
+	async findAttachmentById(id: string) {
+		return db.query.studentStatusAttachments.findFirst({
+			where: eq(studentStatusAttachments.id, id),
+		});
+	}
+
+	async deleteAttachment(id: string, audit?: AuditOptions) {
+		if (!audit) {
+			await db
+				.delete(studentStatusAttachments)
+				.where(eq(studentStatusAttachments.id, id));
+			return;
+		}
+
+		await db.transaction(async (tx) => {
+			const existing = await tx.query.studentStatusAttachments.findFirst({
+				where: eq(studentStatusAttachments.id, id),
+			});
+
+			if (!existing) return;
+
+			await tx
+				.delete(studentStatusAttachments)
+				.where(eq(studentStatusAttachments.id, id));
+
+			await this.writeAuditLogForTable(
+				tx,
+				'student_status_attachments',
+				'DELETE',
+				id,
+				existing,
+				null,
+				audit
+			);
+		});
 	}
 }
 

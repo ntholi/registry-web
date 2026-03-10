@@ -4,6 +4,11 @@ import {
 } from '@registry/students/_server/actions';
 import type { Session } from 'next-auth';
 import type { studentStatuses } from '@/core/database';
+import { deleteFile, uploadFile } from '@/core/integrations/storage';
+import {
+	generateUploadKey,
+	StoragePaths,
+} from '@/core/integrations/storage-utils';
 import type {
 	AuditOptions,
 	QueryOptions,
@@ -15,6 +20,7 @@ import {
 	canUserApproveRole,
 	getUserApprovalRoles,
 } from '../_lib/approvalRoles';
+import { ALLOWED_MIME_TYPES, MAX_ATTACHMENT_SIZE } from '../_lib/constants';
 import type {
 	StudentStatusApprovalRole,
 	StudentStatusEditableInput,
@@ -157,7 +163,7 @@ class StudentStatusService extends BaseService<typeof studentStatuses, 'id'> {
 					audit
 				);
 			},
-			['registry', 'admin']
+			['registry', 'admin', 'student_services']
 		);
 	}
 
@@ -315,6 +321,88 @@ class StudentStatusService extends BaseService<typeof studentStatuses, 'id'> {
 		};
 
 		await this.repository.updateStatus(app.id, 'approved', audit);
+	}
+
+	async uploadAttachment(
+		statusId: string,
+		file: File,
+		fileName: string,
+		mimeType: string
+	) {
+		return withAuth(
+			async (session) => {
+				const userId = requireSessionUserId(session);
+				const role = session!.user!.role;
+
+				if (file.size > MAX_ATTACHMENT_SIZE) {
+					throw new Error('Attachment must not exceed 5 MB');
+				}
+
+				if (!ALLOWED_MIME_TYPES.includes(mimeType)) {
+					throw new Error('Unsupported attachment type');
+				}
+
+				const key = generateUploadKey(
+					(name) => StoragePaths.studentStatusAttachment(statusId, name),
+					fileName
+				);
+
+				await uploadFile(file, key, mimeType);
+
+				try {
+					return await this.repository.createAttachment(
+						{ statusId, fileName, fileKey: key, fileSize: file.size, mimeType },
+						{ userId, role, activityType: 'student_status_attachment_uploaded' }
+					);
+				} catch (error) {
+					try {
+						await deleteFile(key);
+					} catch (cleanupError) {
+						console.error(
+							'Failed to rollback student status attachment upload',
+							{
+								statusId,
+								fileKey: key,
+								error: cleanupError,
+							}
+						);
+					}
+					throw error;
+				}
+			},
+			['registry', 'admin', 'student_services']
+		);
+	}
+
+	async deleteAttachment(id: string) {
+		return withAuth(
+			async (session) => {
+				const userId = requireSessionUserId(session);
+				const role = session!.user!.role;
+
+				const attachment = await this.repository.findAttachmentById(id);
+				if (!attachment) throw new Error('Attachment not found');
+
+				try {
+					await deleteFile(attachment.fileKey);
+				} catch (error) {
+					console.error('Failed to delete student status attachment file', {
+						attachmentId: id,
+						fileKey: attachment.fileKey,
+						error,
+					});
+				}
+
+				await this.repository.deleteAttachment(id, {
+					userId,
+					role,
+					activityType: 'student_status_attachment_deleted',
+				});
+
+				return attachment;
+			},
+			['registry', 'admin', 'student_services']
+		);
 	}
 }
 

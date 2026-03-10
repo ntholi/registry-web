@@ -72,3 +72,23 @@ export async function getPendingApprovals(page: number, search: string) {
 export async function countPendingStudentStatuses() {
 	return studentStatusesService.countPendingForCurrentUser();
 }
+
+export async function uploadStatusAttachment(
+	statusId: string,
+	formData: FormData
+) {
+	const fileValue = formData.get('file');
+	if (!(fileValue instanceof File)) {
+		throw new Error('File is required');
+	}
+	return studentStatusesService.uploadAttachment(
+		statusId,
+		fileValue,
+		fileValue.name,
+		fileValue.type
+	);
+}
+
+export async function deleteStatusAttachment(id: string) {
+	return studentStatusesService.deleteAttachment(id);
+}

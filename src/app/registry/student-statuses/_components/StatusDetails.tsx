@@ -31,6 +31,7 @@ import Link from '@/shared/ui/Link';
 import { getApprovalRoleLabel, getJustificationLabel } from '../_lib/labels';
 import type { getStudentStatus } from '../_server/actions';
 import ApprovalSwitch from './ApprovalSwitch';
+import StatusAttachmentList from './StatusAttachmentList';
 
 type Props = {
 	app: NonNullable<Awaited<ReturnType<typeof getStudentStatus>>>;
@@ -50,6 +51,7 @@ export default function StatusDetails({ app }: Props) {
 
 function AdminRegistryView({ app }: Props) {
 	const approvals = app.approvals ?? [];
+	const attachments = app.attachments ?? [];
 
 	return (
 		<Stack p='lg' gap='lg'>
@@ -106,6 +108,17 @@ function AdminRegistryView({ app }: Props) {
 						No reasons provided
 					</Text>
 				)}
+			</Paper>
+
+			<Paper withBorder p='lg'>
+				<Title order={6} c='dimmed' tt='uppercase' fz='xs' mb='md'>
+					Attachments
+				</Title>
+				<StatusAttachmentList
+					statusId={app.id}
+					attachments={attachments}
+					canEdit={app.status === 'pending'}
+				/>
 			</Paper>
 
 			<Paper withBorder p='lg'>
@@ -276,6 +289,16 @@ function OtherRolesView({ app }: OtherRolesProps) {
 								No reasons
 							</Text>
 						)}
+					</AccordionPanel>
+				</AccordionItem>
+				<AccordionItem value='attachments'>
+					<AccordionControl>Attachments</AccordionControl>
+					<AccordionPanel>
+						<StatusAttachmentList
+							statusId={app.id}
+							attachments={app.attachments ?? []}
+							canEdit={false}
+						/>
 					</AccordionPanel>
 				</AccordionItem>
 			</Accordion>

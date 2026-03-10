@@ -4,6 +4,7 @@ import { students } from '@registry/students/_schema/students';
 import { terms } from '@registry/terms/_schema/terms';
 import { relations } from 'drizzle-orm';
 import { studentStatusApprovals } from './studentStatusApprovals';
+import { studentStatusAttachments } from './studentStatusAttachments';
 import { studentStatuses } from './studentStatuses';
 
 export const studentStatusesRelations = relations(
@@ -26,6 +27,7 @@ export const studentStatusesRelations = relations(
 			references: [users.id],
 		}),
 		approvals: many(studentStatusApprovals),
+		attachments: many(studentStatusAttachments),
 	})
 );
 
@@ -39,6 +41,16 @@ export const studentStatusApprovalsRelations = relations(
 		responder: one(users, {
 			fields: [studentStatusApprovals.respondedBy],
 			references: [users.id],
+		}),
+	})
+);
+
+export const studentStatusAttachmentsRelations = relations(
+	studentStatusAttachments,
+	({ one }) => ({
+		status: one(studentStatuses, {
+			fields: [studentStatusAttachments.statusId],
+			references: [studentStatuses.id],
 		}),
 	})
 );
