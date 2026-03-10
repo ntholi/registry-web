@@ -12,34 +12,15 @@ import {
 	Text,
 	TypographyStylesProvider,
 } from '@mantine/core';
-import { IconFile, IconLock, IconUsers, IconWorld } from '@tabler/icons-react';
+import { IconFile } from '@tabler/icons-react';
 import { getPublicUrl } from '@/core/integrations/storage-utils';
 import { formatRelativeTime } from '@/shared/lib/utils/dates';
-import type { NoteVisibility } from '../_schema/studentNotes';
+import { getInitials, VISIBILITY_CONFIG } from '../_lib/constants';
 import type { StudentNoteRecord } from '../_server/repository';
 
 type Props = {
 	note: StudentNoteRecord;
 };
-
-const VISIBILITY_CONFIG: Record<
-	NoteVisibility,
-	{ icon: typeof IconUsers; color: string; label: string }
-> = {
-	role: { icon: IconUsers, color: 'blue', label: 'Department' },
-	self: { icon: IconLock, color: 'red', label: 'Only Me' },
-	everyone: { icon: IconWorld, color: 'green', label: 'Everyone' },
-};
-
-function getInitials(name: string | null): string {
-	if (!name) return '?';
-	return name
-		.split(' ')
-		.slice(0, 2)
-		.map((n) => n[0])
-		.join('')
-		.toUpperCase();
-}
 
 export default function NoteDetailView({ note }: Props) {
 	const vis = VISIBILITY_CONFIG[note.visibility];

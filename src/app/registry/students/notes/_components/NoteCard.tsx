@@ -21,16 +21,13 @@ import {
 	IconDotsVertical,
 	IconEdit,
 	IconFile,
-	IconLock,
 	IconTrash,
-	IconUsers,
-	IconWorld,
 } from '@tabler/icons-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { getPublicUrl } from '@/core/integrations/storage-utils';
 import { formatRelativeTime } from '@/shared/lib/utils/dates';
-import type { NoteVisibility } from '../_schema/studentNotes';
+import { getInitials, VISIBILITY_CONFIG } from '../_lib/constants';
 import { deleteStudentNote } from '../_server/actions';
 import type { StudentNoteRecord } from '../_server/repository';
 import NoteModal from './NoteModal';
@@ -41,25 +38,6 @@ type Props = {
 	currentUserId: string;
 	currentUserRole: string;
 };
-
-const VISIBILITY_CONFIG: Record<
-	NoteVisibility,
-	{ icon: typeof IconUsers; color: string; label: string }
-> = {
-	role: { icon: IconUsers, color: 'blue', label: 'Department' },
-	self: { icon: IconLock, color: 'red', label: 'Only Me' },
-	everyone: { icon: IconWorld, color: 'green', label: 'Everyone' },
-};
-
-function getInitials(name: string | null): string {
-	if (!name) return '?';
-	return name
-		.split(' ')
-		.slice(0, 2)
-		.map((n) => n[0])
-		.join('')
-		.toUpperCase();
-}
 
 export default function NoteCard({
 	note,

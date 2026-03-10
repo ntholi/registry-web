@@ -28,6 +28,7 @@ import {
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { getPublicUrl } from '@/core/integrations/storage-utils';
 import { formatFileSize } from '@/shared/lib/utils/files';
+import { ALLOWED_MIME_TYPES, MAX_ATTACHMENT_SIZE } from '../_lib/constants';
 import { deleteNoteAttachment, uploadNoteAttachment } from '../_server/actions';
 import type { StudentNoteAttachmentRecord } from '../_server/repository';
 
@@ -37,22 +38,6 @@ type Props = {
 	attachments: StudentNoteAttachmentRecord[];
 	canEdit: boolean;
 };
-
-const MAX_SIZE = 5 * 1024 * 1024;
-
-const ACCEPTED_TYPES = [
-	'application/pdf',
-	'image/jpeg',
-	'image/png',
-	'image/webp',
-	'image/gif',
-	'application/msword',
-	'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-	'application/vnd.ms-powerpoint',
-	'application/vnd.openxmlformats-officedocument.presentationml.presentation',
-	'application/vnd.ms-excel',
-	'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-];
 
 function getFileIcon(mimeType: string | null) {
 	if (!mimeType) return IconFile;
@@ -156,8 +141,8 @@ export default function AttachmentList({
 							});
 						}
 					}}
-					maxSize={MAX_SIZE}
-					accept={ACCEPTED_TYPES}
+					maxSize={MAX_ATTACHMENT_SIZE}
+					accept={ALLOWED_MIME_TYPES}
 					loading={uploadMutation.isPending}
 				>
 					<Group

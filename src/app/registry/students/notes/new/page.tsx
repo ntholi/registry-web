@@ -28,20 +28,9 @@ import { useRouter } from 'nextjs-toploader/app';
 import { useState } from 'react';
 import RichTextField from '@/shared/ui/adease/RichTextField';
 import StudentInput from '@/shared/ui/StudentInput';
+import { VISIBILITY_HINT, VISIBILITY_OPTIONS } from '../_lib/constants';
 import type { NoteVisibility } from '../_schema/studentNotes';
 import { createStudentNote, uploadNoteAttachment } from '../_server/actions';
-
-const VISIBILITY_OPTIONS = [
-	{ label: 'My Department', value: 'role' },
-	{ label: 'Only Me', value: 'self' },
-	{ label: 'Everyone', value: 'everyone' },
-];
-
-const VISIBILITY_HINT: Record<NoteVisibility, string> = {
-	role: 'This note will only be visible to members of your department.',
-	self: 'This note will only be visible to you.',
-	everyone: 'This note will be visible to all staff.',
-};
 
 export default function NewNotePage() {
 	const router = useRouter();

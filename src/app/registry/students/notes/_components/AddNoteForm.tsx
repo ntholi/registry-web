@@ -6,18 +6,13 @@ import { IconSend } from '@tabler/icons-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import RichTextField from '@/shared/ui/adease/RichTextField';
+import { VISIBILITY_OPTIONS } from '../_lib/constants';
 import type { NoteVisibility } from '../_schema/studentNotes';
 import { createStudentNote } from '../_server/actions';
 
 type Props = {
 	stdNo: number;
 };
-
-const VISIBILITY_OPTIONS = [
-	{ label: 'My Department', value: 'role' },
-	{ label: 'Only Me', value: 'self' },
-	{ label: 'Everyone', value: 'everyone' },
-];
 
 export default function AddNoteForm({ stdNo }: Props) {
 	const [content, setContent] = useState('');
