@@ -139,12 +139,24 @@ export default function NoteModal({ opened, onClose, stdNo, note }: Props) {
 					height={200}
 					showFullScreenButton={false}
 				/>
-				<SegmentedControl
-					size='xs'
-					data={VISIBILITY_OPTIONS}
-					value={visibility}
-					onChange={(val) => setVisibility(val as NoteVisibility)}
-				/>
+				<Stack gap={4}>
+					<Text size='sm' fw={500}>
+						Visibility
+					</Text>
+					<SegmentedControl
+						size='xs'
+						data={VISIBILITY_OPTIONS}
+						value={visibility}
+						onChange={(val) => setVisibility(val as NoteVisibility)}
+					/>
+					<Text size='xs' c='dimmed'>
+						{visibility === 'role' &&
+							'This note will only be visible to members of your department.'}
+						{visibility === 'self' && 'This note will only be visible to you.'}
+						{visibility === 'everyone' &&
+							'This note will be visible to all staff.'}
+					</Text>
+				</Stack>
 				{isEdit ? (
 					<Stack gap='xs'>
 						<Divider
