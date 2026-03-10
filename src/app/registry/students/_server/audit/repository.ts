@@ -1,7 +1,7 @@
 import { and, count, desc, eq, sql } from 'drizzle-orm';
 import { auditLogs, db, users } from '@/core/database';
 
-interface StudentHistoryEntry {
+interface StudentAuditEntry {
 	id: bigint;
 	tableName: string;
 	recordId: string;
@@ -29,9 +29,9 @@ interface TableSummary {
 	count: number;
 }
 
-export type { StudentHistoryEntry, RoleSummary, TableSummary };
+export type { StudentAuditEntry, RoleSummary, TableSummary };
 
-class StudentHistoryRepository {
+class StudentAuditRepository {
 	async getStudentHistory(params: {
 		stdNo: number;
 		role?: string;
@@ -39,7 +39,7 @@ class StudentHistoryRepository {
 		pageSize?: number;
 		tableFilter?: string;
 	}): Promise<{
-		items: StudentHistoryEntry[];
+		items: StudentAuditEntry[];
 		totalPages: number;
 		totalItems: number;
 	}> {
@@ -150,4 +150,4 @@ class StudentHistoryRepository {
 	}
 }
 
-export const studentHistoryRepository = new StudentHistoryRepository();
+export const studentAuditRepository = new StudentAuditRepository();

@@ -1,8 +1,8 @@
 import type { Session } from 'next-auth';
 import withAuth from '@/core/platform/withAuth';
-import { studentHistoryRepository as repository } from './repository';
+import { studentAuditRepository as repository } from './repository';
 
-class StudentHistoryService {
+class StudentAuditService {
 	async getHistory(stdNo: number, page: number, tableFilter?: string) {
 		return withAuth(
 			async (session) => {
@@ -41,4 +41,4 @@ class StudentHistoryService {
 	}
 }
 
-export const studentHistoryService = new StudentHistoryService();
+export const studentAuditService = new StudentAuditService();

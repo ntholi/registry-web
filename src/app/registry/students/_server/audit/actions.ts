@@ -1,6 +1,6 @@
 'use server';
 
-import { studentHistoryService as service } from './service';
+import { studentAuditService as service } from './service';
 
 export async function getStudentHistory(
 	stdNo: number,
