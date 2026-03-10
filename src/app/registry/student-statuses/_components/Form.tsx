@@ -20,7 +20,11 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { z } from 'zod';
 import { formatSemester } from '@/shared/lib/utils/utils';
-import { AttachmentManager, type AttachmentItem, Form } from '@/shared/ui/adease';
+import {
+	type AttachmentItem,
+	AttachmentManager,
+	Form,
+} from '@/shared/ui/adease';
 import StudentInput from '@/shared/ui/StudentInput';
 import TermInput from '@/shared/ui/TermInput';
 import { ALLOWED_MIME_TYPES, MAX_ATTACHMENT_SIZE } from '../_lib/constants';
@@ -100,6 +104,14 @@ function getSemesterOptions(student: StudentData | undefined) {
 		}));
 }
 
+function releaseAttachmentUrls(items: DraftAttachment[]) {
+	for (const attachment of items) {
+		if (attachment.fileUrl?.startsWith('blob:')) {
+			URL.revokeObjectURL(attachment.fileUrl);
+		}
+	}
+}
+
 export default function StudentStatusForm({
 	onSubmit,
 	defaultValues,
@@ -131,14 +143,6 @@ export default function StudentStatusForm({
 		enabled: !!selectedStdNo,
 	});
 
-	function releaseAttachmentUrls(items: DraftAttachment[]) {
-		for (const attachment of items) {
-			if (attachment.fileUrl?.startsWith('blob:')) {
-				URL.revokeObjectURL(attachment.fileUrl);
-			}
-		}
-	}
-
 	return (
 		<Form
 			title={title}
@@ -159,11 +163,23 @@ export default function StudentStatusForm({
 					releaseAttachmentUrls(attachments);
 					setAttachments([]);
 
-					if (results.some((result) => result.status === 'rejected')) {
+					const failedUploads = results.filter(
+						(result): result is PromiseRejectedResult =>
+							result.status === 'rejected'
+					);
+
+					if (failedUploads.length > 0) {
+						const errorMessages = failedUploads
+							.map((result) => result.reason)
+							.filter((reason): reason is Error => reason instanceof Error)
+							.map((reason) => reason.message)
+							.filter(Boolean);
+
 						notifications.show({
 							title: 'Partial Upload',
-							message:
-								'Application created, but some attachments failed to upload. You can retry from the details page.',
+							message: errorMessages.length
+								? `Application created, but ${failedUploads.length} attachment(s) failed to upload: ${errorMessages.join('; ')}`
+								: 'Application created, but some attachments failed to upload. You can retry from the details page.',
 							color: 'yellow',
 						});
 					}

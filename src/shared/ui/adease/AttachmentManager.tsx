@@ -67,6 +67,15 @@ function isImage(mimeType: string | null) {
 	return mimeType?.startsWith('image/') ?? false;
 }
 
+async function uploadFiles(
+	files: File[],
+	upload: (file: File) => Promise<unknown>
+) {
+	for (const file of files) {
+		await upload(file);
+	}
+}
+
 export default function AttachmentManager({
 	attachments,
 	canEdit,
@@ -134,9 +143,7 @@ export default function AttachmentManager({
 			{canEdit && (
 				<Dropzone
 					onDrop={(files) => {
-						for (const file of files) {
-							uploadMutation.mutate(file);
-						}
+						void uploadFiles(files, uploadMutation.mutateAsync);
 					}}
 					onReject={(rejections) => {
 						for (const rejection of rejections) {
@@ -198,7 +205,8 @@ export default function AttachmentManager({
 				<SimpleGrid cols={{ base: 1, sm: 2, md: 3 }}>
 					{attachments.map((attachment) => {
 						const FileIcon = getFileIcon(attachment.mimeType);
-						const url = attachment.fileUrl ?? getPublicUrl(attachment.fileKey ?? '');
+						const url =
+							attachment.fileUrl ?? getPublicUrl(attachment.fileKey ?? '');
 
 						return (
 							<Paper key={attachment.id} p='xs' withBorder>

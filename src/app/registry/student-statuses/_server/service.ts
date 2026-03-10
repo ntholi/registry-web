@@ -167,14 +167,21 @@ class StudentStatusService extends BaseService<typeof studentStatuses, 'id'> {
 		);
 	}
 
-	async uploadAttachment(id: string, file: File, fileName: string, mimeType: string) {
+	async uploadAttachment(
+		id: string,
+		file: File,
+		fileName: string,
+		mimeType: string
+	) {
 		return withAuth(
 			async (session) => {
 				const userId = requireSessionUserId(session);
 				const app = await this.repository.findById(id);
 				if (!app) throw new Error('Application not found');
 				if (app.status !== 'pending') {
-					throw new Error('Only pending applications can accept attachments');
+					throw new Error(
+						`Only pending applications can accept attachments. Current status: ${app.status}`
+					);
 				}
 
 				if (file.size > MAX_ATTACHMENT_SIZE) {
@@ -212,11 +219,14 @@ class StudentStatusService extends BaseService<typeof studentStatuses, 'id'> {
 					try {
 						await deleteFile(key);
 					} catch (cleanupError) {
-						console.error('Failed to rollback student status attachment upload', {
-							applicationId: id,
-							fileKey: key,
-							error: cleanupError,
-						});
+						console.error(
+							'Failed to rollback student status attachment upload',
+							{
+								applicationId: id,
+								fileKey: key,
+								error: cleanupError,
+							}
+						);
 					}
 					throw error;
 				}
@@ -240,7 +250,9 @@ class StudentStatusService extends BaseService<typeof studentStatuses, 'id'> {
 				}
 
 				if (app.status !== 'pending') {
-					throw new Error('Only pending applications can be updated');
+					throw new Error(
+						`Only pending applications can be updated. Current status: ${app.status}`
+					);
 				}
 
 				try {

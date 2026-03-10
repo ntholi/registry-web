@@ -2,8 +2,8 @@ import { and, count, eq, inArray, sql } from 'drizzle-orm';
 import {
 	db,
 	studentSemesters,
-	studentStatusAttachments,
 	studentStatusApprovals,
+	studentStatusAttachments,
 	studentStatuses,
 	students,
 } from '@/core/database';

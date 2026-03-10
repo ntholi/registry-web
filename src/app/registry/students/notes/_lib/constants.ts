@@ -27,6 +27,7 @@ export const VISIBILITY_CONFIG: Record<
 };
 
 export const ALLOWED_MIME_TYPES = ALLOWED_ATTACHMENT_MIME_TYPES;
+export { MAX_ATTACHMENT_SIZE };
 
 export function getInitials(name: string | null): string {
 	if (!name) return '?';

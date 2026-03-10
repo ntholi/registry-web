@@ -32,7 +32,6 @@ import { getApprovalRoleLabel, getJustificationLabel } from '../_lib/labels';
 import type { getStudentStatus } from '../_server/actions';
 import ApprovalSwitch from './ApprovalSwitch';
 import StatusAttachmentList from './StatusAttachmentList';
-import StatusAttachmentList from './StatusAttachmentList';
 
 type Props = {
 	app: NonNullable<Awaited<ReturnType<typeof getStudentStatus>>>;
@@ -47,10 +46,17 @@ export default function StatusDetails({ app }: Props) {
 		(role === 'admin' || role === 'registry' || role === 'student_services');
 
 	if (isAdminOrRegistry) {
-		return <AdminRegistryView app={app} canManageAttachments={canManageAttachments} />;
+		return (
+			<AdminRegistryView
+				app={app}
+				canManageAttachments={canManageAttachments}
+			/>
+		);
 	}
 
-	return <OtherRolesView app={app} canManageAttachments={canManageAttachments} />;
+	return (
+		<OtherRolesView app={app} canManageAttachments={canManageAttachments} />
+	);
 }
 
 type ViewProps = Props & { canManageAttachments: boolean };

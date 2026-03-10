@@ -1,8 +1,8 @@
-export { DeleteButton, type DeleteButtonProps } from './DeleteButton';
 export {
-	default as AttachmentManager,
 	type AttachmentItem,
+	default as AttachmentManager,
 } from './AttachmentManager';
+export { DeleteButton, type DeleteButtonProps } from './DeleteButton';
 export { DetailsView, type DetailsViewProps } from './DetailsView';
 export { DetailsViewBody, type DetailsViewBodyProps } from './DetailsViewBody';
 export {
