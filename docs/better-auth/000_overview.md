@@ -4,6 +4,61 @@
 
 This file is the **authoritative** reference for the entire Better Auth migration and permission redesign. If any phase document conflicts with this file, **this file wins**.
 
+---
+
+## Execution Tracker
+
+> **LLM Instruction**: When the user says "execute next phase", read this tracker to find the first phase with status `PENDING`, open and read its phase document (`docs/better-auth/0XX_phase-X-*.md`), execute ALL steps described in that document, then return here and update the status to `DONE` with the completion date. If a phase has `BLOCKED` status, read the blocker note and resolve or ask the user.
+
+| # | Phase | Doc | Status | Completed | Notes |
+|---|-------|-----|--------|-----------|-------|
+| 1 | Foundation — Install & Config | `001_phase-1-foundation-install-and-config.md` | `PENDING` | — | |
+| 2 | Schema File Updates & Migration Generation | `002_phase-2-schema-file-updates.md` | `PENDING` | — | |
+| 3 | Data Migration & Route Swap | `003_phase-3-data-migration-and-route-swap.md` | `PENDING` | — | Requires DB backup first |
+| 4 | Authorization Wrapper & BaseService | `004_phase-4-authorization-wrapper-and-base-service.md` | `PENDING` | — | |
+| 5 | Academic Service Migration | `005_phase-5-academic-service-migration.md` | `PENDING` | — | |
+| 6 | Registry & Admin Service Migration | `006_phase-6-registry-and-admin-service-migration.md` | `PENDING` | — | |
+| 7 | Remaining Services & Standalone Actions | `007_phase-7-remaining-services-and-standalone-actions.md` | `PENDING` | — | |
+| 8 | Client Component & Session Migration | `008_phase-8-client-component-and-session-migration.md` | `PENDING` | — | |
+| 9 | LMS Credentials & Navigation Config | `009_phase-9-lms-and-navigation-migration.md` | `PENDING` | — | |
+| 10 | Permission Preset Backend & CRUD | `010_phase-10-permission-preset-backend.md` | `PENDING` | — | |
+| 11 | Permission Matrix & User Form | `011_phase-11-permission-matrix-and-user-form.md` | `PENDING` | — | |
+| 12 | Cleanup, Verification & Testing | `012_phase-12-cleanup-verification-and-testing.md` | `PENDING` | — | |
+
+**Legend**: `PENDING` = not started | `IN_PROGRESS` = currently executing | `DONE` = completed | `BLOCKED` = waiting on something
+
+### Pre-Migration Checklist (User)
+
+These are one-time steps the user must complete **before** Phase 1 begins:
+
+- [ ] Create git branch: `git checkout -b feat/better-auth-migration`
+- [ ] Backup database: `pg_dump -Fc registry > registry-pre-betterauth.dump`
+- [ ] Backup `.env`: `cp .env .env.backup`
+- [ ] Confirm env vars are ready: `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL`, `BETTER_AUTH_TRUSTED_ORIGINS`
+
+### Post-Migration Checklist (User)
+
+These must be completed **after** Phase 12:
+
+- [ ] Update Google Console OAuth redirect URI to `/api/auth/callback/google`
+- [ ] Test Google sign-in end-to-end in staging
+- [ ] Verify all dashboard roles can log in and see correct navigation
+- [ ] Merge `feat/better-auth-migration` → `develop` → `main`
+- [ ] Deploy and monitor
+
+### Phase-Specific User Actions
+
+> Most phases are fully automated. The following phases require specific user involvement:
+
+**Phase 1** — Run `pnpm add better-auth` and add env vars to `.env`
+**Phase 2** — Run `pnpm db:generate` after schema changes
+**Phase 3** — Run data migration SQL and verify with provided check queries
+**Phase 12** — Run `pnpm remove next-auth @auth/drizzle-adapter` and final verification commands
+
+All other phases (4–11) are fully automated code changes with no user intervention required.
+
+---
+
 ## Version Baseline
 
 - Better Auth target: `^1.5.4` (latest compatible 1.x)
