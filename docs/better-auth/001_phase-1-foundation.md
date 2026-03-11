@@ -1,253 +1,136 @@
-# Phase 1: Foundation (Better Auth Core + DB Migration)
+# Phase 1: Foundation
 
 Status: maintain this phase document together with `better-auth-documentation.md`.
 
 If this file conflicts with `better-auth-documentation.md`, use `better-auth-documentation.md` as the authoritative source.
 
+## Essential Outcomes
+
+- Replace Auth.js with Better Auth while keeping Google OAuth only.
+- Keep database-backed sessions.
+- Preserve the repo-owned authorization model using role defaults plus `user_permissions` overrides.
+- Preserve existing user IDs and migrate existing Google-linked accounts.
+- Remove session-time `stdNo` loading and fetch student identity on demand.
+- Keep rollout phased and side-by-side until Better Auth is fully working.
+
 ## Decisions Summary
 
 | Decision | Choice |
 |----------|--------|
-| Auth provider | Google OAuth only (keep existing) |
-| Session strategy | DB sessions (Better Auth default) |
-| Permission storage | `user_permissions` table (normalized, per-user overrides) |
-| Permission format | Resource:action (Better Auth native `createAccessControl`) |
-| DB migration | Side-by-side (new tables alongside old → migrate data → drop old) |
-| RBAC approach | Better Auth admin plugin + custom permission layer |
-| Custom user fields | `additionalFields` for role only; lmsUserId/lmsToken → separate `lms_credentials` table |
-| stdNo in session | Removed; use dedicated server action `getStudentByUserId()` on-demand where needed |
-| Position field | Removed; replaced by code-defined permission presets (e.g. "lecturer", "year_leader") |
-| Environment vars | Rename all to Better Auth conventions |
-| Rollout | Phased (4 phases) |
-| Better Auth version | Pin to latest stable at migration time |
-| pgEnums | Drop all 3 (user_roles, user_positions, dashboard_users) → use text |
-| Google UX | `prompt: "select_account"` (force account picker) |
-| Route protection | Next.js 16 proxy (cookie-cache check via `getCookieCache()`, real validation in pages/routes) |
-| Trusted origins | Environment variable (`BETTER_AUTH_TRUSTED_ORIGINS`) + production domain |
-| Experimental joins | Enabled (`experimental: { joins: true }`) for 2-3x perf on session lookups |
-| Rate limiting | Database storage (`rateLimit.storage: "database"`) — required for Vercel serverless where in-memory resets on cold starts |
-| Rate limit enabled | Explicitly `true` (disabled in dev by default; must be enabled for testing) |
-| Rate limit table | Must be created in custom migration (CLI migrate unavailable with `better-auth/minimal`) |
-| Session freshness | `freshAge: 300` (5 minutes) — sensitive operations require recent sign-in |
-| Background tasks | Better Auth 1.5 documents `advanced.backgroundTasks`; use it for auth hooks, and treat databaseHooks as post-commit side effects |
-| Client type safety | `createAuthClient<typeof auth>()` for full type inference of custom `role` field |
-| Rate limit UX | Global `fetchOptions.onError` handler for 429 + `X-Retry-After` on client |
-| Steering document | `better-auth-documentation.md` is the canonical Better Auth reference for this repo |
+| Auth provider | Google OAuth only |
+| Session strategy | Database sessions |
+| Authorization | Better Auth admin plugin + repo-owned permission layer |
+| Permission storage | `user_permissions` table |
+| User custom fields | Keep only `role` on Better Auth user |
+| Student identity access | Fetch on demand, not from session |
+| Migration style | Side-by-side schema and code migration |
+| Env migration | Move to Better Auth env names |
+| Better Auth version | Pin to `1.5.4` during migration |
 
----
+## Access Model
 
-## Architecture Overview
+Permission resolution order:
 
-### Permission Resolution Order
-```
-1. Role defaults (defined in Better Auth access control statements)
-2. Permission presets (code-defined templates like "program_leader" → writes DB rows)
-3. Per-user overrides (individual grant/revoke in user_permissions table)
+```text
+1. Role defaults from Better Auth access control
+2. Permission presets written into user_permissions
+3. Per-user grant/revoke overrides from user_permissions
 ```
 
-### Access Check Flow
-```
-Request → getSession (Better Auth) → withPermission(permissions)
-  ├─ Get user.role from session
-  ├─ Get role's default permissions (from access control config)
-  ├─ Query user_permissions table for overrides
-  ├─ Merge: role_defaults + grants - revokes
-  └─ Return allowed/forbidden
-```
+Request flow:
 
----
+```text
+Request -> Better Auth session lookup -> withPermission(...)
+  -> load session role
+  -> load user_permissions overrides
+  -> merge defaults and overrides
+  -> allow or reject
+```
 
 ## 1.1 Install Dependencies
-```
-pnpm add better-auth@1.5.4 @better-auth/drizzle-adapter @vercel/functions
+
+```bash
+pnpm add better-auth@1.5.4 @better-auth/drizzle-adapter
 pnpm remove next-auth @auth/drizzle-adapter
 ```
 
-Pin the version in `package.json` to prevent unexpected breaking changes during migration.
+Use `better-auth/minimal` in the server implementation.
 
-> **Note on `better-auth/minimal`**: This plan uses `better-auth/minimal` for reduced bundle size. Built-in Better Auth `migrate` is for the built-in Kysely adapter only. For this repo, use `npx auth@latest generate` for Better Auth schema generation and Drizzle Kit for actual migration files.
+## 1.2 Update Next.js Config
 
-## 1.1b Update `next.config.ts`
+Add `better-auth` to `serverExternalPackages` in `next.config.ts`.
 
-Add `better-auth` to `serverExternalPackages` to prevent bundler-level resolution issues (recommended by Better Auth FAQ):
-
-```ts
-const nextConfig: NextConfig = {
-  serverExternalPackages: ['better-auth'],
-  // ... rest of existing config
-};
-```
-
-## 1.2 Environment Variables
+## 1.3 Rename Environment Variables
 
 Remove:
+
 - `AUTH_SECRET`
 - `AUTH_URL`
 - `AUTH_GOOGLE_ID`
 - `AUTH_GOOGLE_SECRET`
 
 Add:
-- `BETTER_AUTH_SECRET` (32+ chars: `openssl rand -base64 32`)
-- `BETTER_AUTH_URL` (e.g., `http://localhost:3000`)
-- `BETTER_AUTH_TRUSTED_ORIGINS` (comma-separated, e.g., `https://registry-web-*.vercel.app`; do NOT include `*.vercel.app` — that trusts all Vercel apps)
-- `GOOGLE_CLIENT_ID` (same value as old AUTH_GOOGLE_ID)
-- `GOOGLE_CLIENT_SECRET` (same value as old AUTH_GOOGLE_SECRET)
 
-> **Note**: `NEXT_PUBLIC_BETTER_AUTH_URL` is NOT needed. The Better Auth client auto-discovers the API endpoint from the same origin. Only required if the client runs on a different domain than the server.
+- `BETTER_AUTH_SECRET`
+- `BETTER_AUTH_URL`
+- `BETTER_AUTH_TRUSTED_ORIGINS`
+- `GOOGLE_CLIENT_ID`
+- `GOOGLE_CLIENT_SECRET`
 
-## 1.3 Create Better Auth Server Instance
+Do not introduce `NEXT_PUBLIC_BETTER_AUTH_URL` unless the client and server are intentionally split across domains.
 
-File: `src/core/auth.ts` (replace entirely)
+## 1.4 Create Better Auth Server Entry
 
-```ts
-import { betterAuth } from "better-auth/minimal";
-import { drizzleAdapter } from "better-auth/adapters/drizzle";
-import { admin } from "better-auth/plugins";
-import { nextCookies } from "better-auth/next-js";
-import { nanoid } from "nanoid";
-import { waitUntil } from "@vercel/functions";
-import { db, schema } from "@/core/database";
-import { ac, roles } from "@/core/auth/permissions";
-import { logActivity } from "@audit-logs/activity-logs/_server/actions";
+Replace `src/core/auth.ts` with a Better Auth server using:
 
-export const auth = betterAuth({
-  database: drizzleAdapter(db, {
-    provider: "pg",
-    usePlural: true,
-    schema,
-  }),
-  trustedOrigins: [
-    process.env.BETTER_AUTH_URL!,
-    ...(process.env.BETTER_AUTH_TRUSTED_ORIGINS?.split(",").map((o) => o.trim()) ?? []),
-  ],
-  socialProviders: {
-    google: {
-      clientId: process.env.GOOGLE_CLIENT_ID!,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-      prompt: "select_account",
-    },
-  },
-  session: {
-    expiresIn: 60 * 60 * 24 * 7,
-    updateAge: 60 * 60 * 24,
-    freshAge: 60 * 5,
-    cookieCache: {
-      enabled: true,
-      maxAge: 5 * 60,
-      strategy: "compact",
-      version: "1",
-    },
-  },
-  account: {
-    accountLinking: {
-      enabled: true,
-      trustedProviders: ["google"],
-    },
-    encryptOAuthTokens: true,
-    updateAccountOnSignIn: true,
-  },
-  user: {
-    additionalFields: {
-      role: {
-        type: ["user", "applicant", "student", "finance", "registry", "library", "academic", "marketing", "student_services", "resource", "leap", "admin"],
-        required: false,
-        defaultValue: "user",
-        input: false,
-      },
-    },
-  },
-  experimental: {
-    joins: true,
-  },
-  rateLimit: {
-    enabled: true,
-    storage: "database",
-    window: 60,
-    max: 100,
-    customRules: {
-      "/sign-in/social": {
-        window: 10,
-        max: 3,
-      },
-    },
-  },
-  advanced: {
-    useSecureCookies: process.env.NODE_ENV === "production",
-    database: {
-      generateId: () => nanoid(),
-    },
-  },
-  databaseHooks: {
-    session: {
-      create: {
-        after: async (session) => {
-          waitUntil(
-            logActivity({
-              userId: session.userId,
-              type: "auth:sign_in",
-            }).catch(() => {})
-          );
-        },
-      },
-    },
-    user: {
-      update: {
-        after: async (user) => {
-          waitUntil(
-            logActivity({
-              userId: user.id,
-              type: "auth:user_update",
-            }).catch(() => {})
-          );
-        },
-      },
-    },
-  },
-  plugins: [
-    admin({
-      ac,
-      roles,
-      defaultRole: "user",
-    }),
-    nextCookies(),
-  ],
-});
+- `better-auth/minimal`
+- `@better-auth/drizzle-adapter`
+- Google social provider
+- database sessions
+- `nextCookies()`
+- Better Auth admin plugin
+- `additionalFields.role`
+- trusted origins from environment variables
 
-export type Session = typeof auth.$Infer.Session;
-```
+Keep the server entry focused on authentication and authorization wiring only. Do not include auth activity hooks, background-task wiring, or rate-limit configuration in this first plan.
 
-## 1.4 Create Access Control Definitions
+## 1.5 Create Access Control Definitions
 
-File: `src/core/auth/permissions.ts`
+Create `src/core/auth/permissions.ts` with:
 
-```ts
-import { createAccessControl } from "better-auth/plugins/access";
-import { defaultStatements, adminAc } from "better-auth/plugins/admin/access";
+- resource-action statements for the app's owned authorization model
+- role defaults mapped onto those statements
+- exports consumed by Better Auth admin plugin and repo authorization checks
 
-export const statements = {
-  ...defaultStatements,
-  student: ["view", "edit", "register", "print_card", "print_transcript", "graduate", "manage_status"],
-  module: ["view", "manage", "assign"],
-  grade: ["view", "edit", "approve"],
-  clearance: ["view", "manage", "approve"],
-  finance: ["view", "manage_payments", "receipts"],
-  library: ["view", "manage_loans", "manage_settings"],
-  timetable: ["view", "manage"],
-  report: ["view", "generate"],
-  admission: ["view", "manage", "score"],
-  feedback: ["view", "manage_cycles"],
-  lms: ["view", "sync"],
-} as const;
+The goal here is parity with the existing authorization surface, not a redesign beyond what is required for migration.
 
-export const ac = createAccessControl(statements);
+## 1.6 Create Better Auth Client Entry
 
-export const roles = {
-  user: ac.newRole({}),
-  applicant: ac.newRole({}),
-  student: ac.newRole({
-    student: ["view"],
-    grade: ["view"],
-  }),
+Create `src/core/auth-client.ts` with:
+
+- `createAuthClient`
+- plugin support for admin APIs
+- full typing for the custom `role` field
+
+Keep the client focused on session access plus the permission APIs needed by existing UI flows.
+
+## 1.7 Add Route Handler And Proxy
+
+Create:
+
+- `src/app/api/auth/[...all]/route.ts`
+- `proxy.ts`
+
+Use the proxy only for optimistic route protection. Real access checks remain inside pages, route handlers, and server actions.
+
+## Exit Criteria
+
+- Better Auth packages are installed and Auth.js packages are removed.
+- Better Auth env names are defined.
+- `src/core/auth.ts` and `src/core/auth-client.ts` exist.
+- Access control definitions exist.
+- Auth route and proxy exist.
+- No nonessential hardening work is bundled into this phase.
   finance: ac.newRole({
     student: ["view"],
     finance: ["view", "manage_payments", "receipts"],

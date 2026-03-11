@@ -11,7 +11,7 @@ Delete: `src/core/platform/withAuth.ts`
 Create: `src/core/platform/withPermission.ts`
 
 New `withPermission` behavior:
-1. Gets session via `auth.api.getSession({ headers: await headers() })` — this is the REAL security check (not the proxy)
+1. Gets session via `auth.api.getSession({ headers: await headers() })`
 2. Supports:
    - `'all'` — no auth required
    - `'auth'` — authenticated user required
@@ -19,25 +19,7 @@ New `withPermission` behavior:
 3. Merges role defaults + per-user overrides from `user_permissions`
 4. `admin` role bypasses checks
 
-### Permission Caching Strategy
-To avoid querying `user_permissions` on every single server action call:
-- On first `withPermission` call per request, query user_permissions and cache the result
-- Use React's `cache()` function to deduplicate within a single request lifecycle
-- This means multiple `withPermission` calls in the same request share one DB query
-- Permission changes by admins take effect on the user's next request (acceptable trade-off)
-
-```ts
-import { cache } from "react";
-
-const getUserPermissions = cache(async (userId: string) => {
-  try {
-    return await permissionRepository.findByUserId(userId);
-  } catch (error) {
-    console.error("[withPermission] Failed to query user_permissions", { userId, error });
-    return [];
-  }
-});
-```
+Keep the implementation focused on correctness and reuse. Request-level permission caching can be added only if it is needed once the migration is working.
 
 Signature concept:
 ```ts
@@ -97,7 +79,7 @@ authClient.admin.checkRolePermission({
 });
 ```
 
-Note: `checkRolePermission` does not include DB per-user overrides.
+Note: client-side permission checks remain only for UI visibility. Server actions remain the source of truth.
 
 ## 3.5 Replace `stdNo` Session Access with On-Demand Server Action
 
@@ -122,7 +104,18 @@ Update all components that currently use `session.user.stdNo`:
 
 > **Why?** This eliminates a DB query on every session load for all 12K users, when only ~student role users need `stdNo`. On-demand querying is both faster (for non-students) and cleaner architecturally.
 
-## 3.6 Files Referencing `next-auth` (migration inventory)
+## 3.6 Scope Guardrails
+
+This phase should only cover:
+
+- authorization parity needed to replace `withAuth`
+- session API migration on server and client
+- required UI permission checks already depended on by the app
+- removal of `stdNo` from the session payload
+
+This phase should not expand into optional hardening or performance work that is not required for functional parity.
+
+## 3.7 Files Referencing `next-auth` (migration inventory)
 
 Server-side highlights:
 - `src/core/platform/withAuth.ts` — delete

@@ -64,6 +64,7 @@ That current callback behavior matters because Better Auth migration should remo
 - Prefer one session lookup and one permission lookup per request over repeated DB queries.
 - Keep Better Auth route protection optimistic in `proxy.ts` and perform real authorization inside pages, route handlers, and server actions.
 - Use documented Better Auth APIs only. Do not rely on older `@better-auth/cli` guidance.
+- Keep the first implementation focused on authentication replacement and existing authorization parity. Defer optional hardening and performance tuning unless they are required to make the migration work.
 
 ## What Changed Since The Existing Plan Was Written
 
@@ -76,7 +77,7 @@ The existing phase docs are directionally correct, but several items are stale o
 - Database `after` hooks run after transaction commit in 1.5, not inside the transaction.
 - Secret rotation is now documented through `secrets` and `BETTER_AUTH_SECRETS`.
 - Dynamic base URL is now a documented feature, though it is optional for this repo.
-- Better Auth now documents stronger performance guidance around joins, cookie cache, indexes, and SSR session prefetch.
+- Better Auth now documents stronger performance guidance around joins, cookie cache, indexes, and SSR session prefetch, but those optimizations do not all need to be part of the first migration pass.
 - The official Auth.js migration guide now clearly documents model differences and session API replacements.
 
 ## Canonical Repo Architecture
@@ -86,7 +87,7 @@ The existing phase docs are directionally correct, but several items are stale o
 For this repo, the package baseline should be:
 
 ```bash
-pnpm add better-auth@1.5.4 @better-auth/drizzle-adapter @vercel/functions
+pnpm add better-auth@1.5.4 @better-auth/drizzle-adapter
 pnpm remove next-auth @auth/drizzle-adapter
 ```
 
@@ -94,7 +95,8 @@ Rationale:
 
 - `better-auth@1.5.4` pins the version this document targets.
 - `@better-auth/drizzle-adapter` aligns with current adapter extraction guidance.
-- `@vercel/functions` is needed if we use Vercel `waitUntil` for deferred work outside of Better Auth hook helpers.
+
+`@vercel/functions` is not part of the essential migration baseline because deferred auth hooks are not in scope for the trimmed first pass.
 
 ## 2. Required Top-Level Files
 
@@ -117,8 +119,6 @@ Use the Drizzle adapter.
 Use explicit `baseURL` behavior through `BETTER_AUTH_URL`.
 
 Use `nextCookies()` and keep it last in the plugin array.
-
-Use `experimental: { joins: true }` only after relations are fully wired and exported through the adapter schema.
 
 Recommended structure:
 
@@ -195,9 +195,6 @@ export const auth = betterAuth({
 			},
 		},
 	},
-	experimental: {
-		joins: true,
-	},
 	advanced: {
 		useSecureCookies: process.env.NODE_ENV === 'production',
 		database: {
@@ -248,6 +245,8 @@ export const authClient = createAuthClient({
 ```
 
 Notes:
+
+- Keep the initial implementation lean. Do not add rate limiting, auth activity hooks, background-task wiring, or experimental join optimization unless a concrete migration blocker requires them.
 
 - Better Auth docs show both `better-auth/react` and `better-auth/client` examples. For this repo, use the React client creator because the app is Next.js with client hooks.
 - Keep client typing driven by server auth types whenever possible.
