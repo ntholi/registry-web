@@ -1,5 +1,7 @@
 # Phase 2: Database Migration
 
+> Estimated Implementation Time: 6 to 10 hours
+
 **Prerequisites**: Phase 1 complete. Read `000_steering-document.md` first.
 
 The schema migration must be completed before Phase 3 code depends on Better Auth tables.

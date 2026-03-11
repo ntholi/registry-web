@@ -1,5 +1,7 @@
 # Better Auth Migration — Steering Document
 
+> Estimated Implementation Time: 3 to 5 working days
+
 This file is the **authoritative** reference for the entire Better Auth migration and permission redesign. If any phase document conflicts with this file, **this file wins**.
 
 ## Version Baseline

@@ -1,5 +1,7 @@
 # Phase 3: Authorization Layer Replacement
 
+> Estimated Implementation Time: 1 to 2 working days
+
 **Prerequisites**: Phase 2 complete. Read `000_steering-document.md` first.
 
 ## 3.1 Create `withPermission` Wrapper

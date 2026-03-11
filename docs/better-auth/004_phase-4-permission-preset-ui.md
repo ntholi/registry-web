@@ -1,5 +1,7 @@
 # Phase 4: Permission Preset Management UI
 
+> Estimated Implementation Time: 6 to 10 hours
+
 **Prerequisites**: Phase 3 complete. Read `000_steering-document.md` first.
 
 ## Overview

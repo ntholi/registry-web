@@ -1,5 +1,7 @@
 # Phase 5: Cleanup & Testing
 
+> Estimated Implementation Time: 4 to 8 hours
+
 **Prerequisites**: Phases 1–4 complete. Read `000_steering-document.md` first.
 
 ## 5.1 Remove Auth.js Artifacts

@@ -1,5 +1,7 @@
 # Phase 1: Foundation
 
+> Estimated Implementation Time: 2 to 4 hours
+
 **Prerequisites**: Read `000_steering-document.md` first. It is the authoritative reference.
 
 ## Essential Outcomes
