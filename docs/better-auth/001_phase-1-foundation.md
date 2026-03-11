@@ -6,12 +6,10 @@ If this file conflicts with `better-auth-documentation.md`, use `better-auth-doc
 
 ## Essential Outcomes
 
-- Replace Auth.js with Better Auth while keeping Google OAuth only.
-- Keep database-backed sessions.
-- Preserve the repo-owned authorization model using role defaults plus `user_permissions` overrides.
-- Preserve existing user IDs and migrate existing Google-linked accounts.
-- Remove session-time `stdNo` loading and fetch student identity on demand.
-- Keep rollout phased and side-by-side until Better Auth is fully working.
+- Install Better Auth alongside Auth.js (both coexist).
+- Create all Better Auth config files, schema files, and proxy.
+- Do NOT swap the auth route handler yet (that happens at the end of Phase 2 after DB is ready).
+- Preserve existing user IDs using `nanoid()` for ID generation.
 
 ## Decisions Summary
 
@@ -26,6 +24,7 @@ If this file conflicts with `better-auth-documentation.md`, use `better-auth-doc
 | Migration style | Side-by-side schema and code migration |
 | Env migration | Move to Better Auth env names |
 | Better Auth version | Pin to `1.5.4` during migration |
+| ID generation | Keep `nanoid()` for consistency with existing user IDs |
 
 ## Access Model
 
@@ -42,7 +41,7 @@ Request flow:
 ```text
 Request -> Better Auth session lookup -> withPermission(...)
   -> load session role
-  -> load user_permissions overrides
+  -> load user_permissions overrides (React cache() deduped per request)
   -> merge defaults and overrides
   -> allow or reject
 ```
@@ -51,25 +50,19 @@ Request -> Better Auth session lookup -> withPermission(...)
 
 ```bash
 pnpm add better-auth@1.5.4 @better-auth/drizzle-adapter
-pnpm remove next-auth @auth/drizzle-adapter
 ```
 
-Use `better-auth/minimal` in the server implementation.
+Do NOT remove `next-auth` or `@auth/drizzle-adapter` yet. Both auth systems must coexist until Phase 4 cleanup. Removing Auth.js packages now would break 60+ files that still import from `next-auth`.
+
+Use `better-auth/minimal` in the server implementation. Import the adapter from `better-auth/adapters/drizzle` (not from `@better-auth/drizzle-adapter` directly).
 
 ## 1.2 Update Next.js Config
 
-Add `better-auth` to `serverExternalPackages` in `next.config.ts`.
+Add `better-auth` to `serverExternalPackages` in `next.config.ts`. Do NOT remove `authInterrupts: true` yet (that happens in Phase 2 when the route handler swaps).
 
-## 1.3 Rename Environment Variables
+## 1.3 Add Environment Variables
 
-Remove:
-
-- `AUTH_SECRET`
-- `AUTH_URL`
-- `AUTH_GOOGLE_ID`
-- `AUTH_GOOGLE_SECRET`
-
-Add:
+Add these alongside existing Auth.js env vars (both coexist during migration):
 
 - `BETTER_AUTH_SECRET`
 - `BETTER_AUTH_URL`
@@ -79,20 +72,24 @@ Add:
 
 Do not introduce `NEXT_PUBLIC_BETTER_AUTH_URL` unless the client and server are intentionally split across domains.
 
+Do not remove Auth.js env vars yet (`AUTH_SECRET`, `AUTH_URL`, etc.). They stay until Phase 4 cleanup.
+
 ## 1.4 Create Better Auth Server Entry
 
-Replace `src/core/auth.ts` with a Better Auth server using:
+Create a NEW `src/core/auth.ts` with Better Auth server config. Keep the old Auth.js `auth.ts` content available (e.g., renamed to `auth.legacy.ts`) until the route handler swap in Phase 2.
+
+The server entry uses:
 
 - `better-auth/minimal`
-- `@better-auth/drizzle-adapter`
+- `better-auth/adapters/drizzle`
 - Google social provider
 - database sessions
-- `nextCookies()`
+- `nextCookies()` (last in plugin array)
 - Better Auth admin plugin
 - `additionalFields.role`
 - trusted origins from environment variables
-
-Keep the server entry focused on authentication and authorization wiring only. Do not include auth activity hooks, background-task wiring, or rate-limit configuration in this first plan.
+- `nanoid()` for ID generation (preserves existing ID format)
+- rate limiting with `storage: 'database'`
 
 ## 1.5 Create Access Control Definitions
 
@@ -104,33 +101,34 @@ Create `src/core/auth/permissions.ts` with:
 
 The goal here is parity with the existing authorization surface, not a redesign beyond what is required for migration.
 
-## 1.6 Create Better Auth Client Entry
+Reference role definitions:
 
-Create `src/core/auth-client.ts` with:
+```ts
+import { createAccessControl } from "better-auth/plugins/access";
+import { adminAc } from "better-auth/plugins";
 
-- `createAuthClient`
-- plugin support for admin APIs
-- full typing for the custom `role` field
+const statements = {
+  student: ["view", "edit", "register", "print_card", "print_transcript", "graduate", "manage_status"],
+  module: ["view", "manage", "assign"],
+  grade: ["view", "edit", "approve"],
+  clearance: ["view", "manage", "approve"],
+  finance: ["view", "manage_payments", "receipts"],
+  library: ["view", "manage_loans", "manage_settings"],
+  timetable: ["view", "manage"],
+  report: ["view", "generate"],
+  admission: ["view", "manage", "score"],
+  feedback: ["view", "manage_cycles"],
+  lms: ["view", "sync"],
+} as const;
 
-Keep the client focused on session access plus the permission APIs needed by existing UI flows.
+export const ac = createAccessControl(statements);
 
-## 1.7 Add Route Handler And Proxy
-
-Create:
-
-- `src/app/api/auth/[...all]/route.ts`
-- `proxy.ts`
-
-Use the proxy only for optimistic route protection. Real access checks remain inside pages, route handlers, and server actions.
-
-## Exit Criteria
-
-- Better Auth packages are installed and Auth.js packages are removed.
-- Better Auth env names are defined.
-- `src/core/auth.ts` and `src/core/auth-client.ts` exist.
-- Access control definitions exist.
-- Auth route and proxy exist.
-- No nonessential hardening work is bundled into this phase.
+export const roles = {
+  user: ac.newRole({}),
+  applicant: ac.newRole({}),
+  student: ac.newRole({
+    student: ["view"],
+  }),
   finance: ac.newRole({
     student: ["view"],
     finance: ["view", "manage_payments", "receipts"],
@@ -172,6 +170,10 @@ Use the proxy only for optimistic route protection. Real access checks remain in
     student: ["view"],
     module: ["view"],
   }),
+  human_resource: ac.newRole({
+    student: ["view"],
+    report: ["view"],
+  }),
   admin: ac.newRole({
     ...adminAc.statements,
     student: ["view", "edit", "register", "print_card", "print_transcript", "graduate", "manage_status"],
@@ -189,7 +191,7 @@ Use the proxy only for optimistic route protection. Real access checks remain in
 };
 ```
 
-## 1.5 Permission Presets (replaces `position`)
+## 1.6 Create Permission Presets (replaces `position`)
 
 File: `src/core/auth/presets.ts`
 
@@ -237,7 +239,9 @@ export type PermissionPreset = keyof typeof permissionPresets;
 
 When an admin applies a preset to a user, the system writes individual rows to `user_permissions`.
 
-## 1.6 User Permissions Table
+## 1.7 Create New Schema Files
+
+### User Permissions Table
 
 File: `src/app/auth/users/_schema/userPermissions.ts`
 
@@ -256,7 +260,7 @@ export const userPermissions = pgTable("user_permissions", {
 }));
 ```
 
-## 1.7 LMS Credentials Table
+### LMS Credentials Table
 
 File: `src/app/lms/_schema/lmsCredentials.ts`
 
@@ -270,18 +274,44 @@ export const lmsCredentials = pgTable("lms_credentials", {
 });
 ```
 
-## 1.8 Create Auth Client
+### Rate Limits Table
+
+File: `src/app/auth/auth-providers/_schema/rateLimits.ts`
+
+```ts
+export const rateLimits = pgTable('rate_limits', {
+  id: text().primaryKey(),
+  key: text().notNull(),
+  count: integer().notNull(),
+  lastRequest: bigint({ mode: 'number' }).notNull(),
+}, (t) => ({
+  keyIdx: uniqueIndex('rate_limits_key_idx').on(t.key),
+}));
+```
+
+## 1.8 Update Barrel Exports
+
+Each new schema file must be re-exported from its module's `_database/index.ts` barrel:
+
+- Add `userPermissions` to `src/app/auth/_database/index.ts`
+- Add `lmsCredentials` to `src/app/lms/_database/index.ts`
+- Add `rateLimits` to `src/app/auth/_database/index.ts`
+
+These will be picked up by `src/core/database/index.ts` schema aggregation in Phase 2.
+
+## 1.9 Create Auth Client
 
 File: `src/core/auth-client.ts`
 
 ```ts
 import { createAuthClient } from "better-auth/react";
-import { adminClient } from "better-auth/client/plugins";
+import { adminClient, inferAdditionalFields } from "better-auth/client/plugins";
 import type { auth } from "@/core/auth";
 import { ac, roles } from "@/core/auth/permissions";
 
-export const authClient = createAuthClient<typeof auth>({
+export const authClient = createAuthClient({
   plugins: [
+    inferAdditionalFields<typeof auth>(),
     adminClient({ ac, roles }),
   ],
   fetchOptions: {
@@ -298,19 +328,9 @@ export const authClient = createAuthClient<typeof auth>({
 export const { signIn, signUp, signOut, useSession } = authClient;
 ```
 
-## 1.9 Update Route Handler
+Important: Use `inferAdditionalFields<typeof auth>()` plugin for client-side type inference of the custom `role` field. Do NOT use `createAuthClient<typeof auth>()` type parameter — that is not the documented approach.
 
-Rename: `src/app/api/auth/[...nextauth]/` → `src/app/api/auth/[...all]/`
-
-File: `src/app/api/auth/[...all]/route.ts`
-
-```ts
-import { auth } from "@/core/auth";
-import { toNextJsHandler } from "better-auth/next-js";
-export const { POST, GET } = toNextJsHandler(auth);
-```
-
-## 1.10 Add Next.js 16 Proxy (NOT Middleware)
+## 1.10 Add Next.js 16 Proxy
 
 **IMPORTANT**: This file MUST be at the project root (same level as `next.config.ts`), NOT inside `src/`.
 
@@ -318,12 +338,12 @@ File: `proxy.ts` (project root)
 
 ```ts
 import { NextRequest, NextResponse } from "next/server";
-import { getCookieCache } from "better-auth/cookies";
+import { getSessionCookie } from "better-auth/cookies";
 
 export async function proxy(request: NextRequest) {
-  const session = await getCookieCache(request);
+  const sessionCookie = getSessionCookie(request);
 
-  if (!session) {
+  if (!sessionCookie) {
     return NextResponse.redirect(new URL("/auth/login", request.url));
   }
 
@@ -342,15 +362,22 @@ export const config = {
     "/library/:path*",
     "/admissions/:path*",
     "/student-portal/:path*",
+    "/apply/:path*",
   ],
 };
 ```
 
-> **Why `getCookieCache`?** Better Auth docs state: proxy/middleware is for
-> "optimistic redirects" only. Unlike `getSessionCookie()` (which only checks
-> cookie existence and can be faked), `getCookieCache()` **decodes and verifies
-> the signed cookie cache** without hitting the DB. This validates the HMAC
-> signature and checks expiry — much stronger than an existence check, while
-> still being fast (no DB round-trip). Real security enforcement still happens
-> in `withPermission()` at the server action/page level via `auth.api.getSession()`.
-```
+The proxy uses `getSessionCookie()` for optimistic cookie existence checks only. This is NOT a security layer — it is the documented Next.js 16 proxy pattern. Real session validation and authorization happen in `withPermission()` at the page/action level via `auth.api.getSession()`.
+
+## Exit Criteria
+
+- Better Auth packages are installed alongside existing Auth.js packages (both coexist).
+- Better Auth env vars are defined alongside existing Auth.js env vars.
+- `src/core/auth.ts` exists with Better Auth server config (old content preserved as `auth.legacy.ts`).
+- `src/core/auth-client.ts` exists with `inferAdditionalFields<typeof auth>()`.
+- `src/core/auth/permissions.ts` and `src/core/auth/presets.ts` exist.
+- New schema files created: `userPermissions`, `lmsCredentials`, `rateLimits`.
+- Barrel exports updated for all new schemas.
+- `proxy.ts` exists at project root with `/apply/:path*` in matcher.
+- Auth route handler is NOT yet swapped (still `[...nextauth]`).
+- No nonessential hardening work is bundled into this phase.

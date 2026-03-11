@@ -7,7 +7,9 @@ If this file conflicts with `better-auth-documentation.md`, use `better-auth-doc
 ## 4.1 Remove Auth.js Artifacts
 - Delete `next-auth.d.ts`
 - Delete `src/core/platform/withAuth.ts`
-- Remove `next-auth` and `@auth/drizzle-adapter` from `package.json`
+- Delete `src/app/auth/auth-providers/_schema/authenticators.ts`
+- Remove `authenticatorsRelations` from `src/app/auth/auth-providers/_schema/relations.ts`
+- Remove `next-auth` and `@auth/drizzle-adapter` from `package.json` (this is when these packages are finally removed, not in Phase 1)
 - Remove `SessionProvider` from `src/app/providers.tsx`
 - Remove all imports from `next-auth` and `next-auth/react`
 
@@ -21,9 +23,12 @@ File: `src/app/dashboard/module-config.types.ts`
 Prefer the smallest change that preserves current navigation behavior during the migration.
 
 ## 4.3 Delete Obsolete Files
-- `src/app/api/auth/[...nextauth]/route.ts`
+- `src/app/api/auth/[...nextauth]/route.ts` (already deleted atomically in Phase 2.9)
+- `src/core/auth.legacy.ts` (old Auth.js config preserved during migration)
 - `next-auth.d.ts`
 - `src/core/platform/withAuth.ts`
+- `src/app/auth/auth-providers/_schema/authenticators.ts`
+- `src/test/mock.withAuth.ts`
 
 ## 4.4 Testing Checklist
 - [ ] Google OAuth sign-in works and account selector appears
@@ -33,20 +38,29 @@ Prefer the smallest change that preserves current navigation behavior during the
 - [ ] `serverExternalPackages: ['better-auth']` is in `next.config.ts`
 - [ ] `trustedOrigins` uses `BETTER_AUTH_TRUSTED_ORIGINS` env var
 - [ ] Role field validates against the defined enum array (rejects invalid role strings)
+- [ ] `human_resource` role is included in the role type array
 - [ ] Admin can manage user roles via Better Auth admin API
 - [ ] Admin impersonation works and sessions are marked with `impersonatedBy`
 - [ ] Sessions table includes `impersonated_by` column (added by admin plugin)
 - [ ] Permission presets populate `user_permissions`
 - [ ] Per-user permission overrides work (grant + revoke)
 - [ ] `withPermission` merges role defaults + overrides correctly
+- [ ] `withPermission` `'dashboard'` shorthand works for dashboard-level roles
 - [ ] Server actions enforce correct permissions
 - [ ] Client conditional rendering uses permission checks
 - [ ] Student portal auth works
-- [ ] Apply portal auth works
-- [ ] LMS auth guard works with `lms_credentials`
+- [ ] Apply portal auth works (all 8 files migrated)
+- [ ] LMS auth guard works with `lms_credentials` table (not session fields)
+- [ ] All 15+ LMS files read credentials from `lms_credentials` table, not session
+- [ ] All 40+ position field references replaced with permission-based checks
 - [ ] Account linking works for existing Google users
-- [ ] `encryptOAuthTokens: true` is active (verify tokens are encrypted in `accounts` table)
-- [ ] Database indexes exist on: users.email, accounts.user_id, sessions.user_id, sessions.token, verifications.identifier
+- [ ] `encryptOAuthTokens: true` is active (existing tokens encrypt on next sign-in via `updateAccountOnSignIn`)
+- [ ] Database indexes exist on: users.email, accounts.user_id, sessions.user_id, sessions.token, verifications.identifier, rate_limits.key
+- [ ] `rate_limits` table exists with unique index on `key`
+- [ ] `verification_tokens` table renamed to `verifications` with correct columns
+- [ ] `authenticators` table dropped
+- [ ] `dashboardUsers`, `userRoles`, `userPositions` enums dropped after column conversions
+- [ ] `clearance.department` and `autoApprovals.department` columns converted to text
 - [ ] No `next-auth` imports remain (`grep -r "next-auth" src/` returns nothing)
 - [ ] `pnpm tsc --noEmit && pnpm lint:fix` passes clean
 - [ ] `account.updateAccountOnSignIn: true` is set (OAuth tokens refresh on each sign-in)
@@ -54,9 +68,24 @@ Prefer the smallest change that preserves current navigation behavior during the
 - [ ] `better-auth/minimal` is used for bundle size
 - [ ] `stdNo` is accessed via dedicated `getStudentByUserId()` server action, NOT from session
 - [ ] Student portal components updated to use on-demand `stdNo` fetching
+- [ ] `session.accessToken` field removed (confirmed no consumers outside callback)
 - [ ] `BETTER_AUTH_TRUSTED_ORIGINS` env var is set in all environments
-- [ ] Client `authClient` is typed from the server auth definition
+- [ ] Client `authClient` uses `inferAdditionalFields<typeof auth>()` plugin (not type parameter)
 - [ ] Admin plugin is imported from `better-auth/plugins`
+- [ ] Drizzle adapter imported from `better-auth/adapters/drizzle`
+- [ ] `schema` is exported from `src/core/database/index.ts` with all new tables included
+- [ ] New schema barrel exports updated (`userPermissions`, `lmsCredentials`, `rateLimits`)
+- [ ] GoogleSignInForm uses module-level server action with `signInSocial()` + `redirect()`
+- [ ] Login page uses `auth.api.getSession()` for redirect logic
+- [ ] Account-setup page uses `authClient.useSession()`
+- [ ] Root page (`src/app/page.tsx`) uses hardcoded role list instead of `dashboardUsers` enum
+- [ ] BaseService config types updated from `Role[]` to permission requirements
+- [ ] BaseService `buildAuditOptions()` uses Better Auth `Session` type
+- [ ] `withPermission` uses React `cache()` for per-request permission dedup
+- [ ] `authInterrupts: true` removed from `next.config.ts`
+- [ ] User IDs generated with `nanoid()` (consistent with existing IDs)
+- [ ] `/apply/:path*` included in proxy matcher
+- [ ] Auth route handler at `[...all]` (swapped in Phase 2 after DB migration)
 
 ---
 
@@ -105,14 +134,15 @@ const { data: session, isPending } = authClient.useSession();
 
 ### Better Auth Sign-In (Server Action)
 ```ts
+'use server';
+
 import { auth } from "@/core/auth";
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 
-async function handleSignIn() {
-  "use server";
+export async function signInWithGoogle(callbackURL: string) {
   const result = await auth.api.signInSocial({
-    body: { provider: "google", callbackURL: "/dashboard" },
+    body: { provider: "google", callbackURL },
     headers: await headers(),
   });
   if (result.url) redirect(result.url);
@@ -155,35 +185,47 @@ const { data } = await authClient.admin.hasPermission({
 
 ## Migration Execution Order
 
-### Phase 1: Foundation
-1. Install Better Auth, remove Auth.js deps
-2. Update `next.config.ts` (add `serverExternalPackages: ['better-auth']`)
-3. Add Better Auth env vars
-4. Create permissions and presets
-5. Create `src/core/auth.ts` with Better Auth server setup and admin plugin
-6. Create `src/core/auth-client.ts`
-7. Create `src/app/api/auth/[...all]/route.ts`
-8. Create `proxy.ts` at project root
+### Phase 1: Foundation (no route swap yet)
+1. Install `better-auth` alongside existing Auth.js (keep both)
+2. Update `next.config.ts` — add `serverExternalPackages: ['better-auth']` only
+3. Add `BETTER_AUTH_SECRET` and `BETTER_AUTH_URL` env vars
+4. Create permissions map and permission presets (`src/core/platform/`)
+5. Create `src/core/auth.ts` — Better Auth server with admin plugin, `generateId: nanoid`, drizzle adapter from `better-auth/adapters/drizzle`
+6. Create `src/core/auth-client.ts` — with `inferAdditionalFields<typeof auth>()` plugin
+7. Create new schema files (`rateLimits.ts`, `lmsCredentials.ts`, `userPermissions.ts`)
+8. Update `_database/index.ts` barrel exports for new schema files
+9. Create `proxy.ts` at project root — uses `getSessionCookie()`, matcher includes `/apply/:path*`
+10. Add rate-limit plugin pointing to `src/app/auth/auth-providers/_schema/rateLimits.ts`
 
-### Phase 2: Database Migration
-9. Create/update schema files
-10. Run `pnpm db:generate`
-11. Write custom migration SQL for Better Auth tables and user conversion
-12. Run `pnpm db:migrate`
-13. Run data migration script
-14. Verify integrity and required indexes
+### Phase 2: Database Migration (route swap at end)
+11. Update existing schema files (`users.ts`, `accounts.ts`, `sessions.ts`) for Better Auth columns
+12. Rename `verification_tokens` → `verifications` with column changes
+13. Drop `authenticators` table and schema
+14. Convert enum columns to text (`userRoles`, `dashboardUsers`, `userPositions`)
+15. Run `pnpm db:generate`
+16. Write custom migration SQL for Better Auth tables and data conversion
+17. Run `pnpm db:migrate`
+18. Run data migration (accounts, position → presets, lms_credentials)
+19. Verify data integrity and required indexes
+20. Export `schema` object from `src/core/database/index.ts` (for drizzle adapter)
+21. Atomically swap route handler: `src/app/api/auth/[...nextauth]/route.ts` → `src/app/api/auth/[...all]/route.ts`
+22. Remove `authInterrupts: true` from `next.config.ts`
 
 ### Phase 3: Authorization Layer Replacement
-15. Create `withPermission`
-16. Update `BaseService.ts`
-17. Update server actions
-18. Update client components
-19. Update `providers.tsx`
-20. Update login and Google sign-in flow
-21. Replace `session.user.stdNo` with `getStudentByUserId()` server action in student portal
+23. Create `withPermission` — wrap core logic in React `cache()` from the start, include `'dashboard'` shorthand
+24. Update `BaseService.ts` — new session types, update `buildAuditOptions()` to read from Better Auth session shape
+25. Update server actions to use `withPermission`
+26. Update client components (TanStack Query auth calls)
+27. Update `providers.tsx` — remove `SessionProvider`
+28. Migrate LMS credential reads (15+ files → `lms_credentials` table)
+29. Migrate position field reads (40+ files → permission-based checks)
+30. Migrate apply portal auth (8 files)
+31. Migrate login page, account-setup, root page auth
+32. Replace `GoogleSignInForm` — module-level server action at `src/shared/ui/google-sign-in-action.ts`
+33. Replace `session.user.stdNo` with `getStudentByUserId()` server action (on-demand)
 
 ### Phase 4: Cleanup & Testing
-22. Delete Auth.js artifacts
-23. Remove old dependencies
-24. Run auth flow testing
-25. Run `pnpm tsc --noEmit && pnpm lint:fix`
+34. Delete Auth.js artifacts (`auth.legacy.ts`, authenticators schema, old route handler)
+35. Remove `next-auth` and `@auth/drizzle-adapter` from `package.json`
+36. Run full auth flow testing (see checklist above)
+37. Run `pnpm tsc --noEmit && pnpm lint:fix`

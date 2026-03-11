@@ -65,6 +65,7 @@ That current callback behavior matters because Better Auth migration should remo
 - Keep Better Auth route protection optimistic in `proxy.ts` and perform real authorization inside pages, route handlers, and server actions.
 - Use documented Better Auth APIs only. Do not rely on older `@better-auth/cli` guidance.
 - Keep the first implementation focused on authentication replacement and existing authorization parity. Defer optional hardening and performance tuning unless they are required to make the migration work.
+- Rate limiting with `storage: 'database'` is included in the Phase 1 server config because it is part of the canonical auth setup. The rate limit table must be created during Phase 2 database migration.
 
 ## What Changed Since The Existing Plan Was Written
 
@@ -95,8 +96,20 @@ Rationale:
 
 - `better-auth@1.5.4` pins the version this document targets.
 - `@better-auth/drizzle-adapter` aligns with current adapter extraction guidance.
+- Import the adapter from `better-auth/adapters/drizzle` (the documented import path), not from `@better-auth/drizzle-adapter` directly.
 
 `@vercel/functions` is not part of the essential migration baseline because deferred auth hooks are not in scope for the trimmed first pass.
+
+## 1b. Schema Export And Barrel Updates
+
+The current `src/core/database/index.ts` builds a `schema` object internally but does not export it. The Drizzle adapter requires the full schema object. Phase 2 must add `export { schema }` from `src/core/database/index.ts` so the Better Auth server can consume it.
+
+When new schema files are created (`userPermissions`, `lmsCredentials`, `rateLimits`), each must also be:
+
+1. Re-exported from the owning module's `_database/index.ts` barrel file.
+2. Included in the `src/core/database/index.ts` schema aggregation.
+
+Without these barrel updates, the Drizzle adapter will not see the new tables and joins will silently fall back to multiple queries.
 
 ## 2. Required Top-Level Files
 
@@ -124,9 +137,10 @@ Recommended structure:
 
 ```ts
 import { betterAuth } from 'better-auth/minimal';
-import { drizzleAdapter } from '@better-auth/drizzle-adapter';
+import { drizzleAdapter } from 'better-auth/adapters/drizzle';
 import { nextCookies } from 'better-auth/next-js';
 import { admin } from 'better-auth/plugins';
+import { nanoid } from 'nanoid';
 import { db, schema } from '@/core/database';
 import { ac, roles } from '@/core/auth/permissions';
 
@@ -156,6 +170,7 @@ export const auth = betterAuth({
 					'student_services',
 					'resource',
 					'leap',
+					'human_resource',
 					'admin',
 				],
 				required: false,
@@ -198,7 +213,7 @@ export const auth = betterAuth({
 	advanced: {
 		useSecureCookies: process.env.NODE_ENV === 'production',
 		database: {
-			generateId: () => crypto.randomUUID(),
+			generateId: () => nanoid(),
 		},
 	},
 	socialProviders: {
@@ -244,6 +259,9 @@ export const authClient = createAuthClient({
 });
 ```
 
+Important: Always use `inferAdditionalFields<typeof auth>()` (not `createAuthClient<typeof auth>()`) for client-side type inference of custom fields like `role`. This is the documented Better Auth approach.
+```
+
 Notes:
 
 - Keep the initial implementation lean. Do not add rate limiting, auth activity hooks, background-task wiring, or experimental join optimization unless a concrete migration blocker requires them.
@@ -279,12 +297,12 @@ Recommended proxy strategy for this repo:
 
 ```ts
 import { NextRequest, NextResponse } from 'next/server';
-import { getCookieCache } from 'better-auth/cookies';
+import { getSessionCookie } from 'better-auth/cookies';
 
 export async function proxy(request: NextRequest) {
-	const session = await getCookieCache(request);
+	const sessionCookie = getSessionCookie(request);
 
-	if (!session) {
+	if (!sessionCookie) {
 		return NextResponse.redirect(new URL('/auth/login', request.url));
 	}
 
@@ -294,8 +312,8 @@ export async function proxy(request: NextRequest) {
 
 Important:
 
-- `getSessionCookie()` only checks cookie existence and is not sufficient for security.
-- `getCookieCache()` is stronger than a raw cookie existence check, but this still does not replace server-side authorization.
+- `getSessionCookie()` checks cookie existence only and is the documented optimistic check for Next.js 16 proxy.
+- This is NOT a security layer. It is only for optimistic redirects.
 - Every protected page and action must validate the session again through `auth.api.getSession({ headers: await headers() })` or through the repo-owned permission wrapper.
 
 ## 7. Session Access Rules
@@ -400,11 +418,22 @@ The repo side still needs a wrapper that:
 - gets the session through Better Auth
 - allows `'all'`
 - allows `'auth'`
+- allows `'dashboard'` (checks if the user's role is a dashboard-level role, preserving current `dashboardUsers` behavior)
 - accepts permission requirements
 - bypasses checks for `admin` if that remains the repo rule
-- caches the merged permission set per request
+- uses React `cache()` to deduplicate the merged permission set per request
 
-The current plan to use React `cache()` for per-request permission deduplication remains valid and should be kept.
+The `'dashboard'` shorthand replaces the current `withAuth` behavior that checks against the `dashboardUsers` enum. This ensures ~25 services using `'dashboard'` as their auth config can migrate with minimal changes.
+
+React `cache()` must be used from the start to wrap the permission resolution function. This prevents N+1 permission lookups when multiple `withPermission` calls happen in the same request (common in pages that call multiple server actions).
+
+## 11b. accessToken Session Field Audit
+
+The current Auth.js callback sets `session.accessToken` from the accounts table. Code search confirms no consumer reads `session.accessToken` outside of the callback itself. This field is safe to remove without breaking any downstream code.
+
+## 11c. OAuth Token Encryption Migration
+
+The plan enables `encryptOAuthTokens: true`. Existing accounts have plaintext OAuth tokens. With `updateAccountOnSignIn: true`, Better Auth will re-encrypt tokens for each user on their next sign-in. Tokens for users who never sign in again will remain as plaintext rows. This is acceptable because those tokens expire anyway. No batch migration of existing tokens is required.
 
 ## 12. Google OAuth Rules
 
@@ -534,6 +563,10 @@ Verification table:
 - `expires` becomes `expiresAt`.
 - `createdAt` and `updatedAt` are added.
 
+Authenticators table:
+
+- The current Auth.js `authenticators` table (WebAuthn/Passkeys) has no Better Auth equivalent and is not needed. It must be dropped during Phase 2 cleanup alongside its schema file and relations.
+
 ## 19. Additional Fields Strategy
 
 Better Auth documents `additionalFields` on `user` and `session`.
@@ -625,6 +658,36 @@ Steering decision:
 - Keep the physical database table in snake case according to repo conventions.
 - Map model naming consistently through Drizzle schema if needed.
 
+The Drizzle schema must include:\n\nFile: `src/app/auth/auth-providers/_schema/rateLimits.ts`
+
+```ts
+export const rateLimits = pgTable('rate_limits', {
+	id: text().primaryKey(),
+	key: text().notNull(),
+	count: integer().notNull(),
+	lastRequest: bigint({ mode: 'number' }).notNull(),
+}, (t) => ({
+	keyIdx: uniqueIndex('rate_limits_key_idx').on(t.key),
+}));
+```
+
+This table must be created during Phase 2 database migration alongside other Better Auth tables.
+
+## 24b. dashboardUsers Enum Migration
+
+The `dashboardUsers` PostgreSQL enum is currently used in:
+
+- `withAuth` logic for the `'dashboard'` role check
+- `clearance` table schema (`department` column)
+- `autoApprovals` table schema (`department` column)
+
+Since we are doing a full enum migration:
+
+1. Convert `clearance.department` and `autoApprovals.department` columns from enum type to `text` type
+2. Migrate existing enum values to text values in the same migration
+3. Drop the `dashboardUsers` enum after all dependent columns are converted
+4. The `'dashboard'` concept in `withPermission` will use a hardcoded array of dashboard role strings instead of the enum
+
 ## 25. Background Tasks And Hooks
 
 This area needs special care because the public docs changed.
@@ -705,6 +768,13 @@ Route handler:
 - Auth.js: `handlers`
 - Better Auth: `toNextJsHandler(auth)`
 
+Server component sign-in (GoogleSignInForm pattern):
+
+- Auth.js: `await signIn('google', { redirectTo })`
+- Better Auth: `const result = await auth.api.signInSocial({ body: { provider: 'google', callbackURL: redirectTo }, headers: await headers() }); if (result.url) redirect(result.url);`
+
+This is critical because `GoogleSignInForm.tsx` is a server component that uses Auth.js `signIn()` as a server action. Better Auth's `signInSocial` returns a URL that must be explicitly redirected to.
+
 ## 28. Current Repo Migration Inventory
 
 The high-risk repo areas are already visible from current code search.
@@ -727,26 +797,91 @@ Routing:
 
 - `src/app/api/auth/[...nextauth]/route.ts`
 
+Apply portal (8 files):
+
+- `src/app/apply/_lib/useApplicant.ts` (useSession)
+- `src/app/apply/_components/ApplyHero.tsx` (useSession)
+- `src/app/apply/_components/ApplyHeader.tsx` (useSession, signOut)
+- `src/app/apply/new/page.tsx` (auth())
+- `src/app/apply/welcome/page.tsx` (auth())
+- `src/app/apply/restricted/page.tsx` (useSession)
+- `src/app/apply/profile/_components/ProfileView.tsx` (useSession)
+- `src/app/apply/[id]/(wizard)/qualifications/_server/actions.ts` (auth())
+
+Additional server-side files not in the original inventory:
+
+- `src/app/auth/login/page.tsx` (auth() for redirect logic)
+- `src/app/auth/account-setup/page.tsx` (useSession)
+- `src/app/page.tsx` (root redirect using dashboardUsers)
+- `src/app/reports/reports.config.ts` (position checks)
+
+LMS credential migration (15+ files reading from session):
+
+- `src/core/integrations/moodle.ts` (lmsUserId, lmsToken)
+- `src/app/lms/students/_server/repository.ts`
+- `src/app/lms/students/_server/actions.ts`
+- `src/app/lms/courses/_server/actions.ts`
+- `src/app/lms/quizzes/_server/actions.ts`
+- `src/app/lms/auth/_components/LmsAuthGuard.tsx`
+- `src/app/lms/auth/_server/actions.ts`
+- `src/app/admin/users/_server/repository.ts`
+- `src/app/admin/users/_components/Form.tsx`
+
+Position field migration (40+ files):
+
+- `src/app/registry/students/_server/service.ts`
+- `src/app/registry/students/_components/StudentTabs.tsx`
+- `src/app/registry/terms/settings/_server/` (10+ lines)
+- `src/app/academic/feedback/cycles/_server/service.ts`
+- `src/app/academic/schools/structures/[id]/page.tsx`
+- `src/app/admin/activity-tracker/_server/service.ts`
+- `src/app/admin/tasks/_server/service.ts`
+- `src/app/reports/reports.config.ts`
+- (and 30+ additional files)
+
 This means migration sequencing must preserve compile safety while both paths exist temporarily.
 
 ## 29. Recommended Sequencing
 
 Use this sequence.
 
-1. Install Better Auth packages and remove Auth.js packages only when code changes for route handling and providers are ready.
-2. Create `src/core/auth/permissions.ts`.
-3. Create `src/core/auth-client.ts`.
-4. Replace `src/core/auth.ts`.
-5. Add `src/app/api/auth/[...all]/route.ts`.
-6. Add `proxy.ts`.
-7. Update database schema files and relations.
-8. Generate Drizzle migration assets.
-9. Apply custom migration logic for schema conversion and data migration.
-10. Create `withPermission`.
-11. Move `BaseService` and server actions to Better Auth session access.
-12. Remove `SessionProvider` and client Auth.js calls.
-13. Replace `stdNo` session access with on-demand student lookup.
-14. Delete the old Auth.js route and types.
+**Phase 1: Foundation (NO route swap yet)**
+
+1. Install Better Auth packages alongside existing Auth.js packages (keep both during migration).
+2. Create `src/core/auth/permissions.ts` and `src/core/auth/presets.ts`.
+3. Create `src/core/auth-client.ts` with `inferAdditionalFields<typeof auth>()`.
+4. Create the new `src/core/auth.ts` (Better Auth version) — keep old Auth.js route alive.
+5. Create new schema files (`userPermissions`, `lmsCredentials`, `rateLimits`).
+6. Update `_database/index.ts` barrel files to export new schemas.
+7. Add `proxy.ts` at project root.
+
+**Phase 2: Database Migration (includes route swap)**
+
+8. Update existing auth schema files to Better Auth shapes.
+9. Export `schema` from `src/core/database/index.ts`.
+10. Generate Drizzle migration assets.
+11. Apply custom migration logic for schema conversion and data migration.
+12. Verify database integrity and indexes.
+13. Atomically swap `src/app/api/auth/[...nextauth]/route.ts` → `src/app/api/auth/[...all]/route.ts` (the route swap happens AFTER DB is ready).
+14. Remove `authInterrupts: true` from `next.config.ts`.
+
+**Phase 3: Authorization Layer Replacement**
+
+15. Create `withPermission` (with `'dashboard'` shorthand and React `cache()` for per-request dedup).
+16. Update `BaseService` types from `Role[]` to permission requirements (including `buildAuditOptions()` session type).
+17. Move server actions to Better Auth session access.
+18. Migrate LMS credential reads from session to `lms_credentials` table lookups (15+ files).
+19. Migrate `position` field reads to permission-based checks (40+ files).
+20. Remove `SessionProvider` and client Auth.js calls.
+21. Migrate apply portal auth (8 files).
+22. Migrate login page, account-setup page, and root page auth.
+23. Replace `stdNo` session access with on-demand student lookup.
+24. Replace `GoogleSignInForm` with module-level server action using `signInSocial` + `redirect`.
+
+**Phase 4: Cleanup**
+
+25. Remove Auth.js packages (`next-auth`, `@auth/drizzle-adapter`).
+26. Delete old Auth.js types and artifacts.
 
 ## 30. CLI Rules
 
@@ -784,6 +919,8 @@ const nextConfig = {
 };
 ```
 
+Additionally, remove `authInterrupts: true` from Next.js config during migration. That option is Auth.js-specific and has no effect with Better Auth.
+
 Even though that exact snippet was not pulled from the pages above, it remains aligned with Better Auth bundling concerns and the repo plan.
 
 ## 32. Better Auth Features We Are Not Adopting In Phase One
@@ -820,9 +957,9 @@ Steering resolution for this repo:
 
 - use `better-auth/react` for the client creator
 - install `@better-auth/drizzle-adapter`
-- import the Drizzle adapter from `@better-auth/drizzle-adapter`
+- import the Drizzle adapter from `better-auth/adapters/drizzle` (the documented import path, not from the package name directly)
 
-If the installed 1.5.4 package surface differs, prefer the installed package's actual exports while keeping the documented package split.
+If the installed 1.5.4 package surface differs, prefer the documented import paths while keeping the installed package split.
 
 ## 34. Validation Checklist
 
