@@ -1,18 +1,18 @@
-# Phase 5: Cleanup & Testing
+# Phase 12: Cleanup, Verification & Testing
 
-> Estimated Implementation Time: 4 to 8 hours
+> Estimated Implementation Time: 4 to 5 hours
 
-**Prerequisites**: Phases 1–4 complete. Read `000_steering-document.md` first.
+**Prerequisites**: Phases 1–11 complete. Read `000_steering-document.md` first.
 
-## 5.1 Remove Auth.js Artifacts
+## 12.1 Remove Auth.js Artifacts
 
 ### Delete Files
 
 - `next-auth.d.ts`
 - `src/core/auth.legacy.ts` (the renamed old Auth.js config)
-- `src/core/platform/withAuth.ts` (already deleted in Phase 3, verify)
+- `src/core/platform/withAuth.ts` (already deleted in Phase 4, verify)
 - `src/app/auth/auth-providers/_schema/authenticators.ts` (already deleted in Phase 2, verify)
-- `src/app/api/auth/[...nextauth]/route.ts` (already deleted in Phase 2, verify)
+- `src/app/api/auth/[...nextauth]/route.ts` (already deleted in Phase 3, verify)
 - Any test mocks for withAuth (e.g., `src/test/mock.withAuth.ts`)
 
 ### Remove from Relations
@@ -27,7 +27,7 @@ pnpm remove next-auth @auth/drizzle-adapter
 
 ### Remove SessionProvider
 
-- Remove `SessionProvider` wrapper from `src/app/providers.tsx`
+- Remove `SessionProvider` wrapper from `src/app/providers.tsx` (already done in Phase 8, verify)
 - Remove `next-auth/react` import from providers
 
 ### Grep Verification
@@ -58,9 +58,9 @@ Delete from `.env` and any deployment configs:
 
 ### Remove `authInterrupts`
 
-Verify `authInterrupts: true` was removed from `next.config.ts` in Phase 2. If not, remove it now — it is Auth.js-specific and has no effect with Better Auth.
+Verify `authInterrupts: true` was removed from `next.config.ts` in Phase 3. If not, remove it now — it is Auth.js-specific and has no effect with Better Auth.
 
-## 5.2 Remove Obsolete Enum References
+## 12.2 Remove Obsolete Enum References
 
 Verify that no TypeScript code references:
 - `dashboardUsers` enum
@@ -69,9 +69,9 @@ Verify that no TypeScript code references:
 - `UserPosition` type
 - `DashboardUser` type (replaced by `DashboardRole` from permissions.ts)
 
-These enums were dropped in Phase 2 database migration. All code referencing them must have been updated in Phase 3.
+These enums were dropped in Phase 3 database migration. All code referencing them must have been updated in earlier phases.
 
-## 5.3 Update Type Exports
+## 12.3 Update Type Exports
 
 Ensure `src/app/auth/users/_schema/users.ts` no longer exports:
 - `dashboardUsers`
@@ -84,7 +84,7 @@ Any file that imported these types must be updated to use:
 - `DASHBOARD_ROLES` from `@/core/auth/permissions`
 - Plain string types for role values
 
-## 5.4 Verify Database State
+## 12.4 Verify Database State
 
 Run these queries to confirm migration completeness:
 
@@ -125,7 +125,7 @@ SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'authent
 -- Expected: false
 ```
 
-## 5.5 Testing Checklist
+## 12.5 Testing Checklist
 
 ### Authentication
 
@@ -227,7 +227,7 @@ SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'authent
 - [ ] No enum references remain (userRoles, userPositions, dashboardUsers)
 - [ ] Old env vars removed (AUTH_SECRET, AUTH_URL, AUTH_GOOGLE_ID, AUTH_GOOGLE_SECRET)
 
-## 5.6 Rollback Plan
+## 12.6 Rollback Plan
 
 ### Before Starting Migration
 
@@ -257,7 +257,7 @@ cp .env.backup .env
 - Notify all users they will need to sign in again after migration
 - Have the admin verify preset assignments after migration
 
-## 5.7 Post-Migration Monitoring
+## 12.7 Post-Migration Monitoring
 
 After deploying:
 
@@ -267,9 +267,9 @@ After deploying:
 4. Confirm no permission gaps (users who had position-based access still have equivalent preset access)
 5. Review rate limiting behavior (not too aggressive for normal usage)
 
-## Migration Execution Order (Summary)
+## Migration Execution Order (Commit Summary)
 
-### Commit 1: Foundation
+### Commit 1: Foundation (Phase 1)
 - Install Better Auth packages
 - Create auth config files (auth.ts, auth-client.ts)
 - Create permissions catalog
@@ -277,56 +277,61 @@ After deploying:
 - Update barrel exports
 - Create proxy.ts
 
-### Commit 2: Database Migration
-- Generate Drizzle migrations
-- Run schema changes (enums → text, add/remove columns)
+### Commit 2: Schema Updates (Phase 2)
+- Update Drizzle schema TypeScript files
+- Generate Drizzle migration
+- Update dependent schemas (enum→text)
+
+### Commit 3: Data Migration (Phase 3)
+- Run schema migration
 - Migrate account data
-- Create permission preset tables
-- Seed predefined presets
+- Seed permission presets
 - Migrate positions → preset assignments
 - Extract LMS credentials
 - Swap route handler
 
-### Commit 3: Authorization Wrapper
+### Commit 4: Authorization Wrapper (Phase 4)
 - Create withPermission
 - Update BaseService
 - Delete withAuth
 
-### Commits 4–7: Service Migration (by module)
-- Academic services
-- Registry services
-- Admin, finance, admissions services
-- Timetable, library services
+### Commits 5–7: Service Migration (Phases 5–7)
+- Academic services (Phase 5)
+- Registry + Admin services (Phase 6)
+- Admissions, finance, timetable, library services + standalone actions (Phase 7)
 
-### Commit 8: Client Migration
+### Commit 8: Client Migration (Phase 8)
 - Replace all next-auth imports
 - Replace useSession, signOut, SessionProvider
 - Replace position checks with permission checks
+- stdNo on-demand fetching
 
-### Commit 9: Preset Management UI
-- Permission preset CRUD pages
-- PermissionMatrix component
-
-### Commit 10: User Form Update
-- Preset dropdown
-- Read-only matrix
-- Remove position field
-
-### Commit 11: Navigation Updates
+### Commit 9: LMS + Navigation (Phase 9)
+- LMS credential on-demand reads
 - NavItem permissions field
 - Dashboard shell permission checking
 - Module config updates
 
-### Commit 12: LMS + Student Portal
-- LMS credential on-demand reads
-- stdNo on-demand fetching
+### Commit 10: Preset Backend (Phase 10)
+- Permission preset CRUD (repository, service, actions, pages)
 
-### Commit 13: Cleanup
+### Commit 11: Preset UI (Phase 11)
+- PermissionMatrix component
+- Preset Form component
+- User form update (preset dropdown, read-only matrix)
+
+### Commit 12: Cleanup (Phase 12)
 - Remove Auth.js packages
 - Delete obsolete files
 - Verify zero legacy references
-
-### Commit 14: Final Verification
 - Run full test checklist
-- `pnpm tsc --noEmit && pnpm lint:fix`
-- Database verification queries
+
+## Exit Criteria
+
+- [ ] All Auth.js artifacts removed (files, packages, env vars, SessionProvider)
+- [ ] All grep checks return zero results for legacy patterns
+- [ ] Database state verified with SQL queries
+- [ ] All testing checklist items pass
+- [ ] `pnpm tsc --noEmit` passes clean
+- [ ] `pnpm lint:fix` passes clean
+- [ ] Rollback plan documented and tested

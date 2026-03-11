@@ -1,6 +1,6 @@
-# Phase 1: Foundation
+# Phase 1: Foundation — Install & Core Config
 
-> Estimated Implementation Time: 2 to 4 hours
+> Estimated Implementation Time: 4 to 5 hours
 
 **Prerequisites**: Read `000_steering-document.md` first. It is the authoritative reference.
 
@@ -8,7 +8,7 @@
 
 - Install Better Auth alongside Auth.js (both coexist temporarily)
 - Create all Better Auth config files and new schema files
-- Do NOT swap the auth route handler yet (that happens at the end of Phase 2)
+- Do NOT swap the auth route handler yet (that happens at the end of Phase 3)
 - Create permission preset schema files
 - Create the access control permission catalog
 
@@ -28,7 +28,7 @@ Add `better-auth` to `serverExternalPackages` in `next.config.ts`:
 serverExternalPackages: ['better-auth'],
 ```
 
-Keep `authInterrupts: true` until Phase 2 route swap.
+Keep `authInterrupts: true` until Phase 3 route swap.
 
 ## 1.3 Add Environment Variables
 
@@ -40,7 +40,7 @@ Add alongside existing Auth.js env vars:
 - `GOOGLE_CLIENT_ID` (already exists)
 - `GOOGLE_CLIENT_SECRET` (already exists)
 
-Do NOT remove Auth.js env vars (`AUTH_SECRET`, `AUTH_URL`, etc.) yet — they are cleaned up in Phase 5.
+Do NOT remove Auth.js env vars (`AUTH_SECRET`, `AUTH_URL`, etc.) yet — they are cleaned up in Phase 12.
 
 > **Note**: After migration, `AUTH_SECRET`, `AUTH_URL`, `AUTH_GOOGLE_ID`, `AUTH_GOOGLE_SECRET` will be removed. Only `BETTER_AUTH_*` and `GOOGLE_*` vars will remain.
 

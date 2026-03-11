@@ -1,95 +1,12 @@
-# Phase 2: Database Migration
+# Phase 3: Data Migration & Auth Route Swap
 
-> Estimated Implementation Time: 6 to 10 hours
+> Estimated Implementation Time: 4 to 5 hours
 
-**Prerequisites**: Phase 1 complete. Read `000_steering-document.md` first.
+**Prerequisites**: Phase 2 complete. Read `000_steering-document.md` first.
 
-The schema migration must be completed before Phase 3 code depends on Better Auth tables.
+This phase runs the data migrations: mapping Auth.js account data to Better Auth fields, seeding permission presets, migrating position→preset assignments, extracting LMS credentials, and swapping the auth route handler.
 
-## 2.1 Migration Strategy
-
-Side-by-side migration:
-
-1. Generate the Better Auth schema shape
-2. Update Drizzle schema files to match Better Auth models
-3. Create migrations for auth tables + permission preset tables
-4. Migrate existing Auth.js account data
-5. Seed predefined permission presets
-6. Migrate position values → preset assignments
-7. Drop obsolete tables/columns/enums after verification
-
-## 2.2 Tables To Prepare
-
-The migration covers:
-
-- `users` — modify (add presetId, remove position/lmsUserId/lmsToken, convert enums to text)
-- `accounts` — modify (map Auth.js fields to Better Auth fields)
-- `sessions` — recreate (drop Auth.js sessions, create Better Auth sessions)
-- `verifications` — new (replaces `verification_tokens`)
-- `permission_presets` — new
-- `preset_permissions` — new
-- `lms_credentials` — new (extracted from users)
-- `rate_limits` — new
-
-Also:
-- Drop `authenticators` table
-- Drop `verification_tokens` table (replaced by `verifications`)
-- Drop `userRoles`, `userPositions`, `dashboardUsers` enums (after column conversion)
-- Convert `clearance.department` and `autoApprovals.department` from enum to text
-
-## 2.3 Users Table Target
-
-**Current shape:**
-
-```
-id, name, role (userRoles enum), position (userPositions enum),
-email, email_verified (timestamp), image, lms_user_id, lms_token
-```
-
-**Target shape:**
-
-```
-id, name, role (text), email (not null), email_verified (boolean),
-image, preset_id (FK → permission_presets.id, nullable),
-created_at, updated_at, banned, ban_reason, ban_expires
-```
-
-**Required changes:**
-
-1. Convert `role` from `userRoles` enum to `text`
-2. Convert `email_verified` from `timestamp` to `boolean`
-3. Enforce `email` and `name` as NOT NULL
-4. Add Better Auth lifecycle fields: `created_at`, `updated_at`
-5. Add Better Auth admin plugin fields: `banned`, `ban_reason`, `ban_expires`
-6. Add `preset_id` FK → `permission_presets.id` (nullable, SET NULL on delete)
-7. Remove `position` column
-8. Remove `lms_user_id` and `lms_token` columns (moved to `lms_credentials`)
-
-### Enum to Text Migration
-
-All three PostgreSQL enums must be converted to text:
-
-1. `users.role`: `userRoles` enum → `text` (preserve existing values)
-2. `clearance.department`: `dashboardUsers` enum → `text`
-3. `autoApprovals.department`: `dashboardUsers` enum → `text`
-4. `blockedStudents.department`: `dashboardUsers` enum → `text`
-5. `studentNotes.role`: `userRoles` enum → `text`
-6. Drop enums after all dependent columns are converted: `userRoles`, `userPositions`, `dashboardUsers`
-
-**SQL pattern for enum → text conversion:**
-
-```sql
-ALTER TABLE users ALTER COLUMN role TYPE text USING role::text;
-ALTER TABLE clearance ALTER COLUMN department TYPE text USING department::text;
-ALTER TABLE auto_approvals ALTER COLUMN department TYPE text USING department::text;
-ALTER TABLE blocked_students ALTER COLUMN department TYPE text USING department::text;
-ALTER TABLE student_notes ALTER COLUMN role TYPE text USING role::text;
-DROP TYPE IF EXISTS user_roles;
-DROP TYPE IF EXISTS user_positions;
-DROP TYPE IF EXISTS dashboard_users;
-```
-
-## 2.4 Accounts Migration
+## 3.1 Accounts Data Migration
 
 Map Auth.js account fields to Better Auth:
 
@@ -112,7 +29,7 @@ Add new fields: `createdAt`, `updatedAt`, `password` (nullable, for future email
 
 Migration must preserve user linkage. Existing Google-linked users must continue to sign in.
 
-## 2.5 Sessions Strategy
+## 3.2 Sessions Strategy
 
 Drop all existing Auth.js sessions. Create the Better Auth sessions table fresh. Users will need to re-sign-in after cutover.
 
@@ -124,7 +41,7 @@ expires_at, created_at, updated_at,
 impersonated_by (admin plugin)
 ```
 
-## 2.6 Verification Table
+## 3.3 Verification Table Migration
 
 Current `verification_tokens` (composite PK) → new `verifications` (single `id` PK):
 
@@ -140,7 +57,7 @@ CREATE TABLE verifications (
 DROP TABLE IF EXISTS verification_tokens;
 ```
 
-## 2.7 LMS Credentials Extraction
+## 3.4 LMS Credentials Extraction
 
 Extract `lms_user_id` and `lms_token` from `users` into `lms_credentials`:
 
@@ -154,7 +71,7 @@ ALTER TABLE users DROP COLUMN lms_user_id;
 ALTER TABLE users DROP COLUMN lms_token;
 ```
 
-## 2.8 Permission Preset Seeds
+## 3.5 Permission Preset Seeds
 
 After creating the `permission_presets` and `preset_permissions` tables, seed the predefined presets.
 
@@ -300,7 +217,7 @@ INSERT INTO permission_presets (name, role, description) VALUES
 -- Permissions: feedback-reports:read
 ```
 
-## 2.9 Position → Preset Migration
+## 3.6 Position → Preset Migration
 
 After seeding presets, map existing users to the appropriate preset:
 
@@ -390,140 +307,7 @@ Then drop the position column:
 ALTER TABLE users DROP COLUMN position;
 ```
 
-## 2.10 Drizzle Schema File Updates
-
-### Users Schema
-
-File: `src/app/auth/users/_schema/users.ts`
-
-**Before:**
-```ts
-export const dashboardUsers = pgEnum('dashboard_users', [...]);
-export const userRoles = pgEnum('user_roles', [...]);
-export const userPositions = pgEnum('user_positions', [...]);
-
-export const users = pgTable('users', {
-  id: text().primaryKey(),
-  name: text(),
-  role: userRoles().notNull().default('user'),
-  position: userPositions(),
-  email: text().unique(),
-  emailVerified: timestamp(),
-  image: text(),
-  lmsUserId: integer(),
-  lmsToken: text(),
-});
-```
-
-**After:**
-```ts
-import { permissionPresets } from '@auth/permission-presets/_schema/permissionPresets';
-
-export const users = pgTable('users', {
-  id: text().primaryKey(),
-  name: text().notNull(),
-  role: text().notNull().default('user'),
-  email: text().notNull().unique(),
-  emailVerified: boolean().notNull().default(false),
-  image: text(),
-  presetId: text('preset_id').references(() => permissionPresets.id, { onDelete: 'set null' }),
-  createdAt: timestamp('created_at').defaultNow().notNull(),
-  updatedAt: timestamp('updated_at').defaultNow().$onUpdate(() => new Date()).notNull(),
-  banned: boolean().default(false),
-  banReason: text('ban_reason'),
-  banExpires: timestamp('ban_expires'),
-});
-```
-
-**Removed:**
-- `dashboardUsers` enum export
-- `userRoles` enum export
-- `userPositions` enum export
-- `position` column
-- `lmsUserId` column
-- `lmsToken` column
-
-### Accounts Schema
-
-File: `src/app/auth/auth-providers/_schema/accounts.ts`
-
-Update to match Better Auth account model:
-
-```ts
-export const accounts = pgTable('accounts', {
-  id: text().primaryKey(),
-  userId: text('user_id')
-    .references(() => users.id, { onDelete: 'cascade' })
-    .notNull(),
-  accountId: text('account_id').notNull(),
-  providerId: text('provider_id').notNull(),
-  accessToken: text('access_token'),
-  refreshToken: text('refresh_token'),
-  accessTokenExpiresAt: timestamp('access_token_expires_at'),
-  refreshTokenExpiresAt: timestamp('refresh_token_expires_at'),
-  scope: text(),
-  idToken: text('id_token'),
-  password: text(),
-  createdAt: timestamp('created_at').defaultNow().notNull(),
-  updatedAt: timestamp('updated_at').defaultNow().$onUpdate(() => new Date()).notNull(),
-});
-```
-
-### Sessions Schema
-
-File: `src/app/auth/auth-providers/_schema/sessions.ts`
-
-Replace Auth.js sessions with Better Auth model:
-
-```ts
-export const sessions = pgTable('sessions', {
-  id: text().primaryKey(),
-  token: text().notNull().unique(),
-  userId: text('user_id')
-    .references(() => users.id, { onDelete: 'cascade' })
-    .notNull(),
-  ipAddress: text('ip_address'),
-  userAgent: text('user_agent'),
-  expiresAt: timestamp('expires_at').notNull(),
-  createdAt: timestamp('created_at').defaultNow().notNull(),
-  updatedAt: timestamp('updated_at').defaultNow().$onUpdate(() => new Date()).notNull(),
-  impersonatedBy: text('impersonated_by'),
-});
-```
-
-### Verifications Schema
-
-File: `src/app/auth/auth-providers/_schema/verifications.ts` (renamed from `verificationTokens.ts`)
-
-```ts
-export const verifications = pgTable('verifications', {
-  id: text().primaryKey(),
-  identifier: text().notNull(),
-  value: text().notNull(),
-  expiresAt: timestamp('expires_at').notNull(),
-  createdAt: timestamp('created_at').defaultNow(),
-  updatedAt: timestamp('updated_at').defaultNow().$onUpdate(() => new Date()),
-});
-```
-
-### Delete Authenticators
-
-Delete `src/app/auth/auth-providers/_schema/authenticators.ts` and remove `authenticatorsRelations` from relations file.
-
-## 2.11 Indexes
-
-Ensure these indexes exist (add via Drizzle schema table definitions, not raw SQL):
-
-- `users.email` (unique, already exists)
-- `users.preset_id`
-- `accounts.user_id` → `index('accounts_user_id_idx').on(table.userId)`
-- `sessions.user_id` → `index('sessions_user_id_idx').on(table.userId)`
-- `sessions.token` (unique, already exists)
-- `verifications.identifier` → `index('verifications_identifier_idx').on(table.identifier)`
-- `rate_limits.key` (primary key)
-- `preset_permissions.preset_id`
-
-## 2.12 Swap Auth Route Handler
+## 3.7 Swap Auth Route Handler
 
 After DB migration is verified:
 
@@ -539,53 +323,25 @@ export const { GET, POST } = toNextJsHandler(auth);
 
 Both CANNOT coexist. This must be atomic (same commit).
 
-## 2.13 Update Next.js Config
+## 3.8 Update Next.js Config
 
 Remove `authInterrupts: true` from `next.config.ts` (Auth.js-specific).
 
-## 2.14 Generate Drizzle Migration
-
-After all schema files are updated:
-
-```bash
-pnpm db:generate
-```
-
-This generates a single migration covering all schema changes. **Never create .sql migration files manually** — it corrupts the Drizzle journal. Review the generated SQL to confirm it matches expected changes (enum→text conversions, column drops, new tables, indexes).
-
-## 2.15 Update Dependent Schema Files
-
-Update schema files that reference the dropped enums:
-
-**`blockedStudents` schema**: Replace `dashboardUsers` enum with `text()` for the `department` column.
-
-**`studentNotes` schema**: Replace `userRoles` enum with `text()` for the `role` column.
-
-**`clearance` schema**: Replace `dashboardUsers` enum with `text()` for the `department` column.
-
-**`autoApprovals` schema**: Replace `dashboardUsers` enum with `text()` for the `department` column.
-
-> **Note**: After removing the enum exports from `users.ts`, all files that imported `userRoles`, `userPositions`, or `dashboardUsers` must be updated. Use `UserRole` and `DashboardRole` types from `src/core/auth/permissions.ts` for TypeScript validation where needed.
-
 ## Exit Criteria
 
-- [ ] Better Auth schema files match target database shape
 - [ ] Auth.js account data migrated to Better Auth field names
 - [ ] Legacy sessions dropped (users re-authenticate)
-- [ ] `permission_presets` table created with predefined presets seeded
-- [ ] `preset_permissions` table created with permissions per preset
+- [ ] `verification_tokens` dropped, `verifications` table created
+- [ ] `permission_presets` table seeded with all predefined presets
+- [ ] `preset_permissions` table populated with permissions per preset
 - [ ] Users assigned to presets based on former role+position
 - [ ] `position` column dropped from users
 - [ ] `lms_user_id` and `lms_token` moved to `lms_credentials`
 - [ ] `lms_credentials` table populated from existing user data
-- [ ] `rate_limits` table created
-- [ ] `verifications` table created, `verification_tokens` dropped
-- [ ] `authenticators` table and schema dropped
+- [ ] `authenticators` table dropped
 - [ ] All three enums (`userRoles`, `userPositions`, `dashboardUsers`) dropped
 - [ ] `clearance.department`, `autoApprovals.department`, `blockedStudents.department` converted to text
 - [ ] `studentNotes.role` converted to text
-- [ ] All indexes exist (including `accounts_user_id_idx`, `sessions_user_id_idx`, `verifications_identifier_idx`)
-- [ ] `schema` exported from `src/core/database/index.ts`
-- [ ] Drizzle migration generated via `pnpm db:generate` (not manual SQL)
 - [ ] Auth route handler swapped from `[...nextauth]` to `[...all]`
 - [ ] `authInterrupts: true` removed from `next.config.ts`
+- [ ] Existing Google-linked users can still sign in

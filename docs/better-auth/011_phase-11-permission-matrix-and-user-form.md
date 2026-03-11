@@ -1,108 +1,12 @@
-# Phase 4: Permission Preset Management UI
+# Phase 11: Permission Matrix, Preset Form & User Form Update
 
-> Estimated Implementation Time: 6 to 10 hours
+> Estimated Implementation Time: 4 to 5 hours
 
-**Prerequisites**: Phase 3 complete. Read `000_steering-document.md` first.
+**Prerequisites**: Phase 10 complete. Read `000_steering-document.md` first.
 
-## Overview
+This phase builds the PermissionMatrix component, the Preset Form component, updates the User form to replace position with preset, and adds the navigation entry.
 
-This phase builds two UI features:
-
-1. **Permission Preset CRUD** — dedicated admin page at `/admin/permission-presets`
-2. **User Form Update** — preset dropdown + read-only permission matrix on user edit form
-
-## 4.1 Permission Preset Feature Module
-
-### File Structure
-
-```
-src/app/admin/permission-presets/
-├── _server/
-│   ├── repository.ts
-│   ├── service.ts
-│   └── actions.ts
-├── _components/
-│   ├── Form.tsx
-│   └── PermissionMatrix.tsx
-├── _lib/
-│   └── types.ts
-├── page.tsx
-├── new/page.tsx
-├── [id]/
-│   ├── page.tsx
-│   └── edit/page.tsx
-└── layout.tsx
-```
-
-### Types
-
-File: `src/app/admin/permission-presets/_lib/types.ts`
-
-```ts
-import { z } from 'zod/v4';
-import { RESOURCES, ACTIONS } from '@/core/auth/permissions';
-
-export const presetFormSchema = z.object({
-  name: z.string().min(1),
-  role: z.string().min(1),
-  description: z.string().optional(),
-  permissions: z.array(z.object({
-    resource: z.string(),
-    action: z.string(),
-  })),
-});
-
-export type PresetFormValues = z.infer<typeof presetFormSchema>;
-```
-
-### Repository
-
-File: `src/app/admin/permission-presets/_server/repository.ts`
-
-Extends `BaseRepository` for `permissionPresets` table. Additional methods:
-
-- `findByIdWithPermissions(id: string)` — joins `preset_permissions` to get full preset + permissions
-- `findByRole(role: string)` — returns presets filtered by role
-- `createWithPermissions(data, permissions[])` — transaction: insert preset + permission rows
-- `updateWithPermissions(id, data, permissions[])` — transaction: update preset, delete old permissions, insert new
-- `deleteById(id)` — cascade deletes permissions via FK
-
-### Service
-
-File: `src/app/admin/permission-presets/_server/service.ts`
-
-Extends `BaseService`. All operations gated by `{ users: ['manage'] }` (only admin-level users manage presets).
-
-```ts
-class PermissionPresetService extends BaseService<typeof permissionPresets, 'id'> {
-  constructor() {
-    super(new PermissionPresetRepository(), {
-      byIdAuth: { users: ['manage'] },
-      findAllAuth: { users: ['manage'] },
-      createAuth: { users: ['manage'] },
-      updateAuth: { users: ['manage'] },
-      deleteAuth: { users: ['manage'] },
-    });
-  }
-}
-```
-
-### Actions
-
-File: `src/app/admin/permission-presets/_server/actions.ts`
-
-Standard CRUD actions:
-
-```ts
-export async function getPreset(id: string) { ... }
-export async function findAllPresets(page: number, search: string) { ... }
-export async function findPresetsByRole(role: string) { ... }
-export async function createPreset(data: PresetFormValues) { ... }
-export async function updatePreset(id: string, data: PresetFormValues) { ... }
-export async function deletePreset(id: string) { ... }
-```
-
-### PermissionMatrix Component (Shared)
+## 11.1 PermissionMatrix Component (Shared)
 
 File: `src/app/admin/permission-presets/_components/PermissionMatrix.tsx`
 
@@ -138,7 +42,7 @@ type PermissionMatrixProps = {
 - Checkboxes toggle permissions on/off
 - `onChange` fires with the updated permission set
 
-### Preset Form Component
+## 11.2 Preset Form Component
 
 File: `src/app/admin/permission-presets/_components/Form.tsx`
 
@@ -154,43 +58,7 @@ function PermissionPresetForm({ preset }: { preset?: ExistingPreset }) {
 }
 ```
 
-### List Page
-
-File: `src/app/admin/permission-presets/page.tsx`
-
-Standard `ListLayout` showing all presets. Each item shows:
-- Preset name
-- Role badge
-- Permission count
-
-### Detail Page
-
-File: `src/app/admin/permission-presets/[id]/page.tsx`
-
-Uses `DetailsView` + `DetailsViewHeader` + `DetailsViewBody`:
-- Name, role, description fields
-- Read-only `PermissionMatrix` showing all granted permissions
-- Edit and Delete buttons
-
-### Edit Page
-
-File: `src/app/admin/permission-presets/[id]/edit/page.tsx`
-
-Uses the preset Form component with existing data pre-filled.
-
-### New Page
-
-File: `src/app/admin/permission-presets/new/page.tsx`
-
-Uses the preset Form component for creating a new preset.
-
-### Layout
-
-File: `src/app/admin/permission-presets/layout.tsx`
-
-Standard layout with children slot.
-
-## 4.2 Update User Form
+## 11.3 Update User Form
 
 File: `src/app/admin/users/_components/Form.tsx`
 
@@ -254,7 +122,7 @@ Update the `updateUser` action to handle `presetId` assignment.
 └─────────────────────────────────────────┘
 ```
 
-## 4.3 Update User Detail Page
+## 11.4 Update User Detail Page
 
 File: `src/app/admin/users/[id]/page.tsx`
 
@@ -262,7 +130,7 @@ File: `src/app/admin/users/[id]/page.tsx`
 - Add preset name display (with link to the preset detail page)
 - Optionally show a collapsed permission summary
 
-## 4.4 Add Navigation Entry
+## 11.5 Add Navigation Entry
 
 File: `src/app/admin/admin.config.ts`
 
@@ -279,8 +147,8 @@ Add "Permission Presets" as a child nav item under the Admin section:
 
 ## Exit Criteria
 
-- [ ] Permission Preset CRUD feature module complete (repository, service, actions, pages)
 - [ ] `PermissionMatrix` component works in both editable and read-only modes
+- [ ] Preset Form component uses `Form` from adease with editable matrix
 - [ ] Preset list page shows all presets with name, role, permission count
 - [ ] Preset detail page shows read-only permission matrix
 - [ ] Preset create/edit pages have working permission matrix with checkboxes

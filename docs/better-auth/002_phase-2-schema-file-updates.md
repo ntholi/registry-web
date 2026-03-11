@@ -1,0 +1,257 @@
+# Phase 2: Schema File Updates & Migration Generation
+
+> Estimated Implementation Time: 4 to 5 hours
+
+**Prerequisites**: Phase 1 complete. Read `000_steering-document.md` first.
+
+This phase updates all Drizzle schema TypeScript files to match the Better Auth target shape and generates the Drizzle migration. The actual data migration (account mapping, preset seeding) happens in Phase 3.
+
+## 2.1 Migration Strategy
+
+Side-by-side migration:
+
+1. Generate the Better Auth schema shape
+2. Update Drizzle schema files to match Better Auth models
+3. Create migrations for auth tables + permission preset tables
+4. Data migration and seeding happen in Phase 3
+
+## 2.2 Tables To Prepare
+
+The migration covers:
+
+- `users` — modify (add presetId, remove position/lmsUserId/lmsToken, convert enums to text)
+- `accounts` — modify (map Auth.js fields to Better Auth fields)
+- `sessions` — recreate (drop Auth.js sessions, create Better Auth sessions)
+- `verifications` — new (replaces `verification_tokens`)
+- `permission_presets` — new (created in Phase 1 schema files)
+- `preset_permissions` — new (created in Phase 1 schema files)
+- `lms_credentials` — new (created in Phase 1 schema files)
+- `rate_limits` — new (created in Phase 1 schema files)
+
+Also:
+- Drop `authenticators` table
+- Drop `verification_tokens` table (replaced by `verifications`)
+- Drop `userRoles`, `userPositions`, `dashboardUsers` enums (after column conversion)
+- Convert `clearance.department` and `autoApprovals.department` from enum to text
+
+## 2.3 Users Table Target
+
+**Current shape:**
+
+```
+id, name, role (userRoles enum), position (userPositions enum),
+email, email_verified (timestamp), image, lms_user_id, lms_token
+```
+
+**Target shape:**
+
+```
+id, name, role (text), email (not null), email_verified (boolean),
+image, preset_id (FK → permission_presets.id, nullable),
+created_at, updated_at, banned, ban_reason, ban_expires
+```
+
+**Required changes:**
+
+1. Convert `role` from `userRoles` enum to `text`
+2. Convert `email_verified` from `timestamp` to `boolean`
+3. Enforce `email` and `name` as NOT NULL
+4. Add Better Auth lifecycle fields: `created_at`, `updated_at`
+5. Add Better Auth admin plugin fields: `banned`, `ban_reason`, `ban_expires`
+6. Add `preset_id` FK → `permission_presets.id` (nullable, SET NULL on delete)
+7. Remove `position` column
+8. Remove `lms_user_id` and `lms_token` columns (moved to `lms_credentials`)
+
+### Enum to Text Migration
+
+All three PostgreSQL enums must be converted to text:
+
+1. `users.role`: `userRoles` enum → `text` (preserve existing values)
+2. `clearance.department`: `dashboardUsers` enum → `text`
+3. `autoApprovals.department`: `dashboardUsers` enum → `text`
+4. `blockedStudents.department`: `dashboardUsers` enum → `text`
+5. `studentNotes.role`: `userRoles` enum → `text`
+6. Drop enums after all dependent columns are converted: `userRoles`, `userPositions`, `dashboardUsers`
+
+**SQL pattern for enum → text conversion:**
+
+```sql
+ALTER TABLE users ALTER COLUMN role TYPE text USING role::text;
+ALTER TABLE clearance ALTER COLUMN department TYPE text USING department::text;
+ALTER TABLE auto_approvals ALTER COLUMN department TYPE text USING department::text;
+ALTER TABLE blocked_students ALTER COLUMN department TYPE text USING department::text;
+ALTER TABLE student_notes ALTER COLUMN role TYPE text USING role::text;
+DROP TYPE IF EXISTS user_roles;
+DROP TYPE IF EXISTS user_positions;
+DROP TYPE IF EXISTS dashboard_users;
+```
+
+## 2.4 Users Schema Update
+
+File: `src/app/auth/users/_schema/users.ts`
+
+**Before:**
+```ts
+export const dashboardUsers = pgEnum('dashboard_users', [...]);
+export const userRoles = pgEnum('user_roles', [...]);
+export const userPositions = pgEnum('user_positions', [...]);
+
+export const users = pgTable('users', {
+  id: text().primaryKey(),
+  name: text(),
+  role: userRoles().notNull().default('user'),
+  position: userPositions(),
+  email: text().unique(),
+  emailVerified: timestamp(),
+  image: text(),
+  lmsUserId: integer(),
+  lmsToken: text(),
+});
+```
+
+**After:**
+```ts
+import { permissionPresets } from '@auth/permission-presets/_schema/permissionPresets';
+
+export const users = pgTable('users', {
+  id: text().primaryKey(),
+  name: text().notNull(),
+  role: text().notNull().default('user'),
+  email: text().notNull().unique(),
+  emailVerified: boolean().notNull().default(false),
+  image: text(),
+  presetId: text('preset_id').references(() => permissionPresets.id, { onDelete: 'set null' }),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().$onUpdate(() => new Date()).notNull(),
+  banned: boolean().default(false),
+  banReason: text('ban_reason'),
+  banExpires: timestamp('ban_expires'),
+});
+```
+
+**Removed:**
+- `dashboardUsers` enum export
+- `userRoles` enum export
+- `userPositions` enum export
+- `position` column
+- `lmsUserId` column
+- `lmsToken` column
+
+## 2.5 Accounts Schema Update
+
+File: `src/app/auth/auth-providers/_schema/accounts.ts`
+
+Update to match Better Auth account model:
+
+```ts
+export const accounts = pgTable('accounts', {
+  id: text().primaryKey(),
+  userId: text('user_id')
+    .references(() => users.id, { onDelete: 'cascade' })
+    .notNull(),
+  accountId: text('account_id').notNull(),
+  providerId: text('provider_id').notNull(),
+  accessToken: text('access_token'),
+  refreshToken: text('refresh_token'),
+  accessTokenExpiresAt: timestamp('access_token_expires_at'),
+  refreshTokenExpiresAt: timestamp('refresh_token_expires_at'),
+  scope: text(),
+  idToken: text('id_token'),
+  password: text(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().$onUpdate(() => new Date()).notNull(),
+});
+```
+
+## 2.6 Sessions Schema Update
+
+File: `src/app/auth/auth-providers/_schema/sessions.ts`
+
+Replace Auth.js sessions with Better Auth model:
+
+```ts
+export const sessions = pgTable('sessions', {
+  id: text().primaryKey(),
+  token: text().notNull().unique(),
+  userId: text('user_id')
+    .references(() => users.id, { onDelete: 'cascade' })
+    .notNull(),
+  ipAddress: text('ip_address'),
+  userAgent: text('user_agent'),
+  expiresAt: timestamp('expires_at').notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().$onUpdate(() => new Date()).notNull(),
+  impersonatedBy: text('impersonated_by'),
+});
+```
+
+## 2.7 Verifications Schema + Delete Authenticators
+
+### Verifications Schema
+
+File: `src/app/auth/auth-providers/_schema/verifications.ts` (renamed from `verificationTokens.ts`)
+
+```ts
+export const verifications = pgTable('verifications', {
+  id: text().primaryKey(),
+  identifier: text().notNull(),
+  value: text().notNull(),
+  expiresAt: timestamp('expires_at').notNull(),
+  createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at').defaultNow().$onUpdate(() => new Date()),
+});
+```
+
+### Delete Authenticators
+
+Delete `src/app/auth/auth-providers/_schema/authenticators.ts` and remove `authenticatorsRelations` from relations file.
+
+## 2.8 Update Dependent Schema Files
+
+Update schema files that reference the dropped enums:
+
+**`blockedStudents` schema**: Replace `dashboardUsers` enum with `text()` for the `department` column.
+
+**`studentNotes` schema**: Replace `userRoles` enum with `text()` for the `role` column.
+
+**`clearance` schema**: Replace `dashboardUsers` enum with `text()` for the `department` column.
+
+**`autoApprovals` schema**: Replace `dashboardUsers` enum with `text()` for the `department` column.
+
+> **Note**: After removing the enum exports from `users.ts`, all files that imported `userRoles`, `userPositions`, or `dashboardUsers` must be updated. Use `UserRole` and `DashboardRole` types from `src/core/auth/permissions.ts` for TypeScript validation where needed.
+
+## 2.9 Indexes
+
+Ensure these indexes exist (add via Drizzle schema table definitions, not raw SQL):
+
+- `users.email` (unique, already exists)
+- `users.preset_id`
+- `accounts.user_id` → `index('accounts_user_id_idx').on(table.userId)`
+- `sessions.user_id` → `index('sessions_user_id_idx').on(table.userId)`
+- `sessions.token` (unique, already exists)
+- `verifications.identifier` → `index('verifications_identifier_idx').on(table.identifier)`
+- `rate_limits.key` (primary key)
+- `preset_permissions.preset_id`
+
+## 2.10 Generate Drizzle Migration
+
+After all schema files are updated:
+
+```bash
+pnpm db:generate
+```
+
+This generates a single migration covering all schema changes. **Never create .sql migration files manually** — it corrupts the Drizzle journal. Review the generated SQL to confirm it matches expected changes (enum→text conversions, column drops, new tables, indexes).
+
+## Exit Criteria
+
+- [ ] Better Auth schema files match target database shape
+- [ ] Users schema updated: enums removed, new fields added, position/lmsUserId/lmsToken removed
+- [ ] Accounts schema updated to Better Auth field names
+- [ ] Sessions schema updated to Better Auth model
+- [ ] Verifications schema created, verificationTokens deleted
+- [ ] Authenticators schema and relations deleted
+- [ ] Dependent schemas updated: enum columns → text (clearance, autoApprovals, blockedStudents, studentNotes)
+- [ ] All indexes defined in schema files
+- [ ] Drizzle migration generated via `pnpm db:generate` (not manual SQL)
+- [ ] `pnpm tsc --noEmit` passes
