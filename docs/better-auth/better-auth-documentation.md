@@ -1,17 +1,15 @@
-# Better Auth Best Practices for Next.js 16
+# Better Auth Guidance for Next.js 16
 
 ## Purpose
 
-This document is a generic, vendor-focused reference for using Better Auth with Next.js 16.
+This document is a verified reference for Better Auth with Next.js 16. It is limited to guidance that is directly supported by current Better Auth and Next.js documentation reviewed on 2026-03-11.
 
-It is intentionally not tied to any specific application, schema, directory structure, or business rules. It exists to capture current Better Auth guidance, Better Auth-first architecture decisions, and practical migration advice from Auth.js to Better Auth.
+Where Better Auth presents something as optional, experimental, or situational, this document keeps that wording soft. Where Better Auth or Next.js explicitly warns against a pattern, this document treats that warning as authoritative.
 
 ## Documentation Baseline
 
-This document reflects public Better Auth and Next.js documentation reviewed on 2026-03-11.
-
-- Latest Better Auth release visible in the public changelog at review time: `v1.5.4`
-- Next.js baseline used here: `16.1.x`
+- Better Auth changelog version visible at review time: `v1.5.4`
+- Next.js baseline used for framework guidance: `16.1.x`
 
 ## Primary Sources
 
@@ -31,63 +29,80 @@ This document reflects public Better Auth and Next.js documentation reviewed on 
 - `https://better-auth.com/docs/guides/next-auth-migration-guide`
 - `https://nextjs.org/docs/app/guides/authentication`
 
-## What Matters Most
+## Verified Headline Guidance
 
-- Use Better Auth as the source of truth for authentication.
-- Keep authorization logic explicit and application-owned.
-- Prefer database-backed sessions unless there is a clear reason to move to stateless or secondary-storage-only patterns.
-- Keep session payloads small and stable.
-- Use Next.js 16 `proxy.ts` only for optimistic redirects, not as the final security boundary.
-- Perform real session validation inside pages, route handlers, and server actions.
-- Use documented Better Auth APIs and current CLI commands.
-- Keep the first rollout lean. Do not add optional plugins or advanced behavior until the base authentication flow is stable.
+- Use Better Auth as the authentication system.
+- Keep real authorization checks on the server.
+- Treat `proxy.ts` only as an optimistic redirect layer, not the final security boundary.
+- Validate sessions inside server components, route handlers, and server actions.
+- Keep session payloads small so cookie caching remains effective.
+- Configure `baseURL`, trusted origins, secrets, and production cookie security deliberately.
+- Use the current `npx auth` CLI flow and the explicit adapter package for your ORM.
 
-## Better Auth 1.5 Highlights Relevant to New Work
+## Better Auth 1.5 Facts Relevant Here
 
-- The CLI is now `npx auth`, replacing the older `@better-auth/cli` flow.
-- Database adapters were extracted into separate packages.
-- Unified hooks are now documented across core and plugins.
+These items are explicitly reflected in current Better Auth docs and changelog material:
+
+- The current CLI command family is `npx auth`.
+- Database adapters are now available as separate packages such as `@better-auth/drizzle-adapter`.
+- Unified before and after hooks are documented through `createAuthMiddleware`.
 - `advanced.backgroundTasks` is documented.
-- Database `after` hooks run after transaction commit.
-- Secret rotation is supported through `secrets` and `BETTER_AUTH_SECRETS`.
+- Secret rotation is documented through `secrets` and `BETTER_AUTH_SECRETS`.
 - Dynamic base URL handling is documented.
-- Session APIs, rate limiting, and cookie behavior were hardened further in 1.5.
+- Database `after` hooks now run after transaction commit.
 
 ## Recommended Generic File Layout
 
-For a Next.js 16 App Router application, the minimal Better Auth layout should usually be:
+The Better Auth docs consistently use this Next.js App Router shape:
 
 - `src/lib/auth.ts`
 - `src/lib/auth-client.ts`
 - `src/app/api/auth/[...all]/route.ts`
 - `proxy.ts`
 
-Use equivalent paths if your project does not use `src/`.
+Equivalent paths are fine if your project does not use `src/`.
 
-## Installation Best Practices
+## Installation and CLI
 
-Install Better Auth and the adapter package for your database explicitly.
+For a Drizzle-based project, the documented installation path is:
 
 ```bash
-pnpm add better-auth@latest @better-auth/drizzle-adapter
+pnpm add better-auth @better-auth/drizzle-adapter
 ```
 
-If you are migrating from Auth.js, keep both systems installed only for the shortest possible overlap period. Remove Auth.js packages after the Better Auth route, session access, and client hooks are all working.
-
-Common CLI commands:
+Current documented CLI commands include:
 
 ```bash
 npx auth init
 npx auth generate
 npx auth migrate
 npx auth upgrade
+npx auth info
+npx auth secret
 ```
 
-If your project uses complex path aliases and the CLI has trouble resolving them, use a minimal temporary auth entry or relative imports for generation. Do not contort runtime architecture to satisfy CLI limitations.
+Important CLI constraints from the docs:
 
-## Canonical Server Setup
+- `generate` creates schema output for adapters such as Drizzle and Prisma.
+- `migrate` directly applies schema changes only for the built-in Kysely adapter.
+- If the CLI cannot resolve path aliases in your auth config, Better Auth recommends temporarily using relative imports.
 
-For a Next.js app using Drizzle, a strong default is `better-auth/minimal` with the Drizzle adapter and the Next.js cookies plugin.
+## Canonical Next.js Route Setup
+
+Better Auth’s documented App Router route handler is:
+
+```ts
+import { auth } from '@/lib/auth'
+import { toNextJsHandler } from 'better-auth/next-js'
+
+export const { GET, POST } = toNextJsHandler(auth)
+```
+
+Use it at `src/app/api/auth/[...all]/route.ts` unless you intentionally customize the base path.
+
+## Server Configuration
+
+Documented baseline for a Next.js and Drizzle setup:
 
 ```ts
 import { betterAuth } from 'better-auth/minimal'
@@ -100,73 +115,31 @@ export const auth = betterAuth({
   baseURL: process.env.BETTER_AUTH_URL,
   database: drizzleAdapter(db, {
     provider: 'pg',
-    usePlural: true,
     schema,
+    usePlural: true,
   }),
-  trustedOrigins: [
-    process.env.BETTER_AUTH_URL!,
-    ...(process.env.BETTER_AUTH_TRUSTED_ORIGINS?.split(',').map((origin) => origin.trim()) ?? []),
-  ],
-  session: {
-    expiresIn: 60 * 60 * 24 * 7,
-    updateAge: 60 * 60 * 24,
-    freshAge: 60 * 5,
-    cookieCache: {
-      enabled: true,
-      strategy: 'compact',
-      maxAge: 60 * 5,
-      version: '1',
-    },
-  },
-  rateLimit: {
-    enabled: true,
-    storage: 'database',
-    window: 60,
-    max: 100,
-    customRules: {
-      '/sign-in/social': {
-        window: 10,
-        max: 3,
-      },
-    },
-  },
-  account: {
-    encryptOAuthTokens: true,
-    updateAccountOnSignIn: true,
-    accountLinking: {
-      enabled: true,
-      trustedProviders: ['google'],
-    },
-  },
-  advanced: {
-    useSecureCookies: process.env.NODE_ENV === 'production',
-  },
   socialProviders: {
     google: {
-      clientId: process.env.GOOGLE_CLIENT_ID!,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-      prompt: 'select_account',
+      clientId: process.env.GOOGLE_CLIENT_ID as string,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
     },
   },
   plugins: [nextCookies()],
 })
-
-export type Session = typeof auth.$Infer.Session
 ```
 
-## Server Configuration Rules
+Notes that are directly supported by the docs:
 
-- Prefer `better-auth/minimal` when you do not need the larger surface area.
-- Set `baseURL` explicitly in production.
-- Keep `trustedOrigins` explicit unless you genuinely need dynamic resolution.
-- Use `useSecureCookies` in production.
-- Enable rate limiting explicitly instead of relying on environment defaults.
-- Encrypt OAuth tokens if you store them.
-- Only add `additionalFields` that are stable, security-reviewed, and truly belong in the Better Auth data model.
+- `better-auth/minimal` is a documented bundle-size optimization for adapter-based setups.
+- If you use `nextCookies()`, Better Auth says it should be the last plugin in the array.
+- `baseURL` should be set explicitly for stable environments.
+- `useSecureCookies` should be enabled in production.
+- `rateLimit.enabled` defaults to `true` in production and `false` in development, so setting it explicitly is clearer.
+- `account.encryptOAuthTokens` is available and should be enabled if you store OAuth tokens.
 
-## Client Setup Best Practices
+## Client Setup
 
-For React and Next.js, use the React client creator.
+For React and Next.js, Better Auth documents `better-auth/react`:
 
 ```ts
 import { createAuthClient } from 'better-auth/react'
@@ -179,36 +152,18 @@ export const authClient = createAuthClient({
 })
 ```
 
-Guidelines:
+What is safe to rely on:
 
-- Prefer `better-auth/react` for React apps.
-- Use `inferAdditionalFields<typeof auth>()` when you expose custom user fields.
-- Keep client configuration minimal. Add client plugins only when you actually use them.
-- Do not mirror server-only auth logic in the client.
-
-## Route Handler Setup
-
-The canonical Next.js route handler is:
-
-```ts
-import { toNextJsHandler } from 'better-auth/next-js'
-
-import { auth } from '@/lib/auth'
-
-export const { GET, POST } = toNextJsHandler(auth)
-```
-
-Use it at:
-
-- `src/app/api/auth/[...all]/route.ts`
-
-This aligns with current Better Auth guidance for Next.js App Router.
+- Use `createAuthClient` from `better-auth/react` in React applications.
+- Use `inferAdditionalFields<typeof auth>()` when client code needs typed access to user additional fields.
+- Keep client config minimal unless you actually use extra client plugins.
+- Do not treat client session state as the final authorization check for protected operations.
 
 ## Next.js 16 Protection Model
 
-Next.js 16 uses `proxy.ts` rather than the older middleware naming. Better Auth and Next.js guidance both support using proxy only for optimistic redirects.
+Better Auth’s Next.js integration docs are explicit on this point: `proxy.ts` can help with optimistic redirects, but Better Auth recommends handling real auth checks in each page or route.
 
-Fast cookie-only proxy check:
+Cookie-only proxy example from the docs:
 
 ```ts
 import { NextRequest, NextResponse } from 'next/server'
@@ -223,13 +178,9 @@ export async function proxy(request: NextRequest) {
 
   return NextResponse.next()
 }
-
-export const config = {
-  matcher: ['/dashboard'],
-}
 ```
 
-Full validation in proxy is possible in Next.js 16, but it should still be treated as a convenience layer rather than the true authorization boundary.
+Full validation in proxy is also documented:
 
 ```ts
 import { NextRequest, NextResponse } from 'next/server'
@@ -248,22 +199,17 @@ export async function proxy(request: NextRequest) {
 
   return NextResponse.next()
 }
-
-export const config = {
-  matcher: ['/dashboard'],
-}
 ```
 
-### Protection Rules
+However, Better Auth still labels proxy-based protection as an optimistic layer and recommends real checks in pages and routes. That means:
 
-- Use proxy for optimistic redirects and route convenience.
-- Do real auth checks inside server components, route handlers, and server actions.
-- Never rely on proxy alone to protect sensitive resources.
-- Prefer the cookie-only check in proxy when you want lower latency and fewer database hits.
+- Do not rely on cookie presence alone for final protection.
+- Do not treat proxy as the only auth boundary.
+- Re-check the session on the server before protected reads or writes.
 
-## Session Access Patterns
+## Session Access and Session Size
 
-### Server
+Documented server access pattern:
 
 ```ts
 import { headers } from 'next/headers'
@@ -275,7 +221,7 @@ const session = await auth.api.getSession({
 })
 ```
 
-### Client
+Documented client pattern:
 
 ```ts
 'use client'
@@ -292,36 +238,23 @@ export default function AccountPanel() {
 }
 ```
 
-### Session Best Practices
+Session guidance directly supported by Better Auth docs:
 
 - Keep session reads simple and cheap.
-- Do not enrich every session fetch with unrelated database reads.
-- Keep the session payload limited to identity and a small number of stable fields.
-- Fetch related domain data on demand rather than attaching it to the session.
-- Use `disableCookieCache: true` for especially sensitive checks when you want to force a database-backed session read.
+- Avoid enriching every session fetch with unrelated domain queries.
+- Keep the session payload limited to identity data and a small number of stable fields.
+- Fetch domain-heavy or frequently changing data separately.
+- Use `disableCookieCache: true` when you intentionally want a fresh server-side session read.
 
-## Session Payload Guidance
+## Cookie Cache
 
-Good session fields are:
+Better Auth documents three cookie cache strategies:
 
-- user id
-- role or other small authorization hints
-- core Better Auth session fields
+- `compact`
+- `jwt`
+- `jwe`
 
-Avoid putting these into session unless there is a strong reason:
-
-- large derived objects
-- frequently changing domain data
-- third-party access token convenience copies unless a specific feature needs them
-- fields that trigger extra joins or lookups on every session read
-
-The smaller and more stable the session payload is, the more value you get from cookie caching.
-
-## Cookie Cache Strategy
-
-Better Auth supports `compact`, `jwt`, and `jwe` cookie cache strategies.
-
-For most internal or first-party web apps, `compact` is the best default because it minimizes cookie size and keeps session reads fast.
+The docs describe `compact` as the default and the most size-efficient option. A safe baseline is:
 
 ```ts
 session: {
@@ -329,48 +262,36 @@ session: {
     enabled: true,
     strategy: 'compact',
     maxAge: 60 * 5,
-    version: '1',
   },
 }
 ```
 
-Tradeoff:
+Important tradeoff explicitly documented by Better Auth:
 
-- Revoked sessions can remain usable on another device until the cookie cache window expires.
+- Revoked sessions may remain usable on another device until the cookie cache expires.
 
-For sensitive operations, prefer a fresh server-side validation path.
+For sensitive operations, use a fresh server-side validation path instead of relying only on cached session data.
 
-## Database and Adapter Best Practices
+## Database and Drizzle Adapter Guidance
 
-### Adapter Installation
+Documented Drizzle adapter points:
 
-Better Auth 1.5 extracts adapters into separate packages. Install the dedicated adapter package even though the main package still re-exports adapters.
+- Install `@better-auth/drizzle-adapter` explicitly.
+- Import `drizzleAdapter` from `better-auth/adapters/drizzle`.
+- Set `provider` to the correct database family such as `pg` for PostgreSQL.
+- Pass the schema object when you need schema mapping or join support.
+- Use `usePlural: true` if your tables are pluralized.
 
-For Drizzle:
+For joins, Better Auth documents them as experimental and explicitly says:
 
-```bash
-pnpm add better-auth @better-auth/drizzle-adapter
-```
+- Drizzle relations need to exist.
+- The related schema entries need to be passed through the adapter schema object.
 
-Recommended import path:
+If those relations are missing, Better Auth falls back to multiple queries instead of joined queries.
 
-```ts
-import { drizzleAdapter } from 'better-auth/adapters/drizzle'
-```
+## Recommended Indexes
 
-### Drizzle Rules
-
-- Pass the full schema object to the adapter.
-- Export all auth-related tables and relations from the schema object.
-- Set `provider: 'pg'` for PostgreSQL.
-- Set `usePlural: true` if your physical table names are plural.
-- If you want join optimization, ensure relations are defined and included.
-
-If relations are missing, join-based optimizations can silently degrade into multiple queries.
-
-## Indexes That Should Exist
-
-Better Auth performance guidance calls out these indexes as important:
+Better Auth’s performance guide calls out these indexes as important:
 
 - `users.email`
 - `accounts.userId`
@@ -378,18 +299,20 @@ Better Auth performance guidance calls out these indexes as important:
 - `sessions.token`
 - `verifications.identifier`
 
-If you enable database-backed rate limiting, index the rate limit key as well.
+If you use database-backed rate limiting, index the rate limit storage appropriately as well.
 
-## Rate Limiting Best Practices
+## Rate Limiting
 
-Enable rate limiting explicitly.
+Better Auth documents rate limiting as configurable through `rateLimit` and notes that defaults differ by environment. An explicit configuration is clearer than relying on defaults.
+
+Example:
 
 ```ts
 rateLimit: {
   enabled: true,
-  storage: 'database',
   window: 60,
   max: 100,
+  storage: 'database',
   customRules: {
     '/sign-in/social': {
       window: 10,
@@ -399,28 +322,31 @@ rateLimit: {
 }
 ```
 
-Guidelines:
+Documented points to keep in mind:
 
-- Prefer explicit settings over default assumptions.
-- Use stricter rules on sign-in, sign-up, password reset, and social auth endpoints.
-- If you use `storage: 'database'`, create and migrate the backing table yourself.
-- Consider IPv6 subnet handling if your application is exposed broadly on the public internet.
+- `enabled` defaults to `true` in production and `false` in development.
+- Storage can be `memory`, `database`, or `secondary-storage`.
+- If the app is broadly internet-facing, IPv6 subnet handling is relevant and documented under advanced IP configuration.
 
-## Base URL and Trusted Origins
+## Base URL, Trusted Origins, and Secrets
 
-Better Auth supports explicit base URLs and dynamic base URL resolution.
+Better Auth supports explicit and dynamic base URL handling.
 
-Static configuration is simpler and should be the default for most apps:
+What the docs recommend clearly:
+
+- Set `BETTER_AUTH_URL` or `baseURL` explicitly for stable environments.
+- Do not rely on request inference unless you intentionally need dynamic behavior.
+- Keep `trustedOrigins` tight.
+- Use wildcard origins only for domains you actually control.
+
+Static example:
 
 ```ts
 baseURL: process.env.BETTER_AUTH_URL,
-trustedOrigins: [
-  process.env.BETTER_AUTH_URL!,
-  'https://*.vercel.app',
-]
+trustedOrigins: ['http://localhost:3000', 'https://example.com']
 ```
 
-Dynamic base URL support is useful for preview deployments, multi-domain environments, or reverse proxies.
+Dynamic example:
 
 ```ts
 baseURL: {
@@ -430,18 +356,13 @@ baseURL: {
 }
 ```
 
-Best practices:
+For secrets:
 
-- Set `BETTER_AUTH_URL` explicitly for stable environments.
-- Keep `trustedOrigins` tight.
-- Only allow wildcards you actually control.
-- Do not trust arbitrary origins just to make local development easier.
+- `BETTER_AUTH_SECRET` is the standard initial setup.
+- `BETTER_AUTH_SECRETS` and `secrets` are the documented path for non-destructive rotation.
+- Secrets should be long, random, and never hardcoded in production source.
 
-## Secret Management and Rotation
-
-For initial setups, `BETTER_AUTH_SECRET` is enough.
-
-For production operations, prefer rotation-ready configuration:
+Rotation example:
 
 ```ts
 secrets: [
@@ -450,21 +371,9 @@ secrets: [
 ]
 ```
 
-Or:
-
-```bash
-BETTER_AUTH_SECRETS="2:new-secret-key,1:old-secret-key"
-```
-
-Best practices:
-
-- Use long, random secrets.
-- Rotate without destroying active sessions by keeping previous keys available for decryption.
-- Document an operational rotation procedure before production rollout.
-
 ## Hooks and Background Tasks
 
-Better Auth 1.5 documents unified before and after hooks and background task helpers.
+Better Auth documents hooks through `createAuthMiddleware`:
 
 ```ts
 import { betterAuth } from 'better-auth'
@@ -482,15 +391,14 @@ export const auth = betterAuth({
 })
 ```
 
-Best practices:
+Supported guidance from the docs:
 
-- Keep hooks lightweight.
-- Use hooks for cross-cutting auth concerns, not heavy domain orchestration.
-- Use request-level background task helpers when you need deferred work tied to request lifecycle.
-- Remember that database `after` hooks now run after commit, not inside the transaction.
-- Do not assume post-commit hooks can safely perform extra transactional writes.
+- Hooks are appropriate for auth-specific request and response customization.
+- Use `ctx.context.runInBackground` or `runInBackgroundOrAwait` when you have configured `advanced.backgroundTasks`.
+- Background tasks improve latency at the cost of eventual consistency.
+- Database `after` hooks run after commit, so they should not be treated as in-transaction write hooks.
 
-If you need deferred execution on platforms like Vercel:
+Vercel example:
 
 ```ts
 import { betterAuth } from 'better-auth'
@@ -505,207 +413,104 @@ export const auth = betterAuth({
 })
 ```
 
-## Social Sign-In Best Practices
+## Google Provider Guidance
 
-For Google, a strong baseline is:
+Better Auth’s Google provider docs support the following baseline:
 
 ```ts
 socialProviders: {
   google: {
-    clientId: process.env.GOOGLE_CLIENT_ID!,
-    clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+    clientId: process.env.GOOGLE_CLIENT_ID as string,
+    clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
     prompt: 'select_account',
   },
 }
 ```
 
-Guidelines:
+Supported guidance:
 
-- Set the callback URL correctly for both local and production environments.
-- Use `prompt: 'select_account'` when you want the account chooser every time.
-- Only request offline access if you truly need refresh tokens.
-- Restrict account linking to trusted providers.
-- Encrypt stored OAuth tokens.
+- Configure the redirect URI correctly for local and production environments.
+- Set `baseURL` explicitly to avoid `redirect_uri_mismatch` problems.
+- Use `prompt: 'select_account'` if you want the account chooser every time.
+- Use `accessType: 'offline'` together with `prompt: 'select_account consent'` only when you actually need refresh tokens.
 
 Typical callback URLs:
 
 - Local: `http://localhost:3000/api/auth/callback/google`
-- Production: `https://your-domain/api/auth/callback/google`
-
-## Authorization Design Guidance
-
-Better Auth handles authentication and can provide role and plugin-based access control. That does not remove the need for application-owned authorization design.
-
-Recommended approach:
-
-- Use Better Auth for identity, session handling, providers, and auth lifecycle.
-- Use Better Auth plugin permissions for standardized role defaults when they fit.
-- Keep complex business authorization in application code.
-- Treat auth session lookup and permission resolution as separate concerns.
-- Cache permission resolution per request if the same checks happen multiple times in a render or action path.
-
-## Better Auth and Next.js 16 App Router Practices
-
-- Prefer server components for initial session-aware rendering.
-- Use `auth.api.getSession({ headers: await headers() })` on the server.
-- Use `authClient.useSession()` only in client components that truly need reactive session state.
-- Keep auth route handlers in App Router, not Pages Router.
-- Use `proxy.ts` for optimistic redirect behavior.
-- Re-check authorization inside server actions and route handlers.
+- Production: `https://your-domain.com/api/auth/callback/google`
 
 ## Auth.js to Better Auth Migration
 
-## Migration Goals
+Better Auth’s migration guide supports this sequence:
 
-- Replace Auth.js route handling with Better Auth route handling.
-- Replace Auth.js client session APIs with Better Auth client APIs.
-- Move away from callback-based session enrichment that causes repeated database reads.
-- Align database tables with Better Auth naming and model expectations.
+1. Install Better Auth and the adapter package you need.
+2. Create the Better Auth server instance.
+3. Create the Better Auth client instance.
+4. Replace the Next.js auth route handler with `toNextJsHandler(auth)`.
+5. Migrate server-side session access to `auth.api.getSession({ headers: await headers() })`.
+6. Migrate client-side usage to `authClient` APIs.
+7. Migrate database models if you use database-backed auth.
+8. Remove Auth.js only after the new flow is verified.
 
-## Recommended Migration Sequence
+Useful API replacements from the official migration guide:
 
-1. Install Better Auth and the required adapter package.
-2. Add a new Better Auth server entry and client entry.
-3. Create the Better Auth route handler in App Router.
-4. Update session access in server components, route handlers, and server actions.
-5. Update client components from Auth.js hooks to Better Auth hooks.
-6. Migrate database tables and indexes.
-7. Verify sign-in, sign-out, callback URLs, and session reads.
-8. Remove Auth.js packages and old auth artifacts only after full cutover.
+- Auth.js `signIn('google')` -> Better Auth `authClient.signIn.social({ provider: 'google' })`
+- Auth.js `signOut()` -> Better Auth `authClient.signOut()`
+- Auth.js `useSession()` -> Better Auth `authClient.useSession()`
+- Auth.js `auth()` -> Better Auth `auth.api.getSession({ headers: await headers() })`
 
-## API Replacement Map
+## Database Model Differences in Migration
 
-Client sign in:
+Better Auth’s migration guide documents these important schema differences.
 
-- Auth.js: `signIn('google')`
-- Better Auth: `authClient.signIn.social({ provider: 'google' })`
-
-Client sign out:
-
-- Auth.js: `signOut()`
-- Better Auth: `authClient.signOut()`
-
-Client session hook:
-
-- Auth.js: `useSession()`
-- Better Auth: `authClient.useSession()`
-
-Server session fetch:
-
-- Auth.js: `auth()`
-- Better Auth: `auth.api.getSession({ headers: await headers() })`
-
-Route handler:
-
-- Auth.js: framework-specific `handlers`
-- Better Auth: `toNextJsHandler(auth)`
-
-## Social Sign-In Migration Pattern
-
-If you previously used a server-side Auth.js social sign-in helper, Better Auth uses `signInSocial` and returns a redirect URL.
-
-```ts
-import { headers } from 'next/headers'
-import { redirect } from 'next/navigation'
-
-import { auth } from '@/lib/auth'
-
-export async function signInWithGoogle(callbackURL: string) {
-  const result = await auth.api.signInSocial({
-    body: {
-      provider: 'google',
-      callbackURL,
-    },
-    headers: await headers(),
-  })
-
-  if (result.url) {
-    redirect(result.url)
-  }
-}
-```
-
-## Database Model Differences to Expect
-
-From the public migration guide, these are the important model shifts to plan for:
-
-### User
+User:
 
 - `emailVerified` is boolean in Better Auth.
-- `name`, `email`, and `emailVerified` are required by Better Auth core expectations.
-- `createdAt` and `updatedAt` are part of the standard model.
+- Better Auth includes `createdAt` and `updatedAt`.
 
-### Session
+Session:
 
 - `sessionToken` becomes `token`.
 - `expires` becomes `expiresAt`.
-- `ipAddress`, `userAgent`, `createdAt`, and `updatedAt` are part of the model.
+- Better Auth includes `ipAddress`, `userAgent`, `createdAt`, and `updatedAt`.
 
-### Account
+Account:
 
 - `provider` becomes `providerId`.
 - `providerAccountId` becomes `accountId`.
-- Better Auth adds timestamp fields and provider token expiry fields.
+- Better Auth includes provider token expiry fields and timestamps.
 
-### Verification
+Verification:
 
-- `verification_tokens` becomes `verifications`.
+- `VerificationToken` becomes `verification` or `verifications` depending on configured naming.
 - `token` becomes `value`.
 - `expires` becomes `expiresAt`.
-- Better Auth uses a single `id` primary key.
+- Better Auth uses a single `id` primary key instead of the Auth.js composite key.
 
-## Migration Best Practices
+## Practical Verification Checklist
 
-- Keep migration steps reversible until cutover is complete.
-- Preserve user IDs unless there is a compelling reason to re-key identities.
-- Validate OAuth callback behavior before removing the old system.
-- Remove old type augmentations and provider wrappers only after application code compiles cleanly against Better Auth.
-- Audit for fields previously injected into the Auth.js session and replace them with on-demand reads where appropriate.
+Before calling a Better Auth integration complete, verify all of the following:
 
-## Performance Best Practices
-
-- Enable cookie cache for common session reads.
-- Keep sessions small.
-- Export the full schema and relations for adapter-based joins.
-- Add the documented indexes before large-scale rollout.
-- Avoid repeated session fetches and repeated permission queries within the same request path.
-- Consider `deferSessionRefresh` only if you have a real read-replica or latency need.
-
-## Security Best Practices
-
-- Set `BETTER_AUTH_URL` explicitly.
-- Keep `trustedOrigins` explicit and narrow.
-- Enable secure cookies in production.
-- Enable rate limiting explicitly.
-- Encrypt OAuth tokens.
-- Rotate secrets without invalidating all sessions at once.
-- Re-check auth server-side for any sensitive mutation or privileged read.
-
-## Operational Checklist
-
-Before production rollout:
-
-- Better Auth route is mounted and reachable.
-- Google or other provider callbacks are correct.
+- The App Router route is mounted and reachable.
+- Sign-in works.
+- Sign-out works.
+- Callback URLs work in the target environment.
 - Session reads work on both server and client.
-- Proxy behavior is limited to optimistic redirects.
-- Secure cookies are enabled in production.
-- Trusted origins are correct for production and preview environments.
+- Protected server actions and route handlers fail safely when the session is missing or invalid.
+- Proxy behavior is limited to redirect convenience, not final enforcement.
+- `baseURL`, trusted origins, secrets, and production cookie security are configured explicitly.
 - Recommended indexes exist.
-- Rate limiting is enabled and tested.
-- Secrets are stored securely and rotation is documented.
-- Old auth packages and dead code are removed after cutover.
+- Old Auth.js code is removed after the Better Auth flow is verified.
 
 ## Final Guidance
 
-The highest-value Better Auth setup for a modern Next.js 16 application is usually simple:
+The most consistently supported Better Auth setup for a modern Next.js 16 app is straightforward:
 
-- Better Auth owns authentication.
-- The application owns business authorization.
-- Proxy handles optimistic redirects only.
-- Server components and server actions perform real session validation.
-- Sessions stay small.
-- Schema and relations are exported correctly.
-- Rate limits, trusted origins, secure cookies, and secret rotation are configured deliberately.
+- Use Better Auth for authentication.
+- Do real protection checks on the server.
+- Keep sessions small.
+- Use cookie cache deliberately and understand its revocation tradeoff.
+- Configure base URL, trusted origins, rate limiting, secure cookies, and secrets explicitly.
+- Add adapter schema mappings and relations correctly when using Drizzle features such as joins.
 
-Start with the documented core. Add plugins and advanced behavior only when there is a real product or operational need.
+Start from the documented core setup. Add optional plugins, dynamic base URL handling, joins, or background task behavior only when the application actually needs them.
