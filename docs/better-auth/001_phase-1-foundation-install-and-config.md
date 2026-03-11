@@ -2,7 +2,7 @@
 
 > Estimated Implementation Time: 4 to 5 hours
 
-**Prerequisites**: Read `000_steering.md` first. It is the authoritative reference.
+**Prerequisites**: Read `000_overview.md` first. It is the authoritative reference.
 
 ## Essential Outcomes
 
@@ -133,7 +133,7 @@ Rename existing `src/core/auth.ts` → `src/core/auth.legacy.ts`.
 Create new `src/core/auth.ts`:
 
 ```ts
-import { betterAuth } from 'better-auth';
+import { betterAuth } from 'better-auth/minimal';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
 import { nextCookies } from 'better-auth/next-js';
 import { admin, customSession } from 'better-auth/plugins';
@@ -229,6 +229,7 @@ export type Session = typeof auth.$Infer.Session;
 ```
 
 **Key decisions**:
+- Uses `better-auth/minimal` import — documented bundle-size optimization for adapter-based setups (Drizzle)
 - Admin plugin is included for user management APIs (ban, impersonate, list users) but NOT used for permission checking
 - No `ac` or `roles` passed to admin plugin — permissions are repo-owned via preset system
 - `nanoid()` for ID generation (preserves existing user ID format)

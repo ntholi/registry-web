@@ -34,11 +34,16 @@ This file is the **authoritative** reference for the entire Better Auth migratio
 | Session payload | No stdNo, no LMS credentials — fetch on demand; permissions embedded via `customSession` plugin |
 | Migration style | All-in-one with incremental commits within one branch |
 | ID generation | Keep `nanoid()` for consistency (all tables, including presets) |
+| Import path | `better-auth/minimal` (documented bundle-size optimization for adapter-based setups) |
 | Env vars | Consolidate to `BETTER_AUTH_SECRET` / `BETTER_AUTH_URL` (remove old `AUTH_*` vars) |
 | presetId in session | Declared via `user.additionalFields` (type: `'string'`) for proper typing |
 | Session permissions | `customSession` plugin enriches session with preset permissions (cached in cookie) |
 | CSRF protection | Built-in via `trustedOrigins` — verified in Phase 12 |
 | OAuth token encryption | `encryptOAuthTokens: true` — direct DB reads return encrypted data |
+| Middleware/proxy.ts | Cookie-only optimistic redirect layer (created in Phase 3) — NOT the final auth boundary |
+| Preset change strategy | Revoke user sessions when admin changes their preset (forces re-login with fresh permissions) |
+| Google OAuth callback | Must update Google Console redirect URI after route swap (`/api/auth/callback/google`) |
+| requireSessionUserId | Migrated to `withPermission` module (used in ~4 service files) |
 
 ## Architecture Overview
 

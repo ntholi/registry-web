@@ -2,7 +2,7 @@
 
 > Estimated Implementation Time: 4 to 5 hours
 
-**Prerequisites**: Phase 9 complete. Read `000_steering.md` first.
+**Prerequisites**: Phase 9 complete. Read `000_overview.md` first.
 
 This phase builds the permission preset feature module backend (repository, service, actions) and the CRUD pages (list, detail, new, edit, layout).
 
@@ -95,6 +95,41 @@ export async function updatePreset(id: string, data: PresetFormValues) { ... }
 export async function deletePreset(id: string) { ... }
 ```
 
+## 10.5.1 Session Revocation on Preset Change
+
+When an admin updates a preset's permissions or changes a user's preset assignment, the user's cached session cookie still contains OLD permissions until the cookie cache expires (5 minutes). To ensure immediate permission enforcement:
+
+**Strategy: Revoke affected user sessions when a preset changes.**
+
+When updating a preset (permissions changed):
+```ts
+export async function updatePreset(id: string, data: PresetFormValues) {
+  const result = await service.updateWithPermissions(id, data, data.permissions);
+
+  // Revoke sessions for all users with this preset
+  const affectedUsers = await db
+    .select({ id: users.id })
+    .from(users)
+    .where(eq(users.presetId, id));
+
+  for (const user of affectedUsers) {
+    await auth.api.revokeUserSessions({ body: { userId: user.id } });
+  }
+
+  return result;
+}
+```
+
+When admin changes a user's preset (in user form update):
+```ts
+// In the user update action, if presetId changed:
+if (oldPresetId !== newPresetId) {
+  await auth.api.revokeUserSessions({ body: { userId } });
+}
+```
+
+**Impact**: Affected users will need to re-sign-in. Their next session will have the updated permissions loaded via `customSession` plugin. This is the cleanest approach per Better Auth docs — the cookie cache revocation tradeoff is fully addressed.
+
 ## 10.6 List Page
 
 File: `src/app/admin/permission-presets/page.tsx`
@@ -141,4 +176,6 @@ Standard layout with children slot.
 - [ ] Detail page shows preset info (read-only matrix deferred to Phase 11)
 - [ ] New and Edit pages scaffold ready (Form component deferred to Phase 11)
 - [ ] Layout created
+- [ ] Session revocation implemented for preset updates (affected users forced to re-login)
+- [ ] Session revocation implemented in user form when presetId changes
 - [ ] `pnpm tsc --noEmit` passes

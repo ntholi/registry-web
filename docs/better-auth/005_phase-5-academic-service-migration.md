@@ -2,7 +2,7 @@
 
 > Estimated Implementation Time: 4 to 5 hours
 
-**Prerequisites**: Phase 4 complete. Read `000_steering.md` first.
+**Prerequisites**: Phase 4 complete. Read `000_overview.md` first.
 
 This phase migrates all academic module services from role-array authorization to permission-based authorization using the new `withPermission`/`BaseService` API.
 

@@ -2,7 +2,7 @@
 
 > Estimated Implementation Time: 4 to 5 hours
 
-**Prerequisites**: Phase 5 complete. Read `000_steering.md` first.
+**Prerequisites**: Phase 5 complete. Read `000_overview.md` first.
 
 This phase migrates registry and admin module services from role-array authorization to permission-based authorization.
 

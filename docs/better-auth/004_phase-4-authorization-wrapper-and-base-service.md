@@ -2,7 +2,7 @@
 
 > Estimated Implementation Time: 4 to 5 hours
 
-**Prerequisites**: Phase 3 complete. Read `000_steering.md` first.
+**Prerequisites**: Phase 3 complete. Read `000_overview.md` first.
 
 This phase creates the new `withPermission` wrapper (replacing `withAuth`) and updates `BaseService` to use the new authorization model. Individual service files are migrated in Phases 5–7.
 
@@ -138,6 +138,28 @@ export async function getSessionPermissions() {
 }
 ```
 
+### Migrate `requireSessionUserId`
+
+The current `withAuth.ts` exports `requireSessionUserId()` which is used in ~4 service files (~10 call sites):
+- `src/app/human-resource/employees/_server/service.ts`
+- `src/app/academic/schools/structures/_server/service.ts`
+- `src/app/registry/terms/settings/_server/service.ts`
+- `src/app/registry/students/_server/service.ts`
+
+Move this helper to the new `withPermission.ts` module with updated typing:
+
+```ts
+export function requireSessionUserId(session: Session | null | undefined): string {
+  const userId = session?.user?.id;
+  if (!userId) {
+    throw new Error('User not authenticated');
+  }
+  return userId;
+}
+```
+
+All consumers must update their import path from `@/core/platform/withAuth` to `@/core/platform/withPermission`.
+
 ## 4.2 Update `BaseService`
 
 File: `src/core/platform/BaseService.ts`
@@ -234,6 +256,7 @@ Existing services use `Role[]` syntax like `['academic', 'leap']`. These must be
 - [ ] `withPermission` wrapper created — reads permissions from `customSession` (no DB query)
 - [ ] `cache()` deduplicates session lookup per request
 - [ ] `getSession()` and `getSessionPermissions()` helpers exported
+- [ ] `requireSessionUserId()` migrated to `withPermission.ts` with updated `Session` type
 - [ ] `withAuth` deleted from `src/core/platform/withAuth.ts`
 - [ ] `BaseService` updated: new type system (`AuthConfig`, `byIdAuth`/`findAllAuth`/etc.)
 - [ ] `BaseService` methods use `withPermission` instead of `withAuth`

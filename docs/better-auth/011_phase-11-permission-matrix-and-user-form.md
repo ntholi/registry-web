@@ -2,7 +2,7 @@
 
 > Estimated Implementation Time: 4 to 5 hours
 
-**Prerequisites**: Phase 10 complete. Read `000_steering.md` first.
+**Prerequisites**: Phase 10 complete. Read `000_overview.md` first.
 
 This phase builds the PermissionMatrix component, the Preset Form component, updates the User form to replace position with preset, and adds the navigation entry.
 

@@ -2,7 +2,7 @@
 
 > Estimated Implementation Time: 4 to 5 hours
 
-**Prerequisites**: Phase 7 complete. Read `000_steering.md` first.
+**Prerequisites**: Phase 7 complete. Read `000_overview.md` first.
 
 This phase migrates all client components from `next-auth` session APIs to Better Auth, removes `SessionProvider`, and replaces position-based UI checks with permission-based checks.
 
@@ -141,6 +141,127 @@ Update all components using `session.user.stdNo`:
 
 Verify with `grep -r 'session.accessToken' src/` that no code reads `session.accessToken`. If found, replace with on-demand token fetch from accounts table.
 
+## 8.6 Migrate Sign-In Page & GoogleSignInForm
+
+The current sign-in flow uses Auth.js server actions. This must be migrated to Better Auth.
+
+### Login Page
+
+File: `src/app/auth/login/page.tsx`
+
+**Before:**
+```ts
+import { auth } from '@/core/auth';
+// ...
+const session = await auth();
+```
+
+**After:**
+```ts
+import { auth } from '@/core/auth';
+import { headers } from 'next/headers';
+// ...
+const session = await auth.api.getSession({ headers: await headers() });
+```
+
+### GoogleSignInForm
+
+File: `src/shared/ui/GoogleSignInForm.tsx`
+
+The current component is a server component using Auth.js `signIn('google')` server action. Better Auth uses a client-side social sign-in flow.
+
+**Before (Server Component with Auth.js server action):**
+```ts
+'use server';
+import { signIn } from '@/core/auth';
+
+export default async function GoogleSignInForm({ redirectTo = '/' }: Props) {
+  async function handleSignIn() {
+    'use server';
+    await signIn('google', { redirectTo });
+  }
+  return (
+    <form action={handleSignIn}>
+      <Button type='submit'>Sign in with Google</Button>
+    </form>
+  );
+}
+```
+
+**After (Client Component with Better Auth):**
+```ts
+'use client';
+
+import { Button } from '@mantine/core';
+import Image from 'next/image';
+import { authClient } from '@/core/auth-client';
+
+type Props = {
+  redirectTo?: string;
+};
+
+export default function GoogleSignInForm({ redirectTo = '/' }: Props) {
+  function handleSignIn() {
+    authClient.signIn.social({
+      provider: 'google',
+      callbackURL: redirectTo,
+    });
+  }
+
+  return (
+    <Button
+      onClick={handleSignIn}
+      variant='default'
+      leftSection={
+        <Image src='/images/google.svg' alt='Google' width={18} height={18} />
+      }
+      fullWidth
+    >
+      Sign in with Google
+    </Button>
+  );
+}
+```
+
+**Key changes:**
+- Converted from server component to client component (`'use client'`)
+- Uses `authClient.signIn.social({ provider: 'google' })` instead of Auth.js `signIn('google')`
+- `redirectTo` becomes `callbackURL` parameter
+- No longer a `<form>` — uses `onClick` handler
+- This matches the Better Auth migration guide: `signIn('google')` → `authClient.signIn.social({ provider: 'google' })`
+
+## 8.7 Student Portal Migration Checklist
+
+The student portal (`src/app/student-portal/`) uses a different layout and has unique auth patterns. Ensure all student portal files are migrated:
+
+### Layout
+
+File: `src/app/student-portal/layout.tsx`
+
+**Before:**
+```ts
+import { auth } from '@/core/auth';
+const session = await auth();
+```
+
+**After:**
+```ts
+import { auth } from '@/core/auth';
+import { headers } from 'next/headers';
+const session = await auth.api.getSession({ headers: await headers() });
+```
+
+### Files to check
+
+- `src/app/student-portal/layout.tsx` — session for metadata/navbar
+- `src/app/student-portal/_shared/Navbar.tsx` — likely reads session for user name/avatar
+- All page files under `src/app/student-portal/` that call `auth()` or use `useSession`
+- Any student portal hooks that reference `session.user.stdNo` (must use on-demand fetch from 8.4)
+
+### Student portal does NOT use adease patterns
+
+Per project guidelines, `src/app/student-portal` uses a unique layout. Ensure migration preserves this — do NOT convert it to use `withPermission` for navigation. Student portal pages should use `'auth'` requirement checks where needed.
+
 ## Exit Criteria
 
 - [ ] All ~35+ client components migrated from `next-auth` session APIs
@@ -153,4 +274,8 @@ Verify with `grep -r 'session.accessToken' src/` that no code reads `session.acc
 - [ ] No `session.accessToken` references remain
 - [ ] No `next-auth/react` imports remain
 - [ ] No `SessionProvider` wrapper in the app
+- [ ] GoogleSignInForm migrated to client component using `authClient.signIn.social()`
+- [ ] Login page uses `auth.api.getSession()` instead of `auth()`
+- [ ] Student portal layout and Navbar migrated to Better Auth session access
+- [ ] Student portal pages using `session.user.stdNo` updated to on-demand fetch
 - [ ] `pnpm tsc --noEmit` passes

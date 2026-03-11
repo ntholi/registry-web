@@ -2,7 +2,7 @@
 
 > Estimated Implementation Time: 4 to 5 hours
 
-**Prerequisites**: Phases 1–11 complete. Read `000_steering.md` first.
+**Prerequisites**: Phases 1–11 complete. Read `000_overview.md` first.
 
 ## 12.1 Remove Auth.js Artifacts
 
@@ -37,6 +37,7 @@ grep -r "next-auth" src/
 grep -r "from 'next-auth'" src/
 grep -r "@auth/drizzle-adapter" src/
 grep -r "withAuth" src/
+grep -r "requireSessionUserId.*withAuth" src/
 grep -r "session.user.position" src/
 grep -r "session.user.stdNo" src/
 grep -r "session.user.lmsUserId" src/
@@ -59,6 +60,14 @@ Delete from `.env` and any deployment configs:
 ### Remove `authInterrupts`
 
 **Keep `authInterrupts: true`** in `next.config.ts` — it is still required for `unauthorized()` and `forbidden()` support in `withPermission`. Do NOT remove it.
+
+### Verify Middleware
+
+Confirm `src/middleware.ts` exists with:
+- Cookie-only session check (no DB hit)
+- Public path exclusions (`/auth/login`, `/api/auth`)
+- Redirect to `/auth/login?callbackUrl=...` for unauthenticated users
+- Proper `matcher` config excluding static assets
 
 ## 12.2 Remove Obsolete Enum References
 
@@ -140,13 +149,29 @@ SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'authent
 - [ ] Permissions are available in session cookie (no separate DB query in `withPermission`)
 - [ ] Rate limiting works on sign-in endpoint
 - [ ] `BETTER_AUTH_TRUSTED_ORIGINS` env var is set
-- [ ] Standard `better-auth` import used (not `better-auth/minimal`)
+- [ ] `better-auth/minimal` import used (documented bundle-size optimization for adapter-based setups)
 
 ### CSRF Protection
 
 - [ ] `trustedOrigins` correctly configured for local dev and production domains
 - [ ] Cross-origin POST requests to auth endpoints are rejected (test with `curl` or Postman from unauthorized origin)
 - [ ] Same-origin requests work normally
+
+### Middleware (proxy.ts)
+
+- [ ] `src/middleware.ts` exists with cookie-only optimistic redirect
+- [ ] Unauthenticated requests to protected routes redirect to `/auth/login`
+- [ ] Public paths (`/auth/login`, `/api/auth`) are accessible without session
+- [ ] Middleware does NOT block static assets (`_next/static`, `_next/image`, `favicon.ico`)
+- [ ] Middleware is NOT treated as final security boundary — `withPermission` enforces real checks
+
+### Google OAuth
+
+- [ ] Google Console redirect URIs match `BETTER_AUTH_URL` + `/api/auth/callback/google`
+- [ ] Sign-in works in local development
+- [ ] Sign-in works in production/staging environment
+- [ ] `baseURL` env var matches the domain used in Google Console
+- [ ] `GoogleSignInForm` uses `authClient.signIn.social({ provider: 'google' })`
 
 ### Authorization — Permission Presets
 
@@ -167,7 +192,9 @@ SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'authent
 - [ ] Users with no preset (null presetId) fail permission requirement checks
 - [ ] Custom `AccessCheckFunction` still works
 - [ ] Permissions come from `customSession` plugin (no DB query in `withPermission`)
-- [ ] Cookie cache invalidation works when preset is changed (session `cookieCache.version` bump)
+- [ ] Cookie cache invalidation works when preset is changed (session revocation forces re-login)
+- [ ] Session revocation fires when admin updates preset permissions
+- [ ] Session revocation fires when admin changes a user's presetId
 
 ### Authorization — Service Layer
 
@@ -204,6 +231,14 @@ SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'authent
 - [ ] LMS features fetch credentials from lms_credentials table
 - [ ] Users without a preset get `permissions: []` (empty array)
 
+### Student Portal
+
+- [ ] Student portal layout uses `auth.api.getSession()` (not `auth()`)
+- [ ] Student portal Navbar renders user name/avatar correctly
+- [ ] Student portal pages fetching `stdNo` use on-demand server action
+- [ ] No `session.user.stdNo` direct access remains in student portal
+- [ ] Student portal does not use `withPermission` for navigation (unique layout preserved)
+
 ### Admin Plugin Features
 
 - [ ] Admin can ban/unban users via Better Auth admin API
@@ -214,6 +249,7 @@ SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'authent
 
 - [ ] `authClient.useSession()` works in all client components
 - [ ] `authClient.signOut()` works
+- [ ] `authClient.signIn.social({ provider: 'google' })` works from GoogleSignInForm
 - [ ] No `SessionProvider` wrapper needed
 - [ ] No `next-auth/react` imports remain
 
@@ -233,6 +269,7 @@ SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'authent
 - [ ] `pnpm lint:fix` passes clean
 - [ ] No `next-auth` imports remain (`grep -r "next-auth" src/` returns nothing)
 - [ ] No `withAuth` imports remain
+- [ ] `requireSessionUserId` imports updated to `@/core/platform/withPermission`
 - [ ] No `session.user.position` references remain
 - [ ] No `session.accessToken` references remain
 - [ ] No enum references remain (userRoles, userPositions, dashboardUsers)
@@ -282,14 +319,15 @@ After deploying:
 
 ### Commit 1: Foundation (Phase 1)
 - Install Better Auth packages
-- Create auth config files (auth.ts, auth-client.ts)
+- Create auth config files (auth.ts, auth-client.ts) using `better-auth/minimal`
 - Create permissions catalog
 - Create new schema files
 - Update barrel exports
-- Create proxy.ts
 
 ### Commit 2: Schema Updates (Phase 2)
 - Update Drizzle schema TypeScript files
+- Update Drizzle relations for Better Auth tables (join optimization)
+- Create permission preset relations
 - Generate Drizzle migration
 - Update dependent schemas (enum→text)
 
@@ -300,9 +338,12 @@ After deploying:
 - Migrate positions → preset assignments
 - Extract LMS credentials
 - Swap route handler
+- Create `src/middleware.ts` (proxy.ts) with cookie-only optimistic redirect
+- Verify Google OAuth Console callback URIs
 
 ### Commit 4: Authorization Wrapper (Phase 4)
 - Create withPermission
+- Migrate `requireSessionUserId` to withPermission module
 - Update BaseService
 - Delete withAuth
 
@@ -314,8 +355,11 @@ After deploying:
 ### Commit 8: Client Migration (Phase 8)
 - Replace all next-auth imports
 - Replace useSession, signOut, SessionProvider
+- Migrate GoogleSignInForm to client component with `authClient.signIn.social()`
+- Migrate login page session access
 - Replace position checks with permission checks
 - stdNo on-demand fetching
+- Student portal layout and pages migrated
 
 ### Commit 9: LMS + Navigation (Phase 9)
 - LMS credential on-demand reads
@@ -325,6 +369,8 @@ After deploying:
 
 ### Commit 10: Preset Backend (Phase 10)
 - Permission preset CRUD (repository, service, actions, pages)
+- Session revocation on preset update (affected users forced re-login)
+- Session revocation on user presetId change
 
 ### Commit 11: Preset UI (Phase 11)
 - PermissionMatrix component

@@ -2,7 +2,7 @@
 
 > Estimated Implementation Time: 4 to 5 hours
 
-**Prerequisites**: Phase 8 complete. Read `000_steering.md` first.
+**Prerequisites**: Phase 8 complete. Read `000_overview.md` first.
 
 This phase migrates all LMS credential reads from session to the new `lms_credentials` table and updates navigation configs to use the permission-based visibility model.
 

@@ -2,7 +2,7 @@
 
 > Estimated Implementation Time: 4 to 5 hours
 
-**Prerequisites**: Phase 2 complete. Read `000_steering.md` first.
+**Prerequisites**: Phase 2 complete. Read `000_overview.md` first.
 
 This phase runs the data migrations: mapping Auth.js account data to Better Auth fields, seeding permission presets, migrating position→preset assignments, extracting LMS credentials, and swapping the auth route handler.
 
@@ -117,7 +117,7 @@ After creating the `permission_presets` and `preset_permissions` tables, seed th
 
 ### Seed Data
 
-The migration inserts these presets and their permissions (see `000_steering.md` for the full permission catalog per preset):
+The migration inserts these presets and their permissions (see `000_overview.md` for the full permission catalog per preset):
 
 **Academic Presets:**
 
@@ -365,7 +365,69 @@ Both CANNOT coexist. This must be atomic (same commit).
 
 ## 3.8 Update Next.js Config
 
+Add `better-auth` to `serverExternalPackages` in `next.config.ts` (if not already done in Phase 1):
+
+```ts
+serverExternalPackages: ['better-auth'],
+```
+
 Keep `authInterrupts: true` in `next.config.ts` — it is still needed for `unauthorized()` and `forbidden()` support in `withPermission`.
+
+## 3.9 Create proxy.ts (Middleware)
+
+Better Auth docs recommend creating a middleware layer for optimistic auth redirects. This is **NOT** the final security boundary — real protection happens in `withPermission` on the server.
+
+File: `src/middleware.ts`
+
+```ts
+import { NextRequest, NextResponse } from 'next/server';
+import { getSessionCookie } from 'better-auth/cookies';
+
+const PUBLIC_PATHS = ['/auth/login', '/api/auth'];
+
+export function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl;
+
+  if (PUBLIC_PATHS.some((p) => pathname.startsWith(p))) {
+    return NextResponse.next();
+  }
+
+  const sessionCookie = getSessionCookie(request);
+
+  if (!sessionCookie) {
+    const loginUrl = new URL('/auth/login', request.url);
+    loginUrl.searchParams.set('callbackUrl', pathname);
+    return NextResponse.redirect(loginUrl);
+  }
+
+  return NextResponse.next();
+}
+
+export const config = {
+  matcher: ['/((?!_next/static|_next/image|favicon.ico|images|api/auth).*)'],
+};
+```
+
+**Key points:**
+- Cookie-only check (no DB hit) — this is the documented optimistic pattern
+- Public paths (login page, auth API) are excluded
+- Unauthenticated users are redirected to login with `callbackUrl`
+- Does NOT replace server-side checks — `withPermission` is still the final boundary
+- Better Auth docs explicitly label this as "an optimistic redirect layer"
+
+## 3.10 Update Google OAuth Console
+
+**CRITICAL**: After swapping the route handler from `[...nextauth]` to `[...all]`, verify the callback URL in Google Cloud Console:
+
+1. Go to Google Cloud Console → APIs & Services → Credentials
+2. Edit the OAuth 2.0 Client ID used by this app
+3. Verify the authorized redirect URIs include:
+   - Local: `http://localhost:3000/api/auth/callback/google`
+   - Production: `https://your-domain.com/api/auth/callback/google`
+4. Better Auth typically uses the same callback path format, but **test sign-in immediately after the swap**
+5. If sign-in fails with `redirect_uri_mismatch`, check the Better Auth logs for the exact callback URL it's sending and update Google Console accordingly
+
+> **Note**: Better Auth docs emphasize setting `baseURL` explicitly to avoid `redirect_uri_mismatch` problems. The `BETTER_AUTH_URL` env var must match the domain used in Google Console.
 
 ## Exit Criteria
 
@@ -387,5 +449,10 @@ Keep `authInterrupts: true` in `next.config.ts` — it is still needed for `unau
 - [ ] `studentNotes.role` converted to text
 - [ ] Auth route handler swapped from `[...nextauth]` to `[...all]`
 - [ ] `authInterrupts: true` KEPT in `next.config.ts`
+- [ ] `better-auth` added to `serverExternalPackages` in `next.config.ts`
+- [ ] `src/middleware.ts` (proxy.ts) created with cookie-only optimistic redirect
+- [ ] Middleware excludes public paths (`/auth/login`, `/api/auth`)
+- [ ] Google OAuth Console redirect URIs verified (local + production)
+- [ ] Sign-in tested immediately after route swap to catch `redirect_uri_mismatch`
 - [ ] Data migration SQL executed via `pnpm db:generate --custom`
 - [ ] Existing Google-linked users can still sign in

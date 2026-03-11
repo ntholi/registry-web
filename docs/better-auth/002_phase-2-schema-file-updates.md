@@ -2,7 +2,7 @@
 
 > Estimated Implementation Time: 4 to 5 hours
 
-**Prerequisites**: Phase 1 complete. Read `000_steering.md` first.
+**Prerequisites**: Phase 1 complete. Read `000_overview.md` first.
 
 This phase updates all Drizzle schema TypeScript files to match the Better Auth target shape and generates the Drizzle migration. The actual data migration (account mapping, preset seeding) happens in Phase 3.
 
@@ -206,6 +206,61 @@ export const verifications = pgTable('verifications', {
 
 Delete `src/app/auth/auth-providers/_schema/authenticators.ts` and remove `authenticatorsRelations` from relations file.
 
+## 2.7.1 Update Drizzle Relations for Better Auth Tables
+
+File: `src/app/auth/auth-providers/_schema/relations.ts`
+
+Better Auth docs state: *"Drizzle relations need to exist"* for the adapter to use efficient joins instead of falling back to multiple queries. Update the relations file to match the new Better Auth table shapes:
+
+```ts
+import { users } from '@auth/users/_schema/users';
+import { relations } from 'drizzle-orm';
+import { accounts } from './accounts';
+import { sessions } from './sessions';
+import { verifications } from './verifications';
+
+export const accountsRelations = relations(accounts, ({ one }) => ({
+  user: one(users, {
+    fields: [accounts.userId],
+    references: [users.id],
+  }),
+}));
+
+export const sessionsRelations = relations(sessions, ({ one }) => ({
+  user: one(users, {
+    fields: [sessions.userId],
+    references: [users.id],
+  }),
+}));
+```
+
+**Changes from current:**
+- Remove `authenticatorsRelations` (table dropped)
+- Keep `accountsRelations` and `sessionsRelations` (fields are the same FK)
+- No relation needed for `verifications` (no FK to users)
+- These relations are passed to the Better Auth adapter via the `schema` object and enable join-based queries
+
+Also add relations for the permission preset schema:
+
+File: `src/app/auth/permission-presets/_schema/relations.ts`
+
+```ts
+import { relations } from 'drizzle-orm';
+import { permissionPresets } from './permissionPresets';
+import { presetPermissions } from './presetPermissions';
+
+export const permissionPresetsRelations = relations(permissionPresets, ({ many }) => ({
+  permissions: many(presetPermissions),
+}));
+
+export const presetPermissionsRelations = relations(presetPermissions, ({ one }) => ({
+  preset: one(permissionPresets, {
+    fields: [presetPermissions.presetId],
+    references: [permissionPresets.id],
+  }),
+}));
+```
+
 ## 2.8 Update Dependent Schema Files
 
 Update schema files that reference the dropped enums:
@@ -251,6 +306,8 @@ This generates a single migration covering all schema changes. **Never create .s
 - [ ] Sessions schema updated to Better Auth model
 - [ ] Verifications schema created, verificationTokens deleted
 - [ ] Authenticators schema and relations deleted
+- [ ] Drizzle relations updated for Better Auth tables (accounts, sessions) — enables join optimization
+- [ ] Permission preset relations created (permissionPresets ↔ presetPermissions)
 - [ ] Dependent schemas updated: enum columns → text (clearance, autoApprovals, blockedStudents, studentNotes)
 - [ ] All indexes defined in schema files
 - [ ] Drizzle migration generated via `pnpm db:generate` (not manual SQL)
