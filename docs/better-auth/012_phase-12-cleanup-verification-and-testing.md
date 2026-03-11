@@ -2,7 +2,7 @@
 
 > Estimated Implementation Time: 4 to 5 hours
 
-**Prerequisites**: Phases 1–11 complete. Read `000_steering-document.md` first.
+**Prerequisites**: Phases 1–11 complete. Read `000_steering.md` first.
 
 ## 12.1 Remove Auth.js Artifacts
 

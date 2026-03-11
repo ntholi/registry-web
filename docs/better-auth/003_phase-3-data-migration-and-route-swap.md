@@ -2,7 +2,7 @@
 
 > Estimated Implementation Time: 4 to 5 hours
 
-**Prerequisites**: Phase 2 complete. Read `000_steering-document.md` first.
+**Prerequisites**: Phase 2 complete. Read `000_steering.md` first.
 
 This phase runs the data migrations: mapping Auth.js account data to Better Auth fields, seeding permission presets, migrating position→preset assignments, extracting LMS credentials, and swapping the auth route handler.
 
@@ -117,7 +117,7 @@ After creating the `permission_presets` and `preset_permissions` tables, seed th
 
 ### Seed Data
 
-The migration inserts these presets and their permissions (see `000_steering-document.md` for the full permission catalog per preset):
+The migration inserts these presets and their permissions (see `000_steering.md` for the full permission catalog per preset):
 
 **Academic Presets:**
 

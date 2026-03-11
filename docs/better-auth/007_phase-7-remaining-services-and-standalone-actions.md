@@ -2,7 +2,7 @@
 
 > Estimated Implementation Time: 4 to 5 hours
 
-**Prerequisites**: Phase 6 complete. Read `000_steering-document.md` first.
+**Prerequisites**: Phase 6 complete. Read `000_steering.md` first.
 
 This phase migrates admissions, finance, timetable, and library services, plus all standalone server actions that use `withAuth` directly.
 

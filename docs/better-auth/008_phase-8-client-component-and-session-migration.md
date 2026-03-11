@@ -2,7 +2,7 @@
 
 > Estimated Implementation Time: 4 to 5 hours
 
-**Prerequisites**: Phase 7 complete. Read `000_steering-document.md` first.
+**Prerequisites**: Phase 7 complete. Read `000_steering.md` first.
 
 This phase migrates all client components from `next-auth` session APIs to Better Auth, removes `SessionProvider`, and replaces position-based UI checks with permission-based checks.
 

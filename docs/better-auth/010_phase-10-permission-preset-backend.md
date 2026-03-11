@@ -2,7 +2,7 @@
 
 > Estimated Implementation Time: 4 to 5 hours
 
-**Prerequisites**: Phase 9 complete. Read `000_steering-document.md` first.
+**Prerequisites**: Phase 9 complete. Read `000_steering.md` first.
 
 This phase builds the permission preset feature module backend (repository, service, actions) and the CRUD pages (list, detail, new, edit, layout).
 

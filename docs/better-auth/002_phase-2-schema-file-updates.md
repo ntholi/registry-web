@@ -2,7 +2,7 @@
 
 > Estimated Implementation Time: 4 to 5 hours
 
-**Prerequisites**: Phase 1 complete. Read `000_steering-document.md` first.
+**Prerequisites**: Phase 1 complete. Read `000_steering.md` first.
 
 This phase updates all Drizzle schema TypeScript files to match the Better Auth target shape and generates the Drizzle migration. The actual data migration (account mapping, preset seeding) happens in Phase 3.
 

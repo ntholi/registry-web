@@ -2,7 +2,7 @@
 
 > Estimated Implementation Time: 4 to 5 hours
 
-**Prerequisites**: Phase 3 complete. Read `000_steering-document.md` first.
+**Prerequisites**: Phase 3 complete. Read `000_steering.md` first.
 
 This phase creates the new `withPermission` wrapper (replacing `withAuth`) and updates `BaseService` to use the new authorization model. Individual service files are migrated in Phases 5–7.
 

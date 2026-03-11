@@ -2,7 +2,7 @@
 
 > Estimated Implementation Time: 4 to 5 hours
 
-**Prerequisites**: Read `000_steering-document.md` first. It is the authoritative reference.
+**Prerequisites**: Read `000_steering.md` first. It is the authoritative reference.
 
 ## Essential Outcomes
 
