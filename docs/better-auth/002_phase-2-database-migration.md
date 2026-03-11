@@ -1,9 +1,13 @@
 # Phase 2: Database Migration
 
+Status: maintain this phase document together with `better-auth-documentation.md`.
+
+If this file conflicts with `better-auth-documentation.md`, use `better-auth-documentation.md` as the authoritative source.
+
 The database migration MUST be completed before any code changes in Phase 3. The new schema must be ready before the application code references it.
 
 ## 2.1 Side-by-Side Strategy
-1. Generate Better Auth schema tables using CLI: `npx @better-auth/cli@latest generate --output src/core/auth/auth-schema.ts`
+1. Generate Better Auth schema tables using CLI: `npx auth@latest generate --output src/core/auth/auth-schema.ts`
 2. Better Auth creates: `user`, `session`, `account`, `verification`
 3. Since `usePlural: true`, Better Auth will look for: `users`, `sessions`, `accounts`, `verifications`
 4. Write a custom migration that:

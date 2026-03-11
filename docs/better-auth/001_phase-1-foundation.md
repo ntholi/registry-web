@@ -1,5 +1,9 @@
 # Phase 1: Foundation (Better Auth Core + DB Migration)
 
+Status: maintain this phase document together with `better-auth-documentation.md`.
+
+If this file conflicts with `better-auth-documentation.md`, use `better-auth-documentation.md` as the authoritative source.
+
 ## Decisions Summary
 
 | Decision | Choice |
@@ -25,9 +29,10 @@
 | Rate limit enabled | Explicitly `true` (disabled in dev by default; must be enabled for testing) |
 | Rate limit table | Must be created in custom migration (CLI migrate unavailable with `better-auth/minimal`) |
 | Session freshness | `freshAge: 300` (5 minutes) — sensitive operations require recent sign-in |
-| Background tasks | Use `waitUntil()` from `@vercel/functions` directly in databaseHooks (no `advanced.backgroundTasks` — undocumented) |
+| Background tasks | Better Auth 1.5 documents `advanced.backgroundTasks`; use it for auth hooks, and treat databaseHooks as post-commit side effects |
 | Client type safety | `createAuthClient<typeof auth>()` for full type inference of custom `role` field |
 | Rate limit UX | Global `fetchOptions.onError` handler for 429 + `X-Retry-After` on client |
+| Steering document | `better-auth-documentation.md` is the canonical Better Auth reference for this repo |
 
 ---
 
@@ -54,13 +59,13 @@ Request → getSession (Better Auth) → withPermission(permissions)
 
 ## 1.1 Install Dependencies
 ```
-pnpm add better-auth@latest @vercel/functions
+pnpm add better-auth@1.5.4 @better-auth/drizzle-adapter @vercel/functions
 pnpm remove next-auth @auth/drizzle-adapter
 ```
 
-Pin the version in `package.json` (remove `^` prefix) to prevent unexpected breaking changes.
+Pin the version in `package.json` to prevent unexpected breaking changes during migration.
 
-> **Note on `better-auth/minimal`**: This plan uses `better-auth/minimal` for reduced bundle size (excludes built-in Kysely). This means the `npx @better-auth/cli migrate` command won't work — but that's fine because we use Drizzle Kit (`pnpm db:generate` / `pnpm db:migrate`) for all migrations. The CLI `generate` command still works to output schema files.
+> **Note on `better-auth/minimal`**: This plan uses `better-auth/minimal` for reduced bundle size. Built-in Better Auth `migrate` is for the built-in Kysely adapter only. For this repo, use `npx auth@latest generate` for Better Auth schema generation and Drizzle Kit for actual migration files.
 
 ## 1.1b Update `next.config.ts`
 

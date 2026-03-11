@@ -1,5 +1,9 @@
 # Phase 3: Authorization Layer Replacement
 
+Status: maintain this phase document together with `better-auth-documentation.md`.
+
+If this file conflicts with `better-auth-documentation.md`, use `better-auth-documentation.md` as the authoritative source.
+
 ## 3.1 Replace `withAuth` → `withPermission`
 
 Delete: `src/core/platform/withAuth.ts`

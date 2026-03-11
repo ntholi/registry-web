@@ -1,5 +1,9 @@
 # Phase 4: Cleanup & Testing
 
+Status: maintain this phase document together with `better-auth-documentation.md`.
+
+If this file conflicts with `better-auth-documentation.md`, use `better-auth-documentation.md` as the authoritative source.
+
 ## 4.1 Remove Auth.js Artifacts
 - Delete `next-auth.d.ts`
 - Delete `src/core/platform/withAuth.ts`
@@ -49,7 +53,7 @@ File: `src/app/dashboard/module-config.types.ts`
 - [ ] Database indexes exist on: users.email, accounts.user_id, sessions.user_id, sessions.token, verifications.identifier
 - [ ] No `next-auth` imports remain (`grep -r "next-auth" src/` returns nothing)
 - [ ] `pnpm tsc --noEmit && pnpm lint:fix` passes clean
-- [ ] Vercel deployment works (`waitUntil` wrapping databaseHook callbacks functioning)
+- [ ] If deferred Better Auth hooks are used, Vercel deployment works with `advanced.backgroundTasks.handler = waitUntil`
 - [ ] Rate limiting responds with 429 + `X-Retry-After` header on excessive requests
 - [ ] Rate limiting uses `storage: "database"` (NOT in-memory — required for Vercel serverless)
 - [ ] `rateLimit` table exists in database (id, key, count, last_request) — required because `better-auth/minimal` can't run CLI migrate
