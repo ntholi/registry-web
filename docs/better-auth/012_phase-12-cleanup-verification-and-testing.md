@@ -58,7 +58,7 @@ Delete from `.env` and any deployment configs:
 
 ### Remove `authInterrupts`
 
-Verify `authInterrupts: true` was removed from `next.config.ts` in Phase 3. If not, remove it now — it is Auth.js-specific and has no effect with Better Auth.
+**Keep `authInterrupts: true`** in `next.config.ts` — it is still required for `unauthorized()` and `forbidden()` support in `withPermission`. Do NOT remove it.
 
 ## 12.2 Remove Obsolete Enum References
 
@@ -132,13 +132,21 @@ SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'authent
 - [ ] Google OAuth sign-in works and account selector appears
 - [ ] Session persists across page refreshes
 - [ ] Session expires after configured duration
-- [ ] Proxy redirects unauthenticated users from protected routes
+- [ ] Middleware redirects unauthenticated users from protected routes
 - [ ] Existing Google-linked users can sign in against migrated account rows
 - [ ] New users created with `nanoid()` IDs
 - [ ] Cookie cache works (no DB hit on every request)
+- [ ] `customSession` plugin correctly enriches session with permissions
+- [ ] Permissions are available in session cookie (no separate DB query in `withPermission`)
 - [ ] Rate limiting works on sign-in endpoint
 - [ ] `BETTER_AUTH_TRUSTED_ORIGINS` env var is set
 - [ ] Standard `better-auth` import used (not `better-auth/minimal`)
+
+### CSRF Protection
+
+- [ ] `trustedOrigins` correctly configured for local dev and production domains
+- [ ] Cross-origin POST requests to auth endpoints are rejected (test with `curl` or Postman from unauthorized origin)
+- [ ] Same-origin requests work normally
 
 ### Authorization — Permission Presets
 
@@ -158,7 +166,8 @@ SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'authent
 - [ ] Admin role bypasses ALL permission checks
 - [ ] Users with no preset (null presetId) fail permission requirement checks
 - [ ] Custom `AccessCheckFunction` still works
-- [ ] `cache()` deduplication works (single DB query for multiple withPermission calls per request)
+- [ ] Permissions come from `customSession` plugin (no DB query in `withPermission`)
+- [ ] Cookie cache invalidation works when preset is changed (session `cookieCache.version` bump)
 
 ### Authorization — Service Layer
 
@@ -190,8 +199,10 @@ SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'authent
 - [ ] `session.user.stdNo` is NOT in session (verify no consumer reads it)
 - [ ] `session.user.lmsUserId` and `session.user.lmsToken` are NOT in session
 - [ ] `session.accessToken` is NOT in session
+- [ ] `session.permissions` contains correct permission strings from `customSession` plugin
 - [ ] Student portal fetches stdNo on demand via server action
 - [ ] LMS features fetch credentials from lms_credentials table
+- [ ] Users without a preset get `permissions: []` (empty array)
 
 ### Admin Plugin Features
 

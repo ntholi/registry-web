@@ -136,9 +136,11 @@ Create new `src/core/auth.ts`:
 import { betterAuth } from 'better-auth';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
 import { nextCookies } from 'better-auth/next-js';
-import { admin } from 'better-auth/plugins';
+import { admin, customSession } from 'better-auth/plugins';
 import { nanoid } from 'nanoid';
+import { eq } from 'drizzle-orm';
 import { db, schema } from '@/core/database';
+import { presetPermissions } from '@auth/permission-presets/_schema/presetPermissions';
 
 export const auth = betterAuth({
   baseURL: process.env.BETTER_AUTH_URL,
@@ -154,17 +156,13 @@ export const auth = betterAuth({
   user: {
     additionalFields: {
       role: {
-        type: [
-          'user', 'applicant', 'student', 'finance', 'registry', 'library',
-          'academic', 'marketing', 'student_services', 'resource', 'leap',
-          'human_resource', 'admin',
-        ],
+        type: 'string',
         required: false,
         defaultValue: 'user',
         input: false,
       },
       presetId: {
-        type: 'number',
+        type: 'string',
         required: false,
         input: false,
       },
@@ -213,6 +211,16 @@ export const auth = betterAuth({
   },
   plugins: [
     admin({ defaultRole: 'user' }),
+    customSession(async ({ user, session }) => {
+      let permissions: { resource: string; action: string }[] = [];
+      if (user.presetId) {
+        permissions = await db
+          .select({ resource: presetPermissions.resource, action: presetPermissions.action })
+          .from(presetPermissions)
+          .where(eq(presetPermissions.presetId, user.presetId));
+      }
+      return { user, session, permissions };
+    }),
     nextCookies(),
   ],
 });
@@ -226,7 +234,9 @@ export type Session = typeof auth.$Infer.Session;
 - `nanoid()` for ID generation (preserves existing user ID format)
 - Cookie cache with compact strategy for performance
 - Rate limiting with database storage
-- `presetId` declared in `additionalFields` so it's properly typed in `session.user.presetId` (avoids unsafe casts)
+- `presetId` declared in `additionalFields` as `type: 'string'` so it's properly typed in `session.user.presetId` (avoids unsafe casts)
+- `customSession` plugin enriches session with preset permissions (loaded once, cached in cookie via `cookieCache`)
+- `nextCookies()` must be the LAST plugin in the array (Better Auth requirement)
 - `encryptOAuthTokens: true` — tokens stored encrypted in DB; any code needing raw tokens must use Better Auth's API, NOT direct DB reads
 
 ## 1.6 Create Better Auth Client
@@ -235,13 +245,14 @@ File: `src/core/auth-client.ts`
 
 ```ts
 import { createAuthClient } from 'better-auth/react';
-import { adminClient, inferAdditionalFields } from 'better-auth/client/plugins';
+import { adminClient, inferAdditionalFields, customSessionClient } from 'better-auth/client/plugins';
 import type { auth } from '@/core/auth';
 
 export const authClient = createAuthClient({
   plugins: [
     inferAdditionalFields<typeof auth>(),
     adminClient(),
+    customSessionClient<typeof auth>(),
   ],
 });
 ```
@@ -341,11 +352,13 @@ import { pgTable, text, integer, timestamp } from 'drizzle-orm/pg-core';
 export const rateLimits = pgTable('rate_limits', {
   key: text().primaryKey(),
   count: integer().notNull(),
-  lastRequest: timestamp().notNull(),
+  lastRequest: timestamp('last_request').notNull(),
 });
 ```
 
 > **Verification**: After setup, run `npx @better-auth/cli generate --output ./ba-schema-check.ts` and compare the generated `rateLimit` table against our `rateLimits` schema to ensure column names and types align. Delete the generated file afterwards.
+
+> **MANDATORY**: This verification step is BLOCKING. Do NOT proceed to Phase 2 until the generated schema aligns with all manually-defined tables (`users`, `accounts`, `sessions`, `verifications`, `rateLimits`). If any column names or types differ, update the manual schemas to match.
 
 ## 1.8 Update Barrel Exports
 
@@ -397,14 +410,15 @@ export const config = {
 
 ## Exit Criteria
 
-- [ ] `better-auth` and `@better-auth/drizzle-adapter` installed
+- [ ] `better-auth` installed
 - [ ] `next.config.ts` has `serverExternalPackages: ['better-auth']`
 - [ ] New env vars documented and set locally
 - [ ] `src/core/auth/permissions.ts` defines full resource:action catalog and `UserRole` type
-- [ ] `src/core/auth.ts` has Better Auth server config (coexists with legacy)
-- [ ] `src/core/auth-client.ts` has Better Auth React client
+- [ ] `src/core/auth.ts` has Better Auth server config with `customSession` plugin (coexists with legacy)
+- [ ] `src/core/auth-client.ts` has Better Auth React client with `customSessionClient`
 - [ ] Permission preset schema files created (text IDs with nanoid)
 - [ ] LMS credentials and rate limits schema files created
+- [ ] **MANDATORY**: `npx @better-auth/cli generate` output verified against manual schemas — all column names and types match
 - [ ] Rate limit schema verified against `@better-auth/cli generate` output
 - [ ] Barrel exports updated
 - [ ] `schema` exported from `src/core/database/index.ts`

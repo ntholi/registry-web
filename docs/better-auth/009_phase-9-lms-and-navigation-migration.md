@@ -62,11 +62,13 @@ File: `src/app/dashboard/module-config.types.ts`
 Add `permissions` field:
 
 ```ts
+import type { Resource, Action } from '@/core/auth/permissions';
+
 export type NavItem = {
   label: string | React.ReactNode;
   href?: string | ((department: string) => string);
   roles?: UserRole[];
-  permissions?: { resource: string; action: string }[];
+  permissions?: { resource: Resource; action: Action }[];
   isVisible?: (session: Session | null) => boolean;
   children?: NavItem[];
 };
@@ -76,7 +78,7 @@ export type NavItem = {
 
 File: `src/app/dashboard/dashboard.tsx`
 
-Update `isItemVisible` to check permissions when `item.permissions` is defined:
+Update `isItemVisible` to check permissions when `item.permissions` is defined. Permissions are available directly from the session via the `customSession` plugin:
 
 ```ts
 function isItemVisible(

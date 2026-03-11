@@ -31,11 +31,13 @@ This file is the **authoritative** reference for the entire Better Auth migratio
 | Preset management | Dedicated admin page at `/admin/permission-presets` |
 | User form | Preset dropdown + read-only permission matrix |
 | Navigation model | Role for top-level modules, preset permissions for sub-items |
-| Session payload | No stdNo, no LMS credentials — fetch on demand |
+| Session payload | No stdNo, no LMS credentials — fetch on demand; permissions embedded via `customSession` plugin |
 | Migration style | All-in-one with incremental commits within one branch |
 | ID generation | Keep `nanoid()` for consistency (all tables, including presets) |
 | Env vars | Consolidate to `BETTER_AUTH_SECRET` / `BETTER_AUTH_URL` (remove old `AUTH_*` vars) |
-| presetId in session | Declared via `user.additionalFields` for proper typing |
+| presetId in session | Declared via `user.additionalFields` (type: `'string'`) for proper typing |
+| Session permissions | `customSession` plugin enriches session with preset permissions (cached in cookie) |
+| CSRF protection | Built-in via `trustedOrigins` — verified in Phase 12 |
 | OAuth token encryption | `encryptOAuthTokens: true` — direct DB reads return encrypted data |
 
 ## Architecture Overview
@@ -43,8 +45,8 @@ This file is the **authoritative** reference for the entire Better Auth migratio
 ### Permission Resolution Flow
 
 ```
-Request → Better Auth session lookup → withPermission(...)
-  → load session (role + presetId)
+Request → Better Auth session lookup (includes permissions from customSession) → withPermission(...)
+  → session already contains permissions[] (from customSession plugin + cookie cache)
   → if role === 'admin' → allow (bypass)
   → if requirement is 'all' → allow
   → if requirement is 'auth' → allow if authenticated
@@ -216,12 +218,12 @@ These are ALL the distinct permissions derived from the current codebase:
 ### New Files
 
 ```
-src/core/auth.ts                              — Better Auth server config
-src/core/auth-client.ts                       — Better Auth React client
+src/core/auth.ts                              — Better Auth server config (includes customSession plugin)
+src/core/auth-client.ts                       — Better Auth React client (includes customSessionClient)
 src/core/auth/permissions.ts                  — Resource:Action catalog + preset type definitions
 src/core/platform/withPermission.ts           — Authorization wrapper (replaces withAuth)
 src/app/api/auth/[...all]/route.ts            — Better Auth route handler
-proxy.ts                                      — Next.js proxy (optimistic redirect)
+proxy.ts                                      — Next.js middleware (optimistic redirect, cookie check only)
 
 src/app/auth/permission-presets/_schema/permissionPresets.ts
 src/app/auth/permission-presets/_schema/presetPermissions.ts

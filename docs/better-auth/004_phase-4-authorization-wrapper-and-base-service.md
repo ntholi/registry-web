@@ -30,31 +30,21 @@ Create: `src/core/platform/withPermission.ts`
 import { cache } from 'react';
 import { headers } from 'next/headers';
 import { auth, type Session } from '@/core/auth';
-import { db } from '@/core/database';
-import { presetPermissions } from '@auth/permission-presets/_schema/presetPermissions';
-import { eq } from 'drizzle-orm';
 import {
   DASHBOARD_ROLES,
   type AuthRequirement,
   type PermissionRequirement,
   type DashboardRole,
 } from '@/core/auth/permissions';
-import { unauthorized, forbidden } from 'next/server';
+import { unauthorized, forbidden } from 'next/navigation';
 
 type AccessCheckFunction = (session: Session) => Promise<boolean>;
 
-const getSessionWithPreset = cache(async () => {
+const getSessionWithPermissions = cache(async () => {
   const session = await auth.api.getSession({ headers: await headers() });
   if (!session) return null;
 
-  let permissions: { resource: string; action: string }[] = [];
-  const { presetId } = session.user;
-  if (presetId) {
-    permissions = await db
-      .select({ resource: presetPermissions.resource, action: presetPermissions.action })
-      .from(presetPermissions)
-      .where(eq(presetPermissions.presetId, presetId));
-  }
+  const permissions: { resource: string; action: string }[] = session.permissions ?? [];
 
   return { session, permissions };
 });
@@ -78,11 +68,11 @@ export async function withPermission<T>(
   requirement: AuthRequirement | AccessCheckFunction,
 ): Promise<T> {
   if (requirement === 'all') {
-    const result = await getSessionWithPreset();
+    const result = await getSessionWithPermissions();
     return fn(result?.session ?? null as unknown as Session);
   }
 
-  const result = await getSessionWithPreset();
+  const result = await getSessionWithPermissions();
   if (!result) {
     unauthorized();
   }
@@ -124,10 +114,11 @@ export async function withPermission<T>(
 ```
 
 **Key points:**
-- `cache()` ensures that multiple `withPermission` calls in the same request only hit the DB once for preset permissions
+- Permissions come from the `customSession` plugin (embedded in session, cached in cookie)
+- `cache()` ensures that multiple `withPermission` calls in the same request share one session lookup
+- NO direct DB query for permissions — they are already in the session object from `customSession`
 - Admin bypass preserved (matches current behavior)
 - `'dashboard'` shorthand preserved for the ~25 services using it
-- The preset's permissions are loaded via a single query joining `preset_permissions` on `presetId`
 - `AccessCheckFunction` still supported for complex cases during transition
 
 ### Exposing Session Helper
@@ -136,12 +127,12 @@ Also export a helper for pages/components that need session data:
 
 ```ts
 export async function getSession() {
-  const result = await getSessionWithPreset();
+  const result = await getSessionWithPermissions();
   return result?.session ?? null;
 }
 
 export async function getSessionPermissions() {
-  const result = await getSessionWithPreset();
+  const result = await getSessionWithPermissions();
   if (!result) return null;
   return { session: result.session, permissions: result.permissions };
 }
@@ -240,7 +231,8 @@ Existing services use `Role[]` syntax like `['academic', 'leap']`. These must be
 
 ## Exit Criteria
 
-- [ ] `withPermission` wrapper created with `cache()`-deduped preset loading
+- [ ] `withPermission` wrapper created — reads permissions from `customSession` (no DB query)
+- [ ] `cache()` deduplicates session lookup per request
 - [ ] `getSession()` and `getSessionPermissions()` helpers exported
 - [ ] `withAuth` deleted from `src/core/platform/withAuth.ts`
 - [ ] `BaseService` updated: new type system (`AuthConfig`, `byIdAuth`/`findAllAuth`/etc.)
