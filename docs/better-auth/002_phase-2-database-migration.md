@@ -70,7 +70,9 @@ All three PostgreSQL enums must be converted to text:
 1. `users.role`: `userRoles` enum → `text` (preserve existing values)
 2. `clearance.department`: `dashboardUsers` enum → `text`
 3. `autoApprovals.department`: `dashboardUsers` enum → `text`
-4. Drop enums after all dependent columns are converted: `userRoles`, `userPositions`, `dashboardUsers`
+4. `blockedStudents.department`: `dashboardUsers` enum → `text`
+5. `studentNotes.role`: `userRoles` enum → `text`
+6. Drop enums after all dependent columns are converted: `userRoles`, `userPositions`, `dashboardUsers`
 
 **SQL pattern for enum → text conversion:**
 
@@ -78,6 +80,8 @@ All three PostgreSQL enums must be converted to text:
 ALTER TABLE users ALTER COLUMN role TYPE text USING role::text;
 ALTER TABLE clearance ALTER COLUMN department TYPE text USING department::text;
 ALTER TABLE auto_approvals ALTER COLUMN department TYPE text USING department::text;
+ALTER TABLE blocked_students ALTER COLUMN department TYPE text USING department::text;
+ALTER TABLE student_notes ALTER COLUMN role TYPE text USING role::text;
 DROP TYPE IF EXISTS user_roles;
 DROP TYPE IF EXISTS user_positions;
 DROP TYPE IF EXISTS dashboard_users;
@@ -420,9 +424,9 @@ export const users = pgTable('users', {
   email: text().notNull().unique(),
   emailVerified: boolean().notNull().default(false),
   image: text(),
-  presetId: integer('preset_id').references(() => permissionPresets.id, { onDelete: 'set null' }),
+  presetId: text('preset_id').references(() => permissionPresets.id, { onDelete: 'set null' }),
   createdAt: timestamp('created_at').defaultNow().notNull(),
-  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().$onUpdate(() => new Date()).notNull(),
   banned: boolean().default(false),
   banReason: text('ban_reason'),
   banExpires: timestamp('ban_expires'),
@@ -459,7 +463,7 @@ export const accounts = pgTable('accounts', {
   idToken: text('id_token'),
   password: text(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
-  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().$onUpdate(() => new Date()).notNull(),
 });
 ```
 
@@ -480,7 +484,7 @@ export const sessions = pgTable('sessions', {
   userAgent: text('user_agent'),
   expiresAt: timestamp('expires_at').notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
-  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().$onUpdate(() => new Date()).notNull(),
   impersonatedBy: text('impersonated_by'),
 });
 ```
@@ -496,7 +500,7 @@ export const verifications = pgTable('verifications', {
   value: text().notNull(),
   expiresAt: timestamp('expires_at').notNull(),
   createdAt: timestamp('created_at').defaultNow(),
-  updatedAt: timestamp('updated_at').defaultNow(),
+  updatedAt: timestamp('updated_at').defaultNow().$onUpdate(() => new Date()),
 });
 ```
 
@@ -506,14 +510,14 @@ Delete `src/app/auth/auth-providers/_schema/authenticators.ts` and remove `authe
 
 ## 2.11 Indexes
 
-Ensure these indexes exist:
+Ensure these indexes exist (add via Drizzle schema table definitions, not raw SQL):
 
 - `users.email` (unique, already exists)
 - `users.preset_id`
-- `accounts.user_id`
-- `sessions.user_id`
-- `sessions.token` (unique)
-- `verifications.identifier`
+- `accounts.user_id` → `index('accounts_user_id_idx').on(table.userId)`
+- `sessions.user_id` → `index('sessions_user_id_idx').on(table.userId)`
+- `sessions.token` (unique, already exists)
+- `verifications.identifier` → `index('verifications_identifier_idx').on(table.identifier)`
 - `rate_limits.key` (primary key)
 - `preset_permissions.preset_id`
 
@@ -537,6 +541,30 @@ Both CANNOT coexist. This must be atomic (same commit).
 
 Remove `authInterrupts: true` from `next.config.ts` (Auth.js-specific).
 
+## 2.14 Generate Drizzle Migration
+
+After all schema files are updated:
+
+```bash
+pnpm db:generate
+```
+
+This generates a single migration covering all schema changes. **Never create .sql migration files manually** — it corrupts the Drizzle journal. Review the generated SQL to confirm it matches expected changes (enum→text conversions, column drops, new tables, indexes).
+
+## 2.15 Update Dependent Schema Files
+
+Update schema files that reference the dropped enums:
+
+**`blockedStudents` schema**: Replace `dashboardUsers` enum with `text()` for the `department` column.
+
+**`studentNotes` schema**: Replace `userRoles` enum with `text()` for the `role` column.
+
+**`clearance` schema**: Replace `dashboardUsers` enum with `text()` for the `department` column.
+
+**`autoApprovals` schema**: Replace `dashboardUsers` enum with `text()` for the `department` column.
+
+> **Note**: After removing the enum exports from `users.ts`, all files that imported `userRoles`, `userPositions`, or `dashboardUsers` must be updated. Use `UserRole` and `DashboardRole` types from `src/core/auth/permissions.ts` for TypeScript validation where needed.
+
 ## Exit Criteria
 
 - [ ] Better Auth schema files match target database shape
@@ -552,8 +580,10 @@ Remove `authInterrupts: true` from `next.config.ts` (Auth.js-specific).
 - [ ] `verifications` table created, `verification_tokens` dropped
 - [ ] `authenticators` table and schema dropped
 - [ ] All three enums (`userRoles`, `userPositions`, `dashboardUsers`) dropped
-- [ ] `clearance.department` and `autoApprovals.department` converted to text
-- [ ] All indexes exist
+- [ ] `clearance.department`, `autoApprovals.department`, `blockedStudents.department` converted to text
+- [ ] `studentNotes.role` converted to text
+- [ ] All indexes exist (including `accounts_user_id_idx`, `sessions_user_id_idx`, `verifications_identifier_idx`)
 - [ ] `schema` exported from `src/core/database/index.ts`
+- [ ] Drizzle migration generated via `pnpm db:generate` (not manual SQL)
 - [ ] Auth route handler swapped from `[...nextauth]` to `[...all]`
 - [ ] `authInterrupts: true` removed from `next.config.ts`

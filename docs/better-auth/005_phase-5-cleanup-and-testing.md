@@ -39,11 +39,24 @@ grep -r "session.user.position" src/
 grep -r "session.user.stdNo" src/
 grep -r "session.user.lmsUserId" src/
 grep -r "session.user.lmsToken" src/
+grep -r "session.accessToken" src/
 grep -r "userPositions" src/
 grep -r "dashboardUsers" src/
 ```
 
 All of these must return **zero** results.
+
+### Remove Old Environment Variables
+
+Delete from `.env` and any deployment configs:
+- `AUTH_SECRET` (replaced by `BETTER_AUTH_SECRET`)
+- `AUTH_URL` (replaced by `BETTER_AUTH_URL`)
+- `AUTH_GOOGLE_ID` (replaced by `GOOGLE_CLIENT_ID`)
+- `AUTH_GOOGLE_SECRET` (replaced by `GOOGLE_CLIENT_SECRET`)
+
+### Remove `authInterrupts`
+
+Verify `authInterrupts: true` was removed from `next.config.ts` in Phase 2. If not, remove it now — it is Auth.js-specific and has no effect with Better Auth.
 
 ## 5.2 Remove Obsolete Enum References
 
@@ -64,6 +77,8 @@ Ensure `src/app/auth/users/_schema/users.ts` no longer exports:
 - `userPositions`
 
 Any file that imported these types must be updated to use:
+- `UserRole` from `@/core/auth/permissions` (string union replacing `userRoles` enum)
+- `DashboardRole` from `@/core/auth/permissions` (string union replacing `dashboardUsers` enum)
 - `DASHBOARD_ROLES` from `@/core/auth/permissions`
 - Plain string types for role values
 
@@ -121,7 +136,7 @@ SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'authent
 - [ ] Cookie cache works (no DB hit on every request)
 - [ ] Rate limiting works on sign-in endpoint
 - [ ] `BETTER_AUTH_TRUSTED_ORIGINS` env var is set
-- [ ] `better-auth/minimal` is used (check bundle)
+- [ ] Standard `better-auth` import used (not `better-auth/minimal`)
 
 ### Authorization — Permission Presets
 
@@ -196,7 +211,8 @@ SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'authent
 - [ ] Verifications table has correct columns
 - [ ] Authenticators table is dropped
 - [ ] All three enums are dropped
-- [ ] clearance.department and autoApprovals.department are text columns
+- [ ] `clearance.department`, `autoApprovals.department`, `blockedStudents.department` are text columns
+- [ ] `studentNotes.role` is a text column
 
 ### Build & Lint
 
@@ -205,7 +221,9 @@ SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'authent
 - [ ] No `next-auth` imports remain (`grep -r "next-auth" src/` returns nothing)
 - [ ] No `withAuth` imports remain
 - [ ] No `session.user.position` references remain
+- [ ] No `session.accessToken` references remain
 - [ ] No enum references remain (userRoles, userPositions, dashboardUsers)
+- [ ] Old env vars removed (AUTH_SECRET, AUTH_URL, AUTH_GOOGLE_ID, AUTH_GOOGLE_SECRET)
 
 ## 5.6 Rollback Plan
 

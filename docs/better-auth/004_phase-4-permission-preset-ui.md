@@ -59,7 +59,7 @@ File: `src/app/admin/permission-presets/_server/repository.ts`
 
 Extends `BaseRepository` for `permissionPresets` table. Additional methods:
 
-- `findByIdWithPermissions(id: number)` — joins `preset_permissions` to get full preset + permissions
+- `findByIdWithPermissions(id: string)` — joins `preset_permissions` to get full preset + permissions
 - `findByRole(role: string)` — returns presets filtered by role
 - `createWithPermissions(data, permissions[])` — transaction: insert preset + permission rows
 - `updateWithPermissions(id, data, permissions[])` — transaction: update preset, delete old permissions, insert new
@@ -92,12 +92,12 @@ File: `src/app/admin/permission-presets/_server/actions.ts`
 Standard CRUD actions:
 
 ```ts
-export async function getPreset(id: number) { ... }
+export async function getPreset(id: string) { ... }
 export async function findAllPresets(page: number, search: string) { ... }
 export async function findPresetsByRole(role: string) { ... }
 export async function createPreset(data: PresetFormValues) { ... }
-export async function updatePreset(id: number, data: PresetFormValues) { ... }
-export async function deletePreset(id: number) { ... }
+export async function updatePreset(id: string, data: PresetFormValues) { ... }
+export async function deletePreset(id: string) { ... }
 ```
 
 ### PermissionMatrix Component (Shared)
@@ -213,7 +213,7 @@ File: `src/app/admin/users/_components/Form.tsx`
 const userFormSchema = z.object({
   name: z.string().min(1, 'Name is required'),
   role: z.string().min(1),
-  presetId: z.number().nullable().optional(),
+  presetId: z.string().nullable().optional(),
   schoolIds: z.array(z.string()).optional(),
   lmsUserId: z.number().nullable().optional(),
   lmsToken: z.string().nullable().optional(),

@@ -4,7 +4,7 @@ This file is the **authoritative** reference for the entire Better Auth migratio
 
 ## Version Baseline
 
-- Better Auth target: `v1.5.4`
+- Better Auth target: `^1.5.4` (latest compatible 1.x)
 - Drizzle ORM: `0.45`
 - Next.js: `16.1`
 
@@ -31,7 +31,10 @@ This file is the **authoritative** reference for the entire Better Auth migratio
 | Navigation model | Role for top-level modules, preset permissions for sub-items |
 | Session payload | No stdNo, no LMS credentials — fetch on demand |
 | Migration style | All-in-one with incremental commits within one branch |
-| ID generation | Keep `nanoid()` for consistency |
+| ID generation | Keep `nanoid()` for consistency (all tables, including presets) |
+| Env vars | Consolidate to `BETTER_AUTH_SECRET` / `BETTER_AUTH_URL` (remove old `AUTH_*` vars) |
+| presetId in session | Declared via `user.additionalFields` for proper typing |
+| OAuth token encryption | `encryptOAuthTokens: true` — direct DB reads return encrypted data |
 
 ## Architecture Overview
 
@@ -51,24 +54,31 @@ Request → Better Auth session lookup → withPermission(...)
 
 ```
 permission_presets
-├── id (serial PK)
+├── id (text PK, nanoid)
 ├── name (text, unique, e.g., "Academic Manager")
 ├── role (text, e.g., "academic") — scopes which role this preset is for
 ├── description (text, nullable)
 ├── created_at (timestamp)
-└── updated_at (timestamp)
+└── updated_at (timestamp, $onUpdate)
 
 preset_permissions
-├── id (serial PK)
+├── id (text PK, nanoid)
 ├── preset_id (FK → permission_presets.id, cascade delete)
 ├── resource (text, e.g., "students")
 ├── action (text, e.g., "read")
+├── index on preset_id
 └── unique(preset_id, resource, action)
 
 users
 ├── ... existing Better Auth fields ...
-├── role (text, default 'user')
-└── preset_id (FK → permission_presets.id, nullable, set null on delete)
+├── role (text, default 'user') — declared in additionalFields
+├── preset_id (FK → permission_presets.id, nullable, set null on delete) — declared in additionalFields
+└── All updatedAt columns use $onUpdate(() => new Date())
+
+Indexes (Better Auth standard):
+├── sessions: sessions_userId_idx on user_id
+├── accounts: accounts_userId_idx on user_id
+└── verifications: verifications_identifier_idx on identifier
 ```
 
 ### Data Flow
@@ -241,6 +251,14 @@ src/app/dashboard/module-config.types.ts       — Add permissions field to NavI
 src/app/dashboard/dashboard.tsx                — Update isItemVisible for permissions
 src/app/academic/academic.config.ts            — Add permission-based sub-item visibility
 src/app/registry/registry.config.ts            — Same
+src/app/reports/reports.config.ts              — Replace UserRole/UserPosition type imports
+src/app/admin/notifications/_server/service.ts — Replace UserPosition type
+src/app/admin/notifications/_server/actions.ts — Replace UserPosition type
+src/app/admin/notifications/_components/Form.tsx — Replace enum imports
+src/app/registry/clearance/_schema/clearance.ts — dashboardUsers enum → text
+src/app/registry/clearance/auto-approve/_schema/autoApprovals.ts — enum → text
+src/app/registry/blocked-students/_schema/blockedStudents.ts     — enum → text
+src/app/registry/student-notes/_schema/studentNotes.ts           — userRoles enum → text
 (~30+ service files, ~35+ client files)
 ```
 

@@ -35,6 +35,7 @@ import {
   type PermissionRequirement,
   type DashboardRole,
 } from '@/core/auth/permissions';
+import { unauthorized, forbidden } from 'next/server';
 
 type AccessCheckFunction = (session: Session) => Promise<boolean>;
 
@@ -43,7 +44,7 @@ const getSessionWithPreset = cache(async () => {
   if (!session) return null;
 
   let permissions: { resource: string; action: string }[] = [];
-  const presetId = (session.user as { presetId?: number }).presetId;
+  const { presetId } = session.user;
   if (presetId) {
     permissions = await db
       .select({ resource: presetPermissions.resource, action: presetPermissions.action })
@@ -74,12 +75,12 @@ export async function withPermission<T>(
 ): Promise<T> {
   if (requirement === 'all') {
     const result = await getSessionWithPreset();
-    return fn(result?.session as Session);
+    return fn(result?.session ?? null as unknown as Session);
   }
 
   const result = await getSessionWithPreset();
   if (!result) {
-    // Return 401 unauthorized
+    unauthorized();
   }
 
   const { session, permissions } = result;
@@ -96,7 +97,7 @@ export async function withPermission<T>(
   if (requirement === 'dashboard') {
     const isDashboard = (DASHBOARD_ROLES as readonly string[]).includes(session.user.role);
     if (!isDashboard) {
-      // Return 403 forbidden
+      forbidden();
     }
     return fn(session);
   }
@@ -104,14 +105,14 @@ export async function withPermission<T>(
   if (typeof requirement === 'function') {
     const allowed = await requirement(session);
     if (!allowed) {
-      // Return 403 forbidden
+      forbidden();
     }
     return fn(session);
   }
 
   // Permission requirement check
   if (!hasPermission(permissions, requirement)) {
-    // Return 403 forbidden
+    forbidden();
   }
 
   return fn(session);
@@ -298,6 +299,16 @@ constructor() {
 | UserService | `src/app/admin/users/_server/service.ts` |
 | TaskService | `src/app/admin/tasks/_server/service.ts` |
 | ActivityTrackerService | `src/app/admin/activity-tracker/_server/service.ts` |
+| NotificationService | `src/app/admin/notifications/_server/service.ts` |
+
+### Additional Non-Service Files
+
+These files use `withAuth` or session directly and must be migrated:
+
+| File | Reason |
+|------|--------|
+| `src/app/admin/notifications/_server/actions.ts` | Uses `withAuth` directly |
+| `src/app/admin/reports.config.ts` | References session role/position |
 
 ### Admissions Module Services
 
@@ -563,5 +574,5 @@ Top-level module visibility (`roles` field) stays unchanged.
 - [ ] `NavItem` type supports `permissions` field
 - [ ] Dashboard shell checks both roles and permissions for nav visibility
 - [ ] Module configs updated with `permissions` on sub-items
-- [ ] `session.accessToken` field removed (no consumers)
+- [ ] `session.accessToken` field removed (no consumers — verify with `grep -r 'session.accessToken' src/`)
 - [ ] `pnpm tsc --noEmit` passes

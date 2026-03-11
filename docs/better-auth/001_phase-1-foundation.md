@@ -13,7 +13,7 @@
 ## 1.1 Install Dependencies
 
 ```bash
-pnpm add better-auth@1.5.4 @better-auth/drizzle-adapter
+pnpm add better-auth @better-auth/drizzle-adapter
 ```
 
 Do NOT remove `next-auth` or `@auth/drizzle-adapter` yet.
@@ -38,7 +38,9 @@ Add alongside existing Auth.js env vars:
 - `GOOGLE_CLIENT_ID` (already exists)
 - `GOOGLE_CLIENT_SECRET` (already exists)
 
-Do NOT remove Auth.js env vars (`AUTH_SECRET`, `AUTH_URL`, etc.) yet.
+Do NOT remove Auth.js env vars (`AUTH_SECRET`, `AUTH_URL`, etc.) yet — they are cleaned up in Phase 5.
+
+> **Note**: After migration, `AUTH_SECRET`, `AUTH_URL`, `AUTH_GOOGLE_ID`, `AUTH_GOOGLE_SECRET` will be removed. Only `BETTER_AUTH_*` and `GOOGLE_*` vars will remain.
 
 ## 1.4 Create Permission Catalog
 
@@ -116,6 +118,10 @@ export const DASHBOARD_ROLES = [
 ] as const;
 
 export type DashboardRole = (typeof DASHBOARD_ROLES)[number];
+
+export const USER_ROLES = ['student', ...DASHBOARD_ROLES] as const;
+
+export type UserRole = (typeof USER_ROLES)[number];
 ```
 
 ## 1.5 Create Better Auth Server Entry
@@ -125,7 +131,7 @@ Rename existing `src/core/auth.ts` → `src/core/auth.legacy.ts`.
 Create new `src/core/auth.ts`:
 
 ```ts
-import { betterAuth } from 'better-auth/minimal';
+import { betterAuth } from 'better-auth';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
 import { nextCookies } from 'better-auth/next-js';
 import { admin } from 'better-auth/plugins';
@@ -153,6 +159,11 @@ export const auth = betterAuth({
         ],
         required: false,
         defaultValue: 'user',
+        input: false,
+      },
+      presetId: {
+        type: 'number',
+        required: false,
         input: false,
       },
     },
@@ -213,6 +224,8 @@ export type Session = typeof auth.$Infer.Session;
 - `nanoid()` for ID generation (preserves existing user ID format)
 - Cookie cache with compact strategy for performance
 - Rate limiting with database storage
+- `presetId` declared in `additionalFields` so it's properly typed in `session.user.presetId` (avoids unsafe casts)
+- `encryptOAuthTokens: true` — tokens stored encrypted in DB; any code needing raw tokens must use Better Auth's API, NOT direct DB reads
 
 ## 1.6 Create Better Auth Client
 
@@ -238,15 +251,16 @@ export const authClient = createAuthClient({
 File: `src/app/auth/permission-presets/_schema/permissionPresets.ts`
 
 ```ts
-import { pgTable, serial, text, timestamp, unique } from 'drizzle-orm/pg-core';
+import { pgTable, text, timestamp } from 'drizzle-orm/pg-core';
+import { nanoid } from 'nanoid';
 
 export const permissionPresets = pgTable('permission_presets', {
-  id: serial().primaryKey(),
+  id: text().primaryKey().$defaultFn(() => nanoid()),
   name: text().notNull().unique(),
   role: text().notNull(),
   description: text(),
-  createdAt: timestamp().defaultNow().notNull(),
-  updatedAt: timestamp().defaultNow().notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().$onUpdate(() => new Date()).notNull(),
 });
 ```
 
@@ -255,12 +269,13 @@ export const permissionPresets = pgTable('permission_presets', {
 File: `src/app/auth/permission-presets/_schema/presetPermissions.ts`
 
 ```ts
-import { pgTable, serial, text, integer, unique, index } from 'drizzle-orm/pg-core';
+import { pgTable, text, unique, index } from 'drizzle-orm/pg-core';
+import { nanoid } from 'nanoid';
 import { permissionPresets } from './permissionPresets';
 
 export const presetPermissions = pgTable('preset_permissions', {
-  id: serial().primaryKey(),
-  presetId: integer()
+  id: text().primaryKey().$defaultFn(() => nanoid()),
+  presetId: text()
     .references(() => permissionPresets.id, { onDelete: 'cascade' })
     .notNull(),
   resource: text().notNull(),
@@ -299,11 +314,12 @@ export const presetPermissionsRelations = relations(presetPermissions, ({ one })
 File: `src/app/auth/auth-providers/_schema/lmsCredentials.ts`
 
 ```ts
-import { pgTable, text, integer, serial } from 'drizzle-orm/pg-core';
+import { pgTable, text, integer } from 'drizzle-orm/pg-core';
+import { nanoid } from 'nanoid';
 import { users } from '@auth/users/_schema/users';
 
 export const lmsCredentials = pgTable('lms_credentials', {
-  id: serial().primaryKey(),
+  id: text().primaryKey().$defaultFn(() => nanoid()),
   userId: text()
     .references(() => users.id, { onDelete: 'cascade' })
     .notNull()
@@ -326,6 +342,8 @@ export const rateLimits = pgTable('rate_limits', {
   lastRequest: timestamp().notNull(),
 });
 ```
+
+> **Verification**: After setup, run `npx @better-auth/cli generate --output ./ba-schema-check.ts` and compare the generated `rateLimit` table against our `rateLimits` schema to ensure column names and types align. Delete the generated file afterwards.
 
 ## 1.8 Update Barrel Exports
 
@@ -377,14 +395,15 @@ export const config = {
 
 ## Exit Criteria
 
-- [ ] `better-auth@1.5.4` and `@better-auth/drizzle-adapter` installed
+- [ ] `better-auth` and `@better-auth/drizzle-adapter` installed
 - [ ] `next.config.ts` has `serverExternalPackages: ['better-auth']`
 - [ ] New env vars documented and set locally
-- [ ] `src/core/auth/permissions.ts` defines full resource:action catalog
+- [ ] `src/core/auth/permissions.ts` defines full resource:action catalog and `UserRole` type
 - [ ] `src/core/auth.ts` has Better Auth server config (coexists with legacy)
 - [ ] `src/core/auth-client.ts` has Better Auth React client
-- [ ] Permission preset schema files created
+- [ ] Permission preset schema files created (text IDs with nanoid)
 - [ ] LMS credentials and rate limits schema files created
+- [ ] Rate limit schema verified against `@better-auth/cli generate` output
 - [ ] Barrel exports updated
 - [ ] `schema` exported from `src/core/database/index.ts`
 - [ ] `proxy.ts` created at project root
