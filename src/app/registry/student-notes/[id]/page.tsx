@@ -1,5 +1,7 @@
+import { Group, Text } from '@mantine/core';
 import { notFound } from 'next/navigation';
 import { DetailsView, DetailsViewHeader } from '@/shared/ui/adease';
+import Link from '@/shared/ui/Link';
 import NoteDetailView from '../_components/NoteDetailView';
 import { deleteStudentNote, getStudentNote } from '../_server/actions';
 
@@ -18,7 +20,12 @@ export default async function NoteDetailPage({ params }: Props) {
 	return (
 		<DetailsView>
 			<DetailsViewHeader
-				title={`Note - ${note.stdNo}`}
+				title={
+					<Group gap={'xs'}>
+						<Text size='lg'>{note.studentName}</Text>•
+						<Link href={`/registry/students/${note.stdNo}/`}>{note.stdNo}</Link>
+					</Group>
+				}
 				queryKey={['student-notes']}
 				handleDelete={async () => {
 					'use server';

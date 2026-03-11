@@ -6,12 +6,13 @@ import { IconArrowNarrowLeft, IconEdit } from '@tabler/icons-react';
 import Link from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { useSession } from 'next-auth/react';
+import type React from 'react';
 import type { UserRole } from '@/core/database';
 import { useViewSelect } from '@/shared/lib/hooks/use-view-select';
 import { DeleteButton } from './DeleteButton';
 
 export interface DetailsViewHeaderProps {
-	title: string;
+	title: React.ReactNode;
 	queryKey: string[];
 	handleDelete?: () => Promise<void>;
 	onDeleteSuccess?: () => Promise<void>;
@@ -61,9 +62,13 @@ export function DetailsViewHeader({
 						<ActionIcon variant='default' onClick={() => setView('nav')}>
 							<IconArrowNarrowLeft size={'1rem'} />
 						</ActionIcon>
-						<Title order={3} fw={100} size={'1rem'}>
-							{title}
-						</Title>
+						{typeof title === 'string' ? (
+							<Title order={3} fw={100}>
+								{title}
+							</Title>
+						) : (
+							title
+						)}
 					</Group>
 				) : (
 					<Title order={3} fw={100}>

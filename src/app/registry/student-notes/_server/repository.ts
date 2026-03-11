@@ -29,12 +29,14 @@ interface StudentNoteAttachmentRecord {
 type StudentNoteRecord = typeof studentNotes.$inferSelect & {
 	createdByUser: StudentNoteCreator;
 	attachments: StudentNoteAttachmentRecord[];
+	studentName?: string | null;
 };
 
 interface StudentNoteRow {
 	note: typeof studentNotes.$inferSelect;
 	creatorId: string | null;
 	creatorName: string | null;
+	studentName?: string | null;
 	attachmentId: string | null;
 	attachmentNoteId: string | null;
 	attachmentFileName: string | null;
@@ -66,6 +68,7 @@ export default class StudentNotesRepository extends BaseRepository<
 						id: row.creatorId,
 						name: row.creatorName,
 					},
+					studentName: row.studentName,
 					attachments: [],
 				});
 			}
@@ -118,6 +121,7 @@ export default class StudentNotesRepository extends BaseRepository<
 				note: studentNotes,
 				creatorId: users.id,
 				creatorName: users.name,
+				studentName: students.name,
 				attachmentId: studentNoteAttachments.id,
 				attachmentNoteId: studentNoteAttachments.noteId,
 				attachmentFileName: studentNoteAttachments.fileName,
@@ -128,6 +132,7 @@ export default class StudentNotesRepository extends BaseRepository<
 			})
 			.from(studentNotes)
 			.leftJoin(users, eq(studentNotes.createdBy, users.id))
+			.leftJoin(students, eq(studentNotes.stdNo, students.stdNo))
 			.leftJoin(
 				studentNoteAttachments,
 				eq(studentNoteAttachments.noteId, studentNotes.id)
@@ -215,6 +220,7 @@ export default class StudentNotesRepository extends BaseRepository<
 				note: studentNotes,
 				creatorId: users.id,
 				creatorName: users.name,
+				studentName: students.name,
 				attachmentId: studentNoteAttachments.id,
 				attachmentNoteId: studentNoteAttachments.noteId,
 				attachmentFileName: studentNoteAttachments.fileName,
@@ -225,6 +231,7 @@ export default class StudentNotesRepository extends BaseRepository<
 			})
 			.from(studentNotes)
 			.leftJoin(users, eq(studentNotes.createdBy, users.id))
+			.leftJoin(students, eq(studentNotes.stdNo, students.stdNo))
 			.leftJoin(
 				studentNoteAttachments,
 				eq(studentNoteAttachments.noteId, studentNotes.id)
