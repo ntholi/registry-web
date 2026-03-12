@@ -1,8 +1,8 @@
 import { users } from '@auth/users/_schema/users';
 import { relations } from 'drizzle-orm';
 import { accounts } from './accounts';
-import { authenticators } from './authenticators';
 import { sessions } from './sessions';
+import { verifications } from './verifications';
 
 export const accountsRelations = relations(accounts, ({ one }) => ({
 	user: one(users, {
@@ -18,9 +18,4 @@ export const sessionsRelations = relations(sessions, ({ one }) => ({
 	}),
 }));
 
-export const authenticatorsRelations = relations(authenticators, ({ one }) => ({
-	user: one(users, {
-		fields: [authenticators.userId],
-		references: [users.id],
-	}),
-}));
+export const verificationsRelations = relations(verifications, () => ({}));

@@ -89,10 +89,9 @@ async function cleanupTestDatabase() {
 				next_of_kins,
 				student_education,
 				students,
-				authenticators,
 				sessions,
 				accounts,
-				verification_tokens,
+				verifications,
 				users
 			RESTART IDENTITY CASCADE
 		`);

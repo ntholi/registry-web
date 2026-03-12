@@ -1,13 +1,16 @@
 import { accounts } from '@auth/auth-providers/_schema/accounts';
-import { authenticators } from '@auth/auth-providers/_schema/authenticators';
 import { sessions } from '@auth/auth-providers/_schema/sessions';
+import { permissionPresets } from '@auth/permission-presets/_schema/permissionPresets';
 import { userSchools } from '@auth/user-schools/_schema/userSchools';
 import { relations } from 'drizzle-orm';
 import { users } from './users';
 
-export const usersRelations = relations(users, ({ many }) => ({
+export const usersRelations = relations(users, ({ many, one }) => ({
 	accounts: many(accounts),
 	sessions: many(sessions),
-	authenticators: many(authenticators),
+	preset: one(permissionPresets, {
+		fields: [users.presetId],
+		references: [permissionPresets.id],
+	}),
 	userSchools: many(userSchools),
 }));
