@@ -1,4 +1,4 @@
-import { userRoles, users } from '@auth/users/_schema/users';
+import { users } from '@auth/users/_schema/users';
 import { students } from '@registry/students/_schema/students';
 import {
 	bigint,
@@ -29,7 +29,7 @@ export const studentNotes = pgTable(
 			.notNull(),
 		content: text().notNull(),
 		visibility: noteVisibility().notNull().default('role'),
-		creatorRole: userRoles().notNull(),
+		creatorRole: text('creator_role').notNull(),
 		createdBy: text().references(() => users.id, { onDelete: 'set null' }),
 		createdAt: timestamp().defaultNow().notNull(),
 		updatedAt: timestamp()

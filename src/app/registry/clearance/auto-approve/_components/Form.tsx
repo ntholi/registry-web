@@ -3,7 +3,6 @@
 import { Select, Stack } from '@mantine/core';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'nextjs-toploader/app';
-import type { DashboardUser } from '@/core/database';
 import { Form } from '@/shared/ui/adease';
 import StudentInput from '@/shared/ui/StudentInput';
 import TermInput from '@/shared/ui/TermInput';
@@ -14,14 +13,14 @@ type Props = {
 		id: number;
 		stdNo: number;
 		termId: number;
-		department: DashboardUser;
+		department: string;
 	};
 };
 
 export default function AutoApprovalForm({ rule }: Props) {
 	const router = useRouter();
 	const { data: session } = useSession();
-	const userRole = session?.user?.role as DashboardUser | undefined;
+	const userRole = session?.user?.role as string | undefined;
 	const isAdmin = userRole === 'admin';
 
 	const departmentOptions = [
@@ -36,7 +35,7 @@ export default function AutoApprovalForm({ rule }: Props) {
 				const data = {
 					stdNo: values.stdNo as number,
 					termId: values.termId as number,
-					department: values.department as DashboardUser,
+					department: values.department as string,
 				};
 				if (rule) {
 					return updateAutoApproval(rule.id, data);

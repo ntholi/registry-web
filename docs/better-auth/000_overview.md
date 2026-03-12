@@ -15,7 +15,7 @@ This file is the **authoritative** reference for the entire Better Auth migratio
 | 1 | Install & Environment Setup | `001_phase-1-install-and-env-setup.md` | `DONE` | `2026-03-12` | |
 | 2 | Auth Config & Schema Files | `002_phase-2-auth-config-and-schema-files.md` | `DONE` | `2026-03-12` | Rate-limits schema verified; auth table diffs deferred to Phase 3 |
 | 3 | Auth Table Schema Updates | `003_phase-3-auth-table-schema-updates.md` | `DONE` | `2026-03-12` | Accounts kept in transitional old + new shape |
-| 4 | Dependent Schemas & Migration | `004_phase-4-dependent-schemas-and-migration.md` | `PENDING` | — | |
+| 4 | Dependent Schemas & Migration | `004_phase-4-dependent-schemas-and-migration.md` | `DONE` | `2026-03-12` | Phase 2 tables (0183/0184) + Phase 3-4 schema migration (0185) applied together; student_notes table handled |
 | 5 | Data Migration — Core Tables | `005_phase-5-data-migration-core-tables.md` | `PENDING` | — | Requires DB backup first |
 | 6 | Preset Seeds & Route Swap | `006_phase-6-preset-seeds-and-route-swap.md` | `PENDING` | — | |
 | 7 | Create withPermission Wrapper | `007_phase-7-create-withpermission-wrapper.md` | `PENDING` | — | |

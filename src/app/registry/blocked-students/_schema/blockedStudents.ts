@@ -1,4 +1,3 @@
-import { dashboardUsers } from '@auth/users/_schema/users';
 import { students } from '@registry/students/_schema/students';
 import {
 	bigint,
@@ -21,7 +20,7 @@ export const blockedStudents = pgTable(
 		id: serial().primaryKey(),
 		status: blockedStudentStatusEnum().notNull().default('blocked'),
 		reason: text().notNull(),
-		byDepartment: dashboardUsers().notNull(),
+		byDepartment: text('by_department').notNull(),
 		stdNo: bigint({ mode: 'number' })
 			.references(() => students.stdNo, { onDelete: 'cascade' })
 			.notNull(),

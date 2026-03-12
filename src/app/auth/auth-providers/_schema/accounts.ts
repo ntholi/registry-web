@@ -1,4 +1,5 @@
 import {
+	index,
 	integer,
 	pgTable,
 	primaryKey,
@@ -37,5 +38,6 @@ export const accounts = pgTable(
 		compoundKey: primaryKey({
 			columns: [account.provider, account.providerAccountId],
 		}),
+		userIdIdx: index('accounts_user_id_idx').on(account.userId),
 	})
 );

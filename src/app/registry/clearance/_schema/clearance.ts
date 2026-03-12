@@ -1,4 +1,4 @@
-import { dashboardUsers, users } from '@auth/users/_schema/users';
+import { users } from '@auth/users/_schema/users';
 import {
 	boolean,
 	index,
@@ -19,7 +19,7 @@ export const clearance = pgTable(
 	'clearance',
 	{
 		id: serial().primaryKey(),
-		department: dashboardUsers().notNull(),
+		department: text().notNull(),
 		status: clearanceRequestStatus().notNull().default('pending'),
 		message: text(),
 		emailSent: boolean().notNull().default(false),

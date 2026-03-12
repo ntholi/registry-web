@@ -9,7 +9,7 @@ let mockedUser: User = {
 	role: 'user',
 	position: null,
 	email: 'test@example.com',
-	emailVerified: null,
+	emailVerified: false,
 	image: null,
 };
 
@@ -28,7 +28,7 @@ export function resetMockUser() {
 		role: 'user',
 		position: null,
 		email: 'test@example.com',
-		emailVerified: null,
+		emailVerified: false,
 		image: null,
 	};
 }

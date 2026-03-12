@@ -198,20 +198,27 @@ async function captureSnapshot() {
 			`Blocked students by_department values: ${blockedResult.rowCount} rows`
 		);
 
-		const notesResult = await pool.query<{
-			id: string;
-			creator_role: string;
-		}>('SELECT id, creator_role FROM student_notes ORDER BY id');
-		for (const row of notesResult.rows) {
-			dependentEnumValues.push({
-				table: 'student_notes',
-				id: row.id,
-				column_value: row.creator_role,
-			});
-		}
-		console.log(
-			`Student notes creator_role values: ${notesResult.rowCount} rows`
+		const notesTableExists = await pool.query<{ exists: boolean }>(
+			"SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'student_notes') AS exists"
 		);
+		if (notesTableExists.rows[0].exists) {
+			const notesResult = await pool.query<{
+				id: string;
+				creator_role: string;
+			}>('SELECT id, creator_role FROM student_notes ORDER BY id');
+			for (const row of notesResult.rows) {
+				dependentEnumValues.push({
+					table: 'student_notes',
+					id: row.id,
+					column_value: row.creator_role,
+				});
+			}
+			console.log(
+				`Student notes creator_role values: ${notesResult.rowCount} rows`
+			);
+		} else {
+			console.log('Student notes table does not exist — skipping');
+		}
 
 		const snapshot: Snapshot = {
 			capturedAt: new Date().toISOString(),

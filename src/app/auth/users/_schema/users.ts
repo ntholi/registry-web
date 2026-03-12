@@ -1,6 +1,7 @@
 import { permissionPresets } from '@auth/permission-presets/_schema/permissionPresets';
 import {
 	boolean,
+	index,
 	integer,
 	pgEnum,
 	pgTable,
@@ -50,27 +51,33 @@ export const userPositions = pgEnum('user_positions', [
 ]);
 export type UserPosition = (typeof userPositions.enumValues)[number];
 
-export const users = pgTable('users', {
-	id: text()
-		.primaryKey()
-		.$defaultFn(() => nanoid()),
-	name: text().notNull(),
-	role: text().notNull().default('user'),
-	position: userPositions(),
-	email: text().notNull().unique(),
-	emailVerified: boolean().notNull().default(false),
-	image: text(),
-	presetId: text('preset_id').references(() => permissionPresets.id, {
-		onDelete: 'set null',
-	}),
-	createdAt: timestamp('created_at').defaultNow().notNull(),
-	updatedAt: timestamp('updated_at')
-		.defaultNow()
-		.$onUpdate(() => new Date())
-		.notNull(),
-	banned: boolean().default(false),
-	banReason: text('ban_reason'),
-	banExpires: timestamp('ban_expires'),
-	lmsUserId: integer(),
-	lmsToken: text(),
-});
+export const users = pgTable(
+	'users',
+	{
+		id: text()
+			.primaryKey()
+			.$defaultFn(() => nanoid()),
+		name: text().notNull(),
+		role: text().notNull().default('user'),
+		position: userPositions(),
+		email: text().notNull().unique(),
+		emailVerified: boolean().notNull().default(false),
+		image: text(),
+		presetId: text('preset_id').references(() => permissionPresets.id, {
+			onDelete: 'set null',
+		}),
+		createdAt: timestamp('created_at').defaultNow().notNull(),
+		updatedAt: timestamp('updated_at')
+			.defaultNow()
+			.$onUpdate(() => new Date())
+			.notNull(),
+		banned: boolean().default(false),
+		banReason: text('ban_reason'),
+		banExpires: timestamp('ban_expires'),
+		lmsUserId: integer(),
+		lmsToken: text(),
+	},
+	(table) => ({
+		presetIdIdx: index('users_preset_id_idx').on(table.presetId),
+	})
+);

@@ -1,4 +1,4 @@
-import { dashboardUsers, users } from '@auth/users/_schema/users';
+import { users } from '@auth/users/_schema/users';
 import { terms } from '@registry/terms/_schema/terms';
 import {
 	index,
@@ -18,7 +18,7 @@ export const autoApprovals = pgTable(
 		termId: integer()
 			.notNull()
 			.references(() => terms.id, { onDelete: 'cascade' }),
-		department: dashboardUsers().notNull(),
+		department: text().notNull(),
 		createdBy: text().references(() => users.id, { onDelete: 'set null' }),
 		createdAt: timestamp().defaultNow(),
 	},
