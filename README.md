@@ -52,6 +52,11 @@ AUTH_URL=
 AUTH_SECRET=
 AUTH_GOOGLE_ID=
 AUTH_GOOGLE_SECRET=
+BETTER_AUTH_SECRET=
+BETTER_AUTH_URL=
+BETTER_AUTH_TRUSTED_ORIGINS=
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
 DATABASE_ENV=local|remote
 DATABASE_LOCAL_URL=postgresql://...
 DATABASE_REMOTE_URL=
@@ -61,6 +66,8 @@ R2_SECRET_ACCESS_KEY=
 R2_BUCKET_NAME=
 NEXT_PUBLIC_R2_PUBLIC_URL=
 ```
+
+Keep the existing `AUTH_*` variables during the migration. `BETTER_AUTH_SECRET` must be a separate high-entropy value and must not reuse an OAuth client secret or any other credential.
 
 ## Commands
 

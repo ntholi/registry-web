@@ -50,3 +50,5 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 		},
 	},
 });
+
+export * from './permissions';

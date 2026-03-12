@@ -2,6 +2,8 @@
 
 > Estimated Implementation Time: 0.5 to 1 hour
 
+**Status**: `DONE` on `2026-03-12`
+
 **Prerequisites**: Read `000_overview.md` first. It is the authoritative reference.
 
 ## Essential Outcomes

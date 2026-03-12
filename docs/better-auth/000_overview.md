@@ -8,11 +8,11 @@ This file is the **authoritative** reference for the entire Better Auth migratio
 
 ## Execution Tracker
 
-> **LLM Instruction**: When the user says "execute next phase", read this tracker to find the first phase with status `PENDING`, open and read its phase document (`docs/better-auth/0XX_phase-X-*.md`), execute ALL steps described in that document, then return here and update the status to `DONE` with the completion date. If a phase has `BLOCKED` status, read the blocker note and resolve or ask the user.
+> **IMPORTANT Instruction**: When the user says "execute next phase", do only the first `PENDING` phase in that session, then update this tracker to `DONE` with the completion date. If a phase is `BLOCKED`, resolve it or ask the user.
 
 | # | Phase | Doc | Status | Completed | Notes |
 |---|-------|-----|--------|-----------|-------|
-| 1 | Install & Environment Setup | `001_phase-1-install-and-env-setup.md` | `PENDING` | — | |
+| 1 | Install & Environment Setup | `001_phase-1-install-and-env-setup.md` | `DONE` | `2026-03-12` | |
 | 2 | Auth Config & Schema Files | `002_phase-2-auth-config-and-schema-files.md` | `PENDING` | — | |
 | 3 | Auth Table Schema Updates | `003_phase-3-auth-table-schema-updates.md` | `PENDING` | — | |
 | 4 | Dependent Schemas & Migration | `004_phase-4-dependent-schemas-and-migration.md` | `PENDING` | — | |
