@@ -1,21 +1,21 @@
-# Phase 2: Schema File Updates & Migration Generation
+# Phase 3: Auth Table Schema Updates
 
-> Estimated Implementation Time: 4 to 5 hours
+> Estimated Implementation Time: 1.5 to 2 hours
 
-**Prerequisites**: Phase 1 complete. Read `000_overview.md` first.
+**Prerequisites**: Phase 2 complete. Read `000_overview.md` first.
 
-This phase updates all Drizzle schema TypeScript files to match the Better Auth target shape and generates the Drizzle migration. The actual data migration (account mapping, preset seeding) happens in Phase 3.
+This phase updates the core Drizzle schema TypeScript files for auth tables (users, accounts, sessions, verifications) to match the Better Auth target shape, deletes the authenticators table, and updates Drizzle relations. The actual data migration happens in Phase 5.
 
-## 2.1 Migration Strategy
+## 3.1 Migration Strategy
 
 Side-by-side migration:
 
 1. Generate the Better Auth schema shape
 2. Update Drizzle schema files to match Better Auth models
 3. Create migrations for auth tables + permission preset tables
-4. Data migration and seeding happen in Phase 3
+4. Data migration and seeding happen in Phases 5–6
 
-## 2.2 Tables To Prepare
+## 3.2 Tables To Prepare
 
 The migration covers:
 
@@ -23,10 +23,10 @@ The migration covers:
 - `accounts` — modify (map Auth.js fields to Better Auth fields)
 - `sessions` — recreate (drop Auth.js sessions, create Better Auth sessions)
 - `verifications` — new (replaces `verification_tokens`)
-- `permission_presets` — new (created in Phase 1 schema files)
-- `preset_permissions` — new (created in Phase 1 schema files)
-- `lms_credentials` — new (created in Phase 1 schema files)
-- `rate_limits` — new (created in Phase 1 schema files)
+- `permission_presets` — new (created in Phase 2 schema files)
+- `preset_permissions` — new (created in Phase 2 schema files)
+- `lms_credentials` — new (created in Phase 2 schema files)
+- `rate_limits` — new (created in Phase 2 schema files)
 
 Also:
 - Drop `authenticators` table
@@ -34,7 +34,7 @@ Also:
 - Drop `userRoles`, `userPositions`, `dashboardUsers` enums (after column conversion)
 - Convert `clearance.department` and `autoApprovals.department` from enum to text
 
-## 2.3 Users Table Target
+## 3.3 Users Table Target
 
 **Current shape:**
 
@@ -86,7 +86,7 @@ DROP TYPE IF EXISTS user_positions;
 DROP TYPE IF EXISTS dashboard_users;
 ```
 
-## 2.4 Users Schema Update
+## 3.4 Users Schema Update
 
 File: `src/app/auth/users/_schema/users.ts`
 
@@ -137,7 +137,7 @@ export const users = pgTable('users', {
 - `lmsUserId` column
 - `lmsToken` column
 
-## 2.5 Accounts Schema Update
+## 3.5 Accounts Schema Update
 
 File: `src/app/auth/auth-providers/_schema/accounts.ts`
 
@@ -163,7 +163,7 @@ export const accounts = pgTable('accounts', {
 });
 ```
 
-## 2.6 Sessions Schema Update
+## 3.6 Sessions Schema Update
 
 File: `src/app/auth/auth-providers/_schema/sessions.ts`
 
@@ -185,7 +185,7 @@ export const sessions = pgTable('sessions', {
 });
 ```
 
-## 2.7 Verifications Schema + Delete Authenticators
+## 3.7 Verifications Schema + Delete Authenticators
 
 ### Verifications Schema
 
@@ -206,7 +206,7 @@ export const verifications = pgTable('verifications', {
 
 Delete `src/app/auth/auth-providers/_schema/authenticators.ts` and remove `authenticatorsRelations` from relations file.
 
-## 2.7.1 Update Drizzle Relations for Better Auth Tables
+## 3.8 Update Drizzle Relations for Better Auth Tables
 
 File: `src/app/auth/auth-providers/_schema/relations.ts`
 
@@ -261,46 +261,8 @@ export const presetPermissionsRelations = relations(presetPermissions, ({ one })
 }));
 ```
 
-## 2.8 Update Dependent Schema Files
-
-Update schema files that reference the dropped enums:
-
-**`blockedStudents` schema**: Replace `dashboardUsers` enum with `text()` for the `department` column.
-
-**`studentNotes` schema**: Replace `userRoles` enum with `text()` for the `role` column.
-
-**`clearance` schema**: Replace `dashboardUsers` enum with `text()` for the `department` column.
-
-**`autoApprovals` schema**: Replace `dashboardUsers` enum with `text()` for the `department` column.
-
-> **Note**: After removing the enum exports from `users.ts`, all files that imported `userRoles`, `userPositions`, or `dashboardUsers` must be updated. Use `UserRole` and `DashboardRole` types from `src/core/auth/permissions.ts` for TypeScript validation where needed.
-
-## 2.9 Indexes
-
-Ensure these indexes exist (add via Drizzle schema table definitions, not raw SQL):
-
-- `users.email` (unique, already exists)
-- `users.preset_id`
-- `accounts.user_id` → `index('accounts_user_id_idx').on(table.userId)`
-- `sessions.user_id` → `index('sessions_user_id_idx').on(table.userId)`
-- `sessions.token` (unique, already exists)
-- `verifications.identifier` → `index('verifications_identifier_idx').on(table.identifier)`
-- `rate_limits.key` (primary key)
-- `preset_permissions.preset_id`
-
-## 2.10 Generate Drizzle Migration
-
-After all schema files are updated:
-
-```bash
-pnpm db:generate
-```
-
-This generates a single migration covering all schema changes. **Never create .sql migration files manually** — it corrupts the Drizzle journal. Review the generated SQL to confirm it matches expected changes (enum→text conversions, column drops, new tables, indexes).
-
 ## Exit Criteria
 
-- [ ] Better Auth schema files match target database shape
 - [ ] Users schema updated: enums removed, new fields added, position/lmsUserId/lmsToken removed
 - [ ] Accounts schema updated to Better Auth field names
 - [ ] Sessions schema updated to Better Auth model
@@ -308,7 +270,4 @@ This generates a single migration covering all schema changes. **Never create .s
 - [ ] Authenticators schema and relations deleted
 - [ ] Drizzle relations updated for Better Auth tables (accounts, sessions) — enables join optimization
 - [ ] Permission preset relations created (permissionPresets ↔ presetPermissions)
-- [ ] Dependent schemas updated: enum columns → text (clearance, autoApprovals, blockedStudents, studentNotes)
-- [ ] All indexes defined in schema files
-- [ ] Drizzle migration generated via `pnpm db:generate` (not manual SQL)
 - [ ] `pnpm tsc --noEmit` passes

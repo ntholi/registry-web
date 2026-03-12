@@ -1,132 +1,17 @@
-# Phase 1: Foundation — Install & Core Config
+# Phase 2: Auth Config, Schema Files & Client
 
-> Estimated Implementation Time: 4 to 5 hours
+> Estimated Implementation Time: 1 to 1.5 hours
 
-**Prerequisites**: Read `000_overview.md` first. It is the authoritative reference.
+**Prerequisites**: Phase 1 complete. Read `000_overview.md` first.
 
 ## Essential Outcomes
 
-- Install Better Auth alongside Auth.js (both coexist temporarily)
 - Create all Better Auth config files and new schema files
-- Do NOT swap the auth route handler yet (that happens at the end of Phase 3)
+- Do NOT swap the auth route handler yet (that happens at the end of Phase 6)
 - Create permission preset schema files
-- Create the access control permission catalog
+- Create the Better Auth client
 
-## 1.1 Install Dependencies
-
-```bash
-pnpm add better-auth @better-auth/drizzle-adapter
-```
-
-Do NOT remove `next-auth` or `@auth/drizzle-adapter` yet.
-
-## 1.2 Update Next.js Config
-
-Add `better-auth` to `serverExternalPackages` in `next.config.ts`:
-
-```ts
-serverExternalPackages: ['better-auth'],
-```
-
-Keep `authInterrupts: true` until Phase 3 route swap.
-
-## 1.3 Add Environment Variables
-
-Add alongside existing Auth.js env vars:
-
-- `BETTER_AUTH_SECRET`
-- `BETTER_AUTH_URL`
-- `BETTER_AUTH_TRUSTED_ORIGINS`
-- `GOOGLE_CLIENT_ID` (already exists)
-- `GOOGLE_CLIENT_SECRET` (already exists)
-
-Do NOT remove Auth.js env vars (`AUTH_SECRET`, `AUTH_URL`, etc.) yet — they are cleaned up in Phase 12.
-
-> **Note**: After migration, `AUTH_SECRET`, `AUTH_URL`, `AUTH_GOOGLE_ID`, `AUTH_GOOGLE_SECRET` will be removed. Only `BETTER_AUTH_*` and `GOOGLE_*` vars will remain.
-
-## 1.4 Create Permission Catalog
-
-File: `src/core/auth/permissions.ts`
-
-This file defines the complete resource:action permission catalog and TypeScript types used throughout the app:
-
-```ts
-export const RESOURCES = [
-  'lecturers',
-  'assessments',
-  'semester-modules',
-  'modules',
-  'school-structures',
-  'feedback-questions',
-  'feedback-categories',
-  'feedback-cycles',
-  'feedback-reports',
-  'timetable',
-  'venues',
-  'gradebook',
-  'students',
-  'registration',
-  'student-statuses',
-  'documents',
-  'terms-settings',
-  'graduation',
-  'certificate-reprints',
-  'applicants',
-  'applications',
-  'admissions-payments',
-  'admissions-documents',
-  'entry-requirements',
-  'sponsors',
-  'users',
-  'tasks',
-  'activity-tracker',
-  'library',
-] as const;
-
-export type Resource = (typeof RESOURCES)[number];
-
-export const ACTIONS = [
-  'read',
-  'create',
-  'update',
-  'delete',
-  'manage',
-  'approve',
-] as const;
-
-export type Action = (typeof ACTIONS)[number];
-
-export type PermissionRequirement = {
-  [R in Resource]?: Action[];
-};
-
-export type AuthRequirement =
-  | 'all'
-  | 'auth'
-  | 'dashboard'
-  | PermissionRequirement;
-
-export const DASHBOARD_ROLES = [
-  'finance',
-  'registry',
-  'library',
-  'resource',
-  'academic',
-  'marketing',
-  'student_services',
-  'admin',
-  'leap',
-  'human_resource',
-] as const;
-
-export type DashboardRole = (typeof DASHBOARD_ROLES)[number];
-
-export const USER_ROLES = ['student', ...DASHBOARD_ROLES] as const;
-
-export type UserRole = (typeof USER_ROLES)[number];
-```
-
-## 1.5 Create Better Auth Server Entry
+## 2.1 Create Better Auth Server Entry
 
 Rename existing `src/core/auth.ts` → `src/core/auth.legacy.ts`.
 
@@ -240,7 +125,7 @@ export type Session = typeof auth.$Infer.Session;
 - `nextCookies()` must be the LAST plugin in the array (Better Auth requirement)
 - `encryptOAuthTokens: true` — tokens stored encrypted in DB; any code needing raw tokens must use Better Auth's API, NOT direct DB reads
 
-## 1.6 Create Better Auth Client
+## 2.2 Create Better Auth Client
 
 File: `src/core/auth-client.ts`
 
@@ -258,7 +143,7 @@ export const authClient = createAuthClient({
 });
 ```
 
-## 1.7 Create New Schema Files
+## 2.3 Create New Schema Files
 
 ### Permission Presets Table
 
@@ -359,9 +244,9 @@ export const rateLimits = pgTable('rate_limits', {
 
 > **Verification**: After setup, run `npx @better-auth/cli generate --output ./ba-schema-check.ts` and compare the generated `rateLimit` table against our `rateLimits` schema to ensure column names and types align. Delete the generated file afterwards.
 
-> **MANDATORY**: This verification step is BLOCKING. Do NOT proceed to Phase 2 until the generated schema aligns with all manually-defined tables (`users`, `accounts`, `sessions`, `verifications`, `rateLimits`). If any column names or types differ, update the manual schemas to match.
+> **MANDATORY**: This verification step is BLOCKING. Do NOT proceed to Phase 3 until the generated schema aligns with all manually-defined tables (`users`, `accounts`, `sessions`, `verifications`, `rateLimits`). If any column names or types differ, update the manual schemas to match.
 
-## 1.8 Update Barrel Exports
+## 2.4 Update Barrel Exports
 
 Update `src/app/auth/_database/index.ts` to re-export new schema files:
 
@@ -374,7 +259,7 @@ Update `src/app/auth/_database/index.ts` to re-export new schema files:
 
 Update `src/core/database/index.ts` to include new tables in the `schema` object and add `export { schema }`.
 
-## 1.9 Create Proxy
+## 2.5 Create Proxy
 
 File: `proxy.ts` (project root)
 
@@ -411,10 +296,6 @@ export const config = {
 
 ## Exit Criteria
 
-- [ ] `better-auth` installed
-- [ ] `next.config.ts` has `serverExternalPackages: ['better-auth']`
-- [ ] New env vars documented and set locally
-- [ ] `src/core/auth/permissions.ts` defines full resource:action catalog and `UserRole` type
 - [ ] `src/core/auth.ts` has Better Auth server config with `customSession` plugin (coexists with legacy)
 - [ ] `src/core/auth-client.ts` has Better Auth React client with `customSessionClient`
 - [ ] Permission preset schema files created (text IDs with nanoid)

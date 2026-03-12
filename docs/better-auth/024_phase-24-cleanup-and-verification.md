@@ -1,18 +1,18 @@
-# Phase 12: Cleanup, Verification & Testing
+# Phase 24: Cleanup, Verification & Testing
 
-> Estimated Implementation Time: 4 to 5 hours
+> Estimated Implementation Time: 1.5 to 2 hours
 
-**Prerequisites**: Phases 1–11 complete. Read `000_overview.md` first.
+**Prerequisites**: Phases 1–23 complete. Read `000_overview.md` first.
 
-## 12.1 Remove Auth.js Artifacts
+## 24.1 Remove Auth.js Artifacts
 
 ### Delete Files
 
 - `next-auth.d.ts`
 - `src/core/auth.legacy.ts` (the renamed old Auth.js config)
-- `src/core/platform/withAuth.ts` (already deleted in Phase 4, verify)
-- `src/app/auth/auth-providers/_schema/authenticators.ts` (already deleted in Phase 2, verify)
-- `src/app/api/auth/[...nextauth]/route.ts` (already deleted in Phase 3, verify)
+- `src/core/platform/withAuth.ts` (already deleted in Phase 7, verify)
+- `src/app/auth/auth-providers/_schema/authenticators.ts` (already deleted in Phase 3, verify)
+- `src/app/api/auth/[...nextauth]/route.ts` (already deleted in Phase 6, verify)
 - Any test mocks for withAuth (e.g., `src/test/mock.withAuth.ts`)
 
 ### Remove from Relations
@@ -27,7 +27,7 @@ pnpm remove next-auth @auth/drizzle-adapter
 
 ### Remove SessionProvider
 
-- Remove `SessionProvider` wrapper from `src/app/providers.tsx` (already done in Phase 8, verify)
+- Remove `SessionProvider` wrapper from `src/app/providers.tsx` (already done in Phase 15, verify)
 - Remove `next-auth/react` import from providers
 
 ### Grep Verification
@@ -69,7 +69,7 @@ Confirm `src/middleware.ts` exists with:
 - Redirect to `/auth/login?callbackUrl=...` for unauthenticated users
 - Proper `matcher` config excluding static assets
 
-## 12.2 Remove Obsolete Enum References
+## 24.2 Remove Obsolete Enum References
 
 Verify that no TypeScript code references:
 - `dashboardUsers` enum
@@ -78,9 +78,9 @@ Verify that no TypeScript code references:
 - `UserPosition` type
 - `DashboardUser` type (replaced by `DashboardRole` from permissions.ts)
 
-These enums were dropped in Phase 3 database migration. All code referencing them must have been updated in earlier phases.
+These enums were dropped in Phase 5 database migration. All code referencing them must have been updated in earlier phases.
 
-## 12.3 Update Type Exports
+## 24.3 Update Type Exports
 
 Ensure `src/app/auth/users/_schema/users.ts` no longer exports:
 - `dashboardUsers`
@@ -93,7 +93,7 @@ Any file that imported these types must be updated to use:
 - `DASHBOARD_ROLES` from `@/core/auth/permissions`
 - Plain string types for role values
 
-## 12.4 Verify Database State
+## 24.4 Verify Database State
 
 Run these queries to confirm migration completeness:
 
@@ -134,7 +134,7 @@ SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'authent
 -- Expected: false
 ```
 
-## 12.5 Testing Checklist
+## 24.5 Testing Checklist
 
 ### Authentication
 
@@ -275,7 +275,7 @@ SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'authent
 - [ ] No enum references remain (userRoles, userPositions, dashboardUsers)
 - [ ] Old env vars removed (AUTH_SECRET, AUTH_URL, AUTH_GOOGLE_ID, AUTH_GOOGLE_SECRET)
 
-## 12.6 Rollback Plan
+## 24.6 Rollback Plan
 
 ### Before Starting Migration
 
@@ -305,7 +305,7 @@ cp .env.backup .env
 - Notify all users they will need to sign in again after migration
 - Have the admin verify preset assignments after migration
 
-## 12.7 Post-Migration Monitoring
+## 24.7 Post-Migration Monitoring
 
 After deploying:
 
@@ -317,21 +317,21 @@ After deploying:
 
 ## Migration Execution Order (Commit Summary)
 
-### Commit 1: Foundation (Phase 1)
+### Commit 1: Foundation (Phases 1–2)
 - Install Better Auth packages
 - Create auth config files (auth.ts, auth-client.ts) using `better-auth/minimal`
 - Create permissions catalog
 - Create new schema files
 - Update barrel exports
 
-### Commit 2: Schema Updates (Phase 2)
+### Commit 2: Schema Updates (Phases 3–4)
 - Update Drizzle schema TypeScript files
 - Update Drizzle relations for Better Auth tables (join optimization)
 - Create permission preset relations
 - Generate Drizzle migration
 - Update dependent schemas (enum→text)
 
-### Commit 3: Data Migration (Phase 3)
+### Commit 3: Data Migration (Phases 5–6)
 - Run schema migration
 - Migrate account data
 - Seed permission presets
@@ -341,18 +341,18 @@ After deploying:
 - Create `src/middleware.ts` (proxy.ts) with cookie-only optimistic redirect
 - Verify Google OAuth Console callback URIs
 
-### Commit 4: Authorization Wrapper (Phase 4)
+### Commit 4: Authorization Wrapper (Phases 7–8)
 - Create withPermission
 - Migrate `requireSessionUserId` to withPermission module
 - Update BaseService
 - Delete withAuth
 
-### Commits 5–7: Service Migration (Phases 5–7)
-- Academic services (Phase 5)
-- Registry + Admin services (Phase 6)
-- Admissions, finance, timetable, library services + standalone actions (Phase 7)
+### Commits 5–7: Service Migration (Phases 9–14)
+- Academic services (Phases 9–10)
+- Registry + Admin services (Phases 11–12)
+- Admissions, finance, timetable, library services + standalone actions (Phases 13–14)
 
-### Commit 8: Client Migration (Phase 8)
+### Commit 8: Client Migration (Phases 15–17)
 - Replace all next-auth imports
 - Replace useSession, signOut, SessionProvider
 - Migrate GoogleSignInForm to client component with `authClient.signIn.social()`
@@ -361,23 +361,23 @@ After deploying:
 - stdNo on-demand fetching
 - Student portal layout and pages migrated
 
-### Commit 9: LMS + Navigation (Phase 9)
+### Commit 9: LMS + Navigation (Phases 18–19)
 - LMS credential on-demand reads
 - NavItem permissions field
 - Dashboard shell permission checking
 - Module config updates
 
-### Commit 10: Preset Backend (Phase 10)
+### Commit 10: Preset Backend (Phases 20–21)
 - Permission preset CRUD (repository, service, actions, pages)
 - Session revocation on preset update (affected users forced re-login)
 - Session revocation on user presetId change
 
-### Commit 11: Preset UI (Phase 11)
+### Commit 11: Preset UI (Phases 22–23)
 - PermissionMatrix component
 - Preset Form component
 - User form update (preset dropdown, read-only matrix)
 
-### Commit 12: Cleanup (Phase 12)
+### Commit 12: Cleanup (Phase 24)
 - Remove Auth.js packages
 - Delete obsolete files
 - Verify zero legacy references

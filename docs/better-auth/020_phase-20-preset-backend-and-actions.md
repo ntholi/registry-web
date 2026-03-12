@@ -1,12 +1,12 @@
-# Phase 10: Permission Preset Backend & CRUD Pages
+# Phase 20: Permission Preset Backend & Actions
 
-> Estimated Implementation Time: 4 to 5 hours
+> Estimated Implementation Time: 1.5 to 2 hours
 
-**Prerequisites**: Phase 9 complete. Read `000_overview.md` first.
+**Prerequisites**: Phase 19 complete. Read `000_overview.md` first.
 
-This phase builds the permission preset feature module backend (repository, service, actions) and the CRUD pages (list, detail, new, edit, layout).
+This phase builds the permission preset feature module backend (repository, service, actions) and the types.
 
-## 10.1 File Structure
+## 20.1 File Structure
 
 ```
 src/app/admin/permission-presets/
@@ -15,8 +15,8 @@ src/app/admin/permission-presets/
 │   ├── service.ts
 │   └── actions.ts
 ├── _components/
-│   ├── Form.tsx          (Phase 11)
-│   └── PermissionMatrix.tsx  (Phase 11)
+│   ├── Form.tsx          (Phase 22)
+│   └── PermissionMatrix.tsx  (Phase 22)
 ├── _lib/
 │   └── types.ts
 ├── page.tsx
@@ -27,7 +27,7 @@ src/app/admin/permission-presets/
 └── layout.tsx
 ```
 
-## 10.2 Types
+## 20.2 Types
 
 File: `src/app/admin/permission-presets/_lib/types.ts`
 
@@ -48,7 +48,7 @@ export const presetFormSchema = z.object({
 export type PresetFormValues = z.infer<typeof presetFormSchema>;
 ```
 
-## 10.3 Repository
+## 20.3 Repository
 
 File: `src/app/admin/permission-presets/_server/repository.ts`
 
@@ -60,7 +60,7 @@ Extends `BaseRepository` for `permissionPresets` table. Additional methods:
 - `updateWithPermissions(id, data, permissions[])` — transaction: update preset, delete old permissions, insert new
 - `deleteById(id)` — cascade deletes permissions via FK
 
-## 10.4 Service
+## 20.4 Service
 
 File: `src/app/admin/permission-presets/_server/service.ts`
 
@@ -80,7 +80,7 @@ class PermissionPresetService extends BaseService<typeof permissionPresets, 'id'
 }
 ```
 
-## 10.5 Actions
+## 20.5 Actions
 
 File: `src/app/admin/permission-presets/_server/actions.ts`
 
@@ -95,7 +95,7 @@ export async function updatePreset(id: string, data: PresetFormValues) { ... }
 export async function deletePreset(id: string) { ... }
 ```
 
-## 10.5.1 Session Revocation on Preset Change
+## 20.6 Session Revocation on Preset Change
 
 When an admin updates a preset's permissions or changes a user's preset assignment, the user's cached session cookie still contains OLD permissions until the cookie cache expires (5 minutes). To ensure immediate permission enforcement:
 
@@ -130,52 +130,12 @@ if (oldPresetId !== newPresetId) {
 
 **Impact**: Affected users will need to re-sign-in. Their next session will have the updated permissions loaded via `customSession` plugin. This is the cleanest approach per Better Auth docs — the cookie cache revocation tradeoff is fully addressed.
 
-## 10.6 List Page
-
-File: `src/app/admin/permission-presets/page.tsx`
-
-Standard `ListLayout` showing all presets. Each item shows:
-- Preset name
-- Role badge
-- Permission count
-
-## 10.7 Detail Page
-
-File: `src/app/admin/permission-presets/[id]/page.tsx`
-
-Uses `DetailsView` + `DetailsViewHeader` + `DetailsViewBody`:
-- Name, role, description fields
-- Read-only `PermissionMatrix` showing all granted permissions (component built in Phase 11)
-- Edit and Delete buttons
-
-## 10.8 New Page
-
-File: `src/app/admin/permission-presets/new/page.tsx`
-
-Uses the preset Form component (built in Phase 11) for creating a new preset.
-
-## 10.9 Edit Page
-
-File: `src/app/admin/permission-presets/[id]/edit/page.tsx`
-
-Uses the preset Form component with existing data pre-filled.
-
-## 10.10 Layout
-
-File: `src/app/admin/permission-presets/layout.tsx`
-
-Standard layout with children slot.
-
 ## Exit Criteria
 
 - [ ] Types defined with Zod schema in `_lib/types.ts`
 - [ ] Repository extends `BaseRepository` with custom methods for permissions
 - [ ] Service extends `BaseService` with `{ users: ['manage'] }` auth config
 - [ ] Standard CRUD actions created including `findPresetsByRole`
-- [ ] List page shows presets with name, role badge, permission count
-- [ ] Detail page shows preset info (read-only matrix deferred to Phase 11)
-- [ ] New and Edit pages scaffold ready (Form component deferred to Phase 11)
-- [ ] Layout created
 - [ ] Session revocation implemented for preset updates (affected users forced to re-login)
 - [ ] Session revocation implemented in user form when presetId changes
 - [ ] `pnpm tsc --noEmit` passes

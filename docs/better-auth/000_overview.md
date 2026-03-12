@@ -1,6 +1,6 @@
 # Better Auth Migration — Steering Document
 
-> Estimated Implementation Time: 8 to 12 working days (12 phases, ~5 hours each)
+> Estimated Implementation Time: 6 to 8 working days (~34–47 hours total, 24 phases each ≤ 2h)
 
 This file is the **authoritative** reference for the entire Better Auth migration and permission redesign. If any phase document conflicts with this file, **this file wins**.
 
@@ -12,18 +12,30 @@ This file is the **authoritative** reference for the entire Better Auth migratio
 
 | # | Phase | Doc | Status | Completed | Notes |
 |---|-------|-----|--------|-----------|-------|
-| 1 | Foundation — Install & Config | `001_phase-1-foundation-install-and-config.md` | `PENDING` | — | |
-| 2 | Schema File Updates & Migration Generation | `002_phase-2-schema-file-updates.md` | `PENDING` | — | |
-| 3 | Data Migration & Route Swap | `003_phase-3-data-migration-and-route-swap.md` | `PENDING` | — | Requires DB backup first |
-| 4 | Authorization Wrapper & BaseService | `004_phase-4-authorization-wrapper-and-base-service.md` | `PENDING` | — | |
-| 5 | Academic Service Migration | `005_phase-5-academic-service-migration.md` | `PENDING` | — | |
-| 6 | Registry & Admin Service Migration | `006_phase-6-registry-and-admin-service-migration.md` | `PENDING` | — | |
-| 7 | Remaining Services & Standalone Actions | `007_phase-7-remaining-services-and-standalone-actions.md` | `PENDING` | — | |
-| 8 | Client Component & Session Migration | `008_phase-8-client-component-and-session-migration.md` | `PENDING` | — | |
-| 9 | LMS Credentials & Navigation Config | `009_phase-9-lms-and-navigation-migration.md` | `PENDING` | — | |
-| 10 | Permission Preset Backend & CRUD | `010_phase-10-permission-preset-backend.md` | `PENDING` | — | |
-| 11 | Permission Matrix & User Form | `011_phase-11-permission-matrix-and-user-form.md` | `PENDING` | — | |
-| 12 | Cleanup, Verification & Testing | `012_phase-12-cleanup-verification-and-testing.md` | `PENDING` | — | |
+| 1 | Install & Environment Setup | `001_phase-1-install-and-env-setup.md` | `PENDING` | — | |
+| 2 | Auth Config & Schema Files | `002_phase-2-auth-config-and-schema-files.md` | `PENDING` | — | |
+| 3 | Auth Table Schema Updates | `003_phase-3-auth-table-schema-updates.md` | `PENDING` | — | |
+| 4 | Dependent Schemas & Migration | `004_phase-4-dependent-schemas-and-migration.md` | `PENDING` | — | |
+| 5 | Data Migration — Core Tables | `005_phase-5-data-migration-core-tables.md` | `PENDING` | — | Requires DB backup first |
+| 6 | Preset Seeds & Route Swap | `006_phase-6-preset-seeds-and-route-swap.md` | `PENDING` | — | |
+| 7 | Create withPermission Wrapper | `007_phase-7-create-withpermission-wrapper.md` | `PENDING` | — | |
+| 8 | Update BaseService | `008_phase-8-update-base-service.md` | `PENDING` | — | |
+| 9 | Academic Services — Part 1 | `009_phase-9-academic-services-part-1.md` | `PENDING` | — | |
+| 10 | Academic Services — Part 2 | `010_phase-10-academic-services-part-2.md` | `PENDING` | — | |
+| 11 | Registry Services | `011_phase-11-registry-services.md` | `PENDING` | — | |
+| 12 | Admin Services | `012_phase-12-admin-services.md` | `PENDING` | — | |
+| 13 | Admissions & Finance Services | `013_phase-13-admissions-and-finance-services.md` | `PENDING` | — | |
+| 14 | Timetable, Library & Standalone Actions | `014_phase-14-timetable-library-and-standalone-actions.md` | `PENDING` | — | |
+| 15 | Client Session Migration | `015_phase-15-client-session-migration.md` | `PENDING` | — | |
+| 16 | Server Components, Sign-In & Permissions | `016_phase-16-server-components-and-sign-in.md` | `PENDING` | — | |
+| 17 | Student Portal & stdNo Migration | `017_phase-17-student-portal-migration.md` | `PENDING` | — | |
+| 18 | LMS Credential Migration | `018_phase-18-lms-credential-migration.md` | `PENDING` | — | |
+| 19 | Navigation Config Migration | `019_phase-19-navigation-config-migration.md` | `PENDING` | — | |
+| 20 | Permission Preset Backend & Actions | `020_phase-20-preset-backend-and-actions.md` | `PENDING` | — | |
+| 21 | Permission Preset Pages | `021_phase-21-preset-pages.md` | `PENDING` | — | |
+| 22 | Permission Matrix & Preset Form | `022_phase-22-permission-matrix-and-preset-form.md` | `PENDING` | — | |
+| 23 | User Form Update & Navigation Entry | `023_phase-23-user-form-and-navigation-entry.md` | `PENDING` | — | |
+| 24 | Cleanup, Verification & Testing | `024_phase-24-cleanup-and-verification.md` | `PENDING` | — | |
 
 **Legend**: `PENDING` = not started | `IN_PROGRESS` = currently executing | `DONE` = completed | `BLOCKED` = waiting on something
 
@@ -38,7 +50,7 @@ These are one-time steps the user must complete **before** Phase 1 begins:
 
 ### Post-Migration Checklist (User)
 
-These must be completed **after** Phase 12:
+These must be completed **after** Phase 24:
 
 - [ ] Update Google Console OAuth redirect URI to `/api/auth/callback/google`
 - [ ] Test Google sign-in end-to-end in staging
@@ -51,11 +63,11 @@ These must be completed **after** Phase 12:
 > Most phases are fully automated. The following phases require specific user involvement:
 
 **Phase 1** — Run `pnpm add better-auth` and add env vars to `.env`
-**Phase 2** — Run `pnpm db:generate` after schema changes
-**Phase 3** — Run data migration SQL and verify with provided check queries
-**Phase 12** — Run `pnpm remove next-auth @auth/drizzle-adapter` and final verification commands
+**Phase 4** — Run `pnpm db:generate` after schema changes
+**Phase 5** — Run data migration SQL and verify with provided check queries
+**Phase 24** — Run `pnpm remove next-auth @auth/drizzle-adapter` and final verification commands
 
-All other phases (4–11) are fully automated code changes with no user intervention required.
+All other phases (2–3, 6–23) are fully automated code changes with no user intervention required.
 
 ---
 
@@ -338,20 +350,17 @@ next-auth.d.ts
 ## Commit Strategy
 
 ```
-Commit 1: Install Better Auth, create config files, schema files
-Commit 2: Database migration (schema changes, data migration, preset seeds)
-Commit 3: Route handler swap + proxy
-Commit 4: withPermission wrapper + BaseService update
-Commit 5: Migrate academic module services/actions
-Commit 6: Migrate registry module services/actions
-Commit 7: Migrate admin/finance/admissions/library/timetable services
-Commit 8: Migrate all client components (useSession, signOut, etc.)
-Commit 9: Permission preset management UI
-Commit 10: User form preset dropdown + matrix
-Commit 11: Navigation config updates (sub-item permissions)
-Commit 12: LMS credential separation + stdNo on-demand
-Commit 13: Cleanup (remove Auth.js artifacts, old imports)
-Commit 14: Final verification + lint fixes
+Commit 1: Install Better Auth, create config files, schema files (Phases 1–2)
+Commit 2: Database migration (schema changes, data migration, preset seeds) (Phases 3–6)
+Commit 3: withPermission wrapper + BaseService update (Phases 7–8)
+Commit 4: Migrate academic module services/actions (Phases 9–10)
+Commit 5: Migrate registry + admin module services/actions (Phases 11–12)
+Commit 6: Migrate admissions/finance/timetable/library services (Phases 13–14)
+Commit 7: Migrate all client components (useSession, signOut, etc.) (Phases 15–17)
+Commit 8: LMS credential separation + navigation config (Phases 18–19)
+Commit 9: Permission preset management backend + pages (Phases 20–21)
+Commit 10: Permission matrix, preset form, user form update (Phases 22–23)
+Commit 11: Cleanup (remove Auth.js artifacts, old imports) + verification (Phase 24)
 ```
 
 ## Rollback Plan
