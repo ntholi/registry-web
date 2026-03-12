@@ -43,6 +43,11 @@ export const ACTIONS = [
 
 export type Action = (typeof ACTIONS)[number];
 
+export interface PermissionGrant {
+	resource: Resource;
+	action: Action;
+}
+
 export type PermissionRequirement = {
 	[R in Resource]?: Action[];
 };

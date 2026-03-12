@@ -53,7 +53,7 @@ const nodeDb = drizzleNode(new NodePool({ connectionString }), {
 
 const db = useNodeDriver ? nodeDb : neonDb;
 
-export { db };
+export { db, schema };
 
 export * from '@academic/_database';
 export * from '@admin/_database';
@@ -65,6 +65,4 @@ export * from '@human-resource/_database';
 export * from '@library/_database';
 export * from '@registry/_database';
 export * from '@timetable/_database';
-export * from './schema/auditLogs';
-export * from './schema/auditLogsRelations';
 export * from './types';

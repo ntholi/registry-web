@@ -13,7 +13,7 @@ This file is the **authoritative** reference for the entire Better Auth migratio
 | # | Phase | Doc | Status | Completed | Notes |
 |---|-------|-----|--------|-----------|-------|
 | 1 | Install & Environment Setup | `001_phase-1-install-and-env-setup.md` | `DONE` | `2026-03-12` | |
-| 2 | Auth Config & Schema Files | `002_phase-2-auth-config-and-schema-files.md` | `PENDING` | — | |
+| 2 | Auth Config & Schema Files | `002_phase-2-auth-config-and-schema-files.md` | `DONE` | `2026-03-12` | Rate-limits schema verified; auth table diffs deferred to Phase 3 |
 | 3 | Auth Table Schema Updates | `003_phase-3-auth-table-schema-updates.md` | `PENDING` | — | |
 | 4 | Dependent Schemas & Migration | `004_phase-4-dependent-schemas-and-migration.md` | `PENDING` | — | |
 | 5 | Data Migration — Core Tables | `005_phase-5-data-migration-core-tables.md` | `PENDING` | — | Requires DB backup first |
