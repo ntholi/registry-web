@@ -23,9 +23,9 @@ import { drizzleAdapter } from 'better-auth/adapters/drizzle';
 import { nextCookies } from 'better-auth/next-js';
 import { admin, customSession } from 'better-auth/plugins';
 import { nanoid } from 'nanoid';
-import { eq } from 'drizzle-orm';
 import { db, schema } from '@/core/database';
-import { presetPermissions } from '@auth/permission-presets/_schema/presetPermissions';
+import type { PermissionGrant } from '@/core/auth/permissions';
+import { listPresetPermissions } from '@auth/permission-presets/_server/repository';
 
 export const auth = betterAuth({
   baseURL: process.env.BETTER_AUTH_URL,
@@ -97,12 +97,9 @@ export const auth = betterAuth({
   plugins: [
     admin({ defaultRole: 'user' }),
     customSession(async ({ user, session }) => {
-      let permissions: { resource: string; action: string }[] = [];
+      let permissions: PermissionGrant[] = [];
       if (user.presetId) {
-        permissions = await db
-          .select({ resource: presetPermissions.resource, action: presetPermissions.action })
-          .from(presetPermissions)
-          .where(eq(presetPermissions.presetId, user.presetId));
+        permissions = await listPresetPermissions(user.presetId);
       }
       return { user, session, permissions };
     }),
@@ -120,6 +117,7 @@ export type Session = typeof auth.$Infer.Session;
 - `nanoid()` for ID generation (preserves existing user ID format)
 - Cookie cache with compact strategy for performance
 - Rate limiting with database storage
+- `src/core/auth.ts` may import `db` only for Better Auth adapter wiring; the preset-permission query itself must live in auth-owned repository code to stay aligned with the repo database-access rule
 - `presetId` declared in `additionalFields` as `type: 'string'` so it's properly typed in `session.user.presetId` (avoids unsafe casts)
 - `customSession` plugin enriches session with preset permissions (loaded once, cached in cookie via `cookieCache`)
 - `nextCookies()` must be the LAST plugin in the array (Better Auth requirement)
@@ -242,9 +240,29 @@ export const rateLimits = pgTable('rate_limits', {
 });
 ```
 
-> **Verification**: After setup, run `npx @better-auth/cli generate --output ./ba-schema-check.ts` and compare the generated `rateLimit` table against our `rateLimits` schema to ensure column names and types align. Delete the generated file afterwards.
+> **Verification**: After setup, run `npx auth generate --output ./ba-schema-check.ts` and compare the generated `rateLimit` table against our `rateLimits` schema to ensure column names and types align. Delete the generated file afterwards.
 
 > **MANDATORY**: This verification step is BLOCKING. Do NOT proceed to Phase 3 until the generated schema aligns with all manually-defined tables (`users`, `accounts`, `sessions`, `verifications`, `rateLimits`). If any column names or types differ, update the manual schemas to match.
+
+### Preset Catalog Source Of Truth
+
+Create `src/app/auth/permission-presets/_lib/catalog.ts` as the only typed definition for:
+
+- Predefined preset seeds
+- Resource grouping metadata for the permission matrix UI
+- Legacy `role + position -> preset` migration mapping used in Phase 6
+
+Do not redefine these lists in later phases. Phase 6 seeding, Phase 22 matrix rendering, Phase 23 user-form preview, and Phase 24 tests must all import from this catalog.
+
+### Minimal Auth-Owned Repository Helper
+
+Create `src/app/auth/permission-presets/_server/repository.ts` in this phase with the minimal read helper needed by `customSession`:
+
+```ts
+export async function listPresetPermissions(presetId: string): Promise<PermissionGrant[]> { ... }
+```
+
+Phase 20 expands this same auth-owned module with the full repository, service, and actions used by the admin pages.
 
 ## 2.4 Update Barrel Exports
 
@@ -259,40 +277,9 @@ Update `src/app/auth/_database/index.ts` to re-export new schema files:
 
 Update `src/core/database/index.ts` to include new tables in the `schema` object and add `export { schema }`.
 
-## 2.5 Create Proxy
+## 2.5 ~~Create Proxy~~ — DEFERRED TO PHASE 6
 
-File: `proxy.ts` (project root)
-
-```ts
-import { NextRequest, NextResponse } from 'next/server';
-import { getSessionCookie } from 'better-auth/cookies';
-
-export async function proxy(request: NextRequest) {
-  const sessionCookie = getSessionCookie(request);
-  if (!sessionCookie) {
-    return NextResponse.redirect(new URL('/auth/login', request.url));
-  }
-  return NextResponse.next();
-}
-
-export const config = {
-  matcher: [
-    '/dashboard/:path*',
-    '/academic/:path*',
-    '/registry/:path*',
-    '/finance/:path*',
-    '/admin/:path*',
-    '/lms/:path*',
-    '/timetable/:path*',
-    '/library/:path*',
-    '/admissions/:path*',
-    '/student-portal/:path*',
-    '/apply/:path*',
-  ],
-};
-```
-
-> **Important**: This is ONLY an optimistic redirect — NOT a security layer. Real authorization happens in `withPermission`.
+> **Note**: The proxy file (`proxy.ts`) is created in Phase 6 after the route handler swap. Do not create it here — Phase 2 focuses on config and schema files only. See Phase 6, Section 6.5.
 
 ## Exit Criteria
 
@@ -300,9 +287,10 @@ export const config = {
 - [ ] `src/core/auth-client.ts` has Better Auth React client with `customSessionClient`
 - [ ] Permission preset schema files created (text IDs with nanoid)
 - [ ] LMS credentials and rate limits schema files created
-- [ ] **MANDATORY**: `npx @better-auth/cli generate` output verified against manual schemas — all column names and types match
-- [ ] Rate limit schema verified against `@better-auth/cli generate` output
+- [ ] Minimal auth-owned preset repository helper created for `customSession`
+- [ ] **MANDATORY**: `npx auth generate` output verified against manual schemas — all column names and types match
+- [ ] Rate limit schema verified against `npx auth generate` output
 - [ ] Barrel exports updated
 - [ ] `schema` exported from `src/core/database/index.ts`
-- [ ] `proxy.ts` created at project root
+- [ ] Shared preset catalog created in `src/app/auth/permission-presets/_lib/catalog.ts`
 - [ ] `pnpm tsc --noEmit` passes (no type errors from new files)

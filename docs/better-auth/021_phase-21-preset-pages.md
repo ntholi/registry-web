@@ -6,6 +6,8 @@
 
 This phase creates the CRUD pages for the permission preset feature module.
 
+The route module stays under `src/app/admin/permission-presets`, but all data reads and writes must import the auth-owned actions from `src/app/auth/permission-presets/_server/actions.ts`.
+
 ## 21.1 List Page
 
 File: `src/app/admin/permission-presets/page.tsx`
@@ -21,7 +23,7 @@ File: `src/app/admin/permission-presets/[id]/page.tsx`
 
 Uses `DetailsView` + `DetailsViewHeader` + `DetailsViewBody`:
 - Name, role, description fields
-- Read-only `PermissionMatrix` showing all granted permissions (component built in Phase 22)
+- Read-only shared `PermissionMatrix` showing all granted permissions (component built in Phase 22)
 - Edit and Delete buttons
 
 ## 21.3 New Page

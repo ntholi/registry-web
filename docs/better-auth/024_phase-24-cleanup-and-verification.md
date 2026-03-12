@@ -33,18 +33,18 @@ pnpm remove next-auth @auth/drizzle-adapter
 ### Grep Verification
 
 ```bash
-grep -r "next-auth" src/
-grep -r "from 'next-auth'" src/
-grep -r "@auth/drizzle-adapter" src/
-grep -r "withAuth" src/
-grep -r "requireSessionUserId.*withAuth" src/
-grep -r "session.user.position" src/
-grep -r "session.user.stdNo" src/
-grep -r "session.user.lmsUserId" src/
-grep -r "session.user.lmsToken" src/
-grep -r "session.accessToken" src/
-grep -r "userPositions" src/
-grep -r "dashboardUsers" src/
+rg "next-auth" src
+rg "from 'next-auth'" src
+rg "@auth/drizzle-adapter" src
+rg "withAuth" src
+rg "requireSessionUserId.*withAuth" src
+rg "session.user.position" src
+rg "session.user.stdNo" src
+rg "session.user.lmsUserId" src
+rg "session.user.lmsToken" src
+rg "session.accessToken" src
+rg "userPositions" src
+rg "dashboardUsers" src
 ```
 
 All of these must return **zero** results.
@@ -61,9 +61,9 @@ Delete from `.env` and any deployment configs:
 
 **Keep `authInterrupts: true`** in `next.config.ts` — it is still required for `unauthorized()` and `forbidden()` support in `withPermission`. Do NOT remove it.
 
-### Verify Middleware
+### Verify Proxy
 
-Confirm `src/middleware.ts` exists with:
+Confirm `proxy.ts` exists with:
 - Cookie-only session check (no DB hit)
 - Public path exclusions (`/auth/login`, `/api/auth`)
 - Redirect to `/auth/login?callbackUrl=...` for unauthenticated users
@@ -134,14 +134,40 @@ SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'authent
 -- Expected: false
 ```
 
-## 24.5 Testing Checklist
+## 24.5 Integration Tests
+
+Write at minimum these critical-path tests (using Vitest):
+
+### Test 1: Google Sign-In Flow
+- Verify the Better Auth route handler responds at `/api/auth`
+- Verify `authClient.signIn.social({ provider: 'google' })` initiates the OAuth flow
+
+### Test 2: withPermission Authorization
+- `'all'` allows unauthenticated access
+- `'auth'` rejects missing session (throws unauthorized)
+- `'dashboard'` rejects non-dashboard roles (throws forbidden) 
+- Permission requirement checks preset permissions correctly
+- Admin role bypasses all permission checks
+
+### Test 3: Preset CRUD
+- Creating a preset with permissions stores rows correctly
+- Updating a preset revokes affected user sessions
+- Deleting a preset sets users' presetId to null
+
+### Test 4: Session Permissions
+- Session includes permissions from customSession plugin
+- Users with no preset get empty permissions array
+- Cookie cache contains permissions (no extra DB hit on withPermission)
+- `session.permissions` uses the canonical `PermissionGrant[]` shape
+
+## 24.6 Testing Checklist
 
 ### Authentication
 
 - [ ] Google OAuth sign-in works and account selector appears
 - [ ] Session persists across page refreshes
 - [ ] Session expires after configured duration
-- [ ] Middleware redirects unauthenticated users from protected routes
+- [ ] Proxy redirects unauthenticated users from protected routes
 - [ ] Existing Google-linked users can sign in against migrated account rows
 - [ ] New users created with `nanoid()` IDs
 - [ ] Cookie cache works (no DB hit on every request)
@@ -157,13 +183,13 @@ SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'authent
 - [ ] Cross-origin POST requests to auth endpoints are rejected (test with `curl` or Postman from unauthorized origin)
 - [ ] Same-origin requests work normally
 
-### Middleware (proxy.ts)
+### Proxy (proxy.ts)
 
-- [ ] `src/middleware.ts` exists with cookie-only optimistic redirect
+- [ ] `proxy.ts` exists with cookie-only optimistic redirect (Next.js 16 convention)
 - [ ] Unauthenticated requests to protected routes redirect to `/auth/login`
 - [ ] Public paths (`/auth/login`, `/api/auth`) are accessible without session
-- [ ] Middleware does NOT block static assets (`_next/static`, `_next/image`, `favicon.ico`)
-- [ ] Middleware is NOT treated as final security boundary — `withPermission` enforces real checks
+- [ ] Proxy does NOT block static assets (`_next/static`, `_next/image`, `favicon.ico`)
+- [ ] Proxy is NOT treated as final security boundary — `withPermission` enforces real checks
 
 ### Google OAuth
 
@@ -226,7 +252,7 @@ SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'authent
 - [ ] `session.user.stdNo` is NOT in session (verify no consumer reads it)
 - [ ] `session.user.lmsUserId` and `session.user.lmsToken` are NOT in session
 - [ ] `session.accessToken` is NOT in session
-- [ ] `session.permissions` contains correct permission strings from `customSession` plugin
+- [ ] `session.permissions` contains correct `PermissionGrant[]` objects from `customSession` plugin
 - [ ] Student portal fetches stdNo on demand via server action
 - [ ] LMS features fetch credentials from lms_credentials table
 - [ ] Users without a preset get `permissions: []` (empty array)
@@ -255,7 +281,7 @@ SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'authent
 
 ### Database Integrity
 
-- [ ] All required indexes exist (users.email, accounts.user_id, sessions.user_id, sessions.token, verifications.identifier, preset_permissions.preset_id)
+- [ ] All required indexes exist (users.email, users.preset_id, accounts.user_id, sessions.user_id, sessions.token, verifications.identifier, preset_permissions.preset_id)
 - [ ] Rate limits table exists
 - [ ] Verifications table has correct columns
 - [ ] Authenticators table is dropped
@@ -267,7 +293,7 @@ SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'authent
 
 - [ ] `pnpm tsc --noEmit` passes clean
 - [ ] `pnpm lint:fix` passes clean
-- [ ] No `next-auth` imports remain (`grep -r "next-auth" src/` returns nothing)
+- [ ] No `next-auth` imports remain (`rg "next-auth" src` returns nothing)
 - [ ] No `withAuth` imports remain
 - [ ] `requireSessionUserId` imports updated to `@/core/platform/withPermission`
 - [ ] No `session.user.position` references remain
@@ -281,10 +307,11 @@ SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'authent
 
 1. Full DB backup:
    ```bash
-   pg_dump -Fc registry > registry-pre-betterauth-$(date +%Y%m%d).dump
+   $stamp = Get-Date -Format yyyyMMdd
+   pg_dump -Fc registry | Out-File -Encoding ascii "registry-pre-betterauth-$stamp.dump"
    ```
 2. Work on dedicated branch: `feat/better-auth-migration`
-3. Backup `.env` to `.env.backup`
+3. Backup `.env` to `.env.backup` with `Copy-Item .env .env.backup`
 
 ### Rollback Procedure
 
@@ -296,7 +323,7 @@ pg_restore -d registry registry-pre-betterauth-YYYYMMDD.dump
 git checkout develop
 
 # Restore env
-cp .env.backup .env
+Copy-Item .env.backup .env -Force
 ```
 
 ### Communication Plan
@@ -338,7 +365,7 @@ After deploying:
 - Migrate positions → preset assignments
 - Extract LMS credentials
 - Swap route handler
-- Create `src/middleware.ts` (proxy.ts) with cookie-only optimistic redirect
+- Create `proxy.ts` with cookie-only optimistic redirect
 - Verify Google OAuth Console callback URIs
 
 ### Commit 4: Authorization Wrapper (Phases 7–8)

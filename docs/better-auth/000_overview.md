@@ -44,8 +44,8 @@ This file is the **authoritative** reference for the entire Better Auth migratio
 These are one-time steps the user must complete **before** Phase 1 begins:
 
 - [ ] Create git branch: `git checkout -b feat/better-auth-migration`
-- [ ] Backup database: `pg_dump -Fc registry > registry-pre-betterauth.dump`
-- [ ] Backup `.env`: `cp .env .env.backup`
+- [ ] Backup database (PowerShell): `pg_dump -Fc registry | Out-File -Encoding ascii registry-pre-betterauth.dump`
+- [ ] Backup `.env` (PowerShell): `Copy-Item .env .env.backup`
 - [ ] Confirm env vars are ready: `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL`, `BETTER_AUTH_TRUSTED_ORIGINS`
 
 ### Post-Migration Checklist (User)
@@ -94,21 +94,28 @@ All other phases (2–3, 6–23) are fully automated code changes with no user i
 | Preset per user | One preset per user (nullable) |
 | Null preset | No extra permissions (role-only access, admin bypasses all) |
 | Permission format | Resource:Action (e.g., `students:read`, `grades:approve`) |
+| Session permission shape | `PermissionGrant[]` objects: `{ resource, action }` |
 | Predefined presets | One per current role+position combo (migration creates them) |
+| Preset catalog source | Single typed catalog in `src/app/auth/permission-presets/_lib/catalog.ts` |
 | Preset management | Dedicated admin page at `/admin/permission-presets` |
-| User form | Preset dropdown + read-only permission matrix |
+| User form | Preset dropdown + read-only shared permission matrix |
 | Navigation model | Role for top-level modules, preset permissions for sub-items |
 | Session payload | No stdNo, no LMS credentials — fetch on demand; permissions embedded via `customSession` plugin |
 | Migration style | All-in-one with incremental commits within one branch |
+| Migration execution | Phase 4 generated schema migration via `pnpm db:generate`; Phase 5 custom data migration via `pnpm db:generate --custom` |
 | ID generation | Keep `nanoid()` for consistency (all tables, including presets) |
 | Import path | `better-auth/minimal` (documented bundle-size optimization for adapter-based setups) |
+| Better Auth CLI | Use the current `npx auth ...` command family |
 | Env vars | Consolidate to `BETTER_AUTH_SECRET` / `BETTER_AUTH_URL` (remove old `AUTH_*` vars) |
 | presetId in session | Declared via `user.additionalFields` (type: `'string'`) for proper typing |
 | Session permissions | `customSession` plugin enriches session with preset permissions (cached in cookie) |
+| customSession permission lookup | `src/core/auth.ts` may import `db` for adapter wiring, but permission lookup should call auth-owned repository code, not inline query logic |
 | CSRF protection | Built-in via `trustedOrigins` — verified in Phase 12 |
 | OAuth token encryption | `encryptOAuthTokens: true` — direct DB reads return encrypted data |
-| Middleware/proxy.ts | Cookie-only optimistic redirect layer (created in Phase 3) — NOT the final auth boundary |
+| Middleware/proxy.ts | Cookie-only optimistic redirect layer (created in Phase 6) — uses `proxy.ts` per Next.js 16 convention — NOT the final auth boundary |
 | Preset change strategy | Revoke user sessions when admin changes their preset (forces re-login with fresh permissions) |
+| Auth-owned writes | LMS credential writes, preset assignment side effects, and session revocation stay in auth-owned repository/service code |
+| Preset backend ownership | `permission_presets` schema, repository, service, and actions live under `src/app/auth/permission-presets`; admin pages import them |
 | Google OAuth callback | Must update Google Console redirect URI after route swap (`/api/auth/callback/google`) |
 | requireSessionUserId | Migrated to `withPermission` module (used in ~4 service files) |
 
@@ -118,12 +125,12 @@ All other phases (2–3, 6–23) are fully automated code changes with no user i
 
 ```
 Request → Better Auth session lookup (includes permissions from customSession) → withPermission(...)
-  → session already contains permissions[] (from customSession plugin + cookie cache)
+  → session already contains `permissions: PermissionGrant[]` (from customSession plugin + cookie cache)
   → if role === 'admin' → allow (bypass)
   → if requirement is 'all' → allow
   → if requirement is 'auth' → allow if authenticated
   → if requirement is 'dashboard' → check role ∈ DASHBOARD_ROLES
-  → if requirement is PermissionRequirement → load preset permissions via presetId → check
+  → if requirement is PermissionRequirement → check embedded permission grants
 ```
 
 ### Tables
@@ -149,12 +156,14 @@ users
 ├── ... existing Better Auth fields ...
 ├── role (text, default 'user') — declared in additionalFields
 ├── preset_id (FK → permission_presets.id, nullable, set null on delete) — declared in additionalFields
+├── index on preset_id
 └── All updatedAt columns use $onUpdate(() => new Date())
 
 Indexes (Better Auth standard):
 ├── sessions: sessions_userId_idx on user_id
 ├── accounts: accounts_userId_idx on user_id
-└── verifications: verifications_identifier_idx on identifier
+├── verifications: verifications_identifier_idx on identifier
+└── users: users_preset_id_idx on preset_id
 ```
 
 ### Data Flow
@@ -162,7 +171,8 @@ Indexes (Better Auth standard):
 ```
 Admin creates preset → defines resource:action rows in preset_permissions
 Admin assigns preset to user → users.presetId = preset.id
-Runtime check → load user.presetId → join preset_permissions → check resource:action
+Preset update or preset reassignment → auth-owned service revokes affected sessions
+Runtime check → read embedded `PermissionGrant[]` from session → check resource:action
 ```
 
 ### Navigation Model
@@ -295,7 +305,13 @@ src/core/auth-client.ts                       — Better Auth React client (incl
 src/core/auth/permissions.ts                  — Resource:Action catalog + preset type definitions
 src/core/platform/withPermission.ts           — Authorization wrapper (replaces withAuth)
 src/app/api/auth/[...all]/route.ts            — Better Auth route handler
-proxy.ts                                      — Next.js middleware (optimistic redirect, cookie check only)
+proxy.ts                                      — Next.js 16 proxy (optimistic redirect, cookie check only; replaces deprecated middleware.ts)
+src/app/auth/permission-presets/_lib/catalog.ts — single source of truth for preset seeds, UI grouping, and legacy position → preset mapping
+src/app/auth/permission-presets/_lib/types.ts — shared preset form/action types
+src/app/auth/permission-presets/_server/repository.ts — auth-owned preset queries used by customSession and admin pages
+src/app/auth/permission-presets/_server/service.ts    — auth-owned preset service
+src/app/auth/permission-presets/_server/actions.ts    — auth-owned preset actions imported by admin pages
+src/shared/ui/PermissionMatrix.tsx            — shared permission matrix used by preset pages and user form
 
 src/app/auth/permission-presets/_schema/permissionPresets.ts
 src/app/auth/permission-presets/_schema/presetPermissions.ts
@@ -304,12 +320,7 @@ src/app/auth/auth-providers/_schema/rateLimits.ts
 src/app/auth/auth-providers/_schema/lmsCredentials.ts
 
 src/app/admin/permission-presets/             — Preset management feature (CRUD)
-├── _server/repository.ts
-├── _server/service.ts
-├── _server/actions.ts
 ├── _components/Form.tsx
-├── _components/PermissionMatrix.tsx           — Reusable matrix component
-├── _lib/types.ts
 ├── page.tsx
 ├── new/page.tsx
 ├── [id]/page.tsx
@@ -351,22 +362,23 @@ next-auth.d.ts
 
 ```
 Commit 1: Install Better Auth, create config files, schema files (Phases 1–2)
-Commit 2: Database migration (schema changes, data migration, preset seeds) (Phases 3–6)
-Commit 3: withPermission wrapper + BaseService update (Phases 7–8)
-Commit 4: Migrate academic module services/actions (Phases 9–10)
-Commit 5: Migrate registry + admin module services/actions (Phases 11–12)
-Commit 6: Migrate admissions/finance/timetable/library services (Phases 13–14)
-Commit 7: Migrate all client components (useSession, signOut, etc.) (Phases 15–17)
-Commit 8: LMS credential separation + navigation config (Phases 18–19)
-Commit 9: Permission preset management backend + pages (Phases 20–21)
-Commit 10: Permission matrix, preset form, user form update (Phases 22–23)
-Commit 11: Cleanup (remove Auth.js artifacts, old imports) + verification (Phase 24)
+Commit 2: Database migration prep (non-destructive schema changes + generated migration) (Phases 3–4)
+Commit 3: Data migration, preset seeding, and route swap (Phases 5–6)
+Commit 4: withPermission wrapper + BaseService update (Phases 7–8)
+Commit 5: Migrate academic module services/actions (Phases 9–10)
+Commit 6: Migrate registry + admin module services/actions (Phases 11–12)
+Commit 7: Migrate admissions/finance/timetable/library services (Phases 13–14)
+Commit 8: Migrate all client components (useSession, signOut, etc.) (Phases 15–17)
+Commit 9: LMS credential separation + navigation config (Phases 18–19)
+Commit 10: Permission preset management backend + pages (Phases 20–21)
+Commit 11: Shared permission matrix, preset form, user form update (Phases 22–23)
+Commit 12: Cleanup (remove Auth.js artifacts, old imports) + verification (Phase 24)
 ```
 
 ## Rollback Plan
 
-1. Full DB backup before starting: `pg_dump -Fc registry > registry-pre-betterauth.dump`
+1. Full DB backup before starting (PowerShell): `pg_dump -Fc registry | Out-File -Encoding ascii registry-pre-betterauth.dump`
 2. Work on `feat/better-auth-migration` branch
-3. Backup `.env` to `.env.backup`
+3. Backup `.env` to `.env.backup` with `Copy-Item .env .env.backup`
 4. Rollback: `pg_restore -d registry registry-pre-betterauth.dump` + `git checkout develop`
 5. Schedule migration in low-usage window — users will need to re-sign-in

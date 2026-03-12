@@ -4,11 +4,18 @@
 
 **Prerequisites**: Phase 4 complete. Read `000_overview.md` first.
 
-This phase runs the core data migrations: pre-migration data checks, column type conversions, mapping Auth.js account data to Better Auth fields, dropping sessions, migrating verifications, and extracting LMS credentials.
+This phase runs the custom data migration after the generated schema migration from Phase 4: pre-migration data checks, column type conversions, mapping Auth.js account data to Better Auth fields, dropping sessions, migrating verifications, extracting LMS credentials, and performing the delayed destructive cleanup.
 
 ## 5.0 Pre-Migration Data Checks & Execution Method
 
 **IMPORTANT**: All data migration SQL in this phase should be executed via `pnpm db:generate --custom` to create a custom Drizzle migration file. This keeps the migration journal consistent and allows rollback.
+
+Execution order for Phases 4 and 5 is strict:
+
+1. Run `pnpm db:generate` in Phase 4 for the non-destructive schema migration.
+2. Apply that generated migration.
+3. Run `pnpm db:generate --custom` in Phase 5 for data copy, verification, and destructive cleanup.
+4. Apply the custom migration only after validating the generated schema migration succeeded.
 
 Before applying the schema migration from Phase 4, run these pre-checks to identify data that would violate new constraints:
 
@@ -111,6 +118,16 @@ ALTER TABLE users DROP COLUMN lms_user_id;
 ALTER TABLE users DROP COLUMN lms_token;
 ```
 
+## 5.5 Delayed Destructive Cleanup
+
+Only after LMS extraction and other data-copy checks pass, perform the delayed cleanup in this custom migration:
+
+- Drop `users.lms_user_id`
+- Drop `users.lms_token`
+- Drop legacy enum types that are no longer referenced
+
+Do NOT drop `users.position` here. That column remains available until Phase 6 finishes preset assignment verification.
+
 ## Exit Criteria
 
 - [ ] Pre-migration NULL checks passed (email, name columns have no NULLs)
@@ -120,4 +137,5 @@ ALTER TABLE users DROP COLUMN lms_token;
 - [ ] Legacy sessions dropped (users re-authenticate)
 - [ ] `verification_tokens` dropped, `verifications` table created
 - [ ] LMS credentials extracted to `lms_credentials` table
+- [ ] Delayed destructive cleanup completed for LMS columns and fully-unused enum types
 - [ ] `pnpm tsc --noEmit` passes

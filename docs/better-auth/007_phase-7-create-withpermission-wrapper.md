@@ -64,12 +64,12 @@ function hasPermission(
 }
 
 export async function withPermission<T>(
-  fn: (session: Session) => Promise<T>,
+  fn: (session: Session | null) => Promise<T>,
   requirement: AuthRequirement | AccessCheckFunction,
 ): Promise<T> {
   if (requirement === 'all') {
     const result = await getSessionWithPermissions();
-    return fn(result?.session ?? null as unknown as Session);
+    return fn(result?.session ?? null);
   }
 
   const result = await getSessionWithPermissions();

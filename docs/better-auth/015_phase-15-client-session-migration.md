@@ -59,7 +59,7 @@ authClient.signOut({ fetchOptions: { onSuccess: () => router.push('/auth/login')
 
 ## 15.2 Remove `session.accessToken` References
 
-Verify with `grep -r 'session.accessToken' src/` that no code reads `session.accessToken`. If found, replace with on-demand token fetch from accounts table.
+Verify with `rg "session.accessToken" src` that no code reads `session.accessToken`. If found, replace with on-demand token fetch from accounts table.
 
 ## Exit Criteria
 

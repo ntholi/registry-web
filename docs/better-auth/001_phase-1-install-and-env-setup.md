@@ -33,11 +33,13 @@ Keep `authInterrupts: true` until Phase 6 route swap.
 
 Add alongside existing Auth.js env vars:
 
-- `BETTER_AUTH_SECRET`
+- `BETTER_AUTH_SECRET` — **MUST be a unique, high-entropy random value**. Generate with: `openssl rand -base64 32`. Do NOT reuse OAuth secrets or other credentials as the auth secret.
 - `BETTER_AUTH_URL`
 - `BETTER_AUTH_TRUSTED_ORIGINS`
 - `GOOGLE_CLIENT_ID` (already exists)
 - `GOOGLE_CLIENT_SECRET` (already exists)
+
+> **SECURITY**: The `BETTER_AUTH_SECRET` is used to sign session tokens and encrypt sensitive data. It must be at least 32 characters of cryptographically random data. Better Auth will reject weak secrets in production.
 
 Do NOT remove Auth.js env vars (`AUTH_SECRET`, `AUTH_URL`, etc.) yet — they are cleaned up in Phase 23.
 

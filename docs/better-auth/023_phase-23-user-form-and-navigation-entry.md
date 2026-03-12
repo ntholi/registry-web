@@ -14,7 +14,7 @@ File: `src/app/admin/users/_components/Form.tsx`
 
 1. **Remove** the `position` field (Select for `userPositions`)
 2. **Add** a `presetId` field (Select dropdown)
-3. **Add** a read-only `PermissionMatrix` showing the selected preset's permissions
+3. **Add** the shared read-only `PermissionMatrix` showing the selected preset's permissions
 4. **Update** the Zod schema to replace `position` with `presetId`
 
 ### Preset Dropdown Behavior
@@ -42,7 +42,7 @@ const userFormSchema = z.object({
 
 File: `src/app/admin/users/_server/actions.ts`
 
-Update the `updateUser` action to handle `presetId` assignment.
+Update the `updateUser` action to delegate `presetId` assignment and any LMS credential writes to auth-owned user/auth-provider services. Preset option loading should also come from auth-owned preset actions. Session revocation on preset change happens inside that auth-owned service layer, not in the admin action.
 
 ### UI Details
 
@@ -96,10 +96,11 @@ Add "Permission Presets" as a child nav item under the Admin section:
 ## Exit Criteria
 
 - [ ] User form has preset dropdown filtered by role
-- [ ] User form shows read-only permission matrix for selected preset
+- [ ] User form shows shared read-only permission matrix for selected preset
 - [ ] User form no longer shows `position` field
 - [ ] User detail page shows assigned preset name
 - [ ] "Permission Presets" nav item appears for admin users
 - [ ] Assigning a preset to a user works end-to-end
 - [ ] Changing a user's role resets the preset dropdown
+- [ ] Admin action delegates preset and LMS writes to auth-owned server code
 - [ ] `pnpm tsc --noEmit` passes

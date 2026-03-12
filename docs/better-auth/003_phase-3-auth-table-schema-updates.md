@@ -4,7 +4,7 @@
 
 **Prerequisites**: Phase 2 complete. Read `000_overview.md` first.
 
-This phase updates the core Drizzle schema TypeScript files for auth tables (users, accounts, sessions, verifications) to match the Better Auth target shape, deletes the authenticators table, and updates Drizzle relations. The actual data migration happens in Phase 5.
+This phase updates the core Drizzle schema TypeScript files for auth tables (users, accounts, sessions, verifications) to match the Better Auth target shape, deletes the authenticators table, and updates Drizzle relations. The actual data migration and destructive cleanup happen in Phase 5.
 
 ## 3.1 Migration Strategy
 
@@ -12,14 +12,15 @@ Side-by-side migration:
 
 1. Generate the Better Auth schema shape
 2. Update Drizzle schema files to match Better Auth models
-3. Create migrations for auth tables + permission preset tables
-4. Data migration and seeding happen in Phases 5–6
+3. Keep legacy source columns available until Phase 5 custom migration has copied and verified their data
+4. Create non-destructive generated migrations for auth tables + permission preset tables
+5. Data migration, destructive drops, and seeding happen in Phases 5–6
 
 ## 3.2 Tables To Prepare
 
 The migration covers:
 
-- `users` — modify (add presetId, remove position/lmsUserId/lmsToken, convert enums to text)
+- `users` — modify (add presetId, keep temporary compatibility columns for position/lmsUserId/lmsToken until Phase 5, convert enums to text)
 - `accounts` — modify (map Auth.js fields to Better Auth fields)
 - `sessions` — recreate (drop Auth.js sessions, create Better Auth sessions)
 - `verifications` — new (replaces `verification_tokens`)
@@ -31,7 +32,8 @@ The migration covers:
 Also:
 - Drop `authenticators` table
 - Drop `verification_tokens` table (replaced by `verifications`)
-- Drop `userRoles`, `userPositions`, `dashboardUsers` enums (after column conversion)
+- Keep legacy `position`, `lms_user_id`, and `lms_token` columns available through Phase 5 extraction/mapping
+- Drop `userRoles`, `userPositions`, `dashboardUsers` enums only after all dependent data has been migrated and verified in Phase 5
 - Convert `clearance.department` and `autoApprovals.department` from enum to text
 
 ## 3.3 Users Table Target
@@ -59,8 +61,8 @@ created_at, updated_at, banned, ban_reason, ban_expires
 4. Add Better Auth lifecycle fields: `created_at`, `updated_at`
 5. Add Better Auth admin plugin fields: `banned`, `ban_reason`, `ban_expires`
 6. Add `preset_id` FK → `permission_presets.id` (nullable, SET NULL on delete)
-7. Remove `position` column
-8. Remove `lms_user_id` and `lms_token` columns (moved to `lms_credentials`)
+7. Preserve `position` as a temporary compatibility column until Phase 6 preset mapping is verified
+8. Preserve `lms_user_id` and `lms_token` as temporary compatibility columns until Phase 5 extraction is verified
 
 ### Enum to Text Migration
 
@@ -129,7 +131,7 @@ export const users = pgTable('users', {
 });
 ```
 
-**Removed:**
+**Deferred removal until Phase 5 custom migration:**
 - `dashboardUsers` enum export
 - `userRoles` enum export
 - `userPositions` enum export
@@ -263,11 +265,12 @@ export const presetPermissionsRelations = relations(presetPermissions, ({ one })
 
 ## Exit Criteria
 
-- [ ] Users schema updated: enums removed, new fields added, position/lmsUserId/lmsToken removed
+- [ ] Users schema updated: enums replaced, new fields added, legacy source columns preserved until Phase 5 cleanup
 - [ ] Accounts schema updated to Better Auth field names
 - [ ] Sessions schema updated to Better Auth model
 - [ ] Verifications schema created, verificationTokens deleted
 - [ ] Authenticators schema and relations deleted
 - [ ] Drizzle relations updated for Better Auth tables (accounts, sessions) — enables join optimization
 - [ ] Permission preset relations created (permissionPresets ↔ presetPermissions)
+- [ ] No generated drop is queued yet for `position`, `lms_user_id`, `lms_token`, or legacy enum types needed by Phase 5
 - [ ] `pnpm tsc --noEmit` passes

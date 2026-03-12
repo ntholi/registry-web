@@ -4,11 +4,19 @@
 
 **Prerequisites**: Phase 5 complete. Read `000_overview.md` first.
 
-This phase seeds permission presets, migrates position→preset assignments, swaps the auth route handler, creates the middleware, and verifies Google OAuth.
+This phase seeds permission presets from the shared catalog, migrates position→preset assignments, performs the final position cleanup, swaps the auth route handler, creates the proxy, and verifies Google OAuth.
 
 ## 6.1 Permission Preset Seeds
 
-After creating the `permission_presets` and `preset_permissions` tables, seed the predefined presets.
+After creating the `permission_presets` and `preset_permissions` tables, seed the predefined presets from `src/app/auth/permission-presets/_lib/catalog.ts`.
+
+That catalog is the single source of truth for:
+
+- Preset names and descriptions
+- Resource/action grants for each preset
+- Legacy `role + position -> preset` mapping used in this phase
+
+The SQL below is illustrative. The implementation should derive its inserts from the shared catalog instead of duplicating preset definitions in migration, UI, and tests.
 
 ### Seed Data
 
@@ -150,6 +158,11 @@ INSERT INTO permission_presets (name, role, description) VALUES
 INSERT INTO permission_presets (name, role, description) VALUES
   ('Human Resource Staff', 'human_resource', 'HR access');
 -- Permissions: feedback-reports:read
+
+-- Resource Staff
+INSERT INTO permission_presets (name, role, description) VALUES
+  ('Resource Staff', 'resource', 'Resource department operations');
+-- Permissions: timetable:read, venues:read (minimal baseline — admins can expand via UI)
 ```
 
 ## 6.2 Position → Preset Migration
@@ -236,7 +249,26 @@ FROM permission_presets pp
 WHERE u.role = 'human_resource' AND pp.name = 'Human Resource Staff';
 ```
 
-Then drop the position column:
+Before dropping `users.position`, run a blocking audit for unmapped staff users. Do NOT continue until this returns zero rows:
+
+```sql
+SELECT id, email, role, position
+FROM users
+WHERE preset_id IS NULL
+  AND role NOT IN ('user', 'applicant', 'student')
+ORDER BY role, position, email;
+
+SELECT role, position, count(*) AS affected_users
+FROM users
+WHERE preset_id IS NULL
+  AND role NOT IN ('user', 'applicant', 'student')
+GROUP BY role, position
+ORDER BY role, position;
+```
+
+If any rows remain, stop the migration, extend the shared `role + position -> preset` mapping in `src/app/auth/permission-presets/_lib/catalog.ts`, reseed if needed, rerun the assignment step, and only then continue.
+
+After verifying all intended users have been assigned a preset, drop the position column in the same custom migration:
 
 ```sql
 ALTER TABLE users DROP COLUMN position;
@@ -268,11 +300,11 @@ serverExternalPackages: ['better-auth'],
 
 Keep `authInterrupts: true` in `next.config.ts` — it is still needed for `unauthorized()` and `forbidden()` support in `withPermission`.
 
-## 6.5 Create middleware.ts
+## 6.5 Create proxy.ts
 
-Better Auth docs recommend creating a middleware layer for optimistic auth redirects. This is **NOT** the final security boundary — real protection happens in `withPermission` on the server.
+Next.js 16 renamed `middleware.ts` to `proxy.ts` with the function export renamed from `middleware` to `proxy`. This is the optimistic auth redirect layer — **NOT** the final security boundary. Real protection happens in `withPermission` on the server.
 
-File: `src/middleware.ts`
+File: `proxy.ts`
 
 ```ts
 import { NextRequest, NextResponse } from 'next/server';
@@ -280,7 +312,7 @@ import { getSessionCookie } from 'better-auth/cookies';
 
 const PUBLIC_PATHS = ['/auth/login', '/api/auth'];
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   if (PUBLIC_PATHS.some((p) => pathname.startsWith(p))) {
@@ -304,6 +336,7 @@ export const config = {
 ```
 
 **Key points:**
+- Next.js 16 uses `proxy.ts` (renamed from `middleware.ts`) with `export function proxy()` (not `middleware`)
 - Cookie-only check (no DB hit) — this is the documented optimistic pattern
 - Public paths (login page, auth API) are excluded
 - Unauthenticated users are redirected to login with `callbackUrl`
@@ -329,9 +362,10 @@ export const config = {
 - [ ] `permission_presets` table seeded with all predefined presets
 - [ ] `preset_permissions` table populated with permissions per preset
 - [ ] Users migrated from position to preset assignments
-- [ ] `position` column dropped from users table
+- [ ] Blocking audit confirms no unmapped staff users remain before `users.position` is dropped
+- [ ] `position` column dropped from users table after preset assignment verification
 - [ ] Auth route handler swapped from `[...nextauth]` to `[...all]`
-- [ ] `src/middleware.ts` created with cookie-only optimistic redirect
+- [ ] `proxy.ts` created with cookie-only optimistic redirect (Next.js 16 `proxy.ts` convention)
 - [ ] Google OAuth Console callback URIs verified
 - [ ] Sign-in tested after route swap
 - [ ] `pnpm tsc --noEmit` passes

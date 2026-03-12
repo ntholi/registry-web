@@ -4,11 +4,11 @@
 
 **Prerequisites**: Phase 21 complete. Read `000_overview.md` first.
 
-This phase builds the PermissionMatrix component and the Preset Form component.
+This phase builds the shared PermissionMatrix component and the Preset Form component.
 
 ## 22.1 PermissionMatrix Component (Shared)
 
-File: `src/app/admin/permission-presets/_components/PermissionMatrix.tsx`
+File: `src/shared/ui/PermissionMatrix.tsx`
 
 A reusable matrix component showing resources as rows and actions as columns.
 
@@ -23,7 +23,7 @@ type PermissionMatrixProps = {
 ```
 
 **Layout:**
-- Rows: resources (grouped by module using the resource catalog from `permissions.ts`)
+- Rows: resources grouped from `src/app/auth/permission-presets/_lib/catalog.ts`
 - Columns: actions (read, create, update, delete, manage, approve)
 - Cells: Mantine `Checkbox` (or `Indicator` icon when readOnly)
 - Resource grouping headers for visual clarity:
@@ -54,13 +54,13 @@ function PermissionPresetForm({ preset }: { preset?: ExistingPreset }) {
   // - Name (TextInput)
   // - Role (Select from DASHBOARD_ROLES)
   // - Description (Textarea, optional)
-  // - PermissionMatrix (editable, onChange updates form state)
+  // - Shared PermissionMatrix (editable, onChange updates form state)
 }
 ```
 
 ## Exit Criteria
 
-- [ ] `PermissionMatrix` component works in both editable and read-only modes
+- [ ] Shared `PermissionMatrix` component works in both editable and read-only modes
 - [ ] Preset Form component uses `Form` from adease with editable matrix
 - [ ] Preset list page shows all presets with name, role, permission count
 - [ ] Preset detail page shows read-only permission matrix

@@ -4,7 +4,7 @@
 
 **Prerequisites**: Phase 3 complete. Read `000_overview.md` first.
 
-This phase updates all non-auth schema files that reference the dropped enums, adds required indexes, and generates the Drizzle migration.
+This phase updates all non-auth schema files that reference the legacy enums, adds required indexes, and generates the non-destructive Drizzle schema migration.
 
 ## 4.1 Update Dependent Schema Files
 
@@ -41,11 +41,21 @@ After all schema files are updated:
 pnpm db:generate
 ```
 
-This generates a single migration covering all schema changes. **Never create .sql migration files manually** — it corrupts the Drizzle journal. Review the generated SQL to confirm it matches expected changes (enum→text conversions, column drops, new tables, indexes).
+This generates the schema migration for additive and compatibility-preserving changes. **Never create .sql migration files manually** — it corrupts the Drizzle journal. Review the generated SQL to confirm it matches expected changes (enum→text conversions, new tables, new columns, indexes).
+
+The generated migration in this phase must NOT drop any source columns still needed by Phase 5 or Phase 6:
+
+- `users.position`
+- `users.lms_user_id`
+- `users.lms_token`
+- Legacy enum types still referenced by those columns
+
+If `pnpm db:generate` emits destructive drops for those objects, revise the Phase 3 compatibility schema and regenerate before proceeding.
 
 ## Exit Criteria
 
 - [ ] Dependent schemas updated: enum columns → text (clearance, autoApprovals, blockedStudents, studentNotes)
 - [ ] All indexes defined in schema files
-- [ ] Drizzle migration generated via `pnpm db:generate` (not manual SQL)
+- [ ] Drizzle schema migration generated via `pnpm db:generate` (not manual SQL)
+- [ ] Generated SQL reviewed and confirmed non-destructive for Phase 5 source columns
 - [ ] `pnpm tsc --noEmit` passes

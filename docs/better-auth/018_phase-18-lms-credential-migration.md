@@ -4,7 +4,7 @@
 
 **Prerequisites**: Phase 17 complete. Read `000_overview.md` first.
 
-This phase migrates all LMS credential reads from session to the new `lms_credentials` table.
+This phase migrates all LMS credential reads from session to the new `lms_credentials` table and keeps all LMS credential writes in auth-owned server code.
 
 ## 18.1 Migrate LMS Credential Reads (~15 files)
 
@@ -22,6 +22,8 @@ export async function getLmsCredentials(userId: string) {
 }
 ```
 
+Add auth-owned write methods alongside this helper. Admin and LMS-facing actions should delegate to those auth-owned methods instead of writing to `lms_credentials` directly from non-auth modules.
+
 ### Files Requiring Migration
 
 | File | What to change |
@@ -32,8 +34,8 @@ export async function getLmsCredentials(userId: string) {
 | `src/app/lms/courses/_server/actions.ts` | Fetch LMS credentials from table instead of session |
 | `src/app/lms/quizzes/_server/actions.ts` | Fetch LMS credentials from table instead of session |
 | `src/app/lms/auth/_components/LmsAuthGuard.tsx` | Check LMS credentials from table |
-| `src/app/lms/auth/_server/actions.ts` | Read/write LMS credentials via `lms_credentials` table |
-| `src/app/admin/users/_server/repository.ts` | Update user LMS credential handling to use separate table |
+| `src/app/lms/auth/_server/actions.ts` | Delegate LMS credential writes to auth-owned service methods |
+| `src/app/admin/users/_server/repository.ts` | Stop writing LMS fields on `users`; delegate to auth-owned LMS credential methods |
 | `src/app/admin/users/_components/Form.tsx` | LMS credential fields now read/write from `lms_credentials` |
 
 ### Migration Pattern
@@ -57,5 +59,6 @@ const lmsToken = creds?.lmsToken;
 
 - [ ] LMS credentials helper created in `src/app/auth/auth-providers/_server/lms-credentials.ts`
 - [ ] All ~15 files migrated from session-based LMS credential access to table reads
+- [ ] LMS credential writes routed through auth-owned server code only
 - [ ] No `session.user.lmsUserId` or `session.user.lmsToken` references remain
 - [ ] `pnpm tsc --noEmit` passes
