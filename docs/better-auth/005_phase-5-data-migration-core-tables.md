@@ -46,10 +46,12 @@ FROM accounts LIMIT 5;
 ## 5.1 Create Custom Migration
 
 ```bash
-pnpm db:generate --custom
+pnpm db:generate --custom --name=phase-5-data-migration
 ```
 
-This creates an empty SQL file in `drizzle/`. Open it and paste the complete SQL from sections 5.2 through 5.7 below.
+This creates an empty SQL file in `drizzle/`. Open it and paste the SQL from sections 5.2 through 5.7 below (skip 5.5 — no SQL needed).
+
+> **Reminder**: Phase 4 already handled sessions (dropped and recreated empty), `authenticators` (dropped), and `verification_tokens` (dropped). Phase 5 only deals with accounts data migration, LMS extraction, and destructive cleanup of old columns/types.
 
 ## 5.2 Accounts Data Copy
 
@@ -163,30 +165,16 @@ ALTER TABLE accounts DROP CONSTRAINT accounts_provider_provider_account_id_pk;
 ALTER TABLE accounts ADD PRIMARY KEY (id);
 ```
 
-## 5.5 Sessions Reset
+## 5.5 Sessions, Verification Tokens & Authenticators
 
-Sessions are temporary authentication state. All 32K sessions are dropped — users re-sign-in after cutover.
+> **No SQL needed in Phase 5.** All three were already handled by the Phase 4 custom migration:
+> - `sessions` — dropped and recreated with the Better Auth schema (empty)
+> - `authenticators` — dropped (was empty, 0 rows)
+> - `verification_tokens` — dropped (was empty, 0 rows)
+>
+> The `verifications` replacement table was also created in Phase 4.
 
-```sql
--- ================================================================
--- SESSIONS: Clear all Auth.js sessions
--- ================================================================
-TRUNCATE TABLE sessions;
-```
-
-## 5.6 Verification Table & Authenticators Cleanup
-
-Both tables are empty (0 rows). Safe to drop.
-
-```sql
--- ================================================================
--- VERIFICATION TOKENS & AUTHENTICATORS: Drop legacy tables
--- ================================================================
-DROP TABLE IF EXISTS verification_tokens;
-DROP TABLE IF EXISTS authenticators;
-```
-
-## 5.7 LMS Credentials Extraction
+## 5.6 LMS Credentials Extraction
 
 Extract `lms_user_id` and `lms_token` from `users` into the dedicated `lms_credentials` table. Currently 0 users have LMS data, but this handles future cases safely.
 
@@ -219,7 +207,7 @@ BEGIN
 END $$;
 ```
 
-## 5.8 Destructive Cleanup
+## 5.7 Destructive Cleanup
 
 These columns and types are dropped ONLY because all verification above has passed. If any assertion failed, the migration already aborted before reaching this point.
 
@@ -240,13 +228,17 @@ ALTER TABLE accounts DROP COLUMN session_state;
 ALTER TABLE users DROP COLUMN lms_user_id;
 ALTER TABLE users DROP COLUMN lms_token;
 
--- Drop enum types no longer used by any column
--- NOTE: user_positions is NOT dropped — still used by users.position (kept until Phase 6)
+-- Drop all three enum types — no column uses any of them after Phase 4:
+--   user_roles:      users.role → text (Phase 4), student_notes.creator_role → text (Phase 4)
+--   user_positions:  users.position → text (Phase 4) — column kept until Phase 6 but type is text now
+--   dashboard_users: clearance.department → text (Phase 4), auto_approvals.department → text (Phase 4),
+--                    blocked_students.by_department → text (Phase 4)
 DROP TYPE IF EXISTS user_roles;
+DROP TYPE IF EXISTS user_positions;
 DROP TYPE IF EXISTS dashboard_users;
 ```
 
-## 5.9 Final Integrity Verification
+## 5.8 Final Integrity Verification
 
 After the custom migration completes, apply it and run these queries manually via `psql`. Compare against the Snapshot from 5.0.
 
@@ -291,7 +283,8 @@ WHERE u.id IS NULL;
 
 -- V8: email_verified correctly converted (Phase 4 handled this)
 SELECT email_verified, count(*) FROM users GROUP BY email_verified;
--- Should show false: <total_users> (all were NULL timestamps → false)
+-- Currently all 12,576 email_verified values were NULL → all converted to false
+-- If some users had non-NULL timestamps, those would show as true
 
 -- V9: Sessions table is empty and has correct structure
 SELECT count(*) FROM sessions;  -- Must be 0
@@ -307,7 +300,7 @@ WHERE table_name = 'accounts' AND column_name IN (
 -- Must return 0 rows
 ```
 
-## 5.10 Post-Phase-5 Schema Cleanup
+## 5.9 Post-Phase-5 Schema Cleanup
 
 After the custom migration is applied and verification passes, update the Drizzle schema files to match the final DB state:
 
@@ -345,9 +338,14 @@ export const accounts = pgTable('accounts', {
 
 Remove `lmsUserId` and `lmsToken` from the users table definition (keep `position` until Phase 6).
 
-### Remove unused enum exports
+### Remove all enum exports
 
-Remove `userRoles` and `dashboardUsers` pgEnum declarations and their type exports from `users.ts`. Keep `userPositions` (still used by `position` column).
+Remove **all three** pgEnum declarations and their type exports from `users.ts`:
+- `userRoles` / `UserRole` type — users.role is now `text()`
+- `userPositions` / `UserPosition` type — users.position is now `text()` (Phase 4 converted it)
+- `dashboardUsers` / `DashboardUser` type — all dependent columns are now `text()`
+
+> **Note**: The `UserRole`, `DashboardRole`, and `UserPosition` TypeScript types are still available from `src/core/auth/permissions.ts` — they were moved there in Phase 2. No code should be importing these types from the schema file anymore.
 
 ### Verify schema matches DB
 
@@ -357,7 +355,7 @@ pnpm db:generate
 
 This should report **no changes needed**. If Drizzle wants to generate changes, the schema doesn't match the DB — review and fix before proceeding.
 
-## 5.11 Rollback Procedure
+## 5.10 Rollback Procedure
 
 If the custom migration fails or verification reveals data issues:
 
@@ -393,12 +391,10 @@ Then investigate the failure, fix the SQL, and re-run both Phase 4 and Phase 5 m
 - [ ] `provider` → `provider_id` data copy verified (zero mismatches)
 - [ ] `provider_account_id` → `account_id` data copy verified (zero mismatches)
 - [ ] `expires_at` epoch values converted to `access_token_expires_at` timestamps
-- [ ] Sessions truncated
-- [ ] `verification_tokens` and `authenticators` tables dropped
 - [ ] LMS credentials extracted (count matches source)
-- [ ] Old Auth.js columns dropped from accounts
+- [ ] Old Auth.js columns dropped from accounts (`type`, `provider`, `provider_account_id`, `expires_at`, `token_type`, `session_state`)
 - [ ] `lms_user_id` and `lms_token` dropped from users
-- [ ] `user_roles` and `dashboard_users` enum types dropped
+- [ ] All three enum types dropped (`user_roles`, `user_positions`, `dashboard_users`)
 - [ ] Post-migration verification queries all pass
 - [ ] Accounts schema updated to final Better Auth shape
 - [ ] `pnpm db:generate` reports no changes (schema matches DB)

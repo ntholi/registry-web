@@ -66,92 +66,224 @@ This dump is your full recovery point. If anything goes wrong in Phase 4 or Phas
 psql postgresql://dev:111111@localhost:5432/registry < registry_pre_phase4_backup.sql
 ```
 
-## 4.4 Generate Drizzle Migration
+## 4.4 Generate Custom Drizzle Migration
+
+> **Why `--custom`?** A regular `pnpm db:generate` would introspect the DB, diff it against the TS schema, and emit SQL with interactive rename prompts (e.g., sessions `session_token` → `token`). Answering prompts incorrectly risks data loss. A custom migration eliminates all interactive prompts, gives full control over the exact SQL, and prevents Drizzle from misinterpreting complex structural changes (enum→text, timestamp→boolean, composite PK→single PK). The `--custom` flag still creates a snapshot from the current TS schema files, so the schema tracker stays in sync.
 
 ```bash
-pnpm db:generate
+pnpm db:generate --custom --name=phase-3-4-better-auth-schema-updates
 ```
 
-### Expected Prompt Answers
+This creates an empty `.sql` file (e.g., `drizzle/0185_phase-3-4-better-auth-schema-updates.sql`) and a matching snapshot. Populate the file with the exact SQL below.
 
-With the zero-rename accounts schema, the **only** interactive prompts will be for the **sessions** table. The DB has columns `session_token` (PK) and `expires`, but the schema has `token` and `expires_at`:
+### 4.4.1 Complete Custom Migration SQL
 
-| Prompt | Correct Answer | Why |
-|--------|---------------|-----|
-| Is `token` created or renamed from `session_token`? | Either works | Sessions will be truncated in Phase 5. No user data at risk. |
-| Is `expires_at` created or renamed from `expires`? | Either works | Same reason — sessions are disposable. |
-
-**Why any answer is safe for sessions**: Sessions are temporary authentication state (32K rows). Phase 5 truncates ALL sessions. Users simply re-sign-in after cutover. There is zero permanent data in the sessions table.
-
-No prompts should appear for accounts (all ADD COLUMN), users (type changes only), or dependent schemas (type changes only).
-
-### Expected Generated SQL Summary
-
-The generated migration should include:
-
-1. **New tables**: `lms_credentials`, `rate_limits`, `verifications`, `permission_presets`, `preset_permissions`
-2. **Accounts — ADD COLUMN only**: `id`, `account_id`, `provider_id`, `access_token_expires_at`, `refresh_token_expires_at`, `password`, `created_at`, `updated_at`
-3. **Users — type changes**: `role` (enum→text), `email_verified` (timestamp→boolean), `name` (SET NOT NULL), `email` (SET NOT NULL)
-4. **Users — new columns**: `preset_id`, `created_at`, `updated_at`, `banned`, `ban_reason`, `ban_expires`
-5. **Sessions**: renames or create/drop per prompt answers, plus new columns
-6. **Dependent schemas**: `department` and `creator_role` columns (enum→text)
-7. **Indexes**: as defined in 4.2
-8. **Authenticators table drop** (empty table, safe)
-
-## 4.5 Post-Generation SQL Review & Required Edits
-
-After `pnpm db:generate` creates the migration file, open it and make these edits:
-
-### Edit 1: `email_verified` USING clause (REQUIRED)
-
-Find the line that changes `email_verified` type and add the `USING` clause:
+Copy the following SQL **exactly** into the generated empty `.sql` file:
 
 ```sql
--- Drizzle generates something like:
-ALTER TABLE "users" ALTER COLUMN "email_verified" SET DATA TYPE boolean;
+-- ================================================================
+-- Phase 3-4: Better Auth Schema Updates
+-- Custom migration — no interactive prompts, full control
+--
+-- Preconditions (verified against live DB):
+--   users: 12,576 rows, 3 NULL names, 0 NULL emails
+--   accounts: 12,596 rows (composite PK: provider + provider_account_id)
+--   sessions: 32,852 rows (disposable — will be dropped and recreated)
+--   verification_tokens: 0 rows (will be dropped)
+--   authenticators: 0 rows (will be dropped)
+--   Phase 2 tables already exist: lms_credentials, rate_limits,
+--       permission_presets, preset_permissions
+--
+-- Enum columns being converted to text:
+--   users.role            (user_roles → text)
+--   users.position        (user_positions → text, column kept until Phase 5)
+--   clearance.department  (dashboard_users → text)
+--   auto_approvals.department (dashboard_users → text)
+--   blocked_students.by_department (dashboard_users → text)
+--   student_notes.creator_role (user_roles → text)
+--
+-- Enum types intentionally KEPT alive until Phase 5.
+-- ================================================================
 
--- Change it to:
-ALTER TABLE "users" ALTER COLUMN "email_verified" SET DATA TYPE boolean USING (email_verified IS NOT NULL);
-```
+-- ---------------------------------------------------------------
+-- 1. Create verifications table (replaces verification_tokens)
+-- ---------------------------------------------------------------
+CREATE TABLE "verifications" (
+    "id" text PRIMARY KEY NOT NULL,
+    "identifier" text NOT NULL,
+    "value" text NOT NULL,
+    "expires_at" timestamp NOT NULL,
+    "created_at" timestamp DEFAULT now(),
+    "updated_at" timestamp DEFAULT now()
+);
+--> statement-breakpoint
+CREATE INDEX "verifications_identifier_idx" ON "verifications" USING btree ("identifier");
 
-Without the `USING` clause, PostgreSQL cannot cast timestamp → boolean and the migration fails. The `USING (email_verified IS NOT NULL)` converts NULL timestamps to `false` and non-NULL timestamps to `true`.
+-- ---------------------------------------------------------------
+-- 2. Users table modifications
+-- ---------------------------------------------------------------
+--> statement-breakpoint
+-- 2a: Convert role from user_roles enum to text (preserves all 12,576 values)
+ALTER TABLE "users" ALTER COLUMN "role" SET DATA TYPE text USING "role"::text;
+--> statement-breakpoint
+ALTER TABLE "users" ALTER COLUMN "role" SET DEFAULT 'user';
 
-### Edit 2: Fix NULL names before NOT NULL constraint (REQUIRED)
+--> statement-breakpoint
+-- 2b: Convert position from user_positions enum to text (column kept until Phase 5)
+ALTER TABLE "users" ALTER COLUMN "position" SET DATA TYPE text USING "position"::text;
 
-Find the line that adds NOT NULL to `name` and insert an UPDATE before it:
+--> statement-breakpoint
+-- 2c: Convert email_verified from timestamp to boolean
+-- USING clause is mandatory: PG cannot cast timestamp → boolean directly
+-- NULL timestamps → false, non-NULL timestamps → true
+ALTER TABLE "users" ALTER COLUMN "email_verified" SET DATA TYPE boolean USING ("email_verified" IS NOT NULL);
+--> statement-breakpoint
+ALTER TABLE "users" ALTER COLUMN "email_verified" SET DEFAULT false;
+--> statement-breakpoint
+ALTER TABLE "users" ALTER COLUMN "email_verified" SET NOT NULL;
 
-```sql
--- Add this line BEFORE the SET NOT NULL:
+--> statement-breakpoint
+-- 2d: Fix 3 NULL names then enforce NOT NULL
 UPDATE "users" SET "name" = 'Unknown User' WHERE "name" IS NULL;
+--> statement-breakpoint
 ALTER TABLE "users" ALTER COLUMN "name" SET NOT NULL;
+
+--> statement-breakpoint
+-- 2e: Enforce email NOT NULL (0 NULLs currently — safe)
+ALTER TABLE "users" ALTER COLUMN "email" SET NOT NULL;
+
+--> statement-breakpoint
+-- 2f: Add Better Auth columns to users
+ALTER TABLE "users" ADD COLUMN "preset_id" text;
+--> statement-breakpoint
+ALTER TABLE "users" ADD COLUMN "created_at" timestamp DEFAULT now() NOT NULL;
+--> statement-breakpoint
+ALTER TABLE "users" ADD COLUMN "updated_at" timestamp DEFAULT now() NOT NULL;
+--> statement-breakpoint
+ALTER TABLE "users" ADD COLUMN "banned" boolean DEFAULT false;
+--> statement-breakpoint
+ALTER TABLE "users" ADD COLUMN "ban_reason" text;
+--> statement-breakpoint
+ALTER TABLE "users" ADD COLUMN "ban_expires" timestamp;
+
+--> statement-breakpoint
+-- 2g: Add preset_id FK and index
+ALTER TABLE "users" ADD CONSTRAINT "users_preset_id_permission_presets_id_fk"
+    FOREIGN KEY ("preset_id") REFERENCES "permission_presets"("id") ON DELETE SET NULL;
+--> statement-breakpoint
+CREATE INDEX "users_preset_id_idx" ON "users" USING btree ("preset_id");
+
+-- ---------------------------------------------------------------
+-- 3. Accounts table — zero-rename, add-only approach
+--    Keeps ALL original Auth.js columns + composite PK intact.
+--    New Better Auth columns added as nullable (populated in Phase 5).
+-- ---------------------------------------------------------------
+--> statement-breakpoint
+ALTER TABLE "accounts" ADD COLUMN "id" text;
+--> statement-breakpoint
+ALTER TABLE "accounts" ADD COLUMN "account_id" text;
+--> statement-breakpoint
+ALTER TABLE "accounts" ADD COLUMN "provider_id" text;
+--> statement-breakpoint
+ALTER TABLE "accounts" ADD COLUMN "access_token_expires_at" timestamp;
+--> statement-breakpoint
+ALTER TABLE "accounts" ADD COLUMN "refresh_token_expires_at" timestamp;
+--> statement-breakpoint
+ALTER TABLE "accounts" ADD COLUMN "password" text;
+--> statement-breakpoint
+ALTER TABLE "accounts" ADD COLUMN "created_at" timestamp DEFAULT now();
+--> statement-breakpoint
+ALTER TABLE "accounts" ADD COLUMN "updated_at" timestamp DEFAULT now();
+--> statement-breakpoint
+CREATE INDEX "accounts_user_id_idx" ON "accounts" USING btree ("user_id");
+
+-- ---------------------------------------------------------------
+-- 4. Sessions — drop and recreate with Better Auth schema
+--    32K rows of temporary auth state; users re-sign-in after cutover.
+-- ---------------------------------------------------------------
+--> statement-breakpoint
+DROP TABLE "sessions";
+--> statement-breakpoint
+CREATE TABLE "sessions" (
+    "id" text PRIMARY KEY NOT NULL,
+    "token" text NOT NULL,
+    "user_id" text NOT NULL,
+    "ip_address" text,
+    "user_agent" text,
+    "expires_at" timestamp NOT NULL,
+    "created_at" timestamp DEFAULT now() NOT NULL,
+    "updated_at" timestamp DEFAULT now() NOT NULL,
+    "impersonated_by" text,
+    CONSTRAINT "sessions_token_unique" UNIQUE("token")
+);
+--> statement-breakpoint
+ALTER TABLE "sessions" ADD CONSTRAINT "sessions_user_id_users_id_fk"
+    FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE;
+--> statement-breakpoint
+CREATE INDEX "sessions_user_id_idx" ON "sessions" USING btree ("user_id");
+
+-- ---------------------------------------------------------------
+-- 5. Dependent schema enum→text conversions
+-- ---------------------------------------------------------------
+--> statement-breakpoint
+ALTER TABLE "clearance" ALTER COLUMN "department" SET DATA TYPE text USING "department"::text;
+--> statement-breakpoint
+ALTER TABLE "auto_approvals" ALTER COLUMN "department" SET DATA TYPE text USING "department"::text;
+--> statement-breakpoint
+ALTER TABLE "blocked_students" ALTER COLUMN "by_department" SET DATA TYPE text USING "by_department"::text;
+--> statement-breakpoint
+ALTER TABLE "student_notes" ALTER COLUMN "creator_role" SET DATA TYPE text USING "creator_role"::text;
+
+-- ---------------------------------------------------------------
+-- 6. Drop unused auth tables
+-- ---------------------------------------------------------------
+--> statement-breakpoint
+DROP TABLE "authenticators";
+--> statement-breakpoint
+DROP TABLE "verification_tokens";
+
+-- ---------------------------------------------------------------
+-- NOTE: user_roles, user_positions, dashboard_users enum TYPES are
+-- intentionally KEPT alive. Drizzle TS schema still exports the
+-- pgEnum declarations for backward-compatible type inference.
+-- They will be dropped in Phase 5 alongside the deferred column
+-- removals (position, lms_user_id, lms_token).
+-- ---------------------------------------------------------------
 ```
 
-There are currently 3 users with NULL names. Without the UPDATE, `SET NOT NULL` fails.
+### 4.4.2 SQL Walkthrough & Safety Rationale
 
-### Edit 3: Truncate sessions before structural changes (RECOMMENDED)
+| Section | What it does | Risk | Mitigation |
+|---------|-------------|------|------------|
+| 1. Verifications | Creates new table + index | None (new table) | — |
+| 2a. role enum→text | Converts 12,576 rows preserving values | None | `USING role::text` preserves all values; default reset to `'user'` |
+| 2b. position enum→text | Converts 153 non-NULL values | None | `USING position::text` preserves values; column stays until Phase 5 |
+| 2c. email_verified | timestamp→boolean conversion | Cannot cast directly | `USING (email_verified IS NOT NULL)` — NULL→false, non-NULL→true |
+| 2d. name NOT NULL | 3 users have NULL names | SET NOT NULL fails on NULLs | UPDATE sets them to `'Unknown User'` first |
+| 2e. email NOT NULL | 0 NULLs exist | None | Verified: zero NULL emails |
+| 2f-2g. New columns | Better Auth lifecycle/admin fields | None (all nullable or have defaults) | — |
+| 3. Accounts ADD COLUMN | 8 new nullable columns + index | None | Zero-rename: no prompts, no drops, no renames |
+| 4. Sessions drop/recreate | 32K disposable rows lost | Users must re-sign-in | Sessions are temporary; no permanent data |
+| 5. Dependent enum→text | 4 columns across 4 tables | None | `USING col::text` preserves all values |
+| 6. Drop tables | authenticators (0 rows), verification_tokens (0 rows) | None | Both empty |
 
-If sessions has structural changes (rename, PK change, NOT NULL additions), add a TRUNCATE at the start of the sessions section:
+### 4.4.3 Review Checklist
 
-```sql
-TRUNCATE TABLE "sessions";
--- Then the sessions ALTER/RENAME/ADD statements...
-```
-
-This ensures session structural changes work regardless of which prompt answers were chosen. Sessions data has no long-term value.
-
-### Review Checklist
-
-After edits, verify the generated SQL:
+Before applying, verify the SQL in the generated file:
 
 - [ ] **No `DROP COLUMN` on accounts** — only `ADD COLUMN` statements
 - [ ] **No `DROP COLUMN` on users** for `position`, `lms_user_id`, `lms_token`
-- [ ] **No `DROP TYPE`** for `user_roles`, `user_positions`, `dashboard_users` (they must remain until Phase 5)
-- [ ] `email_verified` ALTER TYPE has `USING (email_verified IS NOT NULL)`
-- [ ] `name` SET NOT NULL is preceded by the NULL fix UPDATE
-- [ ] Enum→text conversions present for: `users.role`, `clearance.department`, `auto_approvals.department`, `blocked_students.by_department`, `student_notes.creator_role`
-- [ ] New tables created: `lms_credentials`, `rate_limits`, `verifications`, `permission_presets`, `preset_permissions`
+- [ ] **No `DROP TYPE`** for `user_roles`, `user_positions`, `dashboard_users`
+- [ ] `email_verified` ALTER TYPE has `USING ("email_verified" IS NOT NULL)`
+- [ ] `name` SET NOT NULL is preceded by the UPDATE for 3 NULL names
+- [ ] `role` default reset to `'user'` (text) after enum→text conversion
+- [ ] Enum→text conversions present for all 6 columns: `users.role`, `users.position`, `clearance.department`, `auto_approvals.department`, `blocked_students.by_department`, `student_notes.creator_role`
+- [ ] `verifications` table created (not `lms_credentials`, `rate_limits`, `permission_presets`, `preset_permissions` — those already exist from Phase 2)
+- [ ] Sessions dropped and recreated (not altered)
+- [ ] `authenticators` and `verification_tokens` dropped
+- [ ] All indexes created: `verifications_identifier_idx`, `users_preset_id_idx`, `accounts_user_id_idx`, `sessions_user_id_idx`
 
-## 4.6 Apply Migration & Post-Apply Verification
+## 4.5 Apply Migration & Post-Apply Verification
 
 Apply the migration:
 
@@ -198,9 +330,7 @@ If ANY check fails, restore from the backup taken in step 4.3.
 - [ ] Dependent schemas updated: enum columns → text (clearance, autoApprovals, blockedStudents, studentNotes)
 - [ ] All indexes defined in schema files
 - [ ] Database backup created before generation
-- [ ] Drizzle schema migration generated via `pnpm db:generate` (not manual SQL)
-- [ ] Generated SQL edited: `email_verified` USING clause, `name` NULL fix, sessions TRUNCATE
-- [ ] Generated SQL reviewed: no unexpected drops of accounts columns, users columns, or enum types
-- [ ] Migration applied and post-apply verification passed
-- [ ] `pnpm tsc --noEmit` passes
+- [ ] Custom migration generated via `pnpm db:generate --custom` and populated with exact SQL from 4.4.1
+- [ ] Migration SQL reviewed against 4.4.3 checklist
+- [ ] Migration applied via `pnpm db:migrate` and post-apply verification passed (4.6)
 - [ ] `pnpm tsc --noEmit` passes

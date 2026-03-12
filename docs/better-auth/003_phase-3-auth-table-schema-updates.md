@@ -13,8 +13,9 @@ Side-by-side migration:
 1. Generate the Better Auth schema shape
 2. Update Drizzle schema files to match Better Auth models
 3. Keep legacy source columns available until Phase 5 custom migration has copied and verified their data
-4. Create non-destructive generated migrations for auth tables + permission preset tables
-5. Data migration, destructive drops, and seeding happen in Phases 5–6
+4. Generate a custom migration via `pnpm db:generate --custom` (Phase 4) — avoids interactive rename prompts and ensures exact SQL control
+5. Populate the custom migration with hand-crafted SQL that handles enum→text conversions, timestamp→boolean conversions, NULL data fixes, and sessions table recreation
+6. Data migration, destructive drops, and seeding happen in Phases 5–6
 
 ## 3.2 Tables To Prepare
 
@@ -73,19 +74,21 @@ All three PostgreSQL enums must be converted to text:
 3. `autoApprovals.department`: `dashboardUsers` enum → `text`
 4. `blockedStudents.department`: `dashboardUsers` enum → `text`
 5. `studentNotes.role`: `userRoles` enum → `text`
-6. Drop enums after all dependent columns are converted: `userRoles`, `userPositions`, `dashboardUsers`
+6. `users.position`: `userPositions` enum → `text` (column kept until Phase 5)
 
-**SQL pattern for enum → text conversion:**
+> **Note**: Enum TYPES (`user_roles`, `user_positions`, `dashboard_users`) are intentionally kept alive in the database until Phase 5. The Drizzle TS schema still exports the `pgEnum` declarations for backward-compatible type inference. Dropping the DB types now would cause schema drift on the next `db:generate`.
+
+**SQL pattern for enum → text conversion** (executed via custom migration in Phase 4):
 
 ```sql
-ALTER TABLE users ALTER COLUMN role TYPE text USING role::text;
-ALTER TABLE clearance ALTER COLUMN department TYPE text USING department::text;
-ALTER TABLE auto_approvals ALTER COLUMN department TYPE text USING department::text;
-ALTER TABLE blocked_students ALTER COLUMN department TYPE text USING department::text;
-ALTER TABLE student_notes ALTER COLUMN role TYPE text USING role::text;
-DROP TYPE IF EXISTS user_roles;
-DROP TYPE IF EXISTS user_positions;
-DROP TYPE IF EXISTS dashboard_users;
+ALTER TABLE "users" ALTER COLUMN "role" SET DATA TYPE text USING "role"::text;
+ALTER TABLE "users" ALTER COLUMN "role" SET DEFAULT 'user';
+ALTER TABLE "users" ALTER COLUMN "position" SET DATA TYPE text USING "position"::text;
+ALTER TABLE "clearance" ALTER COLUMN "department" SET DATA TYPE text USING "department"::text;
+ALTER TABLE "auto_approvals" ALTER COLUMN "department" SET DATA TYPE text USING "department"::text;
+ALTER TABLE "blocked_students" ALTER COLUMN "by_department" SET DATA TYPE text USING "by_department"::text;
+ALTER TABLE "student_notes" ALTER COLUMN "creator_role" SET DATA TYPE text USING "creator_role"::text;
+-- DO NOT drop enum types here — deferred to Phase 5
 ```
 
 ## 3.4 Users Schema Update
@@ -265,12 +268,13 @@ export const presetPermissionsRelations = relations(presetPermissions, ({ one })
 
 ## Exit Criteria
 
-- [ ] Users schema updated: enums replaced, new fields added, legacy source columns preserved until Phase 5 cleanup
-- [ ] Accounts schema updated to Better Auth field names
+- [ ] Users schema updated: enums replaced with `text()`, new fields added, legacy source columns (`position`, `lmsUserId`, `lmsToken`) preserved until Phase 5 cleanup
+- [ ] Accounts schema updated to transitional state (old + new columns, composite PK)
 - [ ] Sessions schema updated to Better Auth model
 - [ ] Verifications schema created, verificationTokens deleted
 - [ ] Authenticators schema and relations deleted
 - [ ] Drizzle relations updated for Better Auth tables (accounts, sessions) — enables join optimization
 - [ ] Permission preset relations created (permissionPresets ↔ presetPermissions)
-- [ ] No generated drop is queued yet for `position`, `lms_user_id`, `lms_token`, or legacy enum types needed by Phase 5
+- [ ] No `DROP TYPE` for enum types — they remain until Phase 5
+- [ ] No `DROP COLUMN` for `position`, `lms_user_id`, `lms_token` — they remain until Phase 5
 - [ ] `pnpm tsc --noEmit` passes
