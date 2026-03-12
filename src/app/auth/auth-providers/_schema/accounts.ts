@@ -1,43 +1,29 @@
-import {
-	index,
-	integer,
-	pgTable,
-	primaryKey,
-	text,
-	timestamp,
-} from 'drizzle-orm/pg-core';
-import type { AdapterAccountType } from 'next-auth/adapters';
+import { index, pgTable, text, timestamp } from 'drizzle-orm/pg-core';
 import { users } from '../../users/_schema/users';
 
 export const accounts = pgTable(
 	'accounts',
 	{
-		id: text(),
+		id: text().primaryKey(),
 		userId: text()
 			.notNull()
 			.references(() => users.id, { onDelete: 'cascade' }),
-		type: text().$type<AdapterAccountType>().notNull(),
-		provider: text().notNull(),
-		providerAccountId: text().notNull(),
-		accountId: text('account_id'),
-		providerId: text('provider_id'),
-		refresh_token: text(),
-		access_token: text(),
-		expires_at: integer(),
-		token_type: text(),
-		scope: text(),
-		id_token: text(),
+		accountId: text('account_id').notNull(),
+		providerId: text('provider_id').notNull(),
+		accessToken: text('access_token'),
+		refreshToken: text('refresh_token'),
 		accessTokenExpiresAt: timestamp('access_token_expires_at'),
 		refreshTokenExpiresAt: timestamp('refresh_token_expires_at'),
+		scope: text(),
+		idToken: text('id_token'),
 		password: text(),
-		createdAt: timestamp('created_at'),
-		updatedAt: timestamp('updated_at'),
-		session_state: text(),
+		createdAt: timestamp('created_at').defaultNow().notNull(),
+		updatedAt: timestamp('updated_at')
+			.defaultNow()
+			.$onUpdate(() => new Date())
+			.notNull(),
 	},
 	(account) => ({
-		compoundKey: primaryKey({
-			columns: [account.provider, account.providerAccountId],
-		}),
 		userIdIdx: index('accounts_user_id_idx').on(account.userId),
 	})
 );

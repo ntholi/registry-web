@@ -68,7 +68,7 @@ export async function GET(request: NextRequest) {
 			.where(
 				and(
 					eq(accounts.userId, session.user.id),
-					eq(accounts.provider, 'google')
+					eq(accounts.providerId, 'google')
 				)
 			)
 			.limit(1);
@@ -104,17 +104,17 @@ export async function GET(request: NextRequest) {
 			await db
 				.update(accounts)
 				.set({
-					access_token: tokens.access_token,
-					refresh_token: tokens.refresh_token || account.refresh_token,
-					expires_at: tokens.expiry_date
-						? Math.floor(tokens.expiry_date / 1000)
+					accessToken: tokens.access_token,
+					refreshToken: tokens.refresh_token || account.refreshToken,
+					accessTokenExpiresAt: tokens.expiry_date
+						? new Date(tokens.expiry_date)
 						: null,
 					scope: existingScopes.join(' '),
 				})
 				.where(
 					and(
 						eq(accounts.userId, session.user.id),
-						eq(accounts.provider, 'google')
+						eq(accounts.providerId, 'google')
 					)
 				);
 		}

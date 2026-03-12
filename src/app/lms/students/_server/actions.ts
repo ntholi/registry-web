@@ -181,7 +181,8 @@ export async function enrollStudentInCourse(
 		return { success: false, message: 'Student user has no email address' };
 	}
 
-	const lmsUserId = student.user.lmsUserId;
+	const creds = await usersRepository.getLmsCredentials(student.user.id);
+	const lmsUserId = creds?.lmsUserId;
 	if (!lmsUserId) {
 		const moodleUserResult = await moodleGet(
 			'core_user_get_users',
@@ -201,7 +202,11 @@ export async function enrollStudentInCourse(
 		}
 
 		const moodleUserId = moodleUserResult.users[0].id;
-		await usersRepository.updateUserLmsUserId(student.user.id, moodleUserId);
+		await usersRepository.upsertLmsCredentials(
+			student.user.id,
+			moodleUserId,
+			creds?.lmsToken ?? null
+		);
 
 		return enrollUserInMoodleCourse(moodleUserId, courseId);
 	}

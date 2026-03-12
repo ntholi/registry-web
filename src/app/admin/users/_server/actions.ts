@@ -6,7 +6,11 @@ import { usersService as service } from './service';
 
 type User = typeof users.$inferInsert;
 type UserSelect = typeof users.$inferSelect;
-type UserWithSchools = User & { schoolIds?: number[] };
+type UserWithSchools = User & {
+	schoolIds?: number[];
+	lmsUserId?: number | null;
+	lmsToken?: string | null;
+};
 
 export async function getUser(id: string) {
 	return service.get(id);

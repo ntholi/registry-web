@@ -29,7 +29,7 @@ export interface FormatOptions {
 
 async function getOAuth2Client(userId: string) {
 	const account = await db.query.accounts.findFirst({
-		where: and(eq(accounts.userId, userId), eq(accounts.provider, 'google')),
+		where: and(eq(accounts.userId, userId), eq(accounts.providerId, 'google')),
 	});
 
 	if (!account) {
@@ -42,14 +42,16 @@ async function getOAuth2Client(userId: string) {
 		`${process.env.AUTH_URL}/api/auth/callback/google`
 	);
 
-	if (!account.access_token) {
+	if (!account.accessToken) {
 		throw new Error('No access token available. Please re-authenticate.');
 	}
 
 	oauth2Client.setCredentials({
-		access_token: account.access_token,
-		refresh_token: account.refresh_token || undefined,
-		expiry_date: account.expires_at ? account.expires_at * 1000 : undefined,
+		access_token: account.accessToken,
+		refresh_token: account.refreshToken || undefined,
+		expiry_date: account.accessTokenExpiresAt
+			? account.accessTokenExpiresAt.getTime()
+			: undefined,
 	});
 
 	oauth2Client.on('tokens', async (tokens) => {
@@ -57,26 +59,26 @@ async function getOAuth2Client(userId: string) {
 			await db
 				.update(accounts)
 				.set({
-					refresh_token: tokens.refresh_token,
-					access_token: tokens.access_token,
-					expires_at: tokens.expiry_date
-						? Math.floor(tokens.expiry_date / 1000)
+					refreshToken: tokens.refresh_token,
+					accessToken: tokens.access_token,
+					accessTokenExpiresAt: tokens.expiry_date
+						? new Date(tokens.expiry_date)
 						: null,
 				})
 				.where(
-					and(eq(accounts.userId, userId), eq(accounts.provider, 'google'))
+					and(eq(accounts.userId, userId), eq(accounts.providerId, 'google'))
 				);
 		} else if (tokens.access_token) {
 			await db
 				.update(accounts)
 				.set({
-					access_token: tokens.access_token,
-					expires_at: tokens.expiry_date
-						? Math.floor(tokens.expiry_date / 1000)
+					accessToken: tokens.access_token,
+					accessTokenExpiresAt: tokens.expiry_date
+						? new Date(tokens.expiry_date)
 						: null,
 				})
 				.where(
-					and(eq(accounts.userId, userId), eq(accounts.provider, 'google'))
+					and(eq(accounts.userId, userId), eq(accounts.providerId, 'google'))
 				);
 		}
 	});
@@ -86,7 +88,7 @@ async function getOAuth2Client(userId: string) {
 
 export async function hasGoogleSheetsScope(userId: string): Promise<boolean> {
 	const account = await db.query.accounts.findFirst({
-		where: and(eq(accounts.userId, userId), eq(accounts.provider, 'google')),
+		where: and(eq(accounts.userId, userId), eq(accounts.providerId, 'google')),
 	});
 
 	if (!account || !account.scope) {

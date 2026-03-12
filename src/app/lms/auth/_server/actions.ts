@@ -30,9 +30,10 @@ export async function checkMoodleUserExists() {
 				session.user.id &&
 				session.user.lmsUserId !== moodleUser.id
 			) {
-				await usersRepository.updateUserLmsUserId(
+				await usersRepository.upsertLmsCredentials(
 					session.user.id,
-					moodleUser.id
+					moodleUser.id,
+					session.user.lmsToken ?? null
 				);
 			}
 

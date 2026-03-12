@@ -1303,6 +1303,13 @@
 			"when": 1773340451268,
 			"tag": "0185_phase-3-4-better-auth-schema-updates",
 			"breakpoints": true
+		},
+		{
+			"idx": 186,
+			"version": "7",
+			"when": 1773342290511,
+			"tag": "0186_phase-5-data-migration",
+			"breakpoints": true
 		}
 	]
 }

@@ -1,16 +1,8 @@
 import { permissionPresets } from '@auth/permission-presets/_schema/permissionPresets';
-import {
-	boolean,
-	index,
-	integer,
-	pgEnum,
-	pgTable,
-	text,
-	timestamp,
-} from 'drizzle-orm/pg-core';
+import { boolean, index, pgTable, text, timestamp } from 'drizzle-orm/pg-core';
 import { nanoid } from 'nanoid';
 
-export const dashboardUsers = pgEnum('dashboard_users', [
+const dashboardUserValues = [
 	'finance',
 	'registry',
 	'library',
@@ -21,10 +13,11 @@ export const dashboardUsers = pgEnum('dashboard_users', [
 	'admin',
 	'leap',
 	'human_resource',
-]);
-export type DashboardUser = (typeof dashboardUsers.enumValues)[number];
+] as const;
+export const dashboardUsers = { enumValues: dashboardUserValues } as const;
+export type DashboardUser = (typeof dashboardUserValues)[number];
 
-export const userRoles = pgEnum('user_roles', [
+const userRoleValues = [
 	'user',
 	'applicant',
 	'student',
@@ -38,18 +31,20 @@ export const userRoles = pgEnum('user_roles', [
 	'admin',
 	'leap',
 	'human_resource',
-]);
-export type UserRole = (typeof userRoles.enumValues)[number];
+] as const;
+export const userRoles = { enumValues: userRoleValues } as const;
+export type UserRole = (typeof userRoleValues)[number];
 
-export const userPositions = pgEnum('user_positions', [
+const userPositionValues = [
 	'manager',
 	'program_leader',
 	'principal_lecturer',
 	'year_leader',
 	'lecturer',
 	'admin',
-]);
-export type UserPosition = (typeof userPositions.enumValues)[number];
+] as const;
+export const userPositions = { enumValues: userPositionValues } as const;
+export type UserPosition = (typeof userPositionValues)[number];
 
 export const users = pgTable(
 	'users',
@@ -58,8 +53,8 @@ export const users = pgTable(
 			.primaryKey()
 			.$defaultFn(() => nanoid()),
 		name: text().notNull(),
-		role: text().notNull().default('user'),
-		position: userPositions(),
+		role: text().$type<UserRole>().notNull().default('user'),
+		position: text().$type<UserPosition | null>(),
 		email: text().notNull().unique(),
 		emailVerified: boolean().notNull().default(false),
 		image: text(),
@@ -74,8 +69,6 @@ export const users = pgTable(
 		banned: boolean().default(false),
 		banReason: text('ban_reason'),
 		banExpires: timestamp('ban_expires'),
-		lmsUserId: integer(),
-		lmsToken: text(),
 	},
 	(table) => ({
 		presetIdIdx: index('users_preset_id_idx').on(table.presetId),

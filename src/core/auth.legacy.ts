@@ -95,8 +95,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 					where: eq(accounts.userId, user.id),
 				});
 
-				if (account?.access_token) {
-					session.accessToken = account.access_token;
+				if (account?.accessToken) {
+					session.accessToken = account.accessToken;
 				}
 			}
 

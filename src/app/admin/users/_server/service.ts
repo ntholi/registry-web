@@ -8,13 +8,27 @@ import UserRepository from './repository';
 type User = typeof users.$inferInsert;
 type UserSelect = typeof users.$inferSelect;
 
-type UserWithSchools = User & { schoolIds?: number[] };
+type UserWithSchools = User & {
+	schoolIds?: number[];
+	lmsUserId?: number | null;
+	lmsToken?: string | null;
+};
 
 class UserService {
 	constructor(private readonly repository = new UserRepository()) {}
 
 	async get(id: string) {
-		return withAuth(async () => this.repository.findById(id), ['dashboard']);
+		return withAuth(async () => {
+			const user = await this.repository.findById(id);
+			if (!user) return user;
+
+			const creds = await this.repository.getLmsCredentials(id);
+			return {
+				...user,
+				lmsUserId: creds?.lmsUserId ?? null,
+				lmsToken: creds?.lmsToken ?? null,
+			};
+		}, ['dashboard']);
 	}
 
 	async findAll(params: QueryOptions<typeof users>) {
@@ -36,12 +50,14 @@ class UserService {
 
 	async create(data: UserWithSchools) {
 		return withAuth(async (session) => {
-			const { schoolIds, ...userData } = data;
+			const { schoolIds, lmsUserId, lmsToken, ...userData } = data;
 			const user = await this.repository.create(userData, {
 				userId: session!.user!.id!,
 				role: session!.user!.role!,
 				activityType: 'user_created',
 			});
+
+			await this.repository.upsertLmsCredentials(user.id, lmsUserId, lmsToken);
 
 			if (schoolIds && schoolIds.length > 0) {
 				await this.updateUserSchools(user.id, schoolIds);
@@ -53,12 +69,14 @@ class UserService {
 
 	async update(id: string, data: UserWithSchools) {
 		return withAuth(async (session) => {
-			const { schoolIds, ...userData } = data;
+			const { schoolIds, lmsUserId, lmsToken, ...userData } = data;
 			const user = await this.repository.update(id, userData, {
 				userId: session!.user!.id!,
 				role: session!.user!.role!,
 				activityType: 'user_updated',
 			});
+
+			await this.repository.upsertLmsCredentials(id, lmsUserId, lmsToken);
 
 			if (schoolIds) {
 				await this.updateUserSchools(id, schoolIds);

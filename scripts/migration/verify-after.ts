@@ -257,7 +257,10 @@ async function verifyEveryAccount(pool: Pool, snapshot: Snapshot) {
 
 	const postAccounts = new Map<string, (typeof result.rows)[number]>();
 	for (const row of result.rows) {
-		postAccounts.set(`${row.user_id}:${row.provider_id}`, row);
+		postAccounts.set(
+			`${row.user_id}:${row.provider_id}:${row.account_id}`,
+			row
+		);
 	}
 
 	let missingAccounts = 0;
@@ -270,13 +273,13 @@ async function verifyEveryAccount(pool: Pool, snapshot: Snapshot) {
 	let expiresAtMismatches = 0;
 
 	for (const preAcct of snapshot.accounts) {
-		const key = `${preAcct.user_id}:${preAcct.provider}`;
+		const key = `${preAcct.user_id}:${preAcct.provider}:${preAcct.provider_account_id}`;
 		const postAcct = postAccounts.get(key);
 		if (!postAcct) {
 			missingAccounts++;
 			if (missingAccounts <= 5) {
 				console.error(
-					`    Missing account: user=${preAcct.user_id} provider=${preAcct.provider}`
+					`    Missing account: user=${preAcct.user_id} provider=${preAcct.provider} account=${preAcct.provider_account_id}`
 				);
 			}
 			continue;
@@ -472,10 +475,10 @@ async function verifyEmailVerifiedConversion(pool: Pool, snapshot: Snapshot) {
 	for (const [val, count] of Object.entries(
 		snapshot.emailVerifiedDistribution
 	)) {
-		if (val === 'NULL') {
-			expectedFalse += count;
-		} else {
+		if (val === 'true') {
 			expectedTrue += count;
+		} else {
+			expectedFalse += count;
 		}
 	}
 

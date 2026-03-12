@@ -1,5 +1,5 @@
 import { and, eq, ilike, inArray, ne, or } from 'drizzle-orm';
-import { db, userSchools, users } from '@/core/database';
+import { db, lmsCredentials, userSchools, users } from '@/core/database';
 import type { QueryOptions } from '@/core/platform/BaseRepository';
 import BaseRepository from '@/core/platform/BaseRepository';
 
@@ -45,8 +45,35 @@ export default class UserRepository extends BaseRepository<typeof users, 'id'> {
 		return db.select().from(users).where(inArray(users.role, roles));
 	}
 
-	async updateUserLmsUserId(userId: string, lmsUserId: number) {
-		return db.update(users).set({ lmsUserId }).where(eq(users.id, userId));
+	async getLmsCredentials(userId: string) {
+		return db.query.lmsCredentials.findFirst({
+			where: eq(lmsCredentials.userId, userId),
+		});
+	}
+
+	async upsertLmsCredentials(
+		userId: string,
+		lmsUserId: number | null | undefined,
+		lmsToken: string | null | undefined
+	) {
+		if (!lmsUserId && !lmsToken) {
+			return db.delete(lmsCredentials).where(eq(lmsCredentials.userId, userId));
+		}
+
+		return db
+			.insert(lmsCredentials)
+			.values({
+				userId,
+				lmsUserId: lmsUserId ?? null,
+				lmsToken: lmsToken ?? null,
+			})
+			.onConflictDoUpdate({
+				target: lmsCredentials.userId,
+				set: {
+					lmsUserId: lmsUserId ?? null,
+					lmsToken: lmsToken ?? null,
+				},
+			});
 	}
 
 	async searchLecturersWithSchools(search: string, limit = 20) {

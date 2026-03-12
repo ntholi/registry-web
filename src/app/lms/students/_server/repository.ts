@@ -1,6 +1,7 @@
 import { and, eq, inArray, type SQL, sql } from 'drizzle-orm';
 import {
 	db,
+	lmsCredentials,
 	modules,
 	programs,
 	semesterModules,
@@ -32,9 +33,10 @@ export default class StudentRepository extends BaseRepository<
 				phone: students.phone1,
 				programCode: programs.code,
 				semesterNumber: structureSemesters.semesterNumber,
-				lmsUserId: users.lmsUserId,
+				lmsUserId: lmsCredentials.lmsUserId,
 			})
 			.from(users)
+			.innerJoin(lmsCredentials, eq(lmsCredentials.userId, users.id))
 			.innerJoin(students, eq(students.userId, users.id))
 			.innerJoin(studentPrograms, eq(studentPrograms.stdNo, students.stdNo))
 			.innerJoin(structures, eq(studentPrograms.structureId, structures.id))
@@ -49,7 +51,7 @@ export default class StudentRepository extends BaseRepository<
 			)
 			.where(
 				and(
-					inArray(users.lmsUserId, lmsUserIds),
+					inArray(lmsCredentials.lmsUserId, lmsUserIds),
 					eq(studentPrograms.status, 'Active')
 				)
 			)
@@ -64,7 +66,7 @@ export default class StudentRepository extends BaseRepository<
 				programName: programs.name,
 				semesterNumber: structureSemesters.semesterNumber,
 				userId: students.userId,
-				lmsUserId: users.lmsUserId,
+				lmsUserId: lmsCredentials.lmsUserId,
 			})
 			.from(students)
 			.innerJoin(studentPrograms, eq(studentPrograms.stdNo, students.stdNo))
@@ -79,6 +81,7 @@ export default class StudentRepository extends BaseRepository<
 				eq(studentSemesters.structureSemesterId, structureSemesters.id)
 			)
 			.leftJoin(users, eq(students.userId, users.id))
+			.leftJoin(lmsCredentials, eq(lmsCredentials.userId, users.id))
 			.where(and(searchCondition, eq(studentPrograms.status, 'Active')))
 			.orderBy(students.stdNo, sql`${structureSemesters.semesterNumber} DESC`)
 			.limit(5);
@@ -133,15 +136,16 @@ export default class StudentRepository extends BaseRepository<
 	async findStudentsByLmsUserIdsForSubmissions(lmsUserIds: number[]) {
 		if (lmsUserIds.length === 0) return [];
 		return db
-			.selectDistinctOn([users.lmsUserId], {
+			.selectDistinctOn([lmsCredentials.lmsUserId], {
 				stdNo: students.stdNo,
 				name: students.name,
-				lmsUserId: users.lmsUserId,
+				lmsUserId: lmsCredentials.lmsUserId,
 			})
-			.from(users)
+			.from(lmsCredentials)
+			.innerJoin(users, eq(lmsCredentials.userId, users.id))
 			.innerJoin(students, eq(students.userId, users.id))
-			.where(inArray(users.lmsUserId, lmsUserIds))
-			.orderBy(users.lmsUserId);
+			.where(inArray(lmsCredentials.lmsUserId, lmsUserIds))
+			.orderBy(lmsCredentials.lmsUserId);
 	}
 }
 

@@ -25,7 +25,11 @@ import { getUserSchools } from '../_server/actions';
 
 type User = typeof users.$inferInsert;
 
-type UserWithSchools = User & { schoolIds?: number[] };
+type UserWithSchools = User & {
+	schoolIds?: number[];
+	lmsUserId?: number | null;
+	lmsToken?: string | null;
+};
 
 type Props = {
 	onSubmit: (values: UserWithSchools) => Promise<User>;
