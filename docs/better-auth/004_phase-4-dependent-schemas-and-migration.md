@@ -52,7 +52,9 @@ Ensure these indexes exist (add via Drizzle schema table definitions, not raw SQ
 - `rate_limits.key` (primary key)
 - `preset_permissions.preset_id`
 
-## 4.3 Pre-Generation Database Backup
+## 4.3 Pre-Generation Database Backup & Data Snapshot
+
+### 4.3.1 Database Backup
 
 **MANDATORY** before generating or applying any migration:
 
@@ -65,6 +67,23 @@ This dump is your full recovery point. If anything goes wrong in Phase 4 or Phas
 ```bash
 psql postgresql://dev:111111@localhost:5432/registry < registry_pre_phase4_backup.sql
 ```
+
+### 4.3.2 Capture Pre-Migration Data Snapshot
+
+**MANDATORY** — Run the automated snapshot script to capture the complete state of all users, accounts, roles, positions, and dependent enum values BEFORE any migration is applied:
+
+```bash
+pnpm migration:snapshot
+```
+
+This captures:
+- Every user row (id, name, role, position, email, email_verified, image, lms_user_id, lms_token)
+- Every account row (user_id, provider, provider_account_id, access_token, refresh_token, expires_at, scope, id_token)
+- Aggregate distributions (roles, positions, providers, email_verified)
+- Account-user linkage count and orphaned account count
+- All dependent enum values (clearance.department, auto_approvals.department, blocked_students.by_department, student_notes.creator_role)
+
+Output is saved to `scripts/migration/snapshot-before-migration.json`.
 
 ## 4.4 Generate Custom Drizzle Migration
 
@@ -329,7 +348,8 @@ If ANY check fails, restore from the backup taken in step 4.3.
 - [ ] Accounts schema in transitional state (old + new columns, composite PK)
 - [ ] Dependent schemas updated: enum columns → text (clearance, autoApprovals, blockedStudents, studentNotes)
 - [ ] All indexes defined in schema files
-- [ ] Database backup created before generation
+- [ ] Database backup created before generation (`pg_dump`)
+- [ ] Pre-migration data snapshot captured via `pnpm migration:snapshot`
 - [ ] Custom migration generated via `pnpm db:generate --custom` and populated with exact SQL from 4.4.1
 - [ ] Migration SQL reviewed against 4.4.3 checklist
 - [ ] Migration applied via `pnpm db:migrate` and post-apply verification passed (4.6)

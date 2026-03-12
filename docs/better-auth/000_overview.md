@@ -63,9 +63,18 @@ These must be completed **after** Phase 24:
 > Most phases are fully automated. The following phases require specific user involvement:
 
 **Phase 1** — Run `pnpm add better-auth` and add env vars to `.env`
-**Phase 4** — Run `pnpm db:generate` after schema changes
-**Phase 5** — Run data migration SQL and verify with provided check queries
+**Phase 4** — Run `pnpm migration:snapshot` (captures all user/account data), then `pnpm db:generate` and `pnpm db:migrate`
+**Phase 5** — Run `pnpm db:generate --custom`, write migration SQL, run `pnpm db:migrate`, then `pnpm migration:verify` (asserts zero data loss across 59 checks)
 **Phase 24** — Run `pnpm remove next-auth @auth/drizzle-adapter` and final verification commands
+
+**Migration verification workflow:**
+```
+1. pnpm migration:snapshot    ← BEFORE Phase 4 migration (captures baseline)
+2. pnpm db:migrate             ← Apply Phase 4 migration
+3. pnpm migration:snapshot    ← Re-capture BEFORE Phase 5 (optional, updates baseline)
+4. pnpm db:migrate             ← Apply Phase 5 migration
+5. pnpm migration:verify       ← AFTER Phase 5 (asserts zero data loss)
+```
 
 All other phases (2–3, 6–23) are fully automated code changes with no user intervention required.
 

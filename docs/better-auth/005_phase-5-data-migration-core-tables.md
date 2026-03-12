@@ -18,29 +18,23 @@ This phase runs a custom Drizzle migration that copies data from old Auth.js col
 
 ### Data snapshot: BEFORE applying Phase 5
 
-Run these queries via `psql` and **save the output**. You will compare against these after Phase 5.
+> **Note**: If you already ran `pnpm migration:snapshot` in Phase 4.3.2, the snapshot file already exists and covers the pre-Phase-4 state. If Phase 4 has been applied since then, re-run the snapshot to capture the current (post-Phase-4, pre-Phase-5) state:
+
+```bash
+pnpm migration:snapshot
+```
+
+This captures every user row, every account row, all role/position/provider distributions, account-user linkages, and all dependent enum values to `scripts/migration/snapshot-before-migration.json`.
+
+You can optionally also run these queries manually via `psql` for a quick visual confirmation:
 
 ```sql
--- Snapshot A: Row counts
+-- Quick visual check (optional — the snapshot script captures all this automatically)
 SELECT
   (SELECT count(*) FROM users) AS total_users,
   (SELECT count(*) FROM accounts) AS total_accounts,
   (SELECT count(*) FROM users WHERE position IS NOT NULL) AS users_with_position,
   (SELECT count(*) FROM users WHERE lms_user_id IS NOT NULL OR lms_token IS NOT NULL) AS users_with_lms;
-
--- Snapshot B: User role distribution
-SELECT role, count(*) FROM users GROUP BY role ORDER BY count(*) DESC;
-
--- Snapshot C: Account-user linkage (critical for sign-in)
-SELECT count(*) AS linked_accounts
-FROM accounts a JOIN users u ON a.user_id = u.id;
-
--- Snapshot D: Provider distribution
-SELECT provider, count(*) FROM accounts GROUP BY provider;
-
--- Snapshot E: Sample of 5 accounts (spot-check reference)
-SELECT user_id, provider, provider_account_id, expires_at
-FROM accounts LIMIT 5;
 ```
 
 ## 5.1 Create Custom Migration
@@ -240,64 +234,50 @@ DROP TYPE IF EXISTS dashboard_users;
 
 ## 5.8 Final Integrity Verification
 
-After the custom migration completes, apply it and run these queries manually via `psql`. Compare against the Snapshot from 5.0.
+After the custom migration completes, apply it:
+
+```bash
+pnpm db:migrate
+```
+
+Then run the **automated verification** against the pre-migration snapshot:
+
+```bash
+pnpm migration:verify
+```
+
+This runs **59 individual assertions** that compare every piece of data against the snapshot:
+
+| Check Category | What it verifies |
+|---------------|------------------|
+| **Row counts** | Exact same number of users and accounts (zero rows lost) |
+| **Every user row** | id exists, name preserved (NULL→'Unknown User' accounted for), role matches, email matches, position matches, image matches |
+| **Every account row** | `provider` → `provider_id` correct, `provider_account_id` → `account_id` correct, access_token/refresh_token/scope/id_token preserved, `expires_at` → `access_token_expires_at` timestamp conversion |
+| **Account-user linkage** | Same count of valid FK relationships |
+| **Role distribution** | Same per-role user counts |
+| **Position distribution** | Every position value and count matches |
+| **LMS extraction** | Credentials in `lms_credentials` table match source user data |
+| **email_verified** | NULL→false conversion, non-NULL→true conversion, zero NULLs remaining |
+| **No orphaned accounts** | Every account points to a valid user |
+| **Better Auth fields** | All accounts have non-NULL id, provider_id, account_id, unique ids, timestamps |
+| **Sessions table** | Empty with correct Better Auth columns |
+| **Old columns dropped** | 6 account columns + 2 user columns removed |
+| **Enum types dropped** | `user_roles`, `user_positions`, `dashboard_users` all removed |
+| **Dependent enum→text** | Every row in clearance, auto_approvals, blocked_students, student_notes matches original value |
+| **Provider distribution** | Same per-provider account counts |
+
+The script exits with code 0 if ALL checks pass and code 1 if ANY check fails, printing a summary of failures.
+
+> **If any check fails**, do NOT proceed to Phase 5.9. Restore from the `pg_dump` backup (Phase 4.3) and investigate.
+
+You can also run these queries manually via `psql` for additional spot-checking:
 
 ```sql
--- ================================================================
--- POST-MIGRATION VERIFICATION (run via psql after applying)
--- ================================================================
-
--- V1: Row counts must match pre-migration snapshot
-SELECT
-  (SELECT count(*) FROM users) AS total_users,
-  (SELECT count(*) FROM accounts) AS total_accounts;
-
--- V2: User role distribution must match Snapshot B
+-- Quick manual spot-checks (optional — the verify script covers all of these)
+SELECT (SELECT count(*) FROM users) AS total_users, (SELECT count(*) FROM accounts) AS total_accounts;
 SELECT role, count(*) FROM users GROUP BY role ORDER BY count(*) DESC;
-
--- V3: Account-user linkage must match Snapshot C
-SELECT count(*) AS linked_accounts
-FROM accounts a JOIN users u ON a.user_id = u.id;
-
--- V4: Every account has valid Better Auth fields
-SELECT count(*) FROM accounts
-WHERE id IS NULL OR account_id IS NULL OR provider_id IS NULL;
--- Must be 0
-
--- V5: Spot-check — compare against Snapshot E
--- For each account from your pre-migration sample, verify:
-SELECT a.id, a.user_id, a.provider_id, a.account_id, a.access_token_expires_at
-FROM accounts a
-WHERE a.user_id IN (/* paste user_ids from Snapshot E */);
--- provider_id should match old provider value
--- account_id should match old provider_account_id value
-
--- V6: Users with positions preserved (compare against Snapshot A)
-SELECT count(*) FROM users WHERE position IS NOT NULL;
-
--- V7: No orphaned accounts (every account points to a valid user)
-SELECT count(*) FROM accounts a
-LEFT JOIN users u ON a.user_id = u.id
-WHERE u.id IS NULL;
--- Must be 0
-
--- V8: email_verified correctly converted (Phase 4 handled this)
-SELECT email_verified, count(*) FROM users GROUP BY email_verified;
--- Currently all 12,576 email_verified values were NULL → all converted to false
--- If some users had non-NULL timestamps, those would show as true
-
--- V9: Sessions table is empty and has correct structure
-SELECT count(*) FROM sessions;  -- Must be 0
-SELECT column_name FROM information_schema.columns
-WHERE table_name = 'sessions' ORDER BY ordinal_position;
-
--- V10: Old columns are gone
-SELECT column_name FROM information_schema.columns
-WHERE table_name = 'accounts' AND column_name IN (
-  'type', 'provider', 'provider_account_id',
-  'expires_at', 'token_type', 'session_state'
-);
--- Must return 0 rows
+SELECT count(*) FROM accounts WHERE id IS NULL OR account_id IS NULL OR provider_id IS NULL;  -- Must be 0
+SELECT count(*) FROM accounts a LEFT JOIN users u ON a.user_id = u.id WHERE u.id IS NULL;  -- Must be 0
 ```
 
 ## 5.9 Post-Phase-5 Schema Cleanup

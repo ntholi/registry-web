@@ -48,6 +48,9 @@ test.db
 data/*
 .vercel
 webtest.db
+
+# migration snapshots (contain user data)
+snapshot-before-migration.json
 /.windsurf
 /.idea
 /.agent

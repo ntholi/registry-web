@@ -16,7 +16,9 @@
 		"db:migrate": "drizzle-kit migrate",
 		"db:studio": "drizzle-kit studio",
 		"db:seed": "tsx src/core/database/seed.ts",
-		"names:normalize": "tsx scripts/normalize-person-names.ts"
+		"names:normalize": "tsx scripts/normalize-person-names.ts",
+		"migration:snapshot": "tsx scripts/migration/snapshot-before.ts",
+		"migration:verify": "tsx scripts/migration/verify-after.ts"
 	},
 	"dependencies": {
 		"@ai-sdk/google": "^3.0.18",
