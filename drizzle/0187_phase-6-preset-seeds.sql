@@ -1,0 +1,987 @@
+-- ================================================================
+-- Phase 6: Preset Seeds & Cutover Readiness
+-- Generated from src/app/auth/permission-presets/_lib/catalog.ts
+-- Seeds permission presets and backfills users.preset_id only.
+-- Route swap, proxy creation, session purge, and users.position
+-- removal remain deferred until the final cutover phase.
+-- ================================================================
+
+INSERT INTO permission_presets (id, name, role, description, created_at, updated_at)
+VALUES
+  ('NnO3EzC5CmNgvMwYBOg4B', 'Academic Manager', 'academic', 'Full academic department management', NOW(), NOW()),
+  ('hs1hs_JgfJO5-kpoX02zu', 'Academic Program Leader', 'academic', 'Program-level academic management', NOW(), NOW()),
+  ('795-sR2cCELGEFd4B-ZZ6', 'Academic Year Leader', 'academic', 'Year-level academic oversight', NOW(), NOW()),
+  ('E3lzR6OXzlUS7pMHGqG6q', 'Academic Lecturer', 'academic', 'Teaching staff access', NOW(), NOW()),
+  ('_3wwvV81dhomulUdLXtTG', 'Academic Principal Lecturer', 'academic', 'Senior teaching staff access', NOW(), NOW()),
+  ('GkZamr-Pky9z8alJYDkNV', 'Academic Admin', 'academic', 'Academic administrative support', NOW(), NOW()),
+  ('qLoHBneIKW6PhQIzpoRWY', 'Registry Staff', 'registry', 'Standard registry operations', NOW(), NOW()),
+  ('9gg3zR1dQrnURcQk8SyR8', 'Registry Manager', 'registry', 'Registry department management', NOW(), NOW()),
+  ('mDNWSEofqbLqoDLQ_hiCZ', 'Finance Staff', 'finance', 'Standard finance operations', NOW(), NOW()),
+  ('E1nNl-T70le4kpF9OxLZk', 'Finance Manager', 'finance', 'Finance department management', NOW(), NOW()),
+  ('Od2d3VxQXv8IvcPO1BFrh', 'Library Staff', 'library', 'Library operations', NOW(), NOW()),
+  ('6NMm7yOh66QiM9mo9oHQR', 'Marketing Staff', 'marketing', 'Marketing and admissions outreach', NOW(), NOW()),
+  ('5cFJx0zqrprx5QC8yr9e9', 'Student Services Staff', 'student_services', 'Student services operations', NOW(), NOW()),
+  ('y3c-iMGXTlOOLMnUag1gI', 'LEAP Staff', 'leap', 'LEAP program operations', NOW(), NOW()),
+  ('xIZ9VravYxpKppVFxNRoJ', 'Human Resource Staff', 'human_resource', 'HR access', NOW(), NOW()),
+  ('TvgQxXfhBl1AAc99L6zCf', 'Resource Staff', 'resource', 'Resource department operations', NOW(), NOW())
+ON CONFLICT (name) DO UPDATE
+SET role = EXCLUDED.role,
+    description = EXCLUDED.description,
+    updated_at = NOW();
+--> statement-breakpoint
+INSERT INTO preset_permissions (id, preset_id, resource, action)
+SELECT seed.id, preset.id, seed.resource, seed.action
+FROM (
+VALUES
+  ('3Hq6TynA4R412x-SNkpVq', 'Academic Manager', 'lecturers', 'read'),
+  ('bgjjyXD-ZZZk7r3xBaZxq', 'Academic Manager', 'lecturers', 'create'),
+  ('s5pqYnAmpMTaNYbqzsoqK', 'Academic Manager', 'lecturers', 'update'),
+  ('3QxNo9z9qGS06gx0e-H63', 'Academic Manager', 'lecturers', 'delete'),
+  ('hDqkoKaEf7uleb9JNXWxT', 'Academic Manager', 'assessments', 'read'),
+  ('9RtOdAyCko_Dm-CEussZh', 'Academic Manager', 'assessments', 'create'),
+  ('W4D5Zu5xN9KLogsI6pna3', 'Academic Manager', 'assessments', 'update'),
+  ('iimrSV1knxbMszD8da8Gh', 'Academic Manager', 'assessments', 'delete'),
+  ('8_sTI-AUuDN0sV2nTXMnU', 'Academic Manager', 'feedback-questions', 'read'),
+  ('ucvKt5wydklNvWqTahl5T', 'Academic Manager', 'feedback-questions', 'create'),
+  ('YFKcRAdfoD949mpOohX_y', 'Academic Manager', 'feedback-questions', 'update'),
+  ('rB1JuXtI7n6YLQ3FOSvQ3', 'Academic Manager', 'feedback-questions', 'delete'),
+  ('ihmpuLVvFQunSz_4HaB3c', 'Academic Manager', 'feedback-categories', 'read'),
+  ('Gh7yHgddE5S5MOIILXaSr', 'Academic Manager', 'feedback-categories', 'create'),
+  ('KhfV5M4cgyskE7vvgXLwC', 'Academic Manager', 'feedback-categories', 'update'),
+  ('Kcx-Ztn_z6NP5r34QiGSu', 'Academic Manager', 'feedback-categories', 'delete'),
+  ('f7OcjbzlxeanYFoUPI9Ia', 'Academic Manager', 'feedback-cycles', 'read'),
+  ('dbiKxvl59OQqFCABn4mSO', 'Academic Manager', 'feedback-cycles', 'create'),
+  ('H_F6omBBj7QG7DFc829Bg', 'Academic Manager', 'feedback-cycles', 'update'),
+  ('gn2utfTIOxgPM7-GtNQN1', 'Academic Manager', 'feedback-cycles', 'delete'),
+  ('ARNftqo15uQihr11Q17xo', 'Academic Manager', 'feedback-reports', 'read'),
+  ('kqjpErr5rFjhrCG3uNozM', 'Academic Manager', 'feedback-reports', 'update'),
+  ('UJjgGWeqXXqkenXoKNN-0', 'Academic Manager', 'school-structures', 'read'),
+  ('jWkOpwGcnkI9b0gAb1rpG', 'Academic Manager', 'school-structures', 'update'),
+  ('5Yh85tcZ2XNAU0wnjbgdP', 'Academic Manager', 'school-structures', 'delete'),
+  ('ma5kAqcBNm2Q8xWSdonAH', 'Academic Manager', 'timetable', 'read'),
+  ('8hP54UcI-3X901ujNl3yB', 'Academic Manager', 'timetable', 'create'),
+  ('X08eYdZg6howPYLP1aifh', 'Academic Manager', 'timetable', 'update'),
+  ('veYiIhL9Fd6Cs0w-w0190', 'Academic Manager', 'timetable', 'delete'),
+  ('tBbcGy6ZVVkkaNemZqOKt', 'Academic Manager', 'venues', 'read'),
+  ('8HUMkxgsFG4AOwNWlqHDn', 'Academic Manager', 'venues', 'create'),
+  ('czvgUKvjXRN_o7gxkGsQU', 'Academic Manager', 'venues', 'update'),
+  ('p448OQlmMLt1e_ymy1Exw', 'Academic Manager', 'venues', 'delete'),
+  ('HzBwIFIF9vqoFMcKJAlR1', 'Academic Manager', 'students', 'read'),
+  ('kaQS3b-Z8vZV9M8gVtltl', 'Academic Manager', 'registration', 'read'),
+  ('i-SOZTjrT3jRglT8_b8tU', 'Academic Manager', 'registration', 'update'),
+  ('GxzomWrBauykwQkzc6BN-', 'Academic Manager', 'graduation', 'read'),
+  ('SUZmwPKPBkQnlATXDFqTl', 'Academic Manager', 'graduation', 'approve'),
+  ('WRFnd12ETjmBDELZl4w4n', 'Academic Manager', 'graduation-clearance', 'read'),
+  ('5lBU1PIlNGadX_QEpQ4_0', 'Academic Manager', 'graduation-clearance', 'approve'),
+  ('1NBvfrSWVunNJNA1TrsuV', 'Academic Manager', 'graduation-clearance', 'reject'),
+  ('jf3TxB9hpW4gpL_kcfepR', 'Academic Manager', 'activity-tracker', 'read'),
+  ('0kQclJqWyf7kY7jXXRhvq', 'Academic Manager', 'tasks', 'read'),
+  ('C7uE2i50Fwm0Y1AUsJSa_', 'Academic Manager', 'tasks', 'create'),
+  ('A6hBwmEuwjSN5JAtxkIst', 'Academic Manager', 'tasks', 'update'),
+  ('Jjn8o1AgBGJJHsuYpAjOC', 'Academic Manager', 'tasks', 'delete'),
+  ('YCA2JXKk_sBacYoH9Cbvz', 'Academic Manager', 'gradebook', 'read'),
+  ('S-VAIlT4_q5F8Sc7it19x', 'Academic Manager', 'gradebook', 'update'),
+  ('dWloTamRbkQ4TKT2CHesK', 'Academic Manager', 'gradebook', 'approve'),
+  ('A9RxdHJYhplTsLe5cYvVJ', 'Academic Manager', 'attendance', 'read'),
+  ('_y6zJ_CwiJLtmFsw4P2wM', 'Academic Manager', 'attendance', 'create'),
+  ('lF6z_Rg1mm6aIdZ3xw9kf', 'Academic Manager', 'attendance', 'update'),
+  ('iXUUd_-NYI-Xy2U6Tv3SG', 'Academic Manager', 'attendance', 'delete'),
+  ('sDBW6WTpT3nPaZxzeXYCc', 'Academic Manager', 'assigned-modules', 'read'),
+  ('n_UK_xNyc4J29Bm1gbKXi', 'Academic Manager', 'assigned-modules', 'create'),
+  ('IoGNzxunpClalDfful8ox', 'Academic Manager', 'assigned-modules', 'delete'),
+  ('y1rnGLiRYMlSY9WxLKDjl', 'Academic Manager', 'reports-attendance', 'read'),
+  ('_BBYABGCKWpIbnFJruDhB', 'Academic Manager', 'reports-course-summary', 'read'),
+  ('QzrdKgcc6plXB4otVmxNF', 'Academic Manager', 'reports-boe', 'read'),
+  ('3ukR-gza3YZXctyTBfZmT', 'Academic Manager', 'reports-enrollments', 'read'),
+  ('VEVtjq3QJVMj4K0OTqwFw', 'Academic Manager', 'reports-progression', 'read'),
+  ('DhVGdHwQx9UG4R1JOUR4o', 'Academic Manager', 'reports-distribution', 'read'),
+  ('HWrYVQokeiCJe_dwCtdBY', 'Academic Manager', 'reports-graduation', 'read'),
+  ('exmrfmHtOQEpscqcOYrMm', 'Academic Program Leader', 'lecturers', 'read'),
+  ('cCh7HzmQs9gnd2_Fgchpb', 'Academic Program Leader', 'lecturers', 'create'),
+  ('auuk3sncsMRH9IA_RtFYO', 'Academic Program Leader', 'lecturers', 'update'),
+  ('fPFNm1d3AS0-XHe61zBZm', 'Academic Program Leader', 'lecturers', 'delete'),
+  ('PPJhlxjaogMpAz8Mnu5Cy', 'Academic Program Leader', 'feedback-questions', 'read'),
+  ('MiCuYGQ0IzUKBYVyHBhrT', 'Academic Program Leader', 'feedback-questions', 'create'),
+  ('iUaK-DGghEZQHx3ozt-14', 'Academic Program Leader', 'feedback-questions', 'update'),
+  ('XEOP76Bvntcp--Jr7PIlJ', 'Academic Program Leader', 'feedback-questions', 'delete'),
+  ('6cb6W11Y4vM2AZgn_T6dV', 'Academic Program Leader', 'feedback-categories', 'read'),
+  ('7bWFxftBZoc-dIEjxnuiH', 'Academic Program Leader', 'feedback-categories', 'create'),
+  ('a1VrbUhWEJ6liiahMIqzV', 'Academic Program Leader', 'feedback-categories', 'update'),
+  ('LtIh_yV1Q-kFX_04dOwUF', 'Academic Program Leader', 'feedback-categories', 'delete'),
+  ('-Q5r5L4eqKSDgjuFtY-fl', 'Academic Program Leader', 'school-structures', 'read'),
+  ('oEuRQYnxI1t1e_RE0ncvN', 'Academic Program Leader', 'school-structures', 'update'),
+  ('iGJid0B33UYZCQtJ6gttM', 'Academic Program Leader', 'registration', 'read'),
+  ('cYxHeEdOjPPshyVzo8FKR', 'Academic Program Leader', 'registration', 'update'),
+  ('HSPDIQIWpAPUypBYwnHEi', 'Academic Program Leader', 'timetable', 'read'),
+  ('apFgOcbjRPZlCX4trUwDX', 'Academic Program Leader', 'students', 'read'),
+  ('T-J8fTOLdckMvVHSN0M1f', 'Academic Program Leader', 'gradebook', 'read'),
+  ('k-tJGQ0rvAvET3bL6wlDj', 'Academic Program Leader', 'gradebook', 'update'),
+  ('d9XWtpu5OMB36bO94pSI6', 'Academic Program Leader', 'gradebook', 'approve'),
+  ('7RbVJAv3WtSFBrfb_R59v', 'Academic Program Leader', 'attendance', 'read'),
+  ('SjIBuQXTLvggIjFjJMqfa', 'Academic Program Leader', 'assigned-modules', 'read'),
+  ('dtdoN7wbGx89pNez0JTKk', 'Academic Program Leader', 'assigned-modules', 'create'),
+  ('oRDsVliF0fUVpVZ80-pz_', 'Academic Program Leader', 'assigned-modules', 'delete'),
+  ('GH-_EaapOrrUgzvEmudwM', 'Academic Program Leader', 'reports-attendance', 'read'),
+  ('JQGnnIMdBWKL5WUCcHmdk', 'Academic Program Leader', 'reports-course-summary', 'read'),
+  ('-CS9RVGJlFXenyGnZ5Fj0', 'Academic Program Leader', 'reports-boe', 'read'),
+  ('qZ06gjq10guXZUAKf2ahr', 'Academic Program Leader', 'reports-enrollments', 'read'),
+  ('RdiZ-SrEZ4g4dOhz2CKP4', 'Academic Program Leader', 'reports-progression', 'read'),
+  ('LFHJ0dlDVaWzK6yXl285Q', 'Academic Program Leader', 'reports-distribution', 'read'),
+  ('Sx90UUeRUAaBFCAzFMepX', 'Academic Program Leader', 'reports-graduation', 'read'),
+  ('LabAQWiB08fjiqu6YVJcY', 'Academic Year Leader', 'feedback-cycles', 'read'),
+  ('wwv-MkXvDTPkMLYsganEK', 'Academic Year Leader', 'registration', 'read'),
+  ('68Tb1cDh6YnB2RTHcCKrW', 'Academic Year Leader', 'students', 'read'),
+  ('q_TltRYcgluHV75HlJxbB', 'Academic Year Leader', 'timetable', 'read'),
+  ('ye41W__nykMO823nWGuAb', 'Academic Year Leader', 'attendance', 'read'),
+  ('5NbZiosw9aCaKk7LkjTOB', 'Academic Year Leader', 'reports-attendance', 'read'),
+  ('NeGbNVcY6RNMe0ObZPXvF', 'Academic Year Leader', 'reports-enrollments', 'read'),
+  ('qENvbtbYB9il-GUphq983', 'Academic Year Leader', 'reports-progression', 'read'),
+  ('UgiSXVxN_Ir3pz2P6KlAR', 'Academic Year Leader', 'reports-distribution', 'read'),
+  ('-qsziBlESJGnr1f0OhzK7', 'Academic Lecturer', 'assessments', 'read'),
+  ('gLx21eB-IkAFSMcb6Em6P', 'Academic Lecturer', 'assessments', 'create'),
+  ('8g16CtaExKXkKPGxIbc47', 'Academic Lecturer', 'assessments', 'update'),
+  ('psck73CHHjvUsxwE2wO5e', 'Academic Lecturer', 'assessments', 'delete'),
+  ('oXDC6gx-JbEryJ08bZCHR', 'Academic Lecturer', 'gradebook', 'read'),
+  ('EgiAXBaBhUY9-GeCVtBPy', 'Academic Lecturer', 'gradebook', 'update'),
+  ('0D87SAIj4CyCR9v5Sk9T7', 'Academic Lecturer', 'feedback-reports', 'read'),
+  ('cbo73GmlSuGsfCGvAChj9', 'Academic Lecturer', 'timetable', 'read'),
+  ('lmcl80c5tNxyW40TIT17m', 'Academic Lecturer', 'attendance', 'read'),
+  ('9xU-FUvUPaXByEnv6bnG2', 'Academic Lecturer', 'attendance', 'create'),
+  ('eRwAenoNQHwE6yYwMZ2_u', 'Academic Lecturer', 'attendance', 'update'),
+  ('W4eZOpuoBqlCU7AGCPR6w', 'Academic Lecturer', 'assigned-modules', 'read'),
+  ('iTGZAxQikmX7-IArJ3Ja0', 'Academic Lecturer', 'reports-attendance', 'read'),
+  ('LL4qkSJbPfpVUn6H8o66h', 'Academic Lecturer', 'reports-course-summary', 'read'),
+  ('8D-hp0nsFi9sRjaiieqv-', 'Academic Principal Lecturer', 'assessments', 'read'),
+  ('Ro18xYpi7Ja6eTwLzosY9', 'Academic Principal Lecturer', 'assessments', 'create'),
+  ('j7Kk13aBUuJ0KoUmd2Ime', 'Academic Principal Lecturer', 'assessments', 'update'),
+  ('VCk-uU-_7xFuF1ZYzdypm', 'Academic Principal Lecturer', 'assessments', 'delete'),
+  ('8UpIXeZNASQ5asQaRdPWb', 'Academic Principal Lecturer', 'gradebook', 'read'),
+  ('q0RIf7enEDzeajy7UVAAX', 'Academic Principal Lecturer', 'gradebook', 'update'),
+  ('2VSFqY0BFn6xgequCkd0m', 'Academic Principal Lecturer', 'gradebook', 'approve'),
+  ('MjaKFRk3yShbEgxWEXbRU', 'Academic Principal Lecturer', 'feedback-reports', 'read'),
+  ('IoisMWOd5P6siGDCwA5RD', 'Academic Principal Lecturer', 'timetable', 'read'),
+  ('0YtZ240FFutk_BtnR3zAl', 'Academic Principal Lecturer', 'attendance', 'read'),
+  ('eHNlGv4f7kxVtuasMiyHV', 'Academic Principal Lecturer', 'attendance', 'create'),
+  ('4oy0z8uy81cWCLlXGnQGK', 'Academic Principal Lecturer', 'attendance', 'update'),
+  ('cbAzqhDItl9pHpqKYz69b', 'Academic Principal Lecturer', 'assigned-modules', 'read'),
+  ('9w3CaBXRudFpPcyQW3D1J', 'Academic Principal Lecturer', 'reports-attendance', 'read'),
+  ('JDWOGibT-fSUPt6coRVAK', 'Academic Principal Lecturer', 'reports-course-summary', 'read'),
+  ('BRUswEYPXL2gq9k0tCoxf', 'Academic Admin', 'assessments', 'read'),
+  ('XX87ImD-HeAw8NoWvz1Jo', 'Academic Admin', 'assessments', 'create'),
+  ('jdrS87rUnAdeCNuLBk-jN', 'Academic Admin', 'assessments', 'update'),
+  ('P3yrxYZX1C7gmBuw68AOO', 'Academic Admin', 'assessments', 'delete'),
+  ('wmKRtkRYc-ei6PrEKdUrX', 'Academic Admin', 'feedback-questions', 'read'),
+  ('h-mG0Mv3G2L5I-SscpQO7', 'Academic Admin', 'feedback-questions', 'create'),
+  ('lmA6K5y6vV7HS3Yhbkb1d', 'Academic Admin', 'feedback-questions', 'update'),
+  ('Vom5Jp5epTZ68ZHXUlBpn', 'Academic Admin', 'feedback-questions', 'delete'),
+  ('rd0kYS9RpCe8ldpmS-oFn', 'Academic Admin', 'feedback-categories', 'read'),
+  ('rMtcW1rwtOu8XyFikB-p6', 'Academic Admin', 'feedback-categories', 'create'),
+  ('3-tHOItf4-_7vkE5O01Uh', 'Academic Admin', 'feedback-categories', 'update'),
+  ('8DoKXhgZuxDOmmdm5AkGv', 'Academic Admin', 'feedback-categories', 'delete'),
+  ('FUrdJ0PV06K4aTdD1uaOd', 'Academic Admin', 'feedback-cycles', 'read'),
+  ('gUHMwQFdcynED7St4btmf', 'Academic Admin', 'feedback-cycles', 'create'),
+  ('w6QRaxF1djIkjtd8uPXDE', 'Academic Admin', 'feedback-cycles', 'update'),
+  ('cqylXu6z5U36L171wKS0F', 'Academic Admin', 'feedback-cycles', 'delete'),
+  ('YF4Nh4hguxGb4XN9tobg5', 'Academic Admin', 'timetable', 'read'),
+  ('eoF10eO2Mi9JaOMqptWM6', 'Academic Admin', 'attendance', 'read'),
+  ('VxgH_gf4DzF9aVyw2bDSs', 'Registry Staff', 'students', 'read'),
+  ('gJDo2hzVPGoou7kkpvuco', 'Registry Staff', 'students', 'update'),
+  ('dX63ALrQW2Rs9rASRNsfj', 'Registry Staff', 'students', 'delete'),
+  ('5ag-iH2qyBWz7Vnd-Nmtq', 'Registry Staff', 'registration', 'read'),
+  ('F4f7Igxi0txmSgSRGbBnB', 'Registry Staff', 'registration', 'create'),
+  ('iRWltBusSCFIn7egVXbct', 'Registry Staff', 'registration', 'update'),
+  ('VBHIO6HFNCj_vacDn-0CP', 'Registry Staff', 'registration', 'delete'),
+  ('VRZni4XHX1jo-e7POPpEI', 'Registry Staff', 'registration-clearance', 'read'),
+  ('cR0eif_qtRKYOic1IMJzA', 'Registry Staff', 'documents', 'read'),
+  ('B9H2WI4gWeVl0uckhXYDS', 'Registry Staff', 'documents', 'create'),
+  ('sNa0FJOnqznrrtxfauSdM', 'Registry Staff', 'student-statuses', 'read'),
+  ('6PXodWykk2S-BIycBnKVo', 'Registry Staff', 'student-statuses', 'create'),
+  ('dtsCYnQg9qo-T-ceKKpwP', 'Registry Staff', 'student-statuses', 'update'),
+  ('4inAr2_lpEoYPYuNR013L', 'Registry Staff', 'student-statuses', 'delete'),
+  ('aNNabaCOJUakgpzdcD948', 'Registry Staff', 'terms-settings', 'read'),
+  ('gJFCncadgqVQKXI7xH36g', 'Registry Staff', 'terms-settings', 'update'),
+  ('4qld05bsjMxBcHUoGOUZq', 'Registry Staff', 'certificate-reprints', 'read'),
+  ('ap_hKqmvlmiDqn68OgB13', 'Registry Staff', 'certificate-reprints', 'create'),
+  ('JuXoLiNJdNZKzzEtEZG3C', 'Registry Staff', 'certificate-reprints', 'update'),
+  ('dFvDSTJe7OX8IW0jCID26', 'Registry Staff', 'certificate-reprints', 'delete'),
+  ('LYYbHxpda0ORL7kJXYJr2', 'Registry Staff', 'modules', 'create'),
+  ('MisiioRNw0WiELkPrAQTy', 'Registry Staff', 'semester-modules', 'create'),
+  ('j7C8ZGZVf_UQcF87wvNR_', 'Registry Staff', 'semester-modules', 'update'),
+  ('Rgi_auMXW1HceBrV7MZgl', 'Registry Staff', 'venues', 'create'),
+  ('khKeprjtuG-z_zRHQp8_n', 'Registry Staff', 'venues', 'update'),
+  ('gWW12BBLaDkw2b3ZdwOjh', 'Registry Staff', 'venues', 'delete'),
+  ('rysyMdetLCXlevS60ks9S', 'Registry Staff', 'graduation', 'read'),
+  ('ErqBvxoyGzmmSLv5bZbA6', 'Registry Staff', 'student-notes', 'read'),
+  ('-wjVWdbOJB0h-H0_T3UGT', 'Registry Staff', 'student-notes', 'create'),
+  ('I8DDJLtOZPxvkP_IvkBXk', 'Registry Staff', 'student-notes', 'update'),
+  ('fbDEIW6Jgj9LVQuFzuxVl', 'Registry Staff', 'student-notes', 'delete'),
+  ('YU6UYmXJ0BDT0Gr_dUgie', 'Registry Staff', 'blocked-students', 'read'),
+  ('VqWSzJEpDfJZPEvPQqvTM', 'Registry Staff', 'blocked-students', 'create'),
+  ('3LjeJqd06FWIVNedVWylk', 'Registry Staff', 'blocked-students', 'update'),
+  ('jVAN191ANhsjwlf1Hy5NL', 'Registry Staff', 'reports-enrollments', 'read'),
+  ('3eEYqxX4IQuIc9u8pql_L', 'Registry Staff', 'reports-progression', 'read'),
+  ('IawcfS9De_E0ur7f3TCi6', 'Registry Staff', 'reports-distribution', 'read'),
+  ('a6tEGLuNrCT8G-2ZryE8-', 'Registry Staff', 'reports-attendance', 'read'),
+  ('n62C2vmGQLlwwK17BI7hf', 'Registry Manager', 'students', 'read'),
+  ('O62v3Db2Mt4OFQw3a8Dva', 'Registry Manager', 'students', 'update'),
+  ('qpLAwoAiL13IDrJVIlNaD', 'Registry Manager', 'students', 'delete'),
+  ('8-YUm3_gzMGY0QxIV9jTE', 'Registry Manager', 'registration', 'read'),
+  ('7G1TfaBDei4PCTzhC4cIo', 'Registry Manager', 'registration', 'create'),
+  ('O_bltTGi-luMp9btFZXqv', 'Registry Manager', 'registration', 'update'),
+  ('VT9GUmQS_T2TbLCX9Qo5Y', 'Registry Manager', 'registration', 'delete'),
+  ('5Y1P6SYQiCgRmaPTuVtNk', 'Registry Manager', 'registration-clearance', 'read'),
+  ('n5oIL4dC4fPHVQtt2V9NL', 'Registry Manager', 'documents', 'read'),
+  ('a2cAFhfcs2BXSmn79UOGA', 'Registry Manager', 'documents', 'create'),
+  ('4BJA6v3dqR9KrOg_3gjEV', 'Registry Manager', 'student-statuses', 'read'),
+  ('NpYoxVBi_0BDK961nZyqR', 'Registry Manager', 'student-statuses', 'create'),
+  ('4OxmumWRVzz1pTupUfz_5', 'Registry Manager', 'student-statuses', 'update'),
+  ('QNfCAsv2y3twc0wJiyCjw', 'Registry Manager', 'student-statuses', 'delete'),
+  ('nW9cPjmvqM_qb72FaM6hW', 'Registry Manager', 'terms-settings', 'read'),
+  ('4YiSdw-LQ9FpW4dMJ2gf_', 'Registry Manager', 'terms-settings', 'update'),
+  ('44LZ9VGnnnzhk06NhJ1o_', 'Registry Manager', 'certificate-reprints', 'read'),
+  ('CtrVJHhZ7hHsroHsSqu1w', 'Registry Manager', 'certificate-reprints', 'create'),
+  ('lOgJvvJjuG78Iv6tZcV19', 'Registry Manager', 'certificate-reprints', 'update'),
+  ('V7Oh9Kh5W847Btvdy4W0_', 'Registry Manager', 'certificate-reprints', 'delete'),
+  ('yFJvGYQvfxYXORFDOx8sn', 'Registry Manager', 'modules', 'create'),
+  ('ajGEUA41aY3Pqx79DAA-B', 'Registry Manager', 'semester-modules', 'create'),
+  ('kOkxwZOTFIhJTff3Hejsq', 'Registry Manager', 'semester-modules', 'update'),
+  ('mybLCTqyHkw79ByhEzgfT', 'Registry Manager', 'venues', 'create'),
+  ('oC5yLaxY3k3ZBMFhlmWsx', 'Registry Manager', 'venues', 'update'),
+  ('65RVEm8zfT1uHYdOsIbh5', 'Registry Manager', 'venues', 'delete'),
+  ('AU3bPomnHFl7BOyP_6WDp', 'Registry Manager', 'graduation', 'read'),
+  ('vq1aVFAPP2N0rcmqpBsJx', 'Registry Manager', 'activity-tracker', 'read'),
+  ('8oRdYJl5RO3cvD5UejHAR', 'Registry Manager', 'tasks', 'read'),
+  ('ZpB_TxGXqV1NqiuowT4c-', 'Registry Manager', 'tasks', 'create'),
+  ('YHCIPVJPyizqzXswUdBhd', 'Registry Manager', 'tasks', 'update'),
+  ('tqG6XTtgztu2aeeYECUpv', 'Registry Manager', 'tasks', 'delete'),
+  ('G3NLQMQpwDuRFIPi3aYwt', 'Registry Manager', 'school-structures', 'update'),
+  ('56WATBfjQ33Cbzv6wygl1', 'Registry Manager', 'student-notes', 'read'),
+  ('-YtG8YbkyTdBaI3cCQiMh', 'Registry Manager', 'student-notes', 'create'),
+  ('vPdPdf-aAmErIISFQGpuV', 'Registry Manager', 'student-notes', 'update'),
+  ('2NvcJBO2v_CqQ6DgBmBTL', 'Registry Manager', 'student-notes', 'delete'),
+  ('3PBnDC17E5AHk3gLpRKJa', 'Registry Manager', 'blocked-students', 'read'),
+  ('ZqFQmVHju20FKEYWUYDfs', 'Registry Manager', 'blocked-students', 'create'),
+  ('XQhSqku6ootMU4MGI_nhG', 'Registry Manager', 'blocked-students', 'update'),
+  ('a1gHRrR8ae2-EYAh0NSDo', 'Registry Manager', 'blocked-students', 'delete'),
+  ('PwIeW83Zdvn9pJtMS1h0f', 'Registry Manager', 'notifications', 'read'),
+  ('q3kYQYsJjlN7FFxmWOP-Q', 'Registry Manager', 'reports-enrollments', 'read'),
+  ('3CpOHPeYW0RA1fsRtPsHL', 'Registry Manager', 'reports-progression', 'read'),
+  ('WSsUXfTeMkBA8H-rNQzYh', 'Registry Manager', 'reports-distribution', 'read'),
+  ('B2Ix99GwvJQL89NOqXBa9', 'Registry Manager', 'reports-attendance', 'read'),
+  ('_5SumG8iAl9y40Cv7mIzz', 'Registry Manager', 'reports-graduation', 'read'),
+  ('wYf_CdfZB2JBaLwBmJVhB', 'Finance Staff', 'sponsors', 'read'),
+  ('ndHGgEO_JXwua8NbaBXf9', 'Finance Staff', 'sponsors', 'create'),
+  ('5boxT254nlpIu6YQIvs5e', 'Finance Staff', 'sponsors', 'update'),
+  ('3_19Z1kbqIFpYIvVC62jp', 'Finance Staff', 'sponsors', 'delete'),
+  ('38xpCM0ckmM-xzVY6h1jj', 'Finance Staff', 'admissions-payments', 'read'),
+  ('O1wfnUg_AbUkL7LqKVdHF', 'Finance Staff', 'admissions-payments', 'update'),
+  ('HEMTeHEZxW1FREdJXp00U', 'Finance Staff', 'student-statuses', 'read'),
+  ('DsUX_KL_qfLFZdhwQo_by', 'Finance Staff', 'graduation', 'read'),
+  ('0Z6T1NOuQYYIJtF3MWA5Z', 'Finance Staff', 'students', 'read'),
+  ('21DBhDgLc0NSytKOzWtJd', 'Finance Staff', 'registration-clearance', 'read'),
+  ('illbi-PI3Cckm3V98hNJB', 'Finance Staff', 'registration-clearance', 'approve'),
+  ('PdEhJ5aIivceIfaszHl9y', 'Finance Staff', 'registration-clearance', 'reject'),
+  ('iZsBmzvukPuhv3p8ECudN', 'Finance Staff', 'graduation-clearance', 'read'),
+  ('_Szirv-HTbchL8f1NgU_Q', 'Finance Staff', 'graduation-clearance', 'approve'),
+  ('jAzA2dfXtnnPRJyveqrLi', 'Finance Staff', 'graduation-clearance', 'reject'),
+  ('BCV01lK-nX_EvXcMeeGfR', 'Finance Staff', 'blocked-students', 'read'),
+  ('1mmmHW5qLXC5uyGhB1_KD', 'Finance Staff', 'blocked-students', 'create'),
+  ('Xv-jY9c7fnWuPJS-fD0W5', 'Finance Staff', 'blocked-students', 'update'),
+  ('U4uJ9Z-GX1Re3rTZwJwsR', 'Finance Staff', 'reports-enrollments', 'read'),
+  ('lcowiFYhH3DL6DyDYgCx8', 'Finance Staff', 'reports-progression', 'read'),
+  ('CO4hA8n3kGl1bBiS0JKry', 'Finance Staff', 'reports-distribution', 'read'),
+  ('eHBiNInopGXbWr_nHv7lz', 'Finance Staff', 'reports-graduation', 'read'),
+  ('B5u7SH6XfdIjXKYqYicBc', 'Finance Staff', 'reports-sponsored-students', 'read'),
+  ('_ndq0J4YQRtzAgWgDCSVY', 'Finance Manager', 'sponsors', 'read'),
+  ('mstI-T8GYTrChzljnRqqU', 'Finance Manager', 'sponsors', 'create'),
+  ('khI7DLfyCALkRTEpfRzF3', 'Finance Manager', 'sponsors', 'update'),
+  ('4tPZf1nsL-2aLtjW_SB7m', 'Finance Manager', 'sponsors', 'delete'),
+  ('lif4vT-fXPaWlA6EC1boE', 'Finance Manager', 'admissions-payments', 'read'),
+  ('hQaM8pT4lp3GrAcRWSIog', 'Finance Manager', 'admissions-payments', 'update'),
+  ('m3PR7T7fxIk7M1qLt15Uq', 'Finance Manager', 'student-statuses', 'read'),
+  ('AdMNyamyn40le4Q8oVJHO', 'Finance Manager', 'graduation', 'read'),
+  ('SEiA1qenT0mmHRfkz-rAS', 'Finance Manager', 'students', 'read'),
+  ('5WGEE9kQJOyOZf0saWyRm', 'Finance Manager', 'registration-clearance', 'read'),
+  ('67eM433FzsjljSCIgIcyL', 'Finance Manager', 'registration-clearance', 'approve'),
+  ('d7etQyNcGapfMohIfoCbI', 'Finance Manager', 'registration-clearance', 'reject'),
+  ('t_rWlOdco7ARj_kp--x3N', 'Finance Manager', 'graduation-clearance', 'read'),
+  ('f__r6jIQ-H-a0U__Obipr', 'Finance Manager', 'graduation-clearance', 'approve'),
+  ('sFvCS1JVyAqGdVys_DeMa', 'Finance Manager', 'graduation-clearance', 'reject'),
+  ('-N0p9MUzDc9omrjFw-L65', 'Finance Manager', 'blocked-students', 'read'),
+  ('R36R4_3hkfqtLWlc7rGBE', 'Finance Manager', 'blocked-students', 'create'),
+  ('IGJifwFJnJmFsGXUwV6PX', 'Finance Manager', 'blocked-students', 'update'),
+  ('qp78G76_WiAA0EnngqnfL', 'Finance Manager', 'blocked-students', 'delete'),
+  ('FlQcI9EsuqU6x1TJr2Die', 'Finance Manager', 'auto-approvals', 'read'),
+  ('jRekX5Z0YsYvFXMFApA6h', 'Finance Manager', 'auto-approvals', 'create'),
+  ('bVr5p3YfCVqHXFizJdHUn', 'Finance Manager', 'auto-approvals', 'update'),
+  ('wyXeoqmCWs4RQTzWE5BcU', 'Finance Manager', 'auto-approvals', 'delete'),
+  ('ikw9UpL9X1-gP-y2JXYIo', 'Finance Manager', 'activity-tracker', 'read'),
+  ('M39v87hHF3aHIAa7YmC9x', 'Finance Manager', 'tasks', 'read'),
+  ('KYcMPwQW0YWFerAEiLDg8', 'Finance Manager', 'tasks', 'create'),
+  ('xuPTzEk70--i7CpEyS3tv', 'Finance Manager', 'tasks', 'update'),
+  ('7LcMYqAwSOFdejxRKegvb', 'Finance Manager', 'tasks', 'delete'),
+  ('8iicXXFCN5-Tk0GaoANnc', 'Finance Manager', 'reports-enrollments', 'read'),
+  ('VFYWR8CFcLYV7Zj5oqo4J', 'Finance Manager', 'reports-progression', 'read'),
+  ('55121-SxxnKhyDWC3rs5V', 'Finance Manager', 'reports-distribution', 'read'),
+  ('oWTARXZUMgoXKR3pqQBp3', 'Finance Manager', 'reports-graduation', 'read'),
+  ('ZxyfIGZFDx2DOM_V5jBlW', 'Finance Manager', 'reports-sponsored-students', 'read'),
+  ('x-loM66REgljh63soNr-o', 'Library Staff', 'library', 'read'),
+  ('UIFOSm7m78au5aKejZfF4', 'Library Staff', 'library', 'create'),
+  ('se1lvH7XHMVY90nmlEeWe', 'Library Staff', 'library', 'update'),
+  ('j4bM1mZ5VhDiCdrDYpxTX', 'Library Staff', 'library', 'delete'),
+  ('qAzme47M7nIFMIhRNFWkL', 'Library Staff', 'students', 'read'),
+  ('DXGWN0GgtBmV094K9qqTU', 'Library Staff', 'registration-clearance', 'read'),
+  ('NIeukvANTM228I9Bcw71q', 'Library Staff', 'registration-clearance', 'approve'),
+  ('4jN3c-0fhK-5i1mhr-xkp', 'Library Staff', 'registration-clearance', 'reject'),
+  ('-JrMp79giav06Uo_vR_x6', 'Library Staff', 'graduation-clearance', 'read'),
+  ('3czTnAqkq2PiTBDaVR735', 'Library Staff', 'graduation-clearance', 'approve'),
+  ('r-QZTbtMGOrZaKOdvqNcK', 'Library Staff', 'graduation-clearance', 'reject'),
+  ('2l5W8y4OCd84gQhllIB8C', 'Library Staff', 'blocked-students', 'read'),
+  ('dvaOEiFC-hD5Drb9zTLOE', 'Library Staff', 'blocked-students', 'create'),
+  ('ftnhqXzIlYqLcwhJ8OYwo', 'Library Staff', 'blocked-students', 'update'),
+  ('7mXXEC9f_GTiAEgJLTlpK', 'Library Staff', 'auto-approvals', 'read'),
+  ('ejQssK3lfanLEJo1zKNnI', 'Library Staff', 'auto-approvals', 'create'),
+  ('sFLPMBkv6FpK688Rz9t-u', 'Library Staff', 'auto-approvals', 'update'),
+  ('NuB9mX_oVRCccUuC9m9pb', 'Library Staff', 'auto-approvals', 'delete'),
+  ('Xvko0glA4lbmLruYmYp0R', 'Marketing Staff', 'applicants', 'read'),
+  ('hHxc1I7fWsbD9VutoHBvd', 'Marketing Staff', 'applicants', 'create'),
+  ('Qi4FsJmKczC4qSM2jBJ-M', 'Marketing Staff', 'applicants', 'update'),
+  ('4GdzMGbQAGdvDX465QAVe', 'Marketing Staff', 'applicants', 'delete'),
+  ('1EpJmEUHXR6g0TUEOjCof', 'Marketing Staff', 'applications', 'read'),
+  ('p_0tKlV09jrMZAy6nN3n5', 'Marketing Staff', 'applications', 'create'),
+  ('Q1j99xI7KTzgrupdCjb1O', 'Marketing Staff', 'applications', 'update'),
+  ('qpqncjEcCKrlJ3E7IGKam', 'Marketing Staff', 'applications', 'delete'),
+  ('RhZrO80A56tebTDp0iejW', 'Marketing Staff', 'entry-requirements', 'read'),
+  ('B7-T2c5nHj3L0POQpq50m', 'Marketing Staff', 'entry-requirements', 'create'),
+  ('RbQS9iUctJBe1NunHPnWY', 'Marketing Staff', 'entry-requirements', 'update'),
+  ('vjFlV39wdX6K5qp3N1JQc', 'Marketing Staff', 'entry-requirements', 'delete'),
+  ('fwDFNC8MrPvEhzjq-k3-W', 'Marketing Staff', 'admissions-payments', 'read'),
+  ('qUq1591sLkyUaxPk0HuWK', 'Marketing Staff', 'admissions-documents', 'read'),
+  ('TpMGD4UKF_Wr_sTCqmL2i', 'Marketing Staff', 'recognized-schools', 'read'),
+  ('3VM5tmARWj2ohCXgRi-HV', 'Marketing Staff', 'recognized-schools', 'create'),
+  ('OTpQ0Z7krCJl9PHnnx5zX', 'Marketing Staff', 'recognized-schools', 'update'),
+  ('Eciyw4OimQ7ZIP4RVwWGf', 'Marketing Staff', 'recognized-schools', 'delete'),
+  ('9jvRLFKvuTDgLLzwZdHkO', 'Marketing Staff', 'intake-periods', 'read'),
+  ('WWWwfhQbOuwmyeLSmhUKm', 'Marketing Staff', 'intake-periods', 'create'),
+  ('u1tmWfajXMN_2bXECt-C5', 'Marketing Staff', 'intake-periods', 'update'),
+  ('Cn3YJbEXEm14w33Iqt1f4', 'Marketing Staff', 'intake-periods', 'delete'),
+  ('cwzcaAelzkk7CobphqkBk', 'Marketing Staff', 'certificate-types', 'read'),
+  ('50jgu1C019i6L4QWPMu9P', 'Marketing Staff', 'certificate-types', 'create'),
+  ('-aAHNyz-chzpNUJXqSoAA', 'Marketing Staff', 'certificate-types', 'update'),
+  ('uvytwX1ShFkKtEvgFZel_', 'Marketing Staff', 'certificate-types', 'delete'),
+  ('Gg4PAnMvattBP0DnegAmM', 'Marketing Staff', 'subjects', 'read'),
+  ('gTxzHD2uJoeRtaRomrPiv', 'Marketing Staff', 'subjects', 'create'),
+  ('4mzsYNPyJPPrCAdwFh_H-', 'Marketing Staff', 'subjects', 'update'),
+  ('J3M3YAUckbxeMUXyRaMBL', 'Marketing Staff', 'subjects', 'delete'),
+  ('amEpGbqNNmtay-ZdMu55u', 'Student Services Staff', 'students', 'read'),
+  ('_-Ku3pSPwKNNacvRvMKE9', 'Student Services Staff', 'students', 'update'),
+  ('Dm4M4auF4MI8SJOOdIBDm', 'Student Services Staff', 'registration', 'read'),
+  ('q66tolEu0pQRDxN1jcxcg', 'Student Services Staff', 'registration', 'update'),
+  ('upGX6BgyIppH_Sgz19LKZ', 'Student Services Staff', 'documents', 'read'),
+  ('qLC6PDzKJ1HQ0Twf7Jv1m', 'Student Services Staff', 'documents', 'create'),
+  ('pA8b3_4yNAAKm45Cyzfh1', 'Student Services Staff', 'student-statuses', 'read'),
+  ('Q4hPHTGo7flsyupSs3UKH', 'Student Services Staff', 'student-statuses', 'create'),
+  ('HXxUQnNainadNxjn7cB_l', 'Student Services Staff', 'student-statuses', 'update'),
+  ('2HHJCQp5OY6hJSL8dMI3L', 'Student Services Staff', 'student-notes', 'read'),
+  ('UwZMYs0ZqTYRtRYE1_3e8', 'Student Services Staff', 'student-notes', 'create'),
+  ('KuBm63MC5rGV32z9DPzBj', 'Student Services Staff', 'student-notes', 'update'),
+  ('rLl45XOxuy2FVhi7Gzc1M', 'Student Services Staff', 'student-notes', 'delete'),
+  ('QMu16eCalvBOw2uZGIir-', 'LEAP Staff', 'assessments', 'read'),
+  ('87EqwW6FSi04hPaBpTW4f', 'LEAP Staff', 'assessments', 'create'),
+  ('R37tgQAqZ-2lpxlnTN1ss', 'LEAP Staff', 'assessments', 'update'),
+  ('yixMY66oPyp5122BTQ5Ef', 'LEAP Staff', 'assessments', 'delete'),
+  ('ONWpHYsuNywgOzqFXEM9S', 'LEAP Staff', 'registration', 'read'),
+  ('a3s2tzNipWyZhaTv4E-dg', 'LEAP Staff', 'registration', 'update'),
+  ('Ptrhtt9lV2lfEDCrn-glY', 'LEAP Staff', 'registration-clearance', 'read'),
+  ('IRdxPAMJYlYDKQwFecPh4', 'LEAP Staff', 'students', 'read'),
+  ('1rbGp-btAT-Advf2M8l8I', 'LEAP Staff', 'attendance', 'read'),
+  ('DmZCK0XigNXV4e0HRcJC6', 'LEAP Staff', 'attendance', 'create'),
+  ('sVwuCK3WErGexnxCDKRBd', 'LEAP Staff', 'attendance', 'update'),
+  ('arnmPqrhEC8BAL1vFWVRP', 'LEAP Staff', 'assigned-modules', 'read'),
+  ('g-om_SlvbiDMBittf143z', 'LEAP Staff', 'reports-attendance', 'read'),
+  ('L3m6OCMlzaK_q9KjqX1TY', 'LEAP Staff', 'reports-enrollments', 'read'),
+  ('UVbBUIthBksfSWE5ZEuAP', 'LEAP Staff', 'reports-progression', 'read'),
+  ('afwaJ0bWn3RL9sQIB3Wtn', 'LEAP Staff', 'reports-distribution', 'read'),
+  ('F2Hjz-s1YFXApTkLL3ZaY', 'Human Resource Staff', 'feedback-reports', 'read'),
+  ('9NlBfNO-p6xfZAdaI6_9f', 'Human Resource Staff', 'employees', 'read'),
+  ('6Wq8ciR6_DGY980937B1u', 'Human Resource Staff', 'employees', 'create'),
+  ('ZmptM5iqQvczo6uhvVj0Q', 'Human Resource Staff', 'employees', 'update'),
+  ('srcf-Bvw_VVIdC89Z71kZ', 'Human Resource Staff', 'employees', 'delete'),
+  ('YAeGxyvoI4aJoSEn6RqO5', 'Resource Staff', 'timetable', 'read'),
+  ('1pI0p1VE-eV0o128fd_7A', 'Resource Staff', 'venues', 'read'),
+  ('eRL_FKQ-Odac8AAHu7ObN', 'Resource Staff', 'registration-clearance', 'read'),
+  ('EZ2gOLQHW6f8qdxEozYbL', 'Resource Staff', 'registration-clearance', 'approve'),
+  ('ZALo9mQZNsFzojWFzVKAE', 'Resource Staff', 'registration-clearance', 'reject'),
+  ('kTxYAk6nD-g2PRPqQeoyv', 'Resource Staff', 'auto-approvals', 'read'),
+  ('wa5q3aePROEUiId2m8Jbz', 'Resource Staff', 'auto-approvals', 'create'),
+  ('_J-ndkLRr55yMJoUzwv98', 'Resource Staff', 'auto-approvals', 'update'),
+  ('tSjuizrcTACXajOAzwzzZ', 'Resource Staff', 'auto-approvals', 'delete')
+) AS seed(id, preset_name, resource, action)
+JOIN permission_presets AS preset ON preset.name = seed.preset_name
+ON CONFLICT (preset_id, resource, action) DO NOTHING;
+--> statement-breakpoint
+UPDATE users AS user_record
+SET preset_id = preset.id
+FROM permission_presets AS preset
+WHERE user_record.role = 'academic'
+  AND user_record.position = 'manager'
+  AND preset.name = 'Academic Manager'
+  AND user_record.preset_id IS DISTINCT FROM preset.id;
+--> statement-breakpoint
+UPDATE users AS user_record
+SET preset_id = preset.id
+FROM permission_presets AS preset
+WHERE user_record.role = 'academic'
+  AND user_record.position = 'program_leader'
+  AND preset.name = 'Academic Program Leader'
+  AND user_record.preset_id IS DISTINCT FROM preset.id;
+--> statement-breakpoint
+UPDATE users AS user_record
+SET preset_id = preset.id
+FROM permission_presets AS preset
+WHERE user_record.role = 'academic'
+  AND user_record.position = 'year_leader'
+  AND preset.name = 'Academic Year Leader'
+  AND user_record.preset_id IS DISTINCT FROM preset.id;
+--> statement-breakpoint
+UPDATE users AS user_record
+SET preset_id = preset.id
+FROM permission_presets AS preset
+WHERE user_record.role = 'academic'
+  AND user_record.position = 'lecturer'
+  AND preset.name = 'Academic Lecturer'
+  AND user_record.preset_id IS DISTINCT FROM preset.id;
+--> statement-breakpoint
+UPDATE users AS user_record
+SET preset_id = preset.id
+FROM permission_presets AS preset
+WHERE user_record.role = 'academic'
+  AND user_record.position = 'principal_lecturer'
+  AND preset.name = 'Academic Principal Lecturer'
+  AND user_record.preset_id IS DISTINCT FROM preset.id;
+--> statement-breakpoint
+UPDATE users AS user_record
+SET preset_id = preset.id
+FROM permission_presets AS preset
+WHERE user_record.role = 'academic'
+  AND user_record.position = 'admin'
+  AND preset.name = 'Academic Admin'
+  AND user_record.preset_id IS DISTINCT FROM preset.id;
+--> statement-breakpoint
+UPDATE users AS user_record
+SET preset_id = preset.id
+FROM permission_presets AS preset
+WHERE user_record.role = 'academic'
+  AND user_record.position IS NULL
+  AND preset.name = 'Academic Lecturer'
+  AND user_record.preset_id IS DISTINCT FROM preset.id;
+--> statement-breakpoint
+UPDATE users AS user_record
+SET preset_id = preset.id
+FROM permission_presets AS preset
+WHERE user_record.role = 'registry'
+  AND user_record.position IS NULL
+  AND preset.name = 'Registry Staff'
+  AND user_record.preset_id IS DISTINCT FROM preset.id;
+--> statement-breakpoint
+UPDATE users AS user_record
+SET preset_id = preset.id
+FROM permission_presets AS preset
+WHERE user_record.role = 'registry'
+  AND user_record.position = 'manager'
+  AND preset.name = 'Registry Manager'
+  AND user_record.preset_id IS DISTINCT FROM preset.id;
+--> statement-breakpoint
+UPDATE users AS user_record
+SET preset_id = preset.id
+FROM permission_presets AS preset
+WHERE user_record.role = 'finance'
+  AND user_record.position IS NULL
+  AND preset.name = 'Finance Staff'
+  AND user_record.preset_id IS DISTINCT FROM preset.id;
+--> statement-breakpoint
+UPDATE users AS user_record
+SET preset_id = preset.id
+FROM permission_presets AS preset
+WHERE user_record.role = 'finance'
+  AND user_record.position = 'manager'
+  AND preset.name = 'Finance Manager'
+  AND user_record.preset_id IS DISTINCT FROM preset.id;
+--> statement-breakpoint
+UPDATE users AS user_record
+SET preset_id = preset.id
+FROM permission_presets AS preset
+WHERE user_record.role = 'library'
+  AND preset.name = 'Library Staff'
+  AND user_record.preset_id IS DISTINCT FROM preset.id;
+--> statement-breakpoint
+UPDATE users AS user_record
+SET preset_id = preset.id
+FROM permission_presets AS preset
+WHERE user_record.role = 'marketing'
+  AND preset.name = 'Marketing Staff'
+  AND user_record.preset_id IS DISTINCT FROM preset.id;
+--> statement-breakpoint
+UPDATE users AS user_record
+SET preset_id = preset.id
+FROM permission_presets AS preset
+WHERE user_record.role = 'student_services'
+  AND preset.name = 'Student Services Staff'
+  AND user_record.preset_id IS DISTINCT FROM preset.id;
+--> statement-breakpoint
+UPDATE users AS user_record
+SET preset_id = preset.id
+FROM permission_presets AS preset
+WHERE user_record.role = 'leap'
+  AND preset.name = 'LEAP Staff'
+  AND user_record.preset_id IS DISTINCT FROM preset.id;
+--> statement-breakpoint
+UPDATE users AS user_record
+SET preset_id = preset.id
+FROM permission_presets AS preset
+WHERE user_record.role = 'human_resource'
+  AND preset.name = 'Human Resource Staff'
+  AND user_record.preset_id IS DISTINCT FROM preset.id;
+--> statement-breakpoint
+UPDATE users AS user_record
+SET preset_id = preset.id
+FROM permission_presets AS preset
+WHERE user_record.role = 'resource'
+  AND preset.name = 'Resource Staff'
+  AND user_record.preset_id IS DISTINCT FROM preset.id;
+--> statement-breakpoint
+DO $$
+DECLARE
+	v_seeded_preset_count INTEGER;
+	v_seeded_permission_count INTEGER;
+	v_unmapped_count INTEGER;
+	v_unmapped_summary TEXT;
+BEGIN
+	SELECT count(*) INTO v_seeded_preset_count FROM permission_presets WHERE name IN ('Academic Manager', 'Academic Program Leader', 'Academic Year Leader', 'Academic Lecturer', 'Academic Principal Lecturer', 'Academic Admin', 'Registry Staff', 'Registry Manager', 'Finance Staff', 'Finance Manager', 'Library Staff', 'Marketing Staff', 'Student Services Staff', 'LEAP Staff', 'Human Resource Staff', 'Resource Staff');
+	IF v_seeded_preset_count != 16 THEN
+		RAISE EXCEPTION 'ABORT: expected % seeded presets but found %',
+			16, v_seeded_preset_count;
+	END IF;
+
+	SELECT count(*) INTO v_seeded_permission_count
+	FROM preset_permissions AS permission
+	JOIN permission_presets AS preset ON preset.id = permission.preset_id
+	JOIN (
+		VALUES
+			('Academic Manager', 'lecturers', 'read'),
+			('Academic Manager', 'lecturers', 'create'),
+			('Academic Manager', 'lecturers', 'update'),
+			('Academic Manager', 'lecturers', 'delete'),
+			('Academic Manager', 'assessments', 'read'),
+			('Academic Manager', 'assessments', 'create'),
+			('Academic Manager', 'assessments', 'update'),
+			('Academic Manager', 'assessments', 'delete'),
+			('Academic Manager', 'feedback-questions', 'read'),
+			('Academic Manager', 'feedback-questions', 'create'),
+			('Academic Manager', 'feedback-questions', 'update'),
+			('Academic Manager', 'feedback-questions', 'delete'),
+			('Academic Manager', 'feedback-categories', 'read'),
+			('Academic Manager', 'feedback-categories', 'create'),
+			('Academic Manager', 'feedback-categories', 'update'),
+			('Academic Manager', 'feedback-categories', 'delete'),
+			('Academic Manager', 'feedback-cycles', 'read'),
+			('Academic Manager', 'feedback-cycles', 'create'),
+			('Academic Manager', 'feedback-cycles', 'update'),
+			('Academic Manager', 'feedback-cycles', 'delete'),
+			('Academic Manager', 'feedback-reports', 'read'),
+			('Academic Manager', 'feedback-reports', 'update'),
+			('Academic Manager', 'school-structures', 'read'),
+			('Academic Manager', 'school-structures', 'update'),
+			('Academic Manager', 'school-structures', 'delete'),
+			('Academic Manager', 'timetable', 'read'),
+			('Academic Manager', 'timetable', 'create'),
+			('Academic Manager', 'timetable', 'update'),
+			('Academic Manager', 'timetable', 'delete'),
+			('Academic Manager', 'venues', 'read'),
+			('Academic Manager', 'venues', 'create'),
+			('Academic Manager', 'venues', 'update'),
+			('Academic Manager', 'venues', 'delete'),
+			('Academic Manager', 'students', 'read'),
+			('Academic Manager', 'registration', 'read'),
+			('Academic Manager', 'registration', 'update'),
+			('Academic Manager', 'graduation', 'read'),
+			('Academic Manager', 'graduation', 'approve'),
+			('Academic Manager', 'graduation-clearance', 'read'),
+			('Academic Manager', 'graduation-clearance', 'approve'),
+			('Academic Manager', 'graduation-clearance', 'reject'),
+			('Academic Manager', 'activity-tracker', 'read'),
+			('Academic Manager', 'tasks', 'read'),
+			('Academic Manager', 'tasks', 'create'),
+			('Academic Manager', 'tasks', 'update'),
+			('Academic Manager', 'tasks', 'delete'),
+			('Academic Manager', 'gradebook', 'read'),
+			('Academic Manager', 'gradebook', 'update'),
+			('Academic Manager', 'gradebook', 'approve'),
+			('Academic Manager', 'attendance', 'read'),
+			('Academic Manager', 'attendance', 'create'),
+			('Academic Manager', 'attendance', 'update'),
+			('Academic Manager', 'attendance', 'delete'),
+			('Academic Manager', 'assigned-modules', 'read'),
+			('Academic Manager', 'assigned-modules', 'create'),
+			('Academic Manager', 'assigned-modules', 'delete'),
+			('Academic Manager', 'reports-attendance', 'read'),
+			('Academic Manager', 'reports-course-summary', 'read'),
+			('Academic Manager', 'reports-boe', 'read'),
+			('Academic Manager', 'reports-enrollments', 'read'),
+			('Academic Manager', 'reports-progression', 'read'),
+			('Academic Manager', 'reports-distribution', 'read'),
+			('Academic Manager', 'reports-graduation', 'read'),
+			('Academic Program Leader', 'lecturers', 'read'),
+			('Academic Program Leader', 'lecturers', 'create'),
+			('Academic Program Leader', 'lecturers', 'update'),
+			('Academic Program Leader', 'lecturers', 'delete'),
+			('Academic Program Leader', 'feedback-questions', 'read'),
+			('Academic Program Leader', 'feedback-questions', 'create'),
+			('Academic Program Leader', 'feedback-questions', 'update'),
+			('Academic Program Leader', 'feedback-questions', 'delete'),
+			('Academic Program Leader', 'feedback-categories', 'read'),
+			('Academic Program Leader', 'feedback-categories', 'create'),
+			('Academic Program Leader', 'feedback-categories', 'update'),
+			('Academic Program Leader', 'feedback-categories', 'delete'),
+			('Academic Program Leader', 'school-structures', 'read'),
+			('Academic Program Leader', 'school-structures', 'update'),
+			('Academic Program Leader', 'registration', 'read'),
+			('Academic Program Leader', 'registration', 'update'),
+			('Academic Program Leader', 'timetable', 'read'),
+			('Academic Program Leader', 'students', 'read'),
+			('Academic Program Leader', 'gradebook', 'read'),
+			('Academic Program Leader', 'gradebook', 'update'),
+			('Academic Program Leader', 'gradebook', 'approve'),
+			('Academic Program Leader', 'attendance', 'read'),
+			('Academic Program Leader', 'assigned-modules', 'read'),
+			('Academic Program Leader', 'assigned-modules', 'create'),
+			('Academic Program Leader', 'assigned-modules', 'delete'),
+			('Academic Program Leader', 'reports-attendance', 'read'),
+			('Academic Program Leader', 'reports-course-summary', 'read'),
+			('Academic Program Leader', 'reports-boe', 'read'),
+			('Academic Program Leader', 'reports-enrollments', 'read'),
+			('Academic Program Leader', 'reports-progression', 'read'),
+			('Academic Program Leader', 'reports-distribution', 'read'),
+			('Academic Program Leader', 'reports-graduation', 'read'),
+			('Academic Year Leader', 'feedback-cycles', 'read'),
+			('Academic Year Leader', 'registration', 'read'),
+			('Academic Year Leader', 'students', 'read'),
+			('Academic Year Leader', 'timetable', 'read'),
+			('Academic Year Leader', 'attendance', 'read'),
+			('Academic Year Leader', 'reports-attendance', 'read'),
+			('Academic Year Leader', 'reports-enrollments', 'read'),
+			('Academic Year Leader', 'reports-progression', 'read'),
+			('Academic Year Leader', 'reports-distribution', 'read'),
+			('Academic Lecturer', 'assessments', 'read'),
+			('Academic Lecturer', 'assessments', 'create'),
+			('Academic Lecturer', 'assessments', 'update'),
+			('Academic Lecturer', 'assessments', 'delete'),
+			('Academic Lecturer', 'gradebook', 'read'),
+			('Academic Lecturer', 'gradebook', 'update'),
+			('Academic Lecturer', 'feedback-reports', 'read'),
+			('Academic Lecturer', 'timetable', 'read'),
+			('Academic Lecturer', 'attendance', 'read'),
+			('Academic Lecturer', 'attendance', 'create'),
+			('Academic Lecturer', 'attendance', 'update'),
+			('Academic Lecturer', 'assigned-modules', 'read'),
+			('Academic Lecturer', 'reports-attendance', 'read'),
+			('Academic Lecturer', 'reports-course-summary', 'read'),
+			('Academic Principal Lecturer', 'assessments', 'read'),
+			('Academic Principal Lecturer', 'assessments', 'create'),
+			('Academic Principal Lecturer', 'assessments', 'update'),
+			('Academic Principal Lecturer', 'assessments', 'delete'),
+			('Academic Principal Lecturer', 'gradebook', 'read'),
+			('Academic Principal Lecturer', 'gradebook', 'update'),
+			('Academic Principal Lecturer', 'gradebook', 'approve'),
+			('Academic Principal Lecturer', 'feedback-reports', 'read'),
+			('Academic Principal Lecturer', 'timetable', 'read'),
+			('Academic Principal Lecturer', 'attendance', 'read'),
+			('Academic Principal Lecturer', 'attendance', 'create'),
+			('Academic Principal Lecturer', 'attendance', 'update'),
+			('Academic Principal Lecturer', 'assigned-modules', 'read'),
+			('Academic Principal Lecturer', 'reports-attendance', 'read'),
+			('Academic Principal Lecturer', 'reports-course-summary', 'read'),
+			('Academic Admin', 'assessments', 'read'),
+			('Academic Admin', 'assessments', 'create'),
+			('Academic Admin', 'assessments', 'update'),
+			('Academic Admin', 'assessments', 'delete'),
+			('Academic Admin', 'feedback-questions', 'read'),
+			('Academic Admin', 'feedback-questions', 'create'),
+			('Academic Admin', 'feedback-questions', 'update'),
+			('Academic Admin', 'feedback-questions', 'delete'),
+			('Academic Admin', 'feedback-categories', 'read'),
+			('Academic Admin', 'feedback-categories', 'create'),
+			('Academic Admin', 'feedback-categories', 'update'),
+			('Academic Admin', 'feedback-categories', 'delete'),
+			('Academic Admin', 'feedback-cycles', 'read'),
+			('Academic Admin', 'feedback-cycles', 'create'),
+			('Academic Admin', 'feedback-cycles', 'update'),
+			('Academic Admin', 'feedback-cycles', 'delete'),
+			('Academic Admin', 'timetable', 'read'),
+			('Academic Admin', 'attendance', 'read'),
+			('Registry Staff', 'students', 'read'),
+			('Registry Staff', 'students', 'update'),
+			('Registry Staff', 'students', 'delete'),
+			('Registry Staff', 'registration', 'read'),
+			('Registry Staff', 'registration', 'create'),
+			('Registry Staff', 'registration', 'update'),
+			('Registry Staff', 'registration', 'delete'),
+			('Registry Staff', 'registration-clearance', 'read'),
+			('Registry Staff', 'documents', 'read'),
+			('Registry Staff', 'documents', 'create'),
+			('Registry Staff', 'student-statuses', 'read'),
+			('Registry Staff', 'student-statuses', 'create'),
+			('Registry Staff', 'student-statuses', 'update'),
+			('Registry Staff', 'student-statuses', 'delete'),
+			('Registry Staff', 'terms-settings', 'read'),
+			('Registry Staff', 'terms-settings', 'update'),
+			('Registry Staff', 'certificate-reprints', 'read'),
+			('Registry Staff', 'certificate-reprints', 'create'),
+			('Registry Staff', 'certificate-reprints', 'update'),
+			('Registry Staff', 'certificate-reprints', 'delete'),
+			('Registry Staff', 'modules', 'create'),
+			('Registry Staff', 'semester-modules', 'create'),
+			('Registry Staff', 'semester-modules', 'update'),
+			('Registry Staff', 'venues', 'create'),
+			('Registry Staff', 'venues', 'update'),
+			('Registry Staff', 'venues', 'delete'),
+			('Registry Staff', 'graduation', 'read'),
+			('Registry Staff', 'student-notes', 'read'),
+			('Registry Staff', 'student-notes', 'create'),
+			('Registry Staff', 'student-notes', 'update'),
+			('Registry Staff', 'student-notes', 'delete'),
+			('Registry Staff', 'blocked-students', 'read'),
+			('Registry Staff', 'blocked-students', 'create'),
+			('Registry Staff', 'blocked-students', 'update'),
+			('Registry Staff', 'reports-enrollments', 'read'),
+			('Registry Staff', 'reports-progression', 'read'),
+			('Registry Staff', 'reports-distribution', 'read'),
+			('Registry Staff', 'reports-attendance', 'read'),
+			('Registry Manager', 'students', 'read'),
+			('Registry Manager', 'students', 'update'),
+			('Registry Manager', 'students', 'delete'),
+			('Registry Manager', 'registration', 'read'),
+			('Registry Manager', 'registration', 'create'),
+			('Registry Manager', 'registration', 'update'),
+			('Registry Manager', 'registration', 'delete'),
+			('Registry Manager', 'registration-clearance', 'read'),
+			('Registry Manager', 'documents', 'read'),
+			('Registry Manager', 'documents', 'create'),
+			('Registry Manager', 'student-statuses', 'read'),
+			('Registry Manager', 'student-statuses', 'create'),
+			('Registry Manager', 'student-statuses', 'update'),
+			('Registry Manager', 'student-statuses', 'delete'),
+			('Registry Manager', 'terms-settings', 'read'),
+			('Registry Manager', 'terms-settings', 'update'),
+			('Registry Manager', 'certificate-reprints', 'read'),
+			('Registry Manager', 'certificate-reprints', 'create'),
+			('Registry Manager', 'certificate-reprints', 'update'),
+			('Registry Manager', 'certificate-reprints', 'delete'),
+			('Registry Manager', 'modules', 'create'),
+			('Registry Manager', 'semester-modules', 'create'),
+			('Registry Manager', 'semester-modules', 'update'),
+			('Registry Manager', 'venues', 'create'),
+			('Registry Manager', 'venues', 'update'),
+			('Registry Manager', 'venues', 'delete'),
+			('Registry Manager', 'graduation', 'read'),
+			('Registry Manager', 'activity-tracker', 'read'),
+			('Registry Manager', 'tasks', 'read'),
+			('Registry Manager', 'tasks', 'create'),
+			('Registry Manager', 'tasks', 'update'),
+			('Registry Manager', 'tasks', 'delete'),
+			('Registry Manager', 'school-structures', 'update'),
+			('Registry Manager', 'student-notes', 'read'),
+			('Registry Manager', 'student-notes', 'create'),
+			('Registry Manager', 'student-notes', 'update'),
+			('Registry Manager', 'student-notes', 'delete'),
+			('Registry Manager', 'blocked-students', 'read'),
+			('Registry Manager', 'blocked-students', 'create'),
+			('Registry Manager', 'blocked-students', 'update'),
+			('Registry Manager', 'blocked-students', 'delete'),
+			('Registry Manager', 'notifications', 'read'),
+			('Registry Manager', 'reports-enrollments', 'read'),
+			('Registry Manager', 'reports-progression', 'read'),
+			('Registry Manager', 'reports-distribution', 'read'),
+			('Registry Manager', 'reports-attendance', 'read'),
+			('Registry Manager', 'reports-graduation', 'read'),
+			('Finance Staff', 'sponsors', 'read'),
+			('Finance Staff', 'sponsors', 'create'),
+			('Finance Staff', 'sponsors', 'update'),
+			('Finance Staff', 'sponsors', 'delete'),
+			('Finance Staff', 'admissions-payments', 'read'),
+			('Finance Staff', 'admissions-payments', 'update'),
+			('Finance Staff', 'student-statuses', 'read'),
+			('Finance Staff', 'graduation', 'read'),
+			('Finance Staff', 'students', 'read'),
+			('Finance Staff', 'registration-clearance', 'read'),
+			('Finance Staff', 'registration-clearance', 'approve'),
+			('Finance Staff', 'registration-clearance', 'reject'),
+			('Finance Staff', 'graduation-clearance', 'read'),
+			('Finance Staff', 'graduation-clearance', 'approve'),
+			('Finance Staff', 'graduation-clearance', 'reject'),
+			('Finance Staff', 'blocked-students', 'read'),
+			('Finance Staff', 'blocked-students', 'create'),
+			('Finance Staff', 'blocked-students', 'update'),
+			('Finance Staff', 'reports-enrollments', 'read'),
+			('Finance Staff', 'reports-progression', 'read'),
+			('Finance Staff', 'reports-distribution', 'read'),
+			('Finance Staff', 'reports-graduation', 'read'),
+			('Finance Staff', 'reports-sponsored-students', 'read'),
+			('Finance Manager', 'sponsors', 'read'),
+			('Finance Manager', 'sponsors', 'create'),
+			('Finance Manager', 'sponsors', 'update'),
+			('Finance Manager', 'sponsors', 'delete'),
+			('Finance Manager', 'admissions-payments', 'read'),
+			('Finance Manager', 'admissions-payments', 'update'),
+			('Finance Manager', 'student-statuses', 'read'),
+			('Finance Manager', 'graduation', 'read'),
+			('Finance Manager', 'students', 'read'),
+			('Finance Manager', 'registration-clearance', 'read'),
+			('Finance Manager', 'registration-clearance', 'approve'),
+			('Finance Manager', 'registration-clearance', 'reject'),
+			('Finance Manager', 'graduation-clearance', 'read'),
+			('Finance Manager', 'graduation-clearance', 'approve'),
+			('Finance Manager', 'graduation-clearance', 'reject'),
+			('Finance Manager', 'blocked-students', 'read'),
+			('Finance Manager', 'blocked-students', 'create'),
+			('Finance Manager', 'blocked-students', 'update'),
+			('Finance Manager', 'blocked-students', 'delete'),
+			('Finance Manager', 'auto-approvals', 'read'),
+			('Finance Manager', 'auto-approvals', 'create'),
+			('Finance Manager', 'auto-approvals', 'update'),
+			('Finance Manager', 'auto-approvals', 'delete'),
+			('Finance Manager', 'activity-tracker', 'read'),
+			('Finance Manager', 'tasks', 'read'),
+			('Finance Manager', 'tasks', 'create'),
+			('Finance Manager', 'tasks', 'update'),
+			('Finance Manager', 'tasks', 'delete'),
+			('Finance Manager', 'reports-enrollments', 'read'),
+			('Finance Manager', 'reports-progression', 'read'),
+			('Finance Manager', 'reports-distribution', 'read'),
+			('Finance Manager', 'reports-graduation', 'read'),
+			('Finance Manager', 'reports-sponsored-students', 'read'),
+			('Library Staff', 'library', 'read'),
+			('Library Staff', 'library', 'create'),
+			('Library Staff', 'library', 'update'),
+			('Library Staff', 'library', 'delete'),
+			('Library Staff', 'students', 'read'),
+			('Library Staff', 'registration-clearance', 'read'),
+			('Library Staff', 'registration-clearance', 'approve'),
+			('Library Staff', 'registration-clearance', 'reject'),
+			('Library Staff', 'graduation-clearance', 'read'),
+			('Library Staff', 'graduation-clearance', 'approve'),
+			('Library Staff', 'graduation-clearance', 'reject'),
+			('Library Staff', 'blocked-students', 'read'),
+			('Library Staff', 'blocked-students', 'create'),
+			('Library Staff', 'blocked-students', 'update'),
+			('Library Staff', 'auto-approvals', 'read'),
+			('Library Staff', 'auto-approvals', 'create'),
+			('Library Staff', 'auto-approvals', 'update'),
+			('Library Staff', 'auto-approvals', 'delete'),
+			('Marketing Staff', 'applicants', 'read'),
+			('Marketing Staff', 'applicants', 'create'),
+			('Marketing Staff', 'applicants', 'update'),
+			('Marketing Staff', 'applicants', 'delete'),
+			('Marketing Staff', 'applications', 'read'),
+			('Marketing Staff', 'applications', 'create'),
+			('Marketing Staff', 'applications', 'update'),
+			('Marketing Staff', 'applications', 'delete'),
+			('Marketing Staff', 'entry-requirements', 'read'),
+			('Marketing Staff', 'entry-requirements', 'create'),
+			('Marketing Staff', 'entry-requirements', 'update'),
+			('Marketing Staff', 'entry-requirements', 'delete'),
+			('Marketing Staff', 'admissions-payments', 'read'),
+			('Marketing Staff', 'admissions-documents', 'read'),
+			('Marketing Staff', 'recognized-schools', 'read'),
+			('Marketing Staff', 'recognized-schools', 'create'),
+			('Marketing Staff', 'recognized-schools', 'update'),
+			('Marketing Staff', 'recognized-schools', 'delete'),
+			('Marketing Staff', 'intake-periods', 'read'),
+			('Marketing Staff', 'intake-periods', 'create'),
+			('Marketing Staff', 'intake-periods', 'update'),
+			('Marketing Staff', 'intake-periods', 'delete'),
+			('Marketing Staff', 'certificate-types', 'read'),
+			('Marketing Staff', 'certificate-types', 'create'),
+			('Marketing Staff', 'certificate-types', 'update'),
+			('Marketing Staff', 'certificate-types', 'delete'),
+			('Marketing Staff', 'subjects', 'read'),
+			('Marketing Staff', 'subjects', 'create'),
+			('Marketing Staff', 'subjects', 'update'),
+			('Marketing Staff', 'subjects', 'delete'),
+			('Student Services Staff', 'students', 'read'),
+			('Student Services Staff', 'students', 'update'),
+			('Student Services Staff', 'registration', 'read'),
+			('Student Services Staff', 'registration', 'update'),
+			('Student Services Staff', 'documents', 'read'),
+			('Student Services Staff', 'documents', 'create'),
+			('Student Services Staff', 'student-statuses', 'read'),
+			('Student Services Staff', 'student-statuses', 'create'),
+			('Student Services Staff', 'student-statuses', 'update'),
+			('Student Services Staff', 'student-notes', 'read'),
+			('Student Services Staff', 'student-notes', 'create'),
+			('Student Services Staff', 'student-notes', 'update'),
+			('Student Services Staff', 'student-notes', 'delete'),
+			('LEAP Staff', 'assessments', 'read'),
+			('LEAP Staff', 'assessments', 'create'),
+			('LEAP Staff', 'assessments', 'update'),
+			('LEAP Staff', 'assessments', 'delete'),
+			('LEAP Staff', 'registration', 'read'),
+			('LEAP Staff', 'registration', 'update'),
+			('LEAP Staff', 'registration-clearance', 'read'),
+			('LEAP Staff', 'students', 'read'),
+			('LEAP Staff', 'attendance', 'read'),
+			('LEAP Staff', 'attendance', 'create'),
+			('LEAP Staff', 'attendance', 'update'),
+			('LEAP Staff', 'assigned-modules', 'read'),
+			('LEAP Staff', 'reports-attendance', 'read'),
+			('LEAP Staff', 'reports-enrollments', 'read'),
+			('LEAP Staff', 'reports-progression', 'read'),
+			('LEAP Staff', 'reports-distribution', 'read'),
+			('Human Resource Staff', 'feedback-reports', 'read'),
+			('Human Resource Staff', 'employees', 'read'),
+			('Human Resource Staff', 'employees', 'create'),
+			('Human Resource Staff', 'employees', 'update'),
+			('Human Resource Staff', 'employees', 'delete'),
+			('Resource Staff', 'timetable', 'read'),
+			('Resource Staff', 'venues', 'read'),
+			('Resource Staff', 'registration-clearance', 'read'),
+			('Resource Staff', 'registration-clearance', 'approve'),
+			('Resource Staff', 'registration-clearance', 'reject'),
+			('Resource Staff', 'auto-approvals', 'read'),
+			('Resource Staff', 'auto-approvals', 'create'),
+			('Resource Staff', 'auto-approvals', 'update'),
+			('Resource Staff', 'auto-approvals', 'delete')
+	) AS expected(preset_name, resource, action)
+		ON expected.preset_name = preset.name
+		AND expected.resource = permission.resource
+		AND expected.action = permission.action;
+	IF v_seeded_permission_count != 383 THEN
+		RAISE EXCEPTION 'ABORT: expected % seeded preset permissions but found %',
+			383, v_seeded_permission_count;
+	END IF;
+
+	SELECT count(*) INTO v_unmapped_count
+	FROM users
+	WHERE preset_id IS NULL AND role NOT IN ('user', 'applicant', 'student', 'admin');
+
+	IF v_unmapped_count > 0 THEN
+		SELECT string_agg(
+			format('%s | %s | %s', role, COALESCE(position, 'NULL'), affected_users),
+			E'\n'
+			ORDER BY role, position
+		)
+		INTO v_unmapped_summary
+		FROM (
+			SELECT role, position, count(*) AS affected_users
+			FROM users
+			WHERE preset_id IS NULL AND role NOT IN ('user', 'applicant', 'student', 'admin')
+			GROUP BY role, position
+		) AS unmapped;
+
+		RAISE EXCEPTION 'ABORT: % unmapped staff users remain.%',
+			v_unmapped_count, COALESCE(E'\n' || v_unmapped_summary, '');
+	END IF;
+
+	RAISE NOTICE 'Phase 6 seed verified: % presets, % preset permissions, 0 unmapped staff users.',
+		v_seeded_preset_count, v_seeded_permission_count;
+END $$;
