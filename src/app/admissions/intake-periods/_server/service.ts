@@ -5,12 +5,6 @@ import { serviceWrapper } from '@/core/platform/serviceWrapper';
 import withPermission from '@/core/platform/withPermission';
 import IntakePeriodRepository from './repository';
 
-function canReadIntakePeriods(
-	session: Parameters<typeof hasApplicantResourceAccess>[0]
-) {
-	return hasApplicantResourceAccess(session, 'intake-periods', 'read');
-}
-
 class IntakePeriodService extends BaseService<typeof intakePeriods, 'id'> {
 	private repo: IntakePeriodRepository;
 
@@ -63,7 +57,8 @@ class IntakePeriodService extends BaseService<typeof intakePeriods, 'id'> {
 	async getOpenProgramIds(intakePeriodId: string) {
 		return withPermission(
 			async () => this.repo.getOpenProgramIds(intakePeriodId),
-			async (session) => canReadIntakePeriods(session)
+			async (session) =>
+				hasApplicantResourceAccess(session, 'intake-periods', 'read')
 		);
 	}
 

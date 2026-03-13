@@ -1,7 +1,6 @@
 import type { AcademicRemarks, Student } from '@registry/students';
 import { getStudentRegistrationData } from '@registry/students/_server/actions';
 import { getActiveTerm } from '@/app/registry/terms';
-import type { Session } from '@/core/auth';
 import {
 	hasAnyPermission,
 	hasPermission,
@@ -30,7 +29,9 @@ class RegistrationRequestService {
 	async getHistory(stdNo: number) {
 		return withPermission(
 			async () => this.repository.getHistory(stdNo),
-			async (session) => canAccessRegistration(session, stdNo)
+			async (session) =>
+				session?.user?.stdNo === stdNo ||
+				hasPermission(session, 'registration', 'read')
 		);
 	}
 
@@ -105,7 +106,9 @@ class RegistrationRequestService {
 					activityType: 'registration_submitted',
 				});
 			},
-			async (session) => canCreateRegistration(session, data.stdNo)
+			async (session) =>
+				session?.user?.stdNo === data.stdNo ||
+				hasAnyPermission(session, 'registration', ['create', 'update'])
 		);
 	}
 
@@ -144,7 +147,8 @@ class RegistrationRequestService {
 					}
 				);
 			},
-			async (session) => canUpdateRegistration(session)
+			async (session) =>
+				hasAnyPermission(session, 'registration', ['create', 'update'])
 		);
 	}
 
@@ -157,7 +161,9 @@ class RegistrationRequestService {
 			async () => {
 				return getStudentSemesterModulesLogic(student, remarks, termCode);
 			},
-			async (session) => canUpdateRegistration(session, student.stdNo)
+			async (session) =>
+				session?.user?.stdNo === student.stdNo ||
+				hasAnyPermission(session, 'registration', ['create', 'update'])
 		);
 	}
 
@@ -165,7 +171,9 @@ class RegistrationRequestService {
 		return withPermission(
 			async () =>
 				this.repository.getExistingRegistrationSponsorship(stdNo, termId),
-			async (session) => canUpdateRegistration(session, stdNo)
+			async (session) =>
+				session?.user?.stdNo === stdNo ||
+				hasAnyPermission(session, 'registration', ['create', 'update'])
 		);
 	}
 
@@ -176,7 +184,9 @@ class RegistrationRequestService {
 					await this.repository.findExistingStudentSemester(stdNo, termId);
 				return !!existingSemester;
 			},
-			async (session) => canUpdateRegistration(session, stdNo)
+			async (session) =>
+				session?.user?.stdNo === stdNo ||
+				hasAnyPermission(session, 'registration', ['create', 'update'])
 		);
 	}
 
@@ -195,7 +205,9 @@ class RegistrationRequestService {
 					status: status as 'Active' | 'Repeat',
 				};
 			},
-			async (session) => canUpdateRegistration(session, stdNo)
+			async (session) =>
+				session?.user?.stdNo === stdNo ||
+				hasAnyPermission(session, 'registration', ['create', 'update'])
 		);
 	}
 
@@ -242,37 +254,6 @@ class RegistrationRequestService {
 			{ registration: ['read'] }
 		);
 	}
-}
-
-function canAccessRegistration(
-	session: Session | null | undefined,
-	stdNo: number
-) {
-	return (
-		session?.user?.stdNo === stdNo ||
-		hasPermission(session, 'registration', 'read')
-	);
-}
-
-function canCreateRegistration(
-	session: Session | null | undefined,
-	stdNo: number
-) {
-	return (
-		session?.user?.stdNo === stdNo ||
-		hasAnyPermission(session, 'registration', ['create', 'update'])
-	);
-}
-
-function canUpdateRegistration(
-	session: Session | null | undefined,
-	stdNo?: number
-) {
-	if (stdNo && session?.user?.stdNo === stdNo) {
-		return true;
-	}
-
-	return hasAnyPermission(session, 'registration', ['create', 'update']);
 }
 
 export const registrationRequestsService = serviceWrapper(

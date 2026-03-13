@@ -10,12 +10,6 @@ type GradeMapping = {
 	standardGrade: (typeof gradeMappings.$inferInsert)['standardGrade'];
 };
 
-function canReadCertificateTypes(
-	session: Parameters<typeof hasApplicantResourceAccess>[0]
-) {
-	return hasApplicantResourceAccess(session, 'certificate-types', 'read');
-}
-
 class CertificateTypeService extends BaseService<
 	typeof certificateTypes,
 	'id'
@@ -42,14 +36,16 @@ class CertificateTypeService extends BaseService<
 	override async get(id: string) {
 		return withPermission(
 			async () => this.repo.findById(id),
-			async (session) => canReadCertificateTypes(session)
+			async (session) =>
+				hasApplicantResourceAccess(session, 'certificate-types', 'read')
 		);
 	}
 
 	async search(page: number, search: string) {
 		return withPermission(
 			async () => this.repo.search(page, search),
-			async (session) => canReadCertificateTypes(session)
+			async (session) =>
+				hasApplicantResourceAccess(session, 'certificate-types', 'read')
 		);
 	}
 
@@ -124,7 +120,8 @@ class CertificateTypeService extends BaseService<
 	async mapGrade(certificateTypeId: string, originalGrade: string) {
 		return withPermission(
 			async () => this.repo.mapGrade(certificateTypeId, originalGrade),
-			async (session) => canReadCertificateTypes(session)
+			async (session) =>
+				hasApplicantResourceAccess(session, 'certificate-types', 'read')
 		);
 	}
 }

@@ -12,13 +12,6 @@ import withPermission from '@/core/platform/withPermission';
 import type { DepositFilters } from '../_lib/types';
 import PaymentRepository from './repository';
 
-async function canAccessAdmissionsPaymentSelfService(
-	session: Parameters<typeof hasApplicantResourceAccess>[0],
-	action: 'read' | 'create' | 'update'
-) {
-	return hasApplicantResourceAccess(session, 'admissions-payments', action);
-}
-
 class PaymentService extends BaseService<typeof bankDeposits, 'id'> {
 	private repo: PaymentRepository;
 
@@ -67,7 +60,8 @@ class PaymentService extends BaseService<typeof bankDeposits, 'id'> {
 	async getBankDepositsByApplication(applicationId: string) {
 		return withPermission(
 			async () => this.repo.findBankDepositsByApplication(applicationId),
-			async (session) => canAccessAdmissionsPaymentSelfService(session, 'read')
+			async (session) =>
+				hasApplicantResourceAccess(session, 'admissions-payments', 'read')
 		);
 	}
 
@@ -79,7 +73,7 @@ class PaymentService extends BaseService<typeof bankDeposits, 'id'> {
 					this.buildAuditOptions(session, 'create')
 				),
 			async (session) =>
-				canAccessAdmissionsPaymentSelfService(session, 'create')
+				hasApplicantResourceAccess(session, 'admissions-payments', 'create')
 		);
 	}
 
@@ -295,7 +289,7 @@ class PaymentService extends BaseService<typeof bankDeposits, 'id'> {
 				return { success: false, error: 'Unsupported payment provider' };
 			},
 			async (session) =>
-				canAccessAdmissionsPaymentSelfService(session, 'create')
+				hasApplicantResourceAccess(session, 'admissions-payments', 'create')
 		);
 	}
 
@@ -345,21 +339,24 @@ class PaymentService extends BaseService<typeof bankDeposits, 'id'> {
 
 				return { success: false, status: 'pending' };
 			},
-			async (session) => canAccessAdmissionsPaymentSelfService(session, 'read')
+			async (session) =>
+				hasApplicantResourceAccess(session, 'admissions-payments', 'read')
 		);
 	}
 
 	async getPendingMobileDeposit(applicationId: string) {
 		return withPermission(
 			async () => this.repo.findPendingMobileDeposit(applicationId),
-			async (session) => canAccessAdmissionsPaymentSelfService(session, 'read')
+			async (session) =>
+				hasApplicantResourceAccess(session, 'admissions-payments', 'read')
 		);
 	}
 
 	async getMobileDepositsByApplication(applicationId: string) {
 		return withPermission(
 			async () => this.repo.findMobileDepositsByApplication(applicationId),
-			async (session) => canAccessAdmissionsPaymentSelfService(session, 'read')
+			async (session) =>
+				hasApplicantResourceAccess(session, 'admissions-payments', 'read')
 		);
 	}
 }

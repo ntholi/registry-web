@@ -5,12 +5,6 @@ import { serviceWrapper } from '@/core/platform/serviceWrapper';
 import withPermission from '@/core/platform/withPermission';
 import RecognizedSchoolRepository from './repository';
 
-function canReadRecognizedSchools(
-	session: Parameters<typeof hasApplicantResourceAccess>[0]
-) {
-	return hasApplicantResourceAccess(session, 'recognized-schools', 'read');
-}
-
 class RecognizedSchoolService extends BaseService<
 	typeof recognizedSchools,
 	'id'
@@ -37,7 +31,8 @@ class RecognizedSchoolService extends BaseService<
 	async findAllForEligibility() {
 		return withPermission(
 			async () => this.repo.findAllActive(),
-			async (session) => canReadRecognizedSchools(session)
+			async (session) =>
+				hasApplicantResourceAccess(session, 'recognized-schools', 'read')
 		);
 	}
 }

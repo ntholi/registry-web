@@ -11,73 +11,30 @@ import SponsorRepository from './repository';
 
 type Sponsor = typeof sponsors.$inferInsert;
 
-const REGISTRY_SPONSOR_ROLES = ['registry'] as const;
-const STUDENT_SUPPORT_ROLES = ['student_services'] as const;
-
-function canReadSponsors(session: Parameters<typeof hasSessionPermission>[0]) {
-	return hasSessionPermission(
-		session,
-		'sponsors',
-		'read',
-		REGISTRY_SPONSOR_ROLES
-	);
-}
-
-function canCreateSponsors(
-	session: Parameters<typeof hasSessionPermission>[0]
-) {
-	return hasSessionPermission(session, 'sponsors', 'create');
-}
-
-function canUpdateSponsors(
-	session: Parameters<typeof hasSessionPermission>[0]
-) {
-	return hasSessionPermission(
-		session,
-		'sponsors',
-		'update',
-		REGISTRY_SPONSOR_ROLES
-	);
-}
-
-function canDeleteSponsors(
-	session: Parameters<typeof hasSessionPermission>[0]
-) {
-	return hasSessionPermission(session, 'sponsors', 'delete');
-}
-
-function canAccessStudentSponsor(
-	session: Parameters<typeof hasSessionPermission>[0],
-	stdNo: number
-) {
-	if (canReadSponsors(session)) {
-		return true;
-	}
-
-	return hasOwnedStudentSession(session, stdNo);
-}
-
 class SponsorService {
 	constructor(private readonly repository = new SponsorRepository()) {}
 
 	async get(id: number) {
 		return withPermission(
 			async () => this.repository.findById(id),
-			async (session) => canReadSponsors(session)
+			async (session) =>
+				hasSessionPermission(session, 'sponsors', 'read', ['registry'])
 		);
 	}
 
 	async findAll(params: QueryOptions<typeof sponsors>) {
 		return withPermission(
 			async () => this.repository.query(params),
-			async (session) => canReadSponsors(session)
+			async (session) =>
+				hasSessionPermission(session, 'sponsors', 'read', ['registry'])
 		);
 	}
 
 	async getAll() {
 		return withPermission(
 			async () => this.repository.findAll(),
-			async (session) => canReadSponsors(session)
+			async (session) =>
+				hasSessionPermission(session, 'sponsors', 'read', ['registry'])
 		);
 	}
 
@@ -89,7 +46,7 @@ class SponsorService {
 					role: session!.user!.role!,
 					activityType: 'sponsor_created',
 				}),
-			async (session) => canCreateSponsors(session)
+			async (session) => hasSessionPermission(session, 'sponsors', 'create')
 		);
 	}
 
@@ -101,7 +58,8 @@ class SponsorService {
 					role: session!.user!.role!,
 					activityType: 'sponsor_updated',
 				}),
-			async (session) => canUpdateSponsors(session)
+			async (session) =>
+				hasSessionPermission(session, 'sponsors', 'update', ['registry'])
 		);
 	}
 
@@ -113,21 +71,25 @@ class SponsorService {
 					role: session!.user!.role!,
 					activityType: 'sponsor_deleted',
 				}),
-			async (session) => canDeleteSponsors(session)
+			async (session) => hasSessionPermission(session, 'sponsors', 'delete')
 		);
 	}
 
 	async getSponsoredStudent(stdNo: number, termId: number) {
 		return withPermission(
 			async () => this.repository.findSponsoredStudent(stdNo, termId),
-			async (session) => canAccessStudentSponsor(session, stdNo)
+			async (session) =>
+				hasSessionPermission(session, 'sponsors', 'read', ['registry']) ||
+				hasOwnedStudentSession(session, stdNo)
 		);
 	}
 
 	async getStudentCurrentSponsorship(stdNo: number) {
 		return withPermission(
 			async () => this.repository.findCurrentSponsoredStudent(stdNo),
-			async (session) => canAccessStudentSponsor(session, stdNo)
+			async (session) =>
+				hasSessionPermission(session, 'sponsors', 'read', ['registry']) ||
+				hasOwnedStudentSession(session, stdNo)
 		);
 	}
 
@@ -142,7 +104,7 @@ class SponsorService {
 		return withPermission(
 			async () => this.repository.upsertSponsoredStudent(data),
 			async (session) => {
-				if (canUpdateSponsors(session)) {
+				if (hasSessionPermission(session, 'sponsors', 'update', ['registry'])) {
 					return true;
 				}
 
@@ -158,7 +120,8 @@ class SponsorService {
 		return withPermission(
 			async () =>
 				this.repository.findSponsoredStudentsBySponsor(sponsorId, params),
-			async (session) => canReadSponsors(session)
+			async (session) =>
+				hasSessionPermission(session, 'sponsors', 'read', ['registry'])
 		);
 	}
 
@@ -173,7 +136,8 @@ class SponsorService {
 	}) {
 		return withPermission(
 			async () => this.repository.findAllSponsoredStudents(params),
-			async (session) => canReadSponsors(session)
+			async (session) =>
+				hasSessionPermission(session, 'sponsors', 'read', ['registry'])
 		);
 	}
 
@@ -184,7 +148,8 @@ class SponsorService {
 	}) {
 		return withPermission(
 			async () => this.repository.updateAccountDetails(data),
-			async (session) => canUpdateSponsors(session)
+			async (session) =>
+				hasSessionPermission(session, 'sponsors', 'update', ['registry'])
 		);
 	}
 
@@ -198,7 +163,8 @@ class SponsorService {
 	) {
 		return withPermission(
 			async () => this.repository.bulkUpdateAccountDetails(items, batchSize),
-			async (session) => canUpdateSponsors(session)
+			async (session) =>
+				hasSessionPermission(session, 'sponsors', 'update', ['registry'])
 		);
 	}
 
@@ -206,8 +172,8 @@ class SponsorService {
 		return withPermission(
 			async () => this.repository.findStudentSponsors(stdNo),
 			async (session) =>
-				canReadSponsors(session) ||
-				hasSessionRole(session, STUDENT_SUPPORT_ROLES)
+				hasSessionPermission(session, 'sponsors', 'read', ['registry']) ||
+				hasSessionRole(session, ['student_services'])
 		);
 	}
 
@@ -226,7 +192,8 @@ class SponsorService {
 					activityType: 'sponsorship_assigned',
 					stdNo: data.stdNo,
 				}),
-			async (session) => canUpdateSponsors(session)
+			async (session) =>
+				hasSessionPermission(session, 'sponsors', 'update', ['registry'])
 		);
 	}
 
@@ -246,7 +213,8 @@ class SponsorService {
 					role: session!.user!.role!,
 					activityType: 'sponsorship_updated',
 				}),
-			async (session) => canUpdateSponsors(session)
+			async (session) =>
+				hasSessionPermission(session, 'sponsors', 'update', ['registry'])
 		);
 	}
 
@@ -254,8 +222,8 @@ class SponsorService {
 		return withPermission(
 			async () => this.repository.findSponsoredStudentById(id),
 			async (session) =>
-				canReadSponsors(session) ||
-				hasSessionRole(session, STUDENT_SUPPORT_ROLES)
+				hasSessionPermission(session, 'sponsors', 'read', ['registry']) ||
+				hasSessionRole(session, ['student_services'])
 		);
 	}
 }

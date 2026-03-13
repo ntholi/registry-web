@@ -2,7 +2,7 @@
 
 import { Badge, Group, Paper, SimpleGrid, Stack, Text } from '@mantine/core';
 import type { Grade } from '@registry/_database';
-import { getGradeColor, getPointsColor } from '../_lib/gradeColors';
+import { getGradeColor, getPointsColor } from '@/shared/lib/utils/colors';
 
 type GradeResult = {
 	grade: Grade;

@@ -7,12 +7,6 @@ import EntryRequirementRepository, {
 	type EntryRequirementsFilter,
 } from './repository';
 
-function canReadEntryRequirements(
-	session: Parameters<typeof hasApplicantResourceAccess>[0]
-) {
-	return hasApplicantResourceAccess(session, 'entry-requirements', 'read');
-}
-
 class EntryRequirementService extends BaseService<
 	typeof entryRequirements,
 	'id'
@@ -39,7 +33,8 @@ class EntryRequirementService extends BaseService<
 	override async get(id: string) {
 		return withPermission(
 			async () => this.repo.findById(id),
-			async (session) => canReadEntryRequirements(session)
+			async (session) =>
+				hasApplicantResourceAccess(session, 'entry-requirements', 'read')
 		);
 	}
 
@@ -81,7 +76,8 @@ class EntryRequirementService extends BaseService<
 	async findAllForEligibility() {
 		return withPermission(
 			async () => this.repo.findAllForEligibility(),
-			async (session) => canReadEntryRequirements(session)
+			async (session) =>
+				hasApplicantResourceAccess(session, 'entry-requirements', 'read')
 		);
 	}
 

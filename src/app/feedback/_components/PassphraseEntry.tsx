@@ -1,5 +1,6 @@
 'use client';
 
+import { wordList } from '@academic/feedback/_shared/lib/passphrase';
 import {
 	Alert,
 	Button,
@@ -20,7 +21,6 @@ import { IconArrowRight, IconShieldCheck } from '@tabler/icons-react';
 import NextImage from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState, useTransition } from 'react';
-import { wordList } from '../_lib/wordList';
 
 const MAX_WORDS = 3;
 const MIN_CHARS = 3;

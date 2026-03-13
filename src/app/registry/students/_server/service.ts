@@ -4,7 +4,6 @@ import {
 	resolveStudentSemesterActivityType,
 } from '@/app/registry/_lib/activities';
 import { getActiveTerm } from '@/app/registry/terms';
-import type { Session } from '@/core/auth';
 import {
 	hasAnyPermission,
 	hasPermission,
@@ -57,21 +56,27 @@ class StudentService {
 					programs: removeTermsFromPrograms(data.programs, excludedTerms),
 				};
 			},
-			async (session) => canAccessStudent(session, stdNo)
+			async (session) =>
+				session?.user?.stdNo === stdNo ||
+				hasPermission(session, 'students', 'read')
 		);
 	}
 
 	async getRegistrationData(stdNo: number) {
 		return withPermission(
 			async () => this.repository.findRegistrationData(stdNo),
-			async (session) => canAccessRegistration(session, stdNo)
+			async (session) =>
+				session?.user?.stdNo === stdNo ||
+				hasAnyPermission(session, 'registration', ['read', 'create', 'update'])
 		);
 	}
 
 	async getRegistrationDataByTerm(stdNo: number, termCode: string) {
 		return withPermission(
 			async () => this.repository.findRegistrationDataByTerm(stdNo, termCode),
-			async (session) => canAccessRegistration(session, stdNo)
+			async (session) =>
+				session?.user?.stdNo === stdNo ||
+				hasAnyPermission(session, 'registration', ['read', 'create', 'update'])
 		);
 	}
 
@@ -80,7 +85,9 @@ class StudentService {
 			async () => {
 				return await this.repository.findStudentByUserId(userId);
 			},
-			async (session) => canAccessStudentByUserId(session, userId)
+			async (session) =>
+				session?.user?.id === userId ||
+				hasPermission(session, 'students', 'read')
 		);
 	}
 
@@ -182,7 +189,9 @@ class StudentService {
 				const student = await this.repository.findStudentByStdNo(stdNo);
 				return student?.programs || [];
 			},
-			async (session) => canAccessStudent(session, stdNo)
+			async (session) =>
+				session?.user?.stdNo === stdNo ||
+				hasPermission(session, 'students', 'read')
 		);
 	}
 
@@ -352,31 +361,6 @@ class StudentService {
 			{ students: ['update'] }
 		);
 	}
-}
-
-function canAccessStudent(session: Session | null | undefined, stdNo: number) {
-	return (
-		session?.user?.stdNo === stdNo || hasPermission(session, 'students', 'read')
-	);
-}
-
-function canAccessRegistration(
-	session: Session | null | undefined,
-	stdNo: number
-) {
-	return (
-		session?.user?.stdNo === stdNo ||
-		hasAnyPermission(session, 'registration', ['read', 'create', 'update'])
-	);
-}
-
-function canAccessStudentByUserId(
-	session: Session | null | undefined,
-	userId: string
-) {
-	return (
-		session?.user?.id === userId || hasPermission(session, 'students', 'read')
-	);
 }
 
 function removeTermsFromPrograms(programs: Program[], termCodes: string[]) {

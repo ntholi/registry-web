@@ -33,13 +33,6 @@ type AcademicRecordInput = Parameters<
 	ApplicantRepository['createWithDocumentsAndRecords']
 >[2][number];
 
-async function canAccessApplicantSelfService(
-	session: Parameters<typeof hasApplicantResourceAccess>[0],
-	action: 'read' | 'create' | 'update'
-) {
-	return hasApplicantResourceAccess(session, 'applicants', action);
-}
-
 class ApplicantService extends BaseService<typeof applicants, 'id'> {
 	private repo: ApplicantRepository;
 
@@ -61,7 +54,8 @@ class ApplicantService extends BaseService<typeof applicants, 'id'> {
 	override async get(id: string) {
 		return withPermission(
 			async () => this.repo.findById(id),
-			async (session) => canAccessApplicantSelfService(session, 'read')
+			async (session) =>
+				hasApplicantResourceAccess(session, 'applicants', 'read')
 		);
 	}
 
@@ -95,7 +89,8 @@ class ApplicantService extends BaseService<typeof applicants, 'id'> {
 					this.buildAuditOptions(session, 'create')
 				);
 			},
-			async (session) => canAccessApplicantSelfService(session, 'create')
+			async (session) =>
+				hasApplicantResourceAccess(session, 'applicants', 'create')
 		);
 	}
 
@@ -111,21 +106,24 @@ class ApplicantService extends BaseService<typeof applicants, 'id'> {
 					this.buildAuditOptions(session, 'update')
 				);
 			},
-			async (session) => canAccessApplicantSelfService(session, 'update')
+			async (session) =>
+				hasApplicantResourceAccess(session, 'applicants', 'update')
 		);
 	}
 
 	async addPhone(applicantId: string, phoneNumber: string) {
 		return withPermission(
 			async () => this.repo.addPhone(applicantId, phoneNumber),
-			async (session) => canAccessApplicantSelfService(session, 'update')
+			async (session) =>
+				hasApplicantResourceAccess(session, 'applicants', 'update')
 		);
 	}
 
 	async removePhone(phoneId: string) {
 		return withPermission(
 			async () => this.repo.removePhone(phoneId),
-			async (session) => canAccessApplicantSelfService(session, 'update')
+			async (session) =>
+				hasApplicantResourceAccess(session, 'applicants', 'update')
 		);
 	}
 
@@ -135,7 +133,8 @@ class ApplicantService extends BaseService<typeof applicants, 'id'> {
 	) {
 		return withPermission(
 			async () => this.repo.createGuardian(data, phoneNumbers),
-			async (session) => canAccessApplicantSelfService(session, 'update')
+			async (session) =>
+				hasApplicantResourceAccess(session, 'applicants', 'update')
 		);
 	}
 
@@ -146,28 +145,32 @@ class ApplicantService extends BaseService<typeof applicants, 'id'> {
 	) {
 		return withPermission(
 			async () => this.repo.updateGuardian(id, data, phoneNumbers),
-			async (session) => canAccessApplicantSelfService(session, 'update')
+			async (session) =>
+				hasApplicantResourceAccess(session, 'applicants', 'update')
 		);
 	}
 
 	async deleteGuardian(id: string) {
 		return withPermission(
 			async () => this.repo.deleteGuardian(id),
-			async (session) => canAccessApplicantSelfService(session, 'update')
+			async (session) =>
+				hasApplicantResourceAccess(session, 'applicants', 'update')
 		);
 	}
 
 	async addGuardianPhone(guardianId: string, phoneNumber: string) {
 		return withPermission(
 			async () => this.repo.addGuardianPhone(guardianId, phoneNumber),
-			async (session) => canAccessApplicantSelfService(session, 'update')
+			async (session) =>
+				hasApplicantResourceAccess(session, 'applicants', 'update')
 		);
 	}
 
 	async removeGuardianPhone(phoneId: string) {
 		return withPermission(
 			async () => this.repo.removeGuardianPhone(phoneId),
-			async (session) => canAccessApplicantSelfService(session, 'update')
+			async (session) =>
+				hasApplicantResourceAccess(session, 'applicants', 'update')
 		);
 	}
 
@@ -256,7 +259,8 @@ class ApplicantService extends BaseService<typeof applicants, 'id'> {
 					recordInputs
 				);
 			},
-			async (session) => canAccessApplicantSelfService(session, 'create')
+			async (session) =>
+				hasApplicantResourceAccess(session, 'applicants', 'create')
 		);
 	}
 
@@ -294,7 +298,8 @@ class ApplicantService extends BaseService<typeof applicants, 'id'> {
 					recognizedSchools
 				);
 			},
-			async (session) => canAccessApplicantSelfService(session, 'read')
+			async (session) =>
+				hasApplicantResourceAccess(session, 'applicants', 'read')
 		);
 	}
 
@@ -308,7 +313,8 @@ class ApplicantService extends BaseService<typeof applicants, 'id'> {
 	async saveLocation(data: typeof applicantLocations.$inferInsert) {
 		return withPermission(
 			async () => this.repo.saveLocation(data),
-			async (session) => canAccessApplicantSelfService(session, 'update')
+			async (session) =>
+				hasApplicantResourceAccess(session, 'applicants', 'update')
 		);
 	}
 

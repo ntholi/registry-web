@@ -18,13 +18,6 @@ import { calculateAllScores } from '../_lib/scoring';
 import type { ApplicationFilters } from '../_lib/types';
 import ApplicationRepository from './repository';
 
-async function canAccessApplicationSelfService(
-	session: Parameters<typeof hasApplicantResourceAccess>[0],
-	action: 'read' | 'create' | 'update'
-) {
-	return hasApplicantResourceAccess(session, 'applications', action);
-}
-
 class ApplicationService extends BaseService<typeof applications, 'id'> {
 	private repo: ApplicationRepository;
 
@@ -48,7 +41,8 @@ class ApplicationService extends BaseService<typeof applications, 'id'> {
 	override async get(id: string) {
 		return withPermission(
 			async () => this.repo.findById(id),
-			async (session) => canAccessApplicationSelfService(session, 'read')
+			async (session) =>
+				hasApplicantResourceAccess(session, 'applications', 'read')
 		);
 	}
 
@@ -116,7 +110,8 @@ class ApplicationService extends BaseService<typeof applications, 'id'> {
 
 				return application;
 			},
-			async (session) => canAccessApplicationSelfService(session, 'create')
+			async (session) =>
+				hasApplicantResourceAccess(session, 'applications', 'create')
 		);
 	}
 
@@ -185,7 +180,8 @@ class ApplicationService extends BaseService<typeof applications, 'id'> {
 
 				return application;
 			},
-			async (session) => canAccessApplicationSelfService(session, 'create')
+			async (session) =>
+				hasApplicantResourceAccess(session, 'applications', 'create')
 		);
 	}
 
@@ -224,7 +220,8 @@ class ApplicationService extends BaseService<typeof applications, 'id'> {
 					activityType: 'application_status_changed',
 				});
 			},
-			async (session) => canAccessApplicationSelfService(session, 'update')
+			async (session) =>
+				hasApplicantResourceAccess(session, 'applications', 'update')
 		);
 	}
 
@@ -250,7 +247,8 @@ class ApplicationService extends BaseService<typeof applications, 'id'> {
 	async findByApplicant(applicantId: string) {
 		return withPermission(
 			async () => this.repo.findByApplicant(applicantId),
-			async (session) => canAccessApplicationSelfService(session, 'read')
+			async (session) =>
+				hasApplicantResourceAccess(session, 'applications', 'read')
 		);
 	}
 
@@ -269,7 +267,8 @@ class ApplicationService extends BaseService<typeof applications, 'id'> {
 	async getForPayment(applicationId: string) {
 		return withPermission(
 			async () => this.repo.findForPayment(applicationId),
-			async (session) => canAccessApplicationSelfService(session, 'read')
+			async (session) =>
+				hasApplicantResourceAccess(session, 'applications', 'read')
 		);
 	}
 
@@ -304,7 +303,8 @@ class ApplicationService extends BaseService<typeof applications, 'id'> {
 				}
 				return results;
 			},
-			async (session) => canAccessApplicationSelfService(session, 'update')
+			async (session) =>
+				hasApplicantResourceAccess(session, 'applications', 'update')
 		);
 	}
 

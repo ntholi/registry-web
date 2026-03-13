@@ -1,8 +1,8 @@
 'use client';
 
 import { Badge, Paper, Stack, Table, Title } from '@mantine/core';
+import { getGradeColor } from '@/shared/lib/utils/colors';
 import { grades } from '@/shared/lib/utils/grades';
-import { getGradeColor } from '../_lib/gradeColors';
 
 export function GradeTable() {
 	const uniqueGrades = grades.filter(
