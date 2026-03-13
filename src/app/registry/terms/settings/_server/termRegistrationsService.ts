@@ -1,3 +1,4 @@
+import { hasPermission } from '@/core/auth/sessionPermissions';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
 import withPermission from '@/core/platform/withPermission';
 import TermRegistrationsRepository from './termRegistrationsRepository';
@@ -11,17 +12,6 @@ interface RegistrationEntry {
 
 class TermRegistrationsService {
 	private repository = new TermRegistrationsRepository();
-
-	private isRegistryManager(
-		session: {
-			user?: { role?: string | null; legacyPosition?: string | null };
-		} | null
-	) {
-		return (
-			session?.user?.role === 'registry' &&
-			session.user.legacyPosition === 'manager'
-		);
-	}
 
 	async findByTermId(termId: number) {
 		return withPermission(
@@ -42,7 +32,7 @@ class TermRegistrationsService {
 				const userId = session?.user?.id;
 				if (
 					session?.user?.role !== 'admin' &&
-					!this.isRegistryManager(session)
+					!hasPermission(session, 'terms-settings', 'update')
 				) {
 					throw new Error('Unauthorized');
 				}
@@ -74,7 +64,7 @@ class TermRegistrationsService {
 			async (session) => {
 				if (
 					session?.user?.role !== 'admin' &&
-					!this.isRegistryManager(session)
+					!hasPermission(session, 'terms-settings', 'update')
 				) {
 					throw new Error('Unauthorized');
 				}
@@ -89,7 +79,7 @@ class TermRegistrationsService {
 			async (session) => {
 				if (
 					session?.user?.role !== 'admin' &&
-					!this.isRegistryManager(session)
+					!hasPermission(session, 'terms-settings', 'update')
 				) {
 					throw new Error('Unauthorized');
 				}
@@ -105,7 +95,7 @@ class TermRegistrationsService {
 				const userId = session?.user?.id;
 				if (
 					session?.user?.role !== 'admin' &&
-					!this.isRegistryManager(session)
+					!hasPermission(session, 'terms-settings', 'update')
 				) {
 					throw new Error('Unauthorized');
 				}
@@ -123,7 +113,7 @@ class TermRegistrationsService {
 			async (session) => {
 				if (
 					session?.user?.role !== 'admin' &&
-					!this.isRegistryManager(session)
+					!hasPermission(session, 'terms-settings', 'update')
 				) {
 					throw new Error('Unauthorized');
 				}

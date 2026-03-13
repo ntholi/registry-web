@@ -1,4 +1,3 @@
-import { getLegacyPresetPosition } from '@auth/permission-presets/_lib/catalog';
 import { and, desc, eq, gte, lte, or, sql } from 'drizzle-orm';
 import type { UserRole } from '@/core/auth/permissions';
 import {
@@ -11,6 +10,7 @@ import {
 import BaseRepository, {
 	type AuditOptions,
 } from '@/core/platform/BaseRepository';
+import { resolvePresetPosition } from '../_lib/presetPositions';
 
 export type NotificationInsert = typeof notifications.$inferInsert;
 export type NotificationSelect = typeof notifications.$inferSelect;
@@ -167,7 +167,7 @@ export default class NotificationRepository extends BaseRepository<
 					columns: { name: true },
 				})
 			: null;
-		const legacyPosition = getLegacyPresetPosition(userRole, preset?.name);
+		const presetPosition = resolvePresetPosition(userRole, preset?.name);
 
 		const baseConditions = and(
 			eq(notifications.isActive, true),
@@ -208,8 +208,8 @@ export default class NotificationRepository extends BaseRepository<
 				const matchesPosition =
 					!notification.targetPositions ||
 					notification.targetPositions.length === 0 ||
-					(legacyPosition &&
-						notification.targetPositions.includes(legacyPosition));
+					(presetPosition &&
+						notification.targetPositions.includes(presetPosition));
 
 				if (
 					notification.targetRoles?.length &&

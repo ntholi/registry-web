@@ -1,4 +1,3 @@
-import { getLegacyPresetPosition } from '@auth/permission-presets/_lib/catalog';
 import { getPresetSessionData } from '@auth/permission-presets/_server/repository';
 import StudentRepository from '@registry/students/_server/repository';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
@@ -13,7 +12,6 @@ import { db, schema } from '@/core/database';
 type BetterAuthSession = typeof betterAuthServer.$Infer.Session;
 type BetterAuthUser = BetterAuthSession['user'];
 type SessionExtras = {
-	legacyPosition?: string | null;
 	permissions?: PermissionGrant[];
 	presetName?: string | null;
 };
@@ -24,7 +22,6 @@ type SessionUserFields = {
 type SessionUser = BetterAuthUser & {
 	presetId: string | null;
 	presetName: string | null;
-	legacyPosition: string | null;
 	role: string;
 	stdNo: number | null;
 };
@@ -112,14 +109,12 @@ export const betterAuthServer = betterAuth({
 
 			const permissions = preset?.permissions ?? [];
 			const presetName = preset?.name ?? null;
-			const legacyPosition = getLegacyPresetPosition(preset?.role, presetName);
 
 			return {
 				user,
 				session,
 				permissions,
 				presetName,
-				legacyPosition,
 			};
 		}),
 		nextCookies(),
@@ -167,10 +162,6 @@ export async function auth(): Promise<Session | null> {
 			presetName:
 				typeof sessionExtras.presetName === 'string'
 					? sessionExtras.presetName
-					: null,
-			legacyPosition:
-				typeof sessionExtras.legacyPosition === 'string'
-					? sessionExtras.legacyPosition
 					: null,
 			presetId: typeof user.presetId === 'string' ? user.presetId : null,
 			role: typeof user.role === 'string' ? user.role : 'user',

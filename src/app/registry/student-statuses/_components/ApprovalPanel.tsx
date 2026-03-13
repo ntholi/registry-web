@@ -46,7 +46,7 @@ export default function ApprovalPanel({
 	const { data: session } = authClient.useSession();
 
 	function canApprove(approverRole: StudentStatusApprovalRole) {
-		return hasApprovalRole(session?.user, approverRole);
+		return hasApprovalRole(session, approverRole);
 	}
 
 	return (

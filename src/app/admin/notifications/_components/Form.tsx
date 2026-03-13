@@ -16,12 +16,12 @@ import { IconX } from '@tabler/icons-react';
 import { useRouter } from 'nextjs-toploader/app';
 import { useEffect, useState } from 'react';
 import { z } from 'zod';
-import { LEGACY_PRESET_POSITIONS } from '@/app/auth/permission-presets/_lib/catalog';
 import { USER_ROLES } from '@/core/auth/permissions';
 import type { notifications, users } from '@/core/database';
 import { toTitleCase } from '@/shared/lib/utils/utils';
 import { Form } from '@/shared/ui/adease';
 import UserInput from '@/shared/ui/UserInput';
+import { LEGACY_PRESET_POSITIONS } from '../_lib/presetPositions';
 
 type User = typeof users.$inferSelect;
 type NotificationTargetType = 'all' | 'role' | 'users';

@@ -1,73 +1,79 @@
 import type { Session } from '@/core/auth';
+import { hasPermission } from '@/core/auth/sessionPermissions';
 import type { StudentStatusApprovalRole } from './types';
 
-interface SessionUserLike {
+interface ApprovalSubject {
 	role?: string | null;
-	legacyPosition?: string | null;
+	presetName?: string | null;
+	permissions?: Session['permissions'];
 }
+
+const APPROVAL_PRESET_ROLES: Record<string, StudentStatusApprovalRole[]> = {
+	'Academic Manager': ['program_leader'],
+	'Academic Program Leader': ['program_leader'],
+	'Academic Year Leader': ['year_leader'],
+	'Student Services Staff': ['student_services'],
+	'Finance Staff': ['finance'],
+	'Finance Manager': ['finance'],
+};
 
 export function canUserApproveRole(
 	session: Session,
 	approverRole: StudentStatusApprovalRole
 ) {
-	return hasApprovalRole(session.user, approverRole);
+	return hasApprovalRole(session, approverRole);
 }
 
 export function getUserApprovalRoles(
 	session: Session
 ): StudentStatusApprovalRole[] {
-	return getApprovalRolesByUser(session.user);
+	return getApprovalRolesByUser(session);
 }
 
 export function hasApprovalRole(
-	user: SessionUserLike | undefined,
+	subject: ApprovalSubject | Session | null | undefined,
 	approverRole: StudentStatusApprovalRole
 ) {
-	if (!user?.role) {
-		return false;
-	}
-
-	switch (approverRole) {
-		case 'year_leader':
-			return user.role === 'academic' && user.legacyPosition === 'year_leader';
-		case 'program_leader':
-			return (
-				user.role === 'academic' &&
-				(user.legacyPosition === 'manager' ||
-					user.legacyPosition === 'program_leader')
-			);
-		case 'student_services':
-			return user.role === 'student_services';
-		case 'finance':
-			return user.role === 'finance';
-	}
+	return getApprovalRolesByUser(subject).includes(approverRole);
 }
 
 export function getApprovalRolesByUser(
-	user: SessionUserLike | undefined
+	subject: ApprovalSubject | Session | null | undefined
 ): StudentStatusApprovalRole[] {
 	const roles: StudentStatusApprovalRole[] = [];
-	if (!user?.role) {
+	const user = normalizeApprovalSubject(subject);
+
+	if (!user?.role || !hasPermission(user, 'student-statuses', 'approve')) {
 		return roles;
 	}
 
-	if (user.role === 'academic') {
-		if (user.legacyPosition === 'year_leader') {
-			roles.push('year_leader');
+	const presetRoles = user.presetName
+		? (APPROVAL_PRESET_ROLES[user.presetName] ?? [])
+		: [];
+
+	for (const role of presetRoles) {
+		if (!roles.includes(role)) {
+			roles.push(role);
 		}
-		if (
-			user.legacyPosition === 'manager' ||
-			user.legacyPosition === 'program_leader'
-		) {
-			roles.push('program_leader');
-		}
-	}
-	if (user.role === 'student_services') {
-		roles.push('student_services');
-	}
-	if (user.role === 'finance') {
-		roles.push('finance');
 	}
 
 	return roles;
+}
+
+function normalizeApprovalSubject(
+	subject: ApprovalSubject | Session | null | undefined
+): ApprovalSubject | undefined {
+	if (!subject) {
+		return undefined;
+	}
+
+	if ('user' in subject) {
+		return {
+			role: subject.user.role,
+			presetName: subject.user.presetName,
+			permissions: subject.permissions,
+		};
+	}
+
+	return subject;
 }

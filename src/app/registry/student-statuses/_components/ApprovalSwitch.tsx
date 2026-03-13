@@ -47,7 +47,7 @@ export default function ApprovalSwitch({
 	setAccordion,
 }: Props) {
 	const { data: session } = authClient.useSession();
-	const userRoles = getApprovalRolesByUser(session?.user);
+	const userRoles = getApprovalRolesByUser(session);
 
 	const myApproval = approvals.find((a) => userRoles.includes(a.approverRole));
 

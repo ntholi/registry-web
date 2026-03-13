@@ -39,7 +39,7 @@ This file is the **authoritative** reference for the entire Better Auth migratio
 | 24b | Schema Cleanup & Verification | `024b_phase-24-schema-and-verification.md` | `DONE` | `2026-03-13` | Dropped `users.position`, removed legacy role enum exports/usages, added `proxy.ts`, and completed DB plus grep verification |
 | 24c | Integration Tests & Checklist | `024c_phase-24-testing.md` | `DONE` | `2026-03-13` | Added Better Auth Vitest coverage for route wiring, `withPermission`, session permission helpers, and preset session-revocation flows; targeted auth suites pass |
 | 24d | Migrate Legacy Services to Permission-Based Auth | `024d_phase-24-migrate-legacy-services.md` | `DONE` | `2026-03-13` | Removed remaining service-layer role-array auth configs; migrated legacy checks to permission objects, literals, or explicit access functions |
-| 24e | Remove `legacyPosition` & Legacy Catalog | `024e_phase-24-remove-legacy-position.md` | `PENDING` | | Migrate approvalRoles & notifications to permissions, remove legacyPosition from session, clean catalog exports |
+| 24e | Remove `legacyPosition` & Legacy Catalog | `024e_phase-24-remove-legacy-position.md` | `DONE` | `2026-03-13` | Replaced status approval checks with permission-backed preset mapping, isolated notification preset-position mapping, removed `legacyPosition` from session/UI, and cleaned catalog exports |
 | 24f | Core Platform Cleanup & Final Verification | `024f_phase-24-platform-cleanup.md` | `PENDING` | | Remove legacy role-arrays from withPermission/BaseService, migrate DetailsViewHeader role props, final grep & tsc validation |
 
 **Legend**: `PENDING` = not started | `IN_PROGRESS` = currently executing | `DONE` = completed | `BLOCKED` = waiting on something

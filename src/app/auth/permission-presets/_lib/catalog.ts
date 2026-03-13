@@ -6,15 +6,6 @@ import {
 	type Resource,
 } from '@/core/auth/permissions';
 
-type PresetPosition =
-	| 'manager'
-	| 'program_leader'
-	| 'principal_lecturer'
-	| 'year_leader'
-	| 'lecturer'
-	| 'admin'
-	| null;
-
 export interface PermissionResourceGroup {
 	label: string;
 	resources: readonly Resource[];
@@ -25,12 +16,6 @@ export interface PermissionPresetSeed {
 	role: DashboardRole;
 	description: string;
 	permissions: readonly PermissionGrant[];
-}
-
-export interface LegacyPresetMapping {
-	role: DashboardRole;
-	position: PresetPosition;
-	presetName: string;
 }
 
 function grant(
@@ -152,6 +137,7 @@ export const PERMISSION_PRESET_SEEDS: readonly PermissionPresetSeed[] = [
 			grant('registration', ['read', 'update']),
 			grant('graduation', ['read', 'approve']),
 			grant('graduation-clearance', ['read', 'approve', 'reject']),
+			grant('student-statuses', ['approve']),
 			grant('activity-tracker', ['read']),
 			grant('tasks', taskCrud),
 			grant('gradebook', ['read', 'update', 'approve']),
@@ -176,6 +162,7 @@ export const PERMISSION_PRESET_SEEDS: readonly PermissionPresetSeed[] = [
 			grant('feedback-categories', fullCrud),
 			grant('school-structures', ['read', 'update']),
 			grant('registration', ['read', 'update']),
+			grant('student-statuses', ['approve']),
 			grant('timetable', ['read']),
 			grant('students', ['read']),
 			grant('gradebook', ['read', 'update', 'approve']),
@@ -197,6 +184,7 @@ export const PERMISSION_PRESET_SEEDS: readonly PermissionPresetSeed[] = [
 		permissions: mergeGrants(
 			grant('feedback-cycles', ['read']),
 			grant('registration', ['read']),
+			grant('student-statuses', ['approve']),
 			grant('students', ['read']),
 			grant('timetable', ['read']),
 			grant('attendance', ['read']),
@@ -309,7 +297,7 @@ export const PERMISSION_PRESET_SEEDS: readonly PermissionPresetSeed[] = [
 		permissions: mergeGrants(
 			grant('sponsors', fullCrud),
 			grant('admissions-payments', ['read', 'update']),
-			grant('student-statuses', ['read']),
+			grant('student-statuses', ['read', 'approve']),
 			grant('graduation', ['read']),
 			grant('students', ['read']),
 			grant('registration-clearance', ['read', 'approve', 'reject']),
@@ -329,7 +317,7 @@ export const PERMISSION_PRESET_SEEDS: readonly PermissionPresetSeed[] = [
 		permissions: mergeGrants(
 			grant('sponsors', fullCrud),
 			grant('admissions-payments', ['read', 'update']),
-			grant('student-statuses', ['read']),
+			grant('student-statuses', ['read', 'approve']),
 			grant('graduation', ['read']),
 			grant('students', ['read']),
 			grant('registration-clearance', ['read', 'approve', 'reject']),
@@ -382,7 +370,7 @@ export const PERMISSION_PRESET_SEEDS: readonly PermissionPresetSeed[] = [
 			grant('students', ['read', 'update']),
 			grant('registration', ['read', 'update']),
 			grant('documents', ['read', 'create']),
-			grant('student-statuses', ['read', 'create', 'update']),
+			grant('student-statuses', ['read', 'create', 'update', 'approve']),
 			grant('student-notes', fullCrud)
 		),
 	},
@@ -424,73 +412,3 @@ export const PERMISSION_PRESET_SEEDS: readonly PermissionPresetSeed[] = [
 		),
 	},
 ];
-
-export const LEGACY_PRESET_MAPPINGS: readonly LegacyPresetMapping[] = [
-	{ role: 'academic', position: 'manager', presetName: 'Academic Manager' },
-	{
-		role: 'academic',
-		position: 'program_leader',
-		presetName: 'Academic Program Leader',
-	},
-	{
-		role: 'academic',
-		position: 'year_leader',
-		presetName: 'Academic Year Leader',
-	},
-	{ role: 'academic', position: 'lecturer', presetName: 'Academic Lecturer' },
-	{
-		role: 'academic',
-		position: 'principal_lecturer',
-		presetName: 'Academic Principal Lecturer',
-	},
-	{ role: 'academic', position: 'admin', presetName: 'Academic Admin' },
-	{ role: 'academic', position: null, presetName: 'Academic Lecturer' },
-	{ role: 'registry', position: null, presetName: 'Registry Staff' },
-	{ role: 'registry', position: 'manager', presetName: 'Registry Manager' },
-	{ role: 'finance', position: null, presetName: 'Finance Staff' },
-	{ role: 'finance', position: 'manager', presetName: 'Finance Manager' },
-	{ role: 'library', position: null, presetName: 'Library Staff' },
-	{ role: 'marketing', position: null, presetName: 'Marketing Staff' },
-	{
-		role: 'student_services',
-		position: null,
-		presetName: 'Student Services Staff',
-	},
-	{ role: 'leap', position: null, presetName: 'LEAP Staff' },
-	{
-		role: 'human_resource',
-		position: null,
-		presetName: 'Human Resource Staff',
-	},
-	{ role: 'resource', position: null, presetName: 'Resource Staff' },
-];
-
-export const LEGACY_PRESET_POSITIONS = [
-	'manager',
-	'program_leader',
-	'principal_lecturer',
-	'year_leader',
-	'lecturer',
-	'admin',
-] as const;
-
-export type LegacyPresetPosition = (typeof LEGACY_PRESET_POSITIONS)[number];
-
-export function getLegacyPresetPosition(
-	role: string | null | undefined,
-	presetName: string | null | undefined
-): LegacyPresetPosition | null {
-	if (
-		!role ||
-		!presetName ||
-		!DASHBOARD_ROLES.includes(role as DashboardRole)
-	) {
-		return null;
-	}
-
-	return (
-		LEGACY_PRESET_MAPPINGS.find(
-			(mapping) => mapping.role === role && mapping.presetName === presetName
-		)?.position ?? null
-	);
-}

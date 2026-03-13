@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache';
 import { getUnpublishedTermCodes } from '@/app/registry/terms/settings/_server/actions';
 import { auth } from '@/core/auth';
+import { hasPermission } from '@/core/auth/sessionPermissions';
 import type {
 	nextOfKins,
 	studentModules,
@@ -193,11 +194,11 @@ export async function updateStudentModule(
 
 export async function canEditMarksAndGrades() {
 	const session = await auth();
-	const isAdmin = session?.user?.role === 'admin';
-	const isRegistryManager =
-		session?.user?.role === 'registry' &&
-		session.user.legacyPosition === 'manager';
-	return isAdmin || isRegistryManager;
+	return (
+		session?.user?.role === 'admin' ||
+		(session?.user?.role === 'registry' &&
+			hasPermission(session, 'activity-tracker', 'read'))
+	);
 }
 
 export interface CreateFullStudentInput {

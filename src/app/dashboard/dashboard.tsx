@@ -302,9 +302,7 @@ function UserButton() {
 						{user?.role === 'academic'
 							? userSchools?.map((it) => it.school.code).join(', ')
 							: toTitleCase(user?.role)}
-						{user?.legacyPosition
-							? ` | ${toTitleCase(user.legacyPosition)}`
-							: ''}
+						{user?.presetName ? ` | ${user.presetName}` : ''}
 					</Text>
 				</Stack>
 			</Group>
