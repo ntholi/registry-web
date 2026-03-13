@@ -1,5 +1,5 @@
 import type { Session } from '@/core/auth';
-import { hasSessionPermission } from '@/core/auth/sessionPermissions';
+import { hasPermission } from '@/core/auth/permissions';
 import type { subjects } from '@/core/database';
 import BaseService from '@/core/platform/BaseService';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
@@ -10,7 +10,7 @@ function canManageSubjects(
 	session: Session | null | undefined,
 	action: 'read' | 'create' | 'update' | 'delete'
 ) {
-	return hasSessionPermission(session, 'subjects', action);
+	return hasPermission(session, 'subjects', action);
 }
 
 function isApplicantSession(session: Session | null | undefined) {

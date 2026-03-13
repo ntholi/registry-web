@@ -1,5 +1,5 @@
 import type { Session } from '@/core/auth';
-import { hasSessionPermission } from '@/core/auth/sessionPermissions';
+import { hasPermission } from '@/core/auth/permissions';
 import type { entryRequirements } from '@/core/database';
 import BaseService from '@/core/platform/BaseService';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
@@ -10,7 +10,7 @@ import EntryRequirementRepository, {
 
 function canReadEntryRequirements(session: Session | null | undefined) {
 	return (
-		hasSessionPermission(session, 'entry-requirements', 'read') ||
+		hasPermission(session, 'entry-requirements', 'read') ||
 		session?.user?.role === 'applicant' ||
 		session?.user?.role === 'user'
 	);

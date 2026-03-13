@@ -1,5 +1,5 @@
 import type { Session } from '@/core/auth';
-import { hasSessionPermission } from '@/core/auth/sessionPermissions';
+import { hasPermission } from '@/core/auth/permissions';
 import type { bankDeposits, DepositStatus } from '@/core/database';
 import {
 	generateClientReference,
@@ -17,7 +17,7 @@ function canManageAdmissionsPayments(
 	session: Session | null | undefined,
 	action: 'read' | 'create' | 'update' | 'delete'
 ) {
-	return hasSessionPermission(session, 'admissions-payments', action);
+	return hasPermission(session, 'admissions-payments', action);
 }
 
 function isApplicantSession(session: Session | null | undefined) {

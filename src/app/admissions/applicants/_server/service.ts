@@ -3,7 +3,7 @@ import { entryRequirementsService } from '@admissions/entry-requirements/_server
 import { intakePeriodsService } from '@admissions/intake-periods/_server/service';
 import { recognizedSchoolsService } from '@admissions/recognized-schools/_server/service';
 import type { Session } from '@/core/auth';
-import { hasSessionPermission } from '@/core/auth/sessionPermissions';
+import { hasPermission } from '@/core/auth/permissions';
 import type {
 	applicantLocations,
 	applicants,
@@ -38,7 +38,7 @@ function canManageApplicants(
 	session: Session | null | undefined,
 	action: 'read' | 'create' | 'update'
 ) {
-	return hasSessionPermission(session, 'applicants', action);
+	return hasPermission(session, 'applicants', action);
 }
 
 function isApplicantSession(session: Session | null | undefined) {

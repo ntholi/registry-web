@@ -98,3 +98,24 @@ export type DashboardRole = (typeof DASHBOARD_ROLES)[number];
 export const USER_ROLES = ['student', ...DASHBOARD_ROLES] as const;
 
 export type UserRole = (typeof USER_ROLES)[number];
+
+export function hasPermission(
+	session: { permissions?: PermissionGrant[] } | null | undefined,
+	resource: Resource,
+	action: Action
+) {
+	return (
+		session?.permissions?.some(
+			(permission) =>
+				permission.resource === resource && permission.action === action
+		) ?? false
+	);
+}
+
+export function hasAnyPermission(
+	session: { permissions?: PermissionGrant[] } | null | undefined,
+	resource: Resource,
+	actions: readonly Action[]
+) {
+	return actions.some((action) => hasPermission(session, resource, action));
+}

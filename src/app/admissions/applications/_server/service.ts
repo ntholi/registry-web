@@ -4,7 +4,7 @@ import type {
 } from '@admissions/entry-requirements/_lib/types';
 import { eq } from 'drizzle-orm';
 import type { Session } from '@/core/auth';
-import { hasSessionPermission } from '@/core/auth/sessionPermissions';
+import { hasPermission } from '@/core/auth/permissions';
 import {
 	type ApplicationStatus,
 	academicRecords,
@@ -23,7 +23,7 @@ function canManageApplications(
 	session: Session | null | undefined,
 	action: 'read' | 'create' | 'update' | 'delete'
 ) {
-	return hasSessionPermission(session, 'applications', action);
+	return hasPermission(session, 'applications', action);
 }
 
 function isApplicantSession(session: Session | null | undefined) {

@@ -1,13 +1,11 @@
 import {
-	hasAnyRegistryPermission,
-	hasRegistryPermission,
-} from '@registry/_lib/permissions';
-import {
 	resolveStudentModuleActivityType,
 	resolveStudentProgramActivityType,
 	resolveStudentSemesterActivityType,
 } from '@/app/registry/_lib/activities';
 import { getActiveTerm } from '@/app/registry/terms';
+import type { Session } from '@/core/auth';
+import { hasAnyPermission, hasPermission } from '@/core/auth/permissions';
 import type {
 	nextOfKins,
 	studentModules,
@@ -353,37 +351,28 @@ class StudentService {
 	}
 }
 
-function canAccessStudent(
-	session: Parameters<typeof hasRegistryPermission>[0],
-	stdNo: number
-) {
+function canAccessStudent(session: Session | null | undefined, stdNo: number) {
 	return (
-		session?.user?.stdNo === stdNo ||
-		hasRegistryPermission(session, 'students', 'read')
+		session?.user?.stdNo === stdNo || hasPermission(session, 'students', 'read')
 	);
 }
 
 function canAccessRegistration(
-	session: Parameters<typeof hasRegistryPermission>[0],
+	session: Session | null | undefined,
 	stdNo: number
 ) {
 	return (
 		session?.user?.stdNo === stdNo ||
-		hasAnyRegistryPermission(session, 'registration', [
-			'read',
-			'create',
-			'update',
-		])
+		hasAnyPermission(session, 'registration', ['read', 'create', 'update'])
 	);
 }
 
 function canAccessStudentByUserId(
-	session: Parameters<typeof hasRegistryPermission>[0],
+	session: Session | null | undefined,
 	userId: string
 ) {
 	return (
-		session?.user?.id === userId ||
-		hasRegistryPermission(session, 'students', 'read')
+		session?.user?.id === userId || hasPermission(session, 'students', 'read')
 	);
 }
 

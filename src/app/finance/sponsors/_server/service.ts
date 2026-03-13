@@ -1,5 +1,5 @@
 import type { Session } from '@/core/auth';
-import { hasSessionPermission } from '@/core/auth/sessionPermissions';
+import { hasPermission } from '@/core/auth/permissions';
 import type { sponsors } from '@/core/database';
 import type { QueryOptions } from '@/core/platform/BaseRepository';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
@@ -10,24 +10,24 @@ type Sponsor = typeof sponsors.$inferInsert;
 
 function canReadSponsors(session: Session | null | undefined) {
 	return (
-		hasSessionPermission(session, 'sponsors', 'read') ||
+		hasPermission(session, 'sponsors', 'read') ||
 		session?.user?.role === 'registry'
 	);
 }
 
 function canCreateSponsors(session: Session | null | undefined) {
-	return hasSessionPermission(session, 'sponsors', 'create');
+	return hasPermission(session, 'sponsors', 'create');
 }
 
 function canUpdateSponsors(session: Session | null | undefined) {
 	return (
-		hasSessionPermission(session, 'sponsors', 'update') ||
+		hasPermission(session, 'sponsors', 'update') ||
 		session?.user?.role === 'registry'
 	);
 }
 
 function canDeleteSponsors(session: Session | null | undefined) {
-	return hasSessionPermission(session, 'sponsors', 'delete');
+	return hasPermission(session, 'sponsors', 'delete');
 }
 
 function canAccessStudentSponsor(

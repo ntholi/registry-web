@@ -1,5 +1,5 @@
 import type { Session } from '@/core/auth';
-import { hasSessionPermission } from '@/core/auth/sessionPermissions';
+import { hasPermission } from '@/core/auth/permissions';
 import type { certificateTypes, gradeMappings } from '@/core/database';
 import BaseService from '@/core/platform/BaseService';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
@@ -13,7 +13,7 @@ type GradeMapping = {
 
 function canReadCertificateTypes(session: Session | null | undefined) {
 	return (
-		hasSessionPermission(session, 'certificate-types', 'read') ||
+		hasPermission(session, 'certificate-types', 'read') ||
 		session?.user?.role === 'applicant' ||
 		session?.user?.role === 'user'
 	);

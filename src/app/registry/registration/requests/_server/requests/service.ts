@@ -1,10 +1,8 @@
-import {
-	hasAnyRegistryPermission,
-	hasRegistryPermission,
-} from '@registry/_lib/permissions';
 import type { AcademicRemarks, Student } from '@registry/students';
 import { getStudentRegistrationData } from '@registry/students/_server/actions';
 import { getActiveTerm } from '@/app/registry/terms';
+import type { Session } from '@/core/auth';
+import { hasAnyPermission, hasPermission } from '@/core/auth/permissions';
 import type {
 	ReceiptType,
 	registrationRequests,
@@ -244,37 +242,34 @@ class RegistrationRequestService {
 }
 
 function canAccessRegistration(
-	session: Parameters<typeof hasRegistryPermission>[0],
+	session: Session | null | undefined,
 	stdNo: number
 ) {
 	return (
 		session?.user?.stdNo === stdNo ||
-		hasRegistryPermission(session, 'registration', 'read')
+		hasPermission(session, 'registration', 'read')
 	);
 }
 
 function canCreateRegistration(
-	session: Parameters<typeof hasRegistryPermission>[0],
+	session: Session | null | undefined,
 	stdNo: number
 ) {
 	return (
 		session?.user?.stdNo === stdNo ||
-		hasAnyRegistryPermission(session, 'registration', ['create', 'update'])
+		hasAnyPermission(session, 'registration', ['create', 'update'])
 	);
 }
 
 function canUpdateRegistration(
-	session: Parameters<typeof hasRegistryPermission>[0],
+	session: Session | null | undefined,
 	stdNo?: number
 ) {
 	if (stdNo && session?.user?.stdNo === stdNo) {
 		return true;
 	}
 
-	return hasAnyRegistryPermission(session, 'registration', [
-		'create',
-		'update',
-	]);
+	return hasAnyPermission(session, 'registration', ['create', 'update']);
 }
 
 export const registrationRequestsService = serviceWrapper(
