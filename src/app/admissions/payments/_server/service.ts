@@ -1,4 +1,4 @@
-import { hasApplicantResourceAccess } from '@/core/auth/sessionPermissions';
+import { hasSessionPermission } from '@/core/auth/sessionPermissions';
 import type { bankDeposits, DepositStatus } from '@/core/database';
 import {
 	generateClientReference,
@@ -61,7 +61,10 @@ class PaymentService extends BaseService<typeof bankDeposits, 'id'> {
 		return withPermission(
 			async () => this.repo.findBankDepositsByApplication(applicationId),
 			async (session) =>
-				hasApplicantResourceAccess(session, 'admissions-payments', 'read')
+				hasSessionPermission(session, 'admissions-payments', 'read', [
+					'applicant',
+					'user',
+				])
 		);
 	}
 
@@ -73,7 +76,10 @@ class PaymentService extends BaseService<typeof bankDeposits, 'id'> {
 					this.buildAuditOptions(session, 'create')
 				),
 			async (session) =>
-				hasApplicantResourceAccess(session, 'admissions-payments', 'create')
+				hasSessionPermission(session, 'admissions-payments', 'create', [
+					'applicant',
+					'user',
+				])
 		);
 	}
 
@@ -289,7 +295,10 @@ class PaymentService extends BaseService<typeof bankDeposits, 'id'> {
 				return { success: false, error: 'Unsupported payment provider' };
 			},
 			async (session) =>
-				hasApplicantResourceAccess(session, 'admissions-payments', 'create')
+				hasSessionPermission(session, 'admissions-payments', 'create', [
+					'applicant',
+					'user',
+				])
 		);
 	}
 
@@ -340,7 +349,10 @@ class PaymentService extends BaseService<typeof bankDeposits, 'id'> {
 				return { success: false, status: 'pending' };
 			},
 			async (session) =>
-				hasApplicantResourceAccess(session, 'admissions-payments', 'read')
+				hasSessionPermission(session, 'admissions-payments', 'read', [
+					'applicant',
+					'user',
+				])
 		);
 	}
 
@@ -348,7 +360,10 @@ class PaymentService extends BaseService<typeof bankDeposits, 'id'> {
 		return withPermission(
 			async () => this.repo.findPendingMobileDeposit(applicationId),
 			async (session) =>
-				hasApplicantResourceAccess(session, 'admissions-payments', 'read')
+				hasSessionPermission(session, 'admissions-payments', 'read', [
+					'applicant',
+					'user',
+				])
 		);
 	}
 
@@ -356,7 +371,10 @@ class PaymentService extends BaseService<typeof bankDeposits, 'id'> {
 		return withPermission(
 			async () => this.repo.findMobileDepositsByApplication(applicationId),
 			async (session) =>
-				hasApplicantResourceAccess(session, 'admissions-payments', 'read')
+				hasSessionPermission(session, 'admissions-payments', 'read', [
+					'applicant',
+					'user',
+				])
 		);
 	}
 }

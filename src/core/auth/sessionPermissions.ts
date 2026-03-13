@@ -1,8 +1,6 @@
 import type { Session } from '../auth';
 import type { Action, PermissionGrant, Resource } from './permissions';
 
-export const APPLICANT_SELF_SERVICE_ROLES = ['applicant', 'user'] as const;
-
 export function hasPermission(
 	session: { permissions?: PermissionGrant[] } | null | undefined,
 	resource: Resource,
@@ -41,25 +39,6 @@ export function hasSessionPermission(
 	return (
 		hasPermission(session, resource, action) ||
 		hasSessionRole(session, fallbackRoles)
-	);
-}
-
-export function hasApplicantSelfServiceAccess(
-	session: Session | null | undefined
-) {
-	return hasSessionRole(session, APPLICANT_SELF_SERVICE_ROLES);
-}
-
-export function hasApplicantResourceAccess(
-	session: Session | null | undefined,
-	resource: Resource,
-	action: Action
-) {
-	return hasSessionPermission(
-		session,
-		resource,
-		action,
-		APPLICANT_SELF_SERVICE_ROLES
 	);
 }
 

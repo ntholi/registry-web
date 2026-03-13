@@ -1,7 +1,4 @@
-import {
-	hasApplicantResourceAccess,
-	hasSessionPermission,
-} from '@/core/auth/sessionPermissions';
+import { hasSessionPermission } from '@/core/auth/sessionPermissions';
 import type { academicRecords, StandardGrade } from '@/core/database';
 import BaseService from '@/core/platform/BaseService';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
@@ -34,7 +31,10 @@ class AcademicRecordService extends BaseService<typeof academicRecords, 'id'> {
 		return withPermission(
 			async () => this.repo.findById(id),
 			async (session) =>
-				hasApplicantResourceAccess(session, 'applicants', 'read')
+				hasSessionPermission(session, 'applicants', 'read', [
+					'applicant',
+					'user',
+				])
 		);
 	}
 
@@ -42,7 +42,10 @@ class AcademicRecordService extends BaseService<typeof academicRecords, 'id'> {
 		return withPermission(
 			async () => this.repo.findByApplicant(applicantId, page),
 			async (session) =>
-				hasApplicantResourceAccess(session, 'applicants', 'read')
+				hasSessionPermission(session, 'applicants', 'read', [
+					'applicant',
+					'user',
+				])
 		);
 	}
 
@@ -83,7 +86,10 @@ class AcademicRecordService extends BaseService<typeof academicRecords, 'id'> {
 				);
 			},
 			async (session) =>
-				hasApplicantResourceAccess(session, 'applicants', 'create')
+				hasSessionPermission(session, 'applicants', 'create', [
+					'applicant',
+					'user',
+				])
 		);
 	}
 
@@ -134,7 +140,10 @@ class AcademicRecordService extends BaseService<typeof academicRecords, 'id'> {
 			async (session) =>
 				this.repo.removeById(id, this.buildAuditOptions(session, 'delete')),
 			async (session) =>
-				hasApplicantResourceAccess(session, 'applicants', 'delete')
+				hasSessionPermission(session, 'applicants', 'delete', [
+					'applicant',
+					'user',
+				])
 		);
 	}
 
@@ -142,7 +151,10 @@ class AcademicRecordService extends BaseService<typeof academicRecords, 'id'> {
 		return withPermission(
 			async () => this.repo.findByCertificateNumber(certificateNumber),
 			async (session) =>
-				hasApplicantResourceAccess(session, 'applicants', 'read')
+				hasSessionPermission(session, 'applicants', 'read', [
+					'applicant',
+					'user',
+				])
 		);
 	}
 
@@ -150,7 +162,10 @@ class AcademicRecordService extends BaseService<typeof academicRecords, 'id'> {
 		return withPermission(
 			async () => this.repo.findByApplicantDocumentId(applicantDocumentId),
 			async (session) =>
-				hasApplicantResourceAccess(session, 'applicants', 'read')
+				hasSessionPermission(session, 'applicants', 'read', [
+					'applicant',
+					'user',
+				])
 		);
 	}
 
@@ -158,7 +173,10 @@ class AcademicRecordService extends BaseService<typeof academicRecords, 'id'> {
 		return withPermission(
 			async () => this.repo.linkDocument(academicRecordId, applicantDocumentId),
 			async (session) =>
-				hasApplicantResourceAccess(session, 'applicants', 'update')
+				hasSessionPermission(session, 'applicants', 'update', [
+					'applicant',
+					'user',
+				])
 		);
 	}
 }

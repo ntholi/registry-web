@@ -1,4 +1,4 @@
-import { hasApplicantResourceAccess } from '@/core/auth/sessionPermissions';
+import { hasSessionPermission } from '@/core/auth/sessionPermissions';
 import type { entryRequirements } from '@/core/database';
 import BaseService from '@/core/platform/BaseService';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
@@ -34,7 +34,10 @@ class EntryRequirementService extends BaseService<
 		return withPermission(
 			async () => this.repo.findById(id),
 			async (session) =>
-				hasApplicantResourceAccess(session, 'entry-requirements', 'read')
+				hasSessionPermission(session, 'entry-requirements', 'read', [
+					'applicant',
+					'user',
+				])
 		);
 	}
 
@@ -77,7 +80,10 @@ class EntryRequirementService extends BaseService<
 		return withPermission(
 			async () => this.repo.findAllForEligibility(),
 			async (session) =>
-				hasApplicantResourceAccess(session, 'entry-requirements', 'read')
+				hasSessionPermission(session, 'entry-requirements', 'read', [
+					'applicant',
+					'user',
+				])
 		);
 	}
 

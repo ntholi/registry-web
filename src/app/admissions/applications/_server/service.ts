@@ -3,7 +3,7 @@ import type {
 	SubjectGradeRules,
 } from '@admissions/entry-requirements/_lib/types';
 import { eq } from 'drizzle-orm';
-import { hasApplicantResourceAccess } from '@/core/auth/sessionPermissions';
+import { hasSessionPermission } from '@/core/auth/sessionPermissions';
 import {
 	type ApplicationStatus,
 	academicRecords,
@@ -42,7 +42,10 @@ class ApplicationService extends BaseService<typeof applications, 'id'> {
 		return withPermission(
 			async () => this.repo.findById(id),
 			async (session) =>
-				hasApplicantResourceAccess(session, 'applications', 'read')
+				hasSessionPermission(session, 'applications', 'read', [
+					'applicant',
+					'user',
+				])
 		);
 	}
 
@@ -111,7 +114,10 @@ class ApplicationService extends BaseService<typeof applications, 'id'> {
 				return application;
 			},
 			async (session) =>
-				hasApplicantResourceAccess(session, 'applications', 'create')
+				hasSessionPermission(session, 'applications', 'create', [
+					'applicant',
+					'user',
+				])
 		);
 	}
 
@@ -181,7 +187,10 @@ class ApplicationService extends BaseService<typeof applications, 'id'> {
 				return application;
 			},
 			async (session) =>
-				hasApplicantResourceAccess(session, 'applications', 'create')
+				hasSessionPermission(session, 'applications', 'create', [
+					'applicant',
+					'user',
+				])
 		);
 	}
 
@@ -221,7 +230,10 @@ class ApplicationService extends BaseService<typeof applications, 'id'> {
 				});
 			},
 			async (session) =>
-				hasApplicantResourceAccess(session, 'applications', 'update')
+				hasSessionPermission(session, 'applications', 'update', [
+					'applicant',
+					'user',
+				])
 		);
 	}
 
@@ -248,7 +260,10 @@ class ApplicationService extends BaseService<typeof applications, 'id'> {
 		return withPermission(
 			async () => this.repo.findByApplicant(applicantId),
 			async (session) =>
-				hasApplicantResourceAccess(session, 'applications', 'read')
+				hasSessionPermission(session, 'applications', 'read', [
+					'applicant',
+					'user',
+				])
 		);
 	}
 
@@ -268,7 +283,10 @@ class ApplicationService extends BaseService<typeof applications, 'id'> {
 		return withPermission(
 			async () => this.repo.findForPayment(applicationId),
 			async (session) =>
-				hasApplicantResourceAccess(session, 'applications', 'read')
+				hasSessionPermission(session, 'applications', 'read', [
+					'applicant',
+					'user',
+				])
 		);
 	}
 
@@ -304,7 +322,10 @@ class ApplicationService extends BaseService<typeof applications, 'id'> {
 				return results;
 			},
 			async (session) =>
-				hasApplicantResourceAccess(session, 'applications', 'update')
+				hasSessionPermission(session, 'applications', 'update', [
+					'applicant',
+					'user',
+				])
 		);
 	}
 

@@ -1,4 +1,4 @@
-import { hasApplicantResourceAccess } from '@/core/auth/sessionPermissions';
+import { hasSessionPermission } from '@/core/auth/sessionPermissions';
 import type { certificateTypes, gradeMappings } from '@/core/database';
 import BaseService from '@/core/platform/BaseService';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
@@ -37,7 +37,10 @@ class CertificateTypeService extends BaseService<
 		return withPermission(
 			async () => this.repo.findById(id),
 			async (session) =>
-				hasApplicantResourceAccess(session, 'certificate-types', 'read')
+				hasSessionPermission(session, 'certificate-types', 'read', [
+					'applicant',
+					'user',
+				])
 		);
 	}
 
@@ -45,7 +48,10 @@ class CertificateTypeService extends BaseService<
 		return withPermission(
 			async () => this.repo.search(page, search),
 			async (session) =>
-				hasApplicantResourceAccess(session, 'certificate-types', 'read')
+				hasSessionPermission(session, 'certificate-types', 'read', [
+					'applicant',
+					'user',
+				])
 		);
 	}
 
@@ -121,7 +127,10 @@ class CertificateTypeService extends BaseService<
 		return withPermission(
 			async () => this.repo.mapGrade(certificateTypeId, originalGrade),
 			async (session) =>
-				hasApplicantResourceAccess(session, 'certificate-types', 'read')
+				hasSessionPermission(session, 'certificate-types', 'read', [
+					'applicant',
+					'user',
+				])
 		);
 	}
 }

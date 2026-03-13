@@ -1,4 +1,4 @@
-import { hasApplicantResourceAccess } from '@/core/auth/sessionPermissions';
+import { hasSessionPermission } from '@/core/auth/sessionPermissions';
 import type {
 	applicantDocuments,
 	DocumentType,
@@ -39,7 +39,10 @@ class ApplicantDocumentService extends BaseService<
 		return withPermission(
 			async () => this.repo.findByApplicant(applicantId, page),
 			async (session) =>
-				hasApplicantResourceAccess(session, 'admissions-documents', 'read')
+				hasSessionPermission(session, 'admissions-documents', 'read', [
+					'applicant',
+					'user',
+				])
 		);
 	}
 
@@ -47,7 +50,10 @@ class ApplicantDocumentService extends BaseService<
 		return withPermission(
 			async () => this.repo.findByType(applicantId, type),
 			async (session) =>
-				hasApplicantResourceAccess(session, 'admissions-documents', 'read')
+				hasSessionPermission(session, 'admissions-documents', 'read', [
+					'applicant',
+					'user',
+				])
 		);
 	}
 
@@ -68,7 +74,10 @@ class ApplicantDocumentService extends BaseService<
 				);
 			},
 			async (session) =>
-				hasApplicantResourceAccess(session, 'admissions-documents', 'create')
+				hasSessionPermission(session, 'admissions-documents', 'create', [
+					'applicant',
+					'user',
+				])
 		);
 	}
 
@@ -90,7 +99,10 @@ class ApplicantDocumentService extends BaseService<
 				);
 			},
 			async (session) =>
-				hasApplicantResourceAccess(session, 'admissions-documents', 'update')
+				hasSessionPermission(session, 'admissions-documents', 'update', [
+					'applicant',
+					'user',
+				])
 		);
 	}
 
@@ -103,7 +115,10 @@ class ApplicantDocumentService extends BaseService<
 					activityType: 'applicant_document_deleted',
 				}),
 			async (session) =>
-				hasApplicantResourceAccess(session, 'admissions-documents', 'delete')
+				hasSessionPermission(session, 'admissions-documents', 'delete', [
+					'applicant',
+					'user',
+				])
 		);
 	}
 }

@@ -1,4 +1,4 @@
-import { hasApplicantResourceAccess } from '@/core/auth/sessionPermissions';
+import { hasSessionPermission } from '@/core/auth/sessionPermissions';
 import type { intakePeriods } from '@/core/database';
 import BaseService from '@/core/platform/BaseService';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
@@ -58,7 +58,10 @@ class IntakePeriodService extends BaseService<typeof intakePeriods, 'id'> {
 		return withPermission(
 			async () => this.repo.getOpenProgramIds(intakePeriodId),
 			async (session) =>
-				hasApplicantResourceAccess(session, 'intake-periods', 'read')
+				hasSessionPermission(session, 'intake-periods', 'read', [
+					'applicant',
+					'user',
+				])
 		);
 	}
 

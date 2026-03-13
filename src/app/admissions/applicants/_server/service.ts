@@ -2,7 +2,7 @@ import { mapGrade } from '@admissions/certificate-types/_server/actions';
 import { entryRequirementsService } from '@admissions/entry-requirements/_server/service';
 import { intakePeriodsService } from '@admissions/intake-periods/_server/service';
 import { recognizedSchoolsService } from '@admissions/recognized-schools/_server/service';
-import { hasApplicantResourceAccess } from '@/core/auth/sessionPermissions';
+import { hasSessionPermission } from '@/core/auth/sessionPermissions';
 import type {
 	applicantLocations,
 	applicants,
@@ -55,7 +55,10 @@ class ApplicantService extends BaseService<typeof applicants, 'id'> {
 		return withPermission(
 			async () => this.repo.findById(id),
 			async (session) =>
-				hasApplicantResourceAccess(session, 'applicants', 'read')
+				hasSessionPermission(session, 'applicants', 'read', [
+					'applicant',
+					'user',
+				])
 		);
 	}
 
@@ -90,7 +93,10 @@ class ApplicantService extends BaseService<typeof applicants, 'id'> {
 				);
 			},
 			async (session) =>
-				hasApplicantResourceAccess(session, 'applicants', 'create')
+				hasSessionPermission(session, 'applicants', 'create', [
+					'applicant',
+					'user',
+				])
 		);
 	}
 
@@ -107,7 +113,10 @@ class ApplicantService extends BaseService<typeof applicants, 'id'> {
 				);
 			},
 			async (session) =>
-				hasApplicantResourceAccess(session, 'applicants', 'update')
+				hasSessionPermission(session, 'applicants', 'update', [
+					'applicant',
+					'user',
+				])
 		);
 	}
 
@@ -115,7 +124,10 @@ class ApplicantService extends BaseService<typeof applicants, 'id'> {
 		return withPermission(
 			async () => this.repo.addPhone(applicantId, phoneNumber),
 			async (session) =>
-				hasApplicantResourceAccess(session, 'applicants', 'update')
+				hasSessionPermission(session, 'applicants', 'update', [
+					'applicant',
+					'user',
+				])
 		);
 	}
 
@@ -123,7 +135,10 @@ class ApplicantService extends BaseService<typeof applicants, 'id'> {
 		return withPermission(
 			async () => this.repo.removePhone(phoneId),
 			async (session) =>
-				hasApplicantResourceAccess(session, 'applicants', 'update')
+				hasSessionPermission(session, 'applicants', 'update', [
+					'applicant',
+					'user',
+				])
 		);
 	}
 
@@ -134,7 +149,10 @@ class ApplicantService extends BaseService<typeof applicants, 'id'> {
 		return withPermission(
 			async () => this.repo.createGuardian(data, phoneNumbers),
 			async (session) =>
-				hasApplicantResourceAccess(session, 'applicants', 'update')
+				hasSessionPermission(session, 'applicants', 'update', [
+					'applicant',
+					'user',
+				])
 		);
 	}
 
@@ -146,7 +164,10 @@ class ApplicantService extends BaseService<typeof applicants, 'id'> {
 		return withPermission(
 			async () => this.repo.updateGuardian(id, data, phoneNumbers),
 			async (session) =>
-				hasApplicantResourceAccess(session, 'applicants', 'update')
+				hasSessionPermission(session, 'applicants', 'update', [
+					'applicant',
+					'user',
+				])
 		);
 	}
 
@@ -154,7 +175,10 @@ class ApplicantService extends BaseService<typeof applicants, 'id'> {
 		return withPermission(
 			async () => this.repo.deleteGuardian(id),
 			async (session) =>
-				hasApplicantResourceAccess(session, 'applicants', 'update')
+				hasSessionPermission(session, 'applicants', 'update', [
+					'applicant',
+					'user',
+				])
 		);
 	}
 
@@ -162,7 +186,10 @@ class ApplicantService extends BaseService<typeof applicants, 'id'> {
 		return withPermission(
 			async () => this.repo.addGuardianPhone(guardianId, phoneNumber),
 			async (session) =>
-				hasApplicantResourceAccess(session, 'applicants', 'update')
+				hasSessionPermission(session, 'applicants', 'update', [
+					'applicant',
+					'user',
+				])
 		);
 	}
 
@@ -170,7 +197,10 @@ class ApplicantService extends BaseService<typeof applicants, 'id'> {
 		return withPermission(
 			async () => this.repo.removeGuardianPhone(phoneId),
 			async (session) =>
-				hasApplicantResourceAccess(session, 'applicants', 'update')
+				hasSessionPermission(session, 'applicants', 'update', [
+					'applicant',
+					'user',
+				])
 		);
 	}
 
@@ -260,7 +290,10 @@ class ApplicantService extends BaseService<typeof applicants, 'id'> {
 				);
 			},
 			async (session) =>
-				hasApplicantResourceAccess(session, 'applicants', 'create')
+				hasSessionPermission(session, 'applicants', 'create', [
+					'applicant',
+					'user',
+				])
 		);
 	}
 
@@ -299,7 +332,10 @@ class ApplicantService extends BaseService<typeof applicants, 'id'> {
 				);
 			},
 			async (session) =>
-				hasApplicantResourceAccess(session, 'applicants', 'read')
+				hasSessionPermission(session, 'applicants', 'read', [
+					'applicant',
+					'user',
+				])
 		);
 	}
 
@@ -314,7 +350,10 @@ class ApplicantService extends BaseService<typeof applicants, 'id'> {
 		return withPermission(
 			async () => this.repo.saveLocation(data),
 			async (session) =>
-				hasApplicantResourceAccess(session, 'applicants', 'update')
+				hasSessionPermission(session, 'applicants', 'update', [
+					'applicant',
+					'user',
+				])
 		);
 	}
 

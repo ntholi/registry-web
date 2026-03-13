@@ -1,4 +1,4 @@
-import { hasApplicantResourceAccess } from '@/core/auth/sessionPermissions';
+import { hasSessionPermission } from '@/core/auth/sessionPermissions';
 import type { recognizedSchools } from '@/core/database';
 import BaseService from '@/core/platform/BaseService';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
@@ -32,7 +32,10 @@ class RecognizedSchoolService extends BaseService<
 		return withPermission(
 			async () => this.repo.findAllActive(),
 			async (session) =>
-				hasApplicantResourceAccess(session, 'recognized-schools', 'read')
+				hasSessionPermission(session, 'recognized-schools', 'read', [
+					'applicant',
+					'user',
+				])
 		);
 	}
 }

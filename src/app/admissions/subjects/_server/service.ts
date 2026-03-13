@@ -1,4 +1,4 @@
-import { hasApplicantResourceAccess } from '@/core/auth/sessionPermissions';
+import { hasSessionPermission } from '@/core/auth/sessionPermissions';
 import type { subjects } from '@/core/database';
 import BaseService from '@/core/platform/BaseService';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
@@ -29,14 +29,18 @@ class SubjectService extends BaseService<typeof subjects, 'id'> {
 		return withPermission(
 			async () => this.repo.findOrCreateByName(name),
 			async (session) =>
-				hasApplicantResourceAccess(session, 'subjects', 'create')
+				hasSessionPermission(session, 'subjects', 'create', [
+					'applicant',
+					'user',
+				])
 		);
 	}
 
 	async findActive() {
 		return withPermission(
 			async () => this.repo.findActive(),
-			async (session) => hasApplicantResourceAccess(session, 'subjects', 'read')
+			async (session) =>
+				hasSessionPermission(session, 'subjects', 'read', ['applicant', 'user'])
 		);
 	}
 
