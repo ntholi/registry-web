@@ -38,16 +38,6 @@ const getSessionWithPermissions = cache(
 
 export async function withPermission<T>(
 	fn: (session: Session | null) => Promise<T>,
-	requirement: AuthRequirement | AccessCheckFunction
-): Promise<T>;
-
-export async function withPermission<T>(
-	fn: (session: Session | null) => Promise<T>,
-	roles: LegacyAuthConfig
-): Promise<T>;
-
-export async function withPermission<T>(
-	fn: (session: Session | null) => Promise<T>,
 	requirement: AuthConfig
 ): Promise<T> {
 	const functionName = fn.toString();

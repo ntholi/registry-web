@@ -139,8 +139,6 @@ class PermissionPresetService extends BaseService<
 						)
 					);
 				}
-
-				return deleted;
 			},
 			{ 'permission-presets': ['delete'] }
 		);

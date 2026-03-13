@@ -11,15 +11,25 @@ import {
 describe('session permission helpers', () => {
 	const session = {
 		permissions: [
-			{ resource: 'students', action: 'read' },
-			{ resource: 'registration', action: 'approve' },
+			{ resource: 'students' as const, action: 'read' as const },
+			{ resource: 'registration' as const, action: 'approve' as const },
 		],
+		session: {
+			id: 'session-1',
+			userId: 'student-1',
+			expiresAt: new Date(),
+			token: 'test',
+			createdAt: new Date(),
+			updatedAt: new Date(),
+			ipAddress: null,
+			userAgent: null,
+		},
 		user: {
 			id: 'student-1',
-			role: 'student',
+			role: 'student' as const,
 			stdNo: 1001,
 		},
-	};
+	} as unknown as import('@/core/auth').Session;
 
 	it('checks a single permission grant', () => {
 		expect(hasPermission(session, 'students', 'read')).toBe(true);
