@@ -1,41 +1,47 @@
-import type { Session } from 'next-auth';
-import { auth } from '@/core/auth';
-import withAuth from '@/core/platform/withPermission';
+import type { Session } from '@/core/auth';
+import type { PermissionRequirement } from '@/core/auth/permissions';
+import { getSession, withPermission } from '@/core/platform/withPermission';
 import type { FeedbackReportFilter } from '../_lib/types';
 import { feedbackReportRepository } from './repository';
 
-const FULL_ACCESS_POSITIONS = ['admin', 'manager'];
+const REPORT_READ_AUTH: PermissionRequirement = {
+	'feedback-reports': ['read'],
+};
 
-function canViewReports(session: Session) {
-	if (session.user?.role === 'human_resource') return Promise.resolve(true);
-	if (session.user?.role === 'academic') return Promise.resolve(true);
-	return Promise.resolve(false);
+function hasReportPermission(
+	session: Session | null | undefined,
+	action: 'read' | 'update'
+) {
+	return (
+		session?.permissions?.some(
+			(permission) =>
+				permission.resource === 'feedback-reports' &&
+				permission.action === action
+		) ?? false
+	);
 }
 
-function hasFullReportAccess(session: Session) {
-	if (session.user?.role === 'human_resource') return true;
-	if (
-		session.user?.role === 'academic' &&
-		FULL_ACCESS_POSITIONS.includes(session.user.position ?? '')
-	)
+function hasFullReportAccess(session: Session | null | undefined) {
+	if (!session?.user) return false;
+	if (session.user.role === 'admin' || session.user.role === 'human_resource') {
 		return true;
-	return false;
+	}
+	return hasReportPermission(session, 'update');
 }
 
 class FeedbackReportService {
-	private async applyLecturerFilter(
+	private applyLecturerFilter(
+		session: Session | null,
 		filter: FeedbackReportFilter
-	): Promise<FeedbackReportFilter> {
-		const session = await auth();
+	): FeedbackReportFilter {
 		if (!session?.user) return filter;
-		if (session.user.role === 'admin') return filter;
 		if (hasFullReportAccess(session)) return filter;
 		return { ...filter, lecturerId: session.user.id };
 	}
 
 	async getReportData(filter: FeedbackReportFilter) {
-		const scopedFilter = await this.applyLecturerFilter(filter);
-		return withAuth(async () => {
+		return withPermission(async (session) => {
+			const scopedFilter = this.applyLecturerFilter(session, filter);
 			const [
 				overview,
 				categoryAverages,
@@ -57,40 +63,36 @@ class FeedbackReportService {
 				lecturerRankings,
 				questionBreakdown,
 			};
-		}, canViewReports);
+		}, REPORT_READ_AUTH);
 	}
 
 	async getLecturerDetail(userId: string, filter: FeedbackReportFilter) {
-		const scopedFilter = await this.applyLecturerFilter(filter);
-		return withAuth(async (session) => {
-			if (
-				!hasFullReportAccess(session!) &&
-				session?.user?.role !== 'admin' &&
-				userId !== session?.user?.id
-			) {
+		return withPermission(async (session) => {
+			const scopedFilter = this.applyLecturerFilter(session, filter);
+			if (!hasFullReportAccess(session) && userId !== session?.user?.id) {
 				throw new Error('Access denied');
 			}
 			return feedbackReportRepository.getLecturerDetail(userId, scopedFilter);
-		}, canViewReports);
+		}, REPORT_READ_AUTH);
 	}
 
 	async getCyclesByTerm(termId: number) {
-		return withAuth(async () => {
+		return withPermission(async () => {
 			return feedbackReportRepository.getCyclesByTerm(termId);
-		}, canViewReports);
+		}, REPORT_READ_AUTH);
 	}
 
 	async getModulesForFilter(filter: FeedbackReportFilter) {
-		return withAuth(async () => {
+		return withPermission(async () => {
 			return feedbackReportRepository.getModulesForFilter(filter);
-		}, canViewReports);
+		}, REPORT_READ_AUTH);
 	}
 
 	async hasFullAccess(): Promise<boolean> {
-		const session = await auth();
-		if (!session?.user) return false;
-		if (session.user.role === 'admin') return true;
-		return hasFullReportAccess(session);
+		const session = await getSession();
+		return (
+			hasFullReportAccess(session) || hasReportPermission(session, 'update')
+		);
 	}
 }
 
