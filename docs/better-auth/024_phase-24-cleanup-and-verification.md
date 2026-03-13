@@ -15,6 +15,16 @@
 - `src/app/api/auth/[...nextauth]/route.ts` (already deleted in Phase 6, verify)
 - Any test mocks for withAuth (e.g., `src/test/mock.withAuth.ts`)
 
+### Clean Up `src/core/auth.ts` Legacy Re-exports
+
+After deleting `src/core/auth.legacy.ts`, update `src/core/auth.ts` to remove all legacy NextAuth re-exports:
+
+- Remove `import { handlers, auth as legacyAuth, signIn, signOut } from './auth.legacy'`
+- Remove `export const auth = legacyAuth`
+- Remove `export { handlers, legacyAuth, signIn, signOut }`
+- Rename `betterAuthServer` to `auth` so downstream code uses `auth` directly
+- Update `src/app/api/auth/[...all]/route.ts` to import `auth` (instead of `betterAuthServer`)
+
 ### Remove from Relations
 
 - Remove `authenticatorsRelations` from `src/app/auth/auth-providers/_schema/relations.ts`
@@ -99,8 +109,8 @@ Run these queries to confirm migration completeness:
 
 ```sql
 -- All users with positions should now have presets
-SELECT count(*) FROM users WHERE preset_id IS NULL AND role NOT IN ('user', 'applicant', 'student');
--- Expected: 0 (all staff users have presets)
+SELECT count(*) FROM users WHERE preset_id IS NULL AND role NOT IN ('user', 'applicant', 'student', 'admin');
+-- Expected: 0 (all staff users have presets, admin bypasses permissions)
 
 -- Permission presets exist
 SELECT name, role, (SELECT count(*) FROM preset_permissions WHERE preset_id = pp.id) as perm_count

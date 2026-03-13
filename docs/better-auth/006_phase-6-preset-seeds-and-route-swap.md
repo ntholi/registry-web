@@ -6,6 +6,8 @@
 
 This phase seeds permission presets from the shared catalog, migrates position→preset assignments, performs the final position cleanup, swaps the auth route handler, creates the proxy, and verifies Google OAuth.
 
+> **Migration type**: All steps in sections 6.1 and 6.2 must be implemented as a **custom migration** (`pnpm db:generate --custom`). The seed inserts, user mapping UPDATEs, and column DROP must all live in one custom `.sql` file executed as a single transaction. After the custom migration is applied, update the Drizzle schema file to remove the `position` column, then run `pnpm db:generate` to produce the schema-only migration (which should be a no-op since the column was already dropped in the custom migration).
+
 ## 6.1 Permission Preset Seeds
 
 After creating the `permission_presets` and `preset_permissions` tables, seed the predefined presets from `src/app/auth/permission-presets/_lib/catalog.ts`.
@@ -247,6 +249,17 @@ UPDATE users u
 SET preset_id = pp.id
 FROM permission_presets pp
 WHERE u.role = 'human_resource' AND pp.name = 'Human Resource Staff';
+
+UPDATE users u
+SET preset_id = pp.id
+FROM permission_presets pp
+WHERE u.role = 'resource' AND pp.name = 'Resource Staff';
+
+-- Academic users with NULL position default to Academic Lecturer
+UPDATE users u
+SET preset_id = pp.id
+FROM permission_presets pp
+WHERE u.role = 'academic' AND u.position IS NULL AND u.preset_id IS NULL AND pp.name = 'Academic Lecturer';
 ```
 
 Before dropping `users.position`, run a blocking audit for unmapped staff users. Do NOT continue until this returns zero rows:
@@ -255,16 +268,18 @@ Before dropping `users.position`, run a blocking audit for unmapped staff users.
 SELECT id, email, role, position
 FROM users
 WHERE preset_id IS NULL
-  AND role NOT IN ('user', 'applicant', 'student')
+  AND role NOT IN ('user', 'applicant', 'student', 'admin')
 ORDER BY role, position, email;
 
 SELECT role, position, count(*) AS affected_users
 FROM users
 WHERE preset_id IS NULL
-  AND role NOT IN ('user', 'applicant', 'student')
+  AND role NOT IN ('user', 'applicant', 'student', 'admin')
 GROUP BY role, position
 ORDER BY role, position;
 ```
+
+> **Note on `admin` role**: Admin users are excluded from the blocking audit because they bypass permission checks entirely via the `admin` role guard in `withPermission`. They do not need a preset.
 
 If any rows remain, stop the migration, extend the shared `role + position -> preset` mapping in `src/app/auth/permission-presets/_lib/catalog.ts`, reseed if needed, rerun the assignment step, and only then continue.
 
@@ -278,17 +293,32 @@ ALTER TABLE users DROP COLUMN position;
 
 After DB migration is verified:
 
+### 6.3.1 Clean up stale NextAuth sessions
+
+Before swapping, purge existing NextAuth sessions so users are forced to re-authenticate via Better Auth:
+
+```sql
+DELETE FROM sessions;
+DELETE FROM verification_tokens;
+```
+
+This is safe because Better Auth creates its own session rows. Stale NextAuth cookies will simply fail validation and redirect to login.
+
+### 6.3.2 Swap the route handler
+
 1. Delete `src/app/api/auth/[...nextauth]/route.ts`
 2. Create `src/app/api/auth/[...all]/route.ts`
 
 ```ts
 import { toNextJsHandler } from 'better-auth/next-js';
-import { auth } from '@/core/auth';
+import { betterAuthServer } from '@/core/auth';
 
-export const { GET, POST } = toNextJsHandler(auth);
+export const { GET, POST } = toNextJsHandler(betterAuthServer);
 ```
 
-Both CANNOT coexist. This must be atomic (same commit).
+> **IMPORTANT**: The Better Auth instance is exported as `betterAuthServer`, NOT `auth`. The `auth` export in `src/core/auth.ts` currently aliases `legacyAuth` from NextAuth and will be cleaned up in a later phase.
+
+Both route handlers CANNOT coexist. This must be atomic (same commit).
 
 ## 6.4 Update Next.js Config
 
@@ -368,4 +398,5 @@ export const config = {
 - [ ] `proxy.ts` created with cookie-only optimistic redirect (Next.js 16 `proxy.ts` convention)
 - [ ] Google OAuth Console callback URIs verified
 - [ ] Sign-in tested after route swap
+- [ ] Legacy NextAuth sessions purged before route swap
 - [ ] `pnpm tsc --noEmit` passes

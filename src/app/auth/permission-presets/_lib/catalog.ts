@@ -329,6 +329,7 @@ export const LEGACY_PRESET_MAPPINGS: readonly LegacyPresetMapping[] = [
 		presetName: 'Academic Principal Lecturer',
 	},
 	{ role: 'academic', position: 'admin', presetName: 'Academic Admin' },
+	{ role: 'academic', position: null, presetName: 'Academic Lecturer' },
 	{ role: 'registry', position: null, presetName: 'Registry Staff' },
 	{ role: 'registry', position: 'manager', presetName: 'Registry Manager' },
 	{ role: 'finance', position: null, presetName: 'Finance Staff' },
