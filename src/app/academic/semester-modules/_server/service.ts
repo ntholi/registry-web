@@ -3,16 +3,16 @@ import type { semesterModules } from '@/core/database';
 import type { QueryOptions } from '@/core/platform/BaseRepository';
 import BaseService from '@/core/platform/BaseService';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
-import withAuth from '@/core/platform/withPermission';
+import { withPermission } from '@/core/platform/withPermission';
 import ModuleRepository, { type ModuleGradeInsert } from './repository';
 
 class SemesterModuleService extends BaseService<typeof semesterModules, 'id'> {
 	constructor() {
 		super(new ModuleRepository(), {
-			byIdRoles: ['dashboard'],
-			findAllRoles: ['dashboard'],
-			createRoles: ['registry'],
-			updateRoles: ['registry'],
+			byIdAuth: 'dashboard',
+			findAllAuth: 'dashboard',
+			createAuth: { 'semester-modules': ['create'] },
+			updateAuth: { 'semester-modules': ['update'] },
 			activityTypes: {
 				create: 'semester_module_created',
 				update: 'semester_module_updated',
@@ -22,84 +22,84 @@ class SemesterModuleService extends BaseService<typeof semesterModules, 'id'> {
 	}
 
 	override async get(id: number) {
-		return withAuth(
+		return withPermission(
 			async () => (this.repository as ModuleRepository).findById(id),
-			['dashboard']
+			'dashboard'
 		);
 	}
 
 	async getByCode(code: string) {
-		return withAuth(
+		return withPermission(
 			async () => (this.repository as ModuleRepository).findByCode(code),
-			['dashboard']
+			'dashboard'
 		);
 	}
 
 	async search(params: QueryOptions<typeof semesterModules>, search: string) {
-		return withAuth(
+		return withPermission(
 			async () => (this.repository as ModuleRepository).search(params, search),
-			['dashboard']
+			'dashboard'
 		);
 	}
 
 	async findModulesByStructure(structureId: number, search = '') {
-		return withAuth(
+		return withPermission(
 			async () =>
 				(this.repository as ModuleRepository).findModulesByStructure(
 					structureId,
 					search
 				),
-			['dashboard']
+			'dashboard'
 		);
 	}
 
 	async getModulesByStructure(structureId: number) {
-		return withAuth(
+		return withPermission(
 			async () =>
 				(this.repository as ModuleRepository).getModulesByStructure(
 					structureId
 				),
-			['dashboard']
+			'dashboard'
 		);
 	}
 
 	async getStructuresByModule(moduleId: number) {
-		return withAuth(
+		return withPermission(
 			async () =>
 				(this.repository as ModuleRepository).getStructuresByModule(moduleId),
-			['dashboard']
+			'dashboard'
 		);
 	}
 
 	async addPrerequisite(moduleId: number, prerequisiteId: number) {
-		return withAuth(
+		return withPermission(
 			async () =>
 				(this.repository as ModuleRepository).addPrerequisite(
 					moduleId,
 					prerequisiteId
 				),
-			['dashboard']
+			{ 'semester-modules': ['update'] }
 		);
 	}
 
 	async clearPrerequisites(moduleId: number) {
-		return withAuth(
+		return withPermission(
 			async () =>
 				(this.repository as ModuleRepository).clearPrerequisites(moduleId),
-			['dashboard']
+			{ 'semester-modules': ['update'] }
 		);
 	}
 
 	async getPrerequisites(moduleId: number) {
-		return withAuth(
+		return withPermission(
 			async () =>
 				(this.repository as ModuleRepository).getPrerequisites(moduleId),
-			['dashboard']
+			'dashboard'
 		);
 	}
 
 	async getModulesForStructure(structureId: number) {
-		return withAuth(
+		return withPermission(
 			async () =>
 				(this.repository as ModuleRepository).getModulesForStructure(
 					structureId
@@ -109,45 +109,45 @@ class SemesterModuleService extends BaseService<typeof semesterModules, 'id'> {
 	}
 
 	async searchModulesWithDetails(search = '') {
-		return withAuth(
+		return withPermission(
 			async () =>
 				(this.repository as ModuleRepository).searchModulesWithDetails(search),
-			['dashboard']
+			'dashboard'
 		);
 	}
 	async getStudentCountForModule(id: number) {
-		return withAuth(
+		return withPermission(
 			async () =>
 				(
 					this.repository as ModuleRepository
 				).getStudentCountForPreviousSemester(id),
-			['dashboard']
+			'dashboard'
 		);
 	}
 
 	async findGradeByModuleAndStudent(moduleId: number, stdNo: number) {
-		return withAuth(
+		return withPermission(
 			async () =>
 				(this.repository as ModuleRepository).findGradeByModuleAndStudent(
 					moduleId,
 					stdNo
 				),
-			['academic']
+			{ gradebook: ['read'] }
 		);
 	}
 
 	async getGradesByModuleId(moduleId: number) {
-		return withAuth(
+		return withPermission(
 			async () =>
 				(this.repository as ModuleRepository).findGradesByModuleId(moduleId),
-			['academic']
+			{ gradebook: ['read'] }
 		);
 	}
 
 	async upsertModuleGrade(data: ModuleGradeInsert) {
-		return withAuth(
+		return withPermission(
 			async () => (this.repository as ModuleRepository).upsertModuleGrade(data),
-			['academic']
+			{ gradebook: ['update'] }
 		);
 	}
 
@@ -156,22 +156,22 @@ class SemesterModuleService extends BaseService<typeof semesterModules, 'id'> {
 		grade: Grade,
 		weightedTotal: number
 	) {
-		return withAuth(
+		return withPermission(
 			async () =>
 				(this.repository as ModuleRepository).updateGradeByStudentModuleId(
 					studentModuleId,
 					grade,
 					weightedTotal
 				),
-			['academic']
+			{ gradebook: ['update'] }
 		);
 	}
 
 	async deleteSemesterModule(id: number) {
-		return withAuth(
+		return withPermission(
 			async () =>
 				(this.repository as ModuleRepository).deleteSemesterModule(id),
-			['registry']
+			{ 'semester-modules': ['update'] }
 		);
 	}
 }

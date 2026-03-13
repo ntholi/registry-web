@@ -1,18 +1,8 @@
-import type { Session } from 'next-auth';
 import type { feedbackQuestions } from '@/core/database';
 import BaseService from '@/core/platform/BaseService';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
-import withAuth from '@/core/platform/withPermission';
+import { withPermission } from '@/core/platform/withPermission';
 import FeedbackQuestionRepository from './repository';
-
-const MANAGE_POSITIONS = ['manager', 'program_leader', 'admin'];
-
-function canManageQuestions(session: Session) {
-	return Promise.resolve(
-		session.user?.role === 'academic' &&
-			MANAGE_POSITIONS.includes(session.user.position ?? '')
-	);
-}
 
 class FeedbackQuestionService extends BaseService<
 	typeof feedbackQuestions,
@@ -20,11 +10,11 @@ class FeedbackQuestionService extends BaseService<
 > {
 	constructor() {
 		super(new FeedbackQuestionRepository(), {
-			findAllRoles: ['academic'],
-			byIdRoles: ['academic'],
-			createRoles: canManageQuestions,
-			updateRoles: canManageQuestions,
-			deleteRoles: canManageQuestions,
+			findAllAuth: { 'feedback-questions': ['read'] },
+			byIdAuth: { 'feedback-questions': ['read'] },
+			createAuth: { 'feedback-questions': ['create'] },
+			updateAuth: { 'feedback-questions': ['update'] },
+			deleteAuth: { 'feedback-questions': ['delete'] },
 			activityTypes: {
 				create: 'feedback_question_created',
 				update: 'feedback_question_updated',
@@ -34,41 +24,41 @@ class FeedbackQuestionService extends BaseService<
 	}
 
 	override async get(id: string) {
-		return withAuth(
+		return withPermission(
 			async () => (this.repository as FeedbackQuestionRepository).findById(id),
-			['academic']
+			{ 'feedback-questions': ['read'] }
 		);
 	}
 
 	async findAllWithCategories() {
-		return withAuth(
+		return withPermission(
 			async () =>
 				(this.repository as FeedbackQuestionRepository).findAllWithCategories(),
-			['academic']
+			{ 'feedback-questions': ['read'] }
 		);
 	}
 
 	async findQuestionBoard() {
-		return withAuth(
+		return withPermission(
 			async () =>
 				(this.repository as FeedbackQuestionRepository).findQuestionBoard(),
-			['academic']
+			{ 'feedback-questions': ['read'] }
 		);
 	}
 
 	async reorderQuestions(ids: string[]) {
-		return withAuth(
+		return withPermission(
 			async () =>
 				(this.repository as FeedbackQuestionRepository).reorderQuestions(ids),
-			canManageQuestions
+			{ 'feedback-questions': ['update'] }
 		);
 	}
 
 	async reorderCategories(ids: string[]) {
-		return withAuth(
+		return withPermission(
 			async () =>
 				(this.repository as FeedbackQuestionRepository).reorderCategories(ids),
-			canManageQuestions
+			{ 'feedback-questions': ['update'] }
 		);
 	}
 }

@@ -2,18 +2,18 @@ import { getRecordHistory } from '@/app/audit-logs/_server/actions';
 import type { assessments, lmsAssessments } from '@/core/database';
 import BaseService from '@/core/platform/BaseService';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
-import withAuth from '@/core/platform/withPermission';
+import { withPermission } from '@/core/platform/withPermission';
 import AssessmentRepository from './repository';
 
 class AssessmentService extends BaseService<typeof assessments, 'id'> {
 	constructor() {
 		super(new AssessmentRepository(), {
-			byIdRoles: ['academic', 'leap'],
-			findAllRoles: ['academic', 'leap'],
-			createRoles: ['academic', 'leap'],
-			updateRoles: ['academic', 'leap'],
-			deleteRoles: ['academic', 'leap'],
-			countRoles: ['academic', 'leap'],
+			byIdAuth: { assessments: ['read'] },
+			findAllAuth: { assessments: ['read'] },
+			createAuth: { assessments: ['create'] },
+			updateAuth: { assessments: ['update'] },
+			deleteAuth: { assessments: ['delete'] },
+			countAuth: { assessments: ['read'] },
 			activityTypes: {
 				create: 'assessment_created',
 				update: 'assessment_updated',
@@ -26,39 +26,39 @@ class AssessmentService extends BaseService<typeof assessments, 'id'> {
 		data: typeof assessments.$inferInsert,
 		lmsData?: Omit<typeof lmsAssessments.$inferInsert, 'assessmentId'>
 	) {
-		return withAuth(
+		return withPermission(
 			async (session) =>
 				(this.repository as AssessmentRepository).createWithLms(data, lmsData, {
 					userId: session!.user!.id!,
 					role: session!.user!.role!,
 					activityType: 'assessment_created',
 				}),
-			['academic', 'leap']
+			{ assessments: ['create'] }
 		);
 	}
 
 	async getByModuleId(moduleId: number, termId: number) {
-		return withAuth(
+		return withPermission(
 			async () =>
 				(this.repository as AssessmentRepository).getByModuleId(
 					moduleId,
 					termId
 				),
-			['academic', 'leap']
+			{ assessments: ['read'] }
 		);
 	}
 
 	async getByLmsId(lmsId: number) {
-		return withAuth(
+		return withPermission(
 			async () => (this.repository as AssessmentRepository).findByLmsId(lmsId),
-			['academic', 'leap']
+			{ assessments: ['read'] }
 		);
 	}
 
 	async getAuditHistory(assessmentId: number) {
-		return withAuth(
+		return withPermission(
 			async () => getRecordHistory('assessments', String(assessmentId)),
-			['academic', 'leap']
+			{ assessments: ['read'] }
 		);
 	}
 
@@ -67,7 +67,7 @@ class AssessmentService extends BaseService<typeof assessments, 'id'> {
 		data: Partial<typeof assessments.$inferInsert>,
 		lmsData?: Partial<Omit<typeof lmsAssessments.$inferInsert, 'assessmentId'>>
 	) {
-		return withAuth(
+		return withPermission(
 			async (session) =>
 				(this.repository as AssessmentRepository).updateWithGradeRecalculation(
 					id,
@@ -79,7 +79,7 @@ class AssessmentService extends BaseService<typeof assessments, 'id'> {
 						activityType: 'assessment_updated',
 					}
 				),
-			['academic', 'leap']
+			{ assessments: ['update'] }
 		);
 	}
 }

@@ -1,15 +1,15 @@
 import type { modules } from '@/core/database';
 import BaseService from '@/core/platform/BaseService';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
-import withAuth from '@/core/platform/withPermission';
+import { withPermission } from '@/core/platform/withPermission';
 import ModuleRepository from './repository';
 
 class ModuleService extends BaseService<typeof modules, 'id'> {
 	constructor() {
 		super(new ModuleRepository(), {
-			byIdRoles: ['dashboard'],
-			findAllRoles: ['dashboard'],
-			createRoles: ['registry'],
+			byIdAuth: 'dashboard',
+			findAllAuth: 'dashboard',
+			createAuth: { modules: ['create'] },
 			activityTypes: {
 				create: 'module_created',
 				update: 'module_updated',
@@ -19,9 +19,9 @@ class ModuleService extends BaseService<typeof modules, 'id'> {
 	}
 
 	override async get(id: number) {
-		return withAuth(
+		return withPermission(
 			async () => (this.repository as ModuleRepository).findById(id),
-			['dashboard']
+			'dashboard'
 		);
 	}
 }
