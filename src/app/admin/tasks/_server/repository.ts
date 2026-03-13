@@ -1,11 +1,11 @@
 import { and, desc, eq, inArray, or, type SQL, sql } from 'drizzle-orm';
+import type { UserRole } from '@/core/auth/permissions';
 import {
 	db,
 	type students,
 	taskAssignees,
 	taskStudents,
 	tasks,
-	type UserRole,
 	users,
 } from '@/core/database';
 import BaseRepository, {
@@ -29,14 +29,14 @@ export default class TaskRepository extends BaseRepository<typeof tasks, 'id'> {
 	private buildVisibilityFilter(opts: {
 		userId?: string;
 		userRole?: UserRole;
-		isManager?: boolean;
+		hasDepartmentAccess?: boolean;
 		isAdmin?: boolean;
 	}): SQL | undefined {
-		const { userId, userRole, isManager, isAdmin } = opts;
+		const { userId, userRole, hasDepartmentAccess, isAdmin } = opts;
 
 		if (isAdmin) return undefined;
 
-		if (isManager && userRole && userId) {
+		if (hasDepartmentAccess && userRole && userId) {
 			const roleTaskIds = db
 				.select({ taskId: taskAssignees.taskId })
 				.from(taskAssignees)
@@ -86,7 +86,7 @@ export default class TaskRepository extends BaseRepository<typeof tasks, 'id'> {
 			statusFilter?: TaskSelect['status'] | 'all' | 'open';
 			userId?: string;
 			userRole?: UserRole;
-			isManager?: boolean;
+			hasDepartmentAccess?: boolean;
 			isAdmin?: boolean;
 		}
 	) {
@@ -97,7 +97,7 @@ export default class TaskRepository extends BaseRepository<typeof tasks, 'id'> {
 			statusFilter = 'open',
 			userId,
 			userRole,
-			isManager,
+			hasDepartmentAccess,
 			isAdmin,
 		} = options;
 		const offset = (page - 1) * size;
@@ -105,7 +105,7 @@ export default class TaskRepository extends BaseRepository<typeof tasks, 'id'> {
 		const baseFilter = this.buildVisibilityFilter({
 			userId,
 			userRole,
-			isManager,
+			hasDepartmentAccess,
 			isAdmin,
 		});
 
@@ -185,7 +185,7 @@ export default class TaskRepository extends BaseRepository<typeof tasks, 'id'> {
 	async countUncompleted(opts: {
 		userId?: string;
 		userRole?: UserRole;
-		isManager?: boolean;
+		hasDepartmentAccess?: boolean;
 		isAdmin?: boolean;
 	}) {
 		const baseFilter = this.buildVisibilityFilter(opts);
@@ -210,7 +210,7 @@ export default class TaskRepository extends BaseRepository<typeof tasks, 'id'> {
 	async getTodoSummary(opts: {
 		userId?: string;
 		userRole?: UserRole;
-		isManager?: boolean;
+		hasDepartmentAccess?: boolean;
 		isAdmin?: boolean;
 	}) {
 		const baseFilter = this.buildVisibilityFilter(opts);

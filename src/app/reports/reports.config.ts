@@ -3,9 +3,33 @@ import {
 	IconReportAnalytics,
 	IconSchool,
 } from '@tabler/icons-react';
+import type { Session } from 'next-auth';
 import type { ModuleConfig } from '@/app/dashboard/module-config.types';
 import { moduleConfig } from '@/config/modules.config';
-import type { UserPosition, UserRole } from '@/core/database';
+import type { PermissionGrant, Resource } from '@/core/auth/permissions';
+
+type SessionWithPermissions = Session & {
+	permissions?: PermissionGrant[];
+};
+
+function hasReadPermission(
+	session: Session | null,
+	resource: Resource
+): boolean {
+	if (session?.user?.role === 'admin') {
+		return true;
+	}
+
+	const permissions = (session as SessionWithPermissions | null)?.permissions;
+	if (!Array.isArray(permissions)) {
+		return false;
+	}
+
+	return permissions.some(
+		(permission) =>
+			permission.resource === resource && permission.action === 'read'
+	);
+}
 
 export const reportsConfig: ModuleConfig = {
 	id: 'reports',
@@ -19,75 +43,42 @@ export const reportsConfig: ModuleConfig = {
 				label: 'Course Summary',
 				href: '/reports/academic/course-summary',
 				icon: IconReportAnalytics,
-				roles: ['academic'],
-				isVisible: (session) => {
-					return session?.user?.position !== 'admin';
-				},
+				isVisible: (session) =>
+					hasReadPermission(session, 'reports-course-summary'),
 			},
 			{
 				label: 'Attendance Report',
 				href: '/reports/academic/attendance',
 				icon: IconReportAnalytics,
-				isVisible: (session) => {
-					if (
-						['admin', 'registry', 'finance', 'student_services'].includes(
-							session?.user?.role as UserRole
-						)
-					)
-						return true;
-					const academicRole = session?.user?.position as UserPosition;
-					return !!(
-						academicRole &&
-						['manager', 'admin', 'program_leader', 'year_leader'].includes(
-							academicRole
-						)
-					);
-				},
+				isVisible: (session) =>
+					hasReadPermission(session, 'reports-attendance'),
 			},
 			{
 				label: 'Board of Examination',
 				href: '/reports/academic/boe',
 				icon: IconGavel,
-				roles: ['academic', 'registry', 'admin'],
-				isVisible: (session) => {
-					if (['admin', 'registry'].includes(session?.user?.role as UserRole))
-						return true;
-					const academicRole = session?.user?.position as UserPosition;
-					return !!(
-						academicRole &&
-						['manager', 'admin', 'program_leader'].includes(academicRole)
-					);
-				},
+				isVisible: (session) => hasReadPermission(session, 'reports-boe'),
 			},
 			{
 				label: 'Student Enrollments',
 				href: '/reports/registry/student-enrollments',
 				icon: IconReportAnalytics,
-				isVisible: (session) => {
-					if (
-						['admin', 'registry', 'finance', 'leap'].includes(
-							session?.user?.role as UserRole
-						)
-					)
-						return true;
-					const academicRole = session?.user?.position as UserPosition;
-					return !!(
-						academicRole &&
-						['manager', 'admin', 'program_leader'].includes(academicRole)
-					);
-				},
+				isVisible: (session) =>
+					hasReadPermission(session, 'reports-enrollments'),
 			},
 			{
 				label: 'Graduation Reports',
 				href: '/reports/registry/graduations',
 				icon: IconSchool,
-				roles: ['registry', 'admin'],
+				isVisible: (session) =>
+					hasReadPermission(session, 'reports-graduation'),
 			},
 			{
 				label: 'Sponsored Students',
 				href: '/reports/finance/sponsored-students',
 				icon: IconReportAnalytics,
-				roles: ['finance', 'registry', 'admin'],
+				isVisible: (session) =>
+					hasReadPermission(session, 'reports-sponsored-students'),
 			},
 		],
 	},

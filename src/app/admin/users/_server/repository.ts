@@ -41,6 +41,23 @@ export default class UserRepository extends BaseRepository<typeof users, 'id'> {
 		return data.map((item) => item.schoolId);
 	}
 
+	async replaceUserSchools(userId: string, schoolIds: number[]) {
+		return db.transaction(async (tx) => {
+			await tx.delete(userSchools).where(eq(userSchools.userId, userId));
+
+			if (schoolIds.length === 0) {
+				return;
+			}
+
+			await tx.insert(userSchools).values(
+				schoolIds.map((schoolId) => ({
+					userId,
+					schoolId,
+				}))
+			);
+		});
+	}
+
 	async findAllByRoles(roles: (typeof users.$inferSelect)['role'][]) {
 		return db.select().from(users).where(inArray(users.role, roles));
 	}

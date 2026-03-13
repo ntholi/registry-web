@@ -1,19 +1,18 @@
 import type { AdminActivityType } from '@admin/_lib/activities';
-import type { Session } from 'next-auth';
-import type { tasks, UserRole } from '@/core/database';
+import type { Session } from '@/core/auth';
+import type { UserRole } from '@/core/auth/permissions';
+import type { tasks } from '@/core/database';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
-import withAuth from '@/core/platform/withPermission';
+import withPermission from '@/core/platform/withPermission';
 import TaskRepository, { type TaskInsert } from './repository';
 
 type TaskStatus = (typeof tasks.$inferSelect)['status'];
 type TaskStatusFilter = TaskStatus | 'all' | 'open';
 
-const ALLOWED_ROLES: UserRole[] = ['admin', 'registry', 'finance'];
-
 type VisibilityOpts = {
 	userId?: string;
 	userRole?: UserRole;
-	isManager: boolean;
+	hasDepartmentAccess: boolean;
 	isAdmin: boolean;
 };
 
@@ -21,7 +20,10 @@ function sessionVisibility(session?: Session | null): VisibilityOpts {
 	return {
 		userId: session?.user?.id,
 		userRole: session?.user?.role as UserRole | undefined,
-		isManager: session?.user?.position === 'manager',
+		hasDepartmentAccess:
+			!!session?.user?.id &&
+			!!session?.user?.role &&
+			session.user.role !== 'admin',
 		isAdmin: session?.user?.role === 'admin',
 	};
 }
@@ -34,94 +36,104 @@ class TaskService {
 	}
 
 	async get(id: string) {
-		return withAuth(async (session) => {
-			const task = await this.repository.findByIdWithRelations(id);
-			if (!task) return null;
+		return withPermission(
+			async (session) => {
+				const task = await this.repository.findByIdWithRelations(id);
+				if (!task) return null;
 
-			const { userId, userRole, isManager, isAdmin } =
-				sessionVisibility(session);
-			const isCreator = task.createdBy === userId;
-			const isAssignee = task.assignees.some((a) => a.user.id === userId);
-			const hasRoleAssignee =
-				isManager && userRole
-					? task.assignees.some((a) => a.user.role === userRole)
-					: false;
+				const { userId, userRole, hasDepartmentAccess, isAdmin } =
+					sessionVisibility(session);
+				const isCreator = task.createdBy === userId;
+				const isAssignee = task.assignees.some((a) => a.user.id === userId);
+				const hasRoleAssignee =
+					hasDepartmentAccess && userRole
+						? task.assignees.some((a) => a.user.role === userRole)
+						: false;
 
-			if (!isAdmin && !hasRoleAssignee && !isCreator && !isAssignee) {
-				return null;
-			}
+				if (!isAdmin && !hasRoleAssignee && !isCreator && !isAssignee) {
+					return null;
+				}
 
-			return task;
-		}, ALLOWED_ROLES);
+				return task;
+			},
+			{ tasks: ['read'] }
+		);
 	}
 
-	async findAll(
-		params: { page?: number; search?: string; statusFilter?: TaskStatusFilter },
-		session?: Session | null
-	) {
-		return withAuth(async (sess) => {
-			const vis = sessionVisibility(sess ?? session);
+	async findAll(params: {
+		page?: number;
+		search?: string;
+		statusFilter?: TaskStatusFilter;
+	}) {
+		return withPermission(
+			async (session) => {
+				const vis = sessionVisibility(session);
 
-			return this.repository.findAllWithRelations({
-				page: params.page,
-				search: params.search,
-				statusFilter: params.statusFilter,
-				...vis,
-			});
-		}, ALLOWED_ROLES);
+				return this.repository.findAllWithRelations({
+					page: params.page,
+					search: params.search,
+					statusFilter: params.statusFilter,
+					...vis,
+				});
+			},
+			{ tasks: ['read'] }
+		);
 	}
 
 	async countUncompleted() {
-		return withAuth(async (session) => {
-			return this.repository.countUncompleted(sessionVisibility(session));
-		}, ALLOWED_ROLES);
+		return withPermission(
+			async (session) => {
+				return this.repository.countUncompleted(sessionVisibility(session));
+			},
+			{ tasks: ['read'] }
+		);
 	}
 
 	async getTodoSummary() {
-		return withAuth(async (session) => {
-			return this.repository.getTodoSummary(sessionVisibility(session));
-		}, ALLOWED_ROLES);
+		return withPermission(
+			async (session) => {
+				return this.repository.getTodoSummary(sessionVisibility(session));
+			},
+			{ tasks: ['read'] }
+		);
 	}
 
 	async create(
-		data: TaskInsert & { assigneeIds?: string[]; studentIds?: number[] },
-		session?: Session | null
+		data: TaskInsert & { assigneeIds?: string[]; studentIds?: number[] }
 	) {
-		return withAuth(async (sess) => {
-			const currentSession = sess ?? session;
-			const { userId, isManager, isAdmin } = sessionVisibility(currentSession);
+		return withPermission(
+			async (session) => {
+				const { userId } = sessionVisibility(session);
 
-			if (!userId) {
-				throw new Error('User not authenticated');
-			}
+				if (!userId) {
+					throw new Error('User not authenticated');
+				}
 
-			let assigneeIds = data.assigneeIds || [];
-			const studentIds = data.studentIds || [];
+				let assigneeIds = data.assigneeIds || [];
+				const studentIds = data.studentIds || [];
 
-			if (!isManager && !isAdmin) {
-				assigneeIds = [userId];
-			}
+				if (assigneeIds.length === 0) {
+					assigneeIds = [userId];
+				}
 
-			if (assigneeIds.length === 0) {
-				assigneeIds = [userId];
-			}
+				const taskData: TaskInsert = {
+					title: data.title,
+					description: data.description,
+					priority: data.priority,
+					status: data.status,
+					dueDate: data.dueDate,
+					createdBy: userId,
+				};
 
-			const taskData: TaskInsert = {
-				title: data.title,
-				description: data.description,
-				priority: data.priority,
-				status: data.status,
-				dueDate: data.dueDate,
-				createdBy: userId,
-			};
-
-			return this.repository.createWithRelations(
-				taskData,
-				assigneeIds,
-				studentIds,
-				{ userId: userId, activityType: 'task_created' }
-			);
-		}, ALLOWED_ROLES);
+				return this.repository.createWithRelations(
+					taskData,
+					assigneeIds,
+					studentIds,
+					{ userId: userId, activityType: 'task_created' }
+				);
+			},
+			{ tasks: ['create'] }
+		);
 	}
 
 	async update(
@@ -129,125 +141,134 @@ class TaskService {
 		data: Partial<TaskInsert> & {
 			assigneeIds?: string[];
 			studentIds?: number[];
-		},
-		session?: Session | null
+		}
 	) {
-		return withAuth(async (sess) => {
-			const currentSession = sess ?? session;
-			const { userId, userRole, isManager, isAdmin } =
-				sessionVisibility(currentSession);
+		return withPermission(
+			async (session) => {
+				const { userId, userRole, hasDepartmentAccess, isAdmin } =
+					sessionVisibility(session);
 
-			const existingTask = await this.repository.findByIdWithRelations(id);
-			if (!existingTask) {
-				throw new Error('Task not found');
-			}
+				const existingTask = await this.repository.findByIdWithRelations(id);
+				if (!existingTask) {
+					throw new Error('Task not found');
+				}
 
-			const isCreator = existingTask.createdBy === userId;
-			const isAssignee = existingTask.assignees.some(
-				(a) => a.user.id === userId
-			);
-			const hasRoleAssignee =
-				isManager && userRole
-					? existingTask.assignees.some((a) => a.user.role === userRole)
-					: false;
+				const isCreator = existingTask.createdBy === userId;
+				const isAssignee = existingTask.assignees.some(
+					(a) => a.user.id === userId
+				);
+				const hasRoleAssignee =
+					hasDepartmentAccess && userRole
+						? existingTask.assignees.some((a) => a.user.role === userRole)
+						: false;
 
-			if (!isAdmin && !hasRoleAssignee && !isCreator && !isAssignee) {
-				throw new Error('You do not have permission to update this task');
-			}
+				if (!isAdmin && !hasRoleAssignee && !isCreator && !isAssignee) {
+					throw new Error('You do not have permission to update this task');
+				}
 
-			let assigneeIds = data.assigneeIds;
-			if (!isManager && !isAdmin && assigneeIds !== undefined) {
-				assigneeIds = undefined;
-			}
+				const assigneeIds = data.assigneeIds;
 
-			const { assigneeIds: _, studentIds, ...taskData } = data;
+				const { assigneeIds: _, studentIds, ...taskData } = data;
 
-			const activityType = resolveTaskUpdateIntent(
-				existingTask,
-				taskData,
-				assigneeIds,
-				studentIds
-			);
+				const activityType = resolveTaskUpdateIntent(
+					existingTask,
+					taskData,
+					assigneeIds,
+					studentIds
+				);
 
-			return this.repository.updateWithRelations(
-				id,
-				taskData,
-				assigneeIds,
-				studentIds,
-				{ userId: userId!, activityType }
-			);
-		}, ALLOWED_ROLES);
+				return this.repository.updateWithRelations(
+					id,
+					taskData,
+					assigneeIds,
+					studentIds,
+					{ userId: userId!, activityType }
+				);
+			},
+			{ tasks: ['update'] }
+		);
 	}
 
 	async delete(id: string) {
-		return withAuth(async (session) => {
-			const { userId, userRole, isManager, isAdmin } =
-				sessionVisibility(session);
+		return withPermission(
+			async (session) => {
+				const { userId, userRole, hasDepartmentAccess, isAdmin } =
+					sessionVisibility(session);
 
-			const existingTask = await this.repository.findByIdWithRelations(id);
-			if (!existingTask) {
-				throw new Error('Task not found');
-			}
+				const existingTask = await this.repository.findByIdWithRelations(id);
+				if (!existingTask) {
+					throw new Error('Task not found');
+				}
 
-			const isCreator = existingTask.createdBy === userId;
-			const hasRoleAssignee =
-				isManager && userRole
-					? existingTask.assignees.some((a) => a.user.role === userRole)
-					: false;
+				const isCreator = existingTask.createdBy === userId;
+				const hasRoleAssignee =
+					hasDepartmentAccess && userRole
+						? existingTask.assignees.some((a) => a.user.role === userRole)
+						: false;
 
-			if (!isAdmin && !isCreator && !hasRoleAssignee) {
-				throw new Error(
-					'Only the creator, manager, or admin can delete this task'
-				);
-			}
+				if (!isAdmin && !isCreator && !hasRoleAssignee) {
+					throw new Error(
+						'Only the creator, manager, or admin can delete this task'
+					);
+				}
 
-			await this.repository.deleteTask(id, {
-				userId: userId!,
-				activityType: 'task_deleted',
-			});
-			return existingTask;
-		}, ALLOWED_ROLES);
+				await this.repository.deleteTask(id, {
+					userId: userId!,
+					activityType: 'task_deleted',
+				});
+				return existingTask;
+			},
+			{ tasks: ['delete'] }
+		);
 	}
 
 	async updateStatus(
 		id: string,
 		status: (typeof tasks.$inferSelect)['status']
 	) {
-		return withAuth(async (session) => {
-			const { userId, userRole, isManager, isAdmin } =
-				sessionVisibility(session);
+		return withPermission(
+			async (session) => {
+				const { userId, userRole, hasDepartmentAccess, isAdmin } =
+					sessionVisibility(session);
 
-			const existingTask = await this.repository.findByIdWithRelations(id);
-			if (!existingTask) {
-				throw new Error('Task not found');
-			}
+				const existingTask = await this.repository.findByIdWithRelations(id);
+				if (!existingTask) {
+					throw new Error('Task not found');
+				}
 
-			const isCreator = existingTask.createdBy === userId;
-			const isAssignee = existingTask.assignees.some(
-				(a) => a.user.id === userId
-			);
-			const hasRoleAssignee =
-				isManager && userRole
-					? existingTask.assignees.some((a) => a.user.role === userRole)
-					: false;
-
-			if (!isAdmin && !hasRoleAssignee && !isCreator && !isAssignee) {
-				throw new Error(
-					'You do not have permission to update this task status'
+				const isCreator = existingTask.createdBy === userId;
+				const isAssignee = existingTask.assignees.some(
+					(a) => a.user.id === userId
 				);
-			}
+				const hasRoleAssignee =
+					hasDepartmentAccess && userRole
+						? existingTask.assignees.some((a) => a.user.role === userRole)
+						: false;
 
-			return this.repository.updateStatus(id, status, {
-				userId: userId!,
-				activityType: 'task_status_changed',
-			});
-		}, ALLOWED_ROLES);
+				if (!isAdmin && !hasRoleAssignee && !isCreator && !isAssignee) {
+					throw new Error(
+						'You do not have permission to update this task status'
+					);
+				}
+
+				return this.repository.updateStatus(id, status, {
+					userId: userId!,
+					activityType: 'task_status_changed',
+				});
+			},
+			{ tasks: ['update'] }
+		);
 	}
 
 	async getTaskCounts() {
-		return withAuth(async (session) => {
-			return this.repository.getTaskCountsByStatus(sessionVisibility(session));
-		}, ALLOWED_ROLES);
+		return withPermission(
+			async (session) => {
+				return this.repository.getTaskCountsByStatus(
+					sessionVisibility(session)
+				);
+			},
+			{ tasks: ['read'] }
+		);
 	}
 }
 

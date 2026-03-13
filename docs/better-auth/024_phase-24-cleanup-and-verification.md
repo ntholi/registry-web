@@ -73,6 +73,12 @@ rg "dashboardUsers" src
 
 All of these must return **zero** results.
 
+Also verify the final authorization ownership boundary:
+
+- There should be no `actions.ts` files that perform permission checks directly
+- Permission checks belong in `service.ts` files (or `BaseService` config), with `actions.ts` acting only as thin transport wrappers
+- If an `actions.ts` file still calls `withPermission` for authorization, move that check into the owning service before closing the migration
+
 ### Remove Old Environment Variables
 
 Delete from `.env` and any deployment configs:
@@ -252,6 +258,7 @@ Write at minimum these critical-path tests (using Vitest):
 - [ ] Permission-based service configs enforce correctly
 - [ ] `'dashboard'` shorthand works for services using it
 - [ ] Audit logging still works through BaseService
+- [ ] No `actions.ts` files perform direct permission enforcement; permission checks live in `service.ts` files
 
 ### User Management
 

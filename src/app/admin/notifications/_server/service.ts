@@ -1,7 +1,7 @@
 import type { AdminActivityType } from '@admin/_lib/activities';
-import type { UserPosition, UserRole } from '@/core/database';
+import type { UserPosition, UserRole } from '@auth/_database';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
-import withAuth from '@/core/platform/withPermission';
+import withPermission from '@/core/platform/withPermission';
 import NotificationRepository, {
 	type NotificationWithRecipients,
 } from './repository';
@@ -14,18 +14,20 @@ class NotificationService {
 	}
 
 	async get(id: number) {
-		return withAuth(() => this.repository.findById(id), ['dashboard']);
+		return withPermission(() => this.repository.findById(id), {
+			notifications: ['read'],
+		});
 	}
 
 	async findAll(page = 1, search = '') {
-		return withAuth(
+		return withPermission(
 			() => this.repository.findAllWithCreator(page, search),
-			['admin']
+			{ notifications: ['read'] }
 		);
 	}
 
 	async create(data: NotificationWithRecipients, createdBy: string) {
-		return withAuth(
+		return withPermission(
 			(session) =>
 				this.repository.create(
 					{ ...data, createdBy },
@@ -35,12 +37,12 @@ class NotificationService {
 						activityType: 'notification_created',
 					}
 				),
-			['admin']
+			{ notifications: ['create'] }
 		);
 	}
 
 	async update(id: number, data: Partial<NotificationWithRecipients>) {
-		return withAuth(
+		return withPermission(
 			(session) => {
 				const activityType = resolveNotificationUpdateIntent(data);
 				return this.repository.update(id, data, {
@@ -49,12 +51,12 @@ class NotificationService {
 					activityType,
 				});
 			},
-			['admin']
+			{ notifications: ['update'] }
 		);
 	}
 
 	async delete(id: number) {
-		return withAuth(
+		return withPermission(
 			async (session) => {
 				const notification = await this.repository.findById(id);
 				await this.repository.delete(id, {
@@ -64,7 +66,7 @@ class NotificationService {
 				});
 				return notification;
 			},
-			['admin']
+			{ notifications: ['delete'] }
 		);
 	}
 
@@ -73,28 +75,28 @@ class NotificationService {
 		userRole: UserRole,
 		userPosition?: UserPosition | null
 	) {
-		return withAuth(
+		return withPermission(
 			() =>
 				this.repository.getActiveNotificationsForUser(
 					userId,
 					userRole,
 					userPosition
 				),
-			['all']
+			'auth'
 		);
 	}
 
 	async dismissNotification(notificationId: number, userId: string) {
-		return withAuth(
+		return withPermission(
 			() => this.repository.dismissNotification(notificationId, userId),
-			['all']
+			'auth'
 		);
 	}
 
 	async getRecipientUserIds(notificationId: number) {
-		return withAuth(
+		return withPermission(
 			() => this.repository.getRecipientUserIds(notificationId),
-			['admin']
+			{ notifications: ['read'] }
 		);
 	}
 }
