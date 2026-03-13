@@ -1,3 +1,4 @@
+import { hasApplicantResourceAccess } from '@/core/auth/sessionPermissions';
 import type {
 	applicantDocuments,
 	DocumentType,
@@ -6,10 +7,17 @@ import type {
 } from '@/core/database';
 import BaseService from '@/core/platform/BaseService';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
-import withAuth from '@/core/platform/withPermission';
+import withPermission from '@/core/platform/withPermission';
 import ApplicantDocumentRepository from './repository';
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+
+function canAccessApplicantDocuments(
+	session: Parameters<typeof hasApplicantResourceAccess>[0],
+	action: 'read' | 'create' | 'update' | 'delete'
+) {
+	return hasApplicantResourceAccess(session, 'admissions-documents', action);
+}
 
 class ApplicantDocumentService extends BaseService<
 	typeof applicantDocuments,
@@ -20,11 +28,11 @@ class ApplicantDocumentService extends BaseService<
 	constructor() {
 		const repo = new ApplicantDocumentRepository();
 		super(repo, {
-			byIdRoles: ['registry', 'marketing', 'admin'],
-			findAllRoles: ['registry', 'marketing', 'admin'],
-			createRoles: ['registry', 'marketing', 'admin'],
-			updateRoles: ['registry', 'marketing', 'admin'],
-			deleteRoles: ['registry', 'marketing', 'admin'],
+			byIdAuth: { 'admissions-documents': ['read'] },
+			findAllAuth: { 'admissions-documents': ['read'] },
+			createAuth: { 'admissions-documents': ['create'] },
+			updateAuth: { 'admissions-documents': ['update'] },
+			deleteAuth: { 'admissions-documents': ['delete'] },
 			activityTypes: {
 				create: 'applicant_document_uploaded',
 				update: 'applicant_document_reviewed',
@@ -35,16 +43,16 @@ class ApplicantDocumentService extends BaseService<
 	}
 
 	async findByApplicant(applicantId: string, page = 1) {
-		return withAuth(
+		return withPermission(
 			async () => this.repo.findByApplicant(applicantId, page),
-			['registry', 'marketing', 'admin', 'applicant']
+			async (session) => canAccessApplicantDocuments(session, 'read')
 		);
 	}
 
 	async findByType(applicantId: string, type: DocumentType) {
-		return withAuth(
+		return withPermission(
 			async () => this.repo.findByType(applicantId, type),
-			['registry', 'marketing', 'admin', 'applicant']
+			async (session) => canAccessApplicantDocuments(session, 'read')
 		);
 	}
 
@@ -53,7 +61,7 @@ class ApplicantDocumentService extends BaseService<
 		applicantId: string,
 		fileSize: number
 	) {
-		return withAuth(
+		return withPermission(
 			async (session) => {
 				if (fileSize > MAX_FILE_SIZE) {
 					throw new Error('FILE_TOO_LARGE: Document exceeds 5MB limit');
@@ -64,7 +72,7 @@ class ApplicantDocumentService extends BaseService<
 					this.buildAuditOptions(session, 'create')
 				);
 			},
-			['registry', 'marketing', 'admin', 'applicant']
+			async (session) => canAccessApplicantDocuments(session, 'create')
 		);
 	}
 
@@ -73,7 +81,7 @@ class ApplicantDocumentService extends BaseService<
 		status: DocumentVerificationStatus,
 		rejectionReason?: string
 	) {
-		return withAuth(
+		return withPermission(
 			async (session) => {
 				if (status === 'rejected' && !rejectionReason) {
 					throw new Error('Rejection reason is required');
@@ -85,19 +93,19 @@ class ApplicantDocumentService extends BaseService<
 					this.buildAuditOptions(session, 'update')
 				);
 			},
-			['registry', 'marketing', 'admin', 'applicant']
+			async (session) => canAccessApplicantDocuments(session, 'update')
 		);
 	}
 
 	override async delete(id: string) {
-		return withAuth(
+		return withPermission(
 			async (session) =>
 				this.repo.removeById(id, {
 					userId: session!.user!.id!,
 					role: session!.user!.role!,
 					activityType: 'applicant_document_deleted',
 				}),
-			['registry', 'marketing', 'admin', 'applicant']
+			async (session) => canAccessApplicantDocuments(session, 'delete')
 		);
 	}
 }

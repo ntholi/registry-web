@@ -1,3 +1,4 @@
+import type { PermissionRequirement } from '@/core/auth/permissions';
 import type {
 	applicantDocuments,
 	DocumentType,
@@ -5,10 +6,20 @@ import type {
 } from '@/core/database';
 import BaseService from '@/core/platform/BaseService';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
-import withAuth from '@/core/platform/withPermission';
+import withPermission from '@/core/platform/withPermission';
 import DocumentReviewRepository from './repository';
 
-const ROLES = ['registry', 'marketing', 'admin'] as const;
+const DOCUMENT_REVIEW_READ_AUTH: PermissionRequirement = {
+	'admissions-documents': ['read'],
+};
+
+const DOCUMENT_REVIEW_UPDATE_AUTH: PermissionRequirement = {
+	'admissions-documents': ['update'],
+};
+
+const DOCUMENT_REVIEW_DELETE_AUTH: PermissionRequirement = {
+	'admissions-documents': ['delete'],
+};
 
 class DocumentReviewService extends BaseService<
 	typeof applicantDocuments,
@@ -19,10 +30,10 @@ class DocumentReviewService extends BaseService<
 	constructor() {
 		const repo = new DocumentReviewRepository();
 		super(repo, {
-			byIdRoles: [...ROLES],
-			findAllRoles: [...ROLES],
-			updateRoles: [...ROLES],
-			deleteRoles: [...ROLES],
+			byIdAuth: DOCUMENT_REVIEW_READ_AUTH,
+			findAllAuth: DOCUMENT_REVIEW_READ_AUTH,
+			updateAuth: DOCUMENT_REVIEW_UPDATE_AUTH,
+			deleteAuth: DOCUMENT_REVIEW_DELETE_AUTH,
 			activityTypes: {
 				create: 'applicant_document_uploaded',
 				update: 'applicant_document_reviewed',
@@ -40,28 +51,31 @@ class DocumentReviewService extends BaseService<
 			type?: DocumentType;
 		}
 	) {
-		return withAuth(
+		return withPermission(
 			async (session) =>
 				this.repo.findAllForReview(page, search, filters, session?.user?.id),
-			[...ROLES]
+			DOCUMENT_REVIEW_READ_AUTH
 		);
 	}
 
 	async findByIdWithRelations(id: string) {
-		return withAuth(
+		return withPermission(
 			async () => this.repo.findByIdWithRelations(id),
-			[...ROLES]
+			DOCUMENT_REVIEW_READ_AUTH
 		);
 	}
 
 	async countPending() {
-		return withAuth(async () => this.repo.countPending(), [...ROLES]);
+		return withPermission(
+			async () => this.repo.countPending(),
+			DOCUMENT_REVIEW_READ_AUTH
+		);
 	}
 
 	async updateRotation(id: string, rotation: number) {
-		return withAuth(
+		return withPermission(
 			async () => this.repo.updateRotation(id, rotation),
-			[...ROLES]
+			DOCUMENT_REVIEW_UPDATE_AUTH
 		);
 	}
 
@@ -70,7 +84,7 @@ class DocumentReviewService extends BaseService<
 		status: DocumentVerificationStatus,
 		rejectionReason?: string
 	) {
-		return withAuth(
+		return withPermission(
 			async (session) =>
 				this.repo.updateVerificationStatus(
 					id,
@@ -78,7 +92,7 @@ class DocumentReviewService extends BaseService<
 					rejectionReason,
 					this.buildAuditOptions(session, 'update')
 				),
-			[...ROLES]
+			DOCUMENT_REVIEW_UPDATE_AUTH
 		);
 	}
 
@@ -87,7 +101,7 @@ class DocumentReviewService extends BaseService<
 		field: string,
 		value: string | null
 	) {
-		return withAuth(
+		return withPermission(
 			async (session) =>
 				this.repo.updateApplicantField(
 					applicantId,
@@ -95,7 +109,7 @@ class DocumentReviewService extends BaseService<
 					value,
 					this.buildAuditOptions(session, 'update')
 				),
-			[...ROLES]
+			DOCUMENT_REVIEW_UPDATE_AUTH
 		);
 	}
 
@@ -104,9 +118,9 @@ class DocumentReviewService extends BaseService<
 		field: string,
 		value: string | number | null
 	) {
-		return withAuth(
+		return withPermission(
 			async () => this.repo.updateAcademicRecordField(recordId, field, value),
-			[...ROLES]
+			DOCUMENT_REVIEW_UPDATE_AUTH
 		);
 	}
 
@@ -115,43 +129,34 @@ class DocumentReviewService extends BaseService<
 		field: 'originalGrade' | 'standardGrade',
 		value: string | null
 	) {
-		return withAuth(
+		return withPermission(
 			async () => this.repo.updateSubjectGradeField(gradeId, field, value),
-			[...ROLES]
+			DOCUMENT_REVIEW_UPDATE_AUTH
 		);
 	}
 
 	async acquireLock(documentId: string) {
-		return withAuth(
-			async (session) => {
-				const userId = session?.user?.id;
-				if (!userId) return null;
-				return this.repo.acquireLock(documentId, userId);
-			},
-			[...ROLES]
-		);
+		return withPermission(async (session) => {
+			const userId = session?.user?.id;
+			if (!userId) return null;
+			return this.repo.acquireLock(documentId, userId);
+		}, DOCUMENT_REVIEW_UPDATE_AUTH);
 	}
 
 	async releaseLock(documentId: string) {
-		return withAuth(
-			async (session) => {
-				const userId = session?.user?.id;
-				if (!userId) return null;
-				return this.repo.releaseLock(documentId, userId);
-			},
-			[...ROLES]
-		);
+		return withPermission(async (session) => {
+			const userId = session?.user?.id;
+			if (!userId) return null;
+			return this.repo.releaseLock(documentId, userId);
+		}, DOCUMENT_REVIEW_UPDATE_AUTH);
 	}
 
 	async releaseAllLocks() {
-		return withAuth(
-			async (session) => {
-				const userId = session?.user?.id;
-				if (!userId) return;
-				return this.repo.releaseAllLocks(userId);
-			},
-			[...ROLES]
-		);
+		return withPermission(async (session) => {
+			const userId = session?.user?.id;
+			if (!userId) return;
+			return this.repo.releaseAllLocks(userId);
+		}, DOCUMENT_REVIEW_UPDATE_AUTH);
 	}
 
 	async findNextUnlocked(
@@ -161,14 +166,11 @@ class DocumentReviewService extends BaseService<
 			type?: DocumentType;
 		}
 	) {
-		return withAuth(
-			async (session) => {
-				const userId = session?.user?.id;
-				if (!userId) return null;
-				return this.repo.findNextUnlocked(currentId, userId, filters);
-			},
-			[...ROLES]
-		);
+		return withPermission(async (session) => {
+			const userId = session?.user?.id;
+			if (!userId) return null;
+			return this.repo.findNextUnlocked(currentId, userId, filters);
+		}, DOCUMENT_REVIEW_READ_AUTH);
 	}
 }
 

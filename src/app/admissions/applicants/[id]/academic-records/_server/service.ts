@@ -1,10 +1,28 @@
+import {
+	hasApplicantResourceAccess,
+	hasSessionPermission,
+} from '@/core/auth/sessionPermissions';
 import type { academicRecords, StandardGrade } from '@/core/database';
 import BaseService from '@/core/platform/BaseService';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
-import withAuth from '@/core/platform/withPermission';
+import withPermission from '@/core/platform/withPermission';
 import { mapGradesToStandard } from '../_lib/grade-mapping';
 import type { SubjectGradeInput } from '../_lib/types';
 import AcademicRecordRepository from './repository';
+
+function canAccessApplicantAcademicRecords(
+	session: Parameters<typeof hasApplicantResourceAccess>[0],
+	action: 'read' | 'create' | 'update' | 'delete'
+) {
+	return hasApplicantResourceAccess(session, 'applicants', action);
+}
+
+function canManageApplicantAcademicRecords(
+	session: Parameters<typeof hasSessionPermission>[0],
+	action: 'read' | 'create' | 'update' | 'delete'
+) {
+	return hasSessionPermission(session, 'applicants', action);
+}
 
 class AcademicRecordService extends BaseService<typeof academicRecords, 'id'> {
 	private repo: AcademicRecordRepository;
@@ -12,11 +30,11 @@ class AcademicRecordService extends BaseService<typeof academicRecords, 'id'> {
 	constructor() {
 		const repo = new AcademicRecordRepository();
 		super(repo, {
-			byIdRoles: ['registry', 'marketing', 'admin'],
-			findAllRoles: ['registry', 'marketing', 'admin'],
-			createRoles: ['registry', 'marketing', 'admin'],
-			updateRoles: ['registry', 'marketing', 'admin'],
-			deleteRoles: ['registry', 'marketing', 'admin'],
+			byIdAuth: { applicants: ['read'] },
+			findAllAuth: { applicants: ['read'] },
+			createAuth: { applicants: ['create'] },
+			updateAuth: { applicants: ['update'] },
+			deleteAuth: { applicants: ['delete'] },
 			activityTypes: {
 				create: 'academic_record_created',
 				update: 'academic_record_updated',
@@ -27,16 +45,16 @@ class AcademicRecordService extends BaseService<typeof academicRecords, 'id'> {
 	}
 
 	override async get(id: string) {
-		return withAuth(
+		return withPermission(
 			async () => this.repo.findById(id),
-			['registry', 'marketing', 'admin', 'applicant']
+			async (session) => canAccessApplicantAcademicRecords(session, 'read')
 		);
 	}
 
 	async findByApplicant(applicantId: string, page = 1) {
-		return withAuth(
+		return withPermission(
 			async () => this.repo.findByApplicant(applicantId, page),
-			['registry', 'marketing', 'admin', 'applicant']
+			async (session) => canAccessApplicantAcademicRecords(session, 'read')
 		);
 	}
 
@@ -45,7 +63,7 @@ class AcademicRecordService extends BaseService<typeof academicRecords, 'id'> {
 		isLevel4: boolean,
 		grades?: SubjectGradeInput[]
 	) {
-		return withAuth(
+		return withPermission(
 			async (session) => {
 				let preparedGrades:
 					| {
@@ -76,7 +94,7 @@ class AcademicRecordService extends BaseService<typeof academicRecords, 'id'> {
 					this.buildAuditOptions(session, 'create')
 				);
 			},
-			['registry', 'marketing', 'admin', 'applicant']
+			async (session) => canAccessApplicantAcademicRecords(session, 'create')
 		);
 	}
 
@@ -86,7 +104,7 @@ class AcademicRecordService extends BaseService<typeof academicRecords, 'id'> {
 		isLevel4: boolean,
 		grades?: SubjectGradeInput[]
 	) {
-		return withAuth(
+		return withPermission(
 			async (session) => {
 				let preparedGrades:
 					| {
@@ -118,36 +136,36 @@ class AcademicRecordService extends BaseService<typeof academicRecords, 'id'> {
 					this.buildAuditOptions(session, 'update')
 				);
 			},
-			['registry', 'marketing', 'admin']
+			async (session) => canManageApplicantAcademicRecords(session, 'update')
 		);
 	}
 
 	override async delete(id: string) {
-		return withAuth(
+		return withPermission(
 			async (session) =>
 				this.repo.removeById(id, this.buildAuditOptions(session, 'delete')),
-			['registry', 'marketing', 'admin', 'applicant']
+			async (session) => canAccessApplicantAcademicRecords(session, 'delete')
 		);
 	}
 
 	async findByCertificateNumber(certificateNumber: string) {
-		return withAuth(
+		return withPermission(
 			async () => this.repo.findByCertificateNumber(certificateNumber),
-			['registry', 'marketing', 'admin', 'applicant']
+			async (session) => canAccessApplicantAcademicRecords(session, 'read')
 		);
 	}
 
 	async findByApplicantDocumentId(applicantDocumentId: string) {
-		return withAuth(
+		return withPermission(
 			async () => this.repo.findByApplicantDocumentId(applicantDocumentId),
-			['registry', 'marketing', 'admin', 'applicant']
+			async (session) => canAccessApplicantAcademicRecords(session, 'read')
 		);
 	}
 
 	async linkDocument(academicRecordId: string, applicantDocumentId: string) {
-		return withAuth(
+		return withPermission(
 			async () => this.repo.linkDocument(academicRecordId, applicantDocumentId),
-			['registry', 'marketing', 'admin', 'applicant']
+			async (session) => canAccessApplicantAcademicRecords(session, 'update')
 		);
 	}
 }
