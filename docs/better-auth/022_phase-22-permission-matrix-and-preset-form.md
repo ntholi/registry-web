@@ -44,28 +44,76 @@ type PermissionMatrixProps = {
 
 File: `src/app/admin/permission-presets/_components/Form.tsx`
 
-Uses the `Form` component from `@/shared/ui/adease/`:
+Follows the standard adease `Form` pattern (create-feature skill Step 9). Uses `onSubmit`, `defaultValues`, `title` props:
 
-```ts
-function PermissionPresetForm({ preset }: { preset?: ExistingPreset }) {
-  // Fields:
-  // - Name (TextInput)
-  // - Role (Select from DASHBOARD_ROLES)
-  // - Description (Textarea, optional)
-  // - Shared PermissionMatrix (editable, onChange updates form state)
+```tsx
+'use client';
+
+import { TextInput, Select, Textarea } from '@mantine/core';
+import { useRouter } from 'nextjs-toploader/app';
+import { Form } from '@/shared/ui/adease';
+import PermissionMatrix from '@/shared/ui/PermissionMatrix';
+import { DASHBOARD_ROLES, type PermissionGrant } from '@/core/auth/permissions';
+import { presetFormSchema, type PresetFormValues, type PermissionPresetDetail } from '@auth/permission-presets/_lib/types';
+import { toTitleCase } from '@/shared/lib/utils/utils';
+
+type Props = {
+  onSubmit: (values: PresetFormValues) => Promise<PermissionPresetDetail>;
+  defaultValues?: PresetFormValues;
+  title?: string;
+};
+
+export default function PermissionPresetForm({ onSubmit, defaultValues, title }: Props) {
+  const router = useRouter();
+
+  return (
+    <Form
+      title={title}
+      action={onSubmit}
+      queryKey={['permission-presets']}
+      schema={presetFormSchema}
+      defaultValues={defaultValues ?? { permissions: [] }}
+      onSuccess={({ id }) => router.push('/admin/permission-presets/' + id)}
+    >
+      {(form) => (
+        <>
+          <TextInput label='Name' {...form.getInputProps('name')} />
+          <Select
+            label='Role'
+            searchable
+            data={DASHBOARD_ROLES.map((r) => ({ value: r, label: toTitleCase(r) }))}
+            {...form.getInputProps('role')}
+          />
+          <Textarea label='Description' {...form.getInputProps('description')} />
+          <PermissionMatrix
+            permissions={form.values.permissions ?? []}
+            onChange={(permissions) => form.setFieldValue('permissions', permissions)}
+          />
+        </>
+      )}
+    </Form>
+  );
 }
 ```
 
 Do not allow typing resources or actions manually. Admins only select from code-defined options.
 
+### Integrating PermissionMatrix into Detail Page
+
+After this phase, update `src/app/admin/permission-presets/[id]/page.tsx` (from Phase 21) to include the read-only `PermissionMatrix`:
+
+```tsx
+<PermissionMatrix permissions={preset.permissions} readOnly />
+```
+
 ## Exit Criteria
 
 - [ ] Shared `PermissionMatrix` component works in both editable and read-only modes
-- [ ] Preset Form component uses `Form` from adease with editable matrix
+- [ ] Preset Form uses adease `Form` with `onSubmit`/`defaultValues`/`title` props
+- [ ] Preset Form includes `PermissionMatrix` in editable mode
 - [ ] Matrix rows and columns come from shared permission constants
 - [ ] No free-text resource or action input exists
-- [ ] Preset list page shows all presets with name, role, permission count
-- [ ] Preset detail page shows read-only permission matrix
-- [ ] Preset create/edit pages have working permission matrix with checkboxes
+- [ ] Detail page shows read-only permission matrix
+- [ ] Create/edit pages use the Form component end-to-end
 - [ ] Creating a preset with permissions works end-to-end
 - [ ] `pnpm tsc --noEmit` passes
