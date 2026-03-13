@@ -1,4 +1,5 @@
-import { listPresetPermissions } from '@auth/permission-presets/_server/repository';
+import { getLegacyPresetPosition } from '@auth/permission-presets/_lib/catalog';
+import { getPresetSessionData } from '@auth/permission-presets/_server/repository';
 import StudentRepository from '@registry/students/_server/repository';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
 import { betterAuth } from 'better-auth/minimal';
@@ -11,10 +12,20 @@ import { db, schema } from '@/core/database';
 
 type BetterAuthSession = typeof betterAuthServer.$Infer.Session;
 type BetterAuthUser = BetterAuthSession['user'];
+type SessionExtras = {
+	legacyPosition?: string | null;
+	permissions?: PermissionGrant[];
+	presetName?: string | null;
+};
+type SessionUserFields = {
+	presetId?: string | null;
+	role?: string;
+};
 type SessionUser = BetterAuthUser & {
 	presetId: string | null;
+	presetName: string | null;
+	legacyPosition: string | null;
 	role: string;
-	position: string | null;
 	stdNo: number | null;
 };
 
@@ -40,11 +51,6 @@ export const betterAuthServer = betterAuth({
 				type: 'string',
 				required: false,
 				defaultValue: 'user',
-				input: false,
-			},
-			position: {
-				type: 'string',
-				required: false,
 				input: false,
 			},
 			presetId: {
@@ -98,20 +104,22 @@ export const betterAuthServer = betterAuth({
 	plugins: [
 		admin({ defaultRole: 'user' }),
 		customSession(async ({ user, session }) => {
-			let permissions: PermissionGrant[] = [];
 			const presetId =
 				'presetId' in user && typeof user.presetId === 'string'
 					? user.presetId
 					: undefined;
+			const preset = presetId ? await getPresetSessionData(presetId) : null;
 
-			if (presetId) {
-				permissions = await listPresetPermissions(presetId);
-			}
+			const permissions = preset?.permissions ?? [];
+			const presetName = preset?.name ?? null;
+			const legacyPosition = getLegacyPresetPosition(preset?.role, presetName);
 
 			return {
 				user,
 				session,
 				permissions,
+				presetName,
+				legacyPosition,
 			};
 		}),
 		nextCookies(),
@@ -134,12 +142,14 @@ export async function auth(): Promise<Session | null> {
 		return null;
 	}
 
-	const permissions = Array.isArray(session.permissions)
-		? session.permissions
+	const sessionExtras = session as BetterAuthSession & SessionExtras;
+	const user = session.user as BetterAuthUser & SessionUserFields;
+	const permissions = Array.isArray(sessionExtras.permissions)
+		? sessionExtras.permissions
 		: [];
 	const stdNo =
-		session.user.role === 'student'
-			? await studentRepo.findStdNoByUserId(session.user.id)
+		user.role === 'student'
+			? await studentRepo.findStdNoByUserId(user.id)
 			: null;
 	const expiresAt = session.session.expiresAt;
 
@@ -153,16 +163,17 @@ export async function auth(): Promise<Session | null> {
 					: undefined,
 		permissions,
 		user: {
-			...session.user,
-			presetId:
-				typeof session.user.presetId === 'string'
-					? session.user.presetId
+			...user,
+			presetName:
+				typeof sessionExtras.presetName === 'string'
+					? sessionExtras.presetName
 					: null,
-			role: typeof session.user.role === 'string' ? session.user.role : 'user',
-			position:
-				typeof session.user.position === 'string'
-					? session.user.position
+			legacyPosition:
+				typeof sessionExtras.legacyPosition === 'string'
+					? sessionExtras.legacyPosition
 					: null,
+			presetId: typeof user.presetId === 'string' ? user.presetId : null,
+			role: typeof user.role === 'string' ? user.role : 'user',
 			stdNo,
 		},
 	};

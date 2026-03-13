@@ -1,8 +1,7 @@
 import type { MantineColor, NavLinkProps } from '@mantine/core';
 import type { Icon } from '@tabler/icons-react';
 import type { Session } from '@/core/auth';
-import type { PermissionGrant } from '@/core/auth/permissions';
-import type { UserRole } from '@/core/database';
+import type { PermissionGrant, UserRole } from '@/core/auth/permissions';
 
 export type NotificationConfig = {
 	queryKey: string[];

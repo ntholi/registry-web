@@ -12,6 +12,17 @@ interface RegistrationEntry {
 class TermRegistrationsService {
 	private repository = new TermRegistrationsRepository();
 
+	private isRegistryManager(
+		session: {
+			user?: { role?: string | null; legacyPosition?: string | null };
+		} | null
+	) {
+		return (
+			session?.user?.role === 'registry' &&
+			session.user.legacyPosition === 'manager'
+		);
+	}
+
 	async findByTermId(termId: number) {
 		return withPermission(
 			async () => this.repository.findByTermId(termId),
@@ -28,13 +39,14 @@ class TermRegistrationsService {
 	) {
 		return withPermission(
 			async (session) => {
+				const userId = session?.user?.id;
 				if (
 					session?.user?.role !== 'admin' &&
-					!(
-						session?.user?.role === 'registry' &&
-						session?.user?.position === 'manager'
-					)
+					!this.isRegistryManager(session)
 				) {
+					throw new Error('Unauthorized');
+				}
+				if (!userId) {
 					throw new Error('Unauthorized');
 				}
 				return this.repository.create(
@@ -43,7 +55,7 @@ class TermRegistrationsService {
 						schoolId,
 						startDate,
 						endDate,
-						createdBy: session.user.id,
+						createdBy: userId,
 					},
 					programIds
 				);
@@ -62,10 +74,7 @@ class TermRegistrationsService {
 			async (session) => {
 				if (
 					session?.user?.role !== 'admin' &&
-					!(
-						session?.user?.role === 'registry' &&
-						session?.user?.position === 'manager'
-					)
+					!this.isRegistryManager(session)
 				) {
 					throw new Error('Unauthorized');
 				}
@@ -80,10 +89,7 @@ class TermRegistrationsService {
 			async (session) => {
 				if (
 					session?.user?.role !== 'admin' &&
-					!(
-						session?.user?.role === 'registry' &&
-						session?.user?.position === 'manager'
-					)
+					!this.isRegistryManager(session)
 				) {
 					throw new Error('Unauthorized');
 				}
@@ -96,16 +102,17 @@ class TermRegistrationsService {
 	async saveRegistrations(termId: number, entries: RegistrationEntry[]) {
 		return withPermission(
 			async (session) => {
+				const userId = session?.user?.id;
 				if (
 					session?.user?.role !== 'admin' &&
-					!(
-						session?.user?.role === 'registry' &&
-						session?.user?.position === 'manager'
-					)
+					!this.isRegistryManager(session)
 				) {
 					throw new Error('Unauthorized');
 				}
-				return this.repository.bulkUpsert(termId, entries, session.user.id);
+				if (!userId) {
+					throw new Error('Unauthorized');
+				}
+				return this.repository.bulkUpsert(termId, entries, userId);
 			},
 			['admin', 'registry']
 		);
@@ -116,10 +123,7 @@ class TermRegistrationsService {
 			async (session) => {
 				if (
 					session?.user?.role !== 'admin' &&
-					!(
-						session?.user?.role === 'registry' &&
-						session?.user?.position === 'manager'
-					)
+					!this.isRegistryManager(session)
 				) {
 					throw new Error('Unauthorized');
 				}

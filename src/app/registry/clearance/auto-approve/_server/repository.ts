@@ -1,5 +1,6 @@
 import { and, count, desc, eq, sql } from 'drizzle-orm';
-import { autoApprovals, type DashboardUser, db, terms } from '@/core/database';
+import type { DashboardRole } from '@/core/auth/permissions';
+import { autoApprovals, db, terms } from '@/core/database';
 import BaseRepository, {
 	type QueryOptions,
 } from '@/core/platform/BaseRepository';
@@ -14,7 +15,7 @@ export default class AutoApprovalRepository extends BaseRepository<
 
 	async findAllPaginated(
 		params: QueryOptions<typeof autoApprovals>,
-		department?: DashboardUser
+		department?: DashboardRole
 	) {
 		const { offset, limit } = this.buildQueryCriteria(params);
 
@@ -72,7 +73,7 @@ export default class AutoApprovalRepository extends BaseRepository<
 	}
 
 	async bulkCreate(
-		rules: { stdNo: number; termId: number; department: DashboardUser }[],
+		rules: { stdNo: number; termId: number; department: DashboardRole }[],
 		createdBy: string
 	) {
 		if (rules.length === 0) return { inserted: 0, skipped: 0 };

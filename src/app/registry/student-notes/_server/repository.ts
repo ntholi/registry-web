@@ -1,5 +1,5 @@
 import { and, count, desc, eq, or, sql } from 'drizzle-orm';
-import type { UserRole } from '@/core/database';
+import type { UserRole } from '@/core/auth/permissions';
 import {
 	db,
 	studentNoteAttachments,

@@ -464,3 +464,33 @@ export const LEGACY_PRESET_MAPPINGS: readonly LegacyPresetMapping[] = [
 	},
 	{ role: 'resource', position: null, presetName: 'Resource Staff' },
 ];
+
+export const LEGACY_PRESET_POSITIONS = [
+	'manager',
+	'program_leader',
+	'principal_lecturer',
+	'year_leader',
+	'lecturer',
+	'admin',
+] as const;
+
+export type LegacyPresetPosition = (typeof LEGACY_PRESET_POSITIONS)[number];
+
+export function getLegacyPresetPosition(
+	role: string | null | undefined,
+	presetName: string | null | undefined
+): LegacyPresetPosition | null {
+	if (
+		!role ||
+		!presetName ||
+		!DASHBOARD_ROLES.includes(role as DashboardRole)
+	) {
+		return null;
+	}
+
+	return (
+		LEGACY_PRESET_MAPPINGS.find(
+			(mapping) => mapping.role === role && mapping.presetName === presetName
+		)?.position ?? null
+	);
+}

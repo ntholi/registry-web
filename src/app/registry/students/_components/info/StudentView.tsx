@@ -17,7 +17,6 @@ import {
 import { notifications } from '@mantine/notifications';
 import { IconCopy } from '@tabler/icons-react';
 import { authClient } from '@/core/auth-client';
-import type { UserRole } from '@/core/database';
 import { getStatusColor } from '@/shared/lib/utils/colors';
 import { calculateAge, formatDate } from '@/shared/lib/utils/dates';
 import { formatPhoneNumber, formatSemester } from '@/shared/lib/utils/utils';
@@ -54,10 +53,9 @@ export default function StudentView({ student }: Props) {
 	const latestProgramSchoolId =
 		student.programs?.slice().sort((a, b) => b.id - a.id)[0]?.structure.program
 			.school.id ?? null;
+	const role = session?.user?.role;
 
-	const canEdit =
-		session?.user?.role &&
-		(['admin', 'registry'] as UserRole[]).includes(session.user.role);
+	const canEdit = role === 'admin' || role === 'registry';
 
 	const getLatestSemesterNumber = () => {
 		if (!activePrograms || activePrograms.length === 0) return null;
@@ -282,19 +280,16 @@ export default function StudentView({ student }: Props) {
 											href={`/academic/schools/structures/${programForView.structureId}`}
 											copyable={false}
 										/>
-										{session?.user?.role &&
-											(['admin', 'registry'] as UserRole[]).includes(
-												session.user.role
-											) && (
-												<Box pt={15}>
-													<EditStructureModal
-														stdNo={student.stdNo}
-														programId={programForView.structure.programId}
-														currentStructureId={programForView.structureId}
-														currentStructureCode={programForView.structure.code}
-													/>
-												</Box>
-											)}
+										{(role === 'admin' || role === 'registry') && (
+											<Box pt={15}>
+												<EditStructureModal
+													stdNo={student.stdNo}
+													programId={programForView.structure.programId}
+													currentStructureId={programForView.structureId}
+													currentStructureCode={programForView.structure.code}
+												/>
+											</Box>
+										)}
 									</Flex>
 								</Grid.Col>
 							</Grid>

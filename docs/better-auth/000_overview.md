@@ -36,7 +36,7 @@ This file is the **authoritative** reference for the entire Better Auth migratio
 | 22 | Permission Matrix & Preset Form | `022_phase-22-permission-matrix-and-preset-form.md` | `DONE` | 2026-03-13 | Shared matrix and preset form wired into admin preset pages |
 | 23 | User Form Update & Navigation Entry | `023_phase-23-user-form-and-navigation-entry.md` | `DONE` | `2026-03-13` | User form now uses role-scoped presets with matrix preview and admin nav entry |
 | 24a | Remove Auth.js Artifacts | `024a_phase-24-remove-authjs.md` | `DONE` | `2026-03-13` | Removed legacy Auth.js files/routes, switched `/api/auth` to Better Auth, and cleaned old `AUTH_*` runtime references |
-| 24b | Schema Cleanup & Verification | `024b_phase-24-schema-and-verification.md` | `PENDING` | — | |
+| 24b | Schema Cleanup & Verification | `024b_phase-24-schema-and-verification.md` | `DONE` | `2026-03-13` | Dropped `users.position`, removed legacy role enum exports/usages, added `proxy.ts`, and completed DB plus grep verification |
 | 24c | Integration Tests & Checklist | `024c_phase-24-testing.md` | `PENDING` | — | |
 
 **Legend**: `PENDING` = not started | `IN_PROGRESS` = currently executing | `DONE` = completed | `BLOCKED` = waiting on something

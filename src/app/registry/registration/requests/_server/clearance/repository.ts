@@ -1,10 +1,10 @@
 import type { ProgramLevel } from '@academic/_database';
 import { and, asc, count, desc, eq, inArray, sql } from 'drizzle-orm';
+import type { DashboardRole } from '@/core/auth/permissions';
 import {
 	auditLogs,
 	autoApprovals,
 	clearance,
-	type DashboardUser,
 	db,
 	programs,
 	registrationClearance,
@@ -374,7 +374,7 @@ export default class ClearanceRepository extends BaseRepository<
 	}
 
 	async findByDepartment(
-		department: DashboardUser,
+		department: DashboardRole,
 		params: QueryOptions<typeof clearance>,
 		status?: 'pending' | 'approved' | 'rejected',
 		filter?: ClearanceFilterOptions
@@ -516,7 +516,7 @@ export default class ClearanceRepository extends BaseRepository<
 
 	async countByStatus(
 		status: 'pending' | 'approved' | 'rejected',
-		department: DashboardUser,
+		department: DashboardRole,
 		termId?: number
 	) {
 		const whereJoin = and(
@@ -583,7 +583,7 @@ export default class ClearanceRepository extends BaseRepository<
 		];
 	}
 
-	async findHistoryByStudentNo(stdNo: number, department: DashboardUser) {
+	async findHistoryByStudentNo(stdNo: number, department: DashboardRole) {
 		const idRows = await db
 			.select({ id: registrationClearance.id })
 			.from(registrationClearance)
@@ -712,7 +712,7 @@ export default class ClearanceRepository extends BaseRepository<
 		return combined;
 	}
 
-	async findNextPending(department: DashboardUser) {
+	async findNextPending(department: DashboardRole) {
 		const nextRow = await db
 			.select({ id: registrationClearance.id })
 			.from(registrationClearance)

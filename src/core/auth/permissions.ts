@@ -95,6 +95,11 @@ export const DASHBOARD_ROLES = [
 
 export type DashboardRole = (typeof DASHBOARD_ROLES)[number];
 
-export const USER_ROLES = ['student', ...DASHBOARD_ROLES] as const;
+export const USER_ROLES = [
+	'user',
+	'applicant',
+	'student',
+	...DASHBOARD_ROLES,
+] as const;
 
 export type UserRole = (typeof USER_ROLES)[number];

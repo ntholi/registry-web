@@ -208,7 +208,6 @@ export default class PermissionPresetRepository extends BaseRepository<
 			};
 
 			await this.writeAuditLog(tx, 'INSERT', created.id, null, next, audit);
-
 			return next;
 		});
 	}
@@ -270,7 +269,6 @@ export default class PermissionPresetRepository extends BaseRepository<
 			};
 
 			await this.writeAuditLog(tx, 'UPDATE', id, before, next, audit);
-
 			return next;
 		});
 	}
@@ -317,4 +315,47 @@ export async function listPresetPermissions(
 	return rows.filter((row): row is PermissionGrant => {
 		return isResource(row.resource) && isAction(row.action);
 	});
+}
+
+export async function getPresetSessionData(presetId: string): Promise<{
+	name: string;
+	role: string;
+	permissions: PermissionGrant[];
+} | null> {
+	const rows = await db
+		.select({
+			name: permissionPresets.name,
+			role: permissionPresets.role,
+			resource: presetPermissions.resource,
+			action: presetPermissions.action,
+		})
+		.from(permissionPresets)
+		.leftJoin(
+			presetPermissions,
+			eq(presetPermissions.presetId, permissionPresets.id)
+		)
+		.where(eq(permissionPresets.id, presetId));
+
+	if (rows.length === 0) {
+		return null;
+	}
+
+	const permissions = rows.flatMap((row) => {
+		if (
+			row.resource === null ||
+			row.action === null ||
+			!isResource(row.resource) ||
+			!isAction(row.action)
+		) {
+			return [];
+		}
+
+		return [{ resource: row.resource, action: row.action }];
+	});
+
+	return {
+		name: rows[0].name,
+		role: rows[0].role,
+		permissions,
+	};
 }

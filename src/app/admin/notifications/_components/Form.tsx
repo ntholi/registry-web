@@ -1,6 +1,5 @@
 'use client';
 
-import { userPositions, userRoles } from '@auth/_database';
 import {
 	ActionIcon,
 	Badge,
@@ -17,6 +16,8 @@ import { IconX } from '@tabler/icons-react';
 import { useRouter } from 'nextjs-toploader/app';
 import { useEffect, useState } from 'react';
 import { z } from 'zod';
+import { LEGACY_PRESET_POSITIONS } from '@/app/auth/permission-presets/_lib/catalog';
+import { USER_ROLES } from '@/core/auth/permissions';
 import type { notifications, users } from '@/core/database';
 import { toTitleCase } from '@/shared/lib/utils/utils';
 import { Form } from '@/shared/ui/adease';
@@ -84,12 +85,12 @@ export default function NotificationForm({
 		setSelectedUsers(selectedUsers.filter((u) => u.id !== userId));
 	};
 
-	const roleOptions = userRoles.enumValues.map((role) => ({
+	const roleOptions = USER_ROLES.map((role) => ({
 		value: role,
 		label: toTitleCase(role),
 	}));
 
-	const positionOptions = userPositions.enumValues.map((position) => ({
+	const positionOptions = LEGACY_PRESET_POSITIONS.map((position) => ({
 		value: position,
 		label: toTitleCase(position),
 	}));

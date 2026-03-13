@@ -37,6 +37,12 @@ class PaymentReceiptService extends BaseService<typeof paymentReceipts, 'id'> {
 		});
 	}
 
+	private getStudentStdNo(
+		session: { user?: { stdNo?: number | null } } | null
+	) {
+		return session?.user?.stdNo ?? null;
+	}
+
 	override async create(data: PaymentReceipt) {
 		return withPermission(
 			async (session) => {
@@ -163,11 +169,10 @@ class PaymentReceiptService extends BaseService<typeof paymentReceipts, 'id'> {
 	) {
 		return withPermission(
 			async (session) => {
-				if (!session?.user?.stdNo) {
+				const studentStdNo = this.getStudentStdNo(session);
+				if (!studentStdNo) {
 					throw new Error('User not authenticated');
 				}
-
-				const studentStdNo = session.user.stdNo;
 
 				return db.transaction(async (tx) => {
 					const graduationRequest = await tx.query.graduationRequests.findFirst(

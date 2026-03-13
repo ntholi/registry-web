@@ -2,7 +2,6 @@
 
 import { getAllSchools } from '@academic/schools/_server/actions';
 import type { users } from '@auth/_database';
-import { userRoles } from '@auth/_database';
 import {
 	findPresetsByRole,
 	getPreset,
@@ -27,14 +26,17 @@ import Link from 'next/link';
 import { useRouter } from 'nextjs-toploader/app';
 import { useState } from 'react';
 import { z } from 'zod';
-import { DASHBOARD_ROLES } from '@/core/auth/permissions';
+import {
+	DASHBOARD_ROLES,
+	type DashboardRole,
+	USER_ROLES,
+	type UserRole,
+} from '@/core/auth/permissions';
 import { toTitleCase } from '@/shared/lib/utils/utils';
 import { Form } from '@/shared/ui/adease';
 import PermissionMatrix from '@/shared/ui/PermissionMatrix';
 
 type User = typeof users.$inferInsert;
-type UserRole = (typeof userRoles.enumValues)[number];
-type DashboardRole = (typeof DASHBOARD_ROLES)[number];
 
 type UserWithSchools = User & {
 	schoolIds?: number[];
@@ -119,7 +121,7 @@ export default function UserForm({ onSubmit, defaultValues, title }: Props) {
 
 	const userFormSchema = z.object({
 		name: z.string().min(1, 'Name is required'),
-		role: z.enum(userRoles.enumValues),
+		role: z.enum(USER_ROLES),
 		presetId: z.string().nullable().optional(),
 		schoolIds: z.array(z.string()).optional(),
 		lmsUserId: z.number().nullable().optional(),
@@ -199,12 +201,10 @@ export default function UserForm({ onSubmit, defaultValues, title }: Props) {
 								label='Role'
 								flex={1}
 								searchable
-								data={userRoles.enumValues
-									.map((role) => ({
-										value: role,
-										label: toTitleCase(role),
-									}))
-									.sort((a, b) => a.label.localeCompare(b.label))}
+								data={USER_ROLES.map((role) => ({
+									value: role,
+									label: toTitleCase(role),
+								})).sort((a, b) => a.label.localeCompare(b.label))}
 								{...form.getInputProps('role')}
 								onChange={(value) => {
 									const nextRole = (value || 'user') as UserRole;

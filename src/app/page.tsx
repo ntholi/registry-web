@@ -11,7 +11,7 @@ import {
 } from '@mantine/core';
 import { IconArrowRight } from '@tabler/icons-react';
 import { redirect } from 'next/navigation';
-import { dashboardUsers } from '@/core/database';
+import { DASHBOARD_ROLES } from '@/core/auth/permissions';
 import { getSession } from '@/core/platform/withPermission';
 import GoogleSignInForm from '@/shared/ui/GoogleSignInForm';
 import Logo from '@/shared/ui/Logo';
@@ -26,7 +26,7 @@ export default async function HomePage() {
 			redirect('/student-portal');
 		} else if (role === 'applicant') {
 			redirect('/apply');
-		} else if (role !== 'user' && dashboardUsers.enumValues.includes(role)) {
+		} else if (role !== 'user' && DASHBOARD_ROLES.includes(role as never)) {
 			redirect('/dashboard');
 		} else {
 			redirect('/auth/account-setup');

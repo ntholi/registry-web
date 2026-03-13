@@ -1,6 +1,6 @@
 'use server';
 
-import { and, eq, ne } from 'drizzle-orm';
+import { eq } from 'drizzle-orm';
 import { users } from '@/core/database';
 import { lecturersService as service } from './service';
 
@@ -13,7 +13,7 @@ export async function getLecturers(page: number = 1, search = '') {
 		page,
 		search,
 		searchColumns: ['name', 'email'],
-		filter: and(eq(users.role, 'academic'), ne(users.position, 'admin')),
+		filter: eq(users.role, 'academic'),
 	});
 }
 

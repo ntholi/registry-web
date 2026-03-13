@@ -2,7 +2,8 @@
 
 import type { ProgramLevel } from '@academic/_database';
 import { auth } from '@/core/auth';
-import type { clearance, DashboardUser } from '@/core/database';
+import type { DashboardRole } from '@/core/auth/permissions';
+import type { clearance } from '@/core/database';
 import { clearanceService as service } from './service';
 
 type Clearance = typeof clearance.$inferInsert;
@@ -39,7 +40,7 @@ export async function clearanceByStatus(
 	}
 
 	const res = await service.findByDepartment(
-		session.user.role as DashboardUser,
+		session.user.role as DashboardRole,
 		{
 			page,
 			search,

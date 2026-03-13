@@ -17,8 +17,8 @@ import { IconFileUpload, IconUpload } from '@tabler/icons-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import * as XLSX from 'xlsx';
+import type { DashboardRole } from '@/core/auth/permissions';
 import { authClient } from '@/core/auth-client';
-import type { DashboardUser } from '@/core/database';
 import TermInput from '@/shared/ui/TermInput';
 import { bulkCreateAutoApprovals } from '../_server/actions';
 
@@ -31,7 +31,7 @@ type ParsedRow = {
 export default function BulkImportModal() {
 	const [opened, { open, close }] = useDisclosure(false);
 	const { data: session } = authClient.useSession();
-	const userRole = session?.user?.role as DashboardUser | undefined;
+	const userRole = session?.user?.role as DashboardRole | undefined;
 	const isAdmin = userRole === 'admin';
 
 	const [parsedData, setParsedData] = useState<ParsedRow[]>([]);
@@ -51,7 +51,7 @@ export default function BulkImportModal() {
 					stdNo: row.stdNo,
 					termCode: selectedTermCode,
 				})),
-				department as DashboardUser
+				department as DashboardRole
 			);
 		},
 		onSuccess: (result) => {

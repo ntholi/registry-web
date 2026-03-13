@@ -1,12 +1,12 @@
 'use client';
 
-import type { dashboardUsers } from '@auth/_database';
 import { Button, Paper, SegmentedControl, Stack } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { clearanceRequestStatus } from '@registry/_database';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import { updateGraduationClearance } from '@/app/registry/graduation/clearance/_server/clearance/actions';
+import type { DashboardRole } from '@/core/auth/permissions';
 import { authClient } from '@/core/auth-client';
 
 type Status = Exclude<
@@ -46,8 +46,7 @@ export default function GraduationStatusSwitch({
 			const result = await updateGraduationClearance(
 				request.id,
 				{
-					department: session.user
-						.role as (typeof dashboardUsers.enumValues)[number],
+					department: session.user.role as DashboardRole,
 					status,
 					message: comment,
 				},

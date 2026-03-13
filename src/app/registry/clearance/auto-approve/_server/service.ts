@@ -1,5 +1,6 @@
 import { auth } from '@/core/auth';
-import type { autoApprovals, DashboardUser } from '@/core/database';
+import type { DashboardRole } from '@/core/auth/permissions';
+import type { autoApprovals } from '@/core/database';
 import type { QueryOptions } from '@/core/platform/BaseRepository';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
 import withPermission from '@/core/platform/withPermission';
@@ -20,7 +21,7 @@ class AutoApprovalService {
 	async findAll(params: QueryOptions<typeof autoApprovals>) {
 		return withPermission(async () => {
 			const session = await auth();
-			const role = session?.user?.role as DashboardUser | undefined;
+			const role = session?.user?.role as DashboardRole | undefined;
 			const department =
 				role === 'admin'
 					? undefined
@@ -34,7 +35,7 @@ class AutoApprovalService {
 	async create(data: Rule) {
 		return withPermission(
 			async (session) => {
-				const role = session?.user?.role as DashboardUser;
+				const role = session?.user?.role as DashboardRole;
 				if (role !== 'admin' && data.department !== role) {
 					throw new Error('You can only create rules for your own department');
 				}
@@ -60,7 +61,7 @@ class AutoApprovalService {
 				const existing = await this.repository.findById(id);
 				if (!existing) throw new Error('Rule not found');
 
-				const role = session?.user?.role as DashboardUser;
+				const role = session?.user?.role as DashboardRole;
 				if (role !== 'admin' && existing.department !== role) {
 					throw new Error('You can only update rules for your own department');
 				}
@@ -80,7 +81,7 @@ class AutoApprovalService {
 				const existing = await this.repository.findById(id);
 				if (!existing) throw new Error('Rule not found');
 
-				const role = session?.user?.role as DashboardUser;
+				const role = session?.user?.role as DashboardRole;
 				if (role !== 'admin' && existing.department !== role) {
 					throw new Error('You can only delete rules for your own department');
 				}
@@ -100,11 +101,11 @@ class AutoApprovalService {
 
 	async bulkCreate(
 		rules: { stdNo: number; termCode: string }[],
-		department?: DashboardUser
+		department?: DashboardRole
 	) {
 		return withPermission(
 			async (session) => {
-				const role = session?.user?.role as DashboardUser;
+				const role = session?.user?.role as DashboardRole;
 				const targetDept = role === 'admin' ? department : role;
 
 				if (!targetDept || !['finance', 'library'].includes(targetDept)) {

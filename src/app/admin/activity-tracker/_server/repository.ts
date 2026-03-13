@@ -1,5 +1,5 @@
-import type { userRoles } from '@auth/_database';
 import { and, between, count, eq, ilike, isNotNull, sql } from 'drizzle-orm';
+import type { UserRole } from '@/core/auth/permissions';
 import { auditLogs, db, users } from '@/core/database';
 import { getActivityLabel } from '../_lib/registry';
 import type {
@@ -19,9 +19,7 @@ class ActivityTrackerRepository {
 		end: Date,
 		dept?: string
 	): Promise<ActivitySummary[]> {
-		const deptFilter = dept
-			? eq(users.role, dept as (typeof userRoles.enumValues)[number])
-			: undefined;
+		const deptFilter = dept ? eq(users.role, dept as UserRole) : undefined;
 
 		const rows = await db
 			.select({
@@ -59,9 +57,7 @@ class ActivityTrackerRepository {
 		totalItems: number;
 	}> {
 		const offset = (page - 1) * PAGE_SIZE;
-		const deptFilter = dept
-			? eq(users.role, dept as (typeof userRoles.enumValues)[number])
-			: undefined;
+		const deptFilter = dept ? eq(users.role, dept as UserRole) : undefined;
 		const searchFilter = search ? ilike(users.name, `%${search}%`) : undefined;
 
 		const activityCounts = db.$with('activity_counts').as(
@@ -256,9 +252,7 @@ class ActivityTrackerRepository {
 		end: Date,
 		dept?: string
 	): Promise<DailyTrend[]> {
-		const deptFilter = dept
-			? eq(users.role, dept as (typeof userRoles.enumValues)[number])
-			: undefined;
+		const deptFilter = dept ? eq(users.role, dept as UserRole) : undefined;
 
 		return db
 			.select({
@@ -315,12 +309,7 @@ class ActivityTrackerRepository {
 		const [result] = await db
 			.select({ id: users.id })
 			.from(users)
-			.where(
-				and(
-					eq(users.id, userId),
-					eq(users.role, dept as (typeof userRoles.enumValues)[number])
-				)
-			)
+			.where(and(eq(users.id, userId), eq(users.role, dept as UserRole)))
 			.limit(1);
 		return !!result;
 	}

@@ -23,7 +23,7 @@ import {
 	ProofOfClearancePrinter,
 } from '@registry/graduation/requests';
 import { notFound } from 'next/navigation';
-import type { DashboardUser } from '@/core/database';
+import type { DashboardRole } from '@/core/auth/permissions';
 import { getStatusColor } from '@/shared/lib/utils/colors';
 import { getStatusIcon } from '@/shared/lib/utils/status';
 import { DetailsView, DetailsViewHeader } from '@/shared/ui/adease';
@@ -38,7 +38,7 @@ function getOverallClearanceStatus(
 		Awaited<ReturnType<typeof getGraduationRequest>>
 	>
 ) {
-	const departments: DashboardUser[] = ['finance', 'library', 'academic'];
+	const departments: DashboardRole[] = ['finance', 'library', 'academic'];
 	const statuses = departments.map((dept) => {
 		const clearanceMapping = graduationRequest.graduationClearances?.find(
 			(c) => c.clearance.department === dept

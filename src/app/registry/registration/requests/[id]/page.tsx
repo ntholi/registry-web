@@ -15,7 +15,7 @@ import {
 	ModulesView,
 } from '@registry/registration/requests';
 import { notFound } from 'next/navigation';
-import type { DashboardUser } from '@/core/database';
+import type { DashboardRole } from '@/core/auth/permissions';
 import { getStatusColor } from '@/shared/lib/utils/colors';
 import { getStatusIcon } from '@/shared/lib/utils/status';
 import { DetailsView, DetailsViewHeader } from '@/shared/ui/adease';
@@ -30,7 +30,7 @@ function getOverallClearanceStatus(
 		Awaited<ReturnType<typeof getRegistrationRequest>>
 	>
 ) {
-	const departments: DashboardUser[] = ['finance', 'library'];
+	const departments: DashboardRole[] = ['finance', 'library'];
 	const statuses = departments.map((dept) => {
 		const clearanceMapping = registrationRequest.clearances?.find(
 			(c) => c.clearance.department === dept

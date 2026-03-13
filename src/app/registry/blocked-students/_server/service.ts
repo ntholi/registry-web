@@ -1,4 +1,5 @@
-import type { blockedStudents, DashboardUser } from '@/core/database';
+import type { DashboardRole } from '@/core/auth/permissions';
+import type { blockedStudents } from '@/core/database';
 import type { QueryOptions } from '@/core/platform/BaseRepository';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
 import withPermission from '@/core/platform/withPermission';
@@ -36,7 +37,7 @@ class BlockedStudentService {
 				return this.repository.create(
 					{
 						...data,
-						byDepartment: session?.user?.role as DashboardUser,
+						byDepartment: session?.user?.role as DashboardRole,
 						status: 'blocked',
 					},
 					{
@@ -67,7 +68,7 @@ class BlockedStudentService {
 					id,
 					{
 						...data,
-						byDepartment: session?.user?.role as DashboardUser,
+						byDepartment: session?.user?.role as DashboardRole,
 					},
 					{
 						userId: session!.user!.id!,

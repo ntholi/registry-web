@@ -1,7 +1,7 @@
 'use client';
 
 import { Accordion, Badge, Group, Stack, Text, ThemeIcon } from '@mantine/core';
-import type { DashboardUser } from '@/core/database';
+import type { DashboardRole } from '@/core/auth/permissions';
 import { getStatusColor } from '@/shared/lib/utils/colors';
 import { formatDateTime } from '@/shared/lib/utils/dates';
 import { getStatusIcon } from '@/shared/lib/utils/status';
@@ -11,10 +11,10 @@ import type { getRegistrationRequest } from '../_server/requests/actions';
 
 interface Props {
 	value: NonNullable<Awaited<ReturnType<typeof getRegistrationRequest>>>;
-	defaultDept?: DashboardUser;
+	defaultDept?: DashboardRole;
 }
 
-const departments: DashboardUser[] = ['finance', 'library'];
+const departments: DashboardRole[] = ['finance', 'library'];
 
 export default function ClearanceAccordion({ value, defaultDept }: Props) {
 	return (

@@ -1,10 +1,10 @@
 import { and, asc, count, desc, eq, inArray, sql } from 'drizzle-orm';
 import { usersRepository } from '@/app/admin/users/_server/repository';
 import { auth } from '@/core/auth';
+import type { DashboardRole } from '@/core/auth/permissions';
 import {
 	auditLogs,
 	clearance,
-	type DashboardUser,
 	db,
 	graduationClearance,
 	graduationRequestReceipts,
@@ -155,7 +155,7 @@ export default class GraduationClearanceRepository extends BaseRepository<
 	}
 
 	async findByDepartment(
-		department: DashboardUser,
+		department: DashboardRole,
 		params: QueryOptions<typeof clearance>,
 		status?: 'pending' | 'approved' | 'rejected',
 		graduationDateId?: number
@@ -323,7 +323,7 @@ export default class GraduationClearanceRepository extends BaseRepository<
 		];
 	}
 
-	async findHistoryByStudentNo(stdNo: number, department: DashboardUser) {
+	async findHistoryByStudentNo(stdNo: number, department: DashboardRole) {
 		const idRows = await db
 			.select({ id: graduationClearance.id })
 			.from(graduationClearance)
@@ -400,7 +400,7 @@ export default class GraduationClearanceRepository extends BaseRepository<
 
 	async countByStatus(
 		status: 'pending' | 'approved' | 'rejected',
-		department: DashboardUser
+		department: DashboardRole
 	) {
 		const session = await auth();
 

@@ -1,11 +1,11 @@
 'use client';
 
-import type { dashboardUsers } from '@auth/_database';
 import { Button, Paper, SegmentedControl, Stack } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { clearanceRequestStatus } from '@registry/_database';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
+import type { DashboardRole } from '@/core/auth/permissions';
 import { authClient } from '@/core/auth-client';
 import { toTitleCase } from '@/shared/lib/utils/utils';
 import {
@@ -48,8 +48,7 @@ export default function ClearanceSwitch({
 				request.id,
 				{
 					message: comment,
-					department: session.user
-						.role as (typeof dashboardUsers.enumValues)[number],
+					department: session.user.role as DashboardRole,
 					status,
 				},
 				request.registrationRequest.stdNo

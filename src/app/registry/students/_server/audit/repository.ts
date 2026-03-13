@@ -68,7 +68,7 @@ class StudentAuditRepository {
 					changedByName: users.name,
 					changedByImage: users.image,
 					changedByUserRole: users.role,
-					changedByPosition: users.position,
+					changedByPosition: sql<string | null>`null`,
 					changedByEmail: users.email,
 				})
 				.from(auditLogs)

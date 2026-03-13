@@ -3,7 +3,7 @@ import type { StudentStatusApprovalRole } from './types';
 
 interface SessionUserLike {
 	role?: string | null;
-	position?: string | null;
+	legacyPosition?: string | null;
 }
 
 export function canUserApproveRole(
@@ -29,11 +29,12 @@ export function hasApprovalRole(
 
 	switch (approverRole) {
 		case 'year_leader':
-			return user.role === 'academic' && user.position === 'year_leader';
+			return user.role === 'academic' && user.legacyPosition === 'year_leader';
 		case 'program_leader':
 			return (
 				user.role === 'academic' &&
-				(user.position === 'manager' || user.position === 'program_leader')
+				(user.legacyPosition === 'manager' ||
+					user.legacyPosition === 'program_leader')
 			);
 		case 'student_services':
 			return user.role === 'student_services';
@@ -51,10 +52,13 @@ export function getApprovalRolesByUser(
 	}
 
 	if (user.role === 'academic') {
-		if (user.position === 'year_leader') {
+		if (user.legacyPosition === 'year_leader') {
 			roles.push('year_leader');
 		}
-		if (user.position === 'manager' || user.position === 'program_leader') {
+		if (
+			user.legacyPosition === 'manager' ||
+			user.legacyPosition === 'program_leader'
+		) {
 			roles.push('program_leader');
 		}
 	}

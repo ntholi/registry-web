@@ -1,6 +1,7 @@
 'use server';
 
-import type { autoApprovals, DashboardUser } from '@/core/database';
+import type { DashboardRole } from '@/core/auth/permissions';
+import type { autoApprovals } from '@/core/database';
 import { autoApprovalsService as service } from './service';
 
 type AutoApproval = typeof autoApprovals.$inferInsert;
@@ -34,7 +35,7 @@ export async function findMatchingAutoApprovals(stdNo: number, termId: number) {
 
 export async function bulkCreateAutoApprovals(
 	rules: { stdNo: number; termCode: string }[],
-	department?: DashboardUser
+	department?: DashboardRole
 ) {
 	return service.bulkCreate(rules, department);
 }

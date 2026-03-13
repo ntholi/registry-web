@@ -1,4 +1,4 @@
-import { and, eq, ilike, inArray, ne, or, sql } from 'drizzle-orm';
+import { and, eq, ilike, inArray, or, sql } from 'drizzle-orm';
 import {
 	db,
 	lmsCredentials,
@@ -137,7 +137,6 @@ export default class UserRepository extends BaseRepository<typeof users, 'id'> {
 		return db.query.users.findMany({
 			where: and(
 				eq(users.role, 'academic'),
-				ne(users.position, 'admin'),
 				or(ilike(users.name, `%${search}%`), ilike(users.email, `%${search}%`)),
 				schoolFilter
 			),

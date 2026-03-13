@@ -25,8 +25,8 @@ import {
 import { useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import * as XLSX from 'xlsx';
+import type { DashboardRole } from '@/core/auth/permissions';
 import { authClient } from '@/core/auth-client';
-import type { DashboardUser } from '@/core/database';
 import { bulkCreateBlockedStudents } from '../_server/actions';
 
 interface ParsedStudent {
@@ -45,12 +45,12 @@ export default function ImportBlockedStudentsDialog() {
 	const [parsedData, setParsedData] = useState<ParsedStudent[]>([]);
 	const [importing, setImporting] = useState(false);
 	const [result, setResult] = useState<ImportResult | null>(null);
-	const [department, setDepartment] = useState<DashboardUser | null>(null);
+	const [department, setDepartment] = useState<DashboardRole | null>(null);
 	const queryClient = useQueryClient();
 	const { data: session } = authClient.useSession();
 
 	const isAdmin = session?.user?.role === 'admin';
-	const userDepartment = session?.user?.role as DashboardUser;
+	const userDepartment = session?.user?.role as DashboardRole;
 
 	function reset() {
 		setFile(null);
@@ -158,7 +158,7 @@ export default function ImportBlockedStudentsDialog() {
 									label='Blocked By Department'
 									placeholder='Select department'
 									value={department}
-									onChange={(value) => setDepartment(value as DashboardUser)}
+									onChange={(value) => setDepartment(value as DashboardRole)}
 									data={[
 										{ value: 'finance', label: 'Finance' },
 										{ value: 'registry', label: 'Registry' },

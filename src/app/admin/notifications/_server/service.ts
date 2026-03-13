@@ -1,5 +1,5 @@
 import type { AdminActivityType } from '@admin/_lib/activities';
-import type { UserPosition, UserRole } from '@auth/_database';
+import type { UserRole } from '@/core/auth/permissions';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
 import withPermission from '@/core/platform/withPermission';
 import NotificationRepository, {
@@ -41,6 +41,16 @@ class NotificationService {
 		);
 	}
 
+	async createForCurrentUser(data: NotificationWithRecipients) {
+		return withPermission(async (session) => {
+			if (!session?.user?.id) {
+				throw new Error('Unauthorized');
+			}
+
+			return this.create(data, session.user.id);
+		}, 'auth');
+	}
+
 	async update(id: number, data: Partial<NotificationWithRecipients>) {
 		return withPermission(
 			(session) => {
@@ -73,17 +83,31 @@ class NotificationService {
 	async getActiveNotificationsForUser(
 		userId: string,
 		userRole: UserRole,
-		userPosition?: UserPosition | null
+		presetId?: string | null
 	) {
 		return withPermission(
 			() =>
 				this.repository.getActiveNotificationsForUser(
 					userId,
 					userRole,
-					userPosition
+					presetId
 				),
 			'auth'
 		);
+	}
+
+	async getActiveNotificationsForCurrentUser() {
+		return withPermission(async (session) => {
+			if (!session?.user?.id) {
+				return [];
+			}
+
+			return this.getActiveNotificationsForUser(
+				session.user.id,
+				session.user.role as UserRole,
+				session.user.presetId
+			);
+		}, 'auth');
 	}
 
 	async dismissNotification(notificationId: number, userId: string) {
@@ -91,6 +115,16 @@ class NotificationService {
 			() => this.repository.dismissNotification(notificationId, userId),
 			'auth'
 		);
+	}
+
+	async dismissNotificationForCurrentUser(notificationId: number) {
+		return withPermission(async (session) => {
+			if (!session?.user?.id) {
+				throw new Error('Unauthorized');
+			}
+
+			return this.dismissNotification(notificationId, session.user.id);
+		}, 'auth');
 	}
 
 	async getRecipientUserIds(notificationId: number) {

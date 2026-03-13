@@ -2,7 +2,7 @@
 
 import { Accordion, Badge, Group, Stack, Text, ThemeIcon } from '@mantine/core';
 import type { getGraduationRequest } from '@/app/registry/graduation/clearance/_server/requests/actions';
-import type { DashboardUser } from '@/core/database';
+import type { DashboardRole } from '@/core/auth/permissions';
 import { getStatusColor } from '@/shared/lib/utils/colors';
 import { formatDateTime } from '@/shared/lib/utils/dates';
 import { getStatusIcon } from '@/shared/lib/utils/status';
@@ -11,10 +11,10 @@ import Link from '@/shared/ui/Link';
 
 interface Props {
 	value: NonNullable<Awaited<ReturnType<typeof getGraduationRequest>>>;
-	defaultDept?: DashboardUser;
+	defaultDept?: DashboardRole;
 }
 
-const departments: DashboardUser[] = ['finance', 'library', 'academic'];
+const departments: DashboardRole[] = ['finance', 'library', 'academic'];
 
 export default function GraduationClearanceAccordion({
 	value,

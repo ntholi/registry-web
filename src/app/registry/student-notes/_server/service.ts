@@ -1,4 +1,4 @@
-import type { UserRole } from '@auth/_database';
+import type { UserRole } from '@/core/auth/permissions';
 import type { studentNotes } from '@/core/database';
 import { deleteFile, uploadFile } from '@/core/integrations/storage';
 import {

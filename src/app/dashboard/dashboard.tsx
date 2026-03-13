@@ -2,7 +2,6 @@
 
 import { getAssignedModulesByCurrentUser } from '@academic/assigned-modules';
 import { getUserSchools } from '@admin/users';
-import type { DashboardUser, UserRole } from '@auth/_database';
 import { libraryConfig } from '@library/library.config';
 import {
 	ActionIcon,
@@ -35,7 +34,11 @@ import { registryConfig } from '@/app/registry/registry.config';
 import { reportsConfig } from '@/app/reports/reports.config';
 import type { ClientModuleConfig } from '@/config/modules.config';
 import type { Session } from '@/core/auth';
-import type { PermissionGrant } from '@/core/auth/permissions';
+import type {
+	DashboardRole,
+	PermissionGrant,
+	UserRole,
+} from '@/core/auth/permissions';
 import { authClient } from '@/core/auth-client';
 import { toTitleCase } from '@/shared/lib/utils/utils';
 import { Shell } from '@/shared/ui/adease';
@@ -112,7 +115,7 @@ function filterNavigationItems(
 }
 
 function getNavigation(
-	department: DashboardUser,
+	department: DashboardRole,
 	moduleConfig: ClientModuleConfig
 ): NavigationGroup[] {
 	const allConfigs = [
@@ -213,7 +216,7 @@ export default function Dashboard({
 	const { data: session } = authClient.useSession();
 	const userPermissions = getUserPermissions(session);
 	const navigation = getNavigation(
-		session?.user?.role as DashboardUser,
+		session?.user?.role as DashboardRole,
 		moduleConfig
 	);
 
@@ -299,7 +302,9 @@ function UserButton() {
 						{user?.role === 'academic'
 							? userSchools?.map((it) => it.school.code).join(', ')
 							: toTitleCase(user?.role)}
-						{user?.position ? ` | ${toTitleCase(user.position)}` : ''}
+						{user?.legacyPosition
+							? ` | ${toTitleCase(user.legacyPosition)}`
+							: ''}
 					</Text>
 				</Stack>
 			</Group>

@@ -195,7 +195,8 @@ export async function canEditMarksAndGrades() {
 	const session = await auth();
 	const isAdmin = session?.user?.role === 'admin';
 	const isRegistryManager =
-		session?.user?.role === 'registry' && session?.user?.position === 'manager';
+		session?.user?.role === 'registry' &&
+		session.user.legacyPosition === 'manager';
 	return isAdmin || isRegistryManager;
 }
 

@@ -1,50 +1,7 @@
 import { permissionPresets } from '@auth/permission-presets/_schema/permissionPresets';
 import { boolean, index, pgTable, text, timestamp } from 'drizzle-orm/pg-core';
 import { nanoid } from 'nanoid';
-
-const dashboardUserValues = [
-	'finance',
-	'registry',
-	'library',
-	'resource',
-	'academic',
-	'marketing',
-	'student_services',
-	'admin',
-	'leap',
-	'human_resource',
-] as const;
-export const dashboardUsers = { enumValues: dashboardUserValues } as const;
-export type DashboardUser = (typeof dashboardUserValues)[number];
-
-const userRoleValues = [
-	'user',
-	'applicant',
-	'student',
-	'finance',
-	'registry',
-	'library',
-	'resource',
-	'academic',
-	'marketing',
-	'student_services',
-	'admin',
-	'leap',
-	'human_resource',
-] as const;
-export const userRoles = { enumValues: userRoleValues } as const;
-export type UserRole = (typeof userRoleValues)[number];
-
-const userPositionValues = [
-	'manager',
-	'program_leader',
-	'principal_lecturer',
-	'year_leader',
-	'lecturer',
-	'admin',
-] as const;
-export const userPositions = { enumValues: userPositionValues } as const;
-export type UserPosition = (typeof userPositionValues)[number];
+import type { UserRole } from '@/core/auth/permissions';
 
 export const users = pgTable(
 	'users',
@@ -54,7 +11,6 @@ export const users = pgTable(
 			.$defaultFn(() => nanoid()),
 		name: text().notNull(),
 		role: text().$type<UserRole>().notNull().default('user'),
-		position: text().$type<UserPosition | null>(),
 		email: text().notNull().unique(),
 		emailVerified: boolean().notNull().default(false),
 		image: text(),

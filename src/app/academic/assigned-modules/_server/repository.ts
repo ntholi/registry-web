@@ -123,7 +123,6 @@ export default class AssignedModuleRepository extends BaseRepository<
 			.select({
 				id: users.id,
 				name: users.name,
-				position: users.position,
 				image: users.image,
 				programCode: programs.code,
 				semesterName: structureSemesters.name,
@@ -157,7 +156,7 @@ export default class AssignedModuleRepository extends BaseRepository<
 				groupedResults.set(result.id, {
 					id: result.id,
 					name: result.name,
-					position: result.position,
+					position: null,
 					image: result.image,
 					assignments: [],
 				});

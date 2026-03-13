@@ -1317,6 +1317,13 @@
 			"when": 1773383940450,
 			"tag": "0187_phase-6-preset-seeds",
 			"breakpoints": true
+		},
+		{
+			"idx": 188,
+			"version": "7",
+			"when": 1773419927608,
+			"tag": "0188_fearless_joshua_kane",
+			"breakpoints": true
 		}
 	]
 }

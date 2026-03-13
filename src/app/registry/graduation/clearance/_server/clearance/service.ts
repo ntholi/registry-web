@@ -1,5 +1,6 @@
 import { auth } from '@/core/auth';
-import type { clearance, DashboardUser } from '@/core/database';
+import type { DashboardRole } from '@/core/auth/permissions';
+import type { clearance } from '@/core/database';
 import type { QueryOptions } from '@/core/platform/BaseRepository';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
 import withPermission from '@/core/platform/withPermission';
@@ -24,12 +25,12 @@ class GraduationClearanceService {
 		if (!session?.user?.role) return 0;
 		return this.repository.countByStatus(
 			status,
-			session.user.role as DashboardUser
+			session.user.role as DashboardRole
 		);
 	}
 
 	async findByDepartment(
-		department: DashboardUser,
+		department: DashboardRole,
 		params: QueryOptions<typeof clearance>,
 		status?: 'pending' | 'approved' | 'rejected',
 		graduationDateId?: number
@@ -122,7 +123,7 @@ class GraduationClearanceService {
 			if (!session?.user?.role) throw new Error('Unauthorized');
 			return this.repository.findHistoryByStudentNo(
 				stdNo,
-				session.user.role as DashboardUser
+				session.user.role as DashboardRole
 			);
 		}, ['dashboard']);
 	}

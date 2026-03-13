@@ -1,10 +1,12 @@
-import type { UserPosition, UserRole } from '@auth/_database';
+import { getLegacyPresetPosition } from '@auth/permission-presets/_lib/catalog';
 import { and, desc, eq, gte, lte, or, sql } from 'drizzle-orm';
+import type { UserRole } from '@/core/auth/permissions';
 import {
 	db,
 	notificationDismissals,
 	notificationRecipients,
 	notifications,
+	permissionPresets,
 } from '@/core/database';
 import BaseRepository, {
 	type AuditOptions,
@@ -156,9 +158,16 @@ export default class NotificationRepository extends BaseRepository<
 	async getActiveNotificationsForUser(
 		userId: string,
 		userRole: UserRole,
-		userPosition?: UserPosition | null
+		presetId?: string | null
 	) {
 		const now = new Date();
+		const preset = presetId
+			? await db.query.permissionPresets.findFirst({
+					where: eq(permissionPresets.id, presetId),
+					columns: { name: true },
+				})
+			: null;
+		const legacyPosition = getLegacyPresetPosition(userRole, preset?.name);
 
 		const baseConditions = and(
 			eq(notifications.isActive, true),
@@ -199,7 +208,8 @@ export default class NotificationRepository extends BaseRepository<
 				const matchesPosition =
 					!notification.targetPositions ||
 					notification.targetPositions.length === 0 ||
-					(userPosition && notification.targetPositions.includes(userPosition));
+					(legacyPosition &&
+						notification.targetPositions.includes(legacyPosition));
 
 				if (
 					notification.targetRoles?.length &&

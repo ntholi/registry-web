@@ -1,7 +1,5 @@
 'use server';
 
-import type { UserPosition, UserRole } from '@auth/_database';
-import withPermission from '@/core/platform/withPermission';
 import type { NotificationWithRecipients } from './repository';
 import { notificationsService as service } from './service';
 
@@ -19,13 +17,7 @@ export async function findAllNotifications(page = 1, search = '') {
 }
 
 export async function createNotification(data: CreateNotificationInput) {
-	return withPermission(async (session) => {
-		if (!session?.user?.id) {
-			throw new Error('Unauthorized');
-		}
-
-		return service.create(data as NotificationWithRecipients, session.user.id);
-	}, 'auth');
+	return service.createForCurrentUser(data as NotificationWithRecipients);
 }
 
 export async function updateNotification(
@@ -40,27 +32,11 @@ export async function deleteNotification(id: number) {
 }
 
 export async function getActiveNotificationsForUser() {
-	return withPermission(async (session) => {
-		if (!session?.user?.id) {
-			return [];
-		}
-
-		return service.getActiveNotificationsForUser(
-			session.user.id,
-			session.user.role as UserRole,
-			session.user.position as UserPosition | null
-		);
-	}, 'auth');
+	return service.getActiveNotificationsForCurrentUser();
 }
 
 export async function dismissNotification(notificationId: number) {
-	return withPermission(async (session) => {
-		if (!session?.user?.id) {
-			throw new Error('Unauthorized');
-		}
-
-		return service.dismissNotification(notificationId, session.user.id);
-	}, 'auth');
+	return service.dismissNotificationForCurrentUser(notificationId);
 }
 
 export async function getRecipientUserIds(notificationId: number) {

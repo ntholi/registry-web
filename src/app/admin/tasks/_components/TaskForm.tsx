@@ -3,7 +3,6 @@
 import { tasks } from '@admin/_database';
 import { findAllByRoles } from '@admin/users';
 import type { users } from '@auth/_database';
-import { dashboardUsers } from '@auth/_database';
 import {
 	Checkbox,
 	Divider,
@@ -20,6 +19,7 @@ import { createInsertSchema } from 'drizzle-zod';
 import { useRouter } from 'nextjs-toploader/app';
 import { useState } from 'react';
 import { z } from 'zod';
+import { DASHBOARD_ROLES } from '@/core/auth/permissions';
 import { hasAnyPermission } from '@/core/auth/sessionPermissions';
 import { authClient } from '@/core/auth-client';
 import { parseDate } from '@/shared/lib/utils/dates';
@@ -59,12 +59,12 @@ const statusOptions = [
 	{ value: 'cancelled', label: 'Cancelled' },
 ];
 
-const departmentOptions = dashboardUsers.enumValues
-	.filter((r) => r !== 'admin')
-	.map((role) => ({
+const departmentOptions = DASHBOARD_ROLES.filter((r) => r !== 'admin').map(
+	(role) => ({
 		value: role,
 		label: role.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase()),
-	}));
+	})
+);
 
 export default function TaskForm({ onSubmit, defaultValues, title }: Props) {
 	const router = useRouter();
