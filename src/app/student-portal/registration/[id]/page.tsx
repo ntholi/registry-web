@@ -18,11 +18,11 @@ import { getRegistrationRequest } from '@registry/registration/requests';
 import { IconBooks, IconEdit } from '@tabler/icons-react';
 import { forbidden, notFound } from 'next/navigation';
 import { config } from '@/config';
-import { getSession } from '@/core/platform/withPermission';
 import { getStatusColor } from '@/shared/lib/utils/colors';
 import { getStatusIcon } from '@/shared/lib/utils/status';
 import { formatSemester } from '@/shared/lib/utils/utils';
 import ButtonLink from '@/shared/ui/ButtonLink';
+import { requireCurrentStudent } from '../../_server/student';
 import {
 	ClearanceStatusView,
 	DepartmentMessagesView,
@@ -38,11 +38,7 @@ type Props = {
 };
 
 export default async function page({ params }: Props) {
-	const session = await getSession();
-
-	if (!session?.user?.stdNo) {
-		return forbidden();
-	}
+	const stdNo = await requireCurrentStudent();
 
 	const { id } = await params;
 	const registration = await getRegistrationRequest(Number(id));
@@ -51,7 +47,7 @@ export default async function page({ params }: Props) {
 		return notFound();
 	}
 
-	if (registration.stdNo !== session.user.stdNo) {
+	if (registration.stdNo !== stdNo) {
 		return forbidden();
 	}
 

@@ -18,10 +18,10 @@ import {
 import { getGraduationRequest } from '@registry/graduation/clearance';
 import { IconReceipt } from '@tabler/icons-react';
 import { forbidden, notFound } from 'next/navigation';
-import { getSession } from '@/core/platform/withPermission';
 import { getStatusColor } from '@/shared/lib/utils/colors';
 import { formatDateTime } from '@/shared/lib/utils/dates';
 import { getStatusIcon } from '@/shared/lib/utils/status';
+import { requireCurrentStudent } from '../../_server/student';
 import {
 	GraduationClearanceView,
 	PaymentReceiptsView,
@@ -36,11 +36,7 @@ type Props = {
 };
 
 export default async function GraduationDetailsPage({ params }: Props) {
-	const session = await getSession();
-
-	if (!session?.user?.stdNo) {
-		return forbidden();
-	}
+	const stdNo = await requireCurrentStudent();
 
 	const { id } = await params;
 	const graduationRequest = await getGraduationRequest(Number(id));
@@ -49,7 +45,7 @@ export default async function GraduationDetailsPage({ params }: Props) {
 		return notFound();
 	}
 
-	if (graduationRequest.studentProgram.stdNo !== session.user.stdNo) {
+	if (graduationRequest.studentProgram.stdNo !== stdNo) {
 		return forbidden();
 	}
 

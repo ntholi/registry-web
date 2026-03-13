@@ -7,9 +7,8 @@ import {
 	Text,
 	Title,
 } from '@mantine/core';
-import { forbidden } from 'next/navigation';
 import { Suspense } from 'react';
-import { getSession } from '@/core/platform/withPermission';
+import { requireCurrentStudent } from '../_server/student';
 import {
 	GraduationHistory,
 	GraduationHistorySkeleton,
@@ -18,11 +17,7 @@ import {
 } from './_components';
 
 export default async function GraduationPage() {
-	const session = await getSession();
-
-	if (!session?.user?.stdNo) {
-		return forbidden();
-	}
+	const stdNo = await requireCurrentStudent();
 
 	return (
 		<Container size='md'>
@@ -45,7 +40,7 @@ export default async function GraduationPage() {
 				<Divider />
 
 				<Suspense fallback={<GraduationHistorySkeleton />}>
-					<GraduationHistory stdNo={session.user.stdNo!} />
+					<GraduationHistory stdNo={stdNo} />
 				</Suspense>
 			</Stack>
 		</Container>

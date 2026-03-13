@@ -54,5 +54,5 @@ export function hasOwnedStudentSession(
 		return false;
 	}
 
-	return session.user.stdNo === stdNo;
+	return session?.user?.stdNo === stdNo;
 }

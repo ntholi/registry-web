@@ -10,7 +10,7 @@ import { getGraduationRequest } from '@registry/graduation/clearance';
 import { IconArrowLeft } from '@tabler/icons-react';
 import Link from 'next/link';
 import { forbidden, notFound } from 'next/navigation';
-import { getSession } from '@/core/platform/withPermission';
+import { requireCurrentStudent } from '../../../_server/student';
 import { PaymentReceiptsEditor } from '../../_components';
 
 type Props = {
@@ -20,11 +20,7 @@ type Props = {
 };
 
 export default async function EditGraduationPage({ params }: Props) {
-	const session = await getSession();
-
-	if (!session?.user?.stdNo) {
-		return forbidden();
-	}
+	const stdNo = await requireCurrentStudent();
 
 	const { id } = await params;
 	const graduationRequest = await getGraduationRequest(Number(id));
@@ -33,7 +29,7 @@ export default async function EditGraduationPage({ params }: Props) {
 		return notFound();
 	}
 
-	if (graduationRequest.studentProgram.stdNo !== session.user.stdNo) {
+	if (graduationRequest.studentProgram.stdNo !== stdNo) {
 		return forbidden();
 	}
 

@@ -8,9 +8,8 @@ import {
 	Title,
 } from '@mantine/core';
 import { getStudentRegistrationHistory } from '@registry/registration/requests';
-import { forbidden } from 'next/navigation';
 import { Suspense } from 'react';
-import { getSession } from '@/core/platform/withPermission';
+import { requireCurrentStudent } from '../_server/student';
 import {
 	NewRegistrationCard,
 	NewRegistrationCardSkeleton,
@@ -19,14 +18,8 @@ import {
 } from './_components';
 
 export default async function RegistrationPage() {
-	const session = await getSession();
-
-	if (!session?.user?.stdNo) {
-		return forbidden();
-	}
-	const registrationHistory = await getStudentRegistrationHistory(
-		session.user.stdNo
-	);
+	const stdNo = await requireCurrentStudent();
+	const registrationHistory = await getStudentRegistrationHistory(stdNo);
 
 	return (
 		<Container size='md'>
@@ -50,10 +43,7 @@ export default async function RegistrationPage() {
 				<Divider />
 
 				<Suspense fallback={<RegistrationHistorySkeleton />}>
-					<RegistrationHistory
-						data={registrationHistory}
-						stdNo={session.user.stdNo!}
-					/>
+					<RegistrationHistory data={registrationHistory} stdNo={stdNo} />
 				</Suspense>
 			</Stack>
 		</Container>
