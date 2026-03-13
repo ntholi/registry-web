@@ -8,13 +8,13 @@ Student information system for Limkokwing University covering enrollment, classe
 - TypeScript (strict) with Biome
 - Mantine 8 UI, Adease components, Tabler Icons
 - TanStack Query 5, Zod validation
-- Auth.js (Google OAuth)
+- Better Auth (Google OAuth)
 - Drizzle ORM + PostgreSQL (Neon or local)
 - pnpm as package manager
 
 ## Architecture
 
-- Next.js App Router with shared shell in `src/app/layout.tsx` and providers (Mantine, TanStack Query, Auth.js, Nuqs) in `src/app/providers.tsx`.
+- Next.js App Router with shared shell in `src/app/layout.tsx` and providers (Mantine, TanStack Query, Better Auth client, Nuqs) in `src/app/providers.tsx`.
 - Feature folders under `src/app/*` (academic, registry, finance, admin, lms, timetable, auth, audit-logs, student-portal) own their UI, server actions, services, repositories, and Drizzle schemas.
 - Server Actions call feature services/repositories in `_server/`; repositories are the only place that import Drizzle tables and handle transactions when needed.
 - Data flow: initial load via React Server Components; mutations/forms use Adease `Form` + TanStack Query in client leaf components.
@@ -48,10 +48,6 @@ Requirements: Node.js 18+, pnpm 9+, PostgreSQL running locally or Neon.
 Create `.env.local` with at least:
 
 ```
-AUTH_URL=
-AUTH_SECRET=
-AUTH_GOOGLE_ID=
-AUTH_GOOGLE_SECRET=
 BETTER_AUTH_SECRET=
 BETTER_AUTH_URL=
 BETTER_AUTH_TRUSTED_ORIGINS=
@@ -66,8 +62,6 @@ R2_SECRET_ACCESS_KEY=
 R2_BUCKET_NAME=
 NEXT_PUBLIC_R2_PUBLIC_URL=
 ```
-
-Keep the existing `AUTH_*` variables during the migration. `BETTER_AUTH_SECRET` must be a separate high-entropy value and must not reuse an OAuth client secret or any other credential.
 
 ## Commands
 

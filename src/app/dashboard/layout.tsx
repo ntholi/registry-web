@@ -22,7 +22,7 @@ export default function AdminLayout({ children }: PropsWithChildren) {
 
 	return (
 		<Dashboard moduleConfig={moduleConfig}>
-			{!process.env.AUTH_URL?.includes('portal.co.ls') && (
+			{!process.env.BETTER_AUTH_URL?.includes('portal.co.ls') && (
 				<DebugRibbon isLocal={isLocal} />
 			)}
 			{children}

@@ -37,9 +37,9 @@ async function getOAuth2Client(userId: string) {
 	}
 
 	const oauth2Client = new google.auth.OAuth2(
-		process.env.AUTH_GOOGLE_ID,
-		process.env.AUTH_GOOGLE_SECRET,
-		`${process.env.AUTH_URL}/api/auth/callback/google`
+		process.env.GOOGLE_CLIENT_ID,
+		process.env.GOOGLE_CLIENT_SECRET,
+		`${process.env.BETTER_AUTH_URL}/api/auth/callback/google`
 	);
 
 	if (!account.accessToken) {

@@ -1,21 +1,24 @@
 import { listPresetPermissions } from '@auth/permission-presets/_server/repository';
+import StudentRepository from '@registry/students/_server/repository';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
 import { betterAuth } from 'better-auth/minimal';
 import { nextCookies } from 'better-auth/next-js';
 import { admin, customSession } from 'better-auth/plugins';
 import { nanoid } from 'nanoid';
-import type { Session as NextAuthSession } from 'next-auth';
+import { headers } from 'next/headers';
 import type { PermissionGrant } from '@/core/auth/permissions';
 import { db, schema } from '@/core/database';
-import { handlers, auth as legacyAuth, signIn, signOut } from './auth.legacy';
 
 type BetterAuthSession = typeof betterAuthServer.$Infer.Session;
-type SessionUser = NonNullable<NextAuthSession['user']> & {
-	presetId?: string | null;
-	role?: string | null;
-	position?: string | null;
-	stdNo?: number | null;
+type BetterAuthUser = BetterAuthSession['user'];
+type SessionUser = BetterAuthUser & {
+	presetId: string | null;
+	role: string;
+	position: string | null;
+	stdNo: number | null;
 };
+
+const studentRepo = new StudentRepository();
 
 export const betterAuthServer = betterAuth({
 	secret: process.env.BETTER_AUTH_SECRET,
@@ -116,31 +119,53 @@ export const betterAuthServer = betterAuth({
 });
 
 export type Session = {
-	expires?: NextAuthSession['expires'];
+	expires?: string;
 	permissions?: PermissionGrant[];
-	session?: BetterAuthSession['session'];
+	session: BetterAuthSession['session'];
 	user: SessionUser;
 };
 
 export async function auth(): Promise<Session | null> {
-	const session = await legacyAuth();
+	const session = await betterAuthServer.api.getSession({
+		headers: await headers(),
+	});
 
 	if (!session?.user) {
 		return null;
 	}
 
+	const permissions = Array.isArray(session.permissions)
+		? session.permissions
+		: [];
+	const stdNo =
+		session.user.role === 'student'
+			? await studentRepo.findStdNoByUserId(session.user.id)
+			: null;
+	const expiresAt = session.session.expiresAt;
+
 	return {
-		expires: session.expires,
+		...session,
+		expires:
+			expiresAt instanceof Date
+				? expiresAt.toISOString()
+				: typeof expiresAt === 'string'
+					? expiresAt
+					: undefined,
+		permissions,
 		user: {
 			...session.user,
-			presetId: session.user.presetId,
-			role: session.user.role,
-			position: session.user.position,
-			stdNo: session.user.stdNo,
+			presetId:
+				typeof session.user.presetId === 'string'
+					? session.user.presetId
+					: null,
+			role: typeof session.user.role === 'string' ? session.user.role : 'user',
+			position:
+				typeof session.user.position === 'string'
+					? session.user.position
+					: null,
+			stdNo,
 		},
 	};
 }
-
-export { handlers, legacyAuth, signIn, signOut };
 
 export * from './auth/permissions';

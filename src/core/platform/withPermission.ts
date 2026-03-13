@@ -1,7 +1,6 @@
-import { headers } from 'next/headers';
 import { forbidden, unauthorized } from 'next/navigation';
 import { cache } from 'react';
-import { auth, betterAuthServer, type Session } from '@/core/auth';
+import { auth, type Session } from '@/core/auth';
 import {
 	type AuthRequirement,
 	DASHBOARD_ROLES,
@@ -13,7 +12,6 @@ type AccessCheckFunction = (session: Session) => Promise<boolean>;
 type LegacyAuthRole = 'all' | 'auth' | 'dashboard' | string;
 type LegacyAuthConfig = readonly LegacyAuthRole[];
 type AuthConfig = AuthRequirement | AccessCheckFunction | LegacyAuthConfig;
-type SessionWithPermissions = Session & { permissions?: PermissionGrant[] };
 type SessionPermissionResult = {
 	session: Session;
 	permissions: PermissionGrant[];
@@ -21,30 +19,18 @@ type SessionPermissionResult = {
 
 const getSessionWithPermissions = cache(
 	async (): Promise<SessionPermissionResult | null> => {
-		const requestHeaders = await headers();
-		const [session, legacySession] = await Promise.all([
-			betterAuthServer.api.getSession({ headers: requestHeaders }),
-			auth(),
-		]);
+		const session = await auth();
 
-		if (!session && !legacySession) {
+		if (!session) {
 			return null;
 		}
 
-		if (!session && legacySession) {
-			return {
-				session: legacySession,
-				permissions: [],
-			};
-		}
-
-		const currentSession = session as SessionWithPermissions;
-		const permissions = Array.isArray(currentSession.permissions)
-			? currentSession.permissions
+		const permissions = Array.isArray(session.permissions)
+			? session.permissions
 			: [];
 
 		return {
-			session: mergeSession(currentSession, legacySession, permissions),
+			session,
 			permissions,
 		};
 	}
@@ -244,75 +230,6 @@ function isLegacyRoleConfig(
 	requirement: AuthConfig
 ): requirement is LegacyAuthConfig {
 	return Array.isArray(requirement);
-}
-
-function mergeSession(
-	rawSession: SessionWithPermissions,
-	legacySession: Session | null,
-	permissions: PermissionGrant[]
-): Session {
-	const betterAuthUser = rawSession.user as Record<string, unknown>;
-	const betterAuthSession = rawSession.session as
-		| { expiresAt?: Date | string | null }
-		| undefined;
-	const expiresAt = betterAuthSession?.expiresAt;
-
-	return {
-		...(legacySession ?? {}),
-		user: {
-			...(legacySession?.user ?? {}),
-			id: rawSession.user.id,
-			name: rawSession.user.name,
-			email: rawSession.user.email,
-			image: rawSession.user.image ?? null,
-			role: readStringField(betterAuthUser, 'role') ?? legacySession?.user.role,
-			position:
-				readStringField(betterAuthUser, 'position') ??
-				legacySession?.user.position ??
-				null,
-			stdNo:
-				readNumberField(betterAuthUser, 'stdNo') ?? legacySession?.user.stdNo,
-			presetId:
-				readStringField(betterAuthUser, 'presetId') ??
-				legacySession?.user.presetId ??
-				null,
-		},
-		expires:
-			legacySession?.expires ??
-			(expiresAt instanceof Date
-				? expiresAt.toISOString()
-				: typeof expiresAt === 'string'
-					? expiresAt
-					: new Date().toISOString()),
-		permissions,
-		session: rawSession.session,
-	};
-}
-
-function readNumberField(
-	obj: Record<string, unknown>,
-	key: string
-): number | null | undefined {
-	const value = obj[key];
-
-	if (typeof value === 'number') {
-		return value;
-	}
-
-	return null;
-}
-
-function readStringField(
-	obj: Record<string, unknown>,
-	key: string
-): string | null | undefined {
-	const value = obj[key];
-
-	if (typeof value === 'string') {
-		return value;
-	}
-
-	return null;
 }
 
 function logAuthError(

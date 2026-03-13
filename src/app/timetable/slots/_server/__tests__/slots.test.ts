@@ -4,7 +4,7 @@ import { setMockUser } from '@/test/mocks.auth';
 import { getUserTimetableSlots } from '../actions';
 
 vi.mock('@/core/platform/withPermission', () => {
-	return vi.importActual('@/test/mock.withAuth');
+	return vi.importActual('@/test/mock.withPermission');
 });
 
 describe('getUserTimetableSlots', () => {

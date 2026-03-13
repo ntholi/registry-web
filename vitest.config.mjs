@@ -20,6 +20,6 @@ export default defineConfig({
 		},
 	},
 	optimizeDeps: {
-		exclude: ['next', 'next-auth'],
+		exclude: ['next'],
 	},
 });

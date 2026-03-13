@@ -11,6 +11,15 @@ vi.mock('@/core/auth', () => ({
 		Promise.resolve({
 			user: getMockUser(),
 			expires: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+			permissions: [],
+			session: {
+				id: 'test-session',
+				userId: 'test-user',
+				token: 'test-token',
+				expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
+				createdAt: new Date(),
+				updatedAt: new Date(),
+			},
 		})
 	),
 }));
@@ -24,13 +33,13 @@ vi.mock('next/navigation', () => ({
 	}),
 }));
 
-async function mockWithAuthImplementation<T>(
+async function mockWithPermissionImplementation<T>(
 	fn: (session: Session | null) => Promise<T>,
 	rolesOrAccessCheck: Role[] | AccessCheckFunction
 ): Promise<T> {
 	return withPermission(fn, rolesOrAccessCheck as Role[]);
 }
 
-export const mockWithAuth = vi.fn(mockWithAuthImplementation);
+export const mockWithPermission = vi.fn(mockWithPermissionImplementation);
 
-export default mockWithAuth;
+export default mockWithPermission;
