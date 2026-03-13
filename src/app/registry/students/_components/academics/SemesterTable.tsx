@@ -12,8 +12,8 @@ import {
 	useComputedColorScheme,
 } from '@mantine/core';
 import type { Grade, StudentModuleStatus } from '@registry/_database';
-import type { Session } from 'next-auth';
-import { useSession } from 'next-auth/react';
+import type { Session } from '@/core/auth';
+import { authClient } from '@/core/auth-client';
 import {
 	getGradeColor,
 	getOptionalColor,
@@ -59,7 +59,7 @@ export default function SemesterTable({
 	allSemesters,
 }: ModuleTableProps) {
 	const colorScheme = useComputedColorScheme('dark');
-	const { data: session } = useSession();
+	const { data: session } = authClient.useSession();
 
 	const canEdit =
 		session?.user?.role === 'registry' || session?.user?.role === 'admin';

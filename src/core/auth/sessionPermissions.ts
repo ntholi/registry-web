@@ -71,5 +71,9 @@ export function hasOwnedStudentSession(
 	session: Session | null | undefined,
 	stdNo: number
 ) {
-	return isStudentSession(session) && session.user.stdNo === stdNo;
+	if (!isStudentSession(session)) {
+		return false;
+	}
+
+	return session.user.stdNo === stdNo;
 }

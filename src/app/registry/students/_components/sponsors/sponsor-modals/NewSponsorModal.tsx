@@ -6,7 +6,7 @@ import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import { IconPlus } from '@tabler/icons-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useSession } from 'next-auth/react';
+import { authClient } from '@/core/auth-client';
 import { SponsorForm, type SponsorFormValues } from './SponsorForm';
 
 type Props = {
@@ -16,7 +16,7 @@ type Props = {
 const ALLOWED_ROLES = ['registry', 'admin', 'finance'];
 
 export default function NewSponsorModal({ stdNo }: Props) {
-	const { data: session } = useSession();
+	const { data: session } = authClient.useSession();
 	const [opened, { open, close }] = useDisclosure(false);
 	const queryClient = useQueryClient();
 

@@ -11,7 +11,7 @@ import {
 	Text,
 } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
-import { useSession } from 'next-auth/react';
+import { authClient } from '@/core/auth-client';
 import { formatSemester } from '@/shared/lib/utils/utils';
 import { getStudentRegistrationData } from '../../_server/actions';
 import { EditSemesterSponsorModal } from './sponsor-modals/EditSemesterSponsorModal';
@@ -31,7 +31,7 @@ export default function SemesterSponsorsView({
 	stdNo,
 	isActive = true,
 }: Props) {
-	const { data: session } = useSession();
+	const { data: session } = authClient.useSession();
 	const canEdit = ALLOWED_ROLES.includes(session?.user?.role || '');
 
 	const { data, isLoading, error } = useQuery({

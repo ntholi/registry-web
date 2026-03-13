@@ -16,8 +16,8 @@ import {
 import { IconPlus } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
-import { useSession } from 'next-auth/react';
 import { useState } from 'react';
+import { authClient } from '@/core/auth-client';
 import { useActiveTerm } from '@/shared/lib/hooks/use-term';
 import { getStudentRegistrationData } from '../../_server/actions';
 import ProofOfRegistrationPrinter from './proof/ProofOfRegistrationPrinter';
@@ -32,7 +32,7 @@ type Props = {
 export default function RegistrationTabs({ stdNo, isActive = true }: Props) {
 	const [activeTab, setActiveTab] = useState<string | null>('requests');
 	const { activeTerm } = useActiveTerm();
-	const { data: session } = useSession();
+	const { data: session } = authClient.useSession();
 
 	const { data: studentData, isLoading } = useQuery({
 		queryKey: ['student-registration-data', stdNo],

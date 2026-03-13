@@ -10,8 +10,8 @@ import {
 } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useSession } from 'next-auth/react';
 import { useState } from 'react';
+import { authClient } from '@/core/auth-client';
 import { type AllStatusType, getStatusColor } from '@/shared/lib/utils/colors';
 import { formatDateTime } from '@/shared/lib/utils/dates';
 import { getApprovalRolesByUser } from '../_lib/approvalRoles';
@@ -46,7 +46,7 @@ export default function ApprovalSwitch({
 	comment,
 	setAccordion,
 }: Props) {
-	const { data: session } = useSession();
+	const { data: session } = authClient.useSession();
 	const userRoles = getApprovalRolesByUser(session?.user);
 
 	const myApproval = approvals.find((a) => userRoles.includes(a.approverRole));

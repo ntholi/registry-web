@@ -15,8 +15,8 @@ import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import { IconDeviceIpadHorizontalPlus } from '@tabler/icons-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useSession } from 'next-auth/react';
 import { createCertificateReprint } from '@/app/registry/certificate-reprints';
+import { authClient } from '@/core/auth-client';
 import { ReceiptInput } from '@/shared/ui/adease';
 import { getPublishedAcademicHistory } from '../../../_server/actions';
 
@@ -32,7 +32,7 @@ type FormValues = {
 export default function CreateReprintModal({ stdNo }: Props) {
 	const [opened, { open, close }] = useDisclosure(false);
 	const queryClient = useQueryClient();
-	const { data: session } = useSession();
+	const { data: session } = authClient.useSession();
 
 	const { data: student, isLoading } = useQuery({
 		queryKey: ['student', stdNo, 'published'],

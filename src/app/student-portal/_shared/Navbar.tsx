@@ -10,7 +10,8 @@ import {
 } from '@mantine/core';
 import { IconLogout, IconMoon, IconSun, IconUser } from '@tabler/icons-react';
 import Link from 'next/link';
-import { signOut } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
+import { authClient } from '@/core/auth-client';
 import useUserStudent from '@/shared/lib/hooks/use-user-student';
 import Logo from '@/shared/ui/Logo';
 import NotificationBell from '@/shared/ui/NotificationBell';
@@ -18,9 +19,14 @@ import NotificationBell from '@/shared/ui/NotificationBell';
 export default function Navbar() {
 	const { student } = useUserStudent();
 	const { colorScheme, toggleColorScheme } = useMantineColorScheme();
+	const router = useRouter();
 
 	const handleLogout = () => {
-		signOut({ callbackUrl: '/' });
+		authClient.signOut({
+			fetchOptions: {
+				onSuccess: () => router.push('/'),
+			},
+		});
 	};
 
 	return (

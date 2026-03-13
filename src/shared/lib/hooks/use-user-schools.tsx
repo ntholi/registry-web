@@ -2,10 +2,10 @@
 
 import { getUserSchools } from '@admin/users';
 import { useQuery } from '@tanstack/react-query';
-import { useSession } from 'next-auth/react';
+import { authClient } from '@/core/auth-client';
 
 export function useUserSchools() {
-	const { data: session } = useSession();
+	const { data: session } = authClient.useSession();
 	const { data, isLoading, isError } = useQuery({
 		queryKey: ['user-schools', session?.user?.id],
 		queryFn: () => getUserSchools(session?.user?.id),

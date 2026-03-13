@@ -23,9 +23,9 @@ import {
 	IconUpload,
 } from '@tabler/icons-react';
 import { useQueryClient } from '@tanstack/react-query';
-import { useSession } from 'next-auth/react';
 import { useState } from 'react';
 import * as XLSX from 'xlsx';
+import { authClient } from '@/core/auth-client';
 import type { DashboardUser } from '@/core/database';
 import { bulkCreateBlockedStudents } from '../_server/actions';
 
@@ -47,7 +47,7 @@ export default function ImportBlockedStudentsDialog() {
 	const [result, setResult] = useState<ImportResult | null>(null);
 	const [department, setDepartment] = useState<DashboardUser | null>(null);
 	const queryClient = useQueryClient();
-	const { data: session } = useSession();
+	const { data: session } = authClient.useSession();
 
 	const isAdmin = session?.user?.role === 'admin';
 	const userDepartment = session?.user?.role as DashboardUser;

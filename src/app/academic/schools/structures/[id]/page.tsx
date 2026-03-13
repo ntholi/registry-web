@@ -22,8 +22,8 @@ import {
 } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useParams } from 'next/navigation';
-import type { Session } from 'next-auth';
-import { useSession } from 'next-auth/react';
+import type { Session } from '@/core/auth';
+import { authClient } from '@/core/auth-client';
 import { getOptionalColor } from '@/shared/lib/utils/colors';
 import { formatSemester } from '@/shared/lib/utils/utils';
 import Link from '@/shared/ui/Link';
@@ -37,7 +37,7 @@ import { getStructure } from '../_server/actions';
 export default function StructureDetailsPage() {
 	const params = useParams();
 	const structureId = Number(params.id);
-	const { data: session } = useSession();
+	const { data: session } = authClient.useSession();
 
 	const { data: structure, isLoading } = useQuery({
 		queryKey: ['structure', structureId],

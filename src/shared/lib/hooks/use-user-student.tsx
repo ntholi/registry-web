@@ -7,13 +7,13 @@ import {
 import { getUnpublishedTermCodes } from '@registry/terms/settings/_server/actions';
 import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
-import { useSession } from 'next-auth/react';
 import { useEffect, useMemo } from 'react';
+import { authClient } from '@/core/auth-client';
 import { getAcademicRemarks } from '@/shared/lib/utils/grades';
 
 export default function useUserStudent() {
 	const router = useRouter();
-	const { data: session, status } = useSession();
+	const { data: session, isPending } = authClient.useSession();
 	const { data: student, isLoading: studentLoading } = useQuery({
 		queryKey: ['student', session?.user?.id],
 		queryFn: () => getStudentByUserId(session?.user?.id),
@@ -27,10 +27,10 @@ export default function useUserStudent() {
 	});
 
 	useEffect(() => {
-		if (status === 'unauthenticated') {
+		if (!isPending && !session) {
 			router.push('/auth/login');
 		}
-	}, [status, router]);
+	}, [isPending, router, session]);
 
 	const program = useMemo(() => {
 		const p = getActiveProgram(student);
@@ -43,7 +43,7 @@ export default function useUserStudent() {
 	}, [student, unpublishedTerms]);
 
 	return {
-		isLoading: status === 'loading' || studentLoading || termsLoading,
+		isLoading: isPending || studentLoading || termsLoading,
 		user: session?.user,
 		student,
 		unpublishedTerms,

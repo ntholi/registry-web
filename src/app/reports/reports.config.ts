@@ -3,9 +3,9 @@ import {
 	IconReportAnalytics,
 	IconSchool,
 } from '@tabler/icons-react';
-import type { Session } from 'next-auth';
 import type { ModuleConfig } from '@/app/dashboard/module-config.types';
 import { moduleConfig } from '@/config/modules.config';
+import type { Session } from '@/core/auth';
 import type { PermissionGrant, Resource } from '@/core/auth/permissions';
 
 type SessionWithPermissions = Session & {

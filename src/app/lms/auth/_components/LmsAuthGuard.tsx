@@ -12,12 +12,12 @@ import {
 } from '@mantine/core';
 import { IconLock, IconSchool, IconUserPlus } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
-import { useSession } from 'next-auth/react';
 import type { PropsWithChildren } from 'react';
+import { authClient } from '@/core/auth-client';
 import { checkMoodleUserExists } from '../_server/actions';
 
 export default function LmsAuthGuard({ children }: PropsWithChildren) {
-	const { data: session, status } = useSession();
+	const { data: session, isPending } = authClient.useSession();
 	const lmsUserId = session?.user?.lmsUserId;
 	const lmsToken = session?.user?.lmsToken;
 
@@ -27,7 +27,7 @@ export default function LmsAuthGuard({ children }: PropsWithChildren) {
 		enabled: !lmsUserId || !lmsToken,
 	});
 
-	if (status === 'loading' || isCheckingMoodle) {
+	if (isPending || isCheckingMoodle) {
 		return (
 			<Center h='60vh'>
 				<Loader size='lg' />

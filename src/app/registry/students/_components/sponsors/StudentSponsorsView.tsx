@@ -11,7 +11,7 @@ import {
 	Text,
 } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
-import { useSession } from 'next-auth/react';
+import { authClient } from '@/core/auth-client';
 import { EditSponsoredStudentModal } from './sponsor-modals/EditSponsorModal';
 
 type Props = {
@@ -22,7 +22,7 @@ type Props = {
 const ALLOWED_ROLES = ['registry', 'admin', 'finance'];
 
 export default function StudentSponsorsView({ stdNo, isActive = true }: Props) {
-	const { data: session } = useSession();
+	const { data: session } = authClient.useSession();
 	const canEdit = ALLOWED_ROLES.includes(session?.user?.role || '');
 
 	const { data, isLoading, error } = useQuery({

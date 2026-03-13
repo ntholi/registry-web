@@ -1,8 +1,8 @@
 'use client';
 
 import { Badge } from '@mantine/core';
-import { useSession } from 'next-auth/react';
 import type { PropsWithChildren } from 'react';
+import { authClient } from '@/core/auth-client';
 import { getStatusColor } from '@/shared/lib/utils/colors';
 import { ListItem, ListLayout, NewLink } from '@/shared/ui/adease';
 import { getCycles } from './_server/actions';
@@ -17,7 +17,7 @@ function getCycleStatus(startDate: string, endDate: string) {
 }
 
 export default function Layout({ children }: PropsWithChildren) {
-	const { data: session } = useSession();
+	const { data: session } = authClient.useSession();
 	const role = session?.user?.role;
 	const position = session?.user?.position;
 	const canCreate =

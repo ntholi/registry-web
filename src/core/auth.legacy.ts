@@ -10,7 +10,7 @@ import {
 import NextAuth from 'next-auth';
 import type { Adapter } from 'next-auth/adapters';
 import Google from 'next-auth/providers/google';
-import { accounts, db, students } from '@/core/database';
+import { db, students } from '@/core/database';
 
 const legacyUsers = pgTable('users', {
 	id: text('id').primaryKey(),
@@ -76,7 +76,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 	}) as Adapter,
 
 	callbacks: {
-		async session({ session, user, trigger }) {
+		async session({ session, user }) {
 			session.user.role = user.role;
 			session.user.position = user.position;
 			session.user.lmsUserId = user.lmsUserId;
@@ -88,16 +88,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 				});
 
 				session.user.stdNo = student?.stdNo;
-			}
-
-			if (trigger === 'update' || !session.accessToken) {
-				const account = await db.query.accounts.findFirst({
-					where: eq(accounts.userId, user.id),
-				});
-
-				if (account?.accessToken) {
-					session.accessToken = account.accessToken;
-				}
 			}
 
 			return session;

@@ -8,8 +8,8 @@ import {
 } from '@admissions/applicants';
 import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
-import { useSession } from 'next-auth/react';
 import { useEffect, useMemo, useRef } from 'react';
+import { authClient } from '@/core/auth-client';
 import { computeWizardStep } from './wizard-utils';
 
 export type ApplicantWithRelations = NonNullable<
@@ -123,7 +123,7 @@ export function useApplicant({
 }: {
 	redirectIfRestricted?: boolean;
 } = {}) {
-	const { data: session } = useSession();
+	const { data: session } = authClient.useSession();
 	const router = useRouter();
 	const userId = session?.user?.id;
 

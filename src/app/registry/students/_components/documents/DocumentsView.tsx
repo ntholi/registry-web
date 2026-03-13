@@ -12,8 +12,8 @@ import {
 import { getStudentDocuments } from '@registry/documents';
 import { IconPlus } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
-import { useSession } from 'next-auth/react';
 import { useState } from 'react';
+import { authClient } from '@/core/auth-client';
 import AddDocumentModal from './AddDocumentModal';
 import DeleteDocumentModal from './DeleteDocumentModal';
 import DocumentCard from './DocumentCard';
@@ -24,7 +24,7 @@ type DocumentsViewProps = {
 };
 
 export default function DocumentsView({ stdNo, isActive }: DocumentsViewProps) {
-	const { data: session } = useSession();
+	const { data: session } = authClient.useSession();
 	const [addModalOpened, setAddModalOpened] = useState(false);
 	const [deleteModalOpened, setDeleteModalOpened] = useState(false);
 	const [selectedDocument, setSelectedDocument] = useState<{

@@ -6,13 +6,13 @@ import {
 	StudentsFilter,
 } from '@registry/students';
 import { useSearchParams } from 'next/navigation';
-import { useSession } from 'next-auth/react';
 import type { PropsWithChildren } from 'react';
+import { authClient } from '@/core/auth-client';
 import { ListItem, ListLayout, NewLink } from '@/shared/ui/adease';
 
 export default function Layout({ children }: PropsWithChildren) {
 	const searchParams = useSearchParams();
-	const { data: session } = useSession();
+	const { data: session } = authClient.useSession();
 	const role = session?.user?.role;
 	const canCreate = role === 'admin' || role === 'registry';
 

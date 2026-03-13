@@ -5,8 +5,8 @@ import { pdf } from '@react-pdf/renderer';
 import { createStudentCardPrintWithReceipt } from '@registry/print/student-card';
 import { IconPrinter } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
-import { useSession } from 'next-auth/react';
 import { useState } from 'react';
+import { authClient } from '@/core/auth-client';
 import { convertUrlToBase64 } from '@/shared/lib/utils/utils';
 import { type getStudent, getStudentPhoto } from '../../_server/actions';
 import StudentCardPDF from './StudentCardPDF';
@@ -27,7 +27,7 @@ export default function StudentCardPrinter({
 	const [isGenerating, setIsGenerating] = useState(false);
 	const [modalOpened, setModalOpened] = useState(false);
 	const [receiptNo, setReceiptNo] = useState('');
-	const { data: session } = useSession();
+	const { data: session } = authClient.useSession();
 
 	const { data: fetchedPhotoUrl, isLoading: photoLoading } = useQuery({
 		queryKey: ['student-photo', student.stdNo],

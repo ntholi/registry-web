@@ -8,9 +8,9 @@ import {
 } from '@registry/print/statement-of-results';
 import { IconPrinter } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
-import { useSession } from 'next-auth/react';
 import QRCode from 'qrcode';
 import { useState } from 'react';
+import { authClient } from '@/core/auth-client';
 import { getPublishedAcademicHistory } from '../../../_server/actions';
 import StatementOfResultsPDF from './StatementOfResultsPDF';
 
@@ -21,7 +21,7 @@ type Props = {
 
 export default function StatementOfResultsPrinter({ stdNo, disabled }: Props) {
 	const [isGenerating, setIsGenerating] = useState(false);
-	const { data: session } = useSession();
+	const { data: session } = authClient.useSession();
 
 	const { data: student } = useQuery({
 		queryKey: ['student', stdNo, 'published'],

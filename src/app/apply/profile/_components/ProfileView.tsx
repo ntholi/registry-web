@@ -25,8 +25,8 @@ import {
 } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
-import { useSession } from 'next-auth/react';
 import { useState } from 'react';
+import { authClient } from '@/core/auth-client';
 import ApplyHeader from '../../_components/ApplyHeader';
 import { getOverallStatusColor, getOverallStatusSummary } from '../_lib/status';
 import { ApplicationsTab } from './ApplicationsTab';
@@ -40,7 +40,7 @@ interface Props {
 export function ProfileView({ applicant }: Props) {
 	const { colorScheme } = useMantineColorScheme();
 	const isDark = colorScheme === 'dark';
-	const { data: session } = useSession();
+	const { data: session } = authClient.useSession();
 	const [activeTab, setActiveTab] = useState<string | null>('applications');
 
 	const { data: applications, isLoading } = useQuery({

@@ -32,14 +32,14 @@ import {
 import { notifications } from '@mantine/notifications';
 import { IconGripVertical, IconSearch } from '@tabler/icons-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useSession } from 'next-auth/react';
 import { useMemo, useState } from 'react';
+import { authClient } from '@/core/auth-client';
 import { DeleteButton } from '@/shared/ui/adease';
 
 const MANAGE_POSITIONS = ['manager', 'program_leader', 'admin'];
 
 function useCanManage() {
-	const { data: session } = useSession();
+	const { data: session } = authClient.useSession();
 	const role = session?.user?.role;
 	const position = session?.user?.position;
 	return (

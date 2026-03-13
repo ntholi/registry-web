@@ -5,9 +5,9 @@ import { Button, Paper, SegmentedControl, Stack } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { clearanceRequestStatus } from '@registry/_database';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
 import { updateGraduationClearance } from '@/app/registry/graduation/clearance/_server/clearance/actions';
+import { authClient } from '@/core/auth-client';
 
 type Status = Exclude<
 	(typeof clearanceRequestStatus.enumValues)[number],
@@ -28,7 +28,7 @@ export default function GraduationStatusSwitch({
 	stdNo,
 	comment,
 }: Props) {
-	const { data: session } = useSession();
+	const { data: session } = authClient.useSession();
 	const queryClient = useQueryClient();
 	const [status, setStatus] = useState<Status>(request.status);
 	const [isStatusChanged, setIsStatusChanged] = useState(false);

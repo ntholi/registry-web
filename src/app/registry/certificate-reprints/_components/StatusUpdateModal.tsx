@@ -15,8 +15,8 @@ import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import { certificateReprintStatus } from '@registry/_database';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useSession } from 'next-auth/react';
 import { useState } from 'react';
+import { authClient } from '@/core/auth-client';
 import { getStatusColor } from '@/shared/lib/utils/colors';
 import { formatDateToISO } from '@/shared/lib/utils/dates';
 import { updateCertificateReprint } from '../_server/actions';
@@ -35,7 +35,7 @@ const labels: Record<Status, string> = {
 
 export default function StatusUpdateModal({ id, status: initial }: Props) {
 	const [opened, { open, close }] = useDisclosure(false);
-	const { data: session } = useSession();
+	const { data: session } = authClient.useSession();
 	const queryClient = useQueryClient();
 	const [status, setStatus] = useState<Status>(initial);
 	const [receivedAt, setReceivedAt] = useState<string | null>(

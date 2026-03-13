@@ -1,8 +1,8 @@
 'use client';
 
 import { Select, Stack } from '@mantine/core';
-import { useSession } from 'next-auth/react';
 import { useRouter } from 'nextjs-toploader/app';
+import { authClient } from '@/core/auth-client';
 import { Form } from '@/shared/ui/adease';
 import StudentInput from '@/shared/ui/StudentInput';
 import TermInput from '@/shared/ui/TermInput';
@@ -19,7 +19,7 @@ type Props = {
 
 export default function AutoApprovalForm({ rule }: Props) {
 	const router = useRouter();
-	const { data: session } = useSession();
+	const { data: session } = authClient.useSession();
 	const userRole = session?.user?.role as string | undefined;
 	const isAdmin = userRole === 'admin';
 

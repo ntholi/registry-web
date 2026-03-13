@@ -1,8 +1,8 @@
 'use client';
 import { getAssignedModulesByCurrentUser } from '@academic/assigned-modules';
 import { getModules } from '@academic/modules';
-import { useSession } from 'next-auth/react';
 import { type PropsWithChildren, useState } from 'react';
+import { authClient } from '@/core/auth-client';
 import { ListItem, ListLayout, ModuleViewToggle } from '@/shared/ui/adease';
 
 interface Module {
@@ -31,7 +31,7 @@ interface AssignedModule {
 type ModuleItem = Module | AssignedModule;
 
 export default function Layout({ children }: PropsWithChildren) {
-	const { data: session } = useSession();
+	const { data: session } = authClient.useSession();
 	const [showAssignedOnly, setShowAssignedOnly] = useState(true);
 	const getData = async (page: number, search: string) => {
 		if (showAssignedOnly) {

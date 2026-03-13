@@ -15,9 +15,9 @@ import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import { IconFileUpload, IconUpload } from '@tabler/icons-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useSession } from 'next-auth/react';
 import { useState } from 'react';
 import * as XLSX from 'xlsx';
+import { authClient } from '@/core/auth-client';
 import type { DashboardUser } from '@/core/database';
 import TermInput from '@/shared/ui/TermInput';
 import { bulkCreateAutoApprovals } from '../_server/actions';
@@ -30,7 +30,7 @@ type ParsedRow = {
 
 export default function BulkImportModal() {
 	const [opened, { open, close }] = useDisclosure(false);
-	const { data: session } = useSession();
+	const { data: session } = authClient.useSession();
 	const userRole = session?.user?.role as DashboardUser | undefined;
 	const isAdmin = userRole === 'admin';
 

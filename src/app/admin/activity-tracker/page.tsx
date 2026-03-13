@@ -1,9 +1,9 @@
 'use client';
 
 import { Group, Select, Stack, Title } from '@mantine/core';
-import { useSession } from 'next-auth/react';
 import { parseAsString, useQueryStates } from 'nuqs';
 import { useMemo } from 'react';
+import { authClient } from '@/core/auth-client';
 import DailyTrendsChart from './_components/DailyTrendsChart';
 import DateRangeFilter, { getPresetRange } from './_components/DateRangeFilter';
 import EmployeeList from './_components/EmployeeList';
@@ -21,7 +21,7 @@ const DEPARTMENTS = [
 ];
 
 export default function ActivityTrackerPage() {
-	const { data: session } = useSession();
+	const { data: session } = authClient.useSession();
 	const isAdmin = session?.user?.role === 'admin';
 
 	const [params, setParams] = useQueryStates({

@@ -3,7 +3,7 @@ import { ActionIcon, Card, Center } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { IconEdit, IconUpload, IconUser } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
-import { useSession } from 'next-auth/react';
+import { authClient } from '@/core/auth-client';
 import PhotoInputModal from '@/shared/ui/PhotoInputModal';
 import PhotoPreviewModal from '@/shared/ui/PhotoPreviewModal';
 import {
@@ -22,7 +22,7 @@ export default function PhotoView({ employee }: Props) {
 		queryFn: () => getEmployeePhoto(employee.empNo),
 		staleTime: 1000 * 60 * 3,
 	});
-	const { data: session } = useSession();
+	const { data: session } = authClient.useSession();
 
 	const handlePhotoSubmit = async (croppedImageBlob: Blob) => {
 		try {

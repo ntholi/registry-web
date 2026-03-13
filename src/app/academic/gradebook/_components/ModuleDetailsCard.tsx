@@ -11,9 +11,9 @@ import {
 	ThemeIcon,
 } from '@mantine/core';
 import { IconBook2, IconSchool } from '@tabler/icons-react';
-import { useSession } from 'next-auth/react';
 import { useQueryState } from 'nuqs';
 import { useEffect, useMemo } from 'react';
+import { authClient } from '@/core/auth-client';
 import { useActiveTerm } from '@/shared/lib/hooks/use-term';
 import { toClassName } from '@/shared/lib/utils/utils';
 import { useAssessmentsQuery } from '../_hooks/useAssessmentsQuery';
@@ -33,7 +33,7 @@ export default function ModuleDetailsCard({
 }: ModuleDetailsCardProps) {
 	const [programId, setProgramId] = useQueryState('programId');
 	const { activeTerm } = useActiveTerm();
-	const { data: session } = useSession();
+	const { data: session } = authClient.useSession();
 	const { data: assessments } = useAssessmentsQuery(moduleId);
 
 	const moduleOptions = useMemo(() => {

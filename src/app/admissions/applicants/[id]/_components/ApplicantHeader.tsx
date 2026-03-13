@@ -11,7 +11,7 @@ import {
 } from '@mantine/core';
 import { IconEdit } from '@tabler/icons-react';
 import Link from 'next/link';
-import { useSession } from 'next-auth/react';
+import { authClient } from '@/core/auth-client';
 import type { users } from '@/core/database';
 import { type GenderType, getGenderColor } from '@/shared/lib/utils/colors';
 import { DeleteButton } from '@/shared/ui/adease/DeleteButton';
@@ -29,7 +29,7 @@ type Props = {
 };
 
 export default function ApplicantHeader({ id, fullName, gender, user }: Props) {
-	const { data: session } = useSession();
+	const { data: session } = authClient.useSession();
 	const canDelete = session?.user?.role === 'admin';
 	const initials = fullName
 		.split(' ')

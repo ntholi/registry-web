@@ -5,8 +5,8 @@ import { Button, Paper, SegmentedControl, Stack } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { clearanceRequestStatus } from '@registry/_database';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
+import { authClient } from '@/core/auth-client';
 import { toTitleCase } from '@/shared/lib/utils/utils';
 import {
 	type getClearance,
@@ -29,7 +29,7 @@ export default function ClearanceSwitch({
 	comment,
 	setAccordion,
 }: Props) {
-	const { data: session } = useSession();
+	const { data: session } = authClient.useSession();
 	const queryClient = useQueryClient();
 	const [status, setStatus] = useState<Status>(request.status as Status);
 	const [isStatusChanged, setIsStatusChanged] = useState(false);

@@ -21,8 +21,8 @@ import {
 	Textarea,
 	Title,
 } from '@mantine/core';
-import { useSession } from 'next-auth/react';
 import { useState } from 'react';
+import { authClient } from '@/core/auth-client';
 import { type AllStatusType, getStatusColor } from '@/shared/lib/utils/colors';
 import { formatDateTime } from '@/shared/lib/utils/dates';
 import { FieldView } from '@/shared/ui/adease';
@@ -37,7 +37,7 @@ type Props = {
 };
 
 export default function StatusDetails({ app }: Props) {
-	const { data: session } = useSession();
+	const { data: session } = authClient.useSession();
 	const role = session?.user?.role;
 	const isAdminOrRegistry = role === 'admin' || role === 'registry';
 

@@ -10,6 +10,14 @@ import { db, schema } from '@/core/database';
 import { handlers, auth as legacyAuth, signIn, signOut } from './auth.legacy';
 
 type BetterAuthSession = typeof betterAuthServer.$Infer.Session;
+type SessionUser = NonNullable<NextAuthSession['user']> & {
+	presetId?: string | null;
+	role?: string | null;
+	position?: string | null;
+	stdNo?: number | null;
+	lmsUserId?: number | null;
+	lmsToken?: string | null;
+};
 
 export const betterAuthServer = betterAuth({
 	secret: process.env.BETTER_AUTH_SECRET,
@@ -31,6 +39,11 @@ export const betterAuthServer = betterAuth({
 				type: 'string',
 				required: false,
 				defaultValue: 'user',
+				input: false,
+			},
+			position: {
+				type: 'string',
+				required: false,
 				input: false,
 			},
 			presetId: {
@@ -85,6 +98,9 @@ export const betterAuthServer = betterAuth({
 		admin({ defaultRole: 'user' }),
 		customSession(async ({ user, session }) => {
 			let permissions: PermissionGrant[] = [];
+			const lms = await db.query.lmsCredentials.findFirst({
+				where: (table, { eq }) => eq(table.userId, user.id),
+			});
 			const presetId =
 				'presetId' in user && typeof user.presetId === 'string'
 					? user.presetId
@@ -94,24 +110,48 @@ export const betterAuthServer = betterAuth({
 				permissions = await listPresetPermissions(presetId);
 			}
 
-			return { user, session, permissions };
+			return {
+				user: {
+					...user,
+					lmsToken: lms?.lmsToken ?? null,
+					lmsUserId: lms?.lmsUserId ?? null,
+				},
+				session,
+				permissions,
+			};
 		}),
 		nextCookies(),
 	],
 });
 
-export type Session = NextAuthSession & {
+export type Session = {
+	expires?: NextAuthSession['expires'];
 	permissions?: PermissionGrant[];
 	session?: BetterAuthSession['session'];
-	user: NonNullable<NextAuthSession['user']> & {
-		presetId?: string | null;
-		role?: string | null;
-		position?: string | null;
-		stdNo?: number | null;
-	};
+	user: SessionUser;
 };
 
-export const auth = legacyAuth;
+export async function auth(): Promise<Session | null> {
+	const session = await legacyAuth();
+
+	if (!session?.user) {
+		return null;
+	}
+
+	return {
+		expires: session.expires,
+		user: {
+			...session.user,
+			presetId: session.user.presetId,
+			role: session.user.role,
+			position: session.user.position,
+			stdNo: session.user.stdNo,
+			lmsUserId: session.user.lmsUserId,
+			lmsToken: session.user.lmsToken,
+		},
+	};
+}
+
 export { handlers, legacyAuth, signIn, signOut };
 
 export * from './auth/permissions';

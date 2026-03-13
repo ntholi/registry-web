@@ -16,8 +16,8 @@ import {
 import { notifications } from '@mantine/notifications';
 import ClearanceComments from '@registry/_components/ClearanceComments';
 import { IconCopy } from '@tabler/icons-react';
-import { useSession } from 'next-auth/react';
 import { useState } from 'react';
+import { authClient } from '@/core/auth-client';
 import { formatDateTime } from '@/shared/lib/utils/dates';
 import { FieldView } from '@/shared/ui/adease';
 import Link from '@/shared/ui/Link';
@@ -33,7 +33,7 @@ export default function GraduationClearanceDetails({ request }: Props) {
 	const [comment, setComment] = useState(request.message || undefined);
 	const [accordion, setAccordion] = useState<'comments'>('comments');
 	const { studentProgram } = request.graduationRequest;
-	const { data: session } = useSession();
+	const { data: session } = authClient.useSession();
 
 	return (
 		<Stack p='lg'>

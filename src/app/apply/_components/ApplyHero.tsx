@@ -12,7 +12,7 @@ import {
 import { IconArrowRight } from '@tabler/icons-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useSession } from 'next-auth/react';
+import { authClient } from '@/core/auth-client';
 import { useApplicant } from '../_lib/useApplicant';
 
 type ApplyButtonProps = {
@@ -62,7 +62,7 @@ export default function HeroSection({
 	redirectIfRestricted?: boolean;
 }) {
 	const { colorScheme } = useMantineColorScheme();
-	const { status } = useSession();
+	const { data: session, isPending } = authClient.useSession();
 	const isDark = colorScheme === 'dark';
 
 	const { currentApplication, nextStepUrl, isLoading } = useApplicant({
@@ -112,7 +112,7 @@ export default function HeroSection({
 				</Stack>
 
 				<Group gap='lg' justify='center'>
-					{isLoading && status === 'authenticated' ? (
+					{isLoading && !isPending && !!session ? (
 						<Skeleton height={42} width={150} radius='xl' />
 					) : (
 						<ApplyButton

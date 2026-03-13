@@ -23,8 +23,6 @@ import { IconLogout2, IconSearch } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import type { Session } from 'next-auth';
-import { signOut, useSession } from 'next-auth/react';
 import type React from 'react';
 import { useState } from 'react';
 import { academicConfig } from '@/app/academic/academic.config';
@@ -36,6 +34,8 @@ import { lmsConfig } from '@/app/lms/lms.config';
 import { registryConfig } from '@/app/registry/registry.config';
 import { reportsConfig } from '@/app/reports/reports.config';
 import type { ClientModuleConfig } from '@/config/modules.config';
+import type { Session } from '@/core/auth';
+import { authClient } from '@/core/auth-client';
 import { toTitleCase } from '@/shared/lib/utils/utils';
 import { Shell } from '@/shared/ui/adease';
 import Logo from '@/shared/ui/Logo';
@@ -183,7 +183,7 @@ export default function Dashboard({
 	children: React.ReactNode;
 	moduleConfig: ClientModuleConfig;
 }) {
-	const { data: session } = useSession();
+	const { data: session } = authClient.useSession();
 	const navigation = getNavigation(
 		session?.user?.role as DashboardUser,
 		moduleConfig
@@ -229,7 +229,7 @@ export default function Dashboard({
 }
 
 function UserButton() {
-	const { data: session, status } = useSession();
+	const { data: session, isPending } = authClient.useSession();
 	const router = useRouter();
 
 	const { data: userSchools } = useQuery({
@@ -238,7 +238,7 @@ function UserButton() {
 		enabled: session?.user?.role === 'academic',
 	});
 
-	if (status === 'unauthenticated') {
+	if (!isPending && !session) {
 		router.push('/auth/login');
 	}
 	const user = session?.user;
@@ -250,7 +250,12 @@ function UserButton() {
 			children: 'Are you sure you want to logout?',
 			confirmProps: { color: 'dark' },
 			labels: { confirm: 'Logout', cancel: 'Cancel' },
-			onConfirm: async () => await signOut(),
+			onConfirm: () =>
+				authClient.signOut({
+					fetchOptions: {
+						onSuccess: () => router.push('/auth/login'),
+					},
+				}),
 		});
 
 	return (
@@ -278,7 +283,7 @@ function UserButton() {
 }
 
 export function Navigation({ navigation }: { navigation: NavigationGroup[] }) {
-	const { data: session } = useSession();
+	const { data: session } = authClient.useSession();
 	const [search, setSearch] = useState('');
 
 	const getLabelKey = (label: React.ReactNode): string => {
@@ -388,7 +393,7 @@ function DisplayWithNotification({ item }: { item: NavItem }) {
 function ItemDisplay({ item }: { item: NavItem }) {
 	const pathname = usePathname();
 	const Icon = item.icon;
-	const { data: session } = useSession();
+	const { data: session } = authClient.useSession();
 	const getLabelKey = (label: React.ReactNode): string => {
 		if (typeof label === 'string') return label;
 		return String(label);

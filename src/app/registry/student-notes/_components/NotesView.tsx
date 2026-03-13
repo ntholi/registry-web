@@ -13,8 +13,8 @@ import {
 } from '@mantine/core';
 import { IconPlus } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
-import { useSession } from 'next-auth/react';
 import { useState } from 'react';
+import { authClient } from '@/core/auth-client';
 import { getStudentNotes } from '../_server/actions';
 import NoteCard from './NoteCard';
 import NoteModal from './NoteModal';
@@ -25,7 +25,7 @@ type Props = {
 };
 
 export default function NotesView({ stdNo, isActive }: Props) {
-	const { data: session } = useSession();
+	const { data: session } = authClient.useSession();
 	const [createOpen, setCreateOpen] = useState(false);
 	const { data: notes, isLoading } = useQuery({
 		queryKey: ['student-notes', stdNo],

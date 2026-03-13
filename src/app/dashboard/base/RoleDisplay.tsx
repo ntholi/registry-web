@@ -1,12 +1,12 @@
 'use client';
 import { Skeleton, Title } from '@mantine/core';
-import { useSession } from 'next-auth/react';
+import { authClient } from '@/core/auth-client';
 import { toTitleCase } from '@/shared/lib/utils/utils';
 
 export default function RoleDisplay() {
-	const { data: session, status } = useSession();
+	const { data: session, isPending } = authClient.useSession();
 
-	if (status === 'loading') {
+	if (isPending) {
 		return <Skeleton height={40} width={170} mb={5} />;
 	}
 

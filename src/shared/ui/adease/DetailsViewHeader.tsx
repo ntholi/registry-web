@@ -5,8 +5,8 @@ import { useMediaQuery } from '@mantine/hooks';
 import { IconArrowNarrowLeft, IconEdit } from '@tabler/icons-react';
 import Link from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';
-import { useSession } from 'next-auth/react';
 import type React from 'react';
+import { authClient } from '@/core/auth-client';
 import type { UserRole } from '@/core/database';
 import { useViewSelect } from '@/shared/lib/hooks/use-view-select';
 import { DeleteButton } from './DeleteButton';
@@ -46,7 +46,7 @@ export function DetailsViewHeader({
 	confirmationText,
 	confirmButtonText,
 }: DetailsViewHeaderProps) {
-	const { data: session } = useSession();
+	const { data: session } = authClient.useSession();
 	const pathname = usePathname();
 	const isMobile = useMediaQuery('(max-width: 768px)');
 	const [, setView] = useViewSelect();

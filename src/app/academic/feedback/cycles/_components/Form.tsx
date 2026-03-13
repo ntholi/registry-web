@@ -5,8 +5,8 @@ import { MultiSelect, SimpleGrid, TextInput } from '@mantine/core';
 import { DateInput } from '@mantine/dates';
 import { useQuery } from '@tanstack/react-query';
 import { createInsertSchema } from 'drizzle-zod';
-import { useSession } from 'next-auth/react';
 import { useRouter } from 'nextjs-toploader/app';
+import { authClient } from '@/core/auth-client';
 import { formatDateToISO, formatMonthYear } from '@/shared/lib/utils/dates';
 import { Form } from '@/shared/ui/adease';
 import TermInput from '@/shared/ui/TermInput';
@@ -25,7 +25,7 @@ const defaultName = formatMonthYear(new Date());
 
 export default function CycleForm({ onSubmit, defaultValues, title }: Props) {
 	const router = useRouter();
-	const { data: session } = useSession();
+	const { data: session } = authClient.useSession();
 	const values = defaultValues ?? ({ name: defaultName } as Cycle);
 	const { data: terms = [] } = useQuery({
 		queryKey: ['terms'],

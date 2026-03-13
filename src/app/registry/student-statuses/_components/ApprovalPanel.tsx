@@ -13,8 +13,8 @@ import {
 import { useDisclosure } from '@mantine/hooks';
 import { IconCheck, IconX } from '@tabler/icons-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useSession } from 'next-auth/react';
 import { useState } from 'react';
+import { authClient } from '@/core/auth-client';
 import { type AllStatusType, getStatusColor } from '@/shared/lib/utils/colors';
 import { formatDateTime } from '@/shared/lib/utils/dates';
 import { hasApprovalRole } from '../_lib/approvalRoles';
@@ -43,7 +43,7 @@ export default function ApprovalPanel({
 	applicationStatus,
 	applicationId,
 }: Props) {
-	const { data: session } = useSession();
+	const { data: session } = authClient.useSession();
 
 	function canApprove(approverRole: StudentStatusApprovalRole) {
 		return hasApprovalRole(session?.user, approverRole);

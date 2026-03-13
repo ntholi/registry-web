@@ -18,9 +18,9 @@ import { getGraduationRequestByStudentNo } from '@registry/graduation/clearance'
 import { IconPlus } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
-import { useSession } from 'next-auth/react';
 import { useState } from 'react';
 import type { getBlockedStudentByStdNo } from '@/app/registry/blocked-students';
+import { authClient } from '@/core/auth-client';
 import { getStatusColor } from '@/shared/lib/utils/colors';
 import { getPublishedAcademicHistory } from '../../_server/actions';
 import CertificateDownloader from './certificate/CertificateDownloader';
@@ -155,7 +155,7 @@ type RequestCardProps = {
 };
 
 function RequestCard({ request, stdNo }: RequestCardProps) {
-	const { data: session } = useSession();
+	const { data: session } = authClient.useSession();
 
 	function getGraduationStatus(req?: GraduationRequest | null) {
 		const clearances = req?.graduationClearances || [];

@@ -16,14 +16,14 @@ import {
 import { modals } from '@mantine/modals';
 import { IconArrowRight, IconLogout, IconMail } from '@tabler/icons-react';
 import { useRouter } from 'next/navigation';
-import { signOut, useSession } from 'next-auth/react';
+import { authClient } from '@/core/auth-client';
 import Logo from '@/shared/ui/Logo';
 
 export default function AccountSetupPage() {
-	const { data: session, status } = useSession();
+	const { data: session, isPending } = authClient.useSession();
 	const router = useRouter();
 
-	if (status === 'loading') {
+	if (isPending) {
 		return (
 			<Center h='100vh'>
 				<Loader />
@@ -59,7 +59,12 @@ export default function AccountSetupPage() {
 			children: 'Are you sure you want to logout?',
 			confirmProps: { color: 'red' },
 			labels: { confirm: 'Logout', cancel: 'Cancel' },
-			onConfirm: () => signOut({ callbackUrl: '/auth/login' }),
+			onConfirm: () =>
+				authClient.signOut({
+					fetchOptions: {
+						onSuccess: () => router.push('/auth/login'),
+					},
+				}),
 		});
 	};
 

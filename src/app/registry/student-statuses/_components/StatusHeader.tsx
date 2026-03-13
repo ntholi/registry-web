@@ -5,7 +5,7 @@ import { useMediaQuery } from '@mantine/hooks';
 import { IconArrowNarrowLeft, IconEdit } from '@tabler/icons-react';
 import Link from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';
-import { useSession } from 'next-auth/react';
+import { authClient } from '@/core/auth-client';
 import { useViewSelect } from '@/shared/lib/hooks/use-view-select';
 import { DeleteButton } from '@/shared/ui/adease';
 import { getTypeLabel } from '../_lib/labels';
@@ -20,7 +20,7 @@ type Props = {
 };
 
 export default function StatusHeader({ title, type, status, id }: Props) {
-	const { data: session } = useSession();
+	const { data: session } = authClient.useSession();
 	const pathname = usePathname();
 	const isMobile = useMediaQuery('(max-width: 768px)');
 	const [, setView] = useViewSelect();

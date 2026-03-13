@@ -15,9 +15,9 @@ import {
 	ThemeIcon,
 } from '@mantine/core';
 import { IconSchool } from '@tabler/icons-react';
-import { useSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
 import SemesterStatus from '@/app/registry/students/_components/academics/SemesterStatus';
+import { authClient } from '@/core/auth-client';
 import { useMediaQuery } from '@/shared/lib/hooks/use-media-query';
 import { getStatusColor } from '@/shared/lib/utils/colors';
 import { getAcademicRemarks } from '@/shared/lib/utils/grades';
@@ -34,7 +34,7 @@ type Props = {
 } & StackProps;
 
 export default function AcademicsView({ student, showMarks, ...props }: Props) {
-	const { data: session } = useSession();
+	const { data: session } = authClient.useSession();
 	const [openPrograms, setOpenPrograms] = useState<string[]>();
 	const [hoveredProgramId, setHoveredProgramId] = useState<string | null>(null);
 	const [hoveredSemesterId, setHoveredSemesterId] = useState<string | null>(

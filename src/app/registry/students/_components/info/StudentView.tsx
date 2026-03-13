@@ -16,7 +16,7 @@ import {
 } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { IconCopy } from '@tabler/icons-react';
-import { useSession } from 'next-auth/react';
+import { authClient } from '@/core/auth-client';
 import type { UserRole } from '@/core/database';
 import { getStatusColor } from '@/shared/lib/utils/colors';
 import { calculateAge, formatDate } from '@/shared/lib/utils/dates';
@@ -37,7 +37,7 @@ type Props = {
 };
 
 export default function StudentView({ student }: Props) {
-	const { data: session } = useSession();
+	const { data: session } = authClient.useSession();
 	if (!student) return null;
 
 	const activePrograms = student.programs?.filter((p) =>

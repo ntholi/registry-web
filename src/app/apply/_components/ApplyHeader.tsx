@@ -14,7 +14,8 @@ import {
 import { IconFileText, IconLogout } from '@tabler/icons-react';
 import NextImage from 'next/image';
 import Link from 'next/link';
-import { signOut, useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
+import { authClient } from '@/core/auth-client';
 import { useApplicant } from '../_lib/useApplicant';
 
 type Props = {
@@ -25,10 +26,11 @@ export default function ApplyHeader({ redirectIfRestricted = true }: Props) {
 	const { applicant } = useApplicant({ redirectIfRestricted });
 	const applicantId = applicant?.id;
 	const { colorScheme } = useMantineColorScheme();
+	const router = useRouter();
 	const isDark = colorScheme === 'dark';
-	const { data: session, status } = useSession();
+	const { data: session, isPending } = authClient.useSession();
 
-	const isAuthenticated = status === 'authenticated' && session?.user;
+	const isAuthenticated = !isPending && !!session?.user;
 	const user = session?.user;
 	const name = user?.name ?? 'User';
 	const initials = name
@@ -124,7 +126,13 @@ export default function ApplyHeader({ redirectIfRestricted = true }: Props) {
 								<Menu.Item
 									leftSection={<IconLogout size={14} />}
 									color='red'
-									onClick={() => signOut({ callbackUrl: '/' })}
+									onClick={() =>
+										authClient.signOut({
+											fetchOptions: {
+												onSuccess: () => router.push('/'),
+											},
+										})
+									}
 								>
 									Sign Out
 								</Menu.Item>

@@ -8,8 +8,8 @@ import {
 } from '@registry/print/transcript';
 import { IconPrinter } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
-import { useSession } from 'next-auth/react';
 import { useState } from 'react';
+import { authClient } from '@/core/auth-client';
 import { getPublishedAcademicHistory } from '../../../_server/actions';
 import TranscriptPDF from './TranscriptPDF';
 
@@ -20,7 +20,7 @@ type Props = {
 
 export default function TranscriptPrinter({ stdNo, disabled }: Props) {
 	const [isGenerating, setIsGenerating] = useState(false);
-	const { data: session } = useSession();
+	const { data: session } = authClient.useSession();
 
 	const { data: student } = useQuery({
 		queryKey: ['student', stdNo, 'published'],
