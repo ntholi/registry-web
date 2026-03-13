@@ -1,8 +1,18 @@
+import type { Session } from '@/core/auth';
+import { hasSessionPermission } from '@/core/auth/sessionPermissions';
 import type { intakePeriods } from '@/core/database';
 import BaseService from '@/core/platform/BaseService';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
-import withAuth from '@/core/platform/withPermission';
+import withPermission from '@/core/platform/withPermission';
 import IntakePeriodRepository from './repository';
+
+function canReadIntakePeriods(session: Session | null | undefined) {
+	return (
+		hasSessionPermission(session, 'intake-periods', 'read') ||
+		session?.user?.role === 'applicant' ||
+		session?.user?.role === 'user'
+	);
+}
 
 class IntakePeriodService extends BaseService<typeof intakePeriods, 'id'> {
 	private repo: IntakePeriodRepository;
@@ -10,11 +20,11 @@ class IntakePeriodService extends BaseService<typeof intakePeriods, 'id'> {
 	constructor() {
 		const repo = new IntakePeriodRepository();
 		super(repo, {
-			byIdRoles: ['registry', 'marketing', 'admin'],
-			findAllRoles: ['registry', 'marketing', 'admin'],
-			createRoles: ['registry', 'marketing', 'admin'],
-			updateRoles: ['registry', 'marketing', 'admin'],
-			deleteRoles: ['registry', 'marketing', 'admin'],
+			byIdAuth: { 'intake-periods': ['read'] },
+			findAllAuth: { 'intake-periods': ['read'] },
+			createAuth: { 'intake-periods': ['create'] },
+			updateAuth: { 'intake-periods': ['update'] },
+			deleteAuth: { 'intake-periods': ['delete'] },
 			activityTypes: {
 				create: 'intake_period_created',
 				update: 'intake_period_updated',
@@ -25,46 +35,43 @@ class IntakePeriodService extends BaseService<typeof intakePeriods, 'id'> {
 	}
 
 	async findActive() {
-		return withAuth(async () => this.repo.findActive(), ['all']);
+		return withPermission(async () => this.repo.findActive(), 'all');
 	}
 
 	async findAllActive() {
-		return withAuth(
-			async () => this.repo.findAllActive(),
-			['registry', 'marketing', 'admin']
-		);
+		return withPermission(async () => this.repo.findAllActive(), {
+			'intake-periods': ['read'],
+		});
 	}
 
 	async findWithPrograms(id: string) {
-		return withAuth(
-			async () => this.repo.findWithPrograms(id),
-			['registry', 'marketing', 'admin']
-		);
+		return withPermission(async () => this.repo.findWithPrograms(id), {
+			'intake-periods': ['read'],
+		});
 	}
 
 	async getProgramIds(intakePeriodId: string) {
-		return withAuth(
-			async () => this.repo.getProgramIds(intakePeriodId),
-			['registry', 'marketing', 'admin']
-		);
+		return withPermission(async () => this.repo.getProgramIds(intakePeriodId), {
+			'intake-periods': ['read'],
+		});
 	}
 
 	async setProgramIds(intakePeriodId: string, programIds: number[]) {
-		return withAuth(
+		return withPermission(
 			async () => this.repo.setProgramIds(intakePeriodId, programIds),
-			['registry', 'marketing', 'admin']
+			{ 'intake-periods': ['update'] }
 		);
 	}
 
 	async getOpenProgramIds(intakePeriodId: string) {
-		return withAuth(
+		return withPermission(
 			async () => this.repo.getOpenProgramIds(intakePeriodId),
-			['registry', 'marketing', 'admin', 'applicant']
+			async (session) => canReadIntakePeriods(session)
 		);
 	}
 
 	override async create(data: typeof intakePeriods.$inferInsert) {
-		return withAuth(
+		return withPermission(
 			async (session) => {
 				const overlap = await this.repo.findOverlapping(
 					data.startDate,
@@ -80,7 +87,7 @@ class IntakePeriodService extends BaseService<typeof intakePeriods, 'id'> {
 					this.buildAuditOptions(session, 'create')
 				);
 			},
-			['registry', 'marketing', 'admin']
+			{ 'intake-periods': ['create'] }
 		);
 	}
 
@@ -88,7 +95,7 @@ class IntakePeriodService extends BaseService<typeof intakePeriods, 'id'> {
 		id: string,
 		data: Partial<typeof intakePeriods.$inferInsert>
 	) {
-		return withAuth(
+		return withPermission(
 			async (session) => {
 				if (data.startDate && data.endDate) {
 					const overlap = await this.repo.findOverlapping(
@@ -108,12 +115,12 @@ class IntakePeriodService extends BaseService<typeof intakePeriods, 'id'> {
 					this.buildAuditOptions(session, 'update')
 				);
 			},
-			['registry', 'marketing', 'admin']
+			{ 'intake-periods': ['update'] }
 		);
 	}
 
 	override async delete(id: string) {
-		return withAuth(
+		return withPermission(
 			async (session) => {
 				const hasApps = await this.repo.hasApplications(id);
 				if (hasApps) {
@@ -123,7 +130,7 @@ class IntakePeriodService extends BaseService<typeof intakePeriods, 'id'> {
 				}
 				return this.repo.delete(id, this.buildAuditOptions(session, 'delete'));
 			},
-			['registry', 'marketing', 'admin']
+			{ 'intake-periods': ['delete'] }
 		);
 	}
 }

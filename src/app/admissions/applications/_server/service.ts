@@ -3,6 +3,8 @@ import type {
 	SubjectGradeRules,
 } from '@admissions/entry-requirements/_lib/types';
 import { eq } from 'drizzle-orm';
+import type { Session } from '@/core/auth';
+import { hasSessionPermission } from '@/core/auth/sessionPermissions';
 import {
 	type ApplicationStatus,
 	academicRecords,
@@ -12,10 +14,28 @@ import {
 } from '@/core/database';
 import BaseService from '@/core/platform/BaseService';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
-import withAuth from '@/core/platform/withPermission';
+import withPermission from '@/core/platform/withPermission';
 import { calculateAllScores } from '../_lib/scoring';
 import type { ApplicationFilters } from '../_lib/types';
 import ApplicationRepository from './repository';
+
+function canManageApplications(
+	session: Session | null | undefined,
+	action: 'read' | 'create' | 'update' | 'delete'
+) {
+	return hasSessionPermission(session, 'applications', action);
+}
+
+function isApplicantSession(session: Session | null | undefined) {
+	return session?.user?.role === 'applicant' || session?.user?.role === 'user';
+}
+
+async function canAccessApplicationSelfService(
+	session: Session | null | undefined,
+	action: 'read' | 'create' | 'update'
+) {
+	return canManageApplications(session, action) || isApplicantSession(session);
+}
 
 class ApplicationService extends BaseService<typeof applications, 'id'> {
 	private repo: ApplicationRepository;
@@ -23,11 +43,11 @@ class ApplicationService extends BaseService<typeof applications, 'id'> {
 	constructor() {
 		const repo = new ApplicationRepository();
 		super(repo, {
-			byIdRoles: ['registry', 'marketing', 'admin'],
-			findAllRoles: ['registry', 'marketing', 'admin'],
-			createRoles: ['registry', 'marketing', 'admin'],
-			updateRoles: ['registry', 'marketing', 'admin'],
-			deleteRoles: ['admin'],
+			byIdAuth: { applications: ['read'] },
+			findAllAuth: { applications: ['read'] },
+			createAuth: { applications: ['create'] },
+			updateAuth: { applications: ['update'] },
+			deleteAuth: { applications: ['delete'] },
 			activityTypes: {
 				create: 'application_submitted',
 				update: 'application_updated',
@@ -38,21 +58,20 @@ class ApplicationService extends BaseService<typeof applications, 'id'> {
 	}
 
 	override async get(id: string) {
-		return withAuth(
+		return withPermission(
 			async () => this.repo.findById(id),
-			['registry', 'marketing', 'admin', 'applicant']
+			async (session) => canAccessApplicationSelfService(session, 'read')
 		);
 	}
 
 	async search(page: number, search: string, filters?: ApplicationFilters) {
-		return withAuth(
-			async () => this.repo.search(page, search, filters),
-			['registry', 'marketing', 'admin']
-		);
+		return withPermission(async () => this.repo.search(page, search, filters), {
+			applications: ['read'],
+		});
 	}
 
 	override async create(data: typeof applications.$inferInsert) {
-		return withAuth(
+		return withPermission(
 			async (session) => {
 				const exists = await this.repo.existsForIntake(
 					data.applicantId,
@@ -109,12 +128,12 @@ class ApplicationService extends BaseService<typeof applications, 'id'> {
 
 				return application;
 			},
-			['registry', 'marketing', 'admin']
+			async (session) => canAccessApplicationSelfService(session, 'create')
 		);
 	}
 
 	async createOrUpdate(data: typeof applications.$inferInsert) {
-		return withAuth(
+		return withPermission(
 			async (session) => {
 				const existing = await this.repo.findByApplicantAndIntake(
 					data.applicantId,
@@ -178,7 +197,7 @@ class ApplicationService extends BaseService<typeof applications, 'id'> {
 
 				return application;
 			},
-			['registry', 'marketing', 'admin', 'applicant']
+			async (session) => canAccessApplicationSelfService(session, 'create')
 		);
 	}
 
@@ -188,7 +207,7 @@ class ApplicationService extends BaseService<typeof applications, 'id'> {
 		notes?: string,
 		rejectionReason?: string
 	) {
-		return withAuth(
+		return withPermission(
 			async (session) => {
 				const application = await this.repo.findById(applicationId);
 				if (!application) {
@@ -217,12 +236,12 @@ class ApplicationService extends BaseService<typeof applications, 'id'> {
 					activityType: 'application_status_changed',
 				});
 			},
-			['registry', 'marketing', 'admin', 'applicant']
+			async (session) => canAccessApplicationSelfService(session, 'update')
 		);
 	}
 
 	async addNote(applicationId: string, content: string) {
-		return withAuth(
+		return withPermission(
 			async (session) => {
 				return this.repo.addNote({
 					applicationId,
@@ -230,72 +249,75 @@ class ApplicationService extends BaseService<typeof applications, 'id'> {
 					createdBy: session?.user?.id,
 				});
 			},
-			['registry', 'marketing', 'admin']
+			{ applications: ['update'] }
 		);
 	}
 
 	async getNotes(applicationId: string) {
-		return withAuth(
-			async () => this.repo.getNotes(applicationId),
-			['registry', 'marketing', 'admin']
-		);
+		return withPermission(async () => this.repo.getNotes(applicationId), {
+			applications: ['read'],
+		});
 	}
 
 	async findByApplicant(applicantId: string) {
-		return withAuth(
+		return withPermission(
 			async () => this.repo.findByApplicant(applicantId),
-			['registry', 'marketing', 'admin', 'applicant']
+			async (session) => canAccessApplicationSelfService(session, 'read')
 		);
 	}
 
 	async countByStatus(status: ApplicationStatus) {
-		return withAuth(
-			async () => this.repo.countByStatus(status),
-			['registry', 'marketing', 'admin']
-		);
+		return withPermission(async () => this.repo.countByStatus(status), {
+			applications: ['read'],
+		});
 	}
 
 	async countPending() {
-		return withAuth(
-			async () => this.repo.countPending(),
-			['registry', 'marketing', 'admin']
-		);
+		return withPermission(async () => this.repo.countPending(), {
+			applications: ['read'],
+		});
 	}
 
 	async getForPayment(applicationId: string) {
-		return withAuth(
+		return withPermission(
 			async () => this.repo.findForPayment(applicationId),
-			['all']
+			async (session) => canAccessApplicationSelfService(session, 'read')
 		);
 	}
 
 	async recalculateScores(applicationId: string) {
-		return withAuth(async () => {
-			const application = await db.query.applications.findFirst({
-				where: eq(applications.id, applicationId),
-				columns: {
-					id: true,
-					applicantId: true,
-					firstChoiceProgramId: true,
-					secondChoiceProgramId: true,
-				},
-			});
-			if (!application) throw new Error('Application not found');
+		return withPermission(
+			async () => {
+				const application = await db.query.applications.findFirst({
+					where: eq(applications.id, applicationId),
+					columns: {
+						id: true,
+						applicantId: true,
+						firstChoiceProgramId: true,
+						secondChoiceProgramId: true,
+					},
+				});
+				if (!application) throw new Error('Application not found');
 
-			return this.computeAndUpsertScores(application);
-		}, ['registry', 'marketing', 'admin']);
+				return this.computeAndUpsertScores(application);
+			},
+			{ applications: ['update'] }
+		);
 	}
 
 	async recalculateScoresForApplicant(applicantId: string) {
-		return withAuth(async () => {
-			const apps = await this.repo.findApplicationIdsByApplicant(applicantId);
-			const results = [];
-			for (const app of apps) {
-				const result = await this.computeAndUpsertScores(app);
-				results.push(result);
-			}
-			return results;
-		}, ['registry', 'marketing', 'admin', 'applicant']);
+		return withPermission(
+			async () => {
+				const apps = await this.repo.findApplicationIdsByApplicant(applicantId);
+				const results = [];
+				for (const app of apps) {
+					const result = await this.computeAndUpsertScores(app);
+					results.push(result);
+				}
+				return results;
+			},
+			async (session) => canAccessApplicationSelfService(session, 'update')
+		);
 	}
 
 	private async computeAndUpsertScores(application: {

@@ -1,10 +1,20 @@
+import type { Session } from '@/core/auth';
+import { hasSessionPermission } from '@/core/auth/sessionPermissions';
 import type { entryRequirements } from '@/core/database';
 import BaseService from '@/core/platform/BaseService';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
-import withAuth from '@/core/platform/withPermission';
+import withPermission from '@/core/platform/withPermission';
 import EntryRequirementRepository, {
 	type EntryRequirementsFilter,
 } from './repository';
+
+function canReadEntryRequirements(session: Session | null | undefined) {
+	return (
+		hasSessionPermission(session, 'entry-requirements', 'read') ||
+		session?.user?.role === 'applicant' ||
+		session?.user?.role === 'user'
+	);
+}
 
 class EntryRequirementService extends BaseService<
 	typeof entryRequirements,
@@ -15,11 +25,11 @@ class EntryRequirementService extends BaseService<
 	constructor() {
 		const repo = new EntryRequirementRepository();
 		super(repo, {
-			byIdRoles: ['registry', 'marketing', 'admin'],
-			findAllRoles: ['registry', 'marketing', 'admin'],
-			createRoles: ['registry', 'marketing', 'admin'],
-			updateRoles: ['registry', 'marketing', 'admin'],
-			deleteRoles: ['registry', 'marketing', 'admin'],
+			byIdAuth: { 'entry-requirements': ['read'] },
+			findAllAuth: { 'entry-requirements': ['read'] },
+			createAuth: { 'entry-requirements': ['create'] },
+			updateAuth: { 'entry-requirements': ['update'] },
+			deleteAuth: { 'entry-requirements': ['delete'] },
 			activityTypes: {
 				create: 'entry_requirement_created',
 				update: 'entry_requirement_updated',
@@ -30,16 +40,16 @@ class EntryRequirementService extends BaseService<
 	}
 
 	override async get(id: string) {
-		return withAuth(
+		return withPermission(
 			async () => this.repo.findById(id),
-			['registry', 'marketing', 'admin', 'applicant']
+			async (session) => canReadEntryRequirements(session)
 		);
 	}
 
 	async findAllWithRelations(page: number, search: string) {
-		return withAuth(
+		return withPermission(
 			async () => this.repo.findAllWithRelations(page, search),
-			['registry', 'marketing', 'admin']
+			{ 'entry-requirements': ['read'] }
 		);
 	}
 
@@ -48,34 +58,33 @@ class EntryRequirementService extends BaseService<
 		search: string,
 		filter?: EntryRequirementsFilter
 	) {
-		return withAuth(
+		return withPermission(
 			async () => this.repo.findProgramsWithRequirements(page, search, filter),
-			['registry', 'marketing', 'admin']
+			{ 'entry-requirements': ['read'] }
 		);
 	}
 
 	async findByProgram(programId: number) {
-		return withAuth(
-			async () => this.repo.findByProgram(programId),
-			['registry', 'marketing', 'admin']
-		);
+		return withPermission(async () => this.repo.findByProgram(programId), {
+			'entry-requirements': ['read'],
+		});
 	}
 
 	async findByProgramAndCertificate(
 		programId: number,
 		certificateTypeId: string
 	) {
-		return withAuth(
+		return withPermission(
 			async () =>
 				this.repo.findByProgramAndCertificate(programId, certificateTypeId),
-			['registry', 'marketing', 'admin']
+			{ 'entry-requirements': ['read'] }
 		);
 	}
 
 	async findAllForEligibility() {
-		return withAuth(
+		return withPermission(
 			async () => this.repo.findAllForEligibility(),
-			['registry', 'marketing', 'admin', 'applicant']
+			async (session) => canReadEntryRequirements(session)
 		);
 	}
 
@@ -88,18 +97,21 @@ class EntryRequirementService extends BaseService<
 	}
 
 	override async create(data: typeof entryRequirements.$inferInsert) {
-		return withAuth(async () => {
-			const existing = await this.repo.findByProgramAndCertificate(
-				data.programId,
-				data.certificateTypeId
-			);
-			if (existing) {
-				throw new Error(
-					'DUPLICATE_ENTRY_REQUIREMENT: Entry requirement already exists for this program and certificate type'
+		return withPermission(
+			async () => {
+				const existing = await this.repo.findByProgramAndCertificate(
+					data.programId,
+					data.certificateTypeId
 				);
-			}
-			return this.repo.create(data);
-		}, ['registry', 'marketing', 'admin']);
+				if (existing) {
+					throw new Error(
+						'DUPLICATE_ENTRY_REQUIREMENT: Entry requirement already exists for this program and certificate type'
+					);
+				}
+				return this.repo.create(data);
+			},
+			{ 'entry-requirements': ['create'] }
+		);
 	}
 }
 

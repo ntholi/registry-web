@@ -1,8 +1,21 @@
+import type { Session } from '@/core/auth';
+import { hasSessionPermission } from '@/core/auth/sessionPermissions';
 import type { subjects } from '@/core/database';
 import BaseService from '@/core/platform/BaseService';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
-import withAuth from '@/core/platform/withPermission';
+import withPermission from '@/core/platform/withPermission';
 import SubjectRepository from './repository';
+
+function canManageSubjects(
+	session: Session | null | undefined,
+	action: 'read' | 'create' | 'update' | 'delete'
+) {
+	return hasSessionPermission(session, 'subjects', action);
+}
+
+function isApplicantSession(session: Session | null | undefined) {
+	return session?.user?.role === 'applicant' || session?.user?.role === 'user';
+}
 
 class SubjectService extends BaseService<typeof subjects, 'id'> {
 	private repo: SubjectRepository;
@@ -10,11 +23,11 @@ class SubjectService extends BaseService<typeof subjects, 'id'> {
 	constructor() {
 		const repo = new SubjectRepository();
 		super(repo, {
-			byIdRoles: ['registry', 'marketing', 'admin'],
-			findAllRoles: ['registry', 'marketing', 'admin'],
-			createRoles: ['registry', 'marketing', 'admin'],
-			updateRoles: ['registry', 'marketing', 'admin'],
-			deleteRoles: ['registry', 'marketing', 'admin'],
+			byIdAuth: { subjects: ['read'] },
+			findAllAuth: { subjects: ['read'] },
+			createAuth: { subjects: ['create'] },
+			updateAuth: { subjects: ['update'] },
+			deleteAuth: { subjects: ['delete'] },
 			activityTypes: {
 				create: 'subject_created',
 				update: 'subject_updated',
@@ -25,56 +38,54 @@ class SubjectService extends BaseService<typeof subjects, 'id'> {
 	}
 
 	async findOrCreateByName(name: string) {
-		return withAuth(
+		return withPermission(
 			async () => this.repo.findOrCreateByName(name),
-			['registry', 'marketing', 'admin', 'applicant']
+			async (session) =>
+				canManageSubjects(session, 'create') || isApplicantSession(session)
 		);
 	}
 
 	async findActive() {
-		return withAuth(
+		return withPermission(
 			async () => this.repo.findActive(),
-			['registry', 'marketing', 'admin', 'applicant']
+			async (session) =>
+				canManageSubjects(session, 'read') || isApplicantSession(session)
 		);
 	}
 
 	async toggleActive(id: string) {
-		return withAuth(
-			async () => this.repo.toggleActive(id),
-			['registry', 'marketing', 'admin']
-		);
+		return withPermission(async () => this.repo.toggleActive(id), {
+			subjects: ['update'],
+		});
 	}
 
 	async addAlias(subjectId: string, alias: string) {
-		return withAuth(
-			async () => this.repo.addAlias(subjectId, alias),
-			['registry', 'marketing', 'admin']
-		);
+		return withPermission(async () => this.repo.addAlias(subjectId, alias), {
+			subjects: ['update'],
+		});
 	}
 
 	async removeAlias(aliasId: string) {
-		return withAuth(
-			async () => this.repo.removeAlias(aliasId),
-			['registry', 'marketing', 'admin']
-		);
+		return withPermission(async () => this.repo.removeAlias(aliasId), {
+			subjects: ['update'],
+		});
 	}
 
 	async getAliases(subjectId: string) {
-		return withAuth(
-			async () => this.repo.getAliases(subjectId),
-			['registry', 'marketing', 'admin']
-		);
+		return withPermission(async () => this.repo.getAliases(subjectId), {
+			subjects: ['read'],
+		});
 	}
 
 	async moveToAlias(sourceId: string, targetId: string) {
-		return withAuth(
+		return withPermission(
 			async () => this.repo.moveToAlias(sourceId, targetId),
-			['registry', 'marketing', 'admin']
+			{ subjects: ['update'] }
 		);
 	}
 
 	override async delete(id: string) {
-		return withAuth(
+		return withPermission(
 			async (session) => {
 				const isInUse = await this.repo.isInUse(id);
 				if (isInUse) {
@@ -82,7 +93,7 @@ class SubjectService extends BaseService<typeof subjects, 'id'> {
 				}
 				return this.repo.delete(id, this.buildAuditOptions(session, 'delete'));
 			},
-			['registry', 'marketing', 'admin']
+			{ subjects: ['delete'] }
 		);
 	}
 }

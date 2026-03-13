@@ -1,5 +1,5 @@
 import { eq } from 'drizzle-orm';
-import { auth } from '@/core/auth';
+import type { Session } from '@/core/auth';
 import {
 	db,
 	graduationRequestReceipts,
@@ -8,7 +8,7 @@ import {
 } from '@/core/database';
 import BaseService from '@/core/platform/BaseService';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
-import withAuth from '@/core/platform/withPermission';
+import withPermission from '@/core/platform/withPermission';
 import PaymentReceiptRepository from './repository';
 
 type PaymentReceipt = typeof paymentReceipts.$inferInsert;
@@ -18,15 +18,19 @@ type PaymentReceiptData = {
 	receiptNo: string;
 };
 
+async function isStudentSession(session: Session | null | undefined) {
+	return session?.user?.role === 'student';
+}
+
 class PaymentReceiptService extends BaseService<typeof paymentReceipts, 'id'> {
 	constructor() {
 		super(new PaymentReceiptRepository(), {
-			byIdRoles: ['student'],
-			findAllRoles: ['student'],
-			createRoles: ['student'],
-			updateRoles: ['student'],
-			deleteRoles: ['student'],
-			countRoles: ['student'],
+			byIdAuth: isStudentSession,
+			findAllAuth: isStudentSession,
+			createAuth: isStudentSession,
+			updateAuth: isStudentSession,
+			deleteAuth: isStudentSession,
+			countAuth: isStudentSession,
 			activityTypes: {
 				create: 'payment_receipt_added',
 				delete: 'payment_receipt_removed',
@@ -35,18 +39,15 @@ class PaymentReceiptService extends BaseService<typeof paymentReceipts, 'id'> {
 	}
 
 	override async create(data: PaymentReceipt) {
-		return withAuth(
-			async (session) => {
-				const audit = this.buildAuditOptions(session, 'create');
-				if (audit && data.stdNo) audit.stdNo = data.stdNo;
-				return this.repository.create(data, audit);
-			},
-			['student'] as never
-		);
+		return withPermission(async (session) => {
+			const audit = this.buildAuditOptions(session, 'create');
+			if (audit && data.stdNo) audit.stdNo = data.stdNo;
+			return this.repository.create(data, audit);
+		}, isStudentSession);
 	}
 
 	async getByGraduationRequest(graduationRequestId: number) {
-		return withAuth(async () => {
+		return withPermission(async () => {
 			const links = await db.query.graduationRequestReceipts.findMany({
 				where: eq(
 					graduationRequestReceipts.graduationRequestId,
@@ -57,26 +58,23 @@ class PaymentReceiptService extends BaseService<typeof paymentReceipts, 'id'> {
 				},
 			});
 			return links.map((link) => link.receipt);
-		}, ['student']);
+		}, isStudentSession);
 	}
 
 	async createMany(data: PaymentReceipt[]) {
-		return withAuth(
-			async (session) => {
-				const results = [];
-				for (const receipt of data) {
-					results.push(
-						await this.repository.create(receipt, {
-							userId: session!.user!.id!,
-							role: session!.user!.role!,
-							stdNo: receipt.stdNo,
-						})
-					);
-				}
-				return results;
-			},
-			['student']
-		);
+		return withPermission(async (session) => {
+			const results = [];
+			for (const receipt of data) {
+				results.push(
+					await this.repository.create(receipt, {
+						userId: session!.user!.id!,
+						role: session!.user!.role!,
+						stdNo: receipt.stdNo,
+					})
+				);
+			}
+			return results;
+		}, isStudentSession);
 	}
 
 	async updateGraduationPaymentReceipts(
@@ -84,8 +82,7 @@ class PaymentReceiptService extends BaseService<typeof paymentReceipts, 'id'> {
 		receipts: PaymentReceiptData[],
 		stdNo: number
 	) {
-		return withAuth(async () => {
-			const session = await auth();
+		return withPermission(async (session) => {
 			if (!session?.user?.stdNo) {
 				throw new Error('User not authenticated');
 			}
@@ -142,15 +139,14 @@ class PaymentReceiptService extends BaseService<typeof paymentReceipts, 'id'> {
 
 				return { success: true };
 			});
-		}, ['student']);
+		}, isStudentSession);
 	}
 
 	async addPaymentReceipt(
 		graduationRequestId: number,
 		receipt: PaymentReceiptData
 	) {
-		return withAuth(async () => {
-			const session = await auth();
+		return withPermission(async (session) => {
 			if (!session?.user?.stdNo) {
 				throw new Error('User not authenticated');
 			}
@@ -186,12 +182,11 @@ class PaymentReceiptService extends BaseService<typeof paymentReceipts, 'id'> {
 
 				return newReceipt;
 			});
-		}, ['student']);
+		}, isStudentSession);
 	}
 
 	async removePaymentReceipt(receiptId: string) {
-		return withAuth(async () => {
-			const session = await auth();
+		return withPermission(async (session) => {
 			if (!session?.user?.stdNo) {
 				throw new Error('User not authenticated');
 			}
@@ -215,7 +210,7 @@ class PaymentReceiptService extends BaseService<typeof paymentReceipts, 'id'> {
 
 				return { success: true };
 			});
-		}, ['student']);
+		}, isStudentSession);
 	}
 }
 

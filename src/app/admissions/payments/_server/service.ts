@@ -1,3 +1,5 @@
+import type { Session } from '@/core/auth';
+import { hasSessionPermission } from '@/core/auth/sessionPermissions';
 import type { bankDeposits, DepositStatus } from '@/core/database';
 import {
 	generateClientReference,
@@ -7,11 +9,29 @@ import {
 } from '@/core/integrations/pay-lesotho';
 import BaseService from '@/core/platform/BaseService';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
-import withAuth from '@/core/platform/withPermission';
+import withPermission from '@/core/platform/withPermission';
 import type { DepositFilters } from '../_lib/types';
 import PaymentRepository from './repository';
 
-const ROLES = ['registry', 'marketing', 'admin', 'finance'] as const;
+function canManageAdmissionsPayments(
+	session: Session | null | undefined,
+	action: 'read' | 'create' | 'update' | 'delete'
+) {
+	return hasSessionPermission(session, 'admissions-payments', action);
+}
+
+function isApplicantSession(session: Session | null | undefined) {
+	return session?.user?.role === 'applicant' || session?.user?.role === 'user';
+}
+
+async function canAccessAdmissionsPaymentSelfService(
+	session: Session | null | undefined,
+	action: 'read' | 'create' | 'update'
+) {
+	return (
+		canManageAdmissionsPayments(session, action) || isApplicantSession(session)
+	);
+}
 
 class PaymentService extends BaseService<typeof bankDeposits, 'id'> {
 	private repo: PaymentRepository;
@@ -19,11 +39,11 @@ class PaymentService extends BaseService<typeof bankDeposits, 'id'> {
 	constructor() {
 		const repo = new PaymentRepository();
 		super(repo, {
-			byIdRoles: [...ROLES],
-			findAllRoles: [...ROLES],
-			createRoles: ['registry', 'marketing', 'admin', 'applicant'],
-			updateRoles: [...ROLES],
-			deleteRoles: ['admin'],
+			byIdAuth: { 'admissions-payments': ['read'] },
+			findAllAuth: { 'admissions-payments': ['read'] },
+			createAuth: { 'admissions-payments': ['create'] },
+			updateAuth: { 'admissions-payments': ['update'] },
+			deleteAuth: { 'admissions-payments': ['delete'] },
 			activityTypes: {
 				create: 'deposit_submitted',
 				update: 'deposit_verified',
@@ -34,13 +54,15 @@ class PaymentService extends BaseService<typeof bankDeposits, 'id'> {
 	}
 
 	async getBankDeposit(id: string) {
-		return withAuth(async () => this.repo.findBankDepositById(id), [...ROLES]);
+		return withPermission(async () => this.repo.findBankDepositById(id), {
+			'admissions-payments': ['read'],
+		});
 	}
 
 	async getBankDepositWithDocument(id: string) {
-		return withAuth(
+		return withPermission(
 			async () => this.repo.findBankDepositWithDocument(id),
-			[...ROLES]
+			{ 'admissions-payments': ['read'] }
 		);
 	}
 
@@ -49,33 +71,34 @@ class PaymentService extends BaseService<typeof bankDeposits, 'id'> {
 		search: string,
 		filters?: DepositFilters
 	) {
-		return withAuth(
+		return withPermission(
 			async (session) =>
 				this.repo.searchBankDeposits(page, search, filters, session?.user?.id),
-			[...ROLES]
+			{ 'admissions-payments': ['read'] }
 		);
 	}
 
 	async getBankDepositsByApplication(applicationId: string) {
-		return withAuth(
+		return withPermission(
 			async () => this.repo.findBankDepositsByApplication(applicationId),
-			[...ROLES, 'applicant']
+			async (session) => canAccessAdmissionsPaymentSelfService(session, 'read')
 		);
 	}
 
 	async createBankDeposit(data: typeof bankDeposits.$inferInsert) {
-		return withAuth(
+		return withPermission(
 			async (session) =>
 				this.repo.createBankDeposit(
 					data,
 					this.buildAuditOptions(session, 'create')
 				),
-			['registry', 'marketing', 'admin', 'applicant']
+			async (session) =>
+				canAccessAdmissionsPaymentSelfService(session, 'create')
 		);
 	}
 
 	async verifyBankDeposit(depositId: string, receiptNo: string) {
-		return withAuth(
+		return withPermission(
 			async (session) => {
 				const deposit = await this.repo.findBankDepositById(depositId);
 				if (!deposit) {
@@ -116,12 +139,12 @@ class PaymentService extends BaseService<typeof bankDeposits, 'id'> {
 
 				return { deposit, receipt };
 			},
-			[...ROLES]
+			{ 'admissions-payments': ['update'] }
 		);
 	}
 
 	async rejectBankDeposit(depositId: string, rejectionReason?: string) {
-		return withAuth(
+		return withPermission(
 			async (session) => {
 				const deposit = await this.repo.findBankDepositById(depositId);
 				if (!deposit) {
@@ -150,7 +173,7 @@ class PaymentService extends BaseService<typeof bankDeposits, 'id'> {
 
 				return { success: true };
 			},
-			[...ROLES]
+			{ 'admissions-payments': ['update'] }
 		);
 	}
 
@@ -159,7 +182,7 @@ class PaymentService extends BaseService<typeof bankDeposits, 'id'> {
 		status: DepositStatus,
 		rejectionReason?: string
 	) {
-		return withAuth(
+		return withPermission(
 			async (session) =>
 				this.repo.updateBankDepositStatus(
 					depositId,
@@ -167,47 +190,47 @@ class PaymentService extends BaseService<typeof bankDeposits, 'id'> {
 					rejectionReason,
 					this.buildAuditOptions(session, 'update')
 				),
-			[...ROLES]
+			{ 'admissions-payments': ['update'] }
 		);
 	}
 
 	async countBankDepositsByStatus(status: DepositStatus) {
-		return withAuth(
+		return withPermission(
 			async () => this.repo.countBankDepositsByStatus(status),
-			[...ROLES]
+			{ 'admissions-payments': ['read'] }
 		);
 	}
 
 	async acquireLock(depositId: string) {
-		return withAuth(
+		return withPermission(
 			async (session) => {
 				const userId = session?.user?.id;
 				if (!userId) return null;
 				return this.repo.acquireLock(depositId, userId);
 			},
-			[...ROLES]
+			{ 'admissions-payments': ['update'] }
 		);
 	}
 
 	async releaseLock(depositId: string) {
-		return withAuth(
+		return withPermission(
 			async (session) => {
 				const userId = session?.user?.id;
 				if (!userId) return null;
 				return this.repo.releaseLock(depositId, userId);
 			},
-			[...ROLES]
+			{ 'admissions-payments': ['update'] }
 		);
 	}
 
 	async releaseAllLocks() {
-		return withAuth(
+		return withPermission(
 			async (session) => {
 				const userId = session?.user?.id;
 				if (!userId) return;
 				return this.repo.releaseAllLocks(userId);
 			},
-			[...ROLES]
+			{ 'admissions-payments': ['update'] }
 		);
 	}
 
@@ -217,13 +240,13 @@ class PaymentService extends BaseService<typeof bankDeposits, 'id'> {
 			status?: DepositStatus;
 		}
 	) {
-		return withAuth(
+		return withPermission(
 			async (session) => {
 				const userId = session?.user?.id;
 				if (!userId) return null;
 				return this.repo.findNextUnlocked(currentId, userId, filters);
 			},
-			[...ROLES]
+			{ 'admissions-payments': ['read'] }
 		);
 	}
 
@@ -233,7 +256,7 @@ class PaymentService extends BaseService<typeof bankDeposits, 'id'> {
 		mobileNumber: string,
 		provider: 'mpesa' | 'ecocash'
 	) {
-		return withAuth(
+		return withPermission(
 			async (session) => {
 				const existing =
 					await this.repo.findPendingMobileDeposit(applicationId);
@@ -285,64 +308,72 @@ class PaymentService extends BaseService<typeof bankDeposits, 'id'> {
 
 				return { success: false, error: 'Unsupported payment provider' };
 			},
-			['applicant', 'registry', 'marketing', 'admin']
+			async (session) =>
+				canAccessAdmissionsPaymentSelfService(session, 'create')
 		);
 	}
 
 	async verifyMobilePayment(depositId: string) {
-		return withAuth(async () => {
-			const deposit = await this.repo.findMobileDepositById(depositId);
-			if (!deposit) {
-				return { success: false, error: 'Deposit not found', status: 'failed' };
-			}
-
-			if (deposit.status === 'verified') {
-				return { success: true, status: 'success' };
-			}
-
-			if (deposit.status === 'rejected') {
-				return { success: false, status: 'failed' };
-			}
-
-			if (!deposit.providerReference) {
-				return { success: false, status: 'pending' };
-			}
-
-			const response = await verifyTransaction(deposit.providerReference);
-
-			if (isPaymentSuccessful(response)) {
-				await this.repo.updateMobileDepositStatus(
-					depositId,
-					'verified',
-					response.transaction_id,
-					response as unknown as Record<string, unknown>
-				);
-
-				if (deposit.application?.id) {
-					await this.repo.updateApplicationPaymentStatus(
-						deposit.application.id,
-						'paid'
-					);
+		return withPermission(
+			async () => {
+				const deposit = await this.repo.findMobileDepositById(depositId);
+				if (!deposit) {
+					return {
+						success: false,
+						error: 'Deposit not found',
+						status: 'failed',
+					};
 				}
 
-				return { success: true, status: 'success' };
-			}
+				if (deposit.status === 'verified') {
+					return { success: true, status: 'success' };
+				}
 
-			return { success: false, status: 'pending' };
-		}, ['applicant', 'registry', 'marketing', 'admin']);
+				if (deposit.status === 'rejected') {
+					return { success: false, status: 'failed' };
+				}
+
+				if (!deposit.providerReference) {
+					return { success: false, status: 'pending' };
+				}
+
+				const response = await verifyTransaction(deposit.providerReference);
+
+				if (isPaymentSuccessful(response)) {
+					await this.repo.updateMobileDepositStatus(
+						depositId,
+						'verified',
+						response.transaction_id,
+						response as unknown as Record<string, unknown>
+					);
+
+					if (deposit.application?.id) {
+						await this.repo.updateApplicationPaymentStatus(
+							deposit.application.id,
+							'paid'
+						);
+					}
+
+					return { success: true, status: 'success' };
+				}
+
+				return { success: false, status: 'pending' };
+			},
+			async (session) => canAccessAdmissionsPaymentSelfService(session, 'read')
+		);
 	}
 
 	async getPendingMobileDeposit(applicationId: string) {
-		return withAuth(
+		return withPermission(
 			async () => this.repo.findPendingMobileDeposit(applicationId),
-			['applicant', 'registry', 'marketing', 'admin']
+			async (session) => canAccessAdmissionsPaymentSelfService(session, 'read')
 		);
 	}
 
 	async getMobileDepositsByApplication(applicationId: string) {
-		return withAuth(
+		return withPermission(
 			async () => this.repo.findMobileDepositsByApplication(applicationId),
-			['applicant', 'registry', 'marketing', 'admin', 'finance']
+			async (session) => canAccessAdmissionsPaymentSelfService(session, 'read')
 		);
 	}
 }

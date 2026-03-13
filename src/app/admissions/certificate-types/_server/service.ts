@@ -1,13 +1,23 @@
+import type { Session } from '@/core/auth';
+import { hasSessionPermission } from '@/core/auth/sessionPermissions';
 import type { certificateTypes, gradeMappings } from '@/core/database';
 import BaseService from '@/core/platform/BaseService';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
-import withAuth from '@/core/platform/withPermission';
+import withPermission from '@/core/platform/withPermission';
 import CertificateTypeRepository from './repository';
 
 type GradeMapping = {
 	originalGrade: string;
 	standardGrade: (typeof gradeMappings.$inferInsert)['standardGrade'];
 };
+
+function canReadCertificateTypes(session: Session | null | undefined) {
+	return (
+		hasSessionPermission(session, 'certificate-types', 'read') ||
+		session?.user?.role === 'applicant' ||
+		session?.user?.role === 'user'
+	);
+}
 
 class CertificateTypeService extends BaseService<
 	typeof certificateTypes,
@@ -18,11 +28,11 @@ class CertificateTypeService extends BaseService<
 	constructor() {
 		const repo = new CertificateTypeRepository();
 		super(repo, {
-			byIdRoles: ['registry', 'marketing', 'admin'],
-			findAllRoles: ['registry', 'marketing', 'admin'],
-			createRoles: ['registry', 'marketing', 'admin'],
-			updateRoles: ['registry', 'marketing', 'admin'],
-			deleteRoles: ['registry', 'marketing', 'admin'],
+			byIdAuth: { 'certificate-types': ['read'] },
+			findAllAuth: { 'certificate-types': ['read'] },
+			createAuth: { 'certificate-types': ['create'] },
+			updateAuth: { 'certificate-types': ['update'] },
+			deleteAuth: { 'certificate-types': ['delete'] },
 			activityTypes: {
 				create: 'certificate_type_created',
 				update: 'certificate_type_updated',
@@ -33,16 +43,16 @@ class CertificateTypeService extends BaseService<
 	}
 
 	override async get(id: string) {
-		return withAuth(
+		return withPermission(
 			async () => this.repo.findById(id),
-			['registry', 'marketing', 'admin', 'applicant']
+			async (session) => canReadCertificateTypes(session)
 		);
 	}
 
 	async search(page: number, search: string) {
-		return withAuth(
+		return withPermission(
 			async () => this.repo.search(page, search),
-			['registry', 'marketing', 'admin', 'applicant']
+			async (session) => canReadCertificateTypes(session)
 		);
 	}
 
@@ -50,7 +60,7 @@ class CertificateTypeService extends BaseService<
 		data: typeof certificateTypes.$inferInsert,
 		mappings?: GradeMapping[]
 	) {
-		return withAuth(
+		return withPermission(
 			async (session) => {
 				if (data.lqfLevel < 4) {
 					throw new Error('INVALID_LQF_LEVEL: LQF level must be 4 or higher');
@@ -62,7 +72,7 @@ class CertificateTypeService extends BaseService<
 					this.buildAuditOptions(session, 'create')
 				);
 			},
-			['registry', 'marketing', 'admin']
+			{ 'certificate-types': ['create'] }
 		);
 	}
 
@@ -75,7 +85,7 @@ class CertificateTypeService extends BaseService<
 		data: Partial<typeof certificateTypes.$inferInsert>,
 		mappings?: GradeMapping[]
 	) {
-		return withAuth(
+		return withPermission(
 			async (session) => {
 				if (data.lqfLevel !== undefined && data.lqfLevel < 4) {
 					throw new Error('INVALID_LQF_LEVEL: LQF level must be 4 or higher');
@@ -88,12 +98,12 @@ class CertificateTypeService extends BaseService<
 					this.buildAuditOptions(session, 'update')
 				);
 			},
-			['registry', 'marketing', 'admin']
+			{ 'certificate-types': ['update'] }
 		);
 	}
 
 	override async delete(id: string) {
-		return withAuth(
+		return withPermission(
 			async (session) => {
 				const isInUse = await this.repo.isInUse(id);
 				if (isInUse) {
@@ -104,21 +114,20 @@ class CertificateTypeService extends BaseService<
 
 				return this.repo.delete(id, this.buildAuditOptions(session, 'delete'));
 			},
-			['registry', 'marketing', 'admin']
+			{ 'certificate-types': ['delete'] }
 		);
 	}
 
 	async isInUse(id: string) {
-		return withAuth(
-			async () => this.repo.isInUse(id),
-			['registry', 'marketing', 'admin']
-		);
+		return withPermission(async () => this.repo.isInUse(id), {
+			'certificate-types': ['read'],
+		});
 	}
 
 	async mapGrade(certificateTypeId: string, originalGrade: string) {
-		return withAuth(
+		return withPermission(
 			async () => this.repo.mapGrade(certificateTypeId, originalGrade),
-			['registry', 'marketing', 'admin']
+			async (session) => canReadCertificateTypes(session)
 		);
 	}
 }

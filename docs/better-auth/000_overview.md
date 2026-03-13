@@ -24,7 +24,7 @@ This file is the **authoritative** reference for the entire Better Auth migratio
 | 10 | Academic Services — Part 2 | `010_phase-10-academic-services-part-2.md` | `DONE` | `2026-03-13` | Migrated feedback categories, cycles, reports, and lecturers; fixed lecturer search to enforce `lecturers:read` with school scoping; removed remaining academic `withAuth` service aliases |
 | 11 | Registry Services | `011_phase-11-registry-services.md` | `DONE` | `2026-03-13` | Migrated the six phase 11 registry services to permission-based auth; student/self-service paths kept transitional custom checks where Phase 17 still owns the portal flow |
 | 12 | Admin Services | `012_phase-12-admin-services.md` | `DONE` | `2026-03-13` | Migrated users, tasks, activity tracker, and notifications to permission-based auth; reports nav now reads session permissions directly |
-| 13 | Admissions & Finance Services | `013_phase-13-admissions-and-finance-services.md` | `PENDING` | — | |
+| 13 | Admissions & Finance Services | `013_phase-13-admissions-and-finance-services.md` | `DONE` | `2026-03-13` | Migrated targeted admissions and finance services to `*Auth` permission checks with applicant and student self-service fallbacks where presets do not apply |
 | 14 | Timetable, Library & Standalone Actions | `014_phase-14-timetable-library-and-standalone-actions.md` | `PENDING` | — | |
 | 15 | Client Session Migration | `015_phase-15-client-session-migration.md` | `PENDING` | — | |
 | 16 | Server Components, Sign-In & Permissions | `016_phase-16-server-components-and-sign-in.md` | `PENDING` | — | |

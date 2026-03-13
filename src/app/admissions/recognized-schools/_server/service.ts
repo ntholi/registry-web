@@ -1,8 +1,18 @@
+import type { Session } from '@/core/auth';
+import { hasSessionPermission } from '@/core/auth/sessionPermissions';
 import type { recognizedSchools } from '@/core/database';
 import BaseService from '@/core/platform/BaseService';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
-import withAuth from '@/core/platform/withPermission';
+import withPermission from '@/core/platform/withPermission';
 import RecognizedSchoolRepository from './repository';
+
+function canReadRecognizedSchools(session: Session | null | undefined) {
+	return (
+		hasSessionPermission(session, 'recognized-schools', 'read') ||
+		session?.user?.role === 'applicant' ||
+		session?.user?.role === 'user'
+	);
+}
 
 class RecognizedSchoolService extends BaseService<
 	typeof recognizedSchools,
@@ -13,11 +23,11 @@ class RecognizedSchoolService extends BaseService<
 	constructor() {
 		const repo = new RecognizedSchoolRepository();
 		super(repo, {
-			byIdRoles: ['registry', 'marketing', 'admin'],
-			findAllRoles: ['registry', 'marketing', 'admin'],
-			createRoles: ['registry', 'marketing', 'admin'],
-			updateRoles: ['registry', 'marketing', 'admin'],
-			deleteRoles: ['registry', 'marketing', 'admin'],
+			byIdAuth: { 'recognized-schools': ['read'] },
+			findAllAuth: { 'recognized-schools': ['read'] },
+			createAuth: { 'recognized-schools': ['create'] },
+			updateAuth: { 'recognized-schools': ['update'] },
+			deleteAuth: { 'recognized-schools': ['delete'] },
 			activityTypes: {
 				create: 'recognized_school_added',
 				update: 'recognized_school_updated',
@@ -28,9 +38,9 @@ class RecognizedSchoolService extends BaseService<
 	}
 
 	async findAllForEligibility() {
-		return withAuth(
+		return withPermission(
 			async () => this.repo.findAllActive(),
-			['registry', 'marketing', 'admin', 'applicant']
+			async (session) => canReadRecognizedSchools(session)
 		);
 	}
 }
