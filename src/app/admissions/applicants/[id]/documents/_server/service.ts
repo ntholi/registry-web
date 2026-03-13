@@ -12,13 +12,6 @@ import ApplicantDocumentRepository from './repository';
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 
-function canAccessApplicantDocuments(
-	session: Parameters<typeof hasApplicantResourceAccess>[0],
-	action: 'read' | 'create' | 'update' | 'delete'
-) {
-	return hasApplicantResourceAccess(session, 'admissions-documents', action);
-}
-
 class ApplicantDocumentService extends BaseService<
 	typeof applicantDocuments,
 	'id'
@@ -45,14 +38,16 @@ class ApplicantDocumentService extends BaseService<
 	async findByApplicant(applicantId: string, page = 1) {
 		return withPermission(
 			async () => this.repo.findByApplicant(applicantId, page),
-			async (session) => canAccessApplicantDocuments(session, 'read')
+			async (session) =>
+				hasApplicantResourceAccess(session, 'admissions-documents', 'read')
 		);
 	}
 
 	async findByType(applicantId: string, type: DocumentType) {
 		return withPermission(
 			async () => this.repo.findByType(applicantId, type),
-			async (session) => canAccessApplicantDocuments(session, 'read')
+			async (session) =>
+				hasApplicantResourceAccess(session, 'admissions-documents', 'read')
 		);
 	}
 
@@ -72,7 +67,8 @@ class ApplicantDocumentService extends BaseService<
 					this.buildAuditOptions(session, 'create')
 				);
 			},
-			async (session) => canAccessApplicantDocuments(session, 'create')
+			async (session) =>
+				hasApplicantResourceAccess(session, 'admissions-documents', 'create')
 		);
 	}
 
@@ -93,7 +89,8 @@ class ApplicantDocumentService extends BaseService<
 					this.buildAuditOptions(session, 'update')
 				);
 			},
-			async (session) => canAccessApplicantDocuments(session, 'update')
+			async (session) =>
+				hasApplicantResourceAccess(session, 'admissions-documents', 'update')
 		);
 	}
 
@@ -105,7 +102,8 @@ class ApplicantDocumentService extends BaseService<
 					role: session!.user!.role!,
 					activityType: 'applicant_document_deleted',
 				}),
-			async (session) => canAccessApplicantDocuments(session, 'delete')
+			async (session) =>
+				hasApplicantResourceAccess(session, 'admissions-documents', 'delete')
 		);
 	}
 }

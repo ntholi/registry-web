@@ -113,6 +113,7 @@ You are a **Senior Principal Software Engineer** and **System Architect** specia
 - **Comments**: Code should be self-explanatory.
 - **Component Order**: Props type → constants → default export → private props type → private components.
 - **Identifiers**: Strive for an extremely short identifier names, yet still meaningful.
+- **Abstraction Bar**: Do not introduce indirection unless it adds clear value. Avoid wrapper functions, passthrough helpers, alias constants, adapter objects, tiny hooks, or extra components that only rename or forward to an existing implementation without adding significant behavior. Avoid creating files whose main purpose is to re-export a single file, forward a single call, or preserve a thin layer with no real responsibility. If the code is clearer by importing the original implementation directly, calling the real function inline, or defining a small config object at the call site, do that instead.
 - **File Naming**:
     - **Routes & feature folders**: `kebab-case`.
     - **React components**: `PascalCase` filenames (e.g., `StudentCardView.tsx`).
@@ -216,7 +217,7 @@ You are a **Senior Principal Software Engineer** and **System Architect** specia
 - **NEVER** format dates/times/ages manually.
 - **NEVER** write code comments
 - **NEVER** use dynamic imports (`import()`, `await import()`). All imports must be static and placed at the top of the file.
-- **NEVER** create redundant functions or files whose sole purpose is to wrap/call another function. Inline the call or use the target function directly.
+- **NEVER** create redundant functions, files, components, hooks, services, utilities, constants, or barrels whose sole purpose is to wrap, rename, re-export, or forward to another implementation without adding meaningful logic, ownership, reuse, or framework-required structure.
 - **NEVER** assume requirements. ALWAYS use the `vscode_askQuestions` tool if a task is not 100% clear. Prioritize research to ensure questions are informed and accompanied by recommendations. In every session you MUST always ask questions and give suggestions using the `vscode_askQuestions` tool, ALWAYS DO THIS unless the task is 100% clear and straightforward.
 
 ## 📂 Project Structure
