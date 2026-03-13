@@ -128,10 +128,17 @@ class StudentStatusService extends BaseService<typeof studentStatuses, 'id'> {
 						throw new Error('Student is not eligible for reinstatement');
 				}
 
-				const approvalRoles: StudentStatusApprovalRole[] =
-					data.type === 'reinstatement'
-						? ['program_leader', 'finance']
-						: ['year_leader', 'program_leader', 'student_services', 'finance'];
+				const approvalRoles: StudentStatusApprovalRole[] = [];
+				if (data.type === 'reinstatement') {
+					approvalRoles.push('program_leader', 'finance');
+				} else {
+					approvalRoles.push(
+						'year_leader',
+						'program_leader',
+						'student_services',
+						'finance'
+					);
+				}
 
 				const baseAudit = this.buildAuditOptions(session, 'create');
 				const audit: AuditOptions = {

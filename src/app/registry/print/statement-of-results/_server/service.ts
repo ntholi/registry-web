@@ -19,12 +19,12 @@ class StatementOfResultsPrintsService {
 					activityType: 'statement_of_results_print',
 					stdNo: data.stdNo,
 				}),
-			['dashboard']
+			'dashboard'
 		);
 	}
 
 	async get(id: string) {
-		return withPermission(async () => this.repository.findById(id), ['all']);
+		return withPermission(async () => this.repository.findById(id), 'all');
 	}
 }
 

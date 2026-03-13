@@ -1,4 +1,5 @@
 import type { DashboardRole } from '@/core/auth/permissions';
+import { hasPermission } from '@/core/auth/sessionPermissions';
 import type { blockedStudents } from '@/core/database';
 import type { QueryOptions } from '@/core/platform/BaseRepository';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
@@ -13,21 +14,26 @@ class BlockedStudentService {
 	async get(id: number) {
 		return withPermission(
 			async () => this.repository.findById(id),
-			['finance']
+			async (session) =>
+				hasPermission(session, 'blocked-students', 'read') ||
+				session?.user?.role === 'finance'
 		);
 	}
 
 	async getByStdNo(stdNo: number, status: 'blocked' | 'unblocked' = 'blocked') {
 		return withPermission(
 			async () => this.repository.findByStdNo(stdNo, status),
-			['all']
+			'all'
 		);
 	}
 
 	async getAll(params: QueryOptions<typeof blockedStudents>) {
 		return withPermission(
 			async () => this.repository.query(params),
-			['finance', 'registry']
+			async (session) =>
+				hasPermission(session, 'blocked-students', 'read') ||
+				session?.user?.role === 'finance' ||
+				session?.user?.role === 'registry'
 		);
 	}
 
@@ -48,7 +54,11 @@ class BlockedStudentService {
 					}
 				);
 			},
-			['finance', 'registry', 'library']
+			async (session) =>
+				hasPermission(session, 'blocked-students', 'create') ||
+				session?.user?.role === 'finance' ||
+				session?.user?.role === 'registry' ||
+				session?.user?.role === 'library'
 		);
 	}
 
@@ -83,8 +93,11 @@ class BlockedStudentService {
 				if (data.status === 'unblocked') {
 					return session.user?.role === blockedBy;
 				}
-				return ['finance', 'registry', 'library'].includes(
-					session.user?.role ?? ''
+				return (
+					hasPermission(session, 'blocked-students', 'update') ||
+					session.user?.role === 'finance' ||
+					session.user?.role === 'registry' ||
+					session.user?.role === 'library'
 				);
 			}
 		);
@@ -100,7 +113,12 @@ class BlockedStudentService {
 					activityType: 'student_unblocked',
 					stdNo: existing?.stdNo,
 				}),
-			['admin', 'finance', 'registry', 'library']
+			async (session) =>
+				hasPermission(session, 'blocked-students', 'delete') ||
+				session?.user?.role === 'admin' ||
+				session?.user?.role === 'finance' ||
+				session?.user?.role === 'registry' ||
+				session?.user?.role === 'library'
 		);
 	}
 
@@ -136,7 +154,11 @@ class BlockedStudentService {
 					skipped: blockedSet.size,
 				};
 			},
-			['finance', 'registry', 'admin']
+			async (session) =>
+				hasPermission(session, 'blocked-students', 'create') ||
+				session?.user?.role === 'finance' ||
+				session?.user?.role === 'registry' ||
+				session?.user?.role === 'admin'
 		);
 	}
 }

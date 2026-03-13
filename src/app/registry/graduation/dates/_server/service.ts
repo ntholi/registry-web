@@ -1,3 +1,4 @@
+import { hasPermission } from '@/core/auth/sessionPermissions';
 import type { graduationDates } from '@/core/database';
 import BaseService from '@/core/platform/BaseService';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
@@ -7,7 +8,16 @@ import GraduationRepository from './repository';
 class GraduationService extends BaseService<typeof graduationDates, 'id'> {
 	constructor() {
 		super(new GraduationRepository(), {
-			findAllRoles: ['dashboard'],
+			findAllAuth: 'dashboard',
+			createAuth: async (session) =>
+				hasPermission(session, 'graduation', 'create') ||
+				session?.user?.role === 'registry',
+			updateAuth: async (session) =>
+				hasPermission(session, 'graduation', 'update') ||
+				session?.user?.role === 'registry',
+			deleteAuth: async (session) =>
+				hasPermission(session, 'graduation', 'delete') ||
+				session?.user?.role === 'registry',
 			activityTypes: {
 				create: 'graduation_date_created',
 				update: 'graduation_date_updated',
@@ -18,28 +28,28 @@ class GraduationService extends BaseService<typeof graduationDates, 'id'> {
 	async getWithTerm(id: number) {
 		return withPermission(
 			async () => (this.repository as GraduationRepository).findById(id),
-			['dashboard']
+			'dashboard'
 		);
 	}
 
 	async getByDateWithTerm(date: string) {
 		return withPermission(
 			async () => (this.repository as GraduationRepository).findByDate(date),
-			['dashboard']
+			'dashboard'
 		);
 	}
 
 	async getLatest() {
 		return withPermission(
 			async () => (this.repository as GraduationRepository).findLatest(),
-			['dashboard']
+			'dashboard'
 		);
 	}
 
 	async getAllGraduationDates() {
 		return withPermission(
 			async () => (this.repository as GraduationRepository).findAll(),
-			['dashboard']
+			'dashboard'
 		);
 	}
 
@@ -54,7 +64,9 @@ class GraduationService extends BaseService<typeof graduationDates, 'id'> {
 				});
 				return graduation;
 			},
-			['registry', 'admin']
+			async (session) =>
+				hasPermission(session, 'graduation', 'delete') ||
+				session?.user?.role === 'registry'
 		);
 	}
 }

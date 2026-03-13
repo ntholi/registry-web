@@ -11,15 +11,22 @@ export class DistributionReportService {
 		termIds: number[],
 		filter?: DistributionReportFilter
 	) {
-		return withPermission(async () => {
-			const terms = await this.repository.getTermsByIds(termIds);
-			if (!terms || terms.length === 0) {
-				throw new Error('Terms not found');
-			}
+		return withPermission(
+			async () => {
+				const terms = await this.repository.getTermsByIds(termIds);
+				if (!terms || terms.length === 0) {
+					throw new Error('Terms not found');
+				}
 
-			const termCodes = terms.map((t) => t.code);
-			return await this.repository.getDistributionData(type, termCodes, filter);
-		}, ['registry', 'admin', 'finance', 'academic', 'leap']);
+				const termCodes = terms.map((t) => t.code);
+				return await this.repository.getDistributionData(
+					type,
+					termCodes,
+					filter
+				);
+			},
+			{ 'reports-distribution': ['read'] }
+		);
 	}
 }
 

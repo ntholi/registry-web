@@ -1,4 +1,9 @@
 import type { Grade } from '@registry/_database';
+import { DASHBOARD_ROLES } from '@/core/auth/permissions';
+import {
+	hasSessionRole,
+	isStudentSession,
+} from '@/core/auth/sessionPermissions';
 import type { semesterModules } from '@/core/database';
 import type { QueryOptions } from '@/core/platform/BaseRepository';
 import BaseService from '@/core/platform/BaseService';
@@ -104,7 +109,8 @@ class SemesterModuleService extends BaseService<typeof semesterModules, 'id'> {
 				(this.repository as ModuleRepository).getModulesForStructure(
 					structureId
 				),
-			['dashboard', 'student']
+			async (session) =>
+				isStudentSession(session) || hasSessionRole(session, DASHBOARD_ROLES)
 		);
 	}
 

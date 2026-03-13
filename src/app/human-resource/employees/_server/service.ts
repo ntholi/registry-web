@@ -18,10 +18,9 @@ class EmployeeService {
 	}
 
 	async get(empNo: string) {
-		return withPermission(
-			async () => this.repository.findByEmpNo(empNo),
-			['human_resource', 'admin']
-		);
+		return withPermission(async () => this.repository.findByEmpNo(empNo), {
+			employees: ['read'],
+		});
 	}
 
 	async findAll(page = 1, search = '') {
@@ -33,7 +32,7 @@ class EmployeeService {
 					searchColumns: ['empNo', 'name'],
 					sort: [{ column: 'createdAt', order: 'desc' }],
 				}),
-			['human_resource', 'admin']
+			{ employees: ['read'] }
 		);
 	}
 
@@ -51,7 +50,7 @@ class EmployeeService {
 				}
 				return created;
 			},
-			['human_resource', 'admin']
+			{ employees: ['create'] }
 		);
 	}
 
@@ -69,7 +68,7 @@ class EmployeeService {
 				}
 				return updated;
 			},
-			['human_resource', 'admin']
+			{ employees: ['update'] }
 		);
 	}
 
@@ -81,7 +80,7 @@ class EmployeeService {
 					role: session!.user!.role!,
 					activityType: 'employee_delete',
 				}),
-			['admin']
+			{ employees: ['delete'] }
 		);
 	}
 
@@ -94,21 +93,21 @@ class EmployeeService {
 					activityType: 'employee_card_print',
 				});
 			},
-			['human_resource', 'admin']
+			{ employees: ['update'] }
 		);
 	}
 
 	async getCardPrintHistory(empNo: string) {
 		return withPermission(
 			async () => this.repository.findCardPrintHistory(empNo),
-			['human_resource', 'admin']
+			{ employees: ['read'] }
 		);
 	}
 
 	async getPhotoKey(empNo: string) {
 		return withPermission(
 			async () => this.repository.findPhotoKey(empNo),
-			['all']
+			'all'
 		);
 	}
 
@@ -130,7 +129,7 @@ class EmployeeService {
 					activityType: 'employee_update',
 				});
 			},
-			['human_resource', 'admin']
+			{ employees: ['update'] }
 		);
 	}
 }

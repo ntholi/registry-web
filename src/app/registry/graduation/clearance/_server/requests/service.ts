@@ -15,6 +15,7 @@ type CreateGraduationRequestData = GraduationRequest & {
 	paymentReceipts: PaymentReceiptData[];
 	stdNo: number;
 };
+const adminOnly = async () => false;
 
 class GraduationRequestService {
 	constructor(
@@ -22,52 +23,60 @@ class GraduationRequestService {
 	) {}
 
 	async first() {
-		return withPermission(async () => this.repository.findFirst(), []);
+		return withPermission(async () => this.repository.findFirst(), adminOnly);
 	}
 
 	async get(id: number) {
 		return withPermission(
 			async () => this.repository.findById(id),
-			['registry', 'finance', 'student']
+			async (session) =>
+				session?.user?.role === 'registry' ||
+				session?.user?.role === 'finance' ||
+				session?.user?.role === 'student'
 		);
 	}
 
 	async getByStudentNo(stdNo: number) {
 		return withPermission(
 			async () => this.repository.findByStudentNo(stdNo),
-			['student', 'registry']
+			async (session) =>
+				session?.user?.role === 'student' || session?.user?.role === 'registry'
 		);
 	}
 
 	async getByStudentProgramId(studentProgramId: number) {
 		return withPermission(
 			async () => this.repository.findByStudentProgramId(studentProgramId),
-			['student', 'admin', 'registry']
+			async (session) =>
+				session?.user?.role === 'student' ||
+				session?.user?.role === 'admin' ||
+				session?.user?.role === 'registry'
 		);
 	}
 
 	async getEligiblePrograms(stdNo: number) {
 		return withPermission(
 			async () => this.repository.getEligiblePrograms(stdNo),
-			['student']
+			async (session) => session?.user?.role === 'student'
 		);
 	}
 
 	async selectStudentProgramForGraduation(stdNo: number) {
 		return withPermission(
 			async () => this.repository.selectStudentProgramForGraduation(stdNo),
-			['student']
+			async (session) => session?.user?.role === 'student'
 		);
 	}
 
 	async getAll(params: QueryOptions<typeof graduationRequests>) {
-		return withPermission(async () => this.repository.query(params), []);
+		return withPermission(async () => this.repository.query(params), adminOnly);
 	}
 
 	async findAll(params: QueryOptions<typeof graduationRequests>) {
 		return withPermission(
 			async () => this.repository.findAllPaginated(params),
-			['registry', 'admin']
+			async (session) =>
+				session?.user?.role === 'registry' || session?.user?.role === 'admin'
 		);
 	}
 
@@ -79,7 +88,7 @@ class GraduationRequestService {
 					role: session!.user!.role!,
 					activityType: 'graduation_request_submitted',
 				}),
-			[]
+			adminOnly
 		);
 	}
 
@@ -101,7 +110,10 @@ class GraduationRequestService {
 					}
 				);
 			},
-			['student', 'registry', 'admin']
+			async (session) =>
+				session?.user?.role === 'student' ||
+				session?.user?.role === 'registry' ||
+				session?.user?.role === 'admin'
 		);
 	}
 
@@ -113,7 +125,7 @@ class GraduationRequestService {
 					role: session!.user!.role!,
 					activityType: 'graduation_request_updated',
 				}),
-			[]
+			adminOnly
 		);
 	}
 
@@ -125,19 +137,22 @@ class GraduationRequestService {
 					role: session!.user!.role!,
 					activityType: 'graduation_request_updated',
 				}),
-			[]
+			adminOnly
 		);
 	}
 
 	async count() {
-		return withPermission(async () => this.repository.count(), []);
+		return withPermission(async () => this.repository.count(), adminOnly);
 	}
 
 	async getClearanceData(graduationRequestId: number) {
 		return withPermission(
 			async () => this.repository.getClearanceData(graduationRequestId),
 			async (session) => {
-				if (['admin', 'registry'].includes(session.user?.role as string)) {
+				if (
+					session.user?.role === 'admin' ||
+					session.user?.role === 'registry'
+				) {
 					return true;
 				}
 				const graduationRequest =
@@ -150,7 +165,7 @@ class GraduationRequestService {
 	async countByStatus(status: 'pending' | 'approved' | 'rejected') {
 		return withPermission(
 			async () => this.repository.countByStatus(status),
-			['dashboard']
+			'dashboard'
 		);
 	}
 }

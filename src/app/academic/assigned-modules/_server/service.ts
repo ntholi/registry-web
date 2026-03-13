@@ -14,7 +14,7 @@ class AssignedModuleService {
 					role: session!.user!.role!,
 					activityType: 'module_unassigned',
 				}),
-			['academic', 'leap']
+			{ 'assigned-modules': ['delete'] }
 		);
 	}
 
@@ -38,27 +38,26 @@ class AssignedModuleService {
 					activityType: 'module_assigned',
 				});
 			},
-			['academic', 'leap']
+			{ 'assigned-modules': ['create'] }
 		);
 	}
 
 	async getByUserAndModule(userId: string, moduleId: number) {
 		return withPermission(
 			async () => this.repository.findByUserAndModule(userId, moduleId),
-			['academic', 'leap']
+			{ 'assigned-modules': ['read'] }
 		);
 	}
 	async getLecturersByModule(moduleId: number) {
-		return withPermission(
-			async () => this.repository.findByModule(moduleId),
-			['academic', 'leap']
-		);
+		return withPermission(async () => this.repository.findByModule(moduleId), {
+			'assigned-modules': ['read'],
+		});
 	}
 
 	async getByUser(userId: string, termId?: number) {
 		return withPermission(
 			async () => this.repository.findByUser(userId, termId),
-			['academic', 'leap']
+			{ 'assigned-modules': ['read'] }
 		);
 	}
 
@@ -79,14 +78,14 @@ class AssignedModuleService {
 	async checkAssignment(userId: string, semesterModuleId: number) {
 		return withPermission(
 			async () => this.repository.findByUserAndModule(userId, semesterModuleId),
-			['academic', 'leap']
+			{ 'assigned-modules': ['read'] }
 		);
 	}
 
 	async getByLmsCourseId(lmsCourseId: string) {
 		return withPermission(
 			async () => this.repository.findByLmsCourseId(lmsCourseId),
-			['dashboard']
+			'dashboard'
 		);
 	}
 
@@ -102,7 +101,7 @@ class AssignedModuleService {
 					semesterModuleId,
 					lmsCourseId
 				),
-			['dashboard']
+			'dashboard'
 		);
 	}
 }

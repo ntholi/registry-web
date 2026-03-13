@@ -1,5 +1,6 @@
 import { auth } from '@/core/auth';
 import type { DashboardRole } from '@/core/auth/permissions';
+import { hasPermission } from '@/core/auth/sessionPermissions';
 import type { autoApprovals } from '@/core/database';
 import type { QueryOptions } from '@/core/platform/BaseRepository';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
@@ -14,22 +15,31 @@ class AutoApprovalService {
 	async get(id: number) {
 		return withPermission(
 			async () => this.repository.findByIdWithRelations(id),
-			['finance', 'library', 'admin']
+			async (session) =>
+				hasPermission(session, 'auto-approvals', 'read') ||
+				session?.user?.role === 'finance' ||
+				session?.user?.role === 'library'
 		);
 	}
 
 	async findAll(params: QueryOptions<typeof autoApprovals>) {
-		return withPermission(async () => {
-			const session = await auth();
-			const role = session?.user?.role as DashboardRole | undefined;
-			const department =
-				role === 'admin'
-					? undefined
-					: ['finance', 'library'].includes(role ?? '')
-						? role
-						: undefined;
-			return this.repository.findAllPaginated(params, department);
-		}, ['finance', 'library', 'admin']);
+		return withPermission(
+			async () => {
+				const session = await auth();
+				const role = session?.user?.role as DashboardRole | undefined;
+				const department =
+					role === 'admin'
+						? undefined
+						: role === 'finance' || role === 'library'
+							? role
+							: undefined;
+				return this.repository.findAllPaginated(params, department);
+			},
+			async (session) =>
+				hasPermission(session, 'auto-approvals', 'read') ||
+				session?.user?.role === 'finance' ||
+				session?.user?.role === 'library'
+		);
 	}
 
 	async create(data: Rule) {
@@ -51,7 +61,10 @@ class AutoApprovalService {
 					}
 				);
 			},
-			['finance', 'library', 'admin']
+			async (session) =>
+				hasPermission(session, 'auto-approvals', 'create') ||
+				session?.user?.role === 'finance' ||
+				session?.user?.role === 'library'
 		);
 	}
 
@@ -71,7 +84,10 @@ class AutoApprovalService {
 					activityType: 'auto_approval_updated',
 				});
 			},
-			['finance', 'library', 'admin']
+			async (session) =>
+				hasPermission(session, 'auto-approvals', 'update') ||
+				session?.user?.role === 'finance' ||
+				session?.user?.role === 'library'
 		);
 	}
 
@@ -91,7 +107,10 @@ class AutoApprovalService {
 					activityType: 'auto_approval_deleted',
 				});
 			},
-			['finance', 'library', 'admin']
+			async (session) =>
+				hasPermission(session, 'auto-approvals', 'delete') ||
+				session?.user?.role === 'finance' ||
+				session?.user?.role === 'library'
 		);
 	}
 
@@ -108,7 +127,10 @@ class AutoApprovalService {
 				const role = session?.user?.role as DashboardRole;
 				const targetDept = role === 'admin' ? department : role;
 
-				if (!targetDept || !['finance', 'library'].includes(targetDept)) {
+				if (
+					!targetDept ||
+					(targetDept !== 'finance' && targetDept !== 'library')
+				) {
 					throw new Error('Invalid department for auto-approval rules');
 				}
 
@@ -142,7 +164,10 @@ class AutoApprovalService {
 					invalidTermCodes: invalidCount,
 				};
 			},
-			['finance', 'library', 'admin']
+			async (session) =>
+				hasPermission(session, 'auto-approvals', 'create') ||
+				session?.user?.role === 'finance' ||
+				session?.user?.role === 'library'
 		);
 	}
 }

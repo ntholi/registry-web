@@ -38,7 +38,7 @@ This file is the **authoritative** reference for the entire Better Auth migratio
 | 24a | Remove Auth.js Artifacts | `024a_phase-24-remove-authjs.md` | `DONE` | `2026-03-13` | Removed legacy Auth.js files/routes, switched `/api/auth` to Better Auth, and cleaned old `AUTH_*` runtime references |
 | 24b | Schema Cleanup & Verification | `024b_phase-24-schema-and-verification.md` | `DONE` | `2026-03-13` | Dropped `users.position`, removed legacy role enum exports/usages, added `proxy.ts`, and completed DB plus grep verification |
 | 24c | Integration Tests & Checklist | `024c_phase-24-testing.md` | `DONE` | `2026-03-13` | Added Better Auth Vitest coverage for route wiring, `withPermission`, session permission helpers, and preset session-revocation flows; targeted auth suites pass |
-| 24d | Migrate Legacy Services to Permission-Based Auth | `024d_phase-24-migrate-legacy-services.md` | `PENDING` | | Migrate 7 services from role-array configs to AuthRequirement; verify 7 mixed services |
+| 24d | Migrate Legacy Services to Permission-Based Auth | `024d_phase-24-migrate-legacy-services.md` | `DONE` | `2026-03-13` | Removed remaining service-layer role-array auth configs; migrated legacy checks to permission objects, literals, or explicit access functions |
 | 24e | Remove `legacyPosition` & Legacy Catalog | `024e_phase-24-remove-legacy-position.md` | `PENDING` | | Migrate approvalRoles & notifications to permissions, remove legacyPosition from session, clean catalog exports |
 | 24f | Core Platform Cleanup & Final Verification | `024f_phase-24-platform-cleanup.md` | `PENDING` | | Remove legacy role-arrays from withPermission/BaseService, migrate DetailsViewHeader role props, final grep & tsc validation |
 

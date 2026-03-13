@@ -1,3 +1,4 @@
+import { hasPermission } from '@/core/auth/sessionPermissions';
 import type { terms } from '@/core/database';
 import BaseService from '@/core/platform/BaseService';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
@@ -7,7 +8,13 @@ import TermRepository, { type TermInsert } from './repository';
 class TermService extends BaseService<typeof terms, 'id'> {
 	constructor() {
 		super(new TermRepository(), {
-			findAllRoles: ['dashboard'],
+			findAllAuth: 'dashboard',
+			createAuth: async (session) =>
+				hasPermission(session, 'terms-settings', 'update') ||
+				session?.user?.role === 'registry',
+			updateAuth: async (session) =>
+				hasPermission(session, 'terms-settings', 'update') ||
+				session?.user?.role === 'registry',
 			activityTypes: {
 				create: 'term_created',
 				update: 'term_updated',
@@ -18,14 +25,14 @@ class TermService extends BaseService<typeof terms, 'id'> {
 	async getByCode(code: string) {
 		return withPermission(
 			async () => (this.repository as TermRepository).getByCode(code),
-			['all']
+			'all'
 		);
 	}
 
 	async getActive() {
 		return withPermission(
 			async () => (this.repository as TermRepository).getActive(),
-			['all']
+			'all'
 		);
 	}
 
@@ -36,16 +43,23 @@ class TermService extends BaseService<typeof terms, 'id'> {
 					data,
 					session?.user?.id
 				),
-			[]
+			async (session) =>
+				hasPermission(session, 'terms-settings', 'update') ||
+				session?.user?.role === 'registry'
 		);
 	}
 
 	async deleteTerm(id: number) {
-		return withPermission(async () => {
-			const term = await this.repository.findById(id);
-			await this.repository.delete(id);
-			return term;
-		}, []);
+		return withPermission(
+			async () => {
+				const term = await this.repository.findById(id);
+				await this.repository.delete(id);
+				return term;
+			},
+			async (session) =>
+				hasPermission(session, 'terms-settings', 'update') ||
+				session?.user?.role === 'registry'
+		);
 	}
 }
 

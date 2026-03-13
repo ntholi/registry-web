@@ -7,6 +7,7 @@ import withPermission from '@/core/platform/withPermission';
 import GraduationClearanceRepository from './repository';
 
 type Clearance = typeof clearance.$inferInsert;
+const adminOnly = async () => false;
 
 class GraduationClearanceService {
 	constructor(
@@ -16,7 +17,7 @@ class GraduationClearanceService {
 	async get(id: number) {
 		return withPermission(
 			async () => this.repository.findByIdWithRelations(id),
-			['dashboard']
+			'dashboard'
 		);
 	}
 
@@ -43,77 +44,69 @@ class GraduationClearanceService {
 					status,
 					graduationDateId
 				),
-			['dashboard']
+			'dashboard'
 		);
 	}
 
 	async update(id: number, data: Clearance, stdNo?: number) {
-		return withPermission(
-			async (session) => {
-				const current = await this.repository.findById(id);
-				if (!current) throw new Error('Clearance not found');
+		return withPermission(async (session) => {
+			const current = await this.repository.findById(id);
+			if (!current) throw new Error('Clearance not found');
 
-				const audit = {
-					userId: session!.user!.id!,
-					role: session!.user!.role!,
-					activityType: 'graduation_clearance_decision' as const,
-					stdNo,
-				};
+			const audit = {
+				userId: session!.user!.id!,
+				role: session!.user!.role!,
+				activityType: 'graduation_clearance_decision' as const,
+				stdNo,
+			};
 
-				const shouldSetResponseTracking =
-					data.status &&
-					data.status !== current.status &&
-					!current.responseDate;
+			const shouldSetResponseTracking =
+				data.status && data.status !== current.status && !current.responseDate;
 
-				if (shouldSetResponseTracking) {
-					return this.repository.update(
-						id,
-						{
-							...data,
-							responseDate: new Date(),
-							respondedBy: session?.user?.id,
-						},
-						audit
-					);
-				}
-
-				return this.repository.update(id, data, audit);
-			},
-			['dashboard']
-		);
-	}
-
-	async respond(data: Clearance, stdNo?: number) {
-		return withPermission(
-			async (session) => {
-				if (!data.id) throw Error('Clearance id cannot be null/undefined');
+			if (shouldSetResponseTracking) {
 				return this.repository.update(
-					data.id,
+					id,
 					{
 						...data,
 						responseDate: new Date(),
 						respondedBy: session?.user?.id,
 					},
-					{
-						userId: session!.user!.id!,
-						role: session!.user!.role!,
-						activityType: 'graduation_clearance_decision',
-						stdNo,
-					}
+					audit
 				);
-			},
-			['dashboard']
-		);
+			}
+
+			return this.repository.update(id, data, audit);
+		}, 'dashboard');
+	}
+
+	async respond(data: Clearance, stdNo?: number) {
+		return withPermission(async (session) => {
+			if (!data.id) throw Error('Clearance id cannot be null/undefined');
+			return this.repository.update(
+				data.id,
+				{
+					...data,
+					responseDate: new Date(),
+					respondedBy: session?.user?.id,
+				},
+				{
+					userId: session!.user!.id!,
+					role: session!.user!.role!,
+					activityType: 'graduation_clearance_decision',
+					stdNo,
+				}
+			);
+		}, 'dashboard');
 	}
 
 	async delete(id: number) {
-		return withPermission(async () => this.repository.delete(id), []);
+		return withPermission(async () => this.repository.delete(id), adminOnly);
 	}
 
 	async getHistory(clearanceId: number) {
 		return withPermission(
 			async () => this.repository.findHistory(clearanceId),
-			['dashboard']
+			'dashboard'
 		);
 	}
 
@@ -125,7 +118,7 @@ class GraduationClearanceService {
 				stdNo,
 				session.user.role as DashboardRole
 			);
-		}, ['dashboard']);
+		}, 'dashboard');
 	}
 }
 

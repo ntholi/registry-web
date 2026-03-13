@@ -25,11 +25,11 @@ class StudentNotesService extends BaseService<typeof studentNotes, 'id'> {
 	constructor() {
 		const repo = new StudentNotesRepository();
 		super(repo, {
-			byIdRoles: ['dashboard'],
-			findAllRoles: ['dashboard'],
-			createRoles: ['dashboard'],
-			updateRoles: ['dashboard'],
-			deleteRoles: ['dashboard'],
+			byIdAuth: 'dashboard',
+			findAllAuth: 'dashboard',
+			createAuth: { 'student-notes': ['create'] },
+			updateAuth: { 'student-notes': ['update'] },
+			deleteAuth: { 'student-notes': ['delete'] },
 			activityTypes: {
 				create: 'student_note_created',
 				update: 'student_note_updated',
@@ -71,7 +71,7 @@ class StudentNotesService extends BaseService<typeof studentNotes, 'id'> {
 					requireSessionUserId(session),
 					this.requireRole(session)
 				),
-			['dashboard']
+			'dashboard'
 		);
 	}
 
@@ -84,15 +84,12 @@ class StudentNotesService extends BaseService<typeof studentNotes, 'id'> {
 					options.page ?? 1,
 					options.search
 				),
-			['dashboard']
+			'dashboard'
 		);
 	}
 
 	async getNoteById(id: string) {
-		return withPermission(
-			async () => this.repo.findNoteById(id),
-			['dashboard']
-		);
+		return withPermission(async () => this.repo.findNoteById(id), 'dashboard');
 	}
 
 	async createNote(stdNo: number, content: string, visibility: NoteVisibility) {
@@ -116,7 +113,7 @@ class StudentNotesService extends BaseService<typeof studentNotes, 'id'> {
 					}
 				);
 			},
-			['dashboard']
+			{ 'student-notes': ['create'] }
 		);
 	}
 
@@ -142,7 +139,7 @@ class StudentNotesService extends BaseService<typeof studentNotes, 'id'> {
 					}
 				);
 			},
-			['dashboard']
+			{ 'student-notes': ['update'] }
 		);
 	}
 
@@ -174,7 +171,7 @@ class StudentNotesService extends BaseService<typeof studentNotes, 'id'> {
 					stdNo: note.stdNo,
 				});
 			},
-			['dashboard']
+			{ 'student-notes': ['delete'] }
 		);
 	}
 
@@ -240,7 +237,7 @@ class StudentNotesService extends BaseService<typeof studentNotes, 'id'> {
 					throw error;
 				}
 			},
-			['dashboard']
+			{ 'student-notes': ['create'] }
 		);
 	}
 
@@ -276,7 +273,7 @@ class StudentNotesService extends BaseService<typeof studentNotes, 'id'> {
 
 				return attachment;
 			},
-			['dashboard']
+			{ 'student-notes': ['delete'] }
 		);
 	}
 }

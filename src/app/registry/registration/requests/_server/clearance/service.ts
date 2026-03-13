@@ -11,12 +11,13 @@ import ClearanceRepository, { type ClearanceFilterOptions } from './repository';
 export { getActiveTerm };
 
 type Clearance = typeof clearance.$inferInsert;
+const adminOnly = async () => false;
 
 class ClearanceService {
 	constructor(private readonly repository = new ClearanceRepository()) {}
 
 	async first() {
-		return withPermission(async () => this.repository.findFirst(), []);
+		return withPermission(async () => this.repository.findFirst(), adminOnly);
 	}
 
 	async get(id: number) {
@@ -28,7 +29,7 @@ class ClearanceService {
 				...result,
 				programName: activeProgram?.structure.program.name,
 			};
-		}, ['dashboard']);
+		}, 'dashboard');
 	}
 
 	async countByStatus(status: 'pending' | 'approved' | 'rejected') {
@@ -61,88 +62,80 @@ class ClearanceService {
 				status,
 				effectiveFilter
 			);
-		}, ['dashboard']);
+		}, 'dashboard');
 	}
 
 	async respond(data: Clearance, stdNo?: number) {
-		return withPermission(
-			async (session) => {
-				if (!data.id) throw Error('Clearance id cannot be null/undefined');
-				const activityType: RegistryActivityType =
-					data.status === 'rejected'
-						? 'clearance_rejected'
-						: 'clearance_approved';
+		return withPermission(async (session) => {
+			if (!data.id) throw Error('Clearance id cannot be null/undefined');
+			const activityType: RegistryActivityType =
+				data.status === 'rejected'
+					? 'clearance_rejected'
+					: 'clearance_approved';
+			return this.repository.update(
+				data.id,
+				{
+					...data,
+					responseDate: new Date(),
+					respondedBy: session?.user?.id,
+				},
+				{
+					userId: session!.user!.id!,
+					role: session!.user!.role!,
+					activityType,
+					stdNo,
+				}
+			);
+		}, 'dashboard');
+	}
+
+	async update(id: number, data: Clearance, stdNo?: number) {
+		return withPermission(async (session) => {
+			const current = await this.repository.findById(id);
+			if (!current) throw new Error('Clearance not found');
+
+			const activityType: RegistryActivityType =
+				data.status === 'rejected'
+					? 'clearance_rejected'
+					: 'clearance_approved';
+			const audit = {
+				userId: session!.user!.id!,
+				role: session!.user!.role!,
+				activityType,
+				stdNo,
+			};
+
+			const shouldSetResponseTracking =
+				data.status && data.status !== current.status && !current.responseDate;
+
+			if (shouldSetResponseTracking) {
 				return this.repository.update(
-					data.id,
+					id,
 					{
 						...data,
 						responseDate: new Date(),
 						respondedBy: session?.user?.id,
 					},
-					{
-						userId: session!.user!.id!,
-						role: session!.user!.role!,
-						activityType,
-						stdNo,
-					}
+					audit
 				);
-			},
-			['dashboard']
-		);
-	}
+			}
 
-	async update(id: number, data: Clearance, stdNo?: number) {
-		return withPermission(
-			async (session) => {
-				const current = await this.repository.findById(id);
-				if (!current) throw new Error('Clearance not found');
-
-				const activityType: RegistryActivityType =
-					data.status === 'rejected'
-						? 'clearance_rejected'
-						: 'clearance_approved';
-				const audit = {
-					userId: session!.user!.id!,
-					role: session!.user!.role!,
-					activityType,
-					stdNo,
-				};
-
-				const shouldSetResponseTracking =
-					data.status &&
-					data.status !== current.status &&
-					!current.responseDate;
-
-				if (shouldSetResponseTracking) {
-					return this.repository.update(
-						id,
-						{
-							...data,
-							responseDate: new Date(),
-							respondedBy: session?.user?.id,
-						},
-						audit
-					);
-				}
-
-				return this.repository.update(id, data, audit);
-			},
-			['dashboard']
-		);
+			return this.repository.update(id, data, audit);
+		}, 'dashboard');
 	}
 
 	async delete(id: number) {
-		return withPermission(async () => this.repository.delete(id), []);
+		return withPermission(async () => this.repository.delete(id), adminOnly);
 	}
 
 	async count() {
-		return withPermission(async () => this.repository.count(), []);
+		return withPermission(async () => this.repository.count(), adminOnly);
 	}
 
 	async getHistory(clearanceId: number) {
 		return withPermission(
 			async () => this.repository.findHistory(clearanceId),
-			['dashboard']
+			'dashboard'
 		);
 	}
 
@@ -155,13 +148,13 @@ class ClearanceService {
 				stdNo,
 				session.user.role as DashboardRole
 			);
-		}, ['dashboard']);
+		}, 'dashboard');
 	}
 
 	async findNextPending(department: DashboardRole) {
 		return withPermission(
 			async () => this.repository.findNextPending(department),
-			['dashboard']
+			'dashboard'
 		);
 	}
 
@@ -171,7 +164,7 @@ class ClearanceService {
 	) {
 		return withPermission(
 			async () => this.repository.findByStatusForExport(status, termId),
-			['dashboard']
+			'dashboard'
 		);
 	}
 }

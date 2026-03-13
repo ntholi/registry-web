@@ -1,4 +1,9 @@
 import { getStudentByUserId } from '@registry/students';
+import { DASHBOARD_ROLES } from '@/core/auth/permissions';
+import {
+	hasSessionRole,
+	isStudentSession,
+} from '@/core/auth/sessionPermissions';
 import type { fortinetLevel, fortinetRegistrations } from '@/core/database';
 import type { QueryOptions } from '@/core/platform/BaseRepository';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
@@ -16,14 +21,16 @@ class FortinetRegistrationService {
 	async getById(id: number) {
 		return withPermission(
 			async () => this.repository.findById(id),
-			['student', 'dashboard']
+			async (session) =>
+				isStudentSession(session) || hasSessionRole(session, DASHBOARD_ROLES)
 		);
 	}
 
 	async getByStudentNumber(stdNo: number) {
 		return withPermission(
 			async () => this.repository.findByStudentNumber(stdNo),
-			['student', 'dashboard']
+			async (session) =>
+				isStudentSession(session) || hasSessionRole(session, DASHBOARD_ROLES)
 		);
 	}
 
@@ -39,7 +46,7 @@ class FortinetRegistrationService {
 				}
 				return this.repository.findByStudentNumber(student.stdNo);
 			},
-			['student']
+			async (session) => isStudentSession(session)
 		);
 	}
 
@@ -49,7 +56,7 @@ class FortinetRegistrationService {
 	) {
 		return withPermission(
 			async () => this.repository.findForSchool(schoolId, options),
-			['dashboard']
+			'dashboard'
 		);
 	}
 
@@ -95,7 +102,7 @@ class FortinetRegistrationService {
 
 				return this.repository.create(registrationData);
 			},
-			['student']
+			async (session) => isStudentSession(session)
 		);
 	}
 
@@ -113,7 +120,7 @@ class FortinetRegistrationService {
 
 			await this.repository.update(id, updateData);
 			return this.repository.findById(id);
-		}, ['dashboard']);
+		}, 'dashboard');
 	}
 
 	async delete(id: number) {
@@ -121,17 +128,17 @@ class FortinetRegistrationService {
 			const registration = await this.repository.findById(id);
 			await this.repository.delete(id);
 			return registration;
-		}, ['dashboard']);
+		}, 'dashboard');
 	}
 
 	async count() {
-		return withPermission(async () => this.repository.count(), ['dashboard']);
+		return withPermission(async () => this.repository.count(), 'dashboard');
 	}
 
 	async getAll(options?: QueryOptions<typeof fortinetRegistrations>) {
 		return withPermission(
 			async () => this.repository.query(options || {}),
-			['dashboard']
+			'dashboard'
 		);
 	}
 }

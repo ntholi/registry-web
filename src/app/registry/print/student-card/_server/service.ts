@@ -25,14 +25,14 @@ class StudentCardPrintService {
 					activityType: 'student_card_print',
 					stdNo: data.stdNo,
 				}),
-			['registry']
+			async (session) => session?.user?.role === 'registry'
 		);
 	}
 
 	async findByStdNo(stdNo: number) {
 		return withPermission(
 			async () => this.repository.findByStdNo(stdNo),
-			['registry']
+			async (session) => session?.user?.role === 'registry'
 		);
 	}
 
@@ -45,7 +45,7 @@ class StudentCardPrintService {
 					activityType: 'student_card_print',
 					stdNo: data.stdNo,
 				}),
-			['registry']
+			async (session) => session?.user?.role === 'registry'
 		);
 	}
 }

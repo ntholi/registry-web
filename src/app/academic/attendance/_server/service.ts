@@ -9,17 +9,22 @@ class AttendanceService {
 	constructor(private readonly repository = new AttendanceRepository()) {}
 
 	async getWeeksForTerm(termId: number) {
-		return withPermission(
-			async () => this.repository.getWeeksForTerm(termId),
-			['academic', 'leap']
-		);
+		return withPermission(async () => this.repository.getWeeksForTerm(termId), {
+			attendance: ['read'],
+		});
 	}
 
 	async getStudentsForModule(semesterModuleId: number) {
-		return withPermission(async () => {
-			const term = await getActiveTerm();
-			return this.repository.getStudentsForModule(semesterModuleId, term.code);
-		}, ['academic', 'leap']);
+		return withPermission(
+			async () => {
+				const term = await getActiveTerm();
+				return this.repository.getStudentsForModule(
+					semesterModuleId,
+					term.code
+				);
+			},
+			{ attendance: ['read'] }
+		);
 	}
 
 	async getAttendanceForWeek(
@@ -27,15 +32,18 @@ class AttendanceService {
 		termId: number,
 		weekNumber: number
 	) {
-		return withPermission(async () => {
-			const term = await getActiveTerm();
-			return this.repository.getAttendanceForWeek(
-				semesterModuleId,
-				termId,
-				weekNumber,
-				term.code
-			);
-		}, ['academic', 'leap']);
+		return withPermission(
+			async () => {
+				const term = await getActiveTerm();
+				return this.repository.getAttendanceForWeek(
+					semesterModuleId,
+					termId,
+					weekNumber,
+					term.code
+				);
+			},
+			{ attendance: ['read'] }
+		);
 	}
 
 	async markAttendance(
@@ -63,19 +71,22 @@ class AttendanceService {
 					activityType: 'attendance_recorded',
 				});
 			},
-			['academic', 'leap']
+			{ attendance: ['create'] }
 		);
 	}
 
 	async getAttendanceSummary(semesterModuleId: number, termId: number) {
-		return withPermission(async () => {
-			const term = await getActiveTerm();
-			return this.repository.getAttendanceSummaryForModule(
-				semesterModuleId,
-				termId,
-				term.code
-			);
-		}, ['academic', 'leap']);
+		return withPermission(
+			async () => {
+				const term = await getActiveTerm();
+				return this.repository.getAttendanceSummaryForModule(
+					semesterModuleId,
+					termId,
+					term.code
+				);
+			},
+			{ attendance: ['read'] }
+		);
 	}
 
 	async getAssignedModulesForCurrentUser(userId: string) {
@@ -83,7 +94,7 @@ class AttendanceService {
 		return withPermission(
 			async () =>
 				this.repository.getAssignedModulesWithDetails(userId, term.id),
-			['academic', 'leap']
+			{ attendance: ['read'] }
 		);
 	}
 
@@ -99,7 +110,7 @@ class AttendanceService {
 					termId,
 					weekNumber
 				),
-			['academic', 'leap']
+			{ attendance: ['delete'] }
 		);
 	}
 
@@ -111,29 +122,32 @@ class AttendanceService {
 		className: string,
 		lecturerName: string
 	) {
-		return withPermission(async () => {
-			const term = await this.repository.getTermInfo(termId);
-			if (!term) {
-				throw new Error('Term not found');
-			}
-			const weeks = await this.repository.getWeeksForTerm(termId);
-			const summary = await this.repository.getAttendanceSummaryForModule(
-				semesterModuleId,
-				termId,
-				term.code
-			);
-			const buffer = await createAttendanceExcel({
-				moduleCode,
-				moduleName,
-				className,
-				lecturerName,
-				termName: term.name ?? term.code,
-				termCode: term.code,
-				weeks,
-				students: summary,
-			});
-			return { buffer, termCode: term.code };
-		}, ['academic', 'leap']);
+		return withPermission(
+			async () => {
+				const term = await this.repository.getTermInfo(termId);
+				if (!term) {
+					throw new Error('Term not found');
+				}
+				const weeks = await this.repository.getWeeksForTerm(termId);
+				const summary = await this.repository.getAttendanceSummaryForModule(
+					semesterModuleId,
+					termId,
+					term.code
+				);
+				const buffer = await createAttendanceExcel({
+					moduleCode,
+					moduleName,
+					className,
+					lecturerName,
+					termName: term.name ?? term.code,
+					termCode: term.code,
+					weeks,
+					students: summary,
+				});
+				return { buffer, termCode: term.code };
+			},
+			{ attendance: ['read'] }
+		);
 	}
 }
 

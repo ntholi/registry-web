@@ -10,53 +10,53 @@ class SchoolService {
 	async findAll(params: QueryOptions<typeof schools> = {}) {
 		return withPermission(
 			async () => this.repository.query(params),
-			['dashboard']
+			'dashboard'
 		);
 	}
 
 	async get(id: number) {
 		return withPermission(
 			async () => this.repository.findById(id),
-			['dashboard']
+			'dashboard'
 		);
 	}
 
 	async getAll() {
-		return withPermission(async () => this.repository.findAll(), ['dashboard']);
+		return withPermission(async () => this.repository.findAll(), 'dashboard');
 	}
 
 	async getActiveSchools() {
 		return withPermission(
 			async () => this.repository.getActiveSchools(),
-			['dashboard']
+			'dashboard'
 		);
 	}
 
 	async getProgramsBySchoolId(schoolId?: number) {
 		return withPermission(
 			async () => this.repository.getProgramsBySchoolId(schoolId),
-			['dashboard']
+			'dashboard'
 		);
 	}
 
 	async getAllPrograms() {
 		return withPermission(
 			async () => this.repository.getAllPrograms(),
-			['dashboard']
+			'dashboard'
 		);
 	}
 
 	async getAllProgramsWithLevel() {
 		return withPermission(
 			async () => this.repository.getAllProgramsWithLevel(),
-			['dashboard']
+			'dashboard'
 		);
 	}
 
 	async getProgramsBySchoolIds(schoolIds?: number[]) {
 		return withPermission(
 			async () => this.repository.getProgramsBySchoolIds(schoolIds),
-			['dashboard']
+			'dashboard'
 		);
 	}
 }

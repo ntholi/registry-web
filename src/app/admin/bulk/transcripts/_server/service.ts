@@ -12,46 +12,60 @@ class BulkService {
 	}
 
 	async getDistinctGraduationDates() {
-		return withPermission(async () => {
-			return await this.repository.findDistinctGraduationDates();
-		}, ['admin', 'registry']);
+		return withPermission(
+			async () => {
+				return await this.repository.findDistinctGraduationDates();
+			},
+			async (session) =>
+				session?.user?.role === 'admin' || session?.user?.role === 'registry'
+		);
 	}
 
 	async getProgramsByGraduationDate(graduationDate: string) {
-		return withPermission(async () => {
-			return await this.repository.findProgramsByGraduationDate(graduationDate);
-		}, ['admin', 'registry']);
+		return withPermission(
+			async () => {
+				return await this.repository.findProgramsByGraduationDate(
+					graduationDate
+				);
+			},
+			async (session) =>
+				session?.user?.role === 'admin' || session?.user?.role === 'registry'
+		);
 	}
 
 	async getStudentsByGraduationDate(
 		graduationDate: string,
 		programIds?: number[]
 	) {
-		return withPermission(async () => {
-			const stdNos = await this.repository.findStudentsByGraduationDate(
-				graduationDate,
-				programIds
-			);
+		return withPermission(
+			async () => {
+				const stdNos = await this.repository.findStudentsByGraduationDate(
+					graduationDate,
+					programIds
+				);
 
-			const unpublishedTerms = await getUnpublishedTermCodes();
+				const unpublishedTerms = await getUnpublishedTermCodes();
 
-			const students = await Promise.all(
-				stdNos.map(async (stdNo) => {
-					try {
-						return await studentsService.getAcademicHistory(
-							stdNo,
-							unpublishedTerms
-						);
-					} catch {
-						return null;
-					}
-				})
-			);
+				const students = await Promise.all(
+					stdNos.map(async (stdNo) => {
+						try {
+							return await studentsService.getAcademicHistory(
+								stdNo,
+								unpublishedTerms
+							);
+						} catch {
+							return null;
+						}
+					})
+				);
 
-			return students.filter(
-				(student): student is NonNullable<typeof student> => student !== null
-			);
-		}, ['admin', 'registry']);
+				return students.filter(
+					(student): student is NonNullable<typeof student> => student !== null
+				);
+			},
+			async (session) =>
+				session?.user?.role === 'admin' || session?.user?.role === 'registry'
+		);
 	}
 }
 

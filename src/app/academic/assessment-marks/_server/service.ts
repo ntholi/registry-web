@@ -2,6 +2,7 @@ import {
 	getRecordHistory,
 	getStudentModuleAuditHistory,
 } from '@/app/audit-logs/_server/actions';
+import { hasPermission } from '@/core/auth/sessionPermissions';
 import type { assessmentMarks } from '@/core/database';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
 import { withPermission } from '@/core/platform/withPermission';
@@ -21,7 +22,7 @@ class AssessmentMarkService {
 					activityType: 'mark_entered',
 					stdNo,
 				}),
-			['academic']
+			{ gradebook: ['update'] }
 		);
 	}
 
@@ -34,21 +35,21 @@ class AssessmentMarkService {
 					activityType: 'mark_updated',
 					stdNo,
 				}),
-			['academic']
+			{ gradebook: ['update'] }
 		);
 	}
 
 	async getByModuleId(moduleId: number, termId: number) {
 		return withPermission(
 			async () => this.repository.findByModuleId(moduleId, termId),
-			['academic']
+			{ gradebook: ['read'] }
 		);
 	}
 
 	async getByStudentModuleId(studentModuleId: number) {
 		return withPermission(
 			async () => this.repository.findByStudentModuleId(studentModuleId),
-			['academic']
+			{ gradebook: ['read'] }
 		);
 	}
 
@@ -56,21 +57,25 @@ class AssessmentMarkService {
 		return withPermission(
 			async () =>
 				this.repository.findByStudentModuleIdWithDetails(studentModuleId),
-			['academic', 'registry', 'admin']
+			async (session) =>
+				hasPermission(session, 'gradebook', 'read') ||
+				session?.user?.role === 'registry'
 		);
 	}
 
 	async getStudentMarks(smId: number) {
 		return withPermission(
 			async () => this.repository.getStudentMarks(smId),
-			['academic', 'registry', 'admin']
+			async (session) =>
+				hasPermission(session, 'gradebook', 'read') ||
+				session?.user?.role === 'registry'
 		);
 	}
 
 	async getAssessmentsByModuleId(moduleId: number, termId: number) {
 		return withPermission(
 			async () => this.repository.getAssessmentsByModuleId(moduleId, termId),
-			['academic']
+			{ gradebook: ['read'] }
 		);
 	}
 
@@ -78,7 +83,7 @@ class AssessmentMarkService {
 		return withPermission(
 			async () =>
 				getRecordHistory('assessment_marks', String(assessmentMarkId)),
-			['academic']
+			{ gradebook: ['read'] }
 		);
 	}
 
@@ -91,7 +96,7 @@ class AssessmentMarkService {
 					activityType: 'mark_entered',
 					stdNo,
 				}),
-			['academic']
+			{ gradebook: ['update'] }
 		);
 	}
 
@@ -103,14 +108,14 @@ class AssessmentMarkService {
 					role: session!.user!.role!,
 					activityType: 'mark_entered',
 				}),
-			['academic']
+			{ gradebook: ['update'] }
 		);
 	}
 
 	async getStudentAuditHistory(studentModuleId: number) {
 		return withPermission(
 			async () => getStudentModuleAuditHistory(studentModuleId),
-			['academic']
+			{ gradebook: ['read'] }
 		);
 	}
 }

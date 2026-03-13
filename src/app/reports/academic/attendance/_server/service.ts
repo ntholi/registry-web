@@ -9,18 +9,24 @@ class AttendanceReportService {
 		programId?: number,
 		semesterNumber?: string
 	) {
-		return withPermission(async () => {
-			return attendanceReportRepository.getSemesterModulesForFilter(
-				programId,
-				semesterNumber
-			);
-		}, ['academic', 'registry', 'leap']);
+		return withPermission(
+			async () => {
+				return attendanceReportRepository.getSemesterModulesForFilter(
+					programId,
+					semesterNumber
+				);
+			},
+			{ 'reports-attendance': ['read'] }
+		);
 	}
 
 	async getAttendanceReportData(filter: AttendanceReportFilter) {
-		return withPermission(async () => {
-			return attendanceReportRepository.getAttendanceReportData(filter);
-		}, ['academic', 'registry', 'leap']);
+		return withPermission(
+			async () => {
+				return attendanceReportRepository.getAttendanceReportData(filter);
+			},
+			{ 'reports-attendance': ['read'] }
+		);
 	}
 
 	async getPaginatedStudentsWithModuleAttendance(
@@ -29,14 +35,17 @@ class AttendanceReportService {
 		pageSize: number,
 		search?: string
 	) {
-		return withPermission(async () => {
-			return attendanceReportRepository.getPaginatedStudentsWithModuleAttendance(
-				filter,
-				page,
-				pageSize,
-				search
-			);
-		}, ['academic', 'registry', 'leap']);
+		return withPermission(
+			async () => {
+				return attendanceReportRepository.getPaginatedStudentsWithModuleAttendance(
+					filter,
+					page,
+					pageSize,
+					search
+				);
+			},
+			{ 'reports-attendance': ['read'] }
+		);
 	}
 }
 

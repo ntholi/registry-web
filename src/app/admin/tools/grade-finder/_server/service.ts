@@ -15,27 +15,24 @@ class GradeFinderService {
 	async findStudentsByGrade(filters: GradeFinderFilters, page = 1) {
 		return withPermission(
 			() => findStudentsByGrade(filters, page),
-			['dashboard']
+			'dashboard'
 		);
 	}
 
 	async searchModulesForFilter(search: string) {
-		return withPermission(() => searchModulesForFilter(search), ['dashboard']);
+		return withPermission(() => searchModulesForFilter(search), 'dashboard');
 	}
 
 	async findStudentsByCGPA(filters: CGPAFinderFilters, page = 1) {
-		return withPermission(
-			() => findStudentsByCGPA(filters, page),
-			['dashboard']
-		);
+		return withPermission(() => findStudentsByCGPA(filters, page), 'dashboard');
 	}
 
 	async exportStudentsByGrade(filters: GradeFinderFilters) {
-		return withPermission(() => exportStudentsByGrade(filters), ['dashboard']);
+		return withPermission(() => exportStudentsByGrade(filters), 'dashboard');
 	}
 
 	async exportStudentsByCGPA(filters: CGPAFinderFilters) {
-		return withPermission(() => exportStudentsByCGPA(filters), ['dashboard']);
+		return withPermission(() => exportStudentsByCGPA(filters), 'dashboard');
 	}
 }
 
