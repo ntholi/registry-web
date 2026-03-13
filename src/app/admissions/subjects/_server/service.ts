@@ -1,5 +1,4 @@
-import type { Session } from '@/core/auth';
-import { hasPermission } from '@/core/auth/permissions';
+import { hasApplicantResourceAccess } from '@/core/auth/sessionPermissions';
 import type { subjects } from '@/core/database';
 import BaseService from '@/core/platform/BaseService';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
@@ -7,14 +6,10 @@ import withPermission from '@/core/platform/withPermission';
 import SubjectRepository from './repository';
 
 function canManageSubjects(
-	session: Session | null | undefined,
+	session: Parameters<typeof hasApplicantResourceAccess>[0],
 	action: 'read' | 'create' | 'update' | 'delete'
 ) {
-	return hasPermission(session, 'subjects', action);
-}
-
-function isApplicantSession(session: Session | null | undefined) {
-	return session?.user?.role === 'applicant' || session?.user?.role === 'user';
+	return hasApplicantResourceAccess(session, 'subjects', action);
 }
 
 class SubjectService extends BaseService<typeof subjects, 'id'> {
@@ -40,16 +35,14 @@ class SubjectService extends BaseService<typeof subjects, 'id'> {
 	async findOrCreateByName(name: string) {
 		return withPermission(
 			async () => this.repo.findOrCreateByName(name),
-			async (session) =>
-				canManageSubjects(session, 'create') || isApplicantSession(session)
+			async (session) => canManageSubjects(session, 'create')
 		);
 	}
 
 	async findActive() {
 		return withPermission(
 			async () => this.repo.findActive(),
-			async (session) =>
-				canManageSubjects(session, 'read') || isApplicantSession(session)
+			async (session) => canManageSubjects(session, 'read')
 		);
 	}
 

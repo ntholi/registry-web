@@ -1,17 +1,14 @@
-import type { Session } from '@/core/auth';
-import { hasPermission } from '@/core/auth/permissions';
+import { hasApplicantResourceAccess } from '@/core/auth/sessionPermissions';
 import type { intakePeriods } from '@/core/database';
 import BaseService from '@/core/platform/BaseService';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
 import withPermission from '@/core/platform/withPermission';
 import IntakePeriodRepository from './repository';
 
-function canReadIntakePeriods(session: Session | null | undefined) {
-	return (
-		hasPermission(session, 'intake-periods', 'read') ||
-		session?.user?.role === 'applicant' ||
-		session?.user?.role === 'user'
-	);
+function canReadIntakePeriods(
+	session: Parameters<typeof hasApplicantResourceAccess>[0]
+) {
+	return hasApplicantResourceAccess(session, 'intake-periods', 'read');
 }
 
 class IntakePeriodService extends BaseService<typeof intakePeriods, 'id'> {

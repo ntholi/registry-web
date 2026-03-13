@@ -3,8 +3,7 @@ import type {
 	SubjectGradeRules,
 } from '@admissions/entry-requirements/_lib/types';
 import { eq } from 'drizzle-orm';
-import type { Session } from '@/core/auth';
-import { hasPermission } from '@/core/auth/permissions';
+import { hasApplicantResourceAccess } from '@/core/auth/sessionPermissions';
 import {
 	type ApplicationStatus,
 	academicRecords,
@@ -19,22 +18,11 @@ import { calculateAllScores } from '../_lib/scoring';
 import type { ApplicationFilters } from '../_lib/types';
 import ApplicationRepository from './repository';
 
-function canManageApplications(
-	session: Session | null | undefined,
-	action: 'read' | 'create' | 'update' | 'delete'
-) {
-	return hasPermission(session, 'applications', action);
-}
-
-function isApplicantSession(session: Session | null | undefined) {
-	return session?.user?.role === 'applicant' || session?.user?.role === 'user';
-}
-
 async function canAccessApplicationSelfService(
-	session: Session | null | undefined,
+	session: Parameters<typeof hasApplicantResourceAccess>[0],
 	action: 'read' | 'create' | 'update'
 ) {
-	return canManageApplications(session, action) || isApplicantSession(session);
+	return hasApplicantResourceAccess(session, 'applications', action);
 }
 
 class ApplicationService extends BaseService<typeof applications, 'id'> {

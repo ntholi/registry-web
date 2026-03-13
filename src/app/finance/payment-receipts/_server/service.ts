@@ -1,6 +1,10 @@
 import { eq } from 'drizzle-orm';
 import type { Session } from '@/core/auth';
 import {
+	hasOwnedStudentSession,
+	isStudentSession,
+} from '@/core/auth/sessionPermissions';
+import {
 	db,
 	graduationRequestReceipts,
 	paymentReceipts,
@@ -18,19 +22,19 @@ type PaymentReceiptData = {
 	receiptNo: string;
 };
 
-async function isStudentSession(session: Session | null | undefined) {
-	return session?.user?.role === 'student';
+async function isStudentReceiptSession(session: Session | null | undefined) {
+	return isStudentSession(session);
 }
 
 class PaymentReceiptService extends BaseService<typeof paymentReceipts, 'id'> {
 	constructor() {
 		super(new PaymentReceiptRepository(), {
-			byIdAuth: isStudentSession,
-			findAllAuth: isStudentSession,
-			createAuth: isStudentSession,
-			updateAuth: isStudentSession,
-			deleteAuth: isStudentSession,
-			countAuth: isStudentSession,
+			byIdAuth: isStudentReceiptSession,
+			findAllAuth: isStudentReceiptSession,
+			createAuth: isStudentReceiptSession,
+			updateAuth: isStudentReceiptSession,
+			deleteAuth: isStudentReceiptSession,
+			countAuth: isStudentReceiptSession,
 			activityTypes: {
 				create: 'payment_receipt_added',
 				delete: 'payment_receipt_removed',
@@ -43,7 +47,7 @@ class PaymentReceiptService extends BaseService<typeof paymentReceipts, 'id'> {
 			const audit = this.buildAuditOptions(session, 'create');
 			if (audit && data.stdNo) audit.stdNo = data.stdNo;
 			return this.repository.create(data, audit);
-		}, isStudentSession);
+		}, isStudentReceiptSession);
 	}
 
 	async getByGraduationRequest(graduationRequestId: number) {
@@ -58,7 +62,7 @@ class PaymentReceiptService extends BaseService<typeof paymentReceipts, 'id'> {
 				},
 			});
 			return links.map((link) => link.receipt);
-		}, isStudentSession);
+		}, isStudentReceiptSession);
 	}
 
 	async createMany(data: PaymentReceipt[]) {
@@ -74,7 +78,7 @@ class PaymentReceiptService extends BaseService<typeof paymentReceipts, 'id'> {
 				);
 			}
 			return results;
-		}, isStudentSession);
+		}, isStudentReceiptSession);
 	}
 
 	async updateGraduationPaymentReceipts(
@@ -97,7 +101,10 @@ class PaymentReceiptService extends BaseService<typeof paymentReceipts, 'id'> {
 
 				if (
 					!graduationRequest ||
-					graduationRequest.studentProgram.stdNo !== session.user!.stdNo
+					!hasOwnedStudentSession(
+						session,
+						graduationRequest.studentProgram.stdNo
+					)
 				) {
 					throw new Error('Graduation request not found or access denied');
 				}
@@ -139,7 +146,7 @@ class PaymentReceiptService extends BaseService<typeof paymentReceipts, 'id'> {
 
 				return { success: true };
 			});
-		}, isStudentSession);
+		}, isStudentReceiptSession);
 	}
 
 	async addPaymentReceipt(
@@ -151,6 +158,8 @@ class PaymentReceiptService extends BaseService<typeof paymentReceipts, 'id'> {
 				throw new Error('User not authenticated');
 			}
 
+			const studentStdNo = session.user.stdNo;
+
 			return db.transaction(async (tx) => {
 				const graduationRequest = await tx.query.graduationRequests.findFirst({
 					where: (table, { eq }) => eq(table.id, graduationRequestId),
@@ -161,7 +170,10 @@ class PaymentReceiptService extends BaseService<typeof paymentReceipts, 'id'> {
 
 				if (
 					!graduationRequest ||
-					graduationRequest.studentProgram.stdNo !== session.user!.stdNo
+					!hasOwnedStudentSession(
+						session,
+						graduationRequest.studentProgram.stdNo
+					)
 				) {
 					throw new Error('Graduation request not found or access denied');
 				}
@@ -171,7 +183,7 @@ class PaymentReceiptService extends BaseService<typeof paymentReceipts, 'id'> {
 					.values({
 						receiptNo: receipt.receiptNo,
 						receiptType: receipt.receiptType,
-						stdNo: session.user!.stdNo,
+						stdNo: studentStdNo,
 					})
 					.returning();
 
@@ -182,7 +194,7 @@ class PaymentReceiptService extends BaseService<typeof paymentReceipts, 'id'> {
 
 				return newReceipt;
 			});
-		}, isStudentSession);
+		}, isStudentReceiptSession);
 	}
 
 	async removePaymentReceipt(receiptId: string) {
@@ -196,7 +208,7 @@ class PaymentReceiptService extends BaseService<typeof paymentReceipts, 'id'> {
 					where: eq(paymentReceipts.id, receiptId),
 				});
 
-				if (!receipt || receipt.stdNo !== session.user!.stdNo) {
+				if (!receipt || !hasOwnedStudentSession(session, receipt.stdNo)) {
 					throw new Error('Payment receipt not found or access denied');
 				}
 
@@ -210,7 +222,7 @@ class PaymentReceiptService extends BaseService<typeof paymentReceipts, 'id'> {
 
 				return { success: true };
 			});
-		}, isStudentSession);
+		}, isStudentReceiptSession);
 	}
 }
 

@@ -1,5 +1,4 @@
-import type { Session } from '@/core/auth';
-import { hasPermission } from '@/core/auth/permissions';
+import { hasApplicantResourceAccess } from '@/core/auth/sessionPermissions';
 import type { entryRequirements } from '@/core/database';
 import BaseService from '@/core/platform/BaseService';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
@@ -8,12 +7,10 @@ import EntryRequirementRepository, {
 	type EntryRequirementsFilter,
 } from './repository';
 
-function canReadEntryRequirements(session: Session | null | undefined) {
-	return (
-		hasPermission(session, 'entry-requirements', 'read') ||
-		session?.user?.role === 'applicant' ||
-		session?.user?.role === 'user'
-	);
+function canReadEntryRequirements(
+	session: Parameters<typeof hasApplicantResourceAccess>[0]
+) {
+	return hasApplicantResourceAccess(session, 'entry-requirements', 'read');
 }
 
 class EntryRequirementService extends BaseService<

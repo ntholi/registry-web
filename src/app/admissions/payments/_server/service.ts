@@ -1,5 +1,4 @@
-import type { Session } from '@/core/auth';
-import { hasPermission } from '@/core/auth/permissions';
+import { hasApplicantResourceAccess } from '@/core/auth/sessionPermissions';
 import type { bankDeposits, DepositStatus } from '@/core/database';
 import {
 	generateClientReference,
@@ -13,24 +12,11 @@ import withPermission from '@/core/platform/withPermission';
 import type { DepositFilters } from '../_lib/types';
 import PaymentRepository from './repository';
 
-function canManageAdmissionsPayments(
-	session: Session | null | undefined,
-	action: 'read' | 'create' | 'update' | 'delete'
-) {
-	return hasPermission(session, 'admissions-payments', action);
-}
-
-function isApplicantSession(session: Session | null | undefined) {
-	return session?.user?.role === 'applicant' || session?.user?.role === 'user';
-}
-
 async function canAccessAdmissionsPaymentSelfService(
-	session: Session | null | undefined,
+	session: Parameters<typeof hasApplicantResourceAccess>[0],
 	action: 'read' | 'create' | 'update'
 ) {
-	return (
-		canManageAdmissionsPayments(session, action) || isApplicantSession(session)
-	);
+	return hasApplicantResourceAccess(session, 'admissions-payments', action);
 }
 
 class PaymentService extends BaseService<typeof bankDeposits, 'id'> {

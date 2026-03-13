@@ -1,5 +1,8 @@
-import type { Session } from '@/core/auth';
-import { hasPermission } from '@/core/auth/permissions';
+import {
+	hasOwnedStudentSession,
+	hasSessionPermission,
+	hasSessionRole,
+} from '@/core/auth/sessionPermissions';
 import type { sponsors } from '@/core/database';
 import type { QueryOptions } from '@/core/platform/BaseRepository';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
@@ -8,37 +11,50 @@ import SponsorRepository from './repository';
 
 type Sponsor = typeof sponsors.$inferInsert;
 
-function canReadSponsors(session: Session | null | undefined) {
-	return (
-		hasPermission(session, 'sponsors', 'read') ||
-		session?.user?.role === 'registry'
+const REGISTRY_SPONSOR_ROLES = ['registry'] as const;
+const STUDENT_SUPPORT_ROLES = ['student_services'] as const;
+
+function canReadSponsors(session: Parameters<typeof hasSessionPermission>[0]) {
+	return hasSessionPermission(
+		session,
+		'sponsors',
+		'read',
+		REGISTRY_SPONSOR_ROLES
 	);
 }
 
-function canCreateSponsors(session: Session | null | undefined) {
-	return hasPermission(session, 'sponsors', 'create');
+function canCreateSponsors(
+	session: Parameters<typeof hasSessionPermission>[0]
+) {
+	return hasSessionPermission(session, 'sponsors', 'create');
 }
 
-function canUpdateSponsors(session: Session | null | undefined) {
-	return (
-		hasPermission(session, 'sponsors', 'update') ||
-		session?.user?.role === 'registry'
+function canUpdateSponsors(
+	session: Parameters<typeof hasSessionPermission>[0]
+) {
+	return hasSessionPermission(
+		session,
+		'sponsors',
+		'update',
+		REGISTRY_SPONSOR_ROLES
 	);
 }
 
-function canDeleteSponsors(session: Session | null | undefined) {
-	return hasPermission(session, 'sponsors', 'delete');
+function canDeleteSponsors(
+	session: Parameters<typeof hasSessionPermission>[0]
+) {
+	return hasSessionPermission(session, 'sponsors', 'delete');
 }
 
 function canAccessStudentSponsor(
-	session: Session | null | undefined,
+	session: Parameters<typeof hasSessionPermission>[0],
 	stdNo: number
 ) {
 	if (canReadSponsors(session)) {
 		return true;
 	}
 
-	return session?.user?.role === 'student' && session.user.stdNo === stdNo;
+	return hasOwnedStudentSession(session, stdNo);
 }
 
 class SponsorService {
@@ -130,11 +146,7 @@ class SponsorService {
 					return true;
 				}
 
-				if (session.user?.role === 'student') {
-					return session.user.stdNo === data.stdNo;
-				}
-
-				return false;
+				return hasOwnedStudentSession(session, data.stdNo);
 			}
 		);
 	}
@@ -194,7 +206,8 @@ class SponsorService {
 		return withPermission(
 			async () => this.repository.findStudentSponsors(stdNo),
 			async (session) =>
-				canReadSponsors(session) || session?.user?.role === 'student_services'
+				canReadSponsors(session) ||
+				hasSessionRole(session, STUDENT_SUPPORT_ROLES)
 		);
 	}
 
@@ -241,7 +254,8 @@ class SponsorService {
 		return withPermission(
 			async () => this.repository.findSponsoredStudentById(id),
 			async (session) =>
-				canReadSponsors(session) || session?.user?.role === 'student_services'
+				canReadSponsors(session) ||
+				hasSessionRole(session, STUDENT_SUPPORT_ROLES)
 		);
 	}
 }

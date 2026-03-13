@@ -1,5 +1,4 @@
-import type { Session } from '@/core/auth';
-import { hasPermission } from '@/core/auth/permissions';
+import { hasApplicantResourceAccess } from '@/core/auth/sessionPermissions';
 import type { certificateTypes, gradeMappings } from '@/core/database';
 import BaseService from '@/core/platform/BaseService';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
@@ -11,12 +10,10 @@ type GradeMapping = {
 	standardGrade: (typeof gradeMappings.$inferInsert)['standardGrade'];
 };
 
-function canReadCertificateTypes(session: Session | null | undefined) {
-	return (
-		hasPermission(session, 'certificate-types', 'read') ||
-		session?.user?.role === 'applicant' ||
-		session?.user?.role === 'user'
-	);
+function canReadCertificateTypes(
+	session: Parameters<typeof hasApplicantResourceAccess>[0]
+) {
+	return hasApplicantResourceAccess(session, 'certificate-types', 'read');
 }
 
 class CertificateTypeService extends BaseService<

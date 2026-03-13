@@ -2,8 +2,7 @@ import { mapGrade } from '@admissions/certificate-types/_server/actions';
 import { entryRequirementsService } from '@admissions/entry-requirements/_server/service';
 import { intakePeriodsService } from '@admissions/intake-periods/_server/service';
 import { recognizedSchoolsService } from '@admissions/recognized-schools/_server/service';
-import type { Session } from '@/core/auth';
-import { hasPermission } from '@/core/auth/permissions';
+import { hasApplicantResourceAccess } from '@/core/auth/sessionPermissions';
 import type {
 	applicantLocations,
 	applicants,
@@ -34,22 +33,11 @@ type AcademicRecordInput = Parameters<
 	ApplicantRepository['createWithDocumentsAndRecords']
 >[2][number];
 
-function canManageApplicants(
-	session: Session | null | undefined,
-	action: 'read' | 'create' | 'update'
-) {
-	return hasPermission(session, 'applicants', action);
-}
-
-function isApplicantSession(session: Session | null | undefined) {
-	return session?.user?.role === 'applicant' || session?.user?.role === 'user';
-}
-
 async function canAccessApplicantSelfService(
-	session: Session | null | undefined,
+	session: Parameters<typeof hasApplicantResourceAccess>[0],
 	action: 'read' | 'create' | 'update'
 ) {
-	return canManageApplicants(session, action) || isApplicantSession(session);
+	return hasApplicantResourceAccess(session, 'applicants', action);
 }
 
 class ApplicantService extends BaseService<typeof applicants, 'id'> {

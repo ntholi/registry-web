@@ -1,17 +1,14 @@
-import type { Session } from '@/core/auth';
-import { hasPermission } from '@/core/auth/permissions';
+import { hasApplicantResourceAccess } from '@/core/auth/sessionPermissions';
 import type { recognizedSchools } from '@/core/database';
 import BaseService from '@/core/platform/BaseService';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
 import withPermission from '@/core/platform/withPermission';
 import RecognizedSchoolRepository from './repository';
 
-function canReadRecognizedSchools(session: Session | null | undefined) {
-	return (
-		hasPermission(session, 'recognized-schools', 'read') ||
-		session?.user?.role === 'applicant' ||
-		session?.user?.role === 'user'
-	);
+function canReadRecognizedSchools(
+	session: Parameters<typeof hasApplicantResourceAccess>[0]
+) {
+	return hasApplicantResourceAccess(session, 'recognized-schools', 'read');
 }
 
 class RecognizedSchoolService extends BaseService<
