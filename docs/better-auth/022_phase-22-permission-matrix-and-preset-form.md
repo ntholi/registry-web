@@ -13,28 +13,23 @@ File: `src/shared/ui/PermissionMatrix.tsx`
 A reusable matrix component showing resources as rows and actions as columns.
 
 The matrix should mirror the explicit action vocabulary only. Do not render a generic `manage` column.
+The matrix must use code-defined values only. No free-text permissions.
 
 **Props:**
 
 ```ts
 type PermissionMatrixProps = {
-  permissions: { resource: string; action: string }[];
-  onChange?: (permissions: { resource: string; action: string }[]) => void;
+  permissions: PermissionGrant[];
+  onChange?: (permissions: PermissionGrant[]) => void;
   readOnly?: boolean;
 };
 ```
 
 **Layout:**
-- Rows: resources grouped from `src/app/auth/permission-presets/_lib/catalog.ts`
-- Columns: actions (read, create, update, delete, approve)
+- Rows: `PERMISSION_RESOURCE_GROUPS`
+- Columns: `ACTIONS`
 - Cells: Mantine `Checkbox` (or `Indicator` icon when readOnly)
-- Resource grouping headers for visual clarity:
-  - **Academic**: lecturers, assessments, semester-modules, modules, school-structures, feedback-*, gradebook, timetable, venues
-  - **Registry**: students, registration, student-statuses, documents, terms-settings, graduation, certificate-reprints
-  - **Admissions**: applicants, applications, admissions-payments, admissions-documents, entry-requirements
-  - **Finance**: sponsors
-  - **Admin**: users, permission-presets, tasks, activity-tracker
-  - **Library**: library
+- Groups come from shared constants. Do not duplicate resource lists in the component.
 
 **When `readOnly=true`:**
 - Checkboxes become non-interactive visual indicators
@@ -43,6 +38,7 @@ type PermissionMatrixProps = {
 **When `readOnly=false` (editable):**
 - Checkboxes toggle permissions on/off
 - `onChange` fires with the updated permission set
+- Only render valid resource/action pairs from shared constants
 
 ## 22.2 Preset Form Component
 
@@ -60,10 +56,14 @@ function PermissionPresetForm({ preset }: { preset?: ExistingPreset }) {
 }
 ```
 
+Do not allow typing resources or actions manually. Admins only select from code-defined options.
+
 ## Exit Criteria
 
 - [ ] Shared `PermissionMatrix` component works in both editable and read-only modes
 - [ ] Preset Form component uses `Form` from adease with editable matrix
+- [ ] Matrix rows and columns come from shared permission constants
+- [ ] No free-text resource or action input exists
 - [ ] Preset list page shows all presets with name, role, permission count
 - [ ] Preset detail page shows read-only permission matrix
 - [ ] Preset create/edit pages have working permission matrix with checkboxes

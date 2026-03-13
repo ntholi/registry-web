@@ -34,17 +34,31 @@ File: `src/app/auth/permission-presets/_lib/types.ts`
 
 ```ts
 import { z } from 'zod/v4';
-import { permissionGrantSchema } from '@/core/auth/permissions';
+import {
+  ACTIONS,
+  DASHBOARD_ROLES,
+  RESOURCES,
+} from '@/core/auth/permissions';
+
+export const resourceSchema = z.enum(RESOURCES);
+export const actionSchema = z.enum(ACTIONS);
+export const dashboardRoleSchema = z.enum(DASHBOARD_ROLES);
+export const permissionGrantSchema = z.object({
+  resource: resourceSchema,
+  action: actionSchema,
+});
 
 export const presetFormSchema = z.object({
   name: z.string().min(1),
-  role: z.string().min(1),
+  role: dashboardRoleSchema,
   description: z.string().optional(),
   permissions: z.array(permissionGrantSchema),
 });
 
 export type PresetFormValues = z.infer<typeof presetFormSchema>;
 ```
+
+Use code constants as the source of truth. Do not accept free-text role, resource, or action values.
 
 ## 20.3 Repository
 
@@ -94,6 +108,8 @@ export async function deletePreset(id: string) { ... }
 ```
 
 These actions must remain thin. They validate input and call auth-owned services only. The admin pages import these actions. Do not add direct `db` writes or direct session-revocation loops inside the action layer.
+
+Reject any permission not in `RESOURCES` or `ACTIONS`.
 
 ## 20.6 Circular Dependency Prevention
 
