@@ -1,12 +1,16 @@
-# Phase 6: Preset Seeds, Route Swap & Middleware
+# Phase 6: Preset Seeds & Cutover Readiness
 
 > Estimated Implementation Time: 1.5 to 2 hours
 
 **Prerequisites**: Phase 5 complete. Read `000_overview.md` first.
 
-This phase seeds permission presets from the shared catalog, migrates position→preset assignments, performs the final position cleanup, swaps the auth route handler, creates the proxy, and verifies Google OAuth.
+This phase seeds permission presets from the shared catalog, migrates position→preset assignments, and proves that every staff user can be represented by a preset before the final auth cutover.
 
-> **Migration type**: All steps in sections 6.1 and 6.2 must be implemented as a **custom migration** (`pnpm db:generate --custom`). The seed inserts, user mapping UPDATEs, and column DROP must all live in one custom `.sql` file executed as a single transaction. After the custom migration is applied, update the Drizzle schema file to remove the `position` column, then run `pnpm db:generate` to produce the schema-only migration (which should be a no-op since the column was already dropped in the custom migration).
+For this branch to remain deployable, the actual auth route swap, proxy creation, session purge, and physical `users.position` removal are deferred until the remaining NextAuth session consumers and `position` references have been migrated in later phases.
+
+The explicit plan is to remove `users.position` in **Phase 24**, not here.
+
+> **Migration type**: All steps in sections 6.1 and 6.2 must be implemented as a **custom migration** (`pnpm db:generate --custom`). The seed inserts and user mapping UPDATEs should live in one custom `.sql` file executed as a single transaction. Do **not** drop `users.position` in this phase. Keep the DB column and the Drizzle field temporarily so `pnpm tsc --noEmit` can continue to pass while later phases remove live code references.
 
 ## 6.1 Permission Preset Seeds
 
@@ -262,7 +266,7 @@ FROM permission_presets pp
 WHERE u.role = 'academic' AND u.position IS NULL AND u.preset_id IS NULL AND pp.name = 'Academic Lecturer';
 ```
 
-Before dropping `users.position`, run a blocking audit for unmapped staff users. Do NOT continue until this returns zero rows:
+After the mapping UPDATEs, run a blocking audit for unmapped staff users. Do NOT continue until this returns zero rows:
 
 ```sql
 SELECT id, email, role, position
@@ -279,30 +283,69 @@ GROUP BY role, position
 ORDER BY role, position;
 ```
 
-> **Note on `admin` role**: Admin users are excluded from the blocking audit because they bypass permission checks entirely via the `admin` role guard in `withPermission`. They do not need a preset.
+> **Note on `admin` role**: Admin users are excluded from the blocking audit because they bypass permission checks entirely via the `withAuth` today and `withPermission` later. They do not need a preset.
 
 If any rows remain, stop the migration, extend the shared `role + position -> preset` mapping in `src/app/auth/permission-presets/_lib/catalog.ts`, reseed if needed, rerun the assignment step, and only then continue.
 
-After verifying all intended users have been assigned a preset, drop the position column in the same custom migration:
+After verifying all intended users have been assigned a preset, stop this phase with the compatibility column still in place. Do **not** drop `users.position` yet.
 
-```sql
-ALTER TABLE users DROP COLUMN position;
+### 6.2.1 Compatibility Audit Before Final Cutover
+
+The current codebase still contains live references to:
+
+- `users.position` in repositories and server code
+- `session.user.position` in permission and visibility checks
+- `userPositions` in forms and validation
+- `next-auth/react` client APIs
+- `auth()` / `withAuth` server-side session access
+
+Dropping the column or swapping the auth route before these are migrated would leave the branch non-deployable and fail `pnpm tsc --noEmit`.
+
+Track these searches as part of Phase 6 readiness work:
+
+```bash
+rg "users\.position|userPositions|UserPosition" src
+rg "session\.user\.position" src
+rg "from 'next-auth/react'|from \"next-auth/react\"" src
+rg "await auth\(|withAuth\(" src
 ```
 
-## 6.3 Swap Auth Route Handler
+These searches are expected to return matches at this stage. The purpose of this audit is to prove what must be migrated before the final cutover. Do not force them to zero in this phase.
 
-After DB migration is verified:
+Record the remaining categories and keep this phase focused on data correctness, not the final auth boundary swap.
+
+## 6.3 Deferred Final Cutover
+
+The route swap is **not** safe immediately after the preset migration because the app still authenticates through legacy NextAuth in multiple places:
+
+- `src/core/auth.ts` exports `auth = legacyAuth`
+- `src/core/platform/withAuth.ts` still calls NextAuth `auth()`
+- many server components and server actions still call `auth()` directly
+- many client components still use `next-auth/react`
+
+Do not delete `src/app/api/auth/[...nextauth]/route.ts` in this phase.
+
+Only perform the final cutover after all of the following are true:
+
+- `withPermission` exists and protected server code no longer depends on `withAuth`
+- direct `auth()` usage has been migrated to Better Auth session access or `getSession()` helpers
+- `next-auth/react` usage has been removed from client components
+- Google sign-in has been migrated to `authClient.signIn.social(...)`
+- `session.user.position`, `users.position`, and `userPositions` references have been removed or replaced
+- `pnpm tsc --noEmit` passes before the cutover commit
+
+At that point, execute the cutover steps below atomically in the same commit.
 
 ### 6.3.1 Clean up stale NextAuth sessions
 
-Before swapping, purge existing NextAuth sessions so users are forced to re-authenticate via Better Auth:
+Immediately before the final route swap, purge existing legacy NextAuth sessions so users are forced to re-authenticate via Better Auth:
 
 ```sql
 DELETE FROM sessions;
 DELETE FROM verification_tokens;
 ```
 
-This is safe because Better Auth creates its own session rows. Stale NextAuth cookies will simply fail validation and redirect to login.
+This is safe only when done as part of the final cutover. Both systems use the `sessions` table name, so do not run this early after any Better Auth testing has begun.
 
 ### 6.3.2 Swap the route handler
 
@@ -316,13 +359,15 @@ import { betterAuthServer } from '@/core/auth';
 export const { GET, POST } = toNextJsHandler(betterAuthServer);
 ```
 
-> **IMPORTANT**: The Better Auth instance is exported as `betterAuthServer`, NOT `auth`. The `auth` export in `src/core/auth.ts` currently aliases `legacyAuth` from NextAuth and will be cleaned up in a later phase.
+> **IMPORTANT**: The Better Auth instance is exported as `betterAuthServer`, NOT `auth`. The `auth` export in `src/core/auth.ts` currently aliases `legacyAuth` from NextAuth. Do not perform this route swap until the remaining `auth()` consumers have been migrated.
 
 Both route handlers CANNOT coexist. This must be atomic (same commit).
 
 ## 6.4 Update Next.js Config
 
-Add `better-auth` to `serverExternalPackages` in `next.config.ts` (if not already done in Phase 1):
+`better-auth` is already present in `serverExternalPackages` in `next.config.ts`.
+
+No code change is required here unless that entry is removed accidentally. The expected config remains:
 
 ```ts
 serverExternalPackages: ['better-auth'],
@@ -332,7 +377,7 @@ Keep `authInterrupts: true` in `next.config.ts` — it is still needed for `unau
 
 ## 6.5 Create proxy.ts
 
-Next.js 16 renamed `middleware.ts` to `proxy.ts` with the function export renamed from `middleware` to `proxy`. This is the optimistic auth redirect layer — **NOT** the final security boundary. Real protection happens in `withPermission` on the server.
+Create `proxy.ts` only as part of the final cutover commit after the route handler has been swapped. Next.js 16 renamed `middleware.ts` to `proxy.ts` with the function export renamed from `middleware` to `proxy`. This is the optimistic auth redirect layer — **NOT** the final security boundary. Real protection happens in `withPermission` on the server.
 
 File: `proxy.ts`
 
@@ -375,7 +420,7 @@ export const config = {
 
 ## 6.6 Update Google OAuth Console
 
-**CRITICAL**: After swapping the route handler from `[...nextauth]` to `[...all]`, verify the callback URL in Google Cloud Console:
+**CRITICAL**: Immediately after the final route swap from `[...nextauth]` to `[...all]`, verify the callback URL in Google Cloud Console:
 
 1. Go to Google Cloud Console → APIs & Services → Credentials
 2. Edit the OAuth 2.0 Client ID used by this app
@@ -387,16 +432,34 @@ export const config = {
 
 > **Note**: Better Auth docs emphasize setting `baseURL` explicitly to avoid `redirect_uri_mismatch` problems. The `BETTER_AUTH_URL` env var must match the domain used in Google Console.
 
+## 6.7 Deferred `position` Column Removal
+
+Do not remove `users.position` from `src/app/auth/users/_schema/users.ts` in this phase.
+
+This action moves to **Phase 24: Cleanup, Verification & Testing**, which is the first phase where the plan already expects all remaining `position`-based code paths and legacy auth consumers to have been removed.
+
+Remove the column only in the same final cutover window where all of the following are already complete:
+
+- all TypeScript references to `users.position`, `session.user.position`, `userPositions`, and `UserPosition` are gone
+- admin/user forms and detail pages no longer render or validate `position`
+- notifications and any other position-targeting features have been migrated away from position-based targeting
+- the application is type-clean without relying on the compatibility column
+
+In Phase 24:
+
+1. add the `ALTER TABLE users DROP COLUMN position;` step to the cutover migration
+2. remove the Drizzle field from `users.ts`
+3. run `pnpm db:generate` for the schema snapshot update
+4. rerun `pnpm tsc --noEmit`
+
 ## Exit Criteria
 
 - [ ] `permission_presets` table seeded with all predefined presets
 - [ ] `preset_permissions` table populated with permissions per preset
 - [ ] Users migrated from position to preset assignments
-- [ ] Blocking audit confirms no unmapped staff users remain before `users.position` is dropped
-- [ ] `position` column dropped from users table after preset assignment verification
-- [ ] Auth route handler swapped from `[...nextauth]` to `[...all]`
-- [ ] `proxy.ts` created with cookie-only optimistic redirect (Next.js 16 `proxy.ts` convention)
-- [ ] Google OAuth Console callback URIs verified
-- [ ] Sign-in tested after route swap
-- [ ] Legacy NextAuth sessions purged before route swap
+- [ ] Blocking audit confirms no unmapped staff users remain
+- [ ] Compatibility audit completed for `position`, `auth()`, and `next-auth/react` references
+- [ ] Legacy route handler remains in place until later session migrations are complete
+- [ ] `users.position` remains as a temporary compatibility column until final cutover
+- [ ] Final cutover prerequisites are documented for the later atomic swap commit
 - [ ] `pnpm tsc --noEmit` passes

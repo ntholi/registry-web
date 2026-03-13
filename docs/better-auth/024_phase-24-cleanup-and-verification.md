@@ -6,13 +6,27 @@
 
 ## 24.1 Remove Auth.js Artifacts
 
+### Drop the Temporary `users.position` Compatibility Column
+
+Phase 6 intentionally kept `users.position` in place so the application could remain type-clean while later phases removed live references.
+
+In Phase 24, remove it for real:
+
+1. Create a final custom migration with `pnpm db:generate --custom`
+2. Add `ALTER TABLE users DROP COLUMN position;` to that migration
+3. Apply the migration
+4. Remove the `position` field from `src/app/auth/users/_schema/users.ts`
+5. Remove any remaining `userPositions`, `UserPosition`, or related compatibility exports from that file
+6. Run `pnpm db:generate` to update the schema snapshot if needed
+7. Run `pnpm tsc --noEmit` and confirm no `position` references remain
+
 ### Delete Files
 
 - `next-auth.d.ts`
 - `src/core/auth.legacy.ts` (the renamed old Auth.js config)
 - `src/core/platform/withAuth.ts` (already deleted in Phase 7, verify)
 - `src/app/auth/auth-providers/_schema/authenticators.ts` (already deleted in Phase 3, verify)
-- `src/app/api/auth/[...nextauth]/route.ts` (already deleted in Phase 6, verify)
+- `src/app/api/auth/[...nextauth]/route.ts` (delete during the final auth cutover if it still exists)
 - Any test mocks for withAuth (e.g., `src/test/mock.withAuth.ts`)
 
 ### Clean Up `src/core/auth.ts` Legacy Re-exports
