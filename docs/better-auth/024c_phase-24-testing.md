@@ -1,10 +1,17 @@
-# Phase 24b: Integration Tests & Checklist
+# Phase 24c: Integration Tests & Checklist
 
 > Estimated Implementation Time: 45–60 minutes
 
 **Prerequisites**: Phase 24a (cleanup) complete.
 
-## 24b.1 Integration Tests
+## 24c.1 Integration Tests
+
+Implemented auth-focused coverage lives in:
+
+- `src/core/auth/__tests__/auth-routing.test.ts`
+- `src/core/auth/__tests__/session-permissions.test.ts`
+- `src/core/platform/__tests__/withPermission.test.ts`
+- `src/app/auth/permission-presets/_server/__tests__/service.test.ts`
 
 Write at minimum these critical-path tests (using Vitest):
 
@@ -170,7 +177,14 @@ describe('Session Permissions', () => {
 });
 ```
 
-## 24b.2 Testing Checklist
+## 24c.2 Testing Checklist
+
+Automated status for this phase:
+
+- [x] Auth-focused Vitest suites pass for route wiring, auth client setup, `withPermission`, session permission helpers, and preset session revocation
+- [ ] Manual end-to-end Google OAuth verification in local/staging
+- [ ] Manual proxy and CSRF verification in a running app environment
+- [ ] Full repository `pnpm tsc --noEmit` clean state
 
 ### Authentication
 

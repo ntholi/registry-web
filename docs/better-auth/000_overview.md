@@ -37,7 +37,7 @@ This file is the **authoritative** reference for the entire Better Auth migratio
 | 23 | User Form Update & Navigation Entry | `023_phase-23-user-form-and-navigation-entry.md` | `DONE` | `2026-03-13` | User form now uses role-scoped presets with matrix preview and admin nav entry |
 | 24a | Remove Auth.js Artifacts | `024a_phase-24-remove-authjs.md` | `DONE` | `2026-03-13` | Removed legacy Auth.js files/routes, switched `/api/auth` to Better Auth, and cleaned old `AUTH_*` runtime references |
 | 24b | Schema Cleanup & Verification | `024b_phase-24-schema-and-verification.md` | `DONE` | `2026-03-13` | Dropped `users.position`, removed legacy role enum exports/usages, added `proxy.ts`, and completed DB plus grep verification |
-| 24c | Integration Tests & Checklist | `024c_phase-24-testing.md` | `PENDING` | — | |
+| 24c | Integration Tests & Checklist | `024c_phase-24-testing.md` | `DONE` | `2026-03-13` | Added Better Auth Vitest coverage for route wiring, `withPermission`, session permission helpers, and preset session-revocation flows; targeted auth suites pass |
 
 **Legend**: `PENDING` = not started | `IN_PROGRESS` = currently executing | `DONE` = completed | `BLOCKED` = waiting on something
 
@@ -69,7 +69,7 @@ These must be completed **after** Phase 24:
 **Phase 5** — Run `pnpm db:generate --custom`, write migration SQL, run `pnpm db:migrate`, then `pnpm migration:verify` (asserts zero data loss across 59 checks)
 **Phase 24a** — Delete Auth.js files, clean `auth.ts`, remove `next-auth` packages, remove old env vars
 **Phase 24b** — Drop `position` column, remove enums, grep verification, verify DB state
-**Phase 24c** — Run `pnpm remove next-auth @auth/drizzle-adapter` and final verification commands
+**Phase 24c** — Run final verification commands and Better Auth regression tests
 
 **Migration verification workflow:**
 ```
