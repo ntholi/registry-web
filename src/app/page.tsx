@@ -1,6 +1,5 @@
 import {
 	Box,
-	Button,
 	Center,
 	Container,
 	Divider,
@@ -12,18 +11,13 @@ import {
 } from '@mantine/core';
 import { IconArrowRight } from '@tabler/icons-react';
 import { redirect } from 'next/navigation';
-import { auth, signIn } from '@/core/auth';
 import { dashboardUsers } from '@/core/database';
+import { getSession } from '@/core/platform/withPermission';
 import GoogleSignInForm from '@/shared/ui/GoogleSignInForm';
 import Logo from '@/shared/ui/Logo';
 
 export default async function HomePage() {
-	const session = await auth();
-
-	async function signInForApply() {
-		'use server';
-		await signIn('google', { redirectTo: '/apply/new' });
-	}
+	const session = await getSession();
 
 	if (session?.user) {
 		const role = session.user.role;
@@ -82,16 +76,14 @@ export default async function HomePage() {
 										If you're a new applicant looking to join Limkokwing
 										University, you can start your application here.
 									</Text>
-									<Box component='form' w={'100%'} action={signInForApply}>
-										<Button
-											type='submit'
-											variant='gradient'
-											rightSection={<IconArrowRight size={18} />}
-											fullWidth
-										>
-											Apply Now
-										</Button>
-									</Box>
+									<GoogleSignInForm
+										redirectTo='/apply/new'
+										variant='gradient'
+										leftSection={null}
+										rightSection={<IconArrowRight size={18} />}
+									>
+										Apply Now
+									</GoogleSignInForm>
 								</Stack>
 
 								<Stack gap='xs' mt='lg'>

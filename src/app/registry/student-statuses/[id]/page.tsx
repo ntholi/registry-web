@@ -2,7 +2,7 @@ import { Tabs, TabsList, TabsPanel, TabsTab } from '@mantine/core';
 import { AcademicsLoader } from '@registry/registration/clearance';
 import { notFound } from 'next/navigation';
 import StudentFinanceView from '@/app/registry/students/_components/finance/StudentFinanceView';
-import { auth } from '@/core/auth';
+import { getSession } from '@/core/platform/withPermission';
 import { DetailsView } from '@/shared/ui/adease';
 import StatusDetails from '../_components/StatusDetails';
 import StatusHeader from '../_components/StatusHeader';
@@ -16,7 +16,7 @@ type Props = {
 export default async function StudentStatusDetailsPage({ params }: Props) {
 	const { id } = await params;
 	const app = await getStudentStatus(id);
-	const session = await auth();
+	const session = await getSession();
 
 	if (!app) {
 		return notFound();

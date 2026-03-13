@@ -2,7 +2,7 @@ import { getUserCourses } from '@lms/courses';
 import { getQuiz, QuizHeader, QuizTabs } from '@lms/quizzes';
 import { Container } from '@mantine/core';
 import { notFound, redirect } from 'next/navigation';
-import { auth } from '@/core/auth';
+import { getSession } from '@/core/platform/withPermission';
 
 type Props = {
 	params: Promise<{ id: string; quizId: string }>;
@@ -10,10 +10,12 @@ type Props = {
 
 export default async function QuizPage({ params }: Props) {
 	const { id, quizId } = await params;
-	const session = await auth();
+	const session = await getSession();
 
 	if (!session?.user?.id) {
-		redirect('/api/auth/signin');
+		redirect(
+			`/auth/login?callbackUrl=${encodeURIComponent(`/lms/courses/${id}/quizzes/${quizId}`)}`
+		);
 	}
 
 	const courses = await getUserCourses();

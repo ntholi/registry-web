@@ -4,6 +4,7 @@ import { Tabs, TabsPanel, TabsTab } from '@mantine/core';
 import { useQueryState } from 'nuqs';
 import type { getBlockedStudentByStdNo } from '@/app/registry/blocked-students';
 import type { Session } from '@/core/auth';
+import { hasSessionPermission } from '@/core/auth/sessionPermissions';
 import ScrollableTabsList from '@/shared/ui/ScrollableTabsList';
 import NotesView from '../../student-notes/_components/NotesView';
 import type { getStudent } from '../_server/actions';
@@ -43,13 +44,12 @@ export default function StudentTabs({
 		defaultValue: showAcademics ? 'academics' : 'info',
 	});
 
-	const showRegistration =
-		['admin', 'registry', 'finance', 'student_services', 'leap'].includes(
-			session?.user?.role ?? ''
-		) ||
-		['admin', 'manager', 'program_leader', 'year_leader'].includes(
-			session?.user?.position ?? ''
-		);
+	const showRegistration = hasSessionPermission(
+		session,
+		'registration',
+		'read',
+		['admin']
+	);
 
 	const showSponsors = [
 		'admin',
@@ -58,11 +58,12 @@ export default function StudentTabs({
 		'student_services',
 	].includes(session?.user?.role ?? '');
 
-	const showStatementOfResults =
-		['admin', 'registry'].includes(session?.user?.role ?? '') ||
-		['admin', 'manager', 'program_leader'].includes(
-			session?.user?.position ?? ''
-		);
+	const showStatementOfResults = hasSessionPermission(
+		session,
+		'reports-boe',
+		'read',
+		['admin', 'registry']
+	);
 
 	const showStudentCard = ['admin', 'registry'].includes(
 		session?.user?.role ?? ''
@@ -74,10 +75,9 @@ export default function StudentTabs({
 
 	const showFinance = ['admin', 'finance'].includes(session?.user?.role ?? '');
 
-	const showDocuments =
-		['admin', 'registry', 'finance', 'student_services'].includes(
-			session?.user?.role ?? ''
-		) || session?.user?.position === 'manager';
+	const showDocuments = hasSessionPermission(session, 'documents', 'read', [
+		'admin',
+	]);
 
 	const showNotes = [
 		'admin',

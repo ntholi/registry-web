@@ -5,7 +5,7 @@ import {
 } from '@lms/assignments';
 import { getUserCourses } from '@lms/courses';
 import { notFound, redirect } from 'next/navigation';
-import { auth } from '@/core/auth';
+import { getSession } from '@/core/platform/withPermission';
 
 type Props = {
 	params: Promise<{ id: string; assignmentId: string; submissionId: string }>;
@@ -18,10 +18,12 @@ export default async function SubmissionViewerPage({
 }: Props) {
 	const { id, assignmentId, submissionId } = await params;
 	const { fileIndex } = await searchParams;
-	const session = await auth();
+	const session = await getSession();
 
 	if (!session?.user?.id) {
-		redirect('/api/auth/signin');
+		redirect(
+			`/auth/login?callbackUrl=${encodeURIComponent(`/lms/courses/${id}/assignments/${assignmentId}/submission/${submissionId}`)}`
+		);
 	}
 
 	const courses = await getUserCourses();

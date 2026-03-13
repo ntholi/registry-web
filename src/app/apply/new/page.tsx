@@ -9,10 +9,10 @@ import {
 import { findActiveIntakePeriod } from '@admissions/intake-periods';
 import { computeWizardStep } from '@apply/_lib/wizard-utils';
 import { redirect } from 'next/navigation';
-import { auth } from '@/core/auth';
+import { getSession } from '@/core/platform/withPermission';
 
 export default async function ApplyNewPage() {
-	const session = await auth();
+	const session = await getSession();
 
 	if (!session?.user?.id) {
 		redirect('/auth/login?callbackUrl=/apply/new');

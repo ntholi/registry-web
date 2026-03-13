@@ -2,6 +2,7 @@
 import { getAssignedModulesByCurrentUser } from '@academic/assigned-modules';
 import { getModules } from '@academic/modules';
 import { type PropsWithChildren, useState } from 'react';
+import { hasAnyPermission } from '@/core/auth/sessionPermissions';
 import { authClient } from '@/core/auth-client';
 import { ListItem, ListLayout, ModuleViewToggle } from '@/shared/ui/adease';
 
@@ -91,17 +92,18 @@ export default function Layout({ children }: PropsWithChildren) {
 			getData={getData}
 			renderItem={renderItem}
 			actionIcons={[
-				session?.user?.position &&
-					['admin', 'manager', 'program_leader'].includes(
-						session.user.position
-					) &&
-					session.user.role !== 'academic' && (
-						<ModuleViewToggle
-							key='module-toggle'
-							onToggle={setShowAssignedOnly}
-							defaultValue={showAssignedOnly}
-						/>
-					),
+				(session?.user?.role === 'admin' ||
+					(session?.user?.role !== 'academic' &&
+						hasAnyPermission(session, 'semester-modules', [
+							'create',
+							'update',
+						]))) && (
+					<ModuleViewToggle
+						key='module-toggle'
+						onToggle={setShowAssignedOnly}
+						defaultValue={showAssignedOnly}
+					/>
+				),
 			]}
 		>
 			{children}

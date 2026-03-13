@@ -7,19 +7,13 @@ import {
 import type { ModuleConfig } from '@/app/dashboard/module-config.types';
 import { moduleConfig } from '@/config/modules.config';
 import type { Session } from '@/core/auth';
+import {
+	hasAnyPermission,
+	hasSessionPermission,
+} from '@/core/auth/sessionPermissions';
 
 function isVisible(session: Session | null) {
-	if (session?.user?.role === 'admin') {
-		return true;
-	}
-	if (
-		session?.user?.role === 'academic' &&
-		['manager', 'admin', 'program_leader'].includes(
-			session?.user?.position || ''
-		)
-	)
-		return true;
-	return false;
+	return hasAnyPermission(session, 'timetable', ['create', 'update', 'delete']);
 }
 
 export const timetableConfig: ModuleConfig = {
@@ -35,7 +29,7 @@ export const timetableConfig: ModuleConfig = {
 				icon: IconCalendar,
 				href: '/timetable/viewer',
 				isVisible: (session) =>
-					isVisible(session) || session?.user?.role === 'registry',
+					hasSessionPermission(session, 'timetable', 'read', ['registry']),
 			},
 			{
 				label: 'Allocations',
@@ -47,13 +41,13 @@ export const timetableConfig: ModuleConfig = {
 				label: 'Venues',
 				icon: IconDoor,
 				href: '/timetable/venues',
-				isVisible,
+				isVisible: (session) => hasSessionPermission(session, 'venues', 'read'),
 			},
 			{
 				label: 'Venue Types',
 				icon: IconTags,
 				href: '/timetable/venue-types',
-				isVisible,
+				isVisible: (session) => hasSessionPermission(session, 'venues', 'read'),
 			},
 		],
 	},

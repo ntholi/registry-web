@@ -13,6 +13,7 @@ import { getStudentDocuments } from '@registry/documents';
 import { IconPlus } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
+import { hasSessionPermission } from '@/core/auth/sessionPermissions';
 import { authClient } from '@/core/auth-client';
 import AddDocumentModal from './AddDocumentModal';
 import DeleteDocumentModal from './DeleteDocumentModal';
@@ -43,14 +44,11 @@ export default function DocumentsView({ stdNo, isActive }: DocumentsViewProps) {
 		enabled: isActive,
 	});
 
-	const canEdit = ['admin', 'registry', 'student_services'].includes(
-		session?.user?.role ?? ''
-	);
+	const canEdit = hasSessionPermission(session, 'documents', 'create', [
+		'admin',
+	]);
 
-	const canView =
-		['admin', 'registry', 'finance', 'student_services'].includes(
-			session?.user?.role ?? ''
-		) || session?.user?.position === 'manager';
+	const canView = hasSessionPermission(session, 'documents', 'read', ['admin']);
 
 	if (!canView) {
 		return (

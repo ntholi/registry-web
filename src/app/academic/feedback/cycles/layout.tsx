@@ -2,12 +2,11 @@
 
 import { Badge } from '@mantine/core';
 import type { PropsWithChildren } from 'react';
+import { hasAnyPermission } from '@/core/auth/sessionPermissions';
 import { authClient } from '@/core/auth-client';
 import { getStatusColor } from '@/shared/lib/utils/colors';
 import { ListItem, ListLayout, NewLink } from '@/shared/ui/adease';
 import { getCycles } from './_server/actions';
-
-const CRUD_POSITIONS = ['admin', 'manager'];
 
 function getCycleStatus(startDate: string, endDate: string) {
 	const today = new Date().toISOString().slice(0, 10);
@@ -18,11 +17,13 @@ function getCycleStatus(startDate: string, endDate: string) {
 
 export default function Layout({ children }: PropsWithChildren) {
 	const { data: session } = authClient.useSession();
-	const role = session?.user?.role;
-	const position = session?.user?.position;
 	const canCreate =
-		role === 'admin' ||
-		(role === 'academic' && CRUD_POSITIONS.includes(position ?? ''));
+		session?.user?.role === 'admin' ||
+		hasAnyPermission(session, 'feedback-cycles', [
+			'create',
+			'update',
+			'delete',
+		]);
 
 	return (
 		<ListLayout

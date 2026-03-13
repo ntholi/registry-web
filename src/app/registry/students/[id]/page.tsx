@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getBlockedStudentByStdNo } from '@/app/registry/blocked-students';
-import { auth } from '@/core/auth';
+import { getSession } from '@/core/platform/withPermission';
 import { DetailsView, DetailsViewHeader } from '@/shared/ui/adease';
 import StudentTabs from '../_components/StudentTabs';
 import { getStudent } from '../_server/actions';
@@ -23,7 +23,7 @@ export default async function StudentDetails({ params }: Props) {
 	const { id } = await params;
 	const [student, session] = await Promise.all([
 		getStudent(Number(id)),
-		auth(),
+		getSession(),
 	]);
 
 	if (!student) {

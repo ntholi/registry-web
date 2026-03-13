@@ -23,6 +23,10 @@ import {
 import { useQuery } from '@tanstack/react-query';
 import { useParams } from 'next/navigation';
 import type { Session } from '@/core/auth';
+import {
+	hasAnyPermission,
+	hasSessionPermission,
+} from '@/core/auth/sessionPermissions';
 import { authClient } from '@/core/auth-client';
 import { getOptionalColor } from '@/shared/lib/utils/colors';
 import { formatSemester } from '@/shared/lib/utils/utils';
@@ -129,7 +133,7 @@ export default function StructureDetailsPage() {
 									</Group>
 								</Box>
 							</Group>
-							{canEditModule(session) && (
+							{canAddSemester(session) && (
 								<AddSemesterModal
 									structureId={structureId}
 									existingSemesterCount={structure.semesters?.length ?? 0}
@@ -153,7 +157,7 @@ export default function StructureDetailsPage() {
 										<Text size='sm' c='dimmed'>
 											{semester.semesterModules?.length || 0} modules
 										</Text>
-										{canEditModule(session) && (
+										{canManageSemesterModules(session) && (
 											<AddSemesterModuleModal
 												semesterId={semester.id}
 												structureId={structureId}
@@ -224,7 +228,7 @@ export default function StructureDetailsPage() {
 															hidden={semModule.hidden}
 														/>
 													</Table.Td>
-													{canEditModule(session) && (
+													{canManageSemesterModules(session) && (
 														<Table.Td>
 															<Flex gap='xs'>
 																<EditButton
@@ -273,22 +277,15 @@ export default function StructureDetailsPage() {
 	);
 }
 
-function canEditModule(session: Session | null) {
-	if (!session) return false;
-	if (session?.user?.role === 'admin') {
-		return true;
-	}
-	if (
-		session.user?.role === 'registry' &&
-		session.user.position === 'manager'
-	) {
-		return true;
-	}
-	if (
-		session.user?.role === 'academic' &&
-		['manager', 'program_leader'].includes(session.user.position || '')
-	) {
-		return true;
-	}
-	return false;
+function canAddSemester(session: Session | null) {
+	return hasSessionPermission(session, 'school-structures', 'update', [
+		'admin',
+	]);
+}
+
+function canManageSemesterModules(session: Session | null) {
+	return (
+		session?.user?.role === 'admin' ||
+		hasAnyPermission(session, 'semester-modules', ['create', 'update'])
+	);
 }

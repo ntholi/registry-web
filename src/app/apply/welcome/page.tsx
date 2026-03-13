@@ -19,13 +19,13 @@ import {
 	IconDeviceFloppy,
 } from '@tabler/icons-react';
 import { redirect } from 'next/navigation';
-import { auth } from '@/core/auth';
+import { getSession } from '@/core/platform/withPermission';
 import { formatDate } from '@/shared/lib/utils/dates';
 import ButtonLink from '@/shared/ui/ButtonLink';
 import Logo from '@/shared/ui/Logo';
 
 export default async function WelcomePage() {
-	const session = await auth();
+	const session = await getSession();
 
 	if (!session?.user?.id) {
 		redirect('/auth/login?callbackUrl=/apply/welcome');

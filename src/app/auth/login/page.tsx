@@ -9,7 +9,7 @@ import {
 	Title,
 } from '@mantine/core';
 import { redirect } from 'next/navigation';
-import { auth } from '@/core/auth';
+import { getSession } from '@/core/platform/withPermission';
 import GoogleSignInForm from '@/shared/ui/GoogleSignInForm';
 import Logo from '@/shared/ui/Logo';
 
@@ -19,7 +19,7 @@ interface Props {
 
 export default async function LoginPage({ searchParams }: Props) {
 	const { callbackUrl } = await searchParams;
-	const session = await auth();
+	const session = await getSession();
 
 	if (session?.user) {
 		const role = session.user.role;

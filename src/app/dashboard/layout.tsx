@@ -4,13 +4,13 @@ import '@mantine/notifications/styles.css';
 import type { Metadata } from 'next';
 import type { PropsWithChildren } from 'react';
 import { getModuleConfig } from '@/config/modules.config';
-import { auth } from '@/core/auth';
+import { getSession } from '@/core/platform/withPermission';
 import { toTitleCase } from '@/shared/lib/utils/utils';
 import { DebugRibbon } from '@/shared/ui/DebugRibbon';
 import Dashboard from './dashboard';
 
 export async function generateMetadata(): Promise<Metadata> {
-	const session = await auth();
+	const session = await getSession();
 	return {
 		title: `${toTitleCase(session?.user?.role)} Portal | Limkokwing`,
 	};

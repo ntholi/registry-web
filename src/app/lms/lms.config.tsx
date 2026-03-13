@@ -1,6 +1,7 @@
 import { IconDeviceDesktopAnalytics } from '@tabler/icons-react';
 import type { ModuleConfig } from '@/app/dashboard/module-config.types';
 import { moduleConfig } from '@/config/modules.config';
+import { hasSessionPermission } from '@/core/auth/sessionPermissions';
 import FiveDaysLogo from '@/shared/ui/FiveDaysLogo';
 
 export const lmsConfig: ModuleConfig = {
@@ -17,9 +18,8 @@ export const lmsConfig: ModuleConfig = {
 				icon: IconDeviceDesktopAnalytics,
 				roles: ['academic'],
 				href: '/lms/courses',
-				isVisible: (session) => {
-					return session?.user?.position !== 'admin';
-				},
+				isVisible: (session) =>
+					hasSessionPermission(session, 'assigned-modules', 'read'),
 			},
 		],
 	},

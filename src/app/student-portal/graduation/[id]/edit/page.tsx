@@ -10,7 +10,7 @@ import { getGraduationRequest } from '@registry/graduation/clearance';
 import { IconArrowLeft } from '@tabler/icons-react';
 import Link from 'next/link';
 import { forbidden, notFound } from 'next/navigation';
-import { auth } from '@/core/auth';
+import { getSession } from '@/core/platform/withPermission';
 import { PaymentReceiptsEditor } from '../../_components';
 
 type Props = {
@@ -20,7 +20,7 @@ type Props = {
 };
 
 export default async function EditGraduationPage({ params }: Props) {
-	const session = await auth();
+	const session = await getSession();
 
 	if (!session?.user?.stdNo) {
 		return forbidden();

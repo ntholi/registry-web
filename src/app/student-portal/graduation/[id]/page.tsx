@@ -18,7 +18,7 @@ import {
 import { getGraduationRequest } from '@registry/graduation/clearance';
 import { IconReceipt } from '@tabler/icons-react';
 import { forbidden, notFound } from 'next/navigation';
-import { auth } from '@/core/auth';
+import { getSession } from '@/core/platform/withPermission';
 import { getStatusColor } from '@/shared/lib/utils/colors';
 import { formatDateTime } from '@/shared/lib/utils/dates';
 import { getStatusIcon } from '@/shared/lib/utils/status';
@@ -36,7 +36,7 @@ type Props = {
 };
 
 export default async function GraduationDetailsPage({ params }: Props) {
-	const session = await auth();
+	const session = await getSession();
 
 	if (!session?.user?.stdNo) {
 		return forbidden();

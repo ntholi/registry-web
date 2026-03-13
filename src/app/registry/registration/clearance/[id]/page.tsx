@@ -8,7 +8,7 @@ import { getClearance } from '@registry/registration/requests';
 import { notFound } from 'next/navigation';
 import StudentFinanceView from '@/app/registry/students/_components/finance/StudentFinanceView';
 import { getActiveTerm } from '@/app/registry/terms';
-import { auth } from '@/core/auth';
+import { getSession } from '@/core/platform/withPermission';
 import { DetailsView } from '@/shared/ui/adease';
 
 type Props = {
@@ -18,7 +18,7 @@ type Props = {
 export default async function ClearanceRequestDetails({ params }: Props) {
 	const { id } = await params;
 	const request = await getClearance(Number(id));
-	const session = await auth();
+	const session = await getSession();
 	const term = await getActiveTerm();
 
 	if (!request) {

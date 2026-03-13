@@ -9,7 +9,7 @@ import {
 } from '@mantine/core';
 import { forbidden } from 'next/navigation';
 import { Suspense } from 'react';
-import { auth } from '@/core/auth';
+import { getSession } from '@/core/platform/withPermission';
 import {
 	GraduationHistory,
 	GraduationHistorySkeleton,
@@ -18,7 +18,7 @@ import {
 } from './_components';
 
 export default async function GraduationPage() {
-	const session = await auth();
+	const session = await getSession();
 
 	if (!session?.user?.stdNo) {
 		return forbidden();

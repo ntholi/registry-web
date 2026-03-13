@@ -16,7 +16,7 @@ import {
 } from '@tabler/icons-react';
 import type { ModuleConfig } from '@/app/dashboard/module-config.types';
 import { moduleConfig } from '@/config/modules.config';
-import type { UserPosition, UserRole } from '../auth/_database';
+import { hasSessionPermission } from '@/core/auth/sessionPermissions';
 import { countPendingGraduationClearances } from './graduation';
 import { countPendingClearances } from './registration';
 import { countPendingStudentStatuses } from './student-statuses';
@@ -33,46 +33,16 @@ export const registryConfig: ModuleConfig = {
 				label: 'Students',
 				href: '/registry/students',
 				icon: IconUsers,
-				isVisible: (session) => {
-					if (
-						[
-							'registry',
-							'finance',
-							'admin',
-							'student_services',
-							'marketing',
-							'leap',
-						].includes(session?.user?.role || '')
-					) {
-						return true;
-					}
-					const position = session?.user?.position;
-					return !!(
-						position &&
-						['manager', 'admin', 'program_leader', 'year_leader'].includes(
-							position
-						)
-					);
-				},
+				isVisible: (session) =>
+					hasSessionPermission(session, 'students', 'read', ['admin']),
 			},
 			{
 				label: 'Registration',
 				description: 'Registration Requests',
 				href: '/registry/registration/requests',
 				icon: IconUserPlus,
-				isVisible: (session) => {
-					const role = session?.user?.role as UserRole;
-					if (['registry', 'admin', 'leap', 'student_services'].includes(role))
-						return true;
-					if (role === 'academic') {
-						const position = session?.user?.position as UserPosition;
-						return !!(
-							position &&
-							['manager', 'program_leader', 'year_leader'].includes(position)
-						);
-					}
-					return false;
-				},
+				isVisible: (session) =>
+					hasSessionPermission(session, 'registration', 'read', ['admin']),
 			},
 			{
 				label: 'Graduations',
@@ -120,15 +90,10 @@ export const registryConfig: ModuleConfig = {
 				label: 'Graduation Clearance',
 				href: '/registry/graduation/clearance',
 				icon: IconCertificate,
-				isVisible: (session) => {
-					if (['finance', 'library'].includes(session?.user?.role as UserRole))
-						return true;
-					const academicRole = session?.user?.position as UserPosition;
-					return !!(
-						academicRole &&
-						['manager', 'admin', 'program_leader'].includes(academicRole)
-					);
-				},
+				isVisible: (session) =>
+					hasSessionPermission(session, 'graduation-clearance', 'read', [
+						'admin',
+					]),
 				notificationCount: {
 					queryKey: ['graduation-clearances', 'pending'],
 					queryFn: () => countPendingGraduationClearances(),
@@ -139,18 +104,8 @@ export const registryConfig: ModuleConfig = {
 				label: 'Student Status',
 				href: '/registry/student-statuses',
 				icon: IconUserExclamation,
-				isVisible: (session) => {
-					const role = session?.user?.role as UserRole;
-					if (
-						['admin', 'registry', 'student_services', 'finance'].includes(role)
-					)
-						return true;
-					const position = session?.user?.position as UserPosition;
-					return !!(
-						position &&
-						['manager', 'program_leader', 'year_leader'].includes(position)
-					);
-				},
+				isVisible: (session) =>
+					hasSessionPermission(session, 'student-statuses', 'read', ['admin']),
 				notificationCount: {
 					queryKey: ['student-statuses', 'pending'],
 					queryFn: () => countPendingStudentStatuses(),

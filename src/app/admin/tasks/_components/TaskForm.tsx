@@ -20,6 +20,7 @@ import { createInsertSchema } from 'drizzle-zod';
 import { useRouter } from 'nextjs-toploader/app';
 import { useState } from 'react';
 import { z } from 'zod';
+import { hasAnyPermission } from '@/core/auth/sessionPermissions';
 import { authClient } from '@/core/auth-client';
 import { parseDate } from '@/shared/lib/utils/dates';
 import { Form } from '@/shared/ui/adease';
@@ -69,7 +70,7 @@ export default function TaskForm({ onSubmit, defaultValues, title }: Props) {
 	const router = useRouter();
 	const { data: session } = authClient.useSession();
 	const userRole = session?.user?.role;
-	const isManager = session?.user?.position === 'manager';
+	const isManager = hasAnyPermission(session, 'tasks', ['create', 'update']);
 	const isAdmin = userRole === 'admin';
 	const canAssignOthers = isManager || isAdmin;
 

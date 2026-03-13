@@ -33,18 +33,19 @@ import { notifications } from '@mantine/notifications';
 import { IconGripVertical, IconSearch } from '@tabler/icons-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useMemo, useState } from 'react';
+import { hasAnyPermission } from '@/core/auth/sessionPermissions';
 import { authClient } from '@/core/auth-client';
 import { DeleteButton } from '@/shared/ui/adease';
 
-const MANAGE_POSITIONS = ['manager', 'program_leader', 'admin'];
-
 function useCanManage() {
 	const { data: session } = authClient.useSession();
-	const role = session?.user?.role;
-	const position = session?.user?.position;
 	return (
-		role === 'admin' ||
-		(role === 'academic' && MANAGE_POSITIONS.includes(position ?? ''))
+		session?.user?.role === 'admin' ||
+		hasAnyPermission(session, 'feedback-questions', [
+			'create',
+			'update',
+			'delete',
+		])
 	);
 }
 

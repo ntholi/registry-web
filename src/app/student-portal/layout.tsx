@@ -2,11 +2,11 @@ import '@mantine/notifications/styles.css';
 import { Space } from '@mantine/core';
 import type { Metadata } from 'next';
 import type React from 'react';
-import { auth } from '@/core/auth';
+import { getSession } from '@/core/platform/withPermission';
 import { BottomNavigation, Footer, Navbar } from './_shared';
 
 export async function generateMetadata(): Promise<Metadata> {
-	const session = await auth();
+	const session = await getSession();
 	return {
 		title: session?.user?.name
 			? `${session.user.name.split(' ')[0]}'s Portal`

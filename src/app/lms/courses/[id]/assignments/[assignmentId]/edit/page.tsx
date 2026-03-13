@@ -6,7 +6,7 @@ import {
 import { getUserCourses } from '@lms/courses';
 import { Container } from '@mantine/core';
 import { notFound, redirect } from 'next/navigation';
-import { auth } from '@/core/auth';
+import { getSession } from '@/core/platform/withPermission';
 
 type Props = {
 	params: Promise<{ id: string; assignmentId: string }>;
@@ -14,10 +14,12 @@ type Props = {
 
 export default async function AssignmentEditPage({ params }: Props) {
 	const { id, assignmentId } = await params;
-	const session = await auth();
+	const session = await getSession();
 
 	if (!session?.user?.id) {
-		redirect('/api/auth/signin');
+		redirect(
+			`/auth/login?callbackUrl=${encodeURIComponent(`/lms/courses/${id}/assignments/${assignmentId}/edit`)}`
+		);
 	}
 
 	const courses = await getUserCourses();

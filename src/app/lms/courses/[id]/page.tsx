@@ -1,7 +1,7 @@
 import { CourseHeader, CourseTabs, getUserCourses } from '@lms/courses';
 import { Container } from '@mantine/core';
 import { redirect } from 'next/navigation';
-import { auth } from '@/core/auth';
+import { getSession } from '@/core/platform/withPermission';
 
 type Props = {
 	params: Promise<{ id: string }>;
@@ -9,10 +9,12 @@ type Props = {
 
 export default async function CoursePage({ params }: Props) {
 	const { id } = await params;
-	const session = await auth();
+	const session = await getSession();
 
 	if (!session?.user?.id) {
-		redirect('/api/auth/signin');
+		redirect(
+			`/auth/login?callbackUrl=${encodeURIComponent(`/lms/courses/${id}`)}`
+		);
 	}
 
 	const courses = await getUserCourses();

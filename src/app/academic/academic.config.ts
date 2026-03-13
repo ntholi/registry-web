@@ -9,6 +9,10 @@ import {
 } from '@tabler/icons-react';
 import type { ModuleConfig } from '@/app/dashboard/module-config.types';
 import { moduleConfig } from '@/config/modules.config';
+import {
+	hasAnyPermission,
+	hasSessionPermission,
+} from '@/core/auth/sessionPermissions';
 
 export const academicConfig: ModuleConfig = {
 	id: 'academic',
@@ -24,31 +28,24 @@ export const academicConfig: ModuleConfig = {
 				href: '/academic/lecturers',
 				roles: ['academic'],
 				icon: IconPresentation,
-				isVisible: (session) => {
-					const position = session?.user?.position;
-					return !!(
-						position &&
-						['manager', 'admin', 'program_leader'].includes(position)
-					);
-				},
+				isVisible: (session) =>
+					hasSessionPermission(session, 'lecturers', 'read'),
 			},
 			{
 				label: 'Assessments',
 				href: '/academic/assessments',
 				icon: IconListCheck,
 				roles: ['academic'],
-				isVisible: (session) => {
-					return session?.user?.position !== 'admin';
-				},
+				isVisible: (session) =>
+					hasSessionPermission(session, 'assessments', 'read'),
 			},
 			{
 				label: 'Attendance',
 				href: '/academic/attendance',
 				icon: IconCalendarEvent,
 				roles: ['academic'],
-				isVisible: (session) => {
-					return session?.user?.position !== 'admin';
-				},
+				isVisible: (session) =>
+					hasSessionPermission(session, 'attendance', 'read'),
 			},
 			{
 				label: 'Gradebook',
@@ -56,9 +53,8 @@ export const academicConfig: ModuleConfig = {
 				roles: ['academic'],
 				collapsed: false,
 				children: [],
-				isVisible: (session) => {
-					return session?.user?.position !== 'admin';
-				},
+				isVisible: (session) =>
+					hasAnyPermission(session, 'gradebook', ['read', 'update', 'approve']),
 			},
 			{
 				label: 'Student Feedback',

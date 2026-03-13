@@ -13,6 +13,7 @@ import {
 } from '@mantine/core';
 import type { Grade, StudentModuleStatus } from '@registry/_database';
 import type { Session } from '@/core/auth';
+import { hasSessionPermission } from '@/core/auth/sessionPermissions';
 import { authClient } from '@/core/auth-client';
 import {
 	getGradeColor,
@@ -324,16 +325,8 @@ export default function SemesterTable({
 }
 
 function canViewAssessmentMarks(session: Session | undefined | null) {
-	const role = session?.user?.role;
-	const position = session?.user?.position;
-
-	if (role === 'admin') {
-		return true;
-	}
-	if (role === 'registry' && position === 'manager') {
-		return true;
-	}
-	if (role === 'academic' && ['manager', 'program_leader'].includes(position)) {
-		return true;
-	}
+	return hasSessionPermission(session, 'reports-boe', 'read', [
+		'admin',
+		'registry',
+	]);
 }

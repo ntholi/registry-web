@@ -10,7 +10,8 @@ import {
 } from '@mantine/core';
 import { IconInfoCircle, IconKey } from '@tabler/icons-react';
 import { notFound } from 'next/navigation';
-import { auth } from '@/core/auth';
+import { hasAnyPermission } from '@/core/auth/sessionPermissions';
+import { getSession } from '@/core/platform/withPermission';
 import { getStatusColor } from '@/shared/lib/utils/colors';
 import { formatDate } from '@/shared/lib/utils/dates';
 import { DetailsView, DetailsViewHeader, FieldView } from '@/shared/ui/adease';
@@ -21,8 +22,6 @@ type Props = {
 	params: Promise<{ id: string }>;
 };
 
-const CRUD_POSITIONS = ['admin', 'manager'];
-
 function getCycleStatus(startDate: string, endDate: string) {
 	const today = new Date().toISOString().slice(0, 10);
 	if (today < startDate) return 'upcoming';
@@ -32,17 +31,19 @@ function getCycleStatus(startDate: string, endDate: string) {
 
 export default async function CycleDetails({ params }: Props) {
 	const { id } = await params;
-	const [cycle, session] = await Promise.all([getCycle(id), auth()]);
+	const [cycle, session] = await Promise.all([getCycle(id), getSession()]);
 
 	if (!cycle) {
 		return notFound();
 	}
 
-	const role = session?.user?.role;
-	const position = session?.user?.position;
 	const canCrud =
-		role === 'admin' ||
-		(role === 'academic' && CRUD_POSITIONS.includes(position ?? ''));
+		session?.user?.role === 'admin' ||
+		hasAnyPermission(session, 'feedback-cycles', [
+			'create',
+			'update',
+			'delete',
+		]);
 
 	const status = getCycleStatus(cycle.startDate, cycle.endDate);
 	const termName =
