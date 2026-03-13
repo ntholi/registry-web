@@ -28,7 +28,7 @@ This file is the **authoritative** reference for the entire Better Auth migratio
 | 14 | Timetable, Library & Standalone Actions | `014_phase-14-timetable-library-and-standalone-actions.md` | `DONE` | `2026-03-13` | Timetable and library services migrated to permission checks; remaining `withAuth` aliases removed from `src/` |
 | 15 | Client Session Migration | `015_phase-15-client-session-migration.md` | `DONE` | `2026-03-13` | Replaced `next-auth/react` client hooks with `authClient`, removed `SessionProvider`, and dropped legacy `session.accessToken` session enrichment |
 | 16 | Server Components, Sign-In & Permissions | `016_phase-16-server-components-and-sign-in.md` | `DONE` | `2026-03-13` | Migrated server-component session reads to `getSession`, switched Google sign-in flows to `authClient.signIn.social`, and replaced Phase 16 UI/config position gates with permission checks |
-| 17 | Student Portal & stdNo Migration | `017_phase-17-student-portal-migration.md` | `PENDING` | — | |
+| 17 | Student Portal & stdNo Migration | `017_phase-17-student-portal-migration.md` | `DONE` | `2026-03-13` | |
 | 18 | LMS Credential Migration | `018_phase-18-lms-credential-migration.md` | `PENDING` | — | |
 | 19 | Navigation Config Migration | `019_phase-19-navigation-config-migration.md` | `PENDING` | — | |
 | 20 | Permission Preset Backend & Actions | `020_phase-20-preset-backend-and-actions.md` | `PENDING` | — | |

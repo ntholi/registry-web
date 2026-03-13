@@ -240,19 +240,18 @@ export default class StudentRepository extends BaseRepository<
 		});
 	}
 
-	async findStudentByUserId(userId: string) {
+	async findStdNoByUserId(userId: string): Promise<number | null> {
 		const student = await db.query.students.findFirst({
 			where: eq(students.userId, userId),
-			columns: {
-				stdNo: true,
-			},
+			columns: { stdNo: true },
 		});
+		return student?.stdNo ?? null;
+	}
 
-		if (!student) {
-			return null;
-		}
-
-		return this.findStudentByStdNo(student.stdNo);
+	async findStudentByUserId(userId: string) {
+		const stdNo = await this.findStdNoByUserId(userId);
+		if (!stdNo) return null;
+		return this.findStudentByStdNo(stdNo);
 	}
 
 	async findAcademicHistory(stdNo: number) {

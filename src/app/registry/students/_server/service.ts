@@ -80,6 +80,13 @@ class StudentService {
 		);
 	}
 
+	async getStdNoByUserId(userId: string) {
+		return withPermission(
+			async () => this.repository.findStdNoByUserId(userId),
+			'auth'
+		);
+	}
+
 	async findStudentByUserId(userId: string) {
 		return withPermission(
 			async () => {

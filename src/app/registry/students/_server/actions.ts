@@ -49,6 +49,10 @@ export async function getStudentByUserId(userId: string | undefined | null) {
 	return service.findStudentByUserId(userId);
 }
 
+export async function getStdNoByUserId(userId: string) {
+	return service.getStdNoByUserId(userId);
+}
+
 export async function getStudentsBySemesterModules(
 	semesterModuleIds: number[]
 ) {
