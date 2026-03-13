@@ -35,7 +35,9 @@ This file is the **authoritative** reference for the entire Better Auth migratio
 | 21 | Permission Preset Pages | `021_phase-21-preset-pages.md` | `DONE` | `2026-03-13` | Added admin preset pages, activity mappings, and a forward-compatible preset form shell pending matrix integration |
 | 22 | Permission Matrix & Preset Form | `022_phase-22-permission-matrix-and-preset-form.md` | `DONE` | 2026-03-13 | Shared matrix and preset form wired into admin preset pages |
 | 23 | User Form Update & Navigation Entry | `023_phase-23-user-form-and-navigation-entry.md` | `DONE` | `2026-03-13` | User form now uses role-scoped presets with matrix preview and admin nav entry |
-| 24 | Cleanup, Verification & Testing | `024_phase-24-cleanup-and-verification.md` | `PENDING` | — | |
+| 24a | Remove Auth.js Artifacts | `024a_phase-24-remove-authjs.md` | `PENDING` | — | |
+| 24b | Schema Cleanup & Verification | `024b_phase-24-schema-and-verification.md` | `PENDING` | — | |
+| 24c | Integration Tests & Checklist | `024c_phase-24-testing.md` | `PENDING` | — | |
 
 **Legend**: `PENDING` = not started | `IN_PROGRESS` = currently executing | `DONE` = completed | `BLOCKED` = waiting on something
 
@@ -65,7 +67,9 @@ These must be completed **after** Phase 24:
 **Phase 1** — Run `pnpm add better-auth` and add env vars to `.env`
 **Phase 4** — Run `pnpm migration:snapshot` (captures all user/account data), then `pnpm db:generate` and `pnpm db:migrate`
 **Phase 5** — Run `pnpm db:generate --custom`, write migration SQL, run `pnpm db:migrate`, then `pnpm migration:verify` (asserts zero data loss across 59 checks)
-**Phase 24** — Run `pnpm remove next-auth @auth/drizzle-adapter` and final verification commands
+**Phase 24a** — Delete Auth.js files, clean `auth.ts`, remove `next-auth` packages, remove old env vars
+**Phase 24b** — Drop `position` column, remove enums, grep verification, verify DB state
+**Phase 24c** — Run `pnpm remove next-auth @auth/drizzle-adapter` and final verification commands
 
 **Migration verification workflow:**
 ```
