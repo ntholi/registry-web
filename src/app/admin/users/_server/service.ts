@@ -2,6 +2,7 @@ import {
 	getLmsCredentials,
 	upsertLmsCredentials,
 } from '@auth/auth-providers/_server/repository';
+import { authUsersService } from '@auth/users/_server/service';
 import type { users } from '@/core/database';
 import type { QueryOptions } from '@/core/platform/BaseRepository';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
@@ -84,12 +85,24 @@ class UserService {
 	async update(id: string, data: UserWithSchools) {
 		return withPermission(
 			async (session) => {
-				const { schoolIds, lmsUserId, lmsToken, ...userData } = data;
-				const user = await this.repository.update(id, userData, {
-					userId: session!.user!.id!,
-					role: session!.user!.role!,
-					activityType: 'user_updated',
-				});
+				const hasPresetId = Object.hasOwn(data, 'presetId');
+				const { schoolIds, lmsUserId, lmsToken, presetId, ...userData } = data;
+				const hasUserChanges = Object.keys(userData).length > 0;
+				const user = hasUserChanges
+					? await this.repository.update(id, userData, {
+							userId: session!.user!.id!,
+							role: session!.user!.role!,
+							activityType: 'user_updated',
+						})
+					: await this.repository.findById(id);
+
+				if (!user) {
+					throw new Error('User not found');
+				}
+
+				if (hasPresetId) {
+					await authUsersService.assignPreset(id, presetId);
+				}
 
 				await upsertLmsCredentials(id, lmsUserId, lmsToken);
 

@@ -31,7 +31,7 @@ This file is the **authoritative** reference for the entire Better Auth migratio
 | 17 | Student Portal & stdNo Migration | `017_phase-17-student-portal-migration.md` | `DONE` | `2026-03-13` | |
 | 18 | LMS Credential Migration | `018_phase-18-lms-credential-migration.md` | `DONE` | `2026-03-13` | LMS credentials now resolve from auth-owned repository, all LMS Moodle callers pass tokens explicitly, and session LMS fields were removed |
 | 19 | Navigation Config Migration | `019_phase-19-navigation-config-migration.md` | `DONE` | `2026-03-13` | Added declarative nav permissions, dashboard admin bypass, and migrated permission-gated config items |
-| 20 | Permission Preset Backend & Actions | `020_phase-20-preset-backend-and-actions.md` | `PENDING` | — | |
+| 20 | Permission Preset Backend & Actions | `020_phase-20-preset-backend-and-actions.md` | `DONE` | `2026-03-13` | Added auth-owned preset CRUD backend/actions, permission counts for list consumers, and immediate session revocation for preset updates and user preset reassignment |
 | 21 | Permission Preset Pages | `021_phase-21-preset-pages.md` | `PENDING` | — | |
 | 22 | Permission Matrix & Preset Form | `022_phase-22-permission-matrix-and-preset-form.md` | `PENDING` | — | |
 | 23 | User Form Update & Navigation Entry | `023_phase-23-user-form-and-navigation-entry.md` | `PENDING` | — | |
