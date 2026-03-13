@@ -1,7 +1,7 @@
 import type { venueTypes } from '@/core/database';
 import BaseService from '@/core/platform/BaseService';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
-import withAuth from '@/core/platform/withAuth';
+import withAuth from '@/core/platform/withPermission';
 import VenueTypeRepository from './repository';
 
 class VenueTypeService extends BaseService<typeof venueTypes, 'id'> {

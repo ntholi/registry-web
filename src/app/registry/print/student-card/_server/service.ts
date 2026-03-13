@@ -1,6 +1,6 @@
 import type { studentCardPrints } from '@/core/database';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
-import withAuth, { requireSessionUserId } from '@/core/platform/withAuth';
+import withAuth, { requireSessionUserId } from '@/core/platform/withPermission';
 import StudentCardPrintRepository from './repository';
 
 type StudentCardPrint = typeof studentCardPrints.$inferInsert;

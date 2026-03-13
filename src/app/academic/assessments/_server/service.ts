@@ -2,7 +2,7 @@ import { getRecordHistory } from '@/app/audit-logs/_server/actions';
 import type { assessments, lmsAssessments } from '@/core/database';
 import BaseService from '@/core/platform/BaseService';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
-import withAuth from '@/core/platform/withAuth';
+import withAuth from '@/core/platform/withPermission';
 import AssessmentRepository from './repository';
 
 class AssessmentService extends BaseService<typeof assessments, 'id'> {

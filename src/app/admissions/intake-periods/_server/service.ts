@@ -1,7 +1,7 @@
 import type { intakePeriods } from '@/core/database';
 import BaseService from '@/core/platform/BaseService';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
-import withAuth from '@/core/platform/withAuth';
+import withAuth from '@/core/platform/withPermission';
 import IntakePeriodRepository from './repository';
 
 class IntakePeriodService extends BaseService<typeof intakePeriods, 'id'> {

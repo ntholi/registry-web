@@ -8,7 +8,7 @@ import {
 import type { QueryOptions } from '@/core/platform/BaseRepository';
 import BaseService from '@/core/platform/BaseService';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
-import withAuth, { requireSessionUserId } from '@/core/platform/withAuth';
+import withAuth, { requireSessionUserId } from '@/core/platform/withPermission';
 import { ALLOWED_MIME_TYPES, MAX_ATTACHMENT_SIZE } from '../_lib/constants';
 import type { NoteVisibility } from '../_schema/studentNotes';
 import StudentNotesRepository from './repository';

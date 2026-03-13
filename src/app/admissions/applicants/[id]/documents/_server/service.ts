@@ -6,7 +6,7 @@ import type {
 } from '@/core/database';
 import BaseService from '@/core/platform/BaseService';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
-import withAuth from '@/core/platform/withAuth';
+import withAuth from '@/core/platform/withPermission';
 import ApplicantDocumentRepository from './repository';
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB

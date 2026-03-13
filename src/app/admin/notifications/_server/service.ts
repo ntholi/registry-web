@@ -1,7 +1,7 @@
 import type { AdminActivityType } from '@admin/_lib/activities';
 import type { UserPosition, UserRole } from '@/core/database';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
-import withAuth from '@/core/platform/withAuth';
+import withAuth from '@/core/platform/withPermission';
 import NotificationRepository, {
 	type NotificationWithRecipients,
 } from './repository';

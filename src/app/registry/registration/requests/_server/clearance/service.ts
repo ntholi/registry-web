@@ -4,7 +4,7 @@ import { auth } from '@/core/auth';
 import type { clearance, DashboardUser } from '@/core/database';
 import type { QueryOptions } from '@/core/platform/BaseRepository';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
-import withAuth from '@/core/platform/withAuth';
+import withAuth from '@/core/platform/withPermission';
 import ClearanceRepository, { type ClearanceFilterOptions } from './repository';
 
 export { getActiveTerm };

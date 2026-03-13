@@ -3,7 +3,7 @@ import { db } from '@/core/database';
 import { setMockUser } from '@/test/mocks.auth';
 import { getUserTimetableSlots } from '../actions';
 
-vi.mock('@/core/platform/withAuth', () => {
+vi.mock('@/core/platform/withPermission', () => {
 	return vi.importActual('@/test/mock.withAuth');
 });
 

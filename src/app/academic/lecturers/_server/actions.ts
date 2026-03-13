@@ -2,7 +2,7 @@
 
 import { and, eq, ne } from 'drizzle-orm';
 import { users } from '@/core/database';
-import withAuth from '@/core/platform/withAuth';
+import withAuth from '@/core/platform/withPermission';
 import { lecturersService as service } from './service';
 
 export async function getLecturer(id: string) {

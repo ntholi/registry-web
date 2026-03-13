@@ -2,7 +2,7 @@ import type { AdminActivityType } from '@admin/_lib/activities';
 import type { Session } from 'next-auth';
 import type { tasks, UserRole } from '@/core/database';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
-import withAuth from '@/core/platform/withAuth';
+import withAuth from '@/core/platform/withPermission';
 import TaskRepository, { type TaskInsert } from './repository';
 
 type TaskStatus = (typeof tasks.$inferSelect)['status'];

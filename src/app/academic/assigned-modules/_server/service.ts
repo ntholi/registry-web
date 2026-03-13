@@ -1,6 +1,6 @@
 import { getActiveTerm } from '@/app/registry/terms';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
-import withAuth from '@/core/platform/withAuth';
+import withAuth from '@/core/platform/withPermission';
 import AssignedModuleRepository from './repository';
 
 class AssignedModuleService {

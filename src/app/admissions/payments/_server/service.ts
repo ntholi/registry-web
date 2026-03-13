@@ -7,7 +7,7 @@ import {
 } from '@/core/integrations/pay-lesotho';
 import BaseService from '@/core/platform/BaseService';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
-import withAuth from '@/core/platform/withAuth';
+import withAuth from '@/core/platform/withPermission';
 import type { DepositFilters } from '../_lib/types';
 import PaymentRepository from './repository';
 

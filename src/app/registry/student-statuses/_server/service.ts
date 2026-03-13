@@ -10,7 +10,7 @@ import type {
 } from '@/core/platform/BaseRepository';
 import BaseService from '@/core/platform/BaseService';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
-import withAuth, { requireSessionUserId } from '@/core/platform/withAuth';
+import withAuth, { requireSessionUserId } from '@/core/platform/withPermission';
 import {
 	canUserApproveRole,
 	getUserApprovalRoles,

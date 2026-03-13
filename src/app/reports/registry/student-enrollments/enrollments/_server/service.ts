@@ -1,6 +1,6 @@
 import { Packer } from 'docx';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
-import withAuth from '@/core/platform/withAuth';
+import withAuth from '@/core/platform/withPermission';
 import { createSummaryRegistrationDocument } from './document';
 import { createFullRegistrationExcel } from './excel';
 import {

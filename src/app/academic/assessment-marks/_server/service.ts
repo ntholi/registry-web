@@ -4,7 +4,7 @@ import {
 } from '@/app/audit-logs/_server/actions';
 import type { assessmentMarks } from '@/core/database';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
-import withAuth from '@/core/platform/withAuth';
+import withAuth from '@/core/platform/withPermission';
 import AssessmentMarkRepository from './repository';
 
 type AssessmentMark = typeof assessmentMarks.$inferInsert;

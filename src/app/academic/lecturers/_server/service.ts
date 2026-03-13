@@ -4,7 +4,7 @@ import { auth } from '@/core/auth';
 import type { users } from '@/core/database';
 import type { QueryOptions } from '@/core/platform/BaseRepository';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
-import withAuth from '@/core/platform/withAuth';
+import withAuth from '@/core/platform/withPermission';
 
 class LecturerService {
 	constructor(private readonly repository = new UserRepository()) {}

@@ -2,7 +2,7 @@ import type { Session } from 'next-auth';
 import type { feedbackCategories } from '@/core/database';
 import BaseService from '@/core/platform/BaseService';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
-import withAuth from '@/core/platform/withAuth';
+import withAuth from '@/core/platform/withPermission';
 import FeedbackCategoryRepository from './repository';
 
 const MANAGE_POSITIONS = ['manager', 'program_leader', 'admin'];

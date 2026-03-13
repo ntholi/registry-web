@@ -18,7 +18,7 @@ This file is the **authoritative** reference for the entire Better Auth migratio
 | 4 | Dependent Schemas & Migration | `004_phase-4-dependent-schemas-and-migration.md` | `DONE` | `2026-03-12` | Phase 2 tables (0183/0184) + Phase 3-4 schema migration (0185) applied together; student_notes table handled |
 | 5 | Data Migration — Core Tables | `005_phase-5-data-migration-core-tables.md` | `DONE` | `2026-03-12` | Applied `pnpm db:migrate` and passed `pnpm migration:verify` |
 | 6 | Preset Seeds & Route Swap | `006_phase-6-preset-seeds-and-route-swap.md` | `DONE` | `2026-03-13` | Applied `0187_phase-6-preset-seeds`; seeded presets and backfilled `preset_id`; route swap, proxy, and `position` removal deferred until final cutover |
-| 7 | Create withPermission Wrapper | `007_phase-7-create-withpermission-wrapper.md` | `PENDING` | — | |
+| 7 | Create withPermission Wrapper | `007_phase-7-create-withpermission-wrapper.md` | `DONE` | `2026-03-13` | Added Better Auth-backed `withPermission`, request-scoped session caching, and migrated `requireSessionUserId` to the new module with transitional legacy role-array support |
 | 8 | Update BaseService | `008_phase-8-update-base-service.md` | `PENDING` | — | |
 | 9 | Academic Services — Part 1 | `009_phase-9-academic-services-part-1.md` | `PENDING` | — | |
 | 10 | Academic Services — Part 2 | `010_phase-10-academic-services-part-2.md` | `PENDING` | — | |

@@ -4,9 +4,12 @@ import { betterAuth } from 'better-auth/minimal';
 import { nextCookies } from 'better-auth/next-js';
 import { admin, customSession } from 'better-auth/plugins';
 import { nanoid } from 'nanoid';
+import type { Session as NextAuthSession } from 'next-auth';
 import type { PermissionGrant } from '@/core/auth/permissions';
 import { db, schema } from '@/core/database';
 import { handlers, auth as legacyAuth, signIn, signOut } from './auth.legacy';
+
+type BetterAuthSession = typeof betterAuthServer.$Infer.Session;
 
 export const betterAuthServer = betterAuth({
 	secret: process.env.BETTER_AUTH_SECRET,
@@ -97,7 +100,16 @@ export const betterAuthServer = betterAuth({
 	],
 });
 
-export type Session = typeof betterAuthServer.$Infer.Session;
+export type Session = NextAuthSession & {
+	permissions?: PermissionGrant[];
+	session?: BetterAuthSession['session'];
+	user: NonNullable<NextAuthSession['user']> & {
+		presetId?: string | null;
+		role?: string | null;
+		position?: string | null;
+		stdNo?: number | null;
+	};
+};
 
 export const auth = legacyAuth;
 export { handlers, legacyAuth, signIn, signOut };

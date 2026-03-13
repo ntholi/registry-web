@@ -1,7 +1,7 @@
 import { getActiveTerm } from '@/app/registry/terms';
 import type { AttendanceStatus } from '@/core/database';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
-import withAuth from '@/core/platform/withAuth';
+import withAuth from '@/core/platform/withPermission';
 import { createAttendanceExcel } from './excel';
 import AttendanceRepository from './repository';
 

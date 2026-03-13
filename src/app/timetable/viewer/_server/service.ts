@@ -1,4 +1,4 @@
-import withAuth from '@/core/platform/withAuth';
+import withAuth from '@/core/platform/withPermission';
 import {
 	findSlotsForClass,
 	findSlotsForUser,

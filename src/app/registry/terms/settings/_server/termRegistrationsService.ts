@@ -1,5 +1,5 @@
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
-import withAuth from '@/core/platform/withAuth';
+import withAuth from '@/core/platform/withPermission';
 import TermRegistrationsRepository from './termRegistrationsRepository';
 
 interface RegistrationEntry {

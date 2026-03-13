@@ -1,7 +1,7 @@
 import type { graduationDates } from '@/core/database';
 import BaseService from '@/core/platform/BaseService';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
-import withAuth from '@/core/platform/withAuth';
+import withAuth from '@/core/platform/withPermission';
 import GraduationRepository from './repository';
 
 class GraduationService extends BaseService<typeof graduationDates, 'id'> {

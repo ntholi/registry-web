@@ -1,7 +1,7 @@
 import type { academicRecords, StandardGrade } from '@/core/database';
 import BaseService from '@/core/platform/BaseService';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
-import withAuth from '@/core/platform/withAuth';
+import withAuth from '@/core/platform/withPermission';
 import { mapGradesToStandard } from '../_lib/grade-mapping';
 import type { SubjectGradeInput } from '../_lib/types';
 import AcademicRecordRepository from './repository';

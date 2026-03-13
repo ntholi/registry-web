@@ -1,6 +1,6 @@
 import type { Session } from 'next-auth';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
-import withAuth from '@/core/platform/withAuth';
+import withAuth from '@/core/platform/withPermission';
 import ActivityTrackerRepository from './repository';
 
 class ActivityTrackerService {

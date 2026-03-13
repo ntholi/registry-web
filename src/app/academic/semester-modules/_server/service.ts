@@ -3,7 +3,7 @@ import type { semesterModules } from '@/core/database';
 import type { QueryOptions } from '@/core/platform/BaseRepository';
 import BaseService from '@/core/platform/BaseService';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
-import withAuth from '@/core/platform/withAuth';
+import withAuth from '@/core/platform/withPermission';
 import ModuleRepository, { type ModuleGradeInsert } from './repository';
 
 class SemesterModuleService extends BaseService<typeof semesterModules, 'id'> {

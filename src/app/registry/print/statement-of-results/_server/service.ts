@@ -1,6 +1,6 @@
 import type { statementOfResultsPrints } from '@/core/database';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
-import withAuth from '@/core/platform/withAuth';
+import withAuth from '@/core/platform/withPermission';
 import StatementOfResultsPrintsRepository from './repository';
 
 type StatementOfResultsPrint = typeof statementOfResultsPrints.$inferInsert;

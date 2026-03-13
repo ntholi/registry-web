@@ -1,6 +1,6 @@
 import { Packer } from 'docx';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
-import withAuth from '@/core/platform/withAuth';
+import withAuth from '@/core/platform/withPermission';
 import type { GraduationReportFilter } from '../_lib/types';
 import { createGraduationSummaryDocument } from './document';
 import { createGraduationExcel } from './excel';

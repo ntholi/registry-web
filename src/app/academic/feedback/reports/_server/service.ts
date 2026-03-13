@@ -1,6 +1,6 @@
 import type { Session } from 'next-auth';
 import { auth } from '@/core/auth';
-import withAuth from '@/core/platform/withAuth';
+import withAuth from '@/core/platform/withPermission';
 import type { FeedbackReportFilter } from '../_lib/types';
 import { feedbackReportRepository } from './repository';
 

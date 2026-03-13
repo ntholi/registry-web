@@ -1,5 +1,5 @@
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
-import withAuth from '@/core/platform/withAuth';
+import withAuth from '@/core/platform/withPermission';
 import type { AdmissionReportFilter } from '../../_shared/types';
 import { createApplicationSummaryExcel } from './excel';
 import { ApplicationSummaryRepository } from './repository';

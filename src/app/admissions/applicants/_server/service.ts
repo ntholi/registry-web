@@ -11,7 +11,7 @@ import type {
 import type { DocumentAnalysisResult } from '@/core/integrations/ai/documents';
 import BaseService from '@/core/platform/BaseService';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
-import withAuth from '@/core/platform/withAuth';
+import withAuth from '@/core/platform/withPermission';
 import { normalizeResultClassification } from '@/shared/lib/utils/resultClassification';
 import { getEligiblePrograms } from '../_lib/eligibility';
 import {

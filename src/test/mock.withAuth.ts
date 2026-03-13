@@ -1,10 +1,9 @@
-import type { Session } from 'next-auth';
 import { vi } from 'vitest';
-import type { UserRole } from '@/core/database';
-import withAuth from '@/core/platform/withAuth';
+import type { Session } from '@/core/auth';
+import withPermission from '@/core/platform/withPermission';
 import { getMockUser } from './mocks.auth';
 
-type Role = UserRole | 'all' | 'auth' | 'dashboard';
+type Role = 'all' | 'auth' | 'dashboard' | string;
 type AccessCheckFunction = (session: Session) => Promise<boolean>;
 
 vi.mock('@/core/auth', () => ({
@@ -26,10 +25,10 @@ vi.mock('next/navigation', () => ({
 }));
 
 async function mockWithAuthImplementation<T>(
-	fn: (session?: Session | null) => Promise<T>,
+	fn: (session: Session | null) => Promise<T>,
 	rolesOrAccessCheck: Role[] | AccessCheckFunction
 ): Promise<T> {
-	return withAuth(fn, rolesOrAccessCheck as Role[]);
+	return withPermission(fn, rolesOrAccessCheck as Role[]);
 }
 
 export const mockWithAuth = vi.fn(mockWithAuthImplementation);

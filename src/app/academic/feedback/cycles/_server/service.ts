@@ -4,7 +4,7 @@ import { auth } from '@/core/auth';
 import type { feedbackCycles } from '@/core/database';
 import BaseService from '@/core/platform/BaseService';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
-import withAuth from '@/core/platform/withAuth';
+import withAuth from '@/core/platform/withPermission';
 import { generateUniquePassphrases } from '../../_shared/lib/passphrase';
 import FeedbackCycleRepository from './repository';
 

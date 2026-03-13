@@ -1,5 +1,5 @@
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
-import withAuth from '@/core/platform/withAuth';
+import withAuth from '@/core/platform/withPermission';
 import type { DistributionReportFilter, DistributionType } from '../types';
 import { DistributionReportRepository } from './repository';
 

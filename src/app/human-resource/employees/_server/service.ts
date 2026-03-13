@@ -2,7 +2,7 @@ import type { employees } from '@/core/database';
 import { deleteFile, uploadFile } from '@/core/integrations/storage';
 import { StoragePaths } from '@/core/integrations/storage-utils';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
-import withAuth, { requireSessionUserId } from '@/core/platform/withAuth';
+import withAuth, { requireSessionUserId } from '@/core/platform/withPermission';
 import EmployeeRepository from './repository';
 
 type Employee = typeof employees.$inferInsert;

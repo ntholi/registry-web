@@ -2,7 +2,7 @@ import { getStudentByUserId } from '@registry/students';
 import type { fortinetLevel, fortinetRegistrations } from '@/core/database';
 import type { QueryOptions } from '@/core/platform/BaseRepository';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
-import withAuth from '@/core/platform/withAuth';
+import withAuth from '@/core/platform/withPermission';
 import FortinetRegistrationRepository from './repository';
 
 type FortinetRegistration = typeof fortinetRegistrations.$inferInsert;

@@ -1,7 +1,7 @@
 import type { timetableAllocations } from '@/core/database';
 import BaseService from '@/core/platform/BaseService';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
-import withAuth from '@/core/platform/withAuth';
+import withAuth from '@/core/platform/withPermission';
 import type { TimetableAllocationInsert } from './repository';
 import TimetableAllocationRepository from './repository';
 

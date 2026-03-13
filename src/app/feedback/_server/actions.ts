@@ -1,6 +1,6 @@
 'use server';
 
-import withAuth from '@/core/platform/withAuth';
+import withAuth from '@/core/platform/withPermission';
 import {
 	finalize,
 	getExistingResponses,

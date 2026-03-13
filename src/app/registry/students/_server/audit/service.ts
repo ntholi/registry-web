@@ -1,5 +1,5 @@
 import type { Session } from 'next-auth';
-import withAuth from '@/core/platform/withAuth';
+import withAuth from '@/core/platform/withPermission';
 import { studentAuditRepository as repository } from './repository';
 
 class StudentAuditService {

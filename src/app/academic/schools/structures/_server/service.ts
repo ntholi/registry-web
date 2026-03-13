@@ -1,7 +1,7 @@
 import type { structureSemesters, structures } from '@/core/database';
 import BaseService from '@/core/platform/BaseService';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
-import withAuth, { requireSessionUserId } from '@/core/platform/withAuth';
+import withAuth, { requireSessionUserId } from '@/core/platform/withPermission';
 import StructureRepository from './repository';
 
 class StructureService extends BaseService<typeof structures, 'id'> {

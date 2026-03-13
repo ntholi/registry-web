@@ -1,7 +1,7 @@
 import { studentsService } from '@/app/registry/students/_server/service';
 import { getUnpublishedTermCodes } from '@/app/registry/terms/settings/_server/actions';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
-import withAuth from '@/core/platform/withAuth';
+import withAuth from '@/core/platform/withPermission';
 import BulkRepository from './repository';
 
 class BulkService {

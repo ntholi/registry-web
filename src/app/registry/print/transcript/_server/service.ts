@@ -1,6 +1,6 @@
 import type { transcriptPrints } from '@/core/database';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
-import withAuth from '@/core/platform/withAuth';
+import withAuth from '@/core/platform/withPermission';
 import TranscriptPrintsRepository from './repository';
 
 type TranscriptPrint = typeof transcriptPrints.$inferInsert;

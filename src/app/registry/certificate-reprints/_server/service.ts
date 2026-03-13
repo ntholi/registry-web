@@ -1,5 +1,5 @@
 import type { certificateReprints } from '@registry/_database';
-import withAuth, { requireSessionUserId } from '@/core/platform/withAuth';
+import withAuth, { requireSessionUserId } from '@/core/platform/withPermission';
 import CertificateReprintsRepository from './repository';
 
 type CertificateReprint = typeof certificateReprints.$inferInsert;

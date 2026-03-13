@@ -1,7 +1,7 @@
 import type { timetableAllocations, timetableSlots } from '@/core/database';
 import BaseService from '@/core/platform/BaseService';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
-import withAuth from '@/core/platform/withAuth';
+import withAuth from '@/core/platform/withPermission';
 import { buildTermPlan, type DayOfWeek } from './planner';
 import TimetableSlotRepository from './repository';
 

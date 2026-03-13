@@ -1,7 +1,7 @@
 import type { subjects } from '@/core/database';
 import BaseService from '@/core/platform/BaseService';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
-import withAuth from '@/core/platform/withAuth';
+import withAuth from '@/core/platform/withPermission';
 import SubjectRepository from './repository';
 
 class SubjectService extends BaseService<typeof subjects, 'id'> {

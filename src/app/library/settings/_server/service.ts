@@ -1,6 +1,6 @@
 import BaseService from '@/core/platform/BaseService';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
-import withAuth from '@/core/platform/withAuth';
+import withAuth from '@/core/platform/withPermission';
 import type { librarySettings } from '../_schema/librarySettings';
 import { LibrarySettingsRepository } from './repository';
 
