@@ -10,6 +10,7 @@ import { useRouter } from 'nextjs-toploader/app';
 import { DASHBOARD_ROLES } from '@/core/auth/permissions';
 import { toTitleCase } from '@/shared/lib/utils/utils';
 import { Form } from '@/shared/ui/adease';
+import PermissionMatrix from '@/shared/ui/PermissionMatrix';
 
 type Props = {
 	onSubmit: (values: PresetFormValues) => Promise<PermissionPresetDetail>;
@@ -55,6 +56,12 @@ export default function PermissionPresetForm({
 						autosize
 						minRows={3}
 						{...form.getInputProps('description')}
+					/>
+					<PermissionMatrix
+						permissions={form.values.permissions ?? []}
+						onChange={(permissions) => {
+							form.setFieldValue('permissions', permissions);
+						}}
 					/>
 				</>
 			)}

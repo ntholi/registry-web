@@ -12,6 +12,7 @@ import {
 	DetailsViewHeader,
 	FieldView,
 } from '@/shared/ui/adease';
+import PermissionMatrix from '@/shared/ui/PermissionMatrix';
 
 type Props = {
 	params: Promise<{ id: string }>;
@@ -44,7 +45,7 @@ export default async function PresetDetails({ params }: Props) {
 				</FieldView>
 				<FieldView label='Description'>{preset.description || '-'}</FieldView>
 				<FieldView label='Permissions'>
-					{preset.permissionCount} granted
+					<PermissionMatrix permissions={preset.permissions} readOnly />
 				</FieldView>
 			</DetailsViewBody>
 		</DetailsView>
