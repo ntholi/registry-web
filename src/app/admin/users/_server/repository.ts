@@ -76,12 +76,28 @@ export default class UserRepository extends BaseRepository<typeof users, 'id'> {
 			});
 	}
 
-	async searchLecturersWithSchools(search: string, limit = 20) {
+	async searchLecturersWithSchools(
+		search: string,
+		limit = 20,
+		schoolIds?: number[]
+	) {
+		const schoolFilter =
+			schoolIds && schoolIds.length > 0
+				? inArray(
+						users.id,
+						db
+							.select({ userId: userSchools.userId })
+							.from(userSchools)
+							.where(inArray(userSchools.schoolId, schoolIds))
+					)
+				: undefined;
+
 		return db.query.users.findMany({
 			where: and(
 				eq(users.role, 'academic'),
 				ne(users.position, 'admin'),
-				or(ilike(users.name, `%${search}%`), ilike(users.email, `%${search}%`))
+				or(ilike(users.name, `%${search}%`), ilike(users.email, `%${search}%`)),
+				schoolFilter
 			),
 			with: {
 				userSchools: {

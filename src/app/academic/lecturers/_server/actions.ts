@@ -2,7 +2,6 @@
 
 import { and, eq, ne } from 'drizzle-orm';
 import { users } from '@/core/database';
-import withAuth from '@/core/platform/withPermission';
 import { lecturersService as service } from './service';
 
 export async function getLecturer(id: string) {
@@ -19,8 +18,5 @@ export async function getLecturers(page: number = 1, search = '') {
 }
 
 export async function searchAllLecturers(search: string) {
-	return withAuth(
-		async () => service.searchWithSchools(search),
-		['academic', 'registry']
-	);
+	return service.searchWithSchools(search);
 }

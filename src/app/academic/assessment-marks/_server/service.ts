@@ -4,7 +4,7 @@ import {
 } from '@/app/audit-logs/_server/actions';
 import type { assessmentMarks } from '@/core/database';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
-import withAuth from '@/core/platform/withPermission';
+import { withPermission } from '@/core/platform/withPermission';
 import AssessmentMarkRepository from './repository';
 
 type AssessmentMark = typeof assessmentMarks.$inferInsert;
@@ -13,7 +13,7 @@ class AssessmentMarkService {
 	constructor(private readonly repository = new AssessmentMarkRepository()) {}
 
 	async create(data: AssessmentMark, stdNo?: number) {
-		return withAuth(
+		return withPermission(
 			async (session) =>
 				this.repository.create(data, {
 					userId: session!.user!.id!,
@@ -26,7 +26,7 @@ class AssessmentMarkService {
 	}
 
 	async update(id: number, data: AssessmentMark, stdNo?: number) {
-		return withAuth(
+		return withPermission(
 			async (session) =>
 				this.repository.update(id, data, {
 					userId: session!.user!.id!,
@@ -39,21 +39,21 @@ class AssessmentMarkService {
 	}
 
 	async getByModuleId(moduleId: number, termId: number) {
-		return withAuth(
+		return withPermission(
 			async () => this.repository.findByModuleId(moduleId, termId),
 			['academic']
 		);
 	}
 
 	async getByStudentModuleId(studentModuleId: number) {
-		return withAuth(
+		return withPermission(
 			async () => this.repository.findByStudentModuleId(studentModuleId),
 			['academic']
 		);
 	}
 
 	async getByStudentModuleIdWithDetails(studentModuleId: number) {
-		return withAuth(
+		return withPermission(
 			async () =>
 				this.repository.findByStudentModuleIdWithDetails(studentModuleId),
 			['academic', 'registry', 'admin']
@@ -61,21 +61,21 @@ class AssessmentMarkService {
 	}
 
 	async getStudentMarks(smId: number) {
-		return withAuth(
+		return withPermission(
 			async () => this.repository.getStudentMarks(smId),
 			['academic', 'registry', 'admin']
 		);
 	}
 
 	async getAssessmentsByModuleId(moduleId: number, termId: number) {
-		return withAuth(
+		return withPermission(
 			async () => this.repository.getAssessmentsByModuleId(moduleId, termId),
 			['academic']
 		);
 	}
 
 	async getAuditHistory(assessmentMarkId: number) {
-		return withAuth(
+		return withPermission(
 			async () =>
 				getRecordHistory('assessment_marks', String(assessmentMarkId)),
 			['academic']
@@ -83,7 +83,7 @@ class AssessmentMarkService {
 	}
 
 	async createOrUpdateMarks(data: AssessmentMark, stdNo?: number) {
-		return withAuth(
+		return withPermission(
 			async (session) =>
 				this.repository.createOrUpdateMarks(data, {
 					userId: session!.user!.id!,
@@ -96,7 +96,7 @@ class AssessmentMarkService {
 	}
 
 	async createOrUpdateMarksInBulk(dataArray: AssessmentMark[]) {
-		return withAuth(
+		return withPermission(
 			async (session) =>
 				this.repository.createOrUpdateMarksInBulk(dataArray, {
 					userId: session!.user!.id!,
@@ -108,7 +108,7 @@ class AssessmentMarkService {
 	}
 
 	async getStudentAuditHistory(studentModuleId: number) {
-		return withAuth(
+		return withPermission(
 			async () => getStudentModuleAuditHistory(studentModuleId),
 			['academic']
 		);

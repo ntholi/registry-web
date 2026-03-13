@@ -1,7 +1,7 @@
 import { getActiveTerm } from '@/app/registry/terms';
 import type { AttendanceStatus } from '@/core/database';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
-import withAuth from '@/core/platform/withPermission';
+import { withPermission } from '@/core/platform/withPermission';
 import { createAttendanceExcel } from './excel';
 import AttendanceRepository from './repository';
 
@@ -9,14 +9,14 @@ class AttendanceService {
 	constructor(private readonly repository = new AttendanceRepository()) {}
 
 	async getWeeksForTerm(termId: number) {
-		return withAuth(
+		return withPermission(
 			async () => this.repository.getWeeksForTerm(termId),
 			['academic', 'leap']
 		);
 	}
 
 	async getStudentsForModule(semesterModuleId: number) {
-		return withAuth(async () => {
+		return withPermission(async () => {
 			const term = await getActiveTerm();
 			return this.repository.getStudentsForModule(semesterModuleId, term.code);
 		}, ['academic', 'leap']);
@@ -27,7 +27,7 @@ class AttendanceService {
 		termId: number,
 		weekNumber: number
 	) {
-		return withAuth(async () => {
+		return withPermission(async () => {
 			const term = await getActiveTerm();
 			return this.repository.getAttendanceForWeek(
 				semesterModuleId,
@@ -46,7 +46,7 @@ class AttendanceService {
 		markedBy: string,
 		records: { stdNo: number; status: AttendanceStatus }[]
 	) {
-		return withAuth(
+		return withPermission(
 			async (session) => {
 				const attendanceRecords = records.map((r) => ({
 					stdNo: r.stdNo,
@@ -68,7 +68,7 @@ class AttendanceService {
 	}
 
 	async getAttendanceSummary(semesterModuleId: number, termId: number) {
-		return withAuth(async () => {
+		return withPermission(async () => {
 			const term = await getActiveTerm();
 			return this.repository.getAttendanceSummaryForModule(
 				semesterModuleId,
@@ -80,7 +80,7 @@ class AttendanceService {
 
 	async getAssignedModulesForCurrentUser(userId: string) {
 		const term = await getActiveTerm();
-		return withAuth(
+		return withPermission(
 			async () =>
 				this.repository.getAssignedModulesWithDetails(userId, term.id),
 			['academic', 'leap']
@@ -92,7 +92,7 @@ class AttendanceService {
 		termId: number,
 		weekNumber: number
 	) {
-		return withAuth(
+		return withPermission(
 			async () =>
 				this.repository.deleteAttendanceForWeek(
 					semesterModuleId,
@@ -111,7 +111,7 @@ class AttendanceService {
 		className: string,
 		lecturerName: string
 	) {
-		return withAuth(async () => {
+		return withPermission(async () => {
 			const term = await this.repository.getTermInfo(termId);
 			if (!term) {
 				throw new Error('Term not found');

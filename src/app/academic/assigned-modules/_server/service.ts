@@ -1,13 +1,13 @@
 import { getActiveTerm } from '@/app/registry/terms';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
-import withAuth from '@/core/platform/withPermission';
+import { withPermission } from '@/core/platform/withPermission';
 import AssignedModuleRepository from './repository';
 
 class AssignedModuleService {
 	constructor(private readonly repository = new AssignedModuleRepository()) {}
 
 	async delete(id: number) {
-		return withAuth(
+		return withPermission(
 			async (session) =>
 				this.repository.delete(id, {
 					userId: session!.user!.id!,
@@ -19,7 +19,7 @@ class AssignedModuleService {
 	}
 
 	async assignModulesToLecturer(userId: string, semesterModuleIds: number[]) {
-		return withAuth(
+		return withPermission(
 			async (session) => {
 				await this.repository.removeModuleAssignments(
 					userId,
@@ -43,20 +43,20 @@ class AssignedModuleService {
 	}
 
 	async getByUserAndModule(userId: string, moduleId: number) {
-		return withAuth(
+		return withPermission(
 			async () => this.repository.findByUserAndModule(userId, moduleId),
 			['academic', 'leap']
 		);
 	}
 	async getLecturersByModule(moduleId: number) {
-		return withAuth(
+		return withPermission(
 			async () => this.repository.findByModule(moduleId),
 			['academic', 'leap']
 		);
 	}
 
 	async getByUser(userId: string, termId?: number) {
-		return withAuth(
+		return withPermission(
 			async () => this.repository.findByUser(userId, termId),
 			['academic', 'leap']
 		);
@@ -77,14 +77,14 @@ class AssignedModuleService {
 	}
 
 	async checkAssignment(userId: string, semesterModuleId: number) {
-		return withAuth(
+		return withPermission(
 			async () => this.repository.findByUserAndModule(userId, semesterModuleId),
 			['academic', 'leap']
 		);
 	}
 
 	async getByLmsCourseId(lmsCourseId: string) {
-		return withAuth(
+		return withPermission(
 			async () => this.repository.findByLmsCourseId(lmsCourseId),
 			['dashboard']
 		);
@@ -95,7 +95,7 @@ class AssignedModuleService {
 		semesterModuleId: number,
 		lmsCourseId: string
 	) {
-		return withAuth(
+		return withPermission(
 			async () =>
 				this.repository.linkCourseToAssignment(
 					userId,

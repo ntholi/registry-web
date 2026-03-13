@@ -25,18 +25,29 @@ class LecturerService {
 	}
 
 	async searchWithSchools(search: string) {
-		const results = await this.repository.searchLecturersWithSchools(search);
-		return results.map((l) => {
-			const schoolCodes = l.userSchools
-				.map((us) => us.school.code)
-				.filter(Boolean)
-				.join(', ');
-			const name = l.name ?? l.email ?? l.id;
-			return {
-				value: l.id,
-				label: schoolCodes ? `${name} (${schoolCodes})` : name,
-			};
-		});
+		return withPermission(
+			async (session) => {
+				const userSchools = await getUserSchoolIds(session?.user?.id);
+				const results = await this.repository.searchLecturersWithSchools(
+					search,
+					20,
+					userSchools
+				);
+
+				return results.map((l) => {
+					const schoolCodes = l.userSchools
+						.map((us) => us.school.code)
+						.filter(Boolean)
+						.join(', ');
+					const name = l.name ?? l.email ?? l.id;
+					return {
+						value: l.id,
+						label: schoolCodes ? `${name} (${schoolCodes})` : name,
+					};
+				});
+			},
+			{ lecturers: ['read'] }
+		);
 	}
 }
 
