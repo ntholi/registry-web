@@ -2,7 +2,10 @@ import type { AcademicRemarks, Student } from '@registry/students';
 import { getStudentRegistrationData } from '@registry/students/_server/actions';
 import { getActiveTerm } from '@/app/registry/terms';
 import type { Session } from '@/core/auth';
-import { hasAnyPermission, hasPermission } from '@/core/auth/permissions';
+import {
+	hasAnyPermission,
+	hasPermission,
+} from '@/core/auth/sessionPermissions';
 import type {
 	ReceiptType,
 	registrationRequests,

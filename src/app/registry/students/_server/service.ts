@@ -5,7 +5,10 @@ import {
 } from '@/app/registry/_lib/activities';
 import { getActiveTerm } from '@/app/registry/terms';
 import type { Session } from '@/core/auth';
-import { hasAnyPermission, hasPermission } from '@/core/auth/permissions';
+import {
+	hasAnyPermission,
+	hasPermission,
+} from '@/core/auth/sessionPermissions';
 import type {
 	nextOfKins,
 	studentModules,

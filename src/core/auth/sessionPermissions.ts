@@ -1,7 +1,28 @@
 import type { Session } from '../auth';
-import { type Action, hasPermission, type Resource } from './permissions';
+import type { Action, PermissionGrant, Resource } from './permissions';
 
 export const APPLICANT_SELF_SERVICE_ROLES = ['applicant', 'user'] as const;
+
+export function hasPermission(
+	session: { permissions?: PermissionGrant[] } | null | undefined,
+	resource: Resource,
+	action: Action
+) {
+	return (
+		session?.permissions?.some(
+			(permission) =>
+				permission.resource === resource && permission.action === action
+		) ?? false
+	);
+}
+
+export function hasAnyPermission(
+	session: { permissions?: PermissionGrant[] } | null | undefined,
+	resource: Resource,
+	actions: readonly Action[]
+) {
+	return actions.some((action) => hasPermission(session, resource, action));
+}
 
 export function hasSessionRole(
 	session: Session | null | undefined,
