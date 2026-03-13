@@ -15,8 +15,6 @@ type SessionUser = NonNullable<NextAuthSession['user']> & {
 	role?: string | null;
 	position?: string | null;
 	stdNo?: number | null;
-	lmsUserId?: number | null;
-	lmsToken?: string | null;
 };
 
 export const betterAuthServer = betterAuth({
@@ -98,9 +96,6 @@ export const betterAuthServer = betterAuth({
 		admin({ defaultRole: 'user' }),
 		customSession(async ({ user, session }) => {
 			let permissions: PermissionGrant[] = [];
-			const lms = await db.query.lmsCredentials.findFirst({
-				where: (table, { eq }) => eq(table.userId, user.id),
-			});
 			const presetId =
 				'presetId' in user && typeof user.presetId === 'string'
 					? user.presetId
@@ -111,11 +106,7 @@ export const betterAuthServer = betterAuth({
 			}
 
 			return {
-				user: {
-					...user,
-					lmsToken: lms?.lmsToken ?? null,
-					lmsUserId: lms?.lmsUserId ?? null,
-				},
+				user,
 				session,
 				permissions,
 			};
@@ -146,8 +137,6 @@ export async function auth(): Promise<Session | null> {
 			role: session.user.role,
 			position: session.user.position,
 			stdNo: session.user.stdNo,
-			lmsUserId: session.user.lmsUserId,
-			lmsToken: session.user.lmsToken,
 		},
 	};
 }

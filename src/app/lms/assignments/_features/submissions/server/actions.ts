@@ -1,9 +1,20 @@
 'use server';
 
+import { getLmsCredentials } from '@auth/auth-providers/_server/repository';
 import { findStudentsByLmsUserIdsForSubmissions } from '@lms/students';
 import { auth } from '@/core/auth';
 import { moodleGet } from '@/core/integrations/moodle';
 import type { MoodleSubmission, SubmissionUser } from '../../../types';
+
+async function getLmsToken() {
+	const session = await auth();
+	if (!session?.user?.id) {
+		throw new Error('Unauthorized');
+	}
+
+	const creds = await getLmsCredentials(session.user.id);
+	return creds?.lmsToken ?? undefined;
+}
 
 async function enrichUsersWithDBStudentInfo(
 	users: Array<{
@@ -36,15 +47,16 @@ export async function getAssignmentSubmissions(
 	assignmentId: number,
 	courseId: number
 ): Promise<SubmissionUser[]> {
-	const session = await auth();
-	if (!session?.user) {
-		throw new Error('Unauthorized');
-	}
+	const lmsToken = await getLmsToken();
 
 	const [submissionsResult, enrolledUsersResult] = await Promise.all([
-		moodleGet('mod_assign_get_submissions', {
-			'assignmentids[0]': assignmentId,
-		}),
+		moodleGet(
+			'mod_assign_get_submissions',
+			{
+				'assignmentids[0]': assignmentId,
+			},
+			lmsToken
+		),
 		moodleGet(
 			'core_enrol_get_enrolled_users',
 			{

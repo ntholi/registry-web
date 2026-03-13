@@ -1,3 +1,7 @@
+import {
+	getLmsCredentials,
+	upsertLmsCredentials,
+} from '@auth/auth-providers/_server/repository';
 import type { users } from '@/core/database';
 import type { QueryOptions } from '@/core/platform/BaseRepository';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
@@ -22,7 +26,7 @@ class UserService {
 				const user = await this.repository.findById(id);
 				if (!user) return user;
 
-				const creds = await this.repository.getLmsCredentials(id);
+				const creds = await getLmsCredentials(id);
 				return {
 					...user,
 					lmsUserId: creds?.lmsUserId ?? null,
@@ -65,11 +69,7 @@ class UserService {
 					activityType: 'user_created',
 				});
 
-				await this.repository.upsertLmsCredentials(
-					user.id,
-					lmsUserId,
-					lmsToken
-				);
+				await upsertLmsCredentials(user.id, lmsUserId, lmsToken);
 
 				if (schoolIds && schoolIds.length > 0) {
 					await this.syncUserSchools(user.id, schoolIds);
@@ -91,7 +91,7 @@ class UserService {
 					activityType: 'user_updated',
 				});
 
-				await this.repository.upsertLmsCredentials(id, lmsUserId, lmsToken);
+				await upsertLmsCredentials(id, lmsUserId, lmsToken);
 
 				if (schoolIds) {
 					await this.syncUserSchools(id, schoolIds);

@@ -7,8 +7,6 @@ declare module 'next-auth' {
 		presetId?: string | null;
 		stdNo?: number;
 		position?: UserPosition;
-		lmsUserId?: number;
-		lmsToken?: string;
 	}
 
 	interface Session {

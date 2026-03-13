@@ -29,7 +29,7 @@ This file is the **authoritative** reference for the entire Better Auth migratio
 | 15 | Client Session Migration | `015_phase-15-client-session-migration.md` | `DONE` | `2026-03-13` | Replaced `next-auth/react` client hooks with `authClient`, removed `SessionProvider`, and dropped legacy `session.accessToken` session enrichment |
 | 16 | Server Components, Sign-In & Permissions | `016_phase-16-server-components-and-sign-in.md` | `DONE` | `2026-03-13` | Migrated server-component session reads to `getSession`, switched Google sign-in flows to `authClient.signIn.social`, and replaced Phase 16 UI/config position gates with permission checks |
 | 17 | Student Portal & stdNo Migration | `017_phase-17-student-portal-migration.md` | `DONE` | `2026-03-13` | |
-| 18 | LMS Credential Migration | `018_phase-18-lms-credential-migration.md` | `PENDING` | — | |
+| 18 | LMS Credential Migration | `018_phase-18-lms-credential-migration.md` | `DONE` | `2026-03-13` | LMS credentials now resolve from auth-owned repository, all LMS Moodle callers pass tokens explicitly, and session LMS fields were removed |
 | 19 | Navigation Config Migration | `019_phase-19-navigation-config-migration.md` | `PENDING` | — | |
 | 20 | Permission Preset Backend & Actions | `020_phase-20-preset-backend-and-actions.md` | `PENDING` | — | |
 | 21 | Permission Preset Pages | `021_phase-21-preset-pages.md` | `PENDING` | — | |

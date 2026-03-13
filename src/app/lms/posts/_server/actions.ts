@@ -1,5 +1,6 @@
 'use server';
 
+import { getLmsCredentials } from '@auth/auth-providers/_server/repository';
 import { auth } from '@/core/auth';
 import { moodleGet, moodlePost } from '@/core/integrations/moodle';
 import type {
@@ -13,17 +14,28 @@ import type {
 const ANNOUNCEMENTS_FORUM_NAME = 'Announcements';
 const DISCUSSIONS_FORUM_NAME = 'Discussions';
 
-export async function getCourseForums(
-	courseId: number
-): Promise<MoodleForum[]> {
+async function getLmsToken() {
 	const session = await auth();
 	if (!session?.user?.id) {
 		throw new Error('Unauthorized');
 	}
 
-	const result = await moodleGet('mod_forum_get_forums_by_courses', {
-		'courseids[0]': courseId,
-	});
+	const creds = await getLmsCredentials(session.user.id);
+	return creds?.lmsToken ?? undefined;
+}
+
+export async function getCourseForums(
+	courseId: number
+): Promise<MoodleForum[]> {
+	const lmsToken = await getLmsToken();
+
+	const result = await moodleGet(
+		'mod_forum_get_forums_by_courses',
+		{
+			'courseids[0]': courseId,
+		},
+		lmsToken
+	);
 
 	return result as MoodleForum[];
 }
@@ -31,15 +43,16 @@ export async function getCourseForums(
 export async function getForumDiscussions(
 	forumId: number
 ): Promise<MoodleDiscussion[]> {
-	const session = await auth();
-	if (!session?.user?.id) {
-		throw new Error('Unauthorized');
-	}
+	const lmsToken = await getLmsToken();
 
-	const result = await moodleGet('mod_forum_get_forum_discussions', {
-		forumid: forumId,
-		sortorder: -1,
-	});
+	const result = await moodleGet(
+		'mod_forum_get_forum_discussions',
+		{
+			forumid: forumId,
+			sortorder: -1,
+		},
+		lmsToken
+	);
 
 	if (!result || !result.discussions) {
 		return [];
@@ -51,24 +64,41 @@ export async function getForumDiscussions(
 async function findOrCreateForum(
 	courseId: number,
 	forumName: string,
-	forumType: 'news' | 'general'
+	forumType: 'news' | 'general',
+	lmsToken?: string
 ): Promise<MoodleForum> {
-	const forums = await getCourseForums(courseId);
+	const forums = await moodleGet(
+		'mod_forum_get_forums_by_courses',
+		{
+			'courseids[0]': courseId,
+		},
+		lmsToken
+	);
 
-	let forum = forums.find(
+	let forum = (forums as MoodleForum[]).find(
 		(f) => f.name.toLowerCase() === forumName.toLowerCase()
 	);
 
 	if (!forum) {
-		await moodlePost('local_activity_utils_create_forum', {
-			courseid: courseId,
-			name: forumName,
-			intro: `${forumName} for the course`,
-			type: forumType,
-			section: 0,
-		});
+		await moodlePost(
+			'local_activity_utils_create_forum',
+			{
+				courseid: courseId,
+				name: forumName,
+				intro: `${forumName} for the course`,
+				type: forumType,
+				section: 0,
+			},
+			lmsToken
+		);
 
-		const updatedForums = await getCourseForums(courseId);
+		const updatedForums = (await moodleGet(
+			'mod_forum_get_forums_by_courses',
+			{
+				'courseids[0]': courseId,
+			},
+			lmsToken
+		)) as MoodleForum[];
 		forum = updatedForums.find(
 			(f) => f.name.toLowerCase() === forumName.toLowerCase()
 		);
@@ -83,19 +113,27 @@ async function findOrCreateForum(
 
 async function getForumForPostType(
 	courseId: number,
-	postType: PostType
+	postType: PostType,
+	lmsToken?: string
 ): Promise<MoodleForum> {
 	if (postType === 'announcement') {
-		return findOrCreateForum(courseId, ANNOUNCEMENTS_FORUM_NAME, 'news');
+		return findOrCreateForum(
+			courseId,
+			ANNOUNCEMENTS_FORUM_NAME,
+			'news',
+			lmsToken
+		);
 	}
-	return findOrCreateForum(courseId, DISCUSSIONS_FORUM_NAME, 'general');
+	return findOrCreateForum(
+		courseId,
+		DISCUSSIONS_FORUM_NAME,
+		'general',
+		lmsToken
+	);
 }
 
 export async function createPost(params: CreatePostParams) {
-	const session = await auth();
-	if (!session?.user) {
-		throw new Error('Unauthorized');
-	}
+	const lmsToken = await getLmsToken();
 
 	if (!params.subject?.trim()) {
 		throw new Error('Subject is required');
@@ -105,13 +143,21 @@ export async function createPost(params: CreatePostParams) {
 		throw new Error('Message is required');
 	}
 
-	const forum = await getForumForPostType(params.courseId, params.postType);
+	const forum = await getForumForPostType(
+		params.courseId,
+		params.postType,
+		lmsToken
+	);
 
-	const result = await moodlePost('mod_forum_add_discussion', {
-		forumid: forum.id,
-		subject: params.subject.trim(),
-		message: params.message.trim(),
-	});
+	const result = await moodlePost(
+		'mod_forum_add_discussion',
+		{
+			forumid: forum.id,
+			subject: params.subject.trim(),
+			message: params.message.trim(),
+		},
+		lmsToken
+	);
 
 	return result;
 }
@@ -166,16 +212,17 @@ export async function getAllPosts(courseId: number): Promise<{
 export async function getDiscussionPosts(
 	discussionId: number
 ): Promise<MoodlePost[]> {
-	const session = await auth();
-	if (!session?.user?.id) {
-		throw new Error('Unauthorized');
-	}
+	const lmsToken = await getLmsToken();
 
-	const result = await moodleGet('mod_forum_get_discussion_posts', {
-		discussionid: discussionId,
-		sortby: 'created',
-		sortdirection: 'ASC',
-	});
+	const result = await moodleGet(
+		'mod_forum_get_discussion_posts',
+		{
+			discussionid: discussionId,
+			sortby: 'created',
+			sortdirection: 'ASC',
+		},
+		lmsToken
+	);
 
 	if (!result || !result.posts) {
 		return [];
@@ -203,15 +250,16 @@ export async function getDiscussionPosts(
 }
 
 export async function deletePost(discussionId: number) {
-	const session = await auth();
-	if (!session?.user?.id) {
-		throw new Error('Unauthorized');
-	}
+	const lmsToken = await getLmsToken();
 
 	try {
-		await moodlePost('mod_forum_delete_discussion', {
-			discussionid: discussionId,
-		});
+		await moodlePost(
+			'mod_forum_delete_discussion',
+			{
+				discussionid: discussionId,
+			},
+			lmsToken
+		);
 	} catch (error) {
 		console.error('Error deleting post:', error);
 		throw new Error('Unable to delete post');

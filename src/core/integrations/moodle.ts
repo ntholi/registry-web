@@ -1,5 +1,3 @@
-import { auth } from '../auth';
-
 const NEXT_PUBLIC_MOODLE_URL = process.env.NEXT_PUBLIC_MOODLE_URL;
 const MOODLE_TOKEN = process.env.MOODLE_TOKEN || '';
 
@@ -21,13 +19,7 @@ export async function moodleGet(
 	params: Record<string, string | number | boolean | undefined> = {},
 	lmsToken?: string
 ) {
-	const session = await auth();
-	return moodleRequest(
-		wsfunction,
-		'GET',
-		params,
-		lmsToken || session?.user?.lmsToken
-	);
+	return moodleRequest(wsfunction, 'GET', params, lmsToken);
 }
 
 export async function moodlePost(
@@ -35,13 +27,7 @@ export async function moodlePost(
 	params: Record<string, string | number | boolean | undefined> = {},
 	lmsToken?: string
 ) {
-	const session = await auth();
-	return moodleRequest(
-		wsfunction,
-		'POST',
-		params,
-		lmsToken || session?.user?.lmsToken
-	);
+	return moodleRequest(wsfunction, 'POST', params, lmsToken);
 }
 
 async function moodleRequest(

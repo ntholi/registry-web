@@ -1,6 +1,9 @@
 'use server';
 
-import { usersRepository } from '@admin/users/_server/repository';
+import {
+	getLmsCredentials,
+	upsertLmsCredentials,
+} from '@auth/auth-providers/_server/repository';
 import { ilike, or, type SQL, sql } from 'drizzle-orm';
 import {
 	getAssignedModuleByLmsCourseId,
@@ -181,7 +184,7 @@ export async function enrollStudentInCourse(
 		return { success: false, message: 'Student user has no email address' };
 	}
 
-	const creds = await usersRepository.getLmsCredentials(student.user.id);
+	const creds = await getLmsCredentials(student.user.id);
 	const lmsUserId = creds?.lmsUserId;
 	if (!lmsUserId) {
 		const moodleUserResult = await moodleGet(
@@ -202,7 +205,7 @@ export async function enrollStudentInCourse(
 		}
 
 		const moodleUserId = moodleUserResult.users[0].id;
-		await usersRepository.upsertLmsCredentials(
+		await upsertLmsCredentials(
 			student.user.id,
 			moodleUserId,
 			creds?.lmsToken ?? null

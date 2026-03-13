@@ -1,5 +1,6 @@
 'use server';
 
+import { getLmsCredentials } from '@auth/auth-providers/_server/repository';
 import {
 	getCourseSections as getCourseSectionsShared,
 	getOrReuseSection,
@@ -31,30 +32,38 @@ type MoodlePagesResponse = {
 	pages?: MoodlePage[];
 };
 
-export async function getCourseSections(
-	courseId: number
-): Promise<MoodleSection[]> {
+async function getLmsToken() {
 	const session = await auth();
 	if (!session?.user?.id) {
 		throw new Error('Unauthorized');
 	}
 
-	return getCourseSectionsShared(courseId) as Promise<MoodleSection[]>;
+	const creds = await getLmsCredentials(session.user.id);
+	return creds?.lmsToken ?? undefined;
+}
+
+export async function getCourseSections(
+	courseId: number
+): Promise<MoodleSection[]> {
+	const lmsToken = await getLmsToken();
+
+	return getCourseSectionsShared(courseId, lmsToken) as Promise<
+		MoodleSection[]
+	>;
 }
 
 async function findOrCreateMaterialSection(courseId: number): Promise<number> {
+	const lmsToken = await getLmsToken();
 	return getOrReuseSection({
 		courseId,
 		sectionName: 'Material',
 		summary: 'Course materials and resources',
+		lmsToken,
 	});
 }
 
 export async function createPage(params: CreatePageParams) {
-	const session = await auth();
-	if (!session?.user) {
-		throw new Error('Unauthorized');
-	}
+	const lmsToken = await getLmsToken();
 
 	if (!params.name?.trim()) {
 		throw new Error('Name is required');
@@ -67,13 +76,17 @@ export async function createPage(params: CreatePageParams) {
 	const sectionNumber = await findOrCreateMaterialSection(params.courseid);
 
 	try {
-		const result = await moodlePost('local_activity_utils_create_page', {
-			courseid: params.courseid,
-			name: params.name.trim(),
-			content: params.content.trim(),
-			section: sectionNumber,
-			visible: 1,
-		});
+		const result = await moodlePost(
+			'local_activity_utils_create_page',
+			{
+				courseid: params.courseid,
+				name: params.name.trim(),
+				content: params.content.trim(),
+				section: sectionNumber,
+				visible: 1,
+			},
+			lmsToken
+		);
 
 		return result;
 	} catch (error) {
@@ -85,10 +98,7 @@ export async function createPage(params: CreatePageParams) {
 }
 
 export async function createFile(params: CreateFileParams) {
-	const session = await auth();
-	if (!session?.user) {
-		throw new Error('Unauthorized');
-	}
+	const lmsToken = await getLmsToken();
 
 	if (!params.name?.trim()) {
 		throw new Error('Name is required');
@@ -105,14 +115,18 @@ export async function createFile(params: CreateFileParams) {
 	const sectionNumber = await findOrCreateMaterialSection(params.courseid);
 
 	try {
-		const result = await moodlePost('local_activity_utils_create_file', {
-			courseid: params.courseid,
-			name: params.name.trim(),
-			filename: params.filename.trim(),
-			filecontent: params.filecontent,
-			section: sectionNumber,
-			visible: 1,
-		});
+		const result = await moodlePost(
+			'local_activity_utils_create_file',
+			{
+				courseid: params.courseid,
+				name: params.name.trim(),
+				filename: params.filename.trim(),
+				filecontent: params.filecontent,
+				section: sectionNumber,
+				visible: 1,
+			},
+			lmsToken
+		);
 
 		return result;
 	} catch (error) {
@@ -124,10 +138,7 @@ export async function createFile(params: CreateFileParams) {
 }
 
 export async function createUrl(params: CreateUrlParams) {
-	const session = await auth();
-	if (!session?.user) {
-		throw new Error('Unauthorized');
-	}
+	const lmsToken = await getLmsToken();
 
 	if (!params.name?.trim()) {
 		throw new Error('Name is required');
@@ -140,14 +151,18 @@ export async function createUrl(params: CreateUrlParams) {
 	const sectionNumber = await findOrCreateMaterialSection(params.courseid);
 
 	try {
-		const result = await moodlePost('local_activity_utils_create_url', {
-			courseid: params.courseid,
-			name: params.name.trim(),
-			externalurl: params.externalurl.trim(),
-			intro: params.intro?.trim() || '',
-			section: sectionNumber,
-			visible: 1,
-		});
+		const result = await moodlePost(
+			'local_activity_utils_create_url',
+			{
+				courseid: params.courseid,
+				name: params.name.trim(),
+				externalurl: params.externalurl.trim(),
+				intro: params.intro?.trim() || '',
+				section: sectionNumber,
+				visible: 1,
+			},
+			lmsToken
+		);
 
 		return result;
 	} catch (error) {
@@ -174,23 +189,28 @@ export async function getMaterialContent(
 	modname: string,
 	instanceId?: number
 ) {
-	const session = await auth();
-	if (!session?.user?.id) {
-		throw new Error('Unauthorized');
-	}
+	const lmsToken = await getLmsToken();
 
 	if (modname === 'page') {
 		if (instanceId) {
-			await moodleGet('mod_page_view_page', {
-				pageid: instanceId,
-			});
+			await moodleGet(
+				'mod_page_view_page',
+				{
+					pageid: instanceId,
+				},
+				lmsToken
+			);
 		}
 
-		const moduleData = (await moodleGet('core_course_get_course_module', {
-			cmid: moduleId,
-		})) as CourseModuleResponse;
+		const moduleData = (await moodleGet(
+			'core_course_get_course_module',
+			{
+				cmid: moduleId,
+			},
+			lmsToken
+		)) as CourseModuleResponse;
 		const courseId = moduleData.cm?.course;
-		const pageContent = await getPageContent(instanceId, courseId);
+		const pageContent = await getPageContent(instanceId, courseId, lmsToken);
 
 		if (pageContent) {
 			return {
@@ -206,9 +226,13 @@ export async function getMaterialContent(
 	}
 
 	if (modname === 'resource') {
-		const result = (await moodleGet('core_course_get_course_module', {
-			cmid: moduleId,
-		})) as CourseModuleResponse;
+		const result = (await moodleGet(
+			'core_course_get_course_module',
+			{
+				cmid: moduleId,
+			},
+			lmsToken
+		)) as CourseModuleResponse;
 
 		if (result?.cm) {
 			return {
@@ -222,14 +246,22 @@ export async function getMaterialContent(
 	return null;
 }
 
-async function getPageContent(pageId?: number, courseId?: number) {
+async function getPageContent(
+	pageId?: number,
+	courseId?: number,
+	lmsToken?: string
+) {
 	if (!pageId || !courseId) {
 		return null;
 	}
 
-	const response = (await moodleGet('mod_page_get_pages_by_courses', {
-		'courseids[0]': courseId,
-	})) as MoodlePagesResponse;
+	const response = (await moodleGet(
+		'mod_page_get_pages_by_courses',
+		{
+			'courseids[0]': courseId,
+		},
+		lmsToken
+	)) as MoodlePagesResponse;
 	const pages = response.pages;
 
 	if (!pages?.length) {
@@ -241,15 +273,16 @@ async function getPageContent(pageId?: number, courseId?: number) {
 }
 
 export async function deleteMaterial(cmid: number) {
-	const session = await auth();
-	if (!session?.user?.id) {
-		throw new Error('Unauthorized');
-	}
+	const lmsToken = await getLmsToken();
 
 	try {
-		await moodlePost('core_course_delete_modules', {
-			'cmids[0]': cmid,
-		});
+		await moodlePost(
+			'core_course_delete_modules',
+			{
+				'cmids[0]': cmid,
+			},
+			lmsToken
+		);
 	} catch (error) {
 		console.error('Error deleting material:', error);
 		throw new Error('Unable to delete material');

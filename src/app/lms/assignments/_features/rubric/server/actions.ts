@@ -1,5 +1,6 @@
 'use server';
 
+import { getLmsCredentials } from '@auth/auth-providers/_server/repository';
 import { auth } from '@/core/auth';
 import { moodleGet, moodlePost } from '@/core/integrations/moodle';
 import type {
@@ -8,16 +9,27 @@ import type {
 	RubricCriterion,
 } from '../../../types';
 
-export async function getRubric(cmid: number): Promise<Rubric | null> {
+async function getLmsToken() {
 	const session = await auth();
-	if (!session?.user) {
+	if (!session?.user?.id) {
 		throw new Error('Unauthorized');
 	}
 
+	const creds = await getLmsCredentials(session.user.id);
+	return creds?.lmsToken ?? undefined;
+}
+
+export async function getRubric(cmid: number): Promise<Rubric | null> {
+	const lmsToken = await getLmsToken();
+
 	try {
-		const result = await moodleGet('local_activity_utils_get_rubric', {
-			cmid,
-		});
+		const result = await moodleGet(
+			'local_activity_utils_get_rubric',
+			{
+				cmid,
+			},
+			lmsToken
+		);
 
 		if (!result?.success || !result.definitionid) {
 			return null;
@@ -59,10 +71,7 @@ function buildCriteriaParams(
 }
 
 export async function createRubric(params: CreateRubricParams) {
-	const session = await auth();
-	if (!session?.user) {
-		throw new Error('Unauthorized');
-	}
+	const lmsToken = await getLmsToken();
 
 	const requestParams: Record<string, string | number> = {
 		cmid: params.cmid,
@@ -78,7 +87,8 @@ export async function createRubric(params: CreateRubricParams) {
 
 	const result = await moodlePost(
 		'local_activity_utils_create_rubric',
-		requestParams
+		requestParams,
+		lmsToken
 	);
 
 	return result;
@@ -88,10 +98,7 @@ export async function updateRubric(
 	cmid: number,
 	params: Partial<CreateRubricParams>
 ) {
-	const session = await auth();
-	if (!session?.user) {
-		throw new Error('Unauthorized');
-	}
+	const lmsToken = await getLmsToken();
 
 	const requestParams: Record<string, string | number> = { cmid };
 
@@ -110,35 +117,38 @@ export async function updateRubric(
 
 	const result = await moodlePost(
 		'local_activity_utils_update_rubric',
-		requestParams
+		requestParams,
+		lmsToken
 	);
 
 	return result;
 }
 
 export async function deleteRubric(cmid: number) {
-	const session = await auth();
-	if (!session?.user) {
-		throw new Error('Unauthorized');
-	}
+	const lmsToken = await getLmsToken();
 
-	const result = await moodlePost('local_activity_utils_delete_rubric', {
-		cmid,
-	});
+	const result = await moodlePost(
+		'local_activity_utils_delete_rubric',
+		{
+			cmid,
+		},
+		lmsToken
+	);
 
 	return result;
 }
 
 export async function copyRubric(sourceCmid: number, targetCmid: number) {
-	const session = await auth();
-	if (!session?.user) {
-		throw new Error('Unauthorized');
-	}
+	const lmsToken = await getLmsToken();
 
-	const result = await moodlePost('local_activity_utils_copy_rubric', {
-		sourcecmid: sourceCmid,
-		targetcmid: targetCmid,
-	});
+	const result = await moodlePost(
+		'local_activity_utils_copy_rubric',
+		{
+			sourcecmid: sourceCmid,
+			targetcmid: targetCmid,
+		},
+		lmsToken
+	);
 
 	return result;
 }

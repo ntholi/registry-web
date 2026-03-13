@@ -1,24 +1,30 @@
 'use server';
 
 import { linkCourseToAssignment } from '@academic/assigned-modules';
+import { getLmsCredentials } from '@auth/auth-providers/_server/repository';
 import { auth } from '@/core/auth';
 import { moodleGet, moodlePost } from '@/core/integrations/moodle';
 import type { MoodleCourse } from '../types';
 
 export async function getUserCourses(): Promise<MoodleCourse[]> {
 	const session = await auth();
-	if (!session?.user) {
+	if (!session?.user?.id) {
 		throw new Error('Unauthorized');
 	}
 
-	const lmsUserId = session.user.lmsUserId;
+	const creds = await getLmsCredentials(session.user.id);
+	const lmsUserId = creds?.lmsUserId;
 	if (!lmsUserId) {
 		return [];
 	}
 
-	const result = await moodleGet('core_enrol_get_users_courses', {
-		userid: lmsUserId,
-	});
+	const result = await moodleGet(
+		'core_enrol_get_users_courses',
+		{
+			userid: lmsUserId,
+		},
+		creds?.lmsToken ?? undefined
+	);
 
 	return result as MoodleCourse[];
 }
@@ -35,15 +41,23 @@ export async function createMoodleCourse(params: CreateMoodleCourseParams) {
 	if (!session?.user?.id) {
 		throw new Error('Unauthorized');
 	}
+	const creds = await getLmsCredentials(session.user.id);
+	if (!creds?.lmsUserId) {
+		throw new Error('Moodle account is not linked');
+	}
 
 	const { fullname, shortname, categoryid, semesterModuleId } = params;
 
 	let courseId: string;
 
-	const existingCourse = await moodleGet('core_course_get_courses_by_field', {
-		field: 'shortname',
-		value: shortname,
-	});
+	const existingCourse = await moodleGet(
+		'core_course_get_courses_by_field',
+		{
+			field: 'shortname',
+			value: shortname,
+		},
+		creds?.lmsToken ?? undefined
+	);
 
 	if (
 		existingCourse &&
@@ -73,7 +87,7 @@ export async function createMoodleCourse(params: CreateMoodleCourseParams) {
 		'enrol_manual_enrol_users',
 		{
 			'enrolments[0][roleid]': 3,
-			'enrolments[0][userid]': session.user.lmsUserId,
+			'enrolments[0][userid]': creds.lmsUserId,
 			'enrolments[0][courseid]': Number(courseId),
 		},
 		process.env.MOODLE_TOKEN
@@ -89,8 +103,13 @@ export async function getMoodleCategories() {
 	if (!session?.user?.id) {
 		throw new Error('Unauthorized');
 	}
+	const creds = await getLmsCredentials(session.user.id);
 
-	const result = await moodleGet('core_course_get_categories');
+	const result = await moodleGet(
+		'core_course_get_categories',
+		{},
+		creds?.lmsToken ?? undefined
+	);
 
 	return result as Array<{
 		id: number;

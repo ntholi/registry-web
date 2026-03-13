@@ -1,5 +1,6 @@
 'use server';
 
+import { getLmsCredentials } from '@auth/auth-providers/_server/repository';
 import {
 	getCourseSections as getCourseSectionsShared,
 	getOrReuseSection,
@@ -14,24 +15,30 @@ import type {
 
 const VIRTUAL_CLASSROOM_SECTION_NAME = 'Virtual Classroom';
 
-export async function getCourseSections(
-	courseId: number
-): Promise<MoodleSection[]> {
+async function getLmsToken() {
 	const session = await auth();
 	if (!session?.user?.id) {
 		throw new Error('Unauthorized');
 	}
 
-	return getCourseSectionsShared(courseId) as Promise<MoodleSection[]>;
+	const creds = await getLmsCredentials(session.user.id);
+	return creds?.lmsToken ?? undefined;
+}
+
+export async function getCourseSections(
+	courseId: number
+): Promise<MoodleSection[]> {
+	const lmsToken = await getLmsToken();
+
+	return getCourseSectionsShared(courseId, lmsToken) as Promise<
+		MoodleSection[]
+	>;
 }
 
 export async function createBigBlueButtonSession(
 	params: CreateBigBlueButtonParams
 ): Promise<BigBlueButtonSession> {
-	const session = await auth();
-	if (!session?.user) {
-		throw new Error('Unauthorized');
-	}
+	const lmsToken = await getLmsToken();
 
 	if (!params.name?.trim()) {
 		throw new Error('Session name is required');
@@ -41,6 +48,7 @@ export async function createBigBlueButtonSession(
 		courseId: params.courseid,
 		sectionName: VIRTUAL_CLASSROOM_SECTION_NAME,
 		summary: 'Live virtual classroom sessions using BigBlueButton',
+		lmsToken,
 	});
 
 	try {
@@ -77,7 +85,8 @@ export async function createBigBlueButtonSession(
 
 		const result = await moodlePost(
 			'local_activity_utils_create_bigbluebuttonbn',
-			requestParams
+			requestParams,
+			lmsToken
 		);
 
 		return result as BigBlueButtonSession;
@@ -92,11 +101,6 @@ export async function createBigBlueButtonSession(
 export async function getVirtualClassroomSessions(
 	courseId: number
 ): Promise<MoodleSection | null> {
-	const session = await auth();
-	if (!session?.user?.id) {
-		throw new Error('Unauthorized');
-	}
-
 	const sections = await getCourseSections(courseId);
 
 	return (
@@ -111,15 +115,16 @@ export async function getVirtualClassroomSessions(
 export async function getBigBlueButtonJoinUrl(
 	cmid: number
 ): Promise<string | null> {
-	const session = await auth();
-	if (!session?.user?.id) {
-		throw new Error('Unauthorized');
-	}
+	const lmsToken = await getLmsToken();
 
 	try {
-		const result = await moodleGet('mod_bigbluebuttonbn_get_join_url', {
-			cmid,
-		});
+		const result = await moodleGet(
+			'mod_bigbluebuttonbn_get_join_url',
+			{
+				cmid,
+			},
+			lmsToken
+		);
 
 		if (result?.join_url) {
 			return result.join_url;

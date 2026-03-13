@@ -13,21 +13,16 @@ import {
 import { IconLock, IconSchool, IconUserPlus } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import type { PropsWithChildren } from 'react';
-import { authClient } from '@/core/auth-client';
-import { checkMoodleUserExists } from '../_server/actions';
+import { getLmsAuthStatus } from '../_server/actions';
 
 export default function LmsAuthGuard({ children }: PropsWithChildren) {
-	const { data: session, isPending } = authClient.useSession();
-	const lmsUserId = session?.user?.lmsUserId;
-	const lmsToken = session?.user?.lmsToken;
-
-	const { data: moodleCheck, isLoading: isCheckingMoodle } = useQuery({
-		queryKey: ['moodle-user-check'],
-		queryFn: checkMoodleUserExists,
-		enabled: !lmsUserId || !lmsToken,
+	const { data, isPending } = useQuery({
+		queryKey: ['lms-auth-status'],
+		queryFn: getLmsAuthStatus,
 	});
+	const moodleCheck = data?.moodleCheck;
 
-	if (isPending || isCheckingMoodle) {
+	if (isPending) {
 		return (
 			<Center h='60vh'>
 				<Loader size='lg' />
@@ -35,7 +30,7 @@ export default function LmsAuthGuard({ children }: PropsWithChildren) {
 		);
 	}
 
-	if (!lmsUserId || !lmsToken) {
+	if (!data?.hasCredentials) {
 		if (moodleCheck?.exists) {
 			return (
 				<Center h='60vh'>

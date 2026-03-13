@@ -1,6 +1,10 @@
 'use server';
 
-import { usersRepository } from '@admin/users/_server/repository';
+import {
+	getLmsCredentials,
+	hasLmsCredentials,
+	upsertLmsCredentials,
+} from '@auth/auth-providers/_server/repository';
 import { auth } from '@/core/auth';
 import { moodleGet } from '@/core/integrations/moodle';
 
@@ -9,6 +13,10 @@ export async function checkMoodleUserExists() {
 	if (!session?.user?.email) {
 		return { exists: false, error: 'No email found in session' };
 	}
+
+	const creds = session.user.id
+		? await getLmsCredentials(session.user.id)
+		: null;
 
 	try {
 		const response = await moodleGet(
@@ -28,12 +36,12 @@ export async function checkMoodleUserExists() {
 			if (
 				moodleUser?.id &&
 				session.user.id &&
-				session.user.lmsUserId !== moodleUser.id
+				creds?.lmsUserId !== moodleUser.id
 			) {
-				await usersRepository.upsertLmsCredentials(
+				await upsertLmsCredentials(
 					session.user.id,
 					moodleUser.id,
-					session.user.lmsToken ?? null
+					creds?.lmsToken ?? null
 				);
 			}
 
@@ -48,4 +56,19 @@ export async function checkMoodleUserExists() {
 		console.error('Error checking Moodle user:', error);
 		return { exists: false, error: 'Failed to check Moodle user' };
 	}
+}
+
+export async function getLmsAuthStatus() {
+	const session = await auth();
+	if (!session?.user?.id) {
+		return { hasCredentials: false, moodleCheck: null };
+	}
+
+	const hasCreds = await hasLmsCredentials(session.user.id);
+	if (hasCreds) {
+		return { hasCredentials: true, moodleCheck: null };
+	}
+
+	const moodleCheck = await checkMoodleUserExists();
+	return { hasCredentials: false, moodleCheck };
 }

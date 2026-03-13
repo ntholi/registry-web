@@ -1,5 +1,6 @@
 'use server';
 
+import { getLmsCredentials } from '@auth/auth-providers/_server/repository';
 import { getOrReuseSection } from '@lms/_shared/utils';
 import { findStudentsByLmsUserIdsForSubmissions } from '@lms/students';
 import { createAssessment as createAcademicAssessment } from '@/app/academic/assessments/_server/actions';
@@ -23,12 +24,23 @@ import type {
 	TrueFalseQuestion,
 } from '../types';
 
+async function getLmsToken() {
+	const session = await auth();
+	if (!session?.user?.id) {
+		throw new Error('Unauthorized');
+	}
+
+	const creds = await getLmsCredentials(session.user.id);
+	return creds?.lmsToken ?? undefined;
+}
+
 function isTestsQuizzesSection(sectionName: string): boolean {
 	const normalized = sectionName.trim().toLowerCase().replace(/&amp;/g, '&');
 	return normalized === 'tests & quizzes' || normalized === 'tests and quizzes';
 }
 
 async function getOrCreateQuestionCategory(courseId: number): Promise<number> {
+	const lmsToken = await getLmsToken();
 	const categoryName = `Quiz Questions - Course ${courseId}`;
 
 	const result = await moodlePost(
@@ -37,7 +49,8 @@ async function getOrCreateQuestionCategory(courseId: number): Promise<number> {
 			courseid: courseId,
 			name: categoryName,
 			info: 'Auto-created category for quiz questions',
-		}
+		},
+		lmsToken
 	);
 
 	return result.id;
@@ -47,6 +60,7 @@ async function createMultiChoiceQuestion(
 	categoryId: number,
 	question: MultiChoiceQuestion
 ): Promise<CreateQuestionResponse> {
+	const lmsToken = await getLmsToken();
 	const answers = question.answers.map((a) => ({
 		text: a.text,
 		fraction: a.fraction,
@@ -68,7 +82,8 @@ async function createMultiChoiceQuestion(
 			incorrectfeedback: question.incorrectFeedback || '',
 			generalfeedback: question.generalFeedback || '',
 			answers: JSON.stringify(answers),
-		}
+		},
+		lmsToken
 	);
 
 	return result as CreateQuestionResponse;
@@ -78,6 +93,7 @@ async function createTrueFalseQuestion(
 	categoryId: number,
 	question: TrueFalseQuestion
 ): Promise<CreateQuestionResponse> {
+	const lmsToken = await getLmsToken();
 	const result = await moodlePost(
 		'local_activity_utils_create_truefalse_question',
 		{
@@ -89,7 +105,8 @@ async function createTrueFalseQuestion(
 			feedbacktrue: question.feedbackTrue || '',
 			feedbackfalse: question.feedbackFalse || '',
 			generalfeedback: question.generalFeedback || '',
-		}
+		},
+		lmsToken
 	);
 
 	return result as CreateQuestionResponse;
@@ -99,6 +116,7 @@ async function createShortAnswerQuestion(
 	categoryId: number,
 	question: ShortAnswerQuestion
 ): Promise<CreateQuestionResponse> {
+	const lmsToken = await getLmsToken();
 	const answers = question.answers.map((a) => ({
 		text: a.text,
 		fraction: a.fraction ?? 1.0,
@@ -115,7 +133,8 @@ async function createShortAnswerQuestion(
 			usecase: question.useCase ? 1 : 0,
 			generalfeedback: question.generalFeedback || '',
 			answers: JSON.stringify(answers),
-		}
+		},
+		lmsToken
 	);
 
 	return result as CreateQuestionResponse;
@@ -125,6 +144,7 @@ async function createEssayQuestion(
 	categoryId: number,
 	question: EssayQuestion
 ): Promise<CreateQuestionResponse> {
+	const lmsToken = await getLmsToken();
 	const result = await moodlePost(
 		'local_activity_utils_create_essay_question',
 		{
@@ -142,7 +162,8 @@ async function createEssayQuestion(
 			graderinfo: question.graderInfo || '',
 			responsetemplate: question.responseTemplate || '',
 			generalfeedback: question.generalFeedback || '',
-		}
+		},
+		lmsToken
 	);
 
 	return result as CreateQuestionResponse;
@@ -152,6 +173,7 @@ async function createNumericalQuestion(
 	categoryId: number,
 	question: NumericalQuestion
 ): Promise<CreateQuestionResponse> {
+	const lmsToken = await getLmsToken();
 	const answers = question.answers.map((a) => ({
 		answer: a.answer,
 		tolerance: a.tolerance ?? 0,
@@ -168,7 +190,8 @@ async function createNumericalQuestion(
 			defaultmark: question.defaultMark,
 			generalfeedback: question.generalFeedback || '',
 			answers: JSON.stringify(answers),
-		}
+		},
+		lmsToken
 	);
 
 	return result as CreateQuestionResponse;
@@ -215,10 +238,7 @@ type CreateDraftQuizInput = {
 };
 
 export async function createDraftQuiz(input: CreateDraftQuizInput) {
-	const session = await auth();
-	if (!session?.user) {
-		throw new Error('Unauthorized');
-	}
+	const lmsToken = await getLmsToken();
 
 	if (!input.name?.trim()) {
 		throw new Error('Quiz name is required');
@@ -229,6 +249,7 @@ export async function createDraftQuiz(input: CreateDraftQuizInput) {
 		sectionName: 'Tests & Quizzes',
 		summary: 'Course tests and quizzes',
 		matchFn: isTestsQuizzesSection,
+		lmsToken,
 	});
 
 	const quizParams: Record<string, string | number | boolean> = {
@@ -268,7 +289,8 @@ export async function createDraftQuiz(input: CreateDraftQuizInput) {
 
 	const quizResult = (await moodlePost(
 		'local_activity_utils_create_quiz',
-		quizParams
+		quizParams,
+		lmsToken
 	)) as CreateQuizResponse;
 
 	if (!quizResult.id) {
@@ -287,10 +309,7 @@ export async function saveDraftQuizQuestion(
 	question: Question,
 	page: number
 ) {
-	const session = await auth();
-	if (!session?.user) {
-		throw new Error('Unauthorized');
-	}
+	const lmsToken = await getLmsToken();
 
 	const categoryId = await getOrCreateQuestionCategory(courseId);
 	const questionResult = await createQuestionInMoodle(categoryId, question);
@@ -306,7 +325,8 @@ export async function saveDraftQuizQuestion(
 			questionbankentryid: questionResult.questionbankentryid,
 			page,
 			maxmark: question.defaultMark,
-		}
+		},
+		lmsToken
 	)) as AddQuestionToQuizResponse;
 
 	if (!addResult.success) {
@@ -324,10 +344,7 @@ export async function publishQuiz(input: {
 	weight: number;
 	totalMarks: number;
 }) {
-	const session = await auth();
-	if (!session?.user) {
-		throw new Error('Unauthorized');
-	}
+	await getLmsToken();
 
 	const term = await getActiveTerm();
 	if (!term) {
@@ -363,10 +380,7 @@ export async function publishQuiz(input: {
 }
 
 export async function createQuiz(input: CreateQuizInput) {
-	const session = await auth();
-	if (!session?.user) {
-		throw new Error('Unauthorized');
-	}
+	const lmsToken = await getLmsToken();
 
 	const term = await getActiveTerm();
 	if (!term) {
@@ -392,6 +406,7 @@ export async function createQuiz(input: CreateQuizInput) {
 		sectionName: 'Tests & Quizzes',
 		summary: 'Course tests and quizzes',
 		matchFn: isTestsQuizzesSection,
+		lmsToken,
 	});
 
 	const quizParams: Record<string, string | number | boolean> = {
@@ -434,7 +449,8 @@ export async function createQuiz(input: CreateQuizInput) {
 
 	const quizResult = (await moodlePost(
 		'local_activity_utils_create_quiz',
-		quizParams
+		quizParams,
+		lmsToken
 	)) as CreateQuizResponse;
 
 	const quizId = quizResult.id;
@@ -462,7 +478,8 @@ export async function createQuiz(input: CreateQuizInput) {
 					questionbankentryid: questionResult.questionbankentryid,
 					page: i + 1,
 					maxmark: question.defaultMark,
-				}
+				},
+				lmsToken
 			)) as AddQuestionToQuizResponse;
 
 			if (!addResult.success) {
@@ -485,9 +502,13 @@ export async function createQuiz(input: CreateQuizInput) {
 			}
 		);
 	} catch (error) {
-		await moodlePost('local_activity_utils_delete_quiz', {
-			cmid: courseModuleId,
-		});
+		await moodlePost(
+			'local_activity_utils_delete_quiz',
+			{
+				cmid: courseModuleId,
+			},
+			lmsToken
+		);
 		throw error;
 	}
 
@@ -497,15 +518,16 @@ export async function createQuiz(input: CreateQuizInput) {
 export async function getCourseQuizzes(
 	courseId: number
 ): Promise<MoodleQuiz[]> {
-	const session = await auth();
-	if (!session?.user?.id) {
-		throw new Error('Unauthorized');
-	}
+	const lmsToken = await getLmsToken();
 
 	const [quizResult, sectionsResult] = await Promise.all([
-		moodleGet('mod_quiz_get_quizzes_by_courses', {
-			'courseids[0]': courseId,
-		}),
+		moodleGet(
+			'mod_quiz_get_quizzes_by_courses',
+			{
+				'courseids[0]': courseId,
+			},
+			lmsToken
+		),
 		moodleGet(
 			'core_course_get_contents',
 			{ courseid: courseId },
@@ -541,15 +563,16 @@ export async function getCourseQuizzes(
 }
 
 export async function getQuiz(quizId: number): Promise<MoodleQuiz | null> {
-	const session = await auth();
-	if (!session?.user?.id) {
-		throw new Error('Unauthorized');
-	}
+	const lmsToken = await getLmsToken();
 
 	try {
-		const result = await moodleGet('local_activity_utils_get_quiz', {
-			quizid: quizId,
-		});
+		const result = await moodleGet(
+			'local_activity_utils_get_quiz',
+			{
+				quizid: quizId,
+			},
+			lmsToken
+		);
 
 		return result as MoodleQuiz;
 	} catch {
@@ -558,27 +581,26 @@ export async function getQuiz(quizId: number): Promise<MoodleQuiz | null> {
 }
 
 export async function deleteQuiz(cmid: number): Promise<void> {
-	const session = await auth();
-	if (!session?.user) {
-		throw new Error('Unauthorized');
-	}
+	const lmsToken = await getLmsToken();
 
-	await moodlePost('local_activity_utils_delete_quiz', {
-		cmid,
-	});
+	await moodlePost(
+		'local_activity_utils_delete_quiz',
+		{
+			cmid,
+		},
+		lmsToken
+	);
 }
 
 export async function getQuestionCategories(courseId: number) {
-	const session = await auth();
-	if (!session?.user) {
-		throw new Error('Unauthorized');
-	}
+	const lmsToken = await getLmsToken();
 
 	const result = await moodleGet(
 		'local_activity_utils_list_question_categories',
 		{
 			courseid: courseId,
-		}
+		},
+		lmsToken
 	);
 
 	return result;
@@ -593,18 +615,19 @@ export async function getQuestionsInCategory(
 		offset?: number;
 	}
 ) {
-	const session = await auth();
-	if (!session?.user) {
-		throw new Error('Unauthorized');
-	}
+	const lmsToken = await getLmsToken();
 
-	const result = await moodleGet('local_activity_utils_get_questions', {
-		categoryid: categoryId,
-		includesubcategories: options?.includeSubcategories ? 1 : 0,
-		qtype: options?.qtype || '',
-		limit: options?.limit || 0,
-		offset: options?.offset || 0,
-	});
+	const result = await moodleGet(
+		'local_activity_utils_get_questions',
+		{
+			categoryid: categoryId,
+			includesubcategories: options?.includeSubcategories ? 1 : 0,
+			qtype: options?.qtype || '',
+			limit: options?.limit || 0,
+			offset: options?.offset || 0,
+		},
+		lmsToken
+	);
 
 	return result;
 }
@@ -613,30 +636,32 @@ export async function removeQuestionFromQuiz(
 	quizId: number,
 	slot: number
 ): Promise<void> {
-	const session = await auth();
-	if (!session?.user) {
-		throw new Error('Unauthorized');
-	}
+	const lmsToken = await getLmsToken();
 
-	await moodlePost('local_activity_utils_remove_question_from_quiz', {
-		quizid: quizId,
-		slot,
-	});
+	await moodlePost(
+		'local_activity_utils_remove_question_from_quiz',
+		{
+			quizid: quizId,
+			slot,
+		},
+		lmsToken
+	);
 }
 
 export async function reorderQuizQuestions(
 	quizId: number,
 	slots: Array<{ slotid: number; newslot: number; page?: number }>
 ): Promise<void> {
-	const session = await auth();
-	if (!session?.user) {
-		throw new Error('Unauthorized');
-	}
+	const lmsToken = await getLmsToken();
 
-	await moodlePost('local_activity_utils_reorder_quiz_questions', {
-		quizid: quizId,
-		slots: JSON.stringify(slots),
-	});
+	await moodlePost(
+		'local_activity_utils_reorder_quiz_questions',
+		{
+			quizid: quizId,
+			slots: JSON.stringify(slots),
+		},
+		lmsToken
+	);
 }
 
 export async function updateQuiz(
@@ -652,10 +677,7 @@ export async function updateQuiz(
 		visible?: boolean;
 	}
 ): Promise<void> {
-	const session = await auth();
-	if (!session?.user) {
-		throw new Error('Unauthorized');
-	}
+	const lmsToken = await getLmsToken();
 
 	const updateParams: Record<string, string | number | boolean | undefined> = {
 		quizid: quizId,
@@ -671,7 +693,7 @@ export async function updateQuiz(
 	if (params.visible !== undefined)
 		updateParams.visible = params.visible ? 1 : 0;
 
-	await moodlePost('local_activity_utils_update_quiz', updateParams);
+	await moodlePost('local_activity_utils_update_quiz', updateParams, lmsToken);
 }
 
 export async function addExistingQuestionToQuiz(
@@ -683,18 +705,19 @@ export async function addExistingQuestionToQuiz(
 		requirePrevious?: boolean;
 	}
 ): Promise<AddQuestionToQuizResponse> {
-	const session = await auth();
-	if (!session?.user) {
-		throw new Error('Unauthorized');
-	}
+	const lmsToken = await getLmsToken();
 
-	const result = await moodlePost('local_activity_utils_add_question_to_quiz', {
-		quizid: quizId,
-		questionbankentryid: questionBankEntryId,
-		page: options?.page || 0,
-		maxmark: options?.maxMark,
-		requireprevious: options?.requirePrevious ? 1 : 0,
-	});
+	const result = await moodlePost(
+		'local_activity_utils_add_question_to_quiz',
+		{
+			quizid: quizId,
+			questionbankentryid: questionBankEntryId,
+			page: options?.page || 0,
+			maxmark: options?.maxMark,
+			requireprevious: options?.requirePrevious ? 1 : 0,
+		},
+		lmsToken
+	);
 
 	return result as AddQuestionToQuizResponse;
 }
@@ -702,14 +725,15 @@ export async function addExistingQuestionToQuiz(
 export async function deleteQuestion(
 	questionBankEntryId: number
 ): Promise<void> {
-	const session = await auth();
-	if (!session?.user) {
-		throw new Error('Unauthorized');
-	}
+	const lmsToken = await getLmsToken();
 
-	await moodlePost('local_activity_utils_delete_question', {
-		questionbankentryid: questionBankEntryId,
-	});
+	await moodlePost(
+		'local_activity_utils_delete_question',
+		{
+			questionbankentryid: questionBankEntryId,
+		},
+		lmsToken
+	);
 }
 
 async function enrichUsersWithDBStudentInfo(
@@ -743,15 +767,16 @@ export async function getQuizSubmissions(
 	quizId: number,
 	courseId: number
 ): Promise<QuizSubmissionUser[]> {
-	const session = await auth();
-	if (!session?.user) {
-		throw new Error('Unauthorized');
-	}
+	const lmsToken = await getLmsToken();
 
 	const [attemptsResult, enrolledUsersResult] = await Promise.all([
-		moodleGet('local_activity_utils_get_quiz_attempts', {
-			quizid: quizId,
-		}),
+		moodleGet(
+			'local_activity_utils_get_quiz_attempts',
+			{
+				quizid: quizId,
+			},
+			lmsToken
+		),
 		moodleGet(
 			'core_enrol_get_enrolled_users',
 			{
@@ -810,17 +835,15 @@ export async function getQuizSubmissions(
 export async function getQuizAttemptDetails(
 	attemptId: number
 ): Promise<QuizAttemptDetails | null> {
-	const session = await auth();
-	if (!session?.user) {
-		throw new Error('Unauthorized');
-	}
+	const lmsToken = await getLmsToken();
 
 	try {
 		const result = await moodleGet(
 			'local_activity_utils_get_quiz_attempt_details',
 			{
 				attemptid: attemptId,
-			}
+			},
+			lmsToken
 		);
 
 		if (!result?.success) {
@@ -839,10 +862,7 @@ export async function gradeEssayQuestion(
 	mark: number,
 	comment?: string
 ): Promise<{ success: boolean; message: string }> {
-	const session = await auth();
-	if (!session?.user) {
-		throw new Error('Unauthorized');
-	}
+	const lmsToken = await getLmsToken();
 
 	const params: Record<string, number | string> = {
 		attemptid: attemptId,
@@ -856,7 +876,8 @@ export async function gradeEssayQuestion(
 
 	const result = await moodlePost(
 		'local_activity_utils_grade_essay_question',
-		params
+		params,
+		lmsToken
 	);
 
 	return {
@@ -869,15 +890,16 @@ export async function addQuizAttemptFeedback(
 	attemptId: number,
 	feedback: string
 ): Promise<{ success: boolean; message: string }> {
-	const session = await auth();
-	if (!session?.user) {
-		throw new Error('Unauthorized');
-	}
+	const lmsToken = await getLmsToken();
 
-	const result = await moodlePost('local_activity_utils_add_attempt_feedback', {
-		attemptid: attemptId,
-		feedback,
-	});
+	const result = await moodlePost(
+		'local_activity_utils_add_attempt_feedback',
+		{
+			attemptid: attemptId,
+			feedback,
+		},
+		lmsToken
+	);
 
 	return {
 		success: result?.success ?? false,
@@ -888,17 +910,15 @@ export async function addQuizAttemptFeedback(
 export async function getQuizAttemptFeedback(
 	attemptId: number
 ): Promise<string | null> {
-	const session = await auth();
-	if (!session?.user) {
-		throw new Error('Unauthorized');
-	}
+	const lmsToken = await getLmsToken();
 
 	try {
 		const result = await moodleGet(
 			'local_activity_utils_get_attempt_feedback',
 			{
 				attemptid: attemptId,
-			}
+			},
+			lmsToken
 		);
 
 		return result?.feedback ?? null;

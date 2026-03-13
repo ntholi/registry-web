@@ -1,5 +1,6 @@
 'use server';
 
+import { getLmsCredentials } from '@auth/auth-providers/_server/repository';
 import { getOrReuseSection } from '@lms/_shared/utils';
 import { createAssessment as createAcademicAssessment } from '@/app/academic/assessments/_server/actions';
 import { getActiveTerm } from '@/app/registry/terms';
@@ -8,18 +9,29 @@ import type { AssessmentNumber } from '@/core/database';
 import { moodleGet, moodlePost } from '@/core/integrations/moodle';
 import type { CreateAssignmentParams, MoodleAssignment } from '../types';
 
-export async function getCourseAssignments(
-	courseId: number
-): Promise<MoodleAssignment[]> {
+async function getLmsToken() {
 	const session = await auth();
 	if (!session?.user?.id) {
 		throw new Error('Unauthorized');
 	}
 
+	const creds = await getLmsCredentials(session.user.id);
+	return creds?.lmsToken ?? undefined;
+}
+
+export async function getCourseAssignments(
+	courseId: number
+): Promise<MoodleAssignment[]> {
+	const lmsToken = await getLmsToken();
+
 	const [assignResult, sectionsResult] = await Promise.all([
-		moodleGet('mod_assign_get_assignments', {
-			'courseids[0]': courseId,
-		}),
+		moodleGet(
+			'mod_assign_get_assignments',
+			{
+				'courseids[0]': courseId,
+			},
+			lmsToken
+		),
 		moodleGet(
 			'core_course_get_contents',
 			{ courseid: courseId },
@@ -90,10 +102,7 @@ type CreateDraftAssignmentInput = {
 export async function createDraftAssignment(
 	params: CreateDraftAssignmentInput
 ) {
-	const session = await auth();
-	if (!session?.user) {
-		throw new Error('Unauthorized');
-	}
+	const lmsToken = await getLmsToken();
 
 	if (!params.name?.trim()) {
 		throw new Error('Assignment name is required');
@@ -106,6 +115,7 @@ export async function createDraftAssignment(
 		matchFn: (name) =>
 			name.toLowerCase() === 'assignments' ||
 			name.toLowerCase() === 'assignment',
+		lmsToken,
 	});
 
 	const requestParams: Record<string, string | number> = {
@@ -127,7 +137,8 @@ export async function createDraftAssignment(
 
 	const result = await moodlePost(
 		'local_activity_utils_create_assignment',
-		requestParams
+		requestParams,
+		lmsToken
 	);
 
 	return {
@@ -149,10 +160,7 @@ export async function updateAssignment(
 		attachments?: File[];
 	}
 ) {
-	const session = await auth();
-	if (!session?.user) {
-		throw new Error('Unauthorized');
-	}
+	const lmsToken = await getLmsToken();
 
 	const updateParams: Record<string, string | number | undefined> = {
 		assignmentid: assignmentId,
@@ -170,7 +178,11 @@ export async function updateAssignment(
 		updateParams.introfiles = await buildIntroFilesParam(params.attachments);
 	}
 
-	await moodlePost('local_activity_utils_update_assignment', updateParams);
+	await moodlePost(
+		'local_activity_utils_update_assignment',
+		updateParams,
+		lmsToken
+	);
 }
 
 export async function publishAssignment(input: {
@@ -181,10 +193,7 @@ export async function publishAssignment(input: {
 	weight: number;
 	totalMarks: number;
 }) {
-	const session = await auth();
-	if (!session?.user) {
-		throw new Error('Unauthorized');
-	}
+	await getLmsToken();
 
 	const term = await getActiveTerm();
 	if (!term) {
@@ -217,10 +226,7 @@ export async function publishAssignment(input: {
 }
 
 export async function createAssignment(params: CreateAssignmentParams) {
-	const session = await auth();
-	if (!session?.user) {
-		throw new Error('Unauthorized');
-	}
+	const lmsToken = await getLmsToken();
 	const term = await getActiveTerm();
 	if (!term) {
 		throw new Error('No active term found');
@@ -245,6 +251,7 @@ export async function createAssignment(params: CreateAssignmentParams) {
 		matchFn: (name) =>
 			name.toLowerCase() === 'assignments' ||
 			name.toLowerCase() === 'assignment',
+		lmsToken,
 	});
 
 	const requestParams: Record<string, string | number> = {
@@ -271,7 +278,8 @@ export async function createAssignment(params: CreateAssignmentParams) {
 
 	const result = await moodlePost(
 		'local_activity_utils_create_assignment',
-		requestParams
+		requestParams,
+		lmsToken
 	);
 
 	try {
@@ -290,9 +298,13 @@ export async function createAssignment(params: CreateAssignmentParams) {
 			}
 		);
 	} catch (error) {
-		await moodlePost('local_activity_utils_delete_assignment', {
-			cmid: result.coursemoduleid,
-		});
+		await moodlePost(
+			'local_activity_utils_delete_assignment',
+			{
+				cmid: result.coursemoduleid,
+			},
+			lmsToken
+		);
 		throw error;
 	}
 
@@ -300,12 +312,13 @@ export async function createAssignment(params: CreateAssignmentParams) {
 }
 
 export async function deleteAssignment(cmid: number) {
-	const session = await auth();
-	if (!session?.user) {
-		throw new Error('Unauthorized');
-	}
+	const lmsToken = await getLmsToken();
 
-	await moodlePost('local_activity_utils_delete_assignment', {
-		cmid,
-	});
+	await moodlePost(
+		'local_activity_utils_delete_assignment',
+		{
+			cmid,
+		},
+		lmsToken
+	);
 }
