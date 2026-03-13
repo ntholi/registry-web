@@ -161,11 +161,11 @@ import {{Entity}}Repository from './repository';
 class {{Entity}}Service extends BaseService<typeof {{entities}}, 'id'> {
 	constructor() {
 		super(new {{Entity}}Repository(), {
-			byIdRoles: ['dashboard'],
-			findAllRoles: ['dashboard'],
-			createRoles: ['dashboard'],
-			updateRoles: ['dashboard'],
-			deleteRoles: ['dashboard'],
+			byIdAuth: 'dashboard',
+			findAllAuth: 'dashboard',
+			createAuth: { '{{feature}}': ['create'] },
+			updateAuth: { '{{feature}}': ['update'] },
+			deleteAuth: { '{{feature}}': ['delete'] },
 			activityTypes: {
 				create: '{{table_file}}_created',
 				update: '{{table_file}}_updated',
@@ -469,7 +469,7 @@ See `src/app/academic/semester-modules/` for a complete working example:
 - [_schema/semesterModules.ts](src/app/academic/semester-modules/_schema/semesterModules.ts) - Schema definition
 - [_schema/relations.ts](src/app/academic/semester-modules/_schema/relations.ts) - Relations using specific module imports
 - [repository.ts](src/app/academic/semester-modules/_server/repository.ts) - Extended repository with custom queries
-- [service.ts](src/app/academic/semester-modules/_server/service.ts) - Service with role-based auth
+- [service.ts](src/app/academic/semester-modules/_server/service.ts) - Service with permission-based auth
 - [actions.ts](src/app/academic/semester-modules/_server/actions.ts) - Server actions
 - [Form.tsx](src/app/academic/semester-modules/_components/Form.tsx) - Complex form with relations
 - [layout.tsx](src/app/academic/semester-modules/layout.tsx) - ListLayout implementation

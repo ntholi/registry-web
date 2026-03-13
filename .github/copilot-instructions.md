@@ -56,7 +56,7 @@ You are a **Senior Principal Software Engineer** and **System Architect** specia
 ### Backend
 - **Next.js 16.1** (App Router, React 19, Server Components, Server Actions)
 - **Drizzle ORM 0.45** with PostgreSQL (Neon serverless or local)
-- **Auth.js 5** (next-auth beta) with Google OAuth
+- **Better Auth** with Google OAuth, permission presets, and `customSession` plugin
 
 ### Frontend
 - **Mantine v8** for all UI components (no custom CSS)
@@ -252,8 +252,9 @@ src/
 │   └── student-portal/        # Student-facing portal (different layout)
 ├── core/
 │   ├── database/              # Aggregated schemas, db instance (server only)
-│   ├── platform/              # BaseRepository, BaseService, withAuth
-│   └── auth.ts
+│   ├── platform/              # BaseRepository, BaseService, withPermission
+│   ├── auth.ts                # Better Auth server config & session
+│   └── auth-client.ts         # Better Auth client (useSession, signIn)
 ├── shared/
 │   ├── ui/adease/             # Reusable components (Form, ListLayout, DetailsView)
 │   └── lib/utils/             # colors.ts, status.tsx, dates.ts, utilities
@@ -295,9 +296,25 @@ src/
 
 ### Platform Classes (`src/core/platform/`)
 - `BaseRepository` - CRUD with pagination + automatic audit logging (`AuditOptions`, `writeAuditLog`, `writeAuditLogBatch`)
-- `BaseService` - Service layer with role-based auth + auto audit (`buildAuditOptions`, `activityTypes` config)
-- `withAuth` - Authentication wrapper
+- `BaseService` - Service layer with permission-based auth + auto audit (`buildAuditOptions`, `activityTypes` config)
+- `withPermission` - Permission-checking wrapper
 - `serviceWrapper` - Service proxy with logging
+
+### Auth & Permissions (`src/core/`)
+- **`auth.ts`** — Better Auth server config, server-side `auth()` for session retrieval
+- **`auth-client.ts`** — `authClient` for client-side session and social sign-in
+- **`proxy.ts`** (root) — Cookie-only optimistic redirect middleware using `getSessionCookie` from `better-auth/cookies`
+
+### Permission Model
+- **Presets**: Users have optional `presetId` FK → `permission_presets`. Presets define `PermissionGrant[]` (`{ resource, action }`).
+- **Catalog**: `src/app/auth/permission-presets/_lib/catalog.ts` defines `Resource`, `Action`, preset seeds, `PermissionRequirement`.
+- **Session**: `customSession` plugin loads preset permissions into session cookie (`session.permissions`).
+- **Checking**: `withPermission(fn, requirement)` — requirement can be `'all'` | `'auth'` | `'dashboard'` | `{ resource: ['action'] }` | `(session) => boolean`.
+- **Admin bypass**: Role `'admin'` bypasses all permission checks.
+- **Navigation**: Module configs use `permissions: [{ resource, action }]` on nav items.
+- **Server session**: `getSession()` from `@/core/platform/withPermission` in server components.
+- **Client session**: `authClient.useSession()` from `@/core/auth-client`. NEVER use `next-auth/react`.
+- **Sign-in**: `authClient.signIn.social({ provider: 'google' })`. NEVER use `next-auth`.
 
 ## 📦 Special Modules Support
 
