@@ -1,7 +1,7 @@
 import type { venues } from '@/core/database';
 import BaseService from '@/core/platform/BaseService';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
-import withAuth from '@/core/platform/withPermission';
+import withPermission from '@/core/platform/withPermission';
 import type { VenueInsert, VenueQueryOptions } from './repository';
 import VenueRepository from './repository';
 
@@ -11,11 +11,11 @@ class VenueService extends BaseService<typeof venues, 'id'> {
 	constructor() {
 		const repository = new VenueRepository();
 		super(repository, {
-			createRoles: ['academic', 'registry'],
-			updateRoles: ['academic', 'registry'],
-			deleteRoles: ['academic', 'registry'],
-			byIdRoles: ['dashboard'],
-			findAllRoles: ['dashboard'],
+			byIdAuth: 'dashboard',
+			findAllAuth: 'dashboard',
+			createAuth: { venues: ['create'] },
+			updateAuth: { venues: ['update'] },
+			deleteAuth: { venues: ['delete'] },
 			activityTypes: {
 				create: 'venue_created',
 				update: 'venue_updated',
@@ -26,27 +26,30 @@ class VenueService extends BaseService<typeof venues, 'id'> {
 	}
 
 	getWithRelations = async (id: string) => {
-		return withAuth(async () => {
+		return withPermission(async () => {
 			return this.venueRepository.findByIdWithRelations(id);
-		}, ['dashboard']);
+		}, 'dashboard');
 	};
 
 	findAllWithRelations = async (options: VenueQueryOptions) => {
-		return withAuth(async () => {
+		return withPermission(async () => {
 			return this.venueRepository.findAllWithRelations(options);
-		}, ['dashboard']);
+		}, 'dashboard');
 	};
 
 	getAllWithRelations = async () => {
-		return withAuth(async () => {
+		return withPermission(async () => {
 			return this.venueRepository.getAllWithRelations();
-		}, ['dashboard']);
+		}, 'dashboard');
 	};
 
 	createWithSchools = async (venue: VenueInsert, schoolIds: number[]) => {
-		return withAuth(async () => {
-			return this.venueRepository.createWithSchools(venue, schoolIds);
-		}, ['academic', 'registry']);
+		return withPermission(
+			async () => {
+				return this.venueRepository.createWithSchools(venue, schoolIds);
+			},
+			{ venues: ['create'] }
+		);
 	};
 
 	updateWithSchools = async (
@@ -54,9 +57,12 @@ class VenueService extends BaseService<typeof venues, 'id'> {
 		venue: Partial<VenueInsert>,
 		schoolIds?: number[]
 	) => {
-		return withAuth(async () => {
-			return this.venueRepository.updateWithSchools(id, venue, schoolIds);
-		}, ['academic', 'registry']);
+		return withPermission(
+			async () => {
+				return this.venueRepository.updateWithSchools(id, venue, schoolIds);
+			},
+			{ venues: ['update'] }
+		);
 	};
 }
 

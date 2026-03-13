@@ -4,7 +4,7 @@ import { auth } from '@/core/auth';
 import type { clearance, DashboardUser } from '@/core/database';
 import type { QueryOptions } from '@/core/platform/BaseRepository';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
-import withAuth from '@/core/platform/withPermission';
+import withPermission from '@/core/platform/withPermission';
 import ClearanceRepository, { type ClearanceFilterOptions } from './repository';
 
 export { getActiveTerm };
@@ -15,11 +15,11 @@ class ClearanceService {
 	constructor(private readonly repository = new ClearanceRepository()) {}
 
 	async first() {
-		return withAuth(async () => this.repository.findFirst(), []);
+		return withPermission(async () => this.repository.findFirst(), []);
 	}
 
 	async get(id: number) {
-		return withAuth(async () => {
+		return withPermission(async () => {
 			const result = await this.repository.findByIdWithRelations(id);
 			if (!result) return null;
 			const activeProgram = result.registrationRequest?.student.programs[0];
@@ -48,7 +48,7 @@ class ClearanceService {
 		status?: 'pending' | 'approved' | 'rejected',
 		filter?: ClearanceFilterOptions
 	) {
-		return withAuth(async () => {
+		return withPermission(async () => {
 			const effectiveFilter = { ...filter };
 			if (!effectiveFilter.termId) {
 				const activeTerm = await getActiveTerm();
@@ -64,7 +64,7 @@ class ClearanceService {
 	}
 
 	async respond(data: Clearance, stdNo?: number) {
-		return withAuth(
+		return withPermission(
 			async (session) => {
 				if (!data.id) throw Error('Clearance id cannot be null/undefined');
 				const activityType: RegistryActivityType =
@@ -91,7 +91,7 @@ class ClearanceService {
 	}
 
 	async update(id: number, data: Clearance, stdNo?: number) {
-		return withAuth(
+		return withPermission(
 			async (session) => {
 				const current = await this.repository.findById(id);
 				if (!current) throw new Error('Clearance not found');
@@ -131,22 +131,22 @@ class ClearanceService {
 	}
 
 	async delete(id: number) {
-		return withAuth(async () => this.repository.delete(id), []);
+		return withPermission(async () => this.repository.delete(id), []);
 	}
 
 	async count() {
-		return withAuth(async () => this.repository.count(), []);
+		return withPermission(async () => this.repository.count(), []);
 	}
 
 	async getHistory(clearanceId: number) {
-		return withAuth(
+		return withPermission(
 			async () => this.repository.findHistory(clearanceId),
 			['dashboard']
 		);
 	}
 
 	async getHistoryByStudentNo(stdNo: number) {
-		return withAuth(async () => {
+		return withPermission(async () => {
 			const session = await auth();
 			if (!session?.user?.role) throw new Error('Unauthorized');
 
@@ -158,7 +158,7 @@ class ClearanceService {
 	}
 
 	async findNextPending(department: DashboardUser) {
-		return withAuth(
+		return withPermission(
 			async () => this.repository.findNextPending(department),
 			['dashboard']
 		);
@@ -168,7 +168,7 @@ class ClearanceService {
 		status: 'pending' | 'approved' | 'rejected',
 		termId?: number
 	) {
-		return withAuth(
+		return withPermission(
 			async () => this.repository.findByStatusForExport(status, termId),
 			['dashboard']
 		);

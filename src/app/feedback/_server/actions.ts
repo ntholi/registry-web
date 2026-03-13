@@ -1,6 +1,6 @@
 'use server';
 
-import withAuth from '@/core/platform/withPermission';
+import withPermission from '@/core/platform/withPermission';
 import {
 	finalize,
 	getExistingResponses,
@@ -12,11 +12,11 @@ import {
 } from './repository';
 
 export async function validateFeedbackPassphrase(passphrase: string) {
-	return withAuth(async () => {
+	return withPermission(async () => {
 		const result = await repoValidatePassphrase(passphrase);
 		if (!result) return { error: 'Invalid passphrase' as const };
 		return result;
-	}, ['all']);
+	}, 'all');
 }
 
 export async function getFeedbackDataForPassphrase(
@@ -24,14 +24,14 @@ export async function getFeedbackDataForPassphrase(
 	termId: number,
 	passphraseId: string
 ) {
-	return withAuth(async () => {
+	return withPermission(async () => {
 		const [lecturers, questions, existingResponses] = await Promise.all([
 			getLecturersForClass(structureSemesterId, termId),
 			getQuestionsByCategory(),
 			getExistingResponses(passphraseId),
 		]);
 		return { lecturers, questions, existingResponses };
-	}, ['all']);
+	}, 'all');
 }
 
 export async function submitLecturerFeedback(
@@ -39,10 +39,10 @@ export async function submitLecturerFeedback(
 	assignedModuleId: number,
 	responses: { questionId: string; rating: number; comment: string | null }[]
 ) {
-	return withAuth(async () => {
+	return withPermission(async () => {
 		await saveResponses(passphraseId, assignedModuleId, responses);
 		return { success: true };
-	}, ['all']);
+	}, 'all');
 }
 
 export async function skipLecturer(
@@ -50,15 +50,15 @@ export async function skipLecturer(
 	assignedModuleId: number,
 	questionIds: string[]
 ) {
-	return withAuth(async () => {
+	return withPermission(async () => {
 		await markSkipped(passphraseId, assignedModuleId, questionIds);
 		return { success: true };
-	}, ['all']);
+	}, 'all');
 }
 
 export async function finalizeFeedback(passphraseId: string) {
-	return withAuth(async () => {
+	return withPermission(async () => {
 		await finalize(passphraseId);
 		return { success: true };
-	}, ['all']);
+	}, 'all');
 }

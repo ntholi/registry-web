@@ -1,6 +1,7 @@
 import type { books } from '@/core/database';
 import BaseService from '@/core/platform/BaseService';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
+import withPermission from '@/core/platform/withPermission';
 import BookRepository from './repository';
 
 class BookService extends BaseService<typeof books, 'id'> {
@@ -8,11 +9,11 @@ class BookService extends BaseService<typeof books, 'id'> {
 
 	constructor() {
 		super(new BookRepository(), {
-			byIdRoles: ['dashboard'],
-			findAllRoles: ['dashboard'],
-			createRoles: ['dashboard'],
-			updateRoles: ['dashboard'],
-			deleteRoles: ['dashboard'],
+			byIdAuth: { library: ['read'] },
+			findAllAuth: { library: ['read'] },
+			createAuth: { library: ['create'] },
+			updateAuth: { library: ['update'] },
+			deleteAuth: { library: ['delete'] },
 			activityTypes: {
 				create: 'book_added',
 				update: 'book_updated',
@@ -22,11 +23,15 @@ class BookService extends BaseService<typeof books, 'id'> {
 	}
 
 	async getWithRelations(id: string) {
-		return this.repository.findByIdWithRelations(id);
+		return withPermission(() => this.repository.findByIdWithRelations(id), {
+			library: ['read'],
+		});
 	}
 
 	async findByIsbn(isbn: string) {
-		return this.repository.findByIsbn(isbn);
+		return withPermission(() => this.repository.findByIsbn(isbn), {
+			library: ['read'],
+		});
 	}
 
 	async createWithRelations(
@@ -34,7 +39,10 @@ class BookService extends BaseService<typeof books, 'id'> {
 		authorIds: string[],
 		categoryIds: string[]
 	) {
-		return this.repository.createWithRelations(book, authorIds, categoryIds);
+		return withPermission(
+			() => this.repository.createWithRelations(book, authorIds, categoryIds),
+			{ library: ['create'] }
+		);
 	}
 
 	async updateWithRelations(
@@ -43,11 +51,10 @@ class BookService extends BaseService<typeof books, 'id'> {
 		authorIds: string[],
 		categoryIds: string[]
 	) {
-		return this.repository.updateWithRelations(
-			id,
-			book,
-			authorIds,
-			categoryIds
+		return withPermission(
+			() =>
+				this.repository.updateWithRelations(id, book, authorIds, categoryIds),
+			{ library: ['update'] }
 		);
 	}
 }

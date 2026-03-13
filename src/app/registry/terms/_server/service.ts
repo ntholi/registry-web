@@ -1,7 +1,7 @@
 import type { terms } from '@/core/database';
 import BaseService from '@/core/platform/BaseService';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
-import withAuth from '@/core/platform/withPermission';
+import withPermission from '@/core/platform/withPermission';
 import TermRepository, { type TermInsert } from './repository';
 
 class TermService extends BaseService<typeof terms, 'id'> {
@@ -16,21 +16,21 @@ class TermService extends BaseService<typeof terms, 'id'> {
 	}
 
 	async getByCode(code: string) {
-		return withAuth(
+		return withPermission(
 			async () => (this.repository as TermRepository).getByCode(code),
 			['all']
 		);
 	}
 
 	async getActive() {
-		return withAuth(
+		return withPermission(
 			async () => (this.repository as TermRepository).getActive(),
 			['all']
 		);
 	}
 
 	async create(data: TermInsert) {
-		return withAuth(
+		return withPermission(
 			async (session) =>
 				(this.repository as TermRepository).createWithSettings(
 					data,
@@ -41,7 +41,7 @@ class TermService extends BaseService<typeof terms, 'id'> {
 	}
 
 	async deleteTerm(id: number) {
-		return withAuth(async () => {
+		return withPermission(async () => {
 			const term = await this.repository.findById(id);
 			await this.repository.delete(id);
 			return term;

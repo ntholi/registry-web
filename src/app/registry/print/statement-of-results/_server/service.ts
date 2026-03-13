@@ -1,6 +1,6 @@
 import type { statementOfResultsPrints } from '@/core/database';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
-import withAuth from '@/core/platform/withPermission';
+import withPermission from '@/core/platform/withPermission';
 import StatementOfResultsPrintsRepository from './repository';
 
 type StatementOfResultsPrint = typeof statementOfResultsPrints.$inferInsert;
@@ -11,7 +11,7 @@ class StatementOfResultsPrintsService {
 	) {}
 
 	async create(data: StatementOfResultsPrint) {
-		return withAuth(
+		return withPermission(
 			async (session) =>
 				this.repository.create(data, {
 					userId: session!.user!.id!,
@@ -24,7 +24,7 @@ class StatementOfResultsPrintsService {
 	}
 
 	async get(id: string) {
-		return withAuth(async () => this.repository.findById(id), ['all']);
+		return withPermission(async () => this.repository.findById(id), ['all']);
 	}
 }
 

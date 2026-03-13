@@ -1,7 +1,7 @@
 import type { timetableAllocations } from '@/core/database';
 import BaseService from '@/core/platform/BaseService';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
-import withAuth from '@/core/platform/withPermission';
+import withPermission from '@/core/platform/withPermission';
 import type { TimetableAllocationInsert } from './repository';
 import TimetableAllocationRepository from './repository';
 
@@ -14,11 +14,11 @@ class TimetableAllocationService extends BaseService<
 	constructor() {
 		const repository = new TimetableAllocationRepository();
 		super(repository, {
-			createRoles: ['academic'],
-			updateRoles: ['academic'],
-			deleteRoles: ['academic'],
-			byIdRoles: ['dashboard'],
-			findAllRoles: ['dashboard'],
+			byIdAuth: 'dashboard',
+			findAllAuth: 'dashboard',
+			createAuth: { timetable: ['create'] },
+			updateAuth: { timetable: ['update'] },
+			deleteAuth: { timetable: ['delete'] },
 			activityTypes: {
 				create: 'allocation_created',
 				update: 'allocation_updated',
@@ -29,15 +29,15 @@ class TimetableAllocationService extends BaseService<
 	}
 
 	async getWithRelations(id: number) {
-		return withAuth(async () => {
+		return withPermission(async () => {
 			return this.repo.findByIdWithRelations(id);
-		}, ['dashboard']);
+		}, 'dashboard');
 	}
 
 	async getByUserIdWithRelations(userId: string) {
-		return withAuth(async () => {
+		return withPermission(async () => {
 			return this.repo.findByUserIdWithRelations(userId);
-		}, ['dashboard']);
+		}, 'dashboard');
 	}
 
 	async createWithVenueTypes(
@@ -45,36 +45,8 @@ class TimetableAllocationService extends BaseService<
 		venueTypeIds: string[],
 		allowedVenueIds: string[]
 	) {
-		return withAuth(async () => {
-			const duplicate = await this.repo.findDuplicate(
-				allocation.semesterModuleId,
-				allocation.termId,
-				allocation.classType,
-				allocation.groupName
-			);
-			if (duplicate) {
-				const groupInfo = allocation.groupName
-					? `Group ${allocation.groupName}`
-					: 'All Students';
-				throw new Error(
-					`This class (${groupInfo}) has already been allocated for this module in the current term. Each class can only have one ${allocation.classType} allocation per module.`
-				);
-			}
-			return this.repo.createWithVenueTypes(
-				allocation,
-				venueTypeIds,
-				allowedVenueIds
-			);
-		}, ['academic']);
-	}
-
-	async createManyWithVenueTypes(
-		allocations: TimetableAllocationInsert[],
-		venueTypeIds: string[],
-		allowedVenueIds: string[]
-	) {
-		return withAuth(async () => {
-			for (const allocation of allocations) {
+		return withPermission(
+			async () => {
 				const duplicate = await this.repo.findDuplicate(
 					allocation.semesterModuleId,
 					allocation.termId,
@@ -86,58 +58,113 @@ class TimetableAllocationService extends BaseService<
 						? `Group ${allocation.groupName}`
 						: 'All Students';
 					throw new Error(
-						`The class (${groupInfo}) has already been allocated for this module in the current term. Each class can only have one ${allocation.classType} allocation per module.`
+						`This class (${groupInfo}) has already been allocated for this module in the current term. Each class can only have one ${allocation.classType} allocation per module.`
 					);
 				}
-			}
-			return this.repo.createManyWithVenueTypes(
-				allocations,
-				venueTypeIds,
-				allowedVenueIds
-			);
-		}, ['academic']);
+				return this.repo.createWithVenueTypes(
+					allocation,
+					venueTypeIds,
+					allowedVenueIds
+				);
+			},
+			{ timetable: ['create'] }
+		);
+	}
+
+	async createManyWithVenueTypes(
+		allocations: TimetableAllocationInsert[],
+		venueTypeIds: string[],
+		allowedVenueIds: string[]
+	) {
+		return withPermission(
+			async () => {
+				for (const allocation of allocations) {
+					const duplicate = await this.repo.findDuplicate(
+						allocation.semesterModuleId,
+						allocation.termId,
+						allocation.classType,
+						allocation.groupName
+					);
+					if (duplicate) {
+						const groupInfo = allocation.groupName
+							? `Group ${allocation.groupName}`
+							: 'All Students';
+						throw new Error(
+							`The class (${groupInfo}) has already been allocated for this module in the current term. Each class can only have one ${allocation.classType} allocation per module.`
+						);
+					}
+				}
+				return this.repo.createManyWithVenueTypes(
+					allocations,
+					venueTypeIds,
+					allowedVenueIds
+				);
+			},
+			{ timetable: ['create'] }
+		);
 	}
 
 	async create(allocation: TimetableAllocationInsert) {
-		return withAuth(async () => {
-			return this.repo.createAllocation(allocation);
-		}, ['academic']);
+		return withPermission(
+			async () => {
+				return this.repo.createAllocation(allocation);
+			},
+			{ timetable: ['create'] }
+		);
 	}
 
 	async update(id: number, allocation: Partial<TimetableAllocationInsert>) {
-		return withAuth(async () => {
-			return this.repo.updateAllocation(id, allocation);
-		}, ['academic']);
+		return withPermission(
+			async () => {
+				return this.repo.updateAllocation(id, allocation);
+			},
+			{ timetable: ['update'] }
+		);
 	}
 
 	async delete(id: number) {
-		return withAuth(async () => {
-			return this.repo.deleteAllocation(id);
-		}, ['academic']);
+		return withPermission(
+			async () => {
+				return this.repo.deleteAllocation(id);
+			},
+			{ timetable: ['delete'] }
+		);
 	}
 
 	async deleteMany(ids: number[]) {
-		return withAuth(async () => {
-			return this.repo.deleteAllocations(ids);
-		}, ['academic']);
+		return withPermission(
+			async () => {
+				return this.repo.deleteAllocations(ids);
+			},
+			{ timetable: ['delete'] }
+		);
 	}
 
 	async updateVenueTypes(allocationId: number, venueTypeIds: string[]) {
-		return withAuth(async () => {
-			await this.repo.updateVenueTypes(allocationId, venueTypeIds);
-		}, ['academic']);
+		return withPermission(
+			async () => {
+				await this.repo.updateVenueTypes(allocationId, venueTypeIds);
+			},
+			{ timetable: ['update'] }
+		);
 	}
 
 	async updateAllowedVenues(allocationId: number, venueIds: string[]) {
-		return withAuth(async () => {
-			await this.repo.updateAllowedVenues(allocationId, venueIds);
-		}, ['academic']);
+		return withPermission(
+			async () => {
+				await this.repo.updateAllowedVenues(allocationId, venueIds);
+			},
+			{ timetable: ['update'] }
+		);
 	}
 
 	async setOverflowVenue(allocationId: number, venueId: string) {
-		return withAuth(async () => {
-			await this.repo.setOverflowVenue(allocationId, venueId);
-		}, ['academic']);
+		return withPermission(
+			async () => {
+				await this.repo.setOverflowVenue(allocationId, venueId);
+			},
+			{ timetable: ['update'] }
+		);
 	}
 }
 

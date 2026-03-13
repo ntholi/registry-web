@@ -1,7 +1,7 @@
 import { studentsService } from '@/app/registry/students/_server/service';
 import { getUnpublishedTermCodes } from '@/app/registry/terms/settings/_server/actions';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
-import withAuth from '@/core/platform/withPermission';
+import withPermission from '@/core/platform/withPermission';
 import BulkRepository from './repository';
 
 class BulkService {
@@ -12,13 +12,13 @@ class BulkService {
 	}
 
 	async getDistinctGraduationDates() {
-		return withAuth(async () => {
+		return withPermission(async () => {
 			return await this.repository.findDistinctGraduationDates();
 		}, ['admin', 'registry']);
 	}
 
 	async getProgramsByGraduationDate(graduationDate: string) {
-		return withAuth(async () => {
+		return withPermission(async () => {
 			return await this.repository.findProgramsByGraduationDate(graduationDate);
 		}, ['admin', 'registry']);
 	}
@@ -27,7 +27,7 @@ class BulkService {
 		graduationDate: string,
 		programIds?: number[]
 	) {
-		return withAuth(async () => {
+		return withPermission(async () => {
 			const stdNos = await this.repository.findStudentsByGraduationDate(
 				graduationDate,
 				programIds

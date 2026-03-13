@@ -11,11 +11,11 @@ class ExternalLibraryService extends BaseService<
 
 	constructor() {
 		super(new ExternalLibraryRepository(), {
-			byIdRoles: ['dashboard'],
-			findAllRoles: ['dashboard'],
-			createRoles: ['dashboard'],
-			updateRoles: ['dashboard'],
-			deleteRoles: ['dashboard'],
+			byIdAuth: { library: ['read'] },
+			findAllAuth: { library: ['read'] },
+			createAuth: { library: ['create'] },
+			updateAuth: { library: ['update'] },
+			deleteAuth: { library: ['delete'] },
 			activityTypes: {
 				create: 'external_library_added',
 				update: 'external_library_updated',

@@ -1,7 +1,7 @@
 import type { graduationDates } from '@/core/database';
 import BaseService from '@/core/platform/BaseService';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
-import withAuth from '@/core/platform/withPermission';
+import withPermission from '@/core/platform/withPermission';
 import GraduationRepository from './repository';
 
 class GraduationService extends BaseService<typeof graduationDates, 'id'> {
@@ -16,35 +16,35 @@ class GraduationService extends BaseService<typeof graduationDates, 'id'> {
 	}
 
 	async getWithTerm(id: number) {
-		return withAuth(
+		return withPermission(
 			async () => (this.repository as GraduationRepository).findById(id),
 			['dashboard']
 		);
 	}
 
 	async getByDateWithTerm(date: string) {
-		return withAuth(
+		return withPermission(
 			async () => (this.repository as GraduationRepository).findByDate(date),
 			['dashboard']
 		);
 	}
 
 	async getLatest() {
-		return withAuth(
+		return withPermission(
 			async () => (this.repository as GraduationRepository).findLatest(),
 			['dashboard']
 		);
 	}
 
 	async getAllGraduationDates() {
-		return withAuth(
+		return withPermission(
 			async () => (this.repository as GraduationRepository).findAll(),
 			['dashboard']
 		);
 	}
 
 	async deleteGraduation(id: number) {
-		return withAuth(
+		return withPermission(
 			async (session) => {
 				const graduation = await this.repository.findById(id);
 				await this.repository.delete(id, {

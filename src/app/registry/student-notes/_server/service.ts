@@ -8,7 +8,9 @@ import {
 import type { QueryOptions } from '@/core/platform/BaseRepository';
 import BaseService from '@/core/platform/BaseService';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
-import withAuth, { requireSessionUserId } from '@/core/platform/withPermission';
+import withPermission, {
+	requireSessionUserId,
+} from '@/core/platform/withPermission';
 import { ALLOWED_MIME_TYPES, MAX_ATTACHMENT_SIZE } from '../_lib/constants';
 import type { NoteVisibility } from '../_schema/studentNotes';
 import StudentNotesRepository from './repository';
@@ -62,7 +64,7 @@ class StudentNotesService extends BaseService<typeof studentNotes, 'id'> {
 	}
 
 	async getByStudent(stdNo: number) {
-		return withAuth(
+		return withPermission(
 			async (session) =>
 				this.repo.findByStudent(
 					stdNo,
@@ -74,7 +76,7 @@ class StudentNotesService extends BaseService<typeof studentNotes, 'id'> {
 	}
 
 	async findAll(options: QueryOptions<typeof studentNotes>) {
-		return withAuth(
+		return withPermission(
 			async (session) =>
 				this.repo.findAllNotes(
 					requireSessionUserId(session),
@@ -87,11 +89,14 @@ class StudentNotesService extends BaseService<typeof studentNotes, 'id'> {
 	}
 
 	async getNoteById(id: string) {
-		return withAuth(async () => this.repo.findNoteById(id), ['dashboard']);
+		return withPermission(
+			async () => this.repo.findNoteById(id),
+			['dashboard']
+		);
 	}
 
 	async createNote(stdNo: number, content: string, visibility: NoteVisibility) {
-		return withAuth(
+		return withPermission(
 			async (session) => {
 				const userId = requireSessionUserId(session);
 				const role = this.requireRole(session);
@@ -116,7 +121,7 @@ class StudentNotesService extends BaseService<typeof studentNotes, 'id'> {
 	}
 
 	async updateNote(id: string, content: string, visibility: NoteVisibility) {
-		return withAuth(
+		return withPermission(
 			async (session) => {
 				const userId = requireSessionUserId(session);
 				const role = this.requireRole(session);
@@ -142,7 +147,7 @@ class StudentNotesService extends BaseService<typeof studentNotes, 'id'> {
 	}
 
 	async deleteNote(id: string) {
-		return withAuth(
+		return withPermission(
 			async (session) => {
 				const userId = requireSessionUserId(session);
 				const role = this.requireRole(session);
@@ -180,7 +185,7 @@ class StudentNotesService extends BaseService<typeof studentNotes, 'id'> {
 		fileName: string,
 		mimeType: string
 	) {
-		return withAuth(
+		return withPermission(
 			async (session) => {
 				const userId = requireSessionUserId(session);
 				const role = this.requireRole(session);
@@ -240,7 +245,7 @@ class StudentNotesService extends BaseService<typeof studentNotes, 'id'> {
 	}
 
 	async deleteAttachment(id: string) {
-		return withAuth(
+		return withPermission(
 			async (session) => {
 				const userId = requireSessionUserId(session);
 				const role = this.requireRole(session);

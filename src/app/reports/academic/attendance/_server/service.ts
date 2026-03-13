@@ -1,4 +1,4 @@
-import withAuth from '@/core/platform/withPermission';
+import withPermission from '@/core/platform/withPermission';
 import {
 	type AttendanceReportFilter,
 	attendanceReportRepository,
@@ -9,7 +9,7 @@ class AttendanceReportService {
 		programId?: number,
 		semesterNumber?: string
 	) {
-		return withAuth(async () => {
+		return withPermission(async () => {
 			return attendanceReportRepository.getSemesterModulesForFilter(
 				programId,
 				semesterNumber
@@ -18,7 +18,7 @@ class AttendanceReportService {
 	}
 
 	async getAttendanceReportData(filter: AttendanceReportFilter) {
-		return withAuth(async () => {
+		return withPermission(async () => {
 			return attendanceReportRepository.getAttendanceReportData(filter);
 		}, ['academic', 'registry', 'leap']);
 	}
@@ -29,7 +29,7 @@ class AttendanceReportService {
 		pageSize: number,
 		search?: string
 	) {
-		return withAuth(async () => {
+		return withPermission(async () => {
 			return attendanceReportRepository.getPaginatedStudentsWithModuleAttendance(
 				filter,
 				page,

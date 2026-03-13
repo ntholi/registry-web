@@ -2,7 +2,7 @@ import { auth } from '@/core/auth';
 import type { clearance, DashboardUser } from '@/core/database';
 import type { QueryOptions } from '@/core/platform/BaseRepository';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
-import withAuth from '@/core/platform/withPermission';
+import withPermission from '@/core/platform/withPermission';
 import GraduationClearanceRepository from './repository';
 
 type Clearance = typeof clearance.$inferInsert;
@@ -13,7 +13,7 @@ class GraduationClearanceService {
 	) {}
 
 	async get(id: number) {
-		return withAuth(
+		return withPermission(
 			async () => this.repository.findByIdWithRelations(id),
 			['dashboard']
 		);
@@ -34,7 +34,7 @@ class GraduationClearanceService {
 		status?: 'pending' | 'approved' | 'rejected',
 		graduationDateId?: number
 	) {
-		return withAuth(
+		return withPermission(
 			async () =>
 				this.repository.findByDepartment(
 					department,
@@ -47,7 +47,7 @@ class GraduationClearanceService {
 	}
 
 	async update(id: number, data: Clearance, stdNo?: number) {
-		return withAuth(
+		return withPermission(
 			async (session) => {
 				const current = await this.repository.findById(id);
 				if (!current) throw new Error('Clearance not found');
@@ -83,7 +83,7 @@ class GraduationClearanceService {
 	}
 
 	async respond(data: Clearance, stdNo?: number) {
-		return withAuth(
+		return withPermission(
 			async (session) => {
 				if (!data.id) throw Error('Clearance id cannot be null/undefined');
 				return this.repository.update(
@@ -106,18 +106,18 @@ class GraduationClearanceService {
 	}
 
 	async delete(id: number) {
-		return withAuth(async () => this.repository.delete(id), []);
+		return withPermission(async () => this.repository.delete(id), []);
 	}
 
 	async getHistory(clearanceId: number) {
-		return withAuth(
+		return withPermission(
 			async () => this.repository.findHistory(clearanceId),
 			['dashboard']
 		);
 	}
 
 	async getHistoryByStudentNo(stdNo: number) {
-		return withAuth(async () => {
+		return withPermission(async () => {
 			const session = await auth();
 			if (!session?.user?.role) throw new Error('Unauthorized');
 			return this.repository.findHistoryByStudentNo(

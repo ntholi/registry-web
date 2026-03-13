@@ -1,6 +1,7 @@
 import type { bookCopies } from '@/core/database';
 import BaseService from '@/core/platform/BaseService';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
+import withPermission from '@/core/platform/withPermission';
 import BookCopyRepository from './repository';
 
 class BookCopyService extends BaseService<typeof bookCopies, 'id'> {
@@ -8,11 +9,11 @@ class BookCopyService extends BaseService<typeof bookCopies, 'id'> {
 
 	constructor() {
 		super(new BookCopyRepository(), {
-			byIdRoles: ['dashboard'],
-			findAllRoles: ['dashboard'],
-			createRoles: ['dashboard'],
-			updateRoles: ['dashboard'],
-			deleteRoles: ['dashboard'],
+			byIdAuth: { library: ['read'] },
+			findAllAuth: { library: ['read'] },
+			createAuth: { library: ['create'] },
+			updateAuth: { library: ['update'] },
+			deleteAuth: { library: ['delete'] },
 			activityTypes: {
 				create: 'book_copy_added',
 				update: 'book_copy_updated',
@@ -22,19 +23,28 @@ class BookCopyService extends BaseService<typeof bookCopies, 'id'> {
 	}
 
 	async getWithBook(id: string) {
-		return this.repository.findByIdWithBook(id);
+		return withPermission(() => this.repository.findByIdWithBook(id), {
+			library: ['read'],
+		});
 	}
 
 	async findByBookId(bookId: string) {
-		return this.repository.findByBookId(bookId);
+		return withPermission(() => this.repository.findByBookId(bookId), {
+			library: ['read'],
+		});
 	}
 
 	async findBySerialNumber(serialNumber: string) {
-		return this.repository.findBySerialNumber(serialNumber);
+		return withPermission(
+			() => this.repository.findBySerialNumber(serialNumber),
+			{ library: ['read'] }
+		);
 	}
 
 	async withdraw(id: string) {
-		return this.repository.updateStatus(id, 'Withdrawn');
+		return withPermission(() => this.repository.updateStatus(id, 'Withdrawn'), {
+			library: ['update'],
+		});
 	}
 }
 

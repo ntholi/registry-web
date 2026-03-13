@@ -1,10 +1,10 @@
 import type { Session } from 'next-auth';
-import withAuth from '@/core/platform/withPermission';
+import withPermission from '@/core/platform/withPermission';
 import { studentAuditRepository as repository } from './repository';
 
 class StudentAuditService {
 	async getHistory(stdNo: number, page: number, tableFilter?: string) {
-		return withAuth(
+		return withPermission(
 			async (session) => {
 				const role = this.resolveRoleFilter(session);
 				return repository.getStudentHistory({
@@ -19,13 +19,13 @@ class StudentAuditService {
 	}
 
 	async getSummary(stdNo: number) {
-		return withAuth(async () => {
+		return withPermission(async () => {
 			return repository.getStudentHistorySummary(stdNo);
 		}, ['admin']);
 	}
 
 	async getTableSummary(stdNo: number) {
-		return withAuth(
+		return withPermission(
 			async (session) => {
 				const role = this.resolveRoleFilter(session);
 				return repository.getStudentHistoryTableSummary(stdNo, role);

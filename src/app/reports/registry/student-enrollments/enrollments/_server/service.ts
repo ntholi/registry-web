@@ -1,6 +1,6 @@
 import { Packer } from 'docx';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
-import withAuth from '@/core/platform/withPermission';
+import withPermission from '@/core/platform/withPermission';
 import { createSummaryRegistrationDocument } from './document';
 import { createFullRegistrationExcel } from './excel';
 import {
@@ -15,7 +15,7 @@ export class RegistrationReportService {
 		termId: number,
 		filter?: RegistrationReportFilter
 	): Promise<Buffer> {
-		return withAuth(async () => {
+		return withPermission(async () => {
 			const term = await this.repository.getTermById(termId);
 			if (!term) {
 				throw new Error('Term not found');
@@ -44,7 +44,7 @@ export class RegistrationReportService {
 		termIds: number[],
 		filter?: RegistrationReportFilter
 	): Promise<Buffer> {
-		return withAuth(async () => {
+		return withPermission(async () => {
 			const terms = await this.repository.getTermsByIds(termIds);
 			if (!terms || terms.length === 0) {
 				throw new Error('Terms not found');
@@ -67,7 +67,7 @@ export class RegistrationReportService {
 		termIds: number[],
 		filter?: RegistrationReportFilter
 	): Promise<Buffer> {
-		return withAuth(async () => {
+		return withPermission(async () => {
 			const terms = await this.repository.getTermsByIds(termIds);
 			if (!terms || terms.length === 0) {
 				throw new Error('Terms not found');
@@ -104,7 +104,7 @@ export class RegistrationReportService {
 		termIds: number[],
 		filter?: RegistrationReportFilter
 	) {
-		return withAuth(async () => {
+		return withPermission(async () => {
 			const terms = await this.repository.getTermsByIds(termIds);
 			if (!terms || terms.length === 0) {
 				throw new Error('Terms not found');
@@ -141,7 +141,7 @@ export class RegistrationReportService {
 		pageSize: number = 20,
 		filter?: RegistrationReportFilter
 	) {
-		return withAuth(async () => {
+		return withPermission(async () => {
 			const terms = await this.repository.getTermsByIds(termIds);
 			if (!terms || terms.length === 0) {
 				throw new Error('Terms not found');
@@ -158,7 +158,7 @@ export class RegistrationReportService {
 	}
 
 	async getChartData(termIds: number[], filter?: RegistrationReportFilter) {
-		return withAuth(async () => {
+		return withPermission(async () => {
 			const terms = await this.repository.getTermsByIds(termIds);
 			if (!terms || terms.length === 0) {
 				throw new Error('Terms not found');
@@ -173,7 +173,7 @@ export class RegistrationReportService {
 	}
 
 	async getAvailableCountries() {
-		return withAuth(async () => {
+		return withPermission(async () => {
 			return await this.repository.getAvailableCountries();
 		}, ['registry', 'admin', 'finance', 'academic', 'leap']);
 	}

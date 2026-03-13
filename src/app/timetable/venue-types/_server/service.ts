@@ -1,7 +1,7 @@
 import type { venueTypes } from '@/core/database';
 import BaseService from '@/core/platform/BaseService';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
-import withAuth from '@/core/platform/withPermission';
+import withPermission from '@/core/platform/withPermission';
 import VenueTypeRepository from './repository';
 
 class VenueTypeService extends BaseService<typeof venueTypes, 'id'> {
@@ -10,11 +10,11 @@ class VenueTypeService extends BaseService<typeof venueTypes, 'id'> {
 	constructor() {
 		const repository = new VenueTypeRepository();
 		super(repository, {
-			createRoles: ['academic', 'registry'],
-			updateRoles: ['academic', 'registry'],
-			deleteRoles: ['academic', 'registry'],
-			byIdRoles: ['dashboard'],
-			findAllRoles: ['dashboard'],
+			byIdAuth: 'dashboard',
+			findAllAuth: 'dashboard',
+			createAuth: { venues: ['create'] },
+			updateAuth: { venues: ['update'] },
+			deleteAuth: { venues: ['delete'] },
 			activityTypes: {
 				create: 'venue_type_created',
 				update: 'venue_type_updated',
@@ -25,9 +25,9 @@ class VenueTypeService extends BaseService<typeof venueTypes, 'id'> {
 	}
 
 	async getAll() {
-		return withAuth(async () => {
+		return withPermission(async () => {
 			return this.repo.findAll();
-		}, ['dashboard']);
+		}, 'dashboard');
 	}
 }
 

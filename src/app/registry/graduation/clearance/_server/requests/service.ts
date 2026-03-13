@@ -1,7 +1,7 @@
 import type { graduationRequests, ReceiptType } from '@/core/database';
 import type { QueryOptions } from '@/core/platform/BaseRepository';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
-import withAuth from '@/core/platform/withPermission';
+import withPermission from '@/core/platform/withPermission';
 import GraduationRequestRepository from './repository';
 
 type GraduationRequest = typeof graduationRequests.$inferInsert;
@@ -22,57 +22,57 @@ class GraduationRequestService {
 	) {}
 
 	async first() {
-		return withAuth(async () => this.repository.findFirst(), []);
+		return withPermission(async () => this.repository.findFirst(), []);
 	}
 
 	async get(id: number) {
-		return withAuth(
+		return withPermission(
 			async () => this.repository.findById(id),
 			['registry', 'finance', 'student']
 		);
 	}
 
 	async getByStudentNo(stdNo: number) {
-		return withAuth(
+		return withPermission(
 			async () => this.repository.findByStudentNo(stdNo),
 			['student', 'registry']
 		);
 	}
 
 	async getByStudentProgramId(studentProgramId: number) {
-		return withAuth(
+		return withPermission(
 			async () => this.repository.findByStudentProgramId(studentProgramId),
 			['student', 'admin', 'registry']
 		);
 	}
 
 	async getEligiblePrograms(stdNo: number) {
-		return withAuth(
+		return withPermission(
 			async () => this.repository.getEligiblePrograms(stdNo),
 			['student']
 		);
 	}
 
 	async selectStudentProgramForGraduation(stdNo: number) {
-		return withAuth(
+		return withPermission(
 			async () => this.repository.selectStudentProgramForGraduation(stdNo),
 			['student']
 		);
 	}
 
 	async getAll(params: QueryOptions<typeof graduationRequests>) {
-		return withAuth(async () => this.repository.query(params), []);
+		return withPermission(async () => this.repository.query(params), []);
 	}
 
 	async findAll(params: QueryOptions<typeof graduationRequests>) {
-		return withAuth(
+		return withPermission(
 			async () => this.repository.findAllPaginated(params),
 			['registry', 'admin']
 		);
 	}
 
 	async create(data: GraduationRequest) {
-		return withAuth(
+		return withPermission(
 			async (session) =>
 				this.repository.create(data, {
 					userId: session!.user!.id!,
@@ -84,7 +84,7 @@ class GraduationRequestService {
 	}
 
 	async createWithPaymentReceipts(data: CreateGraduationRequestData) {
-		return withAuth(
+		return withPermission(
 			async (session) => {
 				const { paymentReceipts, stdNo, ...graduationRequestData } = data;
 
@@ -106,7 +106,7 @@ class GraduationRequestService {
 	}
 
 	async update(id: number, data: Partial<GraduationRequest>) {
-		return withAuth(
+		return withPermission(
 			async (session) =>
 				this.repository.update(id, data, {
 					userId: session!.user!.id!,
@@ -118,7 +118,7 @@ class GraduationRequestService {
 	}
 
 	async delete(id: number) {
-		return withAuth(
+		return withPermission(
 			async (session) =>
 				this.repository.delete(id, {
 					userId: session!.user!.id!,
@@ -130,11 +130,11 @@ class GraduationRequestService {
 	}
 
 	async count() {
-		return withAuth(async () => this.repository.count(), []);
+		return withPermission(async () => this.repository.count(), []);
 	}
 
 	async getClearanceData(graduationRequestId: number) {
-		return withAuth(
+		return withPermission(
 			async () => this.repository.getClearanceData(graduationRequestId),
 			async (session) => {
 				if (['admin', 'registry'].includes(session.user?.role as string)) {
@@ -148,7 +148,7 @@ class GraduationRequestService {
 	}
 
 	async countByStatus(status: 'pending' | 'approved' | 'rejected') {
-		return withAuth(
+		return withPermission(
 			async () => this.repository.countByStatus(status),
 			['dashboard']
 		);

@@ -1,7 +1,7 @@
 import type { blockedStudents, DashboardUser } from '@/core/database';
 import type { QueryOptions } from '@/core/platform/BaseRepository';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
-import withAuth from '@/core/platform/withPermission';
+import withPermission from '@/core/platform/withPermission';
 import BlockedStudentRepository from './repository';
 
 type BlockedStudent = typeof blockedStudents.$inferInsert;
@@ -10,25 +10,28 @@ class BlockedStudentService {
 	constructor(private readonly repository = new BlockedStudentRepository()) {}
 
 	async get(id: number) {
-		return withAuth(async () => this.repository.findById(id), ['finance']);
+		return withPermission(
+			async () => this.repository.findById(id),
+			['finance']
+		);
 	}
 
 	async getByStdNo(stdNo: number, status: 'blocked' | 'unblocked' = 'blocked') {
-		return withAuth(
+		return withPermission(
 			async () => this.repository.findByStdNo(stdNo, status),
 			['all']
 		);
 	}
 
 	async getAll(params: QueryOptions<typeof blockedStudents>) {
-		return withAuth(
+		return withPermission(
 			async () => this.repository.query(params),
 			['finance', 'registry']
 		);
 	}
 
 	async create(data: BlockedStudent) {
-		return withAuth(
+		return withPermission(
 			async (session) => {
 				return this.repository.create(
 					{
@@ -56,7 +59,7 @@ class BlockedStudentService {
 
 		const blockedBy = existing.byDepartment;
 
-		return withAuth(
+		return withPermission(
 			async (session) => {
 				const activityType =
 					data.status === 'unblocked' ? 'student_unblocked' : 'student_blocked';
@@ -88,7 +91,7 @@ class BlockedStudentService {
 
 	async delete(id: number) {
 		const existing = await this.repository.findById(id);
-		return withAuth(
+		return withPermission(
 			async (session) =>
 				this.repository.delete(id, {
 					userId: session!.user!.id!,
@@ -104,7 +107,7 @@ class BlockedStudentService {
 		data: { stdNo: number; reason: string }[],
 		department?: string
 	) {
-		return withAuth(
+		return withPermission(
 			async (session) => {
 				const stdNos = data.map((d) => d.stdNo);
 				const alreadyBlocked =

@@ -1,6 +1,6 @@
 import { Packer } from 'docx';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
-import withAuth from '@/core/platform/withPermission';
+import withPermission from '@/core/platform/withPermission';
 import type { GraduationReportFilter } from '../_lib/types';
 import { createGraduationSummaryDocument } from './document';
 import { createGraduationExcel } from './excel';
@@ -12,7 +12,7 @@ export class GraduationReportService {
 	async generateSummaryGraduationReport(
 		filter?: GraduationReportFilter
 	): Promise<Buffer> {
-		return withAuth(async () => {
+		return withPermission(async () => {
 			const reportData = await this.repository.getSummaryGraduationData(filter);
 			const document = createGraduationSummaryDocument(reportData);
 			const buffer = await Packer.toBuffer(document);
@@ -23,7 +23,7 @@ export class GraduationReportService {
 	async generateStudentsListReport(
 		filter?: GraduationReportFilter
 	): Promise<Buffer> {
-		return withAuth(async () => {
+		return withPermission(async () => {
 			const reportData = await this.repository.getFullGraduationData(filter);
 			const summaryData =
 				await this.repository.getSummaryGraduationData(filter);
@@ -45,7 +45,7 @@ export class GraduationReportService {
 	}
 
 	async getGraduationDataPreview(filter?: GraduationReportFilter) {
-		return withAuth(async () => {
+		return withPermission(async () => {
 			const fullData = await this.repository.getFullGraduationData(filter);
 			const summaryData =
 				await this.repository.getSummaryGraduationData(filter);
@@ -67,25 +67,25 @@ export class GraduationReportService {
 		pageSize: number = 20,
 		filter?: GraduationReportFilter
 	) {
-		return withAuth(async () => {
+		return withPermission(async () => {
 			return this.repository.getPaginatedGraduationData(page, pageSize, filter);
 		}, ['registry', 'admin', 'finance', 'academic']);
 	}
 
 	async getChartData(filter?: GraduationReportFilter) {
-		return withAuth(async () => {
+		return withPermission(async () => {
 			return this.repository.getChartData(filter);
 		}, ['registry', 'admin', 'finance', 'academic']);
 	}
 
 	async getGraduationDates() {
-		return withAuth(async () => {
+		return withPermission(async () => {
 			return this.repository.getGraduationDates();
 		}, ['registry', 'admin', 'finance', 'academic']);
 	}
 
 	async getAvailableCountries() {
-		return withAuth(async () => {
+		return withPermission(async () => {
 			return this.repository.getAvailableCountries();
 		}, ['registry', 'admin', 'finance', 'academic']);
 	}

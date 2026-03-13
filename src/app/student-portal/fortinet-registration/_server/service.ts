@@ -2,7 +2,7 @@ import { getStudentByUserId } from '@registry/students';
 import type { fortinetLevel, fortinetRegistrations } from '@/core/database';
 import type { QueryOptions } from '@/core/platform/BaseRepository';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
-import withAuth from '@/core/platform/withPermission';
+import withPermission from '@/core/platform/withPermission';
 import FortinetRegistrationRepository from './repository';
 
 type FortinetRegistration = typeof fortinetRegistrations.$inferInsert;
@@ -14,21 +14,21 @@ class FortinetRegistrationService {
 	) {}
 
 	async getById(id: number) {
-		return withAuth(
+		return withPermission(
 			async () => this.repository.findById(id),
 			['student', 'dashboard']
 		);
 	}
 
 	async getByStudentNumber(stdNo: number) {
-		return withAuth(
+		return withPermission(
 			async () => this.repository.findByStudentNumber(stdNo),
 			['student', 'dashboard']
 		);
 	}
 
 	async getForCurrentStudent() {
-		return withAuth(
+		return withPermission(
 			async (session) => {
 				if (!session?.user?.id) {
 					throw new Error('User session not found');
@@ -47,14 +47,14 @@ class FortinetRegistrationService {
 		schoolId: number,
 		options?: QueryOptions<typeof fortinetRegistrations>
 	) {
-		return withAuth(
+		return withPermission(
 			async () => this.repository.findForSchool(schoolId, options),
 			['dashboard']
 		);
 	}
 
 	async create(data: { level: FortinetLevel; message?: string }) {
-		return withAuth(
+		return withPermission(
 			async (session) => {
 				if (!session?.user?.id) {
 					throw new Error('User session not found');
@@ -104,7 +104,7 @@ class FortinetRegistrationService {
 		status: 'pending' | 'approved' | 'rejected' | 'completed',
 		message?: string
 	) {
-		return withAuth(async () => {
+		return withPermission(async () => {
 			const updateData = {
 				status,
 				message,
@@ -117,7 +117,7 @@ class FortinetRegistrationService {
 	}
 
 	async delete(id: number) {
-		return withAuth(async () => {
+		return withPermission(async () => {
 			const registration = await this.repository.findById(id);
 			await this.repository.delete(id);
 			return registration;
@@ -125,11 +125,11 @@ class FortinetRegistrationService {
 	}
 
 	async count() {
-		return withAuth(async () => this.repository.count(), ['dashboard']);
+		return withPermission(async () => this.repository.count(), ['dashboard']);
 	}
 
 	async getAll(options?: QueryOptions<typeof fortinetRegistrations>) {
-		return withAuth(
+		return withPermission(
 			async () => this.repository.query(options || {}),
 			['dashboard']
 		);

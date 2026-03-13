@@ -1,6 +1,7 @@
 import type { loans } from '@/core/database';
 import BaseService from '@/core/platform/BaseService';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
+import withPermission from '@/core/platform/withPermission';
 import type { LoanFilters } from '../_lib/types';
 import LoanRepository from './repository';
 
@@ -9,11 +10,11 @@ class LoanService extends BaseService<typeof loans, 'id'> {
 
 	constructor() {
 		super(new LoanRepository(), {
-			byIdRoles: ['dashboard'],
-			findAllRoles: ['dashboard'],
-			createRoles: ['dashboard'],
-			updateRoles: ['dashboard'],
-			deleteRoles: ['dashboard'],
+			byIdAuth: { library: ['read'] },
+			findAllAuth: { library: ['read'] },
+			createAuth: { library: ['create'] },
+			updateAuth: { library: ['update'] },
+			deleteAuth: { library: ['delete'] },
 			activityTypes: {
 				delete: 'loan_deleted',
 			},
@@ -21,19 +22,27 @@ class LoanService extends BaseService<typeof loans, 'id'> {
 	}
 
 	async getWithRelations(id: string) {
-		return this.repository.findByIdWithRelations(id);
+		return withPermission(() => this.repository.findByIdWithRelations(id), {
+			library: ['read'],
+		});
 	}
 
 	async findByStudent(stdNo: number, status?: string) {
-		return this.repository.findByStudent(stdNo, status);
+		return withPermission(() => this.repository.findByStudent(stdNo, status), {
+			library: ['read'],
+		});
 	}
 
 	async findActiveLoans() {
-		return this.repository.findActiveLoans();
+		return withPermission(() => this.repository.findActiveLoans(), {
+			library: ['read'],
+		});
 	}
 
 	async findOverdueLoans() {
-		return this.repository.findOverdueLoans();
+		return withPermission(() => this.repository.findOverdueLoans(), {
+			library: ['read'],
+		});
 	}
 
 	async issueLoan(
@@ -42,44 +51,68 @@ class LoanService extends BaseService<typeof loans, 'id'> {
 		dueDate: Date,
 		issuedBy: string
 	) {
-		return this.repository.createLoan(
-			{ bookCopyId, stdNo, dueDate, issuedBy },
-			{ userId: issuedBy, activityType: 'book_loan_created', stdNo }
+		return withPermission(
+			() =>
+				this.repository.createLoan(
+					{ bookCopyId, stdNo, dueDate, issuedBy },
+					{ userId: issuedBy, activityType: 'book_loan_created', stdNo }
+				),
+			{ library: ['create'] }
 		);
 	}
 
 	async returnBook(loanId: string, returnedTo: string) {
-		return this.repository.processReturn(loanId, returnedTo, {
-			userId: returnedTo,
-			activityType: 'book_returned',
-		});
+		return withPermission(
+			() =>
+				this.repository.processReturn(loanId, returnedTo, {
+					userId: returnedTo,
+					activityType: 'book_returned',
+				}),
+			{ library: ['update'] }
+		);
 	}
 
 	async renewLoan(loanId: string, newDueDate: Date, renewedBy: string) {
-		return this.repository.renewLoan(loanId, newDueDate, renewedBy, {
-			userId: renewedBy,
-			activityType: 'book_loan_renewed',
-		});
+		return withPermission(
+			() =>
+				this.repository.renewLoan(loanId, newDueDate, renewedBy, {
+					userId: renewedBy,
+					activityType: 'book_loan_renewed',
+				}),
+			{ library: ['update'] }
+		);
 	}
 
 	async getLoanHistory(page: number, search: string, filters?: LoanFilters) {
-		return this.repository.getLoanHistory(page, search, filters);
+		return withPermission(
+			() => this.repository.getLoanHistory(page, search, filters),
+			{ library: ['read'] }
+		);
 	}
 
 	async searchStudents(query: string) {
-		return this.repository.searchStudents(query);
+		return withPermission(() => this.repository.searchStudents(query), {
+			library: ['read'],
+		});
 	}
 
 	async searchBooks(query: string) {
-		return this.repository.searchBooks(query);
+		return withPermission(() => this.repository.searchBooks(query), {
+			library: ['read'],
+		});
 	}
 
 	async getAvailableCopies(bookId: string) {
-		return this.repository.getAvailableCopies(bookId);
+		return withPermission(() => this.repository.getAvailableCopies(bookId), {
+			library: ['read'],
+		});
 	}
 
 	async getStudentActiveLoansCount(stdNo: number) {
-		return this.repository.getStudentActiveLoansCount(stdNo);
+		return withPermission(
+			() => this.repository.getStudentActiveLoansCount(stdNo),
+			{ library: ['read'] }
+		);
 	}
 }
 

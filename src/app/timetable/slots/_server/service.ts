@@ -1,7 +1,7 @@
 import type { timetableAllocations, timetableSlots } from '@/core/database';
 import BaseService from '@/core/platform/BaseService';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
-import withAuth from '@/core/platform/withPermission';
+import withPermission from '@/core/platform/withPermission';
 import { buildTermPlan, type DayOfWeek } from './planner';
 import TimetableSlotRepository from './repository';
 
@@ -13,11 +13,11 @@ class TimetableSlotService extends BaseService<typeof timetableSlots, 'id'> {
 	constructor() {
 		const slotRepository = new TimetableSlotRepository();
 		super(slotRepository, {
-			createRoles: ['academic', 'registry'],
-			updateRoles: ['academic', 'registry'],
-			deleteRoles: ['academic', 'registry'],
-			findAllRoles: ['dashboard'],
-			byIdRoles: ['dashboard'],
+			byIdAuth: 'dashboard',
+			findAllAuth: 'dashboard',
+			createAuth: { timetable: ['create'] },
+			updateAuth: { timetable: ['update'] },
+			deleteAuth: { timetable: ['delete'] },
 			activityTypes: {
 				create: 'slot_created',
 				update: 'slot_updated',
@@ -28,28 +28,34 @@ class TimetableSlotService extends BaseService<typeof timetableSlots, 'id'> {
 	}
 
 	async listTermSlots(termId: number) {
-		return withAuth(async () => {
+		return withPermission(async () => {
 			return this.slotRepository.findSlotsForTerm(termId);
-		}, ['dashboard']);
+		}, 'dashboard');
 	}
 
 	async getUserSlots(userId: string, termId: number) {
-		return withAuth(async () => {
+		return withPermission(async () => {
 			return this.slotRepository.findUserSlotsForTerm(userId, termId);
-		}, ['dashboard']);
+		}, 'dashboard');
 	}
 
 	async allocateSlot(allocationId: number) {
-		return withAuth(async () => {
-			const allocation = await this.loadAllocation(allocationId);
-			return this.planAndPersist(allocation.termId);
-		}, ['academic', 'registry']);
+		return withPermission(
+			async () => {
+				const allocation = await this.loadAllocation(allocationId);
+				return this.planAndPersist(allocation.termId);
+			},
+			{ timetable: ['update'] }
+		);
 	}
 
 	async rebuildTermSlots(termId: number) {
-		return withAuth(async () => {
-			return this.planAndPersist(termId);
-		}, ['academic', 'registry']);
+		return withPermission(
+			async () => {
+				return this.planAndPersist(termId);
+			},
+			{ timetable: ['update'] }
+		);
 	}
 
 	async createAllocationsWithSlots(
@@ -64,9 +70,12 @@ class TimetableSlotService extends BaseService<typeof timetableSlots, 'id'> {
 			};
 		}>
 	) {
-		return withAuth(async () => {
-			return this.slotRepository.createAllocationsWithSlots(items);
-		}, ['academic', 'registry']);
+		return withPermission(
+			async () => {
+				return this.slotRepository.createAllocationsWithSlots(items);
+			},
+			{ timetable: ['create'] }
+		);
 	}
 
 	private async planAndPersist(termId: number) {

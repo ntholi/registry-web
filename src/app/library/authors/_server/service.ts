@@ -6,11 +6,11 @@ import AuthorRepository from './repository';
 class AuthorService extends BaseService<typeof authors, 'id'> {
 	constructor() {
 		super(new AuthorRepository(), {
-			byIdRoles: ['dashboard'],
-			findAllRoles: ['dashboard'],
-			createRoles: ['dashboard'],
-			updateRoles: ['dashboard'],
-			deleteRoles: ['dashboard'],
+			byIdAuth: { library: ['read'] },
+			findAllAuth: { library: ['read'] },
+			createAuth: { library: ['create'] },
+			updateAuth: { library: ['update'] },
+			deleteAuth: { library: ['delete'] },
 			activityTypes: {
 				create: 'author_created',
 				update: 'author_updated',

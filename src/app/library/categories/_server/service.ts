@@ -6,11 +6,11 @@ import CategoryRepository from './repository';
 class CategoryService extends BaseService<typeof categories, 'id'> {
 	constructor() {
 		super(new CategoryRepository(), {
-			byIdRoles: ['dashboard'],
-			findAllRoles: ['dashboard'],
-			createRoles: ['dashboard'],
-			updateRoles: ['dashboard'],
-			deleteRoles: ['dashboard'],
+			byIdAuth: { library: ['read'] },
+			findAllAuth: { library: ['read'] },
+			createAuth: { library: ['create'] },
+			updateAuth: { library: ['update'] },
+			deleteAuth: { library: ['delete'] },
 			activityTypes: {
 				create: 'category_created',
 				update: 'category_updated',

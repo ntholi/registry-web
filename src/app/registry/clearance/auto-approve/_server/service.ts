@@ -2,7 +2,7 @@ import { auth } from '@/core/auth';
 import type { autoApprovals, DashboardUser } from '@/core/database';
 import type { QueryOptions } from '@/core/platform/BaseRepository';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
-import withAuth from '@/core/platform/withPermission';
+import withPermission from '@/core/platform/withPermission';
 import AutoApprovalRepository from './repository';
 
 type Rule = typeof autoApprovals.$inferInsert;
@@ -11,14 +11,14 @@ class AutoApprovalService {
 	constructor(private readonly repository = new AutoApprovalRepository()) {}
 
 	async get(id: number) {
-		return withAuth(
+		return withPermission(
 			async () => this.repository.findByIdWithRelations(id),
 			['finance', 'library', 'admin']
 		);
 	}
 
 	async findAll(params: QueryOptions<typeof autoApprovals>) {
-		return withAuth(async () => {
+		return withPermission(async () => {
 			const session = await auth();
 			const role = session?.user?.role as DashboardUser | undefined;
 			const department =
@@ -32,7 +32,7 @@ class AutoApprovalService {
 	}
 
 	async create(data: Rule) {
-		return withAuth(
+		return withPermission(
 			async (session) => {
 				const role = session?.user?.role as DashboardUser;
 				if (role !== 'admin' && data.department !== role) {
@@ -55,7 +55,7 @@ class AutoApprovalService {
 	}
 
 	async update(id: number, data: Partial<Rule>) {
-		return withAuth(
+		return withPermission(
 			async (session) => {
 				const existing = await this.repository.findById(id);
 				if (!existing) throw new Error('Rule not found');
@@ -75,7 +75,7 @@ class AutoApprovalService {
 	}
 
 	async delete(id: number) {
-		return withAuth(
+		return withPermission(
 			async (session) => {
 				const existing = await this.repository.findById(id);
 				if (!existing) throw new Error('Rule not found');
@@ -102,7 +102,7 @@ class AutoApprovalService {
 		rules: { stdNo: number; termCode: string }[],
 		department?: DashboardUser
 	) {
-		return withAuth(
+		return withPermission(
 			async (session) => {
 				const role = session?.user?.role as DashboardUser;
 				const targetDept = role === 'admin' ? department : role;

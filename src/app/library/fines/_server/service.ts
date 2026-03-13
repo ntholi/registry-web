@@ -1,6 +1,7 @@
 import type { fines } from '@/core/database';
 import BaseService from '@/core/platform/BaseService';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
+import withPermission from '@/core/platform/withPermission';
 import type { FineStatus } from '../_lib/types';
 import FineRepository from './repository';
 
@@ -9,11 +10,11 @@ class FineService extends BaseService<typeof fines, 'id'> {
 
 	constructor() {
 		super(new FineRepository(), {
-			byIdRoles: ['dashboard'],
-			findAllRoles: ['dashboard'],
-			createRoles: ['dashboard'],
-			updateRoles: ['dashboard'],
-			deleteRoles: ['dashboard'],
+			byIdAuth: { library: ['read'] },
+			findAllAuth: { library: ['read'] },
+			createAuth: { library: ['create'] },
+			updateAuth: { library: ['update'] },
+			deleteAuth: { library: ['delete'] },
 			activityTypes: {
 				create: 'fine_created',
 				update: 'fine_updated',
@@ -23,19 +24,27 @@ class FineService extends BaseService<typeof fines, 'id'> {
 	}
 
 	async getWithRelations(id: string) {
-		return this.repository.findByIdWithRelations(id);
+		return withPermission(() => this.repository.findByIdWithRelations(id), {
+			library: ['read'],
+		});
 	}
 
 	async findByStudent(stdNo: number) {
-		return this.repository.findByStudent(stdNo);
+		return withPermission(() => this.repository.findByStudent(stdNo), {
+			library: ['read'],
+		});
 	}
 
 	async findByStatus(status: FineStatus) {
-		return this.repository.findByStatus(status);
+		return withPermission(() => this.repository.findByStatus(status), {
+			library: ['read'],
+		});
 	}
 
 	async findByLoan(loanId: string) {
-		return this.repository.findByLoan(loanId);
+		return withPermission(() => this.repository.findByLoan(loanId), {
+			library: ['read'],
+		});
 	}
 
 	async createFine(
@@ -44,19 +53,30 @@ class FineService extends BaseService<typeof fines, 'id'> {
 		amount: number,
 		daysOverdue: number
 	) {
-		return this.repository.createFine(loanId, stdNo, amount, daysOverdue);
+		return withPermission(
+			() => this.repository.createFine(loanId, stdNo, amount, daysOverdue),
+			{ library: ['create'] }
+		);
 	}
 
 	async markPaid(id: string, receiptId: string) {
-		return this.repository.markPaid(id, receiptId);
+		return withPermission(() => this.repository.markPaid(id, receiptId), {
+			library: ['update'],
+		});
 	}
 
 	async getTotalUnpaidByStudent(stdNo: number) {
-		return this.repository.getTotalUnpaidByStudent(stdNo);
+		return withPermission(
+			() => this.repository.getTotalUnpaidByStudent(stdNo),
+			{ library: ['read'] }
+		);
 	}
 
 	async getFines(page: number, search: string, status?: FineStatus) {
-		return this.repository.getFinesWithFilters(page, search, status);
+		return withPermission(
+			() => this.repository.getFinesWithFilters(page, search, status),
+			{ library: ['read'] }
+		);
 	}
 }
 

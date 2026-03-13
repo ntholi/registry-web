@@ -1,5 +1,5 @@
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
-import withAuth from '@/core/platform/withPermission';
+import withPermission from '@/core/platform/withPermission';
 import type { DistributionReportFilter, DistributionType } from '../types';
 import { DistributionReportRepository } from './repository';
 
@@ -11,7 +11,7 @@ export class DistributionReportService {
 		termIds: number[],
 		filter?: DistributionReportFilter
 	) {
-		return withAuth(async () => {
+		return withPermission(async () => {
 			const terms = await this.repository.getTermsByIds(termIds);
 			if (!terms || terms.length === 0) {
 				throw new Error('Terms not found');

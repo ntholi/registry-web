@@ -2,7 +2,9 @@ import type { employees } from '@/core/database';
 import { deleteFile, uploadFile } from '@/core/integrations/storage';
 import { StoragePaths } from '@/core/integrations/storage-utils';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
-import withAuth, { requireSessionUserId } from '@/core/platform/withPermission';
+import withPermission, {
+	requireSessionUserId,
+} from '@/core/platform/withPermission';
 import EmployeeRepository from './repository';
 
 type Employee = typeof employees.$inferInsert;
@@ -16,14 +18,14 @@ class EmployeeService {
 	}
 
 	async get(empNo: string) {
-		return withAuth(
+		return withPermission(
 			async () => this.repository.findByEmpNo(empNo),
 			['human_resource', 'admin']
 		);
 	}
 
 	async findAll(page = 1, search = '') {
-		return withAuth(
+		return withPermission(
 			async () =>
 				this.repository.query({
 					page,
@@ -36,7 +38,7 @@ class EmployeeService {
 	}
 
 	async create(data: EmployeeWithSchools) {
-		return withAuth(
+		return withPermission(
 			async (session) => {
 				const { schoolIds, ...employee } = data;
 				const created = await this.repository.create(employee, {
@@ -54,7 +56,7 @@ class EmployeeService {
 	}
 
 	async update(empNo: string, data: EmployeeWithSchools) {
-		return withAuth(
+		return withPermission(
 			async (session) => {
 				const { schoolIds, ...employee } = data;
 				const updated = await this.repository.update(empNo, employee, {
@@ -72,7 +74,7 @@ class EmployeeService {
 	}
 
 	async delete(empNo: string) {
-		return withAuth(
+		return withPermission(
 			async (session) =>
 				this.repository.delete(empNo, {
 					userId: requireSessionUserId(session),
@@ -84,7 +86,7 @@ class EmployeeService {
 	}
 
 	async logCardPrint(empNo: string) {
-		return withAuth(
+		return withPermission(
 			async (session) => {
 				await this.repository.logCardPrint(empNo, {
 					userId: requireSessionUserId(session),
@@ -97,18 +99,21 @@ class EmployeeService {
 	}
 
 	async getCardPrintHistory(empNo: string) {
-		return withAuth(
+		return withPermission(
 			async () => this.repository.findCardPrintHistory(empNo),
 			['human_resource', 'admin']
 		);
 	}
 
 	async getPhotoKey(empNo: string) {
-		return withAuth(async () => this.repository.findPhotoKey(empNo), ['all']);
+		return withPermission(
+			async () => this.repository.findPhotoKey(empNo),
+			['all']
+		);
 	}
 
 	async uploadPhoto(empNo: string, photo: File) {
-		return withAuth(
+		return withPermission(
 			async (session) => {
 				const existingKey = await this.repository.findPhotoKey(empNo);
 				if (existingKey) {

@@ -1,5 +1,5 @@
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
-import withAuth from '@/core/platform/withPermission';
+import withPermission from '@/core/platform/withPermission';
 import TermRegistrationsRepository from './termRegistrationsRepository';
 
 interface RegistrationEntry {
@@ -13,7 +13,10 @@ class TermRegistrationsService {
 	private repository = new TermRegistrationsRepository();
 
 	async findByTermId(termId: number) {
-		return withAuth(async () => this.repository.findByTermId(termId), ['all']);
+		return withPermission(
+			async () => this.repository.findByTermId(termId),
+			['all']
+		);
 	}
 
 	async create(
@@ -23,7 +26,7 @@ class TermRegistrationsService {
 		endDate: string,
 		programIds?: number[]
 	) {
-		return withAuth(
+		return withPermission(
 			async (session) => {
 				if (
 					session?.user?.role !== 'admin' &&
@@ -55,7 +58,7 @@ class TermRegistrationsService {
 		endDate: string,
 		programIds?: number[]
 	) {
-		return withAuth(
+		return withPermission(
 			async (session) => {
 				if (
 					session?.user?.role !== 'admin' &&
@@ -73,7 +76,7 @@ class TermRegistrationsService {
 	}
 
 	async delete(id: number) {
-		return withAuth(
+		return withPermission(
 			async (session) => {
 				if (
 					session?.user?.role !== 'admin' &&
@@ -91,7 +94,7 @@ class TermRegistrationsService {
 	}
 
 	async saveRegistrations(termId: number, entries: RegistrationEntry[]) {
-		return withAuth(
+		return withPermission(
 			async (session) => {
 				if (
 					session?.user?.role !== 'admin' &&
@@ -109,7 +112,7 @@ class TermRegistrationsService {
 	}
 
 	async deleteBySchoolIds(termId: number, schoolIds: number[]) {
-		return withAuth(
+		return withPermission(
 			async (session) => {
 				if (
 					session?.user?.role !== 'admin' &&
@@ -131,7 +134,7 @@ class TermRegistrationsService {
 		schoolId: number,
 		programId: number
 	) {
-		return withAuth(
+		return withPermission(
 			async () =>
 				this.repository.canStudentRegister(termId, schoolId, programId),
 			['all']
@@ -139,7 +142,7 @@ class TermRegistrationsService {
 	}
 
 	async getRegistrationStatus(termId: number, schoolId: number) {
-		return withAuth(
+		return withPermission(
 			async () => this.repository.getRegistrationStatus(termId, schoolId),
 			['all']
 		);

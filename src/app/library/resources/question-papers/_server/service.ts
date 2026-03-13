@@ -1,6 +1,7 @@
 import type { questionPapers } from '@/core/database';
 import BaseService from '@/core/platform/BaseService';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
+import withPermission from '@/core/platform/withPermission';
 import QuestionPaperRepository from './repository';
 
 class QuestionPaperService extends BaseService<typeof questionPapers, 'id'> {
@@ -8,11 +9,11 @@ class QuestionPaperService extends BaseService<typeof questionPapers, 'id'> {
 
 	constructor() {
 		super(new QuestionPaperRepository(), {
-			byIdRoles: ['dashboard'],
-			findAllRoles: ['dashboard'],
-			createRoles: ['admin', 'library'],
-			updateRoles: ['admin', 'library'],
-			deleteRoles: ['admin', 'library'],
+			byIdAuth: { library: ['read'] },
+			findAllAuth: { library: ['read'] },
+			createAuth: { library: ['create'] },
+			updateAuth: { library: ['update'] },
+			deleteAuth: { library: ['delete'] },
 			activityTypes: {
 				create: 'question_paper_uploaded',
 				update: 'question_paper_updated',
@@ -22,7 +23,9 @@ class QuestionPaperService extends BaseService<typeof questionPapers, 'id'> {
 	}
 
 	async getWithRelations(id: string) {
-		return this.repository.findByIdWithRelations(id);
+		return withPermission(() => this.repository.findByIdWithRelations(id), {
+			library: ['read'],
+		});
 	}
 
 	async getQuestionPapers(
@@ -31,11 +34,15 @@ class QuestionPaperService extends BaseService<typeof questionPapers, 'id'> {
 		moduleId?: number,
 		termId?: number
 	) {
-		return this.repository.getQuestionPapersWithFilters(
-			page,
-			search,
-			moduleId,
-			termId
+		return withPermission(
+			() =>
+				this.repository.getQuestionPapersWithFilters(
+					page,
+					search,
+					moduleId,
+					termId
+				),
+			{ library: ['read'] }
 		);
 	}
 }

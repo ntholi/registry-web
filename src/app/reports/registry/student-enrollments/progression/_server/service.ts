@@ -1,5 +1,5 @@
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
-import withAuth from '@/core/platform/withPermission';
+import withPermission from '@/core/platform/withPermission';
 import {
 	type ProgressionFilter,
 	ProgressionReportRepository,
@@ -13,7 +13,7 @@ export class ProgressionReportService {
 		currTermId: number,
 		filter?: ProgressionFilter
 	) {
-		return withAuth(async () => {
+		return withPermission(async () => {
 			const [prevTerm, currTerm] = await Promise.all([
 				this.repository.getTermById(prevTermId),
 				this.repository.getTermById(currTermId),
@@ -35,7 +35,7 @@ export class ProgressionReportService {
 		pageSize: number,
 		filter?: ProgressionFilter
 	) {
-		return withAuth(async () => {
+		return withPermission(async () => {
 			const [prevTerm, currTerm] = await Promise.all([
 				this.repository.getTermById(prevTermId),
 				this.repository.getTermById(currTermId),
@@ -57,7 +57,7 @@ export class ProgressionReportService {
 		currTermId: number,
 		filter?: ProgressionFilter
 	) {
-		return withAuth(async () => {
+		return withPermission(async () => {
 			const [prevTerm, currTerm] = await Promise.all([
 				this.repository.getTermById(prevTermId),
 				this.repository.getTermById(currTermId),
