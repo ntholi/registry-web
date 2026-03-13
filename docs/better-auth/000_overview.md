@@ -19,7 +19,7 @@ This file is the **authoritative** reference for the entire Better Auth migratio
 | 5 | Data Migration — Core Tables | `005_phase-5-data-migration-core-tables.md` | `DONE` | `2026-03-12` | Applied `pnpm db:migrate` and passed `pnpm migration:verify` |
 | 6 | Preset Seeds & Route Swap | `006_phase-6-preset-seeds-and-route-swap.md` | `DONE` | `2026-03-13` | Applied `0187_phase-6-preset-seeds`; seeded presets and backfilled `preset_id`; route swap, proxy, and `position` removal deferred until final cutover |
 | 7 | Create withPermission Wrapper | `007_phase-7-create-withpermission-wrapper.md` | `DONE` | `2026-03-13` | Added Better Auth-backed `withPermission`, request-scoped session caching, and migrated `requireSessionUserId` to the new module with transitional legacy role-array support |
-| 8 | Update BaseService | `008_phase-8-update-base-service.md` | `PENDING` | — | |
+| 8 | Update BaseService | `008_phase-8-update-base-service.md` | `DONE` | `2026-03-13` | Migrated `BaseService` to Better Auth session types and `withPermission` while keeping legacy role-array config compatibility for downstream phases |
 | 9 | Academic Services — Part 1 | `009_phase-9-academic-services-part-1.md` | `PENDING` | — | |
 | 10 | Academic Services — Part 2 | `010_phase-10-academic-services-part-2.md` | `PENDING` | — | |
 | 11 | Registry Services | `011_phase-11-registry-services.md` | `PENDING` | — | |

@@ -1,24 +1,31 @@
 import type { PgTable as Table } from 'drizzle-orm/pg-core';
-import type { Session } from 'next-auth';
-import type { UserRole } from '@/core/database';
+import type { Session } from '@/core/auth';
+import type { AuthRequirement } from '@/core/auth/permissions';
 import type BaseRepository from './BaseRepository';
 import type { AuditOptions, QueryOptions } from './BaseRepository';
-import withAuth from './withAuth';
+import { withPermission } from './withPermission';
 
 type ModelInsert<T extends Table> = T['$inferInsert'];
 type ModelSelect<T extends Table> = T['$inferSelect'];
 
-type Role = UserRole | 'all' | 'auth' | 'dashboard';
 type AccessCheckFunction = (session: Session) => Promise<boolean>;
-type AuthConfig = Role[] | AccessCheckFunction;
+type LegacyAuthConfig = readonly string[];
+type AuthConfig = AuthRequirement | AccessCheckFunction;
+type ServiceAuthConfig = AuthConfig | LegacyAuthConfig;
 
 interface BaseServiceConfig {
-	byIdRoles?: AuthConfig;
-	findAllRoles?: AuthConfig;
-	createRoles?: AuthConfig;
-	updateRoles?: AuthConfig;
-	deleteRoles?: AuthConfig;
-	countRoles?: AuthConfig;
+	byIdAuth?: AuthConfig;
+	findAllAuth?: AuthConfig;
+	createAuth?: AuthConfig;
+	updateAuth?: AuthConfig;
+	deleteAuth?: AuthConfig;
+	countAuth?: AuthConfig;
+	byIdRoles?: ServiceAuthConfig;
+	findAllRoles?: ServiceAuthConfig;
+	createRoles?: ServiceAuthConfig;
+	updateRoles?: ServiceAuthConfig;
+	deleteRoles?: ServiceAuthConfig;
+	countRoles?: ServiceAuthConfig;
 	activityTypes?: {
 		create?: string;
 		update?: string;
@@ -30,49 +37,74 @@ abstract class BaseService<
 	T extends Table,
 	PK extends keyof T & keyof ModelSelect<T>,
 > {
-	private defaultByIdRoles: AuthConfig;
-	private defaultFindAllRoles: AuthConfig;
-	private defaultCreateRoles: AuthConfig;
-	private defaultUpdateRoles: AuthConfig;
-	private defaultDeleteRoles: AuthConfig;
-	private defaultCountRoles: AuthConfig;
+	private defaultByIdAuth: ServiceAuthConfig;
+	private defaultFindAllAuth: ServiceAuthConfig;
+	private defaultCreateAuth: ServiceAuthConfig;
+	private defaultUpdateAuth: ServiceAuthConfig;
+	private defaultDeleteAuth: ServiceAuthConfig;
+	private defaultCountAuth: ServiceAuthConfig;
 	private activityTypes?: BaseServiceConfig['activityTypes'];
 
 	constructor(
 		protected readonly repository: BaseRepository<T, PK>,
 		config: BaseServiceConfig = {}
 	) {
-		this.defaultByIdRoles = config.byIdRoles ?? ['dashboard'];
-		this.defaultFindAllRoles = config.findAllRoles ?? ['dashboard'];
-		this.defaultCreateRoles = config.createRoles ?? [];
-		this.defaultUpdateRoles = config.updateRoles ?? [];
-		this.defaultDeleteRoles = config.deleteRoles ?? [];
-		this.defaultCountRoles = config.countRoles ?? [];
+		this.defaultByIdAuth = config.byIdAuth ?? config.byIdRoles ?? ['dashboard'];
+		this.defaultFindAllAuth = config.findAllAuth ??
+			config.findAllRoles ?? ['dashboard'];
+		this.defaultCreateAuth = config.createAuth ?? config.createRoles ?? [];
+		this.defaultUpdateAuth = config.updateAuth ?? config.updateRoles ?? [];
+		this.defaultDeleteAuth = config.deleteAuth ?? config.deleteRoles ?? [];
+		this.defaultCountAuth = config.countAuth ?? config.countRoles ?? [];
 		this.activityTypes = config.activityTypes;
 	}
 
-	protected byIdRoles(): AuthConfig {
-		return this.defaultByIdRoles;
+	protected byIdAuth(): ServiceAuthConfig {
+		return this.defaultByIdAuth;
 	}
 
-	protected findAllRoles(): AuthConfig {
-		return this.defaultFindAllRoles;
+	protected findAllAuth(): ServiceAuthConfig {
+		return this.defaultFindAllAuth;
 	}
 
-	protected createRoles(): AuthConfig {
-		return this.defaultCreateRoles;
+	protected createAuth(): ServiceAuthConfig {
+		return this.defaultCreateAuth;
 	}
 
-	protected updateRoles(): AuthConfig {
-		return this.defaultUpdateRoles;
+	protected updateAuth(): ServiceAuthConfig {
+		return this.defaultUpdateAuth;
 	}
 
-	protected deleteRoles(): AuthConfig {
-		return this.defaultDeleteRoles;
+	protected deleteAuth(): ServiceAuthConfig {
+		return this.defaultDeleteAuth;
 	}
 
-	protected countRoles(): AuthConfig {
-		return this.defaultCountRoles;
+	protected countAuth(): ServiceAuthConfig {
+		return this.defaultCountAuth;
+	}
+
+	protected byIdRoles(): ServiceAuthConfig {
+		return this.byIdAuth();
+	}
+
+	protected findAllRoles(): ServiceAuthConfig {
+		return this.findAllAuth();
+	}
+
+	protected createRoles(): ServiceAuthConfig {
+		return this.createAuth();
+	}
+
+	protected updateRoles(): ServiceAuthConfig {
+		return this.updateAuth();
+	}
+
+	protected deleteRoles(): ServiceAuthConfig {
+		return this.deleteAuth();
+	}
+
+	protected countRoles(): ServiceAuthConfig {
+		return this.countAuth();
 	}
 
 	protected buildAuditOptions(
@@ -88,52 +120,59 @@ abstract class BaseService<
 	}
 
 	async get(id: ModelSelect<T>[PK]) {
-		const roles = this.byIdRoles() as Role[] | AccessCheckFunction;
-		return withAuth(async () => this.repository.findById(id), roles as Role[]);
+		return withPermission(
+			async () => this.repository.findById(id),
+			this.byIdAuth()
+		);
 	}
 
 	async findAll(params: QueryOptions<T>) {
-		const roles = this.findAllRoles() as Role[] | AccessCheckFunction;
-		return withAuth(async () => this.repository.query(params), roles as Role[]);
+		return withPermission(
+			async () => this.repository.query(params),
+			this.findAllAuth()
+		);
 	}
 
 	async getAll() {
-		const roles = this.findAllRoles() as Role[] | AccessCheckFunction;
-		return withAuth(async () => this.repository.findAll(), roles as Role[]);
+		return withPermission(
+			async () => this.repository.findAll(),
+			this.findAllAuth()
+		);
 	}
 
 	async first() {
-		const roles = this.byIdRoles() as Role[] | AccessCheckFunction;
-		return withAuth(async () => this.repository.findFirst(), roles as Role[]);
+		return withPermission(
+			async () => this.repository.findFirst(),
+			this.byIdAuth()
+		);
 	}
 
 	async create(data: ModelInsert<T>) {
-		const roles = this.createRoles() as Role[] | AccessCheckFunction;
-		return withAuth(async (session) => {
+		return withPermission(async (session) => {
 			const audit = this.buildAuditOptions(session, 'create');
 			return this.repository.create(data, audit);
-		}, roles as Role[]);
+		}, this.createAuth());
 	}
 
 	async update(id: ModelSelect<T>[PK], data: Partial<ModelInsert<T>>) {
-		const roles = this.updateRoles() as Role[] | AccessCheckFunction;
-		return withAuth(async (session) => {
+		return withPermission(async (session) => {
 			const audit = this.buildAuditOptions(session, 'update');
 			return this.repository.update(id, data, audit);
-		}, roles as Role[]);
+		}, this.updateAuth());
 	}
 
 	async delete(id: ModelSelect<T>[PK]) {
-		const roles = this.deleteRoles() as Role[] | AccessCheckFunction;
-		return withAuth(async (session) => {
+		return withPermission(async (session) => {
 			const audit = this.buildAuditOptions(session, 'delete');
 			return this.repository.delete(id, audit);
-		}, roles as Role[]);
+		}, this.deleteAuth());
 	}
 
 	async count() {
-		const roles = this.countRoles() as Role[] | AccessCheckFunction;
-		return withAuth(async () => this.repository.count(), roles as Role[]);
+		return withPermission(
+			async () => this.repository.count(),
+			this.countAuth()
+		);
 	}
 }
 
