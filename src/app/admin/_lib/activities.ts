@@ -48,6 +48,18 @@ const ADMIN_ACTIVITIES = {
 			label: 'Notification Visibility Changed',
 			department: 'admin',
 		},
+		preset_created: {
+			label: 'Permission Preset Created',
+			department: 'admin',
+		},
+		preset_updated: {
+			label: 'Permission Preset Updated',
+			department: 'admin',
+		},
+		preset_deleted: {
+			label: 'Permission Preset Deleted',
+			department: 'admin',
+		},
 	},
 	tableOperationMap: {
 		'users:INSERT': 'user_created',
@@ -59,6 +71,9 @@ const ADMIN_ACTIVITIES = {
 		'notifications:INSERT': 'notification_created',
 		'notifications:UPDATE': 'notification_updated',
 		'notifications:DELETE': 'notification_deleted',
+		'permission_presets:INSERT': 'preset_created',
+		'permission_presets:UPDATE': 'preset_updated',
+		'permission_presets:DELETE': 'preset_deleted',
 	},
 } as const satisfies ActivityFragment;
 

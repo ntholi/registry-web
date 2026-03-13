@@ -26,11 +26,15 @@ export type PresetFormValues = z.infer<typeof presetFormSchema>;
 
 type PermissionPresetRow = typeof permissionPresets.$inferSelect;
 
-export interface PermissionPresetListItem extends PermissionPresetRow {
+type PermissionPresetBase = Omit<PermissionPresetRow, 'role'> & {
+	role: z.infer<typeof dashboardRoleSchema>;
+};
+
+export interface PermissionPresetListItem extends PermissionPresetBase {
 	permissionCount: number;
 }
 
-export interface PermissionPresetDetail extends PermissionPresetRow {
+export interface PermissionPresetDetail extends PermissionPresetBase {
 	permissions: PermissionGrant[];
 	permissionCount: number;
 }

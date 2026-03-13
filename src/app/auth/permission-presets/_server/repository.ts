@@ -11,9 +11,10 @@ import BaseRepository, {
 	type AuditOptions,
 	type QueryOptions,
 } from '@/core/platform/BaseRepository';
-import type {
-	PermissionPresetDetail,
-	PermissionPresetListItem,
+import {
+	dashboardRoleSchema,
+	type PermissionPresetDetail,
+	type PermissionPresetListItem,
 } from '../_lib/types';
 
 function isResource(value: string): value is Resource {
@@ -34,6 +35,13 @@ function isPermissionGrant(value: {
 		isResource(value.resource) &&
 		isAction(value.action)
 	);
+}
+
+function normalizePresetRow<T extends { role: string }>(preset: T) {
+	return {
+		...preset,
+		role: dashboardRoleSchema.parse(preset.role),
+	};
 }
 
 type PresetInsert = InferInsertModel<typeof permissionPresets>;
@@ -86,14 +94,14 @@ export default class PermissionPresetRepository extends BaseRepository<
 			}));
 
 		return {
-			...preset,
+			...normalizePresetRow(preset),
 			permissions,
 			permissionCount: permissions.length,
 		};
 	}
 
 	async findByRole(role: string): Promise<PermissionPresetListItem[]> {
-		return db
+		const rows = await db
 			.select({
 				...getTableColumns(permissionPresets),
 				permissionCount: count(presetPermissions.id),
@@ -113,6 +121,8 @@ export default class PermissionPresetRepository extends BaseRepository<
 				permissionPresets.updatedAt
 			)
 			.orderBy(permissionPresets.name);
+
+		return rows.map((row) => normalizePresetRow(row));
 	}
 
 	async queryWithPermissionCounts(
@@ -147,7 +157,10 @@ export default class PermissionPresetRepository extends BaseRepository<
 			.limit(limit)
 			.offset(offset);
 
-		return this.createPaginatedResult(items, { where, limit });
+		return this.createPaginatedResult(
+			items.map((row) => normalizePresetRow(row)),
+			{ where, limit }
+		);
 	}
 
 	async createWithPermissions(
@@ -169,7 +182,7 @@ export default class PermissionPresetRepository extends BaseRepository<
 				}
 
 				return {
-					...created,
+					...normalizePresetRow(created),
 					permissions,
 					permissionCount: permissions.length,
 				};
@@ -188,20 +201,15 @@ export default class PermissionPresetRepository extends BaseRepository<
 					.values(this.buildPermissionRows(created.id, permissions));
 			}
 
-			await this.writeAuditLog(
-				tx,
-				'INSERT',
-				created.id,
-				null,
-				{ ...created, permissions },
-				audit
-			);
-
-			return {
-				...created,
+			const next = {
+				...normalizePresetRow(created),
 				permissions,
 				permissionCount: permissions.length,
 			};
+
+			await this.writeAuditLog(tx, 'INSERT', created.id, null, next, audit);
+
+			return next;
 		});
 	}
 
@@ -230,7 +238,7 @@ export default class PermissionPresetRepository extends BaseRepository<
 				}
 
 				return {
-					...updated,
+					...normalizePresetRow(updated),
 					permissions,
 					permissionCount: permissions.length,
 				};
@@ -256,7 +264,7 @@ export default class PermissionPresetRepository extends BaseRepository<
 			}
 
 			const next = {
-				...updated,
+				...normalizePresetRow(updated),
 				permissions,
 				permissionCount: permissions.length,
 			};

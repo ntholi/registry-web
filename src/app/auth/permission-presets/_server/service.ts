@@ -35,6 +35,11 @@ class PermissionPresetService extends BaseService<
 > {
 	constructor(private readonly presetRepo = new PermissionPresetRepository()) {
 		super(presetRepo, {
+			activityTypes: {
+				create: 'preset_created',
+				update: 'preset_updated',
+				delete: 'preset_deleted',
+			},
 			byIdAuth: { 'permission-presets': ['read'] },
 			findAllAuth: { 'permission-presets': ['read'] },
 			createAuth: { 'permission-presets': ['create'] },
