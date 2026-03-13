@@ -16,7 +16,6 @@ import {
 } from '@tabler/icons-react';
 import type { ModuleConfig } from '@/app/dashboard/module-config.types';
 import { moduleConfig } from '@/config/modules.config';
-import { hasSessionPermission } from '@/core/auth/sessionPermissions';
 import { countPendingGraduationClearances } from './graduation';
 import { countPendingClearances } from './registration';
 import { countPendingStudentStatuses } from './student-statuses';
@@ -33,16 +32,14 @@ export const registryConfig: ModuleConfig = {
 				label: 'Students',
 				href: '/registry/students',
 				icon: IconUsers,
-				isVisible: (session) =>
-					hasSessionPermission(session, 'students', 'read', ['admin']),
+				permissions: [{ resource: 'students', action: 'read' }],
 			},
 			{
 				label: 'Registration',
 				description: 'Registration Requests',
 				href: '/registry/registration/requests',
 				icon: IconUserPlus,
-				isVisible: (session) =>
-					hasSessionPermission(session, 'registration', 'read', ['admin']),
+				permissions: [{ resource: 'registration', action: 'read' }],
 			},
 			{
 				label: 'Graduations',
@@ -90,10 +87,7 @@ export const registryConfig: ModuleConfig = {
 				label: 'Graduation Clearance',
 				href: '/registry/graduation/clearance',
 				icon: IconCertificate,
-				isVisible: (session) =>
-					hasSessionPermission(session, 'graduation-clearance', 'read', [
-						'admin',
-					]),
+				permissions: [{ resource: 'graduation-clearance', action: 'read' }],
 				notificationCount: {
 					queryKey: ['graduation-clearances', 'pending'],
 					queryFn: () => countPendingGraduationClearances(),
@@ -104,8 +98,7 @@ export const registryConfig: ModuleConfig = {
 				label: 'Student Status',
 				href: '/registry/student-statuses',
 				icon: IconUserExclamation,
-				isVisible: (session) =>
-					hasSessionPermission(session, 'student-statuses', 'read', ['admin']),
+				permissions: [{ resource: 'student-statuses', action: 'read' }],
 				notificationCount: {
 					queryKey: ['student-statuses', 'pending'],
 					queryFn: () => countPendingStudentStatuses(),

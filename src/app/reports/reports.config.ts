@@ -5,31 +5,6 @@ import {
 } from '@tabler/icons-react';
 import type { ModuleConfig } from '@/app/dashboard/module-config.types';
 import { moduleConfig } from '@/config/modules.config';
-import type { Session } from '@/core/auth';
-import type { PermissionGrant, Resource } from '@/core/auth/permissions';
-
-type SessionWithPermissions = Session & {
-	permissions?: PermissionGrant[];
-};
-
-function hasReadPermission(
-	session: Session | null,
-	resource: Resource
-): boolean {
-	if (session?.user?.role === 'admin') {
-		return true;
-	}
-
-	const permissions = (session as SessionWithPermissions | null)?.permissions;
-	if (!Array.isArray(permissions)) {
-		return false;
-	}
-
-	return permissions.some(
-		(permission) =>
-			permission.resource === resource && permission.action === 'read'
-	);
-}
 
 export const reportsConfig: ModuleConfig = {
 	id: 'reports',
@@ -43,42 +18,39 @@ export const reportsConfig: ModuleConfig = {
 				label: 'Course Summary',
 				href: '/reports/academic/course-summary',
 				icon: IconReportAnalytics,
-				isVisible: (session) =>
-					hasReadPermission(session, 'reports-course-summary'),
+				permissions: [{ resource: 'reports-course-summary', action: 'read' }],
 			},
 			{
 				label: 'Attendance Report',
 				href: '/reports/academic/attendance',
 				icon: IconReportAnalytics,
-				isVisible: (session) =>
-					hasReadPermission(session, 'reports-attendance'),
+				permissions: [{ resource: 'reports-attendance', action: 'read' }],
 			},
 			{
 				label: 'Board of Examination',
 				href: '/reports/academic/boe',
 				icon: IconGavel,
-				isVisible: (session) => hasReadPermission(session, 'reports-boe'),
+				permissions: [{ resource: 'reports-boe', action: 'read' }],
 			},
 			{
 				label: 'Student Enrollments',
 				href: '/reports/registry/student-enrollments',
 				icon: IconReportAnalytics,
-				isVisible: (session) =>
-					hasReadPermission(session, 'reports-enrollments'),
+				permissions: [{ resource: 'reports-enrollments', action: 'read' }],
 			},
 			{
 				label: 'Graduation Reports',
 				href: '/reports/registry/graduations',
 				icon: IconSchool,
-				isVisible: (session) =>
-					hasReadPermission(session, 'reports-graduation'),
+				permissions: [{ resource: 'reports-graduation', action: 'read' }],
 			},
 			{
 				label: 'Sponsored Students',
 				href: '/reports/finance/sponsored-students',
 				icon: IconReportAnalytics,
-				isVisible: (session) =>
-					hasReadPermission(session, 'reports-sponsored-students'),
+				permissions: [
+					{ resource: 'reports-sponsored-students', action: 'read' },
+				],
 			},
 		],
 	},

@@ -7,10 +7,7 @@ import {
 import type { ModuleConfig } from '@/app/dashboard/module-config.types';
 import { moduleConfig } from '@/config/modules.config';
 import type { Session } from '@/core/auth';
-import {
-	hasAnyPermission,
-	hasSessionPermission,
-} from '@/core/auth/sessionPermissions';
+import { hasAnyPermission } from '@/core/auth/sessionPermissions';
 
 function isVisible(session: Session | null) {
 	return hasAnyPermission(session, 'timetable', ['create', 'update', 'delete']);
@@ -28,8 +25,7 @@ export const timetableConfig: ModuleConfig = {
 				label: 'Timetables',
 				icon: IconCalendar,
 				href: '/timetable/viewer',
-				isVisible: (session) =>
-					hasSessionPermission(session, 'timetable', 'read', ['registry']),
+				permissions: [{ resource: 'timetable', action: 'read' }],
 			},
 			{
 				label: 'Allocations',
@@ -41,13 +37,13 @@ export const timetableConfig: ModuleConfig = {
 				label: 'Venues',
 				icon: IconDoor,
 				href: '/timetable/venues',
-				isVisible: (session) => hasSessionPermission(session, 'venues', 'read'),
+				permissions: [{ resource: 'venues', action: 'read' }],
 			},
 			{
 				label: 'Venue Types',
 				icon: IconTags,
 				href: '/timetable/venue-types',
-				isVisible: (session) => hasSessionPermission(session, 'venues', 'read'),
+				permissions: [{ resource: 'venues', action: 'read' }],
 			},
 		],
 	},

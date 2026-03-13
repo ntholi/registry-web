@@ -16,7 +16,6 @@ import type {
 	NavItem,
 } from '@/app/dashboard/module-config.types';
 import { moduleConfig } from '@/config/modules.config';
-import { hasSessionPermission } from '@/core/auth/sessionPermissions';
 
 export const adminConfig: ModuleConfig = {
 	id: 'admin',
@@ -63,8 +62,7 @@ export const adminConfig: ModuleConfig = {
 					'marketing',
 					'student_services',
 				],
-				isVisible: (session) =>
-					hasSessionPermission(session, 'activity-tracker', 'read', ['admin']),
+				permissions: [{ resource: 'activity-tracker', action: 'read' }],
 			},
 			{
 				label: 'Tools',

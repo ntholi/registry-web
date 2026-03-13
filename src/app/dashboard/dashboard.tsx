@@ -35,6 +35,7 @@ import { registryConfig } from '@/app/registry/registry.config';
 import { reportsConfig } from '@/app/reports/reports.config';
 import type { ClientModuleConfig } from '@/config/modules.config';
 import type { Session } from '@/core/auth';
+import type { PermissionGrant } from '@/core/auth/permissions';
 import { authClient } from '@/core/auth-client';
 import { toTitleCase } from '@/shared/lib/utils/utils';
 import { Shell } from '@/shared/ui/adease';
@@ -47,9 +48,21 @@ type NavigationGroup = {
 	items: NavItem[];
 };
 
-function isItemVisible(item: NavItem, session: Session | null): boolean {
+function getUserPermissions(session: Session | null): PermissionGrant[] {
+	return Array.isArray(session?.permissions) ? session.permissions : [];
+}
+
+function isItemVisible(
+	item: NavItem,
+	session: Session | null,
+	userPermissions: PermissionGrant[]
+): boolean {
 	if (item.isVisible && !item.isVisible(session)) {
 		return false;
+	}
+
+	if (session?.user?.role === 'admin') {
+		return true;
 	}
 
 	if (
@@ -60,21 +73,35 @@ function isItemVisible(item: NavItem, session: Session | null): boolean {
 		return false;
 	}
 
+	if (item.permissions) {
+		return item.permissions.every(({ resource, action }) =>
+			userPermissions.some(
+				(permission) =>
+					permission.resource === resource && permission.action === action
+			)
+		);
+	}
+
 	return true;
 }
 
 function filterNavigationItems(
 	items: NavItem[],
-	session: Session | null
+	session: Session | null,
+	userPermissions: PermissionGrant[]
 ): NavItem[] {
 	return items
-		.filter((item) => isItemVisible(item, session))
+		.filter((item) => isItemVisible(item, session, userPermissions))
 		.map((item) => {
 			if (!item.children) {
 				return item;
 			}
 
-			const children = filterNavigationItems(item.children, session);
+			const children = filterNavigationItems(
+				item.children,
+				session,
+				userPermissions
+			);
 			if (children.length === 0) {
 				return { ...item, children: undefined };
 			}
@@ -184,6 +211,7 @@ export default function Dashboard({
 	moduleConfig: ClientModuleConfig;
 }) {
 	const { data: session } = authClient.useSession();
+	const userPermissions = getUserPermissions(session);
 	const navigation = getNavigation(
 		session?.user?.role as DashboardUser,
 		moduleConfig
@@ -218,7 +246,7 @@ export default function Dashboard({
 				</Link>
 			</Shell.Header>
 			<Shell.Navigation>
-				<Navigation navigation={navigation} />
+				<Navigation navigation={navigation} userPermissions={userPermissions} />
 			</Shell.Navigation>
 			<Shell.Body>{children}</Shell.Body>
 			<Shell.User>
@@ -282,7 +310,13 @@ function UserButton() {
 	);
 }
 
-export function Navigation({ navigation }: { navigation: NavigationGroup[] }) {
+export function Navigation({
+	navigation,
+	userPermissions,
+}: {
+	navigation: NavigationGroup[];
+	userPermissions: PermissionGrant[];
+}) {
 	const { data: session } = authClient.useSession();
 	const [search, setSearch] = useState('');
 
@@ -319,7 +353,11 @@ export function Navigation({ navigation }: { navigation: NavigationGroup[] }) {
 	const visibleGroups = navigation
 		.map((group) => ({
 			...group,
-			items: filterNavigationItems(group.items, session ?? null),
+			items: filterNavigationItems(
+				group.items,
+				session ?? null,
+				userPermissions
+			),
 		}))
 		.map((group) => ({
 			...group,
@@ -359,7 +397,13 @@ export function Navigation({ navigation }: { navigation: NavigationGroup[] }) {
 								typeof item.href === 'string'
 									? item.href
 									: getLabelKey(item.label);
-							return <DisplayWithNotification key={key} item={item} />;
+							return (
+								<DisplayWithNotification
+									key={key}
+									item={item}
+									userPermissions={userPermissions}
+								/>
+							);
 						})}
 					</Stack>
 				</Stack>
@@ -368,7 +412,13 @@ export function Navigation({ navigation }: { navigation: NavigationGroup[] }) {
 	);
 }
 
-function DisplayWithNotification({ item }: { item: NavItem }) {
+function DisplayWithNotification({
+	item,
+	userPermissions,
+}: {
+	item: NavItem;
+	userPermissions: PermissionGrant[];
+}) {
 	const { data: notificationCount = 0 } = useQuery({
 		queryKey: item.notificationCount?.queryKey ?? [],
 		queryFn: () => item.notificationCount?.queryFn() ?? Promise.resolve(0),
@@ -385,12 +435,18 @@ function DisplayWithNotification({ item }: { item: NavItem }) {
 			label={notificationCount}
 			disabled={!notificationCount}
 		>
-			<ItemDisplay item={item} />
+			<ItemDisplay item={item} userPermissions={userPermissions} />
 		</Indicator>
 	);
 }
 
-function ItemDisplay({ item }: { item: NavItem }) {
+function ItemDisplay({
+	item,
+	userPermissions,
+}: {
+	item: NavItem;
+	userPermissions: PermissionGrant[];
+}) {
 	const pathname = usePathname();
 	const Icon = item.icon;
 	const { data: session } = authClient.useSession();
@@ -399,7 +455,7 @@ function ItemDisplay({ item }: { item: NavItem }) {
 		return String(label);
 	};
 
-	if (!isItemVisible(item, session ?? null)) {
+	if (!isItemVisible(item, session ?? null, userPermissions)) {
 		return null;
 	}
 
@@ -447,7 +503,13 @@ function ItemDisplay({ item }: { item: NavItem }) {
 					typeof child.href === 'string'
 						? child.href
 						: getLabelKey(child.label);
-				return <DisplayWithNotification key={childKey} item={child} />;
+				return (
+					<DisplayWithNotification
+						key={childKey}
+						item={child}
+						userPermissions={userPermissions}
+					/>
+				);
 			})}
 		</NavLink>
 	);

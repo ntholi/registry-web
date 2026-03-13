@@ -9,10 +9,6 @@ import {
 } from '@tabler/icons-react';
 import type { ModuleConfig } from '@/app/dashboard/module-config.types';
 import { moduleConfig } from '@/config/modules.config';
-import {
-	hasAnyPermission,
-	hasSessionPermission,
-} from '@/core/auth/sessionPermissions';
 
 export const academicConfig: ModuleConfig = {
 	id: 'academic',
@@ -28,24 +24,21 @@ export const academicConfig: ModuleConfig = {
 				href: '/academic/lecturers',
 				roles: ['academic'],
 				icon: IconPresentation,
-				isVisible: (session) =>
-					hasSessionPermission(session, 'lecturers', 'read'),
+				permissions: [{ resource: 'lecturers', action: 'read' }],
 			},
 			{
 				label: 'Assessments',
 				href: '/academic/assessments',
 				icon: IconListCheck,
 				roles: ['academic'],
-				isVisible: (session) =>
-					hasSessionPermission(session, 'assessments', 'read'),
+				permissions: [{ resource: 'assessments', action: 'read' }],
 			},
 			{
 				label: 'Attendance',
 				href: '/academic/attendance',
 				icon: IconCalendarEvent,
 				roles: ['academic'],
-				isVisible: (session) =>
-					hasSessionPermission(session, 'attendance', 'read'),
+				permissions: [{ resource: 'attendance', action: 'read' }],
 			},
 			{
 				label: 'Gradebook',
@@ -53,8 +46,7 @@ export const academicConfig: ModuleConfig = {
 				roles: ['academic'],
 				collapsed: false,
 				children: [],
-				isVisible: (session) =>
-					hasAnyPermission(session, 'gradebook', ['read', 'update', 'approve']),
+				permissions: [{ resource: 'gradebook', action: 'read' }],
 			},
 			{
 				label: 'Student Feedback',
@@ -66,18 +58,19 @@ export const academicConfig: ModuleConfig = {
 						label: 'Questions',
 						href: '/academic/feedback/questions',
 						icon: IconMessageQuestion,
-						roles: ['academic', 'admin'],
+						permissions: [{ resource: 'feedback-questions', action: 'read' }],
 					},
 					{
 						label: 'Cycles',
 						href: '/academic/feedback/cycles',
 						icon: IconCalendarEvent,
-						roles: ['academic', 'admin'],
+						permissions: [{ resource: 'feedback-cycles', action: 'read' }],
 					},
 					{
 						label: 'Reports',
 						href: '/academic/feedback/reports',
 						icon: IconChartBar,
+						permissions: [{ resource: 'feedback-reports', action: 'read' }],
 					},
 				],
 			},

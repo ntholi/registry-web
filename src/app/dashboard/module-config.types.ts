@@ -1,6 +1,7 @@
 import type { MantineColor, NavLinkProps } from '@mantine/core';
 import type { Icon } from '@tabler/icons-react';
 import type { Session } from '@/core/auth';
+import type { PermissionGrant } from '@/core/auth/permissions';
 import type { UserRole } from '@/core/database';
 
 export type NotificationConfig = {
@@ -16,6 +17,7 @@ export type NavItem = {
 	icon?: Icon;
 	description?: string;
 	roles?: UserRole[];
+	permissions?: PermissionGrant[];
 	isVisible?: (session: Session | null) => boolean;
 	children?: NavItem[];
 	notificationCount?: NotificationConfig;
