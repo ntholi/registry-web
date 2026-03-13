@@ -1,4 +1,8 @@
 import {
+	hasAnyRegistryPermission,
+	hasRegistryPermission,
+} from '@registry/_lib/permissions';
+import {
 	resolveStudentModuleActivityType,
 	resolveStudentProgramActivityType,
 	resolveStudentSemesterActivityType,
@@ -15,7 +19,10 @@ import { deleteFile, uploadFile } from '@/core/integrations/storage';
 import { StoragePaths } from '@/core/integrations/storage-utils';
 import type { QueryOptions } from '@/core/platform/BaseRepository';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
-import withAuth, { requireSessionUserId } from '@/core/platform/withPermission';
+import {
+	requireSessionUserId,
+	withPermission,
+} from '@/core/platform/withPermission';
 import type { Program } from '@/shared/lib/utils/grades/type';
 import type { StudentFilter } from './actions';
 import StudentRepository from './repository';
@@ -30,91 +37,71 @@ class StudentService {
 	}
 
 	async get(stdNo: number) {
-		return withAuth(async () => {
-			return this.repository.findById(stdNo);
-		}, ['dashboard']);
+		return withPermission(
+			async () => {
+				return this.repository.findById(stdNo);
+			},
+			{ students: ['read'] }
+		);
 	}
 
 	async getAcademicHistory(stdNo: number, excludedTerms: string[] = []) {
-		return withAuth(async () => {
-			const data = await this.repository.findAcademicHistory(stdNo);
-			if (excludedTerms.length === 0 || !data) return data;
+		return withPermission(
+			async () => {
+				const data = await this.repository.findAcademicHistory(stdNo);
+				if (excludedTerms.length === 0 || !data) return data;
 
-			return {
-				...data,
-				programs: removeTermsFromPrograms(data.programs, excludedTerms),
-			};
-		}, ['academic', 'registry', 'finance', 'student']);
+				return {
+					...data,
+					programs: removeTermsFromPrograms(data.programs, excludedTerms),
+				};
+			},
+			async (session) => canAccessStudent(session, stdNo)
+		);
 	}
 
 	async getRegistrationData(stdNo: number) {
-		return withAuth(
+		return withPermission(
 			async () => this.repository.findRegistrationData(stdNo),
-			async (session) =>
-				session.user?.stdNo === stdNo ||
-				['academic', 'registry', 'finance'].includes(session.user?.role || '')
+			async (session) => canAccessRegistration(session, stdNo)
 		);
 	}
 
 	async getRegistrationDataByTerm(stdNo: number, termCode: string) {
-		return withAuth(
+		return withPermission(
 			async () => this.repository.findRegistrationDataByTerm(stdNo, termCode),
-			async (session) =>
-				session.user?.stdNo === stdNo ||
-				['academic', 'registry', 'finance'].includes(session.user?.role || '')
+			async (session) => canAccessRegistration(session, stdNo)
 		);
 	}
 
 	async findStudentByUserId(userId: string) {
-		return withAuth(async () => {
-			return await this.repository.findStudentByUserId(userId);
-		}, ['dashboard', 'student', 'applicant']);
+		return withPermission(
+			async () => {
+				return await this.repository.findStudentByUserId(userId);
+			},
+			async (session) => canAccessStudentByUserId(session, userId)
+		);
 	}
 
 	async findBySemesterModules(semesterModuleIds: number[]) {
 		const term = await getActiveTerm();
-		return withAuth(
+		return withPermission(
 			async () =>
 				this.repository.findBySemesterModules(semesterModuleIds, term.code),
-			['dashboard']
+			{ students: ['read'] }
 		);
 	}
 
 	async findAll(
 		params: QueryOptions<typeof students> & { filter?: StudentFilter }
 	) {
-		return withAuth(
-			async () => this.repository.queryBasic(params),
-			async (session) => {
-				if (
-					session.user?.role &&
-					[
-						'admin',
-						'registry',
-						'finance',
-						'library',
-						'student_services',
-						'academic',
-						'resource',
-						'marketing',
-						'leap',
-					].includes(session.user.role)
-				) {
-					return true;
-				}
-
-				if (session.user?.position) {
-					return ['admin', 'manager', 'program_leader', 'year_leader'].includes(
-						session.user.position
-					);
-				}
-				return false;
-			}
-		);
+		return withPermission(async () => this.repository.queryBasic(params), {
+			students: ['read'],
+		});
 	}
 
 	async create(data: Student) {
-		return withAuth(
+		return withPermission(
 			async (session) =>
 				this.repository.create(data, {
 					userId: requireSessionUserId(session),
@@ -122,12 +109,12 @@ class StudentService {
 					activityType: 'student_creation',
 					stdNo: data.stdNo,
 				}),
-			[]
+			{ students: ['update'] }
 		);
 	}
 
 	async update(stdNo: number, data: Student) {
-		return withAuth(
+		return withPermission(
 			async (session) =>
 				this.repository.update(stdNo, data, {
 					userId: requireSessionUserId(session),
@@ -135,12 +122,12 @@ class StudentService {
 					activityType: 'student_update',
 					stdNo,
 				}),
-			[]
+			{ students: ['update'] }
 		);
 	}
 
 	async updateUserId(stdNo: number, userId: string | null) {
-		return withAuth(
+		return withPermission(
 			async (session) =>
 				this.repository.updateUserId(stdNo, userId, {
 					userId: requireSessionUserId(session),
@@ -148,14 +135,14 @@ class StudentService {
 					activityType: 'student_update',
 					stdNo,
 				}),
-			['admin', 'registry']
+			{ students: ['update'] }
 		);
 	}
 
 	async saveZohoContactId(stdNo: number, zohoContactId: string) {
-		return withAuth(
+		return withPermission(
 			async () => this.repository.saveZohoContactId(stdNo, zohoContactId),
-			['dashboard']
+			{ students: ['update'] }
 		);
 	}
 
@@ -164,19 +151,19 @@ class StudentService {
 		nextOfKins: Omit<typeof nextOfKins.$inferInsert, 'stdNo'>[];
 		program: Omit<typeof studentPrograms.$inferInsert, 'stdNo'>;
 	}) {
-		return withAuth(
+		return withPermission(
 			async (session) =>
 				this.repository.createFull(data, {
 					userId: requireSessionUserId(session),
 					role: session!.user!.role!,
 					activityType: 'student_creation',
 				}),
-			['admin', 'registry']
+			{ students: ['update'] }
 		);
 	}
 
 	async updateProgramStructure(stdNo: number, structureId: number) {
-		return withAuth(
+		return withPermission(
 			async (session) =>
 				this.repository.updateProgramStructure(stdNo, structureId, {
 					userId: requireSessionUserId(session),
@@ -184,23 +171,29 @@ class StudentService {
 					activityType: 'student_program_structure_changed',
 					stdNo,
 				}),
-			['admin', 'registry']
+			{ students: ['update'] }
 		);
 	}
 
 	async getStudentPrograms(stdNo: number): Promise<Program[]> {
-		return withAuth(async () => {
-			const student = await this.repository.findStudentByStdNo(stdNo);
-			return student?.programs || [];
-		}, ['dashboard', 'student']);
+		return withPermission(
+			async () => {
+				const student = await this.repository.findStudentByStdNo(stdNo);
+				return student?.programs || [];
+			},
+			async (session) => canAccessStudent(session, stdNo)
+		);
 	}
 
 	async getPhotoKey(stdNo: number) {
-		return withAuth(async () => this.repository.findPhotoKey(stdNo), ['all']);
+		return withPermission(
+			async () => this.repository.findPhotoKey(stdNo),
+			'all'
+		);
 	}
 
 	async uploadPhoto(stdNo: number, photo: File) {
-		return withAuth(
+		return withPermission(
 			async (session) => {
 				const existingKey = await this.repository.findPhotoKey(stdNo);
 				if (existingKey) {
@@ -218,7 +211,7 @@ class StudentService {
 					stdNo,
 				});
 			},
-			['admin', 'registry']
+			{ students: ['update'] }
 		);
 	}
 
@@ -227,7 +220,7 @@ class StudentService {
 		data: Partial<Student>,
 		reasons?: string
 	) {
-		return withAuth(
+		return withPermission(
 			async (session) =>
 				this.repository.updateStudentWithAudit(stdNo, data, {
 					userId: requireSessionUserId(session),
@@ -236,7 +229,7 @@ class StudentService {
 					stdNo,
 					metadata: reasons ? { reasons } : undefined,
 				}),
-			['registry', 'admin']
+			{ students: ['update'] }
 		);
 	}
 
@@ -245,7 +238,7 @@ class StudentService {
 		status: NonNullable<Student['status']>,
 		reasons?: string
 	) {
-		return withAuth(
+		return withPermission(
 			async (session) =>
 				this.repository.updateStudentWithAudit(
 					stdNo,
@@ -258,7 +251,7 @@ class StudentService {
 						metadata: reasons ? { reasons } : undefined,
 					}
 				),
-			['dashboard']
+			{ students: ['update'] }
 		);
 	}
 
@@ -268,7 +261,7 @@ class StudentService {
 		stdNo: number,
 		reasons?: string
 	) {
-		return withAuth(
+		return withPermission(
 			async (session) =>
 				this.repository.updateStudentProgram(id, data, {
 					userId: requireSessionUserId(session),
@@ -277,7 +270,7 @@ class StudentService {
 					stdNo,
 					metadata: reasons ? { reasons } : undefined,
 				}),
-			['registry', 'admin']
+			{ students: ['update'] }
 		);
 	}
 
@@ -285,7 +278,7 @@ class StudentService {
 		data: typeof studentPrograms.$inferInsert,
 		reasons?: string
 	) {
-		return withAuth(
+		return withPermission(
 			async (session) =>
 				this.repository.createStudentProgram(data, {
 					userId: requireSessionUserId(session),
@@ -294,7 +287,7 @@ class StudentService {
 					stdNo: data.stdNo,
 					metadata: reasons ? { reasons } : undefined,
 				}),
-			['registry', 'admin']
+			{ students: ['update'] }
 		);
 	}
 
@@ -304,7 +297,7 @@ class StudentService {
 		stdNo: number,
 		reasons?: string
 	) {
-		return withAuth(
+		return withPermission(
 			async (session) =>
 				this.repository.updateStudentSemester(id, data, {
 					userId: requireSessionUserId(session),
@@ -313,7 +306,7 @@ class StudentService {
 					stdNo,
 					metadata: reasons ? { reasons } : undefined,
 				}),
-			['registry', 'admin']
+			{ students: ['update'] }
 		);
 	}
 
@@ -323,7 +316,7 @@ class StudentService {
 		stdNo: number,
 		reasons?: string
 	) {
-		return withAuth(
+		return withPermission(
 			async (session) =>
 				this.repository.updateStudentSemester(
 					id,
@@ -336,7 +329,7 @@ class StudentService {
 						metadata: reasons ? { reasons } : undefined,
 					}
 				),
-			['dashboard']
+			{ students: ['update'] }
 		);
 	}
 
@@ -346,7 +339,7 @@ class StudentService {
 		stdNo: number,
 		reasons?: string
 	) {
-		return withAuth(
+		return withPermission(
 			async (session) =>
 				this.repository.updateStudentModule(id, data, {
 					userId: requireSessionUserId(session),
@@ -355,9 +348,43 @@ class StudentService {
 					stdNo,
 					metadata: reasons ? { reasons } : undefined,
 				}),
-			['registry', 'admin']
+			{ students: ['update'] }
 		);
 	}
+}
+
+function canAccessStudent(
+	session: Parameters<typeof hasRegistryPermission>[0],
+	stdNo: number
+) {
+	return (
+		session?.user?.stdNo === stdNo ||
+		hasRegistryPermission(session, 'students', 'read')
+	);
+}
+
+function canAccessRegistration(
+	session: Parameters<typeof hasRegistryPermission>[0],
+	stdNo: number
+) {
+	return (
+		session?.user?.stdNo === stdNo ||
+		hasAnyRegistryPermission(session, 'registration', [
+			'read',
+			'create',
+			'update',
+		])
+	);
+}
+
+function canAccessStudentByUserId(
+	session: Parameters<typeof hasRegistryPermission>[0],
+	userId: string
+) {
+	return (
+		session?.user?.id === userId ||
+		hasRegistryPermission(session, 'students', 'read')
+	);
 }
 
 function removeTermsFromPrograms(programs: Program[], termCodes: string[]) {

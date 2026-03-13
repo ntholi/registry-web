@@ -2,7 +2,7 @@ import {
 	updateStudentForStatusWorkflow,
 	updateStudentSemesterForStatusWorkflow,
 } from '@registry/students/_server/actions';
-import type { Session } from 'next-auth';
+import type { Session } from '@/core/auth';
 import type { studentStatuses } from '@/core/database';
 import type {
 	AuditOptions,
@@ -10,7 +10,10 @@ import type {
 } from '@/core/platform/BaseRepository';
 import BaseService from '@/core/platform/BaseService';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
-import withAuth, { requireSessionUserId } from '@/core/platform/withPermission';
+import {
+	requireSessionUserId,
+	withPermission,
+} from '@/core/platform/withPermission';
 import {
 	canUserApproveRole,
 	getUserApprovalRoles,
@@ -28,23 +31,11 @@ class StudentStatusService extends BaseService<typeof studentStatuses, 'id'> {
 
 	constructor() {
 		super(studentStatusRepository, {
-			byIdRoles: ['dashboard'],
-			findAllRoles: [
-				'registry',
-				'admin',
-				'student_services',
-				'academic',
-				'finance',
-			],
-			createRoles: ['registry', 'admin', 'student_services'],
-			updateRoles: [
-				'registry',
-				'admin',
-				'student_services',
-				'academic',
-				'finance',
-			],
-			deleteRoles: ['registry', 'admin'],
+			byIdAuth: { 'student-statuses': ['read'] },
+			findAllAuth: { 'student-statuses': ['read'] },
+			createAuth: { 'student-statuses': ['create'] },
+			updateAuth: { 'student-statuses': ['update'] },
+			deleteAuth: { 'student-statuses': ['delete'] },
 			activityTypes: {
 				create: 'student_status_created',
 				update: 'student_status_updated',
@@ -54,25 +45,25 @@ class StudentStatusService extends BaseService<typeof studentStatuses, 'id'> {
 	}
 
 	async get(id: string) {
-		return withAuth(async () => this.repository.findById(id), ['dashboard']);
+		return withPermission(async () => this.repository.findById(id), {
+			'student-statuses': ['read'],
+		});
 	}
 
 	async queryAll(options: QueryOptions<typeof studentStatuses>) {
-		return withAuth(
-			async () => this.repository.query(options),
-			['registry', 'admin', 'student_services', 'academic', 'finance']
-		);
+		return withPermission(async () => this.repository.query(options), {
+			'student-statuses': ['read'],
+		});
 	}
 
 	async getByStdNo(stdNo: number) {
-		return withAuth(
-			async () => this.repository.findByStdNo(stdNo),
-			['dashboard']
-		);
+		return withPermission(async () => this.repository.findByStdNo(stdNo), {
+			'student-statuses': ['read'],
+		});
 	}
 
 	async getPendingForApproval(options: QueryOptions<typeof studentStatuses>) {
-		return withAuth(
+		return withPermission(
 			async (session) => {
 				const roles = getUserApprovalRoles(session!);
 				if (roles.length === 0) throw new Error('No approval roles for user');
@@ -85,7 +76,7 @@ class StudentStatusService extends BaseService<typeof studentStatuses, 'id'> {
 	}
 
 	async countPendingForCurrentUser() {
-		return withAuth(
+		return withPermission(
 			async (session) => {
 				const roles = getUserApprovalRoles(session!);
 				if (roles.length === 0) return 0;
@@ -98,7 +89,7 @@ class StudentStatusService extends BaseService<typeof studentStatuses, 'id'> {
 	}
 
 	async createStatus(data: typeof studentStatuses.$inferInsert) {
-		return withAuth(
+		return withPermission(
 			async (session) => {
 				const userId = requireSessionUserId(session);
 
@@ -157,12 +148,12 @@ class StudentStatusService extends BaseService<typeof studentStatuses, 'id'> {
 					audit
 				);
 			},
-			['registry', 'admin']
+			{ 'student-statuses': ['create'] }
 		);
 	}
 
 	async edit(id: string, data: StudentStatusEditableInput) {
-		return withAuth(
+		return withPermission(
 			async (session) => {
 				const userId = requireSessionUserId(session);
 				const app = await this.repository.findById(id);
@@ -187,12 +178,12 @@ class StudentStatusService extends BaseService<typeof studentStatuses, 'id'> {
 
 				return this.repository.findById(id);
 			},
-			['registry', 'admin']
+			{ 'student-statuses': ['update'] }
 		);
 	}
 
 	async cancel(id: string) {
-		return withAuth(
+		return withPermission(
 			async (session) => {
 				const userId = requireSessionUserId(session);
 
@@ -212,7 +203,7 @@ class StudentStatusService extends BaseService<typeof studentStatuses, 'id'> {
 
 				return this.repository.updateStatus(id, 'cancelled', audit);
 			},
-			['registry', 'admin']
+			{ 'student-statuses': ['delete'] }
 		);
 	}
 
@@ -221,7 +212,7 @@ class StudentStatusService extends BaseService<typeof studentStatuses, 'id'> {
 		status: 'pending' | 'approved' | 'rejected',
 		comments?: string
 	) {
-		return withAuth(
+		return withPermission(
 			async (session) => {
 				const userId = requireSessionUserId(session);
 
@@ -271,7 +262,7 @@ class StudentStatusService extends BaseService<typeof studentStatuses, 'id'> {
 
 				return this.repository.findById(app.id);
 			},
-			['dashboard']
+			{ 'student-statuses': ['update'] }
 		);
 	}
 

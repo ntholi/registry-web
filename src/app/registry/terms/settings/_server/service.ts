@@ -1,27 +1,23 @@
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
-import withAuth, { requireSessionUserId } from '@/core/platform/withPermission';
+import {
+	requireSessionUserId,
+	withPermission,
+} from '@/core/platform/withPermission';
 import TermSettingsRepository from './repository';
 
 class TermSettingsService {
 	private repository = new TermSettingsRepository();
 
 	async findByTermId(termId: number) {
-		return withAuth(async () => this.repository.findByTermId(termId), ['all']);
+		return withPermission(async () => this.repository.findByTermId(termId), {
+			'terms-settings': ['read'],
+		});
 	}
 
 	async updateResultsPublished(termId: number, published: boolean) {
-		return withAuth(
+		return withPermission(
 			async (session) => {
 				const userId = requireSessionUserId(session);
-				if (
-					session?.user?.role !== 'admin' &&
-					!(
-						session?.user?.role === 'registry' &&
-						session?.user?.position === 'manager'
-					)
-				) {
-					throw new Error('Unauthorized');
-				}
 				return this.repository.updateResultsPublished(
 					termId,
 					published,
@@ -29,45 +25,26 @@ class TermSettingsService {
 					{ userId, activityType: 'term_settings_updated' }
 				);
 			},
-			['admin', 'registry']
+			{ 'terms-settings': ['update'] }
 		);
 	}
 
 	async updateGradebookAccess(termId: number, access: boolean) {
-		return withAuth(
+		return withPermission(
 			async (session) => {
 				const userId = requireSessionUserId(session);
-				if (
-					session?.user?.role !== 'admin' &&
-					!(
-						session?.user?.role === 'registry' &&
-						session?.user?.position === 'manager'
-					)
-				) {
-					throw new Error('Unauthorized');
-				}
 				return this.repository.updateGradebookAccess(termId, access, userId, {
 					userId,
 					activityType: 'term_settings_updated',
 				});
 			},
-			['admin', 'registry']
+			{ 'terms-settings': ['update'] }
 		);
 	}
 
 	async moveRejectedToBlocked(termId: number) {
-		return withAuth(
-			async (session) => {
-				if (
-					session?.user?.role !== 'admin' &&
-					!(
-						session?.user?.role === 'registry' &&
-						session?.user?.position === 'manager'
-					)
-				) {
-					throw new Error('Unauthorized');
-				}
-
+		return withPermission(
+			async () => {
 				const rejected =
 					await this.repository.getRejectedStudentsForTerm(termId);
 				if (rejected.length === 0) {
@@ -104,28 +81,28 @@ class TermSettingsService {
 					skipped: blockedSet.size,
 				};
 			},
-			['admin', 'registry']
+			{ 'terms-settings': ['update'] }
 		);
 	}
 
 	async getUnpublishedTermCodes() {
-		return withAuth(
+		return withPermission(
 			async () => this.repository.getUnpublishedTermCodes(),
-			['all']
+			{ 'terms-settings': ['read'] }
 		);
 	}
 
 	async getPublicationAttachments(termCode: string) {
-		return withAuth(
+		return withPermission(
 			async () => this.repository.getPublicationAttachments(termCode),
-			['admin', 'registry']
+			{ 'terms-settings': ['read'] }
 		);
 	}
 
 	async getPublicationAttachment(id: string) {
-		return withAuth(
+		return withPermission(
 			async () => this.repository.getPublicationAttachment(id),
-			['admin', 'registry']
+			{ 'terms-settings': ['read'] }
 		);
 	}
 
@@ -135,41 +112,24 @@ class TermSettingsService {
 		type: 'scanned-pdf' | 'raw-marks' | 'other';
 		storageKey?: string;
 	}) {
-		return withAuth(
+		return withPermission(
 			async (session) => {
-				if (
-					session?.user?.role !== 'admin' &&
-					!(
-						session?.user?.role === 'registry' &&
-						session?.user?.position === 'manager'
-					)
-				) {
-					throw new Error('Unauthorized');
-				}
+				const userId = requireSessionUserId(session);
 				return this.repository.createPublicationAttachment({
 					...data,
-					createdBy: session.user.id!,
+					createdBy: userId,
 				});
 			},
-			['admin', 'registry']
+			{ 'terms-settings': ['update'] }
 		);
 	}
 
 	async deletePublicationAttachment(id: string) {
-		return withAuth(
-			async (session) => {
-				if (
-					session?.user?.role !== 'admin' &&
-					!(
-						session?.user?.role === 'registry' &&
-						session?.user?.position === 'manager'
-					)
-				) {
-					throw new Error('Unauthorized');
-				}
+		return withPermission(
+			async () => {
 				return this.repository.deletePublicationAttachment(id);
 			},
-			['admin', 'registry']
+			{ 'terms-settings': ['update'] }
 		);
 	}
 }

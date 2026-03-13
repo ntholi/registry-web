@@ -1,5 +1,8 @@
 import type { certificateReprints } from '@registry/_database';
-import withAuth, { requireSessionUserId } from '@/core/platform/withPermission';
+import {
+	requireSessionUserId,
+	withPermission,
+} from '@/core/platform/withPermission';
 import CertificateReprintsRepository from './repository';
 
 type CertificateReprint = typeof certificateReprints.$inferInsert;
@@ -12,25 +15,25 @@ class CertificateReprintsService {
 	}
 
 	async get(id: string) {
-		return withAuth(() => this.repository.findById(id), ['registry', 'admin']);
+		return withPermission(() => this.repository.findById(id), {
+			'certificate-reprints': ['read'],
+		});
 	}
 
 	async findByStdNo(stdNo: number) {
-		return withAuth(
-			() => this.repository.findByStdNo(stdNo),
-			['registry', 'admin']
-		);
+		return withPermission(() => this.repository.findByStdNo(stdNo), {
+			'certificate-reprints': ['read'],
+		});
 	}
 
 	async queryAll(page: number, search: string) {
-		return withAuth(
-			() => this.repository.queryPaginated(page, search),
-			['registry', 'admin']
-		);
+		return withPermission(() => this.repository.queryPaginated(page, search), {
+			'certificate-reprints': ['read'],
+		});
 	}
 
 	async create(data: CertificateReprint) {
-		return withAuth(
+		return withPermission(
 			async (session) => {
 				const hasGradDate = await this.repository.hasGraduationDate(data.stdNo);
 				if (!hasGradDate) {
@@ -49,12 +52,12 @@ class CertificateReprintsService {
 					}
 				);
 			},
-			['registry', 'admin']
+			{ 'certificate-reprints': ['create'] }
 		);
 	}
 
 	async update(id: string, data: Partial<CertificateReprint>) {
-		return withAuth(
+		return withPermission(
 			(session) =>
 				this.repository.update(id, data, {
 					userId: requireSessionUserId(session),
@@ -62,19 +65,19 @@ class CertificateReprintsService {
 					activityType: 'certificate_reprint_updated',
 					stdNo: data.stdNo,
 				}),
-			['registry', 'admin']
+			{ 'certificate-reprints': ['update'] }
 		);
 	}
 
 	async delete(id: string) {
-		return withAuth(
+		return withPermission(
 			(session) =>
 				this.repository.delete(id, {
 					userId: requireSessionUserId(session),
 					role: session!.user!.role!,
 					activityType: 'certificate_reprint_deleted',
 				}),
-			['registry', 'admin']
+			{ 'certificate-reprints': ['delete'] }
 		);
 	}
 }

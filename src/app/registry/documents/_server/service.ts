@@ -1,5 +1,8 @@
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
-import withAuth, { requireSessionUserId } from '@/core/platform/withPermission';
+import {
+	requireSessionUserId,
+	withPermission,
+} from '@/core/platform/withPermission';
 import type { DocumentType } from '../_schema/documents';
 import DocumentRepository from './repository';
 
@@ -7,30 +10,16 @@ class DocumentService {
 	constructor(private readonly repository = new DocumentRepository()) {}
 
 	async get(id: string) {
-		return withAuth(
+		return withPermission(
 			async () => this.repository.findByIdWithDocument(id),
-			['admin', 'registry', 'student_services']
+			{ documents: ['read'] }
 		);
 	}
 
 	async getByStudent(stdNo: number) {
-		return withAuth(
-			async () => this.repository.findByStudent(stdNo),
-			async (session) => {
-				const allowedRoles = [
-					'admin',
-					'registry',
-					'finance',
-					'student_services',
-				];
-				const allowedPositions = ['manager'];
-
-				return (
-					allowedRoles.includes(session.user?.role || '') ||
-					allowedPositions.includes(session.user?.position || '')
-				);
-			}
-		);
+		return withPermission(async () => this.repository.findByStudent(stdNo), {
+			documents: ['read'],
+		});
 	}
 
 	async create(data: {
@@ -39,7 +28,7 @@ class DocumentService {
 		type: DocumentType;
 		stdNo: number;
 	}) {
-		return withAuth(
+		return withPermission(
 			async (session) =>
 				this.repository.createWithDocument(data, {
 					userId: requireSessionUserId(session),
@@ -47,19 +36,19 @@ class DocumentService {
 					activityType: 'document_uploaded',
 					stdNo: data.stdNo,
 				}),
-			['admin', 'registry', 'student_services']
+			{ documents: ['create'] }
 		);
 	}
 
 	async delete(id: string) {
-		return withAuth(
+		return withPermission(
 			async (session) =>
 				this.repository.removeById(id, {
 					userId: requireSessionUserId(session),
 					role: session!.user!.role!,
 					activityType: 'document_deleted',
 				}),
-			['admin', 'registry', 'student_services']
+			{ documents: ['create'] }
 		);
 	}
 }

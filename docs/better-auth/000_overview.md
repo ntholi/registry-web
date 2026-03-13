@@ -22,7 +22,7 @@ This file is the **authoritative** reference for the entire Better Auth migratio
 | 8 | Update BaseService | `008_phase-8-update-base-service.md` | `DONE` | `2026-03-13` | Migrated `BaseService` to Better Auth session types and `withPermission` while keeping legacy role-array config compatibility for downstream phases |
 | 9 | Academic Services — Part 1 | `009_phase-9-academic-services-part-1.md` | `DONE` | `2026-03-13` | Migrated the five phase 9 academic services to `*Auth`; removed feedback question position checks and updated custom methods where mappings were clear |
 | 10 | Academic Services — Part 2 | `010_phase-10-academic-services-part-2.md` | `PENDING` | — | |
-| 11 | Registry Services | `011_phase-11-registry-services.md` | `PENDING` | — | |
+| 11 | Registry Services | `011_phase-11-registry-services.md` | `DONE` | `2026-03-13` | Migrated the six phase 11 registry services to permission-based auth; student/self-service paths kept transitional custom checks where Phase 17 still owns the portal flow |
 | 12 | Admin Services | `012_phase-12-admin-services.md` | `PENDING` | — | |
 | 13 | Admissions & Finance Services | `013_phase-13-admissions-and-finance-services.md` | `PENDING` | — | |
 | 14 | Timetable, Library & Standalone Actions | `014_phase-14-timetable-library-and-standalone-actions.md` | `PENDING` | — | |
