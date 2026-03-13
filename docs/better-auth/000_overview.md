@@ -221,6 +221,8 @@ These are the normalized permissions for the migration target. Avoid catch-all v
 | `timetable` | `read`, `create`, `update`, `delete` | dashboard (read), academic (write) |
 | `venues` | `read`, `create`, `update`, `delete` | dashboard (read), academic + registry (write) |
 | `gradebook` | `read`, `update`, `approve` | academic (varies by position) |
+| `attendance` | `read`, `create`, `update`, `delete` | academic, leap |
+| `assigned-modules` | `read`, `create`, `delete` | academic, leap |
 
 ### Registry Resources
 
@@ -228,11 +230,16 @@ These are the normalized permissions for the migration target. Avoid catch-all v
 |----------|---------|--------------------|
 | `students` | `read`, `update`, `delete` | dashboard (read), registry + student_services (write) |
 | `registration` | `read`, `create`, `update`, `delete` | registry, leap, student_services, academic leaders |
+| `registration-clearance` | `read`, `approve`, `reject` | finance, library, resource (dept-scoped response) |
 | `student-statuses` | `read`, `create`, `update`, `delete` | registry, admin, student_services, finance |
 | `documents` | `read`, `create` | admin, registry, student_services, managers |
 | `terms-settings` | `read`, `update` | registry only |
 | `graduation` | `read`, `approve` | finance, library, academic leaders |
+| `graduation-clearance` | `read`, `approve`, `reject` | finance, library, academic leaders |
 | `certificate-reprints` | `read`, `create`, `update`, `delete` | registry |
+| `student-notes` | `read`, `create`, `update`, `delete` | dashboard (creator-only edit/delete, admin bypass) |
+| `blocked-students` | `read`, `create`, `update`, `delete` | finance (read), finance/registry/library (create), dept-scoped unblock |
+| `auto-approvals` | `read`, `create`, `update`, `delete` | finance, library, admin (dept-scoped for non-admin) |
 
 ### Admissions Resources
 
@@ -243,6 +250,10 @@ These are the normalized permissions for the migration target. Avoid catch-all v
 | `admissions-payments` | `read`, `create`, `update`, `delete` | registry, marketing, admin, finance |
 | `admissions-documents` | `read`, `create`, `update`, `delete` | registry, marketing, admin, finance |
 | `entry-requirements` | `read`, `create`, `update`, `delete` | registry, marketing, admin |
+| `recognized-schools` | `read`, `create`, `update`, `delete` | registry, marketing, admin |
+| `intake-periods` | `read`, `create`, `update`, `delete` | registry, marketing, admin |
+| `certificate-types` | `read`, `create`, `update`, `delete` | registry, marketing, admin |
+| `subjects` | `read`, `create`, `update`, `delete` | registry, marketing, admin |
 
 ### Finance Resources
 
@@ -258,6 +269,7 @@ These are the normalized permissions for the migration target. Avoid catch-all v
 | `permission-presets` | `read`, `create`, `update`, `delete` | admin only (preset admin backend) |
 | `tasks` | `read`, `create`, `update`, `delete` | admin, managers |
 | `activity-tracker` | `read` | admin, managers |
+| `notifications` | `read`, `create`, `update`, `delete` | admin (CRUD), all users (read active) |
 
 ### Library Resources
 
@@ -265,42 +277,62 @@ These are the normalized permissions for the migration target. Avoid catch-all v
 |----------|---------|--------------------|
 | `library` | `read`, `create`, `update`, `delete` | library, admin |
 
+### HR Resources
+
+| Resource | Actions | Currently gated by |
+|----------|---------|--------------------|
+| `employees` | `read`, `create`, `update`, `delete` | human_resource, admin |
+
+### Report Resources
+
+| Resource | Actions | Currently gated by |
+|----------|---------|--------------------|
+| `reports-attendance` | `read` | academic, registry, leap |
+| `reports-course-summary` | `read` | academic |
+| `reports-boe` | `read` | academic (manager, program_leader positions) |
+| `reports-enrollments` | `read` | registry, admin, finance, academic, leap |
+| `reports-progression` | `read` | registry, admin, finance, academic, leap |
+| `reports-distribution` | `read` | registry, admin, finance, academic, leap |
+| `reports-graduation` | `read` | registry, admin, finance, academic |
+| `reports-sponsored-students` | `read` | finance |
+
 ## Predefined Presets (Migration Seeds)
 
 ### Academic Presets
 
 | Preset Name | Role | Permissions |
 |-------------|------|-------------|
-| Academic Manager | academic | lecturers:full, assessments:full, feedback-questions:full, feedback-categories:full, feedback-cycles:full, feedback-reports:read/update, school-structures:read/update/delete, timetable:full, venues:full, registration:read/update, graduation:read/approve, activity-tracker:read, tasks:full, gradebook:read/update/approve, students:read |
-| Academic Program Leader | academic | lecturers:full, feedback-questions:full, feedback-categories:full, school-structures:read/update, registration:read/update, timetable:read, students:read, gradebook:read/update/approve |
-| Academic Year Leader | academic | feedback-cycles:read, registration:read, students:read, timetable:read |
-| Academic Lecturer | academic | assessments:full, gradebook:read/update, feedback-reports:read, timetable:read |
-| Academic Principal Lecturer | academic | assessments:full, gradebook:read/update/approve, feedback-reports:read, timetable:read |
-| Academic Admin | academic | assessments:full, feedback-questions:full, feedback-categories:full, feedback-cycles:full, timetable:read |
+| Academic Manager | academic | lecturers:full, assessments:full, feedback-questions:full, feedback-categories:full, feedback-cycles:full, feedback-reports:read/update, school-structures:read/update/delete, timetable:full, venues:full, registration:read/update, graduation:read/approve, graduation-clearance:read/approve/reject, activity-tracker:read, tasks:full, gradebook:read/update/approve, students:read, attendance:full, assigned-modules:full, reports-attendance:read, reports-course-summary:read, reports-boe:read, reports-enrollments:read, reports-progression:read, reports-distribution:read, reports-graduation:read |
+| Academic Program Leader | academic | lecturers:full, feedback-questions:full, feedback-categories:full, school-structures:read/update, registration:read/update, timetable:read, students:read, gradebook:read/update/approve, attendance:read, assigned-modules:full, reports-attendance:read, reports-course-summary:read, reports-boe:read, reports-enrollments:read, reports-progression:read, reports-distribution:read, reports-graduation:read |
+| Academic Year Leader | academic | feedback-cycles:read, registration:read, students:read, timetable:read, attendance:read, reports-attendance:read, reports-enrollments:read, reports-progression:read, reports-distribution:read |
+| Academic Lecturer | academic | assessments:full, gradebook:read/update, feedback-reports:read, timetable:read, attendance:read/create/update, assigned-modules:read, reports-attendance:read, reports-course-summary:read |
+| Academic Principal Lecturer | academic | assessments:full, gradebook:read/update/approve, feedback-reports:read, timetable:read, attendance:read/create/update, assigned-modules:read, reports-attendance:read, reports-course-summary:read |
+| Academic Admin | academic | assessments:full, feedback-questions:full, feedback-categories:full, feedback-cycles:full, timetable:read, attendance:read |
 
 ### Registry Presets
 
 | Preset Name | Role | Permissions |
 |-------------|------|-------------|
-| Registry Staff | registry | students:read/update/delete, registration:full, documents:read/create, student-statuses:full, terms-settings:read/update, certificate-reprints:full, modules:create, semester-modules:create/update, venues:create/update/delete, graduation:read |
-| Registry Manager | registry | Everything in Registry Staff + activity-tracker:read, tasks:full, school-structures:update |
+| Registry Staff | registry | students:read/update/delete, registration:full, registration-clearance:read, documents:read/create, student-statuses:full, terms-settings:read/update, certificate-reprints:full, modules:create, semester-modules:create/update, venues:create/update/delete, graduation:read, student-notes:full, blocked-students:read/create/update, reports-enrollments:read, reports-progression:read, reports-distribution:read, reports-attendance:read |
+| Registry Manager | registry | Everything in Registry Staff + activity-tracker:read, tasks:full, school-structures:update, blocked-students:full, notifications:read, reports-graduation:read |
 
 ### Finance Presets
 
 | Preset Name | Role | Permissions |
 |-------------|------|-------------|
-| Finance Staff | finance | sponsors:full, admissions-payments:read/update, student-statuses:read, graduation:read, students:read |
-| Finance Manager | finance | Everything in Finance Staff + activity-tracker:read, tasks:full |
+| Finance Staff | finance | sponsors:full, admissions-payments:read/update, student-statuses:read, graduation:read, students:read, registration-clearance:read/approve/reject, graduation-clearance:read/approve/reject, blocked-students:read/create/update, reports-enrollments:read, reports-progression:read, reports-distribution:read, reports-graduation:read, reports-sponsored-students:read |
+| Finance Manager | finance | Everything in Finance Staff + activity-tracker:read, tasks:full, blocked-students:full, auto-approvals:full |
 
 ### Other Role Presets
 
 | Preset Name | Role | Permissions |
 |-------------|------|-------------|
-| Library Staff | library | library:full, students:read |
-| Marketing Staff | marketing | applicants:full, applications:full, entry-requirements:full, admissions-payments:read, admissions-documents:read |
-| Student Services Staff | student_services | students:read/update, registration:read/update, documents:read/create, student-statuses:read/create/update |
-| LEAP Staff | leap | assessments:full, registration:read/update, students:read |
-| Human Resource Staff | human_resource | feedback-reports:read |
+| Library Staff | library | library:full, students:read, registration-clearance:read/approve/reject, graduation-clearance:read/approve/reject, blocked-students:read/create/update, auto-approvals:full |
+| Marketing Staff | marketing | applicants:full, applications:full, entry-requirements:full, admissions-payments:read, admissions-documents:read, recognized-schools:full, intake-periods:full, certificate-types:full, subjects:full |
+| Student Services Staff | student_services | students:read/update, registration:read/update, documents:read/create, student-statuses:read/create/update, student-notes:full |
+| LEAP Staff | leap | assessments:full, registration:read/update, registration-clearance:read, students:read, attendance:read/create/update, assigned-modules:read, reports-attendance:read, reports-enrollments:read, reports-progression:read, reports-distribution:read |
+| Human Resource Staff | human_resource | feedback-reports:read, employees:full |
+| Resource Staff | resource | timetable:read, venues:read, registration-clearance:read/approve/reject, auto-approvals:full |
 | Admin Superuser | admin | (admin role bypasses all checks — this preset is optional/ceremonial) |
 
 > **Note**: These presets are the STARTING POINT. Admins can create new presets and modify existing ones via the UI after migration.

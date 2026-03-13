@@ -77,6 +77,9 @@ INSERT INTO preset_permissions (preset_id, resource, action) VALUES
   (<id>, 'registration', 'update'),
   (<id>, 'graduation', 'read'),
   (<id>, 'graduation', 'approve'),
+  (<id>, 'graduation-clearance', 'read'),
+  (<id>, 'graduation-clearance', 'approve'),
+  (<id>, 'graduation-clearance', 'reject'),
   (<id>, 'activity-tracker', 'read'),
   (<id>, 'tasks', 'read'),
   (<id>, 'tasks', 'create'),
@@ -84,35 +87,55 @@ INSERT INTO preset_permissions (preset_id, resource, action) VALUES
   (<id>, 'tasks', 'delete'),
   (<id>, 'gradebook', 'read'),
   (<id>, 'gradebook', 'update'),
-  (<id>, 'gradebook', 'approve');
+  (<id>, 'gradebook', 'approve'),
+  (<id>, 'attendance', 'read'),
+  (<id>, 'attendance', 'create'),
+  (<id>, 'attendance', 'update'),
+  (<id>, 'attendance', 'delete'),
+  (<id>, 'assigned-modules', 'read'),
+  (<id>, 'assigned-modules', 'create'),
+  (<id>, 'assigned-modules', 'delete'),
+  (<id>, 'reports-attendance', 'read'),
+  (<id>, 'reports-course-summary', 'read'),
+  (<id>, 'reports-boe', 'read'),
+  (<id>, 'reports-enrollments', 'read'),
+  (<id>, 'reports-progression', 'read'),
+  (<id>, 'reports-distribution', 'read'),
+  (<id>, 'reports-graduation', 'read');
 
 -- Academic Program Leader
 INSERT INTO permission_presets (name, role, description) VALUES
   ('Academic Program Leader', 'academic', 'Program-level academic management');
--- Permissions: lecturers:read/create/update/delete, feedback-questions:CRUD, feedback-categories:CRUD,
+-- Permissions: lecturers:CRUD, feedback-questions:CRUD, feedback-categories:CRUD,
 -- school-structures:read/update, registration:read/update, timetable:read, students:read,
--- gradebook:read/update/approve
+-- gradebook:read/update/approve, attendance:read, assigned-modules:CRUD,
+-- reports-attendance:read, reports-course-summary:read, reports-boe:read,
+-- reports-enrollments:read, reports-progression:read, reports-distribution:read, reports-graduation:read
 
 -- Academic Year Leader
 INSERT INTO permission_presets (name, role, description) VALUES
   ('Academic Year Leader', 'academic', 'Year-level academic oversight');
--- Permissions: feedback-cycles:read, registration:read, students:read, timetable:read
+-- Permissions: feedback-cycles:read, registration:read, students:read, timetable:read,
+-- attendance:read, reports-attendance:read, reports-enrollments:read,
+-- reports-progression:read, reports-distribution:read
 
 -- Academic Lecturer
 INSERT INTO permission_presets (name, role, description) VALUES
   ('Academic Lecturer', 'academic', 'Teaching staff access');
--- Permissions: assessments:CRUD, gradebook:read/update, feedback-reports:read, timetable:read
+-- Permissions: assessments:CRUD, gradebook:read/update, feedback-reports:read, timetable:read,
+-- attendance:read/create/update, assigned-modules:read, reports-attendance:read, reports-course-summary:read
 
 -- Academic Principal Lecturer
 INSERT INTO permission_presets (name, role, description) VALUES
   ('Academic Principal Lecturer', 'academic', 'Senior teaching staff access');
--- Permissions: assessments:CRUD, gradebook:read/update/approve, feedback-reports:read, timetable:read
+-- Permissions: assessments:CRUD, gradebook:read/update/approve, feedback-reports:read, timetable:read,
+-- attendance:read/create/update, assigned-modules:read, reports-attendance:read, reports-course-summary:read
 
 -- Academic Admin
 INSERT INTO permission_presets (name, role, description) VALUES
   ('Academic Admin', 'academic', 'Academic administrative support');
 -- Permissions: assessments:CRUD, feedback-questions:CRUD, feedback-categories:CRUD,
--- feedback-cycles:CRUD, timetable:read
+-- feedback-cycles:CRUD, timetable:read, attendance:read
 ```
 
 **Registry, Finance, and Other Presets:**
@@ -121,58 +144,72 @@ INSERT INTO permission_presets (name, role, description) VALUES
 -- Registry Staff
 INSERT INTO permission_presets (name, role, description) VALUES
   ('Registry Staff', 'registry', 'Standard registry operations');
--- Permissions: students:read/update/delete, registration:CRUD, documents:read/create,
--- student-statuses:read/create/update/delete, terms-settings:read/update,
+-- Permissions: students:read/update/delete, registration:CRUD, registration-clearance:read,
+-- documents:read/create, student-statuses:CRUD, terms-settings:read/update,
 -- certificate-reprints:CRUD, modules:create, semester-modules:create/update,
--- venues:create/update/delete, graduation:read
+-- venues:create/update/delete, graduation:read, student-notes:CRUD,
+-- blocked-students:read/create/update, reports-enrollments:read, reports-progression:read,
+-- reports-distribution:read, reports-attendance:read
 
 -- Registry Manager
 INSERT INTO permission_presets (name, role, description) VALUES
   ('Registry Manager', 'registry', 'Registry department management');
--- All of Registry Staff + activity-tracker:read, tasks:CRUD, school-structures:update
+-- All of Registry Staff + activity-tracker:read, tasks:CRUD, school-structures:update,
+-- blocked-students:CRUD (full incl. delete), notifications:read, reports-graduation:read
 
 -- Finance Staff
 INSERT INTO permission_presets (name, role, description) VALUES
   ('Finance Staff', 'finance', 'Standard finance operations');
--- Permissions: sponsors:read/create/update/delete, admissions-payments:read/update,
--- student-statuses:read, graduation:read, students:read
+-- Permissions: sponsors:CRUD, admissions-payments:read/update,
+-- student-statuses:read, graduation:read, students:read,
+-- registration-clearance:read/approve/reject, graduation-clearance:read/approve/reject,
+-- blocked-students:read/create/update, reports-enrollments:read, reports-progression:read,
+-- reports-distribution:read, reports-graduation:read, reports-sponsored-students:read
 
 -- Finance Manager
 INSERT INTO permission_presets (name, role, description) VALUES
   ('Finance Manager', 'finance', 'Finance department management');
--- All of Finance Staff + activity-tracker:read, tasks:CRUD
+-- All of Finance Staff + activity-tracker:read, tasks:CRUD,
+-- blocked-students:CRUD (full incl. delete), auto-approvals:CRUD
 
 -- Library Staff
 INSERT INTO permission_presets (name, role, description) VALUES
   ('Library Staff', 'library', 'Library operations');
--- Permissions: library:CRUD, students:read
+-- Permissions: library:CRUD, students:read,
+-- registration-clearance:read/approve/reject, graduation-clearance:read/approve/reject,
+-- blocked-students:read/create/update, auto-approvals:CRUD
 
 -- Marketing Staff
 INSERT INTO permission_presets (name, role, description) VALUES
   ('Marketing Staff', 'marketing', 'Marketing and admissions outreach');
 -- Permissions: applicants:CRUD, applications:CRUD, entry-requirements:CRUD,
--- admissions-payments:read, admissions-documents:read
+-- admissions-payments:read, admissions-documents:read,
+-- recognized-schools:CRUD, intake-periods:CRUD, certificate-types:CRUD, subjects:CRUD
 
 -- Student Services Staff
 INSERT INTO permission_presets (name, role, description) VALUES
   ('Student Services Staff', 'student_services', 'Student services operations');
 -- Permissions: students:read/update, registration:read/update,
--- documents:read/create, student-statuses:read/create/update
+-- documents:read/create, student-statuses:read/create/update, student-notes:CRUD
 
 -- LEAP Staff
 INSERT INTO permission_presets (name, role, description) VALUES
   ('LEAP Staff', 'leap', 'LEAP program operations');
--- Permissions: assessments:CRUD, registration:read/update, students:read
+-- Permissions: assessments:CRUD, registration:read/update, registration-clearance:read,
+-- students:read, attendance:read/create/update, assigned-modules:read,
+-- reports-attendance:read, reports-enrollments:read, reports-progression:read,
+-- reports-distribution:read
 
 -- Human Resource Staff
 INSERT INTO permission_presets (name, role, description) VALUES
   ('Human Resource Staff', 'human_resource', 'HR access');
--- Permissions: feedback-reports:read
+-- Permissions: feedback-reports:read, employees:CRUD
 
 -- Resource Staff
 INSERT INTO permission_presets (name, role, description) VALUES
   ('Resource Staff', 'resource', 'Resource department operations');
--- Permissions: timetable:read, venues:read (minimal baseline — admins can expand via UI)
+-- Permissions: timetable:read, venues:read,
+-- registration-clearance:read/approve/reject, auto-approvals:CRUD
 ```
 
 ## 6.2 Position → Preset Migration
