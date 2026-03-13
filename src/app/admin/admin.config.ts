@@ -9,6 +9,7 @@ import {
 	IconPackage,
 	IconSearch,
 	IconSettings,
+	IconShield,
 	IconUserShield,
 } from '@tabler/icons-react';
 import type {
@@ -41,6 +42,13 @@ export const adminConfig: ModuleConfig = {
 				href: '/admin/users',
 				icon: IconUserShield,
 				roles: ['admin'],
+			},
+			{
+				label: 'Permission Presets',
+				href: '/admin/permission-presets',
+				icon: IconShield,
+				roles: ['admin'],
+				permissions: [{ resource: 'permission-presets', action: 'read' }],
 			},
 			{
 				label: 'Notifications',

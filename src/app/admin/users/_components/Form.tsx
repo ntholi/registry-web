@@ -2,13 +2,20 @@
 
 import { getAllSchools } from '@academic/schools/_server/actions';
 import type { users } from '@auth/_database';
-import { userPositions, userRoles } from '@auth/_database';
+import { userRoles } from '@auth/_database';
+import {
+	findPresetsByRole,
+	getPreset,
+} from '@auth/permission-presets/_server/actions';
 import {
 	ActionIcon,
+	Anchor,
 	Button,
 	Group,
 	Modal,
+	Paper,
 	Select,
+	Stack,
 	Table,
 	Text,
 	TextInput,
@@ -16,20 +23,34 @@ import {
 import { useDisclosure } from '@mantine/hooks';
 import { IconPlus, IconTrash } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
+import Link from 'next/link';
 import { useRouter } from 'nextjs-toploader/app';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { z } from 'zod';
+import { DASHBOARD_ROLES } from '@/core/auth/permissions';
 import { toTitleCase } from '@/shared/lib/utils/utils';
 import { Form } from '@/shared/ui/adease';
-import { getUserSchools } from '../_server/actions';
+import PermissionMatrix from '@/shared/ui/PermissionMatrix';
 
 type User = typeof users.$inferInsert;
+type UserRole = (typeof userRoles.enumValues)[number];
+type DashboardRole = (typeof DASHBOARD_ROLES)[number];
 
 type UserWithSchools = User & {
 	schoolIds?: number[];
 	lmsUserId?: number | null;
 	lmsToken?: string | null;
 };
+
+type UserFormValues = Omit<UserWithSchools, 'schoolIds'> & {
+	schoolIds?: string[];
+};
+
+const NO_PRESET = '__none__';
+
+function isDashboardRole(role: string): role is DashboardRole {
+	return DASHBOARD_ROLES.includes(role as DashboardRole);
+}
 
 type Props = {
 	onSubmit: (values: UserWithSchools) => Promise<User>;
@@ -44,21 +65,34 @@ type Props = {
 export default function UserForm({ onSubmit, defaultValues, title }: Props) {
 	const router = useRouter();
 	const [opened, { open, close }] = useDisclosure(false);
-	const [selectedSchools, setSelectedSchools] = useState<string[]>([]);
+	const [selectedSchools, setSelectedSchools] = useState<string[]>(
+		defaultValues?.schoolIds?.map((id) => id.toString()) ?? []
+	);
 	const [selectedSchoolId, setSelectedSchoolId] = useState<string | null>(null);
+	const [role, setRole] = useState<UserRole>(
+		(defaultValues?.role ?? 'user') as UserRole
+	);
+	const [presetId, setPresetId] = useState<string | null>(
+		defaultValues?.presetId ?? null
+	);
+	const presetRole = isDashboardRole(role) ? role : null;
 
 	const { data: schools } = useQuery({
 		queryKey: ['schools'],
 		queryFn: () => getAllSchools(),
 	});
 
-	const { data: userSchoolsData } = useQuery({
-		queryKey: ['user-schools', defaultValues?.id],
+	const { data: presets } = useQuery({
+		queryKey: ['permission-presets', presetRole],
 		queryFn: () =>
-			defaultValues?.id
-				? getUserSchools(defaultValues.id)
-				: Promise.resolve([]),
-		enabled: !!defaultValues?.id,
+			presetRole ? findPresetsByRole(presetRole) : Promise.resolve([]),
+		enabled: presetRole !== null,
+	});
+
+	const { data: preset } = useQuery({
+		queryKey: ['permission-preset', presetId],
+		queryFn: () => getPreset(presetId!),
+		enabled: presetId !== null,
 	});
 
 	const schoolsOptions = schools
@@ -68,22 +102,25 @@ export default function UserForm({ onSubmit, defaultValues, title }: Props) {
 			}))
 		: [];
 
-	const defaultSchoolIds = userSchoolsData
-		? userSchoolsData.map((userSchool: { schoolId: number }) =>
-				userSchool.schoolId.toString()
-			)
-		: [];
+	const presetOptions = [
+		{ value: NO_PRESET, label: 'No preset (role-only access)' },
+		...(presets?.map((item) => ({
+			value: item.id,
+			label: `${item.name} (${item.permissionCount})`,
+		})) ?? []),
+	];
 
-	useEffect(() => {
-		if (defaultSchoolIds.length > 0 && selectedSchools.length === 0) {
-			setSelectedSchools(defaultSchoolIds);
-		}
-	}, [defaultSchoolIds, selectedSchools.length]);
+	const formDefaults: Partial<UserFormValues> = {
+		...defaultValues,
+		schoolIds: defaultValues?.schoolIds?.map((id) => id.toString()),
+		presetId: defaultValues?.presetId ?? null,
+		role: (defaultValues?.role ?? 'user') as UserRole,
+	};
 
 	const userFormSchema = z.object({
 		name: z.string().min(1, 'Name is required'),
 		role: z.enum(userRoles.enumValues),
-		position: z.enum(userPositions.enumValues).nullable().optional(),
+		presetId: z.string().nullable().optional(),
 		schoolIds: z.array(z.string()).optional(),
 		lmsUserId: z.number().nullable().optional(),
 		lmsToken: z.string().nullable().optional(),
@@ -127,28 +164,25 @@ export default function UserForm({ onSubmit, defaultValues, title }: Props) {
 				</Group>
 			</Modal>
 
-			<Form<UserWithSchools, Partial<UserWithSchools>>
+			<Form<UserFormValues, Partial<UserFormValues>>
 				title={title}
 				action={(values) => {
 					const formattedValues: UserWithSchools = {
 						...values,
+						presetId: values.presetId ?? null,
 						schoolIds:
 							values.role === 'academic'
 								? selectedSchools.map((id: string) => parseInt(id, 10))
 								: undefined,
 					};
 					return onSubmit(formattedValues).then((user) => ({
-						...formattedValues,
+						...values,
 						id: user.id,
 					}));
 				}}
 				queryKey={['users']}
 				schema={userFormSchema}
-				defaultValues={{
-					...defaultValues,
-					role: (defaultValues?.role ??
-						'user') as (typeof userRoles.enumValues)[number],
-				}}
+				defaultValues={formDefaults}
 				onSuccess={({ id }) => {
 					router.push(`/admin/users/${id}`);
 				}}
@@ -173,10 +207,11 @@ export default function UserForm({ onSubmit, defaultValues, title }: Props) {
 									.sort((a, b) => a.label.localeCompare(b.label))}
 								{...form.getInputProps('role')}
 								onChange={(value) => {
-									form.setFieldValue(
-										'role',
-										(value || 'user') as (typeof userRoles.enumValues)[number]
-									);
+									const nextRole = (value || 'user') as UserRole;
+									setRole(nextRole);
+									form.setFieldValue('role', nextRole);
+									setPresetId(null);
+									form.setFieldValue('presetId', null);
 									if (value !== 'academic' && selectedSchools.length > 0) {
 										setSelectedSchools([]);
 									}
@@ -184,17 +219,40 @@ export default function UserForm({ onSubmit, defaultValues, title }: Props) {
 							/>
 
 							<Select
-								label='Position'
+								label='Preset'
 								flex={1}
 								searchable
-								clearable
-								data={userPositions.enumValues.map((position) => ({
-									value: position,
-									label: toTitleCase(position),
-								}))}
-								{...form.getInputProps('position')}
+								data={presetOptions}
+								disabled={presetRole === null}
+								value={presetId ?? NO_PRESET}
+								nothingFoundMessage='No presets available'
+								description={
+									presetRole === null
+										? 'Presets are available for dashboard roles only'
+										: undefined
+								}
+								onChange={(value) => {
+									const nextPresetId =
+										value && value !== NO_PRESET ? value : null;
+									setPresetId(nextPresetId);
+									form.setFieldValue('presetId', nextPresetId);
+								}}
 							/>
 						</Group>
+
+						{preset ? (
+							<Paper withBorder radius='md' p='md'>
+								<Stack gap='sm'>
+									<PermissionMatrix permissions={preset.permissions} readOnly />
+									<Text c='dimmed' size='sm'>
+										To modify permissions, edit the preset directly.{' '}
+										<Anchor component={Link} href='/admin/permission-presets'>
+											Manage Presets
+										</Anchor>
+									</Text>
+								</Stack>
+							</Paper>
+						) : null}
 						<Group>
 							<TextInput
 								label='Moodle User ID'

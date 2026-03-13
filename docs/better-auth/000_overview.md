@@ -34,7 +34,7 @@ This file is the **authoritative** reference for the entire Better Auth migratio
 | 20 | Permission Preset Backend & Actions | `020_phase-20-preset-backend-and-actions.md` | `DONE` | `2026-03-13` | Added auth-owned preset CRUD backend/actions, permission counts for list consumers, and immediate session revocation for preset updates and user preset reassignment |
 | 21 | Permission Preset Pages | `021_phase-21-preset-pages.md` | `DONE` | `2026-03-13` | Added admin preset pages, activity mappings, and a forward-compatible preset form shell pending matrix integration |
 | 22 | Permission Matrix & Preset Form | `022_phase-22-permission-matrix-and-preset-form.md` | `DONE` | 2026-03-13 | Shared matrix and preset form wired into admin preset pages |
-| 23 | User Form Update & Navigation Entry | `023_phase-23-user-form-and-navigation-entry.md` | `PENDING` | — | |
+| 23 | User Form Update & Navigation Entry | `023_phase-23-user-form-and-navigation-entry.md` | `DONE` | `2026-03-13` | User form now uses role-scoped presets with matrix preview and admin nav entry |
 | 24 | Cleanup, Verification & Testing | `024_phase-24-cleanup-and-verification.md` | `PENDING` | — | |
 
 **Legend**: `PENDING` = not started | `IN_PROGRESS` = currently executing | `DONE` = completed | `BLOCKED` = waiting on something

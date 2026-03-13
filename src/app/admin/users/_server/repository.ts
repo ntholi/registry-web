@@ -1,7 +1,27 @@
-import { and, eq, ilike, inArray, ne, or } from 'drizzle-orm';
-import { db, userSchools, users } from '@/core/database';
+import { and, eq, ilike, inArray, ne, or, sql } from 'drizzle-orm';
+import {
+	db,
+	lmsCredentials,
+	permissionPresets,
+	userSchools,
+	users,
+} from '@/core/database';
 import type { QueryOptions } from '@/core/platform/BaseRepository';
 import BaseRepository from '@/core/platform/BaseRepository';
+
+type UserPreset = {
+	id: string;
+	name: string;
+	role: NonNullable<(typeof permissionPresets.$inferSelect)['role']>;
+	description: (typeof permissionPresets.$inferSelect)['description'];
+};
+
+export type UserDetail = typeof users.$inferSelect & {
+	preset: UserPreset | null;
+	schoolIds: number[];
+	lmsUserId: number | null;
+	lmsToken: string | null;
+};
 
 export default class UserRepository extends BaseRepository<typeof users, 'id'> {
 	constructor() {
@@ -39,6 +59,42 @@ export default class UserRepository extends BaseRepository<typeof users, 'id'> {
 			.from(userSchools)
 			.where(eq(userSchools.userId, userId));
 		return data.map((item) => item.schoolId);
+	}
+
+	async getDetail(userId: string): Promise<UserDetail | null> {
+		const [row] = await db
+			.select({
+				user: users,
+				preset: {
+					id: permissionPresets.id,
+					name: permissionPresets.name,
+					role: permissionPresets.role,
+					description: permissionPresets.description,
+				},
+				lmsUserId: lmsCredentials.lmsUserId,
+				lmsToken: lmsCredentials.lmsToken,
+				schoolIds: sql<
+					number[]
+				>`coalesce(array_remove(array_agg(distinct ${userSchools.schoolId}), null), '{}')`,
+			})
+			.from(users)
+			.leftJoin(permissionPresets, eq(users.presetId, permissionPresets.id))
+			.leftJoin(lmsCredentials, eq(users.id, lmsCredentials.userId))
+			.leftJoin(userSchools, eq(users.id, userSchools.userId))
+			.where(eq(users.id, userId))
+			.groupBy(users.id, permissionPresets.id, lmsCredentials.id);
+
+		if (!row) {
+			return null;
+		}
+
+		return {
+			...row.user,
+			preset: row.preset?.id ? row.preset : null,
+			schoolIds: row.schoolIds ?? [],
+			lmsUserId: row.lmsUserId ?? null,
+			lmsToken: row.lmsToken ?? null,
+		};
 	}
 
 	async replaceUserSchools(userId: string, schoolIds: number[]) {

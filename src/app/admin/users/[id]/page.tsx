@@ -1,5 +1,6 @@
 import { deleteUser, getUser, getUserSchools, SchoolsList } from '@admin/users';
 import {
+	Anchor,
 	Avatar,
 	Badge,
 	Card,
@@ -7,7 +8,9 @@ import {
 	Grid,
 	GridCol,
 	Stack,
+	Text,
 } from '@mantine/core';
+import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getRoleColor } from '@/shared/lib/utils/colors';
 import { largeProfilePic, toTitleCase } from '@/shared/lib/utils/utils';
@@ -64,8 +67,19 @@ export default async function UserDetails({ params }: Props) {
 									{toTitleCase(users.role)}
 								</Badge>
 							</FieldView>
-							<FieldView label='Position'>
-								{toTitleCase(users.position)}
+							<FieldView label='Preset'>
+								{users.preset ? (
+									<Anchor
+										component={Link}
+										href={`/admin/permission-presets/${users.preset.id}`}
+									>
+										{users.preset.name}
+									</Anchor>
+								) : (
+									<Text c='dimmed' size='sm'>
+										No preset (role-only access)
+									</Text>
+								)}
 							</FieldView>
 						</Stack>
 					</GridCol>

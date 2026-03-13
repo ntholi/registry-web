@@ -1,7 +1,4 @@
-import {
-	getLmsCredentials,
-	upsertLmsCredentials,
-} from '@auth/auth-providers/_server/repository';
+import { authProviderService } from '@auth/auth-providers/_server/service';
 import { authUsersService } from '@auth/users/_server/service';
 import type { users } from '@/core/database';
 import type { QueryOptions } from '@/core/platform/BaseRepository';
@@ -22,20 +19,9 @@ class UserService {
 	constructor(private readonly repository = new UserRepository()) {}
 
 	async get(id: string) {
-		return withPermission(
-			async () => {
-				const user = await this.repository.findById(id);
-				if (!user) return user;
-
-				const creds = await getLmsCredentials(id);
-				return {
-					...user,
-					lmsUserId: creds?.lmsUserId ?? null,
-					lmsToken: creds?.lmsToken ?? null,
-				};
-			},
-			{ users: ['read'] }
-		);
+		return withPermission(async () => this.repository.getDetail(id), {
+			users: ['read'],
+		});
 	}
 
 	async findAll(params: QueryOptions<typeof users>) {
@@ -63,14 +49,22 @@ class UserService {
 	async create(data: UserWithSchools) {
 		return withPermission(
 			async (session) => {
-				const { schoolIds, lmsUserId, lmsToken, ...userData } = data;
+				const { schoolIds, lmsUserId, lmsToken, presetId, ...userData } = data;
 				const user = await this.repository.create(userData, {
 					userId: session!.user!.id!,
 					role: session!.user!.role!,
 					activityType: 'user_created',
 				});
 
-				await upsertLmsCredentials(user.id, lmsUserId, lmsToken);
+				if (Object.hasOwn(data, 'presetId')) {
+					await authUsersService.assignPreset(user.id, presetId);
+				}
+
+				await authProviderService.syncLmsCredentials(
+					user.id,
+					lmsUserId,
+					lmsToken
+				);
 
 				if (schoolIds && schoolIds.length > 0) {
 					await this.syncUserSchools(user.id, schoolIds);
@@ -104,7 +98,7 @@ class UserService {
 					await authUsersService.assignPreset(id, presetId);
 				}
 
-				await upsertLmsCredentials(id, lmsUserId, lmsToken);
+				await authProviderService.syncLmsCredentials(id, lmsUserId, lmsToken);
 
 				if (schoolIds) {
 					await this.syncUserSchools(id, schoolIds);
