@@ -28,7 +28,7 @@ constructor() {
     byIdAuth: { students: ['read'] },
     findAllAuth: { students: ['read'] },
     updateAuth: { students: ['update'] },
-    deleteAuth: { students: ['manage'] },
+    deleteAuth: { students: ['delete'] },
   });
 }
 ```

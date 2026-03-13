@@ -12,6 +12,8 @@ File: `src/shared/ui/PermissionMatrix.tsx`
 
 A reusable matrix component showing resources as rows and actions as columns.
 
+The matrix should mirror the explicit action vocabulary only. Do not render a generic `manage` column.
+
 **Props:**
 
 ```ts
@@ -24,14 +26,14 @@ type PermissionMatrixProps = {
 
 **Layout:**
 - Rows: resources grouped from `src/app/auth/permission-presets/_lib/catalog.ts`
-- Columns: actions (read, create, update, delete, manage, approve)
+- Columns: actions (read, create, update, delete, approve)
 - Cells: Mantine `Checkbox` (or `Indicator` icon when readOnly)
 - Resource grouping headers for visual clarity:
   - **Academic**: lecturers, assessments, semester-modules, modules, school-structures, feedback-*, gradebook, timetable, venues
   - **Registry**: students, registration, student-statuses, documents, terms-settings, graduation, certificate-reprints
   - **Admissions**: applicants, applications, admissions-payments, admissions-documents, entry-requirements
   - **Finance**: sponsors
-  - **Admin**: users, tasks, activity-tracker
+  - **Admin**: users, permission-presets, tasks, activity-tracker
   - **Library**: library
 
 **When `readOnly=true`:**

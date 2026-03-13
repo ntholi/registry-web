@@ -203,13 +203,13 @@ const DASHBOARD_ROLES = [
 
 ## Resource:Action Permission Catalog
 
-These are ALL the distinct permissions derived from the current codebase:
+These are the normalized permissions for the migration target. Avoid catch-all verbs like `manage`; use explicit actions instead. If a future workflow needs something beyond CRUD or approval, introduce a narrowly named action for that workflow rather than reintroducing `manage`.
 
 ### Academic Resources
 
 | Resource | Actions | Currently gated by |
 |----------|---------|--------------------|
-| `lecturers` | `read`, `manage` | academic + position in [manager, program_leader, admin] |
+| `lecturers` | `read`, `create`, `update`, `delete` | academic + position in [manager, program_leader, admin] |
 | `assessments` | `read`, `create`, `update`, `delete` | academic, leap |
 | `semester-modules` | `read`, `create`, `update` | dashboard (read), registry (write) |
 | `modules` | `read`, `create` | dashboard (read), registry (create) |
@@ -217,7 +217,7 @@ These are ALL the distinct permissions derived from the current codebase:
 | `feedback-questions` | `read`, `create`, `update`, `delete` | academic (read), position in [manager, program_leader, admin] (write) |
 | `feedback-categories` | `read`, `create`, `update`, `delete` | academic (read), position in [manager, program_leader, admin] (write) |
 | `feedback-cycles` | `read`, `create`, `update`, `delete` | position in [manager, year_leader, admin] (read), position in [manager, admin] (write) |
-| `feedback-reports` | `read`, `manage` | academic + HR (read), position in [manager, admin] (full) |
+| `feedback-reports` | `read`, `update` | academic + HR (read), position in [manager, admin] (write) |
 | `timetable` | `read`, `create`, `update`, `delete` | dashboard (read), academic (write) |
 | `venues` | `read`, `create`, `update`, `delete` | dashboard (read), academic + registry (write) |
 | `gradebook` | `read`, `update`, `approve` | academic (varies by position) |
@@ -226,12 +226,12 @@ These are ALL the distinct permissions derived from the current codebase:
 
 | Resource | Actions | Currently gated by |
 |----------|---------|--------------------|
-| `students` | `read`, `update`, `manage` | dashboard (read), registry + student_services (write) |
-| `registration` | `read`, `create`, `update` | registry, leap, student_services, academic leaders |
+| `students` | `read`, `update`, `delete` | dashboard (read), registry + student_services (write) |
+| `registration` | `read`, `create`, `update`, `delete` | registry, leap, student_services, academic leaders |
 | `student-statuses` | `read`, `create`, `update`, `delete` | registry, admin, student_services, finance |
 | `documents` | `read`, `create` | admin, registry, student_services, managers |
 | `terms-settings` | `read`, `update` | registry only |
-| `graduation` | `read`, `manage` | finance, library, academic leaders |
+| `graduation` | `read`, `approve` | finance, library, academic leaders |
 | `certificate-reprints` | `read`, `create`, `update`, `delete` | registry |
 
 ### Admissions Resources
@@ -248,13 +248,14 @@ These are ALL the distinct permissions derived from the current codebase:
 
 | Resource | Actions | Currently gated by |
 |----------|---------|--------------------|
-| `sponsors` | `read`, `manage` | finance, admin, registry |
+| `sponsors` | `read`, `create`, `update`, `delete` | finance, admin, registry |
 
 ### Admin Resources
 
 | Resource | Actions | Currently gated by |
 |----------|---------|--------------------|
 | `users` | `read`, `create`, `update`, `delete` | dashboard (CRUD), admin (nav) |
+| `permission-presets` | `read`, `create`, `update`, `delete` | admin only (preset admin backend) |
 | `tasks` | `read`, `create`, `update`, `delete` | admin, managers |
 | `activity-tracker` | `read` | admin, managers |
 
@@ -270,8 +271,8 @@ These are ALL the distinct permissions derived from the current codebase:
 
 | Preset Name | Role | Permissions |
 |-------------|------|-------------|
-| Academic Manager | academic | ALL academic resources (full CRUD), registration:read/update, feedback:full, activity-tracker:read, tasks:full, graduation:manage, timetable:full, students:read |
-| Academic Program Leader | academic | lecturers:read/manage, feedback-questions:full, feedback-categories:full, school-structures:update, registration:read/update, timetable:read, students:read |
+| Academic Manager | academic | lecturers:full, assessments:full, feedback-questions:full, feedback-categories:full, feedback-cycles:full, feedback-reports:read/update, school-structures:read/update/delete, timetable:full, venues:full, registration:read/update, graduation:read/approve, activity-tracker:read, tasks:full, gradebook:read/update/approve, students:read |
+| Academic Program Leader | academic | lecturers:full, feedback-questions:full, feedback-categories:full, school-structures:read/update, registration:read/update, timetable:read, students:read, gradebook:read/update/approve |
 | Academic Year Leader | academic | feedback-cycles:read, registration:read, students:read, timetable:read |
 | Academic Lecturer | academic | assessments:full, gradebook:read/update, feedback-reports:read, timetable:read |
 | Academic Principal Lecturer | academic | assessments:full, gradebook:read/update/approve, feedback-reports:read, timetable:read |
@@ -281,14 +282,14 @@ These are ALL the distinct permissions derived from the current codebase:
 
 | Preset Name | Role | Permissions |
 |-------------|------|-------------|
-| Registry Staff | registry | students:full, registration:full, documents:full, student-statuses:full, terms-settings:full, certificate-reprints:full, modules:create, semester-modules:create/update, venues:create/update/delete, graduation:read |
+| Registry Staff | registry | students:read/update/delete, registration:full, documents:read/create, student-statuses:full, terms-settings:read/update, certificate-reprints:full, modules:create, semester-modules:create/update, venues:create/update/delete, graduation:read |
 | Registry Manager | registry | Everything in Registry Staff + activity-tracker:read, tasks:full, school-structures:update |
 
 ### Finance Presets
 
 | Preset Name | Role | Permissions |
 |-------------|------|-------------|
-| Finance Staff | finance | sponsors:read/manage, admissions-payments:read/update, student-statuses:read, graduation:read, students:read |
+| Finance Staff | finance | sponsors:full, admissions-payments:read/update, student-statuses:read, graduation:read, students:read |
 | Finance Manager | finance | Everything in Finance Staff + activity-tracker:read, tasks:full |
 
 ### Other Role Presets

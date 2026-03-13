@@ -107,9 +107,9 @@ constructor() {
   super(repo, {
     byIdAuth: { sponsors: ['read'] },
     findAllAuth: { sponsors: ['read'] },
-    createAuth: { sponsors: ['manage'] },
-    updateAuth: { sponsors: ['manage'] },
-    deleteAuth: { sponsors: ['manage'] },
+    createAuth: { sponsors: ['create'] },
+    updateAuth: { sponsors: ['update'] },
+    deleteAuth: { sponsors: ['delete'] },
   });
 }
 ```

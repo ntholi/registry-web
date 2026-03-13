@@ -25,6 +25,7 @@ export const RESOURCES = [
 	'entry-requirements',
 	'sponsors',
 	'users',
+	'permission-presets',
 	'tasks',
 	'activity-tracker',
 	'library',

@@ -24,6 +24,8 @@ That catalog is the single source of truth for:
 
 The SQL below is illustrative. The implementation should derive its inserts from the shared catalog instead of duplicating preset definitions in migration, UI, and tests.
 
+> **Action vocabulary rule**: Do not use a catch-all action like `manage` in the preset catalog or migration output. Expand permissions to explicit actions such as `create`, `update`, `delete`, and `approve`. If a future workflow needs something more specific, add a narrowly named action for that workflow instead of reusing `manage`.
+
 ### Seed Data
 
 The migration inserts these presets and their permissions (see `000_overview.md` for the full permission catalog per preset):
@@ -38,7 +40,9 @@ INSERT INTO permission_presets (name, role, description) VALUES
 -- Get the generated ID, then insert permissions:
 INSERT INTO preset_permissions (preset_id, resource, action) VALUES
   (<id>, 'lecturers', 'read'),
-  (<id>, 'lecturers', 'manage'),
+  (<id>, 'lecturers', 'create'),
+  (<id>, 'lecturers', 'update'),
+  (<id>, 'lecturers', 'delete'),
   (<id>, 'assessments', 'read'),
   (<id>, 'assessments', 'create'),
   (<id>, 'assessments', 'update'),
@@ -56,7 +60,7 @@ INSERT INTO preset_permissions (preset_id, resource, action) VALUES
   (<id>, 'feedback-cycles', 'update'),
   (<id>, 'feedback-cycles', 'delete'),
   (<id>, 'feedback-reports', 'read'),
-  (<id>, 'feedback-reports', 'manage'),
+  (<id>, 'feedback-reports', 'update'),
   (<id>, 'school-structures', 'read'),
   (<id>, 'school-structures', 'update'),
   (<id>, 'school-structures', 'delete'),
@@ -72,7 +76,7 @@ INSERT INTO preset_permissions (preset_id, resource, action) VALUES
   (<id>, 'registration', 'read'),
   (<id>, 'registration', 'update'),
   (<id>, 'graduation', 'read'),
-  (<id>, 'graduation', 'manage'),
+  (<id>, 'graduation', 'approve'),
   (<id>, 'activity-tracker', 'read'),
   (<id>, 'tasks', 'read'),
   (<id>, 'tasks', 'create'),
@@ -85,7 +89,7 @@ INSERT INTO preset_permissions (preset_id, resource, action) VALUES
 -- Academic Program Leader
 INSERT INTO permission_presets (name, role, description) VALUES
   ('Academic Program Leader', 'academic', 'Program-level academic management');
--- Permissions: lecturers:read/manage, feedback-questions:CRUD, feedback-categories:CRUD,
+-- Permissions: lecturers:read/create/update/delete, feedback-questions:CRUD, feedback-categories:CRUD,
 -- school-structures:read/update, registration:read/update, timetable:read, students:read,
 -- gradebook:read/update/approve
 
@@ -117,7 +121,7 @@ INSERT INTO permission_presets (name, role, description) VALUES
 -- Registry Staff
 INSERT INTO permission_presets (name, role, description) VALUES
   ('Registry Staff', 'registry', 'Standard registry operations');
--- Permissions: students:read/update/manage, registration:CRUD, documents:read/create,
+-- Permissions: students:read/update/delete, registration:CRUD, documents:read/create,
 -- student-statuses:read/create/update/delete, terms-settings:read/update,
 -- certificate-reprints:CRUD, modules:create, semester-modules:create/update,
 -- venues:create/update/delete, graduation:read
@@ -130,7 +134,7 @@ INSERT INTO permission_presets (name, role, description) VALUES
 -- Finance Staff
 INSERT INTO permission_presets (name, role, description) VALUES
   ('Finance Staff', 'finance', 'Standard finance operations');
--- Permissions: sponsors:read/manage, admissions-payments:read/update,
+-- Permissions: sponsors:read/create/update/delete, admissions-payments:read/update,
 -- student-statuses:read, graduation:read, students:read
 
 -- Finance Manager

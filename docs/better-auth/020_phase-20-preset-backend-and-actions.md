@@ -62,17 +62,17 @@ Extends `BaseRepository` for `permissionPresets` table. Additional methods:
 
 File: `src/app/auth/permission-presets/_server/service.ts`
 
-Extends `BaseService`. All operations gated by `{ users: ['manage'] }` (only admin-level users manage presets).
+Extends `BaseService`. Do not overload `users` with a vague `manage` action here. Add a dedicated `permission-presets` resource and gate this service with explicit CRUD actions so the auth contract stays precise.
 
 ```ts
 class PermissionPresetService extends BaseService<typeof permissionPresets, 'id'> {
   constructor() {
     super(new PermissionPresetRepository(), {
-      byIdAuth: { users: ['manage'] },
-      findAllAuth: { users: ['manage'] },
-      createAuth: { users: ['manage'] },
-      updateAuth: { users: ['manage'] },
-      deleteAuth: { users: ['manage'] },
+      byIdAuth: { 'permission-presets': ['read'] },
+      findAllAuth: { 'permission-presets': ['read'] },
+      createAuth: { 'permission-presets': ['create'] },
+      updateAuth: { 'permission-presets': ['update'] },
+      deleteAuth: { 'permission-presets': ['delete'] },
     });
   }
 }
@@ -143,7 +143,7 @@ if (oldPresetId !== newPresetId) {
 
 - [ ] Types defined with Zod schema in `_lib/types.ts`
 - [ ] Repository extends `BaseRepository` with custom methods for permissions
-- [ ] Service extends `BaseService` with `{ users: ['manage'] }` auth config
+- [ ] Service extends `BaseService` with explicit `permission-presets` CRUD auth config
 - [ ] Standard CRUD actions created including `findPresetsByRole`
 - [ ] Backend files live under `src/app/auth/permission-presets/_server/` and are imported by admin pages
 - [ ] Session revocation implemented for preset updates (affected users forced to re-login)
