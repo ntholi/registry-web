@@ -106,6 +106,16 @@ Use the same migration template as Plan 003.
 
 ---
 
+## Part D: Update Direct `useMutation` Callers
+
+Client components in admin/finance/auth/HR modules that use `useMutation({ mutationFn: someAction })` directly must switch to `useActionMutation`.
+
+### Discovery
+
+Search `_components/` folders in `src/app/admin/`, `src/app/finance/`, `src/app/auth/`, `src/app/human-resource/` for `useMutation({ mutationFn:` patterns.
+
+---
+
 ## Verification
 
 ```bash
@@ -117,5 +127,6 @@ pnpm tsc --noEmit
 - [ ] All 10 action files import and use `createAction`
 - [ ] All RSC pages with direct `await` calls use `unwrap()`
 - [ ] All ListLayout callers verified/updated
+- [ ] All direct `useMutation` callers switched to `useActionMutation`
 - [ ] `pnpm tsc --noEmit` passes
 - [ ] **Admin + Finance + Auth + HR modules fully migrated; all other modules still work**

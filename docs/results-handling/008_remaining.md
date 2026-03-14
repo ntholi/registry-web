@@ -132,16 +132,31 @@ Still wrap with `createAction` for consistent error handling and logging.
 
 ---
 
-## Part D: Update `apply/_lib/errors.ts`
+## Part D: Delete `apply/_lib/errors.ts` — update imports directly
 
-After all apply actions are wrapped with `createAction`, replace the local implementation with re-exports:
+After all apply actions are wrapped with `createAction`, the local `errors.ts` is no longer needed. Per project guidelines ("NEVER create redundant files whose sole purpose is to re-export"), update all apply imports to use shared paths directly and delete the file.
 
+1. **Search** all files in `src/app/apply/` that import from `../_lib/errors` or `../../_lib/errors`
+2. **Replace** each import:
 ```ts
-export { extractError, UserFacingError } from '@/shared/lib/utils/extractError';
-export type { ActionResult, AppError } from '@/shared/lib/utils/actionResult';
-```
+// BEFORE
+import { extractError, type ActionResult } from '../../_lib/errors';
 
-This ensures any remaining `apply/` imports of `extractError` or `ActionResult` continue working via the re-export.
+// AFTER
+import { type ActionResult } from '@/shared/lib/utils/actionResult';
+// (extractError is no longer needed — createAction handles it internally)
+```
+3. **Delete** `src/app/apply/_lib/errors.ts`
+
+---
+
+## Part E: Update Direct `useMutation` Callers
+
+Client components in apply/reports/student-portal/audit-logs that use `useMutation({ mutationFn: someAction })` directly must switch to `useActionMutation`.
+
+### Discovery
+
+Search `_components/` folders in `src/app/apply/`, `src/app/reports/`, `src/app/student-portal/`, `src/app/audit-logs/`, `src/app/feedback/` for `useMutation({ mutationFn:` patterns.
 
 ---
 
@@ -157,8 +172,9 @@ After this plan, **all action files across the entire codebase should be wrapped
 
 - [ ] All 17 action files import and use `createAction`
 - [ ] Apply module no longer manually wraps with `success()`/`failure()` + `try/catch`
-- [ ] `src/app/apply/_lib/errors.ts` re-exports from shared
+- [ ] `src/app/apply/_lib/errors.ts` is **deleted**; all apply imports updated to shared paths
 - [ ] All RSC pages with direct `await` calls use `unwrap()`
 - [ ] All ListLayout callers verified/updated
+- [ ] All direct `useMutation` callers switched to `useActionMutation`
 - [ ] `pnpm tsc --noEmit` passes
 - [ ] **All modules fully migrated; entire codebase uses new pattern**

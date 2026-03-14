@@ -17,17 +17,18 @@ DB → Repository (throws) → Service (throws / UserFacingError) → Action (cr
 - RSC pages use `unwrap(await action(input))` to extract data, with `error.tsx` as safety net
 - `extractError()` normalizes PostgreSQL, Moodle, network, rate limit, file, and storage errors into safe `AppError` messages
 - `UserFacingError` is the only way custom service messages reach the UI
+- `useActionMutation` hook unwraps `ActionResult<T>` for direct `useMutation` callers (~150+ components)
 
 ## Key Decisions
 
 | Decision | Choice |
 |----------|--------|
 | Action wrapper | `createAction(fn)` — variadic, type-safe, server-logged |
-| Error type | `AppError` with `message`, `code`, optional `fieldErrors` |
+| Error type | `AppError` with `message`, optional `code` |
 | RSC unwrap | `unwrap(result)` throws for `error.tsx` to catch |
 | ListLayout getData | Keeps positional `(page, search)` during migration, adds ActionResult unwrapping on return value |
 | Error boundaries | Root `error.tsx` + mandatory `global-error.tsx` |
-| QueryClient | Global `mutations.onError` fallback toast |
+| Client mutations | `useActionMutation` hook unwraps `ActionResult` for `useMutation` callers |
 | Top-level export style | `export const` for `createAction`-wrapped actions (only exception) |
 | Transition error type | `ActionResult.error` is `AppError \| string` union during migration (cleaned up in 009) |
 
@@ -37,9 +38,10 @@ DB → Repository (throws) → Service (throws / UserFacingError) → Action (cr
 
 1. **Backward compatibility in shared types**: `ActionResult.error` uses `AppError | string` union during transition. `getActionErrorMessage()` handles both formats. `failure()` accepts both.
 2. **UI components accept both old and new response formats**: `Form`, `DeleteButton`, `ListLayout` handle both raw `T` and `ActionResult<T>` return values, and both `string` and `AppError` error fields.
-3. **ListLayout keeps positional params**: `getData(page, search)` signature stays unchanged during migration. Only the return value gets ActionResult unwrapping. This avoids breaking all 44 layout callers.
-4. **Per-module vertical slices**: Plans 003–008 each migrate one module group **end-to-end** — wrapping actions, updating RSC pages, and verifying ListLayout callers together. Unmigrated modules continue working with the old pattern.
-5. **Cleanup at the end**: Plan 009 removes the `string` compat from `ActionResult.error`, and optionally switches to object params.
+3. **`useActionMutation` hook**: Unwraps `ActionResult<T>` for ~150+ client components that use `useMutation` directly. Provides `T` to `onSuccess` and throws for `onError`, preserving existing component patterns.
+4. **ListLayout keeps positional params**: `getData(page, search)` signature stays unchanged during migration. Only the return value gets ActionResult unwrapping. This avoids breaking all 44 layout callers.
+5. **Per-module vertical slices**: Plans 003–008 each migrate one module group **end-to-end** — wrapping actions, updating RSC pages, verifying ListLayout callers, and updating direct `useMutation` clients together. Unmigrated modules continue working with the old pattern.
+6. **Cleanup at the end**: Plan 009 removes the `string` compat from `ActionResult.error`, and optionally switches to object params.
 
 ## Reference Document
 
@@ -51,7 +53,7 @@ Full architecture details, code snippets, type definitions, and rationale:
 | # | File | Scope | Status |
 |---|------|-------|--------|
 | 1 | [001_shared_infrastructure.md](./001_shared_infrastructure.md) | `extractError.ts`, `actionResult.ts`, `UserFacingError` — backward-compatible | ⬜ Not started |
-| 2 | [002_ui_components.md](./002_ui_components.md) | `StatusPage`, `error.tsx`, `global-error.tsx`, `QueryClient`, `Form`, `DeleteButton`, `DetailsViewHeader`, `ListLayout` — dual-format support | ⬜ Not started |
+| 2 | [002_ui_components.md](./002_ui_components.md) | `StatusPage`, `error.tsx`, `global-error.tsx`, `useActionMutation`, `Form`, `DeleteButton`, `DetailsViewHeader`, `ListLayout` — dual-format support | ⬜ Not started |
 | 3 | [003_academic.md](./003_academic.md) | Academic module: 13 actions + ~18 RSC pages + layouts | ⬜ Not started |
 | 4 | [004_registry.md](./004_registry.md) | Registry module: 18 actions + ~24 RSC pages + layouts | ⬜ Not started |
 | 5 | [005_admissions.md](./005_admissions.md) | Admissions module: 17 actions + ~16 RSC pages + layouts | ⬜ Not started |

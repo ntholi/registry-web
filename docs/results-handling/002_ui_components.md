@@ -14,7 +14,7 @@ Every change in this plan maintains full backward compatibility:
 - `DeleteButton.tsx`: `handleDelete` type widens from `Promise<void>` to `Promise<void | ActionResult<unknown>>` — existing `() => Promise<void>` callers still match
 - `ListLayout.tsx`: **Keeps `getData(page, search)` positional params** — no caller changes needed. Adds ActionResult unwrapping on the **return value** only.
 - New files (`error.tsx`, `global-error.tsx`) don't affect existing code
-- QueryClient `mutations.onError` is purely additive
+- `useActionMutation` hook is purely additive — no existing code uses it yet
 
 ## Scope
 
@@ -23,7 +23,7 @@ Every change in this plan maintains full backward compatibility:
 | **Modify** | `src/shared/ui/StatusPage.tsx` — add `onRetry` prop |
 | **Create** | `src/app/error.tsx` — root error boundary |
 | **Create** | `src/app/global-error.tsx` — mandatory root layout error boundary |
-| **Modify** | `src/app/providers.tsx` — global `mutations.onError` |
+| **Create** | `src/shared/lib/hooks/use-action-mutation.ts` — unwraps `ActionResult` for direct `useMutation` callers |
 | **Modify** | `src/shared/ui/adease/Form.tsx` — use shared `isActionResult` + `getActionErrorMessage` |
 | **Modify** | `src/shared/ui/adease/DeleteButton.tsx` — detect `ActionResult` in onSuccess |
 | **Modify** | `src/shared/ui/adease/DetailsViewHeader.tsx` — update `handleDelete` type |
@@ -131,33 +131,62 @@ export default function GlobalError({
 
 ---
 
-## Task 4: Configure `QueryClient` global mutation error handler
+## Task 4: Create `useActionMutation` hook
 
-**File**: `src/app/providers.tsx`
+**File**: `src/shared/lib/hooks/use-action-mutation.ts`
 
-Add `defaultOptions.mutations.onError` to the `QueryClient`:
+This hook unwraps `ActionResult<T>` so that ~150+ client components using `useMutation` directly continue to work after actions are wrapped with `createAction`. It converts `ActionResult` failures into thrown errors, preserving TanStack Query's native `onError` / `onSuccess` contract.
 
 ```ts
-import { notifications } from '@mantine/notifications';
+'use client';
 
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      staleTime: 5 * 60 * 1000,
-      refetchOnWindowFocus: false,
+import {
+  isActionResult,
+  getActionErrorMessage,
+  type ActionResult,
+} from '@/shared/lib/utils/actionResult';
+import { useMutation, type UseMutationOptions } from '@tanstack/react-query';
+
+export function useActionMutation<TData, TVariables = void>(
+  action: (variables: TVariables) => Promise<ActionResult<TData>>,
+  options?: Omit<UseMutationOptions<TData, Error, TVariables>, 'mutationFn'>
+) {
+  return useMutation<TData, Error, TVariables>({
+    mutationFn: async (variables) => {
+      const result = await action(variables);
+      if (!result.success) {
+        throw new Error(getActionErrorMessage(result.error));
+      }
+      return result.data;
     },
-    mutations: {
-      onError: (error) => {
-        notifications.show({
-          title: 'Error',
-          message: error.message || 'An unexpected error occurred',
-          color: 'red',
-        });
-      },
-    },
-  },
+    ...options,
+  });
+}
+```
+
+**How it works**:
+- Wraps the action call and inspects the `ActionResult`
+- On success: returns `result.data` as `T` — `onSuccess(data)` receives unwrapped `T`
+- On failure: throws `Error` with the extracted message — `onError(error)` fires naturally
+- Existing component patterns (`onSuccess`, `onError`, notifications) continue working unchanged
+
+**Migration pattern for client components** (applied in Plans 003–008):
+```ts
+// BEFORE
+const mutation = useMutation({
+  mutationFn: updateThing,
+  onSuccess: (data) => { /* data was T, now broken — it's ActionResult<T> */ },
+  onError: (error) => { /* never fires after createAction wrapping */ },
+});
+
+// AFTER
+const mutation = useActionMutation(updateThing, {
+  onSuccess: (data) => { /* data is T (unwrapped) ✓ */ },
+  onError: (error) => { /* fires on ActionResult failure ✓ */ },
 });
 ```
+
+**Backward compat during migration**: `useActionMutation` is only used when the corresponding action has been wrapped with `createAction`. TypeScript enforces this — passing a non-wrapped action (returning `T` instead of `ActionResult<T>`) produces a type error.
 
 ---
 
@@ -351,7 +380,7 @@ pnpm tsc --noEmit
 - [ ] `StatusPage` has `onRetry` prop
 - [ ] `src/app/error.tsx` exists with generic message + retry
 - [ ] `src/app/global-error.tsx` exists with standalone Mantine provider
-- [ ] `QueryClient` has global `mutations.onError` handler
+- [ ] `src/shared/lib/hooks/use-action-mutation.ts` exports `useActionMutation` hook
 - [ ] `Form.tsx` uses shared `isActionResult` + `getActionErrorMessage`
 - [ ] `DeleteButton.tsx` detects `ActionResult` in `onSuccess`
 - [ ] `DetailsViewHeader.tsx` has updated `handleDelete` type

@@ -41,7 +41,7 @@ pnpm tsc --noEmit & pnpm lint:fix
 
 - [ ] `src/shared/lib/utils/extractError.ts` exists and exports `extractError`, `UserFacingError`
 - [ ] `src/shared/lib/utils/actionResult.ts` exports `AppError`, `ActionResult`, `success`, `failure`, `createAction`, `unwrap`, `isActionResult`, `getActionErrorMessage`
-- [ ] `src/app/apply/_lib/errors.ts` re-exports from shared
+- [ ] `src/app/apply/_lib/errors.ts` is deleted; all apply imports use shared paths
 
 ### Error Boundaries
 
@@ -56,11 +56,12 @@ pnpm tsc --noEmit & pnpm lint:fix
 - [ ] `DeleteButton.tsx` detects `ActionResult` in `onSuccess`
 - [ ] `DetailsViewHeader.tsx` has updated `handleDelete` type
 - [ ] `ListLayout.tsx` unwraps `ActionResult`, shows error state + retry
+- [ ] `useActionMutation` hook exists at `src/shared/lib/hooks/use-action-mutation.ts`
 - [ ] If Plan 009 Task 2 was done: `ListLayout.tsx` uses object params `{ page, search }`
 
 ### QueryClient
 
-- [ ] `src/app/providers.tsx` has `defaultOptions.mutations.onError` with notification toast
+- [ ] No global `mutations.onError` needed (removed from plan — `useActionMutation` handles errors)
 
 ### Action Files (spot check)
 
@@ -81,6 +82,13 @@ Pick 5 random `[id]/page.tsx` files and verify:
 Pick 5 random `layout.tsx` files and verify:
 - [ ] `getData` prop passes compatible function
 - [ ] If Plan 009 Task 2 was done: arrow wrappers use `({ page, search })` not `(page, search)`
+
+### Direct useMutation Callers (spot check)
+
+Pick 5 random client components that previously used `useMutation({ mutationFn: someAction })` and verify:
+- [ ] Now uses `useActionMutation(someAction, { ... })`
+- [ ] `onSuccess(data)` receives unwrapped `T`, not `ActionResult<T>`
+- [ ] `onError(error)` fires on failures
 
 ---
 
@@ -103,8 +111,9 @@ Pick 5 random `layout.tsx` files and verify:
 ## Cleanup
 
 - [ ] Remove any remaining local `isActionResult` implementations (search codebase)
-- [ ] Remove any unused `success()` / `failure()` imports from old manual pattern
+- [ ] Verify `src/app/apply/_lib/errors.ts` is deleted
 - [ ] Verify no action file imports `extractError` directly (only `createAction` uses it)
+- [ ] Verify no remaining `useMutation({ mutationFn: wrappedAction })` patterns (all should use `useActionMutation`)
 
 ## Done When
 

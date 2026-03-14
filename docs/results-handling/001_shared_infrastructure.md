@@ -78,7 +78,6 @@ Current contents are minimal (just `ActionResult<T>`, `success`, `failure` with 
 export interface AppError {
   message: string;
   code?: string;
-  fieldErrors?: Record<string, string[]>;
 }
 
 export type ActionResult<T> =

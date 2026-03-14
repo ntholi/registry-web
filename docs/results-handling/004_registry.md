@@ -110,6 +110,23 @@ These wrap `getData` with arrow functions using positional params. Since the und
 
 ---
 
+## Part D: Update Direct `useMutation` Callers
+
+Client components in the registry module that use `useMutation({ mutationFn: someAction })` directly must switch to `useActionMutation`.
+
+### Discovery
+
+Search all `_components/` folders in `src/app/registry/` for `useMutation({ mutationFn:` patterns. Replace with `useActionMutation`.
+
+Known candidates:
+- `src/app/registry/students/_components/sponsors/` (EditSponsorModal, etc.)
+- `src/app/registry/student-notes/_components/` (NoteModal)
+- `src/app/registry/certificate-reprints/_components/` (StatusSwitch)
+- `src/app/registry/registration/` components
+- `src/app/registry/graduation/` components
+
+---
+
 ## Verification
 
 ```bash
@@ -123,5 +140,6 @@ pnpm tsc --noEmit
 - [ ] All 18 action files import and use `createAction`
 - [ ] All RSC pages with direct `await` calls use `unwrap()`
 - [ ] All ListLayout callers verified/updated
+- [ ] All direct `useMutation` callers switched to `useActionMutation`
 - [ ] `pnpm tsc --noEmit` passes
 - [ ] **Registry module fully migrated; all other modules still work**

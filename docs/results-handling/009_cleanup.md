@@ -142,8 +142,9 @@ getData={({ page, search }) => findAllThings({ page, search, extra })}
 ## Task 3: Remove unused compat code
 
 - Search for any remaining local `isActionResult` implementations — remove, use shared import
-- Search for any remaining `success()` / `failure()` imports from `apply/_lib/errors.ts` — should now use `createAction`
+- Verify `src/app/apply/_lib/errors.ts` is already deleted (Plan 008)
 - Verify no action file imports `extractError` directly (only `createAction` uses it)
+- Verify all direct `useMutation` callers have been converted to `useActionMutation`
 
 ---
 

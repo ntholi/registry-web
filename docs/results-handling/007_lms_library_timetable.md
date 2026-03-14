@@ -113,6 +113,29 @@ Use the same migration template as Plan 003.
 
 ---
 
+## Part D: Update Direct `useMutation` Callers
+
+The LMS module has the highest concentration of direct `useMutation` callers (~40 components). Client components that use `useMutation({ mutationFn: someAction })` directly must switch to `useActionMutation`.
+
+### Discovery
+
+Search all `_components/` folders in `src/app/lms/`, `src/app/library/`, `src/app/timetable/` for `useMutation({ mutationFn:` patterns.
+
+Known LMS candidates:
+- `src/app/lms/quizzes/_components/form/`
+- `src/app/lms/assignments/_components/form/`
+- `src/app/lms/material/_components/`
+- `src/app/lms/posts/_components/`
+- `src/app/lms/virtual-classroom/_components/`
+- `src/app/lms/courses/_components/`
+- `src/app/lms/gradebook/_components/`
+
+Known Timetable candidates:
+- `src/app/timetable/timetable-allocations/_components/` (AddAllocationModal, EditAllocationModal)
+- `src/app/timetable/_shared/components/` (AddSlotAllocationModal)
+
+---
+
 ## Verification
 
 ```bash
@@ -124,5 +147,6 @@ pnpm tsc --noEmit
 - [ ] All 26 action files import and use `createAction`
 - [ ] All RSC pages with direct `await` calls use `unwrap()`
 - [ ] All ListLayout callers verified
+- [ ] All direct `useMutation` callers switched to `useActionMutation`
 - [ ] `pnpm tsc --noEmit` passes
 - [ ] **LMS + Library + Timetable modules fully migrated; all other modules still work**

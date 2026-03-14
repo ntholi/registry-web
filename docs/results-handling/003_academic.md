@@ -155,6 +155,47 @@ These layouts pass `getData={findAllAction}` directly. Since `findAllAction` now
 
 ---
 
+## Part D: Update Direct `useMutation` Callers
+
+Client components in the academic module that use `useMutation({ mutationFn: someAction })` directly (not through `Form` or `DeleteButton`) must switch to `useActionMutation` to handle the new `ActionResult<T>` return type.
+
+### Migration Template
+
+```ts
+// BEFORE
+import { useMutation } from '@tanstack/react-query';
+import { updateThing } from '../_server/actions';
+
+const mutation = useMutation({
+  mutationFn: updateThing,
+  onSuccess: (data) => { /* data was T */ },
+  onError: (error) => { /* fired on throws */ },
+});
+
+// AFTER
+import { useActionMutation } from '@/shared/lib/hooks/use-action-mutation';
+import { updateThing } from '../_server/actions';
+
+const mutation = useActionMutation(updateThing, {
+  onSuccess: (data) => { /* data is T (unwrapped) */ },
+  onError: (error) => { /* fires on ActionResult failure */ },
+});
+```
+
+### Discovery
+
+Search all `_components/` folders in `src/app/academic/` for:
+- `useMutation({ mutationFn:` patterns where the `mutationFn` references a wrapped action
+- Replace with `useActionMutation` import and call
+
+Known candidates (verify at implementation time):
+- `src/app/academic/feedback/questions/_components/` (EditQuestionModal, QuestionsList)
+- `src/app/academic/gradebook/_components/` (MarksInput)
+- `src/app/academic/assessments/_components/`
+- `src/app/academic/attendance/_components/`
+
+---
+
 ## Verification
 
 ```bash
@@ -168,5 +209,6 @@ pnpm tsc --noEmit
 - [ ] All 13 action files import and use `createAction`
 - [ ] All RSC pages with direct `await` calls use `unwrap()`
 - [ ] All ListLayout callers verified working
+- [ ] All direct `useMutation` callers switched to `useActionMutation`
 - [ ] `pnpm tsc --noEmit` passes
 - [ ] **Academic module fully migrated; all other modules still work**

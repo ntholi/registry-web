@@ -87,6 +87,21 @@ Use the same migration template as Plan 003.
 
 ---
 
+## Part D: Update Direct `useMutation` Callers
+
+Client components in the admissions module that use `useMutation({ mutationFn: someAction })` directly must switch to `useActionMutation`.
+
+### Discovery
+
+Search all `_components/` folders in `src/app/admissions/` for `useMutation({ mutationFn:` patterns.
+
+Known candidates:
+- `src/app/admissions/applicants/[id]/_components/` (CreateApplicationModal, AcademicRecordsTab)
+- `src/app/admissions/payments/_components/` (VerifyDepositModal)
+- `src/app/admissions/entry-requirements/_components/` (EditRequirementsList)
+
+---
+
 ## Verification
 
 ```bash
@@ -98,5 +113,6 @@ pnpm tsc --noEmit
 - [ ] All 17 action files import and use `createAction`
 - [ ] All RSC pages with direct `await` calls use `unwrap()`
 - [ ] All ListLayout callers verified/updated
+- [ ] All direct `useMutation` callers switched to `useActionMutation`
 - [ ] `pnpm tsc --noEmit` passes
 - [ ] **Admissions module fully migrated; all other modules still work**
