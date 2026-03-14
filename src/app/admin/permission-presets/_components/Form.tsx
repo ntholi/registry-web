@@ -7,10 +7,10 @@ import {
 } from '@auth/permission-presets/_lib/types';
 import { Select, Textarea, TextInput } from '@mantine/core';
 import { useRouter } from 'nextjs-toploader/app';
+import PermissionMatrix from '@/app/auth/_components/PermissionMatrix';
 import { DASHBOARD_ROLES } from '@/core/auth/permissions';
 import { toTitleCase } from '@/shared/lib/utils/utils';
 import { Form } from '@/shared/ui/adease';
-import PermissionMatrix from '@/shared/ui/PermissionMatrix';
 
 type Props = {
 	onSubmit: (values: PresetFormValues) => Promise<PermissionPresetDetail>;

@@ -4,6 +4,7 @@ import {
 } from '@auth/permission-presets/_server/actions';
 import { Badge } from '@mantine/core';
 import { notFound } from 'next/navigation';
+import PermissionMatrix from '@/app/auth/_components/PermissionMatrix';
 import { getRoleColor } from '@/shared/lib/utils/colors';
 import { toTitleCase } from '@/shared/lib/utils/utils';
 import {
@@ -12,7 +13,6 @@ import {
 	DetailsViewHeader,
 	FieldView,
 } from '@/shared/ui/adease';
-import PermissionMatrix from '@/shared/ui/PermissionMatrix';
 
 type Props = {
 	params: Promise<{ id: string }>;

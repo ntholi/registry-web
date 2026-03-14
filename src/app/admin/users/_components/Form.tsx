@@ -26,6 +26,7 @@ import Link from 'next/link';
 import { useRouter } from 'nextjs-toploader/app';
 import { useState } from 'react';
 import { z } from 'zod';
+import PermissionMatrix from '@/app/auth/_components/PermissionMatrix';
 import {
 	DASHBOARD_ROLES,
 	type DashboardRole,
@@ -34,7 +35,6 @@ import {
 } from '@/core/auth/permissions';
 import { toTitleCase } from '@/shared/lib/utils/utils';
 import { Form } from '@/shared/ui/adease';
-import PermissionMatrix from '@/shared/ui/PermissionMatrix';
 
 type User = typeof users.$inferInsert;
 
