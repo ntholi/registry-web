@@ -38,7 +38,19 @@ export class UserFacingError extends Error {
 }
 ```
 
-2. **`extractError(error: unknown): AppError`** — single normalization point for all error types:
+2. **`isNextNavigationError(error: unknown): boolean`** — detects Next.js sentinel errors (`redirect`, `notFound`, `unauthorized`, `forbidden`) so `createAction` can re-throw them:
+```ts
+export function isNextNavigationError(error: unknown): boolean {
+  return (
+    error instanceof Error &&
+    'digest' in error &&
+    typeof (error as Error & { digest: string }).digest === 'string' &&
+    (error as Error & { digest: string }).digest.startsWith('NEXT_')
+  );
+}
+```
+
+3. **`extractError(error: unknown): AppError`** — single normalization point for all error types:
 
 | Error Source | Detection | Mapped `code` | User Message |
 |---|---|---|---|
@@ -112,6 +124,7 @@ This is what UI components use to safely read error messages regardless of wheth
 
 ```ts
 import { createServiceLogger } from '@/core/platform/logger';
+import { isNextNavigationError } from './extractError';
 import { extractError } from './extractError';
 
 const actionLogger = createServiceLogger('ServerAction');
@@ -123,6 +136,7 @@ export function createAction<TArgs extends unknown[], TOutput>(
     try {
       return success(await fn(...args));
     } catch (error) {
+      if (isNextNavigationError(error)) throw error;
       actionLogger.error('Action failed', {
         error: error instanceof Error ? error.message : String(error),
         stack: error instanceof Error ? error.stack : undefined,
@@ -132,6 +146,8 @@ export function createAction<TArgs extends unknown[], TOutput>(
   };
 }
 ```
+
+**CRITICAL — Next.js sentinel re-throw**: `unauthorized()`, `forbidden()`, `redirect()`, and `notFound()` from `next/navigation` throw special sentinel errors. `createAction` MUST re-throw these so Next.js handles them (401/403 pages, redirects, 404). Without this, `withPermission`'s `unauthorized()` / `forbidden()` calls would be swallowed and turned into generic failures.
 
 **Note**: `createAction` preserves the original function's parameter signature. An action `findAll(page: number, search: string)` wrapped with `createAction` still takes `(page, search)` — only the return type changes from `T` to `ActionResult<T>`.
 
@@ -167,7 +183,8 @@ If minor type warnings appear in Form.tsx due to the union, they are fixed in Pl
 
 ## Done When
 
-- [ ] `src/shared/lib/utils/extractError.ts` exists with `UserFacingError`, `extractError`, all error mappings
-- [ ] `src/shared/lib/utils/actionResult.ts` has `AppError`, `ActionResult<T>` (with `error: AppError | string`), `createAction`, `unwrap`, `isActionResult`, `getActionErrorMessage`
+- [ ] `src/shared/lib/utils/extractError.ts` exists with `UserFacingError`, `isNextNavigationError`, `extractError`, all error mappings
+- [ ] `src/shared/lib/utils/actionResult.ts` has `AppError`, `ActionResult<T>` (with `error: AppError | string`), `createAction` (with sentinel re-throw), `unwrap`, `isActionResult`, `getActionErrorMessage`
+- [ ] `createAction` re-throws Next.js sentinels (`redirect`, `notFound`, `unauthorized`, `forbidden`) — verified by checking `isNextNavigationError`
 - [ ] `src/app/apply/_lib/errors.ts` is **untouched** (migrated in Plan 008)
 - [ ] `pnpm tsc --noEmit` passes (or has only minor warnings fixed in Plan 002)

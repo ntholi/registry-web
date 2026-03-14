@@ -17,12 +17,8 @@ The `apply/` module **already uses `ActionResult<T>`** manually with `success()`
 
 1. **Replace** manual `try/catch` + `success()` / `failure()` with `createAction`
 2. Convert domain-specific catches to `throw new UserFacingError('message')` and let `createAction` handle it
-3. **After all apply actions are migrated**, update `src/app/apply/_lib/errors.ts` to re-export from shared:
-
-```ts
-export { extractError, UserFacingError } from '@/shared/lib/utils/extractError';
-export type { ActionResult, AppError } from '@/shared/lib/utils/actionResult';
-```
+3. **Update all apply imports** to use shared paths directly (e.g., `import { createAction } from '@/shared/lib/utils/actionResult'`) — `extractError` is no longer needed since `createAction` handles it internally
+4. **Delete** `src/app/apply/_lib/errors.ts` (Part D below)
 
 **Before** (current apply pattern):
 ```ts

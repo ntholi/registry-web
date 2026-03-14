@@ -25,6 +25,7 @@ DB → Repository (throws) → Service (throws / UserFacingError) → Action (cr
 |----------|--------|
 | Action wrapper | `createAction(fn)` — variadic, type-safe, server-logged |
 | Error type | `AppError` with `message`, optional `code` |
+| Next.js sentinels | `createAction` re-throws `redirect`, `notFound`, `unauthorized`, `forbidden` via `isNextNavigationError` — never swallows them |
 | RSC unwrap | `unwrap(result)` throws `UserFacingError` for `error.tsx` to catch |
 | Cross-action calls | Callers use `unwrap()` — `UserFacingError` preserves messages through `extractError` chains |
 | ListLayout getData | Keeps positional `(page, search)` during migration, adds ActionResult unwrapping on return value |
