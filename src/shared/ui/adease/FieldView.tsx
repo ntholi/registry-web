@@ -1,3 +1,5 @@
+'use client';
+
 import { Box, type BoxProps, Divider, Text } from '@mantine/core';
 import React from 'react';
 

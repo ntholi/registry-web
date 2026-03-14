@@ -1,6 +1,5 @@
 import { deleteUser, getUser, getUserSchools, SchoolsList } from '@admin/users';
 import {
-	Anchor,
 	Avatar,
 	Badge,
 	Card,
@@ -10,7 +9,6 @@ import {
 	Stack,
 	Text,
 } from '@mantine/core';
-import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getRoleColor } from '@/shared/lib/utils/colors';
 import { largeProfilePic, toTitleCase } from '@/shared/lib/utils/utils';
@@ -20,6 +18,7 @@ import {
 	DetailsViewHeader,
 	FieldView,
 } from '@/shared/ui/adease';
+import Link from '@/shared/ui/Link';
 
 type Props = {
 	params: Promise<{ id: string }>;
@@ -69,12 +68,9 @@ export default async function UserDetails({ params }: Props) {
 							</FieldView>
 							<FieldView label='Preset'>
 								{users.preset ? (
-									<Anchor
-										component={Link}
-										href={`/admin/permission-presets/${users.preset.id}`}
-									>
+									<Link href={`/admin/permission-presets/${users.preset.id}`}>
 										{users.preset.name}
-									</Anchor>
+									</Link>
 								) : (
 									<Text c='dimmed' size='sm'>
 										No preset (role-only access)
