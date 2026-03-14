@@ -102,6 +102,27 @@ Known candidates:
 
 ---
 
+## Part E: Update Cross-Action Calls
+
+The admissions module has significant internal cross-action calls. Wrap each with `unwrap()`. See Plan 003 for template.
+
+### Cross-Action Calls in Admissions Module
+
+| # | File | Cross-action call | Import source |
+|---|------|------------------|---------------|
+| 1 | `applicants/_server/actions.ts` | `getStudentByUserId()` | `@registry/students` |
+| 2 | `applications/_server/actions.ts` | `getOrCreateApplicantForCurrentUser()` | `@admissions/applicants` |
+| 3 | `applications/_server/actions.ts` | `saveApplicantDocument()` | `@admissions/applicants/[id]/documents/_server/actions` |
+| 4 | `applications/_server/actions.ts` | `createAcademicRecordFromDocument()` | `@admissions/applicants/[id]/documents/_server/actions` |
+| 5 | `applicants/[id]/documents/_server/actions.ts` | `getApplicant()` ×2 | `@admissions/applicants` |
+| 6 | `applicants/[id]/documents/_server/actions.ts` | `updateApplicant()` | `@admissions/applicants` |
+| 7 | `applicants/[id]/documents/_server/actions.ts` | `findAllCertificateTypes()` | `@admissions/certificate-types` |
+| 8 | `applicants/[id]/documents/_server/actions.ts` | `findOrCreateSubjectByName()` | `@admissions/subjects` |
+| 9 | `applicants/[id]/documents/_server/actions.ts` | `findAcademicRecordBy*()`, `update/createAcademicRecord()` | academic-records actions |
+| 10 | `applicants/[id]/academic-records/_server/actions.ts` | `recalculateScoresForApplicant()` | `@admissions/applications/_server/actions` |
+
+---
+
 ## Verification
 
 ```bash
@@ -114,5 +135,6 @@ pnpm tsc --noEmit
 - [ ] All RSC pages with direct `await` calls use `unwrap()`
 - [ ] All ListLayout callers verified/updated
 - [ ] All direct `useMutation` callers switched to `useActionMutation`
+- [ ] All cross-action calls wrapped with `unwrap()`
 - [ ] `pnpm tsc --noEmit` passes
 - [ ] **Admissions module fully migrated; all other modules still work**

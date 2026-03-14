@@ -90,6 +90,13 @@ Pick 5 random client components that previously used `useMutation({ mutationFn: 
 - [ ] `onSuccess(data)` receives unwrapped `T`, not `ActionResult<T>`
 - [ ] `onError(error)` fires on failures
 
+### Cross-Action Calls (spot check)
+
+Pick 5 random action files that call other modules' actions and verify:
+- [ ] Cross-action `await` calls wrapped: `unwrap(await otherModuleAction(...))`
+- [ ] `unwrap` import present from `@/shared/lib/utils/actionResult`
+- [ ] Error propagation works: inner failure → `UserFacingError` thrown → outer `createAction` catches → message preserved
+
 ---
 
 ## Smoke Test (Manual in Browser)
@@ -114,6 +121,8 @@ Pick 5 random client components that previously used `useMutation({ mutationFn: 
 - [ ] Verify `src/app/apply/_lib/errors.ts` is deleted
 - [ ] Verify no action file imports `extractError` directly (only `createAction` uses it)
 - [ ] Verify no remaining `useMutation({ mutationFn: wrappedAction })` patterns (all should use `useActionMutation`)
+- [ ] Verify no cross-action calls without `unwrap()` (search for action imports in `_server/actions.ts` files)
+- [ ] Verify `unwrap` throws `UserFacingError` (not plain `Error`)
 
 ## Done When
 

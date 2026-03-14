@@ -160,6 +160,46 @@ Search `_components/` folders in `src/app/apply/`, `src/app/reports/`, `src/app/
 
 ---
 
+## Part F: Update Cross-Action Calls
+
+The `apply/` wizard has the most cross-action calls in the codebase (~30+). Wrap each with `unwrap()`. See Plan 003 for template.
+
+### Cross-Action Calls in Apply Wizard
+
+| # | File | Cross-action call | Import source |
+|---|------|------------------|---------------|
+| 1 | `review/_server/actions.ts` | `getApplicant()` | `@admissions/applicants` |
+| 2 | `review/_server/actions.ts` | `findApplicationsByApplicant()` | `@admissions/applications` |
+| 3 | `review/_server/actions.ts` | `changeApplicationStatus()` | `@admissions/applications` |
+| 4 | `program/_server/actions.ts` | `getEligibleProgramsForApplicant()` | `@admissions/applicants` |
+| 5 | `program/_server/actions.ts` | `findApplicationsByApplicant()` | `@admissions/applications` |
+| 6 | `program/_server/actions.ts` | `findActiveIntakePeriod()` | `@admissions/intake-periods/_server/actions` |
+| 7 | `program/_server/actions.ts` | `getOpenProgramIds()` | `@admissions/intake-periods/_server/actions` |
+| 8 | `qualifications/_server/actions.ts` | `getOrCreateApplicantForCurrentUser()` | `@admissions/applicants` |
+| 9 | `qualifications/_server/actions.ts` | `findCertificateTypeByName()` | `@admissions/applicants/_server/document-actions` |
+| 10 | `qualifications/_server/actions.ts` | `getApplication()` | `@admissions/applications` |
+| 11 | `qualifications/_server/actions.ts` | `getStudentByUserId()` | `@registry/students` |
+| 12 | `qualifications/_server/actions.ts` | `createAcademicRecord()` | `@admissions/applicants/[id]/academic-records/_server/actions` |
+| 13 | `qualifications/_server/actions.ts` | `createAcademicRecordFromDocument()` | `@admissions/applicants/[id]/documents/_server/actions` |
+| 14 | `qualifications/_server/actions.ts` | `deleteAcademicRecord()` | `@admissions/applicants/[id]/academic-records/_server/actions` |
+| 15 | `identity/_server/actions.ts` | `getApplicant()` | `@admissions/applicants` |
+| 16 | `identity/_server/actions.ts` | `findDocumentsByType()` | `@admissions/applicants/[id]/documents/_server/actions` |
+| 17 | `identity/_server/actions.ts` | `saveApplicantDocument()` | `@admissions/applicants/[id]/documents/_server/actions` |
+| 18 | `identity/_server/actions.ts` | `updateApplicantFromIdentity()` | `@admissions/applicants/_server/actions` |
+| 19 | `identity/_server/actions.ts` | `deleteApplicantDocument()` | `@admissions/applicants/[id]/documents/_server/actions` |
+| 20 | `personal-info/_server/actions.ts` | `updateApplicant()` | `@admissions/applicants` |
+| 21 | `payment/_server/actions.ts` | `getApplicant()` | `@admissions/applicants` |
+| 22 | `payment/_server/actions.ts` | `getApplicationForPayment()` | `@admissions/applications` |
+
+### Cross-Action Calls in Reports
+
+| # | File | Cross-action call | Import source |
+|---|------|------------------|---------------|
+| 23 | `reports/registry/student-enrollments/enrollments/_server/actions.ts` | `getAllSponsors()` | `@finance/sponsors/_server/actions` |
+| 24 | `reports/registry/graduations/student-graduations/_server/actions.ts` | `getAllSponsors()` | `@finance/sponsors/_server/actions` |
+
+---
+
 ## Verification
 
 ```bash
@@ -176,5 +216,6 @@ After this plan, **all action files across the entire codebase should be wrapped
 - [ ] All RSC pages with direct `await` calls use `unwrap()`
 - [ ] All ListLayout callers verified/updated
 - [ ] All direct `useMutation` callers switched to `useActionMutation`
+- [ ] All cross-action calls wrapped with `unwrap()` (~24 call sites)
 - [ ] `pnpm tsc --noEmit` passes
 - [ ] **All modules fully migrated; entire codebase uses new pattern**

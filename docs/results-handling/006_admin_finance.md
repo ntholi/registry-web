@@ -116,6 +116,18 @@ Search `_components/` folders in `src/app/admin/`, `src/app/finance/`, `src/app/
 
 ---
 
+## Part E: Update Cross-Action Calls
+
+Minimal cross-action calls in this group. Wrap with `unwrap()` where found. See Plan 003 for template.
+
+### Cross-Action Calls
+
+| # | File | Cross-action call | Import source |
+|---|------|------------------|---------------|
+| 1 | Verify at implementation time — admin/finance modules may call registry/academic actions |
+
+---
+
 ## Verification
 
 ```bash
@@ -128,5 +140,6 @@ pnpm tsc --noEmit
 - [ ] All RSC pages with direct `await` calls use `unwrap()`
 - [ ] All ListLayout callers verified/updated
 - [ ] All direct `useMutation` callers switched to `useActionMutation`
+- [ ] All cross-action calls wrapped with `unwrap()`
 - [ ] `pnpm tsc --noEmit` passes
 - [ ] **Admin + Finance + Auth + HR modules fully migrated; all other modules still work**

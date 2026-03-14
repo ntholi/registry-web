@@ -25,12 +25,38 @@ DB → Repository (throws) → Service (throws / UserFacingError) → Action (cr
 |----------|--------|
 | Action wrapper | `createAction(fn)` — variadic, type-safe, server-logged |
 | Error type | `AppError` with `message`, optional `code` |
-| RSC unwrap | `unwrap(result)` throws for `error.tsx` to catch |
+| RSC unwrap | `unwrap(result)` throws `UserFacingError` for `error.tsx` to catch |
+| Cross-action calls | Callers use `unwrap()` — `UserFacingError` preserves messages through `extractError` chains |
 | ListLayout getData | Keeps positional `(page, search)` during migration, adds ActionResult unwrapping on return value |
 | Error boundaries | Root `error.tsx` + mandatory `global-error.tsx` |
 | Client mutations | `useActionMutation` hook unwraps `ActionResult` for `useMutation` callers |
 | Top-level export style | `export const` for `createAction`-wrapped actions (only exception) |
 | Transition error type | `ActionResult.error` is `AppError \| string` union during migration (cleaned up in 009) |
+
+## Cross-Action Calls (CRITICAL)
+
+40+ action files call other modules' actions (e.g., `getActiveTerm()`, `createAssessment()`, `getApplicant()`). Once those are wrapped with `createAction`, they return `ActionResult<T>` instead of `T`.
+
+**Strategy**: Callers use `unwrap()` to extract the data:
+
+```ts
+// BEFORE
+const term = await getActiveTerm();
+
+// AFTER
+const term = unwrap(await getActiveTerm());
+```
+
+**Why this works safely**: `unwrap` throws `UserFacingError` (not plain `Error`), so when an inner action fails, the message propagates correctly through the outer `createAction`'s `extractError` chain. The error gets logged at each layer, and the user-facing message is preserved.
+
+**Key cross-action hotspots** (handled in their respective module plans):
+- `getActiveTerm()` — called from 5+ action files across academic/LMS
+- `apply/` wizard — 30+ calls into admissions actions
+- LMS → academic (`createAssessment`, `linkCourseToAssignment`)
+- Reports → finance (`getAllSponsors`)
+- Admissions documents → applicants, academic-records, subjects
+
+Each module plan (003–008) includes a **Part E** listing the cross-action calls within that module.
 
 ## Non-Breaking Incremental Strategy
 

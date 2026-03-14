@@ -196,6 +196,36 @@ Known candidates (verify at implementation time):
 
 ---
 
+## Part E: Update Cross-Action Calls
+
+When an action in this module calls a wrapped action from another module (or within this module), it must use `unwrap()` to extract the data. `unwrap` throws `UserFacingError`, so the outer `createAction` preserves the error message through `extractError`.
+
+### Migration Template
+
+```ts
+// BEFORE (inside createAction handler)
+const term = await getActiveTerm();
+
+// AFTER
+const term = unwrap(await getActiveTerm());
+```
+
+### Cross-Action Calls in Academic Module
+
+| # | File | Cross-action call | Import source |
+|---|------|------------------|---------------|
+| 1 | `assessments/_server/actions.ts` | `getActiveTerm()` ×2 | `@/app/registry/terms` |
+| 2 | `assigned-modules/_server/actions.ts` | `getActiveTerm()` ×3 | `@/app/registry/terms` |
+| 3 | `assessment-marks/_server/actions.ts` | `getActiveTerm()` | `@/app/registry/terms` |
+| 4 | `assessment-marks/_server/actions.ts` | `updateGradeByStudentModuleId()` | `@academic/semester-modules` |
+| 5 | `feedback/cycles/_server/actions.ts` | `getAllTerms()` | `@registry/terms/_server/actions` |
+| 6 | `feedback/cycles/_server/actions.ts` | `getAllSchools()` | `@academic/schools/_server/actions` |
+| 7 | `feedback/cycles/_server/actions.ts` | `getUserSchools(userId)` | `@admin/users/_server/actions` |
+
+**Note**: Add `import { unwrap } from '@/shared/lib/utils/actionResult'` to each file and wrap each cross-action `await` call with `unwrap()`.
+
+---
+
 ## Verification
 
 ```bash
@@ -210,5 +240,6 @@ pnpm tsc --noEmit
 - [ ] All RSC pages with direct `await` calls use `unwrap()`
 - [ ] All ListLayout callers verified working
 - [ ] All direct `useMutation` callers switched to `useActionMutation`
+- [ ] All cross-action calls wrapped with `unwrap()`
 - [ ] `pnpm tsc --noEmit` passes
 - [ ] **Academic module fully migrated; all other modules still work**

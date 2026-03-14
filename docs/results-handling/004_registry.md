@@ -127,6 +127,19 @@ Known candidates:
 
 ---
 
+## Part E: Update Cross-Action Calls
+
+When an action in this module calls a wrapped action from another module, wrap with `unwrap()`. See Plan 003 for template.
+
+### Cross-Action Calls in Registry Module
+
+| # | File | Cross-action call | Import source |
+|---|------|------------------|---------------|
+| 1 | `students/_server/actions.ts` | `getUnpublishedTermCodes()` | `@/app/registry/terms/settings/_server/actions` |
+| 2 | `terms/settings/_server/actions.ts` | `createNotification()` | `@admin/notifications/_server/actions` |
+
+---
+
 ## Verification
 
 ```bash
@@ -141,5 +154,6 @@ pnpm tsc --noEmit
 - [ ] All RSC pages with direct `await` calls use `unwrap()`
 - [ ] All ListLayout callers verified/updated
 - [ ] All direct `useMutation` callers switched to `useActionMutation`
+- [ ] All cross-action calls wrapped with `unwrap()`
 - [ ] `pnpm tsc --noEmit` passes
 - [ ] **Registry module fully migrated; all other modules still work**

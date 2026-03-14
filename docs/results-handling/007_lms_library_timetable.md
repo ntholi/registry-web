@@ -136,6 +136,28 @@ Known Timetable candidates:
 
 ---
 
+## Part E: Update Cross-Action Calls
+
+The LMS module has the heaviest cross-module action dependencies. Wrap each with `unwrap()`. See Plan 003 for template.
+
+### Cross-Action Calls in LMS Module
+
+| # | File | Cross-action call | Import source |
+|---|------|------------------|---------------|
+| 1 | `lms/quizzes/_server/actions.ts` | `createAssessment()` ×2 | `@/app/academic/assessments/_server/actions` |
+| 2 | `lms/quizzes/_server/actions.ts` | `getActiveTerm()` ×2 | `@/app/registry/terms` |
+| 3 | `lms/quizzes/_server/actions.ts` | `findStudentsByLmsUserIdsForSubmissions()` | `@lms/students` |
+| 4 | `lms/assignments/_server/actions.ts` | `createAssessment()` | `@/app/academic/assessments/_server/actions` |
+| 5 | `lms/assignments/_server/actions.ts` | `getActiveTerm()` | `@/app/registry/terms` |
+| 6 | `lms/courses/_server/actions.ts` | `linkCourseToAssignment()` | `@academic/assigned-modules` |
+| 7 | `lms/gradebook/_server/actions.ts` | `getAssignedModuleByLmsCourseId()` | `@academic/assigned-modules` |
+| 8 | `lms/gradebook/_server/actions.ts` | `getStudentsBySemesterModules()` | `@registry/students` |
+| 9 | `lms/gradebook/_server/actions.ts` | `getEnrolledStudentsFromDB()` | `@lms/students` |
+
+**Note**: LMS actions also import from `@auth/auth-providers/_server/repository` (direct repository call, not an action) — these do NOT need `unwrap()`.
+
+---
+
 ## Verification
 
 ```bash
@@ -148,5 +170,6 @@ pnpm tsc --noEmit
 - [ ] All RSC pages with direct `await` calls use `unwrap()`
 - [ ] All ListLayout callers verified
 - [ ] All direct `useMutation` callers switched to `useActionMutation`
+- [ ] All cross-action calls wrapped with `unwrap()`
 - [ ] `pnpm tsc --noEmit` passes
 - [ ] **LMS + Library + Timetable modules fully migrated; all other modules still work**

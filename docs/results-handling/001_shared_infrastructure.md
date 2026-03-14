@@ -138,13 +138,17 @@ export function createAction<TArgs extends unknown[], TOutput>(
 ### `unwrap` implementation
 
 ```ts
+import { UserFacingError } from './extractError';
+
 export function unwrap<T>(result: ActionResult<T>): T {
   if (!result.success) {
-    throw new Error(getActionErrorMessage(result.error));
+    throw new UserFacingError(getActionErrorMessage(result.error));
   }
   return result.data;
 }
 ```
+
+**Why `UserFacingError`**: When actions call other wrapped actions (40+ cross-action calls in the codebase), the outer `createAction` catches the throw. `extractError` detects `UserFacingError` and preserves the original message. If `unwrap` threw plain `Error`, the message would be lost — `extractError` would normalize it to "An unexpected error occurred".
 
 Full implementation: see [error-handling-plan.md](./error-handling-plan.md) Sections 1, 3, 4, 5.
 
