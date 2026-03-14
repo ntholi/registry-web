@@ -29,6 +29,8 @@ import {
 	isActionResult,
 } from '@/shared/lib/utils/actionResult';
 
+type DeleteResult = ActionResult<unknown> | null;
+
 export interface DeleteButtonProps extends ActionIconProps {
 	handleDelete: (() => Promise<void>) | (() => Promise<ActionResult<unknown>>);
 	message?: string;
@@ -69,8 +71,11 @@ export function DeleteButton({
 	const [opened, { open, close }] = useDisclosure(false);
 	const [confirmValue, setConfirmValue] = useState('');
 
-	const mutation = useMutation({
-		mutationFn: handleDelete,
+	const mutation = useMutation<DeleteResult, Error, void>({
+		mutationFn: async () => {
+			const result = await handleDelete();
+			return isActionResult(result) ? result : null;
+		},
 		onSuccess: async (data) => {
 			if (isActionResult(data)) {
 				if (!data.success) {
