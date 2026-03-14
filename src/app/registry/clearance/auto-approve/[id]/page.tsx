@@ -25,7 +25,7 @@ export default async function AutoApprovalDetails({ params }: Props) {
 			<DetailsViewHeader
 				title='Auto-Approval'
 				queryKey={['auto-approvals']}
-				editRoles={['finance', 'library', 'admin']}
+				editPermission={{ 'auto-approvals': ['update'] }}
 				handleDelete={async () => {
 					'use server';
 					await deleteAutoApproval(rule.id);

@@ -1,3 +1,9 @@
 export { auth, betterAuthServer } from '../auth';
 export * from './permissions';
-export * from './sessionPermissions';
+export {
+	hasAnyPermission,
+	hasOwnedStudentSession,
+	hasSessionPermission,
+	hasSessionRole,
+	isStudentSession,
+} from './sessionPermissions';

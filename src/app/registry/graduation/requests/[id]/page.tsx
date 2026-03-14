@@ -79,7 +79,7 @@ export default async function GraduationRequestDetails({
 			<DetailsViewHeader
 				title={graduationRequest.studentProgram.student.name}
 				queryKey={['graduation-requests']}
-				editRoles={['registry', 'admin']}
+				editPermission={{ graduation: ['update'] }}
 				handleDelete={async () => {
 					'use server';
 					await deleteGraduationRequest(Number(id));

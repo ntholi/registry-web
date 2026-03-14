@@ -6,7 +6,10 @@ import { IconArrowNarrowLeft, IconEdit } from '@tabler/icons-react';
 import Link from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';
 import type React from 'react';
-import type { UserRole } from '@/core/auth/permissions';
+import {
+	hasPermission,
+	type PermissionRequirement,
+} from '@/core/auth/permissions';
 import { authClient } from '@/core/auth-client';
 import { useViewSelect } from '@/shared/lib/hooks/use-view-select';
 import { DeleteButton } from './DeleteButton';
@@ -16,8 +19,8 @@ export interface DetailsViewHeaderProps {
 	queryKey: string[];
 	handleDelete?: () => Promise<void>;
 	onDeleteSuccess?: () => Promise<void>;
-	deleteRoles?: UserRole[];
-	editRoles?: UserRole[];
+	deletePermission?: PermissionRequirement;
+	editPermission?: PermissionRequirement;
 	hideEdit?: boolean;
 	message?: string;
 	itemName?: string;
@@ -34,8 +37,8 @@ export function DetailsViewHeader({
 	queryKey,
 	handleDelete,
 	onDeleteSuccess,
-	deleteRoles,
-	editRoles,
+	deletePermission,
+	editPermission,
 	hideEdit,
 	message,
 	itemName,
@@ -50,6 +53,14 @@ export function DetailsViewHeader({
 	const pathname = usePathname();
 	const isMobile = useMediaQuery('(max-width: 768px)');
 	const [, setView] = useViewSelect();
+	const permissions = session?.permissions ?? [];
+	const isAdmin = session?.user?.role === 'admin';
+	const canDelete =
+		isAdmin ||
+		(deletePermission ? hasPermission(permissions, deletePermission) : false);
+	const canEdit =
+		isAdmin ||
+		(editPermission ? hasPermission(permissions, editPermission) : false);
 	const searchParams = useSearchParams();
 	const newSearchParams = new URLSearchParams(searchParams);
 	newSearchParams.set('view', 'details');
@@ -76,36 +87,30 @@ export function DetailsViewHeader({
 					</Title>
 				)}
 				<Group>
-					{handleDelete &&
-						([...(deleteRoles ?? []), 'admin'].includes(
-							session?.user?.role ?? ''
-						) as boolean) && (
-							<DeleteButton
-								handleDelete={handleDelete}
-								onSuccess={onDeleteSuccess}
-								queryKey={queryKey}
-								message={message}
-								itemName={itemName}
-								itemType={itemType}
-								warningMessage={warningMessage}
-								title={deleteTitle}
-								typedConfirmation={typedConfirmation}
-								confirmationText={confirmationText}
-								confirmButtonText={confirmButtonText}
-							/>
-						)}
-					{!hideEdit &&
-						[...(editRoles ?? []), 'admin'].includes(
-							session?.user?.role ?? ''
-						) && (
-							<ActionIcon
-								component={Link}
-								href={`${pathname}/edit?${newSearchParams.toString()}`}
-								variant='outline'
-							>
-								<IconEdit size={'1rem'} />
-							</ActionIcon>
-						)}
+					{handleDelete && canDelete && (
+						<DeleteButton
+							handleDelete={handleDelete}
+							onSuccess={onDeleteSuccess}
+							queryKey={queryKey}
+							message={message}
+							itemName={itemName}
+							itemType={itemType}
+							warningMessage={warningMessage}
+							title={deleteTitle}
+							typedConfirmation={typedConfirmation}
+							confirmationText={confirmationText}
+							confirmButtonText={confirmButtonText}
+						/>
+					)}
+					{!hideEdit && canEdit && (
+						<ActionIcon
+							component={Link}
+							href={`${pathname}/edit?${newSearchParams.toString()}`}
+							variant='outline'
+						>
+							<IconEdit size={'1rem'} />
+						</ActionIcon>
+					)}
 				</Group>
 			</Flex>
 			<Divider my={15} />

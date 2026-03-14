@@ -9,9 +9,7 @@ type ModelInsert<T extends Table> = T['$inferInsert'];
 type ModelSelect<T extends Table> = T['$inferSelect'];
 
 type AccessCheckFunction = (session: Session) => Promise<boolean>;
-type LegacyAuthConfig = readonly string[];
 type AuthConfig = AuthRequirement | AccessCheckFunction;
-type ServiceAuthConfig = AuthConfig | LegacyAuthConfig;
 
 interface BaseServiceConfig {
 	byIdAuth?: AuthConfig;
@@ -20,12 +18,6 @@ interface BaseServiceConfig {
 	updateAuth?: AuthConfig;
 	deleteAuth?: AuthConfig;
 	countAuth?: AuthConfig;
-	byIdRoles?: ServiceAuthConfig;
-	findAllRoles?: ServiceAuthConfig;
-	createRoles?: ServiceAuthConfig;
-	updateRoles?: ServiceAuthConfig;
-	deleteRoles?: ServiceAuthConfig;
-	countRoles?: ServiceAuthConfig;
 	activityTypes?: {
 		create?: string;
 		update?: string;
@@ -33,78 +25,57 @@ interface BaseServiceConfig {
 	};
 }
 
+async function denyAccess() {
+	return false;
+}
+
 abstract class BaseService<
 	T extends Table,
 	PK extends keyof T & keyof ModelSelect<T>,
 > {
-	private defaultByIdAuth: ServiceAuthConfig;
-	private defaultFindAllAuth: ServiceAuthConfig;
-	private defaultCreateAuth: ServiceAuthConfig;
-	private defaultUpdateAuth: ServiceAuthConfig;
-	private defaultDeleteAuth: ServiceAuthConfig;
-	private defaultCountAuth: ServiceAuthConfig;
+	private defaultByIdAuth: AuthConfig;
+	private defaultFindAllAuth: AuthConfig;
+	private defaultCreateAuth: AuthConfig;
+	private defaultUpdateAuth: AuthConfig;
+	private defaultDeleteAuth: AuthConfig;
+	private defaultCountAuth: AuthConfig;
 	private activityTypes?: BaseServiceConfig['activityTypes'];
 
 	constructor(
 		protected readonly repository: BaseRepository<T, PK>,
 		config: BaseServiceConfig = {}
 	) {
-		this.defaultByIdAuth = config.byIdAuth ?? config.byIdRoles ?? ['dashboard'];
-		this.defaultFindAllAuth = config.findAllAuth ??
-			config.findAllRoles ?? ['dashboard'];
-		this.defaultCreateAuth = config.createAuth ?? config.createRoles ?? [];
-		this.defaultUpdateAuth = config.updateAuth ?? config.updateRoles ?? [];
-		this.defaultDeleteAuth = config.deleteAuth ?? config.deleteRoles ?? [];
-		this.defaultCountAuth = config.countAuth ?? config.countRoles ?? [];
+		this.defaultByIdAuth = config.byIdAuth ?? 'dashboard';
+		this.defaultFindAllAuth = config.findAllAuth ?? 'dashboard';
+		this.defaultCreateAuth = config.createAuth ?? denyAccess;
+		this.defaultUpdateAuth = config.updateAuth ?? denyAccess;
+		this.defaultDeleteAuth = config.deleteAuth ?? denyAccess;
+		this.defaultCountAuth = config.countAuth ?? denyAccess;
 		this.activityTypes = config.activityTypes;
 	}
 
-	protected byIdAuth(): ServiceAuthConfig {
+	protected byIdAuth(): AuthConfig {
 		return this.defaultByIdAuth;
 	}
 
-	protected findAllAuth(): ServiceAuthConfig {
+	protected findAllAuth(): AuthConfig {
 		return this.defaultFindAllAuth;
 	}
 
-	protected createAuth(): ServiceAuthConfig {
+	protected createAuth(): AuthConfig {
 		return this.defaultCreateAuth;
 	}
 
-	protected updateAuth(): ServiceAuthConfig {
+	protected updateAuth(): AuthConfig {
 		return this.defaultUpdateAuth;
 	}
 
-	protected deleteAuth(): ServiceAuthConfig {
+	protected deleteAuth(): AuthConfig {
 		return this.defaultDeleteAuth;
 	}
 
-	protected countAuth(): ServiceAuthConfig {
+	protected countAuth(): AuthConfig {
 		return this.defaultCountAuth;
-	}
-
-	protected byIdRoles(): ServiceAuthConfig {
-		return this.byIdAuth();
-	}
-
-	protected findAllRoles(): ServiceAuthConfig {
-		return this.findAllAuth();
-	}
-
-	protected createRoles(): ServiceAuthConfig {
-		return this.createAuth();
-	}
-
-	protected updateRoles(): ServiceAuthConfig {
-		return this.updateAuth();
-	}
-
-	protected deleteRoles(): ServiceAuthConfig {
-		return this.deleteAuth();
-	}
-
-	protected countRoles(): ServiceAuthConfig {
-		return this.countAuth();
 	}
 
 	protected buildAuditOptions(

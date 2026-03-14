@@ -1,4 +1,3 @@
-import { hasPermission } from '@/core/auth/sessionPermissions';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
 import withPermission from '@/core/platform/withPermission';
 import TermRegistrationsRepository from './termRegistrationsRepository';
@@ -16,7 +15,7 @@ class TermRegistrationsService {
 	async findByTermId(termId: number) {
 		return withPermission(
 			async () => this.repository.findByTermId(termId),
-			['all']
+			'all'
 		);
 	}
 
@@ -30,12 +29,6 @@ class TermRegistrationsService {
 		return withPermission(
 			async (session) => {
 				const userId = session?.user?.id;
-				if (
-					session?.user?.role !== 'admin' &&
-					!hasPermission(session, 'terms-settings', 'update')
-				) {
-					throw new Error('Unauthorized');
-				}
 				if (!userId) {
 					throw new Error('Unauthorized');
 				}
@@ -50,7 +43,7 @@ class TermRegistrationsService {
 					programIds
 				);
 			},
-			['admin', 'registry']
+			{ 'terms-settings': ['update'] }
 		);
 	}
 
@@ -61,65 +54,35 @@ class TermRegistrationsService {
 		programIds?: number[]
 	) {
 		return withPermission(
-			async (session) => {
-				if (
-					session?.user?.role !== 'admin' &&
-					!hasPermission(session, 'terms-settings', 'update')
-				) {
-					throw new Error('Unauthorized');
-				}
-				return this.repository.update(id, { startDate, endDate }, programIds);
-			},
-			['admin', 'registry']
+			async () =>
+				this.repository.update(id, { startDate, endDate }, programIds),
+			{ 'terms-settings': ['update'] }
 		);
 	}
 
 	async delete(id: number) {
-		return withPermission(
-			async (session) => {
-				if (
-					session?.user?.role !== 'admin' &&
-					!hasPermission(session, 'terms-settings', 'update')
-				) {
-					throw new Error('Unauthorized');
-				}
-				return this.repository.delete(id);
-			},
-			['admin', 'registry']
-		);
+		return withPermission(async () => this.repository.delete(id), {
+			'terms-settings': ['update'],
+		});
 	}
 
 	async saveRegistrations(termId: number, entries: RegistrationEntry[]) {
 		return withPermission(
 			async (session) => {
 				const userId = session?.user?.id;
-				if (
-					session?.user?.role !== 'admin' &&
-					!hasPermission(session, 'terms-settings', 'update')
-				) {
-					throw new Error('Unauthorized');
-				}
 				if (!userId) {
 					throw new Error('Unauthorized');
 				}
 				return this.repository.bulkUpsert(termId, entries, userId);
 			},
-			['admin', 'registry']
+			{ 'terms-settings': ['update'] }
 		);
 	}
 
 	async deleteBySchoolIds(termId: number, schoolIds: number[]) {
 		return withPermission(
-			async (session) => {
-				if (
-					session?.user?.role !== 'admin' &&
-					!hasPermission(session, 'terms-settings', 'update')
-				) {
-					throw new Error('Unauthorized');
-				}
-				return this.repository.deleteByTermIdAndSchoolIds(termId, schoolIds);
-			},
-			['admin', 'registry']
+			async () => this.repository.deleteByTermIdAndSchoolIds(termId, schoolIds),
+			{ 'terms-settings': ['update'] }
 		);
 	}
 
@@ -131,14 +94,14 @@ class TermRegistrationsService {
 		return withPermission(
 			async () =>
 				this.repository.canStudentRegister(termId, schoolId, programId),
-			['all']
+			'all'
 		);
 	}
 
 	async getRegistrationStatus(termId: number, schoolId: number) {
 		return withPermission(
 			async () => this.repository.getRegistrationStatus(termId, schoolId),
-			['all']
+			'all'
 		);
 	}
 }

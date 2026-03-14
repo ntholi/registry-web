@@ -25,7 +25,7 @@ export default async function VenueDetails({ params }: Props) {
 			<DetailsViewHeader
 				title='Venue'
 				queryKey={['venues']}
-				editRoles={['academic', 'registry']}
+				editPermission={{ venues: ['update'] }}
 				handleDelete={async () => {
 					'use server';
 					await deleteVenue(id);

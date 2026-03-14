@@ -80,6 +80,26 @@ export type AuthRequirement =
 	| 'dashboard'
 	| PermissionRequirement;
 
+export function hasPermission(
+	permissions: readonly PermissionGrant[],
+	requirement: PermissionRequirement
+) {
+	for (const [resource, actions] of Object.entries(requirement)) {
+		for (const action of actions) {
+			const granted = permissions.some(
+				(permission) =>
+					permission.resource === resource && permission.action === action
+			);
+
+			if (!granted) {
+				return false;
+			}
+		}
+	}
+
+	return true;
+}
+
 export const DASHBOARD_ROLES = [
 	'finance',
 	'registry',

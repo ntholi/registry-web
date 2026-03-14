@@ -55,7 +55,7 @@ export default async function IntakePeriodDetails({ params }: Props) {
 		<DetailsView>
 			<DetailsViewHeader
 				title='Intake Period'
-				editRoles={['registry', 'marketing']}
+				editPermission={{ 'intake-periods': ['update'] }}
 				queryKey={['intake-periods']}
 				handleDelete={async () => {
 					'use server';

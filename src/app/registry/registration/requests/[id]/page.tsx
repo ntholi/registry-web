@@ -70,8 +70,8 @@ export default async function RegistrationRequestDetails({
 			<DetailsViewHeader
 				title={registrationRequest.student.name}
 				queryKey={['registration-requests']}
-				editRoles={['registry']}
-				deleteRoles={['registry']}
+				editPermission={{ registration: ['update'] }}
+				deletePermission={{ registration: ['delete'] }}
 				typedConfirmation={false}
 				handleDelete={async () => {
 					'use server';

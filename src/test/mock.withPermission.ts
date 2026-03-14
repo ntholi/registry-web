@@ -1,9 +1,9 @@
 import { vi } from 'vitest';
 import type { Session } from '@/core/auth';
+import type { AuthRequirement } from '@/core/auth/permissions';
 import withPermission from '@/core/platform/withPermission';
 import { getMockUser } from './mocks.auth';
 
-type Role = 'all' | 'auth' | 'dashboard' | string;
 type AccessCheckFunction = (session: Session) => Promise<boolean>;
 
 vi.mock('@/core/auth', () => ({
@@ -35,9 +35,9 @@ vi.mock('next/navigation', () => ({
 
 async function mockWithPermissionImplementation<T>(
 	fn: (session: Session | null) => Promise<T>,
-	rolesOrAccessCheck: Role[] | AccessCheckFunction
+	requirement: AuthRequirement | AccessCheckFunction
 ): Promise<T> {
-	return withPermission(fn, rolesOrAccessCheck as Role[]);
+	return withPermission(fn, requirement);
 }
 
 export const mockWithPermission = vi.fn(mockWithPermissionImplementation);

@@ -45,7 +45,7 @@ export default function BlockedStudentDetails() {
 			<DetailsViewHeader
 				title={blockedStudent.student.name}
 				queryKey={['blocked-students']}
-				editRoles={['finance']}
+				editPermission={{ 'blocked-students': ['update'] }}
 				handleDelete={async () => {
 					await deleteBlockedStudent(id);
 				}}
