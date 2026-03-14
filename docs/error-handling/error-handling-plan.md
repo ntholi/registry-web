@@ -1,4 +1,6 @@
-# Error Handling Architecture
+# Production Error & Result Handling
+
+> **Estimated effort (~10 sessions):** 1 shared infra, 1 UI components, 3-4 for 105 action files, 2-3 for ~110 RSC pages, 1-2 for ~50 ListLayout callers, 1 for verification.
 
 > Standardized error handling patterns for the Registry Web application.
 > **Every** server action returns `ActionResult<T>` — no thrown errors leak to the UI, ever.
@@ -28,10 +30,10 @@ Additionally:
 
 | Decision | Choice |
 |----------|--------|
-| **ALL server actions** | Return `ActionResult<T, AppError>` via `createAction` builder — mutations, queries, RSC GETs, everything |
-| Action builder pattern | Composable `createAction().handler(fn)` pipeline (inspired by next-safe-action) |
+| **ALL server actions** | Return `ActionResult<T>` via `createAction` wrapper — mutations, queries, RSC GETs, everything |
+| Action wrapper pattern | Simple `createAction(fn)` variadic wrapper — catches, logs, returns `ActionResult` |
 | Input validation | Stays in Form/service layer (no Zod at action boundary) |
-| Shared result contract | Full structured `AppError` type (`message`, `code`, `status`, `fieldErrors`) |
+| Shared result contract | Structured `AppError` type (`message`, `code`, `fieldErrors`) |
 | Error boundaries | Root-level `error.tsx` + **mandatory `global-error.tsx`** (safety net only) |
 | ListLayout errors | Inline error state with retry button + `ActionResult` unwrapping |
 | DeleteButton/DetailsViewHeader | Detect `ActionResult` like Form does |
@@ -39,10 +41,10 @@ Additionally:
 | StatusPage | Add `onRetry` prop for error boundaries |
 | QueryClient | Add `defaultOptions.mutations.onError` for global mutation error toasts |
 | Error logging | `createAction` logs errors server-side via `createServiceLogger` before sanitizing |
-| Message sanitization | Never show raw thrown messages; `extractError` maps known DB/integration codes to safe messages |
-| Error coverage | PostgreSQL, Moodle, file upload, rate limiting, network errors — all mapped |
+| Message sanitization | Never show raw thrown messages; `extractError` maps known DB/integration codes to safe messages. Unknown errors default to generic message. Services use `UserFacingError` for intentional user messages |
+| Error coverage | PostgreSQL, Moodle, file upload, rate limiting, network, UserFacingError — all mapped |
 | Migration strategy | Full sprint: shared infrastructure first, then all ~104 action files simultaneously |
-| RSC page pattern | `const { data } = await getEntity(id); if (!data) notFound();` — unwraps ActionResult |
+| RSC page pattern | `const entity = unwrap(await getEntity(id)); if (!entity) notFound();` |
 | `not-found.tsx` | Already exists ✅ — uses `StatusPage` |
 | User-facing messages | Always sanitized. Technical details logged server-side only |
 
@@ -50,7 +52,7 @@ Additionally:
 
 ## Architecture
 
-### 1. The `ActionResult<T, E>` Type
+### 1. The `ActionResult<T>` Type
 
 **File**: `src/shared/lib/utils/actionResult.ts`
 
@@ -58,13 +60,12 @@ Additionally:
 export interface AppError {
   message: string;
   code?: string;
-  status?: 'failed' | 'error' | 'validation' | 'unauthorized' | 'not_found';
   fieldErrors?: Record<string, string[]>;
 }
 
-export type ActionResult<T, E = AppError> =
+export type ActionResult<T> =
   | { success: true; data: T }
-  | { success: false; error: E };
+  | { success: false; error: AppError };
 
 export function success<T>(data: T): ActionResult<T> {
   return { success: true, data };
@@ -76,10 +77,9 @@ export function failure<T>(error: AppError | string): ActionResult<T> {
 }
 ```
 
-The full `AppError` shape supports:
+The `AppError` shape supports:
 - `message` — user-safe text shown in toasts/UI
 - `code` — programmatic error code (e.g. `'UNIQUE_VIOLATION'`, `'NOT_FOUND'`, `'UNAUTHORIZED'`) for conditional client logic
-- `status` — semantic status category for UI decisions
 - `fieldErrors` — per-field validation errors (complements Zod for server-side validation scenarios like unique constraint violations on specific fields)
 
 ### 2. Shared `extractError` Utility (move from apply to shared)
@@ -91,48 +91,50 @@ This is the **single normalization point** for all error types in the system. It
 ```ts
 import type { AppError } from './actionResult';
 
+export class UserFacingError extends Error {
+  constructor(message: string, public code?: string) {
+    super(message);
+    this.name = 'UserFacingError';
+  }
+}
+
 const PG_ERROR_MAP: Record<string, (detail?: string) => AppError> = {
   '23505': (detail) => ({
     message: detail?.includes('Key')
       ? 'A record with this value already exists'
       : 'A duplicate record was detected',
     code: 'UNIQUE_VIOLATION',
-    status: 'validation',
   }),
   '23503': () => ({
     message: 'This record is referenced by other data and cannot be modified',
     code: 'FK_VIOLATION',
-    status: 'error',
   }),
   '23502': () => ({
     message: 'A required field is missing',
     code: 'NOT_NULL_VIOLATION',
-    status: 'validation',
   }),
   '23514': () => ({
     message: 'The value provided is out of the allowed range',
     code: 'CHECK_VIOLATION',
-    status: 'validation',
   }),
   '42P01': () => ({
     message: 'A system configuration error occurred. Please contact support.',
     code: 'UNDEFINED_TABLE',
-    status: 'error',
   }),
   '57014': () => ({
     message: 'The operation took too long. Please try again.',
     code: 'QUERY_CANCELED',
-    status: 'error',
   }),
 };
 
 function isPostgresError(
   error: unknown
-): error is Error & { code: string; detail?: string } {
+): error is Error & { code: string; severity: string; detail?: string } {
   return (
     error instanceof Error &&
     'code' in error &&
-    typeof (error as { code: unknown }).code === 'string'
+    typeof (error as { code: unknown }).code === 'string' &&
+    'severity' in error
   );
 }
 
@@ -147,6 +149,11 @@ function isMoodleError(
 }
 
 export function extractError(error: unknown): AppError {
+  // UserFacingError — explicitly safe messages from services
+  if (error instanceof UserFacingError) {
+    return { message: error.message, code: error.code };
+  }
+
   // PostgreSQL errors
   if (isPostgresError(error) && PG_ERROR_MAP[error.code]) {
     return PG_ERROR_MAP[error.code](error.detail);
@@ -157,7 +164,6 @@ export function extractError(error: unknown): AppError {
     return {
       message: 'An error occurred communicating with the LMS. Please try again.',
       code: 'MOODLE_ERROR',
-      status: 'error',
     };
   }
 
@@ -176,7 +182,6 @@ export function extractError(error: unknown): AppError {
       return {
         message: 'Service temporarily unavailable. Please try again.',
         code: 'SERVICE_UNAVAILABLE',
-        status: 'error',
       };
     }
 
@@ -189,7 +194,6 @@ export function extractError(error: unknown): AppError {
       return {
         message: 'Too many requests. Please wait a moment and try again.',
         code: 'RATE_LIMITED',
-        status: 'error',
       };
     }
 
@@ -202,7 +206,6 @@ export function extractError(error: unknown): AppError {
       return {
         message: 'The file is too large. Please upload a smaller file.',
         code: 'FILE_TOO_LARGE',
-        status: 'validation',
       };
     }
 
@@ -214,7 +217,6 @@ export function extractError(error: unknown): AppError {
       return {
         message: 'This file type is not supported.',
         code: 'INVALID_FILE_TYPE',
-        status: 'validation',
       };
     }
 
@@ -227,37 +229,35 @@ export function extractError(error: unknown): AppError {
       return {
         message: 'A file storage error occurred. Please try again.',
         code: 'STORAGE_ERROR',
-        status: 'error',
       };
     }
-
-    // Return the error message as-is for known business logic errors
-    // (e.g., "Sponsor with name X not found", "Module not found")
-    return { message: msg || 'An unexpected error occurred' };
   }
 
-  if (typeof error === 'string') {
-    return { message: error };
-  }
-
+  // Default: generic message. Raw error details are logged server-side by createAction.
+  // Services that need user-facing messages should throw UserFacingError.
   return { message: 'An unexpected error occurred' };
 }
 ```
 
+**`UserFacingError`** is a lightweight Error subclass for services that need to surface specific messages to users. Services throw `new UserFacingError('Student not found')` instead of `new Error('Student not found')`. This is the **only** way a custom message reaches the UI — all other unknown errors map to `'An unexpected error occurred'`.
+
+This prevents leaking internal details (SQL errors, stack traces, runtime bugs like `"Cannot read properties of undefined"`) to the UI while still allowing services to communicate meaningful messages.
+
 Coverage:
-- **PostgreSQL**: 23505 (unique), 23503 (FK), 23502 (not-null), 23514 (check), 42P01 (undefined table), 57014 (query canceled/timeout)
+- **UserFacingError**: Explicit user-safe messages from services (the ONLY way custom messages reach the UI)
+- **PostgreSQL**: 23505 (unique), 23503 (FK), 23502 (not-null), 23514 (check), 42P01 (undefined table), 57014 (query canceled/timeout). Discriminated by `severity` field.
 - **Moodle**: `MoodleError` instances from `src/core/integrations/moodle.ts`
 - **Network**: ECONNREFUSED, ENOTFOUND, ETIMEDOUT, socket hang up, generic connect/timeout
 - **Rate limiting**: 429, "rate limit", "too many requests"
 - **File uploads**: size limits, unsupported types
 - **R2/S3 storage**: NoSuchKey, AccessDenied, NoSuchBucket
-- **Business logic**: Error messages from services pass through as-is (these are already user-facing)
+- **Unknown errors**: Default to `'An unexpected error occurred'` (raw message logged server-side only)
 
-### 3. The `createAction` Builder (new — inspired by next-safe-action)
+### 3. The `createAction` Wrapper
 
 **File**: `src/shared/lib/utils/actionResult.ts` (add to existing file)
 
-Instead of a bare `wrapAction` function, we use a composable **builder pattern** that standardizes the action pipeline. This is the core of the error handling system.
+A simple variadic function wrapper that standardizes the action pipeline. It wraps any async function — regardless of arity — with try/catch, logging, and `ActionResult` return.
 
 ```ts
 import { createServiceLogger } from '@/core/platform/logger';
@@ -265,55 +265,43 @@ import { extractError } from './extractError';
 
 const actionLogger = createServiceLogger('ServerAction');
 
-type ActionHandler<TInput, TOutput> = (input: TInput) => Promise<TOutput>;
-
-interface ActionBuilder<TInput> {
-  handler<TOutput>(
-    fn: ActionHandler<TInput, TOutput>
-  ): (...args: TInput extends void ? [] : [TInput]) => Promise<ActionResult<TOutput>>;
-}
-
-export function createAction(): ActionBuilder<void>;
-export function createAction<TInput>(): ActionBuilder<TInput>;
-export function createAction<TInput = void>(): ActionBuilder<TInput> {
-  return {
-    handler<TOutput>(fn: ActionHandler<TInput, TOutput>) {
-      return async (...args: TInput extends void ? [] : [TInput]) => {
-        try {
-          const input = args[0] as TInput;
-          const result = await fn(input);
-          return success(result);
-        } catch (error) {
-          actionLogger.error('Action failed', {
-            error: error instanceof Error ? error.message : String(error),
-            stack: error instanceof Error ? error.stack : undefined,
-          });
-          return failure<TOutput>(extractError(error));
-        }
-      };
-    },
+export function createAction<TArgs extends unknown[], TOutput>(
+  fn: (...args: TArgs) => Promise<TOutput>
+): (...args: TArgs) => Promise<ActionResult<TOutput>> {
+  return async (...args) => {
+    try {
+      return success(await fn(...args));
+    } catch (error) {
+      actionLogger.error('Action failed', {
+        error: error instanceof Error ? error.message : String(error),
+        stack: error instanceof Error ? error.stack : undefined,
+      });
+      return failure<TOutput>(extractError(error));
+    }
   };
 }
 ```
 
-**Why a builder instead of a simple wrapper?**
+**Why a simple wrapper instead of a builder?**
 
-1. **Type inference**: The builder preserves full input/output types through the pipeline. The returned function signature matches the original action signature — callers don't need to change.
-2. **Composability**: Future additions (middleware, rate limiting, audit integration) slot into the builder chain without changing existing action code.
-3. **Consistency**: Every action file follows the identical `createAction<Input>().handler(fn)` pattern — easy to lint, audit, and migrate.
-4. **No ceremony for void inputs**: `createAction().handler(fn)` works for no-arg actions. No need to pass `undefined`.
+1. **Type inference**: Infers all argument types and output type directly from the function — no manual generic annotations needed.
+2. **Any arity**: Works with 0, 1, 2, or N arguments. No special handling for void inputs.
+3. **Minimal ceremony**: `createAction(fn)` — one call, no chaining.
+4. **Preserves signatures**: The wrapped function has the exact same signature as the original, just with `ActionResult<T>` wrapping the return type.
+
+> **Coding standard note**: Wrapped actions use `export const` since `createAction` returns a function value. This is the **only** exception to the "use `function` for top-level exports" rule — it applies exclusively to server action files using `createAction`.
 
 **Usage — simple action (no input)**:
 ```ts
-export const getAllSchools = createAction().handler(
+export const getAllSchools = createAction(
   async () => service.findAll({ filter: eq(schools.isActive, true) }).then(r => r.items)
 );
 ```
 
 **Usage — action with input**:
 ```ts
-export const createStudent = createAction<StudentInsert>().handler(
-  async (data) => studentsService.create(data)
+export const createStudent = createAction(
+  async (data: StudentInsert) => studentsService.create(data)
 );
 ```
 
@@ -321,18 +309,9 @@ export const createStudent = createAction<StudentInsert>().handler(
 ```ts
 type FindAllInput = { page: number; search: string };
 
-export const findAllStudents = createAction<FindAllInput>().handler(
-  async ({ page, search }) => studentsService.findAll({ page, search })
+export const findAllStudents = createAction(
+  async ({ page, search }: FindAllInput) => studentsService.findAll({ page, search })
 );
-```
-
-**Backward compat**: `wrapAction` is kept as a thin alias for gradual migration:
-```ts
-export async function wrapAction<T>(
-  fn: () => Promise<T>,
-): Promise<ActionResult<T>> {
-  return createAction().handler(fn)();
-}
 ```
 
 ### 4. RSC Page Unwrap Helper
@@ -401,28 +380,28 @@ All consumers (`Form.tsx`, `ListLayout.tsx`, `DeleteButton.tsx`) import from thi
 
 import { createAction } from '@/shared/lib/utils/actionResult';
 
-export const createStudent = createAction<StudentInsert>().handler(
-  async (data) => studentsService.create(data)
+export const createStudent = createAction(
+  async (data: StudentInsert) => studentsService.create(data)
 );
 
-export const updateSponsor = createAction<{ id: number; data: Partial<SponsorInsert> }>().handler(
-  async ({ id, data }) => sponsorsService.update(id, data)
+export const updateSponsor = createAction(
+  async ({ id, data }: { id: number; data: Partial<SponsorInsert> }) => sponsorsService.update(id, data)
 );
 
-export const deleteSponsor = createAction<number>().handler(
-  async (id) => sponsorsService.delete(id)
+export const deleteSponsor = createAction(
+  async (id: number) => sponsorsService.delete(id)
 );
 ```
 
 ### Pattern 2: Server Actions (Queries for ListLayout)
 
-`ListLayout` calls a `getData(page, search)` function. These also use `createAction`:
+`ListLayout` calls `getData({ page, search })` with an object param. These use `createAction`:
 
 ```ts
 type FindAllInput = { page: number; search: string };
 
-export const findAllStudents = createAction<FindAllInput>().handler(
-  async ({ page, search }) => studentsService.findAll({ page, search })
+export const findAllStudents = createAction(
+  async ({ page, search }: FindAllInput) => studentsService.findAll({ page, search })
 );
 ```
 
@@ -441,8 +420,8 @@ export async function getStudent(stdNo: number) {
 
 **After (safe — error is a value)**:
 ```ts
-export const getStudent = createAction<number>().handler(
-  async (stdNo) => studentsService.get(stdNo)
+export const getStudent = createAction(
+  async (stdNo: number) => studentsService.get(stdNo)
 );
 ```
 
@@ -469,7 +448,7 @@ export default async function StudentPage({ params }: Props) {
 For actions that take no arguments:
 
 ```ts
-export const getAllSchools = createAction().handler(
+export const getAllSchools = createAction(
   async () => {
     const data = await service.findAll({ filter: eq(schools.isActive, true) });
     return data.items;
@@ -487,8 +466,8 @@ type UpdateModuleInput = {
   module: Module & { prerequisiteCodes?: string[] };
 };
 
-export const updateModule = createAction<UpdateModuleInput>().handler(
-  async ({ id, module }) => {
+export const updateModule = createAction(
+  async ({ id, module }: UpdateModuleInput) => {
     const { prerequisiteCodes, ...moduleData } = module;
     const updated = await semesterModulesService.update(id, moduleData);
     // ... prerequisite logic
@@ -502,8 +481,8 @@ export const updateModule = createAction<UpdateModuleInput>().handler(
 For actions that call `revalidatePath` or other side effects:
 
 ```ts
-export const updateStudent = createAction<{ stdNo: number; data: Student }>().handler(
-  async ({ stdNo, data }) => {
+export const updateStudent = createAction(
+  async ({ stdNo, data }: { stdNo: number; data: Student }) => {
     const result = await service.update(stdNo, {
       ...data,
       name: formatPersonName(data.name) ?? data.name,
@@ -520,24 +499,25 @@ Side effects run inside the handler — if they fail, the error is caught and lo
 
 ## Implementation Plan
 
-### Step 1: Create shared `extractError`
+### Step 1: Create shared `extractError` and `UserFacingError`
 
 **Move** `src/app/apply/_lib/errors.ts` → `src/shared/lib/utils/extractError.ts`
 
-Upgrade to the smart `extractError` with PostgreSQL error code mapping (see Section 2 above).
+Upgrade to the smart `extractError` with PostgreSQL error code mapping, `UserFacingError` class, and `isPostgresError` with `severity` check (see Section 2 above).
 
 Update all imports in `src/app/apply/` to use `@/shared/lib/utils/extractError`.
+
+**Migration for existing services**: Services that currently `throw new Error('Student not found')` with user-facing messages should be updated to `throw new UserFacingError('Student not found')`. This can be done incrementally — unrecognized errors will show the generic message until migrated.
 
 ### Step 2: Upgrade `actionResult.ts`
 
 **File**: `src/shared/lib/utils/actionResult.ts`
 
 Replace the current minimal file with the full version containing:
-- `AppError` interface (with `message`, `code`, `status`, `fieldErrors`)
-- `ActionResult<T, E = AppError>` type
+- `AppError` interface (with `message`, `code`, `fieldErrors`)
+- `ActionResult<T>` type
 - `success<T>()` and `failure<T>()` helpers
-- `createAction<TInput>().handler(fn)` builder with server-side logging via `createServiceLogger`
-- `wrapAction<T>()` backward-compat alias
+- `createAction(fn)` variadic wrapper with server-side logging via `createServiceLogger`
 - `unwrap<T>()` for RSC pages
 - `isActionResult()` type guard
 - `getActionErrorMessage()` helper
@@ -693,7 +673,7 @@ This provides a safety net for any mutation that throws without its own `onError
 
 Two changes:
 
-**a) Update `getData` type to return `ActionResult`**:
+**a) Update `getData` type to accept object params and return `ActionResult`**:
 ```ts
 import {
   isActionResult,
@@ -701,19 +681,30 @@ import {
   type ActionResult,
 } from '@/shared/lib/utils/actionResult';
 
+type GetDataParams = { page: number; search: string };
+
 export type ListLayoutProps<T> = {
   getData: (
-    page: number,
-    search: string
+    params: GetDataParams
   ) => Promise<ActionResult<{ items: T[]; totalPages: number; totalItems?: number }>>;
   // ...
 };
 
 queryFn: async () => {
-  const result = await getData(page, search);
+  const result = await getData({ page, search });
   if (!result.success) throw new Error(getActionErrorMessage(result.error));
   return result.data;
 }
+```
+
+This change aligns ListLayout's `getData` signature with `createAction`'s single-object-arg convention. Layouts that pass actions directly (`getData={findAllVenues}`) continue to work without wrappers. Layouts that add extra filters destructure the object:
+
+```tsx
+// Before (2-arg):
+getData={(page, search) => findAllSubjects(page, search, lqfLevel)}
+
+// After (object):
+getData={({ page, search }) => findAllSubjects({ page, search, lqfLevel })}
 ```
 
 **b) Error state rendering**:
@@ -839,16 +830,16 @@ export async function getThing(id: number) {
 
 import { createAction } from '@/shared/lib/utils/actionResult';
 
-export const createThing = createAction<Input>().handler(
-  async (data) => thingService.create(data)
+export const createThing = createAction(
+  async (data: Input) => thingService.create(data)
 );
 
-export const findAllThings = createAction<{ page: number; search: string }>().handler(
-  async ({ page, search }) => thingService.findAll({ page, search })
+export const findAllThings = createAction(
+  async ({ page, search }: { page: number; search: string }) => thingService.findAll({ page, search })
 );
 
-export const getThing = createAction<number>().handler(
-  async (id) => thingService.get(id)
+export const getThing = createAction(
+  async (id: number) => thingService.get(id)
 );
 ```
 
@@ -885,13 +876,13 @@ export default async function EntityPage({ params }: Props) {
 
 ---
 
-## Services & Repositories: No Changes
+## Services & Repositories: Minimal Change
 
-The `BaseService` and `BaseRepository` layers continue to **throw** errors internally. This is correct — they are internal boundaries. The `actions.ts` layer is the **server-client boundary** where errors are caught, logged, and converted to `ActionResult<T>`.
+The `BaseService` and `BaseRepository` layers continue to **throw** errors internally. This is correct — they are internal boundaries. Services that need to surface specific messages to the UI throw `UserFacingError` instead of plain `Error`. The `actions.ts` layer is the **server-client boundary** where errors are caught, logged, and converted to `ActionResult<T>`.
 
 ```
-[DB] → Repository (throws) → Service (throws) → Action (catches → logs → ActionResult) → Client (reads result)
-                                                                                           → RSC (unwraps result)
+[DB] → Repository (throws) → Service (throws / UserFacingError) → Action (catches → logs → ActionResult) → Client (reads result)
+                                                                                                             → RSC (unwraps result)
 ```
 
 ---
@@ -913,13 +904,13 @@ The `BaseService` and `BaseRepository` layers continue to **throw** errors inter
 │  not-found.tsx ─────► renders styled 404 UI (already exists)    │
 └────────────────────────────┬────────────────────────────────────┘
                              │
-                    ActionResult<T, AppError>
+                    ActionResult<T>
                              │
 ┌────────────────────────────┴────────────────────────────────────┐
 │               SERVER ACTIONS (ALL of them)                       │
 │                                                                 │
-│  createAction().handler(fn):                                    │
-│    1. Execute fn(input)                                         │
+│  createAction(fn):                                              │
+│    1. Execute fn(...args)                                       │
 │    2. On success: return { success: true, data }                │
 │    3. On error: LOG via createServiceLogger (raw error + stack) │
 │    4. On error: extractError → sanitize → AppError              │
@@ -932,13 +923,14 @@ The `BaseService` and `BaseRepository` layers continue to **throw** errors inter
 │    • Rate limit: 429, "rate limit", "too many requests"         │
 │    • File upload: size limits, unsupported types                │
 │    • Storage: R2/S3 NoSuchKey, AccessDenied, NoSuchBucket       │
-│    • Business logic: service error messages pass through        │
+│    • UserFacingError: explicit service messages pass through   │
+│    • Unknown errors: generic message (raw logged server-side)  │
 └────────────────────────────┬────────────────────────────────────┘
                              │
                          throws
                              │
 ┌────────────────────────────┴────────────────────────────────────┐
-│               SERVICE (throws on failure)                        │
+│               SERVICE (throws / throws UserFacingError)          │
 │               REPOSITORY (throws on failure)                     │
 │               DATABASE (PostgreSQL via Drizzle)                  │
 │               INTEGRATIONS (Moodle, R2, Pay Lesotho)            │
@@ -951,17 +943,18 @@ The `BaseService` and `BaseRepository` layers continue to **throw** errors inter
 
 | Action | File |
 |--------|------|
-| **Move + Upgrade** | `src/app/apply/_lib/errors.ts` → `src/shared/lib/utils/extractError.ts` (with PG, Moodle, network, rate limit, file, storage error mapping) |
-| **Rewrite** | `src/shared/lib/utils/actionResult.ts` (full `AppError`, `createAction` builder, `wrapAction` compat, `unwrap`, `isActionResult`, `getActionErrorMessage`) |
+| **Move + Upgrade** | `src/app/apply/_lib/errors.ts` → `src/shared/lib/utils/extractError.ts` (with `UserFacingError`, PG, Moodle, network, rate limit, file, storage error mapping) |
+| **Rewrite** | `src/shared/lib/utils/actionResult.ts` (`AppError`, `createAction` wrapper, `unwrap`, `isActionResult`, `getActionErrorMessage`) |
 | **Modify** | `src/shared/ui/StatusPage.tsx` (add `onRetry` prop) |
 | **Create** | `src/app/error.tsx` (generic message, never shows raw `error.message`) |
 | **Create** | `src/app/global-error.tsx` (mandatory — catches root layout errors) |
 | **Modify** | `src/app/providers.tsx` (add `mutations.onError` to `QueryClient`) |
-| **Modify** | `src/shared/ui/adease/ListLayout.tsx` (update `getData` type to `ActionResult`, add error state + unwrap) |
+| **Modify** | `src/shared/ui/adease/ListLayout.tsx` (update `getData` to object params + `ActionResult`, add error state + unwrap) |
 | **Modify** | `src/shared/ui/adease/DeleteButton.tsx` (detect ActionResult in onSuccess) |
 | **Modify** | `src/shared/ui/adease/DetailsViewHeader.tsx` (update handleDelete type) |
 | **Modify** | `src/shared/ui/adease/Form.tsx` (replace local isActionResult with shared import) |
 | **Modify** | ALL `_server/actions.ts` across all modules (every action uses `createAction`) |
+| **Modify** | ALL layout files with `getData` prop (update to object params if using inline wrappers) |
 | **Modify** | ALL RSC `page.tsx` files that call server actions (add `unwrap()`) |
 | **No change** | `src/core/platform/BaseService.ts` (internal, keeps throwing) |
 | **No change** | `src/core/platform/BaseRepository.ts` (internal, keeps throwing) |
@@ -971,12 +964,12 @@ The `BaseService` and `BaseRepository` layers continue to **throw** errors inter
 
 ## Rules
 
-1. **Every server action** — mutations, queries, GETs, everything — MUST use `createAction().handler(fn)`.
-2. **Never throw** from a server action. The `createAction` builder catches all errors and returns `ActionResult<T>`.
+1. **Every server action** — mutations, queries, GETs, everything — MUST use `createAction(fn)`.
+2. **Never throw** from a server action. The `createAction` wrapper catches all errors and returns `ActionResult<T>`.
 3. **RSC pages** use `unwrap(await action(input))` to extract data. `null` checks → `notFound()`.
 4. **Services and repositories** continue to throw — they are internal boundaries.
 5. **`error.tsx`** is a safety net for `unwrap()` failures and programming bugs — NOT the primary error handling strategy.
-6. **`extractError()`** is the single normalization point — maps PostgreSQL, Moodle, network, rate limit, file, and storage errors to safe messages.
+6. **`extractError()`** is the single normalization point — maps PostgreSQL, Moodle, network, rate limit, file, storage, and `UserFacingError` to safe messages. Unknown errors default to generic message.
 7. **`createAction()`** always logs the raw error server-side before sanitizing for the client.
 8. **User-facing messages** are always sanitized. `error.tsx` and `global-error.tsx` show generic messages, never `error.message`.
 9. **`ListLayout`** unwraps `ActionResult` and shows inline error + retry on failure.
@@ -985,5 +978,8 @@ The `BaseService` and `BaseRepository` layers continue to **throw** errors inter
 12. **`QueryClient`** has a global `mutations.onError` handler as a fallback safety net.
 13. **`global-error.tsx`** is mandatory — it catches root layout errors that `error.tsx` cannot.
 14. **No split actions**: A single action serves both RSC and client callers. RSC uses `unwrap()`, client uses the `ActionResult` directly.
-15. **Multi-param actions** use input objects, not positional arguments: `createAction<{ page: number; search: string }>()`.
-16. **Side effects** (revalidatePath, etc.) run inside the handler — failures are caught like any other error.
+15. **Multi-param actions** use input objects, not positional arguments: `createAction(async ({ page, search }: Input) => ...)`.
+16. **ListLayout `getData`** uses object params: `getData({ page, search })` to align with `createAction`'s single-arg convention.
+17. **`export const` exception**: Server action files using `createAction` use `export const` (the only exception to "use `function` for top-level exports").
+17. **`UserFacingError`** is the only way custom service messages reach the UI. Services throw `new UserFacingError('message')` for user-safe errors.
+18. **Side effects** (revalidatePath, etc.) run inside the handler — failures are caught like any other error.
