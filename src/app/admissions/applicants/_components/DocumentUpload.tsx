@@ -30,6 +30,7 @@ import { nanoid } from 'nanoid';
 import { useRouter } from 'nextjs-toploader/app';
 import { useState } from 'react';
 import type { DocumentAnalysisResult } from '@/core/integrations/ai/documents';
+import { getActionErrorMessage } from '@/shared/lib/utils/actionResult';
 import { formatFileSize } from '@/shared/lib/utils/files';
 import {
 	createApplicantFromDocuments,
@@ -90,7 +91,7 @@ export default function DocumentUpload() {
 			if (!result.success) {
 				notifications.show({
 					title: 'Error',
-					message: result.error,
+					message: getActionErrorMessage(result.error),
 					color: 'red',
 				});
 				setFileItems((prev) => prev.filter((item) => item.id !== id));
@@ -181,7 +182,7 @@ export default function DocumentUpload() {
 			if (!result.success) {
 				notifications.show({
 					title: 'Error',
-					message: result.error,
+					message: getActionErrorMessage(result.error),
 					color: 'red',
 				});
 				return;

@@ -12,6 +12,7 @@ import {
 	type DocumentUploadResult,
 } from '@/app/apply/_components/DocumentUpload';
 import { MobileDocumentUpload } from '@/app/apply/_components/MobileDocumentUpload';
+import { getActionErrorMessage } from '@/shared/lib/utils/actionResult';
 import { DocumentCardSkeleton } from '@/shared/ui/DocumentCardShell';
 import WizardNavigation from '../../_components/WizardNavigation';
 import {
@@ -79,7 +80,7 @@ export default function IdentityUploadForm({ applicationId }: Props) {
 		if (!res.success) {
 			notifications.show({
 				title: 'Upload failed',
-				message: res.error,
+				message: getActionErrorMessage(res.error),
 				color: 'red',
 			});
 		} else {
@@ -101,7 +102,7 @@ export default function IdentityUploadForm({ applicationId }: Props) {
 		if (!res.success) {
 			notifications.show({
 				title: 'Delete failed',
-				message: res.error,
+				message: getActionErrorMessage(res.error),
 				color: 'red',
 			});
 			return;

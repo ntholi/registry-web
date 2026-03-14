@@ -4,13 +4,13 @@
 
 ## Prerequisites
 
-- Plan 001 completed (`extractError.ts`, `actionResult.ts` with `AppError | string` union)
+- Plan 001 completed (`extractError.ts`, `actionResult.ts` with `AppError | string` union) — **already implemented**
 
 ## Non-Breaking Guarantee
 
 Every change in this plan maintains full backward compatibility:
 
-- `Form.tsx`: Already handles both `ActionResult<T>` and raw `T` — update to use shared `isActionResult` + `getActionErrorMessage` (handles both `string` and `AppError`)
+- `Form.tsx`: Already imports shared `getActionErrorMessage` and handles both `ActionResult<T>` and raw `T` — only remaining change is replacing local `isActionResult` with shared import
 - `DeleteButton.tsx`: `handleDelete` type widens from `Promise<void>` to `Promise<void | ActionResult<unknown>>` — existing `() => Promise<void>` callers still match
 - `ListLayout.tsx`: **Keeps `getData(page, search)` positional params** — no caller changes needed. Adds ActionResult unwrapping on the **return value** only.
 - New files (`error.tsx`, `global-error.tsx`) don't affect existing code
@@ -24,7 +24,7 @@ Every change in this plan maintains full backward compatibility:
 | **Create** | `src/app/error.tsx` — root error boundary |
 | **Create** | `src/app/global-error.tsx` — mandatory root layout error boundary |
 | **Create** | `src/shared/lib/hooks/use-action-mutation.ts` — unwraps `ActionResult` for direct `useMutation` callers |
-| **Modify** | `src/shared/ui/adease/Form.tsx` — use shared `isActionResult` + `getActionErrorMessage` |
+| **Modify** | `src/shared/ui/adease/Form.tsx` — replace local `isActionResult` with shared import |
 | **Modify** | `src/shared/ui/adease/DeleteButton.tsx` — detect `ActionResult` in onSuccess |
 | **Modify** | `src/shared/ui/adease/DetailsViewHeader.tsx` — update `handleDelete` type |
 | **Modify** | `src/shared/ui/adease/ListLayout.tsx` — ActionResult unwrap on response + error state |
@@ -80,6 +80,8 @@ Must include its own `<html>`, `<body>`, and `MantineProvider` since root layout
 
 ```tsx
 'use client';
+
+import '@mantine/core/styles.css';
 
 import {
   Button, Center, Container, Group, MantineProvider,
@@ -194,8 +196,10 @@ const mutation = useActionMutation(updateThing, {
 
 **File**: `src/shared/ui/adease/Form.tsx`
 
-1. **Remove** local `isActionResult` function
-2. **Import** from shared:
+**Current state**: `Form.tsx` already imports `getActionErrorMessage` and `ActionResult` from `@/shared/lib/utils/actionResult`, and already uses `getActionErrorMessage(data.error)` correctly in the `onSuccess` handler. However, it still has a **local duplicate** `isActionResult` function.
+
+1. **Remove** the local `isActionResult` function (lines 41–47)
+2. **Add** `isActionResult` to the existing shared import:
 ```ts
 import {
   isActionResult,
@@ -203,26 +207,8 @@ import {
   type ActionResult,
 } from '@/shared/lib/utils/actionResult';
 ```
-3. **Update** error handling to use `getActionErrorMessage(result.error)` instead of accessing `.error` directly:
 
-```ts
-// BEFORE (current)
-message: data.error,
-
-// AFTER
-message: getActionErrorMessage(data.error),
-```
-
-This handles both `string` (old actions) and `AppError` (new `createAction`-wrapped actions).
-
-The `onError` callback also needs updating:
-```ts
-// BEFORE
-onError?.({ message: data.error } as Error);
-
-// AFTER
-onError?.({ message: getActionErrorMessage(data.error) } as Error);
-```
+No other changes needed — error handling already uses `getActionErrorMessage` correctly.
 
 **Backward compat**: The `action` prop type already accepts both `Promise<R | ActionResult<R>>` — no change needed there.
 

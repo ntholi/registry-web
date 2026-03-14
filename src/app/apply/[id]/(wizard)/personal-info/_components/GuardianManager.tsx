@@ -21,6 +21,7 @@ import { notifications } from '@mantine/notifications';
 import { IconEdit, IconPlus, IconTrash } from '@tabler/icons-react';
 import { useMutation } from '@tanstack/react-query';
 import { useState } from 'react';
+import { getActionErrorMessage } from '@/shared/lib/utils/actionResult';
 import {
 	addNewGuardian,
 	removeGuardian,
@@ -77,7 +78,7 @@ export default function GuardianManager() {
 				{ ...data, applicantId },
 				[phoneNumber1, phoneNumber2].filter(Boolean)
 			);
-			if (!res.success) throw new Error(res.error);
+			if (!res.success) throw new Error(getActionErrorMessage(res.error));
 		},
 		onSuccess: async () => {
 			await refetch();
@@ -112,7 +113,7 @@ export default function GuardianManager() {
 				data,
 				[phoneNumber1, phoneNumber2].filter(Boolean)
 			);
-			if (!res.success) throw new Error(res.error);
+			if (!res.success) throw new Error(getActionErrorMessage(res.error));
 		},
 		onSuccess: async () => {
 			await refetch();
@@ -137,7 +138,7 @@ export default function GuardianManager() {
 	const deleteMutation = useMutation({
 		mutationFn: async (id: string) => {
 			const res = await removeGuardian(id);
-			if (!res.success) throw new Error(res.error);
+			if (!res.success) throw new Error(getActionErrorMessage(res.error));
 		},
 		onSuccess: async () => {
 			await refetch();

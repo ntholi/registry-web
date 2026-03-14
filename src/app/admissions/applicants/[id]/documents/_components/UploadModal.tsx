@@ -11,6 +11,7 @@ import {
 	type DocumentUploadResult,
 } from '@/app/apply/_components/DocumentUpload';
 import type { DocumentAnalysisResult } from '@/core/integrations/ai/documents';
+import { getActionErrorMessage } from '@/shared/lib/utils/actionResult';
 import {
 	createAcademicRecordFromDocument,
 	saveApplicantDocument,
@@ -153,7 +154,7 @@ export function UploadModal({
 				} else {
 					notifications.show({
 						title: 'Update Failed',
-						message: updateResult.error,
+						message: getActionErrorMessage(updateResult.error),
 						color: 'red',
 					});
 				}
@@ -187,7 +188,7 @@ export function UploadModal({
 					} else {
 						notifications.show({
 							title: 'Academic Record Failed',
-							message: recordResult.error,
+							message: getActionErrorMessage(recordResult.error),
 							color: 'red',
 						});
 					}

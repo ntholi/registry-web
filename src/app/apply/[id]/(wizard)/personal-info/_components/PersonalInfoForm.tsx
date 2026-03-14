@@ -16,6 +16,7 @@ import { useForm } from '@mantine/form';
 import { notifications } from '@mantine/notifications';
 import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'nextjs-toploader/app';
+import { getActionErrorMessage } from '@/shared/lib/utils/actionResult';
 import { getCountries } from '@/shared/lib/utils/countries';
 import { getReligions } from '@/shared/lib/utils/religions';
 import WizardNavigation from '../../_components/WizardNavigation';
@@ -58,7 +59,7 @@ export default function PersonalInfoForm({ applicationId }: Props) {
 	const mutation = useMutation({
 		mutationFn: async (values: typeof form.values) => {
 			const res = await updateApplicantInfo(applicantId, values);
-			if (!res.success) throw new Error(res.error);
+			if (!res.success) throw new Error(getActionErrorMessage(res.error));
 		},
 		onSuccess: () => {
 			refetch();

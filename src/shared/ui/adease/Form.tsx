@@ -8,7 +8,10 @@ import { zod4Resolver as zodResolver } from 'mantine-form-zod-resolver';
 import { useRouter } from 'nextjs-toploader/app';
 import type { JSX, RefObject } from 'react';
 import type { ZodObject, ZodTypeAny } from 'zod';
-import type { ActionResult } from '@/shared/lib/utils/actionResult';
+import {
+	type ActionResult,
+	getActionErrorMessage,
+} from '@/shared/lib/utils/actionResult';
 import FormHeader from './FormHeader';
 
 type ZodSchema = ZodObject<Record<string, ZodTypeAny>>;
@@ -69,12 +72,13 @@ export function Form<T extends Record<string, unknown>, V, R = T>({
 		onSuccess: async (data) => {
 			if (isActionResult(data)) {
 				if (!data.success) {
+					const msg = getActionErrorMessage(data.error);
 					notifications.show({
 						title: 'Error',
-						message: data.error,
+						message: msg,
 						color: 'red',
 					});
-					onError?.({ message: data.error } as Error);
+					onError?.(new Error(msg));
 					return;
 				}
 				await queryClient.invalidateQueries({

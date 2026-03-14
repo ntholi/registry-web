@@ -28,6 +28,7 @@ import {
 } from '@tabler/icons-react';
 import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'nextjs-toploader/app';
+import { getActionErrorMessage } from '@/shared/lib/utils/actionResult';
 import { submitApplication } from '../_server/actions';
 
 type Props = {
@@ -48,7 +49,7 @@ export default function ReviewForm({ applicationId }: Props) {
 				throw new Error('No application found');
 			}
 			const res = await submitApplication(application.id);
-			if (!res.success) throw new Error(res.error);
+			if (!res.success) throw new Error(getActionErrorMessage(res.error));
 		},
 		onSuccess: () => {
 			refetch();

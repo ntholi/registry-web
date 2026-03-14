@@ -16,6 +16,7 @@ import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import { IconPlus, IconTrash } from '@tabler/icons-react';
 import { useMutation } from '@tanstack/react-query';
+import { getActionErrorMessage } from '@/shared/lib/utils/actionResult';
 import { addPhone, removePhone } from '../_server/actions';
 
 export default function PhoneManager() {
@@ -34,7 +35,7 @@ export default function PhoneManager() {
 	const addMutation = useMutation({
 		mutationFn: async (phoneNumber: string) => {
 			const res = await addPhone(applicantId, phoneNumber);
-			if (!res.success) throw new Error(res.error);
+			if (!res.success) throw new Error(getActionErrorMessage(res.error));
 		},
 		onSuccess: async () => {
 			await refetch();
@@ -58,7 +59,7 @@ export default function PhoneManager() {
 	const removeMutation = useMutation({
 		mutationFn: async (phoneId: string) => {
 			const res = await removePhone(phoneId);
-			if (!res.success) throw new Error(res.error);
+			if (!res.success) throw new Error(getActionErrorMessage(res.error));
 		},
 		onSuccess: async () => {
 			await refetch();
