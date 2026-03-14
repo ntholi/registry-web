@@ -80,7 +80,7 @@ export default async function UserDetails({ params }: Props) {
 						</Stack>
 					</GridCol>
 				</Grid>
-				{users.role === 'academic' && <SchoolsList userId={id} />}
+				<SchoolsList userId={id} />
 			</DetailsViewBody>
 		</DetailsView>
 	);

@@ -240,26 +240,12 @@ export default function UserForm({ onSubmit, defaultValues, title }: Props) {
 							/>
 						</Group>
 
-						{preset ? (
-							<Paper withBorder radius='md' p='md'>
-								<Stack gap='sm'>
-									<PermissionMatrix permissions={preset.permissions} readOnly />
-									<Text c='dimmed' size='sm'>
-										To modify permissions, edit the preset directly.{' '}
-										<Anchor component={Link} href='/admin/permission-presets'>
-											Manage Presets
-										</Anchor>
-									</Text>
-								</Stack>
-							</Paper>
-						) : null}
 						<Group>
 							<TextInput
 								label='Moodle User ID'
 								flex={1}
 								type='number'
 								placeholder='Enter Moodle User ID'
-								description='The user ID from Moodle system'
 								{...form.getInputProps('lmsUserId')}
 								onChange={(event) => {
 									const value = event.currentTarget.value;
@@ -270,7 +256,6 @@ export default function UserForm({ onSubmit, defaultValues, title }: Props) {
 								label='Moodle Token'
 								flex={1}
 								placeholder='Enter Moodle access token'
-								description='Web service token from Moodle'
 								{...form.getInputProps('lmsToken')}
 							/>
 						</Group>
@@ -315,7 +300,7 @@ export default function UserForm({ onSubmit, defaultValues, title }: Props) {
 										</Table.Tbody>
 									</Table>
 								) : (
-									<Text c='dimmed' ta='center' py='md'>
+									<Text c='dimmed' size='xs' ta='center' py='md'>
 										No schools assigned. Click &quot;Add School&quot; to assign
 										schools to this user.
 									</Text>
@@ -323,6 +308,22 @@ export default function UserForm({ onSubmit, defaultValues, title }: Props) {
 								<input type='hidden' {...form.getInputProps('schoolIds')} />
 							</div>
 						)}
+						{preset ? (
+							<Paper withBorder radius='md' p='md'>
+								<Stack gap='sm'>
+									<PermissionMatrix permissions={preset.permissions} readOnly />
+									<Text c='dimmed' size='sm'>
+										To modify permissions, edit the preset directly.{' '}
+										<Anchor
+											component={Link}
+											href={`/admin/permission-presets/${preset.id}`}
+										>
+											Manage Presets
+										</Anchor>
+									</Text>
+								</Stack>
+							</Paper>
+						) : null}
 					</>
 				)}
 			</Form>
