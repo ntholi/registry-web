@@ -66,7 +66,7 @@ export default async function UserDetails({ params }: Props) {
 									{toTitleCase(users.role)}
 								</Badge>
 							</FieldView>
-							<FieldView label='Preset'>
+							<FieldView label='Permission Preset'>
 								{users.preset ? (
 									<Link href={`/admin/permission-presets/${users.preset.id}`}>
 										{users.preset.name}

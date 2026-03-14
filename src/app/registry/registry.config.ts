@@ -36,7 +36,6 @@ export const registryConfig: ModuleConfig = {
 			},
 			{
 				label: 'Registration',
-				description: 'Registration Requests',
 				href: '/registry/registration/requests',
 				icon: IconUserPlus,
 				permissions: [{ resource: 'registration', action: 'read' }],
