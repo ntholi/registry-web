@@ -26,7 +26,10 @@ export type PermissionResourceOptionGroup = {
 	items: { value: Resource; label: string }[];
 };
 
+type PermissionResourceMode = 'create' | 'edit';
+
 type PermissionResourceModalProps = {
+	mode: PermissionResourceMode;
 	opened: boolean;
 	onClose: () => void;
 	permissions: PermissionGrant[];
@@ -60,6 +63,7 @@ function toggleAction(actions: Action[], action: Action) {
 }
 
 export default function PermissionResourceModal({
+	mode,
 	opened,
 	onClose,
 	permissions,
@@ -86,22 +90,24 @@ export default function PermissionResourceModal({
 			opened={opened}
 			onClose={onClose}
 			title={
-				resource
+				mode === 'edit' && resource
 					? `${toTitleCase(resource)} Permissions`
-					: 'Manage Resource Permissions'
+					: 'Add Resource'
 			}
 			centered
 			size='lg'
 		>
 			<Stack gap='md'>
 				<Text c='dimmed' size='sm'>
-					Select a resource, then add or remove the actions available for that
-					resource.
+					{mode === 'edit'
+						? 'Update the actions for this resource.'
+						: 'Select a new resource, then choose the actions to assign.'}
 				</Text>
 				<Select
 					label='Resource'
 					placeholder='Select resource'
 					searchable
+					disabled={mode === 'edit'}
 					data={resourceOptions}
 					value={resource}
 					onChange={(value) => {

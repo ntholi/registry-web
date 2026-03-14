@@ -38,6 +38,8 @@ type PermissionMatrixProps = {
 	readOnly?: boolean;
 };
 
+type ModalMode = 'create' | 'edit';
+
 type ResourceCard = {
 	resource: Resource;
 	actions: Action[];
@@ -258,8 +260,8 @@ function ResourcePermissionCard({
 						<Badge
 							key={grantKey(item.resource, action)}
 							radius='sm'
+							size='sm'
 							variant='light'
-							color='blue'
 						>
 							{toTitleCase(action)}
 						</Badge>
@@ -280,9 +282,23 @@ export default function PermissionMatrix({
 	const [opened, { open, close }] = useDisclosure(false);
 	const [query, setQuery] = useState('');
 	const [selected, setSelected] = useState<Resource | null>(null);
+	const [mode, setMode] = useState<ModalMode>('create');
 	const groups = groupPermissions(current, editable ? query : '');
+	const assignedResources = new Set(
+		current.map((permission) => permission.resource)
+	);
+	const availableResources = orderedResources.filter(
+		(resource) => !assignedResources.has(resource)
+	);
 
-	function openModal(resource: Resource | null) {
+	function openCreateModal() {
+		setMode('create');
+		setSelected(null);
+		open();
+	}
+
+	function openEditModal(resource: Resource) {
+		setMode('edit');
 		setSelected(resource);
 		open();
 	}
@@ -303,11 +319,12 @@ export default function PermissionMatrix({
 				{editable ? (
 					<Button
 						leftSection={<IconPlus size={16} />}
-						onClick={() => openModal(null)}
+						onClick={openCreateModal}
 						variant='light'
 						size='xs'
+						disabled={availableResources.length === 0}
 					>
-						Manage Resource
+						Add Resource
 					</Button>
 				) : null}
 			</Group>
@@ -328,7 +345,7 @@ export default function PermissionMatrix({
 									<Text fw={600} size='sm'>
 										{group.label}
 									</Text>
-									<Badge radius='sm' variant='dot' color='teal'>
+									<Badge radius='sm' variant='default'>
 										{group.items.length}
 									</Badge>
 								</Group>
@@ -338,7 +355,7 @@ export default function PermissionMatrix({
 											key={item.resource}
 											item={item}
 											readOnly={!editable}
-											onEdit={openModal}
+											onEdit={openEditModal}
 										/>
 									))}
 								</Stack>
@@ -370,11 +387,30 @@ export default function PermissionMatrix({
 			{opened ? (
 				<PermissionResourceModal
 					key={selected ?? 'new'}
+					mode={mode}
 					opened={opened}
 					onClose={close}
 					permissions={current}
 					initialResource={selected}
-					resourceOptions={buildResourceOptions()}
+					resourceOptions={
+						mode === 'edit'
+							? buildResourceOptions()
+									.map((group) => ({
+										...group,
+										items: group.items.filter(
+											(item) => item.value === selected
+										),
+									}))
+									.filter((group) => group.items.length > 0)
+							: buildResourceOptions()
+									.map((group) => ({
+										...group,
+										items: group.items.filter(
+											(item) => !assignedResources.has(item.value)
+										),
+									}))
+									.filter((group) => group.items.length > 0)
+					}
 					onSave={handleSave}
 				/>
 			) : null}

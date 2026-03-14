@@ -44,9 +44,8 @@ export default async function PresetDetails({ params }: Props) {
 					</Badge>
 				</FieldView>
 				<FieldView label='Description'>{preset.description || '-'}</FieldView>
-				<FieldView label='Permissions'>
-					<PermissionMatrix permissions={preset.permissions} readOnly />
-				</FieldView>
+
+				<PermissionMatrix permissions={preset.permissions} readOnly />
 			</DetailsViewBody>
 		</DetailsView>
 	);
