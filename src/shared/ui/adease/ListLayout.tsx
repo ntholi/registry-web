@@ -2,6 +2,8 @@
 
 import {
 	Box,
+	Button,
+	Center,
 	Divider,
 	Flex,
 	Group,
@@ -9,24 +11,37 @@ import {
 	ScrollArea,
 	Skeleton,
 	Stack,
+	Text,
+	ThemeIcon,
 } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
-import { IconGripVertical } from '@tabler/icons-react';
+import { IconAlertTriangle, IconGripVertical } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useSearchParams } from 'next/navigation';
 import { useRouter } from 'nextjs-toploader/app';
 import React from 'react';
 import { useResizablePanel } from '@/shared/lib/hooks/use-resizable-panel';
 import { useViewSelect } from '@/shared/lib/hooks/use-view-select';
+import {
+	type ActionResult,
+	getActionErrorMessage,
+	isActionResult,
+} from '@/shared/lib/utils/actionResult';
 import { ListItem } from './ListItem';
 import { Pagination } from './Pagination';
 import { SearchField } from './SearchField';
+
+type GetDataResult<T> = {
+	items: T[];
+	totalPages: number;
+	totalItems?: number;
+};
 
 export type ListLayoutProps<T> = {
 	getData: (
 		page: number,
 		search: string
-	) => Promise<{ items: T[]; totalPages: number; totalItems?: number }>;
+	) => Promise<ActionResult<GetDataResult<T>> | GetDataResult<T>>;
 	renderItem: (item: T) => React.ReactNode;
 	path: string;
 	queryKey: string[];
@@ -51,6 +66,8 @@ export function ListLayout<T>({
 
 	const {
 		isLoading,
+		isError,
+		refetch,
 		data: { items, totalPages, totalItems } = {
 			items: [],
 			totalPages: 0,
@@ -58,7 +75,18 @@ export function ListLayout<T>({
 		},
 	} = useQuery({
 		queryKey: [...queryKey, page, search],
-		queryFn: () => getData(page, search),
+		queryFn: async () => {
+			const result = await getData(page, search);
+			if (isActionResult(result)) {
+				if (!result.success) {
+					throw new Error(getActionErrorMessage(result.error));
+				}
+
+				return result.data;
+			}
+
+			return result;
+		},
 		staleTime: 0,
 	});
 
@@ -118,7 +146,21 @@ export function ListLayout<T>({
 				<Divider />
 
 				<ScrollArea type='always' style={{ flex: 1 }} p='md'>
-					{isLoading ? (
+					{isError ? (
+						<Center py='xl'>
+							<Stack align='center' gap='sm'>
+								<ThemeIcon size={48} radius='xl' variant='light' color='red'>
+									<IconAlertTriangle size={24} />
+								</ThemeIcon>
+								<Text c='dimmed' size='sm'>
+									Failed to load data
+								</Text>
+								<Button size='xs' variant='light' onClick={() => refetch()}>
+									Retry
+								</Button>
+							</Stack>
+						</Center>
+					) : isLoading ? (
 						<Stack gap='sm'>
 							{Array.from({ length: 5 }).map((_, index) => (
 								<Skeleton height={35} key={`skeleton-${index}`} />

@@ -12,12 +12,13 @@ import {
 } from '@/core/auth/permissions';
 import { authClient } from '@/core/auth-client';
 import { useViewSelect } from '@/shared/lib/hooks/use-view-select';
+import type { ActionResult } from '@/shared/lib/utils/actionResult';
 import { DeleteButton } from './DeleteButton';
 
 export interface DetailsViewHeaderProps {
 	title: React.ReactNode;
 	queryKey: string[];
-	handleDelete?: () => Promise<void>;
+	handleDelete?: (() => Promise<void>) | (() => Promise<ActionResult<unknown>>);
 	onDeleteSuccess?: () => Promise<void>;
 	deletePermission?: PermissionRequirement;
 	editPermission?: PermissionRequirement;

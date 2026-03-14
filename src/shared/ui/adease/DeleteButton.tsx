@@ -23,9 +23,14 @@ import {
 	type ReactNode,
 	useState,
 } from 'react';
+import {
+	type ActionResult,
+	getActionErrorMessage,
+	isActionResult,
+} from '@/shared/lib/utils/actionResult';
 
 export interface DeleteButtonProps extends ActionIconProps {
-	handleDelete: () => Promise<void>;
+	handleDelete: (() => Promise<void>) | (() => Promise<ActionResult<unknown>>);
 	message?: string;
 	onSuccess?: () => void;
 	onError?: (error: Error) => void;
@@ -66,7 +71,18 @@ export function DeleteButton({
 
 	const mutation = useMutation({
 		mutationFn: handleDelete,
-		onSuccess: async () => {
+		onSuccess: async (data) => {
+			if (isActionResult(data)) {
+				if (!data.success) {
+					notifications.show({
+						title: 'Error',
+						message: getActionErrorMessage(data.error),
+						color: 'red',
+					});
+					return;
+				}
+			}
+
 			await queryClient.invalidateQueries({
 				queryKey,
 				refetchType: 'all',

@@ -11,6 +11,7 @@ import type { ZodObject, ZodTypeAny } from 'zod';
 import {
 	type ActionResult,
 	getActionErrorMessage,
+	isActionResult,
 } from '@/shared/lib/utils/actionResult';
 import FormHeader from './FormHeader';
 
@@ -35,15 +36,6 @@ export type FormProps<T extends Record<string, unknown>, V, R = T> = Omit<
 	formRef?: RefObject<HTMLFormElement | null>;
 	hideHeader?: boolean;
 };
-
-function isActionResult(value: unknown): value is ActionResult<unknown> {
-	return (
-		typeof value === 'object' &&
-		value !== null &&
-		'success' in value &&
-		typeof (value as { success: unknown }).success === 'boolean'
-	);
-}
 
 export function Form<T extends Record<string, unknown>, V, R = T>({
 	schema,

@@ -22,6 +22,7 @@ export interface StatusPageProps {
 	color?: string;
 	primaryActionHref?: string;
 	primaryActionLabel?: string;
+	onRetry?: () => void;
 	showBack?: boolean;
 }
 
@@ -32,6 +33,7 @@ export default function StatusPage({
 	color = 'blue',
 	primaryActionHref = '/',
 	primaryActionLabel = 'Go home',
+	onRetry,
 	showBack = true,
 }: StatusPageProps) {
 	const router = useRouter();
@@ -62,6 +64,11 @@ export default function StatusPage({
 								onClick={() => router.back()}
 							>
 								Go back
+							</Button>
+						) : null}
+						{onRetry ? (
+							<Button variant='light' color={color} onClick={onRetry}>
+								Try again
 							</Button>
 						) : null}
 						<Button component={Link} href={primaryActionHref} color={color}>
