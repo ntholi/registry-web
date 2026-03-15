@@ -9,9 +9,10 @@ import {
 	Text,
 } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { authClient } from '@/core/auth-client';
+import { useActionMutation } from '@/shared/lib/hooks/use-action-mutation';
 import { type AllStatusType, getStatusColor } from '@/shared/lib/utils/colors';
 import { formatDateTime } from '@/shared/lib/utils/dates';
 import { getApprovalRolesByUser } from '../_lib/approvalRoles';
@@ -118,29 +119,29 @@ function ApprovalSwitchForm({
 		approval.status as ApprovalStatus
 	);
 
-	const mutation = useMutation({
-		mutationFn: async () => {
-			return respondToStudentStatusStep(approval.id, status, comment);
-		},
-		onSuccess: () => {
-			queryClient.invalidateQueries({
-				queryKey: ['student-status', applicationId],
-			});
-			queryClient.invalidateQueries({ queryKey: ['student-statuses'] });
-			notifications.show({
-				title: 'Success',
-				message: 'Response submitted successfully',
-				color: 'green',
-			});
-		},
-		onError: (error) => {
-			notifications.show({
-				title: 'Error',
-				message: error.message || 'Failed to submit response',
-				color: 'red',
-			});
-		},
-	});
+	const mutation = useActionMutation(
+		() => respondToStudentStatusStep(approval.id, status, comment),
+		{
+			onSuccess: () => {
+				queryClient.invalidateQueries({
+					queryKey: ['student-status', applicationId],
+				});
+				queryClient.invalidateQueries({ queryKey: ['student-statuses'] });
+				notifications.show({
+					title: 'Success',
+					message: 'Response submitted successfully',
+					color: 'green',
+				});
+			},
+			onError: (error) => {
+				notifications.show({
+					title: 'Error',
+					message: error.message || 'Failed to submit response',
+					color: 'red',
+				});
+			},
+		}
+	);
 
 	const isChanged = status !== approval.status;
 	const canSubmit = isChanged;

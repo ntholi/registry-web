@@ -28,10 +28,11 @@ import {
 	IconPlus,
 	IconSearch,
 } from '@tabler/icons-react';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import type { StudentModuleStatus } from '@/core/database';
-import type { ActionData } from '@/shared/lib/utils/actionResult';
+import { useActionMutation } from '@/shared/lib/hooks/use-action-mutation';
+import { type ActionData, unwrap } from '@/shared/lib/utils/actionResult';
 import ReceiptInput from '@/shared/ui/adease/ReceiptInput';
 import type { getRegistrationRequest } from '../_server/requests/actions';
 
@@ -66,14 +67,15 @@ export default function AddModuleModal({ request }: Props) {
 		request.requestedModules.map((rm) => rm.semesterModule.id)
 	);
 
-	const { data: moduleResult, isLoading } = useQuery({
+	const { data: moduleData, isLoading } = useQuery({
 		queryKey: ['eligible-modules', request.stdNo, request.term.code],
 		queryFn: () =>
 			getEligibleModulesForRequest(request.stdNo, request.term.code),
+		select: unwrap,
 		enabled: opened,
 	});
 
-	const modules = moduleResult?.modules ?? [];
+	const modules = moduleData?.modules ?? [];
 
 	const filtered = modules.filter(
 		(m) =>
@@ -100,8 +102,8 @@ export default function AddModuleModal({ request }: Props) {
 		return module.status as StudentModuleStatus;
 	}
 
-	const mutation = useMutation({
-		mutationFn: async () => {
+	const mutation = useActionMutation(
+		async () => {
 			if (selectedModules.length === 0) {
 				throw new Error('Please select at least one module');
 			}
@@ -140,26 +142,28 @@ export default function AddModuleModal({ request }: Props) {
 				receipts,
 			});
 		},
-		onSuccess: () => {
-			const addedCodes = selectedModules.map((mod) => mod.code).join(', ');
-			notifications.show({
-				title: 'Additional Request Created',
-				message: `${selectedModules.length} module${selectedModules.length > 1 ? 's were' : ' was'} submitted as a new registration request${addedCodes ? `: ${addedCodes}` : ''}`,
-				color: 'green',
-			});
-			queryClient.invalidateQueries({
-				queryKey: ['registration-requests'],
-			});
-			handleClose();
-		},
-		onError: (error) => {
-			notifications.show({
-				title: 'Error',
-				message: error.message || 'Failed to add module',
-				color: 'red',
-			});
-		},
-	});
+		{
+			onSuccess: () => {
+				const addedCodes = selectedModules.map((mod) => mod.code).join(', ');
+				notifications.show({
+					title: 'Additional Request Created',
+					message: `${selectedModules.length} module${selectedModules.length > 1 ? 's were' : ' was'} submitted as a new registration request${addedCodes ? `: ${addedCodes}` : ''}`,
+					color: 'green',
+				});
+				queryClient.invalidateQueries({
+					queryKey: ['registration-requests'],
+				});
+				handleClose();
+			},
+			onError: (error) => {
+				notifications.show({
+					title: 'Error',
+					message: error.message || 'Failed to add module',
+					color: 'red',
+				});
+			},
+		}
+	);
 
 	function handleClose() {
 		close();
@@ -285,13 +289,13 @@ export default function AddModuleModal({ request }: Props) {
 						)}
 					</Box>
 
-					{moduleResult?.error && (
+					{moduleData?.error && (
 						<Alert
 							icon={<IconAlertTriangle size='1rem' />}
 							color='orange'
 							variant='light'
 						>
-							{moduleResult.error}
+							{moduleData.error}
 						</Alert>
 					)}
 

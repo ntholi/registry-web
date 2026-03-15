@@ -8,9 +8,10 @@ import {
 	IconLock,
 	IconLockOpen,
 } from '@tabler/icons-react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import type React from 'react';
 import { useEffect, useState } from 'react';
+import { useActionMutation } from '@/shared/lib/hooks/use-action-mutation';
 import { getAlertColor, getBooleanColor } from '@/shared/lib/utils/colors';
 import { updateBlockedStudent } from '../_server/actions';
 
@@ -34,31 +35,32 @@ export default function StudentStatusSwitch({
 		setStatus(currentStatus);
 	}, [currentStatus]);
 
-	const mutation = useMutation({
-		mutationFn: async (newStatus: 'blocked' | 'unblocked') => {
-			return updateBlockedStudent(id, { status: newStatus });
-		},
-		onSuccess: (_, newStatus) => {
-			queryClient.invalidateQueries({ queryKey: ['blocked-students'] });
-			queryClient.invalidateQueries({ queryKey: ['blocked-student', id] });
-			notifications.show({
-				title: 'Status Updated',
-				message: `Student ${stdNo} has been ${newStatus}`,
-				color: getBooleanColor(newStatus === 'blocked', 'negative'),
-				icon: <IconCheck size='1rem' />,
-			});
-		},
-		onError: (error) => {
-			setStatus((prev) => (prev === 'blocked' ? 'unblocked' : 'blocked'));
-			notifications.show({
-				title: 'Error',
-				message: 'Failed to update student status. Please try again.',
-				color: getAlertColor('error'),
-				icon: <IconExclamationCircle size='1rem' />,
-			});
-			console.error('Failed to update student status:', error);
-		},
-	});
+	const mutation = useActionMutation(
+		(newStatus: 'blocked' | 'unblocked') =>
+			updateBlockedStudent(id, { status: newStatus }),
+		{
+			onSuccess: (_, newStatus) => {
+				queryClient.invalidateQueries({ queryKey: ['blocked-students'] });
+				queryClient.invalidateQueries({ queryKey: ['blocked-student', id] });
+				notifications.show({
+					title: 'Status Updated',
+					message: `Student ${stdNo} has been ${newStatus}`,
+					color: getBooleanColor(newStatus === 'blocked', 'negative'),
+					icon: <IconCheck size='1rem' />,
+				});
+			},
+			onError: (error) => {
+				setStatus((prev) => (prev === 'blocked' ? 'unblocked' : 'blocked'));
+				notifications.show({
+					title: 'Error',
+					message: 'Failed to update student status. Please try again.',
+					color: getAlertColor('error'),
+					icon: <IconExclamationCircle size='1rem' />,
+				});
+				console.error('Failed to update student status:', error);
+			},
+		}
+	);
 
 	const handleStatusChange = (event: React.ChangeEvent<HTMLInputElement>) => {
 		const checked = event.currentTarget.checked;

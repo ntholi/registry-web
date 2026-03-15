@@ -76,7 +76,7 @@ pnpm tsc --noEmit
 
 ## Done When
 
-- [ ] All direct `useMutation` callers in registry switched to `useActionMutation`
-- [ ] No remaining `useMutation({ mutationFn: registryAction })` patterns
-- [ ] `pnpm tsc --noEmit` passes
-- [ ] **Registry module fully migrated; all other modules still work**
+- [x] All direct `useMutation` callers in registry switched to `useActionMutation`
+- [x] No remaining `useMutation({ mutationFn: registryAction })` patterns
+- [x] `pnpm tsc --noEmit` passes
+- [x] **Registry module fully migrated; all other modules still work**

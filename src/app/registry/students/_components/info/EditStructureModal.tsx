@@ -14,8 +14,9 @@ import {
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import { IconEdit } from '@tabler/icons-react';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
+import { useActionMutation } from '@/shared/lib/hooks/use-action-mutation';
 import { unwrap } from '@/shared/lib/utils/actionResult';
 import { updateStudentProgramStructure } from '../../_server/actions';
 
@@ -45,25 +46,25 @@ export default function EditStructureModal({
 		enabled: opened,
 	});
 
-	const mutation = useMutation({
-		mutationFn: async (structureId: number) => {
-			return updateStudentProgramStructure(stdNo, structureId);
-		},
-		onSuccess: () => {
-			notifications.show({
-				message: 'Structure updated successfully',
-				color: 'green',
-			});
-			queryClient.invalidateQueries({ queryKey: ['student', stdNo] });
-			close();
-		},
-		onError: (error) => {
-			notifications.show({
-				message: `Failed to update structure: ${error.message}`,
-				color: 'red',
-			});
-		},
-	});
+	const mutation = useActionMutation(
+		(structureId: number) => updateStudentProgramStructure(stdNo, structureId),
+		{
+			onSuccess: () => {
+				notifications.show({
+					message: 'Structure updated successfully',
+					color: 'green',
+				});
+				queryClient.invalidateQueries({ queryKey: ['student', stdNo] });
+				close();
+			},
+			onError: (error) => {
+				notifications.show({
+					message: `Failed to update structure: ${error.message}`,
+					color: 'red',
+				});
+			},
+		}
+	);
 
 	const handleSave = () => {
 		if (selectedStructureId) {

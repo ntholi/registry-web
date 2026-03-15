@@ -14,9 +14,11 @@ import { useForm } from '@mantine/form';
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import { IconDeviceIpadHorizontalPlus } from '@tabler/icons-react';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { createCertificateReprint } from '@/app/registry/certificate-reprints';
 import { authClient } from '@/core/auth-client';
+import { useActionMutation } from '@/shared/lib/hooks/use-action-mutation';
+import { unwrap } from '@/shared/lib/utils/actionResult';
 import { ReceiptInput } from '@/shared/ui/adease';
 import { getPublishedAcademicHistory } from '../../../_server/actions';
 
@@ -37,6 +39,7 @@ export default function CreateReprintModal({ stdNo }: Props) {
 	const { data: student, isLoading } = useQuery({
 		queryKey: ['student', stdNo, 'published'],
 		queryFn: () => getPublishedAcademicHistory(stdNo),
+		select: unwrap,
 		enabled: opened,
 	});
 
@@ -57,8 +60,8 @@ export default function CreateReprintModal({ stdNo }: Props) {
 		},
 	});
 
-	const mutation = useMutation({
-		mutationFn: async (values: FormValues) => {
+	const mutation = useActionMutation(
+		async (values: FormValues) => {
 			if (!session?.user?.id) {
 				throw new Error('User not authenticated');
 			}
@@ -70,25 +73,27 @@ export default function CreateReprintModal({ stdNo }: Props) {
 				createdBy: session.user.id,
 			});
 		},
-		onSuccess: () => {
-			notifications.show({
-				title: 'Success',
-				message: 'Certificate reprint request created',
-				color: 'green',
-			});
-			queryClient.invalidateQueries({
-				queryKey: ['certificate-reprints', stdNo],
-			});
-			handleClose();
-		},
-		onError: (error) => {
-			notifications.show({
-				title: 'Error',
-				message: error.message || 'Failed to create reprint request',
-				color: 'red',
-			});
-		},
-	});
+		{
+			onSuccess: () => {
+				notifications.show({
+					title: 'Success',
+					message: 'Certificate reprint request created',
+					color: 'green',
+				});
+				queryClient.invalidateQueries({
+					queryKey: ['certificate-reprints', stdNo],
+				});
+				handleClose();
+			},
+			onError: (error) => {
+				notifications.show({
+					title: 'Error',
+					message: error.message || 'Failed to create reprint request',
+					color: 'red',
+				});
+			},
+		}
+	);
 
 	function handleClose() {
 		form.reset();
