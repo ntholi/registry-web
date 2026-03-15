@@ -5,6 +5,7 @@ import { ActionIcon, Indicator } from '@mantine/core';
 import { IconChecklist } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'nextjs-toploader/app';
+import { unwrap } from '@/shared/lib/utils/actionResult';
 
 export default function TaskBell() {
 	const router = useRouter();
@@ -13,6 +14,7 @@ export default function TaskBell() {
 		queryKey: ['tasks', 'todo-summary'],
 		queryFn: getTodoTaskSummary,
 		refetchInterval: 60000,
+		select: unwrap,
 	});
 
 	const todoCount = data?.todoCount ?? 0;

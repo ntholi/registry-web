@@ -15,7 +15,7 @@ import { useForm } from '@mantine/form';
 import { useDebouncedCallback, useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import { IconCheck, IconPlus } from '@tabler/icons-react';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { z } from 'zod';
 import {
@@ -24,7 +24,7 @@ import {
 } from '@/app/academic/assessments/_lib/utils';
 import { getAssessmentByModuleId } from '@/app/academic/assessments/_server/actions';
 import { useActionMutation } from '@/shared/lib/hooks/use-action-mutation';
-import { success, unwrap } from '@/shared/lib/utils/actionResult';
+import { unwrap } from '@/shared/lib/utils/actionResult';
 import {
 	createDraftAssignment,
 	publishAssignment,
@@ -194,28 +194,30 @@ export default function AssignmentForm({
 		},
 	});
 
-	const saveSettingsMutation = useActionMutation({
+	const saveSettingsMutation = useMutation({
 		mutationFn: async () => {
 			if (!draftId) {
-				return success(undefined);
+				return;
 			}
 
 			const typeLabel =
 				ASSESSMENT_TYPES.find((t) => t.value === form.values.assessmentType)
 					?.label || '';
 
-			return updateAssignment(draftId, {
-				name: typeLabel,
-				intro: form.values.description,
-				activity: form.values.instructions,
-				allowsubmissionsfromdate: form.values.availableFrom
-					? Math.floor(new Date(form.values.availableFrom).getTime() / 1000)
-					: 0,
-				duedate: form.values.dueDate
-					? Math.floor(new Date(form.values.dueDate).getTime() / 1000)
-					: undefined,
-				grademax: form.values.totalMarks,
-			});
+			unwrap(
+				await updateAssignment(draftId, {
+					name: typeLabel,
+					intro: form.values.description,
+					activity: form.values.instructions,
+					allowsubmissionsfromdate: form.values.availableFrom
+						? Math.floor(new Date(form.values.availableFrom).getTime() / 1000)
+						: 0,
+					duedate: form.values.dueDate
+						? Math.floor(new Date(form.values.dueDate).getTime() / 1000)
+						: undefined,
+					grademax: form.values.totalMarks,
+				})
+			);
 		},
 		onSuccess: () => {
 			setSaveState('saved');

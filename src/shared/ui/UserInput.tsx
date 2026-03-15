@@ -11,6 +11,7 @@ import {
 import { useDebouncedValue } from '@mantine/hooks';
 import { useEffect, useState } from 'react';
 import type { users } from '@/core/database';
+import { unwrap } from '@/shared/lib/utils/actionResult';
 
 type User = typeof users.$inferSelect;
 
@@ -50,7 +51,7 @@ export default function UserInput({
 
 			setIsSearching(true);
 			try {
-				const result = await findAllByRole(1, debounced, role);
+				const result = unwrap(await findAllByRole(1, debounced, role));
 				const filtered = emailDomain
 					? result.items.filter((u) => u.email?.endsWith(emailDomain))
 					: result.items;

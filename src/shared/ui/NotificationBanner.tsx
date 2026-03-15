@@ -15,6 +15,7 @@ import {
 import { IconInfoCircle } from '@tabler/icons-react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import Link from 'next/link';
+import { unwrap } from '@/shared/lib/utils/actionResult';
 
 export default function NotificationBanner() {
 	const queryClient = useQueryClient();
@@ -23,10 +24,11 @@ export default function NotificationBanner() {
 		queryKey: ['user-notifications'],
 		queryFn: getActiveNotificationsForUser,
 		refetchInterval: 60000,
+		select: unwrap,
 	});
 
 	const handleDismiss = async (notificationId: number) => {
-		await dismissNotification(notificationId);
+		unwrap(await dismissNotification(notificationId));
 		queryClient.invalidateQueries({ queryKey: ['user-notifications'] });
 	};
 

@@ -14,7 +14,7 @@ export interface AppError {
 
 export type ActionResult<T> =
 	| { success: true; data: T }
-	| { success: false; error: AppError | string };
+	| { success: false; error: AppError };
 
 export type ActionData<T> = T extends (...args: infer _TArgs) => infer TResult
 	? Awaited<TResult> extends ActionResult<infer TData>
@@ -26,7 +26,7 @@ export function success<T>(data: T): ActionResult<T> {
 	return { success: true, data };
 }
 
-export function failure<T>(error: AppError | string): ActionResult<T> {
+export function failure<T>(error: AppError): ActionResult<T> {
 	return { success: false, error };
 }
 
@@ -53,7 +53,7 @@ export function createAction<TArgs extends unknown[], TOutput>(
 
 export function unwrap<T>(result: ActionResult<T>): T {
 	if (!result.success) {
-		throw new UserFacingError(getActionErrorMessage(result.error));
+		throw new UserFacingError(result.error.message, result.error.code);
 	}
 
 	return result.data;
@@ -68,6 +68,6 @@ export function isActionResult(value: unknown): value is ActionResult<unknown> {
 	);
 }
 
-export function getActionErrorMessage(error: AppError | string): string {
-	return typeof error === 'string' ? error : error.message;
+export function getActionErrorMessage(error: AppError): string {
+	return error.message;
 }

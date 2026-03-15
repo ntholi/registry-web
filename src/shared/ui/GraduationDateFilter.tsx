@@ -17,6 +17,7 @@ import { IconFilter, IconX } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useAtom } from 'jotai';
 import { useEffect, useState } from 'react';
+import { unwrap } from '@/shared/lib/utils/actionResult';
 import { selectedGraduationDateAtom } from '@/shared/ui/atoms/graduationAtoms';
 
 const DEFAULT_STATUS = 'pending';
@@ -52,6 +53,7 @@ export default function GraduationDateFilter({
 		queryKey: ['graduation-dates'],
 		queryFn: () => getAllGraduationDates(),
 		staleTime: 1000 * 60 * 10,
+		select: unwrap,
 	});
 	const [selectedDate, setSelectedDate] = useAtom(selectedGraduationDateAtom);
 	const [status, setStatus] = useState(statusValue);

@@ -31,12 +31,11 @@ import {
 	IconPlus,
 	IconStar,
 } from '@tabler/icons-react';
-import { useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { useQueryState } from 'nuqs';
 import { useState } from 'react';
-import { useActionMutation } from '@/shared/lib/hooks/use-action-mutation';
-import { success, unwrap } from '@/shared/lib/utils/actionResult';
+import { unwrap } from '@/shared/lib/utils/actionResult';
 import { removeQuestionFromQuiz, updateQuiz } from '../../_server/actions';
 import type { MoodleQuiz, MoodleQuizQuestion, Question } from '../../types';
 import QuestionCard, { createDefaultQuestion } from './QuestionCard';
@@ -185,7 +184,7 @@ export default function QuizEditForm({ quiz, courseId }: QuizEditFormProps) {
 		pendingNewQuestions.length > 0 ||
 		questionsToRemove.length > 0;
 
-	const updateMutation = useActionMutation({
+	const updateMutation = useMutation({
 		mutationFn: async (values: EditFormValues) => {
 			unwrap(
 				await updateQuiz(quiz.id, {
@@ -210,8 +209,6 @@ export default function QuizEditForm({ quiz, courseId }: QuizEditFormProps) {
 			for (const slot of questionsToRemove) {
 				unwrap(await removeQuestionFromQuiz(quiz.id, slot));
 			}
-
-			return success(undefined);
 		},
 		onSuccess: () => {
 			notifications.show({
