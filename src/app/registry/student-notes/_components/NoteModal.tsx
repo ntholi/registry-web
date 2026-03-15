@@ -16,9 +16,11 @@ import {
 } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { IconFile, IconPaperclip, IconX } from '@tabler/icons-react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { getPublicUrl } from '@/core/integrations/storage-utils';
+import { useActionMutation } from '@/shared/lib/hooks/use-action-mutation';
+import { unwrap } from '@/shared/lib/utils/actionResult';
 import RichTextField from '@/shared/ui/adease/RichTextField';
 import { VISIBILITY_HINT, VISIBILITY_OPTIONS } from '../_lib/constants';
 import type { NoteVisibility } from '../_schema/studentNotes';
@@ -54,64 +56,70 @@ export default function NoteModal({ opened, onClose, stdNo, note }: Props) {
 		for (const file of files) {
 			const formData = new FormData();
 			formData.append('file', file);
-			await uploadNoteAttachment(stdNo, noteId, formData);
+			unwrap(await uploadNoteAttachment(stdNo, noteId, formData));
 		}
 	}
 
-	const saveMutation = useMutation({
-		mutationFn: async () => {
+	const saveMutation = useActionMutation(
+		async () => {
 			if (isEdit) {
 				return updateStudentNote(note.id, content, visibility);
 			}
 			const created = await createStudentNote(stdNo, content, visibility);
+			if (!created.success) {
+				return created;
+			}
 			if (pendingFiles.length > 0) {
-				await uploadFiles(created.id, pendingFiles);
+				await uploadFiles(created.data.id, pendingFiles);
 			}
 			return created;
 		},
-		onSuccess: async () => {
-			await queryClient.invalidateQueries({
-				queryKey: ['student-notes', stdNo],
-			});
-			if (!isEdit) {
-				setContent('');
-				setVisibility('role');
-				setPendingFiles([]);
-			}
-			onClose();
-			notifications.show({
-				title: 'Success',
-				message: isEdit ? 'Note updated' : 'Note created',
-				color: 'green',
-			});
-		},
-		onError: (error: Error) => {
-			notifications.show({
-				title: 'Error',
-				message: error.message,
-				color: 'red',
-			});
-		},
-	});
+		{
+			onSuccess: async () => {
+				await queryClient.invalidateQueries({
+					queryKey: ['student-notes', stdNo],
+				});
+				if (!isEdit) {
+					setContent('');
+					setVisibility('role');
+					setPendingFiles([]);
+				}
+				onClose();
+				notifications.show({
+					title: 'Success',
+					message: isEdit ? 'Note updated' : 'Note created',
+					color: 'green',
+				});
+			},
+			onError: (error: Error) => {
+				notifications.show({
+					title: 'Error',
+					message: error.message,
+					color: 'red',
+				});
+			},
+		}
+	);
 
-	const uploadMutation = useMutation({
-		mutationFn: async (file: File) => {
+	const uploadMutation = useActionMutation(
+		async (file: File) => {
 			const formData = new FormData();
 			formData.append('file', file);
 			return uploadNoteAttachment(stdNo, note!.id, formData);
 		},
-		onSuccess: invalidate,
-		onError: (error: Error) => {
-			notifications.show({
-				title: 'Error',
-				message: error.message,
-				color: 'red',
-			});
-		},
-	});
+		{
+			onSuccess: invalidate,
+			onError: (error: Error) => {
+				notifications.show({
+					title: 'Error',
+					message: error.message,
+					color: 'red',
+				});
+			},
+		}
+	);
 
-	const deleteAttachmentMutation = useMutation({
-		mutationFn: deleteNoteAttachment,
+	const deleteAttachmentMutation = useActionMutation(deleteNoteAttachment, {
 		onSuccess: invalidate,
 		onError: (error: Error) => {
 			notifications.show({

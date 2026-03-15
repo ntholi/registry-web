@@ -14,8 +14,9 @@ import {
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import { IconAlertCircle, IconEdit } from '@tabler/icons-react';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
+import { useActionMutation } from '@/shared/lib/hooks/use-action-mutation';
 import { updateStudentSemester } from '../../../_server/actions';
 
 type EditSemesterSponsorModalProps = {
@@ -48,31 +49,33 @@ export function EditSemesterSponsorModal({
 		}
 	}, [opened, currentSponsorId]);
 
-	const updateMutation = useMutation({
-		mutationFn: async (sponsorId: number | null) =>
+	const updateMutation = useActionMutation(
+		(sponsorId: number | null) =>
 			updateStudentSemester(semesterId, { sponsorId }, stdNo),
-		onSuccess: () => {
-			notifications.show({
-				title: 'Success',
-				message: 'Semester sponsor updated successfully',
-				color: 'green',
-			});
-			queryClient.invalidateQueries({
-				queryKey: ['student-registration-data'],
-			});
-			handleClose();
-		},
-		onError: (error) => {
-			notifications.show({
-				title: 'Error',
-				message:
-					error instanceof Error
-						? error.message
-						: 'Failed to update semester sponsor',
-				color: 'red',
-			});
-		},
-	});
+		{
+			onSuccess: () => {
+				notifications.show({
+					title: 'Success',
+					message: 'Semester sponsor updated successfully',
+					color: 'green',
+				});
+				queryClient.invalidateQueries({
+					queryKey: ['student-registration-data'],
+				});
+				handleClose();
+			},
+			onError: (error) => {
+				notifications.show({
+					title: 'Error',
+					message:
+						error instanceof Error
+							? error.message
+							: 'Failed to update semester sponsor',
+					color: 'red',
+				});
+			},
+		}
+	);
 
 	const sponsorOptions =
 		studentSponsors?.map((ss) => ({

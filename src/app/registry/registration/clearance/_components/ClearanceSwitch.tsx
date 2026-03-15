@@ -3,10 +3,11 @@
 import { Button, Paper, SegmentedControl, Stack } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { clearanceRequestStatus } from '@registry/_database';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import type { DashboardRole } from '@/core/auth/permissions';
 import { authClient } from '@/core/auth-client';
+import { useActionMutation } from '@/shared/lib/hooks/use-action-mutation';
 import type { ActionData } from '@/shared/lib/utils/actionResult';
 import { toTitleCase } from '@/shared/lib/utils/utils';
 import {
@@ -39,13 +40,13 @@ export default function ClearanceSwitch({
 		setIsStatusChanged(status !== request.status);
 	}, [status, request.status]);
 
-	const { mutate: submitResponse, isPending } = useMutation({
-		mutationFn: async () => {
+	const { mutate: submitResponse, isPending } = useActionMutation(
+		async () => {
 			if (!session?.user?.id || !session.user?.role) {
 				throw new Error('User not authenticated');
 			}
 
-			const result = await updateClearance(
+			return updateClearance(
 				request.id,
 				{
 					message: comment,
@@ -54,33 +55,34 @@ export default function ClearanceSwitch({
 				},
 				request.registrationRequest.stdNo
 			);
-			return { result };
 		},
-		onSuccess: () => {
-			queryClient.invalidateQueries({
-				queryKey: ['clearances', 'pending'],
-			});
-			queryClient.invalidateQueries({
-				queryKey: ['clearances', 'approved'],
-			});
-			queryClient.invalidateQueries({
-				queryKey: ['clearances', 'rejected'],
-			});
-			notifications.show({
-				title: 'Success',
-				message: 'Registration clearance updated successfully',
-				color: 'green',
-			});
-		},
-		onError: (error) => {
-			notifications.show({
-				title: 'Error',
-				message: error.message || 'Failed to submit response',
-				color: 'red',
-			});
-			setStatus(request.registrationRequest.status as Status);
-		},
-	});
+		{
+			onSuccess: () => {
+				queryClient.invalidateQueries({
+					queryKey: ['clearances', 'pending'],
+				});
+				queryClient.invalidateQueries({
+					queryKey: ['clearances', 'approved'],
+				});
+				queryClient.invalidateQueries({
+					queryKey: ['clearances', 'rejected'],
+				});
+				notifications.show({
+					title: 'Success',
+					message: 'Registration clearance updated successfully',
+					color: 'green',
+				});
+			},
+			onError: (error) => {
+				notifications.show({
+					title: 'Error',
+					message: error.message || 'Failed to submit response',
+					color: 'red',
+				});
+				setStatus(request.registrationRequest.status as Status);
+			},
+		}
+	);
 
 	function handleSubmit() {
 		submitResponse();

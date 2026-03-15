@@ -3,8 +3,9 @@
 import { Button, Group, Paper, SegmentedControl, Stack } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { IconSend } from '@tabler/icons-react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
+import { useActionMutation } from '@/shared/lib/hooks/use-action-mutation';
 import RichTextField from '@/shared/ui/adease/RichTextField';
 import { VISIBILITY_OPTIONS } from '../_lib/constants';
 import type { NoteVisibility } from '../_schema/studentNotes';
@@ -19,27 +20,29 @@ export default function AddNoteForm({ stdNo }: Props) {
 	const [visibility, setVisibility] = useState<NoteVisibility>('role');
 	const queryClient = useQueryClient();
 
-	const mutation = useMutation({
-		mutationFn: () => createStudentNote(stdNo, content, visibility),
-		onSuccess: async () => {
-			await queryClient.invalidateQueries({
-				queryKey: ['student-notes', stdNo],
-			});
-			setContent('');
-			notifications.show({
-				title: 'Success',
-				message: 'Note added',
-				color: 'green',
-			});
-		},
-		onError: (error: Error) => {
-			notifications.show({
-				title: 'Error',
-				message: error.message,
-				color: 'red',
-			});
-		},
-	});
+	const mutation = useActionMutation(
+		() => createStudentNote(stdNo, content, visibility),
+		{
+			onSuccess: async () => {
+				await queryClient.invalidateQueries({
+					queryKey: ['student-notes', stdNo],
+				});
+				setContent('');
+				notifications.show({
+					title: 'Success',
+					message: 'Note added',
+					color: 'green',
+				});
+			},
+			onError: (error: Error) => {
+				notifications.show({
+					title: 'Error',
+					message: error.message,
+					color: 'red',
+				});
+			},
+		}
+	);
 
 	const isEmpty = !content.trim() || content === '<p></p>';
 

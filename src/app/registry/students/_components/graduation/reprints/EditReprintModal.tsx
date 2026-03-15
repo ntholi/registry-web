@@ -15,8 +15,9 @@ import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import type { certificateReprints } from '@registry/_database';
 import { IconEdit } from '@tabler/icons-react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import { updateCertificateReprint } from '@/app/registry/certificate-reprints';
+import { useActionMutation } from '@/shared/lib/hooks/use-action-mutation';
 import { formatDate } from '@/shared/lib/utils/dates';
 import { ReceiptInput } from '@/shared/ui/adease';
 
@@ -55,34 +56,35 @@ export default function EditReprintModal({ reprint, stdNo }: Props) {
 		},
 	});
 
-	const mutation = useMutation({
-		mutationFn: async (values: FormValues) => {
-			return updateCertificateReprint(reprint.id, {
+	const mutation = useActionMutation(
+		(values: FormValues) =>
+			updateCertificateReprint(reprint.id, {
 				receiptNumber: values.receiptNumber || null,
 				reason: values.reason,
 				receivedAt: values.receivedAt,
 				status: values.receivedAt ? 'printed' : 'pending',
-			});
-		},
-		onSuccess: () => {
-			notifications.show({
-				title: 'Success',
-				message: 'Certificate reprint updated',
-				color: 'green',
-			});
-			queryClient.invalidateQueries({
-				queryKey: ['certificate-reprints', stdNo],
-			});
-			handleClose();
-		},
-		onError: (error) => {
-			notifications.show({
-				title: 'Error',
-				message: error.message || 'Failed to update reprint',
-				color: 'red',
-			});
-		},
-	});
+			}),
+		{
+			onSuccess: () => {
+				notifications.show({
+					title: 'Success',
+					message: 'Certificate reprint updated',
+					color: 'green',
+				});
+				queryClient.invalidateQueries({
+					queryKey: ['certificate-reprints', stdNo],
+				});
+				handleClose();
+			},
+			onError: (error) => {
+				notifications.show({
+					title: 'Error',
+					message: error.message || 'Failed to update reprint',
+					color: 'red',
+				});
+			},
+		}
+	);
 
 	function handleClose() {
 		close();

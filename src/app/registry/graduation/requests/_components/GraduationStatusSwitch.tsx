@@ -3,11 +3,12 @@
 import { Button, Paper, SegmentedControl, Stack } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { clearanceRequestStatus } from '@registry/_database';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import { updateGraduationClearance } from '@/app/registry/graduation/clearance/_server/clearance/actions';
 import type { DashboardRole } from '@/core/auth/permissions';
 import { authClient } from '@/core/auth-client';
+import { useActionMutation } from '@/shared/lib/hooks/use-action-mutation';
 
 type Status = Exclude<
 	(typeof clearanceRequestStatus.enumValues)[number],
@@ -37,13 +38,13 @@ export default function GraduationStatusSwitch({
 		setIsStatusChanged(status !== request.status);
 	}, [status, request.status]);
 
-	const { mutate: submitResponse, isPending } = useMutation({
-		mutationFn: async () => {
+	const { mutate: submitResponse, isPending } = useActionMutation(
+		async () => {
 			if (!session?.user?.id || !session.user?.role) {
 				throw new Error('User not authenticated');
 			}
 
-			const result = await updateGraduationClearance(
+			return updateGraduationClearance(
 				request.id,
 				{
 					department: session.user.role as DashboardRole,
@@ -52,33 +53,34 @@ export default function GraduationStatusSwitch({
 				},
 				stdNo
 			);
-			return { result };
 		},
-		onSuccess: () => {
-			queryClient.invalidateQueries({
-				queryKey: ['graduation-clearances', 'pending'],
-			});
-			queryClient.invalidateQueries({
-				queryKey: ['graduation-clearances', 'approved'],
-			});
-			queryClient.invalidateQueries({
-				queryKey: ['graduation-clearances', 'rejected'],
-			});
-			notifications.show({
-				title: 'Success',
-				message: 'Graduation clearance updated successfully',
-				color: 'green',
-			});
-		},
-		onError: (error) => {
-			notifications.show({
-				title: 'Error',
-				message: error.message || 'Failed to submit response',
-				color: 'red',
-			});
-			setStatus(request.status);
-		},
-	});
+		{
+			onSuccess: () => {
+				queryClient.invalidateQueries({
+					queryKey: ['graduation-clearances', 'pending'],
+				});
+				queryClient.invalidateQueries({
+					queryKey: ['graduation-clearances', 'approved'],
+				});
+				queryClient.invalidateQueries({
+					queryKey: ['graduation-clearances', 'rejected'],
+				});
+				notifications.show({
+					title: 'Success',
+					message: 'Graduation clearance updated successfully',
+					color: 'green',
+				});
+			},
+			onError: (error) => {
+				notifications.show({
+					title: 'Error',
+					message: error.message || 'Failed to submit response',
+					color: 'red',
+				});
+				setStatus(request.status);
+			},
+		}
+	);
 
 	function handleSubmit() {
 		submitResponse();

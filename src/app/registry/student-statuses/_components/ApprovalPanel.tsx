@@ -12,9 +12,10 @@ import {
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { IconCheck, IconX } from '@tabler/icons-react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { authClient } from '@/core/auth-client';
+import { useActionMutation } from '@/shared/lib/hooks/use-action-mutation';
 import { type AllStatusType, getStatusColor } from '@/shared/lib/utils/colors';
 import { formatDateTime } from '@/shared/lib/utils/dates';
 import { hasApprovalRole } from '../_lib/approvalRoles';
@@ -117,20 +118,23 @@ function ApprovalActions({ approvalId, applicationId }: ApprovalActionsProps) {
 		queryClient.invalidateQueries({ queryKey: ['student-statuses'] });
 	};
 
-	const approveMutation = useMutation({
-		mutationFn: () => respondToStudentStatusStep(approvalId, 'approved'),
-		onSuccess: invalidate,
-	});
+	const approveMutation = useActionMutation(
+		() => respondToStudentStatusStep(approvalId, 'approved'),
+		{
+			onSuccess: invalidate,
+		}
+	);
 
-	const rejectMutation = useMutation({
-		mutationFn: () =>
-			respondToStudentStatusStep(approvalId, 'rejected', comments),
-		onSuccess: () => {
-			close();
-			setComments('');
-			invalidate();
-		},
-	});
+	const rejectMutation = useActionMutation(
+		() => respondToStudentStatusStep(approvalId, 'rejected', comments),
+		{
+			onSuccess: () => {
+				close();
+				setComments('');
+				invalidate();
+			},
+		}
+	);
 
 	return (
 		<>

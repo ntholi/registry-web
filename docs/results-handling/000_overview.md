@@ -84,7 +84,7 @@ Full architecture details, code snippets, type definitions, and rationale:
 | 3 | [003_academic.md](./003_academic.md) | Academic module: 13 actions + ~18 RSC pages + layouts + client components | ✅ Completed |
 | 4a | [004a_registry_actions.md](./004a_registry_actions.md) | Registry: wrap 18 action files + 2 cross-action calls | ✅ Completed |
 | 4b | [004b_registry_pages_layouts.md](./004b_registry_pages_layouts.md) | Registry: ~14 RSC pages + ~12 ListLayout callers | ✅ Completed |
-| 4c | [004c_registry_client_components.md](./004c_registry_client_components.md) | Registry: direct `useMutation` → `useActionMutation` | ⬜ Not started |
+| 4c | [004c_registry_client_components.md](./004c_registry_client_components.md) | Registry: direct `useMutation` → `useActionMutation` | ✅ Completed |
 | 5a | [005a_admissions_actions.md](./005a_admissions_actions.md) | Admissions: wrap 17 action files | ⬜ Not started |
 | 5b | [005b_admissions_pages_layouts.md](./005b_admissions_pages_layouts.md) | Admissions: ~10 RSC pages + ~8 ListLayout callers + 10 cross-action calls | ⬜ Not started |
 | 5c | [005c_admissions_client_components.md](./005c_admissions_client_components.md) | Admissions: direct `useMutation` → `useActionMutation` | ⬜ Not started |
