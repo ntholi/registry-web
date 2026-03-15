@@ -10,6 +10,7 @@ import {
 } from '@registry/students';
 import type { PDFFont, PDFPage } from 'pdf-lib';
 import { PDFDocument, rgb } from 'pdf-lib';
+import { createAction } from '@/shared/lib/utils/actionResult';
 import { generateQRCodeDataURL } from '../_lib/utils';
 
 const PRIMARY_COLOR = rgb(0, 0, 0);
@@ -24,119 +25,119 @@ interface CertificateData {
 	graduationDate?: Date;
 }
 
-export async function generateCertificatePDF(
-	data: CertificateData
-): Promise<Uint8Array> {
-	const templatePath = join(
-		process.cwd(),
-		'src',
-		'shared',
-		'private',
-		'files',
-		'certificate.pdf'
-	);
-	const templateBytes = await readFile(templatePath);
+export const generateCertificatePDF = createAction(
+	async (data: CertificateData): Promise<Uint8Array> => {
+		const templatePath = join(
+			process.cwd(),
+			'src',
+			'shared',
+			'private',
+			'files',
+			'certificate.pdf'
+		);
+		const templateBytes = await readFile(templatePath);
 
-	const pdfDoc = await PDFDocument.load(templateBytes);
-	pdfDoc.registerFontkit(fontkit);
+		const pdfDoc = await PDFDocument.load(templateBytes);
+		pdfDoc.registerFontkit(fontkit);
 
-	const pages = pdfDoc.getPages();
-	const firstPage = pages[0];
+		const pages = pdfDoc.getPages();
+		const firstPage = pages[0];
 
-	const { width: pageWidth } = firstPage.getSize();
-	const perfectCenterX = pageWidth / 2;
+		const { width: pageWidth } = firstPage.getSize();
+		const perfectCenterX = pageWidth / 2;
 
-	const expandedProgramName = expandProgramName(data.programName);
-	const reference = buildCertificateReference(
-		data.programName,
-		data.programCode,
-		data.stdNo
-	);
-	const issueDate = formatIssueDate(data.graduationDate || new Date());
+		const expandedProgramName = expandProgramName(data.programName);
+		const reference = buildCertificateReference(
+			data.programName,
+			data.programCode,
+			data.stdNo
+		);
+		const issueDate = formatIssueDate(data.graduationDate || new Date());
 
-	const palatinoFontPath = join(
-		process.cwd(),
-		'public',
-		'fonts',
-		'palatino.ttf'
-	);
-	const palatinoFontBytes = await readFile(palatinoFontPath);
-	const palatinoFont = await pdfDoc.embedFont(palatinoFontBytes);
+		const palatinoFontPath = join(
+			process.cwd(),
+			'public',
+			'fonts',
+			'palatino.ttf'
+		);
+		const palatinoFontBytes = await readFile(palatinoFontPath);
+		const palatinoFont = await pdfDoc.embedFont(palatinoFontBytes);
 
-	const snellFontPath = join(
-		process.cwd(),
-		'public',
-		'fonts',
-		'RoundhandBold.ttf'
-	);
-	const snellFontBytes = await readFile(snellFontPath);
-	const snellFont = await pdfDoc.embedFont(snellFontBytes);
+		const snellFontPath = join(
+			process.cwd(),
+			'public',
+			'fonts',
+			'RoundhandBold.ttf'
+		);
+		const snellFontBytes = await readFile(snellFontPath);
+		const snellFont = await pdfDoc.embedFont(snellFontBytes);
 
-	firstPage.drawText(reference, {
-		x:
-			pageWidth -
-			REFERENCE_RIGHT_MARGIN -
-			palatinoFont.widthOfTextAtSize(reference, 8),
-		y: 772,
-		size: 8,
-		font: palatinoFont,
-		color: PRIMARY_COLOR,
-	});
+		firstPage.drawText(reference, {
+			x:
+				pageWidth -
+				REFERENCE_RIGHT_MARGIN -
+				palatinoFont.widthOfTextAtSize(reference, 8),
+			y: 772,
+			size: 8,
+			font: palatinoFont,
+			color: PRIMARY_COLOR,
+		});
 
-	drawCenteredText({
-		page: firstPage,
-		text: data.studentName,
-		font: palatinoFont,
-		y: 695,
-		fontSize: 32,
-		centerX: perfectCenterX,
-		letterSpacingReduction: 1,
-		maxWidth: pageWidth - 2 * TEXT_HORIZONTAL_MARGIN,
-	});
+		drawCenteredText({
+			page: firstPage,
+			text: data.studentName,
+			font: palatinoFont,
+			y: 695,
+			fontSize: 32,
+			centerX: perfectCenterX,
+			letterSpacingReduction: 1,
+			maxWidth: pageWidth - 2 * TEXT_HORIZONTAL_MARGIN,
+		});
 
-	drawCenteredText({
-		page: firstPage,
-		text: expandedProgramName,
-		font: snellFont,
-		y: 605,
-		fontSize: 40,
-		centerX: perfectCenterX,
-		letterSpacingReduction: 1.6,
-		maxWidth: 550,
-		lineSpacing: 1.2,
-	});
+		drawCenteredText({
+			page: firstPage,
+			text: expandedProgramName,
+			font: snellFont,
+			y: 605,
+			fontSize: 40,
+			centerX: perfectCenterX,
+			letterSpacingReduction: 1.6,
+			maxWidth: 550,
+			lineSpacing: 1.2,
+		});
 
-	drawCenteredText({
-		page: firstPage,
-		text: issueDate,
-		font: palatinoFont,
-		y: 180,
-		fontSize: 12.4,
-		centerX: perfectCenterX,
-		letterSpacingReduction: 0,
-		maxWidth: pageWidth - 2 * TEXT_HORIZONTAL_MARGIN,
-	});
+		drawCenteredText({
+			page: firstPage,
+			text: issueDate,
+			font: palatinoFont,
+			y: 180,
+			fontSize: 12.4,
+			centerX: perfectCenterX,
+			letterSpacingReduction: 0,
+			maxWidth: pageWidth - 2 * TEXT_HORIZONTAL_MARGIN,
+		});
 
-	const qrCodeDataUrl = await generateQRCodeDataURL(reference);
-	const qrCodeImageBytes = await fetch(qrCodeDataUrl).then((res) =>
-		res.arrayBuffer()
-	);
-	const qrCodeImage = await pdfDoc.embedPng(qrCodeImageBytes);
+		const qrCodeDataUrl = await generateQRCodeDataURL(reference);
+		const qrCodeImageBytes = await fetch(qrCodeDataUrl).then((res) =>
+			res.arrayBuffer()
+		);
+		const qrCodeImage = await pdfDoc.embedPng(qrCodeImageBytes);
 
-	const qrSize = 50;
-	const qrX = perfectCenterX - qrSize / 2;
-	const qrY = 220;
+		const qrSize = 50;
+		const qrX = perfectCenterX - qrSize / 2;
+		const qrY = 220;
 
-	firstPage.drawImage(qrCodeImage, {
-		x: qrX,
-		y: qrY,
-		width: qrSize,
-		height: qrSize,
-	});
+		firstPage.drawImage(qrCodeImage, {
+			x: qrX,
+			y: qrY,
+			width: qrSize,
+			height: qrSize,
+		});
 
-	const pdfBytes = await pdfDoc.save();
-	return pdfBytes;
-}
+		const pdfBytes = await pdfDoc.save();
+		return pdfBytes;
+	}
+);
 
 interface DrawCenteredTextOptions {
 	page: PDFPage;
