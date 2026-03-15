@@ -7,11 +7,12 @@ import {
 	initiateMobilePayment,
 	verifyMobilePayment,
 } from '@admissions/payments';
-import { extractError } from '@apply/_lib/errors';
 import { nanoid } from 'nanoid';
 import { bankDeposits, db, documents } from '@/core/database';
 import { deleteFile, uploadFile } from '@/core/integrations/storage';
 import { StoragePaths } from '@/core/integrations/storage-utils';
+import { createAction, unwrap } from '@/shared/lib/utils/actionResult';
+import { UserFacingError } from '@/shared/lib/utils/extractError';
 import { validateAnalyzedReceipt, validateReceipts } from './validation';
 
 export { validateAnalyzedReceipt, validateReceipts };
@@ -35,18 +36,12 @@ type DepositData = {
 	terminalNumber?: string | null;
 };
 
-export async function submitReceiptPayment(
-	applicationId: string,
-	receipts: DepositData[]
-): Promise<{ success: boolean; error?: string }> {
-	try {
+export const submitReceiptPayment = createAction(
+	async (applicationId: string, receipts: DepositData[]) => {
 		for (const receipt of receipts) {
 			const base64Size = Math.ceil((receipt.base64.length * 3) / 4);
 			if (base64Size > MAX_FILE_SIZE) {
-				return {
-					success: false,
-					error: 'Receipt file size exceeds 2MB limit',
-				};
+				throw new UserFacingError('Receipt file size exceeds 2MB limit');
 			}
 		}
 
@@ -60,10 +55,7 @@ export async function submitReceiptPayment(
 				...validation.errors,
 				...validation.receipts.flatMap((r) => r.errors),
 			];
-			return {
-				success: false,
-				error: allErrors.join('; '),
-			};
+			throw new UserFacingError(allErrors.join('; '));
 		}
 
 		const uploaded: { key: string; docId: string; receipt: DepositData }[] = [];
@@ -122,15 +114,11 @@ export async function submitReceiptPayment(
 			}
 			throw uploadOrDbError;
 		}
-
-		return { success: true };
-	} catch (error) {
-		return { success: false, error: extractError(error) };
 	}
-}
+);
 
 export async function getPaymentPageData(applicationId: string) {
-	const application = await getApplicationForPayment(applicationId);
+	const application = unwrap(await getApplicationForPayment(applicationId));
 
 	if (!application?.applicantId) {
 		return {
@@ -146,8 +134,8 @@ export async function getPaymentPageData(applicationId: string) {
 	}
 
 	const [applicant, deposits] = await Promise.all([
-		getApplicant(application.applicantId),
-		getBankDepositsByApplication(applicationId),
+		getApplicant(application.applicantId).then(unwrap),
+		getBankDepositsByApplication(applicationId).then(unwrap),
 	]);
 
 	const verifiedDeposit = deposits?.find(
@@ -173,27 +161,13 @@ export async function getPaymentPageData(applicationId: string) {
 	};
 }
 
-export async function initiateMpesaPayment(
-	applicationId: string,
-	amount: number,
-	mobileNumber: string
-) {
-	try {
-		return await initiateMobilePayment(
-			applicationId,
-			amount,
-			mobileNumber,
-			'mpesa'
-		);
-	} catch (error) {
-		return { success: false, error: extractError(error) };
-	}
-}
+export const initiateMpesaPayment = createAction(
+	async (applicationId: string, amount: number, mobileNumber: string) =>
+		unwrap(
+			await initiateMobilePayment(applicationId, amount, mobileNumber, 'mpesa')
+		)
+);
 
-export async function checkPaymentStatus(depositId: string) {
-	try {
-		return await verifyMobilePayment(depositId);
-	} catch (error) {
-		return { success: false, error: extractError(error), status: 'failed' };
-	}
-}
+export const checkPaymentStatus = createAction(async (depositId: string) =>
+	unwrap(await verifyMobilePayment(depositId))
+);
