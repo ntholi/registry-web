@@ -94,23 +94,25 @@ export default async function RegistrationRequestEdit({ params }: Props) {
 			});
 		}
 
-		const res = unwrap(await updateRegistration(
-			values.id,
-			selectedModules?.map((module) => ({
-				id: module.id,
-				status: module.status,
-			})) || [],
-			{
-				sponsorId: values.sponsorId,
-				borrowerNo: values.borrowerNo,
-				bankName: values.bankName,
-				accountNumber: values.accountNumber,
-			},
-			values.semesterNumber,
-			values.semesterStatus,
-			values.termId,
-			receipts
-		));
+		const res = unwrap(
+			await updateRegistration(
+				values.id,
+				selectedModules?.map((module) => ({
+					id: module.id,
+					status: module.status,
+				})) || [],
+				{
+					sponsorId: values.sponsorId,
+					borrowerNo: values.borrowerNo,
+					bankName: values.bankName,
+					accountNumber: values.accountNumber,
+				},
+				values.semesterNumber,
+				values.semesterStatus,
+				values.termId,
+				receipts
+			)
+		);
 		return {
 			...values,
 			id: values.id,
