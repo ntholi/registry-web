@@ -22,6 +22,7 @@ import {
 import { useQuery } from '@tanstack/react-query';
 import { parseAsInteger, parseAsString, useQueryStates } from 'nuqs';
 import { useCallback, useEffect, useState } from 'react';
+import { unwrap } from '@/shared/lib/utils/actionResult';
 import { formatDateToISO } from '@/shared/lib/utils/dates';
 import Filter, { type SponsoredStudentsFilter } from './_components/Filter';
 import StudentTable from './_components/StudentTable';
@@ -134,50 +135,46 @@ export default function SponsoredStudentsReportPage() {
 
 		setIsExporting(true);
 		try {
-			const result = await exportSponsoredStudentsToExcel({
-				termId: filter.termId,
-				schoolId: filter.schoolId,
-				programId: filter.programId,
-				semesterNumber: filter.semesterNumber,
-				sponsorId: filter.sponsorId,
+			const base64Data = unwrap(
+				await exportSponsoredStudentsToExcel({
+					termId: filter.termId,
+					schoolId: filter.schoolId,
+					programId: filter.programId,
+					semesterNumber: filter.semesterNumber,
+					sponsorId: filter.sponsorId,
+				})
+			);
+			const byteCharacters = atob(base64Data);
+			const byteNumbers = new Array(byteCharacters.length);
+			for (let i = 0; i < byteCharacters.length; i++) {
+				byteNumbers[i] = byteCharacters.charCodeAt(i);
+			}
+			const byteArray = new Uint8Array(byteNumbers);
+			const blob = new Blob([byteArray], {
+				type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
 			});
 
-			if (result.success && result.data) {
-				const byteCharacters = atob(result.data);
-				const byteNumbers = new Array(byteCharacters.length);
-				for (let i = 0; i < byteCharacters.length; i++) {
-					byteNumbers[i] = byteCharacters.charCodeAt(i);
-				}
-				const byteArray = new Uint8Array(byteNumbers);
-				const blob = new Blob([byteArray], {
-					type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-				});
+			const url = window.URL.createObjectURL(blob);
+			const link = document.createElement('a');
+			link.href = url;
+			link.download = `sponsored-students-${formatDateToISO(new Date())}.xlsx`;
+			document.body.appendChild(link);
+			link.click();
+			document.body.removeChild(link);
+			window.URL.revokeObjectURL(url);
 
-				const url = window.URL.createObjectURL(blob);
-				const link = document.createElement('a');
-				link.href = url;
-				link.download = `sponsored-students-${formatDateToISO(new Date())}.xlsx`;
-				document.body.appendChild(link);
-				link.click();
-				document.body.removeChild(link);
-				window.URL.revokeObjectURL(url);
-
-				notifications.show({
-					title: 'Success',
-					message: 'Sponsored students list exported successfully',
-					color: 'green',
-				});
-			} else {
-				notifications.show({
-					title: 'Error',
-					message: result.error || 'Failed to export list',
-					color: 'red',
-				});
-			}
-		} catch (_error) {
+			notifications.show({
+				title: 'Success',
+				message: 'Sponsored students list exported successfully',
+				color: 'green',
+			});
+		} catch (error) {
 			notifications.show({
 				title: 'Error',
-				message: 'An unexpected error occurred while exporting',
+				message:
+					error instanceof Error
+						? error.message
+						: 'An unexpected error occurred while exporting',
 				color: 'red',
 			});
 		} finally {

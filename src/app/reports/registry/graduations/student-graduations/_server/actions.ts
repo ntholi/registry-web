@@ -1,127 +1,60 @@
 'use server';
 
 import { getAllSponsors } from '@finance/sponsors/_server/actions';
+import { createAction, unwrap } from '@/shared/lib/utils/actionResult';
 import type { GraduationReportFilter } from '../_lib/types';
 import { graduationReportService } from './service';
 
-export async function generateSummaryGraduationReport(
-	filter?: GraduationReportFilter
-) {
-	try {
+export const generateSummaryGraduationReport = createAction(
+	async (filter?: GraduationReportFilter) => {
 		const buffer =
 			await graduationReportService.generateSummaryGraduationReport(filter);
-		const base64Data = Buffer.from(buffer).toString('base64');
-		return { success: true, data: base64Data };
-	} catch (error) {
-		console.error('Error generating summary graduation report:', error);
-		return {
-			success: false,
-			error: error instanceof Error ? error.message : 'Unknown error',
-		};
+		return Buffer.from(buffer).toString('base64');
 	}
-}
+);
 
-export async function generateGraduatesListReport(
-	filter?: GraduationReportFilter
-) {
-	try {
+export const generateGraduatesListReport = createAction(
+	async (filter?: GraduationReportFilter) => {
 		const buffer =
 			await graduationReportService.generateStudentsListReport(filter);
-		const base64Data = Buffer.from(buffer).toString('base64');
-		return { success: true, data: base64Data };
-	} catch (error) {
-		console.error('Error generating graduates list report:', error);
-		return {
-			success: false,
-			error: error instanceof Error ? error.message : 'Unknown error',
-		};
+		return Buffer.from(buffer).toString('base64');
 	}
-}
+);
 
-export async function getGraduationDataPreview(
-	filter?: GraduationReportFilter
-) {
-	try {
-		const data = await graduationReportService.getGraduationDataPreview(filter);
-		return { success: true, data };
-	} catch (error) {
-		console.error('Error fetching graduation data preview:', error);
-		return {
-			success: false,
-			error: error instanceof Error ? error.message : 'Unknown error',
-		};
+export const getGraduationDataPreview = createAction(
+	async (filter?: GraduationReportFilter) => {
+		return graduationReportService.getGraduationDataPreview(filter);
 	}
-}
+);
 
-export async function getPaginatedGraduationStudents(
-	page: number = 1,
-	pageSize: number = 20,
-	filter?: GraduationReportFilter
-) {
-	try {
-		const data = await graduationReportService.getPaginatedGraduationStudents(
+export const getPaginatedGraduationStudents = createAction(
+	async (
+		page: number = 1,
+		pageSize: number = 20,
+		filter?: GraduationReportFilter
+	) => {
+		return graduationReportService.getPaginatedGraduationStudents(
 			page,
 			pageSize,
 			filter
 		);
-		return { success: true, data };
-	} catch (error) {
-		console.error('Error fetching paginated graduation students:', error);
-		return {
-			success: false,
-			error: error instanceof Error ? error.message : 'Unknown error',
-		};
 	}
-}
+);
 
-export async function getGraduationChartData(filter?: GraduationReportFilter) {
-	try {
-		const data = await graduationReportService.getChartData(filter);
-		return { success: true, data };
-	} catch (error) {
-		console.error('Error fetching chart data:', error);
-		return {
-			success: false,
-			error: error instanceof Error ? error.message : 'Unknown error',
-		};
+export const getGraduationChartData = createAction(
+	async (filter?: GraduationReportFilter) => {
+		return graduationReportService.getChartData(filter);
 	}
-}
+);
 
-export async function getGraduationDates() {
-	try {
-		const data = await graduationReportService.getGraduationDates();
-		return { success: true, data };
-	} catch (error) {
-		console.error('Error fetching graduation dates:', error);
-		return {
-			success: false,
-			error: error instanceof Error ? error.message : 'Unknown error',
-		};
-	}
-}
+export const getGraduationDates = createAction(async () => {
+	return graduationReportService.getGraduationDates();
+});
 
-export async function getAvailableSponsorsForGraduations() {
-	try {
-		const sponsors = await getAllSponsors();
-		return { success: true, data: sponsors };
-	} catch (error) {
-		console.error('Error fetching available sponsors:', error);
-		return {
-			success: false,
-			error: error instanceof Error ? error.message : 'Unknown error',
-		};
-	}
-}
+export const getAvailableSponsorsForGraduations = createAction(async () => {
+	return unwrap(await getAllSponsors());
+});
 
-export async function getAvailableCountriesForGraduations() {
-	try {
-		const countries = await graduationReportService.getAvailableCountries();
-		return { success: true, data: countries };
-	} catch (error) {
-		console.error('Error fetching available countries:', error);
-		return {
-			success: false,
-			error: error instanceof Error ? error.message : 'Unknown error',
-		};
-	}
-}
+export const getAvailableCountriesForGraduations = createAction(async () => {
+	return graduationReportService.getAvailableCountries();
+});

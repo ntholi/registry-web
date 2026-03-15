@@ -14,6 +14,7 @@ import {
 } from '@mantine/core';
 import { IconHistory } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
+import { unwrap } from '@/shared/lib/utils/actionResult';
 import { formatDateTime } from '@/shared/lib/utils/dates';
 import { DEFAULT_EXCLUDE_FIELDS, getChangedFields } from '../_lib/audit-utils';
 import { getRecordHistory } from '../_server/actions';
@@ -37,6 +38,7 @@ export default function RecordAuditHistory({
 	const { data, isLoading } = useQuery({
 		queryKey: ['audit-history', tableName, String(recordId)],
 		queryFn: () => getRecordHistory(tableName, String(recordId)),
+		select: unwrap,
 	});
 
 	if (isLoading) {

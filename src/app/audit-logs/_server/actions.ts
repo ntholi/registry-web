@@ -1,36 +1,43 @@
 'use server';
 
+import { createAction } from '@/shared/lib/utils/actionResult';
 import { auditLogService as service } from './service';
 
-export async function getAuditLogs(
-	page: number,
-	search: string,
-	tableName?: string,
-	operation?: string
-) {
-	return service.findAll(page, search, tableName, operation);
-}
+export const getAuditLogs = createAction(
+	async (
+		page: number,
+		search: string,
+		tableName?: string,
+		operation?: string
+	) => {
+		return service.findAll(page, search, tableName, operation);
+	}
+);
 
-export async function getRecordHistory(tableName: string, recordId: string) {
-	return service.getRecordHistory(tableName, recordId);
-}
+export const getRecordHistory = createAction(
+	async (tableName: string, recordId: string) => {
+		return service.getRecordHistory(tableName, recordId);
+	}
+);
 
-export async function getAuditLog(id: bigint) {
+export const getAuditLog = createAction(async (id: bigint) => {
 	return service.get(id);
-}
+});
 
-export async function getDistinctTables() {
+export const getDistinctTables = createAction(async () => {
 	return service.getDistinctTables();
-}
+});
 
-export async function getUnsyncedAuditLogs() {
+export const getUnsyncedAuditLogs = createAction(async () => {
 	return service.getUnsynced();
-}
+});
 
-export async function markAuditLogSynced(id: bigint) {
+export const markAuditLogSynced = createAction(async (id: bigint) => {
 	return service.markAsSynced(id);
-}
+});
 
-export async function getStudentModuleAuditHistory(studentModuleId: number) {
-	return service.getStudentModuleAuditHistory(studentModuleId);
-}
+export const getStudentModuleAuditHistory = createAction(
+	async (studentModuleId: number) => {
+		return service.getStudentModuleAuditHistory(studentModuleId);
+	}
+);

@@ -78,6 +78,7 @@ export default function Filter({ onFilterChange }: Props) {
 	const { data: sponsors = [], isLoading: sponsorsLoading } = useQuery({
 		queryKey: ['sponsors'],
 		queryFn: getAllSponsors,
+		select: unwrap,
 	});
 
 	function handleChange(field: string, value: string | number | null) {

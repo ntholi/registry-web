@@ -95,7 +95,7 @@ pnpm tsc --noEmit
 
 ## Done When
 
-- [ ] All 11 action files import and use `createAction`
-- [ ] All RSC pages with direct `await` calls use `unwrap()`
-- [ ] ListLayout caller in audit-logs verified/updated
-- [ ] `pnpm tsc --noEmit` passes
+- [x] All 11 action files import and use `createAction`
+- [x] All RSC pages with direct `await` calls use `unwrap()`
+- [x] ListLayout caller in audit-logs verified/updated
+- [x] `pnpm tsc --noEmit` passes
