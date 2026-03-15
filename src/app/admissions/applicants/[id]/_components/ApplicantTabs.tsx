@@ -9,6 +9,7 @@ import {
 	IconUsers,
 } from '@tabler/icons-react';
 import { useQueryState } from 'nuqs';
+import type { ActionData } from '@/shared/lib/utils/actionResult';
 import ScrollableTabsList from '@/shared/ui/ScrollableTabsList';
 import type { getApplicant } from '../../_server/actions';
 import AcademicRecordsTab from './AcademicRecordsTab';
@@ -22,7 +23,7 @@ import GuardiansTab from './GuardiansTab';
 import PersonalInfoTab from './PersonalInfoTab';
 
 type Props = {
-	applicant: NonNullable<Awaited<ReturnType<typeof getApplicant>>>;
+	applicant: NonNullable<ActionData<typeof getApplicant>>;
 };
 
 export default function ApplicantTabs({ applicant }: Props) {

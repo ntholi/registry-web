@@ -16,6 +16,7 @@ import {
 } from '@mantine/core';
 import { IconInfoCircle, IconSchool } from '@tabler/icons-react';
 import { notFound } from 'next/navigation';
+import { unwrap } from '@/shared/lib/utils/actionResult';
 import { isIntakePeriodActive } from '@/shared/lib/utils/dates';
 import { DetailsView, DetailsViewHeader, FieldView } from '@/shared/ui/adease';
 import {
@@ -35,7 +36,7 @@ const LEVEL_LABELS: Record<string, string> = {
 
 export default async function IntakePeriodDetails({ params }: Props) {
 	const { id } = await params;
-	const item = await getIntakePeriodWithPrograms(id);
+	const item = unwrap(await getIntakePeriodWithPrograms(id));
 
 	if (!item) {
 		return notFound();

@@ -2,6 +2,7 @@ import { findAcademicRecordsByApplicant } from '@admissions/applicants/[id]/acad
 import { findDocumentsByApplicant } from '@admissions/applicants/[id]/documents/_server/actions';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
+import { unwrap } from '@/shared/lib/utils/actionResult';
 import { DetailsView } from '@/shared/ui/adease';
 import ApplicationReviewHeader from '../_components/ApplicationReviewHeader';
 import ApplicationTabs from '../_components/ApplicationTabs';
@@ -14,7 +15,7 @@ type Props = {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
 	const { id } = await params;
-	const item = await getApplication(id);
+	const item = unwrap(await getApplication(id));
 	return {
 		title: item ? `${item.applicant.fullName} | Application` : 'Application',
 	};
@@ -22,15 +23,15 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function ApplicationDetails({ params }: Props) {
 	const { id } = await params;
-	const item = await getApplication(id);
+	const item = unwrap(await getApplication(id));
 
 	if (!item) {
 		return notFound();
 	}
 
 	const [academicRecordsResult, documentsResult] = await Promise.all([
-		findAcademicRecordsByApplicant(item.applicant.id),
-		findDocumentsByApplicant(item.applicant.id),
+		findAcademicRecordsByApplicant(item.applicant.id).then(unwrap),
+		findDocumentsByApplicant(item.applicant.id).then(unwrap),
 	]);
 
 	return (

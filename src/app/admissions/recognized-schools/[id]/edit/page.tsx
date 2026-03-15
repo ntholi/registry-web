@@ -1,5 +1,6 @@
 import { Box } from '@mantine/core';
 import { notFound } from 'next/navigation';
+import { unwrap } from '@/shared/lib/utils/actionResult';
 import Form from '../../_components/Form';
 import {
 	getRecognizedSchool,
@@ -12,7 +13,7 @@ type Props = {
 
 export default async function RecognizedSchoolEdit({ params }: Props) {
 	const { id } = await params;
-	const item = await getRecognizedSchool(id);
+	const item = unwrap(await getRecognizedSchool(id));
 	if (!item) {
 		return notFound();
 	}
@@ -24,7 +25,7 @@ export default async function RecognizedSchoolEdit({ params }: Props) {
 				defaultValues={item}
 				onSubmit={async (value) => {
 					'use server';
-					return await updateRecognizedSchool(id, value);
+					return unwrap(await updateRecognizedSchool(id, value));
 				}}
 			/>
 		</Box>
