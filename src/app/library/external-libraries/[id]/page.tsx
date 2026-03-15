@@ -1,4 +1,5 @@
 import { notFound } from 'next/navigation';
+import { unwrap } from '@/shared/lib/utils/actionResult';
 import {
 	DetailsView,
 	DetailsViewBody,
@@ -13,7 +14,7 @@ type Props = {
 
 export default async function ExternalLibraryDetailsPage({ params }: Props) {
 	const { id } = await params;
-	const library = await getExternalLibrary(id);
+	const library = unwrap(await getExternalLibrary(id));
 
 	if (!library) return notFound();
 

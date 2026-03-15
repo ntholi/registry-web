@@ -1,5 +1,6 @@
 import { Badge, Group, SimpleGrid } from '@mantine/core';
 import { notFound } from 'next/navigation';
+import { unwrap } from '@/shared/lib/utils/actionResult';
 import {
 	DetailsView,
 	DetailsViewBody,
@@ -14,7 +15,7 @@ type Props = {
 
 export default async function VenueDetails({ params }: Props) {
 	const { id } = await params;
-	const venue = await getVenueWithRelations(id);
+	const venue = unwrap(await getVenueWithRelations(id));
 
 	if (!venue) {
 		return notFound();

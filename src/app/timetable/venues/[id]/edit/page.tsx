@@ -1,5 +1,6 @@
 import { Box } from '@mantine/core';
 import { notFound } from 'next/navigation';
+import { unwrap } from '@/shared/lib/utils/actionResult';
 import Form from '../../_components/Form';
 import { getVenueWithRelations, updateVenue } from '../../_server/actions';
 
@@ -9,7 +10,7 @@ type Props = {
 
 export default async function VenueEdit({ params }: Props) {
 	const { id } = await params;
-	const venue = await getVenueWithRelations(id);
+	const venue = unwrap(await getVenueWithRelations(id));
 
 	if (!venue) {
 		return notFound();

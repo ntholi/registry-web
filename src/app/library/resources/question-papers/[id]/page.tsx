@@ -2,6 +2,7 @@ import { getAssessmentTypeLabel } from '@academic/assessments/_lib/utils';
 import { Divider, Grid, GridCol, Stack } from '@mantine/core';
 import { notFound } from 'next/navigation';
 import { getPublicUrl } from '@/core/integrations/storage-utils';
+import { unwrap } from '@/shared/lib/utils/actionResult';
 import { formatDate } from '@/shared/lib/utils/dates';
 import {
 	DetailsView,
@@ -18,7 +19,7 @@ type Props = {
 
 export default async function QuestionPaperDetailsPage({ params }: Props) {
 	const { id } = await params;
-	const questionPaper = await getQuestionPaper(id);
+	const questionPaper = unwrap(await getQuestionPaper(id));
 
 	if (!questionPaper) return notFound();
 	const documentUrl = questionPaper.document?.fileUrl

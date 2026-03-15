@@ -1,4 +1,5 @@
 import { notFound } from 'next/navigation';
+import { unwrap } from '@/shared/lib/utils/actionResult';
 import {
 	DetailsView,
 	DetailsViewBody,
@@ -13,7 +14,7 @@ type Props = {
 
 export default async function AuthorDetailsPage({ params }: Props) {
 	const { id } = await params;
-	const item = await getAuthor(id);
+	const item = unwrap(await getAuthor(id));
 
 	if (!item) return notFound();
 

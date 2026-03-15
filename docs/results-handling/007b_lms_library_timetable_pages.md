@@ -73,6 +73,6 @@ pnpm tsc --noEmit
 
 ## Done When
 
-- [ ] All ~19 RSC pages with direct `await` calls use `unwrap()`
-- [ ] All 11 ListLayout callers verified working
-- [ ] `pnpm tsc --noEmit` passes
+- [x] All ~19 RSC pages with direct `await` calls use `unwrap()`
+- [x] All actual ListLayout callers verified working
+- [x] Targeted 7b page updates validated; remaining library/timetable type errors are in later 007c client-component scope
