@@ -70,7 +70,7 @@ export default function CreateApplicationModal({ applicantId }: Props) {
 	const { data: activeIntake, isLoading: loadingIntake } = useQuery({
 		queryKey: ['intake-periods', 'active', 'single'],
 		queryFn: () => findActiveIntakePeriod(),
-		select: (result) => unwrap(result) ?? null,
+		select: unwrap,
 		enabled: opened,
 	});
 

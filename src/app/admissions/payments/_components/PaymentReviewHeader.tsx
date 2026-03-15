@@ -62,11 +62,7 @@ export default function PaymentReviewHeader({ id, title, status }: Props) {
 
 	const mutation = useActionMutation({
 		mutationFn: async (reason?: string) => {
-			const result = await updatePaymentReviewStatus(id, selected, reason);
-			if (!result.success) {
-				return result;
-			}
-
+			unwrap(await updatePaymentReviewStatus(id, selected, reason));
 			return releasePaymentReviewLock(id);
 		},
 		onSuccess: async () => {

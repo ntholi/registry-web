@@ -60,11 +60,7 @@ export default function DocumentReviewHeader({ id, title, status }: Props) {
 
 	const mutation = useActionMutation({
 		mutationFn: async (reason?: string) => {
-			const result = await updateDocumentStatus(id, selected, reason);
-			if (!result.success) {
-				return result;
-			}
-
+			unwrap(await updateDocumentStatus(id, selected, reason));
 			return releaseReviewLock(id);
 		},
 		onSuccess: async () => {

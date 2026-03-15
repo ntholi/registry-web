@@ -34,17 +34,19 @@ export function useActionMutation<TData, TVariables = void, TContext = unknown>(
 		'mutationFn'
 	>
 ) {
-	const mutationFn =
-		typeof actionOrOptions === 'function'
-			? actionOrOptions
-			: actionOrOptions.mutationFn;
-	const config =
-		typeof actionOrOptions === 'function'
-			? options
-			: (actionOrOptions as Omit<
-					ActionMutationOptions<TData, TVariables, TContext>,
-					'mutationFn'
-				>);
+	let mutationFn: (variables: TVariables) => Promise<ActionResult<TData>>;
+	let config:
+		| Omit<UseMutationOptions<TData, Error, TVariables, TContext>, 'mutationFn'>
+		| undefined;
+
+	if (typeof actionOrOptions === 'function') {
+		mutationFn = actionOrOptions;
+		config = options;
+	} else {
+		const { mutationFn: nextMutationFn, ...nextConfig } = actionOrOptions;
+		mutationFn = nextMutationFn;
+		config = nextConfig;
+	}
 
 	return useMutation<TData, Error, TVariables, TContext>({
 		mutationFn: async (variables) => {
