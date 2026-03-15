@@ -6,6 +6,7 @@ import { findAllStudents } from '@registry/students';
 import { IconCheck, IconSearch, IconUser } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
+import { unwrap } from '@/shared/lib/utils/actionResult';
 
 type Props = {
 	value?: number | string;
@@ -40,7 +41,7 @@ export default function StudentInput({
 		queryKey: ['student-search', debounced],
 		queryFn: () => findAllStudents(1, debounced),
 		enabled: debounced.length >= 2 && !isSelected,
-		select: (data) => data.items,
+		select: (data) => unwrap(data).items,
 	});
 
 	const options = (results ?? []).map((s) => ({

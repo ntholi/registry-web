@@ -5,13 +5,12 @@ import { useForm } from '@mantine/form';
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import { IconEdit } from '@tabler/icons-react';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { getAllVenueTypes } from '@timetable/venue-types';
 import { getAllVenues } from '@timetable/venues';
 import { zod4Resolver as zodResolver } from 'mantine-form-zod-resolver';
 import { z } from 'zod';
-import { useActionMutation } from '@/shared/lib/hooks/use-action-mutation';
-import { success, unwrap } from '@/shared/lib/utils/actionResult';
+import { unwrap } from '@/shared/lib/utils/actionResult';
 import { getActionColor, getAlertColor } from '@/shared/lib/utils/colors';
 import {
 	applyTimeRefinements,
@@ -62,11 +61,13 @@ export default function EditAllocationModal({
 	const { data: venueTypes = [] } = useQuery({
 		queryKey: ['venue-types'],
 		queryFn: getAllVenueTypes,
+		select: unwrap,
 	});
 
 	const { data: venues = [] } = useQuery({
 		queryKey: ['venues'],
 		queryFn: getAllVenues,
+		select: unwrap,
 	});
 
 	const form = useForm<FormValues>({
@@ -83,7 +84,7 @@ export default function EditAllocationModal({
 		},
 	});
 
-	const mutation = useActionMutation({
+	const mutation = useMutation({
 		mutationFn: async (values: FormValues) => {
 			unwrap(
 				await updateTimetableAllocation(allocationId, {
@@ -107,7 +108,6 @@ export default function EditAllocationModal({
 					values.allowedVenueIds
 				)
 			);
-			return success(undefined);
 		},
 		onSuccess: async () => {
 			await queryClient.invalidateQueries({

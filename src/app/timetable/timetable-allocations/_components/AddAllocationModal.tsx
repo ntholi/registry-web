@@ -17,15 +17,14 @@ import { useForm } from '@mantine/form';
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import { IconPlus } from '@tabler/icons-react';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { getAllVenueTypes } from '@timetable/venue-types';
 import { getAllVenues } from '@timetable/venues';
 import { zod4Resolver as zodResolver } from 'mantine-form-zod-resolver';
 import { useState } from 'react';
 import { z } from 'zod';
-import { useActionMutation } from '@/shared/lib/hooks/use-action-mutation';
 import type { ActionData } from '@/shared/lib/utils/actionResult';
-import { success, unwrap } from '@/shared/lib/utils/actionResult';
+import { unwrap } from '@/shared/lib/utils/actionResult';
 import { toClassName } from '@/shared/lib/utils/utils';
 import {
 	applyTimeRefinements,
@@ -91,11 +90,13 @@ export default function AddAllocationModal({
 	const { data: venueTypes = [] } = useQuery({
 		queryKey: ['venue-types'],
 		queryFn: getAllVenueTypes,
+		select: unwrap,
 	});
 
 	const { data: venues = [] } = useQuery({
 		queryKey: ['venues'],
 		queryFn: getAllVenues,
+		select: unwrap,
 	});
 
 	const form = useForm<FormValues>({
@@ -127,7 +128,7 @@ export default function AddAllocationModal({
 		form.setFieldValue('groups', groupNames);
 	}
 
-	const mutation = useActionMutation({
+	const mutation = useMutation({
 		mutationFn: async (values: FormValues) => {
 			if (values.groups.length === 0) {
 				unwrap(
@@ -147,7 +148,7 @@ export default function AddAllocationModal({
 						values.allowedVenueIds
 					)
 				);
-				return success(undefined);
+				return;
 			}
 
 			const allocations = values.groups.map((groupName: string) => ({
@@ -172,7 +173,6 @@ export default function AddAllocationModal({
 					values.allowedVenueIds
 				)
 			);
-			return success(undefined);
 		},
 		onSuccess: async () => {
 			await queryClient.invalidateQueries({

@@ -89,10 +89,10 @@ pnpm tsc --noEmit && pnpm lint:fix
 
 ## Done When
 
-- [ ] `ActionResult.error` is `AppError` only (no `string` union)
-- [ ] `failure()` only accepts `AppError`
-- [ ] `getActionErrorMessage()` only accepts `AppError`
-- [ ] No remaining local `isActionResult` implementations
-- [ ] No remaining direct `extractError` imports in action files
-- [ ] No remaining manual `success()`/`failure()` usage
+- [x] `ActionResult.error` is `AppError` only (no `string` union)
+- [x] `failure()` only accepts `AppError`
+- [x] `getActionErrorMessage()` only accepts `AppError`
+- [x] No remaining local `isActionResult` implementations
+- [x] No remaining direct `extractError` imports in action files
+- [x] No remaining manual `success()`/`failure()` usage
 - [ ] `pnpm tsc --noEmit` passes — zero errors

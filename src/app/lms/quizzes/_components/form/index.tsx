@@ -22,7 +22,7 @@ import { useForm } from '@mantine/form';
 import { useDebouncedCallback, useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import { IconCheck, IconPlus } from '@tabler/icons-react';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {
 	ASSESSMENT_TYPES,
@@ -30,7 +30,7 @@ import {
 } from '@/app/academic/assessments/_lib/utils';
 import { getAssessmentByModuleId } from '@/app/academic/assessments/_server/actions';
 import { useActionMutation } from '@/shared/lib/hooks/use-action-mutation';
-import { success, unwrap } from '@/shared/lib/utils/actionResult';
+import { unwrap } from '@/shared/lib/utils/actionResult';
 import {
 	createDraftQuiz,
 	publishQuiz,
@@ -178,25 +178,27 @@ export default function QuizForm({ courseId, moduleId }: QuizFormProps) {
 		},
 	});
 
-	const saveSettingsMutation = useActionMutation({
+	const saveSettingsMutation = useMutation({
 		mutationFn: async () => {
 			if (!draftQuizId) {
-				return success(undefined);
+				return;
 			}
 			const typeLabel =
 				ASSESSMENT_TYPES.find((t) => t.value === form.values.assessmentType)
 					?.label || 'Quiz';
 
-			return updateQuiz(draftQuizId, {
-				name: typeLabel,
-				timeopen: form.values.startDateTime
-					? Math.floor(form.values.startDateTime.getTime() / 1000)
-					: undefined,
-				timeclose: form.values.endDateTime
-					? Math.floor(form.values.endDateTime.getTime() / 1000)
-					: undefined,
-				attempts: form.values.attempts,
-			});
+			unwrap(
+				await updateQuiz(draftQuizId, {
+					name: typeLabel,
+					timeopen: form.values.startDateTime
+						? Math.floor(form.values.startDateTime.getTime() / 1000)
+						: undefined,
+					timeclose: form.values.endDateTime
+						? Math.floor(form.values.endDateTime.getTime() / 1000)
+						: undefined,
+					attempts: form.values.attempts,
+				})
+			);
 		},
 		onSuccess: () => {
 			setSaveState('saved');
