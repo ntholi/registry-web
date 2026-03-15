@@ -1,4 +1,5 @@
 import { notFound } from 'next/navigation';
+import { unwrap } from '@/shared/lib/utils/actionResult';
 import ApplicationForm from '../../_components/Form';
 import { getApplication, updateApplication } from '../../_server/actions';
 
@@ -8,7 +9,7 @@ type Props = {
 
 export default async function EditApplicationPage({ params }: Props) {
 	const { id } = await params;
-	const item = await getApplication(id);
+	const item = unwrap(await getApplication(id));
 
 	if (!item) {
 		return notFound();
@@ -20,7 +21,7 @@ export default async function EditApplicationPage({ params }: Props) {
 			defaultValues={item}
 			onSubmit={async (values) => {
 				'use server';
-				return updateApplication(id, values);
+				return unwrap(await updateApplication(id, values));
 			}}
 		/>
 	);

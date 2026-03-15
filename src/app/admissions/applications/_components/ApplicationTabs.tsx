@@ -6,6 +6,7 @@ import type { ApplicantDocument } from '@admissions/applicants/[id]/documents/_l
 import RecordAuditHistory from '@audit-logs/_components/RecordAuditHistory';
 import { Tabs, TabsPanel, TabsTab } from '@mantine/core';
 import { useQueryState } from 'nuqs';
+import type { ActionData } from '@/shared/lib/utils/actionResult';
 import ScrollableTabsList from '@/shared/ui/ScrollableTabsList';
 import type { PaymentStatus } from '../_lib/types';
 import type { getApplication } from '../_server/actions';
@@ -17,7 +18,7 @@ import ScoresSection from './ScoresSection';
 import StatusHistory from './StatusHistory';
 
 type Props = {
-	application: NonNullable<Awaited<ReturnType<typeof getApplication>>>;
+	application: NonNullable<ActionData<typeof getApplication>>;
 	academicRecords: AcademicRecordWithRelations[];
 	documents: ApplicantDocument[];
 };

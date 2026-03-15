@@ -1,5 +1,6 @@
 import { Stack } from '@mantine/core';
 import { notFound } from 'next/navigation';
+import { unwrap } from '@/shared/lib/utils/actionResult';
 import { getApplicant } from '../_server/actions';
 import ApplicantHeader from './_components/ApplicantHeader';
 import ApplicantTabs from './_components/ApplicantTabs';
@@ -10,7 +11,7 @@ type Props = {
 
 export default async function ApplicantDetails({ params }: Props) {
 	const { id } = await params;
-	const item = await getApplicant(id);
+	const item = unwrap(await getApplicant(id));
 
 	if (!item) {
 		return notFound();

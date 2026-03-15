@@ -9,6 +9,7 @@ import {
 	Text,
 } from '@mantine/core';
 import { notFound } from 'next/navigation';
+import { unwrap } from '@/shared/lib/utils/actionResult';
 import {
 	DetailsView,
 	DetailsViewBody,
@@ -25,7 +26,7 @@ type Props = {
 
 export default async function SubjectDetails({ params }: Props) {
 	const { id } = await params;
-	const item = (await getSubject(id)) as SubjectWithAliases | null;
+	const item = unwrap(await getSubject(id)) as SubjectWithAliases | null;
 
 	if (!item) {
 		return notFound();

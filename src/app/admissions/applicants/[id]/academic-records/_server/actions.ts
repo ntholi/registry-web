@@ -3,7 +3,7 @@
 import { recalculateScoresForApplicant } from '@admissions/applications/_server/actions';
 import type { academicRecords } from '@/core/database';
 import { deleteFile } from '@/core/integrations/storage';
-import { createAction } from '@/shared/lib/utils/actionResult';
+import { createAction, unwrap } from '@/shared/lib/utils/actionResult';
 import { normalizeResultClassification } from '@/shared/lib/utils/resultClassification';
 import { applicantDocumentsService } from '../../documents/_server/service';
 import type { CreateAcademicRecordInput } from '../_lib/types';
@@ -44,7 +44,9 @@ export const createAcademicRecord = createAction(
 		return academicRecordsService
 			.createWithGrades(data, isLevel4, input.subjectGrades)
 			.then((result) => {
-				recalculateScoresForApplicant(applicantId).catch(() => {});
+				recalculateScoresForApplicant(applicantId)
+					.then(unwrap)
+					.catch(() => {});
 				return result;
 			});
 	}
@@ -68,7 +70,9 @@ export const updateAcademicRecord = createAction(
 			.updateWithGrades(id, data, isLevel4, input.subjectGrades)
 			.then(async (result) => {
 				if (result?.applicantId) {
-					recalculateScoresForApplicant(result.applicantId).catch(() => {});
+					recalculateScoresForApplicant(result.applicantId)
+						.then(unwrap)
+						.catch(() => {});
 				}
 				return result;
 			});
@@ -95,7 +99,9 @@ export const deleteAcademicRecordInternal = createAction(
 
 		const result = await academicRecordsService.delete(id);
 		if (applicantId) {
-			recalculateScoresForApplicant(applicantId).catch(() => {});
+			recalculateScoresForApplicant(applicantId)
+				.then(unwrap)
+				.catch(() => {});
 		}
 		return result;
 	}

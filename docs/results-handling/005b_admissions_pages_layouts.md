@@ -86,8 +86,8 @@ pnpm tsc --noEmit
 
 ## Done When
 
-- [ ] All RSC pages with direct `await` calls use `unwrap()`
-- [ ] All 5 direct ListLayout callers verified working
-- [ ] All 3 arrow-wrapper ListLayout callers verified/updated
-- [ ] All 10 cross-action call sites wrapped with `unwrap()`
+- [x] All RSC pages with direct `await` calls use `unwrap()`
+- [x] All 5 direct ListLayout callers verified working
+- [x] All 3 arrow-wrapper ListLayout callers verified/updated
+- [x] All 10 cross-action call sites wrapped with `unwrap()`
 - [ ] `pnpm tsc --noEmit` passes

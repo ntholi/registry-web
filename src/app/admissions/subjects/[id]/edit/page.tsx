@@ -1,5 +1,6 @@
 import { Box } from '@mantine/core';
 import { notFound } from 'next/navigation';
+import { unwrap } from '@/shared/lib/utils/actionResult';
 import Form from '../../_components/Form';
 import { getSubject, updateSubject } from '../../_server/actions';
 
@@ -9,7 +10,7 @@ type Props = {
 
 export default async function SubjectEdit({ params }: Props) {
 	const { id } = await params;
-	const item = await getSubject(id);
+	const item = unwrap(await getSubject(id));
 	if (!item) {
 		return notFound();
 	}
@@ -21,7 +22,7 @@ export default async function SubjectEdit({ params }: Props) {
 				defaultValues={item}
 				onSubmit={async (value) => {
 					'use server';
-					return await updateSubject(id, value);
+					return unwrap(await updateSubject(id, value));
 				}}
 			/>
 		</Box>
