@@ -2,6 +2,7 @@
 
 import { eq } from 'drizzle-orm';
 import { users } from '@/core/database';
+import { createAction } from '@/shared/lib/utils/actionResult';
 import { usersService as service } from './service';
 
 type User = typeof users.$inferInsert;
@@ -12,49 +13,53 @@ type UserWithSchools = User & {
 	lmsToken?: string | null;
 };
 
-export async function getUser(id: string) {
+export const getUser = createAction(async (id: string) => {
 	return service.get(id);
-}
+});
 
-export async function getUserSchools(userId?: string) {
+export const getUserSchools = createAction(async (userId?: string) => {
 	if (!userId) return;
 	return service.getUserSchools(userId);
-}
+});
 
-export async function findAllUsers(page: number = 1, search = '') {
-	return service.findAll({ page, search, searchColumns: ['email', 'name'] });
-}
+export const findAllUsers = createAction(
+	async (page: number = 1, search: string = '') => {
+		return service.findAll({ page, search, searchColumns: ['email', 'name'] });
+	}
+);
 
-export async function findAllByRole(
-	page: number = 1,
-	search = '',
-	role?: User['role']
-) {
-	return service.findAll({
-		page,
-		search,
-		searchColumns: ['email', 'name'],
-		filter: role !== undefined ? eq(users.role, role) : undefined,
-	});
-}
+export const findAllByRole = createAction(
+	async (page: number = 1, search: string = '', role?: User['role']) => {
+		return service.findAll({
+			page,
+			search,
+			searchColumns: ['email', 'name'],
+			filter: role !== undefined ? eq(users.role, role) : undefined,
+		});
+	}
+);
 
-export async function findAllByRoles(roles: NonNullable<UserSelect['role']>[]) {
-	return service.findAllByRoles(roles);
-}
+export const findAllByRoles = createAction(
+	async (roles: NonNullable<UserSelect['role']>[]) => {
+		return service.findAllByRoles(roles);
+	}
+);
 
-export async function createUser(user: UserWithSchools) {
+export const createUser = createAction(async (user: UserWithSchools) => {
 	return service.create(user);
-}
+});
 
-export async function updateUser(id: string, user: UserWithSchools) {
-	return service.update(id, user);
-}
+export const updateUser = createAction(
+	async (id: string, user: UserWithSchools) => {
+		return service.update(id, user);
+	}
+);
 
-export async function deleteUser(id: string) {
+export const deleteUser = createAction(async (id: string) => {
 	return service.delete(id);
-}
+});
 
-export async function getUserSchoolIds(userId?: string) {
+export const getUserSchoolIds = createAction(async (userId?: string) => {
 	if (!userId) return [];
 	return service.getUserSchoolIds(userId);
-}
+});

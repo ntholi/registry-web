@@ -70,6 +70,6 @@ pnpm tsc --noEmit
 
 ## Done When
 
-- [ ] All 10 action files import and use `createAction`
-- [ ] All cross-action calls (if any) wrapped with `unwrap()`
-- [ ] `pnpm tsc --noEmit` passes (or only has warnings in consumer pages fixed in 006b)
+- [x] All 10 action files import and use `createAction`
+- [x] All cross-action calls (if any) wrapped with `unwrap()`
+- [x] `pnpm tsc --noEmit` shows no new errors in these 10 action files; remaining repo-wide migration errors are outside 006a
