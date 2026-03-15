@@ -72,7 +72,8 @@ export default function EditStudentProgramModal({
 	const { data: structuresData = [], isLoading: isLoadingStructures } =
 		useQuery({
 			queryKey: ['structures', program.programId],
-			queryFn: async () => unwrap(await getStructuresByProgramId(program.programId)),
+			queryFn: async () =>
+				unwrap(await getStructuresByProgramId(program.programId)),
 			enabled: opened,
 			select: (data) =>
 				data.map((s) => ({ value: s.id.toString(), label: s.code })),

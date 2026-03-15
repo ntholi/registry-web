@@ -79,7 +79,8 @@ export default function EditStudentSemesterModal({
 		isLoading: isLoadingStructureSemesters,
 	} = useQuery({
 		queryKey: ['structure-semesters', structureId],
-		queryFn: async () => unwrap(await getStructureSemestersByStructureId(structureId)),
+		queryFn: async () =>
+			unwrap(await getStructureSemestersByStructureId(structureId)),
 		enabled: opened,
 		select: (data) =>
 			data.map((s) => ({ value: s.id.toString(), label: s.name })),

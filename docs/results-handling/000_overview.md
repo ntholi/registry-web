@@ -79,9 +79,9 @@ Full architecture details, code snippets, type definitions, and rationale:
 
 | # | File | Scope | Status |
 |---|------|-------|--------|
-| 1 | [001_shared_infrastructure.md](./001_shared_infrastructure.md) | `extractError.ts`, `actionResult.ts`, `UserFacingError` — backward-compatible | ⬜ Not started |
-| 2 | [002_ui_components.md](./002_ui_components.md) | `StatusPage`, `error.tsx`, `global-error.tsx`, `useActionMutation`, `Form`, `DeleteButton`, `DetailsViewHeader`, `ListLayout` — dual-format support | ⬜ Not started |
-| 3 | [003_academic.md](./003_academic.md) | Academic module: 13 actions + ~18 RSC pages + layouts | ⬜ Not started |
+| 1 | [001_shared_infrastructure.md](./001_shared_infrastructure.md) | `extractError.ts`, `actionResult.ts`, `UserFacingError` — backward-compatible | ✅ Completed |
+| 2 | [002_ui_components.md](./002_ui_components.md) | `StatusPage`, `error.tsx`, `global-error.tsx`, `useActionMutation`, `Form`, `DeleteButton`, `DetailsViewHeader`, `ListLayout` — dual-format support | ✅ Completed |
+| 3 | [003_academic.md](./003_academic.md) | Academic module: 13 actions + ~18 RSC pages + layouts | 🔄 In progress |
 | 4 | [004_registry.md](./004_registry.md) | Registry module: 18 actions + ~24 RSC pages + layouts | ⬜ Not started |
 | 5 | [005_admissions.md](./005_admissions.md) | Admissions module: 17 actions + ~16 RSC pages + layouts | ⬜ Not started |
 | 6 | [006_admin_finance.md](./006_admin_finance.md) | Admin + Finance + Auth + HR: 10 actions + ~19 RSC pages + layouts | ⬜ Not started |

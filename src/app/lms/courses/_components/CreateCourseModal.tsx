@@ -23,7 +23,9 @@ import { unwrap } from '@/shared/lib/utils/actionResult';
 import { getStudentClassName } from '@/shared/lib/utils/utils';
 import { createMoodleCourse, getMoodleCategories } from '../_server/actions';
 
-type AssignedModule = ActionData<typeof getAllAssignedModulesByCurrentUser>[number];
+type AssignedModule = ActionData<
+	typeof getAllAssignedModulesByCurrentUser
+>[number];
 
 export default function CreateCourseModal() {
 	const [opened, { open, close }] = useDisclosure(false);

@@ -60,9 +60,8 @@ export default function ModuleSection({
 	student,
 	error,
 }: ModuleSectionProps) {
-	const [selectedModuleToAdd, setSelectedModuleToAdd] = useState<
-		StructureModule | null
-	>(null);
+	const [selectedModuleToAdd, setSelectedModuleToAdd] =
+		useState<StructureModule | null>(null);
 	const [searchInputKey, setSearchInputKey] = useState(0);
 
 	function determineModuleStatus(
@@ -89,9 +88,7 @@ export default function ModuleSection({
 		return moduleData.type === 'Elective' ? 'Elective' : 'Compulsory';
 	}
 
-	const handleSelectModule = (
-		moduleData: StructureModule | null
-	) => {
+	const handleSelectModule = (moduleData: StructureModule | null) => {
 		setSelectedModuleToAdd(moduleData);
 	};
 
