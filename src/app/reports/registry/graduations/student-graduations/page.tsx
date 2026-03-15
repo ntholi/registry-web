@@ -29,6 +29,7 @@ import {
 	useQueryStates,
 } from 'nuqs';
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { unwrap } from '@/shared/lib/utils/actionResult';
 import { formatDateToISO } from '@/shared/lib/utils/dates';
 import {
 	Filter,
@@ -219,44 +220,38 @@ export default function GraduationReportPage() {
 
 		setIsExportingSummary(true);
 		try {
-			const result = await generateSummaryGraduationReport(filter);
-
-			if (result.success && result.data) {
-				const byteCharacters = atob(result.data);
-				const byteNumbers = new Array(byteCharacters.length);
-				for (let i = 0; i < byteCharacters.length; i++) {
-					byteNumbers[i] = byteCharacters.charCodeAt(i);
-				}
-				const byteArray = new Uint8Array(byteNumbers);
-				const blob = new Blob([byteArray], {
-					type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-				});
-
-				const url = window.URL.createObjectURL(blob);
-				const link = document.createElement('a');
-				link.href = url;
-				link.download = `graduation-summary-${filter.graduationMonth}-${formatDateToISO(new Date())}.docx`;
-				document.body.appendChild(link);
-				link.click();
-				document.body.removeChild(link);
-				window.URL.revokeObjectURL(url);
-
-				notifications.show({
-					title: 'Success',
-					message: 'Summary report exported successfully',
-					color: 'green',
-				});
-			} else {
-				notifications.show({
-					title: 'Error',
-					message: result.error || 'Failed to export summary report',
-					color: 'red',
-				});
+			const base64Data = unwrap(await generateSummaryGraduationReport(filter));
+			const byteCharacters = atob(base64Data);
+			const byteNumbers = new Array(byteCharacters.length);
+			for (let i = 0; i < byteCharacters.length; i++) {
+				byteNumbers[i] = byteCharacters.charCodeAt(i);
 			}
-		} catch (_error) {
+			const byteArray = new Uint8Array(byteNumbers);
+			const blob = new Blob([byteArray], {
+				type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+			});
+
+			const url = window.URL.createObjectURL(blob);
+			const link = document.createElement('a');
+			link.href = url;
+			link.download = `graduation-summary-${filter.graduationMonth}-${formatDateToISO(new Date())}.docx`;
+			document.body.appendChild(link);
+			link.click();
+			document.body.removeChild(link);
+			window.URL.revokeObjectURL(url);
+
+			notifications.show({
+				title: 'Success',
+				message: 'Summary report exported successfully',
+				color: 'green',
+			});
+		} catch (error) {
 			notifications.show({
 				title: 'Error',
-				message: 'An unexpected error occurred while exporting',
+				message:
+					error instanceof Error
+						? error.message
+						: 'An unexpected error occurred while exporting',
 				color: 'red',
 			});
 		} finally {
@@ -269,44 +264,38 @@ export default function GraduationReportPage() {
 
 		setIsExportingStudents(true);
 		try {
-			const result = await generateGraduatesListReport(filter);
-
-			if (result.success && result.data) {
-				const byteCharacters = atob(result.data);
-				const byteNumbers = new Array(byteCharacters.length);
-				for (let i = 0; i < byteCharacters.length; i++) {
-					byteNumbers[i] = byteCharacters.charCodeAt(i);
-				}
-				const byteArray = new Uint8Array(byteNumbers);
-				const blob = new Blob([byteArray], {
-					type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-				});
-
-				const url = window.URL.createObjectURL(blob);
-				const link = document.createElement('a');
-				link.href = url;
-				link.download = `graduates-list-${filter.graduationMonth}-${formatDateToISO(new Date())}.xlsx`;
-				document.body.appendChild(link);
-				link.click();
-				document.body.removeChild(link);
-				window.URL.revokeObjectURL(url);
-
-				notifications.show({
-					title: 'Success',
-					message: 'Graduates list exported successfully',
-					color: 'green',
-				});
-			} else {
-				notifications.show({
-					title: 'Error',
-					message: result.error || 'Failed to export graduates list',
-					color: 'red',
-				});
+			const base64Data = unwrap(await generateGraduatesListReport(filter));
+			const byteCharacters = atob(base64Data);
+			const byteNumbers = new Array(byteCharacters.length);
+			for (let i = 0; i < byteCharacters.length; i++) {
+				byteNumbers[i] = byteCharacters.charCodeAt(i);
 			}
-		} catch (_error) {
+			const byteArray = new Uint8Array(byteNumbers);
+			const blob = new Blob([byteArray], {
+				type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+			});
+
+			const url = window.URL.createObjectURL(blob);
+			const link = document.createElement('a');
+			link.href = url;
+			link.download = `graduates-list-${filter.graduationMonth}-${formatDateToISO(new Date())}.xlsx`;
+			document.body.appendChild(link);
+			link.click();
+			document.body.removeChild(link);
+			window.URL.revokeObjectURL(url);
+
+			notifications.show({
+				title: 'Success',
+				message: 'Graduates list exported successfully',
+				color: 'green',
+			});
+		} catch (error) {
 			notifications.show({
 				title: 'Error',
-				message: 'An unexpected error occurred while exporting',
+				message:
+					error instanceof Error
+						? error.message
+						: 'An unexpected error occurred while exporting',
 				color: 'red',
 			});
 		} finally {

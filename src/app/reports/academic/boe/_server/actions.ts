@@ -1,57 +1,22 @@
 'use server';
 
+import { createAction } from '@/shared/lib/utils/actionResult';
 import type { BoeFilter } from './repository';
 import { boeReportService } from './service';
 
-export async function getPreview(filter: BoeFilter) {
-	try {
-		const data = await boeReportService.getPreview(filter);
-		return { success: true, data };
-	} catch (error) {
-		console.error('Error getting BOE preview:', error);
-		return {
-			success: false,
-			error: error instanceof Error ? error.message : 'Unknown error',
-		};
-	}
-}
+export const getPreview = createAction(async (filter: BoeFilter) => {
+	return boeReportService.getPreview(filter);
+});
 
-export async function getStatistics(filter: BoeFilter) {
-	try {
-		const data = await boeReportService.getStatistics(filter);
-		return { success: true, data };
-	} catch (error) {
-		console.error('Error getting BOE statistics:', error);
-		return {
-			success: false,
-			error: error instanceof Error ? error.message : 'Unknown error',
-		};
-	}
-}
+export const getStatistics = createAction(async (filter: BoeFilter) => {
+	return boeReportService.getStatistics(filter);
+});
 
-export async function getClassReports(filter: BoeFilter) {
-	try {
-		const data = await boeReportService.getClassReports(filter);
-		return { success: true, data };
-	} catch (error) {
-		console.error('Error getting BOE class reports:', error);
-		return {
-			success: false,
-			error: error instanceof Error ? error.message : 'Unknown error',
-		};
-	}
-}
+export const getClassReports = createAction(async (filter: BoeFilter) => {
+	return boeReportService.getClassReports(filter);
+});
 
-export async function generateExcel(filter: BoeFilter) {
-	try {
-		const buffer = await boeReportService.generateExcel(filter);
-		const base64Data = Buffer.from(buffer).toString('base64');
-		return { success: true, data: base64Data };
-	} catch (error) {
-		console.error('Error generating BOE report:', error);
-		return {
-			success: false,
-			error: error instanceof Error ? error.message : 'Unknown error',
-		};
-	}
-}
+export const generateExcel = createAction(async (filter: BoeFilter) => {
+	const buffer = await boeReportService.generateExcel(filter);
+	return Buffer.from(buffer).toString('base64');
+});

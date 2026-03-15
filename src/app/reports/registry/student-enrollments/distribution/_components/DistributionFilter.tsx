@@ -39,13 +39,6 @@ const semesterOptions = Array.from({ length: 8 }, (_, i) => {
 	};
 });
 
-interface ProgramOption {
-	id: number;
-	code: string;
-	name: string;
-	schoolId: number;
-}
-
 interface Props {
 	onFilterChange: (
 		filter: DistributionReportFilter,

@@ -13,6 +13,7 @@ import {
 } from '@mantine/core';
 import { IconArrowRight } from '@tabler/icons-react';
 import { notFound } from 'next/navigation';
+import { unwrap } from '@/shared/lib/utils/actionResult';
 import { formatDateTime } from '@/shared/lib/utils/dates';
 import { formatTableName } from '@/shared/lib/utils/utils';
 import { DetailsView, DetailsViewBody, FieldView } from '@/shared/ui/adease';
@@ -36,7 +37,7 @@ const operationColor: Record<string, string> = {
 
 export default async function AuditLogDetail({ params }: Props) {
 	const { id } = await params;
-	const entry = await getAuditLog(BigInt(id));
+	const entry = unwrap(await getAuditLog(BigInt(id)));
 
 	if (!entry) {
 		return notFound();

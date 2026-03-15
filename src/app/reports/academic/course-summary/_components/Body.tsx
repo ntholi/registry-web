@@ -107,14 +107,12 @@ export default function Body() {
 
 			setIsDownloading(true);
 			try {
-				const result = await generateCourseSummaryReport(
-					Number(selectedProgramId),
-					selectedModule.semesterModuleId
+				return unwrap(
+					await generateCourseSummaryReport(
+						Number(selectedProgramId),
+						selectedModule.semesterModuleId
+					)
 				);
-				if (!result.success) {
-					throw new Error(result.error || 'Failed to generate report');
-				}
-				return result.data;
 			} finally {
 				setIsDownloading(false);
 			}

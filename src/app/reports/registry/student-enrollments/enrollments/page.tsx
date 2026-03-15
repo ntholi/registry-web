@@ -29,6 +29,7 @@ import {
 	useQueryStates,
 } from 'nuqs';
 import { useCallback, useEffect, useState } from 'react';
+import { unwrap } from '@/shared/lib/utils/actionResult';
 import { formatDateToISO } from '@/shared/lib/utils/dates';
 import RegistrationCharts from './_components/EnrollmentCharts';
 import RegistrationFilter, { type ReportFilter } from './_components/Filter';
@@ -170,47 +171,40 @@ export default function RegistrationReportPage() {
 
 		setIsExportingSummary(true);
 		try {
-			const result = await generateSummaryRegistrationReport(
-				filter.termIds,
-				filter
+			const base64Data = unwrap(
+				await generateSummaryRegistrationReport(filter.termIds, filter)
 			);
-
-			if (result.success && result.data) {
-				const byteCharacters = atob(result.data);
-				const byteNumbers = new Array(byteCharacters.length);
-				for (let i = 0; i < byteCharacters.length; i++) {
-					byteNumbers[i] = byteCharacters.charCodeAt(i);
-				}
-				const byteArray = new Uint8Array(byteNumbers);
-				const blob = new Blob([byteArray], {
-					type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-				});
-
-				const url = window.URL.createObjectURL(blob);
-				const link = document.createElement('a');
-				link.href = url;
-				link.download = `program-enrollment-summary-${formatDateToISO(new Date())}.docx`;
-				document.body.appendChild(link);
-				link.click();
-				document.body.removeChild(link);
-				window.URL.revokeObjectURL(url);
-
-				notifications.show({
-					title: 'Success',
-					message: 'Summary report exported successfully',
-					color: 'green',
-				});
-			} else {
-				notifications.show({
-					title: 'Error',
-					message: result.error || 'Failed to export summary report',
-					color: 'red',
-				});
+			const byteCharacters = atob(base64Data);
+			const byteNumbers = new Array(byteCharacters.length);
+			for (let i = 0; i < byteCharacters.length; i++) {
+				byteNumbers[i] = byteCharacters.charCodeAt(i);
 			}
-		} catch (_error) {
+			const byteArray = new Uint8Array(byteNumbers);
+			const blob = new Blob([byteArray], {
+				type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+			});
+
+			const url = window.URL.createObjectURL(blob);
+			const link = document.createElement('a');
+			link.href = url;
+			link.download = `program-enrollment-summary-${formatDateToISO(new Date())}.docx`;
+			document.body.appendChild(link);
+			link.click();
+			document.body.removeChild(link);
+			window.URL.revokeObjectURL(url);
+
+			notifications.show({
+				title: 'Success',
+				message: 'Summary report exported successfully',
+				color: 'green',
+			});
+		} catch (error) {
 			notifications.show({
 				title: 'Error',
-				message: 'An unexpected error occurred while exporting',
+				message:
+					error instanceof Error
+						? error.message
+						: 'An unexpected error occurred while exporting',
 				color: 'red',
 			});
 		} finally {
@@ -223,44 +217,40 @@ export default function RegistrationReportPage() {
 
 		setIsExportingStudents(true);
 		try {
-			const result = await generateStudentsListReport(filter.termIds, filter);
-
-			if (result.success && result.data) {
-				const byteCharacters = atob(result.data);
-				const byteNumbers = new Array(byteCharacters.length);
-				for (let i = 0; i < byteCharacters.length; i++) {
-					byteNumbers[i] = byteCharacters.charCodeAt(i);
-				}
-				const byteArray = new Uint8Array(byteNumbers);
-				const blob = new Blob([byteArray], {
-					type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-				});
-
-				const url = window.URL.createObjectURL(blob);
-				const link = document.createElement('a');
-				link.href = url;
-				link.download = `registered-students-${formatDateToISO(new Date())}.xlsx`;
-				document.body.appendChild(link);
-				link.click();
-				document.body.removeChild(link);
-				window.URL.revokeObjectURL(url);
-
-				notifications.show({
-					title: 'Success',
-					message: 'Students list exported successfully',
-					color: 'green',
-				});
-			} else {
-				notifications.show({
-					title: 'Error',
-					message: result.error || 'Failed to export students list',
-					color: 'red',
-				});
+			const base64Data = unwrap(
+				await generateStudentsListReport(filter.termIds, filter)
+			);
+			const byteCharacters = atob(base64Data);
+			const byteNumbers = new Array(byteCharacters.length);
+			for (let i = 0; i < byteCharacters.length; i++) {
+				byteNumbers[i] = byteCharacters.charCodeAt(i);
 			}
-		} catch (_error) {
+			const byteArray = new Uint8Array(byteNumbers);
+			const blob = new Blob([byteArray], {
+				type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+			});
+
+			const url = window.URL.createObjectURL(blob);
+			const link = document.createElement('a');
+			link.href = url;
+			link.download = `registered-students-${formatDateToISO(new Date())}.xlsx`;
+			document.body.appendChild(link);
+			link.click();
+			document.body.removeChild(link);
+			window.URL.revokeObjectURL(url);
+
+			notifications.show({
+				title: 'Success',
+				message: 'Students list exported successfully',
+				color: 'green',
+			});
+		} catch (error) {
 			notifications.show({
 				title: 'Error',
-				message: 'An unexpected error occurred while exporting',
+				message:
+					error instanceof Error
+						? error.message
+						: 'An unexpected error occurred while exporting',
 				color: 'red',
 			});
 		} finally {

@@ -26,6 +26,7 @@ import {
 	useQueryStates,
 } from 'nuqs';
 import { useCallback, useEffect, useState } from 'react';
+import { unwrap } from '@/shared/lib/utils/actionResult';
 import { BoeStatsSummary } from './_components/BoeStatsSummary';
 import { ClassReportsList } from './_components/ClassReportTable';
 import BoeFilter, { type BoeReportFilter } from './_components/Filter';
@@ -125,44 +126,38 @@ export default function BoeReportPage() {
 
 		setIsExporting(true);
 		try {
-			const result = await generateExcel(serverFilter);
-
-			if (result.success && result.data) {
-				const byteCharacters = atob(result.data);
-				const byteNumbers = new Array(byteCharacters.length);
-				for (let i = 0; i < byteCharacters.length; i++) {
-					byteNumbers[i] = byteCharacters.charCodeAt(i);
-				}
-				const byteArray = new Uint8Array(byteNumbers);
-				const blob = new Blob([byteArray], {
-					type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-				});
-
-				const url = window.URL.createObjectURL(blob);
-				const link = document.createElement('a');
-				link.href = url;
-				link.download = `boe-report-${previewData?.termCode || 'report'}-${new Date().toISOString().split('T')[0]}.xlsx`;
-				document.body.appendChild(link);
-				link.click();
-				document.body.removeChild(link);
-				window.URL.revokeObjectURL(url);
-
-				notifications.show({
-					title: 'Success',
-					message: 'BOE report exported successfully',
-					color: 'green',
-				});
-			} else {
-				notifications.show({
-					title: 'Error',
-					message: result.error || 'Failed to export BOE report',
-					color: 'red',
-				});
+			const base64Data = unwrap(await generateExcel(serverFilter));
+			const byteCharacters = atob(base64Data);
+			const byteNumbers = new Array(byteCharacters.length);
+			for (let i = 0; i < byteCharacters.length; i++) {
+				byteNumbers[i] = byteCharacters.charCodeAt(i);
 			}
-		} catch (_error) {
+			const byteArray = new Uint8Array(byteNumbers);
+			const blob = new Blob([byteArray], {
+				type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+			});
+
+			const url = window.URL.createObjectURL(blob);
+			const link = document.createElement('a');
+			link.href = url;
+			link.download = `boe-report-${previewData?.termCode || 'report'}-${new Date().toISOString().split('T')[0]}.xlsx`;
+			document.body.appendChild(link);
+			link.click();
+			document.body.removeChild(link);
+			window.URL.revokeObjectURL(url);
+
+			notifications.show({
+				title: 'Success',
+				message: 'BOE report exported successfully',
+				color: 'green',
+			});
+		} catch (error) {
 			notifications.show({
 				title: 'Error',
-				message: 'An unexpected error occurred while exporting',
+				message:
+					error instanceof Error
+						? error.message
+						: 'An unexpected error occurred while exporting',
 				color: 'red',
 			});
 		} finally {

@@ -1,47 +1,52 @@
 'use server';
 
+import { createAction } from '@/shared/lib/utils/actionResult';
 import { feedbackService } from './service';
 
-export async function validateFeedbackPassphrase(passphrase: string) {
-	return feedbackService.validatePassphrase(passphrase);
-}
+export const validateFeedbackPassphrase = createAction(
+	async (passphrase: string) => {
+		return feedbackService.validatePassphrase(passphrase);
+	}
+);
 
-export async function getFeedbackDataForPassphrase(
-	structureSemesterId: number,
-	termId: number,
-	passphraseId: string
-) {
-	return feedbackService.getFeedbackData(
-		structureSemesterId,
-		termId,
-		passphraseId
-	);
-}
+export const getFeedbackDataForPassphrase = createAction(
+	async (structureSemesterId: number, termId: number, passphraseId: string) => {
+		return feedbackService.getFeedbackData(
+			structureSemesterId,
+			termId,
+			passphraseId
+		);
+	}
+);
 
-export async function submitLecturerFeedback(
-	passphraseId: string,
-	assignedModuleId: number,
-	responses: { questionId: string; rating: number; comment: string | null }[]
-) {
-	return feedbackService.submitLecturerFeedback(
-		passphraseId,
-		assignedModuleId,
-		responses
-	);
-}
+export const submitLecturerFeedback = createAction(
+	async (
+		passphraseId: string,
+		assignedModuleId: number,
+		responses: { questionId: string; rating: number; comment: string | null }[]
+	) => {
+		return feedbackService.submitLecturerFeedback(
+			passphraseId,
+			assignedModuleId,
+			responses
+		);
+	}
+);
 
-export async function skipLecturer(
-	passphraseId: string,
-	assignedModuleId: number,
-	questionIds: string[]
-) {
-	return feedbackService.skipLecturer(
-		passphraseId,
-		assignedModuleId,
-		questionIds
-	);
-}
+export const skipLecturer = createAction(
+	async (
+		passphraseId: string,
+		assignedModuleId: number,
+		questionIds: string[]
+	) => {
+		return feedbackService.skipLecturer(
+			passphraseId,
+			assignedModuleId,
+			questionIds
+		);
+	}
+);
 
-export async function finalizeFeedback(passphraseId: string) {
+export const finalizeFeedback = createAction(async (passphraseId: string) => {
 	return feedbackService.finalizeFeedback(passphraseId);
-}
+});

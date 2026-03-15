@@ -1,9 +1,12 @@
+import { unwrap } from '@/shared/lib/utils/actionResult';
 import AlreadySubmitted from './_components/AlreadySubmitted';
 import ExpiredCycle from './_components/ExpiredCycle';
 import FeedbackForm from './_components/FeedbackForm';
 import PassphraseEntry from './_components/PassphraseEntry';
-import { getFeedbackDataForPassphrase } from './_server/actions';
-import { validatePassphrase } from './_server/repository';
+import {
+	getFeedbackDataForPassphrase,
+	validateFeedbackPassphrase,
+} from './_server/actions';
 
 type Props = {
 	searchParams: Promise<{ passphrase?: string }>;
@@ -17,9 +20,8 @@ export default async function FeedbackPage({ searchParams }: Props) {
 	}
 
 	const decoded = decodeURIComponent(passphrase).replace(/\+/g, ' ');
-	const result = await validatePassphrase(decoded);
-
-	if (!result) {
+	const result = unwrap(await validateFeedbackPassphrase(decoded));
+	if ('error' in result) {
 		return (
 			<PassphraseEntry error='Invalid passphrase. Please check and try again.' />
 		);
@@ -39,15 +41,13 @@ export default async function FeedbackPage({ searchParams }: Props) {
 		return <AlreadySubmitted />;
 	}
 
-	const data = await getFeedbackDataForPassphrase(
-		result.structureSemesterId,
-		result.termId,
-		result.passphraseId
+	const data = unwrap(
+		await getFeedbackDataForPassphrase(
+			result.structureSemesterId,
+			result.termId,
+			result.passphraseId
+		)
 	);
-
-	if (!data) {
-		return <PassphraseEntry error='Unable to load feedback data.' />;
-	}
 
 	return (
 		<FeedbackForm
