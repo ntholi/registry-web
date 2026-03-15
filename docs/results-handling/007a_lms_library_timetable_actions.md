@@ -90,6 +90,6 @@ pnpm tsc --noEmit
 
 ## Done When
 
-- [ ] All 26 action files import and use `createAction`
-- [ ] All 9 LMS cross-action calls wrapped with `unwrap()`
-- [ ] `pnpm tsc --noEmit` passes (or only has warnings in consumer pages fixed in 007b)
+- [x] All 26 action files import and use `createAction`
+- [x] All 9 LMS cross-action calls wrapped with `unwrap()`
+- [x] `pnpm tsc --noEmit` passes (or only has warnings in consumer pages fixed in 007b)

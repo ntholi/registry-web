@@ -2,29 +2,32 @@
 
 import { sql } from 'drizzle-orm';
 import { categories, db } from '@/core/database';
+import { createAction } from '@/shared/lib/utils/actionResult';
 import { categoriesService } from './service';
 
 type Category = typeof categories.$inferInsert;
 
-export async function getCategory(id: string) {
+export const getCategory = createAction(async (id: string) => {
 	return categoriesService.get(id);
-}
+});
 
-export async function getCategories(page = 1, search = '') {
-	return categoriesService.findAll({
-		page,
-		search,
-		searchColumns: ['name'],
-		sort: [{ column: 'name', order: 'asc' }],
-	});
-}
+export const getCategories = createAction(
+	async (page: number = 1, search: string = '') => {
+		return categoriesService.findAll({
+			page,
+			search,
+			searchColumns: ['name'],
+			sort: [{ column: 'name', order: 'asc' }],
+		});
+	}
+);
 
-export async function getAllCategories() {
+export const getAllCategories = createAction(async () => {
 	const result = await categoriesService.findAll({ size: 1000 });
 	return result.items;
-}
+});
 
-export async function getOrCreateCategories(names: string[]) {
+export const getOrCreateCategories = createAction(async (names: string[]) => {
 	if (names.length === 0) return [];
 	return db.transaction(async (tx) => {
 		const results: { id: string; name: string }[] = [];
@@ -50,16 +53,18 @@ export async function getOrCreateCategories(names: string[]) {
 		}
 		return results;
 	});
-}
+});
 
-export async function createCategory(data: Category) {
+export const createCategory = createAction(async (data: Category) => {
 	return categoriesService.create(data);
-}
+});
 
-export async function updateCategory(id: string, data: Category) {
-	return categoriesService.update(id, data);
-}
+export const updateCategory = createAction(
+	async (id: string, data: Category) => {
+		return categoriesService.update(id, data);
+	}
+);
 
-export async function deleteCategory(id: string) {
+export const deleteCategory = createAction(async (id: string) => {
 	return categoriesService.delete(id);
-}
+});

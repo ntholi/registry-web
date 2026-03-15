@@ -1,37 +1,41 @@
 'use server';
 
 import type { externalLibraries } from '@/core/database';
+import { createAction } from '@/shared/lib/utils/actionResult';
 import { externalLibrariesService } from './service';
 
 type ExternalLibraryInsert = typeof externalLibraries.$inferInsert;
 
-export async function getExternalLibrary(id: string) {
+export const getExternalLibrary = createAction(async (id: string) => {
 	return externalLibrariesService.get(id);
-}
+});
 
-export async function getExternalLibraries(page = 1, search = '') {
-	return externalLibrariesService.findAll({
-		page,
-		search,
-		searchColumns: ['name', 'description'],
-	});
-}
+export const getExternalLibraries = createAction(
+	async (page: number = 1, search: string = '') => {
+		return externalLibrariesService.findAll({
+			page,
+			search,
+			searchColumns: ['name', 'description'],
+		});
+	}
+);
 
-export async function getAllExternalLibraries() {
+export const getAllExternalLibraries = createAction(async () => {
 	return externalLibrariesService.getAll();
-}
+});
 
-export async function createExternalLibrary(data: ExternalLibraryInsert) {
-	return externalLibrariesService.create(data);
-}
+export const createExternalLibrary = createAction(
+	async (data: ExternalLibraryInsert) => {
+		return externalLibrariesService.create(data);
+	}
+);
 
-export async function updateExternalLibrary(
-	id: string,
-	data: Partial<ExternalLibraryInsert>
-) {
-	return externalLibrariesService.update(id, data);
-}
+export const updateExternalLibrary = createAction(
+	async (id: string, data: Partial<ExternalLibraryInsert>) => {
+		return externalLibrariesService.update(id, data);
+	}
+);
 
-export async function deleteExternalLibrary(id: string) {
+export const deleteExternalLibrary = createAction(async (id: string) => {
 	return externalLibrariesService.delete(id);
-}
+});

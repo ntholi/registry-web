@@ -4,27 +4,30 @@ import { eq } from 'drizzle-orm';
 import { nanoid } from 'nanoid';
 import { auth } from '@/core/auth';
 import { db, fines, loans, paymentReceipts } from '@/core/database';
+import { createAction } from '@/shared/lib/utils/actionResult';
 import { calculateFine } from '../_lib/calculations';
 import type { FineStatus } from '../_lib/types';
 import { finesService } from './service';
 
-export async function getFine(id: string) {
+export const getFine = createAction(async (id: string) => {
 	return finesService.getWithRelations(id);
-}
+});
 
-export async function getFines(page = 1, search = '', status?: FineStatus) {
-	return finesService.getFines(page, search, status);
-}
+export const getFines = createAction(
+	async (page: number = 1, search: string = '', status?: FineStatus) => {
+		return finesService.getFines(page, search, status);
+	}
+);
 
-export async function getStudentFines(stdNo: number) {
+export const getStudentFines = createAction(async (stdNo: number) => {
 	return finesService.findByStudent(stdNo);
-}
+});
 
-export async function getUnpaidFines() {
+export const getUnpaidFines = createAction(async () => {
 	return finesService.findByStatus('Unpaid');
-}
+});
 
-export async function createFineForLoan(loanId: string) {
+export const createFineForLoan = createAction(async (loanId: string) => {
 	const loan = await db.query.loans.findFirst({
 		where: eq(loans.id, loanId),
 	});
@@ -37,9 +40,9 @@ export async function createFineForLoan(loanId: string) {
 	if (amount <= 0) return null;
 
 	return finesService.createFine(loanId, loan.stdNo, amount, daysOverdue);
-}
+});
 
-export async function payFine(id: string) {
+export const payFine = createAction(async (id: string) => {
 	const session = await auth();
 	if (!session?.user?.id) throw new Error('Unauthorized');
 
@@ -72,8 +75,8 @@ export async function payFine(id: string) {
 
 		return { fine: updated, receipt };
 	});
-}
+});
 
-export async function getTotalUnpaidByStudent(stdNo: number) {
+export const getTotalUnpaidByStudent = createAction(async (stdNo: number) => {
 	return finesService.getTotalUnpaidByStudent(stdNo);
-}
+});

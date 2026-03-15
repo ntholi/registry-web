@@ -4,6 +4,7 @@ import { getLmsCredentials } from '@auth/auth-providers/_server/repository';
 import { getCourseSections, getOrReuseSection } from '@lms/_shared/utils';
 import { auth } from '@/core/auth';
 import { moodlePost } from '@/core/integrations/moodle';
+import { createAction } from '@/shared/lib/utils/actionResult';
 import type {
 	CourseOutlineBook,
 	CourseSection,
@@ -108,11 +109,7 @@ async function getOrCreateCourseOutlineBook(
 	return null;
 }
 
-export async function getCourseOutline(courseId: number): Promise<{
-	sections: CourseSection[];
-	topics: CourseTopic[];
-	bookId: number | null;
-}> {
+export const getCourseOutline = createAction(async (courseId: number) => {
 	const book = await getOrCreateCourseOutlineBook(courseId);
 
 	if (!book) {
@@ -162,44 +159,42 @@ export async function getCourseOutline(courseId: number): Promise<{
 		topics,
 		bookId: book.id,
 	};
-}
+});
 
-export async function createSection(
-	params: CreateSectionParams
-): Promise<MoodleChapterResponse> {
-	const lmsToken = await getLmsToken();
+export const createSection = createAction(
+	async (params: CreateSectionParams) => {
+		const lmsToken = await getLmsToken();
 
-	const { courseId, title, content, sectionNumber } = params;
+		const { courseId, title, content, sectionNumber } = params;
 
-	let existingBook = await findCourseOutlineBook(courseId);
+		let existingBook = await findCourseOutlineBook(courseId);
 
-	if (!existingBook) {
-		const newBook = await createCourseOutlineBook(courseId);
-		existingBook = {
-			bookId: newBook.id,
-			courseModuleId: newBook.coursemoduleid,
-		};
+		if (!existingBook) {
+			const newBook = await createCourseOutlineBook(courseId);
+			existingBook = {
+				bookId: newBook.id,
+				courseModuleId: newBook.coursemoduleid,
+			};
+		}
+
+		const result = await moodlePost(
+			'local_activity_utils_add_book_chapter',
+			{
+				bookid: existingBook.bookId,
+				title,
+				content,
+				subchapter: 0,
+				hidden: 0,
+				pagenum: sectionNumber,
+			},
+			lmsToken
+		);
+
+		return result as MoodleChapterResponse;
 	}
+);
 
-	const result = await moodlePost(
-		'local_activity_utils_add_book_chapter',
-		{
-			bookid: existingBook.bookId,
-			title,
-			content,
-			subchapter: 0,
-			hidden: 0,
-			pagenum: sectionNumber,
-		},
-		lmsToken
-	);
-
-	return result as MoodleChapterResponse;
-}
-
-export async function createTopic(
-	params: CreateTopicParams
-): Promise<MoodleChapterResponse> {
+export const createTopic = createAction(async (params: CreateTopicParams) => {
 	const lmsToken = await getLmsToken();
 
 	const { courseId, weekNumber, title, description } = params;
@@ -257,4 +252,4 @@ export async function createTopic(
 	);
 
 	return result as MoodleChapterResponse;
-}
+});

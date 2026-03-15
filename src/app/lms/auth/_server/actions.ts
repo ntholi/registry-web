@@ -7,8 +7,9 @@ import {
 } from '@auth/auth-providers/_server/repository';
 import { auth } from '@/core/auth';
 import { moodleGet } from '@/core/integrations/moodle';
+import { createAction, unwrap } from '@/shared/lib/utils/actionResult';
 
-export async function checkMoodleUserExists() {
+export const checkMoodleUserExists = createAction(async () => {
 	const session = await auth();
 	if (!session?.user?.email) {
 		return { exists: false, error: 'No email found in session' };
@@ -56,9 +57,9 @@ export async function checkMoodleUserExists() {
 		console.error('Error checking Moodle user:', error);
 		return { exists: false, error: 'Failed to check Moodle user' };
 	}
-}
+});
 
-export async function getLmsAuthStatus() {
+export const getLmsAuthStatus = createAction(async () => {
 	const session = await auth();
 	if (!session?.user?.id) {
 		return { hasCredentials: false, moodleCheck: null };
@@ -69,6 +70,6 @@ export async function getLmsAuthStatus() {
 		return { hasCredentials: true, moodleCheck: null };
 	}
 
-	const moodleCheck = await checkMoodleUserExists();
+	const moodleCheck = unwrap(await checkMoodleUserExists());
 	return { hasCredentials: false, moodleCheck };
-}
+});
