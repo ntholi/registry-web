@@ -4,6 +4,7 @@ import { getModules } from '@academic/modules';
 import { type PropsWithChildren, useState } from 'react';
 import { hasAnyPermission } from '@/core/auth/sessionPermissions';
 import { authClient } from '@/core/auth-client';
+import { unwrap } from '@/shared/lib/utils/actionResult';
 import { ListItem, ListLayout, ModuleViewToggle } from '@/shared/ui/adease';
 
 interface Module {
@@ -36,13 +37,13 @@ export default function Layout({ children }: PropsWithChildren) {
 	const [showAssignedOnly, setShowAssignedOnly] = useState(true);
 	const getData = async (page: number, search: string) => {
 		if (showAssignedOnly) {
-			const data = await getAssignedModulesByCurrentUser();
+			const data = unwrap(await getAssignedModulesByCurrentUser());
 			return {
 				items: data as AssignedModule[],
 				totalPages: 1,
 			};
 		} else {
-			const result = await getModules(page, search);
+			const result = unwrap(await getModules(page, search));
 			return {
 				items: result.items as Module[],
 				totalPages: result.totalPages,

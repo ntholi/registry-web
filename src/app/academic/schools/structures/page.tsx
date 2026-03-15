@@ -13,6 +13,7 @@ import {
 import { IconArrowLeft, IconBook, IconSchool } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { unwrap } from '@/shared/lib/utils/actionResult';
 import Link from '@/shared/ui/Link';
 import ProgramDisplay from '../_components/ProgramDisplay';
 import { getProgramsBySchoolId, getSchool } from '../_server/actions';
@@ -30,13 +31,15 @@ export default function SchoolProgramsPage() {
 
 	const { data: school, isLoading: schoolLoading } = useQuery({
 		queryKey: ['school', schoolId],
-		queryFn: () => (schoolId ? getSchool(Number(schoolId)) : null),
+		queryFn: () => getSchool(Number(schoolId!)),
+		select: unwrap,
 		enabled: !!schoolId,
 	});
 
 	const { data: programs, isLoading: programsLoading } = useQuery({
 		queryKey: ['programs', schoolId],
-		queryFn: () => (schoolId ? getProgramsBySchoolId(Number(schoolId)) : []),
+		queryFn: () => getProgramsBySchoolId(Number(schoolId!)),
+		select: unwrap,
 		enabled: !!schoolId,
 	});
 

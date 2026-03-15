@@ -6,12 +6,13 @@ import { feedbackQuestionsService as service } from './service';
 
 type Question = typeof feedbackQuestions.$inferInsert;
 
-export const getQuestions = createAction(async (page = 1, search = '') =>
-	service.findAll({
-		page,
-		search: search.trim(),
-		searchColumns: ['text'],
-	})
+export const getQuestions = createAction(
+	async (page: number = 1, search: string = '') =>
+		service.findAll({
+			page,
+			search: search.trim(),
+			searchColumns: ['text'],
+		})
 );
 
 export const getAllQuestionsWithCategories = createAction(async () =>

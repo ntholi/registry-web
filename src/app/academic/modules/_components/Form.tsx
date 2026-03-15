@@ -4,12 +4,13 @@ import { modules } from '@academic/_database';
 import { Grid, NumberInput, Select, TextInput } from '@mantine/core';
 import { createInsertSchema } from 'drizzle-zod';
 import { useRouter } from 'nextjs-toploader/app';
+import type { ActionResult } from '@/shared/lib/utils/actionResult';
 import { Form } from '@/shared/ui/adease';
 
 type Module = typeof modules.$inferInsert;
 
 type Props = {
-	onSubmit: (values: Module) => Promise<Module>;
+	onSubmit: (values: Module) => Promise<Module | ActionResult<Module>>;
 	defaultValues?: Module;
 	onSuccess?: (value: Module) => void;
 	onError?: (

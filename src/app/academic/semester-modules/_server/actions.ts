@@ -12,7 +12,7 @@ export const getSemesterModule = createAction(async (id: number) =>
 );
 
 export const findAllModules = createAction(
-	async (page: number = 1, search = '') =>
+	async (page: number = 1, search: string = '') =>
 		semesterModulesService.search(
 			{
 				page,
@@ -22,7 +22,7 @@ export const findAllModules = createAction(
 );
 
 export const findModulesByStructure = createAction(
-	async (structureId: number, search = '') =>
+	async (structureId: number, search: string = '') =>
 		semesterModulesService.findModulesByStructure(structureId, search)
 );
 
@@ -105,8 +105,9 @@ export const updateModuleVisibility = createAction(
 	}
 );
 
-export const searchModulesWithDetails = createAction(async (search = '') =>
-	semesterModulesService.searchModulesWithDetails(search)
+export const searchModulesWithDetails = createAction(
+	async (search: string = '') =>
+		semesterModulesService.searchModulesWithDetails(search)
 );
 
 export const getStudentCountForModule = createAction(async (id: number) =>

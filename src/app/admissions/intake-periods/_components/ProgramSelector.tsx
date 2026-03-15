@@ -14,6 +14,7 @@ import {
 } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
 import { useMemo } from 'react';
+import { unwrap } from '@/shared/lib/utils/actionResult';
 
 type Program = {
 	id: number;
@@ -40,6 +41,7 @@ export default function ProgramSelector({ value, onChange, error }: Props) {
 	const { data: programs = [], isLoading } = useQuery({
 		queryKey: ['programs-with-level'],
 		queryFn: getAllProgramsWithLevel,
+		select: unwrap,
 	});
 
 	const grouped = useMemo(() => {

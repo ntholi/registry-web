@@ -2,6 +2,7 @@
 
 import { Center, Loader, Paper, Text } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
+import { unwrap } from '@/shared/lib/utils/actionResult';
 import { getAssignedModuleByCourseId } from '../_server/actions';
 import LMSStudentTable from './LMSStudentTable';
 
@@ -13,6 +14,7 @@ export default function Gradebook({ courseId }: GradebookProps) {
 	const { data: assignedModule, isLoading } = useQuery({
 		queryKey: ['assigned-module-by-course', courseId],
 		queryFn: () => getAssignedModuleByCourseId(courseId),
+		select: unwrap,
 	});
 
 	if (isLoading) {

@@ -17,6 +17,7 @@ import {
 	deleteAssessment,
 	getAssessmentByLmsId,
 } from '@/app/academic/assessments/_server/actions';
+import { unwrap } from '@/shared/lib/utils/actionResult';
 import { getBooleanColor } from '@/shared/lib/utils/colors';
 import { formatMoodleDate } from '@/shared/lib/utils/dates';
 import { DeleteButton } from '@/shared/ui/adease';
@@ -45,7 +46,7 @@ export default function AssignmentCard({
 		useDisclosure(false);
 
 	async function handleDelete() {
-		const assessment = await getAssessmentByLmsId(assignment.id);
+		const assessment = unwrap(await getAssessmentByLmsId(assignment.id));
 		if (assessment) {
 			await deleteAssessment(assessment.id);
 		}

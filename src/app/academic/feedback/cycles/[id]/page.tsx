@@ -12,6 +12,7 @@ import { IconInfoCircle, IconKey } from '@tabler/icons-react';
 import { notFound } from 'next/navigation';
 import { hasAnyPermission } from '@/core/auth/sessionPermissions';
 import { getSession } from '@/core/platform/withPermission';
+import { unwrap } from '@/shared/lib/utils/actionResult';
 import { getStatusColor } from '@/shared/lib/utils/colors';
 import { formatDate } from '@/shared/lib/utils/dates';
 import { DetailsView, DetailsViewHeader, FieldView } from '@/shared/ui/adease';
@@ -31,7 +32,10 @@ function getCycleStatus(startDate: string, endDate: string) {
 
 export default async function CycleDetails({ params }: Props) {
 	const { id } = await params;
-	const [cycle, session] = await Promise.all([getCycle(id), getSession()]);
+	const [cycle, session] = await Promise.all([
+		getCycle(id).then(unwrap),
+		getSession(),
+	]);
 
 	if (!cycle) {
 		return notFound();

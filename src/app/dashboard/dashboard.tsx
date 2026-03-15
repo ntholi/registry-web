@@ -40,6 +40,7 @@ import type {
 	UserRole,
 } from '@/core/auth/permissions';
 import { authClient } from '@/core/auth-client';
+import { unwrap } from '@/shared/lib/utils/actionResult';
 import { toTitleCase } from '@/shared/lib/utils/utils';
 import { Shell } from '@/shared/ui/adease';
 import Logo from '@/shared/ui/Logo';

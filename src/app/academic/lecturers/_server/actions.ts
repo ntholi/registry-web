@@ -8,7 +8,7 @@ import { lecturersService as service } from './service';
 export const getLecturer = createAction(async (id: string) => service.get(id));
 
 export const getLecturers = createAction(
-	async (page: number = 1, search = '') =>
+	async (page: number = 1, search: string = '') =>
 		service.getAll({
 			page,
 			search,

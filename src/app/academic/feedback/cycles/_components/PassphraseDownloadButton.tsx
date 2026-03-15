@@ -6,6 +6,7 @@ import { pdf } from '@react-pdf/renderer';
 import { IconDownload } from '@tabler/icons-react';
 import QRCode from 'qrcode';
 import { useState } from 'react';
+import { unwrap } from '@/shared/lib/utils/actionResult';
 import { getPassphrasesForClass } from '../_server/actions';
 import PassphraseSlipsPDF from './PassphraseSlipsPDF';
 
@@ -27,9 +28,8 @@ export default function PassphraseDownloadButton({
 	async function handleDownload() {
 		try {
 			setLoading(true);
-			const passphrases = await getPassphrasesForClass(
-				cycleId,
-				structureSemesterId
+			const passphrases = unwrap(
+				await getPassphrasesForClass(cycleId, structureSemesterId)
 			);
 
 			if (passphrases.length === 0) {

@@ -8,12 +8,13 @@ type Module = typeof modules.$inferInsert;
 
 export const getModule = createAction(async (id: number) => service.get(id));
 
-export const getModules = createAction(async (page: number = 1, search = '') =>
-	service.findAll({
-		page,
-		search: search.trim(),
-		searchColumns: ['code', 'name'],
-	})
+export const getModules = createAction(
+	async (page: number = 1, search: string = '') =>
+		service.findAll({
+			page,
+			search: search.trim(),
+			searchColumns: ['code', 'name'],
+		})
 );
 
 export const createModule = createAction(async (module: Module) =>
