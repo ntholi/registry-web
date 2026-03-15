@@ -44,7 +44,7 @@ export default function StatusUpdateModal({ id, status: initial }: Props) {
 	);
 
 	const { mutate, isPending } = useActionMutation(
-		async () => {
+		() => {
 			const data: Record<string, unknown> = { status };
 			if (status === 'printed') {
 				data.receivedAt = receivedAt ? new Date(receivedAt) : new Date();

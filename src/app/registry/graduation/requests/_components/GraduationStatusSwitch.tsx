@@ -39,7 +39,7 @@ export default function GraduationStatusSwitch({
 	}, [status, request.status]);
 
 	const { mutate: submitResponse, isPending } = useActionMutation(
-		async () => {
+		() => {
 			if (!session?.user?.id || !session.user?.role) {
 				throw new Error('User not authenticated');
 			}
