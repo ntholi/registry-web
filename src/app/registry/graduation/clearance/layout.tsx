@@ -8,6 +8,7 @@ import { useAtom } from 'jotai';
 import { useSearchParams } from 'next/navigation';
 import { useRouter } from 'nextjs-toploader/app';
 import type { PropsWithChildren } from 'react';
+import { unwrap } from '@/shared/lib/utils/actionResult';
 import { getStatusColor } from '@/shared/lib/utils/colors';
 import { ListItem, ListLayout } from '@/shared/ui/adease';
 import { selectedGraduationDateAtom } from '@/shared/ui/atoms/graduationAtoms';
@@ -38,6 +39,7 @@ export default function Layout({ children }: PropsWithChildren) {
 	const { data: latestDate } = useQuery({
 		queryKey: ['latest-graduation-date'],
 		queryFn: getLatestGraduationDate,
+		select: unwrap,
 		staleTime: 5 * 60 * 1000,
 	});
 
@@ -77,11 +79,13 @@ export default function Layout({ children }: PropsWithChildren) {
 						: statusFilter === 'all'
 							? undefined
 							: statusFilter;
-				const response = await graduationClearanceByStatus(
-					effectiveStatus,
-					page,
-					search,
-					dateToUse || undefined
+				const response = unwrap(
+					await graduationClearanceByStatus(
+						effectiveStatus,
+						page,
+						search,
+						dateToUse || undefined
+					)
 				);
 				return {
 					items: response.items || [],

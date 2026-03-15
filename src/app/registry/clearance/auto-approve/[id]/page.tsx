@@ -1,5 +1,6 @@
 import { Badge, SimpleGrid } from '@mantine/core';
 import { notFound } from 'next/navigation';
+import { unwrap } from '@/shared/lib/utils/actionResult';
 import {
 	DetailsView,
 	DetailsViewBody,
@@ -14,7 +15,7 @@ type Props = {
 
 export default async function AutoApprovalDetails({ params }: Props) {
 	const { id } = await params;
-	const rule = await getAutoApproval(Number.parseInt(id, 10));
+	const rule = unwrap(await getAutoApproval(Number.parseInt(id, 10)));
 
 	if (!rule) {
 		return notFound();

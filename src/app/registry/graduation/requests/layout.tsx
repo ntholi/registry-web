@@ -2,6 +2,7 @@
 
 import { findAllGraduationRequests } from '@registry/graduation/clearance';
 import type { PropsWithChildren } from 'react';
+import { unwrap } from '@/shared/lib/utils/actionResult';
 import { getStatusIcon, type StatusType } from '@/shared/lib/utils/status';
 import { ListItem, ListLayout } from '@/shared/ui/adease';
 
@@ -11,7 +12,7 @@ export default function Layout({ children }: PropsWithChildren) {
 			path='/registry/graduation/requests'
 			queryKey={['graduation-requests']}
 			getData={async (page, search) => {
-				const response = await findAllGraduationRequests(page, search);
+				const response = unwrap(await findAllGraduationRequests(page, search));
 				const items = response.data.map((item) => ({
 					id: item.id,
 					status: item.status,

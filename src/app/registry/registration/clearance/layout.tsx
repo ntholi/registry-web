@@ -9,6 +9,7 @@ import { useAtom } from 'jotai';
 import { useSearchParams } from 'next/navigation';
 import { useRouter } from 'nextjs-toploader/app';
 import type { PropsWithChildren } from 'react';
+import { unwrap } from '@/shared/lib/utils/actionResult';
 import { getStatusColor } from '@/shared/lib/utils/colors';
 import { ListItem, ListLayout } from '@/shared/ui/adease';
 import {
@@ -75,11 +76,8 @@ export default function Layout({ children }: PropsWithChildren) {
 						: statusFilter === 'all'
 							? undefined
 							: statusFilter;
-				const response = await clearanceByStatus(
-					effectiveStatus,
-					page,
-					search,
-					apiFilter
+				const response = unwrap(
+					await clearanceByStatus(effectiveStatus, page, search, apiFilter)
 				);
 				return {
 					items: response.items || [],
