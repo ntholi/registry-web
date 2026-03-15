@@ -19,6 +19,7 @@ import { useEffect, useState } from 'react';
 import SemesterStatus from '@/app/registry/students/_components/academics/SemesterStatus';
 import { authClient } from '@/core/auth-client';
 import { useMediaQuery } from '@/shared/lib/hooks/use-media-query';
+import type { ActionData } from '@/shared/lib/utils/actionResult';
 import { getStatusColor } from '@/shared/lib/utils/colors';
 import { getAcademicRemarks } from '@/shared/lib/utils/grades';
 import { formatSemester } from '@/shared/lib/utils/utils';
@@ -29,7 +30,7 @@ import GpaDisplay from './GpaDisplay';
 import SemesterTable from './SemesterTable';
 
 type Props = {
-	student: NonNullable<Awaited<ReturnType<typeof getStudent>>>;
+	student: NonNullable<ActionData<typeof getStudent>>;
 	showMarks?: boolean;
 } & StackProps;
 

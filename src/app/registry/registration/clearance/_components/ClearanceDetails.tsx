@@ -21,6 +21,7 @@ import { notifications } from '@mantine/notifications';
 import ClearanceComments from '@registry/_components/ClearanceComments';
 import { IconCopy } from '@tabler/icons-react';
 import { useState } from 'react';
+import type { ActionData } from '@/shared/lib/utils/actionResult';
 import { formatDateTime } from '@/shared/lib/utils/dates';
 import { formatSemester, toTitleCase } from '@/shared/lib/utils/utils';
 import { FieldView } from '@/shared/ui/adease';
@@ -31,7 +32,7 @@ import { ModulesTable } from './ModulesTable';
 import SponsorInfo from './SponsorInfo';
 
 type Props = {
-	request: NonNullable<Awaited<ReturnType<typeof getClearance>>>;
+	request: NonNullable<ActionData<typeof getClearance>>;
 	termId: number;
 };
 

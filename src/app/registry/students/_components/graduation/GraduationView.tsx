@@ -21,6 +21,7 @@ import Link from 'next/link';
 import { useState } from 'react';
 import type { getBlockedStudentByStdNo } from '@/app/registry/blocked-students';
 import { authClient } from '@/core/auth-client';
+import type { ActionData } from '@/shared/lib/utils/actionResult';
 import { getStatusColor } from '@/shared/lib/utils/colors';
 import { getPublishedAcademicHistory } from '../../_server/actions';
 import CertificateDownloader from './certificate/CertificateDownloader';
@@ -33,7 +34,7 @@ import TranscriptPrinter from './transcript/TranscriptPrinter';
 type GraduationViewProps = {
 	stdNo: number | string;
 	isActive: boolean;
-	blockedStudent?: Awaited<ReturnType<typeof getBlockedStudentByStdNo>>;
+	blockedStudent?: ActionData<typeof getBlockedStudentByStdNo>;
 };
 
 type GraduationRequest = Awaited<

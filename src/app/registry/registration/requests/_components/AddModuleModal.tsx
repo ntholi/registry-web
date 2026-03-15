@@ -31,11 +31,12 @@ import {
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import type { StudentModuleStatus } from '@/core/database';
+import type { ActionData } from '@/shared/lib/utils/actionResult';
 import ReceiptInput from '@/shared/ui/adease/ReceiptInput';
 import type { getRegistrationRequest } from '../_server/requests/actions';
 
 type RegistrationRequest = NonNullable<
-	Awaited<ReturnType<typeof getRegistrationRequest>>
+	ActionData<typeof getRegistrationRequest>
 >;
 
 type EligibleModule = {

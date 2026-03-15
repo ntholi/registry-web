@@ -4,6 +4,7 @@ import { notifications } from '@mantine/notifications';
 import { IconEdit, IconUpload, IconUser } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { authClient } from '@/core/auth-client';
+import type { ActionData } from '@/shared/lib/utils/actionResult';
 import PhotoInputModal from '@/shared/ui/PhotoInputModal';
 import PhotoPreviewModal from '@/shared/ui/PhotoPreviewModal';
 import {
@@ -13,7 +14,7 @@ import {
 } from '../../_server/actions';
 
 type Props = {
-	student: NonNullable<Awaited<ReturnType<typeof getStudent>>>;
+	student: NonNullable<ActionData<typeof getStudent>>;
 };
 
 export default function PhotoView({ student }: Props) {

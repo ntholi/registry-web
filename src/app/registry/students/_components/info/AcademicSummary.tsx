@@ -10,12 +10,13 @@ import {
 	Text,
 	Title,
 } from '@mantine/core';
+import type { ActionData } from '@/shared/lib/utils/actionResult';
 import { type AllStatusType, getStatusColor } from '@/shared/lib/utils/colors';
 import { getAcademicRemarks } from '@/shared/lib/utils/grades';
 import type { getStudent } from '../../_server/actions';
 
 type AcademicSummaryProps = {
-	student: NonNullable<Awaited<ReturnType<typeof getStudent>>>;
+	student: NonNullable<ActionData<typeof getStudent>>;
 };
 
 export default function AcademicSummary({ student }: AcademicSummaryProps) {

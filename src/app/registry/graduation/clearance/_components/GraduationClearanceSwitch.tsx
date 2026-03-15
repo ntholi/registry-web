@@ -7,6 +7,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import type { DashboardRole } from '@/core/auth/permissions';
 import { authClient } from '@/core/auth-client';
+import type { ActionData } from '@/shared/lib/utils/actionResult';
 import { toTitleCase } from '@/shared/lib/utils/utils';
 import {
 	type getGraduationClearance,
@@ -14,7 +15,7 @@ import {
 } from '../_server/clearance/actions';
 
 type Props = {
-	request: NonNullable<Awaited<ReturnType<typeof getGraduationClearance>>>;
+	request: NonNullable<ActionData<typeof getGraduationClearance>>;
 	setAccordion: (value: 'comments') => void;
 	comment?: string;
 };

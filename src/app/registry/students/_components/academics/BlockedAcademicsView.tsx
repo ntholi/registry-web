@@ -20,16 +20,15 @@ import { IconLock, IconSchool } from '@tabler/icons-react';
 import { useState } from 'react';
 import type { getBlockedStudentByStdNo } from '@/app/registry/blocked-students';
 import { useMediaQuery } from '@/shared/lib/hooks/use-media-query';
+import type { ActionData } from '@/shared/lib/utils/actionResult';
 import { getStatusColor } from '@/shared/lib/utils/colors';
 import type { getStudent } from '../../_server/actions';
 import GpaDisplay from './GpaDisplay';
 
 type Props = {
-	student: NonNullable<Awaited<ReturnType<typeof getStudent>>>;
+	student: NonNullable<ActionData<typeof getStudent>>;
 	showMarks?: boolean;
-	blockedStudent: NonNullable<
-		Awaited<ReturnType<typeof getBlockedStudentByStdNo>>
-	>;
+	blockedStudent: NonNullable<ActionData<typeof getBlockedStudentByStdNo>>;
 };
 
 export default function BlockedAcademicsView({

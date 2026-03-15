@@ -2,10 +2,11 @@
 
 import { Badge, Flex, Stack, Table, Text, Title } from '@mantine/core';
 import type { getGraduationRequest } from '@/app/registry/graduation/clearance/_server/requests/actions';
+import type { ActionData } from '@/shared/lib/utils/actionResult';
 import { formatDate } from '@/shared/lib/utils/dates';
 
 interface Props {
-	value: NonNullable<Awaited<ReturnType<typeof getGraduationRequest>>>;
+	value: NonNullable<ActionData<typeof getGraduationRequest>>;
 }
 
 export default function PaymentReceiptsView({ value }: Props) {

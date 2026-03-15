@@ -14,6 +14,7 @@ import {
 } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
+import type { ActionData } from '@/shared/lib/utils/actionResult';
 import { getStudentRegistrationData } from '../../_server/actions';
 import SemesterSponsorsView from './SemesterSponsorsView';
 import StudentSponsorsView from './StudentSponsorsView';
@@ -93,7 +94,7 @@ export default function SponsorsView({ stdNo, isActive = true }: Props) {
 	);
 }
 
-type StudentData = Awaited<ReturnType<typeof getStudentRegistrationData>>;
+type StudentData = ActionData<typeof getStudentRegistrationData>;
 
 function getLatestSemester(data: StudentData | undefined) {
 	if (!data?.programs) return null;

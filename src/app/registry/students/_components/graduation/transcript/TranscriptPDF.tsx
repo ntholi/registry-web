@@ -1,6 +1,7 @@
 import { Document, Font, Page, Text, View } from '@react-pdf/renderer';
 import { Fragment } from 'react';
 import { createTw } from 'react-pdf-tailwind';
+import type { ActionData } from '@/shared/lib/utils/actionResult';
 import {
 	formatIssueDate,
 	formatMonthYear,
@@ -39,7 +40,7 @@ const tw = createTw({
 	},
 });
 
-type Student = NonNullable<Awaited<ReturnType<typeof getAcademicHistory>>>;
+type Student = NonNullable<ActionData<typeof getAcademicHistory>>;
 
 const HeaderRow = ({ label, value }: { label: string; value: string }) => (
 	<View style={tw('flex flex-row items-start font-tahoma')}>

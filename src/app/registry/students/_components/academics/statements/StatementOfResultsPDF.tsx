@@ -5,7 +5,7 @@ import { formatSemester } from '@/shared/lib/utils/utils';
 import type { getAcademicHistory } from '../../../_server/actions';
 
 type StatementOfResultsPDFProps = {
-	student: NonNullable<Awaited<ReturnType<typeof getAcademicHistory>>>;
+	student: NonNullable<ActionData<typeof getAcademicHistory>>;
 	qrCodeDataURL?: string;
 	includeSignature?: boolean;
 };
@@ -37,6 +37,7 @@ const tw = createTw({
 	},
 });
 
+import type { ActionData } from '@/shared/lib/utils/actionResult';
 import {
 	getAcademicRemarks,
 	getGradePoints,

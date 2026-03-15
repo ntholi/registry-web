@@ -23,6 +23,7 @@ import {
 } from '@mantine/core';
 import { useState } from 'react';
 import { authClient } from '@/core/auth-client';
+import type { ActionData } from '@/shared/lib/utils/actionResult';
 import { type AllStatusType, getStatusColor } from '@/shared/lib/utils/colors';
 import { formatDateTime } from '@/shared/lib/utils/dates';
 import { FieldView } from '@/shared/ui/adease';
@@ -33,7 +34,7 @@ import type { getStudentStatus } from '../_server/actions';
 import ApprovalSwitch from './ApprovalSwitch';
 
 type Props = {
-	app: NonNullable<Awaited<ReturnType<typeof getStudentStatus>>>;
+	app: NonNullable<ActionData<typeof getStudentStatus>>;
 };
 
 export default function StatusDetails({ app }: Props) {

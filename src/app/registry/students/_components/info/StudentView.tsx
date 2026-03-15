@@ -17,6 +17,7 @@ import {
 import { notifications } from '@mantine/notifications';
 import { IconCopy } from '@tabler/icons-react';
 import { authClient } from '@/core/auth-client';
+import type { ActionData } from '@/shared/lib/utils/actionResult';
 import { getStatusColor } from '@/shared/lib/utils/colors';
 import { calculateAge, formatDate } from '@/shared/lib/utils/dates';
 import { formatPhoneNumber, formatSemester } from '@/shared/lib/utils/utils';
@@ -32,7 +33,7 @@ import EditStudentModal from './EditStudentModal';
 import PhotoView from './PhotoView';
 
 type Props = {
-	student: Awaited<ReturnType<typeof getStudent>>;
+	student: ActionData<typeof getStudent>;
 };
 
 export default function StudentView({ student }: Props) {

@@ -8,6 +8,7 @@ import { createInsertSchema } from 'drizzle-zod';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { z } from 'zod';
+import type { ActionData } from '@/shared/lib/utils/actionResult';
 import { formatSemester } from '@/shared/lib/utils/utils';
 import { Form } from '@/shared/ui/adease';
 import StudentInput from '@/shared/ui/StudentInput';
@@ -17,7 +18,7 @@ import { getJustificationLabel, getTypeLabel } from '../_lib/labels';
 
 type StudentStatusInsert = typeof studentStatuses.$inferInsert;
 type StatusType = (typeof studentStatuses.type.enumValues)[number];
-type StudentData = Awaited<ReturnType<typeof getStudent>>;
+type StudentData = ActionData<typeof getStudent>;
 type StudentSemesterData =
 	NonNullable<StudentData>['programs'][number]['semesters'][number];
 

@@ -10,6 +10,7 @@ import {
 	Text,
 } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
+import type { ActionData } from '@/shared/lib/utils/actionResult';
 import { formatSemester } from '@/shared/lib/utils/utils';
 import { getStudentRegistrationData } from '../../_server/actions';
 import ProofOfRegistrationTermPrinter from './proof/ProofOfRegistrationTermPrinter';
@@ -19,7 +20,7 @@ type Props = {
 	isActive?: boolean;
 };
 
-type StudentData = Awaited<ReturnType<typeof getStudentRegistrationData>>;
+type StudentData = ActionData<typeof getStudentRegistrationData>;
 type Program = NonNullable<StudentData>['programs'][number];
 type Semester = Program['semesters'][number];
 

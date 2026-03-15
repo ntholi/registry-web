@@ -11,6 +11,7 @@ import {
 } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { IconCopy } from '@tabler/icons-react';
+import type { ActionData } from '@/shared/lib/utils/actionResult';
 import { getStatusColor } from '@/shared/lib/utils/colors';
 import { formatDateTime } from '@/shared/lib/utils/dates';
 import { formatSemester } from '@/shared/lib/utils/utils';
@@ -19,7 +20,7 @@ import Link from '@/shared/ui/Link';
 import type { getRegistrationRequest } from '../_server/requests/actions';
 
 type Props = {
-	value: NonNullable<Awaited<ReturnType<typeof getRegistrationRequest>>>;
+	value: NonNullable<ActionData<typeof getRegistrationRequest>>;
 	sponsorship?: {
 		sponsor?: {
 			name?: string | null;

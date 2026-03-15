@@ -13,13 +13,14 @@ import {
 } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
+import type { ActionData } from '@/shared/lib/utils/actionResult';
 import IDCardPreview from '@/shared/ui/IDCardPreview';
 import { type getStudent, getStudentPhoto } from '../../_server/actions';
 import PhotoSelection from './PhotoSelection';
 import PrintHistoryView from './PrintHistoryView';
 
 type StudentCardViewProps = {
-	student: NonNullable<Awaited<ReturnType<typeof getStudent>>>;
+	student: NonNullable<ActionData<typeof getStudent>>;
 	isActive: boolean;
 };
 

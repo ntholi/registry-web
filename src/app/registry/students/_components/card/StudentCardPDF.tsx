@@ -7,6 +7,7 @@ import {
 	Text,
 	View,
 } from '@react-pdf/renderer';
+import type { ActionData } from '@/shared/lib/utils/actionResult';
 import type { getStudent } from '../../_server/actions';
 
 Font.register({
@@ -128,7 +129,7 @@ const styles = StyleSheet.create({
 });
 
 type StudentCardPDFProps = {
-	student: NonNullable<Awaited<ReturnType<typeof getStudent>>>;
+	student: NonNullable<ActionData<typeof getStudent>>;
 	photoUrl: string | null;
 };
 

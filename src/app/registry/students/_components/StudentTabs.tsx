@@ -5,6 +5,7 @@ import { useQueryState } from 'nuqs';
 import type { getBlockedStudentByStdNo } from '@/app/registry/blocked-students';
 import type { Session } from '@/core/auth';
 import { hasSessionPermission } from '@/core/auth/sessionPermissions';
+import type { ActionData } from '@/shared/lib/utils/actionResult';
 import ScrollableTabsList from '@/shared/ui/ScrollableTabsList';
 import NotesView from '../../student-notes/_components/NotesView';
 import type { getStudent } from '../_server/actions';
@@ -22,9 +23,9 @@ import RegistrationTabs from './registration/RegistrationTabs';
 import SponsorsView from './sponsors/SponsorsView';
 
 type StudentTabsProps = {
-	student: NonNullable<Awaited<ReturnType<typeof getStudent>>>;
+	student: NonNullable<ActionData<typeof getStudent>>;
 	session: Session | null;
-	blockedStudent: Awaited<ReturnType<typeof getBlockedStudentByStdNo>>;
+	blockedStudent: ActionData<typeof getBlockedStudentByStdNo>;
 };
 
 export default function StudentTabs({
