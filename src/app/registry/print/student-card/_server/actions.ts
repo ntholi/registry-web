@@ -1,6 +1,7 @@
 'use server';
 
 import type { studentCardPrints } from '@/core/database';
+import { createAction } from '@/shared/lib/utils/actionResult';
 import { studentCardPrintsService as service } from './service';
 
 type StudentCardPrint = typeof studentCardPrints.$inferInsert;
@@ -11,18 +12,14 @@ interface CreateStudentCardPrintData {
 	receiptNo: string;
 }
 
-export async function createStudentCardPrint(
-	studentCardPrint: StudentCardPrint
-) {
-	return service.create(studentCardPrint);
-}
+export const createStudentCardPrint = createAction(
+	async (studentCardPrint: StudentCardPrint) => service.create(studentCardPrint)
+);
 
-export async function createStudentCardPrintWithReceipt(
-	data: CreateStudentCardPrintData
-) {
-	return service.createWithReceipt(data);
-}
+export const createStudentCardPrintWithReceipt = createAction(
+	async (data: CreateStudentCardPrintData) => service.createWithReceipt(data)
+);
 
-export async function getStudentCardPrints(stdNo: number) {
-	return service.findByStdNo(stdNo);
-}
+export const getStudentCardPrints = createAction(async (stdNo: number) =>
+	service.findByStdNo(stdNo)
+);

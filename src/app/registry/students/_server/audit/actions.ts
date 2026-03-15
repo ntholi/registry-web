@@ -1,15 +1,13 @@
 'use server';
 
+import { createAction } from '@/shared/lib/utils/actionResult';
 import { studentAuditService as service } from './service';
 
-export async function getStudentHistory(
-	stdNo: number,
-	page: number,
-	tableFilter?: string
-) {
-	return service.getHistory(stdNo, page, tableFilter);
-}
+export const getStudentHistory = createAction(
+	async (stdNo: number, page: number, tableFilter?: string) =>
+		service.getHistory(stdNo, page, tableFilter)
+);
 
-export async function getStudentHistoryTableSummary(stdNo: number) {
-	return service.getTableSummary(stdNo);
-}
+export const getStudentHistoryTableSummary = createAction(
+	async (stdNo: number) => service.getTableSummary(stdNo)
+);
