@@ -1,6 +1,7 @@
 import { getTask, TaskForm, updateTask } from '@admin/tasks';
 import { Box } from '@mantine/core';
 import { notFound } from 'next/navigation';
+import { unwrap } from '@/shared/lib/utils/actionResult';
 
 type Props = {
 	params: Promise<{ id: string }>;
@@ -8,7 +9,7 @@ type Props = {
 
 export default async function EditTaskPage({ params }: Props) {
 	const { id } = await params;
-	const task = await getTask(id);
+	const task = unwrap(await getTask(id));
 
 	if (!task) {
 		return notFound();
@@ -21,7 +22,7 @@ export default async function EditTaskPage({ params }: Props) {
 				defaultValues={task}
 				onSubmit={async (values) => {
 					'use server';
-					return await updateTask(id, values);
+					return unwrap(await updateTask(id, values));
 				}}
 			/>
 		</Box>

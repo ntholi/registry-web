@@ -13,13 +13,15 @@ import {
 } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
+import { unwrap } from '@/shared/lib/utils/actionResult';
 import IDCardPreview from '@/shared/ui/IDCardPreview';
-import { type getEmployee, getEmployeePhoto } from '../../_server/actions';
+import type { EmployeeDetails } from '../../_lib/types';
+import { getEmployeePhoto } from '../../_server/actions';
 import PhotoSelection from './PhotoSelection';
 import PrintHistoryView from './PrintHistoryView';
 
 type Props = {
-	employee: NonNullable<Awaited<ReturnType<typeof getEmployee>>>;
+	employee: EmployeeDetails;
 	isActive: boolean;
 };
 
@@ -31,6 +33,7 @@ export default function EmployeeCardView({ employee, isActive }: Props) {
 	const { data: existingPhotoUrl, isLoading } = useQuery({
 		queryKey: ['employee-photo', employee.empNo],
 		queryFn: () => getEmployeePhoto(employee.empNo),
+		select: unwrap,
 		staleTime: 1000 * 60 * 3,
 		enabled: isActive,
 	});

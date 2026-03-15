@@ -1,5 +1,6 @@
 import { Box } from '@mantine/core';
 import { notFound } from 'next/navigation';
+import { unwrap } from '@/shared/lib/utils/actionResult';
 import EmployeeForm from '../../_components/Form';
 import { getEmployee, updateEmployee } from '../../_server/actions';
 
@@ -9,7 +10,7 @@ type Props = {
 
 export default async function EditPage({ params }: Props) {
 	const { id } = await params;
-	const employee = await getEmployee(id);
+	const employee = unwrap(await getEmployee(id));
 
 	if (!employee) return notFound();
 
@@ -20,7 +21,7 @@ export default async function EditPage({ params }: Props) {
 				defaultValues={employee}
 				onSubmit={async (values) => {
 					'use server';
-					return await updateEmployee(id, values);
+					return unwrap(await updateEmployee(id, values));
 				}}
 			/>
 		</Box>

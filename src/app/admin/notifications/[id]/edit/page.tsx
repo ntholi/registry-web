@@ -1,5 +1,6 @@
 import { Box } from '@mantine/core';
 import { notFound } from 'next/navigation';
+import { unwrap } from '@/shared/lib/utils/actionResult';
 import Form from '../../_components/Form';
 import {
 	getNotification,
@@ -13,7 +14,7 @@ type Props = {
 
 export default async function EditNotificationPage({ params }: Props) {
 	const { id } = await params;
-	const notification = await getNotification(Number(id));
+	const notification = unwrap(await getNotification(Number(id)));
 
 	if (!notification) {
 		return notFound();
@@ -21,7 +22,7 @@ export default async function EditNotificationPage({ params }: Props) {
 
 	const recipientUserIds =
 		notification.targetType === 'users'
-			? await getRecipientUserIds(Number(id))
+			? unwrap(await getRecipientUserIds(Number(id)))
 			: [];
 
 	return (
@@ -34,7 +35,7 @@ export default async function EditNotificationPage({ params }: Props) {
 				}}
 				onSubmit={async (value) => {
 					'use server';
-					return await updateNotification(Number(id), value);
+					return unwrap(await updateNotification(Number(id), value));
 				}}
 			/>
 		</Box>

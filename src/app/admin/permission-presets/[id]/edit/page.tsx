@@ -4,6 +4,7 @@ import {
 } from '@auth/permission-presets/_server/actions';
 import { Box } from '@mantine/core';
 import { notFound } from 'next/navigation';
+import { unwrap } from '@/shared/lib/utils/actionResult';
 import Form from '../../_components/Form';
 
 type Props = {
@@ -12,7 +13,7 @@ type Props = {
 
 export default async function EditPage({ params }: Props) {
 	const { id } = await params;
-	const preset = await getPreset(id);
+	const preset = unwrap(await getPreset(id));
 
 	if (!preset) {
 		return notFound();
@@ -28,7 +29,7 @@ export default async function EditPage({ params }: Props) {
 				}}
 				onSubmit={async (values) => {
 					'use server';
-					return await updatePreset(id, values);
+					return unwrap(await updatePreset(id, values));
 				}}
 			/>
 		</Box>

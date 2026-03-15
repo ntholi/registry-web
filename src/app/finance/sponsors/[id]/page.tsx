@@ -1,5 +1,6 @@
 import { Tabs, TabsList, TabsPanel, TabsTab } from '@mantine/core';
 import { notFound } from 'next/navigation';
+import { unwrap } from '@/shared/lib/utils/actionResult';
 import {
 	DetailsView,
 	DetailsViewBody,
@@ -15,7 +16,7 @@ type Props = {
 
 export default async function SponsorDetails({ params }: Props) {
 	const { id } = await params;
-	const sponsor = await getSponsor(Number(id));
+	const sponsor = unwrap(await getSponsor(Number(id)));
 
 	if (!sponsor) {
 		return notFound();

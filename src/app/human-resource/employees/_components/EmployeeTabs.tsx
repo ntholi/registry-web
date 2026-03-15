@@ -2,13 +2,13 @@
 
 import { Tabs, TabsList, TabsPanel, TabsTab } from '@mantine/core';
 import { useQueryState } from 'nuqs';
-import type { getEmployee } from '../_server/actions';
+import type { EmployeeDetails } from '../_lib/types';
 import EmployeeCardPrinter from './card/EmployeeCardPrinter';
 import EmployeeCardView from './card/EmployeeCardView';
 import EmployeeView from './info/EmployeeView';
 
 type Props = {
-	employee: NonNullable<Awaited<ReturnType<typeof getEmployee>>>;
+	employee: EmployeeDetails;
 };
 
 export default function EmployeeTabs({ employee }: Props) {

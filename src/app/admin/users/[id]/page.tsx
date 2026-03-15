@@ -1,4 +1,4 @@
-import { deleteUser, getUser, getUserSchools, SchoolsList } from '@admin/users';
+import { deleteUser, getUser, SchoolsList } from '@admin/users';
 import {
 	Avatar,
 	Badge,
@@ -10,6 +10,7 @@ import {
 	Text,
 } from '@mantine/core';
 import { notFound } from 'next/navigation';
+import { unwrap } from '@/shared/lib/utils/actionResult';
 import { getRoleColor } from '@/shared/lib/utils/colors';
 import { largeProfilePic, toTitleCase } from '@/shared/lib/utils/utils';
 import {
@@ -26,8 +27,7 @@ type Props = {
 
 export default async function UserDetails({ params }: Props) {
 	const { id } = await params;
-	const users = await getUser(id);
-	const _userSchools = await getUserSchools(id);
+	const users = unwrap(await getUser(id));
 
 	if (!users) {
 		return notFound();

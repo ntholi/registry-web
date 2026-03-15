@@ -5,16 +5,14 @@ import { pdf } from '@react-pdf/renderer';
 import { IconPrinter } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
+import { unwrap } from '@/shared/lib/utils/actionResult';
 import { convertUrlToBase64 } from '@/shared/lib/utils/utils';
-import {
-	type getEmployee,
-	getEmployeePhoto,
-	logEmployeeCardPrint,
-} from '../../_server/actions';
+import type { EmployeeDetails } from '../../_lib/types';
+import { getEmployeePhoto, logEmployeeCardPrint } from '../../_server/actions';
 import EmployeeCardPDF from './EmployeeCardPDF';
 
 type Props = {
-	employee: NonNullable<Awaited<ReturnType<typeof getEmployee>>>;
+	employee: EmployeeDetails;
 	isActive?: boolean;
 };
 
@@ -27,6 +25,7 @@ export default function EmployeeCardPrinter({
 	const { data: photoUrl, isLoading: photoLoading } = useQuery({
 		queryKey: ['employee-photo', employee.empNo],
 		queryFn: () => getEmployeePhoto(employee.empNo),
+		select: unwrap,
 		staleTime: 1000 * 60 * 3,
 		enabled: isActive,
 	});
@@ -49,7 +48,7 @@ export default function EmployeeCardPrinter({
 		setIsGenerating(true);
 
 		try {
-			await logEmployeeCardPrint(employee.empNo);
+			unwrap(await logEmployeeCardPrint(employee.empNo));
 
 			const processedPhotoUrl = await processPhotoUrl(photoUrl);
 

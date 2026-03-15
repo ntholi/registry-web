@@ -10,6 +10,7 @@ import {
 	Title,
 } from '@mantine/core';
 import { Suspense } from 'react';
+import { unwrap } from '@/shared/lib/utils/actionResult';
 import { getUserSchools } from '../_server/actions';
 
 interface SchoolsListProps {
@@ -44,7 +45,7 @@ function SchoolsListSkeleton() {
 }
 
 async function SchoolsContent({ userId }: { userId: string }) {
-	const userSchools = await getUserSchools(userId);
+	const userSchools = unwrap(await getUserSchools(userId));
 
 	return (
 		<Paper withBorder p={'md'}>

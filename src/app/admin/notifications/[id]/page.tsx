@@ -1,5 +1,6 @@
 import { Badge, Group, Stack, Text } from '@mantine/core';
 import { notFound } from 'next/navigation';
+import { unwrap } from '@/shared/lib/utils/actionResult';
 import { getBooleanColor } from '@/shared/lib/utils/colors';
 import { formatDateTime } from '@/shared/lib/utils/dates';
 import { toTitleCase } from '@/shared/lib/utils/utils';
@@ -17,7 +18,7 @@ type Props = {
 
 export default async function NotificationDetails({ params }: Props) {
 	const { id } = await params;
-	const notification = await getNotification(Number(id));
+	const notification = unwrap(await getNotification(Number(id)));
 
 	if (!notification) {
 		return notFound();
