@@ -102,21 +102,19 @@ export const prepopulateAcademicRecordsFromCompletedPrograms = createAction(
 				academicRemarks.latestPoints?.cgpa
 			);
 
-			await unwrap(
-				await createAcademicRecord(
-					applicant.id,
-					{
-						certificateTypeId: certType.id,
-						examYear,
-						institutionName: 'Limkokwing University of Creative Technology',
-						qualificationName,
-						certificateNumber: null,
-						candidateNumber: null,
-						resultClassification,
-					},
-					isLevel4
-				)
-			);
+			await createAcademicRecord(
+				applicant.id,
+				{
+					certificateTypeId: certType.id,
+					examYear,
+					institutionName: 'Limkokwing University of Creative Technology',
+					qualificationName,
+					certificateNumber: null,
+					candidateNumber: null,
+					resultClassification,
+				},
+				isLevel4
+			).then(unwrap);
 
 			existingKeys.add(key);
 			createdCount += 1;
@@ -145,14 +143,12 @@ export const uploadCertificateDocument = createAction(
 
 		const type = analysis.documentType;
 
-		const savedDoc = unwrap(
-			await saveApplicantDocument({
-				applicantId,
-				fileName: file.name,
-				fileUrl: fileKey,
-				type,
-			})
-		);
+		const savedDoc = await saveApplicantDocument({
+			applicantId,
+			fileName: file.name,
+			fileUrl: fileKey,
+			type,
+		}).then(unwrap);
 
 		const isAcademicType = type === 'certificate' || type === 'academic_record';
 
@@ -168,21 +164,19 @@ export const uploadCertificateDocument = createAction(
 				hasSubjects: !!analysis.subjects?.length,
 			});
 
-			await unwrap(
-				await createAcademicRecordFromDocument(
-					applicantId,
-					{
-						institutionName,
-						examYear,
-						certificateType: analysis.certificateType,
-						certificateNumber: analysis.certificateNumber,
-						subjects: analysis.subjects,
-						overallClassification: analysis.overallClassification,
-						qualificationName: analysis.qualificationName,
-					},
-					savedDoc?.id
-				)
-			);
+			await createAcademicRecordFromDocument(
+				applicantId,
+				{
+					institutionName,
+					examYear,
+					certificateType: analysis.certificateType,
+					certificateNumber: analysis.certificateNumber,
+					subjects: analysis.subjects,
+					overallClassification: analysis.overallClassification,
+					qualificationName: analysis.qualificationName,
+				},
+				savedDoc?.id
+			).then(unwrap);
 		}
 
 		return { fileName: file.name, type, analysis };
@@ -190,5 +184,5 @@ export const uploadCertificateDocument = createAction(
 );
 
 export const removeAcademicRecord = createAction(async (id: string) => {
-	await unwrap(await deleteAcademicRecord(id));
+	await deleteAcademicRecord(id).then(unwrap);
 });

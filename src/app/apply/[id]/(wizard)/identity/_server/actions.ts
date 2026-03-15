@@ -75,26 +75,22 @@ export const uploadIdentityDocument = createAction(
 
 		await uploadFile(file, fileKey);
 
-		await unwrap(
-			await saveApplicantDocument({
-				applicantId,
-				fileName: file.name,
-				fileUrl: fileKey,
-				type: 'identity',
-			})
-		);
+		await saveApplicantDocument({
+			applicantId,
+			fileName: file.name,
+			fileUrl: fileKey,
+			type: 'identity',
+		}).then(unwrap);
 
-		await unwrap(
-			await updateApplicantFromIdentity(applicantId, {
-				fullName: analysis.fullName,
-				dateOfBirth: analysis.dateOfBirth,
-				nationalId: analysis.nationalId,
-				nationality: analysis.nationality,
-				gender: analysis.gender,
-				birthPlace: analysis.birthPlace,
-				address: analysis.address,
-			})
-		);
+		await updateApplicantFromIdentity(applicantId, {
+			fullName: analysis.fullName,
+			dateOfBirth: analysis.dateOfBirth,
+			nationalId: analysis.nationalId,
+			nationality: analysis.nationality,
+			gender: analysis.gender,
+			birthPlace: analysis.birthPlace,
+			address: analysis.address,
+		}).then(unwrap);
 
 		return { fileName: file.name, analysis };
 	}
@@ -107,6 +103,6 @@ export const removeIdentityDocument = createAction(
 			throw new UserFacingError('Valid identity documents cannot be removed');
 		}
 
-		await unwrap(await deleteApplicantDocument(id, fileUrl));
+		await deleteApplicantDocument(id, fileUrl).then(unwrap);
 	}
 );

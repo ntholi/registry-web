@@ -22,5 +22,5 @@ export async function getApplicantWithApplication(applicantId: string) {
 }
 
 export const submitApplication = createAction(async (applicationId: string) => {
-	await unwrap(await changeApplicationStatus(applicationId, 'submitted'));
+	await changeApplicationStatus(applicationId, 'submitted').then(unwrap);
 });

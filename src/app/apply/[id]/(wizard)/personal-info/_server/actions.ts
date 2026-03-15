@@ -19,66 +19,60 @@ type GuardianInput = typeof guardians.$inferInsert;
 
 export const updateApplicantInfo = createAction(
 	async (id: string, data: ApplicantInput) => {
-		await unwrap(
-			await updateApplicant(id, {
-				...data,
-				fullName: formatPersonName(data.fullName) ?? data.fullName,
-			})
-		);
+		await updateApplicant(id, {
+			...data,
+			fullName: formatPersonName(data.fullName) ?? data.fullName,
+		}).then(unwrap);
 	}
 );
 
 export const addPhone = createAction(
 	async (applicantId: string, phoneNumber: string) => {
-		await unwrap(await addApplicantPhone(applicantId, phoneNumber));
+		await addApplicantPhone(applicantId, phoneNumber).then(unwrap);
 	}
 );
 
 export const removePhone = createAction(async (phoneId: string) => {
-	await unwrap(await removeApplicantPhone(phoneId));
+	await removeApplicantPhone(phoneId).then(unwrap);
 });
 
 export const addNewGuardian = createAction(
 	async (data: GuardianInput, phoneNumbers?: string[]) => {
-		await unwrap(
-			await createGuardian(
-				{
-					...data,
-					name: formatPersonName(data.name) ?? data.name,
-				},
-				phoneNumbers
-			)
-		);
+		await createGuardian(
+			{
+				...data,
+				name: formatPersonName(data.name) ?? data.name,
+			},
+			phoneNumbers
+		).then(unwrap);
 	}
 );
 
 export const updateExistingGuardian = createAction(
 	async (id: string, data: Partial<GuardianInput>, phoneNumbers?: string[]) => {
-		await unwrap(
-			await updateGuardian(
-				id,
-				{
-					...data,
-					name: formatPersonName(data.name) ?? data.name,
-				},
-				phoneNumbers
-			)
-		);
+		await updateGuardian(
+			id,
+			{
+				...data,
+				name: formatPersonName(data.name) ?? data.name,
+			},
+			phoneNumbers
+		).then(unwrap);
 	}
 );
 
 export const removeGuardian = createAction(async (id: string) => {
-	await unwrap(await deleteGuardian(id));
+	await deleteGuardian(id).then(unwrap);
 });
 
 export const addGuardianPhoneNumber = createAction(
 	async (guardianId: string, phoneNumber: string) => {
-		await unwrap(await addGuardianPhone(guardianId, phoneNumber));
+		await addGuardianPhone(guardianId, phoneNumber).then(unwrap);
 	}
 );
 
 export const removeGuardianPhoneNumber = createAction(
 	async (phoneId: string) => {
-		await unwrap(await removeGuardianPhone(phoneId));
+		await removeGuardianPhone(phoneId).then(unwrap);
 	}
 );

@@ -163,11 +163,11 @@ export async function getPaymentPageData(applicationId: string) {
 
 export const initiateMpesaPayment = createAction(
 	async (applicationId: string, amount: number, mobileNumber: string) =>
-		unwrap(
-			await initiateMobilePayment(applicationId, amount, mobileNumber, 'mpesa')
+		initiateMobilePayment(applicationId, amount, mobileNumber, 'mpesa').then(
+			unwrap
 		)
 );
 
 export const checkPaymentStatus = createAction(async (depositId: string) =>
-	unwrap(await verifyMobilePayment(depositId))
+	verifyMobilePayment(depositId).then(unwrap)
 );

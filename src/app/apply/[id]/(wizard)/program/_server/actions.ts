@@ -24,7 +24,7 @@ export const getEligiblePrograms = createAction(async (applicantId: string) => {
 });
 
 export const getActiveIntake = createAction(
-	async () => (await findActiveIntakePeriod().then(unwrap)) ?? null
+	async () => unwrap(await findActiveIntakePeriod()) ?? null
 );
 
 export const getExistingApplication = createAction(
