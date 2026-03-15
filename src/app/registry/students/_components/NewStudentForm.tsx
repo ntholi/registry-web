@@ -667,7 +667,8 @@ function ProgramStep({
 								queryKey: ['structures', programId],
 								queryFn: () => getStructuresByProgramId(programId),
 							})
-							.then((structures) => {
+							.then((result) => {
+								const structures = unwrap(result);
 								const latest = structures.at(-1);
 								if (latest?.id) {
 									form.setFieldValue('structureId', latest.id.toString());

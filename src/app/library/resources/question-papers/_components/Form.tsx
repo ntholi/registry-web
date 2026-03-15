@@ -7,6 +7,7 @@ import type { FileWithPath } from '@mantine/dropzone';
 import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'nextjs-toploader/app';
 import { useRef, useState } from 'react';
+import { unwrap } from '@/shared/lib/utils/actionResult';
 import { Form } from '@/shared/ui/adease';
 import TermInput from '@/shared/ui/TermInput';
 import UploadField from '../../_components/UploadField';
@@ -35,6 +36,7 @@ export default function QuestionPaperForm({
 	const { data: modulesData } = useQuery({
 		queryKey: ['modules', moduleSearch],
 		queryFn: () => getModules(1, moduleSearch),
+		select: unwrap,
 	});
 
 	const moduleOptions =

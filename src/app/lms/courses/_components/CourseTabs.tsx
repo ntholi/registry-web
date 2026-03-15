@@ -18,6 +18,7 @@ import {
 import { Badge, Box, Group, Tabs } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
 import { useQueryState } from 'nuqs';
+import { unwrap } from '@/shared/lib/utils/actionResult';
 import type { MoodleCourse } from '../types';
 import CourseDashboard from './CourseDashboard';
 
@@ -38,6 +39,7 @@ export default function CourseTabs({ course }: CourseTabsProps) {
 	const { data: assignedModule } = useQuery({
 		queryKey: ['assigned-module-by-course', course.id],
 		queryFn: () => getAssignedModuleByCourseId(course.id),
+		select: unwrap,
 	});
 
 	const moduleId = assignedModule?.semesterModule?.moduleId;

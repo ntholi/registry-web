@@ -6,6 +6,7 @@ import {
 	getStudent,
 	saveZohoContactId,
 } from '@registry/students/_server/actions';
+import { unwrap } from '@/shared/lib/utils/actionResult';
 import {
 	createStudentContact,
 	findStudentContact,
@@ -98,7 +99,7 @@ async function buildContactInput(
 	const sponsorId = latestSemester?.sponsorId;
 
 	const [school, sponsor] = await Promise.all([
-		schoolId ? getSchool(schoolId) : null,
+		schoolId ? getSchool(schoolId).then(unwrap) : null,
 		sponsorId ? getSponsor(sponsorId) : null,
 	]);
 

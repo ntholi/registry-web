@@ -1,5 +1,6 @@
 import { getAllPrograms } from '@academic/schools/_server/actions';
 import { Box } from '@mantine/core';
+import { unwrap } from '@/shared/lib/utils/actionResult';
 import { findAllCertificateTypes } from '../../certificate-types/_server/actions';
 import { findActiveSubjects } from '../../subjects/_server/actions';
 import Form from '../_components/Form';
@@ -7,7 +8,7 @@ import { createEntryRequirement } from '../_server/actions';
 
 export default async function NewPage() {
 	const [programsData, certificateTypesData, subjects] = await Promise.all([
-		getAllPrograms(),
+		getAllPrograms().then(unwrap),
 		findAllCertificateTypes(1, ''),
 		findActiveSubjects(),
 	]);

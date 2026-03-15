@@ -8,6 +8,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useRef } from 'react';
 import { COURSE_WORK_OPTIONS } from '@/app/academic/assessments/_lib/utils';
 import { getAssessmentByModuleId } from '@/app/academic/assessments/_server/actions';
+import { unwrap } from '@/shared/lib/utils/actionResult';
 
 type FormValues = {
 	assessmentNumber: string;
@@ -39,6 +40,7 @@ export default function PublishActivityModal({
 	const { data: assessments } = useQuery({
 		queryKey: ['module-assessments', moduleId],
 		queryFn: () => getAssessmentByModuleId(moduleId),
+		select: unwrap,
 		enabled: opened,
 	});
 

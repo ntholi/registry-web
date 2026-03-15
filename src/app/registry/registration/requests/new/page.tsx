@@ -15,6 +15,7 @@ import type {
 	StudentModuleStatus,
 	semesterModules,
 } from '@/core/database';
+import { type ActionData, unwrap } from '@/shared/lib/utils/actionResult';
 import { getAcademicRemarks } from '@/shared/lib/utils/grades';
 
 type Props = {
@@ -55,7 +56,7 @@ export default async function NewRegistrationRequestPage({
 		termId: activeTerm.id,
 	};
 	let structureModules:
-		| Awaited<ReturnType<typeof getModulesForStructure>>
+		| ActionData<typeof getModulesForStructure>
 		| undefined;
 	let structureId: number | undefined;
 	let initialStdNo: number | undefined;
@@ -75,7 +76,9 @@ export default async function NewRegistrationRequestPage({
 
 				if (activeProgram) {
 					structureId = activeProgram.structureId;
-					structureModules = await getModulesForStructure(structureId);
+					structureModules = unwrap(
+						await getModulesForStructure(structureId)
+					);
 
 					const remarks = getAcademicRemarks(studentData.programs);
 					const moduleDataResponse = await getStudentSemesterModules(

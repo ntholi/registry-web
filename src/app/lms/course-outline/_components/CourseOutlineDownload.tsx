@@ -57,6 +57,7 @@ export default function CourseOutlineDownload({
 	const { data: prerequisites } = useQuery({
 		queryKey: ['module-prerequisites', semesterModuleId],
 		queryFn: () => getModulePrerequisites(semesterModuleId!),
+		select: unwrap,
 		enabled: !!semesterModuleId,
 	});
 

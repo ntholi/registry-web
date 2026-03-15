@@ -30,7 +30,7 @@ import Link from 'next/link';
 import { useRouter } from 'nextjs-toploader/app';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useActiveTerm, useAllTerms } from '@/shared/lib/hooks/use-term';
-import { unwrap } from '@/shared/lib/utils/actionResult';
+import { type ActionData, unwrap } from '@/shared/lib/utils/actionResult';
 import { getAcademicRemarks } from '@/shared/lib/utils/grades';
 import {
 	formatSemester,
@@ -82,7 +82,7 @@ type Props = {
 		error: Error | React.SyntheticEvent<HTMLDivElement, Event>
 	) => void;
 	title?: string;
-	structureModules?: Awaited<ReturnType<typeof getModulesForStructure>>;
+	structureModules?: ActionData<typeof getModulesForStructure>;
 	structureId?: number;
 	initialStdNo?: number;
 };

@@ -28,6 +28,7 @@ import {
 	deleteAssessment,
 	getAssessmentByLmsId,
 } from '@/app/academic/assessments/_server/actions';
+import { unwrap } from '@/shared/lib/utils/actionResult';
 import { getBooleanColor, getQuizStatusColor } from '@/shared/lib/utils/colors';
 import { DeleteButton } from '@/shared/ui/adease';
 import { deleteQuiz, publishQuiz } from '../../_server/actions';
@@ -71,7 +72,7 @@ export default function QuizCard({ quiz, courseId, moduleId }: Props) {
 	const isDraft = quiz.visible === 0;
 
 	async function handleDelete() {
-		const assessment = await getAssessmentByLmsId(quiz.id);
+		const assessment = unwrap(await getAssessmentByLmsId(quiz.id));
 		if (assessment) {
 			await deleteAssessment(assessment.id);
 		}
