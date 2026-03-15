@@ -57,6 +57,6 @@ pnpm tsc --noEmit
 
 ## Done When
 
-- [ ] All 17 action files import and use `createAction`
-- [ ] No manual `try/catch` in any admissions action file
-- [ ] `pnpm tsc --noEmit` passes (or only has warnings in RSC pages/layouts fixed in 005b)
+- [x] All 17 action files import and use `createAction`
+- [x] No manual `try/catch` in any admissions action file
+- [x] `pnpm tsc --noEmit` passes (or only has warnings in RSC pages/layouts fixed in 005b)

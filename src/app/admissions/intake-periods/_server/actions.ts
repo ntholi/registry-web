@@ -1,57 +1,65 @@
 'use server';
 
 import type { intakePeriods } from '@/core/database';
+import { createAction } from '@/shared/lib/utils/actionResult';
 import { intakePeriodsService } from './service';
 
 type IntakePeriod = typeof intakePeriods.$inferInsert;
 
-export async function getIntakePeriod(id: string) {
+export const getIntakePeriod = createAction(async (id: string) => {
 	return intakePeriodsService.get(id);
-}
+});
 
-export async function getIntakePeriodWithPrograms(id: string) {
+export const getIntakePeriodWithPrograms = createAction(async (id: string) => {
 	return intakePeriodsService.findWithPrograms(id);
-}
+});
 
-export async function findAllIntakePeriods(page = 1, search = '') {
-	return intakePeriodsService.findAll({
-		page,
-		search,
-		sort: [{ column: 'startDate', order: 'desc' }],
-	});
-}
+export const findAllIntakePeriods = createAction(
+	async (page: number = 1, search: string = '') => {
+		return intakePeriodsService.findAll({
+			page,
+			search,
+			sort: [{ column: 'startDate', order: 'desc' }],
+		});
+	}
+);
 
-export async function findActiveIntakePeriods() {
+export const findActiveIntakePeriods = createAction(async () => {
 	return intakePeriodsService.findAllActive();
-}
+});
 
-export async function findActiveIntakePeriod() {
+export const findActiveIntakePeriod = createAction(async () => {
 	return intakePeriodsService.findActive();
-}
+});
 
-export async function getIntakePeriodProgramIds(intakePeriodId: string) {
-	return intakePeriodsService.getProgramIds(intakePeriodId);
-}
+export const getIntakePeriodProgramIds = createAction(
+	async (intakePeriodId: string) => {
+		return intakePeriodsService.getProgramIds(intakePeriodId);
+	}
+);
 
-export async function setIntakePeriodProgramIds(
-	intakePeriodId: string,
-	programIds: number[]
-) {
-	return intakePeriodsService.setProgramIds(intakePeriodId, programIds);
-}
+export const setIntakePeriodProgramIds = createAction(
+	async (intakePeriodId: string, programIds: number[]) => {
+		return intakePeriodsService.setProgramIds(intakePeriodId, programIds);
+	}
+);
 
-export async function getOpenProgramIds(intakePeriodId: string) {
-	return intakePeriodsService.getOpenProgramIds(intakePeriodId);
-}
+export const getOpenProgramIds = createAction(
+	async (intakePeriodId: string) => {
+		return intakePeriodsService.getOpenProgramIds(intakePeriodId);
+	}
+);
 
-export async function createIntakePeriod(data: IntakePeriod) {
+export const createIntakePeriod = createAction(async (data: IntakePeriod) => {
 	return intakePeriodsService.create(data);
-}
+});
 
-export async function updateIntakePeriod(id: string, data: IntakePeriod) {
-	return intakePeriodsService.update(id, data);
-}
+export const updateIntakePeriod = createAction(
+	async (id: string, data: IntakePeriod) => {
+		return intakePeriodsService.update(id, data);
+	}
+);
 
-export async function deleteIntakePeriod(id: string) {
+export const deleteIntakePeriod = createAction(async (id: string) => {
 	return intakePeriodsService.delete(id);
-}
+});

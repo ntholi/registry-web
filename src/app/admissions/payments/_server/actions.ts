@@ -1,109 +1,123 @@
 'use server';
 
 import type { bankDeposits, DepositStatus } from '@/core/database';
+import { createAction } from '@/shared/lib/utils/actionResult';
 import type { DepositFilters } from '../_lib/types';
 import { paymentsService } from './service';
 
-export async function getBankDeposit(id: string) {
+export const getBankDeposit = createAction(async (id: string) => {
 	return paymentsService.getBankDeposit(id);
-}
+});
 
-export async function getBankDepositWithDocument(id: string) {
+export const getBankDepositWithDocument = createAction(async (id: string) => {
 	return paymentsService.getBankDepositWithDocument(id);
-}
+});
 
-export async function getBankDeposits(
-	page = 1,
-	search = '',
-	filters?: DepositFilters
-) {
-	return paymentsService.searchBankDeposits(page, search, filters);
-}
-
-export async function getBankDepositsByApplication(applicationId: string) {
-	return paymentsService.getBankDepositsByApplication(applicationId);
-}
-
-export async function createBankDeposit(
-	data: typeof bankDeposits.$inferInsert
-) {
-	return paymentsService.createBankDeposit(data);
-}
-
-export async function verifyBankDeposit(depositId: string, receiptNo: string) {
-	return paymentsService.verifyBankDeposit(depositId, receiptNo);
-}
-
-export async function rejectBankDeposit(
-	depositId: string,
-	rejectionReason?: string
-) {
-	return paymentsService.rejectBankDeposit(depositId, rejectionReason);
-}
-
-export async function countBankDepositsByStatus(status: DepositStatus) {
-	return paymentsService.countBankDepositsByStatus(status);
-}
-
-export async function countPendingPaymentsForReview() {
-	return paymentsService.countBankDepositsByStatus('pending');
-}
-
-export async function updatePaymentReviewStatus(
-	id: string,
-	status: DepositStatus,
-	rejectionReason?: string
-) {
-	return paymentsService.updateReviewStatus(id, status, rejectionReason);
-}
-
-export async function acquirePaymentReviewLock(depositId: string) {
-	return paymentsService.acquireLock(depositId);
-}
-
-export async function releasePaymentReviewLock(depositId: string) {
-	return paymentsService.releaseLock(depositId);
-}
-
-export async function releaseAllPaymentReviewLocks() {
-	return paymentsService.releaseAllLocks();
-}
-
-export async function getNextPaymentForReview(
-	currentId: string,
-	filters?: {
-		status?: DepositStatus;
+export const getBankDeposits = createAction(
+	async (page: number = 1, search: string = '', filters?: DepositFilters) => {
+		return paymentsService.searchBankDeposits(page, search, filters);
 	}
-) {
-	return paymentsService.findNextUnlocked(currentId, filters);
-}
+);
 
-export async function deleteBankDeposit(id: string) {
+export const getBankDepositsByApplication = createAction(
+	async (applicationId: string) => {
+		return paymentsService.getBankDepositsByApplication(applicationId);
+	}
+);
+
+export const createBankDeposit = createAction(
+	async (data: typeof bankDeposits.$inferInsert) => {
+		return paymentsService.createBankDeposit(data);
+	}
+);
+
+export const verifyBankDeposit = createAction(
+	async (depositId: string, receiptNo: string) => {
+		return paymentsService.verifyBankDeposit(depositId, receiptNo);
+	}
+);
+
+export const rejectBankDeposit = createAction(
+	async (depositId: string, rejectionReason?: string) => {
+		return paymentsService.rejectBankDeposit(depositId, rejectionReason);
+	}
+);
+
+export const countBankDepositsByStatus = createAction(
+	async (status: DepositStatus) => {
+		return paymentsService.countBankDepositsByStatus(status);
+	}
+);
+
+export const countPendingPaymentsForReview = createAction(async () => {
+	return paymentsService.countBankDepositsByStatus('pending');
+});
+
+export const updatePaymentReviewStatus = createAction(
+	async (id: string, status: DepositStatus, rejectionReason?: string) => {
+		return paymentsService.updateReviewStatus(id, status, rejectionReason);
+	}
+);
+
+export const acquirePaymentReviewLock = createAction(
+	async (depositId: string) => {
+		return paymentsService.acquireLock(depositId);
+	}
+);
+
+export const releasePaymentReviewLock = createAction(
+	async (depositId: string) => {
+		return paymentsService.releaseLock(depositId);
+	}
+);
+
+export const releaseAllPaymentReviewLocks = createAction(async () => {
+	return paymentsService.releaseAllLocks();
+});
+
+export const getNextPaymentForReview = createAction(
+	async (
+		currentId: string,
+		filters?: {
+			status?: DepositStatus;
+		}
+	) => {
+		return paymentsService.findNextUnlocked(currentId, filters);
+	}
+);
+
+export const deleteBankDeposit = createAction(async (id: string) => {
 	return paymentsService.delete(id);
-}
+});
 
-export async function initiateMobilePayment(
-	applicationId: string,
-	amount: number,
-	mobileNumber: string,
-	provider: 'mpesa' | 'ecocash' = 'mpesa'
-) {
-	return paymentsService.initiateMobilePayment(
-		applicationId,
-		amount,
-		mobileNumber,
-		provider
-	);
-}
+export const initiateMobilePayment = createAction(
+	async (
+		applicationId: string,
+		amount: number,
+		mobileNumber: string,
+		provider: 'mpesa' | 'ecocash' = 'mpesa'
+	) => {
+		return paymentsService.initiateMobilePayment(
+			applicationId,
+			amount,
+			mobileNumber,
+			provider
+		);
+	}
+);
 
-export async function verifyMobilePayment(depositId: string) {
+export const verifyMobilePayment = createAction(async (depositId: string) => {
 	return paymentsService.verifyMobilePayment(depositId);
-}
+});
 
-export async function getPendingMobileDeposit(applicationId: string) {
-	return paymentsService.getPendingMobileDeposit(applicationId);
-}
+export const getPendingMobileDeposit = createAction(
+	async (applicationId: string) => {
+		return paymentsService.getPendingMobileDeposit(applicationId);
+	}
+);
 
-export async function getMobileDepositsByApplication(applicationId: string) {
-	return paymentsService.getMobileDepositsByApplication(applicationId);
-}
+export const getMobileDepositsByApplication = createAction(
+	async (applicationId: string) => {
+		return paymentsService.getMobileDepositsByApplication(applicationId);
+	}
+);

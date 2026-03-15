@@ -13,6 +13,7 @@ import type { DocumentAnalysisResult } from '@/core/integrations/ai/documents';
 import BaseService from '@/core/platform/BaseService';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
 import withPermission from '@/core/platform/withPermission';
+import { unwrap } from '@/shared/lib/utils/actionResult';
 import { normalizeResultClassification } from '@/shared/lib/utils/resultClassification';
 import { getEligiblePrograms } from '../_lib/eligibility';
 import {
@@ -239,7 +240,7 @@ class ApplicantService extends BaseService<typeof applicants, 'id'> {
 					if (!result.examYear || !result.institutionName) continue;
 
 					const certType = result.certificateType
-						? await findCertificateTypeByName(result.certificateType)
+						? unwrap(await findCertificateTypeByName(result.certificateType))
 						: null;
 
 					if (!certType) continue;
@@ -249,9 +250,9 @@ class ApplicantService extends BaseService<typeof applicants, 'id'> {
 
 					if (result.subjects && result.subjects.length > 0) {
 						for (const sub of result.subjects) {
-							const subjectId = await resolveSubjectId(sub.name);
+							const subjectId = unwrap(await resolveSubjectId(sub.name));
 							if (isLevel4) {
-								const mapped = await mapGrade(certType.id, sub.grade);
+								const mapped = unwrap(await mapGrade(certType.id, sub.grade));
 								if (mapped) {
 									grades.push({
 										subjectId,
