@@ -45,7 +45,7 @@ type RegistrationRequest = {
 
 export default async function RegistrationRequestEdit({ params }: Props) {
 	const { id } = await params;
-	const registrationRequest = await getRegistrationRequest(Number(id));
+	const registrationRequest = unwrap(await getRegistrationRequest(Number(id)));
 	if (!registrationRequest) {
 		return notFound();
 	}
@@ -94,7 +94,7 @@ export default async function RegistrationRequestEdit({ params }: Props) {
 			});
 		}
 
-		const res = await updateRegistration(
+		const res = unwrap(await updateRegistration(
 			values.id,
 			selectedModules?.map((module) => ({
 				id: module.id,
@@ -110,7 +110,7 @@ export default async function RegistrationRequestEdit({ params }: Props) {
 			values.semesterStatus,
 			values.termId,
 			receipts
-		);
+		));
 		return {
 			...values,
 			id: values.id,
