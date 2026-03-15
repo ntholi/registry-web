@@ -31,7 +31,8 @@ import {
 	IconReceipt,
 	IconTrash,
 } from '@tabler/icons-react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
+import { useActionMutation } from '@/shared/lib/hooks/use-action-mutation';
 import { formatDate } from '@/shared/lib/utils/dates';
 
 type PaymentReceipt = {
@@ -89,7 +90,7 @@ export default function PaymentReceiptsEditor({
 				.join(' '),
 		}));
 
-	const { mutate: addReceipt, isPending: isAdding } = useMutation({
+	const { mutate: addReceipt, isPending: isAdding } = useActionMutation({
 		mutationFn: async (receiptData: PaymentReceiptData) => {
 			return addPaymentReceipt(graduationRequestId, receiptData);
 		},
@@ -113,7 +114,7 @@ export default function PaymentReceiptsEditor({
 		},
 	});
 
-	const { mutate: deleteReceipt, isPending: isDeleting } = useMutation({
+	const { mutate: deleteReceipt, isPending: isDeleting } = useActionMutation({
 		mutationFn: async (receiptId: string) => {
 			return removePaymentReceipt(receiptId);
 		},

@@ -19,7 +19,7 @@ import {
 import { modals } from '@mantine/modals';
 import { notifications } from '@mantine/notifications';
 import { IconRefresh, IconSchool } from '@tabler/icons-react';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'nextjs-toploader/app';
 import {
 	parseAsInteger,
@@ -30,6 +30,7 @@ import {
 } from 'nuqs';
 import { useMemo, useState } from 'react';
 import CoursesFilters from '@/app/apply/courses/_components/CoursesFilters';
+import { useActionMutation } from '@/shared/lib/hooks/use-action-mutation';
 import { unwrap } from '@/shared/lib/utils/actionResult';
 import WizardNavigation from '../../_components/WizardNavigation';
 import { getActiveIntake, getEligiblePrograms } from '../_server/actions';
@@ -152,7 +153,7 @@ export default function CourseSelectionForm({ applicationId }: Props) {
 		[eligiblePrograms, firstChoice]
 	);
 
-	const submitMutation = useMutation({
+	const submitMutation = useActionMutation({
 		mutationFn: async () => {
 			if (!firstChoice || !activeIntake?.id) {
 				throw new Error('Please select a course and ensure intake is active');

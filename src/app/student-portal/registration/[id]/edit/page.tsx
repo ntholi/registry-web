@@ -27,13 +27,15 @@ import {
 	IconArrowRight,
 	IconInfoCircle,
 } from '@tabler/icons-react';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { getBlockedStudentByStdNo } from '@/app/registry/blocked-students';
 import { config } from '@/config';
+import { useActionMutation } from '@/shared/lib/hooks/use-action-mutation';
 import { useActiveTerm } from '@/shared/lib/hooks/use-term';
 import useUserStudent from '@/shared/lib/hooks/use-user-student';
+import { unwrap } from '@/shared/lib/utils/actionResult';
 import {
 	ModuleSelection,
 	RemainInSemesterAlert,
@@ -91,7 +93,7 @@ export default function EditRegistrationPage() {
 		queryKey: ['blocked-student', student?.stdNo],
 		queryFn: async () => {
 			if (!student?.stdNo) return null;
-			return await getBlockedStudentByStdNo(student.stdNo);
+			return getBlockedStudentByStdNo(student.stdNo).then(unwrap);
 		},
 		enabled: !!student?.stdNo,
 	});
@@ -99,7 +101,7 @@ export default function EditRegistrationPage() {
 	const { data: registrationRequest, isLoading: registrationLoading } =
 		useQuery({
 			queryKey: ['registration-request', registrationId],
-			queryFn: () => getRegistrationRequest(registrationId),
+			queryFn: () => getRegistrationRequest(registrationId).then(unwrap),
 			enabled: !!registrationId,
 		});
 
@@ -109,10 +111,8 @@ export default function EditRegistrationPage() {
 			if (!student || !remarks) {
 				return { error: 'Missing student or remarks data', modules: [] };
 			}
-			return await getStudentSemesterModules(
-				student,
-				remarks,
-				activeTerm?.code
+			return getStudentSemesterModules(student, remarks, activeTerm?.code).then(
+				unwrap
 			);
 		},
 		enabled: !!student && !!remarks && !!activeTerm,
@@ -122,7 +122,8 @@ export default function EditRegistrationPage() {
 
 	const { data: previousSponsorshipData } = useQuery({
 		queryKey: ['previous-sponsorship', student?.stdNo, activeTerm?.id],
-		queryFn: () => getSponsoredStudent(student!.stdNo, activeTerm!.id),
+		queryFn: () =>
+			getSponsoredStudent(student!.stdNo, activeTerm!.id).then(unwrap),
 		enabled: !!student?.stdNo && !!activeTerm?.id,
 	});
 
@@ -137,12 +138,12 @@ export default function EditRegistrationPage() {
 					(selected) => selected.moduleId === module.semesterModuleId
 				)
 			);
-			return await determineSemesterStatus(modulesWithStatus, student);
+			return determineSemesterStatus(modulesWithStatus, student).then(unwrap);
 		},
 		enabled: !!student && !!availableModules && selectedModules.length > 0,
 	});
 
-	const updateMutation = useMutation({
+	const updateMutation = useActionMutation({
 		mutationFn: async () => {
 			if (!selectedModules || !semesterData || !sponsorshipData) {
 				throw new Error('Missing required data for registration update');

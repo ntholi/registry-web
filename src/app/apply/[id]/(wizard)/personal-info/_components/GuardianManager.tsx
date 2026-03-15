@@ -19,9 +19,8 @@ import { useForm } from '@mantine/form';
 import { useDisclosure, useMediaQuery } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import { IconEdit, IconPlus, IconTrash } from '@tabler/icons-react';
-import { useMutation } from '@tanstack/react-query';
 import { useState } from 'react';
-import { getActionErrorMessage } from '@/shared/lib/utils/actionResult';
+import { useActionMutation } from '@/shared/lib/hooks/use-action-mutation';
 import {
 	addNewGuardian,
 	removeGuardian,
@@ -71,14 +70,13 @@ export default function GuardianManager() {
 		},
 	});
 
-	const createMutation = useMutation({
+	const createMutation = useActionMutation({
 		mutationFn: async (values: typeof form.values) => {
 			const { phoneNumber1, phoneNumber2, ...data } = values;
-			const res = await addNewGuardian(
+			return addNewGuardian(
 				{ ...data, applicantId },
 				[phoneNumber1, phoneNumber2].filter(Boolean)
 			);
-			if (!res.success) throw new Error(getActionErrorMessage(res.error));
 		},
 		onSuccess: async () => {
 			await refetch();
@@ -99,7 +97,7 @@ export default function GuardianManager() {
 		},
 	});
 
-	const updateMutation = useMutation({
+	const updateMutation = useActionMutation({
 		mutationFn: async ({
 			id,
 			values,
@@ -108,12 +106,11 @@ export default function GuardianManager() {
 			values: typeof form.values;
 		}) => {
 			const { phoneNumber1, phoneNumber2, ...data } = values;
-			const res = await updateExistingGuardian(
+			return updateExistingGuardian(
 				id,
 				data,
 				[phoneNumber1, phoneNumber2].filter(Boolean)
 			);
-			if (!res.success) throw new Error(getActionErrorMessage(res.error));
 		},
 		onSuccess: async () => {
 			await refetch();
@@ -135,10 +132,9 @@ export default function GuardianManager() {
 		},
 	});
 
-	const deleteMutation = useMutation({
+	const deleteMutation = useActionMutation({
 		mutationFn: async (id: string) => {
-			const res = await removeGuardian(id);
-			if (!res.success) throw new Error(getActionErrorMessage(res.error));
+			return removeGuardian(id);
 		},
 		onSuccess: async () => {
 			await refetch();

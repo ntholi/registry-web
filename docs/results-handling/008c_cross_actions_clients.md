@@ -88,8 +88,8 @@ After this plan completes, **all action files across the entire codebase should 
 
 ## Done When
 
-- [ ] All 22 apply wizard cross-action calls wrapped with `unwrap()`
-- [ ] All 2 reports cross-action calls wrapped with `unwrap()`
-- [ ] All direct `useMutation` callers in apply/reports/portal/audit-logs/feedback switched to `useActionMutation`
+- [x] All 22 apply wizard cross-action calls wrapped with `unwrap()`
+- [x] All 2 reports cross-action calls wrapped with `unwrap()`
+- [x] All direct `useMutation` callers in apply/reports/portal/audit-logs/feedback switched to `useActionMutation`
 - [ ] `pnpm tsc --noEmit` passes
-- [ ] **All modules fully migrated; entire codebase uses new pattern**
+- [x] **All modules fully migrated; entire codebase uses new pattern**

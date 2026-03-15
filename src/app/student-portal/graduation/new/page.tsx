@@ -25,10 +25,12 @@ import {
 	IconArrowRight,
 	IconInfoCircle,
 } from '@tabler/icons-react';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { useActionMutation } from '@/shared/lib/hooks/use-action-mutation';
 import useUserStudent from '@/shared/lib/hooks/use-user-student';
+import { unwrap } from '@/shared/lib/utils/actionResult';
 import { formatDate } from '@/shared/lib/utils/dates';
 import {
 	InformationConfirmation,
@@ -76,7 +78,7 @@ export default function GraduationPage() {
 		queryKey: ['graduation-request', student?.stdNo],
 		queryFn: async () => {
 			if (!student?.stdNo) return null;
-			return await getGraduationRequestByStudentNo(student.stdNo);
+			return getGraduationRequestByStudentNo(student.stdNo).then(unwrap);
 		},
 		enabled: !!student?.stdNo,
 	});
@@ -85,17 +87,17 @@ export default function GraduationPage() {
 		queryKey: ['eligible-programs', student?.stdNo],
 		queryFn: async () => {
 			if (!student?.stdNo) return [];
-			return await getEligiblePrograms(student.stdNo);
+			return getEligiblePrograms(student.stdNo).then(unwrap);
 		},
 		enabled: !!student?.stdNo && !existingRequest,
 	});
 
 	const { data: latestGraduationDate } = useQuery({
 		queryKey: ['latest-graduation-date'],
-		queryFn: getLatestGraduationDate,
+		queryFn: () => getLatestGraduationDate().then(unwrap),
 	});
 
-	const graduationMutation = useMutation({
+	const graduationMutation = useActionMutation({
 		mutationFn: async () => {
 			if (
 				!student ||
