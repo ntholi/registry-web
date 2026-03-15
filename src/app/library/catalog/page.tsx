@@ -1,11 +1,12 @@
 import { Container, Title } from '@mantine/core';
+import { unwrap } from '@/shared/lib/utils/actionResult';
 import CatalogTabs from './_components/CatalogTabs';
 import { getCatalogBooks, getCatalogPublications } from './_server/actions';
 
 export default async function CatalogPage() {
 	const [books, publications] = await Promise.all([
-		getCatalogBooks(),
-		getCatalogPublications(),
+		getCatalogBooks().then(unwrap),
+		getCatalogPublications().then(unwrap),
 	]);
 
 	return (

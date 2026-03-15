@@ -1,4 +1,5 @@
 import { notFound } from 'next/navigation';
+import { unwrap } from '@/shared/lib/utils/actionResult';
 import ExternalLibraryForm from '../../_components/Form';
 import type { ExternalLibraryInsert } from '../../_lib/types';
 import {
@@ -12,7 +13,7 @@ type Props = {
 
 export default async function EditExternalLibraryPage({ params }: Props) {
 	const { id } = await params;
-	const library = await getExternalLibrary(id);
+	const library = unwrap(await getExternalLibrary(id));
 
 	if (!library) return notFound();
 

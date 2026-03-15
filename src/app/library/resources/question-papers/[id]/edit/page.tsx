@@ -1,5 +1,6 @@
 import { Box } from '@mantine/core';
 import { notFound } from 'next/navigation';
+import { unwrap } from '@/shared/lib/utils/actionResult';
 import QuestionPaperForm from '../../_components/Form';
 import { getQuestionPaper, updateQuestionPaper } from '../../_server/actions';
 
@@ -9,7 +10,7 @@ type Props = {
 
 export default async function EditQuestionPaperPage({ params }: Props) {
 	const { id } = await params;
-	const questionPaper = await getQuestionPaper(id);
+	const questionPaper = unwrap(await getQuestionPaper(id));
 
 	if (!questionPaper) return notFound();
 

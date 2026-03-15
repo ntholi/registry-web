@@ -91,7 +91,7 @@ Full architecture details, code snippets, type definitions, and rationale:
 | 6a | [006a_admin_finance_actions.md](./006a_admin_finance_actions.md) | Admin + Finance + Auth + HR: wrap 10 action files + cross-action calls | ✅ Completed |
 | 6b | [006b_admin_finance_pages_clients.md](./006b_admin_finance_pages_clients.md) | Admin + Finance + Auth + HR: ~13 RSC pages + ~8 ListLayout callers + `useMutation` callers | ✅ Completed |
 | 7a | [007a_lms_library_timetable_actions.md](./007a_lms_library_timetable_actions.md) | LMS + Library + Timetable: wrap 26 action files + 9 cross-action calls | ✅ Completed |
-| 7b | [007b_lms_library_timetable_pages.md](./007b_lms_library_timetable_pages.md) | LMS + Library + Timetable: ~19 RSC pages + ~11 ListLayout callers | ⬜ Not started |
+| 7b | [007b_lms_library_timetable_pages.md](./007b_lms_library_timetable_pages.md) | LMS + Library + Timetable: ~19 RSC pages + ~11 ListLayout callers | ✅ Completed |
 | 7c | [007c_lms_library_timetable_clients.md](./007c_lms_library_timetable_clients.md) | LMS + Library + Timetable: ~40 `useMutation` → `useActionMutation` (LMS-heavy) | ⬜ Not started |
 | 8a | [008a_apply_migration.md](./008a_apply_migration.md) | Apply: special migration (6 files manual → `createAction`) + delete `errors.ts` | ⬜ Not started |
 | 8b | [008b_remaining_actions_pages.md](./008b_remaining_actions_pages.md) | Reports + Student Portal + Audit Logs + Feedback: 11 actions + RSC pages + ListLayout | ⬜ Not started |

@@ -1,5 +1,6 @@
 import { Box } from '@mantine/core';
 import { notFound } from 'next/navigation';
+import { unwrap } from '@/shared/lib/utils/actionResult';
 import Form from '../../_components/Form';
 import { getCategory, updateCategory } from '../../_server/actions';
 
@@ -9,7 +10,7 @@ type Props = {
 
 export default async function CategoryEdit({ params }: Props) {
 	const { id } = await params;
-	const item = await getCategory(id);
+	const item = unwrap(await getCategory(id));
 	if (!item) {
 		return notFound();
 	}

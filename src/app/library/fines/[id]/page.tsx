@@ -1,6 +1,7 @@
 import { Badge, Divider, Group, Stack, Text } from '@mantine/core';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import { unwrap } from '@/shared/lib/utils/actionResult';
 import { getFineStatusColor } from '@/shared/lib/utils/colors';
 import { formatDate } from '@/shared/lib/utils/dates';
 import { formatCurrency } from '@/shared/lib/utils/utils';
@@ -19,7 +20,7 @@ type Props = {
 
 export default async function FineDetailsPage({ params }: Props) {
 	const { id } = await params;
-	const fine = await getFine(id);
+	const fine = unwrap(await getFine(id));
 
 	if (!fine) return notFound();
 

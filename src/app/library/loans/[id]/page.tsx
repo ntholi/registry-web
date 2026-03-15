@@ -15,6 +15,7 @@ import {
 	Text,
 } from '@mantine/core';
 import { notFound } from 'next/navigation';
+import { unwrap } from '@/shared/lib/utils/actionResult';
 import { getLoanStatusColor } from '@/shared/lib/utils/colors';
 import { formatDate } from '@/shared/lib/utils/dates';
 import {
@@ -34,7 +35,7 @@ type Props = {
 
 export default async function LoanDetailsPage({ params }: Props) {
 	const { id } = await params;
-	const loan = await getLoan(id);
+	const loan = unwrap(await getLoan(id));
 
 	if (!loan) return notFound();
 

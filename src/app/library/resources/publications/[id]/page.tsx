@@ -1,6 +1,7 @@
 import { Badge, Divider, Group, Stack, Text } from '@mantine/core';
 import { notFound } from 'next/navigation';
 import { getPublicUrl } from '@/core/integrations/storage-utils';
+import { unwrap } from '@/shared/lib/utils/actionResult';
 import { formatDate } from '@/shared/lib/utils/dates';
 import { toTitleCase } from '@/shared/lib/utils/utils';
 import {
@@ -18,7 +19,7 @@ type Props = {
 
 export default async function PublicationDetailsPage({ params }: Props) {
 	const { id } = await params;
-	const publication = await getPublication(id);
+	const publication = unwrap(await getPublication(id));
 
 	if (!publication) return notFound();
 	const documentUrl = publication.document?.fileUrl

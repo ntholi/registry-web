@@ -1,5 +1,6 @@
 import { Box } from '@mantine/core';
 import { notFound } from 'next/navigation';
+import { unwrap } from '@/shared/lib/utils/actionResult';
 import Form from '../../_components/Form';
 import { getAuthor, updateAuthor } from '../../_server/actions';
 
@@ -9,7 +10,7 @@ type Props = {
 
 export default async function EditAuthorPage({ params }: Props) {
 	const { id } = await params;
-	const item = await getAuthor(id);
+	const item = unwrap(await getAuthor(id));
 
 	if (!item) return notFound();
 
