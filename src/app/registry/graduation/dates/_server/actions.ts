@@ -1,38 +1,43 @@
 'use server';
 
 import type { graduationDates } from '@/core/database';
+import { createAction } from '@/shared/lib/utils/actionResult';
 import { graduationsService as service } from './service';
 
 type Graduation = typeof graduationDates.$inferInsert;
 
-export async function getGraduationByDate(date: string) {
+export const getGraduationByDate = createAction(async (date: string) => {
 	return service.getByDateWithTerm(date);
-}
+});
 
-export async function getLatestGraduationDate() {
+export const getLatestGraduationDate = createAction(async () => {
 	return service.getLatest();
-}
+});
 
-export async function getAllGraduationDates() {
+export const getAllGraduationDates = createAction(async () => {
 	return service.getAllGraduationDates();
-}
+});
 
-export async function findAllGraduations(page: number = 1, search = '') {
-	return service.findAll({
-		page,
-		search,
-		sort: [{ column: 'date', order: 'desc' }],
-	});
-}
+export const findAllGraduations = createAction(
+	async (page: number = 1, search = '') => {
+		return service.findAll({
+			page,
+			search,
+			sort: [{ column: 'date', order: 'desc' }],
+		});
+	}
+);
 
-export async function createGraduation(graduation: Graduation) {
+export const createGraduation = createAction(async (graduation: Graduation) => {
 	return service.create(graduation);
-}
+});
 
-export async function updateGraduation(id: number, graduation: Graduation) {
-	return service.update(id, graduation);
-}
+export const updateGraduation = createAction(
+	async (id: number, graduation: Graduation) => {
+		return service.update(id, graduation);
+	}
+);
 
-export async function deleteGraduation(id: number) {
+export const deleteGraduation = createAction(async (id: number) => {
 	return service.deleteGraduation(id);
-}
+});

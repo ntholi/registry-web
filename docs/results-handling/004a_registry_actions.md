@@ -115,6 +115,6 @@ pnpm tsc --noEmit
 
 ## Done When
 
-- [ ] All 18 action files import and use `createAction`
-- [ ] All cross-action calls wrapped with `unwrap()` (2 call sites)
-- [ ] `pnpm tsc --noEmit` passes (or only has warnings in RSC pages/layouts fixed in 004b)
+- [x] All 18 action files import and use `createAction`
+- [x] All cross-action calls wrapped with `unwrap()` (2 call sites)
+- [x] `pnpm tsc --noEmit` passes (or only has warnings in RSC pages/layouts fixed in 004b)
