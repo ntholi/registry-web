@@ -8,7 +8,7 @@ import { createInsertSchema } from 'drizzle-zod';
 import { useRouter } from 'nextjs-toploader/app';
 import { useState } from 'react';
 import { z } from 'zod';
-import { unwrap } from '@/shared/lib/utils/actionResult';
+import { type ActionResult, unwrap } from '@/shared/lib/utils/actionResult';
 import { Form } from '@/shared/ui/adease';
 import { findAllModules } from '../_server/actions';
 
@@ -17,7 +17,7 @@ type Module = typeof semesterModules.$inferInsert;
 type Props = {
 	onSubmit: (
 		values: Module & { prerequisiteCodes?: string[] }
-	) => Promise<Module>;
+	) => Promise<Module | ActionResult<Module>>;
 	defaultValues?: Module & { prerequisiteCodes?: string[] };
 	onSuccess?: (value: Module) => void;
 	onError?: (

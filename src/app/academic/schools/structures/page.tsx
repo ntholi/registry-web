@@ -31,14 +31,14 @@ export default function SchoolProgramsPage() {
 
 	const { data: school, isLoading: schoolLoading } = useQuery({
 		queryKey: ['school', schoolId],
-		queryFn: () => (schoolId ? getSchool(Number(schoolId)) : null),
+		queryFn: () => getSchool(Number(schoolId!)),
 		select: unwrap,
 		enabled: !!schoolId,
 	});
 
 	const { data: programs, isLoading: programsLoading } = useQuery({
 		queryKey: ['programs', schoolId],
-		queryFn: () => (schoolId ? getProgramsBySchoolId(Number(schoolId)) : []),
+		queryFn: () => getProgramsBySchoolId(Number(schoolId!)),
 		select: unwrap,
 		enabled: !!schoolId,
 	});

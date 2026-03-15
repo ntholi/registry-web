@@ -4,6 +4,7 @@ import { Button } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { IconDownload } from '@tabler/icons-react';
 import { useState } from 'react';
+import { unwrap } from '@/shared/lib/utils/actionResult';
 import type { FeedbackReportData, FeedbackReportFilter } from '../_lib/types';
 import { exportFeedbackReportExcel } from '../_server/actions';
 
@@ -18,7 +19,7 @@ export default function ExportButton({ data, filter }: Props) {
 	async function handleExport() {
 		setLoading(true);
 		try {
-			const base64 = await exportFeedbackReportExcel(data, filter);
+			const base64 = unwrap(await exportFeedbackReportExcel(data, filter));
 			const byteCharacters = atob(base64);
 			const byteNumbers = new Array(byteCharacters.length);
 			for (let i = 0; i < byteCharacters.length; i++) {
