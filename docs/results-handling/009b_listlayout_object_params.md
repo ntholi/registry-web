@@ -1,62 +1,16 @@
-# Plan 009: Cleanup & Type Tightening
+# Plan 009b: (Optional) ListLayout Object Params
 
-> Remove backward compatibility layers, tighten `ActionResult.error` to `AppError` only. Optionally switch ListLayout to object params. **Requires all modules migrated (Plans 003-008).**
+> Switch ListLayout `getData` from positional `(page, search)` to object `({ page, search })` params and update all callers. This is a **cosmetic improvement** — the app works fine without it. **Requires Plan 009a completed.**
 
 ## Prerequisites
 
-- Plans 001-008 all completed (every action file wrapped, every RSC page updated)
+- Plan 009a completed (types tightened, compat removed)
 
 ---
 
-## Task 1: Tighten `ActionResult.error` type
+## Task 1: Update ListLayout `getData` signature
 
-**File**: `src/shared/lib/utils/actionResult.ts`
-
-Change the union to strict `AppError`:
-
-```ts
-// BEFORE (migration compat)
-export type ActionResult<T> =
-  | { success: true; data: T }
-  | { success: false; error: AppError | string };
-
-// AFTER (strict)
-export type ActionResult<T> =
-  | { success: true; data: T }
-  | { success: false; error: AppError };
-```
-
-Also update `failure()`:
-```ts
-// BEFORE
-export function failure<T>(error: AppError | string): ActionResult<T>
-
-// AFTER
-export function failure<T>(error: AppError): ActionResult<T>
-```
-
-And simplify `getActionErrorMessage()`:
-```ts
-// BEFORE
-export function getActionErrorMessage(error: AppError | string): string {
-  return typeof error === 'string' ? error : error.message;
-}
-
-// AFTER
-export function getActionErrorMessage(error: AppError): string {
-  return error.message;
-}
-```
-
-**Run `pnpm tsc --noEmit`** after this change. Fix any remaining callers that still pass strings to `failure()`.
-
----
-
-## Task 2 (Optional): Switch ListLayout to object params
-
-This is a cosmetic improvement — the app works fine without it. Only do this if desired.
-
-### 2a: Update ListLayout `getData` signature
+**File**: `src/shared/ui/adease/ListLayout.tsx`
 
 ```ts
 // BEFORE
@@ -73,7 +27,9 @@ getData: (
 
 Also remove the raw `GetDataResult<T>` from the union since all actions now return `ActionResult`.
 
-### 2b: Update ListLayout `queryFn`
+---
+
+## Task 2: Update ListLayout `queryFn`
 
 ```ts
 // BEFORE
@@ -90,7 +46,9 @@ queryFn: async () => {
 }
 ```
 
-### 2c: Update all `findAll` actions to object params
+---
+
+## Task 3: Update all `findAll` actions to object params
 
 ```ts
 // BEFORE
@@ -105,7 +63,9 @@ export const findAllThings = createAction(
 );
 ```
 
-### 2d: Update ListLayout callers
+---
+
+## Task 4: Update ListLayout callers
 
 **Direct references** (`getData={findAllAction}`) — auto-work if action params match.
 
@@ -118,7 +78,7 @@ getData={(page, search) => findAllThings(page, search, extra)}
 getData={({ page, search }) => findAllThings({ page, search, extra })}
 ```
 
-**Files to update** (arrow wrappers / internal functions — same list from original Plan 009):
+### Files to update (arrow wrappers / internal functions):
 
 | # | File | Type |
 |---|------|------|
@@ -139,15 +99,6 @@ getData={({ page, search }) => findAllThings({ page, search, extra })}
 
 ---
 
-## Task 3: Remove unused compat code
-
-- Search for any remaining local `isActionResult` implementations — remove, use shared import
-- Verify `src/app/apply/_lib/errors.ts` is already deleted (Plan 008)
-- Verify no action file imports `extractError` directly (only `createAction` uses it)
-- Verify all direct `useMutation` callers have been converted to `useActionMutation`
-
----
-
 ## Verification
 
 ```bash
@@ -156,9 +107,8 @@ pnpm tsc --noEmit && pnpm lint:fix
 
 ## Done When
 
-- [ ] `ActionResult.error` is `AppError` only (no `string` union)
-- [ ] `failure()` only accepts `AppError`
-- [ ] `getActionErrorMessage()` only accepts `AppError`
-- [ ] (If Task 2 done) ListLayout uses object params, all callers updated
-- [ ] No unused compat code remains
+- [ ] `ListLayout.getData` uses `({ page, search })` object params
+- [ ] All `findAll` actions use object params
+- [ ] All 14 arrow-wrapper/internal-function layouts updated
+- [ ] All direct-reference layouts verified auto-working
 - [ ] `pnpm tsc --noEmit` passes — zero errors

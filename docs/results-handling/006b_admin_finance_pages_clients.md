@@ -1,51 +1,14 @@
-# Plan 006: Admin + Finance + Auth + HR Modules
+# Plan 006b: Admin + Finance + Auth + HR — Pages, Layouts & Client Components
 
-> Migrate `admin/` (6 actions), `finance/` (2 actions), `auth/` (1 action), and `human-resource/` (1 action) end-to-end. **Non-breaking**.
+> Update RSC pages with `unwrap()`, verify/update ListLayout callers, and migrate direct `useMutation` callers across admin, finance, auth, and human-resource modules. **Non-breaking**.
 
 ## Prerequisites
 
-- Plan 001 completed (`createAction`, `unwrap`, `ActionResult<T>`)
-- Plan 002 completed (UI components handle both old and new formats)
+- Plan 006a completed (all 10 action files wrapped with `createAction`)
 
 ---
 
-## Part A: Wrap Action Files (10 files)
-
-Use the same migration template as Plan 003.
-
-### Admin (6 files)
-
-| # | File | Notes |
-|---|------|-------|
-| 1 | `src/app/admin/users/_server/actions.ts` | |
-| 2 | `src/app/admin/tasks/_server/actions.ts` | |
-| 3 | `src/app/admin/notifications/_server/actions.ts` | |
-| 4 | `src/app/admin/activity-tracker/_server/actions.ts` | |
-| 5 | `src/app/admin/tools/grade-finder/_server/actions.ts` | Specialized query actions |
-| 6 | `src/app/admin/bulk/transcripts/_server/actions.ts` | Bulk operations — `createAction` catches timeouts |
-
-### Finance (2 files)
-
-| # | File |
-|---|------|
-| 7 | `src/app/finance/sponsors/_server/actions.ts` |
-| 8 | `src/app/finance/payment-receipts/_server/actions.ts` |
-
-### Auth (1 file)
-
-| # | File |
-|---|------|
-| 9 | `src/app/auth/permission-presets/_server/actions.ts` |
-
-### Human Resource (1 file)
-
-| # | File |
-|---|------|
-| 10 | `src/app/human-resource/employees/_server/actions.ts` |
-
----
-
-## Part B: Update RSC Pages (~19 pages)
+## Part A: Update RSC Pages (~13 pages)
 
 ### Admin
 
@@ -82,7 +45,7 @@ Use the same migration template as Plan 003.
 
 ---
 
-## Part C: Verify/Update ListLayout Callers
+## Part B: Verify/Update ListLayout Callers (~8 files)
 
 ### Direct References — Verify Only
 
@@ -93,7 +56,7 @@ Use the same migration template as Plan 003.
 | 3 | `src/app/finance/payment-receipts/layout.tsx` |
 | 4 | `src/app/human-resource/employees/layout.tsx` |
 
-### Arrow Function Wrappers — Must Update
+### Arrow Function Wrappers — Must Verify & Update
 
 | # | File | Notes |
 |---|------|-------|
@@ -106,25 +69,19 @@ Use the same migration template as Plan 003.
 
 ---
 
-## Part D: Update Direct `useMutation` Callers
+## Part C: Update Direct `useMutation` Callers
 
-Client components in admin/finance/auth/HR modules that use `useMutation({ mutationFn: someAction })` directly must switch to `useActionMutation`.
+Search `_components/` folders in `src/app/admin/`, `src/app/finance/`, `src/app/auth/`, `src/app/human-resource/` for `useMutation` patterns.
 
-### Discovery
+```bash
+grep -rn "useMutation" src/app/admin/ src/app/finance/ src/app/auth/ src/app/human-resource/ --include="*.tsx" --include="*.ts" -l
+```
 
-Search `_components/` folders in `src/app/admin/`, `src/app/finance/`, `src/app/auth/`, `src/app/human-resource/` for `useMutation({ mutationFn:` patterns.
-
----
-
-## Part E: Update Cross-Action Calls
-
-Minimal cross-action calls in this group. Wrap with `unwrap()` where found. See Plan 003 for template.
-
-### Cross-Action Calls
-
-| # | File | Cross-action call | Import source |
-|---|------|------------------|---------------|
-| 1 | Verify at implementation time — admin/finance modules may call registry/academic actions |
+Known candidates:
+- `src/app/admin/users/_components/` (RoleSelector, PermissionEditor, etc.)
+- `src/app/admin/tasks/_components/` (TaskActions, StatusToggle)
+- `src/app/admin/notifications/_components/` (NotificationActions)
+- `src/app/finance/payment-receipts/_components/` (ReceiptVerification)
 
 ---
 
@@ -136,10 +93,9 @@ pnpm tsc --noEmit
 
 ## Done When
 
-- [ ] All 10 action files import and use `createAction`
-- [ ] All RSC pages with direct `await` calls use `unwrap()`
-- [ ] All ListLayout callers verified/updated
+- [ ] All ~13 RSC pages with direct `await` calls use `unwrap()`
+- [ ] All 4 direct ListLayout callers verified working
+- [ ] All 4 arrow-wrapper ListLayout callers verified/updated
 - [ ] All direct `useMutation` callers switched to `useActionMutation`
-- [ ] All cross-action calls wrapped with `unwrap()`
 - [ ] `pnpm tsc --noEmit` passes
 - [ ] **Admin + Finance + Auth + HR modules fully migrated; all other modules still work**
