@@ -110,7 +110,8 @@ pnpm tsc --noEmit
 
 ## Done When
 
-- [ ] All RSC pages with direct `await` calls use `unwrap()`
-- [ ] All 7 direct ListLayout callers verified working
-- [ ] All 5 arrow-wrapper ListLayout callers verified/updated
-- [ ] `pnpm tsc --noEmit` passes
+- [x] All RSC pages with direct `await` calls use `unwrap()`
+- [x] All 7 direct ListLayout callers verified working
+- [x] All 5 arrow-wrapper ListLayout callers verified/updated
+- [x] Component type derivations updated from `Awaited<ReturnType<typeof action>>` to `ActionData<typeof action>`
+- [x] `pnpm tsc --noEmit` passes for 004b scope (pre-existing 004a errors remain in client components, handled by 004c)
