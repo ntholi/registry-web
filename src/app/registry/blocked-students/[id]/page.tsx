@@ -3,6 +3,7 @@
 import { Center, Loader, SimpleGrid, Stack } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
 import { notFound, useParams } from 'next/navigation';
+import { unwrap } from '@/shared/lib/utils/actionResult';
 import { formatDateTime } from '@/shared/lib/utils/dates';
 import {
 	DetailsView,
@@ -24,7 +25,7 @@ export default function BlockedStudentDetails() {
 		error,
 	} = useQuery({
 		queryKey: ['blocked-student', id],
-		queryFn: () => getBlockedStudent(id),
+		queryFn: () => getBlockedStudent(id).then(unwrap),
 		enabled: !!id,
 	});
 

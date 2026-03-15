@@ -1,6 +1,7 @@
 import { Box } from '@mantine/core';
 import { notFound } from 'next/navigation';
 import { Form, getTermByCode, updateTerm } from '@/app/registry/terms';
+import { unwrap } from '@/shared/lib/utils/actionResult';
 
 type Props = {
 	params: Promise<{ code: string }>;
@@ -8,7 +9,7 @@ type Props = {
 
 export default async function TermEdit({ params }: Props) {
 	const { code } = await params;
-	const term = await getTermByCode(code);
+	const term = unwrap(await getTermByCode(code));
 	if (!term) {
 		return notFound();
 	}
@@ -20,11 +21,7 @@ export default async function TermEdit({ params }: Props) {
 				defaultValues={term}
 				onSubmit={async (value) => {
 					'use server';
-					const updatedTerm = await updateTerm(term.id, value);
-					if (!updatedTerm) {
-						throw new Error('Failed to update term');
-					}
-					return updatedTerm;
+					return await updateTerm(term.id, value);
 				}}
 			/>
 		</Box>

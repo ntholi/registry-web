@@ -9,6 +9,7 @@ import {
 	Text,
 } from '@mantine/core';
 import { notFound } from 'next/navigation';
+import { unwrap } from '@/shared/lib/utils/actionResult';
 import { formatDate } from '@/shared/lib/utils/dates';
 import {
 	DetailsView,
@@ -30,7 +31,7 @@ type Props = {
 
 export default async function CertificateReprintDetails({ params }: Props) {
 	const { id } = await params;
-	const item = await getCertificateReprint(id);
+	const item = unwrap(await getCertificateReprint(id));
 
 	if (!item) {
 		return notFound();

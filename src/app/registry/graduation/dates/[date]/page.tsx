@@ -3,6 +3,7 @@ import {
 	getGraduationByDate,
 } from '@registry/graduation/dates';
 import { notFound } from 'next/navigation';
+import { unwrap } from '@/shared/lib/utils/actionResult';
 import {
 	DetailsView,
 	DetailsViewBody,
@@ -16,7 +17,7 @@ type Props = {
 
 export default async function GraduationDetails({ params }: Props) {
 	const { date } = await params;
-	const graduation = await getGraduationByDate(date);
+	const graduation = unwrap(await getGraduationByDate(date));
 
 	if (!graduation) {
 		return notFound();

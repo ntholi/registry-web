@@ -1,6 +1,7 @@
 import { Badge, Flex, SimpleGrid } from '@mantine/core';
 import { notFound } from 'next/navigation';
 import { deleteTerm, getTermByCode } from '@/app/registry/terms';
+import { unwrap } from '@/shared/lib/utils/actionResult';
 import { getBooleanColor } from '@/shared/lib/utils/colors';
 import {
 	DetailsView,
@@ -16,7 +17,7 @@ type Props = {
 
 export default async function TermDetails({ params }: Props) {
 	const { code } = await params;
-	const term = await getTermByCode(code);
+	const term = unwrap(await getTermByCode(code));
 
 	if (!term) {
 		return notFound();

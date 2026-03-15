@@ -6,6 +6,7 @@ import {
 } from '@registry/graduation/dates';
 import { notFound } from 'next/navigation';
 import { getAllTerms } from '@/app/registry/terms';
+import { unwrap } from '@/shared/lib/utils/actionResult';
 
 type Props = {
 	params: Promise<{ date: string }>;
@@ -13,8 +14,8 @@ type Props = {
 
 export default async function EditPage({ params }: Props) {
 	const { date } = await params;
-	const graduation = await getGraduationByDate(date);
-	const terms = await getAllTerms();
+	const graduation = unwrap(await getGraduationByDate(date));
+	const terms = unwrap(await getAllTerms());
 
 	if (!graduation) {
 		return notFound();

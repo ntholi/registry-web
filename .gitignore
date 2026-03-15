@@ -55,4 +55,4 @@ snapshot-before-migration.json
 /.idea
 /.agent
 /.kiro
-/backup_db
+/backup_dbnode_modules
