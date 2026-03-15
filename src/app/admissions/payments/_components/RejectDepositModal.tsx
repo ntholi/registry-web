@@ -4,8 +4,9 @@ import { Button, Group, Modal, Stack, Text } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import { IconX } from '@tabler/icons-react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'nextjs-toploader/app';
+import { useActionMutation } from '@/shared/lib/hooks/use-action-mutation';
 import { rejectBankDeposit } from '../_server/actions';
 
 type Props = {
@@ -21,7 +22,7 @@ export default function RejectDepositModal({
 	const router = useRouter();
 	const queryClient = useQueryClient();
 
-	const mutation = useMutation({
+	const mutation = useActionMutation({
 		mutationFn: () => rejectBankDeposit(depositId),
 		onSuccess: () => {
 			notifications.show({

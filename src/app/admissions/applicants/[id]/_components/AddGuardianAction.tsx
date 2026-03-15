@@ -13,8 +13,8 @@ import { useForm } from '@mantine/form';
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import { IconPlus } from '@tabler/icons-react';
-import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'nextjs-toploader/app';
+import { useActionMutation } from '@/shared/lib/hooks/use-action-mutation';
 import { createGuardian } from '../../_server/actions';
 
 type Props = {
@@ -47,7 +47,7 @@ export default function AddGuardianAction({ applicantId }: Props) {
 		},
 	});
 
-	const createMutation = useMutation({
+	const createMutation = useActionMutation({
 		mutationFn: (data: typeof form.values) => {
 			const { phoneNumber, ...guardianData } = data;
 			return createGuardian(

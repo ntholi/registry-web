@@ -3,8 +3,9 @@
 import { Button, Group, Paper, Stack, Text, Textarea } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { IconSend } from '@tabler/icons-react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
+import { useActionMutation } from '@/shared/lib/hooks/use-action-mutation';
 import { formatDateTime } from '@/shared/lib/utils/dates';
 import { addApplicationNote } from '../_server/actions';
 
@@ -25,7 +26,7 @@ export default function NotesSection({ applicationId, notes }: Props) {
 	const [content, setContent] = useState('');
 	const queryClient = useQueryClient();
 
-	const mutation = useMutation({
+	const mutation = useActionMutation({
 		mutationFn: async () => {
 			if (!content.trim()) throw new Error('Note content is required');
 			return addApplicationNote(applicationId, content.trim());

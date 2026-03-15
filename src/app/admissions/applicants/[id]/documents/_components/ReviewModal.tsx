@@ -3,10 +3,10 @@
 import { Button, Group, Modal, Radio, Stack, Textarea } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
-import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'nextjs-toploader/app';
 import { useState } from 'react';
 import type { DocumentVerificationStatus } from '@/core/database';
+import { useActionMutation } from '@/shared/lib/hooks/use-action-mutation';
 import { verifyApplicantDocument } from '../_server/actions';
 
 type Props = {
@@ -30,9 +30,9 @@ export function ReviewModal({
 		useState<DocumentVerificationStatus>(initialStatus);
 	const [reason, setReason] = useState(initialReason ?? '');
 
-	const mutation = useMutation({
+	const mutation = useActionMutation({
 		mutationFn: async () => {
-			await verifyApplicantDocument(
+			return verifyApplicantDocument(
 				docId,
 				status,
 				status === 'rejected' ? reason : undefined

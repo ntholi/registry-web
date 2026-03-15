@@ -15,9 +15,10 @@ import {
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import { IconExternalLink } from '@tabler/icons-react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import Link from 'next/link';
 import { useState } from 'react';
+import { useActionMutation } from '@/shared/lib/hooks/use-action-mutation';
 import type { ApplicationStatus } from '../_lib/types';
 import { changeApplicationStatus } from '../_server/actions';
 
@@ -52,9 +53,14 @@ export default function ApplicationReviewHeader({
 
 	const isDirty = selected !== currentStatus;
 
-	const mutation = useMutation({
+	const mutation = useActionMutation({
 		mutationFn: async (reason?: string) => {
-			await changeApplicationStatus(applicationId, selected, undefined, reason);
+			return changeApplicationStatus(
+				applicationId,
+				selected,
+				undefined,
+				reason
+			);
 		},
 		onSuccess: async () => {
 			await queryClient.invalidateQueries({ queryKey: ['applications'] });

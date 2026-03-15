@@ -17,8 +17,9 @@ import { useForm } from '@mantine/form';
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import { IconEdit, IconPlus, IconTrash } from '@tabler/icons-react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
+import { useActionMutation } from '@/shared/lib/hooks/use-action-mutation';
 import {
 	createGuardian,
 	deleteGuardian,
@@ -74,7 +75,7 @@ export default function GuardianManager({ applicantId, guardians }: Props) {
 		},
 	});
 
-	const createMutation = useMutation({
+	const createMutation = useActionMutation({
 		mutationFn: (values: typeof form.values) => {
 			const { phoneNumber1, phoneNumber2, ...data } = values;
 			return createGuardian(
@@ -101,7 +102,7 @@ export default function GuardianManager({ applicantId, guardians }: Props) {
 		},
 	});
 
-	const updateMutation = useMutation({
+	const updateMutation = useActionMutation({
 		mutationFn: ({
 			id,
 			values,
@@ -136,7 +137,7 @@ export default function GuardianManager({ applicantId, guardians }: Props) {
 		},
 	});
 
-	const deleteMutation = useMutation({
+	const deleteMutation = useActionMutation({
 		mutationFn: deleteGuardian,
 		onSuccess: async () => {
 			await queryClient.invalidateQueries({ queryKey: ['applicants'] });

@@ -63,7 +63,7 @@ pnpm tsc --noEmit
 
 ## Done When
 
-- [ ] All direct `useMutation` callers in admissions switched to `useActionMutation`
-- [ ] No remaining `useMutation({ mutationFn: admissionsAction })` patterns
+- [x] All direct `useMutation` callers in admissions switched to `useActionMutation`
+- [x] No remaining `useMutation({ mutationFn: admissionsAction })` patterns
 - [ ] `pnpm tsc --noEmit` passes
 - [ ] **Admissions module fully migrated; all other modules still work**

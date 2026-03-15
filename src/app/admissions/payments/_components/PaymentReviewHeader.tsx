@@ -13,11 +13,13 @@ import {
 } from '@mantine/core';
 import { useDisclosure, useMediaQuery } from '@mantine/hooks';
 import { IconArrowNarrowLeft } from '@tabler/icons-react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'nextjs-toploader/app';
 import { useCallback, useState } from 'react';
 import type { DepositStatus } from '@/core/database';
+import { useActionMutation } from '@/shared/lib/hooks/use-action-mutation';
 import { useViewSelect } from '@/shared/lib/hooks/use-view-select';
+import { unwrap } from '@/shared/lib/utils/actionResult';
 import {
 	getNextPaymentForReview,
 	releasePaymentReviewLock,
@@ -48,7 +50,9 @@ export default function PaymentReviewHeader({ id, title, status }: Props) {
 	const isDirty = selected !== status;
 
 	const navigateToNext = useCallback(async () => {
-		const next = await getNextPaymentForReview(id, { status: 'pending' });
+		const next = unwrap(
+			await getNextPaymentForReview(id, { status: 'pending' })
+		);
 		if (next) {
 			router.push(`/admissions/payments/${next.id}`);
 		} else {
@@ -56,10 +60,14 @@ export default function PaymentReviewHeader({ id, title, status }: Props) {
 		}
 	}, [id, router]);
 
-	const mutation = useMutation({
+	const mutation = useActionMutation({
 		mutationFn: async (reason?: string) => {
-			await updatePaymentReviewStatus(id, selected, reason);
-			await releasePaymentReviewLock(id);
+			const result = await updatePaymentReviewStatus(id, selected, reason);
+			if (!result.success) {
+				return result;
+			}
+
+			return releasePaymentReviewLock(id);
 		},
 		onSuccess: async () => {
 			queryClient.invalidateQueries({ queryKey: ['payments-review'] });

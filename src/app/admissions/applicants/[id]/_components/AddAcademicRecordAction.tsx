@@ -17,9 +17,10 @@ import { useForm } from '@mantine/form';
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import { IconPlus, IconTrash } from '@tabler/icons-react';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'nextjs-toploader/app';
 import { useState } from 'react';
+import { useActionMutation } from '@/shared/lib/hooks/use-action-mutation';
 import { normalizeResultClassification } from '@/shared/lib/utils/resultClassification';
 import type { SubjectGradeInput } from '../academic-records/_lib/types';
 import { createAcademicRecord } from '../academic-records/_server/actions';
@@ -71,7 +72,7 @@ export default function AddAcademicRecordAction({ applicantId }: Props) {
 		},
 	});
 
-	const createMutation = useMutation({
+	const createMutation = useActionMutation({
 		mutationFn: async (values: typeof form.values) => {
 			const isLevel4 = selectedCertType?.lqfLevel === 4;
 			const resultClassification = normalizeResultClassification(
