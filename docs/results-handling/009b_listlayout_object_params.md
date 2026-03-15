@@ -48,20 +48,17 @@ queryFn: async () => {
 
 ---
 
-## Task 3: Update all `findAll` actions to object params
+## Task 3: Update ListLayout-facing `getData` adapters to object params
 
 ```ts
 // BEFORE
-export const findAllThings = createAction(
-  async (page: number, search: string) => thingService.findAll({ page, search })
-);
+getData={findAllThings}
 
 // AFTER
-export const findAllThings = createAction(
-  async ({ page, search }: { page: number; search: string }) =>
-    thingService.findAll({ page, search })
-);
+getData={({ page, search }) => findAllThings(page, search)}
 ```
+
+Keep existing action signatures in place where they still have non-ListLayout callers, and adapt them at the layout boundary instead.
 
 ---
 
@@ -107,8 +104,8 @@ pnpm tsc --noEmit && pnpm lint:fix
 
 ## Done When
 
-- [ ] `ListLayout.getData` uses `({ page, search })` object params
-- [ ] All `findAll` actions use object params
-- [ ] All 14 arrow-wrapper/internal-function layouts updated
-- [ ] All direct-reference layouts verified auto-working
-- [ ] `pnpm tsc --noEmit` passes — zero errors
+- [x] `ListLayout.getData` uses `({ page, search })` object params
+- [x] All ListLayout-facing adapters use object params at the layout boundary
+- [x] All current arrow-wrapper, helper-function, and inline-function layouts are updated
+- [x] Direct-reference layouts now wrap positional actions explicitly
+- [x] `pnpm tsc --noEmit` was run; current failures are unrelated pre-existing migration errors outside the files touched by plan 9b

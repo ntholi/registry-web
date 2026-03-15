@@ -6,9 +6,13 @@ import { useQuery } from '@tanstack/react-query';
 import { useAtom } from 'jotai';
 import { type PropsWithChildren, useState } from 'react';
 import { getActiveTerm } from '@/app/registry/terms';
-import { unwrap } from '@/shared/lib/utils/actionResult';
+import { success, unwrap } from '@/shared/lib/utils/actionResult';
 import { getStatusIcon } from '@/shared/lib/utils/status';
-import { ListItem, ListLayout } from '@/shared/ui/adease';
+import {
+	ListItem,
+	ListLayout,
+	type ListLayoutGetDataParams,
+} from '@/shared/ui/adease';
 import { selectedTermAtom } from '@/shared/ui/atoms/termAtoms';
 import TermFilter from '@/shared/ui/TermFilter';
 
@@ -37,7 +41,7 @@ export default function Layout({ children }: PropsWithChildren) {
 				selectedTerm?.toString() || 'all',
 				includeDeleted ? 'with-deleted' : 'active',
 			]}
-			getData={async (page, search) => {
+			getData={async ({ page, search }: ListLayoutGetDataParams) => {
 				const response = unwrap(
 					await findAllRegistrationRequests(
 						page,
@@ -46,7 +50,7 @@ export default function Layout({ children }: PropsWithChildren) {
 						includeDeleted
 					)
 				);
-				return {
+				return success({
 					items: response.data.map((item) => ({
 						id: item.id,
 						stdNo: item.stdNo,
@@ -54,7 +58,7 @@ export default function Layout({ children }: PropsWithChildren) {
 						student: item.student,
 					})),
 					totalPages: response.pages,
-				};
+				});
 			}}
 			actionIcons={[
 				<TermFilter

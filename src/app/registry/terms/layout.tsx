@@ -10,7 +10,7 @@ export default function Layout({ children }: PropsWithChildren) {
 		<ListLayout
 			path={'/registry/terms'}
 			queryKey={['terms']}
-			getData={findAllTerms}
+			getData={({ page, search }) => findAllTerms(page, search)}
 			actionIcons={[<NewLink key={'new-link'} href='/registry/terms/new' />]}
 			renderItem={(it) => (
 				<ListItem

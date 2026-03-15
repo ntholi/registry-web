@@ -7,7 +7,11 @@ import { useRouter } from 'nextjs-toploader/app';
 import type { PropsWithChildren } from 'react';
 import type { DocumentType, DocumentVerificationStatus } from '@/core/database';
 import { getStatusColor } from '@/shared/lib/utils/colors';
-import { ListItem, ListLayout } from '@/shared/ui/adease';
+import {
+	ListItem,
+	ListLayout,
+	type ListLayoutGetDataParams,
+} from '@/shared/ui/adease';
 import DocumentReviewFilter from './_components/DocumentReviewFilter';
 import { getDocumentsForReview } from './_server/actions';
 
@@ -27,7 +31,7 @@ export default function DocumentsLayout({ children }: PropsWithChildren) {
 	const statusFilter = searchParams.get('status') || 'pending';
 	const typeFilter = searchParams.get('type') || 'all';
 
-	async function fetchDocs(page: number, search: string) {
+	async function fetchDocs({ page, search }: ListLayoutGetDataParams) {
 		const filters: {
 			status?: DocumentVerificationStatus;
 			type?: DocumentType;

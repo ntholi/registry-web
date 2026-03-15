@@ -9,7 +9,7 @@ export default function Layout({ children }: PropsWithChildren) {
 		<ListLayout
 			path={'/admin/notifications'}
 			queryKey={['notifications']}
-			getData={findAllNotifications}
+			getData={({ page, search }) => findAllNotifications(page, search)}
 			actionIcons={[
 				<NewLink key={'new-link'} href='/admin/notifications/new' />,
 			]}

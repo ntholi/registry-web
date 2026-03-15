@@ -29,7 +29,7 @@ export default function Layout({ children }: PropsWithChildren) {
 		<ListLayout
 			path='/academic/feedback/cycles'
 			queryKey={['feedback-cycles']}
-			getData={getCycles}
+			getData={({ page, search }) => getCycles(page, search)}
 			actionIcons={
 				canCreate
 					? [<NewLink key='new-link' href='/academic/feedback/cycles/new' />]

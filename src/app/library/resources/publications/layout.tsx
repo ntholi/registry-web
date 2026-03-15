@@ -1,12 +1,17 @@
 'use client';
 
 import type { PropsWithChildren } from 'react';
-import { ListItem, ListLayout, NewLink } from '@/shared/ui/adease';
+import {
+	ListItem,
+	ListLayout,
+	type ListLayoutGetDataParams,
+	NewLink,
+} from '@/shared/ui/adease';
 import type { PublicationWithRelations } from './_lib/types';
 import { getPublications } from './_server/actions';
 
 export default function PublicationsLayout({ children }: PropsWithChildren) {
-	async function getData(page: number, search: string) {
+	async function getData({ page, search }: ListLayoutGetDataParams) {
 		return getPublications(page, search);
 	}
 

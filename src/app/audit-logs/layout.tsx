@@ -32,7 +32,7 @@ export default function Layout({ children }: PropsWithChildren) {
 		<ListLayout<AuditLogItem>
 			path='/audit-logs'
 			queryKey={['audit-logs']}
-			getData={async (page, search) => getAuditLogs(page, search)}
+			getData={({ page, search }) => getAuditLogs(page, search)}
 			renderItem={(item) => (
 				<ListItem
 					id={String(item.id)}

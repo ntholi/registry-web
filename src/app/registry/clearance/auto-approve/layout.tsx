@@ -19,7 +19,7 @@ export default function Layout({ children }: PropsWithChildren) {
 		<ListLayout<RuleItem>
 			path='/registry/clearance/auto-approve'
 			queryKey={['auto-approvals']}
-			getData={findAllAutoApprovals}
+			getData={({ page, search }) => findAllAutoApprovals(page, search)}
 			actionIcons={[
 				<BulkImportModal key='bulk' />,
 				<NewLink key='new' href='/registry/clearance/auto-approve/new' />,

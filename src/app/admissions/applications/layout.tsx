@@ -41,7 +41,7 @@ export default function Layout({ children }: PropsWithChildren) {
 		<ListLayout<ApplicationListItem>
 			path='/admissions/applications'
 			queryKey={['applications', searchParams.toString()]}
-			getData={(page, search) => findAllApplications(page, search, filters)}
+			getData={({ page, search }) => findAllApplications(page, search, filters)}
 			actionIcons={[
 				<ApplicationsFilter key='filter' />,
 				<NewLink key='new-link' href='/admissions/applications/new' />,

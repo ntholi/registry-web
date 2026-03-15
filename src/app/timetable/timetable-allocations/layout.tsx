@@ -10,7 +10,7 @@ export default function Layout({ children }: PropsWithChildren) {
 		<ListLayout
 			path={'/timetable/timetable-allocations'}
 			queryKey={['timetable-allocations']}
-			getData={getLecturers}
+			getData={({ page, search }) => getLecturers(page, search)}
 			actionIcons={[<AddSlotAllocationWithLecturerModal key='add-slot' />]}
 			renderItem={(it) => (
 				<ListItem id={it.id} label={it.name} description={it.email} />

@@ -9,9 +9,13 @@ import { useAtom } from 'jotai';
 import { useSearchParams } from 'next/navigation';
 import { useRouter } from 'nextjs-toploader/app';
 import type { PropsWithChildren } from 'react';
-import { unwrap } from '@/shared/lib/utils/actionResult';
+import { success, unwrap } from '@/shared/lib/utils/actionResult';
 import { getStatusColor } from '@/shared/lib/utils/colors';
-import { ListItem, ListLayout } from '@/shared/ui/adease';
+import {
+	ListItem,
+	ListLayout,
+	type ListLayoutGetDataParams,
+} from '@/shared/ui/adease';
 import {
 	type ClearanceFilter as AtomClearanceFilter,
 	clearanceFilterAtom,
@@ -69,7 +73,7 @@ export default function Layout({ children }: PropsWithChildren) {
 		<ListLayout<ClearanceItem>
 			path='/registry/registration/clearance'
 			queryKey={['clearances', statusFilter, getFilterKey(filter)]}
-			getData={async (page, search) => {
+			getData={async ({ page, search }: ListLayoutGetDataParams) => {
 				const effectiveStatus =
 					search && statusFilter !== 'all'
 						? undefined
@@ -79,11 +83,11 @@ export default function Layout({ children }: PropsWithChildren) {
 				const response = unwrap(
 					await clearanceByStatus(effectiveStatus, page, search, apiFilter)
 				);
-				return {
+				return success({
 					items: response.items || [],
 					totalPages: response.totalPages || 1,
 					totalItems: response.totalItems ?? 0,
-				};
+				});
 			}}
 			actionIcons={[
 				<RegistrationClearanceFilter

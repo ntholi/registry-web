@@ -9,7 +9,7 @@ export default function Layout({ children }: PropsWithChildren) {
 		<ListLayout
 			path={'/academic/semester-modules'}
 			queryKey={['semester-modules']}
-			getData={findAllModules}
+			getData={({ page, search }) => findAllModules(page, search)}
 			actionIcons={[
 				<NewLink key={'new-link'} href='/academic/semester-modules/new' />,
 			]}

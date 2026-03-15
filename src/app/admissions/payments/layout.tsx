@@ -6,7 +6,11 @@ import { useSearchParams } from 'next/navigation';
 import { useRouter } from 'nextjs-toploader/app';
 import type { PropsWithChildren } from 'react';
 import { getDepositStatusColor } from '@/shared/lib/utils/colors';
-import { ListItem, ListLayout } from '@/shared/ui/adease';
+import {
+	ListItem,
+	ListLayout,
+	type ListLayoutGetDataParams,
+} from '@/shared/ui/adease';
 import DepositStatusFilter from './_components/DepositStatusFilter';
 import type {
 	DepositFilters,
@@ -21,7 +25,7 @@ export default function PaymentsLayout({ children }: PropsWithChildren) {
 	const statusFilter =
 		(searchParams.get('status') as DepositStatus | 'all' | null) || 'pending';
 
-	async function fetchDeposits(page: number, search: string) {
+	async function fetchDeposits({ page, search }: ListLayoutGetDataParams) {
 		const filters: DepositFilters = {};
 		if (statusFilter !== 'all') filters.status = statusFilter;
 		return getBankDeposits(page, search, filters);

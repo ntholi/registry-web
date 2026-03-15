@@ -11,7 +11,7 @@ export default function Layout({ children }: PropsWithChildren) {
 		<ListLayout
 			path='/registry/certificate-reprints'
 			queryKey={['certificate-reprints']}
-			getData={findAllCertificateReprints}
+			getData={({ page, search }) => findAllCertificateReprints(page, search)}
 			actionIcons={[
 				<NewLink key='new-link' href='/registry/certificate-reprints/new' />,
 			]}

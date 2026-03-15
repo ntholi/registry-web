@@ -10,7 +10,7 @@ export default function Layout({ children }: PropsWithChildren) {
 		<ListLayout<CertificateTypeWithMappings>
 			path='/admissions/certificate-types'
 			queryKey={['certificate-types']}
-			getData={findAllCertificateTypes}
+			getData={({ page, search }) => findAllCertificateTypes(page, search)}
 			actionIcons={[
 				<NewLink key='new-link' href='/admissions/certificate-types/new' />,
 			]}

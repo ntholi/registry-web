@@ -12,7 +12,7 @@ export default function Layout({ children }: PropsWithChildren) {
 		<ListLayout<IntakePeriod>
 			path='/admissions/intake-periods'
 			queryKey={['intake-periods']}
-			getData={findAllIntakePeriods}
+			getData={({ page, search }) => findAllIntakePeriods(page, search)}
 			actionIcons={[
 				<NewLink key='new-link' href='/admissions/intake-periods/new' />,
 			]}

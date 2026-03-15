@@ -9,7 +9,7 @@ export default function AuthorsLayout({ children }: PropsWithChildren) {
 		<ListLayout
 			path='/library/authors'
 			queryKey={['authors']}
-			getData={getAuthors}
+			getData={({ page, search }) => getAuthors(page, search)}
 			actionIcons={[<NewLink key='new' href='/library/authors/new' />]}
 			renderItem={(it) => <ListItem id={it.id} label={it.name} />}
 		>

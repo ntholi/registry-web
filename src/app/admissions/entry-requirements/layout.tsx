@@ -3,7 +3,12 @@
 import type { ProgramLevel } from '@academic/_database';
 import { useSearchParams } from 'next/navigation';
 import type { PropsWithChildren } from 'react';
-import { ListItem, ListLayout, NewLink } from '@/shared/ui/adease';
+import {
+	ListItem,
+	ListLayout,
+	type ListLayoutGetDataParams,
+	NewLink,
+} from '@/shared/ui/adease';
 import EntryRequirementsFilter from './_components/EntryRequirementsFilter';
 import type { EntryRequirementFilter, ProgramWithSchool } from './_lib/types';
 import { findProgramsWithRequirements } from './_server/actions';
@@ -11,7 +16,7 @@ import { findProgramsWithRequirements } from './_server/actions';
 export default function Layout({ children }: PropsWithChildren) {
 	const searchParams = useSearchParams();
 
-	const getData = async (page: number, search: string) => {
+	const getData = async ({ page, search }: ListLayoutGetDataParams) => {
 		const filter: EntryRequirementFilter = {};
 		const schoolId = searchParams.get('schoolId');
 		const level = searchParams.get('level');

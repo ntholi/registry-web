@@ -10,8 +10,8 @@ export default function Layout({ children }: PropsWithChildren) {
 		<ListLayout
 			path={'/registry/blocked-students'}
 			queryKey={['blocked-students']}
-			getData={async (page, search) =>
-				await getBlockedStudentByStatus('blocked', page, search)
+			getData={({ page, search }) =>
+				getBlockedStudentByStatus('blocked', page, search)
 			}
 			actionIcons={[
 				<ImportBlockedStudentsDialog key='import' />,

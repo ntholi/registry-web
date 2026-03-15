@@ -9,7 +9,7 @@ export default function Layout({ children }: PropsWithChildren) {
 		<ListLayout
 			path={'/finance/sponsors'}
 			queryKey={['sponsors']}
-			getData={findAllSponsors}
+			getData={({ page, search }) => findAllSponsors(page, search)}
 			actionIcons={[<NewLink key={'new-link'} href='/finance/sponsors/new' />]}
 			renderItem={(it) => (
 				<ListItem id={it.id} label={it.code} description={it.name} />

@@ -10,7 +10,7 @@ export default function Layout({ children }: PropsWithChildren) {
 		<ListLayout<Applicant>
 			path='/admissions/applicants'
 			queryKey={['applicants']}
-			getData={findAllApplicants}
+			getData={({ page, search }) => findAllApplicants(page, search)}
 			actionIcons={[
 				<NewLink key='new-link' href='/admissions/applicants/new' />,
 			]}

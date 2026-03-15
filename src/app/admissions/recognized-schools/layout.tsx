@@ -11,7 +11,7 @@ export default function Layout({ children }: PropsWithChildren) {
 		<ListLayout<RecognizedSchool>
 			path='/admissions/recognized-schools'
 			queryKey={['recognized-schools']}
-			getData={findAllRecognizedSchools}
+			getData={({ page, search }) => findAllRecognizedSchools(page, search)}
 			actionIcons={[
 				<NewLink key='new-link' href='/admissions/recognized-schools/new' />,
 			]}

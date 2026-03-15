@@ -9,7 +9,7 @@ export default function Layout({ children }: PropsWithChildren) {
 		<ListLayout
 			path={'/library/categories'}
 			queryKey={['categories']}
-			getData={getCategories}
+			getData={({ page, search }) => getCategories(page, search)}
 			actionIcons={[
 				<NewLink key={'new-link'} href='/library/categories/new' />,
 			]}

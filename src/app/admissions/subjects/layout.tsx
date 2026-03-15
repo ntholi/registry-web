@@ -3,7 +3,12 @@
 import { Badge, Group } from '@mantine/core';
 import { useSearchParams } from 'next/navigation';
 import type { PropsWithChildren } from 'react';
-import { ListItem, ListLayout, NewLink } from '@/shared/ui/adease';
+import {
+	ListItem,
+	ListLayout,
+	type ListLayoutGetDataParams,
+	NewLink,
+} from '@/shared/ui/adease';
 import SubjectsFilter from './_components/SubjectsFilter';
 import type { Subject } from './_lib/types';
 import { findAllSubjects } from './_server/actions';
@@ -11,7 +16,7 @@ import { findAllSubjects } from './_server/actions';
 export default function Layout({ children }: PropsWithChildren) {
 	const searchParams = useSearchParams();
 
-	const getData = async (page: number, search: string) => {
+	const getData = async ({ page, search }: ListLayoutGetDataParams) => {
 		const lqfLevelParam = searchParams.get('lqfLevel');
 		const lqfLevel =
 			lqfLevelParam === 'null'

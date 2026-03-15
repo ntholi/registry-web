@@ -5,7 +5,12 @@ import { useSearchParams } from 'next/navigation';
 import { useRouter } from 'nextjs-toploader/app';
 import type { PropsWithChildren } from 'react';
 import { getLoanStatusColor } from '@/shared/lib/utils/colors';
-import { ListItem, ListLayout, NewLink } from '@/shared/ui/adease';
+import {
+	ListItem,
+	ListLayout,
+	type ListLayoutGetDataParams,
+	NewLink,
+} from '@/shared/ui/adease';
 import LoanStatusFilter from './_components/LoanStatusFilter';
 import type { LoanFilters, LoanStatus } from './_lib/types';
 import { getLoans } from './_server/actions';
@@ -15,7 +20,7 @@ export default function LoansLayout({ children }: PropsWithChildren) {
 	const searchParams = useSearchParams();
 	const statusFilter = (searchParams.get('status') as LoanStatus) || undefined;
 
-	async function fetchLoans(page: number, search: string) {
+	async function fetchLoans({ page, search }: ListLayoutGetDataParams) {
 		const filters: LoanFilters = {};
 		if (statusFilter) filters.status = statusFilter;
 		return getLoans(page, search, filters);

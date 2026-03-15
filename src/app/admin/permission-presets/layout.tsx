@@ -11,7 +11,7 @@ export default function Layout({ children }: PropsWithChildren) {
 		<ListLayout
 			path={'/admin/permission-presets'}
 			queryKey={['permission-presets']}
-			getData={findAllPresets}
+			getData={({ page, search }) => findAllPresets(page, search)}
 			actionIcons={[
 				<NewLink key={'new-link'} href='/admin/permission-presets/new' />,
 			]}

@@ -6,7 +6,11 @@ import { useRouter } from 'nextjs-toploader/app';
 import type { PropsWithChildren } from 'react';
 import { getFineStatusColor } from '@/shared/lib/utils/colors';
 import { formatCurrency } from '@/shared/lib/utils/utils';
-import { ListItem, ListLayout } from '@/shared/ui/adease';
+import {
+	ListItem,
+	ListLayout,
+	type ListLayoutGetDataParams,
+} from '@/shared/ui/adease';
 import type { FineStatus } from './_lib/types';
 import { getFines } from './_server/actions';
 
@@ -28,7 +32,7 @@ export default function FinesLayout({ children }: PropsWithChildren) {
 	const searchParams = useSearchParams();
 	const statusFilter = (searchParams.get('status') as FineStatus) || undefined;
 
-	async function fetchFines(page: number, search: string) {
+	async function fetchFines({ page, search }: ListLayoutGetDataParams) {
 		return getFines(page, search, statusFilter);
 	}
 

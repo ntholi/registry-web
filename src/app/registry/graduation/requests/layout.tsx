@@ -2,16 +2,20 @@
 
 import { findAllGraduationRequests } from '@registry/graduation/clearance';
 import type { PropsWithChildren } from 'react';
-import { unwrap } from '@/shared/lib/utils/actionResult';
+import { success, unwrap } from '@/shared/lib/utils/actionResult';
 import { getStatusIcon, type StatusType } from '@/shared/lib/utils/status';
-import { ListItem, ListLayout } from '@/shared/ui/adease';
+import {
+	ListItem,
+	ListLayout,
+	type ListLayoutGetDataParams,
+} from '@/shared/ui/adease';
 
 export default function Layout({ children }: PropsWithChildren) {
 	return (
 		<ListLayout
 			path='/registry/graduation/requests'
 			queryKey={['graduation-requests']}
-			getData={async (page, search) => {
+			getData={async ({ page, search }: ListLayoutGetDataParams) => {
 				const response = unwrap(await findAllGraduationRequests(page, search));
 				const items = response.data.map((item) => ({
 					id: item.id,
@@ -20,10 +24,10 @@ export default function Layout({ children }: PropsWithChildren) {
 					informationConfirmed: item.informationConfirmed,
 				}));
 
-				return {
+				return success({
 					items,
 					totalPages: response.pages,
-				};
+				});
 			}}
 			renderItem={(it) => (
 				<ListItem

@@ -25,11 +25,15 @@ import { useViewSelect } from '@/shared/lib/hooks/use-view-select';
 import {
 	type ActionResult,
 	getActionErrorMessage,
-	isActionResult,
 } from '@/shared/lib/utils/actionResult';
 import { ListItem } from './ListItem';
 import { Pagination } from './Pagination';
 import { SearchField } from './SearchField';
+
+export interface ListLayoutGetDataParams {
+	page: number;
+	search: string;
+}
 
 type GetDataResult<T> = {
 	items: T[];
@@ -39,9 +43,8 @@ type GetDataResult<T> = {
 
 export type ListLayoutProps<T> = {
 	getData: (
-		page: number,
-		search: string
-	) => Promise<ActionResult<GetDataResult<T>> | GetDataResult<T>>;
+		params: ListLayoutGetDataParams
+	) => Promise<ActionResult<GetDataResult<T>>>;
 	renderItem: (item: T) => React.ReactNode;
 	path: string;
 	queryKey: string[];
@@ -76,16 +79,12 @@ export function ListLayout<T>({
 	} = useQuery({
 		queryKey: [...queryKey, page, search],
 		queryFn: async () => {
-			const result = await getData(page, search);
-			if (isActionResult(result)) {
-				if (!result.success) {
-					throw new Error(getActionErrorMessage(result.error));
-				}
-
-				return result.data;
+			const result = await getData({ page, search });
+			if (!result.success) {
+				throw new Error(getActionErrorMessage(result.error));
 			}
 
-			return result;
+			return result.data;
 		},
 		staleTime: 0,
 	});

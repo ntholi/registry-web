@@ -11,7 +11,7 @@ export default function ExternalLibrariesLayout({
 		<ListLayout
 			path='/library/external-libraries'
 			queryKey={['external-libraries']}
-			getData={getExternalLibraries}
+			getData={({ page, search }) => getExternalLibraries(page, search)}
 			actionIcons={[
 				<NewLink key='new' href='/library/external-libraries/new' />,
 			]}

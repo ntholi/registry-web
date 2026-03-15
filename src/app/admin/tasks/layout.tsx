@@ -11,7 +11,12 @@ import {
 	getTaskStatusColor,
 } from '@/shared/lib/utils/colors';
 import { formatDate } from '@/shared/lib/utils/dates';
-import { ListItem, ListLayout, NewLink } from '@/shared/ui/adease';
+import {
+	ListItem,
+	ListLayout,
+	type ListLayoutGetDataParams,
+	NewLink,
+} from '@/shared/ui/adease';
 import TaskStatusFilter from './_components/TaskStatusFilter';
 
 type TaskStatusFilterValue =
@@ -37,7 +42,7 @@ export default function Layout({ children }: PropsWithChildren) {
 	const statusFilter =
 		(searchParams.get('status') as TaskStatusFilterValue | null) || 'open';
 
-	async function fetchTasks(page: number, search: string) {
+	async function fetchTasks({ page, search }: ListLayoutGetDataParams) {
 		return findAllTasks(page, search, statusFilter);
 	}
 

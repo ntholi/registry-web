@@ -4,8 +4,13 @@ import { getModules } from '@academic/modules';
 import { type PropsWithChildren, useState } from 'react';
 import { hasAnyPermission } from '@/core/auth/sessionPermissions';
 import { authClient } from '@/core/auth-client';
-import { unwrap } from '@/shared/lib/utils/actionResult';
-import { ListItem, ListLayout, ModuleViewToggle } from '@/shared/ui/adease';
+import { success, unwrap } from '@/shared/lib/utils/actionResult';
+import {
+	ListItem,
+	ListLayout,
+	type ListLayoutGetDataParams,
+	ModuleViewToggle,
+} from '@/shared/ui/adease';
 
 interface Module {
 	id: number;
@@ -35,19 +40,20 @@ type ModuleItem = Module | AssignedModule;
 export default function Layout({ children }: PropsWithChildren) {
 	const { data: session } = authClient.useSession();
 	const [showAssignedOnly, setShowAssignedOnly] = useState(true);
-	const getData = async (page: number, search: string) => {
+	const getData = async ({ page, search }: ListLayoutGetDataParams) => {
 		if (showAssignedOnly) {
 			const data = unwrap(await getAssignedModulesByCurrentUser());
-			return {
+			return success({
 				items: data as AssignedModule[],
 				totalPages: 1,
-			};
+			});
 		} else {
 			const result = unwrap(await getModules(page, search));
-			return {
+			return success({
 				items: result.items as Module[],
 				totalPages: result.totalPages,
-			};
+				totalItems: result.totalItems,
+			});
 		}
 	};
 	const renderItem = (it: ModuleItem) => {
