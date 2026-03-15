@@ -1,18 +1,20 @@
 'use server';
 
+import { createAction } from '@/shared/lib/utils/actionResult';
 import { bulkService as service } from './service';
 
-export async function getDistinctGraduationDates() {
+export const getDistinctGraduationDates = createAction(async () => {
 	return service.getDistinctGraduationDates();
-}
+});
 
-export async function getProgramsByGraduationDate(graduationDate: string) {
-	return service.getProgramsByGraduationDate(graduationDate);
-}
+export const getProgramsByGraduationDate = createAction(
+	async (graduationDate: string) => {
+		return service.getProgramsByGraduationDate(graduationDate);
+	}
+);
 
-export async function getStudentsByGraduationDate(
-	graduationDate: string,
-	programIds?: number[]
-) {
-	return service.getStudentsByGraduationDate(graduationDate, programIds);
-}
+export const getStudentsByGraduationDate = createAction(
+	async (graduationDate: string, programIds?: number[]) => {
+		return service.getStudentsByGraduationDate(graduationDate, programIds);
+	}
+);

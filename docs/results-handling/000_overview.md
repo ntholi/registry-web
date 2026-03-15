@@ -88,7 +88,7 @@ Full architecture details, code snippets, type definitions, and rationale:
 | 5a | [005a_admissions_actions.md](./005a_admissions_actions.md) | Admissions: wrap 17 action files | ✅ Completed |
 | 5b | [005b_admissions_pages_layouts.md](./005b_admissions_pages_layouts.md) | Admissions: ~10 RSC pages + ~8 ListLayout callers + 10 cross-action calls | ✅ Completed |
 | 5c | [005c_admissions_client_components.md](./005c_admissions_client_components.md) | Admissions: direct `useMutation` → `useActionMutation` | ✅ Completed |
-| 6a | [006a_admin_finance_actions.md](./006a_admin_finance_actions.md) | Admin + Finance + Auth + HR: wrap 10 action files + cross-action calls | ⬜ Not started |
+| 6a | [006a_admin_finance_actions.md](./006a_admin_finance_actions.md) | Admin + Finance + Auth + HR: wrap 10 action files + cross-action calls | ✅ Completed |
 | 6b | [006b_admin_finance_pages_clients.md](./006b_admin_finance_pages_clients.md) | Admin + Finance + Auth + HR: ~13 RSC pages + ~8 ListLayout callers + `useMutation` callers | ⬜ Not started |
 | 7a | [007a_lms_library_timetable_actions.md](./007a_lms_library_timetable_actions.md) | LMS + Library + Timetable: wrap 26 action files + 9 cross-action calls | ⬜ Not started |
 | 7b | [007b_lms_library_timetable_pages.md](./007b_lms_library_timetable_pages.md) | LMS + Library + Timetable: ~19 RSC pages + ~11 ListLayout callers | ⬜ Not started |

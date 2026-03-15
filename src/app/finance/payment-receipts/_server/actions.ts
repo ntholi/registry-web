@@ -1,6 +1,7 @@
 'use server';
 
 import type { receiptType } from '@/core/database';
+import { createAction } from '@/shared/lib/utils/actionResult';
 import { paymentReceiptService as service } from './service';
 
 type PaymentReceiptData = {
@@ -8,13 +9,12 @@ type PaymentReceiptData = {
 	receiptNo: string;
 };
 
-export async function addPaymentReceipt(
-	graduationRequestId: number,
-	receipt: PaymentReceiptData
-) {
-	return service.addPaymentReceipt(graduationRequestId, receipt);
-}
+export const addPaymentReceipt = createAction(
+	async (graduationRequestId: number, receipt: PaymentReceiptData) => {
+		return service.addPaymentReceipt(graduationRequestId, receipt);
+	}
+);
 
-export async function removePaymentReceipt(receiptId: string) {
+export const removePaymentReceipt = createAction(async (receiptId: string) => {
 	return service.removePaymentReceipt(receiptId);
-}
+});
