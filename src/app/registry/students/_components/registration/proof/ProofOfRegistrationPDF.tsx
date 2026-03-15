@@ -1,5 +1,6 @@
 import { Document, Font, Image, Page, Text, View } from '@react-pdf/renderer';
 import { createTw } from 'react-pdf-tailwind';
+import type { ActionData } from '@/shared/lib/utils/actionResult';
 import { formatDate } from '@/shared/lib/utils/dates';
 import { formatSemester, isActiveModule } from '@/shared/lib/utils/utils';
 import type { getStudentRegistrationData } from '../../../_server/actions';
@@ -30,7 +31,7 @@ const tw = createTw({
 });
 
 type StudentRegistrationData = NonNullable<
-	Awaited<ReturnType<typeof getStudentRegistrationData>>
+	ActionData<typeof getStudentRegistrationData>
 >;
 
 type StudentModule =

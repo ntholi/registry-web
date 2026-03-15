@@ -18,6 +18,7 @@ import ClearanceComments from '@registry/_components/ClearanceComments';
 import { IconCopy } from '@tabler/icons-react';
 import { useState } from 'react';
 import { authClient } from '@/core/auth-client';
+import type { ActionData } from '@/shared/lib/utils/actionResult';
 import { formatDateTime } from '@/shared/lib/utils/dates';
 import { FieldView } from '@/shared/ui/adease';
 import Link from '@/shared/ui/Link';
@@ -26,7 +27,7 @@ import GraduationClearanceSwitch from './GraduationClearanceSwitch';
 import PaymentReceipts from './PaymentReceipts';
 
 type Props = {
-	request: NonNullable<Awaited<ReturnType<typeof getGraduationClearance>>>;
+	request: NonNullable<ActionData<typeof getGraduationClearance>>;
 };
 
 export default function GraduationClearanceDetails({ request }: Props) {

@@ -1,8 +1,9 @@
 import type { getAcademicHistory } from '@registry/students';
+import type { ActionData } from '@/shared/lib/utils/actionResult';
 import { getAcademicRemarks, grades } from '@/shared/lib/utils/grades';
 import type { Program as GradeProgram } from '@/shared/lib/utils/grades/type';
 
-type Student = NonNullable<Awaited<ReturnType<typeof getAcademicHistory>>>;
+type Student = NonNullable<ActionData<typeof getAcademicHistory>>;
 
 function getClassification(gpa: number): string {
 	const gradesWithGPA = grades

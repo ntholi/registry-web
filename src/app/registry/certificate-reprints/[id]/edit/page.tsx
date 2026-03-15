@@ -1,5 +1,6 @@
 import { Box } from '@mantine/core';
 import { notFound } from 'next/navigation';
+import { unwrap } from '@/shared/lib/utils/actionResult';
 import Form from '../../_components/Form';
 import {
 	getCertificateReprint,
@@ -12,7 +13,7 @@ type Props = {
 
 export default async function CertificateReprintEdit({ params }: Props) {
 	const { id } = await params;
-	const item = await getCertificateReprint(id);
+	const item = unwrap(await getCertificateReprint(id));
 	if (!item) {
 		return notFound();
 	}

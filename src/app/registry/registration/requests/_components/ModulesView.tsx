@@ -11,6 +11,7 @@ import {
 	Text,
 	Title,
 } from '@mantine/core';
+import type { ActionData } from '@/shared/lib/utils/actionResult';
 import {
 	getModuleStatusTextColor,
 	getStatusColor,
@@ -20,7 +21,7 @@ import type { getRegistrationRequest } from '../_server/requests/actions';
 import AddModuleModal from './AddModuleModal';
 
 type Props = {
-	value: NonNullable<Awaited<ReturnType<typeof getRegistrationRequest>>>;
+	value: NonNullable<ActionData<typeof getRegistrationRequest>>;
 };
 
 export default function ModulesView({ value }: Props) {

@@ -1,7 +1,8 @@
+import type { ActionData } from '@/shared/lib/utils/actionResult';
 import { isActiveSemester } from '@/shared/lib/utils/utils';
 import type { getAcademicHistory } from '../../../_server/actions';
 
-type Student = NonNullable<Awaited<ReturnType<typeof getAcademicHistory>>>;
+type Student = NonNullable<ActionData<typeof getAcademicHistory>>;
 
 export function getCleanedSemesters(program: Student['programs'][number]) {
 	if (!program) return [];

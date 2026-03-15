@@ -7,6 +7,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import type { DashboardRole } from '@/core/auth/permissions';
 import { authClient } from '@/core/auth-client';
+import type { ActionData } from '@/shared/lib/utils/actionResult';
 import { toTitleCase } from '@/shared/lib/utils/utils';
 import {
 	type getClearance,
@@ -14,7 +15,7 @@ import {
 } from '../../requests/_server/clearance/actions';
 
 type Props = {
-	request: NonNullable<Awaited<ReturnType<typeof getClearance>>>;
+	request: NonNullable<ActionData<typeof getClearance>>;
 	setAccordion: (value: 'comments' | 'modules') => void;
 	comment?: string;
 };

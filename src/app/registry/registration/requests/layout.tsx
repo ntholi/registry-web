@@ -6,6 +6,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useAtom } from 'jotai';
 import { type PropsWithChildren, useState } from 'react';
 import { getActiveTerm } from '@/app/registry/terms';
+import { unwrap } from '@/shared/lib/utils/actionResult';
 import { getStatusIcon } from '@/shared/lib/utils/status';
 import { ListItem, ListLayout } from '@/shared/ui/adease';
 import { selectedTermAtom } from '@/shared/ui/atoms/termAtoms';
@@ -20,6 +21,7 @@ export default function Layout({ children }: PropsWithChildren) {
 	const { data: activeTerm } = useQuery({
 		queryKey: ['active-term'],
 		queryFn: getActiveTerm,
+		select: unwrap,
 		staleTime: 5 * 60 * 1000,
 	});
 
@@ -36,11 +38,13 @@ export default function Layout({ children }: PropsWithChildren) {
 				includeDeleted ? 'with-deleted' : 'active',
 			]}
 			getData={async (page, search) => {
-				const response = await findAllRegistrationRequests(
-					page,
-					search,
-					selectedTerm || undefined,
-					includeDeleted
+				const response = unwrap(
+					await findAllRegistrationRequests(
+						page,
+						search,
+						selectedTerm || undefined,
+						includeDeleted
+					)
 				);
 				return {
 					items: response.data.map((item) => ({

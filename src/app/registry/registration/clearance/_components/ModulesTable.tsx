@@ -9,6 +9,7 @@ import {
 	TableTr,
 	Text,
 } from '@mantine/core';
+import type { ActionData } from '@/shared/lib/utils/actionResult';
 import {
 	getModuleStatusTextColor,
 	getStatusColor,
@@ -16,7 +17,7 @@ import {
 import type { getClearance } from '../../requests/_server/clearance/actions';
 
 type Module = NonNullable<
-	Awaited<ReturnType<typeof getClearance>>
+	ActionData<typeof getClearance>
 >['registrationRequest']['requestedModules'];
 
 export function ModulesTable({

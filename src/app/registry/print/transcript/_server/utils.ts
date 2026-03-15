@@ -1,7 +1,8 @@
 import type { getAcademicHistory } from '@registry/students';
+import type { ActionData } from '@/shared/lib/utils/actionResult';
 import { getGradePoints } from '@/shared/lib/utils/grades';
 
-type Student = NonNullable<Awaited<ReturnType<typeof getAcademicHistory>>>;
+type Student = NonNullable<ActionData<typeof getAcademicHistory>>;
 
 export function extractTranscriptData(student: Student) {
 	const programs = (student.programs || []).filter(

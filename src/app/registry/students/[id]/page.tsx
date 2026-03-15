@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getBlockedStudentByStdNo } from '@/app/registry/blocked-students';
 import { getSession } from '@/core/platform/withPermission';
+import { unwrap } from '@/shared/lib/utils/actionResult';
 import { DetailsView, DetailsViewHeader } from '@/shared/ui/adease';
 import StudentTabs from '../_components/StudentTabs';
 import { getStudent } from '../_server/actions';
@@ -12,7 +13,7 @@ type Props = {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
 	const { id } = await params;
-	const student = await getStudent(Number(id));
+	const student = unwrap(await getStudent(Number(id)));
 
 	return {
 		title: `${student?.name} | Limkokwing`,
@@ -22,7 +23,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function StudentDetails({ params }: Props) {
 	const { id } = await params;
 	const [student, session] = await Promise.all([
-		getStudent(Number(id)),
+		getStudent(Number(id)).then(unwrap),
 		getSession(),
 	]);
 
@@ -30,7 +31,7 @@ export default async function StudentDetails({ params }: Props) {
 		return notFound();
 	}
 
-	const blockedStudent = await getBlockedStudentByStdNo(student.stdNo);
+	const blockedStudent = unwrap(await getBlockedStudentByStdNo(student.stdNo));
 
 	return (
 		<DetailsView>

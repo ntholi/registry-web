@@ -1,3 +1,4 @@
+import type { ActionData } from '@/shared/lib/utils/actionResult';
 import type { getAcademicRemarks } from '@/shared/lib/utils/grades';
 import { isActiveSemester } from '@/shared/lib/utils/utils';
 import type {
@@ -5,19 +6,17 @@ import type {
 	getStudentByUserId,
 } from '../_server/actions';
 
-export type Student = NonNullable<
-	Awaited<ReturnType<typeof getStudentByUserId>>
->;
+export type Student = NonNullable<ActionData<typeof getStudentByUserId>>;
 
 export type StudentWithHistory = NonNullable<
-	Awaited<ReturnType<typeof getAcademicHistory>>
+	ActionData<typeof getAcademicHistory>
 >;
 
 export type StudentProgram = Student['programs'][number];
 
 export type AcademicHistoryProgram = StudentWithHistory['programs'][number];
 
-export type AcademicRemarks = Awaited<ReturnType<typeof getAcademicRemarks>>;
+export type AcademicRemarks = ActionData<typeof getAcademicRemarks>;
 
 export function getActiveProgram(student: Student | null | undefined) {
 	if (!student) return null;

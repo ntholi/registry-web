@@ -14,6 +14,7 @@ import {
 } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
+import type { ActionData } from '@/shared/lib/utils/actionResult';
 import { formatIssueDate } from '@/shared/lib/utils/dates';
 import { getPublishedAcademicHistory } from '../../../_server/actions';
 
@@ -23,9 +24,7 @@ type CertificatePreviewProps = {
 	onProgramSelect?: (programId: number) => void;
 };
 
-type Student = NonNullable<
-	Awaited<ReturnType<typeof getPublishedAcademicHistory>>
->;
+type Student = NonNullable<ActionData<typeof getPublishedAcademicHistory>>;
 type StudentProgram = Student['programs'][number];
 
 export default function CertificatePreview({

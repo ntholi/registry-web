@@ -7,12 +7,13 @@ import { IconPrinter } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 import { authClient } from '@/core/auth-client';
+import type { ActionData } from '@/shared/lib/utils/actionResult';
 import { convertUrlToBase64 } from '@/shared/lib/utils/utils';
 import { type getStudent, getStudentPhoto } from '../../_server/actions';
 import StudentCardPDF from './StudentCardPDF';
 
 type StudentCardPrinterProps = {
-	student: NonNullable<Awaited<ReturnType<typeof getStudent>>>;
+	student: NonNullable<ActionData<typeof getStudent>>;
 	photoUrl?: string | null | undefined;
 	disabled?: boolean;
 	isActive?: boolean;
