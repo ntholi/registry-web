@@ -11,7 +11,9 @@ import { ASSESSMENT_TYPES } from '../_lib/utils';
 type Assessment = typeof assessments.$inferInsert;
 
 type Props = {
-	onSubmit: (values: Assessment) => Promise<Assessment | ActionResult<Assessment>>;
+	onSubmit: (
+		values: Assessment
+	) => Promise<Assessment | ActionResult<Assessment>>;
 	defaultValues?: Assessment;
 	onSuccess?: (value: Assessment) => void;
 	onError?: (

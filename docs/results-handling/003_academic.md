@@ -236,10 +236,10 @@ pnpm tsc --noEmit
 
 ## Done When
 
-- [ ] All 13 action files import and use `createAction`
-- [ ] All RSC pages with direct `await` calls use `unwrap()`
-- [ ] All ListLayout callers verified working
-- [ ] All direct `useMutation` callers switched to `useActionMutation`
-- [ ] All cross-action calls wrapped with `unwrap()`
-- [ ] `pnpm tsc --noEmit` passes
-- [ ] **Academic module fully migrated; all other modules still work**
+- [x] All 13 action files import and use `createAction`
+- [x] All RSC pages with direct `await` calls use `unwrap()`
+- [x] All ListLayout callers verified working
+- [x] All direct `useMutation` callers switched to `useActionMutation`
+- [x] All cross-action calls wrapped with `unwrap()`
+- [x] `pnpm tsc --noEmit` passes
+- [x] **Academic module fully migrated; all other modules still work**

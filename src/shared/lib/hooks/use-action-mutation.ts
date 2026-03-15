@@ -6,11 +6,7 @@ import {
 	getActionErrorMessage,
 } from '@/shared/lib/utils/actionResult';
 
-export function useActionMutation<
-	TData,
-	TVariables = void,
-	TContext = unknown,
->(
+export function useActionMutation<TData, TVariables = void, TContext = unknown>(
 	action: (variables: TVariables) => Promise<ActionResult<TData>>,
 	options?: Omit<
 		UseMutationOptions<TData, Error, TVariables, TContext>,

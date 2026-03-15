@@ -67,9 +67,7 @@ export default async function RegistrationRequestEdit({ params }: Props) {
 	})) as SelectedModule[];
 
 	const structureModules = registrationRequest.structureId
-		? unwrap(
-				await getModulesForStructure(registrationRequest.structureId)
-			)
+		? unwrap(await getModulesForStructure(registrationRequest.structureId))
 		: undefined;
 
 	async function handleSubmit(values: RegistrationRequest) {
