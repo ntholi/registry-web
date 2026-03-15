@@ -5,6 +5,7 @@ import { Center, Select, Stack, Text } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
 import TimetableGrid from '@timetable/_shared/components/TimetableGrid';
 import { useState } from 'react';
+import { unwrap } from '@/shared/lib/utils/actionResult';
 import { getLecturerTimetableSlots } from '../_server/actions';
 
 type Props = {
@@ -19,6 +20,7 @@ export default function LecturerTimetable({ termId }: Props) {
 	const { data: lecturersData } = useQuery({
 		queryKey: ['lecturers-select'],
 		queryFn: () => getLecturers(1, ''),
+		select: unwrap,
 	});
 
 	const lecturers = lecturersData?.items ?? [];

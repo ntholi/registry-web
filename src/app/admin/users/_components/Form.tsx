@@ -33,6 +33,7 @@ import {
 	USER_ROLES,
 	type UserRole,
 } from '@/core/auth/permissions';
+import { unwrap } from '@/shared/lib/utils/actionResult';
 import { toTitleCase } from '@/shared/lib/utils/utils';
 import { Form } from '@/shared/ui/adease';
 
@@ -82,6 +83,7 @@ export default function UserForm({ onSubmit, defaultValues, title }: Props) {
 	const { data: schools } = useQuery({
 		queryKey: ['schools'],
 		queryFn: () => getAllSchools(),
+		select: unwrap,
 	});
 
 	const { data: presets } = useQuery({

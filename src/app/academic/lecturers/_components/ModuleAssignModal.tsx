@@ -13,9 +13,11 @@ import {
 import { useForm } from '@mantine/form';
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import { useParams } from 'next/navigation';
 import { useState } from 'react';
+import { useActionMutation } from '@/shared/lib/hooks/use-action-mutation';
+import type { ActionData } from '@/shared/lib/utils/actionResult';
 import { ModuleSearchInput } from './ModuleSearchInput';
 
 type FormValues = {
@@ -23,7 +25,7 @@ type FormValues = {
 	semesterModuleIds: number[];
 };
 
-type Module = Awaited<ReturnType<typeof searchModulesWithDetails>>[number];
+type Module = ActionData<typeof searchModulesWithDetails>[number];
 
 export default function ModuleAssignModal() {
 	const [opened, { open, close }] = useDisclosure(false);
@@ -55,31 +57,33 @@ export default function ModuleAssignModal() {
 				value.length > 0 ? null : 'Please select at least one semester module',
 		},
 	});
-	const assignModulesMutation = useMutation({
-		mutationFn: (data: FormValues) =>
+	const assignModulesMutation = useActionMutation(
+		(data: FormValues) =>
 			assignModulesToLecturer(data.userId, data.semesterModuleIds),
-		onSuccess: () => {
-			notifications.show({
-				title: 'Success',
-				message: 'Modules assigned successfully',
-				color: 'green',
-			});
-			queryClient.invalidateQueries({
-				queryKey: ['assigned-modules', params.id],
-			});
+		{
+			onSuccess: () => {
+				notifications.show({
+					title: 'Success',
+					message: 'Modules assigned successfully',
+					color: 'green',
+				});
+				queryClient.invalidateQueries({
+					queryKey: ['assigned-modules', params.id],
+				});
 
-			resetForm();
-			close();
-		},
-		onError: (error) => {
-			console.error('Error assigning modules:', error);
-			notifications.show({
-				title: 'Error',
-				message: 'Failed to assign modules',
-				color: 'red',
-			});
-		},
-	});
+				resetForm();
+				close();
+			},
+			onError: (error) => {
+				console.error('Error assigning modules:', error);
+				notifications.show({
+					title: 'Error',
+					message: 'Failed to assign modules',
+					color: 'red',
+				});
+			},
+		}
+	);
 
 	function handleSubmit(values: FormValues) {
 		assignModulesMutation.mutate({

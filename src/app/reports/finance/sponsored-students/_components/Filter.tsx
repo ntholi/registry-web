@@ -9,6 +9,7 @@ import { useQuery } from '@tanstack/react-query';
 import { parseAsInteger, parseAsString, useQueryStates } from 'nuqs';
 import { useEffect } from 'react';
 import { useAllTerms } from '@/shared/lib/hooks/use-term';
+import { unwrap } from '@/shared/lib/utils/actionResult';
 import { formatSemester } from '@/shared/lib/utils/utils';
 
 const semesterOptions = Array.from({ length: 8 }, (_, i) => {
@@ -61,6 +62,7 @@ export default function Filter({ onFilterChange }: Props) {
 	const { data: schools = [], isLoading: schoolsLoading } = useQuery({
 		queryKey: ['active-schools'],
 		queryFn: getActiveSchools,
+		select: unwrap,
 	});
 
 	const { data: programs = [], isLoading: programsLoading } = useQuery({
@@ -69,6 +71,7 @@ export default function Filter({ onFilterChange }: Props) {
 			getProgramsBySchoolIds(
 				localFilter.schoolId ? [localFilter.schoolId] : undefined
 			),
+		select: unwrap,
 		enabled: Boolean(localFilter.schoolId),
 	});
 

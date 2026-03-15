@@ -8,6 +8,7 @@ import { createInsertSchema } from 'drizzle-zod';
 import { useRouter } from 'nextjs-toploader/app';
 import { useState } from 'react';
 import { z } from 'zod';
+import { unwrap } from '@/shared/lib/utils/actionResult';
 import { Form } from '@/shared/ui/adease';
 import { findAllModules } from '../_server/actions';
 
@@ -33,6 +34,7 @@ export default function ModuleForm({ onSubmit, defaultValues, title }: Props) {
 	const { data: modulesList } = useQuery({
 		queryKey: ['modules', debouncedSearch],
 		queryFn: () => findAllModules(1, debouncedSearch),
+		select: unwrap,
 	});
 
 	const prerequisiteOptions = Array.from(

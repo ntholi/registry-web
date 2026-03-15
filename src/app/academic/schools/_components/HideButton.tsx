@@ -4,7 +4,8 @@ import { updateModuleVisibility } from '@academic/semester-modules';
 import { ActionIcon } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { IconEye, IconEyeOff } from '@tabler/icons-react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
+import { useActionMutation } from '@/shared/lib/hooks/use-action-mutation';
 import { getBooleanColor } from '@/shared/lib/utils/colors';
 
 type Props = {
@@ -16,26 +17,26 @@ type Props = {
 export default function HideButton({ moduleId, hidden, structureId }: Props) {
 	const queryClient = useQueryClient();
 
-	const { mutate, isPending } = useMutation({
-		mutationFn: async () => {
-			return await updateModuleVisibility(moduleId, !hidden);
-		},
-		onSuccess: async () => {
-			await queryClient.invalidateQueries({
-				queryKey: ['structure', structureId],
-			});
-		},
-		onError: (error) => {
-			notifications.show({
-				title: 'Error',
-				message:
-					error instanceof Error
-						? error.message
-						: 'Failed to update module visibility',
-				color: 'red',
-			});
-		},
-	});
+	const { mutate, isPending } = useActionMutation(
+		async () => updateModuleVisibility(moduleId, !hidden),
+		{
+			onSuccess: async () => {
+				await queryClient.invalidateQueries({
+					queryKey: ['structure', structureId],
+				});
+			},
+			onError: (error) => {
+				notifications.show({
+					title: 'Error',
+					message:
+						error instanceof Error
+							? error.message
+							: 'Failed to update module visibility',
+					color: 'red',
+				});
+			},
+		}
+	);
 
 	return (
 		<ActionIcon

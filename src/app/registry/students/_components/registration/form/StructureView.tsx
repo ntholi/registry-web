@@ -24,6 +24,7 @@ import {
 	IconClipboardList,
 } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
+import { unwrap } from '@/shared/lib/utils/actionResult';
 import { formatSemester } from '@/shared/lib/utils/utils';
 import type { AcademicHistoryProgram } from '../../../_lib/utils';
 import { getAcademicHistory } from '../../../_server/actions';
@@ -47,7 +48,8 @@ export default function StructureView({ stdNo, isActive = true }: Props) {
 
 	const { data: structure, isLoading: structureLoading } = useQuery({
 		queryKey: ['structure-details', structureId],
-		queryFn: () => (structureId ? getStructure(structureId) : null),
+		queryFn: async () => (structureId ? getStructure(structureId) : null),
+		select: (result) => (result ? unwrap(result) : null),
 		enabled: !!structureId && isActive,
 	});
 

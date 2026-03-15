@@ -19,6 +19,7 @@ import { programStatus, type StudentProgramStatus } from '@registry/_database';
 import { IconPlus } from '@tabler/icons-react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useMemo, useState } from 'react';
+import { unwrap } from '@/shared/lib/utils/actionResult';
 import { formatDateToISO } from '@/shared/lib/utils/dates';
 import TermInput from '@/shared/ui/TermInput';
 import { createStudentProgram } from '../../_server/actions';
@@ -65,13 +66,18 @@ export default function CreateStudentProgramModal({
 		queryFn: getAllSchools,
 		enabled: opened,
 		select: (data) =>
-			data.map((s) => ({ value: s.id.toString(), label: s.name })),
+			unwrap(data).map((s) => ({ value: s.id.toString(), label: s.name })),
 	});
 
 	const { data: programsData = [], isLoading: isLoadingPrograms } = useQuery({
 		queryKey: ['programs', selectedSchoolId],
-		queryFn: () =>
-			selectedSchoolId ? getProgramsBySchoolId(selectedSchoolId) : [],
+		queryFn: async () => {
+			if (!selectedSchoolId) {
+				return [];
+			}
+
+			return unwrap(await getProgramsBySchoolId(selectedSchoolId));
+		},
 		enabled: opened && !!selectedSchoolId,
 		select: (data) =>
 			data.map((p) => ({ value: p.id.toString(), label: p.name })),
@@ -80,8 +86,13 @@ export default function CreateStudentProgramModal({
 	const { data: structuresData = [], isLoading: isLoadingStructures } =
 		useQuery({
 			queryKey: ['structures', selectedProgramId],
-			queryFn: () =>
-				selectedProgramId ? getStructuresByProgramId(selectedProgramId) : [],
+			queryFn: async () => {
+				if (!selectedProgramId) {
+					return [];
+				}
+
+				return unwrap(await getStructuresByProgramId(selectedProgramId));
+			},
 			enabled: opened && !!selectedProgramId,
 			select: (data) =>
 				data.map((s) => ({ value: s.id.toString(), label: s.code })),

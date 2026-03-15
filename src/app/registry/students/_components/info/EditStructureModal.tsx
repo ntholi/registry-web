@@ -16,6 +16,7 @@ import { notifications } from '@mantine/notifications';
 import { IconEdit } from '@tabler/icons-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
+import { unwrap } from '@/shared/lib/utils/actionResult';
 import { updateStudentProgramStructure } from '../../_server/actions';
 
 interface Props {
@@ -40,6 +41,7 @@ export default function EditStructureModal({
 	const { data: structures, isLoading } = useQuery({
 		queryKey: ['structures-by-program', programId],
 		queryFn: () => getStructuresByProgramId(programId),
+		select: unwrap,
 		enabled: opened,
 	});
 

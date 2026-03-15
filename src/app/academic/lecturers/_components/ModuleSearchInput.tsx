@@ -13,8 +13,9 @@ import {
 import { useDebouncedValue } from '@mantine/hooks';
 import { useQuery } from '@tanstack/react-query';
 import { forwardRef, useState } from 'react';
+import { type ActionData, unwrap } from '@/shared/lib/utils/actionResult';
 
-type Module = Awaited<ReturnType<typeof searchModulesWithDetails>>[number];
+type Module = ActionData<typeof searchModulesWithDetails>[number];
 
 interface ModuleOption extends ComboboxItem {
 	value: string;
@@ -43,8 +44,8 @@ export const ModuleSearchInput = forwardRef<
 	const { data: modules, isLoading } = useQuery({
 		queryKey: ['modules', 'search', debouncedSearch],
 		queryFn: () => searchModulesWithDetails(debouncedSearch),
-		select: (modules) =>
-			modules.map((module) => ({
+		select: (result) =>
+			unwrap(result).map((module) => ({
 				...module,
 				studentCount: module.semesters.reduce(
 					(count, semester) => count + (semester.studentCount ?? 0),

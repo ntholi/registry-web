@@ -17,6 +17,7 @@ import { notFound } from 'next/navigation';
 import { use, useEffect, useMemo } from 'react';
 import useConfigDefaults from '@/shared/lib/hooks/use-config-defaults';
 import { useAllTerms } from '@/shared/lib/hooks/use-term';
+import { unwrap } from '@/shared/lib/utils/actionResult';
 import { DetailsView } from '@/shared/ui/adease';
 import { selectedTermAtom } from '@/shared/ui/atoms/termAtoms';
 import AllocationTab from '../_components/AllocationTab';
@@ -34,6 +35,7 @@ export default function LecturerAllocationDetails({ params }: Props) {
 	const { data: lecturer, isLoading: lecturerLoading } = useQuery({
 		queryKey: ['lecturer', id],
 		queryFn: () => getLecturer(id),
+		select: unwrap,
 	});
 
 	const { data: allocations = [], isLoading: allocationsLoading } = useQuery({

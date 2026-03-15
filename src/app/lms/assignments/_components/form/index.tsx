@@ -23,6 +23,7 @@ import {
 	COURSE_WORK_OPTIONS,
 } from '@/app/academic/assessments/_lib/utils';
 import { getAssessmentByModuleId } from '@/app/academic/assessments/_server/actions';
+import { unwrap } from '@/shared/lib/utils/actionResult';
 import {
 	createDraftAssignment,
 	publishAssignment,
@@ -82,6 +83,7 @@ export default function AssignmentForm({
 	const { data: assessments } = useQuery({
 		queryKey: ['module-assessments', moduleId],
 		queryFn: () => getAssessmentByModuleId(moduleId),
+		select: unwrap,
 		enabled: opened,
 	});
 

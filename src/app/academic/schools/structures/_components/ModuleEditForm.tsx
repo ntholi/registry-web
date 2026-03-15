@@ -9,6 +9,7 @@ import { notifications } from '@mantine/notifications';
 import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'nextjs-toploader/app';
 import { useState } from 'react';
+import { unwrap } from '@/shared/lib/utils/actionResult';
 
 type SemesterModule = typeof semesterModules.$inferInsert & {
 	prerequisiteCodes?: string[];
@@ -32,6 +33,7 @@ export default function ModuleEditForm({
 	const { data: modulesList } = useQuery({
 		queryKey: ['modules', structureId],
 		queryFn: () => findModulesByStructure(structureId),
+		select: unwrap,
 	});
 
 	const prerequisiteOptions = Array.from(

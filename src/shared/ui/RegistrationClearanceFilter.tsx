@@ -22,6 +22,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useAtom } from 'jotai';
 import { useState } from 'react';
 import { useAllTerms } from '@/shared/lib/hooks/use-term';
+import { unwrap } from '@/shared/lib/utils/actionResult';
 import { formatSemester } from '@/shared/lib/utils/utils';
 import {
 	type ClearanceFilter,
@@ -73,12 +74,14 @@ export default function RegistrationClearanceFilter({
 	const { data: schools = [], isLoading: schoolsLoading } = useQuery({
 		queryKey: ['all-schools'],
 		queryFn: getAllSchools,
+		select: unwrap,
 		staleTime: 1000 * 60 * 10,
 	});
 
 	const { data: programs = [], isLoading: programsLoading } = useQuery({
 		queryKey: ['programs-by-school', filter.schoolId],
 		queryFn: () => getProgramsBySchoolId(filter.schoolId),
+		select: unwrap,
 		enabled: Boolean(filter.schoolId),
 		staleTime: 1000 * 60 * 10,
 	});

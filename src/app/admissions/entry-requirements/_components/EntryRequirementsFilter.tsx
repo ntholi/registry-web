@@ -18,6 +18,7 @@ import { IconFilter } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useQueryState } from 'nuqs';
 import { useEffect, useMemo, useState } from 'react';
+import { unwrap } from '@/shared/lib/utils/actionResult';
 import { getBooleanColor } from '@/shared/lib/utils/colors';
 
 const levelOptions: { value: ProgramLevel; label: string }[] = [
@@ -47,6 +48,7 @@ export default function EntryRequirementsFilter() {
 	const { data: schools = [], isLoading: schoolLoading } = useQuery({
 		queryKey: ['schools'],
 		queryFn: getAllSchools,
+		select: unwrap,
 		enabled: opened,
 	});
 

@@ -21,8 +21,9 @@ import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import type { grade } from '@registry/_database';
 import { IconEdit } from '@tabler/icons-react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
+import { useActionMutation } from '@/shared/lib/hooks/use-action-mutation';
 import { getLetterGrade } from '@/shared/lib/utils/grades';
 
 interface Props {
@@ -52,37 +53,38 @@ export default function GradeSymbolModal({
 	const [selectedGrade, setSelectedGrade] = useState<ManualGrade>('DEF');
 	const queryClient = useQueryClient();
 
-	const gradeUpdateMutation = useMutation({
-		mutationFn: async (data: {
+	const gradeUpdateMutation = useActionMutation(
+		(data: {
 			grade: (typeof grade.enumValues)[number];
 			weightedTotal: number;
-		}) => {
-			return await updateGradeByStudentModuleId(
+		}) =>
+			updateGradeByStudentModuleId(
 				studentModuleId,
 				data.grade,
 				data.weightedTotal
-			);
-		},
-		onSuccess: () => {
-			queryClient.invalidateQueries({
-				queryKey: ['module-grades', moduleId],
-			});
-			notifications.show({
-				title: 'Success',
-				message: 'Grade symbol updated successfully',
-				color: 'green',
-			});
-			close();
-		},
-		onError: (error) => {
-			notifications.show({
-				title: 'Error',
-				message: 'Failed to update grade symbol',
-				color: 'red',
-			});
-			console.error('Error updating grade:', error);
-		},
-	});
+			),
+		{
+			onSuccess: () => {
+				queryClient.invalidateQueries({
+					queryKey: ['module-grades', moduleId],
+				});
+				notifications.show({
+					title: 'Success',
+					message: 'Grade symbol updated successfully',
+					color: 'green',
+				});
+				close();
+			},
+			onError: (error) => {
+				notifications.show({
+					title: 'Error',
+					message: 'Failed to update grade symbol',
+					color: 'red',
+				});
+				console.error('Error updating grade:', error);
+			},
+		}
+	);
 	const handleSubmit = () => {
 		if (mode === 'automatic') {
 			const automaticGrade = getLetterGrade(weightedTotal);

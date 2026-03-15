@@ -21,6 +21,7 @@ import { getAllVenues } from '@timetable/venues';
 import { parseAsInteger, parseAsString, useQueryState } from 'nuqs';
 import { useState } from 'react';
 import { useAllTerms } from '@/shared/lib/hooks/use-term';
+import { unwrap } from '@/shared/lib/utils/actionResult';
 import { getStudentClassName } from '@/shared/lib/utils/utils';
 import { Pagination } from '@/shared/ui/adease/Pagination';
 import { generateTimetableDocx } from '../_lib/generateTimetableDocx';
@@ -52,6 +53,7 @@ export default function TimetableViewer() {
 	const { data: lecturersData } = useQuery({
 		queryKey: ['lecturers-select'],
 		queryFn: () => getLecturers(1, ''),
+		select: unwrap,
 	});
 
 	const { data: venues = [] } = useQuery({

@@ -27,9 +27,11 @@ import {
 	IconQuestionMark,
 	IconSearch,
 } from '@tabler/icons-react';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useMemo, useState } from 'react';
 import type { AttendanceStatus } from '@/core/database';
+import { useActionMutation } from '@/shared/lib/hooks/use-action-mutation';
+import { unwrap } from '@/shared/lib/utils/actionResult';
 import { getStatusColor } from '@/shared/lib/utils/colors';
 import { formatPhoneNumber } from '@/shared/lib/utils/utils';
 import Copyable from '@/shared/ui/Copyable';
@@ -90,12 +92,11 @@ export default function AttendanceForm({
 	const { data: students, isLoading } = useQuery({
 		queryKey: attendanceWeekKey,
 		queryFn: () => getAttendanceForWeek(semesterModuleId, termId, weekNumber),
+		select: unwrap,
 	});
 
-	const saveMutation = useMutation({
-		mutationFn: async (
-			records: { stdNo: number; status: AttendanceStatus }[]
-		) =>
+	const saveMutation = useActionMutation(
+		async (records: { stdNo: number; status: AttendanceStatus }[]) =>
 			markAttendance(
 				semesterModuleId,
 				termId,
@@ -103,40 +104,42 @@ export default function AttendanceForm({
 				assignedModuleId,
 				records
 			),
-		onMutate: async (records) => {
-			await queryClient.cancelQueries({ queryKey: attendanceWeekKey });
-			const previous =
-				queryClient.getQueryData<AttendanceStudent[]>(attendanceWeekKey);
-			if (previous) {
-				const statusMap = new Map(
-					records.map((record) => [record.stdNo, record.status])
-				);
-				queryClient.setQueryData<AttendanceStudent[]>(
-					attendanceWeekKey,
-					previous.map((student) => {
-						const nextStatus = statusMap.get(student.stdNo);
-						if (!nextStatus) return student;
-						return { ...student, status: nextStatus };
-					})
-				);
-			}
-			return { previous };
-		},
-		onError: (_error, _records, context) => {
-			if (context?.previous) {
-				queryClient.setQueryData(attendanceWeekKey, context.previous);
-			}
-			notifications.show({
-				title: 'Error',
-				message: 'Failed to save attendance',
-				color: 'red',
-			});
-		},
-		onSettled: () => {
-			queryClient.invalidateQueries({ queryKey: attendanceWeekKey });
-			queryClient.invalidateQueries({ queryKey: attendanceSummaryKey });
-		},
-	});
+		{
+			onMutate: async (records) => {
+				await queryClient.cancelQueries({ queryKey: attendanceWeekKey });
+				const previous =
+					queryClient.getQueryData<AttendanceStudent[]>(attendanceWeekKey);
+				if (previous) {
+					const statusMap = new Map(
+						records.map((record) => [record.stdNo, record.status])
+					);
+					queryClient.setQueryData<AttendanceStudent[]>(
+						attendanceWeekKey,
+						previous.map((student) => {
+							const nextStatus = statusMap.get(student.stdNo);
+							if (!nextStatus) return student;
+							return { ...student, status: nextStatus };
+						})
+					);
+				}
+				return { previous };
+			},
+			onError: (_error, _records, context) => {
+				if (context?.previous) {
+					queryClient.setQueryData(attendanceWeekKey, context.previous);
+				}
+				notifications.show({
+					title: 'Error',
+					message: 'Failed to save attendance',
+					color: 'red',
+				});
+			},
+			onSettled: () => {
+				queryClient.invalidateQueries({ queryKey: attendanceWeekKey });
+				queryClient.invalidateQueries({ queryKey: attendanceSummaryKey });
+			},
+		}
+	);
 
 	const handleStatusChange = (stdNo: number, status: AttendanceStatus) => {
 		saveMutation.mutate([{ stdNo, status }]);

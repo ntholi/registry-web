@@ -31,6 +31,7 @@ import {
 	useQueryStates,
 } from 'nuqs';
 import { useState } from 'react';
+import { unwrap } from '@/shared/lib/utils/actionResult';
 import type { AdmissionReportFilter as AdmissionReportFilterType } from './types';
 
 const SCORE_MIN = 0;
@@ -75,11 +76,13 @@ export default function AdmissionReportFilter({ onFilterChange }: Props) {
 	const { data: schools } = useQuery({
 		queryKey: ['schools-active'],
 		queryFn: getActiveSchools,
+		select: unwrap,
 	});
 
 	const { data: programs } = useQuery({
 		queryKey: ['programs-by-schools', filter.schoolIds],
 		queryFn: () => getProgramsBySchoolIds(filter.schoolIds ?? undefined),
+		select: unwrap,
 		enabled: (filter.schoolIds ?? []).length > 0,
 	});
 

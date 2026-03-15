@@ -15,15 +15,14 @@ import { useQueryState } from 'nuqs';
 import { useEffect, useMemo } from 'react';
 import { authClient } from '@/core/auth-client';
 import { useActiveTerm } from '@/shared/lib/hooks/use-term';
+import type { ActionData } from '@/shared/lib/utils/actionResult';
 import { toClassName } from '@/shared/lib/utils/utils';
 import { useAssessmentsQuery } from '../_hooks/useAssessmentsQuery';
 import ExportButton from './export/ExportButton';
 import ExcelImport from './import/ExcelImport';
 
 type ModuleDetailsCardProps = {
-	modules: NonNullable<
-		Awaited<ReturnType<typeof getAssignedModuleByUserAndModule>>
-	>;
+	modules: NonNullable<ActionData<typeof getAssignedModuleByUserAndModule>>;
 	moduleId: number;
 };
 

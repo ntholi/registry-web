@@ -42,6 +42,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'nextjs-toploader/app';
 import { useMemo, useState } from 'react';
 import { useActiveTerm, useAllTerms } from '@/shared/lib/hooks/use-term';
+import { unwrap } from '@/shared/lib/utils/actionResult';
 import { getRaceByCountry, getRaces } from '@/shared/lib/utils/countries';
 import { formatDateToISO } from '@/shared/lib/utils/dates';
 import { getReligions } from '@/shared/lib/utils/religions';
@@ -166,13 +167,18 @@ export default function NewStudentForm() {
 		queryKey: ['schools'],
 		queryFn: getAllSchools,
 		select: (data) =>
-			data.map((s) => ({ value: s.id.toString(), label: s.name })),
+			unwrap(data).map((s) => ({ value: s.id.toString(), label: s.name })),
 	});
 
 	const { data: programsData = [], isLoading: isLoadingPrograms } = useQuery({
 		queryKey: ['programs', selectedSchoolId],
-		queryFn: () =>
-			selectedSchoolId ? getProgramsBySchoolId(selectedSchoolId) : [],
+		queryFn: async () => {
+			if (!selectedSchoolId) {
+				return [];
+			}
+
+			return unwrap(await getProgramsBySchoolId(selectedSchoolId));
+		},
 		enabled: !!selectedSchoolId,
 		select: (data) =>
 			data.map((p) => ({ value: p.id.toString(), label: p.name })),
@@ -181,8 +187,13 @@ export default function NewStudentForm() {
 	const { data: structuresData = [], isLoading: isLoadingStructures } =
 		useQuery({
 			queryKey: ['structures', selectedProgramId],
-			queryFn: () =>
-				selectedProgramId ? getStructuresByProgramId(selectedProgramId) : [],
+			queryFn: async () => {
+				if (!selectedProgramId) {
+					return [];
+				}
+
+				return unwrap(await getStructuresByProgramId(selectedProgramId));
+			},
 			enabled: !!selectedProgramId,
 			select: (data) =>
 				data.map((s) => ({ value: s.id.toString(), label: s.code })),

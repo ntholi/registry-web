@@ -13,8 +13,10 @@ import {
 import { useDebouncedValue } from '@mantine/hooks';
 import { useQuery } from '@tanstack/react-query';
 import { forwardRef, useState } from 'react';
+import type { ActionData } from '@/shared/lib/utils/actionResult';
+import { unwrap } from '@/shared/lib/utils/actionResult';
 
-type Module = Awaited<ReturnType<typeof searchModulesWithDetails>>[number];
+type Module = ActionData<typeof searchModulesWithDetails>[number];
 
 interface ModuleOption extends ComboboxItem {
 	value: string;
@@ -42,6 +44,7 @@ export const ModuleSearchInput = forwardRef<
 	const { data: modules, isLoading } = useQuery({
 		queryKey: ['modules', 'search', debouncedSearch],
 		queryFn: () => searchModulesWithDetails(debouncedSearch),
+		select: unwrap,
 		enabled: debouncedSearch.length > 1,
 	});
 

@@ -223,6 +223,7 @@ export default function Dashboard({
 	const { data: assignedModules, isLoading: isModulesLoading } = useQuery({
 		queryKey: ['assigned-modules'],
 		queryFn: getAssignedModulesByCurrentUser,
+		select: unwrap,
 		enabled: session?.user?.role === 'academic',
 	});
 

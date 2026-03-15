@@ -3,6 +3,7 @@ import { Button, Divider, Group, Paper, Title } from '@mantine/core';
 import { IconNotebook } from '@tabler/icons-react';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import { unwrap } from '@/shared/lib/utils/actionResult';
 import { DetailsView } from '@/shared/ui/adease';
 import AssessmentsTable from '../_components/AssessmentsTable';
 import ModuleLecturers from '../_components/ModuleLecturers';
@@ -13,7 +14,7 @@ type Props = {
 
 export default async function ModuleDetails({ params }: Props) {
 	const { id } = await params;
-	const mod = await getModule(Number(id));
+	const mod = unwrap(await getModule(Number(id)));
 
 	if (!mod) {
 		return notFound();

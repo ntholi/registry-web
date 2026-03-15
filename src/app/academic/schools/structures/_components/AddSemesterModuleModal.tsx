@@ -28,8 +28,10 @@ import { useForm } from '@mantine/form';
 import { useDebouncedValue, useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import { IconPlus, IconSearch } from '@tabler/icons-react';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
+import { useActionMutation } from '@/shared/lib/hooks/use-action-mutation';
+import { unwrap } from '@/shared/lib/utils/actionResult';
 
 type Props = {
 	semesterId: number;
@@ -64,12 +66,14 @@ export default function AddSemesterModuleModal({
 	const { data: modulesData, isLoading: isSearching } = useQuery({
 		queryKey: ['base-modules', debouncedSearch],
 		queryFn: () => getModules(1, debouncedSearch),
+		select: unwrap,
 		enabled: opened && activeTab === 'search',
 	});
 
 	const { data: structureModules } = useQuery({
 		queryKey: ['structure-modules', structureId],
 		queryFn: () => findModulesByStructure(structureId),
+		select: unwrap,
 		enabled: opened,
 	});
 
@@ -118,42 +122,45 @@ export default function AddSemesterModuleModal({
 		},
 	});
 
-	const addFromSearchMutation = useMutation({
-		mutationFn: async (values: typeof searchForm.values) => {
-			return createSemesterModule({
+	const addFromSearchMutation = useActionMutation(
+		async (values: typeof searchForm.values) =>
+			createSemesterModule({
 				moduleId: values.moduleId!,
 				semesterId,
 				type: values.type,
 				credits: values.credits,
 				hidden: false,
 				prerequisiteCodes: values.prerequisiteCodes,
-			});
-		},
-		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: ['structure', structureId] });
-			notifications.show({
-				title: 'Success',
-				message: 'Module added to semester',
-				color: 'green',
-			});
-			handleClose();
-		},
-		onError: (error: Error) => {
-			notifications.show({
-				title: 'Error',
-				message: error.message || 'Failed to add module',
-				color: 'red',
-			});
-		},
-	});
+			}),
+		{
+			onSuccess: () => {
+				queryClient.invalidateQueries({ queryKey: ['structure', structureId] });
+				notifications.show({
+					title: 'Success',
+					message: 'Module added to semester',
+					color: 'green',
+				});
+				handleClose();
+			},
+			onError: (error: Error) => {
+				notifications.show({
+					title: 'Error',
+					message: error.message || 'Failed to add module',
+					color: 'red',
+				});
+			},
+		}
+	);
 
-	const createNewMutation = useMutation({
-		mutationFn: async (values: typeof createForm.values) => {
-			const baseModule = await createBaseModule({
-				code: values.code.trim(),
-				name: values.name.trim(),
-				status: 'Active',
-			});
+	const createNewMutation = useActionMutation(
+		async (values: typeof createForm.values) => {
+			const baseModule = unwrap(
+				await createBaseModule({
+					code: values.code.trim(),
+					name: values.name.trim(),
+					status: 'Active',
+				})
+			);
 			return createSemesterModule({
 				moduleId: baseModule.id,
 				semesterId,
@@ -163,23 +170,25 @@ export default function AddSemesterModuleModal({
 				prerequisiteCodes: values.prerequisiteCodes,
 			});
 		},
-		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: ['structure', structureId] });
-			notifications.show({
-				title: 'Success',
-				message: 'Module created and added to semester',
-				color: 'green',
-			});
-			handleClose();
-		},
-		onError: (error: Error) => {
-			notifications.show({
-				title: 'Error',
-				message: error.message || 'Failed to create module',
-				color: 'red',
-			});
-		},
-	});
+		{
+			onSuccess: () => {
+				queryClient.invalidateQueries({ queryKey: ['structure', structureId] });
+				notifications.show({
+					title: 'Success',
+					message: 'Module created and added to semester',
+					color: 'green',
+				});
+				handleClose();
+			},
+			onError: (error: Error) => {
+				notifications.show({
+					title: 'Error',
+					message: error.message || 'Failed to create module',
+					color: 'red',
+				});
+			},
+		}
+	);
 
 	function handleClose() {
 		close();

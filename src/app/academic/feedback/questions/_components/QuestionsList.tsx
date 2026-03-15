@@ -31,10 +31,12 @@ import {
 } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { IconGripVertical, IconSearch } from '@tabler/icons-react';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useMemo, useState } from 'react';
 import { hasAnyPermission } from '@/core/auth/sessionPermissions';
 import { authClient } from '@/core/auth-client';
+import { useActionMutation } from '@/shared/lib/hooks/use-action-mutation';
+import { type ActionData, unwrap } from '@/shared/lib/utils/actionResult';
 import { DeleteButton } from '@/shared/ui/adease';
 
 function useCanManage() {
@@ -61,7 +63,7 @@ import CreateQuestionModal from './CreateQuestionModal';
 import EditCategoryModal from './EditCategoryModal';
 import EditQuestionModal from './EditQuestionModal';
 
-type CategoryBoard = Awaited<ReturnType<typeof getQuestionBoard>>[number];
+type CategoryBoard = ActionData<typeof getQuestionBoard>[number];
 
 export default function QuestionsList() {
 	const [search, setSearch] = useState('');
@@ -71,10 +73,10 @@ export default function QuestionsList() {
 	const { data: board = [], isLoading } = useQuery({
 		queryKey: ['feedback-question-board'],
 		queryFn: () => getQuestionBoard(),
+		select: unwrap,
 	});
 
-	const reorderCatMutation = useMutation({
-		mutationFn: (ids: string[]) => reorderCategories(ids),
+	const reorderCatMutation = useActionMutation(reorderCategories, {
 		onSuccess: () =>
 			queryClient.invalidateQueries({
 				queryKey: ['feedback-question-board'],
@@ -229,8 +231,7 @@ function CategoryGroup({
 		useSensor(PointerSensor, { activationConstraint: { distance: 5 } })
 	);
 
-	const reorderMutation = useMutation({
-		mutationFn: (ids: string[]) => reorderQuestions(ids),
+	const reorderMutation = useActionMutation(reorderQuestions, {
 		onSuccess: () =>
 			queryClient.invalidateQueries({
 				queryKey: ['feedback-question-board'],

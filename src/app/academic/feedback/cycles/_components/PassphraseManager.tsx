@@ -21,8 +21,10 @@ import {
 	IconChevronRight,
 	IconPlus,
 } from '@tabler/icons-react';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useMemo, useRef, useState } from 'react';
+import { useActionMutation } from '@/shared/lib/hooks/use-action-mutation';
+import { unwrap } from '@/shared/lib/utils/actionResult';
 import { getStudentClassName } from '@/shared/lib/utils/utils';
 import {
 	generatePassphrases,
@@ -80,11 +82,13 @@ export default function PassphraseManager({
 	const { data: schoolGroups = [], isLoading: classesLoading } = useQuery({
 		queryKey: ['feedback-classes', cycleId, termId],
 		queryFn: () => getClassesForCycle(cycleId, termId),
+		select: unwrap,
 	});
 
 	const { data: statsMap, isLoading: statsLoading } = useQuery({
 		queryKey: ['feedback-passphrase-stats', cycleId],
 		queryFn: () => getPassphraseStats(cycleId),
+		select: unwrap,
 	});
 
 	const years = useMemo(() => {
@@ -120,36 +124,38 @@ export default function PassphraseManager({
 		});
 	}, [schoolGroups, yearFilter, programFilter]);
 
-	const mutation = useMutation({
-		mutationFn: ({
+	const mutation = useActionMutation(
+		({
 			structureSemesterId,
 			passphraseCount,
 		}: {
 			structureSemesterId: number;
 			passphraseCount: number;
 		}) => generatePassphrases(cycleId, structureSemesterId, passphraseCount),
-		onSuccess: (count) => {
-			notifications.show({
-				title: 'Passphrases Generated',
-				message: `${count} passphrases created`,
-				color: 'green',
-			});
-			setGenerateTarget(null);
-			queryClient.invalidateQueries({
-				queryKey: ['feedback-passphrase-stats', cycleId],
-			});
-			queryClient.invalidateQueries({
-				queryKey: ['feedback-passphrase-slips', cycleId],
-			});
-		},
-		onError: (err: Error) => {
-			notifications.show({
-				title: 'Error',
-				message: err.message,
-				color: 'red',
-			});
-		},
-	});
+		{
+			onSuccess: (count) => {
+				notifications.show({
+					title: 'Passphrases Generated',
+					message: `${count} passphrases created`,
+					color: 'green',
+				});
+				setGenerateTarget(null);
+				queryClient.invalidateQueries({
+					queryKey: ['feedback-passphrase-stats', cycleId],
+				});
+				queryClient.invalidateQueries({
+					queryKey: ['feedback-passphrase-slips', cycleId],
+				});
+			},
+			onError: (err: Error) => {
+				notifications.show({
+					title: 'Error',
+					message: err.message,
+					color: 'red',
+				});
+			},
+		}
+	);
 
 	if (classesLoading || statsLoading) {
 		return (

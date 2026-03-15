@@ -1,34 +1,31 @@
 'use server';
 
 import type { feedbackCategories } from '@/core/database';
+import { createAction } from '@/shared/lib/utils/actionResult';
 import { feedbackCategoriesService as service } from './service';
 
 type Category = typeof feedbackCategories.$inferInsert;
 
-export async function getCategories(page = 1, search = '') {
-	return service.findAll({
+export const getCategories = createAction(async (page = 1, search = '') =>
+	service.findAll({
 		page,
 		search: search.trim(),
 		searchColumns: ['name'],
-	});
-}
+	})
+);
 
-export async function getCategory(id: string) {
-	return service.get(id);
-}
+export const getCategory = createAction(async (id: string) => service.get(id));
 
-export async function createCategory(data: Category) {
-	return service.create(data);
-}
+export const createCategory = createAction(async (data: Category) =>
+	service.create(data)
+);
 
-export async function updateCategory(id: string, data: Category) {
-	return service.update(id, data);
-}
+export const updateCategory = createAction(async (id: string, data: Category) =>
+	service.update(id, data)
+);
 
-export async function deleteCategory(id: string) {
-	return service.delete(id);
-}
+export const deleteCategory = createAction(async (id: string) =>
+	service.delete(id)
+);
 
-export async function getAllCategories() {
-	return service.getAll();
-}
+export const getAllCategories = createAction(async () => service.getAll());

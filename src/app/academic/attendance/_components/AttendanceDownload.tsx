@@ -4,6 +4,7 @@ import { Button } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { IconDownload } from '@tabler/icons-react';
 import { useState } from 'react';
+import { type ActionData, unwrap } from '@/shared/lib/utils/actionResult';
 import { exportAttendanceForm } from '../_server/actions';
 
 type Props = {
@@ -14,7 +15,7 @@ type Props = {
 	className: string;
 };
 
-type ExportResult = Awaited<ReturnType<typeof exportAttendanceForm>>;
+type ExportResult = ActionData<typeof exportAttendanceForm>;
 
 export default function AttendanceDownload({
 	semesterModuleId,
@@ -28,24 +29,17 @@ export default function AttendanceDownload({
 	const handleDownload = async () => {
 		setIsDownloading(true);
 		try {
-			const result: ExportResult = await exportAttendanceForm({
-				semesterModuleId,
-				termId,
-				moduleCode,
-				moduleName,
-				className,
-			});
+			const result: ExportResult = unwrap(
+				await exportAttendanceForm({
+					semesterModuleId,
+					termId,
+					moduleCode,
+					moduleName,
+					className,
+				})
+			);
 
-			if (!result.success || !result.data) {
-				notifications.show({
-					title: 'Error',
-					message: result.error || 'Failed to export attendance form',
-					color: 'red',
-				});
-				return;
-			}
-
-			const byteCharacters = atob(result.data);
+			const byteCharacters = atob(result.base64Data);
 			const byteNumbers = new Array(byteCharacters.length);
 			for (let i = 0; i < byteCharacters.length; i += 1) {
 				byteNumbers[i] = byteCharacters.charCodeAt(i);

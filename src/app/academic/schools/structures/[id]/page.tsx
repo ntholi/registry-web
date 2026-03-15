@@ -28,6 +28,7 @@ import {
 	hasSessionPermission,
 } from '@/core/auth/sessionPermissions';
 import { authClient } from '@/core/auth-client';
+import { unwrap } from '@/shared/lib/utils/actionResult';
 import { getOptionalColor } from '@/shared/lib/utils/colors';
 import { formatSemester } from '@/shared/lib/utils/utils';
 import Link from '@/shared/ui/Link';
@@ -46,6 +47,7 @@ export default function StructureDetailsPage() {
 	const { data: structure, isLoading } = useQuery({
 		queryKey: ['structure', structureId],
 		queryFn: () => getStructure(structureId),
+		select: unwrap,
 		enabled: !!structureId && !Number.isNaN(structureId),
 	});
 

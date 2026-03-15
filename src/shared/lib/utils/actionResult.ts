@@ -16,6 +16,12 @@ export type ActionResult<T> =
 	| { success: true; data: T }
 	| { success: false; error: AppError | string };
 
+export type ActionData<T> = T extends (...args: infer _TArgs) => infer TResult
+	? Awaited<TResult> extends ActionResult<infer TData>
+		? TData
+		: never
+	: never;
+
 export function success<T>(data: T): ActionResult<T> {
 	return { success: true, data };
 }

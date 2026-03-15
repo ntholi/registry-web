@@ -1,26 +1,26 @@
 'use server';
 
 import type { structureSemesters } from '@/core/database';
+import { createAction } from '@/shared/lib/utils/actionResult';
 import { structuresService as service } from './service';
 
 type StructureSemester = typeof structureSemesters.$inferInsert;
 
-export async function getStructure(id: number) {
-	return service.get(id);
-}
+export const getStructure = createAction(async (id: number) => service.get(id));
 
-export async function getStructuresByProgramId(programId: number) {
-	return service.getByProgramId(programId);
-}
+export const getStructuresByProgramId = createAction(
+	async (programId: number) => service.getByProgramId(programId)
+);
 
-export async function getStructureModules(structureId: number) {
-	return service.getStructureModules(structureId);
-}
+export const getStructureModules = createAction(async (structureId: number) =>
+	service.getStructureModules(structureId)
+);
 
-export async function getStructureSemestersByStructureId(structureId: number) {
-	return service.getStructureSemestersByStructureId(structureId);
-}
+export const getStructureSemestersByStructureId = createAction(
+	async (structureId: number) =>
+		service.getStructureSemestersByStructureId(structureId)
+);
 
-export async function createStructureSemester(data: StructureSemester) {
-	return service.createStructureSemester(data);
-}
+export const createStructureSemester = createAction(
+	async (data: StructureSemester) => service.createStructureSemester(data)
+);

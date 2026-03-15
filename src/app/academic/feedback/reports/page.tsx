@@ -14,6 +14,7 @@ import {
 import { IconInfoCircle } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useCallback, useState } from 'react';
+import { unwrap } from '@/shared/lib/utils/actionResult';
 import CategoryChart from './_components/CategoryChart';
 import ExportButton from './_components/ExportButton';
 import Filter from './_components/Filter';
@@ -33,6 +34,7 @@ export default function FeedbackReportsPage() {
 	const { data: hasFullAccess = false } = useQuery({
 		queryKey: ['feedback-report-access'],
 		queryFn: () => checkFullReportAccess(),
+		select: unwrap,
 	});
 
 	const isFilterApplied = Boolean(filter.termId);
@@ -40,6 +42,7 @@ export default function FeedbackReportsPage() {
 	const { data: reportData, isLoading } = useQuery({
 		queryKey: ['feedback-report-data', filter],
 		queryFn: () => getFeedbackReportData(filter),
+		select: unwrap,
 		enabled: isFilterApplied,
 	});
 

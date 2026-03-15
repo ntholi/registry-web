@@ -20,6 +20,7 @@ import {
 	IconQuestionMark,
 } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
+import { unwrap } from '@/shared/lib/utils/actionResult';
 import type {
 	FeedbackReportFilter,
 	LecturerQuestionDetail,
@@ -45,6 +46,7 @@ export default function LecturerExpandedDetail({ userId, filter }: Props) {
 	const { data: detail, isLoading } = useQuery({
 		queryKey: ['feedback-lecturer-detail', userId, filter],
 		queryFn: () => getFeedbackLecturerDetail(userId, filter),
+		select: unwrap,
 	});
 
 	if (isLoading) {

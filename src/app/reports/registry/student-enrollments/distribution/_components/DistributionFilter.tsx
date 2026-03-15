@@ -23,6 +23,7 @@ import {
 } from 'nuqs';
 import { useEffect } from 'react';
 import { useAllTerms } from '@/shared/lib/hooks/use-term';
+import { unwrap } from '@/shared/lib/utils/actionResult';
 import { formatSemester } from '@/shared/lib/utils/utils';
 import {
 	DISTRIBUTION_OPTIONS,
@@ -88,16 +89,13 @@ export default function DistributionFilter({ onFilterChange }: Props) {
 	const { data: schools = [], isLoading: schoolsLoading } = useQuery({
 		queryKey: ['active-schools'],
 		queryFn: getActiveSchools,
+		select: unwrap,
 	});
 
-	const { data: programs = [], isLoading: programsLoading } = useQuery<
-		ProgramOption[]
-	>({
+	const { data: programs = [], isLoading: programsLoading } = useQuery({
 		queryKey: ['programs-by-school', localFilter.schoolIds],
-		queryFn: () =>
-			getProgramsBySchoolIds(localFilter.schoolIds ?? undefined) as Promise<
-				ProgramOption[]
-			>,
+		queryFn: () => getProgramsBySchoolIds(localFilter.schoolIds ?? undefined),
+		select: unwrap,
 		enabled:
 			Boolean(localFilter.schoolIds) && localFilter.schoolIds!.length > 0,
 	});

@@ -19,6 +19,7 @@ import {
 import { useDisclosure } from '@mantine/hooks';
 import { IconChevronDown, IconChevronUp, IconUsers } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
+import { unwrap } from '@/shared/lib/utils/actionResult';
 import { toClassName, toTitleCase } from '@/shared/lib/utils/utils';
 
 type Props = {
@@ -82,6 +83,7 @@ export default function ModuleLecturers({ moduleId }: Props) {
 	const { data: lecturers, isLoading } = useQuery({
 		queryKey: ['module-lecturers', moduleId],
 		queryFn: () => getLecturersByModule(moduleId),
+		select: unwrap,
 	});
 
 	if (isLoading) {

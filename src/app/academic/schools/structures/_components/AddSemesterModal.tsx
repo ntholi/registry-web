@@ -13,7 +13,8 @@ import { useForm } from '@mantine/form';
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import { IconPlus } from '@tabler/icons-react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
+import { useActionMutation } from '@/shared/lib/hooks/use-action-mutation';
 import { createStructureSemester } from '../_server/actions';
 
 const SEMESTER_OPTIONS = [
@@ -57,32 +58,33 @@ export default function AddSemesterModal({
 		},
 	});
 
-	const mutation = useMutation({
-		mutationFn: async (values: typeof form.values) => {
-			return createStructureSemester({
+	const mutation = useActionMutation(
+		(values: typeof form.values) =>
+			createStructureSemester({
 				structureId,
 				semesterNumber,
 				name: values.name.trim(),
 				totalCredits: values.totalCredits,
-			});
-		},
-		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: ['structure', structureId] });
-			notifications.show({
-				title: 'Success',
-				message: 'Semester added successfully',
-				color: 'green',
-			});
-			handleClose();
-		},
-		onError: (error: Error) => {
-			notifications.show({
-				title: 'Error',
-				message: error.message || 'Failed to add semester',
-				color: 'red',
-			});
-		},
-	});
+			}),
+		{
+			onSuccess: () => {
+				queryClient.invalidateQueries({ queryKey: ['structure', structureId] });
+				notifications.show({
+					title: 'Success',
+					message: 'Semester added successfully',
+					color: 'green',
+				});
+				handleClose();
+			},
+			onError: (error: Error) => {
+				notifications.show({
+					title: 'Error',
+					message: error.message || 'Failed to add semester',
+					color: 'red',
+				});
+			},
+		}
+	);
 
 	function handleClose() {
 		close();

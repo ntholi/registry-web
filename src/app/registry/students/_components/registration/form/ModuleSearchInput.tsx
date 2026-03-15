@@ -13,9 +13,11 @@ import {
 import { useDebouncedValue } from '@mantine/hooks';
 import { useQuery } from '@tanstack/react-query';
 import { forwardRef, useState } from 'react';
+import type { ActionData } from '@/shared/lib/utils/actionResult';
+import { unwrap } from '@/shared/lib/utils/actionResult';
 import { formatSemester } from '@/shared/lib/utils/utils';
 
-type Module = Awaited<ReturnType<typeof getStructureModules>>[number];
+type Module = ActionData<typeof getStructureModules>[number];
 
 interface ModuleOption extends ComboboxItem {
 	value: string;
@@ -47,6 +49,7 @@ export const ModuleSearchInput = forwardRef<
 	const { data: modules, isLoading } = useQuery({
 		queryKey: ['structure-modules', structureId],
 		queryFn: () => getStructureModules(structureId),
+		select: unwrap,
 		enabled: !!structureId,
 	});
 

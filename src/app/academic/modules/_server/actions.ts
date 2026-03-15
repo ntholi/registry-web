@@ -1,26 +1,25 @@
 'use server';
 
 import type { modules } from '@/core/database';
+import { createAction } from '@/shared/lib/utils/actionResult';
 import { modulesService as service } from './service';
 
 type Module = typeof modules.$inferInsert;
 
-export async function getModule(id: number) {
-	return service.get(id);
-}
+export const getModule = createAction(async (id: number) => service.get(id));
 
-export async function getModules(page: number = 1, search = '') {
-	return service.findAll({
+export const getModules = createAction(async (page: number = 1, search = '') =>
+	service.findAll({
 		page,
 		search: search.trim(),
 		searchColumns: ['code', 'name'],
-	});
-}
+	})
+);
 
-export async function createModule(module: Module) {
-	return service.create(module);
-}
+export const createModule = createAction(async (module: Module) =>
+	service.create(module)
+);
 
-export async function updateModule(id: number, module: Module) {
-	return service.update(id, module);
-}
+export const updateModule = createAction(async (id: number, module: Module) =>
+	service.update(id, module)
+);

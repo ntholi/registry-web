@@ -16,6 +16,7 @@ import { useDisclosure } from '@mantine/hooks';
 import { IconEdit, IconPlus } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
+import { unwrap } from '@/shared/lib/utils/actionResult';
 import {
 	getAssessmentNumberLabel,
 	getAssessmentTypeLabel,
@@ -40,6 +41,7 @@ export default function AssessmentsTable({ moduleId }: Props) {
 	const { data: assessmentsList, isLoading } = useQuery({
 		queryKey: ['assessments', moduleId],
 		queryFn: () => getAssessmentByModuleId(moduleId),
+		select: unwrap,
 	});
 
 	const handleAddAssessment = () => {

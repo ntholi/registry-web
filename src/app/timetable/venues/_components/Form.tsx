@@ -9,6 +9,7 @@ import { createInsertSchema } from 'drizzle-zod';
 import { useRouter } from 'nextjs-toploader/app';
 import { z } from 'zod';
 import { useUserSchools } from '@/shared/lib/hooks/use-user-schools';
+import { unwrap } from '@/shared/lib/utils/actionResult';
 import { Form } from '@/shared/ui/adease';
 
 type Venue = typeof venues.$inferInsert & { schoolIds?: number[] };
@@ -30,6 +31,7 @@ export default function VenueForm({ onSubmit, defaultValues, title }: Props) {
 	const { data: schoolsData } = useQuery({
 		queryKey: ['schools'],
 		queryFn: getAllSchools,
+		select: unwrap,
 	});
 
 	const schools = schoolsData || [];

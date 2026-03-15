@@ -30,6 +30,7 @@ import Link from 'next/link';
 import { useRouter } from 'nextjs-toploader/app';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useActiveTerm, useAllTerms } from '@/shared/lib/hooks/use-term';
+import { unwrap } from '@/shared/lib/utils/actionResult';
 import { getAcademicRemarks } from '@/shared/lib/utils/grades';
 import {
 	formatSemester,
@@ -132,7 +133,7 @@ export default function RegistrationRequestForm({
 		queryKey: ['structure-modules', structureId],
 		queryFn: async () => {
 			if (structureId) {
-				return getModulesForStructure(structureId);
+				return unwrap(await getModulesForStructure(structureId));
 			}
 			return [];
 		},

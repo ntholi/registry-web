@@ -4,7 +4,8 @@ import { ActionIcon, Modal } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import { IconEdit } from '@tabler/icons-react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
+import { useActionMutation } from '@/shared/lib/hooks/use-action-mutation';
 import { updateCategory } from '../../categories/_server/actions';
 import CategoryForm from './CategoryForm';
 
@@ -19,27 +20,29 @@ export default function EditCategoryModal({ category }: Props) {
 	const [opened, { open, close }] = useDisclosure(false);
 	const queryClient = useQueryClient();
 
-	const mutation = useMutation({
-		mutationFn: async (values: { name: string }) => {
-			return updateCategory(category.id, values);
-		},
-		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: ['feedback-question-board'] });
-			notifications.show({
-				title: 'Category Updated',
-				message: 'The category has been updated',
-				color: 'green',
-			});
-			close();
-		},
-		onError: () => {
-			notifications.show({
-				title: 'Error',
-				message: 'Failed to update category',
-				color: 'red',
-			});
-		},
-	});
+	const mutation = useActionMutation(
+		(values: { name: string }) => updateCategory(category.id, values),
+		{
+			onSuccess: () => {
+				queryClient.invalidateQueries({
+					queryKey: ['feedback-question-board'],
+				});
+				notifications.show({
+					title: 'Category Updated',
+					message: 'The category has been updated',
+					color: 'green',
+				});
+				close();
+			},
+			onError: () => {
+				notifications.show({
+					title: 'Error',
+					message: 'Failed to update category',
+					color: 'red',
+				});
+			},
+		}
+	);
 
 	return (
 		<>

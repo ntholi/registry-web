@@ -25,6 +25,7 @@ import { useQuery } from '@tanstack/react-query';
 import { parseAsInteger, parseAsString, useQueryStates } from 'nuqs';
 import { useEffect, useMemo } from 'react';
 import { useActiveTerm, useAllTerms } from '@/shared/lib/hooks/use-term';
+import { unwrap } from '@/shared/lib/utils/actionResult';
 import type {
 	ProgressionCategory,
 	ProgressionFilter,
@@ -112,12 +113,14 @@ export default function Filter({ onFilterChange }: Props) {
 	const { data: schools = [], isLoading: schoolsLoading } = useQuery({
 		queryKey: ['active-schools'],
 		queryFn: getActiveSchools,
+		select: unwrap,
 	});
 
 	const { data: programsList = [], isLoading: programsLoading } = useQuery({
 		queryKey: ['programs-by-school', schoolIds],
 		queryFn: () =>
 			getProgramsBySchoolIds(schoolIds.length > 0 ? schoolIds : undefined),
+		select: unwrap,
 		enabled: schoolIds.length > 0,
 	});
 

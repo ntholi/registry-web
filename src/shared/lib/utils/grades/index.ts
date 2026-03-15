@@ -1,6 +1,7 @@
 import { getVisibleModulesForStructure } from '@academic/semester-modules';
 import type { ResultClassification } from '@admissions/academic-records/_schema/academicRecords';
 import type { grade } from '@/core/database';
+import { unwrap } from '@/shared/lib/utils/actionResult';
 import { isActiveModule, isActiveSemester } from '../utils';
 import type { GradePoint, Program, StudentModule } from './type';
 
@@ -561,8 +562,8 @@ export async function getOutstandingFromStructure(programs: Program[]) {
 		throw new Error('No active program found for student');
 	}
 
-	const structureModules = await getVisibleModulesForStructure(
-		program.structureId
+	const structureModules = unwrap(
+		await getVisibleModulesForStructure(program.structureId)
 	);
 	const requiredModules = structureModules.flatMap((semester) =>
 		semester.semesterModules

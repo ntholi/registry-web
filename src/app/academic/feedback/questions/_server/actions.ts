@@ -1,46 +1,45 @@
 'use server';
 
 import type { feedbackQuestions } from '@/core/database';
+import { createAction } from '@/shared/lib/utils/actionResult';
 import { feedbackQuestionsService as service } from './service';
 
 type Question = typeof feedbackQuestions.$inferInsert;
 
-export async function getQuestions(page = 1, search = '') {
-	return service.findAll({
+export const getQuestions = createAction(async (page = 1, search = '') =>
+	service.findAll({
 		page,
 		search: search.trim(),
 		searchColumns: ['text'],
-	});
-}
+	})
+);
 
-export async function getAllQuestionsWithCategories() {
-	return service.findAllWithCategories();
-}
+export const getAllQuestionsWithCategories = createAction(async () =>
+	service.findAllWithCategories()
+);
 
-export async function getQuestionBoard() {
-	return service.findQuestionBoard();
-}
+export const getQuestionBoard = createAction(async () =>
+	service.findQuestionBoard()
+);
 
-export async function getQuestion(id: string) {
-	return service.get(id);
-}
+export const getQuestion = createAction(async (id: string) => service.get(id));
 
-export async function createQuestion(data: Question) {
-	return service.create(data);
-}
+export const createQuestion = createAction(async (data: Question) =>
+	service.create(data)
+);
 
-export async function updateQuestion(id: string, data: Partial<Question>) {
-	return service.update(id, data);
-}
+export const updateQuestion = createAction(
+	async (id: string, data: Partial<Question>) => service.update(id, data)
+);
 
-export async function deleteQuestion(id: string) {
-	return service.delete(id);
-}
+export const deleteQuestion = createAction(async (id: string) =>
+	service.delete(id)
+);
 
-export async function reorderQuestions(ids: string[]) {
-	return service.reorderQuestions(ids);
-}
+export const reorderQuestions = createAction(async (ids: string[]) =>
+	service.reorderQuestions(ids)
+);
 
-export async function reorderCategories(ids: string[]) {
-	return service.reorderCategories(ids);
-}
+export const reorderCategories = createAction(async (ids: string[]) =>
+	service.reorderCategories(ids)
+);

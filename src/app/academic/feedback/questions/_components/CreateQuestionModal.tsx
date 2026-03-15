@@ -4,7 +4,8 @@ import { Button, Modal } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import { IconPlus } from '@tabler/icons-react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
+import { useActionMutation } from '@/shared/lib/hooks/use-action-mutation';
 import { createQuestion } from '../_server/actions';
 import QuestionForm from './QuestionForm';
 
@@ -20,10 +21,7 @@ export default function CreateQuestionModal({
 	const [opened, { open, close }] = useDisclosure(false);
 	const queryClient = useQueryClient();
 
-	const mutation = useMutation({
-		mutationFn: async (values: { categoryId: string; text: string }) => {
-			return createQuestion(values);
-		},
+	const mutation = useActionMutation(createQuestion, {
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: ['feedback-question-board'] });
 			notifications.show({

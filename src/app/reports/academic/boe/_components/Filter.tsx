@@ -22,6 +22,7 @@ import {
 } from 'nuqs';
 import { useEffect } from 'react';
 import { useAllTerms } from '@/shared/lib/hooks/use-term';
+import { unwrap } from '@/shared/lib/utils/actionResult';
 import { formatSemester } from '@/shared/lib/utils/utils';
 
 const semesterOptions = Array.from({ length: 8 }, (_, i) => {
@@ -75,11 +76,13 @@ export default function BoeFilter({ onFilterChange }: Props) {
 	const { data: schoolsData = [], isLoading: schoolsLoading } = useQuery({
 		queryKey: ['active-schools'],
 		queryFn: getActiveSchools,
+		select: unwrap,
 	});
 
 	const { data: programsData = [], isLoading: programsLoading } = useQuery({
 		queryKey: ['programs-by-school', localFilter.schoolIds],
 		queryFn: () => getProgramsBySchoolIds(localFilter.schoolIds ?? undefined),
+		select: unwrap,
 		enabled:
 			Boolean(localFilter.schoolIds) && localFilter.schoolIds!.length > 0,
 	});

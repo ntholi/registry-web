@@ -24,6 +24,7 @@ import {
 import { useEffect } from 'react';
 import { useAllTerms } from '@/shared/lib/hooks/use-term';
 import { useUserSchools } from '@/shared/lib/hooks/use-user-schools';
+import { unwrap } from '@/shared/lib/utils/actionResult';
 import { formatSemester } from '@/shared/lib/utils/utils';
 
 const semesterOptions = Array.from({ length: 8 }, (_, i) => {
@@ -113,11 +114,13 @@ export default function AttendanceFilter({ onFilterChange }: Props) {
 	const { data: schools = [], isLoading: schoolsLoading } = useQuery({
 		queryKey: ['active-schools'],
 		queryFn: getActiveSchools,
+		select: unwrap,
 	});
 
 	const { data: programs = [], isLoading: programsLoading } = useQuery({
 		queryKey: ['programs-by-school', localFilter.schoolIds],
 		queryFn: () => getProgramsBySchoolIds(localFilter.schoolIds ?? undefined),
+		select: unwrap,
 		enabled:
 			Boolean(localFilter.schoolIds) && localFilter.schoolIds!.length > 0,
 	});

@@ -5,8 +5,11 @@ import { ActionIcon, Box, Group, Paper } from '@mantine/core';
 import type { StudentModuleStatus } from '@registry/_database';
 import { IconPlus } from '@tabler/icons-react';
 import { useState } from 'react';
+import type { ActionData } from '@/shared/lib/utils/actionResult';
 import { ModuleSearchInput } from './ModuleSearchInput';
 import ModulesTable from './ModulesTable';
+
+type StructureModule = ActionData<typeof getStructureModules>[number];
 
 type ModuleWithStatus = {
 	semesterModuleId: number;
@@ -58,12 +61,12 @@ export default function ModuleSection({
 	error,
 }: ModuleSectionProps) {
 	const [selectedModuleToAdd, setSelectedModuleToAdd] = useState<
-		Awaited<ReturnType<typeof getStructureModules>>[number] | null
+		StructureModule | null
 	>(null);
 	const [searchInputKey, setSearchInputKey] = useState(0);
 
 	function determineModuleStatus(
-		moduleData: Awaited<ReturnType<typeof getStructureModules>>[number],
+		moduleData: StructureModule,
 		existingRepeatModules: ModuleWithStatus[]
 	): 'Compulsory' | 'Elective' | `Repeat${number}` {
 		if (!student)
@@ -87,7 +90,7 @@ export default function ModuleSection({
 	}
 
 	const handleSelectModule = (
-		moduleData: Awaited<ReturnType<typeof getStructureModules>>[number] | null
+		moduleData: StructureModule | null
 	) => {
 		setSelectedModuleToAdd(moduleData);
 	};

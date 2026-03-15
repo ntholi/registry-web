@@ -5,6 +5,7 @@ import { Button, Group, Paper, Progress, Stack, Text } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useState } from 'react';
+import { unwrap } from '@/shared/lib/utils/actionResult';
 import { getBooleanColor } from '@/shared/lib/utils/colors';
 import type { ImportResult, ParsedRow } from './types';
 
@@ -53,7 +54,9 @@ export default function ImportProgress({
 					}
 				}
 
-				const bulkResult = await createOrUpdateMarksInBulk(bulkData, moduleId);
+				const bulkResult = unwrap(
+					await createOrUpdateMarksInBulk(bulkData, moduleId)
+				);
 
 				if (bulkResult.errors && bulkResult.errors.length > 0) {
 					errors.push(...bulkResult.errors);

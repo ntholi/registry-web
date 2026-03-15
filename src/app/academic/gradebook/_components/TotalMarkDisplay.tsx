@@ -18,7 +18,8 @@ import {
 	IconChevronRight,
 	IconExclamationMark,
 } from '@tabler/icons-react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
+import { useActionMutation } from '@/shared/lib/hooks/use-action-mutation';
 import { getBooleanColor } from '@/shared/lib/utils/colors';
 import { getLetterGrade } from '@/shared/lib/utils/grades';
 
@@ -59,22 +60,20 @@ export default function TotalMarkDisplay({
 			higher: floorScore + 1,
 		};
 	};
-	const adjustGradeMutation = useMutation({
-		mutationFn: async (newScore: number) => {
+	const adjustGradeMutation = useActionMutation(
+		async (newScore: number) => {
 			const grade = getLetterGrade(newScore);
-			return await updateGradeByStudentModuleId(
-				studentModuleId,
-				grade,
-				newScore
-			);
+			return updateGradeByStudentModuleId(studentModuleId, grade, newScore);
 		},
-		onSuccess: () => {
-			queryClient.invalidateQueries({
-				queryKey: ['module-grades', moduleId],
-			});
-			close();
-		},
-	});
+		{
+			onSuccess: () => {
+				queryClient.invalidateQueries({
+					queryKey: ['module-grades', moduleId],
+				});
+				close();
+			},
+		}
+	);
 
 	const handleAdjustGrade = (newScore: number) => {
 		adjustGradeMutation.mutate(newScore);

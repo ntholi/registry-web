@@ -10,6 +10,7 @@ import { pdf } from '@react-pdf/renderer';
 import { IconDownload } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
+import { unwrap } from '@/shared/lib/utils/actionResult';
 import { formatSemester } from '@/shared/lib/utils/utils';
 import { getCourseOutline } from '../_server/actions';
 import CourseOutlinePDF, {
@@ -39,6 +40,7 @@ export default function CourseOutlineDownload({
 	const { data: assignedModule } = useQuery({
 		queryKey: ['assigned-module-by-course', courseId],
 		queryFn: () => getAssignedModuleByLmsCourseId(courseId.toString()),
+		select: unwrap,
 	});
 
 	const moduleId = assignedModule?.semesterModule?.moduleId;
@@ -46,6 +48,7 @@ export default function CourseOutlineDownload({
 	const { data: lecturers } = useQuery({
 		queryKey: ['module-lecturers', moduleId],
 		queryFn: () => getLecturersByModule(moduleId!),
+		select: unwrap,
 		enabled: !!moduleId,
 	});
 

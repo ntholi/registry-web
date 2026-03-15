@@ -2,84 +2,76 @@
 
 import { auth } from '@/core/auth';
 import type { AttendanceStatus } from '@/core/database';
+import { createAction } from '@/shared/lib/utils/actionResult';
 import { attendanceService } from './service';
 
-export async function getWeeksForTerm(termId: number) {
-	return attendanceService.getWeeksForTerm(termId);
-}
+export const getWeeksForTerm = createAction(async (termId: number) =>
+	attendanceService.getWeeksForTerm(termId)
+);
 
-export async function getAttendanceForWeek(
-	semesterModuleId: number,
-	termId: number,
-	weekNumber: number
-) {
-	return attendanceService.getAttendanceForWeek(
-		semesterModuleId,
-		termId,
-		weekNumber
-	);
-}
+export const getAttendanceForWeek = createAction(
+	async (semesterModuleId: number, termId: number, weekNumber: number) =>
+		attendanceService.getAttendanceForWeek(semesterModuleId, termId, weekNumber)
+);
 
-export async function markAttendance(
-	semesterModuleId: number,
-	termId: number,
-	weekNumber: number,
-	assignedModuleId: number,
-	records: { stdNo: number; status: AttendanceStatus }[]
-) {
-	const session = await auth();
-	if (!session?.user?.id) {
-		throw new Error('Unauthorized');
+export const markAttendance = createAction(
+	async (
+		semesterModuleId: number,
+		termId: number,
+		weekNumber: number,
+		assignedModuleId: number,
+		records: { stdNo: number; status: AttendanceStatus }[]
+	) => {
+		const session = await auth();
+		if (!session?.user?.id) {
+			throw new Error('Unauthorized');
+		}
+		return attendanceService.markAttendance(
+			semesterModuleId,
+			termId,
+			weekNumber,
+			assignedModuleId,
+			session.user.id,
+			records
+		);
 	}
-	return attendanceService.markAttendance(
-		semesterModuleId,
-		termId,
-		weekNumber,
-		assignedModuleId,
-		session.user.id,
-		records
-	);
-}
+);
 
-export async function getAttendanceSummary(
-	semesterModuleId: number,
-	termId: number
-) {
-	return attendanceService.getAttendanceSummary(semesterModuleId, termId);
-}
+export const getAttendanceSummary = createAction(
+	async (semesterModuleId: number, termId: number) =>
+		attendanceService.getAttendanceSummary(semesterModuleId, termId)
+);
 
-export async function getAssignedModulesForCurrentUser() {
+export const getAssignedModulesForCurrentUser = createAction(async () => {
 	const session = await auth();
 	if (!session?.user?.id) {
 		return [];
 	}
 	return attendanceService.getAssignedModulesForCurrentUser(session.user.id);
-}
+});
 
-export async function deleteAttendanceForWeek(
-	semesterModuleId: number,
-	termId: number,
-	weekNumber: number
-) {
-	const session = await auth();
-	if (!session?.user?.id) {
-		throw new Error('Unauthorized');
+export const deleteAttendanceForWeek = createAction(
+	async (semesterModuleId: number, termId: number, weekNumber: number) => {
+		const session = await auth();
+		if (!session?.user?.id) {
+			throw new Error('Unauthorized');
+		}
+		return attendanceService.deleteAttendanceForWeek(
+			semesterModuleId,
+			termId,
+			weekNumber
+		);
 	}
-	return attendanceService.deleteAttendanceForWeek(
-		semesterModuleId,
-		termId,
-		weekNumber
-	);
-}
+);
 
-export async function exportAttendanceForm(input: {
-	semesterModuleId: number;
-	termId: number;
-	moduleCode: string;
-	moduleName: string;
-	className: string;
-}) {
-	try {
+export const exportAttendanceForm = createAction(
+	async (input: {
+		semesterModuleId: number;
+		termId: number;
+		moduleCode: string;
+		moduleName: string;
+		className: string;
+	}) => {
 		const session = await auth();
 		if (!session?.user?.id) {
 			throw new Error('Unauthorized');
@@ -93,14 +85,9 @@ export async function exportAttendanceForm(input: {
 			input.className,
 			lecturerName
 		);
-		const base64Data = Buffer.from(result.buffer).toString('base64');
-		const fileName = `attendance-${input.moduleCode}-${input.className}-${result.termCode}.xlsx`;
-		return { success: true, data: base64Data, fileName };
-	} catch (error) {
-		console.error('Error exporting attendance form:', error);
 		return {
-			success: false,
-			error: error instanceof Error ? error.message : 'Unknown error',
+			base64Data: Buffer.from(result.buffer).toString('base64'),
+			fileName: `attendance-${input.moduleCode}-${input.className}-${result.termCode}.xlsx`,
 		};
 	}
-}
+);

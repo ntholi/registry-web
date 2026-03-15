@@ -4,7 +4,8 @@ import { Button, Modal } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import { IconPlus } from '@tabler/icons-react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
+import { useActionMutation } from '@/shared/lib/hooks/use-action-mutation';
 import { createCategory } from '../../categories/_server/actions';
 import CategoryForm from './CategoryForm';
 
@@ -12,10 +13,7 @@ export default function CreateCategoryModal() {
 	const [opened, { open, close }] = useDisclosure(false);
 	const queryClient = useQueryClient();
 
-	const mutation = useMutation({
-		mutationFn: async (values: { name: string }) => {
-			return createCategory(values);
-		},
+	const mutation = useActionMutation(createCategory, {
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: ['feedback-question-board'] });
 			notifications.show({
