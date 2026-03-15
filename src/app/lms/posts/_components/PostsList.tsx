@@ -30,8 +30,9 @@ import {
 	IconPin,
 	IconTrash,
 } from '@tabler/icons-react';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { formatDistanceToNow } from 'date-fns';
+import { useActionMutation } from '@/shared/lib/hooks/use-action-mutation';
 import { getPostTypeColor } from '@/shared/lib/utils/colors';
 import {
 	deletePost,
@@ -181,7 +182,7 @@ function PostCard({ post, type, courseId }: PostCardProps) {
 	const isAnnouncement = type === 'announcement';
 	const queryClient = useQueryClient();
 
-	const deleteMutation = useMutation({
+	const deleteMutation = useActionMutation({
 		mutationFn: () => deletePost(post.discussion),
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: ['course-posts', courseId] });

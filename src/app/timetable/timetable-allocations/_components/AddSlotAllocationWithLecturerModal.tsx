@@ -31,13 +31,14 @@ import { useForm } from '@mantine/form';
 import { useDebouncedValue, useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import { IconListDetails, IconPlus } from '@tabler/icons-react';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { createAllocationsWithSlots } from '@timetable/slots';
 import { ModuleSearchInput } from '@timetable/timetable-allocations';
 import { getAllVenues } from '@timetable/venues';
 import { zod4Resolver as zodResolver } from 'mantine-form-zod-resolver';
 import { useCallback, useState } from 'react';
 import { z } from 'zod';
+import { useActionMutation } from '@/shared/lib/hooks/use-action-mutation';
 import { useAllTerms } from '@/shared/lib/hooks/use-term';
 import type { ActionData } from '@/shared/lib/utils/actionResult';
 import { unwrap } from '@/shared/lib/utils/actionResult';
@@ -158,7 +159,7 @@ export default function AddSlotAllocationWithLecturerModal() {
 		(a) => a.termId === selectedTermId
 	);
 
-	const mutation = useMutation({
+	const mutation = useActionMutation({
 		mutationFn: async (values: FormValues) => {
 			const groups =
 				values.numberOfGroups === 1
@@ -201,10 +202,7 @@ export default function AddSlotAllocationWithLecturerModal() {
 				};
 			});
 
-			const result = await createAllocationsWithSlots(items);
-			if (!result.success) {
-				throw new Error(result.error);
-			}
+			return createAllocationsWithSlots(items);
 		},
 		onSuccess: async () => {
 			await queryClient.invalidateQueries({

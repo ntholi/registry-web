@@ -12,8 +12,9 @@ import {
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import { IconAlertTriangle } from '@tabler/icons-react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import { forwardRef, useImperativeHandle, useState } from 'react';
+import { useActionMutation } from '@/shared/lib/hooks/use-action-mutation';
 import { getAlertColor } from '@/shared/lib/utils/colors';
 import { setAllocationOverflowVenue } from '../_server/actions';
 
@@ -48,18 +49,12 @@ const OverflowVenueModal = forwardRef<OverflowVenueModalRef>(
 			},
 		}));
 
-		const mutation = useMutation({
+		const mutation = useActionMutation({
 			mutationFn: async () => {
 				if (!data || !selectedVenueId) {
 					throw new Error('No venue selected');
 				}
-				const result = await setAllocationOverflowVenue(
-					data.allocationId,
-					selectedVenueId
-				);
-				if (!result.success) {
-					throw new Error(result.error);
-				}
+				return setAllocationOverflowVenue(data.allocationId, selectedVenueId);
 			},
 			onSuccess: async () => {
 				await queryClient.invalidateQueries({

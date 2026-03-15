@@ -5,9 +5,10 @@ import { useForm } from '@mantine/form';
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import { IconPlus } from '@tabler/icons-react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import { zod4Resolver as zodResolver } from 'mantine-form-zod-resolver';
 import { z } from 'zod';
+import { useActionMutation } from '@/shared/lib/hooks/use-action-mutation';
 import RichTextField from '@/shared/ui/adease/RichTextField';
 import { createSection } from '../_server/actions';
 
@@ -40,7 +41,7 @@ export default function SectionForm({
 		},
 	});
 
-	const mutation = useMutation({
+	const mutation = useActionMutation({
 		mutationFn: async (values: SectionFormValues) => {
 			return createSection({
 				courseId,

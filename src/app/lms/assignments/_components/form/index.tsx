@@ -15,7 +15,7 @@ import { useForm } from '@mantine/form';
 import { useDebouncedCallback, useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import { IconCheck, IconPlus } from '@tabler/icons-react';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { z } from 'zod';
 import {
@@ -23,7 +23,8 @@ import {
 	COURSE_WORK_OPTIONS,
 } from '@/app/academic/assessments/_lib/utils';
 import { getAssessmentByModuleId } from '@/app/academic/assessments/_server/actions';
-import { unwrap } from '@/shared/lib/utils/actionResult';
+import { useActionMutation } from '@/shared/lib/hooks/use-action-mutation';
+import { success, unwrap } from '@/shared/lib/utils/actionResult';
 import {
 	createDraftAssignment,
 	publishAssignment,
@@ -157,7 +158,7 @@ export default function AssignmentForm({
 		!!form.values.assessmentType &&
 		!!form.values.dueDate;
 
-	const createDraftMutation = useMutation({
+	const createDraftMutation = useActionMutation({
 		mutationFn: async () => {
 			if (!form.values.dueDate) throw new Error('Due date is required');
 
@@ -193,15 +194,17 @@ export default function AssignmentForm({
 		},
 	});
 
-	const saveSettingsMutation = useMutation({
+	const saveSettingsMutation = useActionMutation({
 		mutationFn: async () => {
-			if (!draftId) return;
+			if (!draftId) {
+				return success(undefined);
+			}
 
 			const typeLabel =
 				ASSESSMENT_TYPES.find((t) => t.value === form.values.assessmentType)
 					?.label || '';
 
-			await updateAssignment(draftId, {
+			return updateAssignment(draftId, {
 				name: typeLabel,
 				intro: form.values.description,
 				activity: form.values.instructions,
@@ -253,7 +256,7 @@ export default function AssignmentForm({
 		debouncedSave();
 	}, [opened, canCreateDraft, draftId, debouncedSave]);
 
-	const publishMutation = useMutation({
+	const publishMutation = useActionMutation({
 		mutationFn: async () => {
 			if (!draftId) throw new Error('No draft assignment to publish');
 			return publishAssignment({

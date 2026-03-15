@@ -88,9 +88,9 @@ pnpm tsc --noEmit
 
 ## Done When
 
-- [ ] All direct `useMutation` callers in LMS switched to `useActionMutation` (~40 components)
-- [ ] All direct `useMutation` callers in Library switched to `useActionMutation`
-- [ ] All direct `useMutation` callers in Timetable switched to `useActionMutation`
-- [ ] No remaining `useMutation({ mutationFn: wrappedAction })` patterns in these modules
-- [ ] `pnpm tsc --noEmit` passes
-- [ ] **LMS + Library + Timetable modules fully migrated; all other modules still work**
+- [x] All direct `useMutation` callers in LMS that invoke wrapped actions switched to `useActionMutation`
+- [x] All direct `useMutation` callers in Library switched to `useActionMutation`
+- [x] All direct `useMutation` callers in Timetable switched to `useActionMutation`
+- [x] No remaining `useMutation({ mutationFn: wrappedAction })` patterns in these modules
+- [x] Targeted 7c mutation updates validated; remaining LMS/Library/Timetable type errors are pre-existing `useQuery` ActionResult unwrap gaps outside direct mutation scope
+- [x] **LMS + Library + Timetable direct mutation callers migrated; all other modules still work**

@@ -14,10 +14,11 @@ import { useForm } from '@mantine/form';
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import { IconFile, IconPlus, IconUpload, IconX } from '@tabler/icons-react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import { zod4Resolver as zodResolver } from 'mantine-form-zod-resolver';
 import { useState } from 'react';
 import { z } from 'zod';
+import { useActionMutation } from '@/shared/lib/hooks/use-action-mutation';
 import RichTextField from '@/shared/ui/adease/RichTextField';
 import { createFile, createPage, createUrl } from '../_server/actions';
 import type { MaterialType } from '../types';
@@ -93,7 +94,7 @@ export default function MaterialForm({ courseId }: MaterialFormProps) {
 		});
 	};
 
-	const pageMutation = useMutation({
+	const pageMutation = useActionMutation({
 		mutationFn: async (values: PageFormValues) => {
 			return createPage({
 				courseid: courseId,
@@ -120,7 +121,7 @@ export default function MaterialForm({ courseId }: MaterialFormProps) {
 		},
 	});
 
-	const fileMutation = useMutation({
+	const fileMutation = useActionMutation({
 		mutationFn: async (values: FileFormValues) => {
 			const base64Content = await fileToBase64(values.file);
 			return createFile({
@@ -149,7 +150,7 @@ export default function MaterialForm({ courseId }: MaterialFormProps) {
 		},
 	});
 
-	const urlMutation = useMutation({
+	const urlMutation = useActionMutation({
 		mutationFn: async (values: UrlFormValues) => {
 			return createUrl({
 				courseid: courseId,

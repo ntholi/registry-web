@@ -31,10 +31,12 @@ import {
 	IconTrash,
 	IconUpload,
 } from '@tabler/icons-react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { useQueryState } from 'nuqs';
 import { ASSESSMENT_TYPES } from '@/app/academic/assessments/_lib/utils';
+import { useActionMutation } from '@/shared/lib/hooks/use-action-mutation';
+import { success } from '@/shared/lib/utils/actionResult';
 import RichTextField from '@/shared/ui/adease/RichTextField';
 import { updateAssignment } from '../../_server/actions';
 import type { MoodleAssignment } from '../../types';
@@ -85,7 +87,7 @@ export default function AssignmentEditForm({ assignment, courseId }: Props) {
 		},
 	});
 
-	const updateMutation = useMutation({
+	const updateMutation = useActionMutation({
 		mutationFn: async (values: EditFormValues) => {
 			const typeLabel =
 				ASSESSMENT_TYPES.find((t) => t.value === values.name)?.label ||
@@ -105,6 +107,7 @@ export default function AssignmentEditForm({ assignment, courseId }: Props) {
 				visible: values.visible ? 1 : 0,
 				attachments: values.attachments,
 			});
+			return success(undefined);
 		},
 		onSuccess: () => {
 			notifications.show({

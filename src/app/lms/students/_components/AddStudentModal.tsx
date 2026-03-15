@@ -21,8 +21,9 @@ import {
 	IconSearch,
 	IconUser,
 } from '@tabler/icons-react';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
+import { useActionMutation } from '@/shared/lib/hooks/use-action-mutation';
 import { formatSemester } from '@/shared/lib/utils/utils';
 import {
 	enrollStudentInCourse,
@@ -52,7 +53,7 @@ export default function AddStudentModal({
 		enabled: debouncedSearch.length >= 2 && !selectedStudent,
 	});
 
-	const enrollMutation = useMutation({
+	const enrollMutation = useActionMutation({
 		mutationFn: () =>
 			enrollStudentInCourse(
 				course.id,

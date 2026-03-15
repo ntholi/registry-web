@@ -11,9 +11,10 @@ import { useForm } from '@mantine/form';
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import { IconPlus } from '@tabler/icons-react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import { zod4Resolver as zodResolver } from 'mantine-form-zod-resolver';
 import { z } from 'zod';
+import { useActionMutation } from '@/shared/lib/hooks/use-action-mutation';
 import RichTextField from '@/shared/ui/adease/RichTextField';
 import { createPost } from '../_server/actions';
 import type { PostType } from '../types';
@@ -43,7 +44,7 @@ export default function PostForm({ courseId }: PostFormProps) {
 		},
 	});
 
-	const mutation = useMutation({
+	const mutation = useActionMutation({
 		mutationFn: async (values: FormValues) => {
 			return createPost({
 				courseId,

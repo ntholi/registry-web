@@ -10,8 +10,9 @@ import {
 	Textarea,
 } from '@mantine/core';
 import { IconCheck, IconMessageCircle, IconSend } from '@tabler/icons-react';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
+import { useActionMutation } from '@/shared/lib/hooks/use-action-mutation';
 import {
 	addQuizAttemptFeedback,
 	getQuizAttemptFeedback,
@@ -39,7 +40,7 @@ export default function QuizFeedbackPanel({ attemptId, quizId }: Props) {
 		}
 	}, [existingFeedback]);
 
-	const feedbackMutation = useMutation({
+	const feedbackMutation = useActionMutation({
 		mutationFn: async () => {
 			if (!feedback.trim()) {
 				throw new Error('Feedback cannot be empty');
