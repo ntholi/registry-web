@@ -22,11 +22,11 @@ import { useForm } from '@mantine/form';
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import { IconEdit, IconPhone, IconUser } from '@tabler/icons-react';
-import { useMutation } from '@tanstack/react-query';
 import { zod4Resolver as zodResolver } from 'mantine-form-zod-resolver';
 import { useRouter } from 'nextjs-toploader/app';
 import { useState } from 'react';
 import { z } from 'zod';
+import { useActionMutation } from '@/shared/lib/hooks/use-action-mutation';
 import { DeleteButton } from '@/shared/ui/adease/DeleteButton';
 import { deleteGuardian, updateGuardian } from '../../_server/actions';
 
@@ -83,7 +83,7 @@ export default function GuardiansTab({ guardians }: Props) {
 		},
 	});
 
-	const updateMutation = useMutation({
+	const updateMutation = useActionMutation({
 		mutationFn: ({
 			id,
 			values,

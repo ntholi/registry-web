@@ -5,8 +5,9 @@ import { Button, Group, Modal, Select, Stack, Textarea } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import { IconStatusChange } from '@tabler/icons-react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
+import { useActionMutation } from '@/shared/lib/hooks/use-action-mutation';
 import type { ApplicationStatus } from '../_lib/types';
 import { changeApplicationStatus } from '../_server/actions';
 
@@ -35,7 +36,7 @@ export default function StatusChangeModal({
 	const [rejectionReason, setRejectionReason] = useState('');
 	const queryClient = useQueryClient();
 
-	const mutation = useMutation({
+	const mutation = useActionMutation({
 		mutationFn: async () => {
 			if (!newStatus) throw new Error('Please select a status');
 			if (newStatus === 'rejected' && !rejectionReason.trim()) {

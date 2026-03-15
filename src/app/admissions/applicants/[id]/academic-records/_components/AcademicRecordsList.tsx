@@ -18,8 +18,9 @@ import { useForm } from '@mantine/form';
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import { IconPlus, IconTrash } from '@tabler/icons-react';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
+import { useActionMutation } from '@/shared/lib/hooks/use-action-mutation';
 import { normalizeResultClassification } from '@/shared/lib/utils/resultClassification';
 import type {
 	AcademicRecordWithRelations,
@@ -76,7 +77,7 @@ export default function AcademicRecordsList({ applicantId, records }: Props) {
 		},
 	});
 
-	const createMutation = useMutation({
+	const createMutation = useActionMutation({
 		mutationFn: async (values: typeof form.values) => {
 			const isLevel4 = selectedCertType?.lqfLevel === 4;
 			const hasSubjectGrades = subjectGrades.length > 0;
@@ -118,7 +119,7 @@ export default function AcademicRecordsList({ applicantId, records }: Props) {
 		},
 	});
 
-	const deleteMutation = useMutation({
+	const deleteMutation = useActionMutation({
 		mutationFn: deleteAcademicRecord,
 		onSuccess: async () => {
 			await queryClient.invalidateQueries({ queryKey: ['applicants'] });

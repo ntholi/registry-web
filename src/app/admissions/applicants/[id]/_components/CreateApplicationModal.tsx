@@ -23,10 +23,12 @@ import {
 	IconInfoCircle,
 	IconPlus,
 } from '@tabler/icons-react';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
 import { useRouter } from 'nextjs-toploader/app';
 import { useEffect } from 'react';
+import { useActionMutation } from '@/shared/lib/hooks/use-action-mutation';
+import { unwrap } from '@/shared/lib/utils/actionResult';
 
 const emptyValue = '';
 
@@ -39,17 +41,6 @@ type ProgramOption = {
 	label: string;
 };
 
-type ActiveIntakePeriod = {
-	id: string;
-	name: string;
-};
-
-type EligibleProgram = {
-	id: number;
-	code: string;
-	name: string;
-};
-
 export default function CreateApplicationModal({ applicantId }: Props) {
 	const router = useRouter();
 	const [opened, { open, close }] = useDisclosure(false);
@@ -57,6 +48,7 @@ export default function CreateApplicationModal({ applicantId }: Props) {
 	const { data: existingApplications = [] } = useQuery({
 		queryKey: ['applications', 'by-applicant', applicantId],
 		queryFn: () => findApplicationsByApplicant(applicantId),
+		select: unwrap,
 	});
 
 	const latestApplication = existingApplications[0];
@@ -75,22 +67,21 @@ export default function CreateApplicationModal({ applicantId }: Props) {
 		},
 	});
 
-	const { data: activeIntake, isLoading: loadingIntake } =
-		useQuery<ActiveIntakePeriod | null>({
-			queryKey: ['intake-periods', 'active', 'single'],
-			queryFn: async () => (await findActiveIntakePeriod()) ?? null,
-			enabled: opened,
-		});
-
-	const { data: eligiblePrograms = [], isLoading: loadingPrograms } = useQuery<
-		EligibleProgram[]
-	>({
-		queryKey: ['eligible-programs', applicantId],
-		queryFn: () => getEligibleProgramsForApplicant(applicantId),
+	const { data: activeIntake, isLoading: loadingIntake } = useQuery({
+		queryKey: ['intake-periods', 'active', 'single'],
+		queryFn: () => findActiveIntakePeriod(),
+		select: unwrap,
 		enabled: opened,
 	});
 
-	const createMutation = useMutation({
+	const { data: eligiblePrograms = [], isLoading: loadingPrograms } = useQuery({
+		queryKey: ['eligible-programs', applicantId],
+		queryFn: () => getEligibleProgramsForApplicant(applicantId),
+		select: unwrap,
+		enabled: opened,
+	});
+
+	const createMutation = useActionMutation({
 		mutationFn: async (values: typeof form.values) => {
 			return createApplication({
 				applicantId,

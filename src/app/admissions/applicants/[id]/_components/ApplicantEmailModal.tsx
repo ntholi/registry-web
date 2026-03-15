@@ -13,9 +13,9 @@ import {
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import { IconEdit } from '@tabler/icons-react';
-import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { useActionMutation } from '@/shared/lib/hooks/use-action-mutation';
 import UserInput from '@/shared/ui/UserInput';
 import { updateApplicantUserId } from '../../_server/actions';
 
@@ -39,7 +39,7 @@ export default function ApplicantEmailModal({
 		open();
 	};
 
-	const updateUserMutation = useMutation({
+	const updateUserMutation = useActionMutation({
 		mutationFn: async (userId: string | null) => {
 			return updateApplicantUserId(applicantId, userId);
 		},

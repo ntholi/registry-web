@@ -26,8 +26,9 @@ import {
 	IconPlus,
 	IconTrash,
 } from '@tabler/icons-react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
+import { useActionMutation } from '@/shared/lib/hooks/use-action-mutation';
 import type {
 	ClassificationRules,
 	EntryRequirement,
@@ -88,7 +89,7 @@ export default function EditRequirementsList({
 		(ct) => !usedCertTypeIds.has(ct.id)
 	);
 
-	const updateMutation = useMutation({
+	const updateMutation = useActionMutation({
 		mutationFn: ({
 			id,
 			data,
@@ -102,7 +103,7 @@ export default function EditRequirementsList({
 		},
 	});
 
-	const createMutation = useMutation({
+	const createMutation = useActionMutation({
 		mutationFn: (data: {
 			programId: number;
 			certificateTypeId: string;
@@ -121,7 +122,7 @@ export default function EditRequirementsList({
 		},
 	});
 
-	const deleteMutation = useMutation({
+	const deleteMutation = useActionMutation({
 		mutationFn: (id: string) => deleteEntryRequirement(id),
 		onSuccess: (_, id) => {
 			setRequirements((prev) => prev.filter((r) => r.id !== id));

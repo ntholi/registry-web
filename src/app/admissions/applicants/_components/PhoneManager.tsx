@@ -12,8 +12,9 @@ import {
 import { useForm } from '@mantine/form';
 import { notifications } from '@mantine/notifications';
 import { IconPlus, IconTrash } from '@tabler/icons-react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
+import { useActionMutation } from '@/shared/lib/hooks/use-action-mutation';
 import { addApplicantPhone, removeApplicantPhone } from '../_server/actions';
 
 type Phone = {
@@ -31,7 +32,7 @@ export default function PhoneManager({ applicantId, phones }: Props) {
 	const [isAdding, setIsAdding] = useState(false);
 	const form = useForm({ initialValues: { phoneNumber: '' } });
 
-	const addMutation = useMutation({
+	const addMutation = useActionMutation({
 		mutationFn: (phoneNumber: string) =>
 			addApplicantPhone(applicantId, phoneNumber),
 		onSuccess: async () => {
@@ -53,7 +54,7 @@ export default function PhoneManager({ applicantId, phones }: Props) {
 		},
 	});
 
-	const removeMutation = useMutation({
+	const removeMutation = useActionMutation({
 		mutationFn: removeApplicantPhone,
 		onSuccess: async () => {
 			await queryClient.invalidateQueries({ queryKey: ['applicants'] });

@@ -10,7 +10,8 @@ import {
 	Tooltip,
 } from '@mantine/core';
 import { IconCalculator, IconRefresh } from '@tabler/icons-react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
+import { useActionMutation } from '@/shared/lib/hooks/use-action-mutation';
 import { recalculateApplicationScores } from '../_server/actions';
 
 type Props = {
@@ -61,7 +62,7 @@ export default function ScoresSection({
 }: Props) {
 	const queryClient = useQueryClient();
 
-	const recalculate = useMutation({
+	const recalculate = useActionMutation({
 		mutationFn: () => recalculateApplicationScores(applicationId),
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: ['applications'] });

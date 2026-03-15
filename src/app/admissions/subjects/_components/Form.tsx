@@ -13,11 +13,12 @@ import {
 	Title,
 } from '@mantine/core';
 import { IconPlus, IconTrash } from '@tabler/icons-react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import { createInsertSchema } from 'drizzle-zod';
 import { useRouter } from 'nextjs-toploader/app';
 import { useState } from 'react';
 import { z } from 'zod';
+import { useActionMutation } from '@/shared/lib/hooks/use-action-mutation';
 import { Form } from '@/shared/ui/adease';
 import type { Subject, SubjectAlias } from '../_lib/types';
 import { addSubjectAlias, removeSubjectAlias } from '../_server/actions';
@@ -87,7 +88,7 @@ function AliasEditor({ subjectId, aliases: initialAliases }: AliasEditorProps) {
 	const [aliases, setAliases] = useState(initialAliases);
 	const [newAlias, setNewAlias] = useState('');
 
-	const addMutation = useMutation({
+	const addMutation = useActionMutation({
 		mutationFn: (alias: string) => addSubjectAlias(subjectId, alias),
 		onSuccess: (created) => {
 			setAliases((prev) => [...prev, created]);
@@ -96,7 +97,7 @@ function AliasEditor({ subjectId, aliases: initialAliases }: AliasEditorProps) {
 		},
 	});
 
-	const removeMutation = useMutation({
+	const removeMutation = useActionMutation({
 		mutationFn: (aliasId: string) => removeSubjectAlias(aliasId),
 		onSuccess: (_, aliasId) => {
 			setAliases((prev) => prev.filter((a) => a.id !== aliasId));

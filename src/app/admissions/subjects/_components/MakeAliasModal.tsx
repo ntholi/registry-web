@@ -4,9 +4,11 @@ import { Button, Group, Modal, Select, Stack, Text } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import { IconArrowRight } from '@tabler/icons-react';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'nextjs-toploader/app';
 import { useState } from 'react';
+import { useActionMutation } from '@/shared/lib/hooks/use-action-mutation';
+import { unwrap } from '@/shared/lib/utils/actionResult';
 import { findActiveSubjects, moveSubjectToAlias } from '../_server/actions';
 
 type Props = {
@@ -23,6 +25,7 @@ export default function MakeAliasModal({ subjectId, subjectName }: Props) {
 	const { data: subjects = [], isLoading } = useQuery({
 		queryKey: ['subjects', 'active'],
 		queryFn: () => findActiveSubjects(),
+		select: unwrap,
 		enabled: opened,
 	});
 
@@ -32,7 +35,7 @@ export default function MakeAliasModal({ subjectId, subjectName }: Props) {
 
 	const selectedSubject = subjects.find((s) => s.id === targetId);
 
-	const mutation = useMutation({
+	const mutation = useActionMutation({
 		mutationFn: async () => {
 			if (!targetId) throw new Error('Please select a subject');
 			return moveSubjectToAlias(subjectId, targetId);
