@@ -31,10 +31,12 @@ import {
 	IconPlus,
 	IconStar,
 } from '@tabler/icons-react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { useQueryState } from 'nuqs';
 import { useState } from 'react';
+import { useActionMutation } from '@/shared/lib/hooks/use-action-mutation';
+import { success, unwrap } from '@/shared/lib/utils/actionResult';
 import { removeQuestionFromQuiz, updateQuiz } from '../../_server/actions';
 import type { MoodleQuiz, MoodleQuizQuestion, Question } from '../../types';
 import QuestionCard, { createDefaultQuestion } from './QuestionCard';
@@ -183,31 +185,33 @@ export default function QuizEditForm({ quiz, courseId }: QuizEditFormProps) {
 		pendingNewQuestions.length > 0 ||
 		questionsToRemove.length > 0;
 
-	const updateMutation = useMutation({
+	const updateMutation = useActionMutation({
 		mutationFn: async (values: EditFormValues) => {
-			await updateQuiz(quiz.id, {
-				name: values.name,
-				intro: values.intro,
-				timeopen: values.timeopen
-					? Math.floor(values.timeopen.getTime() / 1000)
-					: undefined,
-				timeclose: values.timeclose
-					? Math.floor(values.timeclose.getTime() / 1000)
-					: undefined,
-				timelimit:
-					values.timelimit && values.timelimit > 0
-						? values.timelimit * 60
+			unwrap(
+				await updateQuiz(quiz.id, {
+					name: values.name,
+					intro: values.intro,
+					timeopen: values.timeopen
+						? Math.floor(values.timeopen.getTime() / 1000)
 						: undefined,
-				attempts: values.attempts,
-				grade: values.grade || totalMarks,
-				visible: values.visible,
-			});
+					timeclose: values.timeclose
+						? Math.floor(values.timeclose.getTime() / 1000)
+						: undefined,
+					timelimit:
+						values.timelimit && values.timelimit > 0
+							? values.timelimit * 60
+							: undefined,
+					attempts: values.attempts,
+					grade: values.grade || totalMarks,
+					visible: values.visible,
+				})
+			);
 
 			for (const slot of questionsToRemove) {
-				await removeQuestionFromQuiz(quiz.id, slot);
+				unwrap(await removeQuestionFromQuiz(quiz.id, slot));
 			}
 
-			return { success: true };
+			return success(undefined);
 		},
 		onSuccess: () => {
 			notifications.show({

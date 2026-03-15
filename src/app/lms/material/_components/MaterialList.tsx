@@ -27,8 +27,9 @@ import {
 	IconLink,
 	IconTrash,
 } from '@tabler/icons-react';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
+import { useActionMutation } from '@/shared/lib/hooks/use-action-mutation';
 import { deleteMaterial, getMaterialSection } from '../_server/actions';
 import PagePreviewModal from './PagePreviewModal';
 
@@ -168,7 +169,7 @@ function MaterialCard({ material, courseId, onPageClick }: MaterialCardProps) {
 	const isUrl = material.modname === 'url';
 	const isPage = material.modname === 'page';
 
-	const deleteMutation = useMutation({
+	const deleteMutation = useActionMutation({
 		mutationFn: () => deleteMaterial(material.id),
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: ['material-pages', courseId] });

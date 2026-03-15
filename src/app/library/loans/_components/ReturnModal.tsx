@@ -4,8 +4,9 @@ import { Alert, Button, Group, Modal, Stack, Text } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import { IconAlertTriangle } from '@tabler/icons-react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'nextjs-toploader/app';
+import { useActionMutation } from '@/shared/lib/hooks/use-action-mutation';
 import { formatDate } from '@/shared/lib/utils/dates';
 import type { LoanWithRelations } from '../_lib/types';
 import { returnLoan } from '../_server/actions';
@@ -27,7 +28,7 @@ export default function ReturnModal({ loan }: Props) {
 		: 0;
 	const fineAmount = daysOverdue * 1;
 
-	const mutation = useMutation({
+	const mutation = useActionMutation({
 		mutationFn: () => returnLoan(loan.id),
 		onSuccess: async () => {
 			await queryClient.invalidateQueries({ queryKey: ['loans'] });

@@ -15,8 +15,9 @@ import {
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import { IconPlus } from '@tabler/icons-react';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
+import { useActionMutation } from '@/shared/lib/hooks/use-action-mutation';
 import { useActiveTerm } from '@/shared/lib/hooks/use-term';
 import type { ActionData } from '@/shared/lib/utils/actionResult';
 import { unwrap } from '@/shared/lib/utils/actionResult';
@@ -49,7 +50,7 @@ export default function CreateCourseModal() {
 
 	const { activeTerm } = useActiveTerm();
 
-	const createCourseMutation = useMutation({
+	const createCourseMutation = useActionMutation({
 		mutationFn: async () => {
 			if (!selectedModule) {
 				throw new Error('Please select a module');

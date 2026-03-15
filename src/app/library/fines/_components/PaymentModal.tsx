@@ -4,7 +4,8 @@ import { Badge, Button, Group, Modal, Stack, Text } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import { IconCash } from '@tabler/icons-react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
+import { useActionMutation } from '@/shared/lib/hooks/use-action-mutation';
 import { formatCurrency } from '@/shared/lib/utils/utils';
 import type { FineWithRelations } from '../_lib/types';
 import { payFine } from '../_server/actions';
@@ -17,7 +18,7 @@ export default function PaymentModal({ fine }: Props) {
 	const [opened, { open, close }] = useDisclosure(false);
 	const queryClient = useQueryClient();
 
-	const mutation = useMutation({
+	const mutation = useActionMutation({
 		mutationFn: () => payFine(fine.id),
 		onSuccess: async () => {
 			await queryClient.invalidateQueries({ queryKey: ['fines'] });

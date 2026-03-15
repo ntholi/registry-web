@@ -18,9 +18,10 @@ import { useForm } from '@mantine/form';
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import { IconEdit, IconPlus } from '@tabler/icons-react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import { createInsertSchema } from 'drizzle-zod';
 import { zod4Resolver as zodResolver } from 'mantine-form-zod-resolver';
+import { useActionMutation } from '@/shared/lib/hooks/use-action-mutation';
 
 type BookCopy = typeof bookCopies.$inferInsert;
 
@@ -54,7 +55,7 @@ export default function BookCopyModal({ bookId, copy }: Props) {
 		validate: zodResolver(schema),
 	});
 
-	const mutation = useMutation({
+	const mutation = useActionMutation({
 		mutationFn: async (values: typeof form.values) => {
 			const data = { ...values, bookId } as BookCopy;
 			if (isEdit && copy) {

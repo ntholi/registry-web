@@ -15,9 +15,10 @@ import { DateInput } from '@mantine/dates';
 import { useDebouncedValue } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import { IconSearch } from '@tabler/icons-react';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'nextjs-toploader/app';
 import { useEffect, useState } from 'react';
+import { useActionMutation } from '@/shared/lib/hooks/use-action-mutation';
 import FormHeader from '@/shared/ui/adease/FormHeader';
 import { getLibrarySettings } from '../../settings/_server/actions';
 import type {
@@ -83,7 +84,7 @@ export default function LoanForm() {
 		}
 	}
 
-	const mutation = useMutation({
+	const mutation = useActionMutation({
 		mutationFn: async () => {
 			if (!student || !copy || !dueDate) {
 				throw new Error('Please fill all required fields');

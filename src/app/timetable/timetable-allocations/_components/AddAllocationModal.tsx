@@ -17,14 +17,15 @@ import { useForm } from '@mantine/form';
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import { IconPlus } from '@tabler/icons-react';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { getAllVenueTypes } from '@timetable/venue-types';
 import { getAllVenues } from '@timetable/venues';
 import { zod4Resolver as zodResolver } from 'mantine-form-zod-resolver';
 import { useState } from 'react';
 import { z } from 'zod';
+import { useActionMutation } from '@/shared/lib/hooks/use-action-mutation';
 import type { ActionData } from '@/shared/lib/utils/actionResult';
-import { unwrap } from '@/shared/lib/utils/actionResult';
+import { success, unwrap } from '@/shared/lib/utils/actionResult';
 import { toClassName } from '@/shared/lib/utils/utils';
 import {
 	applyTimeRefinements,
@@ -126,28 +127,27 @@ export default function AddAllocationModal({
 		form.setFieldValue('groups', groupNames);
 	}
 
-	const mutation = useMutation({
+	const mutation = useActionMutation({
 		mutationFn: async (values: FormValues) => {
 			if (values.groups.length === 0) {
-				const result = await createTimetableAllocationWithVenueTypes(
-					{
-						userId,
-						termId,
-						semesterModuleId: values.semesterModuleId,
-						duration: values.duration,
-						classType: values.classType,
-						numberOfStudents: values.numberOfStudents,
-						allowedDays: values.allowedDays,
-						startTime: values.startTime,
-						endTime: values.endTime,
-					},
-					values.venueTypeIds,
-					values.allowedVenueIds
+				unwrap(
+					await createTimetableAllocationWithVenueTypes(
+						{
+							userId,
+							termId,
+							semesterModuleId: values.semesterModuleId,
+							duration: values.duration,
+							classType: values.classType,
+							numberOfStudents: values.numberOfStudents,
+							allowedDays: values.allowedDays,
+							startTime: values.startTime,
+							endTime: values.endTime,
+						},
+						values.venueTypeIds,
+						values.allowedVenueIds
+					)
 				);
-				if (!result.success) {
-					throw new Error(result.error);
-				}
-				return result.data;
+				return success(undefined);
 			}
 
 			const allocations = values.groups.map((groupName: string) => ({
@@ -165,15 +165,14 @@ export default function AddAllocationModal({
 				endTime: values.endTime,
 			}));
 
-			const result = await createTimetableAllocationsWithVenueTypes(
-				allocations,
-				values.venueTypeIds,
-				values.allowedVenueIds
+			unwrap(
+				await createTimetableAllocationsWithVenueTypes(
+					allocations,
+					values.venueTypeIds,
+					values.allowedVenueIds
+				)
 			);
-			if (!result.success) {
-				throw new Error(result.error);
-			}
-			return result.data;
+			return success(undefined);
 		},
 		onSuccess: async () => {
 			await queryClient.invalidateQueries({

@@ -15,9 +15,10 @@ import { useForm } from '@mantine/form';
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import { IconPlus, IconVideo } from '@tabler/icons-react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import { zod4Resolver as zodResolver } from 'mantine-form-zod-resolver';
 import { z } from 'zod';
+import { useActionMutation } from '@/shared/lib/hooks/use-action-mutation';
 import { createBigBlueButtonSession } from '../_server/actions';
 
 const schema = z.object({
@@ -59,7 +60,7 @@ export default function VirtualClassroomForm({
 		},
 	});
 
-	const mutation = useMutation({
+	const mutation = useActionMutation({
 		mutationFn: async (values: FormValues) => {
 			return createBigBlueButtonSession({
 				courseid: courseId,

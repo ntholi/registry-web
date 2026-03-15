@@ -4,7 +4,8 @@ import { ActionIcon, List, Stack, Text } from '@mantine/core';
 import { modals } from '@mantine/modals';
 import { notifications } from '@mantine/notifications';
 import { IconTrashFilled } from '@tabler/icons-react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
+import { useActionMutation } from '@/shared/lib/hooks/use-action-mutation';
 import { getStudentClassName } from '@/shared/lib/utils/utils';
 import { deleteTimetableAllocations } from '../_server/actions';
 import type { AllocationData } from './AllocationTable';
@@ -40,13 +41,8 @@ export default function DeleteAllocationButton({
 		? [allocation.id, ...relatedAllocations.map((a) => a.id)]
 		: [allocation.id];
 
-	const mutation = useMutation({
-		mutationFn: async () => {
-			const result = await deleteTimetableAllocations(allocationIds);
-			if (!result.success) {
-				throw new Error(result.error);
-			}
-		},
+	const mutation = useActionMutation({
+		mutationFn: () => deleteTimetableAllocations(allocationIds),
 		onSuccess: async () => {
 			await queryClient.invalidateQueries({
 				queryKey: ['timetable-allocations', userId],

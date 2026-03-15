@@ -22,14 +22,15 @@ import { useForm } from '@mantine/form';
 import { useDebouncedCallback, useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import { IconCheck, IconPlus } from '@tabler/icons-react';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {
 	ASSESSMENT_TYPES,
 	COURSE_WORK_OPTIONS,
 } from '@/app/academic/assessments/_lib/utils';
 import { getAssessmentByModuleId } from '@/app/academic/assessments/_server/actions';
-import { unwrap } from '@/shared/lib/utils/actionResult';
+import { useActionMutation } from '@/shared/lib/hooks/use-action-mutation';
+import { success, unwrap } from '@/shared/lib/utils/actionResult';
 import {
 	createDraftQuiz,
 	publishQuiz,
@@ -147,7 +148,7 @@ export default function QuizForm({ courseId, moduleId }: QuizFormProps) {
 	const canCreateDraft =
 		!!form.values.assessmentNumber && !!form.values.assessmentType;
 
-	const createDraftMutation = useMutation({
+	const createDraftMutation = useActionMutation({
 		mutationFn: async () => {
 			const typeLabel =
 				ASSESSMENT_TYPES.find((t) => t.value === form.values.assessmentType)
@@ -177,14 +178,16 @@ export default function QuizForm({ courseId, moduleId }: QuizFormProps) {
 		},
 	});
 
-	const saveSettingsMutation = useMutation({
+	const saveSettingsMutation = useActionMutation({
 		mutationFn: async () => {
-			if (!draftQuizId) return;
+			if (!draftQuizId) {
+				return success(undefined);
+			}
 			const typeLabel =
 				ASSESSMENT_TYPES.find((t) => t.value === form.values.assessmentType)
 					?.label || 'Quiz';
 
-			await updateQuiz(draftQuizId, {
+			return updateQuiz(draftQuizId, {
 				name: typeLabel,
 				timeopen: form.values.startDateTime
 					? Math.floor(form.values.startDateTime.getTime() / 1000)
@@ -234,7 +237,7 @@ export default function QuizForm({ courseId, moduleId }: QuizFormProps) {
 		debouncedSave();
 	}, [opened, canCreateDraft, debouncedSave]);
 
-	const saveQuestionMutation = useMutation({
+	const saveQuestionMutation = useActionMutation({
 		mutationFn: async ({
 			question,
 			page,
@@ -296,7 +299,7 @@ export default function QuizForm({ courseId, moduleId }: QuizFormProps) {
 		);
 	};
 
-	const publishMutation = useMutation({
+	const publishMutation = useActionMutation({
 		mutationFn: async () => {
 			if (!draftQuizId) throw new Error('No draft quiz to publish');
 			return publishQuiz({

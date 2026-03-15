@@ -16,8 +16,9 @@ import {
 	ThemeIcon,
 } from '@mantine/core';
 import { IconCheck, IconEdit, IconMinus, IconX } from '@tabler/icons-react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
+import { useActionMutation } from '@/shared/lib/hooks/use-action-mutation';
 import { getQuizStateColor } from '@/shared/lib/utils/colors';
 import { gradeEssayQuestion } from '../../_server/actions';
 import type { QuizAttemptQuestion } from '../../types';
@@ -75,7 +76,7 @@ export default function QuizQuestionReview({
 	const [comment, setComment] = useState(question.feedback || '');
 	const queryClient = useQueryClient();
 
-	const gradeMutation = useMutation({
+	const gradeMutation = useActionMutation({
 		mutationFn: async () => {
 			const mark =
 				typeof gradeValue === 'string'

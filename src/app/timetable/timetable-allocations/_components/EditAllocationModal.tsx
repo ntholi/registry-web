@@ -5,11 +5,13 @@ import { useForm } from '@mantine/form';
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import { IconEdit } from '@tabler/icons-react';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { getAllVenueTypes } from '@timetable/venue-types';
 import { getAllVenues } from '@timetable/venues';
 import { zod4Resolver as zodResolver } from 'mantine-form-zod-resolver';
 import { z } from 'zod';
+import { useActionMutation } from '@/shared/lib/hooks/use-action-mutation';
+import { success, unwrap } from '@/shared/lib/utils/actionResult';
 import { getActionColor, getAlertColor } from '@/shared/lib/utils/colors';
 import {
 	applyTimeRefinements,
@@ -81,33 +83,31 @@ export default function EditAllocationModal({
 		},
 	});
 
-	const mutation = useMutation({
+	const mutation = useActionMutation({
 		mutationFn: async (values: FormValues) => {
-			const result = await updateTimetableAllocation(allocationId, {
-				duration: values.duration,
-				classType: values.classType,
-				numberOfStudents: values.numberOfStudents,
-				allowedDays: values.allowedDays,
-				startTime: values.startTime,
-				endTime: values.endTime,
-			});
-			if (!result.success) {
-				throw new Error(result.error);
-			}
-			const venueTypesResult = await updateTimetableAllocationVenueTypes(
-				allocationId,
-				values.venueTypeIds
+			unwrap(
+				await updateTimetableAllocation(allocationId, {
+					duration: values.duration,
+					classType: values.classType,
+					numberOfStudents: values.numberOfStudents,
+					allowedDays: values.allowedDays,
+					startTime: values.startTime,
+					endTime: values.endTime,
+				})
 			);
-			if (!venueTypesResult.success) {
-				throw new Error(venueTypesResult.error);
-			}
-			const venuesResult = await updateTimetableAllocationAllowedVenues(
-				allocationId,
-				values.allowedVenueIds
+			unwrap(
+				await updateTimetableAllocationVenueTypes(
+					allocationId,
+					values.venueTypeIds
+				)
 			);
-			if (!venuesResult.success) {
-				throw new Error(venuesResult.error);
-			}
+			unwrap(
+				await updateTimetableAllocationAllowedVenues(
+					allocationId,
+					values.allowedVenueIds
+				)
+			);
+			return success(undefined);
 		},
 		onSuccess: async () => {
 			await queryClient.invalidateQueries({
