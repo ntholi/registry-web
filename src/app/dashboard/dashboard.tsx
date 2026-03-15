@@ -268,6 +268,7 @@ function UserButton() {
 	const { data: userSchools } = useQuery({
 		queryKey: ['user-schools'],
 		queryFn: () => getUserSchools(session?.user?.id),
+		select: unwrap,
 		enabled: session?.user?.role === 'academic',
 	});
 

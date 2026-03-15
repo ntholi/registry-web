@@ -109,7 +109,7 @@ export default function EmployeeForm({
 						form.setFieldValue('department', mapped);
 					}
 					if (user.role === 'academic') {
-						const userSchools = await getUserSchools(user.id);
+						const userSchools = unwrap(await getUserSchools(user.id));
 						if (userSchools && userSchools.length > 0) {
 							form.setFieldValue(
 								'schoolIds' as never,

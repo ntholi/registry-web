@@ -13,11 +13,11 @@ import {
 import { getStatusColor } from '@/shared/lib/utils/colors';
 import InfoItem from '@/shared/ui/InfoItem';
 import Link from '@/shared/ui/Link';
-import type { getEmployee } from '../../_server/actions';
+import type { EmployeeDetails } from '../../_lib/types';
 import PhotoView from './PhotoView';
 
 type Props = {
-	employee: NonNullable<Awaited<ReturnType<typeof getEmployee>>>;
+	employee: EmployeeDetails;
 };
 
 export default function EmployeeView({ employee }: Props) {

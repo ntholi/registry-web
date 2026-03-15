@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
+import { unwrap } from '@/shared/lib/utils/actionResult';
 import { DetailsView, DetailsViewHeader } from '@/shared/ui/adease';
 import EmployeeTabs from '../_components/EmployeeTabs';
 import { deleteEmployee, getEmployee } from '../_server/actions';
@@ -10,7 +11,7 @@ type Props = {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
 	const { id } = await params;
-	const employee = await getEmployee(id);
+	const employee = unwrap(await getEmployee(id));
 	return {
 		title: `${employee?.name} | Limkokwing`,
 	};
@@ -18,7 +19,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function EmployeeDetailPage({ params }: Props) {
 	const { id } = await params;
-	const employee = await getEmployee(id);
+	const employee = unwrap(await getEmployee(id));
 
 	if (!employee) return notFound();
 

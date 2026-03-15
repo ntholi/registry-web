@@ -12,6 +12,7 @@ import {
 } from '@mantine/core';
 import { IconCalendar, IconUser } from '@tabler/icons-react';
 import { notFound } from 'next/navigation';
+import { unwrap } from '@/shared/lib/utils/actionResult';
 import { formatDate, formatDateTime } from '@/shared/lib/utils/dates';
 import {
 	DetailsView,
@@ -35,7 +36,7 @@ const priorityColors: Record<string, string> = {
 
 export default async function TaskDetails({ params }: Props) {
 	const { id } = await params;
-	const task = await getTask(id);
+	const task = unwrap(await getTask(id));
 
 	if (!task) {
 		return notFound();

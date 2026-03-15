@@ -4,22 +4,21 @@ import { notifications } from '@mantine/notifications';
 import { IconEdit, IconUpload, IconUser } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { authClient } from '@/core/auth-client';
+import { unwrap } from '@/shared/lib/utils/actionResult';
 import PhotoInputModal from '@/shared/ui/PhotoInputModal';
 import PhotoPreviewModal from '@/shared/ui/PhotoPreviewModal';
-import {
-	type getEmployee,
-	getEmployeePhoto,
-	uploadEmployeePhoto,
-} from '../../_server/actions';
+import type { EmployeeDetails } from '../../_lib/types';
+import { getEmployeePhoto, uploadEmployeePhoto } from '../../_server/actions';
 
 type Props = {
-	employee: NonNullable<Awaited<ReturnType<typeof getEmployee>>>;
+	employee: EmployeeDetails;
 };
 
 export default function PhotoView({ employee }: Props) {
 	const { data: photoUrl, refetch } = useQuery({
 		queryKey: ['employee-photo', employee.empNo],
 		queryFn: () => getEmployeePhoto(employee.empNo),
+		select: unwrap,
 		staleTime: 1000 * 60 * 3,
 	});
 	const { data: session } = authClient.useSession();
@@ -30,7 +29,7 @@ export default function PhotoView({ employee }: Props) {
 				type: 'image/jpeg',
 			});
 
-			await uploadEmployeePhoto(employee.empNo, photoFile);
+			unwrap(await uploadEmployeePhoto(employee.empNo, photoFile));
 			await refetch();
 
 			notifications.show({

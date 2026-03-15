@@ -93,9 +93,9 @@ pnpm tsc --noEmit
 
 ## Done When
 
-- [ ] All ~13 RSC pages with direct `await` calls use `unwrap()`
-- [ ] All 4 direct ListLayout callers verified working
-- [ ] All 4 arrow-wrapper ListLayout callers verified/updated
-- [ ] All direct `useMutation` callers switched to `useActionMutation`
-- [ ] `pnpm tsc --noEmit` passes
-- [ ] **Admin + Finance + Auth + HR modules fully migrated; all other modules still work**
+- [x] All ~13 RSC pages with direct `await` calls use `unwrap()`
+- [x] All 4 direct ListLayout callers verified working
+- [x] All 4 arrow-wrapper ListLayout callers verified/updated
+- [x] All direct `useMutation` callers switched to `useActionMutation`
+- [x] `pnpm tsc --noEmit` passes
+- [x] **Admin + Finance + Auth + HR modules fully migrated; all other modules still work**

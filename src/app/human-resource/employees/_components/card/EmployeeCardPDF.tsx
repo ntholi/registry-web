@@ -7,7 +7,7 @@ import {
 	Text,
 	View,
 } from '@react-pdf/renderer';
-import type { getEmployee } from '../../_server/actions';
+import type { EmployeeDetails } from '../../_lib/types';
 
 Font.register({
 	family: 'Tahoma',
@@ -128,7 +128,7 @@ const styles = StyleSheet.create({
 });
 
 type Props = {
-	employee: NonNullable<Awaited<ReturnType<typeof getEmployee>>>;
+	employee: EmployeeDetails;
 	photoUrl: string | null;
 };
 

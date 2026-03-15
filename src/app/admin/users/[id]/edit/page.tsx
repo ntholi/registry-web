@@ -1,6 +1,7 @@
 import { Form, getUser, updateUser } from '@admin/users';
 import { Box } from '@mantine/core';
 import { notFound } from 'next/navigation';
+import { unwrap } from '@/shared/lib/utils/actionResult';
 
 type Props = {
 	params: Promise<{ id: string }>;
@@ -8,7 +9,7 @@ type Props = {
 
 export default async function UserEdit({ params }: Props) {
 	const { id } = await params;
-	const user = await getUser(id);
+	const user = unwrap(await getUser(id));
 	if (!user) {
 		return notFound();
 	}
@@ -20,7 +21,7 @@ export default async function UserEdit({ params }: Props) {
 				defaultValues={user}
 				onSubmit={async (value) => {
 					'use server';
-					return await updateUser(id, value);
+					return unwrap(await updateUser(id, value));
 				}}
 			/>
 		</Box>
