@@ -1,40 +1,43 @@
 'use server';
 
 import type { venues } from '@/core/database';
+import { createAction } from '@/shared/lib/utils/actionResult';
 import type { VenueInsert } from './repository';
 import { venueService as service } from './service';
 
 type Venue = typeof venues.$inferInsert;
 
-export async function getVenueWithRelations(id: string) {
+export const getVenueWithRelations = createAction(async (id: string) => {
 	return service.getWithRelations(id);
-}
+});
 
-export async function findAllVenues(page = 1, search = '') {
-	return service.findAllWithRelations({
-		page,
-		search,
-		searchColumns: ['name'],
-		sort: [{ column: 'name', order: 'asc' }],
-	});
-}
+export const findAllVenues = createAction(
+	async (page: number = 1, search: string = '') => {
+		return service.findAllWithRelations({
+			page,
+			search,
+			searchColumns: ['name'],
+			sort: [{ column: 'name', order: 'asc' }],
+		});
+	}
+);
 
-export async function getAllVenues() {
+export const getAllVenues = createAction(async () => {
 	return service.getAllWithRelations();
-}
+});
 
-export async function createVenue(venue: VenueInsert, schoolIds: number[]) {
-	return service.createWithSchools(venue, schoolIds);
-}
+export const createVenue = createAction(
+	async (venue: VenueInsert, schoolIds: number[]) => {
+		return service.createWithSchools(venue, schoolIds);
+	}
+);
 
-export async function updateVenue(
-	id: string,
-	venue: Partial<Venue>,
-	schoolIds?: number[]
-) {
-	return service.updateWithSchools(id, venue, schoolIds);
-}
+export const updateVenue = createAction(
+	async (id: string, venue: Partial<Venue>, schoolIds?: number[]) => {
+		return service.updateWithSchools(id, venue, schoolIds);
+	}
+);
 
-export async function deleteVenue(id: string) {
+export const deleteVenue = createAction(async (id: string) => {
 	return service.delete(id);
-}
+});

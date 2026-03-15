@@ -6,8 +6,9 @@ import type {
 	PublicationWithRelations,
 } from '@library/resources/publications/_lib/types';
 import { publicationsService } from '@library/resources/publications/_server/service';
+import { createAction } from '@/shared/lib/utils/actionResult';
 
-export async function getCatalogBooks(search = '') {
+export const getCatalogBooks = createAction(async (search: string = '') => {
 	const result = await booksService.findAll({
 		page: 1,
 		size: 50,
@@ -21,12 +22,11 @@ export async function getCatalogBooks(search = '') {
 	);
 
 	return booksWithRelations.filter((b) => b !== null);
-}
+});
 
-export async function getCatalogPublications(
-	search = '',
-	type?: PublicationType
-): Promise<PublicationWithRelations[]> {
-	const result = await publicationsService.getPublications(1, search, type);
-	return result.items as PublicationWithRelations[];
-}
+export const getCatalogPublications = createAction(
+	async (search: string = '', type?: PublicationType) => {
+		const result = await publicationsService.getPublications(1, search, type);
+		return result.items as PublicationWithRelations[];
+	}
+);

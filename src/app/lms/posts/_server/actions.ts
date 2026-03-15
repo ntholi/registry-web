@@ -3,6 +3,7 @@
 import { getLmsCredentials } from '@auth/auth-providers/_server/repository';
 import { auth } from '@/core/auth';
 import { moodleGet, moodlePost } from '@/core/integrations/moodle';
+import { createAction, unwrap } from '@/shared/lib/utils/actionResult';
 import type {
 	CreatePostParams,
 	MoodleDiscussion,
@@ -24,9 +25,7 @@ async function getLmsToken() {
 	return creds?.lmsToken ?? undefined;
 }
 
-export async function getCourseForums(
-	courseId: number
-): Promise<MoodleForum[]> {
+export const getCourseForums = createAction(async (courseId: number) => {
 	const lmsToken = await getLmsToken();
 
 	const result = await moodleGet(
@@ -38,11 +37,9 @@ export async function getCourseForums(
 	);
 
 	return result as MoodleForum[];
-}
+});
 
-export async function getForumDiscussions(
-	forumId: number
-): Promise<MoodleDiscussion[]> {
+export const getForumDiscussions = createAction(async (forumId: number) => {
 	const lmsToken = await getLmsToken();
 
 	const result = await moodleGet(
@@ -59,7 +56,7 @@ export async function getForumDiscussions(
 	}
 
 	return result.discussions as MoodleDiscussion[];
-}
+});
 
 async function findOrCreateForum(
 	courseId: number,
@@ -132,7 +129,7 @@ async function getForumForPostType(
 	);
 }
 
-export async function createPost(params: CreatePostParams) {
+export const createPost = createAction(async (params: CreatePostParams) => {
 	const lmsToken = await getLmsToken();
 
 	if (!params.subject?.trim()) {
@@ -160,12 +157,10 @@ export async function createPost(params: CreatePostParams) {
 	);
 
 	return result;
-}
+});
 
-export async function getAnnouncementsForum(
-	courseId: number
-): Promise<MoodleForum | null> {
-	const forums = await getCourseForums(courseId);
+export const getAnnouncementsForum = createAction(async (courseId: number) => {
+	const forums = unwrap(await getCourseForums(courseId));
 	return (
 		forums.find(
 			(f) => f.name.toLowerCase() === ANNOUNCEMENTS_FORUM_NAME.toLowerCase()
@@ -173,12 +168,10 @@ export async function getAnnouncementsForum(
 		forums.find((f) => f.type === 'news') ||
 		null
 	);
-}
+});
 
-export async function getDiscussionsForum(
-	courseId: number
-): Promise<MoodleForum | null> {
-	const forums = await getCourseForums(courseId);
+export const getDiscussionsForum = createAction(async (courseId: number) => {
+	const forums = unwrap(await getCourseForums(courseId));
 	return (
 		forums.find(
 			(f) => f.name.toLowerCase() === DISCUSSIONS_FORUM_NAME.toLowerCase()
@@ -186,32 +179,27 @@ export async function getDiscussionsForum(
 		forums.find((f) => f.type === 'general') ||
 		null
 	);
-}
+});
 
-export async function getAllPosts(courseId: number): Promise<{
-	announcements: MoodleDiscussion[];
-	discussions: MoodleDiscussion[];
-}> {
+export const getAllPosts = createAction(async (courseId: number) => {
 	const [announcementsForum, discussionsForum] = await Promise.all([
-		getAnnouncementsForum(courseId),
-		getDiscussionsForum(courseId),
+		getAnnouncementsForum(courseId).then(unwrap),
+		getDiscussionsForum(courseId).then(unwrap),
 	]);
 
 	const [announcements, discussions] = await Promise.all([
 		announcementsForum
-			? getForumDiscussions(announcementsForum.id)
+			? getForumDiscussions(announcementsForum.id).then(unwrap)
 			: Promise.resolve([]),
 		discussionsForum
-			? getForumDiscussions(discussionsForum.id)
+			? getForumDiscussions(discussionsForum.id).then(unwrap)
 			: Promise.resolve([]),
 	]);
 
 	return { announcements, discussions };
-}
+});
 
-export async function getDiscussionPosts(
-	discussionId: number
-): Promise<MoodlePost[]> {
+export const getDiscussionPosts = createAction(async (discussionId: number) => {
 	const lmsToken = await getLmsToken();
 
 	const result = await moodleGet(
@@ -247,9 +235,9 @@ export async function getDiscussionPosts(
 		userfullname: p.author.fullname,
 		userpictureurl: p.author.urls.profileimage || '',
 	})) as MoodlePost[];
-}
+});
 
-export async function deletePost(discussionId: number) {
+export const deletePost = createAction(async (discussionId: number) => {
 	const lmsToken = await getLmsToken();
 
 	try {
@@ -264,4 +252,4 @@ export async function deletePost(discussionId: number) {
 		console.error('Error deleting post:', error);
 		throw new Error('Unable to delete post');
 	}
-}
+});

@@ -13,9 +13,9 @@ import { getStudentsBySemesterModules } from '@/app/registry/students';
 import { auth } from '@/core/auth';
 import { students } from '@/core/database';
 import { MoodleError, moodleGet, moodlePost } from '@/core/integrations/moodle';
-import { unwrap } from '@/shared/lib/utils/actionResult';
+import { createAction, unwrap } from '@/shared/lib/utils/actionResult';
 import { splitShortName } from '../../courses/_lib/utils';
-import type { MoodleEnrolledUser, StudentSearchResult } from '../types';
+import type { MoodleEnrolledUser } from '../types';
 import { studentRepository } from './repository';
 
 async function enrollUserInMoodleCourse(
@@ -47,175 +47,181 @@ async function enrollUserInMoodleCourse(
 	}
 }
 
-export async function getEnrolledStudentsFromDB(courseId: number) {
-	const session = await auth();
-	if (!session?.user) {
-		throw new Error('Unauthorized');
-	}
+export const getEnrolledStudentsFromDB = createAction(
+	async (courseId: number) => {
+		const session = await auth();
+		if (!session?.user) {
+			throw new Error('Unauthorized');
+		}
 
-	const result = await moodleGet(
-		'core_enrol_get_enrolled_users',
-		{
-			courseid: courseId,
-		},
-		process.env.MOODLE_TOKEN
-	);
-
-	const enrolledUsers = result as MoodleEnrolledUser[];
-	const studentUsers = enrolledUsers.filter((user) =>
-		user.roles.some((role) => role.shortname === 'student')
-	);
-
-	if (studentUsers.length === 0) {
-		return [];
-	}
-
-	const lmsUserIds = studentUsers.map((u) => u.id);
-
-	return studentRepository.findEnrolledStudentsByLmsUserIds(lmsUserIds);
-}
-
-export async function searchStudentsForEnrollment(
-	search: string
-): Promise<StudentSearchResult[]> {
-	const session = await auth();
-	if (!session?.user) {
-		throw new Error('Unauthorized');
-	}
-
-	if (!search || search.trim().length < 2) {
-		return [];
-	}
-
-	const searchTerm = search.trim();
-
-	let searchCondition: SQL | undefined;
-	const digitCount = (searchTerm.match(/\d/g) || []).length;
-	if (digitCount >= 5) {
-		searchCondition = sql`${students.stdNo}::text ilike ${`%${searchTerm}%`}`;
-	} else {
-		searchCondition = or(ilike(students.name, `%${searchTerm}%`));
-	}
-
-	return studentRepository.searchStudentsForEnrollment(searchCondition);
-}
-
-export async function findStudentsByLmsUserIdsForSubmissions(
-	lmsUserIds: number[]
-) {
-	const session = await auth();
-	if (!session?.user) {
-		throw new Error('Unauthorized');
-	}
-
-	return studentRepository.findStudentsByLmsUserIdsForSubmissions(lmsUserIds);
-}
-
-export async function getRegisteredStudentsForSync(courseId: number) {
-	const session = await auth();
-	if (!session?.user?.id) {
-		throw new Error('Unauthorized');
-	}
-
-	const [assignedModules, courseAssignment] = await Promise.all([
-		getAssignedModulesByCurrentUser(),
-		getAssignedModuleByLmsCourseId(courseId.toString()),
-	]);
-	const currentAssignments = unwrap(assignedModules);
-	const linkedCourseAssignment = unwrap(courseAssignment);
-
-	if (!linkedCourseAssignment?.semesterModule?.moduleId) {
-		return [];
-	}
-
-	const moduleId = linkedCourseAssignment.semesterModule.moduleId;
-
-	const semesterModuleIds = currentAssignments
-		.filter((am) => am.semesterModule?.moduleId === moduleId)
-		.map((am) => am.semesterModule!.id);
-
-	if (semesterModuleIds.length === 0) {
-		return [];
-	}
-
-	return getStudentsBySemesterModules(semesterModuleIds);
-}
-
-export async function enrollStudentInCourse(
-	courseId: number,
-	studentStdNo: number,
-	courseFullname: string,
-	courseShortname: string
-): Promise<{ success: boolean; message: string }> {
-	const session = await auth();
-	if (!session?.user) {
-		throw new Error('Unauthorized');
-	}
-
-	const courseTerm = splitShortName(courseShortname).term;
-	if (!courseTerm) {
-		return {
-			success: false,
-			message: 'Course term could not be determined from shortname',
-		};
-	}
-
-	const isEligible = await studentRepository.checkStudentEligibilityForCourse(
-		studentStdNo,
-		courseFullname,
-		courseTerm
-	);
-
-	if (!isEligible) {
-		return {
-			success: false,
-			message: `Student has not enrolled for the module "${courseFullname}" in term ${courseTerm}`,
-		};
-	}
-
-	const student = await studentRepository.findStudentWithUser(studentStdNo);
-
-	if (!student) {
-		return { success: false, message: 'Student not found' };
-	}
-
-	if (!student.user) {
-		return { success: false, message: 'Student has no linked user account' };
-	}
-
-	if (!student.user.email) {
-		return { success: false, message: 'Student user has no email address' };
-	}
-
-	const creds = await getLmsCredentials(student.user.id);
-	const lmsUserId = creds?.lmsUserId;
-	if (!lmsUserId) {
-		const moodleUserResult = await moodleGet(
-			'core_user_get_users',
+		const result = await moodleGet(
+			'core_enrol_get_enrolled_users',
 			{
-				'criteria[0][key]': 'email',
-				'criteria[0][value]': student.user.email,
+				courseid: courseId,
 			},
 			process.env.MOODLE_TOKEN
 		);
 
-		if (
-			!moodleUserResult?.users ||
-			!Array.isArray(moodleUserResult.users) ||
-			moodleUserResult.users.length === 0
-		) {
-			return { success: false, message: 'Student not found in Moodle' };
-		}
-
-		const moodleUserId = moodleUserResult.users[0].id;
-		await upsertLmsCredentials(
-			student.user.id,
-			moodleUserId,
-			creds?.lmsToken ?? null
+		const enrolledUsers = result as MoodleEnrolledUser[];
+		const studentUsers = enrolledUsers.filter((user) =>
+			user.roles.some((role) => role.shortname === 'student')
 		);
 
-		return enrollUserInMoodleCourse(moodleUserId, courseId);
-	}
+		if (studentUsers.length === 0) {
+			return [];
+		}
 
-	return enrollUserInMoodleCourse(lmsUserId, courseId);
-}
+		const lmsUserIds = studentUsers.map((u) => u.id);
+
+		return studentRepository.findEnrolledStudentsByLmsUserIds(lmsUserIds);
+	}
+);
+
+export const searchStudentsForEnrollment = createAction(
+	async (search: string) => {
+		const session = await auth();
+		if (!session?.user) {
+			throw new Error('Unauthorized');
+		}
+
+		if (!search || search.trim().length < 2) {
+			return [];
+		}
+
+		const searchTerm = search.trim();
+
+		let searchCondition: SQL | undefined;
+		const digitCount = (searchTerm.match(/\d/g) || []).length;
+		if (digitCount >= 5) {
+			searchCondition = sql`${students.stdNo}::text ilike ${`%${searchTerm}%`}`;
+		} else {
+			searchCondition = or(ilike(students.name, `%${searchTerm}%`));
+		}
+
+		return studentRepository.searchStudentsForEnrollment(searchCondition);
+	}
+);
+
+export const findStudentsByLmsUserIdsForSubmissions = createAction(
+	async (lmsUserIds: number[]) => {
+		const session = await auth();
+		if (!session?.user) {
+			throw new Error('Unauthorized');
+		}
+
+		return studentRepository.findStudentsByLmsUserIdsForSubmissions(lmsUserIds);
+	}
+);
+
+export const getRegisteredStudentsForSync = createAction(
+	async (courseId: number) => {
+		const session = await auth();
+		if (!session?.user?.id) {
+			throw new Error('Unauthorized');
+		}
+
+		const [assignedModules, courseAssignment] = await Promise.all([
+			getAssignedModulesByCurrentUser(),
+			getAssignedModuleByLmsCourseId(courseId.toString()),
+		]);
+		const currentAssignments = unwrap(assignedModules);
+		const linkedCourseAssignment = unwrap(courseAssignment);
+
+		if (!linkedCourseAssignment?.semesterModule?.moduleId) {
+			return [];
+		}
+
+		const moduleId = linkedCourseAssignment.semesterModule.moduleId;
+
+		const semesterModuleIds = currentAssignments
+			.filter((am) => am.semesterModule?.moduleId === moduleId)
+			.map((am) => am.semesterModule!.id);
+
+		if (semesterModuleIds.length === 0) {
+			return [];
+		}
+
+		return unwrap(await getStudentsBySemesterModules(semesterModuleIds));
+	}
+);
+
+export const enrollStudentInCourse = createAction(
+	async (
+		courseId: number,
+		studentStdNo: number,
+		courseFullname: string,
+		courseShortname: string
+	) => {
+		const session = await auth();
+		if (!session?.user) {
+			throw new Error('Unauthorized');
+		}
+
+		const courseTerm = splitShortName(courseShortname).term;
+		if (!courseTerm) {
+			return {
+				success: false,
+				message: 'Course term could not be determined from shortname',
+			};
+		}
+
+		const isEligible = await studentRepository.checkStudentEligibilityForCourse(
+			studentStdNo,
+			courseFullname,
+			courseTerm
+		);
+
+		if (!isEligible) {
+			return {
+				success: false,
+				message: `Student has not enrolled for the module "${courseFullname}" in term ${courseTerm}`,
+			};
+		}
+
+		const student = await studentRepository.findStudentWithUser(studentStdNo);
+
+		if (!student) {
+			return { success: false, message: 'Student not found' };
+		}
+
+		if (!student.user) {
+			return { success: false, message: 'Student has no linked user account' };
+		}
+
+		if (!student.user.email) {
+			return { success: false, message: 'Student user has no email address' };
+		}
+
+		const creds = await getLmsCredentials(student.user.id);
+		const lmsUserId = creds?.lmsUserId;
+		if (!lmsUserId) {
+			const moodleUserResult = await moodleGet(
+				'core_user_get_users',
+				{
+					'criteria[0][key]': 'email',
+					'criteria[0][value]': student.user.email,
+				},
+				process.env.MOODLE_TOKEN
+			);
+
+			if (
+				!moodleUserResult?.users ||
+				!Array.isArray(moodleUserResult.users) ||
+				moodleUserResult.users.length === 0
+			) {
+				return { success: false, message: 'Student not found in Moodle' };
+			}
+
+			const moodleUserId = moodleUserResult.users[0].id;
+			await upsertLmsCredentials(
+				student.user.id,
+				moodleUserId,
+				creds?.lmsToken ?? null
+			);
+
+			return enrollUserInMoodleCourse(moodleUserId, courseId);
+		}
+
+		return enrollUserInMoodleCourse(lmsUserId, courseId);
+	}
+);

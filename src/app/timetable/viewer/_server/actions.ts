@@ -1,5 +1,6 @@
 'use server';
 
+import { createAction } from '@/shared/lib/utils/actionResult';
 import {
 	getAvailableClasses,
 	getClassTimetable,
@@ -7,24 +8,24 @@ import {
 	getVenueTimetable,
 } from './service';
 
-export async function getVenueTimetableSlots(venueId: string, termId: number) {
-	return getVenueTimetable(venueId, termId);
-}
+export const getVenueTimetableSlots = createAction(
+	async (venueId: string, termId: number) => {
+		return getVenueTimetable(venueId, termId);
+	}
+);
 
-export async function getClassTimetableSlots(
-	semesterId: number,
-	termId: number
-) {
-	return getClassTimetable(semesterId, termId);
-}
+export const getClassTimetableSlots = createAction(
+	async (semesterId: number, termId: number) => {
+		return getClassTimetable(semesterId, termId);
+	}
+);
 
-export async function getLecturerTimetableSlots(
-	userId: string,
-	termId: number
-) {
-	return getLecturerTimetable(userId, termId);
-}
+export const getLecturerTimetableSlots = createAction(
+	async (userId: string, termId: number) => {
+		return getLecturerTimetable(userId, termId);
+	}
+);
 
-export async function getClassesWithTimetable(termId: number) {
+export const getClassesWithTimetable = createAction(async (termId: number) => {
 	return getAvailableClasses(termId);
-}
+});

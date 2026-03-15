@@ -2,15 +2,16 @@
 
 import { sql } from 'drizzle-orm';
 import { authors, db } from '@/core/database';
+import { createAction } from '@/shared/lib/utils/actionResult';
 import { authorsService } from './service';
 
 type Author = typeof authors.$inferInsert;
 
-export async function getAuthor(id: string) {
+export const getAuthor = createAction(async (id: string) => {
 	return authorsService.get(id);
-}
+});
 
-export async function getOrCreateAuthors(names: string[]) {
+export const getOrCreateAuthors = createAction(async (names: string[]) => {
 	if (names.length === 0) return [];
 	return db.transaction(async (tx) => {
 		const results: { id: string; name: string }[] = [];
@@ -36,30 +37,32 @@ export async function getOrCreateAuthors(names: string[]) {
 		}
 		return results;
 	});
-}
+});
 
-export async function getAuthors(page = 1, search = '') {
-	return authorsService.findAll({
-		page,
-		search,
-		searchColumns: ['name'],
-		sort: [{ column: 'name', order: 'asc' }],
-	});
-}
+export const getAuthors = createAction(
+	async (page: number = 1, search: string = '') => {
+		return authorsService.findAll({
+			page,
+			search,
+			searchColumns: ['name'],
+			sort: [{ column: 'name', order: 'asc' }],
+		});
+	}
+);
 
-export async function getAllAuthors() {
+export const getAllAuthors = createAction(async () => {
 	const result = await authorsService.findAll({ size: 1000 });
 	return result.items;
-}
+});
 
-export async function createAuthor(data: Author) {
+export const createAuthor = createAction(async (data: Author) => {
 	return authorsService.create(data);
-}
+});
 
-export async function updateAuthor(id: string, data: Author) {
+export const updateAuthor = createAction(async (id: string, data: Author) => {
 	return authorsService.update(id, data);
-}
+});
 
-export async function deleteAuthor(id: string) {
+export const deleteAuthor = createAction(async (id: string) => {
 	return authorsService.delete(id);
-}
+});
