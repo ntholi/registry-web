@@ -111,25 +111,22 @@ export const analyzeDocumentWithAI = createAction(
 		analyzeDocument(fileBase64, mediaType)
 );
 
-function normalizeFileUrl(fileUrl: string): string {
-	if (!fileUrl) {
-		throw new UserFacingError('Document URL is missing');
-	}
-
-	try {
-		return new URL(fileUrl).toString();
-	} catch {
-		return encodeURI(fileUrl);
-	}
-}
-
 export const reanalyzeDocumentFromUrl = createAction(
 	async (
 		fileUrl: string,
 		applicantId: string,
 		documentType: DocumentType
 	): Promise<DocumentAnalysisResult> => {
-		const normalizedUrl = normalizeFileUrl(fileUrl);
+		if (!fileUrl) {
+			throw new UserFacingError('Document URL is missing');
+		}
+		const normalizedUrl = (() => {
+			try {
+				return new URL(fileUrl).toString();
+			} catch {
+				return encodeURI(fileUrl);
+			}
+		})();
 		const response = await fetch(getPublicUrl(normalizedUrl), {
 			cache: 'no-store',
 		});

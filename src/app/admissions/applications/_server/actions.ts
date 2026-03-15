@@ -133,11 +133,13 @@ export const uploadAndAnalyzeDocument = createAction(
 
 		const buffer = await file.arrayBuffer();
 		const base64 = Buffer.from(buffer).toString('base64');
-		const result = unwrap(await analyzeDocumentWithAI(base64, file.type));
-		if (!result.success) {
-			throw new UserFacingError(result.error);
+		const analysisResult = unwrap(
+			await analyzeDocumentWithAI(base64, file.type)
+		);
+		if (!analysisResult.success) {
+			throw new UserFacingError(analysisResult.error);
 		}
-		const analysis = result.data;
+		const analysis = analysisResult.data;
 
 		const type: DocumentType = analysis.documentType;
 
