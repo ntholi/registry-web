@@ -6,30 +6,33 @@ import {
 	findActiveIntakePeriod,
 	getOpenProgramIds,
 } from '@admissions/intake-periods/_server/actions';
+import { createAction, unwrap } from '@/shared/lib/utils/actionResult';
 
-export async function getEligiblePrograms(applicantId: string) {
+export const getEligiblePrograms = createAction(async (applicantId: string) => {
 	const [allEligible, activeIntake] = await Promise.all([
-		getEligibleProgramsForApplicant(applicantId),
-		findActiveIntakePeriod(),
+		getEligibleProgramsForApplicant(applicantId).then(unwrap),
+		findActiveIntakePeriod().then(unwrap),
 	]);
 
 	if (!activeIntake) return allEligible;
 
-	const openProgramIds = await getOpenProgramIds(activeIntake.id);
+	const openProgramIds = unwrap(await getOpenProgramIds(activeIntake.id));
 
 	if (openProgramIds.length === 0) return allEligible;
 
 	return allEligible.filter((p) => openProgramIds.includes(p.id));
-}
+});
 
-export async function getActiveIntake() {
-	return (await findActiveIntakePeriod()) ?? null;
-}
+export const getActiveIntake = createAction(
+	async () => unwrap(await findActiveIntakePeriod()) ?? null
+);
 
-export async function getExistingApplication(applicantId: string) {
-	const applications = await findApplicationsByApplicant(applicantId);
-	return (
-		applications.find((app: { status: string }) => app.status === 'draft') ??
-		null
-	);
-}
+export const getExistingApplication = createAction(
+	async (applicantId: string) => {
+		const applications = unwrap(await findApplicationsByApplicant(applicantId));
+		return (
+			applications.find((app: { status: string }) => app.status === 'draft') ??
+			null
+		);
+	}
+);

@@ -30,6 +30,7 @@ import {
 } from 'nuqs';
 import { useMemo, useState } from 'react';
 import CoursesFilters from '@/app/apply/courses/_components/CoursesFilters';
+import { unwrap } from '@/shared/lib/utils/actionResult';
 import WizardNavigation from '../../_components/WizardNavigation';
 import { getActiveIntake, getEligiblePrograms } from '../_server/actions';
 import CourseCard from './CourseCard';
@@ -80,14 +81,14 @@ export default function CourseSelectionForm({ applicationId }: Props) {
 		isFetching: fetchingPrograms,
 	} = useQuery({
 		queryKey: ['eligible-programs', applicantId],
-		queryFn: () => getEligiblePrograms(applicantId),
+		queryFn: () => getEligiblePrograms(applicantId).then(unwrap),
 		enabled: !!applicantId,
 		retry: 2,
 	});
 
 	const { data: activeIntake, isLoading: loadingIntake } = useQuery({
 		queryKey: ['active-intake'],
-		queryFn: getActiveIntake,
+		queryFn: () => getActiveIntake().then(unwrap),
 	});
 
 	const [firstChoice, setFirstChoice] = useState<string | null>(null);

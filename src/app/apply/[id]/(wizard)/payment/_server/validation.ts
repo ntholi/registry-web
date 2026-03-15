@@ -8,6 +8,7 @@ import {
 	analyzeReceipt,
 	type ReceiptResult,
 } from '@/core/integrations/ai/documents';
+import { unwrap } from '@/shared/lib/utils/actionResult';
 
 const BENEFICIARY_NAME = 'Limkokwing University of Creative Technology';
 const BENEFICIARY_ACCOUNT = '9080003987813';
@@ -161,7 +162,7 @@ export async function validateReceipts(
 	applicationId: string,
 	receipts: Array<{ base64: string; mediaType: string }>
 ): Promise<ReceiptsValidationResult> {
-	const application = await getApplication(applicationId);
+	const application = unwrap(await getApplication(applicationId));
 	if (!application) {
 		return {
 			success: false,

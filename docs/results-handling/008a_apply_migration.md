@@ -89,10 +89,12 @@ import { type ActionResult } from '@/shared/lib/utils/actionResult';
 pnpm tsc --noEmit
 ```
 
+**Expected**: No new type errors in the migrated apply action files. Remaining apply consumer errors are handled in Plans 008b/008c.
+
 ## Done When
 
-- [ ] All 6 apply action files use `createAction` instead of manual `try/catch`
-- [ ] No apply action file imports local `extractError`
-- [ ] `src/app/apply/_lib/errors.ts` is **deleted**
-- [ ] All apply imports updated to use shared paths (`@/shared/lib/utils/actionResult`)
-- [ ] `pnpm tsc --noEmit` passes
+- [x] All 6 apply action files use `createAction` instead of manual `try/catch`
+- [x] No apply action file imports local `extractError`
+- [x] `src/app/apply/_lib/errors.ts` is **deleted**
+- [x] All apply imports updated to use shared paths (`@/shared/lib/utils/actionResult`)
+- [x] `pnpm tsc --noEmit` reports no new 008a action-file errors; remaining apply consumer errors are fixed in 008b/008c

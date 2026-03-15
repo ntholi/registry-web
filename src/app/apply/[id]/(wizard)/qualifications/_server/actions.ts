@@ -11,7 +11,6 @@ import {
 	saveApplicantDocument,
 } from '@admissions/applicants/[id]/documents/_server/actions';
 import { getApplication } from '@admissions/applications';
-import { type ActionResult, extractError } from '@apply/_lib/errors';
 import { getStudentByUserId } from '@registry/students';
 import { auth } from '@/core/auth';
 import type { CertificateDocumentResult } from '@/core/integrations/ai/documents';
@@ -20,6 +19,8 @@ import {
 	generateUploadKey,
 	StoragePaths,
 } from '@/core/integrations/storage-utils';
+import { createAction, unwrap } from '@/shared/lib/utils/actionResult';
+import { UserFacingError } from '@/shared/lib/utils/extractError';
 import {
 	getAcademicRemarks,
 	getResultClassificationFromCgpa,
@@ -43,35 +44,33 @@ function extractYear(value: string | null | undefined) {
 	return Number.isNaN(year) ? undefined : year;
 }
 
-export async function prepopulateAcademicRecordsFromCompletedPrograms(
-	applicationId: string
-): Promise<ActionResult<number>> {
-	try {
+export const prepopulateAcademicRecordsFromCompletedPrograms = createAction(
+	async (applicationId: string): Promise<number> => {
 		const session = await auth();
 		if (!session?.user?.id) {
-			return { success: false, error: 'Unauthorized' };
+			throw new UserFacingError('Unauthorized');
 		}
 
-		const application = await getApplication(applicationId);
+		const application = unwrap(await getApplication(applicationId));
 		if (!application) {
-			return { success: false, error: 'Application not found' };
+			throw new UserFacingError('Application not found');
 		}
 
-		const applicant = await getOrCreateApplicantForCurrentUser();
+		const applicant = unwrap(await getOrCreateApplicantForCurrentUser());
 		if (!applicant || applicant.id !== application.applicantId) {
-			return { success: false, error: 'Applicant not found' };
+			throw new UserFacingError('Applicant not found');
 		}
 
-		const student = await getStudentByUserId(session.user.id);
+		const student = unwrap(await getStudentByUserId(session.user.id));
 		if (!student) {
-			return { success: true, data: 0 };
+			return 0;
 		}
 
 		const completedPrograms = student.programs.filter(
 			(program) => program.status === 'Completed'
 		);
 		if (completedPrograms.length === 0) {
-			return { success: true, data: 0 };
+			return 0;
 		}
 
 		const existingKeys = new Set(
@@ -83,8 +82,8 @@ export async function prepopulateAcademicRecordsFromCompletedPrograms(
 
 		let createdCount = 0;
 		for (const program of completedPrograms) {
-			const certType = await findCertificateTypeByName(
-				program.structure.program.level
+			const certType = unwrap(
+				await findCertificateTypeByName(program.structure.program.level)
 			);
 			if (!certType) continue;
 
@@ -115,26 +114,24 @@ export async function prepopulateAcademicRecordsFromCompletedPrograms(
 					resultClassification,
 				},
 				isLevel4
-			);
+			).then(unwrap);
 
 			existingKeys.add(key);
 			createdCount += 1;
 		}
 
-		return { success: true, data: createdCount };
-	} catch (error) {
-		return { success: false, error: extractError(error) };
+		return createdCount;
 	}
-}
+);
 
-export async function uploadCertificateDocument(
-	applicantId: string,
-	file: File,
-	analysis: CertificateDocumentResult
-): Promise<ActionResult<UploadResult>> {
-	try {
+export const uploadCertificateDocument = createAction(
+	async (
+		applicantId: string,
+		file: File,
+		analysis: CertificateDocumentResult
+	): Promise<UploadResult> => {
 		if (file.size > MAX_FILE_SIZE) {
-			return { success: false, error: 'File size exceeds 2MB limit' };
+			throw new UserFacingError('File size exceeds 2MB limit');
 		}
 
 		const fileKey = generateUploadKey(
@@ -151,7 +148,7 @@ export async function uploadCertificateDocument(
 			fileName: file.name,
 			fileUrl: fileKey,
 			type,
-		});
+		}).then(unwrap);
 
 		const isAcademicType = type === 'certificate' || type === 'academic_record';
 
@@ -167,7 +164,7 @@ export async function uploadCertificateDocument(
 				hasSubjects: !!analysis.subjects?.length,
 			});
 
-			const recordResult = await createAcademicRecordFromDocument(
+			await createAcademicRecordFromDocument(
 				applicantId,
 				{
 					institutionName,
@@ -179,26 +176,13 @@ export async function uploadCertificateDocument(
 					qualificationName: analysis.qualificationName,
 				},
 				savedDoc?.id
-			);
-			if (!recordResult.success) {
-				return { success: false, error: recordResult.error };
-			}
+			).then(unwrap);
 		}
 
-		return { success: true, data: { fileName: file.name, type, analysis } };
-	} catch (error) {
-		console.error('[uploadCertificateDocument] Error:', error);
-		return { success: false, error: extractError(error) };
+		return { fileName: file.name, type, analysis };
 	}
-}
+);
 
-export async function removeAcademicRecord(
-	id: string
-): Promise<ActionResult<void>> {
-	try {
-		await deleteAcademicRecord(id);
-		return { success: true, data: undefined };
-	} catch (error) {
-		return { success: false, error: extractError(error) };
-	}
-}
+export const removeAcademicRecord = createAction(async (id: string) => {
+	await deleteAcademicRecord(id).then(unwrap);
+});
