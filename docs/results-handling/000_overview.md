@@ -81,24 +81,39 @@ Full architecture details, code snippets, type definitions, and rationale:
 |---|------|-------|--------|
 | 1 | [001_shared_infrastructure.md](./001_shared_infrastructure.md) | `extractError.ts`, `actionResult.ts`, `UserFacingError` — backward-compatible | ✅ Completed |
 | 2 | [002_ui_components.md](./002_ui_components.md) | `StatusPage`, `error.tsx`, `global-error.tsx`, `useActionMutation`, `Form`, `DeleteButton`, `DetailsViewHeader`, `ListLayout` — dual-format support | ✅ Completed |
-| 3 | [003_academic.md](./003_academic.md) | Academic module: 13 actions + ~18 RSC pages + layouts | ✅ Completed |
-| 4 | [004_registry.md](./004_registry.md) | Registry module: 18 actions + ~24 RSC pages + layouts | ⬜ Not started |
-| 5 | [005_admissions.md](./005_admissions.md) | Admissions module: 17 actions + ~16 RSC pages + layouts | ⬜ Not started |
-| 6 | [006_admin_finance.md](./006_admin_finance.md) | Admin + Finance + Auth + HR: 10 actions + ~19 RSC pages + layouts | ⬜ Not started |
-| 7 | [007_lms_library_timetable.md](./007_lms_library_timetable.md) | LMS + Library + Timetable: 26 actions + ~34 RSC pages + layouts | ⬜ Not started |
-| 8 | [008_remaining.md](./008_remaining.md) | Apply + Reports + Student Portal + Audit-Logs + Feedback: 17 actions + ~15 RSC pages + layouts | ⬜ Not started |
-| 9 | [009_cleanup.md](./009_cleanup.md) | Remove backward compat: `error` → `AppError` only, optional object params for ListLayout | ⬜ Not started |
+| 3 | [003_academic.md](./003_academic.md) | Academic module: 13 actions + ~18 RSC pages + layouts + client components | ✅ Completed |
+| 4a | [004a_registry_actions.md](./004a_registry_actions.md) | Registry: wrap 18 action files + 2 cross-action calls | ⬜ Not started |
+| 4b | [004b_registry_pages_layouts.md](./004b_registry_pages_layouts.md) | Registry: ~14 RSC pages + ~12 ListLayout callers | ⬜ Not started |
+| 4c | [004c_registry_client_components.md](./004c_registry_client_components.md) | Registry: direct `useMutation` → `useActionMutation` | ⬜ Not started |
+| 5a | [005a_admissions_actions.md](./005a_admissions_actions.md) | Admissions: wrap 17 action files | ⬜ Not started |
+| 5b | [005b_admissions_pages_layouts.md](./005b_admissions_pages_layouts.md) | Admissions: ~10 RSC pages + ~8 ListLayout callers + 10 cross-action calls | ⬜ Not started |
+| 5c | [005c_admissions_client_components.md](./005c_admissions_client_components.md) | Admissions: direct `useMutation` → `useActionMutation` | ⬜ Not started |
+| 6a | [006a_admin_finance_actions.md](./006a_admin_finance_actions.md) | Admin + Finance + Auth + HR: wrap 10 action files + cross-action calls | ⬜ Not started |
+| 6b | [006b_admin_finance_pages_clients.md](./006b_admin_finance_pages_clients.md) | Admin + Finance + Auth + HR: ~13 RSC pages + ~8 ListLayout callers + `useMutation` callers | ⬜ Not started |
+| 7a | [007a_lms_library_timetable_actions.md](./007a_lms_library_timetable_actions.md) | LMS + Library + Timetable: wrap 26 action files + 9 cross-action calls | ⬜ Not started |
+| 7b | [007b_lms_library_timetable_pages.md](./007b_lms_library_timetable_pages.md) | LMS + Library + Timetable: ~19 RSC pages + ~11 ListLayout callers | ⬜ Not started |
+| 7c | [007c_lms_library_timetable_clients.md](./007c_lms_library_timetable_clients.md) | LMS + Library + Timetable: ~40 `useMutation` → `useActionMutation` (LMS-heavy) | ⬜ Not started |
+| 8a | [008a_apply_migration.md](./008a_apply_migration.md) | Apply: special migration (6 files manual → `createAction`) + delete `errors.ts` | ⬜ Not started |
+| 8b | [008b_remaining_actions_pages.md](./008b_remaining_actions_pages.md) | Reports + Student Portal + Audit Logs + Feedback: 11 actions + RSC pages + ListLayout | ⬜ Not started |
+| 8c | [008c_cross_actions_clients.md](./008c_cross_actions_clients.md) | Apply/Reports: ~24 cross-action calls + `useMutation` callers | ⬜ Not started |
+| 9a | [009a_type_tightening.md](./009a_type_tightening.md) | Tighten `ActionResult.error` → `AppError` only + remove compat code | ⬜ Not started |
+| 9b | [009b_listlayout_object_params.md](./009b_listlayout_object_params.md) | (Optional) Switch ListLayout to `({ page, search })` object params | ⬜ Not started |
 | 10 | [010_verification.md](./010_verification.md) | Full verification, type-check, lint, manual testing checklist | ⬜ Not started |
 
 ## Execution Order
 
-Plans **must** be executed in numerical order:
+Plans **must** be executed in numerical order. Within each module group (e.g., 004a → 004b → 004c), subtasks must be completed sequentially. The subtask breakdown allows progress tracking at a finer granularity.
 
 1. **001** creates shared types and utilities — **non-breaking** (new files, backward-compatible types)
 2. **002** updates UI components to accept both old and new formats — **non-breaking** (existing callers still work)
-3. **003–008** each migrate one module group end-to-end (actions + RSC pages + layouts) — **non-breaking** (unmigrated modules keep working with old pattern)
-4. **009** removes backward compat, tightens types — **requires all modules migrated first**
-5. **010** runs full verification
+3. **003** migrates the academic module end-to-end — **non-breaking**
+4. **004a → 004b → 004c** migrates the registry module in three steps: actions → pages/layouts → client components
+5. **005a → 005b → 005c** migrates the admissions module in three steps
+6. **006a → 006b** migrates admin/finance/auth/HR in two steps
+7. **007a → 007b → 007c** migrates LMS/library/timetable in three steps (largest client component migration)
+8. **008a → 008b → 008c** migrates apply (special) + remaining modules in three steps (largest cross-action migration)
+9. **009a → 009b** removes backward compat + optional object params — **requires all modules migrated first**
+10. **010** runs full verification
 
 ### Why this order is safe
 
@@ -107,13 +122,23 @@ Plans **must** be executed in numerical order:
 | 001 | ✅ New shared files added. No consumers changed. All existing code works. |
 | 002 | ✅ UI components handle both formats. Old actions still return raw data → components handle it. New ActionResult → components handle it too. |
 | 003 | ✅ Academic module fully migrated. All other modules unchanged and working. |
-| 004 | ✅ Academic + Registry migrated. Others unchanged. |
-| 005 | ✅ + Admissions migrated. |
-| 006 | ✅ + Admin/Finance/Auth/HR migrated. |
-| 007 | ✅ + LMS/Library/Timetable migrated. |
-| 008 | ✅ All modules migrated. Backward compat still in place. |
-| 009 | ✅ Compat removed. Types fully strict. |
-| 010 | ✅ Full verification pass. |
+| 004a | ✅ Registry action files wrapped. Return types changed to `ActionResult<T>`. |
+| 004b | ✅ Registry RSC pages + ListLayout callers updated. |
+| 004c | ✅ Registry client components migrated. **Registry module fully complete.** |
+| 005a | ✅ Admissions action files wrapped. |
+| 005b | ✅ Admissions RSC pages + ListLayout + cross-action calls updated. |
+| 005c | ✅ Admissions client components migrated. **Admissions module fully complete.** |
+| 006a | ✅ Admin/Finance/Auth/HR action files wrapped. |
+| 006b | ✅ Admin/Finance/Auth/HR pages + clients migrated. **Module group fully complete.** |
+| 007a | ✅ LMS/Library/Timetable action files wrapped. |
+| 007b | ✅ LMS/Library/Timetable RSC pages + ListLayout callers updated. |
+| 007c | ✅ LMS/Library/Timetable client components migrated. **Module group fully complete.** |
+| 008a | ✅ Apply module converted from manual pattern to `createAction`. `errors.ts` deleted. |
+| 008b | ✅ Reports/Portal/AuditLogs/Feedback actions + pages migrated. |
+| 008c | ✅ All cross-action calls wrapped + `useMutation` callers migrated. **All modules complete.** |
+| 009a | ✅ Types tightened. `AppError \| string` → `AppError` only. Compat code removed. |
+| 009b | ✅ (Optional) ListLayout object params. Types fully strict. |
+| 010 | ✅ Full verification pass. **The entire migration is complete.** |
 
 ## Progress Tracking
 

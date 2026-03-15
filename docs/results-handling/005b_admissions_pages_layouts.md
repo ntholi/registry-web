@@ -1,48 +1,16 @@
-# Plan 005: Admissions Module
+# Plan 005b: Admissions — RSC Pages + ListLayout + Cross-Action Calls
 
-> Migrate the entire `admissions/` module end-to-end: wrap actions with `createAction`, update RSC pages with `unwrap()`, verify/update ListLayout callers. **Non-breaking**.
+> Update admissions RSC pages with `unwrap()`, verify/update ListLayout callers, and handle the significant cross-action calls within this module. **Non-breaking**.
 
 ## Prerequisites
 
-- Plan 001 completed (`createAction`, `unwrap`, `ActionResult<T>`)
-- Plan 002 completed (UI components handle both old and new formats)
+- Plan 005a completed (all 17 admissions action files wrapped with `createAction`)
 
 ---
 
-## Part A: Wrap Action Files (17 files)
+## Part A: Update RSC Pages (~16 pages)
 
-Use the same migration template as Plan 003.
-
-### Action Files
-
-| # | File | Notes |
-|---|------|-------|
-| 1 | `src/app/admissions/applicants/_server/actions.ts` | |
-| 2 | `src/app/admissions/applicants/[id]/academic-records/_server/actions.ts` | |
-| 3 | `src/app/admissions/applicants/[id]/documents/_server/actions.ts` | |
-| 4 | `src/app/admissions/subjects/_server/actions.ts` | |
-| 5 | `src/app/admissions/entry-requirements/_server/actions.ts` | |
-| 6 | `src/app/admissions/recognized-schools/_server/actions.ts` | |
-| 7 | `src/app/admissions/applications/_server/actions.ts` | |
-| 8 | `src/app/admissions/payments/_server/actions.ts` | |
-| 9 | `src/app/admissions/intake-periods/_server/actions.ts` | |
-| 10 | `src/app/admissions/certificate-types/_server/actions.ts` | |
-| 11 | `src/app/admissions/documents/_server/actions.ts` | |
-| 12 | `src/app/admissions/reports/program-demand/_server/actions.ts` | Query-only |
-| 13 | `src/app/admissions/reports/academic-qualifications/_server/actions.ts` | Query-only |
-| 14 | `src/app/admissions/reports/geographic/_server/actions.ts` | Query-only |
-| 15 | `src/app/admissions/reports/demographics/_server/actions.ts` | Query-only |
-| 16 | `src/app/admissions/reports/application-summary/_server/actions.ts` | Query-only |
-| 17 | (Verify the 17th — possibly `applications/scoring` or similar) |
-
-### Special Cases
-
-- **Reports actions**: Query-only, but still wrap with `createAction` for consistent error handling and logging.
-- **`applicants/[id]/*`**: Nested actions within a dynamic route — same wrapping pattern.
-
----
-
-## Part B: Update RSC Pages (~16 pages)
+Wrap all direct `await actionFn()` calls with `unwrap()`. See Plan 003 for template.
 
 ### RSC Pages
 
@@ -63,7 +31,7 @@ Use the same migration template as Plan 003.
 
 ---
 
-## Part C: Verify/Update ListLayout Callers
+## Part B: Verify/Update ListLayout Callers (~8 files)
 
 ### Direct References — Verify Only
 
@@ -75,7 +43,7 @@ Use the same migration template as Plan 003.
 | 4 | `src/app/admissions/certificate-types/layout.tsx` |
 | 5 | `src/app/admissions/documents/layout.tsx` |
 
-### Arrow Function Wrappers / Internal Functions — Must Update
+### Arrow Function Wrappers / Internal Functions — Must Verify & Update
 
 | # | File | Notes |
 |---|------|-------|
@@ -87,24 +55,9 @@ Use the same migration template as Plan 003.
 
 ---
 
-## Part D: Update Direct `useMutation` Callers
+## Part C: Update Cross-Action Calls (10 call sites)
 
-Client components in the admissions module that use `useMutation({ mutationFn: someAction })` directly must switch to `useActionMutation`.
-
-### Discovery
-
-Search all `_components/` folders in `src/app/admissions/` for `useMutation({ mutationFn:` patterns.
-
-Known candidates:
-- `src/app/admissions/applicants/[id]/_components/` (CreateApplicationModal, AcademicRecordsTab)
-- `src/app/admissions/payments/_components/` (VerifyDepositModal)
-- `src/app/admissions/entry-requirements/_components/` (EditRequirementsList)
-
----
-
-## Part E: Update Cross-Action Calls
-
-The admissions module has significant internal cross-action calls. Wrap each with `unwrap()`. See Plan 003 for template.
+The admissions module has significant internal cross-action calls between its own sub-features. Since all admissions actions are now wrapped (005a), calls between them need `unwrap()`.
 
 ### Cross-Action Calls in Admissions Module
 
@@ -121,6 +74,8 @@ The admissions module has significant internal cross-action calls. Wrap each wit
 | 9 | `applicants/[id]/documents/_server/actions.ts` | `findAcademicRecordBy*()`, `update/createAcademicRecord()` | academic-records actions |
 | 10 | `applicants/[id]/academic-records/_server/actions.ts` | `recalculateScoresForApplicant()` | `@admissions/applications/_server/actions` |
 
+**Note**: Add `import { unwrap } from '@/shared/lib/utils/actionResult'` to each file and wrap each cross-action `await` call with `unwrap()`.
+
 ---
 
 ## Verification
@@ -131,10 +86,8 @@ pnpm tsc --noEmit
 
 ## Done When
 
-- [ ] All 17 action files import and use `createAction`
 - [ ] All RSC pages with direct `await` calls use `unwrap()`
-- [ ] All ListLayout callers verified/updated
-- [ ] All direct `useMutation` callers switched to `useActionMutation`
-- [ ] All cross-action calls wrapped with `unwrap()`
+- [ ] All 5 direct ListLayout callers verified working
+- [ ] All 3 arrow-wrapper ListLayout callers verified/updated
+- [ ] All 10 cross-action call sites wrapped with `unwrap()`
 - [ ] `pnpm tsc --noEmit` passes
-- [ ] **Admissions module fully migrated; all other modules still work**
