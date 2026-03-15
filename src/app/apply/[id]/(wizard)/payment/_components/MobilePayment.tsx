@@ -19,13 +19,13 @@ import {
 	IconReceipt,
 	IconRefresh,
 } from '@tabler/icons-react';
-import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'nextjs-toploader/app';
 import { useEffect, useState } from 'react';
 import {
 	normalizePhoneNumber,
 	validateMpesaNumber,
 } from '@/core/integrations/pay-lesotho';
+import { useActionMutation } from '@/shared/lib/hooks/use-action-mutation';
 import { checkPaymentStatus, initiateMpesaPayment } from '../_server/actions';
 
 const POLL_INTERVAL = 5000;
@@ -53,7 +53,7 @@ export function MobilePayment({
 	const [timeRemaining, setTimeRemaining] = useState(TIMEOUT_SECONDS);
 	const [paymentError, setPaymentError] = useState<string | null>(null);
 
-	const initiateMutation = useMutation({
+	const initiateMutation = useActionMutation({
 		mutationFn: async () =>
 			initiateMpesaPayment(applicationId, parseFloat(fee), phoneNumber),
 		onSuccess: (result) => {
@@ -93,7 +93,7 @@ export function MobilePayment({
 		},
 	});
 
-	const verifyMutation = useMutation({
+	const verifyMutation = useActionMutation({
 		mutationFn: async (txId: string) => checkPaymentStatus(txId),
 		onSuccess: (result) => {
 			if (result.success && result.status === 'success') {

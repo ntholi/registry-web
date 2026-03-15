@@ -23,9 +23,9 @@ import {
 	IconCreditCard,
 	IconReceipt,
 } from '@tabler/icons-react';
-import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'nextjs-toploader/app';
 import { useQueryState } from 'nuqs';
+import { useActionMutation } from '@/shared/lib/hooks/use-action-mutation';
 import { submitReceiptPayment } from '../_server/actions';
 import { MobilePayment } from './MobilePayment';
 import ReceiptUpload from './ReceiptUpload';
@@ -57,7 +57,7 @@ export default function PaymentForm({
 	const [payLaterOpened, { open: openPayLater, close: closePayLater }] =
 		useDisclosure(false);
 
-	const submitReceiptMutation = useMutation({
+	const submitReceiptMutation = useActionMutation({
 		mutationFn: async (
 			receipts: Array<{
 				base64: string;
@@ -76,22 +76,14 @@ export default function PaymentForm({
 				terminalNumber: string | null;
 			}>
 		) => submitReceiptPayment(applicationId, receipts),
-		onSuccess: (result) => {
-			if (result.success) {
-				notifications.show({
-					title: 'Payment Submitted',
-					message:
-						'Excellent! Your payment is safely received. Verification typically takes a few weeks, but your application is secure and moving forward!',
-					color: 'blue',
-				});
-				router.push(`/apply/${applicationId}/thank-you`);
-			} else {
-				notifications.show({
-					title: 'Submission Failed',
-					message: result.error || 'Failed to submit deposit slip',
-					color: 'red',
-				});
-			}
+		onSuccess: () => {
+			notifications.show({
+				title: 'Payment Submitted',
+				message:
+					'Excellent! Your payment is safely received. Verification typically takes a few weeks, but your application is secure and moving forward!',
+				color: 'blue',
+			});
+			router.push(`/apply/${applicationId}/thank-you`);
 		},
 		onError: (error: Error) => {
 			notifications.show({

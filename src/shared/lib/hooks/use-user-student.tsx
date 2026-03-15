@@ -9,6 +9,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { useEffect, useMemo } from 'react';
 import { authClient } from '@/core/auth-client';
+import { unwrap } from '@/shared/lib/utils/actionResult';
 import { getAcademicRemarks } from '@/shared/lib/utils/grades';
 
 export default function useUserStudent() {
@@ -16,14 +17,14 @@ export default function useUserStudent() {
 	const { data: session, isPending } = authClient.useSession();
 	const { data: student, isLoading: studentLoading } = useQuery({
 		queryKey: ['student', session?.user?.id],
-		queryFn: () => getStudentByUserId(session?.user?.id),
+		queryFn: () => getStudentByUserId(session?.user?.id).then(unwrap),
 		staleTime: 1000 * 60 * 15,
 		enabled: !!session?.user?.id,
 	});
 
 	const { data: unpublishedTerms = [], isLoading: termsLoading } = useQuery({
 		queryKey: ['unpublished-terms'],
-		queryFn: getUnpublishedTermCodes,
+		queryFn: () => getUnpublishedTermCodes().then(unwrap),
 	});
 
 	useEffect(() => {

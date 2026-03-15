@@ -10,10 +10,11 @@ import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useRef } from 'react';
 import { authClient } from '@/core/auth-client';
+import { type ActionData, unwrap } from '@/shared/lib/utils/actionResult';
 import { computeWizardStep } from './wizard-utils';
 
 export type ApplicantWithRelations = NonNullable<
-	Awaited<ReturnType<typeof getApplicant>>
+	ActionData<typeof getApplicant>
 >;
 
 type CompletenessResult = {
@@ -129,7 +130,7 @@ export function useApplicant({
 
 	const eligibilityQuery = useQuery({
 		queryKey: ['applicant-eligibility', userId],
-		queryFn: () => canCurrentUserApply(),
+		queryFn: () => canCurrentUserApply().then(unwrap),
 		staleTime: 60_000,
 		enabled: !!userId,
 	});
@@ -146,7 +147,7 @@ export function useApplicant({
 
 	const query = useQuery({
 		queryKey: ['applicant', 'user', userId],
-		queryFn: () => getOrCreateApplicantForCurrentUser(),
+		queryFn: () => getOrCreateApplicantForCurrentUser().then(unwrap),
 		staleTime: 30_000,
 		enabled: !!userId && eligibilityQuery.data?.canApply === true,
 	});

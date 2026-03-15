@@ -26,9 +26,8 @@ import {
 	IconSend,
 	IconUser,
 } from '@tabler/icons-react';
-import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'nextjs-toploader/app';
-import { getActionErrorMessage } from '@/shared/lib/utils/actionResult';
+import { useActionMutation } from '@/shared/lib/hooks/use-action-mutation';
 import { submitApplication } from '../_server/actions';
 
 type Props = {
@@ -43,13 +42,12 @@ export default function ReviewForm({ applicationId }: Props) {
 
 	const isAlreadySubmitted = application?.status === 'submitted';
 
-	const submitMutation = useMutation({
+	const submitMutation = useActionMutation({
 		mutationFn: async () => {
 			if (!application?.id) {
 				throw new Error('No application found');
 			}
-			const res = await submitApplication(application.id);
-			if (!res.success) throw new Error(getActionErrorMessage(res.error));
+			return submitApplication(application.id);
 		},
 		onSuccess: () => {
 			refetch();

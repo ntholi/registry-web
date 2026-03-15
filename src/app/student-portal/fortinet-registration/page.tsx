@@ -16,9 +16,11 @@ import {
 } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { IconInfoCircle, IconShield } from '@tabler/icons-react';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
+import { useActionMutation } from '@/shared/lib/hooks/use-action-mutation';
 import useUserStudent from '@/shared/lib/hooks/use-user-student';
+import { unwrap } from '@/shared/lib/utils/actionResult';
 import {
 	createFortinetRegistration,
 	getCurrentStudentFortinetRegistrations,
@@ -46,11 +48,11 @@ export default function FortinetRegistrationPage() {
 	const { data: existingRegistrations, isLoading: registrationsLoading } =
 		useQuery({
 			queryKey: ['fortinet-registrations', 'current-student'],
-			queryFn: getCurrentStudentFortinetRegistrations,
+			queryFn: () => getCurrentStudentFortinetRegistrations().then(unwrap),
 			enabled: !!student,
 		});
 
-	const createMutation = useMutation({
+	const createMutation = useActionMutation({
 		mutationFn: createFortinetRegistration,
 		onSuccess: () => {
 			notifications.show({

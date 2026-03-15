@@ -29,7 +29,7 @@ import {
 	IconArrowRight,
 	IconInfoCircle,
 } from '@tabler/icons-react';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { useQueryState } from 'nuqs';
 import { useCallback, useEffect, useMemo, useState } from 'react';
@@ -37,8 +37,10 @@ import { getBlockedStudentByStdNo } from '@/app/registry/blocked-students';
 import { getActiveProgram } from '@/app/registry/students/_lib/utils';
 import { config } from '@/config';
 import type { ReceiptType } from '@/core/database';
+import { useActionMutation } from '@/shared/lib/hooks/use-action-mutation';
 import { useActiveTerm } from '@/shared/lib/hooks/use-term';
 import useUserStudent from '@/shared/lib/hooks/use-user-student';
+import { unwrap } from '@/shared/lib/utils/actionResult';
 import {
 	AccountConfirmation,
 	ModuleSelection,
@@ -140,7 +142,7 @@ export default function NewRegistrationPage() {
 
 	const { data: sponsors } = useQuery({
 		queryKey: ['sponsors'],
-		queryFn: () => findAllSponsors(1, ''),
+		queryFn: () => findAllSponsors(1, '').then(unwrap),
 		select: (data) => data.items || [],
 	});
 
@@ -164,7 +166,7 @@ export default function NewRegistrationPage() {
 		queryKey: ['blocked-student', student?.stdNo],
 		queryFn: async () => {
 			if (!student?.stdNo) return null;
-			return (await getBlockedStudentByStdNo(student.stdNo)) || null;
+			return getBlockedStudentByStdNo(student.stdNo).then(unwrap);
 		},
 		enabled: !!student?.stdNo,
 	});
@@ -173,7 +175,9 @@ export default function NewRegistrationPage() {
 		queryKey: ['is-additional-request', student?.stdNo, activeTerm?.id],
 		queryFn: async () => {
 			if (!student?.stdNo || !activeTerm?.id) return false;
-			return await checkIsAdditionalRequest(student.stdNo, activeTerm.id);
+			return checkIsAdditionalRequest(student.stdNo, activeTerm.id).then(
+				unwrap
+			);
 		},
 		enabled: !!student?.stdNo && !!activeTerm?.id,
 	});
@@ -182,10 +186,10 @@ export default function NewRegistrationPage() {
 		queryKey: ['existing-sponsorship', student?.stdNo, activeTerm?.id],
 		queryFn: async () => {
 			if (!student?.stdNo || !activeTerm?.id) return null;
-			return await getExistingRegistrationSponsorship(
+			return getExistingRegistrationSponsorship(
 				student.stdNo,
 				activeTerm.id
-			);
+			).then(unwrap);
 		},
 		enabled: !!student?.stdNo && !!activeTerm?.id && isAdditionalRequest,
 	});
@@ -207,10 +211,8 @@ export default function NewRegistrationPage() {
 			if (!student || !remarks) {
 				return { error: 'Missing student or remarks data', modules: [] };
 			}
-			return await getStudentSemesterModules(
-				student,
-				remarks,
-				activeTerm?.code
+			return getStudentSemesterModules(student, remarks, activeTerm?.code).then(
+				unwrap
 			);
 		},
 		enabled: !!student && !!remarks && !!activeTerm,
@@ -225,14 +227,16 @@ export default function NewRegistrationPage() {
 				return null;
 			}
 			if (isAdditionalRequest && activeTerm?.id) {
-				return await getExistingSemesterStatus(student.stdNo, activeTerm.id);
+				return getExistingSemesterStatus(student.stdNo, activeTerm.id).then(
+					unwrap
+				);
 			}
 			const modulesWithStatus = availableModules.filter((module) =>
 				selectedModules.some(
 					(selected) => selected.moduleId === module.semesterModuleId
 				)
 			);
-			return await determineSemesterStatus(modulesWithStatus, student);
+			return determineSemesterStatus(modulesWithStatus, student).then(unwrap);
 		},
 		enabled: !!student && !!availableModules && selectedModules.length > 0,
 	});
@@ -316,7 +320,7 @@ export default function NewRegistrationPage() {
 		return receipts;
 	};
 
-	const registrationMutation = useMutation({
+	const registrationMutation = useActionMutation({
 		mutationFn: async () => {
 			if (
 				!student ||

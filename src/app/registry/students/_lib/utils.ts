@@ -16,7 +16,7 @@ export type StudentProgram = Student['programs'][number];
 
 export type AcademicHistoryProgram = StudentWithHistory['programs'][number];
 
-export type AcademicRemarks = ActionData<typeof getAcademicRemarks>;
+export type AcademicRemarks = ReturnType<typeof getAcademicRemarks>;
 
 export function getActiveProgram(student: Student | null | undefined) {
 	if (!student) return null;

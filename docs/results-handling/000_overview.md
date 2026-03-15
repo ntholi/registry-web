@@ -95,7 +95,7 @@ Full architecture details, code snippets, type definitions, and rationale:
 | 7c | [007c_lms_library_timetable_clients.md](./007c_lms_library_timetable_clients.md) | LMS + Library + Timetable: ~40 `useMutation` → `useActionMutation` (LMS-heavy) | ✅ Completed |
 | 8a | [008a_apply_migration.md](./008a_apply_migration.md) | Apply: special migration (6 files manual → `createAction`) + delete `errors.ts` | ✅ Completed |
 | 8b | [008b_remaining_actions_pages.md](./008b_remaining_actions_pages.md) | Reports + Student Portal + Audit Logs + Feedback: 11 actions + RSC pages + ListLayout | ✅ Completed |
-| 8c | [008c_cross_actions_clients.md](./008c_cross_actions_clients.md) | Apply/Reports: ~24 cross-action calls + `useMutation` callers | ⬜ Not started |
+| 8c | [008c_cross_actions_clients.md](./008c_cross_actions_clients.md) | Apply/Reports: ~24 cross-action calls + `useMutation` callers | ✅ Completed |
 | 9a | [009a_type_tightening.md](./009a_type_tightening.md) | Tighten `ActionResult.error` → `AppError` only + remove compat code | ⬜ Not started |
 | 9b | [009b_listlayout_object_params.md](./009b_listlayout_object_params.md) | (Optional) Switch ListLayout to `({ page, search })` object params | ⬜ Not started |
 | 10 | [010_verification.md](./010_verification.md) | Full verification, type-check, lint, manual testing checklist | ⬜ Not started |

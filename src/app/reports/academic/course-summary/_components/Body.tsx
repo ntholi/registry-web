@@ -16,8 +16,9 @@ import {
 	Title,
 } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { useEffect, useMemo, useState } from 'react';
+import { useActionMutation } from '@/shared/lib/hooks/use-action-mutation';
 import { useActiveTerm } from '@/shared/lib/hooks/use-term';
 import { unwrap } from '@/shared/lib/utils/actionResult';
 import { toClassName } from '@/shared/lib/utils/utils';
@@ -91,7 +92,7 @@ export default function Body() {
 		setSelectedProgramId(null);
 	}, []);
 
-	const generateReportMutation = useMutation({
+	const generateReportMutation = useActionMutation({
 		mutationFn: async () => {
 			if (!selectedModuleId || !selectedProgramId) {
 				throw new Error('Please select a module and program');
@@ -107,11 +108,9 @@ export default function Body() {
 
 			setIsDownloading(true);
 			try {
-				return unwrap(
-					await generateCourseSummaryReport(
-						Number(selectedProgramId),
-						selectedModule.semesterModuleId
-					)
+				return generateCourseSummaryReport(
+					Number(selectedProgramId),
+					selectedModule.semesterModuleId
 				);
 			} finally {
 				setIsDownloading(false);

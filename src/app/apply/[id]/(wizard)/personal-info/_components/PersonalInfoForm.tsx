@@ -14,9 +14,8 @@ import {
 import { DateInput } from '@mantine/dates';
 import { useForm } from '@mantine/form';
 import { notifications } from '@mantine/notifications';
-import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'nextjs-toploader/app';
-import { getActionErrorMessage } from '@/shared/lib/utils/actionResult';
+import { useActionMutation } from '@/shared/lib/hooks/use-action-mutation';
 import { getCountries } from '@/shared/lib/utils/countries';
 import { getReligions } from '@/shared/lib/utils/religions';
 import WizardNavigation from '../../_components/WizardNavigation';
@@ -56,10 +55,9 @@ export default function PersonalInfoForm({ applicationId }: Props) {
 
 	const applicantId = applicant?.id ?? '';
 
-	const mutation = useMutation({
+	const mutation = useActionMutation({
 		mutationFn: async (values: typeof form.values) => {
-			const res = await updateApplicantInfo(applicantId, values);
-			if (!res.success) throw new Error(getActionErrorMessage(res.error));
+			return updateApplicantInfo(applicantId, values);
 		},
 		onSuccess: () => {
 			refetch();
