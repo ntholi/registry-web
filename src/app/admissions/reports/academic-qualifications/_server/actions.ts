@@ -1,27 +1,36 @@
 'use server';
 
+import { createAction } from '@/shared/lib/utils/actionResult';
 import type { AdmissionReportFilter } from '../../_shared/types';
 import { academicQualificationsService } from './service';
 
-export async function getCertificateDistribution(
-	filter: AdmissionReportFilter
-) {
-	return academicQualificationsService.getCertificateTypeDistribution(filter);
-}
+export const getCertificateDistribution = createAction(
+	async (filter: AdmissionReportFilter) => {
+		return academicQualificationsService.getCertificateTypeDistribution(filter);
+	}
+);
 
-export async function getGradeDistribution(filter: AdmissionReportFilter) {
-	return academicQualificationsService.getGradeDistribution(filter);
-}
+export const getGradeDistribution = createAction(
+	async (filter: AdmissionReportFilter) => {
+		return academicQualificationsService.getGradeDistribution(filter);
+	}
+);
 
-export async function getResultClassification(filter: AdmissionReportFilter) {
-	return academicQualificationsService.getResultClassification(filter);
-}
+export const getResultClassification = createAction(
+	async (filter: AdmissionReportFilter) => {
+		return academicQualificationsService.getResultClassification(filter);
+	}
+);
 
-export async function getTopOriginSchools(filter: AdmissionReportFilter) {
-	return academicQualificationsService.getTopOriginSchools(filter);
-}
+export const getTopOriginSchools = createAction(
+	async (filter: AdmissionReportFilter) => {
+		return academicQualificationsService.getTopOriginSchools(filter);
+	}
+);
 
-export async function exportQualificationsExcel(filter: AdmissionReportFilter) {
-	const buffer = await academicQualificationsService.exportExcel(filter);
-	return Buffer.from(buffer).toString('base64');
-}
+export const exportQualificationsExcel = createAction(
+	async (filter: AdmissionReportFilter) => {
+		const buffer = await academicQualificationsService.exportExcel(filter);
+		return Buffer.from(buffer).toString('base64');
+	}
+);

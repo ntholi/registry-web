@@ -18,6 +18,7 @@ import {
 } from '@tabler/icons-react';
 import type { ModuleConfig } from '@/app/dashboard/module-config.types';
 import { moduleConfig } from '@/config/modules.config';
+import { unwrap } from '@/shared/lib/utils/actionResult';
 import { countPendingDocumentsForReview } from './documents/_server/actions';
 import { countPendingPaymentsForReview } from './payments/_server/actions';
 
@@ -48,7 +49,7 @@ export const admissionsConfig: ModuleConfig = {
 				roles: ['finance', 'admin'],
 				notificationCount: {
 					queryKey: ['payments', 'pending-review-count'],
-					queryFn: countPendingPaymentsForReview,
+					queryFn: () => countPendingPaymentsForReview().then(unwrap),
 					color: 'red',
 				},
 			},
@@ -59,7 +60,7 @@ export const admissionsConfig: ModuleConfig = {
 				roles: ['registry', 'marketing', 'admin'],
 				notificationCount: {
 					queryKey: ['documents', 'pending-review-count'],
-					queryFn: countPendingDocumentsForReview,
+					queryFn: () => countPendingDocumentsForReview().then(unwrap),
 					color: 'red',
 				},
 			},

@@ -3,6 +3,7 @@
 import { recalculateScoresForApplicant } from '@admissions/applications/_server/actions';
 import type { academicRecords } from '@/core/database';
 import { deleteFile } from '@/core/integrations/storage';
+import { createAction } from '@/shared/lib/utils/actionResult';
 import { normalizeResultClassification } from '@/shared/lib/utils/resultClassification';
 import { applicantDocumentsService } from '../../documents/_server/service';
 import type { CreateAcademicRecordInput } from '../_lib/types';
@@ -10,117 +11,107 @@ import { academicRecordsService } from './service';
 
 type AcademicRecord = typeof academicRecords.$inferInsert;
 
-export async function getAcademicRecord(id: string) {
-	return academicRecordsService.get(id);
-}
+export const getAcademicRecord = createAction(async (id: string) =>
+	academicRecordsService.get(id)
+);
 
-export async function findAcademicRecordsByApplicant(
-	applicantId: string,
-	page = 1
-) {
-	return academicRecordsService.findByApplicant(applicantId, page);
-}
+export const findAcademicRecordsByApplicant = createAction(
+	async (applicantId: string, page: number = 1) =>
+		academicRecordsService.findByApplicant(applicantId, page)
+);
 
-export async function createAcademicRecord(
-	applicantId: string,
-	input: CreateAcademicRecordInput,
-	isLevel4: boolean,
-	applicantDocumentId?: string
-) {
-	const data: AcademicRecord = {
-		applicantId,
-		certificateTypeId: input.certificateTypeId,
-		examYear: input.examYear,
-		institutionName: input.institutionName,
-		qualificationName: input.qualificationName,
-		certificateNumber: input.certificateNumber,
-		candidateNumber: input.candidateNumber,
-		resultClassification: normalizeResultClassification(
-			input.resultClassification
-		),
-		applicantDocumentId,
-	};
+export const createAcademicRecord = createAction(
+	async (
+		applicantId: string,
+		input: CreateAcademicRecordInput,
+		isLevel4: boolean,
+		applicantDocumentId?: string
+	) => {
+		const data: AcademicRecord = {
+			applicantId,
+			certificateTypeId: input.certificateTypeId,
+			examYear: input.examYear,
+			institutionName: input.institutionName,
+			qualificationName: input.qualificationName,
+			certificateNumber: input.certificateNumber,
+			candidateNumber: input.candidateNumber,
+			resultClassification: normalizeResultClassification(
+				input.resultClassification
+			),
+			applicantDocumentId,
+		};
 
-	return academicRecordsService
-		.createWithGrades(data, isLevel4, input.subjectGrades)
-		.then((result) => {
-			recalculateScoresForApplicant(applicantId).catch(() => {});
-			return result;
-		});
-}
+		return academicRecordsService
+			.createWithGrades(data, isLevel4, input.subjectGrades)
+			.then((result) => {
+				recalculateScoresForApplicant(applicantId).catch(() => {});
+				return result;
+			});
+	}
+);
 
-export async function updateAcademicRecord(
-	id: string,
-	input: CreateAcademicRecordInput,
-	isLevel4: boolean
-) {
-	const data: Partial<AcademicRecord> = {
-		certificateTypeId: input.certificateTypeId,
-		examYear: input.examYear,
-		institutionName: input.institutionName,
-		qualificationName: input.qualificationName,
-		certificateNumber: input.certificateNumber,
-		candidateNumber: input.candidateNumber,
-		resultClassification: normalizeResultClassification(
-			input.resultClassification
-		),
-	};
+export const updateAcademicRecord = createAction(
+	async (id: string, input: CreateAcademicRecordInput, isLevel4: boolean) => {
+		const data: Partial<AcademicRecord> = {
+			certificateTypeId: input.certificateTypeId,
+			examYear: input.examYear,
+			institutionName: input.institutionName,
+			qualificationName: input.qualificationName,
+			certificateNumber: input.certificateNumber,
+			candidateNumber: input.candidateNumber,
+			resultClassification: normalizeResultClassification(
+				input.resultClassification
+			),
+		};
 
-	return academicRecordsService
-		.updateWithGrades(id, data, isLevel4, input.subjectGrades)
-		.then(async (result) => {
-			if (result?.applicantId) {
-				recalculateScoresForApplicant(result.applicantId).catch(() => {});
+		return academicRecordsService
+			.updateWithGrades(id, data, isLevel4, input.subjectGrades)
+			.then(async (result) => {
+				if (result?.applicantId) {
+					recalculateScoresForApplicant(result.applicantId).catch(() => {});
+				}
+				return result;
+			});
+	}
+);
+
+export const deleteAcademicRecord = createAction(async (id: string) =>
+	deleteAcademicRecordInternal(id)
+);
+
+export const deleteAcademicRecordInternal = createAction(
+	async (id: string, options?: { skipRelatedDocumentDelete?: boolean }) => {
+		const record = await academicRecordsService.get(id);
+		const applicantId = record?.applicantId;
+		const applicantDocumentId = record?.applicantDocumentId;
+		const documentFileUrl = record?.applicantDocument?.document?.fileUrl;
+
+		if (applicantDocumentId && !options?.skipRelatedDocumentDelete) {
+			if (documentFileUrl) {
+				await deleteFile(documentFileUrl);
 			}
-			return result;
-		});
-}
-
-export async function deleteAcademicRecord(id: string) {
-	return deleteAcademicRecordInternal(id);
-}
-
-export async function deleteAcademicRecordInternal(
-	id: string,
-	options?: { skipRelatedDocumentDelete?: boolean }
-) {
-	const record = await academicRecordsService.get(id);
-	const applicantId = record?.applicantId;
-	const applicantDocumentId = record?.applicantDocumentId;
-	const documentFileUrl = record?.applicantDocument?.document?.fileUrl;
-
-	if (applicantDocumentId && !options?.skipRelatedDocumentDelete) {
-		if (documentFileUrl) {
-			await deleteFile(documentFileUrl);
+			await applicantDocumentsService.delete(applicantDocumentId);
 		}
-		await applicantDocumentsService.delete(applicantDocumentId);
+
+		const result = await academicRecordsService.delete(id);
+		if (applicantId) {
+			recalculateScoresForApplicant(applicantId).catch(() => {});
+		}
+		return result;
 	}
+);
 
-	const result = await academicRecordsService.delete(id);
-	if (applicantId) {
-		recalculateScoresForApplicant(applicantId).catch(() => {});
-	}
-	return result;
-}
+export const findAcademicRecordByApplicantDocumentId = createAction(
+	async (applicantDocumentId: string) =>
+		academicRecordsService.findByApplicantDocumentId(applicantDocumentId)
+);
 
-export async function findAcademicRecordByApplicantDocumentId(
-	applicantDocumentId: string
-) {
-	return academicRecordsService.findByApplicantDocumentId(applicantDocumentId);
-}
+export const findAcademicRecordByCertificateNumber = createAction(
+	async (certificateNumber: string) =>
+		academicRecordsService.findByCertificateNumber(certificateNumber)
+);
 
-export async function findAcademicRecordByCertificateNumber(
-	certificateNumber: string
-) {
-	return academicRecordsService.findByCertificateNumber(certificateNumber);
-}
-
-export async function linkDocumentToAcademicRecord(
-	academicRecordId: string,
-	applicantDocumentId: string
-) {
-	return academicRecordsService.linkDocument(
-		academicRecordId,
-		applicantDocumentId
-	);
-}
+export const linkDocumentToAcademicRecord = createAction(
+	async (academicRecordId: string, applicantDocumentId: string) =>
+		academicRecordsService.linkDocument(academicRecordId, applicantDocumentId)
+);

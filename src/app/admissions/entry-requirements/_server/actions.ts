@@ -1,58 +1,68 @@
 'use server';
 
 import type { entryRequirements } from '@/core/database';
+import { createAction } from '@/shared/lib/utils/actionResult';
 import type { EntryRequirementFilter } from '../_lib/types';
 import { entryRequirementsService } from './service';
 
 type EntryRequirement = typeof entryRequirements.$inferInsert;
 
-export async function getEntryRequirement(id: string) {
+export const getEntryRequirement = createAction(async (id: string) => {
 	return entryRequirementsService.get(id);
-}
+});
 
-export async function findAllEntryRequirements(page = 1, search = '') {
-	return entryRequirementsService.findAllWithRelations(page, search);
-}
+export const findAllEntryRequirements = createAction(
+	async (page: number = 1, search: string = '') => {
+		return entryRequirementsService.findAllWithRelations(page, search);
+	}
+);
 
-export async function findProgramsWithRequirements(
-	page = 1,
-	search = '',
-	filter?: EntryRequirementFilter
-) {
-	return entryRequirementsService.findProgramsWithRequirements(
-		page,
-		search,
-		filter
-	);
-}
+export const findProgramsWithRequirements = createAction(
+	async (
+		page: number = 1,
+		search: string = '',
+		filter?: EntryRequirementFilter
+	) => {
+		return entryRequirementsService.findProgramsWithRequirements(
+			page,
+			search,
+			filter
+		);
+	}
+);
 
-export async function findEntryRequirementsByProgram(programId: number) {
-	return entryRequirementsService.findByProgram(programId);
-}
+export const findEntryRequirementsByProgram = createAction(
+	async (programId: number) => {
+		return entryRequirementsService.findByProgram(programId);
+	}
+);
 
-export async function findEntryRequirementsForEligibility() {
+export const findEntryRequirementsForEligibility = createAction(async () => {
 	return entryRequirementsService.findAllForEligibility();
-}
+});
 
-export async function getPublicCoursesData(
-	page = 1,
-	search = '',
-	filter?: EntryRequirementFilter
-) {
-	return entryRequirementsService.findPublicCoursesData(page, search, filter);
-}
+export const getPublicCoursesData = createAction(
+	async (
+		page: number = 1,
+		search: string = '',
+		filter?: EntryRequirementFilter
+	) => {
+		return entryRequirementsService.findPublicCoursesData(page, search, filter);
+	}
+);
 
-export async function createEntryRequirement(data: EntryRequirement) {
-	return entryRequirementsService.create(data);
-}
+export const createEntryRequirement = createAction(
+	async (data: EntryRequirement) => {
+		return entryRequirementsService.create(data);
+	}
+);
 
-export async function updateEntryRequirement(
-	id: string,
-	data: EntryRequirement
-) {
-	return entryRequirementsService.update(id, data);
-}
+export const updateEntryRequirement = createAction(
+	async (id: string, data: EntryRequirement) => {
+		return entryRequirementsService.update(id, data);
+	}
+);
 
-export async function deleteEntryRequirement(id: string) {
+export const deleteEntryRequirement = createAction(async (id: string) => {
 	return entryRequirementsService.delete(id);
-}
+});
