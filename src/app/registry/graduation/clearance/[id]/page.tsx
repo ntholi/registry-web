@@ -9,6 +9,7 @@ import { AcademicsLoader } from '@registry/registration/clearance';
 import { notFound } from 'next/navigation';
 import StudentFinanceView from '@/app/registry/students/_components/finance/StudentFinanceView';
 import { getSession } from '@/core/platform/withPermission';
+import { unwrap } from '@/shared/lib/utils/actionResult';
 import { DetailsView } from '@/shared/ui/adease';
 
 type Props = {
@@ -19,7 +20,7 @@ export default async function GraduationClearanceRequestDetails({
 	params,
 }: Props) {
 	const { id } = await params;
-	const request = await getGraduationClearance(Number(id));
+	const request = unwrap(await getGraduationClearance(Number(id)));
 	const session = await getSession();
 
 	if (!request) {

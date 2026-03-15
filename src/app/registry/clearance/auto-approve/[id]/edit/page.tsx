@@ -1,5 +1,6 @@
 import { Box } from '@mantine/core';
 import { notFound } from 'next/navigation';
+import { unwrap } from '@/shared/lib/utils/actionResult';
 import AutoApprovalForm from '../../_components/Form';
 import { getAutoApproval } from '../../_server/actions';
 
@@ -9,7 +10,7 @@ type Props = {
 
 export default async function EditAutoApprovalPage({ params }: Props) {
 	const { id } = await params;
-	const rule = await getAutoApproval(Number.parseInt(id, 10));
+	const rule = unwrap(await getAutoApproval(Number.parseInt(id, 10)));
 
 	if (!rule) {
 		return notFound();

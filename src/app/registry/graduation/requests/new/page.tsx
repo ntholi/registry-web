@@ -7,6 +7,7 @@ import {
 import { getLatestGraduationDate } from '@registry/graduation/dates';
 import { getStudent, getStudentRegistrationData } from '@registry/students';
 import type { graduationRequests } from '@/core/database';
+import { unwrap } from '@/shared/lib/utils/actionResult';
 import GraduationRequestForm from '../_components/GraduationRequestForm';
 
 type Props = {
@@ -34,7 +35,7 @@ export default async function NewGraduationRequestPage({
 	searchParams,
 }: Props) {
 	const { stdNo: stdNoParam } = await searchParams;
-	const latestGraduationDate = await getLatestGraduationDate();
+	const latestGraduationDate = unwrap(await getLatestGraduationDate());
 
 	let defaultValues: Partial<FormValues> = {
 		graduationDateId: latestGraduationDate?.id ?? undefined,
@@ -44,11 +45,11 @@ export default async function NewGraduationRequestPage({
 
 	if (stdNoParam) {
 		const stdNo = Number(stdNoParam);
-		const student = await getStudent(stdNo);
+		const student = unwrap(await getStudent(stdNo));
 
 		if (student) {
 			initialStdNo = stdNo;
-			const studentData = await getStudentRegistrationData(stdNo);
+			const studentData = unwrap(await getStudentRegistrationData(stdNo));
 
 			if (studentData) {
 				const completedProgram = studentData.programs.find(
@@ -74,18 +75,22 @@ export default async function NewGraduationRequestPage({
 		const { paymentReceipts, stdNo, ...graduationRequestData } = values;
 
 		if (paymentReceipts && paymentReceipts.length > 0 && stdNo) {
-			const result = await createGraduationRequestWithPaymentReceipts({
-				...graduationRequestData,
-				paymentReceipts,
-				stdNo,
-			});
+			const result = unwrap(
+				await createGraduationRequestWithPaymentReceipts({
+					...graduationRequestData,
+					paymentReceipts,
+					stdNo,
+				})
+			);
 			return {
 				...values,
 				id: result.id,
 			};
 		}
 
-		const result = await createGraduationRequest(graduationRequestData);
+		const result = unwrap(
+			await createGraduationRequest(graduationRequestData)
+		);
 		return {
 			...values,
 			id: result.id,

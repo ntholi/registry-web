@@ -16,6 +16,7 @@ import {
 } from '@registry/registration/requests';
 import { notFound } from 'next/navigation';
 import type { DashboardRole } from '@/core/auth/permissions';
+import { type ActionData, unwrap } from '@/shared/lib/utils/actionResult';
 import { getStatusColor } from '@/shared/lib/utils/colors';
 import { getStatusIcon } from '@/shared/lib/utils/status';
 import { DetailsView, DetailsViewHeader } from '@/shared/ui/adease';
@@ -27,7 +28,7 @@ interface Props {
 
 function getOverallClearanceStatus(
 	registrationRequest: NonNullable<
-		Awaited<ReturnType<typeof getRegistrationRequest>>
+		ActionData<typeof getRegistrationRequest>
 	>
 ) {
 	const departments: DashboardRole[] = ['finance', 'library'];
@@ -57,7 +58,7 @@ export default async function RegistrationRequestDetails({
 		deptParam === 'finance' || deptParam === 'library'
 			? (deptParam as ClearanceDept)
 			: undefined;
-	const registrationRequest = await getRegistrationRequest(Number(id));
+	const registrationRequest = unwrap(await getRegistrationRequest(Number(id)));
 
 	if (!registrationRequest) {
 		return notFound();

@@ -24,6 +24,7 @@ import {
 } from '@registry/graduation/requests';
 import { notFound } from 'next/navigation';
 import type { DashboardRole } from '@/core/auth/permissions';
+import { type ActionData, unwrap } from '@/shared/lib/utils/actionResult';
 import { getStatusColor } from '@/shared/lib/utils/colors';
 import { getStatusIcon } from '@/shared/lib/utils/status';
 import { DetailsView, DetailsViewHeader } from '@/shared/ui/adease';
@@ -34,9 +35,7 @@ interface Props {
 }
 
 function getOverallClearanceStatus(
-	graduationRequest: NonNullable<
-		Awaited<ReturnType<typeof getGraduationRequest>>
-	>
+	graduationRequest: NonNullable<ActionData<typeof getGraduationRequest>>
 ) {
 	const departments: DashboardRole[] = ['finance', 'library', 'academic'];
 	const statuses = departments.map((dept) => {
@@ -68,7 +67,7 @@ export default async function GraduationRequestDetails({
 			? (deptParam as ClearanceDept)
 			: undefined;
 
-	const graduationRequest = await getGraduationRequest(Number(id));
+	const graduationRequest = unwrap(await getGraduationRequest(Number(id)));
 
 	if (!graduationRequest) {
 		return notFound();

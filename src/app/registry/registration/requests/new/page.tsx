@@ -50,7 +50,7 @@ export default async function NewRegistrationRequestPage({
 	searchParams,
 }: Props) {
 	const { stdNo: stdNoParam } = await searchParams;
-	const activeTerm = await getActiveTerm();
+	const activeTerm = unwrap(await getActiveTerm());
 
 	let defaultValues: Partial<RegistrationRequest> = {
 		termId: activeTerm.id,
@@ -61,11 +61,11 @@ export default async function NewRegistrationRequestPage({
 
 	if (stdNoParam) {
 		const stdNo = Number(stdNoParam);
-		const student = await getStudent(stdNo);
+		const student = unwrap(await getStudent(stdNo));
 
 		if (student) {
 			initialStdNo = stdNo;
-			const studentData = await getStudentRegistrationData(stdNo);
+			const studentData = unwrap(await getStudentRegistrationData(stdNo));
 
 			if (studentData) {
 				const activeProgram = studentData.programs.find(
@@ -77,21 +77,25 @@ export default async function NewRegistrationRequestPage({
 					structureModules = unwrap(await getModulesForStructure(structureId));
 
 					const remarks = getAcademicRemarks(studentData.programs);
-					const moduleDataResponse = await getStudentSemesterModules(
-						studentData,
-						remarks,
-						activeTerm.code
+					const moduleDataResponse = unwrap(
+						await getStudentSemesterModules(
+							studentData,
+							remarks,
+							activeTerm.code
+						)
 					);
 
 					if (
 						!moduleDataResponse.error &&
 						moduleDataResponse.modules.length > 0
 					) {
-						const semesterResult = await determineSemesterStatus(
-							moduleDataResponse.modules as Parameters<
-								typeof determineSemesterStatus
-							>[0],
-							studentData
+						const semesterResult = unwrap(
+							await determineSemesterStatus(
+								moduleDataResponse.modules as Parameters<
+									typeof determineSemesterStatus
+								>[0],
+								studentData
+							)
 						);
 
 						const mappedModules = moduleDataResponse.modules.map(
@@ -154,22 +158,24 @@ export default async function NewRegistrationRequestPage({
 				receiptType: hasRepeatModules ? 'repeat_module' : 'tuition_fee',
 			}));
 
-		const result = await createRegistration({
-			stdNo: values.stdNo,
-			modules:
-				selectedModules?.map((module) => ({
-					moduleId: module.id,
-					moduleStatus: module.status,
-				})) || [],
-			sponsorId: values.sponsorId,
-			semesterNumber: values.semesterNumber,
-			semesterStatus: values.semesterStatus,
-			termId: values.termId,
-			borrowerNo: values.borrowerNo,
-			bankName: values.bankName,
-			accountNumber: values.accountNumber,
-			receipts: receipts.length > 0 ? receipts : undefined,
-		});
+		const result = unwrap(
+			await createRegistration({
+				stdNo: values.stdNo,
+				modules:
+					selectedModules?.map((module) => ({
+						moduleId: module.id,
+						moduleStatus: module.status,
+					})) || [],
+				sponsorId: values.sponsorId,
+				semesterNumber: values.semesterNumber,
+				semesterStatus: values.semesterStatus,
+				termId: values.termId,
+				borrowerNo: values.borrowerNo,
+				bankName: values.bankName,
+				accountNumber: values.accountNumber,
+				receipts: receipts.length > 0 ? receipts : undefined,
+			})
+		);
 
 		return {
 			...values,

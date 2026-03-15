@@ -6,6 +6,7 @@ import {
 	updateGraduationRequest,
 } from '@registry/graduation/clearance';
 import { notFound } from 'next/navigation';
+import { unwrap } from '@/shared/lib/utils/actionResult';
 
 type Props = {
 	params: Promise<{ id: string }>;
@@ -13,7 +14,7 @@ type Props = {
 
 export default async function GraduationRequestEdit({ params }: Props) {
 	const { id } = await params;
-	const graduationRequest = await getGraduationRequest(Number(id));
+	const graduationRequest = unwrap(await getGraduationRequest(Number(id)));
 	if (!graduationRequest) {
 		return notFound();
 	}

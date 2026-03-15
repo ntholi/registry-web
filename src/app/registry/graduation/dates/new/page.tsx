@@ -1,9 +1,10 @@
 import { Box } from '@mantine/core';
 import { createGraduation, Form } from '@registry/graduation/dates';
 import { getAllTerms } from '@/app/registry/terms';
+import { unwrap } from '@/shared/lib/utils/actionResult';
 
 export default async function NewPage() {
-	const terms = await getAllTerms();
+	const terms = unwrap(await getAllTerms());
 
 	return (
 		<Box p={'lg'}>

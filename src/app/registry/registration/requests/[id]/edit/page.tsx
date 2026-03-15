@@ -45,7 +45,9 @@ type RegistrationRequest = {
 
 export default async function RegistrationRequestEdit({ params }: Props) {
 	const { id } = await params;
-	const registrationRequest = await getRegistrationRequest(Number(id));
+	const registrationRequest = unwrap(
+		await getRegistrationRequest(Number(id))
+	);
 	if (!registrationRequest) {
 		return notFound();
 	}
@@ -94,22 +96,24 @@ export default async function RegistrationRequestEdit({ params }: Props) {
 			});
 		}
 
-		const res = await updateRegistration(
-			values.id,
-			selectedModules?.map((module) => ({
-				id: module.id,
-				status: module.status,
-			})) || [],
-			{
-				sponsorId: values.sponsorId,
-				borrowerNo: values.borrowerNo,
-				bankName: values.bankName,
-				accountNumber: values.accountNumber,
-			},
-			values.semesterNumber,
-			values.semesterStatus,
-			values.termId,
-			receipts
+		const res = unwrap(
+			await updateRegistration(
+				values.id,
+				selectedModules?.map((module) => ({
+					id: module.id,
+					status: module.status,
+				})) || [],
+				{
+					sponsorId: values.sponsorId,
+					borrowerNo: values.borrowerNo,
+					bankName: values.bankName,
+					accountNumber: values.accountNumber,
+				},
+				values.semesterNumber,
+				values.semesterStatus,
+				values.termId,
+				receipts
+			)
 		);
 		return {
 			...values,
