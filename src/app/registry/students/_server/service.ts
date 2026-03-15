@@ -8,6 +8,7 @@ import {
 	hasAnyPermission,
 	hasPermission,
 } from '@/core/auth/sessionPermissions';
+import { unwrap } from '@/shared/lib/utils/actionResult';
 import type {
 	nextOfKins,
 	studentModules,
@@ -99,7 +100,7 @@ class StudentService {
 	}
 
 	async findBySemesterModules(semesterModuleIds: number[]) {
-		const term = await getActiveTerm();
+		const term = unwrap(await getActiveTerm());
 		return withPermission(
 			async () =>
 				this.repository.findBySemesterModules(semesterModuleIds, term.code),

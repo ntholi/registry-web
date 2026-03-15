@@ -2,7 +2,7 @@
 
 import { getActiveTerm } from '@/app/registry/terms';
 import { auth } from '@/core/auth';
-import { createAction } from '@/shared/lib/utils/actionResult';
+import { createAction, unwrap } from '@/shared/lib/utils/actionResult';
 import { assignedModulesService as service } from './service';
 
 export const getAssignedModuleByUserAndModule = createAction(
@@ -29,8 +29,8 @@ export const getLecturersByModule = createAction(async (moduleId: number) =>
 );
 
 export const getAssignedModulesByUser = createAction(async (userId: string) => {
-	const termId = await getActiveTerm();
-	return service.getByUser(userId, termId.id);
+	const term = unwrap(await getActiveTerm());
+	return service.getByUser(userId, term.id);
 });
 
 export const getAssignedModulesByCurrentUser = createAction(async () => {
@@ -38,8 +38,8 @@ export const getAssignedModulesByCurrentUser = createAction(async () => {
 	if (!session?.user?.id) {
 		return [];
 	}
-	const termId = await getActiveTerm();
-	return service.getByUserGroupedByModule(session.user.id, termId.id);
+	const term = unwrap(await getActiveTerm());
+	return service.getByUserGroupedByModule(session.user.id, term.id);
 });
 
 export const getAllAssignedModulesByCurrentUser = createAction(async () => {
@@ -47,8 +47,8 @@ export const getAllAssignedModulesByCurrentUser = createAction(async () => {
 	if (!session?.user?.id) {
 		return [];
 	}
-	const termId = await getActiveTerm();
-	return service.getByUser(session.user.id, termId.id);
+	const term = unwrap(await getActiveTerm());
+	return service.getByUser(session.user.id, term.id);
 });
 
 export const getAssignedModuleByLmsCourseId = createAction(

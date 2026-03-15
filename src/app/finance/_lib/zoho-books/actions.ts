@@ -34,7 +34,7 @@ export async function resolveZohoContactId(
 	const contact = await findStudentContact(stdNo);
 	if (!contact) return null;
 
-	await saveZohoContactId(stdNo, contact.contact_id);
+	unwrap(await saveZohoContactId(stdNo, contact.contact_id));
 	return contact.contact_id;
 }
 
@@ -79,7 +79,7 @@ function sanitizeEmail(email: string | null | undefined): string | null {
 async function buildContactInput(
 	stdNo: number
 ): Promise<CreateStudentContactInput> {
-	const student = await getStudent(stdNo);
+	const student = unwrap(await getStudent(stdNo));
 	if (!student) throw new Error(`Student ${stdNo} not found`);
 
 	const name = student.name.trim();
@@ -120,7 +120,7 @@ async function buildContactInput(
 export async function createZohoContact(stdNo: number): Promise<string> {
 	const input = await buildContactInput(stdNo);
 	const contact = await createStudentContact(input);
-	await saveZohoContactId(stdNo, contact.contact_id);
+	unwrap(await saveZohoContactId(stdNo, contact.contact_id));
 	return contact.contact_id;
 }
 

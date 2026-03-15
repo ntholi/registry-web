@@ -1,5 +1,6 @@
 import { studentsService } from '@/app/registry/students/_server/service';
 import { getUnpublishedTermCodes } from '@/app/registry/terms/settings/_server/actions';
+import { unwrap } from '@/shared/lib/utils/actionResult';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
 import withPermission from '@/core/platform/withPermission';
 import BulkRepository from './repository';
@@ -44,7 +45,7 @@ class BulkService {
 					programIds
 				);
 
-				const unpublishedTerms = await getUnpublishedTermCodes();
+				const unpublishedTerms = unwrap(await getUnpublishedTermCodes());
 
 				const students = await Promise.all(
 					stdNos.map(async (stdNo) => {

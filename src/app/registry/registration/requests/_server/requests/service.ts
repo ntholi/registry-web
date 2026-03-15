@@ -5,6 +5,7 @@ import {
 	hasAnyPermission,
 	hasPermission,
 } from '@/core/auth/sessionPermissions';
+import { unwrap } from '@/shared/lib/utils/actionResult';
 import type {
 	ReceiptType,
 	registrationRequests,
@@ -45,7 +46,7 @@ class RegistrationRequestService {
 	async countByStatus(
 		status: 'pending' | 'registered' | 'rejected' | 'approved'
 	) {
-		const term = await getActiveTerm();
+		const term = unwrap(await getActiveTerm());
 		return withPermission(
 			async () => this.repository.countByStatus(status, term.id),
 			{ registration: ['read'] }
@@ -214,7 +215,7 @@ class RegistrationRequestService {
 	async getEligibleModulesForRequest(stdNo: number, termCode: string) {
 		return withPermission(
 			async () => {
-				const studentData = await getStudentRegistrationData(stdNo);
+				const studentData = unwrap(await getStudentRegistrationData(stdNo));
 				if (!studentData) throw new Error('Student not found');
 				const remarks = getAcademicRemarks(studentData.programs);
 				return getStudentSemesterModulesLogic(studentData, remarks, termCode);

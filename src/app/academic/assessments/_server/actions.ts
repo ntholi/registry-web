@@ -2,7 +2,7 @@
 
 import { getActiveTerm } from '@/app/registry/terms';
 import type { assessments, lmsAssessments } from '@/core/database';
-import { createAction } from '@/shared/lib/utils/actionResult';
+import { createAction, unwrap } from '@/shared/lib/utils/actionResult';
 import { assessmentsService as service } from './service';
 
 type Assessment = typeof assessments.$inferInsert;
@@ -13,7 +13,7 @@ export const getAssessment = createAction(async (id: number) =>
 
 export const getAssessmentByModuleId = createAction(
 	async (moduleId: number) => {
-		const term = await getActiveTerm();
+		const term = unwrap(await getActiveTerm());
 		return service.getByModuleId(moduleId, term.id);
 	}
 );
@@ -27,7 +27,7 @@ export const createAssessment = createAction(
 		assessment: Assessment,
 		lmsData?: Omit<typeof lmsAssessments.$inferInsert, 'assessmentId'>
 	) => {
-		const term = await getActiveTerm();
+		const term = unwrap(await getActiveTerm());
 		return service.create({ ...assessment, termId: term.id }, lmsData);
 	}
 );

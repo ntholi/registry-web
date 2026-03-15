@@ -1,4 +1,5 @@
 import { getStudentByUserId } from '@registry/students';
+import { unwrap } from '@/shared/lib/utils/actionResult';
 import { DASHBOARD_ROLES } from '@/core/auth/permissions';
 import {
 	hasSessionRole,
@@ -40,7 +41,7 @@ class FortinetRegistrationService {
 				if (!session?.user?.id) {
 					throw new Error('User session not found');
 				}
-				const student = await getStudentByUserId(session.user.id);
+				const student = unwrap(await getStudentByUserId(session.user.id));
 				if (!student) {
 					throw new Error('Student not found');
 				}
@@ -66,7 +67,7 @@ class FortinetRegistrationService {
 				if (!session?.user?.id) {
 					throw new Error('User session not found');
 				}
-				const student = await getStudentByUserId(session.user.id);
+				const student = unwrap(await getStudentByUserId(session.user.id));
 				if (!student) {
 					throw new Error('Student not found');
 				}

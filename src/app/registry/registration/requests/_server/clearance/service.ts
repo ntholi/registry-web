@@ -1,6 +1,7 @@
 import type { RegistryActivityType } from '@registry/_lib/activities';
 import { getActiveTerm } from '@/app/registry/terms';
 import { auth } from '@/core/auth';
+import { unwrap } from '@/shared/lib/utils/actionResult';
 import type { DashboardRole } from '@/core/auth/permissions';
 import type { clearance } from '@/core/database';
 import type { QueryOptions } from '@/core/platform/BaseRepository';
@@ -33,7 +34,7 @@ class ClearanceService {
 	}
 
 	async countByStatus(status: 'pending' | 'approved' | 'rejected') {
-		const term = await getActiveTerm();
+		const term = unwrap(await getActiveTerm());
 		const session = await auth();
 		if (!session?.user?.role) return 0;
 
@@ -53,7 +54,7 @@ class ClearanceService {
 		return withPermission(async () => {
 			const effectiveFilter = { ...filter };
 			if (!effectiveFilter.termId) {
-				const activeTerm = await getActiveTerm();
+				const activeTerm = unwrap(await getActiveTerm());
 				effectiveFilter.termId = activeTerm.id;
 			}
 			return this.repository.findByDepartment(

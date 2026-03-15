@@ -3,9 +3,10 @@
 import { getAssignedModuleByLmsCourseId } from '@academic/assigned-modules';
 import { getEnrolledStudentsFromDB } from '@lms/students';
 import { getStudentsBySemesterModules } from '@registry/students';
+import { unwrap } from '@/shared/lib/utils/actionResult';
 
 export async function getAssignedModuleByCourseId(courseId: number) {
-	return getAssignedModuleByLmsCourseId(courseId.toString());
+	return unwrap(await getAssignedModuleByLmsCourseId(courseId.toString()));
 }
 
 export async function getStudentsByCourseId(
@@ -13,7 +14,7 @@ export async function getStudentsByCourseId(
 	semesterModuleIds: number[]
 ) {
 	const [moduleStudents, enrolledStudents] = await Promise.all([
-		getStudentsBySemesterModules(semesterModuleIds),
+		getStudentsBySemesterModules(semesterModuleIds).then(unwrap),
 		getEnrolledStudentsFromDB(courseId),
 	]);
 

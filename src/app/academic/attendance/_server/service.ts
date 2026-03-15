@@ -1,5 +1,6 @@
 import { getActiveTerm } from '@/app/registry/terms';
 import type { AttendanceStatus } from '@/core/database';
+import { unwrap } from '@/shared/lib/utils/actionResult';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
 import { withPermission } from '@/core/platform/withPermission';
 import { createAttendanceExcel } from './excel';
@@ -17,7 +18,7 @@ class AttendanceService {
 	async getStudentsForModule(semesterModuleId: number) {
 		return withPermission(
 			async () => {
-				const term = await getActiveTerm();
+				const term = unwrap(await getActiveTerm());
 				return this.repository.getStudentsForModule(
 					semesterModuleId,
 					term.code
@@ -34,7 +35,7 @@ class AttendanceService {
 	) {
 		return withPermission(
 			async () => {
-				const term = await getActiveTerm();
+				const term = unwrap(await getActiveTerm());
 				return this.repository.getAttendanceForWeek(
 					semesterModuleId,
 					termId,
@@ -78,7 +79,7 @@ class AttendanceService {
 	async getAttendanceSummary(semesterModuleId: number, termId: number) {
 		return withPermission(
 			async () => {
-				const term = await getActiveTerm();
+				const term = unwrap(await getActiveTerm());
 				return this.repository.getAttendanceSummaryForModule(
 					semesterModuleId,
 					termId,
@@ -90,7 +91,7 @@ class AttendanceService {
 	}
 
 	async getAssignedModulesForCurrentUser(userId: string) {
-		const term = await getActiveTerm();
+		const term = unwrap(await getActiveTerm());
 		return withPermission(
 			async () =>
 				this.repository.getAssignedModulesWithDetails(userId, term.id),

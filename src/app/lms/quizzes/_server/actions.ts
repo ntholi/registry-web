@@ -6,6 +6,7 @@ import { findStudentsByLmsUserIdsForSubmissions } from '@lms/students';
 import { createAssessment as createAcademicAssessment } from '@/app/academic/assessments/_server/actions';
 import { getActiveTerm } from '@/app/registry/terms';
 import { auth } from '@/core/auth';
+import { unwrap } from '@/shared/lib/utils/actionResult';
 import type { AssessmentNumber } from '@/core/database';
 import { moodleGet, moodlePost } from '@/core/integrations/moodle';
 import type {
@@ -346,7 +347,7 @@ export async function publishQuiz(input: {
 }) {
 	await getLmsToken();
 
-	const term = await getActiveTerm();
+	const term = unwrap(await getActiveTerm());
 	if (!term) {
 		throw new Error('No active term found');
 	}
@@ -382,7 +383,7 @@ export async function publishQuiz(input: {
 export async function createQuiz(input: CreateQuizInput) {
 	const lmsToken = await getLmsToken();
 
-	const term = await getActiveTerm();
+	const term = unwrap(await getActiveTerm());
 	if (!term) {
 		throw new Error('No active term found');
 	}

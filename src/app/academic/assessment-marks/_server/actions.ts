@@ -11,7 +11,7 @@ type AssessmentMark = typeof assessmentMarks.$inferInsert;
 
 export const getAssessmentMarksByModuleId = createAction(
 	async (moduleId: number) => {
-		const term = await getActiveTerm();
+		const term = unwrap(await getActiveTerm());
 		return service.getByModuleId(moduleId, term.id);
 	}
 );
@@ -73,7 +73,7 @@ export const updateAssessmentMark = createAction(
 
 export const calculateAndSaveModuleGrade = createAction(
 	async (moduleId: number, studentModuleId: number) => {
-		const term = await getActiveTerm();
+		const term = unwrap(await getActiveTerm());
 		const assessments = await service.getAssessmentsByModuleId(
 			moduleId,
 			term.id

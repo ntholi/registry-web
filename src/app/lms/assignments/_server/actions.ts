@@ -5,6 +5,7 @@ import { getOrReuseSection } from '@lms/_shared/utils';
 import { createAssessment as createAcademicAssessment } from '@/app/academic/assessments/_server/actions';
 import { getActiveTerm } from '@/app/registry/terms';
 import { auth } from '@/core/auth';
+import { unwrap } from '@/shared/lib/utils/actionResult';
 import type { AssessmentNumber } from '@/core/database';
 import { moodleGet, moodlePost } from '@/core/integrations/moodle';
 import type { CreateAssignmentParams, MoodleAssignment } from '../types';
@@ -195,7 +196,7 @@ export async function publishAssignment(input: {
 }) {
 	await getLmsToken();
 
-	const term = await getActiveTerm();
+	const term = unwrap(await getActiveTerm());
 	if (!term) {
 		throw new Error('No active term found');
 	}
@@ -227,7 +228,7 @@ export async function publishAssignment(input: {
 
 export async function createAssignment(params: CreateAssignmentParams) {
 	const lmsToken = await getLmsToken();
-	const term = await getActiveTerm();
+	const term = unwrap(await getActiveTerm());
 	if (!term) {
 		throw new Error('No active term found');
 	}
