@@ -1,6 +1,7 @@
 'use server';
 
 import type { graduationRequests, ReceiptType } from '@/core/database';
+import { createAction } from '@/shared/lib/utils/actionResult';
 import { graduationRequestsService as service } from './service';
 
 type GraduationRequest = typeof graduationRequests.$inferInsert;
@@ -15,55 +16,60 @@ type CreateGraduationRequestData = GraduationRequest & {
 	stdNo: number;
 };
 
-export async function getGraduationRequest(id: number) {
+export const getGraduationRequest = createAction(async (id: number) => {
 	return service.get(id);
-}
+});
 
-export async function getGraduationRequestByStudentNo(stdNo: number) {
-	const result = await service.getByStudentNo(stdNo);
-	return result.length > 0 ? result[0] : null;
-}
+export const getGraduationRequestByStudentNo = createAction(
+	async (stdNo: number) => {
+		const result = await service.getByStudentNo(stdNo);
+		return result.length > 0 ? result[0] : null;
+	}
+);
 
-export async function getEligiblePrograms(stdNo: number) {
+export const getEligiblePrograms = createAction(async (stdNo: number) => {
 	return service.getEligiblePrograms(stdNo);
-}
+});
 
-export async function createGraduationRequest(
-	graduationRequest: GraduationRequest
-) {
-	return service.create(graduationRequest);
-}
+export const createGraduationRequest = createAction(
+	async (graduationRequest: GraduationRequest) => {
+		return service.create(graduationRequest);
+	}
+);
 
-export async function createGraduationRequestWithPaymentReceipts(
-	data: CreateGraduationRequestData
-) {
-	return service.createWithPaymentReceipts(data);
-}
+export const createGraduationRequestWithPaymentReceipts = createAction(
+	async (data: CreateGraduationRequestData) => {
+		return service.createWithPaymentReceipts(data);
+	}
+);
 
-export async function updateGraduationRequest(
-	id: number,
-	graduationRequest: Partial<GraduationRequest>
-) {
-	return service.update(id, graduationRequest);
-}
+export const updateGraduationRequest = createAction(
+	async (id: number, graduationRequest: Partial<GraduationRequest>) => {
+		return service.update(id, graduationRequest);
+	}
+);
 
-export async function deleteGraduationRequest(id: number) {
+export const deleteGraduationRequest = createAction(async (id: number) => {
 	return service.delete(id);
-}
+});
 
-export async function getGraduationClearanceData(graduationRequestId: number) {
-	return service.getClearanceData(graduationRequestId);
-}
+export const getGraduationClearanceData = createAction(
+	async (graduationRequestId: number) => {
+		return service.getClearanceData(graduationRequestId);
+	}
+);
 
-export async function countByStatus(
-	status: 'pending' | 'approved' | 'rejected'
-) {
-	return service.countByStatus(status);
-}
+export const countByStatus = createAction(
+	async (status: 'pending' | 'approved' | 'rejected') => {
+		return service.countByStatus(status);
+	}
+);
 
-export async function findAllGraduationRequests(page = 1, search = '') {
-	return service.findAll({
-		page,
-		search,
-	});
-}
+export const findAllGraduationRequests = createAction(
+	async (page = 1, search = '') => {
+		return service.findAll({
+			page,
+			search,
+		});
+	}
+);

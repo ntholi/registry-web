@@ -4,6 +4,7 @@ import type { ProgramLevel } from '@academic/_database';
 import { auth } from '@/core/auth';
 import type { DashboardRole } from '@/core/auth/permissions';
 import type { clearance } from '@/core/database';
+import { createAction } from '@/shared/lib/utils/actionResult';
 import { clearanceService as service } from './service';
 
 type Clearance = typeof clearance.$inferInsert;
@@ -16,54 +17,56 @@ export interface ClearanceFilter {
 	semester?: string;
 }
 
-export async function getClearance(id: number) {
+export const getClearance = createAction(async (id: number) => {
 	return service.get(id);
-}
+});
 
-export async function countPendingClearances() {
+export const countPendingClearances = createAction(async () => {
 	return service.countByStatus('pending');
-}
+});
 
-export async function clearanceByStatus(
-	status?: 'pending' | 'approved' | 'rejected',
-	page: number = 1,
-	search = '',
-	filter?: ClearanceFilter
-) {
-	const session = await auth();
-	if (!session?.user?.role) {
+export const clearanceByStatus = createAction(
+	async (
+		status?: 'pending' | 'approved' | 'rejected',
+		page: number = 1,
+		search = '',
+		filter?: ClearanceFilter
+	) => {
+		const session = await auth();
+		if (!session?.user?.role) {
+			return {
+				items: [],
+				totalPages: 0,
+				totalItems: 0,
+			};
+		}
+
+		const res = await service.findByDepartment(
+			session.user.role as DashboardRole,
+			{
+				page,
+				search,
+			},
+			status,
+			filter
+		);
+
 		return {
-			items: [],
-			totalPages: 0,
-			totalItems: 0,
+			items: res.items,
+			totalPages: res.totalPages,
+			totalItems: res.totalItems,
 		};
 	}
+);
 
-	const res = await service.findByDepartment(
-		session.user.role as DashboardRole,
-		{
-			page,
-			search,
-		},
-		status,
-		filter
-	);
+export const updateClearance = createAction(
+	async (id: number, clearanceData: Clearance, stdNo?: number) => {
+		return service.update(id, clearanceData, stdNo);
+	}
+);
 
-	return {
-		items: res.items,
-		totalPages: res.totalPages,
-		totalItems: res.totalItems,
-	};
-}
-
-export async function updateClearance(
-	id: number,
-	clearanceData: Clearance,
-	stdNo?: number
-) {
-	return service.update(id, clearanceData, stdNo);
-}
-
-export async function getClearanceHistoryByStudentNo(stdNo: number) {
-	return service.getHistoryByStudentNo(stdNo);
-}
+export const getClearanceHistoryByStudentNo = createAction(
+	async (stdNo: number) => {
+		return service.getHistoryByStudentNo(stdNo);
+	}
+);
