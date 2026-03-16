@@ -29,7 +29,7 @@ export default async function RecognizedSchoolDetails({ params }: Props) {
 				queryKey={['recognized-schools']}
 				handleDelete={async () => {
 					'use server';
-					await deleteRecognizedSchool(id);
+					return deleteRecognizedSchool(id);
 				}}
 			/>
 			<DetailsViewBody>

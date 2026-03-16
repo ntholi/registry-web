@@ -17,6 +17,7 @@ import {
 	generateUploadKey,
 	StoragePaths,
 } from '@/core/integrations/storage-utils';
+import { unwrap } from '@/shared/lib/actions/actionResult';
 
 const MAX_FILE_SIZE = 2 * 1024 * 1024;
 
@@ -79,25 +80,26 @@ export async function uploadIdentityDocument(
 
 		await uploadFile(file, fileKey);
 
-		await saveApplicantDocument({
-			applicantId,
-			fileName: file.name,
-			fileUrl: fileKey,
-			type: 'identity',
-		});
+		unwrap(
+			await saveApplicantDocument({
+				applicantId,
+				fileName: file.name,
+				fileUrl: fileKey,
+				type: 'identity',
+			})
+		);
 
-		const updateResult = await updateApplicantFromIdentity(applicantId, {
-			fullName: analysis.fullName,
-			dateOfBirth: analysis.dateOfBirth,
-			nationalId: analysis.nationalId,
-			nationality: analysis.nationality,
-			gender: analysis.gender,
-			birthPlace: analysis.birthPlace,
-			address: analysis.address,
-		});
-		if (!updateResult.success) {
-			return { success: false, error: updateResult.error };
-		}
+		unwrap(
+			await updateApplicantFromIdentity(applicantId, {
+				fullName: analysis.fullName,
+				dateOfBirth: analysis.dateOfBirth,
+				nationalId: analysis.nationalId,
+				nationality: analysis.nationality,
+				gender: analysis.gender,
+				birthPlace: analysis.birthPlace,
+				address: analysis.address,
+			})
+		);
 
 		return { success: true, data: { fileName: file.name, analysis } };
 	} catch (error) {
@@ -122,7 +124,7 @@ export async function removeIdentityDocument(
 			};
 		}
 
-		await deleteApplicantDocument(id, fileUrl);
+		unwrap(await deleteApplicantDocument(id, fileUrl));
 		return { success: true, data: undefined };
 	} catch (error) {
 		return { success: false, error: extractError(error) };

@@ -11,7 +11,7 @@ import {
 	type DocumentUploadResult,
 } from '@/app/apply/_components/DocumentUpload';
 import type { DocumentAnalysisResult } from '@/core/integrations/ai/documents';
-import { getActionErrorMessage } from '@/shared/lib/actions/actionResult';
+import { unwrap } from '@/shared/lib/actions/actionResult';
 import {
 	createAcademicRecordFromDocument,
 	saveApplicantDocument,
@@ -123,75 +123,64 @@ export function UploadModal({
 		try {
 			setSaving(true);
 
-			const fileKey = await uploadApplicantFile(applicantId, uploadResult.file);
+			const fileKey = unwrap(
+				await uploadApplicantFile(applicantId, uploadResult.file)
+			);
+			const analysis = uploadResult.analysis;
+			const savedDoc = unwrap(
+				await saveApplicantDocument({
+					applicantId,
+					fileName: uploadResult.file.name,
+					fileUrl: fileKey,
+					type,
+				})
+			);
 
-			const result = uploadResult.analysis;
-
-			const savedDoc = await saveApplicantDocument({
-				applicantId,
-				fileName: uploadResult.file.name,
-				fileUrl: fileKey,
-				type,
-			});
-
-			if (result.category === 'identity' && type === 'identity') {
-				const updateResult = await updateApplicantFromIdentity(applicantId, {
-					fullName: result.fullName,
-					dateOfBirth: result.dateOfBirth,
-					nationalId: result.nationalId,
-					nationality: result.nationality,
-					gender: result.gender,
-					birthPlace: result.birthPlace,
-					address: result.address,
+			if (analysis.category === 'identity' && type === 'identity') {
+				unwrap(
+					await updateApplicantFromIdentity(applicantId, {
+						fullName: analysis.fullName,
+						dateOfBirth: analysis.dateOfBirth,
+						nationalId: analysis.nationalId,
+						nationality: analysis.nationality,
+						gender: analysis.gender,
+						birthPlace: analysis.birthPlace,
+						address: analysis.address,
+					})
+				);
+				notifications.show({
+					title: 'Personal Info Updated',
+					message:
+						'Applicant information has been updated from the identity document',
+					color: 'blue',
 				});
-				if (updateResult.success) {
-					notifications.show({
-						title: 'Personal Info Updated',
-						message:
-							'Applicant information has been updated from the identity document',
-						color: 'blue',
-					});
-				} else {
-					notifications.show({
-						title: 'Update Failed',
-						message: getActionErrorMessage(updateResult.error),
-						color: 'red',
-					});
-				}
 			}
 
 			if (
-				result.category === 'academic' &&
+				analysis.category === 'academic' &&
 				(type === 'certificate' || type === 'academic_record')
 			) {
-				if (result.examYear && result.institutionName) {
-					const recordResult = await createAcademicRecordFromDocument(
-						applicantId,
-						{
-							institutionName: result.institutionName,
-							examYear: result.examYear,
-							certificateType: result.certificateType,
-							certificateNumber: result.certificateNumber,
-							candidateNumber: result.candidateNumber,
-							subjects: result.subjects,
-							overallClassification: result.overallClassification,
-						},
-						savedDoc?.document?.id
+				if (analysis.examYear && analysis.institutionName) {
+					unwrap(
+						await createAcademicRecordFromDocument(
+							applicantId,
+							{
+								institutionName: analysis.institutionName,
+								examYear: analysis.examYear,
+								certificateType: analysis.certificateType,
+								certificateNumber: analysis.certificateNumber,
+								candidateNumber: analysis.candidateNumber,
+								subjects: analysis.subjects,
+								overallClassification: analysis.overallClassification,
+							},
+							savedDoc?.document?.id
+						)
 					);
-					if (recordResult.success) {
-						notifications.show({
-							title: 'Academic Record Created',
-							message:
-								'A new academic record has been created from the document',
-							color: 'blue',
-						});
-					} else {
-						notifications.show({
-							title: 'Academic Record Failed',
-							message: getActionErrorMessage(recordResult.error),
-							color: 'red',
-						});
-					}
+					notifications.show({
+						title: 'Academic Record Created',
+						message: 'A new academic record has been created from the document',
+						color: 'blue',
+					});
 				}
 			}
 

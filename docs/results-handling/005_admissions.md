@@ -2,6 +2,8 @@
 
 > Wrap **mutation** actions with `createAction`. Query actions stay as plain functions. RSC pages and ListLayout callers require **no changes**. **Non-breaking**.
 
+**Status:** ✅ Completed
+
 ## Prerequisites
 
 - Plan 001 completed (`createAction`, `unwrap`, `ActionResult<T>`)
@@ -92,14 +94,15 @@ Under the mutations-only strategy, only mutation→mutation cross-calls need `un
 
 ```bash
 pnpm tsc --noEmit
+pnpm lint:fix
 ```
 
 ## Done When
 
-- [ ] All mutation actions across ~11 non-report files wrapped with `createAction`
-- [ ] All query actions remain as plain `async function` exports
-- [ ] Report action files (5) left completely untouched
-- [ ] All direct `useMutation` callers switched to `useActionMutation`
-- [ ] All mutation→mutation cross-action calls wrapped with `unwrap()`
-- [ ] `pnpm tsc --noEmit` passes
-- [ ] **Admissions module mutations wrapped; queries/pages/layouts untouched**
+- [x] All mutation actions across ~11 non-report files wrapped with `createAction`
+- [x] All query actions remain as plain `async function` exports
+- [x] Report action files (5) left completely untouched
+- [x] All direct `useMutation` callers switched to `useActionMutation`
+- [x] All mutation→mutation cross-action calls wrapped with `unwrap()`
+- [x] `pnpm tsc --noEmit` passes
+- [x] **Admissions module mutations wrapped; queries/pages/layouts untouched**

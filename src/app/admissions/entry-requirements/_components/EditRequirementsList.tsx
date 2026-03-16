@@ -26,8 +26,9 @@ import {
 	IconPlus,
 	IconTrash,
 } from '@tabler/icons-react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
+import { useActionMutation } from '@/shared/lib/actions/use-action-mutation';
 import type {
 	ClassificationRules,
 	EntryRequirement,
@@ -88,41 +89,39 @@ export default function EditRequirementsList({
 		(ct) => !usedCertTypeIds.has(ct.id)
 	);
 
-	const updateMutation = useMutation({
-		mutationFn: ({
-			id,
-			data,
-		}: {
-			id: string;
-			data: (typeof initialRequirements)[0];
-		}) => updateEntryRequirement(id, data),
-		onSuccess: () => {
-			setExpandedId(null);
-			queryClient.invalidateQueries({ queryKey: ['entry-requirements'] });
-		},
-	});
+	const updateMutation = useActionMutation(
+		({ id, data }: { id: string; data: (typeof initialRequirements)[0] }) =>
+			updateEntryRequirement(id, data),
+		{
+			onSuccess: () => {
+				setExpandedId(null);
+				queryClient.invalidateQueries({ queryKey: ['entry-requirements'] });
+			},
+		}
+	);
 
-	const createMutation = useMutation({
-		mutationFn: (data: {
+	const createMutation = useActionMutation(
+		(data: {
 			programId: number;
 			certificateTypeId: string;
 			rules: SubjectGradeRules | ClassificationRules;
 		}) => createEntryRequirement(data),
-		onSuccess: (newReq) => {
-			const certType = certificateTypes.find(
-				(ct) => ct.id === newReq.certificateTypeId
-			);
-			setRequirements((prev) => [
-				...prev,
-				{ ...newReq, certificateType: certType || null } as RequirementItem,
-			]);
-			setExpandedId(newReq.id);
-			queryClient.invalidateQueries({ queryKey: ['entry-requirements'] });
-		},
-	});
+		{
+			onSuccess: (newReq) => {
+				const certType = certificateTypes.find(
+					(ct) => ct.id === newReq.certificateTypeId
+				);
+				setRequirements((prev) => [
+					...prev,
+					{ ...newReq, certificateType: certType || null } as RequirementItem,
+				]);
+				setExpandedId(newReq.id);
+				queryClient.invalidateQueries({ queryKey: ['entry-requirements'] });
+			},
+		}
+	);
 
-	const deleteMutation = useMutation({
-		mutationFn: (id: string) => deleteEntryRequirement(id),
+	const deleteMutation = useActionMutation(deleteEntryRequirement, {
 		onSuccess: (_, id) => {
 			setRequirements((prev) => prev.filter((r) => r.id !== id));
 			queryClient.invalidateQueries({ queryKey: ['entry-requirements'] });

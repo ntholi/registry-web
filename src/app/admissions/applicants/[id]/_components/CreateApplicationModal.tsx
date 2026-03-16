@@ -23,10 +23,11 @@ import {
 	IconInfoCircle,
 	IconPlus,
 } from '@tabler/icons-react';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
 import { useRouter } from 'nextjs-toploader/app';
 import { useEffect } from 'react';
+import { useActionMutation } from '@/shared/lib/actions/use-action-mutation';
 
 const emptyValue = '';
 
@@ -90,8 +91,8 @@ export default function CreateApplicationModal({ applicantId }: Props) {
 		enabled: opened,
 	});
 
-	const createMutation = useMutation({
-		mutationFn: async (values: typeof form.values) => {
+	const createMutation = useActionMutation(
+		async (values: typeof form.values) => {
 			return createApplication({
 				applicantId,
 				intakePeriodId: values.intakePeriodId,
@@ -101,23 +102,25 @@ export default function CreateApplicationModal({ applicantId }: Props) {
 					: null,
 			});
 		},
-		onSuccess: () => {
-			notifications.show({
-				title: 'Success',
-				message: 'Application created',
-				color: 'green',
-			});
-			handleClose();
-			router.refresh();
-		},
-		onError: (error: Error) => {
-			notifications.show({
-				title: 'Error',
-				message: error.message,
-				color: 'red',
-			});
-		},
-	});
+		{
+			onSuccess: () => {
+				notifications.show({
+					title: 'Success',
+					message: 'Application created',
+					color: 'green',
+				});
+				handleClose();
+				router.refresh();
+			},
+			onError: (error: Error) => {
+				notifications.show({
+					title: 'Error',
+					message: error.message,
+					color: 'red',
+				});
+			},
+		}
+	);
 
 	const programOptions: ProgramOption[] = eligiblePrograms.map((program) => ({
 		value: program.id.toString(),

@@ -13,17 +13,19 @@ import {
 	Title,
 } from '@mantine/core';
 import { IconPlus, IconTrash } from '@tabler/icons-react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import { createInsertSchema } from 'drizzle-zod';
 import { useRouter } from 'nextjs-toploader/app';
 import { useState } from 'react';
 import { z } from 'zod';
+import type { ActionResult } from '@/shared/lib/actions/actionResult';
+import { useActionMutation } from '@/shared/lib/actions/use-action-mutation';
 import { Form } from '@/shared/ui/adease';
 import type { Subject, SubjectAlias } from '../_lib/types';
 import { addSubjectAlias, removeSubjectAlias } from '../_server/actions';
 
 type Props = {
-	onSubmit: (values: Subject) => Promise<Subject>;
+	onSubmit: (values: Subject) => Promise<Subject | ActionResult<Subject>>;
 	defaultValues?: Subject & { aliases?: SubjectAlias[] };
 	title?: string;
 };
@@ -87,17 +89,18 @@ function AliasEditor({ subjectId, aliases: initialAliases }: AliasEditorProps) {
 	const [aliases, setAliases] = useState(initialAliases);
 	const [newAlias, setNewAlias] = useState('');
 
-	const addMutation = useMutation({
-		mutationFn: (alias: string) => addSubjectAlias(subjectId, alias),
-		onSuccess: (created) => {
-			setAliases((prev) => [...prev, created]);
-			setNewAlias('');
-			queryClient.invalidateQueries({ queryKey: ['subjects'] });
-		},
-	});
+	const addMutation = useActionMutation(
+		(alias: string) => addSubjectAlias(subjectId, alias),
+		{
+			onSuccess: (created) => {
+				setAliases((prev) => [...prev, created]);
+				setNewAlias('');
+				queryClient.invalidateQueries({ queryKey: ['subjects'] });
+			},
+		}
+	);
 
-	const removeMutation = useMutation({
-		mutationFn: (aliasId: string) => removeSubjectAlias(aliasId),
+	const removeMutation = useActionMutation(removeSubjectAlias, {
 		onSuccess: (_, aliasId) => {
 			setAliases((prev) => prev.filter((a) => a.id !== aliasId));
 			queryClient.invalidateQueries({ queryKey: ['subjects'] });

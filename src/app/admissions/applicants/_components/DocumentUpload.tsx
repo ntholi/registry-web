@@ -30,7 +30,10 @@ import { nanoid } from 'nanoid';
 import { useRouter } from 'nextjs-toploader/app';
 import { useState } from 'react';
 import type { DocumentAnalysisResult } from '@/core/integrations/ai/documents';
-import { getActionErrorMessage } from '@/shared/lib/actions/actionResult';
+import {
+	getActionErrorMessage,
+	unwrap,
+} from '@/shared/lib/actions/actionResult';
 import { formatFileSize } from '@/shared/lib/utils/files';
 import {
 	createApplicantFromDocuments,
@@ -72,7 +75,7 @@ export default function DocumentUpload() {
 
 		try {
 			const applicantId = nanoid();
-			const fileKey = await uploadApplicantFile(applicantId, file);
+			const fileKey = unwrap(await uploadApplicantFile(applicantId, file));
 
 			updateFileItem(id, {
 				uploadState: 'analyzing',

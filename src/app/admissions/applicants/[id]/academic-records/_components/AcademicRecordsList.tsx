@@ -18,8 +18,9 @@ import { useForm } from '@mantine/form';
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import { IconPlus, IconTrash } from '@tabler/icons-react';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
+import { useActionMutation } from '@/shared/lib/actions/use-action-mutation';
 import { normalizeResultClassification } from '@/shared/lib/utils/resultClassification';
 import type {
 	AcademicRecordWithRelations,
@@ -76,8 +77,8 @@ export default function AcademicRecordsList({ applicantId, records }: Props) {
 		},
 	});
 
-	const createMutation = useMutation({
-		mutationFn: async (values: typeof form.values) => {
+	const createMutation = useActionMutation(
+		async (values: typeof form.values) => {
 			const isLevel4 = selectedCertType?.lqfLevel === 4;
 			const hasSubjectGrades = subjectGrades.length > 0;
 			const resultClassification = normalizeResultClassification(
@@ -97,29 +98,30 @@ export default function AcademicRecordsList({ applicantId, records }: Props) {
 				isLevel4
 			);
 		},
-		onSuccess: async () => {
-			await queryClient.invalidateQueries({ queryKey: ['applicants'] });
-			form.reset();
-			setSelectedCertType(null);
-			setSubjectGrades([]);
-			close();
-			notifications.show({
-				title: 'Success',
-				message: 'Academic record created',
-				color: 'green',
-			});
-		},
-		onError: (error: Error) => {
-			notifications.show({
-				title: 'Error',
-				message: error.message,
-				color: 'red',
-			});
-		},
-	});
+		{
+			onSuccess: async () => {
+				await queryClient.invalidateQueries({ queryKey: ['applicants'] });
+				form.reset();
+				setSelectedCertType(null);
+				setSubjectGrades([]);
+				close();
+				notifications.show({
+					title: 'Success',
+					message: 'Academic record created',
+					color: 'green',
+				});
+			},
+			onError: (error: Error) => {
+				notifications.show({
+					title: 'Error',
+					message: error.message,
+					color: 'red',
+				});
+			},
+		}
+	);
 
-	const deleteMutation = useMutation({
-		mutationFn: deleteAcademicRecord,
+	const deleteMutation = useActionMutation(deleteAcademicRecord, {
 		onSuccess: async () => {
 			await queryClient.invalidateQueries({ queryKey: ['applicants'] });
 			notifications.show({

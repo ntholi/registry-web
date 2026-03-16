@@ -17,9 +17,10 @@ import { useForm } from '@mantine/form';
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import { IconPlus, IconTrash } from '@tabler/icons-react';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'nextjs-toploader/app';
 import { useState } from 'react';
+import { useActionMutation } from '@/shared/lib/actions/use-action-mutation';
 import { normalizeResultClassification } from '@/shared/lib/utils/resultClassification';
 import type { SubjectGradeInput } from '../academic-records/_lib/types';
 import { createAcademicRecord } from '../academic-records/_server/actions';
@@ -71,8 +72,8 @@ export default function AddAcademicRecordAction({ applicantId }: Props) {
 		},
 	});
 
-	const createMutation = useMutation({
-		mutationFn: async (values: typeof form.values) => {
+	const createMutation = useActionMutation(
+		async (values: typeof form.values) => {
 			const isLevel4 = selectedCertType?.lqfLevel === 4;
 			const resultClassification = normalizeResultClassification(
 				values.resultClassification
@@ -90,26 +91,28 @@ export default function AddAcademicRecordAction({ applicantId }: Props) {
 				isLevel4
 			);
 		},
-		onSuccess: () => {
-			form.reset();
-			setSelectedCertType(null);
-			setSubjectGrades([]);
-			close();
-			router.refresh();
-			notifications.show({
-				title: 'Success',
-				message: 'Academic record created',
-				color: 'green',
-			});
-		},
-		onError: (error: Error) => {
-			notifications.show({
-				title: 'Error',
-				message: error.message,
-				color: 'red',
-			});
-		},
-	});
+		{
+			onSuccess: () => {
+				form.reset();
+				setSelectedCertType(null);
+				setSubjectGrades([]);
+				close();
+				router.refresh();
+				notifications.show({
+					title: 'Success',
+					message: 'Academic record created',
+					color: 'green',
+				});
+			},
+			onError: (error: Error) => {
+				notifications.show({
+					title: 'Error',
+					message: error.message,
+					color: 'red',
+				});
+			},
+		}
+	);
 
 	function handleCertTypeChange(value: string | null) {
 		form.setFieldValue('certificateTypeId', value || '');

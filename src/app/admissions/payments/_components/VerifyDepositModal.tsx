@@ -4,9 +4,10 @@ import { Button, Modal, Stack, Text, TextInput } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import { IconCheck } from '@tabler/icons-react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'nextjs-toploader/app';
 import { useState } from 'react';
+import { useActionMutation } from '@/shared/lib/actions/use-action-mutation';
 import { verifyBankDeposit } from '../_server/actions';
 
 type Props = {
@@ -23,26 +24,28 @@ export default function VerifyDepositModal({
 	const router = useRouter();
 	const queryClient = useQueryClient();
 
-	const mutation = useMutation({
-		mutationFn: () => verifyBankDeposit(depositId, receiptNo),
-		onSuccess: () => {
-			notifications.show({
-				title: 'Deposit Verified',
-				message: `Payment verified for ${applicantName}`,
-				color: 'green',
-			});
-			queryClient.invalidateQueries({ queryKey: ['bank-deposits'] });
-			close();
-			router.refresh();
-		},
-		onError: (error: Error) => {
-			notifications.show({
-				title: 'Verification Failed',
-				message: error.message,
-				color: 'red',
-			});
-		},
-	});
+	const mutation = useActionMutation(
+		() => verifyBankDeposit(depositId, receiptNo),
+		{
+			onSuccess: () => {
+				notifications.show({
+					title: 'Deposit Verified',
+					message: `Payment verified for ${applicantName}`,
+					color: 'green',
+				});
+				queryClient.invalidateQueries({ queryKey: ['bank-deposits'] });
+				close();
+				router.refresh();
+			},
+			onError: (error: Error) => {
+				notifications.show({
+					title: 'Verification Failed',
+					message: error.message,
+					color: 'red',
+				});
+			},
+		}
+	);
 
 	function handleSubmit() {
 		if (!receiptNo.trim()) {

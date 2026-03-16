@@ -1,6 +1,7 @@
 'use server';
 
 import type { recognizedSchools } from '@/core/database';
+import { createAction } from '@/shared/lib/actions/actionResult';
 import { recognizedSchoolsService } from './service';
 
 type RecognizedSchool = typeof recognizedSchools.$inferInsert;
@@ -17,20 +18,18 @@ export async function findAllRecognizedSchools(page = 1, search = '') {
 	});
 }
 
-export async function createRecognizedSchool(data: RecognizedSchool) {
-	return recognizedSchoolsService.create(data);
-}
+export const createRecognizedSchool = createAction(
+	async (data: RecognizedSchool) => recognizedSchoolsService.create(data)
+);
 
-export async function updateRecognizedSchool(
-	id: string,
-	data: RecognizedSchool
-) {
-	return recognizedSchoolsService.update(id, data);
-}
+export const updateRecognizedSchool = createAction(
+	async (id: string, data: RecognizedSchool) =>
+		recognizedSchoolsService.update(id, data)
+);
 
-export async function deleteRecognizedSchool(id: string) {
-	return recognizedSchoolsService.delete(id);
-}
+export const deleteRecognizedSchool = createAction(async (id: string) =>
+	recognizedSchoolsService.delete(id)
+);
 
 export async function findRecognizedSchoolsForEligibility() {
 	return recognizedSchoolsService.findAllForEligibility();

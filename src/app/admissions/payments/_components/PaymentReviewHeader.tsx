@@ -13,10 +13,12 @@ import {
 } from '@mantine/core';
 import { useDisclosure, useMediaQuery } from '@mantine/hooks';
 import { IconArrowNarrowLeft } from '@tabler/icons-react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'nextjs-toploader/app';
 import { useCallback, useState } from 'react';
 import type { DepositStatus } from '@/core/database';
+import { unwrap } from '@/shared/lib/actions/actionResult';
+import { useActionMutation } from '@/shared/lib/actions/use-action-mutation';
 import { useViewSelect } from '@/shared/lib/hooks/use-view-select';
 import {
 	getNextPaymentForReview,
@@ -56,18 +58,20 @@ export default function PaymentReviewHeader({ id, title, status }: Props) {
 		}
 	}, [id, router]);
 
-	const mutation = useMutation({
-		mutationFn: async (reason?: string) => {
-			await updatePaymentReviewStatus(id, selected, reason);
-			await releasePaymentReviewLock(id);
+	const mutation = useActionMutation(
+		async (reason?: string) => {
+			unwrap(await updatePaymentReviewStatus(id, selected, reason));
+			return releasePaymentReviewLock(id);
 		},
-		onSuccess: async () => {
-			queryClient.invalidateQueries({ queryKey: ['payments-review'] });
-			close();
-			setRejectionReason('');
-			await navigateToNext();
-		},
-	});
+		{
+			onSuccess: async () => {
+				queryClient.invalidateQueries({ queryKey: ['payments-review'] });
+				close();
+				setRejectionReason('');
+				await navigateToNext();
+			},
+		}
+	);
 
 	function handleSave() {
 		if (selected === 'rejected') {

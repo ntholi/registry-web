@@ -3,8 +3,9 @@
 import { Button, Group, Paper, Stack, Text, Textarea } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { IconSend } from '@tabler/icons-react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
+import { useActionMutation } from '@/shared/lib/actions/use-action-mutation';
 import { formatDateTime } from '@/shared/lib/utils/dates';
 import { addApplicationNote } from '../_server/actions';
 
@@ -25,28 +26,30 @@ export default function NotesSection({ applicationId, notes }: Props) {
 	const [content, setContent] = useState('');
 	const queryClient = useQueryClient();
 
-	const mutation = useMutation({
-		mutationFn: async () => {
+	const mutation = useActionMutation(
+		async () => {
 			if (!content.trim()) throw new Error('Note content is required');
 			return addApplicationNote(applicationId, content.trim());
 		},
-		onSuccess: async () => {
-			await queryClient.invalidateQueries({ queryKey: ['applications'] });
-			setContent('');
-			notifications.show({
-				title: 'Success',
-				message: 'Note added successfully',
-				color: 'green',
-			});
-		},
-		onError: (error: Error) => {
-			notifications.show({
-				title: 'Error',
-				message: error.message,
-				color: 'red',
-			});
-		},
-	});
+		{
+			onSuccess: async () => {
+				await queryClient.invalidateQueries({ queryKey: ['applications'] });
+				setContent('');
+				notifications.show({
+					title: 'Success',
+					message: 'Note added successfully',
+					color: 'green',
+				});
+			},
+			onError: (error: Error) => {
+				notifications.show({
+					title: 'Error',
+					message: error.message,
+					color: 'red',
+				});
+			},
+		}
+	);
 
 	return (
 		<Stack gap='md'>

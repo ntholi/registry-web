@@ -82,9 +82,9 @@ export default function AcademicDataPanel({ records }: Props) {
 										label='Original Grade'
 										hideLabel
 										value={sg.originalGrade}
-										onSave={async (v) => {
-											await updateSubjectGradeField(sg.id, 'originalGrade', v);
-										}}
+										onSave={(v) =>
+											updateSubjectGradeField(sg.id, 'originalGrade', v)
+										}
 										inputType={
 											isLqf4 && originalGradeOptions.length > 0
 												? 'select'
@@ -142,60 +142,48 @@ export default function AcademicDataPanel({ records }: Props) {
 					<EditableField
 						label='Institution Name'
 						value={record.institutionName}
-						onSave={async (v) => {
-							await updateAcademicRecordField(record.id, 'institutionName', v);
-						}}
+						onSave={(v) =>
+							updateAcademicRecordField(record.id, 'institutionName', v)
+						}
 					/>
 					<EditableField
 						label='Exam Year'
 						value={record.examYear?.toString() ?? null}
-						onSave={async (v) => {
-							await updateAcademicRecordField(
+						onSave={(v) =>
+							updateAcademicRecordField(
 								record.id,
 								'examYear',
 								v ? Number.parseInt(v, 10) : null
-							);
-						}}
+							)
+						}
 					/>
 					<EditableField
 						label='Qualification Name'
 						value={record.qualificationName}
-						onSave={async (v) => {
-							await updateAcademicRecordField(
-								record.id,
-								'qualificationName',
-								v
-							);
-						}}
+						onSave={(v) =>
+							updateAcademicRecordField(record.id, 'qualificationName', v)
+						}
 					/>
 					<EditableField
 						label='Certificate Number'
 						value={record.certificateNumber}
-						onSave={async (v) => {
-							await updateAcademicRecordField(
-								record.id,
-								'certificateNumber',
-								v
-							);
-						}}
+						onSave={(v) =>
+							updateAcademicRecordField(record.id, 'certificateNumber', v)
+						}
 					/>
 					<EditableField
 						label='Candidate Number'
 						value={record.candidateNumber}
-						onSave={async (v) => {
-							await updateAcademicRecordField(record.id, 'candidateNumber', v);
-						}}
+						onSave={(v) =>
+							updateAcademicRecordField(record.id, 'candidateNumber', v)
+						}
 					/>
 					<EditableField
 						label='Overall Classification'
 						value={record.resultClassification}
-						onSave={async (v) => {
-							await updateAcademicRecordField(
-								record.id,
-								'resultClassification',
-								v
-							);
-						}}
+						onSave={(v) =>
+							updateAcademicRecordField(record.id, 'resultClassification', v)
+						}
 						inputType='select'
 						selectOptions={CLASSIFICATION_OPTIONS}
 					/>

@@ -10,8 +10,8 @@ import {
 } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { IconPhone, IconTrash } from '@tabler/icons-react';
-import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'nextjs-toploader/app';
+import { useActionMutation } from '@/shared/lib/actions/use-action-mutation';
 import { removeApplicantPhone } from '../../_server/actions';
 
 type Phone = {
@@ -26,8 +26,7 @@ type Props = {
 export default function ContactTab({ phones }: Props) {
 	const router = useRouter();
 
-	const removeMutation = useMutation({
-		mutationFn: removeApplicantPhone,
+	const removeMutation = useActionMutation(removeApplicantPhone, {
 		onSuccess: () => {
 			router.refresh();
 			notifications.show({

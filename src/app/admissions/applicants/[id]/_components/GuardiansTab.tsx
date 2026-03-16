@@ -22,11 +22,11 @@ import { useForm } from '@mantine/form';
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import { IconEdit, IconPhone, IconUser } from '@tabler/icons-react';
-import { useMutation } from '@tanstack/react-query';
 import { zod4Resolver as zodResolver } from 'mantine-form-zod-resolver';
 import { useRouter } from 'nextjs-toploader/app';
 import { useState } from 'react';
 import { z } from 'zod';
+import { useActionMutation } from '@/shared/lib/actions/use-action-mutation';
 import { DeleteButton } from '@/shared/ui/adease/DeleteButton';
 import { deleteGuardian, updateGuardian } from '../../_server/actions';
 
@@ -83,14 +83,8 @@ export default function GuardiansTab({ guardians }: Props) {
 		},
 	});
 
-	const updateMutation = useMutation({
-		mutationFn: ({
-			id,
-			values,
-		}: {
-			id: string;
-			values: typeof form.values;
-		}) => {
+	const updateMutation = useActionMutation(
+		({ id, values }: { id: string; values: typeof form.values }) => {
 			const { phoneNumber1, phoneNumber2, ...data } = values;
 			return updateGuardian(
 				id,
@@ -98,18 +92,20 @@ export default function GuardiansTab({ guardians }: Props) {
 				[phoneNumber1, phoneNumber2].filter(Boolean)
 			);
 		},
-		onSuccess: () => {
-			form.reset();
-			setEditingGuardian(null);
-			close();
-			router.refresh();
-			notifications.show({
-				title: 'Success',
-				message: 'Guardian updated successfully',
-				color: 'green',
-			});
-		},
-	});
+		{
+			onSuccess: () => {
+				form.reset();
+				setEditingGuardian(null);
+				close();
+				router.refresh();
+				notifications.show({
+					title: 'Success',
+					message: 'Guardian updated successfully',
+					color: 'green',
+				});
+			},
+		}
+	);
 
 	function handleEdit(guardian: Guardian) {
 		setEditingGuardian(guardian);
@@ -172,7 +168,7 @@ export default function GuardiansTab({ guardians }: Props) {
 										</Tooltip>
 										<DeleteButton
 											handleDelete={async () => {
-												await deleteGuardian(guardian.id);
+												return deleteGuardian(guardian.id);
 											}}
 											variant='subtle'
 											color='red'

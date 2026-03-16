@@ -59,7 +59,7 @@ export default async function IntakePeriodDetails({ params }: Props) {
 				queryKey={['intake-periods']}
 				handleDelete={async () => {
 					'use server';
-					await deleteIntakePeriod(id);
+					return deleteIntakePeriod(id);
 				}}
 			/>
 			<Tabs defaultValue='info'>

@@ -1,6 +1,7 @@
 import { Grid, GridCol, Paper, ScrollArea, Stack, Text } from '@mantine/core';
 import { notFound } from 'next/navigation';
 import { getPublicUrl } from '@/core/integrations/storage-utils';
+import { unwrap } from '@/shared/lib/actions/actionResult';
 import { DetailsView } from '@/shared/ui/adease';
 import Link from '@/shared/ui/Link';
 import AcademicDataPanel from '../_components/AcademicDataPanel';
@@ -21,7 +22,7 @@ export default async function DocumentReviewPage({ params }: Props) {
 	const { id } = await params;
 	const [doc] = await Promise.all([
 		getDocumentForReview(id),
-		acquireReviewLock(id),
+		unwrap(await acquireReviewLock(id)),
 	]);
 
 	if (!doc) return notFound();
@@ -55,7 +56,7 @@ export default async function DocumentReviewPage({ params }: Props) {
 							initialRotation={doc.rotation}
 							onRotationChange={async (rotation) => {
 								'use server';
-								await updateDocumentRotation(id, rotation);
+								unwrap(await updateDocumentRotation(id, rotation));
 							}}
 						/>
 					) : (

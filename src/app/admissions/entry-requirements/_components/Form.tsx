@@ -20,6 +20,7 @@ import { createInsertSchema } from 'drizzle-zod';
 import { useRouter } from 'nextjs-toploader/app';
 import { useState } from 'react';
 import { z } from 'zod';
+import type { ActionResult } from '@/shared/lib/actions/actionResult';
 import { Form } from '@/shared/ui/adease';
 import type {
 	ClassificationRules,
@@ -28,6 +29,14 @@ import type {
 	SubjectGradeRules,
 } from '../_lib/types';
 
+type EntryRequirementInput = Omit<
+	EntryRequirement,
+	'id' | 'createdAt' | 'updatedAt'
+> & {
+	id?: string;
+	createdAt?: Date | null;
+	updatedAt?: Date | null;
+};
 type Program = { id: number; code: string; name: string };
 type CertificateType = {
 	id: string;
@@ -38,7 +47,9 @@ type CertificateType = {
 type Subject = { id: string; name: string };
 
 type Props = {
-	onSubmit: (values: EntryRequirement) => Promise<EntryRequirement>;
+	onSubmit: (
+		values: EntryRequirementInput
+	) => Promise<EntryRequirement | ActionResult<EntryRequirement>>;
 	defaultValues?: EntryRequirement;
 	title?: string;
 	programs: Program[];
@@ -107,7 +118,7 @@ export default function EntryRequirementForm({
 
 	const isSubjectBased = selectedCertType?.gradingType === 'subject-grades';
 
-	const handleSubmit = async (values: EntryRequirement) => {
+	const handleSubmit = async (values: EntryRequirementInput) => {
 		const rules = isSubjectBased ? subjectGradeRules : classificationRules;
 		return onSubmit({ ...values, rules });
 	};
@@ -193,7 +204,7 @@ export default function EntryRequirementForm({
 	};
 
 	return (
-		<Form
+		<Form<EntryRequirementInput, EntryRequirement | undefined, EntryRequirement>
 			title={title}
 			action={handleSubmit}
 			queryKey={['entry-requirements']}

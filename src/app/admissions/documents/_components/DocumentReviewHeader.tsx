@@ -13,10 +13,12 @@ import {
 } from '@mantine/core';
 import { useDisclosure, useMediaQuery } from '@mantine/hooks';
 import { IconArrowNarrowLeft } from '@tabler/icons-react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'nextjs-toploader/app';
 import { useCallback, useState } from 'react';
 import type { DocumentVerificationStatus } from '@/core/database';
+import { unwrap } from '@/shared/lib/actions/actionResult';
+import { useActionMutation } from '@/shared/lib/actions/use-action-mutation';
 import { useViewSelect } from '@/shared/lib/hooks/use-view-select';
 import {
 	getNextDocument,
@@ -56,18 +58,20 @@ export default function DocumentReviewHeader({ id, title, status }: Props) {
 		}
 	}, [id, router]);
 
-	const mutation = useMutation({
-		mutationFn: async (reason?: string) => {
-			await updateDocumentStatus(id, selected, reason);
-			await releaseReviewLock(id);
+	const mutation = useActionMutation(
+		async (reason?: string) => {
+			unwrap(await updateDocumentStatus(id, selected, reason));
+			return releaseReviewLock(id);
 		},
-		onSuccess: async () => {
-			queryClient.invalidateQueries({ queryKey: ['documents-review'] });
-			close();
-			setRejectionReason('');
-			await navigateToNext();
-		},
-	});
+		{
+			onSuccess: async () => {
+				queryClient.invalidateQueries({ queryKey: ['documents-review'] });
+				close();
+				setRejectionReason('');
+				await navigateToNext();
+			},
+		}
+	);
 
 	const handleSave = () => {
 		if (selected === 'rejected') {

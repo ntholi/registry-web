@@ -126,7 +126,7 @@ Full architecture details, code snippets, type definitions, and rationale:
 | 2 | [002_ui_components.md](./002_ui_components.md) | `StatusPage`, `error.tsx`, `global-error.tsx`, `useActionMutation`, `Form`, `DeleteButton`, `DetailsViewHeader`, `ListLayout` — dual-format support | ✅ Completed |
 | 3 | [003_academic.md](./003_academic.md) | Academic module: mutations only + `useMutation` clients | ✅ Completed |
 | 4 | [004_registry.md](./004_registry.md) | Registry module: mutations only + `useMutation` clients | ✅ Completed |
-| 5 | [005_admissions.md](./005_admissions.md) | Admissions module: mutations only + `useMutation` clients | ⬜ Not started |
+| 5 | [005_admissions.md](./005_admissions.md) | Admissions module: mutations only + `useMutation` clients | ✅ Completed |
 | 6 | [006_admin_finance.md](./006_admin_finance.md) | Admin + Finance + Auth + HR: mutations only + `useMutation` clients | ⬜ Not started |
 | 7 | [007_lms_library_timetable.md](./007_lms_library_timetable.md) | LMS + Library + Timetable: mutations only + `useMutation` clients | ⬜ Not started |
 | 8 | [008_remaining.md](./008_remaining.md) | Apply + Reports + Student Portal + Audit-Logs + Feedback: mutations only + `useMutation` clients | ⬜ Not started |

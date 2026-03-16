@@ -37,7 +37,7 @@ export default async function CertificateTypeDetails({ params }: Props) {
 				queryKey={['certificate-types']}
 				handleDelete={async () => {
 					'use server';
-					await deleteCertificateType(id);
+					return deleteCertificateType(id);
 				}}
 			/>
 			<DetailsViewBody>

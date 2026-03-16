@@ -1,6 +1,7 @@
 'use server';
 
 import type { entryRequirements } from '@/core/database';
+import { createAction } from '@/shared/lib/actions/actionResult';
 import type { EntryRequirementFilter } from '../_lib/types';
 import { entryRequirementsService } from './service';
 
@@ -42,17 +43,15 @@ export async function getPublicCoursesData(
 	return entryRequirementsService.findPublicCoursesData(page, search, filter);
 }
 
-export async function createEntryRequirement(data: EntryRequirement) {
-	return entryRequirementsService.create(data);
-}
+export const createEntryRequirement = createAction(
+	async (data: EntryRequirement) => entryRequirementsService.create(data)
+);
 
-export async function updateEntryRequirement(
-	id: string,
-	data: EntryRequirement
-) {
-	return entryRequirementsService.update(id, data);
-}
+export const updateEntryRequirement = createAction(
+	async (id: string, data: EntryRequirement) =>
+		entryRequirementsService.update(id, data)
+);
 
-export async function deleteEntryRequirement(id: string) {
-	return entryRequirementsService.delete(id);
-}
+export const deleteEntryRequirement = createAction(async (id: string) =>
+	entryRequirementsService.delete(id)
+);

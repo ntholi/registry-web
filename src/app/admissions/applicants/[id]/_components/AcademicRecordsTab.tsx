@@ -17,9 +17,9 @@ import {
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import { IconBooks, IconCertificate, IconFile } from '@tabler/icons-react';
-import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'nextjs-toploader/app';
 import { type MouseEvent, useMemo, useState } from 'react';
+import { useActionMutation } from '@/shared/lib/actions/use-action-mutation';
 import { DeleteButton } from '@/shared/ui/adease/DeleteButton';
 import type { AcademicRecordWithRelations } from '../academic-records/_lib/types';
 import { deleteAcademicRecord } from '../academic-records/_server/actions';
@@ -66,8 +66,7 @@ export default function AcademicRecordsTab({ records }: Props) {
 		open();
 	}
 
-	const deleteMutation = useMutation({
-		mutationFn: deleteAcademicRecord,
+	const deleteMutation = useActionMutation(deleteAcademicRecord, {
 		onSuccess: () => {
 			router.refresh();
 			notifications.show({

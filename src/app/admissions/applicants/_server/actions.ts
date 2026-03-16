@@ -6,6 +6,7 @@ import { headers } from 'next/headers';
 import { auth } from '@/core/auth';
 import type { UserRole } from '@/core/auth/permissions';
 import type { applicants, guardians } from '@/core/database';
+import { createAction } from '@/shared/lib/actions/actionResult';
 import { formatPersonName } from '@/shared/lib/utils/names';
 import { applicantsService } from './service';
 
@@ -62,93 +63,86 @@ export async function findApplicantByNationalIdWithUser(nationalId: string) {
 	return applicantsService.findByNationalIdWithUser(nationalId);
 }
 
-export async function getOrCreateApplicantForCurrentUser() {
-	return applicantsService.getOrCreateForCurrentUser();
-}
+export const getOrCreateApplicantForCurrentUser = createAction(async () =>
+	applicantsService.getOrCreateForCurrentUser()
+);
 
 export async function findAllApplicants(page = 1, search = '') {
 	return applicantsService.search(page, search);
 }
 
-export async function createApplicant(data: Applicant) {
-	return applicantsService.create({
+export const createApplicant = createAction(async (data: Applicant) =>
+	applicantsService.create({
 		...data,
 		fullName: formatPersonName(data.fullName) ?? data.fullName,
-	});
-}
+	})
+);
 
-export async function updateApplicant(id: string, data: Applicant) {
-	return applicantsService.update(id, {
-		...data,
-		fullName: formatPersonName(data.fullName) ?? data.fullName,
-	});
-}
-
-export async function deleteApplicant(id: string) {
-	return applicantsService.delete(id);
-}
-
-export async function addApplicantPhone(
-	applicantId: string,
-	phoneNumber: string
-) {
-	return applicantsService.addPhone(applicantId, phoneNumber);
-}
-
-export async function removeApplicantPhone(phoneId: string) {
-	return applicantsService.removePhone(phoneId);
-}
-
-export async function createGuardian(data: Guardian, phoneNumbers?: string[]) {
-	return applicantsService.createGuardian(
-		{
+export const updateApplicant = createAction(
+	async (id: string, data: Applicant) =>
+		applicantsService.update(id, {
 			...data,
-			name: formatPersonName(data.name) ?? data.name,
-		},
-		phoneNumbers
-	);
-}
+			fullName: formatPersonName(data.fullName) ?? data.fullName,
+		})
+);
 
-export async function updateGuardian(
-	id: string,
-	data: Partial<Guardian>,
-	phoneNumbers?: string[]
-) {
-	return applicantsService.updateGuardian(
-		id,
-		{
-			...data,
-			name: formatPersonName(data.name) ?? data.name,
-		},
-		phoneNumbers
-	);
-}
+export const deleteApplicant = createAction(async (id: string) =>
+	applicantsService.delete(id)
+);
 
-export async function deleteGuardian(id: string) {
-	return applicantsService.deleteGuardian(id);
-}
+export const addApplicantPhone = createAction(
+	async (applicantId: string, phoneNumber: string) =>
+		applicantsService.addPhone(applicantId, phoneNumber)
+);
 
-export async function addGuardianPhone(
-	guardianId: string,
-	phoneNumber: string
-) {
-	return applicantsService.addGuardianPhone(guardianId, phoneNumber);
-}
+export const removeApplicantPhone = createAction(async (phoneId: string) =>
+	applicantsService.removePhone(phoneId)
+);
 
-export async function removeGuardianPhone(phoneId: string) {
-	return applicantsService.removeGuardianPhone(phoneId);
-}
+export const createGuardian = createAction(
+	async (data: Guardian, phoneNumbers?: string[]) =>
+		applicantsService.createGuardian(
+			{
+				...data,
+				name: formatPersonName(data.name) ?? data.name,
+			},
+			phoneNumbers
+		)
+);
+
+export const updateGuardian = createAction(
+	async (id: string, data: Partial<Guardian>, phoneNumbers?: string[]) =>
+		applicantsService.updateGuardian(
+			id,
+			{
+				...data,
+				name: formatPersonName(data.name) ?? data.name,
+			},
+			phoneNumbers
+		)
+);
+
+export const deleteGuardian = createAction(async (id: string) =>
+	applicantsService.deleteGuardian(id)
+);
+
+export const addGuardianPhone = createAction(
+	async (guardianId: string, phoneNumber: string) =>
+		applicantsService.addGuardianPhone(guardianId, phoneNumber)
+);
+
+export const removeGuardianPhone = createAction(async (phoneId: string) =>
+	applicantsService.removeGuardianPhone(phoneId)
+);
 
 export async function getEligibleProgramsForApplicant(applicantId: string) {
 	return applicantsService.findEligiblePrograms(applicantId);
 }
 
-export async function updateApplicantUserId(
-	applicantId: string,
-	userId: string | null
-) {
-	return applicantsService.updateUserId(applicantId, userId);
-}
+export const updateApplicantUserId = createAction(
+	async (applicantId: string, userId: string | null) =>
+		applicantsService.updateUserId(applicantId, userId)
+);
 
 type ReverseGeoResult = {
 	country: string | null;
@@ -178,26 +172,24 @@ async function reverseGeocode(
 	}
 }
 
-export async function saveApplicantLocation(
-	applicantId: string,
-	latitude: number,
-	longitude: number
-) {
-	const hdrs = await headers();
-	const ipAddress =
-		hdrs.get('x-forwarded-for')?.split(',')[0]?.trim() ??
-		hdrs.get('x-real-ip') ??
-		null;
+export const saveApplicantLocation = createAction(
+	async (applicantId: string, latitude: number, longitude: number) => {
+		const hdrs = await headers();
+		const ipAddress =
+			hdrs.get('x-forwarded-for')?.split(',')[0]?.trim() ??
+			hdrs.get('x-real-ip') ??
+			null;
 
-	const geo = await reverseGeocode(latitude, longitude);
+		const geo = await reverseGeocode(latitude, longitude);
 
-	return applicantsService.saveLocation({
-		applicantId,
-		latitude,
-		longitude,
-		country: geo.country,
-		city: geo.city,
-		district: geo.district,
-		ipAddress,
-	});
-}
+		return applicantsService.saveLocation({
+			applicantId,
+			latitude,
+			longitude,
+			country: geo.country,
+			city: geo.city,
+			district: geo.district,
+			ipAddress,
+		});
+	}
+);

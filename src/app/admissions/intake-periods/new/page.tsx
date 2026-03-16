@@ -1,4 +1,5 @@
 import { Box } from '@mantine/core';
+import { unwrap } from '@/shared/lib/actions/actionResult';
 import { formatMonthYear } from '@/shared/lib/utils/dates';
 import IntakePeriodForm from '../_components/Form';
 import {
@@ -14,9 +15,9 @@ export default function NewIntakePeriodPage() {
 				onSubmit={async (values) => {
 					'use server';
 					const { programIds, ...data } = values;
-					const result = await createIntakePeriod(data);
+					const result = unwrap(await createIntakePeriod(data));
 					if (programIds && programIds.length > 0) {
-						await setIntakePeriodProgramIds(result.id, programIds);
+						unwrap(await setIntakePeriodProgramIds(result.id, programIds));
 					}
 					return result;
 				}}

@@ -4,9 +4,10 @@ import { Button, Group, Modal, Select, Stack, Text } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import { IconArrowRight } from '@tabler/icons-react';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'nextjs-toploader/app';
 import { useState } from 'react';
+import { useActionMutation } from '@/shared/lib/actions/use-action-mutation';
 import { findActiveSubjects, moveSubjectToAlias } from '../_server/actions';
 
 type Props = {
@@ -32,30 +33,34 @@ export default function MakeAliasModal({ subjectId, subjectName }: Props) {
 
 	const selectedSubject = subjects.find((s) => s.id === targetId);
 
-	const mutation = useMutation({
-		mutationFn: async () => {
-			if (!targetId) throw new Error('Please select a subject');
+	const mutation = useActionMutation(
+		async () => {
+			if (!targetId) {
+				throw new Error('Please select a subject');
+			}
 			return moveSubjectToAlias(subjectId, targetId);
 		},
-		onSuccess: async () => {
-			await queryClient.invalidateQueries({ queryKey: ['subjects'] });
-			notifications.show({
-				title: 'Success',
-				message: `"${subjectName}" is now an alias of "${selectedSubject?.name}"`,
-				color: 'green',
-			});
-			close();
-			setTargetId(null);
-			router.push(`/admissions/subjects/${targetId}`);
-		},
-		onError: (error: Error) => {
-			notifications.show({
-				title: 'Error',
-				message: error.message,
-				color: 'red',
-			});
-		},
-	});
+		{
+			onSuccess: async () => {
+				await queryClient.invalidateQueries({ queryKey: ['subjects'] });
+				notifications.show({
+					title: 'Success',
+					message: `"${subjectName}" is now an alias of "${selectedSubject?.name}"`,
+					color: 'green',
+				});
+				close();
+				setTargetId(null);
+				router.push(`/admissions/subjects/${targetId}`);
+			},
+			onError: (error: Error) => {
+				notifications.show({
+					title: 'Error',
+					message: error.message,
+					color: 'red',
+				});
+			},
+		}
+	);
 
 	function handleClose() {
 		setTargetId(null);

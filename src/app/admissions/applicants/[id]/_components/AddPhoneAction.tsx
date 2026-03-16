@@ -5,8 +5,8 @@ import { useForm } from '@mantine/form';
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import { IconPlus } from '@tabler/icons-react';
-import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'nextjs-toploader/app';
+import { useActionMutation } from '@/shared/lib/actions/use-action-mutation';
 import { addApplicantPhone } from '../../_server/actions';
 
 type Props = {
@@ -23,27 +23,28 @@ export default function AddPhoneAction({ applicantId }: Props) {
 		},
 	});
 
-	const addMutation = useMutation({
-		mutationFn: (phoneNumber: string) =>
-			addApplicantPhone(applicantId, phoneNumber),
-		onSuccess: () => {
-			form.reset();
-			close();
-			router.refresh();
-			notifications.show({
-				title: 'Success',
-				message: 'Phone number added',
-				color: 'green',
-			});
-		},
-		onError: (error: Error) => {
-			notifications.show({
-				title: 'Error',
-				message: error.message,
-				color: 'red',
-			});
-		},
-	});
+	const addMutation = useActionMutation(
+		(phoneNumber: string) => addApplicantPhone(applicantId, phoneNumber),
+		{
+			onSuccess: () => {
+				form.reset();
+				close();
+				router.refresh();
+				notifications.show({
+					title: 'Success',
+					message: 'Phone number added',
+					color: 'green',
+				});
+			},
+			onError: (error: Error) => {
+				notifications.show({
+					title: 'Error',
+					message: error.message,
+					color: 'red',
+				});
+			},
+		}
+	);
 
 	return (
 		<>

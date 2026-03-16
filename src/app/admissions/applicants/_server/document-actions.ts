@@ -7,6 +7,7 @@ import {
 	type ActionResult,
 	failure,
 	success,
+	unwrap,
 } from '@/shared/lib/actions/actionResult';
 import { normalizeNationality } from '@/shared/lib/utils/countries';
 import { formatPersonName } from '@/shared/lib/utils/names';
@@ -93,6 +94,6 @@ export async function findCertificateTypeByName(name: string) {
 }
 
 export async function resolveSubjectId(subjectName: string) {
-	const subject = await findOrCreateSubjectByName(subjectName);
+	const subject = unwrap(await findOrCreateSubjectByName(subjectName));
 	return subject.id;
 }

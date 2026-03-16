@@ -7,13 +7,16 @@ import { useQuery } from '@tanstack/react-query';
 import { createInsertSchema } from 'drizzle-zod';
 import { useRouter } from 'nextjs-toploader/app';
 import { z } from 'zod';
+import type { ActionResult } from '@/shared/lib/actions/actionResult';
 import { Form } from '@/shared/ui/adease';
 import { findAllApplicants } from '../../applicants/_server/actions';
 import { findActiveIntakePeriods } from '../../intake-periods/_server/actions';
 import type { Application } from '../_lib/types';
 
 type Props = {
-	onSubmit: (values: typeof applications.$inferInsert) => Promise<Application>;
+	onSubmit: (
+		values: typeof applications.$inferInsert
+	) => Promise<Application | ActionResult<Application>>;
 	defaultValues?: Partial<typeof applications.$inferInsert>;
 	title?: string;
 };
@@ -67,7 +70,11 @@ export default function ApplicationForm({
 	});
 
 	return (
-		<Form
+		<Form<
+			typeof applications.$inferInsert,
+			Partial<typeof applications.$inferInsert> | undefined,
+			Application
+		>
 			title={title}
 			action={onSubmit}
 			queryKey={['applications']}

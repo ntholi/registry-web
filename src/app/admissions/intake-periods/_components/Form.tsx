@@ -6,6 +6,7 @@ import { DateInput } from '@mantine/dates';
 import { createInsertSchema } from 'drizzle-zod';
 import { useRouter } from 'nextjs-toploader/app';
 import { z } from 'zod';
+import type { ActionResult } from '@/shared/lib/actions/actionResult';
 import { Form } from '@/shared/ui/adease';
 import type { IntakePeriod } from '../_lib/types';
 import ProgramSelector from './ProgramSelector';
@@ -13,7 +14,9 @@ import ProgramSelector from './ProgramSelector';
 type FormValues = IntakePeriod & { programIds?: number[] };
 
 type Props = {
-	onSubmit: (values: FormValues) => Promise<IntakePeriod>;
+	onSubmit: (
+		values: FormValues
+	) => Promise<IntakePeriod | ActionResult<IntakePeriod>>;
 	defaultValues?: Partial<FormValues>;
 	title?: string;
 };

@@ -12,8 +12,9 @@ import {
 import { useForm } from '@mantine/form';
 import { notifications } from '@mantine/notifications';
 import { IconPlus, IconTrash } from '@tabler/icons-react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
+import { useActionMutation } from '@/shared/lib/actions/use-action-mutation';
 import { addApplicantPhone, removeApplicantPhone } from '../_server/actions';
 
 type Phone = {
@@ -31,30 +32,30 @@ export default function PhoneManager({ applicantId, phones }: Props) {
 	const [isAdding, setIsAdding] = useState(false);
 	const form = useForm({ initialValues: { phoneNumber: '' } });
 
-	const addMutation = useMutation({
-		mutationFn: (phoneNumber: string) =>
-			addApplicantPhone(applicantId, phoneNumber),
-		onSuccess: async () => {
-			await queryClient.invalidateQueries({ queryKey: ['applicants'] });
-			form.reset();
-			setIsAdding(false);
-			notifications.show({
-				title: 'Success',
-				message: 'Phone number added',
-				color: 'green',
-			});
-		},
-		onError: (error: Error) => {
-			notifications.show({
-				title: 'Error',
-				message: error.message,
-				color: 'red',
-			});
-		},
-	});
+	const addMutation = useActionMutation(
+		(phoneNumber: string) => addApplicantPhone(applicantId, phoneNumber),
+		{
+			onSuccess: async () => {
+				await queryClient.invalidateQueries({ queryKey: ['applicants'] });
+				form.reset();
+				setIsAdding(false);
+				notifications.show({
+					title: 'Success',
+					message: 'Phone number added',
+					color: 'green',
+				});
+			},
+			onError: (error: Error) => {
+				notifications.show({
+					title: 'Error',
+					message: error.message,
+					color: 'red',
+				});
+			},
+		}
+	);
 
-	const removeMutation = useMutation({
-		mutationFn: removeApplicantPhone,
+	const removeMutation = useActionMutation(removeApplicantPhone, {
 		onSuccess: async () => {
 			await queryClient.invalidateQueries({ queryKey: ['applicants'] });
 			notifications.show({

@@ -76,9 +76,7 @@ export default function ApplicantHeader({ id, fullName, gender, user }: Props) {
 						</ActionIcon>
 						{canDelete && (
 							<DeleteButton
-								handleDelete={async () => {
-									await deleteApplicant(id);
-								}}
+								handleDelete={() => deleteApplicant(id)}
 								itemName={fullName}
 								itemType='Applicant'
 							/>

@@ -1,6 +1,7 @@
 'use server';
 
 import type { intakePeriods } from '@/core/database';
+import { createAction } from '@/shared/lib/actions/actionResult';
 import { intakePeriodsService } from './service';
 
 type IntakePeriod = typeof intakePeriods.$inferInsert;
@@ -33,25 +34,24 @@ export async function getIntakePeriodProgramIds(intakePeriodId: string) {
 	return intakePeriodsService.getProgramIds(intakePeriodId);
 }
 
-export async function setIntakePeriodProgramIds(
-	intakePeriodId: string,
-	programIds: number[]
-) {
-	return intakePeriodsService.setProgramIds(intakePeriodId, programIds);
-}
+export const setIntakePeriodProgramIds = createAction(
+	async (intakePeriodId: string, programIds: number[]) =>
+		intakePeriodsService.setProgramIds(intakePeriodId, programIds)
+);
 
 export async function getOpenProgramIds(intakePeriodId: string) {
 	return intakePeriodsService.getOpenProgramIds(intakePeriodId);
 }
 
-export async function createIntakePeriod(data: IntakePeriod) {
-	return intakePeriodsService.create(data);
-}
+export const createIntakePeriod = createAction(async (data: IntakePeriod) =>
+	intakePeriodsService.create(data)
+);
 
-export async function updateIntakePeriod(id: string, data: IntakePeriod) {
-	return intakePeriodsService.update(id, data);
-}
+export const updateIntakePeriod = createAction(
+	async (id: string, data: IntakePeriod) =>
+		intakePeriodsService.update(id, data)
+);
 
-export async function deleteIntakePeriod(id: string) {
-	return intakePeriodsService.delete(id);
-}
+export const deleteIntakePeriod = createAction(async (id: string) =>
+	intakePeriodsService.delete(id)
+);

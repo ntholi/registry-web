@@ -17,9 +17,8 @@ const GENDER_OPTIONS = [
 ];
 
 export default function IdentityDataPanel({ applicant }: Props) {
-	const handleSave = async (field: string, value: string | null) => {
-		await updateApplicantField(applicant.id, field, value);
-	};
+	const handleSave = (field: string, value: string | null) =>
+		updateApplicantField(applicant.id, field, value);
 
 	return (
 		<Stack gap='md'>

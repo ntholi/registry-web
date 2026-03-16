@@ -15,11 +15,8 @@ import {
 	getPublicUrl,
 	StoragePaths,
 } from '@/core/integrations/storage-utils';
-import {
-	type ActionResult,
-	failure,
-	success,
-} from '@/shared/lib/actions/actionResult';
+import { createAction, unwrap } from '@/shared/lib/actions/actionResult';
+import { UserFacingError } from '@/shared/lib/actions/extractError';
 import { normalizeNationality } from '@/shared/lib/utils/countries';
 import { normalizeResultClassification } from '@/shared/lib/utils/resultClassification';
 import type { SubjectGradeInput } from '../../academic-records/_lib/types';
@@ -37,6 +34,18 @@ import type {
 } from '../_lib/types';
 import { applicantDocumentsService } from './service';
 
+function normalizeFileUrl(fileUrl: string) {
+	if (!fileUrl) {
+		throw new UserFacingError('Document URL is missing');
+	}
+
+	try {
+		return new URL(fileUrl).toString();
+	} catch {
+		return encodeURI(fileUrl);
+	}
+}
+
 export async function getApplicantDocument(id: string) {
 	return applicantDocumentsService.get(id);
 }
@@ -52,54 +61,58 @@ export async function findDocumentsByType(
 	return applicantDocumentsService.findByType(applicantId, type);
 }
 
-export async function saveApplicantDocument(data: {
-	applicantId: string;
-	fileName: string;
-	fileUrl: string;
-	type: DocumentType;
-}) {
-	return applicantDocumentsService.uploadDocument(
-		{
-			fileName: data.fileName,
-			fileUrl: data.fileUrl,
-			type: data.type,
-		},
-		data.applicantId,
-		0
-	);
-}
+export const saveApplicantDocument = createAction(
+	async (data: {
+		applicantId: string;
+		fileName: string;
+		fileUrl: string;
+		type: DocumentType;
+	}) =>
+		applicantDocumentsService.uploadDocument(
+			{
+				fileName: data.fileName,
+				fileUrl: data.fileUrl,
+				type: data.type,
+			},
+			data.applicantId,
+			0
+		)
+);
 
-export async function uploadApplicantFile(
-	applicantId: string,
-	file: File
-): Promise<string> {
-	const key = generateUploadKey(
-		(fileName) => StoragePaths.applicantDocument(applicantId, fileName),
-		file.name
-	);
-	await uploadFile(file, key);
-	return key;
-}
-
-export async function verifyApplicantDocument(
-	id: string,
-	status: DocumentVerificationStatus,
-	rejectionReason?: string
-) {
-	return applicantDocumentsService.verifyDocument(id, status, rejectionReason);
-}
-
-export async function deleteApplicantDocument(id: string, fileUrl: string) {
-	const linkedRecord = await findAcademicRecordByApplicantDocumentId(id);
-	if (linkedRecord) {
-		await deleteAcademicRecordInternal(linkedRecord.id, {
-			skipRelatedDocumentDelete: true,
-		});
+export const uploadApplicantFile = createAction(
+	async (applicantId: string, file: File) => {
+		const key = generateUploadKey(
+			(fileName) => StoragePaths.applicantDocument(applicantId, fileName),
+			file.name
+		);
+		await uploadFile(file, key);
+		return key;
 	}
+);
 
-	await deleteFile(fileUrl);
-	return applicantDocumentsService.delete(id);
-}
+export const verifyApplicantDocument = createAction(
+	async (
+		id: string,
+		status: DocumentVerificationStatus,
+		rejectionReason?: string
+	) => applicantDocumentsService.verifyDocument(id, status, rejectionReason)
+);
+
+export const deleteApplicantDocument = createAction(
+	async (id: string, fileUrl: string) => {
+		const linkedRecord = await findAcademicRecordByApplicantDocumentId(id);
+		if (linkedRecord) {
+			unwrap(
+				await deleteAcademicRecordInternal(linkedRecord.id, {
+					skipRelatedDocumentDelete: true,
+				})
+			);
+		}
+
+		await deleteFile(fileUrl);
+		return applicantDocumentsService.delete(id);
+	}
+);
 
 export async function analyzeDocumentWithAI(
 	fileBase64: string,
@@ -108,207 +121,216 @@ export async function analyzeDocumentWithAI(
 	return analyzeDocument(fileBase64, mediaType);
 }
 
-function normalizeFileUrl(fileUrl: string): ActionResult<string> {
-	if (!fileUrl) {
-		return failure('Document URL is missing');
-	}
-
-	try {
-		return success(new URL(fileUrl).toString());
-	} catch {
-		return success(encodeURI(fileUrl));
-	}
-}
-
-export async function reanalyzeDocumentFromUrl(
-	fileUrl: string,
-	applicantId: string,
-	documentType: DocumentType
-): Promise<ActionResult<DocumentAnalysisResult>> {
-	const normalizedUrl = normalizeFileUrl(fileUrl);
-	if (!normalizedUrl.success) {
-		return failure(normalizedUrl.error);
-	}
-	const response = await fetch(getPublicUrl(normalizedUrl.data), {
-		cache: 'no-store',
-	});
-	if (!response.ok) {
-		return failure(`Failed to fetch document (${response.status})`);
-	}
-	const buffer = await response.arrayBuffer();
-	const base64 = Buffer.from(buffer).toString('base64');
-	const contentType = response.headers.get('content-type') ?? 'application/pdf';
-	const result = await analyzeDocument(base64, contentType);
-	if (!result.success) {
-		return failure(result.error);
-	}
-	const data = result.data;
-
-	if (data.category === 'identity' && documentType === 'identity') {
-		const updateResult = await updateApplicantFromIdentity(applicantId, {
-			fullName: data.fullName,
-			dateOfBirth: data.dateOfBirth,
-			nationalId: data.nationalId,
-			nationality: data.nationality,
-			gender: data.gender,
-			birthPlace: data.birthPlace,
-			address: data.address,
+export const reanalyzeDocumentFromUrl = createAction(
+	async (fileUrl: string, applicantId: string, documentType: DocumentType) => {
+		const normalizedUrl = normalizeFileUrl(fileUrl);
+		const response = await fetch(getPublicUrl(normalizedUrl), {
+			cache: 'no-store',
 		});
-		if (!updateResult.success) {
-			return failure(updateResult.error);
-		}
-	}
-
-	if (
-		data.category === 'academic' &&
-		(documentType === 'certificate' || documentType === 'academic_record') &&
-		data.examYear &&
-		data.institutionName
-	) {
-		const recordResult = await createAcademicRecordFromDocument(applicantId, {
-			institutionName: data.institutionName,
-
-			examYear: data.examYear,
-			certificateType: data.certificateType,
-			certificateNumber: data.certificateNumber,
-			candidateNumber: data.candidateNumber,
-			subjects: data.subjects,
-			overallClassification: data.overallClassification,
-		});
-		if (!recordResult.success) {
-			return failure(recordResult.error);
-		}
-	}
-
-	return success(data);
-}
-
-export async function updateApplicantFromIdentity(
-	applicantId: string,
-	data: ExtractedIdentityData
-): Promise<
-	ActionResult<NonNullable<Awaited<ReturnType<typeof getApplicant>>>>
-> {
-	const applicant = await getApplicant(applicantId);
-	if (!applicant) {
-		return failure('Applicant not found');
-	}
-
-	const updateData: Partial<ExtractedIdentityData> = {};
-
-	if (data.fullName && data.fullName !== applicant.fullName) {
-		updateData.fullName = data.fullName;
-	}
-	if (data.dateOfBirth && data.dateOfBirth !== applicant.dateOfBirth) {
-		updateData.dateOfBirth = data.dateOfBirth;
-	}
-	if (data.nationalId && data.nationalId !== applicant.nationalId) {
-		updateData.nationalId = data.nationalId;
-	}
-	const normalized = normalizeNationality(data.nationality);
-	if (normalized && normalized !== applicant.nationality) {
-		updateData.nationality = normalized;
-	}
-	if (data.gender && data.gender !== applicant.gender) {
-		updateData.gender = data.gender;
-	}
-	if (data.birthPlace && data.birthPlace !== applicant.birthPlace) {
-		updateData.birthPlace = data.birthPlace;
-	}
-	if (data.address && data.address !== applicant.address) {
-		updateData.address = data.address;
-	}
-
-	if (Object.keys(updateData).length > 0) {
-		await updateApplicant(applicantId, {
-			id: applicant.id,
-			userId: applicant.userId,
-			fullName: updateData.fullName ?? applicant.fullName,
-			dateOfBirth: updateData.dateOfBirth ?? applicant.dateOfBirth,
-			nationalId: updateData.nationalId ?? applicant.nationalId,
-			nationality: updateData.nationality ?? applicant.nationality,
-			birthPlace: updateData.birthPlace ?? applicant.birthPlace,
-			religion: applicant.religion,
-			address: updateData.address ?? applicant.address,
-			gender: updateData.gender ?? applicant.gender,
-			createdAt: applicant.createdAt,
-			updatedAt: applicant.updatedAt,
-		});
-		const refreshed = await getApplicant(applicantId);
-		if (!refreshed) {
-			return failure('Applicant not found');
-		}
-		return success(refreshed);
-	}
-
-	return success(applicant);
-}
-
-export async function createAcademicRecordFromDocument(
-	applicantId: string,
-	data: ExtractedAcademicData,
-	applicantDocumentId?: string
-): Promise<ActionResult<Awaited<ReturnType<typeof createAcademicRecord>>>> {
-	const examYear = data.examYear ?? new Date().getFullYear();
-	const institutionName = data.institutionName ?? 'Unknown Institution';
-
-	let certificateTypeId: string | null = null;
-	let certLqfLevel = 4;
-
-	const { items: certTypes } = await findAllCertificateTypes(1, '');
-
-	if (data.certificateType) {
-		const normalizedSearchType = data.certificateType.toLowerCase().trim();
-
-		const matchedType = certTypes.find((ct) => {
-			const normalizedName = ct.name.toLowerCase().trim();
-			return (
-				normalizedName === normalizedSearchType ||
-				normalizedName.includes(normalizedSearchType) ||
-				normalizedSearchType.includes(normalizedName)
+		if (!response.ok) {
+			throw new UserFacingError(
+				`Failed to fetch document (${response.status})`
 			);
-		});
-
-		if (matchedType) {
-			certificateTypeId = matchedType.id;
-			certLqfLevel = matchedType.lqfLevel;
 		}
-	}
-
-	if (!certificateTypeId) {
-		if (certTypes.length > 0) {
-			certificateTypeId = certTypes[0].id;
-			certLqfLevel = certTypes[0].lqfLevel;
-		} else {
-			return failure('No certificate types found in the system');
+		const buffer = await response.arrayBuffer();
+		const base64 = Buffer.from(buffer).toString('base64');
+		const contentType =
+			response.headers.get('content-type') ?? 'application/pdf';
+		const result = await analyzeDocument(base64, contentType);
+		if (!result.success) {
+			throw new UserFacingError(result.error);
 		}
+		const data = result.data;
+
+		if (data.category === 'identity' && documentType === 'identity') {
+			unwrap(
+				await updateApplicantFromIdentity(applicantId, {
+					fullName: data.fullName,
+					dateOfBirth: data.dateOfBirth,
+					nationalId: data.nationalId,
+					nationality: data.nationality,
+					gender: data.gender,
+					birthPlace: data.birthPlace,
+					address: data.address,
+				})
+			);
+		}
+
+		if (
+			data.category === 'academic' &&
+			(documentType === 'certificate' || documentType === 'academic_record') &&
+			data.examYear &&
+			data.institutionName
+		) {
+			unwrap(
+				await createAcademicRecordFromDocument(applicantId, {
+					institutionName: data.institutionName,
+					examYear: data.examYear,
+					certificateType: data.certificateType,
+					certificateNumber: data.certificateNumber,
+					candidateNumber: data.candidateNumber,
+					subjects: data.subjects,
+					overallClassification: data.overallClassification,
+				})
+			);
+		}
+
+		return data;
 	}
+);
 
-	let subjectGrades: SubjectGradeInput[] | undefined;
-	if (data.subjects && data.subjects.length > 0) {
-		subjectGrades = await Promise.all(
-			data.subjects.map(async (sub) => {
-				const subject = await findOrCreateSubjectByName(sub.name);
-				return {
-					subjectId: subject.id,
-					originalGrade: sub.grade,
-				};
-			})
-		);
+export const updateApplicantFromIdentity = createAction(
+	async (applicantId: string, data: ExtractedIdentityData) => {
+		const applicant = await getApplicant(applicantId);
+		if (!applicant) {
+			throw new UserFacingError('Applicant not found');
+		}
+
+		const updateData: Partial<ExtractedIdentityData> = {};
+
+		if (data.fullName && data.fullName !== applicant.fullName) {
+			updateData.fullName = data.fullName;
+		}
+		if (data.dateOfBirth && data.dateOfBirth !== applicant.dateOfBirth) {
+			updateData.dateOfBirth = data.dateOfBirth;
+		}
+		if (data.nationalId && data.nationalId !== applicant.nationalId) {
+			updateData.nationalId = data.nationalId;
+		}
+		const normalized = normalizeNationality(data.nationality);
+		if (normalized && normalized !== applicant.nationality) {
+			updateData.nationality = normalized;
+		}
+		if (data.gender && data.gender !== applicant.gender) {
+			updateData.gender = data.gender;
+		}
+		if (data.birthPlace && data.birthPlace !== applicant.birthPlace) {
+			updateData.birthPlace = data.birthPlace;
+		}
+		if (data.address && data.address !== applicant.address) {
+			updateData.address = data.address;
+		}
+
+		if (Object.keys(updateData).length > 0) {
+			unwrap(
+				await updateApplicant(applicantId, {
+					id: applicant.id,
+					userId: applicant.userId,
+					fullName: updateData.fullName ?? applicant.fullName,
+					dateOfBirth: updateData.dateOfBirth ?? applicant.dateOfBirth,
+					nationalId: updateData.nationalId ?? applicant.nationalId,
+					nationality: updateData.nationality ?? applicant.nationality,
+					birthPlace: updateData.birthPlace ?? applicant.birthPlace,
+					religion: applicant.religion,
+					address: updateData.address ?? applicant.address,
+					gender: updateData.gender ?? applicant.gender,
+					createdAt: applicant.createdAt,
+					updatedAt: applicant.updatedAt,
+				})
+			);
+			const refreshed = await getApplicant(applicantId);
+			if (!refreshed) {
+				throw new UserFacingError('Applicant not found');
+			}
+			return refreshed;
+		}
+
+		return applicant;
 	}
+);
 
-	const isLevel4 = certLqfLevel === 4;
-	const normalizedClassification = normalizeResultClassification(
-		data.overallClassification
-	);
+export const createAcademicRecordFromDocument = createAction(
+	async (
+		applicantId: string,
+		data: ExtractedAcademicData,
+		applicantDocumentId?: string
+	) => {
+		const examYear = data.examYear ?? new Date().getFullYear();
+		const institutionName = data.institutionName ?? 'Unknown Institution';
 
-	if (data.certificateNumber) {
-		const existing = await findAcademicRecordByCertificateNumber(
-			data.certificateNumber
+		let certificateTypeId: string | null = null;
+		let certLqfLevel = 4;
+
+		const { items: certTypes } = await findAllCertificateTypes(1, '');
+
+		if (data.certificateType) {
+			const normalizedSearchType = data.certificateType.toLowerCase().trim();
+
+			const matchedType = certTypes.find((ct) => {
+				const normalizedName = ct.name.toLowerCase().trim();
+				return (
+					normalizedName === normalizedSearchType ||
+					normalizedName.includes(normalizedSearchType) ||
+					normalizedSearchType.includes(normalizedName)
+				);
+			});
+
+			if (matchedType) {
+				certificateTypeId = matchedType.id;
+				certLqfLevel = matchedType.lqfLevel;
+			}
+		}
+
+		if (!certificateTypeId) {
+			if (certTypes.length > 0) {
+				certificateTypeId = certTypes[0].id;
+				certLqfLevel = certTypes[0].lqfLevel;
+			} else {
+				throw new UserFacingError('No certificate types found in the system');
+			}
+		}
+
+		let subjectGrades: SubjectGradeInput[] | undefined;
+		if (data.subjects && data.subjects.length > 0) {
+			subjectGrades = await Promise.all(
+				data.subjects.map(async (sub) => {
+					const subject = unwrap(await findOrCreateSubjectByName(sub.name));
+					return {
+						subjectId: subject.id,
+						originalGrade: sub.grade,
+					};
+				})
+			);
+		}
+
+		const isLevel4 = certLqfLevel === 4;
+		const normalizedClassification = normalizeResultClassification(
+			data.overallClassification
 		);
-		if (existing) {
-			const record = await updateAcademicRecord(
-				existing.id,
+
+		if (data.certificateNumber) {
+			const existing = await findAcademicRecordByCertificateNumber(
+				data.certificateNumber
+			);
+			if (existing) {
+				const record = unwrap(
+					await updateAcademicRecord(
+						existing.id,
+						{
+							certificateTypeId,
+							examYear,
+							institutionName,
+							qualificationName: data.qualificationName,
+							certificateNumber: data.certificateNumber,
+							resultClassification: normalizedClassification,
+							subjectGrades,
+							candidateNumber: data.candidateNumber,
+						},
+						isLevel4
+					)
+				);
+				if (applicantDocumentId && record) {
+					unwrap(
+						await linkDocumentToAcademicRecord(record.id, applicantDocumentId)
+					);
+				}
+				return record;
+			}
+		}
+
+		return unwrap(
+			await createAcademicRecord(
+				applicantId,
 				{
 					certificateTypeId,
 					examYear,
@@ -319,29 +341,9 @@ export async function createAcademicRecordFromDocument(
 					subjectGrades,
 					candidateNumber: data.candidateNumber,
 				},
-				isLevel4
-			);
-			if (applicantDocumentId && record) {
-				await linkDocumentToAcademicRecord(record.id, applicantDocumentId);
-			}
-			return success(record);
-		}
+				isLevel4,
+				applicantDocumentId
+			)
+		);
 	}
-
-	const record = await createAcademicRecord(
-		applicantId,
-		{
-			certificateTypeId,
-			examYear,
-			institutionName,
-			qualificationName: data.qualificationName,
-			certificateNumber: data.certificateNumber,
-			resultClassification: normalizedClassification,
-			subjectGrades,
-			candidateNumber: data.candidateNumber,
-		},
-		isLevel4,
-		applicantDocumentId
-	);
-	return success(record);
-}
+);

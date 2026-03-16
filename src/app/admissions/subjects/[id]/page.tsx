@@ -38,7 +38,7 @@ export default async function SubjectDetails({ params }: Props) {
 				queryKey={['subjects']}
 				handleDelete={async () => {
 					'use server';
-					await deleteSubject(id);
+					return deleteSubject(id);
 				}}
 			/>
 			<DetailsViewBody>

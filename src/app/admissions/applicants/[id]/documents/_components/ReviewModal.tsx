@@ -3,10 +3,10 @@
 import { Button, Group, Modal, Radio, Stack, Textarea } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
-import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'nextjs-toploader/app';
 import { useState } from 'react';
 import type { DocumentVerificationStatus } from '@/core/database';
+import { useActionMutation } from '@/shared/lib/actions/use-action-mutation';
 import { verifyApplicantDocument } from '../_server/actions';
 
 type Props = {
@@ -30,32 +30,33 @@ export function ReviewModal({
 		useState<DocumentVerificationStatus>(initialStatus);
 	const [reason, setReason] = useState(initialReason ?? '');
 
-	const mutation = useMutation({
-		mutationFn: async () => {
-			await verifyApplicantDocument(
+	const mutation = useActionMutation(
+		async () =>
+			verifyApplicantDocument(
 				docId,
 				status,
 				status === 'rejected' ? reason : undefined
-			);
-		},
-		onSuccess: () => {
-			notifications.show({
-				title: 'Success',
-				message: 'Document verification updated',
-				color: 'green',
-			});
-			onSuccess?.();
-			router.refresh();
-			close();
-		},
-		onError: () => {
-			notifications.show({
-				title: 'Error',
-				message: 'Failed to update verification',
-				color: 'red',
-			});
-		},
-	});
+			),
+		{
+			onSuccess: () => {
+				notifications.show({
+					title: 'Success',
+					message: 'Document verification updated',
+					color: 'green',
+				});
+				onSuccess?.();
+				router.refresh();
+				close();
+			},
+			onError: () => {
+				notifications.show({
+					title: 'Error',
+					message: 'Failed to update verification',
+					color: 'red',
+				});
+			},
+		}
+	);
 
 	const trigger = children ? (
 		children(open)

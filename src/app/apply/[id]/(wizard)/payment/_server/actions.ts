@@ -12,6 +12,7 @@ import { nanoid } from 'nanoid';
 import { bankDeposits, db, documents } from '@/core/database';
 import { deleteFile, uploadFile } from '@/core/integrations/storage';
 import { StoragePaths } from '@/core/integrations/storage-utils';
+import { unwrap } from '@/shared/lib/actions/actionResult';
 import { validateAnalyzedReceipt, validateReceipts } from './validation';
 
 export { validateAnalyzedReceipt, validateReceipts };
@@ -179,11 +180,8 @@ export async function initiateMpesaPayment(
 	mobileNumber: string
 ) {
 	try {
-		return await initiateMobilePayment(
-			applicationId,
-			amount,
-			mobileNumber,
-			'mpesa'
+		return unwrap(
+			await initiateMobilePayment(applicationId, amount, mobileNumber, 'mpesa')
 		);
 	} catch (error) {
 		return { success: false, error: extractError(error) };
@@ -192,7 +190,7 @@ export async function initiateMpesaPayment(
 
 export async function checkPaymentStatus(depositId: string) {
 	try {
-		return await verifyMobilePayment(depositId);
+		return unwrap(await verifyMobilePayment(depositId));
 	} catch (error) {
 		return { success: false, error: extractError(error), status: 'failed' };
 	}

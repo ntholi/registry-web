@@ -10,6 +10,7 @@ import { findActiveIntakePeriod } from '@admissions/intake-periods';
 import { computeWizardStep } from '@apply/_lib/wizard-utils';
 import { redirect } from 'next/navigation';
 import { getSession } from '@/core/platform/withPermission';
+import { unwrap } from '@/shared/lib/actions/actionResult';
 
 export default async function ApplyNewPage() {
 	const session = await getSession();
@@ -23,7 +24,7 @@ export default async function ApplyNewPage() {
 		redirect('/apply/restricted');
 	}
 
-	const applicant = await getOrCreateApplicantForCurrentUser();
+	const applicant = unwrap(await getOrCreateApplicantForCurrentUser());
 
 	if (!applicant) {
 		redirect('/auth/login?callbackUrl=/apply/new');
@@ -50,12 +51,14 @@ export default async function ApplyNewPage() {
 	}
 
 	const step = computeWizardStep(applicant);
-	const draftApplication = await createOrUpdateApplication({
-		applicantId: applicant.id,
-		intakePeriodId: activeIntake.id,
-		firstChoiceProgramId: null,
-		secondChoiceProgramId: null,
-		status: 'draft',
-	});
+	const draftApplication = unwrap(
+		await createOrUpdateApplication({
+			applicantId: applicant.id,
+			intakePeriodId: activeIntake.id,
+			firstChoiceProgramId: null,
+			secondChoiceProgramId: null,
+			status: 'draft',
+		})
+	);
 	redirect(`/apply/${draftApplication.id}/${step}`);
 }

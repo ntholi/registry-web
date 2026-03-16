@@ -1,4 +1,5 @@
 import { notFound } from 'next/navigation';
+import { unwrap } from '@/shared/lib/actions/actionResult';
 import { formatCurrency } from '@/shared/lib/utils/utils';
 import { DetailsView } from '@/shared/ui/adease';
 import PaymentReviewDocumentSwitcher from '../_components/PaymentReviewDocumentSwitcher';
@@ -16,7 +17,7 @@ export default async function DepositDetailsPage({ params }: Props) {
 	const { id } = await params;
 	const [deposit] = await Promise.all([
 		getBankDepositWithDocument(id),
-		acquirePaymentReviewLock(id),
+		unwrap(await acquirePaymentReviewLock(id)),
 	]);
 
 	if (!deposit) return notFound();

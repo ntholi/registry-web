@@ -17,13 +17,18 @@ import { IconCheck, IconPencil, IconX } from '@tabler/icons-react';
 import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'nextjs-toploader/app';
 import { useState } from 'react';
+import {
+	type ActionResult,
+	getActionErrorMessage,
+	isActionResult,
+} from '@/shared/lib/actions/actionResult';
 
 type InputType = 'text' | 'select' | 'date';
 
 type Props = {
 	label: string;
 	value: string | null | undefined;
-	onSave: (value: string | null) => Promise<void>;
+	onSave: (value: string | null) => Promise<undefined | ActionResult<unknown>>;
 	inputType?: InputType;
 	selectOptions?: { value: string; label: string }[];
 	placeholder?: string;
@@ -47,7 +52,10 @@ export default function EditableField({
 
 	const mutation = useMutation({
 		mutationFn: async (newValue: string | null) => {
-			await onSave(newValue);
+			const result = await onSave(newValue);
+			if (isActionResult(result) && !result.success) {
+				throw new Error(getActionErrorMessage(result.error));
+			}
 		},
 		onSuccess: () => {
 			close();

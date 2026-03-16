@@ -10,6 +10,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useRef } from 'react';
 import { authClient } from '@/core/auth-client';
+import { unwrap } from '@/shared/lib/actions/actionResult';
 import { computeWizardStep } from './wizard-utils';
 
 export type ApplicantWithRelations = NonNullable<
@@ -146,7 +147,7 @@ export function useApplicant({
 
 	const query = useQuery({
 		queryKey: ['applicant', 'user', userId],
-		queryFn: () => getOrCreateApplicantForCurrentUser(),
+		queryFn: async () => unwrap(await getOrCreateApplicantForCurrentUser()),
 		staleTime: 30_000,
 		enabled: !!userId && eligibilityQuery.data?.canApply === true,
 	});

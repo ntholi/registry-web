@@ -20,6 +20,7 @@ import {
 	generateUploadKey,
 	StoragePaths,
 } from '@/core/integrations/storage-utils';
+import { unwrap } from '@/shared/lib/actions/actionResult';
 import {
 	getAcademicRemarks,
 	getResultClassificationFromCgpa,
@@ -57,7 +58,7 @@ export async function prepopulateAcademicRecordsFromCompletedPrograms(
 			return { success: false, error: 'Application not found' };
 		}
 
-		const applicant = await getOrCreateApplicantForCurrentUser();
+		const applicant = unwrap(await getOrCreateApplicantForCurrentUser());
 		if (!applicant || applicant.id !== application.applicantId) {
 			return { success: false, error: 'Applicant not found' };
 		}
@@ -103,18 +104,20 @@ export async function prepopulateAcademicRecordsFromCompletedPrograms(
 				academicRemarks.latestPoints?.cgpa
 			);
 
-			await createAcademicRecord(
-				applicant.id,
-				{
-					certificateTypeId: certType.id,
-					examYear,
-					institutionName: 'Limkokwing University of Creative Technology',
-					qualificationName,
-					certificateNumber: null,
-					candidateNumber: null,
-					resultClassification,
-				},
-				isLevel4
+			unwrap(
+				await createAcademicRecord(
+					applicant.id,
+					{
+						certificateTypeId: certType.id,
+						examYear,
+						institutionName: 'Limkokwing University of Creative Technology',
+						qualificationName,
+						certificateNumber: null,
+						candidateNumber: null,
+						resultClassification,
+					},
+					isLevel4
+				)
 			);
 
 			existingKeys.add(key);
@@ -146,12 +149,14 @@ export async function uploadCertificateDocument(
 
 		const type = analysis.documentType;
 
-		const savedDoc = await saveApplicantDocument({
-			applicantId,
-			fileName: file.name,
-			fileUrl: fileKey,
-			type,
-		});
+		const savedDoc = unwrap(
+			await saveApplicantDocument({
+				applicantId,
+				fileName: file.name,
+				fileUrl: fileKey,
+				type,
+			})
+		);
 
 		const isAcademicType = type === 'certificate' || type === 'academic_record';
 
@@ -167,22 +172,21 @@ export async function uploadCertificateDocument(
 				hasSubjects: !!analysis.subjects?.length,
 			});
 
-			const recordResult = await createAcademicRecordFromDocument(
-				applicantId,
-				{
-					institutionName,
-					examYear,
-					certificateType: analysis.certificateType,
-					certificateNumber: analysis.certificateNumber,
-					subjects: analysis.subjects,
-					overallClassification: analysis.overallClassification,
-					qualificationName: analysis.qualificationName,
-				},
-				savedDoc?.id
+			unwrap(
+				await createAcademicRecordFromDocument(
+					applicantId,
+					{
+						institutionName,
+						examYear,
+						certificateType: analysis.certificateType,
+						certificateNumber: analysis.certificateNumber,
+						subjects: analysis.subjects,
+						overallClassification: analysis.overallClassification,
+						qualificationName: analysis.qualificationName,
+					},
+					savedDoc?.id
+				)
 			);
-			if (!recordResult.success) {
-				return { success: false, error: recordResult.error };
-			}
 		}
 
 		return { success: true, data: { fileName: file.name, type, analysis } };
@@ -196,7 +200,7 @@ export async function removeAcademicRecord(
 	id: string
 ): Promise<ActionResult<void>> {
 	try {
-		await deleteAcademicRecord(id);
+		unwrap(await deleteAcademicRecord(id));
 		return { success: true, data: undefined };
 	} catch (error) {
 		return { success: false, error: extractError(error) };

@@ -6,6 +6,7 @@ import { DateInput } from '@mantine/dates';
 import { createInsertSchema } from 'drizzle-zod';
 import { useRouter } from 'nextjs-toploader/app';
 import type { RefObject } from 'react';
+import type { ActionResult } from '@/shared/lib/actions/actionResult';
 import { getReligions } from '@/shared/lib/utils/religions';
 import { Form } from '@/shared/ui/adease';
 import type { Applicant } from '../_lib/types';
@@ -13,7 +14,9 @@ import type { Applicant } from '../_lib/types';
 type ApplicantInput = typeof applicants.$inferInsert;
 
 type Props = {
-	onSubmit: (values: ApplicantInput) => Promise<ApplicantInput>;
+	onSubmit: (
+		values: ApplicantInput
+	) => Promise<Applicant | ActionResult<Applicant>>;
 	defaultValues?: Applicant;
 	title?: string;
 	formRef?: RefObject<HTMLFormElement | null>;
@@ -35,7 +38,7 @@ export default function ApplicantForm({
 	const router = useRouter();
 
 	return (
-		<Form
+		<Form<ApplicantInput, Applicant | undefined, Applicant>
 			title={title}
 			action={onSubmit}
 			queryKey={['applicants']}

@@ -18,7 +18,7 @@ export function DocumentCardWithActions({ doc, onPreview }: Props) {
 	const previewUrl = doc.document.fileUrl ?? '';
 
 	async function handleDelete() {
-		await deleteApplicantDocument(doc.id, previewUrl);
+		return deleteApplicantDocument(doc.id, previewUrl);
 	}
 
 	function handleDeleteSuccess() {
