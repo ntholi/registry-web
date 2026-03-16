@@ -3,7 +3,9 @@
 import { PERMISSION_RESOURCE_GROUPS } from '@auth/permission-presets/_lib/catalog';
 import {
 	Badge,
+	Box,
 	Button,
+	Card,
 	Group,
 	Paper,
 	Stack,
@@ -208,7 +210,7 @@ function PermissionCell({ granted }: { granted: boolean }) {
 	return (
 		<Group justify='center'>
 			<ThemeIcon
-				size='sm'
+				size='md'
 				radius='xl'
 				variant={granted ? 'filled' : 'light'}
 				color={granted ? 'teal' : 'gray'}
@@ -234,15 +236,19 @@ function ResourcePermissionCard({
 				<Group justify='space-between' align='center' wrap='nowrap'>
 					<Group gap='sm' wrap='nowrap'>
 						<PermissionCell granted />
-						<Stack gap={2}>
+						<Box>
 							<Text fw={500} size='sm'>
 								{toTitleCase(item.resource)}
 							</Text>
-							<Text c='dimmed' size='xs'>
-								{item.actions.length} action
-								{item.actions.length === 1 ? '' : 's'} assigned
-							</Text>
-						</Stack>
+
+							<Group gap={'xs'}>
+								{item.actions.map((action, index) => (
+									<Card py={2} px={'xs'} key={grantKey(item.resource, action)}>
+										<Text size='xs'>{toTitleCase(action)}</Text>
+									</Card>
+								))}
+							</Group>
+						</Box>
 					</Group>
 					{!readOnly ? (
 						<Button
@@ -254,18 +260,6 @@ function ResourcePermissionCard({
 							Manage
 						</Button>
 					) : null}
-				</Group>
-				<Group gap='xs'>
-					{item.actions.map((action) => (
-						<Badge
-							key={grantKey(item.resource, action)}
-							radius='sm'
-							size='sm'
-							variant='light'
-						>
-							{toTitleCase(action)}
-						</Badge>
-					))}
 				</Group>
 			</Stack>
 		</Paper>

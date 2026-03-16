@@ -19,16 +19,7 @@ export default function Layout({ children }: PropsWithChildren) {
 				<ListItem
 					id={it.id}
 					label={it.name}
-					description={
-						<Group gap={'xs'}>
-							<Badge size='xs' variant='light'>
-								{toTitleCase(it.role)}
-							</Badge>
-							<Text c='dimmed' size='xs'>
-								{it.permissionCount} permissions
-							</Text>
-						</Group>
-					}
+					description={toTitleCase(it.role)}
 				/>
 			)}
 		>
