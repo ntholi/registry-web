@@ -67,7 +67,7 @@ class StudentService {
 			async () => this.repository.findRegistrationData(stdNo),
 			async (session) =>
 				session?.user?.stdNo === stdNo ||
-				hasAnyPermission(session, 'registration', ['read', 'create', 'update'])
+				hasAnyPermission(session, 'registration', ['read'])
 		);
 	}
 
@@ -76,7 +76,7 @@ class StudentService {
 			async () => this.repository.findRegistrationDataByTerm(stdNo, termCode),
 			async (session) =>
 				session?.user?.stdNo === stdNo ||
-				hasAnyPermission(session, 'registration', ['read', 'create', 'update'])
+				hasAnyPermission(session, 'registration', ['read'])
 		);
 	}
 

@@ -403,10 +403,16 @@ function DisplayWithNotification({
 	viewingAs?: boolean;
 	session: Session | null;
 }) {
+	const canAccessItem = isItemVisible(
+		item,
+		session ?? null,
+		userPermissions,
+		viewingAs
+	);
 	const { data: notificationCount = 0 } = useQuery({
 		queryKey: item.notificationCount?.queryKey ?? [],
 		queryFn: () => item.notificationCount?.queryFn() ?? Promise.resolve(0),
-		enabled: !!item.notificationCount,
+		enabled: canAccessItem && !!item.notificationCount,
 		refetchInterval: item.notificationCount?.refetchInterval,
 	});
 
@@ -442,12 +448,18 @@ function ItemDisplay({
 }) {
 	const pathname = usePathname();
 	const Icon = item.icon;
+	const canAccessItem = isItemVisible(
+		item,
+		session ?? null,
+		userPermissions,
+		viewingAs
+	);
 	const getLabelKey = (label: React.ReactNode): string => {
 		if (typeof label === 'string') return label;
 		return String(label);
 	};
 
-	if (!isItemVisible(item, session ?? null, userPermissions, viewingAs)) {
+	if (!canAccessItem) {
 		return null;
 	}
 
