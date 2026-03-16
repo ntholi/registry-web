@@ -186,7 +186,9 @@ export function unwrap<T>(result: ActionResult<T>): T {
 }
 ```
 
-**Why `UserFacingError`**: When actions call other wrapped actions (40+ cross-action calls in the codebase), the outer `createAction` catches the throw. `extractError` detects `UserFacingError` and preserves the original message and code.
+**Why `UserFacingError`**: When mutation actions call other wrapped mutation actions (~15-20 cross-action calls in the codebase), the outer `createAction` catches the throw. `extractError` detects `UserFacingError` and preserves the original message and code.
+
+**Usage scope**: Under the mutations-only strategy, `unwrap()` is only needed when a wrapped mutation calls another wrapped mutation. Query actions stay as plain functions and never need `unwrap()`. RSC pages and ListLayout callers never need `unwrap()` either.
 
 Full implementation: see [error-handling-plan.md](./error-handling-plan.md) Sections 1, 3, 4, 5.
 

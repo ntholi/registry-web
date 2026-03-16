@@ -4,7 +4,7 @@
 
 ## Prerequisites
 
-- Plans 001-008 all completed (every action file wrapped, every RSC page updated)
+- Plans 001-008 all completed (every mutation action file wrapped, query actions left as plain functions)
 
 ---
 

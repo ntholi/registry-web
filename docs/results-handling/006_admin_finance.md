@@ -1,6 +1,6 @@
 # Plan 006: Admin + Finance + Auth + HR Modules
 
-> Migrate `admin/` (6 actions), `finance/` (2 actions), `auth/` (1 action), and `human-resource/` (1 action) end-to-end. **Non-breaking**.
+> Wrap **mutation** actions with `createAction`. Query actions stay as plain functions. RSC pages and ListLayout callers require **no changes**. **Non-breaking**.
 
 ## Prerequisites
 
@@ -9,9 +9,13 @@
 
 ---
 
-## Part A: Wrap Action Files (10 files)
+## Part A: Wrap Mutation Actions Only (10 files)
 
-Use the same migration template as Plan 003.
+Use the same mutations-only template as Plan 003. Key rules:
+- Only mutations get wrapped with `createAction`
+- Queries stay as plain `async function` exports
+- `export const` for wrapped mutations
+- No manual `try/catch`
 
 ### Admin (6 files)
 
@@ -21,8 +25,8 @@ Use the same migration template as Plan 003.
 | 2 | `src/app/admin/tasks/_server/actions.ts` | |
 | 3 | `src/app/admin/notifications/_server/actions.ts` | |
 | 4 | `src/app/admin/activity-tracker/_server/actions.ts` | |
-| 5 | `src/app/admin/tools/grade-finder/_server/actions.ts` | Specialized query actions |
-| 6 | `src/app/admin/bulk/transcripts/_server/actions.ts` | Bulk operations — `createAction` catches timeouts |
+| 5 | `src/app/admin/tools/grade-finder/_server/actions.ts` | **Query-only — skip entirely** |
+| 6 | `src/app/admin/bulk/transcripts/_server/actions.ts` | Bulk operations — wrap mutations only |
 
 ### Finance (2 files)
 
@@ -45,64 +49,15 @@ Use the same migration template as Plan 003.
 
 ---
 
-## Part B: Update RSC Pages (~19 pages)
+## Part B: RSC Pages — No Changes Needed
 
-### Admin
-
-| # | File | Action calls to wrap |
-|---|------|---------------------|
-| 1 | `src/app/admin/users/[id]/page.tsx` | `getUser(id)` |
-| 2 | `src/app/admin/users/[id]/edit/page.tsx` | `getUser(id)` |
-| 3 | `src/app/admin/tasks/[id]/page.tsx` | `getTask(id)` |
-| 4 | `src/app/admin/tasks/[id]/edit/page.tsx` | `getTask(id)` |
-| 5 | `src/app/admin/notifications/[id]/page.tsx` | `getNotification(id)` |
-| 6 | `src/app/admin/notifications/[id]/edit/page.tsx` | `getNotification(id)` |
-| 7 | `src/app/admin/activity-tracker/page.tsx` | Check for direct calls |
-
-### Finance
-
-| # | File | Action calls to wrap |
-|---|------|---------------------|
-| 8 | `src/app/finance/sponsors/[id]/page.tsx` | `getSponsor(id)` |
-| 9 | `src/app/finance/sponsors/[id]/edit/page.tsx` | `getSponsor(id)` |
-| 10 | `src/app/finance/payment-receipts/page.tsx` | Check for direct calls |
-
-### Auth
-
-| # | File | Action calls to wrap |
-|---|------|---------------------|
-| 11 | `src/app/auth/permission-presets/[id]/page.tsx` | `getPermissionPreset(id)` |
-
-### Human Resource
-
-| # | File | Action calls to wrap |
-|---|------|---------------------|
-| 12 | `src/app/human-resource/employees/[id]/page.tsx` | `getEmployee(id)` |
-| 13 | `src/app/human-resource/employees/[id]/edit/page.tsx` | `getEmployee(id)` |
+Since query actions stay as plain functions, all RSC pages continue calling them with plain `await`. **No `unwrap()` needed.**
 
 ---
 
-## Part C: Verify/Update ListLayout Callers
+## Part C: ListLayout Callers — No Changes Needed
 
-### Direct References — Verify Only
-
-| # | File |
-|---|------|
-| 1 | `src/app/admin/users/layout.tsx` |
-| 2 | `src/app/finance/sponsors/layout.tsx` |
-| 3 | `src/app/finance/payment-receipts/layout.tsx` |
-| 4 | `src/app/human-resource/employees/layout.tsx` |
-
-### Arrow Function Wrappers — Must Update
-
-| # | File | Notes |
-|---|------|-------|
-| 5 | `src/app/admin/tasks/layout.tsx` | Arrow wrapper |
-| 6 | `src/app/admin/notifications/layout.tsx` | Arrow wrapper |
-| 7 | `src/app/admin/activity-tracker/layout.tsx` | Arrow wrapper |
-| 8 | `src/app/auth/permission-presets/layout.tsx` | Arrow wrapper |
-
-**Arrow wrappers**: These receive `(page, search)` from ListLayout, call the action, and pass the result back. Since the action's return type is now `ActionResult`, and ListLayout handles both formats, these should auto-work. Update only if type errors occur.
+Since `findAll*` actions stay as plain functions returning raw data, all ListLayout callers continue working as-is. **No changes needed.**
 
 ---
 
@@ -116,15 +71,13 @@ Search `_components/` folders in `src/app/admin/`, `src/app/finance/`, `src/app/
 
 ---
 
-## Part E: Update Cross-Action Calls
+## Part E: Cross-Action Calls (Minimal)
 
-Minimal cross-action calls in this group. Wrap with `unwrap()` where found. See Plan 003 for template.
+Under the mutations-only strategy, most cross-action calls are queries and need no changes.
 
-### Cross-Action Calls
-
-| # | File | Cross-action call | Import source |
-|---|------|------------------|---------------|
-| 1 | Verify at implementation time — admin/finance modules may call registry/academic actions |
+| # | File | Cross-action call | Is it a mutation? | Action |
+|---|------|------------------|-------------------|--------|
+| 1 | Verify at implementation time — admin/finance modules may call registry/academic mutation actions | | | Add `unwrap()` only for mutation→mutation calls |
 
 ---
 
@@ -136,10 +89,9 @@ pnpm tsc --noEmit
 
 ## Done When
 
-- [ ] All 10 action files import and use `createAction`
-- [ ] All RSC pages with direct `await` calls use `unwrap()`
-- [ ] All ListLayout callers verified/updated
+- [ ] All mutation actions across 10 files wrapped with `createAction`
+- [ ] All query actions remain as plain `async function` exports
+- [ ] Query-only files (grade-finder) left completely untouched
 - [ ] All direct `useMutation` callers switched to `useActionMutation`
-- [ ] All cross-action calls wrapped with `unwrap()`
 - [ ] `pnpm tsc --noEmit` passes
-- [ ] **Admin + Finance + Auth + HR modules fully migrated; all other modules still work**
+- [ ] **Admin + Finance + Auth + HR module mutations wrapped; queries/pages/layouts untouched**

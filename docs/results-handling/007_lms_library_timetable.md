@@ -1,6 +1,6 @@
 # Plan 007: LMS + Library + Timetable Modules
 
-> Migrate `lms/` (10 actions), `library/` (11 actions), and `timetable/` (5 actions) end-to-end. **Non-breaking**.
+> Wrap **mutation** actions with `createAction`. Query actions stay as plain functions. RSC pages and ListLayout callers require **no changes**. **Non-breaking**.
 
 ## Prerequisites
 
@@ -9,9 +9,13 @@
 
 ---
 
-## Part A: Wrap Action Files (26 files)
+## Part A: Wrap Mutation Actions Only (26 files)
 
-Use the same migration template as Plan 003.
+Use the same mutations-only template as Plan 003. Key rules:
+- Only mutations get wrapped with `createAction`
+- Queries stay as plain `async function` exports
+- `export const` for wrapped mutations
+- No manual `try/catch`
 
 ### LMS (10 files)
 
@@ -58,58 +62,15 @@ Use the same migration template as Plan 003.
 
 ---
 
-## Part B: Update RSC Pages (~34 pages)
+## Part B: RSC Pages — No Changes Needed
 
-### Library
-
-| # | File | Action calls to wrap |
-|---|------|---------------------|
-| 1 | `src/app/library/books/[id]/page.tsx` | `getBook(id)` |
-| 2 | `src/app/library/books/[id]/edit/page.tsx` | `getBook(id)` |
-| 3 | `src/app/library/authors/[id]/page.tsx` | `getAuthor(id)` |
-| 4 | `src/app/library/authors/[id]/edit/page.tsx` | `getAuthor(id)` |
-| 5 | `src/app/library/categories/[id]/page.tsx` | `getCategory(id)` |
-| 6 | `src/app/library/categories/[id]/edit/page.tsx` | `getCategory(id)` |
-| 7 | `src/app/library/loans/[id]/page.tsx` | `getLoan(id)` |
-| 8 | `src/app/library/fines/[id]/page.tsx` | `getFine(id)` |
-| 9 | `src/app/library/external-libraries/[id]/page.tsx` | `getExternalLibrary(id)` |
-| 10 | `src/app/library/external-libraries/[id]/edit/page.tsx` | `getExternalLibrary(id)` |
-| 11 | `src/app/library/resources/publications/[id]/page.tsx` | `getPublication(id)` |
-| 12 | `src/app/library/resources/publications/[id]/edit/page.tsx` | `getPublication(id)` |
-| 13 | `src/app/library/resources/question-papers/[id]/page.tsx` | `getQuestionPaper(id)` |
-| 14 | `src/app/library/resources/question-papers/[id]/edit/page.tsx` | `getQuestionPaper(id)` |
-| 15 | `src/app/library/catalog/page.tsx` | Check for direct calls |
-| 16 | `src/app/library/settings/page.tsx` | Check for direct calls |
-
-### Timetable
-
-| # | File | Action calls to wrap |
-|---|------|---------------------|
-| 17 | `src/app/timetable/venues/[id]/page.tsx` | `getVenue(id)` |
-| 18 | `src/app/timetable/venues/[id]/edit/page.tsx` | `getVenue(id)` |
-| 19 | `src/app/timetable/timetable-allocations/page.tsx` | Check for direct calls |
-
-*Note*: Some LMS pages and remaining library/timetable pages may not exist or may not have direct `await` calls. Verify before modifying.
+Since query actions stay as plain functions, all RSC pages continue calling them with plain `await`. **No `unwrap()` needed.**
 
 ---
 
-## Part C: Verify/Update ListLayout Callers
+## Part C: ListLayout Callers — No Changes Needed
 
-### Direct References — Verify Only
-
-| # | File |
-|---|------|
-| 1 | `src/app/timetable/venues/layout.tsx` |
-| 2 | `src/app/timetable/venue-types/layout.tsx` |
-| 3 | `src/app/timetable/slots/layout.tsx` |
-| 4 | `src/app/library/books/layout.tsx` |
-| 5 | `src/app/library/authors/layout.tsx` |
-| 6 | `src/app/library/categories/layout.tsx` |
-| 7 | `src/app/library/loans/layout.tsx` |
-| 8 | `src/app/library/fines/layout.tsx` |
-| 9 | `src/app/library/external-libraries/layout.tsx` |
-| 10 | `src/app/library/resources/publications/layout.tsx` |
-| 11 | `src/app/library/resources/question-papers/layout.tsx` |
+Since `findAll*` actions stay as plain functions returning raw data, all ListLayout callers continue working as-is. **No changes needed.**
 
 ---
 
@@ -136,25 +97,27 @@ Known Timetable candidates:
 
 ---
 
-## Part E: Update Cross-Action Calls
+## Part E: Cross-Action Calls (LMS-Heavy)
 
-The LMS module has the heaviest cross-module action dependencies. Wrap each with `unwrap()`. See Plan 003 for template.
+Under the mutations-only strategy, only mutation→mutation cross-calls need `unwrap()`. Calls to query actions need no changes.
 
 ### Cross-Action Calls in LMS Module
 
-| # | File | Cross-action call | Import source |
-|---|------|------------------|---------------|
-| 1 | `lms/quizzes/_server/actions.ts` | `createAssessment()` ×2 | `@/app/academic/assessments/_server/actions` |
-| 2 | `lms/quizzes/_server/actions.ts` | `getActiveTerm()` ×2 | `@/app/registry/terms` |
-| 3 | `lms/quizzes/_server/actions.ts` | `findStudentsByLmsUserIdsForSubmissions()` | `@lms/students` |
-| 4 | `lms/assignments/_server/actions.ts` | `createAssessment()` | `@/app/academic/assessments/_server/actions` |
-| 5 | `lms/assignments/_server/actions.ts` | `getActiveTerm()` | `@/app/registry/terms` |
-| 6 | `lms/courses/_server/actions.ts` | `linkCourseToAssignment()` | `@academic/assigned-modules` |
-| 7 | `lms/gradebook/_server/actions.ts` | `getAssignedModuleByLmsCourseId()` | `@academic/assigned-modules` |
-| 8 | `lms/gradebook/_server/actions.ts` | `getStudentsBySemesterModules()` | `@registry/students` |
-| 9 | `lms/gradebook/_server/actions.ts` | `getEnrolledStudentsFromDB()` | `@lms/students` |
+| # | File | Cross-action call | Is it a mutation? | Action |
+|---|------|------------------|-------------------|--------|
+| 1 | `lms/quizzes/_server/actions.ts` | `createAssessment()` ×2 | **Yes (mutation)** | Add `unwrap()` |
+| 2 | `lms/quizzes/_server/actions.ts` | `getActiveTerm()` ×2 | No (query) | No change |
+| 3 | `lms/quizzes/_server/actions.ts` | `findStudentsByLmsUserIdsForSubmissions()` | No (query) | No change |
+| 4 | `lms/assignments/_server/actions.ts` | `createAssessment()` | **Yes (mutation)** | Add `unwrap()` |
+| 5 | `lms/assignments/_server/actions.ts` | `getActiveTerm()` | No (query) | No change |
+| 6 | `lms/courses/_server/actions.ts` | `linkCourseToAssignment()` | **Yes (mutation)** | Add `unwrap()` |
+| 7 | `lms/gradebook/_server/actions.ts` | `getAssignedModuleByLmsCourseId()` | No (query) | No change |
+| 8 | `lms/gradebook/_server/actions.ts` | `getStudentsBySemesterModules()` | No (query) | No change |
+| 9 | `lms/gradebook/_server/actions.ts` | `getEnrolledStudentsFromDB()` | No (query) | No change |
 
 **Note**: LMS actions also import from `@auth/auth-providers/_server/repository` (direct repository call, not an action) — these do NOT need `unwrap()`.
+
+**Summary**: Only 4 cross-action calls need `unwrap()` (items 1, 4, 6 — all mutations). The remaining 5 are queries and need no changes.
 
 ---
 
@@ -166,10 +129,9 @@ pnpm tsc --noEmit
 
 ## Done When
 
-- [ ] All 26 action files import and use `createAction`
-- [ ] All RSC pages with direct `await` calls use `unwrap()`
-- [ ] All ListLayout callers verified
+- [ ] All mutation actions across 26 files wrapped with `createAction`
+- [ ] All query actions remain as plain `async function` exports
 - [ ] All direct `useMutation` callers switched to `useActionMutation`
-- [ ] All cross-action calls wrapped with `unwrap()`
+- [ ] All mutation→mutation cross-action calls wrapped with `unwrap()` (~4 call sites)
 - [ ] `pnpm tsc --noEmit` passes
-- [ ] **LMS + Library + Timetable modules fully migrated; all other modules still work**
+- [ ] **LMS + Library + Timetable module mutations wrapped; queries/pages/layouts untouched**

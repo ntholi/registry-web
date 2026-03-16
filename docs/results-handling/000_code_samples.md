@@ -148,13 +148,14 @@ export function createAction<TArgs extends unknown[], TOutput>(
 }
 ```
 
-### 1.3 Unwrapping inside server components and cross-action flows
+### 1.3 Unwrapping (rare — only when mutation calls another mutation)
+
+`unwrap()` is only needed when a mutation action calls another mutation action (~5-10 cases total).
 
 ### Before
 
 ```ts
-const term = await getActiveTerm();
-const student = await getStudent(stdNo);
+const assessment = await createAssessment(data);
 ```
 
 ### After
@@ -162,8 +163,11 @@ const student = await getStudent(stdNo);
 ```ts
 import { unwrap } from '@/shared/lib/actions/actionResult';
 
-const term = unwrap(await getActiveTerm());
-const student = unwrap(await getStudent(stdNo));
+// createAssessment is a mutation → returns ActionResult<T> → unwrap needed
+const assessment = unwrap(await createAssessment(data));
+
+// getActiveTerm is a query → returns raw T → NO unwrap needed
+const term = await getActiveTerm();
 ```
 
 ---
@@ -275,51 +279,28 @@ export async function publishTerm(code: string) {
 
 ## 3. Simple Server Actions
 
-### 3.1 Query action returning raw data
+### 3.1 Query action — stays as plain function (NO wrapping)
 
-### Before
+Query actions are **not** wrapped with `createAction`. They stay as plain functions.
 
 ```ts
 'use server';
 
+// UNCHANGED — queries stay raw
 export async function getSchool(id: string) {
 	return schoolsService.get(id);
 }
 ```
 
-### After
+### 3.2 Paginated query action — stays as plain function (NO wrapping)
 
 ```ts
 'use server';
 
-import { createAction } from '@/shared/lib/actions/actionResult';
-
-export const getSchool = createAction(async (id: string) => schoolsService.get(id));
-```
-
-### 3.2 Paginated query action keeping positional params
-
-### Before
-
-```ts
-'use server';
-
+// UNCHANGED — queries stay raw
 export async function findAllSchools(page: number, search: string) {
 	return schoolsService.findAll({ page, search });
 }
-```
-
-### After
-
-```ts
-'use server';
-
-import { createAction } from '@/shared/lib/actions/actionResult';
-
-export const findAllSchools = createAction(
-	async (page: number, search: string) =>
-		schoolsService.findAll({ page, search })
-);
 ```
 
 ### 3.3 Mutation with revalidation
@@ -454,6 +435,7 @@ export async function submitApplication(
 
 import { createAction, unwrap } from '@/shared/lib/actions/actionResult';
 
+// changeApplicationStatus is a mutation → returns ActionResult → unwrap needed
 export const submitApplication = createAction(async (applicationId: string) => {
 	unwrap(await changeApplicationStatus(applicationId, 'submitted'));
 });
@@ -483,7 +465,9 @@ import { createAction } from '@/shared/lib/actions/actionResult';
 
 ## 5. Cross-Action Calls
 
-### 5.1 Calling another action before migration
+### 5.1 Mutation calling a query — no unwrap needed
+
+`getActiveTerm()` is a query (plain function), so no `unwrap()`. `createAssessment()` is a mutation (returns `ActionResult`), so `unwrap()` is needed.
 
 ### Before
 
@@ -510,8 +494,8 @@ export async function createAssessmentFromQuiz(input: QuizInput) {
 import { createAction, unwrap } from '@/shared/lib/actions/actionResult';
 
 export const createAssessmentFromQuiz = createAction(async (input: QuizInput) => {
-	const term = unwrap(await getActiveTerm());
-	const assessment = unwrap(
+	const term = await getActiveTerm(); // query → raw T, no unwrap
+	const assessment = unwrap( // mutation → ActionResult<T>, unwrap needed
 		await createAssessment({
 			termCode: term.code,
 			title: input.title,
@@ -523,7 +507,9 @@ export const createAssessmentFromQuiz = createAction(async (input: QuizInput) =>
 });
 ```
 
-### 5.2 Cross-action call with nullable follow-up fetch
+### 5.2 Mutation calling queries and mutations mixed
+
+`getApplicant()` is a query → no unwrap. `updateApplicant()` is a mutation → unwrap needed.
 
 ### Before
 
@@ -558,18 +544,18 @@ import { UserFacingError } from '@/shared/lib/actions/extractError';
 
 export const updateApplicantFromIdentity = createAction(
 	async (applicantId: string, data: ExtractedIdentityData) => {
-		const applicant = unwrap(await getApplicant(applicantId));
+		const applicant = await getApplicant(applicantId); // query, no unwrap
 		if (!applicant) {
 			throw new UserFacingError('Applicant not found', 'APPLICANT_NOT_FOUND');
 		}
 
-		unwrap(
+		unwrap( // mutation, unwrap needed
 			await updateApplicant(applicantId, {
 				fullName: data.fullName,
 			})
 		);
 
-		const refreshed = unwrap(await getApplicant(applicantId));
+		const refreshed = await getApplicant(applicantId); // query, no unwrap
 		if (!refreshed) {
 			throw new UserFacingError('Applicant not found', 'APPLICANT_NOT_FOUND');
 		}
@@ -579,7 +565,7 @@ export const updateApplicantFromIdentity = createAction(
 );
 ```
 
-### 5.3 Query action used inside another query action
+### 5.3 Query calling another query — no changes at all
 
 ### Before
 
@@ -593,23 +579,23 @@ export async function getGraduationReport(filters: Filters) {
 ### After
 
 ```ts
-import { createAction, unwrap } from '@/shared/lib/actions/actionResult';
-
-export const getGraduationReport = createAction(async (filters: Filters) => {
-	const sponsors = unwrap(await getAllSponsors());
+// UNCHANGED — both are queries, no wrapping needed
+export async function getGraduationReport(filters: Filters) {
+	const sponsors = await getAllSponsors();
 	return reportsService.getGraduationReport(filters, sponsors);
-});
+}
 ```
 
 ---
 
 ## 6. Server Component Pages
 
-### 6.1 Detail page loading a single entity
+Since query actions stay as plain functions, **RSC pages require NO changes**. They continue to call queries with plain `await`.
 
-### Before
+### 6.1 Detail page — no change
 
 ```tsx
+// UNCHANGED — getModule is a query, returns raw T
 import { notFound } from 'next/navigation';
 import { getModule } from '../_server/actions';
 
@@ -625,30 +611,10 @@ export default async function ModulePage({ params }: Props) {
 }
 ```
 
-### After
+### 6.2 Edit page loading multiple resources — no change
 
 ```tsx
-import { notFound } from 'next/navigation';
-import { unwrap } from '@/shared/lib/actions/actionResult';
-import { getModule } from '../_server/actions';
-
-export default async function ModulePage({ params }: Props) {
-	const { id } = await params;
-	const moduleItem = unwrap(await getModule(id));
-
-	if (!moduleItem) {
-		notFound();
-	}
-
-	return <ModuleDetails item={moduleItem} />;
-}
-```
-
-### 6.2 Edit page loading multiple resources
-
-### Before
-
-```tsx
+// UNCHANGED — both getAssessment and getActiveTerm are queries
 import { getAssessment } from '../../_server/actions';
 import { getActiveTerm } from '@/app/registry/terms/_server/actions';
 
@@ -665,56 +631,25 @@ export default async function EditAssessmentPage({ params }: Props) {
 }
 ```
 
-### After
+### 6.3 Page passing mutation as prop — no change
 
 ```tsx
-import { notFound } from 'next/navigation';
-import { unwrap } from '@/shared/lib/actions/actionResult';
-import { getAssessment } from '../../_server/actions';
-import { getActiveTerm } from '@/app/registry/terms/_server/actions';
-
-export default async function EditAssessmentPage({ params }: Props) {
-	const { id } = await params;
-	const assessment = unwrap(await getAssessment(id));
-	const term = unwrap(await getActiveTerm());
-
-	if (!assessment) {
-		notFound();
-	}
-
-	return <AssessmentForm defaultValues={assessment} term={term} />;
-}
-```
-
-### 6.3 Page that passes actions as props but does not await them
-
-### Before
-
-```tsx
+// UNCHANGED — createSchool is a mutation but passed as ref, not awaited
 export default function NewSchoolPage() {
 	return <SchoolForm action={createSchool} queryKey={['schools']} />;
 }
 ```
-
-### After
-
-```tsx
-export default function NewSchoolPage() {
-	return <SchoolForm action={createSchool} queryKey={['schools']} />;
-}
-```
-
-This is intentionally unchanged. Only direct `await action(...)` calls need `unwrap()`.
 
 ---
 
 ## 7. ListLayout Callers
 
-### 7.1 Direct action reference
+Since `findAll*` actions are queries and stay as plain functions, **ListLayout callers require NO changes**.
 
-### Before
+### 7.1 Direct action reference — no change
 
 ```tsx
+// UNCHANGED — findAllSchools is a query, returns raw { items, totalPages }
 import { findAllSchools } from './_server/actions';
 
 export default function Layout({ children }: Props) {
@@ -731,32 +666,10 @@ export default function Layout({ children }: Props) {
 }
 ```
 
-### After
+### 7.2 Wrapper function — no change
 
 ```tsx
-import { findAllSchools } from './_server/actions';
-
-export default function Layout({ children }: Props) {
-	return (
-		<ListLayout
-			getData={findAllSchools}
-			renderItem={(item) => <SchoolListItem item={item} />}
-			path="/academic/schools"
-			queryKey={['schools']}
-		>
-			{children}
-		</ListLayout>
-	);
-}
-```
-
-The layout stays the same. The action return type changes, and `ListLayout` adapts.
-
-### 7.2 Wrapper function that keeps positional params
-
-### Before
-
-```tsx
+// UNCHANGED
 export default function Layout({ children }: Props) {
 	return (
 		<ListLayout
@@ -772,27 +685,6 @@ export default function Layout({ children }: Props) {
 	);
 }
 ```
-
-### After
-
-```tsx
-export default function Layout({ children }: Props) {
-	return (
-		<ListLayout
-			getData={(page, search) =>
-				findAllApplications(page, search, selectedStatus)
-			}
-			renderItem={(item) => <ApplicationListItem item={item} />}
-			path="/admissions/applications"
-			queryKey={['applications', selectedStatus]}
-		>
-			{children}
-		</ListLayout>
-	);
-}
-```
-
-Again, the caller usually does not change unless it manually inspects the action result.
 
 ### 7.3 Internal `ListLayout` query function
 

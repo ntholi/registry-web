@@ -1,6 +1,6 @@
 # Plan 005: Admissions Module
 
-> Migrate the entire `admissions/` module end-to-end: wrap actions with `createAction`, update RSC pages with `unwrap()`, verify/update ListLayout callers. **Non-breaking**.
+> Wrap **mutation** actions with `createAction`. Query actions stay as plain functions. RSC pages and ListLayout callers require **no changes**. **Non-breaking**.
 
 ## Prerequisites
 
@@ -9,9 +9,13 @@
 
 ---
 
-## Part A: Wrap Action Files (17 files)
+## Part A: Wrap Mutation Actions Only (17 files)
 
-Use the same migration template as Plan 003.
+Use the same mutations-only template as Plan 003. Key rules:
+- Only mutations get wrapped with `createAction`
+- Queries stay as plain `async function` exports
+- `export const` for wrapped mutations
+- No manual `try/catch`
 
 ### Action Files
 
@@ -28,62 +32,24 @@ Use the same migration template as Plan 003.
 | 9 | `src/app/admissions/intake-periods/_server/actions.ts` | |
 | 10 | `src/app/admissions/certificate-types/_server/actions.ts` | |
 | 11 | `src/app/admissions/documents/_server/actions.ts` | |
-| 12 | `src/app/admissions/reports/program-demand/_server/actions.ts` | Query-only |
-| 13 | `src/app/admissions/reports/academic-qualifications/_server/actions.ts` | Query-only |
-| 14 | `src/app/admissions/reports/geographic/_server/actions.ts` | Query-only |
-| 15 | `src/app/admissions/reports/demographics/_server/actions.ts` | Query-only |
-| 16 | `src/app/admissions/reports/application-summary/_server/actions.ts` | Query-only |
+| 12 | `src/app/admissions/reports/program-demand/_server/actions.ts` | **Query-only — skip entirely** |
+| 13 | `src/app/admissions/reports/academic-qualifications/_server/actions.ts` | **Query-only — skip entirely** |
+| 14 | `src/app/admissions/reports/geographic/_server/actions.ts` | **Query-only — skip entirely** |
+| 15 | `src/app/admissions/reports/demographics/_server/actions.ts` | **Query-only — skip entirely** |
+| 16 | `src/app/admissions/reports/application-summary/_server/actions.ts` | **Query-only — skip entirely** |
 | 17 | (Verify the 17th — possibly `applications/scoring` or similar) |
 
-### Special Cases
+---
 
-- **Reports actions**: Query-only, but still wrap with `createAction` for consistent error handling and logging.
-- **`applicants/[id]/*`**: Nested actions within a dynamic route — same wrapping pattern.
+## Part B: RSC Pages — No Changes Needed
+
+Since query actions stay as plain functions, all RSC pages continue calling them with plain `await`. **No `unwrap()` needed.**
 
 ---
 
-## Part B: Update RSC Pages (~16 pages)
+## Part C: ListLayout Callers — No Changes Needed
 
-### RSC Pages
-
-| # | File | Action calls to wrap |
-|---|------|---------------------|
-| 1 | `src/app/admissions/applicants/[id]/page.tsx` | `getApplicant(id)` |
-| 2 | `src/app/admissions/applicants/[id]/edit/page.tsx` | `getApplicant(id)` |
-| 3 | `src/app/admissions/subjects/[id]/page.tsx` | `getSubject(id)` |
-| 4 | `src/app/admissions/subjects/[id]/edit/page.tsx` | `getSubject(id)` |
-| 5 | `src/app/admissions/applications/[id]/page.tsx` | `getApplication(id)` |
-| 6 | `src/app/admissions/applications/[id]/edit/page.tsx` | `getApplication(id)` |
-| 7 | `src/app/admissions/intake-periods/[id]/page.tsx` | `getIntakePeriod(id)` |
-| 8 | `src/app/admissions/intake-periods/[id]/edit/page.tsx` | `getIntakePeriod(id)` |
-| 9 | `src/app/admissions/recognized-schools/[id]/page.tsx` | `getRecognizedSchool(id)` |
-| 10 | `src/app/admissions/recognized-schools/[id]/edit/page.tsx` | `getRecognizedSchool(id)` |
-
-*Note*: List pages and report pages may not have direct `await` calls — verify before modifying.
-
----
-
-## Part C: Verify/Update ListLayout Callers
-
-### Direct References — Verify Only
-
-| # | File |
-|---|------|
-| 1 | `src/app/admissions/applicants/layout.tsx` |
-| 2 | `src/app/admissions/intake-periods/layout.tsx` |
-| 3 | `src/app/admissions/recognized-schools/layout.tsx` |
-| 4 | `src/app/admissions/certificate-types/layout.tsx` |
-| 5 | `src/app/admissions/documents/layout.tsx` |
-
-### Arrow Function Wrappers / Internal Functions — Must Update
-
-| # | File | Notes |
-|---|------|-------|
-| 6 | `src/app/admissions/applications/layout.tsx` | Arrow wrapper with extra params |
-| 7 | `src/app/admissions/subjects/layout.tsx` | Internal function declaration |
-| 8 | `src/app/admissions/entry-requirements/layout.tsx` | Internal function declaration |
-
-**For arrow wrappers with extra params**: The lambda receives `(page, search)` from ListLayout (positional), calls the action with those plus extra state. The action's return type now wraps in `ActionResult`, but since the lambda passes the result straight to ListLayout and ListLayout handles both formats, this should auto-work. Verify and update only if type errors occur.
+Since `findAll*` actions stay as plain functions returning raw data, all ListLayout callers continue working as-is. **No changes needed.**
 
 ---
 
@@ -102,24 +68,23 @@ Known candidates:
 
 ---
 
-## Part E: Update Cross-Action Calls
+## Part E: Cross-Action Calls (Minimal)
 
-The admissions module has significant internal cross-action calls. Wrap each with `unwrap()`. See Plan 003 for template.
+Under the mutations-only strategy, only mutation→mutation cross-calls need `unwrap()`. Calls to query actions need no changes.
 
-### Cross-Action Calls in Admissions Module
-
-| # | File | Cross-action call | Import source |
-|---|------|------------------|---------------|
-| 1 | `applicants/_server/actions.ts` | `getStudentByUserId()` | `@registry/students` |
-| 2 | `applications/_server/actions.ts` | `getOrCreateApplicantForCurrentUser()` | `@admissions/applicants` |
-| 3 | `applications/_server/actions.ts` | `saveApplicantDocument()` | `@admissions/applicants/[id]/documents/_server/actions` |
-| 4 | `applications/_server/actions.ts` | `createAcademicRecordFromDocument()` | `@admissions/applicants/[id]/documents/_server/actions` |
-| 5 | `applicants/[id]/documents/_server/actions.ts` | `getApplicant()` ×2 | `@admissions/applicants` |
-| 6 | `applicants/[id]/documents/_server/actions.ts` | `updateApplicant()` | `@admissions/applicants` |
-| 7 | `applicants/[id]/documents/_server/actions.ts` | `findAllCertificateTypes()` | `@admissions/certificate-types` |
-| 8 | `applicants/[id]/documents/_server/actions.ts` | `findOrCreateSubjectByName()` | `@admissions/subjects` |
-| 9 | `applicants/[id]/documents/_server/actions.ts` | `findAcademicRecordBy*()`, `update/createAcademicRecord()` | academic-records actions |
-| 10 | `applicants/[id]/academic-records/_server/actions.ts` | `recalculateScoresForApplicant()` | `@admissions/applications/_server/actions` |
+| # | File | Cross-action call | Is it a mutation? | Action |
+|---|------|------------------|-------------------|--------|
+| 1 | `applicants/_server/actions.ts` | `getStudentByUserId()` | No (query) | No change |
+| 2 | `applications/_server/actions.ts` | `getOrCreateApplicantForCurrentUser()` | **Yes (mutation)** | Add `unwrap()` |
+| 3 | `applications/_server/actions.ts` | `saveApplicantDocument()` | **Yes (mutation)** | Add `unwrap()` |
+| 4 | `applications/_server/actions.ts` | `createAcademicRecordFromDocument()` | **Yes (mutation)** | Add `unwrap()` |
+| 5 | `applicants/[id]/documents/_server/actions.ts` | `getApplicant()` ×2 | No (query) | No change |
+| 6 | `applicants/[id]/documents/_server/actions.ts` | `updateApplicant()` | **Yes (mutation)** | Add `unwrap()` |
+| 7 | `applicants/[id]/documents/_server/actions.ts` | `findAllCertificateTypes()` | No (query) | No change |
+| 8 | `applicants/[id]/documents/_server/actions.ts` | `findOrCreateSubjectByName()` | **Yes (mutation)** | Add `unwrap()` |
+| 9 | `applicants/[id]/documents/_server/actions.ts` | `findAcademicRecordBy*()` | No (query) | No change |
+| 10 | `applicants/[id]/documents/_server/actions.ts` | `update/createAcademicRecord()` | **Yes (mutation)** | Add `unwrap()` |
+| 11 | `applicants/[id]/academic-records/_server/actions.ts` | `recalculateScoresForApplicant()` | **Yes (mutation)** | Add `unwrap()` |
 
 ---
 
@@ -131,10 +96,10 @@ pnpm tsc --noEmit
 
 ## Done When
 
-- [ ] All 17 action files import and use `createAction`
-- [ ] All RSC pages with direct `await` calls use `unwrap()`
-- [ ] All ListLayout callers verified/updated
+- [ ] All mutation actions across ~11 non-report files wrapped with `createAction`
+- [ ] All query actions remain as plain `async function` exports
+- [ ] Report action files (5) left completely untouched
 - [ ] All direct `useMutation` callers switched to `useActionMutation`
-- [ ] All cross-action calls wrapped with `unwrap()`
+- [ ] All mutation→mutation cross-action calls wrapped with `unwrap()`
 - [ ] `pnpm tsc --noEmit` passes
-- [ ] **Admissions module fully migrated; all other modules still work**
+- [ ] **Admissions module mutations wrapped; queries/pages/layouts untouched**

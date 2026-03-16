@@ -15,9 +15,9 @@ pnpm tsc --noEmit
 **Expected**: Zero errors. If errors remain, fix them before proceeding.
 
 Common residual issues:
-- Action callers still expecting unwrapped return types → add `unwrap()` or update type annotation
+- Mutation actions with incorrect `createAction` wrapping → fix wrapper
 - `AppError` vs `string` type mismatches in error handling code (should be clean after Plan 009)
-- Missing `import { unwrap } from '@/shared/lib/actions/actionResult'`
+- Missing `import { unwrap } from '@/shared/lib/actions/actionResult'` in mutation→mutation cross-calls
 
 ### Step 2: Lint
 
@@ -65,16 +65,17 @@ pnpm tsc --noEmit & pnpm lint:fix
 ### Action Files (spot check)
 
 Pick 5 random action files from different modules and verify:
-- [ ] Uses `import { createAction } from '@/shared/lib/actions/actionResult'`
-- [ ] All exports use `export const ... = createAction(async (...) => ...)`
-- [ ] No manual `try/catch` blocks
+- [ ] Mutations use `import { createAction } from '@/shared/lib/actions/actionResult'`
+- [ ] Mutation exports use `export const ... = createAction(async (...) => ...)`
+- [ ] Query exports use `export async function ...` — **NOT** wrapped with `createAction`
+- [ ] No manual `try/catch` blocks in mutation actions
 
 ### RSC Pages (spot check)
 
 Pick 5 random `[id]/page.tsx` files and verify:
-- [ ] Uses `import { unwrap } from '@/shared/lib/actions/actionResult'`
-- [ ] Direct `await` calls wrapped: `unwrap(await getEntity(id))`
-- [ ] `notFound()` check remains after `unwrap()`
+- [ ] Uses plain `await getEntity(id)` — **NOT** `unwrap(await ...)`
+- [ ] `notFound()` check remains after `await`
+- [ ] No imports of `unwrap` from `@/shared/lib/actions/actionResult`
 
 ### ListLayout Callers (spot check)
 
@@ -91,8 +92,10 @@ Pick 5 random client components that previously used `useMutation({ mutationFn: 
 ### Cross-Action Calls (spot check)
 
 Pick 5 random action files that call other modules' actions and verify:
-- [ ] Cross-action `await` calls wrapped: `unwrap(await otherModuleAction(...))`
-- [ ] `unwrap` import present from `@/shared/lib/actions/actionResult`
+- [ ] Mutation→mutation cross-calls wrapped: `unwrap(await otherMutationAction(...))`
+- [ ] Mutation→query cross-calls use plain `await` — **NOT** wrapped with `unwrap()`
+- [ ] Query→query cross-calls use plain `await` — no changes
+- [ ] `unwrap` import present only when mutation→mutation calls exist
 - [ ] Error propagation works: inner failure → `UserFacingError` thrown → outer `createAction` catches → message preserved
 
 ---

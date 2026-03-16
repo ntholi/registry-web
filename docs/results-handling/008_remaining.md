@@ -1,6 +1,6 @@
 # Plan 008: Apply + Reports + Student Portal + Remaining
 
-> Migrate `apply/` (6 actions), `reports/` (8 actions), `student-portal/` (1 action), `audit-logs/` (1 action), and `feedback/` (1 action) end-to-end. Also update `apply/_lib/errors.ts` to re-export from shared. **Non-breaking**.
+> Wrap **mutation** actions with `createAction`. Query actions stay as plain functions. RSC pages and ListLayout callers require **no changes**. Also update `apply/_lib/errors.ts` to re-export from shared. **Non-breaking**.
 
 ## Prerequisites
 
@@ -9,7 +9,7 @@
 
 ---
 
-## Part A: Wrap Action Files (17 files)
+## Part A: Wrap Mutation Actions Only (17 files)
 
 ### Apply (6 files) — SPECIAL MIGRATION
 
@@ -52,7 +52,7 @@ export const submitPayment = createAction(
 
 ### Reports (8 files) — Query-only
 
-Still wrap with `createAction` for consistent error handling and logging.
+**Query-only — skip entirely.** These files contain only data-fetching queries with no mutations.
 
 | # | File |
 |---|------|
@@ -85,46 +85,17 @@ Still wrap with `createAction` for consistent error handling and logging.
 
 ---
 
-## Part B: Update RSC Pages (~15 pages)
+## Part B: RSC Pages — No Changes Needed
 
-### Apply
+Since query actions stay as plain functions, all RSC pages continue calling them with plain `await`. **No `unwrap()` needed.**
 
-| # | File | Notes |
-|---|------|-------|
-| 1 | `src/app/apply/new/page.tsx` | Check for direct calls |
-| 2 | `src/app/apply/welcome/page.tsx` | Check for direct calls |
-| 3 | `src/app/apply/courses/page.tsx` | Check for direct calls |
-
-*Note*: Apply wizard pages (under `[id]/(wizard)/`) may consume ActionResult directly in client components rather than RSC pages — verify the pattern before adding `unwrap()`.
-
-### Reports
-
-| # | File |
-|---|------|
-| 4 | `src/app/reports/registry/student-enrollments/progression/page.tsx` |
-| 5 | `src/app/reports/registry/student-enrollments/enrollments/page.tsx` |
-| 6 | `src/app/reports/registry/student-enrollments/distribution/page.tsx` |
-| 7 | `src/app/reports/finance/sponsored-students/page.tsx` |
-| 8 | `src/app/reports/registry/graduations/student-graduations/page.tsx` |
-| 9 | `src/app/reports/academic/course-summary/page.tsx` |
-| 10 | `src/app/reports/academic/boe/page.tsx` |
-| 11 | `src/app/reports/academic/attendance/page.tsx` |
-
-### Other
-
-| # | File |
-|---|------|
-| 12 | `src/app/audit-logs/page.tsx` |
-| 13 | `src/app/audit-logs/[id]/page.tsx` |
-| 14 | `src/app/feedback/page.tsx` |
+Apply wizard pages consume ActionResult directly in client components (via `useActionMutation`) — that pattern is already correct.
 
 ---
 
-## Part C: Verify/Update ListLayout Callers
+## Part C: ListLayout Callers — No Changes Needed
 
-| # | File | Notes |
-|---|------|-------|
-| 1 | `src/app/audit-logs/layout.tsx` | Arrow wrapper |
+Since `findAll*` actions stay as plain functions returning raw data, all ListLayout callers continue working as-is. **No changes needed.**
 
 ---
 
@@ -156,43 +127,45 @@ Search `_components/` folders in `src/app/apply/`, `src/app/reports/`, `src/app/
 
 ---
 
-## Part F: Update Cross-Action Calls
+## Part F: Cross-Action Calls (Apply Wizard — Mutation-Only)
 
-The `apply/` wizard has the most cross-action calls in the codebase (~30+). Wrap each with `unwrap()`. See Plan 003 for template.
+The `apply/` wizard has the most cross-action calls in the codebase (~22+). Under the mutations-only strategy, only calls to **mutation** actions need `unwrap()`. Calls to query actions need no changes.
 
 ### Cross-Action Calls in Apply Wizard
 
-| # | File | Cross-action call | Import source |
-|---|------|------------------|---------------|
-| 1 | `review/_server/actions.ts` | `getApplicant()` | `@admissions/applicants` |
-| 2 | `review/_server/actions.ts` | `findApplicationsByApplicant()` | `@admissions/applications` |
-| 3 | `review/_server/actions.ts` | `changeApplicationStatus()` | `@admissions/applications` |
-| 4 | `program/_server/actions.ts` | `getEligibleProgramsForApplicant()` | `@admissions/applicants` |
-| 5 | `program/_server/actions.ts` | `findApplicationsByApplicant()` | `@admissions/applications` |
-| 6 | `program/_server/actions.ts` | `findActiveIntakePeriod()` | `@admissions/intake-periods/_server/actions` |
-| 7 | `program/_server/actions.ts` | `getOpenProgramIds()` | `@admissions/intake-periods/_server/actions` |
-| 8 | `qualifications/_server/actions.ts` | `getOrCreateApplicantForCurrentUser()` | `@admissions/applicants` |
-| 9 | `qualifications/_server/actions.ts` | `findCertificateTypeByName()` | `@admissions/applicants/_server/document-actions` |
-| 10 | `qualifications/_server/actions.ts` | `getApplication()` | `@admissions/applications` |
-| 11 | `qualifications/_server/actions.ts` | `getStudentByUserId()` | `@registry/students` |
-| 12 | `qualifications/_server/actions.ts` | `createAcademicRecord()` | `@admissions/applicants/[id]/academic-records/_server/actions` |
-| 13 | `qualifications/_server/actions.ts` | `createAcademicRecordFromDocument()` | `@admissions/applicants/[id]/documents/_server/actions` |
-| 14 | `qualifications/_server/actions.ts` | `deleteAcademicRecord()` | `@admissions/applicants/[id]/academic-records/_server/actions` |
-| 15 | `identity/_server/actions.ts` | `getApplicant()` | `@admissions/applicants` |
-| 16 | `identity/_server/actions.ts` | `findDocumentsByType()` | `@admissions/applicants/[id]/documents/_server/actions` |
-| 17 | `identity/_server/actions.ts` | `saveApplicantDocument()` | `@admissions/applicants/[id]/documents/_server/actions` |
-| 18 | `identity/_server/actions.ts` | `updateApplicantFromIdentity()` | `@admissions/applicants/_server/actions` |
-| 19 | `identity/_server/actions.ts` | `deleteApplicantDocument()` | `@admissions/applicants/[id]/documents/_server/actions` |
-| 20 | `personal-info/_server/actions.ts` | `updateApplicant()` | `@admissions/applicants` |
-| 21 | `payment/_server/actions.ts` | `getApplicant()` | `@admissions/applicants` |
-| 22 | `payment/_server/actions.ts` | `getApplicationForPayment()` | `@admissions/applications` |
+| # | File | Cross-action call | Is it a mutation? | Action |
+|---|------|------------------|-------------------|--------|
+| 1 | `review/_server/actions.ts` | `getApplicant()` | No (query) | No change |
+| 2 | `review/_server/actions.ts` | `findApplicationsByApplicant()` | No (query) | No change |
+| 3 | `review/_server/actions.ts` | `changeApplicationStatus()` | **Yes (mutation)** | Add `unwrap()` |
+| 4 | `program/_server/actions.ts` | `getEligibleProgramsForApplicant()` | No (query) | No change |
+| 5 | `program/_server/actions.ts` | `findApplicationsByApplicant()` | No (query) | No change |
+| 6 | `program/_server/actions.ts` | `findActiveIntakePeriod()` | No (query) | No change |
+| 7 | `program/_server/actions.ts` | `getOpenProgramIds()` | No (query) | No change |
+| 8 | `qualifications/_server/actions.ts` | `getOrCreateApplicantForCurrentUser()` | **Yes (mutation)** | Add `unwrap()` |
+| 9 | `qualifications/_server/actions.ts` | `findCertificateTypeByName()` | No (query) | No change |
+| 10 | `qualifications/_server/actions.ts` | `getApplication()` | No (query) | No change |
+| 11 | `qualifications/_server/actions.ts` | `getStudentByUserId()` | No (query) | No change |
+| 12 | `qualifications/_server/actions.ts` | `createAcademicRecord()` | **Yes (mutation)** | Add `unwrap()` |
+| 13 | `qualifications/_server/actions.ts` | `createAcademicRecordFromDocument()` | **Yes (mutation)** | Add `unwrap()` |
+| 14 | `qualifications/_server/actions.ts` | `deleteAcademicRecord()` | **Yes (mutation)** | Add `unwrap()` |
+| 15 | `identity/_server/actions.ts` | `getApplicant()` | No (query) | No change |
+| 16 | `identity/_server/actions.ts` | `findDocumentsByType()` | No (query) | No change |
+| 17 | `identity/_server/actions.ts` | `saveApplicantDocument()` | **Yes (mutation)** | Add `unwrap()` |
+| 18 | `identity/_server/actions.ts` | `updateApplicantFromIdentity()` | **Yes (mutation)** | Add `unwrap()` |
+| 19 | `identity/_server/actions.ts` | `deleteApplicantDocument()` | **Yes (mutation)** | Add `unwrap()` |
+| 20 | `personal-info/_server/actions.ts` | `updateApplicant()` | **Yes (mutation)** | Add `unwrap()` |
+| 21 | `payment/_server/actions.ts` | `getApplicant()` | No (query) | No change |
+| 22 | `payment/_server/actions.ts` | `getApplicationForPayment()` | No (query) | No change |
 
 ### Cross-Action Calls in Reports
 
-| # | File | Cross-action call | Import source |
-|---|------|------------------|---------------|
-| 23 | `reports/registry/student-enrollments/enrollments/_server/actions.ts` | `getAllSponsors()` | `@finance/sponsors/_server/actions` |
-| 24 | `reports/registry/graduations/student-graduations/_server/actions.ts` | `getAllSponsors()` | `@finance/sponsors/_server/actions` |
+| # | File | Cross-action call | Is it a mutation? | Action |
+|---|------|------------------|-------------------|--------|
+| 23 | `reports/registry/.../enrollments/_server/actions.ts` | `getAllSponsors()` | No (query) | No change |
+| 24 | `reports/registry/.../student-graduations/_server/actions.ts` | `getAllSponsors()` | No (query) | No change |
+
+**Summary**: ~10 cross-action calls need `unwrap()` (mutations only). The remaining ~14 are queries and need no changes.
 
 ---
 
@@ -202,16 +175,15 @@ The `apply/` wizard has the most cross-action calls in the codebase (~30+). Wrap
 pnpm tsc --noEmit
 ```
 
-After this plan, **all action files across the entire codebase should be wrapped**. Combined with Plans 003-007.
+After this plan, **all mutation actions across the entire codebase should be wrapped**. Query actions remain as plain functions. Combined with Plans 003-007.
 
 ## Done When
 
-- [ ] All 17 action files import and use `createAction`
-- [ ] Apply module no longer manually wraps with `success()`/`failure()` + `try/catch`
+- [ ] All 6 apply action files use `createAction` (replacing manual try/catch)
+- [ ] Report action files (8) left completely untouched (query-only)
 - [ ] `src/app/apply/_lib/errors.ts` is **deleted**; all apply imports updated to shared paths
-- [ ] All RSC pages with direct `await` calls use `unwrap()`
-- [ ] All ListLayout callers verified/updated
+- [ ] All query actions remain as plain `async function` exports
 - [ ] All direct `useMutation` callers switched to `useActionMutation`
-- [ ] All cross-action calls wrapped with `unwrap()` (~24 call sites)
+- [ ] All mutation→mutation cross-action calls wrapped with `unwrap()` (~10 call sites)
 - [ ] `pnpm tsc --noEmit` passes
-- [ ] **All modules fully migrated; entire codebase uses new pattern**
+- [ ] **All modules’ mutations wrapped; queries/pages/layouts untouched**
