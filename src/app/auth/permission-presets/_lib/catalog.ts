@@ -31,7 +31,6 @@ function mergeGrants(
 	return grants.flat();
 }
 
-
 const fullCrud = ['read', 'create', 'update', 'delete'] as const;
 
 export const PERMISSION_RESOURCE_GROUPS: readonly PermissionResourceGroup[] = [
@@ -248,6 +247,7 @@ export const PERMISSION_PRESET_SEEDS: readonly PermissionPresetSeed[] = [
 		description: '',
 		permissions: mergeGrants(
 			grant('students', ['read', 'update', 'delete']),
+			grant('sponsors', fullCrud),
 			grant('registration', fullCrud),
 			grant('registration-clearance', ['read']),
 			grant('documents', ['read', 'create']),
@@ -273,6 +273,7 @@ export const PERMISSION_PRESET_SEEDS: readonly PermissionPresetSeed[] = [
 		description: '',
 		permissions: mergeGrants(
 			grant('students', ['read', 'update', 'delete']),
+			grant('sponsors', fullCrud),
 			grant('registration', fullCrud),
 			grant('registration-clearance', ['read']),
 			grant('documents', ['read', 'create']),

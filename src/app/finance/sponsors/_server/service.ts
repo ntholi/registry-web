@@ -1,8 +1,6 @@
-import type { Session } from '@/core/auth';
 import {
 	hasOwnedStudentSession,
 	hasPermission,
-	hasSessionRole,
 } from '@/core/auth/sessionPermissions';
 import type { sponsors } from '@/core/database';
 import type { QueryOptions } from '@/core/platform/BaseRepository';
@@ -15,39 +13,22 @@ type Sponsor = typeof sponsors.$inferInsert;
 class SponsorService {
 	constructor(private readonly repository = new SponsorRepository()) {}
 
-	private canRead(session: Session | null | undefined) {
-		return (
-			hasPermission(session, 'sponsors', 'read') ||
-			session?.user?.role === 'registry'
-		);
-	}
-
-	private canUpdate(session: Session | null | undefined) {
-		return (
-			hasPermission(session, 'sponsors', 'update') ||
-			session?.user?.role === 'registry'
-		);
-	}
-
 	async get(id: number) {
-		return withPermission(
-			async () => this.repository.findById(id),
-			async (session) => this.canRead(session)
-		);
+		return withPermission(async () => this.repository.findById(id), {
+			sponsors: ['read'],
+		});
 	}
 
 	async findAll(params: QueryOptions<typeof sponsors>) {
-		return withPermission(
-			async () => this.repository.query(params),
-			async (session) => this.canRead(session)
-		);
+		return withPermission(async () => this.repository.query(params), {
+			sponsors: ['read'],
+		});
 	}
 
 	async getAll() {
-		return withPermission(
-			async () => this.repository.findAll(),
-			async (session) => this.canRead(session)
-		);
+		return withPermission(async () => this.repository.findAll(), {
+			sponsors: ['read'],
+		});
 	}
 
 	async create(data: Sponsor) {
@@ -58,7 +39,7 @@ class SponsorService {
 					role: session!.user!.role!,
 					activityType: 'sponsor_created',
 				}),
-			async (session) => hasPermission(session, 'sponsors', 'create')
+			{ sponsors: ['create'] }
 		);
 	}
 
@@ -70,7 +51,7 @@ class SponsorService {
 					role: session!.user!.role!,
 					activityType: 'sponsor_updated',
 				}),
-			async (session) => this.canUpdate(session)
+			{ sponsors: ['update'] }
 		);
 	}
 
@@ -82,7 +63,7 @@ class SponsorService {
 					role: session!.user!.role!,
 					activityType: 'sponsor_deleted',
 				}),
-			async (session) => hasPermission(session, 'sponsors', 'delete')
+			{ sponsors: ['delete'] }
 		);
 	}
 
@@ -90,7 +71,8 @@ class SponsorService {
 		return withPermission(
 			async () => this.repository.findSponsoredStudent(stdNo, termId),
 			async (session) =>
-				this.canRead(session) || hasOwnedStudentSession(session, stdNo)
+				hasPermission(session, 'sponsors', 'read') ||
+				hasOwnedStudentSession(session, stdNo)
 		);
 	}
 
@@ -98,7 +80,8 @@ class SponsorService {
 		return withPermission(
 			async () => this.repository.findCurrentSponsoredStudent(stdNo),
 			async (session) =>
-				this.canRead(session) || hasOwnedStudentSession(session, stdNo)
+				hasPermission(session, 'sponsors', 'read') ||
+				hasOwnedStudentSession(session, stdNo)
 		);
 	}
 
@@ -113,7 +96,7 @@ class SponsorService {
 		return withPermission(
 			async () => this.repository.upsertSponsoredStudent(data),
 			async (session) => {
-				if (this.canUpdate(session)) {
+				if (hasPermission(session, 'sponsors', 'update')) {
 					return true;
 				}
 
@@ -129,7 +112,7 @@ class SponsorService {
 		return withPermission(
 			async () =>
 				this.repository.findSponsoredStudentsBySponsor(sponsorId, params),
-			async (session) => this.canRead(session)
+			{ sponsors: ['read'] }
 		);
 	}
 
@@ -144,7 +127,7 @@ class SponsorService {
 	}) {
 		return withPermission(
 			async () => this.repository.findAllSponsoredStudents(params),
-			async (session) => this.canRead(session)
+			{ sponsors: ['read'] }
 		);
 	}
 
@@ -155,7 +138,7 @@ class SponsorService {
 	}) {
 		return withPermission(
 			async () => this.repository.updateAccountDetails(data),
-			async (session) => this.canUpdate(session)
+			{ sponsors: ['update'] }
 		);
 	}
 
@@ -169,15 +152,16 @@ class SponsorService {
 	) {
 		return withPermission(
 			async () => this.repository.bulkUpdateAccountDetails(items, batchSize),
-			async (session) => this.canUpdate(session)
+			{ sponsors: ['update'] }
 		);
 	}
 
 	async getStudentSponsors(stdNo: number) {
 		return withPermission(
 			async () => this.repository.findStudentSponsors(stdNo),
-			async (session) =>
-				this.canRead(session) || hasSessionRole(session, ['student_services'])
+			{
+				sponsors: ['read'],
+			}
 		);
 	}
 
@@ -196,7 +180,7 @@ class SponsorService {
 					activityType: 'sponsorship_assigned',
 					stdNo: data.stdNo,
 				}),
-			async (session) => this.canUpdate(session)
+			{ sponsors: ['update'] }
 		);
 	}
 
@@ -216,15 +200,16 @@ class SponsorService {
 					role: session!.user!.role!,
 					activityType: 'sponsorship_updated',
 				}),
-			async (session) => this.canUpdate(session)
+			{ sponsors: ['update'] }
 		);
 	}
 
 	async getSponsoredStudentById(id: number) {
 		return withPermission(
 			async () => this.repository.findSponsoredStudentById(id),
-			async (session) =>
-				this.canRead(session) || hasSessionRole(session, ['student_services'])
+			{
+				sponsors: ['read'],
+			}
 		);
 	}
 }

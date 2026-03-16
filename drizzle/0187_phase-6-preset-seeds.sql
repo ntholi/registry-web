@@ -207,6 +207,10 @@ VALUES
   ('VxgH_gf4DzF9aVyw2bDSs', 'Registry Staff', 'students', 'read'),
   ('gJDo2hzVPGoou7kkpvuco', 'Registry Staff', 'students', 'update'),
   ('dX63ALrQW2Rs9rASRNsfj', 'Registry Staff', 'students', 'delete'),
+  ('15V36JM2PS16DNx9Lr2Uz', 'Registry Staff', 'sponsors', 'read'),
+  ('26W47KN3QT27EOy0Ms3Va', 'Registry Staff', 'sponsors', 'create'),
+  ('37X58LO4RU38FPz1Nt4Wb', 'Registry Staff', 'sponsors', 'update'),
+  ('48Y69MP5SV49GQa2Ou5Xc', 'Registry Staff', 'sponsors', 'delete'),
   ('5ag-iH2qyBWz7Vnd-Nmtq', 'Registry Staff', 'registration', 'read'),
   ('F4f7Igxi0txmSgSRGbBnB', 'Registry Staff', 'registration', 'create'),
   ('iRWltBusSCFIn7egVXbct', 'Registry Staff', 'registration', 'update'),
@@ -249,6 +253,10 @@ VALUES
   ('n62C2vmGQLlwwK17BI7hf', 'Registry Manager', 'students', 'read'),
   ('O62v3Db2Mt4OFQw3a8Dva', 'Registry Manager', 'students', 'update'),
   ('qpLAwoAiL13IDrJVIlNaD', 'Registry Manager', 'students', 'delete'),
+  ('59Z70NQ6TW50HRb3Pv6Yd', 'Registry Manager', 'sponsors', 'read'),
+  ('6aA81OR7UX61ISc4Qw7Ze', 'Registry Manager', 'sponsors', 'create'),
+  ('7bB92PS8VY72JTd5Rx8Af', 'Registry Manager', 'sponsors', 'update'),
+  ('8cC03QT9WZ83KUe6Sy9Bg', 'Registry Manager', 'sponsors', 'delete'),
   ('8-YUm3_gzMGY0QxIV9jTE', 'Registry Manager', 'registration', 'read'),
   ('7G1TfaBDei4PCTzhC4cIo', 'Registry Manager', 'registration', 'create'),
   ('O_bltTGi-luMp9btFZXqv', 'Registry Manager', 'registration', 'update'),
@@ -794,6 +802,10 @@ BEGIN
 			('Registry Staff', 'students', 'read'),
 			('Registry Staff', 'students', 'update'),
 			('Registry Staff', 'students', 'delete'),
+      ('Registry Staff', 'sponsors', 'read'),
+      ('Registry Staff', 'sponsors', 'create'),
+      ('Registry Staff', 'sponsors', 'update'),
+      ('Registry Staff', 'sponsors', 'delete'),
 			('Registry Staff', 'registration', 'read'),
 			('Registry Staff', 'registration', 'create'),
 			('Registry Staff', 'registration', 'update'),
@@ -836,6 +848,10 @@ BEGIN
 			('Registry Manager', 'students', 'read'),
 			('Registry Manager', 'students', 'update'),
 			('Registry Manager', 'students', 'delete'),
+      ('Registry Manager', 'sponsors', 'read'),
+      ('Registry Manager', 'sponsors', 'create'),
+      ('Registry Manager', 'sponsors', 'update'),
+      ('Registry Manager', 'sponsors', 'delete'),
 			('Registry Manager', 'registration', 'read'),
 			('Registry Manager', 'registration', 'create'),
 			('Registry Manager', 'registration', 'update'),
@@ -1059,9 +1075,9 @@ BEGIN
 		ON expected.preset_name = preset.name
 		AND expected.resource = permission.resource
 		AND expected.action = permission.action;
-  IF v_seeded_permission_count != 435 THEN
+  IF v_seeded_permission_count != 443 THEN
 		RAISE EXCEPTION 'ABORT: expected % seeded preset permissions but found %',
-      435, v_seeded_permission_count;
+      443, v_seeded_permission_count;
 	END IF;
 
 	SELECT count(*) INTO v_unmapped_count
