@@ -2,11 +2,13 @@
 
 import { PERMISSION_RESOURCE_GROUPS } from '@auth/permission-presets/_lib/catalog';
 import {
+	Accordion,
 	ActionIcon,
 	Badge,
 	Box,
 	Button,
 	Card,
+	Divider,
 	Group,
 	Paper,
 	Stack,
@@ -326,14 +328,9 @@ export default function PermissionMatrix({
 	}
 
 	return (
-		<Stack gap='sm'>
+		<Stack gap='xs'>
 			<Group justify='space-between' align='center'>
-				<Group gap='xs'>
-					<Text fw={500}>Permissions</Text>
-					<Badge radius='sm' variant='light'>
-						{current.length}
-					</Badge>
-				</Group>
+				<Text fw={500}>Permissions</Text>
 				{editable ? (
 					<Group gap='xs'>
 						{defaultPermissions ? (
@@ -383,37 +380,37 @@ export default function PermissionMatrix({
 					leftSection={<IconSearch size={16} />}
 				/>
 			) : null}
+			<Divider />
 			<Stack gap='md'>
 				{groups.length > 0 ? (
-					groups.map((group) => (
-						<Paper key={group.label} withBorder radius='md' p='md'>
-							<Stack gap='sm'>
-								<Group justify='space-between' align='center'>
+					<Accordion variant='separated' multiple defaultValue={[]}>
+						{groups.map((group) => (
+							<Accordion.Item key={group.label} value={group.label}>
+								<Accordion.Control>
 									<Text fw={600} size='sm'>
 										{group.label}
 									</Text>
-									<Badge radius='sm' variant='default'>
-										{group.items.length}
-									</Badge>
-								</Group>
-								<Stack gap='xs'>
-									{group.items.map((item) => (
-										<ResourcePermissionCard
-											key={item.resource}
-											item={item}
-											readOnly={!editable}
-											onEdit={openEditModal}
-											onDelete={(resource) =>
-												onChange?.(
-													current.filter((p) => p.resource !== resource)
-												)
-											}
-										/>
-									))}
-								</Stack>
-							</Stack>
-						</Paper>
-					))
+								</Accordion.Control>
+								<Accordion.Panel>
+									<Stack gap='xs'>
+										{group.items.map((item) => (
+											<ResourcePermissionCard
+												key={item.resource}
+												item={item}
+												readOnly={!editable}
+												onEdit={openEditModal}
+												onDelete={(resource) =>
+													onChange?.(
+														current.filter((p) => p.resource !== resource)
+													)
+												}
+											/>
+										))}
+									</Stack>
+								</Accordion.Panel>
+							</Accordion.Item>
+						))}
+					</Accordion>
 				) : (
 					<Paper withBorder radius='md' p='lg'>
 						<Stack gap='xs' align='center'>
