@@ -14,6 +14,8 @@ import {
 	ThemeIcon,
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
+import { modals } from '@mantine/modals';
+import { notifications } from '@mantine/notifications';
 import {
 	IconCheck,
 	IconPencil,
@@ -319,10 +321,24 @@ export default function PermissionMatrix({
 							<Button
 								leftSection={<IconRefresh size={14} />}
 								onClick={() =>
-									onChange?.(sanitizePermissions([...defaultPermissions]))
+									modals.openConfirmModal({
+										title: 'Reset to Default',
+										children:
+											'This will replace all current permissions with the preset defaults. This cannot be undone.',
+										labels: { confirm: 'Reset', cancel: 'Cancel' },
+										confirmProps: { color: 'orange' },
+										onConfirm: () => {
+											onChange?.(sanitizePermissions([...defaultPermissions]));
+											notifications.show({
+												title: 'Permissions Reset',
+												message: 'Permissions have been reset to defaults.',
+												color: 'teal',
+											});
+										},
+									})
 								}
-								variant='light'
-								color='cyan'
+								variant='subtle'
+								color='orange'
 								size='xs'
 							>
 								Reset to Default
