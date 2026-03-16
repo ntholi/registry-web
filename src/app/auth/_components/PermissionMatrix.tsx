@@ -4,7 +4,6 @@ import { PERMISSION_RESOURCE_GROUPS } from '@auth/permission-presets/_lib/catalo
 import {
 	Accordion,
 	ActionIcon,
-	Badge,
 	Box,
 	Button,
 	Card,

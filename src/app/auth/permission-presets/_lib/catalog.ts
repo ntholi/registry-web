@@ -31,8 +31,8 @@ function mergeGrants(
 	return grants.flat();
 }
 
+
 const fullCrud = ['read', 'create', 'update', 'delete'] as const;
-const taskCrud = ['read', 'create', 'update', 'delete'] as const;
 
 export const PERMISSION_RESOURCE_GROUPS: readonly PermissionResourceGroup[] = [
 	{
@@ -139,7 +139,7 @@ export const PERMISSION_PRESET_SEEDS: readonly PermissionPresetSeed[] = [
 			grant('graduation-clearance', ['read', 'approve', 'reject']),
 			grant('student-statuses', ['approve']),
 			grant('activity-tracker', ['read']),
-			grant('tasks', taskCrud),
+			grant('tasks', fullCrud),
 			grant('gradebook', ['read', 'update', 'approve']),
 			grant('attendance', fullCrud),
 			grant('assigned-modules', ['read', 'create', 'delete']),
@@ -168,6 +168,7 @@ export const PERMISSION_PRESET_SEEDS: readonly PermissionPresetSeed[] = [
 			grant('gradebook', ['read', 'update', 'approve']),
 			grant('attendance', ['read']),
 			grant('assigned-modules', ['read', 'create', 'delete']),
+			grant('tasks', fullCrud),
 			grant('reports-attendance', ['read']),
 			grant('reports-course-summary', ['read']),
 			grant('reports-boe', ['read']),
@@ -188,6 +189,7 @@ export const PERMISSION_PRESET_SEEDS: readonly PermissionPresetSeed[] = [
 			grant('students', ['read']),
 			grant('timetable', ['read']),
 			grant('attendance', ['read']),
+			grant('tasks', fullCrud),
 			grant('reports-attendance', ['read']),
 			grant('reports-enrollments', ['read']),
 			grant('reports-progression', ['read']),
@@ -205,6 +207,7 @@ export const PERMISSION_PRESET_SEEDS: readonly PermissionPresetSeed[] = [
 			grant('timetable', ['read']),
 			grant('attendance', ['read', 'create', 'update']),
 			grant('assigned-modules', ['read']),
+			grant('tasks', fullCrud),
 			grant('reports-attendance', ['read']),
 			grant('reports-course-summary', ['read'])
 		),
@@ -220,6 +223,7 @@ export const PERMISSION_PRESET_SEEDS: readonly PermissionPresetSeed[] = [
 			grant('timetable', ['read']),
 			grant('attendance', ['read', 'create', 'update']),
 			grant('assigned-modules', ['read']),
+			grant('tasks', fullCrud),
 			grant('reports-attendance', ['read']),
 			grant('reports-course-summary', ['read'])
 		),
@@ -234,6 +238,7 @@ export const PERMISSION_PRESET_SEEDS: readonly PermissionPresetSeed[] = [
 			grant('feedback-categories', fullCrud),
 			grant('feedback-cycles', fullCrud),
 			grant('timetable', ['read']),
+			grant('tasks', fullCrud),
 			grant('attendance', ['read'])
 		),
 	},
@@ -253,6 +258,7 @@ export const PERMISSION_PRESET_SEEDS: readonly PermissionPresetSeed[] = [
 			grant('semester-modules', ['create', 'update']),
 			grant('venues', ['create', 'update', 'delete']),
 			grant('graduation', ['read']),
+			grant('tasks', fullCrud),
 			grant('student-notes', fullCrud),
 			grant('blocked-students', ['read', 'create', 'update']),
 			grant('reports-enrollments', ['read']),
@@ -278,7 +284,7 @@ export const PERMISSION_PRESET_SEEDS: readonly PermissionPresetSeed[] = [
 			grant('venues', ['create', 'update', 'delete']),
 			grant('graduation', ['read']),
 			grant('activity-tracker', ['read']),
-			grant('tasks', taskCrud),
+			grant('tasks', fullCrud),
 			grant('school-structures', ['update']),
 			grant('student-notes', fullCrud),
 			grant('blocked-students', fullCrud),
@@ -303,6 +309,7 @@ export const PERMISSION_PRESET_SEEDS: readonly PermissionPresetSeed[] = [
 			grant('registration-clearance', ['read', 'approve', 'reject']),
 			grant('graduation-clearance', ['read', 'approve', 'reject']),
 			grant('blocked-students', ['read', 'create', 'update']),
+			grant('tasks', fullCrud),
 			grant('reports-enrollments', ['read']),
 			grant('reports-progression', ['read']),
 			grant('reports-distribution', ['read']),
@@ -325,7 +332,7 @@ export const PERMISSION_PRESET_SEEDS: readonly PermissionPresetSeed[] = [
 			grant('blocked-students', fullCrud),
 			grant('auto-approvals', fullCrud),
 			grant('activity-tracker', ['read']),
-			grant('tasks', taskCrud),
+			grant('tasks', fullCrud),
 			grant('reports-enrollments', ['read']),
 			grant('reports-progression', ['read']),
 			grant('reports-distribution', ['read']),
@@ -343,6 +350,7 @@ export const PERMISSION_PRESET_SEEDS: readonly PermissionPresetSeed[] = [
 			grant('registration-clearance', ['read', 'approve', 'reject']),
 			grant('graduation-clearance', ['read', 'approve', 'reject']),
 			grant('blocked-students', ['read', 'create', 'update']),
+			grant('tasks', fullCrud),
 			grant('auto-approvals', fullCrud)
 		),
 	},
@@ -359,6 +367,7 @@ export const PERMISSION_PRESET_SEEDS: readonly PermissionPresetSeed[] = [
 			grant('recognized-schools', fullCrud),
 			grant('intake-periods', fullCrud),
 			grant('certificate-types', fullCrud),
+			grant('tasks', fullCrud),
 			grant('subjects', fullCrud)
 		),
 	},
@@ -371,6 +380,7 @@ export const PERMISSION_PRESET_SEEDS: readonly PermissionPresetSeed[] = [
 			grant('registration', ['read', 'update']),
 			grant('documents', ['read', 'create']),
 			grant('student-statuses', ['read', 'create', 'update', 'approve']),
+			grant('tasks', fullCrud),
 			grant('student-notes', fullCrud)
 		),
 	},
@@ -385,6 +395,7 @@ export const PERMISSION_PRESET_SEEDS: readonly PermissionPresetSeed[] = [
 			grant('students', ['read']),
 			grant('attendance', ['read', 'create', 'update']),
 			grant('assigned-modules', ['read']),
+			grant('tasks', fullCrud),
 			grant('reports-attendance', ['read']),
 			grant('reports-enrollments', ['read']),
 			grant('reports-progression', ['read']),
@@ -397,6 +408,7 @@ export const PERMISSION_PRESET_SEEDS: readonly PermissionPresetSeed[] = [
 		description: '',
 		permissions: mergeGrants(
 			grant('feedback-reports', ['read']),
+			grant('tasks', fullCrud),
 			grant('employees', fullCrud)
 		),
 	},
@@ -408,6 +420,7 @@ export const PERMISSION_PRESET_SEEDS: readonly PermissionPresetSeed[] = [
 			grant('timetable', ['read']),
 			grant('venues', ['read']),
 			grant('registration-clearance', ['read', 'approve', 'reject']),
+			grant('tasks', fullCrud),
 			grant('auto-approvals', fullCrud)
 		),
 	},
