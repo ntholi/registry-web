@@ -23,7 +23,6 @@ import {
 	IconPlus,
 	IconRefresh,
 	IconSearch,
-	IconTrash,
 	IconX,
 } from '@tabler/icons-react';
 import { useState } from 'react';
@@ -35,6 +34,7 @@ import {
 	type Resource,
 } from '@/core/auth/permissions';
 import { toTitleCase } from '@/shared/lib/utils/utils';
+import { DeleteButton } from '@/shared/ui/adease';
 import PermissionResourceModal, {
 	type PermissionResourceOptionGroup,
 } from './PermissionResourceModal';
@@ -269,23 +269,18 @@ function ResourcePermissionCard({
 							>
 								<IconPencil size={14} />
 							</ActionIcon>
-							<ActionIcon
-								variant='subtle'
+							<DeleteButton
+								handleDelete={async () => {
+									onDelete(item.resource);
+								}}
+								itemType='resource'
+								itemName={toTitleCase(item.resource)}
+								message={`All ${item.actions.length} permission(s) will be removed.`}
+								typedConfirmation={false}
+								onSuccess={() => undefined}
 								size='sm'
-								color='red'
-								onClick={() =>
-									modals.openConfirmModal({
-										title: `Remove ${toTitleCase(item.resource)}`,
-										children: `All ${item.actions.length} permission(s) for "${toTitleCase(item.resource)}" will be removed.`,
-										labels: { confirm: 'Remove', cancel: 'Cancel' },
-										confirmProps: { color: 'red' },
-										onConfirm: () => onDelete(item.resource),
-									})
-								}
-								aria-label={`Remove ${toTitleCase(item.resource)}`}
-							>
-								<IconTrash size={14} />
-							</ActionIcon>
+								variant='subtle'
+							/>
 						</Group>
 					) : null}
 				</Group>
@@ -362,7 +357,7 @@ export default function PermissionMatrix({
 									})
 								}
 								variant='subtle'
-								color='orange'
+								color='teal'
 								size='xs'
 							>
 								Reset to Default
