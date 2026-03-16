@@ -46,9 +46,7 @@ export default function BlockedStudentDetails() {
 				title={blockedStudent.student.name}
 				queryKey={['blocked-students']}
 				editPermission={{ 'blocked-students': ['update'] }}
-				handleDelete={async () => {
-					await deleteBlockedStudent(id);
-				}}
+				handleDelete={async () => deleteBlockedStudent(id)}
 			/>
 			<DetailsViewBody>
 				<Stack gap='lg'>

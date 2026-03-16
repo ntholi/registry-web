@@ -13,8 +13,9 @@ import {
 } from '@mantine/core';
 import { modals } from '@mantine/modals';
 import { notifications } from '@mantine/notifications';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
+import { useActionMutation } from '@/shared/lib/actions/use-action-mutation';
 import { updateResultsPublishedWithNotification } from '../_server/actions';
 
 interface Props {
@@ -36,32 +37,34 @@ export default function PublishResultsButton({
 }: Props) {
 	const queryClient = useQueryClient();
 
-	const mutation = useMutation({
-		mutationFn: (params: { publish: boolean; options: PublishOptions }) =>
+	const mutation = useActionMutation(
+		(params: { publish: boolean; options: PublishOptions }) =>
 			updateResultsPublishedWithNotification(
 				termId,
 				params.publish,
 				termCode,
 				params.options
 			),
-		onSuccess: () => {
-			notifications.show({
-				title: 'Success',
-				message: isPublished
-					? 'Results have been unpublished'
-					: 'Results have been published successfully',
-				color: 'green',
-			});
-			queryClient.invalidateQueries({ queryKey: ['term-settings', termId] });
-		},
-		onError: (error: Error) => {
-			notifications.show({
-				title: 'Error',
-				message: error.message,
-				color: 'red',
-			});
-		},
-	});
+		{
+			onSuccess: () => {
+				notifications.show({
+					title: 'Success',
+					message: isPublished
+						? 'Results have been unpublished'
+						: 'Results have been published successfully',
+					color: 'green',
+				});
+				queryClient.invalidateQueries({ queryKey: ['term-settings', termId] });
+			},
+			onError: (error: Error) => {
+				notifications.show({
+					title: 'Error',
+					message: error.message,
+					color: 'red',
+				});
+			},
+		}
+	);
 
 	const openModal = () => {
 		modals.open({

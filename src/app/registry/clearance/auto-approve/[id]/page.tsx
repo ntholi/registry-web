@@ -28,7 +28,7 @@ export default async function AutoApprovalDetails({ params }: Props) {
 				editPermission={{ 'auto-approvals': ['update'] }}
 				handleDelete={async () => {
 					'use server';
-					await deleteAutoApproval(rule.id);
+					return deleteAutoApproval(rule.id);
 				}}
 			/>
 			<DetailsViewBody>

@@ -20,6 +20,7 @@ import {
 	IconVideo,
 } from '@tabler/icons-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { unwrap } from '@/shared/lib/actions/actionResult';
 import PhotoInputModal from '@/shared/ui/PhotoInputModal';
 import { uploadStudentPhoto } from '../../_server/actions';
 
@@ -58,7 +59,7 @@ export default function PhotoSelection({
 				type: 'image/jpeg',
 			});
 
-			await uploadStudentPhoto(studentNumber, photoFile);
+			unwrap(await uploadStudentPhoto(studentNumber, photoFile));
 
 			const preview = URL.createObjectURL(croppedImageBlob);
 			onPhotoChange(photoFile, preview);
@@ -80,7 +81,7 @@ export default function PhotoSelection({
 				{ type: capturedFile.type || 'image/jpeg' }
 			);
 
-			await uploadStudentPhoto(studentNumber, photoFile);
+			unwrap(await uploadStudentPhoto(studentNumber, photoFile));
 			onPhotoChange(photoFile, preview);
 		} catch (error) {
 			console.error('Error uploading photo:', error);

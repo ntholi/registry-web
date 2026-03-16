@@ -3,7 +3,8 @@
 import { Button, Stack, Text } from '@mantine/core';
 import { modals } from '@mantine/modals';
 import { notifications } from '@mantine/notifications';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
+import { useActionMutation } from '@/shared/lib/actions/use-action-mutation';
 import { moveRejectedToBlocked } from '../_server/actions';
 
 interface Props {
@@ -14,8 +15,7 @@ interface Props {
 export default function MoveRejectedButton({ termId, termCode }: Props) {
 	const queryClient = useQueryClient();
 
-	const mutation = useMutation({
-		mutationFn: () => moveRejectedToBlocked(termId),
+	const mutation = useActionMutation(() => moveRejectedToBlocked(termId), {
 		onSuccess: (result) => {
 			notifications.show({
 				title: 'Success',

@@ -55,9 +55,7 @@ export default function StatusHeader({ title, type, status, id }: Props) {
 					<Badge variant='light'>{getTypeLabel(type)}</Badge>
 					{canDelete && (
 						<DeleteButton
-							handleDelete={async () => {
-								await cancelStudentStatus(id);
-							}}
+							handleDelete={async () => cancelStudentStatus(id)}
 							queryKey={['student-statuses']}
 						/>
 					)}

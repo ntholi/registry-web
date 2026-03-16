@@ -29,7 +29,7 @@ export default async function GraduationDetails({ params }: Props) {
 				queryKey={['graduations']}
 				handleDelete={async () => {
 					'use server';
-					await deleteGraduation(graduation.id);
+					return deleteGraduation(graduation.id);
 				}}
 			/>
 			<DetailsViewBody>

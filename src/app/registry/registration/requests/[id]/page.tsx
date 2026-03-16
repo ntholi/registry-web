@@ -75,7 +75,7 @@ export default async function RegistrationRequestDetails({
 				typedConfirmation={false}
 				handleDelete={async () => {
 					'use server';
-					await deleteRegistrationRequest(Number(id));
+					return deleteRegistrationRequest(Number(id));
 				}}
 			/>
 			<Tabs defaultValue={defaultTab || 'details'} variant='outline'>

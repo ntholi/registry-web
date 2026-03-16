@@ -4,6 +4,7 @@ import { DateInput } from '@mantine/dates';
 import { graduationDates } from '@registry/_database';
 import { createInsertSchema } from 'drizzle-zod';
 import { useRouter } from 'nextjs-toploader/app';
+import type { ActionResult } from '@/shared/lib/actions/actionResult';
 import { formatDateToISO, parseDate } from '@/shared/lib/utils/dates';
 import { Form } from '@/shared/ui/adease';
 import TermInput from '@/shared/ui/TermInput';
@@ -16,7 +17,9 @@ type TermOption = {
 };
 
 type Props = {
-	onSubmit: (values: Graduation) => Promise<Graduation>;
+	onSubmit: (
+		values: Graduation
+	) => Promise<Graduation | ActionResult<Graduation>>;
 	defaultValues?: Graduation;
 	terms: TermOption[];
 	title?: string;

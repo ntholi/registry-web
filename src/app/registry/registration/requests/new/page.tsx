@@ -15,6 +15,7 @@ import type {
 	StudentModuleStatus,
 	semesterModules,
 } from '@/core/database';
+import { unwrap } from '@/shared/lib/actions/actionResult';
 import { getAcademicRemarks } from '@/shared/lib/utils/grades';
 
 type Props = {
@@ -155,22 +156,24 @@ export default async function NewRegistrationRequestPage({
 				receiptType: hasRepeatModules ? 'repeat_module' : 'tuition_fee',
 			}));
 
-		const result = await createRegistration({
-			stdNo: values.stdNo,
-			modules:
-				selectedModules?.map((module) => ({
-					moduleId: module.id,
-					moduleStatus: module.status,
-				})) || [],
-			sponsorId: values.sponsorId,
-			semesterNumber: values.semesterNumber,
-			semesterStatus: values.semesterStatus,
-			termId: values.termId,
-			borrowerNo: values.borrowerNo,
-			bankName: values.bankName,
-			accountNumber: values.accountNumber,
-			receipts: receipts.length > 0 ? receipts : undefined,
-		});
+		const result = unwrap(
+			await createRegistration({
+				stdNo: values.stdNo,
+				modules:
+					selectedModules?.map((module) => ({
+						moduleId: module.id,
+						moduleStatus: module.status,
+					})) || [],
+				sponsorId: values.sponsorId,
+				semesterNumber: values.semesterNumber,
+				semesterStatus: values.semesterStatus,
+				termId: values.termId,
+				borrowerNo: values.borrowerNo,
+				bankName: values.bankName,
+				accountNumber: values.accountNumber,
+				receipts: receipts.length > 0 ? receipts : undefined,
+			})
+		);
 
 		return {
 			...values,

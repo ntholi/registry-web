@@ -27,6 +27,7 @@ import { useState } from 'react';
 import * as XLSX from 'xlsx';
 import type { DashboardRole } from '@/core/auth/permissions';
 import { authClient } from '@/core/auth-client';
+import { unwrap } from '@/shared/lib/actions/actionResult';
 import { bulkCreateBlockedStudents } from '../_server/actions';
 
 interface ParsedStudent {
@@ -104,7 +105,9 @@ export default function ImportBlockedStudentsDialog() {
 
 		setImporting(true);
 		try {
-			const res = await bulkCreateBlockedStudents(parsedData, deptToUse);
+			const res = unwrap(
+				await bulkCreateBlockedStudents(parsedData, deptToUse)
+			);
 			setResult(res);
 			queryClient.invalidateQueries({ queryKey: ['blocked-students'] });
 			notifications.show({

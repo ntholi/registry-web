@@ -6,6 +6,7 @@ import { IconAlertCircle } from '@tabler/icons-react';
 import { createInsertSchema } from 'drizzle-zod';
 import { useRouter } from 'nextjs-toploader/app';
 import { useCallback, useState } from 'react';
+import type { ActionResult } from '@/shared/lib/actions/actionResult';
 import { Form, ReceiptInput } from '@/shared/ui/adease';
 import StudentInput from '@/shared/ui/StudentInput';
 import StudentInfoCard from './StudentInfoCard';
@@ -13,7 +14,9 @@ import StudentInfoCard from './StudentInfoCard';
 type CertificateReprint = typeof certificateReprints.$inferInsert;
 
 type Props = {
-	onSubmit: (values: CertificateReprint) => Promise<{ id: string }>;
+	onSubmit: (
+		values: CertificateReprint
+	) => Promise<{ id: string } | ActionResult<{ id: string }>>;
 	defaultValues?: CertificateReprint;
 	title?: string;
 };

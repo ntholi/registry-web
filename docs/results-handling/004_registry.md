@@ -128,14 +128,14 @@ pnpm tsc --noEmit
 
 ## Done When
 
-- [ ] **Part A.0**: `termsService.getActiveOrThrow()` added
-- [ ] **Part A.0**: All 5 service files refactored from action import to service import
-- [ ] All mutation actions across 18 files wrapped with `createAction`
-- [ ] All query actions remain as plain `async function` exports
-- [ ] All direct `useMutation` callers switched to `useActionMutation`
-- [ ] `pnpm tsc --noEmit` passes
-- [ ] **Registry module mutations wrapped; queries/pages/layouts untouched**
-- [ ] All direct `useMutation` callers switched to `useActionMutation`
-- [ ] Intra-module cross-action calls wrapped with `unwrap()`; cross-module to later plans deferred
-- [ ] `pnpm tsc --noEmit` passes
-- [ ] **Registry module fully migrated; all other modules still work**
+- [x] **Part A.0**: `termsService.getActiveOrThrow()` added
+- [x] **Part A.0**: All 5 service files refactored from action import to service import
+- [x] All mutation actions across 18 files wrapped with `createAction`
+- [x] All query actions remain as plain `async function` exports
+- [x] All direct `useMutation` callers switched to `useActionMutation`
+- [x] `pnpm tsc --noEmit` passes
+- [x] **Registry module mutations wrapped; queries/pages/layouts untouched**
+- [x] All direct `useMutation` callers switched to `useActionMutation`
+- [x] Intra-module cross-action calls wrapped with `unwrap()`; cross-module to later plans deferred
+- [x] `pnpm tsc --noEmit` passes
+- [x] **Registry module fully migrated; all other modules still work**

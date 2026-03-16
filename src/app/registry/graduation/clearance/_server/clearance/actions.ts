@@ -3,6 +3,7 @@
 import { auth } from '@/core/auth';
 import type { DashboardRole } from '@/core/auth/permissions';
 import type { clearance } from '@/core/database';
+import { createAction } from '@/shared/lib/actions/actionResult';
 import { graduationClearanceService as service } from './service';
 
 type Clearance = typeof clearance.$inferInsert;
@@ -43,13 +44,11 @@ export async function graduationClearanceByStatus(
 	};
 }
 
-export async function updateGraduationClearance(
-	id: number,
-	data: Clearance,
-	stdNo?: number
-) {
-	return service.update(id, data, stdNo);
-}
+export const updateGraduationClearance = createAction(
+	async (id: number, data: Clearance, stdNo?: number) => {
+		return service.update(id, data, stdNo);
+	}
+);
 
 export async function getGraduationClearanceHistoryByStudentNo(stdNo: number) {
 	return service.getHistoryByStudentNo(stdNo);

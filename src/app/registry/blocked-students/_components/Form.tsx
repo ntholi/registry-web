@@ -5,13 +5,16 @@ import { blockedStudents } from '@registry/_database';
 import { createInsertSchema } from 'drizzle-zod';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import type { ActionResult } from '@/shared/lib/actions/actionResult';
 import { Form } from '@/shared/ui/adease';
 import StudentInput from '@/shared/ui/StudentInput';
 
 type BlockedStudent = typeof blockedStudents.$inferInsert;
 
 type Props = {
-	onSubmit: (values: BlockedStudent) => Promise<BlockedStudent>;
+	onSubmit: (
+		values: BlockedStudent
+	) => Promise<BlockedStudent | ActionResult<BlockedStudent>>;
 	defaultValues?: BlockedStudent;
 	onSuccess?: (value: BlockedStudent) => void;
 	onError?: (

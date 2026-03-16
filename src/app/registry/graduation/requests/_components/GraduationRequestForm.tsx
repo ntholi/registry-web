@@ -24,6 +24,7 @@ import { createInsertSchema } from 'drizzle-zod';
 import Link from 'next/link';
 import { useRouter } from 'nextjs-toploader/app';
 import { useCallback, useEffect, useState } from 'react';
+import type { ActionResult } from '@/shared/lib/actions/actionResult';
 import { Form } from '@/shared/ui/adease';
 import StudentInput from '@/shared/ui/StudentInput';
 import { getEligiblePrograms } from '../../clearance/_server/requests/actions';
@@ -52,7 +53,9 @@ interface SubmissionData extends GraduationRequest {
 }
 
 type Props = {
-	onSubmit: (values: SubmissionData) => Promise<SubmissionData>;
+	onSubmit: (
+		values: SubmissionData
+	) => Promise<SubmissionData | ActionResult<SubmissionData>>;
 	defaultValues?: Partial<FormValues>;
 	title?: string;
 	initialStdNo?: number;

@@ -1,6 +1,6 @@
 import type { AcademicRemarks, Student } from '@registry/students';
-import { getStudentRegistrationData } from '@registry/students/_server/actions';
-import { getActiveTerm } from '@/app/registry/terms';
+import { studentsService } from '@registry/students/_server/service';
+import { termsService } from '@registry/terms/_server/service';
 import {
 	hasAnyPermission,
 	hasPermission,
@@ -45,7 +45,7 @@ class RegistrationRequestService {
 	async countByStatus(
 		status: 'pending' | 'registered' | 'rejected' | 'approved'
 	) {
-		const term = await getActiveTerm();
+		const term = await termsService.getActiveOrThrow();
 		return withPermission(
 			async () => this.repository.countByStatus(status, term.id),
 			{ registration: ['read'] }
@@ -214,7 +214,7 @@ class RegistrationRequestService {
 	async getEligibleModulesForRequest(stdNo: number, termCode: string) {
 		return withPermission(
 			async () => {
-				const studentData = await getStudentRegistrationData(stdNo);
+				const studentData = await studentsService.getRegistrationData(stdNo);
 				if (!studentData) throw new Error('Student not found');
 				const remarks = getAcademicRemarks(studentData.programs);
 				return getStudentSemesterModulesLogic(studentData, remarks, termCode);

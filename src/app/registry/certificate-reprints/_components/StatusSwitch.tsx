@@ -3,8 +3,9 @@
 import { SegmentedControl, Stack, Text } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { certificateReprintStatus } from '@registry/_database';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
+import { useActionMutation } from '@/shared/lib/actions/use-action-mutation';
 import { updateCertificateReprint } from '../_server/actions';
 
 type Status = (typeof certificateReprintStatus.enumValues)[number];
@@ -18,26 +19,27 @@ export default function StatusSwitch({ id, status: initial }: Props) {
 	const queryClient = useQueryClient();
 	const [status, setStatus] = useState<Status>(initial);
 
-	const { mutate, isPending } = useMutation({
-		mutationFn: (next: Status) =>
-			updateCertificateReprint(id, { status: next }),
-		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: ['certificate-reprints'] });
-			notifications.show({
-				title: 'Updated',
-				message: 'Status updated successfully',
-				color: 'green',
-			});
-		},
-		onError: () => {
-			setStatus(initial);
-			notifications.show({
-				title: 'Error',
-				message: 'Failed to update status',
-				color: 'red',
-			});
-		},
-	});
+	const { mutate, isPending } = useActionMutation(
+		(next: Status) => updateCertificateReprint(id, { status: next }),
+		{
+			onSuccess: () => {
+				queryClient.invalidateQueries({ queryKey: ['certificate-reprints'] });
+				notifications.show({
+					title: 'Updated',
+					message: 'Status updated successfully',
+					color: 'green',
+				});
+			},
+			onError: () => {
+				setStatus(initial);
+				notifications.show({
+					title: 'Error',
+					message: 'Failed to update status',
+					color: 'red',
+				});
+			},
+		}
+	);
 
 	return (
 		<Stack gap={6}>

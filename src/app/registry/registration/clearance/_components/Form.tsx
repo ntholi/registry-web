@@ -4,12 +4,13 @@ import { TextInput } from '@mantine/core';
 import { clearance } from '@registry/_database';
 import { createInsertSchema } from 'drizzle-zod';
 import { useRouter } from 'nextjs-toploader/app';
+import type { ActionResult } from '@/shared/lib/actions/actionResult';
 import { Form } from '@/shared/ui/adease';
 
 type Clearance = typeof clearance.$inferInsert;
 
 type Props = {
-	onSubmit: (values: Clearance) => Promise<Clearance>;
+	onSubmit: (values: Clearance) => Promise<Clearance | ActionResult<Clearance>>;
 	status: 'pending' | 'approved' | 'rejected';
 	defaultValues?: Clearance;
 	onSuccess?: (value: Clearance) => void;

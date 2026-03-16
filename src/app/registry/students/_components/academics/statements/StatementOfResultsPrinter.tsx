@@ -11,6 +11,7 @@ import { useQuery } from '@tanstack/react-query';
 import QRCode from 'qrcode';
 import { useState } from 'react';
 import { authClient } from '@/core/auth-client';
+import { unwrap } from '@/shared/lib/actions/actionResult';
 import { getPublishedAcademicHistory } from '../../../_server/actions';
 import StatementOfResultsPDF from './StatementOfResultsPDF';
 
@@ -42,10 +43,12 @@ export default function StatementOfResultsPrinter({ stdNo, disabled }: Props) {
 
 			const printData = extractStatementOfResultsData(student);
 
-			const record = await createStatementOfResultsPrint({
-				...printData,
-				printedBy: session.user.id,
-			});
+			const record = unwrap(
+				await createStatementOfResultsPrint({
+					...printData,
+					printedBy: session.user.id,
+				})
+			);
 
 			console.log('Print record created successfully');
 			return record;

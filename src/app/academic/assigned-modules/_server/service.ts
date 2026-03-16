@@ -1,4 +1,4 @@
-import { getActiveTerm } from '@/app/registry/terms';
+import { termsService } from '@registry/terms/_server/service';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
 import { withPermission } from '@/core/platform/withPermission';
 import AssignedModuleRepository from './repository';
@@ -25,7 +25,7 @@ class AssignedModuleService {
 					userId,
 					semesterModuleIds
 				);
-				const term = await getActiveTerm();
+				const term = await termsService.getActiveOrThrow();
 				const assignments = semesterModuleIds.map((semesterModuleId) => ({
 					userId,
 					semesterModuleId,

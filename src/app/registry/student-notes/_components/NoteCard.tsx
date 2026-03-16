@@ -23,9 +23,10 @@ import {
 	IconFile,
 	IconTrash,
 } from '@tabler/icons-react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { getPublicUrl } from '@/core/integrations/storage-utils';
+import { useActionMutation } from '@/shared/lib/actions/use-action-mutation';
 import { formatRelativeTime } from '@/shared/lib/utils/dates';
 import { getInitials, VISIBILITY_CONFIG } from '../_lib/constants';
 import { deleteStudentNote } from '../_server/actions';
@@ -49,8 +50,7 @@ export default function NoteCard({
 	const [delOpen, { open: openDel, close: closeDel }] = useDisclosure(false);
 	const queryClient = useQueryClient();
 
-	const deleteMutation = useMutation({
-		mutationFn: () => deleteStudentNote(note.id),
+	const deleteMutation = useActionMutation(() => deleteStudentNote(note.id), {
 		onSuccess: async () => {
 			await queryClient.invalidateQueries({
 				queryKey: ['student-notes', stdNo],

@@ -4,6 +4,7 @@ import { Button, Group, Modal, Stack, Text } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { deleteDocument } from '@registry/documents';
 import { useState } from 'react';
+import { unwrap } from '@/shared/lib/actions/actionResult';
 
 type DeleteDocumentModalProps = {
 	opened: boolean;
@@ -29,7 +30,7 @@ export default function DeleteDocumentModal({
 		try {
 			setLoading(true);
 
-			await deleteDocument(document.id);
+			unwrap(await deleteDocument(document.id));
 
 			notifications.show({
 				title: 'Success',

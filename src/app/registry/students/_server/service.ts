@@ -1,9 +1,9 @@
+import { termsService } from '@registry/terms/_server/service';
 import {
 	resolveStudentModuleActivityType,
 	resolveStudentProgramActivityType,
 	resolveStudentSemesterActivityType,
 } from '@/app/registry/_lib/activities';
-import { getActiveTerm } from '@/app/registry/terms';
 import {
 	hasAnyPermission,
 	hasPermission,
@@ -99,7 +99,7 @@ class StudentService {
 	}
 
 	async findBySemesterModules(semesterModuleIds: number[]) {
-		const term = await getActiveTerm();
+		const term = await termsService.getActiveOrThrow();
 		return withPermission(
 			async () =>
 				this.repository.findBySemesterModules(semesterModuleIds, term.code),

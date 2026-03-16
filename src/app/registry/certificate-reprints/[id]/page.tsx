@@ -43,7 +43,7 @@ export default async function CertificateReprintDetails({ params }: Props) {
 				queryKey={['certificate-reprints']}
 				handleDelete={async () => {
 					'use server';
-					await deleteCertificateReprint(id);
+					return deleteCertificateReprint(id);
 				}}
 			/>
 			<DetailsViewBody>

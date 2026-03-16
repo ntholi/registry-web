@@ -4,6 +4,7 @@ import { notifications } from '@mantine/notifications';
 import { IconEdit, IconUpload, IconUser } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { authClient } from '@/core/auth-client';
+import { unwrap } from '@/shared/lib/actions/actionResult';
 import PhotoInputModal from '@/shared/ui/PhotoInputModal';
 import PhotoPreviewModal from '@/shared/ui/PhotoPreviewModal';
 import {
@@ -30,7 +31,7 @@ export default function PhotoView({ student }: Props) {
 				type: 'image/jpeg',
 			});
 
-			await uploadStudentPhoto(student.stdNo, photoFile);
+			unwrap(await uploadStudentPhoto(student.stdNo, photoFile));
 			await refetch();
 
 			notifications.show({

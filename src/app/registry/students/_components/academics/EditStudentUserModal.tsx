@@ -13,8 +13,9 @@ import {
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import { IconEdit } from '@tabler/icons-react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
+import { useActionMutation } from '@/shared/lib/actions/use-action-mutation';
 import UserInput from '@/shared/ui/UserInput';
 import { updateStudentUserId } from '../../_server/actions';
 
@@ -33,27 +34,27 @@ export default function EditStudentUserModal({
 	const [selectedUser, setSelectedUser] = useState<User | null>(currentUser);
 	const queryClient = useQueryClient();
 
-	const updateUserMutation = useMutation({
-		mutationFn: async (userId: string | null) => {
-			return updateStudentUserId(studentStdNo, userId);
-		},
-		onSuccess: () => {
-			notifications.show({
-				message: 'Student user updated successfully',
-				color: 'green',
-			});
-			queryClient.invalidateQueries({
-				queryKey: ['student', studentStdNo],
-			});
-			close();
-		},
-		onError: (error) => {
-			notifications.show({
-				message: `Failed to update student user: ${error.message}`,
-				color: 'red',
-			});
-		},
-	});
+	const updateUserMutation = useActionMutation(
+		(userId: string | null) => updateStudentUserId(studentStdNo, userId),
+		{
+			onSuccess: () => {
+				notifications.show({
+					message: 'Student user updated successfully',
+					color: 'green',
+				});
+				queryClient.invalidateQueries({
+					queryKey: ['student', studentStdNo],
+				});
+				close();
+			},
+			onError: (error) => {
+				notifications.show({
+					message: `Failed to update student user: ${error.message}`,
+					color: 'red',
+				});
+			},
+		}
+	);
 
 	const handleSave = () => {
 		updateUserMutation.mutate(selectedUser?.id || null);

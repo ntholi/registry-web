@@ -5,13 +5,14 @@ import { DateInput } from '@mantine/dates';
 import { terms } from '@registry/_database';
 import { createInsertSchema } from 'drizzle-zod';
 import { useRouter } from 'nextjs-toploader/app';
+import type { ActionResult } from '@/shared/lib/actions/actionResult';
 import { formatDateToISO } from '@/shared/lib/utils/dates';
 import { Form } from '@/shared/ui/adease';
 
 type Term = typeof terms.$inferInsert;
 
 type Props = {
-	onSubmit: (values: Term) => Promise<Term>;
+	onSubmit: (values: Term) => Promise<Term | ActionResult<Term>>;
 	defaultValues?: Term;
 	onSuccess?: (value: Term) => void;
 	onError?: (

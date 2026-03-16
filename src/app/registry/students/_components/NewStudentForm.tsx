@@ -41,6 +41,7 @@ import {
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'nextjs-toploader/app';
 import { useMemo, useState } from 'react';
+import { unwrap } from '@/shared/lib/actions/actionResult';
 import { useActiveTerm, useAllTerms } from '@/shared/lib/hooks/use-term';
 import { getRaceByCountry, getRaces } from '@/shared/lib/utils/countries';
 import { formatDateToISO } from '@/shared/lib/utils/dates';
@@ -259,7 +260,7 @@ export default function NewStudentForm() {
 				},
 			};
 
-			const created = await createFullStudent(input);
+			const created = unwrap(await createFullStudent(input));
 			notifications.show({
 				title: 'Success',
 				message: `Student ${created.stdNo} created successfully`,
@@ -270,7 +271,7 @@ export default function NewStudentForm() {
 		} catch (error) {
 			notifications.show({
 				title: 'Error',
-				message: `Failed to create student: ${error}`,
+				message: `Failed to create student: ${error instanceof Error ? error.message : String(error)}`,
 				color: 'red',
 			});
 		} finally {

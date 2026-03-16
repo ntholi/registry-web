@@ -33,8 +33,9 @@ import {
 	IconPlus,
 	IconTrash,
 } from '@tabler/icons-react';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
+import { useActionMutation } from '@/shared/lib/actions/use-action-mutation';
 import { formatDate } from '@/shared/lib/utils/dates';
 import {
 	deleteTermRegistration,
@@ -88,26 +89,28 @@ export default function TermRegistrationsTab({ termId }: Props) {
 		.filter((s) => !usedSchoolIds.has(s.id) || editing?.schoolId === s.id)
 		.map((s) => ({ value: String(s.id), label: s.name }));
 
-	const deleteMutation = useMutation({
-		mutationFn: (id: number) => deleteTermRegistration(id),
-		onSuccess: () => {
-			queryClient.invalidateQueries({
-				queryKey: ['term-registrations', termId],
-			});
-			notifications.show({
-				title: 'Deleted',
-				message: 'School registration removed',
-				color: 'green',
-			});
-		},
-		onError: (error: Error) => {
-			notifications.show({
-				title: 'Error',
-				message: error.message,
-				color: 'red',
-			});
-		},
-	});
+	const deleteMutation = useActionMutation(
+		(id: number) => deleteTermRegistration(id),
+		{
+			onSuccess: () => {
+				queryClient.invalidateQueries({
+					queryKey: ['term-registrations', termId],
+				});
+				notifications.show({
+					title: 'Deleted',
+					message: 'School registration removed',
+					color: 'green',
+				});
+			},
+			onError: (error: Error) => {
+				notifications.show({
+					title: 'Error',
+					message: error.message,
+					color: 'red',
+				});
+			},
+		}
+	);
 
 	const confirmDelete = (id: number, schoolName: string) => {
 		modals.openConfirmModal({
@@ -345,28 +348,29 @@ function RegistrationModal({
 		label: `${p.code} - ${p.name}`,
 	}));
 
-	const saveMutation = useMutation({
-		mutationFn: (entries: RegistrationEntry[]) =>
-			saveTermRegistrations(termId, entries),
-		onSuccess: () => {
-			queryClient.invalidateQueries({
-				queryKey: ['term-registrations', termId],
-			});
-			notifications.show({
-				title: 'Saved',
-				message: 'Registration settings updated',
-				color: 'green',
-			});
-			handleClose();
-		},
-		onError: (error: Error) => {
-			notifications.show({
-				title: 'Error',
-				message: error.message,
-				color: 'red',
-			});
-		},
-	});
+	const saveMutation = useActionMutation(
+		(entries: RegistrationEntry[]) => saveTermRegistrations(termId, entries),
+		{
+			onSuccess: () => {
+				queryClient.invalidateQueries({
+					queryKey: ['term-registrations', termId],
+				});
+				notifications.show({
+					title: 'Saved',
+					message: 'Registration settings updated',
+					color: 'green',
+				});
+				handleClose();
+			},
+			onError: (error: Error) => {
+				notifications.show({
+					title: 'Error',
+					message: error.message,
+					color: 'red',
+				});
+			},
+		}
+	);
 
 	const handleClose = () => {
 		setSchoolId(null);

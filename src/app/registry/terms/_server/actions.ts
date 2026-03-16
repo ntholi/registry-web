@@ -1,6 +1,7 @@
 'use server';
 
 import type { terms } from '@/core/database';
+import { createAction } from '@/shared/lib/actions/actionResult';
 import { termsService as service } from './service';
 
 type Term = typeof terms.$inferInsert;
@@ -10,11 +11,7 @@ export async function getTermByCode(code: string) {
 }
 
 export async function getActiveTerm() {
-	const term = await service.getActive();
-	if (!term) {
-		throw new Error('No active term');
-	}
-	return term;
+	return service.getActiveOrThrow();
 }
 
 export async function findAllTerms(page: number = 1, search = '') {
@@ -29,14 +26,14 @@ export async function getAllTerms() {
 	return service.getAll();
 }
 
-export async function createTerm(term: Term) {
+export const createTerm = createAction(async (term: Term) => {
 	return service.create(term);
-}
+});
 
-export async function updateTerm(id: number, term: Term) {
+export const updateTerm = createAction(async (id: number, term: Term) => {
 	return service.update(id, term);
-}
+});
 
-export async function deleteTerm(id: number) {
+export const deleteTerm = createAction(async (id: number) => {
 	return service.deleteTerm(id);
-}
+});

@@ -13,6 +13,7 @@ import type {
 } from '@/core/database';
 import { getPublicUrl } from '@/core/integrations/storage-utils';
 import type { QueryOptions } from '@/core/platform/BaseRepository';
+import { createAction } from '@/shared/lib/actions/actionResult';
 import { formatPersonName } from '@/shared/lib/utils/names';
 import { studentsService as service } from './service';
 
@@ -89,77 +90,91 @@ export async function findAllStudents(
 	);
 }
 
-export async function createStudent(student: Student) {
+export const createStudent = createAction(async (student: Student) => {
 	return service.create({
 		...student,
 		name: formatPersonName(student.name) ?? student.name,
 	});
-}
+});
 
-export async function updateStudent(stdNo: number, student: Student) {
-	return service.update(stdNo, {
-		...student,
-		name: formatPersonName(student.name) ?? student.name,
-	});
-}
+export const updateStudent = createAction(
+	async (stdNo: number, student: Student) => {
+		return service.update(stdNo, {
+			...student,
+			name: formatPersonName(student.name) ?? student.name,
+		});
+	}
+);
 
-export async function updateStudentWithReasons(
-	stdNo: number,
-	data: Partial<Student>,
-	reasons?: string
-) {
-	const result = await service.updateWithReasons(
-		stdNo,
-		{
-			...data,
-			name: formatPersonName(data.name) ?? data.name,
-		},
-		reasons
-	);
-	revalidatePath(`/registry/students/${stdNo}`);
-	return result;
-}
+export const updateStudentWithReasons = createAction(
+	async (stdNo: number, data: Partial<Student>, reasons?: string) => {
+		const result = await service.updateWithReasons(
+			stdNo,
+			{
+				...data,
+				name: formatPersonName(data.name) ?? data.name,
+			},
+			reasons
+		);
+		revalidatePath(`/registry/students/${stdNo}`);
+		return result;
+	}
+);
 
-export async function updateStudentProgram(
-	id: number,
-	data: Partial<typeof studentPrograms.$inferInsert>,
-	stdNo: number,
-	reasons?: string
-) {
-	const result = await service.updateStudentProgram(id, data, stdNo, reasons);
-	revalidatePath('/registry/students');
-	return result;
-}
+export const updateStudentProgram = createAction(
+	async (
+		id: number,
+		data: Partial<typeof studentPrograms.$inferInsert>,
+		stdNo: number,
+		reasons?: string
+	) => {
+		const result = await service.updateStudentProgram(id, data, stdNo, reasons);
+		revalidatePath('/registry/students');
+		return result;
+	}
+);
 
-export async function createStudentProgram(
-	data: typeof studentPrograms.$inferInsert,
-	reasons?: string
-) {
-	const result = await service.createStudentProgram(data, reasons);
-	revalidatePath('/registry/students');
-	return result;
-}
+export const createStudentProgram = createAction(
+	async (data: typeof studentPrograms.$inferInsert, reasons?: string) => {
+		const result = await service.createStudentProgram(data, reasons);
+		revalidatePath('/registry/students');
+		return result;
+	}
+);
 
-export async function updateStudentSemester(
-	id: number,
-	data: Partial<typeof studentSemesters.$inferInsert>,
-	stdNo: number,
-	reasons?: string
-) {
-	const result = await service.updateStudentSemester(id, data, stdNo, reasons);
-	revalidatePath('/registry/students');
-	return result;
-}
+export const updateStudentSemester = createAction(
+	async (
+		id: number,
+		data: Partial<typeof studentSemesters.$inferInsert>,
+		stdNo: number,
+		reasons?: string
+	) => {
+		const result = await service.updateStudentSemester(
+			id,
+			data,
+			stdNo,
+			reasons
+		);
+		revalidatePath('/registry/students');
+		return result;
+	}
+);
 
-export async function updateStudentForStatusWorkflow(
-	stdNo: number,
-	status: NonNullable<Student['status']>,
-	reasons?: string
-) {
-	const result = await service.updateForStatusWorkflow(stdNo, status, reasons);
-	revalidatePath('/registry/students');
-	return result;
-}
+export const updateStudentForStatusWorkflow = createAction(
+	async (
+		stdNo: number,
+		status: NonNullable<Student['status']>,
+		reasons?: string
+	) => {
+		const result = await service.updateForStatusWorkflow(
+			stdNo,
+			status,
+			reasons
+		);
+		revalidatePath('/registry/students');
+		return result;
+	}
+);
 
 interface StatusWorkflowSemesterInput {
 	status: NonNullable<(typeof studentSemesters.$inferInsert)['status']>;
@@ -167,30 +182,31 @@ interface StatusWorkflowSemesterInput {
 	reasons?: string;
 }
 
-export async function updateStudentSemesterForStatusWorkflow(
-	id: number,
-	data: StatusWorkflowSemesterInput
-) {
-	const result = await service.updateStudentSemesterForStatusWorkflow(
-		id,
-		data.status,
-		data.stdNo,
-		data.reasons
-	);
-	revalidatePath('/registry/students');
-	return result;
-}
+export const updateStudentSemesterForStatusWorkflow = createAction(
+	async (id: number, data: StatusWorkflowSemesterInput) => {
+		const result = await service.updateStudentSemesterForStatusWorkflow(
+			id,
+			data.status,
+			data.stdNo,
+			data.reasons
+		);
+		revalidatePath('/registry/students');
+		return result;
+	}
+);
 
-export async function updateStudentModule(
-	id: number,
-	data: Partial<typeof studentModules.$inferInsert>,
-	stdNo: number,
-	reasons?: string
-) {
-	const result = await service.updateStudentModule(id, data, stdNo, reasons);
-	revalidatePath('/registry/students');
-	return result;
-}
+export const updateStudentModule = createAction(
+	async (
+		id: number,
+		data: Partial<typeof studentModules.$inferInsert>,
+		stdNo: number,
+		reasons?: string
+	) => {
+		const result = await service.updateStudentModule(id, data, stdNo, reasons);
+		revalidatePath('/registry/students');
+		return result;
+	}
+);
 
 export async function canEditMarksAndGrades() {
 	const session = await auth();
@@ -207,42 +223,44 @@ export interface CreateFullStudentInput {
 	program: Omit<typeof studentPrograms.$inferInsert, 'stdNo'>;
 }
 
-export async function createFullStudent(input: CreateFullStudentInput) {
-	const dob = input.student.dateOfBirth;
-	const result = await service.createFull({
-		student: {
-			...input.student,
-			name: formatPersonName(input.student.name) ?? input.student.name,
-			dateOfBirth: dob ? new Date(dob) : undefined,
-		},
-		nextOfKins: input.nextOfKins,
-		program: input.program,
-	});
-	revalidatePath('/registry/students');
-	return result;
-}
+export const createFullStudent = createAction(
+	async (input: CreateFullStudentInput) => {
+		const dob = input.student.dateOfBirth;
+		const result = await service.createFull({
+			student: {
+				...input.student,
+				name: formatPersonName(input.student.name) ?? input.student.name,
+				dateOfBirth: dob ? new Date(dob) : undefined,
+			},
+			nextOfKins: input.nextOfKins,
+			program: input.program,
+		});
+		revalidatePath('/registry/students');
+		return result;
+	}
+);
 
-export async function updateStudentUserId(
-	stdNo: number,
-	userId: string | null
-) {
-	const res = service.updateUserId(stdNo, userId);
-	revalidatePath(`/dashboard/students/${stdNo}`);
-	return res;
-}
+export const updateStudentUserId = createAction(
+	async (stdNo: number, userId: string | null) => {
+		const result = await service.updateUserId(stdNo, userId);
+		revalidatePath(`/dashboard/students/${stdNo}`);
+		return result;
+	}
+);
 
-export async function saveZohoContactId(stdNo: number, zohoContactId: string) {
-	return service.saveZohoContactId(stdNo, zohoContactId);
-}
+export const saveZohoContactId = createAction(
+	async (stdNo: number, zohoContactId: string) => {
+		return service.saveZohoContactId(stdNo, zohoContactId);
+	}
+);
 
-export async function updateStudentProgramStructure(
-	stdNo: number,
-	structureId: number
-) {
-	const res = await service.updateProgramStructure(stdNo, structureId);
-	revalidatePath(`/registry/students/${stdNo}`);
-	return res;
-}
+export const updateStudentProgramStructure = createAction(
+	async (stdNo: number, structureId: number) => {
+		const result = await service.updateProgramStructure(stdNo, structureId);
+		revalidatePath(`/registry/students/${stdNo}`);
+		return result;
+	}
+);
 
 export async function getStudentPhoto(
 	studentNumber: number | undefined | null
@@ -253,11 +271,13 @@ export async function getStudentPhoto(
 	return getPublicUrl(photoKey);
 }
 
-export async function uploadStudentPhoto(stdNo: number, photo: File) {
-	const result = await service.uploadPhoto(stdNo, photo);
-	revalidatePath(`/registry/students/${stdNo}`);
-	return result;
-}
+export const uploadStudentPhoto = createAction(
+	async (stdNo: number, photo: File) => {
+		const result = await service.uploadPhoto(stdNo, photo);
+		revalidatePath(`/registry/students/${stdNo}`);
+		return result;
+	}
+);
 
 export async function getStudentFilterInfo(stdNo: number) {
 	const student = await service.get(stdNo);

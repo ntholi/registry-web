@@ -7,6 +7,7 @@ import {
 import { getLatestGraduationDate } from '@registry/graduation/dates';
 import { getStudent, getStudentRegistrationData } from '@registry/students';
 import type { graduationRequests } from '@/core/database';
+import { unwrap } from '@/shared/lib/actions/actionResult';
 import GraduationRequestForm from '../_components/GraduationRequestForm';
 
 type Props = {
@@ -74,18 +75,20 @@ export default async function NewGraduationRequestPage({
 		const { paymentReceipts, stdNo, ...graduationRequestData } = values;
 
 		if (paymentReceipts && paymentReceipts.length > 0 && stdNo) {
-			const result = await createGraduationRequestWithPaymentReceipts({
-				...graduationRequestData,
-				paymentReceipts,
-				stdNo,
-			});
+			const result = unwrap(
+				await createGraduationRequestWithPaymentReceipts({
+					...graduationRequestData,
+					paymentReceipts,
+					stdNo,
+				})
+			);
 			return {
 				...values,
 				id: result.id,
 			};
 		}
 
-		const result = await createGraduationRequest(graduationRequestData);
+		const result = unwrap(await createGraduationRequest(graduationRequestData));
 		return {
 			...values,
 			id: result.id,

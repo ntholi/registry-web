@@ -29,7 +29,7 @@ export default async function NoteDetailPage({ params }: Props) {
 				queryKey={['student-notes']}
 				handleDelete={async () => {
 					'use server';
-					await deleteStudentNote(id);
+					return deleteStudentNote(id);
 				}}
 			/>
 			<NoteDetailView note={note} />

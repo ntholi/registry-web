@@ -2,6 +2,7 @@
 
 import type { AcademicRemarks, Student } from '@registry/students';
 import type { ReceiptType, StudentModuleStatus } from '@/core/database';
+import { createAction } from '@/shared/lib/actions/actionResult';
 import { isActiveSemester } from '@/shared/lib/utils/utils';
 import { registrationRequestsService as service } from './service';
 
@@ -84,53 +85,57 @@ export async function determineSemesterStatus(
 	};
 }
 
-export async function deleteRegistrationRequest(id: number) {
+export const deleteRegistrationRequest = createAction(async (id: number) => {
 	return service.delete(id);
-}
+});
 
-export async function createRegistration(data: {
-	stdNo: number;
-	modules: { moduleId: number; moduleStatus: StudentModuleStatus }[];
-	sponsorId: number;
-	semesterNumber: string;
-	semesterStatus: 'Active' | 'Repeat';
-	termId: number;
-	borrowerNo?: string;
-	bankName?: string;
-	accountNumber?: string;
-	receipts?: { receiptNo: string; receiptType: ReceiptType }[];
-}) {
-	return service.createWithModules(data);
-}
-
-export async function updateRegistration(
-	registrationRequestId: number,
-	modules: {
-		id: number;
-		status: StudentModuleStatus;
-		receiptNumber?: string;
-	}[],
-	sponsorshipData?: {
+export const createRegistration = createAction(
+	async (data: {
+		stdNo: number;
+		modules: { moduleId: number; moduleStatus: StudentModuleStatus }[];
 		sponsorId: number;
+		semesterNumber: string;
+		semesterStatus: 'Active' | 'Repeat';
+		termId: number;
 		borrowerNo?: string;
 		bankName?: string;
 		accountNumber?: string;
-	},
-	semesterNumber?: string,
-	semesterStatus?: 'Active' | 'Repeat',
-	termId?: number,
-	receipts?: { receiptNo: string; receiptType: ReceiptType }[]
-) {
-	return service.updateWithModules(
-		registrationRequestId,
-		modules,
-		sponsorshipData,
-		semesterNumber,
-		semesterStatus,
-		termId,
-		receipts
-	);
-}
+		receipts?: { receiptNo: string; receiptType: ReceiptType }[];
+	}) => {
+		return service.createWithModules(data);
+	}
+);
+
+export const updateRegistration = createAction(
+	async (
+		registrationRequestId: number,
+		modules: {
+			id: number;
+			status: StudentModuleStatus;
+			receiptNumber?: string;
+		}[],
+		sponsorshipData?: {
+			sponsorId: number;
+			borrowerNo?: string;
+			bankName?: string;
+			accountNumber?: string;
+		},
+		semesterNumber?: string,
+		semesterStatus?: 'Active' | 'Repeat',
+		termId?: number,
+		receipts?: { receiptNo: string; receiptType: ReceiptType }[]
+	) => {
+		return service.updateWithModules(
+			registrationRequestId,
+			modules,
+			sponsorshipData,
+			semesterNumber,
+			semesterStatus,
+			termId,
+			receipts
+		);
+	}
+);
 
 export async function getStudentRegistrationHistory(stdNo: number) {
 	return service.getHistory(stdNo);

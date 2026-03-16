@@ -3,6 +3,7 @@ import type { terms } from '@/core/database';
 import BaseService from '@/core/platform/BaseService';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
 import withPermission from '@/core/platform/withPermission';
+import { UserFacingError } from '@/shared/lib/actions/extractError';
 import TermRepository, { type TermInsert } from './repository';
 
 class TermService extends BaseService<typeof terms, 'id'> {
@@ -34,6 +35,14 @@ class TermService extends BaseService<typeof terms, 'id'> {
 			async () => (this.repository as TermRepository).getActive(),
 			'all'
 		);
+	}
+
+	async getActiveOrThrow() {
+		const term = await this.getActive();
+		if (!term) {
+			throw new UserFacingError('No active term', 'NO_ACTIVE_TERM');
+		}
+		return term;
 	}
 
 	async create(data: TermInsert) {

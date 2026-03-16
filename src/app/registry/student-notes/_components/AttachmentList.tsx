@@ -25,8 +25,9 @@ import {
 	IconUpload,
 	IconX,
 } from '@tabler/icons-react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import { getPublicUrl } from '@/core/integrations/storage-utils';
+import { useActionMutation } from '@/shared/lib/actions/use-action-mutation';
 import { formatFileSize } from '@/shared/lib/utils/files';
 import { ALLOWED_MIME_TYPES, MAX_ATTACHMENT_SIZE } from '../_lib/constants';
 import { deleteNoteAttachment, uploadNoteAttachment } from '../_server/actions';
@@ -64,51 +65,55 @@ export default function AttachmentList({
 }: Props) {
 	const queryClient = useQueryClient();
 
-	const uploadMutation = useMutation({
-		mutationFn: async (file: File) => {
+	const uploadMutation = useActionMutation(
+		(file: File) => {
 			const formData = new FormData();
 			formData.append('file', file);
 			return uploadNoteAttachment(stdNo, noteId, formData);
 		},
-		onSuccess: async () => {
-			await queryClient.invalidateQueries({
-				queryKey: ['student-notes', stdNo],
-			});
-			notifications.show({
-				title: 'Success',
-				message: 'Attachment uploaded',
-				color: 'green',
-			});
-		},
-		onError: (error: Error) => {
-			notifications.show({
-				title: 'Error',
-				message: error.message,
-				color: 'red',
-			});
-		},
-	});
+		{
+			onSuccess: async () => {
+				await queryClient.invalidateQueries({
+					queryKey: ['student-notes', stdNo],
+				});
+				notifications.show({
+					title: 'Success',
+					message: 'Attachment uploaded',
+					color: 'green',
+				});
+			},
+			onError: (error: Error) => {
+				notifications.show({
+					title: 'Error',
+					message: error.message,
+					color: 'red',
+				});
+			},
+		}
+	);
 
-	const deleteMutation = useMutation({
-		mutationFn: (id: string) => deleteNoteAttachment(id),
-		onSuccess: async () => {
-			await queryClient.invalidateQueries({
-				queryKey: ['student-notes', stdNo],
-			});
-			notifications.show({
-				title: 'Success',
-				message: 'Attachment deleted',
-				color: 'green',
-			});
-		},
-		onError: (error: Error) => {
-			notifications.show({
-				title: 'Error',
-				message: error.message,
-				color: 'red',
-			});
-		},
-	});
+	const deleteMutation = useActionMutation(
+		(id: string) => deleteNoteAttachment(id),
+		{
+			onSuccess: async () => {
+				await queryClient.invalidateQueries({
+					queryKey: ['student-notes', stdNo],
+				});
+				notifications.show({
+					title: 'Success',
+					message: 'Attachment deleted',
+					color: 'green',
+				});
+			},
+			onError: (error: Error) => {
+				notifications.show({
+					title: 'Error',
+					message: error.message,
+					color: 'red',
+				});
+			},
+		}
+	);
 
 	function handleDeleteAttachment(id: string) {
 		modals.openConfirmModal({

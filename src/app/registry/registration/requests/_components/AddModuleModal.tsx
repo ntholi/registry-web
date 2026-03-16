@@ -28,9 +28,10 @@ import {
 	IconPlus,
 	IconSearch,
 } from '@tabler/icons-react';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import type { StudentModuleStatus } from '@/core/database';
+import { useActionMutation } from '@/shared/lib/actions/use-action-mutation';
 import ReceiptInput from '@/shared/ui/adease/ReceiptInput';
 import type { getRegistrationRequest } from '../_server/requests/actions';
 
@@ -99,8 +100,8 @@ export default function AddModuleModal({ request }: Props) {
 		return module.status as StudentModuleStatus;
 	}
 
-	const mutation = useMutation({
-		mutationFn: async () => {
+	const mutation = useActionMutation(
+		async () => {
 			if (selectedModules.length === 0) {
 				throw new Error('Please select at least one module');
 			}
@@ -139,26 +140,28 @@ export default function AddModuleModal({ request }: Props) {
 				receipts,
 			});
 		},
-		onSuccess: () => {
-			const addedCodes = selectedModules.map((mod) => mod.code).join(', ');
-			notifications.show({
-				title: 'Additional Request Created',
-				message: `${selectedModules.length} module${selectedModules.length > 1 ? 's were' : ' was'} submitted as a new registration request${addedCodes ? `: ${addedCodes}` : ''}`,
-				color: 'green',
-			});
-			queryClient.invalidateQueries({
-				queryKey: ['registration-requests'],
-			});
-			handleClose();
-		},
-		onError: (error) => {
-			notifications.show({
-				title: 'Error',
-				message: error.message || 'Failed to add module',
-				color: 'red',
-			});
-		},
-	});
+		{
+			onSuccess: () => {
+				const addedCodes = selectedModules.map((mod) => mod.code).join(', ');
+				notifications.show({
+					title: 'Additional Request Created',
+					message: `${selectedModules.length} module${selectedModules.length > 1 ? 's were' : ' was'} submitted as a new registration request${addedCodes ? `: ${addedCodes}` : ''}`,
+					color: 'green',
+				});
+				queryClient.invalidateQueries({
+					queryKey: ['registration-requests'],
+				});
+				handleClose();
+			},
+			onError: (error) => {
+				notifications.show({
+					title: 'Error',
+					message: error.message || 'Failed to add module',
+					color: 'red',
+				});
+			},
+		}
+	);
 
 	function handleClose() {
 		close();

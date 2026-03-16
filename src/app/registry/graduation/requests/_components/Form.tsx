@@ -8,12 +8,15 @@ import { createInsertSchema } from 'drizzle-zod';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { getEligiblePrograms } from '@/app/registry/graduation/clearance/_server/requests/actions';
+import type { ActionResult } from '@/shared/lib/actions/actionResult';
 import { Form } from '@/shared/ui/adease';
 
 type GraduationRequest = typeof graduationRequests.$inferInsert;
 
 type Props = {
-	onSubmit: (values: GraduationRequest) => Promise<GraduationRequest>;
+	onSubmit: (
+		values: GraduationRequest
+	) => Promise<GraduationRequest | ActionResult<GraduationRequest>>;
 	defaultValues?: GraduationRequest;
 	onSuccess?: (value: GraduationRequest) => void;
 	onError?: (

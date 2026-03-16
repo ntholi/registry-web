@@ -8,6 +8,7 @@ import { createInsertSchema } from 'drizzle-zod';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { z } from 'zod';
+import type { ActionResult } from '@/shared/lib/actions/actionResult';
 import { formatSemester } from '@/shared/lib/utils/utils';
 import { Form } from '@/shared/ui/adease';
 import StudentInput from '@/shared/ui/StudentInput';
@@ -22,7 +23,9 @@ type StudentSemesterData =
 	NonNullable<StudentData>['programs'][number]['semesters'][number];
 
 type Props = {
-	onSubmit: (values: StudentStatusInsert) => Promise<{ id: string }>;
+	onSubmit: (
+		values: StudentStatusInsert
+	) => Promise<{ id: string } | ActionResult<{ id: string }>>;
 	defaultValues?: StudentStatusInsert;
 	title?: string;
 	mode?: 'create' | 'edit';

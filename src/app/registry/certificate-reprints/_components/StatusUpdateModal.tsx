@@ -14,9 +14,10 @@ import { DateInput } from '@mantine/dates';
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import { certificateReprintStatus } from '@registry/_database';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { authClient } from '@/core/auth-client';
+import { useActionMutation } from '@/shared/lib/actions/use-action-mutation';
 import { getStatusColor } from '@/shared/lib/utils/colors';
 import { formatDateToISO } from '@/shared/lib/utils/dates';
 import { updateCertificateReprint } from '../_server/actions';
@@ -42,8 +43,8 @@ export default function StatusUpdateModal({ id, status: initial }: Props) {
 		formatDateToISO(new Date())
 	);
 
-	const { mutate, isPending } = useMutation({
-		mutationFn: () => {
+	const { mutate, isPending } = useActionMutation(
+		() => {
 			const data: Record<string, unknown> = { status };
 			if (status === 'printed') {
 				data.receivedAt = receivedAt ? new Date(receivedAt) : new Date();
@@ -54,23 +55,25 @@ export default function StatusUpdateModal({ id, status: initial }: Props) {
 			}
 			return updateCertificateReprint(id, data);
 		},
-		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: ['certificate-reprints'] });
-			notifications.show({
-				title: 'Updated',
-				message: 'Status updated successfully',
-				color: 'green',
-			});
-			close();
-		},
-		onError: () => {
-			notifications.show({
-				title: 'Error',
-				message: 'Failed to update status',
-				color: 'red',
-			});
-		},
-	});
+		{
+			onSuccess: () => {
+				queryClient.invalidateQueries({ queryKey: ['certificate-reprints'] });
+				notifications.show({
+					title: 'Updated',
+					message: 'Status updated successfully',
+					color: 'green',
+				});
+				close();
+			},
+			onError: () => {
+				notifications.show({
+					title: 'Error',
+					message: 'Failed to update status',
+					color: 'red',
+				});
+			},
+		}
+	);
 
 	function handleOpen() {
 		setStatus(initial);

@@ -1,7 +1,4 @@
-import {
-	updateStudentForStatusWorkflow,
-	updateStudentSemesterForStatusWorkflow,
-} from '@registry/students/_server/actions';
+import { studentsService } from '@registry/students/_server/service';
 import type { Session } from '@/core/auth';
 import type { studentStatuses } from '@/core/database';
 import type {
@@ -280,27 +277,29 @@ class StudentStatusService extends BaseService<typeof studentStatuses, 'id'> {
 		const userId = requireSessionUserId(session);
 
 		if (app.type === 'withdrawal') {
-			await updateStudentForStatusWorkflow(
+			await studentsService.updateForStatusWorkflow(
 				app.stdNo,
 				'Withdrawn',
 				'Withdrawal application approved'
 			);
 
 			if (app.semesterId) {
-				await updateStudentSemesterForStatusWorkflow(app.semesterId, {
-					status: 'Withdrawn',
-					stdNo: app.stdNo,
-					reasons: 'Withdrawal application approved',
-				});
+				await studentsService.updateStudentSemesterForStatusWorkflow(
+					app.semesterId,
+					'Withdrawn',
+					app.stdNo,
+					'Withdrawal application approved'
+				);
 			}
 		}
 
 		if (app.type === 'deferment' && app.semesterId) {
-			await updateStudentSemesterForStatusWorkflow(app.semesterId, {
-				status: 'Deferred',
-				stdNo: app.stdNo,
-				reasons: 'Deferment application approved',
-			});
+			await studentsService.updateStudentSemesterForStatusWorkflow(
+				app.semesterId,
+				'Deferred',
+				app.stdNo,
+				'Deferment application approved'
+			);
 		}
 
 		const baseAudit = this.buildAuditOptions(session, 'update');

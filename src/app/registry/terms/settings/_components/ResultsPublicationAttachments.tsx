@@ -37,8 +37,10 @@ import {
 	IconUpload,
 	IconX,
 } from '@tabler/icons-react';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
+import { unwrap } from '@/shared/lib/actions/actionResult';
+import { useActionMutation } from '@/shared/lib/actions/use-action-mutation';
 import { formatFileSize } from '@/shared/lib/utils/files';
 import {
 	deletePublicationAttachmentWithFile,
@@ -249,26 +251,28 @@ function AttachmentCard({
 }: AttachmentCardProps) {
 	const queryClient = useQueryClient();
 
-	const deleteMutation = useMutation({
-		mutationFn: async () => deletePublicationAttachmentWithFile(attachment.id),
-		onSuccess: () => {
-			notifications.show({
-				title: 'Success',
-				message: 'Attachment deleted',
-				color: 'green',
-			});
-			queryClient.invalidateQueries({
-				queryKey: ['publication-attachments', termCode],
-			});
-		},
-		onError: () => {
-			notifications.show({
-				title: 'Error',
-				message: 'Failed to delete attachment',
-				color: 'red',
-			});
-		},
-	});
+	const deleteMutation = useActionMutation(
+		() => deletePublicationAttachmentWithFile(attachment.id),
+		{
+			onSuccess: () => {
+				notifications.show({
+					title: 'Success',
+					message: 'Attachment deleted',
+					color: 'green',
+				});
+				queryClient.invalidateQueries({
+					queryKey: ['publication-attachments', termCode],
+				});
+			},
+			onError: () => {
+				notifications.show({
+					title: 'Error',
+					message: 'Failed to delete attachment',
+					color: 'red',
+				});
+			},
+		}
+	);
 
 	function handleDownload() {
 		window.open(attachment.url, '_blank');
@@ -415,7 +419,7 @@ function UploadModal({ opened, onClose, termCode }: UploadModalProps) {
 			setLoading(true);
 			const file = files[0];
 
-			await uploadPublicationAttachment({ termCode, file, type });
+			unwrap(await uploadPublicationAttachment({ termCode, file, type }));
 
 			notifications.show({
 				title: 'Success',

@@ -1,5 +1,6 @@
 'use server';
 
+import { createAction } from '@/shared/lib/actions/actionResult';
 import { termRegistrationsService as service } from './termRegistrationsService';
 
 export interface RegistrationEntry {
@@ -13,42 +14,44 @@ export async function getTermRegistrations(termId: number) {
 	return service.findByTermId(termId);
 }
 
-export async function createTermRegistration(
-	termId: number,
-	schoolId: number,
-	startDate: string,
-	endDate: string,
-	programIds?: number[]
-) {
-	return service.create(termId, schoolId, startDate, endDate, programIds);
-}
+export const createTermRegistration = createAction(
+	async (
+		termId: number,
+		schoolId: number,
+		startDate: string,
+		endDate: string,
+		programIds?: number[]
+	) => {
+		return service.create(termId, schoolId, startDate, endDate, programIds);
+	}
+);
 
-export async function updateTermRegistration(
-	id: number,
-	startDate: string,
-	endDate: string,
-	programIds?: number[]
-) {
-	return service.update(id, startDate, endDate, programIds);
-}
+export const updateTermRegistration = createAction(
+	async (
+		id: number,
+		startDate: string,
+		endDate: string,
+		programIds?: number[]
+	) => {
+		return service.update(id, startDate, endDate, programIds);
+	}
+);
 
-export async function deleteTermRegistration(id: number) {
+export const deleteTermRegistration = createAction(async (id: number) => {
 	return service.delete(id);
-}
+});
 
-export async function saveTermRegistrations(
-	termId: number,
-	entries: RegistrationEntry[]
-) {
-	return service.saveRegistrations(termId, entries);
-}
+export const saveTermRegistrations = createAction(
+	async (termId: number, entries: RegistrationEntry[]) => {
+		return service.saveRegistrations(termId, entries);
+	}
+);
 
-export async function deleteTermRegistrationsBySchoolIds(
-	termId: number,
-	schoolIds: number[]
-) {
-	return service.deleteBySchoolIds(termId, schoolIds);
-}
+export const deleteTermRegistrationsBySchoolIds = createAction(
+	async (termId: number, schoolIds: number[]) => {
+		return service.deleteBySchoolIds(termId, schoolIds);
+	}
+);
 
 export async function canStudentRegister(
 	termId: number,

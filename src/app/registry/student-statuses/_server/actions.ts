@@ -2,6 +2,7 @@
 
 import { and, eq, type SQL } from 'drizzle-orm';
 import { studentStatuses } from '@/core/database';
+import { createAction } from '@/shared/lib/actions/actionResult';
 import type {
 	StudentStatusEditableInput,
 	StudentStatusInsert,
@@ -38,32 +39,35 @@ export async function getStudentStatusesByStdNo(stdNo: number) {
 	return studentStatusesService.getByStdNo(stdNo);
 }
 
-export async function createStudentStatus(data: StudentStatusInsert) {
-	const result = await studentStatusesService.createStatus(data);
-	if (!result) throw new Error('Failed to create application');
-	return { id: result.id };
-}
+export const createStudentStatus = createAction(
+	async (data: StudentStatusInsert) => {
+		const result = await studentStatusesService.createStatus(data);
+		if (!result) throw new Error('Failed to create application');
+		return { id: result.id };
+	}
+);
 
-export async function updateStudentStatus(
-	id: string,
-	data: StudentStatusEditableInput
-) {
-	const result = await studentStatusesService.edit(id, data);
-	if (!result) throw new Error('Failed to update application');
-	return { id: result.id };
-}
+export const updateStudentStatus = createAction(
+	async (id: string, data: StudentStatusEditableInput) => {
+		const result = await studentStatusesService.edit(id, data);
+		if (!result) throw new Error('Failed to update application');
+		return { id: result.id };
+	}
+);
 
-export async function cancelStudentStatus(id: string) {
+export const cancelStudentStatus = createAction(async (id: string) => {
 	return studentStatusesService.cancel(id);
-}
+});
 
-export async function respondToStudentStatusStep(
-	approvalId: string,
-	status: 'pending' | 'approved' | 'rejected',
-	comments?: string
-) {
-	return studentStatusesService.respond(approvalId, status, comments);
-}
+export const respondToStudentStatusStep = createAction(
+	async (
+		approvalId: string,
+		status: 'pending' | 'approved' | 'rejected',
+		comments?: string
+	) => {
+		return studentStatusesService.respond(approvalId, status, comments);
+	}
+);
 
 export async function getPendingApprovals(page: number, search: string) {
 	return studentStatusesService.getPendingForApproval({ page, search });

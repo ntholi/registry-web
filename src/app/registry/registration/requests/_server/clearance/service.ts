@@ -1,5 +1,5 @@
 import type { RegistryActivityType } from '@registry/_lib/activities';
-import { getActiveTerm } from '@/app/registry/terms';
+import { termsService } from '@registry/terms/_server/service';
 import { auth } from '@/core/auth';
 import type { DashboardRole } from '@/core/auth/permissions';
 import type { clearance } from '@/core/database';
@@ -7,8 +7,6 @@ import type { QueryOptions } from '@/core/platform/BaseRepository';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
 import withPermission from '@/core/platform/withPermission';
 import ClearanceRepository, { type ClearanceFilterOptions } from './repository';
-
-export { getActiveTerm };
 
 type Clearance = typeof clearance.$inferInsert;
 const adminOnly = async () => false;
@@ -33,7 +31,7 @@ class ClearanceService {
 	}
 
 	async countByStatus(status: 'pending' | 'approved' | 'rejected') {
-		const term = await getActiveTerm();
+		const term = await termsService.getActiveOrThrow();
 		const session = await auth();
 		if (!session?.user?.role) return 0;
 
@@ -53,7 +51,7 @@ class ClearanceService {
 		return withPermission(async () => {
 			const effectiveFilter = { ...filter };
 			if (!effectiveFilter.termId) {
-				const activeTerm = await getActiveTerm();
+				const activeTerm = await termsService.getActiveOrThrow();
 				effectiveFilter.termId = activeTerm.id;
 			}
 			return this.repository.findByDepartment(

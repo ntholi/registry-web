@@ -29,6 +29,7 @@ import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
 import { useRouter } from 'nextjs-toploader/app';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import type { ActionResult } from '@/shared/lib/actions/actionResult';
 import { useActiveTerm, useAllTerms } from '@/shared/lib/hooks/use-term';
 import { getAcademicRemarks } from '@/shared/lib/utils/grades';
 import {
@@ -75,7 +76,9 @@ type RegistrationRequest = {
 };
 
 type Props = {
-	onSubmit: (values: RegistrationRequest) => Promise<RegistrationRequest>;
+	onSubmit: (
+		values: RegistrationRequest
+	) => Promise<RegistrationRequest | ActionResult<RegistrationRequest>>;
 	defaultValues?: RegistrationRequest;
 	onError?: (
 		error: Error | React.SyntheticEvent<HTMLDivElement, Event>

@@ -1,6 +1,7 @@
 'use server';
 
 import type { graduationRequests, ReceiptType } from '@/core/database';
+import { createAction } from '@/shared/lib/actions/actionResult';
 import { graduationRequestsService as service } from './service';
 
 type GraduationRequest = typeof graduationRequests.$inferInsert;
@@ -28,28 +29,27 @@ export async function getEligiblePrograms(stdNo: number) {
 	return service.getEligiblePrograms(stdNo);
 }
 
-export async function createGraduationRequest(
-	graduationRequest: GraduationRequest
-) {
-	return service.create(graduationRequest);
-}
+export const createGraduationRequest = createAction(
+	async (graduationRequest: GraduationRequest) => {
+		return service.create(graduationRequest);
+	}
+);
 
-export async function createGraduationRequestWithPaymentReceipts(
-	data: CreateGraduationRequestData
-) {
-	return service.createWithPaymentReceipts(data);
-}
+export const createGraduationRequestWithPaymentReceipts = createAction(
+	async (data: CreateGraduationRequestData) => {
+		return service.createWithPaymentReceipts(data);
+	}
+);
 
-export async function updateGraduationRequest(
-	id: number,
-	graduationRequest: Partial<GraduationRequest>
-) {
-	return service.update(id, graduationRequest);
-}
+export const updateGraduationRequest = createAction(
+	async (id: number, graduationRequest: Partial<GraduationRequest>) => {
+		return service.update(id, graduationRequest);
+	}
+);
 
-export async function deleteGraduationRequest(id: number) {
+export const deleteGraduationRequest = createAction(async (id: number) => {
 	return service.delete(id);
-}
+});
 
 export async function getGraduationClearanceData(graduationRequestId: number) {
 	return service.getClearanceData(graduationRequestId);

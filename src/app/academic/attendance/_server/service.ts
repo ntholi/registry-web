@@ -1,4 +1,4 @@
-import { getActiveTerm } from '@/app/registry/terms';
+import { termsService } from '@registry/terms/_server/service';
 import type { AttendanceStatus } from '@/core/database';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
 import { withPermission } from '@/core/platform/withPermission';
@@ -17,7 +17,7 @@ class AttendanceService {
 	async getStudentsForModule(semesterModuleId: number) {
 		return withPermission(
 			async () => {
-				const term = await getActiveTerm();
+				const term = await termsService.getActiveOrThrow();
 				return this.repository.getStudentsForModule(
 					semesterModuleId,
 					term.code
@@ -34,7 +34,7 @@ class AttendanceService {
 	) {
 		return withPermission(
 			async () => {
-				const term = await getActiveTerm();
+				const term = await termsService.getActiveOrThrow();
 				return this.repository.getAttendanceForWeek(
 					semesterModuleId,
 					termId,
@@ -78,7 +78,7 @@ class AttendanceService {
 	async getAttendanceSummary(semesterModuleId: number, termId: number) {
 		return withPermission(
 			async () => {
-				const term = await getActiveTerm();
+				const term = await termsService.getActiveOrThrow();
 				return this.repository.getAttendanceSummaryForModule(
 					semesterModuleId,
 					termId,
@@ -90,7 +90,7 @@ class AttendanceService {
 	}
 
 	async getAssignedModulesForCurrentUser(userId: string) {
-		const term = await getActiveTerm();
+		const term = await termsService.getActiveOrThrow();
 		return withPermission(
 			async () =>
 				this.repository.getAssignedModulesWithDetails(userId, term.id),

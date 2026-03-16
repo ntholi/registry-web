@@ -18,6 +18,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'nextjs-toploader/app';
 import { useState } from 'react';
 import { z } from 'zod';
+import { unwrap } from '@/shared/lib/actions/actionResult';
 import { Form } from '@/shared/ui/adease';
 import RichTextField from '@/shared/ui/adease/RichTextField';
 import StudentInput from '@/shared/ui/StudentInput';
@@ -82,15 +83,13 @@ export default function StudentNoteForm({ title }: Props) {
 		const stdNo = Number(values.stdNo);
 		if (!stdNo) throw new Error('Please select a student');
 
-		const created = await createStudentNote(
-			stdNo,
-			values.content,
-			values.visibility
+		const created = unwrap(
+			await createStudentNote(stdNo, values.content, values.visibility)
 		);
 		for (const file of pendingFiles) {
 			const formData = new FormData();
 			formData.append('file', file);
-			await uploadNoteAttachment(stdNo, created.id, formData);
+			unwrap(await uploadNoteAttachment(stdNo, created.id, formData));
 		}
 
 		return created;

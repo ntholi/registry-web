@@ -82,7 +82,7 @@ export default async function GraduationRequestDetails({
 				editPermission={{ graduation: ['update'] }}
 				handleDelete={async () => {
 					'use server';
-					await deleteGraduationRequest(Number(id));
+					return deleteGraduationRequest(Number(id));
 				}}
 			/>
 			<Tabs defaultValue={defaultTab || 'details'} variant='outline' mt={'xl'}>

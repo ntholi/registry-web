@@ -14,11 +14,12 @@ import {
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import { IconFileUpload, IconUpload } from '@tabler/icons-react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import * as XLSX from 'xlsx';
 import type { DashboardRole } from '@/core/auth/permissions';
 import { authClient } from '@/core/auth-client';
+import { useActionMutation } from '@/shared/lib/actions/use-action-mutation';
 import TermInput from '@/shared/ui/TermInput';
 import { bulkCreateAutoApprovals } from '../_server/actions';
 
@@ -42,8 +43,8 @@ export default function BulkImportModal() {
 	const [fileName, setFileName] = useState<string | null>(null);
 	const queryClient = useQueryClient();
 
-	const mutation = useMutation({
-		mutationFn: async () => {
+	const mutation = useActionMutation(
+		async () => {
 			const validRows = parsedData.filter((row) => row.valid);
 			if (!selectedTermCode) throw new Error('Please select a term');
 			return bulkCreateAutoApprovals(
@@ -54,23 +55,25 @@ export default function BulkImportModal() {
 				department as DashboardRole
 			);
 		},
-		onSuccess: (result) => {
-			queryClient.invalidateQueries({ queryKey: ['auto-approvals'] });
-			notifications.show({
-				title: 'Import Complete',
-				message: `${result.inserted} rules created, ${result.skipped} duplicates skipped, ${result.invalidTermCodes} invalid term codes`,
-				color: 'green',
-			});
-			handleClose();
-		},
-		onError: (error: Error) => {
-			notifications.show({
-				title: 'Import Failed',
-				message: error.message,
-				color: 'red',
-			});
-		},
-	});
+		{
+			onSuccess: (result) => {
+				queryClient.invalidateQueries({ queryKey: ['auto-approvals'] });
+				notifications.show({
+					title: 'Import Complete',
+					message: `${result.inserted} rules created, ${result.skipped} duplicates skipped, ${result.invalidTermCodes} invalid term codes`,
+					color: 'green',
+				});
+				handleClose();
+			},
+			onError: (error: Error) => {
+				notifications.show({
+					title: 'Import Failed',
+					message: error.message,
+					color: 'red',
+				});
+			},
+		}
+	);
 
 	function handleClose() {
 		setParsedData([]);

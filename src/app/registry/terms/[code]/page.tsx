@@ -29,7 +29,7 @@ export default async function TermDetails({ params }: Props) {
 				queryKey={['terms']}
 				handleDelete={async () => {
 					'use server';
-					await deleteTerm(term.id);
+					return deleteTerm(term.id);
 				}}
 			/>
 			<DetailsViewBody>
