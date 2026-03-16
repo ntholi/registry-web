@@ -35,7 +35,7 @@ import {
 } from '@tabler/icons-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
-import { unwrap } from '@/shared/lib/utils/actionResult';
+import { unwrap } from '@/shared/lib/actions/actionResult';
 import { formatDate } from '@/shared/lib/utils/dates';
 import {
 	deleteTermRegistration,

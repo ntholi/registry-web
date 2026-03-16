@@ -38,9 +38,9 @@ import { getAllVenues } from '@timetable/venues';
 import { zod4Resolver as zodResolver } from 'mantine-form-zod-resolver';
 import { useCallback, useState } from 'react';
 import { z } from 'zod';
+import type { ActionData } from '@/shared/lib/actions/actionResult';
+import { unwrap } from '@/shared/lib/actions/actionResult';
 import { useAllTerms } from '@/shared/lib/hooks/use-term';
-import type { ActionData } from '@/shared/lib/utils/actionResult';
-import { unwrap } from '@/shared/lib/utils/actionResult';
 import { calculateDuration } from '@/shared/lib/utils/dates';
 import { toClassName as toClassNameShared } from '@/shared/lib/utils/utils';
 import {

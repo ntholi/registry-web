@@ -23,7 +23,7 @@ import type { grade } from '@registry/_database';
 import { IconEdit } from '@tabler/icons-react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
-import { useActionMutation } from '@/shared/lib/hooks/use-action-mutation';
+import { useActionMutation } from '@/shared/lib/actions/use-action-mutation';
 import { getLetterGrade } from '@/shared/lib/utils/grades';
 
 interface Props {

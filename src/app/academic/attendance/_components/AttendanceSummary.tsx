@@ -13,7 +13,7 @@ import {
 } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
 import type { AttendanceStatus } from '@/core/database';
-import { unwrap } from '@/shared/lib/utils/actionResult';
+import { unwrap } from '@/shared/lib/actions/actionResult';
 import { getStatusColor } from '@/shared/lib/utils/colors';
 import { getAttendanceSummary, getWeeksForTerm } from '../_server/actions';
 

@@ -27,7 +27,7 @@ import {
 	type ActionResult,
 	getActionErrorMessage,
 	isActionResult,
-} from '@/shared/lib/utils/actionResult';
+} from '@/shared/lib/actions/actionResult';
 
 type DeleteResult = ActionResult<unknown> | null;
 

@@ -1,7 +1,7 @@
 import { getVisibleModulesForStructure } from '@academic/semester-modules';
 import type { ResultClassification } from '@admissions/academic-records/_schema/academicRecords';
 import type { grade } from '@/core/database';
-import { unwrap } from '@/shared/lib/utils/actionResult';
+import { unwrap } from '@/shared/lib/actions/actionResult';
 import { isActiveModule, isActiveSemester } from '../utils';
 import type { GradePoint, Program, StudentModule } from './type';
 

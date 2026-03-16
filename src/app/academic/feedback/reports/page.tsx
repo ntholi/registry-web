@@ -14,7 +14,7 @@ import {
 import { IconInfoCircle } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useCallback, useState } from 'react';
-import { unwrap } from '@/shared/lib/utils/actionResult';
+import { unwrap } from '@/shared/lib/actions/actionResult';
 import CategoryChart from './_components/CategoryChart';
 import ExportButton from './_components/ExportButton';
 import Filter from './_components/Filter';

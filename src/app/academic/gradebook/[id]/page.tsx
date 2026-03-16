@@ -1,7 +1,7 @@
 import { getAssignedModuleByUserAndModule } from '@academic/assigned-modules';
 import { Stack } from '@mantine/core';
 import { notFound } from 'next/navigation';
-import { unwrap } from '@/shared/lib/utils/actionResult';
+import { unwrap } from '@/shared/lib/actions/actionResult';
 import ModuleDetailsCard from '../_components/ModuleDetailsCard';
 import StudentTable from '../_components/StudentTable';
 

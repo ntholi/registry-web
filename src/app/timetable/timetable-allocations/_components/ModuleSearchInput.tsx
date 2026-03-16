@@ -13,8 +13,8 @@ import {
 import { useDebouncedValue } from '@mantine/hooks';
 import { useQuery } from '@tanstack/react-query';
 import { forwardRef, useState } from 'react';
-import type { ActionData } from '@/shared/lib/utils/actionResult';
-import { unwrap } from '@/shared/lib/utils/actionResult';
+import type { ActionData } from '@/shared/lib/actions/actionResult';
+import { unwrap } from '@/shared/lib/actions/actionResult';
 
 type Module = ActionData<typeof searchModulesWithDetails>[number];
 

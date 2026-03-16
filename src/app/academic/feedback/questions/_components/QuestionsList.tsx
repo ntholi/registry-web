@@ -35,8 +35,8 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useMemo, useState } from 'react';
 import { hasAnyPermission } from '@/core/auth/sessionPermissions';
 import { authClient } from '@/core/auth-client';
-import { useActionMutation } from '@/shared/lib/hooks/use-action-mutation';
-import { type ActionData, unwrap } from '@/shared/lib/utils/actionResult';
+import { type ActionData, unwrap } from '@/shared/lib/actions/actionResult';
+import { useActionMutation } from '@/shared/lib/actions/use-action-mutation';
 import { DeleteButton } from '@/shared/ui/adease';
 
 function useCanManage() {

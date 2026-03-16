@@ -8,7 +8,7 @@ import {
 } from '@mantine/core';
 import { IconCircleCheck } from '@tabler/icons-react';
 import { notFound } from 'next/navigation';
-import { unwrap } from '@/shared/lib/utils/actionResult';
+import { unwrap } from '@/shared/lib/actions/actionResult';
 import {
 	DetailsView,
 	DetailsViewBody,

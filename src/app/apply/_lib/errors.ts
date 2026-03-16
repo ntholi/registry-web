@@ -1,4 +1,4 @@
-import type { ActionResult } from '@/shared/lib/utils/actionResult';
+import type { ActionResult } from '@/shared/lib/actions/actionResult';
 
 export type { ActionResult };
 

@@ -4,7 +4,7 @@ import { Button } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { IconDownload } from '@tabler/icons-react';
 import { useState } from 'react';
-import { type ActionData, unwrap } from '@/shared/lib/utils/actionResult';
+import { type ActionData, unwrap } from '@/shared/lib/actions/actionResult';
 import { exportAttendanceForm } from '../_server/actions';
 
 type Props = {

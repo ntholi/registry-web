@@ -1,7 +1,7 @@
 'use server';
 
 import type { structureSemesters } from '@/core/database';
-import { createAction } from '@/shared/lib/utils/actionResult';
+import { createAction } from '@/shared/lib/actions/actionResult';
 import { structuresService as service } from './service';
 
 type StructureSemester = typeof structureSemesters.$inferInsert;

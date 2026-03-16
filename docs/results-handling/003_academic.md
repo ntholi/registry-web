@@ -38,7 +38,7 @@ export async function getThing(id: number) {
 // AFTER
 'use server';
 
-import { createAction } from '@/shared/lib/utils/actionResult';
+import { createAction } from '@/shared/lib/actions/actionResult';
 
 export const createThing = createAction(
   async (data: Input) => thingService.create(data)
@@ -98,7 +98,7 @@ export default async function ThingPage({ params }: Props) {
 }
 
 // AFTER
-import { unwrap } from '@/shared/lib/utils/actionResult';
+import { unwrap } from '@/shared/lib/actions/actionResult';
 import { getThing } from '../_server/actions';
 
 export default async function ThingPage({ params }: Props) {
@@ -173,7 +173,7 @@ const mutation = useMutation({
 });
 
 // AFTER
-import { useActionMutation } from '@/shared/lib/hooks/use-action-mutation';
+import { useActionMutation } from '@/shared/lib/actions/use-action-mutation';
 import { updateThing } from '../_server/actions';
 
 const mutation = useActionMutation(updateThing, {
@@ -222,7 +222,7 @@ const term = unwrap(await getActiveTerm());
 | 6 | `feedback/cycles/_server/actions.ts` | `getAllSchools()` | `@academic/schools/_server/actions` |
 | 7 | `feedback/cycles/_server/actions.ts` | `getUserSchools(userId)` | `@admin/users/_server/actions` |
 
-**Note**: Add `import { unwrap } from '@/shared/lib/utils/actionResult'` to each file and wrap each cross-action `await` call with `unwrap()`.
+**Note**: Add `import { unwrap } from '@/shared/lib/actions/actionResult'` to each file and wrap each cross-action `await` call with `unwrap()`.
 
 ---
 

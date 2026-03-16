@@ -28,7 +28,7 @@ import {
 } from '@tabler/icons-react';
 import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'nextjs-toploader/app';
-import { getActionErrorMessage } from '@/shared/lib/utils/actionResult';
+import { getActionErrorMessage } from '@/shared/lib/actions/actionResult';
 import { submitApplication } from '../_server/actions';
 
 type Props = {

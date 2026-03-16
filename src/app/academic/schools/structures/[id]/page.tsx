@@ -28,7 +28,7 @@ import {
 	hasSessionPermission,
 } from '@/core/auth/sessionPermissions';
 import { authClient } from '@/core/auth-client';
-import { unwrap } from '@/shared/lib/utils/actionResult';
+import { unwrap } from '@/shared/lib/actions/actionResult';
 import { getOptionalColor } from '@/shared/lib/utils/colors';
 import { formatSemester } from '@/shared/lib/utils/utils';
 import Link from '@/shared/ui/Link';

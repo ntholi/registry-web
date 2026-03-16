@@ -31,7 +31,7 @@ import {
 	useQueryStates,
 } from 'nuqs';
 import { useState } from 'react';
-import { unwrap } from '@/shared/lib/utils/actionResult';
+import { unwrap } from '@/shared/lib/actions/actionResult';
 import type { AdmissionReportFilter as AdmissionReportFilterType } from './types';
 
 const SCORE_MIN = 0;

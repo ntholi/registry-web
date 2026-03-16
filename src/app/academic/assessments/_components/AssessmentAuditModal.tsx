@@ -27,7 +27,7 @@ import {
 } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { format } from 'date-fns';
-import { unwrap } from '@/shared/lib/utils/actionResult';
+import { unwrap } from '@/shared/lib/actions/actionResult';
 import { generateAssessmentAuditMessage } from '@/shared/lib/utils/auditUtils';
 import { getAuditActionColor } from '@/shared/lib/utils/colors';
 import {

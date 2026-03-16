@@ -23,7 +23,7 @@ import {
 	COURSE_WORK_OPTIONS,
 } from '@/app/academic/assessments/_lib/utils';
 import { getAssessmentByModuleId } from '@/app/academic/assessments/_server/actions';
-import { unwrap } from '@/shared/lib/utils/actionResult';
+import { unwrap } from '@/shared/lib/actions/actionResult';
 import {
 	createDraftAssignment,
 	publishAssignment,

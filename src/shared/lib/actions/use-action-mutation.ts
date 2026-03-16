@@ -4,7 +4,7 @@ import { type UseMutationOptions, useMutation } from '@tanstack/react-query';
 import {
 	type ActionResult,
 	getActionErrorMessage,
-} from '@/shared/lib/utils/actionResult';
+} from '@/shared/lib/actions/actionResult';
 
 export function useActionMutation<TData, TVariables = void>(
 	action: (variables: TVariables) => Promise<ActionResult<TData>>,

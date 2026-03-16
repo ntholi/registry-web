@@ -20,7 +20,7 @@ import {
 	IconQuestionMark,
 } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
-import { unwrap } from '@/shared/lib/utils/actionResult';
+import { unwrap } from '@/shared/lib/actions/actionResult';
 import type {
 	FeedbackReportFilter,
 	LecturerQuestionDetail,

@@ -9,7 +9,7 @@ import type { ModuleGradeData } from '@academic/semester-modules';
 import { Box, Group, Text, TextInput } from '@mantine/core';
 import { useQueryClient } from '@tanstack/react-query';
 import { useEffect, useRef, useState } from 'react';
-import { useActionMutation } from '@/shared/lib/hooks/use-action-mutation';
+import { useActionMutation } from '@/shared/lib/actions/use-action-mutation';
 import { getMarksPercentageColor } from '@/shared/lib/utils/colors';
 import { calculateModuleGrade } from '@/shared/lib/utils/gradeCalculations';
 

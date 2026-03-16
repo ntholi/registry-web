@@ -4,7 +4,7 @@ import { getAssessmentMarksByModuleId } from '@academic/assessment-marks';
 import { getAssessmentByModuleId } from '@academic/assessments';
 import { getModuleGradesByModuleId } from '@academic/semester-modules';
 import { useQuery } from '@tanstack/react-query';
-import { unwrap } from '@/shared/lib/utils/actionResult';
+import { unwrap } from '@/shared/lib/actions/actionResult';
 
 export function useAssessmentsQuery(moduleId: number) {
 	return useQuery({

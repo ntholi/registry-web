@@ -24,7 +24,7 @@ import {
 	IconClipboardList,
 } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
-import { unwrap } from '@/shared/lib/utils/actionResult';
+import { unwrap } from '@/shared/lib/actions/actionResult';
 import { formatSemester } from '@/shared/lib/utils/utils';
 import type { AcademicHistoryProgram } from '../../../_lib/utils';
 import { getAcademicHistory } from '../../../_server/actions';

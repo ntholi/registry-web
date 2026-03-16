@@ -2,7 +2,7 @@
 
 import { getActiveTerm } from '@/app/registry/terms';
 import { auth } from '@/core/auth';
-import { createAction } from '@/shared/lib/utils/actionResult';
+import { createAction } from '@/shared/lib/actions/actionResult';
 import { assignedModulesService as service } from './service';
 
 export const getAssignedModuleByUserAndModule = createAction(

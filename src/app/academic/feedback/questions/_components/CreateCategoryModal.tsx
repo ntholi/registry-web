@@ -5,7 +5,7 @@ import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import { IconPlus } from '@tabler/icons-react';
 import { useQueryClient } from '@tanstack/react-query';
-import { useActionMutation } from '@/shared/lib/hooks/use-action-mutation';
+import { useActionMutation } from '@/shared/lib/actions/use-action-mutation';
 import { createCategory } from '../../categories/_server/actions';
 import CategoryForm from './CategoryForm';
 

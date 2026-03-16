@@ -8,8 +8,8 @@ import { getAllVenueTypes } from '@timetable/venue-types';
 import { createInsertSchema } from 'drizzle-zod';
 import { useRouter } from 'nextjs-toploader/app';
 import { z } from 'zod';
+import { unwrap } from '@/shared/lib/actions/actionResult';
 import { useUserSchools } from '@/shared/lib/hooks/use-user-schools';
-import { unwrap } from '@/shared/lib/utils/actionResult';
 import { Form } from '@/shared/ui/adease';
 
 type Venue = typeof venues.$inferInsert & { schoolIds?: number[] };

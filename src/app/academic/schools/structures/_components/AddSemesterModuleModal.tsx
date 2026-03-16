@@ -30,8 +30,8 @@ import { notifications } from '@mantine/notifications';
 import { IconPlus, IconSearch } from '@tabler/icons-react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
-import { useActionMutation } from '@/shared/lib/hooks/use-action-mutation';
-import { unwrap } from '@/shared/lib/utils/actionResult';
+import { unwrap } from '@/shared/lib/actions/actionResult';
+import { useActionMutation } from '@/shared/lib/actions/use-action-mutation';
 
 type Props = {
 	semesterId: number;

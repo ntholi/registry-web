@@ -1,6 +1,6 @@
 import { Box } from '@mantine/core';
 import { notFound } from 'next/navigation';
-import { unwrap } from '@/shared/lib/utils/actionResult';
+import { unwrap } from '@/shared/lib/actions/actionResult';
 import Form from '../../_components/Form';
 import { getCycle, updateCycle } from '../../_server/actions';
 

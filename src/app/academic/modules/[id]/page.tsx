@@ -16,7 +16,7 @@ import {
 } from '@mantine/core';
 import { notFound } from 'next/navigation';
 import { Suspense } from 'react';
-import { unwrap } from '@/shared/lib/utils/actionResult';
+import { unwrap } from '@/shared/lib/actions/actionResult';
 import {
 	DetailsView,
 	DetailsViewBody,

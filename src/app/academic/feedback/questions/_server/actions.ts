@@ -1,7 +1,7 @@
 'use server';
 
 import type { feedbackQuestions } from '@/core/database';
-import { createAction } from '@/shared/lib/utils/actionResult';
+import { createAction } from '@/shared/lib/actions/actionResult';
 import { feedbackQuestionsService as service } from './service';
 
 type Question = typeof feedbackQuestions.$inferInsert;

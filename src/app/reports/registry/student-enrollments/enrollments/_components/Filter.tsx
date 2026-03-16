@@ -38,8 +38,8 @@ import {
 	useQueryStates,
 } from 'nuqs';
 import { useEffect, useMemo, useRef } from 'react';
+import { unwrap } from '@/shared/lib/actions/actionResult';
 import { useAllTerms } from '@/shared/lib/hooks/use-term';
-import { unwrap } from '@/shared/lib/utils/actionResult';
 import { formatSemester } from '@/shared/lib/utils/utils';
 import {
 	getAvailableCountriesForReports,

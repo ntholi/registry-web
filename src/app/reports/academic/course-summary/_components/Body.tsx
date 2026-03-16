@@ -18,8 +18,8 @@ import {
 import { notifications } from '@mantine/notifications';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useEffect, useMemo, useState } from 'react';
+import { unwrap } from '@/shared/lib/actions/actionResult';
 import { useActiveTerm } from '@/shared/lib/hooks/use-term';
-import { unwrap } from '@/shared/lib/utils/actionResult';
 import { toClassName } from '@/shared/lib/utils/utils';
 import { generateCourseSummaryReport } from '../_server/actions';
 

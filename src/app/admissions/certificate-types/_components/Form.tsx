@@ -21,7 +21,7 @@ import { IconInfoCircle, IconPlus, IconTrash } from '@tabler/icons-react';
 import { createInsertSchema } from 'drizzle-zod';
 import { useRouter } from 'nextjs-toploader/app';
 import { z } from 'zod';
-import type { ActionResult } from '@/shared/lib/utils/actionResult';
+import type { ActionResult } from '@/shared/lib/actions/actionResult';
 import { Form } from '@/shared/ui/adease';
 import type { CertificateTypeWithMappings } from '../_lib/types';
 

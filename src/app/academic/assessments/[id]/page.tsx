@@ -3,7 +3,7 @@ import { Button, Divider, Group, Paper, Title } from '@mantine/core';
 import { IconNotebook } from '@tabler/icons-react';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { unwrap } from '@/shared/lib/utils/actionResult';
+import { unwrap } from '@/shared/lib/actions/actionResult';
 import { DetailsView } from '@/shared/ui/adease';
 import AssessmentsTable from '../_components/AssessmentsTable';
 import ModuleLecturers from '../_components/ModuleLecturers';

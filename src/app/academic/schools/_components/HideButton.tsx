@@ -5,7 +5,7 @@ import { ActionIcon } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { IconEye, IconEyeOff } from '@tabler/icons-react';
 import { useQueryClient } from '@tanstack/react-query';
-import { useActionMutation } from '@/shared/lib/hooks/use-action-mutation';
+import { useActionMutation } from '@/shared/lib/actions/use-action-mutation';
 import { getBooleanColor } from '@/shared/lib/utils/colors';
 
 type Props = {

@@ -20,13 +20,13 @@ import { useQuery } from '@tanstack/react-query';
 import { useSearchParams } from 'next/navigation';
 import { useRouter } from 'nextjs-toploader/app';
 import React from 'react';
-import { useResizablePanel } from '@/shared/lib/hooks/use-resizable-panel';
-import { useViewSelect } from '@/shared/lib/hooks/use-view-select';
 import {
 	type ActionResult,
 	getActionErrorMessage,
 	isActionResult,
-} from '@/shared/lib/utils/actionResult';
+} from '@/shared/lib/actions/actionResult';
+import { useResizablePanel } from '@/shared/lib/hooks/use-resizable-panel';
+import { useViewSelect } from '@/shared/lib/hooks/use-view-select';
 import { ListItem } from './ListItem';
 import { Pagination } from './Pagination';
 import { SearchField } from './SearchField';

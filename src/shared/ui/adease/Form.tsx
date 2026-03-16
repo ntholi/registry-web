@@ -12,7 +12,7 @@ import {
 	type ActionResult,
 	getActionErrorMessage,
 	isActionResult,
-} from '@/shared/lib/utils/actionResult';
+} from '@/shared/lib/actions/actionResult';
 import FormHeader from './FormHeader';
 
 type ZodSchema = ZodObject<Record<string, ZodTypeAny>>;

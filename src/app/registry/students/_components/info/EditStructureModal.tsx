@@ -16,7 +16,7 @@ import { notifications } from '@mantine/notifications';
 import { IconEdit } from '@tabler/icons-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
-import { unwrap } from '@/shared/lib/utils/actionResult';
+import { unwrap } from '@/shared/lib/actions/actionResult';
 import { updateStudentProgramStructure } from '../../_server/actions';
 
 interface Props {

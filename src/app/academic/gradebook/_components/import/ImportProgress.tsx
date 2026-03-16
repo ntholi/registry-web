@@ -5,7 +5,7 @@ import { Button, Group, Paper, Progress, Stack, Text } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useState } from 'react';
-import { unwrap } from '@/shared/lib/utils/actionResult';
+import { unwrap } from '@/shared/lib/actions/actionResult';
 import { getBooleanColor } from '@/shared/lib/utils/colors';
 import type { ImportResult, ParsedRow } from './types';
 

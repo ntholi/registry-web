@@ -7,7 +7,7 @@ import {
 	type ActionResult,
 	failure,
 	success,
-} from '@/shared/lib/utils/actionResult';
+} from '@/shared/lib/actions/actionResult';
 import { normalizeNationality } from '@/shared/lib/utils/countries';
 import { formatPersonName } from '@/shared/lib/utils/names';
 import { applicantsService } from './service';

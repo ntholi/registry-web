@@ -21,7 +21,7 @@ import { notifications } from '@mantine/notifications';
 import { IconEdit, IconPlus, IconTrash } from '@tabler/icons-react';
 import { useMutation } from '@tanstack/react-query';
 import { useState } from 'react';
-import { getActionErrorMessage } from '@/shared/lib/utils/actionResult';
+import { getActionErrorMessage } from '@/shared/lib/actions/actionResult';
 import {
 	addNewGuardian,
 	removeGuardian,

@@ -10,7 +10,7 @@ import { pdf } from '@react-pdf/renderer';
 import { IconDownload } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
-import { unwrap } from '@/shared/lib/utils/actionResult';
+import { unwrap } from '@/shared/lib/actions/actionResult';
 import { formatSemester } from '@/shared/lib/utils/utils';
 import { getCourseOutline } from '../_server/actions';
 import CourseOutlinePDF, {

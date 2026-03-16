@@ -17,7 +17,7 @@ pnpm tsc --noEmit
 Common residual issues:
 - Action callers still expecting unwrapped return types → add `unwrap()` or update type annotation
 - `AppError` vs `string` type mismatches in error handling code (should be clean after Plan 009)
-- Missing `import { unwrap } from '@/shared/lib/utils/actionResult'`
+- Missing `import { unwrap } from '@/shared/lib/actions/actionResult'`
 
 ### Step 2: Lint
 
@@ -39,8 +39,8 @@ pnpm tsc --noEmit & pnpm lint:fix
 
 ### Shared Infrastructure
 
-- [ ] `src/shared/lib/utils/extractError.ts` exists and exports `extractError`, `UserFacingError`
-- [ ] `src/shared/lib/utils/actionResult.ts` exports `AppError`, `ActionResult`, `success`, `failure`, `createAction`, `unwrap`, `isActionResult`, `getActionErrorMessage`
+- [ ] `src/shared/lib/actions/extractError.ts` exists and exports `extractError`, `UserFacingError`
+- [ ] `src/shared/lib/actions/actionResult.ts` exports `AppError`, `ActionResult`, `success`, `failure`, `createAction`, `unwrap`, `isActionResult`, `getActionErrorMessage`
 - [ ] `src/app/apply/_lib/errors.ts` is deleted; all apply imports use shared paths
 
 ### Error Boundaries
@@ -56,7 +56,7 @@ pnpm tsc --noEmit & pnpm lint:fix
 - [ ] `DeleteButton.tsx` detects `ActionResult` in `onSuccess`
 - [ ] `DetailsViewHeader.tsx` has updated `handleDelete` type
 - [ ] `ListLayout.tsx` unwraps `ActionResult`, shows error state + retry
-- [ ] `useActionMutation` hook exists at `src/shared/lib/hooks/use-action-mutation.ts`
+- [ ] `useActionMutation` hook exists at `src/shared/lib/actions/use-action-mutation.ts`
 
 ### QueryClient
 
@@ -65,14 +65,14 @@ pnpm tsc --noEmit & pnpm lint:fix
 ### Action Files (spot check)
 
 Pick 5 random action files from different modules and verify:
-- [ ] Uses `import { createAction } from '@/shared/lib/utils/actionResult'`
+- [ ] Uses `import { createAction } from '@/shared/lib/actions/actionResult'`
 - [ ] All exports use `export const ... = createAction(async (...) => ...)`
 - [ ] No manual `try/catch` blocks
 
 ### RSC Pages (spot check)
 
 Pick 5 random `[id]/page.tsx` files and verify:
-- [ ] Uses `import { unwrap } from '@/shared/lib/utils/actionResult'`
+- [ ] Uses `import { unwrap } from '@/shared/lib/actions/actionResult'`
 - [ ] Direct `await` calls wrapped: `unwrap(await getEntity(id))`
 - [ ] `notFound()` check remains after `unwrap()`
 
@@ -92,7 +92,7 @@ Pick 5 random client components that previously used `useMutation({ mutationFn: 
 
 Pick 5 random action files that call other modules' actions and verify:
 - [ ] Cross-action `await` calls wrapped: `unwrap(await otherModuleAction(...))`
-- [ ] `unwrap` import present from `@/shared/lib/utils/actionResult`
+- [ ] `unwrap` import present from `@/shared/lib/actions/actionResult`
 - [ ] Error propagation works: inner failure → `UserFacingError` thrown → outer `createAction` catches → message preserved
 
 ---

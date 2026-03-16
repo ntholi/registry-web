@@ -1,6 +1,6 @@
 'use server';
 
-import { createAction } from '@/shared/lib/utils/actionResult';
+import { createAction } from '@/shared/lib/actions/actionResult';
 import type { FeedbackReportData, FeedbackReportFilter } from '../_lib/types';
 import { generateFeedbackExcel } from './excel';
 import { feedbackReportService } from './service';

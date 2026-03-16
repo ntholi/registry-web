@@ -24,8 +24,8 @@ import { IconAdjustments, IconFilter } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { parseAsInteger, parseAsString, useQueryStates } from 'nuqs';
 import { useEffect, useMemo } from 'react';
+import { unwrap } from '@/shared/lib/actions/actionResult';
 import { useActiveTerm, useAllTerms } from '@/shared/lib/hooks/use-term';
-import { unwrap } from '@/shared/lib/utils/actionResult';
 import type {
 	ProgressionCategory,
 	ProgressionFilter,

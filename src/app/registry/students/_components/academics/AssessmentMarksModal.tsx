@@ -26,8 +26,8 @@ import {
 } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { getAssessmentTypeLabel } from '@/app/academic/assessments';
-import type { ActionData } from '@/shared/lib/utils/actionResult';
-import { unwrap } from '@/shared/lib/utils/actionResult';
+import type { ActionData } from '@/shared/lib/actions/actionResult';
+import { unwrap } from '@/shared/lib/actions/actionResult';
 import { getThresholdColor } from '@/shared/lib/utils/colors';
 import { formatDateTime } from '@/shared/lib/utils/dates';
 

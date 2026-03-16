@@ -16,7 +16,7 @@ import {
 import { IconCalendarWeek, IconTable } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { parseAsInteger, parseAsString, useQueryState } from 'nuqs';
-import { type ActionData, unwrap } from '@/shared/lib/utils/actionResult';
+import { type ActionData, unwrap } from '@/shared/lib/actions/actionResult';
 import { toClassName } from '@/shared/lib/utils/utils';
 import {
 	getAssignedModulesForCurrentUser,

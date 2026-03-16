@@ -31,9 +31,9 @@ import {
 	useQueryStates,
 } from 'nuqs';
 import { useEffect, useRef, useState } from 'react';
+import { unwrap } from '@/shared/lib/actions/actionResult';
 import { useAllTerms } from '@/shared/lib/hooks/use-term';
 import { useUserSchools } from '@/shared/lib/hooks/use-user-schools';
-import { unwrap } from '@/shared/lib/utils/actionResult';
 import { formatSemester } from '@/shared/lib/utils/utils';
 import { searchModulesForGradeFinder } from '../_server/actions';
 import type { SearchMode } from '../_server/repository';

@@ -13,7 +13,7 @@ import {
 } from '@mantine/core';
 import { IconUsers } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
-import { unwrap } from '@/shared/lib/utils/actionResult';
+import { unwrap } from '@/shared/lib/actions/actionResult';
 import { getStudentClassName } from '@/shared/lib/utils/utils';
 import DeleteModuleButton from './DeleteModuleButton';
 

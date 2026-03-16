@@ -29,8 +29,8 @@ import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
 import { useRouter } from 'nextjs-toploader/app';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { unwrap } from '@/shared/lib/actions/actionResult';
 import { useActiveTerm, useAllTerms } from '@/shared/lib/hooks/use-term';
-import { unwrap } from '@/shared/lib/utils/actionResult';
 import { getAcademicRemarks } from '@/shared/lib/utils/grades';
 import {
 	formatSemester,

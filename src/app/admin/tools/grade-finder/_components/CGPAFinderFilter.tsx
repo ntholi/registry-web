@@ -29,9 +29,9 @@ import {
 	useQueryStates,
 } from 'nuqs';
 import { useEffect, useRef } from 'react';
+import { unwrap } from '@/shared/lib/actions/actionResult';
 import { useAllTerms } from '@/shared/lib/hooks/use-term';
 import { useUserSchools } from '@/shared/lib/hooks/use-user-schools';
-import { unwrap } from '@/shared/lib/utils/actionResult';
 
 export interface CGPAFinderFilterValues {
 	minCGPA: number | null;

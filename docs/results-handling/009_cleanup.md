@@ -10,7 +10,7 @@
 
 ## Task 1: Tighten `ActionResult.error` type
 
-**File**: `src/shared/lib/utils/actionResult.ts`
+**File**: `src/shared/lib/actions/actionResult.ts`
 
 Change the union to strict `AppError`:
 

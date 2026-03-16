@@ -2,7 +2,7 @@
 
 import { eq } from 'drizzle-orm';
 import { users } from '@/core/database';
-import { createAction } from '@/shared/lib/utils/actionResult';
+import { createAction } from '@/shared/lib/actions/actionResult';
 import { lecturersService as service } from './service';
 
 export const getLecturer = createAction(async (id: string) => service.get(id));

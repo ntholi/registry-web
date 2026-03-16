@@ -32,7 +32,7 @@ import {
 	useQueryStates,
 } from 'nuqs';
 import { useEffect, useMemo, useRef } from 'react';
-import { unwrap } from '@/shared/lib/utils/actionResult';
+import { unwrap } from '@/shared/lib/actions/actionResult';
 import { formatMonthYear } from '@/shared/lib/utils/dates';
 import type { GraduationReportFilter } from '../_lib/types';
 import {

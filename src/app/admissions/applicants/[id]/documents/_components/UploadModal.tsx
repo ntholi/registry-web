@@ -11,7 +11,7 @@ import {
 	type DocumentUploadResult,
 } from '@/app/apply/_components/DocumentUpload';
 import type { DocumentAnalysisResult } from '@/core/integrations/ai/documents';
-import { getActionErrorMessage } from '@/shared/lib/utils/actionResult';
+import { getActionErrorMessage } from '@/shared/lib/actions/actionResult';
 import {
 	createAcademicRecordFromDocument,
 	saveApplicantDocument,

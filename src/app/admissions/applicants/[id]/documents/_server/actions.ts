@@ -19,7 +19,7 @@ import {
 	type ActionResult,
 	failure,
 	success,
-} from '@/shared/lib/utils/actionResult';
+} from '@/shared/lib/actions/actionResult';
 import { normalizeNationality } from '@/shared/lib/utils/countries';
 import { normalizeResultClassification } from '@/shared/lib/utils/resultClassification';
 import type { SubjectGradeInput } from '../../academic-records/_lib/types';

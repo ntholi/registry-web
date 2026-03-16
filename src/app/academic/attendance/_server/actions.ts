@@ -2,7 +2,7 @@
 
 import { auth } from '@/core/auth';
 import type { AttendanceStatus } from '@/core/database';
-import { createAction } from '@/shared/lib/utils/actionResult';
+import { createAction } from '@/shared/lib/actions/actionResult';
 import { attendanceService } from './service';
 
 export const getWeeksForTerm = createAction(async (termId: number) =>

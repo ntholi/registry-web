@@ -7,7 +7,7 @@ import { useQuery } from '@tanstack/react-query';
 import { createInsertSchema } from 'drizzle-zod';
 import { useRouter } from 'nextjs-toploader/app';
 import { z } from 'zod';
-import { unwrap } from '@/shared/lib/utils/actionResult';
+import { unwrap } from '@/shared/lib/actions/actionResult';
 import { Form } from '@/shared/ui/adease';
 import { findAllApplicants } from '../../applicants/_server/actions';
 import { findActiveIntakePeriods } from '../../intake-periods/_server/actions';

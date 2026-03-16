@@ -10,7 +10,7 @@ import { useRouter } from 'nextjs-toploader/app';
 import { useState } from 'react';
 import { getStaffEmailDomain } from '@/config/server-actions';
 import type { users } from '@/core/database';
-import { unwrap } from '@/shared/lib/utils/actionResult';
+import { unwrap } from '@/shared/lib/actions/actionResult';
 import { Form } from '@/shared/ui/adease';
 import UserInput from '@/shared/ui/UserInput';
 

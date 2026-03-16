@@ -21,8 +21,8 @@ import { IconFilter, IconX } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useAtom } from 'jotai';
 import { useState } from 'react';
+import { unwrap } from '@/shared/lib/actions/actionResult';
 import { useAllTerms } from '@/shared/lib/hooks/use-term';
-import { unwrap } from '@/shared/lib/utils/actionResult';
 import { formatSemester } from '@/shared/lib/utils/utils';
 import {
 	type ClearanceFilter,

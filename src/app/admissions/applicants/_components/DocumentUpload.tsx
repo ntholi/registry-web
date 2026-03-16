@@ -30,7 +30,7 @@ import { nanoid } from 'nanoid';
 import { useRouter } from 'nextjs-toploader/app';
 import { useState } from 'react';
 import type { DocumentAnalysisResult } from '@/core/integrations/ai/documents';
-import { getActionErrorMessage } from '@/shared/lib/utils/actionResult';
+import { getActionErrorMessage } from '@/shared/lib/actions/actionResult';
 import { formatFileSize } from '@/shared/lib/utils/files';
 import {
 	createApplicantFromDocuments,

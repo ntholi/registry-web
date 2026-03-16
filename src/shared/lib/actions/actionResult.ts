@@ -41,10 +41,16 @@ export function createAction<TArgs extends unknown[], TOutput>(
 				throw error;
 			}
 
-			actionLogger.error('Action failed', {
+			const logMeta = {
 				error: error instanceof Error ? error.message : String(error),
 				stack: error instanceof Error ? error.stack : undefined,
-			});
+			};
+
+			if (error instanceof UserFacingError) {
+				actionLogger.warn('Action rejected', logMeta);
+			} else {
+				actionLogger.error('Action failed', logMeta);
+			}
 
 			return failure<TOutput>(extractError(error));
 		}
@@ -53,7 +59,10 @@ export function createAction<TArgs extends unknown[], TOutput>(
 
 export function unwrap<T>(result: ActionResult<T>): T {
 	if (!result.success) {
-		throw new UserFacingError(getActionErrorMessage(result.error));
+		const msg = getActionErrorMessage(result.error);
+		const code =
+			typeof result.error === 'object' ? result.error.code : undefined;
+		throw new UserFacingError(msg, code);
 	}
 
 	return result.data;

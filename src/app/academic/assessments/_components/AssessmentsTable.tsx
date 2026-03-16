@@ -16,7 +16,7 @@ import { useDisclosure } from '@mantine/hooks';
 import { IconEdit, IconPlus } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
-import { unwrap } from '@/shared/lib/utils/actionResult';
+import { unwrap } from '@/shared/lib/actions/actionResult';
 import {
 	getAssessmentNumberLabel,
 	getAssessmentTypeLabel,

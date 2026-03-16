@@ -16,7 +16,7 @@ import { useForm } from '@mantine/form';
 import { notifications } from '@mantine/notifications';
 import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'nextjs-toploader/app';
-import { getActionErrorMessage } from '@/shared/lib/utils/actionResult';
+import { getActionErrorMessage } from '@/shared/lib/actions/actionResult';
 import { getCountries } from '@/shared/lib/utils/countries';
 import { getReligions } from '@/shared/lib/utils/religions';
 import WizardNavigation from '../../_components/WizardNavigation';

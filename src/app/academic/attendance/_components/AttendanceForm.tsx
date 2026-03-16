@@ -30,8 +30,8 @@ import {
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useMemo, useState } from 'react';
 import type { AttendanceStatus } from '@/core/database';
-import { useActionMutation } from '@/shared/lib/hooks/use-action-mutation';
-import { unwrap } from '@/shared/lib/utils/actionResult';
+import { unwrap } from '@/shared/lib/actions/actionResult';
+import { useActionMutation } from '@/shared/lib/actions/use-action-mutation';
 import { getStatusColor } from '@/shared/lib/utils/colors';
 import { formatPhoneNumber } from '@/shared/lib/utils/utils';
 import Copyable from '@/shared/ui/Copyable';

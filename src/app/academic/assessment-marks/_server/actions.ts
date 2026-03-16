@@ -3,7 +3,7 @@
 import { updateGradeByStudentModuleId } from '@academic/semester-modules';
 import { getActiveTerm } from '@/app/registry/terms';
 import type { assessmentMarks } from '@/core/database';
-import { createAction, unwrap } from '@/shared/lib/utils/actionResult';
+import { createAction, unwrap } from '@/shared/lib/actions/actionResult';
 import { calculateModuleGrade } from '@/shared/lib/utils/gradeCalculations';
 import { assessmentMarksService as service } from './service';
 

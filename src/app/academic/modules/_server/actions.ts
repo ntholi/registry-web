@@ -1,7 +1,7 @@
 'use server';
 
 import type { modules } from '@/core/database';
-import { createAction } from '@/shared/lib/utils/actionResult';
+import { createAction } from '@/shared/lib/actions/actionResult';
 import { modulesService as service } from './service';
 
 type Module = typeof modules.$inferInsert;

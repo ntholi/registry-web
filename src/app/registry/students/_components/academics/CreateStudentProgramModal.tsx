@@ -19,7 +19,7 @@ import { programStatus, type StudentProgramStatus } from '@registry/_database';
 import { IconPlus } from '@tabler/icons-react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useMemo, useState } from 'react';
-import { unwrap } from '@/shared/lib/utils/actionResult';
+import { unwrap } from '@/shared/lib/actions/actionResult';
 import { formatDateToISO } from '@/shared/lib/utils/dates';
 import TermInput from '@/shared/ui/TermInput';
 import { createStudentProgram } from '../../_server/actions';

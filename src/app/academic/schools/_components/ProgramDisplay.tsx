@@ -20,7 +20,7 @@ import {
 import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
 import { useState } from 'react';
-import { unwrap } from '@/shared/lib/utils/actionResult';
+import { unwrap } from '@/shared/lib/actions/actionResult';
 import { getStructuresByProgramId } from '../structures/_server/actions';
 
 type Structure = {

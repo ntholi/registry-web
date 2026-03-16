@@ -4,7 +4,7 @@ import { getAllSchools } from '@academic/schools/_server/actions';
 import { getUserSchools } from '@admin/users/_server/actions';
 import { getAllTerms } from '@registry/terms/_server/actions';
 import type { feedbackCycles } from '@/core/database';
-import { createAction, unwrap } from '@/shared/lib/utils/actionResult';
+import { createAction, unwrap } from '@/shared/lib/actions/actionResult';
 import { feedbackCyclesService as service } from './service';
 
 type Cycle = typeof feedbackCycles.$inferInsert;

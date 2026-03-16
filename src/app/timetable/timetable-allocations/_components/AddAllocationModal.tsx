@@ -23,8 +23,8 @@ import { getAllVenues } from '@timetable/venues';
 import { zod4Resolver as zodResolver } from 'mantine-form-zod-resolver';
 import { useState } from 'react';
 import { z } from 'zod';
-import type { ActionData } from '@/shared/lib/utils/actionResult';
-import { unwrap } from '@/shared/lib/utils/actionResult';
+import type { ActionData } from '@/shared/lib/actions/actionResult';
+import { unwrap } from '@/shared/lib/actions/actionResult';
 import { toClassName } from '@/shared/lib/utils/utils';
 import {
 	applyTimeRefinements,

@@ -23,7 +23,7 @@ Every change in this plan maintains full backward compatibility:
 | **Modify** | `src/shared/ui/StatusPage.tsx` — add `onRetry` prop |
 | **Create** | `src/app/error.tsx` — root error boundary |
 | **Create** | `src/app/global-error.tsx` — mandatory root layout error boundary |
-| **Create** | `src/shared/lib/hooks/use-action-mutation.ts` — unwraps `ActionResult` for direct `useMutation` callers |
+| **Create** | `src/shared/lib/actions/use-action-mutation.ts` — unwraps `ActionResult` for direct `useMutation` callers |
 | **Modify** | `src/shared/ui/adease/Form.tsx` — replace local `isActionResult` with shared import |
 | **Modify** | `src/shared/ui/adease/DeleteButton.tsx` — detect `ActionResult` in onSuccess |
 | **Modify** | `src/shared/ui/adease/DetailsViewHeader.tsx` — update `handleDelete` type |
@@ -135,7 +135,7 @@ export default function GlobalError({
 
 ## Task 4: Create `useActionMutation` hook
 
-**File**: `src/shared/lib/hooks/use-action-mutation.ts`
+**File**: `src/shared/lib/actions/use-action-mutation.ts`
 
 This hook unwraps `ActionResult<T>` so that ~150+ client components using `useMutation` directly continue to work after actions are wrapped with `createAction`. It converts `ActionResult` failures into thrown errors, preserving TanStack Query's native `onError` / `onSuccess` contract.
 
@@ -146,7 +146,7 @@ import {
   isActionResult,
   getActionErrorMessage,
   type ActionResult,
-} from '@/shared/lib/utils/actionResult';
+} from '@/shared/lib/actions/actionResult';
 import { useMutation, type UseMutationOptions } from '@tanstack/react-query';
 
 export function useActionMutation<TData, TVariables = void>(
@@ -196,7 +196,7 @@ const mutation = useActionMutation(updateThing, {
 
 **File**: `src/shared/ui/adease/Form.tsx`
 
-**Current state**: `Form.tsx` already imports `getActionErrorMessage` and `ActionResult` from `@/shared/lib/utils/actionResult`, and already uses `getActionErrorMessage(data.error)` correctly in the `onSuccess` handler. However, it still has a **local duplicate** `isActionResult` function.
+**Current state**: `Form.tsx` already imports `getActionErrorMessage` and `ActionResult` from `@/shared/lib/actions/actionResult`, and already uses `getActionErrorMessage(data.error)` correctly in the `onSuccess` handler. However, it still has a **local duplicate** `isActionResult` function.
 
 1. **Remove** the local `isActionResult` function (lines 41–47)
 2. **Add** `isActionResult` to the existing shared import:
@@ -205,7 +205,7 @@ import {
   isActionResult,
   getActionErrorMessage,
   type ActionResult,
-} from '@/shared/lib/utils/actionResult';
+} from '@/shared/lib/actions/actionResult';
 ```
 
 No other changes needed — error handling already uses `getActionErrorMessage` correctly.
@@ -225,7 +225,7 @@ handleDelete: () => Promise<void | ActionResult<unknown>>;
 
 2. **Import** shared utilities:
 ```ts
-import { isActionResult, getActionErrorMessage, type ActionResult } from '@/shared/lib/utils/actionResult';
+import { isActionResult, getActionErrorMessage, type ActionResult } from '@/shared/lib/actions/actionResult';
 ```
 
 3. **Update** `mutationFn` and `onSuccess` to detect ActionResult:
@@ -276,7 +276,7 @@ import {
   isActionResult,
   getActionErrorMessage,
   type ActionResult,
-} from '@/shared/lib/utils/actionResult';
+} from '@/shared/lib/actions/actionResult';
 
 type GetDataResult<T> = { items: T[]; totalPages: number; totalItems?: number };
 
@@ -366,7 +366,7 @@ pnpm tsc --noEmit
 - [ ] `StatusPage` has `onRetry` prop
 - [ ] `src/app/error.tsx` exists with generic message + retry
 - [ ] `src/app/global-error.tsx` exists with standalone Mantine provider
-- [ ] `src/shared/lib/hooks/use-action-mutation.ts` exports `useActionMutation` hook
+- [ ] `src/shared/lib/actions/use-action-mutation.ts` exports `useActionMutation` hook
 - [ ] `Form.tsx` uses shared `isActionResult` + `getActionErrorMessage`
 - [ ] `DeleteButton.tsx` detects `ActionResult` in `onSuccess`
 - [ ] `DetailsViewHeader.tsx` has updated `handleDelete` type

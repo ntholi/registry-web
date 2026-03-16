@@ -27,7 +27,7 @@ import {
 	type ActionResult,
 	failure,
 	success,
-} from '@/shared/lib/utils/actionResult';
+} from '@/shared/lib/actions/actionResult';
 import type { ApplicationFilters } from '../_lib/types';
 import { applicationsService } from './service';
 

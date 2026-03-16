@@ -33,7 +33,7 @@ import {
 	USER_ROLES,
 	type UserRole,
 } from '@/core/auth/permissions';
-import { unwrap } from '@/shared/lib/utils/actionResult';
+import { unwrap } from '@/shared/lib/actions/actionResult';
 import { toTitleCase } from '@/shared/lib/utils/utils';
 import { Form } from '@/shared/ui/adease';
 

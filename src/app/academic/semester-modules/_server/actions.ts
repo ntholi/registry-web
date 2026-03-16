@@ -2,7 +2,7 @@
 
 import type { Grade } from '@registry/_database';
 import type { semesterModules } from '@/core/database';
-import { createAction, unwrap } from '@/shared/lib/utils/actionResult';
+import { createAction, unwrap } from '@/shared/lib/actions/actionResult';
 import { semesterModulesService } from './service';
 
 type Module = typeof semesterModules.$inferInsert;

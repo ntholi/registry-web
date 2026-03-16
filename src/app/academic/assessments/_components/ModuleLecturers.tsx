@@ -19,7 +19,7 @@ import {
 import { useDisclosure } from '@mantine/hooks';
 import { IconChevronDown, IconChevronUp, IconUsers } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
-import { unwrap } from '@/shared/lib/utils/actionResult';
+import { unwrap } from '@/shared/lib/actions/actionResult';
 import { toClassName, toTitleCase } from '@/shared/lib/utils/utils';
 
 type Props = {

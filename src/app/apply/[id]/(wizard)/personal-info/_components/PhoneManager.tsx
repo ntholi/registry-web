@@ -16,7 +16,7 @@ import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import { IconPlus, IconTrash } from '@tabler/icons-react';
 import { useMutation } from '@tanstack/react-query';
-import { getActionErrorMessage } from '@/shared/lib/utils/actionResult';
+import { getActionErrorMessage } from '@/shared/lib/actions/actionResult';
 import { addPhone, removePhone } from '../_server/actions';
 
 export default function PhoneManager() {

@@ -11,8 +11,8 @@ import {
 	type PermissionRequirement,
 } from '@/core/auth/permissions';
 import { authClient } from '@/core/auth-client';
+import type { ActionResult } from '@/shared/lib/actions/actionResult';
 import { useViewSelect } from '@/shared/lib/hooks/use-view-select';
-import type { ActionResult } from '@/shared/lib/utils/actionResult';
 import { DeleteButton } from './DeleteButton';
 
 export interface DetailsViewHeaderProps {

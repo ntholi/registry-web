@@ -17,9 +17,9 @@ import { notifications } from '@mantine/notifications';
 import { IconPlus } from '@tabler/icons-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
+import type { ActionData } from '@/shared/lib/actions/actionResult';
+import { unwrap } from '@/shared/lib/actions/actionResult';
 import { useActiveTerm } from '@/shared/lib/hooks/use-term';
-import type { ActionData } from '@/shared/lib/utils/actionResult';
-import { unwrap } from '@/shared/lib/utils/actionResult';
 import { getStudentClassName } from '@/shared/lib/utils/utils';
 import { createMoodleCourse, getMoodleCategories } from '../_server/actions';
 

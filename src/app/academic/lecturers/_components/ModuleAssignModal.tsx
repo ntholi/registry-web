@@ -16,8 +16,8 @@ import { notifications } from '@mantine/notifications';
 import { useQueryClient } from '@tanstack/react-query';
 import { useParams } from 'next/navigation';
 import { useState } from 'react';
-import { useActionMutation } from '@/shared/lib/hooks/use-action-mutation';
-import type { ActionData } from '@/shared/lib/utils/actionResult';
+import type { ActionData } from '@/shared/lib/actions/actionResult';
+import { useActionMutation } from '@/shared/lib/actions/use-action-mutation';
 import { ModuleSearchInput } from './ModuleSearchInput';
 
 type FormValues = {

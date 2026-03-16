@@ -21,8 +21,8 @@ import { type SemesterStatus, semesterStatus } from '@registry/_database';
 import { IconAlertCircle, IconEdit } from '@tabler/icons-react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect, useState } from 'react';
+import { unwrap } from '@/shared/lib/actions/actionResult';
 import { useAllTerms } from '@/shared/lib/hooks/use-term';
-import { unwrap } from '@/shared/lib/utils/actionResult';
 import { updateStudentSemester } from '../../_server/actions';
 
 interface StudentSemester {

@@ -19,12 +19,12 @@ This plan **only creates new files and extends existing types**. No existing con
 
 | Action | File |
 |--------|------|
-| **Create** | `src/shared/lib/utils/extractError.ts` |
-| **Rewrite** | `src/shared/lib/utils/actionResult.ts` |
+| **Create** | `src/shared/lib/actions/extractError.ts` |
+| **Rewrite** | `src/shared/lib/actions/actionResult.ts` |
 
 ## Task 1: Create `extractError.ts`
 
-**File**: `src/shared/lib/utils/extractError.ts`
+**File**: `src/shared/lib/actions/extractError.ts`
 
 ### Contents
 
@@ -80,7 +80,7 @@ Full implementation: see [error-handling-plan.md](./error-handling-plan.md) Sect
 
 ## Task 2: Rewrite `actionResult.ts`
 
-**File**: `src/shared/lib/utils/actionResult.ts`
+**File**: `src/shared/lib/actions/actionResult.ts`
 
 Current contents are minimal (just `ActionResult<T>`, `success`, `failure` with string error). Replace with expanded version that **maintains backward compatibility**.
 
@@ -124,7 +124,7 @@ This is what UI components use to safely read error messages regardless of wheth
 
 ```ts
 import { createServiceLogger } from '@/core/platform/logger';
-import { isNextNavigationError } from './extractError';
+import { isNextNavigationError, UserFacingError } from './extractError';
 import { extractError } from './extractError';
 
 const actionLogger = createServiceLogger('ServerAction');
@@ -137,10 +137,18 @@ export function createAction<TArgs extends unknown[], TOutput>(
       return success(await fn(...args));
     } catch (error) {
       if (isNextNavigationError(error)) throw error;
-      actionLogger.error('Action failed', {
+
+      const logMeta = {
         error: error instanceof Error ? error.message : String(error),
         stack: error instanceof Error ? error.stack : undefined,
-      });
+      };
+
+      if (error instanceof UserFacingError) {
+        actionLogger.warn('Action rejected', logMeta);
+      } else {
+        actionLogger.error('Action failed', logMeta);
+      }
+
       return failure<TOutput>(extractError(error));
     }
   };
@@ -158,13 +166,15 @@ import { UserFacingError } from './extractError';
 
 export function unwrap<T>(result: ActionResult<T>): T {
   if (!result.success) {
-    throw new UserFacingError(getActionErrorMessage(result.error));
+    const msg = getActionErrorMessage(result.error);
+    const code = typeof result.error === 'object' ? result.error.code : undefined;
+    throw new UserFacingError(msg, code);
   }
   return result.data;
 }
 ```
 
-**Why `UserFacingError`**: When actions call other wrapped actions (40+ cross-action calls in the codebase), the outer `createAction` catches the throw. `extractError` detects `UserFacingError` and preserves the original message. If `unwrap` threw plain `Error`, the message would be lost — `extractError` would normalize it to "An unexpected error occurred".
+**Why `UserFacingError`**: When actions call other wrapped actions (40+ cross-action calls in the codebase), the outer `createAction` catches the throw. `extractError` detects `UserFacingError` and preserves the original message and code.
 
 Full implementation: see [error-handling-plan.md](./error-handling-plan.md) Sections 1, 3, 4, 5.
 
@@ -183,8 +193,8 @@ If minor type warnings appear in Form.tsx due to the union, they are fixed in Pl
 
 ## Done When
 
-- [ ] `src/shared/lib/utils/extractError.ts` exists with `UserFacingError`, `isNextNavigationError`, `extractError`, all error mappings
-- [ ] `src/shared/lib/utils/actionResult.ts` has `AppError`, `ActionResult<T>` (with `error: AppError | string`), `createAction` (with sentinel re-throw), `unwrap`, `isActionResult`, `getActionErrorMessage`
+- [ ] `src/shared/lib/actions/extractError.ts` exists with `UserFacingError`, `isNextNavigationError`, `extractError`, all error mappings
+- [ ] `src/shared/lib/actions/actionResult.ts` has `AppError`, `ActionResult<T>` (with `error: AppError | string`), `createAction` (with sentinel re-throw), `unwrap`, `isActionResult`, `getActionErrorMessage`
 - [ ] `createAction` re-throws Next.js sentinels (`redirect`, `notFound`, `unauthorized`, `forbidden`) — verified by checking `isNextNavigationError`
 - [ ] `src/app/apply/_lib/errors.ts` is **untouched** (migrated in Plan 008)
 - [ ] `pnpm tsc --noEmit` passes (or has only minor warnings fixed in Plan 002)

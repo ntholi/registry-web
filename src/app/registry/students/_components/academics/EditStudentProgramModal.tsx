@@ -22,8 +22,8 @@ import { programStatus, type StudentProgramStatus } from '@registry/_database';
 import { IconAlertCircle, IconEdit } from '@tabler/icons-react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect, useState } from 'react';
+import { unwrap } from '@/shared/lib/actions/actionResult';
 import { useAllTerms } from '@/shared/lib/hooks/use-term';
-import { unwrap } from '@/shared/lib/utils/actionResult';
 import { formatDateToISO, parseDate } from '@/shared/lib/utils/dates';
 import { updateStudentProgram } from '../../_server/actions';
 

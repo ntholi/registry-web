@@ -21,8 +21,8 @@ import {
 	useQueryStates,
 } from 'nuqs';
 import { useEffect } from 'react';
+import { unwrap } from '@/shared/lib/actions/actionResult';
 import { useAllTerms } from '@/shared/lib/hooks/use-term';
-import { unwrap } from '@/shared/lib/utils/actionResult';
 import { formatSemester } from '@/shared/lib/utils/utils';
 
 const semesterOptions = Array.from({ length: 8 }, (_, i) => {

@@ -2,7 +2,7 @@
 
 import { getActiveTerm } from '@/app/registry/terms';
 import type { assessments, lmsAssessments } from '@/core/database';
-import { createAction } from '@/shared/lib/utils/actionResult';
+import { createAction } from '@/shared/lib/actions/actionResult';
 import { assessmentsService as service } from './service';
 
 type Assessment = typeof assessments.$inferInsert;

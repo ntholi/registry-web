@@ -160,7 +160,7 @@ const student = await getStudent(stdNo);
 ### After
 
 ```ts
-import { unwrap } from '@/shared/lib/utils/actionResult';
+import { unwrap } from '@/shared/lib/actions/actionResult';
 
 const term = unwrap(await getActiveTerm());
 const student = unwrap(await getStudent(stdNo));
@@ -255,7 +255,7 @@ export async function publishTerm(code: string) {
 ### After
 
 ```ts
-import { UserFacingError } from '@/shared/lib/utils/extractError';
+import { UserFacingError } from '@/shared/lib/actions/extractError';
 
 export async function publishTerm(code: string) {
 	const term = await termsRepository.findById(code);
@@ -292,7 +292,7 @@ export async function getSchool(id: string) {
 ```ts
 'use server';
 
-import { createAction } from '@/shared/lib/utils/actionResult';
+import { createAction } from '@/shared/lib/actions/actionResult';
 
 export const getSchool = createAction(async (id: string) => schoolsService.get(id));
 ```
@@ -314,7 +314,7 @@ export async function findAllSchools(page: number, search: string) {
 ```ts
 'use server';
 
-import { createAction } from '@/shared/lib/utils/actionResult';
+import { createAction } from '@/shared/lib/actions/actionResult';
 
 export const findAllSchools = createAction(
 	async (page: number, search: string) =>
@@ -344,7 +344,7 @@ export async function createSchool(data: SchoolInput) {
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { createAction } from '@/shared/lib/utils/actionResult';
+import { createAction } from '@/shared/lib/actions/actionResult';
 
 export const createSchool = createAction(async (data: SchoolInput) => {
 	const item = await schoolsService.create(data);
@@ -370,7 +370,7 @@ export async function deleteSchool(id: string) {
 ```ts
 'use server';
 
-import { createAction } from '@/shared/lib/utils/actionResult';
+import { createAction } from '@/shared/lib/actions/actionResult';
 
 export const deleteSchool = createAction(async (id: string) => {
 	await schoolsService.delete(id);
@@ -388,7 +388,7 @@ export const deleteSchool = createAction(async (id: string) => {
 ```ts
 'use server';
 
-import { failure, success, type ActionResult } from '@/shared/lib/utils/actionResult';
+import { failure, success, type ActionResult } from '@/shared/lib/actions/actionResult';
 
 export async function createCertificateType(
 	data: CertificateTypeInput
@@ -407,8 +407,8 @@ export async function createCertificateType(
 ```ts
 'use server';
 
-import { createAction } from '@/shared/lib/utils/actionResult';
-import { UserFacingError } from '@/shared/lib/utils/extractError';
+import { createAction } from '@/shared/lib/actions/actionResult';
+import { UserFacingError } from '@/shared/lib/actions/extractError';
 
 export const createCertificateType = createAction(
 	async (data: CertificateTypeInput) => {
@@ -433,7 +433,7 @@ export const createCertificateType = createAction(
 'use server';
 
 import { extractError } from '@/app/apply/_lib/errors';
-import { type ActionResult } from '@/shared/lib/utils/actionResult';
+import { type ActionResult } from '@/shared/lib/actions/actionResult';
 
 export async function submitApplication(
 	applicationId: string
@@ -452,7 +452,7 @@ export async function submitApplication(
 ```ts
 'use server';
 
-import { createAction, unwrap } from '@/shared/lib/utils/actionResult';
+import { createAction, unwrap } from '@/shared/lib/actions/actionResult';
 
 export const submitApplication = createAction(async (applicationId: string) => {
 	unwrap(await changeApplicationStatus(applicationId, 'submitted'));
@@ -470,13 +470,13 @@ import { extractError, type ActionResult } from '../../_lib/errors';
 ### After
 
 ```ts
-import { createAction, type ActionResult } from '@/shared/lib/utils/actionResult';
+import { createAction, type ActionResult } from '@/shared/lib/actions/actionResult';
 ```
 
 ### After (cleanup)
 
 ```ts
-import { createAction } from '@/shared/lib/utils/actionResult';
+import { createAction } from '@/shared/lib/actions/actionResult';
 ```
 
 ---
@@ -507,7 +507,7 @@ export async function createAssessmentFromQuiz(input: QuizInput) {
 ```ts
 'use server';
 
-import { createAction, unwrap } from '@/shared/lib/utils/actionResult';
+import { createAction, unwrap } from '@/shared/lib/actions/actionResult';
 
 export const createAssessmentFromQuiz = createAction(async (input: QuizInput) => {
 	const term = unwrap(await getActiveTerm());
@@ -553,8 +553,8 @@ export async function updateApplicantFromIdentity(
 ### After
 
 ```ts
-import { createAction, unwrap } from '@/shared/lib/utils/actionResult';
-import { UserFacingError } from '@/shared/lib/utils/extractError';
+import { createAction, unwrap } from '@/shared/lib/actions/actionResult';
+import { UserFacingError } from '@/shared/lib/actions/extractError';
 
 export const updateApplicantFromIdentity = createAction(
 	async (applicantId: string, data: ExtractedIdentityData) => {
@@ -593,7 +593,7 @@ export async function getGraduationReport(filters: Filters) {
 ### After
 
 ```ts
-import { createAction, unwrap } from '@/shared/lib/utils/actionResult';
+import { createAction, unwrap } from '@/shared/lib/actions/actionResult';
 
 export const getGraduationReport = createAction(async (filters: Filters) => {
 	const sponsors = unwrap(await getAllSponsors());
@@ -629,7 +629,7 @@ export default async function ModulePage({ params }: Props) {
 
 ```tsx
 import { notFound } from 'next/navigation';
-import { unwrap } from '@/shared/lib/utils/actionResult';
+import { unwrap } from '@/shared/lib/actions/actionResult';
 import { getModule } from '../_server/actions';
 
 export default async function ModulePage({ params }: Props) {
@@ -669,7 +669,7 @@ export default async function EditAssessmentPage({ params }: Props) {
 
 ```tsx
 import { notFound } from 'next/navigation';
-import { unwrap } from '@/shared/lib/utils/actionResult';
+import { unwrap } from '@/shared/lib/actions/actionResult';
 import { getAssessment } from '../../_server/actions';
 import { getActiveTerm } from '@/app/registry/terms/_server/actions';
 
@@ -960,7 +960,7 @@ export function EditQuestionModal() {
 ```tsx
 'use client';
 
-import { useActionMutation } from '@/shared/lib/hooks/use-action-mutation';
+import { useActionMutation } from '@/shared/lib/actions/use-action-mutation';
 import { updateQuestion } from '../_server/actions';
 
 export function EditQuestionModal() {
@@ -1004,7 +1004,7 @@ import { useMutation, type UseMutationOptions } from '@tanstack/react-query';
 import {
 	type ActionResult,
 	getActionErrorMessage,
-} from '@/shared/lib/utils/actionResult';
+} from '@/shared/lib/actions/actionResult';
 
 export function useActionMutation<TData, TVariables = void>(
 	action: (variables: TVariables) => Promise<ActionResult<TData>>,
@@ -1411,7 +1411,7 @@ export default async function LecturerPage({ params }: Props) {
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { createAction } from '@/shared/lib/utils/actionResult';
+import { createAction } from '@/shared/lib/actions/actionResult';
 
 export const getLecturer = createAction(async (id: string) => lecturersService.get(id));
 
@@ -1429,7 +1429,7 @@ export const findAllLecturers = createAction(
 
 ```tsx
 import { notFound } from 'next/navigation';
-import { unwrap } from '@/shared/lib/utils/actionResult';
+import { unwrap } from '@/shared/lib/actions/actionResult';
 import { getLecturer } from '../_server/actions';
 
 export default async function LecturerPage({ params }: Props) {
@@ -1463,7 +1463,7 @@ export default async function LecturerPage({ params }: Props) {
 'use server';
 
 import { extractError } from '@/app/apply/_lib/errors';
-import { type ActionResult } from '@/shared/lib/utils/actionResult';
+import { type ActionResult } from '@/shared/lib/actions/actionResult';
 
 export async function saveProgramSelection(
 	applicationId: string,
@@ -1503,8 +1503,8 @@ export async function saveProgramSelection(
 ```ts
 'use server';
 
-import { createAction, unwrap } from '@/shared/lib/utils/actionResult';
-import { UserFacingError } from '@/shared/lib/utils/extractError';
+import { createAction, unwrap } from '@/shared/lib/actions/actionResult';
+import { UserFacingError } from '@/shared/lib/actions/extractError';
 
 export const saveProgramSelection = createAction(
 	async (applicationId: string, programId: string) => {
@@ -1556,7 +1556,7 @@ export default async function AttendancePage({ searchParams }: Props) {
 ```ts
 'use server';
 
-import { createAction } from '@/shared/lib/utils/actionResult';
+import { createAction } from '@/shared/lib/actions/actionResult';
 
 export const getAttendanceReport = createAction(
 	async (filters: AttendanceFilters) => attendanceReportService.get(filters)
@@ -1564,7 +1564,7 @@ export const getAttendanceReport = createAction(
 ```
 
 ```tsx
-import { unwrap } from '@/shared/lib/utils/actionResult';
+import { unwrap } from '@/shared/lib/actions/actionResult';
 import { getAttendanceReport } from './_server/actions';
 
 export default async function AttendancePage({ searchParams }: Props) {
@@ -1595,8 +1595,8 @@ DB -> Repository (throws) -> Service (throws or UserFacingError) -> Action (crea
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { createAction, unwrap } from '@/shared/lib/utils/actionResult';
-import { UserFacingError } from '@/shared/lib/utils/extractError';
+import { createAction, unwrap } from '@/shared/lib/actions/actionResult';
+import { UserFacingError } from '@/shared/lib/actions/extractError';
 
 export const updateSemesterModule = createAction(
 	async (id: string, data: SemesterModuleInput) => {
@@ -1616,7 +1616,7 @@ export const updateSemesterModule = createAction(
 
 ```tsx
 import { notFound } from 'next/navigation';
-import { unwrap } from '@/shared/lib/utils/actionResult';
+import { unwrap } from '@/shared/lib/actions/actionResult';
 import { getSemesterModule } from '../_server/actions';
 
 export default async function SemesterModulePage({ params }: Props) {
@@ -1636,7 +1636,7 @@ export default async function SemesterModulePage({ params }: Props) {
 ```tsx
 'use client';
 
-import { useActionMutation } from '@/shared/lib/hooks/use-action-mutation';
+import { useActionMutation } from '@/shared/lib/actions/use-action-mutation';
 import { updateSemesterModule } from '../_server/actions';
 
 export function EditSemesterModuleModal() {
