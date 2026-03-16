@@ -2,6 +2,7 @@
 
 import { PERMISSION_RESOURCE_GROUPS } from '@auth/permission-presets/_lib/catalog';
 import {
+	ActionIcon,
 	Badge,
 	Box,
 	Button,
@@ -22,6 +23,7 @@ import {
 	IconPlus,
 	IconRefresh,
 	IconSearch,
+	IconTrash,
 	IconX,
 } from '@tabler/icons-react';
 import { useState } from 'react';
@@ -229,10 +231,12 @@ function ResourcePermissionCard({
 	item,
 	readOnly,
 	onEdit,
+	onDelete,
 }: {
 	item: ResourceCard;
 	readOnly: boolean;
 	onEdit: (resource: Resource) => void;
+	onDelete: (resource: Resource) => void;
 }) {
 	return (
 		<Paper withBorder radius='md' p='sm'>
@@ -255,14 +259,34 @@ function ResourcePermissionCard({
 						</Box>
 					</Group>
 					{!readOnly ? (
-						<Button
-							variant='subtle'
-							size='xs'
-							leftSection={<IconPencil size={14} />}
-							onClick={() => onEdit(item.resource)}
-						>
-							Manage
-						</Button>
+						<Group gap={4} wrap='nowrap'>
+							<ActionIcon
+								variant='subtle'
+								size='sm'
+								color='gray'
+								onClick={() => onEdit(item.resource)}
+								aria-label={`Edit ${toTitleCase(item.resource)}`}
+							>
+								<IconPencil size={14} />
+							</ActionIcon>
+							<ActionIcon
+								variant='subtle'
+								size='sm'
+								color='red'
+								onClick={() =>
+									modals.openConfirmModal({
+										title: `Remove ${toTitleCase(item.resource)}`,
+										children: `All ${item.actions.length} permission(s) for "${toTitleCase(item.resource)}" will be removed.`,
+										labels: { confirm: 'Remove', cancel: 'Cancel' },
+										confirmProps: { color: 'red' },
+										onConfirm: () => onDelete(item.resource),
+									})
+								}
+								aria-label={`Remove ${toTitleCase(item.resource)}`}
+							>
+								<IconTrash size={14} />
+							</ActionIcon>
+						</Group>
 					) : null}
 				</Group>
 			</Stack>
@@ -384,6 +408,11 @@ export default function PermissionMatrix({
 											item={item}
 											readOnly={!editable}
 											onEdit={openEditModal}
+											onDelete={(resource) =>
+												onChange?.(
+													current.filter((p) => p.resource !== resource)
+												)
+											}
 										/>
 									))}
 								</Stack>
