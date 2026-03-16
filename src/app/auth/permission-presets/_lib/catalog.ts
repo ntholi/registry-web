@@ -134,6 +134,7 @@ export const PERMISSION_PRESET_SEEDS: readonly PermissionPresetSeed[] = [
 			grant('venues', fullCrud),
 			grant('students', ['read']),
 			grant('registration', ['read', 'update']),
+			grant('registration-clearance', ['read']),
 			grant('graduation', ['read', 'approve']),
 			grant('graduation-clearance', ['read', 'approve', 'reject']),
 			grant('student-statuses', ['approve']),
@@ -161,6 +162,7 @@ export const PERMISSION_PRESET_SEEDS: readonly PermissionPresetSeed[] = [
 			grant('feedback-categories', fullCrud),
 			grant('school-structures', ['read', 'update']),
 			grant('registration', ['read', 'update']),
+			grant('registration-clearance', ['read']),
 			grant('student-statuses', ['approve']),
 			grant('timetable', ['read']),
 			grant('students', ['read']),
@@ -184,6 +186,7 @@ export const PERMISSION_PRESET_SEEDS: readonly PermissionPresetSeed[] = [
 		permissions: mergeGrants(
 			grant('feedback-cycles', ['read']),
 			grant('registration', ['read']),
+			grant('registration-clearance', ['read']),
 			grant('student-statuses', ['approve']),
 			grant('students', ['read']),
 			grant('timetable', ['read']),
@@ -200,6 +203,8 @@ export const PERMISSION_PRESET_SEEDS: readonly PermissionPresetSeed[] = [
 		role: 'academic',
 		description: '',
 		permissions: mergeGrants(
+			grant('registration', ['read']),
+			grant('registration-clearance', ['read']),
 			grant('assessments', fullCrud),
 			grant('gradebook', ['read', 'update']),
 			grant('feedback-reports', ['read']),
@@ -216,6 +221,8 @@ export const PERMISSION_PRESET_SEEDS: readonly PermissionPresetSeed[] = [
 		role: 'academic',
 		description: '',
 		permissions: mergeGrants(
+			grant('registration', ['read']),
+			grant('registration-clearance', ['read']),
 			grant('assessments', fullCrud),
 			grant('gradebook', ['read', 'update', 'approve']),
 			grant('feedback-reports', ['read']),
@@ -232,6 +239,8 @@ export const PERMISSION_PRESET_SEEDS: readonly PermissionPresetSeed[] = [
 		role: 'academic',
 		description: '',
 		permissions: mergeGrants(
+			grant('registration', ['read']),
+			grant('registration-clearance', ['read']),
 			grant('assessments', fullCrud),
 			grant('feedback-questions', fullCrud),
 			grant('feedback-categories', fullCrud),
@@ -310,6 +319,7 @@ export const PERMISSION_PRESET_SEEDS: readonly PermissionPresetSeed[] = [
 			grant('student-statuses', ['read', 'approve']),
 			grant('graduation', ['read']),
 			grant('students', ['read']),
+			grant('registration', ['read']),
 			grant('registration-clearance', ['read', 'approve', 'reject']),
 			grant('graduation-clearance', ['read', 'approve', 'reject']),
 			grant('blocked-students', ['read', 'create', 'update']),
@@ -333,6 +343,7 @@ export const PERMISSION_PRESET_SEEDS: readonly PermissionPresetSeed[] = [
 			grant('student-statuses', ['read', 'approve']),
 			grant('graduation', ['read']),
 			grant('students', ['read']),
+			grant('registration', ['read']),
 			grant('registration-clearance', ['read', 'approve', 'reject']),
 			grant('graduation-clearance', ['read', 'approve', 'reject']),
 			grant('blocked-students', fullCrud),
@@ -353,6 +364,7 @@ export const PERMISSION_PRESET_SEEDS: readonly PermissionPresetSeed[] = [
 		permissions: mergeGrants(
 			grant('library', fullCrud),
 			grant('students', ['read']),
+			grant('registration', ['read']),
 			grant('registration-clearance', ['read', 'approve', 'reject']),
 			grant('graduation-clearance', ['read', 'approve', 'reject']),
 			grant('blocked-students', ['read', 'create', 'update']),
@@ -384,6 +396,7 @@ export const PERMISSION_PRESET_SEEDS: readonly PermissionPresetSeed[] = [
 		permissions: mergeGrants(
 			grant('students', ['read', 'update']),
 			grant('registration', ['read', 'update']),
+			grant('registration-clearance', ['read']),
 			grant('documents', ['read', 'create']),
 			grant('student-statuses', ['read', 'create', 'update', 'approve']),
 			grant('tasks', fullCrud),
@@ -425,6 +438,7 @@ export const PERMISSION_PRESET_SEEDS: readonly PermissionPresetSeed[] = [
 		permissions: mergeGrants(
 			grant('timetable', ['read']),
 			grant('venues', ['read']),
+			grant('registration', ['read']),
 			grant('registration-clearance', ['read', 'approve', 'reject']),
 			grant('tasks', fullCrud),
 			grant('auto-approvals', fullCrud)
