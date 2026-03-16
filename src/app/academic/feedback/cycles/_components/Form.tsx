@@ -7,7 +7,6 @@ import { useQuery } from '@tanstack/react-query';
 import { createInsertSchema } from 'drizzle-zod';
 import { useRouter } from 'nextjs-toploader/app';
 import { authClient } from '@/core/auth-client';
-import { unwrap } from '@/shared/lib/actions/actionResult';
 import { formatDateToISO, formatMonthYear } from '@/shared/lib/utils/dates';
 import { Form } from '@/shared/ui/adease';
 import TermInput from '@/shared/ui/TermInput';
@@ -31,17 +30,14 @@ export default function CycleForm({ onSubmit, defaultValues, title }: Props) {
 	const { data: terms = [] } = useQuery({
 		queryKey: ['terms'],
 		queryFn: () => getTerms(),
-		select: unwrap,
 	});
 	const { data: schools = [] } = useQuery({
 		queryKey: ['schools'],
 		queryFn: () => getSchools(),
-		select: unwrap,
 	});
 	const { data: userSchools, isLoading: loadingUserSchools } = useQuery({
 		queryKey: ['user-schools', session?.user?.id],
 		queryFn: () => getSchoolsForUser(session?.user?.id),
-		select: unwrap,
 		enabled: !!session?.user?.id,
 	});
 

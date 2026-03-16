@@ -27,7 +27,6 @@ import {
 } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { format } from 'date-fns';
-import { unwrap } from '@/shared/lib/actions/actionResult';
 import { generateAssessmentAuditMessage } from '@/shared/lib/utils/auditUtils';
 import { getAuditActionColor } from '@/shared/lib/utils/colors';
 import {
@@ -46,7 +45,6 @@ export default function AssessmentAuditModal({ assessment }: Props) {
 	const { data: auditHistory, isLoading } = useQuery({
 		queryKey: ['assessment-audit-history', assessment.id],
 		queryFn: () => getAssessmentAuditHistory(assessment.id),
-		select: unwrap,
 		enabled: opened,
 	});
 

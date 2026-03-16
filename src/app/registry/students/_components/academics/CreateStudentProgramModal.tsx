@@ -19,7 +19,6 @@ import { programStatus, type StudentProgramStatus } from '@registry/_database';
 import { IconPlus } from '@tabler/icons-react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useMemo, useState } from 'react';
-import { unwrap } from '@/shared/lib/actions/actionResult';
 import { formatDateToISO } from '@/shared/lib/utils/dates';
 import TermInput from '@/shared/ui/TermInput';
 import { createStudentProgram } from '../../_server/actions';
@@ -66,7 +65,7 @@ export default function CreateStudentProgramModal({
 		queryFn: getAllSchools,
 		enabled: opened,
 		select: (data) =>
-			unwrap(data).map((s) => ({ value: s.id.toString(), label: s.name })),
+			data.map((s) => ({ value: s.id.toString(), label: s.name })),
 	});
 
 	const { data: programsData = [], isLoading: isLoadingPrograms } = useQuery({
@@ -76,7 +75,7 @@ export default function CreateStudentProgramModal({
 				return [];
 			}
 
-			return unwrap(await getProgramsBySchoolId(selectedSchoolId));
+			return await getProgramsBySchoolId(selectedSchoolId);
 		},
 		enabled: opened && !!selectedSchoolId,
 		select: (data) =>
@@ -91,7 +90,7 @@ export default function CreateStudentProgramModal({
 					return [];
 				}
 
-				return unwrap(await getStructuresByProgramId(selectedProgramId));
+				return await getStructuresByProgramId(selectedProgramId);
 			},
 			enabled: opened && !!selectedProgramId,
 			select: (data) =>

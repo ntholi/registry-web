@@ -38,8 +38,6 @@ import { getAllVenues } from '@timetable/venues';
 import { zod4Resolver as zodResolver } from 'mantine-form-zod-resolver';
 import { useCallback, useState } from 'react';
 import { z } from 'zod';
-import type { ActionData } from '@/shared/lib/actions/actionResult';
-import { unwrap } from '@/shared/lib/actions/actionResult';
 import { useAllTerms } from '@/shared/lib/hooks/use-term';
 import { calculateDuration } from '@/shared/lib/utils/dates';
 import { toClassName as toClassNameShared } from '@/shared/lib/utils/utils';
@@ -72,7 +70,7 @@ const schema = z.object({
 
 type FormValues = z.infer<typeof schema>;
 
-type Module = ActionData<typeof searchModulesWithDetails>[number];
+type Module = Awaited<ReturnType<typeof searchModulesWithDetails>>[number];
 
 type SemesterOption = {
 	value: string;
@@ -102,7 +100,6 @@ export default function AddSlotAllocationWithLecturerModal() {
 	const { data: lecturerOptions = [], isLoading: lecturersLoading } = useQuery({
 		queryKey: ['lecturers-search', debouncedSearch],
 		queryFn: () => searchAllLecturers(debouncedSearch),
-		select: unwrap,
 		enabled: debouncedSearch.length >= 2,
 	});
 
@@ -293,7 +290,7 @@ export default function AddSlotAllocationWithLecturerModal() {
 				);
 				if (semester) {
 					getStudentCountForModule(val).then((count) => {
-						form.setFieldValue('numberOfStudents', unwrap(count));
+						form.setFieldValue('numberOfStudents', count);
 					});
 				}
 			} else {

@@ -23,7 +23,6 @@ import {
 } from '@tabler/icons-react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useMemo, useRef, useState } from 'react';
-import { unwrap } from '@/shared/lib/actions/actionResult';
 import { useActionMutation } from '@/shared/lib/actions/use-action-mutation';
 import { getStudentClassName } from '@/shared/lib/utils/utils';
 import {
@@ -82,13 +81,11 @@ export default function PassphraseManager({
 	const { data: schoolGroups = [], isLoading: classesLoading } = useQuery({
 		queryKey: ['feedback-classes', cycleId, termId],
 		queryFn: () => getClassesForCycle(cycleId, termId),
-		select: unwrap,
 	});
 
 	const { data: statsMap, isLoading: statsLoading } = useQuery({
 		queryKey: ['feedback-passphrase-stats', cycleId],
 		queryFn: () => getPassphraseStats(cycleId),
-		select: unwrap,
 	});
 
 	const years = useMemo(() => {

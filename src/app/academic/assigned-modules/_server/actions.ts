@@ -5,15 +5,13 @@ import { auth } from '@/core/auth';
 import { createAction } from '@/shared/lib/actions/actionResult';
 import { assignedModulesService as service } from './service';
 
-export const getAssignedModuleByUserAndModule = createAction(
-	async (moduleId: number) => {
-		const session = await auth();
-		if (!session?.user?.id) {
-			return [];
-		}
-		return service.getByUserAndModule(session.user.id, moduleId);
+export async function getAssignedModuleByUserAndModule(moduleId: number) {
+	const session = await auth();
+	if (!session?.user?.id) {
+		return [];
 	}
-);
+	return service.getByUserAndModule(session.user.id, moduleId);
+}
 
 export const deleteAssignedModule = createAction(async (id: number) =>
 	service.delete(id)
@@ -24,36 +22,36 @@ export const assignModulesToLecturer = createAction(
 		service.assignModulesToLecturer(userId, semesterModuleIds)
 );
 
-export const getLecturersByModule = createAction(async (moduleId: number) =>
-	service.getLecturersByModule(moduleId)
-);
+export async function getLecturersByModule(moduleId: number) {
+	return service.getLecturersByModule(moduleId);
+}
 
-export const getAssignedModulesByUser = createAction(async (userId: string) => {
+export async function getAssignedModulesByUser(userId: string) {
 	const termId = await getActiveTerm();
 	return service.getByUser(userId, termId.id);
-});
+}
 
-export const getAssignedModulesByCurrentUser = createAction(async () => {
+export async function getAssignedModulesByCurrentUser() {
 	const session = await auth();
 	if (!session?.user?.id) {
 		return [];
 	}
 	const termId = await getActiveTerm();
 	return service.getByUserGroupedByModule(session.user.id, termId.id);
-});
+}
 
-export const getAllAssignedModulesByCurrentUser = createAction(async () => {
+export async function getAllAssignedModulesByCurrentUser() {
 	const session = await auth();
 	if (!session?.user?.id) {
 		return [];
 	}
 	const termId = await getActiveTerm();
 	return service.getByUser(session.user.id, termId.id);
-});
+}
 
-export const getAssignedModuleByLmsCourseId = createAction(
-	async (lmsCourseId: string) => service.getByLmsCourseId(lmsCourseId)
-);
+export async function getAssignedModuleByLmsCourseId(lmsCourseId: string) {
+	return service.getByLmsCourseId(lmsCourseId);
+}
 
 export const linkCourseToAssignment = createAction(
 	async (userId: string, semesterModuleId: number, lmsCourseId: string) =>

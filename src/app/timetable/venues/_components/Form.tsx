@@ -8,7 +8,6 @@ import { getAllVenueTypes } from '@timetable/venue-types';
 import { createInsertSchema } from 'drizzle-zod';
 import { useRouter } from 'nextjs-toploader/app';
 import { z } from 'zod';
-import { unwrap } from '@/shared/lib/actions/actionResult';
 import { useUserSchools } from '@/shared/lib/hooks/use-user-schools';
 import { Form } from '@/shared/ui/adease';
 
@@ -31,7 +30,6 @@ export default function VenueForm({ onSubmit, defaultValues, title }: Props) {
 	const { data: schoolsData } = useQuery({
 		queryKey: ['schools'],
 		queryFn: getAllSchools,
-		select: unwrap,
 	});
 
 	const schools = schoolsData || [];

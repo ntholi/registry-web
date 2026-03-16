@@ -20,7 +20,6 @@ import type { UserSlot } from '@timetable/slots';
 import { getAllVenues } from '@timetable/venues';
 import { parseAsInteger, parseAsString, useQueryState } from 'nuqs';
 import { useState } from 'react';
-import { unwrap } from '@/shared/lib/actions/actionResult';
 import { useAllTerms } from '@/shared/lib/hooks/use-term';
 import { getStudentClassName } from '@/shared/lib/utils/utils';
 import { Pagination } from '@/shared/ui/adease/Pagination';
@@ -53,7 +52,6 @@ export default function TimetableViewer() {
 	const { data: lecturersData } = useQuery({
 		queryKey: ['lecturers-select'],
 		queryFn: () => getLecturers(1, ''),
-		select: unwrap,
 	});
 
 	const { data: venues = [] } = useQuery({

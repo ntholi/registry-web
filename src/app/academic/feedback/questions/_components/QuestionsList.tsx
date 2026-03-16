@@ -35,7 +35,6 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useMemo, useState } from 'react';
 import { hasAnyPermission } from '@/core/auth/sessionPermissions';
 import { authClient } from '@/core/auth-client';
-import { type ActionData, unwrap } from '@/shared/lib/actions/actionResult';
 import { useActionMutation } from '@/shared/lib/actions/use-action-mutation';
 import { DeleteButton } from '@/shared/ui/adease';
 
@@ -63,7 +62,7 @@ import CreateQuestionModal from './CreateQuestionModal';
 import EditCategoryModal from './EditCategoryModal';
 import EditQuestionModal from './EditQuestionModal';
 
-type CategoryBoard = ActionData<typeof getQuestionBoard>[number];
+type CategoryBoard = Awaited<ReturnType<typeof getQuestionBoard>>[number];
 
 export default function QuestionsList() {
 	const [search, setSearch] = useState('');
@@ -73,7 +72,6 @@ export default function QuestionsList() {
 	const { data: board = [], isLoading } = useQuery({
 		queryKey: ['feedback-question-board'],
 		queryFn: () => getQuestionBoard(),
-		select: unwrap,
 	});
 
 	const reorderCatMutation = useActionMutation(reorderCategories, {

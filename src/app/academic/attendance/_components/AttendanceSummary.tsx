@@ -13,7 +13,6 @@ import {
 } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
 import type { AttendanceStatus } from '@/core/database';
-import { unwrap } from '@/shared/lib/actions/actionResult';
 import { getStatusColor } from '@/shared/lib/utils/colors';
 import { getAttendanceSummary, getWeeksForTerm } from '../_server/actions';
 
@@ -73,13 +72,11 @@ export default function AttendanceSummary({ semesterModuleId, termId }: Props) {
 	const { data: summary, isLoading: summaryLoading } = useQuery({
 		queryKey: ['attendance-summary', semesterModuleId, termId],
 		queryFn: () => getAttendanceSummary(semesterModuleId, termId),
-		select: unwrap,
 	});
 
 	const { data: weeks } = useQuery({
 		queryKey: ['term-weeks', termId],
 		queryFn: () => getWeeksForTerm(termId),
-		select: unwrap,
 	});
 
 	if (summaryLoading) {

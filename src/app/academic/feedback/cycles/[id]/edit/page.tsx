@@ -1,6 +1,5 @@
 import { Box } from '@mantine/core';
 import { notFound } from 'next/navigation';
-import { unwrap } from '@/shared/lib/actions/actionResult';
 import Form from '../../_components/Form';
 import { getCycle, updateCycle } from '../../_server/actions';
 
@@ -10,7 +9,7 @@ type Props = {
 
 export default async function CycleEdit({ params }: Props) {
 	const { id } = await params;
-	const cycle = unwrap(await getCycle(id));
+	const cycle = await getCycle(id);
 
 	if (!cycle) {
 		return notFound();

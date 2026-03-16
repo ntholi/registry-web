@@ -38,7 +38,6 @@ import {
 	useQueryStates,
 } from 'nuqs';
 import { useEffect, useMemo, useRef } from 'react';
-import { unwrap } from '@/shared/lib/actions/actionResult';
 import { useAllTerms } from '@/shared/lib/hooks/use-term';
 import { formatSemester } from '@/shared/lib/utils/utils';
 import {
@@ -277,13 +276,11 @@ export default function EnrollmentFilter({ onFilterChange }: Props) {
 	const { data: schools = [], isLoading: schoolsLoading } = useQuery({
 		queryKey: ['active-schools'],
 		queryFn: getActiveSchools,
-		select: unwrap,
 	});
 
 	const { data: programs = [], isLoading: programsLoading } = useQuery({
 		queryKey: ['programs-by-school', localFilter.schoolIds],
 		queryFn: () => getProgramsBySchoolIds(localFilter.schoolIds ?? undefined),
-		select: unwrap,
 		enabled:
 			Boolean(localFilter.schoolIds) && localFilter.schoolIds!.length > 0,
 	});

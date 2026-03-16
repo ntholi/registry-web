@@ -66,14 +66,12 @@ export default function AddSemesterModuleModal({
 	const { data: modulesData, isLoading: isSearching } = useQuery({
 		queryKey: ['base-modules', debouncedSearch],
 		queryFn: () => getModules(1, debouncedSearch),
-		select: unwrap,
 		enabled: opened && activeTab === 'search',
 	});
 
 	const { data: structureModules } = useQuery({
 		queryKey: ['structure-modules', structureId],
 		queryFn: () => findModulesByStructure(structureId),
-		select: unwrap,
 		enabled: opened,
 	});
 

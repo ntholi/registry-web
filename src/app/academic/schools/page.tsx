@@ -17,7 +17,6 @@ import { IconChevronRight, IconSchool } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
 import { useState } from 'react';
-import { unwrap } from '@/shared/lib/actions/actionResult';
 import { getAllSchools } from './_server/actions';
 
 type School = typeof schools.$inferSelect;
@@ -26,7 +25,6 @@ export default function SchoolsPage() {
 	const { data: schools, isLoading } = useQuery({
 		queryKey: ['schools'],
 		queryFn: getAllSchools,
-		select: unwrap,
 	});
 
 	return (

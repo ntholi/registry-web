@@ -41,7 +41,6 @@ import {
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'nextjs-toploader/app';
 import { useMemo, useState } from 'react';
-import { unwrap } from '@/shared/lib/actions/actionResult';
 import { useActiveTerm, useAllTerms } from '@/shared/lib/hooks/use-term';
 import { getRaceByCountry, getRaces } from '@/shared/lib/utils/countries';
 import { formatDateToISO } from '@/shared/lib/utils/dates';
@@ -167,7 +166,7 @@ export default function NewStudentForm() {
 		queryKey: ['schools'],
 		queryFn: getAllSchools,
 		select: (data) =>
-			unwrap(data).map((s) => ({ value: s.id.toString(), label: s.name })),
+			data.map((s) => ({ value: s.id.toString(), label: s.name })),
 	});
 
 	const { data: programsData = [], isLoading: isLoadingPrograms } = useQuery({
@@ -177,7 +176,7 @@ export default function NewStudentForm() {
 				return [];
 			}
 
-			return unwrap(await getProgramsBySchoolId(selectedSchoolId));
+			return await getProgramsBySchoolId(selectedSchoolId);
 		},
 		enabled: !!selectedSchoolId,
 		select: (data) =>
@@ -192,7 +191,7 @@ export default function NewStudentForm() {
 					return [];
 				}
 
-				return unwrap(await getStructuresByProgramId(selectedProgramId));
+				return await getStructuresByProgramId(selectedProgramId);
 			},
 			enabled: !!selectedProgramId,
 			select: (data) =>

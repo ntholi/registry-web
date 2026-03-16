@@ -29,7 +29,6 @@ import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
 import { useRouter } from 'nextjs-toploader/app';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { unwrap } from '@/shared/lib/actions/actionResult';
 import { useActiveTerm, useAllTerms } from '@/shared/lib/hooks/use-term';
 import { getAcademicRemarks } from '@/shared/lib/utils/grades';
 import {
@@ -133,7 +132,7 @@ export default function RegistrationRequestForm({
 		queryKey: ['structure-modules', structureId],
 		queryFn: async () => {
 			if (structureId) {
-				return unwrap(await getModulesForStructure(structureId));
+				return await getModulesForStructure(structureId);
 			}
 			return [];
 		},

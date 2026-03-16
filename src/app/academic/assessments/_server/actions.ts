@@ -7,20 +7,18 @@ import { assessmentsService as service } from './service';
 
 type Assessment = typeof assessments.$inferInsert;
 
-export const getAssessment = createAction(async (id: number) =>
-	service.get(id)
-);
+export async function getAssessment(id: number) {
+	return service.get(id);
+}
 
-export const getAssessmentByModuleId = createAction(
-	async (moduleId: number) => {
-		const term = await getActiveTerm();
-		return service.getByModuleId(moduleId, term.id);
-	}
-);
+export async function getAssessmentByModuleId(moduleId: number) {
+	const term = await getActiveTerm();
+	return service.getByModuleId(moduleId, term.id);
+}
 
-export const getAssessmentByLmsId = createAction(async (lmsId: number) =>
-	service.getByLmsId(lmsId)
-);
+export async function getAssessmentByLmsId(lmsId: number) {
+	return service.getByLmsId(lmsId);
+}
 
 export const createAssessment = createAction(
 	async (
@@ -44,6 +42,6 @@ export const deleteAssessment = createAction(async (id: number) =>
 	service.delete(id)
 );
 
-export const getAssessmentAuditHistory = createAction(
-	async (assessmentId: number) => service.getAuditHistory(assessmentId)
-);
+export async function getAssessmentAuditHistory(assessmentId: number) {
+	return service.getAuditHistory(assessmentId);
+}

@@ -23,8 +23,7 @@ import { getAllVenues } from '@timetable/venues';
 import { zod4Resolver as zodResolver } from 'mantine-form-zod-resolver';
 import { useState } from 'react';
 import { z } from 'zod';
-import type { ActionData } from '@/shared/lib/actions/actionResult';
-import { unwrap } from '@/shared/lib/actions/actionResult';
+
 import { toClassName } from '@/shared/lib/utils/utils';
 import {
 	applyTimeRefinements,
@@ -66,7 +65,7 @@ type Props = {
 	defaultEndTime?: string;
 };
 
-type Module = ActionData<typeof searchModulesWithDetails>[number];
+type Module = Awaited<ReturnType<typeof searchModulesWithDetails>>[number];
 
 type SemesterOption = {
 	value: string;
@@ -304,7 +303,7 @@ export default function AddAllocationModal({
 										form.setFieldValue('semesterModuleId', val);
 										if (val) {
 											getStudentCountForModule(val).then((count) => {
-												form.setFieldValue('numberOfStudents', unwrap(count));
+												form.setFieldValue('numberOfStudents', count);
 											});
 										} else {
 											form.setFieldValue('numberOfStudents', 0);

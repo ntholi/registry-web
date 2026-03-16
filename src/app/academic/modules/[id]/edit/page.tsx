@@ -1,6 +1,5 @@
 import { Box } from '@mantine/core';
 import { notFound } from 'next/navigation';
-import { unwrap } from '@/shared/lib/actions/actionResult';
 import Form from '../../_components/Form';
 import { getModule, updateModule } from '../../_server/actions';
 
@@ -10,7 +9,7 @@ type Props = {
 
 export default async function ModuleEdit({ params }: Props) {
 	const { id } = await params;
-	const mod = unwrap(await getModule(Number(id)));
+	const mod = await getModule(Number(id));
 	if (!mod) {
 		return notFound();
 	}

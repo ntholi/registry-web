@@ -21,7 +21,6 @@ import { type SemesterStatus, semesterStatus } from '@registry/_database';
 import { IconAlertCircle, IconEdit } from '@tabler/icons-react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect, useState } from 'react';
-import { unwrap } from '@/shared/lib/actions/actionResult';
 import { useAllTerms } from '@/shared/lib/hooks/use-term';
 import { updateStudentSemester } from '../../_server/actions';
 
@@ -79,8 +78,7 @@ export default function EditStudentSemesterModal({
 		isLoading: isLoadingStructureSemesters,
 	} = useQuery({
 		queryKey: ['structure-semesters', structureId],
-		queryFn: async () =>
-			unwrap(await getStructureSemestersByStructureId(structureId)),
+		queryFn: async () => await getStructureSemestersByStructureId(structureId),
 		enabled: opened,
 		select: (data) =>
 			data.map((s) => ({ value: s.id.toString(), label: s.name })),

@@ -13,7 +13,6 @@ import { getStudentsBySemesterModules } from '@/app/registry/students';
 import { auth } from '@/core/auth';
 import { students } from '@/core/database';
 import { MoodleError, moodleGet, moodlePost } from '@/core/integrations/moodle';
-import { unwrap } from '@/shared/lib/actions/actionResult';
 import { splitShortName } from '../../courses/_lib/utils';
 import type { MoodleEnrolledUser, StudentSearchResult } from '../types';
 import { studentRepository } from './repository';
@@ -121,8 +120,8 @@ export async function getRegisteredStudentsForSync(courseId: number) {
 		getAssignedModulesByCurrentUser(),
 		getAssignedModuleByLmsCourseId(courseId.toString()),
 	]);
-	const currentAssignments = unwrap(assignedModules);
-	const linkedCourseAssignment = unwrap(courseAssignment);
+	const currentAssignments = assignedModules;
+	const linkedCourseAssignment = courseAssignment;
 
 	if (!linkedCourseAssignment?.semesterModule?.moduleId) {
 		return [];

@@ -22,7 +22,6 @@ import { useQueryState } from 'nuqs';
 import { useCallback, useMemo, useState } from 'react';
 import { getTermByCode } from '@/app/registry/terms';
 import type { Term } from '@/core/database';
-import { unwrap } from '@/shared/lib/actions/actionResult';
 import { useAllTerms } from '@/shared/lib/hooks/use-term';
 import { getBooleanColor } from '@/shared/lib/utils/colors';
 import { formatSemester } from '@/shared/lib/utils/utils';
@@ -57,14 +56,12 @@ export default function StudentsFilter() {
 	const { data: schools = [], isLoading: schoolLoading } = useQuery({
 		queryKey: ['schools'],
 		queryFn: getAllSchools,
-		select: unwrap,
 		enabled: opened,
 	});
 
 	const { data: programs = [], isLoading: programsLoading } = useQuery({
 		queryKey: ['programs', filters.schoolId],
 		queryFn: () => getProgramsBySchoolId(Number(filters.schoolId)),
-		select: unwrap,
 		enabled: !!filters.schoolId,
 	});
 
@@ -77,12 +74,12 @@ export default function StudentsFilter() {
 
 		await queryClient.prefetchQuery({
 			queryKey: ['schools'],
-			queryFn: async () => unwrap(await getAllSchools()),
+			queryFn: async () => getAllSchools(),
 		});
 
 		await queryClient.prefetchQuery({
 			queryKey: ['programs', info.schoolId.toString()],
-			queryFn: async () => unwrap(await getProgramsBySchoolId(info.schoolId)),
+			queryFn: async () => getProgramsBySchoolId(info.schoolId),
 		});
 
 		const term = info.termCode ? await getTermByCode(info.termCode) : undefined;

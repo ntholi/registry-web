@@ -5,11 +5,10 @@ import { ActionIcon, Box, Group, Paper } from '@mantine/core';
 import type { StudentModuleStatus } from '@registry/_database';
 import { IconPlus } from '@tabler/icons-react';
 import { useState } from 'react';
-import type { ActionData } from '@/shared/lib/actions/actionResult';
 import { ModuleSearchInput } from './ModuleSearchInput';
 import ModulesTable from './ModulesTable';
 
-type StructureModule = ActionData<typeof getStructureModules>[number];
+type StructureModule = Awaited<ReturnType<typeof getStructureModules>>[number];
 
 type ModuleWithStatus = {
 	semesterModuleId: number;

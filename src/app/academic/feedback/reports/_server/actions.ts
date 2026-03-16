@@ -1,36 +1,38 @@
 'use server';
 
-import { createAction } from '@/shared/lib/actions/actionResult';
 import type { FeedbackReportData, FeedbackReportFilter } from '../_lib/types';
 import { generateFeedbackExcel } from './excel';
 import { feedbackReportService } from './service';
 
-export const getFeedbackReportData = createAction(
-	async (filter: FeedbackReportFilter) =>
-		feedbackReportService.getReportData(filter)
-);
+export async function getFeedbackReportData(filter: FeedbackReportFilter) {
+	return feedbackReportService.getReportData(filter);
+}
 
-export const getFeedbackLecturerDetail = createAction(
-	async (userId: string, filter: FeedbackReportFilter) =>
-		feedbackReportService.getLecturerDetail(userId, filter)
-);
+export async function getFeedbackLecturerDetail(
+	userId: string,
+	filter: FeedbackReportFilter
+) {
+	return feedbackReportService.getLecturerDetail(userId, filter);
+}
 
-export const getFeedbackCyclesByTerm = createAction(async (termId: number) =>
-	feedbackReportService.getCyclesByTerm(termId)
-);
+export async function getFeedbackCyclesByTerm(termId: number) {
+	return feedbackReportService.getCyclesByTerm(termId);
+}
 
-export const getFeedbackModulesForFilter = createAction(
-	async (filter: FeedbackReportFilter) =>
-		feedbackReportService.getModulesForFilter(filter)
-);
+export async function getFeedbackModulesForFilter(
+	filter: FeedbackReportFilter
+) {
+	return feedbackReportService.getModulesForFilter(filter);
+}
 
-export const exportFeedbackReportExcel = createAction(
-	async (data: FeedbackReportData, filter: FeedbackReportFilter) => {
-		const buffer = await generateFeedbackExcel(data, filter);
-		return buffer.toString('base64');
-	}
-);
+export async function exportFeedbackReportExcel(
+	data: FeedbackReportData,
+	filter: FeedbackReportFilter
+) {
+	const buffer = await generateFeedbackExcel(data, filter);
+	return buffer.toString('base64');
+}
 
-export const checkFullReportAccess = createAction(async () =>
-	feedbackReportService.hasFullAccess()
-);
+export async function checkFullReportAccess() {
+	return feedbackReportService.hasFullAccess();
+}

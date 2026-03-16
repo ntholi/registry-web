@@ -26,8 +26,6 @@ import {
 } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { getAssessmentTypeLabel } from '@/app/academic/assessments';
-import type { ActionData } from '@/shared/lib/actions/actionResult';
-import { unwrap } from '@/shared/lib/actions/actionResult';
 import { getThresholdColor } from '@/shared/lib/utils/colors';
 import { formatDateTime } from '@/shared/lib/utils/dates';
 
@@ -53,14 +51,12 @@ export default function AssessmentMarksModal({
 	const { data, isLoading } = useQuery({
 		queryKey: ['student-marks', smId],
 		queryFn: () => getStudentMarks(smId),
-		select: unwrap,
 		enabled: opened,
 	});
 
 	const { data: auditData, isLoading: isAuditLoading } = useQuery({
 		queryKey: ['student-marks-audit', smId],
 		queryFn: () => getMarksAudit(smId),
-		select: unwrap,
 		enabled: opened,
 	});
 
@@ -125,7 +121,7 @@ export default function AssessmentMarksModal({
 }
 
 type MarksTabContentProps = {
-	data: ActionData<typeof getStudentMarks> | undefined;
+	data: Awaited<ReturnType<typeof getStudentMarks>> | undefined;
 	isLoading: boolean;
 	totalMarks: string;
 };
@@ -262,7 +258,7 @@ function MarksTabContent({
 }
 
 type AuditTabContentProps = {
-	data: ActionData<typeof getMarksAudit> | undefined;
+	data: Awaited<ReturnType<typeof getMarksAudit>> | undefined;
 	isLoading: boolean;
 };
 

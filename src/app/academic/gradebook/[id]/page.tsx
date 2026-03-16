@@ -1,7 +1,6 @@
 import { getAssignedModuleByUserAndModule } from '@academic/assigned-modules';
 import { Stack } from '@mantine/core';
 import { notFound } from 'next/navigation';
-import { unwrap } from '@/shared/lib/actions/actionResult';
 import ModuleDetailsCard from '../_components/ModuleDetailsCard';
 import StudentTable from '../_components/StudentTable';
 
@@ -12,7 +11,7 @@ type Props = {
 export default async function GradebookModuleView({ params }: Props) {
 	const { id } = await params;
 
-	const modules = unwrap(await getAssignedModuleByUserAndModule(Number(id)));
+	const modules = await getAssignedModuleByUserAndModule(Number(id));
 
 	if (!modules || modules.length === 0) {
 		return notFound();

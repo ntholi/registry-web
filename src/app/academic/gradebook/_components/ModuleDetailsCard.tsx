@@ -14,7 +14,6 @@ import { IconBook2, IconSchool } from '@tabler/icons-react';
 import { useQueryState } from 'nuqs';
 import { useEffect, useMemo } from 'react';
 import { authClient } from '@/core/auth-client';
-import type { ActionData } from '@/shared/lib/actions/actionResult';
 import { useActiveTerm } from '@/shared/lib/hooks/use-term';
 import { toClassName } from '@/shared/lib/utils/utils';
 import { useAssessmentsQuery } from '../_hooks/useAssessmentsQuery';
@@ -22,7 +21,9 @@ import ExportButton from './export/ExportButton';
 import ExcelImport from './import/ExcelImport';
 
 type ModuleDetailsCardProps = {
-	modules: NonNullable<ActionData<typeof getAssignedModuleByUserAndModule>>;
+	modules: NonNullable<
+		Awaited<ReturnType<typeof getAssignedModuleByUserAndModule>>
+	>;
 	moduleId: number;
 };
 

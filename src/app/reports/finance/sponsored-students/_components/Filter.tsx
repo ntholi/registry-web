@@ -8,7 +8,6 @@ import { Grid, Paper, Select, Stack, Text } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
 import { parseAsInteger, parseAsString, useQueryStates } from 'nuqs';
 import { useEffect } from 'react';
-import { unwrap } from '@/shared/lib/actions/actionResult';
 import { useAllTerms } from '@/shared/lib/hooks/use-term';
 import { formatSemester } from '@/shared/lib/utils/utils';
 
@@ -62,7 +61,6 @@ export default function Filter({ onFilterChange }: Props) {
 	const { data: schools = [], isLoading: schoolsLoading } = useQuery({
 		queryKey: ['active-schools'],
 		queryFn: getActiveSchools,
-		select: unwrap,
 	});
 
 	const { data: programs = [], isLoading: programsLoading } = useQuery({
@@ -71,7 +69,6 @@ export default function Filter({ onFilterChange }: Props) {
 			getProgramsBySchoolIds(
 				localFilter.schoolId ? [localFilter.schoolId] : undefined
 			),
-		select: unwrap,
 		enabled: Boolean(localFilter.schoolId),
 	});
 

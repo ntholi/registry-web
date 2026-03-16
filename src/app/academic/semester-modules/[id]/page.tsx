@@ -8,7 +8,6 @@ import {
 } from '@mantine/core';
 import { IconCircleCheck } from '@tabler/icons-react';
 import { notFound } from 'next/navigation';
-import { unwrap } from '@/shared/lib/actions/actionResult';
 import {
 	DetailsView,
 	DetailsViewBody,
@@ -28,8 +27,8 @@ type Props = {
 
 export default async function ModuleDetails({ params }: Props) {
 	const { id } = await params;
-	const item = unwrap(await getSemesterModule(Number(id)));
-	const prerequisites = unwrap(await getModulePrerequisites(Number(id)));
+	const item = await getSemesterModule(Number(id));
+	const prerequisites = await getModulePrerequisites(Number(id));
 
 	if (!item) {
 		return notFound();

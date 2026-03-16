@@ -2,32 +2,33 @@
 
 import { eq } from 'drizzle-orm';
 import { schools } from '@/core/database';
-import { createAction } from '@/shared/lib/actions/actionResult';
 import { schoolsService as service } from './service';
 
-export const getAllSchools = createAction(async () => {
+export async function getAllSchools() {
 	const data = await service.findAll({ filter: eq(schools.isActive, true) });
 	return data.items;
-});
+}
 
-export const getActiveSchools = createAction(async () =>
-	service.getActiveSchools()
-);
+export async function getActiveSchools() {
+	return service.getActiveSchools();
+}
 
-export const getSchool = createAction(async (id: number) => service.get(id));
+export async function getSchool(id: number) {
+	return service.get(id);
+}
 
-export const getProgramsBySchoolId = createAction(async (schoolId?: number) =>
-	service.getProgramsBySchoolId(schoolId)
-);
+export async function getProgramsBySchoolId(schoolId?: number) {
+	return service.getProgramsBySchoolId(schoolId);
+}
 
-export const getAllPrograms = createAction(async () =>
-	service.getAllPrograms()
-);
+export async function getAllPrograms() {
+	return service.getAllPrograms();
+}
 
-export const getAllProgramsWithLevel = createAction(async () =>
-	service.getAllProgramsWithLevel()
-);
+export async function getAllProgramsWithLevel() {
+	return service.getAllProgramsWithLevel();
+}
 
-export const getProgramsBySchoolIds = createAction(
-	async (schoolIds?: number[]) => service.getProgramsBySchoolIds(schoolIds)
-);
+export async function getProgramsBySchoolIds(schoolIds?: number[]) {
+	return service.getProgramsBySchoolIds(schoolIds);
+}

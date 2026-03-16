@@ -15,7 +15,6 @@ import { useQuery } from '@tanstack/react-query';
 import { useAtom } from 'jotai';
 import { notFound } from 'next/navigation';
 import { use, useEffect, useMemo } from 'react';
-import { unwrap } from '@/shared/lib/actions/actionResult';
 import useConfigDefaults from '@/shared/lib/hooks/use-config-defaults';
 import { useAllTerms } from '@/shared/lib/hooks/use-term';
 import { DetailsView } from '@/shared/ui/adease';
@@ -35,7 +34,6 @@ export default function LecturerAllocationDetails({ params }: Props) {
 	const { data: lecturer, isLoading: lecturerLoading } = useQuery({
 		queryKey: ['lecturer', id],
 		queryFn: () => getLecturer(id),
-		select: unwrap,
 	});
 
 	const { data: allocations = [], isLoading: allocationsLoading } = useQuery({

@@ -2,21 +2,21 @@
 
 import { eq } from 'drizzle-orm';
 import { users } from '@/core/database';
-import { createAction } from '@/shared/lib/actions/actionResult';
 import { lecturersService as service } from './service';
 
-export const getLecturer = createAction(async (id: string) => service.get(id));
+export async function getLecturer(id: string) {
+	return service.get(id);
+}
 
-export const getLecturers = createAction(
-	async (page: number = 1, search = '') =>
-		service.getAll({
-			page,
-			search,
-			searchColumns: ['name', 'email'],
-			filter: eq(users.role, 'academic'),
-		})
-);
+export async function getLecturers(page: number = 1, search = '') {
+	return service.getAll({
+		page,
+		search,
+		searchColumns: ['name', 'email'],
+		filter: eq(users.role, 'academic'),
+	});
+}
 
-export const searchAllLecturers = createAction(async (search: string) =>
-	service.searchWithSchools(search)
-);
+export async function searchAllLecturers(search: string) {
+	return service.searchWithSchools(search);
+}

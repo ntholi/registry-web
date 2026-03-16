@@ -4,21 +4,23 @@ import { getAllSchools } from '@academic/schools/_server/actions';
 import { getUserSchools } from '@admin/users/_server/actions';
 import { getAllTerms } from '@registry/terms/_server/actions';
 import type { feedbackCycles } from '@/core/database';
-import { createAction, unwrap } from '@/shared/lib/actions/actionResult';
+import { createAction } from '@/shared/lib/actions/actionResult';
 import { feedbackCyclesService as service } from './service';
 
 type Cycle = typeof feedbackCycles.$inferInsert;
 type CycleWithSchools = Cycle & { schoolIds?: number[] };
 
-export const getCycles = createAction(async (page = 1, search = '') =>
-	service.findAllWithSchoolCodes({
+export async function getCycles(page = 1, search = '') {
+	return service.findAllWithSchoolCodes({
 		page,
 		search: search.trim(),
 		searchColumns: ['name'],
-	})
-);
+	});
+}
 
-export const getCycle = createAction(async (id: string) => service.get(id));
+export async function getCycle(id: string) {
+	return service.get(id);
+}
 
 export const createCycle = createAction(async (data: CycleWithSchools) => {
 	const { schoolIds = [], ...cycleData } = data;
@@ -36,14 +38,13 @@ export const deleteCycle = createAction(async (id: string) =>
 	service.delete(id)
 );
 
-export const getClassesForCycle = createAction(
-	async (cycleId: string, termId: number) =>
-		service.getClassesForCycle(cycleId, termId)
-);
+export async function getClassesForCycle(cycleId: string, termId: number) {
+	return service.getClassesForCycle(cycleId, termId);
+}
 
-export const getPassphraseStats = createAction(async (cycleId: string) =>
-	service.getPassphraseStats(cycleId)
-);
+export async function getPassphraseStats(cycleId: string) {
+	return service.getPassphraseStats(cycleId);
+}
 
 export const generatePassphrases = createAction(
 	async (
@@ -54,17 +55,21 @@ export const generatePassphrases = createAction(
 		service.generatePassphrases(cycleId, structureSemesterId, passphraseCount)
 );
 
-export const getPassphrasesForClass = createAction(
-	async (cycleId: string, structureSemesterId: number) =>
-		service.getPassphrasesForClass(cycleId, structureSemesterId)
-);
+export async function getPassphrasesForClass(
+	cycleId: string,
+	structureSemesterId: number
+) {
+	return service.getPassphrasesForClass(cycleId, structureSemesterId);
+}
 
-export const getTerms = createAction(async () => getAllTerms());
+export async function getTerms() {
+	return getAllTerms();
+}
 
-export const getSchools = createAction(async () =>
-	unwrap(await getAllSchools())
-);
+export async function getSchools() {
+	return getAllSchools();
+}
 
-export const getSchoolsForUser = createAction(async (userId?: string) =>
-	getUserSchools(userId)
-);
+export async function getSchoolsForUser(userId?: string) {
+	return getUserSchools(userId);
+}

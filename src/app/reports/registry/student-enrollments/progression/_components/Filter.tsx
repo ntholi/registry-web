@@ -24,7 +24,6 @@ import { IconAdjustments, IconFilter } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { parseAsInteger, parseAsString, useQueryStates } from 'nuqs';
 import { useEffect, useMemo } from 'react';
-import { unwrap } from '@/shared/lib/actions/actionResult';
 import { useActiveTerm, useAllTerms } from '@/shared/lib/hooks/use-term';
 import type {
 	ProgressionCategory,
@@ -113,14 +112,12 @@ export default function Filter({ onFilterChange }: Props) {
 	const { data: schools = [], isLoading: schoolsLoading } = useQuery({
 		queryKey: ['active-schools'],
 		queryFn: getActiveSchools,
-		select: unwrap,
 	});
 
 	const { data: programsList = [], isLoading: programsLoading } = useQuery({
 		queryKey: ['programs-by-school', schoolIds],
 		queryFn: () =>
 			getProgramsBySchoolIds(schoolIds.length > 0 ? schoolIds : undefined),
-		select: unwrap,
 		enabled: schoolIds.length > 0,
 	});
 

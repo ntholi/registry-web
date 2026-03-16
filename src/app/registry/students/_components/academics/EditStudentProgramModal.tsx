@@ -22,7 +22,6 @@ import { programStatus, type StudentProgramStatus } from '@registry/_database';
 import { IconAlertCircle, IconEdit } from '@tabler/icons-react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect, useState } from 'react';
-import { unwrap } from '@/shared/lib/actions/actionResult';
 import { useAllTerms } from '@/shared/lib/hooks/use-term';
 import { formatDateToISO, parseDate } from '@/shared/lib/utils/dates';
 import { updateStudentProgram } from '../../_server/actions';
@@ -72,8 +71,7 @@ export default function EditStudentProgramModal({
 	const { data: structuresData = [], isLoading: isLoadingStructures } =
 		useQuery({
 			queryKey: ['structures', program.programId],
-			queryFn: async () =>
-				unwrap(await getStructuresByProgramId(program.programId)),
+			queryFn: async () => await getStructuresByProgramId(program.programId),
 			enabled: opened,
 			select: (data) =>
 				data.map((s) => ({ value: s.id.toString(), label: s.code })),

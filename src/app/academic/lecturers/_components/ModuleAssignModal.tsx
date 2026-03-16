@@ -16,7 +16,6 @@ import { notifications } from '@mantine/notifications';
 import { useQueryClient } from '@tanstack/react-query';
 import { useParams } from 'next/navigation';
 import { useState } from 'react';
-import type { ActionData } from '@/shared/lib/actions/actionResult';
 import { useActionMutation } from '@/shared/lib/actions/use-action-mutation';
 import { ModuleSearchInput } from './ModuleSearchInput';
 
@@ -25,7 +24,7 @@ type FormValues = {
 	semesterModuleIds: number[];
 };
 
-type Module = ActionData<typeof searchModulesWithDetails>[number];
+type Module = Awaited<ReturnType<typeof searchModulesWithDetails>>[number];
 
 export default function ModuleAssignModal() {
 	const [opened, { open, close }] = useDisclosure(false);

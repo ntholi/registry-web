@@ -26,8 +26,7 @@ import { getAllVenues } from '@timetable/venues';
 import { zod4Resolver as zodResolver } from 'mantine-form-zod-resolver';
 import { useCallback, useState } from 'react';
 import { z } from 'zod';
-import type { ActionData } from '@/shared/lib/actions/actionResult';
-import { unwrap } from '@/shared/lib/actions/actionResult';
+
 import { addMinutesToTime } from '@/shared/lib/utils/dates';
 import { toClassName as toClassNameShared } from '@/shared/lib/utils/utils';
 import DurationInput from '@/shared/ui/DurationInput';
@@ -77,7 +76,7 @@ type Props = {
 	defaultDuration?: number;
 };
 
-type Module = ActionData<typeof searchModulesWithDetails>[number];
+type Module = Awaited<ReturnType<typeof searchModulesWithDetails>>[number];
 
 type SemesterOption = {
 	value: string;
@@ -211,7 +210,7 @@ export default function AddSlotAllocationModal({
 						toClassNameShared(semester.programCode, semester.semesterName)
 					);
 					getStudentCountForModule(val).then((count) => {
-						form.setFieldValue('numberOfStudents', unwrap(count));
+						form.setFieldValue('numberOfStudents', count);
 					});
 				}
 			} else {

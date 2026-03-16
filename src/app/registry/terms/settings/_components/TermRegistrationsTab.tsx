@@ -35,7 +35,6 @@ import {
 } from '@tabler/icons-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
-import { unwrap } from '@/shared/lib/actions/actionResult';
 import { formatDate } from '@/shared/lib/utils/dates';
 import {
 	deleteTermRegistration,
@@ -82,7 +81,6 @@ export default function TermRegistrationsTab({ termId }: Props) {
 	const { data: schools = [] } = useQuery({
 		queryKey: ['schools'],
 		queryFn: getAllSchools,
-		select: unwrap,
 	});
 
 	const usedSchoolIds = new Set(registrations.map((r) => r.schoolId));
@@ -339,7 +337,6 @@ function RegistrationModal({
 		queryKey: ['school-programs', schoolId],
 		queryFn: () =>
 			getProgramsBySchoolId(schoolId ? Number(schoolId) : undefined),
-		select: unwrap,
 		enabled: !!schoolId && !isAllSchools,
 	});
 

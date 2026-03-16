@@ -29,7 +29,6 @@ import {
 	useQueryStates,
 } from 'nuqs';
 import { useEffect, useRef } from 'react';
-import { unwrap } from '@/shared/lib/actions/actionResult';
 import { useAllTerms } from '@/shared/lib/hooks/use-term';
 import { useUserSchools } from '@/shared/lib/hooks/use-user-schools';
 
@@ -63,13 +62,11 @@ export function CGPAFinderFilter({ onSearch, isLoading }: Props) {
 	const { data: schools = [], isLoading: schoolsLoading } = useQuery({
 		queryKey: ['active-schools'],
 		queryFn: getActiveSchools,
-		select: unwrap,
 	});
 
 	const { data: programs = [], isLoading: programsLoading } = useQuery({
 		queryKey: ['programs-by-school-ids', params.schoolIds],
 		queryFn: () => getProgramsBySchoolIds(params.schoolIds ?? undefined),
-		select: unwrap,
 		enabled: (params.schoolIds?.length ?? 0) > 0,
 	});
 

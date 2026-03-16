@@ -4,7 +4,6 @@ import { Button } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { IconDownload } from '@tabler/icons-react';
 import { useState } from 'react';
-import { type ActionData, unwrap } from '@/shared/lib/actions/actionResult';
 import { exportAttendanceForm } from '../_server/actions';
 
 type Props = {
@@ -15,7 +14,7 @@ type Props = {
 	className: string;
 };
 
-type ExportResult = ActionData<typeof exportAttendanceForm>;
+type ExportResult = Awaited<ReturnType<typeof exportAttendanceForm>>;
 
 export default function AttendanceDownload({
 	semesterModuleId,
@@ -29,15 +28,13 @@ export default function AttendanceDownload({
 	const handleDownload = async () => {
 		setIsDownloading(true);
 		try {
-			const result: ExportResult = unwrap(
-				await exportAttendanceForm({
-					semesterModuleId,
-					termId,
-					moduleCode,
-					moduleName,
-					className,
-				})
-			);
+			const result: ExportResult = await exportAttendanceForm({
+				semesterModuleId,
+				termId,
+				moduleCode,
+				moduleName,
+				className,
+			});
 
 			const byteCharacters = atob(result.base64Data);
 			const byteNumbers = new Array(byteCharacters.length);

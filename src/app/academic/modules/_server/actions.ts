@@ -6,15 +6,17 @@ import { modulesService as service } from './service';
 
 type Module = typeof modules.$inferInsert;
 
-export const getModule = createAction(async (id: number) => service.get(id));
+export async function getModule(id: number) {
+	return service.get(id);
+}
 
-export const getModules = createAction(async (page: number = 1, search = '') =>
-	service.findAll({
+export async function getModules(page: number = 1, search = '') {
+	return service.findAll({
 		page,
 		search: search.trim(),
 		searchColumns: ['code', 'name'],
-	})
-);
+	});
+}
 
 export const createModule = createAction(async (module: Module) =>
 	service.create(module)

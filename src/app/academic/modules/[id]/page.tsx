@@ -16,7 +16,6 @@ import {
 } from '@mantine/core';
 import { notFound } from 'next/navigation';
 import { Suspense } from 'react';
-import { unwrap } from '@/shared/lib/actions/actionResult';
 import {
 	DetailsView,
 	DetailsViewBody,
@@ -32,7 +31,7 @@ type Props = {
 
 export default async function ModuleDetails({ params }: Props) {
 	const { id } = await params;
-	const mod = unwrap(await getModule(Number(id)));
+	const mod = await getModule(Number(id));
 
 	if (!mod) {
 		return notFound();
@@ -70,7 +69,7 @@ export default async function ModuleDetails({ params }: Props) {
 type StructuresSectionProps = { moduleId: number };
 
 async function StructuresSection({ moduleId }: StructuresSectionProps) {
-	const structures = unwrap(await getStructuresByModule(moduleId));
+	const structures = await getStructuresByModule(moduleId);
 	return (
 		<Box mt='md'>
 			{structures.length === 0 ? (

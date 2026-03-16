@@ -9,12 +9,10 @@ import { assessmentMarksService as service } from './service';
 
 type AssessmentMark = typeof assessmentMarks.$inferInsert;
 
-export const getAssessmentMarksByModuleId = createAction(
-	async (moduleId: number) => {
-		const term = await getActiveTerm();
-		return service.getByModuleId(moduleId, term.id);
-	}
-);
+export async function getAssessmentMarksByModuleId(moduleId: number) {
+	const term = await getActiveTerm();
+	return service.getByModuleId(moduleId, term.id);
+}
 
 export const createAssessmentMark = createAction(
 	async (assessmentMark: AssessmentMark, moduleId: number) => {
@@ -100,10 +98,10 @@ export const calculateAndSaveModuleGrade = createAction(
 	}
 );
 
-export const getMarksAudit = createAction(async (studentModuleId: number) =>
-	service.getStudentAuditHistory(studentModuleId)
-);
+export async function getMarksAudit(studentModuleId: number) {
+	return service.getStudentAuditHistory(studentModuleId);
+}
 
-export const getStudentMarks = createAction(async (smId: number) =>
-	service.getStudentMarks(smId)
-);
+export async function getStudentMarks(smId: number) {
+	return service.getStudentMarks(smId);
+}

@@ -16,7 +16,6 @@ import {
 import { IconCalendarWeek, IconTable } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { parseAsInteger, parseAsString, useQueryState } from 'nuqs';
-import { type ActionData, unwrap } from '@/shared/lib/actions/actionResult';
 import { toClassName } from '@/shared/lib/utils/utils';
 import {
 	getAssignedModulesForCurrentUser,
@@ -28,9 +27,11 @@ import AttendanceFilter from './AttendanceFilter';
 import AttendanceForm from './AttendanceForm';
 import AttendanceSummary from './AttendanceSummary';
 
-type WeeksResult = ActionData<typeof getWeeksForTerm>;
-type ModulesResult = ActionData<typeof getAssignedModulesForCurrentUser>;
-type AttendanceWeekResult = ActionData<typeof getAttendanceForWeek>;
+type WeeksResult = Awaited<ReturnType<typeof getWeeksForTerm>>;
+type ModulesResult = Awaited<
+	ReturnType<typeof getAssignedModulesForCurrentUser>
+>;
+type AttendanceWeekResult = Awaited<ReturnType<typeof getAttendanceForWeek>>;
 
 export default function AttendanceView() {
 	const [selectedModuleCode] = useQueryState('module', parseAsString);
@@ -40,7 +41,6 @@ export default function AttendanceView() {
 	const { data: modules, isLoading: modulesLoading } = useQuery<ModulesResult>({
 		queryKey: ['assigned-modules-attendance'],
 		queryFn: getAssignedModulesForCurrentUser,
-		select: unwrap,
 	});
 
 	const selectedModule = modules?.find(
@@ -52,7 +52,6 @@ export default function AttendanceView() {
 	const { data: weeks, isLoading: weeksLoading } = useQuery<WeeksResult>({
 		queryKey: ['term-weeks', selectedModule?.termId],
 		queryFn: () => getWeeksForTerm(selectedModule!.termId),
-		select: unwrap,
 		enabled: !!selectedModule?.termId,
 	});
 
@@ -73,7 +72,6 @@ export default function AttendanceView() {
 				selectedModule!.termId,
 				effectiveWeek!
 			),
-		select: unwrap,
 		enabled:
 			!!selectedModule?.semesterModuleId &&
 			!!selectedModule?.termId &&

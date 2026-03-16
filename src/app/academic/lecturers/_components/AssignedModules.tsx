@@ -13,7 +13,6 @@ import {
 } from '@mantine/core';
 import { IconUsers } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
-import { unwrap } from '@/shared/lib/actions/actionResult';
 import { getStudentClassName } from '@/shared/lib/utils/utils';
 import DeleteModuleButton from './DeleteModuleButton';
 
@@ -25,7 +24,6 @@ export default function AssignedModules({ user }: Props) {
 	const { data: assignedModules, isLoading } = useQuery({
 		queryKey: ['assigned-modules', user.id],
 		queryFn: () => getAssignedModulesByUser(user.id),
-		select: unwrap,
 	});
 
 	if (isLoading) {

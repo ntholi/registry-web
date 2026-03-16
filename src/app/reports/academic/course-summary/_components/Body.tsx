@@ -18,7 +18,6 @@ import {
 import { notifications } from '@mantine/notifications';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useEffect, useMemo, useState } from 'react';
-import { unwrap } from '@/shared/lib/actions/actionResult';
 import { useActiveTerm } from '@/shared/lib/hooks/use-term';
 import { toClassName } from '@/shared/lib/utils/utils';
 import { generateCourseSummaryReport } from '../_server/actions';
@@ -33,7 +32,6 @@ export default function Body() {
 	const { data: assignedModules, isLoading: modulesLoading } = useQuery({
 		queryKey: ['assigned-modules-current-user'],
 		queryFn: getAssignedModulesByCurrentUser,
-		select: unwrap,
 	});
 
 	const { data: modulePrograms, isLoading: programsLoading } = useQuery({
@@ -47,10 +45,8 @@ export default function Body() {
 			if (!selectedModule?.semesterModule?.module?.id) {
 				return [];
 			}
-			return unwrap(
-				await getAssignedModuleByUserAndModule(
-					selectedModule.semesterModule.module.id
-				)
+			return await getAssignedModuleByUserAndModule(
+				selectedModule.semesterModule.module.id
 			);
 		},
 		enabled: !!selectedModuleId && !!assignedModules,

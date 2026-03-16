@@ -6,23 +6,25 @@ import { feedbackQuestionsService as service } from './service';
 
 type Question = typeof feedbackQuestions.$inferInsert;
 
-export const getQuestions = createAction(async (page = 1, search = '') =>
-	service.findAll({
+export async function getQuestions(page = 1, search = '') {
+	return service.findAll({
 		page,
 		search: search.trim(),
 		searchColumns: ['text'],
-	})
-);
+	});
+}
 
-export const getAllQuestionsWithCategories = createAction(async () =>
-	service.findAllWithCategories()
-);
+export async function getAllQuestionsWithCategories() {
+	return service.findAllWithCategories();
+}
 
-export const getQuestionBoard = createAction(async () =>
-	service.findQuestionBoard()
-);
+export async function getQuestionBoard() {
+	return service.findQuestionBoard();
+}
 
-export const getQuestion = createAction(async (id: string) => service.get(id));
+export async function getQuestion(id: string) {
+	return service.get(id);
+}
 
 export const createQuestion = createAction(async (data: Question) =>
 	service.create(data)

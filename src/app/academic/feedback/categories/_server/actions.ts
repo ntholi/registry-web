@@ -6,15 +6,17 @@ import { feedbackCategoriesService as service } from './service';
 
 type Category = typeof feedbackCategories.$inferInsert;
 
-export const getCategories = createAction(async (page = 1, search = '') =>
-	service.findAll({
+export async function getCategories(page = 1, search = '') {
+	return service.findAll({
 		page,
 		search: search.trim(),
 		searchColumns: ['name'],
-	})
-);
+	});
+}
 
-export const getCategory = createAction(async (id: string) => service.get(id));
+export async function getCategory(id: string) {
+	return service.get(id);
+}
 
 export const createCategory = createAction(async (data: Category) =>
 	service.create(data)
@@ -28,4 +30,6 @@ export const deleteCategory = createAction(async (id: string) =>
 	service.delete(id)
 );
 
-export const getAllCategories = createAction(async () => service.getAll());
+export async function getAllCategories() {
+	return service.getAll();
+}

@@ -30,7 +30,6 @@ import {
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useMemo, useState } from 'react';
 import type { AttendanceStatus } from '@/core/database';
-import { unwrap } from '@/shared/lib/actions/actionResult';
 import { useActionMutation } from '@/shared/lib/actions/use-action-mutation';
 import { getStatusColor } from '@/shared/lib/utils/colors';
 import { formatPhoneNumber } from '@/shared/lib/utils/utils';
@@ -92,7 +91,6 @@ export default function AttendanceForm({
 	const { data: students, isLoading } = useQuery({
 		queryKey: attendanceWeekKey,
 		queryFn: () => getAttendanceForWeek(semesterModuleId, termId, weekNumber),
-		select: unwrap,
 	});
 
 	const saveMutation = useActionMutation(

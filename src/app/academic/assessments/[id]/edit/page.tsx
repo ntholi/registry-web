@@ -1,6 +1,5 @@
 import { Box } from '@mantine/core';
 import { notFound } from 'next/navigation';
-import { unwrap } from '@/shared/lib/actions/actionResult';
 import Form from '../../_components/Form';
 import { getAssessment, updateAssessment } from '../../_server/actions';
 
@@ -10,7 +9,7 @@ type Props = {
 
 export default async function AssessmentEdit({ params }: Props) {
 	const { id } = await params;
-	const assessment = unwrap(await getAssessment(Number(id)));
+	const assessment = await getAssessment(Number(id));
 	if (!assessment) {
 		return notFound();
 	}
