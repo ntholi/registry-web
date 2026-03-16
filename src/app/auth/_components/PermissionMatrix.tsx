@@ -18,6 +18,7 @@ import {
 	IconCheck,
 	IconPencil,
 	IconPlus,
+	IconRefresh,
 	IconSearch,
 	IconX,
 } from '@tabler/icons-react';
@@ -37,6 +38,7 @@ import PermissionResourceModal, {
 type PermissionMatrixProps = {
 	permissions: PermissionGrant[];
 	onChange?: (permissions: PermissionGrant[]) => void;
+	defaultPermissions?: readonly PermissionGrant[];
 	readOnly?: boolean;
 };
 
@@ -242,7 +244,7 @@ function ResourcePermissionCard({
 							</Text>
 
 							<Group gap={'xs'}>
-								{item.actions.map((action, index) => (
+								{item.actions.map((action, _index) => (
 									<Card py={2} px={'xs'} key={grantKey(item.resource, action)}>
 										<Text size='xs'>{toTitleCase(action)}</Text>
 									</Card>
@@ -269,6 +271,7 @@ function ResourcePermissionCard({
 export default function PermissionMatrix({
 	permissions,
 	onChange,
+	defaultPermissions,
 	readOnly = false,
 }: PermissionMatrixProps) {
 	const current = sanitizePermissions(permissions);
@@ -311,15 +314,30 @@ export default function PermissionMatrix({
 					</Badge>
 				</Group>
 				{editable ? (
-					<Button
-						leftSection={<IconPlus size={16} />}
-						onClick={openCreateModal}
-						variant='light'
-						size='xs'
-						disabled={availableResources.length === 0}
-					>
-						Add Resource
-					</Button>
+					<Group gap='xs'>
+						{defaultPermissions ? (
+							<Button
+								leftSection={<IconRefresh size={14} />}
+								onClick={() =>
+									onChange?.(sanitizePermissions([...defaultPermissions]))
+								}
+								variant='light'
+								color='cyan'
+								size='xs'
+							>
+								Reset to Default
+							</Button>
+						) : null}
+						<Button
+							leftSection={<IconPlus size={16} />}
+							onClick={openCreateModal}
+							variant='light'
+							size='xs'
+							disabled={availableResources.length === 0}
+						>
+							Add
+						</Button>
+					</Group>
 				) : null}
 			</Group>
 			{editable ? (

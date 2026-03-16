@@ -1,7 +1,6 @@
 'use client';
 
 import { findAllPresets } from '@auth/permission-presets/_server/actions';
-import { Badge, Group, Text } from '@mantine/core';
 import type { PropsWithChildren } from 'react';
 import { toTitleCase } from '@/shared/lib/utils/utils';
 import { ListItem, ListLayout, NewLink } from '@/shared/ui/adease';

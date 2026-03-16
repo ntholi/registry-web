@@ -1,5 +1,6 @@
 'use client';
 
+import { PERMISSION_PRESET_SEEDS } from '@auth/permission-presets/_lib/catalog';
 import {
 	type PermissionPresetDetail,
 	type PresetFormValues,
@@ -65,6 +66,11 @@ export default function PermissionPresetForm({
 						onChange={(permissions) => {
 							form.setFieldValue('permissions', permissions);
 						}}
+						defaultPermissions={
+							PERMISSION_PRESET_SEEDS.find(
+								(seed) => seed.name === form.values.name
+							)?.permissions
+						}
 					/>
 				</>
 			)}

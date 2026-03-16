@@ -122,7 +122,7 @@ export const PERMISSION_PRESET_SEEDS: readonly PermissionPresetSeed[] = [
 	{
 		name: 'Academic Manager',
 		role: 'academic',
-		description: 'Full academic department management',
+		description: '',
 		permissions: mergeGrants(
 			grant('lecturers', fullCrud),
 			grant('assessments', fullCrud),
@@ -155,7 +155,7 @@ export const PERMISSION_PRESET_SEEDS: readonly PermissionPresetSeed[] = [
 	{
 		name: 'Academic Program Leader',
 		role: 'academic',
-		description: 'Program-level academic management',
+		description: '',
 		permissions: mergeGrants(
 			grant('lecturers', fullCrud),
 			grant('feedback-questions', fullCrud),
@@ -180,7 +180,7 @@ export const PERMISSION_PRESET_SEEDS: readonly PermissionPresetSeed[] = [
 	{
 		name: 'Academic Year Leader',
 		role: 'academic',
-		description: 'Year-level academic oversight',
+		description: '',
 		permissions: mergeGrants(
 			grant('feedback-cycles', ['read']),
 			grant('registration', ['read']),
@@ -197,7 +197,7 @@ export const PERMISSION_PRESET_SEEDS: readonly PermissionPresetSeed[] = [
 	{
 		name: 'Academic Lecturer',
 		role: 'academic',
-		description: 'Teaching staff access',
+		description: '',
 		permissions: mergeGrants(
 			grant('assessments', fullCrud),
 			grant('gradebook', ['read', 'update']),
@@ -212,7 +212,7 @@ export const PERMISSION_PRESET_SEEDS: readonly PermissionPresetSeed[] = [
 	{
 		name: 'Academic Principal Lecturer',
 		role: 'academic',
-		description: 'Senior teaching staff access',
+		description: '',
 		permissions: mergeGrants(
 			grant('assessments', fullCrud),
 			grant('gradebook', ['read', 'update', 'approve']),
@@ -227,7 +227,7 @@ export const PERMISSION_PRESET_SEEDS: readonly PermissionPresetSeed[] = [
 	{
 		name: 'Academic Admin',
 		role: 'academic',
-		description: 'Academic administrative support',
+		description: '',
 		permissions: mergeGrants(
 			grant('assessments', fullCrud),
 			grant('feedback-questions', fullCrud),
@@ -240,7 +240,7 @@ export const PERMISSION_PRESET_SEEDS: readonly PermissionPresetSeed[] = [
 	{
 		name: 'Registry Staff',
 		role: 'registry',
-		description: 'Standard registry operations',
+		description: '',
 		permissions: mergeGrants(
 			grant('students', ['read', 'update', 'delete']),
 			grant('registration', fullCrud),
@@ -264,7 +264,7 @@ export const PERMISSION_PRESET_SEEDS: readonly PermissionPresetSeed[] = [
 	{
 		name: 'Registry Manager',
 		role: 'registry',
-		description: 'Registry department management',
+		description: '',
 		permissions: mergeGrants(
 			grant('students', ['read', 'update', 'delete']),
 			grant('registration', fullCrud),
@@ -293,7 +293,7 @@ export const PERMISSION_PRESET_SEEDS: readonly PermissionPresetSeed[] = [
 	{
 		name: 'Finance Staff',
 		role: 'finance',
-		description: 'Standard finance operations',
+		description: '',
 		permissions: mergeGrants(
 			grant('sponsors', fullCrud),
 			grant('admissions-payments', ['read', 'update']),
@@ -313,7 +313,7 @@ export const PERMISSION_PRESET_SEEDS: readonly PermissionPresetSeed[] = [
 	{
 		name: 'Finance Manager',
 		role: 'finance',
-		description: 'Finance department management',
+		description: '',
 		permissions: mergeGrants(
 			grant('sponsors', fullCrud),
 			grant('admissions-payments', ['read', 'update']),
@@ -336,7 +336,7 @@ export const PERMISSION_PRESET_SEEDS: readonly PermissionPresetSeed[] = [
 	{
 		name: 'Library Staff',
 		role: 'library',
-		description: 'Library operations',
+		description: '',
 		permissions: mergeGrants(
 			grant('library', fullCrud),
 			grant('students', ['read']),
@@ -349,7 +349,7 @@ export const PERMISSION_PRESET_SEEDS: readonly PermissionPresetSeed[] = [
 	{
 		name: 'Marketing Staff',
 		role: 'marketing',
-		description: 'Marketing and admissions outreach',
+		description: '',
 		permissions: mergeGrants(
 			grant('applicants', fullCrud),
 			grant('applications', fullCrud),
@@ -365,7 +365,7 @@ export const PERMISSION_PRESET_SEEDS: readonly PermissionPresetSeed[] = [
 	{
 		name: 'Student Services Staff',
 		role: 'student_services',
-		description: 'Student services operations',
+		description: '',
 		permissions: mergeGrants(
 			grant('students', ['read', 'update']),
 			grant('registration', ['read', 'update']),
@@ -377,7 +377,7 @@ export const PERMISSION_PRESET_SEEDS: readonly PermissionPresetSeed[] = [
 	{
 		name: 'LEAP Staff',
 		role: 'leap',
-		description: 'LEAP program operations',
+		description: '',
 		permissions: mergeGrants(
 			grant('assessments', fullCrud),
 			grant('registration', ['read', 'update']),
@@ -394,7 +394,7 @@ export const PERMISSION_PRESET_SEEDS: readonly PermissionPresetSeed[] = [
 	{
 		name: 'Human Resource Staff',
 		role: 'human_resource',
-		description: 'HR access',
+		description: '',
 		permissions: mergeGrants(
 			grant('feedback-reports', ['read']),
 			grant('employees', fullCrud)
@@ -403,7 +403,7 @@ export const PERMISSION_PRESET_SEEDS: readonly PermissionPresetSeed[] = [
 	{
 		name: 'Resource Staff',
 		role: 'resource',
-		description: 'Resource department operations',
+		description: '',
 		permissions: mergeGrants(
 			grant('timetable', ['read']),
 			grant('venues', ['read']),

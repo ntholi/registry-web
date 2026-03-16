@@ -8,22 +8,22 @@
 
 INSERT INTO permission_presets (id, name, role, description, created_at, updated_at)
 VALUES
-  ('NnO3EzC5CmNgvMwYBOg4B', 'Academic Manager', 'academic', 'Full academic department management', NOW(), NOW()),
-  ('hs1hs_JgfJO5-kpoX02zu', 'Academic Program Leader', 'academic', 'Program-level academic management', NOW(), NOW()),
-  ('795-sR2cCELGEFd4B-ZZ6', 'Academic Year Leader', 'academic', 'Year-level academic oversight', NOW(), NOW()),
-  ('E3lzR6OXzlUS7pMHGqG6q', 'Academic Lecturer', 'academic', 'Teaching staff access', NOW(), NOW()),
-  ('_3wwvV81dhomulUdLXtTG', 'Academic Principal Lecturer', 'academic', 'Senior teaching staff access', NOW(), NOW()),
-  ('GkZamr-Pky9z8alJYDkNV', 'Academic Admin', 'academic', 'Academic administrative support', NOW(), NOW()),
-  ('qLoHBneIKW6PhQIzpoRWY', 'Registry Staff', 'registry', 'Standard registry operations', NOW(), NOW()),
-  ('9gg3zR1dQrnURcQk8SyR8', 'Registry Manager', 'registry', 'Registry department management', NOW(), NOW()),
-  ('mDNWSEofqbLqoDLQ_hiCZ', 'Finance Staff', 'finance', 'Standard finance operations', NOW(), NOW()),
-  ('E1nNl-T70le4kpF9OxLZk', 'Finance Manager', 'finance', 'Finance department management', NOW(), NOW()),
-  ('Od2d3VxQXv8IvcPO1BFrh', 'Library Staff', 'library', 'Library operations', NOW(), NOW()),
-  ('6NMm7yOh66QiM9mo9oHQR', 'Marketing Staff', 'marketing', 'Marketing and admissions outreach', NOW(), NOW()),
-  ('5cFJx0zqrprx5QC8yr9e9', 'Student Services Staff', 'student_services', 'Student services operations', NOW(), NOW()),
-  ('y3c-iMGXTlOOLMnUag1gI', 'LEAP Staff', 'leap', 'LEAP program operations', NOW(), NOW()),
-  ('xIZ9VravYxpKppVFxNRoJ', 'Human Resource Staff', 'human_resource', 'HR access', NOW(), NOW()),
-  ('TvgQxXfhBl1AAc99L6zCf', 'Resource Staff', 'resource', 'Resource department operations', NOW(), NOW())
+  ('NnO3EzC5CmNgvMwYBOg4B', 'Academic Manager', 'academic', '', NOW(), NOW()),
+  ('hs1hs_JgfJO5-kpoX02zu', 'Academic Program Leader', 'academic', '', NOW(), NOW()),
+  ('795-sR2cCELGEFd4B-ZZ6', 'Academic Year Leader', 'academic', '', NOW(), NOW()),
+  ('E3lzR6OXzlUS7pMHGqG6q', 'Academic Lecturer', 'academic', '', NOW(), NOW()),
+  ('_3wwvV81dhomulUdLXtTG', 'Academic Principal Lecturer', 'academic', '', NOW(), NOW()),
+  ('GkZamr-Pky9z8alJYDkNV', 'Academic Admin', 'academic', '', NOW(), NOW()),
+  ('qLoHBneIKW6PhQIzpoRWY', 'Registry Staff', 'registry', '', NOW(), NOW()),
+  ('9gg3zR1dQrnURcQk8SyR8', 'Registry Manager', 'registry', '', NOW(), NOW()),
+  ('mDNWSEofqbLqoDLQ_hiCZ', 'Finance Staff', 'finance', '', NOW(), NOW()),
+  ('E1nNl-T70le4kpF9OxLZk', 'Finance Manager', 'finance', '', NOW(), NOW()),
+  ('Od2d3VxQXv8IvcPO1BFrh', 'Library Staff', 'library', '', NOW(), NOW()),
+  ('6NMm7yOh66QiM9mo9oHQR', 'Marketing Staff', 'marketing', '', NOW(), NOW()),
+  ('5cFJx0zqrprx5QC8yr9e9', 'Student Services Staff', 'student_services', '', NOW(), NOW()),
+  ('y3c-iMGXTlOOLMnUag1gI', 'LEAP Staff', 'leap', '', NOW(), NOW()),
+  ('xIZ9VravYxpKppVFxNRoJ', 'Human Resource Staff', 'human_resource', '', NOW(), NOW()),
+  ('TvgQxXfhBl1AAc99L6zCf', 'Resource Staff', 'resource', '', NOW(), NOW())
 ON CONFLICT (name) DO UPDATE
 SET role = EXCLUDED.role,
     description = EXCLUDED.description,
