@@ -48,7 +48,7 @@ const term = await getActiveTerm();
 const term = unwrap(await getActiveTerm());
 ```
 
-**Why this works safely**: `unwrap` throws `UserFacingError` (not plain `Error`), so when an inner action fails, the message propagates correctly through the outer `createAction`'s `extractError` chain. The error gets logged at each layer, and the user-facing message is preserved.
+**Why this works safely**: `unwrap` throws `UserFacingError` (not plain `Error`), so when an inner action fails, the message propagates correctly through the outer `createAction`'s `extractError` chain. The error gets logged at each layer (inner as `error`, outer as `warn` for `UserFacingError`), and the user-facing message is preserved. This double-logging is intentional — each layer has its own audit trail with distinguishable severity.
 
 **Key cross-action hotspots** (handled in their respective module plans):
 - `getActiveTerm()` — called from 5+ action files across academic/LMS
@@ -59,6 +59,32 @@ const term = unwrap(await getActiveTerm());
 
 Each module plan (003–008) includes a **Part E** listing the cross-action calls within that module.
 
+## Service-Level Action Imports (ARCHITECTURE FIX)
+
+**Problem**: Several **service files** import action functions (e.g., `getActiveTerm` from `@/app/registry/terms`). This violates the data flow rule (UI → Actions → Services → Repositories — services must NOT call actions). When these actions are wrapped with `createAction`, their return type changes from `T` to `ActionResult<T>`, breaking all service callers.
+
+**Affected pattern** (5 service files import `getActiveTerm`):
+```ts
+// WRONG — service importing an action
+import { getActiveTerm } from '@/app/registry/terms';
+const term = await getActiveTerm(); // returns Term today, ActionResult<Term> after wrapping
+```
+
+**Fix**: Each module plan that wraps a heavily-imported action must also:
+1. Ensure the service layer exposes the core logic (e.g., `termsService.getActiveOrThrow()`)
+2. Update all **service-level callers** to import from the service directly
+3. Only then wrap the action with `createAction`
+
+```ts
+// CORRECT — service importing a service
+import { termsService } from '@registry/terms/_server/service';
+const term = await termsService.getActiveOrThrow();
+```
+
+**Known service-level action imports** (fixed in their respective module plans):
+- `getActiveTerm()` → 5 service files (fixed in Plan 004, Part A.0)
+- Verify others at implementation time per module
+
 ## Non-Breaking Incremental Strategy
 
 **After completing any single plan, the app must compile and run.** This is achieved by:
@@ -68,7 +94,9 @@ Each module plan (003–008) includes a **Part E** listing the cross-action call
 3. **`useActionMutation` hook**: Unwraps `ActionResult<T>` for ~150+ client components that use `useMutation` directly. Provides `T` to `onSuccess` and throws for `onError`, preserving existing component patterns.
 4. **ListLayout keeps positional params**: `getData(page, search)` signature stays unchanged during migration. Only the return value gets ActionResult unwrapping. This avoids breaking all 44 layout callers.
 5. **Per-module vertical slices**: Plans 003–008 each migrate one module group **end-to-end** — wrapping actions, updating RSC pages, verifying ListLayout callers, and updating direct `useMutation` clients together. Unmigrated modules continue working with the old pattern.
-6. **Cleanup at the end**: Plan 009 removes the `string` compat from `ActionResult.error`.
+6. **Cross-module Part E ordering**: A module's Part E (cross-action `unwrap()` calls) can only add `unwrap()` for actions that are **already wrapped** in a prior plan. Cross-action calls to actions in **later** plans are deferred — they stay as raw `await` calls until the target module is migrated, then that plan adds `unwrap()` retroactively. TypeScript enforces this: `unwrap()` on a non-`ActionResult` value is a type error.
+7. **Service-level callers fixed first**: Before wrapping an action that services also import (e.g., `getActiveTerm`), the service callers are refactored to use the service layer directly. This prevents breaking service files.
+8. **Cleanup at the end**: Plan 009 removes the `string` compat from `ActionResult.error`.
 
 ## Reference Document
 

@@ -1661,3 +1661,63 @@ export function EditSemesterModuleModal() {
 ```
 
 This is the end-state the rest of the migration docs are describing.
+
+---
+
+## 11. Service-Level Action Import Fix
+
+### 11.1 Service calling an action (architecture violation)
+
+Services must NOT import actions — this breaks when actions are wrapped with `createAction` (return type changes from `T` to `ActionResult<T>`).
+
+### Before
+
+```ts
+// In a service file — WRONG
+import { getActiveTerm } from '@/app/registry/terms';
+
+export class AttendanceService {
+	async getAttendanceForUser(userId: string) {
+		const term = await getActiveTerm(); // calling an action from a service
+		return this.repo.findByUserAndTerm(userId, term.id);
+	}
+}
+```
+
+### After
+
+```ts
+// In a service file — CORRECT
+import { termsService } from '@registry/terms/_server/service';
+
+export class AttendanceService {
+	async getAttendanceForUser(userId: string) {
+		const term = await termsService.getActiveOrThrow(); // service calls service
+		return this.repo.findByUserAndTerm(userId, term.id);
+	}
+}
+```
+
+### The service method added to support this
+
+```ts
+// In termsService
+import { UserFacingError } from '@/shared/lib/actions/extractError';
+
+async getActiveOrThrow() {
+	const term = await this.getActive();
+	if (!term) throw new UserFacingError('No active term', 'NO_ACTIVE_TERM');
+	return term;
+}
+```
+
+### The action wraps the same logic
+
+```ts
+// In actions.ts
+export const getActiveTerm = createAction(async () => {
+	const term = await service.getActive();
+	if (!term) throw new UserFacingError('No active term', 'NO_ACTIVE_TERM');
+	return term;
+});
+```

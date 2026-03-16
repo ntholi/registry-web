@@ -13,6 +13,48 @@ Same as Plan 003 — ListLayout and Form already handle both formats. Unmigrated
 
 ---
 
+## Part A.0: Fix Service-Level Action Imports (PREREQUISITE)
+
+Before wrapping `getActiveTerm()` with `createAction`, all **service files** that import it must be refactored to use the service layer directly. Otherwise wrapping would change the return type from `Term` to `ActionResult<Term>`, breaking those service callers.
+
+### Step 1: Add `getActiveOrThrow()` to `termsService`
+
+Add a helper to `src/app/registry/terms/_server/service.ts` that encapsulates the null-check + throw:
+
+```ts
+import { UserFacingError } from '@/shared/lib/actions/extractError';
+
+// Inside the service class or as a method:
+async getActiveOrThrow() {
+  const term = await this.getActive();
+  if (!term) throw new UserFacingError('No active term', 'NO_ACTIVE_TERM');
+  return term;
+}
+```
+
+### Step 2: Update service callers
+
+| # | File | Before | After |
+|---|------|--------|-------|
+| 1 | `src/app/academic/attendance/_server/service.ts` | `import { getActiveTerm } from '@/app/registry/terms'` | `import { termsService } from '@registry/terms/_server/service'` → use `termsService.getActiveOrThrow()` |
+| 2 | `src/app/academic/assigned-modules/_server/service.ts` | `import { getActiveTerm } from '@/app/registry/terms'` | `import { termsService } from '@registry/terms/_server/service'` → use `termsService.getActiveOrThrow()` |
+| 3 | `src/app/registry/registration/requests/_server/requests/service.ts` | `import { getActiveTerm } from '@/app/registry/terms'` | `import { termsService } from '@registry/terms/_server/service'` → use `termsService.getActiveOrThrow()` |
+| 4 | `src/app/registry/registration/requests/_server/clearance/service.ts` | `import { getActiveTerm } from '@/app/registry/terms'` | `import { termsService } from '@registry/terms/_server/service'` → use `termsService.getActiveOrThrow()` |
+| 5 | `src/app/registry/students/_server/service.ts` | `import { getActiveTerm } from '@/app/registry/terms'` | `import { termsService } from '@registry/terms/_server/service'` → use `termsService.getActiveOrThrow()` |
+
+### Step 3: Retroactive `unwrap()` for academic action callers (deferred from Plan 003)
+
+After `getActiveTerm` is wrapped with `createAction` (Part A below), add `unwrap()` to all **action-level** callers from Plan 003:
+
+| # | File | Calls to wrap with `unwrap()` |
+|---|------|-------------------------------|
+| 1 | `src/app/academic/assessments/_server/actions.ts` | `getActiveTerm()` ×2 |
+| 2 | `src/app/academic/assigned-modules/_server/actions.ts` | `getActiveTerm()` ×3 |
+| 3 | `src/app/academic/assessment-marks/_server/actions.ts` | `getActiveTerm()` |
+| 4 | `src/app/academic/feedback/cycles/_server/actions.ts` | `getAllTerms()` |
+
+---
+
 ## Part A: Wrap Action Files (18 files)
 
 Use the same migration template as Plan 003. Key rules:
@@ -133,10 +175,10 @@ When an action in this module calls a wrapped action from another module, wrap w
 
 ### Cross-Action Calls in Registry Module
 
-| # | File | Cross-action call | Import source |
-|---|------|------------------|---------------|
-| 1 | `students/_server/actions.ts` | `getUnpublishedTermCodes()` | `@/app/registry/terms/settings/_server/actions` |
-| 2 | `terms/settings/_server/actions.ts` | `createNotification()` | `@admin/notifications/_server/actions` |
+| # | File | Cross-action call | Import source | Wrapped in | Action |
+|---|------|------------------|---------------|------------|--------|
+| 1 | `students/_server/actions.ts` | `getUnpublishedTermCodes()` | `@/app/registry/terms/settings/_server/actions` | Plan 004 (this plan) | Add `unwrap()` now |
+| 2 | `terms/settings/_server/actions.ts` | `createNotification()` | `@admin/notifications/_server/actions` | Plan 006 | **Deferred** — add `unwrap()` in Plan 006 |
 
 ---
 
@@ -150,10 +192,13 @@ pnpm tsc --noEmit
 
 ## Done When
 
+- [ ] **Part A.0**: `termsService.getActiveOrThrow()` added
+- [ ] **Part A.0**: All 5 service files refactored from action import to service import
+- [ ] **Part A.0**: Retroactive `unwrap()` added to academic action callers of `getActiveTerm`
 - [ ] All 18 action files import and use `createAction`
 - [ ] All RSC pages with direct `await` calls use `unwrap()`
 - [ ] All ListLayout callers verified/updated
 - [ ] All direct `useMutation` callers switched to `useActionMutation`
-- [ ] All cross-action calls wrapped with `unwrap()`
+- [ ] Intra-module cross-action calls wrapped with `unwrap()`; cross-module to later plans deferred
 - [ ] `pnpm tsc --noEmit` passes
 - [ ] **Registry module fully migrated; all other modules still work**

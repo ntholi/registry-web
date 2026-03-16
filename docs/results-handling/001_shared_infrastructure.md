@@ -95,9 +95,20 @@ export interface AppError {
 export type ActionResult<T> =
   | { success: true; data: T }
   | { success: false; error: AppError | string };
+
+export type ActionData<T> = T extends (...args: infer _TArgs) => infer TResult
+  ? Awaited<TResult> extends ActionResult<infer TData>
+    ? TData
+    : never
+  : never;
 ```
 
 **`error: AppError | string` union** — this is the key compatibility decision. Existing code that produces `failure('string')` still creates valid `ActionResult`. New code using `createAction` produces `AppError` objects. Both are valid. The union is cleaned up in Plan 009.
+
+**`ActionData<T>`** — utility type that extracts the unwrapped data type from an action function. Useful for typing component props that receive action output:
+```ts
+type Term = ActionData<typeof getActiveTerm>; // extracts the Term type from ActionResult<Term>
+```
 
 ### Functions
 
@@ -109,6 +120,7 @@ export type ActionResult<T> =
 | `unwrap` | `<T>(result: ActionResult<T>) => T` | Extract data or throw — for RSC pages |
 | `isActionResult` | `(value: unknown) => value is ActionResult<unknown>` | Type guard for UI components |
 | `getActionErrorMessage` | `(error: AppError \| string) => string` | Extract message string — **handles both formats** |
+| `ActionData` | `type ActionData<T>` | Utility type — extracts `TData` from `(...) => Promise<ActionResult<TData>>` |
 
 ### `getActionErrorMessage` — backward compat bridge
 

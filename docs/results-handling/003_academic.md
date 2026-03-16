@@ -200,29 +200,42 @@ Known candidates (verify at implementation time):
 
 When an action in this module calls a wrapped action from another module (or within this module), it must use `unwrap()` to extract the data. `unwrap` throws `UserFacingError`, so the outer `createAction` preserves the error message through `extractError`.
 
+### Ordering Rule
+
+`unwrap()` can only be added for actions that are **already wrapped** with `createAction`. Cross-action calls to actions in **later** plans stay as raw `await` calls — the target module's plan adds `unwrap()` retroactively when it wraps those actions. TypeScript enforces this: `unwrap(rawValue)` would be a type error.
+
 ### Migration Template
 
 ```ts
 // BEFORE (inside createAction handler)
 const term = await getActiveTerm();
 
-// AFTER
+// AFTER (only after getActiveTerm is wrapped in Plan 004)
 const term = unwrap(await getActiveTerm());
 ```
 
 ### Cross-Action Calls in Academic Module
 
-| # | File | Cross-action call | Import source |
-|---|------|------------------|---------------|
-| 1 | `assessments/_server/actions.ts` | `getActiveTerm()` ×2 | `@/app/registry/terms` |
-| 2 | `assigned-modules/_server/actions.ts` | `getActiveTerm()` ×3 | `@/app/registry/terms` |
-| 3 | `assessment-marks/_server/actions.ts` | `getActiveTerm()` | `@/app/registry/terms` |
-| 4 | `assessment-marks/_server/actions.ts` | `updateGradeByStudentModuleId()` | `@academic/semester-modules` |
-| 5 | `feedback/cycles/_server/actions.ts` | `getAllTerms()` | `@registry/terms/_server/actions` |
-| 6 | `feedback/cycles/_server/actions.ts` | `getAllSchools()` | `@academic/schools/_server/actions` |
-| 7 | `feedback/cycles/_server/actions.ts` | `getUserSchools(userId)` | `@admin/users/_server/actions` |
+| # | File | Cross-action call | Import source | Wrapped in | Action |
+|---|------|------------------|---------------|------------|--------|
+| 1 | `assessments/_server/actions.ts` | `getActiveTerm()` ×2 | `@/app/registry/terms` | Plan 004 | **Deferred** — add `unwrap()` in Plan 004 |
+| 2 | `assigned-modules/_server/actions.ts` | `getActiveTerm()` ×3 | `@/app/registry/terms` | Plan 004 | **Deferred** — add `unwrap()` in Plan 004 |
+| 3 | `assessment-marks/_server/actions.ts` | `getActiveTerm()` | `@/app/registry/terms` | Plan 004 | **Deferred** — add `unwrap()` in Plan 004 |
+| 4 | `assessment-marks/_server/actions.ts` | `updateGradeByStudentModuleId()` | `@academic/semester-modules` | Plan 003 (this plan) | Add `unwrap()` now |
+| 5 | `feedback/cycles/_server/actions.ts` | `getAllTerms()` | `@registry/terms/_server/actions` | Plan 004 | **Deferred** — add `unwrap()` in Plan 004 |
+| 6 | `feedback/cycles/_server/actions.ts` | `getAllSchools()` | `@academic/schools/_server/actions` | Plan 003 (this plan) | Add `unwrap()` now |
+| 7 | `feedback/cycles/_server/actions.ts` | `getUserSchools(userId)` | `@admin/users/_server/actions` | Plan 006 | **Deferred** — add `unwrap()` in Plan 006 |
 
-**Note**: Add `import { unwrap } from '@/shared/lib/actions/actionResult'` to each file and wrap each cross-action `await` call with `unwrap()`.
+### Service Files Importing Actions (ARCHITECTURE FIX)
+
+These service files import `getActiveTerm` (an action) in violation of the data flow rule. They must be refactored to use `termsService` directly **before** `getActiveTerm` is wrapped in Plan 004. This is tracked in Plan 004 Part A.0, but listed here for awareness:
+
+| # | File | Current import | Fix |
+|---|------|---------------|-----|
+| 1 | `attendance/_server/service.ts` | `getActiveTerm` from `@/app/registry/terms` | Use `termsService.getActiveOrThrow()` |
+| 2 | `assigned-modules/_server/service.ts` | `getActiveTerm` from `@/app/registry/terms` | Use `termsService.getActiveOrThrow()` |
+
+**Note**: These are fixed in Plan 004 Part A.0, not in this plan.
 
 ---
 
@@ -240,6 +253,7 @@ pnpm tsc --noEmit
 - [ ] All RSC pages with direct `await` calls use `unwrap()`
 - [ ] All ListLayout callers verified working
 - [ ] All direct `useMutation` callers switched to `useActionMutation`
-- [ ] All cross-action calls wrapped with `unwrap()`
+- [ ] Intra-module cross-action calls (#4, #6) wrapped with `unwrap()`
+- [ ] Cross-module calls to unmigrated actions (#1–3, #5, #7) left as raw `await` — deferred to target plans
 - [ ] `pnpm tsc --noEmit` passes
 - [ ] **Academic module fully migrated; all other modules still work**
