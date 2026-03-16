@@ -57,7 +57,6 @@ pnpm tsc --noEmit & pnpm lint:fix
 - [ ] `DetailsViewHeader.tsx` has updated `handleDelete` type
 - [ ] `ListLayout.tsx` unwraps `ActionResult`, shows error state + retry
 - [ ] `useActionMutation` hook exists at `src/shared/lib/hooks/use-action-mutation.ts`
-- [ ] If Plan 009 Task 2 was done: `ListLayout.tsx` uses object params `{ page, search }`
 
 ### QueryClient
 
@@ -81,7 +80,6 @@ Pick 5 random `[id]/page.tsx` files and verify:
 
 Pick 5 random `layout.tsx` files and verify:
 - [ ] `getData` prop passes compatible function
-- [ ] If Plan 009 Task 2 was done: arrow wrappers use `({ page, search })` not `(page, search)`
 
 ### Direct useMutation Callers (spot check)
 

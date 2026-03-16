@@ -28,7 +28,7 @@ DB → Repository (throws) → Service (throws / UserFacingError) → Action (cr
 | Next.js sentinels | `createAction` re-throws `redirect`, `notFound`, `unauthorized`, `forbidden` via `isNextNavigationError` — never swallows them |
 | RSC unwrap | `unwrap(result)` throws `UserFacingError` for `error.tsx` to catch |
 | Cross-action calls | Callers use `unwrap()` — `UserFacingError` preserves messages through `extractError` chains |
-| ListLayout getData | Keeps positional `(page, search)` during migration, adds ActionResult unwrapping on return value |
+| ListLayout getData | Keeps positional `(page, search)` throughout the migration. |
 | Error boundaries | Root `error.tsx` + mandatory `global-error.tsx` |
 | Client mutations | `useActionMutation` hook unwraps `ActionResult` for `useMutation` callers |
 | Top-level export style | `export const` for `createAction`-wrapped actions (only exception) |
@@ -68,7 +68,7 @@ Each module plan (003–008) includes a **Part E** listing the cross-action call
 3. **`useActionMutation` hook**: Unwraps `ActionResult<T>` for ~150+ client components that use `useMutation` directly. Provides `T` to `onSuccess` and throws for `onError`, preserving existing component patterns.
 4. **ListLayout keeps positional params**: `getData(page, search)` signature stays unchanged during migration. Only the return value gets ActionResult unwrapping. This avoids breaking all 44 layout callers.
 5. **Per-module vertical slices**: Plans 003–008 each migrate one module group **end-to-end** — wrapping actions, updating RSC pages, verifying ListLayout callers, and updating direct `useMutation` clients together. Unmigrated modules continue working with the old pattern.
-6. **Cleanup at the end**: Plan 009 removes the `string` compat from `ActionResult.error`, and optionally switches to object params.
+6. **Cleanup at the end**: Plan 009 removes the `string` compat from `ActionResult.error`.
 
 ## Reference Document
 
@@ -87,7 +87,7 @@ Full architecture details, code snippets, type definitions, and rationale:
 | 6 | [006_admin_finance.md](./006_admin_finance.md) | Admin + Finance + Auth + HR: 10 actions + ~19 RSC pages + layouts | ⬜ Not started |
 | 7 | [007_lms_library_timetable.md](./007_lms_library_timetable.md) | LMS + Library + Timetable: 26 actions + ~34 RSC pages + layouts | ⬜ Not started |
 | 8 | [008_remaining.md](./008_remaining.md) | Apply + Reports + Student Portal + Audit-Logs + Feedback: 17 actions + ~15 RSC pages + layouts | ⬜ Not started |
-| 9 | [009_cleanup.md](./009_cleanup.md) | Remove backward compat: `error` → `AppError` only, optional object params for ListLayout | ⬜ Not started |
+| 9 | [009_cleanup.md](./009_cleanup.md) | Remove backward compat: `error` → `AppError` only | ⬜ Not started |
 | 10 | [010_verification.md](./010_verification.md) | Full verification, type-check, lint, manual testing checklist | ⬜ Not started |
 
 ## Execution Order
