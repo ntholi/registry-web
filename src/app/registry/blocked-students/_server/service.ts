@@ -57,8 +57,7 @@ class BlockedStudentService {
 			async (session) =>
 				hasPermission(session, 'blocked-students', 'create') ||
 				session?.user?.role === 'finance' ||
-				session?.user?.role === 'registry' ||
-				session?.user?.role === 'library'
+				session?.user?.role === 'registry'
 		);
 	}
 
@@ -88,18 +87,7 @@ class BlockedStudentService {
 					}
 				);
 			},
-			async (session) => {
-				if (session.user?.role === 'admin') return true;
-				if (data.status === 'unblocked') {
-					return session.user?.role === blockedBy;
-				}
-				return (
-					hasPermission(session, 'blocked-students', 'update') ||
-					session.user?.role === 'finance' ||
-					session.user?.role === 'registry' ||
-					session.user?.role === 'library'
-				);
-			}
+			async (session) => session.user?.role === blockedBy
 		);
 	}
 
@@ -113,12 +101,7 @@ class BlockedStudentService {
 					activityType: 'student_unblocked',
 					stdNo: existing?.stdNo,
 				}),
-			async (session) =>
-				hasPermission(session, 'blocked-students', 'delete') ||
-				session?.user?.role === 'admin' ||
-				session?.user?.role === 'finance' ||
-				session?.user?.role === 'registry' ||
-				session?.user?.role === 'library'
+			async (session) => session?.user?.role === 'admin'
 		);
 	}
 
@@ -134,6 +117,12 @@ class BlockedStudentService {
 				const blockedSet = new Set(alreadyBlocked.map((b) => b.stdNo));
 
 				const deptToUse = department || session?.user?.role || 'registry';
+
+				if (deptToUse !== 'finance' && deptToUse !== 'registry') {
+					throw new Error(
+						'Blocked students can only be created under finance or registry'
+					);
+				}
 
 				const toCreate = data
 					.filter((d) => !blockedSet.has(d.stdNo))

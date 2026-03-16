@@ -3,6 +3,7 @@
 import { Center, Loader, SimpleGrid, Stack } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
 import { notFound, useParams } from 'next/navigation';
+import { authClient } from '@/core/auth-client';
 import { formatDateTime } from '@/shared/lib/utils/dates';
 import {
 	DetailsView,
@@ -17,6 +18,7 @@ import { deleteBlockedStudent, getBlockedStudent } from '../_server/actions';
 export default function BlockedStudentDetails() {
 	const params = useParams();
 	const id = Number(params.id);
+	const { data: session } = authClient.useSession();
 
 	const {
 		data: blockedStudent,
@@ -40,12 +42,17 @@ export default function BlockedStudentDetails() {
 		return notFound();
 	}
 
+	const canEdit =
+		session?.user?.role === 'admin' ||
+		session?.user?.role === blockedStudent.byDepartment;
+
 	return (
 		<DetailsView>
 			<DetailsViewHeader
 				title={blockedStudent.student.name}
 				queryKey={['blocked-students']}
 				editPermission={{ 'blocked-students': ['update'] }}
+				hideEdit={!canEdit}
 				handleDelete={async () => deleteBlockedStudent(id)}
 			/>
 			<DetailsViewBody>
@@ -53,6 +60,7 @@ export default function BlockedStudentDetails() {
 					<StudentStatusSwitch
 						id={blockedStudent.id}
 						currentStatus={blockedStudent.status}
+						byDepartment={blockedStudent.byDepartment}
 						stdNo={blockedStudent.stdNo}
 						studentName={blockedStudent.student.name}
 					/>

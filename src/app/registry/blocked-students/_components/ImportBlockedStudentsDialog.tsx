@@ -165,7 +165,6 @@ export default function ImportBlockedStudentsDialog() {
 									data={[
 										{ value: 'finance', label: 'Finance' },
 										{ value: 'registry', label: 'Registry' },
-										{ value: 'library', label: 'Library' },
 									]}
 									required
 								/>

@@ -307,7 +307,6 @@ VALUES
   ('3PBnDC17E5AHk3gLpRKJa', 'Registry Manager', 'blocked-students', 'read'),
   ('ZqFQmVHju20FKEYWUYDfs', 'Registry Manager', 'blocked-students', 'create'),
   ('XQhSqku6ootMU4MGI_nhG', 'Registry Manager', 'blocked-students', 'update'),
-  ('a1gHRrR8ae2-EYAh0NSDo', 'Registry Manager', 'blocked-students', 'delete'),
   ('PwIeW83Zdvn9pJtMS1h0f', 'Registry Manager', 'notifications', 'read'),
   ('q3kYQYsJjlN7FFxmWOP-Q', 'Registry Manager', 'reports-enrollments', 'read'),
   ('3CpOHPeYW0RA1fsRtPsHL', 'Registry Manager', 'reports-progression', 'read'),
@@ -377,7 +376,6 @@ VALUES
   ('-N0p9MUzDc9omrjFw-L65', 'Finance Manager', 'blocked-students', 'read'),
   ('R36R4_3hkfqtLWlc7rGBE', 'Finance Manager', 'blocked-students', 'create'),
   ('IGJifwFJnJmFsGXUwV6PX', 'Finance Manager', 'blocked-students', 'update'),
-  ('qp78G76_WiAA0EnngqnfL', 'Finance Manager', 'blocked-students', 'delete'),
   ('FlQcI9EsuqU6x1TJr2Die', 'Finance Manager', 'auto-approvals', 'read'),
   ('jRekX5Z0YsYvFXMFApA6h', 'Finance Manager', 'auto-approvals', 'create'),
   ('bVr5p3YfCVqHXFizJdHUn', 'Finance Manager', 'auto-approvals', 'update'),
@@ -404,9 +402,6 @@ VALUES
   ('-JrMp79giav06Uo_vR_x6', 'Library Staff', 'graduation-clearance', 'read'),
   ('3czTnAqkq2PiTBDaVR735', 'Library Staff', 'graduation-clearance', 'approve'),
   ('r-QZTbtMGOrZaKOdvqNcK', 'Library Staff', 'graduation-clearance', 'reject'),
-  ('2l5W8y4OCd84gQhllIB8C', 'Library Staff', 'blocked-students', 'read'),
-  ('dvaOEiFC-hD5Drb9zTLOE', 'Library Staff', 'blocked-students', 'create'),
-  ('ftnhqXzIlYqLcwhJ8OYwo', 'Library Staff', 'blocked-students', 'update'),
   ('d1X92LO8RU72FPz5Nt8Wb', 'Library Staff', 'tasks', 'read'),
   ('e2Y03MP9SV83GQa6Ou9Xc', 'Library Staff', 'tasks', 'create'),
   ('f3Z14NQ0TW94HRb7Pv0Yd', 'Library Staff', 'tasks', 'update'),
@@ -936,7 +931,6 @@ BEGIN
 			('Registry Manager', 'blocked-students', 'read'),
 			('Registry Manager', 'blocked-students', 'create'),
 			('Registry Manager', 'blocked-students', 'update'),
-			('Registry Manager', 'blocked-students', 'delete'),
 			('Registry Manager', 'notifications', 'read'),
 			('Registry Manager', 'reports-enrollments', 'read'),
 			('Registry Manager', 'reports-progression', 'read'),
@@ -1006,7 +1000,6 @@ BEGIN
 			('Finance Manager', 'blocked-students', 'read'),
 			('Finance Manager', 'blocked-students', 'create'),
 			('Finance Manager', 'blocked-students', 'update'),
-			('Finance Manager', 'blocked-students', 'delete'),
 			('Finance Manager', 'auto-approvals', 'read'),
 			('Finance Manager', 'auto-approvals', 'create'),
 			('Finance Manager', 'auto-approvals', 'update'),
@@ -1033,9 +1026,6 @@ BEGIN
 			('Library Staff', 'graduation-clearance', 'read'),
 			('Library Staff', 'graduation-clearance', 'approve'),
 			('Library Staff', 'graduation-clearance', 'reject'),
-			('Library Staff', 'blocked-students', 'read'),
-			('Library Staff', 'blocked-students', 'create'),
-			('Library Staff', 'blocked-students', 'update'),
       ('Library Staff', 'tasks', 'read'),
       ('Library Staff', 'tasks', 'create'),
       ('Library Staff', 'tasks', 'update'),
@@ -1143,9 +1133,9 @@ BEGIN
 		ON expected.preset_name = preset.name
 		AND expected.resource = permission.resource
 		AND expected.action = permission.action;
-  IF v_seeded_permission_count != 476 THEN
+  IF v_seeded_permission_count != 471 THEN
 		RAISE EXCEPTION 'ABORT: expected % seeded preset permissions but found %',
-      476, v_seeded_permission_count;
+      471, v_seeded_permission_count;
 	END IF;
 
 	SELECT count(*) INTO v_unmapped_count

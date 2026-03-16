@@ -11,6 +11,7 @@ import {
 import { useQueryClient } from '@tanstack/react-query';
 import type React from 'react';
 import { useEffect, useState } from 'react';
+import { authClient } from '@/core/auth-client';
 import { useActionMutation } from '@/shared/lib/actions/use-action-mutation';
 import { getAlertColor, getBooleanColor } from '@/shared/lib/utils/colors';
 import { updateBlockedStudent } from '../_server/actions';
@@ -18,6 +19,7 @@ import { updateBlockedStudent } from '../_server/actions';
 type Props = {
 	id: number;
 	currentStatus: 'blocked' | 'unblocked';
+	byDepartment: string;
 	stdNo: string | number;
 	studentName: string;
 };
@@ -25,11 +27,15 @@ type Props = {
 export default function StudentStatusSwitch({
 	id,
 	currentStatus,
+	byDepartment,
 	stdNo,
 	studentName,
 }: Props) {
 	const queryClient = useQueryClient();
+	const { data: session } = authClient.useSession();
 	const [status, setStatus] = useState<'blocked' | 'unblocked'>(currentStatus);
+	const canUpdate =
+		session?.user?.role === 'admin' || session?.user?.role === byDepartment;
 
 	useEffect(() => {
 		setStatus(currentStatus);
@@ -66,6 +72,10 @@ export default function StudentStatusSwitch({
 		const checked = event.currentTarget.checked;
 		const newStatus = checked ? 'unblocked' : 'blocked';
 
+		if (!canUpdate) {
+			return;
+		}
+
 		setStatus(newStatus);
 
 		mutation.mutate(newStatus);
@@ -95,7 +105,7 @@ export default function StudentStatusSwitch({
 					<Switch
 						checked={!isBlocked}
 						onChange={handleStatusChange}
-						disabled={mutation.isPending}
+						disabled={mutation.isPending || !canUpdate}
 						size='lg'
 						color='green'
 						thumbIcon={
@@ -118,7 +128,9 @@ export default function StudentStatusSwitch({
 					/>
 				</Group>
 				<Text size='sm' c='dimmed' ta='center'>
-					Toggle to {isBlocked ? 'unblock' : 'block'} this student&apos;s access
+					{canUpdate
+						? `Toggle to ${isBlocked ? 'unblock' : 'block'} this student's access`
+						: 'Only the department that created this record can update it'}
 				</Text>
 			</Stack>
 		</Paper>
