@@ -11,6 +11,7 @@ import { notifications } from '@mantine/notifications';
 import { IconEdit } from '@tabler/icons-react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
+import { unwrap } from '@/shared/lib/actions/actionResult';
 import ModuleEditForm from '../structures/_components/ModuleEditForm';
 
 type Props = {
@@ -52,7 +53,7 @@ export default function EditButton({ moduleId, structureId }: Props) {
 							onSubmit={async (values) => {
 								setIsSubmitting(true);
 								try {
-									const result = await updateModule(moduleId, values);
+									const result = unwrap(await updateModule(moduleId, values));
 									await Promise.all([
 										queryClient.invalidateQueries({
 											queryKey: ['module-prerequisites', moduleId],

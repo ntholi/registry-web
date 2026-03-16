@@ -1,11 +1,8 @@
-import { createServiceLogger } from '@/core/platform/logger';
 import {
 	extractError,
 	isNextNavigationError,
 	UserFacingError,
 } from './extractError';
-
-const actionLogger = createServiceLogger('ServerAction');
 
 export interface AppError {
 	message: string;
@@ -47,9 +44,9 @@ export function createAction<TArgs extends unknown[], TOutput>(
 			};
 
 			if (error instanceof UserFacingError) {
-				actionLogger.warn('Action rejected', logMeta);
+				console.warn('[ServerAction] Action rejected', logMeta);
 			} else {
-				actionLogger.error('Action failed', logMeta);
+				console.error('[ServerAction] Action failed', logMeta);
 			}
 
 			return failure<TOutput>(extractError(error));
