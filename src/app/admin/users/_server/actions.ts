@@ -2,6 +2,7 @@
 
 import { eq } from 'drizzle-orm';
 import { users } from '@/core/database';
+import { createAction } from '@/shared/lib/actions/actionResult';
 import { usersService as service } from './service';
 
 type User = typeof users.$inferInsert;
@@ -42,17 +43,17 @@ export async function findAllByRoles(roles: NonNullable<UserSelect['role']>[]) {
 	return service.findAllByRoles(roles);
 }
 
-export async function createUser(user: UserWithSchools) {
-	return service.create(user);
-}
+export const createUser = createAction(async (user: UserWithSchools) =>
+	service.create(user)
+);
 
-export async function updateUser(id: string, user: UserWithSchools) {
-	return service.update(id, user);
-}
+export const updateUser = createAction(
+	async (id: string, user: UserWithSchools) => service.update(id, user)
+);
 
-export async function deleteUser(id: string) {
-	return service.delete(id);
-}
+export const deleteUser = createAction(async (id: string) =>
+	service.delete(id)
+);
 
 export async function getUserSchoolIds(userId?: string) {
 	if (!userId) return [];

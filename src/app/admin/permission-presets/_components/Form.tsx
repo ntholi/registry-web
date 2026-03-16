@@ -9,11 +9,14 @@ import { Select, Textarea, TextInput } from '@mantine/core';
 import { useRouter } from 'nextjs-toploader/app';
 import PermissionMatrix from '@/app/auth/_components/PermissionMatrix';
 import { DASHBOARD_ROLES } from '@/core/auth/permissions';
+import type { ActionResult } from '@/shared/lib/actions/actionResult';
 import { toTitleCase } from '@/shared/lib/utils/utils';
 import { Form } from '@/shared/ui/adease';
 
 type Props = {
-	onSubmit: (values: PresetFormValues) => Promise<PermissionPresetDetail>;
+	onSubmit: (
+		values: PresetFormValues
+	) => Promise<PermissionPresetDetail | ActionResult<PermissionPresetDetail>>;
 	defaultValues?: Partial<PresetFormValues>;
 	title?: string;
 };

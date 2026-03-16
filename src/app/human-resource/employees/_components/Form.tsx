@@ -10,10 +10,12 @@ import { useRouter } from 'nextjs-toploader/app';
 import { useState } from 'react';
 import { getStaffEmailDomain } from '@/config/server-actions';
 import type { users } from '@/core/database';
+import type { ActionResult } from '@/shared/lib/actions/actionResult';
 import { Form } from '@/shared/ui/adease';
 import UserInput from '@/shared/ui/UserInput';
 
 type Employee = typeof employees.$inferInsert & { schoolIds?: number[] };
+type EmployeeRecord = typeof employees.$inferSelect;
 type User = typeof users.$inferSelect;
 
 const DEPARTMENTS = [
@@ -52,7 +54,9 @@ const POSITION_LABELS: Record<string, string> = {
 };
 
 type Props = {
-	onSubmit: (values: Employee) => Promise<Employee>;
+	onSubmit: (
+		values: Employee
+	) => Promise<EmployeeRecord | ActionResult<EmployeeRecord>>;
 	defaultValues?: Employee;
 	title?: string;
 };
@@ -78,7 +82,7 @@ export default function EmployeeForm({
 	});
 
 	return (
-		<Form
+		<Form<Employee, Employee | undefined, EmployeeRecord>
 			title={title}
 			action={onSubmit}
 			queryKey={['employees']}

@@ -3,6 +3,7 @@
 import { ActionIcon, Group } from '@mantine/core';
 import { IconPhoto } from '@tabler/icons-react';
 import { useEffect, useState } from 'react';
+import { unwrap } from '@/shared/lib/actions/actionResult';
 import PhotoInputModal from '@/shared/ui/PhotoInputModal';
 import { uploadEmployeePhoto } from '../../_server/actions';
 
@@ -38,7 +39,7 @@ export default function PhotoSelection({
 				type: 'image/jpeg',
 			});
 
-			await uploadEmployeePhoto(employeeNumber, photoFile);
+			unwrap(await uploadEmployeePhoto(employeeNumber, photoFile));
 
 			const preview = URL.createObjectURL(croppedImageBlob);
 			onPhotoChange(photoFile, preview);

@@ -1,6 +1,7 @@
 'use server';
 
 import type { tasks } from '@/core/database';
+import { createAction } from '@/shared/lib/actions/actionResult';
 import { tasksService as service } from './service';
 import type { TaskWithRelations } from './types';
 
@@ -32,29 +33,28 @@ export async function findAllTasks(
 	}>;
 }
 
-export async function createTask(
-	task: TaskWithRelationsInput
-): Promise<typeof tasks.$inferSelect> {
-	return service.create(task) as Promise<typeof tasks.$inferSelect>;
-}
+export const createTask = createAction(
+	async (task: TaskWithRelationsInput): Promise<typeof tasks.$inferSelect> =>
+		service.create(task) as Promise<typeof tasks.$inferSelect>
+);
 
-export async function updateTask(
-	id: string,
-	task: TaskWithRelationsInput
-): Promise<typeof tasks.$inferSelect> {
-	return service.update(id, task) as Promise<typeof tasks.$inferSelect>;
-}
+export const updateTask = createAction(
+	async (
+		id: string,
+		task: TaskWithRelationsInput
+	): Promise<typeof tasks.$inferSelect> =>
+		service.update(id, task) as Promise<typeof tasks.$inferSelect>
+);
 
-export async function deleteTask(id: string): Promise<TaskWithRelations> {
-	return service.delete(id) as Promise<TaskWithRelations>;
-}
+export const deleteTask = createAction(
+	async (id: string): Promise<TaskWithRelations> =>
+		service.delete(id) as Promise<TaskWithRelations>
+);
 
-export async function updateTaskStatus(
-	id: string,
-	status: TaskStatus
-): Promise<typeof tasks.$inferSelect> {
-	return service.updateStatus(id, status) as Promise<typeof tasks.$inferSelect>;
-}
+export const updateTaskStatus = createAction(
+	async (id: string, status: TaskStatus): Promise<typeof tasks.$inferSelect> =>
+		service.updateStatus(id, status) as Promise<typeof tasks.$inferSelect>
+);
 
 export async function countUncompletedTasks() {
 	return service.countUncompleted();

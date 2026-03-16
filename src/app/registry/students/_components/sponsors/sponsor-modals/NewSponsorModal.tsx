@@ -5,8 +5,9 @@ import { Button, Modal } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import { IconPlus } from '@tabler/icons-react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import { authClient } from '@/core/auth-client';
+import { useActionMutation } from '@/shared/lib/actions/use-action-mutation';
 import { SponsorForm, type SponsorFormValues } from './SponsorForm';
 
 type Props = {
@@ -22,14 +23,7 @@ export default function NewSponsorModal({ stdNo }: Props) {
 
 	const canEdit = ALLOWED_ROLES.includes(session?.user?.role || '');
 
-	const createMutation = useMutation({
-		mutationFn: async (data: {
-			stdNo: number;
-			sponsorId: number;
-			borrowerNo?: string;
-			bankName?: string;
-			accountNumber?: string;
-		}) => createSponsoredStudent(data),
+	const createMutation = useActionMutation(createSponsoredStudent, {
 		onSuccess: () => {
 			notifications.show({
 				title: 'Success',

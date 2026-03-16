@@ -6,6 +6,7 @@ import { notifications } from '@mantine/notifications';
 import { useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'nextjs-toploader/app';
 import { useState } from 'react';
+import { unwrap } from '@/shared/lib/actions/actionResult';
 
 type TaskStatus =
 	| 'todo'
@@ -39,7 +40,7 @@ export default function TaskStatusSelect({ taskId, currentStatus }: Props) {
 
 		setIsUpdating(true);
 		try {
-			await updateTaskStatus(taskId, status);
+			unwrap(await updateTaskStatus(taskId, status));
 			await queryClient.invalidateQueries({ queryKey: ['tasks'] });
 			notifications.show({
 				title: 'Status Updated',

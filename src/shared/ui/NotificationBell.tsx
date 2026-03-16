@@ -23,6 +23,7 @@ import { IconBell, IconTrash } from '@tabler/icons-react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'nextjs-toploader/app';
 import { useState } from 'react';
+import { unwrap } from '@/shared/lib/actions/actionResult';
 import { formatDateTime, formatRelativeTime } from '@/shared/lib/utils/dates';
 import { truncateText } from '@/shared/lib/utils/utils';
 
@@ -53,7 +54,7 @@ export default function NotificationBell() {
 	});
 
 	const handleDismiss = async (notificationId: number) => {
-		await dismissNotification(notificationId);
+		unwrap(await dismissNotification(notificationId));
 		queryClient.invalidateQueries({ queryKey: ['user-notifications'] });
 	};
 

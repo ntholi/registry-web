@@ -5,6 +5,7 @@ import { pdf } from '@react-pdf/renderer';
 import { IconPrinter } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
+import { unwrap } from '@/shared/lib/actions/actionResult';
 import { convertUrlToBase64 } from '@/shared/lib/utils/utils';
 import {
 	type getEmployee,
@@ -49,7 +50,7 @@ export default function EmployeeCardPrinter({
 		setIsGenerating(true);
 
 		try {
-			await logEmployeeCardPrint(employee.empNo);
+			unwrap(await logEmployeeCardPrint(employee.empNo));
 
 			const processedPhotoUrl = await processPhotoUrl(photoUrl);
 

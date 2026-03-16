@@ -1,7 +1,12 @@
 'use server';
 
 import { z } from 'zod/v4';
-import { dashboardRoleSchema, presetFormSchema } from '../_lib/types';
+import { createAction } from '@/shared/lib/actions/actionResult';
+import {
+	dashboardRoleSchema,
+	type PresetFormValues,
+	presetFormSchema,
+} from '../_lib/types';
 import { permissionPresetService as service } from './service';
 
 const idSchema = z.string().min(1);
@@ -22,14 +27,15 @@ export async function findPresetsByRole(role: string) {
 	return service.findByRole(dashboardRoleSchema.parse(role));
 }
 
-export async function createPreset(data: unknown) {
-	return service.create(presetFormSchema.parse(data));
-}
+export const createPreset = createAction(async (data: PresetFormValues) =>
+	service.create(presetFormSchema.parse(data))
+);
 
-export async function updatePreset(id: string, data: unknown) {
-	return service.update(idSchema.parse(id), presetFormSchema.parse(data));
-}
+export const updatePreset = createAction(
+	async (id: string, data: PresetFormValues) =>
+		service.update(idSchema.parse(id), presetFormSchema.parse(data))
+);
 
-export async function deletePreset(id: string) {
-	return service.delete(idSchema.parse(id));
-}
+export const deletePreset = createAction(async (id: string) =>
+	service.delete(idSchema.parse(id))
+);

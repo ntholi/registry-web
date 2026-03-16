@@ -22,6 +22,7 @@ import { z } from 'zod';
 import { DASHBOARD_ROLES } from '@/core/auth/permissions';
 import { hasAnyPermission } from '@/core/auth/sessionPermissions';
 import { authClient } from '@/core/auth-client';
+import type { ActionResult } from '@/shared/lib/actions/actionResult';
 import { parseDate } from '@/shared/lib/utils/dates';
 import { Form } from '@/shared/ui/adease';
 import type { TaskWithRelations } from '../_server/types';
@@ -29,6 +30,7 @@ import MultiStudentInput from './MultiStudentInput';
 import MultiUserInput from './MultiUserInput';
 
 type Task = typeof tasks.$inferInsert;
+type TaskRecord = typeof tasks.$inferSelect;
 type User = typeof users.$inferSelect;
 type StudentBasic = { stdNo: number; name: string };
 
@@ -39,7 +41,7 @@ type Props = {
 			assignToRoles?: string[];
 			studentIds?: number[];
 		}
-	) => Promise<Task>;
+	) => Promise<TaskRecord | ActionResult<TaskRecord>>;
 	defaultValues?: TaskWithRelations | null;
 	title?: string;
 };
@@ -145,7 +147,7 @@ export default function TaskForm({ onSubmit, defaultValues, title }: Props) {
 	}
 
 	return (
-		<Form
+		<Form<Task, typeof initialValues, TaskRecord>
 			title={title}
 			action={handleSubmit}
 			queryKey={['tasks']}

@@ -2,6 +2,7 @@
 
 import type { employees } from '@/core/database';
 import { getPublicUrl } from '@/core/integrations/storage-utils';
+import { createAction } from '@/shared/lib/actions/actionResult';
 import { formatPersonName } from '@/shared/lib/utils/names';
 import { employeesService as service } from './service';
 
@@ -16,30 +17,29 @@ export async function findAllEmployees(page: number = 1, search = '') {
 	return service.findAll(page, search);
 }
 
-export async function createEmployee(employee: EmployeeWithSchools) {
-	return service.create({
-		...employee,
-		name: formatPersonName(employee.name) ?? employee.name,
-	});
-}
+export const createEmployee = createAction(
+	async (employee: EmployeeWithSchools) =>
+		service.create({
+			...employee,
+			name: formatPersonName(employee.name) ?? employee.name,
+		})
+);
 
-export async function updateEmployee(
-	empNo: string,
-	employee: EmployeeWithSchools
-) {
-	return service.update(empNo, {
-		...employee,
-		name: formatPersonName(employee.name) ?? employee.name,
-	});
-}
+export const updateEmployee = createAction(
+	async (empNo: string, employee: EmployeeWithSchools) =>
+		service.update(empNo, {
+			...employee,
+			name: formatPersonName(employee.name) ?? employee.name,
+		})
+);
 
-export async function deleteEmployee(empNo: string) {
-	return service.delete(empNo);
-}
+export const deleteEmployee = createAction(async (empNo: string) =>
+	service.delete(empNo)
+);
 
-export async function logEmployeeCardPrint(empNo: string) {
-	return service.logCardPrint(empNo);
-}
+export const logEmployeeCardPrint = createAction(async (empNo: string) =>
+	service.logCardPrint(empNo)
+);
 
 export async function getEmployeeCardPrintHistory(empNo: string) {
 	return service.getCardPrintHistory(empNo);
@@ -54,6 +54,6 @@ export async function getEmployeePhoto(
 	return getPublicUrl(photoKey);
 }
 
-export async function uploadEmployeePhoto(empNo: string, photo: File) {
-	return service.uploadPhoto(empNo, photo);
-}
+export const uploadEmployeePhoto = createAction(
+	async (empNo: string, photo: File) => service.uploadPhoto(empNo, photo)
+);

@@ -18,12 +18,14 @@ import { useEffect, useState } from 'react';
 import { z } from 'zod';
 import { USER_ROLES } from '@/core/auth/permissions';
 import type { notifications, users } from '@/core/database';
+import type { ActionResult } from '@/shared/lib/actions/actionResult';
 import { toTitleCase } from '@/shared/lib/utils/utils';
 import { Form } from '@/shared/ui/adease';
 import UserInput from '@/shared/ui/UserInput';
 import { LEGACY_PRESET_POSITIONS } from '../_lib/presetPositions';
 
 type User = typeof users.$inferSelect;
+type NotificationRecord = typeof notifications.$inferSelect;
 type NotificationTargetType = 'all' | 'role' | 'users';
 
 type NotificationFormData = typeof notifications.$inferInsert & {
@@ -31,7 +33,9 @@ type NotificationFormData = typeof notifications.$inferInsert & {
 };
 
 type Props = {
-	onSubmit: (values: NotificationFormData) => Promise<NotificationFormData>;
+	onSubmit: (
+		values: NotificationFormData
+	) => Promise<NotificationRecord | ActionResult<NotificationRecord>>;
 	defaultValues?: Partial<NotificationFormData>;
 	title?: string;
 };
@@ -96,7 +100,11 @@ export default function NotificationForm({
 	}));
 
 	return (
-		<Form<NotificationFormData, Partial<NotificationFormData>>
+		<Form<
+			NotificationFormData,
+			Partial<NotificationFormData>,
+			NotificationRecord
+		>
 			title={title}
 			action={(values) => {
 				const formData: NotificationFormData = {

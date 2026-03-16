@@ -1,5 +1,6 @@
 'use server';
 
+import { createAction } from '@/shared/lib/actions/actionResult';
 import type { NotificationWithRecipients } from './repository';
 import { notificationsService as service } from './service';
 
@@ -16,28 +17,28 @@ export async function findAllNotifications(page = 1, search = '') {
 	return service.findAll(page, search);
 }
 
-export async function createNotification(data: CreateNotificationInput) {
-	return service.createForCurrentUser(data as NotificationWithRecipients);
-}
+export const createNotification = createAction(
+	async (data: CreateNotificationInput) =>
+		service.createForCurrentUser(data as NotificationWithRecipients)
+);
 
-export async function updateNotification(
-	id: number,
-	data: Partial<NotificationWithRecipients>
-) {
-	return service.update(id, data);
-}
+export const updateNotification = createAction(
+	async (id: number, data: Partial<NotificationWithRecipients>) =>
+		service.update(id, data)
+);
 
-export async function deleteNotification(id: number) {
-	return service.delete(id);
-}
+export const deleteNotification = createAction(async (id: number) =>
+	service.delete(id)
+);
 
 export async function getActiveNotificationsForUser() {
 	return service.getActiveNotificationsForCurrentUser();
 }
 
-export async function dismissNotification(notificationId: number) {
-	return service.dismissNotificationForCurrentUser(notificationId);
-}
+export const dismissNotification = createAction(
+	async (notificationId: number) =>
+		service.dismissNotificationForCurrentUser(notificationId)
+);
 
 export async function getRecipientUserIds(notificationId: number) {
 	return service.getRecipientUserIds(notificationId);

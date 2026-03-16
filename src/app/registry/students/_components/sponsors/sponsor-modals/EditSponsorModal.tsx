@@ -5,7 +5,8 @@ import { ActionIcon, Modal } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import { IconEdit } from '@tabler/icons-react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
+import { useActionMutation } from '@/shared/lib/actions/use-action-mutation';
 import type { SponsoredStudentType } from '../StudentSponsorsView';
 import { SponsorForm, type SponsorFormValues } from './SponsorForm';
 
@@ -19,36 +20,38 @@ export function EditSponsoredStudentModal({
 	const [opened, { open, close }] = useDisclosure(false);
 	const queryClient = useQueryClient();
 
-	const updateMutation = useMutation({
-		mutationFn: async (data: {
+	const updateMutation = useActionMutation(
+		(data: {
 			sponsorId?: number;
 			borrowerNo?: string | null;
 			bankName?: string | null;
 			accountNumber?: string | null;
 		}) => updateSponsoredStudent(sponsoredStudent.id, data),
-		onSuccess: () => {
-			notifications.show({
-				title: 'Success',
-				message: 'Sponsorship record updated successfully',
-				color: 'green',
-			});
-			queryClient.invalidateQueries({ queryKey: ['student-sponsors'] });
-			queryClient.invalidateQueries({
-				queryKey: ['student-registration-data'],
-			});
-			close();
-		},
-		onError: (error) => {
-			notifications.show({
-				title: 'Error',
-				message:
-					error instanceof Error
-						? error.message
-						: 'Failed to update sponsorship record',
-				color: 'red',
-			});
-		},
-	});
+		{
+			onSuccess: () => {
+				notifications.show({
+					title: 'Success',
+					message: 'Sponsorship record updated successfully',
+					color: 'green',
+				});
+				queryClient.invalidateQueries({ queryKey: ['student-sponsors'] });
+				queryClient.invalidateQueries({
+					queryKey: ['student-registration-data'],
+				});
+				close();
+			},
+			onError: (error) => {
+				notifications.show({
+					title: 'Error',
+					message:
+						error instanceof Error
+							? error.message
+							: 'Failed to update sponsorship record',
+					color: 'red',
+				});
+			},
+		}
+	);
 
 	const handleSubmit = (values: SponsorFormValues) => {
 		updateMutation.mutate({

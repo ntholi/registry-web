@@ -31,7 +31,8 @@ import {
 	IconReceipt,
 	IconTrash,
 } from '@tabler/icons-react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
+import { useActionMutation } from '@/shared/lib/actions/use-action-mutation';
 import { formatDate } from '@/shared/lib/utils/dates';
 
 type PaymentReceipt = {
@@ -89,52 +90,53 @@ export default function PaymentReceiptsEditor({
 				.join(' '),
 		}));
 
-	const { mutate: addReceipt, isPending: isAdding } = useMutation({
-		mutationFn: async (receiptData: PaymentReceiptData) => {
-			return addPaymentReceipt(graduationRequestId, receiptData);
-		},
-		onSuccess: () => {
-			notifications.show({
-				title: 'Success',
-				message: 'Payment receipt added successfully',
-				color: 'green',
-			});
-			queryClient.invalidateQueries({
-				queryKey: ['graduation-request', graduationRequestId],
-			});
-			form.reset();
-		},
-		onError: (error: Error) => {
-			notifications.show({
-				title: 'Error',
-				message: error.message || 'Failed to add payment receipt',
-				color: 'red',
-			});
-		},
-	});
+	const { mutate: addReceipt, isPending: isAdding } = useActionMutation(
+		(receiptData: PaymentReceiptData) =>
+			addPaymentReceipt(graduationRequestId, receiptData),
+		{
+			onSuccess: () => {
+				notifications.show({
+					title: 'Success',
+					message: 'Payment receipt added successfully',
+					color: 'green',
+				});
+				queryClient.invalidateQueries({
+					queryKey: ['graduation-request', graduationRequestId],
+				});
+				form.reset();
+			},
+			onError: (error: Error) => {
+				notifications.show({
+					title: 'Error',
+					message: error.message || 'Failed to add payment receipt',
+					color: 'red',
+				});
+			},
+		}
+	);
 
-	const { mutate: deleteReceipt, isPending: isDeleting } = useMutation({
-		mutationFn: async (receiptId: string) => {
-			return removePaymentReceipt(receiptId);
-		},
-		onSuccess: () => {
-			notifications.show({
-				title: 'Success',
-				message: 'Payment receipt removed successfully',
-				color: 'green',
-			});
-			queryClient.invalidateQueries({
-				queryKey: ['graduation-request', graduationRequestId],
-			});
-		},
-		onError: (error: Error) => {
-			notifications.show({
-				title: 'Error',
-				message: error.message || 'Failed to remove payment receipt',
-				color: 'red',
-			});
-		},
-	});
+	const { mutate: deleteReceipt, isPending: isDeleting } = useActionMutation(
+		removePaymentReceipt,
+		{
+			onSuccess: () => {
+				notifications.show({
+					title: 'Success',
+					message: 'Payment receipt removed successfully',
+					color: 'green',
+				});
+				queryClient.invalidateQueries({
+					queryKey: ['graduation-request', graduationRequestId],
+				});
+			},
+			onError: (error: Error) => {
+				notifications.show({
+					title: 'Error',
+					message: error.message || 'Failed to remove payment receipt',
+					color: 'red',
+				});
+			},
+		}
+	);
 
 	const handleAddReceipt = (values: typeof form.values) => {
 		const existingReceipt = paymentReceipts.find(

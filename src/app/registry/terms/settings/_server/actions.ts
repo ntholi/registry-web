@@ -4,7 +4,7 @@ import { createNotification } from '@admin/notifications/_server/actions';
 import { auth } from '@/core/auth';
 import { deleteFile, uploadFile } from '@/core/integrations/storage';
 import { getPublicUrl, StoragePaths } from '@/core/integrations/storage-utils';
-import { createAction } from '@/shared/lib/actions/actionResult';
+import { createAction, unwrap } from '@/shared/lib/actions/actionResult';
 import { termSettingsService as service } from './service';
 
 export async function getTermSettings(termId: number) {
@@ -51,16 +51,18 @@ export const updateResultsPublishedWithNotification = createAction(
 				const visibleUntil = new Date();
 				visibleUntil.setMonth(visibleUntil.getMonth() + 3);
 
-				await createNotification({
-					title: 'Results Published',
-					message: `Results for term ${termCode} have been published. Click to view your transcript.`,
-					link: `/student-portal/transcripts?term=${termCode}`,
-					targetType: 'role',
-					targetRoles: ['student'],
-					visibleFrom,
-					visibleUntil,
-					isActive: true,
-				});
+				unwrap(
+					await createNotification({
+						title: 'Results Published',
+						message: `Results for term ${termCode} have been published. Click to view your transcript.`,
+						link: `/student-portal/transcripts?term=${termCode}`,
+						targetType: 'role',
+						targetRoles: ['student'],
+						visibleFrom,
+						visibleUntil,
+						isActive: true,
+					})
+				);
 			}
 		}
 

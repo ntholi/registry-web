@@ -33,10 +33,12 @@ import {
 	USER_ROLES,
 	type UserRole,
 } from '@/core/auth/permissions';
+import type { ActionResult } from '@/shared/lib/actions/actionResult';
 import { toTitleCase } from '@/shared/lib/utils/utils';
 import { Form } from '@/shared/ui/adease';
 
 type User = typeof users.$inferInsert;
+type UserRecord = typeof users.$inferSelect;
 
 type UserWithSchools = User & {
 	schoolIds?: number[];
@@ -55,9 +57,11 @@ function isDashboardRole(role: string): role is DashboardRole {
 }
 
 type Props = {
-	onSubmit: (values: UserWithSchools) => Promise<User>;
+	onSubmit: (
+		values: UserWithSchools
+	) => Promise<UserRecord | ActionResult<UserRecord>>;
 	defaultValues?: Partial<UserWithSchools>;
-	onSuccess?: (value: User) => void;
+	onSuccess?: (value: UserRecord) => void;
 	onError?: (
 		error: Error | React.SyntheticEvent<HTMLDivElement, Event>
 	) => void;
@@ -166,7 +170,7 @@ export default function UserForm({ onSubmit, defaultValues, title }: Props) {
 				</Group>
 			</Modal>
 
-			<Form<UserFormValues, Partial<UserFormValues>>
+			<Form<UserFormValues, Partial<UserFormValues>, UserRecord>
 				title={title}
 				action={(values) => {
 					const formattedValues: UserWithSchools = {
@@ -177,10 +181,7 @@ export default function UserForm({ onSubmit, defaultValues, title }: Props) {
 								? selectedSchools.map((id: string) => parseInt(id, 10))
 								: undefined,
 					};
-					return onSubmit(formattedValues).then((user) => ({
-						...values,
-						id: user.id,
-					}));
+					return onSubmit(formattedValues);
 				}}
 				queryKey={['users']}
 				schema={userFormSchema}
