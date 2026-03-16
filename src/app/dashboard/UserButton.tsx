@@ -4,8 +4,10 @@ import { getUserSchools } from '@admin/users';
 import {
 	ActionIcon,
 	Avatar,
+	Badge,
 	Button,
 	Card,
+	Divider,
 	Flex,
 	Group,
 	Modal,
@@ -179,18 +181,21 @@ function UserActionModal({
 			size='sm'
 		>
 			<Stack gap='md'>
-				<Card withBorder p='sm' radius='md'>
-					<Stack gap={2}>
-						<Text size='0.7rem' fw={600} c='dimmed' tt='uppercase'>
-							{viewAs ? 'Viewing as' : 'Admin'}
-						</Text>
-						<Text size='sm' fw={500}>
-							{viewAs
-								? `${toTitleCase(viewAs.role)}${viewAs.presetName ? ` | ${viewAs.presetName}` : ''}`
-								: 'Switch to another dashboard role or logout.'}
-						</Text>
-					</Stack>
+				<Card withBorder p='md' radius='md'>
+					<Group justify='space-between' align='flex-start'>
+						<Stack gap={3}>
+							<Text size='0.7rem' fw={700} c='dimmed' tt='uppercase'>
+								Current Access
+							</Text>
+							<Text size='sm' fw={600}>
+								{viewAs
+									? `${toTitleCase(viewAs.role)}${viewAs.presetName ? ` | ${viewAs.presetName}` : ''}`
+									: 'Administrator'}
+							</Text>
+						</Stack>
+					</Group>
 				</Card>
+				<Divider label='View As' labelPosition='left' />
 				<Select
 					label='Role'
 					placeholder='Select role'
@@ -214,6 +219,7 @@ function UserActionModal({
 						searchable
 					/>
 				)}
+				<Divider label='Actions' labelPosition='left' />
 				<Group grow>
 					<Button
 						variant='filled'
@@ -235,7 +241,13 @@ function UserActionModal({
 						</Button>
 					)}
 				</Group>
-				<Button variant='default' onClick={handleLogout}>
+				<Button
+					variant={viewAs ? 'light' : 'default'}
+					color='dark'
+					onClick={handleLogout}
+					leftSection={<IconLogout2 size='1rem' />}
+					fullWidth
+				>
 					Logout
 				</Button>
 			</Stack>
