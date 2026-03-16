@@ -4,6 +4,7 @@ import { getUserSchools } from '@admin/users';
 import {
 	ActionIcon,
 	Avatar,
+	Button,
 	Card,
 	Flex,
 	Group,
@@ -14,7 +15,7 @@ import {
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { modals } from '@mantine/modals';
-import { IconLogout2, IconSwitchHorizontal, IconX } from '@tabler/icons-react';
+import { IconLogout2, IconSwitchHorizontal } from '@tabler/icons-react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
@@ -27,6 +28,7 @@ import { clearViewAs, getPresetsForRole, setViewAs } from './_server/view-as';
 export default function UserButton({ viewAs }: { viewAs: ViewAsData | null }) {
 	const { data: session, isPending } = authClient.useSession();
 	const router = useRouter();
+	const [opened, { open, close }] = useDisclosure(false);
 
 	const { data: userSchools } = useQuery({
 		queryKey: ['user-schools'],
@@ -38,7 +40,8 @@ export default function UserButton({ viewAs }: { viewAs: ViewAsData | null }) {
 		router.push('/auth/login');
 	}
 	const user = session?.user;
-	const isAdmin = session?.user?.role === 'admin' || !!viewAs;
+	const isAdmin = session?.user?.role === 'admin';
+	const isViewingAs = isAdmin && !!viewAs;
 
 	const openLogoutModal = () =>
 		modals.openConfirmModal({
@@ -59,7 +62,6 @@ export default function UserButton({ viewAs }: { viewAs: ViewAsData | null }) {
 
 	return (
 		<Stack gap='xs' mt='md' mb='sm'>
-			{isAdmin && <ViewAsCard viewAs={viewAs} />}
 			<Flex justify='space-between' align='center'>
 				<Group>
 					<Avatar src={user?.image} />
@@ -80,90 +82,46 @@ export default function UserButton({ viewAs }: { viewAs: ViewAsData | null }) {
 						</Text>
 					</Stack>
 				</Group>
-				<ActionIcon variant='default' size='lg' onClick={openLogoutModal}>
+				<ActionIcon
+					variant={isViewingAs ? 'filled' : 'default'}
+					size='lg'
+					color={isViewingAs ? 'red' : undefined}
+					onClick={isAdmin ? open : openLogoutModal}
+				>
 					<IconLogout2 size='1rem' />
 				</ActionIcon>
 			</Flex>
+			{isAdmin && (
+				<UserActionModal
+					opened={opened}
+					onClose={close}
+					viewAs={viewAs}
+					onLogout={openLogoutModal}
+				/>
+			)}
 		</Stack>
-	);
-}
-
-function ViewAsCard({ viewAs }: { viewAs: ViewAsData | null }) {
-	const [opened, { open, close }] = useDisclosure(false);
-	const [loading, setLoading] = useState(false);
-	const queryClient = useQueryClient();
-
-	async function handleClear() {
-		setLoading(true);
-		await clearViewAs();
-		queryClient.invalidateQueries();
-		setLoading(false);
-		window.location.reload();
-	}
-
-	return (
-		<>
-			<Card withBorder p='xs' radius='sm'>
-				<Flex justify='space-between' align='center'>
-					<Stack gap={2}>
-						<Text size='0.7rem' fw={600} c='dimmed' tt='uppercase'>
-							{viewAs ? 'Viewing as' : 'Admin'}
-						</Text>
-						{viewAs ? (
-							<Text size='xs' fw={500}>
-								{toTitleCase(viewAs.role)}
-								{viewAs.presetName ? ` — ${viewAs.presetName}` : ''}
-							</Text>
-						) : (
-							<Text size='xs' c='dimmed'>
-								Switch to view as another role
-							</Text>
-						)}
-					</Stack>
-					<Group gap={4}>
-						<ActionIcon
-							variant='subtle'
-							size='sm'
-							color={viewAs ? 'orange' : 'gray'}
-							onClick={open}
-						>
-							<IconSwitchHorizontal size='0.9rem' />
-						</ActionIcon>
-						{viewAs && (
-							<ActionIcon
-								variant='subtle'
-								size='sm'
-								color='red'
-								onClick={handleClear}
-								loading={loading}
-							>
-								<IconX size='0.9rem' />
-							</ActionIcon>
-						)}
-					</Group>
-				</Flex>
-			</Card>
-			<RoleSwitchModal opened={opened} onClose={close} viewAs={viewAs} />
-		</>
 	);
 }
 
 type PresetOption = { value: string; label: string };
 
-function RoleSwitchModal({
+function UserActionModal({
 	opened,
 	onClose,
 	viewAs,
+	onLogout,
 }: {
 	opened: boolean;
 	onClose: () => void;
 	viewAs: ViewAsData | null;
+	onLogout: () => void;
 }) {
 	const [role, setRole] = useState<DashboardRole | null>(viewAs?.role ?? null);
 	const [presetId, setPresetId] = useState<string | null>(
 		viewAs?.presetId ?? null
 	);
-	const [loading, setLoading] = useState(false);
+	const [applyLoading, setApplyLoading] = useState(false);
+	const [clearLoading, setClearLoading] = useState(false);
 	const queryClient = useQueryClient();
 
 	const { data: presets, isLoading: presetsLoading } = useQuery({
@@ -182,25 +140,57 @@ function RoleSwitchModal({
 		label: toTitleCase(r),
 	}));
 
+	function handleClose() {
+		setRole(viewAs?.role ?? null);
+		setPresetId(viewAs?.presetId ?? null);
+		onClose();
+	}
+
+	async function handleClear() {
+		setClearLoading(true);
+		await clearViewAs();
+		await queryClient.invalidateQueries();
+		handleClose();
+		setClearLoading(false);
+		window.location.reload();
+	}
+
 	async function handleApply() {
 		if (!role) return;
-		setLoading(true);
+		setApplyLoading(true);
 		await setViewAs(role, presetId);
-		queryClient.invalidateQueries();
-		onClose();
-		setLoading(false);
+		await queryClient.invalidateQueries();
+		handleClose();
+		setApplyLoading(false);
 		window.location.reload();
+	}
+
+	function handleLogout() {
+		handleClose();
+		onLogout();
 	}
 
 	return (
 		<Modal
 			opened={opened}
-			onClose={onClose}
-			title='Switch Role View'
+			onClose={handleClose}
+			title='Account Actions'
 			centered
 			size='sm'
 		>
 			<Stack gap='md'>
+				<Card withBorder p='sm' radius='md'>
+					<Stack gap={2}>
+						<Text size='0.7rem' fw={600} c='dimmed' tt='uppercase'>
+							{viewAs ? 'Viewing as' : 'Admin'}
+						</Text>
+						<Text size='sm' fw={500}>
+							{viewAs
+								? `${toTitleCase(viewAs.role)}${viewAs.presetName ? ` | ${viewAs.presetName}` : ''}`
+								: 'Switch to another dashboard role or logout.'}
+						</Text>
+					</Stack>
+				</Card>
 				<Select
 					label='Role'
 					placeholder='Select role'
@@ -224,17 +214,30 @@ function RoleSwitchModal({
 						searchable
 					/>
 				)}
-				<Group justify='flex-end'>
-					<ActionIcon
+				<Group grow>
+					<Button
 						variant='filled'
-						size='lg'
 						onClick={handleApply}
 						disabled={!role}
-						loading={loading}
+						loading={applyLoading}
+						leftSection={<IconSwitchHorizontal size='1rem' />}
 					>
-						<IconSwitchHorizontal size='1rem' />
-					</ActionIcon>
+						Apply View As
+					</Button>
+					{viewAs && (
+						<Button
+							variant='light'
+							color='red'
+							onClick={handleClear}
+							loading={clearLoading}
+						>
+							Return to Admin
+						</Button>
+					)}
 				</Group>
+				<Button variant='default' onClick={handleLogout}>
+					Logout
+				</Button>
 			</Stack>
 		</Modal>
 	);
