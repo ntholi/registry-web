@@ -1,15 +1,10 @@
 'use client';
 
 import { getAssignedModulesByCurrentUser } from '@academic/assigned-modules';
-import { getUserSchools } from '@admin/users';
 import { libraryConfig } from '@library/library.config';
 import {
-	ActionIcon,
-	Avatar,
 	Box,
 	Divider,
-	Flex,
-	Group,
 	Indicator,
 	NavLink,
 	Skeleton,
@@ -17,11 +12,10 @@ import {
 	Text,
 	TextInput,
 } from '@mantine/core';
-import { modals } from '@mantine/modals';
-import { IconLogout2, IconSearch } from '@tabler/icons-react';
+import { IconSearch } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import type React from 'react';
 import { useState } from 'react';
 import { academicConfig } from '@/app/academic/academic.config';
@@ -33,18 +27,18 @@ import { lmsConfig } from '@/app/lms/lms.config';
 import { registryConfig } from '@/app/registry/registry.config';
 import { reportsConfig } from '@/app/reports/reports.config';
 import type { ClientModuleConfig } from '@/config/modules.config';
-import type { Session } from '@/core/auth';
+import type { Session, ViewAsData } from '@/core/auth';
 import type {
 	DashboardRole,
 	PermissionGrant,
 	UserRole,
 } from '@/core/auth/permissions';
 import { authClient } from '@/core/auth-client';
-import { toTitleCase } from '@/shared/lib/utils/utils';
 import { Shell } from '@/shared/ui/adease';
 import Logo from '@/shared/ui/Logo';
 import { timetableConfig } from '../timetable/timetable.config';
 import type { NavItem } from './module-config.types';
+import UserButton from './UserButton';
 
 type NavigationGroup = {
 	moduleName: string;
@@ -58,13 +52,14 @@ function getUserPermissions(session: Session | null): PermissionGrant[] {
 function isItemVisible(
 	item: NavItem,
 	session: Session | null,
-	userPermissions: PermissionGrant[]
+	userPermissions: PermissionGrant[],
+	viewingAs?: boolean
 ): boolean {
 	if (item.isVisible && !item.isVisible(session)) {
 		return false;
 	}
 
-	if (session?.user?.role === 'admin') {
+	if (session?.user?.role === 'admin' && !viewingAs) {
 		return true;
 	}
 
@@ -91,10 +86,11 @@ function isItemVisible(
 function filterNavigationItems(
 	items: NavItem[],
 	session: Session | null,
-	userPermissions: PermissionGrant[]
+	userPermissions: PermissionGrant[],
+	viewingAs?: boolean
 ): NavItem[] {
 	return items
-		.filter((item) => isItemVisible(item, session, userPermissions))
+		.filter((item) => isItemVisible(item, session, userPermissions, viewingAs))
 		.map((item) => {
 			if (!item.children) {
 				return item;
@@ -103,7 +99,8 @@ function filterNavigationItems(
 			const children = filterNavigationItems(
 				item.children,
 				session,
-				userPermissions
+				userPermissions,
+				viewingAs
 			);
 			if (children.length === 0) {
 				return { ...item, children: undefined };
@@ -209,27 +206,48 @@ function getNavigation(
 export default function Dashboard({
 	children,
 	moduleConfig,
+	viewAs,
 }: {
 	children: React.ReactNode;
 	moduleConfig: ClientModuleConfig;
+	viewAs: ViewAsData | null;
 }) {
 	const { data: session } = authClient.useSession();
-	const userPermissions = getUserPermissions(session);
+
+	const effectiveRole = viewAs?.role ?? session?.user?.role;
+	const effectivePermissions =
+		viewAs?.permissions ?? getUserPermissions(session);
+	const effectiveSession: Session | null = viewAs
+		? session
+			? {
+					...session,
+					permissions: viewAs.permissions,
+					viewingAs: viewAs,
+					user: {
+						...session.user,
+						role: viewAs.role,
+						presetId: viewAs.presetId,
+						presetName: viewAs.presetName,
+					},
+				}
+			: null
+		: session;
+
 	const navigation = getNavigation(
-		session?.user?.role as DashboardRole,
+		effectiveRole as DashboardRole,
 		moduleConfig
 	);
 
 	const { data: assignedModules, isLoading: isModulesLoading } = useQuery({
 		queryKey: ['assigned-modules'],
 		queryFn: getAssignedModulesByCurrentUser,
-		enabled: session?.user?.role === 'academic',
+		enabled: effectiveRole === 'academic',
 	});
 
 	for (const group of navigation) {
 		for (const nav of group.items) {
 			if (nav.label === 'Gradebook') {
-				nav.isLoading = isModulesLoading && session?.user?.role === 'academic';
+				nav.isLoading = isModulesLoading && effectiveRole === 'academic';
 				if (!isModulesLoading && assignedModules) {
 					nav.children = assignedModules.map((it) => ({
 						label: it?.semesterModule?.module?.code || 'Unknown Module',
@@ -249,78 +267,34 @@ export default function Dashboard({
 				</Link>
 			</Shell.Header>
 			<Shell.Navigation>
-				<Navigation navigation={navigation} userPermissions={userPermissions} />
+				<Navigation
+					navigation={navigation}
+					userPermissions={effectivePermissions}
+					viewingAs={!!viewAs}
+					session={effectiveSession}
+				/>
 			</Shell.Navigation>
 			<Shell.Body>{children}</Shell.Body>
 			<Shell.User>
-				<UserButton />
+				<UserButton viewAs={viewAs} />
 			</Shell.User>
 		</Shell>
-	);
-}
-
-function UserButton() {
-	const { data: session, isPending } = authClient.useSession();
-	const router = useRouter();
-
-	const { data: userSchools } = useQuery({
-		queryKey: ['user-schools'],
-		queryFn: () => getUserSchools(session?.user?.id),
-		enabled: session?.user?.role === 'academic',
-	});
-
-	if (!isPending && !session) {
-		router.push('/auth/login');
-	}
-	const user = session?.user;
-
-	const openModal = () =>
-		modals.openConfirmModal({
-			centered: true,
-			title: 'Confirm logout',
-			children: 'Are you sure you want to logout?',
-			confirmProps: { color: 'dark' },
-			labels: { confirm: 'Logout', cancel: 'Cancel' },
-			onConfirm: () =>
-				authClient.signOut({
-					fetchOptions: {
-						onSuccess: () => router.push('/auth/login'),
-					},
-				}),
-		});
-
-	return (
-		<Flex mt={'md'} mb={'sm'} justify='space-between' align={'center'}>
-			<Group>
-				<Avatar src={user?.image} />
-				<Stack gap={5}>
-					<Text size='0.9rem'>{user?.name}</Text>
-					<Text size='0.7rem' c={'dimmed'}>
-						{user?.email}
-					</Text>
-					<Text size='0.65rem' c={'dimmed'}>
-						{user?.role === 'academic'
-							? userSchools?.map((it) => it.school.code).join(', ')
-							: toTitleCase(user?.role)}
-						{user?.presetName ? ` | ${user.presetName}` : ''}
-					</Text>
-				</Stack>
-			</Group>
-			<ActionIcon variant='default' size={'lg'}>
-				<IconLogout2 size='1rem' onClick={openModal} />
-			</ActionIcon>
-		</Flex>
 	);
 }
 
 export function Navigation({
 	navigation,
 	userPermissions,
+	viewingAs,
+	session: sessionProp,
 }: {
 	navigation: NavigationGroup[];
 	userPermissions: PermissionGrant[];
+	viewingAs?: boolean;
+	session?: Session | null;
 }) {
-	const { data: session } = authClient.useSession();
+	const { data: clientSession } = authClient.useSession();
+	const session = sessionProp ?? clientSession;
 	const [search, setSearch] = useState('');
 
 	const getLabelKey = (label: React.ReactNode): string => {
@@ -359,7 +333,8 @@ export function Navigation({
 			items: filterNavigationItems(
 				group.items,
 				session ?? null,
-				userPermissions
+				userPermissions,
+				viewingAs
 			),
 		}))
 		.map((group) => ({
@@ -405,6 +380,8 @@ export function Navigation({
 									key={key}
 									item={item}
 									userPermissions={userPermissions}
+									viewingAs={viewingAs}
+									session={session}
 								/>
 							);
 						})}
@@ -418,9 +395,13 @@ export function Navigation({
 function DisplayWithNotification({
 	item,
 	userPermissions,
+	viewingAs,
+	session,
 }: {
 	item: NavItem;
 	userPermissions: PermissionGrant[];
+	viewingAs?: boolean;
+	session: Session | null;
 }) {
 	const { data: notificationCount = 0 } = useQuery({
 		queryKey: item.notificationCount?.queryKey ?? [],
@@ -438,7 +419,12 @@ function DisplayWithNotification({
 			label={notificationCount}
 			disabled={!notificationCount}
 		>
-			<ItemDisplay item={item} userPermissions={userPermissions} />
+			<ItemDisplay
+				item={item}
+				userPermissions={userPermissions}
+				viewingAs={viewingAs}
+				session={session}
+			/>
 		</Indicator>
 	);
 }
@@ -446,19 +432,22 @@ function DisplayWithNotification({
 function ItemDisplay({
 	item,
 	userPermissions,
+	viewingAs,
+	session,
 }: {
 	item: NavItem;
 	userPermissions: PermissionGrant[];
+	viewingAs?: boolean;
+	session: Session | null;
 }) {
 	const pathname = usePathname();
 	const Icon = item.icon;
-	const { data: session } = authClient.useSession();
 	const getLabelKey = (label: React.ReactNode): string => {
 		if (typeof label === 'string') return label;
 		return String(label);
 	};
 
-	if (!isItemVisible(item, session ?? null, userPermissions)) {
+	if (!isItemVisible(item, session ?? null, userPermissions, viewingAs)) {
 		return null;
 	}
 
@@ -511,6 +500,8 @@ function ItemDisplay({
 						key={childKey}
 						item={child}
 						userPermissions={userPermissions}
+						viewingAs={viewingAs}
+						session={session}
 					/>
 				);
 			})}

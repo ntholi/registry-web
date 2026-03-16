@@ -16,12 +16,13 @@ export async function generateMetadata(): Promise<Metadata> {
 	};
 }
 
-export default function AdminLayout({ children }: PropsWithChildren) {
+export default async function AdminLayout({ children }: PropsWithChildren) {
 	const isLocal = process.env.DATABASE_ENV === 'local';
 	const moduleConfig = getModuleConfig();
+	const session = await getSession();
 
 	return (
-		<Dashboard moduleConfig={moduleConfig}>
+		<Dashboard moduleConfig={moduleConfig} viewAs={session?.viewingAs ?? null}>
 			{!process.env.BETTER_AUTH_URL?.includes('portal.co.ls') && (
 				<DebugRibbon isLocal={isLocal} />
 			)}

@@ -7,8 +7,8 @@ import { useQuery } from '@tanstack/react-query';
 import { createInsertSchema } from 'drizzle-zod';
 import { useRouter } from 'nextjs-toploader/app';
 import { authClient } from '@/core/auth-client';
-import { formatDateToISO, formatMonthYear } from '@/shared/lib/utils/dates';
 import type { ActionResult } from '@/shared/lib/actions/actionResult';
+import { formatDateToISO, formatMonthYear } from '@/shared/lib/utils/dates';
 import { Form } from '@/shared/ui/adease';
 import TermInput from '@/shared/ui/TermInput';
 import { getSchools, getSchoolsForUser, getTerms } from '../_server/actions';
@@ -17,9 +17,7 @@ type Cycle = typeof feedbackCycles.$inferInsert;
 type CycleWithSchools = Cycle & { schoolIds?: number[] };
 
 type Props = {
-	onSubmit: (
-		values: CycleWithSchools
-	) => Promise<Cycle | ActionResult<Cycle>>;
+	onSubmit: (values: CycleWithSchools) => Promise<Cycle | ActionResult<Cycle>>;
 	defaultValues?: CycleWithSchools;
 	title?: string;
 };

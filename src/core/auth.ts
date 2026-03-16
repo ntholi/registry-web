@@ -5,8 +5,8 @@ import { betterAuth } from 'better-auth/minimal';
 import { nextCookies } from 'better-auth/next-js';
 import { admin, customSession } from 'better-auth/plugins';
 import { nanoid } from 'nanoid';
-import { headers } from 'next/headers';
-import type { PermissionGrant } from '@/core/auth/permissions';
+import { cookies, headers } from 'next/headers';
+import type { DashboardRole, PermissionGrant } from '@/core/auth/permissions';
 import { db, schema } from '@/core/database';
 
 type BetterAuthSession = typeof betterAuthServer.$Infer.Session;
@@ -121,11 +121,19 @@ export const betterAuthServer = betterAuth({
 	],
 });
 
+export type ViewAsData = {
+	role: DashboardRole;
+	presetId: string | null;
+	presetName: string | null;
+	permissions: PermissionGrant[];
+};
+
 export type Session = {
 	expires?: string;
 	permissions?: PermissionGrant[];
 	session: BetterAuthSession['session'];
 	user: SessionUser;
+	viewingAs?: ViewAsData | null;
 };
 
 export async function auth(): Promise<Session | null> {
@@ -148,7 +156,7 @@ export async function auth(): Promise<Session | null> {
 			: null;
 	const expiresAt = session.session.expiresAt;
 
-	return {
+	const baseSession: Session = {
 		...session,
 		expires:
 			expiresAt instanceof Date
@@ -168,6 +176,53 @@ export async function auth(): Promise<Session | null> {
 			stdNo,
 		},
 	};
+
+	if (baseSession.user.role === 'admin') {
+		const viewAs = await readViewAsCookie();
+		if (viewAs) {
+			const preset = viewAs.presetId
+				? await getPresetSessionData(viewAs.presetId)
+				: null;
+			const viewPermissions = preset?.permissions ?? [];
+			return {
+				...baseSession,
+				permissions: viewPermissions,
+				viewingAs: {
+					role: viewAs.role,
+					presetId: viewAs.presetId,
+					presetName: preset?.name ?? null,
+					permissions: viewPermissions,
+				},
+				user: {
+					...baseSession.user,
+					role: viewAs.role,
+					presetId: viewAs.presetId,
+					presetName: preset?.name ?? null,
+				},
+			};
+		}
+	}
+
+	return baseSession;
+}
+
+async function readViewAsCookie(): Promise<{
+	role: DashboardRole;
+	presetId: string | null;
+} | null> {
+	const jar = await cookies();
+	const cookie = jar.get('admin-view-as');
+	if (!cookie?.value) return null;
+	try {
+		const data = JSON.parse(cookie.value);
+		if (typeof data?.role === 'string') {
+			return {
+				role: data.role as DashboardRole,
+				presetId: typeof data.presetId === 'string' ? data.presetId : null,
+			};
+		}
+	} catch {}
+	return null;
 }
 
 export * from './auth/permissions';
