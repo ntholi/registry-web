@@ -3,6 +3,7 @@
 import { Box, Group, Text, TextInput } from '@mantine/core';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useRef, useState } from 'react';
+import { unwrap } from '@/shared/lib/actions/actionResult';
 import { getMarksPercentageColor } from '@/shared/lib/utils/colors';
 import { getAssignmentGrades, saveAssignmentGrade } from '../server/actions';
 
@@ -44,7 +45,7 @@ export default function GradeInput({
 
 	const gradeMutation = useMutation({
 		mutationFn: async (newGrade: number) => {
-			await saveAssignmentGrade(assignmentId, userId, newGrade);
+			unwrap(await saveAssignmentGrade(assignmentId, userId, newGrade));
 			return newGrade;
 		},
 		onMutate: async (newGrade) => {

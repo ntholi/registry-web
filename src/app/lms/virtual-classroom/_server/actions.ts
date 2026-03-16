@@ -7,6 +7,7 @@ import {
 } from '@lms/_shared/utils';
 import { auth } from '@/core/auth';
 import { moodleGet, moodlePost } from '@/core/integrations/moodle';
+import { createAction } from '@/shared/lib/actions/actionResult';
 import type {
 	BigBlueButtonSession,
 	CreateBigBlueButtonParams,
@@ -35,23 +36,21 @@ export async function getCourseSections(
 	>;
 }
 
-export async function createBigBlueButtonSession(
-	params: CreateBigBlueButtonParams
-): Promise<BigBlueButtonSession> {
-	const lmsToken = await getLmsToken();
+export const createBigBlueButtonSession = createAction(
+	async (params: CreateBigBlueButtonParams): Promise<BigBlueButtonSession> => {
+		const lmsToken = await getLmsToken();
 
-	if (!params.name?.trim()) {
-		throw new Error('Session name is required');
-	}
+		if (!params.name?.trim()) {
+			throw new Error('Session name is required');
+		}
 
-	const sectionNumber = await getOrReuseSection({
-		courseId: params.courseid,
-		sectionName: VIRTUAL_CLASSROOM_SECTION_NAME,
-		summary: 'Live virtual classroom sessions using BigBlueButton',
-		lmsToken,
-	});
+		const sectionNumber = await getOrReuseSection({
+			courseId: params.courseid,
+			sectionName: VIRTUAL_CLASSROOM_SECTION_NAME,
+			summary: 'Live virtual classroom sessions using BigBlueButton',
+			lmsToken,
+		});
 
-	try {
 		const requestParams: Record<string, string | number> = {
 			courseid: params.courseid,
 			name: params.name.trim(),
@@ -90,13 +89,8 @@ export async function createBigBlueButtonSession(
 		);
 
 		return result as BigBlueButtonSession;
-	} catch (error) {
-		console.error('Error creating BigBlueButton session:', error);
-		throw new Error(
-			'Unable to create virtual classroom session. Please ensure the BigBlueButton plugin is installed and configured.'
-		);
 	}
-}
+);
 
 export async function getVirtualClassroomSessions(
 	courseId: number

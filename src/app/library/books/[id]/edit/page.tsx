@@ -1,5 +1,6 @@
 import { Box } from '@mantine/core';
 import { notFound } from 'next/navigation';
+import { unwrap } from '@/shared/lib/actions/actionResult';
 import Form from '../../_components/Form';
 import { getBook, updateBook } from '../../_server/actions';
 
@@ -20,7 +21,7 @@ export default async function EditBookPage({ params }: Props) {
 				defaultValues={book}
 				onSubmit={async (value, authorIds, categoryIds) => {
 					'use server';
-					return updateBook(id, value, authorIds, categoryIds);
+					return unwrap(await updateBook(id, value, authorIds, categoryIds));
 				}}
 			/>
 		</Box>

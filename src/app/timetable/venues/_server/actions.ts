@@ -1,6 +1,7 @@
 'use server';
 
 import type { venues } from '@/core/database';
+import { createAction } from '@/shared/lib/actions/actionResult';
 import type { VenueInsert } from './repository';
 import { venueService as service } from './service';
 
@@ -23,18 +24,16 @@ export async function getAllVenues() {
 	return service.getAllWithRelations();
 }
 
-export async function createVenue(venue: VenueInsert, schoolIds: number[]) {
-	return service.createWithSchools(venue, schoolIds);
-}
+export const createVenue = createAction(
+	async (venue: VenueInsert, schoolIds: number[]) =>
+		service.createWithSchools(venue, schoolIds)
+);
 
-export async function updateVenue(
-	id: string,
-	venue: Partial<Venue>,
-	schoolIds?: number[]
-) {
-	return service.updateWithSchools(id, venue, schoolIds);
-}
+export const updateVenue = createAction(
+	async (id: string, venue: Partial<Venue>, schoolIds?: number[]) =>
+		service.updateWithSchools(id, venue, schoolIds)
+);
 
-export async function deleteVenue(id: string) {
-	return service.delete(id);
-}
+export const deleteVenue = createAction(async (id: string) =>
+	service.delete(id)
+);

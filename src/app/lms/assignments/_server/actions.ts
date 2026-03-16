@@ -7,6 +7,7 @@ import { getActiveTerm } from '@/app/registry/terms';
 import { auth } from '@/core/auth';
 import type { AssessmentNumber } from '@/core/database';
 import { moodleGet, moodlePost } from '@/core/integrations/moodle';
+import { createAction, unwrap } from '@/shared/lib/actions/actionResult';
 import type { CreateAssignmentParams, MoodleAssignment } from '../types';
 
 async function getLmsToken() {
@@ -99,191 +100,197 @@ type CreateDraftAssignmentInput = {
 	grademax: number;
 };
 
-export async function createDraftAssignment(
-	params: CreateDraftAssignmentInput
-) {
-	const lmsToken = await getLmsToken();
+export const createDraftAssignment = createAction(
+	async (params: CreateDraftAssignmentInput) => {
+		const lmsToken = await getLmsToken();
 
-	if (!params.name?.trim()) {
-		throw new Error('Assignment name is required');
-	}
-
-	const sectionNumber = await getOrReuseSection({
-		courseId: params.courseid,
-		sectionName: 'Assignments',
-		summary: 'Course assignments and submissions',
-		matchFn: (name) =>
-			name.toLowerCase() === 'assignments' ||
-			name.toLowerCase() === 'assignment',
-		lmsToken,
-	});
-
-	const requestParams: Record<string, string | number> = {
-		courseid: params.courseid,
-		name: params.name,
-		duedate: params.duedate,
-		allowsubmissionsfromdate: params.allowsubmissionsfromdate,
-		section: sectionNumber,
-		grademax: params.grademax,
-		visible: 0,
-	};
-
-	if (params.intro) {
-		requestParams.intro = params.intro;
-	}
-	if (params.activityinstructions) {
-		requestParams.activity = params.activityinstructions;
-	}
-
-	const result = await moodlePost(
-		'local_activity_utils_create_assignment',
-		requestParams,
-		lmsToken
-	);
-
-	return {
-		assignmentId: result.id as number,
-		courseModuleId: result.coursemoduleid as number,
-	};
-}
-
-export async function updateAssignment(
-	assignmentId: number,
-	params: {
-		name?: string;
-		intro?: string;
-		activity?: string;
-		allowsubmissionsfromdate?: number;
-		duedate?: number;
-		grademax?: number;
-		visible?: number;
-		attachments?: File[];
-	}
-) {
-	const lmsToken = await getLmsToken();
-
-	const updateParams: Record<string, string | number | undefined> = {
-		assignmentid: assignmentId,
-	};
-
-	if (params.name !== undefined) updateParams.name = params.name;
-	if (params.intro !== undefined) updateParams.intro = params.intro;
-	if (params.activity !== undefined) updateParams.activity = params.activity;
-	if (params.allowsubmissionsfromdate !== undefined)
-		updateParams.allowsubmissionsfromdate = params.allowsubmissionsfromdate;
-	if (params.duedate !== undefined) updateParams.duedate = params.duedate;
-	if (params.grademax !== undefined) updateParams.grademax = params.grademax;
-	if (params.visible !== undefined) updateParams.visible = params.visible;
-	if (params.attachments && params.attachments.length > 0) {
-		updateParams.introfiles = await buildIntroFilesParam(params.attachments);
-	}
-
-	await moodlePost(
-		'local_activity_utils_update_assignment',
-		updateParams,
-		lmsToken
-	);
-}
-
-export async function publishAssignment(input: {
-	assignmentId: number;
-	courseId: number;
-	moduleId: number;
-	assessmentNumber: string;
-	weight: number;
-	totalMarks: number;
-}) {
-	await getLmsToken();
-
-	const term = await getActiveTerm();
-	if (!term) {
-		throw new Error('No active term found');
-	}
-
-	const assignment = await getAssignment(input.courseId, input.assignmentId);
-	if (!assignment) {
-		throw new Error('Assignment not found');
-	}
-
-	await updateAssignment(input.assignmentId, { visible: 1 });
-
-	await createAcademicAssessment(
-		{
-			moduleId: input.moduleId,
-			assessmentNumber: input.assessmentNumber as AssessmentNumber,
-			assessmentType: assignment.name,
-			totalMarks: input.totalMarks,
-			weight: input.weight,
-			termId: term.id,
-		},
-		{
-			lmsId: input.assignmentId,
-			activityType: 'assignment',
+		if (!params.name?.trim()) {
+			throw new Error('Assignment name is required');
 		}
-	);
 
-	return { success: true };
-}
+		const sectionNumber = await getOrReuseSection({
+			courseId: params.courseid,
+			sectionName: 'Assignments',
+			summary: 'Course assignments and submissions',
+			matchFn: (name) =>
+				name.toLowerCase() === 'assignments' ||
+				name.toLowerCase() === 'assignment',
+			lmsToken,
+		});
 
-export async function createAssignment(params: CreateAssignmentParams) {
-	const lmsToken = await getLmsToken();
-	const term = await getActiveTerm();
-	if (!term) {
-		throw new Error('No active term found');
+		const requestParams: Record<string, string | number> = {
+			courseid: params.courseid,
+			name: params.name,
+			duedate: params.duedate,
+			allowsubmissionsfromdate: params.allowsubmissionsfromdate,
+			section: sectionNumber,
+			grademax: params.grademax,
+			visible: 0,
+		};
+
+		if (params.intro) {
+			requestParams.intro = params.intro;
+		}
+		if (params.activityinstructions) {
+			requestParams.activity = params.activityinstructions;
+		}
+
+		const result = await moodlePost(
+			'local_activity_utils_create_assignment',
+			requestParams,
+			lmsToken
+		);
+
+		return {
+			assignmentId: result.id as number,
+			courseModuleId: result.coursemoduleid as number,
+		};
 	}
+);
 
-	if (!params.name?.trim()) {
-		throw new Error('Assignment name is required');
+export const updateAssignment = createAction(
+	async (
+		assignmentId: number,
+		params: {
+			name?: string;
+			intro?: string;
+			activity?: string;
+			allowsubmissionsfromdate?: number;
+			duedate?: number;
+			grademax?: number;
+			visible?: number;
+			attachments?: File[];
+		}
+	) => {
+		const lmsToken = await getLmsToken();
+
+		const updateParams: Record<string, string | number | undefined> = {
+			assignmentid: assignmentId,
+		};
+
+		if (params.name !== undefined) updateParams.name = params.name;
+		if (params.intro !== undefined) updateParams.intro = params.intro;
+		if (params.activity !== undefined) updateParams.activity = params.activity;
+		if (params.allowsubmissionsfromdate !== undefined)
+			updateParams.allowsubmissionsfromdate = params.allowsubmissionsfromdate;
+		if (params.duedate !== undefined) updateParams.duedate = params.duedate;
+		if (params.grademax !== undefined) updateParams.grademax = params.grademax;
+		if (params.visible !== undefined) updateParams.visible = params.visible;
+		if (params.attachments && params.attachments.length > 0) {
+			updateParams.introfiles = await buildIntroFilesParam(params.attachments);
+		}
+
+		await moodlePost(
+			'local_activity_utils_update_assignment',
+			updateParams,
+			lmsToken
+		);
 	}
+);
 
-	if (!params.duedate) {
-		throw new Error('Due date is required');
+export const publishAssignment = createAction(
+	async (input: {
+		assignmentId: number;
+		courseId: number;
+		moduleId: number;
+		assessmentNumber: string;
+		weight: number;
+		totalMarks: number;
+	}) => {
+		await getLmsToken();
+
+		const term = await getActiveTerm();
+		if (!term) {
+			throw new Error('No active term found');
+		}
+
+		const assignment = await getAssignment(input.courseId, input.assignmentId);
+		if (!assignment) {
+			throw new Error('Assignment not found');
+		}
+
+		unwrap(await updateAssignment(input.assignmentId, { visible: 1 }));
+
+		unwrap(
+			await createAcademicAssessment(
+				{
+					moduleId: input.moduleId,
+					assessmentNumber: input.assessmentNumber as AssessmentNumber,
+					assessmentType: assignment.name,
+					totalMarks: input.totalMarks,
+					weight: input.weight,
+					termId: term.id,
+				},
+				{
+					lmsId: input.assignmentId,
+					activityType: 'assignment',
+				}
+			)
+		);
+
+		return { success: true };
 	}
+);
 
-	if (!params.idnumber?.trim()) {
-		throw new Error('Assignment number is required');
-	}
+export const createAssignment = createAction(
+	async (params: CreateAssignmentParams) => {
+		const lmsToken = await getLmsToken();
+		const term = await getActiveTerm();
+		if (!term) {
+			throw new Error('No active term found');
+		}
 
-	const sectionNumber = await getOrReuseSection({
-		courseId: params.courseid,
-		sectionName: 'Assignments',
-		summary: 'Course assignments and submissions',
-		matchFn: (name) =>
-			name.toLowerCase() === 'assignments' ||
-			name.toLowerCase() === 'assignment',
-		lmsToken,
-	});
+		if (!params.name?.trim()) {
+			throw new Error('Assignment name is required');
+		}
 
-	const requestParams: Record<string, string | number> = {
-		courseid: params.courseid,
-		name: params.name,
-		duedate: params.duedate,
-		allowsubmissionsfromdate: params.allowsubmissionsfromdate,
-		section: sectionNumber,
-		idnumber: params.idnumber,
-		grademax: params.grademax,
-	};
+		if (!params.duedate) {
+			throw new Error('Due date is required');
+		}
 
-	if (params.intro) {
-		requestParams.intro = params.intro;
-	}
+		if (!params.idnumber?.trim()) {
+			throw new Error('Assignment number is required');
+		}
 
-	if (params.activityinstructions) {
-		requestParams.activity = params.activityinstructions;
-	}
+		const sectionNumber = await getOrReuseSection({
+			courseId: params.courseid,
+			sectionName: 'Assignments',
+			summary: 'Course assignments and submissions',
+			matchFn: (name) =>
+				name.toLowerCase() === 'assignments' ||
+				name.toLowerCase() === 'assignment',
+			lmsToken,
+		});
 
-	if (params.attachments && params.attachments.length > 0) {
-		requestParams.introfiles = await buildIntroFilesParam(params.attachments);
-	}
+		const requestParams: Record<string, string | number> = {
+			courseid: params.courseid,
+			name: params.name,
+			duedate: params.duedate,
+			allowsubmissionsfromdate: params.allowsubmissionsfromdate,
+			section: sectionNumber,
+			idnumber: params.idnumber,
+			grademax: params.grademax,
+		};
 
-	const result = await moodlePost(
-		'local_activity_utils_create_assignment',
-		requestParams,
-		lmsToken
-	);
+		if (params.intro) {
+			requestParams.intro = params.intro;
+		}
 
-	try {
-		await createAcademicAssessment(
+		if (params.activityinstructions) {
+			requestParams.activity = params.activityinstructions;
+		}
+
+		if (params.attachments && params.attachments.length > 0) {
+			requestParams.introfiles = await buildIntroFilesParam(params.attachments);
+		}
+
+		const result = await moodlePost(
+			'local_activity_utils_create_assignment',
+			requestParams,
+			lmsToken
+		);
+
+		const assessmentResult = await createAcademicAssessment(
 			{
 				moduleId: params.moduleId,
 				assessmentNumber: params.idnumber as AssessmentNumber,
@@ -297,21 +304,23 @@ export async function createAssignment(params: CreateAssignmentParams) {
 				activityType: 'assignment',
 			}
 		);
-	} catch (error) {
-		await moodlePost(
-			'local_activity_utils_delete_assignment',
-			{
-				cmid: result.coursemoduleid,
-			},
-			lmsToken
-		);
-		throw error;
+
+		if (!assessmentResult.success) {
+			await moodlePost(
+				'local_activity_utils_delete_assignment',
+				{
+					cmid: result.coursemoduleid,
+				},
+				lmsToken
+			);
+			unwrap(assessmentResult);
+		}
+
+		return result;
 	}
+);
 
-	return result;
-}
-
-export async function deleteAssignment(cmid: number) {
+export const deleteAssignment = createAction(async (cmid: number) => {
 	const lmsToken = await getLmsToken();
 
 	await moodlePost(
@@ -321,4 +330,4 @@ export async function deleteAssignment(cmid: number) {
 		},
 		lmsToken
 	);
-}
+});

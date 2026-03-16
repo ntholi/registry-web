@@ -14,6 +14,7 @@ import { notifications } from '@mantine/notifications';
 import { IconAlertTriangle } from '@tabler/icons-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { forwardRef, useImperativeHandle, useState } from 'react';
+import { unwrap } from '@/shared/lib/actions/actionResult';
 import { getAlertColor } from '@/shared/lib/utils/colors';
 import { setAllocationOverflowVenue } from '../_server/actions';
 
@@ -53,13 +54,9 @@ const OverflowVenueModal = forwardRef<OverflowVenueModalRef>(
 				if (!data || !selectedVenueId) {
 					throw new Error('No venue selected');
 				}
-				const result = await setAllocationOverflowVenue(
-					data.allocationId,
-					selectedVenueId
+				return unwrap(
+					await setAllocationOverflowVenue(data.allocationId, selectedVenueId)
 				);
-				if (!result.success) {
-					throw new Error(result.error);
-				}
 			},
 			onSuccess: async () => {
 				await queryClient.invalidateQueries({

@@ -38,6 +38,7 @@ import { getAllVenues } from '@timetable/venues';
 import { zod4Resolver as zodResolver } from 'mantine-form-zod-resolver';
 import { useCallback, useState } from 'react';
 import { z } from 'zod';
+import { unwrap } from '@/shared/lib/actions/actionResult';
 import { useAllTerms } from '@/shared/lib/hooks/use-term';
 import { calculateDuration } from '@/shared/lib/utils/dates';
 import { toClassName as toClassNameShared } from '@/shared/lib/utils/utils';
@@ -198,10 +199,7 @@ export default function AddSlotAllocationWithLecturerModal() {
 				};
 			});
 
-			const result = await createAllocationsWithSlots(items);
-			if (!result.success) {
-				throw new Error(result.error);
-			}
+			unwrap(await createAllocationsWithSlots(items));
 		},
 		onSuccess: async () => {
 			await queryClient.invalidateQueries({

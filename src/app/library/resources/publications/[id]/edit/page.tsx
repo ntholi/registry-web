@@ -1,5 +1,6 @@
 import { Box } from '@mantine/core';
 import { notFound } from 'next/navigation';
+import { unwrap } from '@/shared/lib/actions/actionResult';
 import PublicationForm from '../../_components/Form';
 import { getPublication, updatePublication } from '../../_server/actions';
 
@@ -16,7 +17,10 @@ export default async function EditPublicationPage({ params }: Props) {
 	return (
 		<Box p={'pg'}>
 			<PublicationForm
-				onSubmit={(data) => updatePublication(publication.id, data)}
+				onSubmit={async (data) => {
+					'use server';
+					return unwrap(await updatePublication(publication.id, data));
+				}}
 				defaultValues={publication}
 				title='Edit Publication'
 			/>

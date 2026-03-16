@@ -18,6 +18,7 @@ import {
 import { IconCheck, IconEdit, IconMinus, IconX } from '@tabler/icons-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
+import { unwrap } from '@/shared/lib/actions/actionResult';
 import { getQuizStateColor } from '@/shared/lib/utils/colors';
 import { gradeEssayQuestion } from '../../_server/actions';
 import type { QuizAttemptQuestion } from '../../types';
@@ -84,7 +85,9 @@ export default function QuizQuestionReview({
 			if (Number.isNaN(mark) || mark < 0 || mark > question.maxmark) {
 				throw new Error(`Grade must be between 0 and ${question.maxmark}`);
 			}
-			return gradeEssayQuestion(attemptId, question.slot, mark, comment);
+			return unwrap(
+				await gradeEssayQuestion(attemptId, question.slot, mark, comment)
+			);
 		},
 		onSuccess: () => {
 			setIsGrading(false);

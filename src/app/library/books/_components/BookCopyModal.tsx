@@ -21,6 +21,7 @@ import { IconEdit, IconPlus } from '@tabler/icons-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { createInsertSchema } from 'drizzle-zod';
 import { zod4Resolver as zodResolver } from 'mantine-form-zod-resolver';
+import { unwrap } from '@/shared/lib/actions/actionResult';
 
 type BookCopy = typeof bookCopies.$inferInsert;
 
@@ -58,9 +59,9 @@ export default function BookCopyModal({ bookId, copy }: Props) {
 		mutationFn: async (values: typeof form.values) => {
 			const data = { ...values, bookId } as BookCopy;
 			if (isEdit && copy) {
-				return updateBookCopy(copy.id, data);
+				return unwrap(await updateBookCopy(copy.id, data));
 			}
-			return createBookCopy(data);
+			return unwrap(await createBookCopy(data));
 		},
 		onSuccess: () => {
 			queryClient.invalidateQueries({

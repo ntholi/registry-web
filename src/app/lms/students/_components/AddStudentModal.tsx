@@ -23,6 +23,7 @@ import {
 } from '@tabler/icons-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
+import { unwrap } from '@/shared/lib/actions/actionResult';
 import { formatSemester } from '@/shared/lib/utils/utils';
 import {
 	enrollStudentInCourse,
@@ -53,12 +54,14 @@ export default function AddStudentModal({
 	});
 
 	const enrollMutation = useMutation({
-		mutationFn: () =>
-			enrollStudentInCourse(
-				course.id,
-				selectedStudent!.stdNo,
-				course.fullname,
-				course.shortname
+		mutationFn: async () =>
+			unwrap(
+				await enrollStudentInCourse(
+					course.id,
+					selectedStudent!.stdNo,
+					course.fullname,
+					course.shortname
+				)
 			),
 		onSuccess: (result) => {
 			if (result.success) {

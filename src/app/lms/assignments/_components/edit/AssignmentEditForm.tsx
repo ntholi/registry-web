@@ -35,6 +35,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { useQueryState } from 'nuqs';
 import { ASSESSMENT_TYPES } from '@/app/academic/assessments/_lib/utils';
+import { unwrap } from '@/shared/lib/actions/actionResult';
 import RichTextField from '@/shared/ui/adease/RichTextField';
 import { updateAssignment } from '../../_server/actions';
 import type { MoodleAssignment } from '../../types';
@@ -91,20 +92,22 @@ export default function AssignmentEditForm({ assignment, courseId }: Props) {
 				ASSESSMENT_TYPES.find((t) => t.value === values.name)?.label ||
 				values.name;
 
-			await updateAssignment(assignment.id, {
-				name: typeLabel,
-				intro: values.description,
-				activity: values.instructions || undefined,
-				allowsubmissionsfromdate: values.allowsubmissionsfromdate
-					? Math.floor(values.allowsubmissionsfromdate.getTime() / 1000)
-					: undefined,
-				duedate: values.duedate
-					? Math.floor(values.duedate.getTime() / 1000)
-					: undefined,
-				grademax: values.grademax,
-				visible: values.visible ? 1 : 0,
-				attachments: values.attachments,
-			});
+			unwrap(
+				await updateAssignment(assignment.id, {
+					name: typeLabel,
+					intro: values.description,
+					activity: values.instructions || undefined,
+					allowsubmissionsfromdate: values.allowsubmissionsfromdate
+						? Math.floor(values.allowsubmissionsfromdate.getTime() / 1000)
+						: undefined,
+					duedate: values.duedate
+						? Math.floor(values.duedate.getTime() / 1000)
+						: undefined,
+					grademax: values.grademax,
+					visible: values.visible ? 1 : 0,
+					attachments: values.attachments,
+				})
+			);
 		},
 		onSuccess: () => {
 			notifications.show({

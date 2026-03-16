@@ -8,6 +8,7 @@ import { IconPlus } from '@tabler/icons-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { zod4Resolver as zodResolver } from 'mantine-form-zod-resolver';
 import { z } from 'zod';
+import { unwrap } from '@/shared/lib/actions/actionResult';
 import RichTextField from '@/shared/ui/adease/RichTextField';
 import { createTopic } from '../_server/actions';
 
@@ -42,12 +43,14 @@ export default function TopicForm({
 
 	const mutation = useMutation({
 		mutationFn: async (values: TopicFormValues) => {
-			return createTopic({
-				courseId,
-				weekNumber: values.weekNumber,
-				title: values.title,
-				description: values.description,
-			});
+			return unwrap(
+				await createTopic({
+					courseId,
+					weekNumber: values.weekNumber,
+					title: values.title,
+					description: values.description,
+				})
+			);
 		},
 		onSuccess: () => {
 			notifications.show({

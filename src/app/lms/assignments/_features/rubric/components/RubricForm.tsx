@@ -17,6 +17,7 @@ import { useForm } from '@mantine/form';
 import { IconPlus, IconTrash } from '@tabler/icons-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useImperativeHandle, useState } from 'react';
+import { unwrap } from '@/shared/lib/actions/actionResult';
 import type { Rubric } from '../../../types';
 import { createRubric, updateRubric } from '../server/actions';
 
@@ -120,18 +121,22 @@ export default function RubricForm({
 			}));
 
 			if (existingRubric) {
-				return updateRubric(cmid, {
+				return unwrap(
+					await updateRubric(cmid, {
+						name: values.name,
+						description: values.description,
+						criteria: criteriaWithSortOrder,
+					})
+				);
+			}
+			return unwrap(
+				await createRubric({
+					cmid,
 					name: values.name,
 					description: values.description,
 					criteria: criteriaWithSortOrder,
-				});
-			}
-			return createRubric({
-				cmid,
-				name: values.name,
-				description: values.description,
-				criteria: criteriaWithSortOrder,
-			});
+				})
+			);
 		},
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: ['rubric', cmid] });

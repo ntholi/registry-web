@@ -18,6 +18,7 @@ import { IconSearch } from '@tabler/icons-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'nextjs-toploader/app';
 import { useEffect, useState } from 'react';
+import { unwrap } from '@/shared/lib/actions/actionResult';
 import FormHeader from '@/shared/ui/adease/FormHeader';
 import { getLibrarySettings } from '../../settings/_server/actions';
 import type {
@@ -88,7 +89,9 @@ export default function LoanForm() {
 			if (!student || !copy || !dueDate) {
 				throw new Error('Please fill all required fields');
 			}
-			return createLoan(copy.id, student.stdNo, new Date(dueDate));
+			return unwrap(
+				await createLoan(copy.id, student.stdNo, new Date(dueDate))
+			);
 		},
 		onSuccess: async (loan) => {
 			await queryClient.invalidateQueries({ queryKey: ['loans'] });

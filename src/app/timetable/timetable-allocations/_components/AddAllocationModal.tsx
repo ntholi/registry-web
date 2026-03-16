@@ -23,6 +23,7 @@ import { getAllVenues } from '@timetable/venues';
 import { zod4Resolver as zodResolver } from 'mantine-form-zod-resolver';
 import { useState } from 'react';
 import { z } from 'zod';
+import { unwrap } from '@/shared/lib/actions/actionResult';
 
 import { toClassName } from '@/shared/lib/utils/utils';
 import {
@@ -128,25 +129,23 @@ export default function AddAllocationModal({
 	const mutation = useMutation({
 		mutationFn: async (values: FormValues) => {
 			if (values.groups.length === 0) {
-				const result = await createTimetableAllocationWithVenueTypes(
-					{
-						userId,
-						termId,
-						semesterModuleId: values.semesterModuleId,
-						duration: values.duration,
-						classType: values.classType,
-						numberOfStudents: values.numberOfStudents,
-						allowedDays: values.allowedDays,
-						startTime: values.startTime,
-						endTime: values.endTime,
-					},
-					values.venueTypeIds,
-					values.allowedVenueIds
+				return unwrap(
+					await createTimetableAllocationWithVenueTypes(
+						{
+							userId,
+							termId,
+							semesterModuleId: values.semesterModuleId,
+							duration: values.duration,
+							classType: values.classType,
+							numberOfStudents: values.numberOfStudents,
+							allowedDays: values.allowedDays,
+							startTime: values.startTime,
+							endTime: values.endTime,
+						},
+						values.venueTypeIds,
+						values.allowedVenueIds
+					)
 				);
-				if (!result.success) {
-					throw new Error(result.error);
-				}
-				return result.data;
 			}
 
 			const allocations = values.groups.map((groupName: string) => ({
@@ -164,15 +163,13 @@ export default function AddAllocationModal({
 				endTime: values.endTime,
 			}));
 
-			const result = await createTimetableAllocationsWithVenueTypes(
-				allocations,
-				values.venueTypeIds,
-				values.allowedVenueIds
+			return unwrap(
+				await createTimetableAllocationsWithVenueTypes(
+					allocations,
+					values.venueTypeIds,
+					values.allowedVenueIds
+				)
 			);
-			if (!result.success) {
-				throw new Error(result.error);
-			}
-			return result.data;
 		},
 		onSuccess: async () => {
 			await queryClient.invalidateQueries({

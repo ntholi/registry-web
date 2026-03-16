@@ -1,6 +1,7 @@
 'use server';
 
 import type { books } from '@/core/database';
+import { createAction } from '@/shared/lib/actions/actionResult';
 import { booksService } from './service';
 
 type Book = typeof books.$inferInsert;
@@ -18,23 +19,16 @@ export async function getBooks(page = 1, search = '') {
 	});
 }
 
-export async function createBook(
-	book: Book,
-	authorIds: string[],
-	categoryIds: string[]
-) {
-	return booksService.createWithRelations(book, authorIds, categoryIds);
-}
+export const createBook = createAction(
+	async (book: Book, authorIds: string[], categoryIds: string[]) =>
+		booksService.createWithRelations(book, authorIds, categoryIds)
+);
 
-export async function updateBook(
-	id: string,
-	book: Book,
-	authorIds: string[],
-	categoryIds: string[]
-) {
-	return booksService.updateWithRelations(id, book, authorIds, categoryIds);
-}
+export const updateBook = createAction(
+	async (id: string, book: Book, authorIds: string[], categoryIds: string[]) =>
+		booksService.updateWithRelations(id, book, authorIds, categoryIds)
+);
 
-export async function deleteBook(id: string) {
-	return booksService.delete(id);
-}
+export const deleteBook = createAction(async (id: string) =>
+	booksService.delete(id)
+);

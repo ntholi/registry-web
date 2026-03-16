@@ -17,6 +17,7 @@ import { notifications } from '@mantine/notifications';
 import { IconPlus } from '@tabler/icons-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
+import { unwrap } from '@/shared/lib/actions/actionResult';
 import { useActiveTerm } from '@/shared/lib/hooks/use-term';
 import { getStudentClassName } from '@/shared/lib/utils/utils';
 import { createMoodleCourse, getMoodleCategories } from '../_server/actions';
@@ -77,12 +78,14 @@ export default function CreateCourseModal() {
 			const categoryId = category?.id ?? 1;
 			const className = getStudentClassName(semester);
 
-			return createMoodleCourse({
-				fullname: module.name,
-				shortname: `${activeTerm.code}_${module.code}_${className}`,
-				categoryid: categoryId,
-				semesterModuleId: selectedModule.semesterModuleId,
-			});
+			return unwrap(
+				await createMoodleCourse({
+					fullname: module.name,
+					shortname: `${activeTerm.code}_${module.code}_${className}`,
+					categoryid: categoryId,
+					semesterModuleId: selectedModule.semesterModuleId,
+				})
+			);
 		},
 		onSuccess: (data) => {
 			notifications.show({

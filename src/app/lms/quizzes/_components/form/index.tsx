@@ -29,6 +29,7 @@ import {
 	COURSE_WORK_OPTIONS,
 } from '@/app/academic/assessments/_lib/utils';
 import { getAssessmentByModuleId } from '@/app/academic/assessments/_server/actions';
+import { unwrap } from '@/shared/lib/actions/actionResult';
 import {
 	createDraftQuiz,
 	publishQuiz,
@@ -151,13 +152,15 @@ export default function QuizForm({ courseId, moduleId }: QuizFormProps) {
 				ASSESSMENT_TYPES.find((t) => t.value === form.values.assessmentType)
 					?.label || 'Quiz';
 
-			return createDraftQuiz({
-				courseId,
-				name: typeLabel,
-				startDateTime: form.values.startDateTime,
-				endDateTime: form.values.endDateTime,
-				attempts: form.values.attempts,
-			});
+			return unwrap(
+				await createDraftQuiz({
+					courseId,
+					name: typeLabel,
+					startDateTime: form.values.startDateTime,
+					endDateTime: form.values.endDateTime,
+					attempts: form.values.attempts,
+				})
+			);
 		},
 		onSuccess: (result) => {
 			setDraftQuizId(result.quizId);
@@ -182,16 +185,18 @@ export default function QuizForm({ courseId, moduleId }: QuizFormProps) {
 				ASSESSMENT_TYPES.find((t) => t.value === form.values.assessmentType)
 					?.label || 'Quiz';
 
-			await updateQuiz(draftQuizId, {
-				name: typeLabel,
-				timeopen: form.values.startDateTime
-					? Math.floor(form.values.startDateTime.getTime() / 1000)
-					: undefined,
-				timeclose: form.values.endDateTime
-					? Math.floor(form.values.endDateTime.getTime() / 1000)
-					: undefined,
-				attempts: form.values.attempts,
-			});
+			unwrap(
+				await updateQuiz(draftQuizId, {
+					name: typeLabel,
+					timeopen: form.values.startDateTime
+						? Math.floor(form.values.startDateTime.getTime() / 1000)
+						: undefined,
+					timeclose: form.values.endDateTime
+						? Math.floor(form.values.endDateTime.getTime() / 1000)
+						: undefined,
+					attempts: form.values.attempts,
+				})
+			);
 		},
 		onSuccess: () => {
 			setSaveState('saved');
@@ -241,7 +246,9 @@ export default function QuizForm({ courseId, moduleId }: QuizFormProps) {
 			page: number;
 		}) => {
 			if (!draftQuizId) throw new Error('No draft quiz');
-			return saveDraftQuizQuestion(courseId, draftQuizId, question, page);
+			return unwrap(
+				await saveDraftQuizQuestion(courseId, draftQuizId, question, page)
+			);
 		},
 		onSuccess: () => {
 			setSavedQuestionCount((c) => c + 1);

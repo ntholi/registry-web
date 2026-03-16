@@ -7,6 +7,7 @@ import {
 } from '@lms/_shared/utils';
 import { auth } from '@/core/auth';
 import { moodleGet, moodlePost } from '@/core/integrations/moodle';
+import { createAction } from '@/shared/lib/actions/actionResult';
 import type {
 	CreateFileParams,
 	CreatePageParams,
@@ -62,7 +63,7 @@ async function findOrCreateMaterialSection(courseId: number): Promise<number> {
 	});
 }
 
-export async function createPage(params: CreatePageParams) {
+export const createPage = createAction(async (params: CreatePageParams) => {
 	const lmsToken = await getLmsToken();
 
 	if (!params.name?.trim()) {
@@ -75,29 +76,20 @@ export async function createPage(params: CreatePageParams) {
 
 	const sectionNumber = await findOrCreateMaterialSection(params.courseid);
 
-	try {
-		const result = await moodlePost(
-			'local_activity_utils_create_page',
-			{
-				courseid: params.courseid,
-				name: params.name.trim(),
-				content: params.content.trim(),
-				section: sectionNumber,
-				visible: 1,
-			},
-			lmsToken
-		);
+	return moodlePost(
+		'local_activity_utils_create_page',
+		{
+			courseid: params.courseid,
+			name: params.name.trim(),
+			content: params.content.trim(),
+			section: sectionNumber,
+			visible: 1,
+		},
+		lmsToken
+	);
+});
 
-		return result;
-	} catch (error) {
-		console.error('Error creating page:', error);
-		throw new Error(
-			'Unable to create page. Please ensure the local_activity_utils plugin is installed and configured.'
-		);
-	}
-}
-
-export async function createFile(params: CreateFileParams) {
+export const createFile = createAction(async (params: CreateFileParams) => {
 	const lmsToken = await getLmsToken();
 
 	if (!params.name?.trim()) {
@@ -114,30 +106,21 @@ export async function createFile(params: CreateFileParams) {
 
 	const sectionNumber = await findOrCreateMaterialSection(params.courseid);
 
-	try {
-		const result = await moodlePost(
-			'local_activity_utils_create_file',
-			{
-				courseid: params.courseid,
-				name: params.name.trim(),
-				filename: params.filename.trim(),
-				filecontent: params.filecontent,
-				section: sectionNumber,
-				visible: 1,
-			},
-			lmsToken
-		);
+	return moodlePost(
+		'local_activity_utils_create_file',
+		{
+			courseid: params.courseid,
+			name: params.name.trim(),
+			filename: params.filename.trim(),
+			filecontent: params.filecontent,
+			section: sectionNumber,
+			visible: 1,
+		},
+		lmsToken
+	);
+});
 
-		return result;
-	} catch (error) {
-		console.error('Error creating file:', error);
-		throw new Error(
-			'Unable to create file. Please ensure the local_activity_utils plugin is installed and configured.'
-		);
-	}
-}
-
-export async function createUrl(params: CreateUrlParams) {
+export const createUrl = createAction(async (params: CreateUrlParams) => {
 	const lmsToken = await getLmsToken();
 
 	if (!params.name?.trim()) {
@@ -150,28 +133,19 @@ export async function createUrl(params: CreateUrlParams) {
 
 	const sectionNumber = await findOrCreateMaterialSection(params.courseid);
 
-	try {
-		const result = await moodlePost(
-			'local_activity_utils_create_url',
-			{
-				courseid: params.courseid,
-				name: params.name.trim(),
-				externalurl: params.externalurl.trim(),
-				intro: params.intro?.trim() || '',
-				section: sectionNumber,
-				visible: 1,
-			},
-			lmsToken
-		);
-
-		return result;
-	} catch (error) {
-		console.error('Error creating URL:', error);
-		throw new Error(
-			'Unable to create URL. Please ensure the local_activity_utils plugin is installed and configured.'
-		);
-	}
-}
+	return moodlePost(
+		'local_activity_utils_create_url',
+		{
+			courseid: params.courseid,
+			name: params.name.trim(),
+			externalurl: params.externalurl.trim(),
+			intro: params.intro?.trim() || '',
+			section: sectionNumber,
+			visible: 1,
+		},
+		lmsToken
+	);
+});
 
 export async function getMaterialSection(
 	courseId: number
@@ -272,19 +246,14 @@ async function getPageContent(
 	return page?.content || null;
 }
 
-export async function deleteMaterial(cmid: number) {
+export const deleteMaterial = createAction(async (cmid: number) => {
 	const lmsToken = await getLmsToken();
 
-	try {
-		await moodlePost(
-			'core_course_delete_modules',
-			{
-				'cmids[0]': cmid,
-			},
-			lmsToken
-		);
-	} catch (error) {
-		console.error('Error deleting material:', error);
-		throw new Error('Unable to delete material');
-	}
-}
+	await moodlePost(
+		'core_course_delete_modules',
+		{
+			'cmids[0]': cmid,
+		},
+		lmsToken
+	);
+});

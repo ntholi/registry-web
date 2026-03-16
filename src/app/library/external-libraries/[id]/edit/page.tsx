@@ -1,4 +1,5 @@
 import { notFound } from 'next/navigation';
+import { unwrap } from '@/shared/lib/actions/actionResult';
 import ExternalLibraryForm from '../../_components/Form';
 import type { ExternalLibraryInsert } from '../../_lib/types';
 import {
@@ -22,9 +23,7 @@ export default async function EditExternalLibraryPage({ params }: Props) {
 			defaultValues={library}
 			onSubmit={async (values: ExternalLibraryInsert) => {
 				'use server';
-				const updated = await updateExternalLibrary(id, values);
-				if (!updated) throw new Error('Failed to update');
-				return updated;
+				return unwrap(await updateExternalLibrary(id, values));
 			}}
 		/>
 	);

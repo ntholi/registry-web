@@ -12,6 +12,7 @@ import {
 import { IconCheck, IconMessageCircle, IconSend } from '@tabler/icons-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
+import { unwrap } from '@/shared/lib/actions/actionResult';
 import {
 	addQuizAttemptFeedback,
 	getQuizAttemptFeedback,
@@ -44,7 +45,7 @@ export default function QuizFeedbackPanel({ attemptId, quizId }: Props) {
 			if (!feedback.trim()) {
 				throw new Error('Feedback cannot be empty');
 			}
-			return addQuizAttemptFeedback(attemptId, feedback);
+			return unwrap(await addQuizAttemptFeedback(attemptId, feedback));
 		},
 		onSuccess: () => {
 			setShowSuccess(true);

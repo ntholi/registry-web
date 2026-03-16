@@ -14,6 +14,7 @@ import { IconPlus } from '@tabler/icons-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { zod4Resolver as zodResolver } from 'mantine-form-zod-resolver';
 import { z } from 'zod';
+import { unwrap } from '@/shared/lib/actions/actionResult';
 import RichTextField from '@/shared/ui/adease/RichTextField';
 import { createPost } from '../_server/actions';
 import type { PostType } from '../types';
@@ -44,14 +45,15 @@ export default function PostForm({ courseId }: PostFormProps) {
 	});
 
 	const mutation = useMutation({
-		mutationFn: async (values: FormValues) => {
-			return createPost({
-				courseId,
-				postType: values.postType as PostType,
-				subject: values.subject,
-				message: values.message,
-			});
-		},
+		mutationFn: async (values: FormValues) =>
+			unwrap(
+				await createPost({
+					courseId,
+					postType: values.postType as PostType,
+					subject: values.subject,
+					message: values.message,
+				})
+			),
 		onSuccess: () => {
 			notifications.show({
 				message: 'Post created successfully',

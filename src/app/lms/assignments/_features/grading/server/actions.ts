@@ -3,6 +3,7 @@
 import { getLmsCredentials } from '@auth/auth-providers/_server/repository';
 import { auth } from '@/core/auth';
 import { moodleGet, moodlePost } from '@/core/integrations/moodle';
+import { createAction } from '@/shared/lib/actions/actionResult';
 import type {
 	FillRubricParams,
 	FillRubricResult,
@@ -19,27 +20,29 @@ async function getLmsToken() {
 	return creds?.lmsToken ?? undefined;
 }
 
-export async function saveAssignmentGrade(
-	assignmentId: number,
-	userId: number,
-	grade: number
-): Promise<void> {
-	const lmsToken = await getLmsToken();
+export const saveAssignmentGrade = createAction(
+	async (
+		assignmentId: number,
+		userId: number,
+		grade: number
+	): Promise<void> => {
+		const lmsToken = await getLmsToken();
 
-	await moodlePost(
-		'mod_assign_save_grade',
-		{
-			assignmentid: assignmentId,
-			userid: userId,
-			grade,
-			attemptnumber: -1,
-			addattempt: 0,
-			workflowstate: '',
-			applytoall: 0,
-		},
-		lmsToken
-	);
-}
+		await moodlePost(
+			'mod_assign_save_grade',
+			{
+				assignmentid: assignmentId,
+				userid: userId,
+				grade,
+				attemptnumber: -1,
+				addattempt: 0,
+				workflowstate: '',
+				applytoall: 0,
+			},
+			lmsToken
+		);
+	}
+);
 
 export async function getAssignmentGrades(
 	assignmentId: number
@@ -91,42 +94,42 @@ export async function getRubricFillings(
 	}
 }
 
-export async function fillRubric(
-	params: FillRubricParams
-): Promise<FillRubricResult> {
-	const lmsToken = await getLmsToken();
+export const fillRubric = createAction(
+	async (params: FillRubricParams): Promise<FillRubricResult> => {
+		const lmsToken = await getLmsToken();
 
-	const requestParams: Record<string, string | number> = {
-		cmid: params.cmid,
-		userid: params.userid,
-	};
+		const requestParams: Record<string, string | number> = {
+			cmid: params.cmid,
+			userid: params.userid,
+		};
 
-	if (params.overallremark) {
-		requestParams.overallremark = params.overallremark;
+		if (params.overallremark) {
+			requestParams.overallremark = params.overallremark;
+		}
+
+		params.fillings.forEach((filling, index) => {
+			requestParams[`fillings[${index}][criterionid]`] = filling.criterionid;
+			if (filling.levelid !== undefined) {
+				requestParams[`fillings[${index}][levelid]`] = filling.levelid;
+			}
+			if (filling.score !== undefined) {
+				requestParams[`fillings[${index}][score]`] = filling.score;
+			}
+			if (filling.remark) {
+				requestParams[`fillings[${index}][remark]`] = filling.remark;
+			}
+		});
+
+		const result = await moodlePost(
+			'local_activity_utils_fill_rubric',
+			requestParams,
+			lmsToken
+		);
+
+		if (!result?.success) {
+			throw new Error(result?.message || 'Failed to save rubric grade');
+		}
+
+		return result as FillRubricResult;
 	}
-
-	params.fillings.forEach((filling, index) => {
-		requestParams[`fillings[${index}][criterionid]`] = filling.criterionid;
-		if (filling.levelid !== undefined) {
-			requestParams[`fillings[${index}][levelid]`] = filling.levelid;
-		}
-		if (filling.score !== undefined) {
-			requestParams[`fillings[${index}][score]`] = filling.score;
-		}
-		if (filling.remark) {
-			requestParams[`fillings[${index}][remark]`] = filling.remark;
-		}
-	});
-
-	const result = await moodlePost(
-		'local_activity_utils_fill_rubric',
-		requestParams,
-		lmsToken
-	);
-
-	if (!result?.success) {
-		throw new Error(result?.message || 'Failed to save rubric grade');
-	}
-
-	return result as FillRubricResult;
-}
+);

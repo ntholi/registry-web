@@ -8,6 +8,8 @@ import { getActiveTerm } from '@/app/registry/terms';
 import { auth } from '@/core/auth';
 import type { AssessmentNumber } from '@/core/database';
 import { moodleGet, moodlePost } from '@/core/integrations/moodle';
+import { createAction, unwrap } from '@/shared/lib/actions/actionResult';
+import { UserFacingError } from '@/shared/lib/actions/extractError';
 import type {
 	AddQuestionToQuizResponse,
 	CreateQuestionResponse,
@@ -237,149 +239,161 @@ type CreateDraftQuizInput = {
 	attempts: number;
 };
 
-export async function createDraftQuiz(input: CreateDraftQuizInput) {
-	const lmsToken = await getLmsToken();
+export const createDraftQuiz = createAction(
+	async (input: CreateDraftQuizInput) => {
+		const lmsToken = await getLmsToken();
 
-	if (!input.name?.trim()) {
-		throw new Error('Quiz name is required');
+		if (!input.name?.trim()) {
+			throw new Error('Quiz name is required');
+		}
+
+		const sectionNumber = await getOrReuseSection({
+			courseId: input.courseId,
+			sectionName: 'Tests & Quizzes',
+			summary: 'Course tests and quizzes',
+			matchFn: isTestsQuizzesSection,
+			lmsToken,
+		});
+
+		const quizParams: Record<string, string | number | boolean> = {
+			courseid: input.courseId,
+			name: input.name,
+			section: sectionNumber,
+			grade: 0,
+			questionsperpage: 1,
+			preferredbehaviour: 'deferredfeedback',
+			navmethod: 'free',
+			shuffleanswers: 1,
+			visible: 0,
+		};
+
+		const startDate = input.startDateTime
+			? new Date(input.startDateTime)
+			: null;
+		const endDate = input.endDateTime ? new Date(input.endDateTime) : null;
+
+		if (startDate) {
+			quizParams.timeopen = Math.floor(startDate.getTime() / 1000);
+		}
+		if (endDate) {
+			quizParams.timeclose = Math.floor(endDate.getTime() / 1000);
+		}
+		if (startDate && endDate) {
+			const timeLimitSeconds = Math.floor(
+				(endDate.getTime() - startDate.getTime()) / 1000
+			);
+			if (timeLimitSeconds > 0) {
+				quizParams.timelimit = timeLimitSeconds;
+			}
+		}
+		if (input.attempts && input.attempts > 0) {
+			quizParams.attempts = input.attempts;
+		} else {
+			quizParams.attempts = 0;
+		}
+
+		const quizResult = (await moodlePost(
+			'local_activity_utils_create_quiz',
+			quizParams,
+			lmsToken
+		)) as CreateQuizResponse;
+
+		if (!quizResult.id) {
+			throw new Error('Failed to create draft quiz');
+		}
+
+		return {
+			quizId: quizResult.id,
+			courseModuleId: quizResult.coursemoduleid,
+		};
 	}
+);
 
-	const sectionNumber = await getOrReuseSection({
-		courseId: input.courseId,
-		sectionName: 'Tests & Quizzes',
-		summary: 'Course tests and quizzes',
-		matchFn: isTestsQuizzesSection,
-		lmsToken,
-	});
+export const saveDraftQuizQuestion = createAction(
+	async (
+		courseId: number,
+		quizId: number,
+		question: Question,
+		page: number
+	) => {
+		const lmsToken = await getLmsToken();
 
-	const quizParams: Record<string, string | number | boolean> = {
-		courseid: input.courseId,
-		name: input.name,
-		section: sectionNumber,
-		grade: 0,
-		questionsperpage: 1,
-		preferredbehaviour: 'deferredfeedback',
-		navmethod: 'free',
-		shuffleanswers: 1,
-		visible: 0,
-	};
+		const categoryId = await getOrCreateQuestionCategory(courseId);
+		const questionResult = await createQuestionInMoodle(categoryId, question);
 
-	const startDate = input.startDateTime ? new Date(input.startDateTime) : null;
-	const endDate = input.endDateTime ? new Date(input.endDateTime) : null;
+		if (!questionResult.questionbankentryid) {
+			throw new Error(`Failed to create question: ${question.name}`);
+		}
 
-	if (startDate) {
-		quizParams.timeopen = Math.floor(startDate.getTime() / 1000);
+		const addResult = (await moodlePost(
+			'local_activity_utils_add_question_to_quiz',
+			{
+				quizid: quizId,
+				questionbankentryid: questionResult.questionbankentryid,
+				page,
+				maxmark: question.defaultMark,
+			},
+			lmsToken
+		)) as AddQuestionToQuizResponse;
+
+		if (!addResult.success) {
+			throw new Error(`Failed to add question to quiz: ${addResult.message}`);
+		}
+
+		return questionResult;
 	}
-	if (endDate) {
-		quizParams.timeclose = Math.floor(endDate.getTime() / 1000);
-	}
-	if (startDate && endDate) {
-		const timeLimitSeconds = Math.floor(
-			(endDate.getTime() - startDate.getTime()) / 1000
+);
+
+export const publishQuiz = createAction(
+	async (input: {
+		quizId: number;
+		courseId: number;
+		moduleId: number;
+		assessmentNumber: string;
+		weight: number;
+		totalMarks: number;
+	}) => {
+		await getLmsToken();
+
+		const term = await getActiveTerm();
+		if (!term) {
+			throw new Error('No active term found');
+		}
+
+		const quiz = await getQuiz(input.quizId);
+		if (!quiz) {
+			throw new Error('Quiz not found');
+		}
+
+		unwrap(
+			await updateQuiz(input.quizId, {
+				visible: true,
+				grade: input.totalMarks,
+			})
 		);
-		if (timeLimitSeconds > 0) {
-			quizParams.timelimit = timeLimitSeconds;
-		}
+
+		unwrap(
+			await createAcademicAssessment(
+				{
+					moduleId: input.moduleId,
+					assessmentNumber: input.assessmentNumber as AssessmentNumber,
+					assessmentType: quiz.name,
+					totalMarks: input.totalMarks,
+					weight: input.weight,
+					termId: term.id,
+				},
+				{
+					lmsId: input.quizId,
+					activityType: 'quiz',
+				}
+			)
+		);
+
+		return { success: true };
 	}
-	if (input.attempts && input.attempts > 0) {
-		quizParams.attempts = input.attempts;
-	} else {
-		quizParams.attempts = 0;
-	}
+);
 
-	const quizResult = (await moodlePost(
-		'local_activity_utils_create_quiz',
-		quizParams,
-		lmsToken
-	)) as CreateQuizResponse;
-
-	if (!quizResult.id) {
-		throw new Error('Failed to create draft quiz');
-	}
-
-	return {
-		quizId: quizResult.id,
-		courseModuleId: quizResult.coursemoduleid,
-	};
-}
-
-export async function saveDraftQuizQuestion(
-	courseId: number,
-	quizId: number,
-	question: Question,
-	page: number
-) {
-	const lmsToken = await getLmsToken();
-
-	const categoryId = await getOrCreateQuestionCategory(courseId);
-	const questionResult = await createQuestionInMoodle(categoryId, question);
-
-	if (!questionResult.questionbankentryid) {
-		throw new Error(`Failed to create question: ${question.name}`);
-	}
-
-	const addResult = (await moodlePost(
-		'local_activity_utils_add_question_to_quiz',
-		{
-			quizid: quizId,
-			questionbankentryid: questionResult.questionbankentryid,
-			page,
-			maxmark: question.defaultMark,
-		},
-		lmsToken
-	)) as AddQuestionToQuizResponse;
-
-	if (!addResult.success) {
-		throw new Error(`Failed to add question to quiz: ${addResult.message}`);
-	}
-
-	return questionResult;
-}
-
-export async function publishQuiz(input: {
-	quizId: number;
-	courseId: number;
-	moduleId: number;
-	assessmentNumber: string;
-	weight: number;
-	totalMarks: number;
-}) {
-	await getLmsToken();
-
-	const term = await getActiveTerm();
-	if (!term) {
-		throw new Error('No active term found');
-	}
-
-	const quiz = await getQuiz(input.quizId);
-	if (!quiz) {
-		throw new Error('Quiz not found');
-	}
-
-	await updateQuiz(input.quizId, {
-		visible: true,
-		grade: input.totalMarks,
-	});
-
-	await createAcademicAssessment(
-		{
-			moduleId: input.moduleId,
-			assessmentNumber: input.assessmentNumber as AssessmentNumber,
-			assessmentType: quiz.name,
-			totalMarks: input.totalMarks,
-			weight: input.weight,
-			termId: term.id,
-		},
-		{
-			lmsId: input.quizId,
-			activityType: 'quiz',
-		}
-	);
-
-	return { success: true };
-}
-
-export async function createQuiz(input: CreateQuizInput) {
+export const createQuiz = createAction(async (input: CreateQuizInput) => {
 	const lmsToken = await getLmsToken();
 
 	const term = await getActiveTerm();
@@ -487,7 +501,7 @@ export async function createQuiz(input: CreateQuizInput) {
 			}
 		}
 
-		await createAcademicAssessment(
+		const assessmentResult = await createAcademicAssessment(
 			{
 				moduleId: input.moduleId,
 				assessmentNumber: input.assessmentNumber as AssessmentNumber,
@@ -501,6 +515,17 @@ export async function createQuiz(input: CreateQuizInput) {
 				activityType: 'quiz',
 			}
 		);
+
+		if (!assessmentResult.success) {
+			await moodlePost(
+				'local_activity_utils_delete_quiz',
+				{
+					cmid: courseModuleId,
+				},
+				lmsToken
+			);
+			unwrap(assessmentResult);
+		}
 	} catch (error) {
 		await moodlePost(
 			'local_activity_utils_delete_quiz',
@@ -513,7 +538,7 @@ export async function createQuiz(input: CreateQuizInput) {
 	}
 
 	return { quizId, courseModuleId, totalMarks };
-}
+});
 
 export async function getCourseQuizzes(
 	courseId: number
@@ -580,7 +605,7 @@ export async function getQuiz(quizId: number): Promise<MoodleQuiz | null> {
 	}
 }
 
-export async function deleteQuiz(cmid: number): Promise<void> {
+export const deleteQuiz = createAction(async (cmid: number): Promise<void> => {
 	const lmsToken = await getLmsToken();
 
 	await moodlePost(
@@ -590,7 +615,7 @@ export async function deleteQuiz(cmid: number): Promise<void> {
 		},
 		lmsToken
 	);
-}
+});
 
 export async function getQuestionCategories(courseId: number) {
 	const lmsToken = await getLmsToken();
@@ -632,109 +657,127 @@ export async function getQuestionsInCategory(
 	return result;
 }
 
-export async function removeQuestionFromQuiz(
-	quizId: number,
-	slot: number
-): Promise<void> {
-	const lmsToken = await getLmsToken();
+export const removeQuestionFromQuiz = createAction(
+	async (quizId: number, slot: number): Promise<void> => {
+		const lmsToken = await getLmsToken();
 
-	await moodlePost(
-		'local_activity_utils_remove_question_from_quiz',
-		{
-			quizid: quizId,
-			slot,
-		},
-		lmsToken
-	);
-}
-
-export async function reorderQuizQuestions(
-	quizId: number,
-	slots: Array<{ slotid: number; newslot: number; page?: number }>
-): Promise<void> {
-	const lmsToken = await getLmsToken();
-
-	await moodlePost(
-		'local_activity_utils_reorder_quiz_questions',
-		{
-			quizid: quizId,
-			slots: JSON.stringify(slots),
-		},
-		lmsToken
-	);
-}
-
-export async function updateQuiz(
-	quizId: number,
-	params: {
-		name?: string;
-		intro?: string;
-		timeopen?: number;
-		timeclose?: number;
-		timelimit?: number;
-		attempts?: number;
-		grade?: number;
-		visible?: boolean;
+		await moodlePost(
+			'local_activity_utils_remove_question_from_quiz',
+			{
+				quizid: quizId,
+				slot,
+			},
+			lmsToken
+		);
 	}
-): Promise<void> {
-	const lmsToken = await getLmsToken();
+);
 
-	const updateParams: Record<string, string | number | boolean | undefined> = {
-		quizid: quizId,
-	};
+export const reorderQuizQuestions = createAction(
+	async (
+		quizId: number,
+		slots: Array<{ slotid: number; newslot: number; page?: number }>
+	): Promise<void> => {
+		const lmsToken = await getLmsToken();
 
-	if (params.name !== undefined) updateParams.name = params.name;
-	if (params.intro !== undefined) updateParams.intro = params.intro;
-	if (params.timeopen !== undefined) updateParams.timeopen = params.timeopen;
-	if (params.timeclose !== undefined) updateParams.timeclose = params.timeclose;
-	if (params.timelimit !== undefined) updateParams.timelimit = params.timelimit;
-	if (params.attempts !== undefined) updateParams.attempts = params.attempts;
-	if (params.grade !== undefined) updateParams.grade = params.grade;
-	if (params.visible !== undefined)
-		updateParams.visible = params.visible ? 1 : 0;
-
-	await moodlePost('local_activity_utils_update_quiz', updateParams, lmsToken);
-}
-
-export async function addExistingQuestionToQuiz(
-	quizId: number,
-	questionBankEntryId: number,
-	options?: {
-		page?: number;
-		maxMark?: number;
-		requirePrevious?: boolean;
+		await moodlePost(
+			'local_activity_utils_reorder_quiz_questions',
+			{
+				quizid: quizId,
+				slots: JSON.stringify(slots),
+			},
+			lmsToken
+		);
 	}
-): Promise<AddQuestionToQuizResponse> {
-	const lmsToken = await getLmsToken();
+);
 
-	const result = await moodlePost(
-		'local_activity_utils_add_question_to_quiz',
-		{
-			quizid: quizId,
-			questionbankentryid: questionBankEntryId,
-			page: options?.page || 0,
-			maxmark: options?.maxMark,
-			requireprevious: options?.requirePrevious ? 1 : 0,
-		},
-		lmsToken
-	);
+export const updateQuiz = createAction(
+	async (
+		quizId: number,
+		params: {
+			name?: string;
+			intro?: string;
+			timeopen?: number;
+			timeclose?: number;
+			timelimit?: number;
+			attempts?: number;
+			grade?: number;
+			visible?: boolean;
+		}
+	): Promise<void> => {
+		const lmsToken = await getLmsToken();
 
-	return result as AddQuestionToQuizResponse;
-}
+		const updateParams: Record<string, string | number | boolean | undefined> =
+			{
+				quizid: quizId,
+			};
 
-export async function deleteQuestion(
-	questionBankEntryId: number
-): Promise<void> {
-	const lmsToken = await getLmsToken();
+		if (params.name !== undefined) updateParams.name = params.name;
+		if (params.intro !== undefined) updateParams.intro = params.intro;
+		if (params.timeopen !== undefined) updateParams.timeopen = params.timeopen;
+		if (params.timeclose !== undefined)
+			updateParams.timeclose = params.timeclose;
+		if (params.timelimit !== undefined)
+			updateParams.timelimit = params.timelimit;
+		if (params.attempts !== undefined) updateParams.attempts = params.attempts;
+		if (params.grade !== undefined) updateParams.grade = params.grade;
+		if (params.visible !== undefined)
+			updateParams.visible = params.visible ? 1 : 0;
 
-	await moodlePost(
-		'local_activity_utils_delete_question',
-		{
-			questionbankentryid: questionBankEntryId,
-		},
-		lmsToken
-	);
-}
+		await moodlePost(
+			'local_activity_utils_update_quiz',
+			updateParams,
+			lmsToken
+		);
+	}
+);
+
+export const addExistingQuestionToQuiz = createAction(
+	async (
+		quizId: number,
+		questionBankEntryId: number,
+		options?: {
+			page?: number;
+			maxMark?: number;
+			requirePrevious?: boolean;
+		}
+	): Promise<AddQuestionToQuizResponse> => {
+		const lmsToken = await getLmsToken();
+
+		const result = (await moodlePost(
+			'local_activity_utils_add_question_to_quiz',
+			{
+				quizid: quizId,
+				questionbankentryid: questionBankEntryId,
+				page: options?.page || 0,
+				maxmark: options?.maxMark,
+				requireprevious: options?.requirePrevious ? 1 : 0,
+			},
+			lmsToken
+		)) as AddQuestionToQuizResponse;
+
+		if (!result.success) {
+			throw new UserFacingError(
+				result.message || 'Failed to add question to quiz'
+			);
+		}
+
+		return result;
+	}
+);
+
+export const deleteQuestion = createAction(
+	async (questionBankEntryId: number): Promise<void> => {
+		const lmsToken = await getLmsToken();
+
+		await moodlePost(
+			'local_activity_utils_delete_question',
+			{
+				questionbankentryid: questionBankEntryId,
+			},
+			lmsToken
+		);
+	}
+);
 
 async function enrichUsersWithDBStudentInfo(
 	users: Array<{
@@ -856,56 +899,72 @@ export async function getQuizAttemptDetails(
 	}
 }
 
-export async function gradeEssayQuestion(
-	attemptId: number,
-	slot: number,
-	mark: number,
-	comment?: string
-): Promise<{ success: boolean; message: string }> {
-	const lmsToken = await getLmsToken();
+export const gradeEssayQuestion = createAction(
+	async (
+		attemptId: number,
+		slot: number,
+		mark: number,
+		comment?: string
+	): Promise<{ success: true; message: string }> => {
+		const lmsToken = await getLmsToken();
 
-	const params: Record<string, number | string> = {
-		attemptid: attemptId,
-		slot,
-		mark,
-	};
-
-	if (comment) {
-		params.comment = comment;
-	}
-
-	const result = await moodlePost(
-		'local_activity_utils_grade_essay_question',
-		params,
-		lmsToken
-	);
-
-	return {
-		success: result?.success ?? false,
-		message: result?.message ?? 'Unknown error',
-	};
-}
-
-export async function addQuizAttemptFeedback(
-	attemptId: number,
-	feedback: string
-): Promise<{ success: boolean; message: string }> {
-	const lmsToken = await getLmsToken();
-
-	const result = await moodlePost(
-		'local_activity_utils_add_attempt_feedback',
-		{
+		const params: Record<string, number | string> = {
 			attemptid: attemptId,
-			feedback,
-		},
-		lmsToken
-	);
+			slot,
+			mark,
+		};
 
-	return {
-		success: result?.success ?? false,
-		message: result?.message ?? 'Unknown error',
-	};
-}
+		if (comment) {
+			params.comment = comment;
+		}
+
+		const result = await moodlePost(
+			'local_activity_utils_grade_essay_question',
+			params,
+			lmsToken
+		);
+
+		if (!result?.success) {
+			throw new UserFacingError(
+				result?.message || 'Failed to save essay question grade'
+			);
+		}
+
+		return {
+			success: true,
+			message: result?.message ?? 'Essay question graded successfully',
+		};
+	}
+);
+
+export const addQuizAttemptFeedback = createAction(
+	async (
+		attemptId: number,
+		feedback: string
+	): Promise<{ success: true; message: string }> => {
+		const lmsToken = await getLmsToken();
+
+		const result = await moodlePost(
+			'local_activity_utils_add_attempt_feedback',
+			{
+				attemptid: attemptId,
+				feedback,
+			},
+			lmsToken
+		);
+
+		if (!result?.success) {
+			throw new UserFacingError(
+				result?.message || 'Failed to save quiz attempt feedback'
+			);
+		}
+
+		return {
+			success: true,
+			message: result?.message ?? 'Feedback saved successfully',
+		};
+	}
+);
 
 export async function getQuizAttemptFeedback(
 	attemptId: number

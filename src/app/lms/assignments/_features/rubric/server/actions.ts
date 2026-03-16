@@ -3,6 +3,7 @@
 import { getLmsCredentials } from '@auth/auth-providers/_server/repository';
 import { auth } from '@/core/auth';
 import { moodleGet, moodlePost } from '@/core/integrations/moodle';
+import { createAction } from '@/shared/lib/actions/actionResult';
 import type {
 	CreateRubricParams,
 	Rubric,
@@ -70,7 +71,7 @@ function buildCriteriaParams(
 	return params;
 }
 
-export async function createRubric(params: CreateRubricParams) {
+export const createRubric = createAction(async (params: CreateRubricParams) => {
 	const lmsToken = await getLmsToken();
 
 	const requestParams: Record<string, string | number> = {
@@ -85,70 +86,63 @@ export async function createRubric(params: CreateRubricParams) {
 	const criteriaParams = buildCriteriaParams(params.criteria);
 	Object.assign(requestParams, criteriaParams);
 
-	const result = await moodlePost(
+	return moodlePost(
 		'local_activity_utils_create_rubric',
 		requestParams,
 		lmsToken
 	);
+});
 
-	return result;
-}
+export const updateRubric = createAction(
+	async (cmid: number, params: Partial<CreateRubricParams>) => {
+		const lmsToken = await getLmsToken();
 
-export async function updateRubric(
-	cmid: number,
-	params: Partial<CreateRubricParams>
-) {
+		const requestParams: Record<string, string | number> = { cmid };
+
+		if (params.name) {
+			requestParams.name = params.name;
+		}
+
+		if (params.description) {
+			requestParams.description = params.description;
+		}
+
+		if (params.criteria) {
+			const criteriaParams = buildCriteriaParams(params.criteria);
+			Object.assign(requestParams, criteriaParams);
+		}
+
+		return moodlePost(
+			'local_activity_utils_update_rubric',
+			requestParams,
+			lmsToken
+		);
+	}
+);
+
+export const deleteRubric = createAction(async (cmid: number) => {
 	const lmsToken = await getLmsToken();
 
-	const requestParams: Record<string, string | number> = { cmid };
-
-	if (params.name) {
-		requestParams.name = params.name;
-	}
-
-	if (params.description) {
-		requestParams.description = params.description;
-	}
-
-	if (params.criteria) {
-		const criteriaParams = buildCriteriaParams(params.criteria);
-		Object.assign(requestParams, criteriaParams);
-	}
-
-	const result = await moodlePost(
-		'local_activity_utils_update_rubric',
-		requestParams,
-		lmsToken
-	);
-
-	return result;
-}
-
-export async function deleteRubric(cmid: number) {
-	const lmsToken = await getLmsToken();
-
-	const result = await moodlePost(
+	return moodlePost(
 		'local_activity_utils_delete_rubric',
 		{
 			cmid,
 		},
 		lmsToken
 	);
+});
 
-	return result;
-}
+export const copyRubric = createAction(
+	async (sourceCmid: number, targetCmid: number) => {
+		const lmsToken = await getLmsToken();
 
-export async function copyRubric(sourceCmid: number, targetCmid: number) {
-	const lmsToken = await getLmsToken();
-
-	const result = await moodlePost(
-		'local_activity_utils_copy_rubric',
-		{
-			sourcecmid: sourceCmid,
-			targetcmid: targetCmid,
-		},
-		lmsToken
-	);
-
-	return result;
-}
+		return moodlePost(
+			'local_activity_utils_copy_rubric',
+			{
+				sourcecmid: sourceCmid,
+				targetcmid: targetCmid,
+			},
+			lmsToken
+		);
+	}
+);

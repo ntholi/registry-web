@@ -4,6 +4,7 @@ import { eq } from 'drizzle-orm';
 import { nanoid } from 'nanoid';
 import { auth } from '@/core/auth';
 import { db, fines, loans, paymentReceipts } from '@/core/database';
+import { createAction } from '@/shared/lib/actions/actionResult';
 import { calculateFine } from '../_lib/calculations';
 import type { FineStatus } from '../_lib/types';
 import { finesService } from './service';
@@ -24,7 +25,7 @@ export async function getUnpaidFines() {
 	return finesService.findByStatus('Unpaid');
 }
 
-export async function createFineForLoan(loanId: string) {
+export const createFineForLoan = createAction(async (loanId: string) => {
 	const loan = await db.query.loans.findFirst({
 		where: eq(loans.id, loanId),
 	});
@@ -37,9 +38,9 @@ export async function createFineForLoan(loanId: string) {
 	if (amount <= 0) return null;
 
 	return finesService.createFine(loanId, loan.stdNo, amount, daysOverdue);
-}
+});
 
-export async function payFine(id: string) {
+export const payFine = createAction(async (id: string) => {
 	const session = await auth();
 	if (!session?.user?.id) throw new Error('Unauthorized');
 
@@ -72,7 +73,7 @@ export async function payFine(id: string) {
 
 		return { fine: updated, receipt };
 	});
-}
+});
 
 export async function getTotalUnpaidByStudent(stdNo: number) {
 	return finesService.getTotalUnpaidByStudent(stdNo);

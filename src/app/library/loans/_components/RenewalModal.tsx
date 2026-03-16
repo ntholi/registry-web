@@ -8,6 +8,7 @@ import { IconRefresh } from '@tabler/icons-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'nextjs-toploader/app';
 import { useState } from 'react';
+import { unwrap } from '@/shared/lib/actions/actionResult';
 import { formatDate } from '@/shared/lib/utils/dates';
 import type { LoanWithRelations } from '../_lib/types';
 import { renewLoan } from '../_server/actions';
@@ -28,9 +29,9 @@ export default function RenewalModal({ loan }: Props) {
 	const [newDueDate, setNewDueDate] = useState<string | null>(null);
 
 	const mutation = useMutation({
-		mutationFn: () => {
+		mutationFn: async () => {
 			if (!newDueDate) throw new Error('Please select a new due date');
-			return renewLoan(loan.id, new Date(newDueDate));
+			return unwrap(await renewLoan(loan.id, new Date(newDueDate)));
 		},
 		onSuccess: async () => {
 			await queryClient.invalidateQueries({ queryKey: ['loans'] });

@@ -1,5 +1,6 @@
 import { Box } from '@mantine/core';
 import { notFound } from 'next/navigation';
+import { unwrap } from '@/shared/lib/actions/actionResult';
 import Form from '../../_components/Form';
 import { getVenueWithRelations, updateVenue } from '../../_server/actions';
 
@@ -30,9 +31,9 @@ export default async function VenueEdit({ params }: Props) {
 				onSubmit={async (value) => {
 					'use server';
 					const { schoolIds, ...venueData } = value;
-					const updated = await updateVenue(id, venueData, schoolIds);
+					const updated = unwrap(await updateVenue(id, venueData, schoolIds));
 					if (!updated) {
-						throw new Error('Failed to update venue');
+						throw new Error('Venue not found');
 					}
 					return updated;
 				}}

@@ -5,6 +5,7 @@ import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import { IconCash } from '@tabler/icons-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { unwrap } from '@/shared/lib/actions/actionResult';
 import { formatCurrency } from '@/shared/lib/utils/utils';
 import type { FineWithRelations } from '../_lib/types';
 import { payFine } from '../_server/actions';
@@ -18,7 +19,7 @@ export default function PaymentModal({ fine }: Props) {
 	const queryClient = useQueryClient();
 
 	const mutation = useMutation({
-		mutationFn: () => payFine(fine.id),
+		mutationFn: async () => unwrap(await payFine(fine.id)),
 		onSuccess: async () => {
 			await queryClient.invalidateQueries({ queryKey: ['fines'] });
 			notifications.show({

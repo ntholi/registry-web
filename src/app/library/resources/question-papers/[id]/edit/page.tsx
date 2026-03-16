@@ -1,5 +1,6 @@
 import { Box } from '@mantine/core';
 import { notFound } from 'next/navigation';
+import { unwrap } from '@/shared/lib/actions/actionResult';
 import QuestionPaperForm from '../../_components/Form';
 import { getQuestionPaper, updateQuestionPaper } from '../../_server/actions';
 
@@ -16,7 +17,10 @@ export default async function EditQuestionPaperPage({ params }: Props) {
 	return (
 		<Box p={'pg'}>
 			<QuestionPaperForm
-				onSubmit={(data) => updateQuestionPaper(questionPaper.id, data)}
+				onSubmit={async (data) => {
+					'use server';
+					return unwrap(await updateQuestionPaper(questionPaper.id, data));
+				}}
 				defaultValues={questionPaper}
 				title='Edit Question Paper'
 			/>

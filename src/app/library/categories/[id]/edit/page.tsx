@@ -1,5 +1,6 @@
 import { Box } from '@mantine/core';
 import { notFound } from 'next/navigation';
+import { unwrap } from '@/shared/lib/actions/actionResult';
 import Form from '../../_components/Form';
 import { getCategory, updateCategory } from '../../_server/actions';
 
@@ -21,7 +22,7 @@ export default async function CategoryEdit({ params }: Props) {
 				defaultValues={item}
 				onSubmit={async (value) => {
 					'use server';
-					return await updateCategory(id, value);
+					return unwrap(await updateCategory(id, value));
 				}}
 			/>
 		</Box>

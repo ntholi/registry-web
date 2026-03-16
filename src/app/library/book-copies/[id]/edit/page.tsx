@@ -1,5 +1,6 @@
 import { Box } from '@mantine/core';
 import { notFound } from 'next/navigation';
+import { unwrap } from '@/shared/lib/actions/actionResult';
 import Form from '../../_components/Form';
 import { getBookCopy, updateBookCopy } from '../../_server/actions';
 
@@ -22,7 +23,7 @@ export default async function EditBookCopyPage({ params }: Props) {
 				returnPath={`/library/book-copies/${id}`}
 				onSubmit={async (value) => {
 					'use server';
-					return updateBookCopy(id, value);
+					return unwrap(await updateBookCopy(id, value));
 				}}
 			/>
 		</Box>

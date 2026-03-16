@@ -4,6 +4,7 @@ import { linkCourseToAssignment } from '@academic/assigned-modules';
 import { getLmsCredentials } from '@auth/auth-providers/_server/repository';
 import { auth } from '@/core/auth';
 import { moodleGet, moodlePost } from '@/core/integrations/moodle';
+import { createAction, unwrap } from '@/shared/lib/actions/actionResult';
 import type { MoodleCourse } from '../types';
 
 export async function getUserCourses(): Promise<MoodleCourse[]> {
@@ -36,67 +37,71 @@ export type CreateMoodleCourseParams = {
 	semesterModuleId: number;
 };
 
-export async function createMoodleCourse(params: CreateMoodleCourseParams) {
-	const session = await auth();
-	if (!session?.user?.id) {
-		throw new Error('Unauthorized');
-	}
-	const creds = await getLmsCredentials(session.user.id);
-	if (!creds?.lmsUserId) {
-		throw new Error('Moodle account is not linked');
-	}
+export const createMoodleCourse = createAction(
+	async (params: CreateMoodleCourseParams) => {
+		const session = await auth();
+		if (!session?.user?.id) {
+			throw new Error('Unauthorized');
+		}
+		const creds = await getLmsCredentials(session.user.id);
+		if (!creds?.lmsUserId) {
+			throw new Error('Moodle account is not linked');
+		}
 
-	const { fullname, shortname, categoryid, semesterModuleId } = params;
+		const { fullname, shortname, categoryid, semesterModuleId } = params;
 
-	let courseId: string;
+		let courseId: string;
 
-	const existingCourse = await moodleGet(
-		'core_course_get_courses_by_field',
-		{
-			field: 'shortname',
-			value: shortname,
-		},
-		creds?.lmsToken ?? undefined
-	);
-
-	if (
-		existingCourse &&
-		Array.isArray(existingCourse.courses) &&
-		existingCourse.courses.length > 0
-	) {
-		courseId = String(existingCourse.courses[0].id);
-	} else {
-		const result = await moodlePost(
-			'core_course_create_courses',
+		const existingCourse = await moodleGet(
+			'core_course_get_courses_by_field',
 			{
-				'courses[0][fullname]': fullname,
-				'courses[0][shortname]': shortname,
-				'courses[0][categoryid]': categoryid,
+				field: 'shortname',
+				value: shortname,
+			},
+			creds?.lmsToken ?? undefined
+		);
+
+		if (
+			existingCourse &&
+			Array.isArray(existingCourse.courses) &&
+			existingCourse.courses.length > 0
+		) {
+			courseId = String(existingCourse.courses[0].id);
+		} else {
+			const result = await moodlePost(
+				'core_course_create_courses',
+				{
+					'courses[0][fullname]': fullname,
+					'courses[0][shortname]': shortname,
+					'courses[0][categoryid]': categoryid,
+				},
+				process.env.MOODLE_TOKEN
+			);
+
+			if (!result || !Array.isArray(result) || result.length === 0) {
+				throw new Error('Failed to create course in Moodle');
+			}
+
+			courseId = String(result[0].id);
+		}
+
+		await moodlePost(
+			'enrol_manual_enrol_users',
+			{
+				'enrolments[0][roleid]': 3,
+				'enrolments[0][userid]': creds.lmsUserId,
+				'enrolments[0][courseid]': Number(courseId),
 			},
 			process.env.MOODLE_TOKEN
 		);
 
-		if (!result || !Array.isArray(result) || result.length === 0) {
-			throw new Error('Failed to create course in Moodle');
-		}
+		unwrap(
+			await linkCourseToAssignment(session.user.id, semesterModuleId, courseId)
+		);
 
-		courseId = String(result[0].id);
+		return { courseId, shortname };
 	}
-
-	await moodlePost(
-		'enrol_manual_enrol_users',
-		{
-			'enrolments[0][roleid]': 3,
-			'enrolments[0][userid]': creds.lmsUserId,
-			'enrolments[0][courseid]': Number(courseId),
-		},
-		process.env.MOODLE_TOKEN
-	);
-
-	await linkCourseToAssignment(session.user.id, semesterModuleId, courseId);
-
-	return { courseId, shortname };
-}
+);
 
 export async function getMoodleCategories() {
 	const session = await auth();

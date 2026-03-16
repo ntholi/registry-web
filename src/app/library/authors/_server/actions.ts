@@ -2,6 +2,7 @@
 
 import { sql } from 'drizzle-orm';
 import { authors, db } from '@/core/database';
+import { createAction } from '@/shared/lib/actions/actionResult';
 import { authorsService } from './service';
 
 type Author = typeof authors.$inferInsert;
@@ -52,14 +53,14 @@ export async function getAllAuthors() {
 	return result.items;
 }
 
-export async function createAuthor(data: Author) {
-	return authorsService.create(data);
-}
+export const createAuthor = createAction(async (data: Author) =>
+	authorsService.create(data)
+);
 
-export async function updateAuthor(id: string, data: Author) {
-	return authorsService.update(id, data);
-}
+export const updateAuthor = createAction(async (id: string, data: Author) =>
+	authorsService.update(id, data)
+);
 
-export async function deleteAuthor(id: string) {
-	return authorsService.delete(id);
-}
+export const deleteAuthor = createAction(async (id: string) =>
+	authorsService.delete(id)
+);

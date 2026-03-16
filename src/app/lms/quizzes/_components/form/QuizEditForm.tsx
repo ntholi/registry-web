@@ -35,6 +35,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { useQueryState } from 'nuqs';
 import { useState } from 'react';
+import { unwrap } from '@/shared/lib/actions/actionResult';
 import { removeQuestionFromQuiz, updateQuiz } from '../../_server/actions';
 import type { MoodleQuiz, MoodleQuizQuestion, Question } from '../../types';
 import QuestionCard, { createDefaultQuestion } from './QuestionCard';
@@ -185,26 +186,28 @@ export default function QuizEditForm({ quiz, courseId }: QuizEditFormProps) {
 
 	const updateMutation = useMutation({
 		mutationFn: async (values: EditFormValues) => {
-			await updateQuiz(quiz.id, {
-				name: values.name,
-				intro: values.intro,
-				timeopen: values.timeopen
-					? Math.floor(values.timeopen.getTime() / 1000)
-					: undefined,
-				timeclose: values.timeclose
-					? Math.floor(values.timeclose.getTime() / 1000)
-					: undefined,
-				timelimit:
-					values.timelimit && values.timelimit > 0
-						? values.timelimit * 60
+			unwrap(
+				await updateQuiz(quiz.id, {
+					name: values.name,
+					intro: values.intro,
+					timeopen: values.timeopen
+						? Math.floor(values.timeopen.getTime() / 1000)
 						: undefined,
-				attempts: values.attempts,
-				grade: values.grade || totalMarks,
-				visible: values.visible,
-			});
+					timeclose: values.timeclose
+						? Math.floor(values.timeclose.getTime() / 1000)
+						: undefined,
+					timelimit:
+						values.timelimit && values.timelimit > 0
+							? values.timelimit * 60
+							: undefined,
+					attempts: values.attempts,
+					grade: values.grade || totalMarks,
+					visible: values.visible,
+				})
+			);
 
 			for (const slot of questionsToRemove) {
-				await removeQuestionFromQuiz(quiz.id, slot);
+				unwrap(await removeQuestionFromQuiz(quiz.id, slot));
 			}
 
 			return { success: true };

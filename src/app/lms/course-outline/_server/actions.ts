@@ -4,6 +4,7 @@ import { getLmsCredentials } from '@auth/auth-providers/_server/repository';
 import { getCourseSections, getOrReuseSection } from '@lms/_shared/utils';
 import { auth } from '@/core/auth';
 import { moodlePost } from '@/core/integrations/moodle';
+import { createAction } from '@/shared/lib/actions/actionResult';
 import type {
 	CourseOutlineBook,
 	CourseSection,
@@ -164,97 +165,97 @@ export async function getCourseOutline(courseId: number): Promise<{
 	};
 }
 
-export async function createSection(
-	params: CreateSectionParams
-): Promise<MoodleChapterResponse> {
-	const lmsToken = await getLmsToken();
+export const createSection = createAction(
+	async (params: CreateSectionParams): Promise<MoodleChapterResponse> => {
+		const lmsToken = await getLmsToken();
 
-	const { courseId, title, content, sectionNumber } = params;
+		const { courseId, title, content, sectionNumber } = params;
 
-	let existingBook = await findCourseOutlineBook(courseId);
+		let existingBook = await findCourseOutlineBook(courseId);
 
-	if (!existingBook) {
-		const newBook = await createCourseOutlineBook(courseId);
-		existingBook = {
-			bookId: newBook.id,
-			courseModuleId: newBook.coursemoduleid,
-		};
-	}
+		if (!existingBook) {
+			const newBook = await createCourseOutlineBook(courseId);
+			existingBook = {
+				bookId: newBook.id,
+				courseModuleId: newBook.coursemoduleid,
+			};
+		}
 
-	const result = await moodlePost(
-		'local_activity_utils_add_book_chapter',
-		{
-			bookid: existingBook.bookId,
-			title,
-			content,
-			subchapter: 0,
-			hidden: 0,
-			pagenum: sectionNumber,
-		},
-		lmsToken
-	);
-
-	return result as MoodleChapterResponse;
-}
-
-export async function createTopic(
-	params: CreateTopicParams
-): Promise<MoodleChapterResponse> {
-	const lmsToken = await getLmsToken();
-
-	const { courseId, weekNumber, title, description } = params;
-
-	let existingBook = await findCourseOutlineBook(courseId);
-
-	if (!existingBook) {
-		const newBook = await createCourseOutlineBook(courseId);
-		existingBook = {
-			bookId: newBook.id,
-			courseModuleId: newBook.coursemoduleid,
-		};
-	}
-
-	const bookDetails = (await moodlePost(
-		'local_activity_utils_get_book',
-		{
-			bookid: existingBook.bookId,
-		},
-		lmsToken
-	)) as CourseOutlineBook;
-
-	const topicsChapter = bookDetails.chapters.find(
-		(ch) => ch.title === TOPICS_CHAPTER_TITLE && ch.subchapter === 0
-	);
-
-	if (!topicsChapter) {
-		await moodlePost(
+		const result = await moodlePost(
 			'local_activity_utils_add_book_chapter',
 			{
 				bookid: existingBook.bookId,
-				title: TOPICS_CHAPTER_TITLE,
-				content:
-					'<p>This section contains the weekly topics covered in this course.</p>',
+				title,
+				content,
 				subchapter: 0,
+				hidden: 0,
+				pagenum: sectionNumber,
+			},
+			lmsToken
+		);
+
+		return result as MoodleChapterResponse;
+	}
+);
+
+export const createTopic = createAction(
+	async (params: CreateTopicParams): Promise<MoodleChapterResponse> => {
+		const lmsToken = await getLmsToken();
+
+		const { courseId, weekNumber, title, description } = params;
+
+		let existingBook = await findCourseOutlineBook(courseId);
+
+		if (!existingBook) {
+			const newBook = await createCourseOutlineBook(courseId);
+			existingBook = {
+				bookId: newBook.id,
+				courseModuleId: newBook.coursemoduleid,
+			};
+		}
+
+		const bookDetails = (await moodlePost(
+			'local_activity_utils_get_book',
+			{
+				bookid: existingBook.bookId,
+			},
+			lmsToken
+		)) as CourseOutlineBook;
+
+		const topicsChapter = bookDetails.chapters.find(
+			(ch) => ch.title === TOPICS_CHAPTER_TITLE && ch.subchapter === 0
+		);
+
+		if (!topicsChapter) {
+			await moodlePost(
+				'local_activity_utils_add_book_chapter',
+				{
+					bookid: existingBook.bookId,
+					title: TOPICS_CHAPTER_TITLE,
+					content:
+						'<p>This section contains the weekly topics covered in this course.</p>',
+					subchapter: 0,
+					hidden: 0,
+					pagenum: 0,
+				},
+				lmsToken
+			);
+		}
+
+		const topicTitle = `Week ${weekNumber}: ${title}`;
+		const result = await moodlePost(
+			'local_activity_utils_add_book_chapter',
+			{
+				bookid: existingBook.bookId,
+				title: topicTitle,
+				content: description,
+				subchapter: 1,
 				hidden: 0,
 				pagenum: 0,
 			},
 			lmsToken
 		);
+
+		return result as MoodleChapterResponse;
 	}
-
-	const topicTitle = `Week ${weekNumber}: ${title}`;
-	const result = await moodlePost(
-		'local_activity_utils_add_book_chapter',
-		{
-			bookid: existingBook.bookId,
-			title: topicTitle,
-			content: description,
-			subchapter: 1,
-			hidden: 0,
-			pagenum: 0,
-		},
-		lmsToken
-	);
-
-	return result as MoodleChapterResponse;
-}
+);

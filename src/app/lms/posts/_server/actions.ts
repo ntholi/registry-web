@@ -3,6 +3,7 @@
 import { getLmsCredentials } from '@auth/auth-providers/_server/repository';
 import { auth } from '@/core/auth';
 import { moodleGet, moodlePost } from '@/core/integrations/moodle';
+import { createAction } from '@/shared/lib/actions/actionResult';
 import type {
 	CreatePostParams,
 	MoodleDiscussion,
@@ -132,7 +133,7 @@ async function getForumForPostType(
 	);
 }
 
-export async function createPost(params: CreatePostParams) {
+export const createPost = createAction(async (params: CreatePostParams) => {
 	const lmsToken = await getLmsToken();
 
 	if (!params.subject?.trim()) {
@@ -160,7 +161,7 @@ export async function createPost(params: CreatePostParams) {
 	);
 
 	return result;
-}
+});
 
 export async function getAnnouncementsForum(
 	courseId: number
@@ -249,19 +250,14 @@ export async function getDiscussionPosts(
 	})) as MoodlePost[];
 }
 
-export async function deletePost(discussionId: number) {
+export const deletePost = createAction(async (discussionId: number) => {
 	const lmsToken = await getLmsToken();
 
-	try {
-		await moodlePost(
-			'mod_forum_delete_discussion',
-			{
-				discussionid: discussionId,
-			},
-			lmsToken
-		);
-	} catch (error) {
-		console.error('Error deleting post:', error);
-		throw new Error('Unable to delete post');
-	}
-}
+	await moodlePost(
+		'mod_forum_delete_discussion',
+		{
+			discussionid: discussionId,
+		},
+		lmsToken
+	);
+});

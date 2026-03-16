@@ -111,6 +111,13 @@ export function extractError(error: unknown): AppError {
 		};
 	}
 
+	if (error instanceof Error && error.name === 'TimetablePlanningError') {
+		return {
+			message: error.message,
+			code: 'TIMETABLE_PLANNING_ERROR',
+		};
+	}
+
 	if (isPostgresError(error)) {
 		const pgError = mapPostgresError(error);
 		if (pgError) {

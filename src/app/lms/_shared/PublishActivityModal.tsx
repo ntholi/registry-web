@@ -8,6 +8,8 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useRef } from 'react';
 import { COURSE_WORK_OPTIONS } from '@/app/academic/assessments/_lib/utils';
 import { getAssessmentByModuleId } from '@/app/academic/assessments/_server/actions';
+import type { ActionResult } from '@/shared/lib/actions/actionResult';
+import { unwrap } from '@/shared/lib/actions/actionResult';
 
 type FormValues = {
 	assessmentNumber: string;
@@ -21,7 +23,7 @@ type Props = {
 	defaultTotalMarks: number;
 	opened: boolean;
 	onClose: () => void;
-	publishFn: (values: FormValues) => Promise<{ success: boolean }>;
+	publishFn: (values: FormValues) => Promise<ActionResult<unknown>>;
 	invalidateKeys: string[][];
 };
 
@@ -77,7 +79,7 @@ export default function PublishActivityModal({
 	}, [assessments]);
 
 	const mutation = useMutation({
-		mutationFn: () => publishFn(form.values),
+		mutationFn: async () => unwrap(await publishFn(form.values)),
 		onSuccess: () => {
 			notifications.show({ message: `${title} successful`, color: 'green' });
 			for (const key of invalidateKeys) {

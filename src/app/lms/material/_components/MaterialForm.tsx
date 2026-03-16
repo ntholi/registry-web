@@ -18,6 +18,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { zod4Resolver as zodResolver } from 'mantine-form-zod-resolver';
 import { useState } from 'react';
 import { z } from 'zod';
+import { unwrap } from '@/shared/lib/actions/actionResult';
 import RichTextField from '@/shared/ui/adease/RichTextField';
 import { createFile, createPage, createUrl } from '../_server/actions';
 import type { MaterialType } from '../types';
@@ -95,11 +96,13 @@ export default function MaterialForm({ courseId }: MaterialFormProps) {
 
 	const pageMutation = useMutation({
 		mutationFn: async (values: PageFormValues) => {
-			return createPage({
-				courseid: courseId,
-				name: values.name,
-				content: values.content,
-			});
+			return unwrap(
+				await createPage({
+					courseid: courseId,
+					name: values.name,
+					content: values.content,
+				})
+			);
 		},
 		onSuccess: () => {
 			notifications.show({
@@ -123,12 +126,14 @@ export default function MaterialForm({ courseId }: MaterialFormProps) {
 	const fileMutation = useMutation({
 		mutationFn: async (values: FileFormValues) => {
 			const base64Content = await fileToBase64(values.file);
-			return createFile({
-				courseid: courseId,
-				name: values.name,
-				filename: values.file.name,
-				filecontent: base64Content,
-			});
+			return unwrap(
+				await createFile({
+					courseid: courseId,
+					name: values.name,
+					filename: values.file.name,
+					filecontent: base64Content,
+				})
+			);
 		},
 		onSuccess: () => {
 			notifications.show({
@@ -151,11 +156,13 @@ export default function MaterialForm({ courseId }: MaterialFormProps) {
 
 	const urlMutation = useMutation({
 		mutationFn: async (values: UrlFormValues) => {
-			return createUrl({
-				courseid: courseId,
-				name: values.name,
-				externalurl: values.externalurl,
-			});
+			return unwrap(
+				await createUrl({
+					courseid: courseId,
+					name: values.name,
+					externalurl: values.externalurl,
+				})
+			);
 		},
 		onSuccess: () => {
 			notifications.show({

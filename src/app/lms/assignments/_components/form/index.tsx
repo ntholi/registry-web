@@ -23,6 +23,7 @@ import {
 	COURSE_WORK_OPTIONS,
 } from '@/app/academic/assessments/_lib/utils';
 import { getAssessmentByModuleId } from '@/app/academic/assessments/_server/actions';
+import { unwrap } from '@/shared/lib/actions/actionResult';
 import {
 	createDraftAssignment,
 	publishAssignment,
@@ -163,17 +164,19 @@ export default function AssignmentForm({
 				ASSESSMENT_TYPES.find((t) => t.value === form.values.assessmentType)
 					?.label || '';
 
-			return createDraftAssignment({
-				courseid: courseId,
-				name: typeLabel,
-				intro: form.values.description,
-				allowsubmissionsfromdate: form.values.availableFrom
-					? Math.floor(new Date(form.values.availableFrom).getTime() / 1000)
-					: 0,
-				duedate: Math.floor(new Date(form.values.dueDate).getTime() / 1000),
-				activityinstructions: form.values.instructions,
-				grademax: form.values.totalMarks,
-			});
+			return unwrap(
+				await createDraftAssignment({
+					courseid: courseId,
+					name: typeLabel,
+					intro: form.values.description,
+					allowsubmissionsfromdate: form.values.availableFrom
+						? Math.floor(new Date(form.values.availableFrom).getTime() / 1000)
+						: 0,
+					duedate: Math.floor(new Date(form.values.dueDate).getTime() / 1000),
+					activityinstructions: form.values.instructions,
+					grademax: form.values.totalMarks,
+				})
+			);
 		},
 		onSuccess: (result) => {
 			setDraftId(result.assignmentId);
@@ -199,18 +202,20 @@ export default function AssignmentForm({
 				ASSESSMENT_TYPES.find((t) => t.value === form.values.assessmentType)
 					?.label || '';
 
-			await updateAssignment(draftId, {
-				name: typeLabel,
-				intro: form.values.description,
-				activity: form.values.instructions,
-				allowsubmissionsfromdate: form.values.availableFrom
-					? Math.floor(new Date(form.values.availableFrom).getTime() / 1000)
-					: 0,
-				duedate: form.values.dueDate
-					? Math.floor(new Date(form.values.dueDate).getTime() / 1000)
-					: undefined,
-				grademax: form.values.totalMarks,
-			});
+			unwrap(
+				await updateAssignment(draftId, {
+					name: typeLabel,
+					intro: form.values.description,
+					activity: form.values.instructions,
+					allowsubmissionsfromdate: form.values.availableFrom
+						? Math.floor(new Date(form.values.availableFrom).getTime() / 1000)
+						: 0,
+					duedate: form.values.dueDate
+						? Math.floor(new Date(form.values.dueDate).getTime() / 1000)
+						: undefined,
+					grademax: form.values.totalMarks,
+				})
+			);
 		},
 		onSuccess: () => {
 			setSaveState('saved');
@@ -254,14 +259,16 @@ export default function AssignmentForm({
 	const publishMutation = useMutation({
 		mutationFn: async () => {
 			if (!draftId) throw new Error('No draft assignment to publish');
-			return publishAssignment({
-				assignmentId: draftId,
-				courseId,
-				moduleId,
-				assessmentNumber: form.values.assessmentNumber,
-				weight: form.values.weight,
-				totalMarks: form.values.totalMarks,
-			});
+			return unwrap(
+				await publishAssignment({
+					assignmentId: draftId,
+					courseId,
+					moduleId,
+					assessmentNumber: form.values.assessmentNumber,
+					weight: form.values.weight,
+					totalMarks: form.values.totalMarks,
+				})
+			);
 		},
 		onSuccess: () => {
 			notifications.show({ message: 'Assignment published', color: 'green' });

@@ -16,6 +16,7 @@ import { notifications } from '@mantine/notifications';
 import { IconListCheck, IconMessageCircle } from '@tabler/icons-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
+import { unwrap } from '@/shared/lib/actions/actionResult';
 import type { FillRubricFilling } from '../../../types';
 import { getRubric } from '../../rubric/server/actions';
 import { CommentsView } from '../../submissions/components';
@@ -89,11 +90,13 @@ export default function GradingPanel({
 	const rubricMutation = useMutation({
 		mutationFn: async (fillings: FillRubricFilling[]) => {
 			if (!cmid) throw new Error('No cmid provided');
-			return fillRubric({
-				cmid,
-				userid: userId,
-				fillings,
-			});
+			return unwrap(
+				await fillRubric({
+					cmid,
+					userid: userId,
+					fillings,
+				})
+			);
 		},
 		onSuccess: (result) => {
 			setRubricGrade(result.grade);

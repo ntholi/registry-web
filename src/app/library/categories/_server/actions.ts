@@ -2,6 +2,7 @@
 
 import { sql } from 'drizzle-orm';
 import { categories, db } from '@/core/database';
+import { createAction } from '@/shared/lib/actions/actionResult';
 import { categoriesService } from './service';
 
 type Category = typeof categories.$inferInsert;
@@ -52,14 +53,14 @@ export async function getOrCreateCategories(names: string[]) {
 	});
 }
 
-export async function createCategory(data: Category) {
-	return categoriesService.create(data);
-}
+export const createCategory = createAction(async (data: Category) =>
+	categoriesService.create(data)
+);
 
-export async function updateCategory(id: string, data: Category) {
-	return categoriesService.update(id, data);
-}
+export const updateCategory = createAction(async (id: string, data: Category) =>
+	categoriesService.update(id, data)
+);
 
-export async function deleteCategory(id: string) {
-	return categoriesService.delete(id);
-}
+export const deleteCategory = createAction(async (id: string) =>
+	categoriesService.delete(id)
+);

@@ -8,6 +8,7 @@ import { IconPlus } from '@tabler/icons-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { zod4Resolver as zodResolver } from 'mantine-form-zod-resolver';
 import { z } from 'zod';
+import { unwrap } from '@/shared/lib/actions/actionResult';
 import RichTextField from '@/shared/ui/adease/RichTextField';
 import { createSection } from '../_server/actions';
 
@@ -42,12 +43,14 @@ export default function SectionForm({
 
 	const mutation = useMutation({
 		mutationFn: async (values: SectionFormValues) => {
-			return createSection({
-				courseId,
-				title: values.title,
-				content: values.content,
-				sectionNumber: values.sectionNumber,
-			});
+			return unwrap(
+				await createSection({
+					courseId,
+					title: values.title,
+					content: values.content,
+					sectionNumber: values.sectionNumber,
+				})
+			);
 		},
 		onSuccess: () => {
 			notifications.show({

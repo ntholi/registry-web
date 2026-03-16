@@ -24,6 +24,7 @@ import {
 } from '@tabler/icons-react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useRef, useState } from 'react';
+import { unwrap } from '@/shared/lib/actions/actionResult';
 import {
 	enrollStudentInCourse,
 	getRegisteredStudentsForSync,
@@ -83,11 +84,13 @@ export default function SyncStudentsModal({
 			);
 
 			try {
-				const result = await enrollStudentInCourse(
-					course.id,
-					registeredStudents[i].stdNo,
-					course.fullname,
-					course.shortname
+				const result = unwrap(
+					await enrollStudentInCourse(
+						course.id,
+						registeredStudents[i].stdNo,
+						course.fullname,
+						course.shortname
+					)
 				);
 
 				setResults((prev) =>

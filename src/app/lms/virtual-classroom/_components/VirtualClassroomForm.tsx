@@ -18,6 +18,7 @@ import { IconPlus, IconVideo } from '@tabler/icons-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { zod4Resolver as zodResolver } from 'mantine-form-zod-resolver';
 import { z } from 'zod';
+import { unwrap } from '@/shared/lib/actions/actionResult';
 import { createBigBlueButtonSession } from '../_server/actions';
 
 const schema = z.object({
@@ -60,24 +61,25 @@ export default function VirtualClassroomForm({
 	});
 
 	const mutation = useMutation({
-		mutationFn: async (values: FormValues) => {
-			return createBigBlueButtonSession({
-				courseid: courseId,
-				name: values.name,
-				welcome: values.welcome,
-				intro: values.intro,
-				record: values.record ? 1 : 0,
-				wait: values.wait ? 1 : 0,
-				muteonstart: values.muteonstart ? 1 : 0,
-				userlimit: values.userlimit,
-				openingtime: values.openingtime
-					? Math.floor(values.openingtime.getTime() / 1000)
-					: undefined,
-				closingtime: values.closingtime
-					? Math.floor(values.closingtime.getTime() / 1000)
-					: undefined,
-			});
-		},
+		mutationFn: async (values: FormValues) =>
+			unwrap(
+				await createBigBlueButtonSession({
+					courseid: courseId,
+					name: values.name,
+					welcome: values.welcome,
+					intro: values.intro,
+					record: values.record ? 1 : 0,
+					wait: values.wait ? 1 : 0,
+					muteonstart: values.muteonstart ? 1 : 0,
+					userlimit: values.userlimit,
+					openingtime: values.openingtime
+						? Math.floor(values.openingtime.getTime() / 1000)
+						: undefined,
+					closingtime: values.closingtime
+						? Math.floor(values.closingtime.getTime() / 1000)
+						: undefined,
+				})
+			),
 		onSuccess: () => {
 			notifications.show({
 				message: 'Virtual classroom session created successfully',

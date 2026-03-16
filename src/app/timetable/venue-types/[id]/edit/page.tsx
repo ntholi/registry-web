@@ -1,5 +1,6 @@
 import { Box } from '@mantine/core';
 import { notFound } from 'next/navigation';
+import { unwrap } from '@/shared/lib/actions/actionResult';
 import Form from '../../_components/Form';
 import { getVenueType, updateVenueType } from '../../_server/actions';
 
@@ -22,11 +23,7 @@ export default async function VenueTypeEdit({ params }: Props) {
 				defaultValues={venueType}
 				onSubmit={async (value) => {
 					'use server';
-					const updated = await updateVenueType(id, value);
-					if (!updated) {
-						throw new Error('Failed to update venue type');
-					}
-					return updated;
+					return unwrap(await updateVenueType(id, value));
 				}}
 			/>
 		</Box>

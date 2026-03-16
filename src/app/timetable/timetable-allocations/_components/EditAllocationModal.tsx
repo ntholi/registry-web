@@ -10,6 +10,7 @@ import { getAllVenueTypes } from '@timetable/venue-types';
 import { getAllVenues } from '@timetable/venues';
 import { zod4Resolver as zodResolver } from 'mantine-form-zod-resolver';
 import { z } from 'zod';
+import { unwrap } from '@/shared/lib/actions/actionResult';
 import { getActionColor, getAlertColor } from '@/shared/lib/utils/colors';
 import {
 	applyTimeRefinements,
@@ -83,31 +84,28 @@ export default function EditAllocationModal({
 
 	const mutation = useMutation({
 		mutationFn: async (values: FormValues) => {
-			const result = await updateTimetableAllocation(allocationId, {
-				duration: values.duration,
-				classType: values.classType,
-				numberOfStudents: values.numberOfStudents,
-				allowedDays: values.allowedDays,
-				startTime: values.startTime,
-				endTime: values.endTime,
-			});
-			if (!result.success) {
-				throw new Error(result.error);
-			}
-			const venueTypesResult = await updateTimetableAllocationVenueTypes(
-				allocationId,
-				values.venueTypeIds
+			unwrap(
+				await updateTimetableAllocation(allocationId, {
+					duration: values.duration,
+					classType: values.classType,
+					numberOfStudents: values.numberOfStudents,
+					allowedDays: values.allowedDays,
+					startTime: values.startTime,
+					endTime: values.endTime,
+				})
 			);
-			if (!venueTypesResult.success) {
-				throw new Error(venueTypesResult.error);
-			}
-			const venuesResult = await updateTimetableAllocationAllowedVenues(
-				allocationId,
-				values.allowedVenueIds
+			unwrap(
+				await updateTimetableAllocationVenueTypes(
+					allocationId,
+					values.venueTypeIds
+				)
 			);
-			if (!venuesResult.success) {
-				throw new Error(venuesResult.error);
-			}
+			unwrap(
+				await updateTimetableAllocationAllowedVenues(
+					allocationId,
+					values.allowedVenueIds
+				)
+			);
 		},
 		onSuccess: async () => {
 			await queryClient.invalidateQueries({

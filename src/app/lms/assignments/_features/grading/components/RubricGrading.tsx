@@ -4,6 +4,7 @@ import { Box, Card, Slider, Stack, Text } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
+import { unwrap } from '@/shared/lib/actions/actionResult';
 import type { FillRubricFilling } from '../../../types';
 import { getRubric } from '../../rubric/server/actions';
 import { fillRubric, getRubricFillings } from '../server/actions';
@@ -60,11 +61,13 @@ export default function RubricGrading({
 
 	const rubricMutation = useMutation({
 		mutationFn: async (fillings: FillRubricFilling[]) => {
-			return fillRubric({
-				cmid,
-				userid: userId,
-				fillings,
-			});
+			return unwrap(
+				await fillRubric({
+					cmid,
+					userid: userId,
+					fillings,
+				})
+			);
 		},
 		onSuccess: (result) => {
 			if (onGradeChange) {
