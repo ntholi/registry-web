@@ -71,7 +71,7 @@ class SponsorService {
 		return withPermission(
 			async () => this.repository.findSponsoredStudent(stdNo, termId),
 			async (session) =>
-				hasPermission(session, 'sponsors', 'read') ||
+				hasPermission(session, 'sponsored-students', 'read') ||
 				hasOwnedStudentSession(session, stdNo)
 		);
 	}
@@ -80,7 +80,7 @@ class SponsorService {
 		return withPermission(
 			async () => this.repository.findCurrentSponsoredStudent(stdNo),
 			async (session) =>
-				hasPermission(session, 'sponsors', 'read') ||
+				hasPermission(session, 'sponsored-students', 'read') ||
 				hasOwnedStudentSession(session, stdNo)
 		);
 	}
@@ -96,7 +96,7 @@ class SponsorService {
 		return withPermission(
 			async () => this.repository.upsertSponsoredStudent(data),
 			async (session) => {
-				if (hasPermission(session, 'sponsors', 'update')) {
+				if (hasPermission(session, 'sponsored-students', 'update')) {
 					return true;
 				}
 
@@ -112,7 +112,7 @@ class SponsorService {
 		return withPermission(
 			async () =>
 				this.repository.findSponsoredStudentsBySponsor(sponsorId, params),
-			{ sponsors: ['read'] }
+			{ 'sponsored-students': ['read'] }
 		);
 	}
 
@@ -127,7 +127,7 @@ class SponsorService {
 	}) {
 		return withPermission(
 			async () => this.repository.findAllSponsoredStudents(params),
-			{ sponsors: ['read'] }
+			{ 'sponsored-students': ['read'] }
 		);
 	}
 
@@ -138,7 +138,7 @@ class SponsorService {
 	}) {
 		return withPermission(
 			async () => this.repository.updateAccountDetails(data),
-			{ sponsors: ['update'] }
+			{ 'sponsored-students': ['update'] }
 		);
 	}
 
@@ -152,7 +152,7 @@ class SponsorService {
 	) {
 		return withPermission(
 			async () => this.repository.bulkUpdateAccountDetails(items, batchSize),
-			{ sponsors: ['update'] }
+			{ 'sponsored-students': ['update'] }
 		);
 	}
 
@@ -160,7 +160,7 @@ class SponsorService {
 		return withPermission(
 			async () => this.repository.findStudentSponsors(stdNo),
 			{
-				sponsors: ['read'],
+				'sponsored-students': ['read'],
 			}
 		);
 	}
@@ -180,7 +180,7 @@ class SponsorService {
 					activityType: 'sponsorship_assigned',
 					stdNo: data.stdNo,
 				}),
-			{ sponsors: ['update'] }
+			{ 'sponsored-students': ['update'] }
 		);
 	}
 
@@ -200,7 +200,7 @@ class SponsorService {
 					role: session!.user!.role!,
 					activityType: 'sponsorship_updated',
 				}),
-			{ sponsors: ['update'] }
+			{ 'sponsored-students': ['update'] }
 		);
 	}
 
@@ -208,7 +208,7 @@ class SponsorService {
 		return withPermission(
 			async () => this.repository.findSponsoredStudentById(id),
 			{
-				sponsors: ['read'],
+				'sponsored-students': ['read'],
 			}
 		);
 	}

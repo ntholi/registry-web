@@ -35,6 +35,7 @@ export const RESOURCES = [
 	'certificate-types',
 	'subjects',
 	'sponsors',
+	'sponsored-students',
 	'users',
 	'permission-presets',
 	'tasks',
