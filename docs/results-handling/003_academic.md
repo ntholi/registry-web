@@ -1,6 +1,6 @@
 # Plan 003: Academic Module
 
-> Wrap **mutation** actions with `createAction`. Query actions stay as plain functions. RSC pages and ListLayout callers require **no changes**. **Non-breaking**.
+> Wrap **mutation** actions with `createAction`. Query actions stay as plain functions. RSC pages and ListLayout callers require **no changes**. **Non-breaking.** ✅ Completed.
 
 ## Prerequisites
 
@@ -168,10 +168,10 @@ pnpm tsc --noEmit
 
 ## Done When
 
-- [ ] All mutation actions across 13 files wrapped with `createAction`
-- [ ] All query actions remain as plain `async function` exports
-- [ ] RSC pages reverted to plain `await` (no `unwrap()`) if previously migrated
-- [ ] All direct `useMutation` callers switched to `useActionMutation`
-- [ ] `unwrap()` added for mutation→mutation call (#4: `updateGradeByStudentModuleId`)
-- [ ] `pnpm tsc --noEmit` passes
-- [ ] **Academic module mutations wrapped; queries/pages/layouts untouched**
+- [x] All mutation actions across 13 files wrapped with `createAction`
+- [x] All query actions remain as plain `async function` exports
+- [x] RSC pages reverted to plain `await` (no `unwrap()`) if previously migrated
+- [x] All direct `useMutation` callers switched to `useActionMutation`
+- [x] `unwrap()` added for mutation→mutation call (#4: `updateGradeByStudentModuleId`)
+- [x] `pnpm tsc --noEmit` passes
+- [x] **Academic module mutations wrapped; queries/pages/layouts untouched**
