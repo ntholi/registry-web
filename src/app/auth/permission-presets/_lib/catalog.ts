@@ -86,7 +86,7 @@ export const PERMISSION_RESOURCE_GROUPS: readonly PermissionResourceGroup[] = [
 	},
 	{
 		label: 'Finance',
-		resources: ['sponsors', 'sponsored-students'],
+		resources: ['sponsors', 'sponsored-students', 'zoho'],
 	},
 	{
 		label: 'Admin',
@@ -305,6 +305,7 @@ export const PERMISSION_PRESET_SEEDS: readonly PermissionPresetSeed[] = [
 		permissions: mergeGrants(
 			grant('sponsors', fullCrud),
 			grant('sponsored-students', fullCrud),
+			grant('zoho', fullCrud),
 			grant('admissions-payments', ['read', 'update']),
 			grant('student-statuses', ['read', 'approve']),
 			grant('graduation', ['read']),
@@ -327,6 +328,7 @@ export const PERMISSION_PRESET_SEEDS: readonly PermissionPresetSeed[] = [
 		permissions: mergeGrants(
 			grant('sponsors', fullCrud),
 			grant('sponsored-students', fullCrud),
+			grant('zoho', fullCrud),
 			grant('admissions-payments', ['read', 'update']),
 			grant('student-statuses', ['read', 'approve']),
 			grant('graduation', ['read']),

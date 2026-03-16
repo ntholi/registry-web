@@ -6,6 +6,7 @@ import {
 	getStudent,
 	saveZohoContactId,
 } from '@registry/students/_server/actions';
+import { withPermission } from '@/core/platform/withPermission';
 import {
 	createStudentContact,
 	findStudentContact,
@@ -28,42 +29,64 @@ export async function resolveZohoContactId(
 	stdNo: number,
 	existingId: string | null | undefined
 ): Promise<string | null> {
-	if (existingId) return existingId;
+	return withPermission(
+		async () => {
+			if (existingId) return existingId;
 
-	const contact = await findStudentContact(stdNo);
-	if (!contact) return null;
+			const contact = await findStudentContact(stdNo);
+			if (!contact) return null;
 
-	await saveZohoContactId(stdNo, contact.contact_id);
-	return contact.contact_id;
+			await saveZohoContactId(stdNo, contact.contact_id);
+			return contact.contact_id;
+		},
+		{ zoho: ['read'] }
+	);
 }
 
 export async function fetchStudentFinance(contactId: string) {
-	return getStudentFinanceSummary(contactId);
+	return withPermission(async () => getStudentFinanceSummary(contactId), {
+		zoho: ['read'],
+	});
 }
 
 export async function fetchStudentPayments(contactId: string) {
-	return findStudentPayments(contactId);
+	return withPermission(async () => findStudentPayments(contactId), {
+		zoho: ['read'],
+	});
 }
 
 export async function fetchStudentEstimates(contactId: string) {
-	return findStudentEstimates(contactId);
+	return withPermission(async () => findStudentEstimates(contactId), {
+		zoho: ['read'],
+	});
 }
 
 export async function fetchStudentSalesReceipts(contactId: string) {
-	return findStudentSalesReceipts(contactId);
+	return withPermission(async () => findStudentSalesReceipts(contactId), {
+		zoho: ['read'],
+	});
 }
 
 export async function getZohoContactUrl(contactId: string) {
-	const orgId = process.env.ZOHO_BOOKS_ORGANIZATION_ID;
-	return `https://books.zoho.com/app/${orgId}#/contacts/${contactId}`;
+	return withPermission(
+		async () => {
+			const orgId = process.env.ZOHO_BOOKS_ORGANIZATION_ID;
+			return `https://books.zoho.com/app/${orgId}#/contacts/${contactId}`;
+		},
+		{ zoho: ['read'] }
+	);
 }
 
 export async function fetchInvoiceDetail(invoiceId: string) {
-	return getInvoiceDetail(invoiceId);
+	return withPermission(async () => getInvoiceDetail(invoiceId), {
+		zoho: ['read'],
+	});
 }
 
 export async function fetchSalesReceiptDetail(receiptId: string) {
-	return getSalesReceiptDetail(receiptId);
+	return withPermission(async () => getSalesReceiptDetail(receiptId), {
+		zoho: ['read'],
+	});
 }
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -117,94 +140,112 @@ async function buildContactInput(
 }
 
 export async function createZohoContact(stdNo: number): Promise<string> {
-	const input = await buildContactInput(stdNo);
-	const contact = await createStudentContact(input);
-	await saveZohoContactId(stdNo, contact.contact_id);
-	return contact.contact_id;
+	return withPermission(
+		async () => {
+			const input = await buildContactInput(stdNo);
+			const contact = await createStudentContact(input);
+			await saveZohoContactId(stdNo, contact.contact_id);
+			return contact.contact_id;
+		},
+		{ zoho: ['create'] }
+	);
 }
 
 export async function fetchZohoContactComparison(
 	stdNo: number,
 	contactId: string
 ): Promise<ZohoContactComparison> {
-	const [zohoContact, input] = await Promise.all([
-		getFullContact(contactId),
-		buildContactInput(stdNo),
-	]);
+	return withPermission(
+		async () => {
+			const [zohoContact, input] = await Promise.all([
+				getFullContact(contactId),
+				buildContactInput(stdNo),
+			]);
 
-	let dbNotes = input.programName;
-	if (input.intakeDate) {
-		dbNotes += ` Initial Intake Year ${input.intakeDate}`;
-	}
+			let dbNotes = input.programName;
+			if (input.intakeDate) {
+				dbNotes += ` Initial Intake Year ${input.intakeDate}`;
+			}
 
-	const tagNames = (zohoContact.tags ?? []).map((t) => t.tag_option_name);
-	const dbTags: string[] = [];
-	if (input.sponsorCode) {
-		const map: Record<string, string> = { NMDS: 'ManPower', PRV: 'Private' };
-		const tag = map[input.sponsorCode];
-		if (tag) dbTags.push(tag);
-	}
-	if (input.schoolCode) {
-		const aliases: Record<string, string> = {
-			FICT: 'FINT',
-			FBMG: 'FBS',
-			FCM: 'FCO',
-			FDI: 'FDSI',
-		};
-		dbTags.push(aliases[input.schoolCode] ?? input.schoolCode);
-	}
-	if (input.programCode) dbTags.push(input.programCode);
+			const tagNames = (zohoContact.tags ?? []).map((t) => t.tag_option_name);
+			const dbTags: string[] = [];
+			if (input.sponsorCode) {
+				const map: Record<string, string> = {
+					NMDS: 'ManPower',
+					PRV: 'Private',
+				};
+				const tag = map[input.sponsorCode];
+				if (tag) dbTags.push(tag);
+			}
+			if (input.schoolCode) {
+				const aliases: Record<string, string> = {
+					FICT: 'FINT',
+					FBMG: 'FBS',
+					FCM: 'FCO',
+					FDI: 'FDSI',
+				};
+				dbTags.push(aliases[input.schoolCode] ?? input.schoolCode);
+			}
+			if (input.programCode) dbTags.push(input.programCode);
 
-	const fields: ZohoContactComparisonField[] = [
-		{
-			label: 'Name',
-			zohoValue: zohoContact.contact_name ?? '',
-			dbValue: input.name,
-			changed: (zohoContact.contact_name ?? '') !== input.name,
-		},
-		{
-			label: 'Program',
-			zohoValue: zohoContact.company_name ?? '',
-			dbValue: input.programName,
-			changed: (zohoContact.company_name ?? '') !== input.programName,
-		},
-		{
-			label: 'Email',
-			zohoValue: zohoContact.email ?? '',
-			dbValue: input.email ?? '',
-			changed: (zohoContact.email ?? '') !== (input.email ?? ''),
-		},
-		{
-			label: 'Phone',
-			zohoValue: zohoContact.phone ?? '',
-			dbValue: input.phone ?? '',
-			changed: (zohoContact.phone ?? '') !== (input.phone ?? ''),
-		},
-		{
-			label: 'Notes',
-			zohoValue: zohoContact.notes ?? '',
-			dbValue: dbNotes,
-			changed: (zohoContact.notes ?? '') !== dbNotes,
-		},
-		{
-			label: 'Tags',
-			zohoValue: tagNames.sort().join(', '),
-			dbValue: dbTags.sort().join(', '),
-			changed: tagNames.sort().join(',') !== dbTags.sort().join(','),
-		},
-	];
+			const fields: ZohoContactComparisonField[] = [
+				{
+					label: 'Name',
+					zohoValue: zohoContact.contact_name ?? '',
+					dbValue: input.name,
+					changed: (zohoContact.contact_name ?? '') !== input.name,
+				},
+				{
+					label: 'Program',
+					zohoValue: zohoContact.company_name ?? '',
+					dbValue: input.programName,
+					changed: (zohoContact.company_name ?? '') !== input.programName,
+				},
+				{
+					label: 'Email',
+					zohoValue: zohoContact.email ?? '',
+					dbValue: input.email ?? '',
+					changed: (zohoContact.email ?? '') !== (input.email ?? ''),
+				},
+				{
+					label: 'Phone',
+					zohoValue: zohoContact.phone ?? '',
+					dbValue: input.phone ?? '',
+					changed: (zohoContact.phone ?? '') !== (input.phone ?? ''),
+				},
+				{
+					label: 'Notes',
+					zohoValue: zohoContact.notes ?? '',
+					dbValue: dbNotes,
+					changed: (zohoContact.notes ?? '') !== dbNotes,
+				},
+				{
+					label: 'Tags',
+					zohoValue: tagNames.sort().join(', '),
+					dbValue: dbTags.sort().join(', '),
+					changed: tagNames.sort().join(',') !== dbTags.sort().join(','),
+				},
+			];
 
-	return {
-		contactId,
-		fields,
-		hasChanges: fields.some((f) => f.changed),
-	};
+			return {
+				contactId,
+				fields,
+				hasChanges: fields.some((f) => f.changed),
+			};
+		},
+		{ zoho: ['read'] }
+	);
 }
 
 export async function updateZohoContactFromDb(
 	stdNo: number,
 	contactId: string
 ): Promise<void> {
-	const input = await buildContactInput(stdNo);
-	await updateStudentContact(contactId, input);
+	return withPermission(
+		async () => {
+			const input = await buildContactInput(stdNo);
+			await updateStudentContact(contactId, input);
+		},
+		{ zoho: ['update'] }
+	);
 }

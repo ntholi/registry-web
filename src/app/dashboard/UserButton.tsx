@@ -4,7 +4,6 @@ import { getUserSchools } from '@admin/users';
 import {
 	ActionIcon,
 	Avatar,
-	Badge,
 	Button,
 	Card,
 	Divider,

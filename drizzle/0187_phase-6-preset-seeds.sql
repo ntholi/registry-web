@@ -313,6 +313,10 @@ VALUES
   ('EiI69WZ5CF49QAj2Ye5Hm', 'Finance Staff', 'sponsored-students', 'create'),
   ('FjJ70XA6DG50RBk3Zf6In', 'Finance Staff', 'sponsored-students', 'update'),
   ('GkK81YB7EH61SCl4Ag7Jo', 'Finance Staff', 'sponsored-students', 'delete'),
+  ('LpP36DG2JM16XHq9Fl2Ot', 'Finance Staff', 'zoho', 'read'),
+  ('MqQ47EH3KN27YIr0Gm3Pu', 'Finance Staff', 'zoho', 'create'),
+  ('NrR58FI4LO38ZJs1Hn4Qv', 'Finance Staff', 'zoho', 'update'),
+  ('OsS69GJ5MP49AKt2Io5Rw', 'Finance Staff', 'zoho', 'delete'),
   ('38xpCM0ckmM-xzVY6h1jj', 'Finance Staff', 'admissions-payments', 'read'),
   ('O1wfnUg_AbUkL7LqKVdHF', 'Finance Staff', 'admissions-payments', 'update'),
   ('HEMTeHEZxW1FREdJXp00U', 'Finance Staff', 'student-statuses', 'read'),
@@ -344,6 +348,10 @@ VALUES
   ('ImM03AD9GJ83UEn6Ci9Lq', 'Finance Manager', 'sponsored-students', 'create'),
   ('JnN14BE0HK94VFo7Dj0Mr', 'Finance Manager', 'sponsored-students', 'update'),
   ('KoO25CF1IL05WGp8Ek1Ns', 'Finance Manager', 'sponsored-students', 'delete'),
+  ('PtT70HK6NQ50BLu3Jp6Sx', 'Finance Manager', 'zoho', 'read'),
+  ('QuU81IL7OR61CMv4Kq7Ty', 'Finance Manager', 'zoho', 'create'),
+  ('RvV92JM8PS72DNw5Lr8Uz', 'Finance Manager', 'zoho', 'update'),
+  ('SwW03KN9QT83EOx6Ms9Va', 'Finance Manager', 'zoho', 'delete'),
   ('lif4vT-fXPaWlA6EC1boE', 'Finance Manager', 'admissions-payments', 'read'),
   ('hQaM8pT4lp3GrAcRWSIog', 'Finance Manager', 'admissions-payments', 'update'),
   ('m3PR7T7fxIk7M1qLt15Uq', 'Finance Manager', 'student-statuses', 'read'),
@@ -920,6 +928,10 @@ BEGIN
       ('Finance Staff', 'sponsored-students', 'create'),
       ('Finance Staff', 'sponsored-students', 'update'),
       ('Finance Staff', 'sponsored-students', 'delete'),
+      ('Finance Staff', 'zoho', 'read'),
+      ('Finance Staff', 'zoho', 'create'),
+      ('Finance Staff', 'zoho', 'update'),
+      ('Finance Staff', 'zoho', 'delete'),
 			('Finance Staff', 'admissions-payments', 'read'),
 			('Finance Staff', 'admissions-payments', 'update'),
 			('Finance Staff', 'student-statuses', 'read'),
@@ -951,6 +963,10 @@ BEGIN
       ('Finance Manager', 'sponsored-students', 'create'),
       ('Finance Manager', 'sponsored-students', 'update'),
       ('Finance Manager', 'sponsored-students', 'delete'),
+      ('Finance Manager', 'zoho', 'read'),
+      ('Finance Manager', 'zoho', 'create'),
+      ('Finance Manager', 'zoho', 'update'),
+      ('Finance Manager', 'zoho', 'delete'),
 			('Finance Manager', 'admissions-payments', 'read'),
 			('Finance Manager', 'admissions-payments', 'update'),
 			('Finance Manager', 'student-statuses', 'read'),
@@ -1099,9 +1115,9 @@ BEGIN
 		ON expected.preset_name = preset.name
 		AND expected.resource = permission.resource
 		AND expected.action = permission.action;
-  IF v_seeded_permission_count != 455 THEN
+  IF v_seeded_permission_count != 463 THEN
 		RAISE EXCEPTION 'ABORT: expected % seeded preset permissions but found %',
-      455, v_seeded_permission_count;
+      463, v_seeded_permission_count;
 	END IF;
 
 	SELECT count(*) INTO v_unmapped_count

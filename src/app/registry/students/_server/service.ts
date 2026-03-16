@@ -157,7 +157,7 @@ class StudentService {
 	async saveZohoContactId(stdNo: number, zohoContactId: string) {
 		return withPermission(
 			async () => this.repository.saveZohoContactId(stdNo, zohoContactId),
-			{ students: ['update'] }
+			{ zoho: ['update'] }
 		);
 	}
 

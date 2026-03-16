@@ -36,6 +36,7 @@ export const RESOURCES = [
 	'subjects',
 	'sponsors',
 	'sponsored-students',
+	'zoho',
 	'users',
 	'permission-presets',
 	'tasks',

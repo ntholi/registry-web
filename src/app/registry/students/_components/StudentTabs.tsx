@@ -73,7 +73,7 @@ export default function StudentTabs({
 		session?.user?.role ?? ''
 	);
 
-	const showFinance = ['admin', 'finance'].includes(session?.user?.role ?? '');
+	const showFinance = hasSessionPermission(session, 'zoho', 'read', ['admin']);
 
 	const showDocuments = hasSessionPermission(session, 'documents', 'read', [
 		'admin',
