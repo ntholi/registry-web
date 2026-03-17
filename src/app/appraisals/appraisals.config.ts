@@ -18,6 +18,13 @@ export const appraisalsConfig: ModuleConfig = {
 
 	navigation: {
 		dashboard: [
+						{
+				label: 'Cycles',
+				href: '/appraisals/cycles',
+				icon: IconCalendarEvent,
+				roles: ['academic', 'admin', 'human_resource'],
+				permissions: [{ resource: 'feedback-cycles', action: 'read' }],
+			},
 			{
 				label: 'Student Feedback',
 				icon: IconMessageStar,
@@ -48,6 +55,14 @@ export const appraisalsConfig: ModuleConfig = {
 				roles: ['academic', 'admin', 'human_resource'],
 				collapsed: false,
 				children: [
+										{
+						label: 'Criteria',
+						href: '/appraisals/observation-criteria',
+						icon: IconListCheck,
+						permissions: [
+							{ resource: 'teaching-observation-criteria', action: 'read' },
+						],
+					},
 					{
 						label: 'Observations',
 						href: '/appraisals/teaching-observations',
@@ -56,14 +71,7 @@ export const appraisalsConfig: ModuleConfig = {
 							{ resource: 'teaching-observations', action: 'read' },
 						],
 					},
-					{
-						label: 'Criteria',
-						href: '/appraisals/observation-criteria',
-						icon: IconListCheck,
-						permissions: [
-							{ resource: 'teaching-observation-criteria', action: 'read' },
-						],
-					},
+
 					{
 						label: 'Reports',
 						href: '/appraisals/observation-reports',
@@ -73,13 +81,6 @@ export const appraisalsConfig: ModuleConfig = {
 						],
 					},
 				],
-			},
-			{
-				label: 'Cycles',
-				href: '/appraisals/cycles',
-				icon: IconCalendarEvent,
-				roles: ['academic', 'admin', 'human_resource'],
-				permissions: [{ resource: 'feedback-cycles', action: 'read' }],
 			},
 		],
 	},
