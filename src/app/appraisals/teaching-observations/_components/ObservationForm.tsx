@@ -6,6 +6,7 @@ import {
 	Anchor,
 	Group,
 	Select,
+	SimpleGrid,
 	Stack,
 	Text,
 	Textarea,
@@ -197,6 +198,7 @@ export default function ObservationForm({
 								setLecturerUserId(null);
 							}}
 						/>
+						<SimpleGrid cols={{ base: 1, sm: 2 }} >
 						<Select
 							label='Lecturer'
 							placeholder='Select lecturer'
@@ -247,6 +249,7 @@ export default function ObservationForm({
 							}
 							disabled={!lecturerUserId}
 						/>
+						</SimpleGrid>
 						{existingObs && (
 							<Alert
 								icon={<IconAlertCircle size={16} />}
