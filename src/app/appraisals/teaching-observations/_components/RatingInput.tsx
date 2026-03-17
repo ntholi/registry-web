@@ -1,6 +1,6 @@
 'use client';
 
-import { SegmentedControl, Stack, Text } from '@mantine/core';
+import { SegmentedControl, Stack } from '@mantine/core';
 
 type RatingInputProps = {
 	value: number | null;

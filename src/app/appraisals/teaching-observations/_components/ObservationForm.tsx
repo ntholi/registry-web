@@ -4,27 +4,17 @@ import {
 	Accordion,
 	Alert,
 	Anchor,
-	Badge,
-	Card,
 	Divider,
-	Group,
-	Progress,
 	Select,
 	SimpleGrid,
 	Stack,
 	Text,
 	Textarea,
-	ThemeIcon,
 	Title,
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { notifications } from '@mantine/notifications';
-import {
-	IconAlertCircle,
-	IconChecklist,
-	IconSparkles,
-	IconStarFilled,
-} from '@tabler/icons-react';
+import { IconAlertCircle } from '@tabler/icons-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import Link from 'next/link';
 import { useRouter } from 'nextjs-toploader/app';
@@ -211,7 +201,7 @@ export default function ObservationForm({
 	);
 
 	const totalCriteria = criteria.length;
-	const completion = totalCriteria
+	const _completion = totalCriteria
 		? Math.round((answeredCount / totalCriteria) * 100)
 		: 0;
 
@@ -304,8 +294,8 @@ export default function ObservationForm({
 								searchable
 								data={assignedMods.map((m) => ({
 									value: String(m.id),
-									label: m.moduleCode,
-									description: `${m.moduleName}${m.programCode ? ` (${m.programCode})` : ''}`,
+									label: m.moduleName,
+									description: m.moduleCode,
 								}))}
 								renderOption={({ option }) => {
 									const data = option as unknown as {
@@ -361,7 +351,7 @@ export default function ObservationForm({
 					defaultValue={grouped.map((section) => section.section)}
 				>
 					{grouped.map((section) => {
-						const sectionAnswered = getSectionAnsweredCount(section);
+						const _sectionAnswered = getSectionAnsweredCount(section);
 
 						return (
 							<Accordion.Item key={section.section} value={section.section}>
@@ -378,7 +368,7 @@ export default function ObservationForm({
 										{section.categories.map((category) => (
 											<Stack key={category.id} gap='md'>
 												<Stack gap='sm'>
-													{category.criteria.map((criterion, idx) => {
+													{category.criteria.map((criterion, _idx) => {
 														const state = ratingMeta.get(criterion.id);
 
 														if (!state) return null;
@@ -415,7 +405,6 @@ export default function ObservationForm({
 						);
 					})}
 				</Accordion>
-
 
 				<Divider mt='lg' />
 				<Title order={5}>Remarks</Title>
