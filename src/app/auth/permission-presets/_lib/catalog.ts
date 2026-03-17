@@ -429,7 +429,10 @@ export const PERMISSION_PRESET_SEEDS: readonly PermissionPresetSeed[] = [
 		role: 'human_resource',
 		description: '',
 		permissions: mergeGrants(
-			grant('student-feedback-reports', ['read']),
+			grant('student-feedback-questions', fullCrud),
+			grant('student-feedback-categories', fullCrud),
+			grant('feedback-cycles', fullCrud),
+			grant('student-feedback-reports', ['read', 'update']),
 			grant('tasks', fullCrud),
 			grant('employees', fullCrud)
 		),
