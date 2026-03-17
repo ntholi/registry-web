@@ -11,6 +11,7 @@ import { useState } from 'react';
 import { academicConfig } from '@/app/academic/academic.config';
 import { adminConfig } from '@/app/admin/admin.config';
 import { admissionsConfig } from '@/app/admissions/admissions.config';
+import { appraisalsConfig } from '@/app/appraisals/appraisals.config';
 import { financeConfig } from '@/app/finance/finance.config';
 import { humanResourceConfig } from '@/app/human-resource/human-resource.config';
 import { lmsConfig } from '@/app/lms/lms.config';
@@ -108,6 +109,7 @@ function getNavigation(
 ): NavigationGroup[] {
 	const allConfigs = [
 		{ config: academicConfig, enabled: moduleConfig.academic },
+		{ config: appraisalsConfig, enabled: moduleConfig.appraisals },
 		{ config: registryConfig, enabled: moduleConfig.registry },
 		{ config: libraryConfig, enabled: moduleConfig.library },
 		{ config: lmsConfig, enabled: moduleConfig.lms },

@@ -4,36 +4,36 @@ import { and, eq, sql } from 'drizzle-orm';
 import {
 	assignedModules,
 	db,
-	feedbackCategories,
-	feedbackCycles,
-	feedbackPassphrases,
-	feedbackQuestions,
-	feedbackResponses,
 	modules,
 	semesterModules,
+	studentFeedbackCategories,
+	studentFeedbackCycles,
+	studentFeedbackPassphrases,
+	studentFeedbackQuestions,
+	studentFeedbackResponses,
 	users,
 } from '@/core/database';
 
 export async function validatePassphrase(passphrase: string) {
 	const row = await db
 		.select({
-			passphraseId: feedbackPassphrases.id,
-			cycleId: feedbackCycles.id,
-			cycleName: feedbackCycles.name,
-			termId: feedbackCycles.termId,
-			structureSemesterId: feedbackPassphrases.structureSemesterId,
-			used: feedbackPassphrases.used,
-			startDate: feedbackCycles.startDate,
-			endDate: feedbackCycles.endDate,
+			passphraseId: studentFeedbackPassphrases.id,
+			cycleId: studentFeedbackCycles.id,
+			cycleName: studentFeedbackCycles.name,
+			termId: studentFeedbackCycles.termId,
+			structureSemesterId: studentFeedbackPassphrases.structureSemesterId,
+			used: studentFeedbackPassphrases.used,
+			startDate: studentFeedbackCycles.startDate,
+			endDate: studentFeedbackCycles.endDate,
 		})
-		.from(feedbackPassphrases)
+		.from(studentFeedbackPassphrases)
 		.innerJoin(
-			feedbackCycles,
-			eq(feedbackPassphrases.cycleId, feedbackCycles.id)
+			studentFeedbackCycles,
+			eq(studentFeedbackPassphrases.cycleId, studentFeedbackCycles.id)
 		)
 		.where(
 			eq(
-				sql`lower(${feedbackPassphrases.passphrase})`,
+				sql`lower(${studentFeedbackPassphrases.passphrase})`,
 				passphrase.toLowerCase()
 			)
 		)
@@ -91,29 +91,29 @@ export async function getLecturersForClass(
 export async function getQuestionsByCategory() {
 	return db
 		.select({
-			categoryId: feedbackCategories.id,
-			categoryName: feedbackCategories.name,
-			questionId: feedbackQuestions.id,
-			questionText: feedbackQuestions.text,
+			categoryId: studentFeedbackCategories.id,
+			categoryName: studentFeedbackCategories.name,
+			questionId: studentFeedbackQuestions.id,
+			questionText: studentFeedbackQuestions.text,
 		})
-		.from(feedbackQuestions)
+		.from(studentFeedbackQuestions)
 		.innerJoin(
-			feedbackCategories,
-			eq(feedbackQuestions.categoryId, feedbackCategories.id)
+			studentFeedbackCategories,
+			eq(studentFeedbackQuestions.categoryId, studentFeedbackCategories.id)
 		)
-		.orderBy(feedbackCategories.name, feedbackQuestions.id);
+		.orderBy(studentFeedbackCategories.name, studentFeedbackQuestions.id);
 }
 
 export async function getExistingResponses(passphraseId: string) {
 	return db
 		.select({
-			assignedModuleId: feedbackResponses.assignedModuleId,
-			questionId: feedbackResponses.questionId,
-			rating: feedbackResponses.rating,
-			comment: feedbackResponses.comment,
+			assignedModuleId: studentFeedbackResponses.assignedModuleId,
+			questionId: studentFeedbackResponses.questionId,
+			rating: studentFeedbackResponses.rating,
+			comment: studentFeedbackResponses.comment,
 		})
-		.from(feedbackResponses)
-		.where(eq(feedbackResponses.passphraseId, passphraseId));
+		.from(studentFeedbackResponses)
+		.where(eq(studentFeedbackResponses.passphraseId, passphraseId));
 }
 
 export async function saveResponses(
@@ -135,13 +135,13 @@ export async function saveResponses(
 	}));
 
 	await db
-		.insert(feedbackResponses)
+		.insert(studentFeedbackResponses)
 		.values(values)
 		.onConflictDoUpdate({
 			target: [
-				feedbackResponses.passphraseId,
-				feedbackResponses.assignedModuleId,
-				feedbackResponses.questionId,
+				studentFeedbackResponses.passphraseId,
+				studentFeedbackResponses.assignedModuleId,
+				studentFeedbackResponses.questionId,
 			],
 			set: {
 				rating: sql`excluded.rating`,
@@ -165,13 +165,13 @@ export async function markSkipped(
 	}));
 
 	await db
-		.insert(feedbackResponses)
+		.insert(studentFeedbackResponses)
 		.values(values)
 		.onConflictDoUpdate({
 			target: [
-				feedbackResponses.passphraseId,
-				feedbackResponses.assignedModuleId,
-				feedbackResponses.questionId,
+				studentFeedbackResponses.passphraseId,
+				studentFeedbackResponses.assignedModuleId,
+				studentFeedbackResponses.questionId,
 			],
 			set: {
 				rating: sql`excluded.rating`,
@@ -182,7 +182,7 @@ export async function markSkipped(
 
 export async function finalize(passphraseId: string) {
 	await db
-		.update(feedbackPassphrases)
+		.update(studentFeedbackPassphrases)
 		.set({ used: true, usedAt: new Date() })
-		.where(eq(feedbackPassphrases.id, passphraseId));
+		.where(eq(studentFeedbackPassphrases.id, passphraseId));
 }

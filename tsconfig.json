@@ -22,6 +22,7 @@
 		"paths": {
 			"@/*": ["./src/*"],
 			"@academic/*": ["./src/app/academic/*"],
+			"@appraisals/*": ["./src/app/appraisals/*"],
 			"@admissions/*": ["./src/app/admissions/*"],
 			"@apply/*": ["./src/app/apply/*"],
 			"@registry/*": ["./src/app/registry/*"],

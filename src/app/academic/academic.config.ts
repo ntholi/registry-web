@@ -1,10 +1,7 @@
 import {
 	IconCalendarEvent,
-	IconChartBar,
 	IconClipboardData,
 	IconListCheck,
-	IconMessageQuestion,
-	IconMessageStar,
 	IconPresentation,
 } from '@tabler/icons-react';
 import type { ModuleConfig } from '@/app/dashboard/module-config.types';
@@ -47,32 +44,6 @@ export const academicConfig: ModuleConfig = {
 				collapsed: false,
 				children: [],
 				permissions: [{ resource: 'gradebook', action: 'read' }],
-			},
-			{
-				label: 'Student Feedback',
-				icon: IconMessageStar,
-				roles: ['academic', 'admin', 'human_resource'],
-				collapsed: false,
-				children: [
-					{
-						label: 'Questions',
-						href: '/academic/feedback/questions',
-						icon: IconMessageQuestion,
-						permissions: [{ resource: 'feedback-questions', action: 'read' }],
-					},
-					{
-						label: 'Cycles',
-						href: '/academic/feedback/cycles',
-						icon: IconCalendarEvent,
-						permissions: [{ resource: 'feedback-cycles', action: 'read' }],
-					},
-					{
-						label: 'Reports',
-						href: '/academic/feedback/reports',
-						icon: IconChartBar,
-						permissions: [{ resource: 'feedback-reports', action: 'read' }],
-					},
-				],
 			},
 		],
 	},

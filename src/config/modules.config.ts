@@ -2,6 +2,7 @@ export type ModuleKey =
 	| 'academic'
 	| 'admin'
 	| 'admissions'
+	| 'appraisals'
 	| 'lms'
 	| 'finance'
 	| 'registry'
@@ -16,6 +17,7 @@ const moduleEnvKeys: Record<ModuleKey, string> = {
 	academic: 'ENABLE_MODULE_ACADEMIC',
 	admin: 'ENABLE_MODULE_ADMIN',
 	admissions: 'ENABLE_MODULE_ADMISSIONS',
+	appraisals: 'ENABLE_MODULE_APPRAISALS',
 	lms: 'ENABLE_MODULE_LMS',
 	finance: 'ENABLE_MODULE_FINANCE',
 	registry: 'ENABLE_MODULE_REGISTRY',
@@ -42,6 +44,7 @@ export const moduleConfig = {
 	academic: isModuleEnabled('academic'),
 	admin: isModuleEnabled('admin'),
 	admissions: isModuleEnabled('admissions'),
+	appraisals: isModuleEnabled('appraisals'),
 	lms: isModuleEnabled('lms'),
 	finance: isModuleEnabled('finance'),
 	registry: isModuleEnabled('registry'),
@@ -58,6 +61,7 @@ export function getModuleConfig() {
 		academic: moduleConfig.academic,
 		admin: moduleConfig.admin,
 		admissions: moduleConfig.admissions,
+		appraisals: moduleConfig.appraisals,
 		lms: moduleConfig.lms,
 		finance: moduleConfig.finance,
 		registry: moduleConfig.registry,

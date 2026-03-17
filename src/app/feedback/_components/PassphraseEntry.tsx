@@ -1,6 +1,6 @@
 'use client';
 
-import { wordList } from '@academic/feedback/_shared/lib/passphrase';
+import { wordList } from '@appraisals/student-feedback/_shared/lib/passphrase';
 import {
 	Alert,
 	Button,

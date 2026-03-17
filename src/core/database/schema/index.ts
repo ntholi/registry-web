@@ -1,3 +1,4 @@
+export * from '@appraisals/_database';
 export * from '@academic/_database';
 export * from '@admin/_database';
 export * from '@admissions/_database';

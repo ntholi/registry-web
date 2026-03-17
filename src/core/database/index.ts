@@ -1,6 +1,7 @@
 import * as academic from '@academic/_database';
 import * as admin from '@admin/_database';
 import * as admissions from '@admissions/_database';
+import * as appraisals from '@appraisals/_database';
 import * as auditLogs from '@audit-logs/_database';
 import * as auth from '@auth/_database';
 import * as finance from '@finance/_database';
@@ -20,6 +21,7 @@ const schema = {
 	...coreSchemaRelations,
 	...academic,
 	...admin,
+	...appraisals,
 	...admissions,
 	...auth,
 	...auditLogs,
@@ -58,6 +60,7 @@ export { db, schema };
 export * from '@academic/_database';
 export * from '@admin/_database';
 export * from '@admissions/_database';
+export * from '@appraisals/_database';
 export * from '@audit-logs/_database';
 export * from '@auth/_database';
 export * from '@finance/_database';

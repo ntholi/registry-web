@@ -1,0 +1,62 @@
+'use client';
+
+import { Badge } from '@mantine/core';
+import type { PropsWithChildren } from 'react';
+import { hasAnyPermission } from '@/core/auth/sessionPermissions';
+import { authClient } from '@/core/auth-client';
+import { getStatusColor } from '@/shared/lib/utils/colors';
+import { ListItem, ListLayout, NewLink } from '@/shared/ui/adease';
+import { getCycles } from './_server/actions';
+
+function getCycleStatus(startDate: string, endDate: string) {
+	const today = new Date().toISOString().slice(0, 10);
+	if (today < startDate) return 'upcoming';
+	if (today > endDate) return 'closed';
+	return 'open';
+}
+
+export default function Layout({ children }: PropsWithChildren) {
+	const { data: session } = authClient.useSession();
+	const canCreate =
+		session?.user?.role === 'admin' ||
+		hasAnyPermission(session, 'student-feedback-cycles', [
+			'create',
+			'update',
+			'delete',
+		]);
+
+	return (
+		<ListLayout
+			path='/appraisals/student-feedback/cycles'
+			queryKey={['student-feedback-cycles']}
+			getData={getCycles}
+			actionIcons={
+				canCreate
+					? [
+							<NewLink
+								key='new-link'
+								href='/appraisals/student-feedback/cycles/new'
+							/>,
+						]
+					: []
+			}
+			renderItem={(it) => {
+				const status = getCycleStatus(it.startDate, it.endDate);
+				return (
+					<ListItem
+						id={it.id}
+						label={it.name}
+						description={it.schoolCodes.join(', ')}
+						rightSection={
+							<Badge size='sm' variant='light' color={getStatusColor(status)}>
+								{status}
+							</Badge>
+						}
+					/>
+				);
+			}}
+		>
+			{children}
+		</ListLayout>
+	);
+}

@@ -62,42 +62,6 @@ const ACADEMIC_ACTIVITIES = {
 			label: 'Structure Semester Updated',
 			department: 'academic',
 		},
-		feedback_cycle_created: {
-			label: 'Feedback Cycle Created',
-			department: 'academic',
-		},
-		feedback_cycle_updated: {
-			label: 'Feedback Cycle Updated',
-			department: 'academic',
-		},
-		feedback_cycle_deleted: {
-			label: 'Feedback Cycle Deleted',
-			department: 'academic',
-		},
-		feedback_category_created: {
-			label: 'Feedback Category Created',
-			department: 'academic',
-		},
-		feedback_category_updated: {
-			label: 'Feedback Category Updated',
-			department: 'academic',
-		},
-		feedback_category_deleted: {
-			label: 'Feedback Category Deleted',
-			department: 'academic',
-		},
-		feedback_question_created: {
-			label: 'Feedback Question Created',
-			department: 'academic',
-		},
-		feedback_question_updated: {
-			label: 'Feedback Question Updated',
-			department: 'academic',
-		},
-		feedback_question_deleted: {
-			label: 'Feedback Question Deleted',
-			department: 'academic',
-		},
 	},
 	tableOperationMap: {
 		'assessments:INSERT': 'assessment_created',
@@ -122,15 +86,6 @@ const ACADEMIC_ACTIVITIES = {
 		'structures:UPDATE': 'structure_updated',
 		'structure_semesters:INSERT': 'structure_semester_created',
 		'structure_semesters:UPDATE': 'structure_semester_updated',
-		'feedback_cycles:INSERT': 'feedback_cycle_created',
-		'feedback_cycles:UPDATE': 'feedback_cycle_updated',
-		'feedback_cycles:DELETE': 'feedback_cycle_deleted',
-		'feedback_categories:INSERT': 'feedback_category_created',
-		'feedback_categories:UPDATE': 'feedback_category_updated',
-		'feedback_categories:DELETE': 'feedback_category_deleted',
-		'feedback_questions:INSERT': 'feedback_question_created',
-		'feedback_questions:UPDATE': 'feedback_question_updated',
-		'feedback_questions:DELETE': 'feedback_question_deleted',
 	},
 } as const satisfies ActivityFragment;
 
