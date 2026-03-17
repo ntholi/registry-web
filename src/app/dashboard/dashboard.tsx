@@ -29,7 +29,7 @@ import { Shell } from '@/shared/ui/adease';
 import Logo from '@/shared/ui/Logo';
 import { timetableConfig } from '../timetable/timetable.config';
 import type { NavItem } from './module-config.types';
-import UniversalSearch from './UniversalSearch';
+import UniversalSearch, { SearchSpotlight } from './UniversalSearch';
 import UserButton from './UserButton';
 
 type NavigationGroup = {
@@ -253,25 +253,28 @@ export default function Dashboard({
 	}
 
 	return (
-		<Shell>
-			<Shell.Header>
-				<Link href='/dashboard' style={{ textDecoration: 'none' }}>
-					<Logo />
-				</Link>
-			</Shell.Header>
-			<Shell.Navigation>
-				<Navigation
-					navigation={navigation}
-					userPermissions={effectivePermissions}
-					viewingAs={!!viewAs}
-					session={effectiveSession}
-				/>
-			</Shell.Navigation>
-			<Shell.Body>{children}</Shell.Body>
-			<Shell.User>
-				<UserButton viewAs={viewAs} />
-			</Shell.User>
-		</Shell>
+		<>
+			<SearchSpotlight />
+			<Shell>
+				<Shell.Header>
+					<Link href='/dashboard' style={{ textDecoration: 'none' }}>
+						<Logo />
+					</Link>
+				</Shell.Header>
+				<Shell.Navigation>
+					<Navigation
+						navigation={navigation}
+						userPermissions={effectivePermissions}
+						viewingAs={!!viewAs}
+						session={effectiveSession}
+					/>
+				</Shell.Navigation>
+				<Shell.Body>{children}</Shell.Body>
+				<Shell.User>
+					<UserButton viewAs={viewAs} />
+				</Shell.User>
+			</Shell>
+		</>
 	);
 }
 

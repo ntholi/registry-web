@@ -10,7 +10,7 @@ import {
 
 type AccessCheckFunction = (session: Session) => Promise<boolean>;
 type AuthConfig = AuthRequirement | AccessCheckFunction;
-type SessionPermissionResult = {
+export type SessionPermissionResult = {
 	session: Session;
 	permissions: PermissionGrant[];
 };
