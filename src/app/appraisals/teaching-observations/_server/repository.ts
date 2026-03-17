@@ -2,6 +2,7 @@ import { and, eq, inArray, sql } from 'drizzle-orm';
 import {
 	assignedModules,
 	db,
+	feedbackCycleSchools,
 	feedbackCycles,
 	modules,
 	observationCategories,
@@ -313,10 +314,7 @@ export default class ObservationRepository extends BaseRepository<
 				and(
 					sql`${feedbackCycles.startDate} <= ${today}`,
 					sql`${feedbackCycles.endDate} >= ${today}`,
-					sql`${feedbackCycles.id} IN (
-						SELECT cycle_id FROM feedback_cycle_schools
-						WHERE school_id = ANY(${schoolIds})
-					)`
+					sql`${feedbackCycles.id} in (select ${feedbackCycleSchools.cycleId} from ${feedbackCycleSchools} where ${inArray(feedbackCycleSchools.schoolId, schoolIds)})`
 				)
 			);
 	}
