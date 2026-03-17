@@ -14,9 +14,8 @@ import {
 import { DateInput } from '@mantine/dates';
 import { useForm } from '@mantine/form';
 import { notifications } from '@mantine/notifications';
-import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'nextjs-toploader/app';
-import { getActionErrorMessage } from '@/shared/lib/actions/actionResult';
+import { useActionMutation } from '@/shared/lib/actions/use-action-mutation';
 import { getCountries } from '@/shared/lib/utils/countries';
 import { getReligions } from '@/shared/lib/utils/religions';
 import WizardNavigation from '../../_components/WizardNavigation';
@@ -56,28 +55,27 @@ export default function PersonalInfoForm({ applicationId }: Props) {
 
 	const applicantId = applicant?.id ?? '';
 
-	const mutation = useMutation({
-		mutationFn: async (values: typeof form.values) => {
-			const res = await updateApplicantInfo(applicantId, values);
-			if (!res.success) throw new Error(getActionErrorMessage(res.error));
-		},
-		onSuccess: () => {
-			refetch();
-			notifications.show({
-				title: 'Information saved',
-				message: 'Your personal information has been updated',
-				color: 'green',
-			});
-			router.push(`/apply/${applicationId}/review`);
-		},
-		onError: (error) => {
-			notifications.show({
-				title: 'Error',
-				message: error.message,
-				color: 'red',
-			});
-		},
-	});
+	const mutation = useActionMutation(
+		(values: typeof form.values) => updateApplicantInfo(applicantId, values),
+		{
+			onSuccess: () => {
+				refetch();
+				notifications.show({
+					title: 'Information saved',
+					message: 'Your personal information has been updated',
+					color: 'green',
+				});
+				router.push(`/apply/${applicationId}/review`);
+			},
+			onError: (error) => {
+				notifications.show({
+					title: 'Error',
+					message: error.message,
+					color: 'red',
+				});
+			},
+		}
+	);
 
 	return (
 		<Stack gap='lg'>

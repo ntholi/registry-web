@@ -1,6 +1,6 @@
 # Plan 008: Apply + Reports + Student Portal + Remaining
 
-> Wrap **mutation** actions with `createAction`. Query actions stay as plain functions. RSC pages and ListLayout callers require **no changes**. Also update `apply/_lib/errors.ts` to re-export from shared. **Non-breaking**.
+> Wrap **mutation** actions with `createAction`. Query actions stay as plain functions. RSC pages and ListLayout callers require **no changes**. Also update `apply/_lib/errors.ts` to re-export from shared. **Non-breaking.** ✅ Completed.
 
 ## Prerequisites
 

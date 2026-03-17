@@ -7,12 +7,12 @@ import {
 	initiateMobilePayment,
 	verifyMobilePayment,
 } from '@admissions/payments';
-import { extractError } from '@apply/_lib/errors';
 import { nanoid } from 'nanoid';
 import { bankDeposits, db, documents } from '@/core/database';
 import { deleteFile, uploadFile } from '@/core/integrations/storage';
 import { StoragePaths } from '@/core/integrations/storage-utils';
-import { unwrap } from '@/shared/lib/actions/actionResult';
+import { createAction, unwrap } from '@/shared/lib/actions/actionResult';
+import { UserFacingError } from '@/shared/lib/actions/extractError';
 import { validateAnalyzedReceipt, validateReceipts } from './validation';
 
 export { validateAnalyzedReceipt, validateReceipts };
@@ -36,18 +36,29 @@ type DepositData = {
 	terminalNumber?: string | null;
 };
 
-export async function submitReceiptPayment(
-	applicationId: string,
-	receipts: DepositData[]
-): Promise<{ success: boolean; error?: string }> {
-	try {
+type MpesaPaymentResult =
+	| {
+			isDuplicate: true;
+			message?: string;
+	  }
+	| {
+			isDuplicate: false;
+			transactionId: string;
+			clientReference?: string;
+			message?: string;
+	  };
+
+type PaymentStatusResult =
+	| { status: 'success' }
+	| { status: 'failed'; error?: string }
+	| { status: 'pending' };
+
+export const submitReceiptPayment = createAction(
+	async (applicationId: string, receipts: DepositData[]) => {
 		for (const receipt of receipts) {
 			const base64Size = Math.ceil((receipt.base64.length * 3) / 4);
 			if (base64Size > MAX_FILE_SIZE) {
-				return {
-					success: false,
-					error: 'Receipt file size exceeds 2MB limit',
-				};
+				throw new UserFacingError('Receipt file size exceeds 2MB limit');
 			}
 		}
 
@@ -61,10 +72,9 @@ export async function submitReceiptPayment(
 				...validation.errors,
 				...validation.receipts.flatMap((r) => r.errors),
 			];
-			return {
-				success: false,
-				error: allErrors.join('; '),
-			};
+			throw new UserFacingError(
+				allErrors.join('; ') || 'Failed to validate receipt upload'
+			);
 		}
 
 		const uploaded: { key: string; docId: string; receipt: DepositData }[] = [];
@@ -123,12 +133,8 @@ export async function submitReceiptPayment(
 			}
 			throw uploadOrDbError;
 		}
-
-		return { success: true };
-	} catch (error) {
-		return { success: false, error: extractError(error) };
 	}
-}
+);
 
 export async function getPaymentPageData(applicationId: string) {
 	const application = await getApplicationForPayment(applicationId);
@@ -174,24 +180,45 @@ export async function getPaymentPageData(applicationId: string) {
 	};
 }
 
-export async function initiateMpesaPayment(
-	applicationId: string,
-	amount: number,
-	mobileNumber: string
-) {
-	try {
-		return unwrap(
+export const initiateMpesaPayment = createAction(
+	async (
+		applicationId: string,
+		amount: number,
+		mobileNumber: string
+	): Promise<MpesaPaymentResult> => {
+		const result = unwrap(
 			await initiateMobilePayment(applicationId, amount, mobileNumber, 'mpesa')
 		);
-	} catch (error) {
-		return { success: false, error: extractError(error) };
-	}
-}
 
-export async function checkPaymentStatus(depositId: string) {
-	try {
-		return unwrap(await verifyMobilePayment(depositId));
-	} catch (error) {
-		return { success: false, error: extractError(error), status: 'failed' };
+		if (result.isDuplicate) {
+			return {
+				isDuplicate: true,
+				message: result.error,
+			};
+		}
+
+		if (!result.success || !result.transactionId) {
+			throw new UserFacingError(result.error || 'Payment initiation failed');
+		}
+
+		return {
+			isDuplicate: false,
+			transactionId: result.transactionId,
+			clientReference: result.clientReference,
+			message: result.message,
+		};
 	}
-}
+);
+
+export const checkPaymentStatus = createAction(
+	async (depositId: string): Promise<PaymentStatusResult> => {
+		const result = unwrap(await verifyMobilePayment(depositId));
+		if (result.status === 'success') {
+			return { status: 'success' };
+		}
+		if (result.status === 'failed') {
+			return { status: 'failed', error: result.error };
+		}
+		return { status: 'pending' };
+	}
+);

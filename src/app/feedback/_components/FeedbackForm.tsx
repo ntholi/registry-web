@@ -2,6 +2,7 @@
 
 import { Container, Stack } from '@mantine/core';
 import { useCallback, useMemo, useRef, useState, useTransition } from 'react';
+import { unwrap } from '@/shared/lib/actions/actionResult';
 
 function computeInitialIndex(
 	lecturers: Lecturer[],
@@ -177,10 +178,12 @@ export default function FeedbackForm({
 
 		startTransition(async () => {
 			if (lecturerResponses.length > 0) {
-				await submitLecturerFeedback(
-					passphraseId,
-					currentLecturer.assignedModuleId,
-					lecturerResponses
+				unwrap(
+					await submitLecturerFeedback(
+						passphraseId,
+						currentLecturer.assignedModuleId,
+						lecturerResponses
+					)
 				);
 			}
 			setCurrentLecturerIndex(index);

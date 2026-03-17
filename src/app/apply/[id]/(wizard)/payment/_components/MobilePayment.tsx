@@ -19,13 +19,13 @@ import {
 	IconReceipt,
 	IconRefresh,
 } from '@tabler/icons-react';
-import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'nextjs-toploader/app';
 import { useEffect, useState } from 'react';
 import {
 	normalizePhoneNumber,
 	validateMpesaNumber,
 } from '@/core/integrations/pay-lesotho';
+import { useActionMutation } from '@/shared/lib/actions/use-action-mutation';
 import { checkPaymentStatus, initiateMpesaPayment } from '../_server/actions';
 
 const POLL_INTERVAL = 5000;
@@ -53,11 +53,21 @@ export function MobilePayment({
 	const [timeRemaining, setTimeRemaining] = useState(TIMEOUT_SECONDS);
 	const [paymentError, setPaymentError] = useState<string | null>(null);
 
-	const initiateMutation = useMutation({
-		mutationFn: async () =>
+	const initiateMutation = useActionMutation(
+		async () =>
 			initiateMpesaPayment(applicationId, parseFloat(fee), phoneNumber),
-		onSuccess: (result) => {
-			if (result.success && result.transactionId) {
+		{
+			onSuccess: (result) => {
+				if (result.isDuplicate) {
+					notifications.show({
+						title: 'Already Paid',
+						message: 'Your application fee has already been paid',
+						color: 'yellow',
+					});
+					router.push(`/apply/${applicationId}/thank-you`);
+					return;
+				}
+
 				setCurrentTransactionId(result.transactionId);
 				setIsPolling(true);
 				setTimeRemaining(TIMEOUT_SECONDS);
@@ -67,36 +77,21 @@ export function MobilePayment({
 					message: result.message || 'Check your phone for USSD prompt',
 					color: 'blue',
 				});
-			} else if (result.isDuplicate) {
+			},
+			onError: (error: Error) => {
+				setPaymentError(error.message);
 				notifications.show({
-					title: 'Already Paid',
-					message: 'Your application fee has already been paid',
-					color: 'yellow',
-				});
-				router.push(`/apply/${applicationId}/thank-you`);
-			} else {
-				setPaymentError(result.error || 'Payment initiation failed');
-				notifications.show({
-					title: 'Payment Failed',
-					message: result.error || 'Failed to initiate payment',
+					title: 'Error',
+					message: error.message,
 					color: 'red',
 				});
-			}
-		},
-		onError: (error: Error) => {
-			setPaymentError(error.message);
-			notifications.show({
-				title: 'Error',
-				message: error.message,
-				color: 'red',
-			});
-		},
-	});
+			},
+		}
+	);
 
-	const verifyMutation = useMutation({
-		mutationFn: async (txId: string) => checkPaymentStatus(txId),
+	const verifyMutation = useActionMutation(checkPaymentStatus, {
 		onSuccess: (result) => {
-			if (result.success && result.status === 'success') {
+			if (result.status === 'success') {
 				setIsPolling(false);
 				notifications.show({
 					title: 'Payment Successful',
@@ -106,8 +101,17 @@ export function MobilePayment({
 				router.push(`/apply/${applicationId}/thank-you`);
 			} else if (result.status === 'failed') {
 				setIsPolling(false);
-				setPaymentError('Payment was declined or failed');
+				setPaymentError(result.error || 'Payment was declined or failed');
 			}
+		},
+		onError: (error: Error) => {
+			setIsPolling(false);
+			setPaymentError(error.message);
+			notifications.show({
+				title: 'Error',
+				message: error.message,
+				color: 'red',
+			});
 		},
 	});
 

@@ -16,8 +16,9 @@ import {
 } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { IconInfoCircle, IconShield } from '@tabler/icons-react';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
+import { useActionMutation } from '@/shared/lib/actions/use-action-mutation';
 import useUserStudent from '@/shared/lib/hooks/use-user-student';
 import {
 	createFortinetRegistration,
@@ -50,8 +51,7 @@ export default function FortinetRegistrationPage() {
 			enabled: !!student,
 		});
 
-	const createMutation = useMutation({
-		mutationFn: createFortinetRegistration,
+	const createMutation = useActionMutation(createFortinetRegistration, {
 		onSuccess: () => {
 			notifications.show({
 				title: 'Registration Submitted',

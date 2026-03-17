@@ -5,7 +5,7 @@ import {
 	changeApplicationStatus,
 	findApplicationsByApplicant,
 } from '@admissions/applications';
-import { type ActionResult, extractError } from '@apply/_lib/errors';
+import { createAction, unwrap } from '@/shared/lib/actions/actionResult';
 
 export async function getApplicantWithApplication(applicantId: string) {
 	const [applicant, applications] = await Promise.all([
@@ -21,13 +21,6 @@ export async function getApplicantWithApplication(applicantId: string) {
 	return { applicant, application };
 }
 
-export async function submitApplication(
-	applicationId: string
-): Promise<ActionResult<void>> {
-	try {
-		await changeApplicationStatus(applicationId, 'submitted');
-		return { success: true, data: undefined };
-	} catch (error) {
-		return { success: false, error: extractError(error) };
-	}
-}
+export const submitApplication = createAction(async (applicationId: string) => {
+	unwrap(await changeApplicationStatus(applicationId, 'submitted'));
+});

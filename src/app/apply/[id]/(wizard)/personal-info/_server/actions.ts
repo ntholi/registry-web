@@ -10,117 +10,75 @@ import {
 	updateApplicant,
 	updateGuardian,
 } from '@admissions/applicants';
-import { type ActionResult, extractError } from '@apply/_lib/errors';
 import type { applicants, guardians } from '@/core/database';
+import { createAction, unwrap } from '@/shared/lib/actions/actionResult';
 import { formatPersonName } from '@/shared/lib/utils/names';
 
 type ApplicantInput = typeof applicants.$inferInsert;
 type GuardianInput = typeof guardians.$inferInsert;
 
-export async function updateApplicantInfo(
-	id: string,
-	data: ApplicantInput
-): Promise<ActionResult<void>> {
-	try {
-		await updateApplicant(id, {
-			...data,
-			fullName: formatPersonName(data.fullName) ?? data.fullName,
-		});
-		return { success: true, data: undefined };
-	} catch (error) {
-		return { success: false, error: extractError(error) };
-	}
-}
-
-export async function addPhone(
-	applicantId: string,
-	phoneNumber: string
-): Promise<ActionResult<void>> {
-	try {
-		await addApplicantPhone(applicantId, phoneNumber);
-		return { success: true, data: undefined };
-	} catch (error) {
-		return { success: false, error: extractError(error) };
-	}
-}
-
-export async function removePhone(
-	phoneId: string
-): Promise<ActionResult<void>> {
-	try {
-		await removeApplicantPhone(phoneId);
-		return { success: true, data: undefined };
-	} catch (error) {
-		return { success: false, error: extractError(error) };
-	}
-}
-
-export async function addNewGuardian(
-	data: GuardianInput,
-	phoneNumbers?: string[]
-): Promise<ActionResult<void>> {
-	try {
-		await createGuardian(
-			{
+export const updateApplicantInfo = createAction(
+	async (id: string, data: ApplicantInput) => {
+		unwrap(
+			await updateApplicant(id, {
 				...data,
-				name: formatPersonName(data.name) ?? data.name,
-			},
-			phoneNumbers
+				fullName: formatPersonName(data.fullName) ?? data.fullName,
+			})
 		);
-		return { success: true, data: undefined };
-	} catch (error) {
-		return { success: false, error: extractError(error) };
 	}
-}
+);
 
-export async function updateExistingGuardian(
-	id: string,
-	data: Partial<GuardianInput>,
-	phoneNumbers?: string[]
-): Promise<ActionResult<void>> {
-	try {
-		await updateGuardian(
-			id,
-			{
-				...data,
-				name: formatPersonName(data.name) ?? data.name,
-			},
-			phoneNumbers
+export const addPhone = createAction(
+	async (applicantId: string, phoneNumber: string) => {
+		unwrap(await addApplicantPhone(applicantId, phoneNumber));
+	}
+);
+
+export const removePhone = createAction(async (phoneId: string) => {
+	unwrap(await removeApplicantPhone(phoneId));
+});
+
+export const addNewGuardian = createAction(
+	async (data: GuardianInput, phoneNumbers?: string[]) => {
+		unwrap(
+			await createGuardian(
+				{
+					...data,
+					name: formatPersonName(data.name) ?? data.name,
+				},
+				phoneNumbers
+			)
 		);
-		return { success: true, data: undefined };
-	} catch (error) {
-		return { success: false, error: extractError(error) };
 	}
-}
+);
 
-export async function removeGuardian(id: string): Promise<ActionResult<void>> {
-	try {
-		await deleteGuardian(id);
-		return { success: true, data: undefined };
-	} catch (error) {
-		return { success: false, error: extractError(error) };
+export const updateExistingGuardian = createAction(
+	async (id: string, data: Partial<GuardianInput>, phoneNumbers?: string[]) => {
+		unwrap(
+			await updateGuardian(
+				id,
+				{
+					...data,
+					name: formatPersonName(data.name) ?? data.name,
+				},
+				phoneNumbers
+			)
+		);
 	}
-}
+);
 
-export async function addGuardianPhoneNumber(
-	guardianId: string,
-	phoneNumber: string
-): Promise<ActionResult<void>> {
-	try {
-		await addGuardianPhone(guardianId, phoneNumber);
-		return { success: true, data: undefined };
-	} catch (error) {
-		return { success: false, error: extractError(error) };
-	}
-}
+export const removeGuardian = createAction(async (id: string) => {
+	unwrap(await deleteGuardian(id));
+});
 
-export async function removeGuardianPhoneNumber(
-	phoneId: string
-): Promise<ActionResult<void>> {
-	try {
-		await removeGuardianPhone(phoneId);
-		return { success: true, data: undefined };
-	} catch (error) {
-		return { success: false, error: extractError(error) };
+export const addGuardianPhoneNumber = createAction(
+	async (guardianId: string, phoneNumber: string) => {
+		unwrap(await addGuardianPhone(guardianId, phoneNumber));
 	}
-}
+);
+
+export const removeGuardianPhoneNumber = createAction(
+	async (phoneId: string) => {
+		unwrap(await removeGuardianPhone(phoneId));
+	}
+);

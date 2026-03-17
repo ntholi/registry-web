@@ -23,9 +23,9 @@ import {
 	IconCreditCard,
 	IconReceipt,
 } from '@tabler/icons-react';
-import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'nextjs-toploader/app';
 import { useQueryState } from 'nuqs';
+import { useActionMutation } from '@/shared/lib/actions/use-action-mutation';
 import { submitReceiptPayment } from '../_server/actions';
 import { MobilePayment } from './MobilePayment';
 import ReceiptUpload from './ReceiptUpload';
@@ -57,8 +57,8 @@ export default function PaymentForm({
 	const [payLaterOpened, { open: openPayLater, close: closePayLater }] =
 		useDisclosure(false);
 
-	const submitReceiptMutation = useMutation({
-		mutationFn: async (
+	const submitReceiptMutation = useActionMutation(
+		(
 			receipts: Array<{
 				base64: string;
 				mediaType: string;
@@ -76,8 +76,8 @@ export default function PaymentForm({
 				terminalNumber: string | null;
 			}>
 		) => submitReceiptPayment(applicationId, receipts),
-		onSuccess: (result) => {
-			if (result.success) {
+		{
+			onSuccess: () => {
 				notifications.show({
 					title: 'Payment Submitted',
 					message:
@@ -85,22 +85,16 @@ export default function PaymentForm({
 					color: 'blue',
 				});
 				router.push(`/apply/${applicationId}/thank-you`);
-			} else {
+			},
+			onError: (error: Error) => {
 				notifications.show({
-					title: 'Submission Failed',
-					message: result.error || 'Failed to submit deposit slip',
+					title: 'Error',
+					message: error.message,
 					color: 'red',
 				});
-			}
-		},
-		onError: (error: Error) => {
-			notifications.show({
-				title: 'Error',
-				message: error.message,
-				color: 'red',
-			});
-		},
-	});
+			},
+		}
+	);
 
 	function handleBack() {
 		router.push(`/apply/${applicationId}/review`);

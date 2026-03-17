@@ -19,9 +19,8 @@ import { useForm } from '@mantine/form';
 import { useDisclosure, useMediaQuery } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import { IconEdit, IconPlus, IconTrash } from '@tabler/icons-react';
-import { useMutation } from '@tanstack/react-query';
 import { useState } from 'react';
-import { getActionErrorMessage } from '@/shared/lib/actions/actionResult';
+import { useActionMutation } from '@/shared/lib/actions/use-action-mutation';
 import {
 	addNewGuardian,
 	removeGuardian,
@@ -71,75 +70,67 @@ export default function GuardianManager() {
 		},
 	});
 
-	const createMutation = useMutation({
-		mutationFn: async (values: typeof form.values) => {
+	const createMutation = useActionMutation(
+		(values: typeof form.values) => {
 			const { phoneNumber1, phoneNumber2, ...data } = values;
-			const res = await addNewGuardian(
+			return addNewGuardian(
 				{ ...data, applicantId },
 				[phoneNumber1, phoneNumber2].filter(Boolean)
 			);
-			if (!res.success) throw new Error(getActionErrorMessage(res.error));
 		},
-		onSuccess: async () => {
-			await refetch();
-			form.reset();
-			close();
-			notifications.show({
-				title: 'Success',
-				message: 'Guardian added',
-				color: 'green',
-			});
-		},
-		onError: (error: Error) => {
-			notifications.show({
-				title: 'Error',
-				message: error.message,
-				color: 'red',
-			});
-		},
-	});
+		{
+			onSuccess: async () => {
+				await refetch();
+				form.reset();
+				close();
+				notifications.show({
+					title: 'Success',
+					message: 'Guardian added',
+					color: 'green',
+				});
+			},
+			onError: (error: Error) => {
+				notifications.show({
+					title: 'Error',
+					message: error.message,
+					color: 'red',
+				});
+			},
+		}
+	);
 
-	const updateMutation = useMutation({
-		mutationFn: async ({
-			id,
-			values,
-		}: {
-			id: string;
-			values: typeof form.values;
-		}) => {
+	const updateMutation = useActionMutation(
+		({ id, values }: { id: string; values: typeof form.values }) => {
 			const { phoneNumber1, phoneNumber2, ...data } = values;
-			const res = await updateExistingGuardian(
+			return updateExistingGuardian(
 				id,
 				data,
 				[phoneNumber1, phoneNumber2].filter(Boolean)
 			);
-			if (!res.success) throw new Error(getActionErrorMessage(res.error));
 		},
-		onSuccess: async () => {
-			await refetch();
-			form.reset();
-			setEditingGuardian(null);
-			close();
-			notifications.show({
-				title: 'Success',
-				message: 'Guardian updated',
-				color: 'green',
-			});
-		},
-		onError: (error: Error) => {
-			notifications.show({
-				title: 'Error',
-				message: error.message,
-				color: 'red',
-			});
-		},
-	});
+		{
+			onSuccess: async () => {
+				await refetch();
+				form.reset();
+				setEditingGuardian(null);
+				close();
+				notifications.show({
+					title: 'Success',
+					message: 'Guardian updated',
+					color: 'green',
+				});
+			},
+			onError: (error: Error) => {
+				notifications.show({
+					title: 'Error',
+					message: error.message,
+					color: 'red',
+				});
+			},
+		}
+	);
 
-	const deleteMutation = useMutation({
-		mutationFn: async (id: string) => {
-			const res = await removeGuardian(id);
-			if (!res.success) throw new Error(getActionErrorMessage(res.error));
-		},
+	const deleteMutation = useActionMutation(removeGuardian, {
 		onSuccess: async () => {
 			await refetch();
 			notifications.show({

@@ -26,9 +26,8 @@ import {
 	IconSend,
 	IconUser,
 } from '@tabler/icons-react';
-import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'nextjs-toploader/app';
-import { getActionErrorMessage } from '@/shared/lib/actions/actionResult';
+import { useActionMutation } from '@/shared/lib/actions/use-action-mutation';
 import { submitApplication } from '../_server/actions';
 
 type Props = {
@@ -43,35 +42,36 @@ export default function ReviewForm({ applicationId }: Props) {
 
 	const isAlreadySubmitted = application?.status === 'submitted';
 
-	const submitMutation = useMutation({
-		mutationFn: async () => {
+	const submitMutation = useActionMutation(
+		async () => {
 			if (!application?.id) {
 				throw new Error('No application found');
 			}
-			const res = await submitApplication(application.id);
-			if (!res.success) throw new Error(getActionErrorMessage(res.error));
+			return submitApplication(application.id);
 		},
-		onSuccess: () => {
-			refetch();
-			notifications.show({
-				title: isAlreadySubmitted
-					? 'Application updated!'
-					: 'Application submitted!',
-				message: isAlreadySubmitted
-					? 'Your application has been updated'
-					: 'Your application has been submitted for review',
-				color: 'green',
-			});
-			router.push(`/apply/${applicationId}/payment?method=receipt`);
-		},
-		onError: (error) => {
-			notifications.show({
-				title: 'Error',
-				message: error.message,
-				color: 'red',
-			});
-		},
-	});
+		{
+			onSuccess: () => {
+				refetch();
+				notifications.show({
+					title: isAlreadySubmitted
+						? 'Application updated!'
+						: 'Application submitted!',
+					message: isAlreadySubmitted
+						? 'Your application has been updated'
+						: 'Your application has been submitted for review',
+					color: 'green',
+				});
+				router.push(`/apply/${applicationId}/payment?method=receipt`);
+			},
+			onError: (error) => {
+				notifications.show({
+					title: 'Error',
+					message: error.message,
+					color: 'red',
+				});
+			},
+		}
+	);
 
 	function handleBack() {
 		router.push(`/apply/${applicationId}/personal-info`);

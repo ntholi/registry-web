@@ -1,5 +1,6 @@
 'use server';
 
+import { createAction } from '@/shared/lib/actions/actionResult';
 import { auditLogService as service } from './service';
 
 export async function getAuditLogs(
@@ -27,9 +28,9 @@ export async function getUnsyncedAuditLogs() {
 	return service.getUnsynced();
 }
 
-export async function markAuditLogSynced(id: bigint) {
-	return service.markAsSynced(id);
-}
+export const markAuditLogSynced = createAction(async (id: bigint) =>
+	service.markAsSynced(id)
+);
 
 export async function getStudentModuleAuditHistory(studentModuleId: number) {
 	return service.getStudentModuleAuditHistory(studentModuleId);

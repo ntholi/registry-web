@@ -10,49 +10,43 @@ import {
 	saveApplicantDocument,
 	updateApplicantFromIdentity,
 } from '@admissions/applicants/[id]/documents/_server/actions';
-import { type ActionResult, extractError } from '@apply/_lib/errors';
 import type { IdentityDocumentResult } from '@/core/integrations/ai/documents';
 import { uploadFile } from '@/core/integrations/storage';
 import {
 	generateUploadKey,
 	StoragePaths,
 } from '@/core/integrations/storage-utils';
-import { unwrap } from '@/shared/lib/actions/actionResult';
+import { createAction, unwrap } from '@/shared/lib/actions/actionResult';
+import { UserFacingError } from '@/shared/lib/actions/extractError';
 
 const MAX_FILE_SIZE = 2 * 1024 * 1024;
 
 type UploadResult = { fileName: string; analysis: IdentityDocumentResult };
 
-async function hasValidIdentityDocument(
-	applicantId: string
-): Promise<ActionResult<boolean>> {
+async function hasValidIdentityDocument(applicantId: string) {
 	const applicant = await getApplicant(applicantId);
 	if (!applicant) {
-		return { success: false, error: 'Applicant not found' };
+		throw new UserFacingError('Applicant not found');
 	}
 	const docs = await findDocumentsByType(applicantId, 'identity');
 	const hasIdentityDoc = docs.some((doc) => doc.document.fileUrl);
 	const hasIdentityData = Boolean(
 		applicant.nationalId || applicant.dateOfBirth
 	);
-	return { success: true, data: hasIdentityDoc && hasIdentityData };
+	return hasIdentityDoc && hasIdentityData;
 }
 
-export async function uploadIdentityDocument(
-	applicantId: string,
-	file: File,
-	analysis: IdentityDocumentResult
-): Promise<ActionResult<UploadResult>> {
-	try {
+export const uploadIdentityDocument = createAction(
+	async (
+		applicantId: string,
+		file: File,
+		analysis: IdentityDocumentResult
+	): Promise<UploadResult> => {
 		const locked = await hasValidIdentityDocument(applicantId);
-		if (!locked.success) {
-			return { success: false, error: locked.error };
-		}
-		if (locked.data) {
-			return {
-				success: false,
-				error: 'A valid identity document is already attached',
-			};
+		if (locked) {
+			throw new UserFacingError(
+				'A valid identity document is already attached'
+			);
 		}
 
 		const nationalId = analysis.nationalId?.trim();
@@ -60,17 +54,16 @@ export async function uploadIdentityDocument(
 			const existing = await findApplicantByNationalIdWithUser(nationalId);
 			if (existing && existing.id !== applicantId) {
 				const email = existing.user?.email;
-				return {
-					success: false,
-					error: email
+				throw new UserFacingError(
+					email
 						? `ID document is already registered with ${email}`
-						: 'ID document is already registered with another account',
-				};
+						: 'ID document is already registered with another account'
+				);
 			}
 		}
 
 		if (file.size > MAX_FILE_SIZE) {
-			return { success: false, error: 'File size exceeds 2MB limit' };
+			throw new UserFacingError('File size exceeds 2MB limit');
 		}
 
 		const fileKey = generateUploadKey(
@@ -101,32 +94,17 @@ export async function uploadIdentityDocument(
 			})
 		);
 
-		return { success: true, data: { fileName: file.name, analysis } };
-	} catch (error) {
-		return { success: false, error: extractError(error) };
+		return { fileName: file.name, analysis };
 	}
-}
+);
 
-export async function removeIdentityDocument(
-	applicantId: string,
-	id: string,
-	fileUrl: string
-): Promise<ActionResult<void>> {
-	try {
+export const removeIdentityDocument = createAction(
+	async (applicantId: string, id: string, fileUrl: string) => {
 		const locked = await hasValidIdentityDocument(applicantId);
-		if (!locked.success) {
-			return { success: false, error: locked.error };
-		}
-		if (locked.data) {
-			return {
-				success: false,
-				error: 'Valid identity documents cannot be removed',
-			};
+		if (locked) {
+			throw new UserFacingError('Valid identity documents cannot be removed');
 		}
 
 		unwrap(await deleteApplicantDocument(id, fileUrl));
-		return { success: true, data: undefined };
-	} catch (error) {
-		return { success: false, error: extractError(error) };
 	}
-}
+);
