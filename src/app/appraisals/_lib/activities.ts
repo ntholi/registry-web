@@ -38,6 +38,18 @@ const APPRAISALS_ACTIVITIES = {
 			label: 'Student Feedback Question Deleted',
 			department: 'academic',
 		},
+		observation_criteria_created: {
+			label: 'Observation Criteria Created',
+			department: 'academic',
+		},
+		observation_criteria_updated: {
+			label: 'Observation Criteria Updated',
+			department: 'academic',
+		},
+		observation_criteria_deleted: {
+			label: 'Observation Criteria Deleted',
+			department: 'academic',
+		},
 	},
 	tableOperationMap: {
 		'feedback_cycles:INSERT': 'feedback_cycle_created',
@@ -49,6 +61,12 @@ const APPRAISALS_ACTIVITIES = {
 		'feedback_questions:INSERT': 'student_feedback_question_created',
 		'feedback_questions:UPDATE': 'student_feedback_question_updated',
 		'feedback_questions:DELETE': 'student_feedback_question_deleted',
+		'observation_categories:INSERT': 'observation_criteria_created',
+		'observation_categories:UPDATE': 'observation_criteria_updated',
+		'observation_categories:DELETE': 'observation_criteria_deleted',
+		'observation_criteria:INSERT': 'observation_criteria_created',
+		'observation_criteria:UPDATE': 'observation_criteria_updated',
+		'observation_criteria:DELETE': 'observation_criteria_deleted',
 	},
 } as const satisfies ActivityFragment;
 

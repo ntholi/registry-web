@@ -1,6 +1,8 @@
 import {
 	IconCalendarEvent,
 	IconChartBar,
+	IconEye,
+	IconListCheck,
 	IconMessageQuestion,
 	IconMessageStar,
 } from '@tabler/icons-react';
@@ -35,6 +37,22 @@ export const appraisalsConfig: ModuleConfig = {
 						icon: IconChartBar,
 						permissions: [
 							{ resource: 'student-feedback-reports', action: 'read' },
+						],
+					},
+				],
+			},
+			{
+				label: 'Teaching Observation',
+				icon: IconEye,
+				roles: ['academic', 'admin', 'human_resource'],
+				collapsed: false,
+				children: [
+					{
+						label: 'Criteria',
+						href: '/appraisals/observation-criteria',
+						icon: IconListCheck,
+						permissions: [
+							{ resource: 'teaching-observation-criteria', action: 'read' },
 						],
 					},
 				],
