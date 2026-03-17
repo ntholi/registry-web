@@ -16,7 +16,11 @@ import {
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { modals } from '@mantine/modals';
-import { IconLogout2, IconSwitchHorizontal } from '@tabler/icons-react';
+import {
+	IconAdjustmentsAlt,
+	IconLogout2,
+	IconSwitchHorizontal,
+} from '@tabler/icons-react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
@@ -89,7 +93,13 @@ export default function UserButton({ viewAs }: { viewAs: ViewAsData | null }) {
 					color={isViewingAs ? 'red' : undefined}
 					onClick={isAdmin ? open : openLogoutModal}
 				>
-					<IconLogout2 size='1rem' />
+					{isViewingAs ? (
+						<IconSwitchHorizontal size='1rem' />
+					) : isAdmin ? (
+						<IconAdjustmentsAlt size='1rem' />
+					) : (
+						<IconLogout2 size='1rem' />
+					)}
 				</ActionIcon>
 			</Flex>
 			{isAdmin && (

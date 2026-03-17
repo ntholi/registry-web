@@ -188,7 +188,6 @@ export const PERMISSION_PRESET_SEEDS: readonly PermissionPresetSeed[] = [
 			grant('registration', ['read']),
 			grant('registration-clearance', ['read']),
 			grant('student-statuses', ['approve']),
-			// Removed library access to blocked-students
 			grant('timetable', ['read']),
 			grant('attendance', ['read']),
 			grant('tasks', fullCrud),

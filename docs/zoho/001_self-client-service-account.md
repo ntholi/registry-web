@@ -1,19 +1,19 @@
-# Zoho Books Integration
+# Option 1: Self Client (Service Account)
 
-Production setup and architecture reference for the Zoho Books integration in Registry Web.
+Single shared Zoho account for all API calls. Simple setup, no per-user token management.
+
+> **Trade-off**: All Zoho audit log entries show the same service account — you cannot tell which finance user performed an action in Zoho's logs.
 
 ---
 
-## 1. Initial Setup (New Deployment)
-
-Follow these steps in order when deploying Registry Web to a new environment.
+## 1. Initial Setup
 
 ### 1.1 Zoho Books Organization
 
 The app connects to a single Zoho Books organization. The organization must:
 
 - Use **LSL (Lesotho Loti)** as the base currency
-- Have **Reporting Tags** configured (see [Section 3](#3-reporting-tags--contact-tagging))
+- Have **Reporting Tags** configured (see [Section 5](#5-reporting-tags--contact-tagging))
 - Have a **Contact Custom Field** named `Account Code` (type: string) — this is the primary field used to match students by student number
 
 ### 1.2 Create a Self Client (OAuth 2.0)
@@ -82,7 +82,42 @@ This connects to the Zoho API and writes `src/app/finance/_lib/zoho-books/zoho-c
 
 ---
 
-## 2. How Students Map to Zoho Contacts
+## 2. How It Works
+
+### Token Flow
+
+```
+App starts
+  → Reads ZOHO_BOOKS_REFRESH_TOKEN from .env
+  → On first API call, exchanges refresh token for access token
+  → Caches access token in memory (~60 min, with 60s safety buffer)
+  → On 401 response, force-refreshes and retries once
+  → All finance users share the same token
+```
+
+### Architecture
+
+```
+Finance User → Server Action (permission check) → Service → Zoho API
+                                                       ↑
+                                              Single shared token
+                                              from env variable
+```
+
+---
+
+## 3. Authentication & Token Management
+
+The client (`src/app/finance/_lib/zoho-books/client.ts`) handles OAuth transparently:
+
+- Access tokens are cached in memory with a 60-second pre-expiry buffer
+- On HTTP 401, the token is force-refreshed and the request is retried once
+- On HTTP 429, a rate-limit error is thrown immediately (no retry)
+- All requests inject `organization_id` as a query parameter automatically
+
+---
+
+## 4. How Students Map to Zoho Contacts
 
 Students are stored as **Business** contacts. The field mapping:
 
@@ -122,7 +157,7 @@ The Zoho Contacts API does not support filtering by custom fields directly. The 
 
 ---
 
-## 3. Reporting Tags & Contact Tagging
+## 5. Reporting Tags & Contact Tagging
 
 Zoho Books Reporting Tags are used to categorize students for financial reporting. Three tags are configured:
 
@@ -154,7 +189,7 @@ Some internal school codes differ from Zoho tag options:
 
 ---
 
-## 4. API Endpoints Used
+## 6. API Endpoints Used
 
 | Endpoint | Method | Purpose |
 |---|---|---|
@@ -175,18 +210,7 @@ Some internal school codes differ from Zoho tag options:
 
 ---
 
-## 5. Authentication & Token Management
-
-The client (`src/app/finance/_lib/zoho-books/client.ts`) handles OAuth transparently:
-
-- Access tokens are cached in memory with a 60-second pre-expiry buffer
-- On HTTP 401, the token is force-refreshed and the request is retried once
-- On HTTP 429, a rate-limit error is thrown immediately (no retry)
-- All requests inject `organization_id` as a query parameter automatically
-
----
-
-## 6. File Structure
+## 7. File Structure
 
 ```
 src/app/finance/_lib/zoho-books/
@@ -216,7 +240,7 @@ All UI lives in `src/app/registry/students/_components/finance/`:
 
 ---
 
-## 7. Rate Limits
+## 8. Rate Limits
 
 | Plan | Daily Requests | Per-Minute Limit | Concurrent Calls |
 |---|---|---|---|
@@ -228,7 +252,7 @@ Each student finance view loads ~5 API calls (contact + invoices + payments + es
 
 ---
 
-## 8. Troubleshooting
+## 9. Troubleshooting
 
 | Symptom | Cause | Fix |
 |---|---|---|
