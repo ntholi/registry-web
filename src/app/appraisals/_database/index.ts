@@ -8,3 +8,8 @@ export * from '../student-feedback/categories/_schema/relations';
 export * from '../student-feedback/categories/_schema/studentFeedbackCategories';
 export * from '../student-feedback/questions/_schema/relations';
 export * from '../student-feedback/questions/_schema/studentFeedbackQuestions';
+export * from '../teaching-observations/_schema/observationCategories';
+export * from '../teaching-observations/_schema/observationCriteria';
+export * from '../teaching-observations/_schema/observationRatings';
+export * from '../teaching-observations/_schema/observations';
+export * from '../teaching-observations/_schema/relations';
