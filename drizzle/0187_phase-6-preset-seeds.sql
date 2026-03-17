@@ -1133,9 +1133,9 @@ BEGIN
 		ON expected.preset_name = preset.name
 		AND expected.resource = permission.resource
 		AND expected.action = permission.action;
-  IF v_seeded_permission_count != 471 THEN
+  IF v_seeded_permission_count != 472 THEN
 		RAISE EXCEPTION 'ABORT: expected % seeded preset permissions but found %',
-      471, v_seeded_permission_count;
+      472, v_seeded_permission_count;
 	END IF;
 
 	SELECT count(*) INTO v_unmapped_count
