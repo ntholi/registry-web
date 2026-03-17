@@ -30,14 +30,6 @@ export const appraisalsConfig: ModuleConfig = {
 						],
 					},
 					{
-						label: 'Cycles',
-						href: '/appraisals/student-feedback/cycles',
-						icon: IconCalendarEvent,
-						permissions: [
-							{ resource: 'student-feedback-cycles', action: 'read' },
-						],
-					},
-					{
 						label: 'Reports',
 						href: '/appraisals/student-feedback/reports',
 						icon: IconChartBar,
@@ -46,6 +38,13 @@ export const appraisalsConfig: ModuleConfig = {
 						],
 					},
 				],
+			},
+			{
+				label: 'Cycles',
+				href: '/appraisals/cycles',
+				icon: IconCalendarEvent,
+				roles: ['academic', 'admin', 'human_resource'],
+				permissions: [{ resource: 'feedback-cycles', action: 'read' }],
 			},
 		],
 	},

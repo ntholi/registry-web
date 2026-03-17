@@ -8,16 +8,16 @@ import {
 	unique,
 } from 'drizzle-orm/pg-core';
 import { nanoid } from 'nanoid';
-import { studentFeedbackCycles } from './studentFeedbackCycles';
+import { feedbackCycles } from './feedbackCycles';
 
-export const studentFeedbackCycleSchools = pgTable(
+export const feedbackCycleSchools = pgTable(
 	'feedback_cycle_schools',
 	{
 		id: text()
 			.primaryKey()
 			.$defaultFn(() => nanoid()),
 		cycleId: text()
-			.references(() => studentFeedbackCycles.id, { onDelete: 'cascade' })
+			.references(() => feedbackCycles.id, { onDelete: 'cascade' })
 			.notNull(),
 		schoolId: integer()
 			.references(() => schools.id, { onDelete: 'cascade' })

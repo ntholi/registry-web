@@ -89,7 +89,7 @@ export default function Filter({ onFilterChange, hideAdvanced }: Props) {
 	});
 
 	const { data: cycles = [], isLoading: cyclesLoading } = useQuery({
-		queryKey: ['student-feedback-cycles-by-term', localFilter.termId],
+		queryKey: ['feedback-cycles-by-term', localFilter.termId],
 		queryFn: () => getStudentFeedbackCyclesByTerm(localFilter.termId!),
 		enabled: Boolean(localFilter.termId),
 	});

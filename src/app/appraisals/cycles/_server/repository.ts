@@ -1,12 +1,12 @@
 import { and, count, eq, getTableColumns, inArray, sql } from 'drizzle-orm';
 import {
 	db,
+	feedbackCycleSchools,
+	feedbackCycles,
 	programs,
 	schools,
 	structureSemesters,
 	structures,
-	studentFeedbackCycleSchools,
-	studentFeedbackCycles,
 	studentFeedbackPassphrases,
 	studentSemesters,
 	terms,
@@ -15,17 +15,17 @@ import BaseRepository, {
 	type QueryOptions,
 } from '@/core/platform/BaseRepository';
 
-export default class StudentFeedbackCycleRepository extends BaseRepository<
-	typeof studentFeedbackCycles,
+export default class FeedbackCycleRepository extends BaseRepository<
+	typeof feedbackCycles,
 	'id'
 > {
 	constructor() {
-		super(studentFeedbackCycles, studentFeedbackCycles.id);
+		super(feedbackCycles, feedbackCycles.id);
 	}
 
 	override async findById(id: string) {
-		return db.query.studentFeedbackCycles.findFirst({
-			where: eq(studentFeedbackCycles.id, id),
+		return db.query.feedbackCycles.findFirst({
+			where: eq(feedbackCycles.id, id),
 			with: {
 				term: true,
 				cycleSchools: { with: { school: true } },
@@ -34,36 +34,36 @@ export default class StudentFeedbackCycleRepository extends BaseRepository<
 	}
 
 	async queryWithSchoolCodes(
-		options: QueryOptions<typeof studentFeedbackCycles>,
+		options: QueryOptions<typeof feedbackCycles>,
 		userSchoolIds?: number[]
 	) {
 		const { orderBy, where, offset, limit } = this.buildQueryCriteria(options);
 		const schoolFilter =
 			userSchoolIds && userSchoolIds.length > 0
-				? inArray(studentFeedbackCycleSchools.schoolId, userSchoolIds)
+				? inArray(feedbackCycleSchools.schoolId, userSchoolIds)
 				: undefined;
 		const combinedWhere = schoolFilter
 			? where
 				? and(
 						where,
-						sql`${studentFeedbackCycles.id} in (select ${studentFeedbackCycleSchools.cycleId} from ${studentFeedbackCycleSchools} where ${schoolFilter})`
+						sql`${feedbackCycles.id} in (select ${feedbackCycleSchools.cycleId} from ${feedbackCycleSchools} where ${schoolFilter})`
 					)
-				: sql`${studentFeedbackCycles.id} in (select ${studentFeedbackCycleSchools.cycleId} from ${studentFeedbackCycleSchools} where ${schoolFilter})`
+				: sql`${feedbackCycles.id} in (select ${feedbackCycleSchools.cycleId} from ${feedbackCycleSchools} where ${schoolFilter})`
 			: where;
 		const items = await db
 			.select({
-				...getTableColumns(studentFeedbackCycles),
+				...getTableColumns(feedbackCycles),
 				schoolCodes: sql<
 					string[]
 				>`coalesce(array_agg(${schools.code} order by ${schools.code}) filter (where ${schools.code} is not null), '{}')`,
 			})
-			.from(studentFeedbackCycles)
+			.from(feedbackCycles)
 			.leftJoin(
-				studentFeedbackCycleSchools,
-				eq(studentFeedbackCycleSchools.cycleId, studentFeedbackCycles.id)
+				feedbackCycleSchools,
+				eq(feedbackCycleSchools.cycleId, feedbackCycles.id)
 			)
-			.leftJoin(schools, eq(schools.id, studentFeedbackCycleSchools.schoolId))
-			.groupBy(studentFeedbackCycles.id)
+			.leftJoin(schools, eq(schools.id, feedbackCycleSchools.schoolId))
+			.groupBy(feedbackCycles.id)
 			.orderBy(...orderBy)
 			.where(combinedWhere)
 			.limit(limit)
@@ -72,17 +72,14 @@ export default class StudentFeedbackCycleRepository extends BaseRepository<
 	}
 
 	async createWithSchools(
-		data: typeof studentFeedbackCycles.$inferInsert,
+		data: typeof feedbackCycles.$inferInsert,
 		schoolIds: number[]
 	) {
 		return db.transaction(async (tx) => {
-			const [cycle] = await tx
-				.insert(studentFeedbackCycles)
-				.values(data)
-				.returning();
+			const [cycle] = await tx.insert(feedbackCycles).values(data).returning();
 			if (schoolIds.length > 0) {
 				await tx
-					.insert(studentFeedbackCycleSchools)
+					.insert(feedbackCycleSchools)
 					.values(
 						schoolIds.map((schoolId) => ({ cycleId: cycle.id, schoolId }))
 					);
@@ -93,21 +90,21 @@ export default class StudentFeedbackCycleRepository extends BaseRepository<
 
 	async updateWithSchools(
 		id: string,
-		data: Partial<typeof studentFeedbackCycles.$inferInsert>,
+		data: Partial<typeof feedbackCycles.$inferInsert>,
 		schoolIds: number[]
 	) {
 		return db.transaction(async (tx) => {
 			const [cycle] = await tx
-				.update(studentFeedbackCycles)
+				.update(feedbackCycles)
 				.set(data)
-				.where(eq(studentFeedbackCycles.id, id))
+				.where(eq(feedbackCycles.id, id))
 				.returning();
 			await tx
-				.delete(studentFeedbackCycleSchools)
-				.where(eq(studentFeedbackCycleSchools.cycleId, id));
+				.delete(feedbackCycleSchools)
+				.where(eq(feedbackCycleSchools.cycleId, id));
 			if (schoolIds.length > 0) {
 				await tx
-					.insert(studentFeedbackCycleSchools)
+					.insert(feedbackCycleSchools)
 					.values(schoolIds.map((schoolId) => ({ cycleId: id, schoolId })));
 			}
 			return cycle;
@@ -140,10 +137,10 @@ export default class StudentFeedbackCycleRepository extends BaseRepository<
 			.innerJoin(programs, eq(structures.programId, programs.id))
 			.innerJoin(schools, eq(programs.schoolId, schools.id))
 			.innerJoin(
-				studentFeedbackCycleSchools,
+				feedbackCycleSchools,
 				and(
-					eq(studentFeedbackCycleSchools.schoolId, schools.id),
-					eq(studentFeedbackCycleSchools.cycleId, cycleId)
+					eq(feedbackCycleSchools.schoolId, schools.id),
+					eq(feedbackCycleSchools.cycleId, cycleId)
 				)
 			)
 			.where(eq(studentSemesters.termCode, term.code))
@@ -257,4 +254,4 @@ export default class StudentFeedbackCycleRepository extends BaseRepository<
 	}
 }
 
-export const feedbackCycleRepository = new StudentFeedbackCycleRepository();
+export const feedbackCycleRepository = new FeedbackCycleRepository();

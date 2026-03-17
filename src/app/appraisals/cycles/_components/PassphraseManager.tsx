@@ -79,12 +79,12 @@ export default function PassphraseManager({
 	} | null>(null);
 
 	const { data: schoolGroups = [], isLoading: classesLoading } = useQuery({
-		queryKey: ['student-feedback-classes', cycleId, termId],
+		queryKey: ['feedback-classes', cycleId, termId],
 		queryFn: () => getClassesForCycle(cycleId, termId),
 	});
 
 	const { data: statsMap, isLoading: statsLoading } = useQuery({
-		queryKey: ['student-feedback-passphrase-stats', cycleId],
+		queryKey: ['feedback-passphrase-stats', cycleId],
 		queryFn: () => getPassphraseStats(cycleId),
 	});
 
@@ -138,10 +138,10 @@ export default function PassphraseManager({
 				});
 				setGenerateTarget(null);
 				queryClient.invalidateQueries({
-					queryKey: ['student-feedback-passphrase-stats', cycleId],
+					queryKey: ['feedback-passphrase-stats', cycleId],
 				});
 				queryClient.invalidateQueries({
-					queryKey: ['student-feedback-passphrase-slips', cycleId],
+					queryKey: ['feedback-passphrase-slips', cycleId],
 				});
 			},
 			onError: (err: Error) => {

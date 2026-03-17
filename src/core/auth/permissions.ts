@@ -6,7 +6,7 @@ export const RESOURCES = [
 	'school-structures',
 	'student-feedback-questions',
 	'student-feedback-categories',
-	'student-feedback-cycles',
+	'feedback-cycles',
 	'student-feedback-reports',
 	'timetable',
 	'venues',

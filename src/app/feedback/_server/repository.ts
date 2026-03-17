@@ -4,10 +4,10 @@ import { and, eq, sql } from 'drizzle-orm';
 import {
 	assignedModules,
 	db,
+	feedbackCycles,
 	modules,
 	semesterModules,
 	studentFeedbackCategories,
-	studentFeedbackCycles,
 	studentFeedbackPassphrases,
 	studentFeedbackQuestions,
 	studentFeedbackResponses,
@@ -18,18 +18,18 @@ export async function validatePassphrase(passphrase: string) {
 	const row = await db
 		.select({
 			passphraseId: studentFeedbackPassphrases.id,
-			cycleId: studentFeedbackCycles.id,
-			cycleName: studentFeedbackCycles.name,
-			termId: studentFeedbackCycles.termId,
+			cycleId: feedbackCycles.id,
+			cycleName: feedbackCycles.name,
+			termId: feedbackCycles.termId,
 			structureSemesterId: studentFeedbackPassphrases.structureSemesterId,
 			used: studentFeedbackPassphrases.used,
-			startDate: studentFeedbackCycles.startDate,
-			endDate: studentFeedbackCycles.endDate,
+			startDate: feedbackCycles.startDate,
+			endDate: feedbackCycles.endDate,
 		})
 		.from(studentFeedbackPassphrases)
 		.innerJoin(
-			studentFeedbackCycles,
-			eq(studentFeedbackPassphrases.cycleId, studentFeedbackCycles.id)
+			feedbackCycles,
+			eq(studentFeedbackPassphrases.cycleId, feedbackCycles.id)
 		)
 		.where(
 			eq(

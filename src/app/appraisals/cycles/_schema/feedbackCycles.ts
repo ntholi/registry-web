@@ -2,7 +2,7 @@ import { terms } from '@registry/terms/_schema/terms';
 import { integer, pgTable, text, timestamp } from 'drizzle-orm/pg-core';
 import { nanoid } from 'nanoid';
 
-export const studentFeedbackCycles = pgTable('feedback_cycles', {
+export const feedbackCycles = pgTable('feedback_cycles', {
 	id: text()
 		.primaryKey()
 		.$defaultFn(() => nanoid()),

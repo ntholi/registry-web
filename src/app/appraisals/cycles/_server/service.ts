@@ -1,25 +1,22 @@
 import { getUserSchoolIds } from '@admin/users';
-import type { studentFeedbackCycles } from '@/core/database';
+import type { feedbackCycles } from '@/core/database';
 import BaseService from '@/core/platform/BaseService';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
 import { withPermission } from '@/core/platform/withPermission';
-import { generateUniquePassphrases } from '../../_shared/lib/passphrase';
-import StudentFeedbackCycleRepository from './repository';
+import { generateUniquePassphrases } from '../../student-feedback/_shared/lib/passphrase';
+import FeedbackCycleRepository from './repository';
 
-class StudentFeedbackCycleService extends BaseService<
-	typeof studentFeedbackCycles,
-	'id'
-> {
-	private repo: StudentFeedbackCycleRepository;
+class FeedbackCycleService extends BaseService<typeof feedbackCycles, 'id'> {
+	private repo: FeedbackCycleRepository;
 
 	constructor() {
-		const repo = new StudentFeedbackCycleRepository();
+		const repo = new FeedbackCycleRepository();
 		super(repo, {
-			findAllAuth: { 'student-feedback-cycles': ['read'] },
-			byIdAuth: { 'student-feedback-cycles': ['read'] },
-			createAuth: { 'student-feedback-cycles': ['create'] },
-			updateAuth: { 'student-feedback-cycles': ['update'] },
-			deleteAuth: { 'student-feedback-cycles': ['delete'] },
+			findAllAuth: { 'feedback-cycles': ['read'] },
+			byIdAuth: { 'feedback-cycles': ['read'] },
+			createAuth: { 'feedback-cycles': ['create'] },
+			updateAuth: { 'feedback-cycles': ['update'] },
+			deleteAuth: { 'feedback-cycles': ['delete'] },
 			activityTypes: {
 				create: 'student_feedback_cycle_created',
 				update: 'student_feedback_cycle_updated',
@@ -37,41 +34,41 @@ class StudentFeedbackCycleService extends BaseService<
 				const userSchoolIds = await getUserSchoolIds(session?.user?.id);
 				return this.repo.queryWithSchoolCodes(params, userSchoolIds);
 			},
-			{ 'student-feedback-cycles': ['read'] }
+			{ 'feedback-cycles': ['read'] }
 		);
 	}
 
 	async createWithSchools(
-		data: typeof studentFeedbackCycles.$inferInsert,
+		data: typeof feedbackCycles.$inferInsert,
 		schoolIds: number[]
 	) {
 		return withPermission(
 			async () => this.repo.createWithSchools(data, schoolIds),
-			{ 'student-feedback-cycles': ['create'] }
+			{ 'feedback-cycles': ['create'] }
 		);
 	}
 
 	async updateWithSchools(
 		id: string,
-		data: typeof studentFeedbackCycles.$inferInsert,
+		data: typeof feedbackCycles.$inferInsert,
 		schoolIds: number[]
 	) {
 		return withPermission(
 			async () => this.repo.updateWithSchools(id, data, schoolIds),
-			{ 'student-feedback-cycles': ['update'] }
+			{ 'feedback-cycles': ['update'] }
 		);
 	}
 
 	async getClassesForCycle(cycleId: string, termId: number) {
 		return withPermission(
 			async () => this.repo.getClassesForCycle(cycleId, termId),
-			{ 'student-feedback-cycles': ['read'] }
+			{ 'feedback-cycles': ['read'] }
 		);
 	}
 
 	async getPassphraseStats(cycleId: string) {
 		return withPermission(async () => this.repo.getPassphraseStats(cycleId), {
-			'student-feedback-cycles': ['read'],
+			'feedback-cycles': ['read'],
 		});
 	}
 
@@ -94,7 +91,7 @@ class StudentFeedbackCycleService extends BaseService<
 				);
 				return count;
 			},
-			{ 'student-feedback-cycles': ['update'] }
+			{ 'feedback-cycles': ['update'] }
 		);
 	}
 
@@ -102,12 +99,12 @@ class StudentFeedbackCycleService extends BaseService<
 		return withPermission(
 			async () =>
 				this.repo.getPassphrasesForClass(cycleId, structureSemesterId),
-			{ 'student-feedback-cycles': ['read'] }
+			{ 'feedback-cycles': ['read'] }
 		);
 	}
 }
 
-export const studentFeedbackCyclesService = serviceWrapper(
-	StudentFeedbackCycleService,
-	'StudentFeedbackCyclesService'
+export const feedbackCyclesService = serviceWrapper(
+	FeedbackCycleService,
+	'feedbackCyclesService'
 );

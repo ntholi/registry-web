@@ -99,7 +99,7 @@ The aggregated database barrel at `src/core/database/` re-exports from `appraisa
 In the permission catalog (`src/app/auth/permission-presets/_lib/catalog.ts`):
 
 ```diff
-- 'student-feedback-cycles'
+- 'feedback-cycles'
 + 'feedback-cycles'
 ```
 
@@ -108,8 +108,8 @@ Update all preset definitions that reference this resource. Also update the serv
 ```diff
   // In FeedbackCycleService constructor
   super(repo, {
--   findAllAuth: { 'student-feedback-cycles': ['read'] },
--   createAuth: { 'student-feedback-cycles': ['create'] },
+-   findAllAuth: { 'feedback-cycles': ['read'] },
+-   createAuth: { 'feedback-cycles': ['create'] },
 +   findAllAuth: { 'feedback-cycles': ['read'] },
 +   createAuth: { 'feedback-cycles': ['create'] },
     // ...
@@ -141,7 +141,7 @@ Files that use `router.push` or `href` pointing to `/appraisals/student-feedback
 | `appraisals/student-feedback/_schema/relations.ts` | Update import paths to cycles |
 | `src/core/database/` barrel | Re-exports auto-updated from `_database/` |
 | `src/app/auth/permission-presets/_lib/catalog.ts` | Rename resource |
-| All presets referencing `student-feedback-cycles` | Update resource name |
+| All presets referencing `feedback-cycles` | Update resource name |
 
 ## Verification
 

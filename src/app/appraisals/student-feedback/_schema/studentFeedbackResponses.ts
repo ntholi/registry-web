@@ -1,7 +1,7 @@
 import { assignedModules } from '@academic/assigned-modules/_schema/assignedModules';
 import { integer, pgTable, text, timestamp, unique } from 'drizzle-orm/pg-core';
 import { nanoid } from 'nanoid';
-import { studentFeedbackPassphrases } from '../cycles/_schema/studentFeedbackPassphrases';
+import { studentFeedbackPassphrases } from '../../cycles/_schema/studentFeedbackPassphrases';
 import { studentFeedbackQuestions } from '../questions/_schema/studentFeedbackQuestions';
 
 export const studentFeedbackResponses = pgTable(

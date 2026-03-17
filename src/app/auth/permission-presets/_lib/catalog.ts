@@ -54,7 +54,7 @@ export const PERMISSION_RESOURCE_GROUPS: readonly PermissionResourceGroup[] = [
 		resources: [
 			'student-feedback-questions',
 			'student-feedback-categories',
-			'student-feedback-cycles',
+			'feedback-cycles',
 			'student-feedback-reports',
 		],
 	},
@@ -132,7 +132,7 @@ export const PERMISSION_PRESET_SEEDS: readonly PermissionPresetSeed[] = [
 			grant('assessments', fullCrud),
 			grant('student-feedback-questions', fullCrud),
 			grant('student-feedback-categories', fullCrud),
-			grant('student-feedback-cycles', fullCrud),
+			grant('feedback-cycles', fullCrud),
 			grant('student-feedback-reports', ['read', 'update']),
 			grant('school-structures', ['read', 'update', 'delete']),
 			grant('timetable', fullCrud),
@@ -189,7 +189,7 @@ export const PERMISSION_PRESET_SEEDS: readonly PermissionPresetSeed[] = [
 		role: 'academic',
 		description: '',
 		permissions: mergeGrants(
-			grant('student-feedback-cycles', ['read']),
+			grant('feedback-cycles', ['read']),
 			grant('registration', ['read']),
 			grant('registration-clearance', ['read']),
 			grant('student-statuses', ['approve']),
@@ -248,7 +248,7 @@ export const PERMISSION_PRESET_SEEDS: readonly PermissionPresetSeed[] = [
 			grant('assessments', fullCrud),
 			grant('student-feedback-questions', fullCrud),
 			grant('student-feedback-categories', fullCrud),
-			grant('student-feedback-cycles', fullCrud),
+			grant('feedback-cycles', fullCrud),
 			grant('timetable', ['read']),
 			grant('tasks', fullCrud),
 			grant('attendance', ['read'])

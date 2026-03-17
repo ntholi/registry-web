@@ -1,6 +1,6 @@
 'use client';
 
-import { studentFeedbackCycles } from '@appraisals/_database';
+import { feedbackCycles } from '@appraisals/_database';
 import { MultiSelect, SimpleGrid, TextInput } from '@mantine/core';
 import { DateInput } from '@mantine/dates';
 import { useQuery } from '@tanstack/react-query';
@@ -13,7 +13,7 @@ import { Form } from '@/shared/ui/adease';
 import TermInput from '@/shared/ui/TermInput';
 import { getSchools, getSchoolsForUser, getTerms } from '../_server/actions';
 
-type Cycle = typeof studentFeedbackCycles.$inferInsert;
+type Cycle = typeof feedbackCycles.$inferInsert;
 type CycleWithSchools = Cycle & { schoolIds?: number[] };
 
 type Props = {
@@ -57,11 +57,11 @@ export default function CycleForm({ onSubmit, defaultValues, title }: Props) {
 			key={formKey}
 			title={title}
 			action={onSubmit}
-			queryKey={['student-feedback-cycles']}
-			schema={createInsertSchema(studentFeedbackCycles)}
+			queryKey={['feedback-cycles']}
+			schema={createInsertSchema(feedbackCycles)}
 			defaultValues={{ ...values, schoolIds: defaultSchoolIds.map(Number) }}
 			onSuccess={({ id }) => {
-				router.push(`/appraisals/student-feedback/cycles/${id}`);
+				router.push(`/appraisals/cycles/${id}`);
 			}}
 		>
 			{(form) => (

@@ -11,6 +11,7 @@ import {
 import {
 	assignedModules,
 	db,
+	feedbackCycles,
 	modules,
 	programs,
 	schools,
@@ -18,7 +19,6 @@ import {
 	structureSemesters,
 	structures,
 	studentFeedbackCategories,
-	studentFeedbackCycles,
 	studentFeedbackPassphrases,
 	studentFeedbackQuestions,
 	studentFeedbackResponses,
@@ -41,7 +41,7 @@ function buildFilterConditions(filter: StudentFeedbackReportFilter) {
 	const conditions = [];
 
 	if (filter.termId) {
-		conditions.push(eq(studentFeedbackCycles.termId, filter.termId));
+		conditions.push(eq(feedbackCycles.termId, filter.termId));
 	}
 	if (filter.cycleId) {
 		conditions.push(eq(studentFeedbackPassphrases.cycleId, filter.cycleId));
@@ -80,8 +80,8 @@ export class StudentFeedbackReportRepository {
 				eq(studentFeedbackResponses.passphraseId, studentFeedbackPassphrases.id)
 			)
 			.innerJoin(
-				studentFeedbackCycles,
-				eq(studentFeedbackPassphrases.cycleId, studentFeedbackCycles.id)
+				feedbackCycles,
+				eq(studentFeedbackPassphrases.cycleId, feedbackCycles.id)
 			)
 			.innerJoin(
 				structureSemesters,
@@ -106,9 +106,7 @@ export class StudentFeedbackReportRepository {
 
 		const passphraseConditions = [];
 		if (filter.termId) {
-			passphraseConditions.push(
-				eq(studentFeedbackCycles.termId, filter.termId)
-			);
+			passphraseConditions.push(eq(feedbackCycles.termId, filter.termId));
 		}
 		if (filter.cycleId) {
 			passphraseConditions.push(
@@ -123,8 +121,8 @@ export class StudentFeedbackReportRepository {
 			})
 			.from(studentFeedbackPassphrases)
 			.innerJoin(
-				studentFeedbackCycles,
-				eq(studentFeedbackPassphrases.cycleId, studentFeedbackCycles.id)
+				feedbackCycles,
+				eq(studentFeedbackPassphrases.cycleId, feedbackCycles.id)
 			)
 			.where(
 				passphraseConditions.length > 0
@@ -172,8 +170,8 @@ export class StudentFeedbackReportRepository {
 				eq(studentFeedbackResponses.passphraseId, studentFeedbackPassphrases.id)
 			)
 			.innerJoin(
-				studentFeedbackCycles,
-				eq(studentFeedbackPassphrases.cycleId, studentFeedbackCycles.id)
+				feedbackCycles,
+				eq(studentFeedbackPassphrases.cycleId, feedbackCycles.id)
 			)
 			.innerJoin(
 				structureSemesters,
@@ -232,8 +230,8 @@ export class StudentFeedbackReportRepository {
 				eq(studentFeedbackResponses.passphraseId, studentFeedbackPassphrases.id)
 			)
 			.innerJoin(
-				studentFeedbackCycles,
-				eq(studentFeedbackPassphrases.cycleId, studentFeedbackCycles.id)
+				feedbackCycles,
+				eq(studentFeedbackPassphrases.cycleId, feedbackCycles.id)
 			)
 			.innerJoin(
 				structureSemesters,
@@ -308,8 +306,8 @@ export class StudentFeedbackReportRepository {
 				eq(studentFeedbackResponses.passphraseId, studentFeedbackPassphrases.id)
 			)
 			.innerJoin(
-				studentFeedbackCycles,
-				eq(studentFeedbackPassphrases.cycleId, studentFeedbackCycles.id)
+				feedbackCycles,
+				eq(studentFeedbackPassphrases.cycleId, feedbackCycles.id)
 			)
 			.innerJoin(
 				structureSemesters,
@@ -361,8 +359,8 @@ export class StudentFeedbackReportRepository {
 				eq(studentFeedbackResponses.passphraseId, studentFeedbackPassphrases.id)
 			)
 			.innerJoin(
-				studentFeedbackCycles,
-				eq(studentFeedbackPassphrases.cycleId, studentFeedbackCycles.id)
+				feedbackCycles,
+				eq(studentFeedbackPassphrases.cycleId, feedbackCycles.id)
 			)
 			.innerJoin(
 				structureSemesters,
@@ -453,8 +451,8 @@ export class StudentFeedbackReportRepository {
 				eq(studentFeedbackResponses.passphraseId, studentFeedbackPassphrases.id)
 			)
 			.innerJoin(
-				studentFeedbackCycles,
-				eq(studentFeedbackPassphrases.cycleId, studentFeedbackCycles.id)
+				feedbackCycles,
+				eq(studentFeedbackPassphrases.cycleId, feedbackCycles.id)
 			)
 			.innerJoin(
 				structureSemesters,
@@ -582,8 +580,8 @@ export class StudentFeedbackReportRepository {
 				eq(studentFeedbackResponses.passphraseId, studentFeedbackPassphrases.id)
 			)
 			.innerJoin(
-				studentFeedbackCycles,
-				eq(studentFeedbackPassphrases.cycleId, studentFeedbackCycles.id)
+				feedbackCycles,
+				eq(studentFeedbackPassphrases.cycleId, feedbackCycles.id)
 			)
 			.innerJoin(
 				structureSemesters,
@@ -629,8 +627,8 @@ export class StudentFeedbackReportRepository {
 				eq(studentFeedbackResponses.passphraseId, studentFeedbackPassphrases.id)
 			)
 			.innerJoin(
-				studentFeedbackCycles,
-				eq(studentFeedbackPassphrases.cycleId, studentFeedbackCycles.id)
+				feedbackCycles,
+				eq(studentFeedbackPassphrases.cycleId, feedbackCycles.id)
 			)
 			.innerJoin(
 				structureSemesters,
@@ -694,8 +692,8 @@ export class StudentFeedbackReportRepository {
 				eq(studentFeedbackResponses.passphraseId, studentFeedbackPassphrases.id)
 			)
 			.innerJoin(
-				studentFeedbackCycles,
-				eq(studentFeedbackPassphrases.cycleId, studentFeedbackCycles.id)
+				feedbackCycles,
+				eq(studentFeedbackPassphrases.cycleId, feedbackCycles.id)
 			)
 			.innerJoin(
 				structureSemesters,
@@ -788,8 +786,8 @@ export class StudentFeedbackReportRepository {
 				eq(studentFeedbackResponses.passphraseId, studentFeedbackPassphrases.id)
 			)
 			.innerJoin(
-				studentFeedbackCycles,
-				eq(studentFeedbackPassphrases.cycleId, studentFeedbackCycles.id)
+				feedbackCycles,
+				eq(studentFeedbackPassphrases.cycleId, feedbackCycles.id)
 			)
 			.innerJoin(
 				structureSemesters,
@@ -832,12 +830,12 @@ export class StudentFeedbackReportRepository {
 	async getCyclesByTerm(termId: number) {
 		return db
 			.select({
-				id: studentFeedbackCycles.id,
-				name: studentFeedbackCycles.name,
+				id: feedbackCycles.id,
+				name: feedbackCycles.name,
 			})
-			.from(studentFeedbackCycles)
-			.where(eq(studentFeedbackCycles.termId, termId))
-			.orderBy(studentFeedbackCycles.name);
+			.from(feedbackCycles)
+			.where(eq(feedbackCycles.termId, termId))
+			.orderBy(feedbackCycles.name);
 	}
 
 	async getModulesForFilter(filter: StudentFeedbackReportFilter) {

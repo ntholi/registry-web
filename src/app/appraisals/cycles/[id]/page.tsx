@@ -39,7 +39,7 @@ export default async function CycleDetails({ params }: Props) {
 
 	const canCrud =
 		session?.user?.role === 'admin' ||
-		hasAnyPermission(session, 'student-feedback-cycles', [
+		hasAnyPermission(session, 'feedback-cycles', [
 			'create',
 			'update',
 			'delete',
@@ -63,8 +63,8 @@ export default async function CycleDetails({ params }: Props) {
 	return (
 		<DetailsView>
 			<DetailsViewHeader
-				title='Student Feedback Cycle'
-				queryKey={['student-feedback-cycles']}
+				title='Feedback Cycle'
+				queryKey={['feedback-cycles']}
 				handleDelete={
 					canCrud
 						? async () => {

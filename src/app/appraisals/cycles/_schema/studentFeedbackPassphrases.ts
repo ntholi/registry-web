@@ -8,7 +8,7 @@ import {
 	timestamp,
 } from 'drizzle-orm/pg-core';
 import { nanoid } from 'nanoid';
-import { studentFeedbackCycles } from './studentFeedbackCycles';
+import { feedbackCycles } from './feedbackCycles';
 
 export const studentFeedbackPassphrases = pgTable(
 	'feedback_passphrases',
@@ -17,7 +17,7 @@ export const studentFeedbackPassphrases = pgTable(
 			.primaryKey()
 			.$defaultFn(() => nanoid()),
 		cycleId: text()
-			.references(() => studentFeedbackCycles.id, { onDelete: 'cascade' })
+			.references(() => feedbackCycles.id, { onDelete: 'cascade' })
 			.notNull(),
 		structureSemesterId: integer()
 			.references(() => structureSemesters.id)

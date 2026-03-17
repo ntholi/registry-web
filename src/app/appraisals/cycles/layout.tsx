@@ -19,7 +19,7 @@ export default function Layout({ children }: PropsWithChildren) {
 	const { data: session } = authClient.useSession();
 	const canCreate =
 		session?.user?.role === 'admin' ||
-		hasAnyPermission(session, 'student-feedback-cycles', [
+		hasAnyPermission(session, 'feedback-cycles', [
 			'create',
 			'update',
 			'delete',
@@ -27,17 +27,12 @@ export default function Layout({ children }: PropsWithChildren) {
 
 	return (
 		<ListLayout
-			path='/appraisals/student-feedback/cycles'
-			queryKey={['student-feedback-cycles']}
+			path='/appraisals/cycles'
+			queryKey={['feedback-cycles']}
 			getData={getCycles}
 			actionIcons={
 				canCreate
-					? [
-							<NewLink
-								key='new-link'
-								href='/appraisals/student-feedback/cycles/new'
-							/>,
-						]
+					? [<NewLink key='new-link' href='/appraisals/cycles/new' />]
 					: []
 			}
 			renderItem={(it) => {
