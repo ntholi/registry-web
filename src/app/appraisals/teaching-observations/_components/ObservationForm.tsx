@@ -24,6 +24,7 @@ import {
 	getActionErrorMessage,
 	isActionResult,
 } from '@/shared/lib/actions/actionResult';
+import { toClassName } from '@/shared/lib/utils/utils';
 import FormHeader from '@/shared/ui/adease/FormHeader';
 import type { ObservationFormValues } from '../_lib/types';
 import {
@@ -295,7 +296,10 @@ export default function ObservationForm({
 								data={assignedMods.map((m) => ({
 									value: String(m.id),
 									label: m.moduleName,
-									description: m.moduleCode,
+									description:
+										m.programCode && m.semesterName
+											? `${m.moduleCode} - ${toClassName(m.programCode, m.semesterName)}`
+											: m.moduleCode,
 								}))}
 								renderOption={({ option }) => {
 									const data = option as unknown as {

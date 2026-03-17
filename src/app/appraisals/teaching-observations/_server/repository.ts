@@ -354,6 +354,7 @@ export default class ObservationRepository extends BaseRepository<
 				moduleCode: modules.code,
 				moduleName: modules.name,
 				programCode: programs.code,
+				semesterName: structureSemesters.name,
 			})
 			.from(assignedModules)
 			.innerJoin(
