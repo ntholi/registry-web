@@ -1,6 +1,7 @@
 import {
 	IconCalendarEvent,
 	IconChartBar,
+	IconClipboardCheck,
 	IconEye,
 	IconListCheck,
 	IconMessageQuestion,
@@ -47,6 +48,14 @@ export const appraisalsConfig: ModuleConfig = {
 				roles: ['academic', 'admin', 'human_resource'],
 				collapsed: false,
 				children: [
+					{
+						label: 'Observations',
+						href: '/appraisals/teaching-observations',
+						icon: IconClipboardCheck,
+						permissions: [
+							{ resource: 'teaching-observations', action: 'read' },
+						],
+					},
 					{
 						label: 'Criteria',
 						href: '/appraisals/observation-criteria',
