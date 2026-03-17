@@ -7,6 +7,7 @@ import {
 	saveZohoContactId,
 } from '@registry/students/_server/actions';
 import { withPermission } from '@/core/platform/withPermission';
+import { createAction, unwrap } from '@/shared/lib/actions/actionResult';
 import {
 	createStudentContact,
 	findStudentContact,
@@ -36,7 +37,7 @@ export async function resolveZohoContactId(
 			const contact = await findStudentContact(stdNo);
 			if (!contact) return null;
 
-			await saveZohoContactId(stdNo, contact.contact_id);
+			unwrap(await saveZohoContactId(stdNo, contact.contact_id));
 			return contact.contact_id;
 		},
 		{ zoho: ['read'] }
@@ -139,17 +140,17 @@ async function buildContactInput(
 	};
 }
 
-export async function createZohoContact(stdNo: number): Promise<string> {
-	return withPermission(
+export const createZohoContact = createAction(async (stdNo: number) =>
+	withPermission(
 		async () => {
 			const input = await buildContactInput(stdNo);
 			const contact = await createStudentContact(input);
-			await saveZohoContactId(stdNo, contact.contact_id);
+			unwrap(await saveZohoContactId(stdNo, contact.contact_id));
 			return contact.contact_id;
 		},
 		{ zoho: ['create'] }
-	);
-}
+	)
+);
 
 export async function fetchZohoContactComparison(
 	stdNo: number,
@@ -237,15 +238,13 @@ export async function fetchZohoContactComparison(
 	);
 }
 
-export async function updateZohoContactFromDb(
-	stdNo: number,
-	contactId: string
-): Promise<void> {
-	return withPermission(
-		async () => {
-			const input = await buildContactInput(stdNo);
-			await updateStudentContact(contactId, input);
-		},
-		{ zoho: ['update'] }
-	);
-}
+export const updateZohoContactFromDb = createAction(
+	async (payload: { stdNo: number; contactId: string }) =>
+		withPermission(
+			async () => {
+				const input = await buildContactInput(payload.stdNo);
+				await updateStudentContact(payload.contactId, input);
+			},
+			{ zoho: ['update'] }
+		)
+);

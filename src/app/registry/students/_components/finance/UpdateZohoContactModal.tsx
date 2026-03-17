@@ -19,7 +19,8 @@ import {
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import { IconUpload } from '@tabler/icons-react';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useActionMutation } from '@/shared/lib/actions/use-action-mutation';
 
 type Props = {
 	stdNo: number;
@@ -36,31 +37,33 @@ export function UpdateZohoContactModal({ stdNo, contactId }: Props) {
 		enabled: opened,
 	});
 
-	const { mutate, isPending } = useMutation({
-		mutationFn: () => updateZohoContactFromDb(stdNo, contactId),
-		onSuccess: () => {
-			notifications.show({
-				title: 'Contact Updated',
-				message: 'Zoho contact has been updated with latest student details.',
-				color: 'teal',
-			});
-			queryClient.invalidateQueries({
-				queryKey: ['zoho-contact-comparison', stdNo, contactId],
-			});
-			queryClient.invalidateQueries({
-				queryKey: ['student-finance', contactId],
-			});
-			close();
-		},
-		onError: (err) => {
-			notifications.show({
-				title: 'Update Failed',
-				message:
-					err instanceof Error ? err.message : 'Failed to update contact.',
-				color: 'red',
-			});
-		},
-	});
+	const { mutate, isPending } = useActionMutation(
+		() => updateZohoContactFromDb({ stdNo, contactId }),
+		{
+			onSuccess: () => {
+				notifications.show({
+					title: 'Contact Updated',
+					message: 'Zoho contact has been updated with latest student details.',
+					color: 'teal',
+				});
+				queryClient.invalidateQueries({
+					queryKey: ['zoho-contact-comparison', stdNo, contactId],
+				});
+				queryClient.invalidateQueries({
+					queryKey: ['student-finance', contactId],
+				});
+				close();
+			},
+			onError: (err) => {
+				notifications.show({
+					title: 'Update Failed',
+					message:
+						err instanceof Error ? err.message : 'Failed to update contact.',
+					color: 'red',
+				});
+			},
+		}
+	);
 
 	return (
 		<>

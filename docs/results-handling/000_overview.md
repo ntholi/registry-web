@@ -131,7 +131,7 @@ Full architecture details, code snippets, type definitions, and rationale:
 | 7 | [007_lms_library_timetable.md](./007_lms_library_timetable.md) | LMS + Library + Timetable: mutations only + `useMutation` clients | ✅ Completed |
 | 8 | [008_remaining.md](./008_remaining.md) | Apply + Reports + Student Portal + Audit-Logs + Feedback: mutations only + `useMutation` clients | ✅ Completed |
 | 9 | [009_cleanup.md](./009_cleanup.md) | Remove backward compat: `error` → `AppError` only | ✅ Completed |
-| 10 | [010_verification.md](./010_verification.md) | Full verification, type-check, lint, manual testing checklist | ⬜ Not started |
+| 10 | [010_verification.md](./010_verification.md) | Full verification, type-check, lint, manual testing checklist | ✅ Completed |
 
 ## Execution Order
 

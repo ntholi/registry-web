@@ -3,7 +3,8 @@
 import { createZohoContact } from '@finance/_lib/zoho-books/actions';
 import { Button, Text } from '@mantine/core';
 import { IconPlus } from '@tabler/icons-react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
+import { useActionMutation } from '@/shared/lib/actions/use-action-mutation';
 
 type Props = {
 	stdNo: number;
@@ -12,15 +13,17 @@ type Props = {
 export default function CreateContactBtn({ stdNo }: Props) {
 	const queryClient = useQueryClient();
 
-	const { mutate, isPending, isError, error } = useMutation({
-		mutationFn: () => createZohoContact(stdNo),
-		onSuccess: (contactId) => {
-			queryClient.setQueryData(['zoho-contact', stdNo], contactId);
-			queryClient.invalidateQueries({
-				queryKey: ['student-finance', contactId],
-			});
-		},
-	});
+	const { mutate, isPending, isError, error } = useActionMutation(
+		() => createZohoContact(stdNo),
+		{
+			onSuccess: (contactId) => {
+				queryClient.setQueryData(['zoho-contact', stdNo], contactId);
+				queryClient.invalidateQueries({
+					queryKey: ['student-finance', contactId],
+				});
+			},
+		}
+	);
 
 	return (
 		<>
