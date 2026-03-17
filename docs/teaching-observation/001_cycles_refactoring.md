@@ -9,8 +9,8 @@ Teaching observations and student feedback both operate within **feedback cycles
 ## Important
 
 The PostgreSQL table names are **already generic**:
-- `feedback_cycles` (not `student_feedback_cycles`)
-- `feedback_cycle_schools` (not `student_feedback_cycle_schools`)
+- `feedback_cycles` (not `feedback_cycles`)
+- `feedback_cycle_schools` (not `feedback_cycle_schools`)
 
 So **no DB migration is needed**. Only TypeScript-level renames and file moves.
 

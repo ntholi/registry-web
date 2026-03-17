@@ -18,9 +18,9 @@ class FeedbackCycleService extends BaseService<typeof feedbackCycles, 'id'> {
 			updateAuth: { 'feedback-cycles': ['update'] },
 			deleteAuth: { 'feedback-cycles': ['delete'] },
 			activityTypes: {
-				create: 'student_feedback_cycle_created',
-				update: 'student_feedback_cycle_updated',
-				delete: 'student_feedback_cycle_deleted',
+				create: 'feedback_cycle_created',
+				update: 'feedback_cycle_updated',
+				delete: 'feedback_cycle_deleted',
 			},
 		});
 		this.repo = repo;

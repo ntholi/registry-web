@@ -2,15 +2,15 @@ import type { ActivityFragment } from '@/shared/lib/utils/activities';
 
 const APPRAISALS_ACTIVITIES = {
 	catalog: {
-		student_feedback_cycle_created: {
+		feedback_cycle_created: {
 			label: 'Student Feedback Cycle Created',
 			department: 'academic',
 		},
-		student_feedback_cycle_updated: {
+		feedback_cycle_updated: {
 			label: 'Student Feedback Cycle Updated',
 			department: 'academic',
 		},
-		student_feedback_cycle_deleted: {
+		feedback_cycle_deleted: {
 			label: 'Student Feedback Cycle Deleted',
 			department: 'academic',
 		},
@@ -40,9 +40,9 @@ const APPRAISALS_ACTIVITIES = {
 		},
 	},
 	tableOperationMap: {
-		'feedback_cycles:INSERT': 'student_feedback_cycle_created',
-		'feedback_cycles:UPDATE': 'student_feedback_cycle_updated',
-		'feedback_cycles:DELETE': 'student_feedback_cycle_deleted',
+		'feedback_cycles:INSERT': 'feedback_cycle_created',
+		'feedback_cycles:UPDATE': 'feedback_cycle_updated',
+		'feedback_cycles:DELETE': 'feedback_cycle_deleted',
 		'feedback_categories:INSERT': 'student_feedback_category_created',
 		'feedback_categories:UPDATE': 'student_feedback_category_updated',
 		'feedback_categories:DELETE': 'student_feedback_category_deleted',
