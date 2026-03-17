@@ -656,6 +656,7 @@ DO $$
 DECLARE
 	v_seeded_preset_count INTEGER;
 	v_seeded_permission_count INTEGER;
+  v_expected_permission_count INTEGER;
 	v_unmapped_count INTEGER;
 	v_unmapped_summary TEXT;
 BEGIN
@@ -665,10 +666,7 @@ BEGIN
 			16, v_seeded_preset_count;
 	END IF;
 
-	SELECT count(*) INTO v_seeded_permission_count
-	FROM preset_permissions AS permission
-	JOIN permission_presets AS preset ON preset.id = permission.preset_id
-	JOIN (
+  WITH expected AS (
 		VALUES
 			('Academic Manager', 'lecturers', 'read'),
 			('Academic Manager', 'lecturers', 'create'),
@@ -1153,15 +1151,20 @@ BEGIN
       ('Resource Staff', 'tasks', 'delete'),
 			('Resource Staff', 'auto-approvals', 'read'),
 			('Resource Staff', 'auto-approvals', 'create'),
-			('Resource Staff', 'auto-approvals', 'update'),
-			('Resource Staff', 'auto-approvals', 'delete')
-	) AS expected(preset_name, resource, action)
-		ON expected.preset_name = preset.name
-		AND expected.resource = permission.resource
-		AND expected.action = permission.action;
-  IF v_seeded_permission_count != 472 THEN
+      ('Resource Staff', 'auto-approvals', 'update'),
+      ('Resource Staff', 'auto-approvals', 'delete')
+  )
+  SELECT count(*), (SELECT count(*) FROM expected)
+  INTO v_seeded_permission_count, v_expected_permission_count
+  FROM preset_permissions AS permission
+  JOIN permission_presets AS preset ON preset.id = permission.preset_id
+  JOIN expected AS expected(preset_name, resource, action)
+    ON expected.preset_name = preset.name
+    AND expected.resource = permission.resource
+    AND expected.action = permission.action;
+  IF v_seeded_permission_count != v_expected_permission_count THEN
 		RAISE EXCEPTION 'ABORT: expected % seeded preset permissions but found %',
-      472, v_seeded_permission_count;
+      v_expected_permission_count, v_seeded_permission_count;
 	END IF;
 
 	SELECT count(*) INTO v_unmapped_count
