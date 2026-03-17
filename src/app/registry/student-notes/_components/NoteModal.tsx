@@ -41,6 +41,7 @@ type Props = {
 
 export default function NoteModal({ opened, onClose, stdNo, note }: Props) {
 	const isEdit = !!note;
+	const noteId = note?.id;
 	const [content, setContent] = useState(note?.content ?? '');
 	const [visibility, setVisibility] = useState<NoteVisibility>(
 		note?.visibility ?? 'role'
@@ -52,18 +53,18 @@ export default function NoteModal({ opened, onClose, stdNo, note }: Props) {
 		queryClient.invalidateQueries({ queryKey: ['student-notes', stdNo] });
 	}
 
-	async function uploadFiles(noteId: string, files: File[]) {
+	async function uploadFiles(id: string, files: File[]) {
 		for (const file of files) {
 			const formData = new FormData();
 			formData.append('file', file);
-			unwrap(await uploadNoteAttachment(stdNo, noteId, formData));
+			unwrap(await uploadNoteAttachment(stdNo, id, formData));
 		}
 	}
 
 	const saveMutation = useActionMutation(
 		async () => {
-			if (isEdit) {
-				return updateStudentNote(note.id, content, visibility);
+			if (isEdit && noteId) {
+				return updateStudentNote(noteId, content, visibility);
 			}
 			const created = await createStudentNote(stdNo, content, visibility);
 			if (!created.success) {
@@ -105,7 +106,7 @@ export default function NoteModal({ opened, onClose, stdNo, note }: Props) {
 		(file: File) => {
 			const formData = new FormData();
 			formData.append('file', file);
-			return uploadNoteAttachment(stdNo, note!.id, formData);
+			return uploadNoteAttachment(stdNo, noteId!, formData);
 		},
 		{
 			onSuccess: invalidate,

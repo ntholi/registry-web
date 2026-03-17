@@ -23,7 +23,6 @@ import {
 	IconBuildingArch,
 	IconCertificate,
 	IconChartDonut,
-	IconChartDonut2,
 	IconCoin,
 	IconFileCheck,
 	IconLock,
