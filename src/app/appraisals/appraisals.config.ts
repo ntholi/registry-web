@@ -64,6 +64,14 @@ export const appraisalsConfig: ModuleConfig = {
 							{ resource: 'teaching-observation-criteria', action: 'read' },
 						],
 					},
+					{
+						label: 'Reports',
+						href: '/appraisals/observation-reports',
+						icon: IconChartBar,
+						permissions: [
+							{ resource: 'teaching-observation-reports', action: 'read' },
+						],
+					},
 				],
 			},
 			{
