@@ -2,17 +2,7 @@
 
 import { getAssignedModulesByCurrentUser } from '@academic/assigned-modules';
 import { libraryConfig } from '@library/library.config';
-import {
-	Box,
-	Divider,
-	Indicator,
-	NavLink,
-	Skeleton,
-	Stack,
-	Text,
-	TextInput,
-} from '@mantine/core';
-import { IconSearch } from '@tabler/icons-react';
+import { Indicator, NavLink, Skeleton, Stack, Text } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -38,6 +28,7 @@ import { Shell } from '@/shared/ui/adease';
 import Logo from '@/shared/ui/Logo';
 import { timetableConfig } from '../timetable/timetable.config';
 import type { NavItem } from './module-config.types';
+import UniversalSearch from './UniversalSearch';
 import UserButton from './UserButton';
 
 type NavigationGroup = {
@@ -345,24 +336,7 @@ export function Navigation({
 
 	return (
 		<Stack gap='md'>
-			<Box
-				pos='sticky'
-				top={0}
-				pt='sm'
-				pb='xs'
-				mt='calc(var(--mantine-spacing-sm) * -1)'
-				style={{ zIndex: 1000 }}
-				bg='var(--mantine-color-body)'
-			>
-				<TextInput
-					placeholder='Menu...'
-					leftSection={<IconSearch size='0.9rem' />}
-					value={search}
-					onChange={(e) => setSearch(e.target.value)}
-					variant='unstyled'
-				/>
-				<Divider mt={5} />
-			</Box>
+			<UniversalSearch value={search} onChange={setSearch} />
 
 			{visibleGroups.map((group) => (
 				<Stack key={group.moduleName} gap={6}>
