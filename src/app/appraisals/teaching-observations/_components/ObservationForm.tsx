@@ -218,8 +218,25 @@ export default function ObservationForm({
 							searchable
 							data={assignedMods.map((m) => ({
 								value: String(m.id),
-								label: `${m.moduleCode} — ${m.moduleName}${m.programCode ? ` (${m.programCode})` : ''}`,
+								label: m.moduleCode,
+								description: `${m.moduleName}${m.programCode ? ` (${m.programCode})` : ''}`,
 							}))}
+							renderOption={({ option }) => {
+								const data = option as unknown as {
+									label: string;
+									description: string;
+								};
+								return (
+									<Stack gap={0}>
+										<Text size='sm' fw={500}>
+											{data.label}
+										</Text>
+										<Text size='xs' c='dimmed'>
+											{data.description}
+										</Text>
+									</Stack>
+								);
+							}}
 							value={
 								form.values.assignedModuleId > 0
 									? String(form.values.assignedModuleId)

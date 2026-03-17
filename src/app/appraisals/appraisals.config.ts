@@ -18,7 +18,7 @@ export const appraisalsConfig: ModuleConfig = {
 
 	navigation: {
 		dashboard: [
-						{
+			{
 				label: 'Cycles',
 				href: '/appraisals/cycles',
 				icon: IconCalendarEvent,
@@ -55,7 +55,7 @@ export const appraisalsConfig: ModuleConfig = {
 				roles: ['academic', 'admin', 'human_resource'],
 				collapsed: false,
 				children: [
-										{
+					{
 						label: 'Criteria',
 						href: '/appraisals/observation-criteria',
 						icon: IconListCheck,
