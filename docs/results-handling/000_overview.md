@@ -130,7 +130,7 @@ Full architecture details, code snippets, type definitions, and rationale:
 | 6 | [006_admin_finance.md](./006_admin_finance.md) | Admin + Finance + Auth + HR: mutations only + `useMutation` clients | ✅ Completed |
 | 7 | [007_lms_library_timetable.md](./007_lms_library_timetable.md) | LMS + Library + Timetable: mutations only + `useMutation` clients | ✅ Completed |
 | 8 | [008_remaining.md](./008_remaining.md) | Apply + Reports + Student Portal + Audit-Logs + Feedback: mutations only + `useMutation` clients | ✅ Completed |
-| 9 | [009_cleanup.md](./009_cleanup.md) | Remove backward compat: `error` → `AppError` only | ⬜ Not started |
+| 9 | [009_cleanup.md](./009_cleanup.md) | Remove backward compat: `error` → `AppError` only | ✅ Completed |
 | 10 | [010_verification.md](./010_verification.md) | Full verification, type-check, lint, manual testing checklist | ⬜ Not started |
 
 ## Execution Order

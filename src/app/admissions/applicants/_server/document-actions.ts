@@ -35,28 +35,38 @@ export async function createApplicantFromDocuments(
 	);
 
 	if (!identityDoc) {
-		return failure('Identity document is required to create an applicant');
+		return failure({
+			message: 'Identity document is required to create an applicant',
+		});
 	}
 
 	const identity = identityDoc.analysisResult;
 	if (identity.category !== 'identity') {
-		return failure('Invalid identity document');
+		return failure({ message: 'Invalid identity document' });
 	}
 
 	if (!identity.fullName) {
-		return failure('Could not extract full name from identity document');
+		return failure({
+			message: 'Could not extract full name from identity document',
+		});
 	}
 
 	if (!identity.dateOfBirth) {
-		return failure('Could not extract date of birth from identity document');
+		return failure({
+			message: 'Could not extract date of birth from identity document',
+		});
 	}
 
 	if (!identity.nationality) {
-		return failure('Could not extract nationality from identity document');
+		return failure({
+			message: 'Could not extract nationality from identity document',
+		});
 	}
 
 	if (!identity.gender) {
-		return failure('Could not extract gender from identity document');
+		return failure({
+			message: 'Could not extract gender from identity document',
+		});
 	}
 
 	const applicant = await applicantsService.createWithDocumentsAndRecords(

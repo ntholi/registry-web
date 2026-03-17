@@ -94,7 +94,7 @@ export default function DocumentUpload() {
 			if (!result.success) {
 				notifications.show({
 					title: 'Error',
-					message: getActionErrorMessage(result.error),
+					message: result.error,
 					color: 'red',
 				});
 				setFileItems((prev) => prev.filter((item) => item.id !== id));

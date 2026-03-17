@@ -1,6 +1,6 @@
 # Plan 009: Cleanup & Type Tightening
 
-> Remove backward compatibility layers and tighten `ActionResult.error` to `AppError` only. **Requires all modules migrated (Plans 003-008).**
+> Remove backward compatibility layers and tighten `ActionResult.error` to `AppError` only. **Requires all modules migrated (Plans 003-008).** ✅ Completed.
 
 ## Prerequisites
 
@@ -69,8 +69,8 @@ pnpm tsc --noEmit && pnpm lint:fix
 
 ## Done When
 
-- [ ] `ActionResult.error` is `AppError` only (no `string` union)
-- [ ] `failure()` only accepts `AppError`
-- [ ] `getActionErrorMessage()` only accepts `AppError`
-- [ ] No unused compat code remains
-- [ ] `pnpm tsc --noEmit` passes — zero errors
+- [x] `ActionResult.error` is `AppError` only (no `string` union)
+- [x] `failure()` only accepts `AppError`
+- [x] `getActionErrorMessage()` only accepts `AppError`
+- [x] No unused compat code remains
+- [x] `pnpm tsc --noEmit` passes — zero errors
