@@ -11,8 +11,11 @@ type Props = {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
 	const { id } = await params;
 	const employee = await getEmployee(id);
+	const name = employee?.title
+		? `${employee.title} ${employee.name}`
+		: employee?.name;
 	return {
-		title: `${employee?.name} | Limkokwing`,
+		title: `${name} | Limkokwing`,
 	};
 }
 
@@ -25,7 +28,9 @@ export default async function EmployeeDetailPage({ params }: Props) {
 	return (
 		<DetailsView>
 			<DetailsViewHeader
-				title={employee.name}
+				title={
+					employee.title ? `${employee.title} ${employee.name}` : employee.name
+				}
 				queryKey={['employees']}
 				handleDelete={async () => {
 					'use server';

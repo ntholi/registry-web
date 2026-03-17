@@ -3,7 +3,13 @@
 import { getAllSchools } from '@academic/schools/_server/actions';
 import { getUserSchools } from '@admin/users';
 import { employees } from '@human-resource/_database';
-import { Autocomplete, MultiSelect, Select, TextInput } from '@mantine/core';
+import {
+	Autocomplete,
+	MultiSelect,
+	Select,
+	SimpleGrid,
+	TextInput,
+} from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
 import { createInsertSchema } from 'drizzle-zod';
 import { useRouter } from 'nextjs-toploader/app';
@@ -57,7 +63,7 @@ type Props = {
 	onSubmit: (
 		values: Employee
 	) => Promise<EmployeeRecord | ActionResult<EmployeeRecord>>;
-	defaultValues?: Employee;
+	defaultValues?: Partial<Employee>;
 	title?: string;
 };
 
@@ -69,6 +75,10 @@ export default function EmployeeForm({
 	const router = useRouter();
 	const isEdit = !!defaultValues;
 	const [selectedUser, setSelectedUser] = useState<User | null>(null);
+	const values = {
+		status: 'Active' as const,
+		...defaultValues,
+	};
 
 	const { data: schools = [] } = useQuery({
 		queryKey: ['schools'],
@@ -82,12 +92,12 @@ export default function EmployeeForm({
 	});
 
 	return (
-		<Form<Employee, Employee | undefined, EmployeeRecord>
+		<Form<Employee, Partial<Employee> | undefined, EmployeeRecord>
 			title={title}
 			action={onSubmit}
 			queryKey={['employees']}
 			schema={createInsertSchema(employees)}
-			defaultValues={defaultValues}
+			defaultValues={values}
 			onSuccess={({ empNo }) => {
 				router.push(`/human-resource/employees/${empNo}`);
 			}}
@@ -136,7 +146,13 @@ export default function EmployeeForm({
 							onChange={handleUserChange}
 							emailDomain={emailDomain}
 						/>
+						<TextInput
+							label='Title'
+							placeholder='e.g., Mr, Ms, Dr'
+							{...form.getInputProps('title')}
+						/>
 						<TextInput label='Full Name' {...form.getInputProps('name')} />
+						<SimpleGrid cols={{ base: 1, sm: 2 }}>
 						<Autocomplete
 							label='Position'
 							placeholder='e.g., Lecturer'
@@ -149,9 +165,22 @@ export default function EmployeeForm({
 							searchable
 							{...form.getInputProps('department')}
 						/>
+						</SimpleGrid>
+						<Select
+							label='Status'
+							data={[
+								'Active',
+								'Suspended',
+								'Terminated',
+								'Retired',
+								'Deceased',
+							]}
+							{...form.getInputProps('status')}
+						/>
 						{isAcademic && (
 							<MultiSelect
 								label='Schools'
+								placeholder='Select schools'
 								data={schools.map((s) => ({
 									value: String(s.id),
 									label: s.name,
@@ -160,24 +189,6 @@ export default function EmployeeForm({
 								{...form.getInputProps('schoolIds')}
 							/>
 						)}
-						<Select
-							label='Status'
-							data={[
-								'Active',
-								'Suspended',
-								'Terminated',
-								'Resigned',
-								'Retired',
-								'Deceased',
-								'On Leave',
-							]}
-							{...form.getInputProps('status')}
-						/>
-						<Select
-							label='Type'
-							data={['Full-time', 'Part-time', 'Contract', 'Intern']}
-							{...form.getInputProps('type')}
-						/>
 					</>
 				);
 			}}

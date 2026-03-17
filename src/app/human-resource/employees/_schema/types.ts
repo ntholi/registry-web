@@ -4,17 +4,8 @@ export const employeeStatus = pgEnum('employee_status', [
 	'Active',
 	'Suspended',
 	'Terminated',
-	'Resigned',
 	'Retired',
 	'Deceased',
-	'On Leave',
-]);
-
-export const employeeType = pgEnum('employee_type', [
-	'Full-time',
-	'Part-time',
-	'Contract',
-	'Intern',
 ]);
 
 export const employeeDepartment = pgEnum('employee_department', [

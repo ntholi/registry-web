@@ -25,6 +25,9 @@ export default function EmployeeView({ employee }: Props) {
 		?.map((es) => es.school?.name)
 		.filter(Boolean)
 		.join(', ');
+	const fullName = employee.title
+		? `${employee.title} ${employee.name}`
+		: employee.name;
 
 	return (
 		<Stack gap='xl'>
@@ -77,10 +80,10 @@ export default function EmployeeView({ employee }: Props) {
 							/>
 						</Grid.Col>
 						<Grid.Col span={{ base: 12, sm: 6 }}>
-							<InfoItem label='Full Name' value={employee.name} copyable />
+							<InfoItem label='Full Name' value={fullName} copyable />
 						</Grid.Col>
 						<Grid.Col span={{ base: 12, sm: 6 }}>
-							<InfoItem label='Type' value={employee.type} />
+							<InfoItem label='Title' value={employee.title ?? 'N/A'} />
 						</Grid.Col>
 						<Grid.Col span={{ base: 12, sm: 6 }}>
 							<InfoItem

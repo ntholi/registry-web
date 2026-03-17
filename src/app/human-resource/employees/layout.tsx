@@ -15,7 +15,11 @@ export default function Layout({ children }: PropsWithChildren) {
 				<NewLink key='new-link' href='/human-resource/employees/new' />,
 			]}
 			renderItem={(it) => (
-				<ListItem id={it.empNo} label={it.name} description={it.empNo} />
+				<ListItem
+					id={it.empNo}
+					label={it.title ? `${it.title} ${it.name}` : it.name}
+					description={it.empNo}
+				/>
 			)}
 		>
 			{children}

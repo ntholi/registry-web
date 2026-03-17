@@ -7,5 +7,4 @@ export {
 export {
 	employeeDepartment,
 	employeeStatus,
-	employeeType,
 } from '../employees/_schema/types';

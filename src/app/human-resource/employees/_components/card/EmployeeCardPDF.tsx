@@ -134,6 +134,7 @@ type Props = {
 
 export default function EmployeeCardPDF({ employee, photoUrl }: Props) {
 	const department = employee.department ?? 'N/A';
+	const cardLabel = employee.position ?? employee.title ?? 'STAFF';
 	const currentYear = new Date().getFullYear();
 
 	return (
@@ -149,9 +150,7 @@ export default function EmployeeCardPDF({ employee, photoUrl }: Props) {
 							<Text style={styles.name}>{employee.name}</Text>
 							<Text style={styles.empNo}>{employee.empNo}</Text>
 							<Text style={styles.department}>{department}</Text>
-							<Text style={styles.type}>
-								{(employee.type ?? 'STAFF').toUpperCase()}
-							</Text>
+							<Text style={styles.type}>{cardLabel.toUpperCase()}</Text>
 							<Text style={styles.year}>{currentYear}</Text>
 							<View style={styles.cardFooter}>
 								<Text style={styles.footerText}>

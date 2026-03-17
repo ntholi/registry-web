@@ -36,6 +36,7 @@ export default function EmployeeCardView({ employee, isActive }: Props) {
 	});
 
 	const finalPhotoUrl = photoPreview || existingPhotoUrl;
+	const cardLabel = employee.position ?? employee.title ?? 'STAFF';
 
 	const handlePhotoChange = (file: File | null, preview: string | null) => {
 		setSelectedPhoto(file);
@@ -91,7 +92,7 @@ export default function EmployeeCardView({ employee, isActive }: Props) {
 							{ value: employee.name },
 							{ value: employee.empNo },
 							{ value: employee.department ?? 'N/A' },
-							{ value: (employee.type ?? 'STAFF').toUpperCase() },
+							{ value: cardLabel.toUpperCase() },
 							{ value: String(new Date().getFullYear()) },
 						]}
 					/>
