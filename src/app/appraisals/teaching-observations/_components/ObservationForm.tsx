@@ -4,17 +4,27 @@ import {
 	Accordion,
 	Alert,
 	Anchor,
+	Badge,
+	Card,
+	Divider,
 	Group,
+	Progress,
 	Select,
 	SimpleGrid,
 	Stack,
 	Text,
 	Textarea,
+	ThemeIcon,
 	Title,
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { notifications } from '@mantine/notifications';
-import { IconAlertCircle } from '@tabler/icons-react';
+import {
+	IconAlertCircle,
+	IconChecklist,
+	IconSparkles,
+	IconStarFilled,
+} from '@tabler/icons-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import Link from 'next/link';
 import { useRouter } from 'nextjs-toploader/app';
@@ -46,6 +56,19 @@ type Criterion = {
 
 type CycleOption = { id: string; name: string; termId: number };
 
+type SectionKey = Criterion['section'];
+
+type SectionGroup = {
+	section: SectionKey;
+	label: string;
+	categories: Array<{
+		id: string;
+		name: string;
+		criteria: Criterion[];
+	}>;
+	total: number;
+};
+
 type ObservationFormProps = {
 	title: string;
 	criteria: Criterion[];
@@ -64,6 +87,12 @@ const SECTION_LABELS: Record<string, string> = {
 	assessments: 'Assessments',
 	other: 'Other',
 };
+
+const SECTION_ORDER: SectionKey[] = [
+	'teaching_observation',
+	'assessments',
+	'other',
+];
 
 export default function ObservationForm({
 	title,
@@ -126,18 +155,65 @@ export default function ObservationForm({
 
 	const grouped = useMemo(() => {
 		const sections = new Map<
-			string,
-			Map<string, { name: string; criteria: Criterion[] }>
+			SectionKey,
+			Map<string, { name: string; sortOrder: number; criteria: Criterion[] }>
 		>();
 		for (const c of criteria) {
 			if (!sections.has(c.section)) sections.set(c.section, new Map());
 			const cats = sections.get(c.section)!;
 			if (!cats.has(c.categoryId))
-				cats.set(c.categoryId, { name: c.categoryName, criteria: [] });
+				cats.set(c.categoryId, {
+					name: c.categoryName,
+					sortOrder: c.categorySortOrder,
+					criteria: [],
+				});
 			cats.get(c.categoryId)!.criteria.push(c);
 		}
-		return sections;
+
+		return SECTION_ORDER.filter((section) => sections.has(section)).map(
+			(section) => {
+				const categories = Array.from(sections.get(section)!.entries())
+					.map(([id, cat]) => ({
+						id,
+						name: cat.name,
+						criteria: [...cat.criteria].sort(
+							(a, b) => a.sortOrder - b.sortOrder
+						),
+						sortOrder: cat.sortOrder,
+					}))
+					.sort((a, b) => a.sortOrder - b.sortOrder)
+					.map(({ sortOrder: _sortOrder, ...cat }) => cat);
+
+				return {
+					section,
+					label: SECTION_LABELS[section] ?? section,
+					categories,
+					total: categories.reduce((sum, cat) => sum + cat.criteria.length, 0),
+				} satisfies SectionGroup;
+			}
+		);
 	}, [criteria]);
+
+	const ratingMeta = useMemo(
+		() =>
+			new Map(
+				form.values.ratings.map((rating, idx) => [
+					rating.criterionId,
+					{ idx, rating },
+				])
+			),
+		[form.values.ratings]
+	);
+
+	const answeredCount = form.values.ratings.reduce(
+		(count, rating) => count + (rating.rating ? 1 : 0),
+		0
+	);
+
+	const totalCriteria = criteria.length;
+	const completion = totalCriteria
+		? Math.round((answeredCount / totalCriteria) * 100)
+		: 0;
 
 	const mutation = useMutation({
 		mutationFn: onSubmit,
@@ -170,8 +246,16 @@ export default function ObservationForm({
 		},
 	});
 
-	function getRatingIndex(criterionId: string) {
-		return form.values.ratings.findIndex((r) => r.criterionId === criterionId);
+	function getSectionAnsweredCount(section: SectionGroup) {
+		return section.categories.reduce(
+			(count, category) =>
+				count +
+				category.criteria.filter((criterion) => {
+					const state = ratingMeta.get(criterion.id);
+					return !!state?.rating.rating;
+				}).length,
+			0
+		);
 	}
 
 	return (
@@ -198,57 +282,57 @@ export default function ObservationForm({
 								setLecturerUserId(null);
 							}}
 						/>
-						<SimpleGrid cols={{ base: 1, sm: 2 }} >
-						<Select
-							label='Lecturer'
-							placeholder='Select lecturer'
-							searchable
-							data={lecturers.map((l) => ({
-								value: l.id,
-								label: l.name,
-							}))}
-							value={lecturerUserId}
-							onChange={(v) => {
-								setLecturerUserId(v);
-								form.setFieldValue('assignedModuleId', 0);
-							}}
-							disabled={!selectedCycle}
-						/>
-						<Select
-							label='Assigned Module'
-							placeholder='Select module'
-							searchable
-							data={assignedMods.map((m) => ({
-								value: String(m.id),
-								label: m.moduleCode,
-								description: `${m.moduleName}${m.programCode ? ` (${m.programCode})` : ''}`,
-							}))}
-							renderOption={({ option }) => {
-								const data = option as unknown as {
-									label: string;
-									description: string;
-								};
-								return (
-									<Stack gap={0}>
-										<Text size='sm' fw={500}>
-											{data.label}
-										</Text>
-										<Text size='xs' c='dimmed'>
-											{data.description}
-										</Text>
-									</Stack>
-								);
-							}}
-							value={
-								form.values.assignedModuleId > 0
-									? String(form.values.assignedModuleId)
-									: null
-							}
-							onChange={(v) =>
-								form.setFieldValue('assignedModuleId', v ? Number(v) : 0)
-							}
-							disabled={!lecturerUserId}
-						/>
+						<SimpleGrid cols={{ base: 1, sm: 2 }}>
+							<Select
+								label='Lecturer'
+								placeholder='Select lecturer'
+								searchable
+								data={lecturers.map((l) => ({
+									value: l.id,
+									label: l.name,
+								}))}
+								value={lecturerUserId}
+								onChange={(v) => {
+									setLecturerUserId(v);
+									form.setFieldValue('assignedModuleId', 0);
+								}}
+								disabled={!selectedCycle}
+							/>
+							<Select
+								label='Assigned Module'
+								placeholder='Select module'
+								searchable
+								data={assignedMods.map((m) => ({
+									value: String(m.id),
+									label: m.moduleCode,
+									description: `${m.moduleName}${m.programCode ? ` (${m.programCode})` : ''}`,
+								}))}
+								renderOption={({ option }) => {
+									const data = option as unknown as {
+										label: string;
+										description: string;
+									};
+									return (
+										<Stack gap={0}>
+											<Text size='sm' fw={500}>
+												{data.label}
+											</Text>
+											<Text size='xs' c='dimmed'>
+												{data.description}
+											</Text>
+										</Stack>
+									);
+								}}
+								value={
+									form.values.assignedModuleId > 0
+										? String(form.values.assignedModuleId)
+										: null
+								}
+								onChange={(v) =>
+									form.setFieldValue('assignedModuleId', v ? Number(v) : 0)
+								}
+								disabled={!lecturerUserId}
+							/>
 						</SimpleGrid>
 						{existingObs && (
 							<Alert
@@ -274,61 +358,66 @@ export default function ObservationForm({
 				<Accordion
 					variant='separated'
 					multiple
-					defaultValue={Array.from(grouped.keys())}
+					defaultValue={grouped.map((section) => section.section)}
 				>
-					{Array.from(grouped.entries()).map(([section, categories]) => (
-						<Accordion.Item key={section} value={section}>
-							<Accordion.Control>
-								<Title order={5}>{SECTION_LABELS[section] ?? section}</Title>
-							</Accordion.Control>
-							<Accordion.Panel>
-								<Stack gap='xl'>
-									{Array.from(categories.entries()).map(
-										([catId, { name, criteria: catCriteria }]) => (
-											<Stack key={catId} gap='sm'>
-												<Text fw={600} size='sm' c='dimmed'>
-													{name}
-												</Text>
-												{catCriteria.map((criterion) => {
-													const idx = getRatingIndex(criterion.id);
-													return (
-														<Group
-															key={criterion.id}
-															justify='space-between'
-															wrap='nowrap'
-															align='flex-start'
-														>
-															<Stack gap={2} style={{ flex: 1 }}>
-																<Text size='sm' fw={500}>
-																	{criterion.text}
-																</Text>
-																{criterion.description && (
-																	<Text size='xs' c='dimmed'>
-																		{criterion.description}
-																	</Text>
-																)}
+					{grouped.map((section) => {
+						const sectionAnswered = getSectionAnsweredCount(section);
+
+						return (
+							<Accordion.Item key={section.section} value={section.section}>
+								<Accordion.Control>
+									<Stack gap={2}>
+										<Title order={5}>{section.label}</Title>
+										<Text size='sm' c='dimmed'>
+											{section.total} questions in this section
+										</Text>
+									</Stack>
+								</Accordion.Control>
+								<Accordion.Panel>
+									<Stack gap='xl'>
+										{section.categories.map((category) => (
+											<Stack key={category.id} gap='md'>
+												<Stack gap='sm'>
+													{category.criteria.map((criterion, idx) => {
+														const state = ratingMeta.get(criterion.id);
+
+														if (!state) return null;
+
+														return (
+															<Stack gap='md'>
+																<Stack gap={4}>
+																	<Text>{criterion.text}</Text>
+																	{criterion.description && (
+																		<Text size='sm' c='dimmed'>
+																			{criterion.description}
+																		</Text>
+																	)}
+																</Stack>
+																<RatingInput
+																	value={state.rating.rating ?? null}
+																	onChange={(val) =>
+																		form.setFieldValue(
+																			`ratings.${state.idx}.rating`,
+																			val
+																		)
+																	}
+																/>
+																<Divider />
 															</Stack>
-															<RatingInput
-																value={form.values.ratings[idx]?.rating ?? null}
-																onChange={(val) =>
-																	form.setFieldValue(
-																		`ratings.${idx}.rating`,
-																		val
-																	)
-																}
-															/>
-														</Group>
-													);
-												})}
+														);
+													})}
+												</Stack>
 											</Stack>
-										)
-									)}
-								</Stack>
-							</Accordion.Panel>
-						</Accordion.Item>
-					))}
+										))}
+									</Stack>
+								</Accordion.Panel>
+							</Accordion.Item>
+						);
+					})}
 				</Accordion>
 
+
+				<Divider mt='lg' />
 				<Title order={5}>Remarks</Title>
 				<Textarea
 					label='Strengths'

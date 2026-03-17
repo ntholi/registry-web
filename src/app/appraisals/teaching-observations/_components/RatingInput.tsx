@@ -1,6 +1,6 @@
 'use client';
 
-import { SegmentedControl } from '@mantine/core';
+import { SegmentedControl, Stack, Text } from '@mantine/core';
 
 type RatingInputProps = {
 	value: number | null;
@@ -16,12 +16,15 @@ export default function RatingInput({
 	disabled,
 }: RatingInputProps) {
 	return (
-		<SegmentedControl
-			size='xs'
-			data={RATINGS}
-			value={value?.toString() ?? ''}
-			onChange={(v) => onChange(Number(v))}
-			disabled={disabled}
-		/>
+		<Stack gap={6} w='100%'>
+			<SegmentedControl
+				size='md'
+				fullWidth
+				data={RATINGS}
+				value={value?.toString() ?? ''}
+				onChange={(v) => onChange(Number(v))}
+				disabled={disabled}
+			/>
+		</Stack>
 	);
 }
