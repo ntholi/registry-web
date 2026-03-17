@@ -1,6 +1,5 @@
 import { authProviderService } from '@auth/auth-providers/_server/service';
 import { authUsersService } from '@auth/users/_server/service';
-import { hasPermission } from '@/core/auth/sessionPermissions';
 import type { users } from '@/core/database';
 import type { QueryOptions } from '@/core/platform/BaseRepository';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
@@ -34,8 +33,7 @@ class UserService {
 	async getUserSchoolIds(userId: string) {
 		return withPermission(
 			async () => this.repository.getUserSchoolIds(userId),
-			async (session) =>
-				session?.user?.id === userId || hasPermission(session, 'users', 'read')
+			{ users: ['read'] }
 		);
 	}
 
@@ -44,8 +42,7 @@ class UserService {
 			async () => {
 				return this.repository.getUserSchools(userId);
 			},
-			async (session) =>
-				session?.user?.id === userId || hasPermission(session, 'users', 'read')
+			{ users: ['read'] }
 		);
 	}
 
