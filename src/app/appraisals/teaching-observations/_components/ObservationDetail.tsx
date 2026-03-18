@@ -68,12 +68,6 @@ const SECTION_LABELS: Record<string, string> = {
 	other: 'Other',
 };
 
-const STATUS_COLORS: Record<string, string> = {
-	draft: 'gray',
-	submitted: 'blue',
-	acknowledged: 'green',
-};
-
 const RATINGS = ['1', '2', '3', '4', '5'];
 
 export default function ObservationDetail({
@@ -124,14 +118,6 @@ export default function ObservationDetail({
 		return avgs;
 	}, [grouped]);
 
-	const allRatings = obs.ratings
-		.filter((r) => r.rating != null)
-		.map((r) => r.rating!);
-	const overallAvg =
-		allRatings.length > 0
-			? allRatings.reduce((a, b) => a + b, 0) / allRatings.length
-			: null;
-
 	return (
 		<Stack gap='lg'>
 			<Group justify='space-between' align='flex-start'>
@@ -152,20 +138,6 @@ export default function ObservationDetail({
 					<FieldView label='Date'>
 						{obs.createdAt ? formatDate(obs.createdAt) : null}
 					</FieldView>
-				</Stack>
-				<Stack gap='xs' align='flex-end'>
-					<Badge
-						size='lg'
-						variant='light'
-						color={STATUS_COLORS[obs.status] ?? 'gray'}
-					>
-						{obs.status}
-					</Badge>
-					{overallAvg != null && (
-						<Badge size='lg' variant='filled' color='indigo'>
-							{overallAvg.toFixed(2)} / 5
-						</Badge>
-					)}
 				</Stack>
 			</Group>
 

@@ -1,4 +1,4 @@
-import { Group } from '@mantine/core';
+import { Badge, Group, Title } from '@mantine/core';
 import { notFound } from 'next/navigation';
 import { getSession } from '@/core/platform/withPermission';
 import { DetailsView, DetailsViewHeader } from '@/shared/ui/adease';
@@ -6,6 +6,12 @@ import AcknowledgeButton from '../_components/AcknowledgeButton';
 import ObservationDetail from '../_components/ObservationDetail';
 import SubmitButton from '../_components/SubmitButton';
 import { deleteObservation, getObservation } from '../_server/actions';
+
+const STATUS_COLORS: Record<string, string> = {
+	draft: 'gray',
+	submitted: 'blue',
+	acknowledged: 'green',
+};
 
 type Props = {
 	params: Promise<{ id: string }>;
@@ -27,6 +33,32 @@ export default async function ObservationDetailPage({ params }: Props) {
 	const isDraft = obs.status === 'draft';
 	const isSubmitted = obs.status === 'submitted';
 	const isAdmin = session?.user?.role === 'admin';
+	const allRatings = obs.ratings
+		.filter((r) => r.rating != null)
+		.map((r) => r.rating!);
+	const overallAvg =
+		allRatings.length > 0
+			? allRatings.reduce((a, b) => a + b, 0) / allRatings.length
+			: null;
+	const headerTitle = (
+		<Group gap='sm' wrap='wrap' align='center'>
+			<Title order={3} fw={100}>
+				Observation
+			</Title>
+			<Badge
+				size='lg'
+				variant='light'
+				color={STATUS_COLORS[obs.status] ?? 'gray'}
+			>
+				{obs.status}
+			</Badge>
+			{overallAvg != null && (
+				<Badge size='lg' variant='filled' color='indigo'>
+					{overallAvg.toFixed(2)} / 5
+				</Badge>
+			)}
+		</Group>
+	);
 
 	const canEdit = (isObserver && isDraft) || isAdmin;
 	const canDelete = (isObserver && isDraft) || isAdmin;
@@ -34,7 +66,7 @@ export default async function ObservationDetailPage({ params }: Props) {
 	return (
 		<DetailsView>
 			<DetailsViewHeader
-				title='Observation'
+				title={headerTitle}
 				queryKey={['teaching-observations']}
 				handleDelete={
 					canDelete

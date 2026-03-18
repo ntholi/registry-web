@@ -75,13 +75,18 @@ export default function UniversalSearch({
 		>
 			<TextInput
 				placeholder='Search...'
-				leftSection={<IconSearch size='0.9rem' />}
+				leftSection={
+					<ThemeIcon variant='transparent' color='gray' mr={'md'}>
+						<IconSearch size='1.2rem' />
+					</ThemeIcon>
+				}
 				rightSection={
 					<Kbd size='xs' px={5} py={2}>
 						Ctrl+K
 					</Kbd>
 				}
 				rightSectionWidth={60}
+				leftSectionWidth={45}
 				value={value}
 				onChange={(e) => onChange(e.target.value)}
 				onClick={() => spotlight.open()}
