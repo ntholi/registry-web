@@ -23,6 +23,14 @@ class EmployeeService {
 		});
 	}
 
+	async getCurrent() {
+		return withPermission(
+			async (session) =>
+				this.repository.findByUserId(requireSessionUserId(session)),
+			'dashboard'
+		);
+	}
+
 	async findAll(page = 1, search = '') {
 		return withPermission(
 			async () =>

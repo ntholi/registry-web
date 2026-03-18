@@ -25,6 +25,18 @@ export default class EmployeeRepository extends BaseRepository<
 		});
 	}
 
+	async findByUserId(userId: string) {
+		return db.query.employees.findFirst({
+			where: eq(employees.userId, userId),
+			with: {
+				user: true,
+				employeeSchools: {
+					with: { school: true },
+				},
+			},
+		});
+	}
+
 	async findPhotoKey(empNo: string) {
 		const employee = await db.query.employees.findFirst({
 			where: eq(employees.empNo, empNo),

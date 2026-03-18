@@ -4,6 +4,7 @@ export {
 	createEmployee,
 	deleteEmployee,
 	findAllEmployees,
+	getCurrentEmployee,
 	getEmployee,
 	getEmployeeCardPrintHistory,
 	getEmployeePhoto,

@@ -13,6 +13,7 @@ import {
 	Select,
 	Stack,
 	Text,
+	UnstyledButton,
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { modals } from '@mantine/modals';
@@ -22,6 +23,7 @@ import {
 	IconSwitchHorizontal,
 } from '@tabler/icons-react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import type { ViewAsData } from '@/core/auth';
@@ -68,25 +70,32 @@ export default function UserButton({ viewAs }: { viewAs: ViewAsData | null }) {
 	return (
 		<Stack gap='xs' mt='md' mb='sm'>
 			<Flex justify='space-between' align='center'>
-				<Group>
-					<Avatar src={user?.image} />
-					<Stack gap={5}>
-						<Text size='0.9rem'>{user?.name}</Text>
-						<Text size='0.7rem' c='dimmed'>
-							{user?.email}
-						</Text>
-						<Text size='0.65rem' c='dimmed'>
-							{effectiveRole === 'academic' && !viewAs
-								? userSchools?.map((it) => it.school.code).join(', ')
-								: toTitleCase(effectiveRole)}
-							{viewAs?.presetName
-								? ` | ${viewAs.presetName}`
-								: user?.presetName
-									? ` | ${user.presetName}`
-									: ''}
-						</Text>
-					</Stack>
-				</Group>
+				<UnstyledButton
+					component={Link}
+					href='/profile'
+					aria-label='Open profile'
+					style={{ flex: 1, minWidth: 0 }}
+				>
+					<Group wrap='nowrap'>
+						<Avatar src={user?.image} />
+						<Stack gap={5} style={{ minWidth: 0 }}>
+							<Text size='0.9rem'>{user?.name}</Text>
+							<Text size='0.7rem' c='dimmed'>
+								{user?.email}
+							</Text>
+							<Text size='0.65rem' c='dimmed'>
+								{effectiveRole === 'academic' && !viewAs
+									? userSchools?.map((it) => it.school.code).join(', ')
+									: toTitleCase(effectiveRole)}
+								{viewAs?.presetName
+									? ` | ${viewAs.presetName}`
+									: user?.presetName
+										? ` | ${user.presetName}`
+										: ''}
+							</Text>
+						</Stack>
+					</Group>
+				</UnstyledButton>
 				<ActionIcon
 					variant={isViewingAs ? 'filled' : 'default'}
 					size='lg'

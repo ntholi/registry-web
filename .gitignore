@@ -56,3 +56,4 @@ snapshot-before-migration.json
 /.agent
 /.kiro
 /backup_db
+/temp

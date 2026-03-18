@@ -13,6 +13,10 @@ export async function getEmployee(empNo: string) {
 	return service.get(empNo);
 }
 
+export async function getCurrentEmployee() {
+	return service.getCurrent();
+}
+
 export async function findAllEmployees(page: number = 1, search = '') {
 	return service.findAll(page, search);
 }
