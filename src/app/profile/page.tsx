@@ -3,7 +3,6 @@ import {
 	Alert,
 	Avatar,
 	Badge,
-	Button,
 	Card,
 	Container,
 	Divider,
@@ -26,7 +25,6 @@ import {
 	IconSwitchHorizontal,
 	IconUserCircle,
 } from '@tabler/icons-react';
-import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getPublicUrl } from '@/core/integrations/storage-utils';
 import { getSession } from '@/core/platform/withPermission';
@@ -34,6 +32,7 @@ import { getRoleColor, getStatusColor } from '@/shared/lib/utils/colors';
 import { formatDateTime } from '@/shared/lib/utils/dates';
 import { toTitleCase } from '@/shared/lib/utils/utils';
 import { DetailsView } from '@/shared/ui/adease';
+import ButtonLink from '@/shared/ui/ButtonLink';
 import InfoItem from '@/shared/ui/InfoItem';
 
 export default async function ProfilePage() {
@@ -69,15 +68,14 @@ export default async function ProfilePage() {
 						<Stack gap='lg'>
 							<Group justify='space-between' align='flex-start'>
 								<Stack gap='xs'>
-									<Button
-										component={Link}
+									<ButtonLink
 										href='/dashboard'
 										variant='subtle'
 										leftSection={<IconArrowLeft size='1rem' />}
 										px={0}
 									>
 										Back to Dashboard
-									</Button>
+									</ButtonLink>
 									<Group gap='lg' align='center'>
 										<Avatar src={avatar} size={88} radius='xl' />
 										<Stack gap={6}>
