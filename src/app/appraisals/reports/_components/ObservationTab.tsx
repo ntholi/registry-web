@@ -6,7 +6,6 @@ import type { ReportFilter } from '../_lib/types';
 import { getObservationReportData } from '../_server/actions';
 import CriteriaBreakdown from './CriteriaBreakdown';
 import ObservationCategoryChart from './ObservationCategoryChart';
-import ObservationExportButton from './ObservationExportButton';
 import ObservationLecturerTable from './ObservationLecturerTable';
 import ObservationOverviewStats from './ObservationOverviewStats';
 import TrendChart from './TrendChart';
@@ -43,7 +42,6 @@ export default function ObservationTab({ filter }: Props) {
 		<Stack gap='lg'>
 			<Group justify='space-between'>
 				<ObservationOverviewStats data={data.overview} />
-				<ObservationExportButton data={data} filter={filter} />
 			</Group>
 			<Grid gutter='lg'>
 				<Grid.Col span={{ base: 12, md: 6 }}>

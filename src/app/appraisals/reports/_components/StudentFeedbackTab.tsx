@@ -5,7 +5,6 @@ import { useQuery } from '@tanstack/react-query';
 import type { ReportFilter } from '../_lib/types';
 import { getFeedbackReportData } from '../_server/actions';
 import FeedbackCategoryChart from './FeedbackCategoryChart';
-import FeedbackExportButton from './FeedbackExportButton';
 import FeedbackLecturerTable from './FeedbackLecturerTable';
 import FeedbackOverviewStats from './FeedbackOverviewStats';
 import QuestionBreakdown from './QuestionBreakdown';
@@ -36,7 +35,6 @@ export default function StudentFeedbackTab({ filter }: Props) {
 		<Stack gap='lg'>
 			<Group justify='space-between'>
 				<FeedbackOverviewStats data={data.overview} />
-				<FeedbackExportButton data={data} filter={filter} />
 			</Group>
 			<Grid gutter='lg'>
 				<Grid.Col span={{ base: 12, md: 6 }}>
