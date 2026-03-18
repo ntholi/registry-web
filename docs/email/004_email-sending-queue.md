@@ -6,9 +6,9 @@ With mail accounts and the Gmail client in place (Steps 001-003), this step impl
 
 ## Context
 
-- Gmail Workspace limit: **2,000 emails/day** per account, **250 quota units/second**.
+- Gmail Workspace limit: **2,000 messages/day** per user, **500 recipients/message** via API, **10,000 total recipients/day**, **15,000 quota units/user/minute**.
 - Running on Vercel (serverless) — no persistent background processes.
-- Queue uses a DB table (`mailQueue`) processed by an API route that an external cron (e.g., cron-job.org, Vercel Cron, or similar) calls periodically.
+- Queue uses a DB table (`mailQueue`) processed by an API route that **Vercel Cron Jobs** call periodically (configured in `vercel.json`).
 - The `sendEmail` function is the single entry point for all outbound email — both system-triggered and manual.
 
 ## Requirements
@@ -55,7 +55,7 @@ With mail accounts and the Gmail client in place (Steps 001-003), this step impl
 Low-level function that:
 
 1. Gets Gmail client via `getGmailClient(mailAccountId)`.
-2. Constructs RFC 2822 MIME message with:
+2. Constructs RFC 2822 MIME message using **nodemailer's MailComposer** with:
    - `From`: account email + displayName
    - `To`, `Cc`, `Bcc` headers
    - `Subject` header
@@ -105,17 +105,30 @@ Called by the API route. Processes pending emails in batches:
 
 A `POST` handler:
 
-1. Verify request authenticity via a shared secret header (`X-Cron-Secret` = env var `CRON_SECRET`).
+1. Verify request authenticity via the `CRON_SECRET` header (Vercel automatically sends this for cron invocations).
 2. Call `processEmailQueue()`.
 3. Return JSON: `{ processed, sent, failed, retried }`.
 
-**Security:** This endpoint must NOT be callable by unauthenticated users. The `CRON_SECRET` env var acts as a bearer token.
+**Security:** This endpoint is called by Vercel Cron. Vercel sends the `CRON_SECRET` automatically. Non-cron requests are rejected.
+
+**Vercel Cron config** — add to `vercel.json`:
+
+```json
+{
+  "crons": [
+    {
+      "path": "/api/mail/process-queue",
+      "schedule": "*/2 * * * *"
+    }
+  ]
+}
+```
 
 #### New env var:
 
 | Var | Description |
 |-----|-------------|
-| `CRON_SECRET` | Random secret shared with the external cron service |
+| `CRON_SECRET` | Automatically provided by Vercel for cron authentication |
 
 ### 4. Daily Rate Tracking
 
@@ -160,7 +173,7 @@ Behavior:
 2. Append account signature.
 3. Call `gmail.users.messages.send()` with `threadId` parameter.
 4. Log to `mailSentLog` with `triggerType: 'reply'`.
-5. Update `mailCache` to reflect the new message in the thread.
+5. Invalidate thread TanStack Query so the UI re-fetches the updated thread from Gmail.
 
 Replies are always sent immediately (not queued) — they are user-initiated and time-sensitive.
 
@@ -188,8 +201,9 @@ Replies are always sent immediately (not queued) — they are user-initiated and
 
 ## Notes
 
-- MIME message construction: Use a helper function to build RFC 2822 compliant messages. The `googleapis` library expects the raw message as a base64url-encoded string.
+- MIME message construction: Use **nodemailer's MailComposer** (`nodemailer/lib/mail-composer`) to build RFC 2822 compliant messages. This handles multipart/alternative, multipart/mixed, base64 encoding of attachments, and proper header formatting. The `googleapis` library expects the raw message as a base64url-encoded string.
+- **Dependency to install:** `nodemailer` (and `@types/nodemailer` for TypeScript).
 - For attachments: fetch the file from R2 using `getPublicUrl(key)` or the S3 client, then base64-encode and attach as a MIME part with `Content-Disposition: attachment`.
 - The queue processor should be idempotent — if called twice in parallel, the `processing` status acts as a lock (only one processor picks up each email).
 - Consider adding a `MAIL_DAILY_LIMIT` env var (default 1900) to make the threshold configurable.
-- The external cron should call the API route every 1-2 minutes for timely delivery. Services like cron-job.org, EasyCron, or GitHub Actions scheduled workflows work well.
+- The Vercel Cron runs every 2 minutes for timely delivery. Vercel Cron Jobs are free on Pro plans (up to 2 per project on Hobby).

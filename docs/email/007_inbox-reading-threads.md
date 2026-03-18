@@ -2,12 +2,12 @@
 
 ## Introduction
 
-This step implements the email reading experience: fetching emails from Gmail, caching them locally (hybrid approach), displaying threaded conversations, and replying to emails. This is the most complex step as it involves bidirectional Gmail API communication and a caching strategy optimized for Vercel's serverless architecture.
+This step implements the email reading experience: fetching emails from Gmail API on-demand, displaying threaded conversations, and replying to emails. Client-side caching is handled by TanStack Query.
 
 ## Context
 
 - Client-side polling every 15 minutes via TanStack Query (no server-side cron for inbox).
-- **Hybrid caching**: Recent emails cached in `mailCache` DB table; older emails fetched on-demand from Gmail API.
+- **On-demand fetching**: Emails and threads are fetched directly from Gmail API. TanStack Query provides client-side caching and background refetching.
 - Emails displayed as **threaded conversations** (using Gmail's `threadId`).
 - Users can only access inboxes they are assigned to (via `mailAccountAssignments`).
 - Admins see all inboxes.
@@ -57,28 +57,20 @@ Call `gmail.users.messages.modify()` to add `UNREAD` label.
 
 Call `gmail.users.messages.attachments.get()` and decode the base64 data.
 
-### 2. Caching Strategy
+### 2. Data Fetching Strategy
 
-**Hybrid approach:**
-- **Cache recent**: On inbox load, sync the latest ~50 messages to `mailCache`.
-- **On-demand older**: When user scrolls/paginates past cached messages, fetch from Gmail API directly.
-- **Cache invalidation**: On each sync, update existing cached messages (read status, labels) and insert new ones.
+**On-demand approach:**
+- Inbox list is fetched from Gmail API via `fetchInbox()` on each page load.
+- TanStack Query caches responses client-side with `staleTime: 2 * 60 * 1000` (2 minutes).
+- Background refetching every 15 minutes via `refetchInterval: 15 * 60 * 1000`.
+- Thread details fetched on-demand when user clicks a thread.
+- No server-side DB cache needed — simplifies implementation significantly.
 
-#### `syncInbox(mailAccountId: string): Promise<SyncResult>`
-
-**File:** `src/app/admin/mails/_server/gmail-client.ts`
-
-1. Fetch latest 50 threads from Gmail API.
-2. For each thread's latest message:
-   - Check if `gmailMessageId` exists in `mailCache`.
-   - **Exists**: Update `isRead`, `labelIds`, `isStarred` if changed.
-   - **New**: Insert full message data into `mailCache`.
-3. Update `mailAccounts.lastSyncAt`.
-4. Return `{ newMessages: number, updatedMessages: number }`.
-
-#### Cache TTL:
-- Cached messages older than **7 days** are deleted on sync to prevent unbounded growth.
-- The 7-day window is configurable.
+**Benefits:**
+- Always up-to-date (no stale cache issues).
+- No DB storage overhead for email bodies.
+- No cache invalidation complexity.
+- Simpler codebase (~30% less implementation).
 
 ### 3. Inbox Server Actions
 
@@ -86,11 +78,10 @@ Call `gmail.users.messages.attachments.get()` and decode the base64 data.
 
 | Action | Auth | Description |
 |--------|------|-------------|
-| `getInbox(accountId, page, search)` | Assignment check | Get inbox threads for an account (cached + live) |
-| `getThread(accountId, threadId)` | Assignment check | Get full thread conversation |
-| `syncInbox(accountId)` | Assignment check | Trigger inbox sync (called by client polling) |
-| `markRead(accountId, messageId)` | Assignment check | Mark message read (Gmail + cache) |
-| `markUnread(accountId, messageId)` | Assignment check | Mark message unread |
+| `getInbox(accountId, page, search)` | Assignment check | Get inbox threads for an account (fetched from Gmail API) |
+| `getThread(accountId, threadId)` | Assignment check | Get full thread conversation (fetched from Gmail API) |
+| `markRead(accountId, messageId)` | Assignment check | Mark message read (Gmail API) |
+| `markUnread(accountId, messageId)` | Assignment check | Mark message unread (Gmail API) |
 | `replyToThread(accountId, threadId, body)` | Assignment check + canReply | Send reply |
 | `downloadAttachment(accountId, msgId, attId)` | Assignment check | Download email attachment |
 
@@ -164,9 +155,8 @@ When a user replies to a thread:
    a. Verify assignment + `canReply` permission.
    b. Fetch the latest message in the thread to get `Message-ID` for `In-Reply-To` header.
    c. Call `sendReply()` from `gmail-client.ts` (immediate send, not queued).
-   d. Insert the sent reply into `mailCache` for immediate UI update.
-   e. Log to `mailSentLog` with `triggerType: 'reply'`.
-4. Return the new message for optimistic UI update.
+   d. Log to `mailSentLog` with `triggerType: 'reply'`.
+4. Return the new message for optimistic UI update. Invalidate the thread query for fresh data.
 
 ### 7. Search
 
@@ -185,7 +175,7 @@ Construct the Gmail `q` parameter from UI search fields and pass to `fetchInbox(
 
 | File | Purpose |
 |------|---------|
-| `src/app/admin/mails/_server/gmail-client.ts` | Extended with fetchInbox, fetchThread, syncInbox, markRead, etc. |
+| `src/app/admin/mails/_server/gmail-client.ts` | Extended with fetchInbox, fetchThread, markRead, etc. |
 | `src/app/admin/mails/_server/actions.ts` | Extended with inbox/thread/reply actions |
 | `src/app/admin/mails/_lib/types.ts` | Extended with InboxThread, ThreadMessage types |
 
@@ -193,22 +183,20 @@ Construct the Gmail `q` parameter from UI search fields and pass to `fetchInbox(
 
 1. `fetchInbox()` returns paginated thread list from Gmail
 2. `fetchThread()` returns full conversation with parsed messages
-3. `syncInbox()` caches recent messages and updates existing cache
-4. Cached messages older than 7 days cleaned up on sync
-5. `markAsRead/markAsUnread` updates both Gmail and local cache
-6. Reply sends with correct `In-Reply-To` / `References` headers for threading
-7. Reply appears in thread immediately (added to cache)
-8. HTML bodies sanitized before returning to client
-9. Search constructs valid Gmail query strings
-10. Attachment download returns correct binary data
-11. Assignment check enforced on all inbox actions
-12. `pnpm tsc --noEmit` passes
-13. `pnpm lint:fix` passes
+3. `markAsRead/markAsUnread` updates Gmail via API
+4. Reply sends with correct `In-Reply-To` / `References` headers for threading
+5. Reply is reflected in thread via TanStack Query invalidation
+6. HTML bodies sanitized before returning to client
+7. Search constructs valid Gmail query strings
+8. Attachment download returns correct binary data
+9. Assignment check enforced on all inbox actions
+10. `pnpm tsc --noEmit` passes
+11. `pnpm lint:fix` passes
 
 ## Notes
 
 - Gmail API quota: `threads.list` = 5 units, `threads.get` = 10 units, `messages.send` = 100 units. The 250 units/sec/user limit should not be an issue for normal inbox use.
 - MIME parsing: Gmail returns messages in `multipart/alternative` or `multipart/mixed` format. Walk the MIME tree to find `text/html` and `text/plain` parts.
 - Base64 decoding: Gmail uses URL-safe base64 encoding. Use `Buffer.from(data, 'base64url')` for decoding.
-- The `historyId` from Gmail can be used for incremental sync (only fetch changes since last sync). This is an optimization for later — initial implementation does a full recent fetch.
-- For the client-side 15-minute polling: use `refetchInterval: 15 * 60 * 1000` in TanStack Query's `useQuery` for the inbox data.
+- The `historyId` from Gmail can be used for incremental sync (only fetch changes since last check). This is an optimization for later — initial implementation fetches on-demand.
+- For the client-side 15-minute polling: use `refetchInterval: 15 * 60 * 1000` in TanStack Query's `useQuery` for the inbox data. Use `staleTime: 2 * 60 * 1000` to avoid refetching on every navigation.

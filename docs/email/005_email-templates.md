@@ -143,8 +143,8 @@ Export render helper functions:
 
 Each function:
 1. Creates the React component with props.
-2. Calls `render(component)` for HTML output.
-3. Calls `render(component, { plainText: true })` for text fallback.
+2. Calls `await render(component)` for HTML output (note: `render()` is async in current versions).
+3. Calls `await render(component, { plainText: true })` for text fallback.
 4. Returns both along with the generated subject line.
 
 ### 7. Template Preview (Development)

@@ -80,7 +80,7 @@ Uses `DetailsView` with tabs:
 
 #### Tab 2: Inbox
 
-The main inbox view (see §7 below).
+The main inbox view (emails fetched on-demand from Gmail API, cached client-side by TanStack Query. See §7 below).
 
 #### Tab 3: Sent Log
 
@@ -219,7 +219,7 @@ Displayed in the Inbox tab of the mail account detail page.
 - Relative date formatting (today → time, this week → day, older → date).
 - Click a thread → opens `ThreadView`.
 - Search bar with basic Gmail query support (subject, from, free text).
-- Sync button triggers `syncInbox()` action.
+- Sync button triggers a TanStack Query refetch (invalidates inbox query, re-fetches from Gmail API).
 - TanStack Query with `refetchInterval: 15 * 60 * 1000` (15 minutes).
 - Pagination via `Pagination` component.
 
@@ -323,7 +323,7 @@ Self-contained modal for composing new emails (admin only):
 | Body | `Textarea` or `RichTextEditor` |
 | Attachments | File upload (stored to R2, referenced in email) |
 
-Trigger button: "Compose" `ActionIcon` in the page header (visible only to users with `canCompose`).
+Trigger button: "Compose" `ActionIcon` in the page header (visible only to users with `canCompose` assignment or admin role).
 
 On send:
 1. Call `sendEmail({ ..., immediate: true, triggerType: 'manual' })`.

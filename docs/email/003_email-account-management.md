@@ -40,7 +40,7 @@ With OAuth integration from Step 002 allowing users to authorize emails, this st
 | `findByAccountId(accountId)` | All assignments for a mail account. |
 | `findByRole(role)` | All accounts assigned to a specific role. |
 | `findByUserId(userId)` | All accounts a specific user has access to (direct + via role). |
-| `findAccessibleAccounts(userId, role)` | Accounts accessible to user — both direct assignments AND role-based. Single query with OR condition. |
+| `findAccessibleAccounts(userId, role)` | Accounts accessible to user — both direct assignments AND role-based. Single query with OR condition. Returns accounts with merged permissions (`canReply`, `canCompose`) from all matching assignments. |
 | `create(data)` | Create assignment (validate role XOR userId constraint). |
 | `delete(id)` | Remove an assignment. |
 | `deleteByAccountId(accountId)` | Remove all assignments for an account (used when revoking). |
@@ -65,7 +65,7 @@ With OAuth integration from Step 002 allowing users to authorize emails, this st
 |--------|------|-------------|
 | `getMyAccounts()` | `'auth'` | Current user's authorized accounts |
 | `setPrimary(id)` | `{ mails: ['manage'] }` | Set an account as primary (admin only) |
-| `getAccessibleAccounts()` | `'dashboard'` | Accounts the current user can access (for inbox) |
+| `getAccessibleAccounts()` | `'dashboard'` | Accounts the current user can access (for inbox), with resolved per-account permissions (`canReply`, `canCompose`) |
 | `revokeAccount(id)` | `'auth'` | Revoke: verify ownership or admin, then delete |
 
 #### `MailAssignmentService`

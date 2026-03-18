@@ -20,7 +20,7 @@ Before any code, the following must be configured in the Google Cloud project:
 | Setting | Value |
 |---------|-------|
 | API to enable | **Gmail API** |
-| OAuth consent screen | Scopes: `gmail.send`, `gmail.readonly`, `gmail.compose`, `gmail.modify` |
+| OAuth consent screen | Scopes: `gmail.modify`, `userinfo.email`, `userinfo.profile` |
 | Authorized redirect URI | `${BETTER_AUTH_URL}/api/auth/gmail` |
 
 No new env vars needed — reuses existing `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET`.
@@ -31,14 +31,13 @@ Define scopes in `src/app/admin/mails/_lib/scopes.ts`:
 
 | Scope | Purpose |
 |-------|---------|
-| `https://www.googleapis.com/auth/gmail.send` | Send emails |
-| `https://www.googleapis.com/auth/gmail.readonly` | Read inbox, threads, messages |
-| `https://www.googleapis.com/auth/gmail.compose` | Create drafts, compose |
-| `https://www.googleapis.com/auth/gmail.modify` | Mark read/unread, star, labels |
+| `https://www.googleapis.com/auth/gmail.modify` | Read, compose, send emails, manage labels (mark read/unread, star). Covers all needed operations. |
 | `https://www.googleapis.com/auth/userinfo.email` | Get authorized email address |
 | `https://www.googleapis.com/auth/userinfo.profile` | Get display name |
 
 Export as a constant array `GMAIL_SCOPES`.
+
+> **Note on restricted scopes:** `gmail.modify` is a restricted scope. For Google Workspace internal apps, the Workspace admin must mark the app as "trusted" in the Google Admin Console. This avoids the full OAuth verification / security assessment process required for public apps.
 
 ### 3. OAuth API Route
 
@@ -109,15 +108,13 @@ oauth2Client.on('tokens', async (tokens) => {
 - If token is expired and no refresh token exists → mark `mailAccount.isActive = false`, throw descriptive error.
 - If Gmail API returns 401/403 → mark inactive, log error.
 
-### 5. Token Encryption
+### 5. Token Storage
 
-Tokens stored in `mailAccounts` must be encrypted at rest. Two approaches:
+Tokens stored in `mailAccounts` follow the same pattern as the existing Google Classroom / Google Sheets integrations — stored directly in the table without application-level encryption. This matches the established codebase pattern where the `accounts` table stores OAuth tokens unencrypted.
 
-**Option A (Recommended):** Use the same encryption mechanism as Better Auth's `encryptOAuthTokens`. Import the encryption utilities from Better Auth internals or replicate the pattern using `BETTER_AUTH_SECRET` as the key.
+The `gmail-client.ts` reads tokens directly when creating the OAuth2 client, and the OAuth route stores them directly.
 
-**Option B:** If Better Auth's encryption is not easily importable, use Node.js `crypto.createCipheriv` / `crypto.createDecipheriv` with AES-256-GCM, deriving the key from `BETTER_AUTH_SECRET`.
-
-The `gmail-client.ts` should decrypt tokens when creating the OAuth2 client, and the OAuth route should encrypt before storing.
+> **Future:** If encryption is added, it should be applied consistently across all OAuth token stores (Better Auth `accounts` + `mailAccounts`).
 
 ### 6. User Profile Integration
 
@@ -168,5 +165,6 @@ Server action `revokeMailAccount(mailAccountId: string)`:
 - The `login_hint` query param on the OAuth URL lets the profile page pre-suggest which Google account to authorize (useful when user has multiple Google accounts).
 - `prompt: 'consent'` is critical — without it, Google won't return a refresh token on re-auth.
 - The `state` parameter should include the user ID to verify on callback (prevents token theft if URL is intercepted).
-- Gmail API rate limits: 250 quota units per user per second. The client should handle `429 Too Many Requests` gracefully.
+- Gmail API rate limits: 15,000 quota units per user per minute. `messages.send` = 100 units, `threads.list` = 10 units, `threads.get` = 10 units. The client should handle `429 Too Many Requests` gracefully.
+- Gmail sending limits per Workspace user: 2,000 messages/day, 500 recipients/message via API, 10,000 total recipients/day.
 - The `googleapis` package is already a dependency (`googleapis@171.0.0` in package.json).

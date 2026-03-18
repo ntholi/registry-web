@@ -13,10 +13,10 @@ A centralized email integration for the Registry Web application using the Gmail
 | Admin assignment | Centralized at `admin/mails/` | Admin controls primary sender, dept/user assignments |
 | Primary email | One email designated for system sends | `registry@limkokwing.ac.ls` sends all automated emails |
 | Inbox access | Per-email assignment to roles/users | Department members (mapped to roles) or specific users |
-| Compose | Admin-only new compose; others reply-only | Prevents misuse while enabling department communication |
+| Compose | Admin + assigned users with canCompose | Controlled via assignments for flexibility |
 | Templates | react-email with university branding | Type-safe, composable, consistent look |
-| Queue | DB table + external cron API route | Serverless-compatible rate limiting (2,000/day Workspace) |
-| Inbox caching | Hybrid — recent cached, older on-demand | Fast UI for recent; no stale data overhead for old emails |
+| Queue | DB table + Vercel Cron API route | Serverless-compatible rate limiting (2,000 msgs/day Workspace) |
+| Inbox fetching | On-demand via Gmail API | No DB cache needed; TanStack Query handles client caching |
 | Inbox polling | Client-side via TanStack Query (15 min) | No server-side cron needed; Vercel serverless friendly |
 | Thread display | Gmail threaded conversations | Natural email reading experience |
 | Attachments | Supported (R2 / generated PDFs) | Transcripts, receipts, documents |
@@ -33,7 +33,7 @@ A centralized email integration for the Registry Web application using the Gmail
 | Remove email assignment | ✓ | — | — |
 | Read inbox (assigned emails) | ✓ | ✓ | — |
 | Reply to emails | ✓ | ✓ | — |
-| Compose new emails | ✓ | — | — |
+| Compose new emails | ✓ | ✓ (if assigned) | — |
 | View sent email log | ✓ | — | — |
 | Search inbox | ✓ | ✓ | — |
 | Manage signatures | ✓ | — | — |
@@ -70,26 +70,26 @@ A centralized email integration for the Registry Web application using the Gmail
 │ updatedAt            │     │ to                       │
 └──────────────────────┘     │ cc, bcc                  │
                              │ subject                  │
-┌──────────────────────┐     │ htmlBody                 │
-│   mail_cache         │     │ textBody                 │
-│──────────────────────│     │ attachments (jsonb)      │
-│ id (PK)              │     │ status (pending/sent/    │
-│ mailAccountId (FK)   │     │         failed/retry)    │
-│ gmailMessageId       │     │ attempts                 │
-│ gmailThreadId        │     │ error                    │
-│ from                 │     │ scheduledAt              │
-│ to                   │     │ sentAt                   │
-│ subject              │     │ triggerType              │
-│ snippet              │     │ triggerEntityId          │
-│ body (text)          │     │ createdAt                │
-│ htmlBody             │     └──────────────────────────┘
-│ labelIds (jsonb)     │
-│ isRead               │     ┌──────────────────────────┐
-│ hasAttachments       │     │   mail_sent_log          │
-│ receivedAt           │     │──────────────────────────│
-│ cachedAt             │     │ id (PK)                  │
-│ isStarred            │     │ mailAccountId (FK)       │
-└──────────────────────┘     │ queueId (FK, nullable)   │
+                             │ htmlBody                 │
+                             │ textBody                 │
+                             │ attachments (jsonb)      │
+                             │ status (pending/sent/    │
+                             │         failed/retry)    │
+                             │ attempts                 │
+                             │ error                    │
+                             │ scheduledAt              │
+                             │ sentAt                   │
+                             │ triggerType              │
+                             │ triggerEntityId          │
+                             │ createdAt                │
+                             └──────────────────────────┘
+
+                             ┌──────────────────────────┐
+                             │   mail_sent_log          │
+                             │──────────────────────────│
+                             │ id (PK)                  │
+                             │ mailAccountId (FK)       │
+                             │ queueId (FK, nullable)   │
                              │ gmailMessageId           │
                              │ to                       │
                              │ cc, bcc                  │
@@ -111,7 +111,6 @@ src/app/admin/mails/
 │   ├── mailAccounts.ts
 │   ├── mailAccountAssignments.ts
 │   ├── mailQueue.ts
-│   ├── mailCache.ts
 │   ├── mailSentLog.ts
 │   └── relations.ts
 ├── _server/
@@ -176,12 +175,12 @@ src/app/auth/users/_components/
 | User owns authorization | Users authorize emails from their profile; tokens tied to their Google account |
 | Admin controls assignments | Admin assigns emails to roles or specific users |
 | Role = department | Existing user roles (`registry`, `finance`, `academic`, etc.) act as departments |
-| Reply-only for non-admins | Users assigned to an inbox can read + reply; only admins compose new emails |
+| Compose controlled by assignment | Users assigned to an inbox can read + reply; compose requires `canCompose` on assignment or admin role |
 | Revoke = both | Either the authorizing user or an admin can revoke/remove an email |
-| Rate limit | Queue respects Gmail API limits (2,000/day for Workspace) |
-| Hybrid cache | Recent emails cached in DB; older emails fetched on-demand from Gmail API |
+| Rate limit | Queue respects Gmail API limits (2,000 msgs/day, 500 recipients/msg via API, 10,000 total recipients/day) |
+| On-demand inbox | Emails fetched directly from Gmail API; TanStack Query handles client caching |
 | Token refresh | Auto-refresh Gmail tokens using google-auth-library `on('tokens')` listener |
-| Encrypted tokens | Gmail tokens encrypted at rest (same as Better Auth OAuth tokens) |
+| Token storage | Gmail tokens stored in mailAccounts table (matching existing Google integrations pattern) |
 
 ## Access Control
 

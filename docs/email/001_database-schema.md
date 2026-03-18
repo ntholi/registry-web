@@ -121,38 +121,6 @@ Outbound email queue with rate limiting support.
 - `mail_queue_account_idx` on `mailAccountId`
 - `mail_queue_trigger_idx` on `(triggerType, triggerEntityId)` — for dedup checks
 
-#### `mailCache`
-
-Cached inbox emails from Gmail for hybrid read performance.
-
-| Column | Type | Constraints | Description |
-|--------|------|-------------|-------------|
-| `id` | `serial` | PK | Auto-increment |
-| `mailAccountId` | `text` | FK → mailAccounts, NOT NULL | Which email account |
-| `gmailMessageId` | `text` | NOT NULL | Gmail message ID |
-| `gmailThreadId` | `text` | NOT NULL | Gmail thread ID (for threading) |
-| `fromAddress` | `text` | NOT NULL | Sender email |
-| `fromName` | `text` | | Sender display name |
-| `toAddress` | `text` | NOT NULL | Recipient(s) |
-| `subject` | `text` | | Email subject |
-| `snippet` | `text` | | Gmail snippet (preview text) |
-| `textBody` | `text` | | Plain text body |
-| `htmlBody` | `text` | | HTML body |
-| `labelIds` | `jsonb` | | Gmail label IDs array |
-| `isRead` | `boolean` | DEFAULT false | Read/unread state |
-| `isStarred` | `boolean` | DEFAULT false | Starred state |
-| `hasAttachments` | `boolean` | DEFAULT false | Has attachments? |
-| `receivedAt` | `timestamp` | NOT NULL | Original receive time |
-| `cachedAt` | `timestamp` | DEFAULT now(), NOT NULL | When cached locally |
-
-**Constraints:**
-- UNIQUE on `(mailAccountId, gmailMessageId)`
-
-**Indexes:**
-- `mail_cache_account_thread_idx` on `(mailAccountId, gmailThreadId)` — for thread grouping
-- `mail_cache_account_received_idx` on `(mailAccountId, receivedAt DESC)` — for inbox listing
-- `mail_cache_gmail_msg_idx` UNIQUE on `(mailAccountId, gmailMessageId)` — for upsert
-
 #### `mailSentLog`
 
 Audit log for all sent emails (system-triggered and manual).
@@ -187,7 +155,6 @@ Define in `relations.ts`:
 - `mailAccounts` → `users` (many-to-one via `userId`)
 - `mailAccounts` → `mailAccountAssignments` (one-to-many)
 - `mailAccounts` → `mailQueue` (one-to-many)
-- `mailAccounts` → `mailCache` (one-to-many)
 - `mailAccounts` → `mailSentLog` (one-to-many)
 - `mailAccountAssignments` → `mailAccounts` (many-to-one via `mailAccountId`)
 - `mailAccountAssignments` → `users` (many-to-one via `userId`, optional)
@@ -204,7 +171,6 @@ Add schema re-exports to the admin module's `_database/index.ts`:
 export { mailAccounts } from '../mails/_schema/mailAccounts';
 export { mailAccountAssignments } from '../mails/_schema/mailAccountAssignments';
 export { mailQueue } from '../mails/_schema/mailQueue';
-export { mailCache } from '../mails/_schema/mailCache';
 export { mailSentLog } from '../mails/_schema/mailSentLog';
 ```
 
@@ -221,13 +187,12 @@ Run `pnpm db:generate` after creating all schema files. Do NOT manually create .
 | `src/app/admin/mails/_schema/mailAccounts.ts` | Mail accounts table |
 | `src/app/admin/mails/_schema/mailAccountAssignments.ts` | Assignment table |
 | `src/app/admin/mails/_schema/mailQueue.ts` | Email queue table |
-| `src/app/admin/mails/_schema/mailCache.ts` | Inbox cache table |
 | `src/app/admin/mails/_schema/mailSentLog.ts` | Sent email audit log |
 | `src/app/admin/mails/_schema/relations.ts` | All relations |
 
 ## Validation Criteria
 
-1. All five schema files exist with correct column types and constraints
+1. All four schema files exist with correct column types and constraints
 2. Relations file defines all foreign key relationships
 3. Barrel exports updated in `_database/index.ts` and `core/database/index.ts`
 4. `pnpm db:generate` produces a clean migration
@@ -236,8 +201,7 @@ Run `pnpm db:generate` after creating all schema files. Do NOT manually create .
 
 ## Notes
 
-- Token encryption: `accessToken` and `refreshToken` should be encrypted at the application level (similar to how Better Auth encrypts OAuth tokens). Consider using the same encryption utility.
+- Token encryption: Tokens stored in `mailAccounts` follow the same pattern as existing Google integrations (stored directly without application-level encryption). If encryption is later enabled for Better Auth's `encryptOAuthTokens`, the same approach should be applied here.
 - The `isPrimary` flag enforced at application level: when setting a new primary, unset the old one in a transaction.
 - The CHECK constraint on `mailAccountAssignments` ensures exactly one of `role`/`userId` is set — prevents ambiguous assignments.
 - `mailQueue.attachments` is JSONB storing `{ filename: string, r2Key: string, mimeType: string }[]`.
-- `mailCache.labelIds` is JSONB storing `string[]` (Gmail label IDs like `INBOX`, `SENT`, `UNREAD`).

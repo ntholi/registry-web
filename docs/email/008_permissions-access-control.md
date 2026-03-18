@@ -26,7 +26,7 @@ Add `mails` as a new resource:
 | `mails` | `create` | Authorize new email accounts (via OAuth flow) |
 | `mails` | `manage` | Set primary, assign to roles/users, update settings, manage queue |
 | `mails` | `inbox` | Access inboxes assigned to user (read + reply based on assignment) |
-| `mails` | `compose` | Compose new outbound emails (admin privilege) |
+| `mails` | `compose` | Compose new outbound emails (grantable via presets; also requires `canCompose` assignment) |
 | `mails` | `delete` | Revoke email accounts |
 
 ### 2. Access Control Layers
