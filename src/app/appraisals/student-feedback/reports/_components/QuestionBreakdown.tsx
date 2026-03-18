@@ -34,14 +34,19 @@ function getDistCount(item: QuestionBreakdownItem, rating: number) {
 	return item.distribution.find((entry) => entry.rating === rating)?.count ?? 0;
 }
 
+function getDistPct(item: QuestionBreakdownItem, rating: number) {
+	if (item.responseCount === 0) return 0;
+	return (getDistCount(item, rating) / item.responseCount) * 100;
+}
+
 function getChartRow(item: QuestionBreakdownItem) {
 	return {
 		label: 'Responses',
-		'1★': getDistCount(item, 1),
-		'2★': getDistCount(item, 2),
-		'3★': getDistCount(item, 3),
-		'4★': getDistCount(item, 4),
-		'5★': getDistCount(item, 5),
+		'1★': getDistPct(item, 1),
+		'2★': getDistPct(item, 2),
+		'3★': getDistPct(item, 3),
+		'4★': getDistPct(item, 4),
+		'5★': getDistPct(item, 5),
 	};
 }
 
@@ -52,7 +57,7 @@ function getBarRadius(name: string): [number, number, number, number] | number {
 }
 
 function formatPct(value: number) {
-	return `${value.toFixed(0)}%`;
+	return `${value.toFixed(value >= 10 ? 0 : 1)}%`;
 }
 
 export default function QuestionBreakdown({ data }: Props) {
@@ -205,7 +210,7 @@ export default function QuestionBreakdown({ data }: Props) {
 														strokeDasharray='6 6'
 														tickLine='none'
 														tooltipAnimationDuration={200}
-														type='percent'
+														type='stacked'
 														valueFormatter={formatPct}
 														withLegend={false}
 														withYAxis={false}
