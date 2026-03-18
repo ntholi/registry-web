@@ -76,7 +76,11 @@ export default function UniversalSearch({
 			<TextInput
 				placeholder='Search...'
 				leftSection={
-					<ThemeIcon variant='transparent' color='gray' mr={'md'}>
+					<ThemeIcon
+						variant='transparent'
+						color='rgba(207, 249, 255, 1)'
+						mr={'xs'}
+					>
 						<IconSearch size='1.2rem' />
 					</ThemeIcon>
 				}
@@ -86,7 +90,7 @@ export default function UniversalSearch({
 					</Kbd>
 				}
 				rightSectionWidth={60}
-				leftSectionWidth={45}
+				leftSectionWidth={40}
 				value={value}
 				onChange={(e) => onChange(e.target.value)}
 				onClick={() => spotlight.open()}
