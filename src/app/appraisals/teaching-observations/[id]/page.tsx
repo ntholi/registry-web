@@ -3,9 +3,7 @@ import { notFound } from 'next/navigation';
 import { getSession } from '@/core/platform/withPermission';
 import { type AllStatusType, getStatusColor } from '@/shared/lib/utils/colors';
 import { DetailsView, DetailsViewHeader } from '@/shared/ui/adease';
-import AcknowledgeButton from '../_components/AcknowledgeButton';
 import ObservationDetail from '../_components/ObservationDetail';
-import SubmitButton from '../_components/SubmitButton';
 import { deleteObservation, getObservation } from '../_server/actions';
 
 type Props = {
@@ -20,13 +18,7 @@ export default async function ObservationDetailPage({ params }: Props) {
 
 	const userId = session?.user?.id;
 	const isObserver = obs.observerId === userId;
-	const assignedModule = obs.assignedModule as
-		| { user?: { id: string } | null }
-		| null
-		| undefined;
-	const isLecturer = assignedModule?.user?.id === userId;
 	const isDraft = obs.status === 'draft';
-	const isSubmitted = obs.status === 'submitted';
 	const isAdmin = session?.user?.role === 'admin';
 	const status = obs.status as AllStatusType;
 	const allRatings = obs.ratings
@@ -80,11 +72,7 @@ export default async function ObservationDetailPage({ params }: Props) {
 					canDelete ? { 'teaching-observations': ['delete'] } : undefined
 				}
 			/>
-			<ObservationDetail observation={obs as never} />
-			<Group mt='md'>
-				{isObserver && isDraft && <SubmitButton observationId={id} />}
-				{isLecturer && isSubmitted && <AcknowledgeButton observationId={id} />}
-			</Group>
+			<ObservationDetail observation={obs as never} userId={userId} />
 		</DetailsView>
 	);
 }

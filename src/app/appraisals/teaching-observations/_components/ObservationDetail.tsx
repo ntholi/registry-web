@@ -3,6 +3,8 @@
 import {
 	Badge,
 	Card,
+	Grid,
+	GridCol,
 	Group,
 	SegmentedControl,
 	SimpleGrid,
@@ -14,6 +16,8 @@ import { useMemo } from 'react';
 import { formatDate } from '@/shared/lib/utils/dates';
 import { getStudentClassName } from '@/shared/lib/utils/utils';
 import { FieldView } from '@/shared/ui/adease';
+import AcknowledgeButton from './AcknowledgeButton';
+import SubmitButton from './SubmitButton';
 
 type Rating = {
 	id: string;
@@ -37,6 +41,7 @@ type ObservationData = {
 	status: string;
 	strengths: string | null;
 	improvements: string | null;
+	observerId: string | null;
 	recommendations: string | null;
 	trainingArea: string | null;
 	submittedAt: Date | null;
@@ -60,8 +65,9 @@ type ObservationData = {
 	ratings: Rating[];
 };
 
-type ObservationDetailProps = {
+type Props = {
 	observation: ObservationData;
+	userId: string | null | undefined;
 };
 
 const SECTION_LABELS: Record<string, string> = {
@@ -72,9 +78,13 @@ const SECTION_LABELS: Record<string, string> = {
 
 const RATINGS = ['1', '2', '3', '4', '5'];
 
-export default function ObservationDetail({
-	observation: obs,
-}: ObservationDetailProps) {
+export default function ObservationDetail({ observation: obs, userId }: Props) {
+	const assignedModule = obs.assignedModule as
+		| { user?: { id: string } | null }
+		| null
+		| undefined;
+	const isLecturer = assignedModule?.user?.id === userId;
+	const isSubmitted = obs.status === 'submitted';
 	const sm = obs.assignedModule?.semesterModule;
 	const mod = sm?.module;
 	const studentClass = sm?.semester
@@ -127,7 +137,21 @@ export default function ObservationDetail({
 	return (
 		<Stack gap='lg'>
 			<Stack gap='lg' mb={'xl'}>
-				<FieldView label='Cycle'>{obs.cycle?.name}</FieldView>
+				<Grid>
+					<GridCol span={{ base: 12, sm: 9 }}>
+						<FieldView label='Cycle'>{obs.cycle?.name}</FieldView>
+					</GridCol>
+					<GridCol span={{ base: 12, sm: 3 }}>
+						<Group mt='md'>
+							{obs.observerId === userId && obs.status === 'draft' && (
+								<SubmitButton observationId={obs.id} />
+							)}
+							{isLecturer && isSubmitted && (
+								<AcknowledgeButton observationId={obs.id} />
+							)}
+						</Group>
+					</GridCol>
+				</Grid>
 				<FieldView label='Lecturer'>{obs.assignedModule?.user?.name}</FieldView>
 				<SimpleGrid cols={{ base: 1, sm: 2 }}>
 					<FieldView label='Module'>
