@@ -164,5 +164,6 @@ Zod schemas:
 
 - The `setPrimary` method must use a DB transaction to ensure atomicity — unset old primary and set new primary in the same transaction.
 - The `findAccessibleAccounts` query should be a single query that checks both direct user assignments and role-based assignments using an OR condition, avoiding two separate DB calls.
-- When revoking an account, optionally call Google's token revocation endpoint (`https://oauth2.googleapis.com/revoke`) to invalidate the token server-side.
+- When revoking an account, optionally call Google's token revocation endpoint to invalidate the token server-side. Use `new google.auth.OAuth2()` to create a client instance, then call `oauth2Client.revokeToken(accessToken)`. Do NOT call `revokeToken` on the prototype.
 - The `role` field in assignments maps to existing user roles from the app's role system (e.g., `'registry'`, `'finance'`, `'academic'`, `'admin'`).
+- Service exports follow the naming convention: `export const mailAccountService = new MailAccountService(...)` and `export const mailAssignmentService = new MailAssignmentService(...)`.

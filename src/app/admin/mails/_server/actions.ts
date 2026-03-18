@@ -59,7 +59,8 @@ export const revokeMailAccount = createAction(async (mailAccountId: string) => {
 
 	if (account.accessToken) {
 		try {
-			await google.auth.OAuth2.prototype.revokeToken(account.accessToken);
+			const oauth2Client = new google.auth.OAuth2();
+			await oauth2Client.revokeToken(account.accessToken);
 		} catch {
 			// Best-effort revocation
 		}
