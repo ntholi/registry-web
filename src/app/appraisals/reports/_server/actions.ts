@@ -1,6 +1,12 @@
 'use server';
 
-import type { ReportFilter } from '../_lib/types';
+import type {
+	FeedbackReportData,
+	ObservationReportData,
+	ReportFilter,
+} from '../_lib/types';
+import { generateFeedbackExcel } from './feedback-excel';
+import { generateObservationExcel } from './observation-excel';
 import { appraisalReportService } from './service';
 
 export async function getOverviewData(filter: ReportFilter) {
@@ -39,4 +45,20 @@ export async function getReportAccessInfo() {
 
 export async function getModulesForFilter(filter: ReportFilter) {
 	return appraisalReportService.getModulesForFilter(filter);
+}
+
+export async function exportFeedbackExcel(
+	data: FeedbackReportData,
+	filter: ReportFilter
+) {
+	const buffer = await generateFeedbackExcel(data, filter);
+	return buffer.toString('base64');
+}
+
+export async function exportObservationExcel(
+	data: ObservationReportData,
+	filter: ReportFilter
+) {
+	const buffer = await generateObservationExcel(data, filter);
+	return buffer.toString('base64');
 }

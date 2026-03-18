@@ -2460,6 +2460,59 @@ class AppraisalReportRepository {
 			.where(conditions.length > 0 ? and(...conditions) : undefined)
 			.orderBy(modules.code);
 	}
+
+	async getDetailedObservationExportData(filter: ReportFilter) {
+		const conditions = buildObservationConditions(filter);
+
+		return db
+			.select({
+				observationId: observations.id,
+				status: observations.status,
+				lecturerName: users.name,
+				schoolCode: schools.code,
+				programCode: programs.code,
+				moduleCode: modules.code,
+				moduleName: modules.name,
+				cycleName: feedbackCycles.name,
+				categoryName: observationCategories.name,
+				section: observationCategories.section,
+				criterionText: observationCriteria.text,
+				rating: observationRatings.rating,
+			})
+			.from(observationRatings)
+			.innerJoin(
+				observations,
+				eq(observationRatings.observationId, observations.id)
+			)
+			.innerJoin(
+				observationCriteria,
+				eq(observationRatings.criterionId, observationCriteria.id)
+			)
+			.innerJoin(
+				observationCategories,
+				eq(observationCriteria.categoryId, observationCategories.id)
+			)
+			.innerJoin(feedbackCycles, eq(observations.cycleId, feedbackCycles.id))
+			.innerJoin(
+				assignedModules,
+				eq(observations.assignedModuleId, assignedModules.id)
+			)
+			.innerJoin(users, eq(assignedModules.userId, users.id))
+			.innerJoin(
+				semesterModules,
+				eq(assignedModules.semesterModuleId, semesterModules.id)
+			)
+			.innerJoin(modules, eq(semesterModules.moduleId, modules.id))
+			.innerJoin(
+				structureSemesters,
+				eq(semesterModules.semesterId, structureSemesters.id)
+			)
+			.innerJoin(structures, eq(structureSemesters.structureId, structures.id))
+			.innerJoin(programs, eq(structures.programId, programs.id))
+			.innerJoin(schools, eq(programs.schoolId, schools.id))
+			.where(and(isNotNull(observationRatings.rating), ...conditions))
+			.orderBy(users.name, observations.id, observationCategories.sortOrder);
+	}
 }
 
 export const appraisalReportRepository = new AppraisalReportRepository();

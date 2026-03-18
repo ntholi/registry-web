@@ -7,6 +7,7 @@ import { getOverviewData } from '../_server/actions';
 import MatrixHeatmap from './MatrixHeatmap';
 import OverviewStats from './OverviewStats';
 import SchoolComparisonChart from './SchoolComparisonChart';
+import SimpleLecturerTable from './SimpleLecturerTable';
 import TrendChart from './TrendChart';
 
 type Props = {
@@ -55,6 +56,7 @@ export default function OverviewTab({ filter }: Props) {
 					/>
 				</Grid.Col>
 			</Grid>
+			<SimpleLecturerTable data={data.lecturerRankings} />
 		</Stack>
 	);
 }

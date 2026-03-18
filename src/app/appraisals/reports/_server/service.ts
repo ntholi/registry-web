@@ -133,6 +133,14 @@ class AppraisalReportService {
 			hasObservationAccess: hasObservationAccess(session),
 		};
 	}
+
+	async getDetailedObservationExportData(filter: ReportFilter) {
+		return withPermission(async (session) => {
+			return appraisalReportRepository.getDetailedObservationExportData(
+				scopeFilter(session, filter)
+			);
+		}, OBSERVATION_READ);
+	}
 }
 
 export const appraisalReportService = new AppraisalReportService();

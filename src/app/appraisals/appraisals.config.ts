@@ -26,6 +26,16 @@ export const appraisalsConfig: ModuleConfig = {
 				permissions: [{ resource: 'feedback-cycles', action: 'read' }],
 			},
 			{
+				label: 'Reports',
+				href: '/appraisals/reports',
+				icon: IconChartBar,
+				roles: ['academic', 'admin', 'human_resource'],
+				permissions: [
+					{ resource: 'student-feedback-reports', action: 'read' },
+					{ resource: 'teaching-observation-reports', action: 'read' },
+				],
+			},
+			{
 				label: 'Student Feedback',
 				icon: IconMessageStar,
 				roles: ['academic', 'admin', 'human_resource'],
@@ -37,14 +47,6 @@ export const appraisalsConfig: ModuleConfig = {
 						icon: IconMessageQuestion,
 						permissions: [
 							{ resource: 'student-feedback-questions', action: 'read' },
-						],
-					},
-					{
-						label: 'Reports',
-						href: '/appraisals/student-feedback/reports',
-						icon: IconChartBar,
-						permissions: [
-							{ resource: 'student-feedback-reports', action: 'read' },
 						],
 					},
 				],
@@ -69,15 +71,6 @@ export const appraisalsConfig: ModuleConfig = {
 						icon: IconClipboardCheck,
 						permissions: [
 							{ resource: 'teaching-observations', action: 'read' },
-						],
-					},
-
-					{
-						label: 'Reports',
-						href: '/appraisals/observation-reports',
-						icon: IconChartBar,
-						permissions: [
-							{ resource: 'teaching-observation-reports', action: 'read' },
 						],
 					},
 				],

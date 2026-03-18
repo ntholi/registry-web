@@ -1,10 +1,12 @@
 'use client';
 
-import { Alert, Grid, Stack } from '@mantine/core';
+import { Alert, Grid, Group, Stack } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
 import type { ReportFilter } from '../_lib/types';
 import { getFeedbackReportData } from '../_server/actions';
 import FeedbackCategoryChart from './FeedbackCategoryChart';
+import FeedbackExportButton from './FeedbackExportButton';
+import FeedbackLecturerTable from './FeedbackLecturerTable';
 import FeedbackOverviewStats from './FeedbackOverviewStats';
 import QuestionBreakdown from './QuestionBreakdown';
 import RatingHistogram from './RatingHistogram';
@@ -32,7 +34,10 @@ export default function StudentFeedbackTab({ filter }: Props) {
 
 	return (
 		<Stack gap='lg'>
-			<FeedbackOverviewStats data={data.overview} />
+			<Group justify='space-between'>
+				<FeedbackOverviewStats data={data.overview} />
+				<FeedbackExportButton data={data} filter={filter} />
+			</Group>
 			<Grid gutter='lg'>
 				<Grid.Col span={{ base: 12, md: 6 }}>
 					<FeedbackCategoryChart data={data.categoryAverages} />
@@ -42,6 +47,11 @@ export default function StudentFeedbackTab({ filter }: Props) {
 				</Grid.Col>
 			</Grid>
 			<QuestionBreakdown data={data.questionBreakdown} />
+			<FeedbackLecturerTable
+				data={data.lecturerRankings}
+				categories={data.categoryAverages}
+				filter={filter}
+			/>
 		</Stack>
 	);
 }
