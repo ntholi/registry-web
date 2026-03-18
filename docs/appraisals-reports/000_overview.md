@@ -9,7 +9,6 @@ A single page at `/appraisals/reports` with 3 tabs — **Overview**, **Student F
 ### Key Principle: Preserve Student Feedback UI
 
 The existing **Student Feedback** reports page (`student-feedback/reports/`) is mature and well-tested. Its components — Filter, OverviewStats, CategoryChart (RadarChart), RatingHistogram, QuestionBreakdown, LecturerTable, LecturerExpandedDetail, ExportButton — must be **carried over with minimal changes**. The unified page wraps them in a tab, not replaces them.
-
 ---
 
 ## Implementation Phases
