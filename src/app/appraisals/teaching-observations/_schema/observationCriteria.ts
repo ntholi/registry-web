@@ -11,6 +11,7 @@ export const observationCriteria = pgTable(
 		categoryId: text()
 			.references(() => observationCategories.id, { onDelete: 'cascade' })
 			.notNull(),
+		title: text(),
 		text: text().notNull(),
 		description: text(),
 		sortOrder: integer().notNull().default(0),

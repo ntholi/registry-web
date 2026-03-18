@@ -36,6 +36,7 @@ import RatingInput from './RatingInput';
 
 type Criterion = {
 	id: string;
+	title: string | null;
 	text: string;
 	description: string | null;
 	sortOrder: number;
@@ -371,36 +372,54 @@ export default function ObservationForm({
 									<Stack gap='xl'>
 										{section.categories.map((category) => (
 											<Stack key={category.id} gap='md'>
-												<Stack gap='sm'>
-													{category.criteria.map((criterion, _idx) => {
-														const state = ratingMeta.get(criterion.id);
+												<Text
+													size='sm'
+													fw={600}
+													c='dimmed'
+													tt='uppercase'
+													lts={0.5}
+												>
+													{category.name}
+												</Text>
+												{category.criteria.map((criterion) => {
+													const state = ratingMeta.get(criterion.id);
+													if (!state) return null;
 
-														if (!state) return null;
-
-														return (
-															<Stack gap='md'>
-																<Stack gap={4}>
-																	<Text>{criterion.text}</Text>
-																	{criterion.description && (
-																		<Text size='sm' c='dimmed'>
-																			{criterion.description}
-																		</Text>
-																	)}
-																</Stack>
-																<RatingInput
-																	value={state.rating.rating ?? null}
-																	onChange={(val) =>
-																		form.setFieldValue(
-																			`ratings.${state.idx}.rating`,
-																			val
-																		)
-																	}
-																/>
-																<Divider />
-															</Stack>
-														);
-													})}
-												</Stack>
+													return (
+														<Stack
+															key={criterion.id}
+															gap='xs'
+															pb='md'
+															style={{
+																borderBottom:
+																	'1px solid var(--mantine-color-default-border)',
+															}}
+														>
+															{criterion.title && (
+																<Text fw={600} size='sm'>
+																	{criterion.title}
+																</Text>
+															)}
+															<Text size='sm' c='dimmed'>
+																{criterion.text}
+															</Text>
+															{criterion.description && (
+																<Text size='xs' c='dimmed' opacity={0.7}>
+																	{criterion.description}
+																</Text>
+															)}
+															<RatingInput
+																value={state.rating.rating ?? null}
+																onChange={(val) =>
+																	form.setFieldValue(
+																		`ratings.${state.idx}.rating`,
+																		val
+																	)
+																}
+															/>
+														</Stack>
+													);
+												})}
 											</Stack>
 										))}
 									</Stack>

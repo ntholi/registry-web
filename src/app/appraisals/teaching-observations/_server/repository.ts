@@ -381,6 +381,7 @@ export default class ObservationRepository extends BaseRepository<
 		return db
 			.select({
 				id: observationCriteria.id,
+				title: observationCriteria.title,
 				text: observationCriteria.text,
 				description: observationCriteria.description,
 				sortOrder: observationCriteria.sortOrder,

@@ -130,7 +130,7 @@ export default function ObservationDetail({ observation: obs, userId }: Props) {
 					if (!cats) return null;
 					return (
 						<Card key={section} withBorder>
-							<Group justify='space-between' mb='sm'>
+							<Group justify='space-between' mb='md'>
 								<Title order={5}>{SECTION_LABELS[section]}</Title>
 								{sectionAverages[section] != null && (
 									<Badge variant='light' color='indigo'>
@@ -138,11 +138,17 @@ export default function ObservationDetail({ observation: obs, userId }: Props) {
 									</Badge>
 								)}
 							</Group>
-							<Stack gap='md'>
+							<Stack gap='lg'>
 								{Array.from(cats.entries()).map(
 									([catId, { name, ratings }]) => (
-										<Stack key={catId} gap='xs'>
-											<Text fw={600} size='sm' c='dimmed'>
+										<Stack key={catId} gap='sm'>
+											<Text
+												size='sm'
+												fw={600}
+												c='dimmed'
+												tt='uppercase'
+												lts={0.5}
+											>
 												{name}
 											</Text>
 											{ratings.map((r) => (
@@ -151,13 +157,23 @@ export default function ObservationDetail({ observation: obs, userId }: Props) {
 													justify='space-between'
 													wrap='nowrap'
 													align='flex-start'
+													pb='sm'
+													style={{
+														borderBottom:
+															'1px solid var(--mantine-color-default-border)',
+													}}
 												>
 													<Stack gap={2} style={{ flex: 1 }}>
-														<Text size='sm' fw={500}>
+														{r.criterion.title && (
+															<Text size='sm' fw={600}>
+																{r.criterion.title}
+															</Text>
+														)}
+														<Text size='sm' c='dimmed'>
 															{r.criterion.text}
 														</Text>
 														{r.criterion.description && (
-															<Text size='xs' c='dimmed'>
+															<Text size='xs' c='dimmed' opacity={0.7}>
 																{r.criterion.description}
 															</Text>
 														)}

@@ -5134,6 +5134,12 @@
 					"primaryKey": false,
 					"notNull": true
 				},
+				"title": {
+					"name": "title",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": false
+				},
 				"text": {
 					"name": "text",
 					"type": "text",
