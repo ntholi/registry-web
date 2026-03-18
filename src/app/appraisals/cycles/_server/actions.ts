@@ -22,6 +22,14 @@ export async function getCycle(id: string) {
 	return service.get(id);
 }
 
+export async function getLatestRelevantCycle(
+	termId: number,
+	schoolIds: number[],
+	startDate: string
+) {
+	return service.getLatestRelevantCycle(termId, schoolIds, startDate);
+}
+
 export const createCycle = createAction(async (data: CycleWithSchools) => {
 	const { schoolIds = [], ...cycleData } = data;
 	return service.createWithSchools(cycleData, schoolIds);

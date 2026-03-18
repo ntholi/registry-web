@@ -1,4 +1,12 @@
-import { and, count, eq, getTableColumns, inArray, sql } from 'drizzle-orm';
+import {
+	and,
+	count,
+	desc,
+	eq,
+	getTableColumns,
+	inArray,
+	sql,
+} from 'drizzle-orm';
 import {
 	db,
 	feedbackCycleSchools,
@@ -235,6 +243,61 @@ export default class FeedbackCycleRepository extends BaseRepository<
 	) {
 		if (passphrases.length === 0) return;
 		await db.insert(studentFeedbackPassphrases).values(passphrases);
+	}
+
+	async getLatestRelevantCycle(
+		termId: number,
+		schoolIds: number[],
+		startDate: string
+	) {
+		const ids = [
+			...new Set(schoolIds.filter((id) => Number.isInteger(id) && id > 0)),
+		];
+		const schoolFilter =
+			ids.length > 0
+				? sql`exists (
+					select 1
+					from ${feedbackCycleSchools} as recent_cycle_schools
+					where recent_cycle_schools.cycle_id = ${feedbackCycles.id}
+					and recent_cycle_schools.school_id in (${sql.join(
+						ids.map((id) => sql`${id}`),
+						sql`, `
+					)})
+				)`
+				: sql`not exists (
+					select 1
+					from ${feedbackCycleSchools} as recent_cycle_schools
+					where recent_cycle_schools.cycle_id = ${feedbackCycles.id}
+				)`;
+
+		const [cycle] = await db
+			.select({
+				id: feedbackCycles.id,
+				name: feedbackCycles.name,
+				startDate: feedbackCycles.startDate,
+				endDate: feedbackCycles.endDate,
+				schoolCodes: sql<
+					string[]
+				>`coalesce(array_agg(distinct ${schools.code} order by ${schools.code}) filter (where ${schools.code} is not null), '{}')`,
+			})
+			.from(feedbackCycles)
+			.leftJoin(
+				feedbackCycleSchools,
+				eq(feedbackCycleSchools.cycleId, feedbackCycles.id)
+			)
+			.leftJoin(schools, eq(schools.id, feedbackCycleSchools.schoolId))
+			.where(
+				and(
+					eq(feedbackCycles.termId, termId),
+					sql`abs((${feedbackCycles.endDate}::date - ${startDate}::date)) <= 31`,
+					schoolFilter
+				)
+			)
+			.groupBy(feedbackCycles.id)
+			.orderBy(desc(feedbackCycles.endDate), desc(feedbackCycles.createdAt))
+			.limit(1);
+
+		return cycle ?? null;
 	}
 
 	async getPassphrasesForClass(cycleId: string, structureSemesterId: number) {

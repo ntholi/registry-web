@@ -7,6 +7,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { zod4Resolver as zodResolver } from 'mantine-form-zod-resolver';
 import { useRouter } from 'nextjs-toploader/app';
 import type { JSX, RefObject } from 'react';
+import { useState } from 'react';
 import type { ZodObject, ZodTypeAny } from 'zod';
 import {
 	type ActionResult,
@@ -25,7 +26,9 @@ export type FormProps<T extends Record<string, unknown>, V, R = T> = Omit<
 		form: ReturnType<typeof useForm<T>>,
 		state: { isSubmitting: boolean }
 	) => JSX.Element;
-	beforeSubmit?: (form: ReturnType<typeof useForm<T>>) => void;
+	beforeSubmit?: (
+		form: ReturnType<typeof useForm<T>>
+	) => unknown | Promise<unknown>;
 	action: (values: T) => Promise<R | ActionResult<R>>;
 	schema?: ZodSchema;
 	defaultValues?: V;
@@ -53,6 +56,7 @@ export function Form<T extends Record<string, unknown>, V, R = T>({
 }: FormProps<T, V, R>) {
 	const router = useRouter();
 	const queryClient = useQueryClient();
+	const [isBeforeSubmitting, setIsBeforeSubmitting] = useState(false);
 
 	const form = useForm<T>({
 		validate: schema && zodResolver(schema),
@@ -111,25 +115,33 @@ export function Form<T extends Record<string, unknown>, V, R = T>({
 		mutation.mutate(values);
 	}
 
+	async function handleFormSubmit(event: React.FormEvent<HTMLFormElement>) {
+		event.preventDefault();
+		setIsBeforeSubmitting(true);
+		try {
+			const shouldContinue = await beforeSubmit?.(form);
+			if (shouldContinue === false) return;
+		} finally {
+			setIsBeforeSubmitting(false);
+		}
+		form.onSubmit(handleSubmit)(event);
+	}
+
 	return (
-		<form
-			ref={formRef}
-			onSubmit={(e) => {
-				beforeSubmit?.(form);
-				form.onSubmit(handleSubmit)(e);
-			}}
-		>
+		<form ref={formRef} onSubmit={handleFormSubmit}>
 			{!hideHeader && (
 				<FormHeader
 					title={title}
-					isLoading={mutation.isPending}
+					isLoading={mutation.isPending || isBeforeSubmitting}
 					onClose={() => {
 						router.back();
 					}}
 				/>
 			)}
 			<Stack p={hideHeader ? undefined : 'xl'} {...props}>
-				{children(form, { isSubmitting: mutation.isPending })}
+				{children(form, {
+					isSubmitting: mutation.isPending || isBeforeSubmitting,
+				})}
 			</Stack>
 		</form>
 	);

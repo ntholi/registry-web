@@ -1,20 +1,47 @@
 'use client';
 
 import { feedbackCycles } from '@appraisals/_database';
-import { MultiSelect, SimpleGrid, TextInput } from '@mantine/core';
+import {
+	Button,
+	Group,
+	Modal,
+	MultiSelect,
+	SimpleGrid,
+	Stack,
+	Text,
+	TextInput,
+} from '@mantine/core';
 import { DateInput } from '@mantine/dates';
 import { useQuery } from '@tanstack/react-query';
 import { createInsertSchema } from 'drizzle-zod';
 import { useRouter } from 'nextjs-toploader/app';
+import { useRef, useState } from 'react';
 import { authClient } from '@/core/auth-client';
 import type { ActionResult } from '@/shared/lib/actions/actionResult';
-import { formatDateToISO, formatMonthYear } from '@/shared/lib/utils/dates';
+import {
+	formatDate,
+	formatDateToISO,
+	formatMonthYear,
+} from '@/shared/lib/utils/dates';
 import { Form } from '@/shared/ui/adease';
 import TermInput from '@/shared/ui/TermInput';
-import { getSchools, getSchoolsForUser, getTerms } from '../_server/actions';
+import {
+	getLatestRelevantCycle,
+	getSchools,
+	getSchoolsForUser,
+	getTerms,
+} from '../_server/actions';
 
 type Cycle = typeof feedbackCycles.$inferInsert;
 type CycleWithSchools = Cycle & { schoolIds?: number[] };
+
+interface RecentCycle {
+	id: string;
+	name: string;
+	startDate: string;
+	endDate: string;
+	schoolCodes: string[];
+}
 
 type Props = {
 	onSubmit: (values: CycleWithSchools) => Promise<Cycle | ActionResult<Cycle>>;
@@ -24,9 +51,29 @@ type Props = {
 
 const defaultName = formatMonthYear(new Date());
 
+function getCycleWarningKey(values: CycleWithSchools) {
+	const termId = Number(values.termId);
+	if (!termId) return '';
+	const schoolIds = [
+		...new Set((values.schoolIds ?? []).filter((id) => id > 0)),
+	]
+		.sort((left, right) => left - right)
+		.join(',');
+	return `${termId}:${schoolIds}`;
+}
+
+function getCycleSchoolsLabel(cycle: RecentCycle) {
+	if (cycle.schoolCodes.length === 0) return 'No schools assigned';
+	return cycle.schoolCodes.join(', ');
+}
+
 export default function CycleForm({ onSubmit, defaultValues, title }: Props) {
 	const router = useRouter();
 	const { data: session } = authClient.useSession();
+	const formRef = useRef<HTMLFormElement | null>(null);
+	const approvedKeyRef = useRef('');
+	const [pendingKey, setPendingKey] = useState('');
+	const [recentCycle, setRecentCycle] = useState<RecentCycle | null>(null);
 	const values = defaultValues ?? ({ name: defaultName } as Cycle);
 	const { data: terms = [] } = useQuery({
 		queryKey: ['terms'],
@@ -52,73 +99,157 @@ export default function CycleForm({ onSubmit, defaultValues, title }: Props) {
 
 	if (!defaultValues && loadingUserSchools) return null;
 
-	return (
-		<Form
-			key={formKey}
-			title={title}
-			action={onSubmit}
-			queryKey={['feedback-cycles']}
-			schema={createInsertSchema(feedbackCycles)}
-			defaultValues={{ ...values, schoolIds: defaultSchoolIds.map(Number) }}
-			onSuccess={({ id }) => {
-				router.push(`/appraisals/cycles/${id}`);
-			}}
-		>
-			{(form) => (
-				<>
-					<TextInput label='Name' {...form.getInputProps('name')} />
-					<TermInput
-						terms={terms}
-						value={form.values.termId}
-						onChange={(value) =>
-							form.setFieldValue(
-								'termId',
-								typeof value === 'number' ? value : (null as never)
-							)
-						}
-						error={form.errors.termId}
-					/>
+	async function handleBeforeSubmit(form: { values: CycleWithSchools }) {
+		if (defaultValues) return true;
+		const termId = Number(form.values.termId);
+		if (!termId) return true;
+		const startDate = form.values.startDate;
+		if (!startDate) return true;
+		const schoolIds = [
+			...new Set((form.values.schoolIds ?? []).filter((id) => id > 0)),
+		];
+		const key = getCycleWarningKey(form.values);
+		if (approvedKeyRef.current === key) return true;
+		const cycle = (await getLatestRelevantCycle(
+			termId,
+			schoolIds,
+			startDate
+		)) as RecentCycle | null;
+		if (!cycle) return true;
+		setPendingKey(key);
+		setRecentCycle(cycle);
+		return false;
+	}
 
-					<SimpleGrid cols={{ base: 1, sm: 2 }}>
-						<DateInput
-							label='Start Date'
-							value={form.values.startDate}
-							onChange={(date) =>
-								form.setFieldValue('startDate', formatDateToISO(date))
+	function closeRecentCycleModal() {
+		setRecentCycle(null);
+	}
+
+	function continueWithNewCycle() {
+		approvedKeyRef.current = pendingKey;
+		setRecentCycle(null);
+		queueMicrotask(() => {
+			formRef.current?.requestSubmit();
+		});
+	}
+
+	return (
+		<>
+			<Form
+				key={formKey}
+				formRef={formRef}
+				title={title}
+				action={onSubmit}
+				queryKey={['feedback-cycles']}
+				schema={createInsertSchema(feedbackCycles)}
+				defaultValues={{ ...values, schoolIds: defaultSchoolIds.map(Number) }}
+				beforeSubmit={handleBeforeSubmit}
+				onSuccess={({ id }) => {
+					router.push(`/appraisals/cycles/${id}`);
+				}}
+			>
+				{(form) => (
+					<>
+						<TextInput label='Name' {...form.getInputProps('name')} />
+						<TermInput
+							terms={terms}
+							value={form.values.termId}
+							onChange={(value) =>
+								form.setFieldValue(
+									'termId',
+									typeof value === 'number' ? value : (null as never)
+								)
 							}
-							error={form.errors.startDate}
+							error={form.errors.termId}
 						/>
-						<DateInput
-							label='End Date'
-							value={form.values.endDate}
-							onChange={(date) =>
-								form.setFieldValue('endDate', formatDateToISO(date))
+
+						<SimpleGrid cols={{ base: 1, sm: 2 }}>
+							<DateInput
+								label='Start Date'
+								value={form.values.startDate}
+								onChange={(date) =>
+									form.setFieldValue('startDate', formatDateToISO(date))
+								}
+								error={form.errors.startDate}
+							/>
+							<DateInput
+								label='End Date'
+								value={form.values.endDate}
+								onChange={(date) =>
+									form.setFieldValue('endDate', formatDateToISO(date))
+								}
+								error={form.errors.endDate}
+							/>
+						</SimpleGrid>
+						<MultiSelect
+							label='Schools'
+							data={schools.map((s) => ({
+								value: String(s.id),
+								label: s.name,
+							}))}
+							value={
+								form.values.schoolIds
+									? (form.values.schoolIds as number[]).map(String)
+									: []
 							}
-							error={form.errors.endDate}
+							onChange={(vals) =>
+								form.setFieldValue(
+									'schoolIds' as never,
+									vals.map(Number) as never
+								)
+							}
+							searchable
+							clearable
 						/>
-					</SimpleGrid>
-					<MultiSelect
-						label='Schools'
-						data={schools.map((s) => ({
-							value: String(s.id),
-							label: s.name,
-						}))}
-						value={
-							form.values.schoolIds
-								? (form.values.schoolIds as number[]).map(String)
-								: []
-						}
-						onChange={(vals) =>
-							form.setFieldValue(
-								'schoolIds' as never,
-								vals.map(Number) as never
-							)
-						}
-						searchable
-						clearable
-					/>
-				</>
-			)}
-		</Form>
+					</>
+				)}
+			</Form>
+
+			<Modal
+				opened={!!recentCycle}
+				onClose={closeRecentCycleModal}
+				title='Recent Feedback Cycle Found'
+				centered
+			>
+				{recentCycle && (
+					<Stack gap='md'>
+						<Text size='sm'>
+							The latest relevant feedback cycle ends within 31 days of this
+							cycle&apos;s start date. You can use that cycle instead or
+							continue anyway.
+						</Text>
+						<Stack gap={4}>
+							<Text size='sm' fw={600}>
+								{recentCycle.name}
+							</Text>
+							<Text size='sm' c='dimmed'>
+								Dates: {formatDate(recentCycle.startDate)} to{' '}
+								{formatDate(recentCycle.endDate)}
+							</Text>
+							<Text size='sm' c='dimmed'>
+								Schools: {getCycleSchoolsLabel(recentCycle)}
+							</Text>
+						</Stack>
+						<Group justify='flex-end' gap='sm'>
+							<Button
+								variant='light'
+								color='red'
+								onClick={continueWithNewCycle}
+							>
+								Continue Anyway
+							</Button>
+							<Button
+								onClick={() => {
+									setRecentCycle(null);
+									router.push(`/appraisals/cycles/${recentCycle.id}`);
+								}}
+							>
+								Use Existing Cycle
+							</Button>
+						</Group>
+					</Stack>
+				)}
+			</Modal>
+		</>
 	);
 }

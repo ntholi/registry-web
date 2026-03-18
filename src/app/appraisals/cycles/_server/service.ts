@@ -59,6 +59,18 @@ class FeedbackCycleService extends BaseService<typeof feedbackCycles, 'id'> {
 		);
 	}
 
+	async getLatestRelevantCycle(
+		termId: number,
+		schoolIds: number[],
+		startDate: string
+	) {
+		return withPermission(
+			async () =>
+				this.repo.getLatestRelevantCycle(termId, schoolIds, startDate),
+			{ 'feedback-cycles': ['read'] }
+		);
+	}
+
 	async getClassesForCycle(cycleId: string, termId: number) {
 		return withPermission(
 			async () => this.repo.getClassesForCycle(cycleId, termId),
