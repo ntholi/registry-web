@@ -6,10 +6,15 @@ With mail accounts and the Gmail client in place (Steps 001-003), this step impl
 
 ## Context
 
-- Gmail Workspace limit: **2,000 messages/day** per user, **500 recipients/message** via API, **10,000 total recipients/day**, **15,000 quota units/user/minute**.
+- Gmail Workspace limits (per user, rolling 24h): **2,000 messages/day**, **2,000 recipients/message** (max **500 external**), **10,000 total recipients/day**, **3,000 external recipients/day**.
+- Gmail API rate limit: **15,000 quota units/user/minute**. `messages.send` costs **100 units** → theoretical max **150 sends/min/user**.
 - Running on Vercel (serverless) — no persistent background processes.
 - Queue uses a DB table (`mailQueue`) processed by an API route that **Vercel Cron Jobs** call periodically (configured in `vercel.json`).
 - The `sendEmail` function is the single entry point for all outbound email — both system-triggered and manual.
+
+## Required Adjustment Before Implementation
+
+The current queue schema must persist the user who initiated a queued email. Add a nullable `sentByUserId` foreign key on `mailQueue` before implementing this step so queued manual emails can be written to `mailSentLog` with the correct sender when the cron processor runs later.
 
 ## Requirements
 
@@ -50,7 +55,9 @@ With mail accounts and the Gmail client in place (Steps 001-003), this step impl
 2. Otherwise → insert into `mailQueue` with status `pending`.
 3. Returns `{ queued: boolean, messageId?: string }`.
 
-#### `sendViaGmail(mailAccountId: string, email: GmailMessage): Promise<string>`
+Queued inserts must persist `sentByUserId` from `senderId` together with the payload needed by the processor.
+
+#### `sendViaGmail(mailAccountId: string, email: GmailMessage): Promise<{ messageId: string; snippet?: string }>`
 
 Low-level function that:
 
@@ -60,17 +67,18 @@ Low-level function that:
    - `To`, `Cc`, `Bcc` headers
    - `Subject` header
    - `Content-Type: multipart/mixed` (if attachments) or `multipart/alternative` (html + text)
-   - Attachment parts: fetch from R2, base64-encode, add as MIME parts
+  - Attachment parts: load file bytes from R2 via a shared storage helper, base64-encode, add as MIME parts
    - Signature: append account's signature to HTML body
 3. Base64url-encode the message.
 4. Call `gmail.users.messages.send({ userId: 'me', requestBody: { raw } })`.
-5. Return the Gmail message ID.
-6. Insert row into `mailSentLog`.
+5. Return the Gmail message ID and snippet if available.
+
+`sendViaGmail()` should **not** insert into `mailSentLog`. Logging must happen exactly once in the caller (`sendEmail`, `sendReply`, or `processEmailQueue`) after the send succeeds, otherwise queued sends will double-write audit rows.
 
 **Error handling:**
 - `401/403` → mark account inactive, throw.
 - `429` → throw rate limit error (queue processor handles retry).
-- `400` → log error, mark queue entry as `failed`.
+- `400` → throw a permanent-send error that the caller records as failed.
 
 ### 2. Queue Processor
 
@@ -80,41 +88,60 @@ Low-level function that:
 
 Called by the API route. Processes pending emails in batches:
 
-1. **Fetch batch**: SELECT from `mailQueue` WHERE `status IN ('pending', 'retry')` AND `scheduledAt <= NOW()` AND `attempts < maxAttempts` ORDER BY `scheduledAt ASC` LIMIT 10.
-2. **Rate check**: Count emails sent today by the mail account. If approaching daily limit (e.g., > 1,900 for Workspace), skip that account's emails.
+1. **Claim batch atomically**: use one repository method that claims rows in a single transaction with `FOR UPDATE SKIP LOCKED`, sets `status = 'processing'`, updates `processedAt`, and increments `attempts`. Do not rely on a plain SELECT followed by a later UPDATE, because parallel cron invocations can pick the same rows.
+2. **Rate check in one grouped query**: load daily sent counts for all mail accounts represented in the claimed batch. If an account is at or above the configured threshold (default `1900`), move its claimed rows back to `retry` with a short delay instead of re-counting per item.
 3. **Process each**:
-   a. UPDATE status to `processing`.
-   b. Call `sendViaGmail()`.
-   c. On success: UPDATE status to `sent`, set `sentAt`, insert `mailSentLog`.
+  a. Call `sendViaGmail()`.
+  b. On success: in one DB transaction UPDATE status to `sent`, set `sentAt`, clear `error`, and insert one `mailSentLog` row using the queue row's `sentByUserId`.
    d. On failure:
-      - If retriable (429, 5xx, network): UPDATE status to `retry`, increment `attempts`, set `scheduledAt` to `NOW() + backoff`.
-      - If permanent (400, 401, 403): UPDATE status to `failed`, store error.
+    - If retriable (429, 5xx, network): UPDATE status to `retry`, set `scheduledAt` to `NOW() + backoff`, store error.
+    - If permanent (400, 401, 403): UPDATE status to `failed`, store error.
 4. **Return**: `{ processed, sent, failed, retried }`.
+
+The queue processor should live behind a repository/service boundary in the mails module. Repository methods own the DB reads and row claiming; the processor coordinates Gmail sends and service-level policy.
+
+#### MailQueueRepository Methods
+
+| Method | Description |
+|--------|-------------|
+| `claimBatch(batchSize: number)` | Atomically claim up to `batchSize` pending/retry rows using `FOR UPDATE SKIP LOCKED`, set status to `processing`, increment `attempts`, set `processedAt`. Returns claimed rows. |
+| `markSent(id, gmailMessageId, sentByUserId?, triggerType, triggerEntityId?)` | In one transaction: update queue row to `sent` + `sentAt`, and insert `mailSentLog` row. |
+| `markFailed(id, error)` | Set status to `failed`, store error message. |
+| `markRetry(id, error, nextScheduledAt)` | Set status to `retry`, store error, update `scheduledAt` for backoff. |
+| `getDailySendCounts(accountIds)` | Count `mailSentLog` rows per account where `sentAt >= start of today (UTC)`. |
+| `getQueueCounts()` | Count rows grouped by status for dashboard. |
+
+#### Batch Size & Duration
+
+Process at most **10 emails per invocation** to stay well within Vercel function duration limits. Set `export const maxDuration = 60` on the route handler (Pro plan required for >10s).
 
 #### Backoff strategy:
 
-| Attempt | Delay |
-|---------|-------|
+| Attempt Number | Delay After Failure |
+|----------------|---------------------|
 | 1 | 1 minute |
 | 2 | 5 minutes |
-| 3 | 15 minutes (then mark failed) |
+| 3 | Mark failed after the attempt |
 
 ### 3. Queue API Route
 
 **File:** `src/app/api/mail/process-queue/route.ts`
 
-A `POST` handler:
+A `GET` handler (Vercel Cron always sends HTTP GET requests):
 
-1. Verify request authenticity via the `CRON_SECRET` header (Vercel automatically sends this for cron invocations).
-2. Call `processEmailQueue()`.
-3. Return JSON: `{ processed, sent, failed, retried }`.
+1. Verify request authenticity: compare `request.headers.get('authorization')` against `Bearer ${process.env.CRON_SECRET}`.
+2. Reject requests when `CRON_SECRET` is missing or the bearer token does not match (return 401).
+3. Call `processEmailQueue()`.
+4. Return JSON: `{ processed, sent, failed, retried }`.
+5. Set `export const maxDuration = 60` to allow sufficient processing time (requires Pro plan).
 
-**Security:** This endpoint is called by Vercel Cron. Vercel sends the `CRON_SECRET` automatically. Non-cron requests are rejected.
+**Security:** This endpoint is called by Vercel Cron. Vercel automatically sends the `CRON_SECRET` env var as a bearer token in the `Authorization` header. Non-cron requests are rejected.
 
 **Vercel Cron config** — add to `vercel.json`:
 
 ```json
 {
+  "$schema": "https://openapi.vercel.sh/vercel.json",
   "crons": [
     {
       "path": "/api/mail/process-queue",
@@ -124,23 +151,26 @@ A `POST` handler:
 }
 ```
 
-#### New env var:
+> **Note:** Hobby plans only allow daily cron jobs. The `*/2` schedule requires a **Pro** plan. If on Hobby, use `0 * * * *` (hourly) or invest in Pro.
+
+#### New env vars:
 
 | Var | Description |
 |-----|-------------|
-| `CRON_SECRET` | Automatically provided by Vercel for cron authentication |
+| `CRON_SECRET` | Shared secret verified from the bearer token on cron requests |
+| `MAIL_DAILY_LIMIT` | Optional per-account daily send cap override, default `1900` |
 
 ### 4. Daily Rate Tracking
 
 Add a helper function in `queue-processor.ts`:
 
-#### `getDailySendCount(mailAccountId: string): Promise<number>`
+#### `getDailySendCounts(mailAccountIds: string[]): Promise<Map<string, number>>`
 
-Count rows in `mailSentLog` WHERE `mailAccountId` = target AND `sentAt >= start of today (UTC)` AND `status = 'sent'`.
+Count rows in `mailSentLog` grouped by `mailAccountId` WHERE `mailAccountId IN (...)` AND `sentAt >= start of today (UTC)` AND `status = 'sent'`.
 
-#### `canSendMore(mailAccountId: string, limit: number = 1900): Promise<boolean>`
+#### `canSendMore(mailAccountId: string, counts: Map<string, number>, limit: number = 1900): boolean`
 
-Returns `getDailySendCount(mailAccountId) < limit`.
+Returns `(counts.get(mailAccountId) ?? 0) < limit`.
 
 ### 5. Queue Management Actions
 
@@ -165,15 +195,16 @@ Add to `src/app/admin/mails/_server/actions.ts`:
 | `threadId` | `string` | Gmail thread ID to reply to |
 | `inReplyTo` | `string` | Gmail message ID being replied to |
 | `to` | `string` | Recipient |
+| `subject` | `string` | Original subject (prepend `Re:` if missing) |
 | `htmlBody` | `string` | Reply body HTML |
 | `senderId` | `string` | User sending the reply |
 
 Behavior:
-1. Construct MIME message with `In-Reply-To` and `References` headers (for proper threading).
+1. Construct MIME message with `Subject`, `In-Reply-To`, and `References` headers (all three required for proper Gmail threading per RFC 2822).
 2. Append account signature.
 3. Call `gmail.users.messages.send()` with `threadId` parameter.
 4. Log to `mailSentLog` with `triggerType: 'reply'`.
-5. Invalidate thread TanStack Query so the UI re-fetches the updated thread from Gmail.
+5. Return the send result to the calling server action so the client mutation can invalidate the thread query key.
 
 Replies are always sent immediately (not queued) — they are user-initiated and time-sensitive.
 
@@ -193,17 +224,18 @@ Replies are always sent immediately (not queued) — they are user-initiated and
 3. Queue processor picks up pending/retry emails and sends them
 4. Failed emails get retried with exponential backoff up to 3 attempts
 5. Rate limiting prevents exceeding 1,900 sends/day per account
-6. API route rejects requests without valid `CRON_SECRET` header
+6. API route rejects requests without a valid bearer token derived from `CRON_SECRET`
 7. Reply function sends with proper `In-Reply-To` headers for Gmail threading
 8. Sent log records all outbound emails with sender, recipient, status
-9. `pnpm tsc --noEmit` passes
-10. `pnpm lint:fix` passes
+9. Parallel cron invocations do not process the same queue row twice (idempotent: `FOR UPDATE SKIP LOCKED` ensures duplicate cron events safely skip already-claimed rows)
+10. `pnpm tsc --noEmit` passes
+11. `pnpm lint:fix` passes
 
 ## Notes
 
-- MIME message construction: Use **nodemailer's MailComposer** (`nodemailer/lib/mail-composer`) to build RFC 2822 compliant messages. This handles multipart/alternative, multipart/mixed, base64 encoding of attachments, and proper header formatting. The `googleapis` library expects the raw message as a base64url-encoded string.
-- **Dependency to install:** `nodemailer` (and `@types/nodemailer` for TypeScript).
-- For attachments: fetch the file from R2 using `getPublicUrl(key)` or the S3 client, then base64-encode and attach as a MIME part with `Content-Disposition: attachment`.
-- The queue processor should be idempotent — if called twice in parallel, the `processing` status acts as a lock (only one processor picks up each email).
-- Consider adding a `MAIL_DAILY_LIMIT` env var (default 1900) to make the threshold configurable.
-- The Vercel Cron runs every 2 minutes for timely delivery. Vercel Cron Jobs are free on Pro plans (up to 2 per project on Hobby).
+- **MIME construction:** Use **nodemailer's MailComposer** (`nodemailer/lib/mail-composer`) to build RFC 2822 compliant messages. This handles multipart/alternative, multipart/mixed, base64 encoding of attachments, and proper header formatting. The `googleapis` library expects the raw message as a base64url-encoded string.
+- **Dependency to install:** `pnpm add nodemailer` and `pnpm add -D @types/nodemailer`.
+- **Attachments:** Reuse the shared R2 storage helper to fetch file bytes for server-side MIME assembly. Do not duplicate ad hoc R2 download logic inside the Gmail client.
+- **Idempotency:** Vercel's event-driven system can occasionally deliver the same cron event more than once. The `FOR UPDATE SKIP LOCKED` claim mechanism ensures duplicate invocations safely skip already-claimed rows. The atomic claim query (not a separate SELECT then UPDATE) is critical for correctness.
+- **Vercel plan requirement:** The `*/2` cron schedule requires a **Pro** plan (Hobby is limited to once/day). Pro plans support up to 40 cron jobs per project.
+- **Batch size:** Cap at 10 emails per cron invocation. With 100 quota units per `messages.send` and 15,000 units/min limit, 10 sends is well within bounds. This also keeps function execution under 60 seconds.
