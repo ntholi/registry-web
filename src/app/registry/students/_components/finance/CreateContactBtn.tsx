@@ -35,11 +35,12 @@ export default function CreateContactBtn({ stdNo }: Props) {
 				</Text>
 			)}
 			<Button
-				leftSection={<IconPlus size='1rem' />}
+				leftSection={<IconPlus size='0.8rem' />}
 				onClick={() => mutate()}
 				loading={isPending}
+				size='xs'
 			>
-				Create Zoho Contact
+				Add to Zoho
 			</Button>
 		</>
 	);

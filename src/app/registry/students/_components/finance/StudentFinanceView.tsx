@@ -9,10 +9,11 @@ import {
 	resolveZohoContactId,
 } from '@finance/_lib/zoho-books/actions';
 import {
+	ActionIcon,
 	Badge,
 	Card,
-	Divider,
 	Group,
+	HoverCard,
 	Paper,
 	SimpleGrid,
 	Skeleton,
@@ -23,19 +24,18 @@ import {
 } from '@mantine/core';
 import {
 	IconAlertTriangle,
-	IconCreditCard,
-	IconFileInvoice,
-	IconNotebook,
-	IconReceipt,
+	IconExternalLink,
+	IconRefresh,
 } from '@tabler/icons-react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
+import { formatCurrency } from '@/shared/lib/utils/utils';
 import CreateContactBtn from './CreateContactBtn';
 import { EstimatesTab } from './EstimatesTab';
-import { FinancialOverview } from './FinancialOverview';
 import { InvoicesTab } from './InvoicesTab';
 import { PaymentsTab } from './PaymentsTab';
 import { SalesReceiptsTab } from './SalesReceiptsTab';
+import { UpdateZohoContactModal } from './UpdateZohoContactModal';
 
 type Props = {
 	stdNo: number;
@@ -106,8 +106,6 @@ export default function StudentFinanceView({
 
 	if (!isActive) return null;
 
-	if (contactLoading || summaryLoading) return <FinanceLoader />;
-
 	const isError = contactError || summaryError;
 	const error = contactErr || summaryErr;
 
@@ -133,99 +131,202 @@ export default function StudentFinanceView({
 		);
 	}
 
-	if (!contactId || !summary) {
-		return <NoContactView stdNo={stdNo} />;
-	}
+	const hasContact = !!contactId && !!summary;
+
+	const handleRefresh = () => {
+		queryClient.invalidateQueries({
+			queryKey: ['student-finance', contactId],
+		});
+		queryClient.invalidateQueries({
+			queryKey: ['student-payments', contactId],
+		});
+		queryClient.invalidateQueries({
+			queryKey: ['student-estimates', contactId],
+		});
+		queryClient.invalidateQueries({
+			queryKey: ['student-receipts', contactId],
+		});
+	};
 
 	return (
-		<Stack gap='lg'>
-			<FinancialOverview
-				stdNo={stdNo}
-				contactId={contactId}
-				summary={summary}
-				isFetching={isFetching}
-				zohoUrl={zohoUrl ?? null}
-				onRefresh={() => {
-					queryClient.invalidateQueries({
-						queryKey: ['student-finance', contactId],
-					});
-					queryClient.invalidateQueries({
-						queryKey: ['student-payments', contactId],
-					});
-					queryClient.invalidateQueries({
-						queryKey: ['student-estimates', contactId],
-					});
-					queryClient.invalidateQueries({
-						queryKey: ['student-receipts', contactId],
-					});
-				}}
-			/>
+		<Stack>
+			<Card withBorder p='md'>
+				<Group justify='space-between' align='center'>
+					<Stack gap={4}>
+						<Group gap='xs'>
+							{contactLoading || summaryLoading ? (
+								<Skeleton height={20} width={100} />
+							) : hasContact ? (
+								<Text fw={500} size='sm'>
+									Zoho Books
+								</Text>
+							) : (
+								<Text size='xs' c='dimmed' fs='italic'>
+									(No Zoho contact)
+								</Text>
+							)}
+						</Group>
+						<Text size='xs' c='dimmed'>
+							Zoho Books financial records and invoicing
+						</Text>
+					</Stack>
+					<Group gap='xs'>
+						{hasContact ? (
+							<>
+								<UpdateZohoContactModal stdNo={stdNo} contactId={contactId} />
+								{zohoUrl && (
+									<HoverCard position='bottom' withArrow>
+										<HoverCard.Target>
+											<ActionIcon
+												variant='light'
+												size='lg'
+												color='blue'
+												component='a'
+												href={zohoUrl}
+												target='_blank'
+												rel='noopener noreferrer'
+											>
+												<IconExternalLink size={18} />
+											</ActionIcon>
+										</HoverCard.Target>
+										<HoverCard.Dropdown p='xs'>
+											<Text size='xs'>Open in Zoho Books</Text>
+										</HoverCard.Dropdown>
+									</HoverCard>
+								)}
+								<HoverCard position='bottom' withArrow>
+									<HoverCard.Target>
+										<ActionIcon
+											variant='light'
+											size='lg'
+											color='teal'
+											loading={isFetching}
+											onClick={handleRefresh}
+										>
+											<IconRefresh size={18} />
+										</ActionIcon>
+									</HoverCard.Target>
+									<HoverCard.Dropdown p='xs'>
+										<Text size='xs'>Refresh financial data</Text>
+									</HoverCard.Dropdown>
+								</HoverCard>
+							</>
+						) : (
+							!contactLoading &&
+							!summaryLoading && <CreateContactBtn stdNo={stdNo} />
+						)}
+					</Group>
+				</Group>
+			</Card>
 
-			<Tabs value={tab} onChange={setTab}>
-				<Tabs.List>
-					<TabLabel
-						value='invoices'
-						icon={<IconFileInvoice size='0.85rem' />}
-						label='Invoices'
-						count={summary.invoices.length}
-					/>
-					<TabLabel
-						value='payments'
-						icon={<IconCreditCard size='0.85rem' />}
-						label='Payments'
-						count={payments?.length}
-						loading={paymentsLoading}
-					/>
-					<TabLabel
-						value='quotes'
-						icon={<IconNotebook size='0.85rem' />}
-						label='Quotes'
-						count={estimates?.length}
-						loading={estimatesLoading}
-					/>
-					<TabLabel
-						value='receipts'
-						icon={<IconReceipt size='0.85rem' />}
-						label='Receipts'
-						count={salesReceipts?.length}
-						loading={receiptsLoading}
-					/>
-				</Tabs.List>
+			{hasContact && (
+				<>
+					<SimpleGrid cols={{ base: 1, xs: 2, sm: 4 }} spacing='xs'>
+						<MetricCard
+							label='Total Invoiced'
+							value={formatCurrency(summary.totalAmount)}
+							color='default'
+						/>
+						<MetricCard
+							label='Amount Paid'
+							value={formatCurrency(summary.totalPaid)}
+							color='default'
+						/>
+						<MetricCard
+							label='Outstanding'
+							value={formatCurrency(summary.totalOutstanding)}
+							color={summary.totalOutstanding > 0 ? 'red' : 'teal'}
+						/>
+						<MetricCard
+							label='Unused Credits'
+							value={formatCurrency(summary.unusedCredits)}
+							color='default'
+						/>
+					</SimpleGrid>
 
-				<Tabs.Panel value='invoices' pt='md'>
-					<InvoicesTab invoices={summary.invoices} />
-				</Tabs.Panel>
-				<Tabs.Panel value='payments' pt='md'>
-					<TabContent loading={paymentsLoading}>
-						<PaymentsTab payments={payments ?? []} />
-					</TabContent>
-				</Tabs.Panel>
-				<Tabs.Panel value='quotes' pt='md'>
-					<TabContent loading={estimatesLoading}>
-						<EstimatesTab estimates={estimates ?? []} />
-					</TabContent>
-				</Tabs.Panel>
-				<Tabs.Panel value='receipts' pt='md'>
-					<TabContent loading={receiptsLoading}>
-						<SalesReceiptsTab receipts={salesReceipts ?? []} />
-					</TabContent>
-				</Tabs.Panel>
-			</Tabs>
+					<Tabs value={tab} onChange={setTab} variant='default'>
+						<Tabs.List>
+							<TabLabel
+								value='invoices'
+								label='Invoices'
+								count={summary.invoices.length}
+							/>
+							<TabLabel
+								value='payments'
+								label='Payments'
+								count={payments?.length}
+								loading={paymentsLoading}
+							/>
+							<TabLabel
+								value='quotes'
+								label='Quotes'
+								count={estimates?.length}
+								loading={estimatesLoading}
+							/>
+							<TabLabel
+								value='receipts'
+								label='Receipts'
+								count={salesReceipts?.length}
+								loading={receiptsLoading}
+							/>
+						</Tabs.List>
+
+						<Tabs.Panel value='invoices' pt='md'>
+							<InvoicesTab invoices={summary.invoices} />
+						</Tabs.Panel>
+						<Tabs.Panel value='payments' pt='md'>
+							<TabContent loading={paymentsLoading}>
+								<PaymentsTab payments={payments ?? []} />
+							</TabContent>
+						</Tabs.Panel>
+						<Tabs.Panel value='quotes' pt='md'>
+							<TabContent loading={estimatesLoading}>
+								<EstimatesTab estimates={estimates ?? []} />
+							</TabContent>
+						</Tabs.Panel>
+						<Tabs.Panel value='receipts' pt='md'>
+							<TabContent loading={receiptsLoading}>
+								<SalesReceiptsTab receipts={salesReceipts ?? []} />
+							</TabContent>
+						</Tabs.Panel>
+					</Tabs>
+				</>
+			)}
 		</Stack>
+	);
+}
+
+type MetricCardProps = {
+	label: string;
+	value: string;
+	color: string;
+};
+
+function MetricCard({ label, value, color }: MetricCardProps) {
+	return (
+		<Card withBorder padding='sm'>
+			<Stack gap={2}>
+				<Text size='xs' c='dimmed' truncate>
+					{label}
+				</Text>
+				<Text c={color} ff='monospace' lh={1.2}>
+					{value}
+				</Text>
+			</Stack>
+		</Card>
 	);
 }
 
 type TabLabelProps = {
 	value: string;
-	icon: React.ReactNode;
 	label: string;
 	count?: number;
 	loading?: boolean;
 };
 
-function TabLabel({ value, icon, label, count, loading }: TabLabelProps) {
+function TabLabel({ value, label, count, loading }: TabLabelProps) {
 	return (
-		<Tabs.Tab value={value} leftSection={icon}>
+		<Tabs.Tab value={value}>
 			<Group gap={6} wrap='nowrap'>
 				<Text size='sm' inherit>
 					{label}
@@ -261,65 +362,4 @@ function TabContent({ loading, children }: TabContentProps) {
 		);
 	}
 	return <>{children}</>;
-}
-
-function FinanceLoader() {
-	return (
-		<Stack gap='md'>
-			<Group justify='space-between' align='center'>
-				<Group gap='xs'>
-					<Skeleton height={16} width={16} circle />
-					<Skeleton height={10} width={130} />
-				</Group>
-				<Skeleton height={22} width={22} circle />
-			</Group>
-			<Divider />
-			<SimpleGrid cols={{ base: 1, xs: 2, sm: 4 }} spacing='xs'>
-				{Array.from({ length: 4 }).map((_, i) => (
-					<Card withBorder padding='sm' key={`metric-${i}`}>
-						<Stack gap={4}>
-							<Skeleton height={10} width={80} />
-							<Skeleton height={20} width={100} />
-						</Stack>
-					</Card>
-				))}
-			</SimpleGrid>
-			<Group gap='xs' mt='xs'>
-				{Array.from({ length: 4 }).map((_, i) => (
-					<Skeleton height={30} width={90} key={`tab-${i}`} radius='sm' />
-				))}
-			</Group>
-			<Stack gap='xs'>
-				{Array.from({ length: 5 }).map((_, i) => (
-					<Skeleton height={36} key={`row-${i}`} />
-				))}
-			</Stack>
-		</Stack>
-	);
-}
-
-type NoContactViewProps = {
-	stdNo: number;
-};
-
-function NoContactView({ stdNo }: NoContactViewProps) {
-	return (
-		<Paper p='xl' withBorder>
-			<Stack align='center' gap='md' py='lg'>
-				<ThemeIcon size={56} variant='light' color='gray'>
-					<IconFileInvoice size='1.6rem' />
-				</ThemeIcon>
-				<Stack align='center' gap={4}>
-					<Text fw={600} size='lg'>
-						No financial records
-					</Text>
-					<Text size='sm' c='dimmed' ta='center' maw={360}>
-						This student was not found in Zoho Books. Create a contact to start
-						tracking their finances.
-					</Text>
-				</Stack>
-				<CreateContactBtn stdNo={stdNo} />
-			</Stack>
-		</Paper>
-	);
 }

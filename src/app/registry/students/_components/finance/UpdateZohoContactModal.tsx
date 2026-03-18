@@ -10,6 +10,7 @@ import {
 	Badge,
 	Button,
 	Group,
+	HoverCard,
 	Loader,
 	Modal,
 	Stack,
@@ -67,9 +68,16 @@ export function UpdateZohoContactModal({ stdNo, contactId }: Props) {
 
 	return (
 		<>
-			<ActionIcon variant='subtle' size='sm' onClick={open}>
-				<IconUpload size='0.9rem' />
-			</ActionIcon>
+			<HoverCard position='bottom' withArrow>
+				<HoverCard.Target>
+					<ActionIcon variant='light' size='lg' color='grape' onClick={open}>
+						<IconUpload size={18} />
+					</ActionIcon>
+				</HoverCard.Target>
+				<HoverCard.Dropdown p='xs'>
+					<Text size='xs'>Sync with Zoho</Text>
+				</HoverCard.Dropdown>
+			</HoverCard>
 			<Modal
 				opened={opened}
 				onClose={close}
