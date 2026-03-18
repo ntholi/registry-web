@@ -3,15 +3,16 @@
 import {
 	Badge,
 	Card,
-	Divider,
 	Group,
 	SegmentedControl,
+	SimpleGrid,
 	Stack,
 	Text,
 	Title,
 } from '@mantine/core';
 import { useMemo } from 'react';
 import { formatDate } from '@/shared/lib/utils/dates';
+import { getStudentClassName } from '@/shared/lib/utils/utils';
 import { FieldView } from '@/shared/ui/adease';
 
 type Rating = {
@@ -49,8 +50,9 @@ type ObservationData = {
 		semesterModule: {
 			module: { code: string; name: string } | null;
 			semester: {
+				semesterNumber: string;
 				structure: {
-					program: { code: string; name: string } | null;
+					program: { code: string } | null;
 				} | null;
 			} | null;
 		} | null;
@@ -75,7 +77,11 @@ export default function ObservationDetail({
 }: ObservationDetailProps) {
 	const sm = obs.assignedModule?.semesterModule;
 	const mod = sm?.module;
-	const prog = sm?.semester?.structure?.program;
+	const studentClass = sm?.semester
+		? getStudentClassName(
+				sm.semester as Parameters<typeof getStudentClassName>[0]
+			)
+		: null;
 
 	const grouped = useMemo(() => {
 		const sections = new Map<
@@ -120,28 +126,22 @@ export default function ObservationDetail({
 
 	return (
 		<Stack gap='lg'>
-			<Group justify='space-between' align='flex-start'>
-				<Stack gap='xs'>
-					<FieldView label='Cycle'>{obs.cycle?.name}</FieldView>
-					<FieldView label='Lecturer'>
-						{obs.assignedModule?.user?.name}
-					</FieldView>
+			<Stack gap='lg' mb={'xl'}>
+				<FieldView label='Cycle'>{obs.cycle?.name}</FieldView>
+				<FieldView label='Lecturer'>{obs.assignedModule?.user?.name}</FieldView>
+				<SimpleGrid cols={{ base: 1, sm: 2 }}>
 					<FieldView label='Module'>
 						{mod ? `${mod.code} — ${mod.name}` : null}
 					</FieldView>
-					{prog && (
-						<FieldView label='Programme'>
-							{prog.code} — {prog.name}
-						</FieldView>
-					)}
+					<FieldView label='Student Class'>{studentClass}</FieldView>
+				</SimpleGrid>
+				<SimpleGrid cols={{ base: 1, sm: 2 }}>
 					<FieldView label='Observer'>{obs.observer?.name}</FieldView>
 					<FieldView label='Date'>
 						{obs.createdAt ? formatDate(obs.createdAt) : null}
 					</FieldView>
-				</Stack>
-			</Group>
-
-			<Divider />
+				</SimpleGrid>
+			</Stack>
 
 			{(['teaching_observation', 'assessments', 'other'] as const).map(
 				(section) => {

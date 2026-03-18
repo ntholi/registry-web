@@ -21,9 +21,9 @@ export interface StatusPageProps {
 	icon?: React.ReactNode;
 	color?: string;
 	primaryActionHref?: string;
-	primaryActionLabel?: string;
 	onRetry?: () => void;
 	showBack?: boolean;
+	showHome?: boolean;
 }
 
 export default function StatusPage({
@@ -32,9 +32,9 @@ export default function StatusPage({
 	icon,
 	color = 'blue',
 	primaryActionHref = '/',
-	primaryActionLabel = 'Go home',
 	onRetry,
 	showBack = true,
+	showHome = false,
 }: StatusPageProps) {
 	const router = useRouter();
 
@@ -71,9 +71,11 @@ export default function StatusPage({
 								Try again
 							</Button>
 						) : null}
-						<Button component={Link} href={primaryActionHref} color={color}>
-							{primaryActionLabel}
-						</Button>
+						{showHome ? (
+							<Button component={Link} href={primaryActionHref} color={color}>
+								Go to Home
+							</Button>
+						) : null}
 					</Group>
 				</Stack>
 			</Container>

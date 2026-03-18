@@ -1,17 +1,12 @@
-import { Badge, Group, Title } from '@mantine/core';
+import { Badge, Card, Group, Title } from '@mantine/core';
 import { notFound } from 'next/navigation';
 import { getSession } from '@/core/platform/withPermission';
+import { type AllStatusType, getStatusColor } from '@/shared/lib/utils/colors';
 import { DetailsView, DetailsViewHeader } from '@/shared/ui/adease';
 import AcknowledgeButton from '../_components/AcknowledgeButton';
 import ObservationDetail from '../_components/ObservationDetail';
 import SubmitButton from '../_components/SubmitButton';
 import { deleteObservation, getObservation } from '../_server/actions';
-
-const STATUS_COLORS: Record<string, string> = {
-	draft: 'gray',
-	submitted: 'blue',
-	acknowledged: 'green',
-};
 
 type Props = {
 	params: Promise<{ id: string }>;
@@ -33,6 +28,7 @@ export default async function ObservationDetailPage({ params }: Props) {
 	const isDraft = obs.status === 'draft';
 	const isSubmitted = obs.status === 'submitted';
 	const isAdmin = session?.user?.role === 'admin';
+	const status = obs.status as AllStatusType;
 	const allRatings = obs.ratings
 		.filter((r) => r.rating != null)
 		.map((r) => r.rating!);
@@ -41,22 +37,22 @@ export default async function ObservationDetailPage({ params }: Props) {
 			? allRatings.reduce((a, b) => a + b, 0) / allRatings.length
 			: null;
 	const headerTitle = (
-		<Group gap='sm' wrap='wrap' align='center'>
+		<Group gap='lg' wrap='wrap' align='center'>
 			<Title order={3} fw={100}>
 				Observation
 			</Title>
-			<Badge
-				size='lg'
-				variant='light'
-				color={STATUS_COLORS[obs.status] ?? 'gray'}
-			>
-				{obs.status}
-			</Badge>
-			{overallAvg != null && (
-				<Badge size='lg' variant='filled' color='indigo'>
-					{overallAvg.toFixed(2)} / 5
-				</Badge>
-			)}
+			<Card p={'xs'}>
+				<Group>
+					<Badge size='sm' variant='light' color={getStatusColor(status)}>
+						{obs.status}
+					</Badge>
+					{overallAvg != null && (
+						<Badge size='sm' variant='light'>
+							{overallAvg.toFixed(2)} / 5
+						</Badge>
+					)}
+				</Group>
+			</Card>
 		</Group>
 	);
 
