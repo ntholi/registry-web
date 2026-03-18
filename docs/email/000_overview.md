@@ -154,17 +154,19 @@ src/app/auth/users/_components/
 
 ## Implementation Steps
 
-| Step | File | Title | Description |
-|------|------|-------|-------------|
-| 001 | [001_database-schema.md](001_database-schema.md) | Database Schema | All tables, enums, relations, indexes, migration |
-| 002 | [002_gmail-oauth-integration.md](002_gmail-oauth-integration.md) | Gmail OAuth Integration | OAuth flow, token storage, scope management, Gmail API client |
-| 003 | [003_email-account-management.md](003_email-account-management.md) | Email Account Management | Repository, service, actions for mail accounts + assignments |
-| 004 | [004_email-sending-queue.md](004_email-sending-queue.md) | Email Sending & Queue | Send function, DB queue, rate limiter, cron API route |
-| 005 | [005_email-templates.md](005_email-templates.md) | Email Templates | react-email setup, base layout, templates for each trigger |
-| 006 | [006_system-email-triggers.md](006_system-email-triggers.md) | System Email Triggers | Hook into student-status, notifications; auto-send logic |
-| 007 | [007_inbox-reading-threads.md](007_inbox-reading-threads.md) | Inbox, Threads & Reply | Gmail read, thread display, reply, caching, search |
-| 008 | [008_permissions-access-control.md](008_permissions-access-control.md) | Permissions & Access Control | Catalog entry, permission checks, role-based inbox access |
-| 009 | [009_admin-ui.md](009_admin-ui.md) | Admin UI & Navigation | Full admin pages, nav config, inbox tabs, compose, sent log |
+Update this table immediately after each task is completed so `000_overview.md` remains the source of truth for implementation progress.
+
+| Step | File | Title | Status | Overview Update Requirement | Description |
+|------|------|-------|--------|-----------------------------|-------------|
+| 001 | [001_database-schema.md](001_database-schema.md) | Database Schema | Complete | Mark complete here as soon as the task is finished | All tables, enums, relations, indexes, migration |
+| 002 | [002_gmail-oauth-integration.md](002_gmail-oauth-integration.md) | Gmail OAuth Integration | Complete | Mark complete here as soon as the task is finished | OAuth flow, token storage, scope management, Gmail API client |
+| 003 | [003_email-account-management.md](003_email-account-management.md) | Email Account Management | Pending | Change to complete here when the task is finished | Repository, service, actions for mail accounts + assignments |
+| 004 | [004_email-sending-queue.md](004_email-sending-queue.md) | Email Sending & Queue | Pending | Change to complete here when the task is finished | Send function, DB queue, rate limiter, cron API route |
+| 005 | [005_email-templates.md](005_email-templates.md) | Email Templates | Pending | Change to complete here when the task is finished | react-email setup, base layout, templates for each trigger |
+| 006 | [006_system-email-triggers.md](006_system-email-triggers.md) | System Email Triggers | Pending | Change to complete here when the task is finished | Hook into student-status, notifications; auto-send logic |
+| 007 | [007_inbox-reading-threads.md](007_inbox-reading-threads.md) | Inbox, Threads & Reply | Pending | Change to complete here when the task is finished | Gmail read, thread display, reply, caching, search |
+| 008 | [008_permissions-access-control.md](008_permissions-access-control.md) | Permissions & Access Control | Pending | Change to complete here when the task is finished | Catalog entry, permission checks, role-based inbox access |
+| 009 | [009_admin-ui.md](009_admin-ui.md) | Admin UI & Navigation | Pending | Change to complete here when the task is finished | Full admin pages, nav config, inbox tabs, compose, sent log |
 
 ## Business Rules
 
