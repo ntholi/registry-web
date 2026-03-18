@@ -84,10 +84,6 @@ class ObservationService extends BaseService<typeof observations, 'id'> {
 					throw new UserFacingError(
 						'All criteria must be rated before submitting'
 					);
-				if (!obs.strengths?.trim())
-					throw new UserFacingError('Strengths field is required');
-				if (!obs.improvements?.trim())
-					throw new UserFacingError('Areas for improvement field is required');
 
 				const audit = this.buildAuditOptions(session, 'update');
 				return this.repo.submit(id, audit);

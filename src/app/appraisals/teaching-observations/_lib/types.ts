@@ -22,8 +22,10 @@ export const submitValidation = z.object({
 			rating: z.number().int().min(1).max(5),
 		})
 	),
-	strengths: z.string().min(1),
-	improvements: z.string().min(1),
+	strengths: z.string().nullable().optional(),
+	improvements: z.string().nullable().optional(),
+	recommendations: z.string().nullable().optional(),
+	trainingArea: z.string().nullable().optional(),
 });
 
 export const acknowledgeSchema = z.object({

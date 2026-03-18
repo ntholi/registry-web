@@ -101,7 +101,7 @@ export default function ObservationDetail({ observation: obs, userId }: Props) {
 					<GridCol span={{ base: 12, sm: 3 }}>
 						<Group mt={5} justify='flex-end'>
 							{obs.observerId === userId && obs.status === 'draft' && (
-								<SubmitButton observationId={obs.id} />
+								<SubmitButton observation={obs} />
 							)}
 							{isLecturer && isSubmitted && (
 								<AcknowledgeButton observationId={obs.id} />
