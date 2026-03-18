@@ -289,7 +289,7 @@ export default class FeedbackCycleRepository extends BaseRepository<
 			.where(
 				and(
 					eq(feedbackCycles.termId, termId),
-					sql`abs((${feedbackCycles.endDate}::date - ${startDate}::date)) <= 31`,
+					sql`${feedbackCycles.endDate}::date >= ${startDate}::date`,
 					schoolFilter
 				)
 			)

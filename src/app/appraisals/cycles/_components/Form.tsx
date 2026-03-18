@@ -72,16 +72,16 @@ function getDateValue(value: string) {
 	return Date.UTC(year, (month ?? 1) - 1, day ?? 1);
 }
 
-function getDayGap(startDate: string, endDate: string) {
-	const diff = getDateValue(startDate) - getDateValue(endDate);
+function getDaysLeft(startDate: string, endDate: string) {
+	const diff = getDateValue(endDate) - getDateValue(startDate);
 	return Math.round(diff / 86400000);
 }
 
-function getGapLabel(days: number) {
-	const count = Math.abs(days);
-	const unit = count === 1 ? 'day' : 'days';
-	if (days >= 0) return `${count} ${unit} after the latest cycle ends`;
-	return `${count} ${unit} before the latest cycle ends`;
+function getDaysLeftLabel(days: number) {
+	if (days === 0)
+		return "The latest relevant cycle ends on this cycle's start date.";
+	const unit = days === 1 ? 'day' : 'days';
+	return `The latest relevant cycle still has ${days} ${unit} left when this cycle starts.`;
 }
 
 export default function CycleForm({ onSubmit, defaultValues, title }: Props) {
@@ -152,8 +152,8 @@ export default function CycleForm({ onSubmit, defaultValues, title }: Props) {
 		});
 	}
 
-	const gapDays = recentCycle
-		? getDayGap(pendingStartDate, recentCycle.endDate)
+	const daysLeft = recentCycle
+		? getDaysLeft(pendingStartDate, recentCycle.endDate)
 		: 0;
 
 	return (
@@ -237,8 +237,8 @@ export default function CycleForm({ onSubmit, defaultValues, title }: Props) {
 				{recentCycle && (
 					<Stack gap='md'>
 						<Text size='sm'>
-							This cycle starts {getGapLabel(gapDays)}. You can use the latest
-							relevant cycle instead or continue anyway.
+							{getDaysLeftLabel(daysLeft)} You can use the latest relevant cycle
+							instead or continue anyway.
 						</Text>
 						<Stack gap={4}>
 							<Text size='sm' fw={600}>
