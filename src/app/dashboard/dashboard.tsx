@@ -109,6 +109,7 @@ function getNavigation(
 ): NavigationGroup[] {
 	const allConfigs = [
 		{ config: academicConfig, enabled: moduleConfig.academic },
+		{ config: humanResourceConfig, enabled: moduleConfig.humanResource },
 		{ config: appraisalsConfig, enabled: moduleConfig.appraisals },
 		{ config: registryConfig, enabled: moduleConfig.registry },
 		{ config: libraryConfig, enabled: moduleConfig.library },
@@ -118,7 +119,6 @@ function getNavigation(
 		{ config: financeConfig, enabled: moduleConfig.finance },
 		{ config: adminConfig, enabled: moduleConfig.admin },
 		{ config: reportsConfig, enabled: moduleConfig.reports },
-		{ config: humanResourceConfig, enabled: moduleConfig.humanResource },
 	];
 
 	const getLabelKey = (label: React.ReactNode): string => {
