@@ -36,3 +36,7 @@ export async function getCyclesByTerm(termId: number) {
 export async function getReportAccessInfo() {
 	return appraisalReportService.getAccessInfo();
 }
+
+export async function getModulesForFilter(filter: ReportFilter) {
+	return appraisalReportService.getModulesForFilter(filter);
+}

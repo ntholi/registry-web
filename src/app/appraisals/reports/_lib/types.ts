@@ -3,6 +3,7 @@ export interface ReportFilter {
 	cycleId?: string;
 	schoolIds?: number[];
 	programId?: number;
+	moduleId?: number;
 	lecturerId?: string;
 }
 
@@ -83,11 +84,31 @@ export interface FeedbackLecturerRanking {
 	categoryAverages: Record<string, number>;
 }
 
+export interface QuestionBreakdownItem {
+	questionId: string;
+	questionText: string;
+	categoryId: string;
+	categoryName: string;
+	categorySortOrder: number;
+	questionSortOrder: number;
+	avgRating: number;
+	responseCount: number;
+	distribution: RatingDistribution[];
+}
+
 export interface FeedbackReportData {
 	overview: FeedbackOverviewStats;
 	categoryAverages: CategoryAverage[];
+	ratingDistribution: RatingDistribution[];
+	questionBreakdown: QuestionBreakdownItem[];
 	trendData: FeedbackTrendPoint[];
 	lecturerRankings: FeedbackLecturerRanking[];
+}
+
+export interface ModuleOption {
+	id: number;
+	code: string;
+	name: string;
 }
 
 export interface ObservationOverviewStats {

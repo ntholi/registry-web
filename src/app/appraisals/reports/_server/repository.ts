@@ -43,6 +43,7 @@ import type {
 	LecturerComment,
 	LecturerModuleBreakdown,
 	LecturerQuestionDetail,
+	ModuleOption,
 	ObservationCategoryAverage,
 	ObservationDetail,
 	ObservationLecturerDetail,
@@ -52,7 +53,9 @@ import type {
 	ObservationTrendPoint,
 	OverviewData,
 	OverviewLecturerRanking,
+	QuestionBreakdownItem,
 	RadarDataPoint,
+	RatingDistribution,
 	ReportFilter,
 	SchoolComparisonItem,
 	TrendPoint,
@@ -71,6 +74,9 @@ function buildFeedbackConditions(filter: ReportFilter) {
 	}
 	if (filter.programId) {
 		conditions.push(eq(programs.id, filter.programId));
+	}
+	if (filter.moduleId) {
+		conditions.push(eq(modules.id, filter.moduleId));
 	}
 	if (filter.lecturerId) {
 		conditions.push(eq(assignedModules.userId, filter.lecturerId));
@@ -153,14 +159,29 @@ class AppraisalReportRepository {
 	async getFeedbackReportData(
 		filter: ReportFilter
 	): Promise<FeedbackReportData> {
-		const [overview, categoryAverages, trendData, lecturerRankings] =
-			await Promise.all([
-				this.getFeedbackOverviewStats(filter),
-				this.getFeedbackCategoryAverages(filter),
-				this.getFeedbackTrendData(filter),
-				this.getFeedbackLecturerRankings(filter),
-			]);
-		return { overview, categoryAverages, trendData, lecturerRankings };
+		const [
+			overview,
+			categoryAverages,
+			ratingDistribution,
+			questionBreakdown,
+			trendData,
+			lecturerRankings,
+		] = await Promise.all([
+			this.getFeedbackOverviewStats(filter),
+			this.getFeedbackCategoryAverages(filter),
+			this.getRatingDistribution(filter),
+			this.getFullQuestionBreakdown(filter),
+			this.getFeedbackTrendData(filter),
+			this.getFeedbackLecturerRankings(filter),
+		]);
+		return {
+			overview,
+			categoryAverages,
+			ratingDistribution,
+			questionBreakdown,
+			trendData,
+			lecturerRankings,
+		};
 	}
 
 	async getObservationReportData(
@@ -2226,6 +2247,218 @@ class AppraisalReportRepository {
 		]);
 
 		return { modules: mods, questions, comments };
+	}
+
+	async getRatingDistribution(
+		filter: ReportFilter
+	): Promise<RatingDistribution[]> {
+		const conditions = buildFeedbackConditions(filter);
+		const results = await db
+			.select({
+				rating: studentFeedbackResponses.rating,
+				count: count(studentFeedbackResponses.id),
+			})
+			.from(studentFeedbackResponses)
+			.innerJoin(
+				studentFeedbackPassphrases,
+				eq(studentFeedbackResponses.passphraseId, studentFeedbackPassphrases.id)
+			)
+			.innerJoin(
+				feedbackCycles,
+				eq(studentFeedbackPassphrases.cycleId, feedbackCycles.id)
+			)
+			.innerJoin(
+				structureSemesters,
+				eq(
+					studentFeedbackPassphrases.structureSemesterId,
+					structureSemesters.id
+				)
+			)
+			.innerJoin(structures, eq(structureSemesters.structureId, structures.id))
+			.innerJoin(programs, eq(structures.programId, programs.id))
+			.innerJoin(schools, eq(programs.schoolId, schools.id))
+			.innerJoin(
+				assignedModules,
+				eq(studentFeedbackResponses.assignedModuleId, assignedModules.id)
+			)
+			.innerJoin(
+				semesterModules,
+				eq(assignedModules.semesterModuleId, semesterModules.id)
+			)
+			.innerJoin(modules, eq(semesterModules.moduleId, modules.id))
+			.where(
+				and(
+					isNotNull(studentFeedbackResponses.rating),
+					...(conditions.length > 0 ? conditions : [])
+				)
+			)
+			.groupBy(studentFeedbackResponses.rating)
+			.orderBy(studentFeedbackResponses.rating);
+
+		const total = results.reduce((sum, r) => sum + r.count, 0);
+		return [1, 2, 3, 4, 5].map((rating) => {
+			const found = results.find((r) => r.rating === rating);
+			const cnt = found?.count ?? 0;
+			return {
+				rating,
+				count: cnt,
+				percentage: total > 0 ? Math.round((cnt / total) * 100) : 0,
+			};
+		});
+	}
+
+	async getFullQuestionBreakdown(
+		filter: ReportFilter
+	): Promise<QuestionBreakdownItem[]> {
+		const conditions = buildFeedbackConditions(filter);
+		const results = await db
+			.select({
+				questionId: studentFeedbackQuestions.id,
+				questionText: studentFeedbackQuestions.text,
+				categoryId: studentFeedbackCategories.id,
+				categoryName: studentFeedbackCategories.name,
+				categorySortOrder: studentFeedbackCategories.sortOrder,
+				questionSortOrder: studentFeedbackQuestions.sortOrder,
+				rating: studentFeedbackResponses.rating,
+				count: count(studentFeedbackResponses.id),
+			})
+			.from(studentFeedbackResponses)
+			.innerJoin(
+				studentFeedbackQuestions,
+				eq(studentFeedbackResponses.questionId, studentFeedbackQuestions.id)
+			)
+			.innerJoin(
+				studentFeedbackCategories,
+				eq(studentFeedbackQuestions.categoryId, studentFeedbackCategories.id)
+			)
+			.innerJoin(
+				studentFeedbackPassphrases,
+				eq(studentFeedbackResponses.passphraseId, studentFeedbackPassphrases.id)
+			)
+			.innerJoin(
+				feedbackCycles,
+				eq(studentFeedbackPassphrases.cycleId, feedbackCycles.id)
+			)
+			.innerJoin(
+				structureSemesters,
+				eq(
+					studentFeedbackPassphrases.structureSemesterId,
+					structureSemesters.id
+				)
+			)
+			.innerJoin(structures, eq(structureSemesters.structureId, structures.id))
+			.innerJoin(programs, eq(structures.programId, programs.id))
+			.innerJoin(schools, eq(programs.schoolId, schools.id))
+			.innerJoin(
+				assignedModules,
+				eq(studentFeedbackResponses.assignedModuleId, assignedModules.id)
+			)
+			.innerJoin(
+				semesterModules,
+				eq(assignedModules.semesterModuleId, semesterModules.id)
+			)
+			.innerJoin(modules, eq(semesterModules.moduleId, modules.id))
+			.where(
+				and(
+					isNotNull(studentFeedbackResponses.rating),
+					...(conditions.length > 0 ? conditions : [])
+				)
+			)
+			.groupBy(
+				studentFeedbackQuestions.id,
+				studentFeedbackQuestions.text,
+				studentFeedbackCategories.id,
+				studentFeedbackCategories.name,
+				studentFeedbackCategories.sortOrder,
+				studentFeedbackQuestions.sortOrder,
+				studentFeedbackResponses.rating
+			)
+			.orderBy(
+				studentFeedbackCategories.sortOrder,
+				studentFeedbackQuestions.sortOrder
+			);
+
+		const qMap = new Map<string, QuestionBreakdownItem>();
+		for (const row of results) {
+			if (!qMap.has(row.questionId)) {
+				qMap.set(row.questionId, {
+					questionId: row.questionId,
+					questionText: row.questionText,
+					categoryId: row.categoryId,
+					categoryName: row.categoryName,
+					categorySortOrder: row.categorySortOrder,
+					questionSortOrder: row.questionSortOrder,
+					avgRating: 0,
+					responseCount: 0,
+					distribution: [1, 2, 3, 4, 5].map((r) => ({
+						rating: r,
+						count: 0,
+						percentage: 0,
+					})),
+				});
+			}
+			const q = qMap.get(row.questionId)!;
+			if (row.rating !== null) {
+				const d = q.distribution.find((d) => d.rating === row.rating);
+				if (d) d.count = row.count;
+			}
+		}
+
+		for (const q of qMap.values()) {
+			const total = q.distribution.reduce((sum, d) => sum + d.count, 0);
+			q.responseCount = total;
+			if (total > 0) {
+				const weighted = q.distribution.reduce(
+					(sum, d) => sum + d.rating * d.count,
+					0
+				);
+				q.avgRating = toFixed2(weighted / total);
+				for (const d of q.distribution) {
+					d.percentage = Math.round((d.count / total) * 100);
+				}
+			}
+		}
+
+		return Array.from(qMap.values()).sort(
+			(a, b) =>
+				a.categorySortOrder - b.categorySortOrder ||
+				a.questionSortOrder - b.questionSortOrder
+		);
+	}
+
+	async getModulesForFilter(filter: ReportFilter): Promise<ModuleOption[]> {
+		const conditions = [];
+		if (filter.termId) {
+			conditions.push(eq(assignedModules.termId, filter.termId));
+		}
+		if (filter.schoolIds && filter.schoolIds.length > 0) {
+			conditions.push(inArray(schools.id, filter.schoolIds));
+		}
+		if (filter.programId) {
+			conditions.push(eq(programs.id, filter.programId));
+		}
+
+		return db
+			.selectDistinct({
+				id: modules.id,
+				code: modules.code,
+				name: modules.name,
+			})
+			.from(assignedModules)
+			.innerJoin(
+				semesterModules,
+				eq(assignedModules.semesterModuleId, semesterModules.id)
+			)
+			.innerJoin(modules, eq(semesterModules.moduleId, modules.id))
+			.innerJoin(
+				structureSemesters,
+				eq(semesterModules.semesterId, structureSemesters.id)
+			)
+			.innerJoin(structures, eq(structureSemesters.structureId, structures.id))
+			.innerJoin(programs, eq(structures.programId, programs.id))
+			.innerJoin(schools, eq(programs.schoolId, schools.id))
+			.where(conditions.length > 0 ? and(...conditions) : undefined)
+			.orderBy(modules.code);
 	}
 }
 

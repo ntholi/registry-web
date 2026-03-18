@@ -119,6 +119,12 @@ class AppraisalReportService {
 		}, anyReportAuth);
 	}
 
+	async getModulesForFilter(filter: ReportFilter) {
+		return withPermission(async () => {
+			return appraisalReportRepository.getModulesForFilter(filter);
+		}, anyReportAuth);
+	}
+
 	async getAccessInfo(): Promise<AccessInfo> {
 		const session = await getSession();
 		return {
