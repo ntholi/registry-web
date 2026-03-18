@@ -67,12 +67,30 @@ function getCycleSchoolsLabel(cycle: RecentCycle) {
 	return cycle.schoolCodes.join(', ');
 }
 
+function getDateValue(value: string) {
+	const [year, month, day] = value.split('-').map(Number);
+	return Date.UTC(year, (month ?? 1) - 1, day ?? 1);
+}
+
+function getDayGap(startDate: string, endDate: string) {
+	const diff = getDateValue(startDate) - getDateValue(endDate);
+	return Math.round(diff / 86400000);
+}
+
+function getGapLabel(days: number) {
+	const count = Math.abs(days);
+	const unit = count === 1 ? 'day' : 'days';
+	if (days >= 0) return `${count} ${unit} after the latest cycle ends`;
+	return `${count} ${unit} before the latest cycle ends`;
+}
+
 export default function CycleForm({ onSubmit, defaultValues, title }: Props) {
 	const router = useRouter();
 	const { data: session } = authClient.useSession();
 	const formRef = useRef<HTMLFormElement | null>(null);
 	const approvedKeyRef = useRef('');
 	const [pendingKey, setPendingKey] = useState('');
+	const [pendingStartDate, setPendingStartDate] = useState('');
 	const [recentCycle, setRecentCycle] = useState<RecentCycle | null>(null);
 	const values = defaultValues ?? ({ name: defaultName } as Cycle);
 	const { data: terms = [] } = useQuery({
@@ -117,6 +135,7 @@ export default function CycleForm({ onSubmit, defaultValues, title }: Props) {
 		)) as RecentCycle | null;
 		if (!cycle) return true;
 		setPendingKey(key);
+		setPendingStartDate(startDate);
 		setRecentCycle(cycle);
 		return false;
 	}
@@ -132,6 +151,10 @@ export default function CycleForm({ onSubmit, defaultValues, title }: Props) {
 			formRef.current?.requestSubmit();
 		});
 	}
+
+	const gapDays = recentCycle
+		? getDayGap(pendingStartDate, recentCycle.endDate)
+		: 0;
 
 	return (
 		<>
@@ -214,9 +237,8 @@ export default function CycleForm({ onSubmit, defaultValues, title }: Props) {
 				{recentCycle && (
 					<Stack gap='md'>
 						<Text size='sm'>
-							The latest relevant feedback cycle ends within 31 days of this
-							cycle&apos;s start date. You can use that cycle instead or
-							continue anyway.
+							This cycle starts {getGapLabel(gapDays)}. You can use the latest
+							relevant cycle instead or continue anyway.
 						</Text>
 						<Stack gap={4}>
 							<Text size='sm' fw={600}>
