@@ -10,6 +10,7 @@ export default function Forbidden() {
 			icon={<IconBan size={32} />}
 			primaryActionHref='/'
 			primaryActionLabel='Go to dashboard'
+			showHome
 		/>
 	);
 }

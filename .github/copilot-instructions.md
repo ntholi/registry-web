@@ -110,6 +110,7 @@ You are a **Senior Principal Software Engineer** and **System Architect** specia
     - **Strict No-Any**: Avoid `any` or `unknown` at all costs.
     - **Definitions**: Use `interface` for objects, `type` for unions/intersections/props.
     - **Inference**: Derive types from Drizzle: `typeof table.$inferInsert`, `typeof table.$inferSelect`.
+    - **Data types**: Prefer `NonNullable<Awaited<ReturnType<typeof getThing>>>` over handwritten types.
 - **Comments**: Code should be self-explanatory.
 - **Component Order**: Props type → constants → default export → private props type → private components.
 - **Identifiers**: Strive for an extremely short identifier names, yet still meaningful.

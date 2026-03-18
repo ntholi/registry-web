@@ -16,59 +16,16 @@ import { useMemo } from 'react';
 import { formatDate } from '@/shared/lib/utils/dates';
 import { getStudentClassName } from '@/shared/lib/utils/utils';
 import { FieldView } from '@/shared/ui/adease';
+import type { ObservationDetailData } from '../_server/actions';
 import AcknowledgeButton from './AcknowledgeButton';
 import SubmitButton from './SubmitButton';
 
-type Rating = {
-	id: string;
-	rating: number | null;
-	criterion: {
-		id: string;
-		text: string;
-		description: string | null;
-		sortOrder: number;
-		category: {
-			id: string;
-			name: string;
-			section: 'teaching_observation' | 'assessments' | 'other';
-			sortOrder: number;
-		};
-	};
-};
-
-type ObservationData = {
-	id: string;
-	status: string;
-	strengths: string | null;
-	improvements: string | null;
-	observerId: string | null;
-	recommendations: string | null;
-	trainingArea: string | null;
-	submittedAt: Date | null;
-	acknowledgedAt: Date | null;
-	acknowledgmentComment: string | null;
-	createdAt: Date | null;
-	cycle: { name: string } | null;
-	observer: { name: string } | null;
-	assignedModule: {
-		user: { name: string } | null;
-		semesterModule: {
-			module: { code: string; name: string } | null;
-			semester: {
-				semesterNumber: string;
-				structure: {
-					program: { code: string } | null;
-				} | null;
-			} | null;
-		} | null;
-	} | null;
-	ratings: Rating[];
-};
-
 type Props = {
-	observation: ObservationData;
+	observation: ObservationDetailData;
 	userId: string | null | undefined;
 };
+
+type Rating = ObservationDetailData['ratings'][number];
 
 const SECTION_LABELS: Record<string, string> = {
 	teaching_observation: 'Teaching Observation',
@@ -142,7 +99,7 @@ export default function ObservationDetail({ observation: obs, userId }: Props) {
 						<FieldView label='Cycle'>{obs.cycle?.name}</FieldView>
 					</GridCol>
 					<GridCol span={{ base: 12, sm: 3 }}>
-						<Group mt='md'>
+						<Group mt={5} justify='flex-end'>
 							{obs.observerId === userId && obs.status === 'draft' && (
 								<SubmitButton observationId={obs.id} />
 							)}

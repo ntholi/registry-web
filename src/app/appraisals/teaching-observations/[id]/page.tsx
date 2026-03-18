@@ -72,7 +72,7 @@ export default async function ObservationDetailPage({ params }: Props) {
 					canDelete ? { 'teaching-observations': ['delete'] } : undefined
 				}
 			/>
-			<ObservationDetail observation={obs as never} userId={userId} />
+			<ObservationDetail observation={obs} userId={userId} />
 		</DetailsView>
 	);
 }

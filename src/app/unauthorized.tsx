@@ -10,6 +10,7 @@ export default function Unauthorized() {
 			icon={<IconLock size={32} />}
 			primaryActionHref='/auth/login'
 			primaryActionLabel='Sign in'
+			showHome
 		/>
 	);
 }

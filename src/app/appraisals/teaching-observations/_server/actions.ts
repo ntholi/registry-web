@@ -6,6 +6,10 @@ import { createAction } from '@/shared/lib/actions/actionResult';
 import type { ObservationFormValues } from '../_lib/types';
 import { observationService as service } from './service';
 
+export type ObservationDetailData = NonNullable<
+	Awaited<ReturnType<typeof service.findObservation>>
+>;
+
 export async function getObservations(page = 1, search = '') {
 	return service.queryObservations({
 		page,

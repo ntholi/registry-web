@@ -12,6 +12,7 @@ export default function NotFound() {
 			icon={<IconSearchOff size={32} />}
 			primaryActionHref='/'
 			primaryActionLabel='Go to dashboard'
+			showHome
 		/>
 	);
 }
