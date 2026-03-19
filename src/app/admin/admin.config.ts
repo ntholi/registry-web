@@ -6,6 +6,7 @@ import {
 	IconChecklist,
 	IconFileExport,
 	IconFlask,
+	IconMail,
 	IconPackage,
 	IconSearch,
 	IconSettings,
@@ -55,6 +56,12 @@ export const adminConfig: ModuleConfig = {
 				href: '/admin/notifications',
 				icon: IconBell,
 				roles: ['admin'],
+			},
+			{
+				label: 'Mails',
+				href: '/admin/mails',
+				icon: IconMail,
+				permissions: [{ resource: 'mails', action: 'read' }],
 			},
 			{
 				label: 'Activity Tracker',

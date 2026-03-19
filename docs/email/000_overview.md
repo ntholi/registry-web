@@ -165,7 +165,7 @@ Update this table immediately after each task is completed so `000_overview.md` 
 | 005 | [005_email-templates.md](005_email-templates.md) | Email Templates | Complete | Change to complete here when the task is finished | react-email setup, base layout, templates for each trigger |
 | 006 | [006_system-email-triggers.md](006_system-email-triggers.md) | System Email Triggers | Complete | Change to complete here when the task is finished | Hook into student-status, notifications; auto-send logic |
 | 007 | [007_inbox-reading-threads.md](007_inbox-reading-threads.md) | Inbox, Threads & Reply | Complete | Change to complete here when the task is finished | Gmail read, thread display, reply, caching, search |
-| 008 | [008_permissions-access-control.md](008_permissions-access-control.md) | Permissions & Access Control | Pending | Change to complete here when the task is finished | Catalog entry, permission checks, role-based inbox access |
+| 008 | [008_permissions-access-control.md](008_permissions-access-control.md) | Permissions & Access Control | Complete | Mark complete here as soon as the task is finished | Catalog entry, permission checks, role-based inbox access |
 | 009 | [009_admin-ui.md](009_admin-ui.md) | Admin UI & Navigation | Pending | Change to complete here when the task is finished | Full admin pages, nav config, inbox tabs, compose, sent log |
 
 ## Business Rules
