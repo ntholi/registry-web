@@ -165,7 +165,7 @@ export const PERMISSION_PRESET_SEEDS: readonly PermissionPresetSeed[] = [
 		),
 	},
 	{
-		name: 'Academic Program Leader',
+		name: 'Program Leader',
 		role: 'academic',
 		description: '',
 		permissions: mergeGrants(
@@ -196,7 +196,7 @@ export const PERMISSION_PRESET_SEEDS: readonly PermissionPresetSeed[] = [
 		),
 	},
 	{
-		name: 'Academic Year Leader',
+		name: 'Year Leader',
 		role: 'academic',
 		description: '',
 		permissions: mergeGrants(
@@ -217,7 +217,7 @@ export const PERMISSION_PRESET_SEEDS: readonly PermissionPresetSeed[] = [
 		),
 	},
 	{
-		name: 'Academic Lecturer',
+		name: 'Lecturer',
 		role: 'academic',
 		description: '',
 		permissions: mergeGrants(
@@ -237,7 +237,7 @@ export const PERMISSION_PRESET_SEEDS: readonly PermissionPresetSeed[] = [
 		),
 	},
 	{
-		name: 'Academic Principal Lecturer',
+		name: 'Principal Lecturer',
 		role: 'academic',
 		description: '',
 		permissions: mergeGrants(

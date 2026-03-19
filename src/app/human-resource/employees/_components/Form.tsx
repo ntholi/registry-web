@@ -1,7 +1,8 @@
 'use client';
 
 import { getAllSchools } from '@academic/schools/_server/actions';
-import { getUserSchools } from '@admin/users';
+import { resolvePresetPosition } from '@admin/notifications/_lib/presetPositions';
+import { getUser } from '@admin/users';
 import { employees } from '@human-resource/_database';
 import {
 	Autocomplete,
@@ -23,6 +24,7 @@ import UserInput from '@/shared/ui/UserInput';
 type Employee = typeof employees.$inferInsert & { schoolIds?: number[] };
 type EmployeeRecord = typeof employees.$inferSelect;
 type User = typeof users.$inferSelect;
+type UserDetail = NonNullable<Awaited<ReturnType<typeof getUser>>>;
 
 const DEPARTMENTS = [
 	'Academic',
@@ -58,6 +60,14 @@ const POSITION_LABELS: Record<string, string> = {
 	lecturer: 'Lecturer',
 	admin: 'Admin',
 };
+
+function getPositionLabel(position: string | null | undefined) {
+	if (!position) {
+		return null;
+	}
+
+	return POSITION_LABELS[position] ?? null;
+}
 
 type Props = {
 	onSubmit: (
@@ -112,6 +122,8 @@ export default function EmployeeForm({
 						form.setFieldValue('userId', null);
 						return;
 					}
+
+					const detail = (await getUser(user.id)) as UserDetail | null;
 					form.setFieldValue('userId', user.id);
 					if (!form.getValues().name && user.name) {
 						form.setFieldValue('name', user.name);
@@ -120,15 +132,16 @@ export default function EmployeeForm({
 					if (mapped) {
 						form.setFieldValue('department', mapped);
 					}
-					if (user.role === 'academic') {
-						const userSchools = await getUserSchools(user.id);
-						if (userSchools && userSchools.length > 0) {
-							form.setFieldValue(
-								'schoolIds' as never,
-								userSchools.map((us) => String(us.schoolId))
-							);
-						}
-					}
+					const position = getPositionLabel(
+						resolvePresetPosition(user.role, detail?.preset?.name)
+					);
+					form.setFieldValue('position', position);
+					form.setFieldValue(
+						'schoolIds' as never,
+						user.role === 'academic'
+							? (detail?.schoolIds ?? []).map((schoolId) => String(schoolId))
+							: []
+					);
 				}
 
 				return (

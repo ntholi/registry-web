@@ -13,8 +13,8 @@ export const APPROVAL_PRESET_ROLES: Record<
 	StudentStatusApprovalRole[]
 > = {
 	'Academic Manager': ['program_leader'],
-	'Academic Program Leader': ['program_leader'],
-	'Academic Year Leader': ['year_leader'],
+	'Program Leader': ['program_leader'],
+	'Year Leader': ['year_leader'],
 	'Student Services Staff': ['student_services'],
 	'Finance Staff': ['finance'],
 	'Finance Manager': ['finance'],

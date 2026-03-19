@@ -1,6 +1,6 @@
 'use client';
 
-import { Alert, Grid, Group, Stack } from '@mantine/core';
+import { Alert, Grid, Stack } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
 import type { ReportFilter } from '../_lib/types';
 import { getFeedbackReportData } from '../_server/actions';
