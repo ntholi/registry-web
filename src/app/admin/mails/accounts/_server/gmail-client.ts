@@ -1,12 +1,18 @@
 import { type gmail_v1, google } from 'googleapis';
 import MailComposer from 'nodemailer/lib/mail-composer';
+import sanitize from 'sanitize-html';
 import type { mailAccounts } from '@/core/database';
 import { getFileBuffer } from '@/core/integrations/storage';
 import type {
 	GmailMessage,
+	InboxOptions,
+	InboxResult,
+	InboxThread,
+	MessageAttachment,
 	ReplyOptions,
 	SendEmailOptions,
 	SendResult,
+	ThreadMessage,
 } from '../../_lib/types';
 import { mailQueueRepo } from '../../queues/_server/repository';
 import { mailAccountRepo } from './repository';
@@ -304,4 +310,301 @@ export async function sendReply(options: ReplyOptions): Promise<string> {
 	});
 
 	return messageId;
+}
+
+type GmailPart = gmail_v1.Schema$MessagePart;
+type GmailHeader = gmail_v1.Schema$MessagePartHeader;
+
+const sanitizeOptions: sanitize.IOptions = {
+	allowedTags: [
+		'p',
+		'br',
+		'div',
+		'span',
+		'a',
+		'img',
+		'table',
+		'thead',
+		'tbody',
+		'tr',
+		'td',
+		'th',
+		'ul',
+		'ol',
+		'li',
+		'b',
+		'i',
+		'strong',
+		'em',
+		'h1',
+		'h2',
+		'h3',
+		'h4',
+		'h5',
+		'h6',
+		'blockquote',
+		'pre',
+		'code',
+		'hr',
+	],
+	allowedAttributes: {
+		a: ['href', 'target', 'rel'],
+		img: ['src', 'alt', 'width', 'height'],
+		td: ['colspan', 'rowspan', 'style'],
+		th: ['colspan', 'rowspan', 'style'],
+		div: ['style'],
+		span: ['style'],
+		p: ['style'],
+		table: ['style', 'width', 'cellpadding', 'cellspacing', 'border'],
+		tr: ['style'],
+	},
+	allowedSchemesByTag: {
+		a: ['http', 'https', 'mailto'],
+		img: ['http', 'https', 'cid'],
+	},
+};
+
+function getHeader(headers: GmailHeader[] | undefined, name: string): string {
+	if (!headers) return '';
+	const h = headers.find((h) => h.name?.toLowerCase() === name.toLowerCase());
+	return h?.value ?? '';
+}
+
+function parseEmailAddress(raw: string): { name: string; email: string } {
+	const match = raw.match(/^(.+?)\s*<(.+?)>$/);
+	if (match)
+		return {
+			name: match[1].trim().replace(/^"|"$/g, ''),
+			email: match[2],
+		};
+	return { name: '', email: raw.trim() };
+}
+
+function findBodyPart(
+	parts: GmailPart[] | undefined,
+	mimeType: string
+): string {
+	if (!parts) return '';
+	for (const part of parts) {
+		if (part.mimeType === mimeType && part.body?.data) {
+			return Buffer.from(part.body.data, 'base64url').toString('utf-8');
+		}
+		if (part.parts) {
+			const found = findBodyPart(part.parts, mimeType);
+			if (found) return found;
+		}
+	}
+	return '';
+}
+
+function extractBody(payload: GmailPart | undefined): {
+	html: string;
+	text: string;
+} {
+	if (!payload) return { html: '', text: '' };
+
+	if (payload.body?.data) {
+		const decoded = Buffer.from(payload.body.data, 'base64url').toString(
+			'utf-8'
+		);
+		if (payload.mimeType === 'text/html') return { html: decoded, text: '' };
+		if (payload.mimeType === 'text/plain') return { html: '', text: decoded };
+	}
+
+	const html = findBodyPart(payload.parts, 'text/html');
+	const text = findBodyPart(payload.parts, 'text/plain');
+	return { html, text };
+}
+
+function extractAttachments(
+	parts: GmailPart[] | undefined
+): MessageAttachment[] {
+	if (!parts) return [];
+	const result: MessageAttachment[] = [];
+	for (const part of parts) {
+		if (part.filename && part.body?.attachmentId) {
+			result.push({
+				attachmentId: part.body.attachmentId,
+				filename: part.filename,
+				mimeType: part.mimeType ?? 'application/octet-stream',
+				size: part.body.size ?? 0,
+			});
+		}
+		if (part.parts) {
+			result.push(...extractAttachments(part.parts));
+		}
+	}
+	return result;
+}
+
+function hasAnyAttachment(parts: GmailPart[] | undefined): boolean {
+	if (!parts) return false;
+	for (const part of parts) {
+		if (part.filename) return true;
+		if (part.parts && hasAnyAttachment(part.parts)) return true;
+	}
+	return false;
+}
+
+function parseMessage(msg: gmail_v1.Schema$Message): ThreadMessage {
+	const headers = msg.payload?.headers;
+	const from = parseEmailAddress(getHeader(headers, 'From'));
+	const { html, text } = extractBody(msg.payload);
+
+	return {
+		messageId: msg.id ?? '',
+		from,
+		to: getHeader(headers, 'To'),
+		cc: getHeader(headers, 'Cc'),
+		subject: getHeader(headers, 'Subject') || '(No Subject)',
+		htmlBody: sanitize(html, sanitizeOptions),
+		textBody: text,
+		isRead: !msg.labelIds?.includes('UNREAD'),
+		receivedAt: msg.internalDate
+			? new Date(Number(msg.internalDate))
+			: new Date(),
+		attachments: extractAttachments(msg.payload?.parts),
+	};
+}
+
+export async function fetchInbox(
+	mailAccountId: string,
+	options: InboxOptions = {}
+): Promise<InboxResult> {
+	const gmail = await getGmailClient(mailAccountId);
+	const { maxResults = 20, pageToken, query, labelIds = ['INBOX'] } = options;
+
+	const listRes = await gmail.users.threads.list({
+		userId: 'me',
+		maxResults,
+		pageToken: pageToken ?? undefined,
+		q: query ?? undefined,
+		labelIds,
+	});
+
+	const rawThreads = listRes.data.threads ?? [];
+	if (rawThreads.length === 0) {
+		return { threads: [], nextPageToken: undefined, resultSizeEstimate: 0 };
+	}
+
+	const threadDetails = await Promise.all(
+		rawThreads.map(async (t) => {
+			const res = await gmail.users.threads.get({
+				userId: 'me',
+				id: t.id!,
+				format: 'metadata',
+				metadataHeaders: ['From', 'To', 'Subject', 'Date'],
+			});
+			return res.data;
+		})
+	);
+
+	const threads: InboxThread[] = threadDetails.map((thread) => {
+		const messages = thread.messages ?? [];
+		const firstMsg = messages[0];
+		const lastMsg = messages[messages.length - 1];
+		const firstHeaders = firstMsg?.payload?.headers;
+		const lastHeaders = lastMsg?.payload?.headers;
+
+		const from = parseEmailAddress(getHeader(lastHeaders, 'From'));
+		const subject = getHeader(firstHeaders, 'Subject') || '(No Subject)';
+		const to = getHeader(lastHeaders, 'To');
+		const dateStr = getHeader(lastHeaders, 'Date');
+
+		const isRead = messages.every((m) => !m.labelIds?.includes('UNREAD'));
+		const hasAttachments = messages.some((m) =>
+			hasAnyAttachment(m.payload?.parts)
+		);
+
+		return {
+			threadId: thread.id ?? '',
+			subject,
+			snippet: thread.snippet ?? '',
+			from,
+			to,
+			messageCount: messages.length,
+			isRead,
+			hasAttachments,
+			lastMessageAt: dateStr ? new Date(dateStr) : new Date(),
+		};
+	});
+
+	return {
+		threads,
+		nextPageToken: listRes.data.nextPageToken ?? undefined,
+		resultSizeEstimate: listRes.data.resultSizeEstimate ?? undefined,
+	};
+}
+
+export async function fetchThread(
+	mailAccountId: string,
+	threadId: string
+): Promise<{ threadId: string; messages: ThreadMessage[] }> {
+	const gmail = await getGmailClient(mailAccountId);
+
+	const res = await gmail.users.threads.get({
+		userId: 'me',
+		id: threadId,
+		format: 'full',
+	});
+
+	const messages = (res.data.messages ?? []).map(parseMessage);
+
+	return { threadId: res.data.id ?? threadId, messages };
+}
+
+export async function fetchMessage(
+	mailAccountId: string,
+	messageId: string
+): Promise<ThreadMessage> {
+	const gmail = await getGmailClient(mailAccountId);
+
+	const res = await gmail.users.messages.get({
+		userId: 'me',
+		id: messageId,
+		format: 'full',
+	});
+
+	return parseMessage(res.data);
+}
+
+export async function markAsRead(
+	mailAccountId: string,
+	messageId: string
+): Promise<void> {
+	const gmail = await getGmailClient(mailAccountId);
+	await gmail.users.messages.modify({
+		userId: 'me',
+		id: messageId,
+		requestBody: { removeLabelIds: ['UNREAD'] },
+	});
+}
+
+export async function markAsUnread(
+	mailAccountId: string,
+	messageId: string
+): Promise<void> {
+	const gmail = await getGmailClient(mailAccountId);
+	await gmail.users.messages.modify({
+		userId: 'me',
+		id: messageId,
+		requestBody: { addLabelIds: ['UNREAD'] },
+	});
+}
+
+export async function fetchAttachment(
+	mailAccountId: string,
+	messageId: string,
+	attachmentId: string
+): Promise<{ data: Buffer; size: number }> {
+	const gmail = await getGmailClient(mailAccountId);
+
+	const res = await gmail.users.messages.attachments.get({
+		userId: 'me',
+		messageId,
+		id: attachmentId,
+	});
+
+	const data = Buffer.from(res.data.data ?? '', 'base64url');
+	return { data, size: res.data.size ?? data.length };
 }

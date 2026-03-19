@@ -57,3 +57,48 @@ export type ProcessResult = {
 	failed: number;
 	retried: number;
 };
+
+export type InboxOptions = {
+	maxResults?: number;
+	pageToken?: string;
+	query?: string;
+	labelIds?: string[];
+};
+
+export type MessageAttachment = {
+	attachmentId: string;
+	filename: string;
+	mimeType: string;
+	size: number;
+};
+
+export type InboxThread = {
+	threadId: string;
+	subject: string;
+	snippet: string;
+	from: { name: string; email: string };
+	to: string;
+	messageCount: number;
+	isRead: boolean;
+	hasAttachments: boolean;
+	lastMessageAt: Date;
+};
+
+export type ThreadMessage = {
+	messageId: string;
+	from: { name: string; email: string };
+	to: string;
+	cc: string;
+	subject: string;
+	htmlBody: string;
+	textBody: string;
+	isRead: boolean;
+	receivedAt: Date;
+	attachments: MessageAttachment[];
+};
+
+export type InboxResult = {
+	threads: InboxThread[];
+	nextPageToken?: string;
+	resultSizeEstimate?: number;
+};

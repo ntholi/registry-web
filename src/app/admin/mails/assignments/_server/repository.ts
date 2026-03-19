@@ -70,6 +70,27 @@ class MailAssignmentRepository extends BaseRepository<
 			);
 	}
 
+	async findUserAssignment(
+		mailAccountId: string,
+		userId: string,
+		role: string
+	) {
+		const [assignment] = await db
+			.select()
+			.from(mailAccountAssignments)
+			.where(
+				and(
+					eq(mailAccountAssignments.mailAccountId, mailAccountId),
+					or(
+						eq(mailAccountAssignments.userId, userId),
+						eq(mailAccountAssignments.role, role)
+					)
+				)
+			)
+			.limit(1);
+		return assignment;
+	}
+
 	async deleteByAccountId(accountId: string, audit?: AuditOptions) {
 		if (!audit) {
 			await db
