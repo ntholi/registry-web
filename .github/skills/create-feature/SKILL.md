@@ -189,10 +189,13 @@ export const {{entities}}Service = serviceWrapper({{Entity}}Service, '{{Entity}}
 ### Step 5: Server Actions
 **Path:** `src/app/{{module}}/{{feature}}/_server/actions.ts`
 
+Queries stay as plain `async function` exports. Mutations wrap with `createAction` and use `export const`.
+
 ```typescript
 'use server';
 
 import type { {{entities}} } from '@/core/database';
+import { createAction } from '@/shared/lib/actions/actionResult';
 import { {{entities}}Service } from './service';
 
 type {{Entity}} = typeof {{entities}}.$inferInsert;
@@ -209,18 +212,26 @@ export async function findAll{{Entity}}s(page = 1, search = '') {
 	});
 }
 
-export async function create{{Entity}}(data: {{Entity}}) {
-	return {{entities}}Service.create(data);
-}
+export const create{{Entity}} = createAction(
+	async (data: {{Entity}}) => {{entities}}Service.create(data)
+);
 
-export async function update{{Entity}}(id: string, data: {{Entity}}) {
-	return {{entities}}Service.update(id, data);
-}
+export const update{{Entity}} = createAction(
+	async (id: string, data: {{Entity}}) => {{entities}}Service.update(id, data)
+);
 
-export async function delete{{Entity}}(id: string) {
-	return {{entities}}Service.delete(id);
-}
+export const delete{{Entity}} = createAction(
+	async (id: string) => { await {{entities}}Service.delete(id); }
+);
 ```
+
+**Rules:**
+- Only mutations get `createAction` (`create*`, `update*`, `delete*`, `add*`, `remove*`)
+- Queries stay as plain `async function` (`get*`, `find*`, `search*`)
+- Use `export const` for wrapped mutations (only exception to top-level `function` rule)
+- No manual `try/catch` — `createAction` handles all error catching
+- `createAction` re-throws Next.js sentinels (`redirect`, `notFound`, `unauthorized`, `forbidden`)
+- For domain-specific errors in services, throw `UserFacingError` from `@/shared/lib/actions/extractError`
 
 ### Step 6: Activity Fragment Entries
 
@@ -272,6 +283,7 @@ export * from './_server/actions';
 'use client';
 
 import { {{entities}} } from '@{{module}}/_database';
+import type { ActionResult } from '@/shared/lib/actions/actionResult';
 import { Switch, TextInput } from '@mantine/core';
 import { createInsertSchema } from 'drizzle-zod';
 import { useRouter } from 'nextjs-toploader/app';
@@ -280,7 +292,7 @@ import { Form } from '@/shared/ui/adease';
 type {{Entity}} = typeof {{entities}}.$inferInsert;
 
 type Props = {
-	onSubmit: (values: {{Entity}}) => Promise<{{Entity}}>;
+	onSubmit: (values: {{Entity}}) => Promise<{{Entity}} | ActionResult<{{Entity}}>>;
 	defaultValues?: {{Entity}};
 	title?: string;
 };
@@ -366,6 +378,8 @@ export default async function NewPage() {
 ### Step 13: Details Page
 **Path:** `src/app/{{module}}/{{feature}}/[id]/page.tsx`
 
+`handleDelete` is wrapped with `createAction`, so it returns `ActionResult`. The inline server action wraps the call.
+
 ```typescript
 import { notFound } from 'next/navigation';
 import {
@@ -395,7 +409,7 @@ export default async function {{Entity}}Details({ params }: Props) {
 				queryKey={['{{feature}}']}
 				handleDelete={async () => {
 					'use server';
-					await delete{{Entity}}(id);
+					return delete{{Entity}}(id);
 				}}
 			/>
 			<DetailsViewBody>

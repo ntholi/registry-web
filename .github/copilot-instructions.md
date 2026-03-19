@@ -95,7 +95,7 @@ You are a **Senior Principal Software Engineer** and **System Architect** specia
 - **Server Components (RSC)**: Default for all pages/layouts. Use `async/await` for initial data load.
 - **Client Components**: Use `'use client'` only for strictly interactive leaf components.
 - **Server Actions**: EXCLUSIVE method for all mutations/writes.
-    - **Result Format**: Return the entity or paginated result shape expected by the consuming UI (`Form`, `ListLayout`), and keep the shape consistent within a feature.
+    - **Result Format**: See "Error & Result Handling" below.
 - **Data Fetching**:
     - **Initial**: `async/await` in RSC.
     - **Client/Updates**: TanStack Query.
@@ -121,7 +121,15 @@ You are a **Senior Principal Software Engineer** and **System Architect** specia
     - **Schema table files**: `camelCase` matching the schema export, one table per file (e.g., `studentModules.ts`).
     - **Other files**: follow existing local conventions in the module (do not rename legacy files).
 
-### Error Handling
+### Error & Result Handling
+- **Mutations** (`create*`, `update*`, `delete*`, `add*`, `remove*`): Wrap with `createAction` from `@/shared/lib/actions/actionResult`. Returns `ActionResult<T>`. Use `export const` (only exception to top-level `function` rule). No manual `try/catch`.
+- **Queries** (`get*`, `find*`, `search*`): Stay as plain `async function` exports returning raw `T`. RSC pages call them directly; `error.tsx` catches thrown errors.
+- **`UserFacingError`**: The only way custom domain messages reach the UI. Throw from services: `throw new UserFacingError('message', 'CODE')`. Import from `@/shared/lib/actions/extractError`.
+- **`extractError`**: Centralized in `@/shared/lib/actions/extractError.ts`. Normalizes PostgreSQL, Moodle, network, rate-limit, file, and storage errors into `AppError`.
+- **`unwrap()`**: Only needed when a mutation action calls another mutation action (~rare). Import from `@/shared/lib/actions/actionResult`.
+- **`useActionMutation`**: Hook from `@/shared/lib/actions/use-action-mutation` for client components using `useMutation` directly with mutation actions (unwraps `ActionResult<T>`).
+- **`ActionData<T>`**: Utility type to extract unwrapped data type from an action function.
+- **Services must NOT import actions**. If a service needs data from another module, import the service directly.
 - **Validation**: Use Zod for input validation (schemas in `_lib/types.ts` or near form).
 - **Control Flow**: Use guard clauses and early returns to reduce nesting.
 
@@ -206,7 +214,7 @@ You are a **Senior Principal Software Engineer** and **System Architect** specia
 - **NEVER** duplicate code. ALWAYS search for existing implementations first and refactor to reuse.
 - **NEVER** use `useEffect` for data fetching; use TanStack Query or RSC.
 - **NEVER** use `any` or `unknown`.
-- **NEVER** use arrow functions for top-level exports.
+- **NEVER** use arrow functions for top-level exports (exception: `export const` for `createAction`-wrapped mutations).
 - **NEVER** use custom CSS or Tailwind; use Mantine v8 components only.
 - **NEVER** use the `pages` router; use the `app` router exclusively.
 - **NEVER** import `db` outside of `repository.ts` files.
@@ -216,7 +224,9 @@ You are a **Senior Principal Software Engineer** and **System Architect** specia
 - **NEVER** use pnpm db:push
 - **NEVER** implement grade/marks/GPA/CGPA calculations locally.
 - **NEVER** format dates/times/ages manually.
-- **NEVER** write code comments
+- **NEVER** write code comments.
+- **NEVER** use manual `try/catch` in action files — `createAction` handles all error catching for mutations.
+- **NEVER** wrap query actions with `createAction` — only mutations.
 - **NEVER** use dynamic imports (`import()`, `await import()`). All imports must be static and placed at the top of the file.
 - **NEVER** create redundant functions, files, components, hooks, services, utilities, constants, or barrels whose sole purpose is to wrap, rename, re-export, or forward to another implementation without adding meaningful logic, ownership, reuse, or framework-required structure.
 - **NEVER** assume requirements. ALWAYS use the `vscode_askQuestions` tool if a task is not 100% clear. Prioritize research to ensure questions are informed and accompanied by recommendations. In every session you MUST always ask questions and give suggestions using the `vscode_askQuestions` tool, ALWAYS DO THIS unless the task is 100% clear and straightforward.
