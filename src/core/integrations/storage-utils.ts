@@ -26,6 +26,9 @@ export const StoragePaths = {
 	questionPaper: (fileName: string) => `library/question-papers/${fileName}`,
 
 	publication: (fileName: string) => `library/publications/${fileName}`,
+
+	mailAttachment: (accountId: string, fileName: string) =>
+		`mail/accounts/${accountId}/attachments/${fileName}`,
 } as const;
 
 const PUBLIC_URL = process.env.NEXT_PUBLIC_R2_PUBLIC_URL || '';
