@@ -58,8 +58,8 @@ export const adminConfig: ModuleConfig = {
 				roles: ['admin'],
 			},
 			{
-				label: 'Mails',
-				href: '/admin/mails',
+				label: 'Mail',
+				href: '/admin/mail',
 				icon: IconMail,
 				permissions: [{ resource: 'mails', action: 'read' }],
 			},

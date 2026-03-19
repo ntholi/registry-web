@@ -1,4 +1,4 @@
-import { GMAIL_SCOPES } from '@admin/mails/accounts/_lib/scopes';
+import { GMAIL_SCOPES } from '@admin/mail/accounts/_lib/scopes';
 import { eq } from 'drizzle-orm';
 import { google } from 'googleapis';
 import { type NextRequest, NextResponse } from 'next/server';
@@ -41,10 +41,10 @@ export async function GET(request: NextRequest) {
 
 function handleRedirectToGoogle(request: NextRequest, userId: string) {
 	const searchParams = request.nextUrl.searchParams;
-	const returnUrl = searchParams.get('returnUrl') || '/admin/mails';
+	const returnUrl = searchParams.get('returnUrl') || '/admin/mail';
 	const loginHint = searchParams.get('loginHint');
 
-	const safeReturnUrl = isRelativePath(returnUrl) ? returnUrl : '/admin/mails';
+	const safeReturnUrl = isRelativePath(returnUrl) ? returnUrl : '/admin/mail';
 
 	const state: OAuthState = { returnUrl: safeReturnUrl, userId };
 	const oauth2Client = createOAuth2Client();
@@ -66,7 +66,7 @@ async function handleTokenExchange(
 	code: string
 ) {
 	const stateParam = request.nextUrl.searchParams.get('state');
-	let returnUrl = '/admin/mails';
+	let returnUrl = '/admin/mail';
 
 	if (stateParam) {
 		try {

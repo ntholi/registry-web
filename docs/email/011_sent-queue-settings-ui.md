@@ -31,7 +31,7 @@ This final step adds the remaining admin sub-sections: the sent email log, the e
 
 ### 1. Sent Log Layout (ListLayout)
 
-**File:** `src/app/admin/mails/sent/layout.tsx`
+**File:** `src/app/admin/mail/sent/layout.tsx`
 
 **Type:** Client Component (`'use client'`)
 
@@ -39,7 +39,7 @@ Standard `ListLayout` wrapping the sent email log:
 
 | Property | Value |
 |----------|-------|
-| `path` | `'/admin/mails/sent'` |
+| `path` | `'/admin/mail/sent'` |
 | `queryKey` | `['mail-sent-log']` |
 | `getData` | `getSentLog` (returns `{ items, totalPages }` from `mail_sent_log` table) |
 | `renderItem` | Sent email list item (see below) |
@@ -56,7 +56,7 @@ Standard `ListLayout` wrapping the sent email log:
 
 ### 2. Sent Log Default Page
 
-**File:** `src/app/admin/mails/sent/page.tsx`
+**File:** `src/app/admin/mail/sent/page.tsx`
 
 **Type:** Server Component
 
@@ -64,7 +64,7 @@ Displays `NothingSelected` with title `'Sent Emails'` when no email is selected.
 
 ### 3. Sent Email Detail Page
 
-**File:** `src/app/admin/mails/sent/[id]/page.tsx`
+**File:** `src/app/admin/mail/sent/[id]/page.tsx`
 
 **Type:** Server Component
 
@@ -89,7 +89,7 @@ Uses `DetailsView` with `DetailsViewHeader` and `DetailsViewBody`.
 
 ### 4. Queue Layout (ListLayout)
 
-**File:** `src/app/admin/mails/queue/layout.tsx`
+**File:** `src/app/admin/mail/queue/layout.tsx`
 
 **Type:** Client Component (`'use client'`)
 
@@ -97,7 +97,7 @@ Standard `ListLayout` wrapping the queue items:
 
 | Property | Value |
 |----------|-------|
-| `path` | `'/admin/mails/queue'` |
+| `path` | `'/admin/mail/queue'` |
 | `queryKey` | `['mail-queue']` |
 | `getData` | `getQueueItems` (returns `{ items, totalPages }` from `mail_queue` table) |
 | `renderItem` | Queue item list item (see below) |
@@ -114,7 +114,7 @@ Standard `ListLayout` wrapping the queue items:
 
 ### 5. Queue Default Page (with Stats Overview)
 
-**File:** `src/app/admin/mails/queue/page.tsx`
+**File:** `src/app/admin/mail/queue/page.tsx`
 
 **Type:** Client Component (`'use client'`)
 
@@ -136,7 +136,7 @@ Uses `getDailyStats()` for the daily quota information.
 
 ### 6. Queue Item Detail Page
 
-**File:** `src/app/admin/mails/queue/[id]/page.tsx`
+**File:** `src/app/admin/mail/queue/[id]/page.tsx`
 
 **Type:** Server Component (with client actions)
 
@@ -162,13 +162,13 @@ Uses `DetailsView` with `DetailsViewHeader` and `DetailsViewBody`.
 
 ### 7. Settings Page (No ListLayout)
 
-**File:** `src/app/admin/mails/settings/page.tsx`
+**File:** `src/app/admin/mail/settings/page.tsx`
 
 **Type:** Server Component (or Client Component as needed)
 
 **Important:** This page does NOT use `ListLayout`. It is a standalone settings page.
 
-**No `layout.tsx`** needed for the settings directory — it inherits from the parent `mails/layout.tsx`.
+**No `layout.tsx`** needed for the settings directory — it inherits from the parent `mail/layout.tsx`.
 
 **Sections:**
 
@@ -206,26 +206,26 @@ Uses `DetailsView` with `DetailsViewHeader` and `DetailsViewBody`.
 
 | File | Purpose |
 |------|---------|
-| `src/app/admin/mails/sent/layout.tsx` | ListLayout for sent emails |
-| `src/app/admin/mails/sent/page.tsx` | NothingSelected default |
-| `src/app/admin/mails/sent/[id]/page.tsx` | Sent email detail view |
-| `src/app/admin/mails/queue/layout.tsx` | ListLayout for queue items |
-| `src/app/admin/mails/queue/page.tsx` | Queue stats dashboard |
-| `src/app/admin/mails/queue/[id]/page.tsx` | Queue item detail with retry/cancel |
-| `src/app/admin/mails/settings/page.tsx` | Settings page (no ListLayout) |
+| `src/app/admin/mail/sent/layout.tsx` | ListLayout for sent emails |
+| `src/app/admin/mail/sent/page.tsx` | NothingSelected default |
+| `src/app/admin/mail/sent/[id]/page.tsx` | Sent email detail view |
+| `src/app/admin/mail/queue/layout.tsx` | ListLayout for queue items |
+| `src/app/admin/mail/queue/page.tsx` | Queue stats dashboard |
+| `src/app/admin/mail/queue/[id]/page.tsx` | Queue item detail with retry/cancel |
+| `src/app/admin/mail/settings/page.tsx` | Settings page (no ListLayout) |
 
 ## Validation Criteria
 
-1. `/admin/mails/sent` renders ListLayout with sent email log and search
+1. `/admin/mail/sent` renders ListLayout with sent email log and search
 2. Selecting a sent email shows full detail with all fields
 3. Sent log list items show recipient, subject, status badge, trigger type
-4. `/admin/mails/queue` renders ListLayout with queue items and stats overview
+4. `/admin/mail/queue` renders ListLayout with queue items and stats overview
 5. Queue stats cards show pending, processing, sent today, failed, daily quota
 6. Queue stats auto-refresh every 30 seconds
 7. Selecting a queue item shows full detail with retry/cancel actions
 8. Retry button resets failed items to retry status
 9. Cancel button removes pending items with confirmation
-10. `/admin/mails/settings` renders settings page without ListLayout
+10. `/admin/mail/settings` renders settings page without ListLayout
 11. Settings page shows primary account with ability to change
 12. Settings page shows queue configuration and trigger status (display-only)
 13. Dark mode: all components render correctly with good contrast
@@ -238,5 +238,5 @@ Uses `DetailsView` with `DetailsViewHeader` and `DetailsViewBody`.
 - All date/time formatting must use `@/shared/lib/utils/dates` utilities.
 - All status colors should use `@/shared/lib/utils/colors`.
 - The queue page is the only "default" page that shows content (stats dashboard) instead of `NothingSelected`. This is intentional since the queue overview is more useful than an empty state.
-- The settings page intentionally has no `layout.tsx` file — it uses the parent `mails/layout.tsx` directly.
+- The settings page intentionally has no `layout.tsx` file — it uses the parent `mail/layout.tsx` directly.
 - The sent email detail view may reference attachments from composed emails (step 010). Show attachment names/sizes as display-only — do not provide download links since R2-stored attachments may be cleaned up after sending.

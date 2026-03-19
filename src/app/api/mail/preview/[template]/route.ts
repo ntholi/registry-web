@@ -3,7 +3,7 @@ import {
 	renderGenericEmail,
 	renderNotificationEmail,
 	renderStudentStatusEmail,
-} from '@/app/admin/mails/_templates/render';
+} from '@/app/admin/mail/_templates/render';
 
 function baseUrl() {
 	return process.env.BETTER_AUTH_URL ?? 'http://localhost:3000';

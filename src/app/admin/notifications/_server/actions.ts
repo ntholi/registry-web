@@ -1,6 +1,6 @@
 'use server';
 
-import { triggerNotificationEmail } from '@admin/mails/_server/trigger-service';
+import { triggerNotificationEmail } from '@admin/mail/_server/trigger-service';
 import { getSession } from '@/core/platform/withPermission';
 import { createAction } from '@/shared/lib/actions/actionResult';
 import type { NotificationWithRecipients } from './repository';

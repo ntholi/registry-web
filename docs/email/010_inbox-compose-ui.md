@@ -2,11 +2,11 @@
 
 ## Introduction
 
-This step builds the inbox reading experience and email composition flow. The inbox lives at `/admin/mails/inbox/` as a ListLayout-powered directory listing email threads fetched from Gmail. Selecting a thread opens a conversation view with reply capability. A compose modal allows creating new emails.
+This step builds the inbox reading experience and email composition flow. The inbox lives at `/admin/mail/inbox/` as a ListLayout-powered directory listing email threads fetched from Gmail. Selecting a thread opens a conversation view with reply capability. A compose modal allows creating new emails.
 
 ## Context
 
-- Step 009 established the module navigation (collapsible Mails parent with children routes) and the accounts management UI.
+- Step 009 established the module navigation (collapsible Mail parent with children routes) and the accounts management UI.
 - The inbox fetches threads on-demand from the Gmail API — there is no local database cache for inbox messages.
 - TanStack Query handles client-side caching with a 15-minute `refetchInterval` for automatic polling.
 - Users see inbox threads for their accessible accounts (determined by `mailAccountAssignments` or admin role).
@@ -33,7 +33,7 @@ This step builds the inbox reading experience and email composition flow. The in
 
 ### 1. Account Selector
 
-**File:** `src/app/admin/mails/inbox/_components/AccountSelector.tsx`
+**File:** `src/app/admin/mail/inbox/_components/AccountSelector.tsx`
 
 **Type:** Client Component (`'use client'`)
 
@@ -48,7 +48,7 @@ A `Select` component allowing the user to pick which mail account's inbox to vie
 
 ### 2. Inbox Layout (ListLayout)
 
-**File:** `src/app/admin/mails/inbox/layout.tsx`
+**File:** `src/app/admin/mail/inbox/layout.tsx`
 
 **Type:** Client Component (`'use client'`)
 
@@ -56,7 +56,7 @@ Standard `ListLayout` wrapping the inbox thread list:
 
 | Property | Value |
 |----------|-------|
-| `path` | `'/admin/mails/inbox'` |
+| `path` | `'/admin/mail/inbox'` |
 | `queryKey` | `['inbox-threads', selectedAccountId]` |
 | `getData` | Wrapper calling `getInbox(selectedAccountId, { page, search })` |
 | `renderItem` | Thread list item (see below) |
@@ -78,7 +78,7 @@ Standard `ListLayout` wrapping the inbox thread list:
 
 ### 3. Inbox Default Page
 
-**File:** `src/app/admin/mails/inbox/page.tsx`
+**File:** `src/app/admin/mail/inbox/page.tsx`
 
 **Type:** Server Component
 
@@ -86,7 +86,7 @@ Displays `NothingSelected` with title `'Inbox'` when no thread is selected.
 
 ### 4. Thread Detail Page
 
-**File:** `src/app/admin/mails/inbox/[threadId]/page.tsx`
+**File:** `src/app/admin/mail/inbox/[threadId]/page.tsx`
 
 **Type:** Client Component (`'use client'`)
 
@@ -136,11 +136,11 @@ Loads the full thread via `getThread(accountId, threadId)` using TanStack Query.
 - Older messages collapsed by default (show only first + last, expandable).
 - Auto-mark as read when thread is opened via `markRead` action.
 - Reply editor at the bottom (only if user has `canReply` permission for the account).
-- "Back to Inbox" link navigates to `/admin/mails/inbox`.
+- "Back to Inbox" link navigates to `/admin/mail/inbox`.
 
 ### 5. Reply Editor
 
-**File:** `src/app/admin/mails/inbox/_components/ReplyEditor.tsx`
+**File:** `src/app/admin/mail/inbox/_components/ReplyEditor.tsx`
 
 **Type:** Client Component (`'use client'`)
 
@@ -161,7 +161,7 @@ Embedded at the bottom of the thread detail page.
 
 ### 6. Compose Modal
 
-**File:** `src/app/admin/mails/inbox/_components/ComposeModal.tsx`
+**File:** `src/app/admin/mail/inbox/_components/ComposeModal.tsx`
 
 **Type:** Client Component (`'use client'`)
 
@@ -195,19 +195,19 @@ Self-contained modal for composing new emails:
 
 | File | Purpose |
 |------|---------|
-| `src/app/admin/mails/inbox/layout.tsx` | ListLayout for inbox threads |
-| `src/app/admin/mails/inbox/page.tsx` | NothingSelected default |
-| `src/app/admin/mails/inbox/[threadId]/page.tsx` | Thread conversation view |
-| `src/app/admin/mails/inbox/_components/AccountSelector.tsx` | Mail account picker |
-| `src/app/admin/mails/inbox/_components/ReplyEditor.tsx` | Reply composer |
-| `src/app/admin/mails/inbox/_components/ComposeModal.tsx` | New email modal |
+| `src/app/admin/mail/inbox/layout.tsx` | ListLayout for inbox threads |
+| `src/app/admin/mail/inbox/page.tsx` | NothingSelected default |
+| `src/app/admin/mail/inbox/[threadId]/page.tsx` | Thread conversation view |
+| `src/app/admin/mail/inbox/_components/AccountSelector.tsx` | Mail account picker |
+| `src/app/admin/mail/inbox/_components/ReplyEditor.tsx` | Reply composer |
+| `src/app/admin/mail/inbox/_components/ComposeModal.tsx` | New email modal |
 
 ## Validation Criteria
 
-1. `/admin/mails/inbox` renders ListLayout with inbox threads for the selected account
+1. `/admin/mail/inbox` renders ListLayout with inbox threads for the selected account
 2. Account selector appears when user has access to multiple accounts
 3. Thread list items show sender, subject, date, unread indicator, attachment icon
-4. Clicking a thread navigates to `/admin/mails/inbox/[threadId]`
+4. Clicking a thread navigates to `/admin/mail/inbox/[threadId]`
 5. Thread detail page shows all messages chronologically with HTML in `<iframe>` (`srcDoc`)
 6. Attachments show download links that call `downloadAttachment`
 7. Reply editor appears for users with `canReply` permission
