@@ -2,13 +2,8 @@
 
 import { Select } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
+import type { AccessibleAccount } from '../../_lib/types';
 import { getAccessibleMailAccounts } from '../../accounts/_server/actions';
-
-type AccessibleAccount = {
-	id: string;
-	email: string;
-	displayName: string | null;
-};
 
 type Props = {
 	value: string | null;

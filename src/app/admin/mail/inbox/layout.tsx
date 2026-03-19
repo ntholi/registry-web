@@ -9,19 +9,13 @@ import type { PropsWithChildren } from 'react';
 import { useCallback } from 'react';
 import { formatRelativeTime } from '@/shared/lib/utils/dates';
 import { ListItem, ListLayout } from '@/shared/ui/adease';
-import type { InboxThread } from '../_lib/types';
+import type { AccessibleAccount, InboxThread } from '../_lib/types';
 import {
 	getAccessibleMailAccounts,
 	getInbox,
 } from '../accounts/_server/actions';
 import { AccountSelector } from './_components/AccountSelector';
 import { ComposeModal } from './_components/ComposeModal';
-
-type AccessibleAccount = {
-	id: string;
-	email: string;
-	displayName: string | null;
-};
 
 export default function InboxLayout({ children }: PropsWithChildren) {
 	const searchParams = useSearchParams();

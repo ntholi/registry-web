@@ -17,15 +17,9 @@ import { IconPaperclip, IconPencil } from '@tabler/icons-react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { useActionMutation } from '@/shared/lib/actions/use-action-mutation';
+import type { AccessibleAccount } from '../../_lib/types';
 import { getAccessibleMailAccounts } from '../../accounts/_server/actions';
 import { enqueueEmail } from '../../queues/_server/actions';
-
-type AccessibleAccount = {
-	id: string;
-	email: string;
-	displayName: string | null;
-	canCompose?: boolean;
-};
 
 export function ComposeModal() {
 	const [opened, { open, close }] = useDisclosure(false);

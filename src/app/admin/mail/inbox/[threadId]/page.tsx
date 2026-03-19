@@ -28,6 +28,7 @@ import { useEffect, useRef } from 'react';
 import { useActionMutation } from '@/shared/lib/actions/use-action-mutation';
 import { useDownload } from '@/shared/lib/hooks/use-download';
 import { formatDateTime } from '@/shared/lib/utils/dates';
+import { formatFileSize } from '@/shared/lib/utils/files';
 import type { ThreadMessage } from '../../_lib/types';
 import {
 	downloadAttachment,
@@ -357,13 +358,6 @@ function AttachmentLink({
 		}
 	);
 
-	const sizeStr =
-		size < 1024
-			? `${size} B`
-			: size < 1024 * 1024
-				? `${Math.round(size / 1024)} KB`
-				: `${(size / (1024 * 1024)).toFixed(1)} MB`;
-
 	return (
 		<Group gap='xs'>
 			<IconPaperclip size={14} opacity={0.5} />
@@ -376,7 +370,7 @@ function AttachmentLink({
 				{filename}
 			</Anchor>
 			<Text size='xs' c='dimmed'>
-				({sizeStr})
+				({formatFileSize(size)})
 			</Text>
 			{isPending && <Loader size={12} />}
 		</Group>

@@ -102,3 +102,13 @@ export type InboxResult = {
 	nextPageToken?: string;
 	resultSizeEstimate?: number;
 };
+
+export type AccessibleAccount = {
+	id: string;
+	email: string;
+	displayName: string | null;
+	isPrimary: boolean;
+	isActive: boolean;
+	canCompose?: boolean;
+	canReply?: boolean;
+};
