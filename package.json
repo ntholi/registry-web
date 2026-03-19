@@ -40,6 +40,8 @@
 		"@mantine/tiptap": "^8.3.13",
 		"@neondatabase/serverless": "^1.0.2",
 		"@pdf-lib/fontkit": "^1.1.1",
+		"@react-email/components": "^1.0.10",
+		"@react-email/render": "^2.0.4",
 		"@react-pdf/renderer": "^4.3.2",
 		"@tabler/icons-react": "^3.36.1",
 		"@tanstack/react-query": "^5.90.20",
