@@ -51,6 +51,14 @@ When creating or modifying server functions, place them under the *module/featur
 Concrete example:
 - Implement `getSchools()` in `src/app/academic/schools/_server/actions.ts` (calling through `service.ts` → `repository.ts`), even if the UI that uses it lives in `registry/` or `finance/`.
 
+### Permission Registration (CRITICAL)
+
+- New features using `{ '{{feature}}': ['action'] }` auth in services **MUST** add the resource to `src/core/auth/permissions.ts` `RESOURCES` array.
+- Grant the new resource in relevant presets in `src/app/auth/permission-presets/_lib/catalog.ts`.
+- BaseService defaults: `byIdAuth`/`findAllAuth` = `'dashboard'`; `createAuth`/`updateAuth`/`deleteAuth`/`countAuth` = `denyAccess`. Override in constructor config.
+- Auth requirement types: `'all'` | `'auth'` | `'dashboard'` | `{ resource: ['action'] }` | `(session) => boolean`.
+- Session helpers (from `@/core/auth/sessionPermissions`): `hasPermission`, `hasAnyPermission`, `hasSessionRole`, `hasSessionPermission`, `isStudentSession`, `hasOwnedStudentSession`.
+
 ### UI logic centralization (colors + status icons)
 
 If your feature needs any conditional/semantic UI color logic or status icon logic:
@@ -456,9 +464,11 @@ After scaffolding, remind user to:
    // Add to ALL_FRAGMENTS array
    ```
 
-4. **Add navigation** (optional) - Add `NavItem` to `src/app/{{module}}/{{module}}.config.ts`
+4. **Register permission resource** - Add `'{{feature}}'` to `RESOURCES` in `src/core/auth/permissions.ts` and grant in relevant presets in `catalog.ts`
 
-5. **Validate**:
+5. **Add navigation** (optional) - Add `NavItem` to `src/app/{{module}}/{{module}}.config.ts` with `permissions: [{ resource: '{{feature}}', action: 'read' }]` and/or `roles: [...]`
+
+6. **Validate**:
    ```bash
    pnpm tsc --noEmit & pnpm lint:fix
    ```

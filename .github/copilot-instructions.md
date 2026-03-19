@@ -307,15 +307,18 @@ src/
 - **`proxy.ts`** (root) — Cookie-only optimistic redirect middleware using `getSessionCookie` from `better-auth/cookies`
 
 ### Permission Model
-- **Presets**: Users have optional `presetId` FK → `permission_presets`. Presets define `PermissionGrant[]` (`{ resource, action }`).
-- **Catalog**: `src/app/auth/permission-presets/_lib/catalog.ts` defines `Resource`, `Action`, preset seeds, `PermissionRequirement`.
-- **Session**: `customSession` plugin loads preset permissions into session cookie (`session.permissions`).
-- **Checking**: `withPermission(fn, requirement)` — requirement can be `'all'` | `'auth'` | `'dashboard'` | `{ resource: ['action'] }` | `(session) => boolean`.
+- **Resources & Actions**: `src/core/auth/permissions.ts` defines `Resource` (~60 resources), `Action` (`read`, `create`, `update`, `delete`, `approve`, `reject`).
+- **Presets**: Users have `presetId` FK → `permission_presets`. Presets define `PermissionGrant[]` (`{ resource, action }`). Preset catalog: `src/app/auth/permission-presets/_lib/catalog.ts`.
+- **Session**: `customSession` plugin loads preset permissions into `session.permissions`.
+- **Auth Requirement Types**: `'all'` (public) | `'auth'` (logged in) | `'dashboard'` (any dashboard role) | `{ resource: ['action'] }` (specific permission) | `(session) => boolean` (custom check).
+- **BaseService Defaults**: `byIdAuth`/`findAllAuth` = `'dashboard'`; `createAuth`/`updateAuth`/`deleteAuth`/`countAuth` = `denyAccess` (blocked). Override in constructor config.
 - **Admin bypass**: Role `'admin'` bypasses all permission checks.
-- **Navigation**: Module configs use `permissions: [{ resource, action }]` on nav items.
-- **Server session**: `getSession()` from `@/core/platform/withPermission` in server components.
+- **Navigation**: Module configs use `permissions: [{ resource, action }]` and/or `roles: [...]` on nav items.
+- **Session Helpers** (from `@/core/auth/sessionPermissions`): `hasPermission(session, resource, action)`, `hasAnyPermission(session, resource, actions[])`, `hasSessionRole(session, roles[])`, `hasSessionPermission(session, resource, action, fallbackRoles[])`, `isStudentSession(session)`, `hasOwnedStudentSession(session, stdNo)`.
+- **Server session**: `getSession()` from `@/core/platform/withPermission`.
 - **Client session**: `authClient.useSession()` from `@/core/auth-client`. NEVER use `next-auth/react`.
 - **Sign-in**: `authClient.signIn.social({ provider: 'google' })`. NEVER use `next-auth`.
+- **New resources**: When creating a new feature that needs permissions, add the resource to `src/core/auth/permissions.ts` and grant it in relevant presets in `catalog.ts`. Also add a migration file (using `pnpm db:generate --custom`) to update the user presets with the new permission.
 
 ## 📦 Special Modules Support
 
