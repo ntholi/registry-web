@@ -1,78 +1,68 @@
 'use server';
 
-import { eq } from 'drizzle-orm';
-import { google } from 'googleapis';
-import { db, mailAccountAssignments, mailAccounts } from '@/core/database';
+import type { mailAccounts } from '@/core/database';
 import { getSession } from '@/core/platform/withPermission';
 import { createAction } from '@/shared/lib/actions/actionResult';
+import { mailAccountService, mailAssignmentService } from './service';
 
-export async function getUserMailAccounts() {
-	const session = await getSession();
-	if (!session?.user?.id) return [];
-
-	return db
-		.select({
-			id: mailAccounts.id,
-			email: mailAccounts.email,
-			displayName: mailAccounts.displayName,
-			isPrimary: mailAccounts.isPrimary,
-			isActive: mailAccounts.isActive,
-			createdAt: mailAccounts.createdAt,
-		})
-		.from(mailAccounts)
-		.where(eq(mailAccounts.userId, session.user.id));
+export async function getMailAccounts(page = 1, search = '') {
+	return mailAccountService.search({
+		page,
+		search,
+		searchColumns: ['email', 'displayName'],
+	});
 }
 
-export const revokeMailAccount = createAction(async (mailAccountId: string) => {
+export async function getMailAccount(id: string) {
+	return mailAccountService.get(id);
+}
+
+export async function getMyMailAccounts() {
 	const session = await getSession();
-	if (!session?.user?.id) {
-		throw new Error('Not authenticated');
-	}
+	if (!session) return [];
+	return mailAccountService.getMyAccounts(session);
+}
 
-	const [account] = await db
-		.select({
-			id: mailAccounts.id,
-			userId: mailAccounts.userId,
-			accessToken: mailAccounts.accessToken,
-			isPrimary: mailAccounts.isPrimary,
-		})
-		.from(mailAccounts)
-		.where(eq(mailAccounts.id, mailAccountId))
-		.limit(1);
+export const updateMailAccount = createAction(
+	async (id: string, data: Partial<typeof mailAccounts.$inferInsert>) =>
+		mailAccountService.update(id, data)
+);
 
-	if (!account) {
-		throw new Error('Mail account not found');
-	}
+export const deleteMailAccount = createAction(async (id: string) =>
+	mailAccountService.revokeAccount(id)
+);
 
-	const isOwner = account.userId === session.user.id;
-	const isAdmin = session.user.role === 'admin';
+export const setPrimaryMailAccount = createAction(async (id: string) =>
+	mailAccountService.setPrimary(id)
+);
 
-	if (!isOwner && !isAdmin) {
-		throw new Error('You do not have permission to revoke this email');
-	}
+export async function getAssignments(accountId: string) {
+	return mailAssignmentService.getAssignments(accountId);
+}
 
-	if (account.isPrimary) {
-		console.warn(
-			`Primary mail account ${mailAccountId} is being revoked. Admin must reassign.`
-		);
-	}
+export const assignToRole = createAction(
+	async (
+		accountId: string,
+		role: string,
+		perms: { canCompose?: boolean; canReply?: boolean }
+	) => mailAssignmentService.assignToRole(accountId, role, perms)
+);
 
-	if (account.accessToken) {
-		try {
-			const oauth2Client = new google.auth.OAuth2();
-			await oauth2Client.revokeToken(account.accessToken);
-		} catch {
-			// Best-effort revocation
-		}
-	}
+export const assignToUser = createAction(
+	async (
+		accountId: string,
+		userId: string,
+		perms: { canCompose?: boolean; canReply?: boolean }
+	) => mailAssignmentService.assignToUser(accountId, userId, perms)
+);
 
-	await db.transaction(async (tx) => {
-		await tx
-			.delete(mailAccountAssignments)
-			.where(eq(mailAccountAssignments.mailAccountId, mailAccountId));
+export const removeAssignment = createAction(async (assignmentId: number) =>
+	mailAssignmentService.removeAssignment(assignmentId)
+);
 
-		await tx.delete(mailAccounts).where(eq(mailAccounts.id, mailAccountId));
-	});
+export async function getAccessibleMailAccounts() {
+	return mailAccountService.getAccessibleAccounts();
+}
 
-	return { revoked: true };
-});
+export { getMyMailAccounts as getUserMailAccounts };
+export { deleteMailAccount as revokeMailAccount };

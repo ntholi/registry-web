@@ -45,6 +45,7 @@ export const RESOURCES = [
 	'tasks',
 	'activity-tracker',
 	'notifications',
+	'mails',
 	'library',
 	'employees',
 	'reports-attendance',

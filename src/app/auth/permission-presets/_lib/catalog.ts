@@ -98,7 +98,7 @@ export const PERMISSION_RESOURCE_GROUPS: readonly PermissionResourceGroup[] = [
 	},
 	{
 		label: 'Admin',
-		resources: ['users', 'tasks', 'activity-tracker', 'notifications'],
+		resources: ['users', 'tasks', 'activity-tracker', 'notifications', 'mails'],
 	},
 	{
 		label: 'Library',
