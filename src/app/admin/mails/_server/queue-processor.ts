@@ -86,7 +86,7 @@ export async function processEmailQueue(): Promise<ProcessResult> {
 		}
 
 		try {
-			const sendResult = await sendViaGmail(row.mailAccountId, {
+			const sendResult = await sendViaGmail(account, {
 				to: row.to,
 				cc: row.cc ?? undefined,
 				bcc: row.bcc ?? undefined,

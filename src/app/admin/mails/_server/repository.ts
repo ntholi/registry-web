@@ -102,6 +102,44 @@ class MailAccountRepository extends BaseRepository<typeof mailAccounts, 'id'> {
 			.where(eq(mailAccounts.isActive, true));
 	}
 
+	async findActiveById(id: string) {
+		const [account] = await db
+			.select()
+			.from(mailAccounts)
+			.where(and(eq(mailAccounts.id, id), eq(mailAccounts.isActive, true)))
+			.limit(1);
+		return account;
+	}
+
+	async findActiveByEmail(email: string) {
+		const [account] = await db
+			.select()
+			.from(mailAccounts)
+			.where(
+				and(eq(mailAccounts.email, email), eq(mailAccounts.isActive, true))
+			)
+			.limit(1);
+		return account;
+	}
+
+	async findActivePrimary() {
+		const [account] = await db
+			.select()
+			.from(mailAccounts)
+			.where(
+				and(eq(mailAccounts.isPrimary, true), eq(mailAccounts.isActive, true))
+			)
+			.limit(1);
+		return account;
+	}
+
+	async markInactive(id: string) {
+		await db
+			.update(mailAccounts)
+			.set({ isActive: false })
+			.where(eq(mailAccounts.id, id));
+	}
+
 	async findByIds(ids: string[]) {
 		if (ids.length === 0) return [];
 		return db.select().from(mailAccounts).where(inArray(mailAccounts.id, ids));
@@ -271,6 +309,14 @@ class MailAssignmentRepository extends BaseRepository<
 }
 
 class MailQueueRepository {
+	async insertSentLog(values: typeof mailSentLog.$inferInsert) {
+		await db.insert(mailSentLog).values(values);
+	}
+
+	async enqueue(values: typeof mailQueue.$inferInsert) {
+		await db.insert(mailQueue).values(values);
+	}
+
 	async claimBatch(batchSize: number) {
 		return db.transaction(async (tx) => {
 			const claimed = await tx
