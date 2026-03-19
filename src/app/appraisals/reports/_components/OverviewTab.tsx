@@ -1,14 +1,11 @@
 'use client';
 
-import { Alert, Grid, Stack } from '@mantine/core';
+import { Alert, Stack } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
 import type { ReportFilter } from '../_lib/types';
 import { getOverviewData } from '../_server/actions';
 import MatrixHeatmap from './MatrixHeatmap';
-import OverviewStats from './OverviewStats';
-import SchoolComparisonChart from './SchoolComparisonChart';
 import SimpleLecturerTable from './SimpleLecturerTable';
-import TrendChart from './TrendChart';
 
 type Props = {
 	filter: ReportFilter;
@@ -33,29 +30,16 @@ export default function OverviewTab({ filter }: Props) {
 
 	return (
 		<Stack gap='lg'>
-			<OverviewStats data={data} />
-			<Grid gutter='lg'>
-				<Grid.Col span={{ base: 12, md: 7 }}>
-					<SchoolComparisonChart data={data.schoolComparison} />
-				</Grid.Col>
-				<Grid.Col span={{ base: 12, md: 5 }}>
-					<TrendChart data={data.trendData} overlaid />
-				</Grid.Col>
-			</Grid>
-			<Grid gutter='lg'>
-				<Grid.Col span={{ base: 12, md: 6 }}>
-					<MatrixHeatmap
-						title='Student Feedback Heatmap'
-						data={data.feedbackHeatmap}
-					/>
-				</Grid.Col>
-				<Grid.Col span={{ base: 12, md: 6 }}>
-					<MatrixHeatmap
-						title='Teaching Observation Heatmap'
-						data={data.observationHeatmap}
-					/>
-				</Grid.Col>
-			</Grid>
+			<Stack>
+				<MatrixHeatmap
+					title='Student Feedback Heatmap'
+					data={data.feedbackHeatmap}
+				/>
+				<MatrixHeatmap
+					title='Teaching Observation Heatmap'
+					data={data.observationHeatmap}
+				/>
+			</Stack>
 			<SimpleLecturerTable data={data.lecturerRankings} />
 		</Stack>
 	);
