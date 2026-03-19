@@ -2,7 +2,7 @@
 
 ## Introduction
 
-This step integrates the email module into the existing permission system. It adds `mails` as a resource in the permission catalog, defines granular actions, and implements the access control logic that governs who can manage accounts, view inboxes, and send/reply to emails.
+This step adds the mails navigation entry to the admin config and documents the access control logic already implemented in the email module. The `mails` resource and catalog entries are already in place.
 
 ## Context
 
@@ -10,53 +10,92 @@ This step integrates the email module into the existing permission system. It ad
 - The permission catalog lives in `src/app/auth/permission-presets/_lib/catalog.ts`.
 - `withPermission(fn, requirement)` enforces access. Admin role bypasses all checks.
 - Email access is assignment-based: users access inboxes they're assigned to (by role or directly).
-- This is layered: catalog permissions control who can manage the mails feature; assignments control per-inbox access.
+- This is layered: catalog permissions control who can access the mails feature; assignments control per-inbox access.
+- The system's `Action` type only supports: `read`, `create`, `update`, `delete`, `approve`, `reject`. All mails permissions must use these existing actions.
+
+## Already Implemented
+
+The following are already in place and do NOT need changes:
+
+- `mails` added to `RESOURCES` in `src/core/auth/permissions.ts`
+- `mails` added to the `Admin` group in `PERMISSION_RESOURCE_GROUPS` in `src/app/auth/permission-presets/_lib/catalog.ts`
+- All preset seeds grant `mails: ['read']` (view-only for non-admin roles)
+- `MailAccountService` and `MailAssignmentService` in `src/app/admin/mails/_server/service.ts` with `withPermission` calls
+- `MailAssignmentRepository.findAccessibleAccounts()` handles assignment-based inbox filtering
 
 ## Requirements
 
-### 1. Permission Catalog Entry
+### 1. Permission Catalog Entry (already done)
 
-**File to modify:** `src/app/auth/permission-presets/_lib/catalog.ts`
+**File:** `src/app/auth/permission-presets/_lib/catalog.ts`
 
-Add `mails` as a new resource:
+`mails` uses the standard `Action` set. The actions map as follows:
 
-| Resource | Actions | Description |
-|----------|---------|-------------|
-| `mails` | `read` | View authorized email accounts and sent log |
-| `mails` | `create` | Authorize new email accounts (via OAuth flow) |
-| `mails` | `manage` | Set primary, assign to roles/users, update settings, manage queue |
-| `mails` | `inbox` | Access inboxes assigned to user (read + reply based on assignment) |
-| `mails` | `compose` | Compose new outbound emails (grantable via presets; also requires `canCompose` assignment) |
-| `mails` | `delete` | Revoke email accounts |
+| Resource | Action | Description |
+|----------|--------|-------------|
+| `mails` | `read` | View mail accounts list, view single account, view sent log, view queue status, view daily stats |
+| `mails` | `create` | Authorize new email accounts (via OAuth), create assignments (assign to role/user) |
+| `mails` | `update` | Update mail account settings, set primary email, retry failed queue items |
+| `mails` | `delete` | Revoke email accounts, remove assignments, cancel queued emails |
+
+All preset seeds currently grant only `mails: ['read']`. Only admin role (which bypasses all checks) can perform `create`, `update`, `delete` operations on mails.
 
 ### 2. Access Control Layers
 
 The email module has **two layers** of access control:
 
-#### Layer 1: Feature-Level Permissions (via catalog)
+#### Layer 1: Feature-Level Permissions (via `withPermission`)
 
-Controls who can access the mails feature at all. Used in service `BaseServiceConfig`:
+Controls who can access the mails feature at all. These are the actual `withPermission` calls in the service and actions:
 
-| Operation | Permission Requirement |
-|-----------|----------------------|
-| View mail accounts list | `{ mails: ['read'] }` |
-| View single mail account | `{ mails: ['read'] }` |
-| Update mail account settings | `{ mails: ['manage'] }` |
-| Set primary email | `{ mails: ['manage'] }` |
-| Manage assignments | `{ mails: ['manage'] }` |
-| View sent log | `{ mails: ['read'] }` |
-| View queue status | `{ mails: ['manage'] }` |
-| Delete/revoke account | `{ mails: ['delete'] }` |
+**BaseServiceConfig (`MailAccountService`):**
 
-**Special case:** Any authenticated user can authorize their own email and revoke their own email — this uses `'auth'` permission level, not the catalog.
+| Config | Requirement | Effect |
+|--------|-------------|--------|
+| `byIdAuth` | `{ mails: ['read'] }` | View single mail account |
+| `findAllAuth` | `{ mails: ['read'] }` | View mail accounts list |
+| `createAuth` | `'auth'` | Any authenticated user can authorize their own email |
+| `updateAuth` | `{ mails: ['update'] }` | Update account settings (display name, signature, active status) |
+| `deleteAuth` | `'auth'` | Revoke account (ownership check + admin bypass in service logic) |
+
+**Custom service methods:**
+
+| Method | Requirement | Effect |
+|--------|-------------|--------|
+| `search()` | `{ mails: ['read'] }` | Paginated search of mail accounts |
+| `getMyAccounts()` | No `withPermission` (called after `getSession()`) | User views own accounts |
+| `setPrimary()` | `{ mails: ['update'] }` | Set an account as primary sender |
+| `getAccessibleAccounts()` | `'dashboard'` | Any dashboard user; admin sees all, others see assigned |
+| `revokeAccount()` | `'auth'` | Authenticated + ownership OR admin check in code |
+
+**Assignment service methods:**
+
+| Method | Requirement | Effect |
+|--------|-------------|--------|
+| `getAssignments()` | `{ mails: ['read'] }` | View assignments for an account |
+| `assignToRole()` | `{ mails: ['create'] }` | Assign account to a dashboard role |
+| `assignToUser()` | `{ mails: ['create'] }` | Assign account to a specific user |
+| `removeAssignment()` | `{ mails: ['delete'] }` | Remove a single assignment |
+| `removeAllAssignments()` | `{ mails: ['delete'] }` | Remove all assignments for an account |
+
+**Queue/log actions (in `actions.ts`):**
+
+| Action | Requirement | Effect |
+|--------|-------------|--------|
+| `getQueueStatus()` | `{ mails: ['read'] }` | View queue counts by status |
+| `getQueueItems()` | `{ mails: ['read'] }` | View paginated queue items |
+| `getSentLog()` | `{ mails: ['read'] }` | View paginated sent log |
+| `getDailyStats()` | `{ mails: ['read'] }` | View daily send count for an account |
+| `retryFailedEmail()` | `{ mails: ['update'] }` | Retry a failed queue item |
+| `cancelQueuedEmail()` | `{ mails: ['delete'] }` | Cancel/delete a pending queue item |
 
 #### Layer 2: Assignment-Based Inbox Access
 
-Controls which specific inboxes a user can access. Checked **after** Layer 1 passes:
+Controls which specific inboxes a user can access. This is handled by `MailAssignmentRepository.findAccessibleAccounts(userId, role)` which queries `mail_account_assignments` matching either the user's ID or their dashboard role, and aggregates `canCompose`/`canReply` using `bool_or()`.
 
 | Operation | Assignment Check |
 |-----------|-----------------|
-| View inbox | User must have an assignment for this mailAccountId |
+| View inbox | User must have an assignment (by userId or role) for this mailAccountId |
 | Read thread | Same as view inbox |
 | Reply to thread | Assignment must have `canReply = true` |
 | Compose new email | Assignment must have `canCompose = true` (or user is admin) |
@@ -64,38 +103,26 @@ Controls which specific inboxes a user can access. Checked **after** Layer 1 pas
 | Download attachment | Same as view inbox |
 | Search inbox | Same as view inbox |
 
-#### Access Resolution Logic
+#### Access Resolution Logic (implemented in `findAccessibleAccounts`)
 
 ```
-function canAccessInbox(userId, userRole, mailAccountId):
-  1. If userRole === 'admin' → return { canView: true, canReply: true, canCompose: true }
+function findAccessibleAccounts(userId, userRole):
+  1. If caller is admin (checked in service) → return all active accounts
   2. Query mailAccountAssignments WHERE:
-     (mailAccountId = target AND userId = current) OR
-     (mailAccountId = target AND role = userRole)
-  3. If no assignment found → return { canView: false }
-  4. Merge permissions from all matching assignments (e.g., role + direct):
-     canReply = any assignment has canReply = true
-     canCompose = any assignment has canCompose = true
-  5. Return { canView: true, canReply, canCompose }
+     (userId = current) OR (role = userRole)
+  3. JOIN with mailAccounts (active only)
+  4. GROUP BY account, aggregate with bool_or(canCompose), bool_or(canReply)
+  5. Return accounts[] with { canCompose, canReply } per account
+  6. Accounts not in result set → user has no access
 ```
 
-### 3. Permission Check Helper
-
-**File:** `src/app/admin/mails/_server/service.ts` (add to service)
-
-#### `checkInboxAccess(mailAccountId: string): Promise<InboxAccess>`
-
-Returns `{ canView: boolean, canReply: boolean, canCompose: boolean }`.
-
-Called by every inbox action before proceeding. Throws `ForbiddenError` if `canView` is false.
-
-### 4. Navigation Permissions
+### 3. Navigation Permissions
 
 **File to modify:** `src/app/admin/admin.config.ts`
 
-Add mails navigation entry:
+Add mails navigation entry to the dashboard navigation array:
 
-```
+```typescript
 {
   label: 'Mails',
   href: '/admin/mails',
@@ -106,63 +133,66 @@ Add mails navigation entry:
 
 This ensures the nav item only appears for users with `mails:read` permission (or admin role).
 
-### 5. User Profile Authorization Access
+### 4. User Profile Authorization Access
 
 The "Authorize Email" button on the user profile page does NOT require `mails` permission — any authenticated user can authorize their own Gmail. The flow:
 
 1. User clicks "Authorize Email" on their profile.
-2. OAuth flow creates `mailAccounts` row.
+2. OAuth flow creates `mailAccounts` row (`createAuth: 'auth'`).
 3. The account is dormant until an admin assigns it (sets primary, assigns to roles/users).
-4. The authorizing user can see their own accounts and revoke them from their profile.
+4. The authorizing user can see their own accounts via `getMyAccounts()` and revoke them.
 
-### 6. Self-Service vs Admin
+### 5. Self-Service vs Admin
 
 | Action | Who | Permission |
 |--------|-----|-----------|
 | Authorize own email | Any user | `'auth'` (authenticated) |
-| View own authorized emails | Any user | `'auth'` |
-| Revoke own email | Any user | `'auth'` + ownership check |
-| Revoke any email | Admin | `{ mails: ['delete'] }` |
+| View own authorized emails | Any user | `getSession()` + `findByUserId()` |
+| Revoke own email | Any user | `'auth'` + ownership check in `revokeAccount()` |
+| Revoke any email | Admin | `'auth'` + admin role check in `revokeAccount()` |
 | View all accounts | Users with permission | `{ mails: ['read'] }` |
-| Manage accounts | Admin / permitted users | `{ mails: ['manage'] }` |
-| Access assigned inbox | Assigned users | `{ mails: ['inbox'] }` + assignment |
+| Update account settings | Admin only (no presets grant this) | `{ mails: ['update'] }` |
+| Set primary | Admin only | `{ mails: ['update'] }` |
+| Create assignments | Admin only | `{ mails: ['create'] }` |
+| Remove assignments | Admin only | `{ mails: ['delete'] }` |
+| View assigned inboxes | Any dashboard user | `'dashboard'` + assignment filter |
 
-### 7. Middleware / Route Protection
+### 6. Middleware / Route Protection
 
-The `admin/mails/` route group should be protected:
+The `admin/mails/` route group is protected by the existing app shell which handles dashboard-level auth.
 
-- `layout.tsx`: Verify session exists (redirect to login if not).
-- Page-level: Each page component calls the appropriate server action which handles permission checks internally via `withPermission`.
-
-No additional middleware needed — the existing app shell handles dashboard-level auth.
+Page-level: Each page component calls the appropriate server action which handles permission checks internally via `withPermission`. No additional middleware needed.
 
 ## Expected Files
 
-| File | Purpose |
-|------|---------|
-| `src/app/auth/permission-presets/_lib/catalog.ts` | Modified: add `mails` resource |
-| `src/app/admin/admin.config.ts` | Modified: add mails nav entry |
-| `src/app/admin/mails/_server/service.ts` | Modified: add `checkInboxAccess` |
+| File | Status | Purpose |
+|------|--------|---------|
+| `src/core/auth/permissions.ts` | Done | `mails` already in `RESOURCES` array |
+| `src/app/auth/permission-presets/_lib/catalog.ts` | Done | `mails` in resource groups + all preset seeds grant `['read']` |
+| `src/app/admin/mails/_server/service.ts` | Done | `withPermission` calls on all service methods |
+| `src/app/admin/mails/_server/actions.ts` | Done | `withPermission` calls on queue/log actions |
+| `src/app/admin/admin.config.ts` | **TODO** | Add mails nav entry with `IconMail` |
 
 ## Validation Criteria
 
-1. `mails` resource appears in permission catalog with all actions
-2. Permission presets can be configured to grant mails access
-3. Admin role bypasses all permission checks for mails
-4. Non-admin users without `mails:read` cannot see the mails nav item
-5. Non-admin users without assignment cannot access any inbox
-6. Assignment with `canReply: false` prevents replying
-7. Only admin (or users with `canCompose: true` assignment) can compose new emails
-8. Any authenticated user can authorize/revoke their own email from profile
-9. Revoking another user's email requires `mails:delete` permission
-10. `pnpm tsc --noEmit` passes
-11. `pnpm lint:fix` passes
+1. `mails` resource exists in `RESOURCES` array in `permissions.ts`
+2. `mails` appears in `PERMISSION_RESOURCE_GROUPS` under Admin
+3. All preset seeds grant `mails: ['read']`
+4. Admin role bypasses all permission checks for mails
+5. Non-admin users without `mails:read` cannot see the mails nav item
+6. Non-admin users without assignment cannot access any inbox (filtered by `findAccessibleAccounts`)
+7. Assignment with `canReply: false` prevents replying
+8. Assignment with `canCompose: false` prevents composing (admin bypasses)
+9. Any authenticated user can authorize/revoke their own email
+10. Only admin can update settings, set primary, manage assignments (no presets grant `update`/`create`/`delete`)
+11. `pnpm tsc --noEmit` passes
+12. `pnpm lint:fix` passes
 
 ## Notes
 
 - The two-layer approach (catalog + assignment) is necessary because:
   - Catalog controls feature-level visibility (who sees the mails section at all).
   - Assignments control per-inbox granular access (which inboxes a user can read/reply).
-- When an admin revokes a user's email, all assignments for that email are also deleted (cascade).
-- If a user's role changes (e.g., moves from `registry` to `finance`), their inbox access automatically changes because assignments are role-based.
-- Consider adding an `inbox` permission action separate from `read` — `read` shows the account management view, `inbox` grants inbox reading access. This allows a scenario where a user can see account settings but not read emails.
+- When an admin revokes a user's email via `revokeAccount()`, all assignments for that email are deleted in the same transaction.
+- If a user's role changes (e.g., moves from `registry` to `finance`), their inbox access automatically changes because `findAccessibleAccounts` matches by role.
+- All presets only grant `mails: ['read']`. Management operations (`update`, `create`, `delete`) are effectively admin-only unless specific presets are updated in the future.
