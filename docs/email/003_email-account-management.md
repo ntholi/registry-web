@@ -15,7 +15,7 @@ With OAuth integration from Step 002 allowing users to authorize emails, this st
 
 ### 1. Repository
 
-**File:** `src/app/admin/mails/_server/repository.ts`
+**File:** `src/app/admin/mails/accounts/_server/repository.ts` and `src/app/admin/mails/assignments/_server/repository.ts`
 
 #### `MailAccountRepository extends BaseRepository`
 
@@ -47,7 +47,7 @@ With OAuth integration from Step 002 allowing users to authorize emails, this st
 
 ### 2. Service
 
-**File:** `src/app/admin/mails/_server/service.ts`
+**File:** `src/app/admin/mails/accounts/_server/service.ts` and `src/app/admin/mails/assignments/_server/service.ts`
 
 #### `MailAccountService extends BaseService`
 
@@ -82,7 +82,7 @@ With OAuth integration from Step 002 allowing users to authorize emails, this st
 
 ### 3. Server Actions
 
-**File:** `src/app/admin/mails/_server/actions.ts`
+**File:** `src/app/admin/mails/accounts/_server/actions.ts` and `src/app/admin/mails/assignments/_server/actions.ts`
 
 #### Mail Account Actions
 
@@ -138,9 +138,12 @@ Zod schemas:
 
 | File | Purpose |
 |------|---------|
-| `src/app/admin/mails/_server/repository.ts` | Mail account + assignment repositories |
-| `src/app/admin/mails/_server/service.ts` | Mail account + assignment services |
-| `src/app/admin/mails/_server/actions.ts` | Server actions for all CRUD |
+| `src/app/admin/mails/accounts/_server/repository.ts` | Mail account repository |
+| `src/app/admin/mails/accounts/_server/service.ts` | Mail account service |
+| `src/app/admin/mails/accounts/_server/actions.ts` | Mail account server actions |
+| `src/app/admin/mails/assignments/_server/repository.ts` | Mail assignment repository |
+| `src/app/admin/mails/assignments/_server/service.ts` | Mail assignment service |
+| `src/app/admin/mails/assignments/_server/actions.ts` | Mail assignment server actions |
 | `src/app/admin/mails/_lib/types.ts` | Zod validation schemas |
 | `src/app/admin/mails/_lib/activities.ts` | Activity fragment for audit logging |
 

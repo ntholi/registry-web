@@ -16,7 +16,7 @@ This step implements the email reading experience: fetching emails from Gmail AP
 
 ### 1. Gmail Read Functions
 
-**File:** `src/app/admin/mails/_server/gmail-client.ts` (extend)
+**File:** `src/app/admin/mails/accounts/_server/gmail-client.ts` (extend)
 
 #### `fetchInbox(mailAccountId: string, options: InboxOptions): Promise<GmailThread[]>`
 
@@ -74,7 +74,7 @@ Call `gmail.users.messages.attachments.get()` and decode the base64 data.
 
 ### 3. Inbox Server Actions
 
-**File:** `src/app/admin/mails/_server/actions.ts` (extend)
+**File:** `src/app/admin/mails/accounts/_server/actions.ts` (extend)
 
 | Action | Auth | Description |
 |--------|------|-------------|
@@ -175,8 +175,8 @@ Construct the Gmail `q` parameter from UI search fields and pass to `fetchInbox(
 
 | File | Purpose |
 |------|---------|
-| `src/app/admin/mails/_server/gmail-client.ts` | Extended with fetchInbox, fetchThread, markRead, etc. |
-| `src/app/admin/mails/_server/actions.ts` | Extended with inbox/thread/reply actions |
+| `src/app/admin/mails/accounts/_server/gmail-client.ts` | Extended with fetchInbox, fetchThread, markRead, etc. |
+| `src/app/admin/mails/accounts/_server/actions.ts` | Extended with inbox/thread/reply actions |
 | `src/app/admin/mails/_lib/types.ts` | Extended with InboxThread, ThreadMessage types |
 
 ## Validation Criteria

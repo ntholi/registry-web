@@ -21,7 +21,7 @@ The current queue schema must persist the user who initiated a queued email. Add
 
 ### 1. Send Email Function
 
-**File:** `src/app/admin/mails/_server/gmail-client.ts` (extend existing)
+**File:** `src/app/admin/mails/accounts/_server/gmail-client.ts` (extend existing)
 
 #### `sendEmail(options: SendEmailOptions): Promise<SendResult>`
 
@@ -83,7 +83,7 @@ Low-level function that:
 
 ### 2. Queue Processor
 
-**File:** `src/app/admin/mails/_server/queue-processor.ts`
+**File:** `src/app/admin/mails/queues/_server/queue-processor.ts`
 
 #### `processEmailQueue(): Promise<ProcessResult>`
 
@@ -175,7 +175,7 @@ Returns `(counts.get(mailAccountId) ?? 0) < limit`.
 
 ### 5. Queue Management Actions
 
-Add to `src/app/admin/mails/_server/actions.ts`:
+Add to `src/app/admin/mails/queues/_server/actions.ts`:
 
 | Action | Auth | Description |
 |--------|------|-------------|
@@ -213,10 +213,10 @@ Replies are always sent immediately (not queued) — they are user-initiated and
 
 | File | Purpose |
 |------|---------|
-| `src/app/admin/mails/_server/gmail-client.ts` | Extended with sendEmail, sendViaGmail, sendReply |
-| `src/app/admin/mails/_server/queue-processor.ts` | Queue processing logic |
+| `src/app/admin/mails/accounts/_server/gmail-client.ts` | Extended with sendEmail, sendViaGmail, sendReply |
+| `src/app/admin/mails/queues/_server/queue-processor.ts` | Queue processing logic |
 | `src/app/api/mail/process-queue/route.ts` | Cron-triggered API endpoint |
-| `src/app/admin/mails/_server/actions.ts` | Extended with queue/sent log actions |
+| `src/app/admin/mails/queues/_server/actions.ts` | Extended with queue/sent log actions |
 
 ## Validation Criteria
 

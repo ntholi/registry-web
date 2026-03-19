@@ -20,7 +20,7 @@ The following are already in place and do NOT need changes:
 - `mails` added to `RESOURCES` in `src/core/auth/permissions.ts`
 - `mails` added to the `Admin` group in `PERMISSION_RESOURCE_GROUPS` in `src/app/auth/permission-presets/_lib/catalog.ts`
 - All preset seeds grant `mails: ['read']` (view-only for non-admin roles)
-- `MailAccountService` and `MailAssignmentService` in `src/app/admin/mails/_server/service.ts` with `withPermission` calls
+- `MailAccountService` in `src/app/admin/mails/accounts/_server/service.ts` and `MailAssignmentService` in `src/app/admin/mails/assignments/_server/service.ts` with `withPermission` calls
 - `MailAssignmentRepository.findAccessibleAccounts()` handles assignment-based inbox filtering
 
 ## Requirements
@@ -169,8 +169,8 @@ Page-level: Each page component calls the appropriate server action which handle
 |------|--------|---------|
 | `src/core/auth/permissions.ts` | Done | `mails` already in `RESOURCES` array |
 | `src/app/auth/permission-presets/_lib/catalog.ts` | Done | `mails` in resource groups + all preset seeds grant `['read']` |
-| `src/app/admin/mails/_server/service.ts` | Done | `withPermission` calls on all service methods |
-| `src/app/admin/mails/_server/actions.ts` | Done | `withPermission` calls on queue/log actions |
+| `src/app/admin/mails/accounts/_server/service.ts` | Done | `withPermission` calls on all service methods |
+| `src/app/admin/mails/queues/_server/actions.ts` | Done | `withPermission` calls on queue/log actions |
 | `src/app/admin/admin.config.ts` | **TODO** | Add mails nav entry with `IconMail` |
 
 ## Validation Criteria

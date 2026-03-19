@@ -27,7 +27,7 @@ No new env vars needed — reuses existing `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT
 
 ### 2. Gmail API Scopes
 
-Define scopes in `src/app/admin/mails/_lib/scopes.ts`:
+Define scopes in `src/app/admin/mails/accounts/_lib/scopes.ts`:
 
 | Scope | Purpose |
 |-------|---------|
@@ -82,7 +82,7 @@ Create `src/app/api/auth/gmail/route.ts` — a `GET` handler with two phases (mi
 
 ### 4. Gmail API Client
 
-Create `src/app/admin/mails/_server/gmail-client.ts` — the core utility for all Gmail operations.
+Create `src/app/admin/mails/accounts/_server/gmail-client.ts` — the core utility for all Gmail operations.
 
 #### `getGmailClient(mailAccountId: string)`
 
@@ -148,9 +148,9 @@ Server action `revokeMailAccount(mailAccountId: string)`:
 
 | File | Purpose |
 |------|---------|
-| `src/app/admin/mails/_lib/scopes.ts` | Gmail API scope constants |
+| `src/app/admin/mails/accounts/_lib/scopes.ts` | Gmail API scope constants |
 | `src/app/api/auth/gmail/route.ts` | OAuth callback handler |
-| `src/app/admin/mails/_server/gmail-client.ts` | Gmail API client factory |
+| `src/app/admin/mails/accounts/_server/gmail-client.ts` | Gmail API client factory |
 | `src/app/auth/users/_components/AuthorizeEmailSection.tsx` | Profile page email auth UI |
 
 ## Validation Criteria
