@@ -1,4 +1,4 @@
-import { GMAIL_SCOPES } from '@admin/mails/_lib/scopes';
+import { GMAIL_SCOPES } from '@admin/mails/accounts/_lib/scopes';
 import { eq } from 'drizzle-orm';
 import { google } from 'googleapis';
 import { type NextRequest, NextResponse } from 'next/server';

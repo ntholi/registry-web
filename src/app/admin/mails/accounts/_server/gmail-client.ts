@@ -7,8 +7,9 @@ import type {
 	ReplyOptions,
 	SendEmailOptions,
 	SendResult,
-} from '../_lib/types';
-import { mailAccountRepo, mailQueueRepo } from './repository';
+} from '../../_lib/types';
+import { mailQueueRepo } from '../../queues/_server/repository';
+import { mailAccountRepo } from './repository';
 
 type Account = typeof mailAccounts.$inferSelect;
 

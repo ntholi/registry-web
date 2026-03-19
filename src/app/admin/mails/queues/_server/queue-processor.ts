@@ -1,6 +1,7 @@
-import type { ProcessResult } from '../_lib/types';
-import { sendViaGmail } from './gmail-client';
-import { mailAccountRepo, mailQueueRepo } from './repository';
+import type { ProcessResult } from '../../_lib/types';
+import { sendViaGmail } from '../../accounts/_server/gmail-client';
+import { mailAccountRepo } from '../../accounts/_server/repository';
+import { mailQueueRepo } from './repository';
 
 const BATCH_SIZE = 10;
 const MAX_ATTEMPTS = 3;

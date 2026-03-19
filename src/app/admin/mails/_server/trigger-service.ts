@@ -4,14 +4,14 @@ import {
 	renderNotificationEmail,
 	renderStudentStatusEmail,
 } from '../_templates/render';
-import { sendEmail } from './gmail-client';
+import { sendEmail } from '../accounts/_server/gmail-client';
+import { mailAccountRepo } from '../accounts/_server/repository';
 import {
-	mailAccountRepo,
 	mailQueueRepo,
 	resolveApproverEmails,
 	resolveStudentEmail,
 	resolveUserEmails,
-} from './repository';
+} from '../queues/_server/repository';
 
 const BASE_URL = process.env.BETTER_AUTH_URL ?? 'http://localhost:3000';
 

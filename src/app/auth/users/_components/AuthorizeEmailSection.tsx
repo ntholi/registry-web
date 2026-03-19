@@ -3,7 +3,7 @@
 import {
 	getUserMailAccounts,
 	revokeMailAccount,
-} from '@admin/mails/_server/actions';
+} from '@admin/mails/accounts/_server/actions';
 import {
 	ActionIcon,
 	Badge,
