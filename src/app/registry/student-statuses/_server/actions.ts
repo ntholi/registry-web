@@ -1,6 +1,6 @@
 'use server';
 
-import { triggerStudentStatusEmail } from '@admin/mails/_server/trigger-service';
+import { triggerStudentStatusEmail } from '@admin/mail/_server/trigger-service';
 import { and, eq, type SQL } from 'drizzle-orm';
 import { studentStatuses } from '@/core/database';
 import { getSession } from '@/core/platform/withPermission';

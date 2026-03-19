@@ -2,12 +2,12 @@
 
 ## Introduction
 
-This step sets up the admin mails module navigation structure and the mail accounts management sub-section. It replaces the single-tab detail page approach with ListLayout-powered directory routes (`/admin/mails/accounts/`, `/admin/mails/inbox/`, etc.), each functioning as an independent sub-feature. This step focuses on the accounts management and the top-level navigation wiring.
+This step sets up the admin mails module navigation structure and the mail accounts management sub-section. It replaces the single-tab detail page approach with ListLayout-powered directory routes (`/admin/mail/accounts/`, `/admin/mail/inbox/`, etc.), each functioning as an independent sub-feature. This step focuses on the accounts management and the top-level navigation wiring.
 
 ## Context
 
 - Previous steps created all backend layers: schema, Gmail client, services, actions, templates, triggers, permissions.
-- The mails module currently has a flat `{ label: 'Mails', href: '/admin/mails' }` entry in `admin.config.ts`.
+- The mails module currently has a flat `{ label: 'Mail', href: '/admin/mail' }` entry in `admin.config.ts`.
 - This step converts it to a collapsible parent with children routes for each sub-section.
 - Each sub-section (`accounts`, `inbox`, `sent`, `queue`, `settings`) lives in its own directory with its own `layout.tsx` using `ListLayout` — except `settings` which has no `ListLayout`.
 - No `new/` route for accounts — accounts are created via OAuth authorization, not a form.
@@ -16,7 +16,7 @@ This step sets up the admin mails module navigation structure and the mail accou
 
 | Item | Location | Status |
 |------|----------|--------|
-| Navigation entry | `src/app/admin/admin.config.ts` (flat Mails link) | Needs update |
+| Navigation entry | `src/app/admin/admin.config.ts` (flat Mail link) | Needs update |
 | Permission resource | `'mails'` in `src/core/auth/permissions.ts` RESOURCES | Done |
 | Activity fragment | `src/app/admin/_lib/activities.ts` | Done |
 | Activity registry | `src/app/admin/activity-tracker/_lib/registry.ts` | Done |
@@ -37,21 +37,21 @@ This step sets up the admin mails module navigation structure and the mail accou
 
 **File:** `src/app/admin/admin.config.ts`
 
-Convert the flat Mails nav item into a collapsible parent with children:
+Convert the flat Mail nav item into a collapsible parent with children:
 
 ```typescript
 {
-  label: 'Mails',
-  href: '/admin/mails',
+  label: 'Mail',
+  href: '/admin/mail',
   icon: IconMail,
   collapsed: true,
   permissions: [{ resource: 'mails', action: 'read' }],
   children: [
-    { label: 'Inbox', href: '/admin/mails/inbox', icon: IconInbox },
-    { label: 'Accounts', href: '/admin/mails/accounts', icon: IconUserCheck },
-    { label: 'Sent', href: '/admin/mails/sent', icon: IconSend },
-    { label: 'Queue', href: '/admin/mails/queue', icon: IconStack2, roles: ['admin'] },
-    { label: 'Settings', href: '/admin/mails/settings', icon: IconSettings, roles: ['admin'] },
+    { label: 'Inbox', href: '/admin/mail/inbox', icon: IconInbox },
+    { label: 'Accounts', href: '/admin/mail/accounts', icon: IconUserCheck },
+    { label: 'Sent', href: '/admin/mail/sent', icon: IconSend },
+    { label: 'Queue', href: '/admin/mail/queue', icon: IconStack2, roles: ['admin'] },
+    { label: 'Settings', href: '/admin/mail/settings', icon: IconSettings, roles: ['admin'] },
   ],
 }
 ```
@@ -60,7 +60,7 @@ Queue and Settings are admin-only. All children inherit the parent's `permission
 
 ### 2. Module Layout
 
-**File:** `src/app/admin/mails/layout.tsx`
+**File:** `src/app/admin/mail/layout.tsx`
 
 Re-exports the dashboard layout (same pattern as other top-level modules):
 
@@ -70,15 +70,15 @@ export { default, generateMetadata } from '../../dashboard/layout';
 
 ### 3. Module Default Page
 
-**File:** `src/app/admin/mails/page.tsx`
+**File:** `src/app/admin/mail/page.tsx`
 
 **Type:** Server Component
 
-Redirects to `/admin/mails/inbox` using Next.js `redirect()`. The inbox is the primary view users see when clicking "Mails" in the sidebar.
+Redirects to `/admin/mail/inbox` using Next.js `redirect()`. The inbox is the primary view users see when clicking "Mail" in the sidebar.
 
 ### 4. Accounts Layout (ListLayout)
 
-**File:** `src/app/admin/mails/accounts/layout.tsx`
+**File:** `src/app/admin/mail/accounts/layout.tsx`
 
 **Type:** Client Component (`'use client'`)
 
@@ -86,7 +86,7 @@ Standard `ListLayout` wrapping the accounts list:
 
 | Property | Value |
 |----------|-------|
-| `path` | `'/admin/mails/accounts'` |
+| `path` | `'/admin/mail/accounts'` |
 | `queryKey` | `['mail-accounts']` |
 | `getData` | `getMailAccounts` (from `../accounts/_server/actions`) |
 | `renderItem` | `<ListItem id={account.id} label={account.email} description={account.displayName} />` |
@@ -102,7 +102,7 @@ Standard `ListLayout` wrapping the accounts list:
 
 ### 5. Accounts Default Page
 
-**File:** `src/app/admin/mails/accounts/page.tsx`
+**File:** `src/app/admin/mail/accounts/page.tsx`
 
 **Type:** Server Component
 
@@ -110,14 +110,14 @@ Displays `NothingSelected` with title `'Mail Accounts'` when no account is selec
 
 ### 6. Account Detail Page
 
-**File:** `src/app/admin/mails/accounts/[id]/page.tsx`
+**File:** `src/app/admin/mail/accounts/[id]/page.tsx`
 
 **Type:** Server Component
 
 Uses `DetailsView` with `DetailsViewHeader` and `DetailsViewBody`.
 
 **Header actions:**
-- "Edit" link → `/admin/mails/accounts/[id]/edit`
+- "Edit" link → `/admin/mail/accounts/[id]/edit`
 - `DeleteButton` for revoking the account
 
 **Body fields** (`FieldView` components):
@@ -144,7 +144,7 @@ Uses `DetailsView` with `DetailsViewHeader` and `DetailsViewBody`.
 
 ### 7. Account Edit Page
 
-**File:** `src/app/admin/mails/accounts/[id]/edit/page.tsx`
+**File:** `src/app/admin/mail/accounts/[id]/edit/page.tsx`
 
 **Type:** Server Component
 
@@ -160,7 +160,7 @@ Saves via `updateMailAccount(id, data)` action.
 
 ### 8. Assignments Section
 
-**File:** `src/app/admin/mails/accounts/_components/AssignmentSection.tsx`
+**File:** `src/app/admin/mail/accounts/_components/AssignmentSection.tsx`
 
 **Type:** Client Component (`'use client'`)
 
@@ -198,7 +198,7 @@ Uses `assignToRole()` / `assignToUser()` / `removeAssignment()` server actions w
 
 ### 9. Barrel Exports
 
-**File:** `src/app/admin/mails/_database/index.ts`
+**File:** `src/app/admin/mail/_database/index.ts`
 
 Re-exports all schemas from `../_schema/`:
 - `mailAccounts`
@@ -206,7 +206,7 @@ Re-exports all schemas from `../_schema/`:
 - `mailQueue`
 - `mailSentLog`
 
-**File:** `src/app/admin/mails/index.ts`
+**File:** `src/app/admin/mail/index.ts`
 
 Re-exports key actions and types for cross-module imports.
 
@@ -216,27 +216,27 @@ Re-exports key actions and types for cross-module imports.
 
 | File | Purpose |
 |------|---------|
-| `src/app/admin/mails/layout.tsx` | Dashboard layout re-export |
-| `src/app/admin/mails/page.tsx` | Redirect to inbox |
-| `src/app/admin/mails/accounts/layout.tsx` | ListLayout for accounts |
-| `src/app/admin/mails/accounts/page.tsx` | NothingSelected default |
-| `src/app/admin/mails/accounts/[id]/page.tsx` | Account detail (overview + assignments) |
-| `src/app/admin/mails/accounts/[id]/edit/page.tsx` | Edit account form |
-| `src/app/admin/mails/accounts/_components/AssignmentSection.tsx` | Assignment management |
-| `src/app/admin/mails/_database/index.ts` | Schema barrel re-exports |
-| `src/app/admin/mails/index.ts` | Feature re-exports |
+| `src/app/admin/mail/layout.tsx` | Dashboard layout re-export |
+| `src/app/admin/mail/page.tsx` | Redirect to inbox |
+| `src/app/admin/mail/accounts/layout.tsx` | ListLayout for accounts |
+| `src/app/admin/mail/accounts/page.tsx` | NothingSelected default |
+| `src/app/admin/mail/accounts/[id]/page.tsx` | Account detail (overview + assignments) |
+| `src/app/admin/mail/accounts/[id]/edit/page.tsx` | Edit account form |
+| `src/app/admin/mail/accounts/_components/AssignmentSection.tsx` | Assignment management |
+| `src/app/admin/mail/_database/index.ts` | Schema barrel re-exports |
+| `src/app/admin/mail/index.ts` | Feature re-exports |
 
 ### Files to Modify
 
 | File | Change |
 |------|--------|
-| `src/app/admin/admin.config.ts` | Convert flat Mails link to collapsible parent with children |
+| `src/app/admin/admin.config.ts` | Convert flat Mail link to collapsible parent with children |
 
 ## Validation Criteria
 
-1. Admin sidebar shows "Mails" as a collapsible section with Inbox, Accounts, Sent, Queue, Settings children
-2. Clicking "Mails" parent or navigating to `/admin/mails` redirects to `/admin/mails/inbox`
-3. `/admin/mails/accounts` renders ListLayout with mail accounts list and `NothingSelected`
+1. Admin sidebar shows "Mail" as a collapsible section with Inbox, Accounts, Sent, Queue, Settings children
+2. Clicking "Mail" parent or navigating to `/admin/mail` redirects to `/admin/mail/inbox`
+3. `/admin/mail/accounts` renders ListLayout with mail accounts list and `NothingSelected`
 4. Selecting an account shows detail page with all fields, status toggle, and assignments
 5. "Set as Primary" works with confirmation modal
 6. Edit page saves display name, signature, and active status
