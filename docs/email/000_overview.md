@@ -113,43 +113,75 @@ src/app/admin/mails/
 │   ├── mailQueue.ts
 │   ├── mailSentLog.ts
 │   └── relations.ts
+├── _database/
+│   └── index.ts                   # Barrel re-exports all schemas
 ├── _server/
-│   ├── repository.ts
-│   ├── service.ts
-│   ├── actions.ts
-│   ├── gmail-client.ts          # Gmail API wrapper (OAuth, send, read, threads)
-│   └── queue-processor.ts       # Queue processing logic
-├── _components/
-│   ├── MailAccountList.tsx       # List all authorized emails
-│   ├── MailAccountForm.tsx       # Assignment management
-│   ├── AuthorizeEmailButton.tsx  # OAuth trigger button
-│   ├── InboxView.tsx             # Threaded inbox
-│   ├── ThreadView.tsx            # Single thread conversation
-│   ├── ComposeModal.tsx          # Admin compose modal
-│   ├── ReplyEditor.tsx           # Reply editor
-│   ├── SentLogTable.tsx          # Sent email audit table
-│   └── QueueStatusView.tsx       # Queue dashboard
+│   └── trigger-service.ts         # Email trigger/send logic
 ├── _lib/
-│   ├── types.ts                  # Zod schemas, types
-│   ├── activities.ts             # Activity fragment
-│   └── scopes.ts                 # Gmail API scopes
+│   ├── types.ts
+│   └── activities.ts
 ├── _templates/
-│   ├── BaseLayout.tsx            # Shared email layout (react-email)
-│   ├── StudentStatusEmail.tsx    # Student status notification
-│   └── NotificationEmail.tsx     # Generic notification mirror
-├── page.tsx                      # Mail accounts list
-├── [id]/
-│   ├── page.tsx                  # Mail account details + inbox
-│   └── edit/page.tsx             # Edit assignments/settings
-├── layout.tsx
+│   ├── BaseLayout.tsx
+│   ├── GenericEmail.tsx
+│   ├── NotificationEmail.tsx
+│   ├── StudentStatusEmail.tsx
+│   └── render.ts
+├── accounts/
+│   ├── _lib/scopes.ts
+│   ├── _server/
+│   │   ├── actions.ts
+│   │   ├── gmail-client.ts
+│   │   ├── repository.ts
+│   │   └── service.ts
+│   ├── _components/
+│   │   └── AssignmentSection.tsx   # Assignment management
+│   ├── layout.tsx                  # ListLayout for mail accounts
+│   ├── page.tsx                    # NothingSelected
+│   └── [id]/
+│       ├── page.tsx                # Account detail (overview + assignments)
+│       └── edit/page.tsx           # Edit account form
+├── assignments/
+│   ├── _lib/types.ts
+│   └── _server/
+│       ├── actions.ts
+│       ├── repository.ts
+│       └── service.ts
+├── inbox/
+│   ├── _components/
+│   │   ├── AccountSelector.tsx     # Mail account picker
+│   │   ├── ComposeModal.tsx        # New email compose modal
+│   │   └── ReplyEditor.tsx         # Reply composer
+│   ├── layout.tsx                  # ListLayout for inbox threads
+│   ├── page.tsx                    # NothingSelected
+│   └── [threadId]/
+│       └── page.tsx                # Thread conversation view
+├── sent/
+│   ├── layout.tsx                  # ListLayout for sent emails
+│   ├── page.tsx                    # NothingSelected
+│   └── [id]/
+│       └── page.tsx                # Sent email detail
+├── queue/
+│   ├── layout.tsx                  # ListLayout for queue items
+│   ├── page.tsx                    # Queue stats dashboard
+│   └── [id]/
+│       └── page.tsx                # Queue item detail (retry/cancel)
+├── queues/
+│   └── _server/
+│       ├── actions.ts
+│       ├── queue-processor.ts
+│       └── repository.ts
+├── settings/
+│   └── page.tsx                    # Settings page (no ListLayout)
+├── layout.tsx                      # Dashboard layout re-export
+├── page.tsx                        # Redirect to inbox
 └── index.ts
 
 src/app/api/
-├── auth/gmail/route.ts           # Gmail OAuth callback handler
-└── mail/process-queue/route.ts   # Cron-triggered queue processor
+├── auth/gmail/route.ts             # Gmail OAuth callback handler
+└── mail/process-queue/route.ts     # Cron-triggered queue processor
 
 src/app/auth/users/_components/
-└── AuthorizeEmailSection.tsx     # User profile email auth section
+└── AuthorizeEmailSection.tsx       # User profile email auth section
 ```
 
 ## Implementation Steps
@@ -166,7 +198,9 @@ Update this table immediately after each task is completed so `000_overview.md` 
 | 006 | [006_system-email-triggers.md](006_system-email-triggers.md) | System Email Triggers | Complete | Change to complete here when the task is finished | Hook into student-status, notifications; auto-send logic |
 | 007 | [007_inbox-reading-threads.md](007_inbox-reading-threads.md) | Inbox, Threads & Reply | Complete | Change to complete here when the task is finished | Gmail read, thread display, reply, caching, search |
 | 008 | [008_permissions-access-control.md](008_permissions-access-control.md) | Permissions & Access Control | Complete | Mark complete here as soon as the task is finished | Catalog entry, permission checks, role-based inbox access |
-| 009 | [009_admin-ui.md](009_admin-ui.md) | Admin UI & Navigation | Pending | Change to complete here when the task is finished | Full admin pages, nav config, inbox tabs, compose, sent log |
+| 009 | [009_accounts-ui.md](009_accounts-ui.md) | Mail Accounts UI & Module Navigation | Pending | Change to complete here when the task is finished | Nav config, accounts ListLayout, account detail/edit, assignments |
+| 010 | [010_inbox-compose-ui.md](010_inbox-compose-ui.md) | Inbox & Compose UI | Pending | Change to complete here when the task is finished | Inbox ListLayout, thread view, reply editor, compose modal |
+| 011 | [011_sent-queue-settings-ui.md](011_sent-queue-settings-ui.md) | Sent Log, Queue & Settings UI | Pending | Change to complete here when the task is finished | Sent log ListLayout, queue ListLayout + stats, settings page |
 
 ## Business Rules
 
@@ -213,7 +247,11 @@ Update this table immediately after each task is completed so `000_overview.md` 
     ↓
 008 Permissions & Access      ← Depends on 003 (assignment-based access)
     ↓
-009 Admin UI & Navigation     ← Depends on all above (assembles full UI)
+009 Accounts UI & Nav         ← Depends on 003, 008 (accounts ListLayout, nav config, assignments UI)
+    ↓
+010 Inbox & Compose UI        ← Depends on 007, 008, 009 (inbox ListLayout, thread view, compose)
+    ↓
+011 Sent, Queue & Settings    ← Depends on 004, 009 (sent log ListLayout, queue ListLayout, settings)
 ```
 
 ## Validation Command
