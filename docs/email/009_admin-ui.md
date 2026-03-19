@@ -11,44 +11,43 @@ This final step assembles the full admin UI for the email module: the mail accou
 - Inbox uses TanStack Query with 15-minute `refetchInterval` for client-side polling.
 - All pages are under `src/app/admin/mails/`.
 - The user profile section (authorize email) is in `src/app/auth/users/_components/`.
+- No `new/` route — accounts are created via OAuth authorization, not a form.
+
+## Pre-Existing Infrastructure
+
+The following items were completed in previous steps and do **not** need to be created:
+
+| Item | Location | Status |
+|------|----------|--------|
+| Navigation entry | `src/app/admin/admin.config.ts` (Mails nav item) | Done |
+| Permission resource | `'mails'` in `src/core/auth/permissions.ts` RESOURCES | Done |
+| Activity fragment | `src/app/admin/_lib/activities.ts` (mail_account_*, mail_assignment_*, mail_primary_changed) | Done |
+| Activity registry | Imported in `src/app/admin/activity-tracker/_lib/registry.ts` | Done |
+| AuthorizeEmailSection | `src/app/auth/users/_components/AuthorizeEmailSection.tsx` | Done |
+
+### Action Import Paths
+
+Backend actions are split across sub-feature `_server/` folders:
+
+| Import Path | Actions |
+|-------------|--------|
+| `./accounts/_server/actions` | `getMailAccounts`, `getMailAccount`, `updateMailAccount`, `deleteMailAccount`, `setPrimaryMailAccount`, `getAccessibleMailAccounts`, `getInbox`, `getThread`, `getMessage`, `markRead`, `markUnread`, `replyToThread`, `downloadAttachment` |
+| `./assignments/_server/actions` | `getAssignments`, `assignToRole`, `assignToUser`, `removeAssignment` |
+| `./queues/_server/actions` | `getQueueStatus`, `getQueueItems`, `retryFailedEmail`, `cancelQueuedEmail`, `getSentLog`, `getDailyStats` |
 
 ## Requirements
 
 ### 1. Navigation
 
-**File to modify:** `src/app/admin/admin.config.ts`
+**Already implemented** in `src/app/admin/admin.config.ts`. Verify the entry exists with `permissions: [{ resource: 'mails', action: 'read' }]`.
 
-Add the mails entry to the admin navigation:
-
-| Property | Value |
-|----------|-------|
-| `label` | `'Mails'` |
-| `href` | `'/admin/mails'` |
-| `icon` | `IconMail` (from Tabler) |
-| `permissions` | `[{ resource: 'mails', action: 'read' }]` |
-
-Position: After "Notifications" in the navigation list.
-
-### 2. Mail Accounts List Page
+### 2. Default Page (NothingSelected)
 
 **File:** `src/app/admin/mails/page.tsx`
 
-**Type:** Server Component (RSC)
+**Type:** Server Component
 
-Uses `ListLayout` to display all authorized email accounts:
-
-| Field | Display |
-|-------|---------|
-| Email address | Primary text |
-| Display name | Secondary text |
-| Authorized by | User name who authorized |
-| Status badges | `isPrimary` badge, `isActive` status |
-| Assignment count | Number of role/user assignments |
-
-**Features:**
-- Search by email address or display name.
-- `NewLink` not used (accounts are created via OAuth, not a form).
-- Each list item links to `/admin/mails/[id]`.
+Displays `NothingSelected` with title `'Mail Accounts'` when no account is selected. The list is rendered by `ListLayout` in `layout.tsx` (see §13).
 
 ### 3. Mail Account Detail Page
 
@@ -148,38 +147,12 @@ Both modes use `assignToRole()` / `assignToUser()` server actions.
 
 ### 6. Authorize Email Button (User Profile)
 
-**File:** `src/app/auth/users/_components/AuthorizeEmailSection.tsx`
+**Already implemented** at `src/app/auth/users/_components/AuthorizeEmailSection.tsx`.
 
-**Type:** Client Component
-
-Embedded in the user's profile page:
-
-**Layout:**
-```
-┌────────────────────────────────────────┐
-│ Authorized Emails                      │
-│                                        │
-│ ┌────────────────────────────────────┐ │
-│ │ 📧 registry@limkokwing.ac.ls      │ │
-│ │    Primary · Active                │ │
-│ │    Authorized on Mar 15, 2026      │ │
-│ │                          [Revoke]  │ │
-│ └────────────────────────────────────┘ │
-│                                        │
-│ ┌────────────────────────────────────┐ │
-│ │ 📧 john@limkokwing.ac.ls          │ │
-│ │    Active                          │ │
-│ │    Authorized on Mar 18, 2026      │ │
-│ │                          [Revoke]  │ │
-│ └────────────────────────────────────┘ │
-│                                        │
-│        [+ Authorize New Email]         │
-└────────────────────────────────────────┘
-```
-
-- "Authorize New Email" navigates to `/api/auth/gmail?returnUrl=/auth/users/[userId]`.
-- "Revoke" calls `deleteMailAccount(id)` with confirmation modal.
-- Uses TanStack Query for the list with `queryKey: ['my-mail-accounts']`.
+Verify it includes:
+- TanStack Query with `queryKey: ['my-mail-accounts']` calling `getUserMailAccounts()`.
+- "Authorize New Email" navigating to `/api/auth/gmail?returnUrl=/auth/users/[userId]`.
+- "Revoke" calling `revokeMailAccount(id)` with confirmation via `useActionMutation`.
 
 ### 7. Inbox View
 
@@ -280,7 +253,7 @@ Opened when a thread is clicked from `InboxView`.
 **Features:**
 - Messages displayed chronologically (oldest first).
 - Each message shows: sender, recipient, timestamp, body.
-- HTML body rendered safely in an iframe or `dangerouslySetInnerHTML` with sanitized content.
+- HTML body rendered in an `<iframe>` with `srcDoc` for complete style isolation (never use `dangerouslySetInnerHTML` — XSS risk).
 - Attachments shown with download links (call `downloadAttachment` action).
 - Older messages collapsed by default (show only first + last, expandable).
 - Auto-mark as read when thread is opened.
@@ -311,7 +284,7 @@ On send:
 
 **Type:** Client Component
 
-Self-contained modal for composing new emails (admin only):
+Self-contained modal for composing new emails (visible to users with `canCompose` assignment or admin role):
 
 | Field | Component |
 |-------|-----------|
@@ -326,9 +299,9 @@ Self-contained modal for composing new emails (admin only):
 Trigger button: "Compose" `ActionIcon` in the page header (visible only to users with `canCompose` assignment or admin role).
 
 On send:
-1. Call `sendEmail({ ..., immediate: true, triggerType: 'manual' })`.
+1. Enqueue via `queues/_server/actions` (the queue processor sends immediately when `scheduledAt` is now). Use `triggerType: 'manual'`.
 2. Close modal, show success notification.
-3. Invalidate sent log query.
+3. Invalidate sent log query with `queryKey: ['mail-sent-log', accountId]`.
 
 ### 11. Sent Log Table
 
@@ -383,20 +356,43 @@ Dashboard showing queue health:
 
 **File:** `src/app/admin/mails/layout.tsx`
 
-Standard admin module layout with `ListLayout` integration:
+**Type:** Client Component (`'use client'`)
+
+Standard admin module layout with `ListLayout` integration. Imports `getMailAccounts` from `./accounts/_server/actions`.
+
+| Property | Value |
+|----------|-------|
+| `path` | `'/admin/mails'` |
+| `queryKey` | `['mail-accounts']` |
+| `getData` | `getMailAccounts` (returns `{ items, totalPages }`) |
+| `renderItem` | `<ListItem id={account.id} label={account.email} description={account.displayName} />` |
+| `actionIcons` | None (`NewLink` not used — accounts created via OAuth) |
+
+**List item display:**
+
+| Field | Display |
+|-------|---------|
+| Email address | Primary text (`label`) |
+| Display name | Secondary text (`description`) |
+| Status badges | `rightSection`: `isPrimary` badge, `isActive` status |
+
+Features: search by email address or display name.
 
 ```tsx
-export default function MailsLayout({ children }) {
+'use client';
+
+import type { PropsWithChildren } from 'react';
+import { ListItem, ListLayout } from '@/shared/ui/adease';
+import { getMailAccounts } from './accounts/_server/actions';
+
+export default function Layout({ children }: PropsWithChildren) {
   return (
     <ListLayout
-      path="/admin/mails"
+      path={'/admin/mails'}
+      queryKey={['mail-accounts']}
       getData={getMailAccounts}
-      renderItem={(account) => (
-        <ListItem
-          id={account.id}
-          label={account.email}
-          description={account.displayName}
-        />
+      renderItem={(it) => (
+        <ListItem id={it.id} label={it.email} description={it.displayName} />
       )}
     >
       {children}
@@ -425,10 +421,12 @@ layout.tsx (ListLayout)
 
 ## Expected Files
 
+### New Files to Create
+
 | File | Purpose |
-|------|---------|
-| `src/app/admin/mails/layout.tsx` | ListLayout wrapper |
-| `src/app/admin/mails/page.tsx` | Default empty state |
+|------|--------|
+| `src/app/admin/mails/layout.tsx` | ListLayout wrapper (Client Component) |
+| `src/app/admin/mails/page.tsx` | NothingSelected default |
 | `src/app/admin/mails/[id]/page.tsx` | Account detail with tabs |
 | `src/app/admin/mails/[id]/edit/page.tsx` | Edit account form |
 | `src/app/admin/mails/_components/InboxView.tsx` | Inbox thread list |
@@ -438,25 +436,34 @@ layout.tsx (ListLayout)
 | `src/app/admin/mails/_components/SentLogTable.tsx` | Sent email log |
 | `src/app/admin/mails/_components/QueueStatusView.tsx` | Queue dashboard |
 | `src/app/admin/mails/_components/AssignmentSection.tsx` | Assignment management |
-| `src/app/auth/users/_components/AuthorizeEmailSection.tsx` | Profile email auth |
-| `src/app/admin/admin.config.ts` | Modified: add mails nav |
+| `src/app/admin/mails/_database/index.ts` | Schema barrel re-exports |
+| `src/app/admin/mails/index.ts` | Feature re-exports (types + key actions) |
+
+### Already Existing (Verify Only)
+
+| File | Status |
+|------|--------|
+| `src/app/auth/users/_components/AuthorizeEmailSection.tsx` | Done |
+| `src/app/admin/admin.config.ts` (Mails nav entry) | Done |
+| `src/core/auth/permissions.ts` (`'mails'` resource) | Done |
+| `src/app/admin/_lib/activities.ts` (mail activity entries) | Done |
 
 ## Validation Criteria
 
-1. Mails nav item visible for users with `mails:read` permission
-2. Mail accounts list displays with search and pagination
+1. Mail accounts list displays in layout with search and pagination
+2. `page.tsx` renders `NothingSelected` when no account selected
 3. Account detail page shows all tabs correctly
 4. Overview tab shows account info with edit/delete/set-primary actions
 5. Inbox tab displays threaded emails with search and sync
-6. Thread view shows full conversation with messages and attachments
+6. Thread view shows full conversation with messages and attachments — HTML in `<iframe>` only
 7. Reply editor sends reply and updates thread view
-8. Compose modal allows admin to send new emails
+8. Compose modal allows users with `canCompose` assignment or admin role to send new emails
 9. Sent log shows all outbound emails with filtering
 10. Queue status shows current queue health (admin only)
 11. Assignments tab allows adding/removing role and user assignments
-12. User profile shows authorized emails with authorize/revoke
-13. Dark mode: all components render correctly with good contrast
-14. Mobile responsive: inbox and thread views usable on smaller screens
+12. `_database/index.ts` barrel re-exports all schemas
+13. `index.ts` re-exports types and key actions
+14. Dark mode: all components render correctly with good contrast
 15. `pnpm tsc --noEmit` passes
 16. `pnpm lint:fix` passes
 
