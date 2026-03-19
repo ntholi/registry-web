@@ -198,7 +198,7 @@ Update this table immediately after each task is completed so `000_overview.md` 
 | 006 | [006_system-email-triggers.md](006_system-email-triggers.md) | System Email Triggers | Complete | Change to complete here when the task is finished | Hook into student-status, notifications; auto-send logic |
 | 007 | [007_inbox-reading-threads.md](007_inbox-reading-threads.md) | Inbox, Threads & Reply | Complete | Change to complete here when the task is finished | Gmail read, thread display, reply, caching, search |
 | 008 | [008_permissions-access-control.md](008_permissions-access-control.md) | Permissions & Access Control | Complete | Mark complete here as soon as the task is finished | Catalog entry, permission checks, role-based inbox access |
-| 009 | [009_accounts-ui.md](009_accounts-ui.md) | Mail Accounts UI & Module Navigation | Pending | Change to complete here when the task is finished | Nav config, accounts ListLayout, account detail/edit, assignments |
+| 009 | [009_accounts-ui.md](009_accounts-ui.md) | Mail Accounts UI & Module Navigation | Complete | Change to complete here when the task is finished | Nav config, accounts ListLayout, account detail/edit, assignments |
 | 010 | [010_inbox-compose-ui.md](010_inbox-compose-ui.md) | Inbox & Compose UI | Pending | Change to complete here when the task is finished | Inbox ListLayout, thread view, reply editor, compose modal |
 | 011 | [011_sent-queue-settings-ui.md](011_sent-queue-settings-ui.md) | Sent Log, Queue & Settings UI | Pending | Change to complete here when the task is finished | Sent log ListLayout, queue ListLayout + stats, settings page |
 
