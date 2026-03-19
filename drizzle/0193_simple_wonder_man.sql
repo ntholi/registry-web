@@ -1,0 +1,2 @@
+ALTER TABLE "mail_queue" ADD COLUMN "sent_by_user_id" text;--> statement-breakpoint
+ALTER TABLE "mail_queue" ADD CONSTRAINT "mail_queue_sent_by_user_id_users_id_fk" FOREIGN KEY ("sent_by_user_id") REFERENCES "public"."users"("id") ON DELETE set null ON UPDATE no action;

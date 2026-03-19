@@ -1352,6 +1352,13 @@
 			"when": 1773836399675,
 			"tag": "0192_special_maelstrom",
 			"breakpoints": true
+		},
+		{
+			"idx": 193,
+			"version": "7",
+			"when": 1773898369231,
+			"tag": "0193_simple_wonder_man",
+			"breakpoints": true
 		}
 	]
 }

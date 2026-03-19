@@ -1,5 +1,6 @@
 import {
 	DeleteObjectCommand,
+	GetObjectCommand,
 	HeadObjectCommand,
 	PutObjectCommand,
 	S3Client,
@@ -64,4 +65,20 @@ export async function fileExists(key: string): Promise<boolean> {
 	} catch {
 		return false;
 	}
+}
+
+export async function getFileBuffer(key: string): Promise<Buffer> {
+	const response = await s3Client.send(
+		new GetObjectCommand({
+			Bucket: BUCKET_NAME,
+			Key: key,
+		})
+	);
+
+	if (!response.Body) {
+		throw new Error(`Empty response body for key: ${key}`);
+	}
+
+	const bytes = await response.Body.transformToByteArray();
+	return Buffer.from(bytes);
 }

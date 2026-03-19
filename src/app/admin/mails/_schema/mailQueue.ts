@@ -1,3 +1,4 @@
+import { users } from '@auth/users/_schema/users';
 import {
 	index,
 	integer,
@@ -57,6 +58,9 @@ export const mailQueue = pgTable(
 		sentAt: timestamp({ mode: 'date' }),
 		triggerType: mailTriggerType().notNull(),
 		triggerEntityId: text(),
+		sentByUserId: text().references(() => users.id, {
+			onDelete: 'set null',
+		}),
 		createdAt: timestamp({ mode: 'date' }).defaultNow().notNull(),
 	},
 	(table) => ({

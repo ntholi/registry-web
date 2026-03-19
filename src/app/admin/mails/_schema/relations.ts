@@ -37,6 +37,10 @@ export const mailQueueRelations = relations(mailQueue, ({ one }) => ({
 		fields: [mailQueue.mailAccountId],
 		references: [mailAccounts.id],
 	}),
+	sentByUser: one(users, {
+		fields: [mailQueue.sentByUserId],
+		references: [users.id],
+	}),
 }));
 
 export const mailSentLogRelations = relations(mailSentLog, ({ one }) => ({
