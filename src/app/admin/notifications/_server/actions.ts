@@ -1,5 +1,7 @@
 'use server';
 
+import { triggerNotificationEmail } from '@admin/mails/_server/trigger-service';
+import { getSession } from '@/core/platform/withPermission';
 import { createAction } from '@/shared/lib/actions/actionResult';
 import type { NotificationWithRecipients } from './repository';
 import { notificationsService as service } from './service';
@@ -18,8 +20,25 @@ export async function findAllNotifications(page = 1, search = '') {
 }
 
 export const createNotification = createAction(
-	async (data: CreateNotificationInput) =>
-		service.createForCurrentUser(data as NotificationWithRecipients)
+	async (data: CreateNotificationInput) => {
+		const result = await service.createForCurrentUser(
+			data as NotificationWithRecipients
+		);
+
+		if (data.recipientUserIds?.length) {
+			const session = await getSession();
+			void triggerNotificationEmail({
+				notificationId: result.id,
+				title: data.title,
+				message: data.message,
+				link: data.link ?? undefined,
+				senderName: session?.user?.name ?? undefined,
+				recipientUserIds: data.recipientUserIds,
+			}).catch(() => {});
+		}
+
+		return result;
+	}
 );
 
 export const updateNotification = createAction(

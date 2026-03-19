@@ -8,7 +8,10 @@ interface ApprovalSubject {
 	permissions?: Session['permissions'];
 }
 
-const APPROVAL_PRESET_ROLES: Record<string, StudentStatusApprovalRole[]> = {
+export const APPROVAL_PRESET_ROLES: Record<
+	string,
+	StudentStatusApprovalRole[]
+> = {
 	'Academic Manager': ['program_leader'],
 	'Academic Program Leader': ['program_leader'],
 	'Academic Year Leader': ['year_leader'],

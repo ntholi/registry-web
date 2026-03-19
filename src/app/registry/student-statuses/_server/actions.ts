@@ -1,7 +1,9 @@
 'use server';
 
+import { triggerStudentStatusEmail } from '@admin/mails/_server/trigger-service';
 import { and, eq, type SQL } from 'drizzle-orm';
 import { studentStatuses } from '@/core/database';
+import { getSession } from '@/core/platform/withPermission';
 import { createAction } from '@/shared/lib/actions/actionResult';
 import type {
 	StudentStatusEditableInput,
@@ -43,6 +45,15 @@ export const createStudentStatus = createAction(
 	async (data: StudentStatusInsert) => {
 		const result = await studentStatusesService.createStatus(data);
 		if (!result) throw new Error('Failed to create application');
+
+		void triggerStudentStatusEmail({
+			stdNo: result.stdNo,
+			studentName: result.student?.name ?? '',
+			statusId: result.id,
+			statusType: result.type,
+			action: 'created',
+		}).catch(() => {});
+
 		return { id: result.id };
 	}
 );
@@ -51,6 +62,15 @@ export const updateStudentStatus = createAction(
 	async (id: string, data: StudentStatusEditableInput) => {
 		const result = await studentStatusesService.edit(id, data);
 		if (!result) throw new Error('Failed to update application');
+
+		void triggerStudentStatusEmail({
+			stdNo: result.stdNo,
+			studentName: result.student?.name ?? '',
+			statusId: result.id,
+			statusType: result.type,
+			action: 'updated',
+		}).catch(() => {});
+
 		return { id: result.id };
 	}
 );
@@ -65,7 +85,26 @@ export const respondToStudentStatusStep = createAction(
 		status: 'pending' | 'approved' | 'rejected',
 		comments?: string
 	) => {
-		return studentStatusesService.respond(approvalId, status, comments);
+		const result = await studentStatusesService.respond(
+			approvalId,
+			status,
+			comments
+		);
+
+		if (result && (status === 'approved' || status === 'rejected')) {
+			const session = await getSession();
+			void triggerStudentStatusEmail({
+				stdNo: result.stdNo,
+				studentName: result.student?.name ?? '',
+				statusId: result.id,
+				statusType: result.type,
+				action: status,
+				reason: comments,
+				approverName: session?.user?.name ?? undefined,
+			}).catch(() => {});
+		}
+
+		return result;
 	}
 );
 

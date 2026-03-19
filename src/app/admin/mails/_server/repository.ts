@@ -1,3 +1,4 @@
+import { APPROVAL_PRESET_ROLES } from '@registry/student-statuses/_lib/approvalRoles';
 import { and, count as countFn, eq, gte, inArray, or, sql } from 'drizzle-orm';
 import {
 	db,
@@ -5,6 +6,9 @@ import {
 	mailAccounts,
 	mailQueue,
 	mailSentLog,
+	permissionPresets,
+	studentStatusApprovals,
+	students,
 	users,
 } from '@/core/database';
 import BaseRepository, {
@@ -12,6 +16,7 @@ import BaseRepository, {
 	type QueryOptions,
 	type TransactionClient,
 } from '@/core/platform/BaseRepository';
+import type { MailTriggerType } from '../_lib/types';
 
 class MailAccountRepository extends BaseRepository<typeof mailAccounts, 'id'> {
 	constructor() {
@@ -538,6 +543,26 @@ class MailQueueRepository {
 		};
 	}
 
+	async isDuplicate(
+		triggerType: MailTriggerType,
+		triggerEntityId: string,
+		windowMinutes = 5
+	) {
+		const cutoff = new Date(Date.now() - windowMinutes * 60 * 1000);
+		const [row] = await db
+			.select({ id: mailQueue.id })
+			.from(mailQueue)
+			.where(
+				and(
+					eq(mailQueue.triggerType, triggerType),
+					eq(mailQueue.triggerEntityId, triggerEntityId),
+					gte(mailQueue.createdAt, cutoff)
+				)
+			)
+			.limit(1);
+		return !!row;
+	}
+
 	async getDailyStatsForAccount(accountId: string) {
 		const todayStart = new Date();
 		todayStart.setUTCHours(0, 0, 0, 0);
@@ -561,3 +586,69 @@ class MailQueueRepository {
 export const mailAccountRepo = new MailAccountRepository();
 export const mailAssignmentRepo = new MailAssignmentRepository();
 export const mailQueueRepo = new MailQueueRepository();
+
+const ROLE_TO_PRESETS = buildRoleToPresetsMap();
+
+function buildRoleToPresetsMap() {
+	const map: Record<string, string[]> = {};
+	for (const [presetName, roles] of Object.entries(APPROVAL_PRESET_ROLES)) {
+		for (const role of roles) {
+			if (!map[role]) map[role] = [];
+			map[role].push(presetName);
+		}
+	}
+	return map;
+}
+
+export async function resolveStudentEmail(
+	stdNo: number
+): Promise<string | null> {
+	const [row] = await db
+		.select({ email: users.email })
+		.from(students)
+		.innerJoin(users, eq(students.userId, users.id))
+		.where(eq(students.stdNo, stdNo))
+		.limit(1);
+	return row?.email ?? null;
+}
+
+export async function resolveApproverEmails(
+	statusId: string
+): Promise<string[]> {
+	const approvals = await db
+		.select({ approverRole: studentStatusApprovals.approverRole })
+		.from(studentStatusApprovals)
+		.where(
+			and(
+				eq(studentStatusApprovals.applicationId, statusId),
+				eq(studentStatusApprovals.status, 'pending')
+			)
+		);
+
+	const roles = [...new Set(approvals.map((a) => a.approverRole))];
+	if (roles.length === 0) return [];
+
+	const presetNames: string[] = [];
+	for (const role of roles) {
+		const names = ROLE_TO_PRESETS[role];
+		if (names) presetNames.push(...names);
+	}
+	if (presetNames.length === 0) return [];
+
+	const rows = await db
+		.select({ email: users.email })
+		.from(users)
+		.innerJoin(permissionPresets, eq(users.presetId, permissionPresets.id))
+		.where(inArray(permissionPresets.name, presetNames));
+
+	return [...new Set(rows.map((r) => r.email))];
+}
+
+export async function resolveUserEmails(userIds: string[]): Promise<string[]> {
+	if (userIds.length === 0) return [];
+	const rows = await db
+		.select({ email: users.email })
+		.from(users)
+		.where(inArray(users.id, userIds));
+	return rows.map((r) => r.email);
+}
