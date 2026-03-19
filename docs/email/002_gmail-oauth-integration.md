@@ -37,7 +37,12 @@ Define scopes in `src/app/admin/mails/_lib/scopes.ts`:
 
 Export as a constant array `GMAIL_SCOPES`.
 
-> **Note on restricted scopes:** `gmail.modify` is a restricted scope. For Google Workspace internal apps, the Workspace admin must mark the app as "trusted" in the Google Admin Console. This avoids the full OAuth verification / security assessment process required for public apps.
+> **Note on restricted scopes:** `gmail.modify` is classified as a **restricted** scope by Google (not just sensitive). For Google Workspace for Education:
+> 1. The Workspace admin must go to **Admin Console → Security → Access and data control → API controls → Manage App Access**.
+> 2. Add the app by its **OAuth client ID** (from the Google Cloud project).
+> 3. Mark the app as **"Trusted"** — this grants it access to restricted scopes including Gmail data.
+> 4. If the Google Cloud project belongs to the same Workspace organization, the app is classified as "Internal". If it belongs to an external account (e.g., a personal Gmail), it's classified as "Third-party" but can still be explicitly Trusted by the admin.
+> 5. This avoids the full OAuth verification / security assessment process required for public apps distributed outside the organization.
 
 ### 3. OAuth API Route
 
@@ -166,5 +171,5 @@ Server action `revokeMailAccount(mailAccountId: string)`:
 - `prompt: 'consent'` is critical — without it, Google won't return a refresh token on re-auth.
 - The `state` parameter should include the user ID to verify on callback (prevents token theft if URL is intercepted).
 - Gmail API rate limits: 15,000 quota units per user per minute. `messages.send` = 100 units, `threads.list` = 10 units, `threads.get` = 10 units. The client should handle `429 Too Many Requests` gracefully.
-- Gmail sending limits per Workspace user: 2,000 messages/day, 500 recipients/message via API, 10,000 total recipients/day.
+- Gmail sending limits per Workspace user: 2,000 messages/day, **500 recipients/message via Gmail API** (web UI allows 2,000 but API is capped at 500), 10,000 total recipients/day, 3,000 external recipients/day.
 - The `googleapis` package is already a dependency (`googleapis@171.0.0` in package.json).

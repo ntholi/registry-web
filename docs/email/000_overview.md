@@ -179,7 +179,7 @@ Update this table immediately after each task is completed so `000_overview.md` 
 | Role = department | Existing user roles (`registry`, `finance`, `academic`, etc.) act as departments |
 | Compose controlled by assignment | Users assigned to an inbox can read + reply; compose requires `canCompose` on assignment or admin role |
 | Revoke = both | Either the authorizing user or an admin can revoke/remove an email |
-| Rate limit | Queue respects Gmail API limits (2,000 msgs/day, 500 recipients/msg via API, 10,000 total recipients/day) |
+| Rate limit | Queue respects Gmail API limits (2,000 msgs/day, **500 recipients/msg via Gmail API**, 10,000 total recipients/day, 3,000 external recipients/day, 3,000 unique recipients/day) |
 | On-demand inbox | Emails fetched directly from Gmail API; TanStack Query handles client caching |
 | Token refresh | Auto-refresh Gmail tokens using google-auth-library `on('tokens')` listener |
 | Token storage | Gmail tokens stored in mailAccounts table (matching existing Google integrations pattern) |

@@ -6,8 +6,9 @@ With mail accounts and the Gmail client in place (Steps 001-003), this step impl
 
 ## Context
 
-- Gmail Workspace limits (per user, rolling 24h): **2,000 messages/day**, **2,000 recipients/message** (max **500 external**), **10,000 total recipients/day**, **3,000 external recipients/day**.
-- Gmail API rate limit: **15,000 quota units/user/minute**. `messages.send` costs **100 units** → theoretical max **150 sends/min/user**.
+- Gmail Workspace limits (per user, rolling 24h): **2,000 messages/day**, **10,000 total recipients/day**, **3,000 external recipients/day**, **3,000 unique recipients/day** (2,000 external).
+- Gmail API-specific limits: **500 recipients/message** when sent via the Gmail API (NOT the 2,000 limit shown in Gmail web UI). Max **500 external** recipients per message regardless of method.
+- Gmail API rate limit: **15,000 quota units/user/minute** (1,200,000/min per project). `messages.send` costs **100 units** → theoretical max **150 sends/min/user**.
 - Running on Vercel (serverless) — no persistent background processes.
 - Queue uses a DB table (`mailQueue`) processed by an API route that **Vercel Cron Jobs** call periodically (configured in `vercel.json`).
 - The `sendEmail` function is the single entry point for all outbound email — both system-triggered and manual.
@@ -151,7 +152,7 @@ A `GET` handler (Vercel Cron always sends HTTP GET requests):
 }
 ```
 
-> **Note:** Hobby plans only allow daily cron jobs. The `*/2` schedule requires a **Pro** plan. If on Hobby, use `0 * * * *` (hourly) or invest in Pro.
+> **Note:** Hobby plans are limited to cron jobs that run **once per day** only — expressions like `0 * * * *` (hourly) or `*/2 * * * *` (every 2 min) will **fail deployment**. The `*/2` schedule requires a **Pro** plan. If on Hobby, use `0 8 * * *` (once daily at 8 AM UTC, but invocation may occur anywhere within that hour ±59 min). For a university email system, **Pro plan is strongly recommended** for timely delivery.
 
 #### New env vars:
 
@@ -237,5 +238,5 @@ Replies are always sent immediately (not queued) — they are user-initiated and
 - **Dependency to install:** `pnpm add nodemailer` and `pnpm add -D @types/nodemailer`.
 - **Attachments:** Reuse the shared R2 storage helper to fetch file bytes for server-side MIME assembly. Do not duplicate ad hoc R2 download logic inside the Gmail client.
 - **Idempotency:** Vercel's event-driven system can occasionally deliver the same cron event more than once. The `FOR UPDATE SKIP LOCKED` claim mechanism ensures duplicate invocations safely skip already-claimed rows. The atomic claim query (not a separate SELECT then UPDATE) is critical for correctness.
-- **Vercel plan requirement:** The `*/2` cron schedule requires a **Pro** plan (Hobby is limited to once/day). Pro plans support up to 40 cron jobs per project.
+- **Vercel plan requirement:** The `*/2` cron schedule requires a **Pro** plan. Hobby is limited to **once per day** only — hourly or more frequent expressions fail deployment. All plans support up to **100 cron jobs** per project. Pro plan cron jobs are invoked within the specified minute; Hobby has ±59 min jitter.
 - **Batch size:** Cap at 10 emails per cron invocation. With 100 quota units per `messages.send` and 15,000 units/min limit, 10 sends is well within bounds. This also keeps function execution under 60 seconds.

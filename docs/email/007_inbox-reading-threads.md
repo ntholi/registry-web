@@ -195,7 +195,7 @@ Construct the Gmail `q` parameter from UI search fields and pass to `fetchInbox(
 
 ## Notes
 
-- Gmail API quota: `threads.list` = 5 units, `threads.get` = 10 units, `messages.send` = 100 units. The 250 units/sec/user limit should not be an issue for normal inbox use.
+- Gmail API quota: `threads.list` = **10 units**, `threads.get` = **10 units**, `messages.send` = **100 units**, `messages.get` = **5 units**, `messages.modify` = **5 units**, `messages.attachments.get` = **5 units**. The per-user rate limit is **15,000 quota units/min** (effectively ~250 units/sec). Normal inbox use is well within bounds.
 - MIME parsing: Gmail returns messages in `multipart/alternative` or `multipart/mixed` format. Walk the MIME tree to find `text/html` and `text/plain` parts.
 - Base64 decoding: Gmail uses URL-safe base64 encoding. Use `Buffer.from(data, 'base64url')` for decoding.
 - The `historyId` from Gmail can be used for incremental sync (only fetch changes since last check). This is an optimization for later — initial implementation fetches on-demand.
