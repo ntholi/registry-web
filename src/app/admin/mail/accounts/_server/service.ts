@@ -24,6 +24,12 @@ class MailAccountService extends BaseService<typeof mailAccounts, 'id'> {
 		});
 	}
 
+	async getDetail(id: string) {
+		return withPermission(async () => mailAccountRepo.findById(id), {
+			mails: ['read'],
+		});
+	}
+
 	async search(params: QueryOptions<typeof mailAccounts>) {
 		return withPermission(async () => mailAccountRepo.search(params), {
 			mails: ['read'],

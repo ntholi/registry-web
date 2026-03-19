@@ -56,6 +56,10 @@ export async function getMailAccount(id: string) {
 	return mailAccountService.get(id);
 }
 
+export async function getMailAccountDetail(id: string) {
+	return mailAccountService.getDetail(id);
+}
+
 export async function getMyMailAccounts() {
 	const session = await getSession();
 	if (!session) return [];
