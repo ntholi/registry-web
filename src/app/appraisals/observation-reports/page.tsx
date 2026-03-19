@@ -18,7 +18,6 @@ import CategoryChart from './_components/CategoryChart';
 import ExportButton from './_components/ExportButton';
 import Filter from './_components/Filter';
 import LecturerTable from './_components/LecturerTable';
-import OverviewStats from './_components/OverviewStats';
 import TrendChart from './_components/TrendChart';
 import type { ObservationReportFilter } from './_lib/types';
 import {
@@ -108,8 +107,6 @@ export default function ObservationReportsPage() {
 
 				{isFilterApplied && hasData && reportData && (
 					<Stack gap='lg'>
-						<OverviewStats data={reportData.overview} />
-
 						<Grid gutter='lg'>
 							<Grid.Col span={{ base: 12, md: 6 }}>
 								<CategoryChart data={reportData.categoryAverages} />

@@ -153,17 +153,17 @@ export default function EmployeeForm({
 						/>
 						<TextInput label='Full Name' {...form.getInputProps('name')} />
 						<SimpleGrid cols={{ base: 1, sm: 2 }}>
-							<Autocomplete
-								label='Position'
-								placeholder='e.g., Lecturer'
-								data={Object.values(POSITION_LABELS)}
-								{...form.getInputProps('position')}
-							/>
 							<Select
 								label='Department'
 								data={[...DEPARTMENTS]}
 								searchable
 								{...form.getInputProps('department')}
+							/>
+							<Autocomplete
+								label='Position'
+								placeholder='e.g., Lecturer'
+								data={Object.values(POSITION_LABELS)}
+								{...form.getInputProps('position')}
 							/>
 						</SimpleGrid>
 						<Select
