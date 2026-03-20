@@ -3,6 +3,7 @@ type Department =
 	| 'academic'
 	| 'finance'
 	| 'library'
+	| 'mail'
 	| 'marketing'
 	| 'admin'
 	| 'resource'

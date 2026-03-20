@@ -1,5 +1,5 @@
+import { processEmailQueue } from '@mail/queues/_server/queue-processor';
 import { NextResponse } from 'next/server';
-import { processEmailQueue } from '@/app/admin/mail/queues/_server/queue-processor';
 
 export const maxDuration = 60;
 

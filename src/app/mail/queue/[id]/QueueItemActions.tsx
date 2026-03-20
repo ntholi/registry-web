@@ -45,7 +45,7 @@ export default function QueueItemActions({ id, status }: Props) {
 					color: 'green',
 				});
 				queryClient.invalidateQueries({ queryKey: ['mail-queue'] });
-				router.push('/admin/mail/queue');
+				router.push('/mail/queue');
 			},
 		}
 	);

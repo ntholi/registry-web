@@ -7,6 +7,7 @@ import * as auth from '@auth/_database';
 import * as finance from '@finance/_database';
 import * as humanResource from '@human-resource/_database';
 import * as library from '@library/_database';
+import * as mail from '@mail/_database';
 import { Pool as NeonPool } from '@neondatabase/serverless';
 import * as registry from '@registry/_database';
 import * as timetable from '@timetable/_database';
@@ -28,6 +29,7 @@ const schema = {
 	...finance,
 	...humanResource,
 	...library,
+	...mail,
 	...registry,
 	...timetable,
 };
@@ -66,6 +68,7 @@ export * from '@auth/_database';
 export * from '@finance/_database';
 export * from '@human-resource/_database';
 export * from '@library/_database';
+export * from '@mail/_database';
 export * from '@registry/_database';
 export * from '@timetable/_database';
 export * from './types';

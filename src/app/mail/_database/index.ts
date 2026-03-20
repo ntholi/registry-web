@@ -6,3 +6,9 @@ export {
 	mailTriggerType,
 } from '../_schema/mailQueue';
 export { mailSentLog } from '../_schema/mailSentLog';
+export {
+	mailAccountAssignmentsRelations,
+	mailAccountsRelations,
+	mailQueueRelations,
+	mailSentLogRelations,
+} from '../_schema/relations';

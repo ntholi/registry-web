@@ -95,7 +95,7 @@ export default function ThreadDetailPage() {
 	return (
 		<Stack p='md' gap='md'>
 			<Group>
-				<ActionIcon variant='subtle' component={Link} href='/admin/mail/inbox'>
+				<ActionIcon variant='subtle' component={Link} href='/mail/inbox'>
 					<IconArrowLeft size={18} />
 				</ActionIcon>
 				<Title order={4} fw={500} style={{ flex: 1 }}>

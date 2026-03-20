@@ -6,15 +6,10 @@ import {
 	IconChecklist,
 	IconFileExport,
 	IconFlask,
-	IconInbox,
-	IconMail,
 	IconPackage,
 	IconSearch,
-	IconSend,
 	IconSettings,
 	IconShield,
-	IconStack2,
-	IconUserCheck,
 	IconUserShield,
 } from '@tabler/icons-react';
 import type {
@@ -61,34 +56,7 @@ export const adminConfig: ModuleConfig = {
 				icon: IconBell,
 				roles: ['admin'],
 			},
-			{
-				label: 'Mail',
-				href: '/admin/mail',
-				icon: IconMail,
-				collapsed: true,
-				permissions: [{ resource: 'mails', action: 'read' }],
-				children: [
-					{ label: 'Inbox', href: '/admin/mail/inbox', icon: IconInbox },
-					{
-						label: 'Accounts',
-						href: '/admin/mail/accounts',
-						icon: IconUserCheck,
-					},
-					{ label: 'Sent', href: '/admin/mail/sent', icon: IconSend },
-					{
-						label: 'Queue',
-						href: '/admin/mail/queue',
-						icon: IconStack2,
-						roles: ['admin'],
-					},
-					{
-						label: 'Settings',
-						href: '/admin/mail/settings',
-						icon: IconSettings,
-						roles: ['admin'],
-					},
-				] as NavItem[],
-			},
+
 			{
 				label: 'Activity Tracker',
 				href: '/admin/activity-tracker',

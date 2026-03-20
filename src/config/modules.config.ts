@@ -5,6 +5,7 @@ export type ModuleKey =
 	| 'appraisals'
 	| 'lms'
 	| 'finance'
+	| 'mail'
 	| 'registry'
 	| 'reports'
 	| 'timetable'
@@ -20,6 +21,7 @@ const moduleEnvKeys: Record<ModuleKey, string> = {
 	appraisals: 'ENABLE_MODULE_APPRAISALS',
 	lms: 'ENABLE_MODULE_LMS',
 	finance: 'ENABLE_MODULE_FINANCE',
+	mail: 'ENABLE_MODULE_MAIL',
 	registry: 'ENABLE_MODULE_REGISTRY',
 	reports: 'ENABLE_MODULE_REPORTS',
 	timetable: 'ENABLE_MODULE_TIMETABLE',
@@ -47,6 +49,7 @@ export const moduleConfig = {
 	appraisals: isModuleEnabled('appraisals'),
 	lms: isModuleEnabled('lms'),
 	finance: isModuleEnabled('finance'),
+	mail: isModuleEnabled('mail'),
 	registry: isModuleEnabled('registry'),
 	reports: isModuleEnabled('reports'),
 	timetable: isModuleEnabled('timetable'),
@@ -64,6 +67,7 @@ export function getModuleConfig() {
 		appraisals: moduleConfig.appraisals,
 		lms: moduleConfig.lms,
 		finance: moduleConfig.finance,
+		mail: moduleConfig.mail,
 		registry: moduleConfig.registry,
 		reports: moduleConfig.reports,
 		timetable: moduleConfig.timetable,

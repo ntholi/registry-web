@@ -36,7 +36,7 @@ export default function InboxLayout({ children }: PropsWithChildren) {
 			} else {
 				params.delete('account');
 			}
-			router.replace(`/admin/mail/inbox?${params.toString()}`);
+			router.replace(`/mail/inbox?${params.toString()}`);
 		},
 		[searchParams, router]
 	);
@@ -55,7 +55,7 @@ export default function InboxLayout({ children }: PropsWithChildren) {
 
 	return (
 		<ListLayout<InboxThread>
-			path='/admin/mail/inbox'
+			path='/mail/inbox'
 			queryKey={['inbox-threads', accountId]}
 			getData={getData}
 			actionIcons={[

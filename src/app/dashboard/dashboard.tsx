@@ -15,6 +15,7 @@ import { appraisalsConfig } from '@/app/appraisals/appraisals.config';
 import { financeConfig } from '@/app/finance/finance.config';
 import { humanResourceConfig } from '@/app/human-resource/human-resource.config';
 import { lmsConfig } from '@/app/lms/lms.config';
+import { mailConfig } from '@/app/mail/mail.config';
 import { registryConfig } from '@/app/registry/registry.config';
 import { reportsConfig } from '@/app/reports/reports.config';
 import type { ClientModuleConfig } from '@/config/modules.config';
@@ -117,6 +118,7 @@ function getNavigation(
 		{ config: timetableConfig, enabled: moduleConfig.timetable },
 		{ config: admissionsConfig, enabled: moduleConfig.admissions },
 		{ config: financeConfig, enabled: moduleConfig.finance },
+		{ config: mailConfig, enabled: moduleConfig.mail },
 		{ config: adminConfig, enabled: moduleConfig.admin },
 		{ config: reportsConfig, enabled: moduleConfig.reports },
 	];

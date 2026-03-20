@@ -1,9 +1,9 @@
-import { type NextRequest, NextResponse } from 'next/server';
 import {
 	renderGenericEmail,
 	renderNotificationEmail,
 	renderStudentStatusEmail,
-} from '@/app/admin/mail/_templates/render';
+} from '@mail/_templates/render';
+import { type NextRequest, NextResponse } from 'next/server';
 
 function baseUrl() {
 	return process.env.BETTER_AUTH_URL ?? 'http://localhost:3000';

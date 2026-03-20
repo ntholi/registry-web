@@ -3,7 +3,7 @@
 import {
 	deleteMailAccount,
 	getMyMailAccounts,
-} from '@admin/mail/accounts/_server/actions';
+} from '@mail/accounts/_server/actions';
 import {
 	ActionIcon,
 	Badge,
@@ -37,7 +37,7 @@ export default function AuthorizeEmailSection() {
 		queryFn: () => getMyMailAccounts(),
 	});
 
-	const authorizeUrl = '/api/auth/gmail?returnUrl=/admin/mail';
+	const authorizeUrl = '/api/auth/gmail?returnUrl=/mail';
 
 	return (
 		<Stack gap='sm'>

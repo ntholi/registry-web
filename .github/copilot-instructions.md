@@ -253,6 +253,7 @@ src/
 │   ├── registry/              # Student records, registration
 │   ├── finance/               # Payments, sponsors
 │   ├── admin/                 # User management, tasks
+│   ├── mail/                  # Email system (accounts, queue, inbox, templates)
 │   ├── lms/                   # Moodle integration
 │   ├── timetable/             # Class scheduling
 │   ├── auth/                  # Authentication
@@ -286,6 +287,7 @@ src/
 | `@auth/*` | `./src/app/auth/*` |
 | `@audit-logs/*` | `./src/app/audit-logs/*` |
 | `@admissions/*` | `./src/app/admissions/*` |
+| `@mail/*` | `./src/app/mail/*` |
 | `@library/*` | `./src/app/library/*` |
 
 ## 🔑 Key Resources

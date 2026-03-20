@@ -5,6 +5,7 @@ import APPRAISALS_ACTIVITIES from '@appraisals/_lib/activities';
 import FINANCE_ACTIVITIES from '@finance/_lib/activities';
 import HUMAN_RESOURCE_ACTIVITIES from '@human-resource/_lib/activities';
 import LIBRARY_ACTIVITIES from '@library/_lib/activities';
+import MAIL_ACTIVITIES from '@mail/_lib/activities';
 import REGISTRY_ACTIVITIES from '@registry/_lib/activities';
 import TIMETABLE_ACTIVITIES from '@timetable/_lib/activities';
 import {
@@ -20,6 +21,7 @@ const ALL_FRAGMENTS = [
 	LIBRARY_ACTIVITIES,
 	ADMISSIONS_ACTIVITIES,
 	ADMIN_ACTIVITIES,
+	MAIL_ACTIVITIES,
 	TIMETABLE_ACTIVITIES,
 	HUMAN_RESOURCE_ACTIVITIES,
 ] as const;

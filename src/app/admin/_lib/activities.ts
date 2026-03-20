@@ -60,38 +60,6 @@ const ADMIN_ACTIVITIES = {
 			label: 'Permission Preset Deleted',
 			department: 'admin',
 		},
-		mail_account_authorized: {
-			label: 'Mail Account Authorized',
-			department: 'admin',
-		},
-		mail_account_updated: {
-			label: 'Mail Account Updated',
-			department: 'admin',
-		},
-		mail_account_revoked: {
-			label: 'Mail Account Revoked',
-			department: 'admin',
-		},
-		mail_assignment_created: {
-			label: 'Mail Assignment Created',
-			department: 'admin',
-		},
-		mail_assignment_removed: {
-			label: 'Mail Assignment Removed',
-			department: 'admin',
-		},
-		mail_primary_changed: {
-			label: 'Mail Primary Changed',
-			department: 'admin',
-		},
-		mail_queue_retried: {
-			label: 'Mail Queue Retried',
-			department: 'admin',
-		},
-		mail_queue_cancelled: {
-			label: 'Mail Queue Cancelled',
-			department: 'admin',
-		},
 	},
 	tableOperationMap: {
 		'users:INSERT': 'user_created',
@@ -106,11 +74,6 @@ const ADMIN_ACTIVITIES = {
 		'permission_presets:INSERT': 'preset_created',
 		'permission_presets:UPDATE': 'preset_updated',
 		'permission_presets:DELETE': 'preset_deleted',
-		'mail_accounts:INSERT': 'mail_account_authorized',
-		'mail_accounts:UPDATE': 'mail_account_updated',
-		'mail_accounts:DELETE': 'mail_account_revoked',
-		'mail_account_assignments:INSERT': 'mail_assignment_created',
-		'mail_account_assignments:DELETE': 'mail_assignment_removed',
 	},
 } as const satisfies ActivityFragment;
 

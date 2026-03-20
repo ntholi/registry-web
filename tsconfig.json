@@ -36,6 +36,7 @@
 			"@audit-logs/*": ["./src/app/audit-logs/*"],
 			"@library/*": ["./src/app/library/*"],
 			"@human-resource/*": ["./src/app/human-resource/*"],
+			"@mail/*": ["./src/app/mail/*"],
 			"@server/*": ["./src/server/*"]
 		}
 	},

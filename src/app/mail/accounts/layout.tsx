@@ -8,7 +8,7 @@ import { getMailAccounts } from '../accounts/_server/actions';
 export default function AccountsLayout({ children }: PropsWithChildren) {
 	return (
 		<ListLayout
-			path='/admin/mail/accounts'
+			path='/mail/accounts'
 			queryKey={['mail-accounts']}
 			getData={getMailAccounts}
 			renderItem={(account) => (

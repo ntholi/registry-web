@@ -2,21 +2,20 @@
 
 import { Badge, Group, Text } from '@mantine/core';
 import type { PropsWithChildren } from 'react';
-import { statusColors } from '@/shared/lib/utils/colors';
 import { formatRelativeTime } from '@/shared/lib/utils/dates';
 import { ListItem, ListLayout } from '@/shared/ui/adease';
-import { getQueueItems } from '../queues/_server/actions';
+import { getSentLog } from '../queues/_server/actions';
 
-type QueueItem = NonNullable<
-	Awaited<ReturnType<typeof getQueueItems>>
+type SentLogItem = NonNullable<
+	Awaited<ReturnType<typeof getSentLog>>
 >['items'][number];
 
-export default function QueueLayout({ children }: PropsWithChildren) {
+export default function SentLayout({ children }: PropsWithChildren) {
 	return (
-		<ListLayout<QueueItem>
-			path='/admin/mail/queue'
-			queryKey={['mail-queue']}
-			getData={(page) => getQueueItems(page)}
+		<ListLayout<SentLogItem>
+			path='/mail/sent'
+			queryKey={['mail-sent-log']}
+			getData={getSentLog}
 			renderItem={(item) => (
 				<ListItem
 					id={item.id}
@@ -28,22 +27,22 @@ export default function QueueLayout({ children }: PropsWithChildren) {
 					}
 					rightSection={
 						<Group gap={4} wrap='nowrap'>
-							<Text size='xs' c='dimmed'>
-								{item.attempts}/{item.maxAttempts ?? 3}
-							</Text>
 							<Badge
 								size='xs'
 								variant='light'
-								color={
-									statusColors.mailQueueStatus[
-										item.status as keyof typeof statusColors.mailQueueStatus
-									] ?? 'gray'
-								}
+								color={item.triggerType === 'manual' ? 'blue' : 'gray'}
 							>
-								{item.status}
+								{item.triggerType}
+							</Badge>
+							<Badge
+								size='xs'
+								variant='light'
+								color={item.status === 'sent' ? 'green' : 'red'}
+							>
+								{item.status === 'sent' ? '✓ Sent' : '✗ Failed'}
 							</Badge>
 							<Text size='xs' c='dimmed' style={{ flexShrink: 0 }}>
-								{formatRelativeTime(item.createdAt)}
+								{formatRelativeTime(item.sentAt)}
 							</Text>
 						</Group>
 					}
