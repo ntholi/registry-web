@@ -76,11 +76,7 @@ export default function UniversalSearch({
 			<TextInput
 				placeholder='Search...'
 				leftSection={
-					<ThemeIcon
-						variant='transparent'
-						color='rgba(207, 249, 255, 1)'
-						mr={'xs'}
-					>
+					<ThemeIcon variant='transparent' color='gray' mr={'xs'}>
 						<IconSearch size='1.2rem' />
 					</ThemeIcon>
 				}
