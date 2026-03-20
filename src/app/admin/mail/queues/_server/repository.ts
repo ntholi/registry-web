@@ -210,6 +210,7 @@ class MailQueueRepository {
 				subject: mailQueue.subject,
 				status: mailQueue.status,
 				attempts: mailQueue.attempts,
+				maxAttempts: mailQueue.maxAttempts,
 				error: mailQueue.error,
 				triggerType: mailQueue.triggerType,
 				scheduledAt: mailQueue.scheduledAt,

@@ -7,6 +7,7 @@ import {
 	DetailsViewHeader,
 	FieldView,
 } from '@/shared/ui/adease';
+import { queueStatusColor } from '../../_lib/types';
 import { getQueueItem } from '../../queues/_server/actions';
 import QueueItemActions from './QueueItemActions';
 
@@ -20,14 +21,6 @@ export default async function QueueItemPage({ params }: Props) {
 
 	if (!item) return notFound();
 
-	const statusColor: Record<string, string> = {
-		pending: 'yellow',
-		retry: 'orange',
-		processing: 'blue',
-		failed: 'red',
-		sent: 'green',
-	};
-
 	return (
 		<DetailsView>
 			<DetailsViewHeader
@@ -40,7 +33,10 @@ export default async function QueueItemPage({ params }: Props) {
 				{item.cc && <FieldView label='CC'>{item.cc}</FieldView>}
 				<FieldView label='Subject'>{item.subject}</FieldView>
 				<FieldView label='Status'>
-					<Badge variant='light' color={statusColor[item.status] ?? 'gray'}>
+					<Badge
+						variant='light'
+						color={queueStatusColor[item.status] ?? 'gray'}
+					>
 						{item.status}
 					</Badge>
 				</FieldView>

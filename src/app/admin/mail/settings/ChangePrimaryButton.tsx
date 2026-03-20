@@ -25,7 +25,6 @@ type Props = {
 export default function ChangePrimaryButton({ accounts, currentId }: Props) {
 	const queryClient = useQueryClient();
 	const router = useRouter();
-	const [_selected, _setSelected] = useState<string | null>(null);
 
 	const { mutate, isPending } = useActionMutation(
 		(id: string) => setPrimaryMailAccount(id),
