@@ -13,6 +13,7 @@ import {
 	TimelineItem,
 	Title,
 } from '@mantine/core';
+import { REGISTRATION_CLEARANCE_DEPTS } from '@registry/clearance/_lib/constants';
 import type { getRegistrationRequest } from '@registry/registration';
 import { IconInfoCircle } from '@tabler/icons-react';
 import { getStatusColor } from '@/shared/lib/utils/colors';
@@ -27,7 +28,7 @@ type Props = {
 export default function ClearanceStatusView({ registration }: Props) {
 	const { clearances = [] } = registration;
 
-	const departments = ['finance', 'library'];
+	const departments = REGISTRATION_CLEARANCE_DEPTS;
 
 	return (
 		<Paper withBorder p='md' radius='md'>

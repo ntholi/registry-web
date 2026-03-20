@@ -52,11 +52,11 @@ export default async function GraduationClearanceRequestDetails({
 						zohoContactId={null}
 						isActive
 					/>
-					<TabsPanel value='academics'>
-						<AcademicsLoader
-							stdNo={request.graduationRequest.studentProgram.stdNo}
-						/>
-					</TabsPanel>
+				</TabsPanel>
+				<TabsPanel value='academics'>
+					<AcademicsLoader
+						stdNo={request.graduationRequest.studentProgram.stdNo}
+					/>
 				</TabsPanel>
 				<TabsPanel value='history'>
 					<GraduationClearanceHistory

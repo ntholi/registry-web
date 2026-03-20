@@ -1,4 +1,5 @@
 import type { ProgramLevel } from '@academic/_database';
+import { REGISTRATION_CLEARANCE_DEPTS } from '@registry/clearance/_lib/constants';
 import { and, asc, count, desc, eq, inArray, sql } from 'drizzle-orm';
 import type { DashboardRole } from '@/core/auth/permissions';
 import {
@@ -120,9 +121,10 @@ export default class ClearanceRepository extends BaseRepository<
 
 			if (!current) throw new Error('Clearance not found');
 
+			const { department: _dept, ...updateData } = data;
 			const [clearanceRecord] = await tx
 				.update(clearance)
-				.set(data)
+				.set(updateData)
 				.where(eq(clearance.id, id))
 				.returning();
 
@@ -192,7 +194,12 @@ export default class ClearanceRepository extends BaseRepository<
 			with: { clearance: true },
 		});
 
-		const allApproved = allClearances.every(
+		const relevantClearances = allClearances.filter((c) =>
+			(REGISTRATION_CLEARANCE_DEPTS as readonly string[]).includes(
+				c.clearance.department
+			)
+		);
+		const allApproved = relevantClearances.every(
 			(c) => c.clearance.status === 'approved'
 		);
 		if (!allApproved) return;

@@ -1,4 +1,8 @@
 import {
+	type ClearanceDept,
+	REGISTRATION_CLEARANCE_DEPTS,
+} from '@registry/clearance/_lib/constants';
+import {
 	and,
 	count,
 	desc,
@@ -644,9 +648,9 @@ export default class RegistrationRequestRepository extends BaseRepository<
 
 			const autoApprovedDepts = new Set(matchingRules.map((r) => r.department));
 
-			let departments: ('finance' | 'library')[] = [];
+			let departments: ClearanceDept[] = [];
 			if (!skipClearance) {
-				departments = ['finance', 'library'];
+				departments = [...REGISTRATION_CLEARANCE_DEPTS];
 			}
 
 			for (const department of departments) {
@@ -847,7 +851,7 @@ export default class RegistrationRequestRepository extends BaseRepository<
 				existingClearances.map((c) => [c.department, c.clearanceId])
 			);
 
-			for (const department of ['finance', 'library'] as const) {
+			for (const department of REGISTRATION_CLEARANCE_DEPTS) {
 				const existingId = clearanceByDept.get(department);
 				if (existingId) {
 					if (department === 'finance' && hasModulesChanged) {

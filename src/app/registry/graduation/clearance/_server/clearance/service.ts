@@ -4,6 +4,7 @@ import type { clearance } from '@/core/database';
 import type { QueryOptions } from '@/core/platform/BaseRepository';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
 import withPermission from '@/core/platform/withPermission';
+import { UserFacingError } from '@/shared/lib/actions/extractError';
 import GraduationClearanceRepository from './repository';
 
 type Clearance = typeof clearance.$inferInsert;
@@ -53,6 +54,16 @@ class GraduationClearanceService {
 			const current = await this.repository.findById(id);
 			if (!current) throw new Error('Clearance not found');
 
+			if (
+				session?.user?.role !== 'admin' &&
+				session?.user?.role !== current.department
+			) {
+				throw new UserFacingError(
+					'You do not have permission to update this clearance',
+					'FORBIDDEN'
+				);
+			}
+
 			const audit = {
 				userId: session!.user!.id!,
 				role: session!.user!.role!,
@@ -82,6 +93,17 @@ class GraduationClearanceService {
 	async respond(data: Clearance, stdNo?: number) {
 		return withPermission(async (session) => {
 			if (!data.id) throw Error('Clearance id cannot be null/undefined');
+			const current = await this.repository.findById(data.id);
+			if (!current) throw new Error('Clearance not found');
+			if (
+				session?.user?.role !== 'admin' &&
+				session?.user?.role !== current.department
+			) {
+				throw new UserFacingError(
+					'You do not have permission to respond to this clearance',
+					'FORBIDDEN'
+				);
+			}
 			return this.repository.update(
 				data.id,
 				{

@@ -12,6 +12,7 @@ import {
 	TimelineItem,
 	Title,
 } from '@mantine/core';
+import { GRADUATION_CLEARANCE_DEPTS } from '@registry/clearance/_lib/constants';
 import type { getGraduationRequest } from '@registry/graduation/clearance';
 import { IconInfoCircle } from '@tabler/icons-react';
 import { getStatusColor } from '@/shared/lib/utils/colors';
@@ -28,7 +29,7 @@ interface Props {
 
 export default function GraduationClearanceView({ graduationRequest }: Props) {
 	const { graduationClearances = [] } = graduationRequest;
-	const departments = ['academic', 'finance', 'library'];
+	const departments = GRADUATION_CLEARANCE_DEPTS;
 	const _clearanceStatus = getClearanceStatus(graduationClearances);
 
 	return (

@@ -84,9 +84,10 @@ export default class GraduationClearanceRepository extends BaseRepository<
 
 			if (!current) throw new Error('Clearance not found');
 
+			const { department: _dept, ...updateData } = data;
 			const [clearanceRecord] = await tx
 				.update(clearance)
-				.set(data)
+				.set(updateData)
 				.where(eq(clearance.id, id))
 				.returning();
 

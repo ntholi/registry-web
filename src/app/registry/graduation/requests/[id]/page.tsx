@@ -10,6 +10,11 @@ import {
 	ThemeIcon,
 } from '@mantine/core';
 import {
+	type ClearanceDept,
+	GRADUATION_CLEARANCE_DEPTS,
+} from '@registry/clearance/_lib/constants';
+import { getOverallClearanceStatus } from '@registry/clearance/_lib/status';
+import {
 	GraduationClearanceAccordion,
 	PaymentReceiptsView,
 } from '@registry/graduation';
@@ -23,7 +28,6 @@ import {
 	ProofOfClearancePrinter,
 } from '@registry/graduation/requests';
 import { notFound } from 'next/navigation';
-import type { DashboardRole } from '@/core/auth/permissions';
 import { getStatusColor } from '@/shared/lib/utils/colors';
 import { getStatusIcon } from '@/shared/lib/utils/status';
 import { DetailsView, DetailsViewHeader } from '@/shared/ui/adease';
@@ -33,24 +37,6 @@ interface Props {
 	searchParams?: Promise<Record<string, string | string[] | undefined>>;
 }
 
-function getOverallClearanceStatus(
-	graduationRequest: NonNullable<
-		Awaited<ReturnType<typeof getGraduationRequest>>
-	>
-) {
-	const departments: DashboardRole[] = ['finance', 'library', 'academic'];
-	const statuses = departments.map((dept) => {
-		const clearanceMapping = graduationRequest.graduationClearances?.find(
-			(c) => c.clearance.department === dept
-		);
-		return clearanceMapping?.clearance.status || 'pending';
-	});
-
-	if (statuses.some((status) => status === 'rejected')) return 'rejected';
-	if (statuses.some((status) => status === 'pending')) return 'pending';
-	return 'approved';
-}
-
 export default async function GraduationRequestDetails({
 	params,
 	searchParams,
@@ -58,21 +44,21 @@ export default async function GraduationRequestDetails({
 	const { id } = await params;
 	const sp = (await searchParams) || {};
 	const defaultTab = typeof sp.tab === 'string' ? sp.tab : undefined;
-	type ClearanceDept = 'finance' | 'library' | 'academic';
 	const rawDept = sp.dept;
 	const deptParam = Array.isArray(rawDept) ? rawDept[0] : rawDept;
 	const defaultDept: ClearanceDept | undefined =
-		deptParam === 'finance' ||
-		deptParam === 'library' ||
-		deptParam === 'academic'
-			? (deptParam as ClearanceDept)
-			: undefined;
+		deptParam === 'finance' || deptParam === 'academic' ? deptParam : undefined;
 
 	const graduationRequest = await getGraduationRequest(Number(id));
 
 	if (!graduationRequest) {
 		return notFound();
 	}
+
+	const overallStatus = getOverallClearanceStatus(
+		graduationRequest.graduationClearances,
+		GRADUATION_CLEARANCE_DEPTS
+	);
 
 	return (
 		<DetailsView>
@@ -91,20 +77,18 @@ export default async function GraduationRequestDetails({
 					<TabsTab value='clearance'>
 						<Group gap='xs'>
 							<ThemeIcon
-								color={getStatusColor(
-									getOverallClearanceStatus(graduationRequest)
-								)}
+								color={getStatusColor(overallStatus)}
 								variant='light'
 								size={20}
 							>
-								{getStatusIcon(getOverallClearanceStatus(graduationRequest), {
+								{getStatusIcon(overallStatus, {
 									size: 16,
 								})}
 							</ThemeIcon>
 							Clearance
 						</Group>
 					</TabsTab>
-					{getOverallClearanceStatus(graduationRequest) === 'approved' && (
+					{overallStatus === 'approved' && (
 						<Box ml='auto'>
 							<ProofOfClearancePrinter requestId={id} />
 						</Box>

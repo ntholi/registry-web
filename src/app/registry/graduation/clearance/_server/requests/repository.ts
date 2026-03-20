@@ -1,3 +1,4 @@
+import { GRADUATION_CLEARANCE_DEPTS } from '@registry/clearance/_lib/constants';
 import { and, eq, sql } from 'drizzle-orm';
 import { studentsService } from '@/app/registry/students/_server/service';
 import {
@@ -34,11 +35,11 @@ export default class GraduationRequestRepository extends BaseRepository<
 				.values(data)
 				.returning();
 
-			for (const department of ['finance', 'library']) {
+			for (const department of ['finance'] as const) {
 				const [clearanceRecord] = await tx
 					.insert(clearance)
 					.values({
-						department: department as 'finance' | 'library',
+						department,
 						status: 'pending',
 					})
 					.returning();
@@ -293,11 +294,11 @@ export default class GraduationRequestRepository extends BaseRepository<
 				.values(graduationRequestData)
 				.returning();
 
-			for (const department of ['finance', 'library']) {
+			for (const department of ['finance'] as const) {
 				const [clearanceRecord] = await tx
 					.insert(clearance)
 					.values({
-						department: department as 'finance' | 'library',
+						department,
 						status: 'pending',
 					})
 					.returning();
@@ -528,10 +529,16 @@ export default class GraduationRequestRepository extends BaseRepository<
 			data: requests.map(({ graduationClearances, ...request }) => ({
 				...request,
 				status: this.getStatusFromClearances(
-					(graduationClearances || []).map(
-						({ clearance }) =>
-							clearance.status as 'pending' | 'approved' | 'rejected'
-					)
+					(graduationClearances || [])
+						.filter((gc) =>
+							(GRADUATION_CLEARANCE_DEPTS as readonly string[]).includes(
+								gc.clearance.department
+							)
+						)
+						.map(
+							({ clearance }) =>
+								clearance.status as 'pending' | 'approved' | 'rejected'
+						)
 				),
 			})),
 			pages: Math.ceil(total / limit),
@@ -539,6 +546,11 @@ export default class GraduationRequestRepository extends BaseRepository<
 	}
 
 	async countByStatus(status: 'pending' | 'approved' | 'rejected') {
+		const deptFilter = sql`c.department IN (${sql.join(
+			GRADUATION_CLEARANCE_DEPTS.map((d) => sql`${d}`),
+			sql`, `
+		)})`;
+
 		if (status === 'rejected') {
 			const [result] = await db
 				.select({ value: sql`count(*)`.as<number>() })
@@ -548,6 +560,7 @@ export default class GraduationRequestRepository extends BaseRepository<
             SELECT 1 FROM clearance c 
             INNER JOIN graduation_clearance gc ON c.id = gc.clearance_id 
             WHERE gc.graduation_request_id = ${graduationRequests.id} 
+            AND ${deptFilter}
             AND c.status = 'rejected'
           )`
 				);
@@ -562,17 +575,21 @@ export default class GraduationRequestRepository extends BaseRepository<
               SELECT 1 FROM clearance c 
               INNER JOIN graduation_clearance gc ON c.id = gc.clearance_id 
               WHERE gc.graduation_request_id = ${graduationRequests.id} 
+              AND ${deptFilter}
               AND c.status = 'rejected'
             )`,
 						sql`NOT EXISTS (
               SELECT 1 FROM clearance c 
               INNER JOIN graduation_clearance gc ON c.id = gc.clearance_id 
               WHERE gc.graduation_request_id = ${graduationRequests.id} 
+              AND ${deptFilter}
               AND c.status = 'pending'
             )`,
 						sql`EXISTS (
               SELECT 1 FROM graduation_clearance gc 
+              INNER JOIN clearance c ON c.id = gc.clearance_id
               WHERE gc.graduation_request_id = ${graduationRequests.id}
+              AND ${deptFilter}
             )`
 					)
 				);
@@ -587,12 +604,14 @@ export default class GraduationRequestRepository extends BaseRepository<
               SELECT 1 FROM clearance c 
               INNER JOIN graduation_clearance gc ON c.id = gc.clearance_id 
               WHERE gc.graduation_request_id = ${graduationRequests.id} 
+              AND ${deptFilter}
               AND c.status = 'rejected'
             )`,
 						sql`EXISTS (
               SELECT 1 FROM clearance c 
               INNER JOIN graduation_clearance gc ON c.id = gc.clearance_id 
               WHERE gc.graduation_request_id = ${graduationRequests.id} 
+              AND ${deptFilter}
               AND c.status = 'pending'
             )`
 					)
@@ -602,17 +621,25 @@ export default class GraduationRequestRepository extends BaseRepository<
 	}
 
 	async findAllClearedStudents() {
+		const deptFilter = sql`c.department IN (${sql.join(
+			GRADUATION_CLEARANCE_DEPTS.map((d) => sql`${d}`),
+			sql`, `
+		)})`;
+
 		const clearedRequests = await db.query.graduationRequests.findMany({
 			where: and(
 				sql`NOT EXISTS (
           SELECT 1 FROM clearance c 
           INNER JOIN graduation_clearance gc ON c.id = gc.clearance_id 
           WHERE gc.graduation_request_id = ${graduationRequests.id} 
+          AND ${deptFilter}
           AND c.status != 'approved'
         )`,
 				sql`EXISTS (
           SELECT 1 FROM graduation_clearance gc 
+          INNER JOIN clearance c ON c.id = gc.clearance_id
           WHERE gc.graduation_request_id = ${graduationRequests.id}
+          AND ${deptFilter}
         )`
 			),
 			with: {

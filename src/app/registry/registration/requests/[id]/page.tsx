@@ -8,6 +8,11 @@ import {
 	TabsTab,
 	ThemeIcon,
 } from '@mantine/core';
+import {
+	type ClearanceDept,
+	REGISTRATION_CLEARANCE_DEPTS,
+} from '@registry/clearance/_lib/constants';
+import { getOverallClearanceStatus } from '@registry/clearance/_lib/status';
 import { ClearanceAccordion, RequestDetailsView } from '@registry/registration';
 import {
 	deleteRegistrationRequest,
@@ -15,7 +20,6 @@ import {
 	ModulesView,
 } from '@registry/registration/requests';
 import { notFound } from 'next/navigation';
-import type { DashboardRole } from '@/core/auth/permissions';
 import { getStatusColor } from '@/shared/lib/utils/colors';
 import { getStatusIcon } from '@/shared/lib/utils/status';
 import { DetailsView, DetailsViewHeader } from '@/shared/ui/adease';
@@ -25,24 +29,6 @@ interface Props {
 	searchParams?: Promise<Record<string, string | string[] | undefined>>;
 }
 
-function getOverallClearanceStatus(
-	registrationRequest: NonNullable<
-		Awaited<ReturnType<typeof getRegistrationRequest>>
-	>
-) {
-	const departments: DashboardRole[] = ['finance', 'library'];
-	const statuses = departments.map((dept) => {
-		const clearanceMapping = registrationRequest.clearances?.find(
-			(c) => c.clearance.department === dept
-		);
-		return clearanceMapping?.clearance.status || 'pending';
-	});
-
-	if (statuses.some((status) => status === 'rejected')) return 'rejected';
-	if (statuses.some((status) => status === 'pending')) return 'pending';
-	return 'approved';
-}
-
 export default async function RegistrationRequestDetails({
 	params,
 	searchParams,
@@ -50,19 +36,20 @@ export default async function RegistrationRequestDetails({
 	const { id } = await params;
 	const sp = (await searchParams) || {};
 	const defaultTab = typeof sp.tab === 'string' ? sp.tab : undefined;
-	type ClearanceDept = 'finance' | 'library';
 	const rawDept = sp.dept;
 	const deptParam = Array.isArray(rawDept) ? rawDept[0] : rawDept;
 	const defaultDept: ClearanceDept | undefined =
-		deptParam === 'finance' || deptParam === 'library'
-			? (deptParam as ClearanceDept)
-			: undefined;
+		deptParam === 'finance' ? deptParam : undefined;
 	const registrationRequest = await getRegistrationRequest(Number(id));
 
 	if (!registrationRequest) {
 		return notFound();
 	}
 
+	const overallStatus = getOverallClearanceStatus(
+		registrationRequest.clearances,
+		REGISTRATION_CLEARANCE_DEPTS
+	);
 	const sponsorship = registrationRequest.sponsoredStudent;
 
 	return (
@@ -84,13 +71,11 @@ export default async function RegistrationRequestDetails({
 					<TabsTab value='clearance'>
 						<Group gap='xs'>
 							<ThemeIcon
-								color={getStatusColor(
-									getOverallClearanceStatus(registrationRequest)
-								)}
+								color={getStatusColor(overallStatus)}
 								variant='light'
 								size={20}
 							>
-								{getStatusIcon(getOverallClearanceStatus(registrationRequest), {
+								{getStatusIcon(overallStatus, {
 									size: 16,
 								})}
 							</ThemeIcon>
