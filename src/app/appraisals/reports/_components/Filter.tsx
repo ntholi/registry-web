@@ -27,19 +27,14 @@ import { useEffect, useState } from 'react';
 import { useAllTerms } from '@/shared/lib/hooks/use-term';
 import { useUserSchools } from '@/shared/lib/hooks/use-user-schools';
 import type { ReportFilter } from '../_lib/types';
-import { getCyclesByTerm, getModulesForFilter } from '../_server/actions';
+import { getCyclesByTerm } from '../_server/actions';
 
 type Props = {
 	onFilterChange: (filter: ReportFilter) => void;
-	activeTab: string;
 	hasFullAccess: boolean;
 };
 
-export default function Filter({
-	onFilterChange,
-	activeTab,
-	hasFullAccess,
-}: Props) {
+export default function Filter({ onFilterChange, hasFullAccess }: Props) {
 	const [localFilter, setLocalFilter] = useQueryStates(
 		{
 			termId: parseAsInteger,
@@ -101,24 +96,6 @@ export default function Filter({
 		queryKey: ['feedback-cycles-by-term', localFilter.termId],
 		queryFn: () => getCyclesByTerm(localFilter.termId!),
 		enabled: Boolean(localFilter.termId),
-	});
-
-	const showModule = activeTab === 'feedback';
-
-	const { data: moduleOptions = [], isLoading: modulesLoading } = useQuery({
-		queryKey: [
-			'modules-for-filter',
-			localFilter.termId,
-			localFilter.schoolIds,
-			localFilter.programId,
-		],
-		queryFn: () =>
-			getModulesForFilter({
-				termId: localFilter.termId ?? undefined,
-				schoolIds: localFilter.schoolIds ?? undefined,
-				programId: localFilter.programId ?? undefined,
-			}),
-		enabled: Boolean(localFilter.termId) && showModule,
 	});
 
 	const { data: lecturers = [], isLoading: lecturersLoading } = useQuery({
@@ -250,25 +227,6 @@ export default function Filter({
 						}
 					/>
 				</Grid.Col>
-
-				{showModule && (
-					<Grid.Col span={{ base: 12, sm: 6, md: 3 }}>
-						<Select
-							label='Module'
-							placeholder='All modules'
-							data={moduleOptions.map((m) => ({
-								value: m.id.toString(),
-								label: `${m.code} — ${m.name}`,
-							}))}
-							rightSection={modulesLoading && <Loader size='xs' />}
-							value={localFilter.moduleId?.toString() ?? null}
-							onChange={(v) => handleChange('moduleId', v ? Number(v) : null)}
-							searchable
-							clearable
-							disabled={!localFilter.termId}
-						/>
-					</Grid.Col>
-				)}
 
 				{hasFullAccess && (
 					<Grid.Col span={{ base: 12, sm: 6, md: 3 }}>

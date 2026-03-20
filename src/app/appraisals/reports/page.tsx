@@ -35,7 +35,6 @@ export default function AppraisalReportsPage() {
 				<Title order={2}>{title}</Title>
 				<Filter
 					onFilterChange={setFilter}
-					activeTab={activeTab}
 					hasFullAccess={access?.hasFullAccess ?? false}
 				/>
 				{!filter.termId ? (

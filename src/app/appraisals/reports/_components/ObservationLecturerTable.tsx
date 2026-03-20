@@ -209,6 +209,7 @@ function LecturerRow({
 					<Badge
 						color={ratingColor(lecturer.avgScore)}
 						variant='light'
+						w={40}
 						size='sm'
 					>
 						{lecturer.avgScore.toFixed(2)}
