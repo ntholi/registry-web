@@ -43,7 +43,7 @@ export default function ThreadDetailPage() {
 	const accountId = searchParams.get('account') || '';
 	const queryClient = useQueryClient();
 
-	const { data, isLoading } = useQuery({
+	const { data, isLoading, isError } = useQuery({
 		queryKey: ['mail-thread', accountId, threadId],
 		queryFn: () => getThread(accountId, threadId),
 		enabled: !!accountId && !!threadId,
@@ -84,7 +84,9 @@ export default function ThreadDetailPage() {
 	if (!data) {
 		return (
 			<Stack align='center' justify='center' h={300}>
-				<Text c='dimmed'>Thread not found</Text>
+				<Text c='dimmed'>
+					{isError ? 'Failed to load thread' : 'Thread not found'}
+				</Text>
 			</Stack>
 		);
 	}

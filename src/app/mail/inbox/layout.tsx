@@ -6,7 +6,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useSearchParams } from 'next/navigation';
 import { useRouter } from 'nextjs-toploader/app';
 import type { PropsWithChildren } from 'react';
-import { useCallback } from 'react';
+import { useCallback, useEffect } from 'react';
 import { formatRelativeTime } from '@/shared/lib/utils/dates';
 import { ListItem, ListLayout } from '@/shared/ui/adease';
 import type { AccessibleAccount, InboxThread } from '../_lib/types';
@@ -27,6 +27,14 @@ export default function InboxLayout({ children }: PropsWithChildren) {
 	});
 
 	const accountId = searchParams.get('account') || accounts[0]?.id || '';
+
+	useEffect(() => {
+		if (!searchParams.get('account') && accounts[0]?.id) {
+			const params = new URLSearchParams(searchParams);
+			params.set('account', accounts[0].id);
+			router.replace(`/mail/inbox?${params.toString()}`);
+		}
+	}, [accounts, searchParams, router]);
 
 	const handleAccountChange = useCallback(
 		(id: string | null) => {
