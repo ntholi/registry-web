@@ -36,6 +36,18 @@ export const cancelQueuedEmail = createAction(async (queueId: number) => {
 	});
 });
 
+export async function getSentLogEntry(id: number) {
+	return withPermission(async () => mailQueueRepo.getSentLogEntry(id), {
+		mails: ['read'],
+	});
+}
+
+export async function getQueueItem(id: number) {
+	return withPermission(async () => mailQueueRepo.getQueueItem(id), {
+		mails: ['read'],
+	});
+}
+
 export async function getSentLog(page = 1, search = '') {
 	return withPermission(
 		async () => mailQueueRepo.getSentLog(page, search || undefined),
