@@ -113,4 +113,4 @@ async function closeTestDatabase() {
 	await testPool.end();
 }
 
-export { testDb, setupTestDatabase, cleanupTestDatabase, closeTestDatabase };
+export { cleanupTestDatabase, closeTestDatabase, setupTestDatabase, testDb };

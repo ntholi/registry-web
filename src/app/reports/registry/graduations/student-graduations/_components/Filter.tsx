@@ -537,5 +537,5 @@ export default function GraduationFilter({ onFilterChange }: Props) {
 	);
 }
 
-export { BASE_COLUMNS, FILTER_COLUMNS, EXTRA_COLUMNS };
 export type { GraduationReportFilter };
+export { BASE_COLUMNS, EXTRA_COLUMNS, FILTER_COLUMNS };

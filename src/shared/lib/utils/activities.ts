@@ -80,12 +80,12 @@ function resolveTableActivity(
 }
 
 export {
-	type Department,
 	type ActivityEntry,
 	type ActivityFragment,
-	mergeFragments,
+	type Department,
 	getActivityLabel,
 	groupByDepartment,
 	isActivityType,
+	mergeFragments,
 	resolveTableActivity,
 };

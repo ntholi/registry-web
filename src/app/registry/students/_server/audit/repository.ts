@@ -29,7 +29,7 @@ interface TableSummary {
 	count: number;
 }
 
-export type { StudentAuditEntry, RoleSummary, TableSummary };
+export type { RoleSummary, StudentAuditEntry, TableSummary };
 
 class StudentAuditRepository {
 	async getStudentHistory(params: {

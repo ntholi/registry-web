@@ -64,7 +64,7 @@ export default async function ProfilePage() {
 		<DetailsView>
 			<Container size='xl' px={0}>
 				<Stack gap='xl'>
-					<Paper withBorder radius='xl' p={{ base: 'lg', md: 'xl' }}>
+					<Paper withBorder p={{ base: 'lg', md: 'xl' }}>
 						<Stack gap='lg'>
 							<Group justify='space-between' align='flex-start'>
 								<Stack gap='xs'>
@@ -77,7 +77,7 @@ export default async function ProfilePage() {
 										Back to Dashboard
 									</ButtonLink>
 									<Group gap='lg' align='center'>
-										<Avatar src={avatar} size={88} radius='xl' />
+										<Avatar src={avatar} size={88} />
 										<Stack gap={6}>
 											<Title order={2} fw={100}>
 												{fullName}
@@ -213,10 +213,10 @@ export default async function ProfilePage() {
 					</SimpleGrid>
 
 					<SimpleGrid cols={{ base: 1, lg: 2 }} spacing='lg'>
-						<Paper withBorder radius='xl' p='lg'>
+						<Paper withBorder p='lg'>
 							<Stack gap='md'>
 								<Group gap='sm'>
-									<ThemeIcon size='lg' radius='xl' variant='light' color='blue'>
+									<ThemeIcon size='lg' variant='light' color='blue'>
 										<IconMail size='1rem' />
 									</ThemeIcon>
 									<div>
@@ -245,10 +245,10 @@ export default async function ProfilePage() {
 							</Stack>
 						</Paper>
 
-						<Paper withBorder radius='xl' p='lg'>
+						<Paper withBorder p='lg'>
 							<Stack gap='md'>
 								<Group gap='sm'>
-									<ThemeIcon size='lg' radius='xl' variant='light' color='teal'>
+									<ThemeIcon size='lg' variant='light' color='teal'>
 										<IconBuilding size='1rem' />
 									</ThemeIcon>
 									<div>
@@ -319,10 +319,10 @@ function ProfileCard({
 	children: React.ReactNode;
 }) {
 	return (
-		<Card withBorder radius='xl' p='lg'>
+		<Card withBorder p='lg'>
 			<Stack gap='md'>
 				<Group gap='sm' align='flex-start'>
-					<ThemeIcon size='lg' radius='xl' variant='light'>
+					<ThemeIcon size='lg' variant='light'>
 						<Icon size='1rem' />
 					</ThemeIcon>
 					<div>

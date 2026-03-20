@@ -61,6 +61,6 @@ export type {
 	EmployeeActivityBreakdown,
 	EmployeeSummary,
 	HeatmapCell,
-	TimePreset,
 	TimelineEntry,
+	TimePreset,
 };

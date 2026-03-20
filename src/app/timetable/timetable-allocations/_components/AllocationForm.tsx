@@ -24,6 +24,7 @@ import {
 	daysOfWeek,
 } from '../_lib/schemas';
 
+export type { BaseAllocationFormValues, DayOfWeek };
 export {
 	applyTimeRefinements,
 	baseAllocationSchema,
@@ -31,7 +32,6 @@ export {
 	classTypes,
 	daysOfWeek,
 };
-export type { BaseAllocationFormValues, DayOfWeek };
 
 type Props<T extends BaseAllocationFormValues> = {
 	form: UseFormReturnType<T>;

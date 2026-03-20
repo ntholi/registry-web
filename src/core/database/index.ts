@@ -57,8 +57,6 @@ const nodeDb = drizzleNode(new NodePool({ connectionString }), {
 
 const db = useNodeDriver ? nodeDb : neonDb;
 
-export { db, schema };
-
 export * from '@academic/_database';
 export * from '@admin/_database';
 export * from '@admissions/_database';
@@ -72,3 +70,4 @@ export * from '@mail/_database';
 export * from '@registry/_database';
 export * from '@timetable/_database';
 export * from './types';
+export { db, schema };

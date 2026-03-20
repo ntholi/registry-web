@@ -355,11 +355,11 @@ const documentAnalysisSchema = z.object({
 });
 
 export {
-	gradeConfidenceMin,
-	documentAnalysisSchema,
-	identitySchema,
 	academicSchema,
+	certificationSchema,
+	documentAnalysisSchema,
+	gradeConfidenceMin,
+	identitySchema,
 	otherSchema,
 	receiptSchema,
-	certificationSchema,
 };

@@ -93,6 +93,7 @@ You are a **Senior Principal Software Engineer** and **System Architect** specia
 
 ### React & Next.js Patterns
 - **Server Components (RSC)**: Default for all pages/layouts. Use `async/await` for initial data load.
+- **Server Components (RSC)**: Default for all pages/layouts. Use `async/await` for initial data load. Never use dot notation for components in server components (e.g. use `TableThead`, not `Table.Thead`).
 - **Client Components**: Use `'use client'` only for strictly interactive leaf components.
 - **Server Actions**: EXCLUSIVE method for all mutations/writes.
     - **Result Format**: See "Error & Result Handling" below.

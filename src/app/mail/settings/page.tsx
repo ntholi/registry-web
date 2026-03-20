@@ -5,6 +5,11 @@ import {
 	SimpleGrid,
 	Stack,
 	Table,
+	TableTbody,
+	TableTd,
+	TableTh,
+	TableThead,
+	TableTr,
 	Text,
 	Title,
 } from '@mantine/core';
@@ -89,64 +94,64 @@ export default async function SettingsPage() {
 				<Stack gap='md'>
 					<Title order={5}>System Email Triggers</Title>
 					<Table>
-						<Table.Thead>
-							<Table.Tr>
-								<Table.Th>Trigger</Table.Th>
-								<Table.Th>Description</Table.Th>
-								<Table.Th>Status</Table.Th>
-							</Table.Tr>
-						</Table.Thead>
-						<Table.Tbody>
-							<Table.Tr>
-								<Table.Td>Student Status Created</Table.Td>
-								<Table.Td>
+						<TableThead>
+							<TableTr>
+								<TableTh>Trigger</TableTh>
+								<TableTh>Description</TableTh>
+								<TableTh>Status</TableTh>
+							</TableTr>
+						</TableThead>
+						<TableTbody>
+							<TableTr>
+								<TableTd>Student Status Created</TableTd>
+								<TableTd>
 									Email sent when student submits status request
-								</Table.Td>
-								<Table.Td>
+								</TableTd>
+								<TableTd>
 									<Badge size='xs' variant='light' color='green'>
 										Active
 									</Badge>
-								</Table.Td>
-							</Table.Tr>
-							<Table.Tr>
-								<Table.Td>Student Status Updated</Table.Td>
-								<Table.Td>
+								</TableTd>
+							</TableTr>
+							<TableTr>
+								<TableTd>Student Status Updated</TableTd>
+								<TableTd>
 									Email sent when student updates status request
-								</Table.Td>
-								<Table.Td>
+								</TableTd>
+								<TableTd>
 									<Badge size='xs' variant='light' color='green'>
 										Active
 									</Badge>
-								</Table.Td>
-							</Table.Tr>
-							<Table.Tr>
-								<Table.Td>Student Status Approved</Table.Td>
-								<Table.Td>Email sent when approver approves status</Table.Td>
-								<Table.Td>
+								</TableTd>
+							</TableTr>
+							<TableTr>
+								<TableTd>Student Status Approved</TableTd>
+								<TableTd>Email sent when approver approves status</TableTd>
+								<TableTd>
 									<Badge size='xs' variant='light' color='green'>
 										Active
 									</Badge>
-								</Table.Td>
-							</Table.Tr>
-							<Table.Tr>
-								<Table.Td>Student Status Rejected</Table.Td>
-								<Table.Td>Email sent when approver rejects status</Table.Td>
-								<Table.Td>
+								</TableTd>
+							</TableTr>
+							<TableTr>
+								<TableTd>Student Status Rejected</TableTd>
+								<TableTd>Email sent when approver rejects status</TableTd>
+								<TableTd>
 									<Badge size='xs' variant='light' color='green'>
 										Active
 									</Badge>
-								</Table.Td>
-							</Table.Tr>
-							<Table.Tr>
-								<Table.Td>Notification Mirror</Table.Td>
-								<Table.Td>In-app notifications mirrored as email</Table.Td>
-								<Table.Td>
+								</TableTd>
+							</TableTr>
+							<TableTr>
+								<TableTd>Notification Mirror</TableTd>
+								<TableTd>In-app notifications mirrored as email</TableTd>
+								<TableTd>
 									<Badge size='xs' variant='light' color='green'>
 										Active
 									</Badge>
-								</Table.Td>
-							</Table.Tr>
-						</Table.Tbody>
+								</TableTd>
+							</TableTr>
+						</TableTbody>
 					</Table>
 				</Stack>
 			</Card>
