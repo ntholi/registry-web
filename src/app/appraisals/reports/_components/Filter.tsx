@@ -1,10 +1,7 @@
 'use client';
 
 import { searchAllLecturers } from '@academic/lecturers';
-import {
-	getActiveSchools,
-	getProgramsBySchoolIds,
-} from '@academic/schools/_server/actions';
+import { getActiveSchools } from '@academic/schools/_server/actions';
 import {
 	Grid,
 	Group,
@@ -27,20 +24,24 @@ import { useEffect, useState } from 'react';
 import { useAllTerms } from '@/shared/lib/hooks/use-term';
 import { useUserSchools } from '@/shared/lib/hooks/use-user-schools';
 import type { ReportFilter } from '../_lib/types';
-import { getCyclesByTerm } from '../_server/actions';
+import { getCyclesByTerm, getModulesForFilter } from '../_server/actions';
 
 type Props = {
 	onFilterChange: (filter: ReportFilter) => void;
+	activeTab: string;
 	hasFullAccess: boolean;
 };
 
-export default function Filter({ onFilterChange, hasFullAccess }: Props) {
+export default function Filter({
+	onFilterChange,
+	activeTab,
+	hasFullAccess,
+}: Props) {
 	const [localFilter, setLocalFilter] = useQueryStates(
 		{
 			termId: parseAsInteger,
 			cycleId: parseAsString,
 			schoolIds: parseAsArrayOf(parseAsInteger),
-			programId: parseAsInteger,
 			moduleId: parseAsInteger,
 			lecturerId: parseAsString,
 		},
@@ -58,7 +59,6 @@ export default function Filter({ onFilterChange, hasFullAccess }: Props) {
 				localFilter.schoolIds && localFilter.schoolIds.length > 0
 					? localFilter.schoolIds
 					: undefined,
-			programId: localFilter.programId ?? undefined,
 			moduleId: localFilter.moduleId ?? undefined,
 			lecturerId: localFilter.lecturerId ?? undefined,
 		});
@@ -85,17 +85,22 @@ export default function Filter({ onFilterChange, hasFullAccess }: Props) {
 		queryFn: getActiveSchools,
 	});
 
-	const { data: programs = [], isLoading: programsLoading } = useQuery({
-		queryKey: ['programs-by-school', localFilter.schoolIds],
-		queryFn: () => getProgramsBySchoolIds(localFilter.schoolIds ?? undefined),
-		enabled:
-			Boolean(localFilter.schoolIds) && localFilter.schoolIds!.length > 0,
-	});
-
 	const { data: cycles = [], isLoading: cyclesLoading } = useQuery({
 		queryKey: ['feedback-cycles-by-term', localFilter.termId],
 		queryFn: () => getCyclesByTerm(localFilter.termId!),
 		enabled: Boolean(localFilter.termId),
+	});
+
+	const showModule = activeTab === 'feedback';
+
+	const { data: moduleOptions = [], isLoading: modulesLoading } = useQuery({
+		queryKey: ['modules-for-filter', localFilter.termId, localFilter.schoolIds],
+		queryFn: () =>
+			getModulesForFilter({
+				termId: localFilter.termId ?? undefined,
+				schoolIds: localFilter.schoolIds ?? undefined,
+			}),
+		enabled: Boolean(localFilter.termId) && showModule,
 	});
 
 	const { data: lecturers = [], isLoading: lecturersLoading } = useQuery({
@@ -113,20 +118,13 @@ export default function Filter({ onFilterChange, hasFullAccess }: Props) {
 				Array.isArray(value) && value.length > 0
 					? value.map((v) => Number(v))
 					: null;
-			setLocalFilter({ schoolIds, programId: null, moduleId: null });
+			setLocalFilter({ schoolIds, moduleId: null });
 			return;
 		}
 		if (field === 'termId') {
 			setLocalFilter({
 				termId: value ? Number(value) : null,
 				cycleId: null,
-			});
-			return;
-		}
-		if (field === 'programId') {
-			setLocalFilter({
-				programId: value ? Number(value) : null,
-				moduleId: null,
 			});
 			return;
 		}
@@ -160,7 +158,7 @@ export default function Filter({ onFilterChange, hasFullAccess }: Props) {
 					/>
 				</Grid.Col>
 
-				<Grid.Col span={{ base: 12, sm: 6, md: 2 }}>
+				<Grid.Col span={{ base: 12, sm: 6, md: 3 }}>
 					<Select
 						label='Cycle'
 						placeholder='All cycles'
@@ -177,7 +175,7 @@ export default function Filter({ onFilterChange, hasFullAccess }: Props) {
 					/>
 				</Grid.Col>
 
-				<Grid.Col span={{ base: 12, sm: 6, md: 3 }}>
+				<Grid.Col span={{ base: 12, sm: 6, md: 4 }}>
 					<MultiSelect
 						label='Schools'
 						placeholder='All schools'
@@ -209,24 +207,24 @@ export default function Filter({ onFilterChange, hasFullAccess }: Props) {
 					/>
 				</Grid.Col>
 
-				<Grid.Col span={{ base: 12, sm: 6, md: 2 }}>
-					<Select
-						label='Program'
-						placeholder='All programs'
-						data={programs.map((p) => ({
-							value: p.id?.toString() || '',
-							label: p.code,
-						}))}
-						rightSection={programsLoading && <Loader size='xs' />}
-						value={localFilter.programId?.toString() ?? null}
-						onChange={(v) => handleChange('programId', v ? Number(v) : null)}
-						searchable
-						clearable
-						disabled={
-							!localFilter.schoolIds || localFilter.schoolIds.length === 0
-						}
-					/>
-				</Grid.Col>
+				{showModule && (
+					<Grid.Col span={{ base: 12, sm: 6, md: 4 }}>
+						<Select
+							label='Module'
+							placeholder='All modules'
+							data={moduleOptions.map((m) => ({
+								value: m.id.toString(),
+								label: `${m.code} — ${m.name}`,
+							}))}
+							rightSection={modulesLoading && <Loader size='xs' />}
+							value={localFilter.moduleId?.toString() ?? null}
+							onChange={(v) => handleChange('moduleId', v ? Number(v) : null)}
+							searchable
+							clearable
+							disabled={!localFilter.termId}
+						/>
+					</Grid.Col>
+				)}
 
 				{hasFullAccess && (
 					<Grid.Col span={{ base: 12, sm: 6, md: 3 }}>

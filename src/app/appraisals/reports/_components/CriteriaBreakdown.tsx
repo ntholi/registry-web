@@ -125,12 +125,7 @@ export default function CriteriaBreakdown({ data }: Props) {
 						underlying criterion-level averages.
 					</Text>
 				</Stack>
-				<Accordion
-					chevronPosition='right'
-					defaultValue={sections[0]?.section}
-					radius='md'
-					variant='contained'
-				>
+				<Accordion chevronPosition='right' radius='md' variant='contained'>
 					{sections.map((section) => (
 						<Accordion.Item key={section.section} value={section.section}>
 							<Accordion.Control>
