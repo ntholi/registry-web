@@ -10,6 +10,7 @@ import { getSession, withPermission } from '@/core/platform/withPermission';
 import { createAction } from '@/shared/lib/actions/actionResult';
 import { UserFacingError } from '@/shared/lib/actions/extractError';
 import type { EmailAttachment } from '../../_lib/types';
+import { sendEmail } from '../../accounts/_server/gmail-client';
 import { mailAssignmentRepo } from '../../assignments/_server/repository';
 import { mailQueueRepo } from './repository';
 
@@ -156,5 +157,59 @@ export const enqueueEmail = createAction(async (formData: FormData) => {
 		attachments,
 		triggerType: 'manual',
 		sentByUserId: session.user.id,
+	});
+});
+export const sendEmailDirect = createAction(async (formData: FormData) => {
+	const session = await getSession();
+	if (!session?.user) throw new UserFacingError('Not authenticated', 'AUTH');
+	if (session.user.role !== 'admin')
+		throw new UserFacingError('Admin access required', 'FORBIDDEN');
+
+	const parsed = enqueueSchema.safeParse({
+		mailAccountId: formData.get('mailAccountId'),
+		to: formData.get('to'),
+		cc: formData.get('cc') || undefined,
+		bcc: formData.get('bcc') || undefined,
+		subject: formData.get('subject'),
+		htmlBody: formData.get('htmlBody'),
+	});
+
+	if (!parsed.success)
+		throw new UserFacingError('Missing required fields', 'VALIDATION');
+
+	const { mailAccountId, to, cc, bcc, subject, htmlBody } = parsed.data;
+
+	let attachments: EmailAttachment[] | undefined;
+	const files = formData.getAll('files') as File[];
+	if (files.length > 0) {
+		attachments = await Promise.all(
+			files
+				.filter((f) => f instanceof File && f.size > 0)
+				.map(async (file) => {
+					const key = generateUploadKey(
+						(name) => StoragePaths.mailAttachment(mailAccountId, name),
+						file.name
+					);
+					await uploadFile(file, key);
+					return {
+						filename: file.name,
+						r2Key: key,
+						mimeType: file.type || 'application/octet-stream',
+					};
+				})
+		);
+	}
+
+	await sendEmail({
+		mailAccountId,
+		to,
+		cc,
+		bcc,
+		subject,
+		htmlBody,
+		attachments,
+		triggerType: 'manual',
+		senderId: session.user.id,
+		immediate: true,
 	});
 });

@@ -6,6 +6,7 @@ import {
 	FileInput,
 	Group,
 	Modal,
+	SegmentedControl,
 	Select,
 	Stack,
 	Textarea,
@@ -16,14 +17,16 @@ import { useDisclosure } from '@mantine/hooks';
 import { IconPaperclip, IconPencil } from '@tabler/icons-react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
+import { authClient } from '@/core/auth-client';
 import { useActionMutation } from '@/shared/lib/actions/use-action-mutation';
 import type { AccessibleAccount } from '../../_lib/types';
 import { getAccessibleMailAccounts } from '../../accounts/_server/actions';
-import { enqueueEmail } from '../../queues/_server/actions';
+import { enqueueEmail, sendEmailDirect } from '../../queues/_server/actions';
 
 export function ComposeModal() {
 	const [opened, { open, close }] = useDisclosure(false);
 	const queryClient = useQueryClient();
+	const { data: session } = authClient.useSession();
 
 	const { data: accounts = [] } = useQuery({
 		queryKey: ['accessible-mail-accounts'],
@@ -40,6 +43,7 @@ export function ComposeModal() {
 	const [body, setBody] = useState('');
 	const [showCcBcc, setShowCcBcc] = useState(false);
 	const [files, setFiles] = useState<File[]>([]);
+	const [sendMode, setSendMode] = useState<'queue' | 'direct'>('queue');
 
 	function resetForm() {
 		setFromId(null);
@@ -50,10 +54,12 @@ export function ComposeModal() {
 		setBody('');
 		setShowCcBcc(false);
 		setFiles([]);
+		setSendMode('queue');
 	}
 
 	const { mutate, isPending } = useActionMutation(
-		async (fd: FormData) => enqueueEmail(fd),
+		async (fd: FormData) =>
+			sendMode === 'direct' ? sendEmailDirect(fd) : enqueueEmail(fd),
 		{
 			onSuccess: () => {
 				close();
@@ -153,21 +159,36 @@ export function ComposeModal() {
 						onChange={setFiles}
 						clearable
 					/>
-					<Group justify='flex-end'>
-						<Button variant='default' onClick={close}>
-							Cancel
-						</Button>
-						<Button
-							onClick={handleSend}
-							loading={isPending}
-							disabled={
-								!to.trim() ||
-								!subject.trim() ||
-								!(fromId ?? composeAccounts[0]?.id)
-							}
-						>
-							Send
-						</Button>
+					<Group justify='space-between'>
+						{session?.user?.role === 'admin' ? (
+							<SegmentedControl
+								size='xs'
+								value={sendMode}
+								onChange={(v) => setSendMode(v as 'queue' | 'direct')}
+								data={[
+									{ label: 'Queue', value: 'queue' },
+									{ label: 'Send now', value: 'direct' },
+								]}
+							/>
+						) : (
+							<span />
+						)}
+						<Group>
+							<Button variant='default' onClick={close}>
+								Cancel
+							</Button>
+							<Button
+								onClick={handleSend}
+								loading={isPending}
+								disabled={
+									!to.trim() ||
+									!subject.trim() ||
+									!(fromId ?? composeAccounts[0]?.id)
+								}
+							>
+								Send
+							</Button>
+						</Group>
 					</Group>
 				</Stack>
 			</Modal>
