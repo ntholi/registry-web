@@ -10,9 +10,15 @@ import {
 	students,
 	users,
 } from '@/core/database';
+import BaseRepository, {
+	type AuditOptions,
+} from '@/core/platform/BaseRepository';
 import type { MailTriggerType } from '../../_lib/types';
 
-class MailQueueRepository {
+class MailQueueRepository extends BaseRepository<typeof mailQueue, 'id'> {
+	constructor() {
+		super(mailQueue, mailQueue.id);
+	}
 	async getSentLogEntry(id: number) {
 		const [row] = await db
 			.select({
@@ -235,17 +241,50 @@ class MailQueueRepository {
 		};
 	}
 
-	async resetToRetry(id: number) {
-		await db
-			.update(mailQueue)
-			.set({ status: 'pending', error: null, attempts: 0 })
-			.where(and(eq(mailQueue.id, id), eq(mailQueue.status, 'failed')));
+	async resetToRetry(id: number, audit?: AuditOptions) {
+		await db.transaction(async (tx) => {
+			const [old] = await tx
+				.select()
+				.from(mailQueue)
+				.where(and(eq(mailQueue.id, id), eq(mailQueue.status, 'failed')))
+				.limit(1);
+
+			if (!old) return;
+
+			await tx
+				.update(mailQueue)
+				.set({ status: 'pending', error: null, attempts: 0 })
+				.where(eq(mailQueue.id, id));
+
+			if (audit) {
+				await this.writeAuditLog(
+					tx,
+					'UPDATE',
+					String(id),
+					old,
+					{ ...old, status: 'pending', error: null, attempts: 0 },
+					audit
+				);
+			}
+		});
 	}
 
-	async cancelQueued(id: number) {
-		await db
-			.delete(mailQueue)
-			.where(and(eq(mailQueue.id, id), eq(mailQueue.status, 'pending')));
+	async cancelQueued(id: number, audit?: AuditOptions) {
+		await db.transaction(async (tx) => {
+			const [old] = await tx
+				.select()
+				.from(mailQueue)
+				.where(and(eq(mailQueue.id, id), eq(mailQueue.status, 'pending')))
+				.limit(1);
+
+			if (!old) return;
+
+			await tx.delete(mailQueue).where(eq(mailQueue.id, id));
+
+			if (audit) {
+				await this.writeAuditLog(tx, 'DELETE', String(id), old, null, audit);
+			}
+		});
 	}
 
 	async getSentLog(page: number, search?: string) {

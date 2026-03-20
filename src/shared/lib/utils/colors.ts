@@ -271,6 +271,13 @@ export const statusColors = {
 		closed: semantic.success,
 		void: semantic.neutral,
 	},
+	mailQueueStatus: {
+		pending: semantic.warning,
+		retry: semantic.caution,
+		processing: semantic.info,
+		failed: semantic.error,
+		sent: semantic.success,
+	},
 } as const;
 
 const allStatuses = {

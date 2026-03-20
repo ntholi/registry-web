@@ -1,8 +1,8 @@
 'use client';
 
 import {
-	getUserMailAccounts,
-	revokeMailAccount,
+	deleteMailAccount,
+	getMyMailAccounts,
 } from '@admin/mail/accounts/_server/actions';
 import {
 	ActionIcon,
@@ -34,7 +34,7 @@ export default function AuthorizeEmailSection() {
 
 	const { data: accounts = [], isLoading } = useQuery({
 		queryKey: ['user-mail-accounts'],
-		queryFn: () => getUserMailAccounts(),
+		queryFn: () => getMyMailAccounts(),
 	});
 
 	const authorizeUrl = '/api/auth/gmail?returnUrl=/admin/mail';
@@ -97,7 +97,7 @@ function MailAccountRow({ account, onRevoked }: RowProps) {
 	const [opened, { open, close }] = useDisclosure(false);
 
 	const revokeMutation = useActionMutation(
-		() => revokeMailAccount(account.id),
+		() => deleteMailAccount(account.id),
 		{
 			onSuccess: () => {
 				notifications.show({

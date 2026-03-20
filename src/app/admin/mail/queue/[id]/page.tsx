@@ -1,5 +1,6 @@
 import { Badge } from '@mantine/core';
 import { notFound } from 'next/navigation';
+import { statusColors } from '@/shared/lib/utils/colors';
 import { formatDateTime } from '@/shared/lib/utils/dates';
 import {
 	DetailsView,
@@ -7,7 +8,6 @@ import {
 	DetailsViewHeader,
 	FieldView,
 } from '@/shared/ui/adease';
-import { queueStatusColor } from '../../_lib/types';
 import { getQueueItem } from '../../queues/_server/actions';
 import QueueItemActions from './QueueItemActions';
 
@@ -35,7 +35,11 @@ export default async function QueueItemPage({ params }: Props) {
 				<FieldView label='Status'>
 					<Badge
 						variant='light'
-						color={queueStatusColor[item.status] ?? 'gray'}
+						color={
+							statusColors.mailQueueStatus[
+								item.status as keyof typeof statusColors.mailQueueStatus
+							] ?? 'gray'
+						}
 					>
 						{item.status}
 					</Badge>

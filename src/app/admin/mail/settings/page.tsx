@@ -14,6 +14,7 @@ import ChangePrimaryButton from './ChangePrimaryButton';
 export default async function SettingsPage() {
 	const { items: accounts } = await getMailAccounts(1, '');
 	const primary = accounts.find((a) => a.isPrimary);
+	const dailyLimit = Number(process.env.MAIL_DAILY_LIMIT) || 1900;
 
 	return (
 		<Stack p='xl' gap='xl'>
@@ -69,7 +70,7 @@ export default async function SettingsPage() {
 								Daily Quota
 							</Text>
 							<Text size='sm' fw={500}>
-								2,000
+								{dailyLimit.toLocaleString()}
 							</Text>
 						</Stack>
 						<Stack gap={2}>

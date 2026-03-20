@@ -1,5 +1,6 @@
 import { render } from '@react-email/render';
 import { createElement } from 'react';
+import sanitize from 'sanitize-html';
 import GenericEmail from './GenericEmail';
 import NotificationEmail from './NotificationEmail';
 import StudentStatusEmail, {
@@ -65,7 +66,10 @@ export async function renderNotificationEmail(
 export async function renderGenericEmail(
 	props: GenericProps
 ): Promise<RenderedEmail> {
-	const element = createElement(GenericEmail, props);
+	const element = createElement(GenericEmail, {
+		...props,
+		body: sanitize(props.body),
+	});
 	const [html, text] = await Promise.all([
 		render(element),
 		render(element, { plainText: true }),

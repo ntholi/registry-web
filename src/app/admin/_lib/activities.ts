@@ -84,6 +84,14 @@ const ADMIN_ACTIVITIES = {
 			label: 'Mail Primary Changed',
 			department: 'admin',
 		},
+		mail_queue_retried: {
+			label: 'Mail Queue Retried',
+			department: 'admin',
+		},
+		mail_queue_cancelled: {
+			label: 'Mail Queue Cancelled',
+			department: 'admin',
+		},
 	},
 	tableOperationMap: {
 		'users:INSERT': 'user_created',

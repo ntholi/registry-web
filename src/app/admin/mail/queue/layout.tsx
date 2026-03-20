@@ -2,9 +2,9 @@
 
 import { Badge, Group, Text } from '@mantine/core';
 import type { PropsWithChildren } from 'react';
+import { statusColors } from '@/shared/lib/utils/colors';
 import { formatRelativeTime } from '@/shared/lib/utils/dates';
 import { ListItem, ListLayout } from '@/shared/ui/adease';
-import { queueStatusColor } from '../_lib/types';
 import { getQueueItems } from '../queues/_server/actions';
 
 type QueueItem = NonNullable<
@@ -34,7 +34,11 @@ export default function QueueLayout({ children }: PropsWithChildren) {
 							<Badge
 								size='xs'
 								variant='light'
-								color={queueStatusColor[item.status] ?? 'gray'}
+								color={
+									statusColors.mailQueueStatus[
+										item.status as keyof typeof statusColors.mailQueueStatus
+									] ?? 'gray'
+								}
 							>
 								{item.status}
 							</Badge>

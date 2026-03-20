@@ -1,5 +1,6 @@
 'use server';
 
+import { z } from 'zod/v4';
 import { uploadFile } from '@/core/integrations/storage';
 import {
 	generateUploadKey,
@@ -11,6 +12,15 @@ import { UserFacingError } from '@/shared/lib/actions/extractError';
 import type { EmailAttachment } from '../../_lib/types';
 import { mailAssignmentRepo } from '../../assignments/_server/repository';
 import { mailQueueRepo } from './repository';
+
+const enqueueSchema = z.object({
+	mailAccountId: z.string().min(1),
+	to: z.string().min(1),
+	cc: z.string().optional(),
+	bcc: z.string().optional(),
+	subject: z.string().min(1),
+	htmlBody: z.string().min(1),
+});
 
 export async function getQueueStatus() {
 	return withPermission(async () => mailQueueRepo.getQueueCounts(), {
@@ -25,15 +35,35 @@ export async function getQueueItems(page = 1, status?: string) {
 }
 
 export const retryFailedEmail = createAction(async (queueId: number) => {
-	return withPermission(async () => mailQueueRepo.resetToRetry(queueId), {
-		mails: ['update'],
-	});
+	return withPermission(
+		async (session) => {
+			const audit = session?.user
+				? {
+						userId: session.user.id,
+						role: session.user.role ?? undefined,
+						activityType: 'mail_queue_retried',
+					}
+				: undefined;
+			return mailQueueRepo.resetToRetry(queueId, audit);
+		},
+		{ mails: ['update'] }
+	);
 });
 
 export const cancelQueuedEmail = createAction(async (queueId: number) => {
-	return withPermission(async () => mailQueueRepo.cancelQueued(queueId), {
-		mails: ['delete'],
-	});
+	return withPermission(
+		async (session) => {
+			const audit = session?.user
+				? {
+						userId: session.user.id,
+						role: session.user.role ?? undefined,
+						activityType: 'mail_queue_cancelled',
+					}
+				: undefined;
+			return mailQueueRepo.cancelQueued(queueId, audit);
+		},
+		{ mails: ['delete'] }
+	);
 });
 
 export async function getSentLogEntry(id: number) {
@@ -66,16 +96,20 @@ export const enqueueEmail = createAction(async (formData: FormData) => {
 	const session = await getSession();
 	if (!session?.user) throw new UserFacingError('Not authenticated', 'AUTH');
 
-	const mailAccountId = formData.get('mailAccountId') as string;
-	const to = formData.get('to') as string;
-	const cc = (formData.get('cc') as string) || undefined;
-	const bcc = (formData.get('bcc') as string) || undefined;
-	const subject = formData.get('subject') as string;
-	const htmlBody = formData.get('htmlBody') as string;
+	const parsed = enqueueSchema.safeParse({
+		mailAccountId: formData.get('mailAccountId'),
+		to: formData.get('to'),
+		cc: formData.get('cc') || undefined,
+		bcc: formData.get('bcc') || undefined,
+		subject: formData.get('subject'),
+		htmlBody: formData.get('htmlBody'),
+	});
 
-	if (!mailAccountId || !to || !subject) {
+	if (!parsed.success) {
 		throw new UserFacingError('Missing required fields', 'VALIDATION');
 	}
+
+	const { mailAccountId, to, cc, bcc, subject, htmlBody } = parsed.data;
 
 	if (session.user.role !== 'admin') {
 		const assignment = await mailAssignmentRepo.findUserAssignment(

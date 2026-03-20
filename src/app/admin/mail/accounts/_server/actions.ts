@@ -153,6 +153,3 @@ export const downloadAttachment = createAction(
 		return { data: data.toString('base64'), size };
 	}
 );
-
-export { getMyMailAccounts as getUserMailAccounts };
-export { deleteMailAccount as revokeMailAccount };
