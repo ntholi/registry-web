@@ -112,3 +112,11 @@ export type AccessibleAccount = {
 	canCompose?: boolean;
 	canReply?: boolean;
 };
+
+export const queueStatusColor: Record<string, string> = {
+	pending: 'yellow',
+	retry: 'orange',
+	processing: 'blue',
+	failed: 'red',
+	sent: 'green',
+};

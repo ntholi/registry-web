@@ -13,6 +13,60 @@ import {
 import type { MailTriggerType } from '../../_lib/types';
 
 class MailQueueRepository {
+	async getSentLogEntry(id: number) {
+		const [row] = await db
+			.select({
+				id: mailSentLog.id,
+				to: mailSentLog.to,
+				cc: mailSentLog.cc,
+				bcc: mailSentLog.bcc,
+				subject: mailSentLog.subject,
+				snippet: mailSentLog.snippet,
+				status: mailSentLog.status,
+				error: mailSentLog.error,
+				sentAt: mailSentLog.sentAt,
+				gmailMessageId: mailSentLog.gmailMessageId,
+				triggerType: mailSentLog.triggerType,
+				triggerEntityId: mailSentLog.triggerEntityId,
+				sentByUser: {
+					id: users.id,
+					name: users.name,
+					email: users.email,
+				},
+				account: {
+					id: mailAccounts.id,
+					email: mailAccounts.email,
+				},
+			})
+			.from(mailSentLog)
+			.leftJoin(users, eq(mailSentLog.sentByUserId, users.id))
+			.leftJoin(mailAccounts, eq(mailSentLog.mailAccountId, mailAccounts.id))
+			.where(eq(mailSentLog.id, id))
+			.limit(1);
+		return row ?? null;
+	}
+
+	async getQueueItem(id: number) {
+		const [row] = await db
+			.select({
+				id: mailQueue.id,
+				to: mailQueue.to,
+				cc: mailQueue.cc,
+				subject: mailQueue.subject,
+				status: mailQueue.status,
+				attempts: mailQueue.attempts,
+				maxAttempts: mailQueue.maxAttempts,
+				error: mailQueue.error,
+				triggerType: mailQueue.triggerType,
+				scheduledAt: mailQueue.scheduledAt,
+				createdAt: mailQueue.createdAt,
+			})
+			.from(mailQueue)
+			.where(eq(mailQueue.id, id))
+			.limit(1);
+		return row ?? null;
+	}
+
 	async insertSentLog(values: typeof mailSentLog.$inferInsert) {
 		await db.insert(mailSentLog).values(values);
 	}
@@ -156,6 +210,7 @@ class MailQueueRepository {
 				subject: mailQueue.subject,
 				status: mailQueue.status,
 				attempts: mailQueue.attempts,
+				maxAttempts: mailQueue.maxAttempts,
 				error: mailQueue.error,
 				triggerType: mailQueue.triggerType,
 				scheduledAt: mailQueue.scheduledAt,
