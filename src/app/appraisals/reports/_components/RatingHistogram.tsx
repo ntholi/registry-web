@@ -11,10 +11,12 @@ type Props = {
 export default function RatingHistogram({ data }: Props) {
 	if (data.length === 0) return null;
 
-	const chartData = data.map((d) => ({
-		rating: `${d.rating} ★`,
-		count: d.count,
-	}));
+	const chartData = data
+		.toSorted((a, b) => a.rating - b.rating)
+		.map((d) => ({
+			rating: `${d.rating} ★`,
+			count: d.count,
+		}));
 
 	return (
 		<Paper withBorder p='lg' h='100%'>
@@ -25,10 +27,16 @@ export default function RatingHistogram({ data }: Props) {
 					data={chartData}
 					dataKey='rating'
 					series={[{ name: 'count', label: 'Responses', color: 'blue.6' }]}
+					xAxisLabel='Rating'
+					yAxisLabel='Responses'
+					valueFormatter={(value) =>
+						new Intl.NumberFormat('en-US').format(value)
+					}
 					withBarValueLabel
 					withTooltip
-					barProps={{ barSize: 40 }}
+					barProps={{ barSize: 40, radius: [6, 6, 0, 0] }}
 					gridAxis='y'
+					yAxisProps={{ allowDecimals: false }}
 				/>
 			</Stack>
 		</Paper>

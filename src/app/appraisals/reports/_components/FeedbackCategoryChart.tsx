@@ -11,10 +11,16 @@ type Props = {
 export default function FeedbackCategoryChart({ data }: Props) {
 	if (data.length === 0) return null;
 
-	const chartData = data.map((d) => ({
-		category: d.categoryName,
-		rating: Number(d.avgRating.toFixed(2)),
-	}));
+	const chartData = data
+		.toSorted(
+			(a, b) =>
+				a.sortOrder - b.sortOrder ||
+				a.categoryName.localeCompare(b.categoryName)
+		)
+		.map((d) => ({
+			category: d.categoryName,
+			rating: Number(d.avgRating.toFixed(2)),
+		}));
 
 	return (
 		<Paper withBorder p='lg' h='100%'>
@@ -28,6 +34,7 @@ export default function FeedbackCategoryChart({ data }: Props) {
 					withPolarAngleAxis
 					withPolarGrid
 					series={[{ name: 'rating', color: 'blue.4', opacity: 0.2 }]}
+					withTooltip
 					polarRadiusAxisProps={{
 						domain: [0, 5],
 						tickCount: 6,

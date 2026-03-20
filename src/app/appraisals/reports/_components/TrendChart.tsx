@@ -12,11 +12,13 @@ type Props = {
 export default function TrendChart({ data, overlaid }: Props) {
 	if (data.length < 2) return null;
 
-	const chartData = data.map((d) => ({
-		term: d.termCode,
-		feedback: d.feedbackAvg,
-		observation: d.observationAvg,
-	}));
+	const chartData = data
+		.toSorted((a, b) => a.termCode.localeCompare(b.termCode))
+		.map((d) => ({
+			term: d.termCode,
+			feedback: Number(d.feedbackAvg.toFixed(2)),
+			observation: Number(d.observationAvg.toFixed(2)),
+		}));
 
 	const series = overlaid
 		? [
@@ -48,7 +50,10 @@ export default function TrendChart({ data, overlaid }: Props) {
 					series={series}
 					curveType='monotone'
 					connectNulls
-					yAxisProps={{ domain: [1, 5] }}
+					xAxisLabel='Term'
+					yAxisLabel='Score'
+					valueFormatter={(value) => value.toFixed(2)}
+					yAxisProps={{ domain: [1, 5], tickCount: 5 }}
 					referenceLines={[{ y: 3, color: 'red.5', label: 'Satisfactory' }]}
 					withLegend={overlaid}
 				/>

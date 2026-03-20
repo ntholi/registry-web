@@ -205,9 +205,8 @@ export default function QuestionBreakdown({ data }: Props) {
 														orientation='vertical'
 														series={ratingSeries}
 														strokeDasharray='6 6'
-														tickLine='none'
-														tooltipAnimationDuration={200}
 														type='stacked'
+														xAxisLabel='Response share (%)'
 														valueFormatter={formatPct}
 														withLegend={false}
 														withYAxis={false}

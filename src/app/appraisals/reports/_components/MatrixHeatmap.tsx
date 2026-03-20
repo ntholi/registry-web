@@ -1,6 +1,15 @@
 'use client';
 
-import { Box, Paper, Stack, Table, Text, Tooltip } from '@mantine/core';
+import {
+	Box,
+	Paper,
+	Popover,
+	Stack,
+	Table,
+	Text,
+	UnstyledButton,
+} from '@mantine/core';
+import { useState } from 'react';
 import type { HeatmapCell } from '../_lib/types';
 
 type Props = {
@@ -14,6 +23,48 @@ function cellColor(avg: number): string {
 	if (avg >= 3) return 'var(--mantine-color-yellow-5)';
 	if (avg >= 2.5) return 'var(--mantine-color-orange-5)';
 	return 'var(--mantine-color-red-6)';
+}
+
+type HeatmapValueCellProps = {
+	avg: number;
+	label: string;
+};
+
+function HeatmapValueCell({ avg, label }: HeatmapValueCellProps) {
+	const [opened, setOpened] = useState(false);
+
+	return (
+		<Popover
+			opened={opened}
+			onChange={setOpened}
+			position='top'
+			shadow='md'
+			withArrow
+		>
+			<Popover.Target>
+				<UnstyledButton
+					bg={cellColor(avg)}
+					c='white'
+					display='block'
+					fw={600}
+					onBlur={() => setOpened(false)}
+					onFocus={() => setOpened(true)}
+					onMouseEnter={() => setOpened(true)}
+					onMouseLeave={() => setOpened(false)}
+					p='xs'
+					ta='center'
+					w='100%'
+				>
+					{avg.toFixed(1)}
+				</UnstyledButton>
+			</Popover.Target>
+			<Popover.Dropdown p='xs'>
+				<Text size='xs'>
+					{label}: {avg.toFixed(2)}
+				</Text>
+			</Popover.Dropdown>
+		</Popover>
+	);
 }
 
 export default function MatrixHeatmap({ title, data }: Props) {
@@ -55,21 +106,10 @@ export default function MatrixHeatmap({ title, data }: Props) {
 										return (
 											<Table.Td key={cat.id} p={0}>
 												{avg != null ? (
-													<Tooltip
-														label={`${school.code} × ${cat.name}: ${avg.toFixed(2)}`}
-													>
-														<Box
-															ta='center'
-															p='xs'
-															style={{
-																backgroundColor: cellColor(avg),
-																color: 'white',
-																fontWeight: 600,
-															}}
-														>
-															{avg.toFixed(1)}
-														</Box>
-													</Tooltip>
+													<HeatmapValueCell
+														avg={avg}
+														label={`${school.code} × ${cat.name}`}
+													/>
 												) : (
 													<Box ta='center' p='xs' c='dimmed'>
 														—

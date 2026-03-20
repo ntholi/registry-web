@@ -11,10 +11,16 @@ type Props = {
 export default function ObservationCategoryChart({ data }: Props) {
 	if (data.length === 0) return null;
 
-	const chartData = data.map((d) => ({
-		category: d.categoryName,
-		avg: d.avgRating,
-	}));
+	const chartData = data
+		.toSorted(
+			(a, b) =>
+				a.sortOrder - b.sortOrder ||
+				a.categoryName.localeCompare(b.categoryName)
+		)
+		.map((d) => ({
+			category: d.categoryName,
+			avg: Number(d.avgRating.toFixed(2)),
+		}));
 
 	return (
 		<Paper withBorder p='lg' h='100%'>
@@ -27,14 +33,19 @@ export default function ObservationCategoryChart({ data }: Props) {
 					orientation='vertical'
 					series={[{ name: 'avg', label: 'Avg Rating', color: 'blue.6' }]}
 					gridAxis='x'
+					xAxisLabel='Score'
+					yAxisLabel='Category'
+					valueFormatter={(value) => value.toFixed(2)}
 					withBarValueLabel
-					barProps={{ barSize: 24 }}
-					xAxisProps={{ domain: [0, 5] }}
+					barProps={{ barSize: 24, radius: [0, 6, 6, 0] }}
+					xAxisProps={{ domain: [0, 5], tickCount: 6, type: 'number' }}
+					yAxisProps={{ width: 120 }}
 					referenceLines={[
 						{
 							x: 3,
 							color: 'red.5',
 							label: 'Satisfactory',
+							labelPosition: 'insideTopRight',
 						},
 					]}
 				/>

@@ -23,12 +23,22 @@ export default function RadarChart({ data, compact }: Props) {
 
 	const series = [
 		...(hasFeedback
-			? [{ name: 'feedbackScore' as const, color: 'blue', opacity: 0.2 }]
+			? [{ name: 'feedbackScore' as const, color: 'blue.5', opacity: 0.18 }]
 			: []),
 		...(hasObservation
-			? [{ name: 'observationScore' as const, color: 'teal', opacity: 0.2 }]
+			? [{ name: 'observationScore' as const, color: 'teal.5', opacity: 0.18 }]
 			: []),
 	];
+
+	if (series.length === 0) {
+		return (
+			<Text c='dimmed' ta='center' p='md' size='sm'>
+				No radar data available
+			</Text>
+		);
+	}
+
+	const withLegend = series.length > 1;
 
 	const chartData = data.map((d) => ({
 		category: abbreviateCategory(d.category),
@@ -43,8 +53,12 @@ export default function RadarChart({ data, compact }: Props) {
 				data={chartData}
 				dataKey='category'
 				series={series}
+				withPolarAngleAxis
+				withPolarGrid
 				withPolarRadiusAxis
-				withLegend
+				withLegend={withLegend}
+				withTooltip
+				polarRadiusAxisProps={{ domain: [0, 5], tickCount: 6 }}
 			/>
 		);
 	}
@@ -60,8 +74,12 @@ export default function RadarChart({ data, compact }: Props) {
 					data={chartData}
 					dataKey='category'
 					series={series}
+					withPolarAngleAxis
+					withPolarGrid
 					withPolarRadiusAxis
-					withLegend
+					withLegend={withLegend}
+					withTooltip
+					polarRadiusAxisProps={{ domain: [0, 5], tickCount: 6 }}
 				/>
 			</Stack>
 		</Paper>
