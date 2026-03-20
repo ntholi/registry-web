@@ -1,5 +1,4 @@
-import { Badge, Group, Text } from '@mantine/core';
-import Link from 'next/link';
+import { Badge, Group } from '@mantine/core';
 import { notFound } from 'next/navigation';
 import { formatDateTime } from '@/shared/lib/utils/dates';
 import {
@@ -8,6 +7,7 @@ import {
 	DetailsViewHeader,
 	FieldView,
 } from '@/shared/ui/adease';
+import Link from '@/shared/ui/Link';
 import {
 	deleteMailAccount,
 	getMailAccountDetail,
@@ -45,15 +45,14 @@ export default async function AccountDetailPage({ params }: Props) {
 				<FieldView label='Authorized By'>
 					{account.user ? (
 						<Group gap='xs'>
-							<Text
-								component={Link}
+							<Link
 								href={`/admin/users/${account.user.id}`}
 								c='blue'
 								size='sm'
 								td='underline'
 							>
 								{account.user.name || account.user.email}
-							</Text>
+							</Link>
 						</Group>
 					) : (
 						'-'
