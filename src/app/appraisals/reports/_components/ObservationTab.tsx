@@ -1,13 +1,12 @@
 'use client';
 
-import { Alert, Grid, Stack } from '@mantine/core';
+import { Alert, Stack } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
 import type { ReportFilter } from '../_lib/types';
 import { getObservationReportData } from '../_server/actions';
 import CriteriaBreakdown from './CriteriaBreakdown';
 import ObservationCategoryChart from './ObservationCategoryChart';
 import ObservationLecturerTable from './ObservationLecturerTable';
-import TrendChart from './TrendChart';
 
 type Props = {
 	filter: ReportFilter;
@@ -30,23 +29,9 @@ export default function ObservationTab({ filter }: Props) {
 			</Alert>
 		);
 
-	const trendData = data.trendData.map((d) => ({
-		termId: d.termId,
-		termCode: d.termCode,
-		feedbackAvg: 0,
-		observationAvg: d.avgScore,
-	}));
-
 	return (
 		<Stack gap='lg'>
-			<Grid gutter='lg'>
-				<Grid.Col span={{ base: 12, md: 6 }}>
-					<ObservationCategoryChart data={data.categoryAverages} />
-				</Grid.Col>
-				<Grid.Col span={{ base: 12, md: 6 }}>
-					<TrendChart data={trendData} />
-				</Grid.Col>
-			</Grid>
+			<ObservationCategoryChart data={data.categoryAverages} />
 			<CriteriaBreakdown data={data.criteriaBreakdown} />
 			<ObservationLecturerTable
 				data={data.lecturerRankings}
