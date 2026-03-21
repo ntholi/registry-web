@@ -2,8 +2,8 @@
 
 import { getModules } from '@academic/modules/_server/actions';
 import {
-	getAllPrograms,
-	getAllSchools,
+	findAllSchools,
+	searchPrograms,
 } from '@academic/schools/_server/actions';
 import { findAllUsers } from '@admin/users/_server/actions';
 import { findAllApplicants } from '@admissions/applicants/_server/actions';
@@ -112,21 +112,13 @@ const entities: EntityConfig[] = [
 		iconName: 'IconSchool',
 		check: (s) => isDashboard(s),
 		async fetch(query) {
-			const all = await getAllSchools();
-			const q = query.toLowerCase();
-			return all
-				.filter(
-					(it) =>
-						it.name.toLowerCase().includes(q) ||
-						it.code.toLowerCase().includes(q)
-				)
-				.slice(0, MAX)
-				.map((it) => ({
-					id: `school-${it.id}`,
-					label: it.name,
-					description: it.code,
-					href: `/academic/schools/${it.id}`,
-				}));
+			const { items } = await findAllSchools(1, query);
+			return items.slice(0, MAX).map((it) => ({
+				id: `school-${it.id}`,
+				label: it.name,
+				description: it.code,
+				href: `/academic/schools/${it.id}`,
+			}));
 		},
 	},
 	{
@@ -134,21 +126,13 @@ const entities: EntityConfig[] = [
 		iconName: 'IconCertificate',
 		check: (s) => isDashboard(s),
 		async fetch(query) {
-			const all = await getAllPrograms();
-			const q = query.toLowerCase();
-			return all
-				.filter(
-					(it) =>
-						it.name.toLowerCase().includes(q) ||
-						it.code.toLowerCase().includes(q)
-				)
-				.slice(0, MAX)
-				.map((it) => ({
-					id: `program-${it.id}`,
-					label: it.name,
-					description: it.code,
-					href: `/academic/schools/programs/${it.id}`,
-				}));
+			const items = await searchPrograms(query, MAX);
+			return items.map((it) => ({
+				id: `program-${it.id}`,
+				label: it.name,
+				description: it.code,
+				href: `/academic/schools/programs/${it.id}`,
+			}));
 		},
 	},
 	{

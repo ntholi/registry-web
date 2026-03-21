@@ -32,3 +32,16 @@ export async function getAllProgramsWithLevel() {
 export async function getProgramsBySchoolIds(schoolIds?: number[]) {
 	return service.getProgramsBySchoolIds(schoolIds);
 }
+
+export async function findAllSchools(page: number, search: string) {
+	return service.findAll({
+		page,
+		search,
+		searchColumns: ['name', 'code'],
+		filter: eq(schools.isActive, true),
+	});
+}
+
+export async function searchPrograms(search: string, limit: number) {
+	return service.searchPrograms(search, limit);
+}

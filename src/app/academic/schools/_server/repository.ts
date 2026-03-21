@@ -1,4 +1,4 @@
-import { asc, desc, eq, inArray } from 'drizzle-orm';
+import { asc, desc, eq, ilike, inArray, or } from 'drizzle-orm';
 import { db, programs, schools } from '@/core/database';
 import BaseRepository from '@/core/platform/BaseRepository';
 
@@ -81,6 +81,20 @@ export default class SchoolRepository extends BaseRepository<
 		}
 
 		return await baseQuery.orderBy(desc(programs.id));
+	}
+
+	async searchPrograms(search: string, limit: number) {
+		const pattern = `%${search}%`;
+		return db
+			.select({
+				id: programs.id,
+				code: programs.code,
+				name: programs.name,
+			})
+			.from(programs)
+			.where(or(ilike(programs.name, pattern), ilike(programs.code, pattern)))
+			.orderBy(desc(programs.id))
+			.limit(limit);
 	}
 }
 

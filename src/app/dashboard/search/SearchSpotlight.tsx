@@ -1,17 +1,14 @@
 'use client';
 
 import {
-	Box,
+	Badge,
 	Center,
-	Divider,
 	Group,
-	Kbd,
 	Loader,
 	ScrollArea,
 	Stack,
 	Tabs,
 	Text,
-	TextInput,
 	ThemeIcon,
 } from '@mantine/core';
 import { useDebouncedValue } from '@mantine/hooks';
@@ -54,50 +51,7 @@ const iconMap: Record<string, IconComponent> = {
 	IconBuildingArch,
 };
 
-interface UniversalSearchProps {
-	value: string;
-	onChange: (value: string) => void;
-}
-
-export default function UniversalSearch({
-	value,
-	onChange,
-}: UniversalSearchProps) {
-	return (
-		<Box
-			pos='sticky'
-			top={0}
-			pt='sm'
-			pb='xs'
-			mt='calc(var(--mantine-spacing-sm) * -1)'
-			style={{ zIndex: 1000 }}
-			bg='var(--mantine-color-body)'
-		>
-			<TextInput
-				placeholder='Search...'
-				leftSection={
-					<ThemeIcon variant='transparent' color='gray' mr={'xs'}>
-						<IconSearch size='1.2rem' />
-					</ThemeIcon>
-				}
-				rightSection={
-					<Kbd size='xs' px={5} py={2}>
-						Ctrl+K
-					</Kbd>
-				}
-				rightSectionWidth={60}
-				leftSectionWidth={40}
-				value={value}
-				onChange={(e) => onChange(e.target.value)}
-				onClick={() => spotlight.open()}
-				variant='unstyled'
-			/>
-			<Divider mt={5} />
-		</Box>
-	);
-}
-
-export function SearchSpotlight() {
+export default function SearchSpotlight() {
 	const router = useRouter();
 	const [query, setQuery] = useState('');
 	const [debounced] = useDebouncedValue(query, 300);
@@ -162,6 +116,11 @@ export function SearchSpotlight() {
 											key={g.category}
 											value={g.category}
 											leftSection={<Icon size='0.9rem' />}
+											rightSection={
+												<Badge size='xs' variant='filled' circle>
+													{g.items.length}
+												</Badge>
+											}
 										>
 											{g.category}
 										</Tabs.Tab>
@@ -211,9 +170,6 @@ function ResultItem({ item, icon: Icon, onSelect }: ResultItemProps) {
 						</Text>
 					)}
 				</div>
-				<Text size='xs' c='dimmed' style={{ flexShrink: 0 }}>
-					{item.href}
-				</Text>
 			</Group>
 		</Spotlight.Action>
 	);
