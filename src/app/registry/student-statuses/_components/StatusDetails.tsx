@@ -24,8 +24,8 @@ import {
 	TypographyStylesProvider,
 } from '@mantine/core';
 import { IconFile } from '@tabler/icons-react';
-import sanitize from 'sanitize-html';
 import { useState } from 'react';
+import sanitize from 'sanitize-html';
 import { authClient } from '@/core/auth-client';
 import { getPublicUrl } from '@/core/integrations/storage-utils';
 import { type AllStatusType, getStatusColor } from '@/shared/lib/utils/colors';
