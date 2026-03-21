@@ -9,7 +9,6 @@ import {
 	Modal,
 	Select,
 	Tabs,
-	Textarea,
 	TextInput,
 } from '@mantine/core';
 import { DateInput } from '@mantine/dates';
@@ -24,6 +23,10 @@ import { getRaceByCountry, getRaces } from '@/shared/lib/utils/countries';
 import { getReligions } from '@/shared/lib/utils/religions';
 import CountrySelect from '@/shared/ui/CountrySelect';
 import { updateStudentWithReasons } from '../../_server/actions';
+import ReasonsAndAttachments, {
+	isReasonsEmpty,
+	uploadEditAttachments,
+} from '../ReasonsAndAttachments';
 
 interface Student {
 	stdNo: number;
@@ -68,6 +71,7 @@ export default function EditStudentModal({ student }: Props) {
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const [showReasonWarning, setShowReasonWarning] = useState(false);
 	const [pendingSubmit, setPendingSubmit] = useState(false);
+	const [pendingFiles, setPendingFiles] = useState<File[]>([]);
 
 	const form = useForm({
 		initialValues: {
@@ -108,8 +112,17 @@ export default function EditStudentModal({ student }: Props) {
 			});
 			setShowReasonWarning(false);
 			setPendingSubmit(false);
+			setPendingFiles([]);
 		}
 	}, [opened, student, form.setValues]);
+
+	function addPendingFile(file: File | null) {
+		if (file) setPendingFiles((prev) => [...prev, file]);
+	}
+
+	function removePendingFile(index: number) {
+		setPendingFiles((prev) => prev.filter((_, i) => i !== index));
+	}
 
 	const executeSubmit = useCallback(
 		async (values: typeof form.values) => {
@@ -137,6 +150,12 @@ export default function EditStudentModal({ student }: Props) {
 					values.reasons
 				);
 
+				await uploadEditAttachments(
+					student.stdNo,
+					values.reasons,
+					pendingFiles
+				);
+
 				notifications.show({
 					title: 'Success',
 					message: 'Student updated successfully',
@@ -149,6 +168,7 @@ export default function EditStudentModal({ student }: Props) {
 				});
 
 				form.reset();
+				setPendingFiles([]);
 				close();
 			} catch (error) {
 				notifications.show({
@@ -162,12 +182,12 @@ export default function EditStudentModal({ student }: Props) {
 				setPendingSubmit(false);
 			}
 		},
-		[student.stdNo, form, close, queryClient]
+		[student.stdNo, form, close, queryClient, pendingFiles]
 	);
 
 	const handleSubmit = useCallback(
 		async (values: typeof form.values) => {
-			if (!values.reasons.trim() && !pendingSubmit) {
+			if (isReasonsEmpty(values.reasons) && !pendingSubmit) {
 				setShowReasonWarning(true);
 				setPendingSubmit(true);
 				return;
@@ -182,7 +202,7 @@ export default function EditStudentModal({ student }: Props) {
 			<ActionIcon size='sm' variant='subtle' color='dimmed' onClick={open}>
 				<IconEdit size='1rem' />
 			</ActionIcon>
-			<Modal opened={opened} onClose={close} title='Edit Student' size='lg'>
+			<Modal opened={opened} onClose={close} title='Edit Student' size='xl'>
 				<form onSubmit={form.onSubmit(handleSubmit)}>
 					<Tabs defaultValue='details'>
 						<Tabs.List>
@@ -317,11 +337,12 @@ export default function EditStudentModal({ student }: Props) {
 						</Tabs.Panel>
 
 						<Tabs.Panel value='reasons' pt='md'>
-							<Textarea
-								label='Reasons for Update'
-								placeholder='Enter the reason for this update (optional)'
-								rows={6}
-								{...form.getInputProps('reasons')}
+							<ReasonsAndAttachments
+								value={form.values.reasons}
+								onChange={(value) => form.setFieldValue('reasons', value)}
+								pendingFiles={pendingFiles}
+								onAddFile={addPendingFile}
+								onRemoveFile={removePendingFile}
 							/>
 						</Tabs.Panel>
 

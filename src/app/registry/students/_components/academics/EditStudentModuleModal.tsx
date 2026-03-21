@@ -13,7 +13,6 @@ import {
 	Select,
 	Tabs,
 	Text,
-	Textarea,
 	TextInput,
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
@@ -33,6 +32,10 @@ import {
 	canEditMarksAndGrades,
 	updateStudentModule,
 } from '../../_server/actions';
+import ReasonsAndAttachments, {
+	isReasonsEmpty,
+	uploadEditAttachments,
+} from '../ReasonsAndAttachments';
 
 interface StudentModule {
 	id: number;
@@ -66,6 +69,7 @@ export default function EditStudentModuleModal({
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const [showReasonWarning, setShowReasonWarning] = useState(false);
 	const [pendingSubmit, setPendingSubmit] = useState(false);
+	const [pendingFiles, setPendingFiles] = useState<File[]>([]);
 
 	const { data: canEditMarks = false, isLoading: isLoadingPermissions } =
 		useQuery({
@@ -94,8 +98,17 @@ export default function EditStudentModuleModal({
 			});
 			setShowReasonWarning(false);
 			setPendingSubmit(false);
+			setPendingFiles([]);
 		}
 	}, [opened, module, form.setValues]);
+
+	function addPendingFile(file: File | null) {
+		if (file) setPendingFiles((prev) => [...prev, file]);
+	}
+
+	function removePendingFile(index: number) {
+		setPendingFiles((prev) => prev.filter((_, i) => i !== index));
+	}
 
 	const handleMarksChange = useCallback(
 		(value: string) => {
@@ -133,6 +146,8 @@ export default function EditStudentModuleModal({
 					values.reasons
 				);
 
+				await uploadEditAttachments(stdNo, values.reasons, pendingFiles);
+
 				notifications.show({
 					title: 'Success',
 					message: 'Student module updated successfully',
@@ -145,6 +160,7 @@ export default function EditStudentModuleModal({
 				});
 
 				form.reset();
+				setPendingFiles([]);
 				close();
 			} catch (error) {
 				notifications.show({
@@ -158,12 +174,12 @@ export default function EditStudentModuleModal({
 				setPendingSubmit(false);
 			}
 		},
-		[module.id, form, close, queryClient, stdNo]
+		[module.id, form, close, queryClient, stdNo, pendingFiles]
 	);
 
 	const handleSubmit = useCallback(
 		async (values: typeof form.values) => {
-			if (!values.reasons.trim() && !pendingSubmit) {
+			if (isReasonsEmpty(values.reasons) && !pendingSubmit) {
 				setShowReasonWarning(true);
 				setPendingSubmit(true);
 				return;
@@ -200,7 +216,7 @@ export default function EditStudentModuleModal({
 						</Text>
 					</Box>
 				}
-				size='md'
+				size='xl'
 			>
 				<form onSubmit={form.onSubmit(handleSubmit)}>
 					<Tabs defaultValue='details'>
@@ -258,11 +274,12 @@ export default function EditStudentModuleModal({
 						</Tabs.Panel>
 
 						<Tabs.Panel value='reasons' pt='md'>
-							<Textarea
-								label='Reasons for Update'
-								placeholder='Enter the reason for this update (optional)'
-								rows={6}
-								{...form.getInputProps('reasons')}
+							<ReasonsAndAttachments
+								value={form.values.reasons}
+								onChange={(value) => form.setFieldValue('reasons', value)}
+								pendingFiles={pendingFiles}
+								onAddFile={addPendingFile}
+								onRemoveFile={removePendingFile}
 							/>
 						</Tabs.Panel>
 

@@ -12,7 +12,6 @@ import {
 	Select,
 	Stack,
 	Tabs,
-	Textarea,
 } from '@mantine/core';
 import { DateInput } from '@mantine/dates';
 import { useForm } from '@mantine/form';
@@ -25,6 +24,10 @@ import { useCallback, useEffect, useState } from 'react';
 import { useAllTerms } from '@/shared/lib/hooks/use-term';
 import { formatDateToISO, parseDate } from '@/shared/lib/utils/dates';
 import { updateStudentProgram } from '../../_server/actions';
+import ReasonsAndAttachments, {
+	isReasonsEmpty,
+	uploadEditAttachments,
+} from '../ReasonsAndAttachments';
 
 interface StudentProgram {
 	id: number;
@@ -62,6 +65,7 @@ export default function EditStudentProgramModal({
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const [showReasonWarning, setShowReasonWarning] = useState(false);
 	const [pendingSubmit, setPendingSubmit] = useState(false);
+	const [pendingFiles, setPendingFiles] = useState<File[]>([]);
 
 	const { data: termsData = [], isLoading: isLoadingTerms } = useAllTerms({
 		enabled: opened,
@@ -102,8 +106,17 @@ export default function EditStudentProgramModal({
 			});
 			setShowReasonWarning(false);
 			setPendingSubmit(false);
+			setPendingFiles([]);
 		}
 	}, [opened, program, form.setValues]);
+
+	function addPendingFile(file: File | null) {
+		if (file) setPendingFiles((prev) => [...prev, file]);
+	}
+
+	function removePendingFile(index: number) {
+		setPendingFiles((prev) => prev.filter((_, i) => i !== index));
+	}
 
 	const executeSubmit = useCallback(
 		async (values: typeof form.values) => {
@@ -122,7 +135,14 @@ export default function EditStudentProgramModal({
 					program.stdNo
 				);
 
+				await uploadEditAttachments(
+					program.stdNo,
+					values.reasons,
+					pendingFiles
+				);
+
 				form.reset();
+				setPendingFiles([]);
 				close();
 			} catch (error) {
 				notifications.show({
@@ -136,12 +156,12 @@ export default function EditStudentProgramModal({
 				setPendingSubmit(false);
 			}
 		},
-		[program.id, form, close, program.stdNo]
+		[program.id, form, close, program.stdNo, pendingFiles]
 	);
 
 	const handleSubmit = useCallback(
 		async (values: typeof form.values) => {
-			if (!values.reasons.trim() && !pendingSubmit) {
+			if (isReasonsEmpty(values.reasons) && !pendingSubmit) {
 				setShowReasonWarning(true);
 				setPendingSubmit(true);
 				return;
@@ -173,7 +193,7 @@ export default function EditStudentProgramModal({
 				opened={opened}
 				onClose={close}
 				title='Edit Student Program'
-				size='lg'
+				size='xl'
 				onClick={(e) => e.stopPropagation()}
 			>
 				<form onSubmit={form.onSubmit(handleSubmit)}>
@@ -247,11 +267,12 @@ export default function EditStudentProgramModal({
 						</Tabs.Panel>
 
 						<Tabs.Panel value='reasons' pt='md'>
-							<Textarea
-								label='Reasons for Update'
-								placeholder='Enter the reason for this update (optional)'
-								rows={6}
-								{...form.getInputProps('reasons')}
+							<ReasonsAndAttachments
+								value={form.values.reasons}
+								onChange={(value) => form.setFieldValue('reasons', value)}
+								pendingFiles={pendingFiles}
+								onAddFile={addPendingFile}
+								onRemoveFile={removePendingFile}
 							/>
 						</Tabs.Panel>
 
