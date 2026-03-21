@@ -21,6 +21,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect, useState } from 'react';
 import { unwrap } from '@/shared/lib/actions/actionResult';
 import { getRaceByCountry, getRaces } from '@/shared/lib/utils/countries';
+import { isRichTextEmpty } from '@/shared/lib/utils/files';
 import { getReligions } from '@/shared/lib/utils/religions';
 import CountrySelect from '@/shared/ui/CountrySelect';
 import type { AuditAttachmentInfo } from '../../_server/actions';
@@ -183,7 +184,7 @@ export default function EditStudentModal({ student }: Props) {
 
 	const handleSubmit = useCallback(
 		async (values: typeof form.values) => {
-			const hasReasons = values.reasons.trim() && values.reasons !== '<p></p>';
+			const hasReasons = !isRichTextEmpty(values.reasons);
 			if (!hasReasons && pendingFiles.length === 0 && !pendingSubmit) {
 				setShowReasonWarning(true);
 				setPendingSubmit(true);

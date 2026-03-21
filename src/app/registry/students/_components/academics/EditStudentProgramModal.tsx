@@ -24,6 +24,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { unwrap } from '@/shared/lib/actions/actionResult';
 import { useAllTerms } from '@/shared/lib/hooks/use-term';
 import { formatDateToISO, parseDate } from '@/shared/lib/utils/dates';
+import { isRichTextEmpty } from '@/shared/lib/utils/files';
 import type { AuditAttachmentInfo } from '../../_server/actions';
 import {
 	updateStudentProgram,
@@ -158,7 +159,7 @@ export default function EditStudentProgramModal({
 
 	const handleSubmit = useCallback(
 		async (values: typeof form.values) => {
-			const hasReasons = values.reasons.trim() && values.reasons !== '<p></p>';
+			const hasReasons = !isRichTextEmpty(values.reasons);
 			if (!hasReasons && pendingFiles.length === 0 && !pendingSubmit) {
 				setShowReasonWarning(true);
 				setPendingSubmit(true);

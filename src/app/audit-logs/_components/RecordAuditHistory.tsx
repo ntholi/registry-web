@@ -16,6 +16,7 @@ import {
 } from '@mantine/core';
 import { IconFile, IconHistory } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
+import type { AuditAttachmentInfo } from '@/app/registry/students/_server/actions';
 import { getPublicUrl } from '@/core/integrations/storage-utils';
 import { formatDateTime } from '@/shared/lib/utils/dates';
 import { DEFAULT_EXCLUDE_FIELDS, getChangedFields } from '../_lib/audit-utils';
@@ -172,31 +173,27 @@ export default function RecordAuditHistory({
 								)}
 
 								{Array.isArray(meta?.attachments) &&
-									(meta.attachments as { fileName: string; fileKey: string }[])
-										.length > 0 && (
+									(meta.attachments as AuditAttachmentInfo[]).length > 0 && (
 										<Box mt='xs'>
 											<Text size='xs' c='dimmed' mb={4}>
 												Attachments
 											</Text>
 											<Stack gap={4}>
-												{(
-													meta.attachments as {
-														fileName: string;
-														fileKey: string;
-													}[]
-												).map((att) => (
-													<Anchor
-														key={att.fileKey}
-														href={getPublicUrl(att.fileKey)}
-														target='_blank'
-														size='xs'
-													>
-														<Group gap={4}>
-															<IconFile size={12} />
-															{att.fileName}
-														</Group>
-													</Anchor>
-												))}
+												{(meta.attachments as AuditAttachmentInfo[]).map(
+													(att) => (
+														<Anchor
+															key={att.fileKey}
+															href={getPublicUrl(att.fileKey)}
+															target='_blank'
+															size='xs'
+														>
+															<Group gap={4}>
+																<IconFile size={12} />
+																{att.fileName}
+															</Group>
+														</Anchor>
+													)
+												)}
 											</Stack>
 										</Box>
 									)}

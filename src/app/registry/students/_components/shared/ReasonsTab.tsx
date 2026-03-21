@@ -15,12 +15,6 @@ import { IconFile, IconPaperclip, IconX } from '@tabler/icons-react';
 import { formatFileSize } from '@/shared/lib/utils/files';
 import RichTextField from '@/shared/ui/adease/RichTextField';
 
-export type AuditAttachmentInfo = {
-	fileName: string;
-	fileKey: string;
-	fileSize: number;
-};
-
 const ACCEPTED_FILE_TYPES =
 	'application/pdf,image/*,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
 
@@ -83,7 +77,11 @@ export default function ReasonsTab({
 				{pendingFiles.length > 0 && (
 					<SimpleGrid cols={{ base: 1, sm: 2 }}>
 						{pendingFiles.map((file, i) => (
-							<Paper key={`${file.name}-${i}`} p='xs' withBorder>
+							<Paper
+								key={`${file.name}-${file.size}-${file.lastModified}`}
+								p='xs'
+								withBorder
+							>
 								<Group justify='space-between' wrap='nowrap'>
 									<Group gap='xs' wrap='nowrap' style={{ overflow: 'hidden' }}>
 										<IconFile

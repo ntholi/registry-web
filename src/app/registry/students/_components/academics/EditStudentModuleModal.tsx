@@ -28,6 +28,7 @@ import { IconAlertCircle, IconEdit } from '@tabler/icons-react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect, useState } from 'react';
 import { unwrap } from '@/shared/lib/actions/actionResult';
+import { isRichTextEmpty } from '@/shared/lib/utils/files';
 import { getLetterGrade } from '@/shared/lib/utils/grades';
 import type { AuditAttachmentInfo } from '../../_server/actions';
 import {
@@ -177,7 +178,7 @@ export default function EditStudentModuleModal({
 
 	const handleSubmit = useCallback(
 		async (values: typeof form.values) => {
-			const hasReasons = values.reasons.trim() && values.reasons !== '<p></p>';
+			const hasReasons = !isRichTextEmpty(values.reasons);
 			if (!hasReasons && pendingFiles.length === 0 && !pendingSubmit) {
 				setShowReasonWarning(true);
 				setPendingSubmit(true);

@@ -19,6 +19,7 @@ import {
 } from '@/core/integrations/storage-utils';
 import type { QueryOptions } from '@/core/platform/BaseRepository';
 import { createAction } from '@/shared/lib/actions/actionResult';
+import { UserFacingError } from '@/shared/lib/actions/extractError';
 import { formatPersonName } from '@/shared/lib/utils/names';
 import { studentsService as service } from './service';
 
@@ -334,7 +335,7 @@ export async function getStudentFilterInfo(stdNo: number) {
 export const uploadAuditAttachment = createAction(
 	async (formData: FormData) => {
 		const file = formData.get('file') as File | null;
-		if (!file) throw new Error('No file provided');
+		if (!file) throw new UserFacingError('No file provided');
 
 		const key = generateUploadKey(StoragePaths.auditAttachment, file.name);
 		await uploadFile(file, key);
