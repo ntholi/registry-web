@@ -13,7 +13,6 @@ import {
 	Select,
 	Tabs,
 	Text,
-	Textarea,
 	TextInput,
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
@@ -28,11 +27,15 @@ import {
 import { IconAlertCircle, IconEdit } from '@tabler/icons-react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect, useState } from 'react';
+import { unwrap } from '@/shared/lib/actions/actionResult';
 import { getLetterGrade } from '@/shared/lib/utils/grades';
+import type { AuditAttachmentInfo } from '../../_server/actions';
 import {
 	canEditMarksAndGrades,
 	updateStudentModule,
+	uploadAuditAttachment,
 } from '../../_server/actions';
+import ReasonsTab from '../shared/ReasonsTab';
 
 interface StudentModule {
 	id: number;
@@ -66,6 +69,7 @@ export default function EditStudentModuleModal({
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const [showReasonWarning, setShowReasonWarning] = useState(false);
 	const [pendingSubmit, setPendingSubmit] = useState(false);
+	const [pendingFiles, setPendingFiles] = useState<File[]>([]);
 
 	const { data: canEditMarks = false, isLoading: isLoadingPermissions } =
 		useQuery({
@@ -92,6 +96,7 @@ export default function EditStudentModuleModal({
 				grade: module.grade,
 				reasons: '',
 			});
+			setPendingFiles([]);
 			setShowReasonWarning(false);
 			setPendingSubmit(false);
 		}
@@ -122,6 +127,13 @@ export default function EditStudentModuleModal({
 		async (values: typeof form.values) => {
 			setIsSubmitting(true);
 			try {
+				const attachments: AuditAttachmentInfo[] = [];
+				for (const file of pendingFiles) {
+					const fd = new FormData();
+					fd.append('file', file);
+					attachments.push(unwrap(await uploadAuditAttachment(fd)));
+				}
+
 				await updateStudentModule(
 					module.id,
 					{
@@ -130,7 +142,8 @@ export default function EditStudentModuleModal({
 						grade: values.grade as Grade,
 					},
 					stdNo,
-					values.reasons
+					values.reasons,
+					attachments.length > 0 ? attachments : undefined
 				);
 
 				notifications.show({
@@ -145,6 +158,7 @@ export default function EditStudentModuleModal({
 				});
 
 				form.reset();
+				setPendingFiles([]);
 				close();
 			} catch (error) {
 				notifications.show({
@@ -158,19 +172,20 @@ export default function EditStudentModuleModal({
 				setPendingSubmit(false);
 			}
 		},
-		[module.id, form, close, queryClient, stdNo]
+		[module.id, form, close, queryClient, stdNo, pendingFiles]
 	);
 
 	const handleSubmit = useCallback(
 		async (values: typeof form.values) => {
-			if (!values.reasons.trim() && !pendingSubmit) {
+			const hasReasons = values.reasons.trim() && values.reasons !== '<p></p>';
+			if (!hasReasons && pendingFiles.length === 0 && !pendingSubmit) {
 				setShowReasonWarning(true);
 				setPendingSubmit(true);
 				return;
 			}
 			await executeSubmit(values);
 		},
-		[executeSubmit, pendingSubmit]
+		[executeSubmit, pendingSubmit, pendingFiles.length]
 	);
 
 	return (
@@ -200,7 +215,7 @@ export default function EditStudentModuleModal({
 						</Text>
 					</Box>
 				}
-				size='md'
+				size='lg'
 			>
 				<form onSubmit={form.onSubmit(handleSubmit)}>
 					<Tabs defaultValue='details'>
@@ -258,11 +273,16 @@ export default function EditStudentModuleModal({
 						</Tabs.Panel>
 
 						<Tabs.Panel value='reasons' pt='md'>
-							<Textarea
-								label='Reasons for Update'
-								placeholder='Enter the reason for this update (optional)'
-								rows={6}
-								{...form.getInputProps('reasons')}
+							<ReasonsTab
+								reasons={form.values.reasons}
+								onReasonsChange={(val) => form.setFieldValue('reasons', val)}
+								pendingFiles={pendingFiles}
+								onAddFile={(file) => {
+									if (file) setPendingFiles((prev) => [...prev, file]);
+								}}
+								onRemoveFile={(i) =>
+									setPendingFiles((prev) => prev.filter((_, idx) => idx !== i))
+								}
 							/>
 						</Tabs.Panel>
 

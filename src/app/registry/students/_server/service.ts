@@ -24,10 +24,20 @@ import {
 	withPermission,
 } from '@/core/platform/withPermission';
 import type { Program } from '@/shared/lib/utils/grades/type';
-import type { StudentFilter } from './actions';
+import type { AuditAttachmentInfo, StudentFilter } from './actions';
 import StudentRepository from './repository';
 
 type Student = typeof students.$inferInsert;
+
+function buildAuditMetadata(
+	reasons?: string,
+	attachments?: AuditAttachmentInfo[]
+): Record<string, unknown> | undefined {
+	const meta: Record<string, unknown> = {};
+	if (reasons) meta.reasons = reasons;
+	if (attachments?.length) meta.attachments = attachments;
+	return Object.keys(meta).length > 0 ? meta : undefined;
+}
 
 class StudentService {
 	private repository: StudentRepository;
@@ -235,7 +245,8 @@ class StudentService {
 	async updateWithReasons(
 		stdNo: number,
 		data: Partial<Student>,
-		reasons?: string
+		reasons?: string,
+		attachments?: AuditAttachmentInfo[]
 	) {
 		return withPermission(
 			async (session) =>
@@ -244,7 +255,7 @@ class StudentService {
 					role: session!.user!.role!,
 					activityType: 'student_update',
 					stdNo,
-					metadata: reasons ? { reasons } : undefined,
+					metadata: buildAuditMetadata(reasons, attachments),
 				}),
 			{ students: ['update'] }
 		);
@@ -276,7 +287,8 @@ class StudentService {
 		id: number,
 		data: Partial<typeof studentPrograms.$inferInsert>,
 		stdNo: number,
-		reasons?: string
+		reasons?: string,
+		attachments?: AuditAttachmentInfo[]
 	) {
 		return withPermission(
 			async (session) =>
@@ -285,7 +297,7 @@ class StudentService {
 					role: session!.user!.role!,
 					activityType: resolveStudentProgramActivityType(data.status),
 					stdNo,
-					metadata: reasons ? { reasons } : undefined,
+					metadata: buildAuditMetadata(reasons, attachments),
 				}),
 			{ students: ['update'] }
 		);
@@ -312,7 +324,8 @@ class StudentService {
 		id: number,
 		data: Partial<typeof studentSemesters.$inferInsert>,
 		stdNo: number,
-		reasons?: string
+		reasons?: string,
+		attachments?: AuditAttachmentInfo[]
 	) {
 		return withPermission(
 			async (session) =>
@@ -321,7 +334,7 @@ class StudentService {
 					role: session!.user!.role!,
 					activityType: resolveStudentSemesterActivityType(data.status),
 					stdNo,
-					metadata: reasons ? { reasons } : undefined,
+					metadata: buildAuditMetadata(reasons, attachments),
 				}),
 			{ students: ['update'] }
 		);
@@ -354,7 +367,8 @@ class StudentService {
 		id: number,
 		data: Partial<typeof studentModules.$inferInsert>,
 		stdNo: number,
-		reasons?: string
+		reasons?: string,
+		attachments?: AuditAttachmentInfo[]
 	) {
 		return withPermission(
 			async (session) =>
@@ -363,7 +377,7 @@ class StudentService {
 					role: session!.user!.role!,
 					activityType: resolveStudentModuleActivityType(data.status),
 					stdNo,
-					metadata: reasons ? { reasons } : undefined,
+					metadata: buildAuditMetadata(reasons, attachments),
 				}),
 			{ students: ['update'] }
 		);

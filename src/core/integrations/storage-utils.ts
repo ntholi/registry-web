@@ -29,6 +29,8 @@ export const StoragePaths = {
 
 	mailAttachment: (accountId: string, fileName: string) =>
 		`mail/accounts/${accountId}/attachments/${fileName}`,
+
+	auditAttachment: (fileName: string) => `audit-logs/attachments/${fileName}`,
 } as const;
 
 const PUBLIC_URL = process.env.NEXT_PUBLIC_R2_PUBLIC_URL || '';

@@ -9,7 +9,6 @@ import {
 	Modal,
 	Select,
 	Tabs,
-	Textarea,
 	TextInput,
 } from '@mantine/core';
 import { DateInput } from '@mantine/dates';
@@ -20,10 +19,16 @@ import { gender, maritalStatusEnum, studentStatus } from '@registry/_database';
 import { IconAlertCircle, IconEdit } from '@tabler/icons-react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect, useState } from 'react';
+import { unwrap } from '@/shared/lib/actions/actionResult';
 import { getRaceByCountry, getRaces } from '@/shared/lib/utils/countries';
 import { getReligions } from '@/shared/lib/utils/religions';
 import CountrySelect from '@/shared/ui/CountrySelect';
-import { updateStudentWithReasons } from '../../_server/actions';
+import type { AuditAttachmentInfo } from '../../_server/actions';
+import {
+	updateStudentWithReasons,
+	uploadAuditAttachment,
+} from '../../_server/actions';
+import ReasonsTab from '../shared/ReasonsTab';
 
 interface Student {
 	stdNo: number;
@@ -68,6 +73,7 @@ export default function EditStudentModal({ student }: Props) {
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const [showReasonWarning, setShowReasonWarning] = useState(false);
 	const [pendingSubmit, setPendingSubmit] = useState(false);
+	const [pendingFiles, setPendingFiles] = useState<File[]>([]);
 
 	const form = useForm({
 		initialValues: {
@@ -106,6 +112,7 @@ export default function EditStudentModal({ student }: Props) {
 				religion: student.religion || '',
 				reasons: '',
 			});
+			setPendingFiles([]);
 			setShowReasonWarning(false);
 			setPendingSubmit(false);
 		}
@@ -115,6 +122,13 @@ export default function EditStudentModal({ student }: Props) {
 		async (values: typeof form.values) => {
 			setIsSubmitting(true);
 			try {
+				const attachments: AuditAttachmentInfo[] = [];
+				for (const file of pendingFiles) {
+					const fd = new FormData();
+					fd.append('file', file);
+					attachments.push(unwrap(await uploadAuditAttachment(fd)));
+				}
+
 				await updateStudentWithReasons(
 					student.stdNo,
 					{
@@ -134,7 +148,8 @@ export default function EditStudentModal({ student }: Props) {
 						birthPlace: values.birthPlace || null,
 						religion: values.religion || null,
 					},
-					values.reasons
+					values.reasons,
+					attachments.length > 0 ? attachments : undefined
 				);
 
 				notifications.show({
@@ -149,6 +164,7 @@ export default function EditStudentModal({ student }: Props) {
 				});
 
 				form.reset();
+				setPendingFiles([]);
 				close();
 			} catch (error) {
 				notifications.show({
@@ -162,19 +178,20 @@ export default function EditStudentModal({ student }: Props) {
 				setPendingSubmit(false);
 			}
 		},
-		[student.stdNo, form, close, queryClient]
+		[student.stdNo, form, close, queryClient, pendingFiles]
 	);
 
 	const handleSubmit = useCallback(
 		async (values: typeof form.values) => {
-			if (!values.reasons.trim() && !pendingSubmit) {
+			const hasReasons = values.reasons.trim() && values.reasons !== '<p></p>';
+			if (!hasReasons && pendingFiles.length === 0 && !pendingSubmit) {
 				setShowReasonWarning(true);
 				setPendingSubmit(true);
 				return;
 			}
 			await executeSubmit(values);
 		},
-		[executeSubmit, pendingSubmit]
+		[executeSubmit, pendingSubmit, pendingFiles.length]
 	);
 
 	return (
@@ -182,7 +199,7 @@ export default function EditStudentModal({ student }: Props) {
 			<ActionIcon size='sm' variant='subtle' color='dimmed' onClick={open}>
 				<IconEdit size='1rem' />
 			</ActionIcon>
-			<Modal opened={opened} onClose={close} title='Edit Student' size='lg'>
+			<Modal opened={opened} onClose={close} title='Edit Student' size='xl'>
 				<form onSubmit={form.onSubmit(handleSubmit)}>
 					<Tabs defaultValue='details'>
 						<Tabs.List>
@@ -317,11 +334,16 @@ export default function EditStudentModal({ student }: Props) {
 						</Tabs.Panel>
 
 						<Tabs.Panel value='reasons' pt='md'>
-							<Textarea
-								label='Reasons for Update'
-								placeholder='Enter the reason for this update (optional)'
-								rows={6}
-								{...form.getInputProps('reasons')}
+							<ReasonsTab
+								reasons={form.values.reasons}
+								onReasonsChange={(val) => form.setFieldValue('reasons', val)}
+								pendingFiles={pendingFiles}
+								onAddFile={(file) => {
+									if (file) setPendingFiles((prev) => [...prev, file]);
+								}}
+								onRemoveFile={(i) =>
+									setPendingFiles((prev) => prev.filter((_, idx) => idx !== i))
+								}
 							/>
 						</Tabs.Panel>
 
