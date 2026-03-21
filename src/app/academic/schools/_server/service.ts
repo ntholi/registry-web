@@ -59,6 +59,13 @@ class SchoolService {
 			'dashboard'
 		);
 	}
+
+	async searchPrograms(search: string, limit: number) {
+		return withPermission(
+			async () => this.repository.searchPrograms(search, limit),
+			'dashboard'
+		);
+	}
 }
 
 export const schoolsService = serviceWrapper(SchoolService, 'SchoolsService');

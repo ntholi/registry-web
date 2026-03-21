@@ -30,7 +30,8 @@ import { Shell } from '@/shared/ui/adease';
 import Logo from '@/shared/ui/Logo';
 import { timetableConfig } from '../timetable/timetable.config';
 import type { NavItem } from './module-config.types';
-import UniversalSearch, { SearchSpotlight } from './UniversalSearch';
+import SearchInput from './search/SearchInput';
+import SearchSpotlight from './search/SearchSpotlight';
 import UserButton from './UserButton';
 
 type NavigationGroup = {
@@ -343,7 +344,7 @@ export function Navigation({
 
 	return (
 		<Stack gap='md'>
-			<UniversalSearch value={search} onChange={setSearch} />
+			<SearchInput value={search} onChange={setSearch} />
 
 			{visibleGroups.map((group) => (
 				<Stack key={group.moduleName} gap={6}>
