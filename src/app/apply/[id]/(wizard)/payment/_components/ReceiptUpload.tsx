@@ -13,16 +13,16 @@ import {
 	Text,
 	ThemeIcon,
 } from '@mantine/core';
-import { useMediaQuery } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import { IconAlertCircle, IconCheck, IconLibrary } from '@tabler/icons-react';
+import { nanoid } from 'nanoid';
 import { useState } from 'react';
 import {
 	DocumentUpload,
 	type DocumentUploadResult,
 } from '@/app/apply/_components/DocumentUpload';
-import { MobileDocumentUpload } from '@/app/apply/_components/MobileDocumentUpload';
 import { useApplicant } from '@/app/apply/_lib/useApplicant';
+import { config } from '@/config';
 import { FieldView } from '@/shared/ui/adease/FieldView';
 import { DocumentCardSkeleton } from '@/shared/ui/DocumentCardShell';
 import { validateAnalyzedReceipt } from '../_server/actions';
@@ -51,16 +51,11 @@ type Props = {
 	isSubmitting?: boolean;
 };
 
-function generateId(): string {
-	return Math.random().toString(36).slice(2, 11);
-}
-
 export default function ReceiptUploadForm({
 	fee,
 	onSubmit,
 	isSubmitting,
 }: Props) {
-	const isMobile = useMediaQuery('(max-width: 768px)');
 	const [uploading, setUploading] = useState(false);
 	const [uploadKey, setUploadKey] = useState(0);
 	const [receipts, setReceipts] = useState<UploadedReceipt[]>([]);
@@ -85,7 +80,7 @@ export default function ReceiptUploadForm({
 			const validation = await validateAnalyzedReceipt(result.analysis);
 
 			const newReceipt: UploadedReceipt = {
-				id: generateId(),
+				id: nanoid(),
 				receiptType:
 					result.analysis.receiptType === 'sales_receipt'
 						? 'sales_receipt'
@@ -188,20 +183,20 @@ export default function ReceiptUploadForm({
 
 					<SimpleGrid cols={{ base: 1, sm: 2 }} spacing='xl'>
 						<FieldView label='Bank Name' underline={false}>
-							Standard Lesotho Bank
+							{config.apply.banking.bankName}
 						</FieldView>
 						<FieldView label='Account Holder' underline={false}>
-							Limkokwing University of Creative Technology
+							{config.apply.banking.accountHolder}
 						</FieldView>
 						<FieldView label='Account Number' underline={false}>
 							<Group gap={6} align='center'>
 								<Text size='sm' fw={600} ff='monospace'>
-									9080003987813
+									{config.apply.banking.accountNumber}
 								</Text>
 							</Group>
 						</FieldView>
 						<FieldView label='Branch Code' underline={false}>
-							060667
+							{config.apply.banking.branchCode}
 						</FieldView>
 					</SimpleGrid>
 
@@ -223,25 +218,14 @@ export default function ReceiptUploadForm({
 				</Stack>
 			</Card>
 
-			{isMobile ? (
-				<MobileDocumentUpload
-					key={`mobile-${uploadKey}`}
-					type='receipt'
-					onUploadComplete={handleUploadComplete}
-					disabled={disabled}
-					title='Upload Payment Receipt'
-					description='Bank deposit slip or university sales receipt'
-				/>
-			) : (
-				<DocumentUpload
-					key={uploadKey}
-					type='receipt'
-					onUploadComplete={handleUploadComplete}
-					disabled={disabled}
-					title='Drop payment receipt here or click to browse'
-					description='Upload your bank deposit slip or university sales receipt'
-				/>
-			)}
+			<DocumentUpload
+				key={uploadKey}
+				type='receipt'
+				onUploadComplete={handleUploadComplete}
+				disabled={disabled}
+				title='Upload Payment Receipt'
+				description='Bank deposit slip or university sales receipt'
+			/>
 
 			{showUploadedSection && (
 				<Stack gap='sm'>

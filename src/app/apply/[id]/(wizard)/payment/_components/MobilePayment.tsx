@@ -1,5 +1,6 @@
 'use client';
 
+import { POLL_INTERVAL, TIMEOUT_SECONDS } from '@apply/_lib/constants';
 import {
 	Alert,
 	Button,
@@ -27,9 +28,6 @@ import {
 } from '@/core/integrations/pay-lesotho';
 import { useActionMutation } from '@/shared/lib/actions/use-action-mutation';
 import { checkPaymentStatus, initiateMpesaPayment } from '../_server/actions';
-
-const POLL_INTERVAL = 5000;
-const TIMEOUT_SECONDS = 90;
 
 type Props = {
 	applicationId: string;

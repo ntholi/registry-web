@@ -11,6 +11,7 @@ import {
 	saveApplicantDocument,
 } from '@admissions/applicants/[id]/documents/_server/actions';
 import { getApplication } from '@admissions/applications';
+import { MAX_FILE_SIZE } from '@apply/_lib/constants';
 import { getStudentByUserId } from '@registry/students';
 import { auth } from '@/core/auth';
 import type { CertificateDocumentResult } from '@/core/integrations/ai/documents';
@@ -27,7 +28,6 @@ import {
 } from '@/shared/lib/utils/grades';
 import type { Program as GradeProgram } from '@/shared/lib/utils/grades/type';
 
-const MAX_FILE_SIZE = 2 * 1024 * 1024;
 const CURRENT_YEAR = new Date().getFullYear();
 
 type UploadResult = {

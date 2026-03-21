@@ -7,6 +7,7 @@ import {
 	initiateMobilePayment,
 	verifyMobilePayment,
 } from '@admissions/payments';
+import { MAX_FILE_SIZE } from '@apply/_lib/constants';
 import { nanoid } from 'nanoid';
 import { bankDeposits, db, documents } from '@/core/database';
 import { deleteFile, uploadFile } from '@/core/integrations/storage';
@@ -16,8 +17,6 @@ import { UserFacingError } from '@/shared/lib/actions/extractError';
 import { validateAnalyzedReceipt, validateReceipts } from './validation';
 
 export { validateAnalyzedReceipt, validateReceipts };
-
-const MAX_FILE_SIZE = 2 * 1024 * 1024;
 
 type DepositData = {
 	base64: string;

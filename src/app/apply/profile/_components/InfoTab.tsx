@@ -10,11 +10,11 @@ import {
 	SimpleGrid,
 	Stack,
 	Text,
-	ThemeIcon,
 	Title,
 	useMantineColorScheme,
 } from '@mantine/core';
 import { getGradeColor } from '@/app/admissions/applicants/[id]/_components/AcademicRecordsTab';
+import { FieldView } from '@/shared/ui/adease/FieldView';
 
 interface Props {
 	applicant: ApplicantWithRelations;
@@ -30,22 +30,22 @@ export function InfoTab({ applicant }: Props) {
 			<Paper withBorder radius='md' p='xl'>
 				<Grid>
 					<Grid.Col span={{ base: 12, sm: 6 }}>
-						<FieldDisplay label='Full Name' value={applicant.fullName} />
+						<FieldView label='Full Name'>{applicant.fullName}</FieldView>
 					</Grid.Col>
 					<Grid.Col span={{ base: 12, sm: 6 }}>
-						<FieldDisplay label='Date of Birth' value={applicant.dateOfBirth} />
+						<FieldView label='Date of Birth'>{applicant.dateOfBirth}</FieldView>
 					</Grid.Col>
 					<Grid.Col span={{ base: 12, sm: 6 }}>
-						<FieldDisplay label='National ID' value={applicant.nationalId} />
+						<FieldView label='National ID'>{applicant.nationalId}</FieldView>
 					</Grid.Col>
 					<Grid.Col span={{ base: 12, sm: 6 }}>
-						<FieldDisplay label='Nationality' value={applicant.nationality} />
+						<FieldView label='Nationality'>{applicant.nationality}</FieldView>
 					</Grid.Col>
 					<Grid.Col span={{ base: 12, sm: 6 }}>
-						<FieldDisplay label='Gender' value={applicant.gender} />
+						<FieldView label='Gender'>{applicant.gender}</FieldView>
 					</Grid.Col>
 					<Grid.Col span={{ base: 12, sm: 6 }}>
-						<FieldDisplay label='Birth Place' value={applicant.birthPlace} />
+						<FieldView label='Birth Place'>{applicant.birthPlace}</FieldView>
 					</Grid.Col>
 				</Grid>
 			</Paper>
@@ -54,10 +54,10 @@ export function InfoTab({ applicant }: Props) {
 				<Paper withBorder radius='md' p='xl'>
 					<Grid>
 						<Grid.Col span={{ base: 12, sm: 6 }}>
-							<FieldDisplay label='Phone' value={primaryPhone?.phoneNumber} />
+							<FieldView label='Phone'>{primaryPhone?.phoneNumber}</FieldView>
 						</Grid.Col>
 						<Grid.Col span={12}>
-							<FieldDisplay label='Address' value={applicant.address} />
+							<FieldView label='Address'>{applicant.address}</FieldView>
 						</Grid.Col>
 					</Grid>
 				</Paper>
@@ -77,25 +77,22 @@ export function InfoTab({ applicant }: Props) {
 										)}
 										<Grid>
 											<Grid.Col span={{ base: 12, sm: 6 }}>
-												<FieldDisplay label='Name' value={guardian.name} />
+												<FieldView label='Name'>{guardian.name}</FieldView>
 											</Grid.Col>
 											<Grid.Col span={{ base: 12, sm: 6 }}>
-												<FieldDisplay
-													label='Relationship'
-													value={guardian.relationship}
-												/>
+												<FieldView label='Relationship'>
+													{guardian.relationship}
+												</FieldView>
 											</Grid.Col>
 											<Grid.Col span={{ base: 12, sm: 6 }}>
-												<FieldDisplay
-													label='Phone'
-													value={guardian.phones?.[0]?.phoneNumber}
-												/>
+												<FieldView label='Phone'>
+													{guardian.phones?.[0]?.phoneNumber}
+												</FieldView>
 											</Grid.Col>
 											<Grid.Col span={{ base: 12, sm: 6 }}>
-												<FieldDisplay
-													label='Occupation'
-													value={guardian.occupation}
-												/>
+												<FieldView label='Occupation'>
+													{guardian.occupation}
+												</FieldView>
 											</Grid.Col>
 										</Grid>
 									</Stack>
@@ -175,37 +172,5 @@ function Section({
 			</Title>
 			{children}
 		</Box>
-	);
-}
-
-interface FieldDisplayProps {
-	icon?: React.ReactNode;
-	label: string;
-	value?: string | null;
-}
-
-function FieldDisplay({ icon, label, value }: FieldDisplayProps) {
-	return (
-		<Stack gap={4}>
-			<Group gap='xs'>
-				{icon && (
-					<ThemeIcon size='xs' variant='transparent' c='dimmed'>
-						{icon}
-					</ThemeIcon>
-				)}
-				<Text size='xs' c='dimmed'>
-					{label}
-				</Text>
-			</Group>
-			{value ? (
-				<Text size='sm' fw={500}>
-					{value}
-				</Text>
-			) : (
-				<Badge size='xs' variant='light' color='gray'>
-					Not provided
-				</Badge>
-			)}
-		</Stack>
 	);
 }

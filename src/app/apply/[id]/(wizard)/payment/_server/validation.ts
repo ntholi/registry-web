@@ -3,27 +3,19 @@
 import { resolveApplicationFee } from '@admissions/_lib/fees';
 import { getApplication } from '@admissions/applications';
 import { eq } from 'drizzle-orm';
+import { config } from '@/config';
 import { applicants, db, intakePeriods } from '@/core/database';
 import {
 	analyzeReceipt,
 	type ReceiptResult,
 } from '@/core/integrations/ai/documents';
 
-const BENEFICIARY_NAME = 'Limkokwing University of Creative Technology';
-const BENEFICIARY_ACCOUNT = '9080003987813';
-const BENEFICIARY_VARIATIONS = [
-	'limkokwing university of creative technology',
-	'limkokwing university',
-	'luct',
-	'limkokwing',
-];
-
-const SALES_RECEIPT_ISSUERS = [
-	'limkokwing university of creative technology',
-	'limkokwing university',
-	'luct',
-	'limkokwing',
-];
+const {
+	accountHolder: BENEFICIARY_NAME,
+	accountNumber: BENEFICIARY_ACCOUNT,
+	beneficiaryVariations: BENEFICIARY_VARIATIONS,
+	salesReceiptIssuers: SALES_RECEIPT_ISSUERS,
+} = config.apply.banking;
 
 export type ReceiptValidation = {
 	isValid: boolean;

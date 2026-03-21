@@ -22,6 +22,16 @@ export type AppConfig = {
 			endTime: string;
 		};
 	};
+	apply: {
+		banking: {
+			bankName: string;
+			accountHolder: string;
+			accountNumber: string;
+			branchCode: string;
+			beneficiaryVariations: string[];
+			salesReceiptIssuers: string[];
+		};
+	};
 };
 
 const configMap = {

@@ -10,6 +10,7 @@ import {
 	saveApplicantDocument,
 	updateApplicantFromIdentity,
 } from '@admissions/applicants/[id]/documents/_server/actions';
+import { MAX_FILE_SIZE } from '@apply/_lib/constants';
 import type { IdentityDocumentResult } from '@/core/integrations/ai/documents';
 import { uploadFile } from '@/core/integrations/storage';
 import {
@@ -18,8 +19,6 @@ import {
 } from '@/core/integrations/storage-utils';
 import { createAction, unwrap } from '@/shared/lib/actions/actionResult';
 import { UserFacingError } from '@/shared/lib/actions/extractError';
-
-const MAX_FILE_SIZE = 2 * 1024 * 1024;
 
 type UploadResult = { fileName: string; analysis: IdentityDocumentResult };
 

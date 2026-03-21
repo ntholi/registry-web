@@ -17,15 +17,8 @@ import { modals } from '@mantine/modals';
 import { IconLogout, IconMail } from '@tabler/icons-react';
 import { useRouter } from 'next/navigation';
 import { authClient } from '@/core/auth-client';
+import { toTitleCase } from '@/shared/lib/utils/utils';
 import Logo from '@/shared/ui/Logo';
-
-function formatRole(role: string): string {
-	return role
-		.replace(/_/g, ' ')
-		.split(' ')
-		.map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-		.join(' ');
-}
 
 export default function ApplyRestrictedPage() {
 	const { data: session, isPending } = authClient.useSession();
@@ -91,7 +84,7 @@ export default function ApplyRestrictedPage() {
 							<Text ta='center' c='dimmed' size='sm' lh={1.6}>
 								This email address is associated with a{' '}
 								<Text span fw={600} c={'gray'}>
-									{formatRole(role)}
+									{toTitleCase(role)}
 								</Text>{' '}
 								account. Staff and existing students cannot submit new
 								applications using emails associated with the University.

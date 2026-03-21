@@ -15,6 +15,26 @@ const config: AppConfig = {
 			endTime: '17:30:00',
 		},
 	},
+	apply: {
+		banking: {
+			bankName: 'Standard Lesotho Bank',
+			accountHolder: 'Limkokwing University of Creative Technology',
+			accountNumber: '9080003987813',
+			branchCode: '060667',
+			beneficiaryVariations: [
+				'limkokwing university of creative technology',
+				'limkokwing university',
+				'luct',
+				'limkokwing',
+			],
+			salesReceiptIssuers: [
+				'limkokwing university of creative technology',
+				'limkokwing university',
+				'luct',
+				'limkokwing',
+			],
+		},
+	},
 };
 
 export default config;
