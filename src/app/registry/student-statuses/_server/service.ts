@@ -21,6 +21,7 @@ import {
 	requireSessionUserId,
 	withPermission,
 } from '@/core/platform/withPermission';
+import { UserFacingError } from '@/shared/lib/actions/extractError';
 import {
 	canUserApproveRole,
 	getUserApprovalRoles,
@@ -181,8 +182,8 @@ class StudentStatusService extends BaseService<typeof studentStatuses, 'id'> {
 					...(baseAudit ?? {}),
 					userId,
 					activityType: 'student_status_updated',
-					stdNo: app.stdNo,
 					role: session!.user!.role,
+					stdNo: app.stdNo,
 				};
 
 				const updated = await this.repository.updateEditable(id, data, audit);
@@ -209,16 +210,25 @@ class StudentStatusService extends BaseService<typeof studentStatuses, 'id'> {
 				const userId = requireSessionUserId(session);
 				const app = await this.repository.findById(id);
 				if (!app) {
-					throw new Error('Application not found');
+					throw new UserFacingError('Application not found', 'NOT_FOUND');
 				}
 				if (app.status !== 'pending') {
-					throw new Error('Only pending applications can receive attachments');
+					throw new UserFacingError(
+						'Only pending applications can receive attachments',
+						'INVALID_STATE'
+					);
 				}
 				if (file.size > MAX_ATTACHMENT_SIZE) {
-					throw new Error('Attachment must not exceed 5 MB');
+					throw new UserFacingError(
+						'Attachment must not exceed 5 MB',
+						'FILE_TOO_LARGE'
+					);
 				}
 				if (!ALLOWED_MIME_TYPES.includes(mimeType)) {
-					throw new Error('Unsupported attachment type');
+					throw new UserFacingError(
+						'Unsupported attachment type',
+						'INVALID_FILE_TYPE'
+					);
 				}
 
 				const key = generateUploadKey(
@@ -234,8 +244,8 @@ class StudentStatusService extends BaseService<typeof studentStatuses, 'id'> {
 							...baseAudit,
 							userId,
 							activityType: 'student_status_updated',
-							stdNo: app.stdNo,
 							role: session!.user!.role,
+							stdNo: app.stdNo,
 						}
 					: undefined;
 
@@ -266,7 +276,50 @@ class StudentStatusService extends BaseService<typeof studentStatuses, 'id'> {
 					throw error;
 				}
 			},
-			{ 'student-statuses': ['update'] }
+			async (session) =>
+				hasPermission(session, 'student-statuses', 'create') ||
+				hasPermission(session, 'student-statuses', 'update')
+		);
+	}
+
+	async deleteAttachment(id: string) {
+		return withPermission(
+			async (session) => {
+				const userId = requireSessionUserId(session);
+				const attachment = await this.repository.findAttachmentById(id);
+				if (!attachment) {
+					return;
+				}
+
+				const app = await this.repository.findById(attachment.applicationId);
+				if (!app) {
+					return;
+				}
+				if (app.status !== 'pending') {
+					throw new UserFacingError(
+						'Only pending applications can modify attachments',
+						'INVALID_STATE'
+					);
+				}
+
+				await deleteFile(attachment.fileKey);
+
+				const baseAudit = this.buildAuditOptions(session, 'update');
+				const audit: AuditOptions | undefined = baseAudit
+					? {
+							...baseAudit,
+							userId,
+							activityType: 'student_status_updated',
+							role: session!.user!.role,
+							stdNo: app.stdNo,
+						}
+					: undefined;
+
+				await this.repository.deleteAttachment(id, audit);
+			},
+			async (session) =>
+				hasPermission(session, 'student-statuses', 'create') ||
+				hasPermission(session, 'student-statuses', 'update')
 		);
 	}
 

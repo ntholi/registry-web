@@ -24,6 +24,7 @@ import {
 	TypographyStylesProvider,
 } from '@mantine/core';
 import { IconFile } from '@tabler/icons-react';
+import sanitize from 'sanitize-html';
 import { useState } from 'react';
 import { authClient } from '@/core/auth-client';
 import { getPublicUrl } from '@/core/integrations/storage-utils';
@@ -55,6 +56,7 @@ export default function StatusDetails({ app }: Props) {
 
 function AdminRegistryView({ app }: Props) {
 	const approvals = app.approvals ?? [];
+	const reasons = getSafeReasonsHtml(app.reasons);
 
 	return (
 		<Stack p='lg' gap='lg'>
@@ -104,9 +106,9 @@ function AdminRegistryView({ app }: Props) {
 				<Title order={6} c='dimmed' tt='uppercase' fz='xs' mb='md'>
 					Reasons
 				</Title>
-				{app.reasons && !isRichTextEmpty(app.reasons) ? (
+				{reasons ? (
 					<TypographyStylesProvider>
-						<div dangerouslySetInnerHTML={{ __html: app.reasons }} />
+						<div dangerouslySetInnerHTML={{ __html: reasons }} />
 					</TypographyStylesProvider>
 				) : (
 					<Text size='sm' c='dimmed' fs='italic'>
@@ -211,9 +213,10 @@ function AdminRegistryView({ app }: Props) {
 type OtherRolesProps = Props & { role?: string };
 
 function OtherRolesView({ app }: OtherRolesProps) {
+	const reasons = getSafeReasonsHtml(app.reasons);
 	const [comment, setComment] = useState<string | undefined>(undefined);
 	const [accordion, setAccordion] = useState<string | null>(
-		app.reasons && !isRichTextEmpty(app.reasons)
+		reasons
 			? 'reasons'
 			: app.attachments.length > 0
 				? 'attachments'
@@ -295,9 +298,9 @@ function OtherRolesView({ app }: OtherRolesProps) {
 				<AccordionItem value='reasons'>
 					<AccordionControl>Reasons</AccordionControl>
 					<AccordionPanel>
-						{app.reasons && !isRichTextEmpty(app.reasons) ? (
+						{reasons ? (
 							<TypographyStylesProvider>
-								<div dangerouslySetInnerHTML={{ __html: app.reasons }} />
+								<div dangerouslySetInnerHTML={{ __html: reasons }} />
 							</TypographyStylesProvider>
 						) : (
 							<Text size='sm' c='dimmed'>
@@ -360,4 +363,12 @@ function AttachmentList({ items }: AttachmentListProps) {
 			))}
 		</Stack>
 	);
+}
+
+function getSafeReasonsHtml(html: string | null | undefined) {
+	if (!html || isRichTextEmpty(html)) {
+		return null;
+	}
+
+	return sanitize(html);
 }
