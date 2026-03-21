@@ -184,6 +184,45 @@ export default class StudentStatusRepository extends BaseRepository<
 		});
 	}
 
+	async findAttachmentById(id: string) {
+		return db.query.studentStatusAttachments.findFirst({
+			where: eq(studentStatusAttachments.id, id),
+		});
+	}
+
+	async deleteAttachment(id: string, audit?: AuditOptions) {
+		if (!audit) {
+			await db
+				.delete(studentStatusAttachments)
+				.where(eq(studentStatusAttachments.id, id));
+			return;
+		}
+
+		await db.transaction(async (tx) => {
+			const existing = await tx.query.studentStatusAttachments.findFirst({
+				where: eq(studentStatusAttachments.id, id),
+			});
+
+			if (!existing) {
+				return;
+			}
+
+			await tx
+				.delete(studentStatusAttachments)
+				.where(eq(studentStatusAttachments.id, id));
+
+			await this.writeAuditLogForTable(
+				tx,
+				'student_status_attachments',
+				'DELETE',
+				id,
+				existing,
+				null,
+				audit
+			);
+		});
+	}
+
 	async updateStatus(
 		id: string,
 		status: StudentStatusState,

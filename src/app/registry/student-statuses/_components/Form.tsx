@@ -23,7 +23,10 @@ import TermInput from '@/shared/ui/TermInput';
 import StudentPreviewCard from '../../_components/StudentPreviewCard';
 import { getJustificationLabel, getTypeLabel } from '../_lib/labels';
 import type { StudentStatusAttachment } from '../_lib/types';
-import { uploadStudentStatusAttachment } from '../_server/actions';
+import {
+	deleteStudentStatusAttachment,
+	uploadStudentStatusAttachment,
+} from '../_server/actions';
 
 type StudentStatusInsert = typeof studentStatuses.$inferInsert;
 type StatusType = (typeof studentStatuses.type.enumValues)[number];
@@ -118,7 +121,7 @@ export default function StudentStatusForm({
 	const [selectedType, setSelectedType] = useState<StatusType | null>(
 		defaultValues?.type ?? null
 	);
-	const [pendingFiles, setPendingFiles] = useState<File[]>([]);
+	const [filesToUpload, setFilesToUpload] = useState<File[]>([]);
 
 	const { data: selectedStudent } = useQuery({
 		queryKey: ['student', selectedStdNo],
@@ -134,27 +137,37 @@ export default function StudentStatusForm({
 
 	function addPendingFile(file: File | null) {
 		if (file) {
-			setPendingFiles((prev) => [...prev, file]);
+			setFilesToUpload((prev) => [...prev, file]);
 		}
 	}
 
 	function removePendingFile(index: number) {
-		setPendingFiles((prev) => prev.filter((_, i) => i !== index));
+		setFilesToUpload((prev) => prev.filter((_, i) => i !== index));
 	}
 
 	async function handleSubmit(values: StudentStatusInsert) {
 		const result = await onSubmit({
 			...values,
-			reasons: isRichTextEmpty(values.reasons ?? '')
-				? null
-				: (values.reasons ?? null),
+			reasons: isRichTextEmpty(values.reasons ?? '') ? null : values.reasons,
 		});
 		const data = isActionResult(result) ? unwrap(result) : result;
+		const uploadedAttachments: StudentStatusAttachment[] = [];
 
-		for (const file of pendingFiles) {
-			const formData = new FormData();
-			formData.append('file', file);
-			unwrap(await uploadStudentStatusAttachment(data.id, formData));
+		try {
+			for (const file of filesToUpload) {
+				const formData = new FormData();
+				formData.append('file', file);
+				uploadedAttachments.push(
+					unwrap(await uploadStudentStatusAttachment(data.id, formData))
+				);
+			}
+		} catch (error) {
+			await Promise.allSettled(
+				uploadedAttachments.map((attachment) =>
+					deleteStudentStatusAttachment(attachment.id)
+				)
+			);
+			throw error;
 		}
 
 		return data;
@@ -171,7 +184,7 @@ export default function StudentStatusForm({
 				reasons: defaultValues?.reasons ?? '',
 			}}
 			onSuccess={({ id }) => {
-				setPendingFiles([]);
+				setFilesToUpload([]);
 				router.push(`/registry/student-statuses/${id}`);
 			}}
 		>
@@ -284,7 +297,7 @@ export default function StudentStatusForm({
 											onReasonsChange={(value) =>
 												form.setFieldValue('reasons', value)
 											}
-											pendingFiles={pendingFiles}
+											pendingFiles={filesToUpload}
 											onAddFile={addPendingFile}
 											onRemoveFile={removePendingFile}
 										/>
