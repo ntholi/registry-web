@@ -3,6 +3,7 @@ import {
 	db,
 	studentSemesters,
 	studentStatusApprovals,
+	studentStatusAttachments,
 	studentStatuses,
 	students,
 } from '@/core/database';
@@ -38,6 +39,7 @@ export default class StudentStatusRepository extends BaseRepository<
 			where: eq(studentStatuses.id, id),
 			with: {
 				student: true,
+				attachments: true,
 				approvals: { with: { responder: true } },
 				semester: true,
 				term: true,
@@ -147,6 +149,38 @@ export default class StudentStatusRepository extends BaseRepository<
 			}
 
 			return this.findById(created.id);
+		});
+	}
+
+	async createAttachment(
+		data: typeof studentStatusAttachments.$inferInsert,
+		audit?: AuditOptions
+	) {
+		if (!audit) {
+			const [attachment] = await db
+				.insert(studentStatusAttachments)
+				.values(data)
+				.returning();
+			return attachment;
+		}
+
+		return db.transaction(async (tx) => {
+			const [attachment] = await tx
+				.insert(studentStatusAttachments)
+				.values(data)
+				.returning();
+
+			await this.writeAuditLogForTable(
+				tx,
+				'student_status_attachments',
+				'INSERT',
+				attachment.id,
+				null,
+				attachment,
+				audit
+			);
+
+			return attachment;
 		});
 	}
 

@@ -1,20 +1,29 @@
 'use client';
 
-import { Select, SimpleGrid, Textarea } from '@mantine/core';
+import { Anchor, Group, Select, SimpleGrid, Stack, Text } from '@mantine/core';
 import { studentStatuses } from '@registry/_database';
 import { getStudent, getStudentPhoto } from '@registry/students';
+import ReasonsTab from '@registry/students/_components/shared/ReasonsTab';
 import { useQuery } from '@tanstack/react-query';
 import { createInsertSchema } from 'drizzle-zod';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { z } from 'zod';
-import type { ActionResult } from '@/shared/lib/actions/actionResult';
+import { getPublicUrl } from '@/core/integrations/storage-utils';
+import {
+	type ActionResult,
+	isActionResult,
+	unwrap,
+} from '@/shared/lib/actions/actionResult';
+import { isRichTextEmpty } from '@/shared/lib/utils/files';
 import { formatSemester } from '@/shared/lib/utils/utils';
 import { Form } from '@/shared/ui/adease';
 import StudentInput from '@/shared/ui/StudentInput';
 import TermInput from '@/shared/ui/TermInput';
 import StudentPreviewCard from '../../_components/StudentPreviewCard';
 import { getJustificationLabel, getTypeLabel } from '../_lib/labels';
+import type { StudentStatusAttachment } from '../_lib/types';
+import { uploadStudentStatusAttachment } from '../_server/actions';
 
 type StudentStatusInsert = typeof studentStatuses.$inferInsert;
 type StatusType = (typeof studentStatuses.type.enumValues)[number];
@@ -26,7 +35,9 @@ type Props = {
 	onSubmit: (
 		values: StudentStatusInsert
 	) => Promise<{ id: string } | ActionResult<{ id: string }>>;
-	defaultValues?: StudentStatusInsert;
+	defaultValues?: StudentStatusInsert & {
+		attachments?: StudentStatusAttachment[];
+	};
 	title?: string;
 	mode?: 'create' | 'edit';
 };
@@ -107,6 +118,7 @@ export default function StudentStatusForm({
 	const [selectedType, setSelectedType] = useState<StatusType | null>(
 		defaultValues?.type ?? null
 	);
+	const [pendingFiles, setPendingFiles] = useState<File[]>([]);
 
 	const { data: selectedStudent } = useQuery({
 		queryKey: ['student', selectedStdNo],
@@ -120,14 +132,46 @@ export default function StudentStatusForm({
 		enabled: !!selectedStdNo,
 	});
 
+	function addPendingFile(file: File | null) {
+		if (file) {
+			setPendingFiles((prev) => [...prev, file]);
+		}
+	}
+
+	function removePendingFile(index: number) {
+		setPendingFiles((prev) => prev.filter((_, i) => i !== index));
+	}
+
+	async function handleSubmit(values: StudentStatusInsert) {
+		const result = await onSubmit({
+			...values,
+			reasons: isRichTextEmpty(values.reasons ?? '')
+				? null
+				: (values.reasons ?? null),
+		});
+		const data = isActionResult(result) ? unwrap(result) : result;
+
+		for (const file of pendingFiles) {
+			const formData = new FormData();
+			formData.append('file', file);
+			unwrap(await uploadStudentStatusAttachment(data.id, formData));
+		}
+
+		return data;
+	}
+
 	return (
 		<Form
 			title={title}
-			action={onSubmit}
+			action={handleSubmit}
 			queryKey={['student-statuses']}
 			schema={schema}
-			defaultValues={defaultValues}
+			defaultValues={{
+				...defaultValues,
+				reasons: defaultValues?.reasons ?? '',
+			}}
 			onSuccess={({ id }) => {
+				setPendingFiles([]);
 				router.push(`/registry/student-statuses/${id}`);
 			}}
 		>
@@ -235,12 +279,33 @@ export default function StudentStatusForm({
 												disabled={semesterOptions.length === 0}
 											/>
 										</SimpleGrid>
-										<Textarea
-											label='Notes'
-											autosize
-											minRows={3}
-											{...form.getInputProps('notes')}
+										<ReasonsTab
+											reasons={form.values.reasons ?? ''}
+											onReasonsChange={(value) =>
+												form.setFieldValue('reasons', value)
+											}
+											pendingFiles={pendingFiles}
+											onAddFile={addPendingFile}
+											onRemoveFile={removePendingFile}
 										/>
+										{defaultValues?.attachments &&
+											defaultValues.attachments.length > 0 && (
+												<Stack gap='xs'>
+													<Text size='sm' fw={500}>
+														Current Attachments
+													</Text>
+													{defaultValues.attachments.map((attachment) => (
+														<Anchor
+															key={attachment.id}
+															href={getPublicUrl(attachment.fileKey)}
+															target='_blank'
+															size='sm'
+														>
+															<Group gap={6}>{attachment.fileName}</Group>
+														</Anchor>
+													))}
+												</Stack>
+											)}
 									</>
 								)}
 							</>
