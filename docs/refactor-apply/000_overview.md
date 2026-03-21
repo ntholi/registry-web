@@ -1,46 +1,34 @@
-# Apply Module — Refactor Audit
+# Apply Module — Refactor Plan
 
-Comprehensive audit of `src/app/apply/` identifying bad practices, inconsistencies, anti-patterns, and unmaintainable code.
-**Last reviewed**: 2026-03-21
+Consolidated action plan for refactoring `src/app/apply/`. Broken into 3 sequential parts.
+
+**Created**: 2026-03-21
 
 ## Progress
 
-| Phase | Items | Done | Remaining |
-|-------|-------|------|-----------|
-| 01 Code Duplication | 6 | 0 | 6 |
-| 02 Architecture Violations | 5 | 0 | 5 |
-| 03 Type Safety | 3 | 0 | 3 |
-| 04 Anti-Patterns | 8 | 1 | 7 |
-| 05 Inconsistencies | 4 | 0 | 4 |
-| **Total** | **26** | **1** | **25** |
+| Part | Title | Items | Done | Remaining |
+|------|-------|-------|------|-----------|
+| 001 | Foundation & Deduplication | 8 | 0 | 8 |
+| 002 | Architecture & Type Safety | 8 | 0 | 8 |
+| 003 | Patterns & Consistency | 10 | 1 | 9 |
+| | **Total** | **26** | **1** | **25** |
 
-### What's been fixed
-- ✅ 4.6 Console statements removed from `qualifications/_server/actions.ts`
+### Completed
+- ✅ 3.6 Console statements removed from `qualifications/_server/actions.ts`
 
-## Priority Matrix
+## Parts
 
-| # | Document | Severity | Impact |
-|---|----------|----------|--------|
-| 1 | [Code Duplication](./01-code-duplication.md) | 🔴 Critical | ~1000 lines of duplicated code across uploads, modals, and constants |
-| 2 | [Architecture Violations](./02-architecture-violations.md) | 🔴 Critical | Direct DB access in actions, wrong cross-module imports |
-| 3 | [Type Safety](./03-type-safety.md) | 🟠 High | Weak types, name collisions, loose annotations |
-| 4 | [Anti-Patterns](./04-anti-patterns.md) | 🟠 High | useEffect misuse, hardcoded constants, missing validation |
-| 5 | [Inconsistencies & Style](./05-inconsistencies.md) | 🟡 Medium | Export patterns, inline styles, component reuse failures |
+| # | Document | Severity | Scope |
+|---|----------|----------|-------|
+| 1 | [Foundation & Deduplication](./001-foundation-deduplication.md) | 🔴 Critical | Shared types, constants, merge ~1000 duplicated lines, extract shared components |
+| 2 | [Architecture & Type Safety](./002-architecture-and-types.md) | 🔴 Critical / 🟠 High | DB access violations, cross-module imports, type collisions, weak types |
+| 3 | [Patterns & Consistency](./003-patterns-and-consistency.md) | 🟠 High / 🟡 Medium | Anti-patterns (useEffect, render-time state), validation, exports, inline styles |
 
-## Summary Statistics (current)
-
-- **Files Audited**: ~50
-- **Critical Issues**: 5 (0 fixed)
-- **High Issues**: 8 (1 fixed)
-- **Medium Issues**: 10+ (0 fixed)
-- **Estimated Duplicated Lines**: ~1000+
-- **Inline `style={{}}` Usages**: 30+
-- **`MAX_FILE_SIZE` Redefinitions**: 5 separate files
-- **Direct DB Imports Outside Repositories**: 2 files
-- **Cross-Module Private Imports**: 3 files (was 4; `getGradeColor` still in 3)
-- **`useEffect` Violations**: 3 occurrences
-- **Render-Time State Updates**: 1 occurrence
-- **Async Form Initialization Risks**: 1 confirmed occurrence
+## Execution Rules
+- Complete Part 1 before Part 2 (Part 2 depends on extractions from Part 1)
+- Part 3 can partially overlap with Part 2
+- Each step concludes with `pnpm tsc --noEmit & pnpm lint:fix`
+- Steps within a part can sometimes be parallelized (noted where applicable)
 
 ## File Index
 
