@@ -401,9 +401,9 @@ export default function ProofOfClearancePDF({
 						Document ID: clearance_{student.stdNo}_
 						{formatDate(new Date(), 'numeric').replace(/\//g, '')} | This
 						document serves as official proof that all departmental clearances
-						have been approved for graduation. All academic, financial, and
-						library obligations have been satisfied. Clearance processed through
-						the official university system on {formatDate(new Date())}. This
+						have been approved for graduation. All academic and financial
+						obligations have been satisfied. Clearance processed through the
+						official university system on {formatDate(new Date())}. This
 						certificate is invalid if any information is found to be incorrect.
 					</Text>
 				</View>

@@ -58,7 +58,6 @@ export default class ClearanceRepository extends BaseRepository<
 					department: data.department,
 					status: data.status,
 					message: data.message,
-					emailSent: data.emailSent,
 					respondedBy: data.respondedBy,
 					responseDate: data.responseDate,
 				})
@@ -687,7 +686,6 @@ export default class ClearanceRepository extends BaseRepository<
 			department: aa.department,
 			status: 'approved' as const,
 			message: 'Auto-approved',
-			emailSent: null,
 			respondedBy: aa.createdBy,
 			responseDate: aa.createdAt,
 			createdAt: aa.createdAt,

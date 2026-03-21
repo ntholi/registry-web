@@ -17,8 +17,7 @@ class AutoApprovalService {
 			async () => this.repository.findByIdWithRelations(id),
 			async (session) =>
 				hasPermission(session, 'auto-approvals', 'read') ||
-				session?.user?.role === 'finance' ||
-				session?.user?.role === 'library'
+				session?.user?.role === 'finance'
 		);
 	}
 
@@ -28,17 +27,12 @@ class AutoApprovalService {
 				const session = await auth();
 				const role = session?.user?.role as DashboardRole | undefined;
 				const department =
-					role === 'admin'
-						? undefined
-						: role === 'finance' || role === 'library'
-							? role
-							: undefined;
+					role === 'admin' ? undefined : role === 'finance' ? role : undefined;
 				return this.repository.findAllPaginated(params, department);
 			},
 			async (session) =>
 				hasPermission(session, 'auto-approvals', 'read') ||
-				session?.user?.role === 'finance' ||
-				session?.user?.role === 'library'
+				session?.user?.role === 'finance'
 		);
 	}
 
@@ -63,8 +57,7 @@ class AutoApprovalService {
 			},
 			async (session) =>
 				hasPermission(session, 'auto-approvals', 'create') ||
-				session?.user?.role === 'finance' ||
-				session?.user?.role === 'library'
+				session?.user?.role === 'finance'
 		);
 	}
 
@@ -86,8 +79,7 @@ class AutoApprovalService {
 			},
 			async (session) =>
 				hasPermission(session, 'auto-approvals', 'update') ||
-				session?.user?.role === 'finance' ||
-				session?.user?.role === 'library'
+				session?.user?.role === 'finance'
 		);
 	}
 
@@ -109,8 +101,7 @@ class AutoApprovalService {
 			},
 			async (session) =>
 				hasPermission(session, 'auto-approvals', 'delete') ||
-				session?.user?.role === 'finance' ||
-				session?.user?.role === 'library'
+				session?.user?.role === 'finance'
 		);
 	}
 
@@ -127,10 +118,7 @@ class AutoApprovalService {
 				const role = session?.user?.role as DashboardRole;
 				const targetDept = role === 'admin' ? department : role;
 
-				if (
-					!targetDept ||
-					(targetDept !== 'finance' && targetDept !== 'library')
-				) {
+				if (!targetDept || targetDept !== 'finance') {
 					throw new Error('Invalid department for auto-approval rules');
 				}
 
@@ -166,8 +154,7 @@ class AutoApprovalService {
 			},
 			async (session) =>
 				hasPermission(session, 'auto-approvals', 'create') ||
-				session?.user?.role === 'finance' ||
-				session?.user?.role === 'library'
+				session?.user?.role === 'finance'
 		);
 	}
 }

@@ -398,10 +398,7 @@ export const PERMISSION_PRESET_SEEDS: readonly PermissionPresetSeed[] = [
 			grant('library', fullCrud),
 			grant('students', ['read']),
 			grant('registration', ['read']),
-			grant('registration-clearance', ['read', 'approve', 'reject']),
-			grant('graduation-clearance', ['read', 'approve', 'reject']),
 			grant('tasks', fullCrud),
-			grant('auto-approvals', fullCrud),
 			grant('mails', ['read'])
 		),
 	},
@@ -483,9 +480,7 @@ export const PERMISSION_PRESET_SEEDS: readonly PermissionPresetSeed[] = [
 			grant('timetable', ['read']),
 			grant('venues', ['read']),
 			grant('registration', ['read']),
-			grant('registration-clearance', ['read', 'approve', 'reject']),
 			grant('tasks', fullCrud),
-			grant('auto-approvals', fullCrud),
 			grant('mails', ['read'])
 		),
 	},

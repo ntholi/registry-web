@@ -188,10 +188,7 @@ export default function BulkImportModal() {
 							<Select
 								label='Department'
 								placeholder='Select department'
-								data={[
-									{ value: 'finance', label: 'Finance' },
-									{ value: 'library', label: 'Library' },
-								]}
+								data={[{ value: 'finance', label: 'Finance' }]}
 								value={department}
 								onChange={setDepartment}
 								required

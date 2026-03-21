@@ -69,7 +69,7 @@ export const registryConfig: ModuleConfig = {
 				label: 'Registration Clearance',
 				href: '/registry/registration/clearance',
 				icon: IconClipboardCheck,
-				roles: ['finance', 'library', 'resource', 'leap'],
+				roles: ['finance'],
 				notificationCount: {
 					queryKey: ['clearances', 'pending'],
 					queryFn: () => countPendingClearances(),
@@ -80,7 +80,7 @@ export const registryConfig: ModuleConfig = {
 				label: 'Auto-Approvals',
 				href: '/registry/clearance/auto-approve',
 				icon: IconRobot,
-				roles: ['finance', 'library', 'resource', 'admin'],
+				roles: ['finance', 'admin'],
 			},
 			{
 				label: 'Graduation Clearance',

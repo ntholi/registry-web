@@ -1,6 +1,5 @@
 import { users } from '@auth/users/_schema/users';
 import {
-	boolean,
 	index,
 	pgEnum,
 	pgTable,
@@ -22,7 +21,6 @@ export const clearance = pgTable(
 		department: text().notNull(),
 		status: clearanceRequestStatus().notNull().default('pending'),
 		message: text(),
-		emailSent: boolean().notNull().default(false),
 		respondedBy: text().references(() => users.id, { onDelete: 'cascade' }),
 		responseDate: timestamp(),
 		createdAt: timestamp().defaultNow(),

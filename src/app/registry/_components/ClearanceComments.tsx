@@ -6,7 +6,6 @@ const QUICK_COMMENTS = [
 	'Repeat Modules Owing',
 	'Tuition Fees Owing',
 	'Late Registration Owing',
-	'Library Fines Owing',
 	'IT Fines Owing',
 	'Specify Sponsor',
 	"Provide Borrower's Number",

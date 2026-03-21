@@ -1,6 +1,7 @@
 'use client';
 
 import { Accordion, Badge, Group, Stack, Text, ThemeIcon } from '@mantine/core';
+import { REGISTRATION_CLEARANCE_DEPTS } from '@/app/registry/clearance/_lib/constants';
 import type { DashboardRole } from '@/core/auth/permissions';
 import { getStatusColor } from '@/shared/lib/utils/colors';
 import { formatDateTime } from '@/shared/lib/utils/dates';
@@ -14,7 +15,7 @@ interface Props {
 	defaultDept?: DashboardRole;
 }
 
-const departments: DashboardRole[] = ['finance', 'library'];
+const departments: DashboardRole[] = [...REGISTRATION_CLEARANCE_DEPTS];
 
 export default function ClearanceAccordion({ value, defaultDept }: Props) {
 	return (

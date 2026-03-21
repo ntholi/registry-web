@@ -41,7 +41,6 @@ export default class GraduationClearanceRepository extends BaseRepository<
 					department: data.department,
 					status: data.status,
 					message: data.message,
-					emailSent: data.emailSent,
 					respondedBy: data.respondedBy,
 					responseDate: data.responseDate,
 				})

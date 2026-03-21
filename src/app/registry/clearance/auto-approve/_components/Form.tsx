@@ -23,10 +23,7 @@ export default function AutoApprovalForm({ rule }: Props) {
 	const userRole = session?.user?.role as string | undefined;
 	const isAdmin = userRole === 'admin';
 
-	const departmentOptions = [
-		{ value: 'finance', label: 'Finance' },
-		{ value: 'library', label: 'Library' },
-	];
+	const departmentOptions = [{ value: 'finance', label: 'Finance' }];
 
 	return (
 		<Form

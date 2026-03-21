@@ -1,6 +1,7 @@
 'use client';
 
 import { Accordion, Badge, Group, Stack, Text, ThemeIcon } from '@mantine/core';
+import { GRADUATION_CLEARANCE_DEPTS } from '@/app/registry/clearance/_lib/constants';
 import type { getGraduationRequest } from '@/app/registry/graduation/clearance/_server/requests/actions';
 import type { DashboardRole } from '@/core/auth/permissions';
 import { getStatusColor } from '@/shared/lib/utils/colors';
@@ -14,7 +15,7 @@ interface Props {
 	defaultDept?: DashboardRole;
 }
 
-const departments: DashboardRole[] = ['finance', 'library', 'academic'];
+const departments: DashboardRole[] = [...GRADUATION_CLEARANCE_DEPTS];
 
 export default function GraduationClearanceAccordion({
 	value,
