@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { Session } from '@/core/auth';
+import { hasAnyPermission } from '@/core/auth/sessionPermissions';
 
 const deleteFileMock = vi.fn();
 const uploadFileMock = vi.fn();
@@ -7,8 +8,11 @@ const findApprovalByIdMock = vi.fn();
 const respondToApprovalMock = vi.fn();
 const getApprovalsByAppIdMock = vi.fn();
 const findByIdMock = vi.fn();
+const predicateCheckMock = vi.fn();
+const updateForStatusWorkflowMock = vi.fn();
+const updateStudentSemesterForStatusWorkflowMock = vi.fn();
 
-const financeSession = {
+let currentSession = {
 	permissions: [{ resource: 'student-statuses', action: 'approve' }],
 	session: {
 		id: 'session-1',
@@ -42,8 +46,9 @@ vi.mock('@/core/integrations/storage', () => ({
 
 vi.mock('@registry/students/_server/service', () => ({
 	studentsService: {
-		updateForStatusWorkflow: vi.fn(),
-		updateStudentSemesterForStatusWorkflow: vi.fn(),
+		updateForStatusWorkflow: updateForStatusWorkflowMock,
+		updateStudentSemesterForStatusWorkflow:
+			updateStudentSemesterForStatusWorkflowMock,
 	},
 }));
 
@@ -71,37 +76,65 @@ vi.mock('@/core/platform/withPermission', () => ({
 			| ((session: Session) => Promise<boolean>)
 	) {
 		if (typeof requirement !== 'function') {
-			const granted = requirement['student-statuses'].every((action) =>
-				financeSession.permissions?.some(
-					(permission) =>
-						permission.resource === 'student-statuses' &&
-						permission.action === action
+			if (
+				!hasAnyPermission(
+					currentSession,
+					'student-statuses',
+					requirement['student-statuses']
 				)
-			);
-
-			if (!granted) {
+			) {
 				throw new Error('Forbidden');
 			}
 
-			return fn(financeSession);
+			return fn(currentSession);
 		}
 
-		if (!(await requirement(financeSession))) {
+		if (!(await requirement(currentSession))) {
 			throw new Error('Forbidden');
 		}
 
-		return fn(financeSession);
+		predicateCheckMock();
+		return fn(currentSession);
 	},
 }));
 
 describe('studentStatusesService.respond', () => {
 	beforeEach(() => {
+		currentSession = {
+			permissions: [{ resource: 'student-statuses', action: 'approve' }],
+			session: {
+				id: 'session-1',
+				userId: 'finance-1',
+				expiresAt: new Date(),
+				token: 'token',
+				createdAt: new Date(),
+				updatedAt: new Date(),
+				ipAddress: null,
+				userAgent: null,
+			},
+			user: {
+				id: 'finance-1',
+				email: 'finance@example.com',
+				emailVerified: true,
+				name: 'Finance User',
+				image: null,
+				createdAt: new Date(),
+				updatedAt: new Date(),
+				role: 'finance',
+				presetId: null,
+				presetName: null,
+				stdNo: null,
+			},
+		} as Session;
 		deleteFileMock.mockReset();
 		uploadFileMock.mockReset();
 		findApprovalByIdMock.mockReset();
 		respondToApprovalMock.mockReset();
 		getApprovalsByAppIdMock.mockReset();
 		findByIdMock.mockReset();
+		predicateCheckMock.mockReset();
+		updateForStatusWorkflowMock.mockReset();
+		updateStudentSemesterForStatusWorkflowMock.mockReset();
 	});
 
 	it('allows approve-only finance users to reject a finance approval step', async () => {
@@ -149,5 +182,63 @@ describe('studentStatusesService.respond', () => {
 			id: 'status-1',
 			status: 'pending',
 		});
+		expect(predicateCheckMock).toHaveBeenCalledTimes(1);
+		expect(updateForStatusWorkflowMock).not.toHaveBeenCalled();
+		expect(updateStudentSemesterForStatusWorkflowMock).not.toHaveBeenCalled();
+	});
+
+	it('allows approve-only finance users to approve a finance approval step', async () => {
+		findApprovalByIdMock.mockResolvedValue({
+			id: 'approval-1',
+			approverRole: 'finance',
+			application: {
+				id: 'status-1',
+				stdNo: 1001,
+				status: 'pending',
+				type: 'deferment',
+				semesterId: 22,
+			},
+		});
+		respondToApprovalMock.mockResolvedValue({
+			id: 'approval-1',
+			status: 'approved',
+		});
+		getApprovalsByAppIdMock.mockResolvedValue([
+			{ status: 'approved' },
+			{ status: 'pending' },
+		]);
+		findByIdMock.mockResolvedValue({
+			id: 'status-1',
+			status: 'pending',
+		});
+
+		const { studentStatusesService } = await import('../service');
+		const result = await studentStatusesService.respond(
+			'approval-1',
+			'approved',
+			'Approved by finance'
+		);
+
+		expect(findApprovalByIdMock).toHaveBeenCalledWith('approval-1');
+		expect(respondToApprovalMock).toHaveBeenCalledWith(
+			'approval-1',
+			{
+				status: 'approved',
+				respondedBy: 'finance-1',
+				comments: 'Approved by finance',
+			},
+			expect.objectContaining({
+				userId: 'finance-1',
+				role: 'finance',
+				activityType: 'student_status_approved',
+				stdNo: 1001,
+			})
+		);
+		expect(getApprovalsByAppIdMock).toHaveBeenCalledWith('status-1');
+		expect(result).toEqual({
+			id: 'status-1',
+			status: 'pending',
+		});
+		expect(predicateCheckMock).toHaveBeenCalledTimes(1);
 	});
 });

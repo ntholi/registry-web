@@ -20,7 +20,7 @@ export const APPROVAL_PRESET_ROLES: Record<
 	'Finance Manager': ['finance'],
 };
 
-export const APPROVAL_USER_ROLES: Partial<
+export const APPROVAL_ROLE_MAP: Partial<
 	Record<string, StudentStatusApprovalRole[]>
 > = {
 	finance: ['finance'],
@@ -60,7 +60,9 @@ export function getApprovalRolesByUser(
 	const presetRoles = user.presetName
 		? (APPROVAL_PRESET_ROLES[user.presetName] ?? [])
 		: [];
-	const userRoles = user.role ? (APPROVAL_USER_ROLES[user.role] ?? []) : [];
+	const userRoles = user.role
+		? (APPROVAL_ROLE_MAP[user.role] ?? [])
+		: [];
 
 	for (const role of [...presetRoles, ...userRoles]) {
 		if (!roles.includes(role)) {

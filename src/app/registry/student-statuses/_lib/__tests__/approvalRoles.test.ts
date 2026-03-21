@@ -84,4 +84,24 @@ describe('student status approval roles', () => {
 			});
 		}
 	});
+
+	it('does not grant create access to approval-only presets', () => {
+		const presetNames = [
+			'Academic Manager',
+			'Year Leader',
+			'Finance Staff',
+			'Finance Manager',
+		];
+
+		for (const presetName of presetNames) {
+			const preset = PERMISSION_PRESET_SEEDS.find(
+				(item) => item.name === presetName
+			);
+
+			expect(preset?.permissions).not.toContainEqual({
+				resource: 'student-statuses',
+				action: 'create',
+			});
+		}
+	});
 });
