@@ -192,7 +192,7 @@ export default function EditStudentProgramModal({
 				opened={opened}
 				onClose={close}
 				title='Edit Student Program'
-				size='xl'
+				size='lg'
 				onClick={(e) => e.stopPropagation()}
 			>
 				<form onSubmit={form.onSubmit(handleSubmit)}>

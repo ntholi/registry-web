@@ -204,7 +204,7 @@ export default function EditStudentSemesterModal({
 				opened={opened}
 				onClose={close}
 				title='Edit Student Semester'
-				size='lg'
+				size={550}
 			>
 				<form onSubmit={form.onSubmit(handleSubmit)}>
 					<Tabs defaultValue='details'>

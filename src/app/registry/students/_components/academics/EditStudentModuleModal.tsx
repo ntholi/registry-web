@@ -216,7 +216,7 @@ export default function EditStudentModuleModal({
 						</Text>
 					</Box>
 				}
-				size='lg'
+				size={550}
 			>
 				<form onSubmit={form.onSubmit(handleSubmit)}>
 					<Tabs defaultValue='details'>
@@ -239,38 +239,40 @@ export default function EditStudentModuleModal({
 								mb='md'
 								{...form.getInputProps('status')}
 							/>
-							<TextInput
-								label='Marks'
-								placeholder='Enter marks'
-								required
-								mb='md'
-								disabled={!canEditMarks || isLoadingPermissions}
-								value={form.values.marks}
-								onChange={(event) =>
-									handleMarksChange(event.currentTarget.value)
-								}
-								error={form.errors.marks}
-								rightSection={
-									isLoadingPermissions ? <Loader size='xs' /> : undefined
-								}
-							/>
-							<Select
-								label='Grade'
-								placeholder='Select grade'
-								searchable
-								clearable
-								data={grade.enumValues.map((g) => ({
-									value: g,
-									label: g,
-								}))}
-								required
-								mb='md'
-								disabled={!canEditMarks || isLoadingPermissions}
-								{...form.getInputProps('grade')}
-								rightSection={
-									isLoadingPermissions ? <Loader size='xs' /> : undefined
-								}
-							/>
+							<Group grow>
+								<TextInput
+									label='Marks'
+									placeholder='Enter marks'
+									required
+									mb='md'
+									disabled={!canEditMarks || isLoadingPermissions}
+									value={form.values.marks}
+									onChange={(event) =>
+										handleMarksChange(event.currentTarget.value)
+									}
+									error={form.errors.marks}
+									rightSection={
+										isLoadingPermissions ? <Loader size='xs' /> : undefined
+									}
+								/>
+								<Select
+									label='Grade'
+									placeholder='Select grade'
+									searchable
+									clearable
+									data={grade.enumValues.map((g) => ({
+										value: g,
+										label: g,
+									}))}
+									required
+									mb='md'
+									disabled={!canEditMarks || isLoadingPermissions}
+									{...form.getInputProps('grade')}
+									rightSection={
+										isLoadingPermissions ? <Loader size='xs' /> : undefined
+									}
+								/>
+							</Group>
 						</Tabs.Panel>
 
 						<Tabs.Panel value='reasons' pt='md'>
