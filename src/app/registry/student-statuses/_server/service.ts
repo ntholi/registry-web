@@ -1,6 +1,16 @@
+import {
+	ALLOWED_MIME_TYPES,
+	MAX_ATTACHMENT_SIZE,
+} from '@registry/student-notes/_lib/constants';
 import { studentsService } from '@registry/students/_server/service';
 import type { Session } from '@/core/auth';
+import { hasPermission } from '@/core/auth/sessionPermissions';
 import type { studentStatuses } from '@/core/database';
+import { deleteFile, uploadFile } from '@/core/integrations/storage';
+import {
+	generateUploadKey,
+	StoragePaths,
+} from '@/core/integrations/storage-utils';
 import type {
 	AuditOptions,
 	QueryOptions,
@@ -181,6 +191,80 @@ class StudentStatusService extends BaseService<typeof studentStatuses, 'id'> {
 				}
 
 				return this.repository.findById(id);
+			},
+			async (session) =>
+				hasPermission(session, 'student-statuses', 'create') ||
+				hasPermission(session, 'student-statuses', 'update')
+		);
+	}
+
+	async uploadAttachment(
+		id: string,
+		file: File,
+		fileName: string,
+		mimeType: string
+	) {
+		return withPermission(
+			async (session) => {
+				const userId = requireSessionUserId(session);
+				const app = await this.repository.findById(id);
+				if (!app) {
+					throw new Error('Application not found');
+				}
+				if (app.status !== 'pending') {
+					throw new Error('Only pending applications can receive attachments');
+				}
+				if (file.size > MAX_ATTACHMENT_SIZE) {
+					throw new Error('Attachment must not exceed 5 MB');
+				}
+				if (!ALLOWED_MIME_TYPES.includes(mimeType)) {
+					throw new Error('Unsupported attachment type');
+				}
+
+				const key = generateUploadKey(
+					(name) => StoragePaths.studentStatusAttachment(id, name),
+					fileName
+				);
+
+				await uploadFile(file, key, mimeType);
+
+				const baseAudit = this.buildAuditOptions(session, 'update');
+				const audit: AuditOptions | undefined = baseAudit
+					? {
+							...baseAudit,
+							userId,
+							activityType: 'student_status_updated',
+							stdNo: app.stdNo,
+							role: session!.user!.role,
+						}
+					: undefined;
+
+				try {
+					return await this.repository.createAttachment(
+						{
+							applicationId: id,
+							fileName,
+							fileKey: key,
+							fileSize: file.size,
+							mimeType,
+						},
+						audit
+					);
+				} catch (error) {
+					try {
+						await deleteFile(key);
+					} catch (cleanupError) {
+						console.error(
+							'Failed to rollback student status attachment upload',
+							{
+								applicationId: id,
+								fileKey: key,
+								error: cleanupError,
+							}
+						);
+					}
+					throw error;
+				}
 			},
 			{ 'student-statuses': ['update'] }
 		);

@@ -75,6 +75,22 @@ export const updateStudentStatus = createAction(
 	}
 );
 
+export const uploadStudentStatusAttachment = createAction(
+	async (id: string, formData: FormData) => {
+		const fileValue = formData.get('file');
+		if (!(fileValue instanceof File)) {
+			throw new Error('File is required');
+		}
+
+		return studentStatusesService.uploadAttachment(
+			id,
+			fileValue,
+			fileValue.name,
+			fileValue.type
+		);
+	}
+);
+
 export const cancelStudentStatus = createAction(async (id: string) => {
 	return studentStatusesService.cancel(id);
 });

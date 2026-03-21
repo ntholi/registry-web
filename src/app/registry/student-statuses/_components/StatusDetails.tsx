@@ -5,6 +5,7 @@ import {
 	AccordionControl,
 	AccordionItem,
 	AccordionPanel,
+	Anchor,
 	Badge,
 	Grid,
 	GridCol,
@@ -20,11 +21,15 @@ import {
 	Text,
 	Textarea,
 	Title,
+	TypographyStylesProvider,
 } from '@mantine/core';
+import { IconFile } from '@tabler/icons-react';
 import { useState } from 'react';
 import { authClient } from '@/core/auth-client';
+import { getPublicUrl } from '@/core/integrations/storage-utils';
 import { type AllStatusType, getStatusColor } from '@/shared/lib/utils/colors';
 import { formatDateTime } from '@/shared/lib/utils/dates';
+import { isRichTextEmpty } from '@/shared/lib/utils/files';
 import { FieldView } from '@/shared/ui/adease';
 import Copyable from '@/shared/ui/Copyable';
 import Link from '@/shared/ui/Link';
@@ -99,14 +104,31 @@ function AdminRegistryView({ app }: Props) {
 				<Title order={6} c='dimmed' tt='uppercase' fz='xs' mb='md'>
 					Reasons
 				</Title>
-				{app.reasons ? (
-					<Text size='sm'>{app.reasons}</Text>
+				{app.reasons && !isRichTextEmpty(app.reasons) ? (
+					<TypographyStylesProvider>
+						<div dangerouslySetInnerHTML={{ __html: app.reasons }} />
+					</TypographyStylesProvider>
 				) : (
 					<Text size='sm' c='dimmed' fs='italic'>
 						No reasons provided
 					</Text>
 				)}
 			</Paper>
+
+			{app.attachments.length > 0 && (
+				<Paper withBorder p='lg'>
+					<Title order={6} c='dimmed' tt='uppercase' fz='xs' mb='md'>
+						Attachments
+					</Title>
+					<AttachmentList
+						items={app.attachments.map((attachment) => ({
+							id: attachment.id,
+							fileKey: attachment.fileKey,
+							fileName: attachment.fileName,
+						}))}
+					/>
+				</Paper>
+			)}
 
 			<Paper withBorder p='lg'>
 				<Title order={6} c='dimmed' tt='uppercase' fz='xs' mb='md'>
@@ -191,7 +213,11 @@ type OtherRolesProps = Props & { role?: string };
 function OtherRolesView({ app }: OtherRolesProps) {
 	const [comment, setComment] = useState<string | undefined>(undefined);
 	const [accordion, setAccordion] = useState<string | null>(
-		app.reasons ? 'reasons' : 'comments'
+		app.reasons && !isRichTextEmpty(app.reasons)
+			? 'reasons'
+			: app.attachments.length > 0
+				? 'attachments'
+				: 'comments'
 	);
 
 	const comments = (app.approvals ?? [])
@@ -269,8 +295,10 @@ function OtherRolesView({ app }: OtherRolesProps) {
 				<AccordionItem value='reasons'>
 					<AccordionControl>Reasons</AccordionControl>
 					<AccordionPanel>
-						{app.reasons ? (
-							<Text size='sm'>{app.reasons}</Text>
+						{app.reasons && !isRichTextEmpty(app.reasons) ? (
+							<TypographyStylesProvider>
+								<div dangerouslySetInnerHTML={{ __html: app.reasons }} />
+							</TypographyStylesProvider>
 						) : (
 							<Text size='sm' c='dimmed'>
 								No reasons
@@ -278,7 +306,58 @@ function OtherRolesView({ app }: OtherRolesProps) {
 						)}
 					</AccordionPanel>
 				</AccordionItem>
+				<AccordionItem value='attachments'>
+					<AccordionControl>Attachments</AccordionControl>
+					<AccordionPanel>
+						{app.attachments.length > 0 ? (
+							<AttachmentList
+								items={app.attachments.map((attachment) => ({
+									id: attachment.id,
+									fileKey: attachment.fileKey,
+									fileName: attachment.fileName,
+								}))}
+							/>
+						) : (
+							<Text size='sm' c='dimmed'>
+								No attachments
+							</Text>
+						)}
+					</AccordionPanel>
+				</AccordionItem>
 			</Accordion>
+		</Stack>
+	);
+}
+
+type AttachmentItem = {
+	id: string;
+	fileKey: string;
+	fileName: string;
+};
+
+type AttachmentListProps = {
+	items: AttachmentItem[];
+};
+
+function AttachmentList({ items }: AttachmentListProps) {
+	return (
+		<Stack gap={6}>
+			{items.map((item) => (
+				<Anchor
+					key={item.id}
+					href={getPublicUrl(item.fileKey)}
+					target='_blank'
+					size='sm'
+				>
+					<Group gap='xs'>
+						<IconFile
+							size={14}
+							style={{ color: 'var(--mantine-color-dimmed)' }}
+						/>
+						{item.fileName}
+					</Group>
+				</Anchor>
+			))}
 		</Stack>
 	);
 }
