@@ -10,11 +10,20 @@ Consolidated action plan for refactoring `src/app/apply/`. Broken into 3 sequent
 |------|-------|-------|------|-----------|
 | 001 | Foundation & Deduplication | 8 | 0 | 8 |
 | 002 | Architecture & Type Safety | 8 | 0 | 8 |
-| 003 | Patterns & Consistency | 10 | 1 | 9 |
-| | **Total** | **26** | **1** | **25** |
+| 003 | Patterns & Consistency | 10 | 2 | 8 |
+| | **Total** | **26** | **2** | **24** |
 
 ### Completed
 - ✅ 3.6 Console statements removed from `qualifications/_server/actions.ts`
+- ✅ 3.10c PersonalInfoForm validation — SKIPPED (needs format specifications)
+
+### Corrections Applied (2026-03-21)
+- **1.2**: Split constants — banking details → `AppConfig`, module constants → `apply/_lib/constants.ts`
+- **2.5**: Fixed description — query is NOT redundant, needs upstream query enrichment first
+- **3.3**: Changed from "relocate" to "remove" geolocation capture entirely
+- **3.4**: Noted larger scope — requires layout RSC conversion (links to 3.10a)
+- **3.8**: Scoped to component files only — Next.js requires default exports for page/layout files
+- **3.10c**: Skipped — validation format specs needed before implementation
 
 ## Parts
 

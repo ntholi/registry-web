@@ -28,16 +28,18 @@ Eliminates ~1000 lines of duplicated code by extracting shared types, centralizi
 
 ### 🔲 1.2 Centralize Constants
 
-**Action**: Extend `AppConfig` in `src/config/index.ts` with an `apply` section, then populate in `src/config/lesotho.config.ts`.
+**Action (A)**: Create `src/app/apply/_lib/constants.ts` for module-level constants that are the same across deployments.
+
+**Action (B)**: Extend `AppConfig` in `src/config/index.ts` with an `apply.banking` section for deployment-specific banking details, then populate in `src/config/lesotho.config.ts` and `src/config/eswatini.config.ts`.
 
 **Constants to centralize**:
 | Constant | Current locations | Target |
 |----------|-------------------|--------|
-| `MAX_FILE_SIZE` (2MB) | DocumentUpload.tsx, MobileDocumentUpload.tsx, identity/actions.ts, qualifications/actions.ts, payment/actions.ts | `config.apply.maxFileSize` |
+| `MAX_FILE_SIZE` (2MB) | DocumentUpload.tsx, MobileDocumentUpload.tsx, identity/actions.ts, qualifications/actions.ts, payment/actions.ts | `apply/_lib/constants.ts` |
+| `POLL_INTERVAL` (5000ms) | MobilePayment.tsx | `apply/_lib/constants.ts` |
+| `TIMEOUT_SECONDS` (90s) | MobilePayment.tsx | `apply/_lib/constants.ts` |
 | Banking details (`9080003987813`, `060667`, beneficiary name/variations) | payment/validation.ts, ReceiptUpload.tsx | `config.apply.banking` |
 | `SALES_RECEIPT_ISSUERS` | payment/validation.ts | `config.apply.banking.salesReceiptIssuers` |
-| `POLL_INTERVAL` (5000ms) | MobilePayment.tsx | `config.apply.payment.pollInterval` |
-| `TIMEOUT_SECONDS` (90s) | MobilePayment.tsx | `config.apply.payment.timeoutSeconds` |
 
 **Remove**: All 5 `MAX_FILE_SIZE` definitions + hardcoded banking details from:
 - `apply/_components/DocumentUpload.tsx`
@@ -48,6 +50,8 @@ Eliminates ~1000 lines of duplicated code by extracting shared types, centralizi
 - `apply/[id]/(wizard)/payment/_server/validation.ts`
 - `apply/[id]/(wizard)/payment/_components/ReceiptUpload.tsx`
 - `apply/[id]/(wizard)/payment/_components/MobilePayment.tsx`
+
+**Note**: Only banking details go in `AppConfig` (they vary per deployment: Lesotho vs Eswatini). `MAX_FILE_SIZE`, `POLL_INTERVAL`, `TIMEOUT_SECONDS` are module constants — same across all deployments.
 
 **Can parallelize with**: 1.1
 

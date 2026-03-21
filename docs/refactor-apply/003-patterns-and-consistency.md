@@ -44,21 +44,21 @@ if (appLoaded && !initialized) {
 
 ---
 
-### 🔲 3.3 Relocate Geolocation Capture
+### 🔲 3.3 Remove Geolocation Capture
 
-**File**: `src/app/apply/_lib/useApplicant.ts` (lines 150–168)
+**File**: `src/app/apply/_lib/useApplicant.ts` (lines 177–187)
 
-**Problem**: Geolocation capture + mutation triggered via `useEffect` with a `useRef` guard. Fragile — the ref resets on remount, potentially re-triggering.
+**Problem**: Geolocation capture triggered via `useEffect` with a `useRef` guard. Silently captures user location without explicit consent.
 
 **Action**:
-1. Move geolocation capture to `welcome/page.tsx` or `new/page.tsx` as a one-time action after user consent
-2. Remove `useEffect` + `useRef` geolocation pattern from `useApplicant`
+1. Remove the `useEffect` + `useRef` geolocation pattern from `useApplicant`
+2. Remove the `saveApplicantLocation` import and call entirely (not a necessary feature for the application flow)
 
 ---
 
 ### 🔲 3.4 Server-Side Eligibility Redirect
 
-**File**: `src/app/apply/_lib/useApplicant.ts` (lines 138–145)
+**File**: `src/app/apply/_lib/useApplicant.ts` (lines 142–149)
 
 **Problem**: Client-side redirect in `useEffect` — page content can flash before redirect fires.
 
@@ -70,7 +70,12 @@ useEffect(() => {
 }, [eligibilityQuery.data, router, redirectIfRestricted]);
 ```
 
-**Action**: Move eligibility check to server-side (layout.tsx server component or middleware). Remove client-side `useEffect` redirect.
+**Action**: Convert relevant layout(s) to RSC and perform the eligibility check server-side. This requires:
+1. Convert `src/app/apply/[id]/layout.tsx` from client to server component (see also 3.10a)
+2. Add server-side eligibility check in the layout using `canCurrentUserApply()` and `redirect()` from `next/navigation`
+3. Remove the client-side `useEffect` redirect from `useApplicant`
+
+**Note**: This is a larger change since the apply module is currently all client-rendered. The layout conversion (3.10a) is a prerequisite.
 
 ---
 
@@ -116,14 +121,20 @@ const CURRENT_YEAR = new Date().getFullYear();
 
 ### 🔲 3.8 Batch Convert Default Exports to Named
 
-**Action**: Convert ALL default exports in the apply module to named exports.
+**Action**: Convert default exports to named exports for **component files only** in the apply module.
 
-**Files** (at minimum):
+**Important**: Next.js **requires** `export default` for `page.tsx` and `layout.tsx` files. These must NOT be converted.
+
+**Files to convert** (components only, ~18 files):
 - `WizardLayout.tsx`, `WizardNavigation.tsx`
 - `ApplyHeader.tsx`, `ApplyHero.tsx`
 - `CourseSelectionForm.tsx`, `PersonalInfoForm.tsx`
-- `ReceiptUpload.tsx`
-- All other default-exported components in `src/app/apply/`
+- `ReceiptUpload.tsx`, `PaymentForm.tsx`, `PaymentClient.tsx`
+- `IdentityUploadForm.tsx`, `QualificationsUploadForm.tsx`
+- `ReviewForm.tsx`, `PhoneManager.tsx`, `GuardianManager.tsx`
+- `CourseCard.tsx` (both), `CoursesFilters.tsx`, `CoursesPagination.tsx`
+
+**Do NOT convert**: Any `page.tsx` or `layout.tsx` file.
 
 **Update**: All import sites.
 
@@ -179,15 +190,6 @@ const bg = colorScheme === 'dark' ? 'dark.8' : 'gray.1';
 
 **Action**: Rename to `ProgramChoiceCard.tsx`, update all imports.
 
-#### 3.10c — Add PersonalInfoForm Validation
+#### 3.10c — ~~Add PersonalInfoForm Validation~~ (SKIPPED)
 
-**File**: `src/app/apply/[id]/(wizard)/personal-info/_components/PersonalInfoForm.tsx`
-
-Currently only validates `fullName`. **Add validation for**:
-- Date of birth: reasonable range, not in future
-- National ID format
-- Phone number format
-- Gender: required
-- Other required fields
-
-Use Zod schema or Mantine form `validate` rules.
+Skipped — validation formats for national ID, phone, etc. need specifications before implementation. Current minimal validation is acceptable.

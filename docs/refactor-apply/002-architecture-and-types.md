@@ -90,12 +90,14 @@ import CoursesFilters from '@/app/apply/courses/_components/CoursesFilters';
 
 **File**: `src/app/apply/profile/_components/ProfileView.tsx`
 
-**Problem**: `ProfileView` calls `findApplicationsByApplicant(applicant.id)` via TanStack Query even though the applicant data loaded server-side already includes the `applications` relation. This creates an extra client round-trip.
+**Problem**: `ProfileView` calls `findApplicationsByApplicant(applicant.id)` via TanStack Query because the applicant data from `useApplicant()` does NOT include `bankDeposits` or `mobileDeposits` on the applications relation. This creates an extra client round-trip.
 
 **Action**:
-1. Enrich the server-side applicant query to include all needed relations (including deposit data)
+1. Enrich the server-side applicant query (`getOrCreateApplicantForCurrentUser` → `findByUserId` in applicants repository) to include `bankDeposits` and `mobileDeposits` on the applications relation
 2. Remove the client-side `findApplicationsByApplicant()` TanStack Query from `ProfileView`
-3. Pass pre-loaded data as props
+3. Use `applicant.applications` (now enriched with deposit data) directly
+
+**Note**: This is NOT a simple removal — the separate query fetches deposit data that the applicant query currently lacks. The fix requires enriching the upstream query first.
 
 ---
 
