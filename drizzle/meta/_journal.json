@@ -1366,6 +1366,13 @@
 			"when": 1774072417613,
 			"tag": "0194_library_clearance_cleanup",
 			"breakpoints": true
+		},
+		{
+			"idx": 195,
+			"version": "7",
+			"when": 1774093749670,
+			"tag": "0195_shocking_scourge",
+			"breakpoints": true
 		}
 	]
 }

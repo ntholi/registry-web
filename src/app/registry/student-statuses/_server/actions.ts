@@ -5,6 +5,7 @@ import { and, eq, type SQL } from 'drizzle-orm';
 import { studentStatuses } from '@/core/database';
 import { getSession } from '@/core/platform/withPermission';
 import { createAction } from '@/shared/lib/actions/actionResult';
+import { UserFacingError } from '@/shared/lib/actions/extractError';
 import type {
 	StudentStatusEditableInput,
 	StudentStatusInsert,
@@ -74,6 +75,26 @@ export const updateStudentStatus = createAction(
 		return { id: result.id };
 	}
 );
+
+export const uploadStudentStatusAttachment = createAction(
+	async (id: string, formData: FormData) => {
+		const fileValue = formData.get('file');
+		if (!(fileValue instanceof File)) {
+			throw new UserFacingError('File is required', 'MISSING_FILE');
+		}
+
+		return studentStatusesService.uploadAttachment(
+			id,
+			fileValue,
+			fileValue.name,
+			fileValue.type
+		);
+	}
+);
+
+export const deleteStudentStatusAttachment = createAction(async (id: string) => {
+	return studentStatusesService.deleteAttachment(id);
+});
 
 export const cancelStudentStatus = createAction(async (id: string) => {
 	return studentStatusesService.cancel(id);
