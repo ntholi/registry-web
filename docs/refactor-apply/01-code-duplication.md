@@ -3,7 +3,7 @@
 ## 🔴 CRITICAL: DocumentUpload vs MobileDocumentUpload (~95% identical)
 
 **Files:**
-- `src/app/apply/_components/DocumentUpload.tsx` (~480 lines)
+- `src/app/apply/_components/DocumentUpload.tsx` (~455 lines)
 - `src/app/apply/_components/MobileDocumentUpload.tsx` (~540 lines)
 
 **Problem:**

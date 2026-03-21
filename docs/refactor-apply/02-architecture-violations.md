@@ -24,8 +24,11 @@ await db.transaction(async (tx) => {
 import { applicants, db, intakePeriods } from '@/core/database';
 ```
 
-Performs raw queries:
+Performs raw queries and defines hardcoded business constants:
 ```ts
+const BENEFICIARY_ACCOUNT = '9080003987813';
+const BENEFICIARY_VARIATIONS = ['limkokwing university of creative technology', 'limkokwing university', 'luct', 'limkokwing'];
+
 const intake = await db.query.intakePeriods.findFirst({ ... });
 ```
 

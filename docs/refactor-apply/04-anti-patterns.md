@@ -44,7 +44,7 @@ The form is initialized before applicant data is guaranteed to be available. Bec
 **Fix:**
 Delay rendering until applicant data is ready, or explicitly initialize/reset the form once applicant data has loaded.
 
-### useApplicant.ts — Geolocation Capture (lines 155–168)
+### useApplicant.ts — Geolocation Capture (lines 150–168)
 
 ```ts
 const hasSetLocation = useRef(false);
@@ -63,7 +63,7 @@ useEffect(() => {
 
 **Fix:** Move geolocation capture to the onboarding flow (e.g., `welcome/page.tsx` or `new/page.tsx`) as a one-time server action, or use a proper event handler.
 
-### useApplicant.ts — Eligibility Redirect (lines 137–145)
+### useApplicant.ts — Eligibility Redirect (lines 138–145)
 
 ```ts
 useEffect(() => {
@@ -81,18 +81,23 @@ useEffect(() => {
 
 **Fix:** Use middleware or server-side redirect in the layout's `auth()` call.
 
-### MobilePayment.tsx — Payment Polling (lines 114–148)
+### MobilePayment.tsx — Payment Polling (lines 120–144)
 
+Uses **two** `setInterval` calls — one for polling verification, one for countdown timer:
 ```ts
 useEffect(() => {
-  if (transactionRef) {
-    const interval = setInterval(async () => {
-      const result = await checkPaymentStatus(transactionRef);
-      // handle result
-    }, POLL_INTERVAL);
-    return () => clearInterval(interval);
-  }
-}, [transactionRef]);
+  if (!isPolling || !currentTransactionId) return;
+
+  const interval = setInterval(() => {
+    verifyMutation.mutate(currentTransactionId);
+  }, POLL_INTERVAL);
+
+  const timeout = setInterval(() => {
+    setTimeRemaining((prev) => { ... });
+  }, 1000);
+
+  return () => { clearInterval(interval); clearInterval(timeout); };
+}, [isPolling, currentTransactionId, verifyMutation.mutate]);
 ```
 
 **Problem:** Manual setInterval polling inside useEffect. TanStack Query has built-in `refetchInterval` for exactly this pattern.
@@ -169,15 +174,17 @@ Add Zod schema validation or Mantine form `validate` rules for all required fiel
 
 ## 🟡 MEDIUM: Console Statements in Production Code
 
-**File:** `src/app/apply/[id]/(wizard)/qualifications/_server/actions.ts`
-- Line 162: `console.info('Skipping academic record prepopulation...')`
-- Line 190: `console.error('Failed to prepopulate...', error)`
+**~~File:~~ `src/app/apply/[id]/(wizard)/qualifications/_server/actions.ts`**
+- ~~Line 162: `console.info('Skipping academic record prepopulation...')`~~
+- ~~Line 190: `console.error('Failed to prepopulate...', error)`~~
+- **✅ FIXED** — Console statements removed.
 
 **File:** `src/app/apply/[id]/(wizard)/payment/_server/actions.ts`
-- Line 120: `console.error` in catch block
+- Line 131: `console.error` for R2 cleanup failure — acceptable as recoverable-error logging, but consider structured logging.
 
 ### Fix
-Remove or replace with structured logging if server-side observability is needed.
+~~Remove or replace with structured logging if server-side observability is needed.~~
+Remaining: consider replacing `console.error` in payment/actions.ts with structured logging.
 
 ---
 
