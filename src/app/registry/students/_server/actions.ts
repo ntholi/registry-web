@@ -11,11 +11,23 @@ import type {
 	studentSemesters,
 	students,
 } from '@/core/database';
-import { getPublicUrl } from '@/core/integrations/storage-utils';
+import { uploadFile } from '@/core/integrations/storage';
+import {
+	generateUploadKey,
+	getPublicUrl,
+	StoragePaths,
+} from '@/core/integrations/storage-utils';
 import type { QueryOptions } from '@/core/platform/BaseRepository';
 import { createAction } from '@/shared/lib/actions/actionResult';
+import { UserFacingError } from '@/shared/lib/actions/extractError';
 import { formatPersonName } from '@/shared/lib/utils/names';
 import { studentsService as service } from './service';
+
+export type AuditAttachmentInfo = {
+	fileName: string;
+	fileKey: string;
+	fileSize: number;
+};
 
 type Student = typeof students.$inferInsert;
 
@@ -107,14 +119,20 @@ export const updateStudent = createAction(
 );
 
 export const updateStudentWithReasons = createAction(
-	async (stdNo: number, data: Partial<Student>, reasons?: string) => {
+	async (
+		stdNo: number,
+		data: Partial<Student>,
+		reasons?: string,
+		attachments?: AuditAttachmentInfo[]
+	) => {
 		const result = await service.updateWithReasons(
 			stdNo,
 			{
 				...data,
 				name: formatPersonName(data.name) ?? data.name,
 			},
-			reasons
+			reasons,
+			attachments
 		);
 		revalidatePath(`/registry/students/${stdNo}`);
 		return result;
@@ -126,9 +144,16 @@ export const updateStudentProgram = createAction(
 		id: number,
 		data: Partial<typeof studentPrograms.$inferInsert>,
 		stdNo: number,
-		reasons?: string
+		reasons?: string,
+		attachments?: AuditAttachmentInfo[]
 	) => {
-		const result = await service.updateStudentProgram(id, data, stdNo, reasons);
+		const result = await service.updateStudentProgram(
+			id,
+			data,
+			stdNo,
+			reasons,
+			attachments
+		);
 		revalidatePath('/registry/students');
 		return result;
 	}
@@ -147,13 +172,15 @@ export const updateStudentSemester = createAction(
 		id: number,
 		data: Partial<typeof studentSemesters.$inferInsert>,
 		stdNo: number,
-		reasons?: string
+		reasons?: string,
+		attachments?: AuditAttachmentInfo[]
 	) => {
 		const result = await service.updateStudentSemester(
 			id,
 			data,
 			stdNo,
-			reasons
+			reasons,
+			attachments
 		);
 		revalidatePath('/registry/students');
 		return result;
@@ -200,9 +227,16 @@ export const updateStudentModule = createAction(
 		id: number,
 		data: Partial<typeof studentModules.$inferInsert>,
 		stdNo: number,
-		reasons?: string
+		reasons?: string,
+		attachments?: AuditAttachmentInfo[]
 	) => {
-		const result = await service.updateStudentModule(id, data, stdNo, reasons);
+		const result = await service.updateStudentModule(
+			id,
+			data,
+			stdNo,
+			reasons,
+			attachments
+		);
 		revalidatePath('/registry/students');
 		return result;
 	}
@@ -297,3 +331,19 @@ export async function getStudentFilterInfo(stdNo: number) {
 		semesterNumber: latestSemester?.structureSemester.semesterNumber,
 	};
 }
+
+export const uploadAuditAttachment = createAction(
+	async (formData: FormData) => {
+		const file = formData.get('file') as File | null;
+		if (!file) throw new UserFacingError('No file provided');
+
+		const key = generateUploadKey(StoragePaths.auditAttachment, file.name);
+		await uploadFile(file, key);
+
+		return {
+			fileName: file.name,
+			fileKey: key,
+			fileSize: file.size,
+		} satisfies AuditAttachmentInfo;
+	}
+);

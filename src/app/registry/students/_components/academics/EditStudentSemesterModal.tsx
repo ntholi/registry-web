@@ -12,7 +12,6 @@ import {
 	Modal,
 	Select,
 	Tabs,
-	Textarea,
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { useDisclosure } from '@mantine/hooks';
@@ -21,8 +20,15 @@ import { type SemesterStatus, semesterStatus } from '@registry/_database';
 import { IconAlertCircle, IconEdit } from '@tabler/icons-react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect, useState } from 'react';
+import { unwrap } from '@/shared/lib/actions/actionResult';
 import { useAllTerms } from '@/shared/lib/hooks/use-term';
-import { updateStudentSemester } from '../../_server/actions';
+import { isRichTextEmpty } from '@/shared/lib/utils/files';
+import type { AuditAttachmentInfo } from '../../_server/actions';
+import {
+	updateStudentSemester,
+	uploadAuditAttachment,
+} from '../../_server/actions';
+import ReasonsTab from '../shared/ReasonsTab';
 
 interface StudentSemester {
 	id: number;
@@ -59,6 +65,7 @@ export default function EditStudentSemesterModal({
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const [showReasonWarning, setShowReasonWarning] = useState(false);
 	const [pendingSubmit, setPendingSubmit] = useState(false);
+	const [pendingFiles, setPendingFiles] = useState<File[]>([]);
 
 	const { data: termsData = [], isLoading: isLoadingTerms } = useAllTerms({
 		enabled: opened,
@@ -103,6 +110,7 @@ export default function EditStudentSemesterModal({
 				sponsorId: semester.sponsorId?.toString() || '',
 				reasons: '',
 			});
+			setPendingFiles([]);
 			setShowReasonWarning(false);
 			setPendingSubmit(false);
 		}
@@ -112,6 +120,13 @@ export default function EditStudentSemesterModal({
 		async (values: typeof form.values) => {
 			setIsSubmitting(true);
 			try {
+				const attachments: AuditAttachmentInfo[] = [];
+				for (const file of pendingFiles) {
+					const fd = new FormData();
+					fd.append('file', file);
+					attachments.push(unwrap(await uploadAuditAttachment(fd)));
+				}
+
 				await updateStudentSemester(
 					semester.id,
 					{
@@ -121,7 +136,8 @@ export default function EditStudentSemesterModal({
 						sponsorId: values.sponsorId ? parseInt(values.sponsorId, 10) : null,
 					},
 					stdNo,
-					values.reasons
+					values.reasons,
+					attachments.length > 0 ? attachments : undefined
 				);
 
 				notifications.show({
@@ -136,6 +152,7 @@ export default function EditStudentSemesterModal({
 				});
 
 				form.reset();
+				setPendingFiles([]);
 				close();
 			} catch (error) {
 				notifications.show({
@@ -149,19 +166,20 @@ export default function EditStudentSemesterModal({
 				setPendingSubmit(false);
 			}
 		},
-		[semester.id, form, close, queryClient, stdNo]
+		[semester.id, form, close, queryClient, stdNo, pendingFiles]
 	);
 
 	const handleSubmit = useCallback(
 		async (values: typeof form.values) => {
-			if (!values.reasons.trim() && !pendingSubmit) {
+			const hasReasons = !isRichTextEmpty(values.reasons);
+			if (!hasReasons && pendingFiles.length === 0 && !pendingSubmit) {
 				setShowReasonWarning(true);
 				setPendingSubmit(true);
 				return;
 			}
 			await executeSubmit(values);
 		},
-		[executeSubmit, pendingSubmit]
+		[executeSubmit, pendingSubmit, pendingFiles.length]
 	);
 
 	return (
@@ -186,7 +204,7 @@ export default function EditStudentSemesterModal({
 				opened={opened}
 				onClose={close}
 				title='Edit Student Semester'
-				size='md'
+				size='lg'
 			>
 				<form onSubmit={form.onSubmit(handleSubmit)}>
 					<Tabs defaultValue='details'>
@@ -252,11 +270,16 @@ export default function EditStudentSemesterModal({
 						</Tabs.Panel>
 
 						<Tabs.Panel value='reasons' pt='md'>
-							<Textarea
-								label='Reasons for Update'
-								placeholder='Enter the reason for this update (optional)'
-								rows={6}
-								{...form.getInputProps('reasons')}
+							<ReasonsTab
+								reasons={form.values.reasons}
+								onReasonsChange={(val) => form.setFieldValue('reasons', val)}
+								pendingFiles={pendingFiles}
+								onAddFile={(file) => {
+									if (file) setPendingFiles((prev) => [...prev, file]);
+								}}
+								onRemoveFile={(i) =>
+									setPendingFiles((prev) => prev.filter((_, idx) => idx !== i))
+								}
 							/>
 						</Tabs.Panel>
 

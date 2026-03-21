@@ -16,3 +16,8 @@ export function formatFileSize(bytes: number): string {
 	const i = Math.floor(Math.log(bytes) / Math.log(k));
 	return `${Number.parseFloat((bytes / k ** i).toFixed(1))} ${sizes[i]}`;
 }
+
+export function isRichTextEmpty(html: string): boolean {
+	const trimmed = html.trim();
+	return !trimmed || trimmed === '<p></p>';
+}
