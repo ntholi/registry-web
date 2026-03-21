@@ -20,6 +20,13 @@ export const APPROVAL_PRESET_ROLES: Record<
 	'Finance Manager': ['finance'],
 };
 
+export const APPROVAL_USER_ROLES: Partial<
+	Record<string, StudentStatusApprovalRole[]>
+> = {
+	finance: ['finance'],
+	student_services: ['student_services'],
+};
+
 export function canUserApproveRole(
 	session: Session,
 	approverRole: StudentStatusApprovalRole
@@ -53,8 +60,9 @@ export function getApprovalRolesByUser(
 	const presetRoles = user.presetName
 		? (APPROVAL_PRESET_ROLES[user.presetName] ?? [])
 		: [];
+	const userRoles = user.role ? (APPROVAL_USER_ROLES[user.role] ?? []) : [];
 
-	for (const role of presetRoles) {
+	for (const role of [...presetRoles, ...userRoles]) {
 		if (!roles.includes(role)) {
 			roles.push(role);
 		}

@@ -4,7 +4,10 @@ import {
 } from '@registry/student-notes/_lib/constants';
 import { studentsService } from '@registry/students/_server/service';
 import type { Session } from '@/core/auth';
-import { hasPermission } from '@/core/auth/sessionPermissions';
+import {
+	hasAnyPermission,
+	hasPermission,
+} from '@/core/auth/sessionPermissions';
 import type { studentStatuses } from '@/core/database';
 import { deleteFile, uploadFile } from '@/core/integrations/storage';
 import {
@@ -403,7 +406,8 @@ class StudentStatusService extends BaseService<typeof studentStatuses, 'id'> {
 
 				return this.repository.findById(app.id);
 			},
-			{ 'student-statuses': ['update'] }
+			async (session) =>
+				hasAnyPermission(session, 'student-statuses', ['update', 'approve'])
 		);
 	}
 

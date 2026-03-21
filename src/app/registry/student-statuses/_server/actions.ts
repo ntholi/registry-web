@@ -92,9 +92,11 @@ export const uploadStudentStatusAttachment = createAction(
 	}
 );
 
-export const deleteStudentStatusAttachment = createAction(async (id: string) => {
-	return studentStatusesService.deleteAttachment(id);
-});
+export const deleteStudentStatusAttachment = createAction(
+	async (id: string) => {
+		return studentStatusesService.deleteAttachment(id);
+	}
+);
 
 export const cancelStudentStatus = createAction(async (id: string) => {
 	return studentStatusesService.cancel(id);
