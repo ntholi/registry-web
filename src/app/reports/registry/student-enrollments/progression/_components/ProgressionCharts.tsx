@@ -187,7 +187,11 @@ export default function ProgressionCharts({
 								content: ({ label, payload }) => (
 									<ChartTooltip
 										label={label}
-										payload={payload as Record<string, unknown>[] | undefined}
+										payload={
+											payload as unknown as
+												| Record<string, unknown>[]
+												| undefined
+										}
 									/>
 								),
 							}}
@@ -221,7 +225,11 @@ export default function ProgressionCharts({
 								content: ({ label, payload }) => (
 									<ChartTooltip
 										label={label}
-										payload={payload as Record<string, unknown>[] | undefined}
+										payload={
+											payload as unknown as
+												| Record<string, unknown>[]
+												| undefined
+										}
 									/>
 								),
 							}}
@@ -253,7 +261,11 @@ export default function ProgressionCharts({
 								content: ({ label, payload }) => (
 									<ChartTooltip
 										label={label}
-										payload={payload as Record<string, unknown>[] | undefined}
+										payload={
+											payload as unknown as
+												| Record<string, unknown>[]
+												| undefined
+										}
 										seriesName='Rate'
 									/>
 								),
@@ -286,7 +298,11 @@ export default function ProgressionCharts({
 								content: ({ label, payload }) => (
 									<ChartTooltip
 										label={label}
-										payload={payload as Record<string, unknown>[] | undefined}
+										payload={
+											payload as unknown as
+												| Record<string, unknown>[]
+												| undefined
+										}
 										seriesName='Rate'
 									/>
 								),

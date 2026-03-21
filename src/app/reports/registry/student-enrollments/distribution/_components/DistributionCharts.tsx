@@ -147,7 +147,11 @@ export default function DistributionCharts({
 									content: ({ label, payload }) => (
 										<ChartTooltip
 											label={label}
-											payload={payload as Record<string, unknown>[] | undefined}
+											payload={
+												payload as unknown as
+													| Record<string, unknown>[]
+													| undefined
+											}
 										/>
 									),
 								}}
@@ -213,7 +217,11 @@ export default function DistributionCharts({
 									content: ({ label, payload }) => (
 										<ChartTooltip
 											label={label}
-											payload={payload as Record<string, unknown>[] | undefined}
+											payload={
+												payload as unknown as
+													| Record<string, unknown>[]
+													| undefined
+											}
 										/>
 									),
 								}}
@@ -360,7 +368,9 @@ function BreakdownCard({
 							content: ({ label, payload }) => (
 								<ChartTooltip
 									label={label}
-									payload={payload as Record<string, unknown>[] | undefined}
+									payload={
+										payload as unknown as Record<string, unknown>[] | undefined
+									}
 								/>
 							),
 						}}
@@ -430,7 +440,9 @@ function BreakdownCard({
 							content: ({ label, payload }) => (
 								<ChartTooltip
 									label={label}
-									payload={payload as Record<string, unknown>[] | undefined}
+									payload={
+										payload as unknown as Record<string, unknown>[] | undefined
+									}
 								/>
 							),
 						}}
@@ -452,7 +464,9 @@ function BreakdownCard({
 							content: ({ label, payload }) => (
 								<ChartTooltip
 									label={label}
-									payload={payload as Record<string, unknown>[] | undefined}
+									payload={
+										payload as unknown as Record<string, unknown>[] | undefined
+									}
 								/>
 							),
 						}}

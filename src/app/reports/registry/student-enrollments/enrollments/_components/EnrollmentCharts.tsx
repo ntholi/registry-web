@@ -234,7 +234,9 @@ export default function RegistrationCharts({ filter }: Props) {
 							content: ({ label, payload }) => (
 								<ChartTooltip
 									label={label}
-									payload={payload as Record<string, unknown>[] | undefined}
+									payload={
+										payload as unknown as Record<string, unknown>[] | undefined
+									}
 								/>
 							),
 						}}
@@ -265,7 +267,11 @@ export default function RegistrationCharts({ filter }: Props) {
 								content: ({ label, payload }) => (
 									<ChartTooltip
 										label={label}
-										payload={payload as Record<string, unknown>[] | undefined}
+										payload={
+											payload as unknown as
+												| Record<string, unknown>[]
+												| undefined
+										}
 									/>
 								),
 							}}
@@ -297,7 +303,9 @@ export default function RegistrationCharts({ filter }: Props) {
 							content: ({ label, payload }) => (
 								<ChartTooltip
 									label={label}
-									payload={payload as Record<string, unknown>[] | undefined}
+									payload={
+										payload as unknown as Record<string, unknown>[] | undefined
+									}
 								/>
 							),
 						}}
@@ -392,7 +400,11 @@ export default function RegistrationCharts({ filter }: Props) {
 								content: ({ label, payload }) => (
 									<ChartTooltip
 										label={label}
-										payload={payload as Record<string, unknown>[] | undefined}
+										payload={
+											payload as unknown as
+												| Record<string, unknown>[]
+												| undefined
+										}
 										seriesName='Programs'
 									/>
 								),
@@ -471,7 +483,11 @@ export default function RegistrationCharts({ filter }: Props) {
 								content: ({ label, payload }) => (
 									<ChartTooltip
 										label={`Age ${label}`}
-										payload={payload as Record<string, unknown>[] | undefined}
+										payload={
+											payload as unknown as
+												| Record<string, unknown>[]
+												| undefined
+										}
 									/>
 								),
 							}}
@@ -545,7 +561,11 @@ export default function RegistrationCharts({ filter }: Props) {
 								content: ({ label, payload }) => (
 									<ChartTooltip
 										label={label}
-										payload={payload as Record<string, unknown>[] | undefined}
+										payload={
+											payload as unknown as
+												| Record<string, unknown>[]
+												| undefined
+										}
 									/>
 								),
 							}}
