@@ -18,7 +18,7 @@ import { IconPlus, IconTrash } from '@tabler/icons-react';
 import { useActionMutation } from '@/shared/lib/actions/use-action-mutation';
 import { addPhone, removePhone } from '../_server/actions';
 
-export default function PhoneManager() {
+export function PhoneManager() {
 	const { applicant, refetch } = useApplicant();
 	const applicantId = applicant?.id ?? '';
 	const phones = applicant?.phones ?? [];

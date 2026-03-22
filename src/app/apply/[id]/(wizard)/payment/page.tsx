@@ -1,4 +1,4 @@
-import PaymentClient from './_components/PaymentClient';
+import { PaymentClient } from './_components/PaymentClient';
 
 type Props = {
 	params: Promise<{ id: string }>;

@@ -4,11 +4,9 @@ import type { getApplicant } from '@admissions/applicants';
 import {
 	canCurrentUserApply,
 	getOrCreateApplicantForCurrentUser,
-	saveApplicantLocation,
 } from '@admissions/applicants';
 import { useQuery } from '@tanstack/react-query';
-import { useRouter } from 'next/navigation';
-import { useEffect, useMemo, useRef } from 'react';
+import { useMemo } from 'react';
 import { authClient } from '@/core/auth-client';
 import { unwrap } from '@/shared/lib/actions/actionResult';
 import { computeWizardStep } from './wizard-utils';
@@ -119,13 +117,8 @@ function computeNextStepUrl(
 	return `/apply/${currentApplication.id}/${step}`;
 }
 
-export function useApplicant({
-	redirectIfRestricted = true,
-}: {
-	redirectIfRestricted?: boolean;
-} = {}) {
+export function useApplicant() {
 	const { data: session } = authClient.useSession();
-	const router = useRouter();
 	const userId = session?.user?.id;
 
 	const eligibilityQuery = useQuery({
@@ -135,39 +128,12 @@ export function useApplicant({
 		enabled: !!userId,
 	});
 
-	useEffect(() => {
-		if (
-			redirectIfRestricted &&
-			eligibilityQuery.data &&
-			!eligibilityQuery.data.canApply
-		) {
-			router.replace('/apply/restricted');
-		}
-	}, [eligibilityQuery.data, router, redirectIfRestricted]);
-
 	const query = useQuery({
 		queryKey: ['applicant', 'user', userId],
 		queryFn: async () => unwrap(await getOrCreateApplicantForCurrentUser()),
 		staleTime: 30_000,
 		enabled: !!userId && eligibilityQuery.data?.canApply === true,
 	});
-
-	const locationCaptured = useRef(false);
-	useEffect(() => {
-		if (locationCaptured.current || !query.data?.id) return;
-		if (!navigator.geolocation) return;
-		locationCaptured.current = true;
-		navigator.geolocation.getCurrentPosition(
-			(pos) => {
-				saveApplicantLocation(
-					query.data!.id,
-					pos.coords.latitude,
-					pos.coords.longitude
-				);
-			},
-			() => {}
-		);
-	}, [query.data?.id]);
 
 	const completeness = useMemo(
 		() => computeCompleteness(query.data),

@@ -49,7 +49,7 @@ function ApplicationCard({ application }: { application: Application }) {
 	return (
 		<Card component={Link} href={href} withBorder p={0}>
 			<Stack gap='md' p='lg'>
-				<Stack gap={4} style={{ flex: 1 }}>
+				<Stack gap={4} flex={1}>
 					<Box pos={'relative'}>
 						<Text size='lg' lineClamp={1}>
 							{programLabel}

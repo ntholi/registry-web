@@ -17,7 +17,6 @@ import {
 } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import {
-	IconArrowLeft,
 	IconCheck,
 	IconEdit,
 	IconFile,
@@ -28,13 +27,14 @@ import {
 } from '@tabler/icons-react';
 import { useRouter } from 'nextjs-toploader/app';
 import { useActionMutation } from '@/shared/lib/actions/use-action-mutation';
+import { WizardNavigation } from '../../_components/WizardNavigation';
 import { submitApplication } from '../_server/actions';
 
 type Props = {
 	applicationId: string;
 };
 
-export default function ReviewForm({ applicationId }: Props) {
+export function ReviewForm({ applicationId }: Props) {
 	const router = useRouter();
 	const { applicant, currentApplication, refetch } = useApplicant();
 
@@ -72,10 +72,6 @@ export default function ReviewForm({ applicationId }: Props) {
 			},
 		}
 	);
-
-	function handleBack() {
-		router.push(`/apply/${applicationId}/personal-info`);
-	}
 
 	function handleEdit(step: string) {
 		router.push(`/apply/${applicationId}/${step}`);
@@ -295,30 +291,24 @@ export default function ReviewForm({ applicationId }: Props) {
 
 			<Divider />
 
-			<Group justify='space-between'>
-				<Button
-					variant='subtle'
-					leftSection={<IconArrowLeft size={16} />}
-					onClick={handleBack}
-				>
-					Back
-				</Button>
-				<Button
-					color='green'
-					leftSection={
-						isAlreadySubmitted ? (
-							<IconRefresh size={16} />
-						) : (
-							<IconSend size={16} />
-						)
-					}
-					onClick={handleSubmit}
-					disabled={!application || application.firstChoiceProgramId === null}
-					loading={submitMutation.isPending}
-				>
-					{isAlreadySubmitted ? 'Update Application' : 'Submit Application'}
-				</Button>
-			</Group>
+			<WizardNavigation
+				applicationId={applicationId}
+				backPath='personal-info'
+				onNext={handleSubmit}
+				nextDisabled={!application || application.firstChoiceProgramId === null}
+				nextLoading={submitMutation.isPending}
+				submitLabel={
+					isAlreadySubmitted ? 'Update Application' : 'Submit Application'
+				}
+				submitIcon={
+					isAlreadySubmitted ? (
+						<IconRefresh size={16} />
+					) : (
+						<IconSend size={16} />
+					)
+				}
+				submitColor='green'
+			/>
 		</Stack>
 	);
 }

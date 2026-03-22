@@ -16,7 +16,7 @@ import {
 	getActionErrorMessage,
 } from '@/shared/lib/actions/actionResult';
 import { DocumentCardSkeleton } from '@/shared/ui/DocumentCardShell';
-import WizardNavigation from './WizardNavigation';
+import { WizardNavigation } from './WizardNavigation';
 
 type Props<T, DT extends DocumentUploadType = DocumentUploadType> = {
 	applicationId: string;
@@ -41,7 +41,7 @@ type Props<T, DT extends DocumentUploadType = DocumentUploadType> = {
 	extraDisabled?: boolean;
 };
 
-export default function DocumentStepForm<T, DT extends DocumentUploadType>({
+export function DocumentStepForm<T, DT extends DocumentUploadType>({
 	applicationId,
 	title,
 	description,

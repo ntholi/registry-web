@@ -18,10 +18,10 @@ import {
 } from '@mantine/core';
 import { createLoader } from 'nuqs/server';
 import ButtonLink from '@/shared/ui/ButtonLink';
-import ApplyHeader from '../_components/ApplyHeader';
-import CoursesFilters from '../_components/CoursesFilters';
-import CourseCard from './_components/CourseCard';
-import CoursesPagination from './_components/CoursesPagination';
+import { ApplyHeader } from '../_components/ApplyHeader';
+import { CoursesFilters } from '../_components/CoursesFilters';
+import { CourseCard } from './_components/CourseCard';
+import { CoursesPagination } from './_components/CoursesPagination';
 import { coursesSearchParams } from './_lib/params';
 
 interface Props {
@@ -51,7 +51,7 @@ export default async function ApplyCoursesPage({ searchParams }: Props) {
 
 	return (
 		<Box bg='var(--mantine-color-body)'>
-			<ApplyHeader redirectIfRestricted={false} />
+			<ApplyHeader />
 			<Container size='xl' py='xl' pt={100}>
 				<Stack gap='xl'>
 					<Stack gap='xs'>

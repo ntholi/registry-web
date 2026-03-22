@@ -29,11 +29,11 @@ import {
 	useQueryStates,
 } from 'nuqs';
 import { useMemo, useState } from 'react';
-import CoursesFilters from '@/app/apply/_components/CoursesFilters';
+import { CoursesFilters } from '@/app/apply/_components/CoursesFilters';
 import { useActionMutation } from '@/shared/lib/actions/use-action-mutation';
-import WizardNavigation from '../../_components/WizardNavigation';
+import { WizardNavigation } from '../../_components/WizardNavigation';
 import { getActiveIntake, getEligiblePrograms } from '../_server/actions';
-import CourseCard from './CourseCard';
+import { ProgramChoiceCard } from './ProgramChoiceCard';
 
 type EligibleProgram = {
 	id: number;
@@ -53,7 +53,7 @@ type Props = {
 	applicationId: string;
 };
 
-export default function CourseSelectionForm({ applicationId }: Props) {
+export function CourseSelectionForm({ applicationId }: Props) {
 	const router = useRouter();
 	const [choiceType, setChoiceType] = useQueryState(
 		'choice',
@@ -91,19 +91,16 @@ export default function CourseSelectionForm({ applicationId }: Props) {
 		queryFn: getActiveIntake,
 	});
 
-	const [firstChoice, setFirstChoice] = useState<string | null>(null);
-	const [secondChoice, setSecondChoice] = useState<string | null>(null);
-	const [initialized, setInitialized] = useState(false);
-
-	if (appLoaded && !initialized) {
-		if (currentApplication?.firstChoiceProgramId) {
-			setFirstChoice(String(currentApplication.firstChoiceProgramId));
-		}
-		if (currentApplication?.secondChoiceProgramId) {
-			setSecondChoice(String(currentApplication.secondChoiceProgramId));
-		}
-		setInitialized(true);
-	}
+	const [firstChoice, setFirstChoice] = useState<string | null>(() =>
+		currentApplication?.firstChoiceProgramId
+			? String(currentApplication.firstChoiceProgramId)
+			: null
+	);
+	const [secondChoice, setSecondChoice] = useState<string | null>(() =>
+		currentApplication?.secondChoiceProgramId
+			? String(currentApplication.secondChoiceProgramId)
+			: null
+	);
 
 	const filteredPrograms = useMemo(() => {
 		let result = eligiblePrograms as EligibleProgram[];
@@ -315,7 +312,7 @@ export default function CourseSelectionForm({ applicationId }: Props) {
 
 						<SimpleGrid cols={{ base: 1, md: 2 }} spacing='sm'>
 							{filteredPrograms.map((program) => (
-								<CourseCard
+								<ProgramChoiceCard
 									key={program.id}
 									program={program}
 									selected={

@@ -2,7 +2,7 @@
 
 import { useApplicant } from '@apply/_lib/useApplicant';
 import type { DocumentUploadResult } from '@/app/apply/_components/DocumentUpload';
-import DocumentStepForm from '../../_components/DocumentStepForm';
+import { DocumentStepForm } from '../../_components/DocumentStepForm';
 import {
 	removeIdentityDocument,
 	uploadIdentityDocument,
@@ -16,7 +16,7 @@ type Props = {
 	applicationId: string;
 };
 
-export default function IdentityUploadForm({ applicationId }: Props) {
+export function IdentityUploadForm({ applicationId }: Props) {
 	const { applicant } = useApplicant();
 	const applicantId = applicant?.id ?? '';
 

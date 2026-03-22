@@ -8,10 +8,7 @@ interface CoursesPaginationProps {
 	total: number;
 }
 
-export default function CoursesPagination({
-	page,
-	total,
-}: CoursesPaginationProps) {
+export function CoursesPagination({ page, total }: CoursesPaginationProps) {
 	const [_, setPage] = useQueryState(
 		'page',
 		parseAsInteger.withDefault(1).withOptions({ shallow: false })

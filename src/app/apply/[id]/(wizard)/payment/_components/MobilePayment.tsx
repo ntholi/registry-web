@@ -20,12 +20,14 @@ import {
 	IconReceipt,
 	IconRefresh,
 } from '@tabler/icons-react';
+import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'nextjs-toploader/app';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import {
 	normalizePhoneNumber,
 	validateMpesaNumber,
 } from '@/core/integrations/pay-lesotho';
+import { getActionErrorMessage } from '@/shared/lib/actions/actionResult';
 import { useActionMutation } from '@/shared/lib/actions/use-action-mutation';
 import { checkPaymentStatus, initiateMpesaPayment } from '../_server/actions';
 
@@ -87,9 +89,9 @@ export function MobilePayment({
 		}
 	);
 
-	const verifyMutation = useActionMutation(checkPaymentStatus, {
-		onSuccess: (result) => {
-			if (result.status === 'success') {
+	const handlePaymentResult = useCallback(
+		(status: string, error?: string) => {
+			if (status === 'success') {
 				setIsPolling(false);
 				notifications.show({
 					title: 'Payment Successful',
@@ -97,47 +99,47 @@ export function MobilePayment({
 					color: 'green',
 				});
 				router.push(`/apply/${applicationId}/thank-you`);
-			} else if (result.status === 'failed') {
+			} else if (status === 'failed') {
 				setIsPolling(false);
-				setPaymentError(result.error || 'Payment was declined or failed');
+				setPaymentError(error || 'Payment was declined or failed');
 			}
 		},
-		onError: (error: Error) => {
-			setIsPolling(false);
-			setPaymentError(error.message);
-			notifications.show({
-				title: 'Error',
-				message: error.message,
-				color: 'red',
-			});
+		[applicationId, router]
+	);
+
+	useQuery({
+		queryKey: ['payment-status', currentTransactionId],
+		queryFn: async () => {
+			const result = await checkPaymentStatus(currentTransactionId!);
+			if (!result.success) {
+				throw new Error(getActionErrorMessage(result.error));
+			}
+			handlePaymentResult(
+				result.data.status,
+				'error' in result.data ? result.data.error : undefined
+			);
+			return result.data;
 		},
+		refetchInterval: POLL_INTERVAL,
+		enabled: isPolling && !!currentTransactionId,
 	});
 
 	useEffect(() => {
-		if (!isPolling || !currentTransactionId) return;
+		if (!isPolling) return;
 
-		const interval = setInterval(() => {
-			verifyMutation.mutate(currentTransactionId);
-		}, POLL_INTERVAL);
-
-		const timeout = setInterval(() => {
+		const countdown = setInterval(() => {
 			setTimeRemaining((prev) => {
 				if (prev <= 1) {
 					setIsPolling(false);
 					setPaymentError('Payment timed out. Please try again.');
-					clearInterval(interval);
-					clearInterval(timeout);
 					return 0;
 				}
 				return prev - 1;
 			});
 		}, 1000);
 
-		return () => {
-			clearInterval(interval);
-			clearInterval(timeout);
-		};
-	}, [isPolling, currentTransactionId, verifyMutation.mutate]);
+		return () => clearInterval(countdown);
+	}, [isPolling]);
 
 	function handleRetry() {
 		setPaymentError(null);

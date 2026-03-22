@@ -119,21 +119,16 @@ export function InfoTab({ applicant }: Props) {
 									</Group>
 
 									{record.subjectGrades.length > 0 && (
-										<Box
+										<Paper
 											mt='md'
 											p='md'
+											radius='md'
 											bg={isDark ? 'dark.8' : 'gray.0'}
-											style={{ borderRadius: '8px' }}
 										>
 											<SimpleGrid cols={{ base: 1 }} spacing='sm'>
 												{record.subjectGrades.map((grade) => (
 													<Group key={grade.id}>
-														<Text
-															size='xs'
-															fw={600}
-															truncate
-															style={{ flex: 1 }}
-														>
+														<Text size='xs' fw={600} truncate flex={1}>
 															{grade.subject.name}
 														</Text>
 														<Badge
@@ -146,7 +141,7 @@ export function InfoTab({ applicant }: Props) {
 													</Group>
 												))}
 											</SimpleGrid>
-										</Box>
+										</Paper>
 									)}
 								</Stack>
 							</Paper>

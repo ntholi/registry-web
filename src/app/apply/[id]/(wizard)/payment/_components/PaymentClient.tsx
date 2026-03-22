@@ -4,13 +4,13 @@ import { useApplicant } from '@apply/_lib/useApplicant';
 import { Center, Loader, Stack, Text } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
 import { getPaymentPageData } from '../_server/actions';
-import PaymentForm from './PaymentForm';
+import { PaymentForm } from './PaymentForm';
 
 type Props = {
 	applicationId: string;
 };
 
-export default function PaymentClient({ applicationId }: Props) {
+export function PaymentClient({ applicationId }: Props) {
 	const { applicant } = useApplicant();
 
 	const { data, isLoading, error } = useQuery({

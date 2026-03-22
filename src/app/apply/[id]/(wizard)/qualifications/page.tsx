@@ -1,4 +1,4 @@
-import QualificationsUploadForm from './_components/QualificationsUploadForm';
+import { QualificationsUploadForm } from './_components/QualificationsUploadForm';
 import { prepopulateAcademicRecordsFromCompletedPrograms } from './_server/actions';
 
 type Props = {

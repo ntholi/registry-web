@@ -23,7 +23,7 @@ import {
 import Link from 'next/link';
 import { useState } from 'react';
 import { authClient } from '@/core/auth-client';
-import ApplyHeader from '../../_components/ApplyHeader';
+import { ApplyHeader } from '../../_components/ApplyHeader';
 import { getOverallStatusColor, getOverallStatusSummary } from '../_lib/status';
 import { ApplicationsTab } from './ApplicationsTab';
 import { DocumentsTab } from './DocumentsTab';
@@ -87,19 +87,17 @@ export function ProfileView({ applicant }: Props) {
 							radius={150}
 							color='blue'
 							src={session?.user?.image}
-							style={{
-								border: `1px solid ${
-									isDark
-										? 'var(--mantine-color-dark-4)'
-										: 'var(--mantine-color-gray-3)'
-								}`,
-								padding: '4px',
-							}}
+							bd={`1px solid ${
+								isDark
+									? 'var(--mantine-color-dark-4)'
+									: 'var(--mantine-color-gray-3)'
+							}`}
+							p={4}
 						>
 							{initials}
 						</Avatar>
 
-						<Stack gap='md' style={{ flex: 1 }}>
+						<Stack gap='md' flex={1}>
 							<Stack gap={4}>
 								<Group justify='space-between' align='center'>
 									<Text size='24px' fw={300}>
@@ -144,7 +142,7 @@ export function ProfileView({ applicant }: Props) {
 							>
 								{initials}
 							</Avatar>
-							<Group gap={20} grow style={{ flex: 1 }}>
+							<Group gap={20} grow flex={1}>
 								<Stack gap={0} align='center'>
 									<Text fw={700}>{appCount}</Text>
 									<Text size='xs' c='dimmed'>

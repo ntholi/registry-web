@@ -51,11 +51,7 @@ type Props = {
 	isSubmitting?: boolean;
 };
 
-export default function ReceiptUploadForm({
-	fee,
-	onSubmit,
-	isSubmitting,
-}: Props) {
+export function ReceiptUpload({ fee, onSubmit, isSubmitting }: Props) {
 	const [uploading, setUploading] = useState(false);
 	const [uploadKey, setUploadKey] = useState(0);
 	const [receipts, setReceipts] = useState<UploadedReceipt[]>([]);
@@ -204,7 +200,7 @@ export default function ReceiptUploadForm({
 						p='md'
 						radius='md'
 						bg='var(--mantine-color-dark-7)'
-						style={{ border: '1px dashed var(--mantine-color-dark-outline)' }}
+						bd='1px dashed var(--mantine-color-dark-outline)'
 					>
 						<Stack gap={4}>
 							<Text size='xs' c='dimmed' fw={700} tt='uppercase' lts={1}>

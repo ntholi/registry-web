@@ -28,7 +28,7 @@ import { useQueryState } from 'nuqs';
 import { useActionMutation } from '@/shared/lib/actions/use-action-mutation';
 import { submitReceiptPayment } from '../_server/actions';
 import { MobilePayment } from './MobilePayment';
-import ReceiptUpload from './ReceiptUpload';
+import { ReceiptUpload } from './ReceiptUpload';
 
 type Props = {
 	applicationId: string;
@@ -39,7 +39,7 @@ type Props = {
 
 type PaymentView = 'select' | 'mobile' | 'receipt';
 
-export default function PaymentForm({
+export function PaymentForm({
 	applicationId,
 	fee,
 	isPaid,

@@ -3,7 +3,7 @@
 import { useApplicant } from '@apply/_lib/useApplicant';
 import { Text } from '@mantine/core';
 import type { DocumentUploadResult } from '@/app/apply/_components/DocumentUpload';
-import DocumentStepForm from '../../_components/DocumentStepForm';
+import { DocumentStepForm } from '../../_components/DocumentStepForm';
 import {
 	removeAcademicRecord,
 	uploadCertificateDocument,
@@ -14,7 +14,7 @@ type Props = {
 	applicationId: string;
 };
 
-export default function QualificationsUploadForm({ applicationId }: Props) {
+export function QualificationsUploadForm({ applicationId }: Props) {
 	const { applicant } = useApplicant();
 	const applicantId = applicant?.id ?? '';
 	const records = applicant?.academicRecords ?? [];

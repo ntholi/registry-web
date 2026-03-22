@@ -45,7 +45,7 @@ const relationshipOptions = [
 	{ value: 'Other', label: 'Other' },
 ];
 
-export default function GuardianManager() {
+export function GuardianManager() {
 	const { applicant, refetch } = useApplicant();
 	const applicantId = applicant?.id ?? '';
 	const guardians = (applicant?.guardians ?? []) as Guardian[];

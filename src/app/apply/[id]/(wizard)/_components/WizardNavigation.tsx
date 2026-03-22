@@ -13,15 +13,21 @@ type Props = {
 	nextDisabled?: boolean;
 	nextLoading?: boolean;
 	hideBack?: boolean;
+	submitLabel?: string;
+	submitIcon?: React.ReactNode;
+	submitColor?: string;
 };
 
-export default function WizardNavigation({
+export function WizardNavigation({
 	applicationId,
 	backPath,
 	onNext,
 	nextDisabled,
 	nextLoading,
 	hideBack,
+	submitLabel,
+	submitIcon,
+	submitColor,
 }: Props) {
 	const router = useRouter();
 	const isMobile = useMediaQuery('(max-width: 48em)', true);
@@ -65,12 +71,16 @@ export default function WizardNavigation({
 				)}
 				{onNext && (
 					<Button
-						rightSection={<IconArrowRight size={16} />}
+						color={submitColor}
+						leftSection={submitLabel ? submitIcon : undefined}
+						rightSection={
+							submitLabel ? undefined : <IconArrowRight size={16} />
+						}
 						onClick={onNext}
 						disabled={nextDisabled}
 						loading={nextLoading}
 					>
-						Next
+						{submitLabel ?? 'Next'}
 					</Button>
 				)}
 			</Group>

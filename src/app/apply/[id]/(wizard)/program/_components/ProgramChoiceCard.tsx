@@ -25,7 +25,12 @@ type Props = {
 	onToggle: (selected: boolean) => void;
 };
 
-export function CourseCard({ program, selected, disabled, onToggle }: Props) {
+export function ProgramChoiceCard({
+	program,
+	selected,
+	disabled,
+	onToggle,
+}: Props) {
 	function handleClick() {
 		if (disabled) return;
 		onToggle(!selected);

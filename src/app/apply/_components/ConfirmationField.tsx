@@ -39,7 +39,7 @@ export function ConfirmationField({
 			<Text size='xs' c='dimmed' fw={600} w={labelWidth} tt='uppercase'>
 				{label}
 			</Text>
-			<Text size='sm' fw={500} style={{ flex: 1 }}>
+			<Text size='sm' fw={500} flex={1}>
 				{value?.toString() || '—'}
 			</Text>
 		</Group>

@@ -1,4 +1,4 @@
-import ReviewForm from './_components/ReviewForm';
+import { ReviewForm } from './_components/ReviewForm';
 
 type Props = {
 	params: Promise<{ id: string }>;

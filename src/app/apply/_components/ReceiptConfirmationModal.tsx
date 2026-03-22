@@ -63,7 +63,7 @@ export function ReceiptConfirmationModal({
 							size={50}
 							radius='md'
 							color='teal'
-							style={{ opacity: 0.8 }}
+							opacity={0.8}
 						>
 							<IconReceipt size={28} />
 						</ThemeIcon>

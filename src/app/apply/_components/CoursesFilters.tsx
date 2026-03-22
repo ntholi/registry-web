@@ -11,7 +11,7 @@ interface Props {
 	levels: ProgramLevel[];
 }
 
-export default function CoursesFilters({ schools, levels }: Props) {
+export function CoursesFilters({ schools, levels }: Props) {
 	const [filters, setFilters] = useQueryStates(coursesSearchParams, {
 		shallow: false,
 	});

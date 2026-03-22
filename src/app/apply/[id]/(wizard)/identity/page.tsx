@@ -1,4 +1,4 @@
-import IdentityUploadForm from './_components/IdentityUploadForm';
+import { IdentityUploadForm } from './_components/IdentityUploadForm';
 
 type Props = {
 	params: Promise<{ id: string }>;

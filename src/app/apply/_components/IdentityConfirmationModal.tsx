@@ -57,7 +57,7 @@ export function IdentityConfirmationModal({
 							size={50}
 							radius='md'
 							color='blue'
-							style={{ opacity: 0.8 }}
+							opacity={0.8}
 						>
 							<IconId size={28} />
 						</ThemeIcon>

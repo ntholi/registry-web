@@ -1,4 +1,4 @@
-import CourseSelectionForm from './_components/CourseSelectionForm';
+import { CourseSelectionForm } from './_components/CourseSelectionForm';
 
 type Props = {
 	params: Promise<{ id: string }>;

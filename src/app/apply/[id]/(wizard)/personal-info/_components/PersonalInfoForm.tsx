@@ -2,7 +2,9 @@
 
 import { useApplicant } from '@apply/_lib/useApplicant';
 import {
+	Center,
 	Divider,
+	Loader,
 	Paper,
 	Select,
 	SimpleGrid,
@@ -18,10 +20,10 @@ import { useRouter } from 'nextjs-toploader/app';
 import { useActionMutation } from '@/shared/lib/actions/use-action-mutation';
 import { getCountries } from '@/shared/lib/utils/countries';
 import { getReligions } from '@/shared/lib/utils/religions';
-import WizardNavigation from '../../_components/WizardNavigation';
+import { WizardNavigation } from '../../_components/WizardNavigation';
 import { updateApplicantInfo } from '../_server/actions';
-import GuardianManager from './GuardianManager';
-import PhoneManager from './PhoneManager';
+import { GuardianManager } from './GuardianManager';
+import { PhoneManager } from './PhoneManager';
 
 const genderOptions = [
 	{ value: 'Male', label: 'Male' },
@@ -32,28 +34,57 @@ type Props = {
 	applicationId: string;
 };
 
-export default function PersonalInfoForm({ applicationId }: Props) {
+export function PersonalInfoForm({ applicationId }: Props) {
+	const { applicant, isLoading, refetch } = useApplicant();
+
+	if (isLoading || !applicant) {
+		return (
+			<Center py='xl'>
+				<Loader />
+			</Center>
+		);
+	}
+
+	return (
+		<PersonalInfoFormInner
+			applicationId={applicationId}
+			applicant={applicant}
+			refetch={refetch}
+		/>
+	);
+}
+
+type InnerProps = {
+	applicationId: string;
+	applicant: NonNullable<ReturnType<typeof useApplicant>['applicant']>;
+	refetch: ReturnType<typeof useApplicant>['refetch'];
+};
+
+function PersonalInfoFormInner({
+	applicationId,
+	applicant,
+	refetch,
+}: InnerProps) {
 	const router = useRouter();
-	const { applicant, refetch } = useApplicant();
 
 	const form = useForm({
 		mode: 'uncontrolled',
 		initialValues: {
-			fullName: applicant?.fullName ?? '',
-			dateOfBirth: applicant?.dateOfBirth ?? '',
-			nationalId: applicant?.nationalId ?? '',
-			nationality: applicant?.nationality ?? '',
-			gender: applicant?.gender ?? '',
-			birthPlace: applicant?.birthPlace ?? '',
-			religion: applicant?.religion ?? '',
-			address: applicant?.address ?? '',
+			fullName: applicant.fullName ?? '',
+			dateOfBirth: applicant.dateOfBirth ?? '',
+			nationalId: applicant.nationalId ?? '',
+			nationality: applicant.nationality ?? '',
+			gender: applicant.gender ?? '',
+			birthPlace: applicant.birthPlace ?? '',
+			religion: applicant.religion ?? '',
+			address: applicant.address ?? '',
 		},
 		validate: {
 			fullName: (value) => (value ? null : 'Full name is required'),
 		},
 	});
 
-	const applicantId = applicant?.id ?? '';
+	const applicantId = applicant.id;
 
 	const mutation = useActionMutation(
 		(values: typeof form.values) => updateApplicantInfo(applicantId, values),
@@ -171,7 +202,7 @@ export default function PersonalInfoForm({ applicationId }: Props) {
 				applicationId={applicationId}
 				backPath='program'
 				onNext={() => form.onSubmit((values) => mutation.mutate(values))()}
-				nextDisabled={(applicant?.guardians.length ?? 0) === 0}
+				nextDisabled={applicant.guardians.length === 0}
 				nextLoading={mutation.isPending}
 			/>
 		</Stack>

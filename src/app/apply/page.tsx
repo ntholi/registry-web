@@ -1,23 +1,17 @@
 'use client';
 
-import { Box } from '@mantine/core';
+import { Flex } from '@mantine/core';
 import Footer from '@/shared/ui/Footer';
-import ApplyHeader from './_components/ApplyHeader';
-import ApplyHero from './_components/ApplyHero';
+import { ApplyHeader } from './_components/ApplyHeader';
+import { ApplyHero } from './_components/ApplyHero';
 
 export default function ApplyPage() {
 	return (
 		<>
-			<Box
-				style={{
-					minHeight: '95vh',
-					display: 'flex',
-					flexDirection: 'column',
-				}}
-			>
-				<ApplyHeader redirectIfRestricted={false} />
-				<ApplyHero redirectIfRestricted={false} />
-			</Box>
+			<Flex mih='95vh' direction='column'>
+				<ApplyHeader />
+				<ApplyHero />
+			</Flex>
 			<Footer />
 		</>
 	);

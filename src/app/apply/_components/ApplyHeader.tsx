@@ -5,6 +5,7 @@ import {
 	Box,
 	Button,
 	Container,
+	Group,
 	Image,
 	Menu,
 	Text,
@@ -18,12 +19,8 @@ import { useRouter } from 'next/navigation';
 import { authClient } from '@/core/auth-client';
 import { useApplicant } from '../_lib/useApplicant';
 
-type Props = {
-	redirectIfRestricted?: boolean;
-};
-
-export default function ApplyHeader({ redirectIfRestricted = true }: Props) {
-	const { applicant } = useApplicant({ redirectIfRestricted });
+export function ApplyHeader() {
+	const { applicant } = useApplicant();
 	const applicantId = applicant?.id;
 	const { colorScheme } = useMantineColorScheme();
 	const router = useRouter();
@@ -44,11 +41,11 @@ export default function ApplyHeader({ redirectIfRestricted = true }: Props) {
 		<Box
 			component='header'
 			py='sm'
+			pos='fixed'
+			top={0}
+			left={0}
+			right={0}
 			style={{
-				position: 'fixed',
-				top: 0,
-				left: 0,
-				right: 0,
 				zIndex: 100,
 				backdropFilter: 'blur(10px)',
 				backgroundColor: isDark
@@ -60,13 +57,7 @@ export default function ApplyHeader({ redirectIfRestricted = true }: Props) {
 			}}
 		>
 			<Container size={'xl'}>
-				<Box
-					style={{
-						display: 'flex',
-						alignItems: 'center',
-						justifyContent: 'space-between',
-					}}
-				>
+				<Group justify='space-between'>
 					<Link
 						href={'/apply'}
 						style={{ display: 'flex', alignItems: 'center' }}
@@ -149,7 +140,7 @@ export default function ApplyHeader({ redirectIfRestricted = true }: Props) {
 							Sign In
 						</Button>
 					)}
-				</Box>
+				</Group>
 			</Container>
 		</Box>
 	);

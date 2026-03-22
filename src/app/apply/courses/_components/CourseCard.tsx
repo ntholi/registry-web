@@ -25,7 +25,7 @@ interface Props {
 	subjects: Subject[];
 }
 
-export default function CourseCard({ program, subjects }: Props) {
+export function CourseCard({ program, subjects }: Props) {
 	const lgcseReq = program.entryRequirements.find(
 		(r) => r.certificateType?.name?.toLowerCase() === 'lgcse'
 	);

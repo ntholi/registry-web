@@ -19,7 +19,7 @@ type Props = {
 	children: React.ReactNode;
 };
 
-export default function WizardLayout({ applicationId, children }: Props) {
+export function WizardLayout({ applicationId, children }: Props) {
 	const pathname = usePathname();
 	const router = useRouter();
 	const isMobile = useMediaQuery('(max-width: 48em)', true);

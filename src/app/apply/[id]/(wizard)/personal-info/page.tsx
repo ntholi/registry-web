@@ -1,4 +1,4 @@
-import PersonalInfoForm from './_components/PersonalInfoForm';
+import { PersonalInfoForm } from './_components/PersonalInfoForm';
 
 type Props = {
 	params: Promise<{ id: string }>;

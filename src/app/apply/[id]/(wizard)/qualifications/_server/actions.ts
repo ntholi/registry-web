@@ -28,8 +28,6 @@ import {
 } from '@/shared/lib/utils/grades';
 import type { Program as GradeProgram } from '@/shared/lib/utils/grades/type';
 
-const CURRENT_YEAR = new Date().getFullYear();
-
 type UploadResult = {
 	fileName: string;
 	type: string;
@@ -98,7 +96,7 @@ export const prepopulateAcademicRecordsFromCompletedPrograms = createAction(
 			const examYear =
 				extractYear(program.graduationDate) ??
 				extractYear(program.intakeDate) ??
-				CURRENT_YEAR;
+				new Date().getFullYear();
 
 			const academicRemarks = getAcademicRemarks([program as GradeProgram]);
 			const resultClassification = getResultClassificationFromCgpa(
@@ -162,7 +160,7 @@ export const uploadCertificateDocument = createAction(
 					applicantId,
 					{
 						institutionName: analysis.institutionName ?? 'Unknown Institution',
-						examYear: analysis.examYear ?? CURRENT_YEAR,
+						examYear: analysis.examYear ?? new Date().getFullYear(),
 						certificateType: analysis.certificateType,
 						certificateNumber: analysis.certificateNumber,
 						subjects: analysis.subjects,
