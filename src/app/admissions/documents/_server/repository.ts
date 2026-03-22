@@ -1,9 +1,20 @@
-import { and, count, eq, isNull, or, type SQL, sql } from 'drizzle-orm';
+import {
+	and,
+	count,
+	eq,
+	exists,
+	isNull,
+	ne,
+	or,
+	type SQL,
+	sql,
+} from 'drizzle-orm';
 import type { DocumentType, DocumentVerificationStatus } from '@/core/database';
 import {
 	academicRecords,
 	applicantDocuments,
 	applicants,
+	applications,
 	certificateTypes,
 	db,
 	documents,
@@ -15,6 +26,20 @@ import BaseRepository, {
 } from '@/core/platform/BaseRepository';
 
 const LOCK_EXPIRY_MS = 5 * 60 * 1000;
+
+function hasSubmittedApp() {
+	return exists(
+		db
+			.select({ id: applications.id })
+			.from(applications)
+			.where(
+				and(
+					eq(applications.applicantId, applicantDocuments.applicantId),
+					ne(applications.status, 'draft')
+				)
+			)
+	);
+}
 
 export default class DocumentReviewRepository extends BaseRepository<
 	typeof applicantDocuments,
@@ -28,7 +53,12 @@ export default class DocumentReviewRepository extends BaseRepository<
 		const [row] = await db
 			.select({ total: count() })
 			.from(applicantDocuments)
-			.where(eq(applicantDocuments.verificationStatus, 'pending'));
+			.where(
+				and(
+					eq(applicantDocuments.verificationStatus, 'pending'),
+					hasSubmittedApp()
+				)
+			);
 		return row?.total ?? 0;
 	}
 
@@ -45,6 +75,7 @@ export default class DocumentReviewRepository extends BaseRepository<
 		const offset = (page - 1) * pageSize;
 
 		const conditions: SQL[] = [];
+		conditions.push(hasSubmittedApp());
 
 		const notLockedByOthers = or(
 			isNull(applicantDocuments.reviewLockedBy),
@@ -396,6 +427,7 @@ export default class DocumentReviewRepository extends BaseRepository<
 	) {
 		const conditions: SQL[] = [
 			sql`${applicantDocuments.id} != ${currentId}`,
+			hasSubmittedApp(),
 			or(
 				isNull(applicantDocuments.reviewLockedBy),
 				eq(applicantDocuments.reviewLockedBy, userId),
