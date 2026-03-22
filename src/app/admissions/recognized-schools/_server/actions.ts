@@ -15,6 +15,7 @@ export async function findAllRecognizedSchools(page = 1, search = '') {
 		page,
 		search,
 		sort: [{ column: 'createdAt', order: 'desc' }],
+		searchColumns: ['name'],
 	});
 }
 

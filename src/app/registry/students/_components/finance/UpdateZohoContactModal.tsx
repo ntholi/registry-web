@@ -70,12 +70,12 @@ export function UpdateZohoContactModal({ stdNo, contactId }: Props) {
 		<>
 			<HoverCard position='bottom' withArrow>
 				<HoverCard.Target>
-					<ActionIcon variant='light' size='lg' color='grape' onClick={open}>
-						<IconUpload size={18} />
+					<ActionIcon variant='light' color='gray' onClick={open}>
+						<IconUpload size={'1rem'} />
 					</ActionIcon>
 				</HoverCard.Target>
 				<HoverCard.Dropdown p='xs'>
-					<Text size='xs'>Sync with Zoho</Text>
+					<Text size='xs'>Update Zoho Contact</Text>
 				</HoverCard.Dropdown>
 			</HoverCard>
 			<Modal

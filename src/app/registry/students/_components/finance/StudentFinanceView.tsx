@@ -106,6 +106,8 @@ export default function StudentFinanceView({
 
 	if (!isActive) return null;
 
+	if (contactLoading || summaryLoading) return <FinanceSkeleton />;
+
 	const isError = contactError || summaryError;
 	const error = contactErr || summaryErr;
 
@@ -154,9 +156,7 @@ export default function StudentFinanceView({
 				<Group justify='space-between' align='center'>
 					<Stack gap={4}>
 						<Group gap='xs'>
-							{contactLoading || summaryLoading ? (
-								<Skeleton height={20} width={100} />
-							) : hasContact ? (
+							{hasContact ? (
 								<Text fw={500} size='sm'>
 									Zoho Books
 								</Text>
@@ -174,46 +174,41 @@ export default function StudentFinanceView({
 						{hasContact ? (
 							<>
 								<UpdateZohoContactModal stdNo={stdNo} contactId={contactId} />
-								{zohoUrl && (
-									<HoverCard position='bottom' withArrow>
-										<HoverCard.Target>
-											<ActionIcon
-												variant='light'
-												size='lg'
-												color='blue'
-												component='a'
-												href={zohoUrl}
-												target='_blank'
-												rel='noopener noreferrer'
-											>
-												<IconExternalLink size={18} />
-											</ActionIcon>
-										</HoverCard.Target>
-										<HoverCard.Dropdown p='xs'>
-											<Text size='xs'>Open in Zoho Books</Text>
-										</HoverCard.Dropdown>
-									</HoverCard>
-								)}
 								<HoverCard position='bottom' withArrow>
 									<HoverCard.Target>
 										<ActionIcon
 											variant='light'
-											size='lg'
 											color='teal'
 											loading={isFetching}
 											onClick={handleRefresh}
 										>
-											<IconRefresh size={18} />
+											<IconRefresh size={16} />
 										</ActionIcon>
 									</HoverCard.Target>
 									<HoverCard.Dropdown p='xs'>
-										<Text size='xs'>Refresh financial data</Text>
+										<Text size='xs'>Refetch from Zoho</Text>
+									</HoverCard.Dropdown>
+								</HoverCard>
+								<HoverCard position='bottom' withArrow>
+									<HoverCard.Target>
+										<ActionIcon
+											variant='light'
+											color='blue'
+											component='a'
+											href={zohoUrl}
+											target='_blank'
+											rel='noopener noreferrer'
+										>
+											<IconExternalLink size={16} />
+										</ActionIcon>
+									</HoverCard.Target>
+									<HoverCard.Dropdown p='xs'>
+										<Text size='xs'>Open in Zoho Books</Text>
 									</HoverCard.Dropdown>
 								</HoverCard>
 							</>
 						) : (
-							!contactLoading &&
-							!summaryLoading && <CreateContactBtn stdNo={stdNo} />
+							<CreateContactBtn stdNo={stdNo} />
 						)}
 					</Group>
 				</Group>
@@ -235,7 +230,7 @@ export default function StudentFinanceView({
 						<MetricCard
 							label='Outstanding'
 							value={formatCurrency(summary.totalOutstanding)}
-							color={summary.totalOutstanding > 0 ? 'red' : 'teal'}
+							color={summary.totalOutstanding > 0 ? 'red' : 'green'}
 						/>
 						<MetricCard
 							label='Unused Credits'
@@ -303,17 +298,20 @@ type MetricCardProps = {
 };
 
 function MetricCard({ label, value, color }: MetricCardProps) {
+	const accented = color !== 'default';
 	return (
-		<Card withBorder padding='sm'>
-			<Stack gap={2}>
-				<Text size='xs' c='dimmed' truncate>
-					{label}
-				</Text>
-				<Text c={color} ff='monospace' lh={1.2}>
-					{value}
-				</Text>
-			</Stack>
-		</Card>
+		<Paper withBorder p='sm'>
+			<Group gap='xs'>
+				<Stack gap={3}>
+					<Text size='xs' c='dimmed' fw={500}>
+						{label}
+					</Text>
+					<Text c={accented ? color : undefined} ff='monospace'>
+						{value}
+					</Text>
+				</Stack>
+			</Group>
+		</Paper>
 	);
 }
 
@@ -351,15 +349,101 @@ type TabContentProps = {
 	children: React.ReactNode;
 };
 
+const TAB_CONTENT_ROWS = ['tc0', 'tc1', 'tc2', 'tc3'] as const;
+
 function TabContent({ loading, children }: TabContentProps) {
 	if (loading) {
 		return (
 			<Stack gap='xs'>
-				{Array.from({ length: 4 }).map((_, i) => (
-					<Skeleton height={36} key={`loading-row-${i}`} />
+				{TAB_CONTENT_ROWS.map((id) => (
+					<Skeleton height={36} key={id} />
 				))}
 			</Stack>
 		);
 	}
 	return <>{children}</>;
+}
+
+const SKELETON_METRICS = [
+	{ id: 'total', w: 96 },
+	{ id: 'paid', w: 80 },
+	{ id: 'outstanding', w: 88 },
+	{ id: 'credits', w: 76 },
+] as const;
+
+const SKELETON_TABS = [
+	{ id: 'inv', w: 56 },
+	{ id: 'pay', w: 64 },
+	{ id: 'quo', w: 48 },
+	{ id: 'rec', w: 60 },
+] as const;
+
+const SKELETON_COLS = [
+	{ id: 'no', w: 88 },
+	{ id: 'date', w: 68 },
+	{ id: 'due', w: 68 },
+	{ id: 'amt', w: 80 },
+] as const;
+
+const SKELETON_ROWS = ['r0', 'r1', 'r2', 'r3', 'r4', 'r5'] as const;
+
+function FinanceSkeleton() {
+	return (
+		<Stack>
+			<Card withBorder p='md'>
+				<Group justify='space-between' align='center'>
+					<Stack gap={5}>
+						<Skeleton height={14} width={110} />
+						<Skeleton height={11} width={230} />
+					</Stack>
+					<Group gap='xs'>
+						<Skeleton height={34} width={90} radius='sm' />
+						<Skeleton height={34} width={34} radius='sm' />
+						<Skeleton height={34} width={34} radius='sm' />
+					</Group>
+				</Group>
+			</Card>
+
+			<SimpleGrid cols={{ base: 1, xs: 2, sm: 4 }} spacing='xs'>
+				{SKELETON_METRICS.map(({ id, w }) => (
+					<Paper withBorder p='sm' key={id}>
+						<Stack gap={6}>
+							<Skeleton height={10} width={w} />
+							<Skeleton height={22} width={100} />
+						</Stack>
+					</Paper>
+				))}
+			</SimpleGrid>
+
+			<Stack gap={0}>
+				<Group gap={0}>
+					{SKELETON_TABS.map(({ id, w }) => (
+						<Group key={id} gap={6} px='md' py='sm'>
+							<Skeleton height={13} width={w} />
+							<Skeleton height={16} width={16} circle />
+						</Group>
+					))}
+				</Group>
+				<Skeleton height={1} width='100%' />
+
+				<Stack gap='xs' pt='md'>
+					<Group gap='md' px='xs'>
+						{SKELETON_COLS.map(({ id, w }) => (
+							<Skeleton key={id} height={11} width={w} />
+						))}
+						<Skeleton height={11} width={52} />
+					</Group>
+					<Skeleton height={1} width='100%' />
+					{SKELETON_ROWS.map((id) => (
+						<Group key={id} gap='md' px='xs' py={3}>
+							{SKELETON_COLS.map(({ id: cid, w }) => (
+								<Skeleton key={cid} height={14} width={w} />
+							))}
+							<Skeleton height={20} width={58} radius='xl' />
+						</Group>
+					))}
+				</Stack>
+			</Stack>
+		</Stack>
+	);
 }
