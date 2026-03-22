@@ -108,7 +108,7 @@ export const adminNav: NavItem[] = [
 	{
 		label: 'Tools',
 		icon: IconSettings,
-		collapsed: true,
+		collapsed: false,
 		children: [
 			{
 				label: 'Simulator',
@@ -170,7 +170,7 @@ export const adminNav: NavItem[] = [
 	{
 		label: 'Graduations',
 		icon: IconSchool,
-		collapsed: true,
+		collapsed: false,
 		permissions: [{ resource: 'graduation', action: 'read' }],
 		children: [
 			{
@@ -285,7 +285,7 @@ export const adminNav: NavItem[] = [
 	{
 		label: 'Timetable',
 		icon: IconCalendar,
-		collapsed: true,
+		collapsed: false,
 		children: [
 			{
 				label: 'Viewer',
@@ -356,7 +356,7 @@ export const adminNav: NavItem[] = [
 	{
 		label: 'Admissions Settings',
 		icon: IconSettings,
-		collapsed: true,
+		collapsed: false,
 		children: [
 			{
 				label: 'Intake Periods',
@@ -399,7 +399,7 @@ export const adminNav: NavItem[] = [
 	{
 		label: 'Appraisals',
 		icon: IconClipboardData,
-		collapsed: true,
+		collapsed: false,
 		children: [
 			{
 				label: 'Cycles',
@@ -459,7 +459,7 @@ export const adminNav: NavItem[] = [
 	{
 		label: 'Library',
 		icon: IconLibrary,
-		collapsed: true,
+		collapsed: false,
 		permissions: [{ resource: 'library', action: 'read' }],
 		children: [
 			{
@@ -495,7 +495,7 @@ export const adminNav: NavItem[] = [
 			{
 				label: 'Resources',
 				icon: IconTags,
-				collapsed: true,
+				collapsed: false,
 				children: [
 					{
 						label: 'Publications',
@@ -519,7 +519,7 @@ export const adminNav: NavItem[] = [
 	{
 		label: 'Reports',
 		icon: IconReportAnalytics,
-		collapsed: true,
+		collapsed: false,
 		children: [
 			{
 				label: 'Course Summary',
@@ -564,7 +564,7 @@ export const adminNav: NavItem[] = [
 	{
 		label: 'Mail',
 		icon: IconMail,
-		collapsed: true,
+		collapsed: false,
 		children: [
 			{
 				label: 'Inbox',

@@ -56,7 +56,7 @@ export const registryNav: NavItem[] = [
 	{
 		label: 'Graduations',
 		icon: IconSchool,
-		collapsed: true,
+		collapsed: false,
 		permissions: [{ resource: 'graduation', action: 'read' }],
 		children: [
 			{
@@ -156,7 +156,7 @@ export const registryNav: NavItem[] = [
 	{
 		label: 'Reports',
 		icon: IconReportAnalytics,
-		collapsed: true,
+		collapsed: false,
 		children: [
 			{
 				label: 'Attendance',
@@ -199,7 +199,7 @@ export const registryNav: NavItem[] = [
 	{
 		label: 'Mail',
 		icon: IconMail,
-		collapsed: true,
+		collapsed: false,
 		children: [
 			{
 				label: 'Inbox',

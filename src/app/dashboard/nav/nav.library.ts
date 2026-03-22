@@ -58,7 +58,7 @@ export const libraryNav: NavItem[] = [
 	{
 		label: 'Resources',
 		icon: IconTags,
-		collapsed: true,
+		collapsed: false,
 		permissions: [{ resource: 'library', action: 'read' }],
 		children: [
 			{
@@ -100,7 +100,7 @@ export const libraryNav: NavItem[] = [
 	{
 		label: 'Mail',
 		icon: IconMail,
-		collapsed: true,
+		collapsed: false,
 		children: [
 			{
 				label: 'Inbox',

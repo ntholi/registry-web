@@ -67,7 +67,7 @@ export const marketingNav: NavItem[] = [
 			{
 				label: 'Reports',
 				icon: IconReportAnalytics,
-				collapsed: true,
+				collapsed: false,
 				permissions: [{ resource: 'applications', action: 'read' }],
 				children: [
 					{
@@ -100,7 +100,7 @@ export const marketingNav: NavItem[] = [
 			{
 				label: 'Settings',
 				icon: IconSettings,
-				collapsed: true,
+				collapsed: false,
 				children: [
 					{
 						label: 'Intake Periods',
@@ -145,7 +145,7 @@ export const marketingNav: NavItem[] = [
 	{
 		label: 'Mail',
 		icon: IconMail,
-		collapsed: true,
+		collapsed: false,
 		children: [
 			{
 				label: 'Inbox',

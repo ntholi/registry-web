@@ -27,7 +27,7 @@ export const humanResourceNav: NavItem[] = [
 	{
 		label: 'Appraisals',
 		icon: IconClipboardData,
-		collapsed: true,
+		collapsed: false,
 		children: [
 			{
 				label: 'Cycles',
@@ -99,7 +99,7 @@ export const humanResourceNav: NavItem[] = [
 	{
 		label: 'Mail',
 		icon: IconMail,
-		collapsed: true,
+		collapsed: false,
 		children: [
 			{
 				label: 'Inbox',

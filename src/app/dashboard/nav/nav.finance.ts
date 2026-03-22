@@ -61,7 +61,7 @@ export const financeNav: NavItem[] = [
 	{
 		label: 'Graduations',
 		icon: IconSchool,
-		collapsed: true,
+		collapsed: false,
 		permissions: [{ resource: 'graduation', action: 'read' }],
 		children: [
 			{
@@ -113,7 +113,7 @@ export const financeNav: NavItem[] = [
 	{
 		label: 'Reports',
 		icon: IconReportAnalytics,
-		collapsed: true,
+		collapsed: false,
 		children: [
 			{
 				label: 'Student Enrollments',
@@ -152,7 +152,7 @@ export const financeNav: NavItem[] = [
 	{
 		label: 'Mail',
 		icon: IconMail,
-		collapsed: true,
+		collapsed: false,
 		children: [
 			{
 				label: 'Inbox',
