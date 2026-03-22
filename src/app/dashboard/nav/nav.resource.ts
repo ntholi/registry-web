@@ -2,11 +2,7 @@ import {
 	IconCalendar,
 	IconChecklist,
 	IconDoor,
-	IconInbox,
-	IconMail,
-	IconSend,
 	IconTags,
-	IconUserCheck,
 	IconUserPlus,
 } from '@tabler/icons-react';
 import type { NavItem } from '../types';
@@ -48,30 +44,5 @@ export const resourceNav: NavItem[] = [
 		href: '/admin/tasks',
 		icon: IconChecklist,
 		permissions: [{ resource: 'tasks', action: 'read' }],
-	},
-	{
-		label: 'Mail',
-		icon: IconMail,
-		collapsed: false,
-		children: [
-			{
-				label: 'Inbox',
-				href: '/mail/inbox',
-				icon: IconInbox,
-				permissions: [{ resource: 'mails', action: 'read' }],
-			},
-			{
-				label: 'Accounts',
-				href: '/mail/accounts',
-				icon: IconUserCheck,
-				permissions: [{ resource: 'mails', action: 'read' }],
-			},
-			{
-				label: 'Sent',
-				href: '/mail/sent',
-				icon: IconSend,
-				permissions: [{ resource: 'mails', action: 'read' }],
-			},
-		],
 	},
 ];

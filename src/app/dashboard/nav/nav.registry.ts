@@ -13,19 +13,14 @@ import {
 	IconClipboardList,
 	IconDoor,
 	IconFileSearch,
-	IconInbox,
-	IconMail,
 	IconNote,
 	IconPrinter,
 	IconReportAnalytics,
 	IconSchool,
-	IconSend,
 	IconSettings,
 	IconTags,
-	IconUserCheck,
 	IconUserExclamation,
 	IconUserOff,
-	IconUserPlus,
 	IconUsers,
 } from '@tabler/icons-react';
 import { countPendingDocumentsForReview } from '@/app/admissions/documents/_server/actions';
@@ -40,12 +35,6 @@ export const registryNav: NavItem[] = [
 		href: '/registry/students',
 		icon: IconUsers,
 		permissions: [{ resource: 'students', action: 'read' }],
-	},
-	{
-		label: 'Registration',
-		href: '/registry/registration/requests',
-		icon: IconUserPlus,
-		permissions: [{ resource: 'registration', action: 'read' }],
 	},
 	{
 		label: 'Registration Clearance',
@@ -267,30 +256,5 @@ export const registryNav: NavItem[] = [
 		href: '/admin/notifications',
 		icon: IconBell,
 		permissions: [{ resource: 'notifications', action: 'read' }],
-	},
-	{
-		label: 'Mail',
-		icon: IconMail,
-		collapsed: false,
-		children: [
-			{
-				label: 'Inbox',
-				href: '/mail/inbox',
-				icon: IconInbox,
-				permissions: [{ resource: 'mails', action: 'read' }],
-			},
-			{
-				label: 'Accounts',
-				href: '/mail/accounts',
-				icon: IconUserCheck,
-				permissions: [{ resource: 'mails', action: 'read' }],
-			},
-			{
-				label: 'Sent',
-				href: '/mail/sent',
-				icon: IconSend,
-				permissions: [{ resource: 'mails', action: 'read' }],
-			},
-		],
 	},
 ];

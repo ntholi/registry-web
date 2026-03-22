@@ -5,13 +5,9 @@ import {
 	IconClipboardCheck,
 	IconClipboardData,
 	IconEye,
-	IconInbox,
 	IconListCheck,
-	IconMail,
 	IconMessageQuestion,
 	IconMessageStar,
-	IconSend,
-	IconUserCheck,
 	IconUserShield,
 	IconUsers,
 } from '@tabler/icons-react';
@@ -95,30 +91,5 @@ export const humanResourceNav: NavItem[] = [
 		href: '/admin/tasks',
 		icon: IconChecklist,
 		permissions: [{ resource: 'tasks', action: 'read' }],
-	},
-	{
-		label: 'Mail',
-		icon: IconMail,
-		collapsed: false,
-		children: [
-			{
-				label: 'Inbox',
-				href: '/mail/inbox',
-				icon: IconInbox,
-				permissions: [{ resource: 'mails', action: 'read' }],
-			},
-			{
-				label: 'Accounts',
-				href: '/mail/accounts',
-				icon: IconUserCheck,
-				permissions: [{ resource: 'mails', action: 'read' }],
-			},
-			{
-				label: 'Sent',
-				href: '/mail/sent',
-				icon: IconSend,
-				permissions: [{ resource: 'mails', action: 'read' }],
-			},
-		],
 	},
 ];
