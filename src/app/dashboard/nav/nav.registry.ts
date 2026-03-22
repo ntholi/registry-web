@@ -37,6 +37,12 @@ export const registryNav: NavItem[] = [
 		permissions: [{ resource: 'students', action: 'read' }],
 	},
 	{
+		label: 'Tasks',
+		href: '/admin/tasks',
+		icon: IconChecklist,
+		permissions: [{ resource: 'tasks', action: 'read' }],
+	},
+	{
 		label: 'Registration Clearance',
 		href: '/registry/registration/clearance',
 		icon: IconClipboardCheck,
@@ -239,12 +245,7 @@ export const registryNav: NavItem[] = [
 			},
 		],
 	},
-	{
-		label: 'Tasks',
-		href: '/admin/tasks',
-		icon: IconChecklist,
-		permissions: [{ resource: 'tasks', action: 'read' }],
-	},
+
 	{
 		label: 'Activity Tracker',
 		href: '/admin/activity-tracker',

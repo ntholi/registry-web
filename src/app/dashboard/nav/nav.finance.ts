@@ -8,23 +8,17 @@ import {
 	IconChecklist,
 	IconClipboardCheck,
 	IconCreditCard,
+	IconListCheck,
 	IconReportAnalytics,
 	IconRobot,
 	IconSchool,
 	IconUserExclamation,
 	IconUserOff,
-	IconUserPlus,
 	IconUsers,
 } from '@tabler/icons-react';
 import type { NavItem } from '../types';
 
 export const financeNav: NavItem[] = [
-	{
-		label: 'Sponsors',
-		href: '/finance/sponsors',
-		icon: IconBuildingBank,
-		permissions: [{ resource: 'sponsors', action: 'read' }],
-	},
 	{
 		label: 'Students',
 		href: '/registry/students',
@@ -32,51 +26,38 @@ export const financeNav: NavItem[] = [
 		permissions: [{ resource: 'students', action: 'read' }],
 	},
 	{
-		label: 'Registration',
-		href: '/registry/registration/requests',
-		icon: IconUserPlus,
-		permissions: [{ resource: 'registration', action: 'read' }],
-	},
-	{
-		label: 'Registration Clearance',
-		href: '/registry/registration/clearance',
-		icon: IconClipboardCheck,
-		permissions: [{ resource: 'registration-clearance', action: 'read' }],
-		notificationCount: {
-			queryKey: ['clearances', 'pending'],
-			queryFn: () => countPendingClearances(),
-			color: 'red',
-		},
+		label: 'Clearance',
+		icon: IconListCheck,
+		children: [
+			{
+				label: 'Registration',
+				href: '/registry/registration/clearance',
+				icon: IconClipboardCheck,
+				permissions: [{ resource: 'registration-clearance', action: 'read' }],
+				notificationCount: {
+					queryKey: ['clearances', 'pending'],
+					queryFn: () => countPendingClearances(),
+					color: 'red',
+				},
+			},
+			{
+				label: 'Graduation',
+				href: '/registry/graduation/clearance',
+				icon: IconCertificate,
+				permissions: [{ resource: 'graduation-clearance', action: 'read' }],
+				notificationCount: {
+					queryKey: ['graduation-clearances', 'pending'],
+					queryFn: () => countPendingGraduationClearances(),
+					color: 'red',
+				},
+			},
+		],
 	},
 	{
 		label: 'Auto-Approvals',
 		href: '/registry/clearance/auto-approve',
 		icon: IconRobot,
 		permissions: [{ resource: 'auto-approvals', action: 'read' }],
-	},
-	{
-		label: 'Graduations',
-		icon: IconSchool,
-		collapsed: false,
-		permissions: [{ resource: 'graduation', action: 'read' }],
-		children: [
-			{
-				label: 'Requests',
-				href: '/registry/graduation/requests',
-				icon: IconCertificate,
-			},
-		],
-	},
-	{
-		label: 'Graduation Clearance',
-		href: '/registry/graduation/clearance',
-		icon: IconCertificate,
-		permissions: [{ resource: 'graduation-clearance', action: 'read' }],
-		notificationCount: {
-			queryKey: ['graduation-clearances', 'pending'],
-			queryFn: () => countPendingGraduationClearances(),
-			color: 'red',
-		},
 	},
 	{
 		label: 'Student Status',
@@ -90,12 +71,6 @@ export const financeNav: NavItem[] = [
 		},
 	},
 	{
-		label: 'Blocked Students',
-		href: '/registry/blocked-students',
-		icon: IconUserOff,
-		permissions: [{ resource: 'blocked-students', action: 'read' }],
-	},
-	{
 		label: 'Admissions Payments',
 		href: '/admissions/payments',
 		icon: IconCreditCard,
@@ -105,6 +80,18 @@ export const financeNav: NavItem[] = [
 			queryFn: countPendingPaymentsForReview,
 			color: 'red',
 		},
+	},
+	{
+		label: 'Blocked Students',
+		href: '/registry/blocked-students',
+		icon: IconUserOff,
+		permissions: [{ resource: 'blocked-students', action: 'read' }],
+	},
+	{
+		label: 'Sponsors',
+		href: '/finance/sponsors',
+		icon: IconBuildingBank,
+		permissions: [{ resource: 'sponsors', action: 'read' }],
 	},
 	{
 		label: 'Reports',
