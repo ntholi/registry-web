@@ -4,12 +4,15 @@ import {
 	IconBook,
 	IconBooks,
 	IconBuildingBank,
+	IconBuildingCommunity,
 	IconCalendarDue,
 	IconCalendarEvent,
 	IconCertificate,
 	IconChecklist,
 	IconClipboardCheck,
+	IconClipboardList,
 	IconDoor,
+	IconFileSearch,
 	IconInbox,
 	IconMail,
 	IconNote,
@@ -17,6 +20,7 @@ import {
 	IconReportAnalytics,
 	IconSchool,
 	IconSend,
+	IconSettings,
 	IconTags,
 	IconUserCheck,
 	IconUserExclamation,
@@ -24,6 +28,7 @@ import {
 	IconUserPlus,
 	IconUsers,
 } from '@tabler/icons-react';
+import { countPendingDocumentsForReview } from '@/app/admissions/documents/_server/actions';
 import { countPendingGraduationClearances } from '@/app/registry/graduation';
 import { countPendingClearances } from '@/app/registry/registration';
 import { countPendingStudentStatuses } from '@/app/registry/student-statuses';
@@ -152,6 +157,73 @@ export const registryNav: NavItem[] = [
 			queryFn: () => countPendingGraduationClearances(),
 			color: 'red',
 		},
+	},
+	{
+		label: 'Admissions',
+		icon: IconSchool,
+		collapsed: false,
+		children: [
+			{
+				label: 'Applicants',
+				href: '/admissions/applicants',
+				icon: IconUsers,
+				permissions: [{ resource: 'applicants', action: 'read' }],
+			},
+			{
+				label: 'Applications',
+				href: '/admissions/applications',
+				icon: IconClipboardList,
+				permissions: [{ resource: 'applications', action: 'read' }],
+			},
+			{
+				label: 'Document Review',
+				href: '/admissions/documents',
+				icon: IconFileSearch,
+				permissions: [{ resource: 'admissions-documents', action: 'read' }],
+				notificationCount: {
+					queryKey: ['documents', 'pending-review-count'],
+					queryFn: countPendingDocumentsForReview,
+					color: 'red',
+				},
+			},
+			{
+				label: 'Settings',
+				icon: IconSettings,
+				collapsed: false,
+				children: [
+					{
+						label: 'Intake Periods',
+						href: '/admissions/intake-periods',
+						icon: IconCalendarEvent,
+						permissions: [{ resource: 'intake-periods', action: 'read' }],
+					},
+					{
+						label: 'Certificate Types',
+						href: '/admissions/certificate-types',
+						icon: IconCertificate,
+						permissions: [{ resource: 'certificate-types', action: 'read' }],
+					},
+					{
+						label: 'Subjects',
+						href: '/admissions/subjects',
+						icon: IconBook,
+						permissions: [{ resource: 'subjects', action: 'read' }],
+					},
+					{
+						label: 'Recognized Schools',
+						href: '/admissions/recognized-schools',
+						icon: IconBuildingCommunity,
+						permissions: [{ resource: 'recognized-schools', action: 'read' }],
+					},
+					{
+						label: 'Entry Requirements',
+						href: '/admissions/entry-requirements',
+						icon: IconChecklist,
+						permissions: [{ resource: 'entry-requirements', action: 'read' }],
+					},
+				],
+			},
+		],
 	},
 	{
 		label: 'Reports',

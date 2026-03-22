@@ -33,6 +33,25 @@ function mergeGrants(
 
 const fullCrud = ['read', 'create', 'update', 'delete'] as const;
 
+const admissionsCrud = mergeGrants(
+	grant('applicants', fullCrud),
+	grant('applications', fullCrud),
+	grant('entry-requirements', fullCrud),
+	grant('recognized-schools', fullCrud),
+	grant('intake-periods', fullCrud),
+	grant('certificate-types', fullCrud),
+	grant('subjects', fullCrud)
+);
+
+const admissionsDocActions = [
+	'read',
+	'create',
+	'update',
+	'delete',
+	'approve',
+	'reject',
+] as const;
+
 export const PERMISSION_RESOURCE_GROUPS: readonly PermissionResourceGroup[] = [
 	{
 		label: 'Academic',
@@ -284,6 +303,8 @@ export const PERMISSION_PRESET_SEEDS: readonly PermissionPresetSeed[] = [
 		role: 'registry',
 		description: '',
 		permissions: mergeGrants(
+			admissionsCrud,
+			grant('admissions-documents', admissionsDocActions),
 			grant('students', ['read', 'update', 'delete']),
 			grant('sponsored-students', fullCrud),
 			grant('registration', fullCrud),
@@ -311,6 +332,8 @@ export const PERMISSION_PRESET_SEEDS: readonly PermissionPresetSeed[] = [
 		role: 'registry',
 		description: '',
 		permissions: mergeGrants(
+			admissionsCrud,
+			grant('admissions-documents', admissionsDocActions),
 			grant('students', ['read', 'update', 'delete']),
 			grant('sponsors', fullCrud),
 			grant('sponsored-students', fullCrud),
@@ -411,7 +434,7 @@ export const PERMISSION_PRESET_SEEDS: readonly PermissionPresetSeed[] = [
 			grant('applications', fullCrud),
 			grant('entry-requirements', fullCrud),
 			grant('admissions-payments', ['read']),
-			grant('admissions-documents', ['read']),
+			grant('admissions-documents', ['read', 'update', 'approve', 'reject']),
 			grant('recognized-schools', fullCrud),
 			grant('intake-periods', fullCrud),
 			grant('certificate-types', fullCrud),
