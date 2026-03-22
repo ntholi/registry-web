@@ -4,7 +4,6 @@ import '@mantine/notifications/styles.css';
 import type { Metadata } from 'next';
 import type { PropsWithChildren } from 'react';
 import Dashboard from '@/app/dashboard/dashboard';
-import { getModuleConfig } from '@/config/modules.config';
 import withPermission, { getSession } from '@/core/platform/withPermission';
 import { DebugRibbon } from '@/shared/ui/DebugRibbon';
 
@@ -18,13 +17,9 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function ProfileLayout({ children }: PropsWithChildren) {
 	return withPermission(async (session) => {
 		const isLocal = process.env.DATABASE_ENV === 'local';
-		const moduleConfig = getModuleConfig();
 
 		return (
-			<Dashboard
-				moduleConfig={moduleConfig}
-				viewAs={session?.viewingAs ?? null}
-			>
+			<Dashboard viewAs={session?.viewingAs ?? null}>
 				{!process.env.BETTER_AUTH_URL?.includes('portal.co.ls') && (
 					<DebugRibbon isLocal={isLocal} />
 				)}

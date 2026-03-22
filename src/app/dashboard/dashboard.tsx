@@ -1,42 +1,41 @@
 'use client';
 
 import { getAssignedModulesByCurrentUser } from '@academic/assigned-modules';
-import { libraryConfig } from '@library/library.config';
-import { Indicator, NavLink, Skeleton, Stack, Text } from '@mantine/core';
+import { Indicator, NavLink, Skeleton, Stack } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import type React from 'react';
 import { useState } from 'react';
-import { academicConfig } from '@/app/academic/academic.config';
-import { adminConfig } from '@/app/admin/admin.config';
-import { admissionsConfig } from '@/app/admissions/admissions.config';
-import { appraisalsConfig } from '@/app/appraisals/appraisals.config';
-import { financeConfig } from '@/app/finance/finance.config';
-import { humanResourceConfig } from '@/app/human-resource/human-resource.config';
-import { lmsConfig } from '@/app/lms/lms.config';
-import { mailConfig } from '@/app/mail/mail.config';
-import { registryConfig } from '@/app/registry/registry.config';
-import { reportsConfig } from '@/app/reports/reports.config';
-import type { ClientModuleConfig } from '@/config/modules.config';
 import type { Session, ViewAsData } from '@/core/auth';
-import type {
-	DashboardRole,
-	PermissionGrant,
-	UserRole,
-} from '@/core/auth/permissions';
+import type { DashboardRole, PermissionGrant } from '@/core/auth/permissions';
 import { authClient } from '@/core/auth-client';
 import { Shell } from '@/shared/ui/adease';
 import Logo from '@/shared/ui/Logo';
-import { timetableConfig } from '../timetable/timetable.config';
 import type { NavItem } from './module-config.types';
+import { academicNav } from './nav/nav.academic';
+import { adminNav } from './nav/nav.admin';
+import { financeNav } from './nav/nav.finance';
+import { humanResourceNav } from './nav/nav.human-resource';
+import { libraryNav } from './nav/nav.library';
+import { marketingNav } from './nav/nav.marketing';
+import { registryNav } from './nav/nav.registry';
+import { resourceNav } from './nav/nav.resource';
 import SearchInput from './search/SearchInput';
 import SearchSpotlight from './search/SearchSpotlight';
 import UserButton from './UserButton';
 
-type NavigationGroup = {
-	moduleName: string;
-	items: NavItem[];
+const roleNavMap: Record<DashboardRole, NavItem[]> = {
+	academic: academicNav,
+	leap: academicNav,
+	finance: financeNav,
+	registry: registryNav,
+	student_services: registryNav,
+	admin: adminNav,
+	library: libraryNav,
+	marketing: marketingNav,
+	human_resource: humanResourceNav,
+	resource: resourceNav,
 };
 
 function getUserPermissions(session: Session | null): PermissionGrant[] {
@@ -55,14 +54,6 @@ function isItemVisible(
 
 	if (session?.user?.role === 'admin' && !viewingAs) {
 		return true;
-	}
-
-	if (
-		item.roles &&
-		(!session?.user?.role ||
-			!item.roles.includes(session.user.role as UserRole))
-	) {
-		return false;
 	}
 
 	if (item.permissions) {
@@ -105,107 +96,15 @@ function filterNavigationItems(
 		.filter((item) => !!item.href || (item.children?.length ?? 0) > 0);
 }
 
-function getNavigation(
-	department: DashboardRole,
-	moduleConfig: ClientModuleConfig
-): NavigationGroup[] {
-	const allConfigs = [
-		{ config: academicConfig, enabled: moduleConfig.academic },
-		{ config: humanResourceConfig, enabled: moduleConfig.humanResource },
-		{ config: appraisalsConfig, enabled: moduleConfig.appraisals },
-		{ config: registryConfig, enabled: moduleConfig.registry },
-		{ config: libraryConfig, enabled: moduleConfig.library },
-		{ config: lmsConfig, enabled: moduleConfig.lms },
-		{ config: timetableConfig, enabled: moduleConfig.timetable },
-		{ config: admissionsConfig, enabled: moduleConfig.admissions },
-		{ config: financeConfig, enabled: moduleConfig.finance },
-		{ config: mailConfig, enabled: moduleConfig.mail },
-		{ config: adminConfig, enabled: moduleConfig.admin },
-		{ config: reportsConfig, enabled: moduleConfig.reports },
-	];
-
-	const getLabelKey = (label: React.ReactNode): string => {
-		if (typeof label === 'string') return label;
-		return String(label);
-	};
-
-	const normalizeItems = (items: NavItem[]): NavItem[] => {
-		const combinedItems: NavItem[] = [];
-		const itemMap = new Map<string, NavItem>();
-
-		for (const item of items) {
-			const labelKey = getLabelKey(item.label);
-			const key = labelKey;
-
-			if (itemMap.has(key)) {
-				const existing = itemMap.get(key)!;
-				if (item.children && existing.children) {
-					const childrenMap = new Map<string, NavItem>();
-					for (const child of existing.children) {
-						const childKey =
-							typeof child.href === 'string'
-								? child.href
-								: getLabelKey(child.label);
-						childrenMap.set(childKey, child);
-					}
-					for (const child of item.children) {
-						const childKey =
-							typeof child.href === 'string'
-								? child.href
-								: getLabelKey(child.label);
-						if (!childrenMap.has(childKey)) {
-							existing.children.push(child);
-						}
-					}
-				} else if (item.children && !existing.children) {
-					existing.children = item.children;
-				}
-			} else {
-				itemMap.set(key, { ...item });
-				combinedItems.push(itemMap.get(key)!);
-			}
-		}
-
-		for (const item of combinedItems) {
-			if (typeof item.href === 'function') {
-				item.href = item.href(department);
-			}
-			if (item.children) {
-				for (let i = 0; i < item.children.length; i++) {
-					const child = item.children[i];
-					if (typeof child.href === 'function') {
-						item.children[i] = {
-							...child,
-							href: child.href(department),
-						};
-					}
-				}
-			}
-		}
-
-		return combinedItems;
-	};
-
-	const groups: NavigationGroup[] = [];
-	for (const { config, enabled } of allConfigs) {
-		if (enabled && config.flags.enabled) {
-			groups.push({
-				moduleName: config.name,
-				items: normalizeItems(config.navigation.dashboard),
-			});
-		}
-	}
-
-	return groups;
+function getNavigation(role: DashboardRole): NavItem[] {
+	return roleNavMap[role] ?? [];
 }
 
 export default function Dashboard({
 	children,
-	moduleConfig,
 	viewAs,
 }: {
 	children: React.ReactNode;
-	moduleConfig: ClientModuleConfig;
 	viewAs: ViewAsData | null;
 }) {
 	const { data: session } = authClient.useSession();
@@ -229,10 +128,7 @@ export default function Dashboard({
 			: null
 		: session;
 
-	const navigation = getNavigation(
-		effectiveRole as DashboardRole,
-		moduleConfig
-	);
+	const navigation = getNavigation(effectiveRole as DashboardRole);
 
 	const { data: assignedModules, isLoading: isModulesLoading } = useQuery({
 		queryKey: ['assigned-modules'],
@@ -240,17 +136,15 @@ export default function Dashboard({
 		enabled: effectiveRole === 'academic',
 	});
 
-	for (const group of navigation) {
-		for (const nav of group.items) {
-			if (nav.label === 'Gradebook') {
-				nav.isLoading = isModulesLoading && effectiveRole === 'academic';
-				if (!isModulesLoading && assignedModules) {
-					nav.children = assignedModules.map((it) => ({
-						label: it?.semesterModule?.module?.code || 'Unknown Module',
-						description: it?.semesterModule?.module?.name || 'Unknown Module',
-						href: `/academic/gradebook/${it?.semesterModule.moduleId}`,
-					}));
-				}
+	for (const nav of navigation) {
+		if (nav.label === 'Gradebook') {
+			nav.isLoading = isModulesLoading && effectiveRole === 'academic';
+			if (!isModulesLoading && assignedModules) {
+				nav.children = assignedModules.map((it) => ({
+					label: it?.semesterModule?.module?.code || 'Unknown Module',
+					description: it?.semesterModule?.module?.name || 'Unknown Module',
+					href: `/academic/gradebook/${it?.semesterModule.moduleId}`,
+				}));
 			}
 		}
 	}
@@ -266,7 +160,7 @@ export default function Dashboard({
 				</Shell.Header>
 				<Shell.Navigation>
 					<Navigation
-						navigation={navigation}
+						items={navigation}
 						userPermissions={effectivePermissions}
 						viewingAs={!!viewAs}
 						session={effectiveSession}
@@ -282,12 +176,12 @@ export default function Dashboard({
 }
 
 export function Navigation({
-	navigation,
+	items,
 	userPermissions,
 	viewingAs,
 	session: sessionProp,
 }: {
-	navigation: NavigationGroup[];
+	items: NavItem[];
 	userPermissions: PermissionGrant[];
 	viewingAs?: boolean;
 	session?: Session | null;
@@ -296,16 +190,11 @@ export function Navigation({
 	const session = sessionProp ?? clientSession;
 	const [search, setSearch] = useState('');
 
-	const getLabelKey = (label: React.ReactNode): string => {
-		if (typeof label === 'string') return label;
-		return String(label);
-	};
-
-	const filterBySearch = (items: NavItem[], query: string): NavItem[] => {
-		if (!query) return items;
+	const filterBySearch = (navItems: NavItem[], query: string): NavItem[] => {
+		if (!query) return navItems;
 		const s = query.toLowerCase();
 
-		return items.reduce((acc, item) => {
+		return navItems.reduce((acc, item) => {
 			const label = typeof item.label === 'string' ? item.label : '';
 			const matches =
 				label.toLowerCase().includes(s) ||
@@ -326,50 +215,36 @@ export function Navigation({
 		}, [] as NavItem[]);
 	};
 
-	const visibleGroups = navigation
-		.map((group) => ({
-			...group,
-			items: filterNavigationItems(
-				group.items,
-				session ?? null,
-				userPermissions,
-				viewingAs
-			),
-		}))
-		.map((group) => ({
-			...group,
-			items: filterBySearch(group.items, search),
-		}))
-		.filter((group) => group.items.length > 0);
+	const visibleItems = filterNavigationItems(
+		items,
+		session ?? null,
+		userPermissions,
+		viewingAs
+	);
+	const filteredItems = filterBySearch(visibleItems, search);
 
 	return (
 		<Stack gap='md'>
 			<SearchInput value={search} onChange={setSearch} />
-
-			{visibleGroups.map((group) => (
-				<Stack key={group.moduleName} gap={6}>
-					<Text size='0.7rem' fw={600} c='dimmed' tt='uppercase'>
-						{group.moduleName}
-					</Text>
-					<Stack gap={4}>
-						{group.items.map((item) => {
-							const key =
-								typeof item.href === 'string'
-									? item.href
-									: getLabelKey(item.label);
-							return (
-								<DisplayWithNotification
-									key={key}
-									item={item}
-									userPermissions={userPermissions}
-									viewingAs={viewingAs}
-									session={session}
-								/>
-							);
-						})}
-					</Stack>
-				</Stack>
-			))}
+			<Stack gap={4}>
+				{filteredItems.map((item) => {
+					const key =
+						typeof item.href === 'string'
+							? item.href
+							: typeof item.label === 'string'
+								? item.label
+								: String(item.label);
+					return (
+						<DisplayWithNotification
+							key={key}
+							item={item}
+							userPermissions={userPermissions}
+							viewingAs={viewingAs}
+							session={session}
+						/>
+					);
+				})}
+			</Stack>
 		</Stack>
 	);
 }
@@ -468,17 +343,15 @@ function ItemDisplay({
 		);
 	}
 
-	const href = typeof item.href === 'function' ? undefined : item.href;
-	const isActive =
-		href && typeof href === 'string' ? pathname.startsWith(href) : false;
+	const isActive = item.href ? pathname.startsWith(item.href) : false;
 
 	const hasChildren = item.children && item.children.length > 0;
 
 	const navLink = (
 		<NavLink
 			label={item.label}
-			component={href ? Link : undefined}
-			href={href || '#'}
+			component={item.href ? Link : undefined}
+			href={item.href || '#'}
 			active={isActive}
 			leftSection={Icon ? <Icon size='1.1rem' /> : null}
 			description={item.description}

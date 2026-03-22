@@ -3,7 +3,6 @@ import '@mantine/dropzone/styles.css';
 import '@mantine/notifications/styles.css';
 import type { Metadata } from 'next';
 import type { PropsWithChildren } from 'react';
-import { getModuleConfig } from '@/config/modules.config';
 import { getSession } from '@/core/platform/withPermission';
 import { toTitleCase } from '@/shared/lib/utils/utils';
 import { DebugRibbon } from '@/shared/ui/DebugRibbon';
@@ -18,11 +17,10 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function AdminLayout({ children }: PropsWithChildren) {
 	const isLocal = process.env.DATABASE_ENV === 'local';
-	const moduleConfig = getModuleConfig();
 	const session = await getSession();
 
 	return (
-		<Dashboard moduleConfig={moduleConfig} viewAs={session?.viewingAs ?? null}>
+		<Dashboard viewAs={session?.viewingAs ?? null}>
 			{!process.env.BETTER_AUTH_URL?.includes('portal.co.ls') && (
 				<DebugRibbon isLocal={isLocal} />
 			)}
