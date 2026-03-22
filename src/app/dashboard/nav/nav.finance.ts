@@ -9,6 +9,7 @@ import {
 	IconClipboardCheck,
 	IconCreditCard,
 	IconInbox,
+	IconMail,
 	IconReportAnalytics,
 	IconRobot,
 	IconSchool,
@@ -19,7 +20,7 @@ import {
 	IconUserPlus,
 	IconUsers,
 } from '@tabler/icons-react';
-import type { NavItem } from '../module-config.types';
+import type { NavItem } from '../types';
 
 export const financeNav: NavItem[] = [
 	{
@@ -110,22 +111,31 @@ export const financeNav: NavItem[] = [
 		},
 	},
 	{
-		label: 'Student Enrollments',
-		href: '/reports/registry/student-enrollments',
+		label: 'Reports',
 		icon: IconReportAnalytics,
-		permissions: [{ resource: 'reports-enrollments', action: 'read' }],
-	},
-	{
-		label: 'Graduation Reports',
-		href: '/reports/registry/graduations',
-		icon: IconSchool,
-		permissions: [{ resource: 'reports-graduation', action: 'read' }],
-	},
-	{
-		label: 'Sponsored Students Report',
-		href: '/reports/finance/sponsored-students',
-		icon: IconReportAnalytics,
-		permissions: [{ resource: 'reports-sponsored-students', action: 'read' }],
+		collapsed: true,
+		children: [
+			{
+				label: 'Student Enrollments',
+				href: '/reports/registry/student-enrollments',
+				icon: IconReportAnalytics,
+				permissions: [{ resource: 'reports-enrollments', action: 'read' }],
+			},
+			{
+				label: 'Graduations',
+				href: '/reports/registry/graduations',
+				icon: IconSchool,
+				permissions: [{ resource: 'reports-graduation', action: 'read' }],
+			},
+			{
+				label: 'Sponsored Students',
+				href: '/reports/finance/sponsored-students',
+				icon: IconReportAnalytics,
+				permissions: [
+					{ resource: 'reports-sponsored-students', action: 'read' },
+				],
+			},
+		],
 	},
 	{
 		label: 'Tasks',
@@ -140,21 +150,28 @@ export const financeNav: NavItem[] = [
 		permissions: [{ resource: 'activity-tracker', action: 'read' }],
 	},
 	{
-		label: 'Inbox',
-		href: '/mail/inbox',
-		icon: IconInbox,
-		permissions: [{ resource: 'mails', action: 'read' }],
-	},
-	{
-		label: 'Accounts',
-		href: '/mail/accounts',
-		icon: IconUserCheck,
-		permissions: [{ resource: 'mails', action: 'read' }],
-	},
-	{
-		label: 'Sent',
-		href: '/mail/sent',
-		icon: IconSend,
-		permissions: [{ resource: 'mails', action: 'read' }],
+		label: 'Mail',
+		icon: IconMail,
+		collapsed: true,
+		children: [
+			{
+				label: 'Inbox',
+				href: '/mail/inbox',
+				icon: IconInbox,
+				permissions: [{ resource: 'mails', action: 'read' }],
+			},
+			{
+				label: 'Accounts',
+				href: '/mail/accounts',
+				icon: IconUserCheck,
+				permissions: [{ resource: 'mails', action: 'read' }],
+			},
+			{
+				label: 'Sent',
+				href: '/mail/sent',
+				icon: IconSend,
+				permissions: [{ resource: 'mails', action: 'read' }],
+			},
+		],
 	},
 ];

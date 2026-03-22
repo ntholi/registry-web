@@ -1,7 +1,6 @@
 import { countPendingGraduationClearances } from '@registry/graduation';
 import {
 	IconBook,
-	IconBooks,
 	IconCalendar,
 	IconCalendarEvent,
 	IconCertificate,
@@ -15,6 +14,7 @@ import {
 	IconInbox,
 	IconLayoutGrid,
 	IconListCheck,
+	IconMail,
 	IconMessageQuestion,
 	IconMessageStar,
 	IconPresentation,
@@ -28,7 +28,7 @@ import {
 } from '@tabler/icons-react';
 import type { Session } from '@/core/auth';
 import { hasAnyPermission } from '@/core/auth/sessionPermissions';
-import type { NavItem } from '../module-config.types';
+import type { NavItem } from '../types';
 
 function isTimetableEditor(session: Session | null) {
 	return hasAnyPermission(session, 'timetable', ['create', 'update', 'delete']);
@@ -75,28 +75,35 @@ export const academicNav: NavItem[] = [
 		permissions: [{ resource: 'school-structures', action: 'read' }],
 	},
 	{
-		label: 'Timetables',
+		label: 'Timetable',
 		icon: IconCalendar,
-		href: '/timetable/viewer',
-		permissions: [{ resource: 'timetable', action: 'read' }],
-	},
-	{
-		label: 'Allocations',
-		icon: IconLayoutGrid,
-		href: '/timetable/timetable-allocations',
-		isVisible: isTimetableEditor,
-	},
-	{
-		label: 'Venues',
-		icon: IconDoor,
-		href: '/timetable/venues',
-		permissions: [{ resource: 'venues', action: 'read' }],
-	},
-	{
-		label: 'Venue Types',
-		icon: IconTags,
-		href: '/timetable/venue-types',
-		permissions: [{ resource: 'venues', action: 'read' }],
+		collapsed: true,
+		children: [
+			{
+				label: 'Viewer',
+				icon: IconCalendar,
+				href: '/timetable/viewer',
+				permissions: [{ resource: 'timetable', action: 'read' }],
+			},
+			{
+				label: 'Allocations',
+				icon: IconLayoutGrid,
+				href: '/timetable/timetable-allocations',
+				isVisible: isTimetableEditor,
+			},
+			{
+				label: 'Venues',
+				icon: IconDoor,
+				href: '/timetable/venues',
+				permissions: [{ resource: 'venues', action: 'read' }],
+			},
+			{
+				label: 'Venue Types',
+				icon: IconTags,
+				href: '/timetable/venue-types',
+				permissions: [{ resource: 'venues', action: 'read' }],
+			},
+		],
 	},
 	{
 		label: 'Students',
@@ -146,90 +153,106 @@ export const academicNav: NavItem[] = [
 		},
 	},
 	{
-		label: 'Cycles',
-		href: '/appraisals/cycles',
-		icon: IconCalendarEvent,
-		permissions: [{ resource: 'feedback-cycles', action: 'read' }],
-	},
-	{
-		label: 'Appraisal Reports',
-		href: '/appraisals/reports',
-		icon: IconChartBar,
-		permissions: [
-			{ resource: 'student-feedback-reports', action: 'read' },
-			{ resource: 'teaching-observation-reports', action: 'read' },
-		],
-	},
-	{
-		label: 'Student Feedback',
-		icon: IconMessageStar,
-		collapsed: false,
+		label: 'Appraisals',
+		icon: IconClipboardData,
+		collapsed: true,
 		children: [
 			{
-				label: 'Questions',
-				href: '/appraisals/student-feedback/questions',
-				icon: IconMessageQuestion,
+				label: 'Cycles',
+				href: '/appraisals/cycles',
+				icon: IconCalendarEvent,
+				permissions: [{ resource: 'feedback-cycles', action: 'read' }],
+			},
+			{
+				label: 'Reports',
+				href: '/appraisals/reports',
+				icon: IconChartBar,
 				permissions: [
-					{ resource: 'student-feedback-questions', action: 'read' },
+					{ resource: 'student-feedback-reports', action: 'read' },
+					{ resource: 'teaching-observation-reports', action: 'read' },
+				],
+			},
+			{
+				label: 'Student Feedback',
+				icon: IconMessageStar,
+				collapsed: false,
+				children: [
+					{
+						label: 'Questions',
+						href: '/appraisals/student-feedback/questions',
+						icon: IconMessageQuestion,
+						permissions: [
+							{ resource: 'student-feedback-questions', action: 'read' },
+						],
+					},
+				],
+			},
+			{
+				label: 'Teaching Observation',
+				icon: IconEye,
+				collapsed: false,
+				children: [
+					{
+						label: 'Criteria',
+						href: '/appraisals/observation-criteria',
+						icon: IconListCheck,
+						permissions: [
+							{ resource: 'teaching-observation-criteria', action: 'read' },
+						],
+					},
+					{
+						label: 'Observations',
+						href: '/appraisals/teaching-observations',
+						icon: IconClipboardCheck,
+						permissions: [
+							{ resource: 'teaching-observations', action: 'read' },
+						],
+					},
 				],
 			},
 		],
 	},
 	{
-		label: 'Teaching Observation',
-		icon: IconEye,
-		collapsed: false,
+		label: 'Reports',
+		icon: IconReportAnalytics,
+		collapsed: true,
 		children: [
 			{
-				label: 'Criteria',
-				href: '/appraisals/observation-criteria',
-				icon: IconListCheck,
-				permissions: [
-					{ resource: 'teaching-observation-criteria', action: 'read' },
-				],
+				label: 'Course Summary',
+				href: '/reports/academic/course-summary',
+				icon: IconReportAnalytics,
+				permissions: [{ resource: 'reports-course-summary', action: 'read' }],
 			},
 			{
-				label: 'Observations',
-				href: '/appraisals/teaching-observations',
-				icon: IconClipboardCheck,
-				permissions: [{ resource: 'teaching-observations', action: 'read' }],
+				label: 'Attendance',
+				href: '/reports/academic/attendance',
+				icon: IconReportAnalytics,
+				permissions: [{ resource: 'reports-attendance', action: 'read' }],
+			},
+			{
+				label: 'Board of Examination',
+				href: '/reports/academic/boe',
+				icon: IconGavel,
+				permissions: [{ resource: 'reports-boe', action: 'read' }],
+			},
+			{
+				label: 'Student Enrollments',
+				href: '/reports/registry/student-enrollments',
+				icon: IconReportAnalytics,
+				permissions: [{ resource: 'reports-enrollments', action: 'read' }],
+			},
+			{
+				label: 'Graduations',
+				href: '/reports/registry/graduations',
+				icon: IconSchool,
+				permissions: [{ resource: 'reports-graduation', action: 'read' }],
 			},
 		],
-	},
-	{
-		label: 'Course Summary',
-		href: '/reports/academic/course-summary',
-		icon: IconReportAnalytics,
-		permissions: [{ resource: 'reports-course-summary', action: 'read' }],
-	},
-	{
-		label: 'Attendance Report',
-		href: '/reports/academic/attendance',
-		icon: IconReportAnalytics,
-		permissions: [{ resource: 'reports-attendance', action: 'read' }],
-	},
-	{
-		label: 'Board of Examination',
-		href: '/reports/academic/boe',
-		icon: IconGavel,
-		permissions: [{ resource: 'reports-boe', action: 'read' }],
-	},
-	{
-		label: 'Student Enrollments',
-		href: '/reports/registry/student-enrollments',
-		icon: IconReportAnalytics,
-		permissions: [{ resource: 'reports-enrollments', action: 'read' }],
-	},
-	{
-		label: 'Graduation Reports',
-		href: '/reports/registry/graduations',
-		icon: IconSchool,
-		permissions: [{ resource: 'reports-graduation', action: 'read' }],
 	},
 	{
 		label: 'Tasks',
 		href: '/admin/tasks',
-		icon: IconBooks,
+		icon: IconReportAnalytics,
 		permissions: [{ resource: 'tasks', action: 'read' }],
 	},
 	{
@@ -245,21 +268,28 @@ export const academicNav: NavItem[] = [
 		permissions: [{ resource: 'users', action: 'read' }],
 	},
 	{
-		label: 'Inbox',
-		href: '/mail/inbox',
-		icon: IconInbox,
-		permissions: [{ resource: 'mails', action: 'read' }],
-	},
-	{
-		label: 'Accounts',
-		href: '/mail/accounts',
-		icon: IconUserCheck,
-		permissions: [{ resource: 'mails', action: 'read' }],
-	},
-	{
-		label: 'Sent',
-		href: '/mail/sent',
-		icon: IconSend,
-		permissions: [{ resource: 'mails', action: 'read' }],
+		label: 'Mail',
+		icon: IconMail,
+		collapsed: true,
+		children: [
+			{
+				label: 'Inbox',
+				href: '/mail/inbox',
+				icon: IconInbox,
+				permissions: [{ resource: 'mails', action: 'read' }],
+			},
+			{
+				label: 'Accounts',
+				href: '/mail/accounts',
+				icon: IconUserCheck,
+				permissions: [{ resource: 'mails', action: 'read' }],
+			},
+			{
+				label: 'Sent',
+				href: '/mail/sent',
+				icon: IconSend,
+				permissions: [{ resource: 'mails', action: 'read' }],
+			},
+		],
 	},
 ];

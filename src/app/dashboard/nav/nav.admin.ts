@@ -37,6 +37,7 @@ import {
 	IconLayoutGrid,
 	IconLibrary,
 	IconListCheck,
+	IconMail,
 	IconMessageQuestion,
 	IconMessageStar,
 	IconNote,
@@ -62,7 +63,7 @@ import {
 } from '@tabler/icons-react';
 import type { Session } from '@/core/auth';
 import { hasAnyPermission } from '@/core/auth/sessionPermissions';
-import type { NavItem } from '../module-config.types';
+import type { NavItem } from '../types';
 
 function isTimetableEditor(session: Session | null) {
 	return hasAnyPermission(session, 'timetable', ['create', 'update', 'delete']);
@@ -282,28 +283,35 @@ export const adminNav: NavItem[] = [
 		permissions: [{ resource: 'assigned-modules', action: 'read' }],
 	},
 	{
-		label: 'Timetables',
+		label: 'Timetable',
 		icon: IconCalendar,
-		href: '/timetable/viewer',
-		permissions: [{ resource: 'timetable', action: 'read' }],
-	},
-	{
-		label: 'Allocations',
-		icon: IconLayoutGrid,
-		href: '/timetable/timetable-allocations',
-		isVisible: isTimetableEditor,
-	},
-	{
-		label: 'Venues',
-		icon: IconDoor,
-		href: '/timetable/venues',
-		permissions: [{ resource: 'venues', action: 'read' }],
-	},
-	{
-		label: 'Venue Types',
-		icon: IconTags,
-		href: '/timetable/venue-types',
-		permissions: [{ resource: 'venues', action: 'read' }],
+		collapsed: true,
+		children: [
+			{
+				label: 'Viewer',
+				icon: IconCalendar,
+				href: '/timetable/viewer',
+				permissions: [{ resource: 'timetable', action: 'read' }],
+			},
+			{
+				label: 'Allocations',
+				icon: IconLayoutGrid,
+				href: '/timetable/timetable-allocations',
+				isVisible: isTimetableEditor,
+			},
+			{
+				label: 'Venues',
+				icon: IconDoor,
+				href: '/timetable/venues',
+				permissions: [{ resource: 'venues', action: 'read' }],
+			},
+			{
+				label: 'Venue Types',
+				icon: IconTags,
+				href: '/timetable/venue-types',
+				permissions: [{ resource: 'venues', action: 'read' }],
+			},
+		],
 	},
 	{
 		label: 'Sponsors',
@@ -389,180 +397,205 @@ export const adminNav: NavItem[] = [
 		permissions: [{ resource: 'employees', action: 'read' }],
 	},
 	{
-		label: 'Cycles',
-		href: '/appraisals/cycles',
-		icon: IconCalendarEvent,
-		permissions: [{ resource: 'feedback-cycles', action: 'read' }],
-	},
-	{
-		label: 'Appraisal Reports',
-		href: '/appraisals/reports',
-		icon: IconChartBar,
-		permissions: [
-			{ resource: 'student-feedback-reports', action: 'read' },
-			{ resource: 'teaching-observation-reports', action: 'read' },
-		],
-	},
-	{
-		label: 'Student Feedback',
-		icon: IconMessageStar,
-		collapsed: false,
+		label: 'Appraisals',
+		icon: IconClipboardData,
+		collapsed: true,
 		children: [
 			{
-				label: 'Questions',
-				href: '/appraisals/student-feedback/questions',
-				icon: IconMessageQuestion,
+				label: 'Cycles',
+				href: '/appraisals/cycles',
+				icon: IconCalendarEvent,
+				permissions: [{ resource: 'feedback-cycles', action: 'read' }],
+			},
+			{
+				label: 'Reports',
+				href: '/appraisals/reports',
+				icon: IconChartBar,
 				permissions: [
-					{ resource: 'student-feedback-questions', action: 'read' },
+					{ resource: 'student-feedback-reports', action: 'read' },
+					{ resource: 'teaching-observation-reports', action: 'read' },
+				],
+			},
+			{
+				label: 'Student Feedback',
+				icon: IconMessageStar,
+				collapsed: false,
+				children: [
+					{
+						label: 'Questions',
+						href: '/appraisals/student-feedback/questions',
+						icon: IconMessageQuestion,
+						permissions: [
+							{ resource: 'student-feedback-questions', action: 'read' },
+						],
+					},
+				],
+			},
+			{
+				label: 'Teaching Observation',
+				icon: IconEye,
+				collapsed: false,
+				children: [
+					{
+						label: 'Criteria',
+						href: '/appraisals/observation-criteria',
+						icon: IconListCheck,
+						permissions: [
+							{ resource: 'teaching-observation-criteria', action: 'read' },
+						],
+					},
+					{
+						label: 'Observations',
+						href: '/appraisals/teaching-observations',
+						icon: IconClipboardCheck,
+						permissions: [
+							{ resource: 'teaching-observations', action: 'read' },
+						],
+					},
 				],
 			},
 		],
 	},
 	{
-		label: 'Teaching Observation',
-		icon: IconEye,
-		collapsed: false,
-		children: [
-			{
-				label: 'Criteria',
-				href: '/appraisals/observation-criteria',
-				icon: IconListCheck,
-				permissions: [
-					{ resource: 'teaching-observation-criteria', action: 'read' },
-				],
-			},
-			{
-				label: 'Observations',
-				href: '/appraisals/teaching-observations',
-				icon: IconClipboardCheck,
-				permissions: [{ resource: 'teaching-observations', action: 'read' }],
-			},
-		],
-	},
-	{
-		label: 'Catalog',
-		href: '/library/catalog',
-		icon: IconBooks,
-		permissions: [{ resource: 'library', action: 'read' }],
-	},
-	{
-		label: 'Books',
-		href: '/library/books',
-		icon: IconBook2,
-		permissions: [{ resource: 'library', action: 'read' }],
-	},
-	{
-		label: 'Loans',
-		href: '/library/loans',
+		label: 'Library',
 		icon: IconLibrary,
-		permissions: [{ resource: 'library', action: 'read' }],
-	},
-	{
-		label: 'Authors',
-		href: '/library/authors',
-		icon: IconUsers,
-		permissions: [{ resource: 'library', action: 'read' }],
-	},
-	{
-		label: 'Categories',
-		href: '/library/categories',
-		icon: IconCategory,
-		permissions: [{ resource: 'library', action: 'read' }],
-	},
-	{
-		label: 'Fines',
-		href: '/library/fines',
-		icon: IconCash,
-		permissions: [{ resource: 'library', action: 'read' }],
-	},
-	{
-		label: 'Library Resources',
-		icon: IconTags,
 		collapsed: true,
 		permissions: [{ resource: 'library', action: 'read' }],
 		children: [
 			{
-				label: 'Publications',
-				href: '/library/resources/publications',
-				icon: IconWriting,
+				label: 'Catalog',
+				href: '/library/catalog',
+				icon: IconBooks,
 			},
 			{
-				label: 'Question Papers',
-				href: '/library/resources/question-papers',
-				icon: IconFileText,
+				label: 'Books',
+				href: '/library/books',
+				icon: IconBook2,
+			},
+			{
+				label: 'Loans',
+				href: '/library/loans',
+				icon: IconLibrary,
+			},
+			{
+				label: 'Authors',
+				href: '/library/authors',
+				icon: IconUsers,
+			},
+			{
+				label: 'Categories',
+				href: '/library/categories',
+				icon: IconCategory,
+			},
+			{
+				label: 'Fines',
+				href: '/library/fines',
+				icon: IconCash,
+			},
+			{
+				label: 'Resources',
+				icon: IconTags,
+				collapsed: true,
+				children: [
+					{
+						label: 'Publications',
+						href: '/library/resources/publications',
+						icon: IconWriting,
+					},
+					{
+						label: 'Question Papers',
+						href: '/library/resources/question-papers',
+						icon: IconFileText,
+					},
+				],
+			},
+			{
+				label: 'Settings',
+				href: '/library/settings',
+				icon: IconSettings,
 			},
 		],
 	},
 	{
-		label: 'Library Settings',
-		href: '/library/settings',
-		icon: IconSettings,
-		permissions: [{ resource: 'library', action: 'read' }],
-	},
-	{
-		label: 'Course Summary',
-		href: '/reports/academic/course-summary',
+		label: 'Reports',
 		icon: IconReportAnalytics,
-		permissions: [{ resource: 'reports-course-summary', action: 'read' }],
+		collapsed: true,
+		children: [
+			{
+				label: 'Course Summary',
+				href: '/reports/academic/course-summary',
+				icon: IconReportAnalytics,
+				permissions: [{ resource: 'reports-course-summary', action: 'read' }],
+			},
+			{
+				label: 'Attendance',
+				href: '/reports/academic/attendance',
+				icon: IconReportAnalytics,
+				permissions: [{ resource: 'reports-attendance', action: 'read' }],
+			},
+			{
+				label: 'Board of Examination',
+				href: '/reports/academic/boe',
+				icon: IconGavel,
+				permissions: [{ resource: 'reports-boe', action: 'read' }],
+			},
+			{
+				label: 'Student Enrollments',
+				href: '/reports/registry/student-enrollments',
+				icon: IconReportAnalytics,
+				permissions: [{ resource: 'reports-enrollments', action: 'read' }],
+			},
+			{
+				label: 'Graduations',
+				href: '/reports/registry/graduations',
+				icon: IconSchool,
+				permissions: [{ resource: 'reports-graduation', action: 'read' }],
+			},
+			{
+				label: 'Sponsored Students',
+				href: '/reports/finance/sponsored-students',
+				icon: IconReportAnalytics,
+				permissions: [
+					{ resource: 'reports-sponsored-students', action: 'read' },
+				],
+			},
+		],
 	},
 	{
-		label: 'Attendance Report',
-		href: '/reports/academic/attendance',
-		icon: IconReportAnalytics,
-		permissions: [{ resource: 'reports-attendance', action: 'read' }],
-	},
-	{
-		label: 'Board of Examination',
-		href: '/reports/academic/boe',
-		icon: IconGavel,
-		permissions: [{ resource: 'reports-boe', action: 'read' }],
-	},
-	{
-		label: 'Student Enrollments',
-		href: '/reports/registry/student-enrollments',
-		icon: IconReportAnalytics,
-		permissions: [{ resource: 'reports-enrollments', action: 'read' }],
-	},
-	{
-		label: 'Graduation Reports',
-		href: '/reports/registry/graduations',
-		icon: IconSchool,
-		permissions: [{ resource: 'reports-graduation', action: 'read' }],
-	},
-	{
-		label: 'Sponsored Students Report',
-		href: '/reports/finance/sponsored-students',
-		icon: IconReportAnalytics,
-		permissions: [{ resource: 'reports-sponsored-students', action: 'read' }],
-	},
-	{
-		label: 'Inbox',
-		href: '/mail/inbox',
-		icon: IconInbox,
-		permissions: [{ resource: 'mails', action: 'read' }],
-	},
-	{
-		label: 'Accounts',
-		href: '/mail/accounts',
-		icon: IconUserCheck,
-		permissions: [{ resource: 'mails', action: 'read' }],
-	},
-	{
-		label: 'Sent',
-		href: '/mail/sent',
-		icon: IconSend,
-		permissions: [{ resource: 'mails', action: 'read' }],
-	},
-	{
-		label: 'Queue',
-		href: '/mail/queue',
-		icon: IconStack2,
-		permissions: [{ resource: 'mails', action: 'read' }],
-	},
-	{
-		label: 'Mail Settings',
-		href: '/mail/settings',
-		icon: IconSettings,
-		permissions: [{ resource: 'mails', action: 'read' }],
+		label: 'Mail',
+		icon: IconMail,
+		collapsed: true,
+		children: [
+			{
+				label: 'Inbox',
+				href: '/mail/inbox',
+				icon: IconInbox,
+				permissions: [{ resource: 'mails', action: 'read' }],
+			},
+			{
+				label: 'Accounts',
+				href: '/mail/accounts',
+				icon: IconUserCheck,
+				permissions: [{ resource: 'mails', action: 'read' }],
+			},
+			{
+				label: 'Sent',
+				href: '/mail/sent',
+				icon: IconSend,
+				permissions: [{ resource: 'mails', action: 'read' }],
+			},
+			{
+				label: 'Queue',
+				href: '/mail/queue',
+				icon: IconStack2,
+				permissions: [{ resource: 'mails', action: 'read' }],
+			},
+			{
+				label: 'Settings',
+				href: '/mail/settings',
+				icon: IconSettings,
+				permissions: [{ resource: 'mails', action: 'read' }],
+			},
+		],
 	},
 ];

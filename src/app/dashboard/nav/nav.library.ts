@@ -7,6 +7,7 @@ import {
 	IconFileText,
 	IconInbox,
 	IconLibrary,
+	IconMail,
 	IconSend,
 	IconSettings,
 	IconTags,
@@ -15,7 +16,7 @@ import {
 	IconUsers,
 	IconWriting,
 } from '@tabler/icons-react';
-import type { NavItem } from '../module-config.types';
+import type { NavItem } from '../types';
 
 export const libraryNav: NavItem[] = [
 	{
@@ -97,21 +98,28 @@ export const libraryNav: NavItem[] = [
 		permissions: [{ resource: 'tasks', action: 'read' }],
 	},
 	{
-		label: 'Inbox',
-		href: '/mail/inbox',
-		icon: IconInbox,
-		permissions: [{ resource: 'mails', action: 'read' }],
-	},
-	{
-		label: 'Accounts',
-		href: '/mail/accounts',
-		icon: IconUserCheck,
-		permissions: [{ resource: 'mails', action: 'read' }],
-	},
-	{
-		label: 'Sent',
-		href: '/mail/sent',
-		icon: IconSend,
-		permissions: [{ resource: 'mails', action: 'read' }],
+		label: 'Mail',
+		icon: IconMail,
+		collapsed: true,
+		children: [
+			{
+				label: 'Inbox',
+				href: '/mail/inbox',
+				icon: IconInbox,
+				permissions: [{ resource: 'mails', action: 'read' }],
+			},
+			{
+				label: 'Accounts',
+				href: '/mail/accounts',
+				icon: IconUserCheck,
+				permissions: [{ resource: 'mails', action: 'read' }],
+			},
+			{
+				label: 'Sent',
+				href: '/mail/sent',
+				icon: IconSend,
+				permissions: [{ resource: 'mails', action: 'read' }],
+			},
+		],
 	},
 ];

@@ -12,7 +12,6 @@ import type { DashboardRole, PermissionGrant } from '@/core/auth/permissions';
 import { authClient } from '@/core/auth-client';
 import { Shell } from '@/shared/ui/adease';
 import Logo from '@/shared/ui/Logo';
-import type { NavItem } from './module-config.types';
 import { academicNav } from './nav/nav.academic';
 import { adminNav } from './nav/nav.admin';
 import { financeNav } from './nav/nav.finance';
@@ -23,6 +22,7 @@ import { registryNav } from './nav/nav.registry';
 import { resourceNav } from './nav/nav.resource';
 import SearchInput from './search/SearchInput';
 import SearchSpotlight from './search/SearchSpotlight';
+import type { NavItem } from './types';
 import UserButton from './UserButton';
 
 const roleNavMap: Record<DashboardRole, NavItem[]> = {
@@ -355,7 +355,7 @@ function ItemDisplay({
 			active={isActive}
 			leftSection={Icon ? <Icon size='1.1rem' /> : null}
 			description={item.description}
-			opened={hasChildren}
+			defaultOpened={hasChildren ? item.collapsed !== true : undefined}
 		>
 			{item.children?.map((child) => {
 				const childKey =

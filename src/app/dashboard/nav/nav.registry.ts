@@ -11,6 +11,7 @@ import {
 	IconClipboardCheck,
 	IconDoor,
 	IconInbox,
+	IconMail,
 	IconNote,
 	IconPrinter,
 	IconReportAnalytics,
@@ -26,7 +27,7 @@ import {
 import { countPendingGraduationClearances } from '@/app/registry/graduation';
 import { countPendingClearances } from '@/app/registry/registration';
 import { countPendingStudentStatuses } from '@/app/registry/student-statuses';
-import type { NavItem } from '../module-config.types';
+import type { NavItem } from '../types';
 
 export const registryNav: NavItem[] = [
 	{
@@ -153,22 +154,29 @@ export const registryNav: NavItem[] = [
 		},
 	},
 	{
-		label: 'Attendance Report',
-		href: '/reports/academic/attendance',
+		label: 'Reports',
 		icon: IconReportAnalytics,
-		permissions: [{ resource: 'reports-attendance', action: 'read' }],
-	},
-	{
-		label: 'Student Enrollments',
-		href: '/reports/registry/student-enrollments',
-		icon: IconReportAnalytics,
-		permissions: [{ resource: 'reports-enrollments', action: 'read' }],
-	},
-	{
-		label: 'Graduation Reports',
-		href: '/reports/registry/graduations',
-		icon: IconSchool,
-		permissions: [{ resource: 'reports-graduation', action: 'read' }],
+		collapsed: true,
+		children: [
+			{
+				label: 'Attendance',
+				href: '/reports/academic/attendance',
+				icon: IconReportAnalytics,
+				permissions: [{ resource: 'reports-attendance', action: 'read' }],
+			},
+			{
+				label: 'Student Enrollments',
+				href: '/reports/registry/student-enrollments',
+				icon: IconReportAnalytics,
+				permissions: [{ resource: 'reports-enrollments', action: 'read' }],
+			},
+			{
+				label: 'Graduations',
+				href: '/reports/registry/graduations',
+				icon: IconSchool,
+				permissions: [{ resource: 'reports-graduation', action: 'read' }],
+			},
+		],
 	},
 	{
 		label: 'Tasks',
@@ -189,21 +197,28 @@ export const registryNav: NavItem[] = [
 		permissions: [{ resource: 'notifications', action: 'read' }],
 	},
 	{
-		label: 'Inbox',
-		href: '/mail/inbox',
-		icon: IconInbox,
-		permissions: [{ resource: 'mails', action: 'read' }],
-	},
-	{
-		label: 'Accounts',
-		href: '/mail/accounts',
-		icon: IconUserCheck,
-		permissions: [{ resource: 'mails', action: 'read' }],
-	},
-	{
-		label: 'Sent',
-		href: '/mail/sent',
-		icon: IconSend,
-		permissions: [{ resource: 'mails', action: 'read' }],
+		label: 'Mail',
+		icon: IconMail,
+		collapsed: true,
+		children: [
+			{
+				label: 'Inbox',
+				href: '/mail/inbox',
+				icon: IconInbox,
+				permissions: [{ resource: 'mails', action: 'read' }],
+			},
+			{
+				label: 'Accounts',
+				href: '/mail/accounts',
+				icon: IconUserCheck,
+				permissions: [{ resource: 'mails', action: 'read' }],
+			},
+			{
+				label: 'Sent',
+				href: '/mail/sent',
+				icon: IconSend,
+				permissions: [{ resource: 'mails', action: 'read' }],
+			},
+		],
 	},
 ];

@@ -3,31 +3,39 @@ import {
 	IconChecklist,
 	IconDoor,
 	IconInbox,
+	IconMail,
 	IconSend,
 	IconTags,
 	IconUserCheck,
 	IconUserPlus,
 } from '@tabler/icons-react';
-import type { NavItem } from '../module-config.types';
+import type { NavItem } from '../types';
 
 export const resourceNav: NavItem[] = [
 	{
-		label: 'Timetables',
+		label: 'Timetable',
 		icon: IconCalendar,
-		href: '/timetable/viewer',
-		permissions: [{ resource: 'timetable', action: 'read' }],
-	},
-	{
-		label: 'Venues',
-		icon: IconDoor,
-		href: '/timetable/venues',
-		permissions: [{ resource: 'venues', action: 'read' }],
-	},
-	{
-		label: 'Venue Types',
-		icon: IconTags,
-		href: '/timetable/venue-types',
-		permissions: [{ resource: 'venues', action: 'read' }],
+		collapsed: false,
+		children: [
+			{
+				label: 'Timetables',
+				icon: IconCalendar,
+				href: '/timetable/viewer',
+				permissions: [{ resource: 'timetable', action: 'read' }],
+			},
+			{
+				label: 'Venues',
+				icon: IconDoor,
+				href: '/timetable/venues',
+				permissions: [{ resource: 'venues', action: 'read' }],
+			},
+			{
+				label: 'Venue Types',
+				icon: IconTags,
+				href: '/timetable/venue-types',
+				permissions: [{ resource: 'venues', action: 'read' }],
+			},
+		],
 	},
 	{
 		label: 'Registration',
@@ -42,21 +50,28 @@ export const resourceNav: NavItem[] = [
 		permissions: [{ resource: 'tasks', action: 'read' }],
 	},
 	{
-		label: 'Inbox',
-		href: '/mail/inbox',
-		icon: IconInbox,
-		permissions: [{ resource: 'mails', action: 'read' }],
-	},
-	{
-		label: 'Accounts',
-		href: '/mail/accounts',
-		icon: IconUserCheck,
-		permissions: [{ resource: 'mails', action: 'read' }],
-	},
-	{
-		label: 'Sent',
-		href: '/mail/sent',
-		icon: IconSend,
-		permissions: [{ resource: 'mails', action: 'read' }],
+		label: 'Mail',
+		icon: IconMail,
+		collapsed: true,
+		children: [
+			{
+				label: 'Inbox',
+				href: '/mail/inbox',
+				icon: IconInbox,
+				permissions: [{ resource: 'mails', action: 'read' }],
+			},
+			{
+				label: 'Accounts',
+				href: '/mail/accounts',
+				icon: IconUserCheck,
+				permissions: [{ resource: 'mails', action: 'read' }],
+			},
+			{
+				label: 'Sent',
+				href: '/mail/sent',
+				icon: IconSend,
+				permissions: [{ resource: 'mails', action: 'read' }],
+			},
+		],
 	},
 ];

@@ -3,9 +3,11 @@ import {
 	IconChartBar,
 	IconChecklist,
 	IconClipboardCheck,
+	IconClipboardData,
 	IconEye,
 	IconInbox,
 	IconListCheck,
+	IconMail,
 	IconMessageQuestion,
 	IconMessageStar,
 	IconSend,
@@ -13,7 +15,7 @@ import {
 	IconUserShield,
 	IconUsers,
 } from '@tabler/icons-react';
-import type { NavItem } from '../module-config.types';
+import type { NavItem } from '../types';
 
 export const humanResourceNav: NavItem[] = [
 	{
@@ -23,53 +25,62 @@ export const humanResourceNav: NavItem[] = [
 		permissions: [{ resource: 'employees', action: 'read' }],
 	},
 	{
-		label: 'Cycles',
-		href: '/appraisals/cycles',
-		icon: IconCalendarEvent,
-		permissions: [{ resource: 'feedback-cycles', action: 'read' }],
-	},
-	{
-		label: 'Appraisal Reports',
-		href: '/appraisals/reports',
-		icon: IconChartBar,
-		permissions: [
-			{ resource: 'student-feedback-reports', action: 'read' },
-			{ resource: 'teaching-observation-reports', action: 'read' },
-		],
-	},
-	{
-		label: 'Student Feedback',
-		icon: IconMessageStar,
-		collapsed: false,
+		label: 'Appraisals',
+		icon: IconClipboardData,
+		collapsed: true,
 		children: [
 			{
-				label: 'Questions',
-				href: '/appraisals/student-feedback/questions',
-				icon: IconMessageQuestion,
-				permissions: [
-					{ resource: 'student-feedback-questions', action: 'read' },
-				],
+				label: 'Cycles',
+				href: '/appraisals/cycles',
+				icon: IconCalendarEvent,
+				permissions: [{ resource: 'feedback-cycles', action: 'read' }],
 			},
-		],
-	},
-	{
-		label: 'Teaching Observation',
-		icon: IconEye,
-		collapsed: false,
-		children: [
 			{
-				label: 'Criteria',
-				href: '/appraisals/observation-criteria',
-				icon: IconListCheck,
+				label: 'Reports',
+				href: '/appraisals/reports',
+				icon: IconChartBar,
 				permissions: [
-					{ resource: 'teaching-observation-criteria', action: 'read' },
+					{ resource: 'student-feedback-reports', action: 'read' },
+					{ resource: 'teaching-observation-reports', action: 'read' },
 				],
 			},
 			{
-				label: 'Observations',
-				href: '/appraisals/teaching-observations',
-				icon: IconClipboardCheck,
-				permissions: [{ resource: 'teaching-observations', action: 'read' }],
+				label: 'Student Feedback',
+				icon: IconMessageStar,
+				collapsed: false,
+				children: [
+					{
+						label: 'Questions',
+						href: '/appraisals/student-feedback/questions',
+						icon: IconMessageQuestion,
+						permissions: [
+							{ resource: 'student-feedback-questions', action: 'read' },
+						],
+					},
+				],
+			},
+			{
+				label: 'Teaching Observation',
+				icon: IconEye,
+				collapsed: false,
+				children: [
+					{
+						label: 'Criteria',
+						href: '/appraisals/observation-criteria',
+						icon: IconListCheck,
+						permissions: [
+							{ resource: 'teaching-observation-criteria', action: 'read' },
+						],
+					},
+					{
+						label: 'Observations',
+						href: '/appraisals/teaching-observations',
+						icon: IconClipboardCheck,
+						permissions: [
+							{ resource: 'teaching-observations', action: 'read' },
+						],
+					},
+				],
 			},
 		],
 	},
@@ -86,21 +97,28 @@ export const humanResourceNav: NavItem[] = [
 		permissions: [{ resource: 'tasks', action: 'read' }],
 	},
 	{
-		label: 'Inbox',
-		href: '/mail/inbox',
-		icon: IconInbox,
-		permissions: [{ resource: 'mails', action: 'read' }],
-	},
-	{
-		label: 'Accounts',
-		href: '/mail/accounts',
-		icon: IconUserCheck,
-		permissions: [{ resource: 'mails', action: 'read' }],
-	},
-	{
-		label: 'Sent',
-		href: '/mail/sent',
-		icon: IconSend,
-		permissions: [{ resource: 'mails', action: 'read' }],
+		label: 'Mail',
+		icon: IconMail,
+		collapsed: true,
+		children: [
+			{
+				label: 'Inbox',
+				href: '/mail/inbox',
+				icon: IconInbox,
+				permissions: [{ resource: 'mails', action: 'read' }],
+			},
+			{
+				label: 'Accounts',
+				href: '/mail/accounts',
+				icon: IconUserCheck,
+				permissions: [{ resource: 'mails', action: 'read' }],
+			},
+			{
+				label: 'Sent',
+				href: '/mail/sent',
+				icon: IconSend,
+				permissions: [{ resource: 'mails', action: 'read' }],
+			},
+		],
 	},
 ];
