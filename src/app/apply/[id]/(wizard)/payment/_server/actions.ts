@@ -3,13 +3,13 @@ import { resolveApplicationFee } from '@admissions/_lib/fees';
 import { getApplicant } from '@admissions/applicants';
 import { getApplicationForPayment } from '@admissions/applications';
 import {
+	createDepositsWithDocuments,
 	getBankDepositsByApplication,
 	initiateMobilePayment,
 	verifyMobilePayment,
 } from '@admissions/payments';
 import { MAX_FILE_SIZE } from '@apply/_lib/constants';
 import { nanoid } from 'nanoid';
-import { bankDeposits, db, documents } from '@/core/database';
 import { deleteFile, uploadFile } from '@/core/integrations/storage';
 import { StoragePaths } from '@/core/integrations/storage-utils';
 import { createAction, unwrap } from '@/shared/lib/actions/actionResult';
@@ -90,38 +90,31 @@ export const submitReceiptPayment = createAction(
 				uploaded.push({ key, docId, receipt });
 			}
 
-			await db.transaction(async (tx) => {
-				for (const { key, docId, receipt } of uploaded) {
-					const ext = receipt.mediaType.split('/')[1] || 'pdf';
-					const [doc] = await tx
-						.insert(documents)
-						.values({
-							id: docId,
+			unwrap(
+				await createDepositsWithDocuments(
+					uploaded.map(({ key, docId, receipt }) => {
+						const ext = receipt.mediaType.split('/')[1] || 'pdf';
+						return {
+							docId,
 							fileName: `deposit-${receipt.reference}.${ext}`,
 							fileUrl: key,
-							type: 'proof_of_payment',
-						})
-						.returning({ id: documents.id });
-
-					await tx.insert(bankDeposits).values({
-						applicationId,
-						documentId: doc.id,
-						reference: receipt.reference,
-						type: receipt.receiptType ?? 'bank_deposit',
-						status: 'pending',
-						receiptNumber: receipt.receiptNumber,
-						beneficiaryName: receipt.beneficiaryName,
-						dateDeposited: receipt.dateDeposited,
-						amountDeposited: receipt.amountDeposited?.toString(),
-						currency: receipt.currency,
-						depositorName: receipt.depositorName,
-						bankName: receipt.bankName,
-						paymentMode: receipt.paymentMode,
-						transactionNumber: receipt.transactionNumber,
-						terminalNumber: receipt.terminalNumber,
-					});
-				}
-			});
+							applicationId,
+							reference: receipt.reference,
+							receiptType: receipt.receiptType,
+							receiptNumber: receipt.receiptNumber,
+							beneficiaryName: receipt.beneficiaryName,
+							dateDeposited: receipt.dateDeposited,
+							amountDeposited: receipt.amountDeposited?.toString() ?? null,
+							currency: receipt.currency,
+							depositorName: receipt.depositorName,
+							bankName: receipt.bankName,
+							paymentMode: receipt.paymentMode,
+							transactionNumber: receipt.transactionNumber,
+							terminalNumber: receipt.terminalNumber,
+						};
+					})
+				)
+			);
 		} catch (uploadOrDbError) {
 			for (const { key } of uploaded) {
 				try {

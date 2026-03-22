@@ -394,7 +394,7 @@ export function getStatusColor(status: AllStatusType) {
 	return semantic.neutral;
 }
 
-export function getGradeColor(grade: Grade) {
+export function getGradeColor(grade: Grade | string | null) {
 	if (!grade) return semantic.neutral;
 	const g = grade.toUpperCase();
 
@@ -406,6 +406,10 @@ export function getGradeColor(grade: Grade) {
 	if (['PP', 'DEF', 'NM'].includes(g)) return statusColors.grade.incomplete;
 	if (['F', 'FX', 'FIN', 'D', 'D+', 'D-', 'E', 'E+', 'E-'].includes(g))
 		return statusColors.grade.poor;
+
+	if (['A*', 'A', 'B', 'C'].includes(g)) return 'green';
+	if (['D'].includes(g)) return 'yellow';
+	if (['E', 'F', 'G', 'U'].includes(g)) return 'red';
 
 	return semantic.neutral;
 }

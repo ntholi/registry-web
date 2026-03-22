@@ -19,8 +19,8 @@ import {
 import { createLoader } from 'nuqs/server';
 import ButtonLink from '@/shared/ui/ButtonLink';
 import ApplyHeader from '../_components/ApplyHeader';
+import CoursesFilters from '../_components/CoursesFilters';
 import CourseCard from './_components/CourseCard';
-import CoursesFilters from './_components/CoursesFilters';
 import CoursesPagination from './_components/CoursesPagination';
 import { coursesSearchParams } from './_lib/params';
 

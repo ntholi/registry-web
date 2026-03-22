@@ -66,8 +66,20 @@ export default class ApplicantRepository extends BaseRepository<
 				applications: {
 					with: {
 						intakePeriod: true,
-						firstChoiceProgram: true,
-						secondChoiceProgram: true,
+						firstChoiceProgram: {
+							columns: { id: true, name: true, code: true },
+							with: { school: { columns: { shortName: true } } },
+						},
+						secondChoiceProgram: {
+							columns: { id: true, name: true, code: true },
+							with: { school: { columns: { shortName: true } } },
+						},
+						bankDeposits: {
+							columns: { id: true, status: true },
+						},
+						mobileDeposits: {
+							columns: { id: true, status: true },
+						},
 					},
 				},
 			},
@@ -108,8 +120,20 @@ export default class ApplicantRepository extends BaseRepository<
 				applications: {
 					with: {
 						intakePeriod: true,
-						firstChoiceProgram: true,
-						secondChoiceProgram: true,
+						firstChoiceProgram: {
+							columns: { id: true, name: true, code: true },
+							with: { school: { columns: { shortName: true } } },
+						},
+						secondChoiceProgram: {
+							columns: { id: true, name: true, code: true },
+							with: { school: { columns: { shortName: true } } },
+						},
+						bankDeposits: {
+							columns: { id: true, status: true },
+						},
+						mobileDeposits: {
+							columns: { id: true, status: true },
+						},
 					},
 				},
 			},

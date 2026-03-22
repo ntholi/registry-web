@@ -2,9 +2,7 @@
 
 import { resolveApplicationFee } from '@admissions/_lib/fees';
 import { getApplication } from '@admissions/applications';
-import { eq } from 'drizzle-orm';
 import { config } from '@/config';
-import { applicants, db, intakePeriods } from '@/core/database';
 import {
 	analyzeReceipt,
 	type ReceiptResult,
@@ -164,10 +162,7 @@ export async function validateReceipts(
 		};
 	}
 
-	const intake = await db.query.intakePeriods.findFirst({
-		where: eq(intakePeriods.id, application.intakePeriodId),
-	});
-
+	const intake = application.intakePeriod;
 	if (!intake) {
 		return {
 			success: false,
@@ -178,14 +173,8 @@ export async function validateReceipts(
 		};
 	}
 
-	const applicant = await db.query.applicants.findFirst({
-		where: eq(applicants.id, application.applicantId),
-		columns: { nationality: true },
-	});
-
-	const requiredAmount = parseFloat(
-		resolveApplicationFee(intake, applicant?.nationality ?? null)
-	);
+	const nationality = application.applicant?.nationality ?? null;
+	const requiredAmount = parseFloat(resolveApplicationFee(intake, nationality));
 	const validatedReceipts: ReceiptsValidationResult['receipts'] = [];
 	const globalErrors: string[] = [];
 	let totalAmount = 0;

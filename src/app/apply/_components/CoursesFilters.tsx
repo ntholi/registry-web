@@ -4,7 +4,7 @@ import type { ProgramLevel } from '@academic/_database';
 import type { SchoolSummary } from '@admissions/entry-requirements/_lib/types';
 import { Chip, Group, ScrollArea } from '@mantine/core';
 import { useQueryStates } from 'nuqs';
-import { coursesSearchParams } from '../_lib/params';
+import { coursesSearchParams } from '../courses/_lib/params';
 
 interface Props {
 	schools: SchoolSummary[];

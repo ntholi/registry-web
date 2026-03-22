@@ -1,13 +1,11 @@
 'use client';
 
-import type { findApplicationsByApplicant } from '@admissions/applications';
+import type { ApplicantWithRelations } from '@apply/_lib/useApplicant';
 import { Box, Card, Flex, Group, SimpleGrid, Stack, Text } from '@mantine/core';
 import { IconCalendar, IconSchool } from '@tabler/icons-react';
 import Link from 'next/link';
 
-type Application = Awaited<
-	ReturnType<typeof findApplicationsByApplicant>
->[number];
+type Application = ApplicantWithRelations['applications'][number];
 
 interface Props {
 	applications: Application[];

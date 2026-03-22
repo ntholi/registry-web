@@ -1,7 +1,7 @@
 'use client';
 
 import { Box } from '@mantine/core';
-import { Footer } from '../student-portal/_shared';
+import Footer from '@/shared/ui/Footer';
 import ApplyHeader from './_components/ApplyHeader';
 import ApplyHero from './_components/ApplyHero';
 

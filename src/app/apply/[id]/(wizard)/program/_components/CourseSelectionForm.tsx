@@ -29,7 +29,7 @@ import {
 	useQueryStates,
 } from 'nuqs';
 import { useMemo, useState } from 'react';
-import CoursesFilters from '@/app/apply/courses/_components/CoursesFilters';
+import CoursesFilters from '@/app/apply/_components/CoursesFilters';
 import { useActionMutation } from '@/shared/lib/actions/use-action-mutation';
 import WizardNavigation from '../../_components/WizardNavigation';
 import { getActiveIntake, getEligiblePrograms } from '../_server/actions';

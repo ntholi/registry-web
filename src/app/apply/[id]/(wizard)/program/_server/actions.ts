@@ -1,7 +1,10 @@
 'use server';
 
 import { getEligibleProgramsForApplicant } from '@admissions/applicants';
-import { findApplicationsByApplicant } from '@admissions/applications';
+import {
+	type Application,
+	findApplicationsByApplicant,
+} from '@admissions/applications';
 import {
 	findActiveIntakePeriod,
 	getOpenProgramIds,
@@ -29,7 +32,6 @@ export async function getActiveIntake() {
 export async function getExistingApplication(applicantId: string) {
 	const applications = await findApplicationsByApplicant(applicantId);
 	return (
-		applications.find((app: { status: string }) => app.status === 'draft') ??
-		null
+		applications.find((app: Application) => app.status === 'draft') ?? null
 	);
 }

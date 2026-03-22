@@ -2,6 +2,7 @@
 
 import { getApplicant } from '@admissions/applicants';
 import {
+	type Application,
 	changeApplicationStatus,
 	findApplicationsByApplicant,
 } from '@admissions/applications';
@@ -14,8 +15,7 @@ export async function getApplicantWithApplication(applicantId: string) {
 	]);
 
 	const application = applications.find(
-		(app: { status: string }) =>
-			app.status === 'draft' || app.status === 'submitted'
+		(app: Application) => app.status === 'draft' || app.status === 'submitted'
 	);
 
 	return { applicant, application };

@@ -19,8 +19,8 @@ import {
 	ThemeIcon,
 } from '@mantine/core';
 import { IconAward, IconCertificate } from '@tabler/icons-react';
-import { getGradeColor } from '@/app/admissions/applicants/[id]/_components/AcademicRecordsTab';
 import type { CertificateDocumentResult } from '@/core/integrations/ai/documents';
+import { getGradeColor } from '@/shared/lib/utils/colors';
 import { BaseConfirmationModal } from './BaseConfirmationModal';
 import { ConfirmationField } from './ConfirmationField';
 

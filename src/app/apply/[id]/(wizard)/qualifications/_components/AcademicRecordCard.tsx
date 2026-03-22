@@ -3,7 +3,7 @@
 import { Badge, Collapse, Stack, Table, Text } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { IconCertificate } from '@tabler/icons-react';
-import { getGradeColor } from '@/app/admissions/applicants/[id]/_components/AcademicRecordsTab';
+import { getGradeColor } from '@/shared/lib/utils/colors';
 import {
 	DocumentCardShell,
 	DocumentDetailRow,

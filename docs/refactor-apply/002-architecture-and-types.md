@@ -11,7 +11,7 @@ Fixes database access violations, cross-module encapsulation breaches, and type 
 
 ---
 
-### 🔲 2.1 Move Payment DB Access to Repository + Service
+### ✅ 2.1 Move Payment DB Access to Repository + Service
 
 The project mandates only `repository.ts` files may import `db`. Two payment files violate this.
 
@@ -35,7 +35,7 @@ import { applicants, db, intakePeriods } from '@/core/database';
 
 ---
 
-### 🔲 2.2 Extend Shared getGradeColor
+### ✅ 2.2 Extend Shared getGradeColor
 
 Three files import `getGradeColor` from a deeply nested admissions component (encapsulation violation):
 ```ts
@@ -56,7 +56,7 @@ import { getGradeColor } from '@/app/admissions/applicants/[id]/_components/Acad
 
 ---
 
-### 🔲 2.3 Move Footer to shared/ui/
+### ✅ 2.3 Move Footer to shared/ui/
 
 **File**: `src/app/apply/page.tsx`
 ```ts
@@ -71,7 +71,7 @@ import { Footer } from '../student-portal/_shared';
 
 ---
 
-### 🔲 2.4 Move CoursesFilters to apply/_components/
+### ✅ 2.4 Move CoursesFilters to apply/_components/
 
 **File**: `src/app/apply/[id]/(wizard)/program/_components/CourseSelectionForm.tsx`
 ```ts
@@ -86,7 +86,7 @@ import CoursesFilters from '@/app/apply/courses/_components/CoursesFilters';
 
 ---
 
-### 🔲 2.5 Consolidate ProfileView Query
+### ✅ 2.5 Consolidate ProfileView Query
 
 **File**: `src/app/apply/profile/_components/ProfileView.tsx`
 
@@ -101,7 +101,7 @@ import CoursesFilters from '@/app/apply/courses/_components/CoursesFilters';
 
 ---
 
-### 🔲 2.6 Rename WizardStep Union to WizardStepId
+### ✅ 2.6 Rename WizardStep Union to WizardStepId
 
 **File**: `src/app/apply/_lib/wizard-utils.ts`
 
@@ -116,7 +116,7 @@ Two different types named `WizardStep` exist:
 
 ---
 
-### 🔲 2.7 Replace unknown[] with Schema Types
+### ✅ 2.7 Replace unknown[] with Schema Types
 
 **File**: `src/app/apply/_lib/wizard-utils.ts`
 
@@ -131,7 +131,7 @@ type ApplicantData = {
 
 ---
 
-### 🔲 2.8 Use Application Type in Actions
+### ✅ 2.8 Use Application Type in Actions
 
 **Files**:
 - `src/app/apply/[id]/(wizard)/program/_server/actions.ts`

@@ -1,7 +1,6 @@
 'use client';
 
-import type { ApplicantWithRelations } from '@admissions/applicants';
-import { findApplicationsByApplicant } from '@admissions/applications';
+import type { ApplicantWithRelations } from '@apply/_lib/useApplicant';
 import {
 	Alert,
 	Avatar,
@@ -9,8 +8,6 @@ import {
 	Button,
 	Container,
 	Group,
-	SimpleGrid,
-	Skeleton,
 	Stack,
 	Tabs,
 	Text,
@@ -23,7 +20,6 @@ import {
 	IconGridDots,
 	IconUser,
 } from '@tabler/icons-react';
-import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
 import { useState } from 'react';
 import { authClient } from '@/core/auth-client';
@@ -43,10 +39,7 @@ export function ProfileView({ applicant }: Props) {
 	const { data: session } = authClient.useSession();
 	const [activeTab, setActiveTab] = useState<string | null>('applications');
 
-	const { data: applications, isLoading } = useQuery({
-		queryKey: ['my-applications', applicant.id],
-		queryFn: () => findApplicationsByApplicant(applicant.id),
-	});
+	const applications = applicant.applications;
 
 	const initials = applicant.fullName
 		? applicant.fullName
@@ -57,10 +50,10 @@ export function ProfileView({ applicant }: Props) {
 				.toUpperCase()
 		: '?';
 
-	const appCount = applications?.length ?? 0;
+	const appCount = applications.length;
 	const docCount = applicant.documents.length;
 
-	const primaryApp = applications?.[0];
+	const primaryApp = applications[0];
 	const statusSummary = primaryApp
 		? getOverallStatusSummary(primaryApp.status, primaryApp.paymentStatus, {
 				bankDeposits: primaryApp.bankDeposits,
@@ -281,15 +274,7 @@ export function ProfileView({ applicant }: Props) {
 
 						<Box mt={30}>
 							<Tabs.Panel value='applications'>
-								{isLoading ? (
-									<SimpleGrid cols={{ base: 1, sm: 2 }} spacing='md'>
-										{[1, 2].map((i) => (
-											<Skeleton key={i} h={150} radius='md' />
-										))}
-									</SimpleGrid>
-								) : (
-									<ApplicationsTab applications={applications ?? []} />
-								)}
+								<ApplicationsTab applications={applications} />
 							</Tabs.Panel>
 
 							<Tabs.Panel value='info'>

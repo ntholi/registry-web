@@ -68,6 +68,19 @@ class PaymentService extends BaseService<typeof bankDeposits, 'id'> {
 		);
 	}
 
+	async createDepositsWithDocuments(
+		items: Parameters<PaymentRepository['createDepositsWithDocuments']>[0]
+	) {
+		return withPermission(
+			async () => this.repo.createDepositsWithDocuments(items),
+			async (session) =>
+				hasSessionPermission(session, 'admissions-payments', 'create', [
+					'applicant',
+					'user',
+				])
+		);
+	}
+
 	async createBankDeposit(data: typeof bankDeposits.$inferInsert) {
 		return withPermission(
 			async (session) =>

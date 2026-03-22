@@ -460,6 +460,59 @@ export default class PaymentRepository extends BaseRepository<
 		});
 	}
 
+	async createDepositsWithDocuments(
+		items: {
+			docId: string;
+			fileName: string;
+			fileUrl: string;
+			applicationId: string;
+			reference: string;
+			receiptType?: 'bank_deposit' | 'sales_receipt';
+			receiptNumber?: string | null;
+			beneficiaryName?: string | null;
+			dateDeposited?: string | null;
+			amountDeposited?: string | null;
+			currency?: string | null;
+			depositorName?: string | null;
+			bankName?: string | null;
+			paymentMode?: string | null;
+			transactionNumber?: string | null;
+			terminalNumber?: string | null;
+		}[]
+	) {
+		return db.transaction(async (tx) => {
+			for (const item of items) {
+				const [doc] = await tx
+					.insert(documents)
+					.values({
+						id: item.docId,
+						fileName: item.fileName,
+						fileUrl: item.fileUrl,
+						type: 'proof_of_payment',
+					})
+					.returning({ id: documents.id });
+
+				await tx.insert(bankDeposits).values({
+					applicationId: item.applicationId,
+					documentId: doc.id,
+					reference: item.reference,
+					type: item.receiptType ?? 'bank_deposit',
+					status: 'pending',
+					receiptNumber: item.receiptNumber,
+					beneficiaryName: item.beneficiaryName,
+					dateDeposited: item.dateDeposited,
+					amountDeposited: item.amountDeposited,
+					currency: item.currency,
+					depositorName: item.depositorName,
+					bankName: item.bankName,
+					paymentMode: item.paymentMode,
+					transactionNumber: item.transactionNumber,
+					terminalNumber: item.terminalNumber,
+				});
+			}
+		});
+	}
+
 	async createBankDeposit(
 		data: typeof bankDeposits.$inferInsert,
 		audit?: AuditOptions

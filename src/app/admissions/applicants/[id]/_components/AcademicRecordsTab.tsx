@@ -20,6 +20,7 @@ import { IconBooks, IconCertificate, IconFile } from '@tabler/icons-react';
 import { useRouter } from 'nextjs-toploader/app';
 import { type MouseEvent, useMemo, useState } from 'react';
 import { useActionMutation } from '@/shared/lib/actions/use-action-mutation';
+import { getGradeColor } from '@/shared/lib/utils/colors';
 import { DeleteButton } from '@/shared/ui/adease/DeleteButton';
 import type { AcademicRecordWithRelations } from '../academic-records/_lib/types';
 import { deleteAcademicRecord } from '../academic-records/_server/actions';
@@ -529,15 +530,6 @@ function RecordActions({
 			</Tooltip>
 		</Group>
 	);
-}
-
-export function getGradeColor(grade: string | null) {
-	if (!grade) return 'gray';
-	const g = grade.toUpperCase();
-	if (['A*', 'A', 'B', 'C'].includes(g)) return 'green';
-	if (['D'].includes(g)) return 'yellow';
-	if (['E', 'F', 'G', 'U'].includes(g)) return 'red';
-	return 'gray';
 }
 
 function getClassificationColor(classification: string | null) {

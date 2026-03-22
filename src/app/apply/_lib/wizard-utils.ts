@@ -1,15 +1,18 @@
+import type { academicRecords } from '@admissions/academic-records/_schema/academicRecords';
+import type { guardians } from '@admissions/applicants/_schema/guardians';
+
 type ApplicantData = {
 	fullName: string | null;
 	documents: Array<{ document: { type: string | null } }>;
-	academicRecords: unknown[];
-	guardians: unknown[];
+	academicRecords: (typeof academicRecords.$inferSelect)[];
+	guardians: (typeof guardians.$inferSelect)[];
 };
 
 type ApplicationData = {
 	firstChoiceProgramId: number | null;
 };
 
-export type WizardStep =
+export type WizardStepId =
 	| 'identity'
 	| 'qualifications'
 	| 'program'
@@ -19,7 +22,7 @@ export type WizardStep =
 export function computeWizardStep(
 	applicant: ApplicantData | null | undefined,
 	application?: ApplicationData | null
-): WizardStep {
+): WizardStepId {
 	if (!applicant) return 'identity';
 
 	const hasIdentity = applicant.documents.some(

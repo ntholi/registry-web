@@ -13,7 +13,7 @@ import {
 	Title,
 	useMantineColorScheme,
 } from '@mantine/core';
-import { getGradeColor } from '@/app/admissions/applicants/[id]/_components/AcademicRecordsTab';
+import { getGradeColor } from '@/shared/lib/utils/colors';
 import { FieldView } from '@/shared/ui/adease/FieldView';
 
 interface Props {

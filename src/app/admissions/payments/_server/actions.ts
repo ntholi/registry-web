@@ -25,6 +25,12 @@ export async function getBankDepositsByApplication(applicationId: string) {
 	return paymentsService.getBankDepositsByApplication(applicationId);
 }
 
+export const createDepositsWithDocuments = createAction(
+	async (
+		items: Parameters<typeof paymentsService.createDepositsWithDocuments>[0]
+	) => paymentsService.createDepositsWithDocuments(items)
+);
+
 export const createBankDeposit = createAction(
 	async (data: typeof bankDeposits.$inferInsert) =>
 		paymentsService.createBankDeposit(data)
