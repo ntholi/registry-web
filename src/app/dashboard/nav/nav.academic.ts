@@ -19,7 +19,6 @@ import {
 	IconReportAnalytics,
 	IconSchool,
 	IconTags,
-	IconUserShield,
 	IconUsers,
 } from '@tabler/icons-react';
 import type { Session } from '@/core/auth';
@@ -31,6 +30,12 @@ function isTimetableEditor(session: Session | null) {
 }
 
 export const academicNav: NavItem[] = [
+	{
+		label: 'Students',
+		href: '/registry/students',
+		icon: IconUsers,
+		permissions: [{ resource: 'students', action: 'read' }],
+	},
 	{
 		label: 'Lecturers',
 		description: 'Assigned Modules',
@@ -100,12 +105,6 @@ export const academicNav: NavItem[] = [
 				permissions: [{ resource: 'venues', action: 'read' }],
 			},
 		],
-	},
-	{
-		label: 'Students',
-		href: '/registry/students',
-		icon: IconUsers,
-		permissions: [{ resource: 'students', action: 'read' }],
 	},
 	{
 		label: 'Registration',
@@ -206,44 +205,42 @@ export const academicNav: NavItem[] = [
 					},
 				],
 			},
+		],
+	},
+	{
+		label: 'Reports',
+		icon: IconReportAnalytics,
+		collapsed: false,
+		children: [
 			{
-				label: 'Reports',
+				label: 'Course Summary',
+				href: '/reports/academic/course-summary',
 				icon: IconReportAnalytics,
-				collapsed: false,
-				children: [
-					{
-						label: 'Course Summary',
-						href: '/reports/academic/course-summary',
-						icon: IconReportAnalytics,
-						permissions: [
-							{ resource: 'reports-course-summary', action: 'read' },
-						],
-					},
-					{
-						label: 'Attendance',
-						href: '/reports/academic/attendance',
-						icon: IconReportAnalytics,
-						permissions: [{ resource: 'reports-attendance', action: 'read' }],
-					},
-					{
-						label: 'Board of Examination',
-						href: '/reports/academic/boe',
-						icon: IconGavel,
-						permissions: [{ resource: 'reports-boe', action: 'read' }],
-					},
-					{
-						label: 'Student Enrollments',
-						href: '/reports/registry/student-enrollments',
-						icon: IconReportAnalytics,
-						permissions: [{ resource: 'reports-enrollments', action: 'read' }],
-					},
-					{
-						label: 'Graduations',
-						href: '/reports/registry/graduations',
-						icon: IconSchool,
-						permissions: [{ resource: 'reports-graduation', action: 'read' }],
-					},
-				],
+				permissions: [{ resource: 'reports-course-summary', action: 'read' }],
+			},
+			{
+				label: 'Attendance',
+				href: '/reports/academic/attendance',
+				icon: IconReportAnalytics,
+				permissions: [{ resource: 'reports-attendance', action: 'read' }],
+			},
+			{
+				label: 'Board of Examination',
+				href: '/reports/academic/boe',
+				icon: IconGavel,
+				permissions: [{ resource: 'reports-boe', action: 'read' }],
+			},
+			{
+				label: 'Student Enrollments',
+				href: '/reports/registry/student-enrollments',
+				icon: IconReportAnalytics,
+				permissions: [{ resource: 'reports-enrollments', action: 'read' }],
+			},
+			{
+				label: 'Graduations',
+				href: '/reports/registry/graduations',
+				icon: IconSchool,
+				permissions: [{ resource: 'reports-graduation', action: 'read' }],
 			},
 		],
 	},
@@ -252,11 +249,5 @@ export const academicNav: NavItem[] = [
 		href: '/admin/activity-tracker',
 		icon: IconReportAnalytics,
 		permissions: [{ resource: 'activity-tracker', action: 'read' }],
-	},
-	{
-		label: 'Users',
-		href: '/admin/users',
-		icon: IconUserShield,
-		permissions: [{ resource: 'users', action: 'read' }],
 	},
 ];

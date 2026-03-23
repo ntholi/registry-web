@@ -8,7 +8,6 @@ import {
 	IconListCheck,
 	IconMessageQuestion,
 	IconMessageStar,
-	IconUserShield,
 	IconUsers,
 } from '@tabler/icons-react';
 import type { NavItem } from '../types';
@@ -79,12 +78,6 @@ export const humanResourceNav: NavItem[] = [
 				],
 			},
 		],
-	},
-	{
-		label: 'Users',
-		href: '/admin/users',
-		icon: IconUserShield,
-		permissions: [{ resource: 'users', action: 'read' }],
 	},
 	{
 		label: 'Tasks',
