@@ -62,7 +62,7 @@ SELECT
     THEN BTRIM(RIGHT(cn.full_name, POSITION(' ' IN REVERSE(cn.full_name)) - 1))
     ELSE ''
   END AS "Surname",
-  COALESCE(TO_CHAR(s.date_of_birth, 'DD/MM/YYYY'), '01/01/2000') AS "Date Of Birth",
+  COALESCE(TO_CHAR(s.date_of_birth, 'MM/DD/YYYY'), '01/01/2000') AS "Date Of Birth",
   CASE s.gender
     WHEN 'Male' THEN 'M'
     WHEN 'Female' THEN 'F'
