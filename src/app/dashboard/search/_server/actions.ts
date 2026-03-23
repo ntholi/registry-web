@@ -30,12 +30,14 @@ import {
 	getSessionPermissions,
 	type SessionPermissionResult,
 } from '@/core/platform/withPermission';
+import { formatSemester } from '@/shared/lib/utils/utils';
 
 type SearchResultItem = {
 	id: string;
 	label: string;
 	description: string;
 	href: string;
+	status?: string;
 };
 
 export type SearchResultGroup = {
@@ -223,9 +225,10 @@ const entities: EntityConfig[] = [
 			const result = await findAllRegistrationRequests(1, query);
 			return result.data.slice(0, MAX).map((it) => ({
 				id: `request-${it.id}`,
-				label: `Request #${it.id}`,
-				description: String(it.stdNo),
+				label: it.student?.name ?? `Request #${it.id}`,
+				description: `${it.stdNo}${it.semesterNumber ? ` • Sem ${formatSemester(it.semesterNumber, 'mini')}` : ''}`,
 				href: `/registry/registration/requests/${it.id}`,
+				status: it.status,
 			}));
 		},
 	},
@@ -254,8 +257,9 @@ const entities: EntityConfig[] = [
 				label:
 					it.registrationRequest.student?.name ??
 					String(it.registrationRequest.stdNo),
-				description: `${it.registrationRequest.stdNo} • ${cap(it.status)}`,
+				description: String(it.registrationRequest.stdNo),
 				href: `/registry/registration/requests/${it.registrationRequest.id}`,
+				status: it.status,
 			}));
 		},
 	},
@@ -268,10 +272,11 @@ const entities: EntityConfig[] = [
 			return items.slice(0, MAX).map((it) => ({
 				id: `grad-clearance-${it.id}`,
 				label: it.graduationRequest?.studentProgram?.student?.name ?? 'Unknown',
-				description: `${
+				description: String(
 					it.graduationRequest?.studentProgram?.student?.stdNo ?? ''
-				} • ${cap(it.status)}`,
+				),
 				href: `/registry/graduation/clearance/${it.id}`,
+				status: it.status,
 			}));
 		},
 	},
@@ -284,8 +289,9 @@ const entities: EntityConfig[] = [
 			return items.slice(0, MAX).map((it) => ({
 				id: `student-status-${it.id}`,
 				label: it.student?.name ?? String(it.stdNo),
-				description: `${it.stdNo} • ${cap(it.type)} • ${cap(it.status)}`,
+				description: `${it.stdNo} • ${cap(it.type)}`,
 				href: `/registry/student-statuses/${it.id}`,
+				status: it.status,
 			}));
 		},
 	},
@@ -298,8 +304,9 @@ const entities: EntityConfig[] = [
 			return items.slice(0, MAX).map((it) => ({
 				id: `payment-${it.id}`,
 				label: it.applicantName ?? 'Unknown',
-				description: `M ${it.amountDeposited} • ${cap(it.status)}`,
+				description: `M ${it.amountDeposited}`,
 				href: `/admissions/payments/${it.id}`,
+				status: it.status,
 			}));
 		},
 	},

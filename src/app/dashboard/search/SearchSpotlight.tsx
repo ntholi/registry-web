@@ -38,6 +38,7 @@ import {
 import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { getStatusIcon, type StatusType } from '@/shared/lib/utils/status';
 import { type SearchResultGroup, universalSearch } from './_server/actions';
 
 type IconComponent = typeof IconSearch;
@@ -122,12 +123,10 @@ export default function SearchSpotlight() {
 						<ScrollArea scrollbars='x' offsetScrollbars>
 							<Tabs.List>
 								{groups.map((g) => {
-									const Icon = iconMap[g.iconName] ?? IconSearch;
 									return (
 										<Tabs.Tab
 											key={g.category}
 											value={g.category}
-											leftSection={<Icon size='0.9rem' />}
 											rightSection={
 												<Badge size='xs' variant='filled' circle>
 													{g.items.length}
@@ -182,6 +181,11 @@ function ResultItem({ item, icon: Icon, onSelect }: ResultItemProps) {
 						</Text>
 					)}
 				</div>
+				{item.status && (
+					<ThemeIcon variant='transparent'>
+						{getStatusIcon(item.status as StatusType, { withColor: true })}
+					</ThemeIcon>
+				)}
 			</Group>
 		</Spotlight.Action>
 	);

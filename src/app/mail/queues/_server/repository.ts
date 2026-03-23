@@ -6,8 +6,13 @@ import {
 	mailQueue,
 	mailSentLog,
 	permissionPresets,
+	programs,
+	structures,
+	studentPrograms,
 	studentStatusApprovals,
+	studentStatuses,
 	students,
+	userSchools,
 	users,
 } from '@/core/database';
 import BaseRepository, {
@@ -403,6 +408,8 @@ export async function resolveStudentEmail(
 	return row?.email ?? null;
 }
 
+const SCHOOL_SCOPED_ROLES = new Set(['year_leader', 'program_leader']);
+
 export async function resolveApproverEmails(
 	statusId: string
 ): Promise<string[]> {
@@ -419,20 +426,64 @@ export async function resolveApproverEmails(
 	const roles = [...new Set(approvals.map((a) => a.approverRole))];
 	if (roles.length === 0) return [];
 
-	const presetNames: string[] = [];
+	const schoolPresets: string[] = [];
+	const globalPresets: string[] = [];
 	for (const role of roles) {
 		const names = ROLE_TO_PRESETS[role];
-		if (names) presetNames.push(...names);
+		if (!names) continue;
+		if (SCHOOL_SCOPED_ROLES.has(role)) {
+			schoolPresets.push(...names);
+		} else {
+			globalPresets.push(...names);
+		}
 	}
-	if (presetNames.length === 0) return [];
 
-	const rows = await db
-		.select({ email: users.email })
-		.from(users)
-		.innerJoin(permissionPresets, eq(users.presetId, permissionPresets.id))
-		.where(inArray(permissionPresets.name, presetNames));
+	if (schoolPresets.length === 0 && globalPresets.length === 0) return [];
 
-	return [...new Set(rows.map((r) => r.email))];
+	const emails: string[] = [];
+
+	if (globalPresets.length > 0) {
+		const rows = await db
+			.select({ email: users.email })
+			.from(users)
+			.innerJoin(permissionPresets, eq(users.presetId, permissionPresets.id))
+			.where(inArray(permissionPresets.name, globalPresets));
+		emails.push(...rows.map((r) => r.email));
+	}
+
+	if (schoolPresets.length > 0) {
+		const [schoolRow] = await db
+			.select({ schoolId: programs.schoolId })
+			.from(studentStatuses)
+			.innerJoin(
+				studentPrograms,
+				and(
+					eq(studentPrograms.stdNo, studentStatuses.stdNo),
+					eq(studentPrograms.status, 'Active')
+				)
+			)
+			.innerJoin(structures, eq(structures.id, studentPrograms.structureId))
+			.innerJoin(programs, eq(programs.id, structures.programId))
+			.where(eq(studentStatuses.id, statusId))
+			.limit(1);
+
+		if (schoolRow) {
+			const rows = await db
+				.select({ email: users.email })
+				.from(users)
+				.innerJoin(permissionPresets, eq(users.presetId, permissionPresets.id))
+				.innerJoin(userSchools, eq(userSchools.userId, users.id))
+				.where(
+					and(
+						inArray(permissionPresets.name, schoolPresets),
+						eq(userSchools.schoolId, schoolRow.schoolId)
+					)
+				);
+			emails.push(...rows.map((r) => r.email));
+		}
+	}
+
+	return [...new Set(emails)];
 }
 
 export async function resolveUserEmails(userIds: string[]): Promise<string[]> {
