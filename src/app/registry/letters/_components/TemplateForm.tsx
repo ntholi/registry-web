@@ -13,7 +13,11 @@ import {
 } from '@/shared/lib/actions/actionResult';
 import '@mantine/tiptap/styles.css';
 import { Link } from '@mantine/tiptap';
-import { IconDeviceFloppy, IconTemplate } from '@tabler/icons-react';
+import {
+	IconChevronRight,
+	IconDeviceFloppy,
+	IconTemplate,
+} from '@tabler/icons-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import Highlight from '@tiptap/extension-highlight';
 import Placeholder from '@tiptap/extension-placeholder';
@@ -25,7 +29,7 @@ import { useEditor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import { createInsertSchema } from 'drizzle-zod';
 import { zod4Resolver as zodResolver } from 'mantine-form-zod-resolver';
-import { PLACEHOLDERS } from '../_lib/placeholders';
+import { PLACEHOLDER_GROUPS } from '../_lib/placeholders';
 
 type LetterTemplate = typeof letterTemplates.$inferInsert;
 
@@ -183,16 +187,44 @@ export default function TemplateForm({
 									</Button>
 								</Menu.Target>
 								<Menu.Dropdown>
-									{PLACEHOLDERS.map((p) => (
-										<Menu.Item
-											key={p.token}
-											onClick={() =>
-												editor?.commands.insertContent(`{{${p.token}}}`)
-											}
-										>
-											{p.label}
-										</Menu.Item>
-									))}
+									{PLACEHOLDER_GROUPS.filter((g) => g.group !== 'General').map(
+										(group) => (
+											<Menu
+												key={group.group}
+												trigger='hover'
+												position='right-start'
+												withinPortal
+											>
+												<Menu.Target>
+													<Menu.Item
+														rightSection={<IconChevronRight size={14} />}
+													>
+														{group.group}
+													</Menu.Item>
+												</Menu.Target>
+												<Menu.Dropdown>
+													{group.items.map((p) => (
+														<Menu.Item
+															key={p.token}
+															onClick={() =>
+																editor?.commands.insertContent(`{{${p.token}}}`)
+															}
+														>
+															{p.label}
+														</Menu.Item>
+													))}
+												</Menu.Dropdown>
+											</Menu>
+										)
+									)}
+									<Menu.Divider />
+									<Menu.Item
+										onClick={() =>
+											editor?.commands.insertContent('{{currentDate}}')
+										}
+									>
+										Current Date
+									</Menu.Item>
 								</Menu.Dropdown>
 							</Menu>
 						</RichTextEditor.ControlsGroup>
