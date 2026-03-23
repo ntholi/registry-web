@@ -62,13 +62,13 @@ SELECT
     THEN BTRIM(RIGHT(cn.full_name, POSITION(' ' IN REVERSE(cn.full_name)) - 1))
     ELSE ''
   END AS "Surname",
-  TO_CHAR(s.date_of_birth, 'DD/MM/YYYY') AS "Date Of Birth",
+  COALESCE(TO_CHAR(s.date_of_birth, 'DD/MM/YYYY'), '01/01/2000') AS "Date Of Birth",
   CASE s.gender
     WHEN 'Male' THEN 'M'
     WHEN 'Female' THEN 'F'
     ELSE 'M'
   END AS "Gender",
-  NULLIF(BTRIM(REGEXP_REPLACE(COALESCE(s.nationality, s.country, ''), '[[:cntrl:]]', '', 'g')), '') AS "Nationality (Country)",
+  COALESCE(NULLIF(BTRIM(REGEXP_REPLACE(COALESCE(s.nationality, s.country, ''), '[[:cntrl:]]', '', 'g')), ''), 'Lesotho') AS "Nationality (Country)",
   COALESCE(sponsor_count.cnt, 0) AS "Number of Sponsors",
   CASE
     WHEN COALESCE(sp_hist.clean_name, 'NMDS') = 'NMDS' THEN 'Government'
