@@ -1373,6 +1373,13 @@
 			"when": 1774093749670,
 			"tag": "0195_shocking_scourge",
 			"breakpoints": true
+		},
+		{
+			"idx": 196,
+			"version": "7",
+			"when": 1774232483611,
+			"tag": "0196_flimsy_blazing_skull",
+			"breakpoints": true
 		}
 	]
 }
