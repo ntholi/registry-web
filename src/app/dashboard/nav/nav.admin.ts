@@ -53,6 +53,7 @@ import {
 	IconShield,
 	IconStack2,
 	IconTags,
+	IconTemplate,
 	IconUserCheck,
 	IconUserExclamation,
 	IconUserOff,
@@ -218,6 +219,19 @@ export const adminNav: NavItem[] = [
 		href: '/registry/student-notes',
 		icon: IconNote,
 		permissions: [{ resource: 'student-notes', action: 'read' }],
+	},
+	{
+		label: 'Letters',
+		icon: IconMail,
+		collapsed: false,
+		children: [
+			{
+				label: 'Templates',
+				href: '/registry/letters/templates',
+				icon: IconTemplate,
+				permissions: [{ resource: 'letter-templates', action: 'read' }],
+			},
+		],
 	},
 	{
 		label: 'Blocked Students',

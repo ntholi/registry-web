@@ -195,6 +195,18 @@ const REGISTRY_ACTIVITIES = {
 			label: 'Student Note Attachment Deleted',
 			department: 'registry',
 		},
+		letter_template_created: {
+			label: 'Letter Template Created',
+			department: 'registry',
+		},
+		letter_template_updated: {
+			label: 'Letter Template Updated',
+			department: 'registry',
+		},
+		letter_template_deleted: {
+			label: 'Letter Template Deleted',
+			department: 'registry',
+		},
 	},
 	tableOperationMap: {
 		'students:INSERT': 'student_creation',
@@ -238,6 +250,9 @@ const REGISTRY_ACTIVITIES = {
 		'student_notes:DELETE': 'student_note_deleted',
 		'student_note_attachments:INSERT': 'student_note_attachment_uploaded',
 		'student_note_attachments:DELETE': 'student_note_attachment_deleted',
+		'letter_templates:INSERT': 'letter_template_created',
+		'letter_templates:UPDATE': 'letter_template_updated',
+		'letter_templates:DELETE': 'letter_template_deleted',
 	},
 } as const satisfies ActivityFragment;
 
