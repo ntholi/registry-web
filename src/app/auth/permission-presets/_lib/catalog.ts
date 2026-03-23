@@ -377,6 +377,7 @@ export const PERMISSION_PRESET_SEEDS: readonly PermissionPresetSeed[] = [
 			grant('registration-clearance', ['read', 'approve', 'reject']),
 			grant('graduation-clearance', ['read', 'approve', 'reject']),
 			grant('blocked-students', ['read', 'create', 'update']),
+			grant('auto-approvals', fullCrud),
 			grant('tasks', fullCrud),
 			grant('reports-enrollments', ['read']),
 			grant('reports-progression', ['read']),

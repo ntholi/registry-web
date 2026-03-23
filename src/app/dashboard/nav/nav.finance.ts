@@ -26,6 +26,17 @@ export const financeNav: NavItem[] = [
 		permissions: [{ resource: 'students', action: 'read' }],
 	},
 	{
+		label: 'Student Status',
+		href: '/registry/student-statuses',
+		icon: IconUserExclamation,
+		permissions: [{ resource: 'student-statuses', action: 'read' }],
+		notificationCount: {
+			queryKey: ['student-statuses', 'pending'],
+			queryFn: () => countPendingStudentStatuses(),
+			color: 'red',
+		},
+	},
+	{
 		label: 'Clearance',
 		icon: IconListCheck,
 		children: [
@@ -59,17 +70,7 @@ export const financeNav: NavItem[] = [
 		icon: IconRobot,
 		permissions: [{ resource: 'auto-approvals', action: 'read' }],
 	},
-	{
-		label: 'Student Status',
-		href: '/registry/student-statuses',
-		icon: IconUserExclamation,
-		permissions: [{ resource: 'student-statuses', action: 'read' }],
-		notificationCount: {
-			queryKey: ['student-statuses', 'pending'],
-			queryFn: () => countPendingStudentStatuses(),
-			color: 'red',
-		},
-	},
+
 	{
 		label: 'Admissions Payments',
 		href: '/admissions/payments',
