@@ -30,7 +30,7 @@ export default function TemplatesPage() {
 	return (
 		<>
 			<Modal opened={opened} onClose={close} title='New Template' size='xl'>
-				<TemplateForm title='New Template' onSubmit={createLetterTemplate} />
+				<TemplateForm onSubmit={createLetterTemplate} onClose={close} />
 			</Modal>
 
 			<Stack p='lg'>

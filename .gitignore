@@ -58,3 +58,4 @@ snapshot-before-migration.json
 /backup_db
 /temp
 *.xlsx
+/docs/letters/data

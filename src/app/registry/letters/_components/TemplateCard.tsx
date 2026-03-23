@@ -58,9 +58,9 @@ export default function TemplateCard({ template }: Props) {
 				size='xl'
 			>
 				<TemplateForm
-					title='Edit Template'
 					defaultValues={template}
 					onSubmit={(values) => updateLetterTemplate(template.id, values)}
+					onClose={closeEdit}
 				/>
 			</Modal>
 
