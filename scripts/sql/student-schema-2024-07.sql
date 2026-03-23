@@ -1,6 +1,6 @@
--- Student Data Schema Query (Term 2024-07)
+-- Student Data Schema Query (Term 2023-08)
 --
--- Returns all students registered for the 2024-07 semester term
+-- Returns all students registered for the 2023-08 semester term
 -- in the format matching the CHE "Student Schema Ver1.2025" template.
 --
 -- Columns: Institution Name, Academic Year, Student Number, FirstName, Surname,
@@ -12,7 +12,7 @@
 
 SELECT
   'Limkokwing University of Creative Technology' AS "Institution Name",
-  '2024/2025' AS "Academic Year",
+  '2023/2024' AS "Academic Year",
   s.std_no AS "Student Number",
   SPLIT_PART(s.name, ' ', 1) AS "FirstName",
   CASE
@@ -86,6 +86,6 @@ LEFT JOIN LATERAL (
   FROM sponsored_students sps
   WHERE sps.std_no = s.std_no
 ) sponsor_count ON true
-WHERE sts.term_code = '2024-07'
+WHERE sts.term_code = '2023-08'
   AND sts.status NOT IN ('Deleted')
 ORDER BY sch.name, p.name, s.name;

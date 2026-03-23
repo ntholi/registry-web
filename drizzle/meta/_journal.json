@@ -1387,6 +1387,13 @@
 			"when": 1774233357774,
 			"tag": "0197_square_gravity",
 			"breakpoints": true
+		},
+		{
+			"idx": 198,
+			"version": "7",
+			"when": 1774248847810,
+			"tag": "0198_little_silverclaw",
+			"breakpoints": true
 		}
 	]
 }

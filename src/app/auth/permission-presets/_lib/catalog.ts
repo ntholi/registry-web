@@ -180,7 +180,8 @@ export const PERMISSION_PRESET_SEEDS: readonly PermissionPresetSeed[] = [
 			grant('reports-progression', ['read']),
 			grant('reports-distribution', ['read']),
 			grant('reports-graduation', ['read']),
-			grant('mails', ['read'])
+			grant('mails', ['read']),
+			grant('users', ['read'])
 		),
 	},
 	{
@@ -211,7 +212,8 @@ export const PERMISSION_PRESET_SEEDS: readonly PermissionPresetSeed[] = [
 			grant('reports-progression', ['read']),
 			grant('reports-distribution', ['read']),
 			grant('reports-graduation', ['read']),
-			grant('mails', ['read'])
+			grant('mails', ['read']),
+			grant('users', ['read'])
 		),
 	},
 	{
