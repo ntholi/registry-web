@@ -27,6 +27,8 @@ const edexcelIgcseGrades = new Set([
 	'U',
 ]);
 
+const nscGrades = new Set(['7', '6', '5', '4', '3', '2', '1']);
+
 const certificationSchema = z.object({
 	isCertified: z
 		.boolean()
@@ -227,6 +229,7 @@ const academicSchema = z
 		const isLgcseIgcse =
 			certificateType.includes('lgcse') ||
 			(certificateType.includes('igcse') && !isEdexcelIgcse);
+		const isNsc = certificateType === 'nsc';
 		for (const subject of subjects) {
 			const grade = subject.grade.trim().toUpperCase();
 			if (isEdexcelIgcse && !edexcelIgcseGrades.has(grade)) {
@@ -241,6 +244,13 @@ const academicSchema = z
 					code: z.ZodIssueCode.custom,
 					path: ['subjects'],
 					message: `LGCSE/IGCSE grades must be A*, A, B, C, D, E, F, G, or U. Invalid grade for ${subject.name}.`,
+				});
+			}
+			if (isNsc && !nscGrades.has(grade)) {
+				ctx.addIssue({
+					code: z.ZodIssueCode.custom,
+					path: ['subjects'],
+					message: `NSC grades must be achievement levels 1-7. Invalid grade for ${subject.name}.`,
 				});
 			}
 		}

@@ -27,9 +27,16 @@ const subjectsWithAliases: { name: string; aliases: string[] }[] = [
 			'Mathematics (Core)',
 			'Mathematics Core',
 			'Core Mathematics',
-			'Mathematical Literacy',
-			'Maths Literacy',
 			'Mathematics A',
+		],
+	},
+	{
+		name: 'Mathematical Literacy',
+		aliases: [
+			'Maths Literacy',
+			'Maths Lit',
+			'Math Literacy',
+			'Mathematical Lit',
 		],
 	},
 	{
@@ -480,6 +487,42 @@ const subjectsWithAliases: { name: string; aliases: string[] }[] = [
 			'Sepedi HL',
 			'Sepedi FAL',
 			'Northern Sotho',
+		],
+	},
+	{
+		name: 'Tshivenda',
+		aliases: [
+			'Tshivenda First Language',
+			'Tshivenda Second Language',
+			'Tshivenda Home Language',
+			'Tshivenda First Additional Language',
+			'Tshivenda HL',
+			'Tshivenda FAL',
+			'Venda',
+		],
+	},
+	{
+		name: 'Xitsonga',
+		aliases: [
+			'Xitsonga First Language',
+			'Xitsonga Second Language',
+			'Xitsonga Home Language',
+			'Xitsonga First Additional Language',
+			'Xitsonga HL',
+			'Xitsonga FAL',
+			'Tsonga',
+		],
+	},
+	{
+		name: 'IsiNdebele',
+		aliases: [
+			'IsiNdebele First Language',
+			'IsiNdebele Second Language',
+			'IsiNdebele Home Language',
+			'IsiNdebele First Additional Language',
+			'IsiNdebele HL',
+			'IsiNdebele FAL',
+			'Ndebele',
 		],
 	},
 ];

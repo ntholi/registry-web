@@ -102,7 +102,7 @@ export default function CertificateTypeForm({
 				<>
 					<TextInput
 						label='Name'
-						placeholder='e.g., LGCSE, COSC, Matric'
+						placeholder='e.g., LGCSE, NSC, COSC, IGCSE'
 						required
 						{...form.getInputProps('name')}
 					/>

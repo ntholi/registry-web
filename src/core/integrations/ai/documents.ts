@@ -62,9 +62,18 @@ const ACADEMIC_RULES = `- institutionName: Student's school (not examining body 
   * "Cambridge"/"CAIE"/"University of Cambridge" → IGCSE (letter grades), NOT Edexcel.
   * "Pearson"/"Edexcel" → Edexcel IGCSE (numeric grades), NOT Cambridge.
 - Extract ALL subjects with grades
-- Only accept LGCSE (or equivalent) or higher. If lower, classify as "other" with certificateType null.
+- Only accept LGCSE, NSC (or equivalent) or higher. If lower, classify as "other" with certificateType null.
 - candidateNumber: Extract if present (labeled "Center/Candidate Number", "Centre/Candidate Number", or "Center / Cand. No.").
-- NSC VERIFICATION LETTERS: ECoL documents verifying NSC results often provide COSC/LGCSE equivalent grades. Extract those letter grades (A-G, U) as subjects. Set certificateType to "NSC".
+- NSC (NATIONAL SENIOR CERTIFICATE) FROM SOUTH AFRICA (CRITICAL):
+  * NSC Statement of Results / Senior Certificate shows BOTH a percentage AND an achievement level (1-7) per subject.
+  * ALWAYS extract the ACHIEVEMENT LEVEL NUMBER (1-7) as the grade, NEVER the percentage.
+  * Achievement levels: 7 = Outstanding (80-100%), 6 = Meritorious (70-79%), 5 = Substantial (60-69%), 4 = Adequate (50-59%), 3 = Moderate (40-49%), 2 = Elementary (30-39%), 1 = Not Achieved (0-29%).
+  * Set certificateType to "NSC".
+  * issuingAuthority: Typically "Department of Education", "Umalusi", or "IEB" (Independent Examinations Board).
+  * "Mathematical Literacy" is a DISTINCT subject from "Mathematics" — keep exact name, do NOT normalize to Mathematics.
+  * Common NSC subjects: Life Orientation, Mathematical Literacy, Physical Sciences, Life Sciences, Consumer Studies, Tourism, Agricultural Sciences, Engineering Graphics and Design.
+  * Column labeled "Prestasievlak" / "Achievement Level" contains the grade (1-7).
+- NSC VERIFICATION LETTERS: ECoL documents verifying NSC results may provide COSC/LGCSE equivalent letter grades (A-G, U). In that case, extract those letter grades as subjects. Still set certificateType to "NSC".
 
 ISSUING AUTHORITY:
 - issuingAuthority: Extract examining body (ECoL, Cambridge, Pearson/Edexcel, IEB, Umalusi). "Examinations Council of Lesotho" → "ECoL".
@@ -81,7 +90,8 @@ GRADE FORMAT VERIFICATION:
 - LGCSE/Cambridge IGCSE grades often displayed as letter + same letter in parentheses: C(c), B(b), E(e).
 - Use BOTH symbols to cross-verify. Mismatch (e.g., "B(d)") → flag as unreadable.
 - Extract only the single letter grade (e.g., "C"), not the bracket notation.
-- Edexcel IGCSE: number + word in parentheses (e.g., "6 (six)"). Extract only the numeric grade.`;
+- Edexcel IGCSE: number + word in parentheses (e.g., "6 (six)"). Extract only the numeric grade.
+- NSC: Extract achievement level number (1-7) from the "Achievement Level" / "Prestasievlak" column. NEVER extract the percentage.`;
 
 const ANALYSIS_PROMPT = `Analyze this document and extract information.
 
@@ -226,7 +236,7 @@ export async function analyzeDocument(
 			) {
 				return {
 					success: false,
-					error: `Only LGCSE or equivalent or higher certificates/result slips are accepted. Invalid certificate type: ${academic.certificateType}.`,
+					error: `Only LGCSE / NSC or equivalent or higher certificates/result slips are accepted. Invalid certificate type: ${academic.certificateType}.`,
 				};
 			}
 			return { success: true, data: { category: 'academic', ...academic } };
@@ -451,7 +461,7 @@ Scoring guide:
 		) {
 			return {
 				success: false,
-				error: `Only LGCSE or equivalent or higher certificates/result slips are accepted. Invalid certificate type: ${output.certificateType}.`,
+				error: `Only LGCSE / NSC or equivalent or higher certificates/result slips are accepted. Invalid certificate type: ${output.certificateType}.`,
 			};
 		}
 
@@ -472,7 +482,7 @@ Scoring guide:
 			if (!isAcceptedCertificateType(output.certificateType)) {
 				return {
 					success: false,
-					error: `Only LGCSE or equivalent or higher certificates/result slips are accepted. Invalid certificate type: ${output.certificateType}.`,
+					error: `Only LGCSE / NSC or equivalent or higher certificates/result slips are accepted. Invalid certificate type: ${output.certificateType}.`,
 				};
 			}
 			const dbCertType = await getCertificateTypeByName(output.certificateType);
@@ -488,18 +498,19 @@ Scoring guide:
 				return {
 					success: false,
 					error:
-						'Only LGCSE or equivalent or higher certificates/result slips are accepted.',
+						'Only LGCSE / NSC or equivalent or higher certificates/result slips are accepted.',
 				};
 			}
 
 			const isIGCSE =
 				output.certificateType?.toLowerCase().includes('igcse') &&
 				(output.isCambridge || output.isPearson);
-			if (dbCertType.lqfLevel === 4 && !output.isEcol && !isIGCSE) {
+			const isNsc = output.certificateType?.toLowerCase() === 'nsc';
+			if (dbCertType.lqfLevel === 4 && !output.isEcol && !isIGCSE && !isNsc) {
 				return {
 					success: false,
 					error:
-						'LQF Level 4 certificates and result slips must be issued by the Examinations Council of Lesotho (ECoL), Cambridge (for IGCSE), or Pearson/Edexcel (for Edexcel IGCSE).',
+						'LQF Level 4 certificates and result slips must be issued by the Examinations Council of Lesotho (ECoL), Cambridge (for IGCSE), Pearson/Edexcel (for Edexcel IGCSE), or a recognized South African authority (for NSC).',
 				};
 			}
 		}
