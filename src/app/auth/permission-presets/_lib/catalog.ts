@@ -244,6 +244,7 @@ export const PERMISSION_PRESET_SEEDS: readonly PermissionPresetSeed[] = [
 		permissions: mergeGrants(
 			grant('registration', ['read']),
 			grant('registration-clearance', ['read']),
+			grant('students', ['read']),
 			grant('assessments', fullCrud),
 			grant('gradebook', ['read', 'update']),
 			grant('student-feedback-reports', ['read']),
@@ -264,6 +265,7 @@ export const PERMISSION_PRESET_SEEDS: readonly PermissionPresetSeed[] = [
 		permissions: mergeGrants(
 			grant('registration', ['read']),
 			grant('registration-clearance', ['read']),
+			grant('students', ['read']),
 			grant('assessments', fullCrud),
 			grant('gradebook', ['read', 'update', 'approve']),
 			grant('student-feedback-reports', ['read']),
@@ -287,6 +289,7 @@ export const PERMISSION_PRESET_SEEDS: readonly PermissionPresetSeed[] = [
 		permissions: mergeGrants(
 			grant('registration', ['read']),
 			grant('registration-clearance', ['read']),
+			grant('students', ['read']),
 			grant('assessments', fullCrud),
 			grant('student-feedback-questions', fullCrud),
 			grant('student-feedback-categories', fullCrud),
