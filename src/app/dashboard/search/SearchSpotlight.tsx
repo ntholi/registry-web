@@ -14,18 +14,24 @@ import {
 import { useDebouncedValue } from '@mantine/hooks';
 import { Spotlight, spotlight } from '@mantine/spotlight';
 import {
+	IconAward,
 	IconBook,
 	IconBookUpload,
 	IconBriefcase,
 	IconBuildingArch,
 	IconCertificate,
 	IconChartDonut,
+	IconChecklist,
+	IconClipboardCheck,
 	IconCoin,
+	IconCreditCard,
 	IconFileCheck,
 	IconLock,
+	IconRobot,
 	IconSchool,
 	IconSearch,
 	IconUser,
+	IconUserExclamation,
 	IconUserSearch,
 	IconUsers,
 } from '@tabler/icons-react';
@@ -49,6 +55,12 @@ const iconMap: Record<string, IconComponent> = {
 	IconLock,
 	IconFileCheck,
 	IconBuildingArch,
+	IconClipboardCheck,
+	IconAward,
+	IconUserExclamation,
+	IconCreditCard,
+	IconRobot,
+	IconChecklist,
 };
 
 export default function SearchSpotlight() {

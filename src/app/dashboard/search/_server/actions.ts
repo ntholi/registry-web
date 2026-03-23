@@ -5,13 +5,19 @@ import {
 	findAllSchools,
 	searchPrograms,
 } from '@academic/schools/_server/actions';
+import { findAllTasks } from '@admin/tasks';
 import { findAllUsers } from '@admin/users/_server/actions';
 import { findAllApplicants } from '@admissions/applicants/_server/actions';
+import { getBankDeposits } from '@admissions/payments';
 import { findAllSponsors } from '@finance/sponsors/_server/actions';
 import { findAllEmployees } from '@human-resource/employees/_server/actions';
 import { getBooks } from '@library/books/_server/actions';
 import { getBlockedStudentByStatus } from '@registry/blocked-students/_server/actions';
+import { findAllAutoApprovals } from '@registry/clearance/auto-approve';
+import { graduationClearanceByStatus } from '@registry/graduation/clearance';
+import { clearanceByStatus } from '@registry/registration/requests';
 import { findAllRegistrationRequests } from '@registry/registration/requests/_server/requests/actions';
+import { findAllStudentStatuses } from '@registry/student-statuses';
 import { findAllStudents } from '@registry/students/_server/actions';
 import { findAllVenues } from '@timetable/venues/_server/actions';
 import {
@@ -46,6 +52,10 @@ type EntityConfig = {
 };
 
 const MAX = 5;
+
+function cap(s: string) {
+	return s.charAt(0).toUpperCase() + s.slice(1);
+}
 
 function isDashboard(s: SessionPermissionResult): boolean {
 	return DASHBOARD_ROLES.includes(s.session.user.role as DashboardRole);
@@ -230,6 +240,96 @@ const entities: EntityConfig[] = [
 				label: it.name,
 				description: it.capacity ? `Capacity: ${it.capacity}` : '',
 				href: `/timetable/venues/${it.id}`,
+			}));
+		},
+	},
+	{
+		category: 'Reg. Clearance',
+		iconName: 'IconClipboardCheck',
+		check: (s) => hasPerm(s, { 'registration-clearance': ['read'] }),
+		async fetch(query) {
+			const { items } = await clearanceByStatus(undefined, 1, query);
+			return items.slice(0, MAX).map((it) => ({
+				id: `reg-clearance-${it.id}`,
+				label:
+					it.registrationRequest.student?.name ??
+					String(it.registrationRequest.stdNo),
+				description: `${it.registrationRequest.stdNo} • ${cap(it.status)}`,
+				href: `/registry/registration/requests/${it.registrationRequest.id}`,
+			}));
+		},
+	},
+	{
+		category: 'Grad. Clearance',
+		iconName: 'IconAward',
+		check: (s) => hasPerm(s, { 'graduation-clearance': ['read'] }),
+		async fetch(query) {
+			const { items } = await graduationClearanceByStatus(undefined, 1, query);
+			return items.slice(0, MAX).map((it) => ({
+				id: `grad-clearance-${it.id}`,
+				label: it.graduationRequest?.studentProgram?.student?.name ?? 'Unknown',
+				description: `${
+					it.graduationRequest?.studentProgram?.student?.stdNo ?? ''
+				} • ${cap(it.status)}`,
+				href: `/registry/graduation/clearance/${it.id}`,
+			}));
+		},
+	},
+	{
+		category: 'Student Statuses',
+		iconName: 'IconUserExclamation',
+		check: (s) => hasPerm(s, { 'student-statuses': ['read'] }),
+		async fetch(query) {
+			const { items } = await findAllStudentStatuses(1, query);
+			return items.slice(0, MAX).map((it) => ({
+				id: `student-status-${it.id}`,
+				label: it.student?.name ?? String(it.stdNo),
+				description: `${it.stdNo} • ${cap(it.type)} • ${cap(it.status)}`,
+				href: `/registry/student-statuses/${it.id}`,
+			}));
+		},
+	},
+	{
+		category: 'Adm. Payments',
+		iconName: 'IconCreditCard',
+		check: (s) => hasPerm(s, { 'admissions-payments': ['read'] }),
+		async fetch(query) {
+			const { items } = await getBankDeposits(1, query);
+			return items.slice(0, MAX).map((it) => ({
+				id: `payment-${it.id}`,
+				label: it.applicantName ?? 'Unknown',
+				description: `M ${it.amountDeposited} • ${cap(it.status)}`,
+				href: `/admissions/payments/${it.id}`,
+			}));
+		},
+	},
+	{
+		category: 'Auto Approvals',
+		iconName: 'IconRobot',
+		check: (s) => hasPerm(s, { 'auto-approvals': ['read'] }),
+		async fetch(query) {
+			const { items } = await findAllAutoApprovals(1, query);
+			return items.slice(0, MAX).map((it) => ({
+				id: `auto-approval-${it.id}`,
+				label: it.student?.name ?? String(it.stdNo),
+				description: `${it.stdNo} • ${it.department}${
+					it.term ? ` • ${it.term.code}` : ''
+				}`,
+				href: `/registry/clearance/auto-approve/${it.id}`,
+			}));
+		},
+	},
+	{
+		category: 'Tasks',
+		iconName: 'IconChecklist',
+		check: (s) => isDashboard(s),
+		async fetch(query) {
+			const { items } = await findAllTasks(1, query, 'all');
+			return items.slice(0, MAX).map((it) => ({
+				id: `task-${it.id}`,
+				label: it.title,
+				description: cap(it.status.replaceAll('_', ' ')),
+				href: `/admin/tasks/${it.id}`,
 			}));
 		},
 	},
