@@ -49,7 +49,7 @@ clean_name AS (
   FROM students s
 )
 SELECT
-  'Limkokwing University of Creative Technology' AS "Institution Name",
+  'Limkokwing University' AS "Institution Name",
   '2023/2024' AS "Academic Year",
   s.std_no AS "Student Number",
   CASE
@@ -62,19 +62,19 @@ SELECT
     THEN BTRIM(RIGHT(cn.full_name, POSITION(' ' IN REVERSE(cn.full_name)) - 1))
     ELSE ''
   END AS "Surname",
-  TO_CHAR(s.date_of_birth, 'YYYY-MM-DD') AS "Date Of Birth",
+  TO_CHAR(s.date_of_birth, 'DD/MM/YYYY') AS "Date Of Birth",
   CASE s.gender
-    WHEN 'Male' THEN 'Male'
-    WHEN 'Female' THEN 'Female'
-    ELSE 'Unknown'
+    WHEN 'Male' THEN 'M'
+    WHEN 'Female' THEN 'F'
+    ELSE 'M'
   END AS "Gender",
   NULLIF(BTRIM(REGEXP_REPLACE(COALESCE(s.nationality, s.country, ''), '[[:cntrl:]]', '', 'g')), '') AS "Nationality (Country)",
-  GREATEST(COALESCE(sponsor_count.cnt, 0), 1) AS "Number of Sponsors",
+  COALESCE(sponsor_count.cnt, 0) AS "Number of Sponsors",
   CASE
     WHEN COALESCE(sp_hist.clean_name, 'NMDS') = 'NMDS' THEN 'Government'
     WHEN sp_hist.clean_name = 'Self Sponsored' THEN 'Self'
-    WHEN sp_hist.clean_name IN ('LUCT Sponsorship', 'LUCT Staff Development') THEN 'Institution'
-    WHEN sp_hist.clean_name IS NOT NULL THEN 'Private'
+    WHEN sp_hist.clean_name IN ('LUCT Sponsorship', 'LUCT Staff Development') THEN 'Own Institution'
+    WHEN sp_hist.clean_name IS NOT NULL THEN 'Other'
     ELSE 'Government'
   END AS "Type of Main Sponsor",
   COALESCE(sp_hist.clean_name, 'NMDS') AS "Name of Main Sponsor",
@@ -87,27 +87,34 @@ SELECT
     ELSE NULL
   END AS "Year of Study",
   CASE p.level
-    WHEN 'degree' THEN 'Bachelor Degree'
-    WHEN 'diploma' THEN 'Diploma'
-    WHEN 'certificate' THEN 'Certificate'
+    WHEN 'degree' THEN 3
+    WHEN 'diploma' THEN 2
+    WHEN 'certificate' THEN 1
   END AS "Qualification",
   CASE p.level
-    WHEN 'degree' THEN 'Undergraduate'
-    WHEN 'diploma' THEN 'Undergraduate'
-    WHEN 'certificate' THEN 'Certificate'
+    WHEN 'degree' THEN 'UnderGraduate'
+    WHEN 'diploma' THEN 'UnderGraduate'
+    WHEN 'certificate' THEN 'UnderGraduate'
   END AS "Level of Study",
+  'Off-Campus' AS "Residential Status",
   CASE
-    WHEN NULLIF(BTRIM(REGEXP_REPLACE(COALESCE(s.nationality, s.country, ''), '[[:cntrl:]]', '', 'g')), '') IN ('Lesotho', 'Mosotho') THEN 'Local'
-    WHEN NULLIF(BTRIM(REGEXP_REPLACE(COALESCE(s.nationality, s.country, ''), '[[:cntrl:]]', '', 'g')), '') IS NOT NULL THEN 'International'
-    ELSE NULL
-  END AS "Residential Status",
-  sts.status::text AS "Student Status",
-  'Full-time' AS "Mode of Study",
-  NULL::text AS "Disability Type",
-  overall_mark.score AS "Overall Exam Mark (%)",
+    WHEN sts.status = 'Repeat' THEN 'Repeater'
+    WHEN sts.status IN ('Active', 'Enrolled') AND NOT EXISTS (
+      SELECT 1 FROM student_semesters prev
+      WHERE prev.student_program_id = sts.student_program_id
+        AND prev.term_code < sts.term_code
+        AND prev.status NOT IN ('Deleted', 'Withdrawn')
+    ) THEN 'New entrant'
+    ELSE 'Continuing student'
+  END AS "Student Status",
+  'Fulltime' AS "Mode of Study",
+  'N/A' AS "Disability Type",
+  COALESCE(overall_mark.score, 999) AS "Overall Exam Mark (%)",
   CASE
-    WHEN sp.status = 'Completed' THEN 'Graduated'
-    ELSE 'Not Graduated'
+    WHEN sp.status = 'Completed' THEN 'Passed'
+    WHEN sts.status = 'Withdrawn' THEN 'Withdrew'
+    WHEN sp.status IN ('Inactive', 'Deleted', 'Changed') THEN 'Incomplete'
+    ELSE 'Incomplete'
   END AS "Graduate Status"
 FROM student_semesters sts
 JOIN student_programs sp ON sp.id = sts.student_program_id
@@ -146,7 +153,7 @@ LEFT JOIN LATERAL (
 LEFT JOIN sponsor_count ON sponsor_count.std_no = s.std_no
 LEFT JOIN overall_mark ON overall_mark.student_semester_id = sts.id
 WHERE sts.term_code = '2023-08'
-  AND sts.status <> 'Deleted'
+  AND sts.status NOT IN ('Deleted', 'Withdrawn')
   AND EXISTS (
     SELECT 1 FROM student_modules sm
     WHERE sm.student_semester_id = sts.id
