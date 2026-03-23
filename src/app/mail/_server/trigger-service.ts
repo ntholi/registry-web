@@ -12,6 +12,7 @@ import {
 	resolveStudentEmail,
 	resolveUserEmails,
 } from '../queues/_server/repository';
+import { isTriggerEnabled } from '../settings/_server/repository';
 
 const BASE_URL = process.env.BETTER_AUTH_URL ?? 'http://localhost:3000';
 
@@ -59,10 +60,11 @@ type GenericTriggerParams = {
 export async function triggerStudentStatusEmail(
 	params: StudentStatusTriggerParams
 ): Promise<void> {
+	const triggerType = STATUS_TRIGGER_MAP[params.action];
+	if (!(await isTriggerEnabled(triggerType))) return;
+
 	const primary = await mailAccountRepo.findActivePrimary();
 	if (!primary) return;
-
-	const triggerType = STATUS_TRIGGER_MAP[params.action];
 
 	if (await mailQueueRepo.isDuplicate(triggerType, params.statusId)) return;
 
@@ -101,6 +103,8 @@ export async function triggerStudentStatusEmail(
 export async function triggerNotificationEmail(
 	params: NotificationTriggerParams
 ): Promise<void> {
+	if (!(await isTriggerEnabled('notification_mirror'))) return;
+
 	const primary = await mailAccountRepo.findActivePrimary();
 	if (!primary) return;
 
@@ -143,6 +147,8 @@ export async function triggerNotificationEmail(
 export async function triggerGenericEmail(
 	params: GenericTriggerParams
 ): Promise<void> {
+	if (!(await isTriggerEnabled(params.triggerType))) return;
+
 	const primary = await mailAccountRepo.findActivePrimary();
 	if (!primary) return;
 

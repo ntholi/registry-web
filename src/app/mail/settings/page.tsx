@@ -13,13 +13,23 @@ import {
 	Text,
 	Title,
 } from '@mantine/core';
+import { toggleableTriggers } from '../_lib/triggers';
 import { getMailAccounts } from '../accounts/_server/actions';
+import { getMailTriggerSettings } from './_server/actions';
 import ChangePrimaryButton from './ChangePrimaryButton';
+import TriggerSwitch from './TriggerSwitch';
 
 export default async function SettingsPage() {
-	const { items: accounts } = await getMailAccounts(1, '');
+	const [{ items: accounts }, triggerSettings] = await Promise.all([
+		getMailAccounts(1, ''),
+		getMailTriggerSettings(),
+	]);
 	const primary = accounts.find((a) => a.isPrimary);
 	const dailyLimit = Number(process.env.MAIL_DAILY_LIMIT) || 1900;
+
+	const enabledMap = new Map(
+		triggerSettings.map((s) => [s.triggerType, s.enabled])
+	);
 
 	return (
 		<Stack p='xl' gap='xl'>
@@ -98,59 +108,22 @@ export default async function SettingsPage() {
 							<TableTr>
 								<TableTh>Trigger</TableTh>
 								<TableTh>Description</TableTh>
-								<TableTh>Status</TableTh>
+								<TableTh>Enabled</TableTh>
 							</TableTr>
 						</TableThead>
 						<TableTbody>
-							<TableTr>
-								<TableTd>Student Status Created</TableTd>
-								<TableTd>
-									Email sent when student submits status request
-								</TableTd>
-								<TableTd>
-									<Badge size='xs' variant='light' color='green'>
-										Active
-									</Badge>
-								</TableTd>
-							</TableTr>
-							<TableTr>
-								<TableTd>Student Status Updated</TableTd>
-								<TableTd>
-									Email sent when student updates status request
-								</TableTd>
-								<TableTd>
-									<Badge size='xs' variant='light' color='green'>
-										Active
-									</Badge>
-								</TableTd>
-							</TableTr>
-							<TableTr>
-								<TableTd>Student Status Approved</TableTd>
-								<TableTd>Email sent when approver approves status</TableTd>
-								<TableTd>
-									<Badge size='xs' variant='light' color='green'>
-										Active
-									</Badge>
-								</TableTd>
-							</TableTr>
-							<TableTr>
-								<TableTd>Student Status Rejected</TableTd>
-								<TableTd>Email sent when approver rejects status</TableTd>
-								<TableTd>
-									<Badge size='xs' variant='light' color='green'>
-										Active
-									</Badge>
-								</TableTd>
-							</TableTr>
-							<TableTr>
-								<TableTd>Notification Mirror</TableTd>
-								<TableTd>In-app notifications mirrored as email</TableTd>
-								<TableTd>
-									<Badge size='xs' variant='light' color='green'>
-										Active
-									</Badge>
-								</TableTd>
-							</TableTr>
+							{toggleableTriggers.map((t) => (
+								<TableTr key={t.type}>
+									<TableTd>{t.label}</TableTd>
+									<TableTd>{t.description}</TableTd>
+									<TableTd>
+										<TriggerSwitch
+											triggerType={t.type}
+											defaultEnabled={enabledMap.get(t.type) ?? true}
+										/>
+									</TableTd>
+								</TableTr>
+							))}
 						</TableTbody>
 					</Table>
 				</Stack>

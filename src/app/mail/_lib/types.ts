@@ -1,6 +1,6 @@
-import type { mailTriggerType } from '../_schema/mailQueue';
+import type { MailTriggerType } from './triggers';
 
-export type MailTriggerType = (typeof mailTriggerType.enumValues)[number];
+export type { MailTriggerType } from './triggers';
 
 export type EmailAttachment = {
 	filename: string;
