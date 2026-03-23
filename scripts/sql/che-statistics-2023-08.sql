@@ -69,7 +69,7 @@ SELECT
     ELSE 'M'
   END AS "Gender",
   COALESCE(NULLIF(BTRIM(REGEXP_REPLACE(COALESCE(s.nationality, s.country, ''), '[[:cntrl:]]', '', 'g')), ''), 'Lesotho') AS "Nationality (Country)",
-  COALESCE(sponsor_count.cnt, 0) AS "Number of Sponsors",
+  GREATEST(COALESCE(sponsor_count.cnt, 0), 1) AS "Number of Sponsors",
   CASE
     WHEN COALESCE(sp_hist.clean_name, 'NMDS') = 'NMDS' THEN 'Government'
     WHEN sp_hist.clean_name = 'Self Sponsored' THEN 'Self'
@@ -107,7 +107,7 @@ SELECT
     ) THEN 'New entrant'
     ELSE 'Continuing student'
   END AS "Student Status",
-  'Fulltime' AS "Mode of Study",
+  1 AS "Mode of Study",
   'N/A' AS "Disability Type",
   COALESCE(overall_mark.score, 999) AS "Overall Exam Mark (%)",
   CASE
