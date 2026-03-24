@@ -31,6 +31,7 @@ export interface DetailsViewHeaderProps {
 	typedConfirmation?: boolean;
 	confirmationText?: string;
 	confirmButtonText?: string;
+	actions?: React.ReactNode;
 }
 
 export function DetailsViewHeader({
@@ -49,6 +50,7 @@ export function DetailsViewHeader({
 	typedConfirmation,
 	confirmationText,
 	confirmButtonText,
+	actions,
 }: DetailsViewHeaderProps) {
 	const { data: session } = authClient.useSession();
 	const pathname = usePathname();
@@ -88,6 +90,7 @@ export function DetailsViewHeader({
 					</Title>
 				)}
 				<Group>
+					{actions}
 					{handleDelete && canDelete && (
 						<DeleteButton
 							handleDelete={handleDelete}

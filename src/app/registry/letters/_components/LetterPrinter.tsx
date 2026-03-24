@@ -64,10 +64,12 @@ export default function LetterPrinter({
 
 	return (
 		<Button
-			leftSection={<IconPrinter size={16} />}
-			variant='light'
+			leftSection={<IconPrinter size='1rem' />}
+			variant='subtle'
+			color='gray'
+			size='xs'
 			onClick={handlePrint}
-			loading={loading}
+			disabled={loading}
 		>
 			Print
 		</Button>

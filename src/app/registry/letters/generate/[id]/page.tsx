@@ -30,15 +30,15 @@ export default async function LetterDetailPage({ params }: Props) {
 					return deleteLetter(id);
 				}}
 				hideEdit
-			/>
-			<DetailsViewBody>
-				<Group justify='flex-end' mb='sm'>
+				actions={
 					<LetterPrinter
 						content={letter.content}
 						serialNumber={letter.serialNumber}
 						createdAt={letter.createdAt}
 					/>
-				</Group>
+				}
+			/>
+			<DetailsViewBody>
 				<Group grow>
 					<FieldView label='Serial Number'>{letter.serialNumber}</FieldView>
 					<FieldView label='Created'>
