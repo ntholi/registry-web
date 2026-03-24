@@ -241,9 +241,9 @@ export default function StatementOfResultsPDF({
 														Points
 													</Text>
 												</View>
-												{(semester.studentModules || []).map((sm, index) => (
+												{(semester.studentModules || []).map((sm) => (
 													<View
-														key={`${semester.id}-${sm.semesterModuleId}-${index}`}
+														key={`${semester.id}-${sm.semesterModuleId}`}
 														style={tw('flex-row')}
 													>
 														<Text
@@ -372,26 +372,22 @@ export default function StatementOfResultsPDF({
 													academicRemarks.supplementaryModules.length}
 												)
 											</Text>
-											{academicRemarks.failedModules.map((module, index) => (
+											{academicRemarks.failedModules.map((module) => (
 												<Text
-													key={`failed-${module.code}-${index}`}
+													key={module.code}
 													style={tw('text-[8pt] mb-[2pt] text-black pl-[4pt]')}
 												>
 													• {module.code} - {module.name} (Repeat)
 												</Text>
 											))}
-											{academicRemarks.supplementaryModules.map(
-												(module, index) => (
-													<Text
-														key={`supplementary-${module.code}-${index}`}
-														style={tw(
-															'text-[8pt] mb-[2pt] text-black pl-[4pt]'
-														)}
-													>
-														• {module.code} - {module.name} (Supplementary)
-													</Text>
-												)
-											)}
+											{academicRemarks.supplementaryModules.map((module) => (
+												<Text
+													key={module.code}
+													style={tw('text-[8pt] mb-[2pt] text-black pl-[4pt]')}
+												>
+													• {module.code} - {module.name} (Supplementary)
+												</Text>
+											))}
 										</View>
 									)}
 								</View>

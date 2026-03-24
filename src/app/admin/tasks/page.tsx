@@ -54,7 +54,7 @@ export default function Page() {
 							<Timeline active={-1} bulletSize={28} lineWidth={2}>
 								{steps.map((step, i) => (
 									<TimelineItem
-										key={i}
+										key={step.label}
 										bullet={
 											<Text size='xs' fw={700} c='violet'>
 												{i + 1}

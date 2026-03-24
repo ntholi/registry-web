@@ -184,33 +184,35 @@ export function GradeFinderResultsTable({
 						</Table.Thead>
 						<Table.Tbody>
 							{isLoading
-								? Array.from({ length: 10 }).map((_, i) => (
-										<Table.Tr key={`skeleton-${i}`}>
-											<Table.Td>
-												<Skeleton height={14} width={70} />
-											</Table.Td>
-											<Table.Td>
-												<Skeleton height={14} width='80%' />
-											</Table.Td>
-											<Table.Td>
-												<Skeleton height={14} width='70%' />
-											</Table.Td>
-											<Table.Td ta='center'>
-												<Skeleton height={14} width={30} mx='auto' />
-											</Table.Td>
-											<Table.Td>
-												<Skeleton height={14} width={70} />
-											</Table.Td>
-											<Table.Td>
-												<Skeleton height={14} width={80} />
-											</Table.Td>
-											<Table.Td>
-												<Skeleton height={14} width={50} />
-											</Table.Td>
-										</Table.Tr>
-									))
-								: data.map((row, idx) => (
-										<Table.Tr key={`${row.stdNo}-${row.moduleCode}-${idx}`}>
+								? Array.from({ length: 10 }, (_, i) => `skeleton-${i + 1}`).map(
+										(key) => (
+											<Table.Tr key={key}>
+												<Table.Td>
+													<Skeleton height={14} width={70} />
+												</Table.Td>
+												<Table.Td>
+													<Skeleton height={14} width='80%' />
+												</Table.Td>
+												<Table.Td>
+													<Skeleton height={14} width='70%' />
+												</Table.Td>
+												<Table.Td ta='center'>
+													<Skeleton height={14} width={30} mx='auto' />
+												</Table.Td>
+												<Table.Td>
+													<Skeleton height={14} width={70} />
+												</Table.Td>
+												<Table.Td>
+													<Skeleton height={14} width={80} />
+												</Table.Td>
+												<Table.Td>
+													<Skeleton height={14} width={50} />
+												</Table.Td>
+											</Table.Tr>
+										)
+									)
+								: data.map((row) => (
+										<Table.Tr key={`${row.stdNo}-${row.moduleCode}`}>
 											<Table.Td>
 												<Link
 													href={`/registry/students/${row.stdNo}`}

@@ -55,7 +55,7 @@ export default function IDCardPreview({
 				<Box style={{ flex: 1 }}>
 					{fields.map((field, idx) => (
 						<Text
-							key={idx}
+							key={field.value}
 							size={idx === 0 ? 'sm' : 'xs'}
 							fw={700}
 							c='black'

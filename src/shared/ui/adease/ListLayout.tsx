@@ -135,11 +135,7 @@ export function ListLayout<T>({
 						<Group style={{ width: '100%', flex: 1 }}>
 							<SearchField style={{ width: '100%' }} />
 						</Group>
-						{actionIcons?.map((component, index) => (
-							<React.Fragment key={`action-${index}`}>
-								{component}
-							</React.Fragment>
-						))}
+						{React.Children.toArray(actionIcons)}
 					</Flex>
 				</Stack>
 
@@ -162,17 +158,17 @@ export function ListLayout<T>({
 						</Center>
 					) : isLoading ? (
 						<Stack gap='sm'>
-							{Array.from({ length: 5 }).map((_, index) => (
-								<Skeleton height={35} key={`skeleton-${index}`} />
-							))}
+							{Array.from({ length: 5 }, (_, i) => `skeleton-${i + 1}`).map(
+								(key) => (
+									<Skeleton height={35} key={key} />
+								)
+							)}
 						</Stack>
 					) : (
 						<Stack gap={3}>
-							{items.map((item: T, index: number) => (
-								<React.Fragment key={`item-${index}`}>
-									{renderListItem(item)}
-								</React.Fragment>
-							))}
+							{React.Children.toArray(
+								items.map((item: T) => renderListItem(item))
+							)}
 						</Stack>
 					)}
 				</ScrollArea>

@@ -302,13 +302,14 @@ export default function StudentTable({
 					</Table.Td>
 					<Table.Td>{student.name}</Table.Td>
 					{assessmentsLoading
-						? Array(3)
-								.fill(0)
-								.map((_, idx) => (
-									<Table.Td key={`skeleton-student-${student.stdNo}-${idx}`}>
-										<Skeleton height={24} width={80} mx='auto' />
-									</Table.Td>
-								))
+						? Array.from(
+								{ length: 3 },
+								(_, i) => `skeleton-student-${student.stdNo}-${i + 1}`
+							).map((key) => (
+								<Table.Td key={key}>
+									<Skeleton height={24} width={80} mx='auto' />
+								</Table.Td>
+							))
 						: assessments?.map((assessment) => {
 								const { mark, markId } = getStudentMark(
 									student.studentModuleId,

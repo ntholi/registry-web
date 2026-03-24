@@ -52,9 +52,11 @@ export default function EmployeeList({ start, end, dept }: Props) {
 			<Paper p='md' radius='md' withBorder>
 				<Stack>
 					<Skeleton h={36} w={300} />
-					{Array.from({ length: 5 }).map((_, i) => (
-						<Skeleton key={`row-skel-${i}`} h={48} />
-					))}
+					{Array.from({ length: 5 }, (_, i) => `row-skel-${i + 1}`).map(
+						(key) => (
+							<Skeleton key={key} h={48} />
+						)
+					)}
 				</Stack>
 			</Paper>
 		);

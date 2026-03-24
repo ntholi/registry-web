@@ -36,9 +36,11 @@ export default function ActivityTimeline({ userId, start, end }: Props) {
 		return (
 			<Paper p='md' radius='md' withBorder>
 				<Stack>
-					{Array.from({ length: 5 }).map((_, i) => (
-						<Skeleton key={`tl-skel-${i}`} h={60} />
-					))}
+					{Array.from({ length: 5 }, (_, i) => `tl-skel-${i + 1}`).map(
+						(key) => (
+							<Skeleton key={key} h={60} />
+						)
+					)}
 				</Stack>
 			</Paper>
 		);
