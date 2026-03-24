@@ -2,9 +2,12 @@
 
 import {
 	ActionIcon,
+	Box,
 	Button,
 	Card,
+	Divider,
 	Group,
+	Image,
 	Modal,
 	Select,
 	SimpleGrid,
@@ -14,7 +17,7 @@ import {
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { useDisclosure } from '@mantine/hooks';
-import { IconPlus, IconSend } from '@tabler/icons-react';
+import { IconPlus } from '@tabler/icons-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'nextjs-toploader/app';
 import { useState } from 'react';
@@ -52,6 +55,9 @@ export default function GenerateLetterForm() {
 	const [salutation, setSalutation] = useState<string | null>(null);
 	const [preview, setPreview] = useState<string | null>(null);
 
+	const [previewOpened, { open: openPreview, close: closePreview }] =
+		useDisclosure(false);
+
 	const role = (session?.user?.role ?? undefined) as DashboardRole | undefined;
 
 	const { data: templates } = useQuery({
@@ -81,9 +87,14 @@ export default function GenerateLetterForm() {
 		setSalutation(tpl?.salutation ?? 'Dear Sir/Madam,');
 	}
 
+	if (recipients?.length && !recipientId && templateId) {
+		setRecipientId(recipients[0].id);
+	}
+
 	function handlePreview() {
 		if (!selectedTemplate || !studentData) return;
 		setPreview(resolveTemplate(selectedTemplate.content, studentData));
+		openPreview();
 	}
 
 	const mutation = useMutation({
@@ -191,7 +202,7 @@ export default function GenerateLetterForm() {
 				</>
 			)}
 
-			<Group>
+			<Group justify='space-between'>
 				<Button
 					variant='light'
 					onClick={handlePreview}
@@ -200,7 +211,6 @@ export default function GenerateLetterForm() {
 					Preview
 				</Button>
 				<Button
-					leftSection={<IconSend size={16} />}
 					onClick={() => mutation.mutate()}
 					loading={mutation.isPending}
 					disabled={!templateId || !stdNo}
@@ -209,15 +219,102 @@ export default function GenerateLetterForm() {
 				</Button>
 			</Group>
 
-			{preview && (
-				<Card withBorder p='md'>
-					<Text fw={600} size='sm' mb='xs'>
-						Preview
-					</Text>
-					<RichTextContent html={preview} />
-				</Card>
-			)}
+			<Modal
+				opened={previewOpened}
+				onClose={closePreview}
+				title='Letter Preview'
+				size='lg'
+				centered
+			>
+				{preview && (
+					<LetterPreview
+						content={preview}
+						recipient={recipients?.find((r) => r.id === recipientId)}
+						salutation={salutation}
+						subject={
+							selectedTemplate?.subject && studentData
+								? resolveTemplate(selectedTemplate.subject, studentData)
+								: null
+						}
+						signOffName={selectedTemplate?.signOffName}
+						signOffTitle={selectedTemplate?.signOffTitle}
+					/>
+				)}
+			</Modal>
 		</Stack>
+	);
+}
+
+type LetterPreviewProps = {
+	content: string;
+	recipient?: {
+		title: string;
+		org: string;
+		address: string | null;
+		city: string | null;
+	} | null;
+	salutation?: string | null;
+	subject?: string | null;
+	signOffName?: string | null;
+	signOffTitle?: string | null;
+};
+
+function LetterPreview({
+	content,
+	recipient,
+	salutation,
+	subject,
+	signOffName,
+	signOffTitle,
+}: LetterPreviewProps) {
+	return (
+		<Card withBorder p='xl' bg='white' style={{ color: 'black' }}>
+			<Stack align='center' mb='md'>
+				<Image src='/images/logo-lesotho.jpg' h={80} w='auto' />
+				<Text size='xs' c='dimmed'>
+					Maseru, Lesotho
+				</Text>
+			</Stack>
+
+			{recipient && (
+				<Box mb='sm'>
+					<Text size='sm'>{recipient.title}</Text>
+					<Text size='sm'>{recipient.org}</Text>
+					{recipient.address && <Text size='sm'>{recipient.address}</Text>}
+					{recipient.city && <Text size='sm'>{recipient.city}</Text>}
+				</Box>
+			)}
+
+			{salutation && (
+				<Text size='sm' mb='sm'>
+					{salutation}
+				</Text>
+			)}
+
+			{subject && (
+				<Text size='sm' fw={700} td='underline' mb='sm'>
+					Re: {subject}
+				</Text>
+			)}
+
+			<Box mb='lg'>
+				<RichTextContent html={content} />
+			</Box>
+
+			<Divider my='sm' variant='dotted' />
+
+			<Box>
+				<Text size='sm' mb='xs'>
+					Yours faithfully,
+				</Text>
+				<Image src='/images/signature_small.png' h={50} w='auto' mb={4} />
+				<Divider w={200} mb={4} />
+				<Text size='sm' fw={700}>
+					{signOffName || 'Registrar'}
+				</Text>
+				{signOffTitle && <Text size='sm'>{signOffTitle}</Text>}
+			</Box>
+		</Card>
 	);
 }
 
