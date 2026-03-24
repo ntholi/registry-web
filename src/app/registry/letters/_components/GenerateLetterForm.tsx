@@ -14,14 +14,14 @@ import {
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { useDisclosure } from '@mantine/hooks';
-import { IconPlus, IconSend, IconTrash } from '@tabler/icons-react';
+import { IconPlus, IconSend } from '@tabler/icons-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'nextjs-toploader/app';
 import { useState } from 'react';
 import type { DashboardRole } from '@/core/auth/permissions';
 import { authClient } from '@/core/auth-client';
 import { unwrap } from '@/shared/lib/actions/actionResult';
-import { RichTextContent } from '@/shared/ui/adease';
+import { DeleteButton, RichTextContent } from '@/shared/ui/adease';
 import StudentInput from '@/shared/ui/StudentInput';
 import StudentPreviewCard from '../../_components/StudentPreviewCard';
 import { resolveTemplate } from '../_lib/resolve';
@@ -162,14 +162,20 @@ export default function GenerateLetterForm() {
 							}}
 						/>
 						{recipientId && (
-							<DeleteRecipientButton
-								recipientId={recipientId}
-								onDeleted={() => {
-									setRecipientId(null);
-									queryClient.invalidateQueries({
-										queryKey: ['letter-recipients', templateId],
-									});
+							<DeleteButton
+								handleDelete={async () => {
+									await unwrap(await deleteRecipient(recipientId));
 								}}
+								onSuccess={() => {
+									setRecipientId(null);
+								}}
+								queryKey={['letter-recipients', templateId]}
+								itemType='recipient'
+								itemName={recipients?.find((r) => r.id === recipientId)?.title}
+								warningMessage='This recipient will be removed from the template. This action cannot be undone.'
+								variant='light'
+								color='red'
+								size='input-sm'
 							/>
 						)}
 					</Group>
@@ -290,32 +296,5 @@ function NewRecipientModal({ templateId, onCreated }: NewRecipientModalProps) {
 				</form>
 			</Modal>
 		</>
-	);
-}
-
-type DeleteRecipientButtonProps = {
-	recipientId: string;
-	onDeleted: () => void;
-};
-
-function DeleteRecipientButton({
-	recipientId,
-	onDeleted,
-}: DeleteRecipientButtonProps) {
-	const mutation = useMutation({
-		mutationFn: async () => unwrap(await deleteRecipient(recipientId)),
-		onSuccess: onDeleted,
-	});
-
-	return (
-		<ActionIcon
-			variant='light'
-			color='red'
-			size='input-sm'
-			onClick={() => mutation.mutate()}
-			loading={mutation.isPending}
-		>
-			<IconTrash size={18} />
-		</ActionIcon>
 	);
 }
