@@ -62,9 +62,9 @@ function LecturerCard({ lecturer }: { lecturer: Lecturer }) {
 			<Group>
 				{lecturer.assignments && lecturer.assignments.length > 0 && (
 					<Group gap='xs'>
-						{lecturer.assignments.map((assignment, index) => (
+						{lecturer.assignments.map((assignment) => (
 							<Badge
-								key={`${lecturer.id}-${assignment.programCode}-${assignment.semesterName}-${index}`}
+								key={`${lecturer.id}-${assignment.programCode}-${assignment.semesterName}`}
 								variant='default'
 							>
 								{toClassName(assignment.programCode, assignment.semesterName)}

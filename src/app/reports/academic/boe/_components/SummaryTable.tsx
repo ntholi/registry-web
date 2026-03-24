@@ -22,8 +22,8 @@ export function BoeSummaryTable({ schools, loading }: SummaryTableProps) {
 	if (loading) {
 		return (
 			<>
-				{Array.from({ length: 2 }, (_, i) => (
-					<Card key={`skeleton-${i}`} withBorder>
+				{Array.from({ length: 2 }, (_, i) => `skeleton-${i + 1}`).map((key) => (
+					<Card key={key} withBorder>
 						<Skeleton height={24} width={200} mb='md' />
 						<Skeleton height={200} />
 					</Card>

@@ -201,8 +201,8 @@ export function ClassReportsList({ reports, loading }: ClassReportsListProps) {
 	if (loading) {
 		return (
 			<Stack>
-				{Array.from({ length: 2 }, (_, i) => (
-					<Paper key={`skeleton-${i}`} withBorder p='md'>
+				{Array.from({ length: 2 }, (_, i) => `skeleton-${i + 1}`).map((key) => (
+					<Paper key={key} withBorder p='md'>
 						<Skeleton height={24} width={200} mb='sm' />
 						<Skeleton height={200} />
 					</Paper>

@@ -190,24 +190,26 @@ export default function AttendanceForm({
 							</Table.Tr>
 						</Table.Thead>
 						<Table.Tbody>
-							{Array.from({ length: 10 }).map((_, index) => (
-								<Table.Tr key={`skeleton-${index}`}>
-									<Table.Td>
-										<Group gap='sm'>
-											<Skeleton h={32} w={32} circle />
-											<Skeleton h={16} w={80} />
-										</Group>
-									</Table.Td>
-									<Table.Td>
-										<Skeleton h={16} w='70%' />
-									</Table.Td>
-									<Table.Td>
-										<Group justify='flex-end'>
-											<Skeleton h={36} w={220} radius='md' />
-										</Group>
-									</Table.Td>
-								</Table.Tr>
-							))}
+							{Array.from({ length: 10 }, (_, i) => `skeleton-${i + 1}`).map(
+								(key) => (
+									<Table.Tr key={key}>
+										<Table.Td>
+											<Group gap='sm'>
+												<Skeleton h={32} w={32} circle />
+												<Skeleton h={16} w={80} />
+											</Group>
+										</Table.Td>
+										<Table.Td>
+											<Skeleton h={16} w='70%' />
+										</Table.Td>
+										<Table.Td>
+											<Group justify='flex-end'>
+												<Skeleton h={36} w={220} radius='md' />
+											</Group>
+										</Table.Td>
+									</Table.Tr>
+								)
+							)}
 						</Table.Tbody>
 					</Table>
 				</Paper>

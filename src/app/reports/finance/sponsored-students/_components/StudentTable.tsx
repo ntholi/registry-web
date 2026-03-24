@@ -179,8 +179,8 @@ export default function StudentTable({
 							</Table.Tr>
 						</Table.Thead>
 						<Table.Tbody>
-							{data.map((student, index) => (
-								<Table.Tr key={`${student.stdNo}-${index}`}>
+							{data.map((student) => (
+								<Table.Tr key={`${student.stdNo}-${student.sponsorName}`}>
 									<Table.Td>
 										<Link
 											href={`/registry/students/${student.stdNo}`}

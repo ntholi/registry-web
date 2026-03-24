@@ -285,9 +285,16 @@ export function LineItemsTable({ items }: LineItemsTableProps) {
 					const itemName = pipeIdx >= 0 ? raw.slice(0, pipeIdx).trim() : raw;
 					const itemCode =
 						pipeIdx >= 0 ? raw.slice(pipeIdx + 1).trim() : undefined;
+					const itemKey = [
+						itemName,
+						itemCode ?? 'none',
+						String(item.quantity),
+						String(item.rate),
+						String(item.item_total),
+					].join('-');
 
 					return (
-						<Table.Tr key={`item-${i}`}>
+						<Table.Tr key={itemKey}>
 							<Table.Td c='dimmed' valign='top'>
 								{i + 1}
 							</Table.Td>
