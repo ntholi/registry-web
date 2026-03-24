@@ -1,4 +1,4 @@
-import { and, desc, eq, or, sql } from 'drizzle-orm';
+import { and, desc, eq, isNull, or, sql } from 'drizzle-orm';
 import type { DashboardRole } from '@/core/auth/permissions';
 import { db, letters, letterTemplates } from '@/core/database';
 import BaseRepository, {
@@ -17,7 +17,9 @@ export default class LetterTemplateRepository extends BaseRepository<
 		return db.query.letterTemplates.findMany({
 			where: and(
 				eq(letterTemplates.isActive, true),
-				role ? eq(letterTemplates.role, role) : undefined
+				role
+					? or(eq(letterTemplates.role, role), isNull(letterTemplates.role))
+					: undefined
 			),
 			orderBy: letterTemplates.name,
 		});
