@@ -19,6 +19,7 @@ import {
 	IconTrash,
 } from '@tabler/icons-react';
 import { useQueryClient } from '@tanstack/react-query';
+import { useRouter } from 'next/navigation';
 import { useActionMutation } from '@/shared/lib/actions/use-action-mutation';
 import { DeleteButton } from '@/shared/ui/adease';
 import {
@@ -38,6 +39,7 @@ export default function TemplateCard({ template }: Props) {
 	const [editOpened, { open: openEdit, close: closeEdit }] =
 		useDisclosure(false);
 	const queryClient = useQueryClient();
+	const router = useRouter();
 
 	const toggleMutation = useActionMutation(toggleTemplateActive, {
 		onSuccess: () => {
@@ -64,27 +66,45 @@ export default function TemplateCard({ template }: Props) {
 				/>
 			</Modal>
 
-			<Card withBorder shadow='sm' padding='lg'>
+			<Card
+				withBorder
+				shadow='sm'
+				padding='lg'
+				style={{ cursor: 'pointer' }}
+				onClick={() =>
+					router.push(`/registry/letters/templates/${template.id}`)
+				}
+			>
 				<Group justify='space-between' mb='xs'>
 					<Text fw={600} lineClamp={1}>
 						{template.name}
 					</Text>
 					<Menu position='bottom-end' withinPortal>
 						<Menu.Target>
-							<ActionIcon variant='subtle' color='gray'>
+							<ActionIcon
+								variant='subtle'
+								color='gray'
+								onClick={(e) => e.stopPropagation()}
+							>
 								<IconDotsVertical size={16} />
 							</ActionIcon>
 						</Menu.Target>
 						<Menu.Dropdown>
 							<Menu.Item
 								leftSection={<IconEdit size={14} />}
-								onClick={openEdit}
+								onClick={(e) => {
+									e.stopPropagation();
+									openEdit();
+								}}
 							>
 								Edit
 							</Menu.Item>
 							<Menu.Item
 								leftSection={<IconToggleLeft size={14} />}
-								onClick={() => toggleMutation.mutate(template.id)}
+								onClick={(e) => {
+									e.stopPropagation();
+									toggleMutation.mutate(template.id);
+								}}
 							>
 								{template.isActive ? 'Deactivate' : 'Activate'}
 							</Menu.Item>
@@ -98,7 +118,11 @@ export default function TemplateCard({ template }: Props) {
 								color='red'
 								w='100%'
 							>
-								<Menu.Item color='red' leftSection={<IconTrash size={14} />}>
+								<Menu.Item
+									color='red'
+									leftSection={<IconTrash size={14} />}
+									onClick={(e) => e.stopPropagation()}
+								>
 									Delete
 								</Menu.Item>
 							</DeleteButton>

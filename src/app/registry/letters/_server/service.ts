@@ -92,6 +92,13 @@ class LetterService extends BaseService<typeof letters, 'id'> {
 		return withPermission(() => this.repo.getWithRelations(id), 'dashboard');
 	}
 
+	async findByTemplate(templateId: string, page: number, search: string) {
+		return withPermission(
+			() => this.repo.findByTemplate(templateId, page, search),
+			'dashboard'
+		);
+	}
+
 	async findWithRelations(page: number, search: string) {
 		return withPermission(
 			() => this.repo.findWithRelations(page, search),

@@ -112,6 +112,38 @@ export class LetterRepository extends BaseRepository<typeof letters, 'id'> {
 		});
 	}
 
+	async findByTemplate(templateId: string, page: number, search: string) {
+		const pageSize = 15;
+		const offset = (page - 1) * pageSize;
+
+		const where = and(
+			eq(letters.templateId, templateId),
+			search
+				? sql`EXISTS (SELECT 1 FROM students s WHERE s.std_no = ${letters.stdNo} AND s.name ILIKE ${`%${search}%`})`
+				: undefined
+		);
+
+		const [items, countResult] = await Promise.all([
+			db.query.letters.findMany({
+				where,
+				orderBy: desc(letters.createdAt),
+				limit: pageSize,
+				offset,
+				with: {
+					student: { columns: { name: true, stdNo: true } },
+				},
+			}),
+			db.select({ count: sql<number>`count(*)` }).from(letters).where(where),
+		]);
+
+		const total = Number(countResult[0]?.count ?? 0);
+		return {
+			items,
+			totalPages: Math.ceil(total / pageSize),
+			totalItems: total,
+		};
+	}
+
 	async findWithRelations(page: number, search: string) {
 		const pageSize = 15;
 		const offset = (page - 1) * pageSize;

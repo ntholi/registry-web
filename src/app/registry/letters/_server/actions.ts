@@ -42,6 +42,14 @@ export const toggleTemplateActive = createAction(async (id: string) => {
 	return letterTemplatesService.update(id, { isActive: !template?.isActive });
 });
 
+export async function getLettersByTemplate(
+	templateId: string,
+	page = 1,
+	search = ''
+) {
+	return lettersService.findByTemplate(templateId, page, search);
+}
+
 export async function getLetters(page = 1, search = '') {
 	return lettersService.findWithRelations(page, search);
 }
