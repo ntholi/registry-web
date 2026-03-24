@@ -1,5 +1,6 @@
 import { Document, Font, Image, Page, Text, View } from '@react-pdf/renderer';
 import { createTw } from 'react-pdf-tailwind';
+import { formatDate } from '@/shared/lib/utils/dates';
 
 type Recipient = {
 	title: string;
@@ -105,6 +106,10 @@ export default function LetterPDF({
 						)}
 					</View>
 				)}
+
+				<View style={tw('mb-4')}>
+					<Text>{formatDate(new Date())}</Text>
+				</View>
 
 				{salutation && (
 					<View style={tw('mb-4')}>

@@ -24,6 +24,7 @@ import { useState } from 'react';
 import type { DashboardRole } from '@/core/auth/permissions';
 import { authClient } from '@/core/auth-client';
 import { unwrap } from '@/shared/lib/actions/actionResult';
+import { formatDate } from '@/shared/lib/utils/dates';
 import { DeleteButton, RichTextContent } from '@/shared/ui/adease';
 import StudentInput from '@/shared/ui/StudentInput';
 import StudentPreviewCard from '../../_components/StudentPreviewCard';
@@ -284,6 +285,10 @@ function LetterPreview({
 					{recipient.city && <Text size='sm'>{recipient.city}</Text>}
 				</Box>
 			)}
+
+			<Text size='sm' mb='sm'>
+				{formatDate(new Date())}
+			</Text>
 
 			{salutation && (
 				<Text size='sm' mb='sm'>
