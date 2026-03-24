@@ -1,7 +1,20 @@
 'use client';
 
-import { Button, Card, Group, Select, Stack, Text } from '@mantine/core';
-import { IconSend } from '@tabler/icons-react';
+import {
+	ActionIcon,
+	Button,
+	Card,
+	Group,
+	Modal,
+	Select,
+	SimpleGrid,
+	Stack,
+	Text,
+	TextInput,
+} from '@mantine/core';
+import { useForm } from '@mantine/form';
+import { useDisclosure } from '@mantine/hooks';
+import { IconPlus, IconSend, IconTrash } from '@tabler/icons-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'nextjs-toploader/app';
 import { useState } from 'react';
@@ -13,10 +26,21 @@ import StudentInput from '@/shared/ui/StudentInput';
 import StudentPreviewCard from '../../_components/StudentPreviewCard';
 import { resolveTemplate } from '../_lib/resolve';
 import {
+	createRecipient,
+	deleteRecipient,
 	generateLetter,
 	getActiveTemplates,
+	getRecipientsByTemplate,
 	getStudentForLetter,
 } from '../_server/actions';
+
+const SALUTATION_OPTIONS = [
+	'Dear Sir/Madam,',
+	'Dear Sir,',
+	'Dear Madam,',
+	'Dear Director,',
+	'To Whom It May Concern,',
+];
 
 export default function GenerateLetterForm() {
 	const router = useRouter();
@@ -24,6 +48,8 @@ export default function GenerateLetterForm() {
 	const { data: session } = authClient.useSession();
 	const [stdNo, setStdNo] = useState<number | null>(null);
 	const [templateId, setTemplateId] = useState<string | null>(null);
+	const [recipientId, setRecipientId] = useState<string | null>(null);
+	const [salutation, setSalutation] = useState<string | null>(null);
 	const [preview, setPreview] = useState<string | null>(null);
 
 	const role = (session?.user?.role ?? undefined) as DashboardRole | undefined;
@@ -41,6 +67,20 @@ export default function GenerateLetterForm() {
 
 	const selectedTemplate = templates?.find((t) => t.id === templateId);
 
+	const { data: recipients } = useQuery({
+		queryKey: ['letter-recipients', templateId],
+		queryFn: () => getRecipientsByTemplate(templateId!),
+		enabled: !!templateId,
+	});
+
+	function handleTemplateChange(id: string | null) {
+		setTemplateId(id);
+		setRecipientId(null);
+		setPreview(null);
+		const tpl = templates?.find((t) => t.id === id);
+		setSalutation(tpl?.salutation ?? 'Dear Sir/Madam,');
+	}
+
 	function handlePreview() {
 		if (!selectedTemplate || !studentData) return;
 		setPreview(resolveTemplate(selectedTemplate.content, studentData));
@@ -49,7 +89,12 @@ export default function GenerateLetterForm() {
 	const mutation = useMutation({
 		mutationFn: async () => {
 			if (!templateId || !stdNo) return;
-			return unwrap(await generateLetter(templateId, stdNo));
+			return unwrap(
+				await generateLetter(templateId, stdNo, {
+					recipientId: recipientId ?? undefined,
+					salutation: salutation ?? undefined,
+				})
+			);
 		},
 		onSuccess: (letter) => {
 			if (!letter) return;
@@ -57,6 +102,12 @@ export default function GenerateLetterForm() {
 			router.push(`/registry/letters/generate/${letter.id}`);
 		},
 	});
+
+	const recipientOptions =
+		recipients?.map((r) => ({
+			value: r.id,
+			label: `${r.title}, ${r.org}${r.city ? `, ${r.city}` : ''}`,
+		})) ?? [];
 
 	const templateOptions =
 		templates?.map((t) => ({ value: t.id, label: t.name })) ?? [];
@@ -83,10 +134,56 @@ export default function GenerateLetterForm() {
 				placeholder='Select a template...'
 				data={templateOptions}
 				value={templateId}
-				onChange={setTemplateId}
+				onChange={handleTemplateChange}
 				searchable
 				required
 			/>
+
+			{templateId && (
+				<>
+					<Group align='end'>
+						<Select
+							label='Recipient'
+							placeholder='Select recipient (optional)'
+							data={recipientOptions}
+							value={recipientId}
+							onChange={setRecipientId}
+							clearable
+							searchable
+							style={{ flex: 1 }}
+						/>
+						<NewRecipientModal
+							templateId={templateId}
+							onCreated={(id) => {
+								queryClient.invalidateQueries({
+									queryKey: ['letter-recipients', templateId],
+								});
+								setRecipientId(id);
+							}}
+						/>
+						{recipientId && (
+							<DeleteRecipientButton
+								recipientId={recipientId}
+								onDeleted={() => {
+									setRecipientId(null);
+									queryClient.invalidateQueries({
+										queryKey: ['letter-recipients', templateId],
+									});
+								}}
+							/>
+						)}
+					</Group>
+
+					<Select
+						label='Salutation'
+						placeholder='Select a salutation'
+						data={SALUTATION_OPTIONS}
+						value={salutation}
+						onChange={setSalutation}
+						searchable
+					/>
+				</>
+			)}
 
 			<Group>
 				<Button
@@ -115,5 +212,110 @@ export default function GenerateLetterForm() {
 				</Card>
 			)}
 		</Stack>
+	);
+}
+
+type NewRecipientModalProps = {
+	templateId: string;
+	onCreated: (id: string) => void;
+};
+
+function NewRecipientModal({ templateId, onCreated }: NewRecipientModalProps) {
+	const [opened, { open, close }] = useDisclosure(false);
+	const form = useForm({
+		initialValues: { title: '', org: '', address: '', city: '' },
+	});
+
+	const mutation = useMutation({
+		mutationFn: async (values: typeof form.values) => {
+			return unwrap(
+				await createRecipient({
+					templateId,
+					title: values.title,
+					org: values.org,
+					address: values.address || null,
+					city: values.city || null,
+				})
+			);
+		},
+		onSuccess: (data) => {
+			if (!data) return;
+			onCreated(data.id);
+			form.reset();
+			close();
+		},
+	});
+
+	return (
+		<>
+			<ActionIcon variant='light' size='input-sm' onClick={open}>
+				<IconPlus size={18} />
+			</ActionIcon>
+			<Modal opened={opened} onClose={close} title='New Recipient'>
+				<form onSubmit={form.onSubmit((v) => mutation.mutate(v))}>
+					<Stack>
+						<TextInput
+							label='Title'
+							placeholder='e.g. The Director'
+							required
+							{...form.getInputProps('title')}
+						/>
+						<TextInput
+							label='Organisation'
+							placeholder='e.g. N.M.D.S.'
+							required
+							{...form.getInputProps('org')}
+						/>
+						<SimpleGrid cols={2}>
+							<TextInput
+								label='Address'
+								placeholder='e.g. Box 517'
+								{...form.getInputProps('address')}
+							/>
+							<TextInput
+								label='City'
+								placeholder='e.g. MASERU'
+								{...form.getInputProps('city')}
+							/>
+						</SimpleGrid>
+						<Group justify='flex-end'>
+							<Button variant='default' onClick={close}>
+								Cancel
+							</Button>
+							<Button type='submit' loading={mutation.isPending}>
+								Add Recipient
+							</Button>
+						</Group>
+					</Stack>
+				</form>
+			</Modal>
+		</>
+	);
+}
+
+type DeleteRecipientButtonProps = {
+	recipientId: string;
+	onDeleted: () => void;
+};
+
+function DeleteRecipientButton({
+	recipientId,
+	onDeleted,
+}: DeleteRecipientButtonProps) {
+	const mutation = useMutation({
+		mutationFn: async () => unwrap(await deleteRecipient(recipientId)),
+		onSuccess: onDeleted,
+	});
+
+	return (
+		<ActionIcon
+			variant='light'
+			color='red'
+			size='input-sm'
+			onClick={() => mutation.mutate()}
+			loading={mutation.isPending}
+		>
+			<IconTrash size={18} />
+		</ActionIcon>
 	);
 }

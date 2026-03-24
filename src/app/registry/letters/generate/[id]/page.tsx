@@ -36,6 +36,11 @@ export default async function LetterDetailPage({ params }: Props) {
 					<LetterPrinter
 						content={letter.content}
 						serialNumber={letter.serialNumber}
+						recipient={letter.recipient}
+						salutation={letter.salutation}
+						subject={letter.subject}
+						signOffName={letter.template?.signOffName}
+						signOffTitle={letter.template?.signOffTitle}
 					/>
 				}
 			/>

@@ -8,7 +8,11 @@ export const letterTemplates = pgTable('letter_templates', {
 		.primaryKey()
 		.$defaultFn(() => nanoid()),
 	name: text().notNull(),
+	subject: text(),
+	salutation: text().notNull().default('Dear Sir/Madam,'),
 	content: text().notNull(),
+	signOffName: text('sign_off_name'),
+	signOffTitle: text('sign_off_title'),
 	role: text().$type<DashboardRole>(),
 	isActive: boolean().notNull().default(true),
 	createdBy: text('created_by').references(() => users.id, {

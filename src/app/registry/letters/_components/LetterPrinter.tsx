@@ -6,19 +6,47 @@ import { IconPrinter } from '@tabler/icons-react';
 import { useState } from 'react';
 import LetterPDF from './LetterPDF';
 
+type Recipient = {
+	title: string;
+	org: string;
+	address: string | null;
+	city: string | null;
+};
+
 type Props = {
 	content: string;
 	serialNumber: string;
+	recipient?: Recipient | null;
+	salutation?: string | null;
+	subject?: string | null;
+	signOffName?: string | null;
+	signOffTitle?: string | null;
 };
 
-export default function LetterPrinter({ content, serialNumber }: Props) {
+export default function LetterPrinter({
+	content,
+	serialNumber,
+	recipient,
+	salutation,
+	subject,
+	signOffName,
+	signOffTitle,
+}: Props) {
 	const [loading, setLoading] = useState(false);
 
 	async function handlePrint() {
 		setLoading(true);
 		try {
 			const blob = await pdf(
-				<LetterPDF content={content} serialNumber={serialNumber} />
+				<LetterPDF
+					content={content}
+					serialNumber={serialNumber}
+					recipient={recipient}
+					salutation={salutation}
+					subject={subject}
+					signOffName={signOffName}
+					signOffTitle={signOffTitle}
+				/>
 			).toBlob();
 
 			const url = URL.createObjectURL(blob);

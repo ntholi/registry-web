@@ -1443,6 +1443,13 @@
 			"when": 1774340419377,
 			"tag": "0205_bumpy_demogoblin",
 			"breakpoints": true
+		},
+		{
+			"idx": 206,
+			"version": "7",
+			"when": 1774355015841,
+			"tag": "0206_petite_doomsday",
+			"breakpoints": true
 		}
 	]
 }

@@ -1,11 +1,16 @@
 'use server';
 
 import type { DashboardRole } from '@/core/auth/permissions';
-import type { letterTemplates } from '@/core/database';
+import type { letterRecipients, letterTemplates } from '@/core/database';
 import { createAction } from '@/shared/lib/actions/actionResult';
-import { lettersService, letterTemplatesService } from './service';
+import {
+	letterRecipientsService,
+	lettersService,
+	letterTemplatesService,
+} from './service';
 
 type LetterTemplate = typeof letterTemplates.$inferInsert;
+type LetterRecipient = typeof letterRecipients.$inferInsert;
 
 export async function getLetterTemplates(page = 1, search = '') {
 	return letterTemplatesService.findAll({
@@ -42,6 +47,18 @@ export const toggleTemplateActive = createAction(async (id: string) => {
 	return letterTemplatesService.update(id, { isActive: !template?.isActive });
 });
 
+export async function getRecipientsByTemplate(templateId: string) {
+	return letterRecipientsService.findByTemplate(templateId);
+}
+
+export const createRecipient = createAction(async (data: LetterRecipient) =>
+	letterRecipientsService.create(data)
+);
+
+export const deleteRecipient = createAction(async (id: string) => {
+	await letterRecipientsService.delete(id);
+});
+
 export async function getLettersByTemplate(
 	templateId: string,
 	page = 1,
@@ -71,8 +88,11 @@ export async function getStudentForLetter(stdNo: number) {
 }
 
 export const generateLetter = createAction(
-	async (templateId: string, stdNo: number, statusId?: string) =>
-		lettersService.generate(templateId, stdNo, statusId)
+	async (
+		templateId: string,
+		stdNo: number,
+		opts: { recipientId?: string; salutation?: string; statusId?: string }
+	) => lettersService.generate(templateId, stdNo, opts)
 );
 
 export const deleteLetter = createAction(async (id: string) => {

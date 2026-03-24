@@ -1,6 +1,14 @@
 'use client';
 
-import { Button, Group, Menu, Select, Stack, TextInput } from '@mantine/core';
+import {
+	Button,
+	Group,
+	Menu,
+	Select,
+	SimpleGrid,
+	Stack,
+	TextInput,
+} from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { notifications } from '@mantine/notifications';
 import { RichTextEditor } from '@mantine/tiptap';
@@ -54,6 +62,14 @@ const roleOptions = DASHBOARD_ROLES.map((r) => ({
 	label: r.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase()),
 }));
 
+const SALUTATION_OPTIONS = [
+	'Dear Sir/Madam,',
+	'Dear Sir,',
+	'Dear Madam,',
+	'Dear Director,',
+	'To Whom It May Concern,',
+];
+
 export default function TemplateForm({
 	onSubmit,
 	defaultValues,
@@ -65,6 +81,10 @@ export default function TemplateForm({
 		validate: zodResolver(schema),
 		initialValues: {
 			name: defaultValues?.name || '',
+			subject: defaultValues?.subject || '',
+			salutation: defaultValues?.salutation || 'Dear Sir/Madam,',
+			signOffName: defaultValues?.signOffName || '',
+			signOffTitle: defaultValues?.signOffTitle || '',
 			role: defaultValues?.role || null,
 		},
 	});
@@ -128,6 +148,19 @@ export default function TemplateForm({
 					label='Template Name'
 					placeholder='e.g. Completion Letter'
 					{...form.getInputProps('name')}
+				/>
+				<TextInput
+					label='Subject Line'
+					placeholder='e.g. CONFIRMATION OF STUDENTSHIP – {{studentName}}'
+					description='Supports placeholders like {{studentName}}'
+					{...form.getInputProps('subject')}
+				/>
+				<Select
+					label='Default Salutation'
+					placeholder='Select a salutation'
+					data={SALUTATION_OPTIONS}
+					searchable
+					{...form.getInputProps('salutation')}
 				/>
 				<Select
 					label='Role Scope'
@@ -231,6 +264,19 @@ export default function TemplateForm({
 					</RichTextEditor.Toolbar>
 					<RichTextEditor.Content />
 				</RichTextEditor>
+
+				<SimpleGrid cols={2}>
+					<TextInput
+						label='Sign-off Name'
+						placeholder="e.g. 'MATEBOHO MOOROSI (Mrs.)"
+						{...form.getInputProps('signOffName')}
+					/>
+					<TextInput
+						label='Sign-off Title'
+						placeholder='e.g. REGISTRAR'
+						{...form.getInputProps('signOffTitle')}
+					/>
+				</SimpleGrid>
 
 				<Group justify='flex-end' mt='sm'>
 					{onClose && (

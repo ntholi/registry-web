@@ -1,11 +1,18 @@
 import type { DashboardRole } from '@/core/auth/permissions';
-import type { letters, letterTemplates } from '@/core/database';
+import type {
+	letterRecipients,
+	letters,
+	letterTemplates,
+} from '@/core/database';
 import BaseService from '@/core/platform/BaseService';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
 import withPermission from '@/core/platform/withPermission';
 import { UserFacingError } from '@/shared/lib/actions/extractError';
 import { resolveTemplate } from '../_lib/resolve';
-import LetterTemplateRepository, { LetterRepository } from './repository';
+import LetterTemplateRepository, {
+	LetterRecipientRepository,
+	LetterRepository,
+} from './repository';
 
 class LetterTemplateService extends BaseService<typeof letterTemplates, 'id'> {
 	private repo: LetterTemplateRepository;
@@ -55,7 +62,11 @@ class LetterService extends BaseService<typeof letters, 'id'> {
 		this.repo = repo;
 	}
 
-	async generate(templateId: string, stdNo: number, statusId?: string) {
+	async generate(
+		templateId: string,
+		stdNo: number,
+		opts: { recipientId?: string; salutation?: string; statusId?: string }
+	) {
 		return withPermission(async (session) => {
 			const [template, studentData] = await Promise.all([
 				letterTemplatesService.get(templateId),
@@ -66,6 +77,14 @@ class LetterService extends BaseService<typeof letters, 'id'> {
 			if (!studentData) throw new UserFacingError('Student not found');
 
 			const content = resolveTemplate(template.content, studentData);
+			const subject = template.subject
+				? resolveTemplate(template.subject, studentData)
+				: null;
+			const salutation = opts.salutation || template.salutation;
+
+			if (opts.recipientId) {
+				recipientRepo.incrementPopularity(opts.recipientId);
+			}
 
 			const audit = this.buildAuditOptions(session, 'create');
 			return this.repo.generate(
@@ -73,7 +92,10 @@ class LetterService extends BaseService<typeof letters, 'id'> {
 					templateId,
 					stdNo,
 					content,
-					statusId: statusId ?? null,
+					subject,
+					salutation,
+					recipientId: opts.recipientId ?? null,
+					statusId: opts.statusId ?? null,
 					createdBy: session!.user.id,
 				},
 				audit
@@ -115,3 +137,35 @@ class LetterService extends BaseService<typeof letters, 'id'> {
 }
 
 export const lettersService = serviceWrapper(LetterService, 'LetterService');
+
+const recipientRepo = new LetterRecipientRepository();
+
+class LetterRecipientService extends BaseService<
+	typeof letterRecipients,
+	'id'
+> {
+	private repo: LetterRecipientRepository;
+
+	constructor() {
+		const repo = new LetterRecipientRepository();
+		super(repo, {
+			byIdAuth: 'dashboard',
+			findAllAuth: 'dashboard',
+			createAuth: { letters: ['create'] },
+			deleteAuth: { 'letter-templates': ['update'] },
+		});
+		this.repo = repo;
+	}
+
+	async findByTemplate(templateId: string) {
+		return withPermission(
+			() => this.repo.findByTemplate(templateId),
+			'dashboard'
+		);
+	}
+}
+
+export const letterRecipientsService = serviceWrapper(
+	LetterRecipientService,
+	'LetterRecipientService'
+);

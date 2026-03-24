@@ -1,9 +1,21 @@
 import { Document, Font, Image, Page, Text, View } from '@react-pdf/renderer';
 import { createTw } from 'react-pdf-tailwind';
 
+type Recipient = {
+	title: string;
+	org: string;
+	address: string | null;
+	city: string | null;
+};
+
 type Props = {
 	content: string;
 	serialNumber: string;
+	recipient?: Recipient | null;
+	salutation?: string | null;
+	subject?: string | null;
+	signOffName?: string | null;
+	signOffTitle?: string | null;
 };
 
 Font.register({
@@ -53,7 +65,15 @@ function parseHtmlToParagraphs(html: string): Paragraph[] {
 	});
 }
 
-export default function LetterPDF({ content, serialNumber }: Props) {
+export default function LetterPDF({
+	content,
+	serialNumber,
+	recipient,
+	salutation,
+	subject,
+	signOffName,
+	signOffTitle,
+}: Props) {
 	const paragraphs = parseHtmlToParagraphs(content);
 
 	return (
@@ -73,6 +93,31 @@ export default function LetterPDF({ content, serialNumber }: Props) {
 					<Text style={tw('text-[10pt]')}>Ref: {serialNumber}</Text>
 				</View>
 
+				{recipient && (
+					<View style={tw('mb-4')}>
+						<Text style={tw('leading-[1.4]')}>{recipient.title}</Text>
+						<Text style={tw('leading-[1.4]')}>{recipient.org}</Text>
+						{recipient.address && (
+							<Text style={tw('leading-[1.4]')}>{recipient.address}</Text>
+						)}
+						{recipient.city && (
+							<Text style={tw('leading-[1.4]')}>{recipient.city}</Text>
+						)}
+					</View>
+				)}
+
+				{salutation && (
+					<View style={tw('mb-4')}>
+						<Text>{salutation}</Text>
+					</View>
+				)}
+
+				{subject && (
+					<View style={tw('mb-4')}>
+						<Text style={tw('font-bold underline')}>Re: {subject}</Text>
+					</View>
+				)}
+
 				<View style={tw('mb-8')}>
 					{paragraphs.map((para, i) => (
 						<Text key={i} style={tw('mb-[4pt] leading-[1.4]')}>
@@ -85,13 +130,22 @@ export default function LetterPDF({ content, serialNumber }: Props) {
 					))}
 				</View>
 
+				<View style={tw('mb-2')}>
+					<Text>Yours faithfully,</Text>
+				</View>
+
 				<View style={tw('mt-auto')}>
 					<Image
 						style={tw('h-[50pt] mb-1')}
 						src='/images/signature_small.png'
 					/>
 					<View style={tw('border-b border-black w-[200pt] mb-1')} />
-					<Text style={tw('text-[10pt] font-bold')}>Registrar</Text>
+					<Text style={tw('text-[10pt] font-bold')}>
+						{signOffName || 'Registrar'}
+					</Text>
+					{signOffTitle && (
+						<Text style={tw('text-[10pt]')}>{signOffTitle}</Text>
+					)}
 				</View>
 			</Page>
 		</Document>

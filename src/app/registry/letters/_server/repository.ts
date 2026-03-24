@@ -1,6 +1,11 @@
 import { and, desc, eq, isNull, or, sql } from 'drizzle-orm';
 import type { DashboardRole } from '@/core/auth/permissions';
-import { db, letters, letterTemplates } from '@/core/database';
+import {
+	db,
+	letterRecipients,
+	letters,
+	letterTemplates,
+} from '@/core/database';
 import BaseRepository, {
 	type AuditOptions,
 } from '@/core/platform/BaseRepository';
@@ -35,8 +40,16 @@ export class LetterRepository extends BaseRepository<typeof letters, 'id'> {
 		return db.query.letters.findFirst({
 			where: eq(letters.id, id),
 			with: {
-				template: { columns: { id: true, name: true } },
+				template: {
+					columns: {
+						id: true,
+						name: true,
+						signOffName: true,
+						signOffTitle: true,
+					},
+				},
 				creator: { columns: { name: true } },
+				recipient: true,
 			},
 		});
 	}
@@ -56,6 +69,9 @@ export class LetterRepository extends BaseRepository<typeof letters, 'id'> {
 			templateId: string;
 			stdNo: number;
 			content: string;
+			subject?: string | null;
+			salutation: string;
+			recipientId?: string | null;
 			statusId?: string | null;
 			createdBy: string;
 		},
@@ -176,5 +192,29 @@ export class LetterRepository extends BaseRepository<typeof letters, 'id'> {
 			totalPages: Math.ceil(total / pageSize),
 			totalItems: total,
 		};
+	}
+}
+
+export class LetterRecipientRepository extends BaseRepository<
+	typeof letterRecipients,
+	'id'
+> {
+	constructor() {
+		super(letterRecipients, letterRecipients.id);
+		this.auditEnabled = false;
+	}
+
+	async findByTemplate(templateId: string) {
+		return db.query.letterRecipients.findMany({
+			where: eq(letterRecipients.templateId, templateId),
+			orderBy: desc(letterRecipients.popularity),
+		});
+	}
+
+	async incrementPopularity(id: string) {
+		await db
+			.update(letterRecipients)
+			.set({ popularity: sql`${letterRecipients.popularity} + 1` })
+			.where(eq(letterRecipients.id, id));
 	}
 }
