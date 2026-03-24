@@ -1,21 +1,50 @@
-import { TypographyStylesProvider } from '@mantine/core';
+import { Box, type BoxProps, TypographyStylesProvider } from '@mantine/core';
 import parse from 'html-react-parser';
 import sanitizeHtml, { type IOptions } from 'sanitize-html';
 import { isRichTextEmpty } from '@/shared/lib/utils/files';
 
-type Props = {
+type Props = BoxProps & {
 	html?: string | null;
 };
 
+const allowedTags = Array.from(
+	new Set([
+		...sanitizeHtml.defaults.allowedTags,
+		'div',
+		'span',
+		'img',
+		'table',
+		'thead',
+		'tbody',
+		'tfoot',
+		'tr',
+		'th',
+		'td',
+	])
+);
+
 const richTextSanitizeOptions: IOptions = {
-	allowedTags: sanitizeHtml.defaults.allowedTags,
+	allowedTags,
 	allowedAttributes: {
 		...sanitizeHtml.defaults.allowedAttributes,
 		a: ['href', 'target', 'rel'],
+		div: ['style'],
+		span: ['style'],
+		img: ['src', 'alt', 'title', 'width', 'height'],
 		p: ['style'],
 		h1: ['style'],
 		h2: ['style'],
 		h3: ['style'],
+		h4: ['style'],
+		h5: ['style'],
+		h6: ['style'],
+		table: ['style', 'border', 'cellpadding', 'cellspacing'],
+		thead: ['style'],
+		tbody: ['style'],
+		tfoot: ['style'],
+		tr: ['style'],
+		th: ['style', 'colspan', 'rowspan', 'scope'],
+		td: ['style', 'colspan', 'rowspan'],
 	},
 	allowedStyles: {
 		'*': {
@@ -23,14 +52,9 @@ const richTextSanitizeOptions: IOptions = {
 		},
 	},
 	allowedSchemes: ['http', 'https', 'mailto'],
-	transformTags: {
-		a: sanitizeHtml.simpleTransform('a', {
-			rel: 'noopener noreferrer',
-		}),
-	},
 };
 
-export function RichTextContent({ html }: Props) {
+export function RichTextContent({ html, ...props }: Props) {
 	if (!html || isRichTextEmpty(html)) {
 		return null;
 	}
@@ -41,5 +65,9 @@ export function RichTextContent({ html }: Props) {
 		return null;
 	}
 
-	return <TypographyStylesProvider>{parse(content)}</TypographyStylesProvider>;
+	return (
+		<Box {...props}>
+			<TypographyStylesProvider>{parse(content)}</TypographyStylesProvider>
+		</Box>
+	);
 }

@@ -13,7 +13,6 @@ import {
 	Paper,
 	Stack,
 	Text,
-	TypographyStylesProvider,
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
@@ -28,6 +27,7 @@ import { useState } from 'react';
 import { getPublicUrl } from '@/core/integrations/storage-utils';
 import { useActionMutation } from '@/shared/lib/actions/use-action-mutation';
 import { formatRelativeTime } from '@/shared/lib/utils/dates';
+import { RichTextContent } from '@/shared/ui/adease';
 import { getInitials, VISIBILITY_CONFIG } from '../_lib/constants';
 import { deleteStudentNote } from '../_server/actions';
 import type { StudentNoteRecord } from '../_server/repository';
@@ -129,9 +129,7 @@ export default function NoteCard({
 						)}
 					</Group>
 
-					<TypographyStylesProvider>
-						<div dangerouslySetInnerHTML={{ __html: note.content }} />
-					</TypographyStylesProvider>
+					<RichTextContent html={note.content} />
 
 					{note.attachments.length > 0 && (
 						<>

@@ -13,6 +13,7 @@ import {
 } from '@mantine/core';
 import { IconExternalLink } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
+import { RichTextContent } from '@/shared/ui/adease';
 import { getMaterialContent } from '../_server/actions';
 
 type Page = {
@@ -44,10 +45,6 @@ function PageContent({ page }: { page: Page }) {
 		);
 	}
 
-	const styledContent = data?.content
-		? `<style>a { color: ${theme.colors.blue[4]}; text-decoration: underline; }</style>${data.content}`
-		: 'Content not available';
-
 	return (
 		<Paper
 			p='md'
@@ -61,11 +58,7 @@ function PageContent({ page }: { page: Page }) {
 				borderRadius: theme.radius.md,
 			}}
 		>
-			<div
-				dangerouslySetInnerHTML={{
-					__html: styledContent,
-				}}
-			/>
+			<RichTextContent html={data?.content || 'Content not available'} />
 		</Paper>
 	);
 }

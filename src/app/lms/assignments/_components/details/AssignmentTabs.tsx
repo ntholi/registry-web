@@ -31,7 +31,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useQueryState } from 'nuqs';
 import { useRef, useState } from 'react';
 import { formatMoodleDate } from '@/shared/lib/utils/dates';
-import { DeleteButton } from '@/shared/ui/adease';
+import { DeleteButton, RichTextContent } from '@/shared/ui/adease';
 import Link from '@/shared/ui/Link';
 import { deleteRubric, getRubric, RubricView } from '../../_features/rubric';
 import { SubmissionsView } from '../../_features/submissions';
@@ -200,8 +200,8 @@ export default function AssignmentTabs({ assignment, courseId }: Props) {
 									<Divider />
 									{contentView === 'description' ? (
 										assignment.intro ? (
-											<Box
-												dangerouslySetInnerHTML={{ __html: assignment.intro }}
+											<RichTextContent
+												html={assignment.intro}
 												style={{ fontSize: '0.875rem' }}
 											/>
 										) : (
@@ -210,8 +210,8 @@ export default function AssignmentTabs({ assignment, courseId }: Props) {
 											</Text>
 										)
 									) : instructions ? (
-										<Box
-											dangerouslySetInnerHTML={{ __html: instructions }}
+										<RichTextContent
+											html={instructions}
 											style={{ fontSize: '0.875rem' }}
 										/>
 									) : (

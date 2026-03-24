@@ -12,13 +12,13 @@ import {
 	Text,
 	ThemeIcon,
 	Timeline,
-	TypographyStylesProvider,
 } from '@mantine/core';
 import { IconFile, IconHistory } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import type { AuditAttachmentInfo } from '@/app/registry/students/_server/actions';
 import { getPublicUrl } from '@/core/integrations/storage-utils';
 import { formatDateTime } from '@/shared/lib/utils/dates';
+import { RichTextContent } from '@/shared/ui/adease';
 import { DEFAULT_EXCLUDE_FIELDS, getChangedFields } from '../_lib/audit-utils';
 import { getRecordHistory } from '../_server/actions';
 import ChangeItem from './ChangeItem';
@@ -161,14 +161,10 @@ export default function RecordAuditHistory({
 										<Text size='xs' c='dimmed' mb={2}>
 											Reason
 										</Text>
-										<TypographyStylesProvider>
-											<div
-												dangerouslySetInnerHTML={{
-													__html: String(meta.reasons),
-												}}
-												style={{ fontSize: 'var(--mantine-font-size-sm)' }}
-											/>
-										</TypographyStylesProvider>
+										<RichTextContent
+											html={String(meta.reasons)}
+											style={{ fontSize: 'var(--mantine-font-size-sm)' }}
+										/>
 									</Box>
 								)}
 

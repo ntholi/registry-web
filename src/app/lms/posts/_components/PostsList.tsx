@@ -4,7 +4,6 @@ import {
 	ActionIcon,
 	Avatar,
 	Badge,
-	Box,
 	Collapse,
 	Divider,
 	Group,
@@ -34,6 +33,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { formatDistanceToNow } from 'date-fns';
 import { unwrap } from '@/shared/lib/actions/actionResult';
 import { getPostTypeColor } from '@/shared/lib/utils/colors';
+import { RichTextContent } from '@/shared/ui/adease';
 import {
 	deletePost,
 	getAllPosts,
@@ -92,8 +92,8 @@ function ReplyCard({ reply }: ReplyCardProps) {
 						</Text>
 					</Stack>
 				</Group>
-				<Box
-					dangerouslySetInnerHTML={{ __html: reply.message }}
+				<RichTextContent
+					html={reply.message}
 					fz='sm'
 					lh={1.6}
 					className='post-content'
@@ -294,8 +294,8 @@ function PostCard({ post, type, courseId }: PostCardProps) {
 				{post.subject}
 			</Text>
 
-			<Box
-				dangerouslySetInnerHTML={{ __html: post.message }}
+			<RichTextContent
+				html={post.message}
 				fz='sm'
 				c='dimmed'
 				className='post-content'

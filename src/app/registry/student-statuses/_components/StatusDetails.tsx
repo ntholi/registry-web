@@ -21,17 +21,15 @@ import {
 	Text,
 	Textarea,
 	Title,
-	TypographyStylesProvider,
 } from '@mantine/core';
 import { IconFile } from '@tabler/icons-react';
 import { useState } from 'react';
-import sanitize from 'sanitize-html';
 import { authClient } from '@/core/auth-client';
 import { getPublicUrl } from '@/core/integrations/storage-utils';
 import { type AllStatusType, getStatusColor } from '@/shared/lib/utils/colors';
 import { formatDateTime } from '@/shared/lib/utils/dates';
 import { isRichTextEmpty } from '@/shared/lib/utils/files';
-import { FieldView } from '@/shared/ui/adease';
+import { FieldView, RichTextContent } from '@/shared/ui/adease';
 import Copyable from '@/shared/ui/Copyable';
 import Link from '@/shared/ui/Link';
 import { getApprovalRoleLabel, getJustificationLabel } from '../_lib/labels';
@@ -107,9 +105,7 @@ function AdminRegistryView({ app }: Props) {
 					Reasons
 				</Title>
 				{reasons ? (
-					<TypographyStylesProvider>
-						<div dangerouslySetInnerHTML={{ __html: reasons }} />
-					</TypographyStylesProvider>
+					<RichTextContent html={reasons} />
 				) : (
 					<Text size='sm' c='dimmed' fs='italic'>
 						No reasons provided
@@ -299,9 +295,7 @@ function OtherRolesView({ app }: OtherRolesProps) {
 					<AccordionControl>Reasons</AccordionControl>
 					<AccordionPanel>
 						{reasons ? (
-							<TypographyStylesProvider>
-								<div dangerouslySetInnerHTML={{ __html: reasons }} />
-							</TypographyStylesProvider>
+							<RichTextContent html={reasons} />
 						) : (
 							<Text size='sm' c='dimmed'>
 								No reasons
@@ -370,5 +364,5 @@ function getSafeReasonsHtml(html: string | null | undefined) {
 		return null;
 	}
 
-	return sanitize(html);
+	return html;
 }

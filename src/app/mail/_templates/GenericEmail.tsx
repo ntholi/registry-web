@@ -1,4 +1,5 @@
 import { Button, Text } from '@react-email/components';
+import parse from 'html-react-parser';
 import BaseLayout from './BaseLayout';
 
 type GenericEmailProps = {
@@ -12,10 +13,7 @@ export default function GenericEmail(props: GenericEmailProps) {
 	return (
 		<BaseLayout previewText={props.heading}>
 			<Text style={headingStyle}>{props.heading}</Text>
-			<Text
-				style={bodyStyle}
-				dangerouslySetInnerHTML={{ __html: props.body }}
-			/>
+			<div style={bodyStyle}>{parse(props.body)}</div>
 			{props.ctaText && props.ctaUrl && (
 				<Button style={button} href={props.ctaUrl}>
 					{props.ctaText}

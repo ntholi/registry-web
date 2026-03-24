@@ -9,6 +9,7 @@ import {
 	useMantineTheme,
 } from '@mantine/core';
 import { IconList } from '@tabler/icons-react';
+import { RichTextContent } from '@/shared/ui/adease';
 import type { CourseTopic } from '../types';
 
 type CourseTopicsProps = {
@@ -94,12 +95,10 @@ export default function CourseTopics({ topics, isLoading }: CourseTopicsProps) {
 							</Text>
 						</Table.Td>
 						<Table.Td style={{ verticalAlign: 'top' }}>
-							<Box>
-								<div
-									dangerouslySetInnerHTML={{ __html: topic.description }}
-									style={{ fontSize: theme.fontSizes.sm }}
-								/>
-							</Box>
+							<RichTextContent
+								html={topic.description}
+								style={{ fontSize: theme.fontSizes.sm }}
+							/>
 						</Table.Td>
 					</Table.Tr>
 				))}

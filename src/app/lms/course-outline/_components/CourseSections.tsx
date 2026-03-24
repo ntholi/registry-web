@@ -15,6 +15,7 @@ import {
 import { useDisclosure } from '@mantine/hooks';
 import { IconBook2 } from '@tabler/icons-react';
 import { useState } from 'react';
+import { RichTextContent } from '@/shared/ui/adease';
 import type { CourseSection } from '../types';
 
 type CourseSectionsProps = {
@@ -143,9 +144,7 @@ export default function CourseSections({
 							borderRadius: theme.radius.md,
 						}}
 					>
-						<div
-							dangerouslySetInnerHTML={{ __html: selectedSection.content }}
-						/>
+						<RichTextContent html={selectedSection.content} />
 					</Box>
 				)}
 			</Modal>

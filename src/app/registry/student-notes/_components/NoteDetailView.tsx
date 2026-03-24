@@ -10,11 +10,11 @@ import {
 	Paper,
 	Stack,
 	Text,
-	TypographyStylesProvider,
 } from '@mantine/core';
 import { IconFile } from '@tabler/icons-react';
 import { getPublicUrl } from '@/core/integrations/storage-utils';
 import { formatRelativeTime } from '@/shared/lib/utils/dates';
+import { RichTextContent } from '@/shared/ui/adease';
 import { getInitials, VISIBILITY_CONFIG } from '../_lib/constants';
 import type { StudentNoteRecord } from '../_server/repository';
 
@@ -71,9 +71,7 @@ export default function NoteDetailView({ note }: Props) {
 
 					<Divider />
 
-					<TypographyStylesProvider>
-						<div dangerouslySetInnerHTML={{ __html: note.content }} />
-					</TypographyStylesProvider>
+					<RichTextContent html={note.content} />
 
 					{note.attachments.length > 0 && (
 						<>
