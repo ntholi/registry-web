@@ -1,4 +1,10 @@
-import { Card, Group, Text, TypographyStylesProvider } from '@mantine/core';
+import {
+	Anchor,
+	Card,
+	Group,
+	Text,
+	TypographyStylesProvider,
+} from '@mantine/core';
 import { notFound } from 'next/navigation';
 import { formatDateTime } from '@/shared/lib/utils/dates';
 import {
@@ -7,6 +13,7 @@ import {
 	DetailsViewHeader,
 	FieldView,
 } from '@/shared/ui/adease';
+import Link from '@/shared/ui/Link';
 import LetterPrinter from '../../_components/LetterPrinter';
 import { deleteLetter, getLetter } from '../../_server/actions';
 
@@ -41,6 +48,24 @@ export default async function LetterDetailPage({ params }: Props) {
 			<DetailsViewBody>
 				<Group grow>
 					<FieldView label='Serial Number'>{letter.serialNumber}</FieldView>
+					<FieldView label='Template'>
+						{letter.template ? (
+							<Link
+								href={`/registry/letters/templates/${letter.template.id}`}
+								size='sm'
+							>
+								{letter.template.name}
+							</Link>
+						) : (
+							'Unknown'
+						)}
+					</FieldView>
+				</Group>
+				<Group grow>
+					<FieldView label='Created By'>
+						{letter.creator?.name ?? 'Unknown'}
+					</FieldView>
+
 					<FieldView label='Created'>
 						{formatDateTime(letter.createdAt)}
 					</FieldView>

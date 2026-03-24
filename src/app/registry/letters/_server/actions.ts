@@ -47,7 +47,7 @@ export async function getLetters(page = 1, search = '') {
 }
 
 export async function getLetter(id: string) {
-	return lettersService.get(id);
+	return lettersService.getWithRelations(id);
 }
 
 export async function getLettersByStudent(

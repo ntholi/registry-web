@@ -31,6 +31,16 @@ export class LetterRepository extends BaseRepository<typeof letters, 'id'> {
 		super(letters, letters.id);
 	}
 
+	async getWithRelations(id: string) {
+		return db.query.letters.findFirst({
+			where: eq(letters.id, id),
+			with: {
+				template: { columns: { id: true, name: true } },
+				creator: { columns: { name: true } },
+			},
+		});
+	}
+
 	async findByStudent(stdNo: number, page: number, search: string) {
 		return this.query({
 			page,

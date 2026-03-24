@@ -88,6 +88,10 @@ class LetterService extends BaseService<typeof letters, 'id'> {
 		);
 	}
 
+	async getWithRelations(id: string) {
+		return withPermission(() => this.repo.getWithRelations(id), 'dashboard');
+	}
+
 	async findWithRelations(page: number, search: string) {
 		return withPermission(
 			() => this.repo.findWithRelations(page, search),
