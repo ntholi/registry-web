@@ -9,7 +9,7 @@
 | Column | Type | Notes |
 |---|---|---|
 | `id` | `text` PK | nanoid |
-| `serialNumber` | `text` NOT NULL UNIQUE | e.g. `LTR260302/0001` |
+| `serialNumber` | `text` NOT NULL UNIQUE | e.g. `LTR260302A01` |
 | `templateId` | `text` FK → letter_templates.id | Source template |
 | `stdNo` | `bigint` FK → students.stdNo | Target student |
 | `content` | `text` NOT NULL | Rendered HTML with placeholders resolved |
@@ -26,11 +26,13 @@
 
 ### Serial Number Generation
 
-Format: `LTR` + `YYMMDD` + `/` + `NNNN`
+Format: `LTR` + `YYMMDD` + `A-Z` + `NN`
+
+Sequence starts at `A01`, ends at `Z99`, then continues as `A001`.
 
 Inside a transaction:
 1. `INSERT INTO letter_serial_counters (date_prefix, counter) VALUES ($1, 1) ON CONFLICT (date_prefix) DO UPDATE SET counter = letter_serial_counters.counter + 1 RETURNING counter`
-2. Format as `LTR${datePrefix}/${counter.toString().padStart(4, '0')}`
+2. Format as `LTR${datePrefix}${suffix}` where `suffix` is `A01` through `Z99`, then `A001`
 3. Store in `letters.serialNumber`
 
 ---
@@ -153,7 +155,7 @@ Uses `@react-pdf/renderer`. The system wraps the template body with a standard l
 
 2. **Date & Reference**
    - Date: formatted generation date
-   - Ref: serial number (e.g. `LTR260302/0001`)
+   - Ref: serial number (e.g. `LTR260302A01`)
 
 3. **Letter Body**
    - The resolved template HTML content rendered as PDF elements

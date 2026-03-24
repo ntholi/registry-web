@@ -29,9 +29,11 @@ Examples: "Status Change Letter (NMDS)", "Completion Letter", "Medium of Instruc
 A concrete letter generated from a template for a specific student. The template's HTML is rendered with the student's data substituted into placeholders, then stored as rendered HTML in the database. Each letter gets a unique serial number. **Letters are immutable** — if corrections are needed, delete and regenerate.
 
 ### Serial Number Format
-`LTR` + `YYMMDD` + `/` + `NNNN` (4-digit zero-padded sequential counter per day)
+`LTR` + `YYMMDD` + `A-Z` + `NN`
 
-Example: `LTR260302/0001` = first letter generated on 2026-03-02.
+Sequence starts at `A01`, ends at `Z99`, then continues as `A001`.
+
+Example: `LTR260302A01` = first letter generated on 2026-03-02.
 
 ---
 
