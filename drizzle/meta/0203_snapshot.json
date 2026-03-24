@@ -1,6 +1,6 @@
 {
-	"id": "a59fba06-1845-4aa5-949b-64e70839c2ef",
-	"prevId": "af0948d3-052b-402c-9f1c-cffa7b76989f",
+	"id": "c3598777-3778-4564-8749-90951313439d",
+	"prevId": "8cbbe374-e3fb-4d1a-81e7-4343599e283a",
 	"version": "7",
 	"dialect": "postgresql",
 	"tables": {
@@ -9865,6 +9865,79 @@
 			"checkConstraints": {},
 			"isRLSEnabled": false
 		},
+		"public.letter_recipients": {
+			"name": "letter_recipients",
+			"schema": "",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "text",
+					"primaryKey": true,
+					"notNull": true
+				},
+				"template_id": {
+					"name": "template_id",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"title": {
+					"name": "title",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"org": {
+					"name": "org",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"address": {
+					"name": "address",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"city": {
+					"name": "city",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"popularity": {
+					"name": "popularity",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true,
+					"default": 0
+				},
+				"created_at": {
+					"name": "created_at",
+					"type": "timestamp",
+					"primaryKey": false,
+					"notNull": false,
+					"default": "now()"
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {
+				"letter_recipients_template_id_letter_templates_id_fk": {
+					"name": "letter_recipients_template_id_letter_templates_id_fk",
+					"tableFrom": "letter_recipients",
+					"columnsFrom": ["template_id"],
+					"tableTo": "letter_templates",
+					"columnsTo": ["id"],
+					"onUpdate": "no action",
+					"onDelete": "cascade"
+				}
+			},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {},
+			"policies": {},
+			"checkConstraints": {},
+			"isRLSEnabled": false
+		},
 		"public.letters": {
 			"name": "letters",
 			"schema": "",
@@ -9879,7 +9952,8 @@
 					"name": "serial_number",
 					"type": "text",
 					"primaryKey": false,
-					"notNull": true
+					"notNull": true,
+					"default": "generate_letter_serial()"
 				},
 				"template_id": {
 					"name": "template_id",
@@ -9898,6 +9972,25 @@
 					"type": "text",
 					"primaryKey": false,
 					"notNull": true
+				},
+				"subject": {
+					"name": "subject",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"salutation": {
+					"name": "salutation",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "'Dear Sir/Madam,'"
+				},
+				"recipient_id": {
+					"name": "recipient_id",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": false
 				},
 				"status_id": {
 					"name": "status_id",
@@ -9938,6 +10031,15 @@
 					"columnsTo": ["std_no"],
 					"onUpdate": "no action",
 					"onDelete": "cascade"
+				},
+				"letters_recipient_id_letter_recipients_id_fk": {
+					"name": "letters_recipient_id_letter_recipients_id_fk",
+					"tableFrom": "letters",
+					"columnsFrom": ["recipient_id"],
+					"tableTo": "letter_recipients",
+					"columnsTo": ["id"],
+					"onUpdate": "no action",
+					"onDelete": "set null"
 				},
 				"letters_status_id_student_statuses_id_fk": {
 					"name": "letters_status_id_student_statuses_id_fk",
@@ -9986,11 +10088,36 @@
 					"primaryKey": false,
 					"notNull": true
 				},
+				"subject": {
+					"name": "subject",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"salutation": {
+					"name": "salutation",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "'Dear Sir/Madam,'"
+				},
 				"content": {
 					"name": "content",
 					"type": "text",
 					"primaryKey": false,
 					"notNull": true
+				},
+				"sign_off_name": {
+					"name": "sign_off_name",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"sign_off_title": {
+					"name": "sign_off_title",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": false
 				},
 				"role": {
 					"name": "role",
