@@ -1,0 +1,1 @@
+ALTER TABLE "letters" ALTER COLUMN "serial_number" SET DEFAULT generate_letter_serial();

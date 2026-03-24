@@ -1429,6 +1429,13 @@
 			"when": 1774333919174,
 			"tag": "0203_slippery_frightful_four",
 			"breakpoints": true
+		},
+		{
+			"idx": 204,
+			"version": "7",
+			"when": 1774336478356,
+			"tag": "0204_striped_sasquatch",
+			"breakpoints": true
 		}
 	]
 }

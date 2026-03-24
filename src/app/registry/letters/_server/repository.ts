@@ -3,7 +3,6 @@ import type { DashboardRole } from '@/core/auth/permissions';
 import { db, letters, letterTemplates } from '@/core/database';
 import BaseRepository, {
 	type AuditOptions,
-	type TransactionClient,
 } from '@/core/platform/BaseRepository';
 
 export default class LetterTemplateRepository extends BaseRepository<
@@ -40,13 +39,6 @@ export class LetterRepository extends BaseRepository<typeof letters, 'id'> {
 		});
 	}
 
-	async generateSerial(tx: TransactionClient) {
-		const result = await tx.execute<{ serial: string }>(
-			sql`SELECT generate_letter_serial() AS serial`
-		);
-		return result.rows[0].serial;
-	}
-
 	async generate(
 		data: {
 			templateId: string;
@@ -58,11 +50,7 @@ export class LetterRepository extends BaseRepository<typeof letters, 'id'> {
 		audit?: AuditOptions
 	) {
 		return db.transaction(async (tx) => {
-			const serial = await this.generateSerial(tx);
-			const [letter] = await tx
-				.insert(letters)
-				.values({ ...data, serialNumber: serial })
-				.returning();
+			const [letter] = await tx.insert(letters).values(data).returning();
 
 			if (audit && this.auditEnabled) {
 				await this.writeAuditLog(tx, 'INSERT', letter.id, null, letter, audit);
