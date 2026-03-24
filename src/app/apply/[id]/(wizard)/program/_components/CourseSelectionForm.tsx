@@ -65,12 +65,7 @@ export function CourseSelectionForm({ applicationId }: Props) {
 		level: parseAsString,
 	});
 
-	const {
-		applicant,
-		currentApplication,
-		isSuccess: appLoaded,
-		refetch,
-	} = useApplicant();
+	const { applicant, currentApplication, refetch } = useApplicant();
 	const applicantId = applicant?.id ?? '';
 
 	const {
