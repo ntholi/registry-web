@@ -83,7 +83,7 @@ export default function LetterPDF({
 				size='A4'
 				style={tw('flex-col bg-white p-12 font-tahoma text-[11pt]')}
 			>
-				<View style={tw('flex-row justify-end mb-6')}>
+				<View style={tw('flex-row justify-end mb-6 mt-[100pt]')}>
 					<Text style={tw('text-[10pt]')}>Ref: {serialNumber}</Text>
 				</View>
 
@@ -128,9 +128,9 @@ export default function LetterPDF({
 					<Text>Yours faithfully,</Text>
 				</View>
 
-				<View style={tw('mt-auto')}>
+				<View style={tw('mt-100')}>
 					<Image
-						style={tw('h-[50pt] mb-1')}
+						style={tw('h-[50pt] w-[200pt] mb-1')}
 						src='/images/signature_small.png'
 					/>
 					<View style={tw('border-b border-black w-[200pt] mb-1')} />
