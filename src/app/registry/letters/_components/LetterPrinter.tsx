@@ -3,7 +3,10 @@
 import { Button } from '@mantine/core';
 import { pdf } from '@react-pdf/renderer';
 import { IconPrinter } from '@tabler/icons-react';
+import { useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
+import { useActionMutation } from '@/shared/lib/actions/use-action-mutation';
+import { logLetterPrint } from '../_server/actions';
 import LetterPDF from './LetterPDF';
 
 type Recipient = {
@@ -14,6 +17,7 @@ type Recipient = {
 };
 
 type Props = {
+	letterId: string;
 	content: string;
 	serialNumber: string;
 	recipient?: Recipient | null;
@@ -24,6 +28,7 @@ type Props = {
 };
 
 export default function LetterPrinter({
+	letterId,
 	content,
 	serialNumber,
 	recipient,
@@ -33,10 +38,20 @@ export default function LetterPrinter({
 	signOffTitle,
 }: Props) {
 	const [loading, setLoading] = useState(false);
+	const qc = useQueryClient();
+	const logPrint = useActionMutation(logLetterPrint, {
+		onSuccess: async () => {
+			await qc.invalidateQueries({
+				queryKey: ['letter-print-history', letterId],
+			});
+		},
+	});
 
 	async function handlePrint() {
 		setLoading(true);
 		try {
+			await logPrint.mutateAsync(letterId);
+
 			const blob = await pdf(
 				<LetterPDF
 					content={content}
@@ -88,7 +103,7 @@ export default function LetterPrinter({
 			color='gray'
 			size='xs'
 			onClick={handlePrint}
-			disabled={loading}
+			disabled={loading || logPrint.isPending}
 		>
 			Print
 		</Button>

@@ -1,10 +1,12 @@
 import { and, desc, eq, isNull, or, sql } from 'drizzle-orm';
 import type { DashboardRole } from '@/core/auth/permissions';
 import {
+	auditLogs,
 	db,
 	letterRecipients,
 	letters,
 	letterTemplates,
+	users,
 } from '@/core/database';
 import BaseRepository, {
 	type AuditOptions,
@@ -126,6 +128,38 @@ export class LetterRepository extends BaseRepository<typeof letters, 'id'> {
 				},
 			},
 		});
+	}
+
+	async logPrint(id: string, audit: AuditOptions) {
+		await db.transaction(async (tx) => {
+			await this.writeAuditLog(
+				tx,
+				'INSERT',
+				id,
+				null,
+				{ id, action: 'print' },
+				audit
+			);
+		});
+	}
+
+	async findPrintHistory(id: string) {
+		return db
+			.select({
+				id: sql<string>`${auditLogs.id}::text`,
+				changedAt: auditLogs.changedAt,
+				changedByName: users.name,
+			})
+			.from(auditLogs)
+			.innerJoin(users, eq(auditLogs.changedBy, users.id))
+			.where(
+				and(
+					eq(auditLogs.tableName, 'letters'),
+					eq(auditLogs.activityType, 'letter_printed'),
+					eq(auditLogs.recordId, id)
+				)
+			)
+			.orderBy(desc(auditLogs.changedAt));
 	}
 
 	async findByTemplate(templateId: string, page: number, search: string) {

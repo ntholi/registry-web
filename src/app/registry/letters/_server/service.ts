@@ -6,7 +6,9 @@ import type {
 } from '@/core/database';
 import BaseService from '@/core/platform/BaseService';
 import { serviceWrapper } from '@/core/platform/serviceWrapper';
-import withPermission from '@/core/platform/withPermission';
+import withPermission, {
+	requireSessionUserId,
+} from '@/core/platform/withPermission';
 import { UserFacingError } from '@/shared/lib/actions/extractError';
 import { resolveTemplate } from '../_lib/resolve';
 import LetterTemplateRepository, {
@@ -133,6 +135,20 @@ class LetterService extends BaseService<typeof letters, 'id'> {
 			() => this.repo.getStudentForLetter(stdNo),
 			'dashboard'
 		);
+	}
+
+	async logPrint(id: string) {
+		return withPermission(async (session) => {
+			await this.repo.logPrint(id, {
+				userId: requireSessionUserId(session),
+				role: session!.user!.role!,
+				activityType: 'letter_printed',
+			});
+		}, 'dashboard');
+	}
+
+	async getPrintHistory(id: string) {
+		return withPermission(() => this.repo.findPrintHistory(id), 'dashboard');
 	}
 }
 

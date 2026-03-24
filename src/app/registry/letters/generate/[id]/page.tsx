@@ -8,8 +8,8 @@ import {
 	FieldView,
 } from '@/shared/ui/adease';
 import Link from '@/shared/ui/Link';
-import LetterPreview from '../../_components/LetterPreview';
 import LetterPrinter from '../../_components/LetterPrinter';
+import LetterTabs from '../../_components/LetterTabs';
 import { deleteLetter, getLetter } from '../../_server/actions';
 
 type Props = {
@@ -34,6 +34,7 @@ export default async function LetterDetailPage({ params }: Props) {
 				hideEdit
 				actions={
 					<LetterPrinter
+						letterId={letter.id}
 						content={letter.content}
 						serialNumber={letter.serialNumber}
 						recipient={letter.recipient}
@@ -69,14 +70,7 @@ export default async function LetterDetailPage({ params }: Props) {
 						{formatDateTime(letter.createdAt)}
 					</FieldView>
 				</Group>
-				<LetterPreview
-					content={letter.content}
-					recipient={letter.recipient}
-					salutation={letter.salutation}
-					subject={letter.subject}
-					signOffName={letter.template?.signOffName}
-					signOffTitle={letter.template?.signOffTitle}
-				/>
+				<LetterTabs letter={letter} />
 			</DetailsViewBody>
 		</DetailsView>
 	);

@@ -75,6 +75,10 @@ export async function getLetter(id: string) {
 	return lettersService.getWithRelations(id);
 }
 
+export async function getLetterPrintHistory(id: string) {
+	return lettersService.getPrintHistory(id);
+}
+
 export async function getLettersByStudent(
 	stdNo: number,
 	page = 1,
@@ -94,6 +98,10 @@ export const generateLetter = createAction(
 		opts: { recipientId?: string; salutation?: string; statusId?: string }
 	) => lettersService.generate(templateId, stdNo, opts)
 );
+
+export const logLetterPrint = createAction(async (id: string) => {
+	await lettersService.logPrint(id);
+});
 
 export const deleteLetter = createAction(async (id: string) => {
 	await lettersService.delete(id);

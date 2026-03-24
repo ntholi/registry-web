@@ -211,6 +211,10 @@ const REGISTRY_ACTIVITIES = {
 			label: 'Letter Created',
 			department: 'registry',
 		},
+		letter_printed: {
+			label: 'Letter Printed',
+			department: 'registry',
+		},
 		letter_deleted: {
 			label: 'Letter Deleted',
 			department: 'registry',
