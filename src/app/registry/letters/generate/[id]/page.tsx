@@ -1,4 +1,4 @@
-import { Card, Group, Text } from '@mantine/core';
+import { Group } from '@mantine/core';
 import { notFound } from 'next/navigation';
 import { formatDateTime } from '@/shared/lib/utils/dates';
 import {
@@ -6,9 +6,9 @@ import {
 	DetailsViewBody,
 	DetailsViewHeader,
 	FieldView,
-	RichTextContent,
 } from '@/shared/ui/adease';
 import Link from '@/shared/ui/Link';
+import LetterPreview from '../../_components/LetterPreview';
 import LetterPrinter from '../../_components/LetterPrinter';
 import { deleteLetter, getLetter } from '../../_server/actions';
 
@@ -69,12 +69,14 @@ export default async function LetterDetailPage({ params }: Props) {
 						{formatDateTime(letter.createdAt)}
 					</FieldView>
 				</Group>
-				<Card withBorder p='md' mt='md'>
-					<Text fw={600} size='sm' mb='xs'>
-						Letter Content
-					</Text>
-					<RichTextContent html={letter.content} />
-				</Card>
+				<LetterPreview
+					content={letter.content}
+					recipient={letter.recipient}
+					salutation={letter.salutation}
+					subject={letter.subject}
+					signOffName={letter.template?.signOffName}
+					signOffTitle={letter.template?.signOffTitle}
+				/>
 			</DetailsViewBody>
 		</DetailsView>
 	);

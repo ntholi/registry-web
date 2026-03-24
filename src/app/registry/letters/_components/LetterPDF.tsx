@@ -96,7 +96,7 @@ export default function LetterPDF({
 					</View>
 				)}
 
-				<View style={tw('mb-4')}>
+				<View style={tw('mb-8')}>
 					<Text>{formatDate(new Date())}</Text>
 				</View>
 

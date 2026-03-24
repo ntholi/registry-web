@@ -4,7 +4,7 @@ import { Box, Card, Divider, Image, Text } from '@mantine/core';
 import { formatDate } from '@/shared/lib/utils/dates';
 import { RichTextContent } from '@/shared/ui/adease';
 
-type LetterPreviewProps = {
+type Props = {
 	content: string;
 	recipient?: {
 		title: string;
@@ -25,7 +25,7 @@ export default function LetterPreview({
 	subject,
 	signOffName,
 	signOffTitle,
-}: LetterPreviewProps) {
+}: Props) {
 	return (
 		<Card withBorder p='xl' bg='white' style={{ color: 'black' }}>
 			{recipient && (
@@ -56,8 +56,6 @@ export default function LetterPreview({
 			<Box mb='lg'>
 				<RichTextContent html={content} />
 			</Box>
-
-			<Divider my='sm' variant='dotted' />
 
 			<Box>
 				<Text size='sm' mb='xs'>
