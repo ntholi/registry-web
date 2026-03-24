@@ -1,10 +1,4 @@
-import {
-	Anchor,
-	Card,
-	Group,
-	Text,
-	TypographyStylesProvider,
-} from '@mantine/core';
+import { Card, Group, Text } from '@mantine/core';
 import { notFound } from 'next/navigation';
 import { formatDateTime } from '@/shared/lib/utils/dates';
 import {
@@ -12,6 +6,7 @@ import {
 	DetailsViewBody,
 	DetailsViewHeader,
 	FieldView,
+	RichTextContent,
 } from '@/shared/ui/adease';
 import Link from '@/shared/ui/Link';
 import LetterPrinter from '../../_components/LetterPrinter';
@@ -74,9 +69,7 @@ export default async function LetterDetailPage({ params }: Props) {
 					<Text fw={600} size='sm' mb='xs'>
 						Letter Content
 					</Text>
-					<TypographyStylesProvider>
-						<div dangerouslySetInnerHTML={{ __html: letter.content }} />
-					</TypographyStylesProvider>
+					<RichTextContent html={letter.content} />
 				</Card>
 			</DetailsViewBody>
 		</DetailsView>

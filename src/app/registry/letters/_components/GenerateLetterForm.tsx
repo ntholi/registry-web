@@ -1,14 +1,6 @@
 'use client';
 
-import {
-	Button,
-	Card,
-	Group,
-	Select,
-	Stack,
-	Text,
-	TypographyStylesProvider,
-} from '@mantine/core';
+import { Button, Card, Group, Select, Stack, Text } from '@mantine/core';
 import { IconSend } from '@tabler/icons-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'nextjs-toploader/app';
@@ -16,6 +8,7 @@ import { useState } from 'react';
 import type { DashboardRole } from '@/core/auth/permissions';
 import { authClient } from '@/core/auth-client';
 import { unwrap } from '@/shared/lib/actions/actionResult';
+import { RichTextContent } from '@/shared/ui/adease';
 import StudentInput from '@/shared/ui/StudentInput';
 import StudentPreviewCard from '../../_components/StudentPreviewCard';
 import { resolveTemplate } from '../_lib/resolve';
@@ -118,9 +111,7 @@ export default function GenerateLetterForm() {
 					<Text fw={600} size='sm' mb='xs'>
 						Preview
 					</Text>
-					<TypographyStylesProvider>
-						<div dangerouslySetInnerHTML={{ __html: preview }} />
-					</TypographyStylesProvider>
+					<RichTextContent html={preview} />
 				</Card>
 			)}
 		</Stack>

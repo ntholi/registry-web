@@ -19,6 +19,7 @@ export { NothingSelected, type NothingSelectedProps } from './NothingSelected';
 export { Pagination, type PaginationProps } from './Pagination';
 export { default as ReceiptInput } from './ReceiptInput';
 export { ReportCard, type ReportLink } from './ReportCard';
+export { RichTextContent } from './RichTextContent';
 export { SearchField } from './SearchField';
 export { default as Shell } from './Shell';
 export { StatusToggle, type StatusToggleProps } from './StatusToggle';
